@@ -4,6 +4,7 @@
  *	Dave Liu <daveliu@freescale.com>
  */
 #include <common.h>
+#include <env.h>
 #include <malloc.h>
 #include <asm/io.h>
 #include <linux/errno.h>
@@ -14,7 +15,6 @@
 #include <nand.h>
 #include <spi_flash.h>
 #include <mmc.h>
-#include <environment.h>
 
 #ifdef CONFIG_ARM64
 #include <asm/armv8/mmu.h>

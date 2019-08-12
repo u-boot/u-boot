@@ -14,6 +14,7 @@
  * (C) Copyright 2006 by Harald Welte <hwelte at hmw-consulting.de>
  */
 
+#include <env.h>
 #include <errno.h>
 #include <common.h>
 #include <malloc.h>

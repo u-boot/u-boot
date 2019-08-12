@@ -12,6 +12,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <env.h>
 #include <mmc.h>
 #include <axp_pmic.h>
 #include <generic-phy.h>
@@ -29,7 +30,7 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <u-boot/crc.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <linux/libfdt.h>
 #include <nand.h>
 #include <net.h>

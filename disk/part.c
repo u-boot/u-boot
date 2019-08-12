@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <env.h>
 #include <errno.h>
 #include <ide.h>
 #include <malloc.h>

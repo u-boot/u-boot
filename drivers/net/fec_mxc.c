@@ -9,7 +9,7 @@
 
 #include <common.h>
 #include <dm.h>
-#include <environment.h>
+#include <env.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <miiphy.h>

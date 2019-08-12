@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <lcd.h>
 #include <libtizen.h>
 #include <samsung/misc.h>

@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <env.h>
 #include <hwconfig.h>
 #include <netdev.h>
 #include <linux/compiler.h>

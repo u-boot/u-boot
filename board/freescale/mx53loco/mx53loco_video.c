@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <linux/list.h>
 #include <asm/gpio.h>
 #include <asm/arch/iomux-mx53.h>

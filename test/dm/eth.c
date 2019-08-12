@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <env.h>
 #include <fdtdec.h>
 #include <malloc.h>
 #include <net.h>

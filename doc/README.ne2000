@@ -21,17 +21,6 @@ value for my board as an example):
 
 - Address where the board is mapped
 
-#define CONFIG_DRIVER_NE2000_CCR (0x28000000+0x3f8)
-
-- Address of the CCR (card configuration register). It could be found
-by enabling DEBUG in cmd_pcmcia.c. If this is not defined nothing is
-done as far as PCMCIA support is concerned.
-
-#define CONFIG_DRIVER_NE2000_VAL (0x20)
-
-- The value to be written in the CCR. It selects among different I/O
-spaces that could be used by the card.
-
 
 Enjoy!
 

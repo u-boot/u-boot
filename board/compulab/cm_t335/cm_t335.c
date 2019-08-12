@@ -8,7 +8,7 @@
  */
 
 #include <common.h>
-#include <environment.h>
+#include <env.h>
 #include <errno.h>
 #include <miiphy.h>
 #include <cpsw.h>

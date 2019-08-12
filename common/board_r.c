@@ -18,7 +18,8 @@
 #include <command.h>
 #include <console.h>
 #include <dm.h>
-#include <environment.h>
+#include <env.h>
+#include <env_internal.h>
 #include <fdtdec.h>
 #include <ide.h>
 #include <initcall.h>
@@ -447,7 +448,7 @@ static int initr_env(void)
 	if (should_load_env())
 		env_relocate();
 	else
-		set_default_env(NULL, 0);
+		env_set_default(NULL, 0);
 #ifdef CONFIG_OF_CONTROL
 	env_set_hex("fdtcontroladdr",
 		    (unsigned long)map_to_sysmem(gd->fdt_blob));
@@ -578,15 +579,6 @@ static int initr_net(void)
 static int initr_post(void)
 {
 	post_run(NULL, POST_RAM | post_bootmode_get(0));
-	return 0;
-}
-#endif
-
-#if defined(CONFIG_CMD_PCMCIA) && !defined(CONFIG_IDE)
-static int initr_pcmcia(void)
-{
-	puts("PCMCIA:");
-	pcmcia_init();
 	return 0;
 }
 #endif
@@ -818,9 +810,6 @@ static init_fnc_t init_sequence_r[] = {
 #endif
 #ifdef CONFIG_POST
 	initr_post,
-#endif
-#if defined(CONFIG_CMD_PCMCIA) && !defined(CONFIG_IDE)
-	initr_pcmcia,
 #endif
 #if defined(CONFIG_IDE) && !defined(CONFIG_BLK)
 	initr_ide,

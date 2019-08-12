@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <errno.h>
 #include <malloc.h>
 #include <mmc.h>

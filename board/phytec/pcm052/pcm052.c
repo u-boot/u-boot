@@ -13,8 +13,8 @@
 #include <asm/arch/ddrmc-vf610.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/clock.h>
+#include <env.h>
 #include <led.h>
-#include <environment.h>
 #include <miiphy.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -376,7 +376,7 @@ int board_late_init(void)
 	if ((reg & SRC_SBMR1_BOOTCFG1_SDMMC) &&
 	    !(reg & SRC_SBMR1_BOOTCFG1_MMC)) {
 		printf("------ SD card boot -------\n");
-		set_default_env("!LVFBootloader", 0);
+		env_set_default("!LVFBootloader", 0);
 		env_set("bootcmd",
 			"run prepare_install_bk4r1_envs; run install_bk4r1rs");
 	}

@@ -9,16 +9,16 @@
  */
 
 #include <common.h>
-#include <dm.h>
-#include <lcd.h>
-#include <mapmem.h>
 #include <bmp_layout.h>
 #include <command.h>
-#include <asm/byteorder.h>
+#include <dm.h>
+#include <gzip.h>
+#include <lcd.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <splash.h>
 #include <video.h>
+#include <asm/byteorder.h>
 
 static int bmp_info (ulong addr);
 

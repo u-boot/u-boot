@@ -7,6 +7,7 @@
 #include <common.h>
 #include <errno.h>
 #include <fpga.h>
+#include <gzip.h>
 #include <image.h>
 #include <linux/libfdt.h>
 #include <spl.h>

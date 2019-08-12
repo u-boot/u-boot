@@ -4,6 +4,7 @@
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
  */
 #include <common.h>
+#include <env.h>
 #include <dm/device.h>
 #include <dm/uclass-internal.h>
 #include <jffs2/jffs2.h> /* LEGACY */

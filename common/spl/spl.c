@@ -710,6 +710,28 @@ void preloader_console_init(void)
 #endif
 
 /**
+ * This function is called before the stack is changed from initial stack to
+ * relocated stack. It tries to dump the stack size used
+ */
+__weak void spl_relocate_stack_check(void)
+{
+#if CONFIG_IS_ENABLED(SYS_REPORT_STACK_F_USAGE)
+	ulong init_sp = gd->start_addr_sp;
+	ulong stack_bottom = init_sp - CONFIG_VAL(SIZE_LIMIT_PROVIDE_STACK);
+	u8 *ptr = (u8 *)stack_bottom;
+	ulong i;
+
+	for (i = 0; i < CONFIG_VAL(SIZE_LIMIT_PROVIDE_STACK); i++) {
+		if (*ptr != CONFIG_VAL(SYS_STACK_F_CHECK_BYTE))
+			break;
+		ptr++;
+	}
+	printf("SPL initial stack usage: %lu bytes\n",
+	       CONFIG_VAL(SIZE_LIMIT_PROVIDE_STACK) - i);
+#endif
+}
+
+/**
  * spl_relocate_stack_gd() - Relocate stack ready for board_init_r() execution
  *
  * Sometimes board_init_f() runs with a stack in SRAM but we want to use SDRAM
@@ -732,6 +754,9 @@ ulong spl_relocate_stack_gd(void)
 #ifdef CONFIG_SPL_STACK_R
 	gd_t *new_gd;
 	ulong ptr = CONFIG_SPL_STACK_R_ADDR;
+
+	if (CONFIG_IS_ENABLED(SYS_REPORT_STACK_F_USAGE))
+		spl_relocate_stack_check();
 
 #if defined(CONFIG_SPL_SYS_MALLOC_SIMPLE) && CONFIG_VAL(SYS_MALLOC_F_LEN)
 	if (CONFIG_SPL_STACK_R_MALLOC_SIMPLE_LEN) {

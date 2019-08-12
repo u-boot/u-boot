@@ -4,7 +4,7 @@
  */
 
 #include <common.h>
-#include <environment.h>
+#include <env.h>
 #include <g_dnl.h>
 #include <linux/libfdt.h>
 

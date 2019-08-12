@@ -4,6 +4,7 @@
  */
 #include <common.h>
 #include <dm.h>
+#include <env.h>
 #include <clk.h>
 #include <asm/armv7.h>
 #include <asm/io.h>

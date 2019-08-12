@@ -58,6 +58,7 @@
 
 #include <common.h>
 #include <edid.h>
+#include <env.h>
 #include <errno.h>
 #include <linux/ctype.h>
 

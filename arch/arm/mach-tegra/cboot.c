@@ -4,7 +4,7 @@
  */
 
 #include <common.h>
-#include <environment.h>
+#include <env.h>
 #include <fdt_support.h>
 #include <fdtdec.h>
 #include <stdlib.h>

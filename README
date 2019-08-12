@@ -83,7 +83,7 @@ Where we come from:
   * Provide extended interface to Linux boot loader
   * S-Record download
   * network boot
-  * PCMCIA / CompactFlash / ATA disk / SCSI ... boot
+  * ATA disk / SCSI ... boot
 - create ARMBoot project (http://sourceforge.net/projects/armboot)
 - add other CPU families (starting with ARM)
 - create U-Boot project (http://sourceforge.net/projects/u-boot)

@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>

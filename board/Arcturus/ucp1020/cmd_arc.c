@@ -10,11 +10,11 @@
 
 #include <common.h>
 #include <div64.h>
+#include <env.h>
 #include <malloc.h>
 #include <spi_flash.h>
 #include <mmc.h>
 #include <version.h>
-#include <environment.h>
 #include <asm/io.h>
 
 static ulong fwenv_addr[MAX_FWENV_ADDR];

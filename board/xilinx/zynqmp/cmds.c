@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <malloc.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>

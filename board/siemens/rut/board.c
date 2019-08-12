@@ -11,6 +11,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <errno.h>
 #include <spi.h>
 #include <spl.h>

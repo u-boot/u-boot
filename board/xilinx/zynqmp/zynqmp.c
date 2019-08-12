@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <sata.h>
 #include <ahci.h>
 #include <scsi.h>

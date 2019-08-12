@@ -8,7 +8,7 @@
  */
 
 #include <common.h>
-#include <environment.h>
+#include <env.h>
 #include <mmc.h>
 #include <phy.h>
 #include <netdev.h>

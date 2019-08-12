@@ -12,7 +12,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
-#include <environment.h>
+#include <env.h>
 #include <errno.h>
 #include <linux/libfdt.h>
 

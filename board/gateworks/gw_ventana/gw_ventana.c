@@ -21,7 +21,7 @@
 #include <asm/setup.h>
 #include <dm.h>
 #include <dm/platform_data/serial_mxc.h>
-#include <environment.h>
+#include <env.h>
 #include <hwconfig.h>
 #include <i2c.h>
 #include <fdt_support.h>

@@ -11,12 +11,12 @@
 #include <asm/gpio.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/iomux-mx51.h>
+#include <env.h>
 #include <linux/errno.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/clock.h>
 #include <asm/mach-imx/mx5_video.h>
-#include <environment.h>
 #include <mmc.h>
 #include <input.h>
 #include <fsl_esdhc_imx.h>

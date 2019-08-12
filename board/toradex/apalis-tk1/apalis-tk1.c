@@ -10,7 +10,7 @@
 #include <asm/io.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/pinmux.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <pci_tegra.h>
 #include <power/as3722.h>
 #include <power/pmic.h>

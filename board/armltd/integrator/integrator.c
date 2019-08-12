@@ -18,6 +18,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <env.h>
 #include <netdev.h>
 #include <asm/io.h>
 #include <dm/platform_data/serial_pl01x.h>

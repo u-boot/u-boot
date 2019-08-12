@@ -8,7 +8,6 @@
 #include <common.h>
 #include <div64.h>
 #include <efi_loader.h>
-#include <environment.h>
 #include <malloc.h>
 #include <linux/libfdt_env.h>
 #include <u-boot/crc.h>

@@ -8,13 +8,13 @@
 #include <asm/io.h>
 #include <dm.h>
 #include <clk.h>
+#include <env.h>
 #include <spi.h>
 #include <mvebu/comphy.h>
 #include <miiphy.h>
 #include <linux/string.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
-#include <environment.h>
 
 #include "mox_sp.h"
 

@@ -16,7 +16,7 @@
 #include <common.h>
 #include <command.h>
 #include <elf.h>
-#include <environment.h>
+#include <env.h>
 #include <net.h>
 #include <vxworks.h>
 #ifdef CONFIG_X86

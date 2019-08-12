@@ -10,6 +10,7 @@
 #include <common.h>
 #include <config.h>
 #include <circbuf.h>
+#include <env.h>
 #include <stdio_dev.h>
 #include <asm/unaligned.h>
 #include "usbtty.h"

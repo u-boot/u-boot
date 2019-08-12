@@ -1042,14 +1042,6 @@ config CMD_PCI
 	  peripherals. Sub-commands allow bus enumeration, displaying and
 	  changing configuration space and a few other features.
 
-config CMD_PCMCIA
-	bool "pinit - Set up PCMCIA device"
-	help
-	  Provides a means to initialise a PCMCIA (Personal Computer Memory
-	  Card International Association) device. This is an old standard from
-	  about 1990. These devices are typically removable memory or network
-	  cards using a standard 68-pin connector.
-
 config CMD_PINMUX
 	bool "pinmux - show pins muxing"
 	default y if PINCTRL

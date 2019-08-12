@@ -7,7 +7,7 @@
  */
 
 #include <common.h>
-#include <environment.h>
+#include <env.h>
 #include <spl.h>
 #include <asm/cache.h>
 #include <asm/io.h>

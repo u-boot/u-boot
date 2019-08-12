@@ -13,7 +13,7 @@
 
 #include <common.h>
 #include <command.h>
-#include <environment.h>
+#include <env.h>
 #include <linux/ctype.h>
 #include <linux/string.h>
 

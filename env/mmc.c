@@ -8,7 +8,8 @@
 #include <common.h>
 
 #include <command.h>
-#include <environment.h>
+#include <env.h>
+#include <env_internal.h>
 #include <fdtdec.h>
 #include <linux/stddef.h>
 #include <malloc.h>
@@ -346,7 +347,7 @@ fini:
 	fini_mmc_for_env(mmc);
 err:
 	if (ret)
-		set_default_env(errmsg, 0);
+		env_set_default(errmsg, 0);
 
 #endif
 	return ret;
@@ -387,7 +388,7 @@ fini:
 	fini_mmc_for_env(mmc);
 err:
 	if (ret)
-		set_default_env(errmsg, 0);
+		env_set_default(errmsg, 0);
 #endif
 	return ret;
 }

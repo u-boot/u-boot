@@ -21,6 +21,7 @@
 #include <asm/arch/iomux-mx28.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
+#include <env.h>
 #include <linux/mii.h>
 #include <miiphy.h>
 #include <netdev.h>

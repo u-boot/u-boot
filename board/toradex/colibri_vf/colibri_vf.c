@@ -15,6 +15,7 @@
 #include <asm/arch/iomux-vf610.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <env.h>
 #include <fdt_support.h>
 #include <fsl_dcu_fb.h>
 #include <g_dnl.h>

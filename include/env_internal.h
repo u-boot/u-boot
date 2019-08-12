@@ -1,11 +1,19 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
+ * Internal environment header file. This includes direct access to environment
+ * information such as its size and offset, direct access to the default
+ * environment and embedded environment (if used). It also provides environment
+ * drivers with various declarations.
+ *
+ * It should not be included by board files, drivers and code other than that
+ * related to the environment implementation.
+ *
  * (C) Copyright 2002
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
-#ifndef _ENVIRONMENT_H_
-#define _ENVIRONMENT_H_
+#ifndef _ENV_INTERNAL_H_
+#define _ENV_INTERNAL_H_
 
 #include <linux/kconfig.h>
 
@@ -135,32 +143,39 @@ extern unsigned long nand_env_oob_offset;
 
 #ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
 # define ENV_HEADER_SIZE	(sizeof(uint32_t) + 1)
-
-# define ACTIVE_FLAG   1
-# define OBSOLETE_FLAG 0
 #else
 # define ENV_HEADER_SIZE	(sizeof(uint32_t))
 #endif
 
 #define ENV_SIZE (CONFIG_ENV_SIZE - ENV_HEADER_SIZE)
 
+/*
+ * If the environment is in RAM, allocate extra space for it in the malloc
+ * region.
+ */
+#if defined(CONFIG_ENV_IS_EMBEDDED)
+#define TOTAL_MALLOC_LEN	CONFIG_SYS_MALLOC_LEN
+#elif (CONFIG_ENV_ADDR + CONFIG_ENV_SIZE < CONFIG_SYS_MONITOR_BASE) || \
+      (CONFIG_ENV_ADDR >= CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN) || \
+      defined(CONFIG_ENV_IS_IN_NVRAM)
+#define	TOTAL_MALLOC_LEN	(CONFIG_SYS_MALLOC_LEN + CONFIG_ENV_SIZE)
+#else
+#define	TOTAL_MALLOC_LEN	CONFIG_SYS_MALLOC_LEN
+#endif
+
 typedef struct environment_s {
 	uint32_t	crc;		/* CRC32 over data bytes	*/
 #ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
-	unsigned char	flags;		/* active/obsolete flags	*/
+	unsigned char	flags;		/* active/obsolete flags ENVF_REDUND_ */
 #endif
 	unsigned char	data[ENV_SIZE]; /* Environment data		*/
 } env_t;
 
 #ifdef ENV_IS_EMBEDDED
-extern env_t environment;
+extern env_t embedded_environment;
 #endif /* ENV_IS_EMBEDDED */
 
 extern const unsigned char default_environment[];
-
-#if defined(CONFIG_NEEDS_MANUAL_RELOC)
-extern void env_reloc(void);
-#endif
 
 #ifndef DO_DEPS_ONLY
 
@@ -168,13 +183,6 @@ extern void env_reloc(void);
 #include <env_callback.h>
 #include <env_flags.h>
 #include <search.h>
-
-/* Value for environment validity */
-enum env_valid {
-	ENV_INVALID,	/* No valid environment */
-	ENV_VALID,	/* First or only environment is valid */
-	ENV_REDUND,	/* Redundant environment is valid */
-};
 
 enum env_location {
 	ENVL_UNKNOWN,
@@ -265,70 +273,6 @@ struct env_driver {
 
 extern struct hsearch_data env_htab;
 
-/* Function that updates CRC of the enironment */
-void env_crc_update(void);
-
-/* Look up the variable from the default environment */
-char *env_get_default(const char *name);
-
-/* [re]set to the default environment */
-void set_default_env(const char *s, int flags);
-
-/* [re]set individual variables to their value in the default environment */
-int set_default_vars(int nvars, char * const vars[], int flags);
-
-/* Import from binary representation into hash table */
-int env_import(const char *buf, int check);
-
-/* Export from hash table into binary representation */
-int env_export(env_t *env_out);
-
-#ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
-/* Select and import one of two redundant environments */
-int env_import_redund(const char *buf1, int buf1_status,
-		      const char *buf2, int buf2_status);
-#endif
-
-/**
- * env_get_char() - Get a character from the early environment
- *
- * This reads from the pre-relocation environment
- *
- * @index: Index of character to read (0 = first)
- * @return character read, or -ve on error
- */
-int env_get_char(int index);
-
-/**
- * env_load() - Load the environment from storage
- *
- * @return 0 if OK, -ve on error
- */
-int env_load(void);
-
-/**
- * env_save() - Save the environment to storage
- *
- * @return 0 if OK, -ve on error
- */
-int env_save(void);
-
-/**
- * env_erase() - Erase the environment on storage
- *
- * @return 0 if OK, -ve on error
- */
-int env_erase(void);
-
-/**
- * env_fix_drivers() - Updates envdriver as per relocation
- */
-void env_fix_drivers(void);
-
-void eth_parse_enetaddr(const char *addr, uint8_t *enetaddr);
-int eth_env_get_enetaddr(const char *name, uint8_t *enetaddr);
-int eth_env_set_enetaddr(const char *name, const uint8_t *enetaddr);
-
 #endif /* DO_DEPS_ONLY */
 
-#endif /* _ENVIRONMENT_H_ */
+#endif /* _ENV_INTERNAL_H_ */

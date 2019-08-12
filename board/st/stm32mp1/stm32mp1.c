@@ -8,7 +8,8 @@
 #include <config.h>
 #include <clk.h>
 #include <dm.h>
-#include <environment.h>
+#include <env.h>
+#include <env_internal.h>
 #include <g_dnl.h>
 #include <generic-phy.h>
 #include <i2c.h>

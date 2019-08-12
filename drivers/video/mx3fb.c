@@ -6,6 +6,7 @@
  * HALE electronic GmbH, <helmut.raiger@hale.at>
  */
 #include <common.h>
+#include <env.h>
 #include <malloc.h>
 #include <video_fb.h>
 

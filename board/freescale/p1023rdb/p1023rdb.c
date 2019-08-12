@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <env.h>
 #include <pci.h>
 #include <asm/io.h>
 #include <asm/cache.h>

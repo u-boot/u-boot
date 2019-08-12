@@ -11,6 +11,7 @@
 #include <common.h>
 #include <fdt_support.h>
 #include <fdtdec.h>
+#include <env.h>
 #include <errno.h>
 #include <image.h>
 #include <linux/libfdt.h>

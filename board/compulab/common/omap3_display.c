@@ -10,6 +10,7 @@
 #include <common.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <env.h>
 #include <stdio_dev.h>
 #include <asm/arch/dss.h>
 #include <lcd.h>

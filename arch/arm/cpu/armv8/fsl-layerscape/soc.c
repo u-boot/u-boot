@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <fsl_immap.h>
 #include <fsl_ifc.h>
 #include <asm/arch/fsl_serdes.h>
@@ -26,7 +27,7 @@
 #endif
 #include <fsl_immap.h>
 #ifdef CONFIG_TFABOOT
-#include <environment.h>
+#include <env_internal.h>
 DECLARE_GLOBAL_DATA_PTR;
 #endif
 

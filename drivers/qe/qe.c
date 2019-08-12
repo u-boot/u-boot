@@ -14,7 +14,6 @@
 #include <linux/immap_qe.h>
 #include <fsl_qe.h>
 #include <mmc.h>
-#include <environment.h>
 
 #ifdef CONFIG_ARCH_LS1021A
 #include <asm/arch/immap_ls102xa.h>

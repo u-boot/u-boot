@@ -10,6 +10,7 @@
  * Steve Sakoman  <steve@sakoman.com>
  */
 #include <common.h>
+#include <env.h>
 #include <palmas.h>
 #include <sata.h>
 #include <linux/string.h>
@@ -24,7 +25,6 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/sata.h>
-#include <environment.h>
 #include <dwc3-uboot.h>
 #include <dwc3-omap-uboot.h>
 #include <i2c.h>

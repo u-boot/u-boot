@@ -22,6 +22,11 @@ struct hi6220_dwmmc_priv_data {
 	struct dwmci_host host;
 };
 
+struct hisi_mmc_data {
+	unsigned int clock;
+	bool use_fifo;
+};
+
 static int hi6220_dwmmc_ofdata_to_platdata(struct udevice *dev)
 {
 	struct hi6220_dwmmc_priv_data *priv = dev_get_priv(dev);
@@ -49,13 +54,17 @@ static int hi6220_dwmmc_probe(struct udevice *dev)
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct hi6220_dwmmc_priv_data *priv = dev_get_priv(dev);
 	struct dwmci_host *host = &priv->host;
+	struct hisi_mmc_data *mmc_data;
+
+	mmc_data = (struct hisi_mmc_data *)dev_get_driver_data(dev);
 
 	/* Use default bus speed due to absence of clk driver */
-	host->bus_hz = 50000000;
+	host->bus_hz = mmc_data->clock;
 
 	dwmci_setup_cfg(&plat->cfg, host, host->bus_hz, 400000);
 	host->mmc = &plat->mmc;
 
+	host->fifo_mode = mmc_data->use_fifo;
 	host->mmc->priv = &priv->host;
 	upriv->mmc = host->mmc;
 	host->mmc->dev = dev;
@@ -75,9 +84,23 @@ static int hi6220_dwmmc_bind(struct udevice *dev)
 	return 0;
 }
 
+static const struct hisi_mmc_data hi3660_mmc_data = {
+	.clock = 3200000,
+	.use_fifo = true,
+};
+
+static const struct hisi_mmc_data hi6220_mmc_data = {
+	.clock = 50000000,
+	.use_fifo = false,
+};
+
 static const struct udevice_id hi6220_dwmmc_ids[] = {
-	{ .compatible = "hisilicon,hi6220-dw-mshc" },
-	{ .compatible = "hisilicon,hi3798cv200-dw-mshc" },
+	{ .compatible = "hisilicon,hi6220-dw-mshc",
+	  .data = (ulong)&hi6220_mmc_data },
+	{ .compatible = "hisilicon,hi3798cv200-dw-mshc",
+	  .data = (ulong)&hi6220_mmc_data },
+	{ .compatible = "hisilicon,hi3660-dw-mshc",
+	  .data = (ulong)&hi3660_mmc_data },
 	{ }
 };
 

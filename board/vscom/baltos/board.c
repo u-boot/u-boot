@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <errno.h>
 #include <linux/libfdt.h>
 #include <spl.h>
@@ -28,7 +29,6 @@
 #include <miiphy.h>
 #include <cpsw.h>
 #include <power/tps65910.h>
-#include <environment.h>
 #include <watchdog.h>
 #include "board.h"
 

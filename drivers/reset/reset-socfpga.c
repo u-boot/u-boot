@@ -16,6 +16,7 @@
 #include <dm.h>
 #include <dm/lists.h>
 #include <dm/of_access.h>
+#include <env.h>
 #include <reset-uclass.h>
 #include <linux/bitops.h>
 #include <linux/io.h>

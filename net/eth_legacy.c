@@ -7,7 +7,7 @@
 
 #include <common.h>
 #include <command.h>
-#include <environment.h>
+#include <env.h>
 #include <net.h>
 #include <phy.h>
 #include <linux/errno.h>

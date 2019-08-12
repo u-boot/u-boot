@@ -3,6 +3,7 @@
  * Copyright 2015 Freescale Semiconductor
  */
 #include <common.h>
+#include <env.h>
 #include <malloc.h>
 #include <errno.h>
 #include <netdev.h>
@@ -12,7 +13,7 @@
 #include <fdt_support.h>
 #include <linux/libfdt.h>
 #include <fsl-mc/fsl_mc.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <i2c.h>
 #include <rtc.h>
 #include <asm/arch/soc.h>

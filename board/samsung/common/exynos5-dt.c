@@ -6,6 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <dwc3-uboot.h>
+#include <env.h>
 #include <fdtdec.h>
 #include <asm/io.h>
 #include <errno.h>

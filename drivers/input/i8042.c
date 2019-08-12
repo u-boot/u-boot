@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <env.h>
 #include <errno.h>
 #include <i8042.h>
 #include <input.h>

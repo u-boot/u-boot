@@ -8,8 +8,9 @@
 #include <config.h>
 #include <command.h>
 #include <common.h>
+#include <env.h>
 #include <malloc.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <linux/types.h>
 #include <api_public.h>
 
@@ -496,7 +497,7 @@ static int API_env_enum(va_list ap)
 {
 	int i, buflen;
 	char *last, **next, *s;
-	ENTRY *match, search;
+	struct env_entry *match, search;
 	static char *var;
 
 	last = (char *)va_arg(ap, unsigned long);
@@ -513,7 +514,7 @@ static int API_env_enum(va_list ap)
 		if (s != NULL)
 			*s = 0;
 		search.key = var;
-		i = hsearch_r(search, FIND, &match, &env_htab, 0);
+		i = hsearch_r(search, ENV_FIND, &match, &env_htab, 0);
 		if (i == 0) {
 			i = API_EINVAL;
 			goto done;

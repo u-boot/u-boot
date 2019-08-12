@@ -14,6 +14,7 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/omap_common.h>
+#include <env.h>
 #include <spl.h>
 #include <asm/arch/sys_proto.h>
 

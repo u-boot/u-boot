@@ -15,6 +15,7 @@
 #include <command.h>
 #include <dm.h>
 #include <dm/root.h>
+#include <env.h>
 #include <image.h>
 #include <u-boot/zlib.h>
 #include <asm/byteorder.h>

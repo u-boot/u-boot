@@ -5,7 +5,8 @@
  */
 
 #include <common.h>
-#include <environment.h>
+#include <env.h>
+#include <env_internal.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

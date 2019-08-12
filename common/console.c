@@ -8,6 +8,7 @@
 #include <console.h>
 #include <debug_uart.h>
 #include <dm.h>
+#include <env.h>
 #include <stdarg.h>
 #include <iomux.h>
 #include <malloc.h>
@@ -16,7 +17,7 @@
 #include <serial.h>
 #include <stdio_dev.h>
 #include <exports.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <watchdog.h>
 
 DECLARE_GLOBAL_DATA_PTR;

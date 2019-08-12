@@ -4,9 +4,9 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <errno.h>
 #include <linux/libfdt.h>
-#include <environment.h>
 #include <fsl_esdhc_imx.h>
 #include <asm/io.h>
 #include <asm/gpio.h>

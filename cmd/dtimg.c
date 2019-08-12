@@ -4,6 +4,7 @@
  * Sam Protsenko <semen.protsenko@linaro.org>
  */
 
+#include <env.h>
 #include <image-android-dt.h>
 #include <common.h>
 

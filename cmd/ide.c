@@ -17,10 +17,6 @@
 #include <asm/byteorder.h>
 #include <asm/io.h>
 
-#if defined(CONFIG_IDE_PCMCIA)
-# include <pcmcia.h>
-#endif
-
 #include <ide.h>
 #include <ata.h>
 

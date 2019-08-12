@@ -15,7 +15,7 @@
  */
 #include <common.h>
 #include <dm.h>
-#include <environment.h>
+#include <env.h>
 #include <ns16550.h>
 #include <netdev.h>
 #include <twl4030.h>

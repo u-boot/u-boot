@@ -12,6 +12,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/iomux-mx53.h>
 #include <asm/arch/clock.h>
+#include <env.h>
 #include <linux/errno.h>
 #include <asm/mach-imx/mx5_video.h>
 #include <netdev.h>

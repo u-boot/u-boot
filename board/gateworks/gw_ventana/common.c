@@ -10,6 +10,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
 #include <asm/mach-imx/mxc_i2c.h>
+#include <env.h>
 #include <fsl_esdhc_imx.h>
 #include <hwconfig.h>
 #include <power/pmic.h>

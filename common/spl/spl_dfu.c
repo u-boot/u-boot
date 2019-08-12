@@ -6,6 +6,7 @@
  * Ravi B <ravibabu@ti.com>
  */
 #include <common.h>
+#include <env.h>
 #include <spl.h>
 #include <linux/compiler.h>
 #include <errno.h>
@@ -14,7 +15,6 @@
 #include <g_dnl.h>
 #include <usb.h>
 #include <dfu.h>
-#include <environment.h>
 
 static int run_dfu(int usb_index, char *interface, char *devstring)
 {
@@ -38,7 +38,7 @@ int spl_dfu_cmd(int usbctrl, char *dfu_alt_info, char *interface, char *devstr)
 	int ret;
 
 	/* set default environment */
-	set_default_env(NULL, 0);
+	env_set_default(NULL, 0);
 	str_env = env_get(dfu_alt_info);
 	if (!str_env) {
 		pr_err("\"%s\" env variable not defined!\n", dfu_alt_info);

@@ -5,7 +5,7 @@
  */
 
 #include <common.h>
-#include <environment.h>
+#include <env.h>
 
 void bootcount_store(ulong a)
 {

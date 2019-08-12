@@ -21,6 +21,7 @@
 #endif
 #include <cli.h>
 #include <console.h>
+#include <env.h>
 #include <flash.h>
 #include <malloc.h>
 #include <mmc.h>

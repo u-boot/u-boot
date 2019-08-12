@@ -10,7 +10,7 @@
 
 #include <common.h>
 #include <dm.h>
-#include <environment.h>
+#include <env.h>
 #include <i2c.h>
 #include <net.h>
 #include <spi.h>

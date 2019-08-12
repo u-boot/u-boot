@@ -5,6 +5,7 @@
  */
 #include <common.h>
 #include <asm/io.h>
+#include <env.h>
 #include <linux/ctype.h>
 
 #ifdef CONFIG_ARCH_CPU_INIT

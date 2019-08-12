@@ -9,7 +9,6 @@
 #include <common.h>
 #include <command.h>
 #include <efi_loader.h>
-#include <environment.h>
 #include <exports.h>
 #include <hexdump.h>
 #include <malloc.h>

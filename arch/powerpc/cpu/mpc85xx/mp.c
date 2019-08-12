@@ -4,7 +4,9 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <asm/processor.h>
+#include <env.h>
 #include <ioports.h>
 #include <lmb.h>
 #include <asm/io.h>

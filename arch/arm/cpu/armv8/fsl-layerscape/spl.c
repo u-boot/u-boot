@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <spl.h>
 #include <asm/io.h>
 #include <fsl_ifc.h>

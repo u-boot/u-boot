@@ -4,7 +4,8 @@
  */
 
 #include <common.h>
-#include <environment.h>
+#include <env.h>
+#include <env_internal.h>
 #include <led.h>
 #include <net.h>
 #include <spi.h>

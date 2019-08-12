@@ -1,0 +1,6 @@
+HIKEY960 BOARD
+M:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+S:     Maintained
+F:     board/hisilicon/hikey960
+F:     include/configs/hikey960.h
+F:     configs/hikey960_defconfig

@@ -20,7 +20,6 @@
 
 #include <asm/u-boot-riscv.h>
 
-#include <environment.h>
 
 typedef struct bd_info {
 	unsigned long	bi_boot_params;	/* where this board expects params */

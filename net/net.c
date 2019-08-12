@@ -90,7 +90,8 @@
 #include <common.h>
 #include <command.h>
 #include <console.h>
-#include <environment.h>
+#include <env.h>
+#include <env_internal.h>
 #include <errno.h>
 #include <net.h>
 #include <net/fastboot.h>
@@ -1612,4 +1613,16 @@ ushort string_to_vlan(const char *s)
 ushort env_get_vlan(char *var)
 {
 	return string_to_vlan(env_get(var));
+}
+
+void eth_parse_enetaddr(const char *addr, uint8_t *enetaddr)
+{
+	char *end;
+	int i;
+
+	for (i = 0; i < 6; ++i) {
+		enetaddr[i] = addr ? simple_strtoul(addr, &end, 16) : 0;
+		if (addr)
+			addr = (*end) ? end + 1 : end;
+	}
 }

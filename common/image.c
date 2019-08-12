@@ -8,6 +8,7 @@
 
 #ifndef USE_HOSTCC
 #include <common.h>
+#include <env.h>
 #include <watchdog.h>
 
 #ifdef CONFIG_SHOW_BOOT_PROGRESS
@@ -16,7 +17,7 @@
 
 #include <rtc.h>
 
-#include <environment.h>
+#include <gzip.h>
 #include <image.h>
 #include <mapmem.h>
 

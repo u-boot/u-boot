@@ -9,6 +9,7 @@
 #include <bootretry.h>
 #include <cli.h>
 #include <console.h>
+#include <env.h>
 #include <fdtdec.h>
 #include <hash.h>
 #include <memalign.h>

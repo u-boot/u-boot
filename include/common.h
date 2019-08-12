@@ -1,5 +1,11 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
+ * Common header file for U-Boot
+ *
+ * This file still includes quite a bit of stuff that should be in separate
+ * headers like command.h, cpu.h and timer.h. Please think before adding more
+ * things. Patches to remove things are welcome.
+ *
  * (C) Copyright 2000-2009
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
@@ -44,16 +50,6 @@ typedef void (interrupt_handler_t)(void *);
 
 #include <asm/u-boot.h> /* boot information for Linux kernel */
 #include <asm/global_data.h>	/* global data used for startup functions */
-
-#if defined(CONFIG_ENV_IS_EMBEDDED)
-#define TOTAL_MALLOC_LEN	CONFIG_SYS_MALLOC_LEN
-#elif ( ((CONFIG_ENV_ADDR+CONFIG_ENV_SIZE) < CONFIG_SYS_MONITOR_BASE) || \
-	(CONFIG_ENV_ADDR >= (CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)) ) || \
-      defined(CONFIG_ENV_IS_IN_NVRAM)
-#define	TOTAL_MALLOC_LEN	(CONFIG_SYS_MALLOC_LEN + CONFIG_ENV_SIZE)
-#else
-#define	TOTAL_MALLOC_LEN	CONFIG_SYS_MALLOC_LEN
-#endif
 
 /* startup functions, used in:
  * common/board_f.c
@@ -144,114 +140,6 @@ int do_fat_fsload(cmd_tbl_t *, int, int, char * const []);
 
 /* common/cmd_ext2.c */
 int do_ext2load(cmd_tbl_t *, int, int, char * const []);
-
-/* common/cmd_nvedit.c */
-int	env_init     (void);
-void	env_relocate (void);
-int	envmatch     (uchar *, int);
-
-/**
- * env_get() - Look up the value of an environment variable
- *
- * In U-Boot proper this can be called before relocation (which is when the
- * environment is loaded from storage, i.e. GD_FLG_ENV_READY is 0). In that
- * case this function calls env_get_f().
- *
- * @varname:	Variable to look up
- * @return value of variable, or NULL if not found
- */
-char *env_get(const char *varname);
-
-/**
- * env_get_f() - Look up the value of an environment variable (early)
- *
- * This function is called from env_get() if the environment has not been
- * loaded yet (GD_FLG_ENV_READY flag is 0). Some environment locations will
- * support reading the value (slowly) and some will not.
- *
- * @varname:	Variable to look up
- * @return value of variable, or NULL if not found
- */
-int env_get_f(const char *name, char *buf, unsigned len);
-
-/**
- * env_get_ulong() - Return an environment variable as an integer value
- *
- * Most U-Boot environment variables store hex values. For those which store
- * (e.g.) base-10 integers, this function can be used to read the value.
- *
- * @name:	Variable to look up
- * @base:	Base to use (e.g. 10 for base 10, 2 for binary)
- * @default_val: Default value to return if no value is found
- * @return the value found, or @default_val if none
- */
-ulong env_get_ulong(const char *name, int base, ulong default_val);
-
-/**
- * env_get_hex() - Return an environment variable as a hex value
- *
- * Decode an environment as a hex number (it may or may not have a 0x
- * prefix). If the environment variable cannot be found, or does not start
- * with hex digits, the default value is returned.
- *
- * @varname:		Variable to decode
- * @default_val:	Value to return on error
- */
-ulong env_get_hex(const char *varname, ulong default_val);
-
-/*
- * Read an environment variable as a boolean
- * Return -1 if variable does not exist (default to true)
- */
-int env_get_yesno(const char *var);
-
-/**
- * env_set() - set an environment variable
- *
- * This sets or deletes the value of an environment variable. For setting the
- * value the variable is created if it does not already exist.
- *
- * @varname: Variable to adjust
- * @value: Value to set for the variable, or NULL or "" to delete the variable
- * @return 0 if OK, 1 on error
- */
-int env_set(const char *varname, const char *value);
-
-/**
- * env_set_ulong() - set an environment variable to an integer
- *
- * @varname: Variable to adjust
- * @value: Value to set for the variable (will be converted to a string)
- * @return 0 if OK, 1 on error
- */
-int env_set_ulong(const char *varname, ulong value);
-
-/**
- * env_set_hex() - set an environment variable to a hex value
- *
- * @varname: Variable to adjust
- * @value: Value to set for the variable (will be converted to a hex string)
- * @return 0 if OK, 1 on error
- */
-int env_set_hex(const char *varname, ulong value);
-
-/**
- * env_set_addr - Set an environment variable to an address in hex
- *
- * @varname:	Environment variable to set
- * @addr:	Value to set it to
- * @return 0 if ok, 1 on error
- */
-static inline int env_set_addr(const char *varname, const void *addr)
-{
-	return env_set_hex(varname, (ulong)addr);
-}
-
-#ifdef CONFIG_AUTO_COMPLETE
-int env_complete(char *var, int maxv, char *cmdv[], int maxsz, char *buf,
-		 bool dollar_comp);
-#endif
-int get_env_id (void);
 
 void	pci_init_board(void);
 
@@ -379,22 +267,11 @@ void	enable_interrupts  (void);
 int	disable_interrupts (void);
 
 /* $(CPU)/.../commproc.c */
-int	dpram_init (void);
-uint	dpram_base(void);
-uint	dpram_base_align(uint align);
-uint	dpram_alloc(uint size);
-uint	dpram_alloc_align(uint size,uint align);
 void	bootcount_store (ulong);
 ulong	bootcount_load (void);
 
 /* $(CPU)/.../<eth> */
 void mii_init (void);
-
-/* $(CPU)/.../lcd.c */
-ulong	lcd_setmem (ulong);
-
-/* $(CPU)/.../video.c */
-ulong	video_setmem (ulong);
 
 /* arch/$(ARCH)/lib/cache.c */
 void	enable_caches(void);
@@ -427,51 +304,6 @@ void	wait_ticks    (unsigned long);
 /* arch/$(ARCH)/lib/time.c */
 ulong	usec2ticks    (unsigned long usec);
 ulong	ticks2usec    (unsigned long ticks);
-
-/* lib/gunzip.c */
-int gzip_parse_header(const unsigned char *src, unsigned long len);
-int gunzip(void *, int, unsigned char *, unsigned long *);
-int zunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp,
-						int stoponerr, int offset);
-
-/**
- * gzwrite progress indicators: defined weak to allow board-specific
- * overrides:
- *
- *	gzwrite_progress_init called on startup
- *	gzwrite_progress called during decompress/write loop
- *	gzwrite_progress_finish called at end of loop to
- *		indicate success (retcode=0) or failure
- */
-void gzwrite_progress_init(u64 expected_size);
-
-void gzwrite_progress(int iteration,
-		     u64 bytes_written,
-		     u64 total_bytes);
-
-void gzwrite_progress_finish(int retcode,
-			     u64 totalwritten,
-			     u64 totalsize,
-			     u32 expected_crc,
-			     u32 calculated_crc);
-
-/**
- * decompress and write gzipped image from memory to block device
- *
- * @param	src		compressed image address
- * @param	len		compressed image length in bytes
- * @param	dev		block device descriptor
- * @param	szwritebuf	bytes per write (pad to erase size)
- * @param	startoffs	offset in bytes of first write
- * @param	szexpected	expected uncompressed length
- *				may be zero to use gzip trailer
- *				for files under 4GiB
- */
-int gzwrite(unsigned char *src, int len,
-	    struct blk_desc *dev,
-	    unsigned long szwritebuf,
-	    u64 startoffs,
-	    u64 szexpected);
 
 /* lib/lz4_wrapper.c */
 int ulz4fn(const void *src, size_t srcn, void *dst, size_t *dstn);
@@ -506,21 +338,12 @@ unsigned int rand_r(unsigned int *seedp);
 int	serial_printf (const char *fmt, ...)
 		__attribute__ ((format (__printf__, 1, 2)));
 
-/* lib/gzip.c */
-int gzip(void *dst, unsigned long *lenp,
-		unsigned char *src, unsigned long srclen);
-int zzip(void *dst, unsigned long *lenp, unsigned char *src,
-		unsigned long srclen, int stoponerr,
-		int (*func)(unsigned long, unsigned long));
-
 /* lib/net_utils.c */
 #include <net.h>
 static inline struct in_addr env_get_ip(char *var)
 {
 	return string_to_ip(env_get(var));
 }
-
-int	pcmcia_init (void);
 
 #ifdef CONFIG_LED_STATUS
 # include <status_led.h>
@@ -575,7 +398,7 @@ int cpu_release(u32 nr, int argc, char * const argv[]);
 
 /* Pull in stuff for the build system */
 #ifdef DO_DEPS_ONLY
-# include <environment.h>
+# include <env_internal.h>
 #endif
 
 #endif	/* __COMMON_H_ */

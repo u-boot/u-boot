@@ -10,7 +10,7 @@
 
 #include <common.h>
 #include <command.h>
-#include <environment.h>
+#include <env.h>
 #include <asm/mach-types.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>

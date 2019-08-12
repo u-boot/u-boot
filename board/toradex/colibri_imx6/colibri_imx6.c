@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <env.h>
 
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
@@ -24,7 +25,6 @@
 #include <asm/mach-imx/video.h>
 #include <cpu.h>
 #include <dm/platform_data/serial_mxc.h>
-#include <environment.h>
 #include <fsl_esdhc_imx.h>
 #include <imx_thermal.h>
 #include <micrel.h>

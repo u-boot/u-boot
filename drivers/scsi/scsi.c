@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <env.h>
 #include <pci.h>
 #include <scsi.h>
 #include <dm/device-internal.h>

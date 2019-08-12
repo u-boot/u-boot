@@ -27,7 +27,8 @@
 #include <cli.h>
 #include <command.h>
 #include <console.h>
-#include <environment.h>
+#include <env.h>
+#include <env_internal.h>
 #include <search.h>
 #include <errno.h>
 #include <malloc.h>
@@ -69,14 +70,14 @@ NAND|NVRAM|ONENAND|SATA|SPI_FLASH|REMOTE|UBI} or CONFIG_ENV_IS_NOWHERE
 
 /*
  * This variable is incremented on each do_env_set(), so it can
- * be used via get_env_id() as an indication, if the environment
+ * be used via env_get_id() as an indication, if the environment
  * has changed or not. So it is possible to reread an environment
  * variable only if the environment was changed ... done so for
  * example in NetInitLoop()
  */
 static int env_id = 1;
 
-int get_env_id(void)
+int env_get_id(void)
 {
 	return env_id;
 }
@@ -93,11 +94,11 @@ static int env_print(char *name, int flag)
 	ssize_t len;
 
 	if (name) {		/* print a single name */
-		ENTRY e, *ep;
+		struct env_entry e, *ep;
 
 		e.key = name;
 		e.data = NULL;
-		hsearch_r(e, FIND, &ep, &env_htab, flag);
+		hsearch_r(e, ENV_FIND, &ep, &env_htab, flag);
 		if (ep == NULL)
 			return 0;
 		len = printf("%s=%s\n", ep->key, ep->data);
@@ -224,7 +225,7 @@ static int _do_env_set(int flag, int argc, char * const argv[], int env_flag)
 {
 	int   i, len;
 	char  *name, *value, *s;
-	ENTRY e, *ep;
+	struct env_entry e, *ep;
 
 	debug("Initial value for argc=%d\n", argc);
 
@@ -287,7 +288,7 @@ static int _do_env_set(int flag, int argc, char * const argv[], int env_flag)
 
 	e.key	= name;
 	e.data	= value;
-	hsearch_r(e, ENTER, &ep, &env_htab, env_flag);
+	hsearch_r(e, ENV_ENTER, &ep, &env_htab, env_flag);
 	free(value);
 	if (!ep) {
 		printf("## Error inserting \"%s\" variable, errno=%d\n",
@@ -355,18 +356,6 @@ ulong env_get_hex(const char *varname, ulong default_val)
 		return default_val;
 
 	return value;
-}
-
-void eth_parse_enetaddr(const char *addr, uint8_t *enetaddr)
-{
-	char *end;
-	int i;
-
-	for (i = 0; i < 6; ++i) {
-		enetaddr[i] = addr ? simple_strtoul(addr, &end, 16) : 0;
-		if (addr)
-			addr = (*end) ? end + 1 : end;
-	}
 }
 
 int eth_env_get_enetaddr(const char *name, uint8_t *enetaddr)
@@ -484,7 +473,7 @@ static int print_static_binding(const char *var_name, const char *callback_name,
 	return 0;
 }
 
-static int print_active_callback(ENTRY *entry)
+static int print_active_callback(struct env_entry *entry)
 {
 	struct env_clbk_tbl *clbkp;
 	int i;
@@ -565,7 +554,7 @@ static int print_static_flags(const char *var_name, const char *flags,
 	return 0;
 }
 
-static int print_active_flags(ENTRY *entry)
+static int print_active_flags(struct env_entry *entry)
 {
 	enum env_flags_vartype type;
 	enum env_flags_varaccess access;
@@ -673,13 +662,13 @@ static int do_env_edit(cmd_tbl_t *cmdtp, int flag, int argc,
 char *env_get(const char *name)
 {
 	if (gd->flags & GD_FLG_ENV_READY) { /* after import into hashtable */
-		ENTRY e, *ep;
+		struct env_entry e, *ep;
 
 		WATCHDOG_RESET();
 
 		e.key	= name;
 		e.data	= NULL;
-		hsearch_r(e, FIND, &ep, &env_htab, 0);
+		hsearch_r(e, ENV_FIND, &ep, &env_htab, 0);
 
 		return ep ? ep->data : NULL;
 	}
@@ -708,7 +697,7 @@ int env_get_f(const char *name, char *buf, unsigned len)
 				return -1;
 		}
 
-		val = envmatch((uchar *)name, i);
+		val = env_match((uchar *)name, i);
 		if (val < 0)
 			continue;
 
@@ -784,15 +773,7 @@ U_BOOT_CMD(
 #endif
 #endif /* CONFIG_SPL_BUILD */
 
-
-/*
- * Match a name / name=value pair
- *
- * s1 is either a simple 'name', or a 'name=value' pair.
- * i2 is the environment index for a 'name2=value2' pair.
- * If the names match, return the index for the value2, else -1.
- */
-int envmatch(uchar *s1, int i2)
+int env_match(uchar *s1, int i2)
 {
 	if (s1 == NULL)
 		return -1;
@@ -833,13 +814,13 @@ static int do_env_default(cmd_tbl_t *cmdtp, int flag,
 	debug("Final value for argc=%d\n", argc);
 	if (all && (argc == 0)) {
 		/* Reset the whole environment */
-		set_default_env("## Resetting to default environment\n",
+		env_set_default("## Resetting to default environment\n",
 				env_flag);
 		return 0;
 	}
 	if (!all && (argc > 0)) {
 		/* Reset individual variables */
-		set_default_vars(argc, argv, env_flag);
+		env_set_default_vars(argc, argv, env_flag);
 		return 0;
 	}
 
@@ -1021,7 +1002,7 @@ NXTARG:		;
 		envp->crc = crc32(0, envp->data,
 				size ? size - offsetof(env_t, data) : ENV_SIZE);
 #ifdef CONFIG_ENV_ADDR_REDUND
-		envp->flags = ACTIVE_FLAG;
+		envp->flags = ENV_REDUND_ACTIVE;
 #endif
 	}
 	env_set_hex("filesize", len + offsetof(env_t, data));
@@ -1281,14 +1262,14 @@ static int do_env_info(cmd_tbl_t *cmdtp, int flag,
 static int do_env_exists(cmd_tbl_t *cmdtp, int flag, int argc,
 		       char * const argv[])
 {
-	ENTRY e, *ep;
+	struct env_entry e, *ep;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
 	e.key = argv[1];
 	e.data = NULL;
-	hsearch_r(e, FIND, &ep, &env_htab, 0);
+	hsearch_r(e, ENV_FIND, &ep, &env_htab, 0);
 
 	return (ep == NULL) ? 1 : 0;
 }

@@ -21,6 +21,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <splash.h>
 #include <lcd.h>
 

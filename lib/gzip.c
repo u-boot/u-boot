@@ -7,6 +7,7 @@
 #include <common.h>
 #include <watchdog.h>
 #include <command.h>
+#include <gzip.h>
 #include <image.h>
 #include <malloc.h>
 #include <memalign.h>

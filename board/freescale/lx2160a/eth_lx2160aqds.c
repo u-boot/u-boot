@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <hwconfig.h>
 #include <command.h>
 #include <netdev.h>

@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <pci.h>
 #include <usb.h>
 #include <asm/io.h>

@@ -9,6 +9,7 @@
  */
 #include <common.h>
 #include <command.h>
+#include <env.h>
 #include <net.h>
 
 static int netboot_common(enum proto_t, cmd_tbl_t *, int, char * const []);

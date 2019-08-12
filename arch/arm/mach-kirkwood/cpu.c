@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <netdev.h>
 #include <asm/cache.h>
 #include <asm/io.h>

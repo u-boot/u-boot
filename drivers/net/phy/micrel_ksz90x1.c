@@ -10,6 +10,7 @@
  */
 #include <common.h>
 #include <dm.h>
+#include <env.h>
 #include <errno.h>
 #include <micrel.h>
 #include <phy.h>
