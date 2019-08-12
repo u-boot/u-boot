@@ -53,8 +53,8 @@
 #define DEFAULT_FIT_TI_ARGS \
 	"boot_fit=0\0" \
 	"addr_fit=0x90000000\0" \
-	"fit_bootfile=fitImage\0" \
-	"update_to_fit=setenv loadaddr ${addr_fit}; setenv bootfile ${fit_bootfile}\0" \
+	"name_fit=fitImage\0" \
+	"update_to_fit=setenv loadaddr ${addr_fit}; setenv bootfile ${name_fit}\0" \
 	"loadfit=run args_mmc; bootm ${loadaddr}#${fdtfile};\0" \
 
 /*

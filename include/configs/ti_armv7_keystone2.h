@@ -240,12 +240,10 @@
 	"get_mon_net=dhcp ${addr_mon} ${tftp_root}/${name_mon}\0"	\
 	"get_mon_nfs=nfs ${addr_mon} ${nfs_root}/boot/${name_mon}\0"	\
 	"get_mon_ubi=ubifsload ${addr_mon} ${bootdir}/${name_mon}\0"	\
-	"get_fit_net=dhcp ${addr_fit} ${tftp_root}"			\
-						"/${fit_bootfile}\0"	\
-	"get_fit_nfs=nfs ${addr_fit} ${nfs_root}/boot/${fit_bootfile}\0"\
-	"get_fit_ubi=ubifsload ${addr_fit} ${bootdir}/${fit_bootfile}\0"\
-	"get_fit_mmc=load mmc ${bootpart} ${addr_fit} "			\
-					"${bootdir}/${fit_bootfile}\0"	\
+	"get_fit_net=dhcp ${addr_fit} ${tftp_root}/${name_fit}\0"	\
+	"get_fit_nfs=nfs ${addr_fit} ${nfs_root}/boot/${name_fit}\0"	\
+	"get_fit_ubi=ubifsload ${addr_fit} ${bootdir}/${name_fit}\0"	\
+	"get_fit_mmc=load mmc ${bootpart} ${addr_fit} ${bootdir}/${name_fit}\0" \
 	"get_uboot_net=dhcp ${loadaddr} ${tftp_root}/${name_uboot}\0"	\
 	"get_uboot_nfs=nfs ${loadaddr} ${nfs_root}/boot/${name_uboot}\0" \
 	"burn_uboot_spi=sf probe; sf erase 0 0x100000; "		\
@@ -261,8 +259,7 @@
 	"get_fdt_ramfs=dhcp ${fdtaddr} ${tftp_root}/${name_fdt}\0"	\
 	"get_kern_ramfs=dhcp ${loadaddr} ${tftp_root}/${name_kern}\0"	\
 	"get_mon_ramfs=dhcp ${addr_mon} ${tftp_root}/${name_mon}\0"	\
-	"get_fit_ramfs=dhcp ${addr_fit} ${tftp_root}"			\
-						"/${fit_bootfile}\0"	\
+	"get_fit_ramfs=dhcp ${addr_fit} ${tftp_root}/${name_fit}\0"	\
 	"get_fs_ramfs=dhcp ${rdaddr} ${tftp_root}/${name_fs}\0"	\
 	"get_ubi_net=dhcp ${addr_ubi} ${tftp_root}/${name_ubi}\0"	\
 	"get_ubi_nfs=nfs ${addr_ubi} ${nfs_root}/boot/${name_ubi}\0"	\
