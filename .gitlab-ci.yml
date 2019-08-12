@@ -145,36 +145,24 @@ Build tools-only:
   script:
     - make tools-only_config tools-only -j$(nproc)
 
-# Run various tool tests
-Run patman testsuite:
+Run binman, buildman, dtoc and patman testsuites:
   tags: [ 'all' ]
   stage: testsuites
   script:
-    - git config --global user.name "GitLab CI Runner"
-    - git config --global user.email trini@konsulko.com
-    - export USER=gitlab
-    - ./tools/patman/patman --test
-
-Run buildman testsuite:
-  tags: [ 'all' ]
-  stage: testsuites
-  script:
-    - export USER=gitlab
-    - ./tools/buildman/buildman -t
-
-Run binman and dtoc testsuite:
-  tags: [ 'all' ]
-  stage: testsuites
-  script:
-    - virtualenv /tmp/venv
-    - . /tmp/venv/bin/activate
-    - pip install pyelftools
-    - export UBOOT_TRAVIS_BUILD_DIR=`cd .. && pwd`/.bm-work/sandbox_spl;
-      ./tools/buildman/buildman -P sandbox_spl && 
-     export PYTHONPATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt";
-     export PATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc:${PATH}";
-     ./tools/binman/binman --toolpath ${UBOOT_TRAVIS_BUILD_DIR}/tools test &&
-     ./tools/dtoc/dtoc -t
+    - git config --global user.name "GitLab CI Runner";
+      git config --global user.email trini@konsulko.com;
+      export USER=gitlab;
+      virtualenv /tmp/venv;
+      . /tmp/venv/bin/activate;
+      pip install pyelftools;
+      export UBOOT_TRAVIS_BUILD_DIR=`cd .. && pwd`/.bm-work/sandbox_spl;
+      export PYTHONPATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt";
+      export PATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc:${PATH}";
+      ./tools/buildman/buildman -P sandbox_spl;
+      ./tools/binman/binman --toolpath ${UBOOT_TRAVIS_BUILD_DIR}/tools test;
+      ./tools/buildman/buildman -t;
+      ./tools/dtoc/dtoc -t;
+      ./tools/patman/patman --test
 
 # Test sandbox with test.py
 sandbox test.py:
