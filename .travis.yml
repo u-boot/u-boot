@@ -4,7 +4,7 @@
 # build U-Boot on Travis CI - https://travis-ci.org/
 
 sudo: required
-dist: trusty
+dist: xenial
 
 language: c
 
@@ -12,7 +12,7 @@ addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
-    - llvm-toolchain-trusty-7
+    - llvm-toolchain-xenial-7
     packages:
     - cppcheck
     - sloccount
@@ -61,7 +61,7 @@ install:
 
 env:
   global:
-    - PATH=/tmp/qemu-install/bin:/tmp/uboot-test-hooks/bin:/usr/bin:/bin
+    - PATH=/tmp/qemu-install/bin:/tmp/uboot-test-hooks/bin:/usr/bin:/bin:/usr/local/bin
     - PYTHONPATH=/tmp/uboot-test-hooks/py/travis-ci
     - BUILD_DIR=build
     - HOSTCC="cc"
