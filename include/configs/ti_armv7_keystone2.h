@@ -240,11 +240,11 @@
 	"get_mon_net=dhcp ${addr_mon} ${tftp_root}/${name_mon}\0"	\
 	"get_mon_nfs=nfs ${addr_mon} ${nfs_root}/boot/${name_mon}\0"	\
 	"get_mon_ubi=ubifsload ${addr_mon} ${bootdir}/${name_mon}\0"	\
-	"get_fit_net=dhcp ${fit_loadaddr} ${tftp_root}"			\
+	"get_fit_net=dhcp ${addr_fit} ${tftp_root}"			\
 						"/${fit_bootfile}\0"	\
-	"get_fit_nfs=nfs ${fit_loadaddr} ${nfs_root}/boot/${fit_bootfile}\0"\
-	"get_fit_ubi=ubifsload ${fit_loadaddr} ${bootdir}/${fit_bootfile}\0"\
-	"get_fit_mmc=load mmc ${bootpart} ${fit_loadaddr} "		\
+	"get_fit_nfs=nfs ${addr_fit} ${nfs_root}/boot/${fit_bootfile}\0"\
+	"get_fit_ubi=ubifsload ${addr_fit} ${bootdir}/${fit_bootfile}\0"\
+	"get_fit_mmc=load mmc ${bootpart} ${addr_fit} "			\
 					"${bootdir}/${fit_bootfile}\0"	\
 	"get_uboot_net=dhcp ${loadaddr} ${tftp_root}/${name_uboot}\0"	\
 	"get_uboot_nfs=nfs ${loadaddr} ${nfs_root}/boot/${name_uboot}\0" \
@@ -261,7 +261,7 @@
 	"get_fdt_ramfs=dhcp ${fdtaddr} ${tftp_root}/${name_fdt}\0"	\
 	"get_kern_ramfs=dhcp ${loadaddr} ${tftp_root}/${name_kern}\0"	\
 	"get_mon_ramfs=dhcp ${addr_mon} ${tftp_root}/${name_mon}\0"	\
-	"get_fit_ramfs=dhcp ${fit_loadaddr} ${tftp_root}"		\
+	"get_fit_ramfs=dhcp ${addr_fit} ${tftp_root}"			\
 						"/${fit_bootfile}\0"	\
 	"get_fs_ramfs=dhcp ${rdaddr} ${tftp_root}/${name_fs}\0"	\
 	"get_ubi_net=dhcp ${addr_ubi} ${tftp_root}/${name_ubi}\0"	\
@@ -290,7 +290,7 @@
 	"run run_mon_hs; "						\
 	"run init_${boot}; "						\
 	"run get_fit_${boot}; "						\
-	"bootm ${fit_loadaddr}#${name_fdt}"
+	"bootm ${addr_fit}#${name_fdt}"
 #endif
 #endif
 
