@@ -122,10 +122,20 @@ static void fu540_setup_macaddr(u32 serialnum)
 
 int misc_init_r(void)
 {
-	/* Set ethaddr environment variable if not set */
-	if (!env_get("ethaddr"))
-		fu540_setup_macaddr(fu540_read_serialnum());
+	u32 serial_num;
+	char buf[9] = {0};
 
+	/* Set ethaddr environment variable from board serial number */
+	if (!env_get("serial#")) {
+		serial_num = fu540_read_serialnum();
+		if (!serial_num) {
+			WARN(true, "Board serial number should not be 0 !!\n");
+			return 0;
+		}
+		snprintf(buf, sizeof(buf), "%08x", serial_num);
+		env_set("serial#", buf);
+		fu540_setup_macaddr(serial_num);
+	}
 	return 0;
 }
 
