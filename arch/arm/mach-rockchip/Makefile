@@ -25,6 +25,10 @@ endif
 
 obj-$(CONFIG_$(SPL_TPL_)RAM) += sdram_common.o
 
+ifdef CONFIG_MISC_INIT_R
+obj-y += misc.o
+endif
+
 obj-$(CONFIG_ROCKCHIP_RK3036) += rk3036/
 obj-$(CONFIG_ROCKCHIP_RK3128) += rk3128/
 ifndef CONFIG_TPL_BUILD

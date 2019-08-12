@@ -11,6 +11,7 @@
 #include <asm/arch-rockchip/boot_mode.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/periph.h>
+#include <asm/arch-rockchip/misc.h>
 #include <power/regulator.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -100,5 +101,27 @@ int fastboot_set_reboot_flag(void)
 	writel(BOOT_FASTBOOT, CONFIG_ROCKCHIP_BOOT_MODE_REG);
 
 	return 0;
+}
+#endif
+
+#ifdef CONFIG_MISC_INIT_R
+__weak int misc_init_r(void)
+{
+	const u32 cpuid_offset = 0x7;
+	const u32 cpuid_length = 0x10;
+	u8 cpuid[cpuid_length];
+	int ret;
+
+	ret = rockchip_cpuid_from_efuse(cpuid_offset, cpuid_length, cpuid);
+	if (ret)
+		return ret;
+
+	ret = rockchip_cpuid_set(cpuid, cpuid_length);
+	if (ret)
+		return ret;
+
+	ret = rockchip_setup_macaddr();
+
+	return ret;
 }
 #endif
