@@ -251,10 +251,21 @@ void k3_sysfw_loader(void (*config_pm_done_callback)(void))
 	if (config_pm_done_callback)
 		config_pm_done_callback();
 
-	/* Output System Firmware version info */
-	printf("SYSFW ABI: %d.%d (firmware rev 0x%04x '%.*s')\n",
+	/*
+	 * Output System Firmware version info. Note that since the
+	 * 'firmware_description' field is not guaranteed to be zero-
+	 * terminated we manually add a \0 terminator if needed. Further
+	 * note that we intentionally no longer rely on the extended
+	 * printf() formatter '%.*s' to not having to require a more
+	 * full-featured printf() implementation.
+	 */
+	char fw_desc[sizeof(ti_sci->version.firmware_description) + 1];
+
+	strncpy(fw_desc, ti_sci->version.firmware_description,
+		sizeof(ti_sci->version.firmware_description));
+	fw_desc[sizeof(fw_desc) - 1] = '\0';
+
+	printf("SYSFW ABI: %d.%d (firmware rev 0x%04x '%s')\n",
 	       ti_sci->version.abi_major, ti_sci->version.abi_minor,
-	       ti_sci->version.firmware_revision,
-	       sizeof(ti_sci->version.firmware_description),
-	       ti_sci->version.firmware_description);
+	       ti_sci->version.firmware_revision, fw_desc);
 }

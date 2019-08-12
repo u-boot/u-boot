@@ -24,6 +24,7 @@ static int dm_test_clk_base(struct unit_test_state *uts)
 	/* Get the same clk port in 2 different ways and compare */
 	ut_assertok(clk_get_by_index(dev, 1, &clk_method1));
 	ut_assertok(clk_get_by_index_nodev(dev_ofnode(dev), 1, &clk_method2));
+	ut_asserteq(clk_is_match(&clk_method1, &clk_method2), true);
 	ut_asserteq(clk_method1.id, clk_method2.id);
 
 	return 0;

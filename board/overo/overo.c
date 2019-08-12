@@ -377,20 +377,6 @@ int board_eth_init(bd_t *bis)
 }
 #endif
 
-#if defined(CONFIG_MMC)
-int board_mmc_init(bd_t *bis)
-{
-	return omap_mmc_init(0, 0, 0, -1, -1);
-}
-#endif
-
-#if defined(CONFIG_MMC)
-void board_mmc_power_init(void)
-{
-	twl4030_power_mmc_init(0);
-}
-#endif
-
 #if defined(CONFIG_USB_EHCI_HCD)
 static struct omap_usbhs_board_data usbhs_bdata = {
 	.port_mode[0] = OMAP_USBHS_PORT_MODE_UNUSED,

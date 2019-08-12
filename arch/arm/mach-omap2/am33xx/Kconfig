@@ -121,6 +121,10 @@ config TARGET_BRXRE1
 	bool "Support BRXRE1"
 	select BOARD_LATE_INIT
 
+config TARGET_BRSMARC1
+	bool "Support BRSMARC1"
+	select BOARD_LATE_INIT
+
 config TARGET_BRPPT1
 	bool "Support BRPPT1"
 	select BOARD_LATE_INIT

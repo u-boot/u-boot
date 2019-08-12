@@ -129,6 +129,23 @@ fdt_addr_t devfdt_get_addr_name(struct udevice *dev, const char *name)
 #endif
 }
 
+fdt_addr_t devfdt_get_addr_size_name(struct udevice *dev, const char *name,
+				     fdt_size_t *size)
+{
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+	int index;
+
+	index = fdt_stringlist_search(gd->fdt_blob, dev_of_offset(dev),
+				      "reg-names", name);
+	if (index < 0)
+		return index;
+
+	return devfdt_get_addr_size_index(dev, index, size);
+#else
+	return FDT_ADDR_T_NONE;
+#endif
+}
+
 fdt_addr_t devfdt_get_addr(struct udevice *dev)
 {
 	return devfdt_get_addr_index(dev, 0);

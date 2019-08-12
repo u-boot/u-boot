@@ -28,7 +28,6 @@ config OMAP_WATCHDOG
 	bool "TI OMAP watchdog driver"
 	depends on ARCH_OMAP2PLUS
 	select HW_WATCHDOG
-	default y if AM33XX
 	help
 	  Say Y here to enable the OMAP3+ watchdog driver.
 
@@ -112,6 +111,14 @@ config WDT_MTK
 	  Select this to enable watchdog timer for MediaTek SoCs.
 	  The watchdog timer is stopped when initialized.
 	  It performs full SoC reset.
+
+config WDT_OMAP3
+        bool "TI OMAP watchdog timer support"
+        depends on WDT && ARCH_OMAP2PLUS
+        default y if AM33XX
+        help
+	  This enables OMAP3+ watchdog timer driver, which can be
+	  found on some TI chipsets and inline with driver model.
 
 config WDT_ORION
 	bool "Orion watchdog timer support"

@@ -176,6 +176,7 @@ source "arch/arm/mach-omap2/omap5/Kconfig"
 source "arch/arm/mach-omap2/am33xx/Kconfig"
 
 source "board/BuR/brxre1/Kconfig"
+source "board/BuR/brsmarc1/Kconfig"
 source "board/BuR/brppt1/Kconfig"
 source "board/siemens/draco/Kconfig"
 source "board/siemens/pxm2/Kconfig"

@@ -120,4 +120,22 @@ fdt_addr_t devfdt_get_addr_size_index(struct udevice *dev, int index,
  */
 fdt_addr_t devfdt_get_addr_name(struct udevice *dev, const char *name);
 
+/**
+ * devfdt_get_addr_size_name() - Get the reg property and its size for a device,
+ *				 indexed by name
+ *
+ * Returns the address and size specified in the 'reg' property of a device.
+ *
+ * @dev: Pointer to a device
+ * @name: the 'reg' property can hold a list of <addr, size> pairs, with the
+ *	  'reg-names' property providing named-based identification. @index
+ *	  indicates the value to search for in 'reg-names'.
+ * @size: Pointer to size variable - this function returns the size
+ *        specified in the 'reg' property here
+ *
+ * @return addr
+ */
+fdt_addr_t devfdt_get_addr_size_name(struct udevice *dev, const char *name,
+				     fdt_size_t *size);
+
 #endif
