@@ -14,6 +14,11 @@
 #include <asm/unaligned.h>
 #include <efi_loader.h>
 
+#if CONFIG_IS_ENABLED(FASTBOOT)
+#include <asm/psci.h>
+#include <fastboot.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 __weak int board_init(void)
@@ -142,7 +147,35 @@ int board_late_init(void)
 	return meson_board_late_init();
 }
 
+#if CONFIG_IS_ENABLED(FASTBOOT)
+static unsigned int reboot_reason = REBOOT_REASON_NORMAL;
+
+int fastboot_set_reboot_flag()
+{
+	reboot_reason = REBOOT_REASON_BOOTLOADER;
+
+	printf("Using reboot reason: 0x%x\n", reboot_reason);
+
+	return 0;
+}
+
+void reset_cpu(ulong addr)
+{
+	struct pt_regs regs;
+
+	regs.regs[0] = ARM_PSCI_0_2_FN_SYSTEM_RESET;
+	regs.regs[1] = reboot_reason;
+
+	printf("Rebooting with reason: 0x%lx\n", regs.regs[1]);
+
+	smc_call(&regs);
+
+	while (1)
+		;
+}
+#else
 void reset_cpu(ulong addr)
 {
 	psci_system_reset();
 }
+#endif

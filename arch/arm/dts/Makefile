@@ -140,6 +140,7 @@ dtb-$(CONFIG_ARCH_MESON) += \
 	meson-gxm-khadas-vim2.dtb \
 	meson-axg-s400.dtb \
 	meson-g12a-u200.dtb \
+	meson-g12a-sei510.dtb \
 	meson-g12b-odroid-n2.dtb
 dtb-$(CONFIG_TEGRA) += tegra20-harmony.dtb \
 	tegra20-medcom-wide.dtb \
