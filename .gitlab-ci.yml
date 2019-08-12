@@ -152,12 +152,14 @@ Run patman testsuite:
   script:
     - git config --global user.name "GitLab CI Runner"
     - git config --global user.email trini@konsulko.com
+    - export USER=gitlab
     - ./tools/patman/patman --test
 
 Run buildman testsuite:
   tags: [ 'all' ]
   stage: testsuites
   script:
+    - export USER=gitlab
     - ./tools/buildman/buildman -t
 
 Run binman and dtoc testsuite:
