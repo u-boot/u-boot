@@ -16,6 +16,15 @@ config TARGET_BCM7260
 	  is acting as the second stage bootloader, and U-Boot is
 	  acting as the third stage bootloader (TSBL), loaded by BOLT.
 
+config TARGET_BCM7252
+	bool "Broadcom 7252 TSBL"
+	depends on ARCH_BCMSTB
+	help
+	  Support for the Broadcom 7252 SoC.  This port assumes BOLT
+	  is acting as the second stage bootloader and two memory banks.
+          U-Boot is acting as the third stage bootloader (TSBL), loaded by BOLT.
+
+
 config SYS_CPU
 	default "armv7"
 
@@ -31,6 +40,7 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "bcm7445" if TARGET_BCM7445
 	default "bcm7260" if TARGET_BCM7260
+	default "bcm7252" if TARGET_BCM7252
 
 config SYS_FDT_SAVE_ADDRESS
 	hex "Address to which the prior stage provided DTB will be copied"
