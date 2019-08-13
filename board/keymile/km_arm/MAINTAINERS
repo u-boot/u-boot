@@ -11,4 +11,3 @@ F:	configs/kmnusa_defconfig
 F:	configs/kmsugp1_defconfig
 F:	configs/kmsuv31_defconfig
 F:	configs/mgcoge3un_defconfig
-F:	configs/portl2_defconfig

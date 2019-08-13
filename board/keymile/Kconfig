@@ -9,8 +9,109 @@ config VENDOR_KM
 
 if VENDOR_KM
 
+menu "KM Board Setup"
+
+config KM_PNVRAM
+	hex "Pseudo RAM"
+	default 0x80000
+	help
+	  Start address of the pseudo non-volatile RAM for application.
+
+config KM_PHRAM
+	hex "Physical RAM"
+	default 0x17F000 if ARM
+	default 0x100000 if PPC
+	help
+	  Start address of the physical RAM, which is the mounted /var folder.
+
+config KM_RESERVED_PRAM
+	hex "Reserved RAM"
+	default 0x801000 if KIRKWOOD
+	default 0x0 if MPC83xx
+	default 0x1000 if MPC85xx
+	help
+	  Reserved physical RAM area at the end of memory for special purposes.
+
+config KM_CRAMFS_ADDR
+	hex "CRAMFS Address"
+	default 0x2400000 if KIRKWOOD
+	default 0xC00000 if MPC83xx
+	default 0x2000000 if MPC85xx
+	help
+	  Start address of the CRAMFS containing the Linux kernel.
+
+config KM_KERNEL_ADDR
+	hex "Kernel Load Address"
+	default 0x2000000 if KIRKWOOD
+	default 0x400000 if MPC83xx
+	default 0x1000000 if MPC85xx
+	help
+	  Address where to load Linux kernel in RAM.
+
+config KM_FDT_ADDR
+	hex "FDT Load Address"
+	default 0x23E0000 if KIRKWOOD
+	default 0xB80000 if MPC83xx
+	default 0x1F80000 if MPC85xx
+	help
+	  Address where to load flattened device tree in RAM.
+
+config KM_CONSOLE_TTY
+	string "KM Console"
+	default "ttyS0"
+	help
+	  TTY console to use on board.
+
+config KM_COMMON_ETH_INIT
+	bool "Common Ethernet Initialization"
+	default y if KIRKWOOD || MPC83xx
+	default n if MPC85xx
+	help
+	  Use the Ethernet initialization implemented in common code, which
+	  detects if a Piggy board is present.
+
+config PIGGY_MAC_ADRESS_OFFSET
+	int "Piggy Address Offset"
+	default 0
+	help
+	  MAC address offset for the Piggy board.
+
+config KM_MVEXTSW_ADDR
+	hex "Marvell Switch Address"
+	depends on MV88E6352_SWITCH
+	default 0x10
+	help
+	  Address of external Marvell switch.
+
+config KM_IVM_BUS
+	int "IVM I2C Bus"
+	default 1 if KIRKWOOD || MPC85xx
+	default 2 if MPC83xx
+	help
+	  Identifier number of I2C bus, where the inventory EEPROM is connected to.
+
+config SYS_IVM_EEPROM_ADR
+	hex "IVM I2C Address"
+	default 0x50
+	help
+	  I2C address of the EEPROM containing the inventory.
+
+config SYS_IVM_EEPROM_MAX_LEN
+	hex "IVM Length"
+	default 0x400
+	help
+	  Maximum length of inventory in EEPROM.
+
+config SYS_IVM_EEPROM_PAGE_LEN
+	hex "IVM Page Size"
+	default 0x100
+	help
+	  Page size of inventory in EEPROM.
+
 source "board/keymile/km83xx/Kconfig"
 source "board/keymile/kmp204x/Kconfig"
 source "board/keymile/km_arm/Kconfig"
+
+endmenu
 
 endif

@@ -32,8 +32,6 @@
 /* include common defines/options for all Keymile boards */
 #include "keymile-common.h"
 
-/* SPI NOR Flash default params, used by sf commands */
-
 /* Reserve 4 MB for malloc */
 #define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
 
@@ -42,15 +40,6 @@
 #define CONFIG_SYS_MEMTEST_START 0x00400000	/* 4M */
 #define CONFIG_SYS_MEMTEST_END	0x007fffff	/*(_8M -1) */
 #define CONFIG_SYS_LOAD_ADDR	0x00800000	/* default load adr- 8M */
-
-/* pseudo-non volatile RAM [hex] */
-#define CONFIG_KM_PNVRAM	0x80000
-/* physical RAM MTD size [hex] */
-#define CONFIG_KM_PHRAM		0x17F000
-
-#define CONFIG_KM_CRAMFS_ADDR	0x2400000
-#define CONFIG_KM_KERNEL_ADDR	0x2000000	/* 3098KBytes */
-#define CONFIG_KM_FDT_ADDR	0x23E0000	/*  128KBytes */
 
 /* architecture specific default bootargs */
 #define CONFIG_KM_DEF_BOOT_ARGS_CPU					\
@@ -72,26 +61,10 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
 /*
- * NS16550 Configuration
- */
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	(-4)
-#define CONFIG_SYS_NS16550_CLK		CONFIG_SYS_TCLK
-#define CONFIG_SYS_NS16550_COM1		KW_UART0_BASE
-#define CONFIG_SYS_NS16550_COM2		KW_UART1_BASE
-
-/*
- * Serial Port configuration
- * The following definitions let you select what serial you want to use
- * for your console driver.
- */
-
-/*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CONFIG_BOOTMAPSZ	(8 << 20)	/* Initial Memmap for Linux */
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs  */
 #define CONFIG_INITRD_TAG		/* enable INITRD tag */
 #define CONFIG_SETUP_MEMORY_TAGS	/* enable memory tag */
@@ -101,30 +74,17 @@
  */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 
-#define BOOTFLASH_START		0x0
-
-/* Kirkwood has two serial IF */
-#if (CONFIG_CONS_INDEX == 2)
-#define CONFIG_KM_CONSOLE_TTY	"ttyS1"
-#else
-#define CONFIG_KM_CONSOLE_TTY	"ttyS0"
-#endif
-
 /*
  * Other required minimal configurations
  */
 #define CONFIG_ARCH_CPU_INIT		/* call arch_cpu_init() */
-#define CONFIG_SYS_RESET_ADDRESS 0xffff0000	/* Rst Vector Adr */
 
 /*
  * Ethernet Driver configuration
  */
-#define CONFIG_NETCONSOLE	/* include NetConsole support   */
-#define CONFIG_SYS_FAULT_ECHO_LINK_DOWN	/* detect link using phy */
+#define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer autoneg timeout */
 #define CONFIG_MVGBE_PORTS	{1, 0}	/* enable port 0 only */
 #define CONFIG_PHY_BASE_ADR	0
-#define CONFIG_ENV_OVERWRITE	/* ethaddr can be reprogrammed */
-#define CONFIG_KM_COMMON_ETH_INIT /* standard km ethernet_present for piggy */
 
 /*
  * I2C related stuff
@@ -238,19 +198,9 @@ int get_scl(void);
 	"arch=arm\0"							\
 	""
 
-#if !defined(CONFIG_MTD_NOR_FLASH)
-#undef	CONFIG_JFFS2_CMDLINE
-#endif
-
 /* additions for new relocation code, must be added to all boards */
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
-/* Do early setups now in board_init_f() */
 
-/*
- * resereved pram area at the end of memroy [hex]
- * 8Mbytes for switch + 4Kbytes for bootcount
- */
-#define CONFIG_KM_RESERVED_PRAM 0x801000
 /* address for the bootcount (taken from end of RAM) */
 #define BOOTCOUNT_ADDR          (CONFIG_KM_RESERVED_PRAM)
 
@@ -258,7 +208,5 @@ int get_scl(void);
 #define CONFIG_POST	(CONFIG_SYS_POST_MEM_REGIONS)
 #define CONFIG_POST_SKIP_ENV_FLAGS
 #define CONFIG_POST_EXTERNAL_WORD_FUNCS
-
-/* we do the whole PCIe FPGA config stuff here */
 
 #endif /* _CONFIG_KM_ARM_H */

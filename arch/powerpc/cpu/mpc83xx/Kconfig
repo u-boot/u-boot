@@ -110,10 +110,6 @@ config TARGET_SUVD3
 	bool "Support suvd3"
 	select VENDOR_KM
 
-config TARGET_KMVECT1
-	bool "Support kmvect1"
-	select VENDOR_KM
-
 config TARGET_KMTEGR1
 	bool "Support kmtegr1"
 	select VENDOR_KM

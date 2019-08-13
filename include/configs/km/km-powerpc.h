@@ -11,9 +11,6 @@
 
 #define CONFIG_JFFS2_CMDLINE
 
-/* standard km ethernet_present for piggy */
-#define CONFIG_KM_COMMON_ETH_INIT
-
 /* EEprom support 24C08, 24C16, 24C64 */
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_ENABLE
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	3  /* 8 Byte write page */
@@ -45,19 +42,9 @@
 
 /* size of rootfs in RAM */
 #define CONFIG_KM_ROOTFSSIZE	0x0
-/* pseudo-non volatile RAM [hex] */
-#define CONFIG_KM_PNVRAM	0x80000
-/* physical RAM MTD size [hex] */
-#define CONFIG_KM_PHRAM		0x100000
-/* resereved pram area at the end of memroy [hex] */
-#define CONFIG_KM_RESERVED_PRAM	0x0
 /* set the default PRAM value to at least PNVRAM + PHRAM when pram env variable
  * is not valid yet, which is the case for when u-boot copies itself to RAM */
 #define CONFIG_PRAM		((CONFIG_KM_PNVRAM + CONFIG_KM_PHRAM)>>10)
-
-#define CONFIG_KM_CRAMFS_ADDR	0xC00000
-#define CONFIG_KM_KERNEL_ADDR	0x400000	/* 7680Kbytes */
-#define CONFIG_KM_FDT_ADDR	0xB80000	/* 512Kbytes */
 
 /* architecture specific default bootargs */
 #define CONFIG_KM_DEF_BOOT_ARGS_CPU		""
