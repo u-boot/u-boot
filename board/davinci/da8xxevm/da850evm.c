@@ -234,8 +234,7 @@ const struct pinmux_resource pinmuxes[] = {
 	PINMUX_ITEM(emifa_pins_cs3),
 	PINMUX_ITEM(emifa_pins_cs4),
 	PINMUX_ITEM(emifa_pins_nand),
-#endif
-#ifdef CONFIG_USE_NOR
+#elif defined(CONFIG_USE_NOR)
 	PINMUX_ITEM(emifa_pins_cs2),
 	PINMUX_ITEM(emifa_pins_nor),
 #endif
