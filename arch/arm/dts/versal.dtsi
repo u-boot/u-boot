@@ -25,6 +25,7 @@
 			enable-method = "psci";
 			operating-points-v2 = <&cpu_opp_table>;
 			reg = <0>;
+			cpu-idle-states = <&CPU_SLEEP_0>;
 		};
 
 		cpu1: cpu@1 {
@@ -33,6 +34,20 @@
 			enable-method = "psci";
 			operating-points-v2 = <&cpu_opp_table>;
 			reg = <1>;
+			cpu-idle-states = <&CPU_SLEEP_0>;
+		};
+
+		idle-states {
+			entry-method = "psci";
+
+			CPU_SLEEP_0: cpu-sleep-0 {
+				compatible = "arm,idle-state";
+				arm,psci-suspend-param = <0x40000000>;
+				local-timer-stop;
+				entry-latency-us = <300>;
+				exit-latency-us = <600>;
+				min-residency-us = <10000>;
+			};
 		};
 	};
 
