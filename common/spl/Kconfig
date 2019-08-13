@@ -208,6 +208,7 @@ config SPL_SYS_MALLOC_SIMPLE
 config TPL_SYS_MALLOC_SIMPLE
 	bool
 	prompt "Only use malloc_simple functions in the TPL"
+	depends on TPL
 	help
 	  Say Y here to only use the *_simple malloc functions from
 	  malloc_simple.c, rather then using the versions from dlmalloc.c;
@@ -261,6 +262,7 @@ config SPL_BANNER_PRINT
 
 config TPL_BANNER_PRINT
 	bool "Enable output of the TPL banner 'U-Boot TPL ...'"
+	depends on TPL
 	default y
 	help
 	  If this option is enabled, SPL will not print the banner with version
