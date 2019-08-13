@@ -106,11 +106,6 @@
 /*
  * Serial Driver info
  */
-
-#if !CONFIG_IS_ENABLED(DM_SERIAL)
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_COM1	DAVINCI_UART2_BASE /* Base address of UART2 */
-#endif
 #define CONFIG_SYS_NS16550_CLK	clk_get(DAVINCI_UART2_CLKID)
 
 #define CONFIG_SYS_SPI_CLK		clk_get(DAVINCI_SPI1_CLKID)
