@@ -139,6 +139,11 @@ config MXC_GPIO
 	help
 	  Support GPIO controllers on various i.MX platforms
 
+config MXS_GPIO
+	bool "Freescale/NXP MXS GPIO driver"
+	help
+	  Support GPIO controllers on i.MX23 and i.MX28 platforms
+
 config OMAP_GPIO
 	bool "TI OMAP GPIO driver"
 	depends on ARCH_OMAP2PLUS

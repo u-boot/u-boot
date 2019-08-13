@@ -37,6 +37,7 @@ CONFIG_MTDIDS_DEFAULT="nand0=gpmi-nand"
 CONFIG_MTDPARTS_DEFAULT="mtdparts=gpmi-nand:3m(bootloader)ro,512k(environment),512k(redundant-environment),4m(kernel),512k(fdt),8m(ramdisk),-(filesystem)"
 CONFIG_CMD_UBI=y
 CONFIG_ENV_IS_IN_NAND=y
+CONFIG_MXS_GPIO=y
 CONFIG_MMC_MXS=y
 CONFIG_NAND=y
 CONFIG_NAND_MXS=y
