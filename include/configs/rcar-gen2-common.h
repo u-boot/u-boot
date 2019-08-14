@@ -18,8 +18,6 @@
 #define CONFIG_SPL_TARGET	"spl/u-boot-spl.srec"
 #endif
 
-#define CONFIG_ARCH_CPU_INIT
-
 #ifndef CONFIG_PINCTRL_PFC
 #define CONFIG_SH_GPIO_PFC
 #endif

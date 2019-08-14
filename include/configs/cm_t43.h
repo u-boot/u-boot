@@ -9,7 +9,6 @@
 #define __CONFIG_CM_T43_H
 
 #define CONFIG_CM_T43
-#define CONFIG_ARCH_CPU_INIT
 #define CONFIG_MAX_RAM_BANK_SIZE	(2048 << 20)	/* 2GB */
 #define CONFIG_SYS_TIMERBASE		0x48040000	/* Use Timer2 */
 

@@ -22,8 +22,6 @@
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_USB_A9263
 
-#define CONFIG_ARCH_CPU_INIT
-
 #define CONFIG_CMDLINE_TAG	/* enable passing of ATAGs      */
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG

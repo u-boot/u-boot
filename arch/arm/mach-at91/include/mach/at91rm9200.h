@@ -5,7 +5,6 @@
 #ifndef __AT91RM9200_H__
 #define __AT91RM9200_H__
 
-#define CONFIG_ARCH_CPU_INIT	/* we need arch_cpu_init() for hw timers */
 #define CONFIG_AT91_GPIO	/* and require always gpio features */
 
 /* Periperial Identifiers */

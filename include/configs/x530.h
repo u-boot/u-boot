@@ -89,7 +89,6 @@
 /*
  * Other required minimal configurations
  */
-#define CONFIG_ARCH_CPU_INIT	/* call arch_cpu_init() */
 #define CONFIG_SYS_RESET_ADDRESS 0xffff0000	/* Rst Vector Adr */
 
 #define CONFIG_SYS_ALT_MEMTEST

@@ -15,7 +15,6 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* U-Boot is a 2nd stage loader */
 
 /* SoC Configuration */
-#define CONFIG_ARCH_CPU_INIT
 #define CONFIG_SPL_TARGET		"u-boot-spi.gph"
 
 /* Memory Configuration */

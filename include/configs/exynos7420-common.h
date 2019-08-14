@@ -16,8 +16,6 @@
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <linux/sizes.h>
 
-#define CONFIG_ARCH_CPU_INIT
-
 /* Size of malloc() pool before and after relocation */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (80 << 20))
 

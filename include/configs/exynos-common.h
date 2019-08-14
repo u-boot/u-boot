@@ -15,7 +15,6 @@
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <linux/sizes.h>
 
-#define CONFIG_ARCH_CPU_INIT
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
 /* Keep L2 Cache Disabled */
