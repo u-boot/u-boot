@@ -84,6 +84,7 @@ enum fsl_qspi_devtype {
 	FSL_QUADSPI_VYBRID,
 	FSL_QUADSPI_IMX6SX,
 	FSL_QUADSPI_IMX6UL_7D,
+	FSL_QUADSPI_IMX7ULP,
 };
 
 struct fsl_qspi_devtype_data {
@@ -166,6 +167,14 @@ static const struct fsl_qspi_devtype_data imx6ul_7d_data = {
 	.rxfifo = 128,
 	.txfifo = 512,
 	.ahb_buf_size = 1024,
+	.driver_data = 0,
+};
+
+static const struct fsl_qspi_devtype_data imx7ulp_data = {
+	.devtype = FSL_QUADSPI_IMX7ULP,
+	.rxfifo = 64,
+	.txfifo = 64,
+	.ahb_buf_size = 128,
 	.driver_data = 0,
 };
 
@@ -1144,6 +1153,7 @@ static const struct udevice_id fsl_qspi_ids[] = {
 	{ .compatible = "fsl,imx6sx-qspi", .data = (ulong)&imx6sx_data },
 	{ .compatible = "fsl,imx6ul-qspi", .data = (ulong)&imx6ul_7d_data },
 	{ .compatible = "fsl,imx7d-qspi", .data = (ulong)&imx6ul_7d_data },
+	{ .compatible = "fsl,imx7ulp-qspi", .data = (ulong)&imx7ulp_data },
 	{ }
 };
 
