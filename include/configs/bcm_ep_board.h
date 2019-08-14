@@ -51,8 +51,6 @@
 
 /* version string, parser, etc */
 
-#define CONFIG_MX_CYCLIC
-
 /* Enable Time Command */
 
 #endif /* __BCM_EP_BOARD_H */

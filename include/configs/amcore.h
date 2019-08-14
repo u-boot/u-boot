@@ -30,8 +30,6 @@
 
 /* undef to save memory	*/
 
-#define CONFIG_MX_CYCLIC		1 /* enable mdc/mwc commands	*/
-
 #define CONFIG_SYS_LOAD_ADDR		0x20000	/* default load address */
 
 #define CONFIG_SYS_MEMTEST_START	0x0
