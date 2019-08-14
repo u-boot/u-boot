@@ -641,11 +641,16 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
 {
 	efi_uintn_t n = memory_map_size / descriptor_size;
 	efi_uintn_t i;
+	efi_status_t ret = EFI_INVALID_PARAMETER;
 	int rt_code_sections = 0;
 	struct efi_event *event;
 
 	EFI_ENTRY("%zx %zx %x %p", memory_map_size, descriptor_size,
 		  descriptor_version, virtmap);
+
+	if (descriptor_version != EFI_MEMORY_DESCRIPTOR_VERSION ||
+	    descriptor_size < sizeof(struct efi_mem_desc))
+		goto out;
 
 	efi_virtmap = virtmap;
 	efi_descriptor_size = descriptor_size;
@@ -677,7 +682,7 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
 		 * We expose exactly one single runtime code section, so
 		 * something is definitely going wrong.
 		 */
-		return EFI_EXIT(EFI_INVALID_PARAMETER);
+		goto out;
 	}
 
 	/* Notify EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE */
@@ -738,11 +743,13 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
 
 			efi_relocate_runtime_table(new_offset);
 			efi_runtime_relocate(new_offset, map);
-			return EFI_EXIT(EFI_SUCCESS);
+			ret = EFI_SUCCESS;
+			goto out;
 		}
 	}
 
-	return EFI_EXIT(EFI_INVALID_PARAMETER);
+out:
+	return EFI_EXIT(ret);
 }
 
 /**
