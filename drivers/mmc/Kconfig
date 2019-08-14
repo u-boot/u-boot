@@ -694,6 +694,13 @@ config FSL_ESDHC_IMX
 	  This selects support for the i.MX eSDHC (Enhanced Secure Digital Host
 	  Controller) found on numerous Freescale/NXP SoCs.
 
+config FSL_USDHC
+	bool "Freescale/NXP i.MX uSDHC controller support"
+	depends on MX6 || MX7 ||ARCH_MX7ULP || IMX8 || IMX8M || TARGET_S32V234EVB
+	select FSL_ESDHC_IMX
+	help
+	  This enables the Ultra Secured Digital Host Controller enhancements
+
 endmenu
 
 config SYS_FSL_ERRATUM_ESDHC111
