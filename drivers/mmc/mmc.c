@@ -235,7 +235,7 @@ int mmc_poll_for_busy(struct mmc *mmc, int timeout)
 	unsigned int status;
 	int err;
 
-	err = mmc_wait_dat0(mmc, 1, timeout);
+	err = mmc_wait_dat0(mmc, 1, timeout * 1000);
 	if (err != -ENOSYS)
 		return err;
 
@@ -778,7 +778,7 @@ static int __mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value,
 	start = get_timer(0);
 
 	/* poll dat0 for rdy/buys status */
-	ret = mmc_wait_dat0(mmc, 1, timeout);
+	ret = mmc_wait_dat0(mmc, 1, timeout * 1000);
 	if (ret && ret != -ENOSYS)
 		return ret;
 
