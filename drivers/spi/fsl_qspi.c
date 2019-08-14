@@ -273,19 +273,9 @@ static void qspi_set_lut(struct fsl_qspi_priv *priv)
 			     INSTR0(LUT_CMD) | OPRND1(ADDR32BIT) |
 			     PAD1(LUT_PAD1) | INSTR1(LUT_ADDR));
 #endif
-#if defined(CONFIG_MX6SX) || defined(CONFIG_MX6UL) || \
-	defined(CONFIG_MX6ULL) || defined(CONFIG_MX7D)
-	/*
-	 * To MX6SX, OPRND0(TX_BUFFER_SIZE) can not work correctly.
-	 * So, Use IDATSZ in IPCR to determine the size and here set 0.
-	 */
+	/* Use IDATSZ in IPCR to determine the size and here set 0. */
 	qspi_write32(priv->flags, &regs->lut[lut_base + 1], OPRND0(0) |
 		     PAD0(LUT_PAD1) | INSTR0(LUT_WRITE));
-#else
-	qspi_write32(priv->flags, &regs->lut[lut_base + 1],
-		     OPRND0(TX_BUFFER_SIZE) |
-		     PAD0(LUT_PAD1) | INSTR0(LUT_WRITE));
-#endif
 	qspi_write32(priv->flags, &regs->lut[lut_base + 2], 0);
 	qspi_write32(priv->flags, &regs->lut[lut_base + 3], 0);
 
