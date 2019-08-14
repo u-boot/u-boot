@@ -399,7 +399,7 @@ static inline void qspi_ahb_read(struct fsl_qspi_priv *priv, u8 *rxbuf, int len)
 
 	qspi_write32(priv->flags, &regs->mcr,
 		     QSPI_MCR_CLR_RXF_MASK | QSPI_MCR_CLR_TXF_MASK |
-		     QSPI_MCR_RESERVED_MASK | QSPI_MCR_END_CFD_LE);
+		     mcr_reg);
 
 	rx_addr = (void *)(uintptr_t)(priv->cur_amba_base + priv->sf_addr);
 	/* Read out the data directly from the AHB buffer. */
@@ -429,6 +429,14 @@ static void qspi_enable_ddr_mode(struct fsl_qspi_priv *priv)
 	reg |= BIT(29);
 
 	qspi_write32(priv->flags, &regs->mcr, reg);
+
+	/* Enable the TDH to 1 for some platforms like imx6ul, imx7d, etc
+	 * These two bits are reserved on other platforms
+	 */
+	reg = qspi_read32(priv->flags, &regs->flshcr);
+	reg &= ~(BIT(17));
+	reg |= BIT(16);
+	qspi_write32(priv->flags, &regs->flshcr, reg);
 }
 
 /*
@@ -482,7 +490,7 @@ static void qspi_op_rdbank(struct fsl_qspi_priv *priv, u8 *rxbuf, u32 len)
 	mcr_reg = qspi_read32(priv->flags, &regs->mcr);
 	qspi_write32(priv->flags, &regs->mcr,
 		     QSPI_MCR_CLR_RXF_MASK | QSPI_MCR_CLR_TXF_MASK |
-		     QSPI_MCR_RESERVED_MASK | QSPI_MCR_END_CFD_LE);
+		     mcr_reg);
 	qspi_write32(priv->flags, &regs->rbct, QSPI_RBCT_RXBRD_USEIPS);
 
 	qspi_write32(priv->flags, &regs->sfar, priv->cur_amba_base);
@@ -527,7 +535,7 @@ static void qspi_op_rdid(struct fsl_qspi_priv *priv, u32 *rxbuf, u32 len)
 	mcr_reg = qspi_read32(priv->flags, &regs->mcr);
 	qspi_write32(priv->flags, &regs->mcr,
 		     QSPI_MCR_CLR_RXF_MASK | QSPI_MCR_CLR_TXF_MASK |
-		     QSPI_MCR_RESERVED_MASK | QSPI_MCR_END_CFD_LE);
+		     mcr_reg);
 	qspi_write32(priv->flags, &regs->rbct, QSPI_RBCT_RXBRD_USEIPS);
 
 	qspi_write32(priv->flags, &regs->sfar, priv->cur_amba_base);
@@ -573,7 +581,7 @@ static void qspi_op_read(struct fsl_qspi_priv *priv, u32 *rxbuf, u32 len)
 	mcr_reg = qspi_read32(priv->flags, &regs->mcr);
 	qspi_write32(priv->flags, &regs->mcr,
 		     QSPI_MCR_CLR_RXF_MASK | QSPI_MCR_CLR_TXF_MASK |
-		     QSPI_MCR_RESERVED_MASK | QSPI_MCR_END_CFD_LE);
+		     mcr_reg);
 	qspi_write32(priv->flags, &regs->rbct, QSPI_RBCT_RXBRD_USEIPS);
 
 	to_or_from = priv->sf_addr + priv->cur_amba_base;
@@ -625,7 +633,7 @@ static void qspi_op_write(struct fsl_qspi_priv *priv, u8 *txbuf, u32 len)
 	mcr_reg = qspi_read32(priv->flags, &regs->mcr);
 	qspi_write32(priv->flags, &regs->mcr,
 		     QSPI_MCR_CLR_RXF_MASK | QSPI_MCR_CLR_TXF_MASK |
-		     QSPI_MCR_RESERVED_MASK | QSPI_MCR_END_CFD_LE);
+		     mcr_reg);
 	qspi_write32(priv->flags, &regs->rbct, QSPI_RBCT_RXBRD_USEIPS);
 
 	status_reg = 0;
@@ -700,7 +708,7 @@ static void qspi_op_rdsr(struct fsl_qspi_priv *priv, void *rxbuf, u32 len)
 	mcr_reg = qspi_read32(priv->flags, &regs->mcr);
 	qspi_write32(priv->flags, &regs->mcr,
 		     QSPI_MCR_CLR_RXF_MASK | QSPI_MCR_CLR_TXF_MASK |
-		     QSPI_MCR_RESERVED_MASK | QSPI_MCR_END_CFD_LE);
+		     mcr_reg);
 	qspi_write32(priv->flags, &regs->rbct, QSPI_RBCT_RXBRD_USEIPS);
 
 	qspi_write32(priv->flags, &regs->sfar, priv->cur_amba_base);
@@ -737,7 +745,7 @@ static void qspi_op_erase(struct fsl_qspi_priv *priv)
 	mcr_reg = qspi_read32(priv->flags, &regs->mcr);
 	qspi_write32(priv->flags, &regs->mcr,
 		     QSPI_MCR_CLR_RXF_MASK | QSPI_MCR_CLR_TXF_MASK |
-		     QSPI_MCR_RESERVED_MASK | QSPI_MCR_END_CFD_LE);
+		     mcr_reg);
 	qspi_write32(priv->flags, &regs->rbct, QSPI_RBCT_RXBRD_USEIPS);
 
 	to_or_from = priv->sf_addr + priv->cur_amba_base;
@@ -867,7 +875,6 @@ static int fsl_qspi_child_pre_probe(struct udevice *dev)
 
 static int fsl_qspi_probe(struct udevice *bus)
 {
-	u32 mcr_val;
 	u32 amba_size_per_chip;
 	struct fsl_qspi_platdata *plat = dev_get_platdata(bus);
 	struct fsl_qspi_priv *priv = dev_get_priv(bus);
@@ -900,15 +907,9 @@ static int fsl_qspi_probe(struct udevice *bus)
 		return ret;
 	}
 
-	mcr_val = qspi_read32(priv->flags, &priv->regs->mcr);
-
-	/* Set endianness to LE for i.mx */
-	if (IS_ENABLED(CONFIG_MX6) || IS_ENABLED(CONFIG_MX7))
-		mcr_val = QSPI_MCR_END_CFD_LE;
-
 	qspi_write32(priv->flags, &priv->regs->mcr,
 		     QSPI_MCR_RESERVED_MASK | QSPI_MCR_MDIS_MASK |
-		     (mcr_val & QSPI_MCR_END_CFD_MASK));
+		     QSPI_MCR_END_CFD_LE);
 
 	qspi_cfg_smpr(priv, ~(QSPI_SMPR_FSDLY_MASK | QSPI_SMPR_DDRSMP_MASK |
 		QSPI_SMPR_FSPHS_MASK | QSPI_SMPR_HSENA_MASK), 0);
