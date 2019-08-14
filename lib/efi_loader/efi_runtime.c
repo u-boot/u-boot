@@ -565,7 +565,10 @@ void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map)
 
 		p = (void*)((ulong)rel->offset - base) + gd->relocaddr;
 
-		/* The runtime services are updated in efi_runtime_detach() */
+		/*
+		 * The runtime services table is updated in
+		 * efi_relocate_runtime_table()
+		 */
 		if (map && efi_is_runtime_service_pointer(p))
 			continue;
 
@@ -723,14 +726,6 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
 			systab.tables = (struct efi_configuration_table *)ptr;
 		}
 	}
-
-	/*
-	 * Some runtime services are implemented in a way that we can only offer
-	 * them at boottime. Replace those function pointers.
-	 *
-	 * TODO: move this call to ExitBootServices().
-	 */
-	efi_runtime_detach();
 
 	/* Relocate the runtime. See TODO above */
 	for (i = 0; i < n; i++) {
