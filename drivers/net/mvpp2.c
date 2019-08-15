@@ -4502,6 +4502,29 @@ static void mvpp2_phy_connect(struct udevice *dev, struct mvpp2_port *port)
 	if (!port->init || port->link == 0) {
 		phy_dev = phy_connect(port->bus, port->phyaddr, dev,
 				      port->phy_interface);
+
+		/*
+		 * If the phy doesn't match with any existing u-boot drivers the
+		 * phy framework will connect it to generic one which
+		 * uid == 0xffffffff. In this case act as if the phy wouldn't be
+		 * declared in dts. Otherwise in case of 3310 (for which the
+		 * driver doesn't exist) the link will not be correctly
+		 * detected. Removing phy entry from dts in case of 3310 is not
+		 * an option because it is required for the phy_fw_down
+		 * procedure.
+		 */
+		if (phy_dev &&
+		    phy_dev->drv->uid == 0xffffffff) {/* Generic phy */
+			netdev_warn(port->dev,
+				    "Marking phy as invalid, link will not be checked\n");
+			/* set phy_addr to invalid value */
+			port->phyaddr = PHY_MAX_ADDR;
+			mvpp2_egress_enable(port);
+			mvpp2_ingress_enable(port);
+
+			return;
+		}
+
 		port->phy_dev = phy_dev;
 		if (!phy_dev) {
 			netdev_err(port->dev, "cannot connect to phy\n");
