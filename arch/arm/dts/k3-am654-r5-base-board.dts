@@ -16,6 +16,7 @@
 
 	aliases {
 		serial0 = &wkup_uart0;
+		serial1 = &mcu_uart0;
 		serial2 = &main_uart0;
 	};
 
@@ -118,6 +119,14 @@
 	status = "okay";
 };
 
+&mcu_uart0 {
+	u-boot,dm-spl;
+	pinctrl-names = "default";
+	pinctrl-0 = <&mcu_uart0_pins_default>;
+	clock-frequency = <48000000>;
+	status = "okay";
+};
+
 &main_uart0 {
 	power-domains = <&k3_pds 146 TI_SCI_PD_SHARED>;
 };
@@ -137,6 +146,16 @@
 	wkup_vtt_pins_default: wkup_vtt_pins_default {
 		pinctrl-single,pins = <
 			AM65X_WKUP_IOPAD(0x0040, PIN_OUTPUT_PULLUP, 7)	/* WKUP_GPIO0_28 */
+		>;
+		u-boot,dm-spl;
+	};
+
+	mcu_uart0_pins_default: mcu_uart0_pins_default {
+		pinctrl-single,pins = <
+			AM65X_WKUP_IOPAD(0x0044, PIN_INPUT, 4)	/* (P4) MCU_OSPI1_D1.MCU_UART0_RXD */
+			AM65X_WKUP_IOPAD(0x0048, PIN_OUTPUT, 4)	/* (P5) MCU_OSPI1_D2.MCU_UART0_TXD */
+			AM65X_WKUP_IOPAD(0x004C, PIN_INPUT, 4)	/* (P1) MCU_OSPI1_D3.MCU_UART0_CTSn */
+			AM65X_WKUP_IOPAD(0x0054, PIN_OUTPUT, 4)	/* (N3) MCU_OSPI1_CSn1.MCU_UART0_RTSn */
 		>;
 		u-boot,dm-spl;
 	};
