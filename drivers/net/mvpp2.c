@@ -4495,7 +4495,7 @@ static void mvpp2_stop_dev(struct mvpp2_port *port)
 		gop_port_enable(port, 0);
 }
 
-static int mvpp2_phy_connect(struct udevice *dev, struct mvpp2_port *port)
+static void mvpp2_phy_connect(struct udevice *dev, struct mvpp2_port *port)
 {
 	struct phy_device *phy_dev;
 
@@ -4505,7 +4505,7 @@ static int mvpp2_phy_connect(struct udevice *dev, struct mvpp2_port *port)
 		port->phy_dev = phy_dev;
 		if (!phy_dev) {
 			netdev_err(port->dev, "cannot connect to phy\n");
-			return -ENODEV;
+			return;
 		}
 		phy_dev->supported &= PHY_GBIT_FEATURES;
 		phy_dev->advertising = phy_dev->supported;
@@ -4517,18 +4517,14 @@ static int mvpp2_phy_connect(struct udevice *dev, struct mvpp2_port *port)
 
 		phy_config(phy_dev);
 		phy_startup(phy_dev);
-		if (!phy_dev->link) {
+		if (!phy_dev->link)
 			printf("%s: No link\n", phy_dev->dev->name);
-			return -1;
-		}
-
-		port->init = 1;
+		else
+			port->init = 1;
 	} else {
 		mvpp2_egress_enable(port);
 		mvpp2_ingress_enable(port);
 	}
-
-	return 0;
 }
 
 static int mvpp2_open(struct udevice *dev, struct mvpp2_port *port)
@@ -4568,10 +4564,7 @@ static int mvpp2_open(struct udevice *dev, struct mvpp2_port *port)
 	}
 
 	if (port->phy_node) {
-		err = mvpp2_phy_connect(dev, port);
-		if (err < 0)
-			return err;
-
+		mvpp2_phy_connect(dev, port);
 		mvpp2_link_event(port);
 	} else {
 		mvpp2_egress_enable(port);
@@ -5176,6 +5169,10 @@ static int mvpp2_recv(struct udevice *dev, int flags, uchar **packetp)
 	struct mvpp2_rx_queue *rxq;
 	u8 *data;
 
+	if (port->phy_node)
+		if (!port->phy_dev->link)
+			return 0;
+
 	/* Process RX packets */
 	rxq = port->rxqs[0];
 
@@ -5240,6 +5237,10 @@ static int mvpp2_send(struct udevice *dev, void *packet, int length)
 	struct mvpp2_tx_desc *tx_desc;
 	int tx_done;
 	int timeout;
+
+	if (port->phy_node)
+		if (!port->phy_dev->link)
+			return 0;
 
 	txq = port->txqs[0];
 	aggr_txq = &port->priv->aggr_txqs[smp_processor_id()];
