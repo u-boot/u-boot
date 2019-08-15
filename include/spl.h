@@ -434,6 +434,9 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 		 int raw_part,
 		 unsigned long raw_sect);
 
+int spl_ymodem_load_image(struct spl_image_info *spl_image,
+			  struct spl_boot_device *bootdev);
+
 /**
  * spl_invoke_atf - boot using an ARM trusted firmware image
  */

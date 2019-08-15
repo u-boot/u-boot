@@ -68,8 +68,8 @@ static ulong ymodem_read_fit(struct spl_load_info *load, ulong offset,
 	return size;
 }
 
-static int spl_ymodem_load_image(struct spl_image_info *spl_image,
-				 struct spl_boot_device *bootdev)
+int spl_ymodem_load_image(struct spl_image_info *spl_image,
+			  struct spl_boot_device *bootdev)
 {
 	ulong size = 0;
 	int err;
