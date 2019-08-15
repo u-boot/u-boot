@@ -116,11 +116,6 @@
 	status = "okay";
 };
 
-&usb_host0_xhci {
-	vbus-supply = <&vcc5v0_host_xhci>;
-	status = "okay";
-};
-
 &i2c1 {
 	clock-frequency = <400000>;
 	i2c-scl-rising-time-ns = <168>;
