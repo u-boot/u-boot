@@ -12,6 +12,9 @@
 #include <remoteproc.h>
 #include <linux/soc/ti/ti_sci_protocol.h>
 #include <asm/arch/sys_proto.h>
+#include "common.h"
+
+DECLARE_GLOBAL_DATA_PTR;
 
 /* Name of the FIT image nodes for SYSFW and its config data */
 #define SYSFW_FIRMWARE			"sysfw.bin"
@@ -213,6 +216,24 @@ void k3_sysfw_loader(void (*config_pm_done_callback)(void))
 #else
 				   0);
 #endif
+		break;
+#endif
+#if CONFIG_IS_ENABLED(YMODEM_SUPPORT)
+	case BOOT_DEVICE_UART:
+#ifdef CONFIG_K3_EARLY_CONS
+		/*
+		 * Establish a serial console if not yet available as required
+		 * for UART-based boot. For this use the early console feature
+		 * that allows setting up a UART for use before SYSFW has been
+		 * brought up. Note that the associated UART module's clocks
+		 * must have gotten enabled by the ROM bootcode which will be
+		 * the case when continuing to boot serially from the same
+		 * UART that the ROM loaded the initial bootloader from.
+		 */
+		if (!gd->have_console)
+			early_console_init();
+#endif
+		ret = spl_ymodem_load_image(&spl_image, &bootdev);
 		break;
 #endif
 	default:
