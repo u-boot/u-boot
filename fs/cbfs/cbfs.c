@@ -11,9 +11,14 @@
 enum cbfs_result file_cbfs_result;
 static const u32 good_magic = 0x4f524243;
 static const u8 good_file_magic[] = "LARCHIVE";
-static int initialized;
-static struct cbfs_header cbfs_header;
-static struct cbfs_cachenode *file_cache;
+
+struct cbfs_priv {
+	int initialized;
+	struct cbfs_header header;
+	struct cbfs_cachenode *file_cache;
+};
+
+static struct cbfs_priv cbfs_s;
 
 const char *file_cbfs_error(void)
 {
@@ -69,8 +74,9 @@ static void swap_file_header(struct cbfs_fileheader *dest,
  *
  * @return 1 if a file is found, 0 if one isn't.
  */
-static int file_cbfs_next_file(u8 *start, u32 size, u32 align,
-			       struct cbfs_cachenode *newNode, u32 *used)
+static int file_cbfs_next_file(struct cbfs_priv *priv, u8 *start, u32 size,
+			       u32 align, struct cbfs_cachenode *newNode,
+			       u32 *used)
 {
 	struct cbfs_fileheader header;
 
@@ -117,20 +123,21 @@ static int file_cbfs_next_file(u8 *start, u32 size, u32 align,
 }
 
 /* Look through a CBFS instance and copy file metadata into regular memory. */
-static void file_cbfs_fill_cache(u8 *start, u32 size, u32 align)
+static void file_cbfs_fill_cache(struct cbfs_priv *priv, u8 *start, u32 size,
+				 u32 align)
 {
 	struct cbfs_cachenode *cache_node;
 	struct cbfs_cachenode *newNode;
-	struct cbfs_cachenode **cache_tail = &file_cache;
+	struct cbfs_cachenode **cache_tail = &priv->file_cache;
 
 	/* Clear out old information. */
-	cache_node = file_cache;
+	cache_node = priv->file_cache;
 	while (cache_node) {
 		struct cbfs_cachenode *oldNode = cache_node;
 		cache_node = cache_node->next;
 		free(oldNode);
 	}
-	file_cache = NULL;
+	priv->file_cache = NULL;
 
 	while (size >= align) {
 		int result;
@@ -138,8 +145,8 @@ static void file_cbfs_fill_cache(u8 *start, u32 size, u32 align)
 
 		newNode = (struct cbfs_cachenode *)
 				malloc(sizeof(struct cbfs_cachenode));
-		result = file_cbfs_next_file(start, size, align,
-			newNode, &used);
+		result = file_cbfs_next_file(priv, start, size, align, newNode,
+					     &used);
 
 		if (result < 0) {
 			free(newNode);
@@ -175,27 +182,35 @@ static int file_cbfs_load_header(uintptr_t end_of_rom,
 	return 0;
 }
 
-void file_cbfs_init(uintptr_t end_of_rom)
+static void cbfs_init(struct cbfs_priv *priv, uintptr_t end_of_rom)
 {
 	u8 *start_of_rom;
-	initialized = 0;
 
-	if (file_cbfs_load_header(end_of_rom, &cbfs_header))
+	priv->initialized = 0;
+
+	if (file_cbfs_load_header(end_of_rom, &priv->header))
 		return;
 
-	start_of_rom = (u8 *)(end_of_rom + 1 - cbfs_header.rom_size);
+	start_of_rom = (u8 *)(end_of_rom + 1 - priv->header.rom_size);
 
-	file_cbfs_fill_cache(start_of_rom, cbfs_header.rom_size,
-			     cbfs_header.align);
+	file_cbfs_fill_cache(priv, start_of_rom, priv->header.rom_size,
+			     priv->header.align);
 	if (file_cbfs_result == CBFS_SUCCESS)
-		initialized = 1;
+		priv->initialized = 1;
+}
+
+void file_cbfs_init(uintptr_t end_of_rom)
+{
+	cbfs_init(&cbfs_s, end_of_rom);
 }
 
 const struct cbfs_header *file_cbfs_get_header(void)
 {
-	if (initialized) {
+	struct cbfs_priv *priv = &cbfs_s;
+
+	if (priv->initialized) {
 		file_cbfs_result = CBFS_SUCCESS;
-		return &cbfs_header;
+		return &priv->header;
 	} else {
 		file_cbfs_result = CBFS_NOT_INITIALIZED;
 		return NULL;
@@ -204,20 +219,24 @@ const struct cbfs_header *file_cbfs_get_header(void)
 
 const struct cbfs_cachenode *file_cbfs_get_first(void)
 {
-	if (!initialized) {
+	struct cbfs_priv *priv = &cbfs_s;
+
+	if (!priv->initialized) {
 		file_cbfs_result = CBFS_NOT_INITIALIZED;
 		return NULL;
 	} else {
 		file_cbfs_result = CBFS_SUCCESS;
-		return file_cache;
+		return priv->file_cache;
 	}
 }
 
 void file_cbfs_get_next(const struct cbfs_cachenode **file)
 {
-	if (!initialized) {
+	struct cbfs_priv *priv = &cbfs_s;
+
+	if (!priv->initialized) {
 		file_cbfs_result = CBFS_NOT_INITIALIZED;
-		file = NULL;
+		*file = NULL;
 		return;
 	}
 
@@ -226,11 +245,12 @@ void file_cbfs_get_next(const struct cbfs_cachenode **file)
 	file_cbfs_result = CBFS_SUCCESS;
 }
 
-const struct cbfs_cachenode *file_cbfs_find(const char *name)
+const struct cbfs_cachenode *cbfs_find_file(struct cbfs_priv *priv,
+					    const char *name)
 {
-	struct cbfs_cachenode *cache_node = file_cache;
+	struct cbfs_cachenode *cache_node = priv->file_cache;
 
-	if (!initialized) {
+	if (!priv->initialized) {
 		file_cbfs_result = CBFS_NOT_INITIALIZED;
 		return NULL;
 	}
@@ -248,26 +268,33 @@ const struct cbfs_cachenode *file_cbfs_find(const char *name)
 	return cache_node;
 }
 
+const struct cbfs_cachenode *file_cbfs_find(const char *name)
+{
+	return cbfs_find_file(&cbfs_s, name);
+}
+
 const struct cbfs_cachenode *file_cbfs_find_uncached(uintptr_t end_of_rom,
 						     const char *name)
 {
+	struct cbfs_priv *priv = &cbfs_s;
 	u8 *start;
 	u32 size;
 	u32 align;
 	static struct cbfs_cachenode node;
 
-	if (file_cbfs_load_header(end_of_rom, &cbfs_header))
+	if (file_cbfs_load_header(end_of_rom, &priv->header))
 		return NULL;
 
-	start = (u8 *)(end_of_rom + 1 - cbfs_header.rom_size);
-	size = cbfs_header.rom_size;
-	align = cbfs_header.align;
+	start = (u8 *)(end_of_rom + 1 - priv->header.rom_size);
+	size = priv->header.rom_size;
+	align = priv->header.align;
 
 	while (size >= align) {
 		int result;
 		u32 used;
 
-		result = file_cbfs_next_file(start, size, align, &node, &used);
+		result = file_cbfs_next_file(priv, start, size, align, &node,
+					     &used);
 
 		if (result < 0)
 			return NULL;
