@@ -709,7 +709,8 @@ to load a 'u-boot-payload.efi', see below test logs on QEMU.
   No controllers found
   Hit any key to stop autoboot:  0
 
-See README.u-boot_on_efi and README.uefi for details of EFI support in U-Boot.
+See :doc:`../uefi/u-boot_on_efi` and :doc:`../uefi/uefi` for details of
+EFI support in U-Boot.
 
 TODO List
 ---------
