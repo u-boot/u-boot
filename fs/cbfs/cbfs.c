@@ -187,6 +187,23 @@ static int file_cbfs_load_header(uintptr_t end_of_rom,
 	return 0;
 }
 
+static int cbfs_load_header_ptr(struct cbfs_priv *priv, ulong base,
+				struct cbfs_header *header)
+{
+	struct cbfs_header *header_in_rom;
+
+	header_in_rom = (struct cbfs_header *)base;
+	swap_header(header, header_in_rom);
+
+	if (header->magic != good_magic || header->offset >
+			header->rom_size - header->boot_block_size) {
+		priv->result = CBFS_BAD_HEADER;
+		return -EFAULT;
+	}
+
+	return 0;
+}
+
 static void cbfs_init(struct cbfs_priv *priv, uintptr_t end_of_rom)
 {
 	u8 *start_of_rom;
@@ -207,6 +224,35 @@ static void cbfs_init(struct cbfs_priv *priv, uintptr_t end_of_rom)
 void file_cbfs_init(uintptr_t end_of_rom)
 {
 	cbfs_init(&cbfs_s, end_of_rom);
+}
+
+int cbfs_init_mem(ulong base, ulong size, struct cbfs_priv **privp)
+{
+	struct cbfs_priv priv_s, *priv = &priv_s;
+	int ret;
+
+	/*
+	 * Use a local variable to start with until we know that the CBFS is
+	 * valid. Assume that a master header appears at the start, at offset
+	 * 0x38.
+	 */
+	ret = cbfs_load_header_ptr(priv, base + 0x38, &priv->header);
+	if (ret)
+		return ret;
+
+	file_cbfs_fill_cache(priv, (u8 *)base, priv->header.rom_size,
+			     priv->header.align);
+	if (priv->result != CBFS_SUCCESS)
+		return -EINVAL;
+
+	priv->initialized = 1;
+	priv = malloc(sizeof(priv_s));
+	if (!priv)
+		return -ENOMEM;
+	memcpy(priv, &priv_s, sizeof(priv_s));
+	*privp = priv;
+
+	return 0;
 }
 
 const struct cbfs_header *file_cbfs_get_header(void)

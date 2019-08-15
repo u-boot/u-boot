@@ -135,6 +135,28 @@ void file_cbfs_get_next(const struct cbfs_cachenode **file);
  */
 const struct cbfs_cachenode *file_cbfs_find(const char *name);
 
+struct cbfs_priv *priv;
+
+/**
+ * cbfs_find_file() - Find a file in a given CBFS
+ *
+ * @cbfs: CBFS to look in (use cbfs_init_mem() to set it up)
+ * @name: Filename to look for
+ * @return pointer to CBFS node if found, else NULL
+ */
+const struct cbfs_cachenode *cbfs_find_file(struct cbfs_priv *cbfs,
+					    const char *name);
+
+/**
+ * cbfs_init_mem() - Set up a new CBFS
+ *
+ * @base: Base address of CBFS
+ * @size: Size of CBFS in bytes
+ * @cbfsp: Returns a pointer to CBFS on success
+ * @return 0 if OK, -ve on error
+ */
+int cbfs_init_mem(ulong base, ulong size, struct cbfs_priv **privp);
+
 
 /***************************************************************************/
 /* All of the functions below can be used without first initializing CBFS. */
