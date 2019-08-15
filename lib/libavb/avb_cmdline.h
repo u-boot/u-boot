@@ -43,10 +43,12 @@ char* avb_sub_cmdline(AvbOps* ops,
 
 AvbSlotVerifyResult avb_append_options(
     AvbOps* ops,
+    AvbSlotVerifyFlags flags,
     AvbSlotVerifyData* slot_data,
     AvbVBMetaImageHeader* toplevel_vbmeta,
     AvbAlgorithmType algorithm_type,
-    AvbHashtreeErrorMode hashtree_error_mode);
+    AvbHashtreeErrorMode hashtree_error_mode,
+    AvbHashtreeErrorMode resolved_hashtree_error_mode);
 
 /* Allocates and initializes a new command line substitution list. Free with
  * |avb_free_cmdline_subst_list|.
