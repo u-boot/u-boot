@@ -357,7 +357,8 @@ AvbSlotVerifyResult avb_append_options(
         // Should never get here because MANAGED_RESTART_AND_EIO is
         // remapped by avb_manage_hashtree_error_mode().
         avb_assert_not_reached();
-        break;
+        ret = AVB_SLOT_VERIFY_RESULT_ERROR_INVALID_ARGUMENT;
+        goto out;
       default:
         ret = AVB_SLOT_VERIFY_RESULT_ERROR_INVALID_ARGUMENT;
         goto out;
