@@ -15,11 +15,6 @@
 #define AVB_BOOTARGS	"avb_bootargs"
 static struct AvbOps *avb_ops;
 
-static const char * const requested_partitions[] = {"boot",
-					     "system",
-					     "vendor",
-					     NULL};
-
 int do_avb_init(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned long mmc_dev;
@@ -232,6 +227,7 @@ int do_avb_get_uuid(cmd_tbl_t *cmdtp, int flag,
 int do_avb_verify_part(cmd_tbl_t *cmdtp, int flag,
 		       int argc, char *const argv[])
 {
+	const char * const requested_partitions[] = {"boot", NULL};
 	AvbSlotVerifyResult slot_result;
 	AvbSlotVerifyData *out_data;
 	char *cmdline;
