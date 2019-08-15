@@ -9,3 +9,4 @@
 #include <asm/armv7_mpu.h>
 
 void setup_k3_mpu_regions(void);
+int early_console_init(void);
