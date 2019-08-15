@@ -34,6 +34,22 @@
 
 		apb {
 			u-boot,dm-pre-reloc;
+
+			sdhci0: sdhci@1e740100 {
+				compatible = "aspeed,ast2500-sdhci";
+				reg = <0x1e740100>;
+				#reset-cells = <1>;
+				clocks = <&scu BCLK_SDCLK>;
+				resets = <&rst AST_RESET_SDIO>;
+			};
+
+			sdhci1: sdhci@1e740200 {
+				compatible = "aspeed,ast2500-sdhci";
+				reg = <0x1e740200>;
+				#reset-cells = <1>;
+				clocks = <&scu BCLK_SDCLK>;
+				resets = <&rst AST_RESET_SDIO>;
+			};
 		};
 
 	};
