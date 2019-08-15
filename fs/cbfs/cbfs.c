@@ -8,7 +8,6 @@
 #include <malloc.h>
 #include <asm/byteorder.h>
 
-enum cbfs_result file_cbfs_result;
 static const u32 good_magic = 0x4f524243;
 static const u8 good_file_magic[] = "LARCHIVE";
 
@@ -16,13 +15,14 @@ struct cbfs_priv {
 	int initialized;
 	struct cbfs_header header;
 	struct cbfs_cachenode *file_cache;
+	enum cbfs_result result;
 };
 
 static struct cbfs_priv cbfs_s;
 
 const char *file_cbfs_error(void)
 {
-	switch (file_cbfs_result) {
+	switch (cbfs_s.result) {
 	case CBFS_SUCCESS:
 		return "Success";
 	case CBFS_NOT_INITIALIZED:
@@ -36,6 +36,11 @@ const char *file_cbfs_error(void)
 	default:
 		return "Unknown";
 	}
+}
+
+enum cbfs_result cbfs_get_result(void)
+{
+	return cbfs_s.result;
 }
 
 /* Do endian conversion on the CBFS header structure. */
@@ -99,7 +104,7 @@ static int file_cbfs_next_file(struct cbfs_priv *priv, u8 *start, u32 size,
 
 		swap_file_header(&header, fileHeader);
 		if (header.offset < sizeof(struct cbfs_fileheader)) {
-			file_cbfs_result = CBFS_BAD_FILE;
+			priv->result = CBFS_BAD_FILE;
 			return -1;
 		}
 		newNode->next = NULL;
@@ -161,7 +166,7 @@ static void file_cbfs_fill_cache(struct cbfs_priv *priv, u8 *start, u32 size,
 		size -= used;
 		start += used;
 	}
-	file_cbfs_result = CBFS_SUCCESS;
+	priv->result = CBFS_SUCCESS;
 }
 
 /* Get the CBFS header out of the ROM and do endian conversion. */
@@ -176,7 +181,7 @@ static int file_cbfs_load_header(uintptr_t end_of_rom,
 
 	if (header->magic != good_magic || header->offset >
 			header->rom_size - header->boot_block_size) {
-		file_cbfs_result = CBFS_BAD_HEADER;
+		cbfs_s.result = CBFS_BAD_HEADER;
 		return 1;
 	}
 	return 0;
@@ -195,7 +200,7 @@ static void cbfs_init(struct cbfs_priv *priv, uintptr_t end_of_rom)
 
 	file_cbfs_fill_cache(priv, start_of_rom, priv->header.rom_size,
 			     priv->header.align);
-	if (file_cbfs_result == CBFS_SUCCESS)
+	if (priv->result == CBFS_SUCCESS)
 		priv->initialized = 1;
 }
 
@@ -209,10 +214,10 @@ const struct cbfs_header *file_cbfs_get_header(void)
 	struct cbfs_priv *priv = &cbfs_s;
 
 	if (priv->initialized) {
-		file_cbfs_result = CBFS_SUCCESS;
+		priv->result = CBFS_SUCCESS;
 		return &priv->header;
 	} else {
-		file_cbfs_result = CBFS_NOT_INITIALIZED;
+		priv->result = CBFS_NOT_INITIALIZED;
 		return NULL;
 	}
 }
@@ -222,10 +227,10 @@ const struct cbfs_cachenode *file_cbfs_get_first(void)
 	struct cbfs_priv *priv = &cbfs_s;
 
 	if (!priv->initialized) {
-		file_cbfs_result = CBFS_NOT_INITIALIZED;
+		priv->result = CBFS_NOT_INITIALIZED;
 		return NULL;
 	} else {
-		file_cbfs_result = CBFS_SUCCESS;
+		priv->result = CBFS_SUCCESS;
 		return priv->file_cache;
 	}
 }
@@ -235,14 +240,14 @@ void file_cbfs_get_next(const struct cbfs_cachenode **file)
 	struct cbfs_priv *priv = &cbfs_s;
 
 	if (!priv->initialized) {
-		file_cbfs_result = CBFS_NOT_INITIALIZED;
+		priv->result = CBFS_NOT_INITIALIZED;
 		*file = NULL;
 		return;
 	}
 
 	if (*file)
 		*file = (*file)->next;
-	file_cbfs_result = CBFS_SUCCESS;
+	priv->result = CBFS_SUCCESS;
 }
 
 const struct cbfs_cachenode *cbfs_find_file(struct cbfs_priv *priv,
@@ -251,7 +256,7 @@ const struct cbfs_cachenode *cbfs_find_file(struct cbfs_priv *priv,
 	struct cbfs_cachenode *cache_node = priv->file_cache;
 
 	if (!priv->initialized) {
-		file_cbfs_result = CBFS_NOT_INITIALIZED;
+		priv->result = CBFS_NOT_INITIALIZED;
 		return NULL;
 	}
 
@@ -261,9 +266,9 @@ const struct cbfs_cachenode *cbfs_find_file(struct cbfs_priv *priv,
 		cache_node = cache_node->next;
 	}
 	if (!cache_node)
-		file_cbfs_result = CBFS_FILE_NOT_FOUND;
+		priv->result = CBFS_FILE_NOT_FOUND;
 	else
-		file_cbfs_result = CBFS_SUCCESS;
+		priv->result = CBFS_SUCCESS;
 
 	return cache_node;
 }
@@ -307,25 +312,28 @@ const struct cbfs_cachenode *file_cbfs_find_uncached(uintptr_t end_of_rom,
 		size -= used;
 		start += used;
 	}
-	file_cbfs_result = CBFS_FILE_NOT_FOUND;
+	cbfs_s.result = CBFS_FILE_NOT_FOUND;
 	return NULL;
 }
 
 const char *file_cbfs_name(const struct cbfs_cachenode *file)
 {
-	file_cbfs_result = CBFS_SUCCESS;
+	cbfs_s.result = CBFS_SUCCESS;
+
 	return file->name;
 }
 
 u32 file_cbfs_size(const struct cbfs_cachenode *file)
 {
-	file_cbfs_result = CBFS_SUCCESS;
+	cbfs_s.result = CBFS_SUCCESS;
+
 	return file->data_length;
 }
 
 u32 file_cbfs_type(const struct cbfs_cachenode *file)
 {
-	file_cbfs_result = CBFS_SUCCESS;
+	cbfs_s.result = CBFS_SUCCESS;
+
 	return file->type;
 }
 
@@ -339,7 +347,7 @@ long file_cbfs_read(const struct cbfs_cachenode *file, void *buffer,
 		size = maxsize;
 
 	memcpy(buffer, file->data, size);
+	cbfs_s.result = CBFS_SUCCESS;
 
-	file_cbfs_result = CBFS_SUCCESS;
 	return size;
 }

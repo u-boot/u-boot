@@ -91,6 +91,13 @@ extern enum cbfs_result file_cbfs_result;
 const char *file_cbfs_error(void);
 
 /**
+ * cbfs_get_result() - Get the result of the last CBFS operation
+ *
+ *@return last result
+ */
+enum cbfs_result cbfs_get_result(void);
+
+/**
  * file_cbfs_init() - Initialize the CBFS driver and load metadata into RAM.
  *
  * @end_of_rom: Points to the end of the ROM the CBFS should be read
