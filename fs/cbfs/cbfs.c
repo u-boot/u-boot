@@ -9,6 +9,11 @@
 #include <asm/byteorder.h>
 
 enum cbfs_result file_cbfs_result;
+static const u32 good_magic = 0x4f524243;
+static const u8 good_file_magic[] = "LARCHIVE";
+static int initialized;
+static struct cbfs_header cbfs_header;
+static struct cbfs_cachenode *file_cache;
 
 const char *file_cbfs_error(void)
 {
@@ -27,15 +32,6 @@ const char *file_cbfs_error(void)
 		return "Unknown";
 	}
 }
-
-
-static const u32 good_magic = 0x4f524243;
-static const u8 good_file_magic[] = "LARCHIVE";
-
-
-static int initialized;
-static struct cbfs_header cbfs_header;
-static struct cbfs_cachenode *file_cache;
 
 /* Do endian conversion on the CBFS header structure. */
 static void swap_header(struct cbfs_header *dest, struct cbfs_header *src)
