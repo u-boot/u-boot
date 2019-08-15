@@ -261,3 +261,35 @@ To boot kernel from eMMC, use the following commands:
 => setenv mmcdev 0
 => setenv bootpart 0
 => boot
+
+UART:
+-----
+ROM supports booting from MCU_UART0 via X-Modem protocol. The entire UART-based
+boot process up to U-Boot (proper) prompt goes through different stages and uses
+different UART peripherals as follows:
+
+  WHO     | Loading WHAT  |  HW Module  |  Protocol
+----------+---------------+-------------+------------
+Boot ROM  |  tiboot3.bin  |  MCU_UART0  |  X-Modem(*)
+R5 SPL    |  sysfw.itb    |  MCU_UART0  |  Y-Modem(*)
+R5 SPL    |  tispl.bin    |  MAIN_UART0 |  Y-Modem
+A53 SPL   |  u-boot.img   |  MAIN_UART0 |  Y-Modem
+
+(*) Note that in addition to X/Y-Modem related protocol timeouts the DMSC
+    watchdog timeout of 3min (typ.) needs to be observed until System Firmware
+    is fully loaded (from sysfw.itb) and started.
+
+Example bash script sequence for running on a Linux host PC feeding all boot
+artifacts needed to the device:
+
+MCU_DEV=/dev/ttyUSB1
+MAIN_DEV=/dev/ttyUSB0
+
+stty -F $MCU_DEV 115200 cs8 -cstopb -parenb
+stty -F $MAIN_DEV 115200 cs8 -cstopb -parenb
+
+sb --xmodem tiboot3.bin > $MCU_DEV < $MCU_DEV
+sb --ymodem sysfw.itb > $MCU_DEV < $MCU_DEV
+sb --ymodem tispl.bin > $MAIN_DEV < $MAIN_DEV
+sleep 1
+sb --xmodem u-boot.img > $MAIN_DEV < $MAIN_DEV
