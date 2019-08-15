@@ -99,6 +99,15 @@
 				device-name = "cpm-mdio";
 			};
 
+			cpm_xmdio: mdio@12a600 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				compatible = "marvell,xmdio";
+				reg = <0x12a600 0x16>;
+				status = "disabled";
+				device-name = "cpm-xmdio";
+			};
+
 			cpm_syscon0: system-controller@440000 {
 				compatible = "marvell,cp110-system-controller0",
 					     "syscon";
