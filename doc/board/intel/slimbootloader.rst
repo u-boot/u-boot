@@ -87,7 +87,7 @@ The PayloadId can be any 4 Bytes value.
    $ qemu-system-x86_64 -machine q35 -nographic -serial mon:stdio -pflash Outputs/qemu/SlimBootloader.bin
 
 Build Instruction for Slim Bootloader for LeafHill (APL) target
---------------------------------------------------------------
+---------------------------------------------------------------
 
 LeafHill is using PCI UART2 device as a serial port.
 For MEM32 serial port, CONFIG_SYS_NS16550_MEM32 needs to be enabled in U-Boot.
