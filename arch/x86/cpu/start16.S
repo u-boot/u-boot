@@ -23,9 +23,6 @@ start16:
 	/* Save BIST */
 	movl	%eax, %ecx
 
-	/* Set the Cold Boot / Hard Reset flag */
-	movl	$GD_FLG_COLD_BOOT, %ebx
-
 	xorl	%eax, %eax
 	movl	%eax, %cr3	/* Invalidate TLB */
 

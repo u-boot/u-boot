@@ -40,9 +40,6 @@ _x86boot_start:
 	movl	%eax, %cr0
 	wbinvd
 
-	/* Tell 32-bit code it is being entered from an in-RAM copy */
-	movl	$GD_FLG_WARM_BOOT, %ebx
-
 	/*
 	 * Zero the BIST (Built-In Self Test) value since we don't have it.
 	 * It must be 0 or the previous loader would have reported an error.
@@ -55,11 +52,7 @@ _x86boot_start:
 	.align	4
 	.long	0x12345678
 _start:
-	/*
-	 * This is the 32-bit cold-reset entry point, coming from start16.
-	 * Set %ebx to GD_FLG_COLD_BOOT to indicate this.
-	 */
-	movl	$GD_FLG_COLD_BOOT, %ebx
+	/* This is the 32-bit cold-reset entry point, coming from start16 */
 
 	/* Save BIST */
 	movl	%eax, %ebp
