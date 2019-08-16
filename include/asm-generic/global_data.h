@@ -150,7 +150,7 @@ typedef struct global_data {
 #endif
 
 /*
- * Global Data Flags - the top 16 bits are reserved for arch-specific flags
+ * Global Data Flags
  */
 #define GD_FLG_RELOC		0x00001	/* Code was relocated to RAM	   */
 #define GD_FLG_DEVINIT		0x00002	/* Devices have been initialized   */
