@@ -201,7 +201,9 @@ static int ft_fixup_clocks(void *fdt, const char **names, u32 *rates, int num)
 	int offs, node_offs, ret, i;
 	uint32_t phandle;
 
-	offs = fdt_path_offset(fdt, "/ocp/l4@4a000000/cm_core_aon@5000/clocks");
+	offs = fdt_path_offset(fdt, "/ocp/interconnect@4a000000/segment@0/target-module@5000/cm_core_aon@0/clocks");
+	if (offs < 0)
+		offs = fdt_path_offset(fdt, "/ocp/l4@4a000000/cm_core_aon@5000/clocks");
 	if (offs < 0) {
 		debug("Could not find cm_core_aon clocks node path offset : %s\n",
 		      fdt_strerror(offs));
