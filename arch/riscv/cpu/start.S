@@ -13,7 +13,6 @@
 #include <config.h>
 #include <common.h>
 #include <elf.h>
-#include <asm/csr.h>
 #include <asm/encoding.h>
 #include <generated/asm-offsets.h>
 
@@ -41,7 +40,7 @@ secondary_harts_relocation_error:
 .globl _start
 _start:
 #ifdef CONFIG_RISCV_MMODE
-	csrr	a0, mhartid
+	csrr	a0, CSR_MHARTID
 #endif
 
 	/* save hart id and dtb pointer */

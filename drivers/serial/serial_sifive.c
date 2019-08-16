@@ -22,6 +22,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #define UART_TXCTRL_TXEN	0x1
 #define UART_RXCTRL_RXEN	0x1
 
+/* IP register */
+#define UART_IP_RXWM            0x2
+
 struct uart_sifive {
 	u32 txfifo;
 	u32 rxfifo;
@@ -34,7 +37,6 @@ struct uart_sifive {
 
 struct sifive_uart_platdata {
 	unsigned long clock;
-	int saved_input_char;
 	struct uart_sifive *regs;
 };
 
@@ -94,7 +96,7 @@ static int _sifive_serial_getc(struct uart_sifive *regs)
 		return -EAGAIN;
 	ch &= UART_RXFIFO_DATA;
 
-	return (!ch) ? -EAGAIN : ch;
+	return ch;
 }
 
 static int sifive_serial_setbrg(struct udevice *dev, int baudrate)
@@ -133,7 +135,6 @@ static int sifive_serial_probe(struct udevice *dev)
 	if (gd->flags & GD_FLG_RELOC)
 		return 0;
 
-	platdata->saved_input_char = 0;
 	_sifive_serial_init(platdata->regs);
 
 	return 0;
@@ -144,12 +145,6 @@ static int sifive_serial_getc(struct udevice *dev)
 	int c;
 	struct sifive_uart_platdata *platdata = dev_get_platdata(dev);
 	struct uart_sifive *regs = platdata->regs;
-
-	if (platdata->saved_input_char > 0) {
-		c = platdata->saved_input_char;
-		platdata->saved_input_char = 0;
-		return c;
-	}
 
 	while ((c = _sifive_serial_getc(regs)) == -EAGAIN) ;
 
@@ -171,14 +166,10 @@ static int sifive_serial_pending(struct udevice *dev, bool input)
 	struct sifive_uart_platdata *platdata = dev_get_platdata(dev);
 	struct uart_sifive *regs = platdata->regs;
 
-	if (input) {
-		if (platdata->saved_input_char > 0)
-			return 1;
-		platdata->saved_input_char = _sifive_serial_getc(regs);
-		return (platdata->saved_input_char > 0) ? 1 : 0;
-	} else {
+	if (input)
+		return (readl(&regs->ip) & UART_IP_RXWM);
+	else
 		return !!(readl(&regs->txfifo) & UART_TXFIFO_FULL);
-	}
 }
 
 static int sifive_serial_ofdata_to_platdata(struct udevice *dev)
