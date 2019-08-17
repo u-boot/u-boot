@@ -79,8 +79,6 @@ void board_init_f(ulong dummy)
 		writel(SYSMGR_ECC_OCRAM_DERR  | SYSMGR_ECC_OCRAM_EN,
 		       &sysmgr_regs->eccgrp_ocram);
 
-	memset(__bss_start, 0, __bss_end - __bss_start);
-
 	socfpga_sdram_remap_zero();
 	socfpga_pl310_clear();
 
