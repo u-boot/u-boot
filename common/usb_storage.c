@@ -651,7 +651,7 @@ static int usb_stor_CBI_get_status(struct scsi_cmd *srb, struct us_data *us)
 
 	us->ip_wanted = 1;
 	usb_int_msg(us->pusb_dev, us->irqpipe,
-		    (void *)&us->ip_data, us->irqmaxp, us->irqinterval);
+		    (void *)&us->ip_data, us->irqmaxp, us->irqinterval, false);
 	timeout = 1000;
 	while (timeout--) {
 		if (us->ip_wanted == 0)

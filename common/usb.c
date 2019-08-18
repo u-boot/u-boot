@@ -192,12 +192,15 @@ int usb_disable_asynch(int disable)
  */
 
 /*
- * submits an Interrupt Message
+ * submits an Interrupt Message. Some drivers may implement non-blocking
+ * polling: when non-block is true and the device is not responding return
+ * -EAGAIN instead of waiting for device to respond.
  */
 int usb_int_msg(struct usb_device *dev, unsigned long pipe,
-		void *buffer, int transfer_len, int interval)
+		void *buffer, int transfer_len, int interval, bool nonblock)
 {
-	return submit_int_msg(dev, pipe, buffer, transfer_len, interval);
+	return submit_int_msg(dev, pipe, buffer, transfer_len, interval,
+			      nonblock);
 }
 
 /*

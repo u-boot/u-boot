@@ -1703,7 +1703,7 @@ int submit_bulk_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 }
 
 int submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
-		int transfer_len, int interval)
+		int transfer_len, int interval, bool nonblock)
 {
 	info("submit_int_msg");
 	return submit_common_msg(&gohci, dev, pipe, buffer, transfer_len, NULL,
@@ -2155,7 +2155,7 @@ static int ohci_submit_bulk_msg(struct udevice *dev, struct usb_device *udev,
 
 static int ohci_submit_int_msg(struct udevice *dev, struct usb_device *udev,
 			       unsigned long pipe, void *buffer, int length,
-			       int interval)
+			       int interval, bool nonblock)
 {
 	ohci_t *ohci = dev_get_priv(usb_get_bus(dev));
 
