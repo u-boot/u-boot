@@ -1123,7 +1123,7 @@ int _submit_int_msg(struct dwc2_priv *priv, struct usb_device *dev,
 			return -ETIMEDOUT;
 		}
 		ret = _submit_bulk_msg(priv, dev, pipe, buffer, len);
-		if (ret != -EAGAIN)
+		if ((ret != -EAGAIN) || nonblock)
 			return ret;
 	}
 }
