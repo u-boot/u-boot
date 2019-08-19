@@ -650,7 +650,7 @@ Prepare patches and send them to the mailing lists
 --------------------------------------------------
 
 You can use 'tools/patman/patman' to prepare, check and send patches for
-your work. See the README for details.
+your work. See tools/patman/README for details.
 
 A little note about SPI uclass features
 ---------------------------------------
