@@ -48,7 +48,6 @@ config CLK_BOSTON
 
 config SPL_CLK_CCF
 	bool "SPL Common Clock Framework [CCF] support "
-	depends on SPL_CLK_IMX6Q
 	help
 	  Enable this option if you want to (re-)use the Linux kernel's Common
 	  Clock Framework [CCF] code in U-Boot's SPL.
@@ -62,7 +61,6 @@ config SPL_CLK_COMPOSITE_CCF
 
 config CLK_CCF
 	bool "Common Clock Framework [CCF] support "
-	depends on CLK_IMX6Q || SANDBOX_CLK_CCF
 	help
 	  Enable this option if you want to (re-)use the Linux kernel's Common
 	  Clock Framework [CCF] code in U-Boot's clock driver.
