@@ -93,6 +93,7 @@ config SANDBOX
 	select PCI_ENDPOINT
 	select SPI
 	select SUPPORT_OF_CONTROL
+	select SYSRESET_CMD_POWEROFF if CMD_POWEROFF
 	imply BITREVERSE
 	select BLOBLIST
 	imply CMD_DM

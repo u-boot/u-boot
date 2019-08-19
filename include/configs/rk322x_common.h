@@ -31,12 +31,7 @@
 #define SDRAM_MAX_SIZE			0x80000000
 
 #ifndef CONFIG_SPL_BUILD
-/* usb otg */
 
-/* usb mass storage */
-#define CONFIG_CMD_USB_MASS_STORAGE
-
-/* usb host */
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"scriptaddr=0x60000000\0" \
 	"pxefile_addr_r=0x60100000\0" \

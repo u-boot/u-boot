@@ -33,6 +33,16 @@ config TPL_SYSRESET
 
 if SYSRESET
 
+if CMD_POWEROFF
+
+config SYSRESET_CMD_POWEROFF
+	bool "sysreset implementation of the poweroff command"
+	help
+	  This should be selected by the appropriate PMIC driver if
+	  the poweroff command is enabled.
+
+endif
+
 config SYSRESET_GPIO
 	bool "Enable support for GPIO reset driver"
 	select DM_GPIO

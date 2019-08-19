@@ -119,6 +119,7 @@ dtb-$(CONFIG_ROCKCHIP_RK3399) += \
 	rk3399-puma-ddr1333.dtb \
 	rk3399-puma-ddr1600.dtb \
 	rk3399-puma-ddr1866.dtb \
+	rk3399-roc-pc.dtb \
 	rk3399-rock-pi-4.dtb \
 	rk3399-rock960.dtb \
 	rk3399-rockpro64.dtb

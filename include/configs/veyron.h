@@ -13,8 +13,6 @@
 
 #include <configs/rk3288_common.h>
 
-#define CONFIG_SPI_FLASH_GIGADEVICE
-
 #define CONFIG_KEYBOARD
 
 #endif
