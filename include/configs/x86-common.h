@@ -105,11 +105,14 @@
 #define CONFIG_OTHBOOTARGS	"othbootargs=acpi=off\0"
 #endif
 
-#ifndef CONFIG_DISTRO_DEFAULTS
-#define BOOTENV
+#if defined(CONFIG_DISTRO_DEFAULTS)
+#define DISTRO_BOOTENV		BOOTENV
+#else
+#define DISTRO_BOOTENV
 #endif
 
 #define CONFIG_EXTRA_ENV_SETTINGS			\
+	DISTRO_BOOTENV					\
 	CONFIG_STD_DEVICES_SETTINGS			\
 	"pciconfighost=1\0"				\
 	"netdev=eth0\0"					\
@@ -118,8 +121,8 @@
 	"scriptaddr=0x7000000\0"			\
 	"kernel_addr_r=0x1000000\0"			\
 	"ramdisk_addr_r=0x4000000\0"			\
-	"ramdiskfile=initramfs.gz\0"			\
-	BOOTENV
+	"ramdiskfile=initramfs.gz\0"
+
 
 #define CONFIG_RAMBOOTCOMMAND				\
 	"setenv bootargs root=/dev/ram rw "		\

@@ -73,9 +73,6 @@ static void board_final_cleanup(void)
 
 int last_stage_init(void)
 {
-	if (gd->flags & GD_FLG_COLD_BOOT)
-		timestamp_add_to_bootstage();
-
 	/* start usb so that usb keyboard can be used as input device */
 	if (CONFIG_IS_ENABLED(USB_KEYBOARD))
 		usb_init();
