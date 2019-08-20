@@ -41,6 +41,8 @@ CONFIG_CMD_MTDPARTS=y
 CONFIG_MTDIDS_DEFAULT="nor0=fe8000000.nor,nand0=fff800000.flash,spi0=spife110000.1"
 CONFIG_MTDPARTS_DEFAULT="mtdparts=fe8000000.nor:1m(uboot),5m(kernel),128k(dtb),96m(fs),-(user);fff800000.flash:1m(uboot),5m(kernel),128k(dtb),96m(fs),-(user);spife110000.1:1m(uboot),5m(kernel),128k(dtb),-(user)"
 # CONFIG_CMD_IRQ is not set
+CONFIG_OF_CONTROL=y
+CONFIG_DEFAULT_DEVICE_TREE="t2080rdb"
 CONFIG_ENV_IS_IN_SPI_FLASH=y
 CONFIG_FSL_CAAM=y
 CONFIG_FSL_ESDHC=y
@@ -64,4 +66,3 @@ CONFIG_SPI=y
 CONFIG_FSL_ESPI=y
 CONFIG_USB=y
 CONFIG_USB_STORAGE=y
-CONFIG_OF_LIBFDT=y
