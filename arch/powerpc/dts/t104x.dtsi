@@ -1,0 +1,62 @@
+// SPDX-License-Identifier: GPL-2.0+ OR X11
+/*
+ * T104X Silicon/SoC Device Tree Source (pre include)
+ *
+ * Copyright 2013 Freescale Semiconductor Inc.
+ * Copyright 2019 NXP
+ */
+
+/dts-v1/;
+
+/include/ "e5500_power_isa.dtsi"
+
+/ {
+	#address-cells = <2>;
+	#size-cells = <2>;
+	interrupt-parent = <&mpic>;
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		cpu0: PowerPC,e5500@0 {
+			device_type = "cpu";
+			reg = <0>;
+			#cooling-cells = <2>;
+		};
+		cpu1: PowerPC,e5500@1 {
+			device_type = "cpu";
+			reg = <1>;
+			#cooling-cells = <2>;
+		};
+		cpu2: PowerPC,e5500@2 {
+			device_type = "cpu";
+			reg = <2>;
+			#cooling-cells = <2>;
+		};
+		cpu3: PowerPC,e5500@3 {
+			device_type = "cpu";
+			reg = <3>;
+			#cooling-cells = <2>;
+		};
+	};
+
+	soc: soc@ffe000000 {
+		ranges = <0x00000000 0xf 0xfe000000 0x1000000>;
+		reg = <0xf 0xfe000000 0 0x00001000>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		device_type = "soc";
+		compatible = "simple-bus";
+
+		mpic: pic@40000 {
+			interrupt-controller;
+			#address-cells = <0>;
+			#interrupt-cells = <4>;
+			reg = <0x40000 0x40000>;
+			compatible = "fsl,mpic", "chrp,open-pic";
+			device_type = "open-pic";
+			clock-frequency = <0x0>;
+		};
+	};
+};
