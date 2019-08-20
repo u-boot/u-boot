@@ -48,7 +48,7 @@ enable QE-TDM for linux kernel, set "qe;tdm" in hwconfig. Syntax is as below
 
 Device tree support and how to enable it for different configs
 --------------------------------------------------------------
-Device tree support is available for p1020rdb for below mentioned boot,
+Device tree support is available for p1020rdb and p2020rdb for below mentioned boot,
 1. NOR Boot
 2. NAND Boot
 3. SD Boot
