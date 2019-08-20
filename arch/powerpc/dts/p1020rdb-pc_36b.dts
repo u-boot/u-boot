@@ -1,0 +1,23 @@
+// SPDX-License-Identifier: GPL-2.0+ OR X11
+/*
+ * P1020RDB-PC (36-bit address map) Device Tree Source
+ *
+ * Copyright 2013 - 2015 Freescale Semiconductor Inc.
+ * Copyright 2019 NXP
+ */
+
+/include/ "p1020.dtsi"
+
+/ {
+	model = "fsl,P1020RDB-PC";
+	compatible = "fsl,P1020RDB-PC";
+	#address-cells = <2>;
+	#size-cells = <2>;
+	interrupt-parent = <&mpic>;
+
+	soc: soc@fffe00000 {
+		ranges = <0x0 0xf 0xffe00000 0x100000>;
+	};
+};
+
+/include/ "p1020-post.dtsi"

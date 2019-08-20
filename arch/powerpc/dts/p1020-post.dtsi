@@ -1,0 +1,27 @@
+// SPDX-License-Identifier: GPL-2.0+ OR X11
+/*
+ * P1020 Silicon/SoC Device Tree Source (post include)
+ *
+ * Copyright 2013 Freescale Semiconductor Inc.
+ * Copyright 2019 NXP
+ */
+
+&soc {
+	#address-cells = <1>;
+	#size-cells = <1>;
+	device_type = "soc";
+	compatible = "fsl,p1020-immr", "simple-bus";
+	bus-frequency = <0x0>;
+
+	mpic: pic@40000 {
+		interrupt-controller;
+		#address-cells = <0>;
+		#interrupt-cells = <4>;
+		reg = <0x40000 0x40000>;
+		compatible = "fsl,mpic";
+		device_type = "open-pic";
+		big-endian;
+		single-cpu-affinity;
+		last-interrupt-source = <255>;
+	};
+};

@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0+
 
+dtb-$(CONFIG_TARGET_P1020RDB_PC) += p1020rdb-pc.dtb p1020rdb-pc_36b.dtb
+dtb-$(CONFIG_TARGET_P1020RDB_PD) += p1020rdb-pd.dtb
 dtb-$(CONFIG_TARGET_T1024RDB) += t1024rdb.dtb
 dtb-$(CONFIG_TARGET_T1042D4RDB) += t1042d4rdb.dtb
 dtb-$(CONFIG_TARGET_T2080QDS) += t2080qds.dtb
