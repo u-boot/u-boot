@@ -1,0 +1,18 @@
+// SPDX-License-Identifier: GPL-2.0+ OR X11
+/*
+ * P4080DS Device Tree Source
+ *
+ * Copyright 2011 - 2015 Freescale Semiconductor Inc.
+ * Copyright 2019 NXP
+ */
+
+/include/ "p4080.dtsi"
+
+/ {
+	model = "fsl,P4080DS";
+	compatible = "fsl,P4080DS";
+	#address-cells = <2>;
+	#size-cells = <2>;
+	interrupt-parent = <&mpic>;
+
+};
