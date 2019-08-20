@@ -1,0 +1,17 @@
+// SPDX-License-Identifier: GPL-2.0+ OR X11
+/*
+ * T4240RDB Device Tree Source
+ *
+ * Copyright 2013 - 2015 Freescale Semiconductor Inc.
+ * Copyright 2019 NXP
+ */
+
+/include/ "t4240.dtsi"
+
+/ {
+	model = "fsl,T4240RDB";
+	compatible = "fsl,T4240RDB";
+	#address-cells = <2>;
+	#size-cells = <2>;
+	interrupt-parent = <&mpic>;
+};
