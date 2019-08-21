@@ -1148,6 +1148,23 @@ config SPL_OPTEE
 	  OP-TEE is an open source Trusted OS  which is loaded by SPL.
 	  More detail at: https://github.com/OP-TEE/optee_os
 
+config SPL_OPENSBI
+	bool "Support RISC-V OpenSBI"
+	depends on RISCV && SPL_RISCV_MMODE && RISCV_SMODE
+	help
+	  OpenSBI is an open-source implementation of the RISC-V Supervisor Binary
+	  Interface (SBI) specification. U-Boot supports the OpenSBI FW_DYNAMIC
+	  firmware. It is loaded and started by U-Boot SPL.
+
+	  More details are available at https://github.com/riscv/opensbi and
+	  https://github.com/riscv/riscv-sbi-doc
+
+config SPL_OPENSBI_LOAD_ADDR
+	hex "OpenSBI load address"
+	depends on SPL_OPENSBI
+	help
+	  Load address of the OpenSBI binary.
+
 config TPL
 	bool
 	depends on SUPPORT_TPL
