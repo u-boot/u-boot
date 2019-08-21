@@ -5,5 +5,7 @@ F:	board/emulation/qemu-riscv/
 F:	include/configs/qemu-riscv.h
 F:	configs/qemu-riscv32_defconfig
 F:	configs/qemu-riscv32_smode_defconfig
+F:	configs/qemu-riscv32_spl_defconfig
 F:	configs/qemu-riscv64_defconfig
 F:	configs/qemu-riscv64_smode_defconfig
+F:	configs/qemu-riscv64_spl_defconfig
