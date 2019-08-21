@@ -46,13 +46,13 @@ static inline bool supports_extension(char ext)
 
 	return false;
 #else  /* !CONFIG_CPU */
-#ifdef CONFIG_RISCV_MMODE
+#if CONFIG_IS_ENABLED(RISCV_MMODE)
 	return csr_read(CSR_MISA) & (1 << (ext - 'a'));
-#else  /* !CONFIG_RISCV_MMODE */
+#else  /* !CONFIG_IS_ENABLED(RISCV_MMODE) */
 #warning "There is no way to determine the available extensions in S-mode."
 #warning "Please convert your board to use the RISC-V CPU driver."
 	return false;
-#endif /* CONFIG_RISCV_MMODE */
+#endif /* CONFIG_IS_ENABLED(RISCV_MMODE) */
 #endif /* CONFIG_CPU */
 }
 

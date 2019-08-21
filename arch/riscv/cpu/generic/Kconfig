@@ -8,5 +8,5 @@ config GENERIC_RISCV
 	imply CPU
 	imply CPU_RISCV
 	imply RISCV_TIMER
-	imply SIFIVE_CLINT if RISCV_MMODE
+	imply SIFIVE_CLINT if (RISCV_MMODE || SPL_RISCV_MMODE)
 	imply CMD_CPU

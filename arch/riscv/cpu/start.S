@@ -39,7 +39,7 @@ secondary_harts_relocation_error:
 .section .text
 .globl _start
 _start:
-#ifdef CONFIG_RISCV_MMODE
+#if CONFIG_IS_ENABLED(RISCV_MMODE)
 	csrr	a0, CSR_MHARTID
 #endif
 
@@ -62,7 +62,7 @@ _start:
 
 #ifdef CONFIG_SMP
 	/* set xSIE bit to receive IPIs */
-#ifdef CONFIG_RISCV_MMODE
+#if CONFIG_IS_ENABLED(RISCV_MMODE)
 	li	t0, MIE_MSIE
 #else
 	li	t0, SIE_SSIE
@@ -344,7 +344,7 @@ secondary_hart_loop:
 
 #ifdef CONFIG_SMP
 	csrr	t0, MODE_PREFIX(ip)
-#ifdef CONFIG_RISCV_MMODE
+#if CONFIG_IS_ENABLED(RISCV_MMODE)
 	andi	t0, t0, MIE_MSIE
 #else
 	andi	t0, t0, SIE_SSIE
