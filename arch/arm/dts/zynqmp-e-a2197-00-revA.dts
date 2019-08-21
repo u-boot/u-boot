@@ -14,7 +14,7 @@
 #include <dt-bindings/phy/phy.h>
 
 / {
-	model = "Versal System Controller on a2197 Eval board RevA"; /* vck190 */
+	model = "Versal System Controller on a2197 Eval board RevA"; /* VCK190/VMK180 */
 	compatible = "xlnx,zynqmp-e-a2197-00-revA", "xlnx,zynqmp-a2197-revA",
 		     "xlnx,zynqmp-a2197", "xlnx,zynqmp";
 
