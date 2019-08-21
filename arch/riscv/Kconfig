@@ -226,4 +226,7 @@ config STACK_SIZE_SHIFT
 	int
 	default 13
 
+config SPL_LDSCRIPT
+	default "arch/riscv/cpu/u-boot-spl.lds"
+
 endmenu

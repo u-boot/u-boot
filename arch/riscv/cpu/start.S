@@ -75,7 +75,11 @@ _start:
  */
 call_board_init_f:
 	li	t0, -16
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_STACK)
+	li	t1, CONFIG_SPL_STACK
+#else
 	li	t1, CONFIG_SYS_INIT_SP_ADDR
+#endif
 	and	sp, t1, t0		/* force 16 byte alignment */
 
 call_board_init_f_0:
@@ -159,7 +163,24 @@ wait_for_gd_init:
 
 	mv	a0, zero		/* a0 <-- boot_flags = 0 */
 	la	t5, board_init_f
-	jr	t5			/* jump to board_init_f() */
+	jalr	t5			/* jump to board_init_f() */
+
+#ifdef CONFIG_SPL_BUILD
+spl_clear_bss:
+	la	t0, __bss_start
+	la	t1, __bss_end
+	beq	t0, t1, spl_call_board_init_r
+
+spl_clear_bss_loop:
+	SREG	zero, 0(t0)
+	addi	t0, t0, REGBYTES
+	bne	t0, t1, spl_clear_bss_loop
+
+spl_call_board_init_r:
+	mv	a0, zero
+	mv	a1, zero
+	jal	board_init_r
+#endif
 
 /*
  * void relocate_code (addr_sp, gd, addr_moni)
