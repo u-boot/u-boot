@@ -288,15 +288,15 @@ int ft_board_setup(void *blob, bd_t *bd)
 	mac_addr[5] = header.MAC1[5];
 
 
-	node = fdt_path_offset(blob, "/ocp/ethernet/slave@4a100200");
+	node = fdt_path_offset(blob, "ethernet0");
 	if (node < 0) {
-		printf("no /soc/fman/ethernet path offset\n");
+		printf("no ethernet0 path offset\n");
 		return -ENODEV;
 	}
 
 	ret = fdt_setprop(blob, node, "mac-address", &mac_addr, 6);
 	if (ret) {
-		printf("error setting local-mac-address property\n");
+		printf("error setting mac-address property\n");
 		return -ENODEV;
 	}
 
@@ -308,15 +308,15 @@ int ft_board_setup(void *blob, bd_t *bd)
 	mac_addr[4] = header.MAC2[4];
 	mac_addr[5] = header.MAC2[5];
 
-	node = fdt_path_offset(blob, "/ocp/ethernet/slave@4a100300");
+	node = fdt_path_offset(blob, "ethernet1");
 	if (node < 0) {
-		printf("no /soc/fman/ethernet path offset\n");
+		printf("no ethernet1 path offset\n");
 		return -ENODEV;
 	}
 
 	ret = fdt_setprop(blob, node, "mac-address", &mac_addr, 6);
 	if (ret) {
-		printf("error setting local-mac-address property\n");
+		printf("error setting mac-address property\n");
 		return -ENODEV;
 	}
 

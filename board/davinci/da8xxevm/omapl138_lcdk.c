@@ -227,10 +227,6 @@ int board_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_DRIVER_TI_EMAC
-
-#endif /* CONFIG_DRIVER_TI_EMAC */
-
 #define CFG_MAC_ADDR_SPI_BUS	0
 #define CFG_MAC_ADDR_SPI_CS	0
 #define CFG_MAC_ADDR_SPI_MAX_HZ	CONFIG_SF_DEFAULT_SPEED

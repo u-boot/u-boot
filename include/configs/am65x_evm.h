@@ -66,8 +66,7 @@
 #define EXTRA_ENV_AM65X_BOARD_SETTINGS					\
 	"findfdt="							\
 		"setenv name_fdt k3-am654-base-board.dtb;"		\
-		"setenv fdtfile ${name_fdt};"				\
-		"setenv overlay_files ${name_overlays}\0"		\
+		"setenv fdtfile ${name_fdt}\0"				\
 	"loadaddr=0x80080000\0"						\
 	"fdtaddr=0x82000000\0"						\
 	"overlayaddr=0x83000000\0"					\
@@ -88,7 +87,7 @@
 	"get_overlay_mmc="						\
 		"fdt address ${fdtaddr};"				\
 		"fdt resize 0x100000;"					\
-		"for overlay in $overlay_files;"			\
+		"for overlay in $name_overlays;"			\
 		"do;"							\
 		"load mmc ${bootpart} ${overlayaddr} ${bootdir}/${overlay};"	\
 		"fdt apply ${overlayaddr};"				\

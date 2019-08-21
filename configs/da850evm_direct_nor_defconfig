@@ -24,15 +24,14 @@ CONFIG_CMD_DM=y
 # CONFIG_CMD_GPT is not set
 # CONFIG_CMD_MMC is not set
 CONFIG_CMD_MTD=y
-CONFIG_CMD_NAND=y
 # CONFIG_CMD_PART is not set
 # CONFIG_CMD_SF is not set
 # CONFIG_CMD_SPI is not set
 # CONFIG_CMD_SETEXPR is not set
 # CONFIG_CMD_TIME is not set
 CONFIG_CMD_MTDPARTS=y
-CONFIG_MTDIDS_DEFAULT="nor0=physmap-flash.2,nor1=spi1.0,nand0=nand512"
-CONFIG_MTDPARTS_DEFAULT="mtdparts=physmap-flash.2:1m(u-boot),128k(u-boot-env),-(spare);spi1.0:32k(SPL),480k(u-boot),64k(u-boot-env),7552k(kernel-spare),64k(MAC-Address);nand512:128k(u-boot env),512k(u-boot),128k(spl-os),8m(kernel),-(rootfs)"
+CONFIG_MTDIDS_DEFAULT="nor0=physmap-flash.2"
+CONFIG_MTDPARTS_DEFAULT="mtdparts=physmap-flash.2:1m(u-boot),128k(u-boot-env),-(spare)"
 CONFIG_CMD_DIAG=y
 CONFIG_OF_CONTROL=y
 CONFIG_DEFAULT_DEVICE_TREE="da850-evm"
@@ -50,13 +49,10 @@ CONFIG_SYS_FLASH_USE_BUFFER_WRITE=y
 CONFIG_FLASH_CFI_MTD=y
 CONFIG_SYS_FLASH_PROTECTION=y
 CONFIG_SYS_FLASH_CFI=y
-CONFIG_NAND=y
-CONFIG_NAND_DAVINCI=y
 CONFIG_DM_SPI_FLASH=y
 CONFIG_SPI_FLASH=y
 CONFIG_SPI_FLASH_STMICRO=y
 CONFIG_SPI_FLASH_WINBOND=y
-CONFIG_SPI_FLASH_MTD=y
 CONFIG_DM_ETH=y
 CONFIG_MII=y
 CONFIG_DRIVER_TI_EMAC=y
