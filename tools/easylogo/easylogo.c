@@ -450,7 +450,8 @@ int image_save_header (image_t * image, char *filename, char *varname)
 
 		default:
 			strcpy (app, str);
-			sprintf (str, "%s, 0x%02x", app, *dataptr++);
+			sprintf(str, "%.*s, 0x%02x", (int)sizeof(str) - 7, app,
+				*dataptr++);
 			col++;
 			count--;
 			break;
