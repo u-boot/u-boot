@@ -12,6 +12,8 @@
 #include <linux/libfdt.h>
 #include <spl.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifndef CONFIG_SYS_BOOTM_LEN
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)
 #endif
@@ -279,25 +281,34 @@ static int spl_fit_append_fdt(struct spl_image_info *spl_image,
 			      void *fit, int images, ulong base_offset)
 {
 	struct spl_image_info image_info;
-	int node, ret;
+	int node, ret = 0;
+
+	/*
+	 * Use the address following the image as target address for the
+	 * device tree.
+	 */
+	image_info.load_addr = spl_image->load_addr + spl_image->size;
 
 	/* Figure out which device tree the board wants to use */
 	node = spl_fit_get_image_node(fit, images, FIT_FDT_PROP, 0);
 	if (node < 0) {
 		debug("%s: cannot find FDT node\n", __func__);
-		return node;
+
+		/*
+		 * U-Boot did not find a device tree inside the FIT image. Use
+		 * the U-Boot device tree instead.
+		 */
+		if (gd->fdt_blob)
+			memcpy((void *)image_info.load_addr, gd->fdt_blob,
+			       fdt_totalsize(gd->fdt_blob));
+		else
+			return node;
+	} else {
+		ret = spl_load_fit_image(info, sector, fit, base_offset, node,
+					 &image_info);
+		if (ret < 0)
+			return ret;
 	}
-
-	/*
-	 * Read the device tree and place it after the image.
-	 * Align the destination address to ARCH_DMA_MINALIGN.
-	 */
-	image_info.load_addr = spl_image->load_addr + spl_image->size;
-	ret = spl_load_fit_image(info, sector, fit, base_offset, node,
-				 &image_info);
-
-	if (ret < 0)
-		return ret;
 
 	/* Make the load-address of the FDT available for the SPL framework */
 	spl_image->fdt_addr = (void *)image_info.load_addr;
