@@ -55,9 +55,9 @@ ifeq ($(CONFIG_BLK)$(CONFIG_PARTITIONS),yy)
 obj-y += efi_selftest_block_device.o
 endif
 
-# TODO: As of v2019.01 the relocation code for the EFI application cannot
-# be built on ARMv7-M, Sandbox, and x86_64.
-ifeq ($(CONFIG_SANDBOX)$(CONFIG_CPU_V7M)$(CONFIG_X86_64),)
+# TODO: As of v2019.10 the relocation code for the EFI application cannot
+# be built on ARMv7-M and Sandbox.
+ifeq ($(CONFIG_SANDBOX)$(CONFIG_CPU_V7M),)
 
 obj-y += \
 efi_selftest_loadimage.o \
