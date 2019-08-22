@@ -217,8 +217,9 @@
 # define CONFIG_SYS_SPI_KERNEL_OFFS	0x80000
 # define CONFIG_SYS_SPI_ARGS_OFFS	0xa0000
 # define CONFIG_SYS_SPI_ARGS_SIZE	0xa0000
-
+#ifdef CONFIG_SPL_SPI_LOAD
 # define CONFIG_SYS_SPI_U_BOOT_OFFS	0x170000
+#endif
 #endif
 
 /* u-boot is like dtb */

@@ -118,7 +118,7 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE 8
 #endif
 
-#ifdef CONFIG_SPL_SPI_SUNXI
+#if defined(CONFIG_SPL_SPI_SUNXI) && defined(CONFIG_SPL_SPI_LOAD)
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x8000
 #endif
 
