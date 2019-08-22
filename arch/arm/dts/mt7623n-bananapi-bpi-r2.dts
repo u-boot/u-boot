@@ -172,6 +172,13 @@
 		};
 	};
 
+	pcie_default: pcie-default {
+		mux {
+			function = "pcie";
+			groups =  "pcie0_0_perst", "pcie1_0_perst";
+		};
+	};
+
 	uart0_pins_a: uart0-default {
 		mux {
 			function = "uart";
@@ -199,6 +206,28 @@
 			groups =  "uart2_1_txd_rxd";
 		};
 	};
+};
+
+&pcie {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pcie_default>;
+	status = "okay";
+
+	pcie@0,0 {
+		status = "okay";
+	};
+
+	pcie@1,0 {
+		status = "okay";
+	};
+};
+
+&pcie0_phy {
+	status = "okay";
+};
+
+&pcie1_phy {
+	status = "okay";
 };
 
 &uart0 {
