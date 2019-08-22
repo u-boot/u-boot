@@ -29,7 +29,7 @@
 #define CONFIG_IRAM_BASE		0xff700000
 
 /* RAW SD card / eMMC locations. */
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	(128 << 10)
+#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
 
 /* FAT sd card locations. */
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
