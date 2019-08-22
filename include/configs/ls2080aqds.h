@@ -16,7 +16,9 @@ unsigned long get_board_ddr_clk(void);
 
 #ifdef CONFIG_FSL_QSPI
 #define CONFIG_QIXIS_I2C_ACCESS
+#ifndef CONFIG_DM_I2C
 #define CONFIG_SYS_I2C_EARLY_INIT
+#endif
 #define CONFIG_SYS_I2C_IFDR_DIV		0x7e
 #endif
 
@@ -324,7 +326,9 @@ unsigned long get_board_ddr_clk(void);
  */
 #define RTC
 #define CONFIG_RTC_DS3231               1
+#define CONFIG_RTC_ENABLE_32KHZ_OUTPUT
 #define CONFIG_SYS_I2C_RTC_ADDR         0x68
+#define CONFIG_RTC_ENABLE_32KHZ_OUTPUT
 
 /* EEPROM */
 #define CONFIG_ID_EEPROM

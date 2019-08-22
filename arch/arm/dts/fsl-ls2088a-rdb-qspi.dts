@@ -57,6 +57,28 @@
 	};
 };
 
+&i2c0 {
+	status = "okay";
+	u-boot,dm-pre-reloc;
+
+	pca9547@75 {
+		compatible = "nxp,pca9547";
+		reg = <0x75>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		 i2c@1 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x01>;
+			rtc@68 {
+				compatible = "dallas,ds3232";
+				reg = <0x68>;
+			};
+		};
+	};
+};
+
 &sata {
 	status = "okay";
 };

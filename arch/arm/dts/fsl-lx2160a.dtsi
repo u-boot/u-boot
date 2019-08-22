@@ -49,6 +49,80 @@
 			     <1 10 0x8>; /* Hypervisor PPI, active-low */
 	};
 
+	i2c0: i2c@2000000 {
+		compatible = "fsl,vf610-i2c";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x0 0x2000000 0x0 0x10000>;
+		interrupts = <0 34 4>;
+		scl-gpio = <&gpio2 15 0>;
+		status = "disabled";
+	};
+
+	i2c1: i2c@2010000 {
+		compatible = "fsl,vf610-i2c";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x0 0x2010000 0x0 0x10000>;
+		interrupts = <0 34 4>;
+		status = "disabled";
+	};
+
+	i2c2: i2c@2020000 {
+		compatible = "fsl,vf610-i2c";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x0 0x2020000 0x0 0x10000>;
+		interrupts = <0 35 4>;
+		status = "disabled";
+	};
+
+	i2c3: i2c@2030000 {
+		compatible = "fsl,vf610-i2c";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x0 0x2030000 0x0 0x10000>;
+		interrupts = <0 35 4>;
+		status = "disabled";
+	};
+
+	i2c4: i2c@2040000 {
+		compatible = "fsl,vf610-i2c";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x0 0x2040000 0x0 0x10000>;
+		interrupts = <0 74 4>;
+		scl-gpio = <&gpio2 16 0>;
+		status = "disabled";
+	};
+
+	i2c5: i2c@2050000 {
+		compatible = "fsl,vf610-i2c";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x0 0x2050000 0x0 0x10000>;
+		interrupts = <0 74 4>;
+		status = "disabled";
+	};
+
+	i2c6: i2c@2060000 {
+		compatible = "fsl,vf610-i2c";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x0 0x2060000 0x0 0x10000>;
+		interrupts = <0 75 4>;
+		status = "disabled";
+	};
+
+	i2c7: i2c@2070000 {
+		compatible = "fsl,vf610-i2c";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x0 0x2070000 0x0 0x10000>;
+		interrupts = <0 75 4>;
+		status = "disabled";
+	};
+
 	uart0: serial@21c0000 {
 		compatible = "arm,pl011";
 		reg = <0x0 0x21c0000 0x0 0x1000>;
@@ -100,6 +174,17 @@
 		reg = <0x0 0x2120000 0x0 0x10000>;
 		interrupts = <0 241 0x4>; /* Level high type */
 		num-cs = <6>;
+	};
+
+	gpio2: gpio@2320000 {
+		compatible = "fsl,qoriq-gpio";
+		reg = <0x0 0x2320000 0x0 0x10000>;
+		interrupts = <0 37 4>;
+		gpio-controller;
+		little-endian;
+		#gpio-cells = <2>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
 	};
 
 	usb0: usb3@3100000 {

@@ -31,6 +31,12 @@ config TPL_DM_RTC
 	  drivers to perform the actual functions. See rtc.h for a
 	  description of the API.
 
+config RTC_ENABLE_32KHZ_OUTPUT
+	bool "Enable RTC 32Khz output"
+	help
+	   Some real-time clocks support the output of 32kHz square waves (such as ds3231),
+	   the config symbol choose Real Time Clock device 32Khz output feature.
+
 config RTC_PCF2127
 	bool "Enable PCF2127 driver"
 	depends on DM_RTC

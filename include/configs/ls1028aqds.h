@@ -16,7 +16,6 @@
 #define CONFIG_DIMM_SLOTS_PER_CTLR		2
 
 #define CONFIG_QIXIS_I2C_ACCESS
-#define CONFIG_SYS_I2C_EARLY_INIT
 
 /*
  * QIXIS Definitions

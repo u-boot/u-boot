@@ -27,6 +27,20 @@
 	status = "okay";
 };
 
+&i2c0 {
+	status = "okay";
+	u-boot,dm-pre-reloc;
+};
+
+&i2c4 {
+	status = "okay";
+
+	rtc@51 {
+		compatible = "pcf2127-rtc";
+		reg = <0x51>;
+	};
+};
+
 &sata0 {
 	status = "okay";
 };

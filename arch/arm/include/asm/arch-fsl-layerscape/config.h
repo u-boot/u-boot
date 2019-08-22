@@ -178,8 +178,10 @@
 #elif defined(CONFIG_ARCH_LX2160A)
 #define TZPC_BASE				0x02200000
 #define TZPCDECPROT_0_SET_BASE			(TZPC_BASE + 0x804)
+#if !defined(CONFIG_DM_I2C)
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_EARLY_INIT
+#endif
 #define SRDS_MAX_LANES  8
 #ifndef L1_CACHE_BYTES
 #define L1_CACHE_SHIFT		6

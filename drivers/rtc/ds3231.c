@@ -148,11 +148,13 @@ void rtc_reset (void)
 /*
  * Enable 32KHz output
  */
+#ifdef CONFIG_RTC_ENABLE_32KHZ_OUTPUT
 void rtc_enable_32khz_output(void)
 {
 	rtc_write(RTC_STAT_REG_ADDR,
 		  RTC_STAT_BIT_BB32KHZ | RTC_STAT_BIT_EN32KHZ);
 }
+#endif
 
 /*
  * Helper functions
@@ -250,6 +252,21 @@ static int ds3231_probe(struct udevice *dev)
 
 	return 0;
 }
+
+#ifdef CONFIG_RTC_ENABLE_32KHZ_OUTPUT
+int rtc_enable_32khz_output(int busnum, int chip_addr)
+{
+	int ret;
+	struct udevice *dev;
+
+	ret = i2c_get_chip_for_busnum(busnum, chip_addr, 1, &dev);
+	if (!ret)
+		ret = dm_i2c_reg_write(dev, RTC_STAT_REG_ADDR,
+				       RTC_STAT_BIT_BB32KHZ |
+				       RTC_STAT_BIT_EN32KHZ);
+	return ret;
+}
+#endif
 
 static const struct rtc_ops ds3231_rtc_ops = {
 	.get = ds3231_rtc_get,

@@ -340,6 +340,10 @@ void fsl_lsch3_early_init_f(void)
 	if (fsl_check_boot_mode_secure() == 1)
 		bypass_smmu();
 #endif
+
+#if defined(CONFIG_ARCH_LS1088A) || defined(CONFIG_ARCH_LS1028A)
+	set_icids();
+#endif
 }
 
 /* Get VDD in the unit mV from voltage ID */

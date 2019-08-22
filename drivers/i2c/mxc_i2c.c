@@ -558,6 +558,14 @@ static int i2c_read_data(struct mxc_i2c_bus *i2c_bus, uchar chip, uchar *buf,
 	return 0;
 }
 
+int __enable_i2c_clk(unsigned char enable, unsigned int i2c_num)
+{
+	return 1;
+}
+
+int enable_i2c_clk(unsigned char enable, unsigned int i2c_num)
+	__attribute__((weak, alias("__enable_i2c_clk")));
+
 #ifndef CONFIG_DM_I2C
 /*
  * Read data from I2C device
@@ -722,13 +730,6 @@ static int mxc_i2c_probe(struct i2c_adapter *adap, uint8_t chip)
 {
 	return bus_i2c_write(i2c_get_base(adap), chip, 0, 0, NULL, 0);
 }
-
-int __enable_i2c_clk(unsigned char enable, unsigned i2c_num)
-{
-	return 1;
-}
-int enable_i2c_clk(unsigned char enable, unsigned i2c_num)
-	__attribute__((weak, alias("__enable_i2c_clk")));
 
 void bus_i2c_init(int index, int speed, int unused,
 		  int (*idle_bus_fn)(void *p), void *idle_bus_data)

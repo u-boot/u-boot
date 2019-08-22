@@ -13,6 +13,7 @@
 #include <linux/libfdt.h>
 #include <env_internal.h>
 #include <asm/arch-fsl-layerscape/soc.h>
+#include <asm/arch-fsl-layerscape/fsl_icid.h>
 #include <i2c.h>
 #include <asm/arch/soc.h>
 #ifdef CONFIG_FSL_LS_PPA
@@ -73,7 +74,15 @@ int board_init(void)
 #if defined(CONFIG_TARGET_LS1028ARDB)
 	u8 val = I2C_MUX_CH_DEFAULT;
 
+#ifndef CONFIG_DM_I2C
 	i2c_write(I2C_MUX_PCA_ADDR_PRI, 0x0b, 1, &val, 1);
+#else
+	struct udevice *dev;
+
+	if (!i2c_get_chip_for_busnum(0, I2C_MUX_PCA_ADDR_PRI, 1, &dev))
+		dm_i2c_write(dev, 0x0b, &val, 1);
+#endif
+
 #endif
 	return 0;
 }
@@ -134,6 +143,8 @@ int ft_board_setup(void *blob, bd_t *bd)
 #endif
 
 	fdt_fixup_memory_banks(blob, base, size, 2);
+
+	fdt_fixup_icid(blob);
 
 	return 0;
 }

@@ -55,6 +55,7 @@ void fdt_fsl_mc_fixup_iommu_map_entry(void *blob);
 int get_mc_boot_status(void);
 int get_dpl_apply_status(void);
 int is_lazy_dpl_addr_valid(void);
+void fdt_fixup_mc_ddr(u64 *base, u64 *size);
 #ifdef CONFIG_SYS_LS_MC_DRAM_AIOP_IMG_OFFSET
 int get_aiop_apply_status(void);
 #endif

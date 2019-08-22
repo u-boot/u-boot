@@ -41,4 +41,15 @@
 #define BRDCFG5_SPISDHC_MASK		0x0C
 #define BRDCFG5_FORCE_SD		0x08
 
+/* Definitions of QIXIS Registers for LS1088AQDS */
+
+/* BRDCFG4 */
+#define BRDCFG4_USBOSC_MASK   0x01
+#define BRDCFG4_SPI 0x01
+
+/* BRDCFG5 */
+#define BRDCFG5_SPR_MASK 0x0f
+#define BRDCFG5_SPI_ON_BOARD 0x0a
+#define BRDCFG5_SPI_OFF_BOARD 0x0f
+
 #endif

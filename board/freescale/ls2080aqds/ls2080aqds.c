@@ -161,8 +161,16 @@ unsigned long get_board_ddr_clk(void)
 int select_i2c_ch_pca9547(u8 ch)
 {
 	int ret;
+#ifdef CONFIG_DM_I2C
+	struct udevice *dev;
 
+	ret = i2c_get_chip_for_busnum(0, I2C_MUX_PCA_ADDR_PRI, 1, &dev);
+	if (!ret)
+		ret = dm_i2c_write(dev, 0, &ch, 1);
+
+#else
 	ret = i2c_write(I2C_MUX_PCA_ADDR_PRI, 0, 1, &ch, 1);
+#endif
 	if (ret) {
 		puts("PCA: failed to select proper channel\n");
 		return ret;
@@ -225,7 +233,15 @@ int board_init(void)
 	gd->env_addr = (ulong)&default_environment[0];
 #endif
 	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
+
+#ifdef CONFIG_RTC_ENABLE_32KHZ_OUTPUT
+#ifdef CONFIG_DM_I2C
+	rtc_enable_32khz_output(0, CONFIG_SYS_I2C_RTC_ADDR);
+#else
 	rtc_enable_32khz_output();
+#endif
+#endif
+
 #ifdef CONFIG_FSL_CAAM
 	sec_init();
 #endif

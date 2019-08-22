@@ -74,7 +74,15 @@ int select_i2c_ch_pca9547(u8 ch)
 {
 	int ret;
 
+#ifndef CONFIG_DM_I2C
 	ret = i2c_write(I2C_MUX_PCA_ADDR_PRI, 0, 1, &ch, 1);
+#else
+	struct udevice *dev;
+
+	ret = i2c_get_chip_for_busnum(0, I2C_MUX_PCA_ADDR_PRI, 1, &dev);
+	if (!ret)
+		ret = dm_i2c_write(dev, 0, &ch, 1);
+#endif
 	if (ret) {
 		puts("PCA: failed to select proper channel\n");
 		return ret;
@@ -402,6 +410,26 @@ int config_board_mux(void)
 
 	return 0;
 }
+#elif defined(CONFIG_TARGET_LX2160ARDB)
+int config_board_mux(void)
+{
+	u8 brdcfg;
+
+	brdcfg = QIXIS_READ(brdcfg[4]);
+	/* The BRDCFG4 register controls general board configuration.
+	 *|-------------------------------------------|
+	 *|Field  | Function                          |
+	 *|-------------------------------------------|
+	 *|5      | CAN I/O Enable (net CFG_CAN_EN_B):|
+	 *|CAN_EN | 0= CAN transceivers are disabled. |
+	 *|       | 1= CAN transceivers are enabled.  |
+	 *|-------------------------------------------|
+	 */
+	brdcfg |= BIT_MASK(5);
+	QIXIS_WRITE(brdcfg[4], brdcfg);
+
+	return 0;
+}
 #else
 int config_board_mux(void)
 {
@@ -529,10 +557,25 @@ void board_quiesce_devices(void)
 int ft_board_setup(void *blob, bd_t *bd)
 {
 	int i;
-	u64 base[CONFIG_NR_DRAM_BANKS];
-	u64 size[CONFIG_NR_DRAM_BANKS];
+	u16 mc_memory_bank = 0;
+
+	u64 *base;
+	u64 *size;
+	u64 mc_memory_base = 0;
+	u64 mc_memory_size = 0;
+	u16 total_memory_banks;
 
 	ft_cpu_setup(blob, bd);
+
+	fdt_fixup_mc_ddr(&mc_memory_base, &mc_memory_size);
+
+	if (mc_memory_base != 0)
+		mc_memory_bank++;
+
+	total_memory_banks = CONFIG_NR_DRAM_BANKS + mc_memory_bank;
+
+	base = calloc(total_memory_banks, sizeof(u64));
+	size = calloc(total_memory_banks, sizeof(u64));
 
 	/* fixup DT for the three GPP DDR banks */
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
@@ -553,7 +596,17 @@ int ft_board_setup(void *blob, bd_t *bd)
 		size[2] = gd->arch.resv_ram - base[2];
 #endif
 
-	fdt_fixup_memory_banks(blob, base, size, CONFIG_NR_DRAM_BANKS);
+	if (mc_memory_base != 0) {
+		for (i = 0; i <= total_memory_banks; i++) {
+			if (base[i] == 0 && size[i] == 0) {
+				base[i] = mc_memory_base;
+				size[i] = mc_memory_size;
+				break;
+			}
+		}
+	}
+
+	fdt_fixup_memory_banks(blob, base, size, total_memory_banks);
 
 #ifdef CONFIG_USB
 	fsl_fdt_fixup_dr_usb(blob, bd);
