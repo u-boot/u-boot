@@ -11,6 +11,7 @@
 #include <usb.h>
 #include <asm/io.h>
 #include <linux/iopoll.h>
+#include <power/regulator.h>
 
 #include "r8a66597.h"
 
@@ -818,8 +819,26 @@ static int r8a66597_usb_probe(struct udevice *dev)
 {
 	struct r8a66597 *priv = dev_get_priv(dev);
 	struct usb_bus_priv *bus_priv = dev_get_uclass_priv(dev);
+	int ret;
 
 	bus_priv->desc_before_addr = true;
+
+	if (CONFIG_IS_ENABLED(DM_REGULATOR)) {
+		ret = device_get_supply_regulator(dev, "vbus-supply",
+						  &priv->vbus_supply);
+		if (ret) {
+			dev_err(dev,
+				"can't get VBUS supply\n");
+			return ret;
+		}
+
+		ret = regulator_set_enable(priv->vbus_supply, true);
+		if (ret) {
+			dev_err(dev,
+				"can't enable VBUS supply\n");
+			return ret;
+		}
+	}
 
 	disable_controller(priv);
 	mdelay(100);
@@ -838,8 +857,18 @@ static int r8a66597_usb_probe(struct udevice *dev)
 static int r8a66597_usb_remove(struct udevice *dev)
 {
 	struct r8a66597 *priv = dev_get_priv(dev);
+	int ret;
 
 	disable_controller(priv);
+
+	if (CONFIG_IS_ENABLED(DM_REGULATOR)) {
+		ret = regulator_set_enable(priv->vbus_supply, false);
+		if (ret) {
+			dev_err(dev,
+				"can't disable VBUS supply\n");
+			return ret;
+		}
+	}
 
 	return 0;
 }

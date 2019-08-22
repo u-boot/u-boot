@@ -396,6 +396,7 @@ struct r8a66597 {
 	unsigned short port_change;
 	u16 speed;	/* HSMODE or FSMODE or LSMODE */
 	unsigned char rh_devnum;
+	struct udevice *vbus_supply;
 };
 
 static inline u16 r8a66597_read(struct r8a66597 *r8a66597, unsigned long offset)
