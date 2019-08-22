@@ -46,7 +46,6 @@
 #endif
 
 /* NAND */
-#define CONFIG_SYS_NAND_USE_FLASH_BBT
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 
 /*

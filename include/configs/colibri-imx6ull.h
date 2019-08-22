@@ -153,7 +153,6 @@
 /* used to initialize CONFIG_SYS_NAND_BASE_LIST which is unused */
 #define CONFIG_SYS_NAND_BASE		-1
 #define CONFIG_SYS_NAND_ONFI_DETECTION
-#define CONFIG_SYS_NAND_USE_FLASH_BBT
 
 /* USB Configs */
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET

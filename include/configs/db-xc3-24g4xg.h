@@ -22,7 +22,6 @@
 #define CONFIG_ENV_SECT_SIZE		(256 << 10) /* 256KiB sectors */
 
 /* NAND */
-#define CONFIG_SYS_NAND_USE_FLASH_BBT
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 
 /* Keep device tree and initrd in lower memory so the kernel can access them */
