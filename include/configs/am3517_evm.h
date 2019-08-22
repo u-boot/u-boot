@@ -26,8 +26,11 @@
  * Enable CONFIG_USB_MUSB_HOST for Host functionalities MSC, keyboard
  * Enable CONFIG_USB_MUSB_GADGET for Device functionalities.
  */
-
+#ifdef CONFIG_SPL_BUILD
+#undef CONFIG_USB_EHCI_OMAP
+#else
 #define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO	57
+#endif
 
 /* I2C */
 
