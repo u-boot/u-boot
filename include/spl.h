@@ -134,6 +134,18 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 #define SPL_COPY_PAYLOAD_ONLY	1
 #define SPL_FIT_FOUND		2
 
+/**
+ * spl_load_imx_container() - Loads a imx container image from a device.
+ * @spl_image:	Image description to set up
+ * @info:	Structure containing the information required to load data.
+ * @sector:	Sector number where container image is located in the device
+ *
+ * Reads the container image @sector in the device. Loads u-boot image to
+ * specified load address.
+ */
+int spl_load_imx_container(struct spl_image_info *spl_image,
+			   struct spl_load_info *info, ulong sector);
+
 /* SPL common functions */
 void preloader_console_init(void);
 u32 spl_boot_device(void);

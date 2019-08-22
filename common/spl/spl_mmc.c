@@ -79,6 +79,16 @@ int mmc_load_image_raw_sector(struct spl_image_info *spl_image,
 		load.bl_len = mmc->read_bl_len;
 		load.read = h_spl_load_read;
 		ret = spl_load_simple_fit(spl_image, &load, sector, header);
+	} else if (IS_ENABLED(CONFIG_SPL_LOAD_IMX_CONTAINER)) {
+		struct spl_load_info load;
+
+		load.dev = mmc;
+		load.priv = NULL;
+		load.filename = NULL;
+		load.bl_len = mmc->read_bl_len;
+		load.read = h_spl_load_read;
+
+		ret = spl_load_imx_container(spl_image, &load, sector);
 	} else {
 		ret = mmc_load_legacy(spl_image, mmc, sector, header);
 	}
