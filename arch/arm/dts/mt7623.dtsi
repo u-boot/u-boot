@@ -11,7 +11,7 @@
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/phy/phy.h>
 #include <dt-bindings/power/mt7623-power.h>
-#include <dt-bindings/reset/mtk-reset.h>
+#include <dt-bindings/reset/mt7623-reset.h>
 #include "skeleton.dtsi"
 
 / {
