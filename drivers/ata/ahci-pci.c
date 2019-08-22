@@ -35,6 +35,7 @@ U_BOOT_DRIVER(ahci_pci) = {
 
 static struct pci_device_id ahci_pci_supported[] = {
 	{ PCI_DEVICE_CLASS(PCI_CLASS_STORAGE_SATA_AHCI, ~0) },
+	{ PCI_DEVICE(0x1b21, 0x0611) },
 	{},
 };
 
