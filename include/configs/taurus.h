@@ -102,7 +102,6 @@
 
 #if defined(CONFIG_SPL_BUILD)
 /* SPL related */
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
 #endif
 
 /* load address */

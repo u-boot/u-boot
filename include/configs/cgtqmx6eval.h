@@ -17,7 +17,6 @@
 #define CONFIG_MACH_TYPE	4122
 
 #ifdef CONFIG_SPL
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x10000
 #include "imx6_spl.h"
 #endif
 

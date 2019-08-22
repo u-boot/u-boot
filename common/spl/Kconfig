@@ -1002,6 +1002,14 @@ config SPL_SPI_LOAD
 
 endif # SPL_SPI_FLASH_SUPPORT
 
+config SYS_SPI_U_BOOT_OFFS
+	hex "address of u-boot payload in SPI flash"
+	default 0x0
+	depends on SPL_SPI_LOAD || SPL_SPI_SUNXI
+	help
+	 Address within SPI-Flash from where the u-boot payload is fetched
+	 from.
+
 config SPL_SPI_SUPPORT
 	bool "Support SPI drivers"
 	help

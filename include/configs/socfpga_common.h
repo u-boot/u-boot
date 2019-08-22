@@ -213,13 +213,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #endif
 
 /* SPL QSPI boot support */
-#ifdef CONFIG_SPL_SPI_SUPPORT
-#if defined(CONFIG_TARGET_SOCFPGA_GEN5) && defined(CONFIG_SPL_SPI_LOAD)
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x40000
-#elif defined(CONFIG_TARGET_SOCFPGA_ARRIA10) && defined(CONFIG_SPL_SPI_LOAD)
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x100000
-#endif
-#endif
 
 /* SPL NAND boot support */
 #ifdef CONFIG_SPL_NAND_SUPPORT

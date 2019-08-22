@@ -118,10 +118,6 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE 8
 #endif
 
-#if defined(CONFIG_SPL_SPI_SUNXI) && defined(CONFIG_SPL_SPI_LOAD)
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x8000
-#endif
-
 /* mmc config */
 #ifdef CONFIG_MMC
 #define CONFIG_MMC_SUNXI_SLOT		0
