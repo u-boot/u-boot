@@ -90,6 +90,11 @@ IMX_CONFIG = $(CONFIG_IMX_CONFIG:"%"=%)
 	$(Q)mkdir -p $(dir $@)
 	$(call if_changed_dep,cpp_cfg)
 
+IMX_CONTAINER_CFG = $(CONFIG_IMX_CONTAINER_CFG:"%"=%)
+container.cfg: $(IMX_CONTAINER_CFG) FORCE
+	$(Q)mkdir -p $(dir $@)
+	$(call if_changed_dep,cpp_cfg)
+
 ifeq ($(CONFIG_ARCH_IMX8), y)
 CNTR_DEPFILES := $(srctree)/tools/imx_cntr_image.sh
 IMAGE_TYPE := imx8image
@@ -158,10 +163,15 @@ SPL:
 MKIMAGEFLAGS_flash.bin = -n spl/u-boot-spl.cfgout -T $(IMAGE_TYPE) -e 0x100000
 flash.bin: MKIMAGEOUTPUT = flash.log
 
-flash.bin: spl/u-boot-spl.bin u-boot.itb FORCE
-ifeq ($(SPL_DEPFILE_EXISTS),0)
+MKIMAGEFLAGS_u-boot.cnt = -n container.cfg -T $(IMAGE_TYPE) -e 0x100000
+u-boot.cnt: MKIMAGEOUTPUT = u-boot.cnt.log
+
+ifeq ($(CONFIG_SPL_LOAD_IMX_CONTAINER), y)
+u-boot.cnt: u-boot.bin container.cfg FORCE
 	$(call if_changed,mkimage)
 endif
+flash.bin: spl/u-boot-spl.bin FORCE
+	$(call if_changed,mkimage)
 endif
 
 else

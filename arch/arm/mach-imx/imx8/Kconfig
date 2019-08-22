@@ -29,6 +29,13 @@ config SPL_LOAD_IMX_CONTAINER
 	help
 	  This is to let SPL could load i.MX8 Container image
 
+config IMX_CONTAINER_CFG
+	string "i.MX Container config file"
+	depends on SPL
+	help
+	  This is to specific the cfg file for generating container
+	  image which will be loaded by SPL.
+
 choice
 	prompt "i.MX8 board select"
 	optional

@@ -1365,8 +1365,16 @@ SPL: spl/u-boot-spl.bin FORCE
 	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
 
 ifeq ($(CONFIG_ARCH_IMX8M)$(CONFIG_ARCH_IMX8), y)
+ifeq ($(CONFIG_SPL_LOAD_IMX_CONTAINER), y)
+u-boot.cnt: u-boot.bin FORCE
+	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
+
+flash.bin: spl/u-boot-spl.bin u-boot.cnt FORCE
+	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
+else
 flash.bin: spl/u-boot-spl.bin u-boot.itb FORCE
 	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
+endif
 endif
 
 u-boot-with-spl.imx u-boot-with-nand-spl.imx: SPL u-boot.bin FORCE
