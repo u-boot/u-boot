@@ -5,3 +5,7 @@
 #
 
 obj-y += cpu.o iomux.o misc.o
+
+ifdef CONFIG_SPL_BUILD
+obj-$(CONFIG_SPL_LOAD_IMX_CONTAINER) += parse-container.o
+endif

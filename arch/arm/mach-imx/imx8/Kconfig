@@ -23,6 +23,12 @@ config IMX8QXP
 config SYS_SOC
 	default "imx8"
 
+config SPL_LOAD_IMX_CONTAINER
+	bool "Enable SPL loading U-Boot as a i.MX Container image"
+	depends on SPL
+	help
+	  This is to let SPL could load i.MX8 Container image
+
 choice
 	prompt "i.MX8 board select"
 	optional
