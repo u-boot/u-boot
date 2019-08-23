@@ -197,6 +197,9 @@ void board_boot_order(u32 *spl_boot_list)
 	case IMX6_BMODE_EMMC:
 		boot_dev = BOOT_DEVICE_MMC2;
 		break;
+	case IMX6_BMODE_NAND_MIN ... IMX6_BMODE_NAND_MAX:
+		boot_dev = BOOT_DEVICE_NAND;
+		break;
 	default:
 		/* Default - BOOT_DEVICE_MMC1 */
 		printf("Wrong board boot order\n");
