@@ -148,7 +148,7 @@ int pci_bar_show(struct udevice *dev)
 
 		if ((!is_64 && size_low) || (is_64 && size)) {
 			size = ~size + 1;
-			printf(" %d   %#016llx  %#016llx  %d     %s   %s\n",
+			printf(" %d   %#018llx  %#018llx  %d     %s   %s\n",
 			       bar_id, (unsigned long long)base,
 			       (unsigned long long)size, is_64 ? 64 : 32,
 			       is_io ? "I/O" : "MEM",
@@ -629,10 +629,10 @@ static void pci_show_regions(struct udevice *bus)
 		return;
 	}
 
-	printf("#   %-16s %-16s %-16s  %s\n", "Bus start", "Phys start", "Size",
+	printf("#   %-18s %-18s %-18s  %s\n", "Bus start", "Phys start", "Size",
 	       "Flags");
 	for (i = 0, reg = hose->regions; i < hose->region_count; i++, reg++) {
-		printf("%d   %#016llx %#016llx %#016llx  ", i,
+		printf("%d   %#018llx %#018llx %#018llx  ", i,
 		       (unsigned long long)reg->bus_start,
 		       (unsigned long long)reg->phys_start,
 		       (unsigned long long)reg->size);
