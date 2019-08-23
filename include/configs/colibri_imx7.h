@@ -106,7 +106,8 @@
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"kernel_addr_r=0x81000000\0" \
-	"ramdisk_addr_r=0x82100000\0"
+	"ramdisk_addr_r=0x82100000\0" \
+	"scriptaddr=0x82500000\0"
 
 #if defined(CONFIG_TARGET_COLIBRI_IMX7_NAND)
 #define SD_BOOTDEV 0
@@ -157,7 +158,7 @@
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	UBI_BOOTCMD
 #elif defined(CONFIG_TARGET_COLIBRI_IMX7_EMMC)
-#define CONFIG_BOOTCOMMAND "run emmcboot ; echo ; echo emmcboot failed ; " \
+#define CONFIG_BOOTCOMMAND \
 	"setenv fdtfile ${soc}-colibri-emmc-${fdt_board}.dtb && run distro_bootcmd;"
 #define MODULE_EXTRA_ENV_SETTINGS \
 	"variant=-emmc\0" \
