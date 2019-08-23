@@ -449,13 +449,45 @@ int clk_set_parent(struct clk *clk, struct clk *parent)
 int clk_enable(struct clk *clk)
 {
 	const struct clk_ops *ops = clk_dev_ops(clk->dev);
+	struct clk *clkp = NULL;
+	int ret;
 
 	debug("%s(clk=%p)\n", __func__, clk);
 
-	if (!ops->enable)
-		return -ENOSYS;
+	if (CONFIG_IS_ENABLED(CLK_CCF)) {
+		/* Take id 0 as a non-valid clk, such as dummy */
+		if (clk->id && !clk_get_by_id(clk->id, &clkp)) {
+			if (clkp->enable_count) {
+				clkp->enable_count++;
+				return 0;
+			}
+			if (clkp->dev->parent &&
+			    device_get_uclass_id(clkp->dev) == UCLASS_CLK) {
+				ret = clk_enable(dev_get_clk_ptr(clkp->dev->parent));
+				if (ret) {
+					printf("Enable %s failed\n",
+					       clkp->dev->parent->name);
+					return ret;
+				}
+			}
+		}
 
-	return ops->enable(clk);
+		if (ops->enable) {
+			ret = ops->enable(clk);
+			if (ret) {
+				printf("Enable %s failed\n", clk->dev->name);
+				return ret;
+			}
+		}
+		if (clkp)
+			clkp->enable_count++;
+	} else {
+		if (!ops->enable)
+			return -ENOSYS;
+		return ops->enable(clk);
+	}
+
+	return 0;
 }
 
 int clk_enable_bulk(struct clk_bulk *bulk)
@@ -474,13 +506,46 @@ int clk_enable_bulk(struct clk_bulk *bulk)
 int clk_disable(struct clk *clk)
 {
 	const struct clk_ops *ops = clk_dev_ops(clk->dev);
+	struct clk *clkp = NULL;
+	int ret;
 
 	debug("%s(clk=%p)\n", __func__, clk);
 
-	if (!ops->disable)
-		return -ENOSYS;
+	if (CONFIG_IS_ENABLED(CLK_CCF)) {
+		if (clk->id && !clk_get_by_id(clk->id, &clkp)) {
+			if (clkp->enable_count == 0) {
+				printf("clk %s already disabled\n",
+				       clkp->dev->name);
+				return 0;
+			}
 
-	return ops->disable(clk);
+			if (--clkp->enable_count > 0)
+				return 0;
+		}
+
+		if (ops->disable) {
+			ret = ops->disable(clk);
+			if (ret)
+				return ret;
+		}
+
+		if (clkp && clkp->dev->parent &&
+		    device_get_uclass_id(clkp->dev) == UCLASS_CLK) {
+			ret = clk_disable(dev_get_clk_ptr(clkp->dev->parent));
+			if (ret) {
+				printf("Disable %s failed\n",
+				       clkp->dev->parent->name);
+				return ret;
+			}
+		}
+	} else {
+		if (!ops->disable)
+			return -ENOSYS;
+
+		return ops->disable(clk);
+	}
+
+	return 0;
 }
 
 int clk_disable_bulk(struct clk_bulk *bulk)

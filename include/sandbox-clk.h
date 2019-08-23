@@ -20,6 +20,7 @@ enum {
 	SANDBOX_CLK_USDHC1_SEL,
 	SANDBOX_CLK_USDHC2_SEL,
 	SANDBOX_CLK_I2C,
+	SANDBOX_CLK_I2C_ROOT,
 };
 
 enum sandbox_pllv3_type {
@@ -73,5 +74,7 @@ static inline struct clk *sandbox_clk_mux(const char *name, void __iomem *reg,
 				CLK_SET_RATE_NO_REPARENT, reg, shift,
 				width, 0);
 }
+
+int sandbox_clk_enable_count(struct clk *clk);
 
 #endif /* __SANDBOX_CLK_H__ */

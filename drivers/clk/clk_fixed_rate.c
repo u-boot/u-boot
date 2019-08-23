@@ -27,6 +27,7 @@ static int clk_fixed_rate_ofdata_to_platdata(struct udevice *dev)
 	/* Make fixed rate clock accessible from higher level struct clk */
 	dev->uclass_priv = clk;
 	clk->dev = dev;
+	clk->enable_count = 0;
 
 	return 0;
 }

@@ -40,6 +40,7 @@ int clk_register(struct clk *clk, const char *drv_name,
 		return ret;
 	}
 
+	clk->enable_count = 0;
 	/* Store back pointer to clk from udevice */
 	clk->dev->uclass_priv = clk;
 

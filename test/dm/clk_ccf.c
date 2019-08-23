@@ -64,6 +64,34 @@ static int dm_test_clk_ccf(struct unit_test_state *uts)
 	rate = clk_get_rate(clk);
 	ut_asserteq(rate, 60000000);
 
+#if CONFIG_IS_ENABLED(CLK_CCF)
+	/* Test clk tree enable/disable */
+	ret = clk_get_by_id(SANDBOX_CLK_I2C_ROOT, &clk);
+	ut_assertok(ret);
+	ut_asserteq_str("i2c_root", clk->dev->name);
+
+	ret = clk_enable(clk);
+	ut_assertok(ret);
+
+	ret = sandbox_clk_enable_count(clk);
+	ut_asserteq(ret, 1);
+
+	ret = clk_get_by_id(SANDBOX_CLK_I2C, &pclk);
+	ut_assertok(ret);
+
+	ret = sandbox_clk_enable_count(pclk);
+	ut_asserteq(ret, 1);
+
+	ret = clk_disable(clk);
+	ut_assertok(ret);
+
+	ret = sandbox_clk_enable_count(clk);
+	ut_asserteq(ret, 0);
+
+	ret = sandbox_clk_enable_count(pclk);
+	ut_asserteq(ret, 0);
+#endif
+
 	return 1;
 }
 

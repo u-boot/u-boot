@@ -61,6 +61,7 @@ struct clk {
 	struct udevice *dev;
 	long long rate;	/* in HZ */
 	u32 flags;
+	int enable_count;
 	/*
 	 * Written by of_xlate. In the future, we might add more fields here.
 	 */

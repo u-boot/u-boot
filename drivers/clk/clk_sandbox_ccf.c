@@ -25,6 +25,18 @@ struct clk_pllv3 {
 	u32		div_shift;
 };
 
+int sandbox_clk_enable_count(struct clk *clk)
+{
+	struct clk *clkp = NULL;
+	int ret;
+
+	ret = clk_get_by_id(clk->id, &clkp);
+	if (ret)
+		return 0;
+
+	return clkp->enable_count;
+}
+
 static ulong clk_pllv3_get_rate(struct clk *clk)
 {
 	unsigned long parent_rate = clk_get_parent_rate(clk);
@@ -253,6 +265,9 @@ static int sandbox_clk_ccf_probe(struct udevice *dev)
 	clk_dm(SANDBOX_CLK_I2C,
 	       sandbox_clk_composite("i2c", i2c_sels, ARRAY_SIZE(i2c_sels),
 				     &reg, 0));
+
+	clk_dm(SANDBOX_CLK_I2C_ROOT,
+	       sandbox_clk_gate2("i2c_root", "i2c", base + 0x7c, 0));
 
 	return 0;
 }
