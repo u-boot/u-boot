@@ -1668,8 +1668,6 @@ class TestFunctional(unittest.TestCase):
             # source file (e.g. test/075_fdt_update_all.dts) thus does not enter
             # binman as a file called u-boot.dtb. To fix this, copy the file
             # over to the expected place.
-            #tools.WriteFile(os.path.join(self._indir, 'u-boot.dtb'),
-                    #tools.ReadFile(tools.GetOutputFilename('source.dtb')))
             start = 0
             for fname in ['u-boot.dtb.out', 'spl/u-boot-spl.dtb.out',
                           'tpl/u-boot-tpl.dtb.out']:
