@@ -23,6 +23,7 @@ import cmdline
 import command
 import control
 import elf
+import elf_test
 import fdt
 from etype import fdtmap
 from etype import image_header
@@ -146,6 +147,9 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputDir('devkeys')
         TestFunctional._MakeInputFile('bmpblk.bin', BMPBLK_DATA)
         TestFunctional._MakeInputFile('refcode.bin', REFCODE_DATA)
+
+        cls._elf_testdir = os.path.join(cls._indir, 'elftest')
+        elf_test.BuildElfTestFiles(cls._elf_testdir)
 
         # ELF file with a '_dt_ucode_base_size' symbol
         with open(cls.TestFile('u_boot_ucode_ptr'), 'rb') as fd:
@@ -484,12 +488,20 @@ class TestFunctional(unittest.TestCase):
         Args:
             Filename of ELF file to use as SPL
         """
-        with open(cls.TestFile(src_fname), 'rb') as fd:
-            TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
+        # TODO(sjg@chromium.org): Drop this when all Elf files use ElfTestFile()
+        if src_fname in ['bss_data']:
+            fname = cls.ElfTestFile(src_fname)
+        else:
+            fname = cls.TestFile(src_fname)
+        TestFunctional._MakeInputFile('spl/u-boot-spl', tools.ReadFile(fname))
 
     @classmethod
     def TestFile(cls, fname):
         return os.path.join(cls._binman_dir, 'test', fname)
+
+    @classmethod
+    def ElfTestFile(cls, fname):
+        return os.path.join(cls._elf_testdir, fname)
 
     def AssertInList(self, grep_list, target):
         """Assert that at least one of a list of things is in a target
@@ -1551,7 +1563,7 @@ class TestFunctional(unittest.TestCase):
     def testTpl(self):
         """Test that an image with TPL and ots device tree can be created"""
         # ELF file with a '__bss_size' symbol
-        with open(self.TestFile('bss_data'), 'rb') as fd:
+        with open(self.ElfTestFile('bss_data'), 'rb') as fd:
             TestFunctional._MakeInputFile('tpl/u-boot-tpl', fd.read())
         data = self._DoReadFile('078_u_boot_tpl.dts')
         self.assertEqual(U_BOOT_TPL_DATA + U_BOOT_TPL_DTB_DATA, data)
@@ -1861,16 +1873,16 @@ class TestFunctional(unittest.TestCase):
     def testElf(self):
         """Basic test of ELF entries"""
         self._SetupSplElf()
-        with open(self.TestFile('bss_data'), 'rb') as fd:
+        with open(self.ElfTestFile('bss_data'), 'rb') as fd:
             TestFunctional._MakeInputFile('tpl/u-boot-tpl', fd.read())
-        with open(self.TestFile('bss_data'), 'rb') as fd:
+        with open(self.ElfTestFile('bss_data'), 'rb') as fd:
             TestFunctional._MakeInputFile('-boot', fd.read())
         data = self._DoReadFile('096_elf.dts')
 
     def testElfStrip(self):
         """Basic test of ELF entries"""
         self._SetupSplElf()
-        with open(self.TestFile('bss_data'), 'rb') as fd:
+        with open(self.ElfTestFile('bss_data'), 'rb') as fd:
             TestFunctional._MakeInputFile('-boot', fd.read())
         data = self._DoReadFile('097_elf_strip.dts')
 

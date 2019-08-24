@@ -50,6 +50,29 @@ class FakeSection:
         return self.sym_value
 
 
+def BuildElfTestFiles(target_dir):
+    """Build ELF files used for testing in binman
+
+    This compiles and links the test files into the specified directory. It the
+    Makefile and source files in the binman test/ directory.
+
+    Args:
+        target_dir: Directory to put the files into
+    """
+    if not os.path.exists(target_dir):
+        os.mkdir(target_dir)
+    testdir = os.path.join(binman_dir, 'test')
+
+    # If binman is involved from the main U-Boot Makefile the -r and -R
+    # flags are set in MAKEFLAGS. This prevents this Makefile from working
+    # correctly. So drop any make flags here.
+    if 'MAKEFLAGS' in os.environ:
+        del os.environ['MAKEFLAGS']
+    tools.Run('make', '-C', target_dir, '-f',
+              os.path.join(testdir, 'Makefile'), 'SRC=%s/' % testdir,
+              'bss_data', 'u_boot_ucode_ptr')
+
+
 class TestElf(unittest.TestCase):
     @classmethod
     def setUpClass(self):
