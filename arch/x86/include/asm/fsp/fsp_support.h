@@ -122,4 +122,13 @@ void *fsp_get_graphics_info(const void *hob_list, u32 *len);
  */
 int fsp_init_phase_pci(void);
 
+/**
+ * fsp_scan_for_ram_size() - Scan the HOB list to find the RAM size
+ *
+ * This sets gd->ram_size based on what it finds.
+ *
+ * @return 0 if OK, -ve on error
+ */
+int fsp_scan_for_ram_size(void);
+
 #endif
