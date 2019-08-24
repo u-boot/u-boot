@@ -8,10 +8,11 @@
 #
 
 VPATH := $(SRC)
-CFLAGS := -march=i386 -m32 -nostdlib -I ../../../include
+CFLAGS := -march=i386 -m32 -nostdlib -I $(SRC)../../../include \
+	-Wl,--no-dynamic-linker
 
 LDS_UCODE := -T $(SRC)u_boot_ucode_ptr.lds
-LDS_BINMAN := -T u_boot_binman_syms.lds
+LDS_BINMAN := -T $(SRC)u_boot_binman_syms.lds
 LDS_BINMAN_BAD := -T u_boot_binman_syms_bad.lds
 
 TARGETS = u_boot_ucode_ptr u_boot_no_ucode_ptr bss_data \

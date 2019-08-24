@@ -70,7 +70,8 @@ def BuildElfTestFiles(target_dir):
         del os.environ['MAKEFLAGS']
     tools.Run('make', '-C', target_dir, '-f',
               os.path.join(testdir, 'Makefile'), 'SRC=%s/' % testdir,
-              'bss_data', 'u_boot_ucode_ptr', 'u_boot_no_ucode_ptr')
+              'bss_data', 'u_boot_ucode_ptr', 'u_boot_no_ucode_ptr',
+              'u_boot_binman_syms', 'u_boot_binman_syms.bin')
 
 
 class TestElf(unittest.TestCase):
@@ -118,7 +119,7 @@ class TestElf(unittest.TestCase):
         """Test a symbol which extends outside the entry area is detected"""
         entry = FakeEntry(10)
         section = FakeSection()
-        elf_fname = os.path.join(binman_dir, 'test', 'u_boot_binman_syms')
+        elf_fname = self.ElfTestFile('u_boot_binman_syms')
         with self.assertRaises(ValueError) as e:
             syms = elf.LookupAndWriteSymbols(elf_fname, entry, section)
         self.assertIn('entry_path has offset 4 (size 8) but the contents size '
@@ -158,7 +159,7 @@ class TestElf(unittest.TestCase):
         """
         entry = FakeEntry(20)
         section = FakeSection(sym_value=None)
-        elf_fname = os.path.join(binman_dir, 'test', 'u_boot_binman_syms')
+        elf_fname = self.ElfTestFile('u_boot_binman_syms')
         syms = elf.LookupAndWriteSymbols(elf_fname, entry, section)
         self.assertEqual(tools.GetBytes(255, 16) + tools.GetBytes(ord('a'), 4),
                                                                   entry.data)
@@ -169,7 +170,7 @@ class TestElf(unittest.TestCase):
             tout.Init(tout.DEBUG)
             entry = FakeEntry(20)
             section = FakeSection()
-            elf_fname = os.path.join(binman_dir, 'test', 'u_boot_binman_syms')
+            elf_fname = self.ElfTestFile('u_boot_binman_syms')
             with test_util.capture_sys_output() as (stdout, stderr):
                 syms = elf.LookupAndWriteSymbols(elf_fname, entry, section)
             self.assertTrue(len(stdout.getvalue()) > 0)

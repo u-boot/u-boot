@@ -489,7 +489,8 @@ class TestFunctional(unittest.TestCase):
             Filename of ELF file to use as SPL
         """
         # TODO(sjg@chromium.org): Drop this when all Elf files use ElfTestFile()
-        if src_fname in ['bss_data', 'u_boot_ucode_ptr', 'u_boot_no_ucode_ptr']:
+        if src_fname in ['bss_data', 'u_boot_ucode_ptr', 'u_boot_no_ucode_ptr',
+                         'u_boot_binman_syms']:
             fname = cls.ElfTestFile(src_fname)
         else:
             fname = cls.TestFile(src_fname)
@@ -1223,14 +1224,14 @@ class TestFunctional(unittest.TestCase):
 
     def testSymbols(self):
         """Test binman can assign symbols embedded in U-Boot"""
-        elf_fname = self.TestFile('u_boot_binman_syms')
+        elf_fname = self.ElfTestFile('u_boot_binman_syms')
         syms = elf.GetSymbols(elf_fname, ['binman', 'image'])
         addr = elf.GetSymbolAddress(elf_fname, '__image_copy_start')
         self.assertEqual(syms['_binman_u_boot_spl_prop_offset'].address, addr)
 
         self._SetupSplElf('u_boot_binman_syms')
         data = self._DoReadFile('053_symbols.dts')
-        sym_values = struct.pack('<LQL', 0x24 + 0, 0x24 + 24, 0x24 + 20)
+        sym_values = struct.pack('<LQL', 0, 24, 20)
         expected = (sym_values + U_BOOT_SPL_DATA[16:] +
                     tools.GetBytes(0xff, 1) + U_BOOT_DATA + sym_values +
                     U_BOOT_SPL_DATA[16:])

@@ -25,5 +25,6 @@ SECTIONS
 		KEEP(*(SORT(.binman_sym*)));
 		__binman_sym_end = .;
 	}
+	.interp : { *(.interp*) }
 
 }
