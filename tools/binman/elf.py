@@ -221,6 +221,9 @@ SECTIONS
     .empty : {
         *(.empty)
     } :empty
+    /DISCARD/ : {
+        *(.note.gnu.property)
+    }
     .note : {
         *(.comment)
     } :note

@@ -148,7 +148,7 @@ class TestElf(unittest.TestCase):
         expected_text = b'1234'
         expected_data = b'wxyz'
         elf_fname = os.path.join(outdir, 'elf')
-        bin_fname = os.path.join(outdir, 'elf')
+        bin_fname = os.path.join(outdir, 'bin')
 
         # Make an Elf file and then convert it to a fkat binary file. This
         # should produce the original data.
