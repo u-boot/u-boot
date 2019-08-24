@@ -49,6 +49,9 @@ U_BOOT_TPL_DTB_DATA   = b'tpldtb'
 X86_START16_DATA      = b'start16'
 X86_START16_SPL_DATA  = b'start16spl'
 X86_START16_TPL_DATA  = b'start16tpl'
+X86_RESET16_DATA      = b'reset16'
+X86_RESET16_SPL_DATA  = b'reset16spl'
+X86_RESET16_TPL_DATA  = b'reset16tpl'
 PPC_MPC85XX_BR_DATA   = b'ppcmpc85xxbr'
 U_BOOT_NODTB_DATA     = b'nodtb with microcode pointer somewhere in here'
 U_BOOT_SPL_NODTB_DATA = b'splnodtb with microcode pointer somewhere in here'
@@ -114,12 +117,22 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('me.bin', ME_DATA)
         TestFunctional._MakeInputFile('vga.bin', VGA_DATA)
         cls._ResetDtbs()
-        TestFunctional._MakeInputFile('u-boot-x86-16bit.bin', X86_START16_DATA)
+
         TestFunctional._MakeInputFile('u-boot-br.bin', PPC_MPC85XX_BR_DATA)
+
+        TestFunctional._MakeInputFile('u-boot-x86-16bit.bin', X86_START16_DATA)
         TestFunctional._MakeInputFile('spl/u-boot-x86-16bit-spl.bin',
                                       X86_START16_SPL_DATA)
         TestFunctional._MakeInputFile('tpl/u-boot-x86-16bit-tpl.bin',
                                       X86_START16_TPL_DATA)
+
+        TestFunctional._MakeInputFile('u-boot-x86-reset16.bin',
+                                      X86_RESET16_DATA)
+        TestFunctional._MakeInputFile('spl/u-boot-x86-reset16-spl.bin',
+                                      X86_RESET16_SPL_DATA)
+        TestFunctional._MakeInputFile('tpl/u-boot-x86-reset16-tpl.bin',
+                                      X86_RESET16_TPL_DATA)
+
         TestFunctional._MakeInputFile('u-boot-nodtb.bin', U_BOOT_NODTB_DATA)
         TestFunctional._MakeInputFile('spl/u-boot-spl-nodtb.bin',
                                       U_BOOT_SPL_NODTB_DATA)
@@ -3235,6 +3248,21 @@ class TestFunctional(unittest.TestCase):
             control.ReplaceEntries(image_fname, 'fname', None, ['a', 'b'])
         self.assertIn('Must specify exactly one entry path to write with -f',
                       str(e.exception))
+
+    def testPackReset16(self):
+        """Test that an image with an x86 reset16 region can be created"""
+        data = self._DoReadFile('144_x86_reset16.dts')
+        self.assertEqual(X86_RESET16_DATA, data[:len(X86_RESET16_DATA)])
+
+    def testPackReset16Spl(self):
+        """Test that an image with an x86 reset16-spl region can be created"""
+        data = self._DoReadFile('145_x86_reset16_spl.dts')
+        self.assertEqual(X86_RESET16_SPL_DATA, data[:len(X86_RESET16_SPL_DATA)])
+
+    def testPackReset16Tpl(self):
+        """Test that an image with an x86 reset16-tpl region can be created"""
+        data = self._DoReadFile('146_x86_reset16_tpl.dts')
+        self.assertEqual(X86_RESET16_TPL_DATA, data[:len(X86_RESET16_TPL_DATA)])
 
 
 if __name__ == "__main__":
