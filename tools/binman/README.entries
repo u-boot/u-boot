@@ -989,14 +989,15 @@ Entry: x86-start16: x86 16-bit start-up code for U-Boot
 -------------------------------------------------------
 
 Properties / Entry arguments:
-    - filename: Filename of u-boot-x86-16bit.bin (default
-        'u-boot-x86-16bit.bin')
+    - filename: Filename of u-boot-x86-start16.bin (default
+        'u-boot-x86-start16.bin')
 
 x86 CPUs start up in 16-bit mode, even if they are 32-bit CPUs. This code
-must be placed at a particular address. This entry holds that code. It is
-typically placed at offset CONFIG_SYS_X86_START16. The code is responsible
-for changing to 32-bit mode and jumping to U-Boot's entry point, which
-requires 32-bit mode (for 32-bit U-Boot).
+must be placed in the top 64KB of the ROM. The reset code jumps to it. This
+entry holds that code. It is typically placed at offset
+CONFIG_SYS_X86_START16. The code is responsible for changing to 32-bit mode
+and jumping to U-Boot's entry point, which requires 32-bit mode (for 32-bit
+U-Boot).
 
 For 64-bit U-Boot, the 'x86_start16_spl' entry type is used instead.
 
@@ -1006,16 +1007,17 @@ Entry: x86-start16-spl: x86 16-bit start-up code for SPL
 --------------------------------------------------------
 
 Properties / Entry arguments:
-    - filename: Filename of spl/u-boot-x86-16bit-spl.bin (default
-        'spl/u-boot-x86-16bit-spl.bin')
+    - filename: Filename of spl/u-boot-x86-start16-spl.bin (default
+        'spl/u-boot-x86-start16-spl.bin')
 
-x86 CPUs start up in 16-bit mode, even if they are 64-bit CPUs. This code
-must be placed at a particular address. This entry holds that code. It is
-typically placed at offset CONFIG_SYS_X86_START16. The code is responsible
-for changing to 32-bit mode and starting SPL, which in turn changes to
-64-bit mode and jumps to U-Boot (for 64-bit U-Boot).
+x86 CPUs start up in 16-bit mode, even if they are 32-bit CPUs. This code
+must be placed in the top 64KB of the ROM. The reset code jumps to it. This
+entry holds that code. It is typically placed at offset
+CONFIG_SYS_X86_START16. The code is responsible for changing to 32-bit mode
+and jumping to U-Boot's entry point, which requires 32-bit mode (for 32-bit
+U-Boot).
 
-For 32-bit U-Boot, the 'x86_start16' entry type is used instead.
+For 32-bit U-Boot, the 'x86-start16' entry type is used instead.
 
 
 
@@ -1023,15 +1025,17 @@ Entry: x86-start16-tpl: x86 16-bit start-up code for TPL
 --------------------------------------------------------
 
 Properties / Entry arguments:
-    - filename: Filename of tpl/u-boot-x86-16bit-tpl.bin (default
-        'tpl/u-boot-x86-16bit-tpl.bin')
+    - filename: Filename of tpl/u-boot-x86-start16-tpl.bin (default
+        'tpl/u-boot-x86-start16-tpl.bin')
 
-x86 CPUs start up in 16-bit mode, even if they are 64-bit CPUs. This code
-must be placed at a particular address. This entry holds that code. It is
-typically placed at offset CONFIG_SYS_X86_START16. The code is responsible
-for changing to 32-bit mode and starting TPL, which in turn jumps to SPL.
+x86 CPUs start up in 16-bit mode, even if they are 32-bit CPUs. This code
+must be placed in the top 64KB of the ROM. The reset code jumps to it. This
+entry holds that code. It is typically placed at offset
+CONFIG_SYS_X86_START16. The code is responsible for changing to 32-bit mode
+and jumping to U-Boot's entry point, which requires 32-bit mode (for 32-bit
+U-Boot).
 
-If TPL is not being used, the 'x86_start16_spl or 'x86_start16' entry types
+If TPL is not being used, the 'x86-start16-spl or 'x86-start16' entry types
 may be used instead.
 
 

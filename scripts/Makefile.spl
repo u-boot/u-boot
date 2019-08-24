@@ -229,9 +229,11 @@ ALL-y	+= $(obj)/boot.bin
 endif
 
 ifdef CONFIG_TPL_BUILD
-ALL-$(CONFIG_TPL_X86_16BIT_INIT) += $(obj)/u-boot-x86-16bit-tpl.bin
+ALL-$(CONFIG_TPL_X86_16BIT_INIT) += $(obj)/u-boot-x86-start16-tpl.bin \
+	$(obj)/u-boot-x86-reset16-tpl.bin
 else
-ALL-$(CONFIG_SPL_X86_16BIT_INIT) += $(obj)/u-boot-x86-16bit-spl.bin
+ALL-$(CONFIG_SPL_X86_16BIT_INIT) += $(obj)/u-boot-x86-start16-spl.bin \
+	$(obj)/u-boot-x86-reset16-spl.bin
 endif
 
 ALL-$(CONFIG_ARCH_ZYNQ)		+= $(obj)/boot.bin
@@ -337,12 +339,20 @@ OBJCOPYFLAGS_$(SPL_BIN)-nodtb.bin = $(SPL_OBJCFLAGS) -O binary \
 $(obj)/$(SPL_BIN)-nodtb.bin: $(obj)/$(SPL_BIN) FORCE
 	$(call if_changed,objcopy)
 
-OBJCOPYFLAGS_u-boot-x86-16bit-spl.bin := -O binary -j .start16 -j .resetvec
-$(obj)/u-boot-x86-16bit-spl.bin: $(obj)/u-boot-spl FORCE
+OBJCOPYFLAGS_u-boot-x86-start16-spl.bin := -O binary -j .start16
+$(obj)/u-boot-x86-start16-spl.bin: $(obj)/u-boot-spl FORCE
 	$(call if_changed,objcopy)
 
-OBJCOPYFLAGS_u-boot-x86-16bit-tpl.bin := -O binary -j .start16 -j .resetvec
-$(obj)/u-boot-x86-16bit-tpl.bin: $(obj)/u-boot-tpl FORCE
+OBJCOPYFLAGS_u-boot-x86-start16-tpl.bin := -O binary -j .start16
+$(obj)/u-boot-x86-start16-tpl.bin: $(obj)/u-boot-tpl FORCE
+	$(call if_changed,objcopy)
+
+OBJCOPYFLAGS_u-boot-x86-reset16-spl.bin := -O binary -j .resetvec
+$(obj)/u-boot-x86-reset16-spl.bin: $(obj)/u-boot-spl FORCE
+	$(call if_changed,objcopy)
+
+OBJCOPYFLAGS_u-boot-x86-reset16-tpl.bin := -O binary -j .resetvec
+$(obj)/u-boot-x86-reset16-tpl.bin: $(obj)/u-boot-tpl FORCE
 	$(call if_changed,objcopy)
 
 LDFLAGS_$(SPL_BIN) += -T u-boot-spl.lds $(LDFLAGS_FINAL)

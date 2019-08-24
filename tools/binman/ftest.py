@@ -120,10 +120,10 @@ class TestFunctional(unittest.TestCase):
 
         TestFunctional._MakeInputFile('u-boot-br.bin', PPC_MPC85XX_BR_DATA)
 
-        TestFunctional._MakeInputFile('u-boot-x86-16bit.bin', X86_START16_DATA)
-        TestFunctional._MakeInputFile('spl/u-boot-x86-16bit-spl.bin',
+        TestFunctional._MakeInputFile('u-boot-x86-start16.bin', X86_START16_DATA)
+        TestFunctional._MakeInputFile('spl/u-boot-x86-start16-spl.bin',
                                       X86_START16_SPL_DATA)
-        TestFunctional._MakeInputFile('tpl/u-boot-x86-16bit-tpl.bin',
+        TestFunctional._MakeInputFile('tpl/u-boot-x86-start16-tpl.bin',
                                       X86_START16_TPL_DATA)
 
         TestFunctional._MakeInputFile('u-boot-x86-reset16.bin',

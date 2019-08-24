@@ -1458,14 +1458,18 @@ quiet_cmd_ldr = LD      $@
 cmd_ldr = $(LD) $(LDFLAGS_$(@F)) \
 	       $(filter-out FORCE,$^) -o $@
 
-u-boot.rom: u-boot-x86-16bit.bin u-boot.bin \
+u-boot.rom: u-boot-x86-start16.bin u-boot-x86-reset16.bin u-boot.bin \
 		$(if $(CONFIG_SPL_X86_16BIT_INIT),spl/u-boot-spl.bin) \
 		$(if $(CONFIG_TPL_X86_16BIT_INIT),tpl/u-boot-tpl.bin) \
 		$(if $(CONFIG_HAVE_REFCODE),refcode.bin) FORCE
 	$(call if_changed,binman)
 
-OBJCOPYFLAGS_u-boot-x86-16bit.bin := -O binary -j .start16 -j .resetvec
-u-boot-x86-16bit.bin: u-boot FORCE
+OBJCOPYFLAGS_u-boot-x86-start16.bin := -O binary -j .start16
+u-boot-x86-start16.bin: u-boot FORCE
+	$(call if_changed,objcopy)
+
+OBJCOPYFLAGS_u-boot-x86-reset16.bin := -O binary -j .resetvec
+u-boot-x86-reset16.bin: u-boot FORCE
 	$(call if_changed,objcopy)
 endif
 
