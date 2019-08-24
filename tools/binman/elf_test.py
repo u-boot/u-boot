@@ -72,7 +72,7 @@ def BuildElfTestFiles(target_dir):
               os.path.join(testdir, 'Makefile'), 'SRC=%s/' % testdir,
               'bss_data', 'u_boot_ucode_ptr', 'u_boot_no_ucode_ptr',
               'u_boot_binman_syms', 'u_boot_binman_syms.bin',
-              'u_boot_binman_syms_size')
+              'u_boot_binman_syms_size', 'u_boot_binman_syms_bad')
 
 
 class TestElf(unittest.TestCase):
@@ -134,7 +134,7 @@ class TestElf(unittest.TestCase):
         """
         entry = FakeEntry(10)
         section = FakeSection()
-        elf_fname = os.path.join(binman_dir, 'test', 'u_boot_binman_syms_bad')
+        elf_fname = self.ElfTestFile('u_boot_binman_syms_bad')
         self.assertEqual(elf.LookupAndWriteSymbols(elf_fname, entry, section),
                          None)
 
