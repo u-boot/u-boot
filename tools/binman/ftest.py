@@ -921,7 +921,7 @@ class TestFunctional(unittest.TestCase):
     def testPackX86Rom(self):
         """Test that a basic x86 ROM can be created"""
         self._SetupSplElf()
-        data = self._DoReadFile('029_x86-rom.dts')
+        data = self._DoReadFile('029_x86_rom.dts')
         self.assertEqual(U_BOOT_DATA + tools.GetBytes(0, 7) + U_BOOT_SPL_DATA +
                          tools.GetBytes(0, 2), data)
 
@@ -929,21 +929,21 @@ class TestFunctional(unittest.TestCase):
         """Test that an invalid Intel descriptor entry is detected"""
         TestFunctional._MakeInputFile('descriptor.bin', b'')
         with self.assertRaises(ValueError) as e:
-            self._DoTestFile('031_x86-rom-me.dts')
+            self._DoTestFile('031_x86_rom_me.dts')
         self.assertIn("Node '/binman/intel-descriptor': Cannot find Intel Flash Descriptor (FD) signature",
                       str(e.exception))
 
     def testPackX86RomBadDesc(self):
         """Test that the Intel requires a descriptor entry"""
         with self.assertRaises(ValueError) as e:
-            self._DoTestFile('030_x86-rom-me-no-desc.dts')
+            self._DoTestFile('030_x86_rom_me_no_desc.dts')
         self.assertIn("Node '/binman/intel-me': No offset set with "
                       "offset-unset: should another entry provide this correct "
                       "offset?", str(e.exception))
 
     def testPackX86RomMe(self):
         """Test that an x86 ROM with an ME region can be created"""
-        data = self._DoReadFile('031_x86-rom-me.dts')
+        data = self._DoReadFile('031_x86_rom_me.dts')
         expected_desc = tools.ReadFile(self.TestFile('descriptor.bin'))
         if data[:0x1000] != expected_desc:
             self.fail('Expected descriptor binary at start of image')
@@ -951,12 +951,12 @@ class TestFunctional(unittest.TestCase):
 
     def testPackVga(self):
         """Test that an image with a VGA binary can be created"""
-        data = self._DoReadFile('032_intel-vga.dts')
+        data = self._DoReadFile('032_intel_vga.dts')
         self.assertEqual(VGA_DATA, data[:len(VGA_DATA)])
 
     def testPackStart16(self):
         """Test that an image with an x86 start16 region can be created"""
-        data = self._DoReadFile('033_x86-start16.dts')
+        data = self._DoReadFile('033_x86_start16.dts')
         self.assertEqual(X86_START16_DATA, data[:len(X86_START16_DATA)])
 
     def testPackPowerpcMpc85xxBootpgResetvec(self):
@@ -1144,17 +1144,17 @@ class TestFunctional(unittest.TestCase):
 
     def testPackFsp(self):
         """Test that an image with a FSP binary can be created"""
-        data = self._DoReadFile('042_intel-fsp.dts')
+        data = self._DoReadFile('042_intel_fsp.dts')
         self.assertEqual(FSP_DATA, data[:len(FSP_DATA)])
 
     def testPackCmc(self):
         """Test that an image with a CMC binary can be created"""
-        data = self._DoReadFile('043_intel-cmc.dts')
+        data = self._DoReadFile('043_intel_cmc.dts')
         self.assertEqual(CMC_DATA, data[:len(CMC_DATA)])
 
     def testPackVbt(self):
         """Test that an image with a VBT binary can be created"""
-        data = self._DoReadFile('046_intel-vbt.dts')
+        data = self._DoReadFile('046_intel_vbt.dts')
         self.assertEqual(VBT_DATA, data[:len(VBT_DATA)])
 
     def testSplBssPad(self):
@@ -1175,7 +1175,7 @@ class TestFunctional(unittest.TestCase):
 
     def testPackStart16Spl(self):
         """Test that an image with an x86 start16 SPL region can be created"""
-        data = self._DoReadFile('048_x86-start16-spl.dts')
+        data = self._DoReadFile('048_x86_start16_spl.dts')
         self.assertEqual(X86_START16_SPL_DATA, data[:len(X86_START16_SPL_DATA)])
 
     def _PackUbootSplMicrocode(self, dts, ucode_second=False):
@@ -1594,7 +1594,7 @@ class TestFunctional(unittest.TestCase):
 
     def testPackStart16Tpl(self):
         """Test that an image with an x86 start16 TPL region can be created"""
-        data = self._DoReadFile('081_x86-start16-tpl.dts')
+        data = self._DoReadFile('081_x86_start16_tpl.dts')
         self.assertEqual(X86_START16_TPL_DATA, data[:len(X86_START16_TPL_DATA)])
 
     def testSelectImage(self):
@@ -2065,20 +2065,20 @@ class TestFunctional(unittest.TestCase):
     def testPackX86RomIfwi(self):
         """Test that an x86 ROM with Integrated Firmware Image can be created"""
         self._SetupIfwi('fitimage.bin')
-        data = self._DoReadFile('111_x86-rom-ifwi.dts')
+        data = self._DoReadFile('111_x86_rom_ifwi.dts')
         self._CheckIfwi(data)
 
     def testPackX86RomIfwiNoDesc(self):
         """Test that an x86 ROM with IFWI can be created from an ifwi.bin file"""
         self._SetupIfwi('ifwi.bin')
-        data = self._DoReadFile('112_x86-rom-ifwi-nodesc.dts')
+        data = self._DoReadFile('112_x86_rom_ifwi_nodesc.dts')
         self._CheckIfwi(data)
 
     def testPackX86RomIfwiNoData(self):
         """Test that an x86 ROM with IFWI handles missing data"""
         self._SetupIfwi('ifwi.bin')
         with self.assertRaises(ValueError) as e:
-            data = self._DoReadFile('113_x86-rom-ifwi-nodata.dts')
+            data = self._DoReadFile('113_x86_rom_ifwi_nodata.dts')
         self.assertIn('Could not complete processing of contents',
                       str(e.exception))
 
