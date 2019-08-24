@@ -442,6 +442,7 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
         if sizes_ok:
             break
         image.ResetForPack()
+    tout.Info('Pack completed after %d pass(es)' % (pack_pass + 1))
     if not sizes_ok:
         image.Raise('Entries changed size after packing (tried %s passes)' %
                     passes)
