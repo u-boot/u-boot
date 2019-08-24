@@ -81,7 +81,6 @@ dtb-$(CONFIG_ROCKCHIP_RK322X) += \
 
 dtb-$(CONFIG_ROCKCHIP_RK3288) += \
 	rk3288-evb.dtb \
-	rk3288-fennec.dtb \
 	rk3288-firefly.dtb \
 	rk3288-miqi.dtb \
 	rk3288-phycore-rdk.dtb \

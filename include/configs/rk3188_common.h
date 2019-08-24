@@ -12,7 +12,6 @@
 #include "rockchip-common.h"
 
 #define CONFIG_SKIP_LOWLEVEL_INIT_ONLY
-#define CONFIG_SYS_MALLOC_LEN		(32 << 20)
 #define CONFIG_SYS_CBSIZE		1024
 
 #ifdef CONFIG_SPL_ROCKCHIP_BACK_TO_BROM

@@ -156,7 +156,8 @@ config SYS_MALLOC_F_LEN
 
 config SYS_MALLOC_LEN
 	hex "Define memory for Dynamic allocation"
-	depends on ARCH_ZYNQ || ARCH_VERSAL || ARCH_STM32MP
+	depends on ARCH_ZYNQ || ARCH_VERSAL || ARCH_STM32MP || ARCH_ROCKCHIP
+	default 0x2000000 if ARCH_ROCKCHIP
 	help
 	  This defines memory to be allocated for Dynamic allocation
 	  TODO: Use for other architectures
