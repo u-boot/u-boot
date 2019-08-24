@@ -125,7 +125,7 @@ def GetInputFilename(fname):
     Returns:
         The full path of the filename, within the input directory
     """
-    if not indir:
+    if not indir or fname[:1] == '/':
         return fname
     for dirname in indir:
         pathname = os.path.join(dirname, fname)

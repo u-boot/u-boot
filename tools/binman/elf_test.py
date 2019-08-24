@@ -75,18 +75,29 @@ def BuildElfTestFiles(target_dir):
 
 class TestElf(unittest.TestCase):
     @classmethod
-    def setUpClass(self):
+    def setUpClass(cls):
+        cls._indir = tempfile.mkdtemp(prefix='elf.')
         tools.SetInputDirs(['.'])
+        BuildElfTestFiles(cls._indir)
+
+    @classmethod
+    def tearDownClass(cls):
+        if cls._indir:
+            shutil.rmtree(cls._indir)
+
+    @classmethod
+    def ElfTestFile(cls, fname):
+        return os.path.join(cls._indir, fname)
 
     def testAllSymbols(self):
         """Test that we can obtain a symbol from the ELF file"""
-        fname = os.path.join(binman_dir, 'test', 'u_boot_ucode_ptr')
+        fname = self.ElfTestFile('u_boot_ucode_ptr')
         syms = elf.GetSymbols(fname, [])
         self.assertIn('.ucode', syms)
 
     def testRegexSymbols(self):
         """Test that we can obtain from the ELF file by regular expression"""
-        fname = os.path.join(binman_dir, 'test', 'u_boot_ucode_ptr')
+        fname = self.ElfTestFile('u_boot_ucode_ptr')
         syms = elf.GetSymbols(fname, ['ucode'])
         self.assertIn('.ucode', syms)
         syms = elf.GetSymbols(fname, ['missing'])
@@ -201,7 +212,7 @@ class TestElf(unittest.TestCase):
         self.assertEqual(elf.ElfInfo(b'\0\0' + expected[2:],
                                      load, entry, len(expected)),
                          elf.DecodeElf(data, load + 2))
-        #shutil.rmtree(outdir)
+        shutil.rmtree(outdir)
 
 
 if __name__ == '__main__':

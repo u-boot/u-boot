@@ -152,8 +152,8 @@ class TestFunctional(unittest.TestCase):
         elf_test.BuildElfTestFiles(cls._elf_testdir)
 
         # ELF file with a '_dt_ucode_base_size' symbol
-        with open(cls.TestFile('u_boot_ucode_ptr'), 'rb') as fd:
-            TestFunctional._MakeInputFile('u-boot', fd.read())
+        TestFunctional._MakeInputFile('u-boot',
+            tools.ReadFile(cls.ElfTestFile('u_boot_ucode_ptr')))
 
         # Intel flash descriptor file
         with open(cls.TestFile('descriptor.bin'), 'rb') as fd:
@@ -489,7 +489,7 @@ class TestFunctional(unittest.TestCase):
             Filename of ELF file to use as SPL
         """
         # TODO(sjg@chromium.org): Drop this when all Elf files use ElfTestFile()
-        if src_fname in ['bss_data']:
+        if src_fname in ['bss_data', 'u_boot_ucode_ptr']:
             fname = cls.ElfTestFile(src_fname)
         else:
             fname = cls.TestFile(src_fname)
@@ -1101,8 +1101,8 @@ class TestFunctional(unittest.TestCase):
 
         finally:
             # Put the original file back
-            with open(self.TestFile('u_boot_ucode_ptr'), 'rb') as fd:
-                TestFunctional._MakeInputFile('u-boot', fd.read())
+            TestFunctional._MakeInputFile('u-boot',
+                tools.ReadFile(self.ElfTestFile('u_boot_ucode_ptr')))
 
     def testMicrocodeNotInImage(self):
         """Test that microcode must be placed within the image"""
@@ -1818,8 +1818,8 @@ class TestFunctional(unittest.TestCase):
             u-boot-tpl.dtb with the microcode removed
             the microcode
         """
-        with open(self.TestFile('u_boot_ucode_ptr'), 'rb') as fd:
-            TestFunctional._MakeInputFile('tpl/u-boot-tpl', fd.read())
+        TestFunctional._MakeInputFile('tpl/u-boot-tpl',
+            tools.ReadFile(self.ElfTestFile('u_boot_ucode_ptr')))
         first, pos_and_size = self._RunMicrocodeTest('093_x86_tpl_ucode.dts',
                                                      U_BOOT_TPL_NODTB_DATA)
         self.assertEqual(b'tplnodtb with microc' + pos_and_size +

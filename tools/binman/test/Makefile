@@ -10,7 +10,7 @@
 VPATH := $(SRC)
 CFLAGS := -march=i386 -m32 -nostdlib -I ../../../include
 
-LDS_UCODE := -T u_boot_ucode_ptr.lds
+LDS_UCODE := -T $(SRC)u_boot_ucode_ptr.lds
 LDS_BINMAN := -T u_boot_binman_syms.lds
 LDS_BINMAN_BAD := -T u_boot_binman_syms_bad.lds
 
