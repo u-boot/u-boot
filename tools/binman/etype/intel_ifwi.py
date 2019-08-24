@@ -118,3 +118,8 @@ class Entry_intel_ifwi(Entry_blob):
             entry._ifwi_subpart = fdt_util.GetString(node, 'ifwi-subpart')
             entry._ifwi_entry_name = fdt_util.GetString(node, 'ifwi-entry')
             self._ifwi_entries[entry._ifwi_subpart] = entry
+
+    def WriteSymbols(self, section):
+        """Write symbol values into binary files for access at run time"""
+        for entry in self._ifwi_entries.values():
+            entry.WriteSymbols(self)
