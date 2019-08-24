@@ -437,6 +437,7 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
             for dtb_item in state.GetAllFdts():
                 dtb_item.Sync()
                 dtb_item.Flush()
+        image.WriteSymbols()
         sizes_ok = image.ProcessEntryContents()
         if sizes_ok:
             break
@@ -445,7 +446,6 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
         image.Raise('Entries changed size after packing (tried %s passes)' %
                     passes)
 
-    image.WriteSymbols()
     image.BuildImage()
     if write_map:
         image.WriteMap()
