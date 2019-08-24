@@ -72,6 +72,7 @@ FILES_DATA            = (b"sorry I'm late\nOh, don't bother apologising, I'm " +
                          b"sorry you're alive\n")
 COMPRESS_DATA         = b'compress xxxxxxxxxxxxxxxxxxxxxx data'
 REFCODE_DATA          = b'refcode'
+FSP_M_DATA            = b'fsp_m'
 
 # The expected size for the device tree in some tests
 EXTRACT_DTB_SIZE = 0x3c9
@@ -147,6 +148,7 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputDir('devkeys')
         TestFunctional._MakeInputFile('bmpblk.bin', BMPBLK_DATA)
         TestFunctional._MakeInputFile('refcode.bin', REFCODE_DATA)
+        TestFunctional._MakeInputFile('fsp_m.bin', FSP_M_DATA)
 
         cls._elf_testdir = os.path.join(cls._indir, 'elftest')
         elf_test.BuildElfTestFiles(cls._elf_testdir)
@@ -3326,6 +3328,12 @@ class TestFunctional(unittest.TestCase):
         self._SetupIfwi('fitimage.bin')
         data = self._DoReadFile('151_x86_rom_ifwi_section.dts')
         self._CheckIfwi(data)
+
+    def testPackFspM(self):
+        """Test that an image with a FSP memory-init binary can be created"""
+        data = self._DoReadFile('152_intel_fsp_m.dts')
+        self.assertEqual(FSP_M_DATA, data[:len(FSP_M_DATA)])
+
 
 
 if __name__ == "__main__":

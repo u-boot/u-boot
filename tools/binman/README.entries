@@ -427,6 +427,23 @@ See README.x86 for information about x86 binary blobs.
 
 
 
+Entry: intel-fsp-m: Entry containing Intel Firmware Support Package (FSP) memory init
+-------------------------------------------------------------------------------------
+
+Properties / Entry arguments:
+    - filename: Filename of file to read into entry
+
+This file contains a binary blob which is used on some devices to set up
+SDRAM. U-Boot executes this code in SPL so that it can make full use of
+memory. Documentation is typically not available in sufficient detail to
+allow U-Boot do this this itself..
+
+An example filename is 'fsp_m.bin'
+
+See README.x86 for information about x86 binary blobs.
+
+
+
 Entry: intel-ifwi: Entry containing an Intel Integrated Firmware Image (IFWI) file
 ----------------------------------------------------------------------------------
 
