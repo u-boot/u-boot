@@ -489,7 +489,7 @@ class TestFunctional(unittest.TestCase):
             Filename of ELF file to use as SPL
         """
         # TODO(sjg@chromium.org): Drop this when all Elf files use ElfTestFile()
-        if src_fname in ['bss_data', 'u_boot_ucode_ptr']:
+        if src_fname in ['bss_data', 'u_boot_ucode_ptr', 'u_boot_no_ucode_ptr']:
             fname = cls.ElfTestFile(src_fname)
         else:
             fname = cls.TestFile(src_fname)
@@ -1091,8 +1091,8 @@ class TestFunctional(unittest.TestCase):
         """Test that a U-Boot binary without the microcode symbol is detected"""
         # ELF file without a '_dt_ucode_base_size' symbol
         try:
-            with open(self.TestFile('u_boot_no_ucode_ptr'), 'rb') as fd:
-                TestFunctional._MakeInputFile('u-boot', fd.read())
+            TestFunctional._MakeInputFile('u-boot',
+                tools.ReadFile(self.ElfTestFile('u_boot_no_ucode_ptr')))
 
             with self.assertRaises(ValueError) as e:
                 self._RunPackUbootSingleMicrocode()
@@ -1114,8 +1114,8 @@ class TestFunctional(unittest.TestCase):
 
     def testWithoutMicrocode(self):
         """Test that we can cope with an image without microcode (e.g. qemu)"""
-        with open(self.TestFile('u_boot_no_ucode_ptr'), 'rb') as fd:
-            TestFunctional._MakeInputFile('u-boot', fd.read())
+        TestFunctional._MakeInputFile('u-boot',
+            tools.ReadFile(self.ElfTestFile('u_boot_no_ucode_ptr')))
         data, dtb, _, _ = self._DoReadFileDtb('044_x86_optional_ucode.dts', True)
 
         # Now check the device tree has no microcode

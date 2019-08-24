@@ -70,7 +70,7 @@ def BuildElfTestFiles(target_dir):
         del os.environ['MAKEFLAGS']
     tools.Run('make', '-C', target_dir, '-f',
               os.path.join(testdir, 'Makefile'), 'SRC=%s/' % testdir,
-              'bss_data', 'u_boot_ucode_ptr')
+              'bss_data', 'u_boot_ucode_ptr', 'u_boot_no_ucode_ptr')
 
 
 class TestElf(unittest.TestCase):
