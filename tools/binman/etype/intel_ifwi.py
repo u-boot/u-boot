@@ -53,22 +53,8 @@ class Entry_intel_ifwi(Entry_blob):
         self._ReadSubnodes()
         Entry_blob.ReadNode(self)
 
-    def ObtainContents(self):
-        """Get the contects for the IFWI
-
-        Unfortunately we cannot create anything from scratch here, as Intel has
-        tools which create precursor binaries with lots of data and settings,
-        and these are not incorporated into binman.
-
-        The first step is to get a file in the IFWI format. This is either
-        supplied directly or is extracted from a fitimage using the 'create'
-        subcommand.
-
-        After that we delete the OBBP sub-partition and add each of the files
-        that we want in the IFWI file, one for each sub-entry of the IWFI node.
-        """
-        self._pathname = tools.GetInputFilename(self._filename)
-
+    def _BuildIfwi(self):
+        """Build the contents of the IFWI and write it to the 'data' property"""
         # Create the IFWI file if needed
         if self._convert_fit:
             inname = self._pathname
@@ -85,8 +71,6 @@ class Entry_intel_ifwi(Entry_blob):
 
         for entry in self._ifwi_entries.values():
             # First get the input data and put it in a file
-            if not entry.ObtainContents():
-                return False
             data = entry.GetData()
             uniq = self.GetUniqueName()
             input_fname = tools.GetOutputFilename('input.%s' % uniq)
@@ -98,6 +82,32 @@ class Entry_intel_ifwi(Entry_blob):
 
         self.ReadBlobContents()
         return True
+
+    def ObtainContents(self):
+        """Get the contects for the IFWI
+
+        Unfortunately we cannot create anything from scratch here, as Intel has
+        tools which create precursor binaries with lots of data and settings,
+        and these are not incorporated into binman.
+
+        The first step is to get a file in the IFWI format. This is either
+        supplied directly or is extracted from a fitimage using the 'create'
+        subcommand.
+
+        After that we delete the OBBP sub-partition and add each of the files
+        that we want in the IFWI file, one for each sub-entry of the IWFI node.
+        """
+        self._pathname = tools.GetInputFilename(self._filename)
+        for entry in self._ifwi_entries.values():
+            if not entry.ObtainContents():
+                return False
+        return self._BuildIfwi()
+
+    def ProcessContents(self):
+        orig_data = self.data
+        self._BuildIfwi()
+        same = orig_data == self.data
+        return same
 
     def _ReadSubnodes(self):
         """Read the subnodes to find out what should go in this IFWI"""
