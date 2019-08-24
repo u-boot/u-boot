@@ -93,8 +93,6 @@
 
 /* version string, parser, etc */
 
-#define CONFIG_MX_CYCLIC
-
 /* Initial upstream - boot to cmd prompt only */
 #define CONFIG_BOOTCOMMAND		""
 

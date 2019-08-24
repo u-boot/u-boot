@@ -367,7 +367,7 @@ config SYS_THUMB_BUILD
 config SPL_SYS_THUMB_BUILD
 	bool "Build SPL using the Thumb instruction set"
 	default y if SYS_THUMB_BUILD
-	depends on !ARM64
+	depends on !ARM64 && SPL
 	help
 	   Use this flag to build SPL using the Thumb instruction set for
 	   ARM architectures. Thumb instruction set provides better code
@@ -414,7 +414,7 @@ config USE_ARCH_MEMCPY
 config SPL_USE_ARCH_MEMCPY
 	bool "Use an assembly optimized implementation of memcpy for SPL"
 	default y if USE_ARCH_MEMCPY
-	depends on !ARM64
+	depends on !ARM64 && SPL
 	help
 	  Enable the generation of an optimized version of memcpy.
 	  Such implementation may be faster under some conditions
@@ -423,7 +423,7 @@ config SPL_USE_ARCH_MEMCPY
 config TPL_USE_ARCH_MEMCPY
 	bool "Use an assembly optimized implementation of memcpy for TPL"
 	default y if USE_ARCH_MEMCPY
-	depends on !ARM64
+	depends on !ARM64 && TPL
 	help
 	  Enable the generation of an optimized version of memcpy.
 	  Such implementation may be faster under some conditions
@@ -441,7 +441,7 @@ config USE_ARCH_MEMSET
 config SPL_USE_ARCH_MEMSET
 	bool "Use an assembly optimized implementation of memset for SPL"
 	default y if USE_ARCH_MEMSET
-	depends on !ARM64
+	depends on !ARM64 && SPL
 	help
 	  Enable the generation of an optimized version of memset.
 	  Such implementation may be faster under some conditions
@@ -450,7 +450,7 @@ config SPL_USE_ARCH_MEMSET
 config TPL_USE_ARCH_MEMSET
 	bool "Use an assembly optimized implementation of memset for TPL"
 	default y if USE_ARCH_MEMSET
-	depends on !ARM64
+	depends on !ARM64 && TPL
 	help
 	  Enable the generation of an optimized version of memset.
 	  Such implementation may be faster under some conditions
@@ -458,7 +458,8 @@ config TPL_USE_ARCH_MEMSET
 
 config ARM64_SUPPORT_AARCH32
 	bool "ARM64 system support AArch32 execution state"
-	default y if ARM64 && !TARGET_THUNDERX_88XX
+	depends on ARM64
+	default y if !TARGET_THUNDERX_88XX
 	help
 	  This ARM64 system supports AArch32 execution state.
 

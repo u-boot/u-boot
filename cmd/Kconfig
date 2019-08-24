@@ -611,6 +611,20 @@ config CMD_MEMORY
 	    base - print or set address offset
 	    loop - initialize loop on address range
 
+config MX_CYCLIC
+	bool "Enable cyclic md/mw commands"
+	depends on CMD_MEMORY
+	help
+          Add the "mdc" and "mwc" memory commands. These are cyclic
+          "md/mw" commands.
+          Examples:
+
+	  => mdc.b 10 4 500
+	  This command will print 4 bytes (10,11,12,13) each 500 ms.
+
+	  => mwc.l 100 12345678 10
+	  This command will write 12345678 to address 100 all 10 ms.
+
 config CMD_RANDOM
 	bool "random"
 	default y

@@ -175,7 +175,6 @@
 	DFU_ALT_INFO_MMC \
 
 /* U-Boot general configuration */
-#define CONFIG_MX_CYCLIC
 #define CONFIG_TIMESTAMP
 
 /* EDMA3 */
