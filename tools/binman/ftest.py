@@ -488,13 +488,8 @@ class TestFunctional(unittest.TestCase):
         Args:
             Filename of ELF file to use as SPL
         """
-        # TODO(sjg@chromium.org): Drop this when all Elf files use ElfTestFile()
-        if src_fname in ['bss_data', 'u_boot_ucode_ptr', 'u_boot_no_ucode_ptr',
-                         'u_boot_binman_syms', 'u_boot_binman_syms_size']:
-            fname = cls.ElfTestFile(src_fname)
-        else:
-            fname = cls.TestFile(src_fname)
-        TestFunctional._MakeInputFile('spl/u-boot-spl', tools.ReadFile(fname))
+        TestFunctional._MakeInputFile('spl/u-boot-spl',
+            tools.ReadFile(cls.ElfTestFile(src_fname)))
 
     @classmethod
     def TestFile(cls, fname):

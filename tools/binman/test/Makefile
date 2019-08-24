@@ -1,5 +1,5 @@
 #
-# Builds test programs
+# Builds test programs. This is launched from elf_test.BuildElfTestFiles()
 #
 # Copyright (C) 2017 Google, Inc
 # Written by Simon Glass <sjg@chromium.org>

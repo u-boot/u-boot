@@ -69,10 +69,7 @@ def BuildElfTestFiles(target_dir):
     if 'MAKEFLAGS' in os.environ:
         del os.environ['MAKEFLAGS']
     tools.Run('make', '-C', target_dir, '-f',
-              os.path.join(testdir, 'Makefile'), 'SRC=%s/' % testdir,
-              'bss_data', 'u_boot_ucode_ptr', 'u_boot_no_ucode_ptr',
-              'u_boot_binman_syms', 'u_boot_binman_syms.bin',
-              'u_boot_binman_syms_size', 'u_boot_binman_syms_bad')
+              os.path.join(testdir, 'Makefile'), 'SRC=%s/' % testdir)
 
 
 class TestElf(unittest.TestCase):
