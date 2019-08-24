@@ -71,7 +71,8 @@ def BuildElfTestFiles(target_dir):
     tools.Run('make', '-C', target_dir, '-f',
               os.path.join(testdir, 'Makefile'), 'SRC=%s/' % testdir,
               'bss_data', 'u_boot_ucode_ptr', 'u_boot_no_ucode_ptr',
-              'u_boot_binman_syms', 'u_boot_binman_syms.bin')
+              'u_boot_binman_syms', 'u_boot_binman_syms.bin',
+              'u_boot_binman_syms_size')
 
 
 class TestElf(unittest.TestCase):
@@ -145,7 +146,7 @@ class TestElf(unittest.TestCase):
         """
         entry = FakeEntry(10)
         section = FakeSection()
-        elf_fname = os.path.join(binman_dir, 'test', 'u_boot_binman_syms_size')
+        elf_fname =self.ElfTestFile('u_boot_binman_syms_size')
         with self.assertRaises(ValueError) as e:
             syms = elf.LookupAndWriteSymbols(elf_fname, entry, section)
         self.assertIn('has size 1: only 4 and 8 are supported',
