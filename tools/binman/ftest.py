@@ -906,7 +906,7 @@ class TestFunctional(unittest.TestCase):
         """Test that the end-at-4gb and skip-at-size property can't be used
         together"""
         with self.assertRaises(ValueError) as e:
-            self._DoTestFile('80_4gb_and_skip_at_start_together.dts')
+            self._DoTestFile('098_4gb_and_skip_at_start_together.dts')
         self.assertIn("Image '/binman': Provide either 'end-at-4gb' or "
                       "'skip-at-start'", str(e.exception))
 
@@ -962,7 +962,7 @@ class TestFunctional(unittest.TestCase):
     def testPackPowerpcMpc85xxBootpgResetvec(self):
         """Test that an image with powerpc-mpc85xx-bootpg-resetvec can be
         created"""
-        data = self._DoReadFile('81_powerpc_mpc85xx_bootpg_resetvec.dts')
+        data = self._DoReadFile('150_powerpc_mpc85xx_bootpg_resetvec.dts')
         self.assertEqual(PPC_MPC85XX_BR_DATA, data[:len(PPC_MPC85XX_BR_DATA)])
 
     def _RunMicrocodeTest(self, dts_fname, nodtb_data, ucode_second=False):
