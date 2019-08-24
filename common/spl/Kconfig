@@ -435,6 +435,7 @@ config SPL_HASH_SUPPORT
 
 config TPL_HASH_SUPPORT
 	bool "Support hashing drivers in TPL"
+	depends on TPL
 	select SHA1
 	select SHA256
 	help

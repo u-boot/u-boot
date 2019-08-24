@@ -19,7 +19,7 @@ config PHY
 
 config SPL_PHY
 	bool "PHY Core in SPL"
-	depends on DM
+	depends on DM && SPL
 	help
 	  PHY support in SPL.
 

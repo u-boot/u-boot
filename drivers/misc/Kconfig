@@ -88,6 +88,7 @@ config CROS_EC
 
 config SPL_CROS_EC
 	bool "Enable Chrome OS EC in SPL"
+	depends on SPL
 	help
 	  Enable access to the Chrome OS EC in SPL. This is a separate
 	  microcontroller typically available on a SPI bus on Chromebooks. It
@@ -97,6 +98,7 @@ config SPL_CROS_EC
 
 config TPL_CROS_EC
 	bool "Enable Chrome OS EC in TPL"
+	depends on TPL
 	help
 	  Enable access to the Chrome OS EC in TPL. This is a separate
 	  microcontroller typically available on a SPI bus on Chromebooks. It

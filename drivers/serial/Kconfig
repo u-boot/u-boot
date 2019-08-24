@@ -45,7 +45,7 @@ config SERIAL_PRESENT
 
 config SPL_SERIAL_PRESENT
 	bool "Provide a serial driver in SPL"
-	depends on DM_SERIAL
+	depends on DM_SERIAL && SPL
 	default y
 	help
 	  In very space-constrained devices even the full UART driver is too
@@ -55,7 +55,7 @@ config SPL_SERIAL_PRESENT
 
 config TPL_SERIAL_PRESENT
 	bool "Provide a serial driver in TPL"
-	depends on DM_SERIAL
+	depends on DM_SERIAL && TPL
 	default y
 	help
 	  In very space-constrained devices even the full UART driver is too

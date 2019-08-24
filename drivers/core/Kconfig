@@ -92,7 +92,7 @@ config DM_SEQ_ALIAS
 
 config SPL_DM_SEQ_ALIAS
 	bool "Support numbered aliases in device tree in SPL"
-	depends on DM
+	depends on SPL_DM
 	default n
 	help
 	  Most boards will have a '/aliases' node containing the path to
