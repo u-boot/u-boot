@@ -94,16 +94,16 @@ class TestFunctional(unittest.TestCase):
     the test/ diurectory.
     """
     @classmethod
-    def setUpClass(self):
+    def setUpClass(cls):
         global entry
         import entry
 
         # Handle the case where argv[0] is 'python'
-        self._binman_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
-        self._binman_pathname = os.path.join(self._binman_dir, 'binman')
+        cls._binman_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
+        cls._binman_pathname = os.path.join(cls._binman_dir, 'binman')
 
         # Create a temporary directory for input files
-        self._indir = tempfile.mkdtemp(prefix='binmant.')
+        cls._indir = tempfile.mkdtemp(prefix='binmant.')
 
         # Create some test files
         TestFunctional._MakeInputFile('u-boot.bin', U_BOOT_DATA)
@@ -113,7 +113,7 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('blobfile', BLOB_DATA)
         TestFunctional._MakeInputFile('me.bin', ME_DATA)
         TestFunctional._MakeInputFile('vga.bin', VGA_DATA)
-        self._ResetDtbs()
+        cls._ResetDtbs()
         TestFunctional._MakeInputFile('u-boot-x86-16bit.bin', X86_START16_DATA)
         TestFunctional._MakeInputFile('u-boot-br.bin', PPC_MPC85XX_BR_DATA)
         TestFunctional._MakeInputFile('spl/u-boot-x86-16bit-spl.bin',
@@ -135,35 +135,35 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('refcode.bin', REFCODE_DATA)
 
         # ELF file with a '_dt_ucode_base_size' symbol
-        with open(self.TestFile('u_boot_ucode_ptr'), 'rb') as fd:
+        with open(cls.TestFile('u_boot_ucode_ptr'), 'rb') as fd:
             TestFunctional._MakeInputFile('u-boot', fd.read())
 
         # Intel flash descriptor file
-        with open(self.TestFile('descriptor.bin'), 'rb') as fd:
+        with open(cls.TestFile('descriptor.bin'), 'rb') as fd:
             TestFunctional._MakeInputFile('descriptor.bin', fd.read())
 
-        shutil.copytree(self.TestFile('files'),
-                        os.path.join(self._indir, 'files'))
+        shutil.copytree(cls.TestFile('files'),
+                        os.path.join(cls._indir, 'files'))
 
         TestFunctional._MakeInputFile('compress', COMPRESS_DATA)
 
         # Travis-CI may have an old lz4
-        self.have_lz4 = True
+        cls.have_lz4 = True
         try:
             tools.Run('lz4', '--no-frame-crc', '-c',
-                      os.path.join(self._indir, 'u-boot.bin'))
+                      os.path.join(cls._indir, 'u-boot.bin'))
         except:
-            self.have_lz4 = False
+            cls.have_lz4 = False
 
     @classmethod
-    def tearDownClass(self):
+    def tearDownClass(cls):
         """Remove the temporary input directory and its contents"""
-        if self.preserve_indir:
-            print('Preserving input dir: %s' % self._indir)
+        if cls.preserve_indir:
+            print('Preserving input dir: %s' % cls._indir)
         else:
-            if self._indir:
-                shutil.rmtree(self._indir)
-        self._indir = None
+            if cls._indir:
+                shutil.rmtree(cls._indir)
+        cls._indir = None
 
     @classmethod
     def setup_test_args(cls, preserve_indir=False, preserve_outdirs=False,
@@ -226,7 +226,7 @@ class TestFunctional(unittest.TestCase):
         return tmpdir, updated_fname
 
     @classmethod
-    def _ResetDtbs(self):
+    def _ResetDtbs(cls):
         TestFunctional._MakeInputFile('u-boot.dtb', U_BOOT_DTB_DATA)
         TestFunctional._MakeInputFile('spl/u-boot-spl.dtb', U_BOOT_SPL_DTB_DATA)
         TestFunctional._MakeInputFile('tpl/u-boot-tpl.dtb', U_BOOT_TPL_DTB_DATA)
@@ -432,7 +432,7 @@ class TestFunctional(unittest.TestCase):
         return self._DoReadFileDtb(fname, use_real_dtb)[0]
 
     @classmethod
-    def _MakeInputFile(self, fname, contents):
+    def _MakeInputFile(cls, fname, contents):
         """Create a new test input file, creating directories as needed
 
         Args:
@@ -441,7 +441,7 @@ class TestFunctional(unittest.TestCase):
         Returns:
             Full pathname of file created
         """
-        pathname = os.path.join(self._indir, fname)
+        pathname = os.path.join(cls._indir, fname)
         dirname = os.path.dirname(pathname)
         if dirname and not os.path.exists(dirname):
             os.makedirs(dirname)
@@ -450,7 +450,7 @@ class TestFunctional(unittest.TestCase):
         return pathname
 
     @classmethod
-    def _MakeInputDir(self, dirname):
+    def _MakeInputDir(cls, dirname):
         """Create a new test input directory, creating directories as needed
 
         Args:
@@ -459,24 +459,24 @@ class TestFunctional(unittest.TestCase):
         Returns:
             Full pathname of directory created
         """
-        pathname = os.path.join(self._indir, dirname)
+        pathname = os.path.join(cls._indir, dirname)
         if not os.path.exists(pathname):
             os.makedirs(pathname)
         return pathname
 
     @classmethod
-    def _SetupSplElf(self, src_fname='bss_data'):
+    def _SetupSplElf(cls, src_fname='bss_data'):
         """Set up an ELF file with a '_dt_ucode_base_size' symbol
 
         Args:
             Filename of ELF file to use as SPL
         """
-        with open(self.TestFile(src_fname), 'rb') as fd:
+        with open(cls.TestFile(src_fname), 'rb') as fd:
             TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
 
     @classmethod
-    def TestFile(self, fname):
-        return os.path.join(self._binman_dir, 'test', fname)
+    def TestFile(cls, fname):
+        return os.path.join(cls._binman_dir, 'test', fname)
 
     def AssertInList(self, grep_list, target):
         """Assert that at least one of a list of things is in a target
