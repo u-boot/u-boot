@@ -391,6 +391,25 @@ See README.x86 for information about x86 binary blobs.
 
 
 
+Entry: intel-fit: Intel Firmware Image Table (FIT)
+--------------------------------------------------
+
+This entry contains a dummy FIT as required by recent Intel CPUs. The FIT
+contains information about the firmware and microcode available in the
+image.
+
+At present binman only supports a basic FIT with no microcode.
+
+
+
+Entry: intel-fit-ptr: Intel Firmware Image Table (FIT) pointer
+--------------------------------------------------------------
+
+This entry contains a pointer to the FIT. It is required to be at address
+0xffffffc0 in the image.
+
+
+
 Entry: intel-fsp: Entry containing an Intel Firmware Support Package (FSP) file
 -------------------------------------------------------------------------------
 

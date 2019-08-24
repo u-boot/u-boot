@@ -3264,6 +3264,26 @@ class TestFunctional(unittest.TestCase):
         data = self._DoReadFile('146_x86_reset16_tpl.dts')
         self.assertEqual(X86_RESET16_TPL_DATA, data[:len(X86_RESET16_TPL_DATA)])
 
+    def testPackIntelFit(self):
+        """Test that an image with an Intel FIT and pointer can be created"""
+        data = self._DoReadFile('147_intel_fit.dts')
+        self.assertEqual(U_BOOT_DATA, data[:len(U_BOOT_DATA)])
+        fit = data[16:32];
+        self.assertEqual(b'_FIT_   \x01\x00\x00\x00\x00\x01\x80}' , fit)
+        ptr = struct.unpack('<i', data[0x40:0x44])[0]
+
+        image = control.images['image']
+        entries = image.GetEntries()
+        expected_ptr = entries['intel-fit'].image_pos - (1 << 32)
+        self.assertEqual(expected_ptr, ptr)
+
+    def testPackIntelFitMissing(self):
+        """Test detection of a FIT pointer with not FIT region"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('148_intel_fit_missing.dts')
+        self.assertIn("'intel-fit-ptr' section must have an 'intel-fit' sibling",
+                      str(e.exception))
+
 
 if __name__ == "__main__":
     unittest.main()
