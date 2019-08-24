@@ -344,6 +344,8 @@ class Entry_section(Entry):
             return entry.offset
         elif prop_name == 'image_pos':
             return entry.image_pos
+        if prop_name == 'size':
+            return entry.size
         else:
             raise ValueError("%s: No such property '%s'" % (msg, prop_name))
 

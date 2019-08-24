@@ -1236,10 +1236,10 @@ class TestFunctional(unittest.TestCase):
 
         self._SetupSplElf('u_boot_binman_syms')
         data = self._DoReadFile('053_symbols.dts')
-        sym_values = struct.pack('<LQL', 0, 28, 24)
-        expected = (sym_values + U_BOOT_SPL_DATA[16:] +
+        sym_values = struct.pack('<LQLL', 0, 28, 24, 4)
+        expected = (sym_values + U_BOOT_SPL_DATA[20:] +
                     tools.GetBytes(0xff, 1) + U_BOOT_DATA + sym_values +
-                    U_BOOT_SPL_DATA[16:])
+                    U_BOOT_SPL_DATA[20:])
         self.assertEqual(expected, data)
 
     def testPackUnitAddress(self):
@@ -3305,20 +3305,20 @@ class TestFunctional(unittest.TestCase):
         self._SetupSplElf('u_boot_binman_syms')
         self._SetupTplElf('u_boot_binman_syms')
         data = self._DoReadFile('149_symbols_tpl.dts')
-        sym_values = struct.pack('<LQL', 4, 0x1c, 0x34)
+        sym_values = struct.pack('<LQLL', 4, 0x1c, 0x34, 4)
         upto1 = 4 + len(U_BOOT_SPL_DATA)
-        expected1 = tools.GetBytes(0xff, 4) + sym_values + U_BOOT_SPL_DATA[16:]
+        expected1 = tools.GetBytes(0xff, 4) + sym_values + U_BOOT_SPL_DATA[20:]
         self.assertEqual(expected1, data[:upto1])
 
         upto2 = upto1 + 1 + len(U_BOOT_SPL_DATA)
-        expected2 = tools.GetBytes(0xff, 1) + sym_values + U_BOOT_SPL_DATA[16:]
+        expected2 = tools.GetBytes(0xff, 1) + sym_values + U_BOOT_SPL_DATA[20:]
         self.assertEqual(expected2, data[upto1:upto2])
 
         upto3 = 0x34 + len(U_BOOT_DATA)
         expected3 = tools.GetBytes(0xff, 1) + U_BOOT_DATA
         self.assertEqual(expected3, data[upto2:upto3])
 
-        expected4 = sym_values + U_BOOT_TPL_DATA[16:]
+        expected4 = sym_values + U_BOOT_TPL_DATA[20:]
         self.assertEqual(expected4, data[upto3:])
 
     def testPackX86RomIfwiSectiom(self):

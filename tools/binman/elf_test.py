@@ -155,11 +155,11 @@ class TestElf(unittest.TestCase):
         This should produce -1 values for all thress symbols, taking up the
         first 16 bytes of the image.
         """
-        entry = FakeEntry(20)
+        entry = FakeEntry(24)
         section = FakeSection(sym_value=None)
         elf_fname = self.ElfTestFile('u_boot_binman_syms')
         syms = elf.LookupAndWriteSymbols(elf_fname, entry, section)
-        self.assertEqual(tools.GetBytes(255, 16) + tools.GetBytes(ord('a'), 4),
+        self.assertEqual(tools.GetBytes(255, 20) + tools.GetBytes(ord('a'), 4),
                                                                   entry.data)
 
     def testDebug(self):
