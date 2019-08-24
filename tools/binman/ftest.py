@@ -3321,6 +3321,12 @@ class TestFunctional(unittest.TestCase):
         expected4 = sym_values + U_BOOT_TPL_DATA[16:]
         self.assertEqual(expected4, data[upto3:])
 
+    def testPackX86RomIfwiSectiom(self):
+        """Test that a section can be placed in an IFWI region"""
+        self._SetupIfwi('fitimage.bin')
+        data = self._DoReadFile('151_x86_rom_ifwi_section.dts')
+        self._CheckIfwi(data)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -142,13 +142,19 @@ class Entry_section(Entry):
         return self.GetEntryContents()
 
     def GetData(self):
-        section_data = tools.GetBytes(self._pad_byte, self.size)
+        section_data = b''
 
         for entry in self._entries.values():
             data = entry.GetData()
-            base = self.pad_before + entry.offset - self._skip_at_start
-            section_data = (section_data[:base] + data +
-                            section_data[base + len(data):])
+            base = self.pad_before + (entry.offset or 0) - self._skip_at_start
+            pad = base - len(section_data)
+            if pad > 0:
+                section_data += tools.GetBytes(self._pad_byte, pad)
+            section_data += data
+        if self.size:
+            pad = self.size - len(section_data)
+            if pad > 0:
+                section_data += tools.GetBytes(self._pad_byte, pad)
         self.Detail('GetData: %d entries, total size %#x' %
                     (len(self._entries), len(section_data)))
         return section_data
