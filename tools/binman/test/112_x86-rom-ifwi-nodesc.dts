@@ -19,7 +19,7 @@
 			filename = "ifwi.bin";
 
 			u-boot-tpl {
-				replace;
+				ifwi-replace;
 				ifwi-subpart = "IBBP";
 				ifwi-entry = "IBBL";
 			};

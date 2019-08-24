@@ -36,6 +36,12 @@ class Entry_intel_ifwi(Entry_blob):
     Each subnode describes an entry which is placed into the IFWFI with a given
     sub-partition (and optional entry name).
 
+    Properties for subnodes:
+        ifwi-subpart - sub-parition to put this entry into, e.g. "IBBP"
+        ifwi-entry - entry name t use, e.g. "IBBL"
+        ifwi-replace - if present, indicates that the item should be replaced
+            in the IFWI. Otherwise it is added.
+
     See README.x86 for information about x86 binary blobs.
     """
     def __init__(self, section, etype, node):
@@ -95,7 +101,7 @@ class Entry_intel_ifwi(Entry_blob):
         for node in self._node.subnodes:
             entry = Entry.Create(self.section, node)
             entry.ReadNode()
-            entry._ifwi_replace = fdt_util.GetBool(node, 'replace')
+            entry._ifwi_replace = fdt_util.GetBool(node, 'ifwi-replace')
             entry._ifwi_subpart = fdt_util.GetString(node, 'ifwi-subpart')
             entry._ifwi_entry_name = fdt_util.GetString(node, 'ifwi-entry')
             self._ifwi_entries[entry._ifwi_subpart] = entry

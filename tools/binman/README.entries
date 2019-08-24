@@ -432,6 +432,12 @@ The contents of the IFWI are specified by the subnodes of the IFWI node.
 Each subnode describes an entry which is placed into the IFWFI with a given
 sub-partition (and optional entry name).
 
+Properties for subnodes:
+    ifwi-subpart - sub-parition to put this entry into, e.g. "IBBP"
+    ifwi-entry - entry name t use, e.g. "IBBL"
+    ifwi-replace - if present, indicates that the item should be replaced
+        in the IFWI. Otherwise it is added.
+
 See README.x86 for information about x86 binary blobs.
 
 

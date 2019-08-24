@@ -20,7 +20,7 @@
 
 			_testing {
 				return-unknown-contents;
-				replace;
+				ifwi-replace;
 				ifwi-subpart = "IBBP";
 				ifwi-entry = "IBBL";
 			};
