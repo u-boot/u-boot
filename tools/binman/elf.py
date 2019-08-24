@@ -49,7 +49,7 @@ def GetSymbols(fname, patterns):
           key: Name of symbol
           value: Hex value of symbol
     """
-    stdout = command.Output('objdump', '-t', fname, raise_on_error=False)
+    stdout = tools.Run('objdump', '-t', fname)
     lines = stdout.splitlines()
     if patterns:
         re_syms = re.compile('|'.join(patterns))
