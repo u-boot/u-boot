@@ -205,8 +205,14 @@ def Run(name, *args):
         if tool_search_paths:
             env = dict(os.environ)
             env['PATH'] = ':'.join(tool_search_paths) + ':' + env['PATH']
-        return command.Run(name, *args, capture=True, capture_stderr=True,
-                           env=env)
+        all_args = (name,) + args
+        result = command.RunPipe([all_args], capture=True, capture_stderr=True,
+                                 env=env, raise_on_error=False)
+        if result.return_code:
+            raise Exception("Error %d running '%s': %s" %
+               (result.return_code,' '.join(all_args),
+                result.stderr))
+        return result.stdout
     except:
         if env and not PathHasFile(env['PATH'], name):
             msg = "Please install tool '%s'" % name
