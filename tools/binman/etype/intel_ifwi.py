@@ -48,7 +48,10 @@ class Entry_intel_ifwi(Entry_blob):
         Entry_blob.__init__(self, section, etype, node)
         self._convert_fit = fdt_util.GetBool(self._node, 'convert-fit')
         self._ifwi_entries = OrderedDict()
+
+    def ReadNode(self):
         self._ReadSubnodes()
+        Entry_blob.ReadNode(self)
 
     def ObtainContents(self):
         """Get the contects for the IFWI
