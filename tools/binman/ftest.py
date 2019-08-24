@@ -40,7 +40,7 @@ import tout
 U_BOOT_DATA           = b'1234'
 U_BOOT_IMG_DATA       = b'img'
 U_BOOT_SPL_DATA       = b'56780123456789abcde'
-U_BOOT_TPL_DATA       = b'tpl'
+U_BOOT_TPL_DATA       = b'tpl9876543210fedcb'
 BLOB_DATA             = b'89'
 ME_DATA               = b'0abcd'
 VGA_DATA              = b'vga'
@@ -489,6 +489,16 @@ class TestFunctional(unittest.TestCase):
             Filename of ELF file to use as SPL
         """
         TestFunctional._MakeInputFile('spl/u-boot-spl',
+            tools.ReadFile(cls.ElfTestFile(src_fname)))
+
+    @classmethod
+    def _SetupTplElf(cls, src_fname='bss_data'):
+        """Set up an ELF file with a '_dt_ucode_base_size' symbol
+
+        Args:
+            Filename of ELF file to use as TPL
+        """
+        TestFunctional._MakeInputFile('tpl/u-boot-tpl',
             tools.ReadFile(cls.ElfTestFile(src_fname)))
 
     @classmethod
@@ -1557,10 +1567,9 @@ class TestFunctional(unittest.TestCase):
                       "'other'", str(e.exception))
 
     def testTpl(self):
-        """Test that an image with TPL and ots device tree can be created"""
+        """Test that an image with TPL and its device tree can be created"""
         # ELF file with a '__bss_size' symbol
-        with open(self.ElfTestFile('bss_data'), 'rb') as fd:
-            TestFunctional._MakeInputFile('tpl/u-boot-tpl', fd.read())
+        self._SetupTplElf()
         data = self._DoReadFile('078_u_boot_tpl.dts')
         self.assertEqual(U_BOOT_TPL_DATA + U_BOOT_TPL_DTB_DATA, data)
 
@@ -1814,8 +1823,7 @@ class TestFunctional(unittest.TestCase):
             u-boot-tpl.dtb with the microcode removed
             the microcode
         """
-        TestFunctional._MakeInputFile('tpl/u-boot-tpl',
-            tools.ReadFile(self.ElfTestFile('u_boot_ucode_ptr')))
+        self._SetupTplElf('u_boot_ucode_ptr')
         first, pos_and_size = self._RunMicrocodeTest('093_x86_tpl_ucode.dts',
                                                      U_BOOT_TPL_NODTB_DATA)
         self.assertEqual(b'tplnodtb with microc' + pos_and_size +
@@ -1869,8 +1877,7 @@ class TestFunctional(unittest.TestCase):
     def testElf(self):
         """Basic test of ELF entries"""
         self._SetupSplElf()
-        with open(self.ElfTestFile('bss_data'), 'rb') as fd:
-            TestFunctional._MakeInputFile('tpl/u-boot-tpl', fd.read())
+        self._SetupTplElf()
         with open(self.ElfTestFile('bss_data'), 'rb') as fd:
             TestFunctional._MakeInputFile('-boot', fd.read())
         data = self._DoReadFile('096_elf.dts')
@@ -2029,6 +2036,7 @@ class TestFunctional(unittest.TestCase):
             fname: Filename of input file to provide (fitimage.bin or ifwi.bin)
         """
         self._SetupSplElf()
+        self._SetupTplElf()
 
         # Intel Integrated Firmware Image (IFWI) file
         with gzip.open(self.TestFile('%s.gz' % fname), 'rb') as fd:
@@ -3291,6 +3299,27 @@ class TestFunctional(unittest.TestCase):
             self._DoReadFile('148_intel_fit_missing.dts')
         self.assertIn("'intel-fit-ptr' section must have an 'intel-fit' sibling",
                       str(e.exception))
+
+    def testSymbolsTplSection(self):
+        """Test binman can assign symbols embedded in U-Boot TPL in a section"""
+        self._SetupSplElf('u_boot_binman_syms')
+        self._SetupTplElf('u_boot_binman_syms')
+        data = self._DoReadFile('149_symbols_tpl.dts')
+        sym_values = struct.pack('<LQL', 4, 0x18, 0x30)
+        upto1 = 4 + len(U_BOOT_SPL_DATA)
+        expected1 = tools.GetBytes(0xff, 4) + sym_values + U_BOOT_SPL_DATA[16:]
+        self.assertEqual(expected1, data[:upto1])
+
+        upto2 = upto1 + 1 + len(U_BOOT_SPL_DATA)
+        expected2 = tools.GetBytes(0xff, 1) + sym_values + U_BOOT_SPL_DATA[16:]
+        self.assertEqual(expected2, data[upto1:upto2])
+
+        upto3 = 0x30 + len(U_BOOT_DATA)
+        expected3 = tools.GetBytes(0xff, 5) + U_BOOT_DATA
+        self.assertEqual(expected3, data[upto2:upto3])
+
+        expected4 = sym_values + U_BOOT_TPL_DATA[16:]
+        self.assertEqual(expected4, data[upto3:])
 
 
 if __name__ == "__main__":
