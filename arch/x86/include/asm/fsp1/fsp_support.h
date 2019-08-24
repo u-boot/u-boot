@@ -4,21 +4,11 @@
  * Copyright (C) 2014, Bin Meng <bmeng.cn@gmail.com>
  */
 
-#ifndef __FSP_SUPPORT_H__
-#define __FSP_SUPPORT_H__
+#ifndef __FSP1_SUPPORT_H__
+#define __FSP1_SUPPORT_H__
 
-#include <asm/fsp/fsp_bootmode.h>
-#include <asm/fsp/fsp_fv.h>
-#include <asm/fsp/fsp_hob.h>
-#include <asm/fsp/fsp_infoheader.h>
-#include <asm/fsp/fsp_types.h>
+#include <asm/fsp/fsp_support.h>
 #include "fsp_ffs.h"
-#include <asm/fsp_arch.h>
-#include <asm/fsp/fsp_azalia.h>
-
-#define FSP_LOWMEM_BASE		0x100000UL
-#define FSP_HIGHMEM_BASE	0x100000000ULL
-#define UPD_TERMINATOR		0x55AA
 
 /**
  * FSP Continuation assembly helper routine
@@ -48,13 +38,6 @@ void fsp_init_done(void *hob_list);
 void fsp_continue(u32 status, void *hob_list);
 
 /**
- * Find FSP header offset in FSP image
- *
- * @retval: the offset of FSP header. If signature is invalid, returns 0.
- */
-struct fsp_header *fsp_find_header(void);
-
-/**
  * FSP initialization wrapper function.
  *
  * @stack_top: bootloader stack top address
@@ -62,83 +45,6 @@ struct fsp_header *fsp_find_header(void);
  * @nvs_buf:   Non-volatile memory buffer pointer
  */
 void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf);
-
-/**
- * FSP notification wrapper function
- *
- * @fsp_hdr: Pointer to FSP information header
- * @phase:   FSP initialization phase defined in enum fsp_phase
- *
- * @retval:  compatible status code with EFI_STATUS defined in PI spec
- */
-u32 fsp_notify(struct fsp_header *fsp_hdr, u32 phase);
-
-/**
- * This function retrieves the top of usable low memory.
- *
- * @hob_list: A HOB list pointer.
- *
- * @retval:   Usable low memory top.
- */
-u32 fsp_get_usable_lowmem_top(const void *hob_list);
-
-/**
- * This function retrieves the top of usable high memory.
- *
- * @hob_list: A HOB list pointer.
- *
- * @retval:   Usable high memory top.
- */
-u64 fsp_get_usable_highmem_top(const void *hob_list);
-
-/**
- * This function retrieves a special reserved memory region.
- *
- * @hob_list: A HOB list pointer.
- * @len:      A pointer to the GUID HOB data buffer length.
- *            If the GUID HOB is located, the length will be updated.
- * @guid:     A pointer to the owner guild.
- *
- * @retval:   Reserved region start address.
- *            0 if this region does not exist.
- */
-u64 fsp_get_reserved_mem_from_guid(const void *hob_list,
-				   u64 *len, const efi_guid_t *guid);
-
-/**
- * This function retrieves the FSP reserved normal memory.
- *
- * @hob_list: A HOB list pointer.
- * @len:      A pointer to the FSP reserved memory length buffer.
- *            If the GUID HOB is located, the length will be updated.
- * @retval:   FSP reserved memory base
- *            0 if this region does not exist.
- */
-u32 fsp_get_fsp_reserved_mem(const void *hob_list, u32 *len);
-
-/**
- * This function retrieves the TSEG reserved normal memory.
- *
- * @hob_list:      A HOB list pointer.
- * @len:           A pointer to the TSEG reserved memory length buffer.
- *                 If the GUID HOB is located, the length will be updated.
- *
- * @retval NULL:   Failed to find the TSEG reserved memory.
- * @retval others: TSEG reserved memory base.
- */
-u32 fsp_get_tseg_reserved_mem(const void *hob_list, u32 *len);
-
-/**
- * This function retrieves FSP Non-volatile Storage HOB buffer and size.
- *
- * @hob_list:      A HOB list pointer.
- * @len:           A pointer to the NVS data buffer length.
- *                 If the HOB is located, the length will be updated.
- *
- * @retval NULL:   Failed to find the NVS HOB.
- * @retval others: FSP NVS data buffer pointer.
- */
-void *fsp_get_nvs_data(const void *hob_list, u32 *len);
 
 /**
  * This function retrieves Bootloader temporary stack buffer and size.
@@ -153,18 +59,6 @@ void *fsp_get_nvs_data(const void *hob_list, u32 *len);
 void *fsp_get_bootloader_tmp_mem(const void *hob_list, u32 *len);
 
 /**
- * This function retrieves graphics information.
- *
- * @hob_list:      A HOB list pointer.
- * @len:           A pointer to the graphics info HOB length.
- *                 If the HOB is located, the length will be updated.
- *
- * @retval NULL:   Failed to find the graphics info HOB.
- * @retval others: A pointer to struct hob_graphics_info.
- */
-void *fsp_get_graphics_info(const void *hob_list, u32 *len);
-
-/**
  * This function overrides the default configurations of FSP.
  *
  * @config:  A pointer to the FSP configuration data structure
@@ -174,12 +68,5 @@ void *fsp_get_graphics_info(const void *hob_list, u32 *len);
  */
 void fsp_update_configs(struct fsp_config_data *config,
 			struct fspinit_rtbuf *rt_buf);
-
-/**
- * fsp_init_phase_pci() - Tell the FSP that we have completed PCI init
- *
- * @return 0 if OK, -EPERM if the FSP gave an error.
- */
-int fsp_init_phase_pci(void);
 
 #endif
