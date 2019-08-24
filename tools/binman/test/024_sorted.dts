@@ -7,7 +7,7 @@
 	binman {
 		sort-by-offset;
 		u-boot {
-			offset = <22>;
+			offset = <26>;
 		};
 
 		u-boot-spl {

@@ -39,8 +39,8 @@ import tout
 # Contents of test files, corresponding to different entry types
 U_BOOT_DATA           = b'1234'
 U_BOOT_IMG_DATA       = b'img'
-U_BOOT_SPL_DATA       = b'56780123456789abcde'
-U_BOOT_TPL_DATA       = b'tpl9876543210fedcb'
+U_BOOT_SPL_DATA       = b'56780123456789abcdefghi'
+U_BOOT_TPL_DATA       = b'tpl9876543210fedcbazyw'
 BLOB_DATA             = b'89'
 ME_DATA               = b'0abcd'
 VGA_DATA              = b'vga'
@@ -922,7 +922,7 @@ class TestFunctional(unittest.TestCase):
         """Test that a basic x86 ROM can be created"""
         self._SetupSplElf()
         data = self._DoReadFile('029_x86_rom.dts')
-        self.assertEqual(U_BOOT_DATA + tools.GetBytes(0, 7) + U_BOOT_SPL_DATA +
+        self.assertEqual(U_BOOT_DATA + tools.GetBytes(0, 3) + U_BOOT_SPL_DATA +
                          tools.GetBytes(0, 2), data)
 
     def testPackX86RomMeNoDesc(self):
@@ -1236,7 +1236,7 @@ class TestFunctional(unittest.TestCase):
 
         self._SetupSplElf('u_boot_binman_syms')
         data = self._DoReadFile('053_symbols.dts')
-        sym_values = struct.pack('<LQL', 0, 24, 20)
+        sym_values = struct.pack('<LQL', 0, 28, 24)
         expected = (sym_values + U_BOOT_SPL_DATA[16:] +
                     tools.GetBytes(0xff, 1) + U_BOOT_DATA + sym_values +
                     U_BOOT_SPL_DATA[16:])
@@ -3305,7 +3305,7 @@ class TestFunctional(unittest.TestCase):
         self._SetupSplElf('u_boot_binman_syms')
         self._SetupTplElf('u_boot_binman_syms')
         data = self._DoReadFile('149_symbols_tpl.dts')
-        sym_values = struct.pack('<LQL', 4, 0x18, 0x30)
+        sym_values = struct.pack('<LQL', 4, 0x1c, 0x34)
         upto1 = 4 + len(U_BOOT_SPL_DATA)
         expected1 = tools.GetBytes(0xff, 4) + sym_values + U_BOOT_SPL_DATA[16:]
         self.assertEqual(expected1, data[:upto1])
@@ -3314,8 +3314,8 @@ class TestFunctional(unittest.TestCase):
         expected2 = tools.GetBytes(0xff, 1) + sym_values + U_BOOT_SPL_DATA[16:]
         self.assertEqual(expected2, data[upto1:upto2])
 
-        upto3 = 0x30 + len(U_BOOT_DATA)
-        expected3 = tools.GetBytes(0xff, 5) + U_BOOT_DATA
+        upto3 = 0x34 + len(U_BOOT_DATA)
+        expected3 = tools.GetBytes(0xff, 1) + U_BOOT_DATA
         self.assertEqual(expected3, data[upto2:upto3])
 
         expected4 = sym_values + U_BOOT_TPL_DATA[16:]
