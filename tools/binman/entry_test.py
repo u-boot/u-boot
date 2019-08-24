@@ -97,6 +97,11 @@ class TestEntry(unittest.TestCase):
         base = entry.Entry.Create(None, self.GetNode(), 'blob-dtb')
         self.assertTrue(base.WriteChildData(base))
 
+    def testReadChildData(self):
+        """Test the ReadChildData() method of the base class"""
+        base = entry.Entry.Create(None, self.GetNode(), 'blob-dtb')
+        self.assertIsNone(base.ReadChildData(base))
+
 
 if __name__ == "__main__":
     unittest.main()

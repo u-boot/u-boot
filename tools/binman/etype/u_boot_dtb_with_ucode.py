@@ -7,7 +7,6 @@
 
 from entry import Entry
 from blob_dtb import Entry_blob_dtb
-import state
 import tools
 
 class Entry_u_boot_dtb_with_ucode(Entry_blob_dtb):
@@ -25,6 +24,10 @@ class Entry_u_boot_dtb_with_ucode(Entry_blob_dtb):
     it available to u_boot_ucode.
     """
     def __init__(self, section, etype, node):
+        # Put this here to allow entry-docs and help to work without libfdt
+        global state
+        import state
+
         Entry_blob_dtb.__init__(self, section, etype, node)
         self.ucode_data = b''
         self.collate = False

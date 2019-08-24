@@ -5,8 +5,6 @@
 # Entry-type module for U-Boot device tree files
 #
 
-import state
-
 from entry import Entry
 from blob import Entry_blob
 
@@ -18,6 +16,10 @@ class Entry_blob_dtb(Entry_blob):
     'state' module.
     """
     def __init__(self, section, etype, node):
+        # Put this here to allow entry-docs and help to work without libfdt
+        global state
+        import state
+
         Entry_blob.__init__(self, section, etype, node)
 
     def ObtainContents(self):

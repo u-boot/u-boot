@@ -21,7 +21,6 @@ import os
 import sys
 
 import fdt_util
-import state
 import tools
 from tools import ToHex, ToHexSize
 import tout
@@ -71,6 +70,10 @@ class Entry(object):
         orig_size: Original size value read from node
     """
     def __init__(self, section, etype, node, name_prefix=''):
+        # Put this here to allow entry-docs and help to work without libfdt
+        global state
+        import state
+
         self.section = section
         self.etype = etype
         self._node = node

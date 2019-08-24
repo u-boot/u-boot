@@ -11,7 +11,6 @@ import cbfs_util
 from cbfs_util import CbfsWriter
 from entry import Entry
 import fdt_util
-import state
 
 class Entry_cbfs(Entry):
     """Entry containing a Coreboot Filesystem (CBFS)
@@ -164,6 +163,10 @@ class Entry_cbfs(Entry):
     both of size 1MB.
     """
     def __init__(self, section, etype, node):
+        # Put this here to allow entry-docs and help to work without libfdt
+        global state
+        import state
+
         Entry.__init__(self, section, etype, node)
         self._cbfs_arg = fdt_util.GetString(node, 'cbfs-arch', 'x86')
         self._cbfs_entries = OrderedDict()

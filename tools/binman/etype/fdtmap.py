@@ -8,11 +8,7 @@ This handles putting an FDT into the image with just the information about the
 image.
 """
 
-import libfdt
-
 from entry import Entry
-from fdt import Fdt
-import state
 import tools
 import tout
 
@@ -80,6 +76,15 @@ class Entry_fdtmap(Entry):
     added as necessary. See the binman README.
     """
     def __init__(self, section, etype, node):
+        # Put these here to allow entry-docs and help to work without libfdt
+        global libfdt
+        global state
+        global Fdt
+
+        import libfdt
+        import state
+        from fdt import Fdt
+
         Entry.__init__(self, section, etype, node)
 
     def _GetFdtmap(self):
