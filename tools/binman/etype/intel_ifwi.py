@@ -75,10 +75,10 @@ class Entry_intel_ifwi(Entry_blob):
             self._pathname = outname
         else:
             # Provide a different code path here to ensure we have test coverage
-            inname = self._pathname
+            outname = self._pathname
 
         # Delete OBBP if it is there, then add the required new items.
-        tools.RunIfwiTool(inname, tools.CMD_DELETE, subpart='OBBP')
+        tools.RunIfwiTool(outname, tools.CMD_DELETE, subpart='OBBP')
 
         for entry in self._ifwi_entries.values():
             # First get the input data and put it in a file
@@ -89,7 +89,7 @@ class Entry_intel_ifwi(Entry_blob):
             input_fname = tools.GetOutputFilename('input.%s' % uniq)
             tools.WriteFile(input_fname, data)
 
-            tools.RunIfwiTool(inname,
+            tools.RunIfwiTool(outname,
                 tools.CMD_REPLACE if entry._ifwi_replace else tools.CMD_ADD,
                 input_fname, entry._ifwi_subpart, entry._ifwi_entry_name)
 

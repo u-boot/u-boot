@@ -2044,7 +2044,7 @@ class TestFunctional(unittest.TestCase):
                           subpart='IBBP', entry_name='IBBL')
 
         tpl_data = tools.ReadFile(tpl_fname)
-        self.assertEqual(tpl_data[:len(U_BOOT_TPL_DATA)], U_BOOT_TPL_DATA)
+        self.assertEqual(U_BOOT_TPL_DATA, tpl_data[:len(U_BOOT_TPL_DATA)])
 
     def testPackX86RomIfwi(self):
         """Test that an x86 ROM with Integrated Firmware Image can be created"""
