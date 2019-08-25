@@ -11,14 +11,14 @@
 #include "fsp_ffs.h"
 
 /**
- * FSP Continuation assembly helper routine
+ * fsp_asm_continuation() - FSP Continuation assembly helper routine
  *
  * This routine jumps to the C version of FSP continuation function
  */
 void fsp_asm_continuation(void);
 
 /**
- * FSP initialization complete
+ * fsp_init_done() - FSP initialization complete
  *
  * This is the function that indicates FSP initialization is complete and jumps
  * back to the bootloader with HOB list pointer as the parameter.
@@ -28,17 +28,17 @@ void fsp_asm_continuation(void);
 void fsp_init_done(void *hob_list);
 
 /**
- * FSP Continuation function
+ * fsp_continue() - FSP Continuation function
  *
  * @status:      Always 0
  * @hob_list:    HOB list pointer
  *
- * @retval:      Never returns
+ * @return Never returns
  */
 void fsp_continue(u32 status, void *hob_list);
 
 /**
- * FSP initialization wrapper function.
+ * fsp_init() - FSP initialization wrapper function
  *
  * @stack_top: bootloader stack top address
  * @boot_mode: boot mode defined in fsp_bootmode.h
@@ -47,24 +47,34 @@ void fsp_continue(u32 status, void *hob_list);
 void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf);
 
 /**
- * This function retrieves Bootloader temporary stack buffer and size.
+ * fsp_notify() - FSP notification wrapper function
+ *
+ * @fsp_hdr: Pointer to FSP information header
+ * @phase:   FSP initialization phase defined in enum fsp_phase
+ *
+ * @return compatible status code with EFI_STATUS defined in PI spec
+ */
+u32 fsp_notify(struct fsp_header *fsp_hdr, u32 phase);
+
+/**
+ * fsp_get_bootloader_tmp_mem() - retrieves temporary stack buffer and size
  *
  * @hob_list:      A HOB list pointer.
  * @len:           A pointer to the bootloader temporary stack length.
  *                 If the HOB is located, the length will be updated.
  *
- * @retval NULL:   Failed to find the bootloader temporary stack HOB.
- * @retval others: Bootloader temporary stackbuffer pointer.
+ * @return NULL:   Failed to find the bootloader temporary stack HOB.
+ * @return others: Bootloader temporary stackbuffer pointer.
  */
 void *fsp_get_bootloader_tmp_mem(const void *hob_list, u32 *len);
 
 /**
- * This function overrides the default configurations of FSP.
+ * fsp_update_configs() - overrides the default configurations of FSP
  *
  * @config:  A pointer to the FSP configuration data structure
  * @rt_buf:  A pointer to the FSP runtime buffer data structure
  *
- * @return:  None
+ * @return None
  */
 void fsp_update_configs(struct fsp_config_data *config,
 			struct fspinit_rtbuf *rt_buf);
