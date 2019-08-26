@@ -44,6 +44,7 @@
 #define is_mx7ulp() (is_cpu_type(MXC_CPU_MX7ULP))
 
 #define is_imx8mq() (is_cpu_type(MXC_CPU_IMX8MQ))
+#define is_imx8qm() (is_cpu_type(MXC_CPU_IMX8QM))
 #define is_imx8qxp() (is_cpu_type(MXC_CPU_IMX8QXP))
 
 #ifdef CONFIG_MX6
