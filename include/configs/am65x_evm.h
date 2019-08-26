@@ -94,11 +94,14 @@
 		"done;\0"						\
 	"get_kern_mmc=load mmc ${bootpart} ${loadaddr} "		\
 		"${bootdir}/${name_kern}\0"				\
+	"get_fit_mmc=load mmc ${bootpart} ${addr_fit} "			\
+		"${bootdir}/${name_fit}\0"				\
 	"partitions=" PARTS_DEFAULT
 
 /* Incorporate settings into the U-Boot environment */
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	DEFAULT_MMC_TI_ARGS						\
+	DEFAULT_FIT_TI_ARGS						\
 	EXTRA_ENV_AM65X_BOARD_SETTINGS					\
 	EXTRA_ENV_AM65X_BOARD_SETTINGS_MMC
 
