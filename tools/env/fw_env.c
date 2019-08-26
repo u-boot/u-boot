@@ -119,13 +119,6 @@ static struct environment environment = {
 
 static int have_redund_env;
 
-static unsigned char ENV_REDUND_ACTIVE = 1;
-/*
- * ENV_REDUND_OBSOLETE must be 0 to efficiently set it on NOR flash without
- * erasing
- */
-static unsigned char ENV_REDUND_OBSOLETE;
-
 #define DEFAULT_ENV_INSTANCE_STATIC
 #include <env_default.h>
 
