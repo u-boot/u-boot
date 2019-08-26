@@ -13,6 +13,14 @@
 	};
 };
 
+&qspi1 {
+	u-boot,dm-pre-reloc;
+};
+
+&qspi1_flash {
+	u-boot,dm-pre-reloc;
+};
+
 &sdmmc0 {
 	u-boot,dm-pre-reloc;
 };
@@ -34,5 +42,9 @@
 };
 
 &pinctrl_uart0_default {
+	u-boot,dm-pre-reloc;
+};
+
+&pinctrl_qspi1_default {
 	u-boot,dm-pre-reloc;
 };
