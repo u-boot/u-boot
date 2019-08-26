@@ -22,8 +22,8 @@
 	};
 
 	aliases {
-		serial0 = &serial1;
-		serial1 = &serial0;
+		serial0 = &serial0;
+		serial1 = &serial1;
 	};
 
 	memory: memory@0 {
@@ -46,9 +46,9 @@
 };
 
 &serial0 {
-	status = "disabled"; /* communication with MSP432 */
+	status = "okay";
 };
 
 &serial1 {
-	status = "okay";
+	status = "disabled"; /* communication with MSP432 */
 };
