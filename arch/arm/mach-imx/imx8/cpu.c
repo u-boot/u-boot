@@ -67,6 +67,13 @@ int arch_cpu_init_dm(void)
 		return ret;
 	}
 
+	if (is_imx8qm()) {
+		ret = sc_pm_set_resource_power_mode(-1, SC_R_SMMU,
+						    SC_PM_PW_MODE_ON);
+		if (ret)
+			return ret;
+	}
+
 	return 0;
 }
 
