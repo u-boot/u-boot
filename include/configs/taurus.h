@@ -33,7 +33,6 @@
 #define CONFIG_SYS_AT91_MAIN_CLOCK	18432000	/* main clock xtal */
 
 /* Misc CPU related */
-#define CONFIG_ARCH_CPU_INIT
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
@@ -103,7 +102,6 @@
 
 #if defined(CONFIG_SPL_BUILD)
 /* SPL related */
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
 #endif
 
 /* load address */

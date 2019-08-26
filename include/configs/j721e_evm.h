@@ -22,7 +22,6 @@
 #ifdef CONFIG_TARGET_J721E_A72_EVM
 #define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SPL_TEXT_BASE +	\
 					 CONFIG_SYS_K3_NON_SECURE_MSRAM_SIZE)
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x280000
 #else
 /*
  * Maximum size in memory allocated to the SPL BSS. Keep it as tight as
@@ -45,7 +44,6 @@
 /* Configure R5 SPL post-relocation malloc pool in DDR */
 #define CONFIG_SYS_SPL_MALLOC_START	0x84000000
 #define CONFIG_SYS_SPL_MALLOC_SIZE	SZ_16M
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x80000
 #endif
 
 #ifdef CONFIG_SYS_K3_SPL_ATF

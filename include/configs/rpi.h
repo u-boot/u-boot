@@ -14,7 +14,6 @@
 #endif
 
 /* Architecture, CPU, etc.*/
-#define CONFIG_ARCH_CPU_INIT
 
 /* Use SoC timer for AArch32, but architected timer for AArch64 */
 #ifndef CONFIG_ARM64

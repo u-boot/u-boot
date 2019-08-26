@@ -559,7 +559,7 @@ header and skipping every second 2KB block. Then the U-Boot image is written at
 offset 128KB and the whole image is padded to 4MB which is the SPI flash size.
 The position of U-Boot is controlled with this setting in U-Boot:
 
-   #define CONFIG_SYS_SPI_U_BOOT_OFFS	(128 << 10)
+   #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
 
 If you have a Dediprog em100pro connected then you can write the image with:
 

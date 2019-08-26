@@ -77,7 +77,6 @@
 /*
  * Other required minimal configurations
  */
-#define CONFIG_ARCH_CPU_INIT		/* call arch_cpu_init() */
 
 /*
  * Ethernet Driver configuration

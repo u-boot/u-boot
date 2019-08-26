@@ -38,7 +38,6 @@
 #define CONFIG_ROCKCHIP_SDHCI_MAX_FREQ	200000000
 
 /* RAW SD card / eMMC locations. */
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	(128 << 10)
 
 /* FAT sd card locations. */
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1

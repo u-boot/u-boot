@@ -15,7 +15,6 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* U-Boot is a 2nd stage loader */
 
 /* SoC Configuration */
-#define CONFIG_ARCH_CPU_INIT
 #define CONFIG_SPL_TARGET		"u-boot-spi.gph"
 
 /* Memory Configuration */
@@ -44,7 +43,6 @@
 					CONFIG_SYS_SPL_MALLOC_SIZE + \
 					SPL_MALLOC_F_SIZE + \
 					KEYSTONE_SPL_STACK_SIZE - 4)
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	CONFIG_SPL_PAD_TO
 
 /* SRAM scratch space entries  */
 #define SRAM_SCRATCH_SPACE_ADDR	CONFIG_SPL_STACK + 0x8
@@ -154,7 +152,6 @@
 #define CONFIG_SYS_NAND_MASK_CLE		0x4000
 #define CONFIG_SYS_NAND_MASK_ALE		0x2000
 #define CONFIG_SYS_NAND_CS			2
-#define CONFIG_SYS_NAND_USE_FLASH_BBT
 #define CONFIG_SYS_NAND_4BIT_HW_ECC_OOBFIRST
 
 #define CONFIG_SYS_NAND_LARGEPAGE

@@ -92,7 +92,6 @@
 #endif
 
 /* SPI SPL */
-#define CONFIG_SYS_SPI_U_BOOT_OFFS     0x40000
 
 /* USB xHCI HOST */
 #define CONFIG_USB_XHCI_OMAP

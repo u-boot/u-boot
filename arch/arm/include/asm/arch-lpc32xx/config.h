@@ -10,7 +10,6 @@
 
 
 /* Basic CPU architecture */
-#define CONFIG_ARCH_CPU_INIT
 
 /* UART configuration */
 #if	(CONFIG_SYS_LPC32XX_UART == 1) || (CONFIG_SYS_LPC32XX_UART == 2) || \

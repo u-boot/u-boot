@@ -207,7 +207,6 @@
 
 /* SPL */
 #include "imx6_spl.h"
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	(64 * 1024)
 
 /* Display */
 #define CONFIG_IMX_HDMI

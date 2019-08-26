@@ -15,6 +15,11 @@ config SYS_NAND_DRIVER_ECC_LAYOUT
 	  Omit standard ECC layouts to safe space. Select this if your driver
 	  is known to provide its own ECC layout.
 
+config SYS_NAND_USE_FLASH_BBT
+	bool "Enable BBT (Bad Block Table) support"
+	help
+	  Enable the BBT (Bad Block Table) usage.
+
 config NAND_ATMEL
 	bool "Support Atmel NAND controller"
 	imply SYS_NAND_USE_FLASH_BBT

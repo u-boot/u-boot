@@ -72,7 +72,6 @@ BUR_COMMON_ENV \
 #define CONFIG_INITRD_TAG
 
 /* SPI Flash */
-#define CONFIG_SYS_SPI_U_BOOT_OFFS		0x40000
 
 /* Environment */
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
