@@ -113,6 +113,23 @@ config RISCV_SMODE
 
 endchoice
 
+choice
+	prompt "SPL Run Mode"
+	default SPL_RISCV_MMODE
+	depends on SPL
+
+config SPL_RISCV_MMODE
+	bool "Machine"
+	help
+	  Choose this option to build U-Boot SPL for RISC-V M-Mode.
+
+config SPL_RISCV_SMODE
+	bool "Supervisor"
+	help
+	  Choose this option to build U-Boot SPL for RISC-V S-Mode.
+
+endchoice
+
 config RISCV_ISA_C
 	bool "Emit compressed instructions"
 	default y
@@ -132,34 +149,40 @@ config 64BIT
 
 config SIFIVE_CLINT
 	bool
-	depends on RISCV_MMODE
+	depends on RISCV_MMODE || SPL_RISCV_MMODE
 	select REGMAP
 	select SYSCON
+	select SPL_REGMAP if SPL
+	select SPL_SYSCON if SPL
 	help
 	  The SiFive CLINT block holds memory-mapped control and status registers
 	  associated with software and timer interrupts.
 
 config ANDES_PLIC
 	bool
-	depends on RISCV_MMODE
+	depends on RISCV_MMODE || SPL_RISCV_MMODE
 	select REGMAP
 	select SYSCON
+	select SPL_REGMAP if SPL
+	select SPL_SYSCON if SPL
 	help
 	  The Andes PLIC block holds memory-mapped claim and pending registers
 	  associated with software interrupt.
 
 config ANDES_PLMT
 	bool
-	depends on RISCV_MMODE
+	depends on RISCV_MMODE || SPL_RISCV_MMODE
 	select REGMAP
 	select SYSCON
+	select SPL_REGMAP if SPL
+	select SPL_SYSCON if SPL
 	help
 	  The Andes PLMT block holds memory-mapped mtime register
 	  associated with timer tick.
 
 config RISCV_RDTIME
 	bool
-	default y if RISCV_SMODE
+	default y if RISCV_SMODE || SPL_RISCV_SMODE
 	help
 	  The provides the riscv_get_time() API that is implemented using the
 	  standard rdtime instruction. This is the case for S-mode U-Boot, and
@@ -189,7 +212,7 @@ config NR_CPUS
 
 config SBI_IPI
 	bool
-	default y if RISCV_SMODE
+	default y if RISCV_SMODE || SPL_RISCV_SMODE
 	depends on SMP
 
 config XIP
@@ -202,5 +225,8 @@ config XIP
 config STACK_SIZE_SHIFT
 	int
 	default 13
+
+config SPL_LDSCRIPT
+	default "arch/riscv/cpu/u-boot-spl.lds"
 
 endmenu

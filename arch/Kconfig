@@ -76,6 +76,12 @@ config RISCV
 	imply MTD
 	imply TIMER
 	imply CMD_DM
+	imply SPL_DM
+	imply SPL_OF_CONTROL
+	imply SPL_LIBCOMMON_SUPPORT
+	imply SPL_LIBGENERIC_SUPPORT
+	imply SPL_SERIAL_SUPPORT
+	imply SPL_TIMER
 
 config SANDBOX
 	bool "Sandbox"

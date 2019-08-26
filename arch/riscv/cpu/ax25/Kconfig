@@ -4,8 +4,8 @@ config RISCV_NDS
 	imply CPU
 	imply CPU_RISCV
 	imply RISCV_TIMER
-	imply ANDES_PLIC if RISCV_MMODE
-	imply ANDES_PLMT if RISCV_MMODE
+	imply ANDES_PLIC if (RISCV_MMODE || SPL_RISCV_MMODE)
+	imply ANDES_PLMT if (RISCV_MMODE || SPL_RISCV_MMODE)
 	help
 	  Run U-Boot on AndeStar V5 platforms and use some specific features
 	  which are provided by Andes Technology AndeStar V5 families.
@@ -14,7 +14,7 @@ if RISCV_NDS
 
 config RISCV_NDS_CACHE
 	bool "AndeStar V5 families specific cache support"
-	depends on RISCV_MMODE
+	depends on RISCV_MMODE || SPL_RISCV_MMODE
 	help
 	  Provide Andes Technology AndeStar V5 families specific cache support.
 

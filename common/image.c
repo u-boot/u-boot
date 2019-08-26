@@ -132,6 +132,7 @@ static const table_entry_t uimage_os[] = {
 #if defined(CONFIG_BOOTM_OPENRTOS) || defined(USE_HOSTCC)
 	{	IH_OS_OPENRTOS,	"openrtos",	"OpenRTOS",		},
 #endif
+	{	IH_OS_OPENSBI,	"opensbi",	"RISC-V OpenSBI",	},
 
 	{	-1,		"",		"",			},
 };

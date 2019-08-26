@@ -10,15 +10,19 @@ obj-$(CONFIG_CMD_BOOTM) += bootm.o
 obj-$(CONFIG_CMD_BOOTI) += bootm.o image.o
 obj-$(CONFIG_CMD_GO) += boot.o
 obj-y	+= cache.o
-obj-$(CONFIG_RISCV_RDTIME) += rdtime.o
+ifeq ($(CONFIG_$(SPL_)RISCV_MMODE),y)
 obj-$(CONFIG_SIFIVE_CLINT) += sifive_clint.o
 obj-$(CONFIG_ANDES_PLIC) += andes_plic.o
 obj-$(CONFIG_ANDES_PLMT) += andes_plmt.o
+else
+obj-$(CONFIG_RISCV_RDTIME) += rdtime.o
+obj-$(CONFIG_SBI_IPI) += sbi_ipi.o
+endif
 obj-y	+= interrupts.o
 obj-y	+= reset.o
-obj-$(CONFIG_SBI_IPI) += sbi_ipi.o
 obj-y   += setjmp.o
 obj-$(CONFIG_SMP) += smp.o
+obj-$(CONFIG_SPL_BUILD)	+= spl.o
 
 # For building EFI apps
 CFLAGS_$(EFI_CRT0) := $(CFLAGS_EFI)

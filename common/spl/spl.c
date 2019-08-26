@@ -659,6 +659,12 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 				(void *)spl_image.entry_point);
 		break;
 #endif
+#if CONFIG_IS_ENABLED(OPENSBI)
+	case IH_OS_OPENSBI:
+		debug("Jumping to U-Boot via RISC-V OpenSBI\n");
+		spl_invoke_opensbi(&spl_image);
+		break;
+#endif
 #ifdef CONFIG_SPL_OS_BOOT
 	case IH_OS_LINUX:
 		debug("Jumping to Linux\n");
@@ -775,7 +781,7 @@ ulong spl_relocate_stack_gd(void)
 #if CONFIG_IS_ENABLED(DM)
 	dm_fixup_for_gd_move(new_gd);
 #endif
-#if !defined(CONFIG_ARM)
+#if !defined(CONFIG_ARM) && !defined(CONFIG_RISCV)
 	gd = new_gd;
 #endif
 	return ptr;
