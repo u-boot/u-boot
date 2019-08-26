@@ -64,6 +64,63 @@
 			linux,default-trigger = "heartbeat";
 		};
 	};
+
+	ina226-vccint {
+		compatible = "iio-hwmon";
+		io-channels = <&vccint 0>, <&vccint 1>, <&vccint 2>, <&vccint 3>;
+	};
+	ina226-vccint-io-bram-ps {
+		compatible = "iio-hwmon";
+		io-channels = <&vccint_io_bram_ps 0>, <&vccint_io_bram_ps 1>, <&vccint_io_bram_ps 2>, <&vccint_io_bram_ps 3>;
+	};
+	ina226-vcc1v8 {
+		compatible = "iio-hwmon";
+		io-channels = <&vcc1v8 0>, <&vcc1v8 1>, <&vcc1v8 2>, <&vcc1v8 3>;
+	};
+	ina226-vcc1v2 {
+		compatible = "iio-hwmon";
+		io-channels = <&vcc1v2 0>, <&vcc1v2 1>, <&vcc1v2 2>, <&vcc1v2 3>;
+	};
+	ina226-vadj-fmc {
+		compatible = "iio-hwmon";
+		io-channels = <&vadj_fmc 0>, <&vadj_fmc 1>, <&vadj_fmc 2>, <&vadj_fmc 3>;
+	};
+	ina226-mgtavcc {
+		compatible = "iio-hwmon";
+		io-channels = <&mgtavcc 0>, <&mgtavcc 1>, <&mgtavcc 2>, <&mgtavcc 3>;
+	};
+	ina226-mgt1v2 {
+		compatible = "iio-hwmon";
+		io-channels = <&mgt1v2 0>, <&mgt1v2 1>, <&mgt1v2 2>, <&mgt1v2 3>;
+	};
+	ina226-mgt1v8 {
+		compatible = "iio-hwmon";
+		io-channels = <&mgt1v8 0>, <&mgt1v8 1>, <&mgt1v8 2>, <&mgt1v8 3>;
+	};
+	ina226-vccint-ams {
+		compatible = "iio-hwmon";
+		io-channels = <&vccint_ams 0>, <&vccint_ams 1>, <&vccint_ams 2>, <&vccint_ams 3>;
+	};
+	ina226-dac-avtt {
+		compatible = "iio-hwmon";
+		io-channels = <&dac_avtt 0>, <&dac_avtt 1>, <&dac_avtt 2>, <&dac_avtt 3>;
+	};
+	ina226-dac-avccaux {
+		compatible = "iio-hwmon";
+		io-channels = <&dac_avccaux 0>, <&dac_avccaux 1>, <&dac_avccaux 2>, <&dac_avccaux 3>;
+	};
+	ina226-adc-avcc {
+		compatible = "iio-hwmon";
+		io-channels = <&adc_avcc 0>, <&adc_avcc 1>, <&adc_avcc 2>, <&adc_avcc 3>;
+	};
+	ina226-adc-avccaux {
+		compatible = "iio-hwmon";
+		io-channels = <&adc_avccaux 0>, <&adc_avccaux 1>, <&adc_avccaux 2>, <&adc_avccaux 3>;
+	};
+	ina226-dac-avcc {
+		compatible = "iio-hwmon";
+		io-channels = <&dac_avcc 0>, <&dac_avcc 1>, <&dac_avcc 2>, <&dac_avcc 3>;
+	};
 };
 
 &dcc {
@@ -192,71 +249,85 @@
 			/* PMBUS_ALERT done via pca9544 */
 			vccint: ina226@40 { /* u65 */
 				compatible = "ti,ina226";
+				#io-channel-cells = <1>;
 				reg = <0x40>;
 				shunt-resistor = <5000>;
 			};
 			vccint_io_bram_ps: ina226@41 { /* u57 */
 				compatible = "ti,ina226";
+				#io-channel-cells = <1>;
 				reg = <0x41>;
 				shunt-resistor = <2000>;
 			};
 			vcc1v8: ina226@42 { /* u60 */
 				compatible = "ti,ina226";
+				#io-channel-cells = <1>;
 				reg = <0x42>;
 				shunt-resistor = <2000>;
 			};
 			vcc1v2: ina226@43 { /* u58 */
 				compatible = "ti,ina226";
+				#io-channel-cells = <1>;
 				reg = <0x43>;
 				shunt-resistor = <5000>;
 			};
 			vadj_fmc: ina226@45 { /* u62 */
 				compatible = "ti,ina226";
+				#io-channel-cells = <1>;
 				reg = <0x45>;
 				shunt-resistor = <5000>;
 			};
 			mgtavcc: ina226@46 { /* u67 */
 				compatible = "ti,ina226";
+				#io-channel-cells = <1>;
 				reg = <0x46>;
 				shunt-resistor = <2000>;
 			};
 			mgt1v2: ina226@47 { /* u63 */
 				compatible = "ti,ina226";
+				#io-channel-cells = <1>;
 				reg = <0x47>;
 				shunt-resistor = <5000>;
 			};
 			mgt1v8: ina226@48 { /* u64 */
 				compatible = "ti,ina226";
+				#io-channel-cells = <1>;
 				reg = <0x48>;
 				shunt-resistor = <5000>;
 			};
 			vccint_ams: ina226@49 { /* u61 */
 				compatible = "ti,ina226";
+				#io-channel-cells = <1>;
 				reg = <0x49>;
 				shunt-resistor = <2000>;
 			};
 			dac_avtt: ina226@4a { /* u59 */
 				compatible = "ti,ina226";
+				#io-channel-cells = <1>;
 				reg = <0x4a>;
 				shunt-resistor = <5000>;
 			};
 			dac_avccaux: ina226@4b { /* u124 */
 				compatible = "ti,ina226";
+				#io-channel-cells = <1>;
 				reg = <0x4b>;
 				shunt-resistor = <5000>;
 			};
 			adc_avcc: ina226@4c { /* u75 */
 				compatible = "ti,ina226";
+				#io-channel-cells = <1>;
 				reg = <0x4c>;
 				shunt-resistor = <5000>;
 			};
 			adc_avccaux: ina226@4d { /* u71 */
 				compatible = "ti,ina226";
+				#io-channel-cells = <1>;
 				reg = <0x4d>;
 				shunt-resistor = <5000>;
 			};
 			dac_avcc: ina226@4e { /* u77 */
 				compatible = "ti,ina226";
+				#io-channel-cells = <1>;
 				reg = <0x4e>;
 				shunt-resistor = <5000>;
 			};
