@@ -10,6 +10,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <i2c.h>
 #include <fsl_ddr_sdram.h>
 #include <fsl_ddr.h>
@@ -82,20 +83,82 @@ u8 spd_i2c_addr[CONFIG_SYS_NUM_DDR_CTLRS][CONFIG_DIMM_SLOTS_PER_CTLR] = {
 
 #endif
 
+#if defined(CONFIG_DM_I2C)
+#define DEV_TYPE struct udevice
+#else
+/* Local udevice */
+struct ludevice {
+	u8 chip;
+};
+
+#define DEV_TYPE struct ludevice
+
+#endif
+
 #define SPD_SPA0_ADDRESS	0x36
 #define SPD_SPA1_ADDRESS	0x37
+
+static int ddr_i2c_read(DEV_TYPE *dev, unsigned int addr,
+			int alen, uint8_t *buf, int len)
+{
+	int ret;
+
+#ifdef CONFIG_DM_I2C
+	ret = dm_i2c_read(dev, 0, buf, len);
+#else
+	ret = i2c_read(dev->chip, addr, alen, buf, len);
+#endif
+
+	return ret;
+}
+
+#ifdef CONFIG_SYS_FSL_DDR4
+static int ddr_i2c_dummy_write(unsigned int chip_addr)
+{
+	uint8_t buf = 0;
+
+#ifdef CONFIG_DM_I2C
+	struct udevice *dev;
+	int ret;
+
+	ret = i2c_get_chip_for_busnum(CONFIG_SYS_SPD_BUS_NUM, chip_addr,
+				      1, &dev);
+	if (ret) {
+		printf("%s: Cannot find udev for a bus %d\n", __func__,
+		       CONFIG_SYS_SPD_BUS_NUM);
+		return ret;
+	}
+
+	return dm_i2c_write(dev, 0, &buf, 1);
+#else
+	return i2c_write(chip_addr, 0, 1, &buf, 1);
+#endif
+
+	return 0;
+}
+#endif
 
 static void __get_spd(generic_spd_eeprom_t *spd, u8 i2c_address)
 {
 	int ret;
-#ifdef CONFIG_SYS_FSL_DDR4
-	uint8_t dummy = 0;
-#endif
+	DEV_TYPE *dev;
 
-#ifndef CONFIG_DM_I2C
+#if defined(CONFIG_DM_I2C)
+	ret = i2c_get_chip_for_busnum(CONFIG_SYS_SPD_BUS_NUM, i2c_address,
+				      1, &dev);
+	if (ret) {
+		printf("%s: Cannot find udev for a bus %d\n", __func__,
+		       CONFIG_SYS_SPD_BUS_NUM);
+		return;
+	}
+#else /* Non DM I2C support - will be removed */
+	struct ludevice ldev = {
+		.chip = i2c_address,
+	};
+	dev = &ldev;
+
 	i2c_set_bus_num(CONFIG_SYS_SPD_BUS_NUM);
 #endif
-
 
 #ifdef CONFIG_SYS_FSL_DDR4
 	/*
@@ -104,49 +167,19 @@ static void __get_spd(generic_spd_eeprom_t *spd, u8 i2c_address)
 	 * To access the upper 256 bytes, we need to set EE page address to 1
 	 * See Jedec standar No. 21-C for detail
 	 */
-#ifndef CONFIG_DM_I2C
-	i2c_write(SPD_SPA0_ADDRESS, 0, 1, &dummy, 1);
-	ret = i2c_read(i2c_address, 0, 1, (uchar *)spd, 256);
+	ddr_i2c_dummy_write(SPD_SPA0_ADDRESS);
+	ret = ddr_i2c_read(dev, 0, 1, (uchar *)spd, 256);
 	if (!ret) {
-		i2c_write(SPD_SPA1_ADDRESS, 0, 1, &dummy, 1);
-		ret = i2c_read(i2c_address, 0, 1,
-			       (uchar *)((ulong)spd + 256),
-			       min(256,
-				   (int)sizeof(generic_spd_eeprom_t) - 256));
+		ddr_i2c_dummy_write(SPD_SPA1_ADDRESS);
+		ret = ddr_i2c_read(dev, 0, 1, (uchar *)((ulong)spd + 256),
+				   min(256,
+				       (int)sizeof(generic_spd_eeprom_t)
+				       - 256));
 	}
-#else
-	struct udevice *dev;
-	int read_len = min(256, (int)sizeof(generic_spd_eeprom_t) - 256);
-
-	ret = i2c_get_chip_for_busnum(0, SPD_SPA0_ADDRESS, 1, &dev);
-	if (!ret)
-		dm_i2c_write(dev, 0, &dummy, 1);
-	ret = i2c_get_chip_for_busnum(0, i2c_address, 1, &dev);
-	if (!ret) {
-		if (!dm_i2c_read(dev, 0, (uchar *)spd, 256)) {
-			if (!i2c_get_chip_for_busnum(0, SPD_SPA1_ADDRESS,
-						     1, &dev))
-				dm_i2c_write(dev, 0, &dummy, 1);
-			if (!i2c_get_chip_for_busnum(0, i2c_address, 1, &dev))
-				ret = dm_i2c_read(dev, 0,
-						  (uchar *)((ulong)spd + 256),
-						  read_len);
-		}
-	}
-#endif
 
 #else
-
-#ifndef CONFIG_DM_I2C
-	ret = i2c_read(i2c_address, 0, 1, (uchar *)spd,
-			sizeof(generic_spd_eeprom_t));
-#else
-	ret = i2c_get_chip_for_busnum(0, i2c_address, 1, &dev);
-	if (!ret)
-		ret = dm_i2c_read(dev, 0, (uchar *)spd,
-				  sizeof(generic_spd_eeprom_t));
-#endif
-
+	ret = ddr_i2c_read(dev, 0, 1, (uchar *)spd,
+			   sizeof(generic_spd_eeprom_t));
 #endif
 
 	if (ret) {
