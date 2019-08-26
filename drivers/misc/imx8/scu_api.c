@@ -332,6 +332,28 @@ sc_bool_t sc_rm_is_memreg_owned(sc_ipc_t ipc, sc_rm_mr_t mr)
 	return (sc_bool_t)result;
 }
 
+int sc_rm_set_master_sid(sc_ipc_t ipc, sc_rsrc_t resource, sc_rm_sid_t sid)
+{
+	struct udevice *dev = gd->arch.scu_dev;
+	struct sc_rpc_msg_s msg;
+	int size = sizeof(struct sc_rpc_msg_s);
+	int ret;
+
+	RPC_VER(&msg) = SC_RPC_VERSION;
+	RPC_SVC(&msg) = (u8)SC_RPC_SVC_RM;
+	RPC_FUNC(&msg) = (u8)RM_FUNC_SET_MASTER_SID;
+	RPC_U16(&msg, 0U) = (u16)resource;
+	RPC_U16(&msg, 2U) = (u16)sid;
+	RPC_SIZE(&msg) = 2U;
+
+	ret = misc_call(dev, SC_FALSE, &msg, size, &msg, size);
+	if (ret)
+		printf("%s: resource:%d sid:%d: res:%d\n",
+		       __func__, resource, sid, RPC_R8(&msg));
+
+	return ret;
+}
+
 int sc_rm_get_memreg_info(sc_ipc_t ipc, sc_rm_mr_t mr, sc_faddr_t *addr_start,
 			  sc_faddr_t *addr_end)
 {
