@@ -209,36 +209,42 @@
 			vcc_aux: ina226@42 { /* u86 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-vcc-aux";
 				reg = <0x42>;
 				shunt-resistor = <5000>;
 			};
 			vcc_ram: ina226@43 { /* u81 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-vcc-ram";
 				reg = <0x43>;
 				shunt-resistor = <5000>;
 			};
 			vcc1v1_lp4: ina226@46 { /* u96 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-vcc1v1-lp4";
 				reg = <0x46>;
 				shunt-resistor = <5000>;
 			};
 			vcc1v2_lp4: ina226@47 { /* u98 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-vcc1v2-lp4";
 				reg = <0x47>;
 				shunt-resistor = <5000>;
 			};
 			vdd1_1v8_lp4: ina226@48 { /* u100 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-vdd1-1v8-lp4";
 				reg = <0x48>;
 				shunt-resistor = <5000>;
 			};
 			vcc0v6_lp4: ina226@49 { /* u101 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-vcc0v6-lp4";
 				reg = <0x49>;
 				shunt-resistor = <5000>;
 			};
