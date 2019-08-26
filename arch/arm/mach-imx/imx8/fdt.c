@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <asm/arch/sci/sci.h>
+#include <asm/arch/sys_proto.h>
 #include <dm/ofnode.h>
 #include <fdt_support.h>
 
@@ -100,9 +101,142 @@ static void update_fdt_with_owned_resources(void *blob)
 	}
 }
 
+static int config_smmu_resource_sid(int rsrc, int sid)
+{
+	int err;
+
+	if (!check_owned_resource(rsrc)) {
+		printf("%s rsrc[%d] not owned\n", __func__, rsrc);
+		return -1;
+	}
+	err = sc_rm_set_master_sid(-1, rsrc, sid);
+	debug("set_master_sid rsrc=%d sid=0x%x err=%d\n", rsrc, sid, err);
+	if (err != SC_ERR_NONE) {
+		pr_err("fail set_master_sid rsrc=%d sid=0x%x err=%d\n", rsrc, sid, err);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static int config_smmu_fdt_device_sid(void *blob, int device_offset, int sid)
+{
+	const char *name = fdt_get_name(blob, device_offset, NULL);
+	struct fdtdec_phandle_args args;
+	int rsrc, ret;
+	int proplen;
+	const fdt32_t *prop;
+	int i;
+
+	prop = fdt_getprop(blob, device_offset, "fsl,sc_rsrc_id", &proplen);
+	if (prop) {
+		int i;
+
+		debug("configure node %s sid 0x%x for %d resources\n",
+		      name, sid, (int)(proplen / sizeof(fdt32_t)));
+		for (i = 0; i < proplen / sizeof(fdt32_t); ++i) {
+			ret = config_smmu_resource_sid(fdt32_to_cpu(prop[i]),
+						       sid);
+			if (ret)
+				return ret;
+		}
+
+		return 0;
+	}
+
+	i = 0;
+	while (true) {
+		ret = fdtdec_parse_phandle_with_args(blob, device_offset,
+						     "power-domains",
+						     "#power-domain-cells",
+						     0, i++, &args);
+		if (ret == -ENOENT) {
+			break;
+		} else if (ret) {
+			printf("Parse power-domains of node %s wrong: %d\n",
+			       fdt_get_name(blob, device_offset, NULL), ret);
+			continue;
+		}
+
+		debug("configure node %s sid 0x%x rsrc=%d\n",
+		      name, sid, rsrc);
+		rsrc = args.args[0];
+
+		ret = config_smmu_resource_sid(rsrc, sid);
+		if (ret)
+			break;
+	}
+
+	return ret;
+}
+
+static int config_smmu_fdt(void *blob)
+{
+	int offset, proplen, i, ret;
+	const fdt32_t *prop;
+	const char *name;
+
+	/* Legacy smmu bindings, still used by xen. */
+	offset = fdt_node_offset_by_compatible(blob, 0, "arm,mmu-500");
+	prop = fdt_getprop(blob, offset, "mmu-masters", &proplen);
+	if (offset > 0 && prop) {
+		debug("found legacy mmu-masters property\n");
+
+		for (i = 0; i < proplen / 8; ++i) {
+			u32 phandle = fdt32_to_cpu(prop[2 * i]);
+			int sid = fdt32_to_cpu(prop[2 * i + 1]);
+			int device_offset;
+
+			device_offset = fdt_node_offset_by_phandle(blob,
+								   phandle);
+			if (device_offset < 0) {
+				pr_err("Not find device from mmu_masters: %d",
+				       device_offset);
+				continue;
+			}
+			ret = config_smmu_fdt_device_sid(blob, device_offset,
+							 sid);
+			if (ret)
+				return ret;
+		}
+
+		/* Ignore new bindings if old bindings found, just like linux. */
+		return 0;
+	}
+
+	/* Generic smmu bindings */
+	offset = 0;
+	while ((offset = fdt_next_node(blob, offset, NULL)) > 0) {
+		name = fdt_get_name(blob, offset, NULL);
+		prop = fdt_getprop(blob, offset, "iommus", &proplen);
+		if (!prop)
+			continue;
+		debug("node %s iommus proplen %d\n", name, proplen);
+
+		if (proplen == 12) {
+			int sid = fdt32_to_cpu(prop[1]);
+
+			config_smmu_fdt_device_sid(blob, offset, sid);
+		} else if (proplen != 4) {
+			debug("node %s ignore unexpected iommus proplen=%d\n",
+			      name, proplen);
+		}
+	}
+
+	return 0;
+}
+
 int ft_system_setup(void *blob, bd_t *bd)
 {
+	int ret;
+
 	update_fdt_with_owned_resources(blob);
+
+	if (is_imx8qm()) {
+		ret = config_smmu_fdt(blob);
+		if (ret)
+			return ret;
+	}
 
 	return 0;
 }
