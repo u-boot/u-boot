@@ -145,6 +145,13 @@ Build tools-only:
   script:
     - make tools-only_config tools-only -j$(nproc)
 
+# Ensure env tools build
+Build envtools:
+  tags: [ 'all' ]
+  stage: testsuites
+  script:
+    - make tools-only_config envtools -j$(nproc)
+
 Run binman, buildman, dtoc and patman testsuites:
   tags: [ 'all' ]
   stage: testsuites

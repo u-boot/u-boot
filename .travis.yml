@@ -361,6 +361,10 @@ matrix:
     - name: "Build tools-only"
       script:
         - make tools-only_config tools-only -j$(nproc)
+    # Ensure env tools build
+    - name: "Build envtools"
+      script:
+        - make tools-only_config envtools -j$(nproc)
 
     # test/py
     - name: "test/py sandbox"
