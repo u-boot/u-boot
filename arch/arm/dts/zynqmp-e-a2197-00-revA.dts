@@ -218,6 +218,7 @@
 			vccint: ina226@40 { /* u65 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-vccint";
 				reg = <0x40>;
 				shunt-resistor = <5000>; /* R440 */
 				/* 0.78V @ 32A 1 of 6 Phases*/
@@ -225,6 +226,7 @@
 			vcc_soc: ina226@41 { /* u161 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-vcc-soc";
 				reg = <0x41>;
 				shunt-resistor = <2000>; /* R1186 */
 				/* 0.78V @ 18A */
@@ -232,6 +234,7 @@
 			vcc_pmc: ina226@42 { /* u163 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-vcc-pmc";
 				reg = <0x42>;
 				shunt-resistor = <5000>; /* R1214 */
 				/* 0.78V @ 500mA */
@@ -239,6 +242,7 @@
 			vcc_ram: ina226@43 { /* u162 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-vcc-ram";
 				reg = <0x43>;
 				shunt-resistor = <5000>; /* r1221 */
 				/* 0.78V @ 4A */
@@ -246,6 +250,7 @@
 			vcc_pslp: ina226@44 { /* u165 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-vcc-pslp";
 				reg = <0x44>;
 				shunt-resistor = <5000>; /* R1216 */
 				/* 0.78V @ 1A */
@@ -253,6 +258,7 @@
 			vcc_psfp: ina226@45 { /* u164 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-vcc-psfp";
 				reg = <0x45>;
 				shunt-resistor = <5000>; /* R1219 */
 				/* 0.78V @ 2A */
@@ -278,6 +284,7 @@
 			vccaux: ina226@40 { /* u166 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-vccaux";
 				reg = <0x40>;
 				shunt-resistor = <5000>; /* R382 */
 				/* 1.5V @ 3A */
@@ -285,6 +292,7 @@
 			vccaux_pmc: ina226@41 { /* u168 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-vccaux-pmc";
 				reg = <0x41>;
 				shunt-resistor = <5000>; /* R1246 */
 				/* 1.5V @ 500mA */
@@ -292,6 +300,7 @@
 			vcco_500: ina226@42 { /* u178 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-vcco-500";
 				reg = <0x42>;
 				shunt-resistor = <2000>; /* R1300 */
 				/* 3.3V @ 5A */
@@ -299,6 +308,7 @@
 			vcco_501: ina226@43 { /* u180 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-vcco-501";
 				reg = <0x43>;
 				shunt-resistor = <2000>; /* R1313 */
 				/* 3.3V @ 5A */
@@ -306,6 +316,7 @@
 			vcco_502: ina226@44 { /* u182 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-vcco-502";
 				reg = <0x44>;
 				shunt-resistor = <2000>; /* R1330 */
 				/* 3.3V @ 5A */
@@ -313,6 +324,7 @@
 			vcco_503: ina226@45 { /* u172 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-vcco-503";
 				reg = <0x45>;
 				shunt-resistor = <5000>; /* R1229 */
 				/* 1.8V @ 2A */
@@ -320,6 +332,7 @@
 			vcc_1v8: ina226@46 { /* u173 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-vcc-1v8";
 				reg = <0x46>;
 				shunt-resistor = <5000>; /* R400 */
 				/* 1.8V @ 6A */
@@ -327,6 +340,7 @@
 			vcc_3v3: ina226@47 { /* u174 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-vcc-3v3";
 				reg = <0x47>;
 				shunt-resistor = <5000>; /* R1232 */
 				/* 3.3V @ 500mA */
@@ -334,6 +348,7 @@
 			vcc_1v2_ddr4: ina226@48 { /* u176 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-vcc-1v2-ddr4";
 				reg = <0x48>;
 				shunt-resistor = <5000>; /* R1275 */
 				/* 1.2V @ 4A */
@@ -341,6 +356,7 @@
 			vcc1v1_lp4: ina226@49 { /* u177 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-vcc1v1-lp4";
 				reg = <0x49>;
 				shunt-resistor = <5000>; /* R1286 */
 				/* 1.1V @ 4A */
@@ -348,6 +364,7 @@
 			vadj_fmc: ina226@4a { /* u184 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-vadj-fmc";
 				reg = <0x4a>;
 				shunt-resistor = <2000>; /* R1350 */
 				/* 1.5V @ 10A */
@@ -355,6 +372,7 @@
 			mgtyavcc: ina226@4b { /* u186 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-mgtyavcc";
 				reg = <0x4b>;
 				shunt-resistor = <2000>; /* R1367 */
 				/* 0.88V @ 6A */
@@ -362,6 +380,7 @@
 			mgtyavtt: ina226@4c { /* u188 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-mgtyavtt";
 				reg = <0x4c>;
 				shunt-resistor = <2000>; /* R1384 */
 				/* 1.2V @ 10A */
@@ -369,6 +388,7 @@
 			mgtyvccaux: ina226@4d { /* u234 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-mgtyvccaux";
 				reg = <0x4d>;
 				shunt-resistor = <5000>; /* r1679 */
 				/* 1.5V @ 500mA */
