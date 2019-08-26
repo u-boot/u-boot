@@ -41,6 +41,11 @@
 		device_type = "memory";
 		reg = <0x0 0x0 0x0 0x80000000>;
 	};
+
+	ina226 {
+		compatible = "iio-hwmon";
+		io-channels = <&u183 0>, <&u183 1>, <&u183 2>, <&u183 3>;
+	};
 };
 
 &can1 {
@@ -150,8 +155,9 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <3>;
-			ina226@40 { /* u183 */
+			u183: ina226@40 { /* u183 */
 				compatible = "ti,ina226";
+				#io-channel-cells = <1>;
 				reg = <0x40>;
 				shunt-resistor = <5000>;
 			};
