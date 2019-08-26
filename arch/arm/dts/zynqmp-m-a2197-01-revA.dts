@@ -43,6 +43,31 @@
 		device_type = "memory";
 		reg = <0x0 0x0 0x0 0x80000000>; /* FIXME don't know how big memory is there */
 	};
+
+	ina226-vcc-aux {
+		compatible = "iio-hwmon";
+		io-channels = <&vcc_aux 0>, <&vcc_aux 1>, <&vcc_aux 2>, <&vcc_aux 3>;
+	};
+	ina226-vcc-ram {
+		compatible = "iio-hwmon";
+		io-channels = <&vcc_ram 0>, <&vcc_ram 1>, <&vcc_ram 2>, <&vcc_ram 3>;
+	};
+	ina226-vcc1v1-lp4 {
+		compatible = "iio-hwmon";
+		io-channels = <&vcc1v1_lp4 0>, <&vcc1v1_lp4 1>, <&vcc1v1_lp4 2>, <&vcc1v1_lp4 3>;
+	};
+	ina226-vcc1v2-lp4 {
+		compatible = "iio-hwmon";
+		io-channels = <&vcc1v2_lp4 0>, <&vcc1v2_lp4 1>, <&vcc1v2_lp4 2>, <&vcc1v2_lp4 3>;
+	};
+	ina226-vdd1-1v8-lp4 {
+		compatible = "iio-hwmon";
+		io-channels = <&vdd1_1v8_lp4 0>, <&vdd1_1v8_lp4 1>, <&vdd1_1v8_lp4 2>, <&vdd1_1v8_lp4 3>;
+	};
+	ina226-vcc0v6-lp4 {
+		compatible = "iio-hwmon";
+		io-channels = <&vcc0v6_lp4 0>, <&vcc0v6_lp4 1>, <&vcc0v6_lp4 2>, <&vcc0v6_lp4 3>;
+	};
 };
 
 &qspi {
@@ -183,31 +208,37 @@
 			reg = <1>;
 			vcc_aux: ina226@42 { /* u86 */
 				compatible = "ti,ina226";
+				#io-channel-cells = <1>;
 				reg = <0x42>;
 				shunt-resistor = <5000>;
 			};
 			vcc_ram: ina226@43 { /* u81 */
 				compatible = "ti,ina226";
+				#io-channel-cells = <1>;
 				reg = <0x43>;
 				shunt-resistor = <5000>;
 			};
 			vcc1v1_lp4: ina226@46 { /* u96 */
 				compatible = "ti,ina226";
+				#io-channel-cells = <1>;
 				reg = <0x46>;
 				shunt-resistor = <5000>;
 			};
 			vcc1v2_lp4: ina226@47 { /* u98 */
 				compatible = "ti,ina226";
+				#io-channel-cells = <1>;
 				reg = <0x47>;
 				shunt-resistor = <5000>;
 			};
 			vdd1_1v8_lp4: ina226@48 { /* u100 */
 				compatible = "ti,ina226";
+				#io-channel-cells = <1>;
 				reg = <0x48>;
 				shunt-resistor = <5000>;
 			};
 			vcc0v6_lp4: ina226@49 { /* u101 */
 				compatible = "ti,ina226";
+				#io-channel-cells = <1>;
 				reg = <0x49>;
 				shunt-resistor = <5000>;
 			};
