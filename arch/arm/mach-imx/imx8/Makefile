@@ -4,7 +4,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y += cpu.o iomux.o misc.o
+obj-y += cpu.o iomux.o misc.o lowlevel_init.o
 obj-$(CONFIG_OF_SYSTEM_SETUP) += fdt.o
 
 ifdef CONFIG_SPL_BUILD

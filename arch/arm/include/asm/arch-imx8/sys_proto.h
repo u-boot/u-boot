@@ -16,6 +16,7 @@ struct pass_over_info_t {
 	u32 g_ap_mu;
 };
 
+extern unsigned long boot_pointer[];
 void build_info(void);
 enum boot_device get_boot_device(void);
 int print_bootinfo(void);
