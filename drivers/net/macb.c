@@ -296,13 +296,15 @@ static inline void macb_flush_ring_desc(struct macb_device *macb, bool rx)
 static inline void macb_flush_rx_buffer(struct macb_device *macb)
 {
 	flush_dcache_range(macb->rx_buffer_dma, macb->rx_buffer_dma +
-			   ALIGN(MACB_RX_BUFFER_SIZE, PKTALIGN));
+			   ALIGN(macb->rx_buffer_size * MACB_RX_RING_SIZE,
+				 PKTALIGN));
 }
 
 static inline void macb_invalidate_rx_buffer(struct macb_device *macb)
 {
 	invalidate_dcache_range(macb->rx_buffer_dma, macb->rx_buffer_dma +
-				ALIGN(MACB_RX_BUFFER_SIZE, PKTALIGN));
+				ALIGN(macb->rx_buffer_size * MACB_RX_RING_SIZE,
+				      PKTALIGN));
 }
 
 #if defined(CONFIG_CMD_NET)
