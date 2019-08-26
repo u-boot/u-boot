@@ -250,84 +250,98 @@
 			vccint: ina226@40 { /* u65 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-vccint";
 				reg = <0x40>;
 				shunt-resistor = <5000>;
 			};
 			vccint_io_bram_ps: ina226@41 { /* u57 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-vccint-io-bram-ps";
 				reg = <0x41>;
 				shunt-resistor = <2000>;
 			};
 			vcc1v8: ina226@42 { /* u60 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-vcc1v8";
 				reg = <0x42>;
 				shunt-resistor = <2000>;
 			};
 			vcc1v2: ina226@43 { /* u58 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-vcc1v2";
 				reg = <0x43>;
 				shunt-resistor = <5000>;
 			};
 			vadj_fmc: ina226@45 { /* u62 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-vadj-fmc";
 				reg = <0x45>;
 				shunt-resistor = <5000>;
 			};
 			mgtavcc: ina226@46 { /* u67 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-mgtavcc";
 				reg = <0x46>;
 				shunt-resistor = <2000>;
 			};
 			mgt1v2: ina226@47 { /* u63 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-mgt1v2";
 				reg = <0x47>;
 				shunt-resistor = <5000>;
 			};
 			mgt1v8: ina226@48 { /* u64 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-mgt1v8";
 				reg = <0x48>;
 				shunt-resistor = <5000>;
 			};
 			vccint_ams: ina226@49 { /* u61 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-vccint-ams";
 				reg = <0x49>;
 				shunt-resistor = <2000>;
 			};
 			dac_avtt: ina226@4a { /* u59 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-dac-avtt";
 				reg = <0x4a>;
 				shunt-resistor = <5000>;
 			};
 			dac_avccaux: ina226@4b { /* u124 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-dac-avccaux";
 				reg = <0x4b>;
 				shunt-resistor = <5000>;
 			};
 			adc_avcc: ina226@4c { /* u75 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-adc-avcc";
 				reg = <0x4c>;
 				shunt-resistor = <5000>;
 			};
 			adc_avccaux: ina226@4d { /* u71 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-adc-avccaux";
 				reg = <0x4d>;
 				shunt-resistor = <5000>;
 			};
 			dac_avcc: ina226@4e { /* u77 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-dac-avcc";
 				reg = <0x4e>;
 				shunt-resistor = <5000>;
 			};
