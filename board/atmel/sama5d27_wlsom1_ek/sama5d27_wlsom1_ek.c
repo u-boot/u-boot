@@ -82,6 +82,13 @@ int dram_init(void)
 /* SPL */
 #ifdef CONFIG_SPL_BUILD
 
+static void board_leds_init(void)
+{
+	atmel_pio4_set_pio_output(AT91_PIO_PORTA, 6, 0); /* RED */
+	atmel_pio4_set_pio_output(AT91_PIO_PORTA, 7, 1); /* GREEN */
+	atmel_pio4_set_pio_output(AT91_PIO_PORTA, 8, 0); /* BLUE */
+}
+
 #ifdef CONFIG_SD_BOOT
 void spl_mmc_init(void)
 {
@@ -113,6 +120,7 @@ void spl_qspi_init(void)
 
 void spl_board_init(void)
 {
+	board_leds_init();
 #ifdef CONFIG_SD_BOOT
 	spl_mmc_init();
 #endif
