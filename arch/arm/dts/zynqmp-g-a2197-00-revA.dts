@@ -226,36 +226,42 @@
 			u74: ina226@40 { /* u74 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-u74";
 				reg = <0x40>;
 				shunt-resistor = <1000>;
 			};
 			u75: ina226@41 { /* u75 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-u75";
 				reg = <0x41>;
 				shunt-resistor = <1000>;
 			};
 			u78: ina226@42 { /* u78 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-u78";
 				reg = <0x42>;
 				shunt-resistor = <5000>;
 			};
 			u79: ina226@43 { /* u79 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-u79";
 				reg = <0x43>;
 				shunt-resistor = <1000>;
 			};
 			u82: ina226@44 { /* u82 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-u82";
 				reg = <0x44>;
 				shunt-resistor = <1000>;
 			};
 			u84: ina226@45 { /* u84 */
 				compatible = "ti,ina226";
 				#io-channel-cells = <1>;
+				label = "ina226-u84";
 				reg = <0x45>;
 				shunt-resistor = <5000>;
 			};
