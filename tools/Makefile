@@ -15,7 +15,6 @@ CONFIG_SHA1_CHECK_UB_IMG = y
 CONFIG_ARCH_SUNXI = y
 endif
 
-subdir-$(HOST_TOOLS_ALL) += easylogo
 subdir-$(HOST_TOOLS_ALL) += gdb
 
 # Merge all the different vars for envcrc into one

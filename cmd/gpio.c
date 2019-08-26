@@ -91,7 +91,7 @@ static int do_gpio_status(bool all, const char *gpio_name)
 
 		if (!gpio_name || !bank_name ||
 		    !strncasecmp(gpio_name, bank_name, banklen)) {
-			const char *p = NULL;
+			const char *p;
 			int offset;
 
 			p = gpio_name + banklen;

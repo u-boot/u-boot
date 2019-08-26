@@ -1,5 +1,5 @@
 DRACO BOARD
-M:	Roger Meier <r.meier@siemens.com>
+M:	Samuel Egli <samuel.egli@siemens.com>
 S:	Maintained
 F:	board/siemens/draco/
 F:	include/configs/draco.h

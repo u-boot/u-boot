@@ -1167,6 +1167,14 @@ int ahci_probe_scsi(struct udevice *ahci_dev, ulong base)
 	if (ret)
 		return ret;
 
+	/*
+	 * scsi_scan_dev() scans devices up-to the number of max_id.
+	 * Update max_id if the number of detected ports exceeds max_id.
+	 * This allows SCSI to scan all detected ports.
+	 */
+	uc_plat->max_id = max_t(unsigned long, uc_priv->n_ports,
+				uc_plat->max_id);
+
 	return 0;
 }
 
