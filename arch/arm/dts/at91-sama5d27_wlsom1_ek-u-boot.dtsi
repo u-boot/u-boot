@@ -13,6 +13,10 @@
 	};
 };
 
+&hlcdc {
+	u-boot,dm-pre-reloc;
+};
+
 &qspi1 {
 	u-boot,dm-pre-reloc;
 };

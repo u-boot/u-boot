@@ -38,6 +38,31 @@
 		};
 
 		apb {
+			hlcdc: hlcdc@f0000000 {
+				atmel,vl-bpix = <4>;
+				atmel,output-mode = <24>;
+				atmel,guard-time = <1>;
+				pinctrl-names = "default";
+				pinctrl-0 = <&pinctrl_lcd_base &pinctrl_lcd_pwm &pinctrl_lcd_rgb666>;
+				status = "okay";
+
+				display-timings {
+					800x480 {
+						clock-frequency = <33300000>;
+						xres = <800>;
+						yres = <480>;
+						hactive = <800>;
+						vactive = <480>;
+						hsync-len = <64>;
+						hfront-porch = <1>;
+						hback-porch = <64>;
+						vfront-porch = <1>;
+						vback-porch = <22>;
+						vsync-len = <23>;
+					};
+				};
+			};
+
 			qspi1: spi@f0024000 {
 				status = "okay";
 			};
@@ -54,6 +79,41 @@
 
 			pioA: gpio@fc038000 {
 				pinctrl {
+					pinctrl_lcd_base: pinctrl_lcd_base {
+						pinmux = <PIN_PC30__LCDVSYNC>,
+							 <PIN_PC31__LCDHSYNC>,
+							 <PIN_PD1__LCDDEN>,
+							 <PIN_PD0__LCDPCK>;
+						bias-disable;
+					};
+
+					pinctrl_lcd_pwm: pinctrl_lcd_pwm {
+						pinmux = <PIN_PC28__LCDPWM>;
+						bias-disable;
+					};
+
+					pinctrl_lcd_rgb666: pinctrl_lcd_rgb666 {
+						pinmux = <PIN_PC10__LCDDAT2>,
+							 <PIN_PC11__LCDDAT3>,
+							 <PIN_PC12__LCDDAT4>,
+							 <PIN_PC13__LCDDAT5>,
+							 <PIN_PC14__LCDDAT6>,
+							 <PIN_PC15__LCDDAT7>,
+							 <PIN_PC16__LCDDAT10>,
+							 <PIN_PC17__LCDDAT11>,
+							 <PIN_PC18__LCDDAT12>,
+							 <PIN_PC19__LCDDAT13>,
+							 <PIN_PC20__LCDDAT14>,
+							 <PIN_PC21__LCDDAT15>,
+							 <PIN_PC22__LCDDAT18>,
+							 <PIN_PC23__LCDDAT19>,
+							 <PIN_PC24__LCDDAT20>,
+							 <PIN_PC25__LCDDAT21>,
+							 <PIN_PC26__LCDDAT22>,
+							 <PIN_PC27__LCDDAT23>;
+						bias-disable;
+					};
+
 					pinctrl_sdmmc0_cmd_dat_default: sdmmc0_cmd_dat_default {
 						pinmux = <PIN_PA1__SDMMC0_CMD>,
 							 <PIN_PA2__SDMMC0_DAT0>,
