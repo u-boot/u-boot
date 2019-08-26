@@ -97,10 +97,27 @@ void spl_mmc_init(void)
 }
 #endif
 
+#ifdef CONFIG_QSPI_BOOT
+void spl_qspi_init(void)
+{
+	atmel_pio4_set_d_periph(AT91_PIO_PORTB, 5, 0);	/* SCK */
+	atmel_pio4_set_d_periph(AT91_PIO_PORTB, 6, 0);	/* CS */
+	atmel_pio4_set_d_periph(AT91_PIO_PORTB, 7, 0);	/* IO0 */
+	atmel_pio4_set_d_periph(AT91_PIO_PORTB, 8, 0);	/* IO1 */
+	atmel_pio4_set_d_periph(AT91_PIO_PORTB, 9, 0);	/* IO2 */
+	atmel_pio4_set_d_periph(AT91_PIO_PORTB, 10, 0);	/* IO3 */
+
+	at91_periph_clk_enable(ATMEL_ID_QSPI1);
+}
+#endif
+
 void spl_board_init(void)
 {
 #ifdef CONFIG_SD_BOOT
 	spl_mmc_init();
+#endif
+#ifdef CONFIG_QSPI_BOOT
+	spl_qspi_init();
 #endif
 }
 

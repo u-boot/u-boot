@@ -43,4 +43,8 @@
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.img"
 #endif
 
+#ifdef CONFIG_QSPI_BOOT
+#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x40000
+#endif
+
 #endif
