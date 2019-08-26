@@ -60,17 +60,10 @@ int arch_cpu_init_dm(void)
 	int node, ret;
 
 	node = fdt_node_offset_by_compatible(gd->fdt_blob, -1, "fsl,imx8-mu");
-	ret = device_bind_driver_to_node(gd->dm_root, "imx8_scu", "imx8_scu",
-					 offset_to_ofnode(node), &devp);
 
+	ret = uclass_get_device_by_of_offset(UCLASS_MISC, node, &devp);
 	if (ret) {
-		printf("could not find scu %d\n", ret);
-		return ret;
-	}
-
-	ret = device_probe(devp);
-	if (ret) {
-		printf("scu probe failed %d\n", ret);
+		printf("could not get scu %d\n", ret);
 		return ret;
 	}
 
