@@ -32,7 +32,9 @@
 #define SC_RPC_SVC_PAD          6U
 #define SC_RPC_SVC_MISC         7U
 #define SC_RPC_SVC_IRQ          8U
-#define SC_RPC_SVC_ABORT        9U
+#define SC_RPC_SVC_SECO         9U
+#define SC_RPC_SVC_ABORT        10U
+
 
 /* Types */
 
@@ -74,6 +76,7 @@ struct sc_rpc_msg_s {
 #define PM_FUNC_REBOOT				9U
 #define PM_FUNC_REBOOT_PARTITION		12U
 #define PM_FUNC_CPU_START			11U
+#define PM_FUNC_IS_PARTITION_STARTED 24U
 
 /* MISC RPC */
 #define MISC_FUNC_UNKNOWN			0

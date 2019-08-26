@@ -119,6 +119,33 @@ int sc_pm_set_resource_power_mode(sc_ipc_t ipc, sc_rsrc_t resource,
 	return ret;
 }
 
+sc_bool_t sc_pm_is_partition_started(sc_ipc_t ipc, sc_rm_pt_t pt)
+{
+	struct udevice *dev = gd->arch.scu_dev;
+	int size = sizeof(struct sc_rpc_msg_s);
+	struct sc_rpc_msg_s msg;
+	int ret;
+	u8 result;
+
+	RPC_VER(&msg) = SC_RPC_VERSION;
+	RPC_SVC(&msg) = (u8)(SC_RPC_SVC_PM);
+	RPC_FUNC(&msg) = (u8)(PM_FUNC_IS_PARTITION_STARTED);
+	RPC_U8(&msg, 0U) = (u8)(pt);
+	RPC_SIZE(&msg) = 2U;
+
+	ret = misc_call(dev, SC_FALSE, &msg, size, &msg, size);
+
+	result = RPC_R8(&msg);
+	if (result != 0 && result != 1) {
+		printf("%s: partition:%d res:%d\n",
+		       __func__, pt, RPC_R8(&msg));
+		if (ret)
+			printf("%s: partition:%d res:%d\n", __func__, pt,
+			       RPC_R8(&msg));
+	}
+	return !!result;
+}
+
 /* PAD */
 int sc_pad_set(sc_ipc_t ipc, sc_pad_t pad, u32 val)
 {
