@@ -500,6 +500,33 @@
 			};
 		};
 
+		cpm_pciea: pci@fca10000 {
+			#address-cells = <3>;
+			#interrupt-cells = <1>;
+			#size-cells = <2>;
+			compatible = "xlnx,versal-cpm-host-1.00";
+			status = "disabled";
+			interrupt-map = <0 0 0 1 &pcie_intc_0 1>,
+					<0 0 0 2 &pcie_intc_0 2>,
+					<0 0 0 3 &pcie_intc_0 3>,
+					<0 0 0 4 &pcie_intc_0 4>;
+			interrupt-map-mask = <0 0 0 7>;
+			interrupt-parent = <&gic>;
+			interrupt-names = "misc";
+			interrupts = <0 72 4>;
+			ranges = <0x02000000 0x00000000 0xe0000000 0x0 0xe0000000 0x00000000 0x10000000>,
+				 <0x43000000 0x00000080 0x00000000 0x00000080 0x00000000 0x00000000 0x80000000>;
+			msi-map = <0x0 &gic_its 0x0 0x10000>;
+			reg = <0x6 0x00000000 0x0 0x1000000>,
+			      <0x0 0xfca10000 0x0 0x1000>;
+			reg-names = "cfg", "cpm_slcr";
+			pcie_intc_0: pci-interrupt-controller {
+				#address-cells = <0>;
+				#interrupt-cells = <1>;
+				interrupt-controller ;
+			};
+		};
+
 		watchdog: watchdog@fd4d0000 {
 			compatible = "xlnx,versal-wwdt-1.0";
 			status = "disabled";
