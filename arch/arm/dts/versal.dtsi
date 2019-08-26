@@ -105,11 +105,21 @@
 		gic: interrupt-controller@f9000000 {
 			compatible = "arm,gic-v3";
 			#interrupt-cells = <3>;
+			#address-cells = <2>;
+			#size-cells = <2>;
+			ranges;
 			reg = <0 0xf9000000 0 0x80000>, /* GICD */
 			      <0 0xf9080000 0 0x80000>; /* GICR */
 			interrupt-controller;
 			interrupt-parent = <&gic>;
 			interrupts = <1 9 4>;
+
+			gic_its: gic-its@f9020000 {
+				compatible = "arm,gic-v3-its";
+				msi-controller;
+				msi-cells = <1>;
+				reg = <0 0xf9020000 0 0x20000>;
+			};
 		};
 	};
 
