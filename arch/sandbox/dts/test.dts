@@ -393,19 +393,21 @@
 		mbox-names = "other", "test";
 	};
 
-	cpu-test1 {
-		compatible = "sandbox,cpu_sandbox";
-		u-boot,dm-pre-reloc;
-	};
+	cpus {
+		cpu-test1 {
+			compatible = "sandbox,cpu_sandbox";
+			u-boot,dm-pre-reloc;
+		};
 
-	cpu-test2 {
-		compatible = "sandbox,cpu_sandbox";
-		u-boot,dm-pre-reloc;
-	};
+		cpu-test2 {
+			compatible = "sandbox,cpu_sandbox";
+			u-boot,dm-pre-reloc;
+		};
 
-	cpu-test3 {
-		compatible = "sandbox,cpu_sandbox";
-		u-boot,dm-pre-reloc;
+		cpu-test3 {
+			compatible = "sandbox,cpu_sandbox";
+			u-boot,dm-pre-reloc;
+		};
 	};
 
 	i2s: i2s {
