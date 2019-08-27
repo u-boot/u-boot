@@ -45,6 +45,14 @@
 
 #define is_imx8mq() (is_cpu_type(MXC_CPU_IMX8MQ))
 #define is_imx8qm() (is_cpu_type(MXC_CPU_IMX8QM))
+#define is_imx8mm() (is_cpu_type(MXC_CPU_IMX8MM) || is_cpu_type(MXC_CPU_IMX8MML) ||\
+	is_cpu_type(MXC_CPU_IMX8MMD) || is_cpu_type(MXC_CPU_IMX8MMDL) || \
+	is_cpu_type(MXC_CPU_IMX8MMS) || is_cpu_type(MXC_CPU_IMX8MMSL))
+#define is_imx8mml() (is_cpu_type(MXC_CPU_IMX8MML))
+#define is_imx8mmd() (is_cpu_type(MXC_CPU_IMX8MMD))
+#define is_imx8mmdl() (is_cpu_type(MXC_CPU_IMX8MMDL))
+#define is_imx8mms() (is_cpu_type(MXC_CPU_IMX8MMS))
+#define is_imx8mmsl() (is_cpu_type(MXC_CPU_IMX8MMSL))
 #define is_imx8qxp() (is_cpu_type(MXC_CPU_IMX8QXP))
 
 #ifdef CONFIG_MX6
