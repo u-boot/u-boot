@@ -43,6 +43,12 @@
 #define LTSSM_L0_REV3			0x11
 #define LTSSM_L0			0x16
 
+struct fsl_pcie_data {
+	u32 block_offset;		/* Offset from CCSR of 1st controller */
+	u32 block_offset_mask;		/* Mask out the CCSR base */
+	u32 stride;			/* Offset stride between controllers */
+};
+
 struct fsl_pcie {
 	int idx;
 	struct udevice *bus;
@@ -52,6 +58,7 @@ struct fsl_pcie {
 	bool mode;			/* RC&EP mode flag */
 	bool enabled;			/* Enable status */
 	struct list_head list;
+	struct fsl_pcie_data *info;
 };
 
 extern struct list_head fsl_pcie_list;

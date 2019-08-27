@@ -582,6 +582,7 @@ static int fsl_pcie_probe(struct udevice *dev)
 static int fsl_pcie_ofdata_to_platdata(struct udevice *dev)
 {
 	struct fsl_pcie *pcie = dev_get_priv(dev);
+	struct fsl_pcie_data *info;
 	int ret;
 
 	pcie->regs = dev_remap_addr(dev);
@@ -596,7 +597,10 @@ static int fsl_pcie_ofdata_to_platdata(struct udevice *dev)
 		return ret;
 	}
 
-	pcie->idx = (dev_read_addr(dev) - 0xffe240000) / 0x10000;
+	info = (struct fsl_pcie_data *)dev_get_driver_data(dev);
+	pcie->info = info;
+	pcie->idx = abs((u32)(dev_read_addr(dev) & info->block_offset_mask) -
+		    info->block_offset) / info->stride;
 
 	return 0;
 }
@@ -606,8 +610,14 @@ static const struct dm_pci_ops fsl_pcie_ops = {
 	.write_config	= fsl_pcie_write_config,
 };
 
+static struct fsl_pcie_data t2080_data = {
+	.block_offset = 0x240000,
+	.block_offset_mask = 0x3fffff,
+	.stride = 0x10000,
+};
+
 static const struct udevice_id fsl_pcie_ids[] = {
-	{ .compatible = "fsl,pcie-t2080" },
+	{ .compatible = "fsl,pcie-t2080", .data = (ulong)&t2080_data },
 	{ }
 };
 
