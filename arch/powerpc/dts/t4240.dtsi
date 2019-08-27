@@ -99,4 +99,52 @@
 			clock-frequency = <0x0>;
 		};
 	};
+
+	pcie@ffe240000 {
+		compatible = "fsl,pcie-t4240", "fsl,pcie-fsl-qoriq";
+		reg = <0xf 0xfe240000 0x0 0x4000>;   /* registers */
+		law_trgt_if = <0>;
+		#address-cells = <3>;
+		#size-cells = <2>;
+		device_type = "pci";
+		bus-range = <0x0 0xff>;
+		ranges = <0x01000000 0x0 0x00000000 0xf 0xf8000000 0x0 0x00010000   /* downstream I/O */
+			  0x02000000 0x0 0xe0000000 0xc 0x00000000 0x0 0x20000000>; /* non-prefetchable memory */
+	};
+
+	pcie@ffe250000 {
+		compatible = "fsl,pcie-t4240", "fsl,pcie-fsl-qoriq";
+		reg = <0xf 0xfe250000 0x0 0x4000>;   /* registers */
+		law_trgt_if = <1>;
+		#address-cells = <3>;
+		#size-cells = <2>;
+		device_type = "pci";
+		bus-range = <0x0 0xff>;
+		ranges = <0x01000000 0x0 0x00000000 0xf 0xf8010000 0x0 0x00010000   /* downstream I/O */
+			  0x02000000 0x0 0xe0000000 0xc 0x20000000 0x0 0x20000000>; /* non-prefetchable memory */
+	};
+
+	pcie@ffe260000 {
+		compatible = "fsl,pcie-t4240", "fsl,pcie-fsl-qoriq";
+		reg = <0xf 0xfe260000 0x0 0x4000>;   /* registers */
+		law_trgt_if = <2>;
+		#address-cells = <3>;
+		#size-cells = <2>;
+		device_type = "pci";
+		bus-range = <0x0 0xff>;
+		ranges = <0x01000000 0x0 0x00000000 0xf 0xf8020000 0x0 0x00010000   /* downstream I/O */
+			  0x02000000 0x0 0xe0000000 0xc 0x40000000 0x0 0x20000000>; /* non-prefetchable memory */
+	};
+
+	pcie@ffe270000 {
+		compatible = "fsl,pcie-t4240", "fsl,pcie-fsl-qoriq";
+		reg = <0xf 0xfe270000 0x0 0x4000>;   /* registers */
+		law_trgt_if = <3>;
+		#address-cells = <3>;
+		#size-cells = <2>;
+		device_type = "pci";
+		bus-range = <0x0 0xff>;
+		ranges = <0x01000000 0x0 0x00000000 0xf 0xf8030000 0x0 0x00010000   /* downstream I/O */
+			  0x02000000 0x0 0xe0000000 0xc 0x60000000 0x0 0x20000000>; /* non-prefetchable memory */
+	};
 };
