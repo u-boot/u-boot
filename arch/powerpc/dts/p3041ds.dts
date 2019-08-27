@@ -1,0 +1,18 @@
+// SPDX-License-Identifier: GPL-2.0+ OR X11
+/*
+ * P3041DS Device Tree Source
+ *
+ * Copyright 2010 - 2015 Freescale Semiconductor Inc.
+ * Copyright 2019 NXP
+ */
+
+/include/ "p3041.dtsi"
+
+/ {
+	model = "fsl,P3041DS";
+	compatible = "fsl,P3041DS";
+	#address-cells = <2>;
+	#size-cells = <2>;
+	interrupt-parent = <&mpic>;
+
+};

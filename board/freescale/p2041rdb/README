@@ -85,6 +85,24 @@ Boot from SPI flash
 	SW1[1-5] = 10100
 	Note: 1 stands for 'on', 0 stands for 'off'
 
+Device tree support and how to enable it for different configs
+--------------------------------------------------------------
+Device tree support is available for p2041rdb for below mentioned boot,
+1. NOR Boot
+2. NAND Boot
+3. SD Boot
+4. SPIFLASH Boot
+
+To enable device tree support for other boot, below configs need to be
+enabled in relative defconfig file,
+1. CONFIG_DEFAULT_DEVICE_TREE="p2041rdb" (Change default device tree name if required)
+2. CONFIG_OF_CONTROL
+3. CONFIG_MPC85XX_HAVE_RESET_VECTOR if reset vector is located at
+   CONFIG_RESET_VECTOR_ADDRESS - 0xffc
+
+If device tree support is enabled in defconfig, use 'u-boot-with-dtb.bin'
+instead of u-boot.bin for all boot.
+
 CPLD command
 ============
 The CPLD is used to control the power sequence and some serdes lane

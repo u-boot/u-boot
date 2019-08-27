@@ -1,0 +1,18 @@
+// SPDX-License-Identifier: GPL-2.0+ OR X11
+/*
+ * P5040DS Device Tree Source
+ *
+ * Copyright 2012 - 2015 Freescale Semiconductor Inc.
+ * Copyright 2019 NXP
+ */
+
+/include/ "p5040.dtsi"
+
+/ {
+	model = "fsl,P5040DS";
+	compatible = "fsl,P5040DS";
+	#address-cells = <2>;
+	#size-cells = <2>;
+	interrupt-parent = <&mpic>;
+
+};
