@@ -232,6 +232,12 @@ int arch_cpu_init(void)
 {
 	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
 	/*
+	 * ROM might disable clock for SCTR,
+	 * enable the clock before timer_init.
+	 */
+	if (IS_ENABLED(CONFIG_SPL_BUILD))
+		clock_enable(CCGR_SCTR, 1);
+	/*
 	 * Init timer at very early state, because sscg pll setting
 	 * will use it
 	 */
