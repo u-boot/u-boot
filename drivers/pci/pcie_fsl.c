@@ -299,8 +299,9 @@ static int fsl_pcie_setup_inbound_win(struct fsl_pcie *pcie, int idx,
 	out_be32(&pi->piwbear, 0);
 #endif
 
-	if (IS_ENABLED(CONFIG_SYS_FSL_ERRATUM_A005434))
-		flag = 0;
+#ifdef CONFIG_SYS_FSL_ERRATUM_A005434
+	flag = 0;
+#endif
 
 	flag |= PIWAR_EN | PIWAR_READ_SNOOP | PIWAR_WRITE_SNOOP;
 	if (pf)
@@ -401,47 +402,47 @@ static int fsl_pcie_init_port(struct fsl_pcie *pcie)
 
 	fsl_pcie_init_atmu(pcie);
 
-	if (IS_ENABLED(CONFIG_FSL_PCIE_DISABLE_ASPM)) {
-		val_32 = 0;
-		fsl_pcie_hose_read_config_dword(pcie, PCI_LCR, &val_32);
-		val_32 &= ~0x03;
-		fsl_pcie_hose_write_config_dword(pcie, PCI_LCR, val_32);
-		udelay(1);
-	}
+#ifdef CONFIG_FSL_PCIE_DISABLE_ASPM
+	val_32 = 0;
+	fsl_pcie_hose_read_config_dword(pcie, PCI_LCR, &val_32);
+	val_32 &= ~0x03;
+	fsl_pcie_hose_write_config_dword(pcie, PCI_LCR, val_32);
+	udelay(1);
+#endif
 
-	if (IS_ENABLED(CONFIG_FSL_PCIE_RESET)) {
-		u16 ltssm;
-		int i;
+#ifdef CONFIG_FSL_PCIE_RESET
+	u16 ltssm;
+	int i;
 
-		if (pcie->block_rev >= PEX_IP_BLK_REV_3_0) {
+	if (pcie->block_rev >= PEX_IP_BLK_REV_3_0) {
+		/* assert PCIe reset */
+		setbits_be32(&regs->pdb_stat, 0x08000000);
+		(void)in_be32(&regs->pdb_stat);
+		udelay(1000);
+		/* clear PCIe reset */
+		clrbits_be32(&regs->pdb_stat, 0x08000000);
+		asm("sync;isync");
+		for (i = 0; i < 100 && !fsl_pcie_link_up(pcie); i++)
+			udelay(1000);
+	} else {
+		fsl_pcie_hose_read_config_word(pcie, PCI_LTSSM, &ltssm);
+		if (ltssm == 1) {
 			/* assert PCIe reset */
 			setbits_be32(&regs->pdb_stat, 0x08000000);
 			(void)in_be32(&regs->pdb_stat);
-			udelay(1000);
+			udelay(100);
 			/* clear PCIe reset */
 			clrbits_be32(&regs->pdb_stat, 0x08000000);
 			asm("sync;isync");
-			for (i = 0; i < 100 && !fsl_pcie_link_up(pcie); i++)
+			for (i = 0; i < 100 &&
+			     !fsl_pcie_link_up(pcie); i++)
 				udelay(1000);
-		} else {
-			fsl_pcie_hose_read_config_word(pcie, PCI_LTSSM, &ltssm);
-			if (ltssm == 1) {
-				/* assert PCIe reset */
-				setbits_be32(&regs->pdb_stat, 0x08000000);
-				(void)in_be32(&regs->pdb_stat);
-				udelay(100);
-				/* clear PCIe reset */
-				clrbits_be32(&regs->pdb_stat, 0x08000000);
-				asm("sync;isync");
-				for (i = 0; i < 100 &&
-				     !fsl_pcie_link_up(pcie); i++)
-					udelay(1000);
-			}
 		}
 	}
+#endif
 
-	if (IS_ENABLED(CONFIG_SYS_P4080_ERRATUM_PCIE_A003) &&
-	    !fsl_pcie_link_up(pcie)) {
+#ifdef CONFIG_SYS_P4080_ERRATUM_PCIE_A003
+	if (!fsl_pcie_link_up(pcie)) {
 		serdes_corenet_t *srds_regs;
 
 		srds_regs = (void *)CONFIG_SYS_FSL_CORENET_SERDES_ADDR;
@@ -460,13 +461,15 @@ static int fsl_pcie_init_port(struct fsl_pcie *pcie)
 				udelay(1000);
 		}
 	}
+#endif
 
 	/*
 	 * The Read-Only Write Enable bit defaults to 1 instead of 0.
 	 * Set to 0 to protect the read-only registers.
 	 */
-	if (IS_ENABLED(CONFIG_SYS_FSL_ERRATUM_A007815))
-		clrbits_be32(&regs->dbi_ro_wr_en, 0x01);
+#ifdef CONFIG_SYS_FSL_ERRATUM_A007815
+	clrbits_be32(&regs->dbi_ro_wr_en, 0x01);
+#endif
 
 	/*
 	 * Enable All Error Interrupts except
