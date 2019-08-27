@@ -18,8 +18,6 @@
 #define CONFIG_PCI1		/* PCI controller 1 */
 #define CONFIG_PCIE1		/* PCIE controller 1 (slot 1) */
 #undef CONFIG_PCI2
-#define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
-#define CONFIG_PCI_INDIRECT_BRIDGE 1	/* indirect PCI bridge support */
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
 
 #define CONFIG_ENV_OVERWRITE
@@ -343,24 +341,18 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_PCI1_IO_SIZE	0x00100000	/* 1M */
 
 #ifdef CONFIG_PCIE1
-#define CONFIG_SYS_PCIE1_NAME		"Slot"
 #define CONFIG_SYS_PCIE1_MEM_VIRT	0xa0000000
 #ifdef CONFIG_PHYS_64BIT
-#define CONFIG_SYS_PCIE1_MEM_BUS	0xe0000000
 #define CONFIG_SYS_PCIE1_MEM_PHYS	0xc20000000ull
 #else
-#define CONFIG_SYS_PCIE1_MEM_BUS	0xa0000000
 #define CONFIG_SYS_PCIE1_MEM_PHYS	0xa0000000
 #endif
-#define CONFIG_SYS_PCIE1_MEM_SIZE	0x20000000	/* 512M */
 #define CONFIG_SYS_PCIE1_IO_VIRT	0xe3000000
-#define CONFIG_SYS_PCIE1_IO_BUS	0x00000000
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_PCIE1_IO_PHYS        0xfe3000000ull
 #else
 #define CONFIG_SYS_PCIE1_IO_PHYS	0xe3000000
 #endif
-#define CONFIG_SYS_PCIE1_IO_SIZE	0x00100000	/*   1M */
 #endif
 
 /*
@@ -385,6 +377,20 @@ extern unsigned long get_clock_freq(void);
 #if defined(CONFIG_PCI)
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
+
+#if !defined(CONFIG_DM_PCI)
+#define CONFIG_FSL_PCI_INIT		1	/* Use common FSL init code */
+#define CONFIG_PCI_INDIRECT_BRIDGE	1
+#define CONFIG_SYS_PCIE1_NAME		"Slot"
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_PCIE1_MEM_BUS	0xe0000000
+#else
+#define CONFIG_SYS_PCIE1_MEM_BUS	0xa0000000
+#endif
+#define CONFIG_SYS_PCIE1_MEM_SIZE	0x20000000      /* 512M */
+#define CONFIG_SYS_PCIE1_IO_BUS		0x00000000
+#define CONFIG_SYS_PCIE1_IO_SIZE	0x00100000	/*   1M */
+#endif
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 
