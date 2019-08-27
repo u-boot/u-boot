@@ -1,0 +1,37 @@
+U-Boot for the NXP i.MX8MM EVK board
+
+Quick Start
+===========
+- Build the ARM Trusted firmware binary
+- Get ddr fimware
+- Build U-Boot
+- Boot
+
+Get and Build the ARM Trusted firmware
+======================================
+Note: srctree is U-Boot source directory
+Get ATF from: https://source.codeaurora.org/external/imx/imx-atf
+branch: imx_4.19.35_1.0.0
+$ make PLAT=imx8mm bl31
+$ cp build/imx8mm/release/bl31.bin $(srctree)
+
+Get the ddr and hdmi firmware
+=============================
+$ wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-8.0.bin
+$ chmod +x firmware-imx-8.0.bin
+$ ./firmware-imx-8.0
+$ cp firmware-imx-7.9/firmware/ddr/synopsys/lpddr4*.bin $(srctree)
+
+Build U-Boot
+============
+$ export CROSS_COMPILE=aarch64-poky-linux-
+$ make imx8mm_evk_defconfig
+$ export ATF_LOAD_ADDR=0x920000
+$ make flash.bin
+
+Burn the flash.bin to MicroSD card offset 33KB
+$sudo dd if=flash.bin of=/dev/sd[x] bs=1024 seek=33
+
+Boot
+====
+Set Boot switch to SD boot
