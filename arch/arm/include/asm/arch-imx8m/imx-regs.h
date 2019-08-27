@@ -10,8 +10,8 @@
 
 #include <asm/mach-imx/regs-lcdif.h>
 
-#define ROM_VERSION_A0		0x800
-#define ROM_VERSION_B0		0x83C
+#define ROM_VERSION_A0		IS_ENABLED(CONFIG_IMX8MQ) ? 0x800 : 0x800
+#define ROM_VERSION_B0		IS_ENABLED(CONFIG_IMX8MQ) ? 0x83C : 0x800
 
 #define M4_BOOTROM_BASE_ADDR   0x007E0000
 
@@ -23,7 +23,6 @@
 #define WDOG1_BASE_ADDR		0x30280000
 #define WDOG2_BASE_ADDR		0x30290000
 #define WDOG3_BASE_ADDR		0x302A0000
-#define LCDIF_BASE_ADDR		0x30320000
 #define IOMUXC_BASE_ADDR	0x30330000
 #define IOMUXC_GPR_BASE_ADDR	0x30340000
 #define OCOTP_BASE_ADDR		0x30350000
@@ -46,10 +45,14 @@
 #define UART4_BASE_ADDR		0x30A60000
 #define USDHC1_BASE_ADDR	0x30B40000
 #define USDHC2_BASE_ADDR	0x30B50000
+#ifdef CONFIG_IMX8MM
+#define USDHC3_BASE_ADDR	0x30B60000
+#endif
 
 #define TZASC_BASE_ADDR		0x32F80000
 
-#define MXS_LCDIF_BASE		LCDIF_BASE_ADDR
+#define MXS_LCDIF_BASE		IS_ENABLED(CONFIG_IMX8MQ) ? \
+					0x30320000 : 0x32e00000
 
 #define SRC_IPS_BASE_ADDR	0x30390000
 #define SRC_DDRC_RCR_ADDR	0x30391000
@@ -134,6 +137,7 @@ struct fuse_bank1_regs {
 	u32 rsvd3[3];
 };
 
+#ifdef CONFIG_IMX8MQ
 struct anamix_pll {
 	u32 audio_pll1_cfg0;
 	u32 audio_pll1_cfg1;
@@ -168,6 +172,60 @@ struct anamix_pll {
 	u32 frac_pllout_div_cfg;
 	u32 sscg_pllout_div_cfg;
 };
+#else
+struct anamix_pll {
+	u32 audio_pll1_gnrl_ctl;
+	u32 audio_pll1_fdiv_ctl0;
+	u32 audio_pll1_fdiv_ctl1;
+	u32 audio_pll1_sscg_ctl;
+	u32 audio_pll1_mnit_ctl;
+	u32 audio_pll2_gnrl_ctl;
+	u32 audio_pll2_fdiv_ctl0;
+	u32 audio_pll2_fdiv_ctl1;
+	u32 audio_pll2_sscg_ctl;
+	u32 audio_pll2_mnit_ctl;
+	u32 video_pll1_gnrl_ctl;
+	u32 video_pll1_fdiv_ctl0;
+	u32 video_pll1_fdiv_ctl1;
+	u32 video_pll1_sscg_ctl;
+	u32 video_pll1_mnit_ctl;
+	u32 reserved[5];
+	u32 dram_pll_gnrl_ctl;
+	u32 dram_pll_fdiv_ctl0;
+	u32 dram_pll_fdiv_ctl1;
+	u32 dram_pll_sscg_ctl;
+	u32 dram_pll_mnit_ctl;
+	u32 gpu_pll_gnrl_ctl;
+	u32 gpu_pll_div_ctl;
+	u32 gpu_pll_locked_ctl1;
+	u32 gpu_pll_mnit_ctl;
+	u32 vpu_pll_gnrl_ctl;
+	u32 vpu_pll_div_ctl;
+	u32 vpu_pll_locked_ctl1;
+	u32 vpu_pll_mnit_ctl;
+	u32 arm_pll_gnrl_ctl;
+	u32 arm_pll_div_ctl;
+	u32 arm_pll_locked_ctl1;
+	u32 arm_pll_mnit_ctl;
+	u32 sys_pll1_gnrl_ctl;
+	u32 sys_pll1_div_ctl;
+	u32 sys_pll1_locked_ctl1;
+	u32 reserved2[24];
+	u32 sys_pll1_mnit_ctl;
+	u32 sys_pll2_gnrl_ctl;
+	u32 sys_pll2_div_ctl;
+	u32 sys_pll2_locked_ctl1;
+	u32 sys_pll2_mnit_ctl;
+	u32 sys_pll3_gnrl_ctl;
+	u32 sys_pll3_div_ctl;
+	u32 sys_pll3_locked_ctl1;
+	u32 sys_pll3_mnit_ctl;
+	u32 anamix_misc_ctl;
+	u32 anamix_clk_mnit_ctl;
+	u32 reserved3[437];
+	u32 digprog;
+};
+#endif
 
 struct fuse_bank9_regs {
 	u32 mac_addr0;
@@ -239,7 +297,8 @@ struct bootrom_sw_info {
 	u32 reserved_3[3];
 };
 
-#define ROM_SW_INFO_ADDR_B0	0x00000968
+#define ROM_SW_INFO_ADDR_B0	(IS_ENABLED(CONFIG_IMX8MQ) ? 0x00000968 :\
+				 0x000009e8)
 #define ROM_SW_INFO_ADDR_A0	0x000009e8
 
 #define ROM_SW_INFO_ADDR is_soc_rev(CHIP_REV_1_0) ? \
