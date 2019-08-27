@@ -503,14 +503,23 @@ static int fsl_pcie_init_port(struct fsl_pcie *pcie)
 static int fsl_pcie_fixup_classcode(struct fsl_pcie *pcie)
 {
 	ccsr_fsl_pci_t *regs = pcie->regs;
+	u32 classcode_reg;
 	u32 val;
 
-	setbits_be32(&regs->dbi_ro_wr_en, 0x01);
-	fsl_pcie_hose_read_config_dword(pcie, PCI_CLASS_REVISION, &val);
+	if (pcie->block_rev >= PEX_IP_BLK_REV_3_0) {
+		classcode_reg = PCI_CLASS_REVISION;
+		setbits_be32(&regs->dbi_ro_wr_en, 0x01);
+	} else {
+		classcode_reg = CSR_CLASSCODE;
+	}
+
+	fsl_pcie_hose_read_config_dword(pcie, classcode_reg, &val);
 	val &= 0xff;
 	val |= PCI_CLASS_BRIDGE_PCI << 16;
-	fsl_pcie_hose_write_config_dword(pcie, PCI_CLASS_REVISION, val);
-	clrbits_be32(&regs->dbi_ro_wr_en, 0x01);
+	fsl_pcie_hose_write_config_dword(pcie, classcode_reg, val);
+
+	if (pcie->block_rev >= PEX_IP_BLK_REV_3_0)
+		clrbits_be32(&regs->dbi_ro_wr_en, 0x01);
 
 	return 0;
 }
