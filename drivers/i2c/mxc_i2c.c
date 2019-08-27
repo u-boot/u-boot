@@ -917,13 +917,6 @@ static int mxc_i2c_probe(struct udevice *bus)
 		}
 	}
 
-	ret = i2c_idle_bus(i2c_bus);
-	if (ret < 0) {
-		/* Disable clk */
-		enable_i2c_clk(0, bus->seq);
-		return ret;
-	}
-
 	/*
 	 * Pinmux settings are in board file now, until pinmux is supported,
 	 * we can set pinmux here in probe function.
