@@ -14,6 +14,7 @@
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/syscounter.h>
 #include <asm/armv8/mmu.h>
+#include <dm/uclass.h>
 #include <errno.h>
 #include <fdt_support.h>
 #include <fsl_wdog.h>
@@ -226,6 +227,22 @@ static void imx_set_wdog_powerdown(bool enable)
 	writew(enable, &wdog1->wmcr);
 	writew(enable, &wdog2->wmcr);
 	writew(enable, &wdog3->wmcr);
+}
+
+int arch_cpu_init_dm(void)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = uclass_get_device_by_name(UCLASS_CLK,
+					"clock-controller@30380000",
+					&dev);
+	if (ret < 0) {
+		printf("Failed to find clock node. Check device tree\n");
+		return ret;
+	}
+
+	return 0;
 }
 
 int arch_cpu_init(void)
