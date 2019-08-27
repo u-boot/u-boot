@@ -20,7 +20,6 @@ efi_selftest_crc32.o \
 efi_selftest_devicepath_util.o \
 efi_selftest_events.o \
 efi_selftest_event_groups.o \
-efi_selftest_exception.o \
 efi_selftest_exitbootservices.o \
 efi_selftest_gop.o \
 efi_selftest_loaded_image.o \
@@ -60,15 +59,22 @@ endif
 ifeq ($(CONFIG_SANDBOX)$(CONFIG_CPU_V7M),)
 
 obj-y += \
+efi_selftest_exception.o \
 efi_selftest_loadimage.o \
 efi_selftest_startimage_exit.o \
 efi_selftest_startimage_return.o
 
 targets += \
+efi_miniapp_file_image_exception.h \
 efi_miniapp_file_image_exit.h \
 efi_miniapp_file_image_return.h \
+efi_selftest_miniapp_exception.efi \
 efi_selftest_miniapp_exit.efi \
 efi_selftest_miniapp_return.efi
+
+$(obj)/efi_miniapp_file_image_exception.h: $(obj)/efi_selftest_miniapp_exception.efi
+	$(obj)/../../tools/file2include $(obj)/efi_selftest_miniapp_exception.efi > \
+	$(obj)/efi_miniapp_file_image_exception.h
 
 $(obj)/efi_miniapp_file_image_exit.h: $(obj)/efi_selftest_miniapp_exit.efi
 	$(obj)/../../tools/file2include $(obj)/efi_selftest_miniapp_exit.efi > \
@@ -79,6 +85,8 @@ $(obj)/efi_miniapp_file_image_return.h: $(obj)/efi_selftest_miniapp_return.efi
 	$(obj)/efi_miniapp_file_image_return.h
 
 $(obj)/efi_selftest_loadimage.o: $(obj)/efi_miniapp_file_image_exit.h
+
+$(obj)/efi_selftest_exception.o: $(obj)/efi_miniapp_file_image_exception.h
 
 $(obj)/efi_selftest_startimage_exit.o: $(obj)/efi_miniapp_file_image_exit.h
 
