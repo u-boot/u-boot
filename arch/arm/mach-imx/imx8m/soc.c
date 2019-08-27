@@ -57,6 +57,12 @@ void enable_tzc380(void)
 	setbits_le32(&gpr->gpr[10], GPR_TZASC_EN_LOCK);
 	if (IS_ENABLED(CONFIG_IMX8MM))
 		setbits_le32(&gpr->gpr[10], BIT(1));
+	/*
+	 * set Region 0 attribute to allow secure and non-secure
+	 * read/write permission. Found some masters like usb dwc3
+	 * controllers can't work with secure memory.
+	 */
+	writel(0xf0000000, TZASC_BASE_ADDR + 0x108);
 }
 
 void set_wdog_reset(struct wdog_regs *wdog)
