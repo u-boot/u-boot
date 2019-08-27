@@ -15,6 +15,8 @@
 #include <dt-bindings/clock/stm32mp1-clks.h>
 #include <dt-bindings/clock/stm32mp1-clksrc.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifndef CONFIG_STM32MP1_TRUSTED
 #if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
 /* activate clock tree initialization in the driver */
@@ -759,9 +761,6 @@ static ulong stm32mp1_clk_get_fixed(struct stm32mp1_clk_priv *priv, int idx)
 		return 0;
 	}
 
-	debug("%s: clk id %d = %x : %ld kHz\n", __func__, idx,
-	      (u32)priv->osc[idx], priv->osc[idx] / 1000);
-
 	return priv->osc[idx];
 }
 
@@ -863,8 +862,6 @@ static ulong  pll_get_fref_ck(struct stm32mp1_clk_priv *priv,
 	src = selr & RCC_SELR_SRC_MASK;
 
 	refclk = stm32mp1_clk_get_fixed(priv, pll[pll_id].refclk[src]);
-	debug("PLL%d : selr=%x refclk = %d kHz\n",
-	      pll_id, selr, (u32)(refclk / 1000));
 
 	return refclk;
 }
@@ -889,9 +886,6 @@ static ulong pll_get_fvco(struct stm32mp1_clk_priv *priv,
 	divm = (cfgr1 & (RCC_PLLNCFGR1_DIVM_MASK)) >> RCC_PLLNCFGR1_DIVM_SHIFT;
 	divn = cfgr1 & RCC_PLLNCFGR1_DIVN_MASK;
 
-	debug("PLL%d : cfgr1=%x fracr=%x DIVN=%d DIVM=%d\n",
-	      pll_id, cfgr1, fracr, divn, divm);
-
 	refclk = pll_get_fref_ck(priv, pll_id);
 
 	/* with FRACV :
@@ -908,7 +902,6 @@ static ulong pll_get_fvco(struct stm32mp1_clk_priv *priv,
 	} else {
 		fvco = (ulong)(refclk * (divn + 1) / (divm + 1));
 	}
-	debug("PLL%d : %s = %ld\n", pll_id, __func__, fvco);
 
 	return fvco;
 }
@@ -921,17 +914,13 @@ static ulong stm32mp1_read_pll_freq(struct stm32mp1_clk_priv *priv,
 	ulong dfout;
 	u32 cfgr2;
 
-	debug("%s(%d, %d)\n", __func__, pll_id, div_id);
 	if (div_id >= _DIV_NB)
 		return 0;
 
 	cfgr2 = readl(priv->base + pll[pll_id].pllxcfgr2);
 	divy = (cfgr2 >> RCC_PLLNCFGR2_SHIFT(div_id)) & RCC_PLLNCFGR2_DIVX_MASK;
 
-	debug("PLL%d : cfgr2=%x DIVY=%d\n", pll_id, cfgr2, divy);
-
 	dfout = pll_get_fvco(priv, pll_id) / (divy + 1);
-	debug("        => dfout = %d kHz\n", (u32)(dfout / 1000));
 
 	return dfout;
 }
@@ -1574,9 +1563,6 @@ static void stgen_config(struct stm32mp1_clk_priv *priv)
 
 		/* need to update gd->arch.timer_rate_hz with new frequency */
 		timer_init();
-		pr_debug("gd->arch.timer_rate_hz = %x\n",
-			 (u32)gd->arch.timer_rate_hz);
-		pr_debug("Tick = %x\n", (u32)(get_ticks()));
 	}
 }
 
@@ -1882,7 +1868,6 @@ static int pll_set_output_rate(struct udevice *dev,
 	if (div > 128)
 		div = 128;
 
-	debug("fvco = %ld, clk_rate = %ld, div=%d\n", fvco, clk_rate, div);
 	/* stop the requested output */
 	clrbits_le32(pllxcr, 0x1 << div_id << RCC_PLLNCR_DIVEN_SHIFT);
 	/* change divider */
@@ -1915,6 +1900,9 @@ static ulong stm32mp1_clk_set_rate(struct clk *clk, unsigned long clk_rate)
 	}
 
 	p = stm32mp1_clk_get_parent(priv, clk->id);
+#ifdef DEBUG
+	debug("%s: parent = %d:%s\n", __func__, p, stm32mp1_clk_parent_name[p]);
+#endif
 	if (p < 0)
 		return -EINVAL;
 
@@ -1932,6 +1920,7 @@ static ulong stm32mp1_clk_set_rate(struct clk *clk, unsigned long clk_rate)
 		return result;
 	}
 #endif
+
 	case _PLL4_Q:
 		/* for LTDC_PX and DSI_PX case */
 		return pll_set_output_rate(clk->dev, _PLL4, _DIV_Q, clk_rate);
@@ -2055,22 +2044,22 @@ static int stm32mp1_clk_probe(struct udevice *dev)
 		stm32mp1_clk_dump(priv);
 #endif
 
+	gd->cpu_clk = stm32mp1_clk_get(priv, _CK_MPU);
+	gd->bus_clk = stm32mp1_clk_get(priv, _ACLK);
+	/* DDRPHYC father */
+	gd->mem_clk = stm32mp1_clk_get(priv, _PLL2_R);
 #if defined(CONFIG_DISPLAY_CPUINFO)
 	if (gd->flags & GD_FLG_RELOC) {
 		char buf[32];
 
 		printf("Clocks:\n");
-		printf("- MPU : %s MHz\n",
-		       strmhz(buf, stm32mp1_clk_get(priv, _CK_MPU)));
+		printf("- MPU : %s MHz\n", strmhz(buf, gd->cpu_clk));
 		printf("- MCU : %s MHz\n",
 		       strmhz(buf, stm32mp1_clk_get(priv, _CK_MCU)));
-		printf("- AXI : %s MHz\n",
-		       strmhz(buf, stm32mp1_clk_get(priv, _ACLK)));
+		printf("- AXI : %s MHz\n", strmhz(buf, gd->bus_clk));
 		printf("- PER : %s MHz\n",
 		       strmhz(buf, stm32mp1_clk_get(priv, _CK_PER)));
-		/* DDRPHYC father */
-		printf("- DDR : %s MHz\n",
-		       strmhz(buf, stm32mp1_clk_get(priv, _PLL2_R)));
+		printf("- DDR : %s MHz\n", strmhz(buf, gd->mem_clk));
 	}
 #endif /* CONFIG_DISPLAY_CPUINFO */
 #endif

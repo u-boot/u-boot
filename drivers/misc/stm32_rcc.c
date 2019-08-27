@@ -68,8 +68,6 @@ static int stm32_rcc_bind(struct udevice *dev)
 					    dev_ofnode(dev), &child);
 }
 
-static const struct misc_ops stm32_rcc_ops = {
-};
 
 static const struct udevice_id stm32_rcc_ids[] = {
 	{.compatible = "st,stm32f42xx-rcc", .data = (ulong)&stm32_rcc_clk_f42x },
@@ -82,8 +80,7 @@ static const struct udevice_id stm32_rcc_ids[] = {
 
 U_BOOT_DRIVER(stm32_rcc) = {
 	.name		= "stm32-rcc",
-	.id		= UCLASS_MISC,
+	.id		= UCLASS_NOP,
 	.of_match	= stm32_rcc_ids,
 	.bind		= stm32_rcc_bind,
-	.ops		= &stm32_rcc_ops,
 };

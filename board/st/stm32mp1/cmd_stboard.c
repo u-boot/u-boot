@@ -60,7 +60,7 @@ static int do_stboard(cmd_tbl_t *cmdtp, int flag, int argc,
 	ret = misc_read(dev, STM32_BSEC_SHADOW(BSEC_OTP_BOARD),
 			&otp, sizeof(otp));
 
-	if (ret) {
+	if (ret < 0) {
 		puts("OTP read error");
 		return CMD_RET_FAILURE;
 	}

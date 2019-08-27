@@ -27,5 +27,19 @@ void spl_board_init(void)
 				STPMIC1_BUCKS_MRST_CR,
 				STPMIC1_MRST_BUCK(STPMIC1_BUCK3),
 				STPMIC1_MRST_BUCK(STPMIC1_BUCK3));
+
+	/* Check if debug is enabled to program PMIC according to the bit */
+	if ((readl(TAMP_BOOT_CONTEXT) & TAMP_BOOT_DEBUG_ON) && !ret) {
+		printf("Keep debug unit ON\n");
+
+		pmic_clrsetbits(dev, STPMIC1_BUCKS_MRST_CR,
+				STPMIC1_MRST_BUCK_DEBUG,
+				STPMIC1_MRST_BUCK_DEBUG);
+
+		if (STPMIC1_MRST_LDO_DEBUG)
+			pmic_clrsetbits(dev, STPMIC1_LDOS_MRST_CR,
+					STPMIC1_MRST_LDO_DEBUG,
+					STPMIC1_MRST_LDO_DEBUG);
+	}
 #endif
 }

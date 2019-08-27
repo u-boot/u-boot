@@ -25,6 +25,11 @@
 		u-boot,dm-pre-reloc;
 	};
 
+	/* need PSCI for sysreset during board_f */
+	psci {
+		u-boot,dm-pre-proper;
+	};
+
 	reboot {
 		u-boot,dm-pre-reloc;
 	};
@@ -104,6 +109,15 @@
 
 &gpioz {
 	u-boot,dm-pre-reloc;
+};
+
+&iwdg2 {
+	u-boot,dm-pre-reloc;
+};
+
+/* pre-reloc probe = reserve video frame buffer in video_reserve() */
+&ltdc {
+	u-boot,dm-pre-proper;
 };
 
 &pinctrl {

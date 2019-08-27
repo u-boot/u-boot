@@ -1,11 +1,11 @@
 #include <common.h>
 #include <dm.h>
-#include <dm/lists.h>
-#include <dm/pinctrl.h>
 #include <hwspinlock.h>
 #include <asm/arch/gpio.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <dm/lists.h>
+#include <dm/pinctrl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

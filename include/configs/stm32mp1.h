@@ -10,11 +10,6 @@
 #include <linux/sizes.h>
 #include <asm/arch/stm32.h>
 
-/*
- * Number of clock ticks in 1 sec
- */
-#define CONFIG_SYS_HZ				1000
-
 #ifndef CONFIG_STM32MP1_TRUSTED
 /* PSCI support */
 #define CONFIG_ARMV7_PSCI_1_0
@@ -52,7 +47,6 @@
 
 /* SPL support */
 #ifdef CONFIG_SPL
-/* BOOTROM load address */
 /* SPL use DDR */
 #define CONFIG_SPL_BSS_START_ADDR	0xC0200000
 #define CONFIG_SPL_BSS_MAX_SIZE		0x00100000
@@ -85,7 +79,9 @@
 #endif
 
 /* Dynamic MTD partition support */
+#if defined(CONFIG_STM32_QSPI) || defined(CONFIG_NAND_STM32_FMC2)
 #define CONFIG_SYS_MTDPARTS_RUNTIME
+#endif
 
 /*****************************************************************************/
 #ifdef CONFIG_DISTRO_DEFAULTS
@@ -146,6 +142,7 @@
  * and the ramdisk at the end.
  */
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	"bootdelay=1\0" \
 	"kernel_addr_r=0xc2000000\0" \
 	"fdt_addr_r=0xc4000000\0" \
 	"scriptaddr=0xc4100000\0" \
@@ -154,7 +151,8 @@
 	"ramdisk_addr_r=0xc4400000\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
-	"env_default=1\0"				\
+	"altbootcmd=run bootcmd\0" \
+	"env_default=1\0" \
 	"env_check=if test $env_default -eq 1;"\
 		" then env set env_default 0;env save;fi\0" \
 	STM32MP_BOOTCMD \

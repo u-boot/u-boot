@@ -22,4 +22,8 @@ config CMD_STBOARD
 	  This compile the stboard command to
 	  read and write the board in the OTP.
 
+config TARGET_STM32MP157C_DK2
+	bool "support of STMicroelectronics STM32MP157C-DK2 Discovery Board"
+	default y
+
 endif

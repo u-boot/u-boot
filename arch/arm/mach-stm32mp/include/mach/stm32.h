@@ -94,6 +94,7 @@ enum boot_device {
 #define TAMP_BOOT_DEVICE_MASK		GENMASK(7, 4)
 #define TAMP_BOOT_INSTANCE_MASK		GENMASK(3, 0)
 #define TAMP_BOOT_FORCED_MASK		GENMASK(7, 0)
+#define TAMP_BOOT_DEBUG_ON		BIT(16)
 
 enum forced_boot_mode {
 	BOOT_NORMAL = 0x00,

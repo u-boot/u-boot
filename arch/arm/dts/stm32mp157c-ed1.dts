@@ -6,7 +6,7 @@
 /dts-v1/;
 
 #include "stm32mp157c.dtsi"
-#include "stm32mp157-pinctrl.dtsi"
+#include "stm32mp157xaa-pinctrl.dtsi"
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/mfd/st,stpmic1.h>
 
@@ -21,6 +21,17 @@
 	memory@c0000000 {
 		device_type = "memory";
 		reg = <0xC0000000 0x40000000>;
+	};
+
+	reserved-memory {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		gpu_reserved: gpu@e8000000 {
+			reg = <0xe8000000 0x8000000>;
+			no-map;
+		};
 	};
 
 	aliases {
@@ -42,6 +53,11 @@
 };
 
 &dts {
+	status = "okay";
+};
+
+&gpu {
+	contiguous-area = <&gpu_reserved>;
 	status = "okay";
 };
 
@@ -201,8 +217,17 @@
 	status = "okay";
 };
 
+&m4_rproc {
+	mboxes = <&ipcc 0>, <&ipcc 1>, <&ipcc 2>;
+	mbox-names = "vq0", "vq1", "shutdown";
+	status = "okay";
+};
+
 &pwr {
-	pwr-supply = <&vdd>;
+	pwr-regulators {
+		vdd-supply = <&vdd>;
+		vdd_3v3_usbfs-supply = <&vdd_usb>;
+	};
 };
 
 &rng1 {

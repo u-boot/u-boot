@@ -4,6 +4,7 @@
  */
 #include <common.h>
 #include <console.h>
+#include <watchdog.h>
 #include <asm/io.h>
 #include <linux/log2.h>
 #include "stm32mp1_tests.h"
@@ -154,6 +155,8 @@ static int test_loop_end(u32 *loop, u32 nb_loop, u32 progress)
 		return 1;
 	}
 	printf("loop #%d\n", *loop);
+	WATCHDOG_RESET();
+
 	return 0;
 }
 
@@ -578,27 +581,29 @@ static enum test_result test_random(struct stm32mp1_ddrctl *ctl,
 	u32 error = 0;
 	unsigned int seed;
 
-	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024))
+	if (get_bufsize(string, argc, argv, 0, &bufsize, 8 * 1024))
 		return TEST_ERROR;
 	if (get_nb_loop(string, argc, argv, 1, &nb_loop, 1))
 		return TEST_ERROR;
 	if (get_addr(string, argc, argv, 2, &addr))
 		return TEST_ERROR;
 
-	printf("running %d loops at 0x%x\n", nb_loop, addr);
+	bufsize /= 2;
+	printf("running %d loops copy from 0x%x to 0x%x (buffer size=0x%x)\n",
+	       nb_loop, addr, addr + bufsize, bufsize);
 	while (!error) {
 		seed = rand();
-		for (offset = addr; offset < addr + bufsize; offset += 4)
-			writel(rand(), offset);
+		for (offset = 0; offset < bufsize; offset += 4)
+			writel(rand(), addr + offset);
 
 		memcpy((void *)addr + bufsize, (void *)addr, bufsize);
 
 		srand(seed);
-		for (offset = addr; offset < addr + 2 * bufsize; offset += 4) {
-			if (offset == (addr + bufsize))
+		for (offset = 0; offset < 2 * bufsize; offset += 4) {
+			if (offset == bufsize)
 				srand(seed);
 			value = rand();
-			error = check_addr(offset, value);
+			error = check_addr(addr + offset, value);
 			if (error)
 				break;
 			if (progress(offset))
@@ -607,6 +612,7 @@ static enum test_result test_random(struct stm32mp1_ddrctl *ctl,
 		if (test_loop_end(&loop, nb_loop, 100))
 			break;
 	}
+	putc('\n');
 
 	if (error) {
 		sprintf(string,
@@ -791,9 +797,9 @@ static enum test_result test_loop(const u32 *pattern, u32 *address,
 	int i;
 	int j;
 	enum test_result res = TEST_PASSED;
-	u32 *offset, testsize, remaining;
+	u32 offset, testsize, remaining;
 
-	offset = address;
+	offset = (u32)address;
 	remaining = bufsize;
 	while (remaining) {
 		testsize = bufsize > 0x1000000 ? 0x1000000 : bufsize;
@@ -809,7 +815,7 @@ static enum test_result test_loop(const u32 *pattern, u32 *address,
 		__asm__("stmia r1!, {R3-R10}");
 		__asm__("stmia r1!, {R3-R10}");
 		__asm__("stmia r1!, {R3-R10}");
-		__asm__("subs r2, r2, #8");
+		__asm__("subs r2, r2, #128");
 		__asm__("bge loop2");
 		__asm__("pop {R0-R10}");
 
@@ -1238,27 +1244,38 @@ static enum test_result test_read(struct stm32mp1_ddrctl *ctl,
 	u32 *addr;
 	u32 data;
 	u32 loop = 0;
+	int i, size = 1024 * 1024;
 	bool random = false;
 
 	if (get_addr(string, argc, argv, 0, (u32 *)&addr))
 		return TEST_ERROR;
 
-	if ((u32)addr == ADDR_INVALID) {
-		printf("random ");
-		random = true;
-	}
+	if (get_pattern(string, argc, argv, 1, &data, 0xA5A5AA55))
+		return TEST_ERROR;
 
-	printf("running at 0x%08x\n", (u32)addr);
+	if ((u32)addr == ADDR_INVALID) {
+		printf("running random\n");
+		random = true;
+	} else {
+		printf("running at 0x%08x with pattern=0x%08x\n",
+		       (u32)addr, data);
+		writel(data, addr);
+	}
 
 	while (1) {
-		if (random)
-			addr = (u32 *)(STM32_DDR_BASE +
-			       (rand() & (STM32_DDR_SIZE - 1) & ~0x3));
-		data = readl(addr);
-		if (test_loop_end(&loop, 0, 1000))
+		for (i = 0; i < size; i++) {
+			if (random)
+				addr = (u32 *)(STM32_DDR_BASE +
+				       (rand() & (STM32_DDR_SIZE - 1) & ~0x3));
+			data = readl(addr);
+		}
+		if (test_loop_end(&loop, 0, 1))
 			break;
 	}
-	sprintf(string, "0x%x: %x", (u32)addr, data);
+	if (random)
+		sprintf(string, "%d loops random", loop);
+	else
+		sprintf(string, "%d loops at 0x%x: %x", loop, (u32)addr, data);
 
 	return TEST_PASSED;
 }
@@ -1275,31 +1292,41 @@ static enum test_result test_write(struct stm32mp1_ddrctl *ctl,
 				   char *string, int argc, char *argv[])
 {
 	u32 *addr;
-	u32 data = 0xA5A5AA55;
+	u32 data;
 	u32 loop = 0;
+	int i, size = 1024 * 1024;
 	bool random = false;
 
 	if (get_addr(string, argc, argv, 0, (u32 *)&addr))
 		return TEST_ERROR;
 
-	if ((u32)addr == ADDR_INVALID) {
-		printf("random ");
-		random = true;
-	}
+	if (get_pattern(string, argc, argv, 1, &data, 0xA5A5AA55))
+		return TEST_ERROR;
 
-	printf("running at 0x%08x\n", (u32)addr);
+	if ((u32)addr == ADDR_INVALID) {
+		printf("running random\n");
+		random = true;
+	} else {
+		printf("running at 0x%08x with pattern 0x%08x\n",
+		       (u32)addr, data);
+	}
 
 	while (1) {
-		if (random) {
-			addr = (u32 *)(STM32_DDR_BASE +
-			       (rand() & (STM32_DDR_SIZE - 1) & ~0x3));
-			data = rand();
+		for (i = 0; i < size; i++) {
+			if (random) {
+				addr = (u32 *)(STM32_DDR_BASE +
+				       (rand() & (STM32_DDR_SIZE - 1) & ~0x3));
+				data = rand();
+			}
+			writel(data, addr);
 		}
-		writel(data, addr);
-		if (test_loop_end(&loop, 0, 1000))
+		if (test_loop_end(&loop, 0, 1))
 			break;
 	}
-	sprintf(string, "0x%x: %x", (u32)addr, data);
+	if (random)
+		sprintf(string, "%d loops random", loop);
+	else
+		sprintf(string, "%d loops at 0x%x: %x", loop, (u32)addr, data);
 
 	return TEST_PASSED;
 }
@@ -1388,7 +1415,7 @@ const struct test_desc test[] = {
 	 "Verifies r/w and memcopy(burst for pseudo random value.",
 	 3
 	},
-	{test_freq_pattern, "FrequencySelectivePattern ", "[size]",
+	{test_freq_pattern, "FrequencySelectivePattern", "[size]",
 	 "write & test patterns: Mostly Zero, Mostly One and F/n",
 	 1
 	},
@@ -1417,10 +1444,10 @@ const struct test_desc test[] = {
 	 3
 	},
 	/* need to the the 2 last one (infinite) : skipped for test all */
-	{test_read, "infinite read", "[addr]",
-	 "basic test : infinite read access", 1},
-	{test_write, "infinite write", "[addr]",
-	 "basic test : infinite write access", 1},
+	{test_read, "infinite read", "[addr] [pattern]",
+	 "basic test : infinite read access (random: addr=0xFFFFFFFF)", 2},
+	{test_write, "infinite write", "[addr] [pattern]",
+	 "basic test : infinite write access (random: addr=0xFFFFFFFF)", 2},
 };
 
 const int test_nb = ARRAY_SIZE(test);

@@ -16,8 +16,9 @@ config SPL
 	select SPL_REGMAP
 	select SPL_DM_RESET
 	select SPL_SERIAL_SUPPORT
+	select SPL_SPI_LOAD
 	select SPL_SYSCON
-	select SPL_WATCHDOG_SUPPORT
+	select SPL_WATCHDOG_SUPPORT if WATCHDOG
 	imply BOOTSTAGE_STASH if SPL_BOOTSTAGE
 	imply SPL_BOOTSTAGE if BOOTSTAGE
 	imply SPL_DISPLAY_PRINT
@@ -42,11 +43,15 @@ config TARGET_STM32MP1
 	select PINCTRL_STM32
 	select STM32_RCC
 	select STM32_RESET
+	select STM32_SERIAL
 	select SYS_ARCH_TIMER
 	imply BOOTCOUNT_LIMIT
 	imply BOOTSTAGE
 	imply CMD_BOOTCOUNT
 	imply CMD_BOOTSTAGE
+	imply DISABLE_CONSOLE
+	imply PRE_CONSOLE_BUFFER
+	imply SILENT_CONSOLE
 	imply SYSRESET_PSCI if STM32MP1_TRUSTED
 	imply SYSRESET_SYSCON if !STM32MP1_TRUSTED
 	help
@@ -108,6 +113,13 @@ config CMD_STM32KEY
 	help
 		fuse public key hash in corresponding fuse used to authenticate
 		binary.
+
+
+config PRE_CON_BUF_ADDR
+	default 0xC02FF000
+
+config PRE_CON_BUF_SZ
+	default 4096
 
 config BOOTSTAGE_STASH_ADDR
 	default 0xC3000000

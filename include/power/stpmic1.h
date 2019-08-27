@@ -22,11 +22,12 @@
 
 /* BUCKS_MRST_CR */
 #define STPMIC1_MRST_BUCK(buck)		BIT(buck)
-#define STPMIC1_MRST_BUCK_ALL		GENMASK(3, 0)
+#define STPMIC1_MRST_BUCK_DEBUG		(STPMIC1_MRST_BUCK(STPMIC1_BUCK1) | \
+					 STPMIC1_MRST_BUCK(STPMIC1_BUCK3))
 
 /* LDOS_MRST_CR */
 #define STPMIC1_MRST_LDO(ldo)		BIT(ldo)
-#define STPMIC1_MRST_LDO_ALL		GENMASK(6, 0)
+#define STPMIC1_MRST_LDO_DEBUG		0
 
 /* BUCKx_MAIN_CR (x=1...4) */
 #define STPMIC1_BUCK_ENA		BIT(0)
@@ -107,11 +108,4 @@ enum {
 	STPMIC1_PWR_SW2,
 	STPMIC1_MAX_PWR_SW,
 };
-
-int stpmic1_shadow_read_byte(u8 addr, u8 *buf);
-int stpmic1_shadow_write_byte(u8 addr, u8 *buf);
-int stpmic1_nvm_read_byte(u8 addr, u8 *buf);
-int stpmic1_nvm_write_byte(u8 addr, u8 *buf);
-int stpmic1_nvm_read_all(u8 *buf, int buf_len);
-int stpmic1_nvm_write_all(u8 *buf, int buf_len);
 #endif

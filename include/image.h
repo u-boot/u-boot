@@ -284,6 +284,7 @@ enum {
 	IH_TYPE_MTKIMAGE,		/* MediaTek BootROM loadable Image */
 	IH_TYPE_IMX8MIMAGE,		/* Freescale IMX8MBoot Image	*/
 	IH_TYPE_IMX8IMAGE,		/* Freescale IMX8Boot Image	*/
+	IH_TYPE_COPRO,			/* Coprocessor Image for remoteproc*/
 
 	IH_TYPE_COUNT,			/* Number of image types */
 };
