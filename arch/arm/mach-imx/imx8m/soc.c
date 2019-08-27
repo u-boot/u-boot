@@ -130,25 +130,62 @@ static struct mm_region imx8m_mem_map[] = {
 
 struct mm_region *mem_map = imx8m_mem_map;
 
+static u32 get_cpu_variant_type(u32 type)
+{
+	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
+	struct fuse_bank *bank = &ocotp->bank[1];
+	struct fuse_bank1_regs *fuse =
+		(struct fuse_bank1_regs *)bank->fuse_regs;
+
+	u32 value = readl(&fuse->tester4);
+
+	if (type == MXC_CPU_IMX8MM) {
+		switch (value & 0x3) {
+		case 2:
+			if (value & 0x1c0000)
+				return MXC_CPU_IMX8MMDL;
+			else
+				return MXC_CPU_IMX8MMD;
+		case 3:
+			if (value & 0x1c0000)
+				return MXC_CPU_IMX8MMSL;
+			else
+				return MXC_CPU_IMX8MMS;
+		default:
+			if (value & 0x1c0000)
+				return MXC_CPU_IMX8MML;
+			break;
+		}
+	}
+
+	return type;
+}
+
 u32 get_cpu_rev(void)
 {
 	struct anamix_pll *ana_pll = (struct anamix_pll *)ANATOP_BASE_ADDR;
 	u32 reg = readl(&ana_pll->digprog);
 	u32 type = (reg >> 16) & 0xff;
+	u32 major_low = (reg >> 8) & 0xff;
 	u32 rom_version;
 
 	reg &= 0xff;
 
-	if (reg == CHIP_REV_1_0) {
-		/*
-		 * For B0 chip, the DIGPROG is not updated, still TO1.0.
-		 * we have to check ROM version further
-		 */
-		rom_version = readl((void __iomem *)ROM_VERSION_A0);
-		if (rom_version != CHIP_REV_1_0) {
-			rom_version = readl((void __iomem *)ROM_VERSION_B0);
-			if (rom_version >= CHIP_REV_2_0)
-				reg = CHIP_REV_2_0;
+	/* i.MX8MM */
+	if (major_low == 0x41) {
+		type = get_cpu_variant_type(MXC_CPU_IMX8MM);
+	} else {
+		if (reg == CHIP_REV_1_0) {
+			/*
+			 * For B0 chip, the DIGPROG is not updated, still TO1.0.
+			 * we have to check ROM version further
+			 */
+			rom_version = readl((void __iomem *)ROM_VERSION_A0);
+			if (rom_version != CHIP_REV_1_0) {
+				rom_version = readl((void __iomem *)ROM_VERSION_B0);
+				if (rom_version >= CHIP_REV_2_0)
+					reg = CHIP_REV_2_0;
+			}
 		}
 	}
 
