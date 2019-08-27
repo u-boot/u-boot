@@ -816,7 +816,7 @@ static inline int is_valid_ethaddr(const u8 *addr)
 static inline void net_random_ethaddr(uchar *addr)
 {
 	int i;
-	unsigned int seed = get_timer(0);
+	unsigned int seed = get_ticks();
 
 	for (i = 0; i < 6; i++)
 		addr[i] = rand_r(&seed);
