@@ -11,6 +11,7 @@
 #include <fdt_support.h>
 #include <asm/fsl_serdes.h>
 
+#if !defined(CONFIG_DM_PCI)
 void pci_init_board(void)
 {
 	fsl_pcie_init_board(0);
@@ -20,3 +21,4 @@ void pci_of_setup(void *blob, bd_t *bd)
 {
 	FT_FSL_PCI_SETUP;
 }
+#endif
