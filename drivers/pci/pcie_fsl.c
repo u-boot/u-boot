@@ -616,6 +616,12 @@ static struct fsl_pcie_data p1_p2_data = {
 	.stride = 0x1000,
 };
 
+static struct fsl_pcie_data p2041_data = {
+	.block_offset = 0x200000,
+	.block_offset_mask = 0x3fffff,
+	.stride = 0x1000,
+};
+
 static struct fsl_pcie_data t2080_data = {
 	.block_offset = 0x240000,
 	.block_offset_mask = 0x3fffff,
@@ -624,6 +630,7 @@ static struct fsl_pcie_data t2080_data = {
 
 static const struct udevice_id fsl_pcie_ids[] = {
 	{ .compatible = "fsl,pcie-p1_p2", .data = (ulong)&p1_p2_data },
+	{ .compatible = "fsl,pcie-p2041", .data = (ulong)&p2041_data },
 	{ .compatible = "fsl,pcie-t102x", .data = (ulong)&t2080_data },
 	{ .compatible = "fsl,pcie-t104x", .data = (ulong)&t2080_data },
 	{ .compatible = "fsl,pcie-t2080", .data = (ulong)&t2080_data },
