@@ -18,6 +18,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+__weak int spl_board_boot_device(enum boot_device boot_dev_spl)
+{
+	return 0;
+}
+
 #if defined(CONFIG_MX6)
 /* determine boot device from SRC_SBMR1 (BOOT_CFG[4:1]) or SRC_GPR9 register */
 u32 spl_boot_device(void)
@@ -131,6 +136,9 @@ u32 spl_boot_device(void)
 #endif
 
 	enum boot_device boot_device_spl = get_boot_device();
+
+	if (IS_ENABLED(CONFIG_IMX8MM))
+		return spl_board_boot_device(boot_device_spl);
 
 	switch (boot_device_spl) {
 #if defined(CONFIG_MX7)
