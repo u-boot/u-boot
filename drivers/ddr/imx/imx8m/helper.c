@@ -31,7 +31,17 @@ void ddr_load_train_firmware(enum fw_type type)
 	unsigned long pr_to32, pr_from32;
 	unsigned long fw_offset = type ? IMEM_2D_OFFSET : 0;
 	unsigned long imem_start = (unsigned long)&_end + fw_offset;
-	unsigned long dmem_start = imem_start + IMEM_LEN;
+	unsigned long dmem_start;
+
+#ifdef CONFIG_SPL_OF_CONTROL
+	if (gd->fdt_blob && !fdt_check_header(gd->fdt_blob)) {
+		imem_start = roundup((unsigned long)&_end +
+				     fdt_totalsize(gd->fdt_blob), 4) +
+			fw_offset;
+	}
+#endif
+
+	dmem_start = imem_start + IMEM_LEN;
 
 	pr_from32 = imem_start;
 	pr_to32 = DDR_TRAIN_CODE_BASE_ADDR + 4 * IMEM_OFFSET_ADDR;
