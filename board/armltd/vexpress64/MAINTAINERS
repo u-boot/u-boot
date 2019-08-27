@@ -10,11 +10,6 @@ M:	Linus Walleij <linus.walleij@linaro.org>
 S:	Maintained
 F:	configs/vexpress_aemv8a_semi_defconfig
 
-VEXPRESS_AEMV8A_DRAM BOARD
-M:	Ryan Harkin <ryan.harkin@linaro.org>
-S:	Maintained
-F:	configs/vexpress_aemv8a_dram_defconfig
-
 JUNO DEVELOPMENT PLATFORM BOARD
 M:	Linus Walleij <linus.walleij@linaro.org>
 S:	Maintained
