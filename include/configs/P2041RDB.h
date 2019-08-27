@@ -37,7 +37,6 @@
 #define CONFIG_PCIE1			/* PCIE controller 1 */
 #define CONFIG_PCIE2			/* PCIE controller 2 */
 #define CONFIG_PCIE3			/* PCIE controller 3 */
-#define CONFIG_FSL_PCI_INIT		/* Use common FSL init code */
 #define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
 
 #define CONFIG_SYS_SRIO
@@ -354,60 +353,21 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 
 /* controller 1, direct to uli, tgtid 3, Base address 20000 */
 #define CONFIG_SYS_PCIE1_MEM_VIRT	0x80000000
-#ifdef CONFIG_PHYS_64BIT
-#define CONFIG_SYS_PCIE1_MEM_BUS	0xe0000000
 #define CONFIG_SYS_PCIE1_MEM_PHYS	0xc00000000ull
-#else
-#define CONFIG_SYS_PCIE1_MEM_BUS	0x80000000
-#define CONFIG_SYS_PCIE1_MEM_PHYS	0x80000000
-#endif
-#define CONFIG_SYS_PCIE1_MEM_SIZE	0x20000000	/* 512M */
 #define CONFIG_SYS_PCIE1_IO_VIRT	0xf8000000
-#define CONFIG_SYS_PCIE1_IO_BUS		0x00000000
-#ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_PCIE1_IO_PHYS	0xff8000000ull
-#else
-#define CONFIG_SYS_PCIE1_IO_PHYS	0xf8000000
-#endif
-#define CONFIG_SYS_PCIE1_IO_SIZE	0x00010000	/* 64k */
 
 /* controller 2, Slot 2, tgtid 2, Base address 201000 */
 #define CONFIG_SYS_PCIE2_MEM_VIRT	0xa0000000
-#ifdef CONFIG_PHYS_64BIT
-#define CONFIG_SYS_PCIE2_MEM_BUS	0xe0000000
 #define CONFIG_SYS_PCIE2_MEM_PHYS	0xc20000000ull
-#else
-#define CONFIG_SYS_PCIE2_MEM_BUS	0xa0000000
-#define CONFIG_SYS_PCIE2_MEM_PHYS	0xa0000000
-#endif
-#define CONFIG_SYS_PCIE2_MEM_SIZE	0x20000000	/* 512M */
 #define CONFIG_SYS_PCIE2_IO_VIRT	0xf8010000
-#define CONFIG_SYS_PCIE2_IO_BUS		0x00000000
-#ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_PCIE2_IO_PHYS	0xff8010000ull
-#else
-#define CONFIG_SYS_PCIE2_IO_PHYS	0xf8010000
-#endif
-#define CONFIG_SYS_PCIE2_IO_SIZE	0x00010000	/* 64k */
 
 /* controller 3, Slot 1, tgtid 1, Base address 202000 */
 #define CONFIG_SYS_PCIE3_MEM_VIRT	0xc0000000
-#ifdef CONFIG_PHYS_64BIT
-#define CONFIG_SYS_PCIE3_MEM_BUS	0xe0000000
 #define CONFIG_SYS_PCIE3_MEM_PHYS	0xc40000000ull
-#else
-#define CONFIG_SYS_PCIE3_MEM_BUS	0xc0000000
-#define CONFIG_SYS_PCIE3_MEM_PHYS	0xc0000000
-#endif
-#define CONFIG_SYS_PCIE3_MEM_SIZE	0x20000000	/* 512M */
 #define CONFIG_SYS_PCIE3_IO_VIRT	0xf8020000
-#define CONFIG_SYS_PCIE3_IO_BUS		0x00000000
-#ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_PCIE3_IO_PHYS	0xff8020000ull
-#else
-#define CONFIG_SYS_PCIE3_IO_PHYS	0xf8020000
-#endif
-#define CONFIG_SYS_PCIE3_IO_SIZE	0x00010000	/* 64k */
 
 /* Qman/Bman */
 #define CONFIG_SYS_BMAN_NUM_PORTALS	10
@@ -483,7 +443,22 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #endif
 
 #ifdef CONFIG_PCI
+#if !defined(CONFIG_DM_PCI)
+#define CONFIG_FSL_PCI_INIT	/* Use common FSL init code */
 #define CONFIG_PCI_INDIRECT_BRIDGE
+#define CONFIG_SYS_PCIE1_MEM_BUS	0xe0000000
+#define CONFIG_SYS_PCIE1_MEM_SIZE	0x20000000      /* 512M */
+#define CONFIG_SYS_PCIE1_IO_BUS		0x00000000
+#define CONFIG_SYS_PCIE1_IO_SIZE	0x00010000	/* 64k */
+#define CONFIG_SYS_PCIE2_MEM_BUS	0xe0000000
+#define CONFIG_SYS_PCIE2_MEM_SIZE	0x20000000	/* 512M */
+#define CONFIG_SYS_PCIE2_IO_BUS		0x00000000
+#define CONFIG_SYS_PCIE2_IO_SIZE	0x00010000	/* 64k */
+#define CONFIG_SYS_PCIE3_MEM_BUS	0xe0000000
+#define CONFIG_SYS_PCIE3_MEM_SIZE	0x20000000	/* 512M */
+#define CONFIG_SYS_PCIE3_IO_BUS		0x00000000
+#define CONFIG_SYS_PCIE3_IO_SIZE	0x00010000	/* 64k */
+#endif
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #endif	/* CONFIG_PCI */
