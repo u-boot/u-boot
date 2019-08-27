@@ -11,6 +11,9 @@
 
 __weak int board_mmc_get_env_dev(int devno)
 {
+	if (CONFIG_IS_ENABLED(DM_MMC))
+		return devno;
+
 	return CONFIG_SYS_MMC_ENV_DEV;
 }
 
