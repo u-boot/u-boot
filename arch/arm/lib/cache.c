@@ -77,6 +77,7 @@ void noncached_init(void)
 	phys_addr_t start, end;
 	size_t size;
 
+	/* If this calculation changes, update board_f.c:reserve_noncached() */
 	end = ALIGN(mem_malloc_start, MMU_SECTION_SIZE) - MMU_SECTION_SIZE;
 	size = ALIGN(CONFIG_SYS_NONCACHED_MEMORY, MMU_SECTION_SIZE);
 	start = end - size;
