@@ -631,6 +631,7 @@ static struct fsl_pcie_data t2080_data = {
 static const struct udevice_id fsl_pcie_ids[] = {
 	{ .compatible = "fsl,pcie-p1_p2", .data = (ulong)&p1_p2_data },
 	{ .compatible = "fsl,pcie-p2041", .data = (ulong)&p2041_data },
+	{ .compatible = "fsl,pcie-p3041", .data = (ulong)&p2041_data },
 	{ .compatible = "fsl,pcie-t102x", .data = (ulong)&t2080_data },
 	{ .compatible = "fsl,pcie-t104x", .data = (ulong)&t2080_data },
 	{ .compatible = "fsl,pcie-t2080", .data = (ulong)&t2080_data },
