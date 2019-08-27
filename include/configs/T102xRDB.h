@@ -494,9 +494,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_PCIE1		/* PCIE controller 1 */
 #define CONFIG_PCIE2		/* PCIE controller 2 */
 #define CONFIG_PCIE3		/* PCIE controller 3 */
-#ifdef CONFIG_ARCH_T1040
-#define CONFIG_PCIE4		/* PCIE controller 4 */
-#endif
 #define CONFIG_FSL_PCI_INIT	/* Use common FSL init code */
 #define CONFIG_SYS_PCI_64BIT	/* enable 64-bit PCI resources */
 #define CONFIG_PCI_INDIRECT_BRIDGE
@@ -563,27 +560,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_PCIE3_IO_PHYS	0xf8020000
 #endif
 #define CONFIG_SYS_PCIE3_IO_SIZE	0x00010000	/* 64k */
-#endif
-
-/* controller 4, Base address 203000, to be removed */
-#ifdef CONFIG_PCIE4
-#define CONFIG_SYS_PCIE4_MEM_VIRT       0xb0000000
-#ifdef CONFIG_PHYS_64BIT
-#define CONFIG_SYS_PCIE4_MEM_BUS	0xe0000000
-#define CONFIG_SYS_PCIE4_MEM_PHYS       0xc30000000ull
-#else
-#define CONFIG_SYS_PCIE4_MEM_BUS	0xb0000000
-#define CONFIG_SYS_PCIE4_MEM_PHYS	0xb0000000
-#endif
-#define CONFIG_SYS_PCIE4_MEM_SIZE       0x10000000      /* 256M */
-#define CONFIG_SYS_PCIE4_IO_VIRT	0xf8030000
-#define CONFIG_SYS_PCIE4_IO_BUS		0x00000000
-#ifdef CONFIG_PHYS_64BIT
-#define CONFIG_SYS_PCIE4_IO_PHYS	0xff8030000ull
-#else
-#define CONFIG_SYS_PCIE4_IO_PHYS	0xf8030000
-#endif
-#define CONFIG_SYS_PCIE4_IO_SIZE	0x00010000      /* 64k */
 #endif
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
