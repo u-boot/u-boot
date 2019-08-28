@@ -241,6 +241,9 @@
 	"script_offset_f=0xFC0000\0"	\
 	"script_size_f=0x40000\0"	\
 	"bootenv=uEnv.txt\0" \
+	"pxefile_addr_r=0x10000000\0" \
+	"kernel_addr_r=0x80000\0" \
+	"fdt_addr_r=0x1000\0" \
 	"loadbootenv=load mmc 0 ${loadbootenv_addr} ${bootenv}\0" \
 	"importbootenv=echo Importing environment from SD ...; " \
 		"env import -t ${loadbootenv_addr} $filesize\0" \
