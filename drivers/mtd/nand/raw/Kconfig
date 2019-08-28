@@ -72,6 +72,12 @@ config NAND_BRCMNAND
 	  Enable the driver for NAND flash on platforms using a Broadcom NAND
 	  controller.
 
+config NAND_BRCMNAND_6368
+	bool "Support Broadcom NAND controller on bcm6368"
+	depends on NAND_BRCMNAND && ARCH_BMIPS
+	help
+	  Enable support for broadcom nand driver on bcm6368.
+
 config NAND_BRCMNAND_6838
        bool "Support Broadcom NAND controller on bcm6838"
        depends on NAND_BRCMNAND && ARCH_BMIPS && SOC_BMIPS_BCM6838
