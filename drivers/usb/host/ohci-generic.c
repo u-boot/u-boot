@@ -95,7 +95,7 @@ static int ohci_usb_probe(struct udevice *dev)
 				break;
 
 			err = clk_enable(&priv->clocks[i]);
-			if (err) {
+			if (err && err != -ENOSYS) {
 				dev_err(dev, "failed to enable clock %d\n", i);
 				clk_free(&priv->clocks[i]);
 				goto clk_err;
