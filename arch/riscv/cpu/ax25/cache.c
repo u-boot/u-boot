@@ -5,6 +5,9 @@
  */
 
 #include <common.h>
+#include <dm.h>
+#include <dm/uclass-internal.h>
+#include <cache.h>
 
 void flush_dcache_all(void)
 {
@@ -59,11 +62,18 @@ void dcache_enable(void)
 {
 #if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 #ifdef CONFIG_RISCV_NDS_CACHE
+	struct udevice *dev = NULL;
+
 	asm volatile (
 		"csrr t1, mcache_ctl\n\t"
 		"ori t0, t1, 0x2\n\t"
 		"csrw mcache_ctl, t0\n\t"
 	);
+
+	uclass_find_first_device(UCLASS_CACHE, &dev);
+
+	if (dev)
+		cache_enable(dev);
 #endif
 #endif
 }
@@ -72,12 +82,19 @@ void dcache_disable(void)
 {
 #if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 #ifdef CONFIG_RISCV_NDS_CACHE
+	struct udevice *dev = NULL;
+
 	asm volatile (
 		"fence\n\t"
 		"csrr t1, mcache_ctl\n\t"
 		"andi t0, t1, ~0x2\n\t"
 		"csrw mcache_ctl, t0\n\t"
 	);
+
+	uclass_find_first_device(UCLASS_CACHE, &dev);
+
+	if (dev)
+		cache_disable(dev);
 #endif
 #endif
 }
