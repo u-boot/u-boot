@@ -34,3 +34,7 @@
 		reg = <0xe0 0x3>;
 	};
 };
+
+&sdhci1 {
+	/delete-property/ no-1-8-v;
+};
