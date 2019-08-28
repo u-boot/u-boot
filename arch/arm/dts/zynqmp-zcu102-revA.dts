@@ -829,6 +829,7 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_sdhci1_default>;
 	xlnx,mio_bank = <1>;
+	no-1-8-v;
 };
 
 &serdes {

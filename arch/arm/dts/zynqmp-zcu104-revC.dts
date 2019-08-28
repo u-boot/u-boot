@@ -469,6 +469,7 @@
 	pinctrl-0 = <&pinctrl_sdhci1_default>;
 	xlnx,mio_bank = <1>;
 	disable-wp;
+	no-1-8-v;
 };
 
 &serdes {
