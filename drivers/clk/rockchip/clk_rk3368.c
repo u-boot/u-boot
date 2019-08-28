@@ -566,31 +566,12 @@ static int __maybe_unused rk3368_clk_set_parent(struct clk *clk, struct clk *par
 	return -ENOENT;
 }
 
-static int rk3368_clk_enable(struct clk *clk)
-{
-	switch (clk->id) {
-	case SCLK_MAC:
-	case SCLK_MAC_RX:
-	case SCLK_MAC_TX:
-	case SCLK_MACREF:
-	case SCLK_MACREF_OUT:
-	case ACLK_GMAC:
-	case PCLK_GMAC:
-		/* Required to successfully probe the Designware GMAC driver */
-		return 0;
-	}
-
-	debug("%s: unsupported clk %ld\n", __func__, clk->id);
-	return -ENOENT;
-}
-
 static struct clk_ops rk3368_clk_ops = {
 	.get_rate = rk3368_clk_get_rate,
 	.set_rate = rk3368_clk_set_rate,
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.set_parent = rk3368_clk_set_parent,
 #endif
-	.enable = rk3368_clk_enable,
 };
 
 static int rk3368_clk_probe(struct udevice *dev)
