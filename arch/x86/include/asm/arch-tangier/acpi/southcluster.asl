@@ -66,6 +66,23 @@ Device (PCI0)
         Return (MCRS)
     }
 
+    /* Device Resource Consumption */
+    Device (PDRC)
+    {
+        Name (_HID, EISAID("PNP0C02"))
+        Name (_UID, One)
+
+        Name (PDRS, ResourceTemplate()
+        {
+            Memory32Fixed(ReadWrite, MCFG_BASE_ADDRESS, MCFG_BASE_SIZE)
+        })
+
+        Method (_CRS, 0, Serialized)
+        {
+            Return (PDRS)
+        }
+    }
+
     Method (_OSC, 4)
     {
         /* Check for proper GUID */

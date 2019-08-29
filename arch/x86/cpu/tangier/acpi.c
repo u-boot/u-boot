@@ -14,6 +14,7 @@
 #include <asm/mpspec.h>
 #include <asm/tables.h>
 #include <asm/arch/global_nvs.h>
+#include <asm/arch/iomap.h>
 
 void acpi_create_fadt(struct acpi_fadt *fadt, struct acpi_facs *facs,
 		      void *dsdt)
@@ -63,7 +64,7 @@ u32 acpi_fill_mcfg(u32 current)
 	/* TODO: Derive parameters from SFI MCFG table */
 	current += acpi_create_mcfg_mmconfig
 		((struct acpi_mcfg_mmconfig *)current,
-		0x3f500000, 0x0, 0x0, 0x0);
+		MCFG_BASE_ADDRESS, 0x0, 0x0, 0x0);
 
 	return current;
 }
