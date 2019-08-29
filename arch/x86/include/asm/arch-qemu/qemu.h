@@ -32,6 +32,10 @@
 #define LOW_RAM_ADDR		0x34
 #define HIGH_RAM_ADDR		0x35
 
+#define LOW_HIGHRAM_ADDR	0x5b
+#define MID_HIGHRAM_ADDR	0x5c
+#define HIGH_HIGHRAM_ADDR	0x5d
+
 /* PM registers */
 #define PMBA		0x40
 #define PMREGMISC	0x80
@@ -43,5 +47,12 @@
  * @return:	size of memory below 4GiB
  */
 u32 qemu_get_low_memory_size(void);
+
+/**
+ * qemu_get_high_memory_size() - Get high memory size
+ *
+ * @return:	size of memory above 4GiB
+ */
+u64 qemu_get_high_memory_size(void);
 
 #endif /* _ARCH_QEMU_H_ */
