@@ -9,7 +9,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int dram_init(void)
+u32 qemu_get_low_memory_size(void)
 {
 	u32 ram;
 
@@ -19,7 +19,12 @@ int dram_init(void)
 	ram |= ((u32)inb(CMOS_DATA_PORT)) << 6;
 	ram += 16 * 1024;
 
-	gd->ram_size = ram * 1024;
+	return ram * 1024;
+}
+
+int dram_init(void)
+{
+	gd->ram_size = qemu_get_low_memory_size();
 	post_code(POST_DRAM);
 
 	return 0;

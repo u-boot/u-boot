@@ -37,4 +37,11 @@
 #define PMREGMISC	0x80
 #define PMIOSE		(1 << 0)
 
+/**
+ * qemu_get_low_memory_size() - Get low memory size
+ *
+ * @return:	size of memory below 4GiB
+ */
+u32 qemu_get_low_memory_size(void);
+
 #endif /* _ARCH_QEMU_H_ */
