@@ -701,6 +701,9 @@ static int nfs_read_reply(uchar *pkt, unsigned len)
 			&(rpc_pkt.u.reply.data[4 + nfsv3_data_offset]);
 	}
 
+	if (((uchar *)&(rpc_pkt.u.reply.data[0]) - (uchar *)(&rpc_pkt) + rlen) > len)
+			return -9999;
+
 	if (store_block(data_ptr, nfs_offset, rlen))
 			return -9999;
 
