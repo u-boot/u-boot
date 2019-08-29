@@ -732,6 +732,9 @@ static void nfs_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 
 	debug("%s\n", __func__);
 
+	if (len > sizeof(struct rpc_t))
+		return;
+
 	if (dest != nfs_our_port)
 		return;
 
