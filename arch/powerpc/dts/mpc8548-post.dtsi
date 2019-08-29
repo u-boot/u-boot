@@ -25,3 +25,12 @@
 		last-interrupt-source = <255>;
 	};
 };
+
+&pcie {
+	compatible = "fsl,pcie-mpc8548", "fsl,pcie-fsl-qoriq";
+	law_trgt_if = <2>;
+	#address-cells = <3>;
+	#size-cells = <2>;
+	device_type = "pci";
+	bus-range = <0x0 0xff>;
+};

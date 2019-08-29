@@ -278,7 +278,7 @@ int checkboard(void)
 	return 0;
 }
 
-#ifdef CONFIG_PCI
+#if defined(CONFIG_PCI) && !defined(CONFIG_DM_PCI)
 void pci_init_board(void)
 {
 	fsl_pcie_init_board(0);
@@ -444,7 +444,9 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	fdt_fixup_memory(blob, (u64)base, (u64)size);
 
+#if !defined(CONFIG_DM_PCI)
 	FT_FSL_PCI_SETUP;
+#endif
 
 #ifdef CONFIG_QE
 	do_fixup_by_compat(blob, "fsl,qe", "status", "okay",
