@@ -566,11 +566,15 @@ static int nfs_lookup_reply(uchar *pkt, unsigned len)
 	}
 
 	if (supported_nfs_versions & NFSV2_FLAG) {
+		if (((uchar *)&(rpc_pkt.u.reply.data[0]) - (uchar *)(&rpc_pkt) + NFS_FHSIZE) > len)
+			return -NFS_RPC_DROP;
 		memcpy(filefh, rpc_pkt.u.reply.data + 1, NFS_FHSIZE);
 	} else {  /* NFSV3_FLAG */
 		filefh3_length = ntohl(rpc_pkt.u.reply.data[1]);
 		if (filefh3_length > NFS3_FHSIZE)
 			filefh3_length  = NFS3_FHSIZE;
+		if (((uchar *)&(rpc_pkt.u.reply.data[0]) - (uchar *)(&rpc_pkt) + filefh3_length) > len)
+			return -NFS_RPC_DROP;
 		memcpy(filefh, rpc_pkt.u.reply.data + 2, filefh3_length);
 	}
 
