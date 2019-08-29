@@ -95,7 +95,7 @@ static u32 acpi_fill_csrt_dma(struct acpi_csrt_group *grp)
 	si->dma_address_width = 32;
 	si->base_request_line = 0;
 	si->num_handshake_signals = 16;
-	si->max_block_size = 0x20000;
+	si->max_block_size = 0x1ffff;
 
 	return grp->length;
 }
