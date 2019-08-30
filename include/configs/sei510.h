@@ -14,6 +14,7 @@
 #define CONFIG_ENV_SIZE		0x10000
 #define CONFIG_ENV_OFFSET	(-0x10000)
 
+#define LOGO_UUID "43a3305d-150f-4cc9-bd3b-38fca8693846;"
 #define CACHE_UUID "99207ae6-5207-11e9-999e-6f77a3612069;"
 #define SYSTEM_UUID "99f9b7ac-5207-11e9-8507-c3c037e393f3;"
 #define VENDOR_UUID "9d082802-5207-11e9-954c-cbbce08ba108;"
@@ -23,6 +24,7 @@
 #define PARTS_DEFAULT                                        \
 	"uuid_disk=${uuid_gpt_disk};"  			\
 	"name=boot,size=64M,bootable,uuid=${uuid_gpt_boot};" \
+	"name=logo,size=2M,uuid=" LOGO_UUID             \
 	"name=cache,size=256M,uuid=" CACHE_UUID             \
 	"name=system,size=1536M,uuid=" SYSTEM_UUID           \
 	"name=vendor,size=256M,uuid=" VENDOR_UUID            \
@@ -113,12 +115,22 @@
 	func(RECOVERY, recovery, na) \
 	func(SYSTEM, system, na) \
 
+#define PREBOOT_LOAD_LOGO \
+	"mmc dev ${mmcdev};" \
+	"part start mmc ${mmcdev} ${logopart} boot_start;" \
+	"part size mmc ${mmcdev} ${logopart} boot_size;" \
+	"if mmc read ${loadaddr} ${boot_start} ${boot_size}; then " \
+			"bmp display ${loadaddr} m m;" \
+	"fi;"
+
 #define CONFIG_EXTRA_ENV_SETTINGS                                     \
 	"partitions=" PARTS_DEFAULT "\0"                              \
 	"mmcdev=2\0"                                                  \
 	"bootpart=1\0"                                                \
+	"logopart=2\0"                                                \
 	"gpio_recovery=88\0"                                          \
 	"check_button=gpio input ${gpio_recovery};test $? -eq 0;\0"   \
+	"load_logo=" PREBOOT_LOAD_LOGO "\0"			      \
 	"console=/dev/ttyAML0\0"                                      \
 	"bootargs=no_console_suspend\0"                               \
 	"stdin=" STDIN_CFG "\0"                                       \
