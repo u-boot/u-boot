@@ -496,6 +496,7 @@
 				snps,dis_u3_susphy_quirk;
 				snps,quirk-frame-length-adjustment = <0x20>;
 				snps,refclk_fladj;
+				snps,mask_phy_reset;
 				/* dma-coherent; */
 			};
 		};
