@@ -5,14 +5,9 @@
 /dts-v1/;
 
 #include "imx7d.dtsi"
-
+#include "imx7d-pico-u-boot.dtsi"
 
 / {
-	aliases {
-		mmc0 = &usdhc3;
-		usb0 = &usbotg1;
-	};
-
 	/* Will be filled by the bootloader */
 	memory@80000000 {
 		device_type = "memory";
@@ -297,7 +292,6 @@
 
 &usbotg1 {
 	vbus-supply = <&reg_usb_otg1_vbus>;
-	dr_mode = "peripheral";
 	status = "okay";
 };
 

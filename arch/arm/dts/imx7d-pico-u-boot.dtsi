@@ -1,0 +1,11 @@
+/{
+    aliases {
+        mmc0 = &usdhc3;
+        usb0 = &usbotg1;
+    };
+};
+
+&usbotg1 {
+	dr_mode = "peripheral";
+ };
+
