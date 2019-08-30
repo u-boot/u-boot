@@ -7,7 +7,6 @@
  */
 
 #include "meson_vpu.h"
-#include <power-domain.h>
 #include <efi_loader.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
@@ -93,7 +92,6 @@ static const struct udevice_id meson_vpu_ids[] = {
 static int meson_vpu_probe(struct udevice *dev)
 {
 	struct meson_vpu_priv *priv = dev_get_priv(dev);
-	struct power_domain pd;
 	struct udevice *disp;
 	int ret;
 
@@ -114,14 +112,6 @@ static int meson_vpu_probe(struct udevice *dev)
 	priv->dmc_base = dev_remap_addr_index(dev, 2);
 	if (!priv->dmc_base)
 		return -EINVAL;
-
-	ret = power_domain_get(dev, &pd);
-	if (ret)
-		return ret;
-
-	ret = power_domain_on(&pd);
-	if (ret)
-		return ret;
 
 	meson_vpu_init(dev);
 
