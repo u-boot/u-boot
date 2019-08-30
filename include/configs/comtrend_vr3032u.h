@@ -8,7 +8,7 @@
 
 #define CONFIG_REMAKE_ELF
 
-#define CONFIG_ENV_SIZE			(8 * 1024)
+#define CONFIG_ENV_SIZE	SZ_8K
 
 #ifdef CONFIG_NAND
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
