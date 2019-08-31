@@ -409,13 +409,31 @@ static efi_status_t EFIAPI efi_net_transmit
 		goto out;
 	}
 
-	if (header_size) {
-		/*
-		 * TODO: We would need to create the header
-		 * if header_size != 0
-		 */
-		ret = EFI_UNSUPPORTED;
+	/* At least the IP header has to fit into the buffer */
+	if (buffer_size < this->mode->media_header_size) {
+		ret = EFI_BUFFER_TOO_SMALL;
 		goto out;
+	}
+
+	/*
+	 * TODO:
+	 * Support VLANs. Use net_set_ether() for copying the header. Use a
+	 * U_BOOT_ENV_CALLBACK to update the media header size.
+	 */
+	if (header_size) {
+		struct ethernet_hdr *header = buffer;
+
+		if (!dest_addr || !protocol ||
+		    header_size != this->mode->media_header_size) {
+			ret = EFI_INVALID_PARAMETER;
+			goto out;
+		}
+		if (!src_addr)
+			src_addr = &this->mode->current_address;
+
+		memcpy(header->et_dest, dest_addr, ARP_HLEN);
+		memcpy(header->et_src, src_addr, ARP_HLEN);
+		header->et_protlen = htons(*protocol);
 	}
 
 	switch (this->mode->state) {
@@ -764,6 +782,7 @@ efi_status_t efi_net_register(void)
 	netobj->net_mode.state = EFI_NETWORK_STARTED;
 	memcpy(netobj->net_mode.current_address.mac_addr, eth_get_ethaddr(), 6);
 	netobj->net_mode.hwaddr_size = ARP_HLEN;
+	netobj->net_mode.media_header_size = ETHER_HDR_SIZE;
 	netobj->net_mode.max_packet_size = PKTSIZE;
 	netobj->net_mode.if_type = ARP_ETHER;
 
