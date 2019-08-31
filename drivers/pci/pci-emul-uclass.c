@@ -10,7 +10,6 @@
 #include <linux/libfdt.h>
 #include <pci.h>
 #include <dm/lists.h>
-#include <dm/uclass-internal.h>
 
 struct sandbox_pci_emul_priv {
 	int dev_count;
@@ -35,8 +34,8 @@ int sandbox_pci_get_emul(struct udevice *bus, pci_dev_t find_devfn,
 	 * See commit 4345998ae9df,
 	 * "pci: sandbox: Support dynamically binding device driver"
 	 */
-	ret = uclass_find_device_by_phandle(UCLASS_PCI_EMUL, dev,
-					    "sandbox,emul", emulp);
+	ret = uclass_get_device_by_phandle(UCLASS_PCI_EMUL, dev, "sandbox,emul",
+					   emulp);
 	if (ret && device_get_uclass_id(dev) != UCLASS_PCI_GENERIC)
 		*emulp = dev;
 
