@@ -1281,6 +1281,8 @@ struct efi_simple_network {
 			struct efi_mac_address *dest_addr, u16 *protocol);
 	struct efi_event *wait_for_packet;
 	struct efi_simple_network_mode *mode;
+	/* private fields */
+	u32 int_status;
 };
 
 #define EFI_PXE_BASE_CODE_PROTOCOL_GUID \

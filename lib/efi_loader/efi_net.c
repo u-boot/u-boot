@@ -66,10 +66,13 @@ static efi_status_t EFIAPI efi_net_start(struct efi_simple_network *this)
 		goto out;
 	}
 
-	if (this->mode->state != EFI_NETWORK_STOPPED)
+	if (this->mode->state != EFI_NETWORK_STOPPED) {
 		ret = EFI_ALREADY_STARTED;
-	else
+	} else {
+		this->int_status = 0;
+		wait_for_packet->is_signaled = false;
 		this->mode->state = EFI_NETWORK_STARTED;
+	}
 out:
 	return EFI_EXIT(ret);
 }
@@ -144,6 +147,8 @@ static efi_status_t EFIAPI efi_net_initialize(struct efi_simple_network *this,
 		r = EFI_DEVICE_ERROR;
 		goto out;
 	} else {
+		this->int_status = 0;
+		wait_for_packet->is_signaled = false;
 		this->mode->state = EFI_NETWORK_INITIALIZED;
 	}
 out:
@@ -192,6 +197,8 @@ static efi_status_t EFIAPI efi_net_shutdown(struct efi_simple_network *this)
 	}
 
 	eth_halt();
+	this->int_status = 0;
+	wait_for_packet->is_signaled = false;
 	this->mode->state = EFI_NETWORK_STOPPED;
 
 out:
@@ -350,10 +357,8 @@ static efi_status_t EFIAPI efi_net_get_status(struct efi_simple_network *this,
 	}
 
 	if (int_status) {
-		/* We send packets synchronously, so nothing is outstanding */
-		*int_status = EFI_SIMPLE_NETWORK_TRANSMIT_INTERRUPT;
-		if (new_rx_packet)
-			*int_status |= EFI_SIMPLE_NETWORK_RECEIVE_INTERRUPT;
+		*int_status = this->int_status;
+		this->int_status = 0;
 	}
 	if (txbuf)
 		*txbuf = new_tx_packet;
@@ -429,7 +434,7 @@ static efi_status_t EFIAPI efi_net_transmit
 	net_send_packet(transmit_buffer, buffer_size);
 
 	new_tx_packet = buffer;
-
+	this->int_status |= EFI_SIMPLE_NETWORK_TRANSMIT_INTERRUPT;
 out:
 	return EFI_EXIT(ret);
 }
@@ -487,12 +492,6 @@ static efi_status_t EFIAPI efi_net_receive
 		ret = EFI_NOT_READY;
 		goto out;
 	}
-	/* Check that we at least received an Ethernet header */
-	if (net_rx_packet_len < sizeof(struct ethernet_hdr)) {
-		new_rx_packet = false;
-		ret = EFI_NOT_READY;
-		goto out;
-	}
 	/* Fill export parameters */
 	eth_hdr = (struct ethernet_hdr *)net_rx_packet;
 	protlen = ntohs(eth_hdr->et_protlen);
@@ -517,7 +516,8 @@ static efi_status_t EFIAPI efi_net_receive
 	/* Copy packet */
 	memcpy(buffer, net_rx_packet, net_rx_packet_len);
 	*buffer_size = net_rx_packet_len;
-	new_rx_packet = false;
+	new_rx_packet = 0;
+	this->int_status &= ~EFI_SIMPLE_NETWORK_RECEIVE_INTERRUPT;
 out:
 	return EFI_EXIT(ret);
 }
@@ -548,7 +548,6 @@ void efi_net_set_dhcp_ack(void *pkt, int len)
 static void efi_net_push(void *pkt, int len)
 {
 	new_rx_packet = true;
-	wait_for_packet->is_signaled = true;
 }
 
 /**
@@ -577,6 +576,17 @@ static void EFIAPI efi_network_timer_notify(struct efi_event *event,
 		push_packet = efi_net_push;
 		eth_rx();
 		push_packet = NULL;
+		if (new_rx_packet) {
+			/* Check that we at least received an Ethernet header */
+			if (net_rx_packet_len >=
+			    sizeof(struct ethernet_hdr)) {
+				this->int_status |=
+					EFI_SIMPLE_NETWORK_RECEIVE_INTERRUPT;
+				wait_for_packet->is_signaled = true;
+			} else {
+				new_rx_packet = 0;
+			}
+		}
 	}
 out:
 	EFI_EXIT(EFI_SUCCESS);
