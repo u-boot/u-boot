@@ -247,6 +247,10 @@ static int initr_malloc(void)
 	      gd->malloc_ptr / 1024);
 #endif
 	/* The malloc area is immediately below the monitor copy in DRAM */
+	/*
+	 * This value MUST match the value of gd->start_addr_sp in board_f.c:
+	 * reserve_noncached().
+	 */
 	malloc_start = gd->relocaddr - TOTAL_MALLOC_LEN;
 	mem_malloc_init((ulong)map_sysmem(malloc_start, TOTAL_MALLOC_LEN),
 			TOTAL_MALLOC_LEN);

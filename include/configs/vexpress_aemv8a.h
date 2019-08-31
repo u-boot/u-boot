@@ -16,8 +16,7 @@
 #define CONFIG_REMAKE_ELF
 
 /* Link Definitions */
-#if defined(CONFIG_TARGET_VEXPRESS64_BASE_FVP) || \
-	defined(CONFIG_TARGET_VEXPRESS64_BASE_FVP_DRAM)
+#ifdef CONFIG_TARGET_VEXPRESS64_BASE_FVP
 /* ATF loads u-boot here for BASE_FVP model */
 #define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_SDRAM_BASE + 0x03f00000)
 #elif CONFIG_TARGET_VEXPRESS64_JUNO
@@ -83,8 +82,7 @@
 #define GICR_BASE			(0x2f100000)
 #else
 
-#if defined(CONFIG_TARGET_VEXPRESS64_BASE_FVP) || \
-	defined(CONFIG_TARGET_VEXPRESS64_BASE_FVP_DRAM)
+#ifdef CONFIG_TARGET_VEXPRESS64_BASE_FVP
 #define GICD_BASE			(0x2f000000)
 #define GICC_BASE			(0x2c000000)
 #elif CONFIG_TARGET_VEXPRESS64_JUNO
@@ -189,17 +187,6 @@
 				"fdt addr ${fdt_addr}; fdt resize; " \
 				"fdt chosen ${initrd_addr} ${initrd_end}; " \
 				"booti $kernel_addr - $fdt_addr"
-
-
-#elif CONFIG_TARGET_VEXPRESS64_BASE_FVP_DRAM
-#define CONFIG_EXTRA_ENV_SETTINGS	\
-				"kernel_addr=0x80080000\0"	\
-				"initrd_addr=0x84000000\0"	\
-				"fdt_addr=0x83000000\0"		\
-				"fdt_high=0xffffffffffffffff\0"	\
-				"initrd_high=0xffffffffffffffff\0"
-
-#define CONFIG_BOOTCOMMAND	"booti $kernel_addr $initrd_addr $fdt_addr"
 
 
 #endif

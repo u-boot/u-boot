@@ -360,6 +360,7 @@ static int mmc_select_hwpart(struct udevice *bdev, int hwpart)
 	struct udevice *mmc_dev = dev_get_parent(bdev);
 	struct mmc *mmc = mmc_get_mmc_dev(mmc_dev);
 	struct blk_desc *desc = dev_get_uclass_platdata(bdev);
+	int ret;
 
 	if (desc->hwpart == hwpart)
 		return 0;
@@ -367,7 +368,11 @@ static int mmc_select_hwpart(struct udevice *bdev, int hwpart)
 	if (mmc->part_config == MMCPART_NOAVAILABLE)
 		return -EMEDIUMTYPE;
 
-	return mmc_switch_part(mmc, hwpart);
+	ret = mmc_switch_part(mmc, hwpart);
+	if (!ret)
+		blkcache_invalidate(desc->if_type, desc->devnum);
+
+	return ret;
 }
 
 static int mmc_blk_probe(struct udevice *dev)

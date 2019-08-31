@@ -1700,7 +1700,7 @@ define filechk_defaultenv.h
 	(grep -v '^#' | \
 	 grep -v '^$$' | \
 	 tr '\n' '\0' | \
-	 sed -e 's/\\\x0/\n/' | \
+	 sed -e 's/\\\x0/\n/g' | \
 	 xxd -i ; echo ", 0x00" ; )
 endef
 
@@ -1852,7 +1852,7 @@ clean: $(clean-dirs)
 		-o -name 'dsdt.aml' -o -name 'dsdt.asl.tmp' -o -name 'dsdt.c' \
 		-o -name '*.efi' -o -name '*.gcno' -o -name '*.so' \) \
 		-type f -print | xargs rm -f \
-		bl31.c bl31.elf bl31_*.bin image.map
+		bl31.c bl31.elf bl31_*.bin image.map tispl.bin*
 
 # mrproper - Delete all generated files, including .config
 #

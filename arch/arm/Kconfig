@@ -1066,16 +1066,6 @@ config TARGET_VEXPRESS64_BASE_FVP
 	select PL01X_SERIAL
 	select SEMIHOSTING
 
-config TARGET_VEXPRESS64_BASE_FVP_DRAM
-	bool "Support Versatile Express ARMv8a FVP BASE model booting from DRAM"
-	select ARM64
-	select PL01X_SERIAL
-	help
-	  This target is derived from TARGET_VEXPRESS64_BASE_FVP and over-rides
-	  the default config to allow the user to load the images directly into
-	  DRAM using model parameters rather than by using semi-hosting to load
-	  the files from the host filesystem.
-
 config TARGET_VEXPRESS64_JUNO
 	bool "Support Versatile Express Juno Development Platform"
 	select ARM64
