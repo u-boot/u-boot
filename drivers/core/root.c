@@ -314,13 +314,6 @@ int dm_scan_fdt(const void *blob, bool pre_reloc_only)
 #endif
 	return dm_scan_fdt_node(gd->dm_root, blob, 0, pre_reloc_only);
 }
-#else
-static int dm_scan_fdt_node(struct udevice *parent, const void *blob,
-			    int offset, bool pre_reloc_only)
-{
-	return 0;
-}
-#endif
 
 static int dm_scan_fdt_ofnode_path(const char *path, bool pre_reloc_only)
 {
@@ -360,6 +353,7 @@ int dm_extended_scan_fdt(const void *blob, bool pre_reloc_only)
 
 	return ret;
 }
+#endif
 
 __weak int dm_scan_other(bool pre_reloc_only)
 {
