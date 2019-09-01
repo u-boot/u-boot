@@ -332,7 +332,7 @@ static efi_status_t EFIAPI efi_net_statistics(struct efi_simple_network *this,
 /*
  * efi_net_mcastiptomac() - translate multicast IP address to MAC address
  *
- * This function implements the Statistics service of the
+ * This function implements the MCastIPtoMAC service of the
  * EFI_SIMPLE_NETWORK_PROTOCOL. See the Unified Extensible Firmware Interface
  * (UEFI) specification for details.
  *
@@ -347,9 +347,49 @@ static efi_status_t EFIAPI efi_net_mcastiptomac(struct efi_simple_network *this,
 						struct efi_ip_address *ip,
 						struct efi_mac_address *mac)
 {
+	efi_status_t ret = EFI_SUCCESS;
+
 	EFI_ENTRY("%p, %x, %p, %p", this, ipv6, ip, mac);
 
-	return EFI_EXIT(EFI_INVALID_PARAMETER);
+	if (!this || !ip || !mac) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
+	if (ipv6) {
+		ret = EFI_UNSUPPORTED;
+		goto out;
+	}
+
+	/* Multi-cast addresses are in the range 224.0.0.0 - 239.255.255.255 */
+	if ((ip->ip_addr[0] & 0xf0) != 0xe0) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	};
+
+	switch (this->mode->state) {
+	case EFI_NETWORK_INITIALIZED:
+	case EFI_NETWORK_STARTED:
+		break;
+	default:
+		ret = EFI_NOT_STARTED;
+		goto out;
+	}
+
+	memset(mac, 0, sizeof(struct efi_mac_address));
+
+	/*
+	 * Copy lower 23 bits of IPv4 multi-cast address
+	 * RFC 1112, RFC 7042 2.1.1.
+	 */
+	mac->mac_addr[0] = 0x01;
+	mac->mac_addr[1] = 0x00;
+	mac->mac_addr[2] = 0x5E;
+	mac->mac_addr[3] = ip->ip_addr[1] & 0x7F;
+	mac->mac_addr[4] = ip->ip_addr[2];
+	mac->mac_addr[5] = ip->ip_addr[3];
+out:
+	return EFI_EXIT(ret);
 }
 
 /**
