@@ -103,11 +103,8 @@ int print_cpuinfo(void)
 
 void board_debug_uart_init(void)
 {
-	struct udevice *bus = NULL;
-
 	/* com1 / com2 decode range */
-	pci_x86_write_config(bus, PCH_DEV_LPC, LPC_IO_DEC, 1 << 4, PCI_SIZE_16);
+	pci_x86_write_config(PCH_DEV_LPC, LPC_IO_DEC, 1 << 4, PCI_SIZE_16);
 
-	pci_x86_write_config(bus, PCH_DEV_LPC, LPC_EN, COMA_LPC_EN,
-			     PCI_SIZE_16);
+	pci_x86_write_config(PCH_DEV_LPC, LPC_EN, COMA_LPC_EN, PCI_SIZE_16);
 }
