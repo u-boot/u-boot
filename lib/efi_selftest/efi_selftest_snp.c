@@ -228,6 +228,26 @@ static int setup(const efi_handle_t handle,
 		efi_st_error("WaitForPacket event missing\n");
 		return EFI_ST_FAILURE;
 	}
+	if (net->mode->state == EFI_NETWORK_INITIALIZED) {
+		/*
+		 * Shut down network adapter.
+		 */
+		ret = net->shutdown(net);
+		if (ret != EFI_SUCCESS) {
+			efi_st_error("Failed to shut down network adapter\n");
+			return EFI_ST_FAILURE;
+		}
+	}
+	if (net->mode->state == EFI_NETWORK_STARTED) {
+		/*
+		 * Stop network adapter.
+		 */
+		ret = net->stop(net);
+		if (ret != EFI_SUCCESS) {
+			efi_st_error("Failed to stop network adapter\n");
+			return EFI_ST_FAILURE;
+		}
+	}
 	/*
 	 * Start network adapter.
 	 */
@@ -236,11 +256,19 @@ static int setup(const efi_handle_t handle,
 		efi_st_error("Failed to start network adapter\n");
 		return EFI_ST_FAILURE;
 	}
+	if (net->mode->state != EFI_NETWORK_STARTED) {
+		efi_st_error("Failed to start network adapter\n");
+		return EFI_ST_FAILURE;
+	}
 	/*
 	 * Initialize network adapter.
 	 */
 	ret = net->initialize(net, 0, 0);
 	if (ret != EFI_SUCCESS) {
+		efi_st_error("Failed to initialize network adapter\n");
+		return EFI_ST_FAILURE;
+	}
+	if (net->mode->state != EFI_NETWORK_INITIALIZED) {
 		efi_st_error("Failed to initialize network adapter\n");
 		return EFI_ST_FAILURE;
 	}
@@ -412,6 +440,18 @@ static int teardown(void)
 	}
 	if (net) {
 		/*
+		 * Shut down network adapter.
+		 */
+		ret = net->shutdown(net);
+		if (ret != EFI_SUCCESS) {
+			efi_st_error("Failed to shut down network adapter\n");
+			exit_status = EFI_ST_FAILURE;
+		}
+		if (net->mode->state != EFI_NETWORK_STARTED) {
+			efi_st_error("Failed to shutdown network adapter\n");
+			return EFI_ST_FAILURE;
+		}
+		/*
 		 * Stop network adapter.
 		 */
 		ret = net->stop(net);
@@ -419,13 +459,9 @@ static int teardown(void)
 			efi_st_error("Failed to stop network adapter\n");
 			exit_status = EFI_ST_FAILURE;
 		}
-		/*
-		 * Shut down network adapter.
-		 */
-		ret = net->shutdown(net);
-		if (ret != EFI_SUCCESS) {
-			efi_st_error("Failed to shut down network adapter\n");
-			exit_status = EFI_ST_FAILURE;
+		if (net->mode->state != EFI_NETWORK_STOPPED) {
+			efi_st_error("Failed to stop network adapter\n");
+			return EFI_ST_FAILURE;
 		}
 	}
 

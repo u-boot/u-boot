@@ -1,8 +1,18 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- *  EFI application network access support
+ * Simple network protocol
+ * PXE base code protocol
  *
- *  Copyright (c) 2016 Alexander Graf
+ * Copyright (c) 2016 Alexander Graf
+ *
+ * The simple network protocol has the following statuses and services
+ * to move between them:
+ *
+ * Start():	 EfiSimpleNetworkStopped     -> EfiSimpleNetworkStarted
+ * Initialize(): EfiSimpleNetworkStarted     -> EfiSimpleNetworkInitialized
+ * Shutdown():	 EfiSimpleNetworkInitialized -> EfiSimpleNetworkStarted
+ * Stop():	 EfiSimpleNetworkStarted     -> EfiSimpleNetworkStopped
+ * Reset():	 EfiSimpleNetworkInitialized -> EfiSimpleNetworkInitialized
  */
 
 #include <common.h>
@@ -99,10 +109,13 @@ static efi_status_t EFIAPI efi_net_stop(struct efi_simple_network *this)
 		goto out;
 	}
 
-	if (this->mode->state == EFI_NETWORK_STOPPED)
+	if (this->mode->state == EFI_NETWORK_STOPPED) {
 		ret = EFI_NOT_STARTED;
-	else
+	} else {
+		/* Disable hardware and put it into the reset state */
+		eth_halt();
 		this->mode->state = EFI_NETWORK_STOPPED;
+	}
 out:
 	return EFI_EXIT(ret);
 }
@@ -130,6 +143,15 @@ static efi_status_t EFIAPI efi_net_initialize(struct efi_simple_network *this,
 	/* Check parameters */
 	if (!this) {
 		r = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
+	switch (this->mode->state) {
+	case EFI_NETWORK_INITIALIZED:
+	case EFI_NETWORK_STARTED:
+		break;
+	default:
+		r = EFI_NOT_STARTED;
 		goto out;
 	}
 
@@ -169,9 +191,31 @@ out:
 static efi_status_t EFIAPI efi_net_reset(struct efi_simple_network *this,
 					 int extended_verification)
 {
+	efi_status_t ret;
+
 	EFI_ENTRY("%p, %x", this, extended_verification);
 
-	return EFI_EXIT(EFI_CALL(efi_net_initialize(this, 0, 0)));
+	/* Check parameters */
+	if (!this) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
+	switch (this->mode->state) {
+	case EFI_NETWORK_INITIALIZED:
+		break;
+	case EFI_NETWORK_STOPPED:
+		ret = EFI_NOT_STARTED;
+		goto out;
+	default:
+		ret = EFI_DEVICE_ERROR;
+		goto out;
+	}
+
+	this->mode->state = EFI_NETWORK_STARTED;
+	ret = EFI_CALL(efi_net_initialize(this, 0, 0));
+out:
+	return EFI_EXIT(ret);
 }
 
 /*
@@ -196,10 +240,21 @@ static efi_status_t EFIAPI efi_net_shutdown(struct efi_simple_network *this)
 		goto out;
 	}
 
+	switch (this->mode->state) {
+	case EFI_NETWORK_INITIALIZED:
+		break;
+	case EFI_NETWORK_STOPPED:
+		ret = EFI_NOT_STARTED;
+		goto out;
+	default:
+		ret = EFI_DEVICE_ERROR;
+		goto out;
+	}
+
 	eth_halt();
 	this->int_status = 0;
 	wait_for_packet->is_signaled = false;
-	this->mode->state = EFI_NETWORK_STOPPED;
+	this->mode->state = EFI_NETWORK_STARTED;
 
 out:
 	return EFI_EXIT(ret);
@@ -779,7 +834,7 @@ efi_status_t efi_net_register(void)
 	netobj->net.transmit = efi_net_transmit;
 	netobj->net.receive = efi_net_receive;
 	netobj->net.mode = &netobj->net_mode;
-	netobj->net_mode.state = EFI_NETWORK_STARTED;
+	netobj->net_mode.state = EFI_NETWORK_STOPPED;
 	memcpy(netobj->net_mode.current_address.mac_addr, eth_get_ethaddr(), 6);
 	netobj->net_mode.hwaddr_size = ARP_HLEN;
 	netobj->net_mode.media_header_size = ETHER_HDR_SIZE;
