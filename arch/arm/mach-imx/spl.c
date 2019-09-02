@@ -261,6 +261,7 @@ __weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 	}
 }
 
+#if !defined(CONFIG_SPL_FIT_SIGNATURE)
 ulong board_spl_fit_size_align(ulong size)
 {
 	/*
@@ -285,6 +286,7 @@ void board_spl_fit_post_load(ulong load_addr, size_t length)
 		hang();
 	}
 }
+#endif
 
 #endif
 
