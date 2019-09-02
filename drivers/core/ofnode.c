@@ -79,7 +79,7 @@ int ofnode_read_u64(ofnode node, const char *propname, u64 *outp)
 	return 0;
 }
 
-int ofnode_read_u64_default(ofnode node, const char *propname, u64 def)
+u64 ofnode_read_u64_default(ofnode node, const char *propname, u64 def)
 {
 	assert(ofnode_valid(node));
 	ofnode_read_u64(node, propname, &def);

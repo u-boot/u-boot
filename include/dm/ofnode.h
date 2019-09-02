@@ -254,7 +254,7 @@ int ofnode_read_u64(ofnode node, const char *propname, u64 *outp);
  * @def:	default value to return if the property has no value
  * @return property value, or @def if not found
  */
-int ofnode_read_u64_default(ofnode node, const char *propname, u64 def);
+u64 ofnode_read_u64_default(ofnode node, const char *propname, u64 def);
 
 /**
  * ofnode_read_string() - Read a string from a property
