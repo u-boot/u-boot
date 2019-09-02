@@ -108,6 +108,7 @@ config TARGET_ADVANTECH_DMS_BA16
 config TARGET_APALIS_IMX6
 	bool "Toradex Apalis iMX6 board"
 	select BOARD_LATE_INIT
+	select MX6Q
 	select DM
 	select DM_SERIAL
 	select DM_THERMAL
