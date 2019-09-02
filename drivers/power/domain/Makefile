@@ -5,7 +5,7 @@
 
 obj-$(CONFIG_$(SPL_)POWER_DOMAIN) += power-domain-uclass.o
 obj-$(CONFIG_BCM6328_POWER_DOMAIN) += bcm6328-power-domain.o
-obj-$(CONFIG_IMX8_POWER_DOMAIN) += imx8-power-domain-legacy.o
+obj-$(CONFIG_IMX8_POWER_DOMAIN) += imx8-power-domain-legacy.o imx8-power-domain.o
 obj-$(CONFIG_IMX8M_POWER_DOMAIN) += imx8m-power-domain.o
 obj-$(CONFIG_MTK_POWER_DOMAIN) += mtk-power-domain.o
 obj-$(CONFIG_MESON_GX_VPU_POWER_DOMAIN) += meson-gx-pwrc-vpu.o
