@@ -1116,6 +1116,16 @@ void board_init_f(ulong dummy)
 	board_init_r(NULL, 0);
 }
 
+#ifdef CONFIG_SPL_LOAD_FIT
+int board_fit_config_name_match(const char *name)
+{
+	if (!strcmp(name, "imx6-apalis"))
+		return 0;
+
+	return -1;
+}
+#endif
+
 void reset_cpu(ulong addr)
 {
 }
