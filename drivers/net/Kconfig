@@ -595,12 +595,4 @@ config FSL_ENETC
 	  This driver supports the NXP ENETC Ethernet controller found on some
 	  of the NXP SoCs.
 
-config MDIO_MUX_I2CREG
-	bool "MDIO MUX accessed as a register over I2C"
-	depends on DM_MDIO_MUX && DM_I2C
-	help
-	  This driver is used for MDIO muxes driven by writing to a register of
-	  an I2C chip.  The board it was developed for uses a mux controlled by
-	  on-board FPGA which in turn is accessed as a chip over I2C.
-
 endif # NETDEVICES
