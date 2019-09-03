@@ -200,6 +200,7 @@ config TARGET_DISPLAY5
 	select DM_ETH
 	select DM_I2C
 	select DM_MMC
+	select DM_SPI
 	select DM_GPIO
 	select DM_SERIAL
 	select SUPPORT_SPL

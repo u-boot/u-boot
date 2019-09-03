@@ -45,18 +45,6 @@ void displ5_set_iomux_misc_spl(void)
 }
 
 #ifdef CONFIG_MXC_SPI
-iomux_v3_cfg_t const ecspi_pads[] = {
-	/* SPI3 */
-	MX6_PAD_DISP0_DAT2__ECSPI3_MISO	| MUX_PAD_CTRL(SPI_PAD_CTRL),
-	MX6_PAD_DISP0_DAT1__ECSPI3_MOSI	| MUX_PAD_CTRL(SPI_PAD_CTRL),
-	MX6_PAD_DISP0_DAT0__ECSPI3_SCLK	| MUX_PAD_CTRL(SPI_PAD_CTRL),
-	MX6_PAD_DISP0_DAT3__ECSPI3_SS0	| MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_DISP0_DAT4__ECSPI3_SS1	| MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_DISP0_DAT5__ECSPI3_SS2	| MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_DISP0_DAT6__ECSPI3_SS3	| MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_DISP0_DAT7__ECSPI3_RDY	| MUX_PAD_CTRL(NO_PAD_CTRL),
-};
-
 iomux_v3_cfg_t const ecspi2_pads[] = {
 	/* SPI2, NOR Flash nWP, CS0 */
 	MX6_PAD_CSI0_DAT10__ECSPI2_MISO	| MUX_PAD_CTRL(SPI_PAD_CTRL),
@@ -79,14 +67,8 @@ void displ5_set_iomux_ecspi_spl(void)
 	SETUP_IOMUX_PADS(ecspi2_pads);
 }
 
-void displ5_set_iomux_ecspi(void)
-{
-	SETUP_IOMUX_PADS(ecspi_pads);
-}
-
 #else
 void displ5_set_iomux_ecspi_spl(void) {}
-void displ5_set_iomux_ecspi(void) {}
 #endif
 
 #ifdef CONFIG_FSL_ESDHC_IMX

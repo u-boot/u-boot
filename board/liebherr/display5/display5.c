@@ -19,7 +19,6 @@
 #include <malloc.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/boot_mode.h>
-#include <asm/mach-imx/spi.h>
 #include <miiphy.h>
 #include <netdev.h>
 #include <i2c.h>
@@ -27,11 +26,6 @@
 #include <dm.h>
 #include <dm/platform_data/serial_mxc.h>
 #include <dm/platdata.h>
-
-#ifndef CONFIG_MXC_SPI
-#error "CONFIG_SPI must be set for this board"
-#error "Please check your config file"
-#endif
 
 #include "common.h"
 
@@ -140,21 +134,6 @@ iomux_v3_cfg_t const misc_pads[] = {
 	MX6_PAD_EIM_D29__GPIO3_IO29 | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
-static void displ5_setup_ecspi(void)
-{
-	int ret;
-
-	displ5_set_iomux_ecspi();
-
-	ret = gpio_request(IMX_GPIO_NR(5, 29), "spi2_cs0");
-	if (!ret)
-		gpio_direction_output(IMX_GPIO_NR(5, 29), 1);
-
-	ret = gpio_request(IMX_GPIO_NR(7, 0), "spi2_#wp");
-	if (!ret)
-		gpio_direction_output(IMX_GPIO_NR(7, 0), 1);
-}
-
 /*
  * Do not overwrite the console
  * Always use serial for U-Boot console
@@ -188,7 +167,7 @@ int board_phy_config(struct phy_device *phydev)
 
 int board_init(void)
 {
-	struct gpio_desc phy_int_gbe;
+	struct gpio_desc phy_int_gbe, spi2_wp;
 	int ret;
 
 	debug("board init\n");
@@ -197,9 +176,6 @@ int board_init(void)
 
 	/* Setup iomux for non console UARTS */
 	displ5_set_iomux_uart();
-
-	displ5_setup_ecspi();
-
 	/* Setup misc (application specific) stuff */
 	SETUP_IOMUX_PADS(misc_pads);
 
@@ -228,6 +204,17 @@ int board_init(void)
 
 	iomuxc_set_rgmii_io_voltage(DDR_SEL_1P5V_IO);
 	enable_fec_anatop_clock(0, ENET_125MHZ);
+
+	/* Setup #WP for SPI-NOR memory */
+	ret = dm_gpio_lookup_name("GPIO7_0", &spi2_wp);
+	if (ret) {
+		printf("Cannot get GPIO7_0\n");
+	} else {
+		ret = dm_gpio_request(&spi2_wp, "spi2_#wp");
+		if (!ret)
+			dm_gpio_set_dir_flags(&spi2_wp, GPIOD_IS_OUT |
+					      GPIOD_IS_OUT_ACTIVE);
+	}
 
 	return 0;
 }
