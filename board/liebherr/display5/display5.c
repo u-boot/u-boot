@@ -36,60 +36,49 @@ static bool sw_ids_valid;
 static u32 cpu_id;
 static u32 unit_id;
 
-#define SW0	IMX_GPIO_NR(2, 4)
-#define SW1	IMX_GPIO_NR(2, 5)
-#define SW2	IMX_GPIO_NR(2, 6)
-#define SW3	IMX_GPIO_NR(2, 7)
-#define HW0	IMX_GPIO_NR(6, 7)
-#define HW1	IMX_GPIO_NR(6, 9)
-#define HW2	IMX_GPIO_NR(6, 10)
-#define HW3	IMX_GPIO_NR(6, 11)
-#define HW4	IMX_GPIO_NR(4, 7)
-#define HW5	IMX_GPIO_NR(4, 11)
-#define HW6	IMX_GPIO_NR(4, 13)
-#define HW7	IMX_GPIO_NR(4, 15)
-
-int gpio_table_sw_ids[] = {
-	SW0, SW1, SW2, SW3
+const char *gpio_table_sw_names[] = {
+	"GPIO2_4", "GPIO2_5", "GPIO2_6", "GPIO2_7"
 };
 
 const char *gpio_table_sw_ids_names[] = {
 	"sw0", "sw1", "sw2", "sw3"
 };
 
-int gpio_table_hw_ids[] = {
-	HW0, HW1, HW2, HW3, HW4, HW5, HW6, HW7
+const char *gpio_table_hw_names[] = {
+	"GPIO6_7", "GPIO6_9", "GPIO6_10", "GPIO6_11",
+	"GPIO4_7", "GPIO4_11", "GPIO4_13", "GPIO4_15"
 };
 
 const char *gpio_table_hw_ids_names[] = {
 	"hw0", "hw1", "hw2", "hw3", "hw4", "hw5", "hw6", "hw7"
 };
 
-static int get_board_id(int *ids, const char **c, int size,
-			bool *valid, u32 *id)
+static int get_board_id(const char **pin_names, const char **ids_names,
+			int size, bool *valid, u32 *id)
 {
+	struct gpio_desc desc;
 	int i, ret, val;
 
 	*valid = false;
 
 	for (i = 0; i < size; i++) {
-		ret = gpio_request(ids[i], c[i]);
+		memset(&desc, 0, sizeof(desc));
+
+		ret = dm_gpio_lookup_name(pin_names[i], &desc);
 		if (ret) {
-			printf("Can't request SWx gpios\n");
+			printf("Can't lookup request SWx gpios\n");
 			return ret;
 		}
-	}
 
-	for (i = 0; i < size; i++) {
-		ret = gpio_direction_input(ids[i]);
+		ret = dm_gpio_request(&desc, ids_names[i]);
 		if (ret) {
-			printf("Can't set SWx gpios direction\n");
+			printf("Can't lookup request SWx gpios\n");
 			return ret;
 		}
-	}
 
-	for (i = 0; i < size; i++) {
-		val = gpio_get_value(ids[i]);
+		dm_gpio_set_dir_flags(&desc, GPIOD_IS_IN);
+
+		val = dm_gpio_get_value(&desc);
 		if (val < 0) {
 			printf("Can't get SW%d ID\n", i);
 			*id = 0;
@@ -176,12 +165,12 @@ int board_init(void)
 	/* Setup misc (application specific) stuff */
 	SETUP_IOMUX_PADS(misc_pads);
 
-	get_board_id(gpio_table_sw_ids, &gpio_table_sw_ids_names[0],
-		     ARRAY_SIZE(gpio_table_sw_ids), &sw_ids_valid, &unit_id);
+	get_board_id(gpio_table_sw_names, &gpio_table_sw_ids_names[0],
+		     ARRAY_SIZE(gpio_table_sw_names), &sw_ids_valid, &unit_id);
 	debug("SWx unit_id 0x%x\n", unit_id);
 
-	get_board_id(gpio_table_hw_ids, &gpio_table_hw_ids_names[0],
-		     ARRAY_SIZE(gpio_table_hw_ids), &hw_ids_valid, &cpu_id);
+	get_board_id(gpio_table_hw_names, &gpio_table_hw_ids_names[0],
+		     ARRAY_SIZE(gpio_table_hw_names), &hw_ids_valid, &cpu_id);
 	debug("HWx cpu_id 0x%x\n", cpu_id);
 
 	if (hw_ids_valid && sw_ids_valid)
