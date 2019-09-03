@@ -325,6 +325,12 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
 	  Address on the MMC to load U-Boot from, when the MMC is being used
 	  in raw mode. Units: MMC sectors (1 sector = 512 bytes).
 
+config SYS_MMCSD_RAW_MODE_EMMC_BOOT_PARTITION
+	int "Number of the eMMC boot partition to use"
+	default 1
+	help
+	  eMMC boot partition number to use when the eMMC in raw mode.
+
 config SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
 	bool "MMC Raw mode: by partition"
 	help

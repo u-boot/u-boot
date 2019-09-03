@@ -355,6 +355,9 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 	err = -EINVAL;
 	switch (boot_mode) {
 	case MMCSD_MODE_EMMCBOOT:
+#ifdef CONFIG_SYS_MMCSD_RAW_MODE_EMMC_BOOT_PARTITION
+		part = CONFIG_SYS_MMCSD_RAW_MODE_EMMC_BOOT_PARTITION;
+#else
 		/*
 		 * We need to check what the partition is configured to.
 		 * 1 and 2 match up to boot0 / boot1 and 7 is user data
@@ -364,6 +367,7 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 
 		if (part == 7)
 			part = 0;
+#endif
 
 		if (CONFIG_IS_ENABLED(MMC_TINY))
 			err = mmc_switch_part(mmc, part);
