@@ -41,14 +41,17 @@ void efi_add_known_memory(void)
 {
 	struct e820_entry e820[E820MAX];
 	unsigned int i, num;
-	u64 start, pages;
+	u64 start, pages, ram_top;
 	int type;
 
 	num = install_e820_map(ARRAY_SIZE(e820), e820);
 
+	ram_top = (u64)gd->ram_top & ~EFI_PAGE_MASK;
+	if (!ram_top)
+		ram_top = 0x100000000ULL;
+
 	for (i = 0; i < num; ++i) {
 		start = e820[i].addr;
-		pages = ALIGN(e820[i].size, EFI_PAGE_SIZE) >> EFI_PAGE_SHIFT;
 
 		switch (e820[i].type) {
 		case E820_RAM:
@@ -69,7 +72,15 @@ void efi_add_known_memory(void)
 			break;
 		}
 
-		efi_add_memory_map(start, pages, type, false);
+		if (type == EFI_CONVENTIONAL_MEMORY) {
+			efi_add_conventional_memory_map(start,
+							start + e820[i].size,
+							ram_top);
+		} else {
+			pages = ALIGN(e820[i].size, EFI_PAGE_SIZE)
+				>> EFI_PAGE_SHIFT;
+			efi_add_memory_map(start, pages, type, false);
+		}
 	}
 }
 #endif /* CONFIG_IS_ENABLED(EFI_LOADER) */
