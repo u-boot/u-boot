@@ -109,12 +109,6 @@ void displ5_set_iomux_usdhc_spl(void)
 	SETUP_IOMUX_PADS(usdhc4_pads);
 }
 
-void displ5_set_iomux_usdhc(void)
-{
-	SETUP_IOMUX_PADS(usdhc4_pads);
-}
-
 #else
 void displ5_set_iomux_usdhc_spl(void) {}
-void displ5_set_iomux_usdhc(void) {}
 #endif
