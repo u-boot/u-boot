@@ -36,7 +36,6 @@ static bool sw_ids_valid;
 static u32 cpu_id;
 static u32 unit_id;
 
-#define EM_PAD IMX_GPIO_NR(3, 29)
 #define SW0	IMX_GPIO_NR(2, 4)
 #define SW1	IMX_GPIO_NR(2, 5)
 #define SW2	IMX_GPIO_NR(2, 6)
@@ -236,21 +235,24 @@ static inline void setup_boot_modes(void) {}
 
 int misc_init_r(void)
 {
+	struct gpio_desc em_pad;
 	int ret;
 
 	setup_boot_modes();
 
-	ret = gpio_request(EM_PAD, "Emergency_PAD");
+	ret = dm_gpio_lookup_name("GPIO3_29", &em_pad);
+	if (ret) {
+		printf("Can't find emergency PAD gpio\n");
+		return ret;
+	}
+
+	ret = dm_gpio_request(&em_pad, "Emergency_PAD");
 	if (ret) {
 		printf("Can't request emergency PAD gpio\n");
 		return ret;
 	}
 
-	ret = gpio_direction_input(EM_PAD);
-	if (ret) {
-		printf("Can't set emergency PAD direction\n");
-		return ret;
-	}
+	dm_gpio_set_dir_flags(&em_pad, GPIOD_IS_IN);
 
 	return 0;
 }
