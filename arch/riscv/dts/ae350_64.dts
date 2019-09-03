@@ -62,13 +62,18 @@
 				compatible = "riscv,cpu-intc";
 			};
 		};
+	};
 
-		L2: l2-cache@e0500000 {
-			compatible = "cache";
-			cache-level = <2>;
-			cache-size = <0x40000>;
-			reg = <0x0 0xe0500000 0x0 0x40000>;
-		};
+	L2: l2-cache@e0500000 {
+		compatible = "v5l2cache";
+		cache-level = <2>;
+		cache-size = <0x40000>;
+		reg = <0x0 0xe0500000 0x0 0x40000>;
+		andes,inst-prefetch = <3>;
+		andes,data-prefetch = <3>;
+		/* The value format is <XRAMOCTL XRAMICTL> */
+		andes,tag-ram-ctl = <0 0>;
+		andes,data-ram-ctl = <0 0>;
 	};
 
 	memory@0 {

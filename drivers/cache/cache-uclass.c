@@ -17,6 +17,26 @@ int cache_get_info(struct udevice *dev, struct cache_info *info)
 	return ops->get_info(dev, info);
 }
 
+int cache_enable(struct udevice *dev)
+{
+	struct cache_ops *ops = cache_get_ops(dev);
+
+	if (!ops->enable)
+		return -ENOSYS;
+
+	return ops->enable(dev);
+}
+
+int cache_disable(struct udevice *dev)
+{
+	struct cache_ops *ops = cache_get_ops(dev);
+
+	if (!ops->disable)
+		return -ENOSYS;
+
+	return ops->disable(dev);
+}
+
 UCLASS_DRIVER(cache) = {
 	.id		= UCLASS_CACHE,
 	.name		= "cache",

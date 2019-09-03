@@ -269,7 +269,7 @@ fix_rela_dyn:
 /*
  * skip first reserved entry: address, type, addend
  */
-	bne	t1, t2, 7f
+	j	10f
 
 6:
 	LREG	t5, -(REGBYTES*2)(t1)	/* t5 <-- relocation info:type */
@@ -280,9 +280,7 @@ fix_rela_dyn:
 	add	t5, t5, t6		/* t5 <-- location to fix up in RAM */
 	add	t3, t3, t6		/* t3 <-- location to fix up in RAM */
 	SREG	t5, 0(t3)
-7:
-	addi	t1, t1, (REGBYTES*3)
-	ble	t1, t2, 6b
+	j	10f
 
 8:
 	la	t4, __dyn_sym_start
@@ -299,13 +297,15 @@ fix_rela_dyn:
 	li	t5, SYM_SIZE
 	mul	t0, t0, t5
 	add	s5, t4, t0
+	LREG	t0, -(REGBYTES)(t1)	/* t0 <-- addend */
 	LREG	t5, REGBYTES(s5)
+	add	t5, t5, t0
 	add	t5, t5, t6		/* t5 <-- location to fix up in RAM */
 	add	t3, t3, t6		/* t3 <-- location to fix up in RAM */
 	SREG	t5, 0(t3)
 10:
 	addi	t1, t1, (REGBYTES*3)
-	ble	t1, t2, 9b
+	ble	t1, t2, 6b
 
 /*
  * trap update

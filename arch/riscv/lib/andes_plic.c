@@ -44,15 +44,12 @@ static int init_plic(void);
 		}							\
 	} while (0)
 
-static int enable_ipi(int harts)
+static int enable_ipi(int hart)
 {
-	int i;
-	int en = ENABLE_HART_IPI;
+	int en;
 
-	for (i = 0; i < harts; i++) {
-		en = en >> i;
-		writel(en, (void __iomem *)ENABLE_REG(gd->arch.plic, i));
-	}
+	en = ENABLE_HART_IPI >> hart;
+	writel(en, (void __iomem *)ENABLE_REG(gd->arch.plic, hart));
 
 	return 0;
 }
@@ -60,18 +57,35 @@ static int enable_ipi(int harts)
 static int init_plic(void)
 {
 	struct udevice *dev;
+	ofnode node;
 	int ret;
+	u32 reg;
 
 	ret = uclass_find_first_device(UCLASS_CPU, &dev);
 	if (ret)
 		return ret;
 
 	if (ret == 0 && dev) {
-		ret = cpu_get_count(dev);
-		if (ret < 0)
-			return ret;
+		ofnode_for_each_subnode(node, dev_ofnode(dev->parent)) {
+			const char *device_type;
 
-		enable_ipi(ret);
+			device_type = ofnode_read_string(node, "device_type");
+			if (!device_type)
+				continue;
+
+			if (strcmp(device_type, "cpu"))
+				continue;
+
+			/* skip if hart is marked as not available */
+			if (!ofnode_is_available(node))
+				continue;
+
+			/* read hart ID of CPU */
+			ret = ofnode_read_u32(node, "reg", &reg);
+			if (ret == 0)
+				enable_ipi(reg);
+		}
+
 		return 0;
 	}
 

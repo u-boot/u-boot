@@ -14,6 +14,8 @@ static int dm_test_reset(struct unit_test_state *uts)
 
 	ut_assertok(uclass_get_device(UCLASS_CACHE, 0, &dev_cache));
 	ut_assertok(cache_get_info(dev, &info));
+	ut_assertok(cache_enable(dev));
+	ut_assertok(cache_disable(dev));
 
 	return 0;
 }

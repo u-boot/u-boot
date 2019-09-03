@@ -22,6 +22,22 @@ struct cache_ops {
 	 * @return 0 if OK, -ve on error
 	 */
 	int (*get_info)(struct udevice *dev, struct cache_info *info);
+
+	/**
+	 * enable() - Enable cache
+	 *
+	 * @dev:	Device to check (UCLASS_CACHE)
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*enable)(struct udevice *dev);
+
+	/**
+	 * disable() - Flush and disable cache
+	 *
+	 * @dev:	Device to check (UCLASS_CACHE)
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*disable)(struct udevice *dev);
 };
 
 #define cache_get_ops(dev)	((struct cache_ops *)(dev)->driver->ops)
@@ -35,4 +51,19 @@ struct cache_ops {
  */
 int cache_get_info(struct udevice *dev, struct cache_info *info);
 
+/**
+ * cache_enable() - Enable cache
+ *
+ * @dev:	Device to check (UCLASS_CACHE)
+ * @return 0 if OK, -ve on error
+ */
+int cache_enable(struct udevice *dev);
+
+/**
+ * cache_disable() - Flush and disable cache
+ *
+ * @dev:	Device to check (UCLASS_CACHE)
+ * @return 0 if OK, -ve on error
+ */
+int cache_disable(struct udevice *dev);
 #endif

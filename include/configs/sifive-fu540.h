@@ -26,6 +26,7 @@
 #define CONFIG_ENV_SIZE			SZ_128K
 
 #define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 0) \
 	func(DHCP, dhcp, na)
 
 #include <config_distro_bootcmd.h>
