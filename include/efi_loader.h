@@ -478,6 +478,10 @@ efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
 /* Adds a range into the EFI memory map */
 efi_status_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 				bool overlap_only_ram);
+/* Adds a conventional range into the EFI memory map */
+efi_status_t efi_add_conventional_memory_map(u64 ram_start, u64 ram_end,
+					     u64 ram_top);
+
 /* Called by board init to initialize the EFI drivers */
 efi_status_t efi_driver_init(void);
 /* Called by board init to initialize the EFI memory map */
