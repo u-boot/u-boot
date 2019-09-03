@@ -155,111 +155,6 @@ static void displ5_setup_ecspi(void)
 		gpio_direction_output(IMX_GPIO_NR(7, 0), 1);
 }
 
-#ifdef CONFIG_FEC_MXC
-iomux_v3_cfg_t const enet_pads[] = {
-	MX6_PAD_ENET_TXD1__ENET_1588_EVENT0_IN	| MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET_RXD1__ENET_1588_EVENT3_OUT | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET_MDIO__ENET_MDIO		| MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET_MDC__ENET_MDC		| MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET_REF_CLK__ENET_TX_CLK	| MUX_PAD_CTRL(ENET_PAD_CTRL),
-
-	/* for old evalboard with R159 present and R160 not populated */
-	MX6_PAD_GPIO_16__ENET_REF_CLK		| MUX_PAD_CTRL(NO_PAD_CTRL),
-
-	MX6_PAD_RGMII_TXC__RGMII_TXC		| MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_TD0__RGMII_TD0		| MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_TD1__RGMII_TD1		| MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_TD2__RGMII_TD2		| MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_TD3__RGMII_TD3		| MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_TX_CTL__RGMII_TX_CTL	| MUX_PAD_CTRL(ENET_PAD_CTRL),
-
-	MX6_PAD_RGMII_RXC__RGMII_RXC		| MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_RD0__RGMII_RD0		| MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_RD1__RGMII_RD1		| MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_RD2__RGMII_RD2		| MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_RD3__RGMII_RD3		| MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_RX_CTL__RGMII_RX_CTL	| MUX_PAD_CTRL(ENET_PAD_CTRL),
-	/*INT#_GBE*/
-	MX6_PAD_ENET_TX_EN__GPIO1_IO28		| MUX_PAD_CTRL(NO_PAD_CTRL),
-};
-
-static void setup_iomux_enet(void)
-{
-	SETUP_IOMUX_PADS(enet_pads);
-	gpio_direction_input(IMX_GPIO_NR(1, 28)); /*INT#_GBE*/
-}
-
-static int setup_mac_from_fuse(void)
-{
-	unsigned char enetaddr[6];
-	int ret;
-
-	ret = eth_env_get_enetaddr("ethaddr", enetaddr);
-	if (ret)	/* ethaddr is already set */
-		return 0;
-
-	imx_get_mac_from_fuse(0, enetaddr);
-
-	if (is_valid_ethaddr(enetaddr)) {
-		eth_env_set_enetaddr("ethaddr", enetaddr);
-		return 0;
-	}
-
-	return 0;
-}
-
-int board_eth_init(bd_t *bd)
-{
-	struct phy_device *phydev;
-	struct mii_dev *bus;
-	int ret;
-
-	setup_iomux_enet();
-
-	iomuxc_set_rgmii_io_voltage(DDR_SEL_1P5V_IO);
-
-	ret = enable_fec_anatop_clock(0, ENET_125MHZ);
-	if (ret)
-		return ret;
-
-	setup_mac_from_fuse();
-
-	bus = fec_get_miibus(IMX_FEC_BASE, -1);
-	if (!bus)
-		return -ENODEV;
-
-	/*
-	 * We use here the "rgmii-id" mode of operation and allow M88E1512
-	 * PHY to use its internally callibrated RX/TX delays
-	 */
-	phydev = phy_find_by_mask(bus, 0xffffffff /* (0xf << 4) */,
-				  PHY_INTERFACE_MODE_RGMII_ID);
-	if (!phydev) {
-		ret = -ENODEV;
-		goto err_phy;
-	}
-
-	/* display5 due to PCB routing can only work with 100 Mbps */
-	phydev->advertising &= ~(ADVERTISED_1000baseX_Half |
-				 ADVERTISED_1000baseX_Full |
-				 SUPPORTED_1000baseT_Half |
-				 SUPPORTED_1000baseT_Full);
-
-	ret  = fec_probe(bd, -1, IMX_FEC_BASE, bus, phydev);
-	if (ret)
-		goto err_sw;
-
-	return 0;
-
-err_sw:
-	free(phydev);
-err_phy:
-	mdio_unregister(bus);
-	free(bus);
-	return ret;
-}
-#endif /* CONFIG_FEC_MXC */
-
 /*
  * Do not overwrite the console
  * Always use serial for U-Boot console
@@ -277,8 +172,25 @@ int ft_board_setup(void *blob, bd_t *bd)
 }
 #endif
 
+int board_phy_config(struct phy_device *phydev)
+{
+	/* display5 due to PCB routing can only work with 100 Mbps */
+	phydev->advertising &= ~(ADVERTISED_1000baseX_Half |
+				 ADVERTISED_1000baseX_Full |
+				 SUPPORTED_1000baseT_Half |
+				 SUPPORTED_1000baseT_Full);
+
+	if (phydev->drv->config)
+		return phydev->drv->config(phydev);
+
+	return 0;
+}
+
 int board_init(void)
 {
+	struct gpio_desc phy_int_gbe;
+	int ret;
+
 	debug("board init\n");
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
@@ -288,6 +200,7 @@ int board_init(void)
 
 	displ5_setup_ecspi();
 
+	/* Setup misc (application specific) stuff */
 	SETUP_IOMUX_PADS(misc_pads);
 
 	get_board_id(gpio_table_sw_ids, &gpio_table_sw_ids_names[0],
@@ -302,6 +215,19 @@ int board_init(void)
 		printf("ID:    unit type 0x%x rev 0x%x\n", unit_id, cpu_id);
 
 	udelay(25);
+
+	/* Setup low level FEC (ETH) */
+	ret = dm_gpio_lookup_name("GPIO1_28", &phy_int_gbe);
+	if (ret) {
+		printf("Cannot get GPIO1_28\n");
+	} else {
+		ret = dm_gpio_request(&phy_int_gbe, "INT_GBE");
+		if (!ret)
+			dm_gpio_set_dir_flags(&phy_int_gbe, GPIOD_IS_IN);
+	}
+
+	iomuxc_set_rgmii_io_voltage(DDR_SEL_1P5V_IO);
+	enable_fec_anatop_clock(0, ENET_125MHZ);
 
 	return 0;
 }
