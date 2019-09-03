@@ -8,14 +8,6 @@
 #include <asm/arch/mx6-pins.h>
 #include "common.h"
 
-iomux_v3_cfg_t const uart_pads[] = {
-	/* UART4 */
-	MX6_PAD_CSI0_DAT12__UART4_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_CSI0_DAT13__UART4_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_CSI0_DAT16__UART4_RTS_B | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_CSI0_DAT17__UART4_CTS_B | MUX_PAD_CTRL(UART_PAD_CTRL),
-};
-
 iomux_v3_cfg_t const uart_console_pads[] = {
 	/* UART5 */
 	MX6_PAD_CSI0_DAT14__UART5_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
@@ -27,11 +19,6 @@ iomux_v3_cfg_t const uart_console_pads[] = {
 void displ5_set_iomux_uart_spl(void)
 {
 	SETUP_IOMUX_PADS(uart_console_pads);
-}
-
-void displ5_set_iomux_uart(void)
-{
-	SETUP_IOMUX_PADS(uart_pads);
 }
 
 iomux_v3_cfg_t const misc_pads_spl[] = {

@@ -32,7 +32,6 @@
 	PAD_CTL_SPEED_HIGH | PAD_CTL_DSE_40ohm | PAD_CTL_SRE_FAST)
 
 void displ5_set_iomux_uart_spl(void);
-void displ5_set_iomux_uart(void);
 void displ5_set_iomux_ecspi_spl(void);
 void displ5_set_iomux_usdhc_spl(void);
 void displ5_set_iomux_misc_spl(void);

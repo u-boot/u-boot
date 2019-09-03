@@ -174,8 +174,6 @@ int board_init(void)
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
-	/* Setup iomux for non console UARTS */
-	displ5_set_iomux_uart();
 	/* Setup misc (application specific) stuff */
 	SETUP_IOMUX_PADS(misc_pads);
 
