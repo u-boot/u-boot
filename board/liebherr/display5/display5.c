@@ -18,7 +18,6 @@
 #include <asm/gpio.h>
 #include <malloc.h>
 #include <asm/mach-imx/iomux-v3.h>
-#include <asm/mach-imx/mxc_i2c.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/spi.h>
 #include <mmc.h>
@@ -118,49 +117,6 @@ int dram_init(void)
 
 	return 0;
 }
-
-#define PC	MUX_PAD_CTRL(I2C_PAD_CTRL)
-/* I2C1: TFA9879 */
-struct i2c_pads_info i2c_pad_info0 = {
-	.scl = {
-		.i2c_mode = MX6_PAD_EIM_D21__I2C1_SCL | PC,
-		.gpio_mode = MX6_PAD_EIM_D21__GPIO3_IO21 | PC,
-		.gp = IMX_GPIO_NR(3, 21)
-	},
-	.sda = {
-		.i2c_mode = MX6_PAD_EIM_D28__I2C1_SDA | PC,
-		.gpio_mode = MX6_PAD_EIM_D28__GPIO3_IO28 | PC,
-		.gp = IMX_GPIO_NR(3, 28)
-	}
-};
-
-/* I2C2: TIVO TM4C123 */
-struct i2c_pads_info i2c_pad_info1 = {
-	.scl = {
-		.i2c_mode = MX6_PAD_EIM_EB2__I2C2_SCL | PC,
-		.gpio_mode = MX6_PAD_EIM_EB2__GPIO2_IO30 | PC,
-		.gp = IMX_GPIO_NR(2, 30)
-	},
-	.sda = {
-		.i2c_mode = MX6_PAD_EIM_D16__I2C2_SDA | PC,
-		.gpio_mode = MX6_PAD_EIM_D16__GPIO3_IO16 | PC,
-		.gp = IMX_GPIO_NR(3, 16)
-	}
-};
-
-/* I2C3: PMIC PF0100, EEPROM AT24C256C */
-struct i2c_pads_info i2c_pad_info2 = {
-	.scl = {
-		.i2c_mode = MX6_PAD_EIM_D17__I2C3_SCL | PC,
-		.gpio_mode = MX6_PAD_EIM_D17__GPIO3_IO17 | PC,
-		.gp = IMX_GPIO_NR(3, 17)
-	},
-	.sda = {
-		.i2c_mode = MX6_PAD_EIM_D18__I2C3_SDA | PC,
-		.gpio_mode = MX6_PAD_EIM_D18__GPIO3_IO18 | PC,
-		.gp = IMX_GPIO_NR(3, 18)
-	}
-};
 
 iomux_v3_cfg_t const misc_pads[] = {
 	/* Prod ID GPIO pins */
@@ -368,10 +324,6 @@ int board_init(void)
 		printf("ID:    unit type 0x%x rev 0x%x\n", unit_id, cpu_id);
 
 	udelay(25);
-
-	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info0);
-	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
-	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
 
 	return 0;
 }

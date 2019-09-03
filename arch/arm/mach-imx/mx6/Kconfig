@@ -197,6 +197,8 @@ config TARGET_DHCOMIMX6
 config TARGET_DISPLAY5
 	bool "LWN DISPLAY5 board"
 	select DM
+	select DM_I2C
+	select DM_GPIO
 	select DM_SERIAL
 	select SUPPORT_SPL
 	imply CMD_DM
