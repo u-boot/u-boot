@@ -342,7 +342,11 @@
 
 /* Watchdog */
 #define CONFIG_WATCHDOG_TIMEOUT_MSECS   15000
-
+#if defined(CONFIG_SPL_BUILD)
+#undef CONFIG_WDT
+#undef CONFIG_WATCHDOG
+#define CONFIG_HW_WATCHDOG
+#endif
 /* ENV config */
 #ifdef CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SIZE		(SZ_64K)
