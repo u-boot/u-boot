@@ -124,17 +124,16 @@ static char *dp_msging(char *s, struct efi_device_path *dp)
 		break;
 	}
 	case DEVICE_PATH_SUB_TYPE_MSG_MAC_ADDR: {
+		int i, n = sizeof(struct efi_mac_addr);
 		struct efi_device_path_mac_addr *mdp =
 			(struct efi_device_path_mac_addr *)dp;
 
-		if (mdp->if_type != 0 && mdp->if_type != 1)
-			break;
-
-		s += sprintf(s, "MAC(%02x%02x%02x%02x%02x%02x,0x%1x)",
-			mdp->mac.addr[0], mdp->mac.addr[1],
-			mdp->mac.addr[2], mdp->mac.addr[3],
-			mdp->mac.addr[4], mdp->mac.addr[5],
-			mdp->if_type);
+		if (mdp->if_type <= 1)
+			n = 6;
+		s += sprintf(s, "MAC(");
+		for (i = 0; i < n; ++i)
+			s += sprintf(s, "%02x", mdp->mac.addr[i]);
+		s += sprintf(s, ",%u)", mdp->if_type);
 
 		break;
 	}
