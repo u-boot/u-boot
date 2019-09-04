@@ -328,4 +328,15 @@
 		ti,sci-proc-ids = <0x04 0xFF>;
 		resets = <&k3_reset 143 1>;
 	};
+
+	c71_0: dsp@64800000 {
+		compatible = "ti,j721e-c71-dsp";
+		reg = <0x00 0x64800000 0x00 0x00080000>,
+		      <0x00 0x64e00000 0x00 0x0000c000>;
+		reg-names = "l2sram", "l1dram";
+		ti,sci = <&dmsc>;
+		ti,sci-dev-id = <15>;
+		ti,sci-proc-ids = <0x30 0xFF>;
+		resets = <&k3_reset 15 1>;
+	};
 };

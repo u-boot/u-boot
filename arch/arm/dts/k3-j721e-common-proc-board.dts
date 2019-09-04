@@ -22,6 +22,7 @@
 		remoteproc5 = &main_r5fss1_core1;
 		remoteproc6 = &c66_0;
 		remoteproc7 = &c66_1;
+		remoteproc8 = &c71_0;
 	};
 };
 
