@@ -351,7 +351,7 @@ int checkboard(void)
 
 	puts("SERDES1 Reference: Clock1 = 161.13MHz Clock2 = 161.13MHz\n");
 	puts("SERDES2 Reference: Clock1 = 100MHz Clock2 = 100MHz\n");
-	puts("SERDES3 Reference: Clock1 = 100MHz Clock2 = 100Hz\n");
+	puts("SERDES3 Reference: Clock1 = 100MHz Clock2 = 100MHz\n");
 #endif
 	return 0;
 }
