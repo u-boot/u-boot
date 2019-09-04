@@ -80,13 +80,13 @@ struct mm_region j721e_mem_map[NR_MMU_REGIONS] = {
 	}, {
 		.virt = 0xa0000000UL,
 		.phys = 0xa0000000UL,
-		.size = 0x0bc00000UL,
+		.size = 0x1bc00000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL_NC) |
 			 PTE_BLOCK_NON_SHARE
 	}, {
-		.virt = 0xabc00000UL,
-		.phys = 0xabc00000UL,
-		.size = 0x54400000UL,
+		.virt = 0xbbc00000UL,
+		.phys = 0xbbc00000UL,
+		.size = 0x44400000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
