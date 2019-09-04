@@ -379,6 +379,10 @@ static efi_status_t EFIAPI efi_cout_set_mode(
 
 	if (mode_number >= efi_con_mode.max_mode)
 		return EFI_EXIT(EFI_UNSUPPORTED);
+
+	if (!efi_cout_modes[mode_number].present)
+		return EFI_EXIT(EFI_UNSUPPORTED);
+
 	efi_con_mode.mode = mode_number;
 	EFI_CALL(efi_cout_clear_screen(this));
 
