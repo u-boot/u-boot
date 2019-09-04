@@ -665,7 +665,7 @@ static void *dp_part_node(void *buf, struct blk_desc *desc, int part)
 		cddp->dp.sub_type = DEVICE_PATH_SUB_TYPE_CDROM_PATH;
 		cddp->dp.length = sizeof(*cddp);
 		cddp->partition_start = info.start;
-		cddp->partition_end = info.size;
+		cddp->partition_size = info.size;
 
 		buf = &cddp[1];
 	} else {

@@ -214,7 +214,8 @@ static char *dp_media(char *s, struct efi_device_path *dp)
 	case DEVICE_PATH_SUB_TYPE_CDROM_PATH: {
 		struct efi_device_path_cdrom_path *cddp =
 			(struct efi_device_path_cdrom_path *)dp;
-		s += sprintf(s, "CDROM(0x%x)", cddp->boot_entry);
+		s += sprintf(s, "CDROM(%u,0x%llx,0x%llx)", cddp->boot_entry,
+			     cddp->partition_start, cddp->partition_size);
 		break;
 	}
 	case DEVICE_PATH_SUB_TYPE_FILE_PATH: {
