@@ -488,8 +488,8 @@
 				compatible = "snps,dwc3";
 				status = "disabled";
 				reg = <0 0xfe200000 0 0x10000>;
-				interrupt-names = "dwc_usb3", "otg";
-				interrupts = <0 0x16 4>, <0 0x1A 4>;
+				interrupt-names = "dwc_usb3", "otg", "usb-wakeup";
+				interrupts = <0 0x16 4>, <0 0x1A 4>, <0x0 0x4a 0x4>;
 				#stream-id-cells = <1>;
 				/* iommus = <&smmu 0x230>; */
 				snps,dis_u2_susphy_quirk;
