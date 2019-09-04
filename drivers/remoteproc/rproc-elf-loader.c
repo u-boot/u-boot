@@ -251,3 +251,27 @@ int rproc_elf_load_image(struct udevice *dev, ulong addr, ulong size)
 	else
 		return rproc_elf32_load_image(dev, addr, size);
 }
+
+static ulong rproc_elf32_get_boot_addr(ulong addr)
+{
+	Elf32_Ehdr *ehdr = (Elf32_Ehdr *)addr;
+
+	return ehdr->e_entry;
+}
+
+static ulong rproc_elf64_get_boot_addr(ulong addr)
+{
+	Elf64_Ehdr *ehdr = (Elf64_Ehdr *)addr;
+
+	return ehdr->e_entry;
+}
+
+ulong rproc_elf_get_boot_addr(struct udevice *dev, ulong addr)
+{
+	Elf32_Ehdr *ehdr = (Elf32_Ehdr *)addr;
+
+	if (ehdr->e_ident[EI_CLASS] == ELFCLASS64)
+		return rproc_elf64_get_boot_addr(addr);
+	else
+		return rproc_elf32_get_boot_addr(addr);
+}

@@ -267,6 +267,16 @@ int rproc_elf64_load_image(struct udevice *dev, ulong addr, ulong size);
  * @return 0 if the image is successfully loaded, else appropriate error value.
  */
 int rproc_elf_load_image(struct udevice *dev, unsigned long addr, ulong size);
+
+/**
+ * rproc_elf_get_boot_addr() - Get rproc's boot address.
+ * @dev:	device loading the ELF image
+ * @addr:	valid ELF image address
+ *
+ * This function returns the entry point address of the ELF
+ * image.
+ */
+ulong rproc_elf_get_boot_addr(struct udevice *dev, ulong addr);
 #else
 static inline int rproc_init(void) { return -ENOSYS; }
 static inline int rproc_dev_init(int id) { return -ENOSYS; }
@@ -292,6 +302,8 @@ static inline int rproc_elf64_load_image(struct udevice *dev, ulong addr,
 static inline int rproc_elf_load_image(struct udevice *dev, ulong addr,
 				       ulong size)
 { return -ENOSYS; }
+static inline ulong rproc_elf_get_boot_addr(struct udevice *dev, ulong addr)
+{ return 0; }
 #endif
 
 #endif	/* _RPROC_H_ */
