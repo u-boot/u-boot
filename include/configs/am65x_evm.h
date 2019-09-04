@@ -12,6 +12,7 @@
 #include <linux/sizes.h>
 #include <config_distro_bootcmd.h>
 #include <environment/ti/mmc.h>
+#include <environment/ti/k3_rproc.h>
 
 #define CONFIG_ENV_SIZE			(128 << 10)
 
@@ -98,12 +99,20 @@
 		"${bootdir}/${name_fit}\0"				\
 	"partitions=" PARTS_DEFAULT
 
+#ifdef DEFAULT_RPROCS
+#undef DEFAULT_RPROCS
+#endif
+#define DEFAULT_RPROCS	""						\
+		"0 /lib/firmware/am65x-mcu-r5f0_0-fw "			\
+		"1 /lib/firmware/am65x-mcu-r5f0_1-fw "
+
 /* Incorporate settings into the U-Boot environment */
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	DEFAULT_MMC_TI_ARGS						\
 	DEFAULT_FIT_TI_ARGS						\
 	EXTRA_ENV_AM65X_BOARD_SETTINGS					\
-	EXTRA_ENV_AM65X_BOARD_SETTINGS_MMC
+	EXTRA_ENV_AM65X_BOARD_SETTINGS_MMC				\
+	EXTRA_ENV_RPROC_SETTINGS
 
 /* MMC ENV related defines */
 #ifdef CONFIG_ENV_IS_IN_MMC
