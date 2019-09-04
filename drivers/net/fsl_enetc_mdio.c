@@ -144,6 +144,7 @@ U_BOOT_DRIVER(enetc_mdio) = {
 
 static struct pci_device_id enetc_mdio_ids[] = {
 	{ PCI_DEVICE(PCI_VENDOR_ID_FREESCALE, PCI_DEVICE_ID_ENETC_MDIO) },
+	{ }
 };
 
 U_BOOT_PCI_DEVICE(enetc_mdio, enetc_mdio_ids);

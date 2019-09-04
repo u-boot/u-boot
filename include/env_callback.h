@@ -42,7 +42,7 @@
 #define DNS_CALLBACK
 #endif
 
-#ifdef CONFIG_CMD_NET
+#ifdef CONFIG_NET
 #define NET_CALLBACKS \
 	"bootfile:bootfile," \
 	"ipaddr:ipaddr," \

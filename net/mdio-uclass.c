@@ -23,6 +23,17 @@ void dm_mdio_probe_devices(void)
 
 static int dm_mdio_post_bind(struct udevice *dev)
 {
+	const char *dt_name;
+
+	/* set a custom name for the MDIO device, if present in DT */
+	if (ofnode_valid(dev->node)) {
+		dt_name = ofnode_read_string(dev->node, "device-name");
+		if (dt_name) {
+			debug("renaming dev %s to %s\n", dev->name, dt_name);
+			device_set_name(dev, dt_name);
+		}
+	}
+
 	/*
 	 * MDIO command doesn't like spaces in names, don't allow them to keep
 	 * it happy
@@ -75,7 +86,7 @@ static int dm_mdio_post_probe(struct udevice *dev)
 	pdata->mii_bus->write = mdio_write;
 	pdata->mii_bus->reset = mdio_reset;
 	pdata->mii_bus->priv = dev;
-	strncpy(pdata->mii_bus->name, dev->name, MDIO_NAME_LEN);
+	strncpy(pdata->mii_bus->name, dev->name, MDIO_NAME_LEN - 1);
 
 	return mdio_register(pdata->mii_bus);
 }

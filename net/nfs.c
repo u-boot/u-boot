@@ -196,10 +196,10 @@ static void rpc_req(int rpc_prog, int rpc_proc, uint32_t *data, int datalen)
 		rpc_pkt.u.call.vers = htonl(2);	/* portmapper is version 2 */
 	}
 	rpc_pkt.u.call.proc = htonl(rpc_proc);
-	p = (uint32_t *)&(rpc_pkt.u.call.data);
+	p = rpc_pkt.u.call.data;
 
 	if (datalen)
-		memcpy((char *)p, (char *)data, datalen*sizeof(uint32_t));
+		memcpy(p, data, datalen * sizeof(uint32_t));
 
 	pktlen = (char *)p + datalen * sizeof(uint32_t) - (char *)&rpc_pkt;
 
@@ -566,11 +566,15 @@ static int nfs_lookup_reply(uchar *pkt, unsigned len)
 	}
 
 	if (supported_nfs_versions & NFSV2_FLAG) {
+		if (((uchar *)&(rpc_pkt.u.reply.data[0]) - (uchar *)(&rpc_pkt) + NFS_FHSIZE) > len)
+			return -NFS_RPC_DROP;
 		memcpy(filefh, rpc_pkt.u.reply.data + 1, NFS_FHSIZE);
 	} else {  /* NFSV3_FLAG */
 		filefh3_length = ntohl(rpc_pkt.u.reply.data[1]);
 		if (filefh3_length > NFS3_FHSIZE)
 			filefh3_length  = NFS3_FHSIZE;
+		if (((uchar *)&(rpc_pkt.u.reply.data[0]) - (uchar *)(&rpc_pkt) + filefh3_length) > len)
+			return -NFS_RPC_DROP;
 		memcpy(filefh, rpc_pkt.u.reply.data + 2, filefh3_length);
 	}
 
@@ -579,7 +583,7 @@ static int nfs_lookup_reply(uchar *pkt, unsigned len)
 
 static int nfs3_get_attributes_offset(uint32_t *data)
 {
-	if (ntohl(data[1]) != 0) {
+	if (data[1]) {
 		/* 'attributes_follow' flag is TRUE,
 		 * so we have attributes on 21 dwords */
 		/* Skip unused values :
@@ -633,6 +637,9 @@ static int nfs_readlink_reply(uchar *pkt, unsigned len)
 
 	/* new path length */
 	rlen = ntohl(rpc_pkt.u.reply.data[1 + nfsv3_data_offset]);
+
+	if (((uchar *)&(rpc_pkt.u.reply.data[0]) - (uchar *)(&rpc_pkt) + rlen) > len)
+		return -NFS_RPC_DROP;
 
 	if (*((char *)&(rpc_pkt.u.reply.data[2 + nfsv3_data_offset])) != '/') {
 		int pathlen;
@@ -701,6 +708,9 @@ static int nfs_read_reply(uchar *pkt, unsigned len)
 			&(rpc_pkt.u.reply.data[4 + nfsv3_data_offset]);
 	}
 
+	if (((uchar *)&(rpc_pkt.u.reply.data[0]) - (uchar *)(&rpc_pkt) + rlen) > len)
+			return -9999;
+
 	if (store_block(data_ptr, nfs_offset, rlen))
 			return -9999;
 
@@ -731,6 +741,9 @@ static void nfs_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 	int reply;
 
 	debug("%s\n", __func__);
+
+	if (len > sizeof(struct rpc_t))
+		return;
 
 	if (dest != nfs_our_port)
 		return;

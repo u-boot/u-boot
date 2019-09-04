@@ -78,7 +78,7 @@ struct rpc_t {
 				NFS_MAX_ATTRS];
 		} reply;
 	} u;
-} __attribute__((packed));
+};
 void nfs_start(void);	/* Begin NFS */
 
 

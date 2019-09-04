@@ -36,7 +36,7 @@ enum env_flags_varaccess {
 #define CONFIG_ENV_FLAGS_LIST_STATIC ""
 #endif
 
-#ifdef CONFIG_CMD_NET
+#ifdef CONFIG_NET
 #ifdef CONFIG_REGEX
 #define ETHADDR_WILDCARD "\\d*"
 #else

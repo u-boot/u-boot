@@ -5321,6 +5321,13 @@ static void mvpp2_stop(struct udevice *dev)
 	mvpp2_cleanup_txqs(port);
 }
 
+static int mvpp2_write_hwaddr(struct udevice *dev)
+{
+	struct mvpp2_port *port = dev_get_priv(dev);
+
+	return mvpp2_prs_update_mac_da(port, port->dev_addr);
+}
+
 static int mvpp22_smi_phy_addr_cfg(struct mvpp2_port *port)
 {
 	writel(port->phyaddr, port->priv->iface_base +
@@ -5525,6 +5532,7 @@ static const struct eth_ops mvpp2_ops = {
 	.send		= mvpp2_send,
 	.recv		= mvpp2_recv,
 	.stop		= mvpp2_stop,
+	.write_hwaddr	= mvpp2_write_hwaddr
 };
 
 static struct driver mvpp2_driver = {

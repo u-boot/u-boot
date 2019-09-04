@@ -17,6 +17,7 @@
 #include <misc.h>
 #include <mtd.h>
 #include <mtd_node.h>
+#include <netdev.h>
 #include <phy.h>
 #include <remoteproc.h>
 #include <reset.h>
@@ -683,12 +684,21 @@ void board_quiesce_devices(void)
 #endif
 }
 
-/* board interface eth init */
-int board_interface_eth_init(phy_interface_t interface_type,
-			     bool eth_clk_sel_reg, bool eth_ref_clk_sel_reg)
+/* eth init function : weak called in eqos driver */
+int board_interface_eth_init(struct udevice *dev,
+			     phy_interface_t interface_type)
 {
 	u8 *syscfg;
 	u32 value;
+	bool eth_clk_sel_reg = false;
+	bool eth_ref_clk_sel_reg = false;
+
+	/* Gigabit Ethernet 125MHz clock selection. */
+	eth_clk_sel_reg = dev_read_bool(dev, "st,eth_clk_sel");
+
+	/* Ethernet 50Mhz RMII clock selection */
+	eth_ref_clk_sel_reg =
+		dev_read_bool(dev, "st,eth_ref_clk_sel");
 
 	syscfg = (u8 *)syscon_get_first_range(STM32MP_SYSCON_SYSCFG);
 

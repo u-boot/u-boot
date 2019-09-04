@@ -97,3 +97,11 @@ Deadline: 2019.07
 The video subsystem has supported driver model since early 2016. Maintainers
 should submit patches switching over to using CONFIG_DM_VIDEO and other base
 driver model options in time for inclusion in the 2019.07 release.
+
+CONFIG_DM_ETH
+-------------
+Deadline: 2020.07
+
+The network subsystem has supported the driver model since early 2015.
+Maintainers should submit patches switching over to using CONFIG_DM_ETH and
+other base driver model options in time for inclusion in the 2020.07 release.

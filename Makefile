@@ -1026,6 +1026,17 @@ ifneq ($(CONFIG_WDT),y)
 	@echo >&2 "===================================================="
 endif
 endif
+ifneq ($(CONFIG_NET),)
+ifneq ($(CONFIG_DM_ETH),y)
+	@echo >&2 "===================== WARNING ======================"
+	@echo >&2 "This board does not use CONFIG_DM_ETH (Driver Model"
+	@echo >&2 "for Ethernet drivers). Please update the board to use"
+	@echo >&2 "CONFIG_DM_ETH before the v2020.07 release. Failure to"
+	@echo >&2 "update by the deadline may result in board removal."
+	@echo >&2 "See doc/driver-model/migration.rst for more info."
+	@echo >&2 "===================================================="
+endif
+endif
 	@# Check that this build does not use CONFIG options that we do not
 	@# know about unless they are in Kconfig. All the existing CONFIG
 	@# options are whitelisted, so new ones should not be added.

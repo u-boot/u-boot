@@ -621,7 +621,7 @@ err:
 	return ret;
 }
 
-void eqos_stop_clks_tegra186(struct udevice *dev)
+static void eqos_stop_clks_tegra186(struct udevice *dev)
 {
 	struct eqos_priv *eqos = dev_get_priv(dev);
 
@@ -636,7 +636,7 @@ void eqos_stop_clks_tegra186(struct udevice *dev)
 	debug("%s: OK\n", __func__);
 }
 
-void eqos_stop_clks_stm32(struct udevice *dev)
+static void eqos_stop_clks_stm32(struct udevice *dev)
 {
 	struct eqos_priv *eqos = dev_get_priv(dev);
 
@@ -1290,7 +1290,7 @@ err:
 	return ret;
 }
 
-void eqos_stop(struct udevice *dev)
+static void eqos_stop(struct udevice *dev)
 {
 	struct eqos_priv *eqos = dev_get_priv(dev);
 	int i;
@@ -1344,7 +1344,7 @@ void eqos_stop(struct udevice *dev)
 	debug("%s: OK\n", __func__);
 }
 
-int eqos_send(struct udevice *dev, void *packet, int length)
+static int eqos_send(struct udevice *dev, void *packet, int length)
 {
 	struct eqos_priv *eqos = dev_get_priv(dev);
 	struct eqos_desc *tx_desc;
@@ -1385,7 +1385,7 @@ int eqos_send(struct udevice *dev, void *packet, int length)
 	return -ETIMEDOUT;
 }
 
-int eqos_recv(struct udevice *dev, int flags, uchar **packetp)
+static int eqos_recv(struct udevice *dev, int flags, uchar **packetp)
 {
 	struct eqos_priv *eqos = dev_get_priv(dev);
 	struct eqos_desc *rx_desc;
@@ -1409,7 +1409,7 @@ int eqos_recv(struct udevice *dev, int flags, uchar **packetp)
 	return length;
 }
 
-int eqos_free_pkt(struct udevice *dev, uchar *packet, int length)
+static int eqos_free_pkt(struct udevice *dev, uchar *packet, int length)
 {
 	struct eqos_priv *eqos = dev_get_priv(dev);
 	uchar *packet_expected;
@@ -1591,8 +1591,8 @@ err_free_reset_eqos:
 }
 
 /* board-specific Ethernet Interface initializations. */
-__weak int board_interface_eth_init(int interface_type, bool eth_clk_sel_reg,
-				    bool eth_ref_clk_sel_reg)
+__weak int board_interface_eth_init(struct udevice *dev,
+				    phy_interface_t interface_type)
 {
 	return 0;
 }
@@ -1602,8 +1602,6 @@ static int eqos_probe_resources_stm32(struct udevice *dev)
 	struct eqos_priv *eqos = dev_get_priv(dev);
 	int ret;
 	phy_interface_t interface;
-	bool eth_clk_sel_reg = false;
-	bool eth_ref_clk_sel_reg = false;
 
 	debug("%s(dev=%p):\n", __func__, dev);
 
@@ -1614,15 +1612,7 @@ static int eqos_probe_resources_stm32(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	/* Gigabit Ethernet 125MHz clock selection. */
-	eth_clk_sel_reg = dev_read_bool(dev, "st,eth_clk_sel");
-
-	/* Ethernet 50Mhz RMII clock selection */
-	eth_ref_clk_sel_reg =
-		dev_read_bool(dev, "st,eth_ref_clk_sel");
-
-	ret = board_interface_eth_init(interface, eth_clk_sel_reg,
-				       eth_ref_clk_sel_reg);
+	ret = board_interface_eth_init(dev, interface);
 	if (ret)
 		return -EINVAL;
 
