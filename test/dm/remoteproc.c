@@ -171,11 +171,8 @@ static int dm_test_remoteproc_elf(struct unit_test_state *uts)
 	ut_assertnonnull(loaded_firmware);
 	memset(loaded_firmware, 0, loaded_firmware_size);
 
-	/* Verify valid ELF format */
-	ut_assertok(rproc_elf32_sanity_check((ulong)valid_elf32, size));
-
 	/* Load firmware in loaded_firmware, and verify it */
-	ut_assertok(rproc_elf32_load_image(dev, (unsigned long)valid_elf32));
+	ut_assertok(rproc_elf32_load_image(dev, (ulong)valid_elf32, size));
 	ut_assertok(memcmp(loaded_firmware, valid_elf32, loaded_firmware_size));
 	unmap_physmem(loaded_firmware, MAP_NOCACHE);
 

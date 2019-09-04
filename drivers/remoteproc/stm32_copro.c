@@ -155,14 +155,7 @@ static int stm32_copro_load(struct udevice *dev, ulong addr, ulong size)
 		return ret;
 	}
 
-	/* Support only ELF32 image */
-	ret = rproc_elf32_sanity_check(addr, size);
-	if (ret) {
-		dev_err(dev, "Invalid ELF32 image (%d)\n", ret);
-		return ret;
-	}
-
-	return rproc_elf32_load_image(dev, addr);
+	return rproc_elf32_load_image(dev, addr, size);
 }
 
 /**

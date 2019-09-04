@@ -64,13 +64,18 @@ int rproc_elf32_sanity_check(ulong addr, ulong size)
 	return 0;
 }
 
-/* A very simple elf loader, assumes the image is valid */
-int rproc_elf32_load_image(struct udevice *dev, unsigned long addr)
+int rproc_elf32_load_image(struct udevice *dev, unsigned long addr, ulong size)
 {
 	Elf32_Ehdr *ehdr; /* Elf header structure pointer */
 	Elf32_Phdr *phdr; /* Program header structure pointer */
 	const struct dm_rproc_ops *ops;
-	unsigned int i;
+	unsigned int i, ret;
+
+	ret =  rproc_elf32_sanity_check(addr, size);
+	if (ret) {
+		dev_err(dev, "Invalid ELF32 Image %d\n", ret);
+		return ret;
+	}
 
 	ehdr = (Elf32_Ehdr *)addr;
 	phdr = (Elf32_Phdr *)(addr + ehdr->e_phoff);

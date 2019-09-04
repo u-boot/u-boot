@@ -218,9 +218,10 @@ int rproc_elf32_sanity_check(ulong addr, ulong size);
  * rproc_elf32_load_image() - load an ELF32 image
  * @dev:	device loading the ELF32 image
  * @addr:	valid ELF32 image address
+ * @size:	size of the image
  * @return 0 if the image is successfully loaded, else appropriate error value.
  */
-int rproc_elf32_load_image(struct udevice *dev, unsigned long addr);
+int rproc_elf32_load_image(struct udevice *dev, unsigned long addr, ulong size);
 #else
 static inline int rproc_init(void) { return -ENOSYS; }
 static inline int rproc_dev_init(int id) { return -ENOSYS; }
@@ -234,7 +235,8 @@ static inline int rproc_is_running(int id) { return -ENOSYS; }
 static inline int rproc_elf32_sanity_check(ulong addr,
 					   ulong size) { return -ENOSYS; }
 static inline int rproc_elf32_load_image(struct udevice *dev,
-					 unsigned long addr) { return -ENOSYS; }
+					 unsigned long addr, ulong size)
+{ return -ENOSYS; }
 #endif
 
 #endif	/* _RPROC_H_ */
