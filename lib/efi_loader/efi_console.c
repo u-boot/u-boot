@@ -156,13 +156,14 @@ static efi_status_t EFIAPI efi_cout_output_string(
 	 * Update the cursor position.
 	 *
 	 * The UEFI spec provides advance rules for U+0000, U+0008, U+000A,
-	 * and U000D. All other characters, including control characters
-	 * U+0007 (BEL) and U+0009 (TAB), have to increase the column by one.
+	 * and U000D. All other control characters are ignored. Any non-control
+	 * character increase the column by one.
 	 */
 	for (p = string; *p; ++p) {
 		switch (*p) {
 		case '\b':	/* U+0008, backspace */
-			con->cursor_column = max(0, con->cursor_column - 1);
+			if (con->cursor_column)
+				con->cursor_column--;
 			break;
 		case '\n':	/* U+000A, newline */
 			con->cursor_column = 0;
@@ -178,14 +179,21 @@ static efi_status_t EFIAPI efi_cout_output_string(
 			 */
 			break;
 		default:
-			con->cursor_column++;
+			/* Exclude control codes */
+			if (*p > 0x1f)
+				con->cursor_column++;
 			break;
 		}
 		if (con->cursor_column >= mode->columns) {
 			con->cursor_column = 0;
 			con->cursor_row++;
 		}
-		con->cursor_row = min(con->cursor_row, (s32)mode->rows - 1);
+		/*
+		 * When we exceed the row count the terminal will scroll up one
+		 * line. We have to adjust the cursor position.
+		 */
+		if (con->cursor_row >= mode->rows && con->cursor_row)
+			con->cursor_row--;
 	}
 
 out:
