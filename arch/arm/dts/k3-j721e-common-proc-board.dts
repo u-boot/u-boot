@@ -16,6 +16,10 @@
 	aliases {
 		remoteproc0 = &mcu_r5fss0_core0;
 		remoteproc1 = &mcu_r5fss0_core1;
+		remoteproc2 = &main_r5fss0_core0;
+		remoteproc3 = &main_r5fss0_core1;
+		remoteproc4 = &main_r5fss1_core0;
+		remoteproc5 = &main_r5fss1_core1;
 	};
 };
 
