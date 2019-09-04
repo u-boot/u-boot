@@ -107,16 +107,24 @@ static int stm32_copro_set_hold_boot(struct udevice *dev, bool hold)
  * stm32_copro_device_to_virt() - Convert device address to virtual address
  * @dev:	corresponding STM32 remote processor device
  * @da:		device address
+ * @size:	Size of the memory region @da is pointing to
  * @return converted virtual address
  */
-static void *stm32_copro_device_to_virt(struct udevice *dev, ulong da)
+static void *stm32_copro_device_to_virt(struct udevice *dev, ulong da,
+					ulong size)
 {
-	fdt32_t in_addr = cpu_to_be32(da);
+	fdt32_t in_addr = cpu_to_be32(da), end_addr;
 	u64 paddr;
 
 	paddr = dev_translate_dma_address(dev, &in_addr);
 	if (paddr == OF_BAD_ADDR) {
 		dev_err(dev, "Unable to convert address %ld\n", da);
+		return NULL;
+	}
+
+	end_addr = cpu_to_be32(da + size - 1);
+	if (dev_translate_dma_address(dev, &end_addr) == OF_BAD_ADDR) {
+		dev_err(dev, "Unable to convert address %ld\n", da + size - 1);
 		return NULL;
 	}
 

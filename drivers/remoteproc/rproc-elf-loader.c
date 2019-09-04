@@ -86,7 +86,8 @@ int rproc_elf32_load_image(struct udevice *dev, unsigned long addr)
 			continue;
 
 		if (ops->device_to_virt)
-			dst = ops->device_to_virt(dev, (ulong)dst);
+			dst = ops->device_to_virt(dev, (ulong)dst,
+						  phdr->p_memsz);
 
 		dev_dbg(dev, "Loading phdr %i to 0x%p (%i bytes)\n",
 			i, dst, phdr->p_filesz);

@@ -122,9 +122,10 @@ struct dm_rproc_ops {
 	 *
 	 * @dev:	Remote proc device
 	 * @da:		Device address
+	 * @size:	Size of the memory region @da is pointing to
 	 * @return virtual address.
 	 */
-	void * (*device_to_virt)(struct udevice *dev, ulong da);
+	void * (*device_to_virt)(struct udevice *dev, ulong da, ulong size);
 };
 
 /* Accessor */
