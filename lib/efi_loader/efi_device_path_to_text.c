@@ -141,7 +141,7 @@ static char *dp_msging(char *s, struct efi_device_path *dp)
 		struct efi_device_path_usb_class *ucdp =
 			(struct efi_device_path_usb_class *)dp;
 
-		s += sprintf(s, "USBClass(%x,%x,%x,%x,%x)",
+		s += sprintf(s, "UsbClass(0x%x,0x%x,0x%x,0x%x,0x%x)",
 			ucdp->vendor_id, ucdp->product_id,
 			ucdp->device_class, ucdp->device_subclass,
 			ucdp->device_protocol);
