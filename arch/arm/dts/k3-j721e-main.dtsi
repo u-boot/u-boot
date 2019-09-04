@@ -304,4 +304,28 @@
 			loczrama = <1>;
 		};
 	};
+
+	c66_0: dsp@4d80800000 {
+		compatible = "ti,j721e-c66-dsp";
+		reg = <0x4d 0x80800000 0x00 0x00048000>,
+		      <0x4d 0x80e00000 0x00 0x00008000>,
+		      <0x4d 0x80f00000 0x00 0x00008000>;
+		reg-names = "l2sram", "l1pram", "l1dram";
+		ti,sci = <&dmsc>;
+		ti,sci-dev-id = <142>;
+		ti,sci-proc-ids = <0x03 0xFF>;
+		resets = <&k3_reset 142 1>;
+	};
+
+	c66_1: dsp@4d81800000 {
+		compatible = "ti,j721e-c66-dsp";
+		reg = <0x4d 0x81800000 0x00 0x00048000>,
+		      <0x4d 0x81e00000 0x00 0x00008000>,
+		      <0x4d 0x81f00000 0x00 0x00008000>;
+		reg-names = "l2sram", "l1pram", "l1dram";
+		ti,sci = <&dmsc>;
+		ti,sci-dev-id = <143>;
+		ti,sci-proc-ids = <0x04 0xFF>;
+		resets = <&k3_reset 143 1>;
+	};
 };
