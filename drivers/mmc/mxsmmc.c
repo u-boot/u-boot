@@ -432,8 +432,8 @@ mxsmmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd, struct mmc_data *data)
 
 	/* Check command timeout */
 	if (reg & SSP_STATUS_RESP_TIMEOUT) {
-		printf("MMC%d: Command %d timeout (status 0x%08x)\n",
-		       devnum, cmd->cmdidx, reg);
+		debug("MMC%d: Command %d timeout (status 0x%08x)\n",
+		      devnum, cmd->cmdidx, reg);
 		return -ETIMEDOUT;
 	}
 
