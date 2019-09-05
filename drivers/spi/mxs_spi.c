@@ -584,7 +584,7 @@ U_BOOT_DRIVER(mxs_spi) = {
 	.of_match = mxs_spi_ids,
 	.ofdata_to_platdata = mxs_ofdata_to_platdata,
 #endif
-	.priv_auto_alloc_size = sizeof(struct mxs_spi_platdata),
+	.platdata_auto_alloc_size = sizeof(struct mxs_spi_platdata),
 	.ops	= &mxs_spi_ops,
 	.priv_auto_alloc_size = sizeof(struct mxs_spi_priv),
 	.probe	= mxs_spi_probe,
