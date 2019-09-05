@@ -1660,8 +1660,8 @@ static int sd_select_mode_and_width(struct mmc *mmc, uint card_caps)
 #if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT)
 	if (!uhs_en && !(mmc_host_is_spi(mmc)) &&
 	    mmc->scr[0] & SD_SCR0_SPEC3 &&
-	    mmc->card_caps >= UHS_SDR50 &&
-	    mmc->host_caps >= UHS_SDR50) {
+	    (mmc->card_caps & MMC_MODE_MASK) >= MMC_CAP(UHS_SDR50) &&
+	    (mmc->host_caps & MMC_MODE_MASK) >= MMC_CAP(UHS_SDR50)) {
 		uhs_en = true;
 		err = mmc_set_signal_voltage(mmc, MMC_SIGNAL_VOLTAGE_180);
 		if (err)
