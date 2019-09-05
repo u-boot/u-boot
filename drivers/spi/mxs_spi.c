@@ -436,6 +436,8 @@ static int mxs_spi_probe(struct udevice *bus)
 	priv->dma_channel = plat->dma_id;
 	priv->clk_id = plat->clk_id;
 
+	mxs_reset_block(&priv->regs->hw_ssp_ctrl0_reg);
+
 	ret = mxs_dma_init_channel(priv->dma_channel);
 	if (ret) {
 		printf("%s: DMA init channel error %d\n", __func__, ret);
