@@ -41,11 +41,26 @@ struct efi_disk_obj {
 	struct blk_desc *desc;
 };
 
+/**
+ * efi_disk_reset() - reset block device
+ *
+ * This function implements the Reset service of the EFI_BLOCK_IO_PROTOCOL.
+ *
+ * As U-Boot's block devices do not have a reset function simply return
+ * EFI_SUCCESS.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * @this:			pointer to the BLOCK_IO_PROTOCOL
+ * @extended_verification:	extended verification
+ * Return:			status code
+ */
 static efi_status_t EFIAPI efi_disk_reset(struct efi_block_io *this,
 			char extended_verification)
 {
 	EFI_ENTRY("%p, %x", this, extended_verification);
-	return EFI_EXIT(EFI_DEVICE_ERROR);
+	return EFI_EXIT(EFI_SUCCESS);
 }
 
 enum efi_disk_direction {
