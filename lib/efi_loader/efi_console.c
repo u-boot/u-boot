@@ -219,9 +219,9 @@ static bool cout_mode_matches(struct cout_mode *mode, int rows, int cols)
 /**
  * query_console_serial() - query console size
  *
- * @rows	pointer to return number of rows
- * @columns	pointer to return number of columns
- * Returns	0 on success
+ * @rows:	pointer to return number of rows
+ * @cols:	pointer to return number of columns
+ * Returns:	0 on success
  */
 static int query_console_serial(int *rows, int *cols)
 {
@@ -464,7 +464,7 @@ struct efi_simple_text_output_protocol efi_con_out = {
  * struct efi_cin_notify_function - registered console input notify function
  *
  * @link:	link to list
- * @data:	key to notify
+ * @key:	key to notify
  * @function:	function to call
  */
 struct efi_cin_notify_function {
@@ -482,6 +482,7 @@ static LIST_HEAD(cin_notify_functions);
  * set_shift_mask() - set shift mask
  *
  * @mod:	Xterm shift mask
+ * @key_state:  receives the state of the shift, alt, control, and logo keys
  */
 void set_shift_mask(int mod, struct efi_key_state *key_state)
 {
@@ -504,7 +505,7 @@ void set_shift_mask(int mod, struct efi_key_state *key_state)
  *
  * This gets called when we have already parsed CSI.
  *
- * @modifiers:  bit mask (shift, alt, ctrl)
+ * @key_state:  receives the state of the shift, alt, control, and logo keys
  * @return:	the unmodified code
  */
 static int analyze_modifiers(struct efi_key_state *key_state)

@@ -399,7 +399,7 @@ out:
  * Protocol. See the UEFI spec for details.
  *
  * @this:		the instance of the Simple Network Protocol
- * @readwrite:		true for read, false for write
+ * @read_write:		true for read, false for write
  * @offset:		offset in NVRAM
  * @buffer_size:	size of buffer
  * @buffer:		buffer
@@ -639,6 +639,9 @@ out:
  * efi_net_set_dhcp_ack() - take note of a selected DHCP IP address
  *
  * This function is called by dhcp_handler().
+ *
+ * @pkt:	packet received by dhcp_handler()
+ * @len:	length of the packet received
  */
 void efi_net_set_dhcp_ack(void *pkt, int len)
 {
@@ -668,8 +671,8 @@ static void efi_net_push(void *pkt, int len)
  *
  * This notification function is called in every timer cycle.
  *
- * @event	the event for which this notification function is registered
- * @context	event context - not used in this function
+ * @event:	the event for which this notification function is registered
+ * @context:	event context - not used in this function
  */
 static void EFIAPI efi_network_timer_notify(struct efi_event *event,
 					    void *context)
