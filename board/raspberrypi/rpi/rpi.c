@@ -148,6 +148,11 @@ static const struct rpi_model rpi_models_new_scheme[] = {
 		DTB_DIR "bcm2837-rpi-cm3.dtb",
 		false,
 	},
+	[0x11] = {
+		"4 Model B",
+		DTB_DIR "bcm2711-rpi-4-b.dtb",
+		true,
+	},
 };
 
 static const struct rpi_model rpi_models_old_scheme[] = {
@@ -244,7 +249,8 @@ static uint32_t rev_type;
 static const struct rpi_model *model;
 
 #ifdef CONFIG_ARM64
-static struct mm_region bcm2837_mem_map[] = {
+#ifndef CONFIG_BCM2711
+static struct mm_region bcm283x_mem_map[] = {
 	{
 		.virt = 0x00000000UL,
 		.phys = 0x00000000UL,
@@ -263,8 +269,28 @@ static struct mm_region bcm2837_mem_map[] = {
 		0,
 	}
 };
-
-struct mm_region *mem_map = bcm2837_mem_map;
+#else
+static struct mm_region bcm283x_mem_map[] = {
+	{
+		.virt = 0x00000000UL,
+		.phys = 0x00000000UL,
+		.size = 0xfe000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_INNER_SHARE
+	}, {
+		.virt = 0xfe000000UL,
+		.phys = 0xfe000000UL,
+		.size = 0x01800000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE |
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	}, {
+		/* List terminator */
+		0,
+	}
+};
+#endif
+struct mm_region *mem_map = bcm283x_mem_map;
 #endif
 
 int dram_init(void)

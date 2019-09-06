@@ -178,12 +178,13 @@ static int bcm2835_sdhci_probe(struct udevice *dev)
 	fdt_addr_t base;
 	int emmc_freq;
 	int ret;
+	int clock_id = (int)dev_get_driver_data(dev);
 
 	base = devfdt_get_addr(dev);
 	if (base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
-	ret = bcm2835_get_mmc_clock(BCM2835_MBOX_CLOCK_ID_EMMC);
+	ret = bcm2835_get_mmc_clock(clock_id);
 	if (ret < 0) {
 		debug("%s: Failed to set MMC clock (err=%d)\n", __func__, ret);
 		return ret;
@@ -230,7 +231,14 @@ static int bcm2835_sdhci_probe(struct udevice *dev)
 }
 
 static const struct udevice_id bcm2835_sdhci_match[] = {
-	{ .compatible = "brcm,bcm2835-sdhci" },
+	{
+		.compatible = "brcm,bcm2835-sdhci",
+		.data = BCM2835_MBOX_CLOCK_ID_EMMC
+	},
+	{
+		.compatible = "brcm,bcm2711-emmc2",
+		.data = BCM2835_MBOX_CLOCK_ID_EMMC2
+	},
 	{ /* sentinel */ }
 };
 

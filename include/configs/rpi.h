@@ -55,6 +55,10 @@
 #define CONFIG_SYS_MEMTEST_END		0x00200000
 #define CONFIG_LOADADDR			0x00200000
 
+#ifdef CONFIG_ARM64
+#define CONFIG_SYS_BOOTM_LEN		SZ_64M
+#endif
+
 /* Devices */
 /* GPIO */
 #define CONFIG_BCM2835_GPIO
