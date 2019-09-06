@@ -596,9 +596,9 @@ static int tpm_tis_spi_probe(struct udevice *dev)
 			log(LOGC_NONE, LOGL_NOTICE, "%s: missing reset GPIO\n",
 			    __func__);
 		} else {
-			dm_gpio_set_value(&reset_gpio, 0);
-			mdelay(1);
 			dm_gpio_set_value(&reset_gpio, 1);
+			mdelay(1);
+			dm_gpio_set_value(&reset_gpio, 0);
 		}
 	}
 
