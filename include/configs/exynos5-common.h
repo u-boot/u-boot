@@ -128,9 +128,9 @@
 #define EXYNOS_IRAM_SECONDARY_BASE	0x02020018
 
 #define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 2) \
 	func(MMC, mmc, 1) \
 	func(MMC, mmc, 0) \
-	func(MMC, mmc, 2) \
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
 
