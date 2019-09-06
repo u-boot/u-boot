@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- *  EFI utils
+ * EFI_FILE_PROTOCOL
  *
- *  Copyright (c) 2017 Rob Clark
+ * Copyright (c) 2017 Rob Clark
  */
 
 #include <common.h>
@@ -28,6 +28,7 @@ struct file_handle {
 	struct file_system *fs;
 	loff_t offset;       /* current file position/cursor */
 	int isdir;
+	u64 open_mode;
 
 	/* for reading a directory: */
 	struct fs_dir_stream *dirs;
@@ -161,13 +162,13 @@ static int efi_create_file(struct file_handle *fh, u64 attributes)
  * @file_name:		path of the file to be opened. '\', '.', or '..' may
  *			be used as modifiers. A leading backslash indicates an
  *			absolute path.
- * @mode:		bit mask indicating the access mode (read, write,
+ * @open_mode:		bit mask indicating the access mode (read, write,
  *			create)
  * @attributes:		attributes for newly created file
  * Returns:		handle to the opened file or NULL
  */
 static struct efi_file_handle *file_open(struct file_system *fs,
-		struct file_handle *parent, u16 *file_name, u64 mode,
+		struct file_handle *parent, u16 *file_name, u64 open_mode,
 		u64 attributes)
 {
 	struct file_handle *fh;
@@ -190,6 +191,7 @@ static struct efi_file_handle *file_open(struct file_system *fs,
 	/* +2 is for null and '/' */
 	fh = calloc(1, sizeof(*fh) + plen + (flen * MAX_UTF8_PER_UTF16) + 2);
 
+	fh->open_mode = open_mode;
 	fh->base = efi_file_handle_protocol;
 	fh->fs = fs;
 
@@ -218,8 +220,10 @@ static struct efi_file_handle *file_open(struct file_system *fs,
 			goto error;
 
 		if (!exists) {
-			if (!(mode & EFI_FILE_MODE_CREATE) ||
+			if (!(open_mode & EFI_FILE_MODE_CREATE) ||
 			    efi_create_file(fh, attributes))
+				goto error;
+			if (set_blk_dev(fh))
 				goto error;
 		}
 
@@ -434,6 +438,19 @@ error:
 	return EFI_EXIT(ret);
 }
 
+/**
+ * efi_file_write() - write to file
+ *
+ * This function implements the Write() service of the EFI_FILE_PROTOCOL.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * @file:		file handle
+ * @buffer_size:	number of bytes to write
+ * @buffer:		buffer with the bytes to write
+ * Return:		status code
+ */
 static efi_status_t EFIAPI efi_file_write(struct efi_file_handle *file,
 					  efi_uintn_t *buffer_size,
 					  void *buffer)
@@ -444,21 +461,35 @@ static efi_status_t EFIAPI efi_file_write(struct efi_file_handle *file,
 
 	EFI_ENTRY("%p, %p, %p", file, buffer_size, buffer);
 
-	if (set_blk_dev(fh)) {
-		ret = EFI_DEVICE_ERROR;
-		goto error;
+	if (!file || !buffer_size || !buffer) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+	if (fh->isdir) {
+		ret = EFI_UNSUPPORTED;
+		goto out;
+	}
+	if (!(fh->open_mode & EFI_FILE_MODE_WRITE)) {
+		ret = EFI_ACCESS_DENIED;
+		goto out;
 	}
 
+	if (!*buffer_size)
+		goto out;
+
+	if (set_blk_dev(fh)) {
+		ret = EFI_DEVICE_ERROR;
+		goto out;
+	}
 	if (fs_write(fh->path, map_to_sysmem(buffer), fh->offset, *buffer_size,
 		     &actwrite)) {
 		ret = EFI_DEVICE_ERROR;
-		goto error;
+		goto out;
 	}
-
 	*buffer_size = actwrite;
 	fh->offset += actwrite;
 
-error:
+out:
 	return EFI_EXIT(ret);
 }
 
