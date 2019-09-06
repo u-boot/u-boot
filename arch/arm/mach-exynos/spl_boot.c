@@ -44,6 +44,32 @@ void *get_irom_func(int index)
 	return (void *)*(u32 *)irom_ptr_table[index];
 }
 
+#ifdef CONFIG_ITOP4412
+#define GPL2CON (0x11000100)
+#define GPL2DAT (0x11000104)
+#define GPK1CON (0x11000060)
+#define GPK1DAT (0x11000064)
+
+void early_led_on(uint8_t led)
+{
+        uint8_t val;
+
+        /* LED2 */
+        val = led & 0x01;
+        if (val) {
+                clrsetbits_le32(GPL2CON, 0xf << 0, 0x01 << 0);
+                setbits_8(GPL2DAT, 1);
+        }
+
+        /* LED3 */
+        val = led & 0x02;
+        if (val) {
+                clrsetbits_le32(GPK1CON, 0xf << 4, 0x01 << 4);
+                setbits_8(GPK1DAT, 1 << 1);
+        }
+}
+#endif
+
 #ifdef CONFIG_USB_BOOTING
 /*
  * Set/clear program flow prediction and return the previous state.
