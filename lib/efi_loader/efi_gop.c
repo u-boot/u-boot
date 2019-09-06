@@ -319,7 +319,7 @@ static efi_status_t gop_blt_vid_to_buf(struct efi_gop *this,
  * details.
  *
  * @this:		the graphical output protocol
- * @model_number:	the mode to be set
+ * @mode_number:	the mode to be set
  * Return:		status code
  */
 static efi_status_t EFIAPI gop_set_mode(struct efi_gop *this, u32 mode_number)

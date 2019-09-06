@@ -483,7 +483,7 @@ struct efi_device_path_cdrom_path {
 	struct efi_device_path dp;
 	u32 boot_entry;
 	u64 partition_start;
-	u64 partition_end;
+	u64 partition_size;
 } __packed;
 
 struct efi_device_path_file_path {
@@ -1281,6 +1281,8 @@ struct efi_simple_network {
 			struct efi_mac_address *dest_addr, u16 *protocol);
 	struct efi_event *wait_for_packet;
 	struct efi_simple_network_mode *mode;
+	/* private fields */
+	u32 int_status;
 };
 
 #define EFI_PXE_BASE_CODE_PROTOCOL_GUID \

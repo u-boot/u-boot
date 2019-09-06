@@ -60,9 +60,18 @@ static char *dp_hardware(char *s, struct efi_device_path *dp)
 		break;
 	}
 	case DEVICE_PATH_SUB_TYPE_VENDOR: {
+		int i, n;
 		struct efi_device_path_vendor *vdp =
 			(struct efi_device_path_vendor *)dp;
-		s += sprintf(s, "VenHw(%pUl)", &vdp->guid);
+
+		s += sprintf(s, "VenHw(%pUl", &vdp->guid);
+		n = (int)vdp->dp.length - sizeof(struct efi_device_path_vendor);
+		if (n > 0) {
+			s += sprintf(s, ",");
+			for (i = 0; i < n; ++i)
+				s += sprintf(s, "%02x", vdp->vendor_data[i]);
+		}
+		s += sprintf(s, ")");
 		break;
 	}
 	default:
@@ -115,17 +124,16 @@ static char *dp_msging(char *s, struct efi_device_path *dp)
 		break;
 	}
 	case DEVICE_PATH_SUB_TYPE_MSG_MAC_ADDR: {
+		int i, n = sizeof(struct efi_mac_addr);
 		struct efi_device_path_mac_addr *mdp =
 			(struct efi_device_path_mac_addr *)dp;
 
-		if (mdp->if_type != 0 && mdp->if_type != 1)
-			break;
-
-		s += sprintf(s, "MAC(%02x%02x%02x%02x%02x%02x,0x%1x)",
-			mdp->mac.addr[0], mdp->mac.addr[1],
-			mdp->mac.addr[2], mdp->mac.addr[3],
-			mdp->mac.addr[4], mdp->mac.addr[5],
-			mdp->if_type);
+		if (mdp->if_type <= 1)
+			n = 6;
+		s += sprintf(s, "MAC(");
+		for (i = 0; i < n; ++i)
+			s += sprintf(s, "%02x", mdp->mac.addr[i]);
+		s += sprintf(s, ",%u)", mdp->if_type);
 
 		break;
 	}
@@ -133,7 +141,7 @@ static char *dp_msging(char *s, struct efi_device_path *dp)
 		struct efi_device_path_usb_class *ucdp =
 			(struct efi_device_path_usb_class *)dp;
 
-		s += sprintf(s, "USBClass(%x,%x,%x,%x,%x)",
+		s += sprintf(s, "UsbClass(0x%x,0x%x,0x%x,0x%x,0x%x)",
 			ucdp->vendor_id, ucdp->product_id,
 			ucdp->device_class, ucdp->device_subclass,
 			ucdp->device_protocol);
@@ -206,7 +214,8 @@ static char *dp_media(char *s, struct efi_device_path *dp)
 	case DEVICE_PATH_SUB_TYPE_CDROM_PATH: {
 		struct efi_device_path_cdrom_path *cddp =
 			(struct efi_device_path_cdrom_path *)dp;
-		s += sprintf(s, "CDROM(0x%x)", cddp->boot_entry);
+		s += sprintf(s, "CDROM(%u,0x%llx,0x%llx)", cddp->boot_entry,
+			     cddp->partition_start, cddp->partition_size);
 		break;
 	}
 	case DEVICE_PATH_SUB_TYPE_FILE_PATH: {

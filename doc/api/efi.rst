@@ -103,3 +103,36 @@ Block device driver
 
 .. kernel-doc:: lib/efi_driver/efi_block_device.c
    :internal:
+
+Protocols
+---------
+
+Block IO protocol
+~~~~~~~~~~~~~~~~~
+
+.. kernel-doc:: lib/efi_loader/efi_disk.c
+   :internal:
+
+File protocol
+~~~~~~~~~~~~~
+
+.. kernel-doc:: lib/efi_loader/efi_file.c
+   :internal:
+
+Graphical output protocol
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. kernel-doc:: lib/efi_loader/efi_gop.c
+   :internal:
+
+Network protocols
+~~~~~~~~~~~~~~~~~
+
+.. kernel-doc:: lib/efi_loader/efi_net.c
+   :internal:
+
+Text IO protocols
+~~~~~~~~~~~~~~~~~
+
+.. kernel-doc:: lib/efi_loader/efi_console.c
+   :internal:
