@@ -409,21 +409,6 @@
 			reg = <0 0xfd800000 0 0x40000>;
 			stream-match-mask = <0x7c00>;
 			#iommu-cells = <1>;
-			mmu-masters = < &gem0 0x234
-					&gem1 0x235
-					&usb0 0x230
-					&qspi 0x244
-					&lpd_dma_chan0 0x210
-					&lpd_dma_chan1 0x212
-					&lpd_dma_chan2 0x214
-					&lpd_dma_chan3 0x216
-					&lpd_dma_chan4 0x218
-					&lpd_dma_chan5 0x21a
-					&lpd_dma_chan6 0x21c
-					&lpd_dma_chan7 0x21e
-					&sdhci0 0x242
-					&sdhci1 0x243
-					>;
 			#global-interrupts = <1>;
 			interrupts = <0 107 4>,
 				     <0 107 4>, <0 107 4>, <0 107 4>, <0 107 4>,
