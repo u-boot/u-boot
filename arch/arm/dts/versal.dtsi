@@ -82,6 +82,13 @@
 		u-boot,dm-pre-reloc;
 	};
 
+	fpga: fpga {
+		compatible = "fpga-region";
+		fpga-mgr = <&versal_fpga>;
+		#address-cells = <2>;
+		#size-cells = <2>;
+	};
+
 	psci: psci {
 		compatible = "arm,psci-0.2";
 		method = "smc";
@@ -94,6 +101,10 @@
 			     <1 14 4>,
 			     <1 11 4>,
 			     <1 10 4>;
+	};
+
+	versal_fpga: versal_fpga {
+		compatible = "xlnx,versal-fpga";
 	};
 
 	amba_apu: amba_apu {
