@@ -339,6 +339,7 @@ static efi_status_t dir_read(struct file_handle *fh, u64 *buffer_size,
 	struct efi_file_info *info = buffer;
 	struct fs_dirent *dent;
 	unsigned int required_size;
+	u16 *dst;
 
 	if (!fh->dirs) {
 		assert(fh->offset == 0);
@@ -381,7 +382,8 @@ static efi_status_t dir_read(struct file_handle *fh, u64 *buffer_size,
 	}
 
 	/* check buffer size: */
-	required_size = sizeof(*info) + 2 * (strlen(dent->name) + 1);
+	required_size = sizeof(*info) +
+			2 * (utf8_utf16_strlen(dent->name) + 1);
 	if (*buffer_size < required_size) {
 		*buffer_size = required_size;
 		fh->dent = dent;
@@ -398,7 +400,8 @@ static efi_status_t dir_read(struct file_handle *fh, u64 *buffer_size,
 	if (dent->type == FS_DT_DIR)
 		info->attribute |= EFI_FILE_DIRECTORY;
 
-	ascii2unicode(info->file_name, dent->name);
+	dst = info->file_name;
+	utf8_utf16_strcpy(&dst, dent->name);
 
 	fh->offset++;
 
@@ -577,6 +580,7 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
 {
 	struct file_handle *fh = to_fh(file);
 	efi_status_t ret = EFI_SUCCESS;
+	u16 *dst;
 
 	EFI_ENTRY("%p, %pUl, %p, %p", file, info_type, buffer_size, buffer);
 
@@ -587,7 +591,8 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
 		loff_t file_size;
 
 		/* check buffer size: */
-		required_size = sizeof(*info) + 2 * (strlen(filename) + 1);
+		required_size = sizeof(*info) +
+				2 * (utf8_utf16_strlen(filename) + 1);
 		if (*buffer_size < required_size) {
 			*buffer_size = required_size;
 			ret = EFI_BUFFER_TOO_SMALL;
@@ -613,7 +618,8 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
 		if (fh->isdir)
 			info->attribute |= EFI_FILE_DIRECTORY;
 
-		ascii2unicode(info->file_name, filename);
+		dst = info->file_name;
+		utf8_utf16_strcpy(&dst, filename);
 	} else if (!guidcmp(info_type, &efi_file_system_info_guid)) {
 		struct efi_file_system_info *info = buffer;
 		disk_partition_t part;
@@ -628,8 +634,9 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
 			ret = EFI_DEVICE_ERROR;
 			goto error;
 		}
-		required_size = sizeof(info) + 2 *
-				(strlen((const char *)part.name) + 1);
+		required_size = sizeof(*info) + 2 *
+				(utf8_utf16_strlen((const char *)part.name) +
+				 1);
 		if (*buffer_size < required_size) {
 			*buffer_size = required_size;
 			ret = EFI_BUFFER_TOO_SMALL;
@@ -647,8 +654,8 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
 		 * TODO: The volume label is not available in U-Boot.
 		 * Use the partition name as substitute.
 		 */
-		ascii2unicode((u16 *)info->volume_label,
-			      (const char *)part.name);
+		dst = info->volume_label;
+		utf8_utf16_strcpy(&dst, (const char *)part.name);
 	} else {
 		ret = EFI_UNSUPPORTED;
 	}

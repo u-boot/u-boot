@@ -555,22 +555,6 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 	(((_dp)->type == DEVICE_PATH_TYPE_##_type) && \
 	 ((_dp)->sub_type == DEVICE_PATH_SUB_TYPE_##_subtype))
 
-/**
- * ascii2unicode() - convert ASCII string to UTF-16 string
- *
- * A zero terminated ASCII string is converted to a zero terminated UTF-16
- * string. The output buffer must be preassigned.
- *
- * @unicode:	preassigned output buffer for UTF-16 string
- * @ascii:	ASCII string to be converted
- */
-static inline void ascii2unicode(u16 *unicode, const char *ascii)
-{
-	while (*ascii)
-		*(unicode++) = *(ascii++);
-	*unicode = 0;
-}
-
 static inline int guidcmp(const void *g1, const void *g2)
 {
 	return memcmp(g1, g2, sizeof(efi_guid_t));

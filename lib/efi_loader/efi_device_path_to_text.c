@@ -29,15 +29,15 @@ const efi_guid_t efi_guid_device_path_to_text_protocol =
 static u16 *efi_str_to_u16(char *str)
 {
 	efi_uintn_t len;
-	u16 *out;
+	u16 *out, *dst;
 	efi_status_t ret;
 
-	len = strlen(str) + 1;
-	ret = efi_allocate_pool(EFI_ALLOCATE_ANY_PAGES, len * sizeof(u16),
-				(void **)&out);
+	len = sizeof(u16) * (utf8_utf16_strlen(str) + 1);
+	ret = efi_allocate_pool(EFI_ALLOCATE_ANY_PAGES, len, (void **)&out);
 	if (ret != EFI_SUCCESS)
 		return NULL;
-	ascii2unicode(out, str);
+	dst = out;
+	utf8_utf16_strcpy(&dst, str);
 	return out;
 }
 
