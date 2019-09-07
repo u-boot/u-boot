@@ -526,6 +526,7 @@ static int device_get_device_tail(struct udevice *dev, int ret,
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 /**
  * device_find_by_ofnode() - Return device associated with given ofnode
  *
@@ -552,6 +553,7 @@ static int device_find_by_ofnode(ofnode node, struct udevice **devp)
 
 	return -ENODEV;
 }
+#endif
 
 int device_get_child(struct udevice *parent, int index, struct udevice **devp)
 {
@@ -817,6 +819,7 @@ int device_set_name(struct udevice *dev, const char *name)
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 bool device_is_compatible(struct udevice *dev, const char *compat)
 {
 	return ofnode_device_is_compatible(dev_ofnode(dev), compat);
@@ -879,3 +882,4 @@ int dev_enable_by_path(const char *path)
 
 	return lists_bind_fdt(parent, node, NULL, false);
 }
+#endif

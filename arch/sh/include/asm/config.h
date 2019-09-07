@@ -8,9 +8,11 @@
 
 #include <asm/processor.h>
 
+#define CONFIG_LMB
+
 /* Timer */
 #define CONFIG_SYS_TIMER_COUNTS_DOWN
-#define CONFIG_SYS_TIMER_COUNTER	(TMU_BASE + 0x8)	/* TCNT0 */
+#define CONFIG_SYS_TIMER_COUNTER	(TMU_BASE + 0xc)	/* TCNT0 */
 #define CONFIG_SYS_TIMER_RATE		(CONFIG_SYS_CLK_FREQ / 4)
 
 #endif

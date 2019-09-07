@@ -137,6 +137,7 @@ config SANDBOX
 config SH
 	bool "SuperH architecture"
 	select HAVE_PRIVATE_LIBGCC
+	select SUPPORT_OF_CONTROL
 
 config X86
 	bool "x86 architecture"
