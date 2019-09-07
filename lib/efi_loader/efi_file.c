@@ -338,7 +338,7 @@ static efi_status_t dir_read(struct file_handle *fh, u64 *buffer_size,
 {
 	struct efi_file_info *info = buffer;
 	struct fs_dirent *dent;
-	unsigned int required_size;
+	u64 required_size;
 	u16 *dst;
 
 	if (!fh->dirs) {
@@ -346,6 +346,7 @@ static efi_status_t dir_read(struct file_handle *fh, u64 *buffer_size,
 		fh->dirs = fs_opendir(fh->path);
 		if (!fh->dirs)
 			return EFI_DEVICE_ERROR;
+		fh->dent = NULL;
 	}
 
 	/*
@@ -356,28 +357,13 @@ static efi_status_t dir_read(struct file_handle *fh, u64 *buffer_size,
 	 */
 	if (fh->dent) {
 		dent = fh->dent;
-		fh->dent = NULL;
 	} else {
 		dent = fs_readdir(fh->dirs);
 	}
 
-
 	if (!dent) {
-		/* no more files in directory: */
-		/* workaround shim.efi bug/quirk.. as find_boot_csv()
-		 * loops through directory contents, it initially calls
-		 * read w/ zero length buffer to find out how much mem
-		 * to allocate for the EFI_FILE_INFO, then allocates,
-		 * and then calls a 2nd time.  If we return size of
-		 * zero the first time, it happily passes that to
-		 * AllocateZeroPool(), and when that returns NULL it
-		 * thinks it is EFI_OUT_OF_RESOURCES.  So on first
-		 * call return a non-zero size:
-		 */
-		if (*buffer_size == 0)
-			*buffer_size = sizeof(*info);
-		else
-			*buffer_size = 0;
+		/* no more files in directory */
+		*buffer_size = 0;
 		return EFI_SUCCESS;
 	}
 
@@ -389,6 +375,7 @@ static efi_status_t dir_read(struct file_handle *fh, u64 *buffer_size,
 		fh->dent = dent;
 		return EFI_BUFFER_TOO_SMALL;
 	}
+	fh->dent = NULL;
 
 	*buffer_size = required_size;
 	memset(info, 0, required_size);
