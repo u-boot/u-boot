@@ -318,11 +318,42 @@ static efi_status_t EFIAPI efi_file_delete(struct efi_file_handle *file)
 	return EFI_EXIT(ret);
 }
 
+/**
+ * efi_get_file_size() - determine the size of a file
+ *
+ * @fh:		file handle
+ * @file_size:	pointer to receive file size
+ * Return:	status code
+ */
+static efi_status_t efi_get_file_size(struct file_handle *fh,
+				      loff_t *file_size)
+{
+	if (set_blk_dev(fh))
+		return EFI_DEVICE_ERROR;
+
+	if (fs_size(fh->path, file_size))
+		return EFI_DEVICE_ERROR;
+
+	return EFI_SUCCESS;
+}
+
 static efi_status_t file_read(struct file_handle *fh, u64 *buffer_size,
 		void *buffer)
 {
 	loff_t actread;
+	efi_status_t ret;
+	loff_t file_size;
 
+	ret = efi_get_file_size(fh, &file_size);
+	if (ret != EFI_SUCCESS)
+		return ret;
+	if (file_size < fh->offset) {
+		ret = EFI_DEVICE_ERROR;
+		return ret;
+	}
+
+	if (set_blk_dev(fh))
+		return EFI_DEVICE_ERROR;
 	if (fs_read(fh->path, map_to_sysmem(buffer), fh->offset,
 		    *buffer_size, &actread))
 		return EFI_DEVICE_ERROR;
@@ -340,6 +371,9 @@ static efi_status_t dir_read(struct file_handle *fh, u64 *buffer_size,
 	struct fs_dirent *dent;
 	u64 required_size;
 	u16 *dst;
+
+	if (set_blk_dev(fh))
+		return EFI_DEVICE_ERROR;
 
 	if (!fh->dirs) {
 		assert(fh->offset == 0);
@@ -406,11 +440,6 @@ static efi_status_t EFIAPI efi_file_read(struct efi_file_handle *file,
 
 	if (!buffer_size || !buffer) {
 		ret = EFI_INVALID_PARAMETER;
-		goto error;
-	}
-
-	if (set_blk_dev(fh)) {
-		ret = EFI_DEVICE_ERROR;
 		goto error;
 	}
 
@@ -541,16 +570,9 @@ static efi_status_t EFIAPI efi_file_setpos(struct efi_file_handle *file,
 	if (pos == ~0ULL) {
 		loff_t file_size;
 
-		if (set_blk_dev(fh)) {
-			ret = EFI_DEVICE_ERROR;
+		ret = efi_get_file_size(fh, &file_size);
+		if (ret != EFI_SUCCESS)
 			goto error;
-		}
-
-		if (fs_size(fh->path, &file_size)) {
-			ret = EFI_DEVICE_ERROR;
-			goto error;
-		}
-
 		pos = file_size;
 	}
 
@@ -586,15 +608,9 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
 			goto error;
 		}
 
-		if (set_blk_dev(fh)) {
-			ret = EFI_DEVICE_ERROR;
+		ret = efi_get_file_size(fh, &file_size);
+		if (ret != EFI_SUCCESS)
 			goto error;
-		}
-
-		if (fs_size(fh->path, &file_size)) {
-			ret = EFI_DEVICE_ERROR;
-			goto error;
-		}
 
 		memset(info, 0, required_size);
 
@@ -693,14 +709,9 @@ static efi_status_t EFIAPI efi_file_setinfo(struct efi_file_handle *file,
 		}
 		free(new_file_name);
 		/* Check for truncation */
-		if (set_blk_dev(fh)) {
-			ret = EFI_DEVICE_ERROR;
+		ret = efi_get_file_size(fh, &file_size);
+		if (ret != EFI_SUCCESS)
 			goto out;
-		}
-		if (fs_size(fh->path, &file_size)) {
-			ret = EFI_DEVICE_ERROR;
-			goto out;
-		}
 		if (file_size != info->file_size) {
 			/* TODO: we do not support truncation */
 			EFI_PRINT("Truncation not supported\n");
