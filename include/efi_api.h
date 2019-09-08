@@ -1461,6 +1461,12 @@ struct efi_pxe_base_code_protocol {
 #define EFI_FILE_PROTOCOL_REVISION2	0x00020000
 #define EFI_FILE_PROTOCOL_LATEST_REVISION EFI_FILE_PROTOCOL_REVISION2
 
+struct efi_file_io_token {
+	struct efi_event *event;
+	efi_status_t status;
+	efi_uintn_t buffer_size;
+	void *buffer;};
+
 struct efi_file_handle {
 	u64 rev;
 	efi_status_t (EFIAPI *open)(struct efi_file_handle *file,
@@ -1483,10 +1489,16 @@ struct efi_file_handle {
 			const efi_guid_t *info_type, efi_uintn_t buffer_size,
 			void *buffer);
 	efi_status_t (EFIAPI *flush)(struct efi_file_handle *file);
-	/*
-	 * TODO: We currently only support EFI file protocol revision 0x00010000
-	 *	 while UEFI specs 2.4 - 2.7 prescribe revision 0x00020000.
-	 */
+	efi_status_t (EFIAPI *open_ex)(struct efi_file_handle *file,
+			struct efi_file_handle **new_handle,
+			u16 *file_name, u64 open_mode, u64 attributes,
+			struct efi_file_io_token *token);
+	efi_status_t (EFIAPI *read_ex)(struct efi_file_handle *file,
+			struct efi_file_io_token *token);
+	efi_status_t (EFIAPI *write_ex)(struct efi_file_handle *file,
+			struct efi_file_io_token *token);
+	efi_status_t (EFIAPI *flush_ex)(struct efi_file_handle *file,
+			struct efi_file_io_token *token);
 };
 
 #define EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_REVISION 0x00010000

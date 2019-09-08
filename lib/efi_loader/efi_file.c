@@ -741,12 +741,34 @@ static efi_status_t EFIAPI efi_file_flush(struct efi_file_handle *file)
 	return EFI_EXIT(EFI_SUCCESS);
 }
 
+static efi_status_t EFIAPI efi_file_open_ex(struct efi_file_handle *file,
+			struct efi_file_handle **new_handle,
+			u16 *file_name, u64 open_mode, u64 attributes,
+			struct efi_file_io_token *token)
+{
+	return EFI_UNSUPPORTED;
+}
+
+static efi_status_t EFIAPI efi_file_read_ex(struct efi_file_handle *file,
+			struct efi_file_io_token *token)
+{
+	return EFI_UNSUPPORTED;
+}
+
+static efi_status_t EFIAPI efi_file_write_ex(struct efi_file_handle *file,
+			struct efi_file_io_token *token)
+{
+	return EFI_UNSUPPORTED;
+}
+
+static efi_status_t EFIAPI efi_file_flush_ex(struct efi_file_handle *file,
+			struct efi_file_io_token *token)
+{
+	return EFI_UNSUPPORTED;
+}
+
 static const struct efi_file_handle efi_file_handle_protocol = {
-	/*
-	 * TODO: We currently only support EFI file protocol revision 0x00010000
-	 *	 while UEFI specs 2.4 - 2.7 prescribe revision 0x00020000.
-	 */
-	.rev = EFI_FILE_PROTOCOL_REVISION,
+	.rev = EFI_FILE_PROTOCOL_REVISION2,
 	.open = efi_file_open,
 	.close = efi_file_close,
 	.delete = efi_file_delete,
@@ -757,6 +779,10 @@ static const struct efi_file_handle efi_file_handle_protocol = {
 	.getinfo = efi_file_getinfo,
 	.setinfo = efi_file_setinfo,
 	.flush = efi_file_flush,
+	.open_ex = efi_file_open_ex,
+	.read_ex = efi_file_read_ex,
+	.write_ex = efi_file_write_ex,
+	.flush_ex = efi_file_flush_ex,
 };
 
 /**
