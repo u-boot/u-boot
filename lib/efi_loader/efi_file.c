@@ -695,7 +695,9 @@ static efi_status_t EFIAPI efi_file_setinfo(struct efi_file_handle *file,
 		char *new_file_name, *pos;
 		loff_t file_size;
 
-		if (buffer_size < sizeof(struct efi_file_info)) {
+		/* The buffer will always contain a file name. */
+		if (buffer_size < sizeof(struct efi_file_info) + 2 ||
+		    buffer_size < info->size) {
 			ret = EFI_BAD_BUFFER_SIZE;
 			goto out;
 		}
@@ -735,12 +737,8 @@ static efi_status_t EFIAPI efi_file_setinfo(struct efi_file_handle *file,
 		 * TODO: Support read only
 		 */
 		ret = EFI_SUCCESS;
-	} else if (!guidcmp(info_type, &efi_file_system_info_guid)) {
-		if (buffer_size < sizeof(struct efi_file_system_info)) {
-			ret = EFI_BAD_BUFFER_SIZE;
-			goto out;
-		}
 	} else {
+		/* TODO: We do not support changing the volume label */
 		ret = EFI_UNSUPPORTED;
 	}
 out:
