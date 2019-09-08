@@ -596,6 +596,12 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
 
 	EFI_ENTRY("%p, %pUl, %p, %p", file, info_type, buffer_size, buffer);
 
+	if (!file || !info_type || !buffer_size ||
+	    (*buffer_size && !buffer)) {
+		ret = EFI_INVALID_PARAMETER;
+		goto error;
+	}
+
 	if (!guidcmp(info_type, &efi_file_info_guid)) {
 		struct efi_file_info *info = buffer;
 		char *filename = basename(fh);
