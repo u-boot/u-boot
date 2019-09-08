@@ -15,6 +15,9 @@
 /* GUID for file system information */
 const efi_guid_t efi_file_system_info_guid = EFI_FILE_SYSTEM_INFO_GUID;
 
+/* GUID to obtain the volume label */
+const efi_guid_t efi_system_volume_label_id = EFI_FILE_SYSTEM_VOLUME_LABEL_ID;
+
 struct file_system {
 	struct efi_simple_file_system_protocol base;
 	struct efi_device_path *dp;
@@ -637,9 +640,7 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
 			ret = EFI_DEVICE_ERROR;
 			goto error;
 		}
-		required_size = sizeof(*info) + 2 *
-				(utf8_utf16_strlen((const char *)part.name) +
-				 1);
+		required_size = sizeof(*info) + 2;
 		if (*buffer_size < required_size) {
 			*buffer_size = required_size;
 			ret = EFI_BUFFER_TOO_SMALL;
@@ -655,10 +656,15 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
 		info->block_size = part.blksz;
 		/*
 		 * TODO: The volume label is not available in U-Boot.
-		 * Use the partition name as substitute.
 		 */
-		dst = info->volume_label;
-		utf8_utf16_strcpy(&dst, (const char *)part.name);
+		info->volume_label[0] = 0;
+	} else if (!guidcmp(info_type, &efi_system_volume_label_id)) {
+		if (*buffer_size < 2) {
+			*buffer_size = 2;
+			ret = EFI_BUFFER_TOO_SMALL;
+			goto error;
+		}
+		*(u16 *)buffer = 0;
 	} else {
 		ret = EFI_UNSUPPORTED;
 	}
