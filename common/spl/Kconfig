@@ -697,6 +697,13 @@ config SPL_UBI
 	  Enable support for loading payloads from UBI. See
 	  README.ubispl for more info.
 
+if SPL_DM
+config SPL_DM_SPI
+	bool "Support SPI DM drivers in SPL"
+	help
+	  Enable support for SPI DM drivers in SPL.
+
+endif
 if SPL_UBI
 config SPL_UBI_LOAD_BY_VOLNAME
 	bool "Support loading volumes by name"
