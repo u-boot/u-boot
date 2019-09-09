@@ -44,6 +44,7 @@ static inline bool dev_of_valid(struct udevice *dev)
 }
 
 #ifndef CONFIG_DM_DEV_READ_INLINE
+
 /**
  * dev_read_u32() - read a 32-bit integer from a device's DT property
  *
@@ -95,6 +96,26 @@ int dev_read_s32_default(struct udevice *dev, const char *propname, int def);
  * @return 0 if OK, -ve on error
  */
 int dev_read_u32u(struct udevice *dev, const char *propname, uint *outp);
+
+/**
+ * dev_read_u64() - read a 64-bit integer from a device's DT property
+ *
+ * @dev:        device to read DT property from
+ * @propname:   name of the property to read from
+ * @outp:       place to put value (if found)
+ * @return 0 if OK, -ve on error
+ */
+int dev_read_u64(struct udevice *dev, const char *propname, u64 *outp);
+
+/**
+ * dev_read_u64_default() - read a 64-bit integer from a device's DT property
+ *
+ * @dev:        device to read DT property from
+ * @propname:   name of the property to read from
+ * @def:        default value to return if the property has no value
+ * @return property value, or @def if not found
+ */
+u64 dev_read_u64_default(struct udevice *dev, const char *propname, u64 def);
 
 /**
  * dev_read_string() - Read a string from a device's DT property
@@ -599,6 +620,18 @@ static inline int dev_read_u32u(struct udevice *dev,
 	*outp = val;
 
 	return 0;
+}
+
+static inline int dev_read_u64(struct udevice *dev,
+			       const char *propname, u64 *outp)
+{
+	return ofnode_read_u64(dev_ofnode(dev), propname, outp);
+}
+
+static inline u64 dev_read_u64_default(struct udevice *dev,
+				       const char *propname, u64 def)
+{
+	return ofnode_read_u64_default(dev_ofnode(dev), propname, def);
 }
 
 static inline const char *dev_read_string(struct udevice *dev,

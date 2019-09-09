@@ -711,17 +711,19 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 {
 	u32 caps, caps_1 = 0;
 #if CONFIG_IS_ENABLED(DM_MMC)
-	u32 mask[2] = {0};
-	int ret;
-	ret = dev_read_u32_array(host->mmc->dev, "sdhci-caps-mask",
-				 mask, 2);
-	if (ret && ret != -1)
-		return ret;
+	u64 dt_caps, dt_caps_mask;
 
-	caps = ~mask[1] & sdhci_readl(host, SDHCI_CAPABILITIES);
+	dt_caps_mask = dev_read_u64_default(host->mmc->dev,
+					    "sdhci-caps-mask", 0);
+	dt_caps = dev_read_u64_default(host->mmc->dev,
+				       "sdhci-caps", 0);
+	caps = ~(u32)dt_caps_mask &
+	       sdhci_readl(host, SDHCI_CAPABILITIES);
+	caps |= (u32)dt_caps;
 #else
 	caps = sdhci_readl(host, SDHCI_CAPABILITIES);
 #endif
+	debug("%s, caps: 0x%x\n", __func__, caps);
 
 #ifdef CONFIG_MMC_SDHCI_SDMA
 	if (!(caps & SDHCI_CAN_DO_SDMA)) {
@@ -762,10 +764,13 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 	/* Check whether the clock multiplier is supported or not */
 	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) {
 #if CONFIG_IS_ENABLED(DM_MMC)
-		caps_1 = ~mask[0] & sdhci_readl(host, SDHCI_CAPABILITIES_1);
+		caps_1 = ~(u32)(dt_caps_mask >> 32) &
+			 sdhci_readl(host, SDHCI_CAPABILITIES_1);
+		caps_1 |= (u32)(dt_caps >> 32);
 #else
 		caps_1 = sdhci_readl(host, SDHCI_CAPABILITIES_1);
 #endif
+		debug("%s, caps_1: 0x%x\n", __func__, caps_1);
 		host->clk_mul = (caps_1 & SDHCI_CLOCK_MUL_MASK) >>
 				SDHCI_CLOCK_MUL_SHIFT;
 	}

@@ -421,6 +421,17 @@ config SPL_MMC_SDHCI_ADMA
 	  This enables support for the ADMA (Advanced DMA) defined
 	  in the SD Host Controller Standard Specification Version 3.00 in SPL.
 
+config MMC_SDHCI_ASPEED
+	bool "Aspeed SDHCI controller"
+	depends on ARCH_ASPEED
+	depends on DM_MMC
+	depends on MMC_SDHCI
+	help
+	  Enables support for the Aspeed SDHCI 2.0 controller present on Aspeed
+	  SoCs. This device is compatible with SD 3.0 and/or MMC 4.3
+	  specifications. On the AST2600, the device is also compatible with
+	  MMC 5.1 and eMMC 3.0.
+
 config MMC_SDHCI_ATMEL
 	bool "Atmel SDHCI controller support"
 	depends on ARCH_AT91

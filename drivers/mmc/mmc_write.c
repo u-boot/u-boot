@@ -79,7 +79,7 @@ ulong mmc_berase(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt)
 	u32 start_rem, blkcnt_rem;
 	struct mmc *mmc = find_mmc_device(dev_num);
 	lbaint_t blk = 0, blk_r = 0;
-	int timeout = 1000;
+	int timeout_ms = 1000;
 
 	if (!mmc)
 		return -1;
@@ -119,7 +119,7 @@ ulong mmc_berase(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt)
 		blk += blk_r;
 
 		/* Waiting for the ready status */
-		if (mmc_poll_for_busy(mmc, timeout))
+		if (mmc_poll_for_busy(mmc, timeout_ms))
 			return 0;
 	}
 
@@ -131,7 +131,7 @@ static ulong mmc_write_blocks(struct mmc *mmc, lbaint_t start,
 {
 	struct mmc_cmd cmd;
 	struct mmc_data data;
-	int timeout = 1000;
+	int timeout_ms = 1000;
 
 	if ((start + blkcnt) > mmc_get_blk_desc(mmc)->lba) {
 		printf("MMC: block number 0x" LBAF " exceeds max(0x" LBAF ")\n",
@@ -177,7 +177,7 @@ static ulong mmc_write_blocks(struct mmc *mmc, lbaint_t start,
 	}
 
 	/* Waiting for the ready status */
-	if (mmc_poll_for_busy(mmc, timeout))
+	if (mmc_poll_for_busy(mmc, timeout_ms))
 		return 0;
 
 	return blkcnt;

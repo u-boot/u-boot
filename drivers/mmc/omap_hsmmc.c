@@ -430,7 +430,7 @@ static void omap_hsmmc_conf_bus_power(struct mmc *mmc, uint signal_voltage)
 	writel(ac12, &mmc_base->ac12);
 }
 
-static int omap_hsmmc_wait_dat0(struct udevice *dev, int state, int timeout)
+static int omap_hsmmc_wait_dat0(struct udevice *dev, int state, int timeout_us)
 {
 	int ret = -ETIMEDOUT;
 	u32 con;
@@ -442,8 +442,8 @@ static int omap_hsmmc_wait_dat0(struct udevice *dev, int state, int timeout)
 	con = readl(&mmc_base->con);
 	writel(con | CON_CLKEXTFREE | CON_PADEN, &mmc_base->con);
 
-	timeout = DIV_ROUND_UP(timeout, 10); /* check every 10 us. */
-	while (timeout--)	{
+	timeout_us = DIV_ROUND_UP(timeout_us, 10); /* check every 10 us. */
+	while (timeout_us--) {
 		dat0_high = !!(readl(&mmc_base->pstate) & PSTATE_DLEV_DAT0);
 		if (dat0_high == target_dat0_high) {
 			ret = 0;

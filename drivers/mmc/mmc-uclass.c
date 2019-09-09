@@ -47,18 +47,18 @@ int mmc_set_ios(struct mmc *mmc)
 	return dm_mmc_set_ios(mmc->dev);
 }
 
-int dm_mmc_wait_dat0(struct udevice *dev, int state, int timeout)
+int dm_mmc_wait_dat0(struct udevice *dev, int state, int timeout_us)
 {
 	struct dm_mmc_ops *ops = mmc_get_ops(dev);
 
 	if (!ops->wait_dat0)
 		return -ENOSYS;
-	return ops->wait_dat0(dev, state, timeout);
+	return ops->wait_dat0(dev, state, timeout_us);
 }
 
-int mmc_wait_dat0(struct mmc *mmc, int state, int timeout)
+int mmc_wait_dat0(struct mmc *mmc, int state, int timeout_us)
 {
-	return dm_mmc_wait_dat0(mmc->dev, state, timeout);
+	return dm_mmc_wait_dat0(mmc->dev, state, timeout_us);
 }
 
 int dm_mmc_get_wp(struct udevice *dev)
@@ -427,10 +427,6 @@ U_BOOT_DRIVER(mmc_blk) = {
 };
 #endif /* CONFIG_BLK */
 
-U_BOOT_DRIVER(mmc) = {
-	.name	= "mmc",
-	.id	= UCLASS_MMC,
-};
 
 UCLASS_DRIVER(mmc) = {
 	.id		= UCLASS_MMC,

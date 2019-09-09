@@ -499,15 +499,16 @@ static int renesas_sdhi_set_ios(struct udevice *dev)
 }
 
 #if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT)
-static int renesas_sdhi_wait_dat0(struct udevice *dev, int state, int timeout)
+static int renesas_sdhi_wait_dat0(struct udevice *dev, int state,
+				  int timeout_us)
 {
 	int ret = -ETIMEDOUT;
 	bool dat0_high;
 	bool target_dat0_high = !!state;
 	struct tmio_sd_priv *priv = dev_get_priv(dev);
 
-	timeout = DIV_ROUND_UP(timeout, 10); /* check every 10 us. */
-	while (timeout--) {
+	timeout_us = DIV_ROUND_UP(timeout_us, 10); /* check every 10 us. */
+	while (timeout_us--) {
 		dat0_high = !!(tmio_sd_readl(priv, TMIO_SD_INFO2) & TMIO_SD_INFO2_DAT0);
 		if (dat0_high == target_dat0_high) {
 			ret = 0;
