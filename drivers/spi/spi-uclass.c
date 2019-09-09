@@ -224,7 +224,32 @@ int spi_chip_select(struct udevice *dev)
 
 int spi_find_chip_select(struct udevice *bus, int cs, struct udevice **devp)
 {
+	struct dm_spi_ops *ops;
+	struct spi_cs_info info;
 	struct udevice *dev;
+	int ret;
+
+	/*
+	 * Ask the driver. For the moment we don't have CS info.
+	 * When we do we could provide the driver with a helper function
+	 * to figure out what chip selects are valid, or just handle the
+	 * request.
+	 */
+	ops = spi_get_ops(bus);
+	if (ops->cs_info) {
+		ret = ops->cs_info(bus, cs, &info);
+	} else {
+		/*
+		 * We could assume there is at least one valid chip select.
+		 * The driver didn't care enough to tell us.
+		 */
+		ret = 0;
+	}
+
+	if (ret) {
+		printf("Invalid cs %d (err=%d)\n", cs, ret);
+		return ret;
+	}
 
 	for (device_find_first_child(bus, &dev); dev;
 	     device_find_next_child(&dev)) {
@@ -259,7 +284,6 @@ int spi_cs_is_valid(unsigned int busnum, unsigned int cs)
 int spi_cs_info(struct udevice *bus, uint cs, struct spi_cs_info *info)
 {
 	struct spi_cs_info local_info;
-	struct dm_spi_ops *ops;
 	int ret;
 
 	if (!info)
@@ -268,24 +292,7 @@ int spi_cs_info(struct udevice *bus, uint cs, struct spi_cs_info *info)
 	/* If there is a device attached, return it */
 	info->dev = NULL;
 	ret = spi_find_chip_select(bus, cs, &info->dev);
-	if (!ret)
-		return 0;
-
-	/*
-	 * Otherwise ask the driver. For the moment we don't have CS info.
-	 * When we do we could provide the driver with a helper function
-	 * to figure out what chip selects are valid, or just handle the
-	 * request.
-	 */
-	ops = spi_get_ops(bus);
-	if (ops->cs_info)
-		return ops->cs_info(bus, cs, info);
-
-	/*
-	 * We could assume there is at least one valid chip select.
-	 * The driver didn't care enough to tell us.
-	 */
-	return 0;
+	return ret == -ENODEV ? 0 : ret;
 }
 
 int spi_find_bus_and_cs(int busnum, int cs, struct udevice **busp,

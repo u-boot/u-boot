@@ -561,7 +561,8 @@ int spi_chip_select(struct udevice *slave);
  * @bus:	SPI bus to search
  * @cs:		Chip select to look for
  * @devp:	Returns the slave device if found
- * @return 0 if found, -ENODEV on error
+ * @return 0 if found, -EINVAL if cs is invalid, -ENODEV if no device attached,
+ *	   other -ve value on error
  */
 int spi_find_chip_select(struct udevice *bus, int cs, struct udevice **devp);
 
