@@ -634,8 +634,8 @@ method for cs_info() to deal with this. If you don't provide it, then the
 device tree will be used to determine what chip selects are valid.
 
 Return -ENODEV if the supplied chip select is invalid, or 0 if it is valid.
-If you don't provide the cs_info() method, -ENODEV is assumed for all
-chip selects that do not appear in the device tree.
+If you don't provide the cs_info() method, 0 is assumed for all chip selects
+that do not appear in the device tree.
 
 
 Test it

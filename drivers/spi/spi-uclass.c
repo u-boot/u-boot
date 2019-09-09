@@ -261,11 +261,10 @@ int spi_cs_info(struct udevice *bus, uint cs, struct spi_cs_info *info)
 		return ops->cs_info(bus, cs, info);
 
 	/*
-	 * We could assume there is at least one valid chip select, but best
-	 * to be sure and return an error in this case. The driver didn't
-	 * care enough to tell us.
+	 * We could assume there is at least one valid chip select.
+	 * The driver didn't care enough to tell us.
 	 */
-	return -ENODEV;
+	return 0;
 }
 
 int spi_find_bus_and_cs(int busnum, int cs, struct udevice **busp,
