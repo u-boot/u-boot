@@ -698,6 +698,7 @@ void mmc_destroy(struct mmc *mmc);
  */
 int mmc_unbind(struct udevice *dev);
 int mmc_initialize(bd_t *bis);
+int mmc_init_device(int num);
 int mmc_init(struct mmc *mmc);
 int mmc_send_tuning(struct mmc *mmc, u32 opcode, int *cmd_error);
 

@@ -2998,6 +2998,30 @@ int mmc_initialize(bd_t *bis)
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(DM_MMC)
+int mmc_init_device(int num)
+{
+	struct udevice *dev;
+	struct mmc *m;
+	int ret;
+
+	ret = uclass_get_device(UCLASS_MMC, num, &dev);
+	if (ret)
+		return ret;
+
+	m = mmc_get_mmc_dev(dev);
+	if (!m)
+		return 0;
+#ifdef CONFIG_FSL_ESDHC_ADAPTER_IDENT
+	mmc_set_preinit(m, 1);
+#endif
+	if (m->preinit)
+		mmc_start_init(m);
+
+	return 0;
+}
+#endif
+
 #ifdef CONFIG_CMD_BKOPS_ENABLE
 int mmc_set_bkops_enable(struct mmc *mmc)
 {
