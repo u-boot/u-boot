@@ -608,6 +608,15 @@ config SPL_MMC_SUPPORT
 	  this option to build the drivers in drivers/mmc as part of an SPL
 	  build.
 
+config SPL_FORCE_MMC_BOOT
+	bool "Force SPL booting from MMC"
+	depends on SPL_MMC_SUPPORT
+	default n
+	help
+	  Force SPL to use MMC device for Linux kernel booting even when the
+	  SoC ROM recognized boot medium is not eMMC/SD. This is crucial for
+	  factory or 'falcon mode' booting.
+
 config SPL_MMC_TINY
 	bool "Tiny MMC framework in SPL"
 	depends on SPL_MMC_SUPPORT

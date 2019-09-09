@@ -178,7 +178,18 @@ int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
 /* called from spl_mmc to see type of boot mode for storage (RAW or FAT) */
 u32 spl_boot_mode(const u32 boot_device)
 {
+/*
+ * When CONFIG_SPL_FORCE_MMC_BOOT is defined the 'boot_device' is used
+ * unconditionally to decide about device to use for booting.
+ * This is crucial for falcon boot mode, when board boots up (i.e. ROM
+ * loads SPL) from slow SPI-NOR memory and afterwards the SPL's 'falcon' boot
+ * mode is used to load Linux OS from eMMC partition.
+ */
+#ifdef CONFIG_SPL_FORCE_MMC_BOOT
+	switch (boot_device) {
+#else
 	switch (spl_boot_device()) {
+#endif
 	/* for MMC return either RAW or FAT mode */
 	case BOOT_DEVICE_MMC1:
 	case BOOT_DEVICE_MMC2:
