@@ -458,7 +458,7 @@ struct dm_spi_ops {
 	 * @cs:		The chip select (0..n-1)
 	 * @info:	Returns information about the chip select, if valid.
 	 *		On entry info->dev is NULL
-	 * @return 0 if OK (and @info is set up), -ENODEV if the chip select
+	 * @return 0 if OK (and @info is set up), -EINVAL if the chip select
 	 *	   is invalid, other -ve value on error
 	 */
 	int (*cs_info)(struct udevice *bus, uint cs, struct spi_cs_info *info);
