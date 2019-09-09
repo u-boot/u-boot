@@ -1,5 +1,5 @@
 MPC8536DS BOARD
-M:	Prabhakar Kushwaha <prabhakar.kushwaha@nxp.com>
+M:	Priyanka Jain <priyanka.jain@nxp.com>
 S:	Maintained
 F:	board/freescale/mpc8536ds/
 F:	include/configs/MPC8536DS.h

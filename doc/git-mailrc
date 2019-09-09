@@ -46,7 +46,7 @@ alias smcnutt        Scott McNutt <smcnutt@psyent.com>
 alias stroese        Stefan Roese <sr@denx.de>
 alias trini          Tom Rini <trini@konsulko.com>
 alias wd             Wolfgang Denk <wd@denx.de>
-alias prabhu_kush    Prabhakar Kushwaha <prabhakar.kushwaha@nxp.com>
+alias priyankajain   Priyanka Jain <priyanka.jain@nxp.com>
 
 # Architecture aliases
 alias arch           arc, arm, m68k, microblaze, mips, nds32, nios2, powerpc, sandbox, superh, x86
@@ -91,12 +91,12 @@ alias nds32          uboot, macpaul
 alias nios           uboot, Thomas Chou <thomas@wytron.com.tw>, smcnutt
 alias nios2          nios
 
-alias powerpc        uboot, afleming, stroese, wd, prabhu_kush, mariosix
+alias powerpc        uboot, afleming, stroese, wd, priyankajain, mariosix
 alias ppc            powerpc
 alias mpc8xx         uboot, wd, Christophe Leroy <christophe.leroy@c-s.fr>
 alias mpc83xx        uboot, mariosix
-alias mpc85xx        uboot, afleming, prabhu_kush
-alias mpc86xx        uboot, afleming, prabhu_kush
+alias mpc85xx        uboot, afleming, priyankajain
+alias mpc86xx        uboot, afleming, priyankajain
 
 alias sandbox        sjg
 alias sb             sandbox

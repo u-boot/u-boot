@@ -1,5 +1,5 @@
 MPC8548CDS BOARD
-M:	Prabhakar Kushwaha <prabhakar.kushwaha@nxp.com>
+M:	Priyanka Jain <priyanka.jain@nxp.com>
 S:	Maintained
 F:	board/freescale/mpc8548cds/
 F:	include/configs/MPC8548CDS.h
