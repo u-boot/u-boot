@@ -319,21 +319,6 @@ extern void __readwrite_bug(const char *fn);
 #define memcpy_fromio(a, b, c)		memcpy((a), (void *)(b), (c))
 #define memcpy_toio(a, b, c)		memcpy((void *)(a), (b), (c))
 
-#if !defined(readb)
-
-#define readb(addr)			(__readwrite_bug("readb"),0)
-#define readw(addr)			(__readwrite_bug("readw"),0)
-#define readl(addr)			(__readwrite_bug("readl"),0)
-#define writeb(v,addr)			__readwrite_bug("writeb")
-#define writew(v,addr)			__readwrite_bug("writew")
-#define writel(v,addr)			__readwrite_bug("writel")
-
-#define eth_io_copy_and_sum(a,b,c,d)	__readwrite_bug("eth_io_copy_and_sum")
-
-#define check_signature(io,sig,len)	(0)
-
-#endif
-
 /*
  * If this architecture has ISA IO, then define the isa_read/isa_write
  * macros.
