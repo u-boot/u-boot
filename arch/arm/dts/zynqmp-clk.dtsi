@@ -38,6 +38,7 @@
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
 		clock-frequency = <300000000>;
+		u-boot,dm-pre-reloc;
 	};
 
 	clk600: clk600 {
