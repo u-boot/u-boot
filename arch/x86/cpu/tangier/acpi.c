@@ -14,6 +14,7 @@
 #include <asm/mpspec.h>
 #include <asm/tables.h>
 #include <asm/arch/global_nvs.h>
+#include <asm/arch/iomap.h>
 
 void acpi_create_fadt(struct acpi_fadt *fadt, struct acpi_facs *facs,
 		      void *dsdt)
@@ -63,7 +64,7 @@ u32 acpi_fill_mcfg(u32 current)
 	/* TODO: Derive parameters from SFI MCFG table */
 	current += acpi_create_mcfg_mmconfig
 		((struct acpi_mcfg_mmconfig *)current,
-		0x3f500000, 0x0, 0x0, 0x0);
+		MCFG_BASE_ADDRESS, 0x0, 0x0, 0x0);
 
 	return current;
 }
@@ -94,7 +95,7 @@ static u32 acpi_fill_csrt_dma(struct acpi_csrt_group *grp)
 	si->dma_address_width = 32;
 	si->base_request_line = 0;
 	si->num_handshake_signals = 16;
-	si->max_block_size = 0x20000;
+	si->max_block_size = 0x1ffff;
 
 	return grp->length;
 }

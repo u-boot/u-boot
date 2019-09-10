@@ -34,7 +34,7 @@ struct acpi_rsdp {
 };
 
 /* Generic ACPI header, provided by (almost) all tables */
-struct acpi_table_header {
+struct __packed acpi_table_header {
 	char signature[4];	/* ACPI signature (4 ASCII characters) */
 	u32 length;		/* Table length in bytes (incl. header) */
 	u8 revision;		/* Table version (not ACPI version!) */

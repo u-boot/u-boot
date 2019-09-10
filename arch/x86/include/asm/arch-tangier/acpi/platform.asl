@@ -6,6 +6,7 @@
  */
 
 #include <asm/acpi/statdef.asl>
+#include <asm/arch/iomap.h>
 
 /*
  * The _PTS method (Prepare To Sleep) is called before the OS is
@@ -18,7 +19,7 @@ Method(_PTS, 1)
 /* The _WAK method is called on system wakeup */
 Method(_WAK, 1)
 {
-    Return (Package() {0, 0})
+    Return (Package() { Zero, Zero })
 }
 
 Scope (_SB)

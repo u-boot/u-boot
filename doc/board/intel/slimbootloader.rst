@@ -86,6 +86,28 @@ The PayloadId can be any 4 Bytes value.
 
    $ qemu-system-x86_64 -machine q35 -nographic -serial mon:stdio -pflash Outputs/qemu/SlimBootloader.bin
 
+Test Linux booting on QEMU target
+---------------------------------
+
+Let's use LeafHill (APL) Yocto image for testing.
+Download it from http://downloads.yoctoproject.org/releases/yocto/yocto-2.0/machines/leafhill/.
+
+1. Prepare Yocto hard disk image::
+
+   $ wget http://downloads.yoctoproject.org/releases/yocto/yocto-2.0/machines/leafhill/leafhill-4.0-jethro-2.0.tar.bz2
+   $ tar -xvf leafhill-4.0-jethro-2.0.tar.bz2
+   $ ls -l leafhill-4.0-jethro-2.0/binary/core-image-sato-intel-corei7-64.hddimg
+
+2. Launch Slim Bootloader on QEMU with disk image::
+
+   $ qemu-system-x86_64 -machine q35 -nographic -serial mon:stdio -pflash Outputs/qemu/SlimBootloader.bin -drive id=mydrive,if=none,file=/path/to/core-image-sato-intel-corei7-64.hddimg,format=raw -device ide-hd,drive=mydrive
+
+3. Update boot environment values on shell::
+
+   => setenv bootfile vmlinuz
+   => setenv bootdev scsi
+   => boot
+
 Build Instruction for Slim Bootloader for LeafHill (APL) target
 ---------------------------------------------------------------
 

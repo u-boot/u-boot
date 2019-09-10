@@ -10,8 +10,8 @@ Device (PCI0)
     Name (_HID, EISAID("PNP0A08"))    /* PCIe */
     Name (_CID, EISAID("PNP0A03"))    /* PCI */
 
-    Name (_ADR, 0)
-    Name (_BBN, 0)
+    Name (_ADR, Zero)
+    Name (_BBN, Zero)
 
     Name (MCRS, ResourceTemplate()
     {
@@ -64,6 +64,23 @@ Device (PCI0)
     Method (_CRS, 0, Serialized)
     {
         Return (MCRS)
+    }
+
+    /* Device Resource Consumption */
+    Device (PDRC)
+    {
+        Name (_HID, EISAID("PNP0C02"))
+        Name (_UID, One)
+
+        Name (PDRS, ResourceTemplate()
+        {
+            Memory32Fixed(ReadWrite, MCFG_BASE_ADDRESS, MCFG_BASE_SIZE)
+        })
+
+        Method (_CRS, 0, Serialized)
+        {
+            Return (PDRS)
+        }
     }
 
     Method (_OSC, 4)
@@ -365,19 +382,19 @@ Device (PCI0)
                 Name (RBUF, ResourceTemplate()
                 {
                     /*
-		     * Shadow registers in SRAM for PMIC:
-		     *   SRAM	PMIC register
-		     *   --------------------
-		     *   0x00-	Unknown
-		     *   0x03	THRMIRQ (0x04)
-		     *   0x04	BCUIRQ (0x05)
-		     *   0x05	ADCIRQ (0x06)
-		     *   0x06	CHGRIRQ0 (0x07)
-		     *   0x07	CHGRIRQ1 (0x08)
-		     *   0x08-	Unknown
-		     *   0x0a	PBSTATUS (0x27)
-		     *   0x0b-	Unknown
-		     */
+                     * Shadow registers in SRAM for PMIC:
+                     *   SRAM    PMIC register
+                     *   --------------------
+                     *   0x00-    Unknown
+                     *   0x03    THRMIRQ (0x04)
+                     *   0x04    BCUIRQ (0x05)
+                     *   0x05    ADCIRQ (0x06)
+                     *   0x06    CHGRIRQ0 (0x07)
+                     *   0x07    CHGRIRQ1 (0x08)
+                     *   0x08-    Unknown
+                     *   0x0a    PBSTATUS (0x27)
+                     *   0x0b-    Unknown
+                     */
                     Memory32Fixed(ReadWrite, 0xFFFFF610, 0x00000010)
                     Interrupt(ResourceConsumer, Level, ActiveHigh, Shared, ,, ) { 30 }
                     Interrupt(ResourceConsumer, Level, ActiveHigh, Shared, ,, ) { 23 }
