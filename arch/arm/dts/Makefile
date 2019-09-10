@@ -536,6 +536,7 @@ dtb-$(CONFIG_MACH_SUN50I) += \
 	sun50i-a64-nanopi-a64.dtb \
 	sun50i-a64-oceanic-5205-5inmfd.dtb \
 	sun50i-a64-olinuxino.dtb \
+	sun50i-a64-olinuxino-emmc.dtb \
 	sun50i-a64-orangepi-win.dtb \
 	sun50i-a64-pine64-lts.dtb \
 	sun50i-a64-pine64-plus.dtb \
