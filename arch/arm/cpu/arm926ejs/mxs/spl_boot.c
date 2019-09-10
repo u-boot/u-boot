@@ -25,9 +25,7 @@ static bd_t bdata __section(".data");
 
 /*
  * This delay function is intended to be used only in early stage of boot, where
- * clock are not set up yet. The timer used here is reset on every boot and
- * takes a few seconds to roll. The boot doesn't take that long, so to keep the
- * code simple, it doesn't take rolling into consideration.
+ * clock are not set up yet.
  */
 void early_delay(int delay)
 {
@@ -35,8 +33,7 @@ void early_delay(int delay)
 		(struct mxs_digctl_regs *)MXS_DIGCTL_BASE;
 
 	uint32_t st = readl(&digctl_regs->hw_digctl_microseconds);
-	st += delay;
-	while (st > readl(&digctl_regs->hw_digctl_microseconds))
+	while (readl(&digctl_regs->hw_digctl_microseconds) - st <= delay)
 		;
 }
 
