@@ -48,8 +48,12 @@ static int dwc3_generic_probe(struct udevice *dev,
 	struct dwc3_generic_plat *plat = dev_get_platdata(dev);
 	struct dwc3 *dwc3 = &priv->dwc3;
 
+	dwc3->dev = dev;
 	dwc3->maximum_speed = plat->maximum_speed;
 	dwc3->dr_mode = plat->dr_mode;
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+	dwc3_of_parse(dwc3);
+#endif
 
 	rc = dwc3_setup_phy(dev, &priv->phys, &priv->num_phys);
 	if (rc)
@@ -57,7 +61,7 @@ static int dwc3_generic_probe(struct udevice *dev,
 
 	priv->base = map_physmem(plat->base, DWC3_OTG_REGS_END, MAP_NOCACHE);
 	dwc3->regs = priv->base + DWC3_GLOBALS_REGS_START;
-	dwc3->dev = dev;
+
 
 	rc =  dwc3_init(dwc3);
 	if (rc) {
