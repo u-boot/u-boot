@@ -19,7 +19,7 @@
 #include <asm/unaligned.h>
 #include <linux/errno.h>
 
-#include "xhci.h"
+#include <usb/xhci.h>
 
 /**
  * Is this TRB a link TRB or was the last TRB the last TRB in this event ring

@@ -14,7 +14,7 @@
 #include <usb.h>
 #include <dwc3-uboot.h>
 
-#include "xhci.h"
+#include <usb/xhci.h>
 #include <asm/io.h>
 #include <linux/usb/dwc3.h>
 #include <linux/usb/otg.h>
