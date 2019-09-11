@@ -175,7 +175,8 @@
 	"nand "
 
 #define BOOTENV_DEV_NOR(devtypeu, devtypel, instance) \
-	"bootcmd_nor=cp.b $scropt_offset_nor $scriptaddr $script_size_f && " \
+	"script_offset_nor=0xE2FC0000\0"        \
+	"bootcmd_nor=cp.b ${script_offset_nor} ${scriptaddr} ${script_size_f} && " \
 		     "source ${scriptaddr}; echo SCRIPT FAILED: continuing...;\0"
 
 #define BOOTENV_DEV_NAME_NOR(devtypeu, devtypel, instance) \
@@ -205,7 +206,6 @@
 	"fdt_high=0x20000000\0"		\
 	"initrd_high=0x20000000\0"	\
 	"scriptaddr=0x20000\0"	\
-	"script_offser_nor=0xE2FC0000\0"	\
 	"script_offset_f=0xFC0000\0"	\
 	"script_size_f=0x40000\0"	\
 	"loadbootenv_addr=0x2000000\0" \
