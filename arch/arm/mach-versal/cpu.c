@@ -12,12 +12,18 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define VERSAL_MEM_MAP_USED	6
+#define VERSAL_MEM_MAP_USED	5
 
 #define DRAM_BANKS CONFIG_NR_DRAM_BANKS
 
+#if defined(CONFIG_DEFINE_TCM_OCM_MMAP)
+#define TCM_MAP 1
+#else
+#define TCM_MAP 0
+#endif
+
 /* +1 is end of list which needs to be empty */
-#define VERSAL_MEM_MAP_MAX (VERSAL_MEM_MAP_USED + DRAM_BANKS + 1)
+#define VERSAL_MEM_MAP_MAX (VERSAL_MEM_MAP_USED + DRAM_BANKS + TCM_MAP + 1)
 
 static struct mm_region versal_mem_map[VERSAL_MEM_MAP_MAX] = {
 	{
@@ -34,12 +40,6 @@ static struct mm_region versal_mem_map[VERSAL_MEM_MAP_MAX] = {
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
-	}, {
-		.virt = 0xffe00000UL,
-		.phys = 0xffe00000UL,
-		.size = 0x00200000UL,
-		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
-			 PTE_BLOCK_INNER_SHARE
 	}, {
 		.virt = 0x400000000UL,
 		.phys = 0x400000000UL,
@@ -66,6 +66,15 @@ static struct mm_region versal_mem_map[VERSAL_MEM_MAP_MAX] = {
 void mem_map_fill(void)
 {
 	int banks = VERSAL_MEM_MAP_USED;
+
+#if defined(CONFIG_DEFINE_TCM_OCM_MMAP)
+	versal_mem_map[banks].virt = 0xffe00000UL;
+	versal_mem_map[banks].phys = 0xffe00000UL;
+	versal_mem_map[banks].size = 0x00200000UL;
+	versal_mem_map[banks].attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+				      PTE_BLOCK_INNER_SHARE;
+	banks = banks + 1;
+#endif
 
 	for (int i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		/* Zero size means no more DDR that's this is end */

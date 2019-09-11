@@ -54,4 +54,11 @@ config SYS_MEM_RSVD_FOR_MMU
 	  MMU table than the one which will be allocated during
 	  relocation.
 
+config DEFINE_TCM_OCM_MMAP
+	bool "Define TCM and OCM memory in MMU Table"
+	default y if MP
+	help
+	  This option if enabled defines the TCM and OCM memory and its
+	  memory attributes in MMU table entry.
+
 endif
