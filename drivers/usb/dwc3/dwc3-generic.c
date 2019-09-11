@@ -22,17 +22,22 @@
 #include <reset.h>
 #include <clk.h>
 
+struct dwc3_generic_plat {
+	fdt_addr_t base;
+	u32 maximum_speed;
+	enum usb_dr_mode dr_mode;
+};
+
 #if CONFIG_IS_ENABLED(DM_USB_GADGET)
-struct dwc3_generic_peripheral {
+struct dwc3_generic_priv {
 	struct dwc3 dwc3;
 	struct phy *phys;
 	int num_phys;
-	fdt_addr_t base;
 };
 
 int dm_usb_gadget_handle_interrupts(struct udevice *dev)
 {
-	struct dwc3_generic_peripheral *priv = dev_get_priv(dev);
+	struct dwc3_generic_priv *priv = dev_get_priv(dev);
 	struct dwc3 *dwc3 = &priv->dwc3;
 
 	dwc3_gadget_uboot_handle_interrupt(dwc3);
@@ -43,14 +48,18 @@ int dm_usb_gadget_handle_interrupts(struct udevice *dev)
 static int dwc3_generic_peripheral_probe(struct udevice *dev)
 {
 	int rc;
-	struct dwc3_generic_peripheral *priv = dev_get_priv(dev);
+	struct dwc3_generic_priv *priv = dev_get_priv(dev);
+	struct dwc3_generic_plat *plat = dev_get_platdata(dev);
 	struct dwc3 *dwc3 = &priv->dwc3;
+
+	dwc3->maximum_speed = plat->maximum_speed;
+	dwc3->dr_mode = plat->dr_mode;
 
 	rc = dwc3_setup_phy(dev, &priv->phys, &priv->num_phys);
 	if (rc)
 		return rc;
 
-	dwc3->regs = map_physmem(priv->base, DWC3_OTG_REGS_END, MAP_NOCACHE);
+	dwc3->regs = map_physmem(plat->base, DWC3_OTG_REGS_END, MAP_NOCACHE);
 	dwc3->regs += DWC3_GLOBALS_REGS_START;
 	dwc3->dev = dev;
 
@@ -65,7 +74,7 @@ static int dwc3_generic_peripheral_probe(struct udevice *dev)
 
 static int dwc3_generic_peripheral_remove(struct udevice *dev)
 {
-	struct dwc3_generic_peripheral *priv = dev_get_priv(dev);
+	struct dwc3_generic_priv *priv = dev_get_priv(dev);
 	struct dwc3 *dwc3 = &priv->dwc3;
 
 	dwc3_remove(dwc3);
@@ -77,20 +86,19 @@ static int dwc3_generic_peripheral_remove(struct udevice *dev)
 
 static int dwc3_generic_peripheral_ofdata_to_platdata(struct udevice *dev)
 {
-	struct dwc3_generic_peripheral *priv = dev_get_priv(dev);
-	struct dwc3 *dwc3 = &priv->dwc3;
+	struct dwc3_generic_plat *plat = dev_get_platdata(dev);
 	int node = dev_of_offset(dev);
 
-	priv->base = devfdt_get_addr(dev);
+	plat->base = devfdt_get_addr(dev);
 
-	dwc3->maximum_speed = usb_get_maximum_speed(node);
-	if (dwc3->maximum_speed == USB_SPEED_UNKNOWN) {
+	plat->maximum_speed = usb_get_maximum_speed(node);
+	if (plat->maximum_speed == USB_SPEED_UNKNOWN) {
 		pr_err("Invalid usb maximum speed\n");
 		return -ENODEV;
 	}
 
-	dwc3->dr_mode = usb_get_dr_mode(node);
-	if (dwc3->dr_mode == USB_DR_MODE_UNKNOWN) {
+	plat->dr_mode = usb_get_dr_mode(node);
+	if (plat->dr_mode == USB_DR_MODE_UNKNOWN) {
 		pr_err("Invalid usb mode setup\n");
 		return -ENODEV;
 	}
@@ -104,7 +112,8 @@ U_BOOT_DRIVER(dwc3_generic_peripheral) = {
 	.ofdata_to_platdata = dwc3_generic_peripheral_ofdata_to_platdata,
 	.probe = dwc3_generic_peripheral_probe,
 	.remove = dwc3_generic_peripheral_remove,
-	.priv_auto_alloc_size = sizeof(struct dwc3_generic_peripheral),
+	.priv_auto_alloc_size = sizeof(struct dwc3_generic_priv),
+	.platdata_auto_alloc_size = sizeof(struct dwc3_generic_plat),
 };
 #endif
 
