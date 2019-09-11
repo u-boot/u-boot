@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * dts file for Xilinx Versal
+ * dts file for Xilinx Versal v350 revA
  *
  * (C) Copyright 2019, Xilinx, Inc.
  *
@@ -11,10 +11,8 @@
 #include "versal-clk.dtsi"
 
 / {
-	compatible = "xlnx,versal-vc-d-d1760-01-revA",
-		     "xlnx,versal-vc-d-d1760-01",
-		     "xlnx,versal-vc-d-d1760", "xlnx,versal";
-	model = "Xilinx Versal d1760 Processor board revA"; /* xbb2525/v350 */
+	compatible = "xlnx,versal-v350-revA", "xlnx,versal";
+	model = "Xilinx Versal v350 board revA";
 
 	chosen {
 		bootargs = "console=ttyAMA0 earlycon=pl011,mmio32,0xFF010000,115200n8 clk_ignore_unused";
