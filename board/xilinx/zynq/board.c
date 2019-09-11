@@ -52,7 +52,7 @@ int board_late_init(void)
 		env_set("modeboot", "norboot");
 		break;
 	case ZYNQ_BM_SD:
-		mode = "mmc";
+		mode = "mmc0";
 		env_set("modeboot", "sdboot");
 		break;
 	case ZYNQ_BM_JTAG:
