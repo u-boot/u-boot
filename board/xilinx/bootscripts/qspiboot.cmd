@@ -1,5 +1,5 @@
 # This is an example file to generate boot.scr - a boot script for U-Boot
-# This exmaple only target for qspi boot, sameway it can be created for boot
+# This example only target for qspi boot, sameway it can be created for boot
 # devices like nand.
 # Generate boot.scr:
 # ./tools/mkimage -c none -A arm -T script -d qspiboot.cmd boot.scr
