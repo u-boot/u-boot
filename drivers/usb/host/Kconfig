@@ -73,13 +73,6 @@ config USB_XHCI_STI
 	  STiH407 family SoCs. This is a driver for the dwc3 to provide the glue logic
 	  to configure the controller.
 
-config USB_XHCI_ZYNQMP
-	bool "Support for Xilinx ZynqMP on-chip xHCI USB controller"
-	depends on ARCH_ZYNQMP
-	depends on DM_USB
-	help
-	  Enables support for the on-chip xHCI controller on Xilinx ZynqMP SoCs.
-
 config USB_XHCI_DRA7XX_INDEX
 	int "DRA7XX xHCI USB index"
 	range 0 1
