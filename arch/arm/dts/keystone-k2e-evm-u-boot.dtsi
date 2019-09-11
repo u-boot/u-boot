@@ -7,8 +7,40 @@
 	soc {
 		u-boot,dm-pre-reloc;
 	};
+	aliases {
+		usb0 = &usb;
+		usb1 = &usb1;
+	};
 };
 
 &i2c1 {
 	u-boot,dm-pre-reloc;
+};
+
+&usb_phy {
+	#phy-cells = <0>;
+	psc-domain = <2>;
+};
+
+&usb {
+	dwc3@2690000 {
+		phys = <&usb_phy>;
+		dr_mode = "host";
+		snps,u2ss_inp3_quirk;
+		status = "okay";
+	};
+};
+
+&usb1_phy {
+	#phy-cells = <0>;
+	psc-domain = <1>;
+};
+
+&usb1 {
+	dwc3@25010000 {
+		phys = <&usb1_phy>;
+		dr_mode = "peripheral";
+		snps,u2ss_inp3_quirk;
+		status = "okay";
+	};
 };
