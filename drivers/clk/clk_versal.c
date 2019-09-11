@@ -733,7 +733,6 @@ static struct clk_ops versal_clk_ops = {
 
 static const struct udevice_id versal_clk_ids[] = {
 	{ .compatible = "xlnx,versal-clk" },
-	{ .compatible = "xlnx,versal-clkc" },
 	{ }
 };
 
