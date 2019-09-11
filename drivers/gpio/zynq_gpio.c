@@ -292,7 +292,7 @@ static int zynq_gpio_direction_output(struct udevice *dev, unsigned gpio,
 	writel(reg, platdata->base + ZYNQ_GPIO_OUTEN_OFFSET(bank_num));
 
 	/* set the state of the pin */
-	gpio_set_value(gpio, value);
+	zynq_gpio_set_value(dev, gpio, value);
 	return 0;
 }
 
