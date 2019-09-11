@@ -581,6 +581,12 @@ static int dwc3_core_init_mode(struct dwc3 *dwc)
 	return 0;
 }
 
+static void dwc3_gadget_run(struct dwc3 *dwc)
+{
+	dwc3_writel(dwc->regs, DWC3_DCTL, DWC3_DCTL_RUN_STOP);
+	mdelay(100);
+}
+
 static void dwc3_core_exit_mode(struct dwc3 *dwc)
 {
 	switch (dwc->dr_mode) {
@@ -598,6 +604,13 @@ static void dwc3_core_exit_mode(struct dwc3 *dwc)
 		/* do nothing */
 		break;
 	}
+
+	/*
+	 * switch back to peripheral mode
+	 * This enables the phy to enter idle and then, if enabled, suspend.
+	 */
+	dwc3_set_mode(dwc, DWC3_GCTL_PRTCAP_DEVICE);
+	dwc3_gadget_run(dwc);
 }
 
 #define DWC3_ALIGN_MASK		(16 - 1)
