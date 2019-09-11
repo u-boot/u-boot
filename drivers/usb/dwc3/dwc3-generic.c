@@ -89,8 +89,8 @@ static int dwc3_generic_ofdata_to_platdata(struct udevice *dev)
 
 	plat->maximum_speed = usb_get_maximum_speed(node);
 	if (plat->maximum_speed == USB_SPEED_UNKNOWN) {
-		pr_err("Invalid usb maximum speed\n");
-		return -ENODEV;
+		pr_info("No USB maximum speed specified. Using super speed\n");
+		plat->maximum_speed = USB_SPEED_SUPER;
 	}
 
 	plat->dr_mode = usb_get_dr_mode(node);
