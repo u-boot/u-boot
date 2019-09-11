@@ -75,7 +75,7 @@ $ make imx_v6_v7_defconfig (Using the default imx_v6_v7_defconfig configuration
 just for an example. In order to boot faster the user should customize the
 defconfig by only enabling the minimal required drivers).
 
-$ make -j4 uImage LOADADDR=0x80800000
+$ make -j4 uImage LOADADDR=0x80008000
 
 $ cp arch/arm/boot/uImage /tftpboot
 $ cp arch/arm/boot/dts/imx6ul-pico-hobbit.dtb /tftpboot
@@ -93,7 +93,7 @@ Get the kernel:
 => tftp ${loadaddr} uImage
 
 Write the kernel at 2MB offset:
-=> mmc write ${loadaddr} 0x1000 0x4000
+=> mmc write ${loadaddr} 0x1000 0x5000
 
 Setup the bootargs:
 => setenv bootargs 'console=ttymxc5,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rootwait rw'
@@ -104,8 +104,8 @@ Prepare args:
    Image Name:   Linux-4.19.0-rc2-next-20180905-0
    Image Type:   ARM Linux Kernel Image (uncompressed)
    Data Size:    8365608 Bytes = 8 MiB
-   Load Address: 80800000
-   Entry Point:  80800000
+   Load Address: 80008000
+   Entry Point:  80008000
    Verifying Checksum ... OK
 ## Flattened Device Tree blob at 83000000
    Booting using the fdt blob at 0x83000000
