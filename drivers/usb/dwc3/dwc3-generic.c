@@ -21,6 +21,7 @@
 #include "gadget.h"
 #include <reset.h>
 #include <clk.h>
+#include <usb/xhci.h>
 
 struct dwc3_generic_plat {
 	fdt_addr_t base;
@@ -33,6 +34,11 @@ struct dwc3_generic_priv {
 	struct dwc3 dwc3;
 	struct phy *phys;
 	int num_phys;
+};
+
+struct dwc3_generic_host_priv {
+	struct xhci_ctrl xhci_ctrl;
+	struct dwc3_generic_priv gen_priv;
 };
 
 static int dwc3_generic_probe(struct udevice *dev,
@@ -129,6 +135,50 @@ U_BOOT_DRIVER(dwc3_generic_peripheral) = {
 	.remove = dwc3_generic_peripheral_remove,
 	.priv_auto_alloc_size = sizeof(struct dwc3_generic_priv),
 	.platdata_auto_alloc_size = sizeof(struct dwc3_generic_plat),
+};
+#endif
+
+#if defined(CONFIG_SPL_USB_HOST_SUPPORT) || !defined(CONFIG_SPL_BUILD)
+static int dwc3_generic_host_probe(struct udevice *dev)
+{
+	struct xhci_hcor *hcor;
+	struct xhci_hccr *hccr;
+	struct dwc3_generic_host_priv *priv = dev_get_priv(dev);
+	int rc;
+
+	rc = dwc3_generic_probe(dev, &priv->gen_priv);
+	if (rc)
+		return rc;
+
+	hccr = (struct xhci_hccr *)priv->gen_priv.base;
+	hcor = (struct xhci_hcor *)(priv->gen_priv.base +
+			HC_LENGTH(xhci_readl(&(hccr)->cr_capbase)));
+
+	return xhci_register(dev, hccr, hcor);
+}
+
+static int dwc3_generic_host_remove(struct udevice *dev)
+{
+	struct dwc3_generic_host_priv *priv = dev_get_priv(dev);
+	int rc;
+
+	rc = xhci_deregister(dev);
+	if (rc)
+		return rc;
+
+	return dwc3_generic_remove(dev, &priv->gen_priv);
+}
+
+U_BOOT_DRIVER(dwc3_generic_host) = {
+	.name	= "dwc3-generic-host",
+	.id	= UCLASS_USB,
+	.ofdata_to_platdata = dwc3_generic_ofdata_to_platdata,
+	.probe = dwc3_generic_host_probe,
+	.remove = dwc3_generic_host_remove,
+	.priv_auto_alloc_size = sizeof(struct dwc3_generic_host_priv),
+	.platdata_auto_alloc_size = sizeof(struct dwc3_generic_plat),
+	.ops = &xhci_usb_ops,
+	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
 #endif
 
@@ -252,10 +302,12 @@ static int dwc3_glue_bind(struct udevice *parent)
 			driver = "dwc3-generic-peripheral";
 #endif
 			break;
+#if defined(CONFIG_SPL_USB_HOST_SUPPORT) || !defined(CONFIG_SPL_BUILD)
 		case USB_DR_MODE_HOST:
 			debug("%s: dr_mode: HOST\n", __func__);
-			driver = "xhci-dwc3";
+			driver = "dwc3-generic-host";
 			break;
+#endif
 		default:
 			debug("%s: unsupported dr_mode\n", __func__);
 			return -ENODEV;
