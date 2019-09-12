@@ -146,7 +146,8 @@ bad:
 	return err;
 }
 
-static int ubi_create_vol(char *volume, int64_t size, int dynamic, int vol_id)
+static int ubi_create_vol(char *volume, int64_t size, int dynamic, int vol_id,
+			  bool skipcheck)
 {
 	struct ubi_mkvol_req req;
 	int err;
@@ -163,7 +164,10 @@ static int ubi_create_vol(char *volume, int64_t size, int dynamic, int vol_id)
 	strcpy(req.name, volume);
 	req.name_len = strlen(volume);
 	req.name[req.name_len] = '\0';
-	req.padding1 = 0;
+	req.flags = 0;
+	if (skipcheck)
+		req.flags |= UBI_VOL_SKIP_CRC_CHECK_FLG;
+
 	/* It's duplicated at drivers/mtd/ubi/cdev.c */
 	err = verify_mkvol_req(ubi, &req);
 	if (err) {
@@ -469,6 +473,7 @@ static int do_ubi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int64_t size = 0;
 	ulong addr = 0;
+	bool skipcheck = false;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
@@ -527,6 +532,12 @@ static int do_ubi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		/* Use maximum available size */
 		size = 0;
 
+		/* E.g., create volume with "skipcheck" bit set */
+		if (argc == 7) {
+			skipcheck = strncmp(argv[6], "--skipcheck", 11) == 0;
+			argc--;
+		}
+
 		/* E.g., create volume size type vol_id */
 		if (argc == 6) {
 			id = simple_strtoull(argv[5], NULL, 16);
@@ -555,8 +566,10 @@ static int do_ubi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			printf("No size specified -> Using max size (%lld)\n", size);
 		}
 		/* E.g., create volume */
-		if (argc == 3)
-			return ubi_create_vol(argv[2], size, dynamic, id);
+		if (argc == 3) {
+			return ubi_create_vol(argv[2], size, dynamic, id,
+					      skipcheck);
+		}
 	}
 
 	if (strncmp(argv[1], "remove", 6) == 0) {
@@ -623,7 +636,7 @@ static int do_ubi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 
 U_BOOT_CMD(
-	ubi, 6, 1, do_ubi,
+	ubi, 7, 1, do_ubi,
 	"ubi commands",
 	"detach"
 		" - detach ubi from a mtd partition\n"
@@ -634,7 +647,7 @@ U_BOOT_CMD(
 		" - Display volume and ubi layout information\n"
 	"ubi check volumename"
 		" - check if volumename exists\n"
-	"ubi create[vol] volume [size] [type] [id]\n"
+	"ubi create[vol] volume [size] [type] [id] [--skipcheck]\n"
 		" - create volume name with size ('-' for maximum"
 		" available size)\n"
 	"ubi write[vol] address volume size"
