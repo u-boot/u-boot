@@ -172,6 +172,7 @@ config AUTOBOOT_MENUKEY
 
 config AUTOBOOT_MENU_SHOW
 	bool "Show a menu on boot"
+	depends on CMD_BOOTMENU
 	help
 	  This enables the boot menu, controlled by environment variables
 	  defined by the board. The menu starts after running the 'preboot'
