@@ -103,8 +103,11 @@ int arch_cpu_init(void)
 		&clkctrl_regs->hw_clkctrl_clkseq_set);
 
 	/* Set GPMI clock to ref_xtal / 1 */
+	clrbits_le32(&clkctrl_regs->hw_clkctrl_gpmi, CLKCTRL_GPMI_CLKGATE);
+	while (readl(&clkctrl_regs->hw_clkctrl_gpmi) & CLKCTRL_GPMI_CLKGATE)
+		;
 	clrsetbits_le32(&clkctrl_regs->hw_clkctrl_gpmi,
-		CLKCTRL_GPMI_CLKGATE | CLKCTRL_GPMI_DIV_MASK, 1);
+		CLKCTRL_GPMI_DIV_MASK, 1);
 
 	udelay(1000);
 
