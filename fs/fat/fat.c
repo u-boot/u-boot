@@ -301,10 +301,20 @@ get_cluster(fsdata *mydata, __u32 clustnum, __u8 *buffer, unsigned long size)
 	return 0;
 }
 
-/*
+/**
+ * get_contents() - read from file
+ *
  * Read at most 'maxsize' bytes from 'pos' in the file associated with 'dentptr'
- * into 'buffer'.
- * Update the number of bytes read in *gotsize or return -1 on fatal errors.
+ * into 'buffer'. Update the number of bytes read in *gotsize or return -1 on
+ * fatal errors.
+ *
+ * @mydata:	file system description
+ * @dentprt:	directory entry pointer
+ * @pos:	position from where to read
+ * @buffer:	buffer into which to read
+ * @maxsize:	maximum number of bytes to read
+ * @gotsize:	number of bytes actually read
+ * Return:	-1 on error, otherwise 0
  */
 static int get_contents(fsdata *mydata, dir_entry *dentptr, loff_t pos,
 			__u8 *buffer, loff_t maxsize, loff_t *gotsize)
@@ -335,8 +345,8 @@ static int get_contents(fsdata *mydata, dir_entry *dentptr, loff_t pos,
 		curclust = get_fatent(mydata, curclust);
 		if (CHECK_CLUST(curclust, mydata->fatsize)) {
 			debug("curclust: 0x%x\n", curclust);
-			debug("Invalid FAT entry\n");
-			return 0;
+			printf("Invalid FAT entry\n");
+			return -1;
 		}
 		actsize += bytesperclust;
 	}
@@ -374,8 +384,8 @@ static int get_contents(fsdata *mydata, dir_entry *dentptr, loff_t pos,
 		curclust = get_fatent(mydata, curclust);
 		if (CHECK_CLUST(curclust, mydata->fatsize)) {
 			debug("curclust: 0x%x\n", curclust);
-			debug("Invalid FAT entry\n");
-			return 0;
+			printf("Invalid FAT entry\n");
+			return -1;
 		}
 	}
 
@@ -390,8 +400,8 @@ static int get_contents(fsdata *mydata, dir_entry *dentptr, loff_t pos,
 				goto getit;
 			if (CHECK_CLUST(newclust, mydata->fatsize)) {
 				debug("curclust: 0x%x\n", newclust);
-				debug("Invalid FAT entry\n");
-				return 0;
+				printf("Invalid FAT entry\n");
+				return -1;
 			}
 			endclust = newclust;
 			actsize += bytesperclust;
@@ -418,7 +428,7 @@ getit:
 		if (CHECK_CLUST(curclust, mydata->fatsize)) {
 			debug("curclust: 0x%x\n", curclust);
 			printf("Invalid FAT entry\n");
-			return 0;
+			return -1;
 		}
 		actsize = bytesperclust;
 		endclust = curclust;
