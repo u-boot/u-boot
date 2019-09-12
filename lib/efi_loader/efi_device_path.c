@@ -12,7 +12,12 @@
 #include <mmc.h>
 #include <efi_loader.h>
 #include <part.h>
+#include <sandboxblockdev.h>
 #include <asm-generic/unaligned.h>
+
+#ifdef CONFIG_SANDBOX
+const efi_guid_t efi_guid_host_dev = U_BOOT_HOST_DEV_GUID;
+#endif
 
 /* template END node: */
 static const struct efi_device_path END = {
@@ -446,6 +451,16 @@ static unsigned dp_size(struct udevice *dev)
 			return dp_size(dev->parent) +
 				sizeof(struct efi_device_path_sd_mmc_path);
 #endif
+#ifdef CONFIG_SANDBOX
+		case UCLASS_ROOT:
+			 /*
+			  * Sandbox's host device will be represented
+			  * as vendor device with extra one byte for
+			  * device number
+			  */
+			return dp_size(dev->parent)
+				+ sizeof(struct efi_device_path_vendor) + 1;
+#endif
 		default:
 			return dp_size(dev->parent);
 		}
@@ -505,6 +520,24 @@ static void *dp_fill(void *buf, struct udevice *dev)
 #ifdef CONFIG_BLK
 	case UCLASS_BLK:
 		switch (dev->parent->uclass->uc_drv->id) {
+#ifdef CONFIG_SANDBOX
+		case UCLASS_ROOT: {
+			/* stop traversing parents at this point: */
+			struct efi_device_path_vendor *dp = buf;
+			struct blk_desc *desc = dev_get_uclass_platdata(dev);
+
+			dp_fill(buf, dev->parent);
+			dp = buf;
+			++dp;
+			dp->dp.type = DEVICE_PATH_TYPE_HARDWARE_DEVICE;
+			dp->dp.sub_type = DEVICE_PATH_SUB_TYPE_VENDOR;
+			dp->dp.length = sizeof(*dp) + 1;
+			memcpy(&dp->guid, &efi_guid_host_dev,
+			       sizeof(efi_guid_t));
+			dp->vendor_data[0] = desc->devnum;
+			return &dp->vendor_data[1];
+			}
+#endif
 #ifdef CONFIG_IDE
 		case UCLASS_IDE: {
 			struct efi_device_path_atapi *dp =
