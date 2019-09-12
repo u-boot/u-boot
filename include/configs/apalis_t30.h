@@ -12,7 +12,14 @@
 
 #include "tegra30-common.h"
 
-/* Board-specific serial config */
+/*
+ * Board-specific serial config
+ *
+ * Apalis UART1: NVIDIA UARTA
+ * Apalis UART2: NVIDIA UARTD
+ * Apalis UART3: NVIDIA UARTB
+ * Apalis UART4: NVIDIA UARTC
+ */
 #define CONFIG_TEGRA_ENABLE_UARTA
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
 
