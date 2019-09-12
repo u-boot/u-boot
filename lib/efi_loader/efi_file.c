@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- *  EFI utils
+ * EFI_FILE_PROTOCOL
  *
- *  Copyright (c) 2017 Rob Clark
+ * Copyright (c) 2017 Rob Clark
  */
 
 #include <common.h>
@@ -14,6 +14,9 @@
 
 /* GUID for file system information */
 const efi_guid_t efi_file_system_info_guid = EFI_FILE_SYSTEM_INFO_GUID;
+
+/* GUID to obtain the volume label */
+const efi_guid_t efi_system_volume_label_id = EFI_FILE_SYSTEM_VOLUME_LABEL_ID;
 
 struct file_system {
 	struct efi_simple_file_system_protocol base;
@@ -28,6 +31,7 @@ struct file_handle {
 	struct file_system *fs;
 	loff_t offset;       /* current file position/cursor */
 	int isdir;
+	u64 open_mode;
 
 	/* for reading a directory: */
 	struct fs_dir_stream *dirs;
@@ -161,13 +165,13 @@ static int efi_create_file(struct file_handle *fh, u64 attributes)
  * @file_name:		path of the file to be opened. '\', '.', or '..' may
  *			be used as modifiers. A leading backslash indicates an
  *			absolute path.
- * @mode:		bit mask indicating the access mode (read, write,
+ * @open_mode:		bit mask indicating the access mode (read, write,
  *			create)
  * @attributes:		attributes for newly created file
  * Returns:		handle to the opened file or NULL
  */
 static struct efi_file_handle *file_open(struct file_system *fs,
-		struct file_handle *parent, u16 *file_name, u64 mode,
+		struct file_handle *parent, u16 *file_name, u64 open_mode,
 		u64 attributes)
 {
 	struct file_handle *fh;
@@ -190,6 +194,7 @@ static struct efi_file_handle *file_open(struct file_system *fs,
 	/* +2 is for null and '/' */
 	fh = calloc(1, sizeof(*fh) + plen + (flen * MAX_UTF8_PER_UTF16) + 2);
 
+	fh->open_mode = open_mode;
 	fh->base = efi_file_handle_protocol;
 	fh->fs = fs;
 
@@ -218,8 +223,10 @@ static struct efi_file_handle *file_open(struct file_system *fs,
 			goto error;
 
 		if (!exists) {
-			if (!(mode & EFI_FILE_MODE_CREATE) ||
+			if (!(open_mode & EFI_FILE_MODE_CREATE) ||
 			    efi_create_file(fh, attributes))
+				goto error;
+			if (set_blk_dev(fh))
 				goto error;
 		}
 
@@ -314,11 +321,42 @@ static efi_status_t EFIAPI efi_file_delete(struct efi_file_handle *file)
 	return EFI_EXIT(ret);
 }
 
+/**
+ * efi_get_file_size() - determine the size of a file
+ *
+ * @fh:		file handle
+ * @file_size:	pointer to receive file size
+ * Return:	status code
+ */
+static efi_status_t efi_get_file_size(struct file_handle *fh,
+				      loff_t *file_size)
+{
+	if (set_blk_dev(fh))
+		return EFI_DEVICE_ERROR;
+
+	if (fs_size(fh->path, file_size))
+		return EFI_DEVICE_ERROR;
+
+	return EFI_SUCCESS;
+}
+
 static efi_status_t file_read(struct file_handle *fh, u64 *buffer_size,
 		void *buffer)
 {
 	loff_t actread;
+	efi_status_t ret;
+	loff_t file_size;
 
+	ret = efi_get_file_size(fh, &file_size);
+	if (ret != EFI_SUCCESS)
+		return ret;
+	if (file_size < fh->offset) {
+		ret = EFI_DEVICE_ERROR;
+		return ret;
+	}
+
+	if (set_blk_dev(fh))
+		return EFI_DEVICE_ERROR;
 	if (fs_read(fh->path, map_to_sysmem(buffer), fh->offset,
 		    *buffer_size, &actread))
 		return EFI_DEVICE_ERROR;
@@ -334,13 +372,18 @@ static efi_status_t dir_read(struct file_handle *fh, u64 *buffer_size,
 {
 	struct efi_file_info *info = buffer;
 	struct fs_dirent *dent;
-	unsigned int required_size;
+	u64 required_size;
+	u16 *dst;
+
+	if (set_blk_dev(fh))
+		return EFI_DEVICE_ERROR;
 
 	if (!fh->dirs) {
 		assert(fh->offset == 0);
 		fh->dirs = fs_opendir(fh->path);
 		if (!fh->dirs)
 			return EFI_DEVICE_ERROR;
+		fh->dent = NULL;
 	}
 
 	/*
@@ -351,38 +394,25 @@ static efi_status_t dir_read(struct file_handle *fh, u64 *buffer_size,
 	 */
 	if (fh->dent) {
 		dent = fh->dent;
-		fh->dent = NULL;
 	} else {
 		dent = fs_readdir(fh->dirs);
 	}
 
-
 	if (!dent) {
-		/* no more files in directory: */
-		/* workaround shim.efi bug/quirk.. as find_boot_csv()
-		 * loops through directory contents, it initially calls
-		 * read w/ zero length buffer to find out how much mem
-		 * to allocate for the EFI_FILE_INFO, then allocates,
-		 * and then calls a 2nd time.  If we return size of
-		 * zero the first time, it happily passes that to
-		 * AllocateZeroPool(), and when that returns NULL it
-		 * thinks it is EFI_OUT_OF_RESOURCES.  So on first
-		 * call return a non-zero size:
-		 */
-		if (*buffer_size == 0)
-			*buffer_size = sizeof(*info);
-		else
-			*buffer_size = 0;
+		/* no more files in directory */
+		*buffer_size = 0;
 		return EFI_SUCCESS;
 	}
 
 	/* check buffer size: */
-	required_size = sizeof(*info) + 2 * (strlen(dent->name) + 1);
+	required_size = sizeof(*info) +
+			2 * (utf8_utf16_strlen(dent->name) + 1);
 	if (*buffer_size < required_size) {
 		*buffer_size = required_size;
 		fh->dent = dent;
 		return EFI_BUFFER_TOO_SMALL;
 	}
+	fh->dent = NULL;
 
 	*buffer_size = required_size;
 	memset(info, 0, required_size);
@@ -394,7 +424,8 @@ static efi_status_t dir_read(struct file_handle *fh, u64 *buffer_size,
 	if (dent->type == FS_DT_DIR)
 		info->attribute |= EFI_FILE_DIRECTORY;
 
-	ascii2unicode(info->file_name, dent->name);
+	dst = info->file_name;
+	utf8_utf16_strcpy(&dst, dent->name);
 
 	fh->offset++;
 
@@ -415,11 +446,6 @@ static efi_status_t EFIAPI efi_file_read(struct efi_file_handle *file,
 		goto error;
 	}
 
-	if (set_blk_dev(fh)) {
-		ret = EFI_DEVICE_ERROR;
-		goto error;
-	}
-
 	bs = *buffer_size;
 	if (fh->isdir)
 		ret = dir_read(fh, &bs, buffer);
@@ -434,6 +460,19 @@ error:
 	return EFI_EXIT(ret);
 }
 
+/**
+ * efi_file_write() - write to file
+ *
+ * This function implements the Write() service of the EFI_FILE_PROTOCOL.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * @file:		file handle
+ * @buffer_size:	number of bytes to write
+ * @buffer:		buffer with the bytes to write
+ * Return:		status code
+ */
 static efi_status_t EFIAPI efi_file_write(struct efi_file_handle *file,
 					  efi_uintn_t *buffer_size,
 					  void *buffer)
@@ -444,21 +483,35 @@ static efi_status_t EFIAPI efi_file_write(struct efi_file_handle *file,
 
 	EFI_ENTRY("%p, %p, %p", file, buffer_size, buffer);
 
-	if (set_blk_dev(fh)) {
-		ret = EFI_DEVICE_ERROR;
-		goto error;
+	if (!file || !buffer_size || !buffer) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+	if (fh->isdir) {
+		ret = EFI_UNSUPPORTED;
+		goto out;
+	}
+	if (!(fh->open_mode & EFI_FILE_MODE_WRITE)) {
+		ret = EFI_ACCESS_DENIED;
+		goto out;
 	}
 
+	if (!*buffer_size)
+		goto out;
+
+	if (set_blk_dev(fh)) {
+		ret = EFI_DEVICE_ERROR;
+		goto out;
+	}
 	if (fs_write(fh->path, map_to_sysmem(buffer), fh->offset, *buffer_size,
 		     &actwrite)) {
 		ret = EFI_DEVICE_ERROR;
-		goto error;
+		goto out;
 	}
-
 	*buffer_size = actwrite;
 	fh->offset += actwrite;
 
-error:
+out:
 	return EFI_EXIT(ret);
 }
 
@@ -520,16 +573,9 @@ static efi_status_t EFIAPI efi_file_setpos(struct efi_file_handle *file,
 	if (pos == ~0ULL) {
 		loff_t file_size;
 
-		if (set_blk_dev(fh)) {
-			ret = EFI_DEVICE_ERROR;
+		ret = efi_get_file_size(fh, &file_size);
+		if (ret != EFI_SUCCESS)
 			goto error;
-		}
-
-		if (fs_size(fh->path, &file_size)) {
-			ret = EFI_DEVICE_ERROR;
-			goto error;
-		}
-
 		pos = file_size;
 	}
 
@@ -546,8 +592,15 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
 {
 	struct file_handle *fh = to_fh(file);
 	efi_status_t ret = EFI_SUCCESS;
+	u16 *dst;
 
 	EFI_ENTRY("%p, %pUl, %p, %p", file, info_type, buffer_size, buffer);
+
+	if (!file || !info_type || !buffer_size ||
+	    (*buffer_size && !buffer)) {
+		ret = EFI_INVALID_PARAMETER;
+		goto error;
+	}
 
 	if (!guidcmp(info_type, &efi_file_info_guid)) {
 		struct efi_file_info *info = buffer;
@@ -556,22 +609,17 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
 		loff_t file_size;
 
 		/* check buffer size: */
-		required_size = sizeof(*info) + 2 * (strlen(filename) + 1);
+		required_size = sizeof(*info) +
+				2 * (utf8_utf16_strlen(filename) + 1);
 		if (*buffer_size < required_size) {
 			*buffer_size = required_size;
 			ret = EFI_BUFFER_TOO_SMALL;
 			goto error;
 		}
 
-		if (set_blk_dev(fh)) {
-			ret = EFI_DEVICE_ERROR;
+		ret = efi_get_file_size(fh, &file_size);
+		if (ret != EFI_SUCCESS)
 			goto error;
-		}
-
-		if (fs_size(fh->path, &file_size)) {
-			ret = EFI_DEVICE_ERROR;
-			goto error;
-		}
 
 		memset(info, 0, required_size);
 
@@ -582,7 +630,8 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
 		if (fh->isdir)
 			info->attribute |= EFI_FILE_DIRECTORY;
 
-		ascii2unicode(info->file_name, filename);
+		dst = info->file_name;
+		utf8_utf16_strcpy(&dst, filename);
 	} else if (!guidcmp(info_type, &efi_file_system_info_guid)) {
 		struct efi_file_system_info *info = buffer;
 		disk_partition_t part;
@@ -597,8 +646,7 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
 			ret = EFI_DEVICE_ERROR;
 			goto error;
 		}
-		required_size = sizeof(info) + 2 *
-				(strlen((const char *)part.name) + 1);
+		required_size = sizeof(*info) + 2;
 		if (*buffer_size < required_size) {
 			*buffer_size = required_size;
 			ret = EFI_BUFFER_TOO_SMALL;
@@ -614,10 +662,15 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
 		info->block_size = part.blksz;
 		/*
 		 * TODO: The volume label is not available in U-Boot.
-		 * Use the partition name as substitute.
 		 */
-		ascii2unicode((u16 *)info->volume_label,
-			      (const char *)part.name);
+		info->volume_label[0] = 0;
+	} else if (!guidcmp(info_type, &efi_system_volume_label_id)) {
+		if (*buffer_size < 2) {
+			*buffer_size = 2;
+			ret = EFI_BUFFER_TOO_SMALL;
+			goto error;
+		}
+		*(u16 *)buffer = 0;
 	} else {
 		ret = EFI_UNSUPPORTED;
 	}
@@ -642,7 +695,9 @@ static efi_status_t EFIAPI efi_file_setinfo(struct efi_file_handle *file,
 		char *new_file_name, *pos;
 		loff_t file_size;
 
-		if (buffer_size < sizeof(struct efi_file_info)) {
+		/* The buffer will always contain a file name. */
+		if (buffer_size < sizeof(struct efi_file_info) + 2 ||
+		    buffer_size < info->size) {
 			ret = EFI_BAD_BUFFER_SIZE;
 			goto out;
 		}
@@ -668,14 +723,9 @@ static efi_status_t EFIAPI efi_file_setinfo(struct efi_file_handle *file,
 		}
 		free(new_file_name);
 		/* Check for truncation */
-		if (set_blk_dev(fh)) {
-			ret = EFI_DEVICE_ERROR;
+		ret = efi_get_file_size(fh, &file_size);
+		if (ret != EFI_SUCCESS)
 			goto out;
-		}
-		if (fs_size(fh->path, &file_size)) {
-			ret = EFI_DEVICE_ERROR;
-			goto out;
-		}
 		if (file_size != info->file_size) {
 			/* TODO: we do not support truncation */
 			EFI_PRINT("Truncation not supported\n");
@@ -687,12 +737,8 @@ static efi_status_t EFIAPI efi_file_setinfo(struct efi_file_handle *file,
 		 * TODO: Support read only
 		 */
 		ret = EFI_SUCCESS;
-	} else if (!guidcmp(info_type, &efi_file_system_info_guid)) {
-		if (buffer_size < sizeof(struct efi_file_system_info)) {
-			ret = EFI_BAD_BUFFER_SIZE;
-			goto out;
-		}
 	} else {
+		/* TODO: We do not support changing the volume label */
 		ret = EFI_UNSUPPORTED;
 	}
 out:
@@ -705,12 +751,34 @@ static efi_status_t EFIAPI efi_file_flush(struct efi_file_handle *file)
 	return EFI_EXIT(EFI_SUCCESS);
 }
 
+static efi_status_t EFIAPI efi_file_open_ex(struct efi_file_handle *file,
+			struct efi_file_handle **new_handle,
+			u16 *file_name, u64 open_mode, u64 attributes,
+			struct efi_file_io_token *token)
+{
+	return EFI_UNSUPPORTED;
+}
+
+static efi_status_t EFIAPI efi_file_read_ex(struct efi_file_handle *file,
+			struct efi_file_io_token *token)
+{
+	return EFI_UNSUPPORTED;
+}
+
+static efi_status_t EFIAPI efi_file_write_ex(struct efi_file_handle *file,
+			struct efi_file_io_token *token)
+{
+	return EFI_UNSUPPORTED;
+}
+
+static efi_status_t EFIAPI efi_file_flush_ex(struct efi_file_handle *file,
+			struct efi_file_io_token *token)
+{
+	return EFI_UNSUPPORTED;
+}
+
 static const struct efi_file_handle efi_file_handle_protocol = {
-	/*
-	 * TODO: We currently only support EFI file protocol revision 0x00010000
-	 *	 while UEFI specs 2.4 - 2.7 prescribe revision 0x00020000.
-	 */
-	.rev = EFI_FILE_PROTOCOL_REVISION,
+	.rev = EFI_FILE_PROTOCOL_REVISION2,
 	.open = efi_file_open,
 	.close = efi_file_close,
 	.delete = efi_file_delete,
@@ -721,6 +789,10 @@ static const struct efi_file_handle efi_file_handle_protocol = {
 	.getinfo = efi_file_getinfo,
 	.setinfo = efi_file_setinfo,
 	.flush = efi_file_flush,
+	.open_ex = efi_file_open_ex,
+	.read_ex = efi_file_read_ex,
+	.write_ex = efi_file_write_ex,
+	.flush_ex = efi_file_flush_ex,
 };
 
 /**
