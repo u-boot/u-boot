@@ -364,7 +364,7 @@ static int get_contents(fsdata *mydata, dir_entry *dentptr, loff_t pos,
 		tmp_buffer = malloc_cache_aligned(actsize);
 		if (!tmp_buffer) {
 			debug("Error: allocating buffer\n");
-			return -ENOMEM;
+			return -1;
 		}
 
 		if (get_cluster(mydata, curclust, tmp_buffer, actsize) != 0) {
