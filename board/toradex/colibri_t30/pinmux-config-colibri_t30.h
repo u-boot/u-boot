@@ -11,7 +11,9 @@
 		.pingrp		= PMUX_PINGRP_##_pingrp,	\
 		.func		= PMUX_FUNC_##_mux,		\
 		.pull		= PMUX_PULL_##_pull,		\
+/* TRISTATE here means output driver is tri-stated */ \
 		.tristate	= PMUX_TRI_##_tri,		\
+/* INPUT here means input driver is enabled vs. OUTPUT where it is disabled */ \
 		.io		= PMUX_PIN_##_io,		\
 		.lock		= PMUX_PIN_LOCK_DEFAULT,	\
 		.od		= PMUX_PIN_OD_DEFAULT,		\
