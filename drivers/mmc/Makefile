@@ -52,6 +52,7 @@ obj-$(CONFIG_MMC_SDHCI_BCM2835)		+= bcm2835_sdhci.o
 obj-$(CONFIG_MMC_SDHCI_BCMSTB)		+= bcmstb_sdhci.o
 obj-$(CONFIG_MMC_SDHCI_CADENCE)		+= sdhci-cadence.o
 obj-$(CONFIG_MMC_SDHCI_AM654)		+= am654_sdhci.o
+obj-$(CONFIG_MMC_SDHCI_IPROC)		+= iproc_sdhci.o
 obj-$(CONFIG_MMC_SDHCI_KONA)		+= kona_sdhci.o
 obj-$(CONFIG_MMC_SDHCI_MSM)		+= msm_sdhci.o
 obj-$(CONFIG_MMC_SDHCI_MV)		+= mv_sdhci.o
