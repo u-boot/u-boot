@@ -58,6 +58,17 @@ void pinmux_init(void)
 }
 
 /*
+ * Disable RS232 serial transceiver ForceOFF# pins on Iris
+ */
+void gpio_early_init_uart(void)
+{
+	gpio_request(TEGRA_GPIO(X, 6), "Force OFF# X13");
+	gpio_direction_output(TEGRA_GPIO(X, 6), 1);
+	gpio_request(TEGRA_GPIO(X, 7), "Force OFF# X14");
+	gpio_direction_output(TEGRA_GPIO(X, 7), 1);
+}
+
+/*
  * Enable AX88772B USB to LAN controller
  */
 void pin_mux_usb(void)
