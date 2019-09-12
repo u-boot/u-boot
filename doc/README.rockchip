@@ -275,9 +275,7 @@ As of now TPL is added on Vyasa-RK3288 board.
 
 To write an image that boots from an SD card (assumed to be /dev/mmcblk0):
 
-   ./tools/mkimage -n rk3288 -T rksd -d ./tpl/u-boot-tpl.bin out &&
-    cat ./spl/u-boot-spl-dtb.bin >> out &&
-    sudo dd if=out of=/dev/mmcblk0 seek=64 &&
+    sudo dd if=idbloader.img of=/dev/mmcblk0 seek=64 &&
     sudo dd if=u-boot-dtb.img of=/dev/mmcblk0 seek=16384
 
 Booting from an SD card on RK3188
@@ -309,11 +307,6 @@ Booting from an SD card on Pine64 Rock64 (RK3328)
 
 For Rock64 rk3328 board the following three parts are required:
 TPL, SPL, and the u-boot image tree blob.
-
-  - Create TPL/SPL image
-
-    => tools/mkimage -n rk3328 -T rksd -d tpl/u-boot-tpl.bin idbloader.img
-    => cat spl/u-boot-spl.bin >> idbloader.img
 
   - Write TPL/SPL image at 64 sector
 
@@ -473,19 +466,9 @@ Hit any key to stop autoboot:  0
 
 Option 3: Package the image with TPL:
 
-  - Prefix rk3399 header to TPL image
-
-    => cd /path/to/u-boot
-    => ./tools/mkimage -n rk3399 -T rksd -d tpl/u-boot-tpl-dtb.bin out
-
-  - Concatinate tpl with spl
-
-    => cd /path/to/u-boot
-    => cat ./spl/u-boot-spl-dtb.bin >> out
-
   - Write tpl+spl at 64th sector
 
-    => sudo dd if=out of=/dev/sdc seek=64
+    => sudo dd if=idbloader.img of=/dev/sdc seek=64
 
   - Write U-Boot proper at 16384 sector
 

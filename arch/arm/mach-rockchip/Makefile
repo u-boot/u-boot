@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (c) 2014 Google, Inc
+# Copyright (c) 2019 Rockchip Electronics Co., Ltd.
 
 # We don't want the bootrom-helper present in a full U-Boot build, as
 # this may have entered from ATF with the stack-pointer pointing to
@@ -21,19 +22,14 @@ ifeq ($(CONFIG_SPL_BUILD)$(CONFIG_TPL_BUILD),)
 # meaning "turn it off".
 obj-y += boot_mode.o
 obj-$(CONFIG_ROCKCHIP_COMMON_BOARD) += board.o
+obj-$(CONFIG_MISC_INIT_R) += misc.o
 endif
 
 obj-$(CONFIG_$(SPL_TPL_)RAM) += sdram_common.o
 
-ifdef CONFIG_MISC_INIT_R
-obj-y += misc.o
-endif
-
 obj-$(CONFIG_ROCKCHIP_RK3036) += rk3036/
 obj-$(CONFIG_ROCKCHIP_RK3128) += rk3128/
-ifndef CONFIG_TPL_BUILD
 obj-$(CONFIG_ROCKCHIP_RK3188) += rk3188/
-endif
 obj-$(CONFIG_ROCKCHIP_RK322X) += rk322x/
 obj-$(CONFIG_ROCKCHIP_RK3288) += rk3288/
 obj-$(CONFIG_ROCKCHIP_RK3328) += rk3328/

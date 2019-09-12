@@ -18,8 +18,6 @@ Build the TPL/SPL stage
 =======================
 
   > make CROSS_COMPILE=aarch64-unknown-elf- ARCH=arm
-  > tools/mkimage -n rk3368 -T rksd -d tpl/u-boot-tpl.bin spl-3368.img
-  > cat spl/u-boot-spl-dtb.bin >> spl-3368.img
 
 Build the full U-Boot and a FIT image including the ATF
 =======================================================
@@ -35,7 +33,7 @@ Copy the SPL to offset 32k and the FIT image containing the payloads
 SD-Card
 -------
 
-  > dd if=spl-3368.img of=/dev/sdb seek=64
+  > dd if=idbloader.img of=/dev/sdb seek=64
   > dd if=u-boot.itb of=/dev/sdb seek=512
 
 eMMC

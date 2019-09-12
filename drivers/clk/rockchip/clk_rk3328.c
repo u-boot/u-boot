@@ -745,22 +745,10 @@ static int rk3328_clk_set_parent(struct clk *clk, struct clk *parent)
 	return -ENOENT;
 }
 
-static int rk3328_clk_enable(struct clk *clk)
-{
-	switch (clk->id) {
-	case HCLK_HOST0:
-		/* Required to successfully probe the ehci generic driver */
-		return 0;
-	}
-
-	return -ENOENT;
-}
-
 static struct clk_ops rk3328_clk_ops = {
 	.get_rate = rk3328_clk_get_rate,
 	.set_rate = rk3328_clk_set_rate,
 	.set_parent = rk3328_clk_set_parent,
-	.enable = rk3328_clk_enable,
 };
 
 static int rk3328_clk_probe(struct udevice *dev)
