@@ -19,8 +19,6 @@
 #include <image.h>
 #include <tee/optee.h>
 #include <u-boot/crc.h>
-#include <imximage.h>
-#include <generated/autoconf.h>
 
 static image_header_t header;
 
@@ -108,8 +106,7 @@ static void image_set_header(void *ptr, struct stat *sbuf, int ifd,
 
 	if (params->type == IH_TYPE_FIRMWARE_IVT)
 		/* Add size of CSF minus IVT */
-		imagesize = sbuf->st_size - sizeof(image_header_t)
-			    + CONFIG_CSF_SIZE - sizeof(flash_header_v2_t);
+		imagesize = sbuf->st_size - sizeof(image_header_t) + 0x1FE0;
 	else
 		imagesize = sbuf->st_size - sizeof(image_header_t);
 
