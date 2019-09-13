@@ -196,4 +196,12 @@ config SPI_FLASH_MTD
 
 	  If unsure, say N
 
+config SPL_SPI_FLASH_MTD
+	bool "SPI flash MTD support for SPL"
+	depends on SPI_FLASH
+	help
+          Enable the MTD support for the SPI flash layer in SPL.
+
+	  If unsure, say N
+
 endmenu # menu "SPI Flash Support"
