@@ -1049,8 +1049,8 @@ int usb_lowlevel_stop(int index)
  * This function supports usb interrupt transfers. Currently, usb interrupt
  * transfers are not supported.
  */
-int submit_int_msg(struct usb_device *dev, unsigned long pipe,
-				void *buffer, int len, int interval)
+int submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
+		   int len, int interval, bool nonblock)
 {
 	int dir_out = usb_pipeout(pipe);
 	int ep = usb_pipeendpoint(pipe);

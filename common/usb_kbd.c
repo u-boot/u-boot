@@ -340,10 +340,9 @@ static inline void usb_kbd_poll_for_event(struct usb_device *dev)
 	struct usb_kbd_pdata *data = dev->privptr;
 
 	/* Submit a interrupt transfer request */
-	usb_submit_int_msg(dev, data->intpipe, &data->new[0], data->intpktsize,
-			   data->intinterval);
-
-	usb_kbd_irq_worker(dev);
+	if (usb_int_msg(dev, data->intpipe, &data->new[0],
+			data->intpktsize, data->intinterval, true) >= 0)
+		usb_kbd_irq_worker(dev);
 #elif defined(CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP) || \
       defined(CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE)
 #if defined(CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP)
@@ -505,8 +504,8 @@ static int usb_kbd_probe_dev(struct usb_device *dev, unsigned int ifnum)
 	if (usb_get_report(dev, iface->desc.bInterfaceNumber,
 			   1, 0, data->new, USB_KBD_BOOT_REPORT_SIZE) < 0) {
 #else
-	if (usb_submit_int_msg(dev, data->intpipe, data->new, data->intpktsize,
-			       data->intinterval) < 0) {
+	if (usb_int_msg(dev, data->intpipe, data->new, data->intpktsize,
+			data->intinterval, false) < 0) {
 #endif
 		printf("Failed to get keyboard state from device %04x:%04x\n",
 		       dev->descriptor.idVendor, dev->descriptor.idProduct);
