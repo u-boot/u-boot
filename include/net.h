@@ -845,9 +845,10 @@ void ip_to_string(struct in_addr x, char *s);
 /**
  * string_to_ip() - Convert a string to ip address
  *
- * @s: String to conver, in the format format a.b.c.d, where each value is a
- *	decimal number from 0 to 255
- * @return IP address, or 0 if invalid
+ * Implemented in lib/net_utils.c (built unconditionally)
+ *
+ * @s: Input string to parse
+ * @return: in_addr struct containing the parsed IP address
  */
 struct in_addr string_to_ip(const char *s);
 
