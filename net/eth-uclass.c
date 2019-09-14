@@ -227,7 +227,7 @@ static int on_ethaddr(const char *name, const char *value, enum env_op op,
 		switch (op) {
 		case env_op_create:
 		case env_op_overwrite:
-			eth_parse_enetaddr(value, pdata->enetaddr);
+			string_to_enetaddr(value, pdata->enetaddr);
 			eth_write_hwaddr(dev);
 			break;
 		case env_op_delete:

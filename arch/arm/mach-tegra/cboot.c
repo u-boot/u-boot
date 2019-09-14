@@ -495,7 +495,7 @@ static int cboot_get_ethaddr_legacy(const void *fdt, uint8_t mac[ETH_ALEN])
 		return -ENOENT;
 	}
 
-	eth_parse_enetaddr(prop, mac);
+	string_to_enetaddr(prop, mac);
 
 	if (!is_valid_ethaddr(mac)) {
 		printf("Invalid MAC address: %s\n", prop);

@@ -826,6 +826,19 @@ static inline void net_random_ethaddr(uchar *addr)
 	addr[0] |= 0x02;	/* set local assignment bit (IEEE802) */
 }
 
+/**
+ * string_to_enetaddr() - Parse a MAC address
+ *
+ * Convert a string MAC address
+ *
+ * Implemented in lib/net_utils.c (built unconditionally)
+ *
+ * @addr: MAC address in aa:bb:cc:dd:ee:ff format, where each part is a 2-digit
+ *	hex value
+ * @enetaddr: Place to put MAC address (6 bytes)
+ */
+void string_to_enetaddr(const char *addr, uint8_t *enetaddr);
+
 /* Convert an IP address to a string */
 void ip_to_string(struct in_addr x, char *s);
 
@@ -880,19 +893,6 @@ unsigned int random_port(void);
  */
 int update_tftp(ulong addr, char *interface, char *devstring);
 
-/**********************************************************************/
-
-/**
- * eth_parse_enetaddr() - Parse a MAC address
- *
- * Convert a string MAC address
- *
- * @addr: MAC address in aa:bb:cc:dd:ee:ff format, where each part is a 2-digit
- *	hex value
- * @enetaddr: Place to put MAC address (6 bytes)
- */
-void eth_parse_enetaddr(const char *addr, uint8_t *enetaddr);
-
 /**
  * env_get_ip() - Convert an environment value to to an ip address
  *
@@ -905,5 +905,4 @@ static inline struct in_addr env_get_ip(char *var)
 {
 	return string_to_ip(env_get(var));
 }
-
 #endif /* __NET_H__ */

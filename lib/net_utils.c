@@ -41,3 +41,18 @@ struct in_addr string_to_ip(const char *s)
 	addr.s_addr = htonl(addr.s_addr);
 	return addr;
 }
+
+void string_to_enetaddr(const char *addr, uint8_t *enetaddr)
+{
+	char *end;
+	int i;
+
+	if (!enetaddr)
+		return;
+
+	for (i = 0; i < 6; ++i) {
+		enetaddr[i] = addr ? simple_strtoul(addr, &end, 16) : 0;
+		if (addr)
+			addr = (*end) ? end + 1 : end;
+	}
+}
