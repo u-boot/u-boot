@@ -11,24 +11,15 @@
 #include <linux/soc/ti/ti_sci_protocol.h>
 #include <mach/spl.h>
 #include <spl.h>
+#include <asm/arch/sys_proto.h>
 
 void board_fit_image_post_process(void **p_image, size_t *p_size)
 {
-	struct udevice *dev;
-	struct ti_sci_handle *ti_sci;
-	struct ti_sci_proc_ops *proc_ops;
+	struct ti_sci_handle *ti_sci = get_ti_sci_handle();
+	struct ti_sci_proc_ops *proc_ops = &ti_sci->ops.proc_ops;
 	u64 image_addr;
 	u32 image_size;
 	int ret;
-
-	/* Get handle to Device Management and Security Controller (SYSFW) */
-	ret = uclass_get_device_by_name(UCLASS_FIRMWARE, "dmsc", &dev);
-	if (ret) {
-		printf("Failed to get handle to SYSFW (%d)\n", ret);
-		hang();
-	}
-	ti_sci = (struct ti_sci_handle *)(ti_sci_get_handle_from_sysfw(dev));
-	proc_ops = &ti_sci->ops.proc_ops;
 
 	image_addr = (uintptr_t)*p_image;
 

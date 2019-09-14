@@ -22,11 +22,7 @@
 #define gpio_status()		gpio_info()
 #endif
 #define GPIO_NAME_SIZE		20
-#if !defined(CONFIG_SOC_DA850)
-#define MAX_NUM_GPIOS		128
-#else
 #define MAX_NUM_GPIOS		144
-#endif
 #define GPIO_BANK(gp)		(davinci_gpio_bank01 + ((gp) >> 5))
 
 void gpio_info(void);

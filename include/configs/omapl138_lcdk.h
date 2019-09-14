@@ -13,8 +13,6 @@
 /*
  * Board
  */
-#undef CONFIG_USE_SPIFLASH
-#undef	CONFIG_SYS_USE_NOR
 
 /*
  * SoC Configuration
@@ -104,20 +102,9 @@
  * Serial Driver info
  */
 #define CONFIG_SYS_NS16550_CLK	clk_get(DAVINCI_UART2_CLKID)
-#if !defined(CONFIG_DM_SERIAL)
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	-4	/* NS16550 register size */
-#define CONFIG_SYS_NS16550_COM1	DAVINCI_UART2_BASE /* Base address of UART2 */
-#define CONFIG_SYS_NS16550_CLK	clk_get(DAVINCI_UART2_CLKID)
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
-#endif
 
 #define CONFIG_SYS_SPI_BASE		DAVINCI_SPI1_BASE
 #define CONFIG_SYS_SPI_CLK		clk_get(DAVINCI_SPI1_CLKID)
-
-#ifdef CONFIG_USE_SPIFLASH
-#define CONFIG_SYS_SPI_U_BOOT_SIZE	0x30000
-#endif
 
 /*
  * I2C Configuration
@@ -166,24 +153,6 @@
 #define CONFIG_SPL_NAND_DRIVERS
 #define CONFIG_SPL_NAND_ECC
 #define CONFIG_SPL_NAND_LOAD
-#endif
-
-#ifdef CONFIG_SYS_USE_NOR
-#define CONFIG_SYS_MAX_FLASH_BANKS	1 /* max number of flash banks */
-#define CONFIG_SYS_FLASH_SECT_SZ	(128 << 10) /* 128KB */
-#define CONFIG_ENV_OFFSET		(CONFIG_SYS_FLASH_SECT_SZ * 3)
-#define CONFIG_ENV_SIZE			(128 << 10)
-#define CONFIG_SYS_FLASH_BASE		DAVINCI_ASYNC_EMIF_DATA_CE2_BASE
-#define PHYS_FLASH_SIZE			(8 << 20) /* Flash size 8MB */
-#define CONFIG_SYS_MAX_FLASH_SECT ((PHYS_FLASH_SIZE/CONFIG_SYS_FLASH_SECT_SZ)\
-	       + 3)
-#define CONFIG_ENV_SECT_SIZE		CONFIG_SYS_FLASH_SECT_SZ
-#endif
-
-#ifdef CONFIG_USE_SPIFLASH
-#define CONFIG_ENV_SIZE			(64 << 10)
-#define CONFIG_ENV_OFFSET		(256 << 10)
-#define CONFIG_ENV_SECT_SIZE		(64 << 10)
 #endif
 
 /*
@@ -244,12 +213,6 @@
 #define CONFIG_CLOCKS
 #endif
 
-#if !defined(CONFIG_NAND) && \
-	!defined(CONFIG_SYS_USE_NOR) && \
-	!defined(CONFIG_USE_SPIFLASH)
-#define CONFIG_ENV_SIZE		(16 << 10)
-#endif
-
 /* SD/MMC */
 
 #ifdef CONFIG_ENV_IS_IN_MMC
@@ -259,7 +222,6 @@
 #define CONFIG_ENV_OFFSET	(51 << 9)	/* Sector 51 */
 #endif
 
-#ifndef CONFIG_DIRECT_NOR_BOOT
 /* defines for SPL */
 #define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SYS_TEXT_BASE - \
 						CONFIG_SYS_MALLOC_LEN)
@@ -267,7 +229,6 @@
 #define CONFIG_SPL_STACK	0x8001ff00
 #define CONFIG_SPL_MAX_FOOTPRINT	32768
 #define CONFIG_SPL_PAD_TO	32768
-#endif
 
 /* additions for new relocation code, must added to all boards */
 #define CONFIG_SYS_SDRAM_BASE		0xc0000000

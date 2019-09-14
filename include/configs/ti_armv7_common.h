@@ -55,7 +55,13 @@
 	"addr_fit=0x90000000\0" \
 	"name_fit=fitImage\0" \
 	"update_to_fit=setenv loadaddr ${addr_fit}; setenv bootfile ${name_fit}\0" \
-	"loadfit=run args_mmc; bootm ${loadaddr}#${fdtfile};\0" \
+	"get_overlaystring=" \
+		"for overlay in $overlay_files;" \
+		"do;" \
+		"setenv overlaystring ${overlaystring}'#'${overlay};" \
+		"done;\0" \
+	"run_fit=bootm ${loadaddr}#${fdtfile}${overlaystring}\0" \
+	"loadfit=run args_mmc; run run_fit;\0" \
 
 /*
  * DDR information.  If the CONFIG_NR_DRAM_BANKS is not defined,

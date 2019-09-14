@@ -20,7 +20,7 @@ struct ti_sci_handle *get_ti_sci_handle(void)
 	struct udevice *dev;
 	int ret;
 
-	ret = uclass_get_device_by_name(UCLASS_FIRMWARE, "dmsc", &dev);
+	ret = uclass_get_device(UCLASS_FIRMWARE, 0, &dev);
 	if (ret)
 		panic("Failed to get SYSFW (%d)\n", ret);
 
