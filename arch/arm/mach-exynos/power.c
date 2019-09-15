@@ -162,6 +162,32 @@ static void exynos5_set_ps_hold_ctrl(void)
 			EXYNOS_PS_HOLD_CONTROL_DATA_HIGH);
 }
 
+static void exynos4412_set_ps_hold_ctrl(void)
+{
+        struct exynos4412_power *power =
+                (struct exynos4412_power *)samsung_get_base_power();
+
+        /* Set PS-Hold high */
+        setbits_le32(&power->ps_hold_control,
+                EXYNOS_PS_HOLD_CONTROL_DATA_HIGH);
+
+#ifdef CONFIG_ITOP4412
+        /*
+         * 0x0 = Disables Pull-up/Pull-down
+         * 0x1 = Enables Pull-down
+         * 0x2 = Reserved
+         * 0x3 = Enables Pull-up
+         *
+         * Due to GPX0_2 attached to PMIC's ONO pin,
+         * make GPX0_2 pin PU for high level,
+         * but all other pin default state for low level
+         * otherwise, keep restarting
+         *
+         */
+        writel(0x5575, (unsigned int *)0x11000C08);
+#endif
+}
+
 /*
  * Set ps_hold data driving value high
  * This enables the machine to stay powered on
@@ -172,6 +198,13 @@ void set_ps_hold_ctrl(void)
 {
 	if (cpu_is_exynos5())
 		exynos5_set_ps_hold_ctrl();
+
+#ifdef CONFIG_EXYNOS4412
+        if (cpu_is_exynos4()) {
+                if (proid_is_exynos4412())
+                        exynos4412_set_ps_hold_ctrl();
+        }
+#endif
 }
 
 

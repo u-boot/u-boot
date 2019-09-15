@@ -28,6 +28,15 @@
 #define DMC_OFFSET	0x10000
 
 /*
+ * Before debug uart is available, early led light is used to indicate.
+ *
+ * @param led   to light up that led.
+ */
+#if defined (CONFIG_ITOP4412)
+void early_led_on(uint8_t led);
+#endif
+
+/*
  * Memory initialization
  *
  * @param reset     Reset PHY during initialization.

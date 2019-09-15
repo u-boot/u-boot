@@ -214,6 +214,8 @@ struct exynos4412_power {
 	unsigned int	usbhost_phy_control;
 	unsigned int	hsic1_phy_control;
 	unsigned int	hsic2_phy_control;
+        unsigned char   res2[0x2bfc];
+        unsigned int    ps_hold_control;
 };
 
 struct exynos5_power {
