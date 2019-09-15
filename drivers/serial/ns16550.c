@@ -440,36 +440,7 @@ int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 	int err;
 
 	/* try Processor Local Bus device first */
-	addr = dev_read_addr(dev);
-#if CONFIG_IS_ENABLED(PCI) && defined(CONFIG_DM_PCI)
-	if (addr == FDT_ADDR_T_NONE) {
-		/* then try pci device */
-		struct fdt_pci_addr pci_addr;
-		u32 bar;
-		int ret;
-
-		/* we prefer to use a memory-mapped register */
-		ret = fdtdec_get_pci_addr(gd->fdt_blob, dev_of_offset(dev),
-					  FDT_PCI_SPACE_MEM32, "reg",
-					  &pci_addr);
-		if (ret) {
-			/* try if there is any i/o-mapped register */
-			ret = fdtdec_get_pci_addr(gd->fdt_blob,
-						  dev_of_offset(dev),
-						  FDT_PCI_SPACE_IO,
-						  "reg", &pci_addr);
-			if (ret)
-				return ret;
-		}
-
-		ret = fdtdec_get_pci_bar32(dev, &pci_addr, &bar);
-		if (ret)
-			return ret;
-
-		addr = bar;
-	}
-#endif
-
+	addr = dev_read_addr_pci(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

@@ -249,6 +249,26 @@ fdt_addr_t dev_read_addr(struct udevice *dev);
 void *dev_read_addr_ptr(struct udevice *dev);
 
 /**
+ * dev_read_addr_pci() - Read an address and handle PCI address translation
+ *
+ * At present U-Boot does not have address translation logic for PCI in the
+ * livetree implementation (of_addr.c). This special function supports this for
+ * the flat tree implementation.
+ *
+ * This function should be removed (and code should use dev_read() instead)
+ * once:
+ *
+ * 1. PCI address translation is added; and either
+ * 2. everything uses livetree where PCI translation is used (which is feasible
+ *    in SPL and U-Boot proper) or PCI address translation is added to
+ *    fdtdec_get_addr() and friends.
+ *
+ * @dev: Device to read from
+ * @return address or FDT_ADDR_T_NONE if not found
+ */
+fdt_addr_t dev_read_addr_pci(struct udevice *dev);
+
+/**
  * dev_remap_addr() - Get the reg property of a device as a
  *                         memory-mapped I/O pointer
  *
@@ -689,6 +709,11 @@ static inline fdt_addr_t dev_read_addr(struct udevice *dev)
 static inline void *dev_read_addr_ptr(struct udevice *dev)
 {
 	return devfdt_get_addr_ptr(dev);
+}
+
+static inline fdt_addr_t dev_read_addr_pci(struct udevice *dev)
+{
+	return devfdt_get_addr_pci(dev);
 }
 
 static inline void *dev_remap_addr(struct udevice *dev)

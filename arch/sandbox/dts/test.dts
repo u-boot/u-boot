@@ -456,12 +456,15 @@
 		};
 		pci@1,0 {
 			compatible = "pci-generic";
-			reg = <0x0800 0 0 0 0>;
+			/* reg 0 is at 0x14, using FDT_PCI_SPACE_MEM32 */
+			reg = <0x02000814 0 0 0 0
+			       0x01000810 0 0 0 0>;
 			sandbox,emul = <&swap_case_emul0_1>;
 		};
 		pci@1f,0 {
 			compatible = "pci-generic";
-			reg = <0xf800 0 0 0 0>;
+			/* reg 0 is at 0x10, using FDT_PCI_SPACE_IO */
+			reg = <0x0100f810 0 0 0 0>;
 			sandbox,emul = <&swap_case_emul0_1f>;
 		};
 	};

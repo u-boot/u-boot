@@ -307,3 +307,14 @@ int dev_read_alias_highest_id(const char *stem)
 
 	return fdtdec_get_alias_highest_id(gd->fdt_blob, stem);
 }
+
+fdt_addr_t dev_read_addr_pci(struct udevice *dev)
+{
+	ulong addr;
+
+	addr = dev_read_addr(dev);
+	if (addr == FDT_ADDR_T_NONE && !of_live_active())
+		addr = devfdt_get_addr_pci(dev);
+
+	return addr;
+}
