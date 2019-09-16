@@ -129,4 +129,14 @@
 #define CONFIG_BOARD_SIZE_LIMIT		715776
 #define CONFIG_SYS_MMC_ENV_DEV		0
 
+/* Ethernet Configuration */
+#define CONFIG_FEC_MXC
+#define CONFIG_MII
+#define IMX_FEC_BASE			ENET_BASE_ADDR
+#define CONFIG_FEC_XCV_TYPE		RGMII
+#define CONFIG_ETHPRIME			"FEC"
+#define CONFIG_FEC_MXC_PHYADDR		1
+#define CONFIG_PHYLIB
+#define CONFIG_PHY_ATHEROS
+
 #endif			       /* __CONFIG_H * */
