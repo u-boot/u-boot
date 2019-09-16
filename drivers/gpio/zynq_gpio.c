@@ -114,6 +114,19 @@ struct zynq_platform_data {
 	u32 bank_max[ZYNQMP_GPIO_MAX_BANK];
 };
 
+#define VERSAL_GPIO_NR_GPIOS	58
+#define VERSAL_GPIO_MAX_BANK	4
+
+static const struct zynq_platform_data versal_gpio_def = {
+	.label = "versal_gpio",
+	.ngpio = VERSAL_GPIO_NR_GPIOS,
+	.max_bank = VERSAL_GPIO_MAX_BANK,
+	.bank_min[0] = 0,
+	.bank_max[0] = 25,
+	.bank_min[3] = 26,
+	.bank_max[3] = 57,
+};
+
 static const struct zynq_platform_data zynqmp_gpio_def = {
 	.label = "zynqmp_gpio",
 	.ngpio = ZYNQMP_GPIO_NR_GPIOS,
@@ -329,6 +342,8 @@ static const struct udevice_id zynq_gpio_ids[] = {
 	  .data = (ulong)&zynq_gpio_def},
 	{ .compatible = "xlnx,zynqmp-gpio-1.0",
 	  .data = (ulong)&zynqmp_gpio_def},
+	{ .compatible = "xlnx,versal-gpio-1.0",
+	  .data = (ulong)&versal_gpio_def},
 	{ }
 };
 
