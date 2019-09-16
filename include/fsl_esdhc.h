@@ -205,6 +205,10 @@ struct fsl_esdhc_cfg {
 int fsl_esdhc_mmc_init(bd_t *bis);
 int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg);
 void fdt_fixup_esdhc(void *blob, bd_t *bd);
+#ifdef MMC_SUPPORTS_TUNING
+static inline int fsl_esdhc_execute_tuning(struct udevice *dev,
+					   uint32_t opcode) {return 0; }
+#endif
 #else
 static inline int fsl_esdhc_mmc_init(bd_t *bis) { return -ENOSYS; }
 static inline void fdt_fixup_esdhc(void *blob, bd_t *bd) {}

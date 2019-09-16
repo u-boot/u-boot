@@ -14,6 +14,10 @@
 	};
 };
 
+&esdhc1 {
+	mmc-hs200-1_8v;
+};
+
 &qspi {
 	bus-num = <0>;
 	status = "okay";

@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2018 NXP
+ * Copyright 2018-2019 NXP
  */
 
 #ifndef __LX2_COMMON_H
@@ -199,14 +199,14 @@ unsigned long get_board_ddr_clk(void);
 	"fsl_mc start mc 0x20a00000 0x20e00000\0"
 
 #define SD_MC_INIT_CMD				\
-	"mmc read 0x80000000 0x5000 0x800;"	\
-	"mmc read 0x80100000 0x7000 0x800;"	\
+	"mmc read 0x80a00000 0x5000 0x1200;"	\
+	"mmc read 0x80e00000 0x7000 0x800;"	\
 	"env exists secureboot && "		\
 	"mmc read 0x80700000 0x3800 0x10 && "	\
 	"mmc read 0x80740000 0x3A00 0x10 && "	\
 	"esbc_validate 0x80700000 && "		\
 	"esbc_validate 0x80740000 ;"		\
-	"fsl_mc start mc 0x80000000 0x80100000\0"
+	"fsl_mc start mc 0x80a00000 0x80e00000\0"
 
 #define EXTRA_ENV_SETTINGS			\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
@@ -265,11 +265,11 @@ unsigned long get_board_ddr_clk(void);
 
 #define SD_BOOTCOMMAND						\
 		"env exists mcinitcmd && mmcinfo; "		\
-		"mmc read 0x80001000 0x6800 0x800; "		\
+		"mmc read 0x80d00000 0x6800 0x800; "		\
 		"env exists mcinitcmd && env exists secureboot "	\
 		" && mmc read 0x80780000 0x3C00 0x10 "		\
 		"&& esbc_validate 0x80780000;env exists mcinitcmd "	\
-		"&& fsl_mc lazyapply dpl 0x80001000;"		\
+		"&& fsl_mc lazyapply dpl 0x80d00000;"		\
 		"run distro_bootcmd;run sd_bootcmd;"		\
 		"env exists secureboot && esbc_halt;"
 

@@ -64,6 +64,9 @@ void get_sys_info(struct sys_info *sys_info)
 	};
 
 	uint i, cluster;
+#if defined(CONFIG_TARGET_LS1028ARDB) || defined(CONFIG_TARGET_LS1088ARDB)
+	uint rcw_tmp;
+#endif
 	uint freq_c_pll[CONFIG_SYS_FSL_NUM_CC_PLLS];
 	uint ratio[CONFIG_SYS_FSL_NUM_CC_PLLS];
 	unsigned long sysclk = CONFIG_SYS_CLK_FREQ;
@@ -127,8 +130,39 @@ void get_sys_info(struct sys_info *sys_info)
 	sys_info->freq_localbus = sys_info->freq_systembus /
 						CONFIG_SYS_FSL_IFC_CLK_DIV;
 #endif
-}
 
+#if defined(CONFIG_TARGET_LS1028ARDB) || defined(CONFIG_TARGET_LS1088ARDB)
+#define HWA_CGA_M2_CLK_SEL      0x00380000
+#define HWA_CGA_M2_CLK_SHIFT    19
+	rcw_tmp = in_le32(&gur->rcwsr[5]);
+	switch ((rcw_tmp & HWA_CGA_M2_CLK_SEL) >> HWA_CGA_M2_CLK_SHIFT) {
+	case 1:
+		sys_info->freq_cga_m2 = freq_c_pll[1];
+		break;
+	case 2:
+		sys_info->freq_cga_m2 = freq_c_pll[1] / 2;
+		break;
+	case 3:
+		sys_info->freq_cga_m2 = freq_c_pll[1] / 3;
+		break;
+	case 4:
+		sys_info->freq_cga_m2 = freq_c_pll[1] / 4;
+		break;
+	case 6:
+		sys_info->freq_cga_m2 = freq_c_pll[0] / 2;
+		break;
+	case 7:
+		sys_info->freq_cga_m2 = freq_c_pll[0] / 3;
+		break;
+	default:
+		printf("Error: Unknown peripheral clock select!\n");
+		break;
+	}
+#endif
+#if defined(CONFIG_TARGET_LX2160ARDB) || defined(CONFIG_TARGET_LS2080ARDB)
+	sys_info->freq_cga_m2 = sys_info->freq_systembus;
+#endif
+}
 
 int get_clocks(void)
 {
@@ -141,7 +175,16 @@ int get_clocks(void)
 	gd->arch.mem2_clk = sys_info.freq_ddrbus2;
 #endif
 #if defined(CONFIG_FSL_ESDHC)
+#if defined(CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK)
+#if defined(CONFIG_TARGET_LS1028ARDB) || defined(CONFIG_TARGET_LX2160ARDB)
+	gd->arch.sdhc_clk = sys_info.freq_cga_m2 / 2;
+#endif
+#if defined(CONFIG_TARGET_LS2080ARDB) || defined(CONFIG_TARGET_LS1088ARDB)
+	gd->arch.sdhc_clk = sys_info.freq_cga_m2;
+#endif
+#else
 	gd->arch.sdhc_clk = gd->bus_clk / CONFIG_SYS_FSL_SDHC_CLK_DIV;
+#endif
 #endif /* defined(CONFIG_FSL_ESDHC) */
 
 	if (gd->cpu_clk != 0)

@@ -278,6 +278,7 @@ struct sys_info {
 	/* frequency of platform PLL */
 	unsigned long freq_systembus;
 	unsigned long freq_ddrbus;
+	unsigned long freq_cga_m2;
 #ifdef CONFIG_SYS_FSL_HAS_DP_DDR
 	unsigned long freq_ddrbus2;
 #endif
