@@ -283,6 +283,54 @@ int arch_cpu_init(void)
 	return 0;
 }
 
+#if defined(CONFIG_IMX8MN) || defined(CONFIG_IMX8MP)
+struct rom_api *g_rom_api = (struct rom_api *)0x980;
+
+enum boot_device get_boot_device(void)
+{
+	volatile gd_t *pgd = gd;
+	int ret;
+	u32 boot;
+	u16 boot_type;
+	u8 boot_instance;
+	enum boot_device boot_dev = SD1_BOOT;
+
+	ret = g_rom_api->query_boot_infor(QUERY_BT_DEV, &boot,
+					  ((uintptr_t)&boot) ^ QUERY_BT_DEV);
+	gd = pgd;
+
+	if (ret != ROM_API_OKAY) {
+		puts("ROMAPI: failure at query_boot_info\n");
+		return -1;
+	}
+
+	boot_type = boot >> 16;
+	boot_instance = (boot >> 8) & 0xff;
+
+	switch (boot_type) {
+	case BT_DEV_TYPE_SD:
+		boot_dev = boot_instance + SD1_BOOT;
+		break;
+	case BT_DEV_TYPE_MMC:
+		boot_dev = boot_instance + MMC1_BOOT;
+		break;
+	case BT_DEV_TYPE_NAND:
+		boot_dev = NAND_BOOT;
+		break;
+	case BT_DEV_TYPE_FLEXSPINOR:
+		boot_dev = QSPI_BOOT;
+		break;
+	case BT_DEV_TYPE_USB:
+		boot_dev = USB_BOOT;
+		break;
+	default:
+		break;
+	}
+
+	return boot_dev;
+}
+#endif
+
 bool is_usb_boot(void)
 {
 	return get_boot_device() == USB_BOOT;
