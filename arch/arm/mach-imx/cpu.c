@@ -377,7 +377,7 @@ u32 get_cpu_temp_grade(int *minc, int *maxc)
 }
 #endif
 
-#if defined(CONFIG_MX7) || defined(CONFIG_IMX8M)
+#if defined(CONFIG_MX7) || defined(CONFIG_IMX8MQ) || defined(CONFIG_IMX8MM)
 enum boot_device get_boot_device(void)
 {
 	struct bootrom_sw_info **p =
