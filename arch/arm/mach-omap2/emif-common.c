@@ -348,7 +348,7 @@ static void dra7_reset_ddr_data(u32 base, u32 size)
 static void dra7_enable_ecc(u32 base, const struct emif_regs *regs)
 {
 	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
-	u32 rgn, size;
+	u32 rgn, rgn_start, size;
 
 	/* ECC available only on dra76x EMIF1 */
 	if ((base != EMIF1_BASE) || !is_dra76x())
@@ -362,22 +362,22 @@ static void dra7_enable_ecc(u32 base, const struct emif_regs *regs)
 		writel(regs->emif_ecc_ctrl_reg, &emif->emif_ecc_ctrl_reg);
 
 		/* Set region1 memory with 0 */
-		rgn = ((regs->emif_ecc_address_range_1 &
-			EMIF_ECC_REG_ECC_START_ADDR_MASK) << 16) +
-		       CONFIG_SYS_SDRAM_BASE;
+		rgn_start = (regs->emif_ecc_address_range_1 &
+			     EMIF_ECC_REG_ECC_START_ADDR_MASK) << 16;
+		rgn = rgn_start + CONFIG_SYS_SDRAM_BASE;
 		size = (regs->emif_ecc_address_range_1 &
-			EMIF_ECC_REG_ECC_END_ADDR_MASK) + 0x10000;
+			EMIF_ECC_REG_ECC_END_ADDR_MASK) + 0x10000 - rgn_start;
 
 		if (regs->emif_ecc_ctrl_reg &
 		    EMIF_ECC_REG_ECC_ADDR_RGN_1_EN_MASK)
 			dra7_reset_ddr_data(rgn, size);
 
 		/* Set region2 memory with 0 */
-		rgn = ((regs->emif_ecc_address_range_2 &
-			EMIF_ECC_REG_ECC_START_ADDR_MASK) << 16) +
-		       CONFIG_SYS_SDRAM_BASE;
+		rgn_start = (regs->emif_ecc_address_range_2 &
+			     EMIF_ECC_REG_ECC_START_ADDR_MASK) << 16;
+		rgn = rgn_start + CONFIG_SYS_SDRAM_BASE;
 		size = (regs->emif_ecc_address_range_2 &
-			EMIF_ECC_REG_ECC_END_ADDR_MASK) + 0x10000;
+			EMIF_ECC_REG_ECC_END_ADDR_MASK) + 0x10000 - rgn_start;
 
 		if (regs->emif_ecc_ctrl_reg &
 		    EMIF_ECC_REG_ECC_ADDR_RGN_2_EN_MASK)
