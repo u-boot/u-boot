@@ -55,7 +55,7 @@
 			"pxefile_addr_r=0xC0008000\0" \
 			"fdt_high=0xffffffffffffffff\0"		\
 			"initrd_high=0xffffffffffffffff\0"	\
-			"ramdisk_addr_r=0xD0900000\0"		\
+			"ramdisk_addr_r=0xC0600000\0"		\
 			BOOTENV
 
 /*
