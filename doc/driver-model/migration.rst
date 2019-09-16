@@ -7,6 +7,16 @@ U-Boot has been migrating to a new driver model since its introduction in
 2014. This file describes the schedule for deprecation of pre-driver-model
 features.
 
+CONFIG_DM
+---------
+
+* Status: In progress
+* Deadline: 2020.01
+
+Starting with the 2010.01 release CONFIG_DM will be enabled for all boards.
+This does not concern CONFIG_DM_SPL and CONFIG_DM_TPL. The conversion date for
+these configuration items still needs to be defined.
+
 CONFIG_DM_MMC
 -------------
 
