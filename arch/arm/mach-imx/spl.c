@@ -135,7 +135,7 @@ u32 spl_boot_device(void)
 
 	enum boot_device boot_device_spl = get_boot_device();
 
-	if (IS_ENABLED(CONFIG_IMX8MM))
+	if (IS_ENABLED(CONFIG_IMX8MM) || IS_ENABLED(CONFIG_IMX8MN))
 		return spl_board_boot_device(boot_device_spl);
 
 	switch (boot_device_spl) {
