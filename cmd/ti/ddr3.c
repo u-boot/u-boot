@@ -242,8 +242,8 @@ static int is_addr_valid(u32 addr)
 	if (ecc_ctrl & EMIF_ECC_REG_ECC_ADDR_RGN_1_EN_MASK) {
 		start_addr = ((range & EMIF_ECC_REG_ECC_START_ADDR_MASK) << 16)
 				+ CONFIG_SYS_SDRAM_BASE;
-		end_addr = start_addr + (range & EMIF_ECC_REG_ECC_END_ADDR_MASK)
-				+ 0xFFFF;
+		end_addr = (range & EMIF_ECC_REG_ECC_END_ADDR_MASK) + 0xFFFF +
+				CONFIG_SYS_SDRAM_BASE;
 		if ((addr >= start_addr) && (addr <= end_addr))
 			/* addr within ecc address range 1 */
 			return 1;
@@ -254,8 +254,8 @@ static int is_addr_valid(u32 addr)
 		range = readl(&emif->emif_ecc_address_range_2);
 		start_addr = ((range & EMIF_ECC_REG_ECC_START_ADDR_MASK) << 16)
 				+ CONFIG_SYS_SDRAM_BASE;
-		end_addr = start_addr + (range & EMIF_ECC_REG_ECC_END_ADDR_MASK)
-				+ 0xFFFF;
+		end_addr = (range & EMIF_ECC_REG_ECC_END_ADDR_MASK) + 0xFFFF +
+				CONFIG_SYS_SDRAM_BASE;
 		if ((addr >= start_addr) && (addr <= end_addr))
 			/* addr within ecc address range 2 */
 			return 1;
