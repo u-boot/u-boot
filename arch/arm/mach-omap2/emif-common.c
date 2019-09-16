@@ -355,6 +355,9 @@ static void dra7_enable_ecc(u32 base, const struct emif_regs *regs)
 		return;
 
 	if (regs->emif_ecc_ctrl_reg & EMIF_ECC_CTRL_REG_ECC_EN_MASK) {
+		/* Disable high-order interleaving */
+		clrbits_le32(MA_PRIORITY, MA_HIMEM_INTERLEAVE_UN_MASK);
+
 		writel(regs->emif_ecc_address_range_1,
 		       &emif->emif_ecc_address_range_1);
 		writel(regs->emif_ecc_address_range_2,
