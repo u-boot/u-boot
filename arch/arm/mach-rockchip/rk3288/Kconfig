@@ -104,7 +104,6 @@ config TARGET_POPMETAL_RK3288
 config TARGET_VYASA_RK3288
 	bool "Vyasa-RK3288"
 	select BOARD_LATE_INIT
-	select ROCKCHIP_BROM_HELPER
 	select TPL
 	help
 	  Vyasa is a RK3288-based development board with 2 USB ports,
