@@ -91,12 +91,18 @@ static int pinctrl_select_state_full(struct udevice *dev, const char *statename)
 		phandle = fdt32_to_cpu(*list++);
 		ret = uclass_get_device_by_phandle_id(UCLASS_PINCONFIG, phandle,
 						      &config);
-		if (ret)
-			return ret;
+		if (ret) {
+			dev_warn(dev, "%s: uclass_get_device_by_phandle_id: err=%d\n",
+				__func__, ret);
+			continue;
+		}
 
 		ret = pinctrl_config_one(config);
-		if (ret)
-			return ret;
+		if (ret) {
+			dev_warn(dev, "%s: pinctrl_config_one: err=%d\n",
+				__func__, ret);
+			continue;
+		}
 	}
 
 	return 0;
