@@ -104,7 +104,6 @@ int main(int argc, char **argv)
 			printf("dumpimage version %s\n", PLAIN_VERSION);
 			exit(EXIT_SUCCESS);
 		case 'h':
-			usage();
 		default:
 			usage();
 			break;
