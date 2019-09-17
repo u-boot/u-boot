@@ -16,9 +16,13 @@
 #define CONFIG_TIMESTAMP
 #endif
 
+#define CONFIG_SYS_BOOTM_LEN		(16 << 20)
+
 /* Clock Defines */
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
+
+#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
 #ifndef CONFIG_SPL_BUILD
 
@@ -30,7 +34,6 @@
 	"ramdisk_addr_r=0x88080000\0" \
 
 #define BOOT_TARGET_DEVICES(func) \
-	func(MMC, mmc, 0) \
 	func(UBIFS, ubifs, 0) \
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
@@ -44,11 +47,12 @@
 	MEM_LAYOUT_ENV_SETTINGS \
 	BOOTENV \
 	"bootlimit=3\0" \
+	"bootubivol=rootfs\0" \
 	"altbootcmd=" \
 		"setenv boot_config \"extlinux-rollback.conf\"; " \
 		"run distro_bootcmd\0"
 
-#endif /* CONFIG_SPL_BUILD */
+#endif /* ! CONFIG_SPL_BUILD */
 
 /* NS16550 Configuration */
 #define CONFIG_SYS_NS16550_COM1		0x44e09000	/* UART0 */
@@ -65,9 +69,6 @@
 #define CONFIG_SYS_BOOTCOUNT_LE
 
 #ifdef CONFIG_NAND
-#define CONFIG_ENV_OFFSET		0x300000
-#define CONFIG_ENV_OFFSET_REDUND	0x340000
-#define CONFIG_ENV_SIZE			0x040000
 
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_PAGE_COUNT      (CONFIG_SYS_NAND_BLOCK_SIZE / \
