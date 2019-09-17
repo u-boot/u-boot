@@ -13,20 +13,20 @@
 	u-boot,dm-pre-reloc;
 };
 
+&uart2_xfer {
+	u-boot,dm-pre-reloc;
+};
+
 &sdmmc {
-	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
 };
 
-&emmc {
-	u-boot,dm-pre-reloc;
+&gpio7 {
+	u-boot,dm-spl;
 };
 
-&gpio3 {
-	u-boot,dm-pre-reloc;
-};
-
-&gpio8 {
-	u-boot,dm-pre-reloc;
+&vcc_sd {
+	u-boot,dm-spl;
 };
 
 &pcfg_pull_none_drv_8ma {
@@ -37,7 +37,19 @@
 	u-boot,dm-spl;
 };
 
+&pcfg_pull_none {
+	u-boot,dm-spl;
+};
+
+&pcfg_pull_up {
+	u-boot,dm-spl;
+};
+
 &sdmmc_bus4 {
+	u-boot,dm-spl;
+};
+
+&sdmmc_cd {
 	u-boot,dm-spl;
 };
 
