@@ -134,7 +134,7 @@ void board_boot_order(u32 *spl_boot_list)
 		/* Try to resolve the config item (or alias) as a path */
 		node = fdt_path_offset(blob, conf);
 		if (node < 0) {
-			debug("%s: could not find %s in FDT", __func__, conf);
+			debug("%s: could not find %s in FDT\n", __func__, conf);
 			continue;
 		}
 
