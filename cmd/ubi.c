@@ -419,6 +419,30 @@ static int ubi_dev_scan(struct mtd_info *info, const char *vid_header_offset)
 	return 0;
 }
 
+static int ubi_set_skip_check(char *volume, bool skip_check)
+{
+	struct ubi_vtbl_record vtbl_rec;
+	struct ubi_volume *vol;
+
+	vol = ubi_find_volume(volume);
+	if (!vol)
+		return ENODEV;
+
+	printf("%sing skip_check on volume %s\n",
+	       skip_check ? "Sett" : "Clear", volume);
+
+	vtbl_rec = ubi->vtbl[vol->vol_id];
+	if (skip_check) {
+		vtbl_rec.flags |= UBI_VTBL_SKIP_CRC_CHECK_FLG;
+		vol->skip_check = 1;
+	} else {
+		vtbl_rec.flags &= ~UBI_VTBL_SKIP_CRC_CHECK_FLG;
+		vol->skip_check = 0;
+	}
+
+	return ubi_change_vtbl_record(ubi, vol->vol_id, &vtbl_rec);
+}
+
 static int ubi_detach(void)
 {
 #ifdef CONFIG_CMD_UBIFS
@@ -578,6 +602,14 @@ static int do_ubi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			return ubi_remove_vol(argv[2]);
 	}
 
+	if (strncmp(argv[1], "skipcheck", 9) == 0) {
+		/* E.g., change skip_check flag */
+		if (argc == 4) {
+			skipcheck = strncmp(argv[3], "on", 2) == 0;
+			return ubi_set_skip_check(argv[2], skipcheck);
+		}
+	}
+
 	if (strncmp(argv[1], "write", 5) == 0) {
 		int ret;
 
@@ -658,6 +690,7 @@ U_BOOT_CMD(
 		" - Read volume to address with size\n"
 	"ubi remove[vol] volume"
 		" - Remove volume\n"
+	"ubi skipcheck volume on/off - Set or clear skip_check flag in volume header\n"
 	"[Legends]\n"
 	" volume: character name\n"
 	" size: specified in bytes\n"
