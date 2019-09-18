@@ -80,6 +80,8 @@ def test_vboot(u_boot_console):
         assert(expect_string in ''.join(output))
         if boots:
             assert('sandbox: continuing, as we cannot run' in ''.join(output))
+        else:
+            assert('sandbox: continuing, as we cannot run' not in ''.join(output))
 
     def make_fit(its):
         """Make a new FIT from the .its source file.
@@ -105,6 +107,20 @@ def test_vboot(u_boot_console):
         cons.log.action('%s: Sign images' % sha_algo)
         util.run_and_log(cons, [mkimage, '-F', '-k', tmpdir, '-K', dtb,
                                 '-r', fit])
+
+    def sign_fit_norequire(sha_algo):
+        """Sign the FIT
+
+        Signs the FIT and writes the signature into it. It also writes the
+        public key into the dtb.
+
+        Args:
+            sha_algo: Either 'sha1' or 'sha256', to select the algorithm to
+                    use.
+        """
+        cons.log.action('%s: Sign images' % sha_algo)
+        util.run_and_log(cons, [mkimage, '-F', '-k', tmpdir, '-K', dtb,
+                                fit])
 
     def replace_fit_totalsize(size):
         """Replace FIT header's totalsize with something greater.
@@ -195,6 +211,35 @@ def test_vboot(u_boot_console):
         util.run_and_log_expect_exception(cons, [fit_check_sign, '-f', fit,
                 '-k', dtb], 1, 'Failed to verify required signature')
 
+    def test_required_key(sha_algo, padding):
+        """Test verified boot with the given hash algorithm.
+
+        This function test if u-boot reject an image when a required
+        key isn't used to sign a FIT.
+
+        Args:
+            sha_algo: Either 'sha1' or 'sha256', to select the algorithm to
+                    use.
+        """
+        # Compile our device tree files for kernel and U-Boot. These are
+        # regenerated here since mkimage will modify them (by adding a
+        # public key) below.
+        dtc('sandbox-kernel.dts')
+        dtc('sandbox-u-boot.dts')
+
+        # Build the FIT with prod key (keys required)
+        # Build the FIT with dev key (keys NOT required)
+        # The dtb contain the key prod and dev and the key prod are set as required.
+        # Then try to boot the FIT with dev key
+        # This FIT should not be accepted by u-boot because the key prod is required
+        cons.log.action('%s: Test FIT with configs images' % sha_algo)
+        make_fit('sign-configs-%s%s-prod.its' % (sha_algo , padding))
+        sign_fit(sha_algo)
+        make_fit('sign-configs-%s%s.its' % (sha_algo , padding))
+        sign_fit(sha_algo)
+
+        run_bootm(sha_algo, 'signed configs', '', False)
+
     cons = u_boot_console
     tmpdir = cons.config.result_dir + '/'
     tmp = tmpdir + 'vboot.tmp'
@@ -217,6 +262,17 @@ def test_vboot(u_boot_console):
     util.run_and_log(cons, 'openssl req -batch -new -x509 -key %sdev.key -out '
                      '%sdev.crt' % (tmpdir, tmpdir))
 
+    # Create an RSA key pair (prod)
+    public_exponent = 65537
+    util.run_and_log(cons, 'openssl genpkey -algorithm RSA -out %sprod.key '
+                     '-pkeyopt rsa_keygen_bits:2048 '
+                     '-pkeyopt rsa_keygen_pubexp:%d' %
+                     (tmpdir, public_exponent))
+
+    # Create a certificate containing the public key (prod)
+    util.run_and_log(cons, 'openssl req -batch -new -x509 -key %sprod.key -out '
+                     '%sprod.crt' % (tmpdir, tmpdir))
+
     # Create a number kernel image with zeroes
     with open('%stest-kernel.bin' % tmpdir, 'w') as fd:
         fd.write(5000 * chr(0))
@@ -230,6 +286,7 @@ def test_vboot(u_boot_console):
         test_with_algo('sha1','-pss')
         test_with_algo('sha256','')
         test_with_algo('sha256','-pss')
+        test_required_key('sha256','-pss')
     finally:
         # Go back to the original U-Boot with the correct dtb.
         cons.config.dtb = old_dtb
