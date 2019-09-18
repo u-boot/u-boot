@@ -93,6 +93,9 @@
 /* GPIO upper 16 bit mask */
 #define ZYNQ_GPIO_UPPER_MASK 0xFFFF0000
 
+#define PMC_GPIO_NR_GPIOS	116
+#define PMC_GPIO_MAX_BANK	5
+
 struct zynq_gpio_platdata {
 	phys_addr_t base;
 	const struct zynq_platform_data *p_data;
@@ -125,6 +128,20 @@ static const struct zynq_platform_data versal_gpio_def = {
 	.bank_max[0] = 25,
 	.bank_min[3] = 26,
 	.bank_max[3] = 57,
+};
+
+static const struct zynq_platform_data pmc_gpio_def = {
+	.label = "pmc_gpio",
+	.ngpio = PMC_GPIO_NR_GPIOS,
+	.max_bank = PMC_GPIO_MAX_BANK,
+	.bank_min[0] = 0,
+	.bank_max[0] = 25,
+	.bank_min[1] = 26,
+	.bank_max[1] = 51,
+	.bank_min[3] = 52,
+	.bank_max[3] = 83,
+	.bank_min[4] = 84,
+	.bank_max[4] = 115,
 };
 
 static const struct zynq_platform_data zynqmp_gpio_def = {
@@ -344,6 +361,8 @@ static const struct udevice_id zynq_gpio_ids[] = {
 	  .data = (ulong)&zynqmp_gpio_def},
 	{ .compatible = "xlnx,versal-gpio-1.0",
 	  .data = (ulong)&versal_gpio_def},
+	{ .compatible = "xlnx,pmc-gpio-1.0",
+	  .data = (ulong)&pmc_gpio_def },
 	{ }
 };
 
