@@ -27,6 +27,17 @@
 #define IMX6DQ_DRIVE_STRENGTH		0x30
 #define IMX6SDL_DRIVE_STRENGTH		0x28
 
+#ifdef CONFIG_SPL_OS_BOOT
+int spl_start_uboot(void)
+{
+	/* Break into full U-Boot on 'c' */
+	if (serial_tstc() && serial_getc() == 'c')
+		return 1;
+
+	return 0;
+}
+#endif
+
 /* configure MX6Q/DUAL mmdc DDR io registers */
 static struct mx6dq_iomux_ddr_regs mx6dq_ddr_ioregs = {
 	.dram_sdclk_0 = IMX6DQ_DRIVE_STRENGTH,
