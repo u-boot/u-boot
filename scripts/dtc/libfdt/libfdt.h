@@ -734,7 +734,7 @@ uint32_t fdt_get_phandle(const void *fdt, int nodeoffset);
 /**
  * fdt_get_alias_namelen - get alias based on substring
  * @fdt: pointer to the device tree blob
- * @name: name of the alias th look up
+ * @name: name of the alias to look up
  * @namelen: number of characters of name to consider
  *
  * Identical to fdt_get_alias(), but only examine the first namelen
