@@ -33,6 +33,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define GIGABITEN		BIT(7)
 #define FULLDUPLEXEN		BIT(0)
 #define MIIEN			BIT(15)
+#define CTL_EXT_EN		BIT(18)
 /* DMA Registers */
 #define CPDMA_TXCONTROL		0x004
 #define CPDMA_RXCONTROL		0x014
@@ -489,6 +490,8 @@ static int cpsw_slave_update_link(struct cpsw_slave *slave,
 			mac_control |= FULLDUPLEXEN;
 		if (phy->speed == 100)
 			mac_control |= MIIEN;
+		if (phy->speed == 10 && phy_interface_is_rgmii(phy))
+			mac_control |= CTL_EXT_EN;
 	}
 
 	if (mac_control == slave->mac_control)
