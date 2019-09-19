@@ -25,6 +25,15 @@ config SPL_FRAMEWORK
 	  supports MMC, NAND and YMODEM and other methods loading of U-Boot
 	  and the Linux Kernel.  If unsure, say Y.
 
+config SPL_FRAMEWORK_BOARD_INIT_F
+	bool "Define a generic function board_init_f"
+	depends on SPL_FRAMEWORK
+	help
+	  Define a generic function board_init_f that:
+	  - initialize the spl (spl_early_init)
+	  - initialize the serial (preloader_console_init)
+	  Unless you want to provide your own board_init_f, you should say Y.
+
 config SPL_SIZE_LIMIT
 	hex "Maximum size of SPL image"
 	depends on SPL
