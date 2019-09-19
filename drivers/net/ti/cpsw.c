@@ -1179,12 +1179,40 @@ static int cpsw_eth_probe(struct udevice *dev)
 }
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
+static void cpsw_eth_of_parse_slave(struct cpsw_platform_data *data,
+				    int slave_index, int subnode)
+{
+	struct cpsw_slave_data	*slave_data;
+	const void *fdt = gd->fdt_blob;
+	const char *phy_mode;
+	u32 phy_id[2];
+
+	slave_data = &data->slave_data[slave_index];
+
+	phy_mode = fdt_getprop(fdt, subnode, "phy-mode", NULL);
+	if (phy_mode)
+		slave_data->phy_if =
+			phy_get_interface_by_name(phy_mode);
+
+	slave_data->phy_of_handle = fdtdec_lookup_phandle(fdt, subnode,
+							  "phy-handle");
+
+	if (data->slave_data[slave_index].phy_of_handle >= 0) {
+		slave_data->phy_addr =
+			fdtdec_get_int(fdt, slave_data->phy_of_handle,
+				       "reg", -1);
+	} else {
+		fdtdec_get_int_array(fdt, subnode, "phy_id",
+				     phy_id, 2);
+		slave_data->phy_addr = phy_id[1];
+	}
+}
+
 static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct cpsw_platform_data *data;
 	struct gpio_desc *mode_gpios;
-	const char *phy_mode;
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(dev);
 	int subnode;
@@ -1267,30 +1295,10 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 		}
 
 		if (!strncmp(name, "slave", 5)) {
-			u32 phy_id[2];
-
 			if (slave_index >= data->slaves)
 				continue;
-			phy_mode = fdt_getprop(fdt, subnode, "phy-mode", NULL);
-			if (phy_mode)
-				data->slave_data[slave_index].phy_if =
-					phy_get_interface_by_name(phy_mode);
 
-			data->slave_data[slave_index].phy_of_handle =
-				fdtdec_lookup_phandle(fdt, subnode,
-						      "phy-handle");
-
-			if (data->slave_data[slave_index].phy_of_handle >= 0) {
-				data->slave_data[slave_index].phy_addr =
-						fdtdec_get_int(gd->fdt_blob,
-						data->slave_data[slave_index].phy_of_handle,
-							       "reg", -1);
-			} else {
-				fdtdec_get_int_array(fdt, subnode, "phy_id",
-						     phy_id, 2);
-				data->slave_data[slave_index].phy_addr =
-						phy_id[1];
-			}
+			cpsw_eth_of_parse_slave(data, slave_index, subnode);
 			slave_index++;
 		}
 
@@ -1331,7 +1339,8 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 
 	pdata->phy_interface = data->slave_data[active_slave].phy_if;
 	if (pdata->phy_interface == -1) {
-		debug("%s: Invalid PHY interface '%s'\n", __func__, phy_mode);
+		debug("%s: Invalid PHY interface '%s'\n", __func__,
+		      phy_string_for_interface(pdata->phy_interface));
 		return -EINVAL;
 	}
 
