@@ -19,11 +19,8 @@
 #include <phy.h>
 #include <asm/arch/cpu.h>
 #include <dm.h>
-#include <fdt_support.h>
 
 #include "cpsw_mdio.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define BITMASK(bits)		(BIT(bits) - 1)
 #define NUM_DESCS		(PKTBUFSRX * 2)
@@ -860,8 +857,8 @@ static int cpsw_phy_init(struct cpsw_priv *priv, struct cpsw_slave *slave)
 	phydev->advertising = phydev->supported;
 
 #ifdef CONFIG_DM_ETH
-	if (slave->data->phy_of_handle)
-		phydev->node = offset_to_ofnode(slave->data->phy_of_handle);
+	if (ofnode_valid(slave->data->phy_of_handle))
+		phydev->node = slave->data->phy_of_handle;
 #endif
 
 	priv->phydev = phydev;
@@ -1049,12 +1046,6 @@ static const struct eth_ops cpsw_eth_ops = {
 	.stop		= cpsw_eth_stop,
 };
 
-static inline fdt_addr_t cpsw_get_addr_by_node(const void *fdt, int node)
-{
-	return fdtdec_get_addr_size_auto_noparent(fdt, node, "reg", 0, NULL,
-						  false);
-}
-
 static void cpsw_gmii_sel_am3352(struct cpsw_priv *priv,
 				 phy_interface_t phy_mode)
 {
@@ -1188,39 +1179,37 @@ static int cpsw_eth_probe(struct udevice *dev)
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 static void cpsw_eth_of_parse_slave(struct cpsw_platform_data *data,
-				    int slave_index, int subnode)
+				    int slave_index, ofnode subnode)
 {
-	struct cpsw_slave_data	*slave_data;
-	const void *fdt = gd->fdt_blob;
+	struct ofnode_phandle_args out_args;
+	struct cpsw_slave_data *slave_data;
 	const char *phy_mode;
-	int max_speed = -1;
 	u32 phy_id[2];
+	int ret;
 
 	slave_data = &data->slave_data[slave_index];
 
-	phy_mode = fdt_getprop(fdt, subnode, "phy-mode", NULL);
+	phy_mode = ofnode_read_string(subnode, "phy-mode");
 	if (phy_mode)
-		slave_data->phy_if =
-			phy_get_interface_by_name(phy_mode);
+		slave_data->phy_if = phy_get_interface_by_name(phy_mode);
 
-	slave_data->phy_of_handle = fdtdec_lookup_phandle(fdt, subnode,
-							  "phy-handle");
+	ret = ofnode_parse_phandle_with_args(subnode, "phy-handle",
+					     NULL, 0, 0, &out_args);
+	if (!ret) {
+		slave_data->phy_of_handle = out_args.node;
 
-	if (data->slave_data[slave_index].phy_of_handle >= 0) {
-		slave_data->phy_addr =
-			fdtdec_get_int(fdt, slave_data->phy_of_handle,
-				       "reg", -1);
+		ret = ofnode_read_s32(slave_data->phy_of_handle, "reg",
+				      &slave_data->phy_addr);
+		if (ret)
+			printf("error: phy addr not found in dt\n");
 	} else {
-		fdtdec_get_int_array(fdt, subnode, "phy_id",
-				     phy_id, 2);
-		slave_data->phy_addr = phy_id[1];
+		ret = ofnode_read_u32_array(subnode, "phy_id", phy_id, 2);
+		if (ret)
+			printf("error: phy_id read failed\n");
 	}
 
-	slave_data->max_speed = 0;
-	max_speed = fdtdec_get_int(fdt, subnode,
-				   "max-speed", max_speed);
-	if (max_speed > 0)
-		slave_data->max_speed = max_speed;
+	slave_data->max_speed = ofnode_read_s32_default(subnode,
+							"max-speed", 0);
 }
 
 static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
@@ -1228,17 +1217,14 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct cpsw_platform_data *data;
 	struct gpio_desc *mode_gpios;
-	const void *fdt = gd->fdt_blob;
-	int node = dev_of_offset(dev);
-	int subnode;
 	int slave_index = 0;
-	int active_slave;
 	int num_mode_gpios;
+	ofnode subnode;
 	int ret;
 
 	data = calloc(1, sizeof(struct cpsw_platform_data));
 	pdata->priv_pdata = data;
-	pdata->iobase = devfdt_get_addr(dev);
+	pdata->iobase = dev_read_addr(dev);
 	data->version = CPSW_CTRL_VERSION_2;
 	data->bd_ram_ofs = CPSW_BD_OFFSET;
 	data->ale_reg_ofs = CPSW_ALE_OFFSET;
@@ -1249,36 +1235,37 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 	pdata->phy_interface = -1;
 
 	data->cpsw_base = pdata->iobase;
-	data->channels = fdtdec_get_int(fdt, node, "cpdma_channels", -1);
-	if (data->channels <= 0) {
+
+	ret = dev_read_s32(dev, "cpdma_channels", &data->channels);
+	if (ret) {
 		printf("error: cpdma_channels not found in dt\n");
-		return -ENOENT;
+		return ret;
 	}
 
-	data->slaves = fdtdec_get_int(fdt, node, "slaves", -1);
-	if (data->slaves <= 0) {
+	ret = dev_read_s32(dev, "slaves", &data->slaves);
+	if (ret) {
 		printf("error: slaves not found in dt\n");
-		return -ENOENT;
+		return ret;
 	}
 	data->slave_data = malloc(sizeof(struct cpsw_slave_data) *
 				       data->slaves);
 
-	data->ale_entries = fdtdec_get_int(fdt, node, "ale_entries", -1);
-	if (data->ale_entries <= 0) {
+	ret = dev_read_s32(dev, "ale_entries", &data->ale_entries);
+	if (ret) {
 		printf("error: ale_entries not found in dt\n");
-		return -ENOENT;
+		return ret;
 	}
 
-	data->bd_ram_ofs = fdtdec_get_int(fdt, node, "bd_ram_size", -1);
-	if (data->bd_ram_ofs <= 0) {
+	ret = dev_read_u32(dev, "bd_ram_size", &data->bd_ram_ofs);
+	if (ret) {
 		printf("error: bd_ram_size not found in dt\n");
-		return -ENOENT;
+		return ret;
 	}
 
-	data->mac_control = fdtdec_get_int(fdt, node, "mac_control", -1);
-	if (data->mac_control <= 0) {
+	ret = dev_read_u32(dev, "mac_control", &data->mac_control);
+	if (ret) {
 		printf("error: ale_entries not found in dt\n");
-		return -ENOENT;
+		return ret;
 	}
 
 	num_mode_gpios = gpio_get_list_count(dev, "mode-gpios");
@@ -1290,23 +1277,18 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 		free(mode_gpios);
 	}
 
-	active_slave = fdtdec_get_int(fdt, node, "active_slave", 0);
-	data->active_slave = active_slave;
+	data->active_slave = dev_read_u32_default(dev, "active_slave", 0);
 
-	fdt_for_each_subnode(subnode, fdt, node) {
-		int len;
+	ofnode_for_each_subnode(subnode, dev_ofnode(dev)) {
 		const char *name;
 
-		name = fdt_get_name(fdt, subnode, &len);
+		name = ofnode_get_name(subnode);
 		if (!strncmp(name, "mdio", 4)) {
-			u32 mdio_base;
-
-			mdio_base = cpsw_get_addr_by_node(fdt, subnode);
-			if (mdio_base == FDT_ADDR_T_NONE) {
+			data->mdio_base = ofnode_get_addr(subnode);
+			if (data->mdio_base == FDT_ADDR_T_NONE) {
 				pr_err("Not able to get MDIO address space\n");
 				return -ENOENT;
 			}
-			data->mdio_base = mdio_base;
 		}
 
 		if (!strncmp(name, "slave", 5)) {
@@ -1318,19 +1300,18 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 		}
 
 		if (!strncmp(name, "cpsw-phy-sel", 12)) {
-			data->gmii_sel = cpsw_get_addr_by_node(fdt, subnode);
+			data->gmii_sel = ofnode_get_addr(subnode);
 
 			if (data->gmii_sel == FDT_ADDR_T_NONE) {
 				pr_err("Not able to get gmii_sel reg address\n");
 				return -ENOENT;
 			}
 
-			if (fdt_get_property(fdt, subnode, "rmii-clock-ext",
-					     NULL))
+			if (ofnode_read_bool(subnode, "rmii-clock-ext"))
 				data->rmii_clock_external = true;
 
-			data->phy_sel_compat = fdt_getprop(fdt, subnode,
-							   "compatible", NULL);
+			data->phy_sel_compat = ofnode_read_string(subnode,
+								  "compatible");
 			if (!data->phy_sel_compat) {
 				pr_err("Not able to get gmii_sel compatible\n");
 				return -ENOENT;
@@ -1346,13 +1327,13 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 		data->slave_data[1].sliver_reg_ofs = CPSW_SLIVER1_OFFSET;
 	}
 
-	ret = ti_cm_get_macid_addr(dev, active_slave, data);
+	ret = ti_cm_get_macid_addr(dev, data->active_slave, data);
 	if (ret < 0) {
 		pr_err("cpsw read efuse mac failed\n");
 		return ret;
 	}
 
-	pdata->phy_interface = data->slave_data[active_slave].phy_if;
+	pdata->phy_interface = data->slave_data[data->active_slave].phy_if;
 	if (pdata->phy_interface == -1) {
 		debug("%s: Invalid PHY interface '%s'\n", __func__,
 		      phy_string_for_interface(pdata->phy_interface));

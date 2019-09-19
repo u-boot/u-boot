@@ -16,6 +16,8 @@
 #ifndef _CPSW_H_
 #define _CPSW_H_
 
+#include <dm/ofnode.h>
+
 /* reg offset */
 #define CPSW_HOST_PORT_OFFSET	0x108
 #define CPSW_SLAVE0_OFFSET	0x208
@@ -38,7 +40,7 @@ struct cpsw_slave_data {
 	u32		sliver_reg_ofs;
 	int		phy_addr;
 	int		phy_if;
-	int		phy_of_handle;
+	ofnode		phy_of_handle;
 	int		max_speed;
 };
 
