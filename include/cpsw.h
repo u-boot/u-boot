@@ -39,6 +39,7 @@ struct cpsw_slave_data {
 	int		phy_addr;
 	int		phy_if;
 	int		phy_of_handle;
+	int		max_speed;
 };
 
 enum {

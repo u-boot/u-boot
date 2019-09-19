@@ -839,6 +839,7 @@ static int cpsw_phy_init(struct cpsw_priv *priv, struct cpsw_slave *slave)
 {
 	struct phy_device *phydev;
 	u32 supported = PHY_GBIT_FEATURES;
+	int ret;
 
 	phydev = phy_connect(priv->bus,
 			slave->data->phy_addr,
@@ -849,6 +850,13 @@ static int cpsw_phy_init(struct cpsw_priv *priv, struct cpsw_slave *slave)
 		return -1;
 
 	phydev->supported &= supported;
+	if (slave->data->max_speed) {
+		ret = phy_set_supported(phydev, slave->data->max_speed);
+		if (ret)
+			return ret;
+		dev_dbg(priv->dev, "Port %u speed forced to %uMbit\n",
+			slave->slave_num + 1, slave->data->max_speed);
+	}
 	phydev->advertising = phydev->supported;
 
 #ifdef CONFIG_DM_ETH
@@ -1185,6 +1193,7 @@ static void cpsw_eth_of_parse_slave(struct cpsw_platform_data *data,
 	struct cpsw_slave_data	*slave_data;
 	const void *fdt = gd->fdt_blob;
 	const char *phy_mode;
+	int max_speed = -1;
 	u32 phy_id[2];
 
 	slave_data = &data->slave_data[slave_index];
@@ -1206,6 +1215,12 @@ static void cpsw_eth_of_parse_slave(struct cpsw_platform_data *data,
 				     phy_id, 2);
 		slave_data->phy_addr = phy_id[1];
 	}
+
+	slave_data->max_speed = 0;
+	max_speed = fdtdec_get_int(fdt, subnode,
+				   "max-speed", max_speed);
+	if (max_speed > 0)
+		slave_data->max_speed = max_speed;
 }
 
 static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
