@@ -122,6 +122,20 @@ int mmc_set_enhanced_strobe(struct mmc *mmc)
 }
 #endif
 
+int dm_mmc_host_power_cycle(struct udevice *dev)
+{
+	struct dm_mmc_ops *ops = mmc_get_ops(dev);
+
+	if (ops->host_power_cycle)
+		return ops->host_power_cycle(dev);
+	return 0;
+}
+
+int mmc_host_power_cycle(struct mmc *mmc)
+{
+	return dm_mmc_host_power_cycle(mmc->dev);
+}
+
 int mmc_of_parse(struct udevice *dev, struct mmc_config *cfg)
 {
 	int val;
