@@ -1072,10 +1072,10 @@ static void cpsw_gmii_sel_am3352(struct cpsw_priv *priv,
 		break;
 
 	case PHY_INTERFACE_MODE_RGMII:
+	case PHY_INTERFACE_MODE_RGMII_RXID:
 		mode = AM33XX_GMII_SEL_MODE_RGMII;
 		break;
 	case PHY_INTERFACE_MODE_RGMII_ID:
-	case PHY_INTERFACE_MODE_RGMII_RXID:
 	case PHY_INTERFACE_MODE_RGMII_TXID:
 		mode = AM33XX_GMII_SEL_MODE_RGMII;
 		rgmii_id = true;
