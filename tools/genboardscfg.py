@@ -165,11 +165,7 @@ class KconfigScanner:
                 else:
                     f.write(line[colon + 1:])
 
-        warnings = self._conf.load_config(self._tmpfile)
-        if warnings:
-            for warning in warnings:
-                print('%s: %s' % (defconfig, warning))
-
+        self._conf.load_config(self._tmpfile)
         try_remove(self._tmpfile)
         self._tmpfile = None
 
