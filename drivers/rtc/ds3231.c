@@ -260,10 +260,11 @@ int rtc_enable_32khz_output(int busnum, int chip_addr)
 	struct udevice *dev;
 
 	ret = i2c_get_chip_for_busnum(busnum, chip_addr, 1, &dev);
-	if (!ret)
+	if (!ret) {
 		ret = dm_i2c_reg_write(dev, RTC_STAT_REG_ADDR,
 				       RTC_STAT_BIT_BB32KHZ |
 				       RTC_STAT_BIT_EN32KHZ);
+	}
 	return ret;
 }
 #endif

@@ -224,7 +224,7 @@ For example:
     #include <dt-structs.h>
 
     struct mmc_platdata {
-    #if CONFIG_IS_ENABLED(SPL_OF_PLATDATA)
+    #if CONFIG_IS_ENABLED(OF_PLATDATA)
             /* Put this first since driver model will copy the data here */
             struct dtd_mmc dtplat;
     #endif
@@ -237,7 +237,7 @@ For example:
 
     static int mmc_ofdata_to_platdata(struct udevice *dev)
     {
-    #if !CONFIG_IS_ENABLED(SPL_OF_PLATDATA)
+    #if !CONFIG_IS_ENABLED(OF_PLATDATA)
             /* Decode the device tree data */
             struct mmc_platdata *plat = dev_get_platdata(dev);
             const void *blob = gd->fdt_blob;
@@ -253,7 +253,7 @@ For example:
     {
             struct mmc_platdata *plat = dev_get_platdata(dev);
 
-    #if CONFIG_IS_ENABLED(SPL_OF_PLATDATA)
+    #if CONFIG_IS_ENABLED(OF_PLATDATA)
             /* Decode the of-platdata from the C structures */
             struct dtd_mmc *dtplat = &plat->dtplat;
 
@@ -308,7 +308,7 @@ The dt-structs.h file includes the generated file
 (include/generated//dt-structs.h) if CONFIG_SPL_OF_PLATDATA is enabled.
 Otherwise (such as in U-Boot proper) these structs are not available. This
 prevents them being used inadvertently. All usage must be bracketed with
-#if CONFIG_IS_ENABLED(SPL_OF_PLATDATA).
+#if CONFIG_IS_ENABLED(OF_PLATDATA).
 
 The dt-platdata.c file contains the device declarations and is is built in
 spl/dt-platdata.c.
