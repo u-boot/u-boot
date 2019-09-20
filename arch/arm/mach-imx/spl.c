@@ -94,6 +94,11 @@ u32 spl_boot_device(void)
 	/* NAND Flash: 8.5.2, Table 8-10 */
 	case IMX6_BMODE_NAND_MIN ... IMX6_BMODE_NAND_MAX:
 		return BOOT_DEVICE_NAND;
+#if defined(CONFIG_MX6UL) || defined(CONFIG_MX6ULL)
+	/* QSPI boot */
+	case IMX6_BMODE_QSPI:
+		return BOOT_DEVICE_SPI;
+#endif
 	}
 	return BOOT_DEVICE_NONE;
 }
