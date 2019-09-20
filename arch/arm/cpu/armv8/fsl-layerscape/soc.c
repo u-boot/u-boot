@@ -627,10 +627,19 @@ void fsl_lsch2_early_init_f(void)
 #endif
 #endif
 	/* Make SEC reads and writes snoopable */
+#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A)
+	setbits_be32(&scfg->snpcnfgcr, SCFG_SNPCNFGCR_SECRDSNP |
+			SCFG_SNPCNFGCR_SECWRSNP | SCFG_SNPCNFGCR_USB1RDSNP |
+			SCFG_SNPCNFGCR_USB1WRSNP | SCFG_SNPCNFGCR_USB2RDSNP |
+			SCFG_SNPCNFGCR_USB2WRSNP | SCFG_SNPCNFGCR_USB3RDSNP |
+			SCFG_SNPCNFGCR_USB3WRSNP | SCFG_SNPCNFGCR_SATARDSNP |
+			SCFG_SNPCNFGCR_SATAWRSNP);
+#else
 	setbits_be32(&scfg->snpcnfgcr, SCFG_SNPCNFGCR_SECRDSNP |
 		     SCFG_SNPCNFGCR_SECWRSNP |
 		     SCFG_SNPCNFGCR_SATARDSNP |
 		     SCFG_SNPCNFGCR_SATAWRSNP);
+#endif
 
 	/*
 	 * Enable snoop requests and DVM message requests for
