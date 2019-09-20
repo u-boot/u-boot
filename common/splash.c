@@ -112,6 +112,42 @@ void splash_get_pos(int *x, int *y)
 }
 #endif /* CONFIG_SPLASH_SCREEN_ALIGN */
 
+#if defined(CONFIG_DM_VIDEO) && !defined(CONFIG_HIDE_LOGO_VERSION)
+
+#ifdef CONFIG_VIDEO_LOGO
+#include <bmp_logo.h>
+#endif
+#include <dm.h>
+#include <video_console.h>
+#include <video_font.h>
+
+void splash_display_banner(void)
+{
+	struct udevice *dev;
+	char buf[DISPLAY_OPTIONS_BANNER_LENGTH];
+	int col, row, ret;
+
+	ret = uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &dev);
+	if (ret)
+		return;
+
+#ifdef CONFIG_VIDEO_LOGO
+	col = BMP_LOGO_WIDTH / VIDEO_FONT_WIDTH + 1;
+	row = BMP_LOGO_HEIGHT / VIDEO_FONT_HEIGHT + 1;
+#else
+	col = 0;
+	row = 0;
+#endif
+
+	display_options_get_banner(false, buf, sizeof(buf));
+	vidconsole_position_cursor(dev, col, 1);
+	vidconsole_put_string(dev, buf);
+	vidconsole_position_cursor(dev, 0, row);
+}
+#else
+static inline void splash_display_banner(void) { }
+#endif /* CONFIG_DM_VIDEO && !CONFIG_HIDE_LOGO_VERSION */
+
 /*
  * Common function to show a splash image if env("splashimage") is set.
  * Is used for both dm_video and lcd video stacks. For additional
@@ -135,6 +171,14 @@ int splash_display(void)
 
 	splash_get_pos(&x, &y);
 
-	return bmp_display(addr, x, y);
+	ret = bmp_display(addr, x, y);
+
+	/* Skip banner output on video console if the logo is not at 0,0 */
+	if (x || y)
+		goto end;
+
+	splash_display_banner();
+end:
+	return ret;
 }
 #endif
