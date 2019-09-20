@@ -118,12 +118,12 @@ class KconfigScanner:
     }
 
     def __init__(self):
-        """Scan all the Kconfig files and create a Config object."""
+        """Scan all the Kconfig files and create a Kconfig object."""
         # Define environment variables referenced from Kconfig
         os.environ['srctree'] = os.getcwd()
         os.environ['UBOOTVERSION'] = 'dummy'
         os.environ['KCONFIG_OBJDIR'] = ''
-        self._conf = kconfiglib.Config(print_warnings=False)
+        self._conf = kconfiglib.Kconfig(warn=False)
 
     def __del__(self):
         """Delete a leftover temporary file before exit.
@@ -174,7 +174,7 @@ class KconfigScanner:
         # Get the value of CONFIG_SYS_ARCH, CONFIG_SYS_CPU, ... etc.
         # Set '-' if the value is empty.
         for key, symbol in list(self._SYMBOL_TABLE.items()):
-            value = self._conf.get_symbol(symbol).get_value()
+            value = self._conf.syms.get(symbol).str_value
             if value:
                 params[key] = value
             else:
