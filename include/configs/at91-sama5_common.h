@@ -35,13 +35,7 @@
 #ifdef CONFIG_SD_BOOT
 
 #ifdef CONFIG_ENV_IS_IN_MMC
-/* Use raw reserved sectors to save environment */
-#define CONFIG_ENV_OFFSET		0x2000
-#define CONFIG_ENV_SIZE			0x1000
 #define CONFIG_SYS_MMC_ENV_DEV		0
-#else
-/* u-boot env in sd/mmc card */
-#define CONFIG_ENV_SIZE		0x4000
 #endif
 
 #define CONFIG_BOOTCOMMAND	"if test ! -n ${dtb_name}; then "	\
@@ -66,8 +60,6 @@
 					"sf read 0x22000000 0x6c000 0x394000; "	\
 					"bootz 0x22000000 - 0x21000000"
 #elif CONFIG_QSPI_BOOT
-#define CONFIG_ENV_OFFSET		0x140000
-#define CONFIG_ENV_SIZE			0x20000
 #define CONFIG_BOOTCOMMAND		"sf probe 0; "					\
 					"sf read 0x21000000 0x180000 0x80000; "		\
 					"sf read 0x22000000 0x200000 0x600000; "	\
