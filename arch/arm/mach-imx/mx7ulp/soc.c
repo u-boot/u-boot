@@ -11,7 +11,7 @@
 
 static char *get_reset_cause(char *);
 
-#if defined(CONFIG_SECURE_BOOT)
+#if defined(CONFIG_IMX_HAB)
 struct imx_sec_config_fuse_t const imx_sec_config_fuse = {
 	.bank = 29,
 	.word = 6,

@@ -830,10 +830,10 @@ ALL-$(CONFIG_RAMBOOT_PBL) += u-boot.pbl
 endif
 endif
 ALL-$(CONFIG_SPL) += spl/u-boot-spl.bin
-ifeq ($(CONFIG_MX6)$(CONFIG_SECURE_BOOT), yy)
+ifeq ($(CONFIG_MX6)$(CONFIG_IMX_HAB), yy)
 ALL-$(CONFIG_SPL_FRAMEWORK) += u-boot-ivt.img
 else
-ifeq ($(CONFIG_MX7)$(CONFIG_SECURE_BOOT), yy)
+ifeq ($(CONFIG_MX7)$(CONFIG_IMX_HAB), yy)
 ALL-$(CONFIG_SPL_FRAMEWORK) += u-boot-ivt.img
 else
 ALL-$(CONFIG_SPL_FRAMEWORK) += u-boot.img

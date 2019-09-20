@@ -27,7 +27,7 @@ root of trust.
 
 The U-Boot provides support to secure boot configuration and also provide
 access to the HAB APIs exposed by the ROM vector table, the support is
-enabled by selecting the CONFIG_SECURE_BOOT option.
+enabled by selecting the CONFIG_IMX_HAB option.
 
 When built with this configuration the U-Boot correctly pads the final SPL
 image by aligning to the next 0xC00 address, so the CSF signature data
@@ -82,12 +82,12 @@ The diagram below illustrate a signed u-boot-ivt.img image layout:
 -------------------------------------
 
 The first step is to generate an U-Boot image supporting the HAB features
-mentioned above, this can be achieved by adding CONFIG_SECURE_BOOT to the
+mentioned above, this can be achieved by adding CONFIG_IMX_HAB to the
 build configuration:
 
 - Defconfig:
 
-  CONFIG_SECURE_BOOT=y
+  CONFIG_IMX_HAB=y
 
 - Kconfig:
 

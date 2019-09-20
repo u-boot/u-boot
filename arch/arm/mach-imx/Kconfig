@@ -34,7 +34,7 @@ config USE_IMXIMG_PLUGIN
 	  i.MX6/7 supports DCD and Plugin. Enable this configuration
 	  to use Plugin, otherwise DCD will be used.
 
-config SECURE_BOOT
+config IMX_HAB
 	bool "Support i.MX HAB features"
 	depends on ARCH_MX7 || ARCH_MX6 || ARCH_MX5
 	select FSL_CAAM if HAS_CAAM

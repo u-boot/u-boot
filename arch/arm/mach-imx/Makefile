@@ -44,12 +44,12 @@ ifneq ($(CONFIG_SPL_BUILD),y)
 obj-$(CONFIG_IMX_BOOTAUX) += imx_bootaux.o
 endif
 obj-$(CONFIG_SATA) += sata.o
-obj-$(CONFIG_SECURE_BOOT)    += hab.o
+obj-$(CONFIG_IMX_HAB)    += hab.o
 obj-$(CONFIG_SYSCOUNTER_TIMER) += syscounter.o
 endif
 ifeq ($(SOC),$(filter $(SOC),mx7ulp))
 obj-y  += cache.o
-obj-$(CONFIG_SECURE_BOOT) += hab.o
+obj-$(CONFIG_IMX_HAB) += hab.o
 endif
 ifeq ($(SOC),$(filter $(SOC),vf610))
 obj-y += ddrmc-vf610.o

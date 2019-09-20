@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 
 #ifdef CONFIG_SPL_SIZE_LIMIT
 	spl_size_limit = CONFIG_SPL_SIZE_LIMIT;
-#if defined(CONFIG_SECURE_BOOT) && defined(CONFIG_CSF_SIZE)
+#if defined(CONFIG_IMX_HAB) && defined(CONFIG_CSF_SIZE)
 	spl_size_limit -= CONFIG_CSF_SIZE;
 #endif
 #ifdef CONFIG_SPL_SIZE_LIMIT_SUBTRACT_GD
