@@ -3499,7 +3499,6 @@ static efi_status_t EFIAPI efi_disconnect_controller(
 	efi_handle_t *child_handle_buffer = NULL;
 	size_t number_of_children = 0;
 	efi_status_t r;
-	size_t stop_count = 0;
 	struct efi_object *efiobj;
 
 	EFI_ENTRY("%p, %p, %p", controller_handle, driver_image_handle,
@@ -3539,32 +3538,35 @@ static efi_status_t EFIAPI efi_disconnect_controller(
 				       (void **)&binding_protocol,
 				       driver_image_handle, NULL,
 				       EFI_OPEN_PROTOCOL_GET_PROTOCOL));
-	if (r != EFI_SUCCESS)
+	if (r != EFI_SUCCESS) {
+		r = EFI_INVALID_PARAMETER;
 		goto out;
+	}
 	/* Remove the children */
 	if (number_of_children) {
 		r = EFI_CALL(binding_protocol->stop(binding_protocol,
 						    controller_handle,
 						    number_of_children,
 						    child_handle_buffer));
-		if (r == EFI_SUCCESS)
-			++stop_count;
+		if (r != EFI_SUCCESS) {
+			r = EFI_DEVICE_ERROR;
+			goto out;
+		}
 	}
 	/* Remove the driver */
-	if (!child_handle)
+	if (!child_handle) {
 		r = EFI_CALL(binding_protocol->stop(binding_protocol,
 						    controller_handle,
 						    0, NULL));
-	if (r == EFI_SUCCESS)
-		++stop_count;
+		if (r != EFI_SUCCESS) {
+			r = EFI_DEVICE_ERROR;
+			goto out;
+		}
+	}
 	EFI_CALL(efi_close_protocol(driver_image_handle,
 				    &efi_guid_driver_binding_protocol,
 				    driver_image_handle, NULL));
-
-	if (stop_count)
-		r = EFI_SUCCESS;
-	else
-		r = EFI_NOT_FOUND;
+	r = EFI_SUCCESS;
 out:
 	if (!child_handle)
 		free(child_handle_buffer);

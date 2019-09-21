@@ -24,6 +24,10 @@
 #define U_BOOT_GUID \
 	EFI_GUID(0xe61d73b9, 0xa384, 0x4acc, \
 		 0xae, 0xab, 0x82, 0xe8, 0x28, 0xf3, 0x62, 0x8b)
+/* GUID used as host device on sandbox */
+#define U_BOOT_HOST_DEV_GUID \
+	EFI_GUID(0xbbe4e671, 0x5773, 0x4ea1, \
+		 0x9a, 0xab, 0x3a, 0x7d, 0xbf, 0x40, 0xc4, 0x82)
 
 /* Root node */
 extern efi_handle_t efi_root;
@@ -121,6 +125,10 @@ uint16_t *efi_dp_str(struct efi_device_path *dp);
 
 /* GUID of the U-Boot root node */
 extern const efi_guid_t efi_u_boot_guid;
+#ifdef CONFIG_SANDBOX
+/* GUID of U-Boot host device on sandbox */
+extern const efi_guid_t efi_guid_host_dev;
+#endif
 /* GUID of the EFI_BLOCK_IO_PROTOCOL */
 extern const efi_guid_t efi_block_io_guid;
 extern const efi_guid_t efi_global_variable_guid;
