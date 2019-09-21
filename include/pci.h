@@ -1491,6 +1491,17 @@ int dm_pci_find_device(unsigned int vendor, unsigned int device, int index,
 int dm_pci_find_class(uint find_class, int index, struct udevice **devp);
 
 /**
+ * struct pci_emul_uc_priv - holds info about an emulator device
+ *
+ * There is always at most one emulator per client
+ *
+ * @client: Client device if any, else NULL
+ */
+struct pci_emul_uc_priv {
+	struct udevice *client;
+};
+
+/**
  * struct dm_pci_emul_ops - PCI device emulator operations
  */
 struct dm_pci_emul_ops {
@@ -1591,6 +1602,15 @@ struct dm_pci_emul_ops {
  */
 int sandbox_pci_get_emul(struct udevice *bus, pci_dev_t find_devfn,
 			 struct udevice **containerp, struct udevice **emulp);
+
+/**
+ * sandbox_pci_get_client() - Find the client for an emulation device
+ *
+ * @emul:	Emulation device to check
+ * @devp:	Returns the client device emulated by this device
+ * @return 0 if OK, -ENOENT if the device has no client yet
+ */
+int sandbox_pci_get_client(struct udevice *emul, struct udevice **devp);
 
 /**
  * pci_get_devfn() - Extract the devfn from fdt_pci_addr of the device
