@@ -1517,7 +1517,7 @@ config CMD_BMP
 	bool "Enable 'bmp' command"
 	depends on LCD || DM_VIDEO || VIDEO
 	help
-	  This provides a way to obtain information about a BMP-format iamge
+	  This provides a way to obtain information about a BMP-format image
 	  and to display it. BMP (which presumably stands for BitMaP) is a
 	  file format defined by Microsoft which supports images of various
 	  depths, formats and compression methods. Headers on the file
