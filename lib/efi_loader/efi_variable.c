@@ -470,7 +470,7 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
 
 		if (attributes & EFI_VARIABLE_APPEND_WRITE) {
 			if (!prefix(old_val, "(blob)")) {
-				return EFI_DEVICE_ERROR;
+				ret = EFI_DEVICE_ERROR;
 				goto out;
 			}
 			old_size = strlen(old_val);
