@@ -41,7 +41,6 @@ Build U-Boot
 ============
 $ make imx8qxp_mek_defconfig
 $ make flash.bin
-$ dd if=u-boot.cnt of=flash.bin bs=512 seek=1984
 
 Flash the binary into the SD card
 =================================
