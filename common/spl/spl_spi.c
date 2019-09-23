@@ -141,6 +141,17 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 			err = spl_load_simple_fit(spl_image, &load,
 						  payload_offs,
 						  header);
+		} else if (IS_ENABLED(CONFIG_SPL_LOAD_IMX_CONTAINER)) {
+			struct spl_load_info load;
+
+			load.dev = flash;
+			load.priv = NULL;
+			load.filename = NULL;
+			load.bl_len = 1;
+			load.read = spl_spi_fit_read;
+
+			err = spl_load_imx_container(spl_image, &load,
+						     payload_offs);
 		} else {
 			err = spl_parse_image_header(spl_image, header);
 			if (err)
