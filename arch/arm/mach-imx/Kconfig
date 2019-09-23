@@ -45,7 +45,7 @@ config SECURE_BOOT
 
 config CSF_SIZE
 	hex "Maximum size for Command Sequence File (CSF) binary"
-	default 0x4000
+	default 0x2060
 	help
 	  Define the maximum size for Command Sequence File (CSF) binary
 	  this information is used to define the image boot data.
