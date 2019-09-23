@@ -313,6 +313,15 @@ int spl_boot_partition(const u32 boot_device)
 }
 #endif
 
+unsigned long __weak spl_mmc_get_uboot_raw_sector(struct mmc *mmc)
+{
+#ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
+	return CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR;
+#else
+	return 0;
+#endif
+}
+
 int spl_mmc_load(struct spl_image_info *spl_image,
 		 struct spl_boot_device *bootdev,
 		 const char *filename,
@@ -339,6 +348,8 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 			return err;
 		}
 	}
+
+	raw_sect = spl_mmc_get_uboot_raw_sector(mmc);
 
 	boot_mode = spl_boot_mode(bootdev->boot_device);
 	err = -EINVAL;
