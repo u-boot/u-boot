@@ -169,9 +169,16 @@ u-boot.cnt: MKIMAGEOUTPUT = u-boot.cnt.log
 ifeq ($(CONFIG_SPL_LOAD_IMX_CONTAINER), y)
 u-boot.cnt: u-boot.bin container.cfg FORCE
 	$(call if_changed,mkimage)
-endif
 flash.bin: spl/u-boot-spl.bin FORCE
 	$(call if_changed,mkimage)
+	@flashbin_size=`wc -c flash.bin | awk '{print $$1}'`; \
+                   pad_cnt=$$(((flashbin_size + 0x400 - 1) / 0x400)); \
+                   echo "append u-boot.cnt at $$pad_cnt KB"; \
+                   dd if=u-boot.cnt of=flash.bin bs=1K seek=$$pad_cnt;
+else
+flash.bin: spl/u-boot-spl.bin FORCE
+	$(call if_changed,mkimage)
+endif
 endif
 
 else
