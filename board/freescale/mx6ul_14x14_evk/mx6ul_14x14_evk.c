@@ -28,10 +28,6 @@
 #include "../common/pfuze.h"
 #include <usb.h>
 #include <usb/ehci-ci.h>
-#ifdef CONFIG_DM_VIDEO
-#include <bmp_logo_data.h>
-#include <video.h>
-#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -449,6 +445,8 @@ static int setup_lcd(void)
 
 	return 0;
 }
+#else
+static inline int setup_lcd(void) { return 0; }
 #endif
 
 int board_early_init_f(void)
@@ -505,20 +503,7 @@ int board_late_init(void)
 		env_set("board_rev", "14X14");
 #endif
 
-#if defined(CONFIG_DM_VIDEO)
-	struct udevice *dev;
-	int ret;
-
-	ret = uclass_get_device(UCLASS_VIDEO, 0, &dev);
-	if (ret)
-		return ret;
-
 	setup_lcd();
-
-	ret = video_bmp_display(dev, (ulong)bmp_logo_bitmap, 0, 0, true);
-	if (ret)
-		return ret;
-#endif
 
 	return 0;
 }
