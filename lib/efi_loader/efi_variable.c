@@ -443,8 +443,6 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
 	if (ret)
 		goto out;
 
-#define ACCESS_ATTR (EFI_VARIABLE_RUNTIME_ACCESS | EFI_VARIABLE_BOOTSERVICE_ACCESS)
-
 	old_val = env_get(native_name);
 	if (old_val) {
 		old_val = parse_attr(old_val, &attr);
@@ -455,7 +453,9 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
 			goto out;
 		}
 
-		if ((data_size == 0) || !(attributes & ACCESS_ATTR)) {
+		if ((data_size == 0 &&
+		     !(attributes & EFI_VARIABLE_APPEND_WRITE)) ||
+		    !attributes) {
 			/* delete the variable: */
 			env_set(native_name, NULL);
 			ret = EFI_SUCCESS;
@@ -478,8 +478,9 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
 			old_size = 0;
 		}
 	} else {
-		if ((data_size == 0) || !(attributes & ACCESS_ATTR) ||
-		    (attributes & EFI_VARIABLE_APPEND_WRITE)) {
+		if ((data_size == 0 &&
+		     !(attributes & EFI_VARIABLE_APPEND_WRITE)) ||
+		    !attributes) {
 			/* delete, but nothing to do */
 			ret = EFI_NOT_FOUND;
 			goto out;
