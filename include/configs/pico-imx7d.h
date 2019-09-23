@@ -85,6 +85,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"image=zImage\0" \
 	"splashpos=m,m\0" \
+	"splashimage=" __stringify(CONFIG_LOADADDR) "\0" \
 	"console=ttymxc4\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \

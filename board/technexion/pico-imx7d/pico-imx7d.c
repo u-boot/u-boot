@@ -19,10 +19,6 @@
 #include <power/pmic.h>
 #include <power/pfuze3000_pmic.h>
 #include "../../freescale/common/pfuze.h"
-#ifdef CONFIG_DM_VIDEO
-#include <bmp_logo_data.h>
-#include <video.h>
-#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -250,18 +246,9 @@ int board_init(void)
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
 #ifdef CONFIG_DM_VIDEO
-	struct udevice *dev;
-	int ret;
-
-	ret = uclass_get_device(UCLASS_VIDEO, 0, &dev);
-	if (ret)
-		return ret;
 
 	setup_lcd();
 
-	ret = video_bmp_display(dev, (ulong)bmp_logo_bitmap, 0, 0, true);
-	if (ret)
-		return ret;
 #endif
 #ifdef CONFIG_FEC_MXC
 	setup_fec();
