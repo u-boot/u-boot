@@ -4,37 +4,6 @@
         usb0 = &usbotg1;
         display0 = &lcdif;
     };
-
-	backlight: backlight {
-		compatible = "pwm-backlight";
-		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_backlight>;
-		pwms = <&pwm4 0 50000 0>;
-		brightness-levels = <0 36 72 108 144 180 216 255>;
-		default-brightness-level = <6>;
-		status = "okay";
-	};
-
-	reg_lcd_3v3: regulator-lcd-3v3 {
-		compatible = "regulator-fixed";
-		regulator-name = "lcd-3v3";
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
-		gpio = <&gpio1 6 GPIO_ACTIVE_HIGH>;
-		enable-active-high;
-	};
-
-	panel {
-		compatible = "vxt,vl050-8048nt-c01";
-		backlight = <&backlight>;
-		power-supply = <&reg_lcd_3v3>;
-
-		port {
-			panel_in: endpoint {
-				remote-endpoint = <&display_out>;
-			};
-		};
-	};
 };
 
 &usbotg1 {
@@ -47,12 +16,6 @@
 	status = "okay";
 	display = <&display0>;
 	u-boot,dm-pre-reloc;
-
-	port {
-		display_out: endpoint {
-			remote-endpoint = <&panel_in>;
-		};
-	};
 
 	display0: display {
 		bits-per-pixel = <16>;

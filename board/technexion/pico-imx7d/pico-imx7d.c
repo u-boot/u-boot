@@ -33,13 +33,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define I2C_PAD_CTRL    (PAD_CTL_DSE_3P3V_32OHM | PAD_CTL_SRE_SLOW | \
 	PAD_CTL_HYS | PAD_CTL_PUE | PAD_CTL_PUS_PU100KOHM)
 
-
-#define LCD_PAD_CTRL    (PAD_CTL_HYS | PAD_CTL_PUS_PU100KOHM | \
-			 PAD_CTL_DSE_3P3V_49OHM)
-
-#define LCD_SYNC_PAD_CTRL    (PAD_CTL_HYS | PAD_CTL_PUS_PU100KOHM | \
-			      PAD_CTL_DSE_3P3V_196OHM)
-
 #ifdef CONFIG_SYS_I2C_MXC
 #define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
 
@@ -224,13 +217,8 @@ int board_early_init_f(void)
 }
 
 #ifdef CONFIG_DM_VIDEO
-static iomux_v3_cfg_t const lcd_pads[] = {
-	MX7D_PAD_GPIO1_IO11__GPIO1_IO11 | MUX_PAD_CTRL(NO_PAD_CTRL),
-};
-
 void setup_lcd(void)
 {
-	imx_iomux_v3_setup_multiple_pads(lcd_pads, ARRAY_SIZE(lcd_pads));
 	gpio_request(IMX_GPIO_NR(1, 11), "lcd_brightness");
 	gpio_request(IMX_GPIO_NR(1, 6), "lcd_enable");
 	/* Set Brightness to high */
