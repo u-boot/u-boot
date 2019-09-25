@@ -142,6 +142,8 @@ struct mt7628_eth_dev {
 	struct phy_device *phy;
 };
 
+static int mt7628_eth_free_pkt(struct udevice *dev, uchar *packet, int length);
+
 static int mdio_wait_read(struct mt7628_eth_dev *priv, u32 mask, bool mask_set)
 {
 	void __iomem *base = priv->eth_sw_base;
@@ -403,6 +405,7 @@ static int mt7628_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 	length = FIELD_GET(RX_DMA_PLEN0, priv->rx_ring[idx].rxd2);
 	if (length == 0 || length > MTK_QDMA_PAGE_SIZE) {
 		printf("%s: invalid length (%d bytes)\n", __func__, length);
+		mt7628_eth_free_pkt(dev, NULL, 0);
 		return -EIO;
 	}
 
