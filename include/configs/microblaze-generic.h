@@ -152,9 +152,6 @@
 					"setenv stdin serial\0"
 #endif
 
-/* Enable flat device tree support */
-#define CONFIG_LMB		1
-
 #if defined(CONFIG_XILINX_AXIEMAC)
 # define CONFIG_SYS_FAULT_ECHO_LINK_DOWN	1
 #endif
