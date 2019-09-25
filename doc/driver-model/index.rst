@@ -6,6 +6,7 @@ Driver Model
 .. toctree::
    :maxdepth: 2
 
+   debugging
    design
    fdt-fixup
    fs_firmware_loader
