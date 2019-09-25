@@ -21,6 +21,10 @@
 #define MT7621_SPI_TRANS	0x00
 #define MT7621_SPI_TRANS_START	BIT(8)
 #define MT7621_SPI_TRANS_BUSY	BIT(16)
+#define TRANS_ADDR_SZ		GENMASK(20, 19)
+#define TRANS_ADDR_SZ_SHIFT	19
+#define TRANS_MOSI_BCNT		GENMASK(3, 0)
+#define TRANS_MOSI_BCNT_SHIFT	0
 
 #define MT7621_SPI_OPCODE	0x04
 #define MT7621_SPI_DATA0	0x08
@@ -50,20 +54,22 @@ struct mt7621_spi {
 	unsigned int sys_freq;
 };
 
-static void mt7621_spi_reset(struct mt7621_spi *rs, int duplex)
-{
-	setbits_le32(rs->base + MT7621_SPI_MASTER,
-		     MASTER_RS_SLAVE_SEL | MASTER_MORE_BUFMODE);
-}
-
 static void mt7621_spi_set_cs(struct mt7621_spi *rs, int cs, int enable)
 {
-	u32 val = 0;
-
 	debug("%s: cs#%d -> %s\n", __func__, cs, enable ? "enable" : "disable");
-	if (enable)
-		val = BIT(cs);
-	iowrite32(val, rs->base + MT7621_SPI_POLAR);
+
+	if (enable) {
+		setbits_le32(rs->base + MT7621_SPI_MASTER,
+			     MASTER_RS_SLAVE_SEL | MASTER_MORE_BUFMODE);
+		iowrite32(BIT(cs), rs->base + MT7621_SPI_POLAR);
+	} else {
+		iowrite32(0, rs->base + MT7621_SPI_POLAR);
+		iowrite32((2 << TRANS_ADDR_SZ_SHIFT) |
+			  (1 << TRANS_MOSI_BCNT_SHIFT),
+			  rs->base + MT7621_SPI_TRANS);
+		clrbits_le32(rs->base + MT7621_SPI_MASTER,
+			     MASTER_RS_SLAVE_SEL | MASTER_MORE_BUFMODE);
+	}
 }
 
 static int mt7621_spi_set_mode(struct udevice *bus, uint mode)
@@ -272,8 +278,6 @@ static int mt7621_spi_probe(struct udevice *dev)
 		printf("Please provide a valid clock!\n");
 		return -EINVAL;
 	}
-
-	mt7621_spi_reset(rs, 0);
 
 	return 0;
 }
