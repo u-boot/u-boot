@@ -24,9 +24,6 @@ struct swap_case_platdata {
 	u32 bar[6];
 };
 
-#define offset_to_barnum(offset)	\
-		(((offset) - PCI_BASE_ADDRESS_0) / sizeof(u32))
-
 enum {
 	MEM_TEXT_SIZE	= 0x100,
 };
@@ -144,7 +141,7 @@ static int sandbox_swap_case_read_config(struct udevice *emul, uint offset,
 		int barnum;
 		u32 *bar, result;
 
-		barnum = offset_to_barnum(offset);
+		barnum = pci_offset_to_barnum(offset);
 		bar = &plat->bar[barnum];
 
 		result = *bar;
@@ -224,7 +221,7 @@ static int sandbox_swap_case_write_config(struct udevice *emul, uint offset,
 		int barnum;
 		u32 *bar;
 
-		barnum = offset_to_barnum(offset);
+		barnum = pci_offset_to_barnum(offset);
 		bar = &plat->bar[barnum];
 
 		debug("w bar %d=%lx\n", barnum, value);

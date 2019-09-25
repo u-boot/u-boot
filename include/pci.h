@@ -215,6 +215,10 @@
 #define  PCI_BASE_ADDRESS_IO_MASK	(~0x03ULL)
 /* bit 1 is reserved if address_space = 1 */
 
+/* Convert a regsister address (e.g. PCI_BASE_ADDRESS_1) to a bar # (e.g. 1) */
+#define pci_offset_to_barnum(offset)	\
+		(((offset) - PCI_BASE_ADDRESS_0) / sizeof(u32))
+
 /* Header type 0 (normal devices) */
 #define PCI_CARDBUS_CIS		0x28
 #define PCI_SUBSYSTEM_VENDOR_ID 0x2c
