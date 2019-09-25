@@ -617,7 +617,7 @@ int ofnode_read_pci_addr(ofnode node, enum fdt_pci_space type,
 			if ((fdt32_to_cpu(*cell) & type) == type) {
 				addr->phys_hi = fdt32_to_cpu(cell[0]);
 				addr->phys_mid = fdt32_to_cpu(cell[1]);
-				addr->phys_lo = fdt32_to_cpu(cell[1]);
+				addr->phys_lo = fdt32_to_cpu(cell[2]);
 				break;
 			}
 
