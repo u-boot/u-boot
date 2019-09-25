@@ -12,4 +12,6 @@
 #define CONFIG_NEEDS_MANUAL_RELOC
 #endif
 
+#define CONFIG_SYS_BOOT_RAMDISK_HIGH
+
 #endif
