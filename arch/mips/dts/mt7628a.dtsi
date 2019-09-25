@@ -286,6 +286,9 @@
 			compatible = "mediatek,hsuart", "ns16550a";
 			reg = <0xc00 0x100>;
 
+			pinctrl-names = "default";
+			pinctrl-0 = <&uart0_pins>;
+
 			clocks = <&clkctrl CLK_UART0>;
 
 			resets = <&resetc 12>;
@@ -301,6 +304,9 @@
 			compatible = "mediatek,hsuart", "ns16550a";
 			reg = <0xd00 0x100>;
 
+			pinctrl-names = "default";
+			pinctrl-0 = <&uart1_pins>;
+
 			clocks = <&clkctrl CLK_UART1>;
 
 			resets = <&resetc 19>;
@@ -315,6 +321,9 @@
 		uart2: uart2@e00 {
 			compatible = "mediatek,hsuart", "ns16550a";
 			reg = <0xe00 0x100>;
+
+			pinctrl-names = "default";
+			pinctrl-0 = <&uart2_pins>;
 
 			clocks = <&clkctrl CLK_UART2>;
 
