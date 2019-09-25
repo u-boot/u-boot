@@ -72,7 +72,7 @@ static void __secure ls1_deepsleep_irq_cfg(void)
 	 * returns zero, so its value is saved to a scrachpad register to be
 	 * read, that is why we don't read it from register ippdexpcr1 itself.
 	 */
-	ippdexpcr1 = in_le32(&scfg->sparecr[7]);
+	ippdexpcr1 = in_be32(&scfg->sparecr[7]);
 	out_be32(&rcpm->ippdexpcr1, ippdexpcr1);
 
 	if (ippdexpcr0 & RCPM_IPPDEXPCR0_ETSEC)
