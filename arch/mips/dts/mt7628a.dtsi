@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
+#include <dt-bindings/clock/mt7628-clk.h>
 
 / {
 	#address-cells = <1>;
@@ -46,6 +47,14 @@
 			regmap = <&sysc>;
 			offset = <0x34>;
 			mask = <0x1>;
+		};
+
+		clkctrl: clkctrl@0x2c {
+			reg = <0x2c 0x8>, <0x10 0x4>;
+			reg-names = "syscfg0", "clkcfg";
+			compatible = "mediatek,mt7628-clk";
+			#clock-cells = <1>;
+			u-boot,dm-pre-reloc;
 		};
 
 		watchdog: watchdog@100 {
@@ -120,14 +129,14 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 
-			clock-frequency = <200000000>;
+			clocks = <&clkctrl CLK_SPI>;
 		};
 
 		uart0: uartlite@c00 {
 			compatible = "mediatek,hsuart", "ns16550a";
 			reg = <0xc00 0x100>;
 
-			clock-frequency = <40000000>;
+			clocks = <&clkctrl CLK_UART0>;
 
 			resets = <&resetc 12>;
 			reset-names = "uart0";
@@ -142,7 +151,7 @@
 			compatible = "mediatek,hsuart", "ns16550a";
 			reg = <0xd00 0x100>;
 
-			clock-frequency = <40000000>;
+			clocks = <&clkctrl CLK_UART1>;
 
 			resets = <&resetc 19>;
 			reset-names = "uart1";
@@ -157,7 +166,7 @@
 			compatible = "mediatek,hsuart", "ns16550a";
 			reg = <0xe00 0x100>;
 
-			clock-frequency = <40000000>;
+			clocks = <&clkctrl CLK_UART2>;
 
 			resets = <&resetc 20>;
 			reset-names = "uart2";
@@ -184,8 +193,12 @@
 		#phy-cells = <0>;
 
 		ralink,sysctl = <&sysc>;
+
 		resets = <&resetc 22 &resetc 25>;
 		reset-names = "host", "device";
+
+		clocks = <&clkctrl CLK_UPHY>;
+		clock-names = "cg";
 	};
 
 	ehci@101c0000 {
