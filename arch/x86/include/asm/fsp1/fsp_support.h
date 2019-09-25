@@ -7,7 +7,7 @@
 #ifndef __FSP_SUPPORT_H__
 #define __FSP_SUPPORT_H__
 
-#include "fsp_types.h"
+#include <asm/fsp/fsp_types.h>
 #include "fsp_hob.h"
 #include "fsp_fv.h"
 #include "fsp_ffs.h"
