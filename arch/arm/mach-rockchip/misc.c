@@ -57,13 +57,18 @@ int rockchip_cpuid_from_efuse(const u32 cpuid_offset,
 			      const u32 cpuid_length,
 			      u8 *cpuid)
 {
-#if CONFIG_IS_ENABLED(ROCKCHIP_EFUSE)
+#if CONFIG_IS_ENABLED(ROCKCHIP_EFUSE) || CONFIG_IS_ENABLED(ROCKCHIP_OTP)
 	struct udevice *dev;
 	int ret;
 
 	/* retrieve the device */
+#if CONFIG_IS_ENABLED(ROCKCHIP_EFUSE)
 	ret = uclass_get_device_by_driver(UCLASS_MISC,
 					  DM_GET_DRIVER(rockchip_efuse), &dev);
+#elif CONFIG_IS_ENABLED(ROCKCHIP_OTP)
+	ret = uclass_get_device_by_driver(UCLASS_MISC,
+					  DM_GET_DRIVER(rockchip_otp), &dev);
+#endif
 	if (ret) {
 		debug("%s: could not find efuse device\n", __func__);
 		return -1;
