@@ -39,6 +39,8 @@ void dm_pciauto_setup_device(struct udevice *dev, int bars_num,
 
 	for (bar = PCI_BASE_ADDRESS_0;
 	     bar < PCI_BASE_ADDRESS_0 + (bars_num * 4); bar += 4) {
+		int ret = 0;
+
 		/* Tickle the BAR and get the response */
 		if (!enum_only)
 			dm_pci_write_config32(dev, bar, 0xffffffff);
@@ -97,9 +99,13 @@ void dm_pciauto_setup_device(struct udevice *dev, int bars_num,
 			      (unsigned long long)bar_size);
 		}
 
-		if (!enum_only && pciauto_region_allocate(bar_res, bar_size,
-							  &bar_value,
-							  found_mem64) == 0) {
+		if (!enum_only) {
+			ret = pciauto_region_allocate(bar_res, bar_size,
+						      &bar_value, found_mem64);
+			if (ret)
+				printf("PCI: Failed autoconfig bar %x\n", bar);
+		}
+		if (!enum_only && !ret) {
 			/* Write it out and update our limit */
 			dm_pci_write_config32(dev, bar, (u32)bar_value);
 
