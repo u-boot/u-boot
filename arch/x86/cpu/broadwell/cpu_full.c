@@ -329,15 +329,6 @@ static int bsp_init_before_ap_bringup(struct udevice *dev)
 	return 0;
 }
 
-static int cpu_config_tdp_levels(void)
-{
-	msr_t platform_info;
-
-	/* Bits 34:33 indicate how many levels supported */
-	platform_info = msr_read(MSR_PLATFORM_INFO);
-	return (platform_info.hi >> 1) & 3;
-}
-
 static void set_max_ratio(void)
 {
 	msr_t msr, perf_ctl;

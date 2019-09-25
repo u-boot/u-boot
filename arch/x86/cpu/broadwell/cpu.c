@@ -41,12 +41,9 @@ int arch_cpu_init_dm(void)
 
 void set_max_freq(void)
 {
-	msr_t msr, perf_ctl, platform_info;
+	msr_t msr, perf_ctl;
 
-	/* Check for configurable TDP option */
-	platform_info = msr_read(MSR_PLATFORM_INFO);
-
-	if ((platform_info.hi >> 1) & 3) {
+	if (cpu_config_tdp_levels()) {
 		/* Set to nominal TDP ratio */
 		msr = msr_read(MSR_CONFIG_TDP_NOMINAL);
 		perf_ctl.lo = (msr.lo & 0xff) << 8;

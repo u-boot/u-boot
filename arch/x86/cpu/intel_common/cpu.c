@@ -145,3 +145,23 @@ int cpu_configure_thermal_target(struct udevice *dev)
 
 	return 0;
 }
+
+void cpu_set_perf_control(uint clk_ratio)
+{
+	msr_t perf_ctl;
+
+	perf_ctl.lo = (clk_ratio & 0xff) << 8;
+	perf_ctl.hi = 0;
+	msr_write(MSR_IA32_PERF_CTL, perf_ctl);
+	debug("CPU: frequency set to %d MHz\n", clk_ratio * INTEL_BCLK_MHZ);
+}
+
+bool cpu_config_tdp_levels(void)
+{
+	msr_t platform_info;
+
+	/* Bits 34:33 indicate how many levels supported */
+	platform_info = msr_read(MSR_PLATFORM_INFO);
+
+	return ((platform_info.hi >> 1) & 3) != 0;
+}

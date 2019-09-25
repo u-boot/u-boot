@@ -1,5 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
+ * Common code for Intel CPUs
+ *
  * Copyright (c) 2016 Google, Inc
  */
 
@@ -60,5 +62,21 @@ int cpu_intel_get_info(struct cpu_info *info, int bclk_mz);
  * @return 0 if OK, -ENOENT if no target is given in device tree
  */
 int cpu_configure_thermal_target(struct udevice *dev);
+
+/**
+ * cpu_set_perf_control() - Set the nominal CPU clock speed
+ *
+ * This sets the clock speed as a multiplier of BCLK
+ *
+ * @clk_ratio: Ratio to use
+ */
+void cpu_set_perf_control(uint clk_ratio);
+
+/**
+ * cpu_config_tdp_levels() - Check for configurable TDP option
+ *
+ * @return true if the CPU has configurable TDP (Thermal-design power)
+ */
+bool cpu_config_tdp_levels(void);
 
 #endif
