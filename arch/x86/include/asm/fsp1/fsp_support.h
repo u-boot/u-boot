@@ -11,7 +11,6 @@
 #include "fsp_hob.h"
 #include "fsp_fv.h"
 #include "fsp_ffs.h"
-#include "fsp_api.h"
 #include "fsp_infoheader.h"
 #include "fsp_bootmode.h"
 #include <asm/fsp_arch.h>

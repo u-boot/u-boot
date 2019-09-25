@@ -14,6 +14,7 @@
  * since this file can be included from assembly.
  */
 
+#include <asm/fsp1/fsp_api.h>
 #include <asm/arch/fsp/fsp_vpd.h>
 #include <asm/arch/fsp/fsp_configs.h>
 
