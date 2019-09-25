@@ -20,6 +20,14 @@ config TARGET_MICROBLAZE_GENERIC
 
 endchoice
 
+config STACK_SIZE
+	hex "Define max stack size that can be used by u-boot"
+	default 0x200000
+	help
+	  Defines Max stack size that can be used by u-boot so that the
+	  initrd_high will be calculated as base stack pointer minus this
+	  stack size.
+
 source "board/xilinx/microblaze-generic/Kconfig"
 
 config SPL_LDSCRIPT
