@@ -142,9 +142,9 @@ struct blk_desc *blk_get_devnum_by_typename(const char *if_typename, int devnum)
  */
 struct blk_desc *blk_get_by_device(struct udevice *dev)
 {
-	struct udevice *child_dev, *next;
+	struct udevice *child_dev;
 
-	device_foreach_child_safe(child_dev, next, dev) {
+	device_foreach_child(child_dev, dev) {
 		if (device_get_uclass_id(child_dev) != UCLASS_BLK)
 			continue;
 
