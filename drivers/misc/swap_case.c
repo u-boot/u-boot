@@ -129,7 +129,7 @@ static int sandbox_swap_case_read_config(struct udevice *emul, uint offset,
 		*valuep = SANDBOX_PCI_VENDOR_ID;
 		break;
 	case PCI_DEVICE_ID:
-		*valuep = SANDBOX_PCI_DEVICE_ID;
+		*valuep = SANDBOX_PCI_SWAP_CASE_EMUL_ID;
 		break;
 	case PCI_CLASS_DEVICE:
 		if (size == PCI_SIZE_8) {
@@ -417,7 +417,8 @@ U_BOOT_DRIVER(sandbox_swap_case_emul) = {
 };
 
 static struct pci_device_id sandbox_swap_case_supported[] = {
-	{ PCI_VDEVICE(SANDBOX, SANDBOX_PCI_DEVICE_ID), SWAP_CASE_DRV_DATA },
+	{ PCI_VDEVICE(SANDBOX, SANDBOX_PCI_SWAP_CASE_EMUL_ID),
+		SWAP_CASE_DRV_DATA },
 	{},
 };
 

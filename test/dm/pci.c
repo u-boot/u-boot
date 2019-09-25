@@ -38,7 +38,7 @@ static int dm_test_pci_busdev(struct unit_test_state *uts)
 	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(0, 0x1f, 0), &swap));
 	device = 0;
 	ut_assertok(dm_pci_read_config16(swap, PCI_DEVICE_ID, &device));
-	ut_asserteq(SANDBOX_PCI_DEVICE_ID, device);
+	ut_asserteq(SANDBOX_PCI_SWAP_CASE_EMUL_ID, device);
 
 	/* Test bus#1 and its devices */
 	ut_assertok(uclass_get_device_by_seq(UCLASS_PCI, 1, &bus));
@@ -50,7 +50,7 @@ static int dm_test_pci_busdev(struct unit_test_state *uts)
 	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(1, 0x0c, 0), &swap));
 	device = 0;
 	ut_assertok(dm_pci_read_config16(swap, PCI_DEVICE_ID, &device));
-	ut_asserteq(SANDBOX_PCI_DEVICE_ID, device);
+	ut_asserteq(SANDBOX_PCI_SWAP_CASE_EMUL_ID, device);
 
 	return 0;
 }
@@ -170,7 +170,7 @@ static int dm_test_pci_mixed(struct unit_test_state *uts)
 	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(2, 0x1f, 0), &swap));
 	device = 0;
 	ut_assertok(dm_pci_read_config16(swap, PCI_DEVICE_ID, &device));
-	ut_asserteq(SANDBOX_PCI_DEVICE_ID, device);
+	ut_asserteq(SANDBOX_PCI_SWAP_CASE_EMUL_ID, device);
 
 	/* First test I/O */
 	io_addr = dm_pci_read_bar32(swap, 0);
