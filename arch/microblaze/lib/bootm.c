@@ -56,71 +56,70 @@ void arch_lmb_reserve(struct lmb *lmb)
 	}
 }
 
-int do_bootm_linux(int flag, int argc, char * const argv[],
-		   bootm_headers_t *images)
+static void boot_jump_linux(bootm_headers_t *images, int flag)
 {
-	/* First parameter is mapped to $r5 for kernel boot args */
-	void	(*thekernel) (char *, ulong, ulong);
-	char	*commandline = env_get("bootargs");
-	ulong	rd_data_start, rd_data_end;
-
-	/*
-	 * allow the PREP bootm subcommand, it is required for bootm to work
-	 */
-	if (flag & BOOTM_STATE_OS_PREP)
-		return 0;
-
-	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
-		return 1;
-
-	int	ret;
-
-	char	*of_flat_tree = NULL;
-#if defined(CONFIG_OF_LIBFDT)
-	/* did generic code already find a device tree? */
-	if (images->ft_len)
-		of_flat_tree = images->ft_addr;
-#endif
+	void (*thekernel)(char *cmdline, ulong rd, ulong dt);
+	ulong dt = (ulong)images->ft_addr;
+	ulong rd_start = images->initrd_start;
+	ulong cmdline = images->cmdline_start;
+	int fake = (flag & BOOTM_STATE_OS_FAKE_GO);
 
 	thekernel = (void (*)(char *, ulong, ulong))images->ep;
-
-	/* find ramdisk */
-	ret = boot_get_ramdisk(argc, argv, images, IH_ARCH_MICROBLAZE,
-			&rd_data_start, &rd_data_end);
-	if (ret)
-		return 1;
-
-	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
-
-	if (!of_flat_tree && argc > 1)
-		of_flat_tree = (char *)simple_strtoul(argv[1], NULL, 16);
-
-	/* fixup the initrd now that we know where it should be */
-	if (images->rd_start && images->rd_end && of_flat_tree) {
-		ret = fdt_initrd(of_flat_tree, images->rd_start,
-				 images->rd_end);
-		if (ret)
-			return 1;
-	}
 
 #ifdef DEBUG
 	printf("## Transferring control to Linux (at address 0x%08lx) ",
 	       (ulong)thekernel);
-	printf("ramdisk 0x%08lx, FDT 0x%08lx...\n",
-	       rd_data_start, (ulong) of_flat_tree);
+	printf("cmdline 0x%08lx, ramdisk 0x%08lx, FDT 0x%08lx...\n",
+	       cmdline, rd_start, dt);
 #endif
 
 #ifdef XILINX_USE_DCACHE
 	flush_cache(0, XILINX_DCACHE_BYTE_SIZE);
 #endif
-	/*
-	 * Linux Kernel Parameters (passing device tree):
-	 * r5: pointer to command line
-	 * r6: pointer to ramdisk
-	 * r7: pointer to the fdt, followed by the board info data
-	 */
-	thekernel(commandline, rd_data_start, (ulong)of_flat_tree);
-	/* does not return */
 
+	if (!fake) {
+		/*
+		 * Linux Kernel Parameters (passing device tree):
+		 * r5: pointer to command line
+		 * r6: pointer to ramdisk
+		 * r7: pointer to the fdt, followed by the board info data
+		 */
+		thekernel((char *)cmdline, rd_start, dt);
+		/* does not return */
+	}
+}
+
+static void boot_prep_linux(bootm_headers_t *images)
+{
+	if (IMAGE_ENABLE_OF_LIBFDT && images->ft_len) {
+		printf("using: FDT\n");
+		if (image_setup_linux(images)) {
+			printf("FDT creation failed! hanging...");
+			hang();
+		}
+	}
+}
+
+int do_bootm_linux(int flag, int argc, char * const argv[],
+		   bootm_headers_t *images)
+{
+	images->cmdline_start = (ulong)env_get("bootargs");
+
+	/* cmdline init is the part of 'prep' and nothing to do for 'bdt' */
+	if (flag & BOOTM_STATE_OS_BD_T || flag & BOOTM_STATE_OS_CMDLINE)
+		return -1;
+
+	if (flag & BOOTM_STATE_OS_PREP) {
+		boot_prep_linux(images);
+		return 0;
+	}
+
+	if (flag & (BOOTM_STATE_OS_GO | BOOTM_STATE_OS_FAKE_GO)) {
+		boot_jump_linux(images, flag);
+		return 0;
+	}
+
+	boot_prep_linux(images);
+	boot_jump_linux(images, flag);
 	return 1;
 }
