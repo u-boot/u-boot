@@ -50,9 +50,10 @@ static inline bool u_boot_first_phase(void)
 }
 
 enum u_boot_phase {
-	PHASE_TPL,
-	PHASE_SPL,
-	PHASE_U_BOOT,
+	PHASE_TPL,	/* Running in TPL */
+	PHASE_SPL,	/* Running in SPL */
+	PHASE_BOARD_F,	/* Running in U-Boot before relocation */
+	PHASE_BOARD_R,	/* Running in U-Boot after relocation */
 };
 
 /**
@@ -92,7 +93,7 @@ enum u_boot_phase {
  *
  * but with this you can use:
  *
- *    if (spl_phase() == PHASE_U_BOOT) {
+ *    if (spl_phase() == PHASE_BOARD_F) {
  *       ...
  *    }
  *
@@ -105,7 +106,12 @@ static inline enum u_boot_phase spl_phase(void)
 #elif CONFIG_SPL_BUILD
 	return PHASE_SPL;
 #else
-	return PHASE_U_BOOT;
+	DECLARE_GLOBAL_DATA_PTR;
+
+	if (!(gd->flags & GD_FLG_RELOC))
+		return PHASE_BOARD_F;
+	else
+		return PHASE_BOARD_R;
 #endif
 }
 
