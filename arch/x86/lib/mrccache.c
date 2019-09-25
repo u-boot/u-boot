@@ -17,19 +17,20 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static uint mrc_block_size(uint data_size)
+{
+	uint mrc_size = sizeof(struct mrc_data_container) + data_size;
+
+	return ALIGN(mrc_size, MRC_DATA_ALIGN);
+}
+
 static struct mrc_data_container *next_mrc_block(
 	struct mrc_data_container *cache)
 {
 	/* MRC data blocks are aligned within the region */
-	u32 mrc_size = sizeof(*cache) + cache->data_size;
 	u8 *region_ptr = (u8 *)cache;
 
-	if (mrc_size & (MRC_DATA_ALIGN - 1UL)) {
-		mrc_size &= ~(MRC_DATA_ALIGN - 1UL);
-		mrc_size += MRC_DATA_ALIGN;
-	}
-
-	region_ptr += mrc_size;
+	region_ptr += mrc_block_size(cache->data_size);
 
 	return (struct mrc_data_container *)region_ptr;
 }
