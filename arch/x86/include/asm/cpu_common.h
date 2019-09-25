@@ -6,6 +6,11 @@
 #ifndef __ASM_CPU_COMMON_H
 #define __ASM_CPU_COMMON_H
 
+/* Standard Intel bus clock is fixed at 100MHz */
+enum {
+	INTEL_BCLK_MHZ		= 100
+};
+
 struct cpu_info;
 
 /**

@@ -60,7 +60,7 @@ void set_max_freq(void)
 	msr_write(MSR_IA32_PERF_CTL, perf_ctl);
 
 	debug("CPU: frequency set to %d MHz\n",
-	      ((perf_ctl.lo >> 8) & 0xff) * CPU_BCLK);
+	      ((perf_ctl.lo >> 8) & 0xff) * INTEL_BCLK_MHZ);
 }
 
 int arch_cpu_init(void)

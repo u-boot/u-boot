@@ -346,7 +346,7 @@ static void set_max_ratio(void)
 	msr_write(MSR_IA32_PERF_CTL, perf_ctl);
 
 	debug("model_x06ax: frequency set to %d\n",
-	      ((perf_ctl.lo >> 8) & 0xff) * SANDYBRIDGE_BCLK);
+	      ((perf_ctl.lo >> 8) & 0xff) * INTEL_BCLK_MHZ);
 }
 
 static void set_energy_perf_bias(u8 policy)
@@ -418,7 +418,7 @@ static int model_206ax_init(struct udevice *dev)
 
 static int model_206ax_get_info(struct udevice *dev, struct cpu_info *info)
 {
-	return cpu_intel_get_info(info, SANDYBRIDGE_BCLK);
+	return cpu_intel_get_info(info, INTEL_BCLK_MHZ);
 
 	return 0;
 }

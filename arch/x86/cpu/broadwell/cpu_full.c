@@ -360,7 +360,7 @@ static void set_max_ratio(void)
 	msr_write(MSR_IA32_PERF_CTL, perf_ctl);
 
 	debug("cpu: frequency set to %d\n",
-	      ((perf_ctl.lo >> 8) & 0xff) * CPU_BCLK);
+	      ((perf_ctl.lo >> 8) & 0xff) * INTEL_BCLK_MHZ);
 }
 
 int broadwell_init(struct udevice *dev)
@@ -634,7 +634,7 @@ void cpu_set_power_limits(int power_limit_1_time)
 
 static int broadwell_get_info(struct udevice *dev, struct cpu_info *info)
 {
-	return cpu_intel_get_info(info, BROADWELL_BCLK);
+	return cpu_intel_get_info(info, INTEL_BCLK_MHZ);
 }
 
 static int broadwell_get_count(struct udevice *dev)
