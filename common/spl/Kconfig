@@ -115,7 +115,7 @@ if SPL
 
 config SPL_HANDOFF
 	bool "Pass hand-off information from SPL to U-Boot proper"
-	depends on HANDOFF
+	depends on HANDOFF && SPL_BLOBLIST
 	default y
 	help
 	  This option enables SPL to write handoff information. This can be
@@ -1185,7 +1185,7 @@ if TPL
 
 config TPL_HANDOFF
 	bool "Pass hand-off information from TPL to SPL and U-Boot proper"
-	depends on HANDOFF
+	depends on HANDOFF && TPL_BLOBLIST
 	default y
 	help
 	  This option enables TPL to write handoff information. This can be
