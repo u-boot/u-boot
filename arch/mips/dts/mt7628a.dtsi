@@ -346,7 +346,7 @@
 		};
 	};
 
-	eth@10110000 {
+	eth: eth@10110000 {
 		compatible = "mediatek,mt7628-eth";
 		reg = <0x10100000 0x10000
 		       0x10110000 0x8000>;

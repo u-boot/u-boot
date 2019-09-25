@@ -85,6 +85,15 @@
 	};
 };
 
+&pinctrl {
+	state_default: pin_state {
+		p0led {
+			groups = "p0led_a";
+			function = "led";
+		};
+	};
+};
+
 &uart0 {
 	status = "okay";
 };
@@ -108,4 +117,8 @@
 		spi-max-frequency = <40000000>;
 		reg = <1>;
 	};
+};
+
+&eth {
+	mediatek,poll-link-phy = <0>;
 };
