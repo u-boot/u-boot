@@ -18,22 +18,11 @@
 #include <malloc.h>
 #include <miiphy.h>
 #include <net.h>
-#include <regmap.h>
-#include <syscon.h>
+#include <reset.h>
 #include <wait_bit.h>
 #include <asm/io.h>
 #include <linux/bitfield.h>
 #include <linux/err.h>
-
-/* System controller register */
-#define MT7628_RSTCTRL_REG	0x34
-#define RSTCTRL_EPHY_RST	BIT(24)
-
-#define MT7628_AGPIO_CFG_REG	0x3c
-#define MT7628_EPHY_GPIO_AIO_EN	GENMASK(20, 17)
-#define MT7628_EPHY_P0_DIS	BIT(16)
-
-#define MT7628_GPIO2_MODE_REG	0x64
 
 /* Ethernet frame engine register */
 #define PDMA_RELATED		0x0800
@@ -137,7 +126,6 @@ struct fe_tx_dma {
 struct mt7628_eth_dev {
 	void __iomem *base;		/* frame engine base address */
 	void __iomem *eth_sw_base;	/* switch base address */
-	struct regmap *sysctrl_regmap;	/* system-controller reg-map */
 
 	struct mii_dev *bus;
 
@@ -150,6 +138,8 @@ struct mt7628_eth_dev {
 	int rx_dma_idx;
 	/* Point to the next TXD in TXD Ring0 CPU wants to use */
 	int tx_dma_idx;
+
+	struct reset_ctl	rst_ephy;
 };
 
 static int mdio_wait_read(struct mt7628_eth_dev *priv, u32 mask, bool mask_set)
@@ -301,20 +291,9 @@ static void rt305x_esw_init(struct mt7628_eth_dev *priv)
 	/* 1us cycle number=125 (FE's clock=125Mhz) */
 	writel(0x7d000000, base + MT7628_SWITCH_BMU_CTRL);
 
-	/* Configure analog GPIO setup */
-	regmap_update_bits(priv->sysctrl_regmap, MT7628_AGPIO_CFG_REG,
-			   MT7628_EPHY_P0_DIS, MT7628_EPHY_GPIO_AIO_EN);
-
 	/* Reset PHY */
-	regmap_update_bits(priv->sysctrl_regmap, MT7628_RSTCTRL_REG,
-			   0, RSTCTRL_EPHY_RST);
-	regmap_update_bits(priv->sysctrl_regmap, MT7628_RSTCTRL_REG,
-			   RSTCTRL_EPHY_RST, 0);
-	mdelay(10);
-
-	/* Set P0 EPHY LED mode */
-	regmap_update_bits(priv->sysctrl_regmap, MT7628_GPIO2_MODE_REG,
-			   0x0ffc0ffc, 0x05540554);
+	reset_assert(&priv->rst_ephy);
+	reset_deassert(&priv->rst_ephy);
 	mdelay(10);
 
 	mt7628_ephy_init(priv);
@@ -558,7 +537,6 @@ static void mt7628_eth_stop(struct udevice *dev)
 static int mt7628_eth_probe(struct udevice *dev)
 {
 	struct mt7628_eth_dev *priv = dev_get_priv(dev);
-	struct udevice *syscon;
 	struct mii_dev *bus;
 	int ret;
 	int i;
@@ -573,18 +551,11 @@ static int mt7628_eth_probe(struct udevice *dev)
 	if (IS_ERR(priv->eth_sw_base))
 		return PTR_ERR(priv->eth_sw_base);
 
-	/* Get system controller regmap */
-	ret = uclass_get_device_by_phandle(UCLASS_SYSCON, dev,
-					   "syscon", &syscon);
+	/* Reset controller */
+	ret = reset_get_by_name(dev, "ephy", &priv->rst_ephy);
 	if (ret) {
-		pr_err("unable to find syscon device\n");
+		pr_err("unable to find reset controller for ethernet PHYs\n");
 		return ret;
-	}
-
-	priv->sysctrl_regmap = syscon_get_regmap(syscon);
-	if (!priv->sysctrl_regmap) {
-		pr_err("unable to find regmap\n");
-		return -ENODEV;
 	}
 
 	/* Put rx and tx rings into KSEG1 area (uncached) */
