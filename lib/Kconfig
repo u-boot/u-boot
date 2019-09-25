@@ -40,12 +40,12 @@ config PRINTF
 config SPL_PRINTF
 	bool
 	select SPL_SPRINTF
-	select SPL_STRTO if !USE_TINY_PRINTF
+	select SPL_STRTO if !SPL_USE_TINY_PRINTF
 
 config TPL_PRINTF
 	bool
 	select TPL_SPRINTF
-	select TPL_STRTO if !USE_TINY_PRINTF
+	select TPL_STRTO if !TPL_USE_TINY_PRINTF
 
 config SPRINTF
 	bool
@@ -95,10 +95,22 @@ config SYS_HZ
 	  get_timer() must operate in milliseconds and this option must be
 	  set to 1000.
 
-config USE_TINY_PRINTF
+config SPL_USE_TINY_PRINTF
 	bool "Enable tiny printf() version"
-	depends on SPL || TPL
+	depends on SPL
 	default y
+	help
+	  This option enables a tiny, stripped down printf version.
+	  This should only be used in space limited environments,
+	  like SPL versions with hard memory limits. This version
+	  reduces the code size by about 2.5KiB on armv7.
+
+	  The supported format specifiers are %c, %s, %u/%d and %x.
+
+config TPL_USE_TINY_PRINTF
+	bool "Enable tiny printf() version"
+	depends on TPL
+	default y if SPL_USE_TINY_PRINTF
 	help
 	  This option enables a tiny, stripped down printf version.
 	  This should only be used in space limited environments,

@@ -2577,7 +2577,7 @@ static int mmc_startup(struct mmc *mmc)
 	bdesc->lba = lldiv(mmc->capacity, mmc->read_bl_len);
 #if !defined(CONFIG_SPL_BUILD) || \
 		(defined(CONFIG_SPL_LIBCOMMON_SUPPORT) && \
-		!defined(CONFIG_USE_TINY_PRINTF))
+		!CONFIG_IS_ENABLED(USE_TINY_PRINTF))
 	sprintf(bdesc->vendor, "Man %06x Snr %04x%04x",
 		mmc->cid[0] >> 24, (mmc->cid[2] & 0xffff),
 		(mmc->cid[3] >> 16) & 0xffff);

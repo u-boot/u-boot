@@ -294,7 +294,7 @@ int dm_gpio_request(struct gpio_desc *desc, const char *label)
 
 static int dm_gpio_requestf(struct gpio_desc *desc, const char *fmt, ...)
 {
-#if !defined(CONFIG_SPL_BUILD) || !defined(CONFIG_USE_TINY_PRINTF)
+#if !defined(CONFIG_SPL_BUILD) || !CONFIG_IS_ENABLED(USE_TINY_PRINTF)
 	va_list args;
 	char buf[40];
 
@@ -343,7 +343,7 @@ int gpio_request(unsigned gpio, const char *label)
  */
 int gpio_requestf(unsigned gpio, const char *fmt, ...)
 {
-#if !defined(CONFIG_SPL_BUILD) || !defined(CONFIG_USE_TINY_PRINTF)
+#if !defined(CONFIG_SPL_BUILD) || !CONFIG_IS_ENABLED(USE_TINY_PRINTF)
 	va_list args;
 	char buf[40];
 

@@ -65,7 +65,7 @@ config TARGET_GOSE
 	select DM_SERIAL
 	select SPL_TINY_MEMSET
 	select SUPPORT_SPL
-	select USE_TINY_PRINTF
+	select SPL_USE_TINY_PRINTF
 	imply CMD_DM
 
 config TARGET_KOELSCH
@@ -74,7 +74,7 @@ config TARGET_KOELSCH
 	select DM_SERIAL
 	select SPL_TINY_MEMSET
 	select SUPPORT_SPL
-	select USE_TINY_PRINTF
+	select SPL_USE_TINY_PRINTF
 	imply CMD_DM
 
 config TARGET_LAGER
@@ -83,7 +83,7 @@ config TARGET_LAGER
 	select DM_SERIAL
 	select SPL_TINY_MEMSET
 	select SUPPORT_SPL
-	select USE_TINY_PRINTF
+	select SPL_USE_TINY_PRINTF
 	imply CMD_DM
 
 config TARGET_KZM9G
@@ -95,7 +95,7 @@ config TARGET_ALT
 	select DM_SERIAL
 	select SPL_TINY_MEMSET
 	select SUPPORT_SPL
-	select USE_TINY_PRINTF
+	select SPL_USE_TINY_PRINTF
 	imply CMD_DM
 
 config TARGET_SILK
@@ -104,7 +104,7 @@ config TARGET_SILK
 	select DM_SERIAL
 	select SPL_TINY_MEMSET
 	select SUPPORT_SPL
-	select USE_TINY_PRINTF
+	select SPL_USE_TINY_PRINTF
 	imply CMD_DM
 
 config TARGET_PORTER
@@ -113,7 +113,7 @@ config TARGET_PORTER
 	select DM_SERIAL
 	select SPL_TINY_MEMSET
 	select SUPPORT_SPL
-	select USE_TINY_PRINTF
+	select SPL_USE_TINY_PRINTF
 	imply CMD_DM
 
 config TARGET_STOUT
@@ -122,7 +122,7 @@ config TARGET_STOUT
 	select DM_SERIAL
 	select SPL_TINY_MEMSET
 	select SUPPORT_SPL
-	select USE_TINY_PRINTF
+	select SPL_USE_TINY_PRINTF
 	imply CMD_DM
 
 endchoice

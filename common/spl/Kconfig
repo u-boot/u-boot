@@ -963,7 +963,7 @@ config SPL_SERIAL_SUPPORT
 	  for displaying messages while SPL is running. It also brings in
 	  printf() and panic() functions. This should normally be enabled
 	  unless there are space reasons not to. Even then, consider
-	  enabling USE_TINY_PRINTF which is a small printf() version.
+	  enabling SPL_USE_TINY_PRINTF which is a small printf() version.
 
 config SPL_SPI_FLASH_SUPPORT
 	bool "Support SPI flash drivers"
