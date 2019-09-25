@@ -90,7 +90,7 @@ early_board_init_ret:
 	jmp	car_init
 .globl car_init_ret
 car_init_ret:
-#ifndef CONFIG_USE_HOB
+#ifdef CONFIG_USE_CAR
 	/*
 	 * We now have CONFIG_SYS_CAR_SIZE bytes of Cache-As-RAM (or SRAM,
 	 * or fully initialised SDRAM - we really don't care which)
@@ -130,7 +130,7 @@ car_init_ret:
 
 	/* Get address of global_data */
 	mov	%fs:0, %edx
-#ifdef CONFIG_USE_HOB
+#if defined(CONFIG_USE_HOB) && !defined(CONFIG_USE_CAR)
 	/* Store the HOB list if we have one */
 	test	%esi, %esi
 	jz	skip_hob

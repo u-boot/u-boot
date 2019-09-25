@@ -364,6 +364,14 @@ config HAVE_FSP
 	  Note: Without this binary U-Boot will not be able to set up its
 	  SDRAM so will not boot.
 
+config USE_CAR
+	bool "Use Cache-As-RAM (CAR) to get temporary RAM at start-up"
+	default y if !HAVE_FSP
+	help
+	  Select this option if your board uses CAR init code, typically in a
+	  car.S file, to get some initial memory for code execution. This is
+	  common with Intel CPUs which don't use FSP.
+
 choice
 	prompt "FSP version"
 	depends on HAVE_FSP
