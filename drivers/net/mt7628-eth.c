@@ -57,6 +57,11 @@
 /* Ethernet switch register */
 #define MT7628_SWITCH_FCT0	0x0008
 #define MT7628_SWITCH_PFC1	0x0014
+#define MT7628_SWITCH_PVIDC0	0x0040
+#define MT7628_SWITCH_PVIDC1	0x0044
+#define MT7628_SWITCH_PVIDC2	0x0048
+#define MT7628_SWITCH_PVIDC3	0x004c
+#define MT7628_SWITCH_VMSC0	0x0070
 #define MT7628_SWITCH_FPA	0x0084
 #define MT7628_SWITCH_SOCPC	0x008c
 #define MT7628_SWITCH_POC0	0x0090
@@ -140,6 +145,8 @@ struct mt7628_eth_dev {
 	struct reset_ctl	rst_ephy;
 
 	struct phy_device *phy;
+
+	int wan_port;
 };
 
 static int mt7628_eth_free_pkt(struct udevice *dev, uchar *packet, int length);
@@ -272,6 +279,9 @@ static void mt7628_ephy_init(struct mt7628_eth_dev *priv)
 static void rt305x_esw_init(struct mt7628_eth_dev *priv)
 {
 	void __iomem *base = priv->eth_sw_base;
+	void __iomem *reg;
+	u32 val = 0, pvid;
+	int i;
 
 	/*
 	 * FC_RLS_TH=200, FC_SET_TH=160
@@ -292,6 +302,25 @@ static void rt305x_esw_init(struct mt7628_eth_dev *priv)
 	writel(0x00000000, base + MT7628_SWITCH_FPA);
 	/* 1us cycle number=125 (FE's clock=125Mhz) */
 	writel(0x7d000000, base + MT7628_SWITCH_BMU_CTRL);
+
+	/* LAN/WAN partition, WAN port will be unusable in u-boot network */
+	if (priv->wan_port >= 0 && priv->wan_port < 6) {
+		for (i = 0; i < 8; i++) {
+			pvid = i == priv->wan_port ? 2 : 1;
+			reg = base + MT7628_SWITCH_PVIDC0 + (i / 2) * 4;
+			if (i % 2 == 0) {
+				val = pvid;
+			} else {
+				val |= (pvid << 12);
+				writel(val, reg);
+			}
+		}
+
+		val = 0xffff407f;
+		val |= 1 << (8 + priv->wan_port);
+		val &= ~(1 << priv->wan_port);
+		writel(val, base + MT7628_SWITCH_VMSC0);
+	}
 
 	/* Reset PHY */
 	reset_assert(&priv->rst_ephy);
@@ -542,6 +571,9 @@ static int mt7628_eth_probe(struct udevice *dev)
 		pr_err("unable to find reset controller for ethernet PHYs\n");
 		return ret;
 	}
+
+	/* WAN port will be isolated from LAN ports */
+	priv->wan_port = dev_read_u32_default(dev, "mediatek,wan-port", -1);
 
 	/* Put rx and tx rings into KSEG1 area (uncached) */
 	priv->tx_ring = (struct fe_tx_dma *)
