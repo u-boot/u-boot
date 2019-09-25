@@ -46,6 +46,22 @@ struct mtk_serial_regs {
 
 #define UART_LSR_DR	0x01		/* Data ready */
 #define UART_LSR_THRE	0x20		/* Xmit holding register empty */
+#define UART_LSR_TEMT	0x40		/* Xmitter empty */
+
+#define UART_MCR_DTR	0x01		/* DTR   */
+#define UART_MCR_RTS	0x02		/* RTS   */
+
+#define UART_FCR_FIFO_EN	0x01	/* Fifo enable */
+#define UART_FCR_RXSR		0x02	/* Receiver soft reset */
+#define UART_FCR_TXSR		0x04	/* Transmitter soft reset */
+
+#define UART_MCRVAL (UART_MCR_DTR | \
+		     UART_MCR_RTS)
+
+/* Clear & enable FIFOs */
+#define UART_FCRVAL (UART_FCR_FIFO_EN | \
+		     UART_FCR_RXSR |	\
+		     UART_FCR_TXSR)
 
 /* the data is correct if the real baud is within 3%. */
 #define BAUD_ALLOW_MAX(baud)	((baud) + (baud) * 3 / 100)
@@ -175,6 +191,9 @@ static int mtk_serial_probe(struct udevice *dev)
 	/* Disable interrupt */
 	writel(0, &priv->regs->ier);
 
+	writel(UART_MCRVAL, &priv->regs->mcr);
+	writel(UART_FCRVAL, &priv->regs->fcr);
+
 	return 0;
 }
 
@@ -248,6 +267,8 @@ static inline void _debug_uart_init(void)
 	priv.clock = CONFIG_DEBUG_UART_CLOCK;
 
 	writel(0, &priv.regs->ier);
+	writel(UART_MCRVAL, &priv.regs->mcr);
+	writel(UART_FCRVAL, &priv.regs->fcr);
 
 	_mtk_serial_setbrg(&priv, CONFIG_BAUDRATE);
 }
