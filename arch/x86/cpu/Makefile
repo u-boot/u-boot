@@ -26,7 +26,10 @@ endif
 
 extra-$(CONFIG_$(SPL_TPL_)X86_16BIT_INIT) += resetvec.o start16.o
 
-obj-y	+= cpu.o cpu_x86.o
+obj-y	+= cpu.o
+ifndef CONFIG_TPL_BUILD
+obj-y	+= cpu_x86.o
+endif
 
 ifndef CONFIG_$(SPL_)X86_64
 AFLAGS_REMOVE_call32.o := -mregparm=3 \
