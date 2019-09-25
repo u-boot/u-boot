@@ -188,8 +188,12 @@ static int dm_test_main(const char *test_name)
 	else
 		printf("Failures: %d\n", uts->fail_count);
 
+	/* Put everything back to normal so that sandbox works as expected */
+#ifdef CONFIG_OF_LIVE
+	gd->of_root = uts->of_root;
+#endif
 	gd->dm_root = NULL;
-	ut_assertok(dm_init(false));
+	ut_assertok(dm_init(IS_ENABLED(CONFIG_OF_LIVE)));
 	dm_scan_platdata(false);
 	dm_scan_fdt(gd->fdt_blob, false);
 
