@@ -13,6 +13,8 @@
 /* MicroBlaze CPU */
 #define	MICROBLAZE_V5		1
 
+#define CONFIG_SYS_BOOTM_LEN	(64 * 1024 * 1024)
+
 /* linear and spi flash memory */
 #ifdef XILINX_FLASH_START
 #define	FLASH
