@@ -1491,13 +1491,6 @@ int dm_pci_find_class(uint find_class, int index, struct udevice **devp);
  */
 struct dm_pci_emul_ops {
 	/**
-	 * get_devfn(): Check which device and function this emulators
-	 *
-	 * @dev:	device to check
-	 * @return the device and function this emulates, or -ve on error
-	 */
-	int (*get_devfn)(struct udevice *dev);
-	/**
 	 * read_config() - Read a PCI configuration value
 	 *
 	 * @dev:	Emulated device to read from

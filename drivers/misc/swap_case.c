@@ -54,13 +54,6 @@ struct swap_case_priv {
 	char mem_text[MEM_TEXT_SIZE];
 };
 
-static int sandbox_swap_case_get_devfn(struct udevice *dev)
-{
-	struct pci_child_platdata *plat = dev_get_parent_platdata(dev);
-
-	return plat->devfn;
-}
-
 static int sandbox_swap_case_use_ea(struct udevice *dev)
 {
 	return !!ofnode_get_property(dev->node, "use-ea", NULL);
@@ -393,7 +386,6 @@ static int sandbox_swap_case_unmap_physmem(struct udevice *dev,
 }
 
 static struct dm_pci_emul_ops sandbox_swap_case_emul_ops = {
-	.get_devfn = sandbox_swap_case_get_devfn,
 	.read_config = sandbox_swap_case_read_config,
 	.write_config = sandbox_swap_case_write_config,
 	.read_io = sandbox_swap_case_read_io,
