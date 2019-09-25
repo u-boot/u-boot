@@ -112,3 +112,41 @@ int mtrr_add_request(int type, uint64_t start, uint64_t size)
 
 	return 0;
 }
+
+static int get_var_mtrr_count(void)
+{
+	return msr_read(MSR_MTRR_CAP_MSR).lo & MSR_MTRR_CAP_VCNT;
+}
+
+static int get_free_var_mtrr(void)
+{
+	struct msr_t maskm;
+	int vcnt;
+	int i;
+
+	vcnt = get_var_mtrr_count();
+
+	/* Identify the first var mtrr which is not valid */
+	for (i = 0; i < vcnt; i++) {
+		maskm = msr_read(MTRR_PHYS_MASK_MSR(i));
+		if ((maskm.lo & MTRR_PHYS_MASK_VALID) == 0)
+			return i;
+	}
+
+	/* No free var mtrr */
+	return -ENOSPC;
+}
+
+int mtrr_set_next_var(uint type, uint64_t start, uint64_t size)
+{
+	int mtrr;
+
+	mtrr = get_free_var_mtrr();
+	if (mtrr < 0)
+		return mtrr;
+
+	set_var_mtrr(mtrr, type, start, size);
+	debug("MTRR %x: start=%x, size=%x\n", mtrr, (uint)start, (uint)size);
+
+	return 0;
+}

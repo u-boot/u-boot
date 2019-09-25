@@ -117,6 +117,18 @@ int mtrr_add_request(int type, uint64_t start, uint64_t size);
  */
 int mtrr_commit(bool do_caches);
 
+/**
+ * mtrr_set_next_var() - set up a variable MTRR
+ *
+ * This finds the first free variable MTRR and sets to the given area
+ *
+ * @type:	Requested type (MTRR_TYPE_)
+ * @start:	Start address
+ * @size:	Size
+ * @return 0 on success, -ENOSPC if there are no more MTRRs
+ */
+int mtrr_set_next_var(uint type, uint64_t base, uint64_t size);
+
 #endif
 
 #if ((CONFIG_XIP_ROM_SIZE & (CONFIG_XIP_ROM_SIZE - 1)) != 0)
