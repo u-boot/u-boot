@@ -356,17 +356,23 @@ static int setup_spl_handoff(void)
 	return 0;
 }
 
+__weak int handoff_arch_save(struct spl_handoff *ho)
+{
+	return 0;
+}
+
 static int write_spl_handoff(void)
 {
 	struct spl_handoff *ho;
+	int ret;
 
 	ho = bloblist_find(BLOBLISTT_SPL_HANDOFF, sizeof(struct spl_handoff));
 	if (!ho)
 		return -ENOENT;
 	handoff_save_dram(ho);
-#ifdef CONFIG_SANDBOX
-	ho->arch.magic = TEST_HANDOFF_MAGIC;
-#endif
+	ret = handoff_arch_save(ho);
+	if (ret)
+		return ret;
 	debug(SPL_TPL_PROMPT "Wrote SPL handoff\n");
 
 	return 0;
