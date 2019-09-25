@@ -473,7 +473,7 @@ ulong env_get_bootm_low(void)
 
 #if defined(CONFIG_SYS_SDRAM_BASE)
 	return CONFIG_SYS_SDRAM_BASE;
-#elif defined(CONFIG_ARM)
+#elif defined(CONFIG_ARM) || defined(CONFIG_MICROBLAZE)
 	return gd->bd->bi_dram[0].start;
 #else
 	return 0;
@@ -490,7 +490,7 @@ phys_size_t env_get_bootm_size(void)
 		return tmp;
 	}
 
-#if defined(CONFIG_ARM) && defined(CONFIG_NR_DRAM_BANKS)
+#if (defined(CONFIG_ARM) || defined(CONFIG_MICROBLAZE))  && defined(CONFIG_NR_DRAM_BANKS)
 	start = gd->bd->bi_dram[0].start;
 	size = gd->bd->bi_dram[0].size;
 #else
