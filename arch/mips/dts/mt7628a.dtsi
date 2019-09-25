@@ -25,6 +25,14 @@
 		compatible = "mti,cpu-interrupt-controller";
 	};
 
+	clk48m: clk48m@0 {
+		compatible = "fixed-clock";
+
+		clock-frequency = <48000000>;
+
+		#clock-cells = <0>;
+	};
+
 	palmbus@10000000 {
 		compatible = "palmbus", "simple-bus";
 		reg = <0x10000000 0x200000>;
@@ -381,5 +389,19 @@
 
 		interrupt-parent = <&intc>;
 		interrupts = <18>;
+	};
+
+	mmc: mmc@10130000 {
+		compatible = "mediatek,mt7620-mmc";
+		reg = <0x10130000 0x4000>;
+		builtin-cd = <1>;
+		r_smpl = <1>;
+
+		clocks = <&clk48m>, <&clkctrl CLK_SDXC>;
+		clock-names = "source", "hclk";
+
+		resets = <&rstctrl MT7628_SDXC_RST>;
+
+		status = "disabled";
 	};
 };
