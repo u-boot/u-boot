@@ -452,24 +452,31 @@
 		pci@0,0 {
 			compatible = "pci-generic";
 			reg = <0x0000 0 0 0 0>;
-			emul@0,0 {
-				compatible = "sandbox,swap-case";
-			};
+			sandbox,emul = <&swap_case_emul0_0>;
 		};
 		pci@1,0 {
 			compatible = "pci-generic";
 			reg = <0x0800 0 0 0 0>;
-			emul@0,0 {
-				compatible = "sandbox,swap-case";
-				use-ea;
-			};
+			sandbox,emul = <&swap_case_emul0_1>;
 		};
 		pci@1f,0 {
 			compatible = "pci-generic";
 			reg = <0xf800 0 0 0 0>;
-			emul@1f,0 {
-				compatible = "sandbox,swap-case";
-			};
+			sandbox,emul = <&swap_case_emul0_1f>;
+		};
+	};
+
+	pci-emul0 {
+		compatible = "sandbox,pci-emul-parent";
+		swap_case_emul0_0: emul0@0,0 {
+			compatible = "sandbox,swap-case";
+		};
+		swap_case_emul0_1: emul0@1,0 {
+			compatible = "sandbox,swap-case";
+			use-ea;
+		};
+		swap_case_emul0_1f: emul0@1f,0 {
+			compatible = "sandbox,swap-case";
 		};
 	};
 
@@ -499,9 +506,14 @@
 		pci@1f,0 {
 			compatible = "pci-generic";
 			reg = <0xf800 0 0 0 0>;
-			emul@1f,0 {
-				compatible = "sandbox,swap-case";
-			};
+			sandbox,emul = <&swap_case_emul2_1f>;
+		};
+	};
+
+	pci-emul2 {
+		compatible = "sandbox,pci-emul-parent";
+		swap_case_emul2_1f: emul2@1f,0 {
+			compatible = "sandbox,swap-case";
 		};
 	};
 

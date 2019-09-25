@@ -103,9 +103,14 @@
 		pci@1f,0 {
 			compatible = "pci-generic";
 			reg = <0xf800 0 0 0 0>;
-			emul@1f,0 {
-				compatible = "sandbox,swap-case";
-			};
+			sandbox,emul = <&swap_case_emul>;
+		};
+	};
+
+	emul {
+		compatible = "sandbox,pci-emul-parent";
+		swap_case_emul: emul@1f,0 {
+			compatible = "sandbox,swap-case";
 		};
 	};
 
