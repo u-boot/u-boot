@@ -337,14 +337,18 @@ endif
 #  KBUILD_MODULES := 1
 #endif
 
+# Check ths size of a binary:
+# Args:
+#   $1: File to check
+#   #2: Size limit in bytes (decimal or 0xhex)
 define size_check
 	actual=$$( wc -c $1 | awk '{print $$1}'); \
 	limit=$$( printf "%d" $2 ); \
 	if test $$actual -gt $$limit; then \
 		echo "$1 exceeds file size limit:" >&2; \
-		echo "  limit:  $$limit bytes" >&2; \
-		echo "  actual: $$actual bytes" >&2; \
-		echo "  excess: $$((actual - limit)) bytes" >&2; \
+		echo "  limit:  $$(printf %#x bytes $$limit) bytes" >&2; \
+		echo "  actual: $$(printf %#x $$actual) bytes" >&2; \
+		echo "  excess: $$(printf %#x $$((actual - limit))) bytes" >&2;\
 		exit 1; \
 	fi
 endef
