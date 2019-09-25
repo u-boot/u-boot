@@ -28,8 +28,6 @@ DECLARE_GLOBAL_DATA_PTR;
 static struct udevice *watchdog_dev;
 #endif /* !CONFIG_SPL_BUILD && CONFIG_WDT */
 
-ulong ram_base;
-
 int dram_init_banksize(void)
 {
 	return fdtdec_setup_memory_banksize();
