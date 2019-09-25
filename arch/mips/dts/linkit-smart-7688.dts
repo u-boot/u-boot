@@ -28,7 +28,6 @@
 
 &uart2 {
 	status = "okay";
-	clock-frequency = <40000000>;
 };
 
 &spi0 {
