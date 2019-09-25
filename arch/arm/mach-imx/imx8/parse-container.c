@@ -7,6 +7,67 @@
 #include <errno.h>
 #include <spl.h>
 #include <asm/arch/image.h>
+#include <asm/arch/sci/sci.h>
+
+#define SEC_SECURE_RAM_BASE		0x31800000UL
+#define SEC_SECURE_RAM_END_BASE		(SEC_SECURE_RAM_BASE + 0xFFFFUL)
+#define SECO_LOCAL_SEC_SEC_SECURE_RAM_BASE	0x60000000UL
+
+#define SECO_PT         2U
+
+#ifdef CONFIG_AHAB_BOOT
+static int authenticate_image(struct boot_img_t *img, int image_index)
+{
+	sc_faddr_t start, end;
+	sc_rm_mr_t mr;
+	int err;
+	int ret = 0;
+
+	debug("img %d, dst 0x%llx, src 0x%x, size 0x%x\n",
+	      image_index, img->dst, img->offset, img->size);
+
+	/* Find the memreg and set permission for seco pt */
+	err = sc_rm_find_memreg(-1, &mr,
+				img->dst & ~(CONFIG_SYS_CACHELINE_SIZE - 1),
+				ALIGN(img->dst + img->size, CONFIG_SYS_CACHELINE_SIZE));
+
+	if (err) {
+		printf("can't find memreg for image: %d, err %d\n",
+		       image_index, err);
+		return -ENOMEM;
+	}
+
+	err = sc_rm_get_memreg_info(-1, mr, &start, &end);
+	if (!err)
+		debug("memreg %u 0x%llx -- 0x%llx\n", mr, start, end);
+
+	err = sc_rm_set_memreg_permissions(-1, mr,
+					   SECO_PT, SC_RM_PERM_FULL);
+	if (err) {
+		printf("set permission failed for img %d, error %d\n",
+		       image_index, err);
+		return -EPERM;
+	}
+
+	err = sc_seco_authenticate(-1, SC_MISC_VERIFY_IMAGE,
+				   1 << image_index);
+	if (err) {
+		printf("authenticate img %d failed, return %d\n",
+		       image_index, err);
+		ret = -EIO;
+	}
+
+	err = sc_rm_set_memreg_permissions(-1, mr,
+					   SECO_PT, SC_RM_PERM_NONE);
+	if (err) {
+		printf("remove permission failed for img %d, error %d\n",
+		       image_index, err);
+		ret = -EPERM;
+	}
+
+	return ret;
+}
+#endif
 
 static struct boot_img_t *read_auth_image(struct spl_image_info *spl_image,
 					  struct spl_load_info *info,
@@ -45,6 +106,13 @@ static struct boot_img_t *read_auth_image(struct spl_image_info *spl_image,
 		return NULL;
 	}
 
+#ifdef CONFIG_AHAB_BOOT
+	if (authenticate_image(&images[image_index], image_index)) {
+		printf("Failed to authenticate image %d\n", image_index);
+		return NULL;
+	}
+#endif
+
 	return &images[image_index];
 }
 
@@ -54,7 +122,7 @@ static int read_auth_container(struct spl_image_info *spl_image,
 	struct container_hdr *container = NULL;
 	u16 length;
 	u32 sectors;
-	int i, size;
+	int i, size, ret = 0;
 
 	size = roundup(CONTAINER_HDR_ALIGNMENT, info->bl_len);
 	sectors = size / info->bl_len;
@@ -96,13 +164,27 @@ static int read_auth_container(struct spl_image_info *spl_image,
 			return -EIO;
 	}
 
+#ifdef CONFIG_AHAB_BOOT
+	memcpy((void *)SEC_SECURE_RAM_BASE, (const void *)container,
+	       ALIGN(length, CONFIG_SYS_CACHELINE_SIZE));
+
+	ret = sc_seco_authenticate(-1, SC_MISC_AUTH_CONTAINER,
+				   SECO_LOCAL_SEC_SEC_SECURE_RAM_BASE);
+	if (ret) {
+		printf("authenticate container hdr failed, return %d\n", ret);
+		return ret;
+	}
+#endif
+
 	for (i = 0; i < container->num_images; i++) {
 		struct boot_img_t *image = read_auth_image(spl_image, info,
 							   container, i,
 							   sector);
 
-		if (!image)
-			return -EINVAL;
+		if (!image) {
+			ret = -EINVAL;
+			goto end_auth;
+		}
 
 		if (i == 0) {
 			spl_image->load_addr = image->dst;
@@ -110,7 +192,12 @@ static int read_auth_container(struct spl_image_info *spl_image,
 		}
 	}
 
-	return 0;
+end_auth:
+#ifdef CONFIG_AHAB_BOOT
+	if (sc_seco_authenticate(-1, SC_MISC_REL_CONTAINER, 0))
+		printf("Error: release container failed!\n");
+#endif
+	return ret;
 }
 
 int spl_load_imx_container(struct spl_image_info *spl_image,
