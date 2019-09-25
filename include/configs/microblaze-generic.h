@@ -100,6 +100,9 @@
 #endif /* !SPIFLASH */
 #endif /* !FLASH */
 
+#define XILINX_USE_ICACHE 1
+#define XILINX_USE_DCACHE 1
+
 #if defined(XILINX_USE_ICACHE)
 # define CONFIG_ICACHE
 #else
