@@ -53,5 +53,7 @@
 };
 
 &eth {
+	pinctrl-names = "default";
+	pinctrl-0 = <&ephy_iot_mode>;
 	mediatek,poll-link-phy = <0>;
 };
