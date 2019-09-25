@@ -25,6 +25,7 @@
 #define MTRR_CAP_FIX		(1 << 8)
 #define MTRR_CAP_VCNT_MASK	0xff
 
+#define MTRR_DEF_TYPE_MASK	0xff
 #define MTRR_DEF_TYPE_EN	(1 << 11)
 #define MTRR_DEF_TYPE_FIX_EN	(1 << 10)
 

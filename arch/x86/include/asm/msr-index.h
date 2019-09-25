@@ -43,6 +43,12 @@
 #define MSR_PIC_MSG_CONTROL		0x2e
 #define  PLATFORM_INFO_SET_TDP		(1 << 29)
 
+#define MSR_MTRR_CAP_MSR		0x0fe
+#define MSR_MTRR_CAP_SMRR		(1 << 11)
+#define MSR_MTRR_CAP_WC			(1 << 10)
+#define MSR_MTRR_CAP_FIX		(1 << 8)
+#define MSR_MTRR_CAP_VCNT		0xff
+
 #define MSR_IA32_PERFCTR0		0x000000c1
 #define MSR_IA32_PERFCTR1		0x000000c2
 #define MSR_FSB_FREQ			0x000000cd
@@ -67,6 +73,11 @@
 #define ENABLE_ULFM_AUTOCM_MASK		(1 << 2)
 #define ENABLE_INDP_AUTOCM_MASK		(1 << 3)
 
+#define MSR_EMULATE_PM_TIMER		0x121
+#define  EMULATE_DELAY_OFFSET_VALUE	20
+#define  EMULATE_PM_TMR_EN		(1 << 16)
+#define  EMULATE_DELAY_VALUE		0x13
+
 #define MSR_IA32_SYSENTER_CS		0x00000174
 #define MSR_IA32_SYSENTER_ESP		0x00000175
 #define MSR_IA32_SYSENTER_EIP		0x00000176
@@ -78,9 +89,14 @@
 #define MSR_FLEX_RATIO			0x194
 #define  FLEX_RATIO_LOCK		(1 << 20)
 #define  FLEX_RATIO_EN			(1 << 16)
+/* This is burst mode BIT 38 in IA32_MISC_ENABLE MSR at offset 1A0h */
+#define BURST_MODE_DISABLE		(1 << 6)
 
 #define MSR_IA32_MISC_ENABLES		0x000001a0
 #define MSR_TEMPERATURE_TARGET		0x1a2
+#define MSR_PREFETCH_CTL		0x1a4
+#define  PREFETCH_L1_DISABLE		(1 << 0)
+#define  PREFETCH_L2_DISABLE		(1 << 2)
 #define MSR_OFFCORE_RSP_0		0x000001a6
 #define MSR_OFFCORE_RSP_1		0x000001a7
 #define MSR_MISC_PWR_MGMT		0x1aa
@@ -599,6 +615,12 @@
 #define MSR_IA32_VMX_TRUE_EXIT_CTLS      0x0000048f
 #define MSR_IA32_VMX_TRUE_ENTRY_CTLS     0x00000490
 #define MSR_IA32_VMX_VMFUNC             0x00000491
+
+#define MSR_IA32_PQR_ASSOC		0xc8f
+/* MSR bits 33:32 encode slot number 0-3 */
+#define MSR_IA32_PQR_ASSOC_MASK		(1 << 0 | 1 << 1)
+
+#define MSR_L2_QOS_MASK(reg)		(0xd10 + (reg))
 
 /* VMX_BASIC bits and bitmasks */
 #define VMX_BASIC_VMCS_SIZE_SHIFT	32
