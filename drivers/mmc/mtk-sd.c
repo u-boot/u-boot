@@ -217,6 +217,7 @@ struct mtk_sd_regs {
 
 struct msdc_compatible {
 	u8 clk_div_bits;
+	u8 sclk_cycle_shift;
 	bool pad_tune0;
 	bool async_fifo;
 	bool data_tune;
@@ -664,7 +665,7 @@ static int msdc_ops_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 
 static void msdc_set_timeout(struct msdc_host *host, u32 ns, u32 clks)
 {
-	u32 timeout, clk_ns;
+	u32 timeout, clk_ns, shift;
 	u32 mode = 0;
 
 	host->timeout_ns = ns;
@@ -673,10 +674,11 @@ static void msdc_set_timeout(struct msdc_host *host, u32 ns, u32 clks)
 	if (host->sclk == 0) {
 		timeout = 0;
 	} else {
+		shift = host->dev_comp->sclk_cycle_shift;
 		clk_ns = 1000000000UL / host->sclk;
 		timeout = (ns + clk_ns - 1) / clk_ns + clks;
 		/* unit is 1048576 sclk cycles */
-		timeout = (timeout + (0x1 << 20) - 1) >> 20;
+		timeout = (timeout + (0x1 << shift) - 1) >> shift;
 		if (host->dev_comp->clk_div_bits == 8)
 			mode = (readl(&host->base->msdc_cfg) &
 				MSDC_CFG_CKMOD_M) >> MSDC_CFG_CKMOD_S;
@@ -1301,7 +1303,7 @@ static int msdc_drv_probe(struct udevice *dev)
 
 	host->mmc = &plat->mmc;
 	host->timeout_ns = 100000000;
-	host->timeout_clks = 3 * 1048576;
+	host->timeout_clks = 3 * (1 << host->dev_comp->sclk_cycle_shift);
 
 #ifdef CONFIG_PINCTRL
 	pinctrl_select_state(dev, "default");
@@ -1374,8 +1376,20 @@ static const struct dm_mmc_ops msdc_ops = {
 #endif
 };
 
+static const struct msdc_compatible mt7620_compat = {
+	.clk_div_bits = 8,
+	.sclk_cycle_shift = 16,
+	.pad_tune0 = false,
+	.async_fifo = false,
+	.data_tune = false,
+	.busy_check = false,
+	.stop_clk_fix = false,
+	.enhance_rx = false
+};
+
 static const struct msdc_compatible mt7623_compat = {
 	.clk_div_bits = 12,
+	.sclk_cycle_shift = 20,
 	.pad_tune0 = true,
 	.async_fifo = true,
 	.data_tune = true,
@@ -1386,6 +1400,7 @@ static const struct msdc_compatible mt7623_compat = {
 
 static const struct msdc_compatible mt8516_compat = {
 	.clk_div_bits = 12,
+	.sclk_cycle_shift = 20,
 	.pad_tune0 = true,
 	.async_fifo = true,
 	.data_tune = true,
@@ -1395,6 +1410,7 @@ static const struct msdc_compatible mt8516_compat = {
 
 static const struct msdc_compatible mt8183_compat = {
 	.clk_div_bits = 12,
+	.sclk_cycle_shift = 20,
 	.pad_tune0 = true,
 	.async_fifo = true,
 	.data_tune = true,
@@ -1403,6 +1419,7 @@ static const struct msdc_compatible mt8183_compat = {
 };
 
 static const struct udevice_id msdc_ids[] = {
+	{ .compatible = "mediatek,mt7620-mmc", .data = (ulong)&mt7620_compat },
 	{ .compatible = "mediatek,mt7623-mmc", .data = (ulong)&mt7623_compat },
 	{ .compatible = "mediatek,mt8516-mmc", .data = (ulong)&mt8516_compat },
 	{ .compatible = "mediatek,mt8183-mmc", .data = (ulong)&mt8183_compat },
