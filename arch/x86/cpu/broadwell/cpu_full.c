@@ -470,9 +470,9 @@ static void configure_misc(void)
 	msr_t msr;
 
 	msr = msr_read(MSR_IA32_MISC_ENABLE);
-	msr.lo |= (1 << 0);	  /* Fast String enable */
-	msr.lo |= (1 << 3);	  /* TM1/TM2/EMTTM enable */
-	msr.lo |= (1 << 16);	  /* Enhanced SpeedStep Enable */
+	msr.lo |= MISC_ENABLE_FAST_STRING;
+	msr.lo |= MISC_ENABLE_TM1;
+	msr.lo |= MISC_ENABLE_ENHANCED_SPEEDSTEP;
 	msr_write(MSR_IA32_MISC_ENABLE, msr);
 
 	/* Disable thermal interrupts */
