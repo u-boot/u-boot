@@ -207,11 +207,6 @@ config RESET_SEG_START
 	depends on X86_RESET_VECTOR
 	default 0xffff0000
 
-config RESET_SEG_SIZE
-	hex
-	depends on X86_RESET_VECTOR
-	default 0x10000
-
 config RESET_VEC_LOC
 	hex
 	depends on X86_RESET_VECTOR
