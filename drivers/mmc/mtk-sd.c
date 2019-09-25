@@ -270,6 +270,7 @@ struct msdc_host {
 
 	/* whether to use gpio detection or built-in hw detection */
 	bool builtin_cd;
+	bool cd_active_high;
 
 	/* card detection / write protection GPIOs */
 #if CONFIG_IS_ENABLED(DM_GPIO)
@@ -852,7 +853,9 @@ static int msdc_ops_get_cd(struct udevice *dev)
 
 	if (host->builtin_cd) {
 		val = readl(&host->base->msdc_ps);
-		return !(val & MSDC_PS_CDSTS);
+		val = !!(val & MSDC_PS_CDSTS);
+
+		return !val ^ host->cd_active_high;
 	}
 
 #if CONFIG_IS_ENABLED(DM_GPIO)
@@ -1355,6 +1358,7 @@ static int msdc_ofdata_to_platdata(struct udevice *dev)
 	host->latch_ck = dev_read_u32_default(dev, "latch-ck", 0);
 	host->r_smpl = dev_read_u32_default(dev, "r_smpl", 0);
 	host->builtin_cd = dev_read_u32_default(dev, "builtin-cd", 0);
+	host->cd_active_high = dev_read_bool(dev, "cd-active-high");
 
 	return 0;
 }
