@@ -5,7 +5,7 @@
  */
 
 #include <common.h>
-#include <asm/fsp/fsp_support.h>
+#include <asm/fsp1/fsp_support.h>
 #include <asm/post.h>
 
 struct fsp_header *__attribute__((optimize("O0"))) find_fsp_header(void)

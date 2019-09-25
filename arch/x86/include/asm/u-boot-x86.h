@@ -74,7 +74,7 @@ u32 isa_map_rom(u32 bus_addr, int size);
 /* arch/x86/lib/... */
 int video_bios_init(void);
 
-/* arch/x86/lib/fsp/... */
+/* arch/x86/lib/fsp1,2/... */
 
 /**
  * fsp_save_s3_stack() - save stack address to CMOS for next S3 boot

@@ -4,7 +4,7 @@
  */
 
 #include <common.h>
-#include <asm/fsp/fsp_support.h>
+#include <asm/fsp1/fsp_support.h>
 #include <asm/e820.h>
 #include <asm/mrccache.h>
 #include <asm/post.h>

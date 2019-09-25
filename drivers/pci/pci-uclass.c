@@ -12,7 +12,7 @@
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #if defined(CONFIG_X86) && defined(CONFIG_HAVE_FSP)
-#include <asm/fsp/fsp_support.h>
+#include <asm/fsp1/fsp_support.h>
 #endif
 #include "pci_internal.h"
 
