@@ -346,7 +346,7 @@ static void set_max_ratio(void)
 
 	/* Check for configurable TDP option */
 	if (turbo_get_state() == TURBO_ENABLED) {
-		msr = msr_read(MSR_NHM_TURBO_RATIO_LIMIT);
+		msr = msr_read(MSR_TURBO_RATIO_LIMIT);
 		perf_ctl.lo = (msr.lo & 0xff) << 8;
 	} else if (cpu_config_tdp_levels()) {
 		/* Set to nominal TDP ratio */
