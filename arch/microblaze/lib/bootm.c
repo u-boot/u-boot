@@ -15,6 +15,47 @@
 #include <u-boot/zlib.h>
 #include <asm/byteorder.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
+static ulong get_sp(void)
+{
+	ulong ret;
+
+	asm("addik %0, r1, 0" : "=r"(ret) : );
+	return ret;
+}
+
+void arch_lmb_reserve(struct lmb *lmb)
+{
+	ulong sp, bank_end;
+	int bank;
+
+	/*
+	 * Booting a (Linux) kernel image
+	 *
+	 * Allocate space for command line and board info - the
+	 * address should be as high as possible within the reach of
+	 * the kernel (see CONFIG_SYS_BOOTMAPSZ settings), but in unused
+	 * memory, which means far enough below the current stack
+	 * pointer.
+	 */
+	sp = get_sp();
+	debug("## Current stack ends at 0x%08lx ", sp);
+
+	/* adjust sp by 4K to be safe */
+	sp -= 4096;
+	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
+		if (sp < gd->bd->bi_dram[bank].start)
+			continue;
+		bank_end = gd->bd->bi_dram[bank].start +
+			gd->bd->bi_dram[bank].size;
+		if (sp >= bank_end)
+			continue;
+		lmb_reserve(lmb, sp, bank_end - sp);
+		break;
+	}
+}
+
 int do_bootm_linux(int flag, int argc, char * const argv[],
 		   bootm_headers_t *images)
 {
