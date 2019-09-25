@@ -717,6 +717,22 @@ features to produce new behaviours.
         data = self.section.ReadChildData(self, decomp)
         return data
 
+    def ReadChildData(self, child, decomp=True):
+        """Read the data for a particular child
+
+        This reads data from the parent and extracts the piece that relates to
+        the given child.
+
+        Args:
+            child: Child to read (must be valid)
+            decomp: True to decompress any compressed data before returning it;
+                False to return the raw, uncompressed data
+
+        Returns:
+            Data for the child (bytes)
+        """
+        pass
+
     def LoadData(self, decomp=True):
         data = self.ReadData(decomp)
         self.contents_size = len(data)
