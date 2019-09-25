@@ -286,8 +286,8 @@ static void sandbox_swap_case_do_op(enum swap_case_op op, char *str, int len)
 	}
 }
 
-int sandbox_swap_case_read_io(struct udevice *dev, unsigned int addr,
-			      ulong *valuep, enum pci_size_t size)
+static int sandbox_swap_case_read_io(struct udevice *dev, unsigned int addr,
+				     ulong *valuep, enum pci_size_t size)
 {
 	struct swap_case_priv *priv = dev_get_priv(dev);
 	unsigned int offset;
@@ -304,8 +304,8 @@ int sandbox_swap_case_read_io(struct udevice *dev, unsigned int addr,
 	return 0;
 }
 
-int sandbox_swap_case_write_io(struct udevice *dev, unsigned int addr,
-			       ulong value, enum pci_size_t size)
+static int sandbox_swap_case_write_io(struct udevice *dev, unsigned int addr,
+				      ulong value, enum pci_size_t size)
 {
 	struct swap_case_priv *priv = dev_get_priv(dev);
 	unsigned int offset;
@@ -392,7 +392,7 @@ static int sandbox_swap_case_unmap_physmem(struct udevice *dev,
 	return 0;
 }
 
-struct dm_pci_emul_ops sandbox_swap_case_emul_ops = {
+static struct dm_pci_emul_ops sandbox_swap_case_emul_ops = {
 	.get_devfn = sandbox_swap_case_get_devfn,
 	.read_config = sandbox_swap_case_read_config,
 	.write_config = sandbox_swap_case_write_config,
