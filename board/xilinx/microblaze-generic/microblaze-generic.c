@@ -65,6 +65,14 @@ void watchdog_reset(void)
 
 int board_late_init(void)
 {
+#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_SYSRESET_MICROBLAZE)
+	int ret;
+
+	ret = device_bind_driver(gd->dm_root, "mb_soft_reset",
+				 "reset_soft", NULL);
+	if (ret)
+		printf("Warning: No reset driver: ret=%d\n", ret);
+#endif
 #if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_WDT)
 	watchdog_dev = NULL;
 
@@ -79,13 +87,5 @@ int board_late_init(void)
 	wdt_start(watchdog_dev, 0, 0);
 	puts("Watchdog: Started\n");
 #endif /* !CONFIG_SPL_BUILD && CONFIG_WDT */
-#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_SYSRESET_MICROBLAZE)
-	int ret;
-
-	ret = device_bind_driver(gd->dm_root, "mb_soft_reset",
-				 "reset_soft", NULL);
-	if (ret)
-		printf("Warning: No reset driver: ret=%d\n", ret);
-#endif
 	return 0;
 }
