@@ -57,6 +57,156 @@
 			u-boot,dm-pre-reloc;
 		};
 
+		pinctrl: pinctrl@60 {
+			compatible = "mediatek,mt7628-pinctrl";
+			reg = <0x3c 0x2c>, <0x1300 0x100>;
+			reg-names = "gpiomode", "padconf";
+
+			pinctrl-names = "default";
+			pinctrl-0 = <&state_default>;
+
+			state_default: pin_state {
+			};
+
+			spi_single_pins: spi_single_pins {
+				groups = "spi";
+				function = "spi";
+			};
+
+			spi_dual_pins: spi_dual_pins {
+				spi_master_pins {
+					groups = "spi";
+					function = "spi";
+				};
+
+				spi_cs1_pin {
+					groups = "spi cs1";
+					function = "spi cs1";
+				};
+			};
+
+			uart0_pins: uart0_pins {
+				groups = "uart0";
+				function = "uart0";
+			};
+
+			uart1_pins: uart1_pins {
+				groups = "uart1";
+				function = "uart1";
+			};
+
+			uart2_pins: uart2_pins {
+				groups = "uart2";
+				function = "uart2";
+			};
+
+			i2c_pins: i2c_pins {
+				groups = "i2c";
+				function = "i2c";
+			};
+
+			ephy_iot_mode: ephy_iot_mode {
+				ephy4_1_dis {
+					groups = "ephy4_1_pad";
+					function = "digital";
+				};
+
+				ephy0_en {
+					groups = "ephy0";
+					function = "enable";
+				};
+			};
+
+			ephy_router_mode: ephy_router_mode {
+				ephy4_1_en {
+					groups = "ephy4_1_pad";
+					function = "analog";
+				};
+
+				ephy0_en {
+					groups = "ephy0";
+					function = "enable";
+				};
+			};
+
+			sd_iot_mode: sd_iot_mode {
+				ephy4_1_dis {
+					groups = "ephy4_1_pad";
+					function = "digital";
+				};
+
+				sdxc_en {
+					groups = "sdmode";
+					function = "sdxc";
+				};
+
+				sdxc_iot_mode {
+					groups = "sd router";
+					function = "iot";
+				};
+
+				sd_clk_pad {
+					pins = "sd_clk";
+					drive-strength-4g = <8>;
+				};
+			};
+
+			sd_router_mode: sd_router_mode {
+				sdxc_router_mode {
+					groups = "sd router";
+					function = "router";
+				};
+
+				sdxc_map_pins {
+					groups = "gpio0", "i2s", "sdmode", \
+						 "i2c", "uart1";
+					function = "gpio";
+				};
+
+				sd_clk_pad {
+					pins = "gpio0";
+					drive-strength-28 = <8>;
+				};
+			};
+
+			emmc_iot_8bit_mode: emmc_iot_8bit_mode {
+				ephy4_1_dis {
+					groups = "ephy4_1_pad";
+					function = "digital";
+				};
+
+				emmc_en {
+					groups = "sdmode";
+					function = "sdxc";
+				};
+
+				emmc_iot_mode {
+					groups = "sd router";
+					function = "iot";
+				};
+
+				emmc_d4_d5 {
+					groups = "uart2";
+					function = "sdxc d5 d4";
+				};
+
+				emmc_d6 {
+					groups = "pwm1";
+					function = "sdxc d6";
+				};
+
+				emmc_d7 {
+					groups = "pwm0";
+					function = "sdxc d7";
+				};
+
+				sd_clk_pad {
+					pins = "sd_clk";
+					drive-strength-4g = <8>;
+				};
+			};
+		};
+
 		watchdog: watchdog@100 {
 			compatible = "ralink,mt7628a-wdt", "mediatek,mt7621-wdt";
 			reg = <0x100 0x30>;
