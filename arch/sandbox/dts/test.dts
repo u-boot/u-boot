@@ -713,11 +713,13 @@
 		compatible = "sandbox,spmi";
 		#address-cells = <0x1>;
 		#size-cells = <0x1>;
+		ranges;
 		pm8916@0 {
 			compatible = "qcom,spmi-pmic";
 			reg = <0x0 0x1>;
 			#address-cells = <0x1>;
 			#size-cells = <0x1>;
+			ranges;
 
 			spmi_gpios: gpios@c000 {
 				compatible = "qcom,pm8916-gpio";
