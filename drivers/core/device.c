@@ -404,7 +404,8 @@ int device_probe(struct udevice *dev)
 			goto fail;
 	}
 
-	if (drv->ofdata_to_platdata && dev_has_of_node(dev)) {
+	if (drv->ofdata_to_platdata &&
+	    (CONFIG_IS_ENABLED(OF_PLATDATA) || dev_has_of_node(dev))) {
 		ret = drv->ofdata_to_platdata(dev);
 		if (ret)
 			goto fail;
