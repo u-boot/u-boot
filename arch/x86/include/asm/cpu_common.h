@@ -79,4 +79,53 @@ void cpu_set_perf_control(uint clk_ratio);
  */
 bool cpu_config_tdp_levels(void);
 
+/** enum burst_mode_t - Burst-mode states */
+enum burst_mode_t {
+	BURST_MODE_UNKNOWN,
+	BURST_MODE_UNAVAILABLE,
+	BURST_MODE_DISABLED,
+	BURST_MODE_ENABLED
+};
+
+/*
+ * cpu_get_burst_mode_state() - Get the Burst/Turbo Mode State
+ *
+ * This reads MSR IA32_MISC_ENABLE 0x1A0
+ * Bit 38 - TURBO_MODE_DISABLE Bit to get state ENABLED / DISABLED.
+ * Also checks cpuid 0x6 to see whether burst mode is supported.
+ *
+ * @return current burst mode status
+ */
+enum burst_mode_t cpu_get_burst_mode_state(void);
+
+/**
+ * cpu_set_burst_mode() - Set CPU burst mode
+ *
+ * @burst_mode: true to enable burst mode, false to disable
+ */
+void cpu_set_burst_mode(bool burst_mode);
+
+/**
+ * cpu_set_eist() - Enable Enhanced Intel Speed Step Technology
+ *
+ * @eist_status: true to enable EIST, false to disable
+ */
+void cpu_set_eist(bool eist_status);
+
+/**
+ * cpu_set_p_state_to_turbo_ratio() - Set turbo ratio
+ *
+ * TURBO_RATIO_LIMIT MSR (0x1AD) Bits 31:0 indicates the
+ * factory configured values for of 1-core, 2-core, 3-core
+ * and 4-core turbo ratio limits for all processors.
+ *
+ * 7:0 -	MAX_TURBO_1_CORE
+ * 15:8 -	MAX_TURBO_2_CORES
+ * 23:16 -	MAX_TURBO_3_CORES
+ * 31:24 -	MAX_TURBO_4_CORES
+ *
+ * Set PERF_CTL MSR (0x199) P_Req with that value.
+ */
+void cpu_set_p_state_to_turbo_ratio(void);
+
 #endif

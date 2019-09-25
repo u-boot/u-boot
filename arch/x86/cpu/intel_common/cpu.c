@@ -1,12 +1,17 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+ * Copyright (C) 2014 Google Inc.
  * Copyright (c) 2016 Google, Inc
+ * Copyright (C) 2015-2018 Intel Corporation.
+ * Copyright (C) 2018 Siemens AG
+ * Some code taken from coreboot cpulib.c
  */
 
 #include <common.h>
 #include <cpu.h>
 #include <dm.h>
 #include <errno.h>
+#include <asm/cpu.h>
 #include <asm/cpu_common.h>
 #include <asm/intel_regs.h>
 #include <asm/lapic.h>
@@ -164,4 +169,60 @@ bool cpu_config_tdp_levels(void)
 	platform_info = msr_read(MSR_PLATFORM_INFO);
 
 	return ((platform_info.hi >> 1) & 3) != 0;
+}
+
+void cpu_set_p_state_to_turbo_ratio(void)
+{
+	msr_t msr;
+
+	msr = msr_read(MSR_TURBO_RATIO_LIMIT);
+	cpu_set_perf_control(msr.lo);
+}
+
+enum burst_mode_t cpu_get_burst_mode_state(void)
+{
+	enum burst_mode_t state;
+	int burst_en, burst_cap;
+	msr_t msr;
+	uint eax;
+
+	eax = cpuid_eax(0x6);
+	burst_cap = eax & 0x2;
+	msr = msr_read(MSR_IA32_MISC_ENABLE);
+	burst_en = !(msr.hi & BURST_MODE_DISABLE);
+
+	if (!burst_cap && burst_en)
+		state = BURST_MODE_UNAVAILABLE;
+	else if (burst_cap && !burst_en)
+		state = BURST_MODE_DISABLED;
+	else if (burst_cap && burst_en)
+		state = BURST_MODE_ENABLED;
+	else
+		state = BURST_MODE_UNKNOWN;
+
+	return state;
+}
+
+void cpu_set_burst_mode(bool burst_mode)
+{
+	msr_t msr;
+
+	msr = msr_read(MSR_IA32_MISC_ENABLE);
+	if (burst_mode)
+		msr.hi &= ~BURST_MODE_DISABLE;
+	else
+		msr.hi |= BURST_MODE_DISABLE;
+	msr_write(MSR_IA32_MISC_ENABLE, msr);
+}
+
+void cpu_set_eist(bool eist_status)
+{
+	msr_t msr;
+
+	msr = msr_read(MSR_IA32_MISC_ENABLE);
+	if (eist_status)
+		msr.lo |= MISC_ENABLE_ENHANCED_SPEEDSTEP;
+	else
+		msr.lo &= ~MISC_ENABLE_ENHANCED_SPEEDSTEP;
+	msr_write(MSR_IA32_MISC_ENABLE, msr);
 }
