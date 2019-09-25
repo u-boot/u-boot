@@ -21,7 +21,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define UART_MCRVAL (UART_MCR_DTR | \
 		     UART_MCR_RTS)		/* RTS/DTR */
 
-#ifndef CONFIG_DM_SERIAL
+#if !CONFIG_IS_ENABLED(DM_SERIAL)
 #ifdef CONFIG_SYS_NS16550_PORT_MAPPED
 #define serial_out(x, y)	outb(x, (ulong)y)
 #define serial_in(y)		inb((ulong)y)
@@ -86,7 +86,7 @@ static inline int serial_in_shift(void *addr, int shift)
 #endif
 }
 
-#ifdef CONFIG_DM_SERIAL
+#if CONFIG_IS_ENABLED(DM_SERIAL)
 
 #ifndef CONFIG_SYS_NS16550_CLK
 #define CONFIG_SYS_NS16550_CLK  0
@@ -301,7 +301,7 @@ DEBUG_UART_FUNCS
 
 #endif
 
-#ifdef CONFIG_DM_SERIAL
+#if CONFIG_IS_ENABLED(DM_SERIAL)
 static int ns16550_serial_putc(struct udevice *dev, const char ch)
 {
 	struct NS16550 *const com_port = dev_get_priv(dev);
