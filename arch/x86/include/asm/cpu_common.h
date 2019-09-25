@@ -8,6 +8,8 @@
 
 #define IA32_PERF_CTL			0x199
 
+struct cpu_info;
+
 /**
  * cpu_common_init() - Set up common CPU init
  *
@@ -30,5 +32,19 @@ int cpu_common_init(void);
  * @return 0 if OK, -ve on error
  */
 int cpu_set_flex_ratio_to_tdp_nominal(void);
+
+/**
+ * cpu_intel_get_info() - Obtain CPU info for Intel CPUs
+ *
+ * Most Intel CPUs use the same MSR to obtain the clock speed, and use the same
+ * features. This function fills in these values, given the value of the base
+ * clock in MHz (typically this should be set to 100).
+ *
+ * @info:	cpu_info struct to fill in
+ * @bclk_mz:	the base clock in MHz
+ *
+ * @return 0 always
+ */
+int cpu_intel_get_info(struct cpu_info *info, int bclk_mz);
 
 #endif

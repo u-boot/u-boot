@@ -645,14 +645,7 @@ void cpu_set_power_limits(int power_limit_1_time)
 
 static int broadwell_get_info(struct udevice *dev, struct cpu_info *info)
 {
-	msr_t msr;
-
-	msr = msr_read(IA32_PERF_CTL);
-	info->cpu_freq = ((msr.lo >> 8) & 0xff) * BROADWELL_BCLK * 1000000;
-	info->features = 1 << CPU_FEAT_L1_CACHE | 1 << CPU_FEAT_MMU |
-		1 << CPU_FEAT_UCODE | 1 << CPU_FEAT_DEVICE_ID;
-
-	return 0;
+	return cpu_intel_get_info(info, BROADWELL_BCLK);
 }
 
 static int broadwell_get_count(struct udevice *dev)

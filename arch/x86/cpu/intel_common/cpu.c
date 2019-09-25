@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <cpu.h>
 #include <dm.h>
 #include <errno.h>
 #include <asm/cpu_common.h>
@@ -109,4 +110,16 @@ int cpu_set_flex_ratio_to_tdp_nominal(void)
 
 	/* Not reached */
 	return -EINVAL;
+}
+
+int cpu_intel_get_info(struct cpu_info *info, int bclk)
+{
+	msr_t msr;
+
+	msr = msr_read(IA32_PERF_CTL);
+	info->cpu_freq = ((msr.lo >> 8) & 0xff) * bclk * 1000000;
+	info->features = 1 << CPU_FEAT_L1_CACHE | 1 << CPU_FEAT_MMU |
+		1 << CPU_FEAT_UCODE | 1 << CPU_FEAT_DEVICE_ID;
+
+	return 0;
 }

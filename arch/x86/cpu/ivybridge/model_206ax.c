@@ -12,6 +12,7 @@
 #include <fdtdec.h>
 #include <malloc.h>
 #include <asm/cpu.h>
+#include <asm/cpu_common.h>
 #include <asm/cpu_x86.h>
 #include <asm/msr.h>
 #include <asm/msr-index.h>
@@ -436,12 +437,7 @@ static int model_206ax_init(struct udevice *dev)
 
 static int model_206ax_get_info(struct udevice *dev, struct cpu_info *info)
 {
-	msr_t msr;
-
-	msr = msr_read(MSR_IA32_PERF_CTL);
-	info->cpu_freq = ((msr.lo >> 8) & 0xff) * SANDYBRIDGE_BCLK * 1000000;
-	info->features = 1 << CPU_FEAT_L1_CACHE | 1 << CPU_FEAT_MMU |
-		1 << CPU_FEAT_UCODE;
+	return cpu_intel_get_info(info, SANDYBRIDGE_BCLK);
 
 	return 0;
 }
