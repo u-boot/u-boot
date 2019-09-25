@@ -64,7 +64,7 @@ static int dm_test_destroy(struct unit_test_state *uts)
 
 		/*
 		 * If the uclass doesn't exist we don't want to create it. So
-		 * check that here before we call uclass_find_device()/
+		 * check that here before we call uclass_find_device().
 		 */
 		uc = uclass_find(id);
 		if (!uc)
