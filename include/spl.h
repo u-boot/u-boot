@@ -49,6 +49,66 @@ static inline bool u_boot_first_phase(void)
 	return false;
 }
 
+enum u_boot_phase {
+	PHASE_TPL,
+	PHASE_SPL,
+	PHASE_U_BOOT,
+};
+
+/**
+ * spl_phase() - Find out the phase of U-Boot
+ *
+ * This can be used to avoid #ifdef logic and use if() instead.
+ *
+ * For example, to include code only in TPL, you might do:
+ *
+ *    #ifdef CONFIG_TPL_BUILD
+ *    ...
+ *    #endif
+ *
+ * but with this you can use:
+ *
+ *    if (spl_phase() == PHASE_TPL) {
+ *       ...
+ *    }
+ *
+ * To include code only in SPL, you might do:
+ *
+ *    #if defined(CONFIG_SPL_BUILD) && !defined(CONFIG_TPL_BUILD)
+ *    ...
+ *    #endif
+ *
+ * but with this you can use:
+ *
+ *    if (spl_phase() == PHASE_SPL) {
+ *       ...
+ *    }
+ *
+ * To include code only in U-Boot proper, you might do:
+ *
+ *    #ifndef CONFIG_SPL_BUILD
+ *    ...
+ *    #endif
+ *
+ * but with this you can use:
+ *
+ *    if (spl_phase() == PHASE_U_BOOT) {
+ *       ...
+ *    }
+ *
+ * @return U-Boot phase
+ */
+static inline enum u_boot_phase spl_phase(void)
+{
+#ifdef CONFIG_TPL_BUILD
+	return PHASE_TPL;
+#elif CONFIG_SPL_BUILD
+	return PHASE_SPL;
+#else
+	return PHASE_U_BOOT;
+#endif
+}
+
 /* A string name for SPL or TPL */
 #ifdef CONFIG_SPL_BUILD
 # ifdef CONFIG_TPL_BUILD
