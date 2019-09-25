@@ -261,12 +261,15 @@ fdt_addr_t ofnode_get_addr_size_index(ofnode node, int index, fdt_size_t *size)
 
 	if (ofnode_is_np(node)) {
 		const __be32 *prop_val;
+		u64 size64;
 		uint flags;
 
-		prop_val = of_get_address(ofnode_to_np(node), index,
-					  (u64 *)size, &flags);
+		prop_val = of_get_address(ofnode_to_np(node), index, &size64,
+					  &flags);
 		if (!prop_val)
 			return FDT_ADDR_T_NONE;
+		if (size)
+			*size = size64;
 
 		ns = of_n_size_cells(ofnode_to_np(node));
 
