@@ -14,14 +14,13 @@
 #include "fsp_api.h"
 #include "fsp_infoheader.h"
 #include "fsp_bootmode.h"
-#include "fsp_azalia.h"
+#include <asm/fsp/fsp_azalia.h>
 #include <asm/arch/fsp/fsp_vpd.h>
 #include <asm/arch/fsp/fsp_configs.h>
 
 #define FSP_LOWMEM_BASE		0x100000UL
 #define FSP_HIGHMEM_BASE	0x100000000ULL
 #define UPD_TERMINATOR		0x55AA
-
 
 /**
  * FSP Continuation assembly helper routine
