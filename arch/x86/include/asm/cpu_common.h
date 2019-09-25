@@ -6,8 +6,6 @@
 #ifndef __ASM_CPU_COMMON_H
 #define __ASM_CPU_COMMON_H
 
-#define IA32_PERF_CTL			0x199
-
 struct cpu_info;
 
 /**

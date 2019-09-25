@@ -357,7 +357,7 @@ static void set_max_ratio(void)
 		msr = msr_read(MSR_PLATFORM_INFO);
 		perf_ctl.lo = msr.lo & 0xff00;
 	}
-	msr_write(IA32_PERF_CTL, perf_ctl);
+	msr_write(MSR_IA32_PERF_CTL, perf_ctl);
 
 	debug("cpu: frequency set to %d\n",
 	      ((perf_ctl.lo >> 8) & 0xff) * CPU_BCLK);

@@ -116,7 +116,7 @@ int cpu_intel_get_info(struct cpu_info *info, int bclk)
 {
 	msr_t msr;
 
-	msr = msr_read(IA32_PERF_CTL);
+	msr = msr_read(MSR_IA32_PERF_CTL);
 	info->cpu_freq = ((msr.lo >> 8) & 0xff) * bclk * 1000000;
 	info->features = 1 << CPU_FEAT_L1_CACHE | 1 << CPU_FEAT_MMU |
 		1 << CPU_FEAT_UCODE | 1 << CPU_FEAT_DEVICE_ID;
