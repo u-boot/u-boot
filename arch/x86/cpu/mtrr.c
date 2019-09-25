@@ -50,11 +50,20 @@ void mtrr_close(struct mtrr_state *state, bool do_caches)
 		enable_caches();
 }
 
+static void set_var_mtrr(uint reg, uint type, uint64_t start, uint64_t size)
+{
+	u64 mask;
+
+	wrmsrl(MTRR_PHYS_BASE_MSR(reg), start | type);
+	mask = ~(size - 1);
+	mask &= (1ULL << CONFIG_CPU_ADDR_BITS) - 1;
+	wrmsrl(MTRR_PHYS_MASK_MSR(reg), mask | MTRR_PHYS_MASK_VALID);
+}
+
 int mtrr_commit(bool do_caches)
 {
 	struct mtrr_request *req = gd->arch.mtrr_req;
 	struct mtrr_state state;
-	uint64_t mask;
 	int i;
 
 	debug("%s: enabled=%d, count=%d\n", __func__, gd->arch.has_mtrr,
@@ -65,12 +74,8 @@ int mtrr_commit(bool do_caches)
 	debug("open\n");
 	mtrr_open(&state, do_caches);
 	debug("open done\n");
-	for (i = 0; i < gd->arch.mtrr_req_count; i++, req++) {
-		mask = ~(req->size - 1);
-		mask &= (1ULL << CONFIG_CPU_ADDR_BITS) - 1;
-		wrmsrl(MTRR_PHYS_BASE_MSR(i), req->start | req->type);
-		wrmsrl(MTRR_PHYS_MASK_MSR(i), mask | MTRR_PHYS_MASK_VALID);
-	}
+	for (i = 0; i < gd->arch.mtrr_req_count; i++, req++)
+		set_var_mtrr(i, req->type, req->start, req->size);
 
 	/* Clear the ones that are unused */
 	debug("clear\n");
