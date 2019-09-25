@@ -45,7 +45,9 @@ int pciauto_region_allocate(struct pci_region *res, pci_size_t size,
 	addr = ((res->bus_lower - 1) | (size - 1)) + 1;
 
 	if (addr - res->bus_start + size > res->size) {
-		debug("No room in resource");
+		debug("No room in resource, avail start=%llx / size=%llx, "
+		      "need=%llx\n", (unsigned long long)res->bus_lower,
+		      (unsigned long long)res->size, (unsigned long long)size);
 		goto error;
 	}
 
