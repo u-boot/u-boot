@@ -1214,7 +1214,8 @@ u-boot.ldr:	u-boot
 quiet_cmd_binman = BINMAN  $@
 cmd_binman = $(srctree)/tools/binman/binman $(if $(BINMAN_DEBUG),-D) \
                 --toolpath $(objtree)/tools \
-                build -u -d u-boot.dtb -O . -m \
+		$(if $(BINMAN_VERBOSE),-v$(BINMAN_VERBOSE)) \
+		build -u -d u-boot.dtb -O . -m \
 		-I . -I $(srctree) -I $(srctree)/board/$(BOARDDIR) \
 		$(BINMAN_$(@F))
 
