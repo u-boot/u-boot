@@ -322,6 +322,7 @@ config MACB_ZYNQ
 config MT7628_ETH
 	bool "MediaTek MT7628 Ethernet Interface"
 	depends on SOC_MT7628
+	select PHYLIB
 	help
 	  The MediaTek MT7628 ethernet interface is used on MT7628 and
 	  MT7688 based boards.

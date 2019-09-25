@@ -111,6 +111,7 @@ struct fe_tx_dma {
 
 #define NUM_RX_DESC		256
 #define NUM_TX_DESC		4
+#define NUM_PHYS		5
 
 #define PADDING_LENGTH		60
 
@@ -119,9 +120,6 @@ struct fe_tx_dma {
 #define CONFIG_MDIO_TIMEOUT	100
 #define CONFIG_DMA_STOP_TIMEOUT	100
 #define CONFIG_TX_DMA_TIMEOUT	100
-
-#define LINK_DELAY_TIME		500		/* 500 ms */
-#define LINK_TIMEOUT		10000		/* 10 seconds */
 
 struct mt7628_eth_dev {
 	void __iomem *base;		/* frame engine base address */
@@ -140,6 +138,8 @@ struct mt7628_eth_dev {
 	int tx_dma_idx;
 
 	struct reset_ctl	rst_ephy;
+
+	struct phy_device *phy;
 };
 
 static int mdio_wait_read(struct mt7628_eth_dev *priv, u32 mask, bool mask_set)
@@ -437,20 +437,13 @@ static int mt7628_eth_free_pkt(struct udevice *dev, uchar *packet, int length)
 	return 0;
 }
 
-static int phy_link_up(struct mt7628_eth_dev *priv)
-{
-	u32 val;
-
-	mii_mgr_read(priv, 0x00, MII_BMSR, &val);
-	return !!(val & BMSR_LSTATUS);
-}
-
 static int mt7628_eth_start(struct udevice *dev)
 {
 	struct mt7628_eth_dev *priv = dev_get_priv(dev);
 	void __iomem *base = priv->base;
 	uchar packet[MTK_QDMA_PAGE_SIZE];
 	uchar *packetp;
+	int ret;
 	int i;
 
 	for (i = 0; i < NUM_RX_DESC; i++) {
@@ -493,25 +486,13 @@ static int mt7628_eth_start(struct udevice *dev)
 	wmb();
 	eth_dma_start(priv);
 
-	/* Check if link is not up yet */
-	if (!phy_link_up(priv)) {
-		/* Wait for link to come up */
+	if (priv->phy) {
+		ret = phy_startup(priv->phy);
+		if (ret)
+			return ret;
 
-		printf("Waiting for link to come up .");
-		for (i = 0; i < (LINK_TIMEOUT / LINK_DELAY_TIME); i++) {
-			mdelay(LINK_DELAY_TIME);
-			if (phy_link_up(priv)) {
-				mdelay(100);	/* Ensure all is ready */
-				break;
-			}
-
-			printf(".");
-		}
-
-		if (phy_link_up(priv))
-			printf(" done\n");
-		else
-			printf(" timeout! Trying anyways\n");
+		if (!priv->phy->link)
+			return -EAGAIN;
 	}
 
 	/*
@@ -538,6 +519,7 @@ static int mt7628_eth_probe(struct udevice *dev)
 {
 	struct mt7628_eth_dev *priv = dev_get_priv(dev);
 	struct mii_dev *bus;
+	int poll_link_phy;
 	int ret;
 	int i;
 
@@ -583,6 +565,25 @@ static int mt7628_eth_probe(struct udevice *dev)
 	ret = mdio_register(bus);
 	if (ret)
 		return ret;
+
+	poll_link_phy = dev_read_u32_default(dev, "mediatek,poll-link-phy", -1);
+	if (poll_link_phy >= 0) {
+		if (poll_link_phy >= NUM_PHYS) {
+			pr_err("invalid phy %d for poll-link-phy\n",
+			       poll_link_phy);
+			return ret;
+		}
+
+		priv->phy = phy_connect(bus, poll_link_phy, dev,
+					PHY_INTERFACE_MODE_MII);
+		if (!priv->phy) {
+			pr_err("failed to probe phy %d\n", poll_link_phy);
+			return -ENODEV;
+		}
+
+		priv->phy->advertising = priv->phy->supported;
+		phy_config(priv->phy);
+	}
 
 	/* Switch configuration */
 	rt305x_esw_init(priv);
