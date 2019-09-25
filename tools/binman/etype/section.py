@@ -500,18 +500,12 @@ class Entry_section(Entry):
         return data
 
     def ReadChildData(self, child, decomp=True):
-        """Read the data for a particular child entry
-
-        Args:
-            child: Child entry to read data for
-            decomp: True to return uncompressed data, False to leave the data
-                compressed if it is compressed
-
-        Returns:
-            Data contents of entry
-        """
+        tout.Debug("ReadChildData for child '%s'" % child.GetPath())
         parent_data = self.ReadData(True)
-        data = parent_data[child.offset:child.offset + child.size]
+        offset = child.offset - self._skip_at_start
+        tout.Debug("Extract for child '%s': offset %#x, skip_at_start %#x, result %#x" %
+                   (child.GetPath(), child.offset, self._skip_at_start, offset))
+        data = parent_data[offset:offset + child.size]
         if decomp:
             indata = data
             data = tools.Decompress(indata, child.compress)

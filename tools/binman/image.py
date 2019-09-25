@@ -201,6 +201,8 @@ class Image(section.Entry_section):
         return entry
 
     def ReadData(self, decomp=True):
+        tout.Debug("Image '%s' ReadData(), size=%#x" %
+                   (self.GetPath(), len(self._data)))
         return self._data
 
     def GetListEntries(self, entry_paths):
