@@ -714,8 +714,11 @@ int uclass_pre_probe_device(struct udevice *dev)
 	if (!dev->parent)
 		return 0;
 	uc_drv = dev->parent->uclass->uc_drv;
-	if (uc_drv->child_pre_probe)
-		return uc_drv->child_pre_probe(dev);
+	if (uc_drv->child_pre_probe) {
+		ret = uc_drv->child_pre_probe(dev);
+		if (ret)
+			return ret;
+	}
 
 	return 0;
 }
@@ -735,8 +738,11 @@ int uclass_post_probe_device(struct udevice *dev)
 	}
 
 	uc_drv = dev->uclass->uc_drv;
-	if (uc_drv->post_probe)
-		return uc_drv->post_probe(dev);
+	if (uc_drv->post_probe) {
+		ret = uc_drv->post_probe(dev);
+		if (ret)
+			return ret;
+	}
 
 	return 0;
 }
