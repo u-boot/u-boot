@@ -76,12 +76,18 @@ config ARCH_BMIPS
 
 config ARCH_MTMIPS
 	bool "Support MediaTek MIPS platforms"
+	select CLK
 	imply CMD_DM
 	select DISPLAY_CPUINFO
 	select DM
 	imply DM_ETH
 	imply DM_GPIO
+	select DM_RESET
 	select DM_SERIAL
+	select PINCTRL
+	select PINMUX
+	select PINCONF
+	select RESET_MTMIPS
 	imply DM_SPI
 	imply DM_SPI_FLASH
 	select LAST_STAGE_INIT
