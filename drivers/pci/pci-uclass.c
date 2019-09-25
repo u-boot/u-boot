@@ -983,7 +983,7 @@ static int pci_uclass_post_probe(struct udevice *bus)
 	if (ret)
 		return ret;
 
-#ifdef CONFIG_PCI_PNP
+#if CONFIG_IS_ENABLED(PCI_PNP)
 	ret = pci_auto_config_devices(bus);
 	if (ret < 0)
 		return ret;
