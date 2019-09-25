@@ -202,16 +202,13 @@ fdt_addr_t devfdt_get_addr_pci(struct udevice *dev)
 		u32 bar;
 		int ret;
 
-		ret = fdtdec_get_pci_addr(gd->fdt_blob,
-					  dev_of_offset(dev),
-					  FDT_PCI_SPACE_MEM32, "reg",
-					  &pci_addr);
+		ret = ofnode_read_pci_addr(dev_ofnode(dev), FDT_PCI_SPACE_MEM32,
+					   "reg", &pci_addr);
 		if (ret) {
 			/* try if there is any i/o-mapped register */
-			ret = fdtdec_get_pci_addr(gd->fdt_blob,
-						  dev_of_offset(dev),
-						  FDT_PCI_SPACE_IO, "reg",
-						  &pci_addr);
+			ret = ofnode_read_pci_addr(dev_ofnode(dev),
+						   FDT_PCI_SPACE_IO, "reg",
+						   &pci_addr);
 			if (ret)
 				return FDT_ADDR_T_NONE;
 		}
