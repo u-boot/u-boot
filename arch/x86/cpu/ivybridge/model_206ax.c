@@ -283,26 +283,6 @@ static void configure_c_states(void)
 	msr_write(MSR_PP1_CURRENT_CONFIG, msr);
 }
 
-static int configure_thermal_target(struct udevice *dev)
-{
-	int tcc_offset;
-	msr_t msr;
-
-	tcc_offset = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-				    "tcc-offset", 0);
-
-	/* Set TCC activaiton offset if supported */
-	msr = msr_read(MSR_PLATFORM_INFO);
-	if ((msr.lo & (1 << 30)) && tcc_offset) {
-		msr = msr_read(MSR_TEMPERATURE_TARGET);
-		msr.lo &= ~(0xf << 24); /* Bits 27:24 */
-		msr.lo |= (tcc_offset & 0xf) << 24;
-		msr_write(MSR_TEMPERATURE_TARGET, msr);
-	}
-
-	return 0;
-}
-
 static void configure_misc(void)
 {
 	msr_t msr;
@@ -414,10 +394,11 @@ static int model_206ax_init(struct udevice *dev)
 	configure_misc();
 
 	/* Thermal throttle activation offset */
-	ret = configure_thermal_target(dev);
+	ret = cpu_configure_thermal_target(dev);
 	if (ret) {
 		debug("Cannot set thermal target\n");
-		return ret;
+		if (ret != -ENOENT)
+			return ret;
 	}
 
 	/* Enable Direct Cache Access */

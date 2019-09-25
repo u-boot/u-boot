@@ -123,3 +123,25 @@ int cpu_intel_get_info(struct cpu_info *info, int bclk)
 
 	return 0;
 }
+
+int cpu_configure_thermal_target(struct udevice *dev)
+{
+	u32 tcc_offset;
+	msr_t msr;
+	int ret;
+
+	ret = dev_read_u32(dev, "tcc-offset", &tcc_offset);
+	if (!ret)
+		return -ENOENT;
+
+	/* Set TCC activaiton offset if supported */
+	msr = msr_read(MSR_PLATFORM_INFO);
+	if (msr.lo & (1 << 30)) {
+		msr = msr_read(MSR_TEMPERATURE_TARGET);
+		msr.lo &= ~(0xf << 24); /* Bits 27:24 */
+		msr.lo |= (tcc_offset & 0xf) << 24;
+		msr_write(MSR_TEMPERATURE_TARGET, msr);
+	}
+
+	return 0;
+}

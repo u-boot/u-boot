@@ -45,4 +45,15 @@ int cpu_set_flex_ratio_to_tdp_nominal(void);
  */
 int cpu_intel_get_info(struct cpu_info *info, int bclk_mz);
 
+/**
+ * cpu_configure_thermal_target() - Set the thermal target for a CPU
+ *
+ * This looks up the tcc-offset property and uses it to set the
+ * MSR_TEMPERATURE_TARGET value.
+ *
+ * @dev: CPU device
+ * @return 0 if OK, -ENOENT if no target is given in device tree
+ */
+int cpu_configure_thermal_target(struct udevice *dev);
+
 #endif

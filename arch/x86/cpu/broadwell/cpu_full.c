@@ -495,24 +495,6 @@ static void configure_misc(void)
 	msr_write(MSR_IA32_PACKAGE_THERM_INTERRUPT, msr);
 }
 
-static void configure_thermal_target(struct udevice *dev)
-{
-	int tcc_offset;
-	msr_t msr;
-
-	tcc_offset = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-				    "intel,tcc-offset", 0);
-
-	/* Set TCC activaiton offset if supported */
-	msr = msr_read(MSR_PLATFORM_INFO);
-	if ((msr.lo & (1 << 30)) && tcc_offset) {
-		msr = msr_read(MSR_TEMPERATURE_TARGET);
-		msr.lo &= ~(0xf << 24); /* Bits 27:24 */
-		msr.lo |= (tcc_offset & 0xf) << 24;
-		msr_write(MSR_TEMPERATURE_TARGET, msr);
-	}
-}
-
 static void configure_dca_cap(void)
 {
 	struct cpuid_result cpuid_regs;
@@ -562,7 +544,7 @@ static void cpu_core_init(struct udevice *dev)
 	configure_misc();
 
 	/* Thermal throttle activation offset */
-	configure_thermal_target(dev);
+	cpu_configure_thermal_target(dev);
 
 	/* Enable Direct Cache Access */
 	configure_dca_cap();
