@@ -103,7 +103,7 @@ in each of these nodes.
 
 If PCI devices are not listed in the device tree, U_BOOT_PCI_DEVICE can be used
 to specify the driver to use for the device. The device tree takes precedence
-over U_BOOT_PCI_DEVICE. Plese note with U_BOOT_PCI_DEVICE, only drivers with
+over U_BOOT_PCI_DEVICE. Please note with U_BOOT_PCI_DEVICE, only drivers with
 DM_FLAG_PRE_RELOC will be bound before relocation. If neither device tree nor
 U_BOOT_PCI_DEVICE is provided, the built-in driver (either pci_bridge_drv or
 pci_generic_drv) will be used.
