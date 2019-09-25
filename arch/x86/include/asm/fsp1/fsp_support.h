@@ -47,16 +47,6 @@ void fsp_continue(u32 status, void *hob_list);
 void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf);
 
 /**
- * fsp_notify() - FSP notification wrapper function
- *
- * @fsp_hdr: Pointer to FSP information header
- * @phase:   FSP initialization phase defined in enum fsp_phase
- *
- * @return compatible status code with EFI_STATUS defined in PI spec
- */
-u32 fsp_notify(struct fsp_header *fsp_hdr, u32 phase);
-
-/**
  * fsp_get_bootloader_tmp_mem() - retrieves temporary stack buffer and size
  *
  * @hob_list:      A HOB list pointer.

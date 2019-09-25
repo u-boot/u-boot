@@ -2,4 +2,5 @@
 #
 # Copyright 2019 Google LLC
 
+obj-y += fsp_common.o
 obj-y += fsp_dram.o
