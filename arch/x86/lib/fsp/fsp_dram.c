@@ -88,3 +88,13 @@ unsigned int install_e820_map(unsigned int max_entries,
 
 	return num_entries;
 }
+
+#if CONFIG_IS_ENABLED(HANDOFF) && IS_ENABLED(CONFIG_USE_HOB)
+int handoff_arch_save(struct spl_handoff *ho)
+{
+	ho->arch.usable_ram_top = fsp_get_usable_lowmem_top(gd->arch.hob_list);
+	ho->arch.hob_list = gd->arch.hob_list;
+
+	return 0;
+}
+#endif
