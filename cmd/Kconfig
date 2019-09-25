@@ -49,6 +49,7 @@ config SYS_LONGHELP
 config SYS_PROMPT
 	string "Shell prompt"
 	default "Zynq> " if ARCH_ZYNQ
+	default "ZynqMP> " if ARCH_ZYNQMP
 	default "=> "
 	help
 	  This string is displayed in the command line to the left of the
