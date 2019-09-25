@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <clk.h>
 #include <dm.h>
 #include <spi.h>
 #include <wait_bit.h>
@@ -266,19 +267,24 @@ static int mt7621_spi_xfer(struct udevice *dev, unsigned int bitlen,
 static int mt7621_spi_probe(struct udevice *dev)
 {
 	struct mt7621_spi *rs = dev_get_priv(dev);
+	struct clk clk;
+	int ret;
 
 	rs->base = dev_remap_addr(dev);
 	if (!rs->base)
 		return -EINVAL;
 
-	/*
-	 * Read input clock via DT for now. At some point this should be
-	 * replaced by implementing a clock driver for this SoC and getting
-	 * the SPI frequency via this clock driver.
-	 */
-	rs->sys_freq = dev_read_u32_default(dev, "clock-frequency", 0);
+	ret = clk_get_by_index(dev, 0, &clk);
+	if (ret < 0) {
+		printf("Please provide a clock!\n");
+		return ret;
+	}
+
+	clk_enable(&clk);
+
+	rs->sys_freq = clk_get_rate(&clk);
 	if (!rs->sys_freq) {
-		printf("Please provide clock-frequency!\n");
+		printf("Please provide a valid clock!\n");
 		return -EINVAL;
 	}
 
