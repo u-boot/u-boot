@@ -67,7 +67,12 @@ int arch_cpu_init(void)
 {
 	post_code(POST_CPU_INIT);
 
+#ifdef CONFIG_TPL
+	/* Do a mini-init if TPL has already done the full init */
+	return x86_cpu_reinit_f();
+#else
 	return x86_cpu_init_f();
+#endif
 }
 
 int checkcpu(void)

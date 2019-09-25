@@ -40,12 +40,7 @@ static int x86_spl_init(void)
 		debug("%s: spl_init() failed\n", __func__);
 		return ret;
 	}
-#ifdef CONFIG_TPL
-	/* Do a mini-init if TPL has already done the full init */
-	ret = x86_cpu_reinit_f();
-#else
 	ret = arch_cpu_init();
-#endif
 	if (ret) {
 		debug("%s: arch_cpu_init() failed\n", __func__);
 		return ret;

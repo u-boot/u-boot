@@ -81,6 +81,13 @@ static const u8 power_limit_time_msr_to_sec[] = {
 	[0x11] = 128,
 };
 
+#if defined(CONFIG_SPL_BUILD) && !defined(CONFIG_TPL_BUILD)
+int arch_cpu_init(void)
+{
+	return 0;
+}
+#endif
+
 /*
  * The core 100MHz BLCK is disabled in deeper c-states. One needs to calibrate
  * the 100MHz BCLCK against the 24MHz BLCK to restore the clocks properly
