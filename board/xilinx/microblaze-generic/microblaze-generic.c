@@ -12,15 +12,8 @@
 
 #include <common.h>
 #include <config.h>
-#include <dm.h>
 #include <dm/lists.h>
 #include <fdtdec.h>
-#include <asm/processor.h>
-#include <asm/microblaze_intc.h>
-#include <asm/asm.h>
-#include <asm/gpio.h>
-#include <dm/uclass.h>
-#include <wdt.h>
 #include <linux/sizes.h>
 
 DECLARE_GLOBAL_DATA_PTR;
