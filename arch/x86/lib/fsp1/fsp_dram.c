@@ -32,10 +32,9 @@ int dram_init(void)
 	gd->ram_size = ram_size;
 	post_code(POST_DRAM);
 
-#ifdef CONFIG_ENABLE_MRC_CACHE
-	gd->arch.mrc_output = fsp_get_nvs_data(gd->arch.hob_list,
+	if (IS_ENABLED(CONFIG_ENABLE_MRC_CACHE))
+		gd->arch.mrc_output = fsp_get_nvs_data(gd->arch.hob_list,
 					       &gd->arch.mrc_output_len);
-#endif
 
 	return 0;
 }

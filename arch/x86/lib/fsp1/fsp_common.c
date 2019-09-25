@@ -116,11 +116,10 @@ int arch_fsp_init(void)
 #endif
 
 	if (!gd->arch.hob_list) {
-#ifdef CONFIG_ENABLE_MRC_CACHE
-		nvs = fsp_prepare_mrc_cache();
-#else
-		nvs = NULL;
-#endif
+		if (IS_ENABLED(CONFIG_ENABLE_MRC_CACHE))
+			nvs = fsp_prepare_mrc_cache();
+		else
+			nvs = NULL;
 
 #ifdef CONFIG_HAVE_ACPI_RESUME
 		if (prev_sleep_state == ACPI_S3) {
