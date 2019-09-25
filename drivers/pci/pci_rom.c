@@ -35,7 +35,7 @@
 #include <linux/screen_info.h>
 
 #ifdef CONFIG_X86
-#include <asm/acpi_s3.h>
+#include <acpi_s3.h>
 DECLARE_GLOBAL_DATA_PTR;
 #endif
 
