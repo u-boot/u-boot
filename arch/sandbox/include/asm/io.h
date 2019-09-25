@@ -110,13 +110,21 @@ phys_addr_t map_to_sysmem(const void *ptr);
 #define clrsetbits_8(addr, clear, set) clrsetbits(8, addr, clear, set)
 
 /* I/O access functions */
-int inl(unsigned int addr);
-int inw(unsigned int addr);
-int inb(unsigned int addr);
+int _inl(unsigned int addr);
+int _inw(unsigned int addr);
+int _inb(unsigned int addr);
 
-void outl(unsigned int value, unsigned int addr);
-void outw(unsigned int value, unsigned int addr);
-void outb(unsigned int value, unsigned int addr);
+void _outl(unsigned int value, unsigned int addr);
+void _outw(unsigned int value, unsigned int addr);
+void _outb(unsigned int value, unsigned int addr);
+
+#define inb(port)	_inb((uintptr_t)(port))
+#define inw(port)	_inw((uintptr_t)(port))
+#define inl(port)	_inl((uintptr_t)(port))
+
+#define outb(val, port)	_outb(val, (uintptr_t)(port))
+#define outw(val, port)	_outw(val, (uintptr_t)(port))
+#define outl(val, port)	_outl(val, (uintptr_t)(port))
 
 #define out_arch(type,endian,a,v)	write##type(cpu_to_##endian(v),a)
 #define in_arch(type,endian,a)		endian##_to_cpu(read##type(a))
@@ -187,6 +195,28 @@ static inline void memcpy_toio(volatile void *dst, const void *src, int count)
 
 #define insw(port, buf, ns)		_insw((u16 *)port, buf, ns)
 #define outsw(port, buf, ns)		_outsw((u16 *)port, buf, ns)
+
+/* IO space accessors */
+#define clrio(type, addr, clear) \
+	out##type(in##type(addr) & ~(clear), (addr))
+
+#define setio(type, addr, set) \
+	out##type(in##type(addr) | (set), (addr))
+
+#define clrsetio(type, addr, clear, set) \
+	out##type((in##type(addr) & ~(clear)) | (set), (addr))
+
+#define clrio_32(addr, clear) clrio(l, addr, clear)
+#define clrio_16(addr, clear) clrio(w, addr, clear)
+#define clrio_8(addr, clear) clrio(b, addr, clear)
+
+#define setio_32(addr, set) setio(l, addr, set)
+#define setio_16(addr, set) setio(w, addr, set)
+#define setio_8(addr, set) setio(b, addr, set)
+
+#define clrsetio_32(addr, clear, set) clrsetio(l, addr, clear, set)
+#define clrsetio_16(addr, clear, set) clrsetio(w, addr, clear, set)
+#define clrsetio_8(addr, clear, set) clrsetio(b, addr, clear, set)
 
 #include <iotrace.h>
 #include <asm/types.h>
