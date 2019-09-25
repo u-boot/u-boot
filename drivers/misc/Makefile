@@ -12,6 +12,7 @@ obj-$(CONFIG_$(SPL_TPL_)CROS_EC_LPC) += cros_ec_lpc.o
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_CROS_EC_I2C) += cros_ec_i2c.o
 obj-$(CONFIG_CROS_EC_SPI) += cros_ec_spi.o
+obj-$(CONFIG_SANDBOX) += swap_case.o
 endif
 
 ifdef CONFIG_DM_I2C
@@ -52,7 +53,6 @@ obj-$(CONFIG_PCA9551_LED) += pca9551_led.o
 obj-$(CONFIG_$(SPL_)PWRSEQ) += pwrseq-uclass.o
 obj-$(CONFIG_QFW) += qfw.o
 obj-$(CONFIG_ROCKCHIP_EFUSE) += rockchip-efuse.o
-obj-$(CONFIG_SANDBOX) += swap_case.o
 obj-$(CONFIG_SANDBOX) += syscon_sandbox.o misc_sandbox.o
 obj-$(CONFIG_SMSC_LPC47M) += smsc_lpc47m.o
 obj-$(CONFIG_SMSC_SIO1007) += smsc_sio1007.o

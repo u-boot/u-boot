@@ -198,4 +198,19 @@ int sandbox_get_pch_spi_protect(struct udevice *dev);
  */
 int sandbox_get_pci_ep_irq_count(struct udevice *dev);
 
+/**
+ * sandbox_pci_read_bar() - Read the BAR value for a read_config operation
+ *
+ * This is used in PCI emulators to read a base address reset. This has special
+ * rules because when the register is set to 0xffffffff it can be used to
+ * discover the type and size of the BAR.
+ *
+ * @barval: Current value of the BAR
+ * @type: Type of BAR (PCI_BASE_ADDRESS_SPACE_IO or
+ *		PCI_BASE_ADDRESS_MEM_TYPE_32)
+ * @size: Size of BAR in bytes
+ * @return BAR value to return from emulator
+ */
+uint sandbox_pci_read_bar(u32 barval, int type, uint size);
+
 #endif

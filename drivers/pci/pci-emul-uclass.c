@@ -42,6 +42,26 @@ int sandbox_pci_get_emul(struct udevice *bus, pci_dev_t find_devfn,
 	return *emulp ? 0 : -ENODEV;
 }
 
+uint sandbox_pci_read_bar(u32 barval, int type, uint size)
+{
+	u32 result;
+
+	result = barval;
+	if (result == 0xffffffff) {
+		if (type == PCI_BASE_ADDRESS_SPACE_IO) {
+			result = (~(size - 1) &
+				PCI_BASE_ADDRESS_IO_MASK) |
+				PCI_BASE_ADDRESS_SPACE_IO;
+		} else {
+			result = (~(size - 1) &
+				PCI_BASE_ADDRESS_MEM_MASK) |
+				PCI_BASE_ADDRESS_MEM_TYPE_32;
+		}
+	}
+
+	return result;
+}
+
 static int sandbox_pci_emul_post_probe(struct udevice *dev)
 {
 	struct sandbox_pci_emul_priv *priv = dev->uclass->priv;

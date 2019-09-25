@@ -139,25 +139,13 @@ static int sandbox_swap_case_read_config(struct udevice *emul, uint offset,
 	case PCI_BASE_ADDRESS_4:
 	case PCI_BASE_ADDRESS_5: {
 		int barnum;
-		u32 *bar, result;
+		u32 *bar;
 
 		barnum = pci_offset_to_barnum(offset);
 		bar = &plat->bar[barnum];
 
-		result = *bar;
-		if (*bar == 0xffffffff) {
-			if (barinfo[barnum].type) {
-				result = (~(barinfo[barnum].size - 1) &
-					PCI_BASE_ADDRESS_IO_MASK) |
-					PCI_BASE_ADDRESS_SPACE_IO;
-			} else {
-				result = (~(barinfo[barnum].size - 1) &
-					PCI_BASE_ADDRESS_MEM_MASK) |
-					PCI_BASE_ADDRESS_MEM_TYPE_32;
-			}
-		}
-		debug("r bar %d=%x\n", barnum, result);
-		*valuep = result;
+		*valuep = sandbox_pci_read_bar(*bar, barinfo[barnum].type,
+					       barinfo[barnum].size);
 		break;
 	}
 	case PCI_CAPABILITY_LIST:
