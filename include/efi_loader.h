@@ -12,6 +12,11 @@
 #include <part_efi.h>
 #include <efi_api.h>
 
+static inline int guidcmp(const void *g1, const void *g2)
+{
+	return memcmp(g1, g2, sizeof(efi_guid_t));
+}
+
 /* No need for efi loader support in SPL */
 #if CONFIG_IS_ENABLED(EFI_LOADER)
 
@@ -562,11 +567,6 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 #define EFI_DP_TYPE(_dp, _type, _subtype) \
 	(((_dp)->type == DEVICE_PATH_TYPE_##_type) && \
 	 ((_dp)->sub_type == DEVICE_PATH_SUB_TYPE_##_subtype))
-
-static inline int guidcmp(const void *g1, const void *g2)
-{
-	return memcmp(g1, g2, sizeof(efi_guid_t));
-}
 
 /*
  * Use these to indicate that your code / data should go into the EFI runtime
