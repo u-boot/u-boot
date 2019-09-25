@@ -2,6 +2,18 @@
 /*
  *  U-Boot - x86 Startup Code
  *
+ * This is always the first code to run from the U-Boot source. To spell it out:
+ *
+ * 1. When TPL (Tertiary Program Loader) is enabled, the boot flow is
+ * TPL->SPL->U-Boot and this file is used for TPL. Then start_from_tpl.S is used
+ * for SPL and start_from_spl.S is used for U-Boot proper.
+ *
+ * 2. When SPL (Secondary Program Loader) is enabled, but not TPL, the boot
+ * flow is SPL->U-Boot and this file is used for SPL. Then start_from_spl.S is
+ * used for U-Boot proper.
+ *
+ * 3. When neither TPL nor SPL is used, this file is used for U-Boot proper.
+ *
  * (C) Copyright 2008-2011
  * Graeme Russ, <graeme.russ@gmail.com>
  *

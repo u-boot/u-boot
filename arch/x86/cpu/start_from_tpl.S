@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * 32-bit x86 Startup Code when running from TPL
+ * 32-bit x86 Startup Code when running from TPL. This is the startup code in
+ * SPL, when TPL is used.
  *
  * Copyright 2018 Google, Inc
  * Written by Simon Glass <sjg@chromium.org>
