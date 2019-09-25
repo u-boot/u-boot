@@ -8,7 +8,7 @@
 #include <asm/fsp1/fsp_support.h>
 #include <asm/post.h>
 
-struct fsp_header *__attribute__((optimize("O0"))) find_fsp_header(void)
+struct fsp_header *__attribute__((optimize("O0"))) fsp_find_header(void)
 {
 	/*
 	 * This function may be called before the a stack is established,
@@ -93,7 +93,7 @@ void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
 	struct upd_region *fsp_upd;
 #endif
 
-	fsp_hdr = find_fsp_header();
+	fsp_hdr = fsp_find_header();
 	if (fsp_hdr == NULL) {
 		/* No valid FSP info header was found */
 		panic("Invalid FSP header");
@@ -124,12 +124,12 @@ void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
 	memset(&rt_buf, 0, sizeof(struct fspinit_rtbuf));
 
 	/* Override any configuration if required */
-	update_fsp_configs(&config_data, &rt_buf);
+	fsp_update_configs(&config_data, &rt_buf);
 
 	memset(&params, 0, sizeof(struct fsp_init_params));
 	params.nvs_buf = nvs_buf;
 	params.rt_buf = (struct fspinit_rtbuf *)&rt_buf;
-	params.continuation = (fsp_continuation_f)asm_continuation;
+	params.continuation = (fsp_continuation_f)fsp_asm_continuation;
 
 	init = (fsp_init_f)(fsp_hdr->img_base + fsp_hdr->fsp_init);
 	params_ptr = &params;
@@ -146,8 +146,8 @@ void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
 	asm volatile (
 		"pushl	%0;"
 		"call	*%%eax;"
-		".global asm_continuation;"
-		"asm_continuation:;"
+		".global fsp_asm_continuation;"
+		"fsp_asm_continuation:;"
 		"movl	4(%%esp), %%eax;"	/* status */
 		"movl	8(%%esp), %%edx;"	/* hob_list */
 		"jmp	fsp_continue;"
@@ -173,7 +173,7 @@ u32 fsp_notify(struct fsp_header *fsp_hdr, u32 phase)
 	u32 status;
 
 	if (!fsp_hdr)
-		fsp_hdr = (struct fsp_header *)find_fsp_header();
+		fsp_hdr = (struct fsp_header *)fsp_find_header();
 
 	if (fsp_hdr == NULL) {
 		/* No valid FSP info header */

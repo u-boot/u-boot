@@ -20,10 +20,10 @@ car_init:
 
 car_init_start:
 	post_code(POST_CAR_START)
-	lea	find_fsp_header_romstack, %esp
-	jmp	find_fsp_header
+	lea	fsp_find_header_romstack, %esp
+	jmp	fsp_find_header
 
-find_fsp_header_ret:
+fsp_find_header_ret:
 	/* EAX points to FSP_INFO_HEADER */
 	mov	%eax, %ebp
 
@@ -91,8 +91,8 @@ die:
 	 * contain the function return address as well as the parameters.
 	 */
 	.balign	4
-find_fsp_header_romstack:
-	.long	find_fsp_header_ret
+fsp_find_header_romstack:
+	.long	fsp_find_header_ret
 
 	.balign	4
 temp_ram_init_romstack:

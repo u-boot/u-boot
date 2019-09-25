@@ -25,7 +25,7 @@
  *
  * This routine jumps to the C version of FSP continuation function
  */
-void asm_continuation(void);
+void fsp_asm_continuation(void);
 
 /**
  * FSP initialization complete
@@ -52,7 +52,7 @@ void fsp_continue(u32 status, void *hob_list);
  *
  * @retval: the offset of FSP header. If signature is invalid, returns 0.
  */
-struct fsp_header *find_fsp_header(void);
+struct fsp_header *fsp_find_header(void);
 
 /**
  * FSP initialization wrapper function.
@@ -172,7 +172,7 @@ void *fsp_get_graphics_info(const void *hob_list, u32 *len);
  *
  * @return:  None
  */
-void update_fsp_configs(struct fsp_config_data *config,
+void fsp_update_configs(struct fsp_config_data *config,
 			struct fspinit_rtbuf *rt_buf);
 
 /**
