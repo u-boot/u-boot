@@ -205,8 +205,10 @@ int print_buffer(ulong addr, const void *data, uint width, uint count,
 		addr += thislinelen * width;
 		count -= thislinelen;
 
+#ifndef CONFIG_SPL_BUILD
 		if (ctrlc())
 			return -1;
+#endif
 	}
 
 	return 0;
