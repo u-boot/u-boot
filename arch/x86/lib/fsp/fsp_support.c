@@ -161,6 +161,13 @@ void *fsp_get_nvs_data(const void *hob_list, u32 *len)
 	return hob_get_guid_hob_data(hob_list, len, &guid);
 }
 
+void *fsp_get_var_nvs_data(const void *hob_list, u32 *len)
+{
+	const efi_guid_t guid = FSP_VARIABLE_NV_DATA_HOB_GUID;
+
+	return hob_get_guid_hob_data(hob_list, len, &guid);
+}
+
 void *fsp_get_bootloader_tmp_mem(const void *hob_list, u32 *len)
 {
 	const efi_guid_t guid = FSP_BOOTLOADER_TEMP_MEM_HOB_GUID;

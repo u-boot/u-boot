@@ -104,6 +104,18 @@ u32 fsp_get_tseg_reserved_mem(const void *hob_list, u32 *len);
 void *fsp_get_nvs_data(const void *hob_list, u32 *len);
 
 /**
+ * fsp_get_var_nvs_data() - get FSP variable Non-volatile Storage HOB buffer
+ *
+ * @hob_list:      A HOB list pointer.
+ * @len:           A pointer to the NVS data buffer length.
+ *                 If the HOB is located, the length will be updated.
+ *
+ * @return NULL:   Failed to find the NVS HOB.
+ * @return others: FSP NVS data buffer pointer.
+ */
+void *fsp_get_var_nvs_data(const void *hob_list, u32 *len);
+
+/**
  * fsp_get_graphics_info() - retrieves graphics information.
  *
  * @hob_list:      A HOB list pointer.
