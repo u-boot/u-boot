@@ -21,9 +21,6 @@ static const efi_guid_t guid_vendor0 =
 static const efi_guid_t guid_vendor1 =
 	EFI_GUID(0xff629290, 0x1fc1, 0xd73f,
 		 0x8f, 0xb1, 0x32, 0xf9, 0x0c, 0xa0, 0x42, 0xea);
-static const efi_guid_t guid_global =
-	EFI_GUID(0x8be4df61, 0x93ca, 0x11d2,
-		 0xaa, 0x0d, 0x00, 0xe0, 0x98, 0x03, 0x2b, 0x8c);
 
 /*
  * Setup unit test.
@@ -143,14 +140,6 @@ static int execute(void)
 		efi_st_error("SetVariable(APPEND_WRITE) with size 0 to non-existent variable returns wrong code\n");
 		return EFI_ST_FAILURE;
 	}
-	/* Append variable 3 */
-	ret = runtime->set_variable(L"PlatformLangCodes", &guid_global,
-				    EFI_VARIABLE_BOOTSERVICE_ACCESS |
-				    EFI_VARIABLE_RUNTIME_ACCESS |
-				    EFI_VARIABLE_APPEND_WRITE,
-				    15, v);
-	if (ret != EFI_WRITE_PROTECTED)
-		efi_st_todo("SetVariable(APPEND_WRITE) to read-only variable returns wrong code\n");
 	/* Enumerate variables */
 	boottime->set_mem(&guid, 16, 0);
 	*varname = 0;
