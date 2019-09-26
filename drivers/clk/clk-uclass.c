@@ -223,7 +223,7 @@ static int clk_set_default_parents(struct udevice *dev)
 		if (ret == -ENOSYS)
 			continue;
 
-		if (ret) {
+		if (ret < 0) {
 			debug("%s: failed to reparent clock %d for %s\n",
 			      __func__, index, dev_read_name(dev));
 			return ret;
