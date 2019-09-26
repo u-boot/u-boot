@@ -95,6 +95,7 @@ static struct dm_pmic_ops rk8xx_ops = {
 
 static const struct udevice_id rk8xx_ids[] = {
 	{ .compatible = "rockchip,rk808" },
+	{ .compatible = "rockchip,rk816" },
 	{ .compatible = "rockchip,rk818" },
 	{ }
 };

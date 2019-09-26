@@ -62,6 +62,21 @@ static const struct rk8xx_reg_info rk808_buck[] = {
 	{ 1800000, 100000, REG_BUCK4_ON_VSEL, REG_BUCK4_SLP_VSEL, REG_BUCK4_CONFIG, RK808_BUCK4_VSEL_MASK, },
 };
 
+static const struct rk8xx_reg_info rk816_buck[] = {
+	/* buck 1 */
+	{  712500,  12500, REG_BUCK1_ON_VSEL, REG_BUCK1_SLP_VSEL, REG_BUCK1_CONFIG, RK818_BUCK_VSEL_MASK, 0x00, },
+	{ 1800000, 200000, REG_BUCK1_ON_VSEL, REG_BUCK1_SLP_VSEL, REG_BUCK1_CONFIG, RK818_BUCK_VSEL_MASK, 0x3c, },
+	{ 2300000,      0, REG_BUCK1_ON_VSEL, REG_BUCK1_SLP_VSEL, REG_BUCK1_CONFIG, RK818_BUCK_VSEL_MASK, 0x3f, },
+	/* buck 2 */
+	{  712500,  12500, REG_BUCK2_ON_VSEL, REG_BUCK2_SLP_VSEL, REG_BUCK2_CONFIG, RK818_BUCK_VSEL_MASK, 0x00, },
+	{ 1800000, 200000, REG_BUCK2_ON_VSEL, REG_BUCK2_SLP_VSEL, REG_BUCK2_CONFIG, RK818_BUCK_VSEL_MASK, 0x3c, },
+	{ 2300000,      0, REG_BUCK2_ON_VSEL, REG_BUCK2_SLP_VSEL, REG_BUCK2_CONFIG, RK818_BUCK_VSEL_MASK, 0x3f, },
+	/* buck 3 */
+	{ 712500,   12500, NA,		      NA,		  REG_BUCK3_CONFIG, RK818_BUCK_VSEL_MASK, },
+	/* buck 4 */
+	{  800000, 100000, REG_BUCK4_ON_VSEL, REG_BUCK4_SLP_VSEL, REG_BUCK4_CONFIG, RK818_BUCK4_VSEL_MASK, },
+};
+
 static const struct rk8xx_reg_info rk818_buck[] = {
 	{ 712500,   12500, REG_BUCK1_ON_VSEL, REG_BUCK1_SLP_VSEL, REG_BUCK1_CONFIG, RK818_BUCK_VSEL_MASK, },
 	{ 712500,   12500, REG_BUCK2_ON_VSEL, REG_BUCK2_SLP_VSEL, REG_BUCK2_CONFIG, RK818_BUCK_VSEL_MASK, },
@@ -79,6 +94,15 @@ static const struct rk8xx_reg_info rk808_ldo[] = {
 	{  800000, 100000, REG_LDO6_ON_VSEL, REG_LDO6_SLP_VSEL, NA, RK808_LDO_VSEL_MASK, },
 	{  800000, 100000, REG_LDO7_ON_VSEL, REG_LDO7_SLP_VSEL, NA, RK808_LDO_VSEL_MASK, },
 	{ 1800000, 100000, REG_LDO8_ON_VSEL, REG_LDO8_SLP_VSEL, NA, RK808_LDO_VSEL_MASK, },
+};
+
+static const struct rk8xx_reg_info rk816_ldo[] = {
+	{ 800000, 100000, REG_LDO1_ON_VSEL, REG_LDO1_SLP_VSEL, NA, RK818_LDO_VSEL_MASK, },
+	{ 800000, 100000, REG_LDO2_ON_VSEL, REG_LDO2_SLP_VSEL, NA, RK818_LDO_VSEL_MASK, },
+	{ 800000, 100000, REG_LDO3_ON_VSEL, REG_LDO3_SLP_VSEL, NA, RK818_LDO_VSEL_MASK, },
+	{ 800000, 100000, REG_LDO4_ON_VSEL, REG_LDO4_SLP_VSEL, NA, RK818_LDO_VSEL_MASK, },
+	{ 800000, 100000, REG_LDO5_ON_VSEL, REG_LDO5_SLP_VSEL, NA, RK818_LDO_VSEL_MASK, },
+	{ 800000, 100000, REG_LDO6_ON_VSEL, REG_LDO6_SLP_VSEL, NA, RK818_LDO_VSEL_MASK, },
 };
 
 static const struct rk8xx_reg_info rk818_ldo[] = {
@@ -105,7 +129,21 @@ static const struct rk8xx_reg_info *get_buck_reg(struct udevice *pmic,
 						 int num, int uvolt)
 {
 	struct rk8xx_priv *priv = dev_get_priv(pmic);
+
 	switch (priv->variant) {
+	case RK816_ID:
+		switch (num) {
+		case 0:
+		case 1:
+			if (uvolt <= 1450000)
+				return &rk816_buck[num * 3 + 0];
+			else if (uvolt <= 2200000)
+				return &rk816_buck[num * 3 + 1];
+			else
+				return &rk816_buck[num * 3 + 2];
+		default:
+			return &rk816_buck[num + 4];
+		}
 	case RK818_ID:
 		return &rk818_buck[num];
 	default:
@@ -116,11 +154,13 @@ static const struct rk8xx_reg_info *get_buck_reg(struct udevice *pmic,
 static int _buck_set_value(struct udevice *pmic, int buck, int uvolt)
 {
 	const struct rk8xx_reg_info *info = get_buck_reg(pmic, buck, uvolt);
+	struct rk8xx_priv *priv = dev_get_priv(pmic);
 	int mask = info->vsel_mask;
 	int val;
 
 	if (info->vsel_reg == NA)
 		return -ENOSYS;
+
 	if (info->step_uv == 0)	/* Fixed voltage */
 		val = info->min_sel;
 	else
@@ -129,17 +169,36 @@ static int _buck_set_value(struct udevice *pmic, int buck, int uvolt)
 	debug("%s: volt=%d, buck=%d, reg=0x%x, mask=0x%x, val=0x%x\n",
 	      __func__, uvolt, buck + 1, info->vsel_reg, mask, val);
 
-
-	return pmic_clrsetbits(pmic, info->vsel_reg, mask, val);
+	if (priv->variant == RK816_ID) {
+		pmic_clrsetbits(pmic, info->vsel_reg, mask, val);
+		return pmic_clrsetbits(pmic, RK816_REG_DCDC_EN2,
+				       1 << 7, 1 << 7);
+	} else {
+		return pmic_clrsetbits(pmic, info->vsel_reg, mask, val);
+	}
 }
 
 static int _buck_set_enable(struct udevice *pmic, int buck, bool enable)
 {
-	uint mask;
+	uint mask, value, en_reg;
 	int ret;
 	struct rk8xx_priv *priv = dev_get_priv(pmic);
 
 	switch (priv->variant) {
+	case RK816_ID:
+		if (buck >= 4) {
+			buck -= 4;
+			en_reg = RK816_REG_DCDC_EN2;
+		} else {
+			en_reg = RK816_REG_DCDC_EN1;
+		}
+		if (enable)
+			value = ((1 << buck) | (1 << (buck + 4)));
+		else
+			value = ((0 << buck) | (1 << (buck + 4)));
+		ret = pmic_reg_write(pmic, en_reg, value);
+		break;
+
 	case RK808_ID:
 	case RK818_ID:
 		mask = 1 << buck;
@@ -187,6 +246,15 @@ static int _buck_get_enable(struct udevice *pmic, int buck)
 	int ret = 0;
 
 	switch (priv->variant) {
+	case RK816_ID:
+		if (buck >= 4) {
+			mask = 1 << (buck - 4);
+			ret = pmic_reg_read(pmic, RK816_REG_DCDC_EN2);
+		} else {
+			mask = 1 << buck;
+			ret = pmic_reg_read(pmic, RK816_REG_DCDC_EN1);
+		}
+		break;
 	case RK808_ID:
 	case RK818_ID:
 		mask = 1 << buck;
@@ -209,6 +277,11 @@ static int _buck_set_suspend_enable(struct udevice *pmic, int buck, bool enable)
 	struct rk8xx_priv *priv = dev_get_priv(pmic);
 
 	switch (priv->variant) {
+	case RK816_ID:
+		mask = 1 << buck;
+		ret = pmic_clrsetbits(pmic, RK816_REG_DCDC_SLP_EN, mask,
+				      enable ? mask : 0);
+		break;
 	case RK808_ID:
 	case RK818_ID:
 		mask = 1 << buck;
@@ -229,6 +302,13 @@ static int _buck_get_suspend_enable(struct udevice *pmic, int buck)
 	uint mask;
 
 	switch (priv->variant) {
+	case RK816_ID:
+		mask = 1 << buck;
+		val = pmic_reg_read(pmic, RK816_REG_DCDC_SLP_EN);
+		if (val < 0)
+			return val;
+		ret = val & mask ? 1 : 0;
+		break;
 	case RK808_ID:
 	case RK818_ID:
 		mask = 1 << buck;
@@ -248,7 +328,10 @@ static const struct rk8xx_reg_info *get_ldo_reg(struct udevice *pmic,
 						int num, int uvolt)
 {
 	struct rk8xx_priv *priv = dev_get_priv(pmic);
+
 	switch (priv->variant) {
+	case RK816_ID:
+		return &rk816_ldo[num];
 	case RK818_ID:
 		return &rk818_ldo[num];
 	default:
@@ -263,6 +346,15 @@ static int _ldo_get_enable(struct udevice *pmic, int ldo)
 	int ret = 0;
 
 	switch (priv->variant) {
+	case RK816_ID:
+		if (ldo >= 4) {
+			mask = 1 << (ldo - 4);
+			ret = pmic_reg_read(pmic, RK816_REG_LDO_EN2);
+		} else {
+			mask = 1 << ldo;
+			ret = pmic_reg_read(pmic, RK816_REG_LDO_EN1);
+		}
+		break;
 	case RK808_ID:
 	case RK818_ID:
 		mask = 1 << ldo;
@@ -281,15 +373,29 @@ static int _ldo_get_enable(struct udevice *pmic, int ldo)
 static int _ldo_set_enable(struct udevice *pmic, int ldo, bool enable)
 {
 	struct rk8xx_priv *priv = dev_get_priv(pmic);
-	uint mask;
+	uint mask, value, en_reg;
 	int ret = 0;
 
 	switch (priv->variant) {
+	case RK816_ID:
+		if (ldo >= 4) {
+			ldo -= 4;
+			en_reg = RK816_REG_LDO_EN2;
+		} else {
+			en_reg = RK816_REG_LDO_EN1;
+		}
+		if (enable)
+			value = ((1 << ldo) | (1 << (ldo + 4)));
+		else
+			value = ((0 << ldo) | (1 << (ldo + 4)));
+
+		ret = pmic_reg_write(pmic, en_reg, value);
+		break;
 	case RK808_ID:
 	case RK818_ID:
 		mask = 1 << ldo;
 		ret = pmic_clrsetbits(pmic, REG_LDO_EN, mask,
-				      enable ? mask : 0);
+				       enable ? mask : 0);
 		break;
 	}
 
@@ -303,6 +409,11 @@ static int _ldo_set_suspend_enable(struct udevice *pmic, int ldo, bool enable)
 	int ret = 0;
 
 	switch (priv->variant) {
+	case RK816_ID:
+		mask = 1 << ldo;
+		ret = pmic_clrsetbits(pmic, RK816_REG_LDO_SLP_EN, mask,
+				      enable ? mask : 0);
+		break;
 	case RK808_ID:
 	case RK818_ID:
 		mask = 1 << ldo;
@@ -321,6 +432,13 @@ static int _ldo_get_suspend_enable(struct udevice *pmic, int ldo)
 	uint mask;
 
 	switch (priv->variant) {
+	case RK816_ID:
+		mask = 1 << ldo;
+		val = pmic_reg_read(pmic, RK816_REG_LDO_SLP_EN);
+		if (val < 0)
+			return val;
+		ret = val & mask ? 1 : 0;
+		break;
 	case RK808_ID:
 	case RK818_ID:
 		mask = 1 << ldo;
@@ -344,6 +462,7 @@ static int buck_get_value(struct udevice *dev)
 
 	if (info->vsel_reg == NA)
 		return -ENOSYS;
+
 	ret = pmic_reg_read(dev->parent, info->vsel_reg);
 	if (ret < 0)
 		return ret;
