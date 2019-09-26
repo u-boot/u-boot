@@ -1916,7 +1916,7 @@ static int spi_nor_parse_bfpt(struct spi_nor *nor,
 
 		erasesize = 1U << erasesize;
 		opcode = (half >> 8) & 0xff;
-#ifdef CONFIG_MTD_SPI_NOR_USE_4K_SECTORS
+#ifdef CONFIG_SPI_FLASH_USE_4K_SECTORS
 		if (erasesize == SZ_4K) {
 			nor->erase_opcode = opcode;
 			mtd->erasesize = erasesize;

@@ -58,7 +58,7 @@
  * All newly added entries should describe *hardware* and should use SECT_4K
  * (or SECT_4K_PMC) if hardware supports erasing 4 KiB sectors. For usage
  * scenarios excluding small sectors there is config option that can be
- * disabled: CONFIG_MTD_SPI_NOR_USE_4K_SECTORS.
+ * disabled: CONFIG_SPI_FLASH_USE_4K_SECTORS.
  * For historical (and compatibility) reasons (before we got above config) some
  * old entries may be missing 4K flag.
  */
