@@ -82,7 +82,7 @@ def append_conf_section(file, cnt, dtname, segments):
     file.write('\t\t\tdescription = "%s";\n' % dtname)
     file.write('\t\t\tfirmware = "atf_1";\n')
     file.write('\t\t\tloadables = "uboot"')
-    if segments != 0:
+    if segments > 1:
         file.write(',')
     for i in range(1, segments):
         file.write('"atf_%d"' % (i + 1))
@@ -90,7 +90,7 @@ def append_conf_section(file, cnt, dtname, segments):
             file.write(',')
         else:
             file.write(';\n')
-    if segments == 0:
+    if segments <= 1:
         file.write(';\n')
     file.write('\t\t\tfdt = "fdt_1";\n')
     file.write('\t\t};\n')
