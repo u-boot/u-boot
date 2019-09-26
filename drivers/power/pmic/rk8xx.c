@@ -92,7 +92,8 @@ static int rk8xx_probe(struct udevice *dev)
 	u8 value;
 
 	/* read Chip variant */
-	if (device_is_compatible(dev, "rockchip,rk817")) {
+	if (device_is_compatible(dev, "rockchip,rk817") ||
+	    device_is_compatible(dev, "rockchip,rk809")) {
 		id_msb = RK817_ID_MSB;
 		id_lsb = RK817_ID_LSB;
 	} else {
@@ -119,6 +120,7 @@ static int rk8xx_probe(struct udevice *dev)
 		on_source = RK8XX_ON_SOURCE;
 		off_source = RK8XX_OFF_SOURCE;
 		break;
+	case RK809_ID:
 	case RK817_ID:
 		on_source = RK817_ON_SOURCE;
 		off_source = RK817_OFF_SOURCE;
@@ -173,6 +175,7 @@ static struct dm_pmic_ops rk8xx_ops = {
 static const struct udevice_id rk8xx_ids[] = {
 	{ .compatible = "rockchip,rk805" },
 	{ .compatible = "rockchip,rk808" },
+	{ .compatible = "rockchip,rk809" },
 	{ .compatible = "rockchip,rk816" },
 	{ .compatible = "rockchip,rk817" },
 	{ .compatible = "rockchip,rk818" },
