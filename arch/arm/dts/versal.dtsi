@@ -320,7 +320,7 @@
 		};
 
 		gpio1: gpio@f1020000 {
-			compatible = "xlnx,versal-gpio-1.0";
+			compatible = "xlnx,pmc-gpio-1.0";
 			status = "disabled";
 			reg = <0 0xf1020000 0 0x1000>;
 			interrupts = <0 122 4>;
