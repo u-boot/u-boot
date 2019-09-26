@@ -215,6 +215,63 @@ static int dm_test_power_regulator_set_get_mode(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_power_regulator_set_get_mode, DM_TESTF_SCAN_FDT);
 
+/* Test regulator set and get suspend Voltage method */
+static int dm_test_power_regulator_set_get_suspend_voltage(struct unit_test_state *uts)
+{
+	struct dm_regulator_uclass_platdata *uc_pdata;
+	const struct dm_regulator_ops *ops;
+	struct udevice *dev;
+	const char *platname;
+	int val_set, val_get;
+
+	/* Set and get Voltage of BUCK1 - set to 'min' constraint */
+	platname = regulator_names[BUCK1][PLATNAME];
+	ut_assertok(regulator_get_by_platname(platname, &dev));
+
+	uc_pdata = dev_get_uclass_platdata(dev);
+	ut_assert(uc_pdata);
+
+	ops = dev_get_driver_ops(dev);
+
+	if (ops->set_suspend_value && ops->get_suspend_value) {
+		val_set = uc_pdata->suspend_uV;
+		ut_assertok(regulator_set_suspend_value(dev, val_set));
+		val_get = regulator_get_suspend_value(dev);
+		ut_assert(val_get >= 0);
+
+		ut_asserteq(val_set, val_get);
+	}
+	return 0;
+}
+DM_TEST(dm_test_power_regulator_set_get_suspend_voltage, DM_TESTF_SCAN_FDT);
+
+/* Test regulator set and get suspend Enable method */
+static int dm_test_power_regulator_set_get_suspend_enable(struct unit_test_state *uts)
+{
+	const struct dm_regulator_ops *ops;
+	const char *platname;
+	struct udevice *dev;
+	bool val_set = true;
+
+	/* Set the Enable of LDO1 - default is disabled */
+	platname = regulator_names[LDO1][PLATNAME];
+	ut_assertok(regulator_get_by_platname(platname, &dev));
+
+	ops = dev_get_driver_ops(dev);
+
+	if (ops->set_suspend_enable && ops->get_suspend_enable) {
+		ut_assertok(regulator_set_suspend_enable(dev, val_set));
+
+		/*
+		 * Get the Enable state of LDO1 and
+		 * compare it with the requested one
+		 */
+		ut_asserteq(regulator_get_suspend_enable(dev), val_set);
+	}
+	return 0;
+}
+DM_TEST(dm_test_power_regulator_set_get_suspend_enable, DM_TESTF_SCAN_FDT);
+
 /* Test regulator autoset method */
 static int dm_test_power_regulator_autoset(struct unit_test_state *uts)
 {

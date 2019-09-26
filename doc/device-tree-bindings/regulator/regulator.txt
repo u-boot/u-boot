@@ -36,6 +36,28 @@ Optional properties:
 - regulator-always-on: regulator should never be disabled
 - regulator-boot-on: enabled by bootloader/firmware
 - regulator-ramp-delay: ramp delay for regulator (in uV/us)
+- regulator-init-microvolt: a init allowed Voltage value
+- regulator-state-(standby|mem|disk)
+  type: object
+  description:
+    sub-nodes for regulator state in Standby, Suspend-to-RAM, and
+    Suspend-to-DISK modes. Equivalent with standby, mem, and disk Linux
+    sleep states.
+
+    properties:
+      regulator-on-in-suspend:
+        description: regulator should be on in suspend state.
+        type: boolean
+
+      regulator-off-in-suspend:
+        description: regulator should be off in suspend state.
+        type: boolean
+
+      regulator-suspend-microvolt:
+        description: the default voltage which regulator would be set in
+          suspend. This property is now deprecated, instead setting voltage
+          for suspend mode via the API which regulator driver provides is
+          recommended.
 
 Note
 The "regulator-name" constraint is used for setting the device's uclass
@@ -59,7 +81,12 @@ ldo0 {
 	regulator-max-microvolt = <1800000>;
 	regulator-min-microamp = <100000>;
 	regulator-max-microamp = <100000>;
+	regulator-init-microvolt = <1800000>;
 	regulator-always-on;
 	regulator-boot-on;
 	regulator-ramp-delay = <12000>;
+	regulator-state-mem {
+		regulator-on-in-suspend;
+		regulator-suspend-microvolt = <1800000>;
+	};
 };
