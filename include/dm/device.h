@@ -945,8 +945,8 @@ static inline void *devm_kzalloc(struct udevice *dev, size_t size, gfp_t gfp)
 	return kzalloc(size, gfp);
 }
 
-static inline void *devm_kmaloc_array(struct udevice *dev,
-				      size_t n, size_t size, gfp_t flags)
+static inline void *devm_kmalloc_array(struct udevice *dev,
+				       size_t n, size_t size, gfp_t flags)
 {
 	/* TODO: add kmalloc_array() to linux/compat.h */
 	if (size != 0 && n > SIZE_MAX / size)
