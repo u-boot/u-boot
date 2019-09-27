@@ -63,7 +63,8 @@ int mbox_get_by_index(struct udevice *dev, int index, struct mbox_chan *chan)
 		return ret;
 	}
 
-	ret = ops->request(chan);
+	if (ops->request)
+		ret = ops->request(chan);
 	if (ret) {
 		debug("ops->request() failed: %d\n", ret);
 		return ret;
@@ -94,7 +95,10 @@ int mbox_free(struct mbox_chan *chan)
 
 	debug("%s(chan=%p)\n", __func__, chan);
 
-	return ops->free(chan);
+	if (ops->free)
+		return ops->free(chan);
+
+	return 0;
 }
 
 int mbox_send(struct mbox_chan *chan, const void *data)
