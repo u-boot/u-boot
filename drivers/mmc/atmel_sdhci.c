@@ -112,6 +112,7 @@ static int atmel_sdhci_bind(struct udevice *dev)
 
 static const struct udevice_id atmel_sdhci_ids[] = {
 	{ .compatible = "atmel,sama5d2-sdhci" },
+	{ .compatible = "microchip,sam9x60-sdhci" },
 	{ }
 };
 
