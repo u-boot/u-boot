@@ -14,6 +14,8 @@
 #include <linux/soc/ti/ti_sci_protocol.h>
 #include <fdt_support.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/hardware.h>
+#include <asm/io.h>
 
 struct ti_sci_handle *get_ti_sci_handle(void)
 {
@@ -188,5 +190,45 @@ int fdt_disable_node(void *blob, char *node_path)
 #ifndef CONFIG_SYSRESET
 void reset_cpu(ulong ignored)
 {
+}
+#endif
+
+#if defined(CONFIG_DISPLAY_CPUINFO)
+int print_cpuinfo(void)
+{
+	u32 soc, rev;
+	char *name;
+
+	soc = (readl(CTRLMMR_WKUP_JTAG_DEVICE_ID) &
+		DEVICE_ID_FAMILY_MASK) >> DEVICE_ID_FAMILY_SHIFT;
+	rev = (readl(CTRLMMR_WKUP_JTAG_ID) &
+		JTAG_ID_VARIANT_MASK) >> JTAG_ID_VARIANT_SHIFT;
+
+	printf("SoC:   ");
+	switch (soc) {
+	case AM654:
+		name = "AM654";
+		break;
+	case J721E:
+		name = "J721E";
+		break;
+	default:
+		name = "Unknown Silicon";
+	};
+
+	printf("%s PG ", name);
+	switch (rev) {
+	case REV_PG1_0:
+		name = "1.0";
+		break;
+	case REV_PG2_0:
+		name = "2.0";
+		break;
+	default:
+		name = "Unknown Revision";
+	};
+	printf("%s\n", name);
+
+	return 0;
 }
 #endif
