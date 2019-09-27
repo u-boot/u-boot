@@ -321,7 +321,7 @@ int board_early_init_f(void)
 #if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_CLK_ZYNQMP)
 	u32 pm_api_version;
 
-	pm_api_version = zynqmp_pmufw_version();
+	pm_api_version = zynqmp_firmware_version();
 	printf("PMUFW:\tv%d.%d\n",
 	       pm_api_version >> ZYNQMP_PM_VERSION_MAJOR_SHIFT,
 	       pm_api_version & ZYNQMP_PM_VERSION_MINOR_MASK);

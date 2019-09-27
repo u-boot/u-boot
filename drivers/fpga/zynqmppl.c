@@ -152,7 +152,7 @@ static ulong zynqmp_align_dma_buffer(u32 *buf, u32 len, u32 swap)
 
 		buf = new_buf;
 	} else if ((swap != SWAP_DONE) &&
-		   (zynqmp_pmufw_version() <= PMUFW_V1_0)) {
+		   (zynqmp_firmware_version() <= PMUFW_V1_0)) {
 		/* For bitstream which are aligned */
 		new_buf = buf;
 
@@ -205,7 +205,7 @@ static int zynqmp_load(xilinx_desc *desc, const void *buf, size_t bsize,
 	u32 ret_payload[PAYLOAD_ARG_CNT];
 	bool xilfpga_old = false;
 
-	if (zynqmp_pmufw_version() <= PMUFW_V1_0) {
+	if (zynqmp_firmware_version() <= PMUFW_V1_0) {
 		puts("WARN: PMUFW v1.0 or less is detected\n");
 		puts("WARN: Not all bitstream formats are supported\n");
 		puts("WARN: Please upgrade PMUFW\n");
