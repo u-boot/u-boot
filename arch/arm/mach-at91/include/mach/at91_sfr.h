@@ -6,8 +6,8 @@
  *		      Bo Shen <voice.shen@atmel.com>
  */
 
-#ifndef __SAMA5_SFR_H
-#define __SAMA5_SFR_H
+#ifndef __AT91_SFR_H
+#define __AT91_SFR_H
 
 struct atmel_sfr {
 	u32 reserved1;	/* 0x00 */

@@ -7,7 +7,7 @@
 #include <common.h>
 #include <asm/hardware.h>
 #include <asm/io.h>
-#include <asm/arch/sama5_sfr.h>
+#include <asm/arch/at91_sfr.h>
 
 #if defined(CONFIG_SAMA5D2) || defined(CONFIG_SAMA5D4)
 void redirect_int_from_saic_to_aic(void)
