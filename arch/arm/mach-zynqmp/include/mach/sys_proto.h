@@ -54,6 +54,11 @@ enum {
 	TCM_SPLIT,
 };
 
+struct zynqmp_ipi_msg {
+	size_t len;
+	u32 *buf;
+};
+
 int zynq_board_read_rom_ethaddr(unsigned char *ethaddr);
 unsigned int zynqmp_get_silicon_version(void);
 
