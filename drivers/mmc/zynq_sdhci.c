@@ -338,7 +338,7 @@ static void arasan_sdhci_set_control_reg(struct sdhci_host *host)
 	}
 
 	if (mmc->selected_mode > SD_HS &&
-	    mmc->selected_mode <= UHS_DDR50) {
+	    mmc->selected_mode <= MMC_HS_200) {
 		reg = sdhci_readw(host, SDHCI_HOST_CONTROL2);
 		reg &= ~SDHCI_CTRL_UHS_MASK;
 		switch (mmc->selected_mode) {
@@ -352,9 +352,11 @@ static void arasan_sdhci_set_control_reg(struct sdhci_host *host)
 			reg |= UHS_SDR50_BUS_SPEED;
 			break;
 		case UHS_SDR104:
+		case MMC_HS_200:
 			reg |= UHS_SDR104_BUS_SPEED;
 			break;
 		case UHS_DDR50:
+		case MMC_DDR_52:
 			reg |= UHS_DDR50_BUS_SPEED;
 			break;
 		default:
