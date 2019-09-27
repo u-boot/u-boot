@@ -17,3 +17,8 @@
 		stdout-path = &dbgu;
 	};
 };
+
+&macb0 {
+	phy-mode = "rmii";
+	status = "okay";
+};
