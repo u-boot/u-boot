@@ -30,6 +30,7 @@
 #include <dwc3-omap-uboot.h>
 #include <ti-usb-phy-uboot.h>
 #include <mmc.h>
+#include <dm/uclass.h>
 
 #include "../common/board_detect.h"
 #include "mux_data.h"
@@ -689,6 +690,7 @@ int board_late_init(void)
 {
 	setup_board_eeprom_env();
 	u8 val;
+	struct udevice *dev;
 
 	/*
 	 * DEV_CTRL.DEV_ON = 1 please - else palmas switches off in 8 seconds
@@ -719,6 +721,9 @@ int board_late_init(void)
 	omap_set_fastboot_vars();
 
 	am57x_idk_lcd_detect();
+
+	/* Just probe the potentially supported cdce913 device */
+	uclass_get_device(UCLASS_CLK, 0, &dev);
 
 #if !defined(CONFIG_SPL_BUILD)
 	board_ti_set_ethaddr(2);
