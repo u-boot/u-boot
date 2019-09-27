@@ -78,6 +78,13 @@
 				"0x22000000 0x200000 0x600000; " \
 				"nand read 0x21000000 0x180000 0x20000; " \
 				"bootz 0x22000000 - 0x21000000"
+
+#elif defined(CONFIG_QSPI_BOOT)
+/* bootstrap + u-boot + env + linux in SPI NOR flash */
+#define CONFIG_BOOTCOMMAND	"sf probe 0; "					\
+				"sf read 0x21000000 0x180000 0x80000; "		\
+				"sf read 0x22000000 0x200000 0x600000; "	\
+				"bootz 0x22000000 - 0x21000000"
 #endif
 
 /*
