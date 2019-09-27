@@ -48,7 +48,6 @@ unsigned int zynqmp_get_silicon_version(void);
 
 void handoff_setup(void);
 
-unsigned int zynqmp_pmufw_version(void);
 int zynqmp_mmio_write(const u32 address, const u32 mask, const u32 value);
 int zynqmp_mmio_read(const u32 address, u32 *value);
 int invoke_smc(u32 pm_api_id, u32 arg0, u32 arg1, u32 arg2, u32 arg3,

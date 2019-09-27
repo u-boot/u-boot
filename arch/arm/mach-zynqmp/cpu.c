@@ -180,29 +180,6 @@ int __maybe_unused invoke_smc(u32 pm_api_id, u32 arg0, u32 arg1, u32 arg2,
 	return regs.regs[0];
 }
 
-unsigned int  __maybe_unused zynqmp_pmufw_version(void)
-{
-	int ret;
-	u32 ret_payload[PAYLOAD_ARG_CNT];
-	static u32 pm_api_version = ZYNQMP_PM_VERSION_INVALID;
-
-	/*
-	 * Get PMU version only once and later
-	 * just return stored values instead of
-	 * asking PMUFW again.
-	 */
-	if (pm_api_version == ZYNQMP_PM_VERSION_INVALID) {
-		ret = invoke_smc(ZYNQMP_SIP_SVC_GET_API_VERSION, 0, 0, 0, 0,
-				 ret_payload);
-		pm_api_version = ret_payload[1];
-
-		if (ret)
-			panic("PMUFW is not found - Please load it!\n");
-	}
-
-	return pm_api_version;
-}
-
 static int zynqmp_mmio_rawwrite(const u32 address,
 		      const u32 mask,
 		      const u32 value)
