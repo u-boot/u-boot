@@ -84,6 +84,30 @@ unsigned int zynqmp_firmware_version(void)
 	return pm_api_version;
 };
 
+/**
+ * Send a configuration object to the PMU firmware.
+ *
+ * @cfg_obj: Pointer to the configuration object
+ * @size:    Size of @cfg_obj in bytes
+ */
+void zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size)
+{
+	const u32 request[] = {
+		PM_SET_CONFIGURATION,
+		(u32)((u64)cfg_obj)
+	};
+	u32 response;
+	int err;
+
+	printf("Loading new PMUFW cfg obj (%ld bytes)\n", size);
+
+	err = send_req(request, ARRAY_SIZE(request), &response, 1);
+	if (err)
+		panic("Cannot load PMUFW configuration object (%d)\n", err);
+	if (response != 0)
+		panic("PMUFW returned 0x%08x status!\n", response);
+}
+
 static int zynqmp_power_probe(struct udevice *dev)
 {
 	int ret = 0;

@@ -32,5 +32,6 @@ enum pm_api_id {
 #define PMUFW_V1_0      ((1 << ZYNQMP_PM_VERSION_MAJOR_SHIFT) | 0)
 
 unsigned int zynqmp_firmware_version(void);
+void zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size);
 
 #endif /* _ZYNQMP_FIRMWARE_H_ */
