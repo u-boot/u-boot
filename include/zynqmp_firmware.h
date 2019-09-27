@@ -15,8 +15,6 @@ enum pm_api_id {
 };
 
 #define PM_SIP_SVC      0xc2000000
-#define ZYNQMP_SIP_SVC_GET_API_VERSION          \
-	(PM_SIP_SVC + PM_GET_API_VERSION)
 #define ZYNQMP_SIP_SVC_PM_SECURE_IMG_LOAD       \
 	(PM_SIP_SVC + PM_SECURE_IMAGE)
 

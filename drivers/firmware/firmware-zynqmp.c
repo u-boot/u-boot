@@ -49,6 +49,14 @@ static int ipi_req(const u32 *req, size_t req_len, u32 *res, size_t res_maxlen)
 	return ret;
 }
 
+static int send_req(const u32 *req, size_t req_len, u32 *res, size_t res_maxlen)
+{
+	if (IS_ENABLED(CONFIG_SPL_BUILD))
+		return ipi_req(req, req_len, res, res_maxlen);
+
+	return invoke_smc(req[0] + PM_SIP_SVC, 0, 0, 0, 0, res);
+}
+
 unsigned int zynqmp_firmware_version(void)
 {
 	int ret;
@@ -61,16 +69,9 @@ unsigned int zynqmp_firmware_version(void)
 	 * asking PMUFW again.
 	 **/
 	if (pm_api_version == ZYNQMP_PM_VERSION_INVALID) {
-		if (IS_ENABLED(CONFIG_SPL_BUILD)) {
-			const u32 request[] = { PM_GET_API_VERSION };
+		const u32 request[] = { PM_GET_API_VERSION };
 
-			ret = ipi_req(request, ARRAY_SIZE(request),
-				      ret_payload, 2);
-		} else {
-			ret = invoke_smc(ZYNQMP_SIP_SVC_GET_API_VERSION, 0, 0,
-					 0, 0, ret_payload);
-		};
-
+		ret = send_req(request, ARRAY_SIZE(request), ret_payload, 2);
 		if (ret)
 			panic("PMUFW is not found - Please load it!\n");
 
