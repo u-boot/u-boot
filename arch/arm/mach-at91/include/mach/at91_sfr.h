@@ -11,7 +11,10 @@
 
 struct atmel_sfr {
 	u32 reserved1;	/* 0x00 */
-	u32 ddrcfg;	/* 0x04: DDR Configuration Register */
+	union {
+		u32 ddrcfg;	/* 0x04: DDR Configuration Register */
+		u32 ebicsa;	/* 0x04: EBI Chip Select Register */
+	};
 	u32 reserved2;	/* 0x08 */
 	u32 reserved3;	/* 0x0c */
 	u32 ohciicr;	/* 0x10: OHCI Interrupt Configuration Register */
@@ -28,7 +31,16 @@ struct atmel_sfr {
 };
 
 /* Register Mapping*/
+#define AT91_SFR_DDRCFG		0x04	/* DDR Configuration Register */
+#define AT91_SFR_CCFG_EBICSA	0x04	/* EBI Chip Select Register */
+/* 0x08 ~ 0x0c: Reserved */
+#define AT91_SFR_OHCIICR	0x10	/* OHCI INT Configuration Register */
+#define AT91_SFR_OHCIISR	0x14	/* OHCI INT Status Register */
 #define AT91_SFR_UTMICKTRIM	0x30	/* UTMI Clock Trimming Register */
+#define AT91_SFR_UTMISWAP	0x3c	/* UTMI DP/DM Pin Swapping Register */
+#define AT91_SFR_LS		0x7c	/* Light Sleep Register */
+#define AT91_SFR_I2SCLKSEL	0x90	/* I2SC Register */
+#define AT91_SFR_WPMR		0xe4	/* Write Protection Mode Register */
 
 /* Bit field in DDRCFG */
 #define ATMEL_SFR_DDRCFG_FDQIEN		0x00010000
@@ -58,9 +70,39 @@ struct atmel_sfr {
 #define AT91_SFR_EBICFG_SCH1_OFF		(0x0 << 12)
 #define AT91_SFR_EBICFG_SCH1_ON			(0x1 << 12)
 
-#define AT91_UTMICKTRIM_FREQ		GENMASK(1, 0)
-
 /* Bit field in AICREDIR */
 #define ATMEL_SFR_AICREDIR_NSAIC	0x00000001
+
+/* Bit field in DDRCFG */
+#define ATMEL_SFR_DDRCFG_FDQIEN                0x00010000
+#define ATMEL_SFR_DDRCFG_FDQSIEN       0x00020000
+
+#define AT91_SFR_CCFG_EBI_CSA(cs, val)		((val) << (cs))
+#define AT91_SFR_CCFG_EBI_DBPUC			BIT(8)
+#define AT91_SFR_CCFG_EBI_DBPDC			BIT(9)
+#define AT91_SFR_CCFG_EBI_DRIVE_SAM9X60		BIT(16)
+#define AT91_SFR_CCFG_EBI_DRIVE			BIT(17)
+#define AT91_SFR_CCFG_DQIEN_F			BIT(20)
+#define AT91_SFR_CCFG_NFD0_ON_D16		BIT(24)
+#define AT91_SFR_CCFG_DDR_MP_EN			BIT(25)
+
+#define AT91_SFR_OHCIICR_RES(x)			BIT(x)
+#define AT91_SFR_OHCIICR_ARIE			BIT(4)
+#define AT91_SFR_OHCIICR_APPSTART		BIT(5)
+#define AT91_SFR_OHCIICR_USB_SUSP(x)		BIT(8 + (x))
+#define AT91_SFR_OHCIICR_UDPPUDIS		BIT(23)
+#define AT91_OHCIICR_USB_SUSPEND		GENMASK(10, 8)
+
+#define AT91_SFR_OHCIISR_RIS(x)			BIT(x)
+
+#define AT91_UTMICKTRIM_FREQ			GENMASK(1, 0)
+
+#define AT91_SFR_UTMISWAP_PORT(x)		BIT(x)
+
+#define AT91_SFR_LS_VALUE(x)			BIT(x)
+#define AT91_SFR_LS_MEM_POWER_GATING_ULP1_EN	BIT(16)
+
+#define AT91_SFR_WPMR_WPEN			BIT(0)
+#define AT91_SFR_WPMR_WPKEY_MASK		GENMASK(31, 8)
 
 #endif
