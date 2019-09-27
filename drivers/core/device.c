@@ -393,7 +393,8 @@ int device_probe(struct udevice *dev)
 		pinctrl_select_state(dev, "default");
 
 	if (CONFIG_IS_ENABLED(POWER_DOMAIN) && dev->parent &&
-	    device_get_uclass_id(dev) != UCLASS_POWER_DOMAIN) {
+	    (device_get_uclass_id(dev) != UCLASS_POWER_DOMAIN) &&
+	    !(drv->flags & DM_FLAG_DEFAULT_PD_CTRL_OFF)) {
 		ret = dev_power_domain_on(dev);
 		if (ret)
 			goto fail;
