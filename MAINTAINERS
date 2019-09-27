@@ -461,6 +461,7 @@ F:	drivers/timer/cadence-ttc.c
 F:	drivers/usb/host/ehci-zynq.c
 F:	drivers/watchdog/cdns_wdt.c
 F:	include/zynqmppl.h
+F:	include/zynqmp_firmware.h
 F:	tools/zynqmp*
 N:	ultra96
 N:	zynqmp

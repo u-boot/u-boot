@@ -21,6 +21,7 @@
 #include <usb.h>
 #include <dwc3-uboot.h>
 #include <zynqmppl.h>
+#include <zynqmp_firmware.h>
 #include <g_dnl.h>
 #include <linux/sizes.h>
 
