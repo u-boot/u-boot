@@ -31,6 +31,10 @@
 	u-boot,dm-pre-reloc;
 };
 
+&qspi {
+	u-boot,dm-pre-reloc;
+};
+
 &pinctrl_dbgu {
 	u-boot,dm-pre-reloc;
 };
@@ -39,7 +43,15 @@
 	u-boot,dm-pre-reloc;
 };
 
+&pinctrl_qspi {
+	u-boot,dm-pre-reloc;
+};
+
 &pioA {
+	u-boot,dm-pre-reloc;
+};
+
+&pioB {
 	u-boot,dm-pre-reloc;
 };
 
@@ -59,6 +71,14 @@
 	u-boot,dm-pre-reloc;
 };
 
+&system {
+	u-boot,dm-pre-reloc;
+};
+
+&qspick {
+	u-boot,dm-pre-reloc;
+};
+
 &periph {
 	u-boot,dm-pre-reloc;
 };
@@ -67,11 +87,19 @@
 	u-boot,dm-pre-reloc;
 };
 
+&pioB_clk {
+	u-boot,dm-pre-reloc;
+};
+
 &sdhci0_clk {
 	u-boot,dm-pre-reloc;
 };
 
 &dbgu_clk {
+	u-boot,dm-pre-reloc;
+};
+
+&qspi_clk {
 	u-boot,dm-pre-reloc;
 };
 

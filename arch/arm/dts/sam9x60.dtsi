@@ -22,6 +22,7 @@
 		serial0 = &dbgu;
 		gpio0 = &pioA;
 		gpio1 = &pioB;
+		spi0 = &qspi;
 	};
 
 	clocks {
@@ -59,6 +60,17 @@
 			#address-cells = <1>;
 			#size-cells = <1>;
 			ranges;
+
+			qspi: spi@f0014000 {
+				compatible = "microchip,sam9x60-qspi";
+				reg = <0xf0014000 0x100>, <0x70000000 0x10000000>;
+				reg-names = "qspi_base", "qspi_mmap";
+				clocks =  <&qspi_clk>, <&qspick>;
+				clock-names = "pclk", "qspick";
+				#address-cells = <1>;
+				#size-cells = <0>;
+				status = "disabled";
+			};
 
 			macb0: ethernet@f802c000 {
 				compatible = "cdns,sam9x60-macb", "cdns,macb";
@@ -172,6 +184,18 @@
 					atmel,clk-divisors = <1 2 4 6>;
 				};
 
+				system: systemck {
+					compatible = "atmel,at91rm9200-clk-system";
+					#address-cells = <1>;
+					#size-cells = <0>;
+
+					qspick: qspick {
+						#clock-cells = <0>;
+						reg = <19>;
+						clocks = <&mck>;
+					};
+				};
+
 				periph: periphck {
 					compatible = "microchip,sam9x60-clk-peripheral";
 					#address-cells = <1>;
@@ -201,6 +225,11 @@
 					macb0_clk: macb0_clk {
 						#clock-cells = <0>;
 						reg = <24>;
+					};
+
+					qspi_clk: qspi_clk {
+						#clock-cells = <0>;
+						reg = <35>;
 					};
 				};
 
