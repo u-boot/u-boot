@@ -127,6 +127,19 @@ int do_board_detect(void)
 	return ret;
 }
 
+int checkboard(void)
+{
+	struct ti_am6_eeprom *ep = TI_AM6_EEPROM_DATA;
+
+	if (do_board_detect())
+		/* EEPROM not populated */
+		printf("Board: %s rev %s\n", "AM6-COMPROCEVM", "E3");
+	else
+		printf("Board: %s rev %s\n", ep->name, ep->version);
+
+	return 0;
+}
+
 static void setup_board_eeprom_env(void)
 {
 	char *name = "am65x";
@@ -272,7 +285,7 @@ static int probe_daughtercards(void)
 		if (strncmp(ep.name, cards[i].card_name, sizeof(ep.name)))
 			continue;
 
-		printf("detected %s\n", cards[i].card_name);
+		printf("Detected: %s rev %s\n", ep.name, ep.version);
 
 		/*
 		 * Populate any MAC addresses from daughtercard into the U-Boot
