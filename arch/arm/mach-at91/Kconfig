@@ -43,6 +43,10 @@ config AT91SAM9X5
 	bool
 	select CPU_ARM926EJS
 
+config SAM9X60
+	bool
+	select CPU_ARM926EJS
+
 config SAMA5D2
 	bool
 	select CPU_V7A
