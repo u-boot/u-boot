@@ -1057,9 +1057,12 @@ config ARCH_ZYNQMP
 	select DM_SPI if SPI
 	select DM_SPI_FLASH if DM_SPI
 	select DM_USB if USB
+	select FIRMWARE
 	select OF_CONTROL
 	select SPL_BOARD_INIT if SPL
 	select SPL_CLK if SPL
+	select SPL_DM_MAILBOX if SPL
+	select SPL_FIRMWARE if SPL
 	select SPL_SEPARATE_BSS if SPL
 	select SUPPORT_SPL
 	select ZYNQMP_IPI
