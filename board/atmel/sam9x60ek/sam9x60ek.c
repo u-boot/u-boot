@@ -16,6 +16,8 @@
 #include <debug_uart.h>
 #include <asm/mach-types.h>
 
+extern void at91_pda_detect(void);
+
 DECLARE_GLOBAL_DATA_PTR;
 
 void at91_prepare_cpu_var(void);
@@ -80,6 +82,9 @@ static void sam9x60ek_nand_hw_init(void)
 int board_late_init(void)
 {
 	at91_prepare_cpu_var();
+
+	at91_pda_detect();
+
 	return 0;
 }
 #endif
