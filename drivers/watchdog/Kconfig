@@ -8,6 +8,15 @@ config WATCHDOG
 	  this option if you want to service enabled watchdog by U-Boot. Disable
 	  this option if you want U-Boot to start watchdog but never service it.
 
+config WATCHDOG_TIMEOUT_MSECS
+	int "Watchdog timeout in msec"
+	default 128000 if ARCH_MX25 || ARCH_MX31 || ARCH_MX5 || ARCH_MX6
+	default 128000 if ARCH_MX7 || ARCH_VF610
+	default 30000 if ARCH_SOCFPGA
+	default 60000
+	help
+	  Watchdog timeout in msec
+
 config HW_WATCHDOG
 	bool
 

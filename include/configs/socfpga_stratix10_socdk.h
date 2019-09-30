@@ -168,7 +168,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 unsigned int cm_get_l4_sys_free_clk_hz(void);
 #define CONFIG_DW_WDT_CLOCK_KHZ		(cm_get_l4_sys_free_clk_hz() / 1000)
 #endif
-#define CONFIG_WATCHDOG_TIMEOUT_MSECS	3000
 #endif
 
 /*
