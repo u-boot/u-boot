@@ -22,6 +22,7 @@
 		serial0 = &dbgu;
 		gpio0 = &pioA;
 		gpio1 = &pioB;
+		gpio3 = &pioD;
 		spi0 = &qspi;
 	};
 
@@ -155,6 +156,14 @@
 				clocks = <&pioB_clk>;
 			};
 
+			pioD: gpio@fffffa00 {
+				compatible = "atmel,at91sam9x5-gpio", "atmel,at91rm9200-gpio";
+				reg = <0xfffffa00 0x200>;
+				#gpio-cells = <2>;
+				gpio-controller;
+				clocks = <&pioD_clk>;
+			};
+
 			pmc: pmc@fffffc00 {
 				compatible = "atmel,at91sam9x5-pmc";
 				reg = <0xfffffc00 0x200>;
@@ -210,6 +219,11 @@
 					pioB_clk: pioB_clk {
 						#clock-cells = <0>;
 						reg = <3>;
+					};
+
+					pioD_clk: pioD_clk {
+						#clock-cells = <0>;
+						reg = <44>;
 					};
 
 					sdhci0_clk: sdhci0_clk {
@@ -281,5 +295,10 @@
 				};
 			};
 		};
+	};
+
+	onewire_tm: onewire {
+		compatible = "w1-gpio";
+		status = "disabled";
 	};
 };
