@@ -35,7 +35,7 @@
 		#size-cells = <0x2>;
 		ranges;
 
-		sdhci1: sdhci@f105000 {
+		sdhci1: sdhci@f1050000 {
 			compatible = "xlnx,versal-8.9a", "arasan,sdhci-8.9a";
 			status = "okay";
 			reg = <0x0 0xf1050000 0x0 0x10000>;
