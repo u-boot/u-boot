@@ -241,6 +241,12 @@ void __recalibrate_iodelay_end(int ret)
 		debug("IODELAY: IO delay recalibration successfully completed\n");
 	}
 
+	/* If there is an error during iodelay recalibration, SoC is in a bad
+	 * state. Do not progress any further.
+	 */
+	if (ret)
+		hang();
+
 	return;
 }
 
