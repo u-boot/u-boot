@@ -285,6 +285,13 @@ config STM32_GPIO
 	  usable on many stm32 families like stm32f4/f7/h7 and stm32mp1.
 	  Tested on STM32F7.
 
+config SIFIVE_GPIO
+	bool "SiFive GPIO driver"
+	depends on DM_GPIO
+	help
+	  Device model driver for GPIO controller present in SiFive FU540 SoC. This
+	  driver enables GPIO interface on HiFive Unleashed A00 board.
+
 config MVEBU_GPIO
 	bool "Marvell MVEBU GPIO driver"
 	depends on DM_GPIO && ARCH_MVEBU
