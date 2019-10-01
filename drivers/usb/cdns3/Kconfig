@@ -48,4 +48,11 @@ config SPL_USB_CDNS3_HOST
 
 	  Host controller is compliant with XHCI so it will use
 	  standard XHCI driver.
+
+config USB_CDNS3_TI
+	tristate "Cadence USB3 support on TI platforms"
+	default USB_CDNS3
+	help
+	  Say 'Y' here if you are building for Texas Instruments
+	  platforms that contain Cadence USB3 controller core. E.g.: J721e.
 endif
