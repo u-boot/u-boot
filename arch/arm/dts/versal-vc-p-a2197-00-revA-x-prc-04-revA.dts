@@ -72,11 +72,17 @@
 	spi-tx-bus-width = <4>;
 
 	flash@0 {
-		compatible = "m25p80", "spi-flash";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "m25p80", "spi-flash"; /* 512MB */
 		reg = <0>;
 		spi-tx-bus-width = <4>;
 		spi-rx-bus-width = <4>;
 		spi-max-frequency = <108000000>;
+		partition@0 {
+			label = "spi0-flash0";
+			reg = <0x0 0x20000000>;
+		};
 	};
 };
 
