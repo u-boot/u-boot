@@ -99,7 +99,7 @@
 
 		partition@0 {
 			label = "spi0-flash0";
-			reg = <0x0 0x100000>;
+			reg = <0x0 0x200000>;
 		};
 	};
 };
@@ -117,7 +117,7 @@
 
 		partition@1 {
 			label = "spi1-flash0";
-			reg = <0x0 0x100000>;
+			reg = <0x0 0x200000>;
 		};
 	};
 };
