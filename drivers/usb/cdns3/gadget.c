@@ -2378,6 +2378,29 @@ static int cdns3_gadget_udc_stop(struct usb_gadget *gadget)
 	return ret;
 }
 
+static void cdns3_gadget_udc_set_speed(struct usb_gadget *gadget,
+				       enum usb_device_speed speed)
+{
+	struct cdns3_device *priv_dev = gadget_to_cdns3_device(gadget);
+
+	switch (speed) {
+	case USB_SPEED_FULL:
+		writel(USB_CONF_SFORCE_FS, &priv_dev->regs->usb_conf);
+		writel(USB_CONF_USB3DIS, &priv_dev->regs->usb_conf);
+		break;
+	case USB_SPEED_HIGH:
+		writel(USB_CONF_USB3DIS, &priv_dev->regs->usb_conf);
+		break;
+	case USB_SPEED_SUPER:
+		break;
+	default:
+		dev_err(cdns->dev, "invalid speed parameter %d\n",
+			speed);
+	}
+
+	priv_dev->gadget.speed = speed;
+}
+
 static const struct usb_gadget_ops cdns3_gadget_ops = {
 	.get_frame = cdns3_gadget_get_frame,
 	.wakeup = cdns3_gadget_wakeup,
@@ -2386,6 +2409,7 @@ static const struct usb_gadget_ops cdns3_gadget_ops = {
 	.udc_start = cdns3_gadget_udc_start,
 	.udc_stop = cdns3_gadget_udc_stop,
 	.match_ep = cdns3_gadget_match_ep,
+	.udc_set_speed = cdns3_gadget_udc_set_speed,
 };
 
 static void cdns3_free_all_eps(struct cdns3_device *priv_dev)
@@ -2557,11 +2581,9 @@ static int cdns3_gadget_start(struct cdns3 *cdns)
 	/* Check the maximum_speed parameter */
 	switch (max_speed) {
 	case USB_SPEED_FULL:
-		writel(USB_CONF_SFORCE_FS, &priv_dev->regs->usb_conf);
-		break;
+		/* fall through */
 	case USB_SPEED_HIGH:
-		writel(USB_CONF_USB3DIS, &priv_dev->regs->usb_conf);
-		break;
+		/* fall through */
 	case USB_SPEED_SUPER:
 		break;
 	default:
