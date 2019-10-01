@@ -95,7 +95,7 @@
 		#size-cells = <1>;
 		compatible = "sst,sst25vf016b", "m25p80", "spi-flash";
 		spi-max-frequency = <50000000>;	/* FIXME */
-		reg = <0x0>;
+		reg = <0>;
 
 		partition@0 {
 			label = "spi0-flash0";
@@ -108,12 +108,12 @@
 	status = "okay";
 	num-cs = <3>;	/* FIXME - check SPI1_SS0-2_B */
 
-	flash@1 { /* U19 */
+	flash@0 { /* U19 */
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "m25p80", "spi-flash";
 		spi-max-frequency = <50000000>;	/* FIXME */
-		reg = <0x0>;
+		reg = <0>;
 
 		partition@1 {
 			label = "spi1-flash0";
