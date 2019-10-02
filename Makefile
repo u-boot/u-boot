@@ -1232,7 +1232,7 @@ ifndef CONFIG_SYS_UBOOT_START
 CONFIG_SYS_UBOOT_START := 0
 endif
 
-# Boards with more complex image requirments can provide an .its source file
+# Boards with more complex image requirements can provide an .its source file
 # or a generator script
 ifneq ($(CONFIG_SPL_FIT_SOURCE),"")
 U_BOOT_ITS = $(subst ",,$(CONFIG_SPL_FIT_SOURCE))
