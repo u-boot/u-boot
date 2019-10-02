@@ -108,20 +108,6 @@ int reserve_mmu(void)
 }
 #endif
 
-#if defined(CONFIG_OF_BOARD)
-void *board_fdt_blob_setup(void)
-{
-	static void *fw_dtb = (void *)CONFIG_VERSAL_OF_BOARD_DTB_ADDR;
-
-	if (fdt_magic(fw_dtb) != FDT_MAGIC) {
-		printf("DTB is not passed via %llx\n", (u64)fw_dtb);
-		return NULL;
-	}
-
-	return fw_dtb;
-}
-#endif
-
 int versal_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
 		      u32 arg3, u32 *ret_payload)
 {

@@ -36,11 +36,6 @@ config COUNTER_FREQUENCY
 config ZYNQ_SDHCI_MAX_FREQ
 	default 200000000
 
-config VERSAL_OF_BOARD_DTB_ADDR
-	hex
-	default 0x1000
-	depends on OF_BOARD
-
 config IOU_SWITCH_DIVISOR0
 	hex "IOU switch divisor0"
 	default 0x20

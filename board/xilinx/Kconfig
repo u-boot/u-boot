@@ -39,3 +39,10 @@ config XILINX_PS_INIT_FILE
 	     before the build.
 
 endif
+
+config VERSAL_OF_BOARD_DTB_ADDR
+	hex
+	default 0x1000
+	depends on OF_BOARD
+	help
+	  Offset in the memory where the board configuration DTB is placed.
