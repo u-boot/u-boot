@@ -241,11 +241,8 @@ int macb_miiphy_read(struct mii_dev *bus, int phy_adr, int devad, int reg)
 	struct macb_device *macb = to_macb(dev);
 #endif
 
-	if (macb->phy_addr != phy_adr)
-		return -1;
-
 	arch_get_mdio_control(bus->name);
-	value = macb_mdio_read(macb, macb->phy_addr, reg);
+	value = macb_mdio_read(macb, phy_adr, reg);
 
 	return value;
 }
@@ -261,11 +258,8 @@ int macb_miiphy_write(struct mii_dev *bus, int phy_adr, int devad, int reg,
 	struct macb_device *macb = to_macb(dev);
 #endif
 
-	if (macb->phy_addr != phy_adr)
-		return -1;
-
 	arch_get_mdio_control(bus->name);
-	macb_mdio_write(macb, macb->phy_addr, reg, value);
+	macb_mdio_write(macb, phy_adr, reg, value);
 
 	return 0;
 }
