@@ -442,6 +442,7 @@ config CMD_FITUPD
 
 config CMD_THOR_DOWNLOAD
 	bool "thor - TIZEN 'thor' download"
+	select DFU
 	help
 	  Implements the 'thor' download protocol. This is a way of
 	  downloading a software update over USB from an attached host.
