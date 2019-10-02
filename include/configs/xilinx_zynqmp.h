@@ -242,7 +242,11 @@
 # define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0 /* unused */
 # define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	0 /* unused */
 # define CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR	0 /* unused */
-# define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
+# if defined(CONFIG_SPL_LOAD_FIT)
+#  define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.itb"
+# else
+#  define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
+# endif
 #endif
 
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_DFU)
