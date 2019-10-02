@@ -352,6 +352,7 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 		struct blk_desc *blk_dev = mmc_get_blk_desc(mmc);
 		int mmcdev = second_arg;
 		int mmcpart = third_arg;
+		int offset = 0;
 
 		if (part_get_info(blk_dev, mmcpart, &partinfo) != 0) {
 			pr_err("Couldn't find part #%d on mmc device #%d\n",
@@ -359,9 +360,17 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 			return -ENODEV;
 		}
 
+		/*
+		 * Check for an extra entry at dfu_alt_info env variable
+		 * specifying the mmc HW defined partition number
+		 */
+		if (s)
+			if (!strcmp(strsep(&s, " "), "offset"))
+				offset = simple_strtoul(s, NULL, 0);
+
 		dfu->layout			= DFU_RAW_ADDR;
-		dfu->data.mmc.lba_start		= partinfo.start;
-		dfu->data.mmc.lba_size		= partinfo.size;
+		dfu->data.mmc.lba_start		= partinfo.start + offset;
+		dfu->data.mmc.lba_size		= partinfo.size-offset;
 		dfu->data.mmc.lba_blk_size	= partinfo.blksz;
 	} else if (!strcmp(entity_type, "fat")) {
 		dfu->layout = DFU_FS_FAT;
