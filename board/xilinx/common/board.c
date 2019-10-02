@@ -40,7 +40,7 @@ int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
 #if defined(CONFIG_OF_BOARD)
 void *board_fdt_blob_setup(void)
 {
-	static void *fw_dtb = (void *)CONFIG_VERSAL_OF_BOARD_DTB_ADDR;
+	static void *fw_dtb = (void *)CONFIG_XILINX_OF_BOARD_DTB_ADDR;
 
 	if (fdt_magic(fw_dtb) != FDT_MAGIC) {
 		printf("DTB is not passed via %p\n", fw_dtb);
