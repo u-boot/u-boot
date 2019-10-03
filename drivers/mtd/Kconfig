@@ -3,6 +3,12 @@ menu "MTD Support"
 config MTD_PARTITIONS
 	bool
 
+config MTD
+	bool "Enable MTD layer"
+	help
+	  Enable the MTD stack, necessary to interract with NAND, NOR,
+	  SPI-NOR, SPI-NAND, onenand, etc.
+
 config DM_MTD
 	bool "Enable Driver Model for MTD drivers"
 	depends on DM
@@ -15,12 +21,6 @@ config MTD_NOR_FLASH
 	bool "Enable parallel NOR flash support"
 	help
 	  Enable support for parallel NOR flash.
-
-config MTD_DEVICE
-	bool "Enable MTD Device for NAND and ONENAND devices"
-	help
-	  Adds the MTD device infrastructure from the Linux kernel.
-	  Needed for mtdparts command support.
 
 config FLASH_CFI_DRIVER
 	bool "Enable CFI Flash driver"
