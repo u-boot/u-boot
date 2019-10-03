@@ -26,7 +26,7 @@
 #define CONFIG_RESET_VECTOR_ADDRESS	0x110bfffc
 #endif
 
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 #define CONFIG_SPL_INIT_MINIMAL
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
@@ -307,7 +307,7 @@ combinations. this should be removed later
 #endif
 
 /* Set up IFC registers for boot location NOR/NAND */
-#if defined(CONFIG_NAND) || defined(CONFIG_NAND_SECBOOT)
+#if defined(CONFIG_MTD_RAW_NAND) || defined(CONFIG_NAND_SECBOOT)
 #define CONFIG_SYS_CSPR0		CONFIG_SYS_NAND_CSPR
 #define CONFIG_SYS_AMASK0		CONFIG_SYS_NAND_AMASK
 #define CONFIG_SYS_CSOR0		CONFIG_SYS_NAND_CSOR
@@ -448,7 +448,7 @@ combinations. this should be removed later
 #if defined(CONFIG_RAMBOOT_SDCARD)
 #define CONFIG_FSL_FIXED_MMC_LOCATION
 #define CONFIG_SYS_MMC_ENV_DEV		0
-#elif defined(CONFIG_NAND) || defined(CONFIG_NAND_SECBOOT)
+#elif defined(CONFIG_MTD_RAW_NAND) || defined(CONFIG_NAND_SECBOOT)
 #define CONFIG_ENV_RANGE	(3 * CONFIG_ENV_SIZE)
 #endif
 

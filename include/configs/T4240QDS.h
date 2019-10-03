@@ -16,7 +16,7 @@
 
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_SYS_FSL_PBL_PBI board/freescale/t4qds/t4_pbi.cfg
-#if !defined(CONFIG_NAND) && !defined(CONFIG_SDCARD)
+#if !defined(CONFIG_MTD_RAW_NAND) && !defined(CONFIG_SDCARD)
 #define CONFIG_RAMBOOT_TEXT_BASE        CONFIG_SYS_TEXT_BASE
 #define CONFIG_RESET_VECTOR_ADDRESS     0xfffffffc
 #else
@@ -26,7 +26,7 @@
 #define RESET_VECTOR_OFFSET		0x27FFC
 #define BOOT_PAGE_OFFSET		0x27000
 
-#ifdef	CONFIG_NAND
+#ifdef	CONFIG_MTD_RAW_NAND
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	(768 << 10)
 #define CONFIG_SYS_NAND_U_BOOT_DST	0x00200000
 #define CONFIG_SYS_NAND_U_BOOT_START	0x00200000
@@ -223,7 +223,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_NAND_MAX_OOBFREE	2
 #define CONFIG_SYS_NAND_MAX_ECCPOS	256
 
-#if defined(CONFIG_NAND)
+#if defined(CONFIG_MTD_RAW_NAND)
 #define CONFIG_SYS_CSPR0_EXT		CONFIG_SYS_NAND_CSPR_EXT
 #define CONFIG_SYS_CSPR0		CONFIG_SYS_NAND_CSPR
 #define CONFIG_SYS_AMASK0		CONFIG_SYS_NAND_AMASK
@@ -385,7 +385,7 @@ unsigned long get_board_ddr_clk(void);
  * 0x2000 (16 blocks), 8 + 2048 + 16 = 2072, enlarge it to 2080.
  */
 #define CONFIG_SYS_FMAN_FW_ADDR	(512 * 0x820)
-#elif defined(CONFIG_NAND)
+#elif defined(CONFIG_MTD_RAW_NAND)
 #define CONFIG_SYS_FMAN_FW_ADDR	(11 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #elif defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
 /*

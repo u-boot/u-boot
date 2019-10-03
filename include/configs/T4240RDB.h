@@ -386,7 +386,7 @@ unsigned long get_board_ddr_clk(void);
 
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(512 * 1024)
 
-#if defined(CONFIG_NAND)
+#if defined(CONFIG_MTD_RAW_NAND)
 #define CONFIG_SYS_CSPR0_EXT		CONFIG_SYS_NAND_CSPR_EXT
 #define CONFIG_SYS_CSPR0		CONFIG_SYS_NAND_CSPR
 #define CONFIG_SYS_AMASK0		CONFIG_SYS_NAND_AMASK
@@ -536,7 +536,7 @@ unsigned long get_board_ddr_clk(void);
  * 0x2000 (16 blocks), 8 + 2048 + 16 = 2072, enlarge it to 2080.
  */
 #define CONFIG_SYS_FMAN_FW_ADDR	(512 * 0x820)
-#elif defined(CONFIG_NAND)
+#elif defined(CONFIG_MTD_RAW_NAND)
 #define CONFIG_SYS_FMAN_FW_ADDR	(8 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #else
 #define CONFIG_SYS_FMAN_FW_ADDR	0xEFF00000

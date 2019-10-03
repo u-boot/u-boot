@@ -303,7 +303,7 @@ config NOR_BOOT
 config NAND_BOOT
 	bool "Support for booting from NAND flash"
 	default n
-	imply NAND
+	imply MTD_RAW_NAND
 	help
 	  Enabling this will make a U-Boot binary that is capable of being
 	  booted via NAND flash. This is not a must, some SoCs need this,
@@ -312,7 +312,7 @@ config NAND_BOOT
 config ONENAND_BOOT
 	bool "Support for booting from ONENAND"
 	default n
-	imply NAND
+	imply MTD_RAW_NAND
 	help
 	  Enabling this will make a U-Boot binary that is capable of being
 	  booted via ONENAND. This is not a must, some SoCs need this,

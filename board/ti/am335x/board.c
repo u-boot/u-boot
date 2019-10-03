@@ -710,7 +710,7 @@ int board_init(void)
 #endif
 
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
-#if defined(CONFIG_NOR) || defined(CONFIG_NAND)
+#if defined(CONFIG_NOR) || defined(CONFIG_MTD_RAW_NAND)
 	gpmc_init();
 #endif
 

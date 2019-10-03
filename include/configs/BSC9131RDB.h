@@ -18,7 +18,7 @@
 #define CONFIG_RESET_VECTOR_ADDRESS	0x110bfffc
 #endif
 
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 #define CONFIG_SPL_INIT_MINIMAL
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
@@ -250,7 +250,7 @@ extern unsigned long get_sdram_size(void);
  * Environment
  */
 #if defined(CONFIG_RAMBOOT_SPIFLASH)
-#elif defined(CONFIG_NAND)
+#elif defined(CONFIG_MTD_RAW_NAND)
 #define CONFIG_ENV_RANGE	(3 * CONFIG_ENV_SIZE)
 #endif
 

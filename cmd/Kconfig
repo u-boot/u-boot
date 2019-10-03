@@ -1954,7 +1954,7 @@ config CMD_JFFS2
 
 config CMD_MTDPARTS
 	bool "MTD partition support"
-	select MTD_DEVICE if (CMD_NAND || NAND)
+	select MTD_DEVICE if (CMD_NAND || MTD_RAW_NAND)
 	help
 	  MTD partitioning tool support.
 	  It is strongly encouraged to avoid using this command

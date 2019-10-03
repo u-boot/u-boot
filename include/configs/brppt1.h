@@ -46,20 +46,20 @@
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	0x80	/* 64KiB */
 
 /* NAND */
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 #define CONFIG_SYS_NAND_SPL_KERNEL_OFFS		0x140000
-#endif /* CONFIG_NAND */
+#endif /* CONFIG_MTD_RAW_NAND */
 #endif /* CONFIG_SPL_OS_BOOT */
 
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 #define CONFIG_SPL_NAND_BASE
 #define CONFIG_SPL_NAND_DRIVERS
 #define CONFIG_SPL_NAND_ECC
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
-#endif /* CONFIG_NAND */
+#endif /* CONFIG_MTD_RAW_NAND */
 
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 #define NANDTGTS \
 "mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
 "mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
@@ -74,7 +74,7 @@
 "b_tgts_pme=usb0 nand net\0"
 #else
 #define NANDTGTS ""
-#endif /* CONFIG_NAND */
+#endif /* CONFIG_MTD_RAW_NAND */
 
 #define MMCSPI_TGTS \
 "t30args#0=setenv bootargs ${optargs_rot} ${optargs} console=${console} " \
@@ -147,7 +147,7 @@ NANDTGTS \
 " if test ${b_break} = 1; then; exit; fi; done\0"
 #endif /* !CONFIG_SPL_BUILD*/
 
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 /*
  * GPMC  block.  We support 1 device and the physical address to
  * access CS0 at is 0x8000000.
@@ -177,7 +177,7 @@ NANDTGTS \
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
 
 #define CONFIG_NAND_OMAP_GPMC_WSCFG	1
-#endif /* CONFIG_NAND */
+#endif /* CONFIG_MTD_RAW_NAND */
 
 #if defined(CONFIG_SPI)
 /* SPI Flash */

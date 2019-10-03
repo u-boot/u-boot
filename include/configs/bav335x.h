@@ -31,7 +31,7 @@
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
 
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 #define NANDARGS \
 	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
@@ -336,7 +336,7 @@ DEFAULT_LINUX_BOOT_ENV \
 /* USB gadget RNDIS */
 #endif
 
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 /* NAND: device related configs */
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_PAGE_COUNT	(CONFIG_SYS_NAND_BLOCK_SIZE / \
@@ -365,7 +365,7 @@ DEFAULT_LINUX_BOOT_ENV \
 #ifdef CONFIG_SPL_OS_BOOT
 #define CONFIG_SYS_NAND_SPL_KERNEL_OFFS	0x00200000 /* kernel offset */
 #endif
-#endif /* !CONFIG_NAND */
+#endif /* !CONFIG_MTD_RAW_NAND */
 
 /*
  * For NOR boot, we must set this to the start of where NOR is mapped
@@ -404,7 +404,7 @@ DEFAULT_LINUX_BOOT_ENV \
 	"spl-os-image fat 0 1;" \
 	"u-boot.img fat 0 1;" \
 	"uEnv.txt fat 0 1\0"
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 #define DFU_ALT_INFO_NAND \
 	"dfu_alt_info_nand=" \
 	"SPL part 0 1;" \

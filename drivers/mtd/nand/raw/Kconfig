@@ -1,7 +1,7 @@
 
-menuconfig NAND
+menuconfig MTD_RAW_NAND
 	bool "Raw NAND Device Support"
-if NAND
+if MTD_RAW_NAND
 
 config SYS_NAND_SELF_INIT
 	bool

@@ -42,7 +42,7 @@
 #define CONFIG_NET_RETRY_COUNT		10
 
 /* Board NAND Info. */
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_PAGE_COUNT	64
 #define CONFIG_SYS_NAND_PAGE_SIZE	2048
@@ -73,7 +73,7 @@
  *  DTB                  4 * NAND_BLOCK_SIZE = 512 KiB  @ 0xAA0000
  *  RootFS              Remaining Flash Space           @ 0xB20000
  */
-#endif /* CONFIG_NAND */
+#endif /* CONFIG_MTD_RAW_NAND */
 
 /* Environment information */
 
@@ -168,7 +168,7 @@
 #define CONFIG_SYS_MAX_FLASH_BANKS	2	/* max number of flash banks */
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
 
-#if defined(CONFIG_NAND)
+#if defined(CONFIG_MTD_RAW_NAND)
 #define CONFIG_SYS_FLASH_BASE		NAND_BASE
 #endif
 

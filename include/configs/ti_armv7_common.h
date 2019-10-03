@@ -174,7 +174,7 @@
 
 /* General parts of the framework, required. */
 
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 #define CONFIG_SPL_NAND_BASE
 #define CONFIG_SPL_NAND_DRIVERS
 #define CONFIG_SPL_NAND_ECC

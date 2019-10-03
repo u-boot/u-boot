@@ -76,7 +76,7 @@ int checkboard(void)
 		printf("NOR vBank%d\n", reg);
 	}
 #elif defined(CONFIG_TARGET_T1023RDB)
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 	puts("NAND\n");
 #else
 	printf("NOR vBank%d\n", t1023rdb_ctrl(I2C_GET_BANK));

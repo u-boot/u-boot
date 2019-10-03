@@ -32,7 +32,7 @@
 
 /* commands to include */
 
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 /* NAND block size is 128 KiB.  Synchronize these values with
  * overo_nand_partitions in mach-omap2/board-overo.c in Linux:
  *  xloader              4 * NAND_BLOCK_SIZE = 512 KiB
@@ -41,7 +41,7 @@
  *  linux               64 * NAND_BLOCK_SIZE = 8 MiB
  *  rootfs              remainder
  */
-#endif /* CONFIG_NAND */
+#endif /* CONFIG_MTD_RAW_NAND */
 
 /* Board NAND Info. */
 /* Environment information */
@@ -145,7 +145,7 @@
 					0x01F00000) /* 31MB */
 
 /* FLASH and environment organization */
-#if defined(CONFIG_NAND)
+#if defined(CONFIG_MTD_RAW_NAND)
 #define CONFIG_SYS_FLASH_BASE		NAND_BASE
 #endif
 
