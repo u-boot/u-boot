@@ -127,4 +127,11 @@ config RESET_HISILICON
 	help
 	  Support for reset controller on HiSilicon SoCs.
 
+config RESET_IMX7
+	bool "i.MX7/8 Reset Driver"
+	depends on DM_RESET && (ARCH_MX7 || ARCH_IMX8M)
+	default y
+	help
+	  Support for reset controller on i.MX7/8 SoCs.
+
 endmenu
