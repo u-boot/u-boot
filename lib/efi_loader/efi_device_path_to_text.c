@@ -148,6 +148,21 @@ static char *dp_msging(char *s, struct efi_device_path *dp)
 
 		break;
 	}
+	case DEVICE_PATH_SUB_TYPE_MSG_NVME: {
+		struct efi_device_path_nvme *ndp =
+			(struct efi_device_path_nvme *)dp;
+		u32 ns_id;
+		int i;
+
+		memcpy(&ns_id, &ndp->ns_id, sizeof(ns_id));
+		s += sprintf(s, "NVMe(0x%x,", ns_id);
+		for (i = 0; i < sizeof(ndp->eui64); ++i)
+			s += sprintf(s, "%s%02x", i ? "-" : "",
+				     ndp->eui64[i]);
+		s += sprintf(s, ")");
+
+		break;
+	}
 	case DEVICE_PATH_SUB_TYPE_MSG_SD:
 	case DEVICE_PATH_SUB_TYPE_MSG_MMC: {
 		const char *typename =

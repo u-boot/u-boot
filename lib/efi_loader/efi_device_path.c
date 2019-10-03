@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <usb.h>
 #include <mmc.h>
+#include <nvme.h>
 #include <efi_loader.h>
 #include <part.h>
 #include <sandboxblockdev.h>
@@ -451,6 +452,11 @@ static unsigned dp_size(struct udevice *dev)
 			return dp_size(dev->parent) +
 				sizeof(struct efi_device_path_sd_mmc_path);
 #endif
+#if defined(CONFIG_NVME)
+		case UCLASS_NVME:
+			return dp_size(dev->parent) +
+				sizeof(struct efi_device_path_nvme);
+#endif
 #ifdef CONFIG_SANDBOX
 		case UCLASS_ROOT:
 			 /*
@@ -582,6 +588,20 @@ static void *dp_fill(void *buf, struct udevice *dev)
 			sddp->dp.length   = sizeof(*sddp);
 			sddp->slot_number = dev->seq;
 			return &sddp[1];
+			}
+#endif
+#if defined(CONFIG_NVME)
+		case UCLASS_NVME: {
+			struct efi_device_path_nvme *dp =
+				dp_fill(buf, dev->parent);
+			u32 ns_id;
+
+			dp->dp.type     = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
+			dp->dp.sub_type = DEVICE_PATH_SUB_TYPE_MSG_NVME;
+			dp->dp.length   = sizeof(*dp);
+			nvme_get_namespace_id(dev, &ns_id, dp->eui64);
+			memcpy(&dp->ns_id, &ns_id, sizeof(ns_id));
+			return &dp[1];
 			}
 #endif
 		default:
