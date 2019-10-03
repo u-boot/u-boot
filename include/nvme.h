@@ -78,4 +78,16 @@ int nvme_scan_namespace(void);
  */
 int nvme_print_info(struct udevice *udev);
 
+/**
+ * nvme_get_namespace_id - return namespace identifier
+ *
+ * This returns the namespace identifier.
+ *
+ * @udev:	NVMe controller device
+ * @ns_id:	Place where to put the name space identifier
+ * @eui64:	Place where to put the IEEE Extended Unique Identifier
+ * @return:	0 on success, -ve on error
+ */
+int nvme_get_namespace_id(struct udevice *udev, u32 *ns_id, u8 *eui64);
+
 #endif /* __NVME_H__ */

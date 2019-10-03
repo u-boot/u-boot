@@ -621,6 +621,18 @@ static int nvme_get_info_from_identify(struct nvme_dev *dev)
 	return 0;
 }
 
+int nvme_get_namespace_id(struct udevice *udev, u32 *ns_id, u8 *eui64)
+{
+	struct nvme_ns *ns = dev_get_priv(udev);
+
+	if (ns_id)
+		*ns_id = ns->ns_id;
+	if (eui64)
+		memcpy(eui64, ns->eui64, sizeof(ns->eui64));
+
+	return 0;
+}
+
 int nvme_scan_namespace(void)
 {
 	struct uclass *uc;
@@ -657,6 +669,7 @@ static int nvme_blk_probe(struct udevice *udev)
 	if (nvme_identify(ndev, ns->ns_id, 0, (dma_addr_t)(long)id))
 		return -EIO;
 
+	memcpy(&ns->eui64, &id->eui64, sizeof(id->eui64));
 	flbas = id->flbas & NVME_NS_FLBAS_LBA_MASK;
 	ns->flbas = flbas;
 	ns->lba_shift = id->lbaf[flbas].ds;
