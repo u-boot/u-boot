@@ -19,6 +19,7 @@
 #include <dt-bindings/input/input.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/pinctrl/pins-imx8mq.h>
+#include <dt-bindings/reset/imx8mq-reset.h>
 #include <dt-bindings/power/imx8mq-power.h>
 #include <dt-bindings/thermal/thermal.h>
 
@@ -262,6 +263,12 @@
 		interrupts = <GIC_SPI 85 IRQ_TYPE_LEVEL_HIGH>,
 			<GIC_SPI 86 IRQ_TYPE_LEVEL_HIGH>;
 		#clock-cells = <1>;
+	};
+
+	src: reset-controller@30390000 {
+		compatible = "fsl,imx8mq-src", "syscon";
+		reg = <0x0 0x30390000 0x0 0x10000>;
+		#reset-cells = <1>;
 	};
 
 	gpc: gpc@303a0000 {
