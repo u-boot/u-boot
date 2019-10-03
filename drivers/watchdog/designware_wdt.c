@@ -3,8 +3,10 @@
  * Copyright (C) 2013 Altera Corporation <www.altera.com>
  */
 
+#include <clk.h>
 #include <common.h>
 #include <dm.h>
+#include <reset.h>
 #include <wdt.h>
 #include <asm/io.h>
 #include <asm/utils.h>
@@ -15,11 +17,11 @@
 
 #define DW_WDT_CR_EN_OFFSET	0x00
 #define DW_WDT_CR_RMOD_OFFSET	0x01
-#define DW_WDT_CR_RMOD_VAL	0x00
 #define DW_WDT_CRR_RESTART_VAL	0x76
 
 struct designware_wdt_priv {
 	void __iomem	*base;
+	unsigned int	clk_khz;
 };
 
 /*
@@ -42,9 +44,7 @@ static int designware_wdt_settimeout(void __iomem *base, unsigned int clk_khz,
 
 static void designware_wdt_enable(void __iomem *base)
 {
-	writel((DW_WDT_CR_RMOD_VAL << DW_WDT_CR_RMOD_OFFSET) |
-		BIT(DW_WDT_CR_EN_OFFSET),
-		base + DW_WDT_CR);
+	writel(BIT(DW_WDT_CR_EN_OFFSET), base + DW_WDT_CR);
 }
 
 static unsigned int designware_wdt_is_enabled(void __iomem *base)
@@ -93,8 +93,7 @@ static int designware_wdt_stop(struct udevice *dev)
 	struct designware_wdt_priv *priv = dev_get_priv(dev);
 
 	designware_wdt_reset(dev);
-	writel(DW_WDT_CR_RMOD_VAL << DW_WDT_CR_RMOD_OFFSET,
-		priv->base + DW_WDT_CR);
+	writel(0, priv->base + DW_WDT_CR);
 
 	return 0;
 }
@@ -106,7 +105,7 @@ static int designware_wdt_start(struct udevice *dev, u64 timeout, ulong flags)
 	designware_wdt_stop(dev);
 
 	/* set timer in miliseconds */
-	designware_wdt_settimeout(priv->base, CONFIG_DW_WDT_CLOCK_KHZ, timeout);
+	designware_wdt_settimeout(priv->base, priv->clk_khz, timeout);
 
 	designware_wdt_enable(priv->base);
 
@@ -117,10 +116,37 @@ static int designware_wdt_start(struct udevice *dev, u64 timeout, ulong flags)
 static int designware_wdt_probe(struct udevice *dev)
 {
 	struct designware_wdt_priv *priv = dev_get_priv(dev);
+	__maybe_unused int ret;
 
 	priv->base = dev_remap_addr(dev);
 	if (!priv->base)
 		return -EINVAL;
+
+#if CONFIG_IS_ENABLED(CLK)
+	struct clk clk;
+
+	ret = clk_get_by_index(dev, 0, &clk);
+	if (ret)
+		return ret;
+
+	priv->clk_khz = clk_get_rate(&clk);
+	if (!priv->clk_khz)
+		return -EINVAL;
+#else
+	priv->clk_khz = CONFIG_DW_WDT_CLOCK_KHZ;
+#endif
+
+#if CONFIG_IS_ENABLED(DM_RESET)
+	struct reset_ctl_bulk resets;
+
+	ret = reset_get_bulk(dev, &resets);
+	if (ret)
+		return ret;
+
+	ret = reset_deassert_bulk(&resets);
+	if (ret)
+		return ret;
+#endif
 
 	/* reset to disable the watchdog */
 	return designware_wdt_stop(dev);
