@@ -366,7 +366,7 @@ F:	arch/arm/include/asm/arch-stv0991/
 
 ARM SUNXI
 M:	Jagan Teki <jagan@amarulasolutions.com>
-M:	Maxime Ripard <maxime.ripard@bootlin.com>
+M:	Maxime Ripard <mripard@kernel.org>
 S:	Maintained
 T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-sunxi.git
 F:	arch/arm/cpu/armv7/sunxi/
