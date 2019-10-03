@@ -44,7 +44,7 @@ typedef struct {
 	uchar   sr_supported;		/* status register supported            */
 	const char *name;		/* human-readable name	                */
 #endif
-#ifdef CONFIG_MTD
+#ifdef CONFIG_DM_MTD
 	struct mtd_info *mtd;
 #endif
 #ifdef CONFIG_CFI_FLASH			/* DM-specific parts */

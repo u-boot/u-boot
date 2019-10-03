@@ -99,7 +99,7 @@ int mtd_search_alternate_name(const char *mtdname, char *altname,
 	return -EINVAL;
 }
 
-#if IS_ENABLED(CONFIG_MTD)
+#if IS_ENABLED(CONFIG_DM_MTD)
 static void mtd_probe_uclass_mtd_devs(void)
 {
 	struct udevice *dev;

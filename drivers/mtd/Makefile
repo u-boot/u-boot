@@ -6,7 +6,7 @@
 ifneq (,$(findstring y,$(CONFIG_MTD_DEVICE)$(CONFIG_CMD_NAND)$(CONFIG_CMD_ONENAND)$(CONFIG_CMD_SF)$(CONFIG_CMD_MTD)))
 obj-y += mtdcore.o mtd_uboot.o
 endif
-obj-$(CONFIG_MTD) += mtd-uclass.o
+obj-$(CONFIG_DM_MTD) += mtd-uclass.o
 obj-$(CONFIG_MTD_PARTITIONS) += mtdpart.o
 obj-$(CONFIG_MTD_CONCAT) += mtdconcat.o
 obj-$(CONFIG_ALTERA_QSPI) += altera_qspi.o
