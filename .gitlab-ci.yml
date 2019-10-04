@@ -2,7 +2,7 @@
 
 # Grab our configured image.  The source for this is found at:
 # https://gitlab.denx.de/u-boot/gitlab-ci-runner
-image: trini/u-boot-gitlab-ci-runner:xenial-20190720-02Aug2019
+image: trini/u-boot-gitlab-ci-runner:bionic-20190912.1-03Oct2019
 
 # We run some tests in different order, to catch some failures quicker.
 stages:
@@ -22,8 +22,9 @@ stages:
     - . /tmp/venv/bin/activate
     - pip install pytest==2.8.7
     - pip install python-subunit
-    - grub-mkimage -o ~/grub_x86.efi -O i386-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
-    - grub-mkimage -o ~/grub_x64.efi -O x86_64-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
+    - pip install coverage
+    - grub-mkimage --prefix="" -o ~/grub_x86.efi -O i386-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
+    - grub-mkimage --prefix="" -o ~/grub_x64.efi -O x86_64-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
     - mkdir ~/grub2-arm
     - ( cd ~/grub2-arm; wget -O - http://download.opensuse.org/ports/armv7hl/distribution/leap/42.2/repo/oss/suse/armv7hl/grub2-arm-efi-2.02~beta2-87.1.armv7hl.rpm | rpm2cpio | cpio -di )
     - mkdir ~/grub2-arm64
