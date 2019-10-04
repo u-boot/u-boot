@@ -36,9 +36,9 @@ stages:
     # use clang only do one configuration.
     - if [[ "${BUILDMAN}" != "" ]]; then
         ret=0;
-        tools/buildman/buildman -P -E ${BUILDMAN} ${OVERRIDE}|| ret=$?;
+        tools/buildman/buildman -o /tmp -P -E ${BUILDMAN} ${OVERRIDE}|| ret=$?;
         if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-          tools/buildman/buildman -sdeP ${BUILDMAN};
+          tools/buildman/buildman -o /tmp -sdeP ${BUILDMAN};
           exit $ret;
         fi;
       fi
@@ -46,7 +46,7 @@ stages:
     # never prevent any test from running. That way, we can always pass
     # "-k something" even when $TEST_PY_TEST_SPEC doesnt need a custom
     # value.
-    - export UBOOT_TRAVIS_BUILD_DIR=`cd .. && pwd`/.bm-work/${TEST_PY_BD};
+    - export UBOOT_TRAVIS_BUILD_DIR=/tmp/.bm-work/${TEST_PY_BD};
       export PATH=/opt/qemu/bin:/tmp/uboot-test-hooks/bin:/usr/bin:/bin;
       export PYTHONPATH=/tmp/uboot-test-hooks/py/travis-ci;
       if [[ "${TEST_PY_BD}" != "" ]]; then
@@ -64,9 +64,9 @@ build all 32bit ARM platforms:
   stage: world build
   script:
     - ret=0;
-     ./tools/buildman/buildman -P -E arm -x aarch64 || ret=$?;
+     ./tools/buildman/buildman -o /tmp -P -E arm -x aarch64 || ret=$?;
      if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-       ./tools/buildman/buildman -sdeP;
+       ./tools/buildman/buildman -o /tmp -sdeP;
        exit $ret;
      fi;
 
@@ -78,9 +78,9 @@ build all 64bit ARM platforms:
     - . /tmp/venv/bin/activate
     - pip install pyelftools
     - ret=0;
-     ./tools/buildman/buildman -P -E aarch64 || ret=$?;
+     ./tools/buildman/buildman -o /tmp -P -E aarch64 || ret=$?;
      if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-       ./tools/buildman/buildman -sdeP;
+       ./tools/buildman/buildman -o /tmp -sdeP;
        exit $ret;
      fi;
 
@@ -89,9 +89,9 @@ build all PowerPC platforms:
   stage: world build
   script:
     - ret=0;
-     ./tools/buildman/buildman -P -E powerpc || ret=$?;
+     ./tools/buildman/buildman -o /tmp -P -E powerpc || ret=$?;
      if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-       ./tools/buildman/buildman -sdeP;
+       ./tools/buildman/buildman -o /tmp -sdeP;
        exit $ret;
      fi;
 
@@ -100,9 +100,9 @@ build all other platforms:
   stage: world build
   script:
     - ret=0;
-     ./tools/buildman/buildman -P -E -x arm,powerpc || ret=$?;
+     ./tools/buildman/buildman -o /tmp -P -E -x arm,powerpc || ret=$?;
      if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-       ./tools/buildman/buildman -sdeP;
+       ./tools/buildman/buildman -o /tmp -sdeP;
        exit $ret;
      fi;
 
@@ -162,10 +162,10 @@ Run binman, buildman, dtoc and patman testsuites:
       virtualenv /tmp/venv;
       . /tmp/venv/bin/activate;
       pip install pyelftools;
-      export UBOOT_TRAVIS_BUILD_DIR=`cd .. && pwd`/.bm-work/sandbox_spl;
+      export UBOOT_TRAVIS_BUILD_DIR=/tmp/.bm-work/sandbox_spl;
       export PYTHONPATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt";
       export PATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc:${PATH}";
-      ./tools/buildman/buildman -P sandbox_spl;
+      ./tools/buildman/buildman -o /tmp -P sandbox_spl;
       ./tools/binman/binman --toolpath ${UBOOT_TRAVIS_BUILD_DIR}/tools test;
       ./tools/buildman/buildman -t;
       ./tools/dtoc/dtoc -t;
