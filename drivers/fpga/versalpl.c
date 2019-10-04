@@ -8,6 +8,7 @@
 #include <asm/arch/sys_proto.h>
 #include <memalign.h>
 #include <versalpl.h>
+#include <zynqmp_firmware.h>
 
 static ulong versal_align_dma_buffer(ulong *buf, u32 len)
 {

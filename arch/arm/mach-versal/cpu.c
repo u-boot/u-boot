@@ -9,7 +9,6 @@
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
-#include <zynqmp_firmware.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -108,28 +107,3 @@ int reserve_mmu(void)
 	return 0;
 }
 #endif
-
-int versal_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
-		      u32 arg3, u32 *ret_payload)
-{
-	struct pt_regs regs;
-
-	if (current_el() == 3)
-		return 0;
-
-	regs.regs[0] = PM_SIP_SVC | api_id;
-	regs.regs[1] = ((u64)arg1 << 32) | arg0;
-	regs.regs[2] = ((u64)arg3 << 32) | arg2;
-
-	smc_call(&regs);
-
-	if (ret_payload) {
-		ret_payload[0] = (u32)regs.regs[0];
-		ret_payload[1] = upper_32_bits(regs.regs[0]);
-		ret_payload[2] = (u32)regs.regs[1];
-		ret_payload[3] = upper_32_bits(regs.regs[1]);
-		ret_payload[4] = (u32)regs.regs[2];
-	}
-
-	return regs.regs[0];
-}

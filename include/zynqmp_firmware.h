@@ -81,5 +81,9 @@ enum pm_api_id {
 
 unsigned int zynqmp_firmware_version(void);
 void zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size);
+int invoke_smc(u32 pm_api_id, u32 arg0, u32 arg1, u32 arg2, u32 arg3,
+	       u32 *ret_payload);
+int versal_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
+		      u32 arg3, u32 *ret_payload);
 
 #endif /* _ZYNQMP_FIRMWARE_H_ */
