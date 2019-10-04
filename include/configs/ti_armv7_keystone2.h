@@ -217,8 +217,8 @@
 	"addr_secdb_key=0xc000000\0"					\
 	"name_kern=zImage\0"						\
 	"addr_mon=0x87000000\0"						\
-	"addr_non_sec_mon=0x0c087fc0\0"					\
-	"addr_load_sec_bm=0x0c08c000\0"					\
+	"addr_non_sec_mon=0x0c097fc0\0"					\
+	"addr_load_sec_bm=0x0c09c000\0"					\
 	"run_mon=mon_install ${addr_mon}\0"				\
 	"run_mon_hs=mon_install ${addr_non_sec_mon} "			\
 			"${addr_load_sec_bm}\0"				\

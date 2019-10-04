@@ -7,3 +7,4 @@ F:     configs/imx6q_logic_defconfig
 F:     arch/arm/dts/imx6-logicpd-baseboard.dtsi
 F:     arch/arm/dts/imx6-logicpd-som.dtsi
 F:     arch/arm/dts/imx6q-logicpd.dts
+F:     arch/arm/dts/imx6q-logicpd-u-boot.dtsi

@@ -28,6 +28,7 @@ alias jaehoon        Jaehoon Chung <jh80.chung@samsung.com>
 alias jagan          Jagan Teki <jagan@amarulasolutions.com>
 alias jhersh         Joe Hershberger <joe.hershberger@ni.com>
 alias kevery         Kever Yang <kever.yang@rock-chips.com>
+alias leyfoon        Ley Foon Tan <ley.foon.tan@intel.com>
 alias lukma          Lukasz Majewski <lukma@denx.de>
 alias macpaul        Macpaul Lin <macpaul@andestech.com>
 alias marex          Marek Vasut <marex@denx.de>
@@ -66,7 +67,7 @@ alias s3c            samsung
 alias s5pc           samsung
 alias samsung        uboot, prom
 alias snapdragon     uboot, mateusz
-alias socfpga        uboot, marex, dinh, simongoldschmidt
+alias socfpga        uboot, marex, dinh, simongoldschmidt, leyfoon
 alias sunxi          uboot, jagan, maxime
 alias tegra          uboot, sjg, Tom Warren <twarren@nvidia.com>, Stephen Warren <swarren@nvidia.com>
 alias tegra2         tegra

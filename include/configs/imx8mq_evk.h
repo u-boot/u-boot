@@ -69,7 +69,6 @@
 #undef CONFIG_CMD_IMLS
 
 #undef CONFIG_CMD_CRC32
-#undef CONFIG_BOOTM_NETBSD
 
 /* ENET Config */
 /* ENET1 */

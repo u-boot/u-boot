@@ -172,6 +172,7 @@ config AUTOBOOT_MENUKEY
 
 config AUTOBOOT_MENU_SHOW
 	bool "Show a menu on boot"
+	depends on CMD_BOOTMENU
 	help
 	  This enables the boot menu, controlled by environment variables
 	  defined by the board. The menu starts after running the 'preboot'
@@ -266,6 +267,54 @@ config CMD_BOOTEFI
 	default y
 	help
 	  Boot an EFI image from memory.
+
+config BOOTM_LINUX
+	bool "Support booting Linux OS images"
+	depends on CMD_BOOTM || CMD_BOOTZ || CMD_BOOTI
+	default y
+	help
+	  Support booting the Linux kernel directly via a command such as bootm
+	  or booti or bootz.
+
+config BOOTM_NETBSD
+	bool "Support booting NetBSD (non-EFI) loader images"
+	depends on CMD_BOOTM
+	default y
+	help
+	  Support booting NetBSD via the bootm command.
+
+config BOOTM_OPENRTOS
+	bool "Support booting OPENRTOS / FreeRTOS images"
+	depends on CMD_BOOTM
+	help
+	  Support booting OPENRTOS / FreeRTOS via the bootm command.
+
+config BOOTM_OSE
+	bool "Support booting Enea OSE images"
+	depends on CMD_BOOTM
+	help
+	  Support booting Enea OSE images via the bootm command.
+
+config BOOTM_PLAN9
+	bool "Support booting Plan9 OS images"
+	depends on CMD_BOOTM
+	default y
+	help
+	  Support booting Plan9 images via the bootm command.
+
+config BOOTM_RTEMS
+	bool "Support booting RTEMS OS images"
+	depends on CMD_BOOTM
+	default y
+	help
+	  Support booting RTEMS images via the bootm command.
+
+config BOOTM_VXWORKS
+	bool "Support booting VxWorks OS images"
+	depends on CMD_BOOTM
+	default y
+	help
+	  Support booting VxWorks images via the bootm command.
 
 config CMD_BOOTEFI_HELLO_COMPILE
 	bool "Compile a standard EFI hello world binary for testing"
@@ -1468,7 +1517,7 @@ config CMD_BMP
 	bool "Enable 'bmp' command"
 	depends on LCD || DM_VIDEO || VIDEO
 	help
-	  This provides a way to obtain information about a BMP-format iamge
+	  This provides a way to obtain information about a BMP-format image
 	  and to display it. BMP (which presumably stands for BitMaP) is a
 	  file format defined by Microsoft which supports images of various
 	  depths, formats and compression methods. Headers on the file

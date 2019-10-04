@@ -35,9 +35,6 @@
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 #endif
 
-#undef CONFIG_BOOTM_PLAN9
-#undef CONFIG_BOOTM_RTEMS
-
 /* I2C configs */
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_SPEED		100000
