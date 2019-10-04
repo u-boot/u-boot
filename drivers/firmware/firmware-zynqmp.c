@@ -54,7 +54,7 @@ static int send_req(const u32 *req, size_t req_len, u32 *res, size_t res_maxlen)
 	if (IS_ENABLED(CONFIG_SPL_BUILD))
 		return ipi_req(req, req_len, res, res_maxlen);
 
-	return invoke_smc(req[0] + PM_SIP_SVC, 0, 0, 0, 0, res);
+	return xilinx_pm_request(req[0], 0, 0, 0, 0, res);
 }
 
 unsigned int zynqmp_firmware_version(void)
@@ -147,8 +147,8 @@ U_BOOT_DRIVER(zynqmp_power) = {
 };
 #endif
 
-int __maybe_unused invoke_smc(u32 pm_api_id, u32 arg0, u32 arg1, u32 arg2,
-			      u32 arg3, u32 *ret_payload)
+int __maybe_unused xilinx_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
+				     u32 arg3, u32 *ret_payload)
 {
 	/*
 	 * Added SIP service call Function Identifier
@@ -159,7 +159,7 @@ int __maybe_unused invoke_smc(u32 pm_api_id, u32 arg0, u32 arg1, u32 arg2,
 	if (current_el() == 3)
 		return 0;
 
-	regs.regs[0] = pm_api_id;
+	regs.regs[0] = PM_SIP_SVC | api_id;
 	regs.regs[1] = ((u64)arg1 << 32) | arg0;
 	regs.regs[2] = ((u64)arg3 << 32) | arg2;
 
@@ -174,13 +174,6 @@ int __maybe_unused invoke_smc(u32 pm_api_id, u32 arg0, u32 arg1, u32 arg2,
 	}
 
 	return regs.regs[0];
-}
-
-int __maybe_unused xilinx_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
-				     u32 arg3, u32 *ret_payload)
-{
-	return invoke_smc(PM_SIP_SVC | api_id, arg0, arg1, arg2, arg3,
-			  ret_payload);
 }
 
 static const struct udevice_id zynqmp_firmware_ids[] = {

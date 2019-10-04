@@ -51,8 +51,8 @@ static int do_zynqmp_verify_secure(cmd_tbl_t *cmdtp, int flag, int argc,
 				   (ulong)(key_ptr + KEY_PTR_LEN));
 	}
 
-	ret = invoke_smc(ZYNQMP_SIP_SVC_PM_SECURE_IMG_LOAD, src_lo, src_hi,
-			 key_lo, key_hi, ret_payload);
+	ret = xilinx_pm_request(PM_SECURE_IMAGE, src_lo, src_hi,
+				key_lo, key_hi, ret_payload);
 	if (ret) {
 		printf("Failed: secure op status:0x%x\n", ret);
 	} else {

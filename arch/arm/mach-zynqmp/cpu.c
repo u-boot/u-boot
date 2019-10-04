@@ -151,9 +151,6 @@ unsigned int zynqmp_get_silicon_version(void)
 	return ZYNQMP_CSU_VERSION_SILICON;
 }
 
-#define ZYNQMP_MMIO_READ	0xC2000014
-#define ZYNQMP_MMIO_WRITE	0xC2000013
-
 static int zynqmp_mmio_rawwrite(const u32 address,
 		      const u32 mask,
 		      const u32 value)
@@ -187,8 +184,8 @@ int zynqmp_mmio_write(const u32 address,
 		return zynqmp_mmio_rawwrite(address, mask, value);
 #if defined(CONFIG_ZYNQMP_FIRMWARE)
 	else
-		return invoke_smc(ZYNQMP_MMIO_WRITE, address, mask,
-				  value, 0, NULL);
+		return xilinx_pm_request(PM_MMIO_WRITE, address, mask,
+					 value, 0, NULL);
 #endif
 
 	return -EINVAL;
@@ -208,8 +205,8 @@ int zynqmp_mmio_read(const u32 address, u32 *value)
 	else {
 		u32 ret_payload[PAYLOAD_ARG_CNT];
 
-		ret = invoke_smc(ZYNQMP_MMIO_READ, address, 0, 0,
-				 0, ret_payload);
+		ret = xilinx_pm_request(PM_MMIO_READ, address, 0, 0,
+					0, ret_payload);
 		*value = ret_payload[1];
 	}
 #endif

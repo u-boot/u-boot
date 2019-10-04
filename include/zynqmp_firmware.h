@@ -63,8 +63,6 @@ enum pm_api_id {
 };
 
 #define PM_SIP_SVC      0xc2000000
-#define ZYNQMP_SIP_SVC_PM_SECURE_IMG_LOAD       \
-	(PM_SIP_SVC + PM_SECURE_IMAGE)
 
 #define ZYNQMP_PM_VERSION_MAJOR         1
 #define ZYNQMP_PM_VERSION_MINOR         0
@@ -81,8 +79,6 @@ enum pm_api_id {
 
 unsigned int zynqmp_firmware_version(void);
 void zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size);
-int invoke_smc(u32 pm_api_id, u32 arg0, u32 arg1, u32 arg2, u32 arg3,
-	       u32 *ret_payload);
 int xilinx_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
 		      u32 arg3, u32 *ret_payload);
 

@@ -227,11 +227,12 @@ static int zynqmp_load(xilinx_desc *desc, const void *buf, size_t bsize,
 	buf_hi = upper_32_bits(bin_buf);
 
 	if (xilfpga_old)
-		ret = invoke_smc(ZYNQMP_SIP_SVC_PM_FPGA_LOAD, buf_lo, buf_hi,
-				 (u32)(uintptr_t)bsizeptr, bstype, ret_payload);
+		ret = xilinx_pm_request(ZYNQMP_SIP_SVC_PM_FPGA_LOAD, buf_lo,
+					buf_hi, (u32)(uintptr_t)bsizeptr,
+					bstype, ret_payload);
 	else
-		ret = invoke_smc(ZYNQMP_SIP_SVC_PM_FPGA_LOAD, buf_lo, buf_hi,
-				 (u32)bsize, 0, ret_payload);
+		ret = xilinx_pm_request(ZYNQMP_SIP_SVC_PM_FPGA_LOAD, buf_lo,
+					buf_hi, (u32)bsize, 0, ret_payload);
 
 	if (ret)
 		puts("PL FPGA LOAD fail\n");
@@ -272,7 +273,8 @@ static int zynqmp_loads(xilinx_desc *desc, const void *buf, size_t bsize,
 	buf_lo = lower_32_bits((ulong)buf);
 	buf_hi = upper_32_bits((ulong)buf);
 
-	ret = invoke_smc(ZYNQMP_SIP_SVC_PM_FPGA_LOAD, buf_lo, buf_hi,
+	ret = xilinx_pm_request(ZYNQMP_SIP_SVC_PM_FPGA_LOAD, buf_lo,
+				buf_hi,
 			 (u32)(uintptr_t)fpga_sec_info->userkey_addr,
 			 flag, ret_payload);
 	if (ret)
@@ -289,8 +291,8 @@ static int zynqmp_pcap_info(xilinx_desc *desc)
 	int ret;
 	u32 ret_payload[PAYLOAD_ARG_CNT];
 
-	ret = invoke_smc(ZYNQMP_SIP_SVC_PM_FPGA_STATUS, 0, 0, 0,
-			 0, ret_payload);
+	ret = xilinx_pm_request(ZYNQMP_SIP_SVC_PM_FPGA_STATUS, 0, 0, 0,
+				0, ret_payload);
 	if (!ret)
 		printf("PCAP status\t0x%x\n", ret_payload[1]);
 
