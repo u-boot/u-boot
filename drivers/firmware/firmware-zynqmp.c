@@ -176,7 +176,7 @@ int __maybe_unused invoke_smc(u32 pm_api_id, u32 arg0, u32 arg1, u32 arg2,
 	return regs.regs[0];
 }
 
-int __maybe_unused versal_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
+int __maybe_unused xilinx_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
 				     u32 arg3, u32 *ret_payload)
 {
 	return invoke_smc(PM_SIP_SVC | api_id, arg0, arg1, arg2, arg3,
