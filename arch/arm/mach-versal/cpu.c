@@ -9,6 +9,7 @@
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
+#include <zynqmp_firmware.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
