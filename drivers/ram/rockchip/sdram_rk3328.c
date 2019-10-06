@@ -311,12 +311,12 @@ static void phy_dll_bypass_set(struct dram_info *dram, u32 freq)
 	setbits_le32(PHY_REG(phy_base, 0x56), 1 << 4);
 	clrbits_le32(PHY_REG(phy_base, 0x57), 1 << 3);
 
-	if (freq <= (400 * MHz))
+	if (freq <= 400)
 		/* DLL bypass */
 		setbits_le32(PHY_REG(phy_base, 0xa4), 0x1f);
 	else
 		clrbits_le32(PHY_REG(phy_base, 0xa4), 0x1f);
-	if (freq <= (680 * MHz))
+	if (freq <= 680)
 		tmp = 2;
 	else
 		tmp = 1;
