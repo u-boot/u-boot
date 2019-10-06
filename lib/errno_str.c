@@ -13,7 +13,7 @@
 static const char * const errno_message[] = {
 	ERRNO_MSG(0, "Success"),
 	ERRNO_MSG(EPERM, "Operation not permitted"),
-	ERRNO_MSG(ENOEN, "No such file or directory"),
+	ERRNO_MSG(ENOENT, "No such file or directory"),
 	ERRNO_MSG(ESRCH, "No such process"),
 	ERRNO_MSG(EINTR, "Interrupted system call"),
 	ERRNO_MSG(EIO, "I/O error"),
@@ -26,7 +26,7 @@ static const char * const errno_message[] = {
 	ERRNO_MSG(ENOMEM, "Out of memory"),
 	ERRNO_MSG(EACCES, "Permission denied"),
 	ERRNO_MSG(EFAULT, "Bad address"),
-	ERRNO_MSG(ENOTBL, "Block device required"),
+	ERRNO_MSG(ENOTBLK, "Block device required"),
 	ERRNO_MSG(EBUSY, "Device or resource busy"),
 	ERRNO_MSG(EEXIST, "File exists"),
 	ERRNO_MSG(EXDEV, "Cross-device link"),
