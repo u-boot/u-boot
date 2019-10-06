@@ -59,7 +59,7 @@ stages:
         fi;
       fi;
 
-build all 32bit ARM plaforms:
+build all 32bit ARM platforms:
   tags: [ 'all' ]
   stage: world build
   script:
@@ -70,7 +70,7 @@ build all 32bit ARM plaforms:
        exit $ret;
      fi;
 
-build all 64bit ARM plaforms:
+build all 64bit ARM platforms:
   tags: [ 'all' ]
   stage: world build
   script:
@@ -84,7 +84,7 @@ build all 64bit ARM plaforms:
        exit $ret;
      fi;
 
-build all PowerPC plaforms:
+build all PowerPC platforms:
   tags: [ 'all' ]
   stage: world build
   script:
@@ -95,7 +95,7 @@ build all PowerPC plaforms:
        exit $ret;
      fi;
 
-build all other plaforms:
+build all other platforms:
   tags: [ 'all' ]
   stage: world build
   script:
