@@ -394,7 +394,7 @@ static void phy_cfg(struct dram_info *dram,
 	copy_to_reg(PHY_REG(phy_base, 0x70),
 		    &sdram_params->skew.cs0_dm0_skew[0], 44 * 4);
 	copy_to_reg(PHY_REG(phy_base, 0xc0),
-		    &sdram_params->skew.cs0_dm1_skew[0], 44 * 4);
+		    &sdram_params->skew.cs1_dm0_skew[0], 44 * 4);
 }
 
 static int update_refresh_reg(struct dram_info *dram)
