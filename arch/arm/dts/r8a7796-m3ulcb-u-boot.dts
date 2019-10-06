@@ -30,3 +30,7 @@
 	mmc-hs400-1_8v;
 	max-frequency = <200000000>;
 };
+
+&vcc_sdhi0 {
+	u-boot,off-on-delay-us = <20000>;
+};
