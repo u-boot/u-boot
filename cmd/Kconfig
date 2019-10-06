@@ -531,7 +531,6 @@ config CMD_ENV_FLAGS
 config CMD_NVEDIT_EFI
 	bool "env [set|print] -e - set/print UEFI variables"
 	depends on EFI_LOADER
-	default y
 	imply HEXDUMP
 	help
 	  UEFI variables are encoded as some form of U-Boot variables.
