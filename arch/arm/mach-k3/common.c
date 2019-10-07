@@ -233,3 +233,14 @@ int print_cpuinfo(void)
 	return 0;
 }
 #endif
+
+#ifdef CONFIG_ARM64
+void board_prep_linux(bootm_headers_t *images)
+{
+	debug("Linux kernel Image start = 0x%lx end = 0x%lx\n",
+	      images->os.start, images->os.end);
+	__asm_flush_dcache_range(images->os.start,
+				 ROUND(images->os.end,
+				       CONFIG_SYS_CACHELINE_SIZE));
+}
+#endif
