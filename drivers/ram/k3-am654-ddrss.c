@@ -259,6 +259,8 @@ static void am654_ddrss_phy_configuration(struct am654_ddrss_desc *ddrss)
 	ddrss_phy_writel(DDRSS_DDRPHY_DTCR0, ctrl->ddrphy_dtcr0);
 	ddrss_phy_writel(DDRSS_DDRPHY_DTCR1, ctrl->ddrphy_dtcr1);
 
+	ddrss_phy_writel(DDRSS_DDRPHY_ACIOCR0, ioctl->ddrphy_aciocr0);
+	ddrss_phy_writel(DDRSS_DDRPHY_ACIOCR3, ioctl->ddrphy_aciocr3);
 	ddrss_phy_writel(DDRSS_DDRPHY_ACIOCR5, ioctl->ddrphy_aciocr5);
 	ddrss_phy_writel(DDRSS_DDRPHY_IOVCR0, ioctl->ddrphy_iovcr0);
 
@@ -293,6 +295,10 @@ static void am654_ddrss_phy_configuration(struct am654_ddrss_desc *ddrss)
 	ddrss_phy_writel(DDRSS_DDRPHY_DX8SL0DXCTL2, cfg->ddrphy_dx8sl0dxctl2);
 	ddrss_phy_writel(DDRSS_DDRPHY_DX8SL1DXCTL2, cfg->ddrphy_dx8sl1dxctl2);
 	ddrss_phy_writel(DDRSS_DDRPHY_DX8SL2DXCTL2, cfg->ddrphy_dx8sl2dxctl2);
+
+	ddrss_phy_writel(DDRSS_DDRPHY_DX8SL0DQSCTL, cfg->ddrphy_dx8sl0dqsctl);
+	ddrss_phy_writel(DDRSS_DDRPHY_DX8SL1DQSCTL, cfg->ddrphy_dx8sl1dqsctl);
+	ddrss_phy_writel(DDRSS_DDRPHY_DX8SL2DQSCTL, cfg->ddrphy_dx8sl2dqsctl);
 
 	debug("%s: DDR phy register configuration completed\n", __func__);
 }
@@ -479,18 +485,43 @@ int VREF_training(struct am654_ddrss_desc *ddrss)
 
 int enable_dqs_pd(struct am654_ddrss_desc *ddrss)
 {
-	ddrss_phy_writel(DDRSS_DDRPHY_DX8SL0DQSCTL, 0x012640F7);
-	ddrss_phy_writel(DDRSS_DDRPHY_DX8SL1DQSCTL, 0x012640F7);
-	ddrss_phy_writel(DDRSS_DDRPHY_DX8SL2DQSCTL, 0x012640F7);
+	u32 val;
+
+	val = ddrss_phy_readl(DDRSS_DDRPHY_DX8SL0DQSCTL);
+	val &= ~0xFF;
+	val |= 0xF7;
+	ddrss_phy_writel(DDRSS_DDRPHY_DX8SL0DQSCTL, val);
+
+	val = ddrss_phy_readl(DDRSS_DDRPHY_DX8SL1DQSCTL);
+	val &= ~0xFF;
+	val |= 0xF7;
+	ddrss_phy_writel(DDRSS_DDRPHY_DX8SL1DQSCTL, val);
+
+	val = ddrss_phy_readl(DDRSS_DDRPHY_DX8SL2DQSCTL);
+	val &= ~0xFF;
+	val |= 0xF7;
+	ddrss_phy_writel(DDRSS_DDRPHY_DX8SL2DQSCTL, val);
+
 	sdelay(16);
 	return 0;
 }
 
 int disable_dqs_pd(struct am654_ddrss_desc *ddrss)
 {
-	ddrss_phy_writel(DDRSS_DDRPHY_DX8SL0DQSCTL, 0x01264000);
-	ddrss_phy_writel(DDRSS_DDRPHY_DX8SL1DQSCTL, 0x01264000);
-	ddrss_phy_writel(DDRSS_DDRPHY_DX8SL2DQSCTL, 0x01264000);
+	u32 val;
+
+	val = ddrss_phy_readl(DDRSS_DDRPHY_DX8SL0DQSCTL);
+	val &= ~0xFF;
+	ddrss_phy_writel(DDRSS_DDRPHY_DX8SL0DQSCTL, val);
+
+	val = ddrss_phy_readl(DDRSS_DDRPHY_DX8SL1DQSCTL);
+	val &= ~0xFF;
+	ddrss_phy_writel(DDRSS_DDRPHY_DX8SL1DQSCTL, val);
+
+	val = ddrss_phy_readl(DDRSS_DDRPHY_DX8SL2DQSCTL);
+	val &= ~0xFF;
+	ddrss_phy_writel(DDRSS_DDRPHY_DX8SL2DQSCTL, val);
+
 	sdelay(16);
 	return 0;
 }
@@ -595,12 +626,14 @@ static int am654_ddrss_init(struct am654_ddrss_desc *ddrss)
 {
 	int ret;
 	u32 val;
+	struct ddrss_ss_reg_params *reg = &ddrss->params.ss_reg;
 
 	debug("Starting DDR initialization...\n");
 
 	debug("%s(ddrss=%p)\n", __func__, ddrss);
 
-	ddrss_writel(ddrss->ddrss_ss_cfg, DDRSS_V2H_CTL_REG, 0x000073FF);
+	ddrss_writel(ddrss->ddrss_ss_cfg, DDRSS_V2H_CTL_REG,
+		     reg->ddrss_v2h_ctl_reg);
 
 	am654_ddrss_ctrl_configuration(ddrss);
 
@@ -900,6 +933,14 @@ static int am654_ddrss_ofdata_to_priv(struct udevice *dev)
 		return -EINVAL;
 	}
 	ddrss->ddrss_phy_cfg = (void *)reg;
+
+	ret = dev_read_u32_array(dev, "ti,ss-reg",
+			         (u32 *)&ddrss->params.ss_reg,
+			         sizeof(ddrss->params.ss_reg) / sizeof(u32));
+	if (ret) {
+		dev_err(dev, "Cannot read ti,ss-reg params\n");
+		return ret;
+	}
 
 	ret = dev_read_u32_array(dev, "ti,ctl-reg",
 				 (u32 *)&ddrss->params.ctl_reg,
