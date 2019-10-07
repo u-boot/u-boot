@@ -131,7 +131,7 @@ config OF_LIST
 	  separated by <space>.
 
 choice
-	prompt "SPL OF LIST compression"
+	prompt "OF LIST compression"
 	depends on MULTI_DTB_FIT
 	default MULTI_DTB_FIT_NO_COMPRESSION
 
