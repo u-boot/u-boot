@@ -28,9 +28,71 @@
 		button-gpio = <&gpioa 0 0>;
 	};
 
+	dsi_host: dsi_host {
+		compatible = "synopsys,dw-mipi-dsi";
+		status = "okay";
+	};
+
 	led1 {
 		compatible = "st,led1";
 		led-gpio = <&gpioj 5 0>;
+	};
+
+	panel: panel {
+		compatible = "orisetech,otm8009a";
+		reset-gpios = <&gpioj 15 1>;
+		status = "okay";
+
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&dsi_out>;
+			};
+		};
+	};
+
+	soc {
+		dsi: dsi@40016c00 {
+			compatible = "st,stm32-dsi";
+			reg = <0x40016C00 0x800>;
+			resets = <&rcc STM32F7_APB2_RESET(DSI)>;
+			clocks =  <&rcc 0 STM32F7_APB2_CLOCK(DSI)>,
+				  <&rcc 0 STM32F7_APB2_CLOCK(LTDC)>,
+				  <&clk_hse>;
+			clock-names = "pclk", "px_clk", "ref";
+			u-boot,dm-pre-reloc;
+			status = "okay";
+
+			ports {
+				port@0 {
+					dsi_out: endpoint {
+						remote-endpoint = <&panel_in>;
+					};
+				};
+				port@1 {
+					dsi_in: endpoint {
+						remote-endpoint = <&dp_out>;
+					};
+				};
+			};
+		};
+
+		ltdc: display-controller@40016800 {
+			compatible = "st,stm32-ltdc";
+			reg = <0x40016800 0x200>;
+			resets = <&rcc STM32F7_APB2_RESET(LTDC)>;
+			clocks = <&rcc 0 STM32F7_APB2_CLOCK(LTDC)>;
+
+			status = "okay";
+			u-boot,dm-pre-reloc;
+
+			ports {
+				port@0 {
+					dp_out: endpoint {
+						remote-endpoint = <&dsi_in>;
+					};
+				};
+			};
+		};
 	};
 };
 
