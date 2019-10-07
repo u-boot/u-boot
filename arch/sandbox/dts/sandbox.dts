@@ -25,6 +25,11 @@
 		compatible = "google,cros-ec-sandbox";
 	};
 
+	dsi_host: dsi_host {
+		compatible = "sandbox,dsi-host";
+		status = "okay";
+	};
+
 	ethrawbus {
 		compatible = "sandbox,eth-raw-bus";
 		skip-localhost = <0>;
@@ -63,7 +68,6 @@
 		compatible = "sandbox,spi";
 		cs-gpios = <0>, <&gpio_a 0>;
 	};
-
 };
 
 #include "sandbox.dtsi"

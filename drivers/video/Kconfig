@@ -686,6 +686,17 @@ config VIDEO_DW_HDMI
 	  rather requires a SoC-specific glue driver to call it), it
 	  can not be enabled from the configuration menu.
 
+config VIDEO_DSI_HOST_SANDBOX
+	bool "Enable sandbox for dsi host"
+	depends on SANDBOX
+	select VIDEO_MIPI_DSI
+	help
+	  Enable support for sandbox dsi host device used for testing
+	  purposes.
+	  Display Serial Interface (DSI) defines a serial bus and
+	  a communication protocol between the host and the device
+	  (panel, bridge).
+
 config VIDEO_SIMPLE
 	bool "Simple display driver for preconfigured display"
 	help
