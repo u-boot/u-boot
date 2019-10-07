@@ -10,6 +10,12 @@
 #include "versal-vc-p-a2197-00-revA.dts"
 
 / {
+	compatible = "xlnx,versal-vc-p-a2197-00-revA-x-prc-05-revA",
+		     "xlnx,versal-vc-p-a2197-00-revA",
+		     "xlnx,versal-vc-p-a2197-00",
+		     "xlnx,versal-vc-p-a2197", "xlnx,versal";
+	model = "Xilinx Versal A2197 Processor board revA - x-prc-05 revA";
+
 	chosen {
 		bootargs = "console=ttyAMA0 earlycon=pl011,mmio32,0xFF000000,115200n8 clk_ignore_unused";
 		stdout-path = "serial0:115200";

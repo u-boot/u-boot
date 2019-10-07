@@ -11,6 +11,12 @@
 #include <dt-bindings/gpio/gpio.h>
 
 / {
+	compatible = "xlnx,versal-vc-p-a2197-00-revA-x-prc-01-revA",
+		     "xlnx,versal-vc-p-a2197-00-revA",
+		     "xlnx,versal-vc-p-a2197-00",
+		     "xlnx,versal-vc-p-a2197", "xlnx,versal";
+	model = "Xilinx Versal A2197 Processor board revA - x-prc-01 revA OSPI";
+
 	aliases {
 		spi0 = &ospi;
 	};
