@@ -50,6 +50,16 @@ int fs_set_blk_dev_with_part(struct blk_desc *desc, int part);
 void fs_close(void);
 
 /**
+ * fs_get_type() - Get type of current filesystem
+ *
+ * Return: filesystem type
+ *
+ * Returns filesystem type representing the current filesystem, or
+ * FS_TYPE_ANY for any unrecognised filesystem.
+ */
+int fs_get_type(void);
+
+/**
  * fs_get_type_name() - Get type of current filesystem
  *
  * Return: Pointer to filesystem name

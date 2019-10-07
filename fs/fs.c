@@ -308,6 +308,19 @@ static struct fstype_info *fs_get_info(int fstype)
 }
 
 /**
+ * fs_get_type() - Get type of current filesystem
+ *
+ * Return: filesystem type
+ *
+ * Returns filesystem type representing the current filesystem, or
+ * FS_TYPE_ANY for any unrecognised filesystem.
+ */
+int fs_get_type(void)
+{
+	return fs_type;
+}
+
+/**
  * fs_get_type_name() - Get type of current filesystem
  *
  * Return: Pointer to filesystem name
