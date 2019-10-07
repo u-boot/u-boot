@@ -73,6 +73,14 @@ config VIDEO_ANSI
 	  Enable ANSI escape sequence decoding for a more fully functional
 	  console.
 
+config VIDEO_MIPI_DSI
+	bool "Support MIPI DSI interface"
+	depends on DM_VIDEO
+	help
+	  Support MIPI DSI interface for driving a MIPI compatible device.
+	  The MIPI Display Serial Interface (MIPI DSI) defines a high-speed
+	  serial interface between a host processor and a display module.
+
 config CONSOLE_NORMAL
 	bool "Support a simple text console"
 	depends on DM_VIDEO
