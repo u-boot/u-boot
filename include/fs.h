@@ -38,6 +38,13 @@ int fs_set_blk_dev(const char *ifname, const char *dev_part_str, int fstype);
 int fs_set_blk_dev_with_part(struct blk_desc *desc, int part);
 
 /**
+ * fs_close() - Unset current block device and partition
+ *
+ * Should be paired with either fs_set_blk_dev() or fs_set_dev_with_part()
+ */
+void fs_close(void);
+
+/**
  * fs_get_type_name() - Get type of current filesystem
  *
  * Return: Pointer to filesystem name
