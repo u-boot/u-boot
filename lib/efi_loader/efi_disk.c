@@ -337,7 +337,9 @@ static efi_status_t efi_disk_add_dev(
 			       diskobj->dp);
 	if (ret != EFI_SUCCESS)
 		return ret;
-	if (part >= 1 && efi_fs_exists(desc, part)) {
+	/* partitions or whole disk without partitions */
+	if ((part || desc->part_type == PART_TYPE_UNKNOWN) &&
+	    efi_fs_exists(desc, part)) {
 		diskobj->volume = efi_simple_file_system(desc, part,
 							 diskobj->dp);
 		ret = efi_add_protocol(&diskobj->header,
