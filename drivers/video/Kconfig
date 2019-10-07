@@ -697,6 +697,16 @@ config VIDEO_DSI_HOST_SANDBOX
 	  a communication protocol between the host and the device
 	  (panel, bridge).
 
+config VIDEO_DW_MIPI_DSI
+	bool
+	select VIDEO_MIPI_DSI
+	help
+	  Enables the common driver code for the Synopsis Designware
+	  MIPI DSI block found in SoCs from various vendors.
+	  As this does not provide any functionality by itself (but
+	  rather requires a SoC-specific glue driver to call it), it
+	  can not be enabled from the configuration menu.
+
 config VIDEO_SIMPLE
 	bool "Simple display driver for preconfigured display"
 	help
