@@ -21,6 +21,7 @@ config TARGET_J721E_R5_EVM
 	select K3_LOAD_SYSFW
 	select RAM
 	select SPL_RAM
+	select K3_J721E_DDRSS
 	imply SYS_K3_SPL_ATF
 
 endchoice
