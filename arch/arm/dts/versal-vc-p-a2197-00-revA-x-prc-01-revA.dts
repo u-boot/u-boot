@@ -33,27 +33,11 @@
 	};
 };
 
-&rtc {
-	status = "okay";
-};
-
-&gpio0 {
-	status = "okay";
-};
-
-&gpio1 {
-	status = "okay";
-};
-
 &can0 {
 	status = "okay";
 };
 
 &can1 {
-	status = "okay";
-};
-
-&watchdog {
 	status = "okay";
 };
 
