@@ -53,7 +53,7 @@
 		};
 
 		ethernet@18000 {
-			compatible = "altr,socfpga-stmmac";
+			compatible = "snps,arc-dwmac-3.70a";
 			reg = < 0x18000 0x2000 >;
 			phy-mode = "gmii";
 			snps,pbl = < 32 >;

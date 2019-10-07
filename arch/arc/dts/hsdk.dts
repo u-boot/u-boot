@@ -71,7 +71,7 @@
 
 	ethernet@f0008000 {
 		#interrupt-cells = <1>;
-		compatible = "altr,socfpga-stmmac";
+		compatible = "snps,arc-dwmac-3.70a";
 		reg = <0xf0008000 0x2000>;
 		phy-mode = "gmii";
 	};
