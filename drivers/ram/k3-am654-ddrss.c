@@ -143,6 +143,7 @@ static void am654_ddrss_ctrl_configuration(struct am654_ddrss_desc *ddrss)
 	ddrss_ctl_writel(DDRSS_DDRCTL_DRAMTMG11, tmg->ddrctl_dramtmg11);
 	ddrss_ctl_writel(DDRSS_DDRCTL_DRAMTMG12, tmg->ddrctl_dramtmg12);
 	ddrss_ctl_writel(DDRSS_DDRCTL_DRAMTMG13, tmg->ddrctl_dramtmg13);
+	ddrss_ctl_writel(DDRSS_DDRCTL_DRAMTMG14, tmg->ddrctl_dramtmg14);
 	ddrss_ctl_writel(DDRSS_DDRCTL_DRAMTMG15, tmg->ddrctl_dramtmg15);
 	ddrss_ctl_writel(DDRSS_DDRCTL_DRAMTMG17, tmg->ddrctl_dramtmg17);
 
@@ -152,6 +153,7 @@ static void am654_ddrss_ctrl_configuration(struct am654_ddrss_desc *ddrss)
 	ddrss_ctl_writel(DDRSS_DDRCTL_DFITMG0, reg->ddrctl_dfitmg0);
 	ddrss_ctl_writel(DDRSS_DDRCTL_DFITMG1, reg->ddrctl_dfitmg1);
 	ddrss_ctl_writel(DDRSS_DDRCTL_DFITMG2, reg->ddrctl_dfitmg2);
+	ddrss_ctl_writel(DDRSS_DDRCTL_DFIMISC, reg->ddrctl_dfimisc);
 
 	ddrss_ctl_writel(DDRSS_DDRCTL_ADDRMAP0, map->ddrctl_addrmap0);
 	ddrss_ctl_writel(DDRSS_DDRCTL_ADDRMAP1, map->ddrctl_addrmap1);
@@ -204,11 +206,13 @@ static void am654_ddrss_phy_configuration(struct am654_ddrss_desc *ddrss)
 
 	debug("%s: DDR phy register configuration started\n", __func__);
 
+	ddrss_phy_writel(DDRSS_DDRPHY_PGCR0, cfg->ddrphy_pgcr0);
 	ddrss_phy_writel(DDRSS_DDRPHY_PGCR1, cfg->ddrphy_pgcr1);
 	ddrss_phy_writel(DDRSS_DDRPHY_PGCR2, cfg->ddrphy_pgcr2);
 	ddrss_phy_writel(DDRSS_DDRPHY_PGCR3, cfg->ddrphy_pgcr3);
 	ddrss_phy_writel(DDRSS_DDRPHY_PGCR6, cfg->ddrphy_pgcr6);
 
+	ddrss_phy_writel(DDRSS_DDRPHY_PTR2, tmg->ddrphy_ptr2);
 	ddrss_phy_writel(DDRSS_DDRPHY_PTR3, tmg->ddrphy_ptr3);
 	ddrss_phy_writel(DDRSS_DDRPHY_PTR4, tmg->ddrphy_ptr4);
 	ddrss_phy_writel(DDRSS_DDRPHY_PTR5, tmg->ddrphy_ptr5);
@@ -240,6 +244,11 @@ static void am654_ddrss_phy_configuration(struct am654_ddrss_desc *ddrss)
 	ddrss_phy_writel(DDRSS_DDRPHY_MR4, ctrl->ddrphy_mr4);
 	ddrss_phy_writel(DDRSS_DDRPHY_MR5, ctrl->ddrphy_mr5);
 	ddrss_phy_writel(DDRSS_DDRPHY_MR6, ctrl->ddrphy_mr6);
+	ddrss_phy_writel(DDRSS_DDRPHY_MR11, ctrl->ddrphy_mr11);
+	ddrss_phy_writel(DDRSS_DDRPHY_MR12, ctrl->ddrphy_mr12);
+	ddrss_phy_writel(DDRSS_DDRPHY_MR13, ctrl->ddrphy_mr13);
+	ddrss_phy_writel(DDRSS_DDRPHY_MR14, ctrl->ddrphy_mr14);
+	ddrss_phy_writel(DDRSS_DDRPHY_MR22, ctrl->ddrphy_mr22);
 
 	ddrss_phy_writel(DDRSS_DDRPHY_VTCR0, ctrl->ddrphy_vtcr0);
 
@@ -354,13 +363,32 @@ int read_dqs_training(struct am654_ddrss_desc *ddrss)
 	return 0;
 }
 
-int rest_training(struct am654_ddrss_desc *ddrss)
+int dqs2dq_training(struct am654_ddrss_desc *ddrss)
 {
 	int ret;
-	u32 val;
-	u32 dgsl0, dgsl1, dgsl2, dgsl3, rddly, rd2wr_wr2rd;
 
-	debug("%s: Rest of the training started\n", __func__);
+	debug("%s: DQS2DQ training started\n", __func__);
+
+	ret = __phy_builtin_init_routine(ddrss, PIR_DQS2DQ_MASK,
+					 PGSR0_DQS2DQDONE_MASK,
+					 PGSR0_DQS2DQERR_MASK);
+	if (ret) {
+		if (ret == -ETIMEDOUT)
+			printf("%s: ERROR: DQS2DQ training timedout\n",
+			       __func__);
+		else
+			printf("%s:ERROR: DQS2DQ training failed\n",
+			       __func__);
+		return ret;
+	}
+
+	debug("%s: DQS2DQ training completed\n", __func__);
+	return 0;
+}
+
+int write_leveling_adjustment(struct am654_ddrss_desc *ddrss)
+{
+	int ret;
 
 	debug("%s: Write Leveling adjustment\n", __func__);
 	ret = __phy_builtin_init_routine(ddrss, PIR_WLADJ_MASK,
@@ -374,6 +402,14 @@ int rest_training(struct am654_ddrss_desc *ddrss)
 			       __func__);
 		return ret;
 	}
+	return 0;
+}
+
+int rest_training(struct am654_ddrss_desc *ddrss)
+{
+	int ret;
+
+	debug("%s: Rest of the training started\n", __func__);
 
 	debug("%s: Read Deskew adjustment\n", __func__);
 	ret = __phy_builtin_init_routine(ddrss, PIR_RDDSKW_MASK,
@@ -422,7 +458,12 @@ int rest_training(struct am654_ddrss_desc *ddrss)
 			       __func__);
 		return ret;
 	}
+	return 0;
+}
 
+int VREF_training(struct am654_ddrss_desc *ddrss)
+{
+	int ret;
 	debug("%s: VREF training\n", __func__);
 	ret = __phy_builtin_init_routine(ddrss, PIR_VREF_MASK, PGSR0_VDONE_MASK,
 					 PGSR0_VERR_MASK);
@@ -433,6 +474,31 @@ int rest_training(struct am654_ddrss_desc *ddrss)
 			printf("%s: ERROR: VREF training failed\n", __func__);
 		return ret;
 	}
+	return 0;
+}
+
+int enable_dqs_pd(struct am654_ddrss_desc *ddrss)
+{
+	ddrss_phy_writel(DDRSS_DDRPHY_DX8SL0DQSCTL, 0x012640F7);
+	ddrss_phy_writel(DDRSS_DDRPHY_DX8SL1DQSCTL, 0x012640F7);
+	ddrss_phy_writel(DDRSS_DDRPHY_DX8SL2DQSCTL, 0x012640F7);
+	sdelay(16);
+	return 0;
+}
+
+int disable_dqs_pd(struct am654_ddrss_desc *ddrss)
+{
+	ddrss_phy_writel(DDRSS_DDRPHY_DX8SL0DQSCTL, 0x01264000);
+	ddrss_phy_writel(DDRSS_DDRPHY_DX8SL1DQSCTL, 0x01264000);
+	ddrss_phy_writel(DDRSS_DDRPHY_DX8SL2DQSCTL, 0x01264000);
+	sdelay(16);
+	return 0;
+}
+
+int cleanup_training(struct am654_ddrss_desc *ddrss)
+{
+	u32 val;
+	u32 dgsl0, dgsl1, dgsl2, dgsl3, rddly, rd2wr_wr2rd;
 
 	ddrss_phy_writel(DDRSS_DDRPHY_RANKIDR, 0x00000000);
 	dgsl0 = (ddrss_phy_readl(DDRSS_DDRPHY_DX0GTR0) & 0x1F) >> 2;
@@ -528,6 +594,9 @@ int rest_training(struct am654_ddrss_desc *ddrss)
 static int am654_ddrss_init(struct am654_ddrss_desc *ddrss)
 {
 	int ret;
+	u32 val;
+
+	debug("Starting DDR initialization...\n");
 
 	debug("%s(ddrss=%p)\n", __func__, ddrss);
 
@@ -541,6 +610,7 @@ static int am654_ddrss_init(struct am654_ddrss_desc *ddrss)
 
 	am654_ddrss_phy_configuration(ddrss);
 
+	debug("Starting DDR training...\n");
 	ret = __phy_builtin_init_routine(ddrss, PIR_PHY_INIT, 0x1, 0);
 	if (ret) {
 		dev_err(ddrss->dev, "PHY initialization failed %d\n", ret);
@@ -561,15 +631,162 @@ static int am654_ddrss_init(struct am654_ddrss_desc *ddrss)
 		return ret;
 	}
 
-	ret = write_leveling(ddrss);
-	if (ret)
-		return ret;
+	val = am654_ddrss_get_type(ddrss);
 
-	ret = read_dqs_training(ddrss);
-	if (ret)
-		return ret;
+	switch (val) {
+	case DDR_TYPE_LPDDR4:
 
-	ret = rest_training(ddrss);
+		ret = __phy_builtin_init_routine(ddrss, PIR_DRAM_INIT,
+						 PGSR0_DRAM_INIT_MASK, 0);
+		if (ret) {
+			dev_err(ddrss->dev, "DRAM initialization failed %d\n",
+				ret);
+			return ret;
+		}
+
+		/* must perform DRAM_INIT twice for LPDDR4 */
+		ret = __phy_builtin_init_routine(ddrss, PIR_DRAM_INIT,
+						 PGSR0_DRAM_INIT_MASK, 0);
+		if (ret) {
+			dev_err(ddrss->dev, "DRAM initialization failed %d\n",
+				ret);
+			return ret;
+		}
+
+		ret = am654_ddrss_dram_wait_for_init_complt(ddrss);
+		if (ret) {
+			printf("%s: ERROR: DRAM Wait for init complete timedout\n",
+			       __func__);
+			return ret;
+		}
+
+		ret = write_leveling(ddrss);
+		if (ret)
+			return ret;
+
+		ret = enable_dqs_pd(ddrss);
+		if (ret)
+			return ret;
+
+		ret = read_dqs_training(ddrss);
+		if (ret)
+			return ret;
+
+		ret = disable_dqs_pd(ddrss);
+		if (ret)
+			return ret;
+
+		ret = dqs2dq_training(ddrss);
+		if (ret)
+			return ret;
+
+		ret = write_leveling_adjustment(ddrss);
+		if (ret)
+			return ret;
+
+		ret = rest_training(ddrss);
+		if (ret)
+			return ret;
+
+		ret = VREF_training(ddrss);
+		if (ret)
+			return ret;
+
+		debug("LPDDR4 training complete\n");
+		break;
+
+	case DDR_TYPE_DDR4:
+
+		debug("Starting DDR4 training\n");
+
+		ret = __phy_builtin_init_routine(ddrss, PIR_DRAM_INIT,
+						 PGSR0_DRAM_INIT_MASK, 0);
+		if (ret) {
+			dev_err(ddrss->dev, "DRAM initialization failed %d\n",
+				ret);
+			return ret;
+		}
+
+		ret = am654_ddrss_dram_wait_for_init_complt(ddrss);
+		if (ret) {
+			printf("%s: ERROR: DRAM Wait for init complete timedout\n",
+			       __func__);
+			return ret;
+		}
+
+		ret = write_leveling(ddrss);
+		if (ret)
+			return ret;
+
+		ret = read_dqs_training(ddrss);
+		if (ret)
+			return ret;
+
+		ret = write_leveling_adjustment(ddrss);
+		if (ret)
+			return ret;
+
+		ret = rest_training(ddrss);
+		if (ret)
+			return ret;
+
+		ret = VREF_training(ddrss);
+		if (ret)
+			return ret;
+		debug("DDR4 training complete\n");
+		break;
+
+	case DDR_TYPE_DDR3:
+
+		debug("Starting DDR3 training\n");
+
+		ret = __phy_builtin_init_routine(ddrss, PIR_DRAM_INIT,
+						 PGSR0_DRAM_INIT_MASK, 0);
+		if (ret) {
+			dev_err(ddrss->dev, "DRAM initialization failed %d\n",
+				ret);
+			return ret;
+		}
+
+		ret = am654_ddrss_dram_wait_for_init_complt(ddrss);
+		if (ret) {
+			printf("%s: ERROR: DRAM Wait for init complete timedout\n",
+			       __func__);
+			return ret;
+		}
+
+		ret = write_leveling(ddrss);
+		if (ret)
+			return ret;
+
+		ret = enable_dqs_pd(ddrss);
+		if (ret)
+			return ret;
+
+		ret = read_dqs_training(ddrss);
+		if (ret)
+			return ret;
+
+		ret = disable_dqs_pd(ddrss);
+		if (ret)
+			return ret;
+
+		ret = write_leveling_adjustment(ddrss);
+		if (ret)
+			return ret;
+
+		ret = rest_training(ddrss);
+		if (ret)
+			return ret;
+
+		debug("DDR3 training complete\n");
+		break;
+	default:
+		printf("%s: ERROR: Unsupported DDR type\n", __func__);
+		return -EINVAL;
+	}
+
+	ret = cleanup_training(ddrss);
 	if (ret)
 		return ret;
 
@@ -580,6 +797,8 @@ static int am654_ddrss_init(struct am654_ddrss_desc *ddrss)
 	/* Disable PUBMODE after training is done */
 	ddrss_phy_writel(DDRSS_DDRPHY_PGCR1,
 			 ddrss_phy_readl(DDRSS_DDRPHY_PGCR1) & ~0x40);
+
+	debug("Completed DDR training\n");
 
 	return 0;
 }
