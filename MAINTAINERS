@@ -94,6 +94,13 @@ L:	uboot-snps-arc@synopsys.com
 F:	doc/device-tree-bindings/gpio/snps,creg-gpio.txt
 F:	drivers/gpio/hsdk-creg-gpio.c
 
+ARC HSDK RESET
+M:	Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
+S:	Maintained
+L:	uboot-snps-arc@synopsys.com
+F:	include/dt-bindings/reset/snps,hsdk-reset.h
+F:	drivers/reset/reset-hsdk.c
+
 ARC SYNOPSYS DW MMC EXTENSIONS
 M:	Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
 S:	Maintained
