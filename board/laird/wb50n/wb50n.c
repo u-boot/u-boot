@@ -4,7 +4,7 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/arch/sama5_sfr.h>
+#include <asm/arch/at91_sfr.h>
 #include <asm/arch/sama5d3_smc.h>
 #include <asm/arch/at91_common.h>
 #include <asm/arch/at91_pmc.h>
@@ -173,13 +173,11 @@ static void ddr2_conf(struct atmel_mpddrc_config *ddr2)
 
 void mem_init(void)
 {
-	struct atmel_sfr *sfr = (struct atmel_sfr *)ATMEL_BASE_SFR;
 	struct atmel_mpddrc_config ddr2;
 
 	ddr2_conf(&ddr2);
 
-	writel(ATMEL_SFR_DDRCFG_FDQIEN | ATMEL_SFR_DDRCFG_FDQSIEN,
-	       &sfr->ddrcfg);
+	configure_ddrcfg_input_buffers(true);
 
 	/* enable MPDDR clock */
 	at91_periph_clk_enable(ATMEL_ID_MPDDRC);

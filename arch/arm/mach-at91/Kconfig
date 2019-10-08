@@ -43,9 +43,14 @@ config AT91SAM9X5
 	bool
 	select CPU_ARM926EJS
 
+config SAM9X60
+	bool
+	select CPU_ARM926EJS
+
 config SAMA5D2
 	bool
 	select CPU_V7A
+	select ATMEL_SFR
 
 config SAMA5D3
 	bool
@@ -54,6 +59,7 @@ config SAMA5D3
 config SAMA5D4
 	bool
 	select CPU_V7A
+	select ATMEL_SFR
 
 choice
 	prompt "Atmel AT91 board select"
@@ -154,6 +160,12 @@ config TARGET_GARDENA_SMART_GATEWAY_AT91SAM
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
 
+config TARGET_SAM9X60EK
+	bool "SAM9X60-EK board"
+	select SAM9X60
+	select BOARD_EARLY_INIT_F
+	select BOARD_LATE_INIT
+
 config TARGET_SAMA5D2_PTC_EK
 	bool "SAMA5D2 PTC EK board"
 	select BOARD_EARLY_INIT_F
@@ -173,6 +185,7 @@ config TARGET_SAMA5D27_SOM1_EK
 	select BOARD_LATE_INIT
 	select CPU_V7A
 	select SUPPORT_SPL
+	select ATMEL_SFR
 	help
 	  The SAMA5D27 SOM1 embeds SAMA5D2 SiP(System in Package),
 	  a 64Mbit QSPI flash, KSZ8081 Phy and a Mac-address EEPROM
@@ -180,9 +193,24 @@ config TARGET_SAMA5D27_SOM1_EK
 	  processor-based SAMA5D2 MPU with up to 1 Gbit DDR2-SDRAM
 	  in a single package.
 
+config TARGET_SAMA5D27_WLSOM1_EK
+	bool "SAMA5D27 WLSOM1 EK board"
+	select SAMA5D2
+	select BOARD_EARLY_INIT_F
+	select BOARD_LATE_INIT
+	select CPU_V7A
+	select SUPPORT_SPL
+	help
+	  The SAMA5D27 WLSOM1 embeds SAMA5D2 SiP (System in Package),
+	  a 64Mbit QSPI flash with Mac-address, KSZ8081 Phy. A wireless
+	  module providing bluetooth and wifi is also embedded.
+	  The SAMA5D2 SiP integrates the ARM Cortex-A5
+	  processor-based SAMA5D2 MPU with 2 Gbit LPDDR2-SDRAM
+	  in a single package.
+
 config TARGET_SAMA5D2_ICP
 	bool "SAMA5D2 Industrial Connectivity Platform (ICP)"
-	select CPU_V7A
+	select SAMA5D2
 	select SUPPORT_SPL
 	select BOARD_EARLY_INIT_F
 	select BOARD_LATE_INIT
@@ -275,8 +303,13 @@ config TARGET_WB50N
 	select BOARD_LATE_INIT
 	select CPU_V7A
 	select SUPPORT_SPL
+	select ATMEL_SFR
 
 endchoice
+
+config ATMEL_SFR
+	bool
+	default n
 
 config SYS_SOC
 	default "at91"
@@ -289,9 +322,11 @@ source "board/atmel/at91sam9m10g45ek/Kconfig"
 source "board/atmel/at91sam9n12ek/Kconfig"
 source "board/atmel/at91sam9rlek/Kconfig"
 source "board/atmel/at91sam9x5ek/Kconfig"
+source "board/atmel/sam9x60ek/Kconfig"
 source "board/atmel/sama5d2_ptc_ek/Kconfig"
 source "board/atmel/sama5d2_xplained/Kconfig"
 source "board/atmel/sama5d27_som1_ek/Kconfig"
+source "board/atmel/sama5d27_wlsom1_ek/Kconfig"
 source "board/atmel/sama5d2_icp/Kconfig"
 source "board/atmel/sama5d3_xplained/Kconfig"
 source "board/atmel/sama5d3xek/Kconfig"

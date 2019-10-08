@@ -10,6 +10,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/atmel_mpddrc.h>
+#include <asm/arch/at91_common.h>
 
 #define SAMA5D3_MPDDRC_VERSION		0x140
 
@@ -18,6 +19,7 @@ static inline void atmel_mpddr_op(const struct atmel_mpddr *mpddr,
 	      u32 ram_address)
 {
 	writel(mode, &mpddr->mr);
+	dmb();
 	writel(0, ram_address);
 }
 
@@ -224,6 +226,166 @@ int ddr3_init(const unsigned int base,
 	 * Refresh Timer Register (MPDDRC_RTR):
 	 */
 	writel(mpddr_value->rtr, &mpddr->rtr);
+
+	return 0;
+}
+
+int lpddr2_init(const unsigned int base,
+		const unsigned int ram_address,
+		const struct atmel_mpddrc_config *mpddr_value)
+{
+	struct atmel_mpddr *mpddr = (struct atmel_mpddr *)base;
+	u32 reg;
+
+	writel(mpddr_value->lpddr23_lpr, &mpddr->lpddr23_lpr);
+
+	writel(mpddr_value->tim_cal, &mpddr->tim_cal);
+
+	/* 1. Program the memory device type */
+	writel(mpddr_value->md, &mpddr->md);
+
+	/*
+	 * 2. Program features of the LPDDR2-SDRAM device and timing parameters
+	 */
+	writel(mpddr_value->cr, &mpddr->cr);
+
+	writel(mpddr_value->tpr0, &mpddr->tpr0);
+	writel(mpddr_value->tpr1, &mpddr->tpr1);
+	writel(mpddr_value->tpr2, &mpddr->tpr2);
+
+	/* 3. A NOP command is issued to the LPDDR2-SDRAM */
+	atmel_mpddr_op(mpddr, ATMEL_MPDDRC_MR_MODE_NOP_CMD, ram_address);
+
+	/*
+	 * 3bis. Add memory barrier then Perform a write access to
+	 * any low-power DDR2-SDRAM address to acknowledge the command.
+	*/
+
+	dmb();
+	writel(0, ram_address);
+
+	/* 4. A pause of at least 100 ns must be observed before a single toggle */
+	udelay(1);
+
+	/* 5. A NOP command is issued to the LPDDR2-SDRAM */
+	atmel_mpddr_op(mpddr, ATMEL_MPDDRC_MR_MODE_NOP_CMD, ram_address);
+
+	/*  6. A pause of at least 200 us must be observed before a Reset Command */
+	udelay(200);
+
+	/* 7. A Reset command is issued to the low-power DDR2-SDRAM. */
+	atmel_mpddr_op(mpddr, ATMEL_MPDDRC_MR_MODE_LPDDR2_CMD |
+			 ATMEL_MPDDRC_MR_MRS(63), ram_address);
+
+	/*
+	 * 8. A pause of at least tINIT5 must be observed before issuing
+	 * any commands
+	 */
+	udelay(1);
+
+	/* 9. A Calibration command is issued to the low-power DDR2-SDRAM. */
+	reg = readl(&mpddr->cr);
+	reg &= ~ATMEL_MPDDRC_CR_ZQ_RESET;
+	reg |= ATMEL_MPDDRC_CR_ZQ_RESET;
+	writel(reg, &mpddr->cr);
+
+	atmel_mpddr_op(mpddr, ATMEL_MPDDRC_MR_MODE_LPDDR2_CMD |
+			 ATMEL_MPDDRC_MR_MRS(10), ram_address);
+
+	/*
+	 * 9bis: The ZQ Calibration command is now issued.
+	 * Program the type of calibration in the MPDDRC_CR: set the
+	 * ZQ field to the SHORT value.
+	 */
+	reg = readl(&mpddr->cr);
+	reg &= ~ATMEL_MPDDRC_CR_ZQ_RESET;
+	reg |= ATMEL_MPDDRC_CR_ZQ_SHORT;
+	writel(reg, &mpddr->cr);
+
+	/*
+	 * 10: A Mode Register Write command with 1 to the MRS field
+	 * is issued to the low-power DDR2-SDRAM.
+	 */
+	atmel_mpddr_op(mpddr, ATMEL_MPDDRC_MR_MODE_LPDDR2_CMD |
+			 ATMEL_MPDDRC_MR_MRS(1), ram_address);
+
+	/*
+	 * 11: A Mode Register Write command with 2 to the MRS field
+	 * is issued to the low-power DDR2-SDRAM.
+	 */
+	atmel_mpddr_op(mpddr, ATMEL_MPDDRC_MR_MODE_LPDDR2_CMD |
+			 ATMEL_MPDDRC_MR_MRS(2), ram_address);
+
+	/*
+	 * 12: A Mode Register Write command with 3 to the MRS field
+	 * is issued to the low-power DDR2-SDRAM.
+	 */
+	atmel_mpddr_op(mpddr, ATMEL_MPDDRC_MR_MODE_LPDDR2_CMD |
+			 ATMEL_MPDDRC_MR_MRS(3), ram_address);
+
+	/*
+	 * 13: A Mode Register Write command with 16 to the MRS field
+	 * is issued to the low-power DDR2-SDRAM.
+	 */
+	atmel_mpddr_op(mpddr, ATMEL_MPDDRC_MR_MODE_LPDDR2_CMD |
+			 ATMEL_MPDDRC_MR_MRS(16), ram_address);
+
+	/*
+	 * 14: In the DDR Configuration Register, open the input buffers.
+	 */
+#ifdef CONFIG_ATMEL_SFR
+	configure_ddrcfg_input_buffers(true);
+#endif
+
+	/* 15. A NOP command is issued to the LPDDR2-SDRAM */
+	atmel_mpddr_op(mpddr, ATMEL_MPDDRC_MR_MODE_NOP_CMD, ram_address);
+
+	/*
+	 * 16: A Mode Register Write command with 5 to the MRS field
+	 * is issued to the low-power DDR2-SDRAM.
+	 */
+	atmel_mpddr_op(mpddr, ATMEL_MPDDRC_MR_MODE_LPDDR2_CMD |
+			 ATMEL_MPDDRC_MR_MRS(5), ram_address);
+
+	/*
+	 * 17: A Mode Register Write command with 6 to the MRS field
+	 * is issued to the low-power DDR2-SDRAM.
+	 */
+	atmel_mpddr_op(mpddr, ATMEL_MPDDRC_MR_MODE_LPDDR2_CMD |
+			 ATMEL_MPDDRC_MR_MRS(6), ram_address);
+
+	/*
+	 * 18: A Mode Register Write command with 8 to the MRS field
+	 * is issued to the low-power DDR2-SDRAM.
+	 */
+	atmel_mpddr_op(mpddr, ATMEL_MPDDRC_MR_MODE_LPDDR2_CMD |
+			 ATMEL_MPDDRC_MR_MRS(8), ram_address);
+
+	/*
+	 * 19: A Mode Register Write command with 0 to the MRS field
+	 * is issued to the low-power DDR2-SDRAM.
+	 */
+	atmel_mpddr_op(mpddr, ATMEL_MPDDRC_MR_MODE_LPDDR2_CMD |
+			 ATMEL_MPDDRC_MR_MRS(0), ram_address);
+
+	/*
+	 * 20: A Normal Mode command is provided.
+	 */
+	atmel_mpddr_op(mpddr, ATMEL_MPDDRC_MR_MODE_NORMAL_CMD, ram_address);
+
+	 /* 21: In the DDR Configuration Register, close the input buffers. */
+#ifdef CONFIG_ATMEL_SFR
+	configure_ddrcfg_input_buffers(false);
+#endif
+
+	/*
+	 * 22: Write the refresh rate into the COUNT field in the MPDDRC
+	 * Refresh Timer Register.
+	 */
+	writel(mpddr_value->rtr, &mpddr->rtr);
+
+	/* 23. Configre CAL MR4 register */
+	writel(mpddr_value->cal_mr4, &mpddr->cal_mr4);
 
 	return 0;
 }

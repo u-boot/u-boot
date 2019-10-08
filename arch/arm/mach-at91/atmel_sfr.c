@@ -7,8 +7,9 @@
 #include <common.h>
 #include <asm/hardware.h>
 #include <asm/io.h>
-#include <asm/arch/sama5_sfr.h>
+#include <asm/arch/at91_sfr.h>
 
+#if defined(CONFIG_SAMA5D2) || defined(CONFIG_SAMA5D4)
 void redirect_int_from_saic_to_aic(void)
 {
 	struct atmel_sfr *sfr = (struct atmel_sfr *)ATMEL_BASE_SFR;
@@ -26,3 +27,16 @@ void configure_2nd_sram_as_l2_cache(void)
 
 	writel(1, &sfr->l2cc_hramc);
 }
+#endif
+
+void configure_ddrcfg_input_buffers(bool open)
+{
+	struct atmel_sfr *sfr = (struct atmel_sfr *)ATMEL_BASE_SFR;
+
+	if (open)
+		writel(ATMEL_SFR_DDRCFG_FDQIEN | ATMEL_SFR_DDRCFG_FDQSIEN,
+		       &sfr->ddrcfg);
+	else
+		writel(0, &sfr->ddrcfg);
+}
+

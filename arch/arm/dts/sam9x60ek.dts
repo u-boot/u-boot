@@ -1,0 +1,72 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * sam9x60ek.dts - Device Tree file for SAM9X60 EK board
+ *
+ * Copyright (C) 2018 Microchip Technology Inc. and its subsidiaries
+ *
+ * Author: Sandeep Sheriker M <Sandeepsheriker.mallikarjun@microchip.com>
+ */
+/dts-v1/;
+#include "sam9x60.dtsi"
+
+/ {
+	model = "Microchip SAM9X60-Ek";
+	compatible = "microchip,sam9x60ek", "microchip,sam9x60", "atmel,at91sam9";
+
+	chosen {
+		stdout-path = &dbgu;
+	};
+
+	onewire_tm: onewire {
+		gpios = <&pioD 14 0>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_onewire_tm_default>;
+		status = "okay";
+
+		w1_eeprom: w1_eeprom@0 {
+			compatible = "maxim,ds24b33";
+			status = "okay";
+		};
+	};
+
+	ahb {
+		apb {
+			qspi: spi@f0014000 {
+				pinctrl-names = "default";
+				pinctrl-0 = <&pinctrl_qspi>;
+				status = "okay";
+
+				nor_flash: sst26vf064@0 {
+					compatible = "spi-flash";
+					reg = <0>;
+					spi-max-frequency = <80000000>;
+					spi-rx-bus-width = <4>;
+					spi-tx-bus-width = <4>;
+				};
+			};
+
+			pinctrl {
+					pinctrl_qspi: qspi {
+						atmel,pins =
+							<AT91_PIOB 19 AT91_PERIPH_A AT91_PINCTRL_NONE
+							 AT91_PIOB 20 AT91_PERIPH_A AT91_PINCTRL_NONE
+							 AT91_PIOB 21 AT91_PERIPH_A AT91_PINCTRL_PULL_UP
+							 AT91_PIOB 22 AT91_PERIPH_A AT91_PINCTRL_PULL_UP
+							 AT91_PIOB 23 AT91_PERIPH_A AT91_PINCTRL_PULL_UP
+							 AT91_PIOB 24 AT91_PERIPH_A AT91_PINCTRL_PULL_UP>;
+					};
+
+					pinctrl_onewire_tm_default: onewire_tm_default {
+						atmel,pins =
+							<AT91_PIOD 14 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP>;
+					};
+
+			};
+		};
+	};
+};
+
+&macb0 {
+	phy-mode = "rmii";
+	status = "okay";
+};
