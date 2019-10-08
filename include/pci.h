@@ -215,6 +215,10 @@
 #define  PCI_BASE_ADDRESS_IO_MASK	(~0x03ULL)
 /* bit 1 is reserved if address_space = 1 */
 
+/* Convert a regsister address (e.g. PCI_BASE_ADDRESS_1) to a bar # (e.g. 1) */
+#define pci_offset_to_barnum(offset)	\
+		(((offset) - PCI_BASE_ADDRESS_0) / sizeof(u32))
+
 /* Header type 0 (normal devices) */
 #define PCI_CARDBUS_CIS		0x28
 #define PCI_SUBSYSTEM_VENDOR_ID 0x2c
@@ -1491,13 +1495,6 @@ int dm_pci_find_class(uint find_class, int index, struct udevice **devp);
  */
 struct dm_pci_emul_ops {
 	/**
-	 * get_devfn(): Check which device and function this emulators
-	 *
-	 * @dev:	device to check
-	 * @return the device and function this emulates, or -ve on error
-	 */
-	int (*get_devfn)(struct udevice *dev);
-	/**
 	 * read_config() - Read a PCI configuration value
 	 *
 	 * @dev:	Emulated device to read from
@@ -1598,7 +1595,7 @@ int sandbox_pci_get_emul(struct udevice *bus, pci_dev_t find_devfn,
 /**
  * pci_get_devfn() - Extract the devfn from fdt_pci_addr of the device
  *
- * Get devfn from fdt_pci_addr of the specifified device
+ * Get devfn from fdt_pci_addr of the specified device
  *
  * @dev:	PCI device
  * @return devfn in bits 15...8 if found, -ENODEV if not found

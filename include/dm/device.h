@@ -680,6 +680,15 @@ static inline bool device_is_on_pci_bus(struct udevice *dev)
 	list_for_each_entry_safe(pos, next, &parent->child_head, sibling_node)
 
 /**
+ * device_foreach_child() - iterate through child devices
+ *
+ * @pos: struct udevice * for the current device
+ * @parent: parent device to scan
+ */
+#define device_foreach_child(pos, parent)	\
+	list_for_each_entry(pos, &parent->child_head, sibling_node)
+
+/**
  * dm_scan_fdt_dev() - Bind child device in a the device tree
  *
  * This handles device which have sub-nodes in the device tree. It scans all

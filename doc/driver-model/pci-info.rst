@@ -103,7 +103,7 @@ in each of these nodes.
 
 If PCI devices are not listed in the device tree, U_BOOT_PCI_DEVICE can be used
 to specify the driver to use for the device. The device tree takes precedence
-over U_BOOT_PCI_DEVICE. Plese note with U_BOOT_PCI_DEVICE, only drivers with
+over U_BOOT_PCI_DEVICE. Please note with U_BOOT_PCI_DEVICE, only drivers with
 DM_FLAG_PRE_RELOC will be bound before relocation. If neither device tree nor
 U_BOOT_PCI_DEVICE is provided, the built-in driver (either pci_bridge_drv or
 pci_generic_drv) will be used.
@@ -113,14 +113,17 @@ Sandbox
 -------
 
 With sandbox we need a device emulator for each device on the bus since there
-is no real PCI bus. This works by looking in the device tree node for a
-driver. For example::
-
+is no real PCI bus. This works by looking in the device tree node for an
+emulator driver. For example::
 
 	pci@1f,0 {
 		compatible = "pci-generic";
 		reg = <0xf800 0 0 0 0>;
-		emul@1f,0 {
+		sandbox,emul = <&emul_1f>;
+	};
+	pci-emul {
+		compatible = "sandbox,pci-emul-parent";
+		emul_1f: emul@1f,0 {
 			compatible = "sandbox,swap-case";
 		};
 	};
@@ -130,14 +133,16 @@ Note that the first cell in the 'reg' value is the bus/device/function. See
 PCI_BDF() for the encoding (it is also specified in the IEEE Std 1275-1994
 PCI bus binding document, v2.1)
 
+The pci-emul node should go outside the pci bus node, since otherwise it will
+be scanned as a PCI device, causing confusion.
+
 When this bus is scanned we will end up with something like this::
 
    `- * pci-controller @ 05c660c8, 0
     `-   pci@1f,0 @ 05c661c8, 63488
-     `-   emul@1f,0 @ 05c662c8
+   `-   emul@1f,0 @ 05c662c8
 
-When accesses go to the pci@1f,0 device they are forwarded to its child, the
-emulator.
+When accesses go to the pci@1f,0 device they are forwarded to its emulator.
 
 The sandbox PCI drivers also support dynamic driver binding, allowing device
 driver to declare the driver binding information via U_BOOT_PCI_DEVICE(),
@@ -164,7 +169,3 @@ When this bus is scanned we will end up with something like this::
  pci        [ + ]   pci_sandbo  |-- pci-controller1
  pci_emul   [   ]   sandbox_sw  |   |-- sandbox_swap_case_emul
  pci_emul   [   ]   sandbox_sw  |   `-- sandbox_swap_case_emul
-
-Note the difference from the statically declared device nodes is that the
-device is directly attached to the host controller, instead of via a container
-device like pci@1f,0.

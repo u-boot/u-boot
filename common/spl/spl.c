@@ -356,17 +356,23 @@ static int setup_spl_handoff(void)
 	return 0;
 }
 
+__weak int handoff_arch_save(struct spl_handoff *ho)
+{
+	return 0;
+}
+
 static int write_spl_handoff(void)
 {
 	struct spl_handoff *ho;
+	int ret;
 
 	ho = bloblist_find(BLOBLISTT_SPL_HANDOFF, sizeof(struct spl_handoff));
 	if (!ho)
 		return -ENOENT;
 	handoff_save_dram(ho);
-#ifdef CONFIG_SANDBOX
-	ho->arch.magic = TEST_HANDOFF_MAGIC;
-#endif
+	ret = handoff_arch_save(ho);
+	if (ret)
+		return ret;
 	debug(SPL_TPL_PROMPT "Wrote SPL handoff\n");
 
 	return 0;
@@ -404,23 +410,6 @@ static int spl_common_init(bool setup_malloc)
 		return ret;
 	}
 #endif
-	if (CONFIG_IS_ENABLED(BLOBLIST)) {
-		ret = bloblist_init();
-		if (ret) {
-			debug("%s: Failed to set up bloblist: ret=%d\n",
-			      __func__, ret);
-			return ret;
-		}
-	}
-	if (CONFIG_IS_ENABLED(HANDOFF)) {
-		int ret;
-
-		ret = setup_spl_handoff();
-		if (ret) {
-			puts(SPL_TPL_PROMPT "Cannot set up SPL handoff\n");
-			hang();
-		}
-	}
 	if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) {
 		ret = fdtdec_setup();
 		if (ret) {
@@ -598,6 +587,24 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	 */
 	timer_init();
 #endif
+	if (CONFIG_IS_ENABLED(BLOBLIST)) {
+		ret = bloblist_init();
+		if (ret) {
+			debug("%s: Failed to set up bloblist: ret=%d\n",
+			      __func__, ret);
+			puts(SPL_TPL_PROMPT "Cannot set up bloblist\n");
+			hang();
+		}
+	}
+	if (CONFIG_IS_ENABLED(HANDOFF)) {
+		int ret;
+
+		ret = setup_spl_handoff();
+		if (ret) {
+			puts(SPL_TPL_PROMPT "Cannot set up SPL handoff\n");
+			hang();
+		}
+	}
 
 #if CONFIG_IS_ENABLED(BOARD_INIT)
 	spl_board_init();

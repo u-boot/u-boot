@@ -190,3 +190,33 @@ void *devfdt_map_physmem(struct udevice *dev, unsigned long size)
 
 	return map_physmem(addr, size, MAP_NOCACHE);
 }
+
+fdt_addr_t devfdt_get_addr_pci(struct udevice *dev)
+{
+	ulong addr;
+
+	addr = devfdt_get_addr(dev);
+	if (CONFIG_IS_ENABLED(PCI) && IS_ENABLED(CONFIG_DM_PCI) &&
+	    addr == FDT_ADDR_T_NONE) {
+		struct fdt_pci_addr pci_addr;
+		u32 bar;
+		int ret;
+
+		ret = ofnode_read_pci_addr(dev_ofnode(dev), FDT_PCI_SPACE_MEM32,
+					   "reg", &pci_addr);
+		if (ret) {
+			/* try if there is any i/o-mapped register */
+			ret = ofnode_read_pci_addr(dev_ofnode(dev),
+						   FDT_PCI_SPACE_IO, "reg",
+						   &pci_addr);
+			if (ret)
+				return FDT_ADDR_T_NONE;
+		}
+		ret = fdtdec_get_pci_bar32(dev, &pci_addr, &bar);
+		if (ret)
+			return FDT_ADDR_T_NONE;
+		addr = bar;
+	}
+
+	return addr;
+}

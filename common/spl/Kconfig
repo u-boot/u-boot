@@ -26,7 +26,7 @@ config SPL_FRAMEWORK
 	  and the Linux Kernel.  If unsure, say Y.
 
 config SPL_SIZE_LIMIT
-	int "Maximum size of SPL image"
+	hex "Maximum size of SPL image"
 	depends on SPL
 	default 69632 if ARCH_MX6
 	default 0
@@ -115,7 +115,7 @@ if SPL
 
 config SPL_HANDOFF
 	bool "Pass hand-off information from SPL to U-Boot proper"
-	depends on HANDOFF
+	depends on HANDOFF && SPL_BLOBLIST
 	default y
 	help
 	  This option enables SPL to write handoff information. This can be
@@ -963,7 +963,7 @@ config SPL_SERIAL_SUPPORT
 	  for displaying messages while SPL is running. It also brings in
 	  printf() and panic() functions. This should normally be enabled
 	  unless there are space reasons not to. Even then, consider
-	  enabling USE_TINY_PRINTF which is a small printf() version.
+	  enabling SPL_USE_TINY_PRINTF which is a small printf() version.
 
 config SPL_SPI_FLASH_SUPPORT
 	bool "Support SPI flash drivers"
@@ -1185,7 +1185,7 @@ if TPL
 
 config TPL_HANDOFF
 	bool "Pass hand-off information from TPL to SPL and U-Boot proper"
-	depends on HANDOFF
+	depends on HANDOFF && TPL_BLOBLIST
 	default y
 	help
 	  This option enables TPL to write handoff information. This can be

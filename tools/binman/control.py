@@ -468,29 +468,23 @@ def Binman(args):
         command.Run(pager, fname)
         return 0
 
-    if args.cmd == 'ls':
+    if args.cmd in ['ls', 'extract', 'replace']:
         try:
+            tout.Init(args.verbosity)
             tools.PrepareOutputDir(None)
-            ListEntries(args.image, args.paths)
-        finally:
-            tools.FinaliseOutputDir()
-        return 0
+            if args.cmd == 'ls':
+                ListEntries(args.image, args.paths)
 
-    if args.cmd == 'extract':
-        try:
-            tools.PrepareOutputDir(None)
-            ExtractEntries(args.image, args.filename, args.outdir, args.paths,
-                           not args.uncompressed)
-        finally:
-            tools.FinaliseOutputDir()
-        return 0
+            if args.cmd == 'extract':
+                ExtractEntries(args.image, args.filename, args.outdir, args.paths,
+                               not args.uncompressed)
 
-    if args.cmd == 'replace':
-        try:
-            tools.PrepareOutputDir(None)
-            ReplaceEntries(args.image, args.filename, args.indir, args.paths,
-                           do_compress=not args.compressed,
-                           allow_resize=not args.fix_size, write_map=args.map)
+            if args.cmd == 'replace':
+                ReplaceEntries(args.image, args.filename, args.indir, args.paths,
+                               do_compress=not args.compressed,
+                               allow_resize=not args.fix_size, write_map=args.map)
+        except:
+            raise
         finally:
             tools.FinaliseOutputDir()
         return 0

@@ -38,7 +38,7 @@ static int dm_test_pci_busdev(struct unit_test_state *uts)
 	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(0, 0x1f, 0), &swap));
 	device = 0;
 	ut_assertok(dm_pci_read_config16(swap, PCI_DEVICE_ID, &device));
-	ut_asserteq(SANDBOX_PCI_DEVICE_ID, device);
+	ut_asserteq(SANDBOX_PCI_SWAP_CASE_EMUL_ID, device);
 
 	/* Test bus#1 and its devices */
 	ut_assertok(uclass_get_device_by_seq(UCLASS_PCI, 1, &bus));
@@ -50,7 +50,7 @@ static int dm_test_pci_busdev(struct unit_test_state *uts)
 	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(1, 0x0c, 0), &swap));
 	device = 0;
 	ut_assertok(dm_pci_read_config16(swap, PCI_DEVICE_ID, &device));
-	ut_asserteq(SANDBOX_PCI_DEVICE_ID, device);
+	ut_asserteq(SANDBOX_PCI_SWAP_CASE_EMUL_ID, device);
 
 	return 0;
 }
@@ -170,7 +170,7 @@ static int dm_test_pci_mixed(struct unit_test_state *uts)
 	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(2, 0x1f, 0), &swap));
 	device = 0;
 	ut_assertok(dm_pci_read_config16(swap, PCI_DEVICE_ID, &device));
-	ut_asserteq(SANDBOX_PCI_DEVICE_ID, device);
+	ut_asserteq(SANDBOX_PCI_SWAP_CASE_EMUL_ID, device);
 
 	/* First test I/O */
 	io_addr = dm_pci_read_bar32(swap, 0);
@@ -294,3 +294,48 @@ static int dm_test_pci_ea(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_pci_ea, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test the dev_read_addr_pci() function */
+static int dm_test_pci_addr_flat(struct unit_test_state *uts)
+{
+	struct udevice *swap1f, *swap1;
+	ulong io_addr, mem_addr;
+
+	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(0, 0x1f, 0), &swap1f));
+	io_addr = dm_pci_read_bar32(swap1f, 0);
+	ut_asserteq(io_addr, dev_read_addr_pci(swap1f));
+
+	/*
+	 * This device has both I/O and MEM spaces but the MEM space appears
+	 * first
+	 */
+	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(0, 0x1, 0), &swap1));
+	mem_addr = dm_pci_read_bar32(swap1, 1);
+	ut_asserteq(mem_addr, dev_read_addr_pci(swap1));
+
+	return 0;
+}
+DM_TEST(dm_test_pci_addr_flat, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT |
+		DM_TESTF_FLAT_TREE);
+
+/*
+ * Test the dev_read_addr_pci() function with livetree. That function is
+ * not currently fully implemented, in that it fails to return the BAR address.
+ * Once that is implemented this test can be removed and dm_test_pci_addr_flat()
+ * can be used for both flattree and livetree by removing the DM_TESTF_FLAT_TREE
+ * flag above.
+ */
+static int dm_test_pci_addr_live(struct unit_test_state *uts)
+{
+	struct udevice *swap1f, *swap1;
+
+	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(0, 0x1f, 0), &swap1f));
+	ut_asserteq(FDT_ADDR_T_NONE, dev_read_addr_pci(swap1f));
+
+	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(0, 0x1, 0), &swap1));
+	ut_asserteq(FDT_ADDR_T_NONE, dev_read_addr_pci(swap1));
+
+	return 0;
+}
+DM_TEST(dm_test_pci_addr_live, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT |
+		DM_TESTF_LIVE_TREE);

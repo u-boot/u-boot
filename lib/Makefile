@@ -106,7 +106,7 @@ obj-y += panic.o
 
 ifeq ($(CONFIG_$(SPL_TPL_)BUILD),y)
 # SPL U-Boot may use full-printf, tiny-printf or none at all
-ifdef CONFIG_USE_TINY_PRINTF
+ifdef CONFIG_$(SPL_TPL_)USE_TINY_PRINTF
 obj-$(CONFIG_$(SPL_TPL_)SPRINTF) += tiny-printf.o
 else
 obj-$(CONFIG_$(SPL_TPL_)SPRINTF) += vsprintf.o strmhz.o

@@ -147,6 +147,31 @@ static int sandbox_cmdline_cb_default_fdt(struct sandbox_state *state,
 SANDBOX_CMDLINE_OPT_SHORT(default_fdt, 'D', 0,
 		"Use the default u-boot.dtb control FDT in U-Boot directory");
 
+static int sandbox_cmdline_cb_test_fdt(struct sandbox_state *state,
+				       const char *arg)
+{
+	const char *fmt = "/arch/sandbox/dts/test.dtb";
+	char *p;
+	char *fname;
+	int len;
+
+	len = strlen(state->argv[0]) + strlen(fmt) + 1;
+	fname = os_malloc(len);
+	if (!fname)
+		return -ENOMEM;
+	strcpy(fname, state->argv[0]);
+	p = strrchr(fname, '/');
+	if (!p)
+		p = fname + strlen(fname);
+	len -= p - fname;
+	snprintf(p, len, fmt, p);
+	state->fdt_fname = fname;
+
+	return 0;
+}
+SANDBOX_CMDLINE_OPT_SHORT(test_fdt, 'T', 0,
+			  "Use the test.dtb control FDT in U-Boot directory");
+
 static int sandbox_cmdline_cb_interactive(struct sandbox_state *state,
 					  const char *arg)
 {

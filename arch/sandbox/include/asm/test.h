@@ -12,7 +12,7 @@
 #define SANDBOX_I2C_TEST_ADDR		0x59
 
 #define SANDBOX_PCI_VENDOR_ID		0x1234
-#define SANDBOX_PCI_DEVICE_ID		0x5678
+#define SANDBOX_PCI_SWAP_CASE_EMUL_ID	0x5678
 #define SANDBOX_PCI_CLASS_CODE		PCI_CLASS_CODE_COMM
 #define SANDBOX_PCI_CLASS_SUB_CODE	PCI_CLASS_SUB_CODE_COMM_SERIAL
 
@@ -197,5 +197,20 @@ int sandbox_get_pch_spi_protect(struct udevice *dev);
  * @return irq count
  */
 int sandbox_get_pci_ep_irq_count(struct udevice *dev);
+
+/**
+ * sandbox_pci_read_bar() - Read the BAR value for a read_config operation
+ *
+ * This is used in PCI emulators to read a base address reset. This has special
+ * rules because when the register is set to 0xffffffff it can be used to
+ * discover the type and size of the BAR.
+ *
+ * @barval: Current value of the BAR
+ * @type: Type of BAR (PCI_BASE_ADDRESS_SPACE_IO or
+ *		PCI_BASE_ADDRESS_MEM_TYPE_32)
+ * @size: Size of BAR in bytes
+ * @return BAR value to return from emulator
+ */
+uint sandbox_pci_read_bar(u32 barval, int type, uint size);
 
 #endif

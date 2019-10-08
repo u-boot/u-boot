@@ -11,7 +11,7 @@ config OMAP34XX
 	select ARM_ERRATA_454179
 	select ARM_ERRATA_621766
 	select ARM_ERRATA_725233
-	select USE_TINY_PRINTF if SPL
+	select SPL_USE_TINY_PRINTF if SPL
 	imply NAND_OMAP_GPMC
 	imply SPL_FS_EXT4
 	imply SPL_FS_FAT
@@ -31,7 +31,7 @@ config OMAP34XX
 
 config OMAP44XX
 	bool "OMAP44XX SoC"
-	select USE_TINY_PRINTF
+	select SPL_USE_TINY_PRINTF
 	imply NAND_OMAP_ELM
 	imply NAND_OMAP_GPMC
 	imply SPL_DISPLAY_PRINT
@@ -124,7 +124,7 @@ config AM33XX
 	imply SPL_NAND_SUPPORT
 	imply SYS_I2C_OMAP24XX
 	imply SYS_THUMB_BUILD
-	imply USE_TINY_PRINTF
+	imply SPL_USE_TINY_PRINTF
 	help
 	  Support for AM335x SOC from Texas Instruments.
 	  The AM335x high performance SOC features a Cortex-A8

@@ -934,6 +934,12 @@ BINMAN_DEBUG=1 to your build:
    make sandbox_defconfig
    make BINMAN_DEBUG=1
 
+To enable verbose logging from binman, base BINMAN_VERBOSE to your build, which
+adds a -v<level> option to the call to binman:
+
+   make sandbox_defconfig
+   make BINMAN_VERBOSE=5
+
 
 History / Credits
 -----------------

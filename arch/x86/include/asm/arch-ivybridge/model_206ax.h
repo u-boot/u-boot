@@ -8,9 +8,6 @@
 #ifndef _ASM_ARCH_MODEL_206AX_H
 #define _ASM_ARCH_MODEL_206AX_H
 
-/* SandyBridge/IvyBridge bus clock is fixed at 100MHz */
-#define SANDYBRIDGE_BCLK		100
-
 #define  CPUID_VMX			(1 << 5)
 #define  CPUID_SMX			(1 << 6)
 #define MSR_FEATURE_CONFIG		0x13c
@@ -61,6 +58,6 @@
 
 /* Configure power limits for turbo mode */
 void set_power_limits(u8 power_limit_1_time);
-int cpu_config_tdp_levels(void);
+bool cpu_ivybridge_config_tdp_levels(void);
 
 #endif

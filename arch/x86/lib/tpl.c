@@ -71,7 +71,7 @@ void board_init_f_r(void)
 u32 spl_boot_device(void)
 {
 	return IS_ENABLED(CONFIG_CHROMEOS) ? BOOT_DEVICE_CROS_VBOOT :
-		BOOT_DEVICE_BOARD;
+		BOOT_DEVICE_SPI_MMAP;
 }
 
 int spl_start_uboot(void)
@@ -97,7 +97,7 @@ static int spl_board_load_image(struct spl_image_info *spl_image,
 
 	return 0;
 }
-SPL_LOAD_IMAGE_METHOD("SPI", 0, BOOT_DEVICE_BOARD, spl_board_load_image);
+SPL_LOAD_IMAGE_METHOD("SPI", 5, BOOT_DEVICE_SPI_MMAP, spl_board_load_image);
 
 int spl_spi_load_image(void)
 {
@@ -108,8 +108,7 @@ void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 {
 	printf("Jumping to U-Boot SPL at %lx\n", (ulong)spl_image->entry_point);
 	jump_to_spl(spl_image->entry_point);
-	while (1)
-		;
+	hang();
 }
 
 void spl_board_init(void)

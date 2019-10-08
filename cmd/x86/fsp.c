@@ -5,13 +5,13 @@
 
 #include <common.h>
 #include <command.h>
-#include <asm/fsp/fsp_support.h>
+#include <asm/fsp1/fsp_support.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 static int do_hdr(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	struct fsp_header *hdr = find_fsp_header();
+	struct fsp_header *hdr = fsp_find_header();
 	u32 img_addr = hdr->img_base;
 	char *sign = (char *)&hdr->sign;
 	int i;

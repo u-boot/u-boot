@@ -103,6 +103,8 @@ A device tree binary file can be provided with -d. If you edit the source
 (it is stored at arch/sandbox/dts/sandbox.dts) you must rebuild U-Boot to
 recreate the binary file.
 
+To use the default device tree, use -D. To use the test device tree, use -T.
+
 To execute commands directly, use the -c option. You can specify a single
 command, or multiple commands separated by a semicolon, as is normal in
 U-Boot. Be careful with quoting as the shell will normally process and
@@ -498,6 +500,13 @@ Note that many of these tests are implemented as commands which you can
 run natively on your board if desired (and enabled).
 
 To run all tests use "make check".
+
+To run a single test in an existing sandbox build, you can use -T to use the
+test device tree, and -c to select the test:
+
+  /tmp/b/sandbox/u-boot -T -c "ut dm pci_busdev"
+
+This runs dm_test_pci_busdev() which is in test/dm/pci.c
 
 
 Memory Map

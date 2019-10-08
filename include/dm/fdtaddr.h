@@ -138,4 +138,12 @@ fdt_addr_t devfdt_get_addr_name(struct udevice *dev, const char *name);
 fdt_addr_t devfdt_get_addr_size_name(struct udevice *dev, const char *name,
 				     fdt_size_t *size);
 
+/**
+ * devfdt_get_addr_pci() - Read an address and handle PCI address translation
+ *
+ * @dev: Device to read from
+ * @return address or FDT_ADDR_T_NONE if not found
+ */
+fdt_addr_t devfdt_get_addr_pci(struct udevice *dev);
+
 #endif

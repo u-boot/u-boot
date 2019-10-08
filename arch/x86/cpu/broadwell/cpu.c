@@ -41,12 +41,9 @@ int arch_cpu_init_dm(void)
 
 void set_max_freq(void)
 {
-	msr_t msr, perf_ctl, platform_info;
+	msr_t msr, perf_ctl;
 
-	/* Check for configurable TDP option */
-	platform_info = msr_read(MSR_PLATFORM_INFO);
-
-	if ((platform_info.hi >> 1) & 3) {
+	if (cpu_config_tdp_levels()) {
 		/* Set to nominal TDP ratio */
 		msr = msr_read(MSR_CONFIG_TDP_NOMINAL);
 		perf_ctl.lo = (msr.lo & 0xff) << 8;
@@ -57,17 +54,22 @@ void set_max_freq(void)
 	}
 
 	perf_ctl.hi = 0;
-	msr_write(IA32_PERF_CTL, perf_ctl);
+	msr_write(MSR_IA32_PERF_CTL, perf_ctl);
 
 	debug("CPU: frequency set to %d MHz\n",
-	      ((perf_ctl.lo >> 8) & 0xff) * CPU_BCLK);
+	      ((perf_ctl.lo >> 8) & 0xff) * INTEL_BCLK_MHZ);
 }
 
 int arch_cpu_init(void)
 {
 	post_code(POST_CPU_INIT);
 
+#ifdef CONFIG_TPL
+	/* Do a mini-init if TPL has already done the full init */
+	return x86_cpu_reinit_f();
+#else
 	return x86_cpu_init_f();
+#endif
 }
 
 int checkcpu(void)
@@ -98,11 +100,8 @@ int print_cpuinfo(void)
 
 void board_debug_uart_init(void)
 {
-	struct udevice *bus = NULL;
-
 	/* com1 / com2 decode range */
-	pci_x86_write_config(bus, PCH_DEV_LPC, LPC_IO_DEC, 1 << 4, PCI_SIZE_16);
+	pci_x86_write_config(PCH_DEV_LPC, LPC_IO_DEC, 1 << 4, PCI_SIZE_16);
 
-	pci_x86_write_config(bus, PCH_DEV_LPC, LPC_EN, COMA_LPC_EN,
-			     PCI_SIZE_16);
+	pci_x86_write_config(PCH_DEV_LPC, LPC_EN, COMA_LPC_EN, PCI_SIZE_16);
 }

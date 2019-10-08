@@ -45,7 +45,7 @@
 
 /* SPL */
 #ifndef CONFIG_SPL_FRAMEWORK
-#define CONFIG_SPL_NO_CPU_SUPPORT_CODE
+#define CONFIG_SPL_NO_CPU_SUPPORT
 #define CONFIG_SPL_START_S_PATH	"arch/arm/cpu/arm926ejs/mxs"
 #endif
 

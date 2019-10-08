@@ -11,6 +11,7 @@
 #include <asm/mrccache.h>
 #include <asm/mtrr.h>
 #include <asm/processor.h>
+#include <asm/spl.h>
 #include <asm-generic/sections.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -39,12 +40,7 @@ static int x86_spl_init(void)
 		debug("%s: spl_init() failed\n", __func__);
 		return ret;
 	}
-#ifdef CONFIG_TPL
-	/* Do a mini-init if TPL has already done the full init */
-	ret = x86_cpu_reinit_f();
-#else
 	ret = arch_cpu_init();
-#endif
 	if (ret) {
 		debug("%s: arch_cpu_init() failed\n", __func__);
 		return ret;
@@ -142,7 +138,7 @@ void board_init_f_r(void)
 
 u32 spl_boot_device(void)
 {
-	return BOOT_DEVICE_BOARD;
+	return BOOT_DEVICE_SPI_MMAP;
 }
 
 int spl_start_uboot(void)
@@ -168,7 +164,7 @@ static int spl_board_load_image(struct spl_image_info *spl_image,
 
 	return 0;
 }
-SPL_LOAD_IMAGE_METHOD("SPI", 0, BOOT_DEVICE_BOARD, spl_board_load_image);
+SPL_LOAD_IMAGE_METHOD("SPI", 5, BOOT_DEVICE_SPI_MMAP, spl_board_load_image);
 
 int spl_spi_load_image(void)
 {
@@ -183,8 +179,7 @@ void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 	printf("Jumping to 64-bit U-Boot: Note many features are missing\n");
 	ret = cpu_jump_to_64bit_uboot(spl_image->entry_point);
 	debug("ret=%d\n", ret);
-	while (1)
-		;
+	hang();
 }
 #endif
 

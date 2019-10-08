@@ -364,6 +364,37 @@ config HAVE_FSP
 	  Note: Without this binary U-Boot will not be able to set up its
 	  SDRAM so will not boot.
 
+config USE_CAR
+	bool "Use Cache-As-RAM (CAR) to get temporary RAM at start-up"
+	default y if !HAVE_FSP
+	help
+	  Select this option if your board uses CAR init code, typically in a
+	  car.S file, to get some initial memory for code execution. This is
+	  common with Intel CPUs which don't use FSP.
+
+choice
+	prompt "FSP version"
+	depends on HAVE_FSP
+	default FSP_VERSION1
+	help
+	  Selects the FSP version to use. Intel has published several versions
+	  of the FSP External Architecture Specification and this allows
+	  selection of the version number used by a particular SoC.
+
+config FSP_VERSION1
+	bool "FSP version 1.x"
+	help
+	  This covers versions 1.0 and 1.1a. See here for details:
+	  https://github.com/IntelFsp/fsp/wiki
+
+config FSP_VERSION2
+	bool "FSP version 2.x"
+	help
+	  This covers versions 2.0 and 2.1. See here for details:
+	  https://github.com/IntelFsp/fsp/wiki
+
+endchoice
+
 config FSP_FILE
 	string "Firmware Support Package binary filename"
 	depends on HAVE_FSP
@@ -429,7 +460,7 @@ config ENABLE_MRC_CACHE
 
 	  For platforms that use Intel FSP for the memory initialization,
 	  please check FSP output HOB via U-Boot command 'fsp hob' to see
-	  if there is FSP_NON_VOLATILE_STORAGE_HOB_GUID (asm/fsp/fsp_hob.h).
+	  if there is FSP_NON_VOLATILE_STORAGE_HOB_GUID (asm/fsp1/fsp_hob.h).
 	  If such GUID does not exist, MRC cache is not available on such
 	  platform (eg: Intel Queensbay), which means selecting this option
 	  here does not make any difference.

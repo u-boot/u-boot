@@ -7,7 +7,7 @@
 
 #include <common.h>
 #include <fdtdec.h>
-#include <asm/fsp/fsp_support.h>
+#include <asm/fsp1/fsp_support.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -27,7 +27,7 @@ __weak void update_fsp_azalia_configs(struct azalia_config **azalia)
  * If the device tree does not specify an integer setting, use the default
  * provided in Intel's Baytrail_FSP_Gold4.tgz release FSP/BayleyBayFsp.bsf file.
  */
-void update_fsp_configs(struct fsp_config_data *config,
+void fsp_update_configs(struct fsp_config_data *config,
 			struct fspinit_rtbuf *rt_buf)
 {
 	struct upd_region *fsp_upd = &config->fsp_upd;

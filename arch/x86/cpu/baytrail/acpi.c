@@ -4,10 +4,10 @@
  */
 
 #include <common.h>
+#include <acpi_s3.h>
 #include <cpu.h>
 #include <dm.h>
 #include <dm/uclass-internal.h>
-#include <asm/acpi_s3.h>
 #include <asm/acpi_table.h>
 #include <asm/io.h>
 #include <asm/tables.h>
@@ -167,7 +167,7 @@ void acpi_create_gnvs(struct acpi_global_nvs *gnvs)
  * and PMC_BASE_ADDRESS are accessed, so we need make sure the base addresses
  * of these two blocks are programmed by either U-Boot or FSP.
  *
- * It has been verified that 1st phase API (see arch/x86/lib/fsp/fsp_car.S)
+ * It has been verified that 1st phase API (see arch/x86/lib/fsp1/fsp_car.S)
  * on Intel BayTrail SoC already initializes these two base addresses so
  * we are safe to access these registers here.
  */

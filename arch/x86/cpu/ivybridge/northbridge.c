@@ -141,7 +141,7 @@ static void northbridge_init(struct udevice *dev, int rev)
 	 * CPUs with configurable TDP also need power limits set
 	 * in MCHBAR.  Use same values from MSR_PKG_POWER_LIMIT.
 	 */
-	if (cpu_config_tdp_levels()) {
+	if (cpu_ivybridge_config_tdp_levels()) {
 		msr_t msr = msr_read(MSR_PKG_POWER_LIMIT);
 
 		writel(msr.lo, MCHBAR_REG(0x59A0));

@@ -6,9 +6,6 @@
 #ifndef __ASM_ARCH_PCH_H
 #define __ASM_ARCH_PCH_H
 
-/* CPU bus clock is fixed at 100MHz */
-#define CPU_BCLK		100
-
 #define PMBASE			0x40
 #define ACPI_CNTL		0x44
 #define  ACPI_EN		(1 << 7)
