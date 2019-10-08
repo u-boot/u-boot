@@ -1502,9 +1502,6 @@ config TARGET_LS1046AFRWY
 	  The LS1046A Freeway Board (FRWY) is a high-performance
 	  development platform that supports the QorIQ LS1046A
 	  Layerscape Architecture processor.
-config TARGET_H2200
-	bool "Support h2200"
-	select CPU_PXA
 
 config TARGET_COLIBRI_PXA270
 	bool "Support colibri_pxa270"
@@ -1812,7 +1809,6 @@ source "board/freescale/mx35pdk/Kconfig"
 source "board/freescale/s32v234evb/Kconfig"
 source "board/grinn/chiliboard/Kconfig"
 source "board/gumstix/pepper/Kconfig"
-source "board/h2200/Kconfig"
 source "board/hisilicon/hikey/Kconfig"
 source "board/hisilicon/hikey960/Kconfig"
 source "board/hisilicon/poplar/Kconfig"

@@ -242,7 +242,7 @@ matrix:
         - BUILDMAN="sun50i"
     - name: "buildman catch-all ARM"
       env:
-        - BUILDMAN="arm -x arm11,arm7,arm9,aarch64,at91,bcm,freescale,kirkwood,mvebu,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap,pxa,rockchip,toradex,socfpga,k2,k3,xilinx"
+        - BUILDMAN="arm -x arm11,arm7,arm9,aarch64,at91,bcm,freescale,kirkwood,mvebu,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap,rockchip,toradex,socfpga,k2,k3,xilinx"
     - name: "buildman sandbox x86"
       env:
         - BUILDMAN="sandbox x86"
@@ -253,9 +253,6 @@ matrix:
     - name: "buildman mvebu"
       env:
         - BUILDMAN="mvebu"
-    - name: "buildman PXA (non-toradex)"
-      env:
-        - BUILDMAN="pxa -x toradex"
     - name: "buildman m68k"
       env:
         - BUILDMAN="m68k"
