@@ -851,7 +851,7 @@ class KconfigScanner:
         os.environ['srctree'] = os.getcwd()
         os.environ['UBOOTVERSION'] = 'dummy'
         os.environ['KCONFIG_OBJDIR'] = ''
-        self.conf = kconfiglib.Config()
+        self.conf = kconfiglib.Kconfig()
 
 
 class KconfigParser:
@@ -1525,7 +1525,7 @@ def find_kconfig_rules(kconf, config, imply_config):
     """Check whether a config has a 'select' or 'imply' keyword
 
     Args:
-        kconf: Kconfig.Config object
+        kconf: Kconfiglib.Kconfig object
         config: Name of config to check (without CONFIG_ prefix)
         imply_config: Implying config (without CONFIG_ prefix) which may or
             may not have an 'imply' for 'config')
@@ -1533,7 +1533,7 @@ def find_kconfig_rules(kconf, config, imply_config):
     Returns:
         Symbol object for 'config' if found, else None
     """
-    sym = kconf.get_symbol(imply_config)
+    sym = kconf.syms.get(imply_config)
     if sym:
         for sel in sym.get_selected_symbols() | sym.get_implied_symbols():
             if sel.get_name() == config:
@@ -1547,7 +1547,7 @@ def check_imply_rule(kconf, config, imply_config):
     to add an 'imply' for 'config' to that part of the Kconfig.
 
     Args:
-        kconf: Kconfig.Config object
+        kconf: Kconfiglib.Kconfig object
         config: Name of config to check (without CONFIG_ prefix)
         imply_config: Implying config (without CONFIG_ prefix) which may or
             may not have an 'imply' for 'config')
@@ -1558,7 +1558,7 @@ def check_imply_rule(kconf, config, imply_config):
             line number within the Kconfig file, or 0 if none
             message indicating the result
     """
-    sym = kconf.get_symbol(imply_config)
+    sym = kconf.syms.get(imply_config)
     if not sym:
         return 'cannot find sym'
     locs = sym.get_def_locations()
@@ -1784,7 +1784,7 @@ def do_imply_config(config_list, add_imply, imply_flags, skip_added,
                         if skip_added:
                             show = False
                 else:
-                    sym = kconf.get_symbol(iconfig[CONFIG_LEN:])
+                    sym = kconf.syms.get(iconfig[CONFIG_LEN:])
                     fname = ''
                     if sym:
                         locs = sym.get_def_locations()

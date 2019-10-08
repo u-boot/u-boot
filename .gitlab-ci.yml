@@ -2,7 +2,7 @@
 
 # Grab our configured image.  The source for this is found at:
 # https://gitlab.denx.de/u-boot/gitlab-ci-runner
-image: trini/u-boot-gitlab-ci-runner:xenial-20190720-02Aug2019
+image: trini/u-boot-gitlab-ci-runner:bionic-20190912.1-03Oct2019
 
 # We run some tests in different order, to catch some failures quicker.
 stages:
@@ -22,8 +22,9 @@ stages:
     - . /tmp/venv/bin/activate
     - pip install pytest==2.8.7
     - pip install python-subunit
-    - grub-mkimage -o ~/grub_x86.efi -O i386-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
-    - grub-mkimage -o ~/grub_x64.efi -O x86_64-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
+    - pip install coverage
+    - grub-mkimage --prefix="" -o ~/grub_x86.efi -O i386-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
+    - grub-mkimage --prefix="" -o ~/grub_x64.efi -O x86_64-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
     - mkdir ~/grub2-arm
     - ( cd ~/grub2-arm; wget -O - http://download.opensuse.org/ports/armv7hl/distribution/leap/42.2/repo/oss/suse/armv7hl/grub2-arm-efi-2.02~beta2-87.1.armv7hl.rpm | rpm2cpio | cpio -di )
     - mkdir ~/grub2-arm64
@@ -36,9 +37,9 @@ stages:
     # use clang only do one configuration.
     - if [[ "${BUILDMAN}" != "" ]]; then
         ret=0;
-        tools/buildman/buildman -P -E ${BUILDMAN} ${OVERRIDE}|| ret=$?;
+        tools/buildman/buildman -o /tmp -P -E ${BUILDMAN} ${OVERRIDE}|| ret=$?;
         if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-          tools/buildman/buildman -sdeP ${BUILDMAN};
+          tools/buildman/buildman -o /tmp -sdeP ${BUILDMAN};
           exit $ret;
         fi;
       fi
@@ -46,7 +47,7 @@ stages:
     # never prevent any test from running. That way, we can always pass
     # "-k something" even when $TEST_PY_TEST_SPEC doesnt need a custom
     # value.
-    - export UBOOT_TRAVIS_BUILD_DIR=`cd .. && pwd`/.bm-work/${TEST_PY_BD};
+    - export UBOOT_TRAVIS_BUILD_DIR=/tmp/.bm-work/${TEST_PY_BD};
       export PATH=/opt/qemu/bin:/tmp/uboot-test-hooks/bin:/usr/bin:/bin;
       export PYTHONPATH=/tmp/uboot-test-hooks/py/travis-ci;
       if [[ "${TEST_PY_BD}" != "" ]]; then
@@ -64,9 +65,9 @@ build all 32bit ARM platforms:
   stage: world build
   script:
     - ret=0;
-     ./tools/buildman/buildman -P -E arm -x aarch64 || ret=$?;
+     ./tools/buildman/buildman -o /tmp -P -E arm -x aarch64 || ret=$?;
      if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-       ./tools/buildman/buildman -sdeP;
+       ./tools/buildman/buildman -o /tmp -sdeP;
        exit $ret;
      fi;
 
@@ -78,9 +79,9 @@ build all 64bit ARM platforms:
     - . /tmp/venv/bin/activate
     - pip install pyelftools
     - ret=0;
-     ./tools/buildman/buildman -P -E aarch64 || ret=$?;
+     ./tools/buildman/buildman -o /tmp -P -E aarch64 || ret=$?;
      if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-       ./tools/buildman/buildman -sdeP;
+       ./tools/buildman/buildman -o /tmp -sdeP;
        exit $ret;
      fi;
 
@@ -89,9 +90,9 @@ build all PowerPC platforms:
   stage: world build
   script:
     - ret=0;
-     ./tools/buildman/buildman -P -E powerpc || ret=$?;
+     ./tools/buildman/buildman -o /tmp -P -E powerpc || ret=$?;
      if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-       ./tools/buildman/buildman -sdeP;
+       ./tools/buildman/buildman -o /tmp -sdeP;
        exit $ret;
      fi;
 
@@ -100,9 +101,9 @@ build all other platforms:
   stage: world build
   script:
     - ret=0;
-     ./tools/buildman/buildman -P -E -x arm,powerpc || ret=$?;
+     ./tools/buildman/buildman -o /tmp -P -E -x arm,powerpc || ret=$?;
      if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-       ./tools/buildman/buildman -sdeP;
+       ./tools/buildman/buildman -o /tmp -sdeP;
        exit $ret;
      fi;
 
@@ -162,10 +163,10 @@ Run binman, buildman, dtoc and patman testsuites:
       virtualenv /tmp/venv;
       . /tmp/venv/bin/activate;
       pip install pyelftools;
-      export UBOOT_TRAVIS_BUILD_DIR=`cd .. && pwd`/.bm-work/sandbox_spl;
+      export UBOOT_TRAVIS_BUILD_DIR=/tmp/.bm-work/sandbox_spl;
       export PYTHONPATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt";
       export PATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc:${PATH}";
-      ./tools/buildman/buildman -P sandbox_spl;
+      ./tools/buildman/buildman -o /tmp -P sandbox_spl;
       ./tools/binman/binman --toolpath ${UBOOT_TRAVIS_BUILD_DIR}/tools test;
       ./tools/buildman/buildman -t;
       ./tools/dtoc/dtoc -t;
