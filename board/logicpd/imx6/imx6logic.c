@@ -207,6 +207,35 @@ struct fsl_esdhc_cfg usdhc_cfg[] = {
 	{USDHC2_BASE_ADDR}  /* Baseboard */
 };
 
+void board_boot_order(u32 *spl_boot_list)
+{
+	struct src *psrc = (struct src *)SRC_BASE_ADDR;
+	unsigned int reg = readl(&psrc->sbmr1) >> 11;
+	/*
+	 * Upon reading BOOT_CFG register the following map is done:
+	 * Bit 11 and 12 of BOOT_CFG register can determine the current
+	 * mmc port
+	 * 0x1                  SD1-SOM
+	 * 0x2                  SD2-Baseboard
+	 */
+
+	reg &= 0x3; /* Only care about bottom 2 bits */
+	switch (reg) {
+	case 0:
+		spl_boot_list[0] = BOOT_DEVICE_MMC1;
+		break;
+	case 1:
+		spl_boot_list[0] = BOOT_DEVICE_MMC2;
+		break;
+	}
+
+	/* If we cannot find a valid MMC/SD card, try NAND */
+	spl_boot_list[1] = BOOT_DEVICE_NAND;
+
+	/* As a last resort, use serial downloader */
+	spl_boot_list[2] = BOOT_DEVICE_BOARD;
+}
+
 int board_mmc_init(bd_t *bis)
 {
 	struct src *psrc = (struct src *)SRC_BASE_ADDR;
