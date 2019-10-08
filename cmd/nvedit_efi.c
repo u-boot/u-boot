@@ -330,7 +330,7 @@ out:
 }
 
 /**
- * do_env_print_efi() - set UEFI variable
+ * do_env_set_efi() - set UEFI variable
  *
  * @cmdtp:	Command table
  * @flag:	Command flag

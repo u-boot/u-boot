@@ -6,7 +6,6 @@
 
 #include <common.h>
 #include <dm.h>
-#include <efi_loader.h>
 #include <env.h>
 #include <errno.h>
 #include <ns16550.h>
@@ -224,19 +223,6 @@ int board_early_init_f(void)
 
 int board_late_init(void)
 {
-#if CONFIG_IS_ENABLED(EFI_LOADER)
-	if (gd->bd->bi_dram[1].start) {
-		/*
-		 * Only bank 0 is below board_get_usable_ram_top(), so all of
-		 * bank 1 is not mapped by the U-Boot MMU configuration, and so
-		 * we must prevent EFI from using it.
-		 */
-		efi_add_memory_map(gd->bd->bi_dram[1].start,
-				   gd->bd->bi_dram[1].size >> EFI_PAGE_SHIFT,
-				   EFI_BOOT_SERVICES_DATA, false);
-	}
-#endif
-
 #if defined(CONFIG_TEGRA_SUPPORT_NON_SECURE)
 	if (tegra_cpu_is_non_secure()) {
 		printf("CPU is in NS mode\n");
