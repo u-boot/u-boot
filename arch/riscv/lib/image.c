@@ -14,20 +14,21 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* ASCII version of "RISCV" defined in Linux kernel */
-#define LINUX_RISCV_IMAGE_MAGIC 0x5643534952
+/* ASCII version of "RSC\0x5" defined in Linux kernel */
+#define LINUX_RISCV_IMAGE_MAGIC 0x05435352
 
 struct linux_image_h {
 	uint32_t	code0;		/* Executable code */
 	uint32_t	code1;		/* Executable code */
 	uint64_t	text_offset;	/* Image load offset */
 	uint64_t	image_size;	/* Effective Image size */
-	uint64_t	res1;		/* reserved */
+	uint64_t	flags;		/* kernel flags (little endian) */
+	uint32_t	version;	/* version of the header */
+	uint32_t	res1;		/* reserved */
 	uint64_t	res2;		/* reserved */
 	uint64_t	res3;		/* reserved */
-	uint64_t	magic;		/* Magic number */
+	uint32_t	magic;		/* Magic number */
 	uint32_t	res4;		/* reserved */
-	uint32_t	res5;		/* reserved */
 };
 
 int booti_setup(ulong image, ulong *relocated_addr, ulong *size,
