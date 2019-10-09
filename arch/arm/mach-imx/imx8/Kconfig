@@ -90,4 +90,17 @@ source "board/toradex/apalis-imx8/Kconfig"
 source "board/toradex/colibri-imx8x/Kconfig"
 source "board/siemens/capricorn/Kconfig"
 
+config IMX_SNVS_SEC_SC
+	bool "Support SNVS configuration"
+	help
+	  Allow to configure the SNVS via SCU API to configure tampers and secure
+	  violation.
+
+config IMX_SNVS_SEC_SC_AUTO
+	bool "Support SNVS configuration command"
+	depends on IMX_SNVS_SEC_SC
+	help
+	  This configuration will apply the selected configurations automatically
+	  at boot.
+
 endif

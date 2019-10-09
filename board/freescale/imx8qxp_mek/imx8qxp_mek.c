@@ -16,6 +16,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/sci/sci.h>
 #include <asm/arch/imx8-pins.h>
+#include <asm/arch/snvs_security_sc.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/sys_proto.h>
 
@@ -110,6 +111,15 @@ int checkboard(void)
 int board_init(void)
 {
 	board_gpio_init();
+
+#ifdef CONFIG_IMX_SNVS_SEC_SC_AUTO
+	{
+		int ret = snvs_security_sc_init();
+
+		if (ret)
+			return ret;
+	}
+#endif
 
 	return 0;
 }
