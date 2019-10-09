@@ -4,6 +4,14 @@ config IMX8M
 	bool
 	select ROM_UNIFIED_SECTIONS
 
+config IMX8MQ
+	bool
+	select IMX8M
+
+config IMX8MM
+	bool
+	select IMX8M
+
 config SYS_SOC
 	default "imx8m"
 
@@ -13,11 +21,18 @@ choice
 
 config TARGET_IMX8MQ_EVK
 	bool "imx8mq_evk"
-	select IMX8M
+	select IMX8MQ
+	select IMX8M_LPDDR4
+
+config TARGET_IMX8MM_EVK
+	bool "imx8mm LPDDR4 EVK board"
+	select IMX8MM
+	select SUPPORT_SPL
 	select IMX8M_LPDDR4
 
 endchoice
 
 source "board/freescale/imx8mq_evk/Kconfig"
+source "board/freescale/imx8mm_evk/Kconfig"
 
 endif

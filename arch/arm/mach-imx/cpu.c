@@ -145,6 +145,18 @@ unsigned imx_ddr_size(void)
 const char *get_imx_type(u32 imxtype)
 {
 	switch (imxtype) {
+	case MXC_CPU_IMX8MM:
+		return "8MMQ";	/* Quad-core version of the imx8mm */
+	case MXC_CPU_IMX8MML:
+		return "8MMQL";	/* Quad-core Lite version of the imx8mm */
+	case MXC_CPU_IMX8MMD:
+		return "8MMD";	/* Dual-core version of the imx8mm */
+	case MXC_CPU_IMX8MMDL:
+		return "8MMDL";	/* Dual-core Lite version of the imx8mm */
+	case MXC_CPU_IMX8MMS:
+		return "8MMS";	/* Single-core version of the imx8mm */
+	case MXC_CPU_IMX8MMSL:
+		return "8MMSL";	/* Single-core Lite version of the imx8mm */
 	case MXC_CPU_IMX8MQ:
 		return "8MQ";	/* Quad-core version of the imx8m */
 	case MXC_CPU_MX7S:
@@ -173,6 +185,8 @@ const char *get_imx_type(u32 imxtype)
 		return "6UL";   /* Ultra-Lite version of the mx6 */
 	case MXC_CPU_MX6ULL:
 		return "6ULL";	/* ULL version of the mx6 */
+	case MXC_CPU_MX6ULZ:
+		return "6ULZ";	/* ULZ version of the mx6 */
 	case MXC_CPU_MX51:
 		return "51";
 	case MXC_CPU_MX53:

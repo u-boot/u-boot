@@ -31,7 +31,17 @@ void ddr_load_train_firmware(enum fw_type type)
 	unsigned long pr_to32, pr_from32;
 	unsigned long fw_offset = type ? IMEM_2D_OFFSET : 0;
 	unsigned long imem_start = (unsigned long)&_end + fw_offset;
-	unsigned long dmem_start = imem_start + IMEM_LEN;
+	unsigned long dmem_start;
+
+#ifdef CONFIG_SPL_OF_CONTROL
+	if (gd->fdt_blob && !fdt_check_header(gd->fdt_blob)) {
+		imem_start = roundup((unsigned long)&_end +
+				     fdt_totalsize(gd->fdt_blob), 4) +
+			fw_offset;
+	}
+#endif
+
+	dmem_start = imem_start + IMEM_LEN;
 
 	pr_from32 = imem_start;
 	pr_to32 = DDR_TRAIN_CODE_BASE_ADDR + 4 * IMEM_OFFSET_ADDR;
@@ -57,7 +67,7 @@ void ddr_load_train_firmware(enum fw_type type)
 		i += 4;
 	}
 
-	debug("check ddr4_pmu_train_imem code\n");
+	debug("check ddr_pmu_train_imem code\n");
 	pr_from32 = imem_start;
 	pr_to32 = DDR_TRAIN_CODE_BASE_ADDR + 4 * IMEM_OFFSET_ADDR;
 	for (i = 0x0; i < IMEM_LEN; ) {
@@ -74,9 +84,9 @@ void ddr_load_train_firmware(enum fw_type type)
 		i += 4;
 	}
 	if (error)
-		printf("check ddr4_pmu_train_imem code fail=%d\n", error);
+		printf("check ddr_pmu_train_imem code fail=%d\n", error);
 	else
-		debug("check ddr4_pmu_train_imem code pass\n");
+		debug("check ddr_pmu_train_imem code pass\n");
 
 	debug("check ddr4_pmu_train_dmem code\n");
 	pr_from32 = dmem_start;
@@ -95,9 +105,9 @@ void ddr_load_train_firmware(enum fw_type type)
 	}
 
 	if (error)
-		printf("check ddr4_pmu_train_dmem code fail=%d", error);
+		printf("check ddr_pmu_train_dmem code fail=%d", error);
 	else
-		debug("check ddr4_pmu_train_dmem code pass\n");
+		debug("check ddr_pmu_train_dmem code pass\n");
 }
 
 void ddrphy_trained_csr_save(struct dram_cfg_param *ddrphy_csr,

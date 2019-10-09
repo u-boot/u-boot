@@ -359,9 +359,11 @@ usage:
 	return CMD_RET_USAGE;
 }
 
+#ifdef CONFIG_SYS_LONGHELP
 static char nandbcb_help_text[] =
 	"update addr off|partition len	- update 'len' bytes starting at\n"
 	"	'off|part' to memory address 'addr', skipping  bad blocks";
+#endif
 
 U_BOOT_CMD(nandbcb, 5, 1, do_nandbcb,
 	   "i.MX6 Nand BCB",

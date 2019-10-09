@@ -57,7 +57,18 @@ static inline struct mxs_spi_slave *to_mxs_slave(struct spi_slave *slave)
 #else
 #include <dm.h>
 #include <errno.h>
+#include <dt-structs.h>
+
+#ifdef CONFIG_MX28
+#define dtd_fsl_imx_spi dtd_fsl_imx28_spi
+#else /* CONFIG_MX23 */
+#define dtd_fsl_imx_spi dtd_fsl_imx23_spi
+#endif
+
 struct mxs_spi_platdata {
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	struct dtd_fsl_imx_spi dtplat;
+#endif
 	s32 frequency;		/* Default clock frequency, -1 for none */
 	fdt_addr_t base;        /* SPI IP block base address */
 	int num_cs;             /* Number of CSes supported */
@@ -430,11 +441,28 @@ static int mxs_spi_probe(struct udevice *bus)
 	int ret;
 
 	debug("%s: probe\n", __func__);
+
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	struct dtd_fsl_imx_spi *dtplat = &plat->dtplat;
+	struct phandle_1_arg *p1a = &dtplat->clocks[0];
+
+	priv->regs = (struct mxs_ssp_regs *)dtplat->reg[0];
+	priv->dma_channel = dtplat->dmas[1];
+	priv->clk_id = p1a->arg[0];
+	priv->max_freq = dtplat->spi_max_frequency;
+	plat->num_cs = dtplat->num_cs;
+
+	debug("OF_PLATDATA: regs: 0x%x max freq: %d clkid: %d\n",
+	      (unsigned int)priv->regs, priv->max_freq, priv->clk_id);
+#else
 	priv->regs = (struct mxs_ssp_regs *)plat->base;
 	priv->max_freq = plat->frequency;
 
 	priv->dma_channel = plat->dma_id;
 	priv->clk_id = plat->clk_id;
+#endif
+
+	mxs_reset_block(&priv->regs->hw_ssp_ctrl0_reg);
 
 	ret = mxs_dma_init_channel(priv->dma_channel);
 	if (ret) {
@@ -569,22 +597,26 @@ static int mxs_ofdata_to_platdata(struct udevice *bus)
 
 	return 0;
 }
-#endif
 
 static const struct udevice_id mxs_spi_ids[] = {
 	{ .compatible = "fsl,imx23-spi" },
 	{ .compatible = "fsl,imx28-spi" },
 	{ }
 };
+#endif
 
 U_BOOT_DRIVER(mxs_spi) = {
-	.name	= "mxs_spi",
+#ifdef CONFIG_MX28
+	.name = "fsl_imx28_spi",
+#else /* CONFIG_MX23 */
+	.name = "fsl_imx23_spi",
+#endif
 	.id	= UCLASS_SPI,
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = mxs_spi_ids,
 	.ofdata_to_platdata = mxs_ofdata_to_platdata,
 #endif
-	.priv_auto_alloc_size = sizeof(struct mxs_spi_platdata),
+	.platdata_auto_alloc_size = sizeof(struct mxs_spi_platdata),
 	.ops	= &mxs_spi_ops,
 	.priv_auto_alloc_size = sizeof(struct mxs_spi_priv),
 	.probe	= mxs_spi_probe,

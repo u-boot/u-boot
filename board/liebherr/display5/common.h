@@ -31,12 +31,4 @@
 #define ENET_PAD_CTRL_CLK  ((PAD_CTL_PUS_100K_UP & ~PAD_CTL_PKE) | \
 	PAD_CTL_SPEED_HIGH | PAD_CTL_DSE_40ohm | PAD_CTL_SRE_FAST)
 
-void displ5_set_iomux_uart_spl(void);
-void displ5_set_iomux_uart(void);
-void displ5_set_iomux_ecspi_spl(void);
-void displ5_set_iomux_ecspi(void);
-void displ5_set_iomux_usdhc_spl(void);
-void displ5_set_iomux_usdhc(void);
-void displ5_set_iomux_misc_spl(void);
-
 #endif /* __DISPL5_COMMON_H_ */

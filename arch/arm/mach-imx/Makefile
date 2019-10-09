@@ -44,12 +44,12 @@ ifneq ($(CONFIG_SPL_BUILD),y)
 obj-$(CONFIG_IMX_BOOTAUX) += imx_bootaux.o
 endif
 obj-$(CONFIG_SATA) += sata.o
-obj-$(CONFIG_SECURE_BOOT)    += hab.o
+obj-$(CONFIG_IMX_HAB)    += hab.o
 obj-$(CONFIG_SYSCOUNTER_TIMER) += syscounter.o
 endif
 ifeq ($(SOC),$(filter $(SOC),mx7ulp))
 obj-y  += cache.o
-obj-$(CONFIG_SECURE_BOOT) += hab.o
+obj-$(CONFIG_IMX_HAB) += hab.o
 endif
 ifeq ($(SOC),$(filter $(SOC),vf610))
 obj-y += ddrmc-vf610.o
@@ -87,6 +87,11 @@ IMX_CONFIG = $(CONFIG_IMX_CONFIG:"%"=%)
 
 # How to create a cpp processed config file, they all use the same source
 %.cfgout: $(IMX_CONFIG) FORCE
+	$(Q)mkdir -p $(dir $@)
+	$(call if_changed_dep,cpp_cfg)
+
+IMX_CONTAINER_CFG = $(CONFIG_IMX_CONTAINER_CFG:"%"=%)
+container.cfg: $(IMX_CONTAINER_CFG) FORCE
 	$(Q)mkdir -p $(dir $@)
 	$(call if_changed_dep,cpp_cfg)
 
@@ -158,8 +163,20 @@ SPL:
 MKIMAGEFLAGS_flash.bin = -n spl/u-boot-spl.cfgout -T $(IMAGE_TYPE) -e 0x100000
 flash.bin: MKIMAGEOUTPUT = flash.log
 
-flash.bin: spl/u-boot-spl.bin u-boot.itb FORCE
-ifeq ($(SPL_DEPFILE_EXISTS),0)
+MKIMAGEFLAGS_u-boot.cnt = -n container.cfg -T $(IMAGE_TYPE) -e 0x100000
+u-boot.cnt: MKIMAGEOUTPUT = u-boot.cnt.log
+
+ifeq ($(CONFIG_SPL_LOAD_IMX_CONTAINER), y)
+u-boot.cnt: u-boot.bin container.cfg FORCE
+	$(call if_changed,mkimage)
+flash.bin: spl/u-boot-spl.bin FORCE
+	$(call if_changed,mkimage)
+	@flashbin_size=`wc -c flash.bin | awk '{print $$1}'`; \
+                   pad_cnt=$$(((flashbin_size + 0x400 - 1) / 0x400)); \
+                   echo "append u-boot.cnt at $$pad_cnt KB"; \
+                   dd if=u-boot.cnt of=flash.bin bs=1K seek=$$pad_cnt;
+else
+flash.bin: spl/u-boot-spl.bin FORCE
 	$(call if_changed,mkimage)
 endif
 endif

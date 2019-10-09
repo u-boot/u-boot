@@ -19,6 +19,10 @@
 #ifdef CONFIG_SPL_OS_BOOT
 int spl_start_uboot(void)
 {
+	/* Break into full U-Boot on 'c' */
+	if (serial_tstc() && serial_getc() == 'c')
+		return 1;
+
 	return 0;
 }
 #endif

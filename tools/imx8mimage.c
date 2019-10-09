@@ -99,8 +99,6 @@ static void parse_cfg_cmd(int32_t cmd, char *token, char *name, int lineno)
 		break;
 	case CMD_SIGNED_HDMI:
 		signed_hdmi = token;
-	case CMD_FIT:
-		using_fit = 1;
 		break;
 	case CMD_DDR_FW:
 		/* Do nothing */
@@ -119,6 +117,11 @@ static void parse_cfg_fld(int32_t *cmd, char *token,
 			fprintf(stderr, "Error: %s[%d] - Invalid command" "(%s)\n",
 				name, lineno, token);
 			exit(EXIT_FAILURE);
+		}
+		switch (*cmd) {
+		case CMD_FIT:
+			using_fit = 1;
+			break;
 		}
 		break;
 	case CFG_REG_SIZE:

@@ -3,4 +3,6 @@
 # Copyright 2017 NXP
 
 obj-y += lowlevel_init.o
-obj-y += clock.o clock_slice.o soc.o
+obj-y += clock_slice.o soc.o
+obj-$(CONFIG_IMX8MQ) += clock_imx8mq.o
+obj-$(CONFIG_IMX8MM) += clock_imx8mm.o

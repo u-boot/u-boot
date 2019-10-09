@@ -28,7 +28,8 @@ config SPL_FRAMEWORK
 config SPL_SIZE_LIMIT
 	hex "Maximum size of SPL image"
 	depends on SPL
-	default 69632 if ARCH_MX6
+	default 69632 if ARCH_MX6 && !MX6_OCRAM_256KB
+	default 200704 if ARCH_MX6 && MX6_OCRAM_256KB
 	default 0
 	help
 	  Specifies the maximum length of the U-Boot SPL image.
@@ -606,6 +607,15 @@ config SPL_MMC_SUPPORT
 	  support depending on the application (SPL_LIBDISK_SUPPORT). Enable
 	  this option to build the drivers in drivers/mmc as part of an SPL
 	  build.
+
+config SPL_FORCE_MMC_BOOT
+	bool "Force SPL booting from MMC"
+	depends on SPL_MMC_SUPPORT
+	default n
+	help
+	  Force SPL to use MMC device for Linux kernel booting even when the
+	  SoC ROM recognized boot medium is not eMMC/SD. This is crucial for
+	  factory or 'falcon mode' booting.
 
 config SPL_MMC_TINY
 	bool "Tiny MMC framework in SPL"

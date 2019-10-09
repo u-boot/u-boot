@@ -72,7 +72,7 @@ u32 get_lpuart_clk(void)
 	return pcc_clock_get_rate(lpuart_pcc_clks[index - 4]);
 }
 
-#ifdef CONFIG_SYS_LPI2C_IMX
+#ifdef CONFIG_SYS_I2C_IMX_LPI2C
 int enable_i2c_clk(unsigned char enable, unsigned i2c_num)
 {
 	/* Set parent to FIRC DIV2 clock */
@@ -300,9 +300,11 @@ void clock_init(void)
 
 	scg_a7_soscdiv_init();
 
-	/* APLL PFD1 = 270Mhz, PFD2=480Mhz, PFD3=800Mhz */
+	scg_a7_init_core_clk();
+
+	/* APLL PFD1 = 270Mhz, PFD2=345.6Mhz, PFD3=800Mhz */
 	scg_enable_pll_pfd(SCG_APLL_PFD1_CLK, 35);
-	scg_enable_pll_pfd(SCG_APLL_PFD2_CLK, 20);
+	scg_enable_pll_pfd(SCG_APLL_PFD2_CLK, 28);
 	scg_enable_pll_pfd(SCG_APLL_PFD3_CLK, 12);
 
 	init_clk_lpuart();
@@ -312,7 +314,7 @@ void clock_init(void)
 	enable_usboh3_clk(1);
 }
 
-#ifdef CONFIG_SECURE_BOOT
+#ifdef CONFIG_IMX_HAB
 void hab_caam_clock_enable(unsigned char enable)
 {
        if (enable)

@@ -79,6 +79,7 @@
 	CONFIG_MFG_ENV_SETTINGS \
 	M4_BOOT_ENV \
 	MEM_LAYOUT_ENV_SETTINGS \
+	"boot_file=Image\0" \
 	"console=ttyLP3 earlycon\0" \
 	"fdt_addr=0x83000000\0"	\
 	"fdt_file=fsl-imx8qxp-colibri-dsihdmi-eval-v3.dtb\0" \

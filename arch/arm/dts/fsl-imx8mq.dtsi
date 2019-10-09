@@ -19,6 +19,8 @@
 #include <dt-bindings/input/input.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/pinctrl/pins-imx8mq.h>
+#include <dt-bindings/reset/imx8mq-reset.h>
+#include <dt-bindings/power/imx8mq-power.h>
 #include <dt-bindings/thermal/thermal.h>
 
 / {
@@ -69,12 +71,6 @@
 			     IRQ_TYPE_LEVEL_LOW)>; /* Hypervisor */
 		clock-frequency = <8333333>;
 		interrupt-parent = <&gic>;
-	};
-
-	power: power-controller {
-		compatible = "fsl,imx8mq-pm-domain";
-		num-domains = <11>;
-		#power-domain-cells = <1>;
 	};
 
 	pwm2: pwm@30670000 {
@@ -269,6 +265,12 @@
 		#clock-cells = <1>;
 	};
 
+	src: reset-controller@30390000 {
+		compatible = "fsl,imx8mq-src", "syscon";
+		reg = <0x0 0x30390000 0x0 0x10000>;
+		#reset-cells = <1>;
+	};
+
 	gpc: gpc@303a0000 {
 		compatible = "fsl,imx8mq-gpc", "fsl,imx7d-gpc", "syscon";
 		reg = <0x0 0x303a0000 0x0 0x10000>;
@@ -276,6 +278,37 @@
 		interrupts = <GIC_SPI 87 IRQ_TYPE_LEVEL_HIGH>;
 		#interrupt-cells = <3>;
 		interrupt-parent = <&gic>;
+
+		pgc {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			/*
+			 * As per comment in ATF source code:
+			 *
+			 * PCIE1 and PCIE2 share the
+			 * same reset signal, if we
+			 * power down PCIE2, PCIE1
+			 * will be held in reset too.
+			 *
+			 * So instead of creating two
+			 * separate power domains for
+			 * PCIE1 and PCIE2 we create a
+			 * link between both and use
+			 * it as a shared PCIE power
+			 * domain.
+			 */
+			pgc_pcie: power-domain@1 {
+				#power-domain-cells = <0>;
+				reg = <IMX8M_POWER_DOMAIN_PCIE1>;
+				power-domains = <&pgc_pcie2>;
+			};
+
+			pgc_pcie2: power-domain@a {
+				#power-domain-cells = <0>;
+				reg = <IMX8M_POWER_DOMAIN_PCIE2>;
+			};
+		};
 	};
 
 	usdhc1: usdhc@30b40000 {

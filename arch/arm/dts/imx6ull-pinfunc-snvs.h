@@ -1,9 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (C) 2016 Freescale Semiconductor, Inc.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * Copyright (C) 2017 NXP
  */
 
 #ifndef __DTS_IMX6ULL_PINFUNC_SNVS_H
@@ -26,4 +24,3 @@
 #define MX6ULL_PAD_SNVS_TAMPER9__GPIO5_IO09                        0x002C 0x0070 0x0000 0x5 0x0
 
 #endif /* __DTS_IMX6ULL_PINFUNC_SNVS_H */
-

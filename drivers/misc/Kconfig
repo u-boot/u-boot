@@ -202,7 +202,7 @@ config JZ4780_EFUSE
 
 config MXC_OCOTP
 	bool "Enable MXC OCOTP Driver"
-	depends on ARCH_IMX8M || ARCH_MX6 || ARCH_MX7 || ARCH_VF610
+	depends on ARCH_IMX8M || ARCH_MX6 || ARCH_MX7 || ARCH_MX7ULP || ARCH_VF610
 	default y
 	help
 	  If you say Y here, you will get support for the One Time

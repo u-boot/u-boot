@@ -33,7 +33,6 @@
 		i2c1 = &i2c2;
 		i2c2 = &i2c3;
 		ipu0 = &ipu1;
-		video0 = &ipu1;
 		mmc0 = &usdhc1;
 		mmc1 = &usdhc2;
 		mmc2 = &usdhc3;
@@ -146,7 +145,6 @@
 		compatible = "simple-bus";
 		interrupt-parent = <&gpc>;
 		ranges;
-		u-boot,dm-pre-reloc;
 
 		dma_apbh: dma-apbh@110000 {
 			compatible = "fsl,imx6q-dma-apbh", "fsl,imx28-dma-apbh";
@@ -1263,7 +1261,6 @@
 				 <&clks IMX6QDL_CLK_IPU1_DI1>;
 			clock-names = "bus", "di0", "di1";
 			resets = <&src 2>;
-			u-boot,dm-pre-reloc;
 
 			ipu1_csi0: port@0 {
 				reg = <0>;

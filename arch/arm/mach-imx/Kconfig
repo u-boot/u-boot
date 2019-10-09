@@ -34,7 +34,7 @@ config USE_IMXIMG_PLUGIN
 	  i.MX6/7 supports DCD and Plugin. Enable this configuration
 	  to use Plugin, otherwise DCD will be used.
 
-config SECURE_BOOT
+config IMX_HAB
 	bool "Support i.MX HAB features"
 	depends on ARCH_MX7 || ARCH_MX6 || ARCH_MX5
 	select FSL_CAAM if HAS_CAAM
@@ -42,6 +42,13 @@ config SECURE_BOOT
 	help
 	  This option enables the support for secure boot (HAB).
 	  See doc/README.mxc_hab for more details.
+
+config CSF_SIZE
+	hex "Maximum size for Command Sequence File (CSF) binary"
+	default 0x2060
+	help
+	  Define the maximum size for Command Sequence File (CSF) binary
+	  this information is used to define the image boot data.
 
 config CMD_BMODE
 	bool "Support the 'bmode' command"

@@ -91,6 +91,7 @@
 
 #ifndef CONFIG_SPL_BUILD
 #define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 0) \
 	func(MMC, mmc, 1) \
 	func(USB, usb, 0) \
 	func(DHCP, dhcp, na)
@@ -167,8 +168,7 @@
 #define FDT_FILE "imx6dl-colibri-eval-v3.dtb"
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	BOOTENV \
-	"bootcmd=run emmcboot ; echo ; echo emmcboot failed ; " \
-		"setenv fdtfile ${fdt_file}; run distro_bootcmd ; " \
+	"bootcmd=setenv fdtfile ${fdt_file}; run distro_bootcmd; " \
 		"usb start ; " \
 		"setenv stdout serial,vga ; setenv stdin serial,usbkbd\0" \
 	"boot_file=zImage\0" \

@@ -352,7 +352,7 @@ static u32 scg_ddr_get_rate(void)
 
 static u32 scg_nic_get_rate(enum scg_clk clk)
 {
-	u32 reg, val, rate;
+	u32 reg, val, rate, nic0_rate;
 	u32 shift, mask;
 
 	reg = readl(&scg1_regs->niccsr);
@@ -370,6 +370,7 @@ static u32 scg_nic_get_rate(enum scg_clk clk)
 	val = (reg & SCG_NICCSR_NIC0DIV_MASK) >> SCG_NICCSR_NIC0DIV_SHIFT;
 
 	rate = rate / (val + 1);
+	nic0_rate = rate;
 
 	clk_debug("scg_nic_get_rate NIC0 rate %u\n", rate);
 
@@ -411,6 +412,13 @@ static u32 scg_nic_get_rate(enum scg_clk clk)
 		return 0;
 	}
 
+	/*
+	 * On RevB, the nic_bus and nic_ext dividers are parallel
+	 * not chained with nic div
+	 */
+	if (soc_rev() >= CHIP_REV_2_0)
+		rate = nic0_rate;
+
 	val = (reg & mask) >> shift;
 	rate = rate / (val + 1);
 
@@ -440,7 +448,7 @@ static u32 scg_sys_get_rate(enum scg_clk clk)
 	case SCG_SCS_SLOW_IRC:
 	case SCG_SCS_FAST_IRC:
 	case SCG_SCS_RTC_OSC:
-		rate = scg_src_get_rate(scg_scs_array[val]);
+		rate = scg_src_get_rate(scg_scs_array[val - 1]);
 		break;
 	case 5:
 		rate = scg_apll_get_rate();
@@ -503,7 +511,10 @@ u32 decode_pll(enum pll_clocks pll)
 
 		infreq = infreq / pre_div;
 
-		return infreq * mult + infreq * num / denom;
+		if (denom)
+			return infreq * mult + infreq * num / denom;
+		else
+			return infreq * mult;
 
 	case PLL_A7_APLL:
 		reg = readl(&scg1_regs->apllcsr);
@@ -532,7 +543,10 @@ u32 decode_pll(enum pll_clocks pll)
 
 		infreq = infreq / pre_div;
 
-		return infreq * mult + infreq * num / denom;
+		if (denom)
+			return infreq * mult + infreq * num / denom;
+		else
+			return infreq * mult;
 
 	case PLL_USB:
 		reg = readl(&scg1_regs->upllcsr);
@@ -1084,4 +1098,45 @@ void scg_a7_info(void)
 	debug("SCG Parameter: 0x%x\n", readl(&scg1_regs->param));
 	debug("SCG RCCR Value: 0x%x\n", readl(&scg1_regs->rccr));
 	debug("SCG Clock Status: 0x%x\n", readl(&scg1_regs->csr));
+}
+
+void scg_a7_init_core_clk(void)
+{
+	u32 val = 0;
+
+	/*
+	 * The normal target frequency for ULP B0 is 500Mhz,
+	 * but ROM set it to 413Mhz, need to change SPLL PFD0 FRAC
+	 */
+	if (soc_rev() >= CHIP_REV_2_0) {
+		/* Switch RCCR SCG to SOSC, firstly check the SOSC is valid */
+		if ((readl(&scg1_regs->sosccsr) & SCG_SOSC_CSR_SOSCVLD_MASK)) {
+			val = readl(&scg1_regs->rccr);
+			val &= (~SCG_CCR_SCS_MASK);
+			val |= ((SCG_SCS_SYS_OSC) << SCG_CCR_SCS_SHIFT);
+			writel(val, &scg1_regs->rccr);
+
+			/* Switch the PLLS to SPLL clk */
+			val = readl(&scg1_regs->spllcfg);
+			val &= ~SCG_PLL_CFG_PLLSEL_MASK;
+			writel(val, &scg1_regs->spllcfg);
+
+			/*
+			 * Re-configure PFD0 to 19,
+			 * A7 SPLL(528MHz) * 18 / 19 = 500MHz
+			 */
+			scg_enable_pll_pfd(SCG_SPLL_PFD0_CLK, 19);
+
+			/* Switch the PLLS to SPLL PFD0 */
+			val = readl(&scg1_regs->spllcfg);
+			val |= SCG_PLL_CFG_PLLSEL_MASK;
+			writel(val, &scg1_regs->spllcfg);
+
+			/* Set RCCR SCG to SPLL clk out */
+			val = readl(&scg1_regs->rccr);
+			val &= (~SCG_CCR_SCS_MASK);
+			val |= ((SCG_SCS_SYS_PLL) << SCG_CCR_SCS_SHIFT);
+			writel(val, &scg1_regs->rccr);
+		}
+	}
 }

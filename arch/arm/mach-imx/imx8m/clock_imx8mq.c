@@ -322,12 +322,9 @@ int enable_i2c_clk(unsigned char enable, unsigned int i2c_num)
 	return 0;
 }
 
-unsigned int mxc_get_clock(enum clk_root_index clk)
+unsigned int mxc_get_clock(enum mxc_clock clk)
 {
 	u32 val;
-
-	if (clk >= CLK_ROOT_MAX)
-		return 0;
 
 	if (clk == MXC_ARM_CLK)
 		return get_root_clk(ARM_A53_CLK_ROOT);

@@ -79,6 +79,16 @@ int mmc_load_image_raw_sector(struct spl_image_info *spl_image,
 		load.bl_len = mmc->read_bl_len;
 		load.read = h_spl_load_read;
 		ret = spl_load_simple_fit(spl_image, &load, sector, header);
+	} else if (IS_ENABLED(CONFIG_SPL_LOAD_IMX_CONTAINER)) {
+		struct spl_load_info load;
+
+		load.dev = mmc;
+		load.priv = NULL;
+		load.filename = NULL;
+		load.bl_len = mmc->read_bl_len;
+		load.read = h_spl_load_read;
+
+		ret = spl_load_imx_container(spl_image, &load, sector);
 	} else {
 		ret = mmc_load_legacy(spl_image, mmc, sector, header);
 	}
@@ -303,6 +313,15 @@ int spl_boot_partition(const u32 boot_device)
 }
 #endif
 
+unsigned long __weak spl_mmc_get_uboot_raw_sector(struct mmc *mmc)
+{
+#ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
+	return CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR;
+#else
+	return 0;
+#endif
+}
+
 int spl_mmc_load(struct spl_image_info *spl_image,
 		 struct spl_boot_device *bootdev,
 		 const char *filename,
@@ -329,6 +348,8 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 			return err;
 		}
 	}
+
+	raw_sect = spl_mmc_get_uboot_raw_sector(mmc);
 
 	boot_mode = spl_boot_mode(bootdev->boot_device);
 	err = -EINVAL;
