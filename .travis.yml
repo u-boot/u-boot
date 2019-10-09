@@ -180,6 +180,9 @@ matrix:
     - name: "buildman boundary engicam toradex"
       env:
         - BUILDMAN="boundary engicam toradex"
+    - name: "buildman bcm"
+      env:
+        - BUILDMAN="bcm"
     - name: "buildman NXP ARM32"
       env:
         - BUILDMAN="freescale -x powerpc,m68k,aarch64"
@@ -239,7 +242,7 @@ matrix:
         - BUILDMAN="sun50i"
     - name: "buildman catch-all ARM"
       env:
-        - BUILDMAN="arm -x arm11,arm7,arm9,aarch64,at91,freescale,kirkwood,mvebu,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap,pxa,rockchip,toradex,socfpga,k2,xilinx"
+        - BUILDMAN="arm -x arm11,arm7,arm9,aarch64,at91,bcm,freescale,kirkwood,mvebu,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap,pxa,rockchip,toradex,socfpga,k2,xilinx"
     - name: "buildman sandbox x86"
       env:
         - BUILDMAN="sandbox x86"
@@ -310,7 +313,7 @@ matrix:
         - BUILDMAN="uniphier"
     - name: "buildman catch-all AArch64"
       env:
-        - BUILDMAN="aarch64 -x tegra,ls1,ls2,mvebu,uniphier,sunxi,samsung,rockchip,xilinx"
+        - BUILDMAN="aarch64 -x bcm,tegra,ls1,ls2,mvebu,uniphier,sunxi,samsung,rockchip,xilinx"
     - name: "buildman rockchip"
       env:
         - BUILDMAN="rockchip"
