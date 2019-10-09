@@ -111,13 +111,13 @@
 #else
 
 #ifdef CONFIG_CMD_MMC
-#define BOOT_TARGET_DEVICES_MMC(func) func(MMC, mmc, 0)
+#define BOOT_TARGET_DEVICES_MMC(func) func(MMC, mmc, 0) func(MMC, mmc, 1)
 #else
 #define BOOT_TARGET_DEVICES_MMC(func)
 #endif
 
 #ifdef CONFIG_CMD_USB
-#define BOOT_TARGET_DEVICES_USB(func) func(USB, usb, 0)
+#define BOOT_TARGET_DEVICES_USB(func) func(USB, usb, 0) func(USB, usb, 1)
 #else
 #define BOOT_TARGET_DEVICES_USB(func)
 #endif
@@ -152,15 +152,9 @@
 # define BOOT_TARGET_DEVICES_NOR(func)
 #endif
 
-#define BOOTENV_DEV_XILINX(devtypeu, devtypel, instance) \
-	"bootcmd_xilinx=run $modeboot\0"
-
-#define BOOTENV_DEV_NAME_XILINX(devtypeu, devtypel, instance) \
-	"xilinx "
-
 #define BOOTENV_DEV_QSPI(devtypeu, devtypel, instance) \
 	"bootcmd_qspi=sf probe 0 0 0 && " \
-		      "sf read $scriptaddr $script_offset_f $script_size_f && " \
+		      "sf read ${scriptaddr} ${script_offset_f} ${script_size_f} && " \
 		      "source ${scriptaddr}; echo SCRIPT FAILED: continuing...;\0"
 
 #define BOOTENV_DEV_NAME_QSPI(devtypeu, devtypel, instance) \
@@ -168,14 +162,15 @@
 
 #define BOOTENV_DEV_NAND(devtypeu, devtypel, instance) \
 	"bootcmd_nand=nand info && " \
-		      "nand read $scriptaddr $script_offset_f $script_size_f && " \
+		      "nand read ${scriptaddr} ${script_offset_f} ${script_size_f} && " \
 		      "source ${scriptaddr}; echo SCRIPT FAILED: continuing...;\0"
 
 #define BOOTENV_DEV_NAME_NAND(devtypeu, devtypel, instance) \
 	"nand "
 
 #define BOOTENV_DEV_NOR(devtypeu, devtypel, instance) \
-	"bootcmd_nor=cp.b $scropt_offset_nor $scriptaddr $script_size_f && " \
+	"script_offset_nor=0xE2FC0000\0"        \
+	"bootcmd_nor=cp.b ${script_offset_nor} ${scriptaddr} ${script_size_f} && " \
 		     "source ${scriptaddr}; echo SCRIPT FAILED: continuing...;\0"
 
 #define BOOTENV_DEV_NAME_NOR(devtypeu, devtypel, instance) \
@@ -188,8 +183,7 @@
 	BOOT_TARGET_DEVICES_NOR(func) \
 	BOOT_TARGET_DEVICES_USB(func) \
 	BOOT_TARGET_DEVICES_PXE(func) \
-	BOOT_TARGET_DEVICES_DHCP(func) \
-	func(XILINX, xilinx, na)
+	BOOT_TARGET_DEVICES_DHCP(func)
 
 #include <config_distro_bootcmd.h>
 #endif /* CONFIG_SPL_BUILD */
@@ -197,72 +191,31 @@
 /* Default environment */
 #ifndef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS	\
-	"fit_image=fit.itb\0"		\
-	"load_addr=0x2000000\0"		\
-	"fit_size=0x800000\0"		\
-	"flash_off=0x100000\0"		\
-	"nor_flash_off=0xE2100000\0"	\
 	"fdt_high=0x20000000\0"		\
 	"initrd_high=0x20000000\0"	\
 	"scriptaddr=0x20000\0"	\
-	"script_offser_nor=0xE2FC0000\0"	\
 	"script_offset_f=0xFC0000\0"	\
 	"script_size_f=0x40000\0"	\
-	"loadbootenv_addr=0x2000000\0" \
 	"fdt_addr_r=0x1f00000\0"        \
 	"pxefile_addr_r=0x2000000\0"    \
 	"kernel_addr_r=0x2000000\0"     \
 	"scriptaddr=0x3000000\0"        \
 	"ramdisk_addr_r=0x3100000\0"    \
-	"bootenv=uEnv.txt\0" \
-	"bootenv_dev=mmc\0" \
-	"loadbootenv=load ${bootenv_dev} 0 ${loadbootenv_addr} ${bootenv}\0" \
-	"importbootenv=echo Importing environment from ${bootenv_dev} ...; " \
-		"env import -t ${loadbootenv_addr} $filesize\0" \
-	"bootenv_existence_test=test -e ${bootenv_dev} 0 /${bootenv}\0" \
-	"setbootenv=if env run bootenv_existence_test; then " \
-			"if env run loadbootenv; then " \
-				"env run importbootenv; " \
-			"fi; " \
-		"fi; \0" \
-	"sd_loadbootenv=setenv bootenv_dev mmc && " \
-			"run setbootenv \0" \
-	"usb_loadbootenv=setenv bootenv_dev usb && usb start && run setbootenv \0" \
-	"preboot=if test $modeboot = sdboot; then " \
-			"run sd_loadbootenv; " \
-			"echo Checking if uenvcmd is set ...; " \
-			"if test -n $uenvcmd; then " \
-				"echo Running uenvcmd ...; " \
-				"run uenvcmd; " \
-			"fi; " \
-		"fi; \0" \
-	"norboot=echo Copying FIT from NOR flash to RAM... && " \
-		"cp.b ${nor_flash_off} ${load_addr} ${fit_size} && " \
-		"bootm ${load_addr}\0" \
-	"sdboot=echo Copying FIT from SD to RAM... && " \
-		"load mmc 0 ${load_addr} ${fit_image} && " \
-		"bootm ${load_addr}\0" \
-	"jtagboot=echo TFTPing FIT to RAM... && " \
-		"tftpboot ${load_addr} ${fit_image} && " \
-		"bootm ${load_addr}\0" \
-	"usbboot=if usb start; then " \
-			"echo Copying FIT from USB to RAM... && " \
-			"load usb 0 ${load_addr} ${fit_image} && " \
-			"bootm ${load_addr}; fi\0" \
-		DFU_ALT_INFO \
-		BOOTENV
+	DFU_ALT_INFO \
+	BOOTENV
 #endif
 
 /* Miscellaneous configurable options */
 
 #define CONFIG_CLOCKS
 #define CONFIG_SYS_MAXARGS		32 /* max number of command args */
+#define CONFIG_SYS_CBSIZE		2048 /* Console I/O Buffer Size */
 
 #define CONFIG_SYS_MEMTEST_START	0
 #define CONFIG_SYS_MEMTEST_END		0x1000
 
 #define CONFIG_SYS_INIT_RAM_ADDR	0xFFFF0000
-#define CONFIG_SYS_INIT_RAM_SIZE	0x1000
+#define CONFIG_SYS_INIT_RAM_SIZE	0x2000
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + \
 					CONFIG_SYS_INIT_RAM_SIZE - \
 					GENERATED_GBL_DATA_SIZE)
@@ -273,6 +226,8 @@
 
 /* Boot FreeBSD/vxWorks from an ELF image */
 #define CONFIG_SYS_MMC_MAX_DEVICE	1
+
+#undef CONFIG_BOOTM_NETBSD
 
 /* MMC support */
 #ifdef CONFIG_MMC_SDHCI_ZYNQ

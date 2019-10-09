@@ -39,3 +39,11 @@ config XILINX_PS_INIT_FILE
 	     before the build.
 
 endif
+
+config XILINX_OF_BOARD_DTB_ADDR
+	hex
+	default 0x1000 if ARCH_VERSAL
+	default 0x100000 if ARCH_ZYNQ || ARCH_ZYNQMP
+	depends on OF_BOARD
+	help
+	  Offset in the memory where the board configuration DTB is placed.

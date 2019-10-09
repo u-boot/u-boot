@@ -458,6 +458,11 @@ static struct phy_driver genphy_driver = {
 	.shutdown	= genphy_shutdown,
 };
 
+int genphy_init(void)
+{
+	return phy_register(&genphy_driver);
+}
+
 static LIST_HEAD(phy_drivers);
 
 int phy_init(void)
@@ -540,6 +545,11 @@ int phy_init(void)
 #ifdef CONFIG_PHY_FIXED
 	phy_fixed_init();
 #endif
+#ifdef CONFIG_PHY_XILINX_GMII2RGMII
+	phy_xilinx_gmii2rgmii_init();
+#endif
+	genphy_init();
+
 	return 0;
 }
 
@@ -911,6 +921,41 @@ void phy_connect_dev(struct phy_device *phydev, struct eth_device *dev)
 	debug("%s connected to %s\n", dev->name, phydev->drv->name);
 }
 
+#ifdef CONFIG_PHY_XILINX_GMII2RGMII
+#ifdef CONFIG_DM_ETH
+static struct phy_device *phy_connect_gmii2rgmii(struct mii_dev *bus,
+						 struct udevice *dev,
+						 phy_interface_t interface)
+#else
+static struct phy_device *phy_connect_gmii2rgmii(struct mii_dev *bus,
+						 struct eth_device *dev,
+						 phy_interface_t interface)
+#endif
+{
+	struct phy_device *phydev = NULL;
+	int sn = dev_of_offset(dev);
+	int off;
+
+	while (sn > 0) {
+		off = fdt_node_offset_by_compatible(gd->fdt_blob, sn,
+						    "xlnx,gmii-to-rgmii-1.0");
+		if (off > 0) {
+			phydev = phy_device_create(bus, off,
+						   PHY_GMII2RGMII_ID, false,
+						   interface);
+			break;
+		}
+		if (off == -FDT_ERR_NOTFOUND)
+			sn = fdt_first_subnode(gd->fdt_blob, sn);
+		else
+			printf("%s: Error finding compat string:%d\n",
+			       __func__, off);
+	}
+
+	return phydev;
+}
+#endif
+
 #ifdef CONFIG_PHY_FIXED
 #ifdef CONFIG_DM_ETH
 static struct phy_device *phy_connect_fixed(struct mii_dev *bus,
@@ -956,6 +1001,10 @@ struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 
 #ifdef CONFIG_PHY_FIXED
 	phydev = phy_connect_fixed(bus, dev, interface);
+#endif
+#ifdef CONFIG_PHY_XILINX_GMII2RGMII
+	if (!phydev)
+		phydev = phy_connect_gmii2rgmii(bus, dev, interface);
 #endif
 
 	if (!phydev)

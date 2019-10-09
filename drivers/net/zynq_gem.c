@@ -26,8 +26,6 @@
 #include <asm/arch/sys_proto.h>
 #include <linux/errno.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* Bit/mask specification */
 #define ZYNQ_GEM_PHYMNTNC_OP_MASK	0x40020000 /* operation mask bits */
 #define ZYNQ_GEM_PHYMNTNC_OP_R_MASK	0x20000000 /* read operation */
@@ -465,7 +463,6 @@ static int zynq_gem_init(struct udevice *dev)
 		break;
 	}
 
-#if !defined(CONFIG_ARCH_VERSAL)
 	ret = clk_set_rate(&priv->clk, clk_rate);
 	if (IS_ERR_VALUE(ret) && ret != (unsigned long)-ENOSYS) {
 		dev_err(dev, "failed to set tx clock rate\n");
@@ -477,9 +474,6 @@ static int zynq_gem_init(struct udevice *dev)
 		dev_err(dev, "failed to enable tx clock\n");
 		return ret;
 	}
-#else
-	debug("requested clk_rate %ld\n", clk_rate);
-#endif
 
 	setbits_le32(&regs->nwctrl, ZYNQ_GEM_NWCTRL_RXEN_MASK |
 					ZYNQ_GEM_NWCTRL_TXEN_MASK);
@@ -753,6 +747,7 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 }
 
 static const struct udevice_id zynq_gem_ids[] = {
+	{ .compatible = "cdns,versal-gem" },
 	{ .compatible = "cdns,zynqmp-gem" },
 	{ .compatible = "cdns,zynq-gem" },
 	{ .compatible = "cdns,gem" },

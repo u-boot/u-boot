@@ -7,6 +7,7 @@
 #include <common.h>
 #include <env.h>
 #include <malloc.h>
+#include <zynqmp_firmware.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>

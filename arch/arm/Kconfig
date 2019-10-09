@@ -462,6 +462,22 @@ config TPL_USE_ARCH_MEMSET
 	  Such implementation may be faster under some conditions
 	  but may increase the binary size.
 
+config SET_STACK_SIZE
+	bool "Enable an option to set max stack size that can be used"
+	default y if ARCH_VERSAL || ARCH_ZYNQMP
+	help
+	  This will enable an option to set max stack size that can be
+	  used by u-boot.
+
+config STACK_SIZE
+	hex "Define max stack size that can be used by u-boot"
+	depends on SET_STACK_SIZE
+	default 0x4000000 if ARCH_VERSAL || ARCH_ZYNQMP
+	help
+	  Defines Max stack size that can be used by u-boot so that the
+	  initrd_high will be calculated as base stack pointer minus this
+	  stack size.
+
 config ARM64_SUPPORT_AARCH32
 	bool "ARM64 system support AArch32 execution state"
 	depends on ARM64
@@ -980,6 +996,7 @@ config ARCH_VERSAL
 	select DM_MMC if MMC
 	select DM_SERIAL
 	select OF_CONTROL
+	imply BOARD_LATE_INIT
 
 config ARCH_VF610
 	bool "Freescale Vybrid"
@@ -1034,16 +1051,21 @@ config ARCH_ZYNQMP
 	select CLK
 	select DM
 	select DM_ETH if NET
+	select DM_MAILBOX
 	select DM_MMC if MMC
 	select DM_SERIAL
 	select DM_SPI if SPI
 	select DM_SPI_FLASH if DM_SPI
 	select DM_USB if USB
+	select FIRMWARE
 	select OF_CONTROL
 	select SPL_BOARD_INIT if SPL
 	select SPL_CLK if SPL
+	select SPL_DM_MAILBOX if SPL
+	select SPL_FIRMWARE if SPL
 	select SPL_SEPARATE_BSS if SPL
 	select SUPPORT_SPL
+	select ZYNQMP_IPI
 	imply BOARD_LATE_INIT
 	imply CMD_DM
 	imply FAT_WRITE

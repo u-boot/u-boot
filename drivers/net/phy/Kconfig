@@ -228,6 +228,13 @@ config PHY_VITESSE
 config PHY_XILINX
 	bool "Xilinx Ethernet PHYs support"
 
+config PHY_XILINX_GMII2RGMII
+	bool "Xilinx GMII to RGMII Ethernet PHYs support"
+	help
+	  This adds support for Xilinx GMII to RGMII IP core. This IP acts
+	  as bridge between MAC connected over GMII and external phy that
+	  is connected over RGMII interface.
+
 config PHY_FIXED
 	bool "Fixed-Link PHY"
 	depends on DM_ETH

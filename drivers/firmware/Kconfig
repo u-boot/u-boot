@@ -26,3 +26,13 @@ config TI_SCI_PROTOCOL
 
 	  This protocol library is used by client drivers to use the features
 	  provided by the system controller.
+
+config ZYNQMP_FIRMWARE
+	bool "ZynqMP Firmware interface"
+	select FIRMWARE
+	help
+	  Firmware interface driver is used by different
+	  drivers to communicate with the firmware for
+	  various platform management services.
+	  Say yes to enable ZynqMP firmware interface driver.
+	  If in doubt, say N.

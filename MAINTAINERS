@@ -404,6 +404,7 @@ M:	Michal Simek <michal.simek@xilinx.com>
 S:	Maintained
 T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-microblaze.git
 F:	arch/arm/mach-versal/
+N:	(?<!uni)versal
 
 ARM VERSATILE EXPRESS DRIVERS
 M:	Liviu Dudau <liviu.dudau@foss.arm.com>
@@ -442,11 +443,13 @@ S:	Maintained
 T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-microblaze.git
 F:	arch/arm/mach-zynqmp/
 F:	drivers/clk/clk_zynqmp.c
+F:	driver/firmware/firmware-zynqmp.c
 F:	drivers/fpga/zynqpl.c
 F:	drivers/gpio/zynq_gpio.c
 F:	drivers/i2c/i2c-cdns.c
 F:	drivers/i2c/muxes/pca954x.c
 F:	drivers/i2c/zynq_i2c.c
+F:	drivers/mailbox/zynqmp-ipi.c
 F:	drivers/mmc/zynq_sdhci.c
 F:	drivers/mtd/nand/raw/zynq_nand.c
 F:	drivers/net/phy/xilinx_phy.c
@@ -458,6 +461,7 @@ F:	drivers/timer/cadence-ttc.c
 F:	drivers/usb/host/ehci-zynq.c
 F:	drivers/watchdog/cdns_wdt.c
 F:	include/zynqmppl.h
+F:	include/zynqmp_firmware.h
 F:	tools/zynqmp*
 N:	ultra96
 N:	zynqmp
