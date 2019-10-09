@@ -210,9 +210,9 @@ matrix:
     - name: "buildman i.MX (non-NXP,i.MX6,toradex)"
       env:
         - BUILDMAN="mx -x freescale,mx6,toradex"
-    - name: "buildman k2"
+    - name: "buildman keystone 2/3"
       env:
-        - BUILDMAN="k2"
+        - BUILDMAN="k2 k3"
     - name: "buildman samsung socfpga"
       env:
         - BUILDMAN="samsung socfpga"
@@ -242,7 +242,7 @@ matrix:
         - BUILDMAN="sun50i"
     - name: "buildman catch-all ARM"
       env:
-        - BUILDMAN="arm -x arm11,arm7,arm9,aarch64,at91,bcm,freescale,kirkwood,mvebu,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap,pxa,rockchip,toradex,socfpga,k2,xilinx"
+        - BUILDMAN="arm -x arm11,arm7,arm9,aarch64,at91,bcm,freescale,kirkwood,mvebu,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap,pxa,rockchip,toradex,socfpga,k2,k3,xilinx"
     - name: "buildman sandbox x86"
       env:
         - BUILDMAN="sandbox x86"
@@ -313,7 +313,7 @@ matrix:
         - BUILDMAN="uniphier"
     - name: "buildman catch-all AArch64"
       env:
-        - BUILDMAN="aarch64 -x bcm,tegra,ls1,ls2,mvebu,uniphier,sunxi,samsung,rockchip,xilinx"
+        - BUILDMAN="aarch64 -x bcm,k3,tegra,ls1,ls2,mvebu,uniphier,sunxi,samsung,rockchip,xilinx"
     - name: "buildman rockchip"
       env:
         - BUILDMAN="rockchip"
