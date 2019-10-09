@@ -19,6 +19,11 @@ int board_init(void)
 	return 0;
 }
 
+int board_mmc_get_env_dev(int devno)
+{
+	return devno;
+}
+
 int board_late_init(void)
 {
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
