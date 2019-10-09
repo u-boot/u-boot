@@ -73,6 +73,16 @@
 				status = "disabled";
 			};
 
+			flx0: flexcom@f801c600 {
+				compatible = "atmel,sama5d2-flexcom";
+				reg = <0xf801c000 0x200>;
+				clocks = <&flx0_clk>;
+				#address-cells = <1>;
+				#size-cells = <1>;
+				ranges = <0x0 0xf801c000 0x800>;
+				status = "disabled";
+			};
+
 			macb0: ethernet@f802c000 {
 				compatible = "cdns,sam9x60-macb", "cdns,macb";
 				reg = <0xf802c000 0x100>;
@@ -219,6 +229,11 @@
 					pioB_clk: pioB_clk {
 						#clock-cells = <0>;
 						reg = <3>;
+					};
+
+					flx0_clk: flx0_clk {
+						#clock-cells = <0>;
+						reg = <5>;
 					};
 
 					pioD_clk: pioD_clk {
