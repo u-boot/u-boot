@@ -22,6 +22,7 @@
 
 		ocp2scp@4a080000 {
 			compatible = "ti,omap-ocp2scp", "simple-bus";
+			u-boot,dm-spl;
 		};
 
 		ocp2scp@4a090000 {
