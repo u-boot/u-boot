@@ -154,7 +154,7 @@ int show_board_info(void)
 
 	/* print board information */
 	print_board_model();
-	printf("Soc:   Amlogic Meson %s (%s) Revision %x:%x (%x:%x)\n",
+	printf("SoC:   Amlogic Meson %s (%s) Revision %x:%x (%x:%x)\n",
 	       socinfo_to_soc_id(socinfo),
 	       socinfo_to_package_id(socinfo),
 	       socinfo_to_major(socinfo),
