@@ -1,0 +1,59 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright 2019
+ * Lukasz Majewski, DENX Software Engineering, lukma@denx.de
+ *
+ * SPDX-License-Identifier:     GPL-2.0+ or X11
+ */
+
+#include "imx6qdl-u-boot.dtsi"
+
+/ {
+	clocks {
+		u-boot,dm-spl;
+		osc {
+			u-boot,dm-spl;
+		};
+	};
+
+	wdt-reboot {
+		compatible = "wdt-reboot";
+		wdt = <&wdog1>;
+	};
+};
+
+&clks {
+	u-boot,dm-pre-reloc;
+};
+
+&gpio2 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_uart1 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_usdhc2 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_usdhc4 {
+	u-boot,dm-spl;
+};
+
+&uart1 {
+	u-boot,dm-spl;
+};
+
+&usdhc2 {
+	u-boot,dm-spl;
+};
+
+&usdhc4 {
+	u-boot,dm-spl;
+};
+
+&wdog1 {
+	u-boot,dm-spl;
+};
