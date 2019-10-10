@@ -115,6 +115,9 @@ enum boot_src get_boot_src(void);
 #ifdef CONFIG_ARCH_LX2160A
 #define IS_C_PROCESSOR(svr)	(!((svr >> 12) & 0x1))
 #endif
+#ifdef CONFIG_ARCH_LS1028A
+#define IS_MULTIMEDIA_EN(svr)	(!((svr >> 10) & 0x1))
+#endif
 #define IS_SVR_REV(svr, maj, min) \
 		((SVR_MAJ(svr) == (maj)) && (SVR_MIN(svr) == (min)))
 #define SVR_DEV(svr)		((svr) >> 8)
