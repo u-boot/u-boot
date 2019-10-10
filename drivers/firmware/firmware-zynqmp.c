@@ -156,8 +156,10 @@ int __maybe_unused xilinx_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
 	 */
 	struct pt_regs regs;
 
-	if (current_el() == 3)
-		return 0;
+	if (current_el() == 3) {
+		printf("%s: Can't call SMC from EL3 context\n", __func__);
+		return -EPERM;
+	}
 
 	regs.regs[0] = PM_SIP_SVC | api_id;
 	regs.regs[1] = ((u64)arg1 << 32) | arg0;
