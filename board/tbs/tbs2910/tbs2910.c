@@ -22,10 +22,6 @@
 #include <asm/arch/sys_proto.h>
 DECLARE_GLOBAL_DATA_PTR;
 
-#define WEAK_PULLUP	(PAD_CTL_PUS_47K_UP |			\
-	PAD_CTL_SPEED_LOW | PAD_CTL_DSE_40ohm | PAD_CTL_HYS |	\
-	PAD_CTL_SRE_SLOW)
-
 #define UART_PAD_CTRL  (PAD_CTL_PUS_100K_UP |			\
 	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm |			\
 	PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
@@ -63,13 +59,6 @@ static iomux_v3_cfg_t const enet_pads[] = {
 	MX6_PAD_ENET_CRS_DV__GPIO1_IO25		| MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
-static iomux_v3_cfg_t const pcie_pads[] = {
-	/* W_DISABLE# */
-	MX6_PAD_KEY_COL4__GPIO4_IO14 | MUX_PAD_CTRL(WEAK_PULLUP),
-	/* PERST# */
-	MX6_PAD_GPIO_17__GPIO7_IO12  | MUX_PAD_CTRL(NO_PAD_CTRL),
-};
-
 int dram_init(void)
 {
 	gd->ram_size = 2048ul * 1024 * 1024;
@@ -85,11 +74,6 @@ static void setup_iomux_enet(void)
 	gpio_direction_output(IMX_GPIO_NR(1, 25) , 0);
 	udelay(500);
 	gpio_set_value(IMX_GPIO_NR(1, 25), 1);
-}
-
-static void setup_pcie(void)
-{
-	imx_iomux_v3_setup_multiple_pads(pcie_pads, ARRAY_SIZE(pcie_pads));
 }
 
 static void setup_iomux_uart(void)
@@ -236,7 +220,6 @@ int board_phy_config(struct phy_device *phydev)
 int board_eth_init(bd_t *bis)
 {
 	setup_iomux_enet();
-	setup_pcie();
 	return cpu_eth_init(bis);
 }
 
