@@ -42,6 +42,7 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 #define CONFIG_SYS_MMC_ENV_DEV		1 /* 0 = SDHC2, 1 = SDHC4 (eMMC) */
+#define CONFIG_SUPPORT_EMMC_BOOT
 
 /* UART */
 #define CONFIG_MXC_UART
@@ -101,6 +102,10 @@
 	       "setexpr blkc ${blkc} + 1;" \
 	       "mmc write ${loadaddr} 0x2 ${blkc};" \
 	    "fi;\0" \
+	"upd_SPL_mmc=mmc dev 1; mmc partconf 1 0 1 1; run upd_SPL_sd\0" \
+	"upd_uboot_mmc=mmc dev 1; mmc partconf 1 0 1 1; run upd_uboot_sd\0" \
+	"up_mmc=run upd_SPL_mmc; run upd_uboot_mmc\0" \
+	"up_sd=run upd_SPL_sd; run upd_uboot_sd\0" \
 	"upd_wic=" \
 	    "if tftp ${loadaddr} ${wic_file}; then " \
 	       "setexpr blkc ${filesize} / 0x200;" \
