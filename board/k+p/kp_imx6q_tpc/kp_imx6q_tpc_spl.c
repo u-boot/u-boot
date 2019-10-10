@@ -308,6 +308,26 @@ int board_mmc_init(bd_t *bd)
 	return fsl_esdhc_initialize(bd, &usdhc_cfg[0]);
 }
 
+void board_boot_order(u32 *spl_boot_list)
+{
+	u32 boot_device = spl_boot_device();
+	u32 reg = imx6_src_get_boot_mode();
+
+	reg = (reg & IMX6_BMODE_MASK) >> IMX6_BMODE_SHIFT;
+
+	debug("%s: boot device: 0x%x (0x4 SD, 0x6 eMMC)\n", __func__, reg);
+	if (boot_device == BOOT_DEVICE_MMC1)
+		if (reg == IMX6_BMODE_MMC || reg == IMX6_BMODE_EMMC)
+			boot_device = BOOT_DEVICE_MMC2;
+
+	spl_boot_list[0] = boot_device;
+	/*
+	 * Below boot device is a 'fallback' - it shall always be possible to
+	 * boot from SD card
+	 */
+	spl_boot_list[1] = BOOT_DEVICE_MMC1;
+}
+
 void board_init_f(ulong dummy)
 {
 	/* setup AIPS and disable watchdog */
