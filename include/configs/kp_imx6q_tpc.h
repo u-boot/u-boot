@@ -81,11 +81,32 @@
 	"rdinit=/sbin/init\0" \
 	"addinitrd=setenv bootargs ${bootargs} rdinit=${rdinit} ${debug} \0" \
 	"fit_config=mx6q_tpc70_conf\0" \
+	"uboot_file=u-boot.img\0" \
+	"SPL_file=SPL\0" \
+	"wic_file=kp-image-kpimx6qtpc.wic\0" \
 	"upd_image=st.4k\0" \
 	"updargs=setenv bootargs console=${console} ${smp}"\
 	       "rdinit=${rdinit} ${debug} ${displayargs}\0" \
 	"loadusb=usb start; " \
 	       "fatload usb 0 ${loadaddr} ${upd_image}\0" \
+	"upd_uboot_sd=" \
+	    "if tftp ${loadaddr} ${uboot_file}; then " \
+	       "setexpr blkc ${filesize} / 0x200;" \
+	       "setexpr blkc ${blkc} + 1;" \
+	       "mmc write ${loadaddr} 0x8A ${blkc};" \
+	    "fi;\0" \
+	"upd_SPL_sd=" \
+	    "if tftp ${loadaddr} ${SPL_file}; then " \
+	       "setexpr blkc ${filesize} / 0x200;" \
+	       "setexpr blkc ${blkc} + 1;" \
+	       "mmc write ${loadaddr} 0x2 ${blkc};" \
+	    "fi;\0" \
+	"upd_wic=" \
+	    "if tftp ${loadaddr} ${wic_file}; then " \
+	       "setexpr blkc ${filesize} / 0x200;" \
+	       "setexpr blkc ${blkc} + 1;" \
+	       "mmc write ${loadaddr} 0x0 ${blkc};" \
+	    "fi;\0" \
 	"usbupd=echo Booting update from usb ...; " \
 	       "setenv bootargs; " \
 	       "run updargs; " \
