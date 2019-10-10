@@ -10,7 +10,6 @@ alias u-boot uboot
 
 # Maintainer aliases.  Use the same alias here as patchwork to keep
 # things simple and easy to look up/coordinate.
-alias aaribaud       Albert Aribaud <albert.u.boot@aribaud.net>
 alias abiessmann     Andreas Bießmann <andreas@biessmann.org>
 alias abrodkin       Alexey Brodkin <alexey.brodkin@synopsys.com>
 alias afleming       Andy Fleming <afleming@gmail.com>
@@ -55,7 +54,7 @@ alias arches         arch
 
 alias arc            uboot, abrodkin
 
-alias arm            uboot, aaribaud, trini
+alias arm            uboot, trini
 alias at91           uboot, abiessmann
 alias davinci        ti
 alias imx            uboot, sbabic
