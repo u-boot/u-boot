@@ -119,7 +119,8 @@ static int setup_fec_clock(void)
 	struct iomuxc *iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
 
 	/* set gpr1[21] to select anatop clock */
-	clrsetbits_le32(&iomuxc_regs->gpr[1], 0x1 << 21, 0x1 << 21);
+	clrsetbits_le32(&iomuxc_regs->gpr[1], IOMUXC_GPR1_ENET_CLK_SEL_MASK,
+			IOMUXC_GPR1_ENET_CLK_SEL_MASK);
 
 	return enable_fec_anatop_clock(0, ENET_50MHZ);
 }
