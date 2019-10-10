@@ -28,6 +28,7 @@
 #include <netdev.h>
 #include <usb.h>
 #include <usb/ehci-ci.h>
+#include <led.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -290,6 +291,9 @@ int board_late_init(void)
 #ifdef CONFIG_CMD_BMODE
 	add_board_boot_modes(board_boot_modes);
 #endif
+
+	if (IS_ENABLED(CONFIG_LED))
+		led_default_state();
 
 	env_set("boardname", "kp-tpc");
 	env_set("boardsoc", "imx6q");
