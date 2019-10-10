@@ -513,10 +513,11 @@ static int ehci_usb_bind(struct udevice *dev)
 	 * from which it derives offsets in the PHY and ANATOP register sets.
 	 *
 	 * Here we attempt to calculate these indexes from DT information as
-	 * well as we can. The USB controllers on all existing iMX6/iMX7 SoCs
-	 * are placed next to each other, at addresses incremented by 0x200.
-	 * Thus, the index is derived from the multiple of 0x200 offset from
-	 * the first controller address.
+	 * well as we can. The USB controllers on all existing iMX6 SoCs
+	 * are placed next to each other, at addresses incremented by 0x200,
+	 * and iMX7 their addresses are shifted by 0x10000.
+	 * Thus, the index is derived from the multiple of 0x200 (0x10000 for
+	 * iMX7) offset from the first controller address.
 	 *
 	 * However, to complete conversion of this driver to DT probing, the
 	 * following has to be done:
@@ -531,10 +532,10 @@ static int ehci_usb_bind(struct udevice *dev)
 	 * With these changes in place, the ad-hoc indexing goes away and
 	 * the driver is fully converted to DT probing.
 	 */
-	fdt_size_t size;
-	fdt_addr_t addr = devfdt_get_addr_size_index(dev, 0, &size);
+	u32 controller_spacing = is_mx7() ? 0x10000 : 0x200;
+	fdt_addr_t addr = devfdt_get_addr_index(dev, 0);
 
-	dev->req_seq = (addr - USB_BASE_ADDR) / size;
+	dev->req_seq = (addr - USB_BASE_ADDR) / controller_spacing;
 
 	return 0;
 }
