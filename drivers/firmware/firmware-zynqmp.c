@@ -110,19 +110,19 @@ void zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size)
 
 static int zynqmp_power_probe(struct udevice *dev)
 {
-	int ret = 0;
+	int ret;
 
 	debug("%s, (dev=%p)\n", __func__, dev);
 
 	ret = mbox_get_by_name(dev, "tx", &zynqmp_power.tx_chan);
 	if (ret) {
-		debug("%s, cannot tx mailbox\n", __func__);
+		debug("%s: Cannot find tx mailbox\n", __func__);
 		return ret;
 	}
 
 	ret = mbox_get_by_name(dev, "rx", &zynqmp_power.rx_chan);
 	if (ret) {
-		debug("%s, cannot rx mailbox\n", __func__);
+		debug("%s: Cannot find rx mailbox\n", __func__);
 		return ret;
 	}
 
