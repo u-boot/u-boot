@@ -65,8 +65,9 @@
 	"SPL_file=SPL\0" \
 	"wic_file=kp-image-kpimx6qtpc.wic\0" \
 	"upd_image=st.4k\0" \
-	"updargs=setenv bootargs console=${console} ${smp}"\
-	       "rdinit=${rdinit} ${debug} ${displayargs}\0" \
+	"updargs=setenv bootargs console=${console} ${smp} ${displayargs}\0" \
+	"initrd_ram_dev=/dev/ram\0" \
+	"addswupdate=setenv bootargs ${bootargs} root=${initrd_ram_dev} rw\0" \
 	"loadusb=usb start; " \
 	       "fatload usb 0 ${loadaddr} ${upd_image}\0" \
 	"upd_uboot_sd=" \
@@ -94,6 +95,8 @@
 	"usbupd=echo Booting update from usb ...; " \
 	       "setenv bootargs; " \
 	       "run updargs; " \
+	       "run addinitrd; " \
+	       "run addswupdate; " \
 	       "run loadusb; " \
 	       "bootm ${loadaddr}#${fit_config}\0" \
 	BOOTENV
