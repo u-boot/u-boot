@@ -731,6 +731,12 @@ config SPL_UBI
 	  README.ubispl for more info.
 
 if SPL_DM
+config SPL_CACHE
+	depends on CACHE
+	bool "Support cache drivers in SPL"
+	help
+	  Enable support for cache drivers in SPL.
+
 config SPL_DM_SPI
 	bool "Support SPI DM drivers in SPL"
 	help
