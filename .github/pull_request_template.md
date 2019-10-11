@@ -4,3 +4,5 @@ see https://www.denx.de/wiki/U-Boot/Patches
 
 The only exception to this is in order to trigger a CI loop on Azure prior
 to posting of patches.
+
+If your patch targets the Xilinx U-Boot repository please send a patch to git@xilinx.com.
