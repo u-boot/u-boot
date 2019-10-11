@@ -222,6 +222,7 @@ dtb-$(CONFIG_ARCH_VERSAL) += \
 	versal-mini-qspi-x2-stacked.dtb \
 	versal-v350-revA.dtb \
 	versal-vck190-revA.dtb \
+	versal-vck190-revA-x-ebm-01-revA.dtb \
 	versal-vc-p-a2197-00-revA.dtb \
 	versal-vc-p-a2197-00-revA-x-prc-01-revA.dtb \
 	versal-vc-p-a2197-00-revA-x-prc-01-revA-ospi.dtb \
@@ -231,6 +232,7 @@ dtb-$(CONFIG_ARCH_VERSAL) += \
 	versal-vc-p-a2197-00-revA-x-prc-04-revA-ospi.dtb \
 	versal-vc-p-a2197-00-revA-x-prc-05-revA.dtb \
 	versal-vmk180-revA.dtb \
+	versal-vmk180-revA-x-ebm-01-revA.dtb \
 	versal-x-ebm-01-revA.dtbo
 dtb-$(CONFIG_ARCH_ZYNQMP_R5) += \
 	zynqmp-r5.dtb
