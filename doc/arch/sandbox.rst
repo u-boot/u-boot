@@ -209,17 +209,12 @@ sandbox_flattree:
   We need this build so that we can test those inline functions, and we
   cannot build with both the inline functions and the non-inline functions
   since they are named the same.
-sandbox_noblk:
-  builds without CONFIG_BLK, which means the legacy block
-  drivers are used. We cannot use both the legacy and driver-model block
-  drivers since they implement the same functions
 sandbox_spl:
   builds sandbox with SPL support, so you can run spl/u-boot-spl
   and it will start up and then load ./u-boot. It is also possible to
   run ./u-boot directly.
 
-Of these sandbox_noblk can be removed once CONFIG_BLK is used everwhere, and
-sandbox_spl can probably be removed since it is a superset of sandbox.
+Of these sandbox_spl can probably be removed since it is a superset of sandbox.
 
 Most of the config options should be identical between these variants.
 
