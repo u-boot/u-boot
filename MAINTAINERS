@@ -137,6 +137,7 @@ F:	drivers/pinctrl/meson/
 F:	drivers/power/domain/meson-gx-pwrc-vpu.c
 F:	drivers/video/meson/
 F:	include/configs/meson64.h
+F:	include/configs/meson64_android.h
 N:	meson
 
 ARM BROADCOM BCM283X
