@@ -158,24 +158,6 @@
 	"nfsdtbload=setenv dtbparam; tftp ${fdt_addr_r} ${fdt_file} " \
 		"&& setenv dtbparam \" - ${fdt_addr_r}\" && true\0"
 
-#define SD_BOOTCMD \
-	"set_sdargs=setenv sdargs ip=off root=PARTUUID=${uuid} ro,noatime " \
-		"rootfstype=ext4 rootwait\0" \
-	"sdboot=run setup; run sdfinduuid; run set_sdargs; " \
-		"setenv bootargs ${defargs} ${sdargs} ${setupargs} " \
-		"${vidargs}; echo Booting from SD card; " \
-		"run sddtbload; load mmc ${sddev}:${sdbootpart} " \
-		"${kernel_addr_r} ${boot_file} && run fdt_fixup && " \
-		"bootz ${kernel_addr_r} ${dtbparam}\0" \
-	"sdbootpart=1\0" \
-	"sddev=1\0" \
-	"sddtbload=setenv dtbparam; load mmc ${sddev}:${sdbootpart} " \
-		"${fdt_addr_r} " \
-		"${fdt_file} && setenv dtbparam \" - " \
-		"${fdt_addr_r}\" && true\0" \
-	"sdfinduuid=part uuid mmc ${sddev}:${sdrootpart} uuid\0" \
-	"sdrootpart=2\0"
-
 #ifndef CONFIG_TDX_APALIS_IMX6_V1_0
 #define FDT_FILE "imx6q-apalis-eval.dtb"
 #define FDT_FILE_V1_0 "imx6q-apalis_v1_0-eval.dtb"
@@ -196,7 +178,6 @@
 	"fdt_fixup=;\0" \
 	MEM_LAYOUT_ENV_SETTINGS \
 	NFS_BOOTCMD \
-	SD_BOOTCMD \
 	"setethupdate=if env exists ethaddr; then; else setenv ethaddr " \
 		"00:14:2d:00:00:00; fi; tftpboot ${loadaddr} " \
 		"flash_eth.img && source ${loadaddr}\0" \
