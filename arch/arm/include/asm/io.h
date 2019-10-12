@@ -23,6 +23,7 @@
 #ifdef __KERNEL__
 
 #include <linux/types.h>
+#include <linux/kernel.h>
 #include <asm/byteorder.h>
 #include <asm/memory.h>
 #include <asm/barriers.h>
@@ -315,9 +316,105 @@ extern void _memset_io(unsigned long, int, size_t);
 
 extern void __readwrite_bug(const char *fn);
 
+/* Optimized copy functions to read from/write to IO sapce */
+#ifdef CONFIG_ARM64
+/*
+ * Copy data from IO memory space to "real" memory space.
+ */
+static inline
+void __memcpy_fromio(void *to, const volatile void __iomem *from, size_t count)
+{
+	while (count && !IS_ALIGNED((unsigned long)from, 8)) {
+		*(u8 *)to = __raw_readb(from);
+		from++;
+		to++;
+		count--;
+	}
+
+	while (count >= 8) {
+		*(u64 *)to = __raw_readq(from);
+		from += 8;
+		to += 8;
+		count -= 8;
+	}
+
+	while (count) {
+		*(u8 *)to = __raw_readb(from);
+		from++;
+		to++;
+		count--;
+	}
+}
+
+/*
+ * Copy data from "real" memory space to IO memory space.
+ */
+static inline
+void __memcpy_toio(volatile void __iomem *to, const void *from, size_t count)
+{
+	while (count && !IS_ALIGNED((unsigned long)to, 8)) {
+		__raw_writeb(*(u8 *)from, to);
+		from++;
+		to++;
+		count--;
+	}
+
+	while (count >= 8) {
+		__raw_writeq(*(u64 *)from, to);
+		from += 8;
+		to += 8;
+		count -= 8;
+	}
+
+	while (count) {
+		__raw_writeb(*(u8 *)from, to);
+		from++;
+		to++;
+		count--;
+	}
+}
+
+/*
+ * "memset" on IO memory space.
+ */
+static inline
+void __memset_io(volatile void __iomem *dst, int c, size_t count)
+{
+	u64 qc = (u8)c;
+
+	qc |= qc << 8;
+	qc |= qc << 16;
+	qc |= qc << 32;
+
+	while (count && !IS_ALIGNED((unsigned long)dst, 8)) {
+		__raw_writeb(c, dst);
+		dst++;
+		count--;
+	}
+
+	while (count >= 8) {
+		__raw_writeq(qc, dst);
+		dst += 8;
+		count -= 8;
+	}
+
+	while (count) {
+		__raw_writeb(c, dst);
+		dst++;
+		count--;
+	}
+}
+#endif /* CONFIG_ARM64 */
+
+#ifdef CONFIG_ARM64
+#define memset_io(a, b, c)		__memset_io((a), (b), (c))
+#define memcpy_fromio(a, b, c)		__memcpy_fromio((a), (b), (c))
+#define memcpy_toio(a, b, c)		__memcpy_toio((a), (b), (c))
+#else
 #define memset_io(a, b, c)		memset((void *)(a), (b), (c))
 #define memcpy_fromio(a, b, c)		memcpy((a), (void *)(b), (c))
 #define memcpy_toio(a, b, c)		memcpy((void *)(a), (b), (c))
+#endif
 
 /*
  * If this architecture has ISA IO, then define the isa_read/isa_write
