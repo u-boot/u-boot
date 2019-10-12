@@ -12,6 +12,7 @@
 #include <linux/sizes.h>
 #include <config_distro_bootcmd.h>
 #include <environment/ti/mmc.h>
+#include <environment/ti/k3_rproc.h>
 
 #define CONFIG_ENV_SIZE			(128 << 10)
 
@@ -87,11 +88,22 @@
 	"get_kern_mmc=load mmc ${bootpart} ${loadaddr} "		\
 		"${bootdir}/${name_kern}\0"
 
+#ifdef DEFAULT_RPROCS
+#undef DEFAULT_RPROCS
+#endif
+#define DEFAULT_RPROCS	""						\
+		"3 /lib/firmware/j7-main-r5f0_1-fw "			\
+		"4 /lib/firmware/j7-main-r5f1_0-fw "			\
+		"6 /lib/firmware/j7-c66_0-fw "				\
+		"7 /lib/firmware/j7-c66_1-fw "				\
+		"8 /lib/firmware/j7-c71_0-fw "
+
 /* Incorporate settings into the U-Boot environment */
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	DEFAULT_MMC_TI_ARGS						\
 	EXTRA_ENV_J721E_BOARD_SETTINGS					\
-	EXTRA_ENV_J721E_BOARD_SETTINGS_MMC
+	EXTRA_ENV_J721E_BOARD_SETTINGS_MMC				\
+	EXTRA_ENV_RPROC_SETTINGS
 
 /* Now for the remaining common defines */
 #include <configs/ti_armv7_common.h>

@@ -568,6 +568,17 @@ int device_get_child(struct udevice *parent, int index, struct udevice **devp)
 	return -ENODEV;
 }
 
+int device_get_child_count(struct udevice *parent)
+{
+	struct udevice *dev;
+	int count = 0;
+
+	list_for_each_entry(dev, &parent->child_head, sibling_node)
+		count++;
+
+	return count;
+}
+
 int device_find_child_by_seq(struct udevice *parent, int seq_or_req_seq,
 			     bool find_req_seq, struct udevice **devp)
 {

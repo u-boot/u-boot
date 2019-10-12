@@ -134,6 +134,13 @@ config CLK_STM32MP1
 	  Enable the STM32 clock (RCC) driver. Enable support for
 	  manipulating STM32MP1's on-SoC clocks.
 
+config CLK_CDCE9XX
+	bool "Enable CDCD9XX clock driver"
+	depends on CLK
+	help
+	   Enable the clock synthesizer driver for CDCE913/925/937/949
+	   series of chips.
+
 source "drivers/clk/analogbits/Kconfig"
 source "drivers/clk/at91/Kconfig"
 source "drivers/clk/exynos/Kconfig"

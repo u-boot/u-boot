@@ -405,6 +405,15 @@ const char *dev_get_uclass_name(const struct udevice *dev);
 int device_get_child(struct udevice *parent, int index, struct udevice **devp);
 
 /**
+ * device_get_child_count() - Get the available child count of a device
+ *
+ * Returns the number of children to a device.
+ *
+ * @parent:	Parent device to check
+ */
+int device_get_child_count(struct udevice *parent);
+
+/**
  * device_find_child_by_seq() - Find a child device based on a sequence
  *
  * This searches for a device with the given seq or req_seq.

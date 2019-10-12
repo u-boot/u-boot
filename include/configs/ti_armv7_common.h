@@ -60,7 +60,7 @@
 		"do;" \
 		"setenv overlaystring ${overlaystring}'#'${overlay};" \
 		"done;\0" \
-	"run_fit=bootm ${loadaddr}#${fdtfile}${overlaystring}\0" \
+	"run_fit=bootm ${addr_fit}#${fdtfile}${overlaystring}\0" \
 	"loadfit=run args_mmc; run run_fit;\0" \
 
 /*
