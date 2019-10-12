@@ -315,65 +315,9 @@ extern void _memset_io(unsigned long, int, size_t);
 
 extern void __readwrite_bug(const char *fn);
 
-/*
- * If this architecture has PCI memory IO, then define the read/write
- * macros.  These should only be used with the cookie passed from
- * ioremap.
- */
-#ifdef __mem_pci
-
-#define readb(c) ({ unsigned int __v = __raw_readb(__mem_pci(c)); __v; })
-#define readw(c) ({ unsigned int __v = le16_to_cpu(__raw_readw(__mem_pci(c))); __v; })
-#define readl(c) ({ unsigned int __v = le32_to_cpu(__raw_readl(__mem_pci(c))); __v; })
-
-#define writeb(v,c)		__raw_writeb(v,__mem_pci(c))
-#define writew(v,c)		__raw_writew(cpu_to_le16(v),__mem_pci(c))
-#define writel(v,c)		__raw_writel(cpu_to_le32(v),__mem_pci(c))
-
-#define memset_io(c,v,l)		_memset_io(__mem_pci(c),(v),(l))
-#define memcpy_fromio(a,c,l)		_memcpy_fromio((a),__mem_pci(c),(l))
-#define memcpy_toio(c,a,l)		_memcpy_toio(__mem_pci(c),(a),(l))
-
-#define eth_io_copy_and_sum(s,c,l,b) \
-				eth_copy_and_sum((s),__mem_pci(c),(l),(b))
-
-static inline int
-check_signature(unsigned long io_addr, const unsigned char *signature,
-		int length)
-{
-	int retval = 0;
-	do {
-		if (readb(io_addr) != *signature)
-			goto out;
-		io_addr++;
-		signature++;
-		length--;
-	} while (length);
-	retval = 1;
-out:
-	return retval;
-}
-
-#else
 #define memset_io(a, b, c)		memset((void *)(a), (b), (c))
 #define memcpy_fromio(a, b, c)		memcpy((a), (void *)(b), (c))
 #define memcpy_toio(a, b, c)		memcpy((void *)(a), (b), (c))
-
-#if !defined(readb)
-
-#define readb(addr)			(__readwrite_bug("readb"),0)
-#define readw(addr)			(__readwrite_bug("readw"),0)
-#define readl(addr)			(__readwrite_bug("readl"),0)
-#define writeb(v,addr)			__readwrite_bug("writeb")
-#define writew(v,addr)			__readwrite_bug("writew")
-#define writel(v,addr)			__readwrite_bug("writel")
-
-#define eth_io_copy_and_sum(a,b,c,d)	__readwrite_bug("eth_io_copy_and_sum")
-
-#define check_signature(io,sig,len)	(0)
-
-#endif
-#endif	/* __mem_pci */
 
 /*
  * If this architecture has ISA IO, then define the isa_read/isa_write

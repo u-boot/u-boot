@@ -355,28 +355,32 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 	err = -EINVAL;
 	switch (boot_mode) {
 	case MMCSD_MODE_EMMCBOOT:
-			/*
-			 * We need to check what the partition is configured to.
-			 * 1 and 2 match up to boot0 / boot1 and 7 is user data
-			 * which is the first physical partition (0).
-			 */
-			part = (mmc->part_config >> 3) & PART_ACCESS_MASK;
+#ifdef CONFIG_SYS_MMCSD_RAW_MODE_EMMC_BOOT_PARTITION
+		part = CONFIG_SYS_MMCSD_RAW_MODE_EMMC_BOOT_PARTITION;
+#else
+		/*
+		 * We need to check what the partition is configured to.
+		 * 1 and 2 match up to boot0 / boot1 and 7 is user data
+		 * which is the first physical partition (0).
+		 */
+		part = (mmc->part_config >> 3) & PART_ACCESS_MASK;
 
-			if (part == 7)
-				part = 0;
-
-			if (CONFIG_IS_ENABLED(MMC_TINY))
-				err = mmc_switch_part(mmc, part);
-			else
-				err = blk_dselect_hwpart(mmc_get_blk_desc(mmc), part);
-
-			if (err) {
-#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
-				puts("spl: mmc partition switch failed\n");
+		if (part == 7)
+			part = 0;
 #endif
-				return err;
-			}
-			/* Fall through */
+
+		if (CONFIG_IS_ENABLED(MMC_TINY))
+			err = mmc_switch_part(mmc, part);
+		else
+			err = blk_dselect_hwpart(mmc_get_blk_desc(mmc), part);
+
+		if (err) {
+#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
+			puts("spl: mmc partition switch failed\n");
+#endif
+			return err;
+		}
+		/* Fall through */
 	case MMCSD_MODE_RAW:
 		debug("spl: mmc boot mode: raw\n");
 

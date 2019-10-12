@@ -25,6 +25,15 @@ config SPL_FRAMEWORK
 	  supports MMC, NAND and YMODEM and other methods loading of U-Boot
 	  and the Linux Kernel.  If unsure, say Y.
 
+config SPL_FRAMEWORK_BOARD_INIT_F
+	bool "Define a generic function board_init_f"
+	depends on SPL_FRAMEWORK
+	help
+	  Define a generic function board_init_f that:
+	  - initialize the spl (spl_early_init)
+	  - initialize the serial (preloader_console_init)
+	  Unless you want to provide your own board_init_f, you should say Y.
+
 config SPL_SIZE_LIMIT
 	hex "Maximum size of SPL image"
 	depends on SPL
@@ -315,6 +324,12 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
 	help
 	  Address on the MMC to load U-Boot from, when the MMC is being used
 	  in raw mode. Units: MMC sectors (1 sector = 512 bytes).
+
+config SYS_MMCSD_RAW_MODE_EMMC_BOOT_PARTITION
+	int "Number of the eMMC boot partition to use"
+	default 1
+	help
+	  eMMC boot partition number to use when the eMMC in raw mode.
 
 config SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
 	bool "MMC Raw mode: by partition"
@@ -682,6 +697,13 @@ config SPL_UBI
 	  Enable support for loading payloads from UBI. See
 	  README.ubispl for more info.
 
+if SPL_DM
+config SPL_DM_SPI
+	bool "Support SPI DM drivers in SPL"
+	help
+	  Enable support for SPI DM drivers in SPL.
+
+endif
 if SPL_UBI
 config SPL_UBI_LOAD_BY_VOLNAME
 	bool "Support loading volumes by name"

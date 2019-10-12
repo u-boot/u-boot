@@ -151,4 +151,12 @@ config PCI_KEYSTONE
 	help
 	  Say Y here if you want to enable PCI controller support on AM654 SoC.
 
+config PCIE_MEDIATEK
+	bool "MediaTek PCIe Gen2 controller"
+	depends on DM_PCI
+	depends on ARCH_MEDIATEK
+	help
+	  Say Y here if you want to enable Gen2 PCIe controller,
+	  which could be found on MT7623 SoC family.
+
 endif

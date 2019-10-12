@@ -113,28 +113,28 @@ static int do_test(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			expr = strcmp(ap[0], ap[2]) > 0;
 			break;
 		case OP_INT_EQ:
-			expr = simple_strtol(ap[0], NULL, 10) ==
-					simple_strtol(ap[2], NULL, 10);
+			expr = simple_strtol(ap[0], NULL, 0) ==
+					simple_strtol(ap[2], NULL, 0);
 			break;
 		case OP_INT_NEQ:
-			expr = simple_strtol(ap[0], NULL, 10) !=
-					simple_strtol(ap[2], NULL, 10);
+			expr = simple_strtol(ap[0], NULL, 0) !=
+					simple_strtol(ap[2], NULL, 0);
 			break;
 		case OP_INT_LT:
-			expr = simple_strtol(ap[0], NULL, 10) <
-					simple_strtol(ap[2], NULL, 10);
+			expr = simple_strtol(ap[0], NULL, 0) <
+					simple_strtol(ap[2], NULL, 0);
 			break;
 		case OP_INT_LE:
-			expr = simple_strtol(ap[0], NULL, 10) <=
-					simple_strtol(ap[2], NULL, 10);
+			expr = simple_strtol(ap[0], NULL, 0) <=
+					simple_strtol(ap[2], NULL, 0);
 			break;
 		case OP_INT_GT:
-			expr = simple_strtol(ap[0], NULL, 10) >
-					simple_strtol(ap[2], NULL, 10);
+			expr = simple_strtol(ap[0], NULL, 0) >
+					simple_strtol(ap[2], NULL, 0);
 			break;
 		case OP_INT_GE:
-			expr = simple_strtol(ap[0], NULL, 10) >=
-					simple_strtol(ap[2], NULL, 10);
+			expr = simple_strtol(ap[0], NULL, 0) >=
+					simple_strtol(ap[2], NULL, 0);
 			break;
 		case OP_FILE_EXISTS:
 			expr = file_exists(ap[1], ap[2], ap[3], FS_TYPE_ANY);
