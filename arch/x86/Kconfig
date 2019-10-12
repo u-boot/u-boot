@@ -207,11 +207,6 @@ config RESET_SEG_START
 	depends on X86_RESET_VECTOR
 	default 0xffff0000
 
-config RESET_SEG_SIZE
-	hex
-	depends on X86_RESET_VECTOR
-	default 0x10000
-
 config RESET_VEC_LOC
 	hex
 	depends on X86_RESET_VECTOR
@@ -397,7 +392,7 @@ endchoice
 
 config FSP_FILE
 	string "Firmware Support Package binary filename"
-	depends on HAVE_FSP
+	depends on FSP_VERSION1
 	default "fsp.bin"
 	help
 	  The filename of the file to use as Firmware Support Package binary
@@ -405,7 +400,7 @@ config FSP_FILE
 
 config FSP_ADDR
 	hex "Firmware Support Package binary location"
-	depends on HAVE_FSP
+	depends on FSP_VERSION1
 	default 0xfffc0000
 	help
 	  FSP is not Position Independent Code (PIC) and the whole FSP has to
@@ -418,7 +413,7 @@ config FSP_ADDR
 
 config FSP_TEMP_RAM_ADDR
 	hex
-	depends on HAVE_FSP
+	depends on FSP_VERSION1
 	default 0x2000000
 	help
 	  Stack top address which is used in fsp_init() after DRAM is ready and
@@ -426,14 +421,14 @@ config FSP_TEMP_RAM_ADDR
 
 config FSP_SYS_MALLOC_F_LEN
 	hex
-	depends on HAVE_FSP
+	depends on FSP_VERSION1
 	default 0x100000
 	help
 	  Additional size of malloc() pool before relocation.
 
 config FSP_USE_UPD
 	bool
-	depends on HAVE_FSP
+	depends on FSP_VERSION1
 	default y
 	help
 	  Most FSPs use UPD data region for some FSP customization. But there
@@ -442,7 +437,7 @@ config FSP_USE_UPD
 
 config FSP_BROKEN_HOB
 	bool
-	depends on HAVE_FSP
+	depends on FSP_VERSION1
 	help
 	  Indicate some buggy FSPs that does not report memory used by FSP
 	  itself as reserved in the resource descriptor HOB. Select this to
@@ -600,7 +595,7 @@ config VGA_BIOS_ADDR
 
 config HAVE_VBT
 	bool "Add a Video BIOS Table (VBT) image"
-	depends on HAVE_FSP
+	depends on FSP_VERSION1
 	help
 	  Select this option if you have a Video BIOS Table (VBT) image that
 	  you would like to add to your ROM. This is normally required if you

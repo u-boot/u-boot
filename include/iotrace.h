@@ -49,30 +49,29 @@ struct iotrace_record {
 #define readl(addr)	iotrace_readl((const void *)(addr))
 
 #undef writel
-#define writel(val, addr)	iotrace_writel(val, (const void *)(addr))
+#define writel(val, addr)	iotrace_writel(val, (void *)(addr))
 
 #undef readw
 #define readw(addr)	iotrace_readw((const void *)(addr))
 
 #undef writew
-#define writew(val, addr)	iotrace_writew(val, (const void *)(addr))
+#define writew(val, addr)	iotrace_writew(val, (void *)(addr))
 
 #undef readb
 #define readb(addr)	iotrace_readb((const void *)(uintptr_t)addr)
 
 #undef writeb
-#define writeb(val, addr) \
-	iotrace_writeb(val, (const void *)(uintptr_t)addr)
+#define writeb(val, addr)	iotrace_writeb(val, (void *)(uintptr_t)addr)
 
 #endif
 
 /* Tracing functions which mirror their io.h counterparts */
 u32 iotrace_readl(const void *ptr);
-void iotrace_writel(ulong value, const void *ptr);
+void iotrace_writel(ulong value, void *ptr);
 u16 iotrace_readw(const void *ptr);
-void iotrace_writew(ulong value, const void *ptr);
+void iotrace_writew(ulong value, void *ptr);
 u8 iotrace_readb(const void *ptr);
-void iotrace_writeb(ulong value, const void *ptr);
+void iotrace_writeb(ulong value, void *ptr);
 
 /**
  * iotrace_reset_checksum() - Reset the iotrace checksum

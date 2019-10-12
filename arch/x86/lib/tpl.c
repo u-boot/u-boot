@@ -55,7 +55,7 @@ void board_init_f(ulong flags)
 	ret = x86_tpl_init();
 	if (ret) {
 		debug("Error %d\n", ret);
-		hang();
+		panic("x86_tpl_init fail");
 	}
 
 	/* Uninit CAR and jump to board_init_f_r() */

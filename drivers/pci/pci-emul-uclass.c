@@ -18,6 +18,7 @@ struct sandbox_pci_emul_priv {
 int sandbox_pci_get_emul(struct udevice *bus, pci_dev_t find_devfn,
 			 struct udevice **containerp, struct udevice **emulp)
 {
+	struct pci_emul_uc_priv *upriv;
 	struct udevice *dev;
 	int ret;
 
@@ -30,16 +31,32 @@ int sandbox_pci_get_emul(struct udevice *bus, pci_dev_t find_devfn,
 	}
 	*containerp = dev;
 
-	/*
-	 * See commit 4345998ae9df,
-	 * "pci: sandbox: Support dynamically binding device driver"
-	 */
 	ret = uclass_get_device_by_phandle(UCLASS_PCI_EMUL, dev, "sandbox,emul",
 					   emulp);
-	if (ret && device_get_uclass_id(dev) != UCLASS_PCI_GENERIC)
-		*emulp = dev;
+	if (!ret) {
+		upriv = dev_get_uclass_priv(*emulp);
 
-	return *emulp ? 0 : -ENODEV;
+		upriv->client = dev;
+	} else if (device_get_uclass_id(dev) != UCLASS_PCI_GENERIC) {
+		/*
+		 * See commit 4345998ae9df,
+		 * "pci: sandbox: Support dynamically binding device driver"
+		 */
+		*emulp = dev;
+	}
+
+	return 0;
+}
+
+int sandbox_pci_get_client(struct udevice *emul, struct udevice **devp)
+{
+	struct pci_emul_uc_priv *upriv = dev_get_uclass_priv(emul);
+
+	if (!upriv->client)
+		return -ENOENT;
+	*devp = upriv->client;
+
+	return 0;
 }
 
 uint sandbox_pci_read_bar(u32 barval, int type, uint size)
@@ -88,6 +105,7 @@ UCLASS_DRIVER(pci_emul) = {
 	.post_probe	= sandbox_pci_emul_post_probe,
 	.pre_remove	= sandbox_pci_emul_pre_remove,
 	.priv_auto_alloc_size	= sizeof(struct sandbox_pci_emul_priv),
+	.per_device_auto_alloc_size	= sizeof(struct pci_emul_uc_priv),
 };
 
 /*

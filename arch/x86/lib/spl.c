@@ -113,7 +113,7 @@ void board_init_f(ulong flags)
 	ret = x86_spl_init();
 	if (ret) {
 		debug("Error %d\n", ret);
-		hang();
+		panic("x86_spl_init fail");
 	}
 #ifdef CONFIG_TPL
 	gd->bd = malloc(sizeof(*gd->bd));
