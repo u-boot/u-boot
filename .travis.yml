@@ -180,9 +180,9 @@ matrix:
     - name: "buildman boundary engicam toradex"
       env:
         - BUILDMAN="boundary engicam toradex"
-    - name: "buildman bcm"
+    - name: "buildman ARM bcm"
       env:
-        - BUILDMAN="bcm"
+        - BUILDMAN="bcm -x mips"
     - name: "buildman NXP ARM32"
       env:
         - BUILDMAN="freescale -x powerpc,m68k,aarch64"
