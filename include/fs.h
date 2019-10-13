@@ -40,7 +40,12 @@ int fs_set_blk_dev_with_part(struct blk_desc *desc, int part);
 /**
  * fs_close() - Unset current block device and partition
  *
- * Should be paired with either fs_set_blk_dev() or fs_set_dev_with_part()
+ * fs_close() closes the connection to a file system opened with either
+ * fs_set_blk_dev() or fs_set_dev_with_part().
+ *
+ * Many file functions implicitly call fs_close(), e.g. fs_closedir(),
+ * fs_exist(), fs_ln(), fs_ls(), fs_mkdir(), fs_read(), fs_size(), fs_write(),
+ * fs_unlink().
  */
 void fs_close(void);
 
