@@ -248,7 +248,7 @@ matrix:
         - BUILDMAN="sun50i"
     - name: "buildman catch-all ARM"
       env:
-        - BUILDMAN="arm -x arm11,arm7,arm9,aarch64,at91,bcm,freescale,kirkwood,mvebu,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap,rockchip,toradex,socfpga,k2,k3,xilinx"
+        - BUILDMAN="arm -x arm11,arm7,arm9,aarch64,at91,bcm,freescale,kirkwood,mvebu,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap,rockchip,toradex,socfpga,k2,k3,zynq"
     - name: "buildman sandbox x86"
       env:
         - BUILDMAN="sandbox x86"
@@ -319,7 +319,7 @@ matrix:
         - BUILDMAN="uniphier"
     - name: "buildman catch-all AArch64"
       env:
-        - BUILDMAN="aarch64 -x bcm,k3,tegra,ls1,ls2,mvebu,uniphier,sunxi,samsung,rockchip,xilinx"
+        - BUILDMAN="aarch64 -x bcm,k3,tegra,ls1,ls2,mvebu,uniphier,sunxi,samsung,rockchip,versal,zynq"
     - name: "buildman rockchip"
       env:
         - BUILDMAN="rockchip"
@@ -327,9 +327,12 @@ matrix:
       env:
         - BUILDMAN="sh -x arm"
           TOOLCHAIN="sh"
-    - name: "buildman Xilinx (ARM)"
+    - name: "buildman Zynq* (ARMv7)"
       env:
-        - BUILDMAN="xilinx -x microblaze"
+        - BUILDMAN="zynq&armv7"
+    - name: "buildman ZynqMP and Versal"
+      env:
+        - BUILDMAN="versal|zynqmp&aarch64"
     - name: "buildman xtensa"
       env:
         - BUILDMAN="xtensa"
