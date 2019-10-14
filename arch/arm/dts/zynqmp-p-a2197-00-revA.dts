@@ -41,7 +41,7 @@
 
 	memory@0 {
 		device_type = "memory";
-		reg = <0x0 0x0 0x0 0x80000000>; /* FIXME don't know how big memory is there */
+		reg = <0x0 0x0 0x0 0x80000000>;
 	};
 };
 
