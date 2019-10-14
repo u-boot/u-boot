@@ -33,6 +33,7 @@ Configuration Options:
   CONFIG_DFU_NAND
   CONFIG_DFU_RAM
   CONFIG_DFU_SF
+  CONFIG_DFU_SF_PART
   CONFIG_CMD_DFU
 
 Environment variables:
@@ -89,6 +90,10 @@ Commands:
     cmd: dfu 0 sf <dev>
     each element in "dfu_alt_info" =
       <name> ram <offset> <size>  raw access to sf device
+      <name> part <dev> <part_id>  raw acces to partition
+      <name> partubi <dev> <part_id>  raw acces to ubi partition
+
+      with <partid> is the MTD partition index
 
 Host tools:
   When U-Boot runs the dfu stack, the DFU host tools can be used

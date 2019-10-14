@@ -77,6 +77,8 @@ struct sf_internal_data {
 	/* RAW programming */
 	u64 start;
 	u64 size;
+	/* for sf/ubi use */
+	unsigned int ubi;
 };
 
 #define DFU_NAME_SIZE			32
