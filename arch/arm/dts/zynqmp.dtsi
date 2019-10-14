@@ -12,6 +12,8 @@
  * the License, or (at your option) any later version.
  */
 
+#include <dt-bindings/reset/xlnx-zynqmp-resets.h>
+
 / {
 	compatible = "xlnx,zynqmp";
 	#address-cells = <2>;
@@ -153,6 +155,11 @@
 				interrupts = <0 35 4>;
 				mboxes = <&ipi_mailbox_pmu1 0>, <&ipi_mailbox_pmu1 1>;
 				mbox-names = "tx", "rx";
+			};
+
+			zynqmp_reset: reset-controller {
+				compatible = "xlnx,zynqmp-reset";
+				#reset-cells = <1>;
 			};
 		};
 	};
@@ -700,10 +707,18 @@
 			reg-names = "serdes", "siou", "lpd";
 			nvmem-cells = <&soc_revision>;
 			nvmem-cell-names = "soc_revision";
-			resets = <&rst 16>, <&rst 59>, <&rst 60>,
-				 <&rst 61>, <&rst 62>, <&rst 63>,
-				 <&rst 64>, <&rst 3>, <&rst 29>,
-				 <&rst 30>, <&rst 31>, <&rst 32>;
+			resets = <&zynqmp_reset ZYNQMP_RESET_SATA>,
+				 <&zynqmp_reset ZYNQMP_RESET_USB0_CORERESET>,
+				 <&zynqmp_reset ZYNQMP_RESET_USB1_CORERESET>,
+				 <&zynqmp_reset ZYNQMP_RESET_USB0_HIBERRESET>,
+				 <&zynqmp_reset ZYNQMP_RESET_USB1_HIBERRESET>,
+				 <&zynqmp_reset ZYNQMP_RESET_USB0_APB>,
+				 <&zynqmp_reset ZYNQMP_RESET_USB1_APB>,
+				 <&zynqmp_reset ZYNQMP_RESET_DP>,
+				 <&zynqmp_reset ZYNQMP_RESET_GEM0>,
+				 <&zynqmp_reset ZYNQMP_RESET_GEM1>,
+				 <&zynqmp_reset ZYNQMP_RESET_GEM2>,
+				 <&zynqmp_reset ZYNQMP_RESET_GEM3>;
 			reset-names = "sata_rst", "usb0_crst", "usb1_crst",
 				      "usb0_hibrst", "usb1_hibrst", "usb0_apbrst",
 				      "usb1_apbrst", "dp_rst", "gem0_rst",
