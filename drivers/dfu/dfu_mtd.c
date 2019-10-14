@@ -10,6 +10,7 @@
 #include <common.h>
 #include <dfu.h>
 #include <mtd.h>
+#include <jffs2/load_kernel.h>
 
 static bool mtd_is_aligned_with_block_size(struct mtd_info *mtd, u64 size)
 {
@@ -183,11 +184,52 @@ static int dfu_write_medium_mtd(struct dfu_entity *dfu,
 
 static int dfu_flush_medium_mtd(struct dfu_entity *dfu)
 {
+	struct mtd_info *mtd = dfu->data.mtd.info;
+	u64 remaining;
+	int ret;
+
+	/* in case of ubi partition, erase rest of the partition */
+	if (dfu->data.nand.ubi) {
+		struct erase_info erase_op = {};
+
+		erase_op.mtd = dfu->data.mtd.info;
+		erase_op.addr = round_up(dfu->data.mtd.start + dfu->offset +
+					 dfu->bad_skip, mtd->erasesize);
+		erase_op.len = mtd->erasesize;
+		erase_op.scrub = 0;
+
+		remaining = dfu->data.mtd.start + dfu->data.mtd.size -
+			    erase_op.addr;
+
+		while (remaining) {
+			ret = mtd_erase(mtd, &erase_op);
+
+			if (ret) {
+				/* Abort if its not a bad block error */
+				if (ret != -EIO)
+					break;
+				printf("Skipping bad block at 0x%08llx\n",
+				       erase_op.addr);
+			}
+
+			/* Skip bad block and continue behind it */
+			erase_op.addr += mtd->erasesize;
+			remaining -= mtd->erasesize;
+		}
+	}
 	return 0;
 }
 
 static unsigned int dfu_polltimeout_mtd(struct dfu_entity *dfu)
 {
+	/*
+	 * Currently, Poll Timeout != 0 is only needed on nand
+	 * ubi partition, as sectors which are not used need
+	 * to be erased
+	 */
+	if (dfu->data.nand.ubi)
+		return DFU_MANIFEST_POLL_TIMEOUT;
+
 	return DFU_DEFAULT_POLL_TIMEOUT;
 }
 
@@ -196,6 +238,7 @@ int dfu_fill_entity_mtd(struct dfu_entity *dfu, char *devstr, char *s)
 	char *st;
 	struct mtd_info *mtd;
 	bool has_pages;
+	int ret, part;
 
 	mtd = get_mtd_device_nm(devstr);
 	if (IS_ERR_OR_NULL(mtd))
@@ -214,9 +257,45 @@ int dfu_fill_entity_mtd(struct dfu_entity *dfu, char *devstr, char *s)
 		dfu->data.mtd.start = simple_strtoul(s, &s, 16);
 		s++;
 		dfu->data.mtd.size = simple_strtoul(s, &s, 16);
+	} else if ((!strcmp(st, "part")) || (!strcmp(st, "partubi"))) {
+		char mtd_id[32];
+		struct mtd_device *mtd_dev;
+		u8 part_num;
+		struct part_info *pi;
+
+		dfu->layout = DFU_RAW_ADDR;
+
+		part = simple_strtoul(s, &s, 10);
+
+		sprintf(mtd_id, "%s,%d", devstr, part - 1);
+		printf("using id '%s'\n", mtd_id);
+
+		mtdparts_init();
+
+		ret = find_dev_and_part(mtd_id, &mtd_dev, &part_num, &pi);
+		if (ret != 0) {
+			printf("Could not locate '%s'\n", mtd_id);
+			return -1;
+		}
+
+		dfu->data.mtd.start = pi->offset;
+		dfu->data.mtd.size = pi->size;
+		if (!strcmp(st, "partubi"))
+			dfu->data.mtd.ubi = 1;
 	} else {
-		printf("%s: (%s) not supported!\n", __func__, st);
+		printf("%s: Memory layout (%s) not supported!\n", __func__, st);
 		return -1;
+	}
+
+	if (!mtd_is_aligned_with_block_size(mtd, dfu->data.mtd.start)) {
+		printf("Offset not aligned with a block (0x%x)\n",
+		       mtd->erasesize);
+		return -EINVAL;
+	}
+	if (!mtd_is_aligned_with_block_size(mtd, dfu->data.mtd.size)) {
+		printf("Size not aligned with a block (0x%x)\n",
+		       mtd->erasesize);
+		return -EINVAL;
 	}
 
 	dfu->get_medium_size = dfu_get_medium_size_mtd;

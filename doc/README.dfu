@@ -112,6 +112,10 @@ Commands:
       (nand0, nor0, spi-nand0,...)
     each element in "dfu_alt_info" =
       <name> raw <offset> <size>  raw access to mtd device
+      <name> part <dev> <part_id>  raw acces to partition
+      <name> partubi <dev> <part_id>  raw acces to ubi partition
+
+      with <partid> is the MTD partition index
 
   <interface> and <dev> are absent:
     the dfu command to use multiple devices
@@ -209,3 +213,20 @@ Usage:
      intf=0, alt=1, name="u-boot", serial="002700333338511934383330"
   Found DFU: [0483:5720] ver=9999, devnum=96, cfg=1,\
      intf=0, alt=0, name="spl", serial="002700333338511934383330"
+
+  Same example with MTD backend
+
+   U-Boot> env set dfu_alt_info \
+      "mtd nor0=spl part 1;u-boot part 2;u-boot-env part 3&"\
+      "mtd nand0=UBI partubi 1"
+
+  U-Boot> dfu 0 list
+  using id 'nor0,0'
+  using id 'nor0,1'
+  using id 'nor0,2'
+  using id 'nand0,0'
+  DFU alt settings list:
+  dev: MTD alt: 0 name: spl layout: RAW_ADDR
+  dev: MTD alt: 1 name: u-boot layout: RAW_ADDR
+  dev: MTD alt: 2 name: u-boot-env layout: RAW_ADDR
+  dev: MTD alt: 3 name: UBI layout: RAW_ADDR

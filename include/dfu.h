@@ -62,6 +62,8 @@ struct mtd_internal_data {
 	/* RAW programming */
 	u64 start;
 	u64 size;
+	/* for ubi partition */
+	unsigned int ubi;
 };
 
 struct nand_internal_data {
