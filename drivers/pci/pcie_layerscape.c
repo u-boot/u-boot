@@ -406,7 +406,11 @@ static void ls_pcie_ep_setup_bars(void *bar_base)
 
 static void ls_pcie_ep_enable_cfg(struct ls_pcie *pcie)
 {
-	ctrl_writel(pcie, PCIE_CONFIG_READY, PCIE_PF_CONFIG);
+	u32 config;
+
+	config = ctrl_readl(pcie,  PCIE_PF_CONFIG);
+	config |= PCIE_CONFIG_READY;
+	ctrl_writel(pcie, config, PCIE_PF_CONFIG);
 }
 
 static void ls_pcie_setup_ep(struct ls_pcie *pcie)
