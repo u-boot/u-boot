@@ -143,6 +143,14 @@ Commands:
        mtd <dev>=<alt1>;....;<altN>
        virt <dev>=<alt1>;....;<altN>
 
+Callbacks:
+  The weak callback functions can be implemented to manage specific behavior
+  - dfu_initiated_callback  : called when the DFU transaction is started,
+                              used to initiase the device
+  - dfu_flush_callback      : called at the end of the DFU write after DFU
+                              manifestation, used to manage the device when
+                              DFU transaction is closed
+
 Host tools:
   When U-Boot runs the dfu stack, the DFU host tools can be used
   to send/receive firmwares on each configurated alternate.

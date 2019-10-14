@@ -23,6 +23,22 @@ static int alt_num_cnt;
 static struct hash_algo *dfu_hash_algo;
 
 /*
+ * The purpose of the dfu_flush_callback() function is to
+ * provide callback for dfu user
+ */
+__weak void dfu_flush_callback(struct dfu_entity *dfu)
+{
+}
+
+/*
+ * The purpose of the dfu_initiated_callback() function is to
+ * provide callback for dfu user
+ */
+__weak void dfu_initiated_callback(struct dfu_entity *dfu)
+{
+}
+
+/*
  * The purpose of the dfu_usb_get_reset() function is to
  * provide information if after USB_DETACH request
  * being sent the dfu-util performed reset of USB
@@ -263,6 +279,7 @@ int dfu_transaction_initiate(struct dfu_entity *dfu, bool read)
 	}
 
 	dfu->inited = 1;
+	dfu_initiated_callback(dfu);
 
 	return 0;
 }
@@ -281,6 +298,8 @@ int dfu_flush(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 	if (dfu_hash_algo)
 		printf("\nDFU complete %s: 0x%08x\n", dfu_hash_algo->name,
 		       dfu->crc);
+
+	dfu_flush_callback(dfu);
 
 	dfu_transaction_cleanup(dfu);
 

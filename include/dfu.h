@@ -183,6 +183,28 @@ int dfu_read(struct dfu_entity *de, void *buf, int size, int blk_seq_num);
 int dfu_write(struct dfu_entity *de, void *buf, int size, int blk_seq_num);
 int dfu_flush(struct dfu_entity *de, void *buf, int size, int blk_seq_num);
 
+/**
+ * dfu_initiated_callback - weak callback called on DFU transaction start
+ *
+ * It is a callback function called by DFU stack when a DFU transaction is
+ * initiated. This function allows to manage some board specific behavior on
+ * DFU targets.
+ *
+ * @param dfu - pointer to the dfu_entity, which should be initialized
+ *
+ */
+void dfu_initiated_callback(struct dfu_entity *dfu);
+/**
+ * dfu_flush_callback - weak callback called at the end of the DFU write
+ *
+ * It is a callback function called by DFU stack after DFU manifestation.
+ * This function allows to manage some board specific behavior on DFU targets
+ *
+ * @param dfu - pointer to the dfu_entity, which should be flushed
+ *
+ */
+void dfu_flush_callback(struct dfu_entity *dfu);
+
 /*
  * dfu_defer_flush - pointer to store dfu_entity for deferred flashing.
  *		     It should be NULL when not used.
