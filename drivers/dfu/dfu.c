@@ -439,13 +439,12 @@ void dfu_free_entities(void)
 	alt_num_cnt = 0;
 }
 
-int dfu_config_entities(char *env, char *interface, char *devstr)
+int dfu_alt_init(int num, struct dfu_entity **dfu)
 {
-	struct dfu_entity *dfu;
-	int i, ret;
 	char *s;
+	int ret;
 
-	dfu_alt_num = dfu_find_alt_num(env);
+	dfu_alt_num = num;
 	debug("%s: dfu_alt_num=%d\n", __func__, dfu_alt_num);
 
 	dfu_hash_algo = NULL;
@@ -456,21 +455,49 @@ int dfu_config_entities(char *env, char *interface, char *devstr)
 			pr_err("Hash algorithm %s not supported\n", s);
 	}
 
-	dfu = calloc(sizeof(*dfu), dfu_alt_num);
-	if (!dfu)
+	*dfu = calloc(sizeof(struct dfu_entity), dfu_alt_num);
+	if (!*dfu)
 		return -1;
-	for (i = 0; i < dfu_alt_num; i++) {
 
+	return 0;
+}
+
+int dfu_alt_add(struct dfu_entity *dfu, char *interface, char *devstr, char *s)
+{
+	struct dfu_entity *p_dfu;
+	int ret;
+
+	if (alt_num_cnt >= dfu_alt_num)
+		return -1;
+
+	p_dfu = &dfu[alt_num_cnt];
+	ret = dfu_fill_entity(p_dfu, s, alt_num_cnt, interface, devstr);
+	if (ret)
+		return -1;
+
+	list_add_tail(&p_dfu->list, &dfu_list);
+	alt_num_cnt++;
+
+	return 0;
+}
+
+int dfu_config_entities(char *env, char *interface, char *devstr)
+{
+	struct dfu_entity *dfu;
+	int i, ret;
+	char *s;
+
+	ret = dfu_alt_init(dfu_find_alt_num(env), &dfu);
+	if (ret)
+		return -1;
+
+	for (i = 0; i < dfu_alt_num; i++) {
 		s = strsep(&env, ";");
-		ret = dfu_fill_entity(&dfu[i], s, alt_num_cnt, interface,
-				      devstr);
+		ret = dfu_alt_add(dfu, interface, devstr, s);
 		if (ret) {
 			/* We will free "dfu" in dfu_free_entities() */
 			return -1;
 		}
-
-		list_add_tail(&dfu[i].list, &dfu_list);
-		alt_num_cnt++;
 	}
 
 	return 0;

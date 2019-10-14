@@ -143,6 +143,8 @@ struct dfu_entity {
 #ifdef CONFIG_SET_DFU_ALT_INFO
 void set_dfu_alt_info(char *interface, char *devstr);
 #endif
+int dfu_alt_init(int num, struct dfu_entity **dfu);
+int dfu_alt_add(struct dfu_entity *dfu, char *interface, char *devstr, char *s);
 int dfu_config_entities(char *s, char *interface, char *devstr);
 void dfu_free_entities(void);
 void dfu_show_entities(void);
