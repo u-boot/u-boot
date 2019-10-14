@@ -516,6 +516,12 @@ config ENV_UBI_VOLUME_REDUND
 	help
 	  Name of the redundant volume that you want to store the environment in.
 
+config ENV_UBI_IS_VOLUME_REDUND
+	bool
+	depends on ENV_IS_IN_UBI
+	default y if ENV_UBI_VOLUME_REDUND != ""
+	default n
+
 config ENV_UBI_VID_OFFSET
 	int "ubi environment VID offset"
 	depends on ENV_IS_IN_UBI
