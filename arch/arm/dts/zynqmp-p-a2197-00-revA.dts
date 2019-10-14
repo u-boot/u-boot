@@ -165,7 +165,7 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <1>;
-			/* FIXME check alerts comming to SC */
+			/* FIXME check alerts coming to SC */
 			vcc_fmc: ina226@42 { /* u81 */
 				compatible = "ti,ina226";
 				reg = <0x42>;
