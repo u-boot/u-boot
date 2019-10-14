@@ -140,7 +140,7 @@
 	};
 
 	firmware {
-		zynqmp-firmware {
+		zynqmp_firmware: zynqmp-firmware {
 			compatible = "xlnx,zynqmp-firmware";
 			method = "smc";
 			#power-domain-cells = <0x1>;

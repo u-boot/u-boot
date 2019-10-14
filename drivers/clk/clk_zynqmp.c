@@ -702,7 +702,6 @@ static struct clk_ops zynqmp_clk_ops = {
 
 static const struct udevice_id zynqmp_clk_ids[] = {
 	{ .compatible = "xlnx,zynqmp-clk" },
-	{ .compatible = "xlnx,zynqmp-clkc" },
 	{ }
 };
 
