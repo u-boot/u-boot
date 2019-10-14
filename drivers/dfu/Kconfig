@@ -54,5 +54,11 @@ config DFU_SF_PART
 	  This option enables the support of "part" and "partubi" target in
 	  SPI flash DFU back end.
 
+config DFU_MTD
+	bool "MTD back end for DFU"
+	depends on MTD
+	help
+	  This option enables using DFU to read and write to on any MTD device.
+
 endif
 endmenu

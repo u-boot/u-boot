@@ -21,6 +21,7 @@ Overview:
   - NAND
   - RAM
   - SF (serial flash)
+  - MTD (all MTD device: NAND, SPI-NOR, SPI-NAND,...)
 
   These DFU backends are also used by
   - the dfutftp (see README.dfutftp)
@@ -30,6 +31,7 @@ Configuration Options:
   CONFIG_DFU
   CONFIG_DFU_OVER_USB
   CONFIG_DFU_MMC
+  CONFIG_DFU_MTD
   CONFIG_DFU_NAND
   CONFIG_DFU_RAM
   CONFIG_DFU_SF
@@ -104,6 +106,13 @@ Commands:
 
       with <partid> is the MTD partition index
 
+  "mtd" (all MTD device: NAND, SPI-NOR, SPI-NAND,...)
+    cmd: dfu 0 mtd <dev>
+      with <dev> the mtd identifier as defined in mtd command
+      (nand0, nor0, spi-nand0,...)
+    each element in "dfu_alt_info" =
+      <name> raw <offset> <size>  raw access to mtd device
+
   <interface> and <dev> are absent:
     the dfu command to use multiple devices
     cmd: dfu 0 list
@@ -114,6 +123,7 @@ Commands:
        nand <dev>=<alt1>;....;<altN>
        ram <dev>=<alt1>;....;<altN>
        sf <dev>=<alt1>;....;<altN>
+       mtd <dev>=<alt1>;....;<altN>
 
 
 Host tools:
