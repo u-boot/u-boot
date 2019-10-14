@@ -592,6 +592,15 @@ static inline int gadget_is_otg(struct usb_gadget *g)
 }
 
 /**
+ * gadget_is_superspeed() - return true if the hardware handles superspeed
+ * @g: controller that might support superspeed
+ */
+static inline int gadget_is_superspeed(struct usb_gadget *g)
+{
+	return g->max_speed >= USB_SPEED_SUPER;
+}
+
+/**
  * usb_gadget_frame_number - returns the current frame number
  * @gadget: controller that reports the frame number
  *
