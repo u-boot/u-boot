@@ -23,6 +23,7 @@ enum dfu_device_type {
 	DFU_DEV_RAM,
 	DFU_DEV_SF,
 	DFU_DEV_MTD,
+	DFU_DEV_VIRT,
 };
 
 enum dfu_layout {
@@ -92,6 +93,10 @@ struct sf_internal_data {
 	unsigned int ubi;
 };
 
+struct virt_internal_data {
+	int dev_num;
+};
+
 #define DFU_NAME_SIZE			32
 #ifndef CONFIG_SYS_DFU_DATA_BUF_SIZE
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE		(1024*1024*8)	/* 8 MiB */
@@ -120,6 +125,7 @@ struct dfu_entity {
 		struct nand_internal_data nand;
 		struct ram_internal_data ram;
 		struct sf_internal_data sf;
+		struct virt_internal_data virt;
 	} data;
 
 	int (*get_medium_size)(struct dfu_entity *dfu, u64 *size);
@@ -268,6 +274,22 @@ static inline int dfu_fill_entity_mtd(struct dfu_entity *dfu, char *devstr,
 				      char *s)
 {
 	puts("MTD support not available!\n");
+	return -1;
+}
+#endif
+
+#ifdef CONFIG_DFU_VIRT
+int dfu_fill_entity_virt(struct dfu_entity *dfu, char *devstr, char *s);
+int dfu_write_medium_virt(struct dfu_entity *dfu, u64 offset,
+			  void *buf, long *len);
+int dfu_get_medium_size_virt(struct dfu_entity *dfu, u64 *size);
+int dfu_read_medium_virt(struct dfu_entity *dfu, u64 offset,
+			 void *buf, long *len);
+#else
+static inline int dfu_fill_entity_virt(struct dfu_entity *dfu, char *devstr,
+				       char *s)
+{
+	puts("VIRT support not available!\n");
 	return -1;
 }
 #endif

@@ -22,10 +22,17 @@ Overview:
   - RAM
   - SF (serial flash)
   - MTD (all MTD device: NAND, SPI-NOR, SPI-NAND,...)
+  - virtual
 
   These DFU backends are also used by
   - the dfutftp (see README.dfutftp)
   - the thordown command (cmd/thordown.c and gadget/f_thor.c)
+
+  The "virtual" backend is a generic DFU backend to support a board specific
+  target (for example OTP), only based on the weak functions:
+  - dfu_write_medium_virt
+  - dfu_get_medium_size_virt
+  - dfu_read_medium_virt
 
 Configuration Options:
   CONFIG_DFU
@@ -36,6 +43,7 @@ Configuration Options:
   CONFIG_DFU_RAM
   CONFIG_DFU_SF
   CONFIG_DFU_SF_PART
+  CONFIG_DFU_VIRTUAL
   CONFIG_CMD_DFU
 
 Environment variables:
@@ -117,6 +125,11 @@ Commands:
 
       with <partid> is the MTD partition index
 
+  "virt"
+    cmd: dfu 0 virt <dev>
+    each element in "dfu_alt_info" =
+      <name>
+
   <interface> and <dev> are absent:
     the dfu command to use multiple devices
     cmd: dfu 0 list
@@ -128,7 +141,7 @@ Commands:
        ram <dev>=<alt1>;....;<altN>
        sf <dev>=<alt1>;....;<altN>
        mtd <dev>=<alt1>;....;<altN>
-
+       virt <dev>=<alt1>;....;<altN>
 
 Host tools:
   When U-Boot runs the dfu stack, the DFU host tools can be used
@@ -230,3 +243,20 @@ Usage:
   dev: MTD alt: 1 name: u-boot layout: RAW_ADDR
   dev: MTD alt: 2 name: u-boot-env layout: RAW_ADDR
   dev: MTD alt: 3 name: UBI layout: RAW_ADDR
+
+  Example 3: firmware located in SD Card (mmc) and virtual partition on
+             OTP and PMIC not volatile memory
+  - alternate 1 (alt=1) for scard
+  - alternate 2 (alt=2) for OTP (virtual)
+  - alternate 3 (alt=3) for PMIC NVM (virtual)
+
+   U-Boot> env set dfu_alt_info \
+      "mmc 0=sdcard raw 0 0x100000&"\
+      "virt 0=otp" \
+      "virt 1=pmic"
+
+   U-Boot> dfu 0 list
+   DFU alt settings list:
+   dev: eMMC alt: 0 name: sdcard layout: RAW_ADDR
+   dev: VIRT alt: 1 name: otp layout: RAW_ADDR
+   dev: VIRT alt: 2 name: pmic layout: RAW_ADDR
