@@ -478,14 +478,15 @@ int dfu_config_entities(char *env, char *interface, char *devstr)
 
 const char *dfu_get_dev_type(enum dfu_device_type t)
 {
-	const char *dev_t[] = {NULL, "eMMC", "OneNAND", "NAND", "RAM", "SF" };
+	const char *const dev_t[] = {NULL, "eMMC", "OneNAND", "NAND", "RAM",
+				     "SF"};
 	return dev_t[t];
 }
 
 const char *dfu_get_layout(enum dfu_layout l)
 {
-	const char *dfu_layout[] = {NULL, "RAW_ADDR", "FAT", "EXT2",
-					   "EXT3", "EXT4", "RAM_ADDR" };
+	const char *const dfu_layout[] = {NULL, "RAW_ADDR", "FAT", "EXT2",
+					  "EXT3", "EXT4", "RAM_ADDR" };
 	return dfu_layout[l];
 }
 
