@@ -53,6 +53,54 @@ static int dfu_find_alt_num(const char *s)
 	return ++i;
 }
 
+/*
+ * treat dfu_alt_info with several interface information
+ * to allow DFU on several device with one command,
+ * the string format is
+ * interface devstring'='alternate list (';' separated)
+ * and each interface separated by '&'
+ */
+int dfu_config_interfaces(char *env)
+{
+	struct dfu_entity *dfu;
+	char *s, *i, *d, *a, *part;
+	int ret = -EINVAL;
+	int n = 1;
+
+	s = env;
+	for (; *s; s++) {
+		if (*s == ';')
+			n++;
+		if (*s == '&')
+			n++;
+	}
+	ret = dfu_alt_init(n, &dfu);
+	if (ret)
+		return ret;
+
+	s = env;
+	while (s) {
+		ret = -EINVAL;
+		i = strsep(&s, " ");
+		if (!i)
+			break;
+		d = strsep(&s, "=");
+		if (!d)
+			break;
+		a = strsep(&s, "&");
+		if (!a)
+			a = s;
+		do {
+			part = strsep(&a, ";");
+			ret = dfu_alt_add(dfu, i, d, part);
+			if (ret)
+				return ret;
+		} while (a);
+	}
+
+	return ret;
+}
+
 int dfu_init_env_entities(char *interface, char *devstr)
 {
 	const char *str_env;
@@ -69,7 +117,11 @@ int dfu_init_env_entities(char *interface, char *devstr)
 	}
 
 	env_bkp = strdup(str_env);
-	ret = dfu_config_entities(env_bkp, interface, devstr);
+	if (!interface && !devstr)
+		ret = dfu_config_interfaces(env_bkp);
+	else
+		ret = dfu_config_entities(env_bkp, interface, devstr);
+
 	if (ret) {
 		pr_err("DFU entities configuration failed!\n");
 		pr_err("(partition table does not match dfu_alt_info?)\n");
@@ -83,6 +135,7 @@ done:
 
 static unsigned char *dfu_buf;
 static unsigned long dfu_buf_size;
+static enum dfu_device_type dfu_buf_device_type;
 
 unsigned char *dfu_free_buf(void)
 {
@@ -99,6 +152,10 @@ unsigned long dfu_get_buf_size(void)
 unsigned char *dfu_get_buf(struct dfu_entity *dfu)
 {
 	char *s;
+
+	/* manage several entity with several contraint */
+	if (dfu_buf && dfu->dev_type != dfu_buf_device_type)
+		dfu_free_buf();
 
 	if (dfu_buf != NULL)
 		return dfu_buf;
@@ -118,6 +175,7 @@ unsigned char *dfu_get_buf(struct dfu_entity *dfu)
 		printf("%s: Could not memalign 0x%lx bytes\n",
 		       __func__, dfu_buf_size);
 
+	dfu_buf_device_type = dfu->dev_type;
 	return dfu_buf;
 }
 

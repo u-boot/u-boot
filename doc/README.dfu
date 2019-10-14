@@ -42,16 +42,25 @@ Environment variables:
                    separated string of information on each alternate:
                    dfu_alt_info="<alt1>;<alt2>;....;<altN>"
 
+                   when only several device are used, the format is:
+                   - <interface> <dev>'='alternate list (';' separated)
+                   - each interface is separated by '&'
+                dfu_alt_info=\
+                   "<interface1> <dev1>=<alt1>;....;<altN>&"\
+                   "<interface2> <dev2>=<altN+1>;....;<altM>&"\
+                   ...\
+                   "<interfaceI> <devI>=<altY+1>;....;<altZ>&"
+
   "dfu_bufsiz" : size of the DFU buffer, when absent, use
                  CONFIG_SYS_DFU_DATA_BUF_SIZE (8MiB by default)
 
   "dfu_hash_algo" : name of the hash algorithm to use
 
 Commands:
-  dfu <USB_controller> <interface> <dev> list
+  dfu <USB_controller> [<interface> <dev>] list
     list the alternate device defined in "dfu_alt_info"
 
-  dfu <USB_controller> <interface> <dev>
+  dfu <USB_controller> [<interface> <dev>]
     start the dfu stack on the USB instance with the selected medium
     backend and use the "dfu_alt_info" variable to configure the
     alternate setting and link each one with the medium
@@ -95,6 +104,18 @@ Commands:
 
       with <partid> is the MTD partition index
 
+  <interface> and <dev> are absent:
+    the dfu command to use multiple devices
+    cmd: dfu 0 list
+    cmd: dfu 0
+   "dfu_alt_info" variable provides the list of <interface> <dev> with
+   alternate list separated by '&' with the same format for each <alt>
+       mmc <dev>=<alt1>;....;<altN>
+       nand <dev>=<alt1>;....;<altN>
+       ram <dev>=<alt1>;....;<altN>
+       sf <dev>=<alt1>;....;<altN>
+
+
 Host tools:
   When U-Boot runs the dfu stack, the DFU host tools can be used
   to send/receive firmwares on each configurated alternate.
@@ -103,7 +124,7 @@ Host tools:
   specifications(http://dfu-util.sourceforge.net/) which works with U-Boot.
 
 Usage:
-  Example for firmware located in eMMC or SD card, with:
+  Example 1: firmware located in eMMC or SD card, with:
   - alternate 1 (alt=1) for SPL partition (GPT partition 1)
   - alternate 2 (alt=2) for U-Boot partition (GPT partition 2)
 
@@ -147,3 +168,34 @@ Usage:
 
   To request a DFU detach and reset the USB connection:
   $> dfu-util -a 0 -e  -R
+
+
+  Example 2: firmware located in NOR (sf) and NAND, with:
+  - alternate 1 (alt=1) for SPL partition (NOR GPT partition 1)
+  - alternate 2 (alt=2) for U-Boot partition (NOR GPT partition 2)
+  - alternate 3 (alt=3) for U-Boot-env partition (NOR GPT partition 3)
+  - alternate 4 (alt=4) for UBI partition (NAND GPT partition 1)
+
+  U-Boot> env set dfu_alt_info \
+  "sf 0:0:10000000:0=spl part 0 1;u-boot part 0 2; \
+  u-boot-env part 0 3&nand 0=UBI partubi 0,1"
+
+  U-Boot> dfu 0 list
+
+  DFU alt settings list:
+  dev: SF alt: 0 name: spl layout: RAW_ADDR
+  dev: SF alt: 1 name: ssbl layout: RAW_ADDR
+  dev: SF alt: 2 name: u-boot-env layout: RAW_ADDR
+  dev: NAND alt: 3 name: UBI layout: RAW_ADDR
+
+  U-Boot> dfu 0
+
+  $> dfu-util -l
+  Found DFU: [0483:5720] ver=9999, devnum=96, cfg=1,\
+     intf=0, alt=3, name="UBI", serial="002700333338511934383330"
+  Found DFU: [0483:5720] ver=9999, devnum=96, cfg=1,\
+     intf=0, alt=2, name="u-boot-env", serial="002700333338511934383330"
+  Found DFU: [0483:5720] ver=9999, devnum=96, cfg=1,\
+     intf=0, alt=1, name="u-boot", serial="002700333338511934383330"
+  Found DFU: [0483:5720] ver=9999, devnum=96, cfg=1,\
+     intf=0, alt=0, name="spl", serial="002700333338511934383330"
