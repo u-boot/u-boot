@@ -189,6 +189,7 @@ typedef void hapi_clock_init_t(void);
 #define HAB_CID_ROM 0 /**< ROM Caller ID */
 #define HAB_CID_UBOOT 1 /**< UBOOT Caller ID*/
 
+#define HAB_TAG_RVT          0xDD  /* ROM Vector Table */
 #define HAB_CMD_HDR          0xD4  /* CSF Header */
 #define HAB_CMD_WRT_DAT      0xCC  /* Write Data command tag */
 #define HAB_CMD_CHK_DAT      0xCF  /* Check Data command tag */

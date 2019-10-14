@@ -510,9 +510,19 @@ config TARGET_KP_IMX6Q_TPC
 	select BOARD_EARLY_INIT_F
 	select BOARD_LATE_INIT
 	select DM
+	select SPL_DM if SPL
 	select DM_THERMAL
+	select DM_MMC
+	select DM_ETH
+	select DM_REGULATOR
+	select SPL_DM_REGULATOR if SPL
+	select DM_SERIAL
+	select DM_I2C
+	select DM_GPIO
+	select DM_USB
 	select MX6QDL
 	select SUPPORT_SPL
+	select SPL_SEPARATE_BSS if SPL
 	imply CMD_DM
 	imply CMD_SPL
 
