@@ -1546,6 +1546,16 @@ static int mmc_set_ios(struct mmc *mmc)
 
 	return ret;
 }
+
+static int mmc_host_power_cycle(struct mmc *mmc)
+{
+	int ret = 0;
+
+	if (mmc->cfg->ops->host_power_cycle)
+		ret = mmc->cfg->ops->host_power_cycle(mmc);
+
+	return ret;
+}
 #endif
 
 int mmc_set_clock(struct mmc *mmc, uint clock, bool disable)
@@ -2715,6 +2725,11 @@ static int mmc_power_cycle(struct mmc *mmc)
 	ret = mmc_power_off(mmc);
 	if (ret)
 		return ret;
+
+	ret = mmc_host_power_cycle(mmc);
+	if (ret)
+		return ret;
+
 	/*
 	 * SD spec recommends at least 1ms of delay. Let's wait for 2ms
 	 * to be on the safer side.
@@ -2997,6 +3012,30 @@ int mmc_initialize(bd_t *bis)
 	mmc_do_preinit();
 	return 0;
 }
+
+#if CONFIG_IS_ENABLED(DM_MMC)
+int mmc_init_device(int num)
+{
+	struct udevice *dev;
+	struct mmc *m;
+	int ret;
+
+	ret = uclass_get_device(UCLASS_MMC, num, &dev);
+	if (ret)
+		return ret;
+
+	m = mmc_get_mmc_dev(dev);
+	if (!m)
+		return 0;
+#ifdef CONFIG_FSL_ESDHC_ADAPTER_IDENT
+	mmc_set_preinit(m, 1);
+#endif
+	if (m->preinit)
+		mmc_start_init(m);
+
+	return 0;
+}
+#endif
 
 #ifdef CONFIG_CMD_BKOPS_ENABLE
 int mmc_set_bkops_enable(struct mmc *mmc)

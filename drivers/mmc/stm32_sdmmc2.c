@@ -524,8 +524,6 @@ static void stm32_sdmmc2_pwrcycle(struct stm32_sdmmc2_priv *priv)
 		return;
 
 	stm32_sdmmc2_reset(priv);
-	writel(SDMMC_POWER_PWRCTRL_CYCLE | priv->pwr_reg_msk,
-	       priv->base + SDMMC_POWER);
 }
 
 /*
@@ -619,10 +617,21 @@ static int stm32_sdmmc2_getcd(struct udevice *dev)
 	return 1;
 }
 
+static int stm32_sdmmc2_host_power_cycle(struct udevice *dev)
+{
+	struct stm32_sdmmc2_priv *priv = dev_get_priv(dev);
+
+	writel(SDMMC_POWER_PWRCTRL_CYCLE | priv->pwr_reg_msk,
+	       priv->base + SDMMC_POWER);
+
+	return 0;
+}
+
 static const struct dm_mmc_ops stm32_sdmmc2_ops = {
 	.send_cmd = stm32_sdmmc2_send_cmd,
 	.set_ios = stm32_sdmmc2_set_ios,
 	.get_cd = stm32_sdmmc2_getcd,
+	.host_power_cycle = stm32_sdmmc2_host_power_cycle,
 };
 
 static int stm32_sdmmc2_probe(struct udevice *dev)
