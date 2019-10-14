@@ -112,7 +112,7 @@
 			      <0x0 0xff9905e0 0x0 0x20>,
 			      <0x0 0xff990e80 0x0 0x20>,
 			      <0x0 0xff990ea0 0x0 0x20>;
-			reg-names = "local_request_region" , "local_response_region",
+			reg-names = "local_request_region", "local_response_region",
 				    "remote_request_region", "remote_response_region";
 			#mbox-cells = <1>;
 			xlnx,ipi-id = <4>;
