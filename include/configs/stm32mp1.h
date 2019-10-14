@@ -131,12 +131,15 @@
 /* with OPTEE: define specific MTD partitions = teeh, teed, teex */
 #define STM32MP_MTDPARTS \
 	"mtdparts_nor0=256k(fsbl1),256k(fsbl2),2m(ssbl),256k(u-boot-env),256k(teeh),256k(teed),256k(teex),-(nor_user)\0" \
-	"mtdparts_nand0=2m(fsbl),2m(ssbl1),2m(ssbl2),512k(teeh),512k(teed),512k(teex),-(UBI)\0"
+	"mtdparts_nand0=2m(fsbl),2m(ssbl1),2m(ssbl2),512k(teeh),512k(teed),512k(teex),-(UBI)\0" \
+	"mtdparts_spi-nand0=2m(fsbl),2m(ssbl1),2m(ssbl2),"\
+		"512k(teeh),512k(teed),512k(teex),-(UBI)\0"
 
 #else /* CONFIG_STM32MP1_OPTEE */
 #define STM32MP_MTDPARTS \
 	"mtdparts_nor0=256k(fsbl1),256k(fsbl2),2m(ssbl),256k(u-boot-env),-(nor_user)\0" \
-	"mtdparts_nand0=2m(fsbl),2m(ssbl1),2m(ssbl2),-(UBI)\0"
+	"mtdparts_nand0=2m(fsbl),2m(ssbl1),2m(ssbl2),-(UBI)\0" \
+	"mtdparts_spi-nand0=2m(fsbl),2m(ssbl1),2m(ssbl2),-(UBI)\0"
 
 #endif /* CONFIG_STM32MP1_OPTEE */
 
@@ -159,6 +162,9 @@
 	"dfu_alt_info_nand0=mtd nand0="\
 		"nand_fsbl part 1;nand_ssbl1 part 2;" \
 		"nand_ssbl2 part 3;nand_UBI partubi 4\0" \
+	"dfu_alt_info_spi-nand0=mtd spi-nand0="\
+		"spi-nand_fsbl part 1;spi-nand_ssbl1 part 2;" \
+		"spi-nand_ssbl2 part 3;spi-nand_UBI partubi 4\0" \
 	"dfu_alt_info_mmc0=mmc 0=" \
 		"sdcard_fsbl1 part 0 1;sdcard_fsbl2 part 0 2;" \
 		"sdcard_ssbl part 0 3;sdcard_bootfs part 0 4;" \

@@ -879,8 +879,9 @@ static void board_get_mtdparts(const char *dev,
 
 void board_mtdparts_default(const char **mtdids, const char **mtdparts)
 {
+	struct mtd_info *mtd;
 	struct udevice *dev;
-	static char parts[2 * MTDPARTS_LEN + 1];
+	static char parts[3 * MTDPARTS_LEN + 1];
 	static char ids[MTDIDS_LEN + 1];
 	static bool mtd_initialized;
 
@@ -893,8 +894,24 @@ void board_mtdparts_default(const char **mtdids, const char **mtdparts)
 	memset(parts, 0, sizeof(parts));
 	memset(ids, 0, sizeof(ids));
 
-	if (!uclass_get_device(UCLASS_MTD, 0, &dev))
+	/* probe all MTD devices */
+	for (uclass_first_device(UCLASS_MTD, &dev);
+	     dev;
+	     uclass_next_device(&dev)) {
+		pr_debug("mtd device = %s\n", dev->name);
+	}
+
+	mtd = get_mtd_device_nm("nand0");
+	if (!IS_ERR_OR_NULL(mtd)) {
 		board_get_mtdparts("nand0", ids, parts);
+		put_mtd_device(mtd);
+	}
+
+	mtd = get_mtd_device_nm("spi-nand0");
+	if (!IS_ERR_OR_NULL(mtd)) {
+		board_get_mtdparts("spi-nand0", ids, parts);
+		put_mtd_device(mtd);
+	}
 
 	if (!uclass_get_device(UCLASS_SPI_FLASH, 0, &dev))
 		board_get_mtdparts("nor0", ids, parts);
@@ -944,6 +961,7 @@ static void board_get_alt_info(const char *dev, char *buff)
 void set_dfu_alt_info(char *interface, char *devstr)
 {
 	struct udevice *dev;
+	struct mtd_info *mtd;
 
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, DFU_ALT_BUF_LEN);
 
@@ -951,6 +969,9 @@ void set_dfu_alt_info(char *interface, char *devstr)
 		return;
 
 	memset(buf, 0, sizeof(buf));
+
+	/* probe all MTD devices */
+	mtd_probe_devices();
 
 	board_get_alt_info("ram", buf);
 
@@ -963,8 +984,13 @@ void set_dfu_alt_info(char *interface, char *devstr)
 	if (!uclass_get_device(UCLASS_SPI_FLASH, 0, &dev))
 		board_get_alt_info("nor0", buf);
 
-	if (!uclass_get_device(UCLASS_MTD, 0, &dev))
+	mtd = get_mtd_device_nm("nand0");
+	if (!IS_ERR_OR_NULL(mtd))
 		board_get_alt_info("nand0", buf);
+
+	mtd = get_mtd_device_nm("spi-nand0");
+	if (!IS_ERR_OR_NULL(mtd))
+		board_get_alt_info("spi-nand0", buf);
 
 	env_set("dfu_alt_info", buf);
 	puts("DFU alt info setting: done\n");
