@@ -76,6 +76,10 @@
 		};
 	};
 
+	dsi_host: dsi_host {
+		compatible = "sandbox,dsi-host";
+	};
+
 	a-test {
 		reg = <0 1>;
 		compatible = "denx,u-boot-fdt-test";
