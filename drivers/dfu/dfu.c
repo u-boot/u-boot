@@ -396,6 +396,8 @@ static int dfu_read_buffer_fill(struct dfu_entity *dfu, void *buf, int size)
 				debug("%s: Read error!\n", __func__);
 				return ret;
 			}
+			if (dfu->b_left == 0)
+				break;
 			dfu->offset += dfu->b_left;
 			dfu->r_left -= dfu->b_left;
 
