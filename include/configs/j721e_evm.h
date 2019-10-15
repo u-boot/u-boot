@@ -13,6 +13,7 @@
 #include <config_distro_bootcmd.h>
 #include <environment/ti/mmc.h>
 #include <environment/ti/k3_rproc.h>
+#include <environment/ti/ufs.h>
 
 #define CONFIG_ENV_SIZE			(128 << 10)
 
@@ -103,7 +104,8 @@
 	DEFAULT_MMC_TI_ARGS						\
 	EXTRA_ENV_J721E_BOARD_SETTINGS					\
 	EXTRA_ENV_J721E_BOARD_SETTINGS_MMC				\
-	EXTRA_ENV_RPROC_SETTINGS
+	EXTRA_ENV_RPROC_SETTINGS					\
+	DEFAULT_UFS_TI_ARGS
 
 /* Now for the remaining common defines */
 #include <configs/ti_armv7_common.h>
