@@ -234,9 +234,12 @@ matrix:
     - name: "buildman sun7i"
       env:
         - BUILDMAN="sun7i"
-    - name: "buildman sun8i"
+    - name: "buildman 64bit sun8i"
       env:
-        - BUILDMAN="sun8i"
+        - BUILDMAN="sun8i&aarch64"
+    - name: "buildman 32bit sun8i"
+      env:
+        - BUILDMAN="sun8i&armv7"
     - name: "buildman sun9i"
       env:
         - BUILDMAN="sun9i"
