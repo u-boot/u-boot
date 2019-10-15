@@ -204,12 +204,15 @@ matrix:
     - name: "buildman NXP AArch64 LX216x"
       env:
         - BUILDMAN="freescale&aarch64&lx216"
-    - name: "buildman i.MX6 (non-NXP)"
+    - name: "buildman i.MX6 tqc"
       env:
-        - BUILDMAN="mx6 -x freescale,toradex,boundary,engicam"
-    - name: "buildman i.MX (non-NXP,i.MX6,toradex)"
+        - BUILDMAN="mx6&tqc"
+    - name: "buildman i.MX6 (catch-all)"
       env:
-        - BUILDMAN="mx -x freescale,mx6,toradex"
+        - BUILDMAN="mx6 -x boundary,engicam,freescale,technexion,toradex,tqc"
+    - name: "buildman i.MX (non-i.MX6 catch-all)"
+      env:
+        - BUILDMAN="mx -x freescale,mx6,toradex,technexion"
     - name: "buildman keystone 2/3"
       env:
         - BUILDMAN="k2 k3"
@@ -247,6 +250,9 @@ matrix:
       env:
         - BUILDMAN="sandbox x86"
           TOOLCHAIN="i386"
+    - name: "buildman technexion"
+      env:
+        - BUILDMAN="technexion"
     - name: "buildman kirkwood"
       env:
         - BUILDMAN="kirkwood"
