@@ -136,6 +136,8 @@ static const char * const errno_message[] = {
 	ERRNO_MSG(EDQUOT, "Quota exceeded"),
 	ERRNO_MSG(ENOMEDIUM, "No medium found"),
 	ERRNO_MSG(EMEDIUMTYPE, "Wrong medium type"),
+	/* Message for unsupported error numbers */
+	ERRNO_MSG(0, "Unknown error"),
 };
 
 const char *errno_str(int errno)
@@ -143,5 +145,9 @@ const char *errno_str(int errno)
 	if (errno >= 0)
 		return errno_message[0];
 
-	return errno_message[abs(errno)];
+	errno = -errno;
+	if (errno >= ARRAY_SIZE(errno_message))
+		errno = ARRAY_SIZE(errno_message) - 1;
+
+	return errno_message[errno];
 }
