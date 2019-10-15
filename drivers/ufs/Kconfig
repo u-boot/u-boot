@@ -1,0 +1,9 @@
+menu "UFS Host Controller Support"
+
+config UFS
+	bool "Support UFS controllers"
+	depends on DM_SCSI
+	help
+	  This selects support for Universal Flash Subsystem (UFS).
+	  Say Y here if you want UFS Support.
+endmenu
