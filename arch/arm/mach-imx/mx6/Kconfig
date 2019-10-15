@@ -232,6 +232,13 @@ config TARGET_MCCMON6
 	bool "mccmon6"
 	select MX6QDL
 	select SUPPORT_SPL
+	select DM
+	select DM_GPIO
+	select DM_ETH
+	select DM_SERIAL
+	select DM_I2C
+	select DM_SPI
+	imply CMD_DM
 
 config TARGET_MX6CUBOXI
 	bool "Solid-run mx6 boards"

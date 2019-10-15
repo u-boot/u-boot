@@ -13,17 +13,13 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>
-#include <asm/mach-imx/mxc_i2c.h>
-#include <asm/mach-imx/spi.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/io.h>
 #include <fsl_esdhc_imx.h>
 #include <mmc.h>
 #include <netdev.h>
-#include <micrel.h>
 #include <phy.h>
 #include <input.h>
-#include <i2c.h>
 #include <spl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -36,24 +32,11 @@ DECLARE_GLOBAL_DATA_PTR;
 	PAD_CTL_SPEED_LOW | PAD_CTL_DSE_80ohm |			\
 	PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
 
-#define ENET_PAD_CTRL  (PAD_CTL_PUS_100K_UP |			\
-	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS)
-
-#define SPI_PAD_CTRL (PAD_CTL_HYS | PAD_CTL_SPEED_MED |		\
-	PAD_CTL_DSE_40ohm | PAD_CTL_SRE_FAST)
-
-#define I2C_PAD_CTRL	(PAD_CTL_PUS_100K_UP |			\
-	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS |	\
-	PAD_CTL_ODE | PAD_CTL_SRE_FAST)
-
 #define WEIM_NOR_PAD_CTRL (PAD_CTL_PKE | PAD_CTL_PUE |          \
 	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED |               \
 	PAD_CTL_DSE_40ohm   | PAD_CTL_SRE_FAST)
 
 #define USDHC2_CD_GPIO		IMX_GPIO_NR(1, 4)
-#define ETH_PHY_RESET		IMX_GPIO_NR(1, 27)
-#define ECSPI3_CS0		IMX_GPIO_NR(4, 24)
-#define ECSPI3_FLWP		IMX_GPIO_NR(4, 27)
 #define NOR_WP			IMX_GPIO_NR(1, 1)
 #define DISPLAY_EN		IMX_GPIO_NR(1, 2)
 
@@ -94,43 +77,9 @@ static iomux_v3_cfg_t const usdhc3_pads[] = {
 	IOMUX_PADS(PAD_SD3_RST__SD3_RESET  | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
 };
 
-static iomux_v3_cfg_t const enet_pads[] = {
-	IOMUX_PADS(PAD_ENET_MDIO__ENET_MDIO  | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_ENET_MDC__ENET_MDC    | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_TXC__RGMII_TXC  | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_TD0__RGMII_TD0  | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_TD1__RGMII_TD1  | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_TD2__RGMII_TD2  | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_TD3__RGMII_TD3  | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_TX_CTL__RGMII_TX_CTL
-		   | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_ENET_REF_CLK__ENET_TX_CLK
-		   | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_RXC__RGMII_RXC  | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_RD0__RGMII_RD0  | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_RD1__RGMII_RD1  | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_RD2__RGMII_RD2  | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_RD3__RGMII_RD3  | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_RX_CTL__RGMII_RX_CTL
-		   | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	/* KSZ9031 PHY Reset */
-	IOMUX_PADS(PAD_ENET_RXD0__GPIO1_IO27  | MUX_PAD_CTRL(NO_PAD_CTRL)),
-};
-
 static void setup_iomux_uart(void)
 {
 	SETUP_IOMUX_PADS(uart1_pads);
-}
-
-static void setup_iomux_enet(void)
-{
-	SETUP_IOMUX_PADS(enet_pads);
-
-	/* Reset KSZ9031 PHY */
-	gpio_direction_output(ETH_PHY_RESET, 0);
-	mdelay(10);
-	gpio_set_value(ETH_PHY_RESET, 1);
-	udelay(100);
 }
 
 static struct fsl_esdhc_cfg usdhc_cfg[2] = {
@@ -274,74 +223,6 @@ static void setup_eimnor(void)
 	eimnor_cs_setup();
 }
 
-/* mccmon6 board has SPI Flash is connected to SPI3 */
-int board_spi_cs_gpio(unsigned bus, unsigned cs)
-{
-	return (bus == 2 && cs == 0) ? ECSPI3_CS0 : -1;
-}
-
-static iomux_v3_cfg_t const ecspi3_pads[] = {
-	/* SPI3 */
-	IOMUX_PADS(PAD_DISP0_DAT3__GPIO4_IO24 | MUX_PAD_CTRL(NO_PAD_CTRL)),
-	IOMUX_PADS(PAD_DISP0_DAT2__ECSPI3_MISO | MUX_PAD_CTRL(SPI_PAD_CTRL)),
-	IOMUX_PADS(PAD_DISP0_DAT1__ECSPI3_MOSI | MUX_PAD_CTRL(SPI_PAD_CTRL)),
-	IOMUX_PADS(PAD_DISP0_DAT0__ECSPI3_SCLK | MUX_PAD_CTRL(SPI_PAD_CTRL)),
-};
-
-void setup_spi(void)
-{
-	SETUP_IOMUX_PADS(ecspi3_pads);
-
-	enable_spi_clk(true, 2);
-
-	/* set cs0 to high */
-	gpio_direction_output(ECSPI3_CS0, 1);
-
-	/* set flwp to high */
-	gpio_direction_output(ECSPI3_FLWP, 1);
-}
-
-struct i2c_pads_info mx6q_i2c1_pad_info = {
-	.scl = {
-		.i2c_mode = MX6Q_PAD_CSI0_DAT9__I2C1_SCL
-			| MUX_PAD_CTRL(I2C_PAD_CTRL),
-		.gpio_mode = MX6Q_PAD_CSI0_DAT9__GPIO5_IO27
-			| MUX_PAD_CTRL(I2C_PAD_CTRL),
-		.gp = IMX_GPIO_NR(5, 27)
-	},
-	.sda = {
-		.i2c_mode = MX6Q_PAD_CSI0_DAT8__I2C1_SDA
-			| MUX_PAD_CTRL(I2C_PAD_CTRL),
-		.gpio_mode = MX6Q_PAD_CSI0_DAT8__GPIO5_IO26
-			| MUX_PAD_CTRL(I2C_PAD_CTRL),
-		.gp = IMX_GPIO_NR(5, 26)
-	}
-};
-
-struct i2c_pads_info mx6q_i2c2_pad_info = {
-	.scl = {
-		.i2c_mode = MX6Q_PAD_KEY_COL3__I2C2_SCL
-			| MUX_PAD_CTRL(I2C_PAD_CTRL),
-		.gpio_mode = MX6Q_PAD_KEY_COL3__GPIO4_IO12
-			| MUX_PAD_CTRL(I2C_PAD_CTRL),
-		.gp = IMX_GPIO_NR(4, 12)
-	},
-	.sda = {
-		.i2c_mode = MX6Q_PAD_KEY_ROW3__I2C2_SDA
-			| MUX_PAD_CTRL(I2C_PAD_CTRL),
-		.gpio_mode = MX6Q_PAD_KEY_ROW3__GPIO4_IO13
-			| MUX_PAD_CTRL(I2C_PAD_CTRL),
-		.gp = IMX_GPIO_NR(4, 13)
-	}
-};
-
-int board_eth_init(bd_t *bis)
-{
-	setup_iomux_enet();
-
-	return cpu_eth_init(bis);
-}
-
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
@@ -357,10 +238,6 @@ int board_init(void)
 	gpio_direction_output(DISPLAY_EN, 1);
 
 	setup_eimnor();
-	setup_spi();
-
-	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6q_i2c1_pad_info);
-	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6q_i2c2_pad_info);
 
 	return 0;
 }
@@ -375,44 +252,6 @@ int board_late_init(void)
 int checkboard(void)
 {
 	puts("Board: MCCMON6\n");
-
-	return 0;
-}
-
-int board_phy_config(struct phy_device *phydev)
-{
-	/*
-	 * Default setting for GMII Clock Pad Skew Register 0x1EF:
-	 * MMD Address 0x2h, Register 0x8h
-	 *
-	 * GTX_CLK Pad Skew 0xF -> 0.9 nsec skew
-	 * RX_CLK Pad Skew 0xF -> 0.9 nsec skew
-	 *
-	 * Adjustment -> write 0x3FF:
-	 * GTX_CLK Pad Skew 0x1F -> 1.8 nsec skew
-	 * RX_CLK Pad Skew 0x1F -> 1.8 nsec skew
-	 *
-	 */
-	ksz9031_phy_extended_write(phydev, 0x2,
-				   MII_KSZ9031_EXT_RGMII_CLOCK_SKEW,
-				   MII_KSZ9031_MOD_DATA_NO_POST_INC, 0x3FF);
-
-	ksz9031_phy_extended_write(phydev, 0x02,
-				   MII_KSZ9031_EXT_RGMII_CTRL_SIG_SKEW,
-				   MII_KSZ9031_MOD_DATA_NO_POST_INC, 0x00FF);
-
-	ksz9031_phy_extended_write(phydev, 0x2,
-				   MII_KSZ9031_EXT_RGMII_RX_DATA_SKEW,
-				   MII_KSZ9031_MOD_DATA_NO_POST_INC,
-				   0x3333);
-
-	ksz9031_phy_extended_write(phydev, 0x2,
-				   MII_KSZ9031_EXT_RGMII_TX_DATA_SKEW,
-				   MII_KSZ9031_MOD_DATA_NO_POST_INC,
-				   0x2052);
-
-	if (phydev->drv->config)
-		phydev->drv->config(phydev);
 
 	return 0;
 }
