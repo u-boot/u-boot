@@ -49,7 +49,7 @@ static int authenticate_image(struct boot_img_t *img, int image_index)
 		return -EPERM;
 	}
 
-	err = sc_seco_authenticate(-1, SC_MISC_VERIFY_IMAGE,
+	err = sc_seco_authenticate(-1, SC_SECO_VERIFY_IMAGE,
 				   1 << image_index);
 	if (err) {
 		printf("authenticate img %d failed, return %d\n",
@@ -168,7 +168,7 @@ static int read_auth_container(struct spl_image_info *spl_image,
 	memcpy((void *)SEC_SECURE_RAM_BASE, (const void *)container,
 	       ALIGN(length, CONFIG_SYS_CACHELINE_SIZE));
 
-	ret = sc_seco_authenticate(-1, SC_MISC_AUTH_CONTAINER,
+	ret = sc_seco_authenticate(-1, SC_SECO_AUTH_CONTAINER,
 				   SECO_LOCAL_SEC_SEC_SECURE_RAM_BASE);
 	if (ret) {
 		printf("authenticate container hdr failed, return %d\n", ret);
@@ -194,7 +194,7 @@ static int read_auth_container(struct spl_image_info *spl_image,
 
 end_auth:
 #ifdef CONFIG_AHAB_BOOT
-	if (sc_seco_authenticate(-1, SC_MISC_REL_CONTAINER, 0))
+	if (sc_seco_authenticate(-1, SC_SECO_REL_CONTAINER, 0))
 		printf("Error: release container failed!\n");
 #endif
 	return ret;
