@@ -198,12 +198,12 @@ const u8 sys_mgr_init_table[] = {
 	0, /* NANDUSEFPGA */
 	0, /* UART0USEFPGA */
 	0, /* RGMII1USEFPGA */
-	1, /* SPIS0USEFPGA */
+	0, /* SPIS0USEFPGA */
 	0, /* CAN0USEFPGA */
 	0, /* I2C0USEFPGA */
 	0, /* SDMMCUSEFPGA */
 	0, /* QSPIUSEFPGA */
-	1, /* SPIS1USEFPGA */
+	0, /* SPIS1USEFPGA */
 	1, /* RGMII0USEFPGA */
 	0, /* UART1USEFPGA */
 	0, /* CAN1USEFPGA */
@@ -211,7 +211,7 @@ const u8 sys_mgr_init_table[] = {
 	0, /* I2C3USEFPGA */
 	0, /* I2C2USEFPGA */
 	0, /* I2C1USEFPGA */
-	0, /* SPIM1USEFPGA */
+	1, /* SPIM1USEFPGA */
 	0, /* USB0USEFPGA */
 	0 /* SPIM0USEFPGA */
 };
