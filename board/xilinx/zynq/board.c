@@ -19,13 +19,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_BOARD_EARLY_INIT_F)
-int board_early_init_f(void)
-{
-	return 0;
-}
-#endif
-
 int board_init(void)
 {
 	return 0;
