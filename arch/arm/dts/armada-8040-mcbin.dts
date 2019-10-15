@@ -302,7 +302,7 @@
 		phy-type = <COMPHY_TYPE_SFI>;
 	};
 	phy5 {
-		phy-type = <COMPHY_TYPE_SGMII3>;
+		phy-type = <COMPHY_TYPE_SGMII2>;
 		phy-speed = <COMPHY_SPEED_3_125G>;
 	};
 };
