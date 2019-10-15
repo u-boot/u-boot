@@ -481,6 +481,7 @@ static int scsi_detect_dev(struct udevice *dev, int target, int lun,
 	lbaint_t capacity;
 	unsigned long blksz;
 	struct scsi_cmd *pccb = (struct scsi_cmd *)&tempccb;
+	int count, err;
 
 	pccb->target = target;
 	pccb->lun = lun;
@@ -516,9 +517,14 @@ static int scsi_detect_dev(struct udevice *dev, int target, int lun,
 	dev_desc->target = pccb->target;
 	dev_desc->lun = pccb->lun;
 
-	pccb->datalen = 0;
-	scsi_setup_test_unit_ready(pccb);
-	if (scsi_exec(dev, pccb)) {
+	for (count = 0; count < 3; count++) {
+		pccb->datalen = 0;
+		scsi_setup_test_unit_ready(pccb);
+		err = scsi_exec(dev, pccb);
+		if (!err)
+			break;
+	}
+	if (err) {
 		if (dev_desc->removable) {
 			dev_desc->type = perq;
 			goto removable;
