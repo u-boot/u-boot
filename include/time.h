@@ -13,6 +13,7 @@ unsigned long get_timer(unsigned long base);
  * Granularity may be larger than 1us if hardware does not support this.
  */
 unsigned long timer_get_us(void);
+uint64_t get_timer_us(uint64_t base);
 
 /*
  * timer_test_add_offset()
