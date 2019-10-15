@@ -24,6 +24,13 @@
 		single-cpu-affinity;
 		last-interrupt-source = <255>;
 	};
+
+	esdhc: esdhc@2e000 {
+		compatible = "fsl,esdhc";
+		reg = <0x2e000 0x1000>;
+		/* Filled in by U-Boot */
+		clock-frequency = <0>;
+	};
 };
 
 /* PCIe controller base address 0x9000 */
