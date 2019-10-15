@@ -6,6 +6,8 @@
  #ifndef _SCSI_H
  #define _SCSI_H
 
+#include <linux/dma-direction.h>
+
 struct scsi_cmd {
 	unsigned char		cmd[16];					/* command				   */
 	/* for request sense */
@@ -26,6 +28,7 @@ struct scsi_cmd {
 	unsigned long		trans_bytes;			/* tranfered bytes		*/
 
 	unsigned int		priv;
+	enum dma_data_direction	dma_dir;
 };
 
 /*-----------------------------------------------------------
