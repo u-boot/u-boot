@@ -77,6 +77,13 @@ config DM_PMIC_FAN53555
 	  The driver implements read/write operations for use with the FAN53555
 	  regulator driver and binds the regulator driver to its node.
 
+config DM_PMIC_PCA9450
+	bool "Enable Driver Model for PMIC PCA9450"
+	depends on DM_PMIC
+	help
+	  This config enables implementation of driver-model pmic uclass features
+	  for PMIC PCA9450. The driver implements read/write operations.
+
 config DM_PMIC_PFUZE100
 	bool "Enable Driver Model for PMIC PFUZE100"
 	depends on DM_PMIC
