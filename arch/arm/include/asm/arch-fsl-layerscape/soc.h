@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2017 NXP
+ * Copyright 2017-2019 NXP
  * Copyright 2015 Freescale Semiconductor
  */
 
@@ -103,9 +103,9 @@ enum boot_src get_boot_src(void);
 #define SVR_LS2044A		0x870930
 #define SVR_LS2081A		0x870918
 #define SVR_LS2041A		0x870914
-#define SVR_LX2160A		0x873601
-#define SVR_LX2120A		0x873621
-#define SVR_LX2080A		0x873603
+#define SVR_LX2160A		0x873600
+#define SVR_LX2120A		0x873620
+#define SVR_LX2080A		0x873602
 
 #define SVR_MAJ(svr)		(((svr) >> 4) & 0xf)
 #define SVR_MIN(svr)		(((svr) >> 0) & 0xf)
