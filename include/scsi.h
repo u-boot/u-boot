@@ -163,11 +163,13 @@ struct scsi_cmd {
  * @base: Controller base address
  * @max_lun: Maximum number of logical units
  * @max_id: Maximum number of target ids
+ * @max_bytes_per_req: Maximum number of bytes per read/write request
  */
 struct scsi_platdata {
 	unsigned long base;
 	unsigned long max_lun;
 	unsigned long max_id;
+	unsigned long max_bytes_per_req;
 };
 
 /* Operations for SCSI */

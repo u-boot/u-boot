@@ -45,7 +45,7 @@ static struct blk_desc scsi_dev_desc[CONFIG_SYS_SCSI_MAX_DEVICE];
 #endif
 
 /* almost the maximum amount of the scsi_ext command.. */
-#define SCSI_MAX_READ_BLK 0xFFFF
+#define SCSI_MAX_BLK 0xFFFF
 #define SCSI_LBA48_READ	0xFFFFFFF
 
 static void scsi_print_error(struct scsi_cmd *pccb)
@@ -147,7 +147,8 @@ static ulong scsi_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 {
 	struct blk_desc *block_dev = dev_get_uclass_platdata(dev);
 	struct udevice *bdev = dev->parent;
-	lbaint_t start, blks;
+	struct scsi_platdata *uc_plat = dev_get_uclass_platdata(bdev);
+	lbaint_t start, blks, max_blks;
 	uintptr_t buf_addr;
 	unsigned short smallblks = 0;
 	struct scsi_cmd *pccb = (struct scsi_cmd *)&tempccb;
@@ -158,6 +159,11 @@ static ulong scsi_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 	buf_addr = (unsigned long)buffer;
 	start = blknr;
 	blks = blkcnt;
+	if (uc_plat->max_bytes_per_req)
+		max_blks = uc_plat->max_bytes_per_req / block_dev->blksz;
+	else
+		max_blks = SCSI_MAX_BLK;
+
 	debug("\nscsi_read: dev %d startblk " LBAF
 	      ", blccnt " LBAF " buffer %lx\n",
 	      block_dev->devnum, start, blks, (unsigned long)buffer);
@@ -166,20 +172,19 @@ static ulong scsi_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 #ifdef CONFIG_SYS_64BIT_LBA
 		if (start > SCSI_LBA48_READ) {
 			unsigned long blocks;
-			blocks = min_t(lbaint_t, blks, SCSI_MAX_READ_BLK);
+			blocks = min_t(lbaint_t, blks, max_blks);
 			pccb->datalen = block_dev->blksz * blocks;
 			scsi_setup_read16(pccb, start, blocks);
 			start += blocks;
 			blks -= blocks;
 		} else
 #endif
-		if (blks > SCSI_MAX_READ_BLK) {
-			pccb->datalen = block_dev->blksz *
-				SCSI_MAX_READ_BLK;
-			smallblks = SCSI_MAX_READ_BLK;
+		if (blks > max_blks) {
+			pccb->datalen = block_dev->blksz * max_blks;
+			smallblks = max_blks;
 			scsi_setup_read_ext(pccb, start, smallblks);
-			start += SCSI_MAX_READ_BLK;
-			blks -= SCSI_MAX_READ_BLK;
+			start += max_blks;
+			blks -= max_blks;
 		} else {
 			pccb->datalen = block_dev->blksz * blks;
 			smallblks = (unsigned short)blks;
@@ -206,15 +211,13 @@ static ulong scsi_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
  * scsi_write
  */
 
-/* Almost the maximum amount of the scsi_ext command.. */
-#define SCSI_MAX_WRITE_BLK 0xFFFF
-
 static ulong scsi_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 			const void *buffer)
 {
 	struct blk_desc *block_dev = dev_get_uclass_platdata(dev);
 	struct udevice *bdev = dev->parent;
-	lbaint_t start, blks;
+	struct scsi_platdata *uc_plat = dev_get_uclass_platdata(bdev);
+	lbaint_t start, blks, max_blks;
 	uintptr_t buf_addr;
 	unsigned short smallblks;
 	struct scsi_cmd *pccb = (struct scsi_cmd *)&tempccb;
@@ -225,17 +228,21 @@ static ulong scsi_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 	buf_addr = (unsigned long)buffer;
 	start = blknr;
 	blks = blkcnt;
+	if (uc_plat->max_bytes_per_req)
+		max_blks = uc_plat->max_bytes_per_req / block_dev->blksz;
+	else
+		max_blks = SCSI_MAX_BLK;
+
 	debug("\n%s: dev %d startblk " LBAF ", blccnt " LBAF " buffer %lx\n",
 	      __func__, block_dev->devnum, start, blks, (unsigned long)buffer);
 	do {
 		pccb->pdata = (unsigned char *)buf_addr;
-		if (blks > SCSI_MAX_WRITE_BLK) {
-			pccb->datalen = (block_dev->blksz *
-					 SCSI_MAX_WRITE_BLK);
-			smallblks = SCSI_MAX_WRITE_BLK;
+		if (blks > max_blks) {
+			pccb->datalen = block_dev->blksz * max_blks;
+			smallblks = max_blks;
 			scsi_setup_write_ext(pccb, start, smallblks);
-			start += SCSI_MAX_WRITE_BLK;
-			blks -= SCSI_MAX_WRITE_BLK;
+			start += max_blks;
+			blks -= max_blks;
 		} else {
 			pccb->datalen = block_dev->blksz * blks;
 			smallblks = (unsigned short)blks;
