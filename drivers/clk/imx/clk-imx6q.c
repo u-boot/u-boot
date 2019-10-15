@@ -89,6 +89,9 @@ static struct clk_ops imx6q_clk_ops = {
 };
 
 static const char *const usdhc_sels[] = { "pll2_pfd2_396m", "pll2_pfd0_352m", };
+static const char *const periph_sels[]	= { "periph_pre", "periph_clk2", };
+static const char *const periph_pre_sels[] = { "pll2_bus", "pll2_pfd2_396m",
+					       "pll2_pfd0_352m", "pll2_198m", };
 
 static int imx6q_clk_probe(struct udevice *dev)
 {
@@ -160,6 +163,24 @@ static int imx6q_clk_probe(struct udevice *dev)
 	       imx_clk_gate2("usdhc3", "usdhc3_podf", base + 0x80, 6));
 	clk_dm(IMX6QDL_CLK_USDHC4,
 	       imx_clk_gate2("usdhc4", "usdhc4_podf", base + 0x80, 8));
+
+	clk_dm(IMX6QDL_CLK_PERIPH_PRE,
+	       imx_clk_mux("periph_pre", base + 0x18, 18, 2, periph_pre_sels,
+			   ARRAY_SIZE(periph_pre_sels)));
+	clk_dm(IMX6QDL_CLK_PERIPH,
+	       imx_clk_busy_mux("periph",  base + 0x14, 25, 1, base + 0x48,
+				5, periph_sels,  ARRAY_SIZE(periph_sels)));
+	clk_dm(IMX6QDL_CLK_AHB,
+	       imx_clk_busy_divider("ahb", "periph", base + 0x14, 10, 3,
+				    base + 0x48, 1));
+	clk_dm(IMX6QDL_CLK_IPG,
+	       imx_clk_divider("ipg", "ahb", base + 0x14, 8, 2));
+	clk_dm(IMX6QDL_CLK_IPG_PER,
+	       imx_clk_divider("ipg_per", "ipg", base + 0x1c, 0, 6));
+	clk_dm(IMX6QDL_CLK_I2C1,
+	       imx_clk_gate2("i2c1", "ipg_per", base + 0x70, 6));
+	clk_dm(IMX6QDL_CLK_I2C2,
+	       imx_clk_gate2("i2c2", "ipg_per", base + 0x70, 8));
 
 	return 0;
 }
