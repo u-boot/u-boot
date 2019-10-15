@@ -332,6 +332,13 @@ void board_boot_order(u32 *spl_boot_list)
 	}
 }
 
+#ifdef CONFIG_SPL_LOAD_FIT
+int board_fit_config_name_match(const char *name)
+{
+	return 0;
+}
+#endif
+
 #ifdef CONFIG_SPL_OS_BOOT
 int spl_start_uboot(void)
 {
