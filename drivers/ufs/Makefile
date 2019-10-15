@@ -4,3 +4,4 @@
 #
 
 obj-$(CONFIG_UFS) += ufs.o ufs-uclass.o
+obj-$(CONFIG_CADENCE_UFS) += cdns-platform.o
