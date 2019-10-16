@@ -393,6 +393,15 @@ void init_usb_clk(void)
 	}
 }
 
+void init_nand_clk(void)
+{
+	clock_enable(CCGR_RAWNAND, 0);
+	clock_set_target_val(NAND_CLK_ROOT,
+			     CLK_ROOT_ON | CLK_ROOT_SOURCE_SEL(3) |
+			     CLK_ROOT_POST_DIV(CLK_ROOT_POST_DIV4));
+	clock_enable(CCGR_RAWNAND, 1);
+}
+
 void init_uart_clk(u32 index)
 {
 	/* Set uart clock root 25M OSC */
