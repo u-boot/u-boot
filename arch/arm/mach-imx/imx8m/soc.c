@@ -202,14 +202,21 @@ u32 get_cpu_rev(void)
 	} else {
 		if (reg == CHIP_REV_1_0) {
 			/*
-			 * For B0 chip, the DIGPROG is not updated, still TO1.0.
-			 * we have to check ROM version further
+			 * For B0 chip, the DIGPROG is not updated,
+			 * it is still TO1.0. we have to check ROM
+			 * version or OCOTP_READ_FUSE_DATA.
+			 * 0xff0055aa is magic number for B1.
 			 */
-			rom_version = readl((void __iomem *)ROM_VERSION_A0);
-			if (rom_version != CHIP_REV_1_0) {
-				rom_version = readl((void __iomem *)ROM_VERSION_B0);
-				if (rom_version >= CHIP_REV_2_0)
-					reg = CHIP_REV_2_0;
+			if (readl((void __iomem *)(OCOTP_BASE_ADDR + 0x40)) == 0xff0055aa) {
+				reg = CHIP_REV_2_1;
+			} else {
+				rom_version =
+					readl((void __iomem *)ROM_VERSION_A0);
+				if (rom_version != CHIP_REV_1_0) {
+					rom_version = readl((void __iomem *)ROM_VERSION_B0);
+					if (rom_version == CHIP_REV_2_0)
+						reg = CHIP_REV_2_0;
+				}
 			}
 		}
 	}
