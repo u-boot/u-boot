@@ -948,3 +948,83 @@ int sc_seco_gen_key_blob(sc_ipc_t ipc, u32 id, sc_faddr_t load_addr,
 
 	return ret;
 }
+
+int sc_seco_get_mp_key(sc_ipc_t ipc, sc_faddr_t dst_addr,
+			u16 dst_size)
+{
+	struct udevice *dev = gd->arch.scu_dev;
+	struct sc_rpc_msg_s msg;
+	int size = sizeof(struct sc_rpc_msg_s);
+	int ret;
+
+	RPC_VER(&msg) = SC_RPC_VERSION;
+	RPC_SIZE(&msg) = 4U;
+	RPC_SVC(&msg) = (u8)(SC_RPC_SVC_SECO);
+	RPC_FUNC(&msg) = (u8)(SECO_FUNC_GET_MP_KEY);
+
+	RPC_U32(&msg, 0U) = (u32)(dst_addr >> 32ULL);
+	RPC_U32(&msg, 4U) = (u32)(dst_addr);
+	RPC_U16(&msg, 8U) = (u16)(dst_size);
+
+	ret = misc_call(dev, SC_FALSE, &msg, size, &msg, size);
+	if (ret)
+		printf("%s, dst_addr:0x%llx, res:%d\n",
+		       __func__, dst_addr, RPC_R8(&msg));
+
+	return ret;
+}
+
+int sc_seco_update_mpmr(sc_ipc_t ipc, sc_faddr_t addr, uint8_t size_m,
+			uint8_t lock)
+{
+	struct udevice *dev = gd->arch.scu_dev;
+	struct sc_rpc_msg_s msg;
+	int size = sizeof(struct sc_rpc_msg_s);
+	int ret;
+
+	RPC_VER(&msg) = SC_RPC_VERSION;
+	RPC_SIZE(&msg) = 4U;
+	RPC_SVC(&msg) = (u8)(SC_RPC_SVC_SECO);
+	RPC_FUNC(&msg) = (u8)(SECO_FUNC_UPDATE_MPMR);
+
+	RPC_U32(&msg, 0U) = (u32)(addr >> 32ULL);
+	RPC_U32(&msg, 4U) = (u32)(addr);
+	RPC_U8(&msg, 8U) = (u8)(size_m);
+	RPC_U8(&msg, 9U) = (u8)(lock);
+
+	ret = misc_call(dev, SC_FALSE, &msg, size, &msg, size);
+	if (ret)
+		printf("%s, addr:0x%llx, size_m:%x, lock:0x%x, res:%d\n",
+		       __func__, addr, size_m, lock, RPC_R8(&msg));
+	return ret;
+}
+
+int sc_seco_get_mp_sign(sc_ipc_t ipc, sc_faddr_t msg_addr,
+			u16 msg_size, sc_faddr_t dst_addr,
+			u16 dst_size)
+{
+	struct udevice *dev = gd->arch.scu_dev;
+	struct sc_rpc_msg_s msg;
+	int size = sizeof(struct sc_rpc_msg_s);
+	int ret;
+
+	RPC_VER(&msg) = SC_RPC_VERSION;
+	RPC_SIZE(&msg) = 6U;
+	RPC_SVC(&msg) = (u8)(SC_RPC_SVC_SECO);
+	RPC_FUNC(&msg) = (u8)(SECO_FUNC_GET_MP_SIGN);
+
+	RPC_U32(&msg, 0U) = (u32)(msg_addr >> 32ULL);
+	RPC_U32(&msg, 4U) = (u32)(msg_addr);
+	RPC_U32(&msg, 8U) = (u32)(dst_addr >> 32ULL);
+	RPC_U32(&msg, 12U) = (u32)(dst_addr);
+	RPC_U16(&msg, 16U) = (u16)(msg_size);
+	RPC_U16(&msg, 18U) = (u16)(dst_size);
+
+	ret = misc_call(dev, SC_FALSE, &msg, size, &msg, size);
+	if (ret)
+		printf("%s, msg_addr:0x%llx, msg_size:%x, dst_addr:0x%llx,"
+		       "dst_size:%x, res:%d\n", __func__, msg_addr, msg_size,
+		       dst_addr, dst_size, RPC_R8(&msg));
+
+	return ret;
+}

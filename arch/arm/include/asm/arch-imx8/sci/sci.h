@@ -122,5 +122,9 @@ void sc_seco_build_info(sc_ipc_t ipc, u32 *version, u32 *commit);
 int sc_seco_get_event(sc_ipc_t ipc, u8 idx, u32 *event);
 int sc_seco_gen_key_blob(sc_ipc_t ipc, u32 id, sc_faddr_t load_addr,
 			 sc_faddr_t export_addr, u16 max_size);
+int sc_seco_get_mp_key(sc_ipc_t ipc, sc_faddr_t dst_addr, u16 dst_size);
+int sc_seco_update_mpmr(sc_ipc_t ipc, sc_faddr_t addr, u8 size, u8 lock);
+int sc_seco_get_mp_sign(sc_ipc_t ipc, sc_faddr_t msg_addr,
+			u16 msg_size, sc_faddr_t dst_addr, u16 dst_size);
 
 #endif
