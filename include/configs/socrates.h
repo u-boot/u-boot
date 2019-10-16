@@ -148,21 +148,6 @@
 #define CONFIG_SYS_BR2_PRELIM		0xc80018a1	/* UPMB, 32-bit	*/
 #define CONFIG_SYS_OR2_PRELIM		0xfc000000	/* 64 MB	*/
 
-#define CONFIG_VIDEO_MB862xx
-#define CONFIG_VIDEO_MB862xx_ACCEL
-#define CONFIG_VIDEO_LOGO
-#define CONFIG_VIDEO_BMP_LOGO
-#define VIDEO_FB_16BPP_PIXEL_SWAP
-#define VIDEO_FB_16BPP_WORD_SWAP
-#define CONFIG_SPLASH_SCREEN
-#define CONFIG_VIDEO_BMP_GZIP
-#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(2 << 20)	/* decompressed img */
-
-/* SDRAM Clock frequency, 100MHz (0x0000) or 133MHz (0x10000) */
-#define CONFIG_SYS_MB862xx_CCF		0x10000
-/* SDRAM parameter */
-#define CONFIG_SYS_MB862xx_MMR		0x4157BA63
-
 /* Serial Port */
 
 #define CONFIG_SYS_NS16550_SERIAL

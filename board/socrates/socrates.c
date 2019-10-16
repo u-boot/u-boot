@@ -231,6 +231,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 	val[i++] = gd->bd->bi_flashstart;
 	val[i++] = gd->bd->bi_flashsize;
 
+#if defined(CONFIG_VIDEO_MB862xx)
 	if (mb862xx.frameAdrs == CONFIG_SYS_LIME_BASE) {
 		/* Fixup LIME mapping */
 		val[i++] = 2;			/* chip select number */
@@ -238,6 +239,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 		val[i++] = CONFIG_SYS_LIME_BASE;
 		val[i++] = CONFIG_SYS_LIME_SIZE;
 	}
+#endif
 
 	/* Fixup FPGA mapping */
 	val[i++] = 3;				/* chip select number */
@@ -254,184 +256,6 @@ int ft_board_setup(void *blob, bd_t *bd)
 	return 0;
 }
 #endif /* CONFIG_OF_BOARD_SETUP */
-
-#define DEFAULT_BRIGHTNESS	25
-#define BACKLIGHT_ENABLE	(1 << 31)
-
-static const gdc_regs init_regs [] =
-{
-	{0x0100, 0x00010f00},
-	{0x0020, 0x801901df},
-	{0x0024, 0x00000000},
-	{0x0028, 0x00000000},
-	{0x002c, 0x00000000},
-	{0x0110, 0x00000000},
-	{0x0114, 0x00000000},
-	{0x0118, 0x01df0320},
-	{0x0004, 0x041f0000},
-	{0x0008, 0x031f031f},
-	{0x000c, 0x017f0349},
-	{0x0010, 0x020c0000},
-	{0x0014, 0x01df01e9},
-	{0x0018, 0x00000000},
-	{0x001c, 0x01e00320},
-	{0x0100, 0x80010f00},
-	{0x0, 0x0}
-};
-
-const gdc_regs *board_get_regs (void)
-{
-	return init_regs;
-}
-
-int lime_probe(void)
-{
-	uint cfg_br2;
-	uint cfg_or2;
-	int type;
-
-	cfg_br2 = get_lbc_br(2);
-	cfg_or2 = get_lbc_or(2);
-
-	/* Configure GPCM for CS2 */
-	set_lbc_br(2, 0);
-	set_lbc_or(2, 0xfc000410);
-	set_lbc_br(2, (CONFIG_SYS_LIME_BASE) | 0x00001901);
-
-	/* Get controller type */
-	type = mb862xx_probe(CONFIG_SYS_LIME_BASE);
-
-	/* Restore previous CS2 configuration */
-	set_lbc_br(2, 0);
-	set_lbc_or(2, cfg_or2);
-	set_lbc_br(2, cfg_br2);
-
-	return (type == MB862XX_TYPE_LIME) ? 1 : 0;
-}
-
-/* Returns Lime base address */
-unsigned int board_video_init (void)
-{
-	if (!lime_probe())
-		return 0;
-
-	mb862xx.winSizeX = 800;
-	mb862xx.winSizeY = 480;
-	mb862xx.gdfIndex = GDF_15BIT_555RGB;
-	mb862xx.gdfBytesPP = 2;
-
-	return CONFIG_SYS_LIME_BASE;
-}
-
-#define W83782D_REG_CFG		0x40
-#define W83782D_REG_BANK_SEL	0x4e
-#define W83782D_REG_ADCCLK	0x4b
-#define W83782D_REG_BEEP_CTRL	0x4d
-#define W83782D_REG_BEEP_CTRL2	0x57
-#define W83782D_REG_PWMOUT1	0x5b
-#define W83782D_REG_VBAT	0x5d
-
-static int w83782d_hwmon_init(void)
-{
-	u8 buf;
-
-	if (i2c_read(CONFIG_SYS_I2C_W83782G_ADDR, W83782D_REG_CFG, 1, &buf, 1))
-		return -1;
-
-	i2c_reg_write(CONFIG_SYS_I2C_W83782G_ADDR, W83782D_REG_CFG, 0x80);
-	i2c_reg_write(CONFIG_SYS_I2C_W83782G_ADDR, W83782D_REG_BANK_SEL, 0);
-	i2c_reg_write(CONFIG_SYS_I2C_W83782G_ADDR, W83782D_REG_ADCCLK, 0x40);
-
-	buf = i2c_reg_read(CONFIG_SYS_I2C_W83782G_ADDR, W83782D_REG_BEEP_CTRL);
-	i2c_reg_write(CONFIG_SYS_I2C_W83782G_ADDR, W83782D_REG_BEEP_CTRL,
-		      buf | 0x80);
-	i2c_reg_write(CONFIG_SYS_I2C_W83782G_ADDR, W83782D_REG_BEEP_CTRL2, 0);
-	i2c_reg_write(CONFIG_SYS_I2C_W83782G_ADDR, W83782D_REG_PWMOUT1, 0x47);
-	i2c_reg_write(CONFIG_SYS_I2C_W83782G_ADDR, W83782D_REG_VBAT, 0x01);
-
-	buf = i2c_reg_read(CONFIG_SYS_I2C_W83782G_ADDR, W83782D_REG_CFG);
-	i2c_reg_write(CONFIG_SYS_I2C_W83782G_ADDR, W83782D_REG_CFG,
-		      (buf & 0xf4) | 0x01);
-	return 0;
-}
-
-static void board_backlight_brightness(int br)
-{
-	u32 reg;
-	u8 buf;
-	u8 old_buf;
-
-	/* Select bank 0 */
-	if (i2c_read(CONFIG_SYS_I2C_W83782G_ADDR, 0x4e, 1, &old_buf, 1))
-		goto err;
-	else
-		buf = old_buf & 0xf8;
-
-	if (i2c_write(CONFIG_SYS_I2C_W83782G_ADDR, 0x4e, 1, &buf, 1))
-		goto err;
-
-	if (br > 0) {
-		/* PWMOUT1 duty cycle ctrl */
-		buf = 255 / (100 / br);
-		if (i2c_write(CONFIG_SYS_I2C_W83782G_ADDR, 0x5b, 1, &buf, 1))
-			goto err;
-
-		/* LEDs on */
-		reg = in_be32((void *)(CONFIG_SYS_FPGA_BASE + 0x0c));
-		if (!(reg & BACKLIGHT_ENABLE))
-			out_be32((void *)(CONFIG_SYS_FPGA_BASE + 0x0c),
-				 reg | BACKLIGHT_ENABLE);
-	} else {
-		buf = 0;
-		if (i2c_write(CONFIG_SYS_I2C_W83782G_ADDR, 0x5b, 1, &buf, 1))
-			goto err;
-
-		/* LEDs off */
-		reg = in_be32((void *)(CONFIG_SYS_FPGA_BASE + 0x0c));
-		reg &= ~BACKLIGHT_ENABLE;
-		out_be32((void *)(CONFIG_SYS_FPGA_BASE + 0x0c), reg);
-	}
-	/* Restore previous bank setting */
-	if (i2c_write(CONFIG_SYS_I2C_W83782G_ADDR, 0x4e, 1, &old_buf, 1))
-		goto err;
-
-	return;
-err:
-	printf("W83782G I2C access failed\n");
-}
-
-void board_backlight_switch (int flag)
-{
-	char * param;
-	int rc;
-
-	if (w83782d_hwmon_init())
-		printf ("hwmon IC init failed\n");
-
-	if (flag) {
-		param = env_get("brightness");
-		rc = param ? simple_strtol(param, NULL, 10) : -1;
-		if (rc < 0)
-			rc = DEFAULT_BRIGHTNESS;
-	} else {
-		rc = 0;
-	}
-	board_backlight_brightness(rc);
-}
-
-#if defined(CONFIG_CONSOLE_EXTRA_INFO)
-/*
- * Return text to be printed besides the logo.
- */
-void video_get_info_str (int line_number, char *info)
-{
-	if (line_number == 1) {
-		strcpy (info, " Board: Socrates");
-	} else {
-		info [0] = '\0';
-	}
-}
-#endif
 
 #if defined(CONFIG_OF_SEPARATE)
 void *board_fdt_blob_setup(void)
