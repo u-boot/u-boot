@@ -243,12 +243,14 @@ int arch_cpu_init_dm(void)
 	struct udevice *dev;
 	int ret;
 
-	ret = uclass_get_device_by_name(UCLASS_CLK,
-					"clock-controller@30380000",
-					&dev);
-	if (ret < 0) {
-		printf("Failed to find clock node. Check device tree\n");
-		return ret;
+	if (CONFIG_IS_ENABLED(CLK)) {
+		ret = uclass_get_device_by_name(UCLASS_CLK,
+						"clock-controller@30380000",
+						&dev);
+		if (ret < 0) {
+			printf("Failed to find clock node. Check device tree\n");
+			return ret;
+		}
 	}
 
 	return 0;
