@@ -1,5 +1,5 @@
 #
-# Builds test programs
+# Builds test programs. This is launched from elf_test.BuildElfTestFiles()
 #
 # Copyright (C) 2017 Google, Inc
 # Written by Simon Glass <sjg@chromium.org>
@@ -7,11 +7,13 @@
 # SPDX-License-Identifier:      GPL-2.0+
 #
 
-CFLAGS := -march=i386 -m32 -nostdlib -I ../../../include
+VPATH := $(SRC)
+CFLAGS := -march=i386 -m32 -nostdlib -I $(SRC)../../../include \
+	-Wl,--no-dynamic-linker
 
-LDS_UCODE := -T u_boot_ucode_ptr.lds
-LDS_BINMAN := -T u_boot_binman_syms.lds
-LDS_BINMAN_BAD := -T u_boot_binman_syms_bad.lds
+LDS_UCODE := -T $(SRC)u_boot_ucode_ptr.lds
+LDS_BINMAN := -T $(SRC)u_boot_binman_syms.lds
+LDS_BINMAN_BAD := -T $(SRC)u_boot_binman_syms_bad.lds
 
 TARGETS = u_boot_ucode_ptr u_boot_no_ucode_ptr bss_data \
 	u_boot_binman_syms u_boot_binman_syms.bin u_boot_binman_syms_bad \
@@ -25,7 +27,7 @@ u_boot_no_ucode_ptr: u_boot_no_ucode_ptr.c
 u_boot_ucode_ptr: CFLAGS += $(LDS_UCODE)
 u_boot_ucode_ptr: u_boot_ucode_ptr.c
 
-bss_data: CFLAGS += bss_data.lds
+bss_data: CFLAGS += $(SRC)bss_data.lds
 bss_data: bss_data.c
 
 u_boot_binman_syms.bin: u_boot_binman_syms

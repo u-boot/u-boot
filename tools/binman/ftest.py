@@ -23,6 +23,7 @@ import cmdline
 import command
 import control
 import elf
+import elf_test
 import fdt
 from etype import fdtmap
 from etype import image_header
@@ -38,8 +39,8 @@ import tout
 # Contents of test files, corresponding to different entry types
 U_BOOT_DATA           = b'1234'
 U_BOOT_IMG_DATA       = b'img'
-U_BOOT_SPL_DATA       = b'56780123456789abcde'
-U_BOOT_TPL_DATA       = b'tpl'
+U_BOOT_SPL_DATA       = b'56780123456789abcdefghi'
+U_BOOT_TPL_DATA       = b'tpl9876543210fedcbazyw'
 BLOB_DATA             = b'89'
 ME_DATA               = b'0abcd'
 VGA_DATA              = b'vga'
@@ -49,6 +50,9 @@ U_BOOT_TPL_DTB_DATA   = b'tpldtb'
 X86_START16_DATA      = b'start16'
 X86_START16_SPL_DATA  = b'start16spl'
 X86_START16_TPL_DATA  = b'start16tpl'
+X86_RESET16_DATA      = b'reset16'
+X86_RESET16_SPL_DATA  = b'reset16spl'
+X86_RESET16_TPL_DATA  = b'reset16tpl'
 PPC_MPC85XX_BR_DATA   = b'ppcmpc85xxbr'
 U_BOOT_NODTB_DATA     = b'nodtb with microcode pointer somewhere in here'
 U_BOOT_SPL_NODTB_DATA = b'splnodtb with microcode pointer somewhere in here'
@@ -68,6 +72,7 @@ FILES_DATA            = (b"sorry I'm late\nOh, don't bother apologising, I'm " +
                          b"sorry you're alive\n")
 COMPRESS_DATA         = b'compress xxxxxxxxxxxxxxxxxxxxxx data'
 REFCODE_DATA          = b'refcode'
+FSP_M_DATA            = b'fsp_m'
 
 # The expected size for the device tree in some tests
 EXTRACT_DTB_SIZE = 0x3c9
@@ -94,16 +99,16 @@ class TestFunctional(unittest.TestCase):
     the test/ diurectory.
     """
     @classmethod
-    def setUpClass(self):
+    def setUpClass(cls):
         global entry
         import entry
 
         # Handle the case where argv[0] is 'python'
-        self._binman_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
-        self._binman_pathname = os.path.join(self._binman_dir, 'binman')
+        cls._binman_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
+        cls._binman_pathname = os.path.join(cls._binman_dir, 'binman')
 
         # Create a temporary directory for input files
-        self._indir = tempfile.mkdtemp(prefix='binmant.')
+        cls._indir = tempfile.mkdtemp(prefix='binmant.')
 
         # Create some test files
         TestFunctional._MakeInputFile('u-boot.bin', U_BOOT_DATA)
@@ -113,13 +118,23 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('blobfile', BLOB_DATA)
         TestFunctional._MakeInputFile('me.bin', ME_DATA)
         TestFunctional._MakeInputFile('vga.bin', VGA_DATA)
-        self._ResetDtbs()
-        TestFunctional._MakeInputFile('u-boot-x86-16bit.bin', X86_START16_DATA)
+        cls._ResetDtbs()
+
         TestFunctional._MakeInputFile('u-boot-br.bin', PPC_MPC85XX_BR_DATA)
-        TestFunctional._MakeInputFile('spl/u-boot-x86-16bit-spl.bin',
+
+        TestFunctional._MakeInputFile('u-boot-x86-start16.bin', X86_START16_DATA)
+        TestFunctional._MakeInputFile('spl/u-boot-x86-start16-spl.bin',
                                       X86_START16_SPL_DATA)
-        TestFunctional._MakeInputFile('tpl/u-boot-x86-16bit-tpl.bin',
+        TestFunctional._MakeInputFile('tpl/u-boot-x86-start16-tpl.bin',
                                       X86_START16_TPL_DATA)
+
+        TestFunctional._MakeInputFile('u-boot-x86-reset16.bin',
+                                      X86_RESET16_DATA)
+        TestFunctional._MakeInputFile('spl/u-boot-x86-reset16-spl.bin',
+                                      X86_RESET16_SPL_DATA)
+        TestFunctional._MakeInputFile('tpl/u-boot-x86-reset16-tpl.bin',
+                                      X86_RESET16_TPL_DATA)
+
         TestFunctional._MakeInputFile('u-boot-nodtb.bin', U_BOOT_NODTB_DATA)
         TestFunctional._MakeInputFile('spl/u-boot-spl-nodtb.bin',
                                       U_BOOT_SPL_NODTB_DATA)
@@ -133,37 +148,41 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputDir('devkeys')
         TestFunctional._MakeInputFile('bmpblk.bin', BMPBLK_DATA)
         TestFunctional._MakeInputFile('refcode.bin', REFCODE_DATA)
+        TestFunctional._MakeInputFile('fsp_m.bin', FSP_M_DATA)
+
+        cls._elf_testdir = os.path.join(cls._indir, 'elftest')
+        elf_test.BuildElfTestFiles(cls._elf_testdir)
 
         # ELF file with a '_dt_ucode_base_size' symbol
-        with open(self.TestFile('u_boot_ucode_ptr'), 'rb') as fd:
-            TestFunctional._MakeInputFile('u-boot', fd.read())
+        TestFunctional._MakeInputFile('u-boot',
+            tools.ReadFile(cls.ElfTestFile('u_boot_ucode_ptr')))
 
         # Intel flash descriptor file
-        with open(self.TestFile('descriptor.bin'), 'rb') as fd:
+        with open(cls.TestFile('descriptor.bin'), 'rb') as fd:
             TestFunctional._MakeInputFile('descriptor.bin', fd.read())
 
-        shutil.copytree(self.TestFile('files'),
-                        os.path.join(self._indir, 'files'))
+        shutil.copytree(cls.TestFile('files'),
+                        os.path.join(cls._indir, 'files'))
 
         TestFunctional._MakeInputFile('compress', COMPRESS_DATA)
 
         # Travis-CI may have an old lz4
-        self.have_lz4 = True
+        cls.have_lz4 = True
         try:
             tools.Run('lz4', '--no-frame-crc', '-c',
-                      os.path.join(self._indir, 'u-boot.bin'))
+                      os.path.join(cls._indir, 'u-boot.bin'))
         except:
-            self.have_lz4 = False
+            cls.have_lz4 = False
 
     @classmethod
-    def tearDownClass(self):
+    def tearDownClass(cls):
         """Remove the temporary input directory and its contents"""
-        if self.preserve_indir:
-            print('Preserving input dir: %s' % self._indir)
+        if cls.preserve_indir:
+            print('Preserving input dir: %s' % cls._indir)
         else:
-            if self._indir:
-                shutil.rmtree(self._indir)
-        self._indir = None
+            if cls._indir:
+                shutil.rmtree(cls._indir)
+        cls._indir = None
 
     @classmethod
     def setup_test_args(cls, preserve_indir=False, preserve_outdirs=False,
@@ -226,7 +245,7 @@ class TestFunctional(unittest.TestCase):
         return tmpdir, updated_fname
 
     @classmethod
-    def _ResetDtbs(self):
+    def _ResetDtbs(cls):
         TestFunctional._MakeInputFile('u-boot.dtb', U_BOOT_DTB_DATA)
         TestFunctional._MakeInputFile('spl/u-boot-spl.dtb', U_BOOT_SPL_DTB_DATA)
         TestFunctional._MakeInputFile('tpl/u-boot-tpl.dtb', U_BOOT_TPL_DTB_DATA)
@@ -432,7 +451,7 @@ class TestFunctional(unittest.TestCase):
         return self._DoReadFileDtb(fname, use_real_dtb)[0]
 
     @classmethod
-    def _MakeInputFile(self, fname, contents):
+    def _MakeInputFile(cls, fname, contents):
         """Create a new test input file, creating directories as needed
 
         Args:
@@ -441,7 +460,7 @@ class TestFunctional(unittest.TestCase):
         Returns:
             Full pathname of file created
         """
-        pathname = os.path.join(self._indir, fname)
+        pathname = os.path.join(cls._indir, fname)
         dirname = os.path.dirname(pathname)
         if dirname and not os.path.exists(dirname):
             os.makedirs(dirname)
@@ -450,7 +469,7 @@ class TestFunctional(unittest.TestCase):
         return pathname
 
     @classmethod
-    def _MakeInputDir(self, dirname):
+    def _MakeInputDir(cls, dirname):
         """Create a new test input directory, creating directories as needed
 
         Args:
@@ -459,24 +478,38 @@ class TestFunctional(unittest.TestCase):
         Returns:
             Full pathname of directory created
         """
-        pathname = os.path.join(self._indir, dirname)
+        pathname = os.path.join(cls._indir, dirname)
         if not os.path.exists(pathname):
             os.makedirs(pathname)
         return pathname
 
     @classmethod
-    def _SetupSplElf(self, src_fname='bss_data'):
+    def _SetupSplElf(cls, src_fname='bss_data'):
         """Set up an ELF file with a '_dt_ucode_base_size' symbol
 
         Args:
             Filename of ELF file to use as SPL
         """
-        with open(self.TestFile(src_fname), 'rb') as fd:
-            TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
+        TestFunctional._MakeInputFile('spl/u-boot-spl',
+            tools.ReadFile(cls.ElfTestFile(src_fname)))
 
     @classmethod
-    def TestFile(self, fname):
-        return os.path.join(self._binman_dir, 'test', fname)
+    def _SetupTplElf(cls, src_fname='bss_data'):
+        """Set up an ELF file with a '_dt_ucode_base_size' symbol
+
+        Args:
+            Filename of ELF file to use as TPL
+        """
+        TestFunctional._MakeInputFile('tpl/u-boot-tpl',
+            tools.ReadFile(cls.ElfTestFile(src_fname)))
+
+    @classmethod
+    def TestFile(cls, fname):
+        return os.path.join(cls._binman_dir, 'test', fname)
+
+    @classmethod
+    def ElfTestFile(cls, fname):
+        return os.path.join(cls._elf_testdir, fname)
 
     def AssertInList(self, grep_list, target):
         """Assert that at least one of a list of things is in a target
@@ -875,7 +908,7 @@ class TestFunctional(unittest.TestCase):
         """Test that the end-at-4gb and skip-at-size property can't be used
         together"""
         with self.assertRaises(ValueError) as e:
-            self._DoTestFile('80_4gb_and_skip_at_start_together.dts')
+            self._DoTestFile('098_4gb_and_skip_at_start_together.dts')
         self.assertIn("Image '/binman': Provide either 'end-at-4gb' or "
                       "'skip-at-start'", str(e.exception))
 
@@ -890,29 +923,29 @@ class TestFunctional(unittest.TestCase):
     def testPackX86Rom(self):
         """Test that a basic x86 ROM can be created"""
         self._SetupSplElf()
-        data = self._DoReadFile('029_x86-rom.dts')
-        self.assertEqual(U_BOOT_DATA + tools.GetBytes(0, 7) + U_BOOT_SPL_DATA +
+        data = self._DoReadFile('029_x86_rom.dts')
+        self.assertEqual(U_BOOT_DATA + tools.GetBytes(0, 3) + U_BOOT_SPL_DATA +
                          tools.GetBytes(0, 2), data)
 
     def testPackX86RomMeNoDesc(self):
         """Test that an invalid Intel descriptor entry is detected"""
         TestFunctional._MakeInputFile('descriptor.bin', b'')
         with self.assertRaises(ValueError) as e:
-            self._DoTestFile('031_x86-rom-me.dts')
+            self._DoTestFile('031_x86_rom_me.dts')
         self.assertIn("Node '/binman/intel-descriptor': Cannot find Intel Flash Descriptor (FD) signature",
                       str(e.exception))
 
     def testPackX86RomBadDesc(self):
         """Test that the Intel requires a descriptor entry"""
         with self.assertRaises(ValueError) as e:
-            self._DoTestFile('030_x86-rom-me-no-desc.dts')
+            self._DoTestFile('030_x86_rom_me_no_desc.dts')
         self.assertIn("Node '/binman/intel-me': No offset set with "
                       "offset-unset: should another entry provide this correct "
                       "offset?", str(e.exception))
 
     def testPackX86RomMe(self):
         """Test that an x86 ROM with an ME region can be created"""
-        data = self._DoReadFile('031_x86-rom-me.dts')
+        data = self._DoReadFile('031_x86_rom_me.dts')
         expected_desc = tools.ReadFile(self.TestFile('descriptor.bin'))
         if data[:0x1000] != expected_desc:
             self.fail('Expected descriptor binary at start of image')
@@ -920,18 +953,18 @@ class TestFunctional(unittest.TestCase):
 
     def testPackVga(self):
         """Test that an image with a VGA binary can be created"""
-        data = self._DoReadFile('032_intel-vga.dts')
+        data = self._DoReadFile('032_intel_vga.dts')
         self.assertEqual(VGA_DATA, data[:len(VGA_DATA)])
 
     def testPackStart16(self):
         """Test that an image with an x86 start16 region can be created"""
-        data = self._DoReadFile('033_x86-start16.dts')
+        data = self._DoReadFile('033_x86_start16.dts')
         self.assertEqual(X86_START16_DATA, data[:len(X86_START16_DATA)])
 
     def testPackPowerpcMpc85xxBootpgResetvec(self):
         """Test that an image with powerpc-mpc85xx-bootpg-resetvec can be
         created"""
-        data = self._DoReadFile('81_powerpc_mpc85xx_bootpg_resetvec.dts')
+        data = self._DoReadFile('150_powerpc_mpc85xx_bootpg_resetvec.dts')
         self.assertEqual(PPC_MPC85XX_BR_DATA, data[:len(PPC_MPC85XX_BR_DATA)])
 
     def _RunMicrocodeTest(self, dts_fname, nodtb_data, ucode_second=False):
@@ -1066,8 +1099,8 @@ class TestFunctional(unittest.TestCase):
         """Test that a U-Boot binary without the microcode symbol is detected"""
         # ELF file without a '_dt_ucode_base_size' symbol
         try:
-            with open(self.TestFile('u_boot_no_ucode_ptr'), 'rb') as fd:
-                TestFunctional._MakeInputFile('u-boot', fd.read())
+            TestFunctional._MakeInputFile('u-boot',
+                tools.ReadFile(self.ElfTestFile('u_boot_no_ucode_ptr')))
 
             with self.assertRaises(ValueError) as e:
                 self._RunPackUbootSingleMicrocode()
@@ -1076,8 +1109,8 @@ class TestFunctional(unittest.TestCase):
 
         finally:
             # Put the original file back
-            with open(self.TestFile('u_boot_ucode_ptr'), 'rb') as fd:
-                TestFunctional._MakeInputFile('u-boot', fd.read())
+            TestFunctional._MakeInputFile('u-boot',
+                tools.ReadFile(self.ElfTestFile('u_boot_ucode_ptr')))
 
     def testMicrocodeNotInImage(self):
         """Test that microcode must be placed within the image"""
@@ -1089,8 +1122,8 @@ class TestFunctional(unittest.TestCase):
 
     def testWithoutMicrocode(self):
         """Test that we can cope with an image without microcode (e.g. qemu)"""
-        with open(self.TestFile('u_boot_no_ucode_ptr'), 'rb') as fd:
-            TestFunctional._MakeInputFile('u-boot', fd.read())
+        TestFunctional._MakeInputFile('u-boot',
+            tools.ReadFile(self.ElfTestFile('u_boot_no_ucode_ptr')))
         data, dtb, _, _ = self._DoReadFileDtb('044_x86_optional_ucode.dts', True)
 
         # Now check the device tree has no microcode
@@ -1113,17 +1146,17 @@ class TestFunctional(unittest.TestCase):
 
     def testPackFsp(self):
         """Test that an image with a FSP binary can be created"""
-        data = self._DoReadFile('042_intel-fsp.dts')
+        data = self._DoReadFile('042_intel_fsp.dts')
         self.assertEqual(FSP_DATA, data[:len(FSP_DATA)])
 
     def testPackCmc(self):
         """Test that an image with a CMC binary can be created"""
-        data = self._DoReadFile('043_intel-cmc.dts')
+        data = self._DoReadFile('043_intel_cmc.dts')
         self.assertEqual(CMC_DATA, data[:len(CMC_DATA)])
 
     def testPackVbt(self):
         """Test that an image with a VBT binary can be created"""
-        data = self._DoReadFile('046_intel-vbt.dts')
+        data = self._DoReadFile('046_intel_vbt.dts')
         self.assertEqual(VBT_DATA, data[:len(VBT_DATA)])
 
     def testSplBssPad(self):
@@ -1144,7 +1177,7 @@ class TestFunctional(unittest.TestCase):
 
     def testPackStart16Spl(self):
         """Test that an image with an x86 start16 SPL region can be created"""
-        data = self._DoReadFile('048_x86-start16-spl.dts')
+        data = self._DoReadFile('048_x86_start16_spl.dts')
         self.assertEqual(X86_START16_SPL_DATA, data[:len(X86_START16_SPL_DATA)])
 
     def _PackUbootSplMicrocode(self, dts, ucode_second=False):
@@ -1198,17 +1231,17 @@ class TestFunctional(unittest.TestCase):
 
     def testSymbols(self):
         """Test binman can assign symbols embedded in U-Boot"""
-        elf_fname = self.TestFile('u_boot_binman_syms')
+        elf_fname = self.ElfTestFile('u_boot_binman_syms')
         syms = elf.GetSymbols(elf_fname, ['binman', 'image'])
         addr = elf.GetSymbolAddress(elf_fname, '__image_copy_start')
         self.assertEqual(syms['_binman_u_boot_spl_prop_offset'].address, addr)
 
         self._SetupSplElf('u_boot_binman_syms')
         data = self._DoReadFile('053_symbols.dts')
-        sym_values = struct.pack('<LQL', 0x24 + 0, 0x24 + 24, 0x24 + 20)
-        expected = (sym_values + U_BOOT_SPL_DATA[16:] +
+        sym_values = struct.pack('<LQLL', 0, 28, 24, 4)
+        expected = (sym_values + U_BOOT_SPL_DATA[20:] +
                     tools.GetBytes(0xff, 1) + U_BOOT_DATA + sym_values +
-                    U_BOOT_SPL_DATA[16:])
+                    U_BOOT_SPL_DATA[20:])
         self.assertEqual(expected, data)
 
     def testPackUnitAddress(self):
@@ -1536,10 +1569,9 @@ class TestFunctional(unittest.TestCase):
                       "'other'", str(e.exception))
 
     def testTpl(self):
-        """Test that an image with TPL and ots device tree can be created"""
+        """Test that an image with TPL and its device tree can be created"""
         # ELF file with a '__bss_size' symbol
-        with open(self.TestFile('bss_data'), 'rb') as fd:
-            TestFunctional._MakeInputFile('tpl/u-boot-tpl', fd.read())
+        self._SetupTplElf()
         data = self._DoReadFile('078_u_boot_tpl.dts')
         self.assertEqual(U_BOOT_TPL_DATA + U_BOOT_TPL_DTB_DATA, data)
 
@@ -1564,7 +1596,7 @@ class TestFunctional(unittest.TestCase):
 
     def testPackStart16Tpl(self):
         """Test that an image with an x86 start16 TPL region can be created"""
-        data = self._DoReadFile('081_x86-start16-tpl.dts')
+        data = self._DoReadFile('081_x86_start16_tpl.dts')
         self.assertEqual(X86_START16_TPL_DATA, data[:len(X86_START16_TPL_DATA)])
 
     def testSelectImage(self):
@@ -1636,8 +1668,6 @@ class TestFunctional(unittest.TestCase):
             # source file (e.g. test/075_fdt_update_all.dts) thus does not enter
             # binman as a file called u-boot.dtb. To fix this, copy the file
             # over to the expected place.
-            #tools.WriteFile(os.path.join(self._indir, 'u-boot.dtb'),
-                    #tools.ReadFile(tools.GetOutputFilename('source.dtb')))
             start = 0
             for fname in ['u-boot.dtb.out', 'spl/u-boot-spl.dtb.out',
                           'tpl/u-boot-tpl.dtb.out']:
@@ -1793,8 +1823,7 @@ class TestFunctional(unittest.TestCase):
             u-boot-tpl.dtb with the microcode removed
             the microcode
         """
-        with open(self.TestFile('u_boot_ucode_ptr'), 'rb') as fd:
-            TestFunctional._MakeInputFile('tpl/u-boot-tpl', fd.read())
+        self._SetupTplElf('u_boot_ucode_ptr')
         first, pos_and_size = self._RunMicrocodeTest('093_x86_tpl_ucode.dts',
                                                      U_BOOT_TPL_NODTB_DATA)
         self.assertEqual(b'tplnodtb with microc' + pos_and_size +
@@ -1848,16 +1877,15 @@ class TestFunctional(unittest.TestCase):
     def testElf(self):
         """Basic test of ELF entries"""
         self._SetupSplElf()
-        with open(self.TestFile('bss_data'), 'rb') as fd:
-            TestFunctional._MakeInputFile('tpl/u-boot-tpl', fd.read())
-        with open(self.TestFile('bss_data'), 'rb') as fd:
+        self._SetupTplElf()
+        with open(self.ElfTestFile('bss_data'), 'rb') as fd:
             TestFunctional._MakeInputFile('-boot', fd.read())
         data = self._DoReadFile('096_elf.dts')
 
     def testElfStrip(self):
         """Basic test of ELF entries"""
         self._SetupSplElf()
-        with open(self.TestFile('bss_data'), 'rb') as fd:
+        with open(self.ElfTestFile('bss_data'), 'rb') as fd:
             TestFunctional._MakeInputFile('-boot', fd.read())
         data = self._DoReadFile('097_elf_strip.dts')
 
@@ -2008,6 +2036,7 @@ class TestFunctional(unittest.TestCase):
             fname: Filename of input file to provide (fitimage.bin or ifwi.bin)
         """
         self._SetupSplElf()
+        self._SetupTplElf()
 
         # Intel Integrated Firmware Image (IFWI) file
         with gzip.open(self.TestFile('%s.gz' % fname), 'rb') as fd:
@@ -2031,25 +2060,25 @@ class TestFunctional(unittest.TestCase):
                           subpart='IBBP', entry_name='IBBL')
 
         tpl_data = tools.ReadFile(tpl_fname)
-        self.assertEqual(tpl_data[:len(U_BOOT_TPL_DATA)], U_BOOT_TPL_DATA)
+        self.assertEqual(U_BOOT_TPL_DATA, tpl_data[:len(U_BOOT_TPL_DATA)])
 
     def testPackX86RomIfwi(self):
         """Test that an x86 ROM with Integrated Firmware Image can be created"""
         self._SetupIfwi('fitimage.bin')
-        data = self._DoReadFile('111_x86-rom-ifwi.dts')
+        data = self._DoReadFile('111_x86_rom_ifwi.dts')
         self._CheckIfwi(data)
 
     def testPackX86RomIfwiNoDesc(self):
         """Test that an x86 ROM with IFWI can be created from an ifwi.bin file"""
         self._SetupIfwi('ifwi.bin')
-        data = self._DoReadFile('112_x86-rom-ifwi-nodesc.dts')
+        data = self._DoReadFile('112_x86_rom_ifwi_nodesc.dts')
         self._CheckIfwi(data)
 
     def testPackX86RomIfwiNoData(self):
         """Test that an x86 ROM with IFWI handles missing data"""
         self._SetupIfwi('ifwi.bin')
         with self.assertRaises(ValueError) as e:
-            data = self._DoReadFile('113_x86-rom-ifwi-nodata.dts')
+            data = self._DoReadFile('113_x86_rom_ifwi_nodata.dts')
         self.assertIn('Could not complete processing of contents',
                       str(e.exception))
 
@@ -3235,6 +3264,74 @@ class TestFunctional(unittest.TestCase):
             control.ReplaceEntries(image_fname, 'fname', None, ['a', 'b'])
         self.assertIn('Must specify exactly one entry path to write with -f',
                       str(e.exception))
+
+    def testPackReset16(self):
+        """Test that an image with an x86 reset16 region can be created"""
+        data = self._DoReadFile('144_x86_reset16.dts')
+        self.assertEqual(X86_RESET16_DATA, data[:len(X86_RESET16_DATA)])
+
+    def testPackReset16Spl(self):
+        """Test that an image with an x86 reset16-spl region can be created"""
+        data = self._DoReadFile('145_x86_reset16_spl.dts')
+        self.assertEqual(X86_RESET16_SPL_DATA, data[:len(X86_RESET16_SPL_DATA)])
+
+    def testPackReset16Tpl(self):
+        """Test that an image with an x86 reset16-tpl region can be created"""
+        data = self._DoReadFile('146_x86_reset16_tpl.dts')
+        self.assertEqual(X86_RESET16_TPL_DATA, data[:len(X86_RESET16_TPL_DATA)])
+
+    def testPackIntelFit(self):
+        """Test that an image with an Intel FIT and pointer can be created"""
+        data = self._DoReadFile('147_intel_fit.dts')
+        self.assertEqual(U_BOOT_DATA, data[:len(U_BOOT_DATA)])
+        fit = data[16:32];
+        self.assertEqual(b'_FIT_   \x01\x00\x00\x00\x00\x01\x80}' , fit)
+        ptr = struct.unpack('<i', data[0x40:0x44])[0]
+
+        image = control.images['image']
+        entries = image.GetEntries()
+        expected_ptr = entries['intel-fit'].image_pos - (1 << 32)
+        self.assertEqual(expected_ptr, ptr)
+
+    def testPackIntelFitMissing(self):
+        """Test detection of a FIT pointer with not FIT region"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('148_intel_fit_missing.dts')
+        self.assertIn("'intel-fit-ptr' section must have an 'intel-fit' sibling",
+                      str(e.exception))
+
+    def testSymbolsTplSection(self):
+        """Test binman can assign symbols embedded in U-Boot TPL in a section"""
+        self._SetupSplElf('u_boot_binman_syms')
+        self._SetupTplElf('u_boot_binman_syms')
+        data = self._DoReadFile('149_symbols_tpl.dts')
+        sym_values = struct.pack('<LQLL', 4, 0x1c, 0x34, 4)
+        upto1 = 4 + len(U_BOOT_SPL_DATA)
+        expected1 = tools.GetBytes(0xff, 4) + sym_values + U_BOOT_SPL_DATA[20:]
+        self.assertEqual(expected1, data[:upto1])
+
+        upto2 = upto1 + 1 + len(U_BOOT_SPL_DATA)
+        expected2 = tools.GetBytes(0xff, 1) + sym_values + U_BOOT_SPL_DATA[20:]
+        self.assertEqual(expected2, data[upto1:upto2])
+
+        upto3 = 0x34 + len(U_BOOT_DATA)
+        expected3 = tools.GetBytes(0xff, 1) + U_BOOT_DATA
+        self.assertEqual(expected3, data[upto2:upto3])
+
+        expected4 = sym_values + U_BOOT_TPL_DATA[20:]
+        self.assertEqual(expected4, data[upto3:])
+
+    def testPackX86RomIfwiSectiom(self):
+        """Test that a section can be placed in an IFWI region"""
+        self._SetupIfwi('fitimage.bin')
+        data = self._DoReadFile('151_x86_rom_ifwi_section.dts')
+        self._CheckIfwi(data)
+
+    def testPackFspM(self):
+        """Test that an image with a FSP memory-init binary can be created"""
+        data = self._DoReadFile('152_intel_fsp_m.dts')
+        self.assertEqual(FSP_M_DATA, data[:len(FSP_M_DATA)])
+
 
 
 if __name__ == "__main__":

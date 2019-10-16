@@ -11,7 +11,6 @@ import os
 
 from section import Entry_section
 import fdt_util
-import state
 import tools
 
 
@@ -29,6 +28,10 @@ class Entry_files(Entry_section):
     at run-time so you can obtain the file positions.
     """
     def __init__(self, section, etype, node):
+        # Put this here to allow entry-docs and help to work without libfdt
+        global state
+        import state
+
         Entry_section.__init__(self, section, etype, node)
         self._pattern = fdt_util.GetString(self._node, 'pattern')
         if not self._pattern:

@@ -269,7 +269,9 @@ int uclass_find_device_by_name(enum uclass_id id, const char *name,
 	return -ENODEV;
 }
 
-#if !CONFIG_IS_ENABLED(OF_CONTROL) || CONFIG_IS_ENABLED(OF_PLATDATA)
+#if !CONFIG_IS_ENABLED(OF_CONTROL) || \
+    CONFIG_IS_ENABLED(OF_PLATDATA) || \
+    CONFIG_IS_ENABLED(OF_PRIOR_STAGE)
 int uclass_find_next_free_req_seq(enum uclass_id id)
 {
 	struct uclass *uc;

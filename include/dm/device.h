@@ -61,6 +61,9 @@ struct driver_info;
  */
 #define DM_FLAG_OS_PREPARE		(1 << 10)
 
+/* DM does not enable/disable the power domains corresponding to this device */
+#define DM_FLAG_DEFAULT_PD_CTRL_OFF	(1 << 11)
+
 /*
  * One or multiple of these flags are passed to device_remove() so that
  * a selective device removal as specified by the remove-stage and the
@@ -945,8 +948,8 @@ static inline void *devm_kzalloc(struct udevice *dev, size_t size, gfp_t gfp)
 	return kzalloc(size, gfp);
 }
 
-static inline void *devm_kmaloc_array(struct udevice *dev,
-				      size_t n, size_t size, gfp_t flags)
+static inline void *devm_kmalloc_array(struct udevice *dev,
+				       size_t n, size_t size, gfp_t flags)
 {
 	/* TODO: add kmalloc_array() to linux/compat.h */
 	if (size != 0 && n > SIZE_MAX / size)

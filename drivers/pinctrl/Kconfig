@@ -59,6 +59,38 @@ config PINCONF
 	  This option enables pin configuration through the generic pinctrl
 	  framework.
 
+config PINCONF_RECURSIVE
+	bool "Support recursive binding for pin configuration nodes"
+	depends on PINCTRL_FULL
+	default n if ARCH_STM32MP
+	default y
+	help
+	  In the Linux pinctrl binding, the pin configuration nodes need not be
+	  direct children of the pin controller device (may be grandchildren for
+	  example). It is define is each individual pin controller device.
+	  Say Y here if you want to keep this behavior with the pinconfig
+	  u-class: all sub are recursivelly bounded.
+	  If the option is disabled, this behavior is deactivated and only
+	  the direct children of pin controller will be assumed as pin
+	  configuration; you can save memory footprint when this feature is
+	  no needed.
+
+config PINCONF_RECURSIVE
+	bool "Support recursive binding for pin configuration nodes"
+	depends on PINCTRL_FULL
+	default n if ARCH_STM32MP
+	default y
+	help
+	  In the Linux pinctrl binding, the pin configuration nodes need not be
+	  direct children of the pin controller device (may be grandchildren for
+	  example). It is define is each individual pin controller device.
+	  Say Y here if you want to keep this behavior with the pinconfig
+	  u-class: all sub are recursivelly bounded.
+	  If the option is disabled, this behavior is deactivated and only
+	  the direct children of pin controller will be assumed as pin
+	  configuration; you can save memory footprint when this feature is
+	  no needed.
+
 config SPL_PINCTRL
 	bool "Support pin controllers in SPL"
 	depends on SPL && SPL_DM
@@ -103,6 +135,24 @@ config SPL_PINCONF
 	help
 	  This option is an SPL-variant of the PINCONF option.
 	  See the help of PINCONF for details.
+
+config SPL_PINCONF_RECURSIVE
+	bool "Support recursive binding for pin configuration nodes in SPL"
+	depends on SPL_PINCTRL_FULL
+	default n if ARCH_STM32MP
+	default y
+	help
+	  This option is an SPL-variant of the PINCONF_RECURSIVE option.
+	  See the help of PINCONF_RECURSIVE for details.
+
+config SPL_PINCONF_RECURSIVE
+	bool "Support recursive binding for pin configuration nodes in SPL"
+	depends on SPL_PINCTRL_FULL
+	default n if ARCH_STM32MP
+	default y
+	help
+	  This option is an SPL-variant of the PINCONF_RECURSIVE option.
+	  See the help of PINCONF_RECURSIVE for details.
 
 if PINCTRL || SPL_PINCTRL
 

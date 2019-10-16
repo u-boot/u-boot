@@ -9,7 +9,7 @@
 		end-at-4gb;
 		size = <32>;
 		u-boot {
-			offset = <0>;
+			offset = <0xffffffe0>;
 		};
 
 		u-boot-spl {

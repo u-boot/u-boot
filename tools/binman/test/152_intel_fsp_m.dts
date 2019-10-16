@@ -5,12 +5,10 @@
 	#size-cells = <1>;
 
 	binman {
-		pad-byte = <0xff>;
-		u-boot-spl {
-		};
+		size = <16>;
 
-		u-boot {
-			offset = <24>;
+		intel-fsp-m {
+			filename = "fsp_m.bin";
 		};
 	};
 };

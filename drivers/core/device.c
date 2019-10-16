@@ -82,6 +82,11 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 		if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) {
 			if (uc->uc_drv->name && ofnode_valid(node))
 				dev_read_alias_seq(dev, &dev->req_seq);
+#if CONFIG_IS_ENABLED(OF_PRIOR_STAGE)
+			if (dev->req_seq == -1)
+				dev->req_seq =
+					uclass_find_next_free_req_seq(drv->id);
+#endif
 		} else {
 			dev->req_seq = uclass_find_next_free_req_seq(drv->id);
 		}
@@ -307,7 +312,6 @@ static void *alloc_priv(int size, uint flags)
 
 int device_probe(struct udevice *dev)
 {
-	struct power_domain pd;
 	const struct driver *drv;
 	int size = 0;
 	int ret;
@@ -389,9 +393,11 @@ int device_probe(struct udevice *dev)
 		pinctrl_select_state(dev, "default");
 
 	if (CONFIG_IS_ENABLED(POWER_DOMAIN) && dev->parent &&
-	    device_get_uclass_id(dev) != UCLASS_POWER_DOMAIN) {
-		if (!power_domain_get(dev, &pd))
-			power_domain_on(&pd);
+	    (device_get_uclass_id(dev) != UCLASS_POWER_DOMAIN) &&
+	    !(drv->flags & DM_FLAG_DEFAULT_PD_CTRL_OFF)) {
+		ret = dev_power_domain_on(dev);
+		if (ret)
+			goto fail;
 	}
 
 	ret = uclass_pre_probe_device(dev);

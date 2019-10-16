@@ -391,6 +391,25 @@ See README.x86 for information about x86 binary blobs.
 
 
 
+Entry: intel-fit: Intel Firmware Image Table (FIT)
+--------------------------------------------------
+
+This entry contains a dummy FIT as required by recent Intel CPUs. The FIT
+contains information about the firmware and microcode available in the
+image.
+
+At present binman only supports a basic FIT with no microcode.
+
+
+
+Entry: intel-fit-ptr: Intel Firmware Image Table (FIT) pointer
+--------------------------------------------------------------
+
+This entry contains a pointer to the FIT. It is required to be at address
+0xffffffc0 in the image.
+
+
+
 Entry: intel-fsp: Entry containing an Intel Firmware Support Package (FSP) file
 -------------------------------------------------------------------------------
 
@@ -403,6 +422,23 @@ the hardware using U-Boot open-source code. Documentation is typically not
 available in sufficient detail to allow this.
 
 An example filename is 'FSP/QUEENSBAY_FSP_GOLD_001_20-DECEMBER-2013.fd'
+
+See README.x86 for information about x86 binary blobs.
+
+
+
+Entry: intel-fsp-m: Entry containing Intel Firmware Support Package (FSP) memory init
+-------------------------------------------------------------------------------------
+
+Properties / Entry arguments:
+    - filename: Filename of file to read into entry
+
+This file contains a binary blob which is used on some devices to set up
+SDRAM. U-Boot executes this code in SPL so that it can make full use of
+memory. Documentation is typically not available in sufficient detail to
+allow U-Boot do this this itself..
+
+An example filename is 'fsp_m.bin'
 
 See README.x86 for information about x86 binary blobs.
 
@@ -431,6 +467,12 @@ The position of this entry is generally set by the intel-descriptor entry.
 The contents of the IFWI are specified by the subnodes of the IFWI node.
 Each subnode describes an entry which is placed into the IFWFI with a given
 sub-partition (and optional entry name).
+
+Properties for subnodes:
+    ifwi-subpart - sub-parition to put this entry into, e.g. "IBBP"
+    ifwi-entry - entry name t use, e.g. "IBBL"
+    ifwi-replace - if present, indicates that the item should be replaced
+        in the IFWI. Otherwise it is added.
 
 See README.x86 for information about x86 binary blobs.
 
@@ -931,18 +973,67 @@ and kernel are genuine.
 
 
 
+Entry: x86-reset16: x86 16-bit reset code for U-Boot
+----------------------------------------------------
+
+Properties / Entry arguments:
+    - filename: Filename of u-boot-x86-reset16.bin (default
+        'u-boot-x86-reset16.bin')
+
+x86 CPUs start up in 16-bit mode, even if they are 32-bit CPUs. This code
+must be placed at a particular address. This entry holds that code. It is
+typically placed at offset CONFIG_RESET_VEC_LOC. The code is responsible
+for jumping to the x86-start16 code, which continues execution.
+
+For 64-bit U-Boot, the 'x86_reset16_spl' entry type is used instead.
+
+
+
+Entry: x86-reset16-spl: x86 16-bit reset code for U-Boot
+--------------------------------------------------------
+
+Properties / Entry arguments:
+    - filename: Filename of u-boot-x86-reset16.bin (default
+        'u-boot-x86-reset16.bin')
+
+x86 CPUs start up in 16-bit mode, even if they are 32-bit CPUs. This code
+must be placed at a particular address. This entry holds that code. It is
+typically placed at offset CONFIG_RESET_VEC_LOC. The code is responsible
+for jumping to the x86-start16 code, which continues execution.
+
+For 32-bit U-Boot, the 'x86_reset_spl' entry type is used instead.
+
+
+
+Entry: x86-reset16-tpl: x86 16-bit reset code for U-Boot
+--------------------------------------------------------
+
+Properties / Entry arguments:
+    - filename: Filename of u-boot-x86-reset16.bin (default
+        'u-boot-x86-reset16.bin')
+
+x86 CPUs start up in 16-bit mode, even if they are 32-bit CPUs. This code
+must be placed at a particular address. This entry holds that code. It is
+typically placed at offset CONFIG_RESET_VEC_LOC. The code is responsible
+for jumping to the x86-start16 code, which continues execution.
+
+For 32-bit U-Boot, the 'x86_reset_tpl' entry type is used instead.
+
+
+
 Entry: x86-start16: x86 16-bit start-up code for U-Boot
 -------------------------------------------------------
 
 Properties / Entry arguments:
-    - filename: Filename of u-boot-x86-16bit.bin (default
-        'u-boot-x86-16bit.bin')
+    - filename: Filename of u-boot-x86-start16.bin (default
+        'u-boot-x86-start16.bin')
 
 x86 CPUs start up in 16-bit mode, even if they are 32-bit CPUs. This code
-must be placed at a particular address. This entry holds that code. It is
-typically placed at offset CONFIG_SYS_X86_START16. The code is responsible
-for changing to 32-bit mode and jumping to U-Boot's entry point, which
-requires 32-bit mode (for 32-bit U-Boot).
+must be placed in the top 64KB of the ROM. The reset code jumps to it. This
+entry holds that code. It is typically placed at offset
+CONFIG_SYS_X86_START16. The code is responsible for changing to 32-bit mode
+and jumping to U-Boot's entry point, which requires 32-bit mode (for 32-bit
+U-Boot).
 
 For 64-bit U-Boot, the 'x86_start16_spl' entry type is used instead.
 
@@ -952,16 +1043,17 @@ Entry: x86-start16-spl: x86 16-bit start-up code for SPL
 --------------------------------------------------------
 
 Properties / Entry arguments:
-    - filename: Filename of spl/u-boot-x86-16bit-spl.bin (default
-        'spl/u-boot-x86-16bit-spl.bin')
+    - filename: Filename of spl/u-boot-x86-start16-spl.bin (default
+        'spl/u-boot-x86-start16-spl.bin')
 
-x86 CPUs start up in 16-bit mode, even if they are 64-bit CPUs. This code
-must be placed at a particular address. This entry holds that code. It is
-typically placed at offset CONFIG_SYS_X86_START16. The code is responsible
-for changing to 32-bit mode and starting SPL, which in turn changes to
-64-bit mode and jumps to U-Boot (for 64-bit U-Boot).
+x86 CPUs start up in 16-bit mode, even if they are 32-bit CPUs. This code
+must be placed in the top 64KB of the ROM. The reset code jumps to it. This
+entry holds that code. It is typically placed at offset
+CONFIG_SYS_X86_START16. The code is responsible for changing to 32-bit mode
+and jumping to U-Boot's entry point, which requires 32-bit mode (for 32-bit
+U-Boot).
 
-For 32-bit U-Boot, the 'x86_start16' entry type is used instead.
+For 32-bit U-Boot, the 'x86-start16' entry type is used instead.
 
 
 
@@ -969,15 +1061,17 @@ Entry: x86-start16-tpl: x86 16-bit start-up code for TPL
 --------------------------------------------------------
 
 Properties / Entry arguments:
-    - filename: Filename of tpl/u-boot-x86-16bit-tpl.bin (default
-        'tpl/u-boot-x86-16bit-tpl.bin')
+    - filename: Filename of tpl/u-boot-x86-start16-tpl.bin (default
+        'tpl/u-boot-x86-start16-tpl.bin')
 
-x86 CPUs start up in 16-bit mode, even if they are 64-bit CPUs. This code
-must be placed at a particular address. This entry holds that code. It is
-typically placed at offset CONFIG_SYS_X86_START16. The code is responsible
-for changing to 32-bit mode and starting TPL, which in turn jumps to SPL.
+x86 CPUs start up in 16-bit mode, even if they are 32-bit CPUs. This code
+must be placed in the top 64KB of the ROM. The reset code jumps to it. This
+entry holds that code. It is typically placed at offset
+CONFIG_SYS_X86_START16. The code is responsible for changing to 32-bit mode
+and jumping to U-Boot's entry point, which requires 32-bit mode (for 32-bit
+U-Boot).
 
-If TPL is not being used, the 'x86_start16_spl or 'x86_start16' entry types
+If TPL is not being used, the 'x86-start16-spl or 'x86-start16' entry types
 may be used instead.
 
 

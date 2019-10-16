@@ -15,8 +15,6 @@ import tools
 import cbfs_util
 import command
 import elf
-from image import Image
-import state
 import tout
 
 # List of images we plan to create
@@ -113,6 +111,9 @@ def ReadEntry(image_fname, entry_path, decomp=True):
     Returns:
         data extracted from the entry
     """
+    global Image
+    from image import Image
+
     image = Image.FromFile(image_fname)
     entry = image.FindEntryPath(entry_path)
     return entry.ReadData(decomp)
@@ -436,15 +437,16 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
             for dtb_item in state.GetAllFdts():
                 dtb_item.Sync()
                 dtb_item.Flush()
+        image.WriteSymbols()
         sizes_ok = image.ProcessEntryContents()
         if sizes_ok:
             break
         image.ResetForPack()
+    tout.Info('Pack completed after %d pass(es)' % (pack_pass + 1))
     if not sizes_ok:
         image.Raise('Entries changed size after packing (tried %s passes)' %
                     passes)
 
-    image.WriteSymbols()
     image.BuildImage()
     if write_map:
         image.WriteMap()
@@ -459,6 +461,9 @@ def Binman(args):
     Args:
         args: Command line arguments Namespace object
     """
+    global Image
+    global state
+
     if args.full_help:
         pager = os.getenv('PAGER')
         if not pager:
@@ -467,6 +472,10 @@ def Binman(args):
                             'README')
         command.Run(pager, fname)
         return 0
+
+    # Put these here so that we can import this module without libfdt
+    from image import Image
+    import state
 
     if args.cmd in ['ls', 'extract', 'replace']:
         try:

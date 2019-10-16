@@ -49,7 +49,7 @@ def GetSymbols(fname, patterns):
           key: Name of symbol
           value: Hex value of symbol
     """
-    stdout = command.Output('objdump', '-t', fname, raise_on_error=False)
+    stdout = tools.Run('objdump', '-t', fname)
     lines = stdout.splitlines()
     if patterns:
         re_syms = re.compile('|'.join(patterns))
@@ -72,7 +72,7 @@ def GetSymbols(fname, patterns):
         parts = rest[7:].split()
         section, size =  parts[:2]
         if len(parts) > 2:
-            name = parts[2]
+            name = parts[2] if parts[2] != '.hidden' else parts[3]
             syms[name] = Symbol(section, int(value, 16), int(size,16),
                                 flags[1] == 'w')
 
@@ -221,6 +221,9 @@ SECTIONS
     .empty : {
         *(.empty)
     } :empty
+    /DISCARD/ : {
+        *(.note.gnu.property)
+    }
     .note : {
         *(.comment)
     } :note

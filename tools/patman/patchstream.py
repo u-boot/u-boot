@@ -2,6 +2,7 @@
 # Copyright (c) 2011 The Chromium OS Authors.
 #
 
+import datetime
 import math
 import os
 import re
@@ -14,7 +15,7 @@ import gitutil
 from series import Series
 
 # Tags that we detect and remove
-re_remove = re.compile('^BUG=|^TEST=|^BRANCH=|^Change-Id:|^Review URL:'
+re_remove = re.compile('^BUG=|^TEST=|^BRANCH=|^Review URL:'
     '|Reviewed-on:|Commit-\w*:')
 
 # Lines which are allowed after a TEST= line
@@ -31,6 +32,9 @@ re_cover_cc = re.compile('^Cover-letter-cc: *(.*)')
 
 # Patch series tag
 re_series_tag = re.compile('^Series-([a-z-]*): *(.*)')
+
+# Change-Id will be used to generate the Message-Id and then be stripped
+re_change_id = re.compile('^Change-Id: *(.*)')
 
 # Commit series tag
 re_commit_tag = re.compile('^Commit-([a-z-]*): *(.*)')
@@ -156,6 +160,7 @@ class PatchStream:
 
         # Handle state transition and skipping blank lines
         series_tag_match = re_series_tag.match(line)
+        change_id_match = re_change_id.match(line)
         commit_tag_match = re_commit_tag.match(line)
         cover_match = re_cover.match(line)
         cover_cc_match = re_cover_cc.match(line)
@@ -177,7 +182,7 @@ class PatchStream:
             self.state = STATE_MSG_HEADER
 
         # If a tag is detected, or a new commit starts
-        if series_tag_match or commit_tag_match or \
+        if series_tag_match or commit_tag_match or change_id_match or \
            cover_match or cover_cc_match or signoff_match or \
            self.state == STATE_MSG_HEADER:
             # but we are already in a section, this means 'END' is missing
@@ -275,6 +280,16 @@ class PatchStream:
                 self.AddToSeries(line, name, value)
                 self.skip_blank = True
 
+        # Detect Change-Id tags
+        elif change_id_match:
+            value = change_id_match.group(1)
+            if self.is_log:
+                if self.commit.change_id:
+                    raise ValueError("%s: Two Change-Ids: '%s' vs. '%s'" %
+                        (self.commit.hash, self.commit.change_id, value))
+                self.commit.change_id = value
+            self.skip_blank = True
+
         # Detect Commit-xxx tags
         elif commit_tag_match:
             name = commit_tag_match.group(1)
@@ -345,6 +360,47 @@ class PatchStream:
             self.warn.append('Found %d lines after TEST=' %
                     self.lines_after_test)
 
+    def WriteMessageId(self, outfd):
+        """Write the Message-Id into the output.
+
+        This is based on the Change-Id in the original patch, the version,
+        and the prefix.
+
+        Args:
+            outfd: Output stream file object
+        """
+        if not self.commit.change_id:
+            return
+
+        # If the count is -1 we're testing, so use a fixed time
+        if self.commit.count == -1:
+            time_now = datetime.datetime(1999, 12, 31, 23, 59, 59)
+        else:
+            time_now = datetime.datetime.now()
+
+        # In theory there is email.utils.make_msgid() which would be nice
+        # to use, but it already produces something way too long and thus
+        # will produce ugly commit lines if someone throws this into
+        # a "Link:" tag in the final commit.  So (sigh) roll our own.
+
+        # Start with the time; presumably we wouldn't send the same series
+        # with the same Change-Id at the exact same second.
+        parts = [time_now.strftime("%Y%m%d%H%M%S")]
+
+        # These seem like they would be nice to include.
+        if 'prefix' in self.series:
+            parts.append(self.series['prefix'])
+        if 'version' in self.series:
+            parts.append("v%s" % self.series['version'])
+
+        parts.append(str(self.commit.count + 1))
+
+        # The Change-Id must be last, right before the @
+        parts.append(self.commit.change_id)
+
+        # Join parts together with "." and write it out.
+        outfd.write('Message-Id: <%s@changeid>\n' % '.'.join(parts))
+
     def ProcessStream(self, infd, outfd):
         """Copy a stream from infd to outfd, filtering out unwanting things.
 
@@ -358,6 +414,9 @@ class PatchStream:
         fname = None
         last_fname = None
         re_fname = re.compile('diff --git a/(.*) b/.*')
+
+        self.WriteMessageId(outfd)
+
         while True:
             line = infd.readline()
             if not line:
@@ -481,6 +540,7 @@ def FixPatches(series, fnames):
     for fname in fnames:
         commit = series.commits[count]
         commit.patch = fname
+        commit.count = count
         result = FixPatch(backup_dir, fname, series, commit)
         if result:
             print('%d warnings for %s:' % (len(result), fname))

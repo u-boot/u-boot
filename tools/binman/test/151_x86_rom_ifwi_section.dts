@@ -16,13 +16,17 @@
 
 		intel-ifwi {
 			offset-unset;
-			filename = "ifwi.bin";
+			filename = "fitimage.bin";
+			convert-fit;
 
-			_testing {
-				return-unknown-contents;
-				replace;
+			section {
+				ifwi-replace;
 				ifwi-subpart = "IBBP";
 				ifwi-entry = "IBBL";
+				u-boot-tpl {
+				};
+				u-boot-dtb {
+				};
 			};
 		};
 	};

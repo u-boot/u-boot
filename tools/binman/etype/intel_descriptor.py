@@ -2,7 +2,7 @@
 # Copyright (c) 2016 Google, Inc
 # Written by Simon Glass <sjg@chromium.org>
 #
-# Entry-type module for 'u-boot'
+# Entry-type module for Intel flash descriptor
 #
 
 import struct
