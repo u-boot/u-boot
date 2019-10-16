@@ -260,6 +260,7 @@ config SPI_SIFIVE
 
 config SPI_SUNXI
 	bool "Allwinner SoC SPI controllers"
+	default ARCH_SUNXI
 	help
 	  Enable the Allwinner SoC SPi controller driver.
 
