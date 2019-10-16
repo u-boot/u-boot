@@ -55,6 +55,14 @@ config DM_PMIC_BD71837
 	  This config enables implementation of driver-model pmic uclass features
 	  for PMIC BD71837. The driver implements read/write operations.
 
+config SPL_DM_PMIC_BD71837
+	bool "Enable Driver Model for PMIC BD71837 in SPL stage"
+	depends on DM_PMIC
+	help
+	  This config enables implementation of driver-model pmic uclass
+	  features for PMIC BD71837. The driver implements read/write
+	  operations.
+
 config DM_PMIC_FAN53555
 	bool "Enable support for OnSemi FAN53555"
 	depends on DM_PMIC && DM_REGULATOR && DM_I2C
