@@ -271,3 +271,8 @@ void *board_fdt_blob_setup(void)
 	return fw_dtb;
 }
 #endif
+
+int get_serial_clock(void)
+{
+	return 333333330;
+}
