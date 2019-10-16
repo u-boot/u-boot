@@ -3,6 +3,7 @@ menu "SPI Flash Support"
 config DM_SPI_FLASH
 	bool "Enable Driver Model for SPI flash"
 	depends on DM && DM_SPI
+	imply SPI_FLASH
 	help
 	  Enable driver model for SPI flash. This SPI flash interface
 	  (spi_flash_probe(), spi_flash_write(), etc.) is then
