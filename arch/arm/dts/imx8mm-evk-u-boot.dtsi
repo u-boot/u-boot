@@ -3,7 +3,7 @@
  * Copyright 2019 NXP
  */
 
-&{/soc} {
+&{/soc@0} {
 	u-boot,dm-pre-reloc;
 	u-boot,dm-spl;
 };
