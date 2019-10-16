@@ -432,3 +432,18 @@ void video_get_info_str (int line_number, char *info)
 	}
 }
 #endif
+
+#if defined(CONFIG_OF_SEPARATE)
+void *board_fdt_blob_setup(void)
+{
+	void *fw_dtb;
+
+	fw_dtb = (void *)(CONFIG_SYS_TEXT_BASE - CONFIG_ENV_SECT_SIZE);
+	if (fdt_magic(fw_dtb) != FDT_MAGIC) {
+		printf("DTB is not passed via %x\n", (u32)fw_dtb);
+		return NULL;
+	}
+
+	return fw_dtb;
+}
+#endif

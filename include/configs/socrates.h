@@ -238,9 +238,10 @@
  * Environment
  */
 #define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K(one sector) for env	*/
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - \
+				CONFIG_ENV_SECT_SIZE - CONFIG_ENV_SECT_SIZE)
 #define CONFIG_ENV_SIZE		0x4000
-#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR-CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR - CONFIG_ENV_SECT_SIZE)
 #define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
@@ -280,7 +281,7 @@
 	"bootfile=/home/tftp/syscon3/uImage\0"				\
 	"fdt_file=/home/tftp/syscon3/socrates.dtb\0"			\
 	"initrd_file=/home/tftp/syscon3/uinitrd.gz\0"			\
-	"uboot_addr=FFFA0000\0"						\
+	"uboot_addr=FFF60000\0"						\
 	"kernel_addr=FE000000\0"					\
 	"fdt_addr=FE1E0000\0"						\
 	"ramdisk_addr=FE200000\0"					\
@@ -303,9 +304,9 @@
 		"run nfsargs addip addcons;"				\
 		"bootm ${kernel_addr_r} - ${fdt_addr_r}\0"		\
 	"update_uboot=tftp 100000 ${uboot_file};"			\
-		"protect off fffa0000 ffffffff;"			\
-		"era fffa0000 ffffffff;"				\
-		"cp.b 100000 fffa0000 ${filesize};"			\
+		"protect off fff60000 ffffffff;"			\
+		"era fff60000 ffffffff;"				\
+		"cp.b 100000 fff60000 ${filesize};"			\
 		"setenv filesize;saveenv\0"				\
 	"update_kernel=tftp 100000 ${bootfile};"			\
 		"era fe000000 fe1dffff;"				\
