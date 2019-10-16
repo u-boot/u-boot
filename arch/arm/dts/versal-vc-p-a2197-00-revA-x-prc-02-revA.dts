@@ -94,7 +94,7 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "sst,sst25vf016b", "m25p80", "spi-flash";
-		spi-max-frequency = <50000000>;	/* FIXME */
+		spi-max-frequency = <25000000>;
 		reg = <0>;
 
 		partition@0 {
@@ -112,7 +112,7 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "m25p80", "spi-flash";
-		spi-max-frequency = <50000000>;	/* FIXME */
+		spi-max-frequency = <25000000>;
 		reg = <0>;
 
 		partition@1 {
