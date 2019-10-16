@@ -123,6 +123,9 @@ static int nvme_setup_prps(struct nvme_dev *dev, u64 *prp2,
 	}
 	*prp2 = (ulong)dev->prp_pool;
 
+	flush_dcache_range((ulong)dev->prp_pool, (ulong)dev->prp_pool +
+			   dev->prp_entry_num * sizeof(u64));
+
 	return 0;
 }
 
@@ -705,9 +708,8 @@ static ulong nvme_blk_rw(struct udevice *udev, lbaint_t blknr,
 	u16 lbas = 1 << (dev->max_transfer_shift - ns->lba_shift);
 	u64 total_lbas = blkcnt;
 
-	if (!read)
-		flush_dcache_range((unsigned long)buffer,
-				   (unsigned long)buffer + total_len);
+	flush_dcache_range((unsigned long)buffer,
+			   (unsigned long)buffer + total_len);
 
 	c.rw.opcode = read ? nvme_cmd_read : nvme_cmd_write;
 	c.rw.flags = 0;
