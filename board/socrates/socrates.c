@@ -50,7 +50,7 @@ int checkboard (void)
 	}
 	putc('\n');
 
-#ifdef CONFIG_PCI
+#if defined(CONFIG_PCI) || defined(CONFIG_DM_PCI)
 	/* Check the PCI_clk sel bit */
 	if (in_be32(&gur->porpllsr) & (1<<15)) {
 		src = "SYSCLK";
@@ -126,6 +126,10 @@ int misc_init_r (void)
 			       &flash_info[CONFIG_SYS_MAX_FLASH_BANKS - 1]);
 	}
 
+#if defined(CONFIG_DM_PCI)
+	pci_init();
+#endif
+
 	return 0;
 }
 
@@ -166,40 +170,6 @@ void local_bus_init (void)
 	/* Init UPMB for Lime controller access */
 	out_be32 (&lbc->mbmr, 0x444440); /* Use a customer-supplied value */
 	upmconfig (UPMB, (uint *)UPMTableB, sizeof(UPMTableB)/sizeof(int));
-}
-
-#if defined(CONFIG_PCI)
-/*
- * Initialize PCI Devices, report devices found.
- */
-
-#ifndef CONFIG_PCI_PNP
-static struct pci_config_table pci_mpc85xxads_config_table[] = {
-	{PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
-	 PCI_IDSEL_NUMBER, PCI_ANY_ID,
-	 pci_cfgfunc_config_device, {PCI_ENET0_IOADDR,
-				     PCI_ENET0_MEMADDR,
-				     PCI_COMMAND_MEMORY |
-				     PCI_COMMAND_MASTER}},
-	{}
-};
-#endif
-
-
-static struct pci_controller hose = {
-#ifndef CONFIG_PCI_PNP
-	config_table:pci_mpc85xxads_config_table,
-#endif
-};
-
-#endif /* CONFIG_PCI */
-
-
-void pci_init_board (void)
-{
-#ifdef CONFIG_PCI
-	pci_mpc85xx_init (&hose);
-#endif /* CONFIG_PCI */
 }
 
 #ifdef CONFIG_BOARD_EARLY_INIT_R

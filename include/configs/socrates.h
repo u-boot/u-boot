@@ -19,8 +19,6 @@
 /* High Level Configuration Options */
 #define CONFIG_SOCRATES		1
 
-#define CONFIG_PCI_INDIRECT_BRIDGE
-
 /*
  * Only possible on E500 Version 2 or newer cores.
  */
@@ -156,7 +154,6 @@
  * General PCI
  * Memory space is mapped 1-1.
  */
-#define CONFIG_SYS_PCI_PHYS		0x80000000	/* 1G PCI TLB */
 
 /* PCI is clocked by the external source at 33 MHz */
 #define CONFIG_PCI_CLK_FREQ	33000000
@@ -166,10 +163,6 @@
 #define CONFIG_SYS_PCI1_IO_BASE	0xE2000000
 #define CONFIG_SYS_PCI1_IO_PHYS	CONFIG_SYS_PCI1_IO_BASE
 #define CONFIG_SYS_PCI1_IO_SIZE	0x01000000	/* 16M			*/
-
-#if defined(CONFIG_PCI)
-#undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup	*/
-#endif	/* CONFIG_PCI */
 
 #define CONFIG_TSEC1	1
 #define CONFIG_TSEC1_NAME	"TSEC0"
@@ -292,8 +285,6 @@
 /* USB support */
 #define CONFIG_USB_OHCI_NEW		1
 #define CONFIG_PCI_OHCI			1
-#define CONFIG_PCI_OHCI_DEVNO		3 /* Number in PCI list */
-#define CONFIG_PCI_EHCI_DEVNO		(CONFIG_PCI_OHCI_DEVNO / 2)
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	15
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME		"ohci_pci"
 #define CONFIG_SYS_OHCI_SWAP_REG_ACCESS	1
