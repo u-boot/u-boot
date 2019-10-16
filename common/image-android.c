@@ -120,6 +120,7 @@ int android_image_check_header(const struct andr_img_hdr *hdr)
 ulong android_image_get_end(const struct andr_img_hdr *hdr)
 {
 	ulong end;
+
 	/*
 	 * The header takes a full page, the remaining components are aligned
 	 * on page boundary
@@ -129,6 +130,12 @@ ulong android_image_get_end(const struct andr_img_hdr *hdr)
 	end += ALIGN(hdr->kernel_size, hdr->page_size);
 	end += ALIGN(hdr->ramdisk_size, hdr->page_size);
 	end += ALIGN(hdr->second_size, hdr->page_size);
+
+	if (hdr->header_version >= 1)
+		end += ALIGN(hdr->recovery_dtbo_size, hdr->page_size);
+
+	if (hdr->header_version >= 2)
+		end += ALIGN(hdr->dtb_size, hdr->page_size);
 
 	return end;
 }
@@ -207,21 +214,36 @@ void android_print_contents(const struct andr_img_hdr *hdr)
 	u32 os_ver = hdr->os_version >> 11;
 	u32 os_lvl = hdr->os_version & ((1U << 11) - 1);
 
-	printf("%skernel size:      %x\n", p, hdr->kernel_size);
-	printf("%skernel address:   %x\n", p, hdr->kernel_addr);
-	printf("%sramdisk size:     %x\n", p, hdr->ramdisk_size);
-	printf("%sramdisk address:  %x\n", p, hdr->ramdisk_addr);
-	printf("%ssecond size:      %x\n", p, hdr->second_size);
-	printf("%ssecond address:   %x\n", p, hdr->second_addr);
-	printf("%stags address:     %x\n", p, hdr->tags_addr);
-	printf("%spage size:        %x\n", p, hdr->page_size);
+	printf("%skernel size:          %x\n", p, hdr->kernel_size);
+	printf("%skernel address:       %x\n", p, hdr->kernel_addr);
+	printf("%sramdisk size:         %x\n", p, hdr->ramdisk_size);
+	printf("%sramdisk address:      %x\n", p, hdr->ramdisk_addr);
+	printf("%ssecond size:          %x\n", p, hdr->second_size);
+	printf("%ssecond address:       %x\n", p, hdr->second_addr);
+	printf("%stags address:         %x\n", p, hdr->tags_addr);
+	printf("%spage size:            %x\n", p, hdr->page_size);
 	/* ver = A << 14 | B << 7 | C         (7 bits for each of A, B, C)
 	 * lvl = ((Y - 2000) & 127) << 4 | M  (7 bits for Y, 4 bits for M) */
-	printf("%sos_version:       %x (ver: %u.%u.%u, level: %u.%u)\n",
+	printf("%sos_version:           %x (ver: %u.%u.%u, level: %u.%u)\n",
 	       p, hdr->os_version,
 	       (os_ver >> 7) & 0x7F, (os_ver >> 14) & 0x7F, os_ver & 0x7F,
 	       (os_lvl >> 4) + 2000, os_lvl & 0x0F);
-	printf("%sname:             %s\n", p, hdr->name);
-	printf("%scmdline:          %s\n", p, hdr->cmdline);
+	printf("%sname:                 %s\n", p, hdr->name);
+	printf("%scmdline:              %s\n", p, hdr->cmdline);
+	printf("%sheader_version:       %d\n", p, hdr->header_version);
+
+	if (hdr->header_version >= 1) {
+		printf("%srecovery dtbo size:   %x\n", p,
+		       hdr->recovery_dtbo_size);
+		printf("%srecovery dtbo offset: %llx\n", p,
+		       hdr->recovery_dtbo_offset);
+		printf("%sheader size:          %x\n", p,
+		       hdr->header_size);
+	}
+
+	if (hdr->header_version >= 2) {
+		printf("%sdtb size:             %x\n", p, hdr->dtb_size);
+		printf("%sdtb addr:             %llx\n", p, hdr->dtb_addr);
+	}
 }
 #endif

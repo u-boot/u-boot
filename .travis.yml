@@ -204,12 +204,15 @@ matrix:
     - name: "buildman NXP AArch64 LX216x"
       env:
         - BUILDMAN="freescale&aarch64&lx216"
-    - name: "buildman i.MX6 (non-NXP)"
+    - name: "buildman i.MX6 tqc"
       env:
-        - BUILDMAN="mx6 -x freescale,toradex,boundary,engicam"
-    - name: "buildman i.MX (non-NXP,i.MX6,toradex)"
+        - BUILDMAN="mx6&tqc"
+    - name: "buildman i.MX6 (catch-all)"
       env:
-        - BUILDMAN="mx -x freescale,mx6,toradex"
+        - BUILDMAN="mx6 -x boundary,engicam,freescale,technexion,toradex,tqc"
+    - name: "buildman i.MX (non-i.MX6 catch-all)"
+      env:
+        - BUILDMAN="mx -x freescale,mx6,toradex,technexion"
     - name: "buildman keystone 2/3"
       env:
         - BUILDMAN="k2 k3"
@@ -231,9 +234,12 @@ matrix:
     - name: "buildman sun7i"
       env:
         - BUILDMAN="sun7i"
-    - name: "buildman sun8i"
+    - name: "buildman 64bit sun8i"
       env:
-        - BUILDMAN="sun8i"
+        - BUILDMAN="sun8i&aarch64"
+    - name: "buildman 32bit sun8i"
+      env:
+        - BUILDMAN="sun8i&armv7"
     - name: "buildman sun9i"
       env:
         - BUILDMAN="sun9i"
@@ -242,20 +248,20 @@ matrix:
         - BUILDMAN="sun50i"
     - name: "buildman catch-all ARM"
       env:
-        - BUILDMAN="arm -x arm11,arm7,arm9,aarch64,at91,bcm,freescale,kirkwood,mvebu,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap,pxa,rockchip,toradex,socfpga,k2,k3,xilinx"
+        - BUILDMAN="arm -x arm11,arm7,arm9,aarch64,at91,bcm,freescale,kirkwood,mvebu,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap,rockchip,toradex,socfpga,k2,k3,zynq"
     - name: "buildman sandbox x86"
       env:
         - BUILDMAN="sandbox x86"
           TOOLCHAIN="i386"
+    - name: "buildman technexion"
+      env:
+        - BUILDMAN="technexion"
     - name: "buildman kirkwood"
       env:
         - BUILDMAN="kirkwood"
     - name: "buildman mvebu"
       env:
         - BUILDMAN="mvebu"
-    - name: "buildman PXA (non-toradex)"
-      env:
-        - BUILDMAN="pxa -x toradex"
     - name: "buildman m68k"
       env:
         - BUILDMAN="m68k"
@@ -313,7 +319,7 @@ matrix:
         - BUILDMAN="uniphier"
     - name: "buildman catch-all AArch64"
       env:
-        - BUILDMAN="aarch64 -x bcm,k3,tegra,ls1,ls2,mvebu,uniphier,sunxi,samsung,rockchip,xilinx"
+        - BUILDMAN="aarch64 -x bcm,k3,tegra,ls1,ls2,mvebu,uniphier,sunxi,samsung,rockchip,versal,zynq"
     - name: "buildman rockchip"
       env:
         - BUILDMAN="rockchip"
@@ -321,9 +327,12 @@ matrix:
       env:
         - BUILDMAN="sh -x arm"
           TOOLCHAIN="sh"
-    - name: "buildman Xilinx (ARM)"
+    - name: "buildman Zynq* (ARMv7)"
       env:
-        - BUILDMAN="xilinx -x microblaze"
+        - BUILDMAN="zynq&armv7"
+    - name: "buildman ZynqMP and Versal"
+      env:
+        - BUILDMAN="versal|zynqmp&aarch64"
     - name: "buildman xtensa"
       env:
         - BUILDMAN="xtensa"

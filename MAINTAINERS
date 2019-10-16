@@ -102,7 +102,7 @@ F:	doc/device-tree-bindings/mmc/snps,dw-mmc.txt
 F:	drivers/mmc/snps_dw_mmc.c
 
 ARM
-M:	Albert Aribaud <albert.u.boot@aribaud.net>
+M:	Tom Rini <trini@konsulko.com>
 S:	Maintained
 T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-arm.git
 F:	arch/arm/
