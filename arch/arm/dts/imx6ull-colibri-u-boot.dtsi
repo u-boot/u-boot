@@ -2,3 +2,11 @@
 /*
  * Copyright 2019 Toradex AG
  */
+
+&pinctrl_uart1 {
+	u-boot,dm-pre-reloc;
+};
+
+&pinctrl_uart1_ctrl1 {
+	u-boot,dm-pre-reloc;
+};
