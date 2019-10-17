@@ -14,8 +14,8 @@
 #define GRF_BASE	0x20008000
 
 const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
-	[BROM_BOOTSOURCE_EMMC] = "dwmmc@1021c000",
-	[BROM_BOOTSOURCE_SD] = "dwmmc@10214000",
+	[BROM_BOOTSOURCE_EMMC] = "/dwmmc@1021c000",
+	[BROM_BOOTSOURCE_SD] = "/dwmmc@10214000",
 };
 
 #ifdef CONFIG_DEBUG_UART_BOARD_INIT
