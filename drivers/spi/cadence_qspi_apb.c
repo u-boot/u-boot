@@ -35,9 +35,10 @@
 #include "cadence_qspi.h"
 #include <dm.h>
 
-__weak void cadence_qspi_apb_dma_read(struct cadence_spi_platdata *plat,
-				      unsigned int n_rx, u8 *rxbuf)
+__weak int cadence_qspi_apb_dma_read(struct cadence_spi_platdata *plat,
+				     unsigned int n_rx, u8 *rxbuf)
 {
+	return 0;
 }
 
 __weak
@@ -300,8 +301,7 @@ void cadence_qspi_apb_controller_init(struct cadence_spi_platdata *plat)
 	cadence_qspi_apb_controller_enable(plat->regbase);
 }
 
-static int cadence_qspi_apb_exec_flash_cmd(void *reg_base,
-	unsigned int reg)
+int cadence_qspi_apb_exec_flash_cmd(void *reg_base, unsigned int reg)
 {
 	unsigned int retry = CQSPI_REG_RETRY;
 
