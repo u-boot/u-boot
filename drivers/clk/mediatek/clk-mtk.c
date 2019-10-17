@@ -40,7 +40,7 @@
  * the accurate frequency.
  */
 static ulong mtk_clk_find_parent_rate(struct clk *clk, int id,
-				    const struct driver *drv)
+				      const struct driver *drv)
 {
 	struct clk parent = { .id = id, };
 
