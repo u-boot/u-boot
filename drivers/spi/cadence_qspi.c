@@ -280,8 +280,12 @@ static int cadence_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			err = cadence_qspi_apb_indirect_read_setup(plat,
 				priv->cmd_len, dm_plat->mode, cmd_buf);
 			if (!err) {
-				err = cadence_qspi_apb_indirect_read_execute
-				(plat, data_bytes, din);
+				if (plat->is_dma)
+					err = cadence_qspi_apb_dma_read(plat,
+						data_bytes, din);
+				else
+					err = cadence_qspi_apb_indirect_read_execute(plat,
+						data_bytes, din);
 			}
 		break;
 		case CQSPI_INDIRECT_WRITE:
