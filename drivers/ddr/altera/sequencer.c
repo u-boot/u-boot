@@ -7,6 +7,7 @@
 #include <asm/io.h>
 #include <asm/arch/sdram.h>
 #include <errno.h>
+#include <hang.h>
 #include "sequencer.h"
 
 static const struct socfpga_sdr_rw_load_manager *sdr_rw_load_mgr_regs =
@@ -53,6 +54,21 @@ static const struct socfpga_sdr_ctrl *sdr_ctrl =
 
 #define SKIP_DELAY_LOOP_VALUE_OR_ZERO(non_skip_value) \
 	((non_skip_value) & seq->skip_delay_mask)
+
+bool dram_is_ddr(const u8 ddr)
+{
+	const struct socfpga_sdram_config *cfg = socfpga_get_sdram_config();
+	const u8 type = (cfg->ctrl_cfg >> SDR_CTRLGRP_CTRLCFG_MEMTYPE_LSB) &
+			SDR_CTRLGRP_CTRLCFG_MEMTYPE_MASK;
+
+	if (ddr == 2 && type == 1)	/* DDR2 */
+		return true;
+
+	if (ddr == 3 && type == 2)	/* DDR3 */
+		return true;
+
+	return false;
+}
 
 static void set_failing_group_stage(struct socfpga_sdrseq *seq,
 				    u32 group, u32 stage, u32 substage)
@@ -164,6 +180,8 @@ static void set_rank_and_odt_mask(struct socfpga_sdrseq *seq,
 				 */
 				odt_mask_0 = 0x3 & ~(1 << rank);
 				odt_mask_1 = 0x3;
+				if (dram_is_ddr(2))
+					odt_mask_1 &= ~(1 << rank);
 			} else {
 				/*
 				 * - Single-Slot , Dual-Rank (2 CS per DIMM)
@@ -176,10 +194,11 @@ static void set_rank_and_odt_mask(struct socfpga_sdrseq *seq,
 			}
 			break;
 		case 4:	/* 4 Ranks */
-			/* Read:
+			/*
+			 * DDR3 Read, DDR2 Read/Write:
 			 * ----------+-----------------------+
 			 *           |         ODT           |
-			 * Read From +-----------------------+
+			 *           +-----------------------+
 			 *   Rank    |  3  |  2  |  1  |  0  |
 			 * ----------+-----+-----+-----+-----+
 			 *     0     |  0  |  1  |  0  |  0  |
@@ -188,7 +207,7 @@ static void set_rank_and_odt_mask(struct socfpga_sdrseq *seq,
 			 *     3     |  0  |  0  |  1  |  0  |
 			 * ----------+-----+-----+-----+-----+
 			 *
-			 * Write:
+			 * DDR3 Write:
 			 * ----------+-----------------------+
 			 *           |         ODT           |
 			 * Write To  +-----------------------+
@@ -203,19 +222,31 @@ static void set_rank_and_odt_mask(struct socfpga_sdrseq *seq,
 			switch (rank) {
 			case 0:
 				odt_mask_0 = 0x4;
-				odt_mask_1 = 0x5;
+				if (dram_is_ddr(2))
+					odt_mask_1 = 0x4;
+				else if (dram_is_ddr(3))
+					odt_mask_1 = 0x5;
 				break;
 			case 1:
 				odt_mask_0 = 0x8;
-				odt_mask_1 = 0xA;
+				if (dram_is_ddr(2))
+					odt_mask_1 = 0x8;
+				else if (dram_is_ddr(3))
+					odt_mask_1 = 0xA;
 				break;
 			case 2:
 				odt_mask_0 = 0x1;
-				odt_mask_1 = 0x5;
+				if (dram_is_ddr(2))
+					odt_mask_1 = 0x1;
+				else if (dram_is_ddr(3))
+					odt_mask_1 = 0x5;
 				break;
 			case 3:
 				odt_mask_0 = 0x2;
-				odt_mask_1 = 0xA;
+				if (dram_is_ddr(2))
+					odt_mask_1 = 0x2;
+				else if (dram_is_ddr(3))
+					odt_mask_1 = 0xA;
 				break;
 			}
 			break;
@@ -839,6 +870,12 @@ static void delay_for_n_mem_clocks(struct socfpga_sdrseq *seq,
 	debug("%s:%d clocks=%u ... end\n", __func__, __LINE__, clocks);
 }
 
+static void delay_for_n_ns(struct socfpga_sdrseq *seq, const u32 ns)
+{
+	delay_for_n_mem_clocks(seq, (ns * seq->misccfg->afi_clk_freq *
+				seq->misccfg->afi_rate_ratio) / 1000);
+}
+
 /**
  * rw_mgr_mem_init_load_regs() - Load instruction registers
  * @cntr0:	Counter 0 value
@@ -872,14 +909,59 @@ static void rw_mgr_mem_init_load_regs(struct socfpga_sdrseq *seq,
 }
 
 /**
- * rw_mgr_mem_load_user() - Load user calibration values
+ * rw_mgr_mem_load_user_ddr2() - Load user calibration values for DDR2
+ * @handoff:	Indicate whether this is initialization or handoff phase
+ *
+ * Load user calibration values and optionally precharge the banks.
+ */
+static void rw_mgr_mem_load_user_ddr2(struct socfpga_sdrseq *seq,
+				      const int handoff)
+{
+	u32 grpaddr = SDR_PHYGRP_RWMGRGRP_ADDRESS |
+		      RW_MGR_RUN_SINGLE_GROUP_OFFSET;
+	u32 r;
+
+	for (r = 0; r < seq->rwcfg->mem_number_of_ranks; r++) {
+		/* set rank */
+		set_rank_and_odt_mask(seq, r, RW_MGR_ODT_MODE_OFF);
+
+		/* precharge all banks ... */
+		writel(seq->rwcfg->precharge_all, grpaddr);
+
+		writel(seq->rwcfg->emr2, grpaddr);
+		writel(seq->rwcfg->emr3, grpaddr);
+		writel(seq->rwcfg->emr, grpaddr);
+
+		if (handoff) {
+			writel(seq->rwcfg->mr_user, grpaddr);
+			continue;
+		}
+
+		writel(seq->rwcfg->mr_dll_reset, grpaddr);
+
+		writel(seq->rwcfg->precharge_all, grpaddr);
+
+		writel(seq->rwcfg->refresh, grpaddr);
+		delay_for_n_ns(seq, 200);
+		writel(seq->rwcfg->refresh, grpaddr);
+		delay_for_n_ns(seq, 200);
+
+		writel(seq->rwcfg->mr_calib, grpaddr);
+		writel(/*seq->rwcfg->*/0x0b, grpaddr);	// EMR_OCD_ENABLE
+		writel(seq->rwcfg->emr, grpaddr);
+		delay_for_n_mem_clocks(seq, 200);
+	}
+}
+
+/**
+ * rw_mgr_mem_load_user_ddr3() - Load user calibration values
  * @fin1:	Final instruction 1
  * @fin2:	Final instruction 2
  * @precharge:	If 1, precharge the banks at the end
  *
  * Load user calibration values and optionally precharge the banks.
  */
-static void rw_mgr_mem_load_user(struct socfpga_sdrseq *seq,
+static void rw_mgr_mem_load_user_ddr3(struct socfpga_sdrseq *seq,
 				 const u32 fin1, const u32 fin2,
 				 const int precharge)
 {
@@ -936,6 +1018,25 @@ static void rw_mgr_mem_load_user(struct socfpga_sdrseq *seq,
 }
 
 /**
+ * rw_mgr_mem_load_user() - Load user calibration values
+ * @fin1:	Final instruction 1
+ * @fin2:	Final instruction 2
+ * @precharge:	If 1, precharge the banks at the end
+ *
+ * Load user calibration values and optionally precharge the banks.
+ */
+static void rw_mgr_mem_load_user(struct socfpga_sdrseq *seq,
+				 const u32 fin1, const u32 fin2,
+				 const int precharge)
+{
+	if (dram_is_ddr(2))
+		rw_mgr_mem_load_user_ddr2(seq, precharge);
+	else if (dram_is_ddr(3))
+		rw_mgr_mem_load_user_ddr3(seq, fin1, fin2, precharge);
+	else
+		hang();
+}
+/**
  * rw_mgr_mem_initialize() - Initialize RW Manager
  *
  * Initialize RW Manager.
@@ -945,8 +1046,10 @@ static void rw_mgr_mem_initialize(struct socfpga_sdrseq *seq)
 	debug("%s:%d\n", __func__, __LINE__);
 
 	/* The reset / cke part of initialization is broadcasted to all ranks */
-	writel(RW_MGR_RANK_ALL, SDR_PHYGRP_RWMGRGRP_ADDRESS |
-				RW_MGR_SET_CS_AND_ODT_MASK_OFFSET);
+	if (dram_is_ddr(3)) {
+		writel(RW_MGR_RANK_ALL, SDR_PHYGRP_RWMGRGRP_ADDRESS |
+					RW_MGR_SET_CS_AND_ODT_MASK_OFFSET);
+	}
 
 	/*
 	 * Here's how you load register for a loop
@@ -979,29 +1082,38 @@ static void rw_mgr_mem_initialize(struct socfpga_sdrseq *seq)
 	/* Indicate that memory is stable. */
 	writel(1, &phy_mgr_cfg->reset_mem_stbl);
 
-	/*
-	 * transition the RESET to high
-	 * Wait for 500us
-	 */
+	if (dram_is_ddr(2)) {
+		writel(seq->rwcfg->nop, SDR_PHYGRP_RWMGRGRP_ADDRESS |
+					RW_MGR_RUN_SINGLE_GROUP_OFFSET);
 
-	/*
-	 * 500us @ 266MHz (3.75 ns) ~ 134000 clock cycles
-	 * If a and b are the number of iteration in 2 nested loops
-	 * it takes the following number of cycles to complete the operation
-	 * number_of_cycles = ((2 + n) * a + 2) * b
-	 * where n is the number of instruction in the inner loop
-	 * One possible solution is n = 2 , a = 131 , b = 256 => a = 83,
-	 * b = FF
-	 */
-	rw_mgr_mem_init_load_regs(seq, seq->misccfg->treset_cntr0_val,
-				  seq->misccfg->treset_cntr1_val,
-				  seq->misccfg->treset_cntr2_val,
-				  seq->rwcfg->init_reset_1_cke_0);
+		/* Bring up clock enable. */
 
-	/* Bring up clock enable. */
+		/* tXRP < 400 ck cycles */
+		delay_for_n_ns(seq, 400);
+	} else if (dram_is_ddr(3)) {
+		/*
+		 * transition the RESET to high
+		 * Wait for 500us
+		 */
 
-	/* tXRP < 250 ck cycles */
-	delay_for_n_mem_clocks(seq, 250);
+		/*
+		 * 500us @ 266MHz (3.75 ns) ~ 134000 clock cycles
+		 * If a and b are the number of iteration in 2 nested loops
+		 * it takes the following number of cycles to complete the
+		 * operation number_of_cycles = ((2 + n) * a + 2) * b
+		 * where n is the number of instruction in the inner loop
+		 * One possible solution is
+		 * n = 2 , a = 131 , b = 256 => a = 83, b = FF
+		 */
+		rw_mgr_mem_init_load_regs(seq, seq->misccfg->treset_cntr0_val,
+					  seq->misccfg->treset_cntr1_val,
+					  seq->misccfg->treset_cntr2_val,
+					  seq->rwcfg->init_reset_1_cke_0);
+		/* Bring up clock enable. */
+
+		/* tXRP < 250 ck cycles */
+		delay_for_n_mem_clocks(seq, 250);
+	}
 
 	rw_mgr_mem_load_user(seq, seq->rwcfg->mrs0_dll_reset_mirr,
 			     seq->rwcfg->mrs0_dll_reset, 0);
@@ -3769,16 +3881,26 @@ static void initialize_tracking(struct socfpga_sdrseq *seq)
 	       &sdr_reg_file->delays);
 
 	/* mux delay */
-	writel((seq->rwcfg->idle << 24) | (seq->rwcfg->activate_1 << 16) |
-	       (seq->rwcfg->sgle_read << 8) | (seq->rwcfg->precharge_all << 0),
-	       &sdr_reg_file->trk_rw_mgr_addr);
+	if (dram_is_ddr(2)) {
+		writel(0, &sdr_reg_file->trk_rw_mgr_addr);
+	} else if (dram_is_ddr(3)) {
+		writel((seq->rwcfg->idle << 24) |
+		       (seq->rwcfg->activate_1 << 16) |
+		       (seq->rwcfg->sgle_read << 8) |
+		       (seq->rwcfg->precharge_all << 0),
+		       &sdr_reg_file->trk_rw_mgr_addr);
+	}
 
 	writel(seq->rwcfg->mem_if_read_dqs_width,
 	       &sdr_reg_file->trk_read_dqs_width);
 
 	/* trefi [7:0] */
-	writel((seq->rwcfg->refresh_all << 24) | (1000 << 0),
-	       &sdr_reg_file->trk_rfsh);
+	if (dram_is_ddr(2)) {
+		writel(1000 << 0, &sdr_reg_file->trk_rfsh);
+	} else if (dram_is_ddr(3)) {
+		writel((seq->rwcfg->refresh_all << 24) | (1000 << 0),
+		       &sdr_reg_file->trk_rfsh);
+	}
 }
 
 int sdram_calibration_full(struct socfpga_sdr *sdr)

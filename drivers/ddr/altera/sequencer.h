@@ -279,5 +279,6 @@ struct socfpga_sdrseq {
 };
 
 int sdram_calibration_full(struct socfpga_sdr *sdr);
+bool dram_is_ddr(const u8 ddr);
 
 #endif /* _SEQUENCER_H_ */

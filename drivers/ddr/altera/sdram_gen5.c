@@ -434,8 +434,10 @@ static void sdr_load_regs(struct socfpga_sdr_ctrl *sdr_ctrl,
 	debug("Configuring DRAMODT\n");
 	writel(cfg->dram_odt, &sdr_ctrl->dram_odt);
 
-	debug("Configuring EXTRATIME1\n");
-	writel(cfg->extratime1, &sdr_ctrl->extratime1);
+	if (dram_is_ddr(3)) {
+		debug("Configuring EXTRATIME1\n");
+		writel(cfg->extratime1, &sdr_ctrl->extratime1);
+	}
 }
 
 /**
