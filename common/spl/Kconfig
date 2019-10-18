@@ -325,12 +325,6 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
 	  Address on the MMC to load U-Boot from, when the MMC is being used
 	  in raw mode. Units: MMC sectors (1 sector = 512 bytes).
 
-config SYS_MMCSD_RAW_MODE_EMMC_BOOT_PARTITION
-	int "Number of the eMMC boot partition to use"
-	default 1
-	help
-	  eMMC boot partition number to use when the eMMC in raw mode.
-
 config SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
 	bool "MMC Raw mode: by partition"
 	help
@@ -358,6 +352,28 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION_TYPE
 	help
 	  Partition Type on the MMC to load U-Boot from, when the MMC is being
 	  used in raw mode.
+
+config SUPPORT_EMMC_BOOT_OVERRIDE_PART_CONFIG
+	bool "Override eMMC EXT_CSC_PART_CONFIG by user defined partition"
+	depends on SUPPORT_EMMC_BOOT
+	help
+	  eMMC boot partition is normally configured by the bits of the EXT_CSD
+	  register (EXT_CSC_PART_CONFIG), BOOT_PARTITION_ENABLE field. In some
+	  cases it might be required in SPL to load the image from different
+	  partition than the partition selected by EXT_CSC_PART_CONFIG register.
+	  Enable this option if you intend to use an eMMC boot partition other
+	  then selected via EXT_CSC_PART_CONFIG register and specify the custom
+	  partition number by the CONFIG_SYS_MMCSD_RAW_MODE_EMMC_BOOT_PARTITION
+	  option.
+
+config SYS_MMCSD_RAW_MODE_EMMC_BOOT_PARTITION
+	int "Number of the eMMC boot partition to use"
+	depends on SUPPORT_EMMC_BOOT_OVERRIDE_PART_CONFIG
+	default 1
+	help
+	  eMMC boot partition number to use when the eMMC in raw mode and
+	  the eMMC EXT_CSC_PART_CONFIG selection should be overridden in SPL
+	  by user defined partition number.
 
 config SPL_CRC32_SUPPORT
 	bool "Support CRC32"
