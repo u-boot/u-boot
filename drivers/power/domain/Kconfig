@@ -44,6 +44,13 @@ config MESON_GX_VPU_POWER_DOMAIN
 	  Enable support for manipulating Amlogic Meson GX Video Processing
 	  Unit power domain.
 
+config MESON_EE_POWER_DOMAIN
+	bool "Enable Amlogic Everything-Else power domain driver"
+	depends on POWER_DOMAIN && ARCH_MESON
+	help
+	  Enable support for manipulating Amlogic Meson Everything-Else power
+	  domains.
+
 config SANDBOX_POWER_DOMAIN
 	bool "Enable the sandbox power domain test driver"
 	depends on POWER_DOMAIN && SANDBOX

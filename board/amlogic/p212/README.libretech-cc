@@ -38,9 +38,28 @@ U-Boot compilation
 Image creation
 ==============
 
-Amlogic doesn't provide sources for the firmware and for tools needed
-to create the bootloader image, so it is necessary to obtain them from
-the git tree published by the board vendor:
+To boot the system, u-boot must be combined with several earlier stage
+bootloaders:
+
+* bl2.bin: vendor-provided binary blob
+* bl21.bin: built from vendor u-boot source
+* bl30.bin: vendor-provided binary blob
+* bl301.bin: built from vendor u-boot source
+* bl31.bin: vendor-provided binary blob
+* acs.bin: built from vendor u-boot source
+
+These binaries and the tools required below have been collected and prebuilt
+for convenience at <https://github.com/BayLibre/u-boot/releases/>
+
+Download and extract the libretech-cc release from there, and set FIPDIR to
+point to the `fip` subdirectory.
+
+ > export FIPDIR=/path/to/extracted/fip
+
+Alternatively, you can obtain the original vendor u-boot tree which
+contains the required blobs and sources, and build yourself.
+Note that old compilers are required for this to build. The compilers here
+are suggested by Amlogic, and they are 32-bit x86 binaries.
 
  > wget https://releases.linaro.org/archive/13.11/components/toolchain/binaries/gcc-linaro-aarch64-none-elf-4.8-2013.11_linux.tar.xz
  > wget https://releases.linaro.org/archive/13.11/components/toolchain/binaries/gcc-linaro-arm-none-eabi-4.8-2013.11_linux.tar.xz
@@ -53,7 +72,10 @@ the git tree published by the board vendor:
  > make
  > export FIPDIR=$PWD/fip
 
-Go back to mainline U-Boot source tree then :
+Once you have the binaries available (either through the prebuilt download,
+or having built the vendor u-boot yourself), you can then proceed to glue
+everything together. Go back to mainline U-Boot source tree then :
+
  > mkdir fip
 
  > cp $FIPDIR/gxl/bl2.bin fip/
@@ -100,3 +122,14 @@ and then write the image to SD with:
  > DEV=/dev/your_sd_device
  > dd if=fip/u-boot.bin.sd.bin of=$DEV conv=fsync,notrunc bs=512 skip=1 seek=1
  > dd if=fip/u-boot.bin.sd.bin of=$DEV conv=fsync,notrunc bs=1 count=444
+
+Note that Amlogic provides aml_encrypt_gxl as a 32-bit x86 binary with no
+source code. Should you prefer to avoid that, there are open source reverse
+engineered versions available:
+
+1. gxlimg <https://github.com/repk/gxlimg>, which comes with a handy
+   Makefile that automates the whole process.
+2. meson-tools <https://github.com/afaerber/meson-tools>
+
+However, these community-developed alternatives are not endorsed by or
+supported by Amlogic.

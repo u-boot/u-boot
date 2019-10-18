@@ -14,6 +14,7 @@
 #include <video.h>
 #include <display.h>
 #include <linux/io.h>
+#include <linux/bitfield.h>
 #include "meson_registers.h"
 
 enum {
@@ -27,6 +28,7 @@ enum vpu_compatible {
 	VPU_COMPATIBLE_GXBB = 0,
 	VPU_COMPATIBLE_GXL = 1,
 	VPU_COMPATIBLE_GXM = 2,
+	VPU_COMPATIBLE_G12A = 3,
 };
 
 struct meson_vpu_priv {

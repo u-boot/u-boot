@@ -34,6 +34,7 @@ static const struct meson_gx_soc_id {
 	{ "TXHD",   0x27 },
 	{ "G12A",   0x28 },
 	{ "G12B",   0x29 },
+	{ "SM1",    0x2b },
 };
 
 static const struct meson_gx_package_id {
@@ -59,7 +60,9 @@ static const struct meson_gx_package_id {
 	{ "A113D",  0x25, 0x22, 0xff },
 	{ "S905D2", 0x28, 0x10, 0xf0 },
 	{ "S905X2", 0x28, 0x40, 0xf0 },
+	{ "A311D",  0x29, 0x10, 0xf0 },
 	{ "S922X",  0x29, 0x40, 0xf0 },
+	{ "S905X3", 0x2b, 0x5, 0xf },
 };
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -154,7 +157,7 @@ int show_board_info(void)
 
 	/* print board information */
 	print_board_model();
-	printf("Soc:   Amlogic Meson %s (%s) Revision %x:%x (%x:%x)\n",
+	printf("SoC:   Amlogic Meson %s (%s) Revision %x:%x (%x:%x)\n",
 	       socinfo_to_soc_id(socinfo),
 	       socinfo_to_package_id(socinfo),
 	       socinfo_to_major(socinfo),
