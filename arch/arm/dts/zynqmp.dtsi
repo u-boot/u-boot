@@ -149,6 +149,11 @@
 			#power-domain-cells = <0x1>;
 			u-boot,dm-pre-reloc;
 
+			zynqmp_pcap: pcap {
+				compatible = "xlnx,zynqmp-pcap-fpga";
+				clock-names = "ref_clk";
+			};
+
 			zynqmp_power: zynqmp-power {
 				u-boot,dm-pre-reloc;
 				compatible = "xlnx,zynqmp-power";
@@ -186,9 +191,10 @@
 
 	fpga_full: fpga-full {
 		compatible = "fpga-region";
-		fpga-mgr = <&pcap>;
+		fpga-mgr = <&zynqmp_pcap>;
 		#address-cells = <2>;
 		#size-cells = <2>;
+		ranges;
 	};
 
 	nvmem_firmware {
@@ -248,11 +254,6 @@
 		efuse_ppk1hash: efuse_ppk1hash@d0 {
 			reg = <0xd0 0x30>;
 		};
-	};
-
-	pcap: pcap {
-		compatible = "xlnx,zynqmp-pcap-fpga";
-		clock-names = "ref_clk";
 	};
 
 	xlnx_rsa: zynqmp_rsa {

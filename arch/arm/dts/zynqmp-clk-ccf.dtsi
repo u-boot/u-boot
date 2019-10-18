@@ -312,6 +312,6 @@
 	clocks = <&zynqmp_clk DP_AUDIO_REF>;
 };
 
-&pcap {
+&zynqmp_pcap {
 	clocks = <&zynqmp_clk PCAP>;
 };
