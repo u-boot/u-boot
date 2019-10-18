@@ -308,6 +308,19 @@ static struct fstype_info *fs_get_info(int fstype)
 }
 
 /**
+ * fs_get_type() - Get type of current filesystem
+ *
+ * Return: filesystem type
+ *
+ * Returns filesystem type representing the current filesystem, or
+ * FS_TYPE_ANY for any unrecognised filesystem.
+ */
+int fs_get_type(void)
+{
+	return fs_type;
+}
+
+/**
  * fs_get_type_name() - Get type of current filesystem
  *
  * Return: Pointer to filesystem name
@@ -389,7 +402,7 @@ int fs_set_blk_dev_with_part(struct blk_desc *desc, int part)
 	return -1;
 }
 
-static void fs_close(void)
+void fs_close(void)
 {
 	struct fstype_info *info = fs_get_info(fs_type);
 
@@ -413,7 +426,6 @@ int fs_ls(const char *dirname)
 
 	ret = info->ls(dirname);
 
-	fs_type = FS_TYPE_ANY;
 	fs_close();
 
 	return ret;
@@ -597,7 +609,6 @@ int fs_unlink(const char *filename)
 
 	ret = info->unlink(filename);
 
-	fs_type = FS_TYPE_ANY;
 	fs_close();
 
 	return ret;
@@ -611,7 +622,6 @@ int fs_mkdir(const char *dirname)
 
 	ret = info->mkdir(dirname);
 
-	fs_type = FS_TYPE_ANY;
 	fs_close();
 
 	return ret;
