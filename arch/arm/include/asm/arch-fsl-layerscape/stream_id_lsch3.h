@@ -108,5 +108,7 @@
 #define FSL_EDMA_STREAM_ID		70
 #define FSL_GPU_STREAM_ID		71
 #define FSL_DISPLAY_STREAM_ID		72
+#define FSL_SATA3_STREAM_ID		73
+#define FSL_SATA4_STREAM_ID		74
 
 #endif

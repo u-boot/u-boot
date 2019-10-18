@@ -342,7 +342,7 @@ void fsl_lsch3_early_init_f(void)
 #endif
 
 #if defined(CONFIG_ARCH_LS1088A) || defined(CONFIG_ARCH_LS1028A) || \
-	defined(CONFIG_ARCH_LS2080A)
+	defined(CONFIG_ARCH_LS2080A) || defined(CONFIG_ARCH_LX2160A)
 	set_icids();
 #endif
 }

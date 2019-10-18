@@ -447,7 +447,9 @@ struct ccsr_gur {
 	u8	res_538[0x550 - 0x538];	/* add more registers when needed */
 	u32	sata1_amqr;
 	u32	sata2_amqr;
-	u8	res_558[0x570-0x558];	/* add more registers when needed */
+	u32	sata3_amqr;
+	u32	sata4_amqr;
+	u8	res_560[0x570 - 0x560];	/* add more registers when needed */
 	u32	misc1_amqr;
 	u8	res_574[0x590-0x574];	/* add more registers when needed */
 	u32	spare1_amqr;
