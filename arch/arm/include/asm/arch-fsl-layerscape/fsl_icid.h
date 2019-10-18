@@ -166,7 +166,7 @@ extern int fman_icid_tbl_sz;
 
 #define SET_SEC_JR_ICID_ENTRY(jr_num, streamid) \
 	SET_ICID_ENTRY( \
-		(CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT && \
+		(CONFIG_IS_ENABLED(ARMV8_SEC_FIRMWARE_SUPPORT) && \
 		(FSL_SEC_JR##jr_num##_OFFSET ==  \
 			SEC_JR3_OFFSET + CONFIG_SYS_FSL_SEC_OFFSET) \
 			? NULL \
