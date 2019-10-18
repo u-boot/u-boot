@@ -341,7 +341,8 @@ void fsl_lsch3_early_init_f(void)
 		bypass_smmu();
 #endif
 
-#if defined(CONFIG_ARCH_LS1088A) || defined(CONFIG_ARCH_LS1028A)
+#if defined(CONFIG_ARCH_LS1088A) || defined(CONFIG_ARCH_LS1028A) || \
+	defined(CONFIG_ARCH_LS2080A)
 	set_icids();
 #endif
 }
