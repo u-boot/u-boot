@@ -291,3 +291,7 @@
 &xlnx_dp_snd_codec0 {
 	clocks = <&zynqmp_clk DP_AUDIO_REF>;
 };
+
+&zynqmp_pcap {
+	clocks = <&zynqmp_clk PCAP>;
+};
