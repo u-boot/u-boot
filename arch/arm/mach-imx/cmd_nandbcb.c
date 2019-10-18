@@ -14,6 +14,7 @@
 
 #include <asm/io.h>
 #include <jffs2/jffs2.h>
+#include <linux/bch.h>
 #include <linux/mtd/mtd.h>
 
 #include <asm/mach-imx/imx-nandbcb.h>
@@ -24,6 +25,68 @@
 
 #define BF_VAL(v, bf)		(((v) & bf##_MASK) >> bf##_OFFSET)
 #define GETBIT(v, n)		(((v) >> (n)) & 0x1)
+
+#if defined(CONFIG_MX6UL) || defined(CONFIG_MX6ULL)
+static uint8_t reverse_bit(uint8_t b)
+{
+	b = (b & 0xf0) >> 4 | (b & 0x0f) << 4;
+	b = (b & 0xcc) >> 2 | (b & 0x33) << 2;
+	b = (b & 0xaa) >> 1 | (b & 0x55) << 1;
+
+	return b;
+}
+
+static void encode_bch_ecc(void *buf, struct fcb_block *fcb, int eccbits)
+{
+	int i, j, m = 13;
+	int blocksize = 128;
+	int numblocks = 8;
+	int ecc_buf_size = (m * eccbits + 7) / 8;
+	struct bch_control *bch = init_bch(m, eccbits, 0);
+	u8 *ecc_buf = kzalloc(ecc_buf_size, GFP_KERNEL);
+	u8 *tmp_buf = kzalloc(blocksize * numblocks, GFP_KERNEL);
+	u8 *psrc, *pdst;
+
+	/*
+	 * The blocks here are bit aligned. If eccbits is a multiple of 8,
+	 * we just can copy bytes. Otherwiese we must move the blocks to
+	 * the next free bit position.
+	 */
+	WARN_ON(eccbits % 8);
+
+	memcpy(tmp_buf, fcb, sizeof(*fcb));
+
+	for (i = 0; i < numblocks; i++) {
+		memset(ecc_buf, 0, ecc_buf_size);
+		psrc = tmp_buf + i * blocksize;
+		pdst = buf + i * (blocksize + ecc_buf_size);
+
+		/* copy data byte aligned to destination buf */
+		memcpy(pdst, psrc, blocksize);
+
+		/*
+		 * imx-kobs use a modified encode_bch which reverse the
+		 * bit order of the data before calculating bch.
+		 * Do this in the buffer and use the bch lib here.
+		 */
+		for (j = 0; j < blocksize; j++)
+			psrc[j] = reverse_bit(psrc[j]);
+
+		encode_bch(bch, psrc, blocksize, ecc_buf);
+
+		/* reverse ecc bit */
+		for (j = 0; j < ecc_buf_size; j++)
+			ecc_buf[j] = reverse_bit(ecc_buf[j]);
+
+		/* Here eccbuf is byte aligned and we can just copy it */
+		memcpy(pdst + blocksize, ecc_buf, ecc_buf_size);
+	}
+
+	kfree(ecc_buf);
+	kfree(tmp_buf);
+	free_bch(bch);
+}
+#else
 
 static u8 calculate_parity_13_8(u8 d)
 {
@@ -50,6 +113,7 @@ static void encode_hamming_13_8(void *_src, void *_ecc, size_t size)
 	for (i = 0; i < size; i++)
 		ecc[i] = calculate_parity_13_8(src[i]);
 }
+#endif
 
 static u32 calc_chksum(void *buf, size_t size)
 {
@@ -231,8 +295,13 @@ static int nandbcb_update(struct mtd_info *mtd, loff_t off, size_t size,
 		goto dbbt_data_page_err;
 	}
 
+#if defined(CONFIG_MX6UL) || defined(CONFIG_MX6ULL)
+	/* 40 bit BCH, for i.MX6UL(L) */
+	encode_bch_ecc(fcb_raw_page + 32, fcb, 40);
+#else
 	memcpy(fcb_raw_page + 12, fcb, sizeof(struct fcb_block));
 	encode_hamming_13_8(fcb_raw_page + 12, fcb_raw_page + 12 + 512, 512);
+#endif
 	/*
 	 * Set the first and second byte of OOB data to 0xFF, not 0x00. These
 	 * bytes are used as the Manufacturers Bad Block Marker (MBBM). Since
