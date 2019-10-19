@@ -1424,7 +1424,7 @@ static void *dm_pci_map_ea_bar(struct udevice *dev, int bar, int flags,
 		}
 
 		/* size ignored for now */
-		return map_physmem(addr, flags, 0);
+		return map_physmem(addr, 0, flags);
 	}
 
 	return 0;
@@ -1450,7 +1450,7 @@ void *dm_pci_map_bar(struct udevice *dev, int bar, int flags)
 
 	/*
 	 * Pass "0" as the length argument to pci_bus_to_virt.  The arg
-	 * isn't actualy used on any platform because u-boot assumes a static
+	 * isn't actually used on any platform because U-Boot assumes a static
 	 * linear mapping.  In the future, this could read the BAR size
 	 * and pass that as the size if needed.
 	 */
