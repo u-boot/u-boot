@@ -493,6 +493,17 @@
 #define PCI_EXP_SLTCAP		20	/* Slot Capabilities */
 #define  PCI_EXP_SLTCAP_PSN	0xfff80000 /* Physical Slot Number */
 #define PCI_EXP_LNKCTL2		48	/* Link Control 2 */
+/* Single Root I/O Virtualization Registers */
+#define PCI_SRIOV_CAP		0x04	/* SR-IOV Capabilities */
+#define PCI_SRIOV_CTRL		0x08	/* SR-IOV Control */
+#define  PCI_SRIOV_CTRL_VFE	0x01	/* VF Enable */
+#define  PCI_SRIOV_CTRL_MSE	0x08	/* VF Memory Space Enable */
+#define PCI_SRIOV_INITIAL_VF	0x0c	/* Initial VFs */
+#define PCI_SRIOV_TOTAL_VF	0x0e	/* Total VFs */
+#define PCI_SRIOV_NUM_VF	0x10	/* Number of VFs */
+#define PCI_SRIOV_VF_OFFSET	0x14	/* First VF Offset */
+#define PCI_SRIOV_VF_STRIDE	0x16	/* Following VF Stride */
+#define PCI_SRIOV_VF_DID	0x1a	/* VF Device ID */
 
 /* Include the ID list */
 
@@ -890,12 +901,20 @@ struct udevice;
  * @vendor:	PCI vendor ID (see pci_ids.h)
  * @device:	PCI device ID (see pci_ids.h)
  * @class:	PCI class, 3 bytes: (base, sub, prog-if)
+ * @is_virtfn:	True for Virtual Function device
+ * @pfdev:	Handle to Physical Function device
+ * @virtid:	Virtual Function Index
  */
 struct pci_child_platdata {
 	int devfn;
 	unsigned short vendor;
 	unsigned short device;
 	unsigned int class;
+
+	/* Variables for CONFIG_PCI_SRIOV */
+	bool is_virtfn;
+	struct udevice *pfdev;
+	int virtid;
 };
 
 /* PCI bus operations */
@@ -1207,6 +1226,25 @@ int pci_generic_mmap_read_config(
 	uint offset,
 	ulong *valuep,
 	enum pci_size_t size);
+
+#if defined(CONFIG_PCI_SRIOV)
+/**
+ * pci_sriov_init() - Scan Virtual Function devices
+ *
+ * @pdev:	Physical Function udevice handle
+ * @vf_en:	Number of Virtual Function devices to enable
+ * @return 0 on success, -ve on error
+ */
+int pci_sriov_init(struct udevice *pdev, int vf_en);
+
+/**
+ * pci_sriov_get_totalvfs() - Get total available Virtual Function devices
+ *
+ * @pdev:	Physical Function udevice handle
+ * @return count on success, -ve on error
+ */
+int pci_sriov_get_totalvfs(struct udevice *pdev);
+#endif
 
 #ifdef CONFIG_DM_PCI_COMPAT
 /* Compatibility with old naming */
