@@ -465,6 +465,9 @@
 #define PCI_EA_FIRST_ENT	4	/* First EA Entry in List */
 #define  PCI_EA_ES		0x00000007 /* Entry Size */
 #define  PCI_EA_BEI		0x000000f0 /* BAR Equivalent Indicator */
+/* 9-14 map to VF BARs 0-5 respectively */
+#define  PCI_EA_BEI_VF_BAR0	9
+#define  PCI_EA_BEI_VF_BAR5	14
 /* Base, MaxOffset registers */
 /* bit 0 is reserved */
 #define  PCI_EA_IS_64		0x00000002	/* 64-bit field flag */
