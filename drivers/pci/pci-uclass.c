@@ -620,10 +620,19 @@ int dm_pci_hose_probe_bus(struct udevice *bus)
 {
 	int sub_bus;
 	int ret;
+	int ea_pos;
+	u8 reg;
 
 	debug("%s\n", __func__);
 
-	sub_bus = pci_get_bus_max() + 1;
+	ea_pos = dm_pci_find_capability(bus, PCI_CAP_ID_EA);
+	if (ea_pos) {
+		dm_pci_read_config8(bus, ea_pos + sizeof(u32) + sizeof(u8),
+				    &reg);
+		sub_bus = reg;
+	} else {
+		sub_bus = pci_get_bus_max() + 1;
+	}
 	debug("%s: bus = %d/%s\n", __func__, sub_bus, bus->name);
 	dm_pciauto_prescan_setup_bridge(bus, sub_bus);
 
@@ -633,12 +642,15 @@ int dm_pci_hose_probe_bus(struct udevice *bus)
 		      ret);
 		return ret;
 	}
-	if (sub_bus != bus->seq) {
-		printf("%s: Internal error, bus '%s' got seq %d, expected %d\n",
-		       __func__, bus->name, bus->seq, sub_bus);
-		return -EPIPE;
+
+	if (!ea_pos) {
+		if (sub_bus != bus->seq) {
+			debug("%s: Internal error, bus '%s' got seq %d, expected %d\n",
+			      __func__, bus->name, bus->seq, sub_bus);
+			return -EPIPE;
+		}
+		sub_bus = pci_get_bus_max();
 	}
-	sub_bus = pci_get_bus_max();
 	dm_pciauto_postscan_setup_bridge(bus, sub_bus);
 
 	return sub_bus;
