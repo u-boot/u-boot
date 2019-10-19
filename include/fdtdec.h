@@ -445,6 +445,19 @@ int fdtdec_get_pci_bar32(const struct udevice *dev, struct fdt_pci_addr *addr,
 			 u32 *bar);
 
 /**
+ * Look at the bus range property of a device node and return the pci bus
+ * range for this node.
+ * The property must hold one fdt_pci_addr with a length.
+ * @param blob		FDT blob
+ * @param node		node to examine
+ * @param res		the resource structure to return the bus range
+ * @return 0 if ok, negative on error
+ */
+
+int fdtdec_get_pci_bus_range(const void *blob, int node,
+			     struct fdt_resource *res);
+
+/**
  * Look up a 32-bit integer property in a node and return it. The property
  * must have at least 4 bytes of data. The value of the first cell is
  * returned.
