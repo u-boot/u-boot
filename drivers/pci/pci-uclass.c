@@ -936,10 +936,13 @@ static void decode_regions(struct pci_controller *hose, ofnode parent_node,
 		}
 
 		pos = -1;
-		for (i = 0; i < hose->region_count; i++) {
-			if (hose->regions[i].flags == type)
-				pos = i;
+		if (!IS_ENABLED(CONFIG_PCI_REGION_MULTI_ENTRY)) {
+			for (i = 0; i < hose->region_count; i++) {
+				if (hose->regions[i].flags == type)
+					pos = i;
+			}
 		}
+
 		if (pos == -1)
 			pos = hose->region_count++;
 		debug(" - type=%d, pos=%d\n", type, pos);

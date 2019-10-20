@@ -43,6 +43,16 @@ config PCI_PNP
 	help
 	  Enable PCI memory and I/O space resource allocation and assignment.
 
+config PCI_REGION_MULTI_ENTRY
+	bool "Enable Multiple entries of region type MEMORY in ranges for PCI"
+	depends on PCI || DM_PCI
+	default n
+	help
+	  Enable PCI memory regions to be of multiple entry. Multiple entry
+	  here refers to allow more than one count of address ranges for MEMORY
+	  region type. This helps to add support for SoC's like OcteonTX/TX2
+	  where every peripheral is on the PCI bus.
+
 config PCIE_ECAM_GENERIC
 	bool "Generic ECAM-based PCI host controller support"
 	default n
