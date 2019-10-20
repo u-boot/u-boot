@@ -180,16 +180,20 @@ static inline void __raw_readsl(unsigned long addr, void *data, int longlen)
 #define in_le32(a)	in_arch(l,le32,a)
 #define in_le16(a)	in_arch(w,le16,a)
 
+#define out_be64(a,v)	out_arch(l,be64,a,v)
 #define out_be32(a,v)	out_arch(l,be32,a,v)
 #define out_be16(a,v)	out_arch(w,be16,a,v)
 
+#define in_be64(a)	in_arch(l,be64,a)
 #define in_be32(a)	in_arch(l,be32,a)
 #define in_be16(a)	in_arch(w,be16,a)
 
+#define out_64(a,v)	__raw_writeq(v,a)
 #define out_32(a,v)	__raw_writel(v,a)
 #define out_16(a,v)	__raw_writew(v,a)
 #define out_8(a,v)	__raw_writeb(v,a)
 
+#define in_64(a)	__raw_readq(a)
 #define in_32(a)	__raw_readl(a)
 #define in_16(a)	__raw_readw(a)
 #define in_8(a)		__raw_readb(a)
@@ -230,6 +234,18 @@ static inline void __raw_readsl(unsigned long addr, void *data, int longlen)
 #define clrbits_8(addr, clear) clrbits(8, addr, clear)
 #define setbits_8(addr, set) setbits(8, addr, set)
 #define clrsetbits_8(addr, clear, set) clrsetbits(8, addr, clear, set)
+
+#define clrbits_be64(addr, clear) clrbits(be64, addr, clear)
+#define setbits_be64(addr, set) setbits(be64, addr, set)
+#define clrsetbits_be64(addr, clear, set) clrsetbits(be64, addr, clear, set)
+
+#define clrbits_le64(addr, clear) clrbits(le64, addr, clear)
+#define setbits_le64(addr, set) setbits(le64, addr, set)
+#define clrsetbits_le64(addr, clear, set) clrsetbits(le64, addr, clear, set)
+
+#define clrbits_64(addr, clear) clrbits(64, addr, clear)
+#define setbits_64(addr, set) setbits(64, addr, set)
+#define clrsetbits_64(addr, clear, set) clrsetbits(64, addr, clear, set)
 
 /*
  * Now, pick up the machine-defined IO definitions
