@@ -1728,6 +1728,14 @@ config ARCH_ROCKCHIP
 	imply TPL_SYSRESET
 	imply USB_FUNCTION_FASTBOOT
 
+config ARCH_OCTEONTX
+	bool "Support OcteonTX SoCs"
+	select DM
+	select ARM64
+	select OF_CONTROL
+	select OF_LIVE
+	select BOARD_LATE_INIT
+	select SYS_CACHE_SHIFT_7
 config TARGET_THUNDERX_88XX
 	bool "Support ThunderX 88xx"
 	select ARM64
@@ -1826,6 +1834,7 @@ source "arch/arm/mach-lpc32xx/Kconfig"
 
 source "arch/arm/mach-mvebu/Kconfig"
 
+source "arch/arm/mach-octeontx/Kconfig"
 source "arch/arm/cpu/armv7/ls102xa/Kconfig"
 
 source "arch/arm/mach-imx/mx2/Kconfig"
@@ -1909,6 +1918,7 @@ source "board/bosch/guardian/Kconfig"
 source "board/CarMediaLab/flea3/Kconfig"
 source "board/Marvell/aspenite/Kconfig"
 source "board/Marvell/gplugd/Kconfig"
+source "board/Marvell/octeontx/Kconfig"
 source "board/armadeus/apf27/Kconfig"
 source "board/armltd/vexpress/Kconfig"
 source "board/armltd/vexpress64/Kconfig"
