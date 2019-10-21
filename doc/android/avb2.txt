@@ -95,6 +95,10 @@ e.g.:
        mmc read ${loadaddr} ${boot_start} ${boot_size}; \
        bootm $loadaddr $loadaddr $fdtaddr;              \
 
+If partitions you want to verify are slotted (have A/B suffixes), then current
+slot suffix should be passed to 'avb verify' sub-command, e.g.:
+
+=> avb verify _a
 
 To switch on automatic generation of vbmeta partition in AOSP build, add these
 lines to device configuration mk file:
