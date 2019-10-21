@@ -289,8 +289,15 @@ static int _vprintf(struct printf_info *info, const char *fmt, va_list va)
 				break;
 			case 'p':
 				pointer(info, fmt, va_arg(va, void *));
+				/*
+				 * Skip this because it pulls in _ctype which is
+				 * 256 bytes, and we don't generally implement
+				 * pointer anyway
+				 */
+#ifdef DEBUG
 				while (isalnum(fmt[0]))
 					fmt++;
+#endif
 				break;
 			case '%':
 				out(info, '%');
