@@ -588,6 +588,7 @@ static int reserve_stacks(void)
 static int reserve_bloblist(void)
 {
 #ifdef CONFIG_BLOBLIST
+	gd->start_addr_sp &= ~0xf;
 	gd->start_addr_sp -= CONFIG_BLOBLIST_SIZE;
 	gd->new_bloblist = map_sysmem(gd->start_addr_sp, CONFIG_BLOBLIST_SIZE);
 #endif
