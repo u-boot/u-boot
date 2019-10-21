@@ -1026,7 +1026,6 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	return esdhc_init_common(priv, mmc);
 }
 
-#if CONFIG_IS_ENABLED(DM_MMC)
 static int fsl_esdhc_get_cd(struct udevice *dev)
 {
 	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
@@ -1059,7 +1058,6 @@ static const struct dm_mmc_ops fsl_esdhc_ops = {
 	.execute_tuning = fsl_esdhc_execute_tuning,
 #endif
 };
-#endif
 
 static const struct udevice_id fsl_esdhc_ids[] = {
 	{ .compatible = "fsl,esdhc", },
