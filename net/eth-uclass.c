@@ -420,20 +420,25 @@ int eth_initialize(void)
 
 		bootstage_mark(BOOTSTAGE_ID_NET_ETH_INIT);
 		do {
-			if (num_devices)
-				printf(", ");
+			if (dev->seq != -1) {
+				if (num_devices)
+					printf(", ");
 
-			printf("eth%d: %s", dev->seq, dev->name);
+				printf("eth%d: %s", dev->seq, dev->name);
 
-			if (ethprime && dev == prime_dev)
-				printf(" [PRIME]");
+				if (ethprime && dev == prime_dev)
+					printf(" [PRIME]");
+			}
 
 			eth_write_hwaddr(dev);
 
+			if (dev->seq != -1)
+				num_devices++;
 			uclass_next_device_check(&dev);
-			num_devices++;
 		} while (dev);
 
+		if (!num_devices)
+			printf("No ethernet found.\n");
 		putc('\n');
 	}
 
