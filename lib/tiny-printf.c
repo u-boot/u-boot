@@ -157,7 +157,8 @@ static void ip4_addr_string(struct printf_info *info, u8 *addr)
  *       decimal).
  */
 
-static void pointer(struct printf_info *info, const char *fmt, void *ptr)
+static void __maybe_unused pointer(struct printf_info *info, const char *fmt,
+				   void *ptr)
 {
 #ifdef DEBUG
 	unsigned long num = (uintptr_t)ptr;
@@ -266,6 +267,21 @@ static int _vprintf(struct printf_info *info, const char *fmt, va_list va)
 						div_out(info, &num, div);
 				}
 				break;
+			case 'p':
+#ifdef DEBUG
+				pointer(info, fmt, va_arg(va, void *));
+				/*
+				 * Skip this because it pulls in _ctype which is
+				 * 256 bytes, and we don't generally implement
+				 * pointer anyway
+				 */
+				while (isalnum(fmt[0]))
+					fmt++;
+				break;
+#else
+				islong = true;
+				/* no break */
+#endif
 			case 'x':
 				if (islong) {
 					num = va_arg(va, unsigned long);
@@ -286,18 +302,6 @@ static int _vprintf(struct printf_info *info, const char *fmt, va_list va)
 				break;
 			case 's':
 				p = va_arg(va, char*);
-				break;
-			case 'p':
-				pointer(info, fmt, va_arg(va, void *));
-				/*
-				 * Skip this because it pulls in _ctype which is
-				 * 256 bytes, and we don't generally implement
-				 * pointer anyway
-				 */
-#ifdef DEBUG
-				while (isalnum(fmt[0]))
-					fmt++;
-#endif
 				break;
 			case '%':
 				out(info, '%');
