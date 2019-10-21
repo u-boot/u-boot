@@ -18,6 +18,7 @@
 #include <version.h>
 #include <image.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <dm/root.h>
 #include <linux/compiler.h>
 #include <fdt_support.h>
@@ -396,12 +397,23 @@ static int spl_common_init(bool setup_malloc)
 		gd->malloc_ptr = 0;
 	}
 #endif
-	ret = bootstage_init(true);
+	ret = bootstage_init(u_boot_first_phase());
 	if (ret) {
 		debug("%s: Failed to set up bootstage: ret=%d\n", __func__,
 		      ret);
 		return ret;
 	}
+#ifdef CONFIG_BOOTSTAGE_STASH
+	if (!u_boot_first_phase()) {
+		const void *stash = map_sysmem(CONFIG_BOOTSTAGE_STASH_ADDR,
+					       CONFIG_BOOTSTAGE_STASH_SIZE);
+
+		ret = bootstage_unstash(stash, CONFIG_BOOTSTAGE_STASH_SIZE);
+		if (ret)
+			debug("%s: Failed to unstash bootstage: ret=%d\n",
+			      __func__, ret);
+	}
+#endif /* CONFIG_BOOTSTAGE_STASH */
 	bootstage_mark_name(spl_phase() == PHASE_TPL ? BOOTSTAGE_ID_START_TPL :
 			    BOOTSTAGE_ID_START_SPL, SPL_TPL_NAME);
 #if CONFIG_IS_ENABLED(LOG)
