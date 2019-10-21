@@ -53,14 +53,23 @@ int bootstage_relocate(void)
 {
 	struct bootstage_data *data = gd->bootstage;
 	int i;
+	char *ptr;
+
+	/* Figure out where to relocate the strings to */
+	ptr = (char *)(data + 1);
 
 	/*
 	 * Duplicate all strings.  They may point to an old location in the
 	 * program .text section that can eventually get trashed.
 	 */
 	debug("Relocating %d records\n", data->rec_count);
-	for (i = 0; i < data->rec_count; i++)
-		data->record[i].name = strdup(data->record[i].name);
+	for (i = 0; i < data->rec_count; i++) {
+		const char *from = data->record[i].name;
+
+		strcpy(ptr, from);
+		data->record[i].name = ptr;
+		ptr += strlen(ptr) + 1;
+	}
 
 	return 0;
 }
@@ -490,7 +499,17 @@ int bootstage_unstash(const void *base, int size)
 
 int bootstage_get_size(void)
 {
-	return sizeof(struct bootstage_data);
+	struct bootstage_data *data = gd->bootstage;
+	struct bootstage_record *rec;
+	int size;
+	int i;
+
+	size = sizeof(struct bootstage_data);
+	for (rec = data->record, i = 0; i < data->rec_count;
+	     i++, rec++)
+		size += strlen(rec->name) + 1;
+
+	return size;
 }
 
 int bootstage_init(bool first)

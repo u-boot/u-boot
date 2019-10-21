@@ -696,6 +696,7 @@ static int reloc_bootstage(void)
 		      gd->bootstage, gd->new_bootstage, size);
 		memcpy(gd->new_bootstage, gd->bootstage, size);
 		gd->bootstage = gd->new_bootstage;
+		bootstage_relocate();
 	}
 #endif
 
