@@ -501,7 +501,6 @@ static void set_sysctl(struct fsl_esdhc_priv *priv, struct mmc *mmc, uint clock)
 	struct fsl_esdhc *regs = priv->esdhc_regs;
 	int div = 1;
 	int pre_div = 2;
-	int ddr_pre_div = mmc->ddr_mode ? 2 : 1;
 	unsigned int sdhc_clk = priv->sdhc_clk;
 	u32 time_out;
 	u32 value;
@@ -510,10 +509,10 @@ static void set_sysctl(struct fsl_esdhc_priv *priv, struct mmc *mmc, uint clock)
 	if (clock < mmc->cfg->f_min)
 		clock = mmc->cfg->f_min;
 
-	while (sdhc_clk / (16 * pre_div * ddr_pre_div) > clock && pre_div < 256)
+	while (sdhc_clk / (16 * pre_div) > clock && pre_div < 256)
 		pre_div *= 2;
 
-	while (sdhc_clk / (div * pre_div * ddr_pre_div) > clock && div < 16)
+	while (sdhc_clk / (div * pre_div) > clock && div < 16)
 		div++;
 
 	pre_div >>= 1;
@@ -773,9 +772,6 @@ static int fsl_esdhc_init(struct fsl_esdhc_priv *priv,
 		cfg->host_caps = MMC_MODE_4BIT;
 
 	cfg->host_caps = MMC_MODE_4BIT | MMC_MODE_8BIT;
-#ifdef CONFIG_SYS_FSL_ESDHC_HAS_DDR_MODE
-	cfg->host_caps |= MMC_MODE_DDR_52MHz;
-#endif
 
 	if (priv->bus_width > 0) {
 		if (priv->bus_width < 8)
