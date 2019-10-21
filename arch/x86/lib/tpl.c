@@ -45,11 +45,6 @@ static int x86_tpl_init(void)
 		return ret;
 	}
 	preloader_console_init();
-	ret = print_cpuinfo();
-	if (ret) {
-		debug("%s: print_cpuinfo() failed\n", __func__);
-		return ret;
-	}
 
 	return 0;
 }
