@@ -402,7 +402,8 @@ static int spl_common_init(bool setup_malloc)
 		      ret);
 		return ret;
 	}
-	bootstage_mark_name(BOOTSTAGE_ID_START_SPL, "spl");
+	bootstage_mark_name(spl_phase() == PHASE_TPL ? BOOTSTAGE_ID_START_TPL :
+			    BOOTSTAGE_ID_START_SPL, SPL_TPL_NAME);
 #if CONFIG_IS_ENABLED(LOG)
 	ret = log_init();
 	if (ret) {
@@ -418,7 +419,8 @@ static int spl_common_init(bool setup_malloc)
 		}
 	}
 	if (CONFIG_IS_ENABLED(DM)) {
-		bootstage_start(BOOTSTATE_ID_ACCUM_DM_SPL, "dm_spl");
+		bootstage_start(BOOTSTATE_ID_ACCUM_DM_SPL,
+				spl_phase() == PHASE_TPL ? "dm tpl" : "dm_spl");
 		/* With CONFIG_SPL_OF_PLATDATA, bring in all devices */
 		ret = dm_init_and_scan(!CONFIG_IS_ENABLED(OF_PLATDATA));
 		bootstage_accum(BOOTSTATE_ID_ACCUM_DM_SPL);
@@ -704,8 +706,9 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	debug("SPL malloc() used 0x%lx bytes (%ld KB)\n", gd->malloc_ptr,
 	      gd->malloc_ptr / 1024);
 #endif
+	bootstage_mark_name(spl_phase() == PHASE_TPL ? BOOTSTAGE_ID_END_TPL :
+			    BOOTSTAGE_ID_END_SPL, "end " SPL_TPL_NAME);
 #ifdef CONFIG_BOOTSTAGE_STASH
-	bootstage_mark_name(BOOTSTAGE_ID_END_SPL, "end_spl");
 	ret = bootstage_stash((void *)CONFIG_BOOTSTAGE_STASH_ADDR,
 			      CONFIG_BOOTSTAGE_STASH_SIZE);
 	if (ret)
