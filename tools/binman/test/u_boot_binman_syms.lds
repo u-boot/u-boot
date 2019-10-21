@@ -9,7 +9,7 @@ ENTRY(_start)
 
 SECTIONS
 {
-	. = 0x00000000;
+	. = 0x00000010;
 	_start = .;
 
 	. = ALIGN(4);
