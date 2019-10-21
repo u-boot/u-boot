@@ -107,7 +107,7 @@ int spl_spi_load_image(void)
 
 void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 {
-	printf("Jumping to U-Boot SPL at %lx\n", (ulong)spl_image->entry_point);
+	debug("Jumping to U-Boot SPL at %lx\n", (ulong)spl_image->entry_point);
 	jump_to_spl(spl_image->entry_point);
 	hang();
 }
