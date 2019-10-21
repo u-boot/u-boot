@@ -23,10 +23,6 @@
 #include <asm/io.h>
 #include <dm.h>
 
-#if !CONFIG_IS_ENABLED(BLK)
-#include "mmc_private.h"
-#endif
-
 DECLARE_GLOBAL_DATA_PTR;
 
 #define SDHCI_IRQ_EN_BITS		(IRQSTATEN_CC | IRQSTATEN_TC | \
@@ -35,7 +31,6 @@ DECLARE_GLOBAL_DATA_PTR;
 				IRQSTATEN_CIE | IRQSTATEN_DTOE | IRQSTATEN_DCE | \
 				IRQSTATEN_DEBE | IRQSTATEN_BRR | IRQSTATEN_BWR | \
 				IRQSTATEN_DINT)
-#define ESDHC_DRIVER_STAGE_VALUE 0xffffffff
 
 struct fsl_esdhc {
 	uint    dsaddr;		/* SDMA system address register */
@@ -98,7 +93,7 @@ struct fsl_esdhc_priv {
 	struct clk per_clk;
 	unsigned int clock;
 	unsigned int bus_width;
-#if !CONFIG_IS_ENABLED(BLK)
+#if !CONFIG_IS_ENABLED(DM_MMC)
 	struct mmc *mmc;
 #endif
 	struct udevice *dev;
@@ -960,9 +955,6 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	fdt_addr_t addr;
 	unsigned int val;
 	struct mmc *mmc;
-#if !CONFIG_IS_ENABLED(BLK)
-	struct blk_desc *bdesc;
-#endif
 	int ret;
 
 	addr = dev_read_addr(dev);
@@ -1028,25 +1020,6 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	mmc = &plat->mmc;
 	mmc->cfg = &plat->cfg;
 	mmc->dev = dev;
-#if !CONFIG_IS_ENABLED(BLK)
-	mmc->priv = priv;
-
-	/* Setup dsr related values */
-	mmc->dsr_imp = 0;
-	mmc->dsr = ESDHC_DRIVER_STAGE_VALUE;
-	/* Setup the universal parts of the block interface just once */
-	bdesc = mmc_get_blk_desc(mmc);
-	bdesc->if_type = IF_TYPE_MMC;
-	bdesc->removable = 1;
-	bdesc->devnum = mmc_get_next_devnum();
-	bdesc->block_read = mmc_bread;
-	bdesc->block_write = mmc_bwrite;
-	bdesc->block_erase = mmc_berase;
-
-	/* setup initial part type */
-	bdesc->part_type = mmc->cfg->part_type;
-	mmc_list_add(mmc);
-#endif
 
 	upriv->mmc = mmc;
 
@@ -1093,23 +1066,19 @@ static const struct udevice_id fsl_esdhc_ids[] = {
 	{ /* sentinel */ }
 };
 
-#if CONFIG_IS_ENABLED(BLK)
 static int fsl_esdhc_bind(struct udevice *dev)
 {
 	struct fsl_esdhc_plat *plat = dev_get_platdata(dev);
 
 	return mmc_bind(dev, &plat->mmc, &plat->cfg);
 }
-#endif
 
 U_BOOT_DRIVER(fsl_esdhc) = {
 	.name	= "fsl-esdhc-mmc",
 	.id	= UCLASS_MMC,
 	.of_match = fsl_esdhc_ids,
 	.ops	= &fsl_esdhc_ops,
-#if CONFIG_IS_ENABLED(BLK)
 	.bind	= fsl_esdhc_bind,
-#endif
 	.probe	= fsl_esdhc_probe,
 	.platdata_auto_alloc_size = sizeof(struct fsl_esdhc_plat),
 	.priv_auto_alloc_size = sizeof(struct fsl_esdhc_priv),
