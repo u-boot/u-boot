@@ -829,6 +829,11 @@ int fsl_setenv_mcinitcmd(void)
 #endif
 
 #ifdef CONFIG_BOARD_LATE_INIT
+__weak int fsl_board_late_init(void)
+{
+	return 0;
+}
+
 int board_late_init(void)
 {
 #ifdef CONFIG_CHAIN_OF_TRUST
@@ -863,6 +868,6 @@ int board_late_init(void)
 	qspi_ahb_init();
 #endif
 
-	return 0;
+	return fsl_board_late_init();
 }
 #endif
