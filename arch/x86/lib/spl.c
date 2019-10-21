@@ -67,6 +67,10 @@ static int x86_spl_init(void)
 	int ret;
 
 	debug("%s starting\n", __func__);
+	if (IS_ENABLED(TPL))
+		ret = x86_cpu_reinit_f();
+	else
+		ret = x86_cpu_init_f();
 	ret = spl_init();
 	if (ret) {
 		debug("%s: spl_init() failed\n", __func__);

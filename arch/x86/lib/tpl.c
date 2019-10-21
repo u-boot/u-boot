@@ -24,6 +24,11 @@ static int x86_tpl_init(void)
 	int ret;
 
 	debug("%s starting\n", __func__);
+	ret = x86_cpu_init_tpl();
+	if (ret) {
+		debug("%s: x86_cpu_init_tpl() failed\n", __func__);
+		return ret;
+	}
 	ret = spl_init();
 	if (ret) {
 		debug("%s: spl_init() failed\n", __func__);

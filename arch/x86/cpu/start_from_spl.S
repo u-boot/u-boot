@@ -31,6 +31,7 @@ _start:
 
 	call	board_init_f_init_reserve
 
+	call	x86_cpu_reinit_f
 	xorl	%eax, %eax
 	call	board_init_f
 	call	board_init_f_r
