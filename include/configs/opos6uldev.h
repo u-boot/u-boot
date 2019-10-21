@@ -41,14 +41,6 @@
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2
 #endif
 
-/* Ethernet */
-#ifdef CONFIG_FEC_MXC
-#define IMX_FEC_BASE			ENET_BASE_ADDR
-#define CONFIG_FEC_MXC_PHYADDR          0x1
-#define CONFIG_FEC_XCV_TYPE             RMII
-#define CONFIG_ETHPRIME			"FEC"
-#endif
-
 /* LCD */
 #ifndef CONFIG_SPL_BUILD
 #ifdef CONFIG_VIDEO
