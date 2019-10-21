@@ -461,6 +461,22 @@ See README.x86 for information about x86 binary blobs.
 
 
 
+Entry: intel-fsp-t: Entry containing Intel Firmware Support Package (FSP) temp ram init
+---------------------------------------------------------------------------------------
+
+Properties / Entry arguments:
+    - filename: Filename of file to read into entry
+
+This file contains a binary blob which is used on some devices to set up
+temporary memory (Cache-as-RAM or CAR). U-Boot executes this code in TPL so
+that it has access to memory for its stack and initial storage.
+
+An example filename is 'fsp_t.bin'
+
+See README.x86 for information about x86 binary blobs.
+
+
+
 Entry: intel-ifwi: Entry containing an Intel Integrated Firmware Image (IFWI) file
 ----------------------------------------------------------------------------------
 
