@@ -34,6 +34,15 @@ int x86_cpu_init_f(void);
  */
 int x86_cpu_reinit_f(void);
 
+/**
+ * x86_cpu_init_tpl() - Do the minimum possible CPU init
+ *
+ * This just sets up the CPU features and figured out the identity
+ *
+ * @return 0 (indicating success, to mimic cpu_init_f())
+ */
+int x86_cpu_init_tpl(void);
+
 int cpu_init_f(void);
 void setup_gdt(struct global_data *id, u64 *gdt_addr);
 /*
