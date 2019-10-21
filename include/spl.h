@@ -332,14 +332,14 @@ struct spl_image_loader {
  */
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 #define SPL_LOAD_IMAGE_METHOD(_name, _priority, _boot_device, _method) \
-	SPL_LOAD_IMAGE(_method ## _priority ## _boot_device) = { \
+	SPL_LOAD_IMAGE(_boot_device ## _priority ## _method) = { \
 		.name = _name, \
 		.boot_device = _boot_device, \
 		.load_image = _method, \
 	}
 #else
 #define SPL_LOAD_IMAGE_METHOD(_name, _priority, _boot_device, _method) \
-	SPL_LOAD_IMAGE(_method ## _priority ## _boot_device) = { \
+	SPL_LOAD_IMAGE(_boot_device ## _priority ## _method) = { \
 		.boot_device = _boot_device, \
 		.load_image = _method, \
 	}
