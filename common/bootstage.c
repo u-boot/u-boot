@@ -41,10 +41,11 @@ enum {
 };
 
 struct bootstage_hdr {
-	uint32_t version;	/* BOOTSTAGE_VERSION */
-	uint32_t count;		/* Number of records */
-	uint32_t size;		/* Total data size (non-zero if valid) */
-	uint32_t magic;		/* Unused */
+	u32 version;		/* BOOTSTAGE_VERSION */
+	u32 count;		/* Number of records */
+	u32 size;		/* Total data size (non-zero if valid) */
+	u32 magic;		/* Magic number */
+	u32 next_id;		/* Next ID to use for bootstage */
 };
 
 int bootstage_relocate(void)
@@ -392,6 +393,7 @@ int bootstage_stash(void *base, int size)
 	hdr->count = count;
 	hdr->size = 0;
 	hdr->magic = BOOTSTAGE_MAGIC;
+	hdr->next_id = data->next_id;
 	ptr += sizeof(*hdr);
 
 	/* Write the records, silently stopping when we run out of space */
@@ -485,6 +487,7 @@ int bootstage_unstash(const void *base, int size)
 
 	/* Mark the records as read */
 	data->rec_count += hdr->count;
+	data->next_id = hdr->next_id;
 	debug("Unstashed %d records\n", hdr->count);
 
 	return 0;
