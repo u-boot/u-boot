@@ -269,7 +269,7 @@ For example:
     };
 
     U_BOOT_DRIVER(mmc_drv) = {
-            .name           = "mmc",
+            .name           = "vendor_mmc",  /* matches compatible string */
             .id             = UCLASS_MMC,
             .of_match       = mmc_ids,
             .ofdata_to_platdata = mmc_ofdata_to_platdata,
