@@ -373,7 +373,6 @@ int bootstage_stash(void *base, int size)
 	const struct bootstage_record *rec;
 	char buf[20];
 	char *ptr = base, *end = ptr + size;
-	uint32_t count;
 	int i;
 
 	if (hdr + 1 > (struct bootstage_hdr *)end) {
@@ -384,22 +383,15 @@ int bootstage_stash(void *base, int size)
 	/* Write an arbitrary version number */
 	hdr->version = BOOTSTAGE_VERSION;
 
-	/* Count the number of records, and write that value first */
-	for (rec = data->record, i = count = 0; i < data->rec_count;
-	     i++, rec++) {
-		if (rec->id != 0)
-			count++;
-	}
-	hdr->count = count;
+	hdr->count = data->rec_count;
 	hdr->size = 0;
 	hdr->magic = BOOTSTAGE_MAGIC;
 	hdr->next_id = data->next_id;
 	ptr += sizeof(*hdr);
 
 	/* Write the records, silently stopping when we run out of space */
-	for (rec = data->record, i = 0; i < data->rec_count; i++, rec++) {
+	for (rec = data->record, i = 0; i < data->rec_count; i++, rec++)
 		append_data(&ptr, end, rec, sizeof(*rec));
-	}
 
 	/* Write the name strings */
 	for (rec = data->record, i = 0; i < data->rec_count; i++, rec++) {
