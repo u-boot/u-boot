@@ -2,7 +2,7 @@
 # Copyright 2019 Google LLC
 # Written by Simon Glass <sjg@chromium.org>
 #
-# Entry-type module for Intel Firmware Support Package binary blob (T section)
+# Entry-type module for Intel Firmware Support Package binary blob (M section)
 #
 
 from entry import Entry
