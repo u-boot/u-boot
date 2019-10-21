@@ -389,3 +389,9 @@ int snprintf(char *buf, size_t size, const char *fmt, ...)
 
 	return ret;
 }
+
+void print_grouped_ull(unsigned long long int_val, int digits)
+{
+	/* Don't try to print the upper 32-bits */
+	printf("%ld ", (ulong)int_val);
+}
