@@ -74,7 +74,12 @@ static void __secure ls1_deepsleep_irq_cfg(void)
 	 * is first saved to a spare register and then read from it
 	 */
 	ippdexpcr1 = in_be32(&scfg->sparecr[7]);
-	out_be32(&rcpm->ippdexpcr1, ippdexpcr1);
+
+	/*
+	 * To allow OCRAM to be used as wakeup source in deep sleep,
+	 * do not power it down.
+	 */
+	out_be32(&rcpm->ippdexpcr1, ippdexpcr1 | RCPM_IPPDEXPCR1_OCRAM1);
 
 	if (ippdexpcr0 & RCPM_IPPDEXPCR0_ETSEC)
 		pmcintecr |= SCFG_PMCINTECR_ETSECRXG0 |
