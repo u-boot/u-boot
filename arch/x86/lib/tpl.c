@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <debug_uart.h>
+#include <dm.h>
 #include <spl.h>
 #include <asm/cpu.h>
 #include <asm/mtrr.h>
@@ -115,3 +116,27 @@ void spl_board_init(void)
 {
 	preloader_console_init();
 }
+
+#if !CONFIG_IS_ENABLED(PCI)
+/*
+ * This is a fake PCI bus for TPL when it doesn't have proper PCI. It is enough
+ * to bind the devices on the PCI bus, some of which have early-regs properties
+ * providing fixed BARs. Individual drivers program these BARs themselves so
+ * that they can access the devices. The BARs are allocated statically in the
+ * device tree.
+ *
+ * Once SPL is running it enables PCI properly, but does not auto-assign BARs
+ * for devices, so the TPL BARs continue to be used. Once U-Boot starts it does
+ * the auto allocation (after relocation).
+ */
+static const struct udevice_id tpl_fake_pci_ids[] = {
+	{ .compatible = "pci-x86" },
+	{ }
+};
+
+U_BOOT_DRIVER(pci_x86) = {
+	.name	= "pci_x86",
+	.id	= UCLASS_SIMPLE_BUS,
+	.of_match = tpl_fake_pci_ids,
+};
+#endif
