@@ -292,6 +292,10 @@ cmd_dt_S_dtb=						\
 $(obj)/%.dtb.S: $(obj)/%.dtb
 	$(call cmd,dt_S_dtb)
 
+ifeq ($(CONFIG_SPL_LOAD_FIT_APPLY_OVERLAY),y)
+DTC_FLAGS += -@
+endif
+
 quiet_cmd_dtc = DTC     $@
 # Modified for U-Boot
 # Bring in any U-Boot-specific include at the end of the file
