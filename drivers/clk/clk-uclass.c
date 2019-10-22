@@ -625,6 +625,54 @@ bool clk_is_match(const struct clk *p, const struct clk *q)
 	return false;
 }
 
+static void devm_clk_release(struct udevice *dev, void *res)
+{
+	clk_free(res);
+}
+
+static int devm_clk_match(struct udevice *dev, void *res, void *data)
+{
+	return res == data;
+}
+
+struct clk *devm_clk_get(struct udevice *dev, const char *id)
+{
+	int rc;
+	struct clk *clk;
+
+	clk = devres_alloc(devm_clk_release, sizeof(struct clk), __GFP_ZERO);
+	if (unlikely(!clk))
+		return ERR_PTR(-ENOMEM);
+
+	rc = clk_get_by_name(dev, id, clk);
+	if (rc)
+		return ERR_PTR(rc);
+
+	devres_add(dev, clk);
+	return clk;
+}
+
+struct clk *devm_clk_get_optional(struct udevice *dev, const char *id)
+{
+	struct clk *clk = devm_clk_get(dev, id);
+
+	if (IS_ERR(clk))
+		return NULL;
+
+	return clk;
+}
+
+void devm_clk_put(struct udevice *dev, struct clk *clk)
+{
+	int rc;
+
+	if (!clk)
+		return;
+
+	rc = devres_release(dev, devm_clk_release, devm_clk_match, clk);
+	WARN_ON(rc);
+}
+
 UCLASS_DRIVER(clk) = {
 	.id		= UCLASS_CLK,
 	.name		= "clk",
