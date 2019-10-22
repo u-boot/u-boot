@@ -356,7 +356,7 @@ int soc_clk_dump(void);
  */
 static inline bool clk_valid(struct clk *clk)
 {
-	return !!clk->dev;
+	return clk && !!clk->dev;
 }
 
 /**

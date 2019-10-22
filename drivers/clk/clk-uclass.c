@@ -349,9 +349,12 @@ int clk_release_all(struct clk *clk, int count)
 
 int clk_request(struct udevice *dev, struct clk *clk)
 {
-	const struct clk_ops *ops = clk_dev_ops(dev);
+	const struct clk_ops *ops;
 
 	debug("%s(dev=%p, clk=%p)\n", __func__, dev, clk);
+	if (!clk)
+		return 0;
+	ops = clk_dev_ops(dev);
 
 	clk->dev = dev;
 
@@ -363,9 +366,12 @@ int clk_request(struct udevice *dev, struct clk *clk)
 
 int clk_free(struct clk *clk)
 {
-	const struct clk_ops *ops = clk_dev_ops(clk->dev);
+	const struct clk_ops *ops;
 
 	debug("%s(clk=%p)\n", __func__, clk);
+	if (!clk)
+		return 0;
+	ops = clk_dev_ops(clk->dev);
 
 	if (!ops->free)
 		return 0;
@@ -375,9 +381,12 @@ int clk_free(struct clk *clk)
 
 ulong clk_get_rate(struct clk *clk)
 {
-	const struct clk_ops *ops = clk_dev_ops(clk->dev);
+	const struct clk_ops *ops;
 
 	debug("%s(clk=%p)\n", __func__, clk);
+	if (!clk)
+		return 0;
+	ops = clk_dev_ops(clk->dev);
 
 	if (!ops->get_rate)
 		return -ENOSYS;
@@ -391,6 +400,8 @@ struct clk *clk_get_parent(struct clk *clk)
 	struct clk *pclk;
 
 	debug("%s(clk=%p)\n", __func__, clk);
+	if (!clk)
+		return NULL;
 
 	pdev = dev_get_parent(clk->dev);
 	pclk = dev_get_clk_ptr(pdev);
@@ -406,6 +417,8 @@ long long clk_get_parent_rate(struct clk *clk)
 	struct clk *pclk;
 
 	debug("%s(clk=%p)\n", __func__, clk);
+	if (!clk)
+		return 0;
 
 	pclk = clk_get_parent(clk);
 	if (IS_ERR(pclk))
@@ -424,9 +437,12 @@ long long clk_get_parent_rate(struct clk *clk)
 
 ulong clk_set_rate(struct clk *clk, ulong rate)
 {
-	const struct clk_ops *ops = clk_dev_ops(clk->dev);
+	const struct clk_ops *ops;
 
 	debug("%s(clk=%p, rate=%lu)\n", __func__, clk, rate);
+	if (!clk)
+		return 0;
+	ops = clk_dev_ops(clk->dev);
 
 	if (!ops->set_rate)
 		return -ENOSYS;
@@ -436,9 +452,12 @@ ulong clk_set_rate(struct clk *clk, ulong rate)
 
 int clk_set_parent(struct clk *clk, struct clk *parent)
 {
-	const struct clk_ops *ops = clk_dev_ops(clk->dev);
+	const struct clk_ops *ops;
 
 	debug("%s(clk=%p, parent=%p)\n", __func__, clk, parent);
+	if (!clk)
+		return 0;
+	ops = clk_dev_ops(clk->dev);
 
 	if (!ops->set_parent)
 		return -ENOSYS;
@@ -448,11 +467,14 @@ int clk_set_parent(struct clk *clk, struct clk *parent)
 
 int clk_enable(struct clk *clk)
 {
-	const struct clk_ops *ops = clk_dev_ops(clk->dev);
+	const struct clk_ops *ops;
 	struct clk *clkp = NULL;
 	int ret;
 
 	debug("%s(clk=%p)\n", __func__, clk);
+	if (!clk)
+		return 0;
+	ops = clk_dev_ops(clk->dev);
 
 	if (CONFIG_IS_ENABLED(CLK_CCF)) {
 		/* Take id 0 as a non-valid clk, such as dummy */
@@ -505,11 +527,14 @@ int clk_enable_bulk(struct clk_bulk *bulk)
 
 int clk_disable(struct clk *clk)
 {
-	const struct clk_ops *ops = clk_dev_ops(clk->dev);
+	const struct clk_ops *ops;
 	struct clk *clkp = NULL;
 	int ret;
 
 	debug("%s(clk=%p)\n", __func__, clk);
+	if (!clk)
+		return 0;
+	ops = clk_dev_ops(clk->dev);
 
 	if (CONFIG_IS_ENABLED(CLK_CCF)) {
 		if (clk->id && !clk_get_by_id(clk->id, &clkp)) {
@@ -588,6 +613,10 @@ bool clk_is_match(const struct clk *p, const struct clk *q)
 	/* trivial case: identical struct clk's or both NULL */
 	if (p == q)
 		return true;
+
+	/* trivial case #2: on the clk pointer is NULL */
+	if (!p || !q)
+		return false;
 
 	/* same device, id and data */
 	if (p->dev == q->dev && p->id == q->id && p->data == q->data)
