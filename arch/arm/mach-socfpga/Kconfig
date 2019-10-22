@@ -1,5 +1,8 @@
 if ARCH_SOCFPGA
 
+config ERR_PTR_OFFSET
+	default 0xfffec000 if TARGET_SOCFPGA_GEN5 # Boot ROM range
+
 config NR_DRAM_BANKS
 	default 1
 
