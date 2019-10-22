@@ -79,6 +79,24 @@ struct board_ops {
 	 * Return: 0 if OK, -ve on error.
 	 */
 	int (*get_str)(struct udevice *dev, int id, size_t size, char *val);
+
+	/**
+	 * get_fit_loadable - Get the name of an image to load from FIT
+	 * This function can be used to provide the image names based on runtime
+	 * detection. A classic use-case would when DTBOs are used to describe
+	 * additionnal daughter cards.
+	 *
+	 * @dev:	The board instance to gather the data.
+	 * @index:	Index of the image. Starts at 0 and gets incremented
+	 *		after each call to this function.
+	 * @type:	The type of image. For example, "fdt" for DTBs
+	 * @strp:	A pointer to string. Untouched if the function fails
+	 *
+	 * Return: 0 if OK, -ENOENT if no loadable is available else -ve on
+	 * error.
+	 */
+	int (*get_fit_loadable)(struct udevice *dev, int index,
+				const char *type, const char **strp);
 };
 
 #define board_get_ops(dev)	((struct board_ops *)(dev)->driver->ops)
@@ -137,3 +155,22 @@ int board_get_str(struct udevice *dev, int id, size_t size, char *val);
  * Return: 0 if OK, -ve on error.
  */
 int board_get(struct udevice **devp);
+
+/**
+ * board_get_fit_loadable - Get the name of an image to load from FIT
+ * This function can be used to provide the image names based on runtime
+ * detection. A classic use-case would when DTBOs are used to describe
+ * additionnal daughter cards.
+ *
+ * @dev:	The board instance to gather the data.
+ * @index:	Index of the image. Starts at 0 and gets incremented
+ *		after each call to this function.
+ * @type:	The type of image. For example, "fdt" for DTBs
+ * @strp:	A pointer to string. Untouched if the function fails
+ *
+ *
+ * Return: 0 if OK, -ENOENT if no loadable is available else -ve on
+ * error.
+ */
+int board_get_fit_loadable(struct udevice *dev, int index,
+			   const char *type, const char **strp);
