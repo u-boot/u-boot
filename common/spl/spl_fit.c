@@ -46,7 +46,7 @@ __weak ulong board_spl_fit_size_align(ulong size)
  */
 static int spl_fit_get_image_name(const void *fit, int images,
 				  const char *type, int index,
-				  char **outname)
+				  const char **outname)
 {
 	const char *name, *str;
 	__maybe_unused int node;
@@ -101,7 +101,7 @@ static int spl_fit_get_image_name(const void *fit, int images,
 static int spl_fit_get_image_node(const void *fit, int images,
 				  const char *type, int index)
 {
-	char *str;
+	const char *str;
 	int err;
 	int node;
 
@@ -387,7 +387,7 @@ static int spl_fit_record_loadable(const void *fit, int images, int index,
 {
 	int ret = 0;
 #if !CONFIG_IS_ENABLED(FIT_IMAGE_TINY)
-	char *name;
+	const char *name;
 	int node;
 
 	ret = spl_fit_get_image_name(fit, images, "loadables",
