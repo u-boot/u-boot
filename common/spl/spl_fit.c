@@ -281,7 +281,7 @@ static int spl_fit_append_fdt(struct spl_image_info *spl_image,
 			      void *fit, int images, ulong base_offset)
 {
 	struct spl_image_info image_info;
-	int node, ret = 0;
+	int node, ret = 0, index = 0;
 
 	/*
 	 * Use the address following the image as target address for the
@@ -290,7 +290,7 @@ static int spl_fit_append_fdt(struct spl_image_info *spl_image,
 	image_info.load_addr = spl_image->load_addr + spl_image->size;
 
 	/* Figure out which device tree the board wants to use */
-	node = spl_fit_get_image_node(fit, images, FIT_FDT_PROP, 0);
+	node = spl_fit_get_image_node(fit, images, FIT_FDT_PROP, index++);
 	if (node < 0) {
 		debug("%s: cannot find FDT node\n", __func__);
 
@@ -315,8 +315,32 @@ static int spl_fit_append_fdt(struct spl_image_info *spl_image,
 #if !CONFIG_IS_ENABLED(FIT_IMAGE_TINY)
 	/* Try to make space, so we can inject details on the loadables */
 	ret = fdt_shrink_to_minimum(spl_image->fdt_addr, 8192);
+	if (ret < 0)
+		return ret;
 #endif
+	if (CONFIG_IS_ENABLED(LOAD_FIT_APPLY_OVERLAY)) {
+		for (; ; index++) {
+			node = spl_fit_get_image_node(fit, images, FIT_FDT_PROP,
+						      index);
+			if (node < 0) {
+				debug("%s: No additional FDT node\n", __func__);
+				return 0;
+			}
 
+			ret = spl_load_fit_image(info, sector, fit, base_offset,
+						 node, &image_info);
+			if (ret < 0)
+				return ret;
+
+			ret = fdt_overlay_apply_verbose(spl_image->fdt_addr,
+							(void *)image_info.load_addr);
+			if (ret)
+				return ret;
+
+			debug("%s: DT overlay %s applied\n", __func__,
+			      fit_get_name(fit, node, NULL));
+		}
+	}
 	return ret;
 }
 
