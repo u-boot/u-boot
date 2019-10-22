@@ -178,7 +178,7 @@ bulk_get_err:
 	return ret;
 }
 
-static int clk_set_default_parents(struct udevice *dev)
+static int clk_set_default_parents(struct udevice *dev, int stage)
 {
 	struct clk clk, parent_clk;
 	int index;
@@ -214,8 +214,18 @@ static int clk_set_default_parents(struct udevice *dev)
 			return ret;
 		}
 
-		ret = clk_set_parent(&clk, &parent_clk);
+		/* This is clk provider device trying to reparent itself
+		 * It cannot be done right now but need to wait after the
+		 * device is probed
+		 */
+		if (stage == 0 && clk.dev == dev)
+			continue;
 
+		if (stage > 0 && clk.dev != dev)
+			/* do not setup twice the parent clocks */
+			continue;
+
+		ret = clk_set_parent(&clk, &parent_clk);
 		/*
 		 * Not all drivers may support clock-reparenting (as of now).
 		 * Ignore errors due to this.
@@ -233,7 +243,7 @@ static int clk_set_default_parents(struct udevice *dev)
 	return 0;
 }
 
-static int clk_set_default_rates(struct udevice *dev)
+static int clk_set_default_rates(struct udevice *dev, int stage)
 {
 	struct clk clk;
 	int index;
@@ -268,7 +278,19 @@ static int clk_set_default_rates(struct udevice *dev)
 			continue;
 		}
 
+		/* This is clk provider device trying to program itself
+		 * It cannot be done right now but need to wait after the
+		 * device is probed
+		 */
+		if (stage == 0 && clk.dev == dev)
+			continue;
+
+		if (stage > 0 && clk.dev != dev)
+			/* do not setup twice the parent clocks */
+			continue;
+
 		ret = clk_set_rate(&clk, rates[index]);
+
 		if (ret < 0) {
 			debug("%s: failed to set rate on clock index %d (%ld) for %s\n",
 			      __func__, index, clk.id, dev_read_name(dev));
@@ -281,7 +303,7 @@ fail:
 	return ret;
 }
 
-int clk_set_defaults(struct udevice *dev)
+int clk_set_defaults(struct udevice *dev, int stage)
 {
 	int ret;
 
@@ -294,11 +316,11 @@ int clk_set_defaults(struct udevice *dev)
 
 	debug("%s(%s)\n", __func__, dev_read_name(dev));
 
-	ret = clk_set_default_parents(dev);
+	ret = clk_set_default_parents(dev, stage);
 	if (ret)
 		return ret;
 
-	ret = clk_set_default_rates(dev);
+	ret = clk_set_default_rates(dev, stage);
 	if (ret < 0)
 		return ret;
 
@@ -673,7 +695,21 @@ void devm_clk_put(struct udevice *dev, struct clk *clk)
 	WARN_ON(rc);
 }
 
+int clk_uclass_post_probe(struct udevice *dev)
+{
+	/*
+	 * when a clock provider is probed. Call clk_set_defaults()
+	 * also after the device is probed. This takes care of cases
+	 * where the DT is used to setup default parents and rates
+	 * using assigned-clocks
+	 */
+	clk_set_defaults(dev, 1);
+
+	return 0;
+}
+
 UCLASS_DRIVER(clk) = {
 	.id		= UCLASS_CLK,
 	.name		= "clk",
+	.post_probe	= clk_uclass_post_probe,
 };

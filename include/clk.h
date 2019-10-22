@@ -244,10 +244,13 @@ static inline int clk_release_all(struct clk *clk, int count)
  *
  * @dev:        A device to process (the ofnode associated with this device
  *              will be processed).
+ * @stage:	A integer. 0 indicates that this is called before the device
+ *		is probed. 1 indicates that this is called just after the
+ *		device has been probed
  */
-int clk_set_defaults(struct udevice *dev);
+int clk_set_defaults(struct udevice *dev, int stage);
 #else
-static inline int clk_set_defaults(struct udevice *dev)
+static inline int clk_set_defaults(struct udevice *dev, int stage)
 {
 	return 0;
 }
