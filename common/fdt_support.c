@@ -1566,7 +1566,7 @@ static int fdt_read_prop(const fdt32_t *prop, int prop_len, int cell_off,
 			 uint64_t *val, int cells)
 {
 	const fdt32_t *prop32 = &prop[cell_off];
-	const fdt64_t *prop64 = (const fdt64_t *)&prop[cell_off];
+	const unaligned_fdt64_t *prop64 = (const fdt64_t *)&prop[cell_off];
 
 	if ((cell_off + cells) > prop_len)
 		return -FDT_ERR_NOSPACE;
