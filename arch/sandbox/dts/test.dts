@@ -226,6 +226,8 @@
 	clk_sandbox: clk-sbox {
 		compatible = "sandbox,clk";
 		#clock-cells = <1>;
+		assigned-clocks = <&clk_sandbox 3>;
+		assigned-clock-rates = <321>;
 	};
 
 	clk-test {
