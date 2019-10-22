@@ -243,13 +243,13 @@ class Series(dict):
             if limit is not None:
                 cc = cc[:limit]
             all_ccs += cc
-            print(commit.patch, ', '.join(sorted(set(cc))), file=fd)
+            print(commit.patch, '\0'.join(sorted(set(cc))), file=fd)
             self._generated_cc[commit.patch] = cc
 
         if cover_fname:
             cover_cc = gitutil.BuildEmailList(self.get('cover_cc', ''))
             cover_cc = [tools.FromUnicode(m) for m in cover_cc]
-            cc_list = ', '.join([tools.ToUnicode(x)
+            cc_list = '\0'.join([tools.ToUnicode(x)
                                  for x in sorted(set(cover_cc + all_ccs))])
             print(cover_fname, cc_list.encode('utf-8'), file=fd)
 

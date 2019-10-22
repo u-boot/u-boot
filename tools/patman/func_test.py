@@ -198,9 +198,9 @@ class TestFunctional(unittest.TestCase):
         line += 4
         self.assertEqual(expected, tools.ToUnicode(lines[line]))
 
-        self.assertEqual(('%s %s, %s' % (args[0], rick, stefan)),
+        self.assertEqual(('%s %s\0%s' % (args[0], rick, stefan)),
                          tools.ToUnicode(cc_lines[0]))
-        self.assertEqual(('%s %s, %s, %s, %s' % (args[1], fred, ed, rick,
+        self.assertEqual(('%s %s\0%s\0%s\0%s' % (args[1], fred, ed, rick,
                                      stefan)), tools.ToUnicode(cc_lines[1]))
 
         expected = '''
