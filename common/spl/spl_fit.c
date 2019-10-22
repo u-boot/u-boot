@@ -324,9 +324,13 @@ static int spl_fit_append_fdt(struct spl_image_info *spl_image,
 		for (; ; index++) {
 			node = spl_fit_get_image_node(fit, images, FIT_FDT_PROP,
 						      index);
-			if (node < 0) {
+			if (node == -E2BIG) {
 				debug("%s: No additional FDT node\n", __func__);
 				break;
+			} else if (node < 0) {
+				debug("%s: unable to find FDT node %d\n",
+				      __func__, index);
+				continue;
 			}
 
 			if (!tmpbuffer) {
