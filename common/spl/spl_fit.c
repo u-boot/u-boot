@@ -113,7 +113,7 @@ static int spl_fit_get_image_node(const void *fit, int images,
 
 	node = fdt_subnode_offset(fit, images, str);
 	if (node < 0) {
-		debug("cannot find image node '%s': %d\n", str, node);
+		pr_err("cannot find image node '%s': %d\n", str, node);
 		return -EINVAL;
 	}
 
@@ -359,8 +359,11 @@ static int spl_fit_append_fdt(struct spl_image_info *spl_image,
 
 			ret = fdt_overlay_apply_verbose(spl_image->fdt_addr,
 							(void *)image_info.load_addr);
-			if (ret)
+			if (ret) {
+				pr_err("failed to apply DT overlay %s\n",
+				       fit_get_name(fit, node, NULL));
 				break;
+			}
 
 			debug("%s: DT overlay %s applied\n", __func__,
 			      fit_get_name(fit, node, NULL));
