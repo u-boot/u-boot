@@ -9,10 +9,15 @@
 #include <fpga.h>
 #include <gzip.h>
 #include <image.h>
-#include <linux/libfdt.h>
+#include <malloc.h>
 #include <spl.h>
+#include <linux/libfdt.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#ifndef CONFIG_SPL_LOAD_FIT_APPLY_OVERLAY_BUF_SZ
+#define CONFIG_SPL_LOAD_FIT_APPLY_OVERLAY_BUF_SZ (64 * 1024)
+#endif
 
 #ifndef CONFIG_SYS_BOOTM_LEN
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)
@@ -314,33 +319,52 @@ static int spl_fit_append_fdt(struct spl_image_info *spl_image,
 	spl_image->fdt_addr = (void *)image_info.load_addr;
 #if !CONFIG_IS_ENABLED(FIT_IMAGE_TINY)
 	if (CONFIG_IS_ENABLED(LOAD_FIT_APPLY_OVERLAY)) {
+		void *tmpbuffer = NULL;
+
 		for (; ; index++) {
 			node = spl_fit_get_image_node(fit, images, FIT_FDT_PROP,
 						      index);
 			if (node < 0) {
 				debug("%s: No additional FDT node\n", __func__);
-				return 0;
+				break;
 			}
 
+			if (!tmpbuffer) {
+				/*
+				 * allocate memory to store the DT overlay
+				 * before it is applied. It may not be used
+				 * depending on how the overlay is stored, so
+				 * don't fail yet if the allocation failed.
+				 */
+				tmpbuffer = malloc(CONFIG_SPL_LOAD_FIT_APPLY_OVERLAY_BUF_SZ);
+				if (!tmpbuffer)
+					debug("%s: unable to allocate space for overlays\n",
+					      __func__);
+			}
+			image_info.load_addr = (ulong)tmpbuffer;
 			ret = spl_load_fit_image(info, sector, fit, base_offset,
 						 node, &image_info);
 			if (ret < 0)
-				return ret;
+				break;
 
 			/* Make room in FDT for changes from the overlay */
 			ret = fdt_increase_size(spl_image->fdt_addr,
 						image_info.size);
 			if (ret < 0)
-				return ret;
+				break;
 
 			ret = fdt_overlay_apply_verbose(spl_image->fdt_addr,
 							(void *)image_info.load_addr);
 			if (ret)
-				return ret;
+				break;
 
 			debug("%s: DT overlay %s applied\n", __func__,
 			      fit_get_name(fit, node, NULL));
 		}
+		if (tmpbuffer)
+			free(tmpbuffer);
+		if (ret)
+			return ret;
 	}
 	/* Try to make space, so we can inject details on the loadables */
 	ret = fdt_shrink_to_minimum(spl_image->fdt_addr, 8192);
