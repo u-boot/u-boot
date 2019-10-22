@@ -44,7 +44,7 @@ config SPL_OF_CONTROL
 	depends on SPL && OF_CONTROL
 	help
 	  Some boards use device tree in U-Boot but only have 4KB of SRAM
-	  which is not enough to support device tree. Enable this option to
+	  which is not enough to support device tree. Disable this option to
 	  allow such boards to be supported by U-Boot SPL.
 
 config TPL_OF_CONTROL
