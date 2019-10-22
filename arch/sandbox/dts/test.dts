@@ -232,8 +232,10 @@
 		compatible = "sandbox,clk-test";
 		clocks = <&clk_fixed>,
 			 <&clk_sandbox 1>,
-			 <&clk_sandbox 0>;
-		clock-names = "fixed", "i2c", "spi";
+			 <&clk_sandbox 0>,
+			 <&clk_sandbox 3>,
+			 <&clk_sandbox 2>;
+		clock-names = "fixed", "i2c", "spi", "uart2", "uart1";
 	};
 
 	ccf: clk-ccf {
