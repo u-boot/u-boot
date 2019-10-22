@@ -31,6 +31,7 @@
  * to read the serial number.
  */
 
+#if CONFIG_IS_ENABLED(BOARD)
 struct board_ops {
 	/**
 	 * detect() - Run the hardware info detection procedure for this
@@ -174,3 +175,39 @@ int board_get(struct udevice **devp);
  */
 int board_get_fit_loadable(struct udevice *dev, int index,
 			   const char *type, const char **strp);
+
+#else
+
+static inline int board_detect(struct udevice *dev)
+{
+	return -ENOSYS;
+}
+
+static inline int board_get_bool(struct udevice *dev, int id, bool *val)
+{
+	return -ENOSYS;
+}
+
+static inline int board_get_int(struct udevice *dev, int id, int *val)
+{
+	return -ENOSYS;
+}
+
+static inline int board_get_str(struct udevice *dev, int id, size_t size,
+				char *val)
+{
+	return -ENOSYS;
+}
+
+static inline int board_get(struct udevice **devp)
+{
+	return -ENOSYS;
+}
+
+static inline int board_get_fit_loadable(struct udevice *dev, int index,
+					 const char *type, const char **strp)
+{
+	return -ENOSYS;
+}
+
+#endif
