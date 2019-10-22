@@ -113,3 +113,7 @@
 &pinctrl_pmic {
 	u-boot,dm-spl;
 };
+
+&fec1 {
+	phy-reset-gpios = <&gpio4 22 GPIO_ACTIVE_LOW>;
+};
