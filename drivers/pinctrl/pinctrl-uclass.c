@@ -15,18 +15,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int pinctrl_decode_pin_config(const void *blob, int node)
-{
-	int flags = 0;
-
-	if (fdtdec_get_bool(blob, node, "bias-pull-up"))
-		flags |= 1 << PIN_CONFIG_BIAS_PULL_UP;
-	else if (fdtdec_get_bool(blob, node, "bias-pull-down"))
-		flags |= 1 << PIN_CONFIG_BIAS_PULL_DOWN;
-
-	return flags;
-}
-
 #if CONFIG_IS_ENABLED(PINCTRL_FULL)
 /**
  * pinctrl_config_one() - apply pinctrl settings for a single node
