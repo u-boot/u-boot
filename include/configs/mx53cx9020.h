@@ -35,10 +35,6 @@
 
 /* bootz: zImage/initrd.img support */
 
-/* Eth Configs */
-#define IMX_FEC_BASE	FEC_BASE_ADDR
-#define CONFIG_ETHPRIME		"FEC0"
-#define CONFIG_FEC_MXC_PHYADDR	0x1F
 
 /* USB Configs */
 #define CONFIG_MXC_USB_PORT	1
