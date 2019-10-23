@@ -107,4 +107,30 @@
 			loczrama = <1>;
 		};
 	};
+
+	fss: fss@47000000 {
+		compatible = "syscon", "simple-mfd";
+		reg = <0x0 0x47000000 0x0 0x100>;
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		hbmc_mux: hbmc-mux {
+			compatible = "mmio-mux";
+			#mux-control-cells = <1>;
+			mux-reg-masks = <0x4 0x2>; /* HBMC select */
+		};
+
+		hbmc: hyperbus@47034000 {
+			compatible = "ti,j721e-hbmc", "ti,am654-hbmc";
+			reg = <0x0 0x47034000 0x0 0x100>,
+				<0x5 0x00000000 0x1 0x0000000>;
+			power-domains = <&k3_pds 102 TI_SCI_PD_EXCLUSIVE>;
+			#address-cells = <2>;
+			#size-cells = <1>;
+			mux-controls = <&hbmc_mux 0>;
+			assigned-clocks = <&k3_clks 102 0>;
+			assigned-clock-rates = <250000000>;
+		};
+	};
 };
