@@ -53,6 +53,9 @@
 	"pxefile_addr_r=0x73000000\0" \
 	"ramdisk_addr_r=0x72000000\0" \
 	"console=ttymxc1,115200\0" \
+	"stdin=serial\0" \
+	"stdout=serial,vidconsole\0" \
+	"stderr=serial,vidconsole\0" \
 	"uenv=/boot/uEnv.txt\0" \
 	"optargs=\0" \
 	"cmdline=\0" \
