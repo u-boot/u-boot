@@ -36,7 +36,6 @@
 				MX53_PAD_GPIO_1__GPIO1_1          0x80000000
 				MX53_PAD_GPIO_4__GPIO1_4          0x80000000
 				MX53_PAD_PATA_DA_0__GPIO7_6       0x80000000
-				MX53_PAD_PATA_DA_2__GPIO7_8	  0x80000000
 				MX53_PAD_GPIO_16__GPIO7_11        0x80000000
 
 				MX53_PAD_EIM_OE__EMI_WEIM_OE            0x80000000
@@ -219,4 +218,14 @@
 		speed = <100>;
 		full-duplex;
 	};
+};
+
+&usbh1 {
+	phy_type = "utmi";
+	status = "okay";
+};
+
+&usbotg {
+	dr_mode = "host";
+	status = "okay";
 };

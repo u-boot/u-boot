@@ -129,16 +129,6 @@ static void setup_gpio_leds(void)
 	gpio_direction_output(GPIO_LED_PWR_G, 0);
 }
 
-#ifdef CONFIG_USB_EHCI_MX5
-int board_ehci_hcd_init(int port)
-{
-	/* request VBUS power enable pin, GPIO7_8 */
-	gpio_direction_output(IMX_GPIO_NR(7, 8), 1);
-	return 0;
-}
-#endif
-
-
 static int power_init(void)
 {
 	/* nothing to do on CX9020 */
