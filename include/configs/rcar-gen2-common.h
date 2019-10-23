@@ -46,11 +46,9 @@
 #define CONFIG_ENV_SIZE_REDUND	(CONFIG_SYS_MONITOR_LEN)
 
 /* SF MTD */
-#if defined(CONFIG_SPI_FLASH_MTD) && !defined(CONFIG_SPL_BUILD)
-#else
+#ifdef CONFIG_SPL_BUILD
 #undef CONFIG_DM_SPI
 #undef CONFIG_DM_SPI_FLASH
-#undef CONFIG_SPI_FLASH_MTD
 #endif
 
 /* Timer */

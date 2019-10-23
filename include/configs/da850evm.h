@@ -190,15 +190,10 @@
 #define CONFIG_ENV_SECT_SIZE		CONFIG_SYS_FLASH_SECT_SZ
 #endif
 
-#ifdef CONFIG_USE_SPIFLASH
-#ifdef CONFIG_ENV_IS_IN_SPI_FLASH
+#if defined(CONFIG_USE_SPIFLASH) && defined(CONFIG_ENV_IS_IN_SPI_FLASH)
 #define CONFIG_ENV_SIZE			(64 << 10)
 #define CONFIG_ENV_OFFSET		(512 << 10)
 #define CONFIG_ENV_SECT_SIZE	(64 << 10)
-#endif
-#ifdef CONFIG_SPL_BUILD
-#undef CONFIG_SPI_FLASH_MTD
-#endif
 #endif
 
 /*
