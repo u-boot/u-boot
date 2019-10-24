@@ -323,3 +323,13 @@ config SPL_DM_REGULATOR_LP873X
 	This enables implementation of driver-model regulator uclass
 	features for REGULATOR LP873X and the family of LP873X PMICs.
 	The driver implements get/set api for: value and enable in SPL.
+
+config DM_REGULATOR_TPS65941
+	bool "Enable driver for TPS65941 PMIC regulators"
+        depends on PMIC_TPS65941
+	help
+	This enables implementation of driver-model regulator uclass
+	features for REGULATOR TPS65941 and the family of TPS65941 PMICs.
+	TPS65941 series of PMICs have 5 single phase BUCKs that can also
+	be configured in multi phase modes & 4 LDOs. The driver implements
+	get/set api for value and enable.
