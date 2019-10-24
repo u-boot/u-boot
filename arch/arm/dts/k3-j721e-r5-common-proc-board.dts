@@ -59,6 +59,13 @@
 		mboxes= <&mcu_secproxy 4>, <&mcu_secproxy 5>;
 		mbox-names = "tx", "rx";
 	};
+
+	wkup_vtm0: wkup_vtm@42040000 {
+		compatible = "ti,am654-vtm", "ti,j721e-avs";
+		reg = <0x0 0x42040000 0x0 0x330>;
+		power-domains = <&k3_pds 154 TI_SCI_PD_EXCLUSIVE>;
+		#thermal-sensor-cells = <1>;
+	};
 };
 
 &dmsc {
