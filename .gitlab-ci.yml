@@ -65,11 +65,11 @@ build all 32bit ARM platforms:
   stage: world build
   script:
     - ret=0;
-     ./tools/buildman/buildman -o /tmp -P -E arm -x aarch64 || ret=$?;
-     if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-       ./tools/buildman/buildman -o /tmp -sdeP;
-       exit $ret;
-     fi;
+      ./tools/buildman/buildman -o /tmp -P -E arm -x aarch64 || ret=$?;
+      if [[ $ret -ne 0 && $ret -ne 129 ]]; then
+        ./tools/buildman/buildman -o /tmp -sdeP;
+        exit $ret;
+      fi;
 
 build all 64bit ARM platforms:
   tags: [ 'all' ]
@@ -79,33 +79,33 @@ build all 64bit ARM platforms:
     - . /tmp/venv/bin/activate
     - pip install pyelftools
     - ret=0;
-     ./tools/buildman/buildman -o /tmp -P -E aarch64 || ret=$?;
-     if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-       ./tools/buildman/buildman -o /tmp -sdeP;
-       exit $ret;
-     fi;
+      ./tools/buildman/buildman -o /tmp -P -E aarch64 || ret=$?;
+      if [[ $ret -ne 0 && $ret -ne 129 ]]; then
+        ./tools/buildman/buildman -o /tmp -sdeP;
+        exit $ret;
+      fi;
 
 build all PowerPC platforms:
   tags: [ 'all' ]
   stage: world build
   script:
     - ret=0;
-     ./tools/buildman/buildman -o /tmp -P -E powerpc || ret=$?;
-     if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-       ./tools/buildman/buildman -o /tmp -sdeP;
-       exit $ret;
-     fi;
+      ./tools/buildman/buildman -o /tmp -P -E powerpc || ret=$?;
+      if [[ $ret -ne 0 && $ret -ne 129 ]]; then
+        ./tools/buildman/buildman -o /tmp -sdeP;
+        exit $ret;
+      fi;
 
 build all other platforms:
   tags: [ 'all' ]
   stage: world build
   script:
     - ret=0;
-     ./tools/buildman/buildman -o /tmp -P -E -x arm,powerpc || ret=$?;
-     if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-       ./tools/buildman/buildman -o /tmp -sdeP;
-       exit $ret;
-     fi;
+      ./tools/buildman/buildman -o /tmp -P -E -x arm,powerpc || ret=$?;
+      if [[ $ret -ne 0 && $ret -ne 129 ]]; then
+        ./tools/buildman/buildman -o /tmp -sdeP;
+        exit $ret;
+      fi;
 
 # QA jobs for code analytics
 # static code analysis with cppcheck (we can add --enable=all later)
