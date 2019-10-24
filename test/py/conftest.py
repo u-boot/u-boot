@@ -13,16 +13,15 @@
 # - Implementing custom pytest markers.
 
 import atexit
+import configparser
 import errno
+import io
 import os
 import os.path
 import pytest
-from _pytest.runner import runtestprotocol
 import re
-import io
+from _pytest.runner import runtestprotocol
 import sys
-
-import configparser
 
 # Globals: The HTML log file, and the connection to the U-Boot console.
 log = None
@@ -168,7 +167,7 @@ def pytest_configure(config):
             ini_str = '[root]\n' + f.read()
             ini_sio = io.StringIO(ini_str)
             parser = configparser.RawConfigParser()
-            parser.readfp(ini_sio)
+            parser.read_file(ini_sio)
             ubconfig.buildconfig.update(parser.items('root'))
 
     ubconfig.test_py_dir = test_py_dir

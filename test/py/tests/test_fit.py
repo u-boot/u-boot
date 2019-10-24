@@ -153,7 +153,7 @@ def test_fit(u_boot_console):
         src = make_fname('u-boot.dts')
         dtb = make_fname('u-boot.dtb')
         with open(src, 'w') as fd:
-            print(base_fdt, file=fd)
+            fd.write(base_fdt)
         util.run_and_log(cons, ['dtc', src, '-O', 'dtb', '-o', dtb])
         return dtb
 
@@ -186,7 +186,7 @@ def test_fit(u_boot_console):
         its = make_its(params)
         util.run_and_log(cons, [mkimage, '-f', its, fit])
         with open(make_fname('u-boot.dts'), 'w') as fd:
-            print(base_fdt, file=fd)
+            fd.write(base_fdt)
         return fit
 
     def make_kernel(filename, text):

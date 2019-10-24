@@ -113,7 +113,7 @@ class Spawn(object):
             Nothing.
         """
 
-        os.write(self.fd, data)
+        os.write(self.fd, data.encode(errors='replace'))
 
     def expect(self, patterns):
         """Wait for the sub-process to emit specific data.
@@ -171,7 +171,7 @@ class Spawn(object):
                 events = self.poll.poll(poll_maxwait)
                 if not events:
                     raise Timeout()
-                c = os.read(self.fd, 1024)
+                c = os.read(self.fd, 1024).decode(errors='replace')
                 if not c:
                     raise EOFError()
                 if self.logfile_read:
