@@ -798,6 +798,7 @@ int pci_bind_bus_devices(struct udevice *bus)
 	ulong header_type;
 	pci_dev_t bdf, end;
 	bool found_multi;
+	int ari_off;
 	int ret;
 
 	found_multi = false;
@@ -871,6 +872,31 @@ int pci_bind_bus_devices(struct udevice *bus)
 		pplat->vendor = vendor;
 		pplat->device = device;
 		pplat->class = class;
+
+		if (IS_ENABLED(CONFIG_PCI_ARID)) {
+			ari_off = dm_pci_find_ext_capability(dev,
+							     PCI_EXT_CAP_ID_ARI);
+			if (ari_off) {
+				u16 ari_cap;
+
+				/*
+				 * Read Next Function number in ARI Cap
+				 * Register
+				 */
+				dm_pci_read_config16(dev, ari_off + 4,
+						     &ari_cap);
+				/*
+				 * Update next scan on this function number,
+				 * subtract 1 in BDF to satisfy loop increment.
+				 */
+				if (ari_cap & 0xff00) {
+					bdf = PCI_BDF(PCI_BUS(bdf),
+						      PCI_DEV(ari_cap),
+						      PCI_FUNC(ari_cap));
+					bdf = bdf - 0x100;
+				}
+			}
+		}
 	}
 
 	return 0;

@@ -63,6 +63,15 @@ config PCI_SRIOV
 	  if available on a PCI Physical Function device and probe for
 	  applicable drivers.
 
+config PCI_ARID
+        bool "Enable Alternate Routing-ID support for PCI"
+        depends on PCI || DM_PCI
+        default n
+        help
+          Say Y here if you want to enable Alternate Routing-ID capability
+          support on PCI devices. This helps to skip some devices in BDF
+          scan that are not present.
+
 config PCIE_ECAM_GENERIC
 	bool "Generic ECAM-based PCI host controller support"
 	default n
