@@ -6,6 +6,8 @@
  #ifndef _SCSI_H
  #define _SCSI_H
 
+#include <linux/dma-direction.h>
+
 struct scsi_cmd {
 	unsigned char		cmd[16];					/* command				   */
 	/* for request sense */
@@ -26,6 +28,7 @@ struct scsi_cmd {
 	unsigned long		trans_bytes;			/* tranfered bytes		*/
 
 	unsigned int		priv;
+	enum dma_data_direction	dma_dir;
 };
 
 /*-----------------------------------------------------------
@@ -163,11 +166,13 @@ struct scsi_cmd {
  * @base: Controller base address
  * @max_lun: Maximum number of logical units
  * @max_id: Maximum number of target ids
+ * @max_bytes_per_req: Maximum number of bytes per read/write request
  */
 struct scsi_platdata {
 	unsigned long base;
 	unsigned long max_lun;
 	unsigned long max_id;
+	unsigned long max_bytes_per_req;
 };
 
 /* Operations for SCSI */

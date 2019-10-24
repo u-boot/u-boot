@@ -1205,6 +1205,13 @@ config CMD_TSI148
 	  This provides various sub-commands to initialise and configure the
 	  Turndra tsi148 device. See the command help for full details.
 
+config CMD_UFS
+	bool "Enable UFS - Universal Flash Subsystem commands"
+	depends on UFS
+	help
+	  "This provides commands to initialise and configure universal flash
+	   subsystem devices"
+
 config CMD_UNIVERSE
 	bool "universe - Command to set up the Turndra Universe controller"
 	help
