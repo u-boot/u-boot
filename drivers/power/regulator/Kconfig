@@ -273,6 +273,16 @@ config DM_REGULATOR_TPS65910
 	regulator types of the TPS65910 (BUCK, BOOST and LDO). It implements
 	the get/set api for value and enable.
 
+config DM_REGULATOR_TPS62360
+	bool "Enable driver for TPS6236x Power Regulator"
+	depends on DM_REGULATOR
+	help
+	The TPS6236X DC/DC step down converter provides a single output
+	power line peaking at 3A current. This driver supports all four
+	variants of the chip (TPS62360, TPS62361, TPS62362, TPS62363). It
+	implements the get/set api for value only, as the power line is
+	always on.
+
 config DM_REGULATOR_STPMIC1
 	bool "Enable driver for STPMIC1 regulators"
 	depends on DM_REGULATOR && PMIC_STPMIC1
