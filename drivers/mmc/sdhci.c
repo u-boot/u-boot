@@ -608,7 +608,7 @@ static int sdhci_set_ios(struct mmc *mmc)
 
 	sdhci_writeb(host, ctrl, SDHCI_HOST_CONTROL);
 
-	if (host->version >= SDHCI_SPEC_300) {
+	if (IS_SD(mmc) && host->version >= SDHCI_SPEC_300) {
 		/* Disable SD Clock */
 		ctrl = sdhci_readw(host, SDHCI_CLOCK_CONTROL);
 		ctrl &= ~SDHCI_CLOCK_CARD_EN;
