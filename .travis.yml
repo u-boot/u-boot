@@ -49,7 +49,7 @@ install:
  - cat ~/.buildman
  - virtualenv /tmp/venv
  - . /tmp/venv/bin/activate
- - pip install pytest==2.8.7
+ - pip install pytest
  - pip install python-subunit
  - pip install pyelftools
  - grub-mkimage --prefix="" -o ~/grub_x86.efi -O i386-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd

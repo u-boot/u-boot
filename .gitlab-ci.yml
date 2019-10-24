@@ -20,7 +20,7 @@ stages:
     - ln -s travis-ci /tmp/uboot-test-hooks/py/`hostname`
     - virtualenv /tmp/venv
     - . /tmp/venv/bin/activate
-    - pip install pytest==2.8.7
+    - pip install pytest
     - pip install python-subunit
     - pip install coverage
     - grub-mkimage --prefix="" -o ~/grub_x86.efi -O i386-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd

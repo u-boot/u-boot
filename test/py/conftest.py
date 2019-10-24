@@ -431,11 +431,9 @@ def setup_boardspec(item):
         Nothing.
     """
 
-    mark = item.get_marker('boardspec')
-    if not mark:
-        return
     required_boards = []
-    for board in mark.args:
+    for boards in item.iter_markers('boardspec'):
+        board = boards.args[0]
         if board.startswith('!'):
             if ubconfig.board_type == board[1:]:
                 pytest.skip('board "%s" not supported' % ubconfig.board_type)
@@ -459,16 +457,14 @@ def setup_buildconfigspec(item):
         Nothing.
     """
 
-    mark = item.get_marker('buildconfigspec')
-    if mark:
-        for option in mark.args:
-            if not ubconfig.buildconfig.get('config_' + option.lower(), None):
-                pytest.skip('.config feature "%s" not enabled' % option.lower())
-    notmark = item.get_marker('notbuildconfigspec')
-    if notmark:
-        for option in notmark.args:
-            if ubconfig.buildconfig.get('config_' + option.lower(), None):
-                pytest.skip('.config feature "%s" enabled' % option.lower())
+    for options in item.iter_markers('buildconfigspec'):
+        option = options.args[0]
+        if not ubconfig.buildconfig.get('config_' + option.lower(), None):
+            pytest.skip('.config feature "%s" not enabled' % option.lower())
+    for option in item.iter_markers('notbuildconfigspec'):
+        option = options.args[0]
+        if ubconfig.buildconfig.get('config_' + option.lower(), None):
+            pytest.skip('.config feature "%s" enabled' % option.lower())
 
 def tool_is_in_path(tool):
     for path in os.environ["PATH"].split(os.pathsep):
@@ -491,10 +487,8 @@ def setup_requiredtool(item):
         Nothing.
     """
 
-    mark = item.get_marker('requiredtool')
-    if not mark:
-        return
-    for tool in mark.args:
+    for tools in item.iter_markers('requiredtool'):
+        tool = tools.args[0]
         if not tool_is_in_path(tool):
             pytest.skip('tool "%s" not in $PATH' % tool)
 
