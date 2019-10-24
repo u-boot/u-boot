@@ -10,23 +10,11 @@
 import os
 import os.path
 import sys
-
-# Get rid of argv[0]
-sys.argv.pop(0)
+from pkg_resources import load_entry_point
 
 # argv; py.test test_directory_name user-supplied-arguments
-args = ['py.test', os.path.dirname(__file__) + '/tests']
+args = [os.path.dirname(__file__) + '/tests']
 args.extend(sys.argv)
 
-try:
-    os.execvp('py.test', args)
-except:
-    # Log full details of any exception for detailed analysis
-    import traceback
-    traceback.print_exc()
-    # Hint to the user that they likely simply haven't installed the required
-    # dependencies.
-    print('''
-exec(py.test) failed; perhaps you are missing some dependencies?
-See test/py/README.md for the list.''', file=sys.stderr)
-    sys.exit(1)
+if __name__ == '__main__':
+    sys.exit(load_entry_point('pytest', 'console_scripts', 'pytest')(args))
