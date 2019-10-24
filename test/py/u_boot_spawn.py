@@ -42,10 +42,7 @@ class Spawn(object):
         self.after = ''
         self.timeout = None
         # http://stackoverflow.com/questions/7857352/python-regex-to-match-vt100-escape-sequences
-        # Note that re.I doesn't seem to work with this regex (or perhaps the
-        # version of Python in Ubuntu 14.04), hence the inclusion of a-z inside
-        # [] instead.
-        self.re_vt100 = re.compile('(\x1b\[|\x9b)[^@-_a-z]*[@-_a-z]|\x1b[@-_a-z]')
+        self.re_vt100 = re.compile(r'(\x1b\[|\x9b)[^@-_]*[@-_]|\x1b[@-_]', re.I)
 
         (self.pid, self.fd) = pty.fork()
         if self.pid == 0:
