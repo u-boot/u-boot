@@ -97,6 +97,13 @@
 		u-boot,dm-spl;
 	};
 
+	wkup_vtm0: wkup_vtm@42050000 {
+		compatible = "ti,am654-vtm", "ti,am654-avs";
+		reg = <0x42050000 0x25c>;
+		power-domains = <&k3_pds 80>;
+		#thermal-sensor-cells = <1>;
+	};
+
 	clk_200mhz: dummy_clock {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
