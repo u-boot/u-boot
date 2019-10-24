@@ -218,4 +218,5 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&wkup_i2c0_pins_default>;
 	clock-frequency = <400000>;
+	u-boot,dm-spl;
 };
