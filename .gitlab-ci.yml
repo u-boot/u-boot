@@ -2,7 +2,7 @@
 
 # Grab our configured image.  The source for this is found at:
 # https://gitlab.denx.de/u-boot/gitlab-ci-runner
-image: trini/u-boot-gitlab-ci-runner:bionic-20190912.1-03Oct2019
+image: trini/u-boot-gitlab-ci-runner:bionic-20191010-20Oct2019
 
 # We run some tests in different order, to catch some failures quicker.
 stages:
@@ -18,11 +18,6 @@ stages:
     - git clone --depth=1 git://github.com/swarren/uboot-test-hooks.git /tmp/uboot-test-hooks
     - ln -s travis-ci /tmp/uboot-test-hooks/bin/`hostname`
     - ln -s travis-ci /tmp/uboot-test-hooks/py/`hostname`
-    - virtualenv /tmp/venv
-    - . /tmp/venv/bin/activate
-    - pip install pytest
-    - pip install python-subunit
-    - pip install coverage
     - grub-mkimage --prefix="" -o ~/grub_x86.efi -O i386-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
     - grub-mkimage --prefix="" -o ~/grub_x64.efi -O x86_64-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
     - mkdir ~/grub2-arm
@@ -47,6 +42,9 @@ stages:
     # never prevent any test from running. That way, we can always pass
     # "-k something" even when $TEST_PY_TEST_SPEC doesnt need a custom
     # value.
+    - virtualenv -p /usr/bin/python3 /tmp/venv
+    - . /tmp/venv/bin/activate
+    - pip install -r test/py/requirements.txt
     - export UBOOT_TRAVIS_BUILD_DIR=/tmp/.bm-work/${TEST_PY_BD};
       export PATH=/opt/qemu/bin:/tmp/uboot-test-hooks/bin:${PATH};
       export PYTHONPATH=/tmp/uboot-test-hooks/py/travis-ci;
