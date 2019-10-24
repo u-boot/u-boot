@@ -275,3 +275,10 @@ config SPL_PMIC_LP87565
 	help
 	The LP87565 is a PMIC containing a bunch of SMPS.
 	This driver binds the pmic children in SPL.
+
+config PMIC_TPS65941
+	bool "Enable driver for Texas Instruments TPS65941 PMIC"
+	depends on DM_PMIC
+	help
+	The TPS65941 is a PMIC containing a bunch of SMPS & LDOs.
+	This driver binds the pmic children.
