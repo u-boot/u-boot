@@ -508,8 +508,8 @@ def fs_obj_unlink(request, u_boot_config):
 
         # Test Case 2
         check_call('mkdir %s/dir2' % mount_dir, shell=True)
-	for i in range(0, 20):
-	    check_call('mkdir %s/dir2/0123456789abcdef%02x'
+        for i in range(0, 20):
+            check_call('mkdir %s/dir2/0123456789abcdef%02x'
                                     % (mount_dir, i), shell=True)
 
         # Test Case 4

@@ -27,9 +27,9 @@ def test_log(u_boot_console):
         """
         for i in range(max_level):
             if mask & 1:
-                assert 'log_run() log %d' % i == lines.next()
+                assert 'log_run() log %d' % i == next(lines)
             if mask & 3:
-                assert 'func() _log %d' % i == lines.next()
+                assert 'func() _log %d' % i == next(lines)
 
     def run_test(testnum):
         """Run a particular test number (the 'log test' command)
@@ -43,7 +43,7 @@ def test_log(u_boot_console):
            output = u_boot_console.run_command('log test %d' % testnum)
         split = output.replace('\r', '').splitlines()
         lines = iter(split)
-        assert 'test %d' % testnum == lines.next()
+        assert 'test %d' % testnum == next(lines)
         return lines
 
     def test0():
@@ -88,7 +88,7 @@ def test_log(u_boot_console):
     def test10():
         lines = run_test(10)
         for i in range(7):
-            assert 'log_test() level %d' % i == lines.next()
+            assert 'log_test() level %d' % i == next(lines)
 
     # TODO(sjg@chromium.org): Consider structuring this as separate tests
     cons = u_boot_console

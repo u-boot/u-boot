@@ -175,29 +175,29 @@ def test_fpga_load_fail(u_boot_console):
     f, dev, addr, bit, bit_size = load_file_from_var(u_boot_console, 'bitstream_load')
 
     for cmd in ['dump', 'load', 'loadb']:
-	# missing dev parameter
-	expected = 'fpga: incorrect parameters passed'
-	output = u_boot_console.run_command('fpga %s %x $filesize' % (cmd, addr))
-	#assert expected in output
-	assert expected_usage in output
+        # missing dev parameter
+        expected = 'fpga: incorrect parameters passed'
+        output = u_boot_console.run_command('fpga %s %x $filesize' % (cmd, addr))
+        #assert expected in output
+        assert expected_usage in output
 
-	# more parameters - 0 at the end
-	expected = 'fpga: more parameters passed'
-	output = u_boot_console.run_command('fpga %s %x %x $filesize 0' % (cmd, dev, addr))
-	#assert expected in output
-	assert expected_usage in output
+        # more parameters - 0 at the end
+        expected = 'fpga: more parameters passed'
+        output = u_boot_console.run_command('fpga %s %x %x $filesize 0' % (cmd, dev, addr))
+        #assert expected in output
+        assert expected_usage in output
 
-	# 0 address
-	expected = 'fpga: zero fpga_data address'
-	output = u_boot_console.run_command('fpga %s %x 0 $filesize' % (cmd, dev))
-	#assert expected in output
-	assert expected_usage in output
+        # 0 address
+        expected = 'fpga: zero fpga_data address'
+        output = u_boot_console.run_command('fpga %s %x 0 $filesize' % (cmd, dev))
+        #assert expected in output
+        assert expected_usage in output
 
-	# 0 filesize
-	expected = 'fpga: zero size'
-	output = u_boot_console.run_command('fpga %s %x %x 0' % (cmd, dev, addr))
-	#assert expected in output
-	assert expected_usage in output
+        # 0 filesize
+        expected = 'fpga: zero size'
+        output = u_boot_console.run_command('fpga %s %x %x 0' % (cmd, dev, addr))
+        #assert expected in output
+        assert expected_usage in output
 
 @pytest.mark.buildconfigspec('cmd_fpga')
 @pytest.mark.buildconfigspec('cmd_echo')

@@ -19,13 +19,10 @@ import os.path
 import pytest
 from _pytest.runner import runtestprotocol
 import re
-import StringIO
+import io
 import sys
 
-try:
-    import configparser
-except:
-    import ConfigParser as configparser
+import configparser
 
 # Globals: The HTML log file, and the connection to the U-Boot console.
 log = None
@@ -169,7 +166,7 @@ def pytest_configure(config):
 
         with open(dot_config, 'rt') as f:
             ini_str = '[root]\n' + f.read()
-            ini_sio = StringIO.StringIO(ini_str)
+            ini_sio = io.StringIO(ini_str)
             parser = configparser.RawConfigParser()
             parser.readfp(ini_sio)
             ubconfig.buildconfig.update(parser.items('root'))

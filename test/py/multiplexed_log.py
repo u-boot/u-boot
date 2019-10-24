@@ -5,8 +5,8 @@
 # Generate an HTML-formatted log file containing multiple streams of data,
 # each represented in a well-delineated/-structured fashion.
 
-import cgi
 import datetime
+import html
 import os.path
 import shutil
 import subprocess
@@ -334,7 +334,7 @@ $(document).ready(function () {
         data = data.replace(chr(13), '')
         data = ''.join((ord(c) in self._nonprint) and ('%%%02x' % ord(c)) or
                        c for c in data)
-        data = cgi.escape(data)
+        data = html.escape(data)
         return data
 
     def _terminate_stream(self):

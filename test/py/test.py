@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0
 
 # Copyright (c) 2015 Stephen Warren
@@ -6,8 +6,6 @@
 
 # Wrapper script to invoke pytest with the directory name that contains the
 # U-Boot tests.
-
-from __future__ import print_function
 
 import os
 import os.path

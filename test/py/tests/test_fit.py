@@ -3,8 +3,6 @@
 #
 # Sanity check of the FIT handling in U-Boot
 
-from __future__ import print_function
-
 import os
 import pytest
 import struct

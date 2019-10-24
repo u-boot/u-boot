@@ -67,41 +67,39 @@ def test_mmc_wr(u_boot_console, env__mmc_wr_config):
 
 
     for i in range(test_iterations):
-	# Generate random data
-	cmd = 'random %s %x' % (src_addr, count_bytes)
-	response = u_boot_console.run_command(cmd)
-	good_response = '%d bytes filled with random data' % (count_bytes)
-	assert good_response in response
+        # Generate random data
+        cmd = 'random %s %x' % (src_addr, count_bytes)
+        response = u_boot_console.run_command(cmd)
+        good_response = '%d bytes filled with random data' % (count_bytes)
+        assert good_response in response
 
-	# Select MMC device
-	cmd = 'mmc dev %d' % devid
-	if is_emmc:
-		cmd += ' %d' % partid
-	response = u_boot_console.run_command(cmd)
-	assert 'no card present' not in response
-	if is_emmc:
-		partid_response = "(part %d)" % partid
-	else:
-		partid_response = ""
-	good_response = 'mmc%d%s is current device' % (devid, partid_response)
-	assert good_response in response
+        # Select MMC device
+        cmd = 'mmc dev %d' % devid
+        if is_emmc:
+            cmd += ' %d' % partid
+        response = u_boot_console.run_command(cmd)
+        assert 'no card present' not in response
+        if is_emmc:
+            partid_response = "(part %d)" % partid
+        else:
+            partid_response = ""
+        good_response = 'mmc%d%s is current device' % (devid, partid_response)
+        assert good_response in response
 
-	# Write data
-	cmd = 'mmc write %s %x %x' % (src_addr, sector, count_sectors)
-	response = u_boot_console.run_command(cmd)
-	good_response = 'MMC write: dev # %d, block # %d, count %d ... %d blocks written: OK' % (
-		devid, sector, count_sectors, count_sectors)
-	assert good_response in response
+        # Write data
+        cmd = 'mmc write %s %x %x' % (src_addr, sector, count_sectors)
+        response = u_boot_console.run_command(cmd)
+        good_response = 'MMC write: dev # %d, block # %d, count %d ... %d blocks written: OK' % (devid, sector, count_sectors, count_sectors)
+        assert good_response in response
 
-	# Read data
-	cmd = 'mmc read %s %x %x' % (dst_addr, sector, count_sectors)
-	response = u_boot_console.run_command(cmd)
-	good_response = 'MMC read: dev # %d, block # %d, count %d ... %d blocks read: OK' % (
-		devid, sector, count_sectors, count_sectors)
-	assert good_response in response
+        # Read data
+        cmd = 'mmc read %s %x %x' % (dst_addr, sector, count_sectors)
+        response = u_boot_console.run_command(cmd)
+        good_response = 'MMC read: dev # %d, block # %d, count %d ... %d blocks read: OK' % (devid, sector, count_sectors, count_sectors)
+        assert good_response in response
 
-	# Compare src and dst data
-	cmd = 'cmp.b %s %s %x' % (src_addr, dst_addr, count_bytes)
-	response = u_boot_console.run_command(cmd)
-	good_response = 'Total of %d byte(s) were the same' % (count_bytes)
-	assert good_response in response
+        # Compare src and dst data
+        cmd = 'cmp.b %s %s %x' % (src_addr, dst_addr, count_bytes)
+        response = u_boot_console.run_command(cmd)
+        good_response = 'Total of %d byte(s) were the same' % (count_bytes)
+        assert good_response in response
