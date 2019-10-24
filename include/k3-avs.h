@@ -16,6 +16,8 @@
 #define AM6_VDD_MPU0		3
 #define AM6_VDD_MPU1		4
 
+#define J721E_VDD_MPU		2
+
 #define NUM_OPPS		4
 
 #define AM6_OPP_NOM		1
