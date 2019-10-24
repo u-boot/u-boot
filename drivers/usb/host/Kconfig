@@ -134,8 +134,8 @@ config USB_EHCI_MX5
 	  Enables support for the on-chip EHCI controller on i.MX5 SoCs.
 
 config USB_EHCI_MX6
-	bool "Support for i.MX6 on-chip EHCI USB controller"
-	depends on ARCH_MX6
+	bool "Support for i.MX6/i.MX7ULP on-chip EHCI USB controller"
+	depends on ARCH_MX6 || ARCH_MX7ULP
 	default y
 	---help---
 	  Enables support for the on-chip EHCI controller on i.MX6 SoCs.
@@ -162,7 +162,7 @@ config USB_EHCI_VF
 	help
 	  Enables support for the on-chip EHCI controller on Vybrid SoCs.
 
-if USB_EHCI_MX7
+if USB_EHCI_MX6 || USB_EHCI_MX7
 
 config MXC_USB_OTG_HACTIVE
 	bool "USB Power pin high active"
