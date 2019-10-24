@@ -48,7 +48,7 @@ stages:
     # "-k something" even when $TEST_PY_TEST_SPEC doesnt need a custom
     # value.
     - export UBOOT_TRAVIS_BUILD_DIR=/tmp/.bm-work/${TEST_PY_BD};
-      export PATH=/opt/qemu/bin:/tmp/uboot-test-hooks/bin:/usr/bin:/bin;
+      export PATH=/opt/qemu/bin:/tmp/uboot-test-hooks/bin:${PATH};
       export PYTHONPATH=/tmp/uboot-test-hooks/py/travis-ci;
       if [[ "${TEST_PY_BD}" != "" ]]; then
         ./test/py/test.py --bd ${TEST_PY_BD} ${TEST_PY_ID}
