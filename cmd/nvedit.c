@@ -1387,7 +1387,7 @@ static char env_help_text[] =
 #endif
 	"env print [-a | name ...] - print environment\n"
 #if defined(CONFIG_CMD_NVEDIT_EFI)
-	"env print -e [name ...] - print UEFI environment\n"
+	"env print -e [-guid guid|-all][-n] [name ...] - print UEFI environment\n"
 #endif
 #if defined(CONFIG_CMD_RUN)
 	"env run var [...] - run commands in an environment variable\n"
@@ -1399,7 +1399,8 @@ static char env_help_text[] =
 #endif
 #endif
 #if defined(CONFIG_CMD_NVEDIT_EFI)
-	"env set -e name [arg ...] - set UEFI variable; unset if 'arg' not specified\n"
+	"env set -e [-nv][-bs][-rt][-a][-i addr,size][-v] name [arg ...]\n"
+	"    - set UEFI variable; unset if '-i' or 'arg' not specified\n"
 #endif
 	"env set [-f] name [arg ...]\n";
 #endif
@@ -1428,8 +1429,9 @@ U_BOOT_CMD_COMPLETE(
 	"print environment variables",
 	"[-a]\n    - print [all] values of all environment variables\n"
 #if defined(CONFIG_CMD_NVEDIT_EFI)
-	"printenv -e [name ...]\n"
+	"printenv -e [-guid guid|-all][-n] [name ...]\n"
 	"    - print UEFI variable 'name' or all the variables\n"
+	"      \"-n\": suppress dumping variable's value\n"
 #endif
 	"printenv name ...\n"
 	"    - print value of environment variable 'name'",
@@ -1459,9 +1461,16 @@ U_BOOT_CMD_COMPLETE(
 	setenv, CONFIG_SYS_MAXARGS, 0,	do_env_set,
 	"set environment variables",
 #if defined(CONFIG_CMD_NVEDIT_EFI)
-	"-e [-nv] name [value ...]\n"
+	"-e [-guid guid][-nv][-bs][-rt][-a][-v]\n"
+	"        [-i addr,size name], or [name [value ...]]\n"
 	"    - set UEFI variable 'name' to 'value' ...'\n"
-	"      'nv' option makes the variable non-volatile\n"
+	"      \"-guid\": set vendor guid\n"
+	"      \"-nv\": set non-volatile attribute\n"
+	"      \"-bs\": set boot-service attribute\n"
+	"      \"-rt\": set runtime attribute\n"
+	"      \"-a\": append-write\n"
+	"      \"-i addr,size\": use <addr,size> as variable's value\n"
+	"      \"-v\": verbose message\n"
 	"    - delete UEFI variable 'name' if 'value' not specified\n"
 #endif
 	"setenv [-f] name value ...\n"
