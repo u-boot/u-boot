@@ -342,13 +342,6 @@ int gpio_free(unsigned int gpio)
 }
 #endif
 
-static int _gpio_direction_output(struct davinci_gpio *bank, unsigned int gpio, int value)
-{
-	clrbits_le32(&bank->dir, 1U << GPIO_BIT(gpio));
-	gpio_set_value(gpio, value);
-	return 0;
-}
-
 static int _gpio_direction_input(struct davinci_gpio *bank, unsigned int gpio)
 {
 	setbits_le32(&bank->dir, 1U << GPIO_BIT(gpio));
@@ -377,6 +370,13 @@ static int _gpio_get_dir(struct davinci_gpio *bank, unsigned int gpio)
 	return in_le32(&bank->dir) & (1U << GPIO_BIT(gpio));
 }
 
+static int _gpio_direction_output(struct davinci_gpio *bank, unsigned int gpio,
+				  int value)
+{
+	clrbits_le32(&bank->dir, 1U << GPIO_BIT(gpio));
+	_gpio_set_value(bank, gpio, value);
+	return 0;
+}
 #ifndef CONFIG_DM_GPIO
 
 void gpio_info(void)
