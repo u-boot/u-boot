@@ -121,7 +121,7 @@
 		spi-max-frequency = <25000000>;
 		reg = <0>;
 
-		partition@1 {
+		partition@0 {
 			label = "spi1-flash0";
 			reg = <0x0 0x200000>;
 		};

@@ -57,24 +57,8 @@
 		spi-rx-bus-width = <4>;
 		spi-max-frequency = <35000000>;
 		partition@0 {
-			label = "qspi-fsbl-uboot-boot.bin";
-			reg = <0x0 0x6400000>;
-		};
-		partition@6400000 {
-			label = "qspi-linux";
-			reg = <0x6400000 0x500000>;
-		};
-		partition@6900000 {
-			label = "qspi-device-tree";
-			reg = <0x6900000 0x20000>;
-		};
-		partition@6920000 {
-			label = "qspi-rootfs";
-			reg = <0x6920000 0x5E0000>;
-		};
-		partition@7f40000 {
-			label = "qspi-bootenv";
-			reg = <0x7f40000 0x40000>;
+			label = "spi0-flash0";
+			reg = <0x0 0x8000000>;
 		};
 	};
 };

@@ -46,28 +46,11 @@
 		spi-tx-bus-width = <1>;
 		spi-rx-bus-width = <8>;
 		spi-max-frequency = <20000000>;
-		partition@0 { /* for testing purpose */
-			label = "ospi-fsbl-uboot-boot.bin";
-			reg = <0x0 0x6400000>;
-		};
-		partition@6400000 { /* for testing purpose */
-			label = "ospi-linux";
-			reg = <0x6400000 0x500000>;
-		};
-		partition@6900000 { /* for testing purpose */
-			label = "ospi-device-tree";
-			reg = <0x6900000 0x20000>;
-		};
-		partition@6920000 { /* for testing purpose */
-			label = "ospi-rootfs";
-			reg = <0x6920000 0xa00000>;
-		};
-		partition@7f40000 {
-			label = "ospi-bootenv";
-			reg = <0x7f40000 0x40000>;
+		partition@0 {
+			label = "spi0-flash0";
+			reg = <0x0 0x8000000>;
 		};
 	};
-
 };
 
 &qspi {
