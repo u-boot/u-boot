@@ -850,6 +850,7 @@ config CMD_FDC
 config CMD_FLASH
 	bool "flinfo, erase, protect"
 	default y
+	depends on MTD || FLASH_CFI_DRIVER || MTD_NOR_FLASH
 	help
 	  NOR flash support.
 	    flinfo - print FLASH memory information
@@ -1039,6 +1040,7 @@ config CMD_MMC_SWRITE
 
 config CMD_MTD
 	bool "mtd"
+	depends on MTD
 	select MTD_PARTITIONS
 	help
 	  MTD commands support.
@@ -1046,6 +1048,7 @@ config CMD_MTD
 config CMD_NAND
 	bool "nand"
 	default y if NAND_SUNXI
+	depends on MTD_RAW_NAND
 	help
 	  NAND support.
 
@@ -1077,6 +1080,7 @@ config CMD_NVME
 
 config CMD_ONENAND
 	bool "onenand - access to onenand device"
+	depends on MTD
 	help
 	  OneNAND is a brand of NAND ('Not AND' gate) flash which provides
 	  various useful features. This command allows reading, writing,
@@ -1954,7 +1958,7 @@ config CMD_JFFS2
 
 config CMD_MTDPARTS
 	bool "MTD partition support"
-	select MTD if (CMD_NAND || MTD_RAW_NAND)
+	depends on MTD
 	help
 	  MTD partitioning tool support.
 	  It is strongly encouraged to avoid using this command
@@ -1982,14 +1986,14 @@ config CMD_MTDPARTS_SHOW_NET_SIZES
 
 config MTDIDS_DEFAULT
 	string "Default MTD IDs"
-	depends on MTD_PARTITIONS || CMD_MTDPARTS || CMD_NAND || CMD_FLASH
+	depends on MTD || SPI_FLASH
 	help
 	  Defines a default MTD IDs list for use with MTD partitions in the
 	  Linux MTD command line partitions format.
 
 config MTDPARTS_DEFAULT
 	string "Default MTD partition scheme"
-	depends on MTD_PARTITIONS || CMD_MTDPARTS || CMD_NAND || CMD_FLASH
+	depends on MTD || SPI_FLASH
 	help
 	  Defines a default MTD partitioning scheme in the Linux MTD command
 	  line partitions format
