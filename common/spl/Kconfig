@@ -1014,8 +1014,19 @@ config SPL_SERIAL_SUPPORT
 	  unless there are space reasons not to. Even then, consider
 	  enabling SPL_USE_TINY_PRINTF which is a small printf() version.
 
+config SPL_SPI_SUPPORT
+	bool "Support SPI drivers"
+	help
+	  Enable support for using SPI in SPL. This is used for connecting
+	  to SPI flash for loading U-Boot. See SPL_SPI_FLASH_SUPPORT for
+	  more details on that. The SPI driver provides the transport for
+	  data between the SPI flash and the CPU. This option can be used to
+	  enable SPI drivers that are needed for other purposes also, such
+	  as a SPI PMIC.
+
 config SPL_SPI_FLASH_SUPPORT
 	bool "Support SPI flash drivers"
+	depends on SPL_SPI_SUPPORT
 	help
 	  Enable support for using SPI flash in SPL, and loading U-Boot from
 	  SPI flash. SPI flash (Serial Peripheral Bus flash) is named after
@@ -1059,16 +1070,6 @@ config SYS_SPI_U_BOOT_OFFS
 	help
 	 Address within SPI-Flash from where the u-boot payload is fetched
 	 from.
-
-config SPL_SPI_SUPPORT
-	bool "Support SPI drivers"
-	help
-	  Enable support for using SPI in SPL. This is used for connecting
-	  to SPI flash for loading U-Boot. See SPL_SPI_FLASH_SUPPORT for
-	  more details on that. The SPI driver provides the transport for
-	  data between the SPI flash and the CPU. This option can be used to
-	  enable SPI drivers that are needed for other purposes also, such
-	  as a SPI PMIC.
 
 config SPL_THERMAL
 	bool "Driver support for thermal devices"
