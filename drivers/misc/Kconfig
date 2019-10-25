@@ -412,4 +412,13 @@ config IHS_FPGA
 	  by the devices. This driver supports both CON and CPU variants of the
 	  devices, depending on the device tree entry.
 
+config MICROCHIP_FLEXCOM
+	bool "Enable Microchip Flexcom driver"
+	depends on MISC
+	help
+	  The Atmel Flexcom is just a wrapper which embeds a SPI controller,
+	  an I2C controller and an USART.
+	  Only one function can be used at a time and is chosen at boot time
+	  according to the device tree.
+
 endmenu
