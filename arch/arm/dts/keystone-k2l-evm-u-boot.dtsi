@@ -1,17 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) 2017 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2019 Texas Instruments Incorporated - http://www.ti.com/
  */
-
-/{
-	soc {
-		u-boot,dm-pre-reloc;
-	};
-};
-
-&i2c1 {
-	u-boot,dm-pre-reloc;
-};
 
 &usb_phy {
 	#phy-cells = <0>;

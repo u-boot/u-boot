@@ -28,7 +28,7 @@
 #include <asm/cache.h>
 #include <asm/unaligned.h>
 #include <linux/errno.h>
-#include "xhci.h"
+#include <usb/xhci.h>
 
 #ifndef CONFIG_USB_MAX_CONTROLLER_COUNT
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 1

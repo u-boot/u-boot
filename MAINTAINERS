@@ -857,6 +857,7 @@ M:	Bin Meng <bmeng.cn@gmail.com>
 S:	Maintained
 T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-usb.git topic-xhci
 F:	drivers/usb/host/xhci*
+F:	include/usb/xhci.h
 
 VIDEO
 M:	Anatolij Gustschin <agust@denx.de>

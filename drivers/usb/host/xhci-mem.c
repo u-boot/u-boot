@@ -21,7 +21,7 @@
 #include <asm/cache.h>
 #include <linux/errno.h>
 
-#include "xhci.h"
+#include <usb/xhci.h>
 
 #define CACHELINE_SIZE		CONFIG_SYS_CACHELINE_SIZE
 /**
