@@ -24,6 +24,8 @@
 #include <linux/mtd/mtd.h>
 #include <nand.h>
 
+#include "../../../cmd/legacy-mtd-utils.h"
+
 #define BF_VAL(v, bf)		(((v) & bf##_MASK) >> bf##_OFFSET)
 #define GETBIT(v, n)		(((v) >> (n)) & 0x1)
 

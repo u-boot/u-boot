@@ -18,6 +18,8 @@
 #include <asm/io.h>
 #include <dm/device-internal.h>
 
+#include "legacy-mtd-utils.h"
+
 static struct spi_flash *flash;
 
 /*
