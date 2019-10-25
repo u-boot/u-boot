@@ -244,7 +244,7 @@ relocate_code:
 	bneid	r12, 1b
 	addi	r5, r5, 4 /* Increment to next loc - relocate code */
 
-       /* R23 points to the base address. */
+	/* R23 points to the base address. */
 	add	r23, r0, r7 /* Move reloc addr to r23 */
 	addi	r24, r0, CONFIG_SYS_TEXT_BASE /* Get reloc offset */
 	rsub	r23, r24, r23 /* keep - this is already here gd->reloc_off */

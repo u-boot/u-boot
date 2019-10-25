@@ -227,8 +227,6 @@
 /* Boot FreeBSD/vxWorks from an ELF image */
 #define CONFIG_SYS_MMC_MAX_DEVICE	1
 
-#undef CONFIG_BOOTM_NETBSD
-
 /* MMC support */
 #ifdef CONFIG_MMC_SDHCI_ZYNQ
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION     1

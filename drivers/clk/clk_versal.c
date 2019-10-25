@@ -12,6 +12,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <asm/arch/sys_proto.h>
+#include <zynqmp_firmware.h>
 
 #define MAX_PARENT			100
 #define MAX_NODES			6
@@ -362,7 +363,7 @@ static u32 versal_clock_get_div(u32 clk_id)
 	u32 ret_payload[PAYLOAD_ARG_CNT];
 	u32 div;
 
-	versal_pm_request(PM_CLOCK_GETDIVIDER, clk_id, 0, 0, 0, ret_payload);
+	xilinx_pm_request(PM_CLOCK_GETDIVIDER, clk_id, 0, 0, 0, ret_payload);
 	div = ret_payload[1];
 
 	return div;
@@ -372,7 +373,7 @@ static u32 versal_clock_set_div(u32 clk_id, u32 div)
 {
 	u32 ret_payload[PAYLOAD_ARG_CNT];
 
-	versal_pm_request(PM_CLOCK_SETDIVIDER, clk_id, div, 0, 0, ret_payload);
+	xilinx_pm_request(PM_CLOCK_SETDIVIDER, clk_id, div, 0, 0, ret_payload);
 
 	return div;
 }
@@ -382,7 +383,7 @@ static u64 versal_clock_ref(u32 clk_id)
 	u32 ret_payload[PAYLOAD_ARG_CNT];
 	int ref;
 
-	versal_pm_request(PM_CLOCK_GETPARENT, clk_id, 0, 0, 0, ret_payload);
+	xilinx_pm_request(PM_CLOCK_GETPARENT, clk_id, 0, 0, 0, ret_payload);
 	ref = ret_payload[0];
 	if (!(ref & 1))
 		return ref_clk;
@@ -401,7 +402,7 @@ static u64 versal_clock_get_pll_rate(u32 clk_id)
 	u32 parent_rate, parent_id;
 	u32 id = clk_id & 0xFFF;
 
-	versal_pm_request(PM_CLOCK_GETSTATE, clk_id, 0, 0, 0, ret_payload);
+	xilinx_pm_request(PM_CLOCK_GETSTATE, clk_id, 0, 0, 0, ret_payload);
 	res = ret_payload[1];
 	if (!res) {
 		printf("0%x PLL not enabled\n", clk_id);
@@ -411,9 +412,9 @@ static u64 versal_clock_get_pll_rate(u32 clk_id)
 	parent_id = clock[clock[id].parent[0].id].clk_id;
 	parent_rate = versal_clock_ref(parent_id);
 
-	versal_pm_request(PM_CLOCK_GETDIVIDER, clk_id, 0, 0, 0, ret_payload);
+	xilinx_pm_request(PM_CLOCK_GETDIVIDER, clk_id, 0, 0, 0, ret_payload);
 	fbdiv = ret_payload[1];
-	versal_pm_request(PM_CLOCK_PLL_GETPARAM, clk_id, 2, 0, 0, ret_payload);
+	xilinx_pm_request(PM_CLOCK_PLL_GETPARAM, clk_id, 2, 0, 0, ret_payload);
 	frac = ret_payload[1];
 
 	freq = (fbdiv * parent_rate) >> (1 << frac);
@@ -440,7 +441,7 @@ static u32 versal_clock_get_parentid(u32 clk_id)
 	u32 id = clk_id & 0xFFF;
 
 	if (versal_clock_mux(clk_id)) {
-		versal_pm_request(PM_CLOCK_GETPARENT, clk_id, 0, 0, 0,
+		xilinx_pm_request(PM_CLOCK_GETPARENT, clk_id, 0, 0, 0,
 				  ret_payload);
 		parent_id = ret_payload[1];
 	}

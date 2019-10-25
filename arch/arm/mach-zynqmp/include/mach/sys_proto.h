@@ -50,8 +50,6 @@ void handoff_setup(void);
 
 int zynqmp_mmio_write(const u32 address, const u32 mask, const u32 value);
 int zynqmp_mmio_read(const u32 address, u32 *value);
-int invoke_smc(u32 pm_api_id, u32 arg0, u32 arg1, u32 arg2, u32 arg3,
-	       u32 *ret_payload);
 
 void initialize_tcm(bool mode);
 void mem_map_fill(void);

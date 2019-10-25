@@ -66,12 +66,15 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 
 	thekernel = (void (*)(char *, ulong, ulong))images->ep;
 
-#ifdef DEBUG
-	printf("## Transferring control to Linux (at address 0x%08lx) ",
-	       (ulong)thekernel);
-	printf("cmdline 0x%08lx, ramdisk 0x%08lx, FDT 0x%08lx...\n",
-	       cmdline, rd_start, dt);
-#endif
+	debug("## Transferring control to Linux (at address 0x%08lx) ",
+	      (ulong)thekernel);
+	debug("cmdline 0x%08lx, ramdisk 0x%08lx, FDT 0x%08lx...\n",
+	      cmdline, rd_start, dt);
+	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
+
+	printf("\nStarting kernel ...%s\n\n", fake ?
+	       "(fake run for tracing)" : "");
+	bootstage_mark_name(BOOTSTAGE_ID_BOOTM_HANDOFF, "start_kernel");
 
 #ifdef XILINX_USE_DCACHE
 	flush_cache(0, XILINX_DCACHE_BYTE_SIZE);
@@ -92,7 +95,7 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 static void boot_prep_linux(bootm_headers_t *images)
 {
 	if (IMAGE_ENABLE_OF_LIBFDT && images->ft_len) {
-		printf("using: FDT\n");
+		debug("using: FDT\n");
 		if (image_setup_linux(images)) {
 			printf("FDT creation failed! hanging...");
 			hang();

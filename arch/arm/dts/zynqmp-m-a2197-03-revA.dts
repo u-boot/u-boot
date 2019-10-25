@@ -14,7 +14,7 @@
 
 / {
 	model = "Versal System Controller on a2197 Memory Char board RevA";
-	compatible = "xlnx,zynqmp-a2197-m-revA", "xlnx,zynqmp-a2197-revA",
+	compatible = "xlnx,zynqmp-m-a2197-03-revA", "xlnx,zynqmp-a2197-revA",
 		     "xlnx,zynqmp-a2197", "xlnx,zynqmp";
 
 	aliases {
@@ -43,13 +43,34 @@
 		device_type = "memory";
 		reg = <0x0 0x0 0x0 0x80000000>; /* FIXME don't know how big memory is there */
 	};
+
+	ina226-vcc-aux {
+		compatible = "iio-hwmon";
+		io-channels = <&vcc_aux 0>, <&vcc_aux 1>, <&vcc_aux 2>, <&vcc_aux 3>;
+	};
+	ina226-vcc-ram {
+		compatible = "iio-hwmon";
+		io-channels = <&vcc_ram 0>, <&vcc_ram 1>, <&vcc_ram 2>, <&vcc_ram 3>;
+	};
+	ina226-vcc1v1-lp4 {
+		compatible = "iio-hwmon";
+		io-channels = <&vcc1v1_lp4 0>, <&vcc1v1_lp4 1>, <&vcc1v1_lp4 2>, <&vcc1v1_lp4 3>;
+	};
+	ina226-vcc1v2-lp4 {
+		compatible = "iio-hwmon";
+		io-channels = <&vcc1v2_lp4 0>, <&vcc1v2_lp4 1>, <&vcc1v2_lp4 2>, <&vcc1v2_lp4 3>;
+	};
+	ina226-vdd1-1v8-lp4 {
+		compatible = "iio-hwmon";
+		io-channels = <&vdd1_1v8_lp4 0>, <&vdd1_1v8_lp4 1>, <&vdd1_1v8_lp4 2>, <&vdd1_1v8_lp4 3>;
+	};
 };
 
 &qspi {
 	status = "okay";
 	is-dual = <1>;
 	flash@0 {
-		compatible = "m25p80", "spi-flash"; /* 32MB */
+		compatible = "m25p80", "jedec,spi-nor"; /* 32MB */
 		#address-cells = <1>;
 		#size-cells = <1>;
 		reg = <0x0>;
@@ -87,15 +108,11 @@
 &gem0 {
 	status = "okay";
 	phy-handle = <&phy0>;
-	phy-mode = "sgmii"; /* DTG generates this properly  1512 */
+	phy-mode = "sgmii";
 	phy-reset-gpios = <&gpio 142 GPIO_ACTIVE_LOW>;
-	phy0: phy@0 { /* marwell m88e1512 - SGMII */
+	phy0: ethernet-phy@0 { /* marwell m88e1512 - SGMII */
 		reg = <0>;
-/*		xlnx,phy-type = <PHY_TYPE_SGMII>; */
 	};
-/*	phy-names = "...";
-	phys = <&lane0 PHY_TYPE_SGMII ... >
-	Note: lane0 sgmii/lane1 usb3 */
 };
 
 &gpio {
@@ -176,6 +193,10 @@
 				compatible = "ti,tps544b25";
 				reg = <0x1e>;
 			};
+			reg_vpp_2v5_ddr4: tps544@1x { /* u3007 */
+				compatible = "ti,tps544b25";
+				reg = <0x17>; /* FIXME wrong in schematics */
+			};
 		};
 		i2c@1 { /* PMBUS_INA226 */
 			#address-cells = <1>;
@@ -183,32 +204,37 @@
 			reg = <1>;
 			vcc_aux: ina226@42 { /* u86 */
 				compatible = "ti,ina226";
+				#io-channel-cells = <1>;
+				label = "ina226-vcc-aux";
 				reg = <0x42>;
 				shunt-resistor = <5000>;
 			};
 			vcc_ram: ina226@43 { /* u81 */
 				compatible = "ti,ina226";
+				#io-channel-cells = <1>;
+				label = "ina226-vcc-ram";
 				reg = <0x43>;
 				shunt-resistor = <5000>;
 			};
 			vcc1v1_lp4: ina226@46 { /* u96 */
 				compatible = "ti,ina226";
+				#io-channel-cells = <1>;
+				label = "ina226-vcc1v1-lp4";
 				reg = <0x46>;
 				shunt-resistor = <5000>;
 			};
 			vcc1v2_lp4: ina226@47 { /* u98 */
 				compatible = "ti,ina226";
+				#io-channel-cells = <1>;
+				label = "ina226-vcc1v2-lp4";
 				reg = <0x47>;
 				shunt-resistor = <5000>;
 			};
 			vdd1_1v8_lp4: ina226@48 { /* u100 */
 				compatible = "ti,ina226";
+				#io-channel-cells = <1>;
+				label = "ina226-vdd1-1v8-lp4";
 				reg = <0x48>;
-				shunt-resistor = <5000>;
-			};
-			vcc0v6_lp4: ina226@49 { /* u101 */
-				compatible = "ti,ina226";
-				reg = <0x49>;
 				shunt-resistor = <5000>;
 			};
 		};
@@ -217,7 +243,7 @@
 			#size-cells = <0>;
 			reg = <2>;
 			reg_vccint: tps53681@c0 { /* u69 */
-				compatible = "ti,tps53681"; /* FIXME no linux driver */
+				compatible = "ti,tps53681", "ti,tps53679";
 				reg = <0xc0>;
 			};
 			reg_vcc_pmc: tps544@7 { /* u80 */
@@ -272,7 +298,11 @@
 			reg = <4>;
 			/* connected to U20G */
 		};
-		/* 5-7 unused */
+		i2c@5 { /* DDR4_SODIMM */
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <5>;
+		};
 	};
 };
 
@@ -289,7 +319,7 @@
 		reg = <0x51>;
 	};
 
-	i2c-mux@74 { /* u35 */
+	i2c-mux@74 { /* u47 */
 		compatible = "nxp,pca9548";
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -354,61 +384,56 @@
 				};
 			};
 		};
-		i2c@1 { /* UTIL_PMBUS - FIXME incorrect schematics */
-			#address-cells = <1>;
-			#size-cells = <0>;
-			/* reg = <1>; */
-		};
-		i2c@2 { /* C0_LP4 */
+		i2c@2 { /* C0_DDR4 */
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <2>;
-			si570_c0_lp4: clock-generator@5d { /* u10 */
+			si570_c0_ddr4: clock-generator@55 { /* u4 */
 				#clock-cells = <0>;
 				compatible = "silabs,si570";
-				reg = <0x5d>; /* FIXME addr */
+				reg = <0x55>;
 				temperature-stability = <50>;
 				factory-fout = <30000000>;
 				clock-frequency = <30000000>;
-				clock-output-names = "C0_LP4_SI570_CLK";
+				clock-output-names = "C0_DD4_SI570_CLK";
 			};
 		};
-		i2c@3 { /* C1_LP4 */
+		i2c@3 { /* C1_SODIMM */
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <3>;
-			si570_c1_lp4: clock-generator@5d { /* u10 */
+			si570_c1_lp4: clock-generator@55 { /* u7 */
 				#clock-cells = <0>;
 				compatible = "silabs,si570";
-				reg = <0x5d>; /* FIXME addr */
+				reg = <0x55>;
 				temperature-stability = <50>;
 				factory-fout = <30000000>;
 				clock-frequency = <30000000>;
-				clock-output-names = "C1_LP4_SI570_CLK";
+				clock-output-names = "C1_SODIMM_SI570_CLK";
 			};
 		};
-		i2c@4 { /* C2_LP4 */
+		i2c@4 { /* C2_QDRIV */
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <4>;
-			si570_c2_lp4: clock-generator@5d { /* u10 */
+			si570_c2_lp4: clock-generator@55 { /* u10 */
 				#clock-cells = <0>;
 				compatible = "silabs,si570";
-				reg = <0x5d>; /* FIXME addr */
+				reg = <0x55>;
 				temperature-stability = <50>;
 				factory-fout = <30000000>;
 				clock-frequency = <30000000>;
-				clock-output-names = "C2_LP4_SI570_CLK";
+				clock-output-names = "C2_QDRIV_SI570_CLK";
 			};
 		};
-		i2c@5 { /* C3_LP4 */
+		i2c@5 { /* C3_DDR4 */
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <5>;
-			si570_c3_lp4: clock-generator@5d { /* u15 */
+			si570_c3_lp4: clock-generator@55 { /* u15 */
 				#clock-cells = <0>;
 				compatible = "silabs,si570";
-				reg = <0x5d>; /* FIXME addr */
+				reg = <0x55>;
 				temperature-stability = <50>;
 				factory-fout = <30000000>;
 				clock-frequency = <30000000>;
@@ -422,10 +447,10 @@
 			si570_hsdp: clock-generator@5d { /* u19 */
 				#clock-cells = <0>;
 				compatible = "silabs,si570";
-				reg = <0x5d>; /* FIXME addr */
+				reg = <0x5d>;
 				temperature-stability = <50>;
-				factory-fout = <156250000>; /* FIXME every chip can be different - 10MHZ_TO_810MHZ */
-				clock-frequency = <33333333>;
+				factory-fout = <156250000>;
+				clock-frequency = <156250000>;
 				clock-output-names = "HSDP_SI570";
 			};
 		};

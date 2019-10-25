@@ -213,6 +213,33 @@
 			#size-cells = <0>;
 		};
 
+		smcc: memory-controller@e000e000 {
+			#address-cells = <1>;
+			#size-cells = <1>;
+			status = "disabled";
+			clock-names = "memclk", "apb_pclk";
+			clocks = <&clkc 11>, <&clkc 44>;
+			compatible = "arm,pl353-smc-r2p1", "arm,primecell";
+			interrupt-parent = <&intc>;
+			interrupts = <0 18 4>;
+			ranges ;
+			reg = <0xe000e000 0x1000>;
+			nand0: flash@e1000000 {
+				status = "disabled";
+				compatible = "arm,pl353-nand-r2p1";
+				reg = <0xe1000000 0x1000000>;
+				#address-cells = <1>;
+				#size-cells = <1>;
+			};
+			nor0: flash@e2000000 {
+				status = "disabled";
+				compatible = "cfi-flash";
+				reg = <0xe2000000 0x2000000>;
+				#address-cells = <1>;
+				#size-cells = <1>;
+			};
+		};
+
 		gem0: ethernet@e000b000 {
 			compatible = "cdns,zynq-gem", "cdns,gem";
 			reg = <0xe000b000 0x1000>;

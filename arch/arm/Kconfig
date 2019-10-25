@@ -1008,7 +1008,6 @@ config ARCH_VF610
 
 config ARCH_ZYNQ
 	bool "Xilinx Zynq based platform"
-	select BOARD_EARLY_INIT_F if WDT
 	select CLK
 	select CLK_ZYNQ
 	select CPU_V7A

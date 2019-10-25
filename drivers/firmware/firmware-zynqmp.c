@@ -7,10 +7,10 @@
 
 #include <common.h>
 #include <dm.h>
+#include <zynqmp_firmware.h>
 
 #if defined(CONFIG_ZYNQMP_IPI)
 #include <mailbox.h>
-#include <zynqmp_firmware.h>
 #include <asm/arch/sys_proto.h>
 
 #define PMUFW_PAYLOAD_ARG_CNT	8
@@ -54,7 +54,7 @@ static int send_req(const u32 *req, size_t req_len, u32 *res, size_t res_maxlen)
 	if (IS_ENABLED(CONFIG_SPL_BUILD))
 		return ipi_req(req, req_len, res, res_maxlen);
 
-	return invoke_smc(req[0] + PM_SIP_SVC, 0, 0, 0, 0, res);
+	return xilinx_pm_request(req[0], 0, 0, 0, 0, res);
 }
 
 unsigned int zynqmp_firmware_version(void)
@@ -110,19 +110,19 @@ void zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size)
 
 static int zynqmp_power_probe(struct udevice *dev)
 {
-	int ret = 0;
+	int ret;
 
 	debug("%s, (dev=%p)\n", __func__, dev);
 
 	ret = mbox_get_by_name(dev, "tx", &zynqmp_power.tx_chan);
 	if (ret) {
-		debug("%s, cannot tx mailbox\n", __func__);
+		debug("%s: Cannot find tx mailbox\n", __func__);
 		return ret;
 	}
 
 	ret = mbox_get_by_name(dev, "rx", &zynqmp_power.rx_chan);
 	if (ret) {
-		debug("%s, cannot rx mailbox\n", __func__);
+		debug("%s: Cannot find rx mailbox\n", __func__);
 		return ret;
 	}
 
@@ -146,6 +146,37 @@ U_BOOT_DRIVER(zynqmp_power) = {
 	.probe = zynqmp_power_probe,
 };
 #endif
+
+int __maybe_unused xilinx_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
+				     u32 arg3, u32 *ret_payload)
+{
+	/*
+	 * Added SIP service call Function Identifier
+	 * Make sure to stay in x0 register
+	 */
+	struct pt_regs regs;
+
+	if (current_el() == 3) {
+		printf("%s: Can't call SMC from EL3 context\n", __func__);
+		return -EPERM;
+	}
+
+	regs.regs[0] = PM_SIP_SVC | api_id;
+	regs.regs[1] = ((u64)arg1 << 32) | arg0;
+	regs.regs[2] = ((u64)arg3 << 32) | arg2;
+
+	smc_call(&regs);
+
+	if (ret_payload) {
+		ret_payload[0] = (u32)regs.regs[0];
+		ret_payload[1] = upper_32_bits(regs.regs[0]);
+		ret_payload[2] = (u32)regs.regs[1];
+		ret_payload[3] = upper_32_bits(regs.regs[1]);
+		ret_payload[4] = (u32)regs.regs[2];
+	}
+
+	return regs.regs[0];
+}
 
 static const struct udevice_id zynqmp_firmware_ids[] = {
 	{ .compatible = "xlnx,zynqmp-firmware" },

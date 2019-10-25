@@ -14,7 +14,7 @@
 
 / {
 	model = "Versal System Controller on a2197 Processor Char board RevA"; /* Tenzing */
-	compatible = "xlnx,zynqmp-a2197-p-revA", "xlnx,zynqmp-a2197-revA",
+	compatible = "xlnx,zynqmp-p-a2197-00-revA", "xlnx,zynqmp-a2197-revA",
 		     "xlnx,zynqmp-a2197", "xlnx,zynqmp";
 
 	aliases {
@@ -41,7 +41,7 @@
 
 	memory@0 {
 		device_type = "memory";
-		reg = <0x0 0x0 0x0 0x80000000>; /* FIXME don't know how big memory is there */
+		reg = <0x0 0x0 0x0 0x80000000>;
 	};
 };
 
@@ -76,7 +76,7 @@
 	phy-mode = "sgmii"; /* DTG generates this properly  1512 */
 	is-internal-pcspma;
 	/* phy-reset-gpios = <&gpio 142 GPIO_ACTIVE_LOW>; */
-	phy0: phy@0 {
+	phy0: ethernet-phy@0 {
 		reg = <0>;
 	};
 };
@@ -155,9 +155,9 @@
 				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus - wiring is missing */
 				reg = <0xa>;
 			};
-			reg_vccint: tps53681@c0 { /* u70 - FIXME name - don't know what it does - also vcc_io_soc */
-				compatible = "ti,tps53681"; /* FIXME no linux driver */
-				reg = <0xc0>;
+			reg_vccint: tps53681@60 { /* u70 - FIXME name - don't know what it does - also vcc_io_soc */
+				compatible = "ti,tps53681", "ti,tps53679";
+				reg = <0x60>;
 				/* vccint, vcc_io_soc */
 			};
 		};
@@ -165,7 +165,7 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <1>;
-			/* FIXME check alerts comming to SC */
+			/* FIXME check alerts coming to SC */
 			vcc_fmc: ina226@42 { /* u81 */
 				compatible = "ti,ina226";
 				reg = <0x42>;
@@ -387,9 +387,9 @@
 				compatible = "silabs,si570";
 				reg = <0x5d>;	/* 570JAC000900DG */
 				temperature-stability = <50>;
-				factory-fout = <156250000>; /* FIXME every chip can be different */
+				factory-fout = <33333333>;
 				clock-frequency = <33333333>;
-				clock-output-names = "REF_CLK"; /* FIXME */
+				clock-output-names = "ref_clk";
 			};
 			/* Connection via Samtec J212D */
 			/* Use for storing information about X-PRC card */
@@ -455,9 +455,9 @@
 				compatible = "silabs,si570";
 				reg = <0x60>;	/* 570BAB000299DG */
 				temperature-stability = <50>;
-				factory-fout = <156250000>; /* FIXME every chip can be different - 10MHZ_TO_810MHZ */
-				clock-frequency = <33333333>;
-				clock-output-names = "REF_CLK"; /* FIXME */
+				factory-fout = <200000000>;
+				clock-frequency = <200000000>;
+				clock-output-names = "si570_ddrdimm1_clk";
 			};
 			/* 0x50 SPD? */
 		};
@@ -470,9 +470,9 @@
 				compatible = "silabs,si570";
 				reg = <0x60>;	/* 570BAB000299DG */
 				temperature-stability = <50>;
-				factory-fout = <156250000>; /* FIXME every chip can be different - 10MHZ_TO_810MHZ */
-				clock-frequency = <33333333>;
-				clock-output-names = "REF_CLK"; /* FIXME */
+				factory-fout = <200000000>;
+				clock-frequency = <200000000>;
+				clock-output-names = "si570_ddrdimm2_clk";
 			};
 			/* 0x50 SPD? */
 		};
@@ -485,9 +485,9 @@
 				compatible = "silabs,si570";
 				reg = <0x60>;	/* 570BAB000299DG */
 				temperature-stability = <50>;
-				factory-fout = <156250000>; /* FIXME every chip can be different - 10MHZ_TO_810MHZ */
-				clock-frequency = <33333333>;
-				clock-output-names = "LPDDR4_SI570_CLK";
+				factory-fout = <200000000>;
+				clock-frequency = <200000000>;
+				clock-output-names = "si570_lpddr4_clk";
 			};
 		};
 		i2c@6 { /* HSDP_SI570 */
@@ -499,9 +499,9 @@
 				compatible = "silabs,si570";
 				reg = <0x5d>;	/* 570JAC000900DG */
 				temperature-stability = <50>;
-				factory-fout = <156250000>; /* FIXME every chip can be different - 10MHZ_TO_810MHZ */
-				clock-frequency = <33333333>;
-				clock-output-names = "HSDP_SI570";
+				factory-fout = <156250000>;
+				clock-frequency = <156250000>;
+				clock-output-names = "si570_hsdp_clk";
 			};
 		};
 		i2c@7 { /* PCIE_CLK */
