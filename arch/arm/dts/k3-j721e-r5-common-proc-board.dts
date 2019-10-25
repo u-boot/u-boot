@@ -6,6 +6,8 @@
 /dts-v1/;
 
 #include "k3-j721e-som-p0.dtsi"
+#include "k3-j721e-ddr-evm-lp4-3733.dtsi"
+#include "k3-j721e-ddr.dtsi"
 
 / {
 	aliases {

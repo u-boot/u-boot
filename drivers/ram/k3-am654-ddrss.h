@@ -996,6 +996,10 @@
 					PGSR0_DIDONE_MASK)
 #define PGSR0_DATA_TR_INIT_MASK		(PGSR0_DRAM_INIT_MASK)
 
+struct ddrss_ss_reg_params {
+	u32 ddrss_v2h_ctl_reg;
+};
+
 struct ddrss_ddrctl_reg_params {
 	u32 ddrctl_dfimisc;
 	u32 ddrctl_dfitmg0;
@@ -1111,12 +1115,15 @@ struct ddrss_ddrphy_cfg_params {
 	u32 ddrphy_dx8sl0dxctl2;
 	u32 ddrphy_dx8sl0iocr;
 	u32 ddrphy_dx8sl0pllcr0;
+	u32 ddrphy_dx8sl0dqsctl;
 	u32 ddrphy_dx8sl1dxctl2;
 	u32 ddrphy_dx8sl1iocr;
 	u32 ddrphy_dx8sl1pllcr0;
+	u32 ddrphy_dx8sl1dqsctl;
 	u32 ddrphy_dx8sl2dxctl2;
 	u32 ddrphy_dx8sl2iocr;
 	u32 ddrphy_dx8sl2pllcr0;
+	u32 ddrphy_dx8sl2dqsctl;
 	u32 ddrphy_dxccr;
 	u32 ddrphy_odtcr;
 	u32 ddrphy_pgcr0;
@@ -1147,6 +1154,8 @@ struct ddrss_ddrphy_ctrl_params {
 };
 
 struct ddrss_ddrphy_ioctl_params {
+	u32 ddrphy_aciocr0;
+	u32 ddrphy_aciocr3;
 	u32 ddrphy_aciocr5;
 	u32 ddrphy_iovcr0;
 };
@@ -1173,6 +1182,7 @@ struct ddrss_ddrphy_zq_params {
 };
 
 struct ddrss_params {
+	struct ddrss_ss_reg_params ss_reg;
 	struct ddrss_ddrctl_reg_params ctl_reg;
 	struct ddrss_ddrctl_crc_params ctl_crc;
 	struct ddrss_ddrctl_ecc_params ctl_ecc;
