@@ -123,30 +123,38 @@ static int fec_mdio_read(struct ethernet_regs *eth, uint8_t phyaddr,
 	return val;
 }
 
+#ifndef imx_get_fecclk
+u32 __weak imx_get_fecclk(void)
+{
+	return 0;
+}
+#endif
+
 static int fec_get_clk_rate(void *udev, int idx)
 {
-#if IS_ENABLED(CONFIG_IMX8)
 	struct fec_priv *fec;
 	struct udevice *dev;
 	int ret;
 
-	dev = udev;
-	if (!dev) {
-		ret = uclass_get_device(UCLASS_ETH, idx, &dev);
-		if (ret < 0) {
-			debug("Can't get FEC udev: %d\n", ret);
-			return ret;
+	if (IS_ENABLED(CONFIG_IMX8) ||
+	    CONFIG_IS_ENABLED(CLK_CCF)) {
+		dev = udev;
+		if (!dev) {
+			ret = uclass_get_device(UCLASS_ETH, idx, &dev);
+			if (ret < 0) {
+				debug("Can't get FEC udev: %d\n", ret);
+				return ret;
+			}
 		}
+
+		fec = dev_get_priv(dev);
+		if (fec)
+			return fec->clk_rate;
+
+		return -EINVAL;
+	} else {
+		return imx_get_fecclk();
 	}
-
-	fec = dev_get_priv(dev);
-	if (fec)
-		return fec->clk_rate;
-
-	return -EINVAL;
-#else
-	return imx_get_fecclk();
-#endif
 }
 
 static void fec_mii_setspeed(struct ethernet_regs *eth)
@@ -1333,6 +1341,47 @@ static int fecmxc_probe(struct udevice *dev)
 		if (ret < 0) {
 			debug("Can't enable FEC ipg clk: %d\n", ret);
 			return ret;
+		}
+
+		priv->clk_rate = clk_get_rate(&priv->ipg_clk);
+	} else if (CONFIG_IS_ENABLED(CLK_CCF)) {
+		ret = clk_get_by_name(dev, "ipg", &priv->ipg_clk);
+		if (ret < 0) {
+			debug("Can't get FEC ipg clk: %d\n", ret);
+			return ret;
+		}
+		ret = clk_enable(&priv->ipg_clk);
+		if(ret)
+			return ret;
+
+		ret = clk_get_by_name(dev, "ahb", &priv->ahb_clk);
+		if (ret < 0) {
+			debug("Can't get FEC ahb clk: %d\n", ret);
+			return ret;
+		}
+		ret = clk_enable(&priv->ahb_clk);
+		if (ret)
+			return ret;
+
+		ret = clk_get_by_name(dev, "enet_out", &priv->clk_enet_out);
+		if (!ret) {
+			ret = clk_enable(&priv->clk_enet_out);
+			if (ret)
+				return ret;
+		}
+
+		ret = clk_get_by_name(dev, "enet_clk_ref", &priv->clk_ref);
+		if (!ret) {
+			ret = clk_enable(&priv->clk_ref);
+			if (ret)
+				return ret;
+		}
+
+		ret = clk_get_by_name(dev, "ptp", &priv->clk_ptp);
+		if (!ret) {
+			ret = clk_enable(&priv->clk_ptp);
+			if (ret)
+				return ret;
 		}
 
 		priv->clk_rate = clk_get_rate(&priv->ipg_clk);
