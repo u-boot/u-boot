@@ -26,7 +26,7 @@ int arch_auxiliary_core_up(u32 core_id, ulong boot_private_data)
 
 	/* Enable M4 */
 #ifdef CONFIG_IMX8M
-	call_imx_sip(IMX_SIP_SRC, IMX_SIP_SRC_M4_START, 0, 0);
+	call_imx_sip(IMX_SIP_SRC, IMX_SIP_SRC_M4_START, 0, 0, 0);
 #else
 	clrsetbits_le32(SRC_BASE_ADDR + SRC_M4_REG_OFFSET,
 			SRC_M4C_NON_SCLR_RST_MASK, SRC_M4_ENABLE_MASK);
@@ -38,7 +38,7 @@ int arch_auxiliary_core_up(u32 core_id, ulong boot_private_data)
 int arch_auxiliary_core_check_up(u32 core_id)
 {
 #ifdef CONFIG_IMX8M
-	return call_imx_sip(IMX_SIP_SRC, IMX_SIP_SRC_M4_STARTED, 0, 0);
+	return call_imx_sip(IMX_SIP_SRC, IMX_SIP_SRC_M4_STARTED, 0, 0, 0);
 #else
 	unsigned int val;
 
