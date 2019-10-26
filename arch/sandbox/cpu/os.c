@@ -816,10 +816,10 @@ void *os_find_text_base(void)
 		char *end = memchr(line, '-', len);
 
 		if (end) {
-			unsigned long long addr;
+			uintptr_t addr;
 
 			*end = '\0';
-			if (sscanf(line, "%llx", &addr) == 1)
+			if (sscanf(line, "%zx", &addr) == 1)
 				base = (void *)addr;
 		}
 	}
