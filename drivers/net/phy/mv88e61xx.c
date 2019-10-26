@@ -1154,10 +1154,22 @@ static struct phy_driver mv88e609x_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
+static struct phy_driver mv88e6071_driver = {
+	.name = "Marvell MV88E6071",
+	.uid = 0x1410db0,
+	.mask = 0xfffffff0,
+	.features = PHY_BASIC_FEATURES | SUPPORTED_MII,
+	.probe = mv88e61xx_probe,
+	.config = mv88e61xx_phy_config,
+	.startup = mv88e61xx_phy_startup,
+	.shutdown = &genphy_shutdown,
+};
+
 int phy_mv88e61xx_init(void)
 {
 	phy_register(&mv88e61xx_driver);
 	phy_register(&mv88e609x_driver);
+	phy_register(&mv88e6071_driver);
 
 	return 0;
 }
