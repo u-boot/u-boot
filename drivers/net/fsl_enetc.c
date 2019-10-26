@@ -248,6 +248,7 @@ static void enetc_start_phy(struct udevice *dev)
 
 	supported = GENMASK(6, 0); /* speeds up to 1G & AN */
 	phy->advertising = phy->supported & supported;
+	phy->node = phy_node;
 	phy_config(phy);
 	phy_startup(phy);
 }
