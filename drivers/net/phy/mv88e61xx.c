@@ -117,14 +117,12 @@
 
 #define SERDES_REG_CTRL_1_FORCE_LINK	BIT(10)
 
-#define PHY_REG_CTRL1_ENERGY_DET_SHIFT	8
-#define PHY_REG_CTRL1_ENERGY_DET_WIDTH	2
-
 /* Field values */
 #define PORT_REG_CTRL_PSTATE_DISABLED	0
 #define PORT_REG_CTRL_PSTATE_FORWARD	3
 
 #define PHY_REG_CTRL1_ENERGY_DET_OFF	0
+#define PHY_REG_CTRL1_ENERGY_DET_SENSE_PULSE	1
 #define PHY_REG_CTRL1_ENERGY_DET_SENSE_ONLY	2
 #define PHY_REG_CTRL1_ENERGY_DET_SENSE_XMIT	3
 
@@ -198,6 +196,9 @@ struct mv88e61xx_phy_priv {
 	u8 port_stat_speed_width;/* Width of speed status bitfield */
 	u8 global1;	/* Offset of Switch Global 1 registers */
 	u8 global2;	/* Offset of Switch Global 2 registers */
+	u8 phy_ctrl1_en_det_shift; /* 'EDet' bit field offset */
+	u8 phy_ctrl1_en_det_width; /* Width of 'EDet' bit field */
+	u8 phy_ctrl1_en_det_ctrl;  /* 'EDet' control value */
 };
 
 static inline int smi_cmd(int cmd, int addr, int reg)
@@ -846,6 +847,7 @@ static int mv88e61xx_phy_enable(struct phy_device *phydev, u8 phy)
 
 static int mv88e61xx_phy_setup(struct phy_device *phydev, u8 phy)
 {
+	struct mv88e61xx_phy_priv *priv = phydev->priv;
 	int val;
 
 	/*
@@ -855,9 +857,9 @@ static int mv88e61xx_phy_setup(struct phy_device *phydev, u8 phy)
 	val = mv88e61xx_phy_read(phydev, phy, PHY_REG_CTRL1);
 	if (val < 0)
 		return val;
-	val = bitfield_replace(val, PHY_REG_CTRL1_ENERGY_DET_SHIFT,
-			       PHY_REG_CTRL1_ENERGY_DET_WIDTH,
-			       PHY_REG_CTRL1_ENERGY_DET_SENSE_XMIT);
+	val = bitfield_replace(val, priv->phy_ctrl1_en_det_shift,
+			       priv->phy_ctrl1_en_det_width,
+			       priv->phy_ctrl1_en_det_ctrl);
 	val = mv88e61xx_phy_write(phydev, phy, PHY_REG_CTRL1, val);
 	if (val < 0)
 		return val;
@@ -994,6 +996,10 @@ static int mv88e61xx_probe(struct phy_device *phydev)
 		priv->port_stat_link_mask = BIT(11);
 		priv->port_stat_dup_mask = BIT(10);
 		priv->port_stat_speed_width = 2;
+		priv->phy_ctrl1_en_det_shift = 8;
+		priv->phy_ctrl1_en_det_width = 2;
+		priv->phy_ctrl1_en_det_ctrl =
+			PHY_REG_CTRL1_ENERGY_DET_SENSE_XMIT;
 		break;
 	case PORT_SWITCH_ID_6020:
 	case PORT_SWITCH_ID_6070:
@@ -1004,6 +1010,10 @@ static int mv88e61xx_probe(struct phy_device *phydev)
 		priv->port_stat_link_mask = BIT(12);
 		priv->port_stat_dup_mask = BIT(9);
 		priv->port_stat_speed_width = 1;
+		priv->phy_ctrl1_en_det_shift = 14;
+		priv->phy_ctrl1_en_det_width = 1;
+		priv->phy_ctrl1_en_det_ctrl =
+			PHY_REG_CTRL1_ENERGY_DET_SENSE_PULSE;
 		break;
 	default:
 		free(priv);
