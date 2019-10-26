@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright (C) 2018 Ãlvaro FernÃ¡ndez Rojas <noltari@gmail.com>
+ * Copyright (C) 2018 Álvaro Fernández Rojas <noltari@gmail.com>
  */
 
 #include <configs/bmips_common.h>
@@ -8,5 +8,4 @@
 
 #define CONFIG_REMAKE_ELF
 
-#define CONFIG_ENV_SIZE			(8 * 1024)
-
+#define CONFIG_ENV_SIZE	SZ_8K

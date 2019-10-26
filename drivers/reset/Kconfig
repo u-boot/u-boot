@@ -113,6 +113,13 @@ config RESET_MEDIATEK
 	help
 	  Support for reset controller on MediaTek SoCs.
 
+config RESET_MTMIPS
+	bool "Reset controller driver for MediaTek MIPS platform"
+	depends on DM_RESET && ARCH_MTMIPS
+	default y
+	help
+	  Support for reset controller on MediaTek MIPS platform.
+
 config RESET_SUNXI
 	bool "RESET support for Allwinner SoCs"
 	depends on DM_RESET && ARCH_SUNXI

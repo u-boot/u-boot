@@ -99,6 +99,19 @@
 	};
 };
 
+&nand {
+	status = "okay";
+
+	nandcs@0 {
+		compatible = "brcm,nandcs";
+		reg = <0>;
+		nand-ecc-strength = <15>;
+		nand-ecc-step-size = <512>;
+		nand-on-flash-bbt;
+		brcm,nand-oob-sector-size = <64>;
+	};
+};
+
 &ohci {
 	status = "okay";
 };

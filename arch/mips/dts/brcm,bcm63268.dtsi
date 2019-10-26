@@ -141,6 +141,24 @@
 			status = "disabled";
 		};
 
+		nand: nand-controller@10000200 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "brcm,nand-bcm6368",
+				     "brcm,brcmnand-v4.0",
+				     "brcm,brcmnand";
+			reg-names = "nand",
+				    "nand-cache",
+				    "nand-int-base";
+			reg = <0x10000200 0x180>,
+			      <0x10000600 0x200>,
+			      <0x100000b0 0x10>;
+			clocks = <&periph_clk BCM63268_CLK_NAND>;
+			clock-names = "nand";
+
+			status = "disabled";
+		};
+
 		periph_pwr: power-controller@1000184c {
 			compatible = "brcm,bcm6328-power-domain";
 			reg = <0x1000184c 0x4>;
