@@ -191,6 +191,9 @@ static void enetc_start_pcs(struct udevice *dev)
 		enetc_init_sgmii(dev);
 		break;
 	case PHY_INTERFACE_MODE_RGMII:
+	case PHY_INTERFACE_MODE_RGMII_ID:
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+	case PHY_INTERFACE_MODE_RGMII_TXID:
 		enetc_init_rgmii(dev);
 		break;
 	case PHY_INTERFACE_MODE_XGMII:
