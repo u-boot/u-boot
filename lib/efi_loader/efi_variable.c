@@ -5,14 +5,12 @@
  *  Copyright (c) 2017 Rob Clark
  */
 
-#include <env.h>
-#include <malloc.h>
-#include <charset.h>
+#include <common.h>
 #include <efi_loader.h>
-#include <hexdump.h>
 #include <env_internal.h>
+#include <hexdump.h>
+#include <malloc.h>
 #include <search.h>
-#include <uuid.h>
 
 #define READ_ONLY BIT(31)
 
