@@ -6,6 +6,8 @@
  * Author: Neil Armstrong <narmstrong@baylibre.com>
  */
 
+#include <common.h>
+#include <dm.h>
 #include <edid.h>
 #include "meson_vpu.h"
 #include <linux/iopoll.h>

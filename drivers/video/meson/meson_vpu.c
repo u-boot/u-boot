@@ -6,13 +6,17 @@
  * Author: Neil Armstrong <narmstrong@baylibre.com>
  */
 
-#include "meson_vpu.h"
+#include <common.h>
+#include <display.h>
+#include <dm.h>
 #include <efi_loader.h>
-#include <dm/device-internal.h>
-#include <dm/uclass-internal.h>
 #include <fdt_support.h>
 #include <linux/sizes.h>
 #include <asm/arch/mem.h>
+#include <dm/device-internal.h>
+#include <dm/uclass-internal.h>
+
+#include "meson_vpu.h"
 #include "meson_registers.h"
 #include "simplefb_common.h"
 
@@ -26,6 +30,14 @@ static struct meson_framebuffer {
 	unsigned int ysize;
 	bool is_cvbs;
 } meson_fb = { 0 };
+
+bool meson_vpu_is_compatible(struct meson_vpu_priv *priv,
+			     enum vpu_compatible family)
+{
+	enum vpu_compatible compat = dev_get_driver_data(priv->dev);
+
+	return compat == family;
+}
 
 static int meson_vpu_setup_mode(struct udevice *dev, struct udevice *disp)
 {
