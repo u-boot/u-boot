@@ -1837,11 +1837,14 @@ checkarmreloc: u-boot
 		false; \
 	fi
 
-envtools: scripts_basic $(version_h) $(timestamp_h)
+tools/version.h: include/version.h
+	$(call if_changed,copy)
+
+envtools: scripts_basic $(version_h) $(timestamp_h) tools/version.h
 	$(Q)$(MAKE) $(build)=tools/env
 
 tools-only: export TOOLS_ONLY=y
-tools-only: scripts_basic $(version_h) $(timestamp_h)
+tools-only: scripts_basic $(version_h) $(timestamp_h) tools/version.h
 	$(Q)$(MAKE) $(build)=tools
 
 tools-all: export HOST_TOOLS_ALL=y
@@ -1869,7 +1872,7 @@ CLEAN_DIRS  += $(MODVERDIR) \
 	       $(foreach d, spl tpl, $(patsubst %,$d/%, \
 			$(filter-out include, $(shell ls -1 $d 2>/dev/null))))
 
-CLEAN_FILES += include/bmp_logo.h include/bmp_logo_data.h \
+CLEAN_FILES += include/bmp_logo.h include/bmp_logo_data.h tools/version.h \
 	       boot* u-boot* MLO* SPL System.map fit-dtb.blob*
 
 # Directories & files removed with 'make mrproper'

@@ -31,4 +31,5 @@
 /spl_size_limit
 /sunxi-spl-image-builder
 /ubsha1
+/version.h
 /xway-swap-bytes
