@@ -1,0 +1,38 @@
+variables:
+  windows_vm: vs2015-win2012r2
+
+jobs:
+  - job: tools_only_windows
+    displayName: 'Ensure host tools build for Windows'
+    pool:
+      vmImage: $(windows_vm)
+    strategy:
+      matrix:
+        i686:
+          MSYS_DIR: msys32
+          BASE_REPO: msys2-ci-base-i686
+        x86_64:
+          MSYS_DIR: msys64
+          BASE_REPO: msys2-ci-base
+    steps:
+      - script: |
+          git clone https://github.com/msys2/$(BASE_REPO).git %CD:~0,2%\$(MSYS_DIR)
+        displayName: 'Install MSYS2'
+      - script: |
+          set PATH=%CD:~0,2%\$(MSYS_DIR)\usr\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem
+          %CD:~0,2%\$(MSYS_DIR)\usr\bin\pacman --noconfirm -Syyuu
+        displayName: 'Update MSYS2'
+      - script: |
+          set PATH=%CD:~0,2%\$(MSYS_DIR)\usr\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem
+          %CD:~0,2%\$(MSYS_DIR)\usr\bin\pacman --noconfirm --needed -S make gcc bison diffutils openssl-devel
+        displayName: 'Install Toolchain'
+      - script: |
+          set PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem
+          echo make tools-only_defconfig tools-only NO_SDL=1 > build-tools.sh
+          %CD:~0,2%\$(MSYS_DIR)\usr\bin\bash -lc "bash build-tools.sh"
+        displayName: 'Build Host Tools'
+        env:
+          # Tell MSYS2 we need a POSIX emulation layer
+          MSYSTEM: MSYS
+          # Tell MSYS2 not to ‘cd’ our startup directory to HOME
+          CHERE_INVOKING: yes
