@@ -201,14 +201,14 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
 
     # Work out what subset of the boards we are building
     if not boards:
-        board_file = os.path.join(options.git, 'boards.cfg')
-        status = subprocess.call([os.path.join(options.git,
-                                                'tools/genboardscfg.py')])
+        board_file = os.path.join(options.output_dir, 'boards.cfg')
+        genboardscfg = os.path.join(options.git, 'tools/genboardscfg.py')
+        status = subprocess.call([genboardscfg, '-o', board_file])
         if status != 0:
-                sys.exit("Failed to generate boards.cfg")
+            sys.exit("Failed to generate boards.cfg")
 
         boards = board.Boards()
-        boards.ReadBoards(os.path.join(options.git, 'boards.cfg'))
+        boards.ReadBoards(board_file)
 
     exclude = []
     if options.exclude:
