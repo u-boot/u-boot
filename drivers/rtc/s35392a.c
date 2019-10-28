@@ -350,6 +350,8 @@ static const struct rtc_ops s35392a_rtc_ops = {
 
 static const struct udevice_id s35392a_rtc_ids[] = {
 	{ .compatible = "sii,s35392a-rtc" },
+	{ .compatible = "sii,s35392a" },
+	{ .compatible = "s35392a" },
 	{ }
 };
 
