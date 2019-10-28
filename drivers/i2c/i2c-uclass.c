@@ -52,16 +52,19 @@ void i2c_dump_msgs(struct i2c_msg *msg, int nmsgs)
 static int i2c_setup_offset(struct dm_i2c_chip *chip, uint offset,
 			    uint8_t offset_buf[], struct i2c_msg *msg)
 {
-	int offset_len;
+	int offset_len = chip->offset_len;
 
 	msg->addr = chip->chip_addr;
+	if (chip->chip_addr_offset_mask)
+		msg->addr |= (offset >> (8 * offset_len)) &
+			chip->chip_addr_offset_mask;
 	msg->flags = chip->flags & DM_I2C_CHIP_10BIT ? I2C_M_TEN : 0;
 	msg->len = chip->offset_len;
 	msg->buf = offset_buf;
-	if (!chip->offset_len)
+	if (!offset_len)
 		return -EADDRNOTAVAIL;
-	assert(chip->offset_len <= I2C_MAX_OFFSET_LEN);
-	offset_len = chip->offset_len;
+	assert(offset_len <= I2C_MAX_OFFSET_LEN);
+
 	while (offset_len--)
 		*offset_buf++ = offset >> (8 * offset_len);
 
@@ -83,7 +86,7 @@ static int i2c_read_bytewise(struct udevice *dev, uint offset,
 		if (i2c_setup_offset(chip, offset + i, offset_buf, msg))
 			return -EINVAL;
 		ptr = msg + 1;
-		ptr->addr = chip->chip_addr;
+		ptr->addr = msg->addr;
 		ptr->flags = msg->flags | I2C_M_RD;
 		ptr->len = 1;
 		ptr->buf = &buffer[i];
@@ -139,7 +142,7 @@ int dm_i2c_read(struct udevice *dev, uint offset, uint8_t *buffer, int len)
 		ptr++;
 
 	if (len) {
-		ptr->addr = chip->chip_addr;
+		ptr->addr = msg->addr;
 		ptr->flags = chip->flags & DM_I2C_CHIP_10BIT ? I2C_M_TEN : 0;
 		ptr->flags |= I2C_M_RD;
 		ptr->len = len;
@@ -323,7 +326,8 @@ int i2c_get_chip(struct udevice *bus, uint chip_addr, uint offset_len,
 		struct dm_i2c_chip *chip = dev_get_parent_platdata(dev);
 		int ret;
 
-		if (chip->chip_addr == chip_addr) {
+		if (chip->chip_addr == (chip_addr &
+					~chip->chip_addr_offset_mask)) {
 			ret = device_probe(dev);
 			debug("found, ret=%d\n", ret);
 			if (ret)
@@ -463,6 +467,22 @@ int i2c_get_chip_offset_len(struct udevice *dev)
 	struct dm_i2c_chip *chip = dev_get_parent_platdata(dev);
 
 	return chip->offset_len;
+}
+
+int i2c_set_chip_addr_offset_mask(struct udevice *dev, uint mask)
+{
+	struct dm_i2c_chip *chip = dev_get_parent_platdata(dev);
+
+	chip->chip_addr_offset_mask = mask;
+
+	return 0;
+}
+
+uint i2c_get_chip_addr_offset_mask(struct udevice *dev)
+{
+	struct dm_i2c_chip *chip = dev_get_parent_platdata(dev);
+
+	return chip->chip_addr_offset_mask;
 }
 
 #ifdef CONFIG_DM_GPIO
