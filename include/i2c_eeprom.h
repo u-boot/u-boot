@@ -10,6 +10,7 @@ struct i2c_eeprom_ops {
 	int (*read)(struct udevice *dev, int offset, uint8_t *buf, int size);
 	int (*write)(struct udevice *dev, int offset, const uint8_t *buf,
 		     int size);
+	int (*size)(struct udevice *dev);
 };
 
 struct i2c_eeprom {
@@ -17,6 +18,8 @@ struct i2c_eeprom {
 	unsigned long pagesize;
 	/* The EEPROM's page width in bits (pagesize = 2^pagewidth) */
 	unsigned pagewidth;
+	/* The EEPROM's capacity in bytes */
+	unsigned long size;
 };
 
 /*
@@ -42,5 +45,14 @@ int i2c_eeprom_read(struct udevice *dev, int offset, uint8_t *buf, int size);
  * @return 0 on success, -ve on failure
  */
 int i2c_eeprom_write(struct udevice *dev, int offset, uint8_t *buf, int size);
+
+/*
+ * i2c_eeprom_size() - get size of I2C EEPROM chip
+ *
+ * @dev:	Chip to query
+ *
+ * @return +ve size in bytes on success, -ve on failure
+ */
+int i2c_eeprom_size(struct udevice *dev);
 
 #endif

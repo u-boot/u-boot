@@ -12,6 +12,11 @@
 #include <i2c.h>
 #include <i2c_eeprom.h>
 
+struct i2c_eeprom_drv_data {
+	u32 size; /* size in bytes */
+	u32 pagewidth; /* pagesize = 2^pagewidth */
+};
+
 int i2c_eeprom_read(struct udevice *dev, int offset, uint8_t *buf, int size)
 {
 	const struct i2c_eeprom_ops *ops = device_get_ops(dev);
@@ -30,6 +35,16 @@ int i2c_eeprom_write(struct udevice *dev, int offset, uint8_t *buf, int size)
 		return -ENOSYS;
 
 	return ops->write(dev, offset, buf, size);
+}
+
+int i2c_eeprom_size(struct udevice *dev)
+{
+	const struct i2c_eeprom_ops *ops = device_get_ops(dev);
+
+	if (!ops->size)
+		return -ENOSYS;
+
+	return ops->size(dev);
 }
 
 static int i2c_eeprom_std_read(struct udevice *dev, int offset, uint8_t *buf,
@@ -61,25 +76,39 @@ static int i2c_eeprom_std_write(struct udevice *dev, int offset,
 	return 0;
 }
 
+static int i2c_eeprom_std_size(struct udevice *dev)
+{
+	struct i2c_eeprom *priv = dev_get_priv(dev);
+
+	return priv->size;
+}
+
 static const struct i2c_eeprom_ops i2c_eeprom_std_ops = {
 	.read	= i2c_eeprom_std_read,
 	.write	= i2c_eeprom_std_write,
+	.size	= i2c_eeprom_std_size,
 };
 
 static int i2c_eeprom_std_ofdata_to_platdata(struct udevice *dev)
 {
 	struct i2c_eeprom *priv = dev_get_priv(dev);
-	u64 data = dev_get_driver_data(dev);
+	struct i2c_eeprom_drv_data *data =
+		(struct i2c_eeprom_drv_data *)dev_get_driver_data(dev);
 	u32 pagesize;
+	u32 size;
 
 	if (dev_read_u32(dev, "pagesize", &pagesize) == 0) {
 		priv->pagesize = pagesize;
-		return 0;
+	} else {
+		/* 6 bit -> page size of up to 2^63 (should be sufficient) */
+		priv->pagewidth = data->pagewidth;
+		priv->pagesize = (1 << priv->pagewidth);
 	}
 
-	/* 6 bit -> page size of up to 2^63 (should be sufficient) */
-	priv->pagewidth = data & 0x3F;
-	priv->pagesize = (1 << priv->pagewidth);
+	if (dev_read_u32(dev, "size", &size) == 0)
+		priv->size = size;
+	else
+		priv->size = data->size;
 
 	return 0;
 }
@@ -120,21 +149,91 @@ static int i2c_eeprom_std_probe(struct udevice *dev)
 	return 0;
 }
 
+static const struct i2c_eeprom_drv_data eeprom_data = {
+	.size = 0,
+	.pagewidth = 0,
+};
+
+static const struct i2c_eeprom_drv_data mc24aa02e48_data = {
+	.size = 256,
+	.pagewidth = 3,
+};
+
+static const struct i2c_eeprom_drv_data atmel24c01a_data = {
+	.size = 128,
+	.pagewidth = 3,
+};
+
+static const struct i2c_eeprom_drv_data atmel24c02_data = {
+	.size = 256,
+	.pagewidth = 3,
+};
+
+static const struct i2c_eeprom_drv_data atmel24c04_data = {
+	.size = 512,
+	.pagewidth = 4,
+};
+
+static const struct i2c_eeprom_drv_data atmel24c08_data = {
+	.size = 1024,
+	.pagewidth = 4,
+};
+
+static const struct i2c_eeprom_drv_data atmel24c08a_data = {
+	.size = 1024,
+	.pagewidth = 4,
+};
+
+static const struct i2c_eeprom_drv_data atmel24c16a_data = {
+	.size = 2048,
+	.pagewidth = 4,
+};
+
+static const struct i2c_eeprom_drv_data atmel24mac402_data = {
+	.size = 256,
+	.pagewidth = 4,
+};
+
+static const struct i2c_eeprom_drv_data atmel24c32_data = {
+	.size = 4096,
+	.pagewidth = 5,
+};
+
+static const struct i2c_eeprom_drv_data atmel24c64_data = {
+	.size = 8192,
+	.pagewidth = 5,
+};
+
+static const struct i2c_eeprom_drv_data atmel24c128_data = {
+	.size = 16384,
+	.pagewidth = 6,
+};
+
+static const struct i2c_eeprom_drv_data atmel24c256_data = {
+	.size = 32768,
+	.pagewidth = 6,
+};
+
+static const struct i2c_eeprom_drv_data atmel24c512_data = {
+	.size = 65536,
+	.pagewidth = 6,
+};
+
 static const struct udevice_id i2c_eeprom_std_ids[] = {
-	{ .compatible = "i2c-eeprom", .data = 0 },
-	{ .compatible = "microchip,24aa02e48", .data = 3 },
-	{ .compatible = "atmel,24c01a", .data = 3 },
-	{ .compatible = "atmel,24c02", .data = 3 },
-	{ .compatible = "atmel,24c04", .data = 4 },
-	{ .compatible = "atmel,24c08", .data = 4 },
-	{ .compatible = "atmel,24c08a", .data = 4 },
-	{ .compatible = "atmel,24c16a", .data = 4 },
-	{ .compatible = "atmel,24mac402", .data = 4 },
-	{ .compatible = "atmel,24c32", .data = 5 },
-	{ .compatible = "atmel,24c64", .data = 5 },
-	{ .compatible = "atmel,24c128", .data = 6 },
-	{ .compatible = "atmel,24c256", .data = 6 },
-	{ .compatible = "atmel,24c512", .data = 6 },
+	{ .compatible = "i2c-eeprom", (ulong)&eeprom_data },
+	{ .compatible = "microchip,24aa02e48", (ulong)&mc24aa02e48_data },
+	{ .compatible = "atmel,24c01a", (ulong)&atmel24c01a_data },
+	{ .compatible = "atmel,24c02", (ulong)&atmel24c02_data },
+	{ .compatible = "atmel,24c04", (ulong)&atmel24c04_data },
+	{ .compatible = "atmel,24c08", (ulong)&atmel24c08_data },
+	{ .compatible = "atmel,24c08a", (ulong)&atmel24c08a_data },
+	{ .compatible = "atmel,24c16a", (ulong)&atmel24c16a_data },
+	{ .compatible = "atmel,24mac402", (ulong)&atmel24mac402_data },
+	{ .compatible = "atmel,24c32", (ulong)&atmel24c32_data },
+	{ .compatible = "atmel,24c64", (ulong)&atmel24c64_data },
+	{ .compatible = "atmel,24c128", (ulong)&atmel24c128_data },
+	{ .compatible = "atmel,24c256", (ulong)&atmel24c256_data },
+	{ .compatible = "atmel,24c512", (ulong)&atmel24c512_data },
 	{ }
 };
 
@@ -208,9 +307,17 @@ static int i2c_eeprom_partition_write(struct udevice *dev, int offset,
 				size);
 }
 
+static int i2c_eeprom_partition_size(struct udevice *dev)
+{
+	struct i2c_eeprom_partition *priv = dev_get_priv(dev);
+
+	return priv->size;
+}
+
 static const struct i2c_eeprom_ops i2c_eeprom_partition_ops = {
 	.read	= i2c_eeprom_partition_read,
 	.write	= i2c_eeprom_partition_write,
+	.size	= i2c_eeprom_partition_size,
 };
 
 U_BOOT_DRIVER(i2c_eeprom_partition) = {
