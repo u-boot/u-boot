@@ -1276,10 +1276,21 @@ endif
 
 MKIMAGEFLAGS_u-boot-dtb.img = $(MKIMAGEFLAGS_u-boot.img)
 
-MKIMAGEFLAGS_u-boot.kwb = -n $(srctree)/$(CONFIG_SYS_KWD_CONFIG:"%"=%) \
+# Some boards have the kwbimage.cfg file written in advance, while some
+# other boards generate it on the fly during the build in the build tree.
+# Let's check if the file exists in the build tree first, otherwise we
+# fall back to use the one in the source tree.
+KWD_CONFIG_FILE = $(shell \
+	if [ -f $(objtree)/$(CONFIG_SYS_KWD_CONFIG:"%"=%) ]; then \
+		echo -n $(objtree)/$(CONFIG_SYS_KWD_CONFIG:"%"=%); \
+	else \
+		echo -n $(srctree)/$(CONFIG_SYS_KWD_CONFIG:"%"=%); \
+	fi)
+
+MKIMAGEFLAGS_u-boot.kwb = -n $(KWD_CONFIG_FILE) \
 	-T kwbimage -a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE)
 
-MKIMAGEFLAGS_u-boot-spl.kwb = -n $(srctree)/$(CONFIG_SYS_KWD_CONFIG:"%"=%) \
+MKIMAGEFLAGS_u-boot-spl.kwb = -n $(KWD_CONFIG_FILE) \
 	-T kwbimage -a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE) \
 	$(if $(KEYDIR),-k $(KEYDIR))
 
