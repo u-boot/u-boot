@@ -241,3 +241,68 @@ static int dm_test_i2c_offset(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_i2c_offset, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+static int dm_test_i2c_addr_offset(struct unit_test_state *uts)
+{
+	struct udevice *eeprom;
+	struct udevice *dev;
+	u8 buf[5];
+
+	ut_assertok(i2c_get_chip_for_busnum(busnum, chip, 1, &dev));
+
+	/* Do a transfer so we can find the emulator */
+	ut_assertok(dm_i2c_read(dev, 0, buf, 5));
+	ut_assertok(uclass_first_device(UCLASS_I2C_EMUL, &eeprom));
+
+	/* Offset length 0 */
+	sandbox_i2c_eeprom_set_offset_len(eeprom, 0);
+	sandbox_i2c_eeprom_set_chip_addr_offset_mask(eeprom, 0x3);
+	ut_assertok(i2c_set_chip_offset_len(dev, 0));
+	ut_assertok(i2c_set_chip_addr_offset_mask(dev, 0x3));
+	ut_assertok(dm_i2c_write(dev, 0x3, (uint8_t *)"AB", 2));
+	ut_assertok(dm_i2c_read(dev, 0x3, buf, 5));
+	ut_asserteq_mem("AB\0\0\0\0", buf, sizeof(buf));
+	ut_asserteq(0x3, sanbox_i2c_eeprom_get_prev_offset(eeprom));
+	ut_asserteq(chip | 0x3, sanbox_i2c_eeprom_get_prev_addr(eeprom));
+
+	/* Offset length 1 */
+	sandbox_i2c_eeprom_set_offset_len(eeprom, 1);
+	sandbox_i2c_eeprom_set_chip_addr_offset_mask(eeprom, 0x3);
+	ut_assertok(i2c_set_chip_offset_len(dev, 1));
+	ut_assertok(i2c_set_chip_addr_offset_mask(dev, 0x3));
+	ut_assertok(dm_i2c_write(dev, 0x310, (uint8_t *)"AB", 2));
+	ut_assertok(dm_i2c_read(dev, 0x310, buf, 5));
+	ut_asserteq_mem("AB\0\0\0\0", buf, sizeof(buf));
+	ut_asserteq(0x310, sanbox_i2c_eeprom_get_prev_offset(eeprom));
+	ut_asserteq(chip | 0x3, sanbox_i2c_eeprom_get_prev_addr(eeprom));
+
+	/* Offset length 2 */
+	sandbox_i2c_eeprom_set_offset_len(eeprom, 2);
+	sandbox_i2c_eeprom_set_chip_addr_offset_mask(eeprom, 0x3);
+	ut_assertok(i2c_set_chip_offset_len(dev, 2));
+	ut_assertok(i2c_set_chip_addr_offset_mask(dev, 0x3));
+	ut_assertok(dm_i2c_write(dev, 0x32020, (uint8_t *)"AB", 2));
+	ut_assertok(dm_i2c_read(dev, 0x32020, buf, 5));
+	ut_asserteq_mem("AB\0\0\0\0", buf, sizeof(buf));
+	ut_asserteq(0x32020, sanbox_i2c_eeprom_get_prev_offset(eeprom));
+	ut_asserteq(chip | 0x3, sanbox_i2c_eeprom_get_prev_addr(eeprom));
+
+	/* Offset length 3 */
+	sandbox_i2c_eeprom_set_offset_len(eeprom, 3);
+	sandbox_i2c_eeprom_set_chip_addr_offset_mask(eeprom, 0x3);
+	ut_assertok(i2c_set_chip_offset_len(dev, 3));
+	ut_assertok(i2c_set_chip_addr_offset_mask(dev, 0x3));
+	ut_assertok(dm_i2c_write(dev, 0x3303030, (uint8_t *)"AB", 2));
+	ut_assertok(dm_i2c_read(dev, 0x3303030, buf, 5));
+	ut_asserteq_mem("AB\0\0\0\0", buf, sizeof(buf));
+	ut_asserteq(0x3303030, sanbox_i2c_eeprom_get_prev_offset(eeprom));
+	ut_asserteq(chip | 0x3, sanbox_i2c_eeprom_get_prev_addr(eeprom));
+
+	/* Restore defaults */
+	sandbox_i2c_eeprom_set_offset_len(eeprom, 1);
+	sandbox_i2c_eeprom_set_chip_addr_offset_mask(eeprom, 0);
+
+	return 0;
+}
+
+DM_TEST(dm_test_i2c_addr_offset, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

@@ -23,6 +23,7 @@ struct sandbox_i2c_flash_plat_data {
 	const char *filename;
 	int offset_len;		/* Length of an offset in bytes */
 	int size;		/* Size of data buffer */
+	uint chip_addr_offset_mask; /* mask of addr bits used for offset */
 };
 
 struct sandbox_i2c_flash {
@@ -46,6 +47,14 @@ void sandbox_i2c_eeprom_set_offset_len(struct udevice *dev, int offset_len)
 	plat->offset_len = offset_len;
 }
 
+void sandbox_i2c_eeprom_set_chip_addr_offset_mask(struct udevice *dev,
+						  uint mask)
+{
+	struct sandbox_i2c_flash_plat_data *plat = dev_get_platdata(dev);
+
+	plat->chip_addr_offset_mask = mask;
+}
+
 uint sanbox_i2c_eeprom_get_prev_addr(struct udevice *dev)
 {
 	struct sandbox_i2c_flash *priv = dev_get_priv(dev);
@@ -64,7 +73,8 @@ static int sandbox_i2c_eeprom_xfer(struct udevice *emul, struct i2c_msg *msg,
 				  int nmsgs)
 {
 	struct sandbox_i2c_flash *priv = dev_get_priv(emul);
-	uint offset = 0;
+	struct sandbox_i2c_flash_plat_data *plat = dev_get_platdata(emul);
+	uint offset = msg->addr & plat->chip_addr_offset_mask;
 
 	debug("\n%s\n", __func__);
 	debug_buffer(0, priv->data, 1, 16, 0);
@@ -73,17 +83,15 @@ static int sandbox_i2c_eeprom_xfer(struct udevice *emul, struct i2c_msg *msg,
 	priv->prev_addr = msg->addr;
 
 	for (; nmsgs > 0; nmsgs--, msg++) {
-		struct sandbox_i2c_flash_plat_data *plat =
-				dev_get_platdata(emul);
 		int len;
 		u8 *ptr;
 
 		if (!plat->size)
 			return -ENODEV;
 		len = msg->len;
-		debug("   %s: msg->len=%d",
+		debug("   %s: msg->addr=%x msg->len=%d",
 		      msg->flags & I2C_M_RD ? "read" : "write",
-		      msg->len);
+		      msg->addr, msg->len);
 		if (msg->flags & I2C_M_RD) {
 			if (plat->test_mode == SIE_TEST_MODE_SINGLE_BYTE)
 				len = 1;
@@ -153,6 +161,7 @@ static int sandbox_i2c_eeprom_ofdata_to_platdata(struct udevice *dev)
 	}
 	plat->test_mode = SIE_TEST_MODE_NONE;
 	plat->offset_len = 1;
+	plat->chip_addr_offset_mask = 0;
 
 	return 0;
 }
