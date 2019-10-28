@@ -349,7 +349,7 @@ void rtc_init(void)
 
 static int rx8010sj_probe(struct udevice *dev)
 {
-	rx8010sj_rtc_init(&dev);
+	rx8010sj_rtc_init(dev);
 
 	return 0;
 }
