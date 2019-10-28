@@ -8,6 +8,7 @@
 #include <linux/err.h>
 #include <linux/kernel.h>
 #include <dm.h>
+#include <dm/device-internal.h>
 #include <i2c.h>
 #include <i2c_eeprom.h>
 
@@ -83,6 +84,29 @@ static int i2c_eeprom_std_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
+static int i2c_eeprom_std_bind(struct udevice *dev)
+{
+	ofnode partitions = ofnode_find_subnode(dev_ofnode(dev), "partitions");
+	ofnode partition;
+	const char *name;
+
+	if (!ofnode_valid(partitions))
+		return 0;
+	if (!ofnode_device_is_compatible(partitions, "fixed-partitions"))
+		return -ENOTSUPP;
+
+	ofnode_for_each_subnode(partition, partitions) {
+		name = ofnode_get_name(partition);
+		if (!name)
+			continue;
+
+		device_bind_ofnode(dev, DM_GET_DRIVER(i2c_eeprom_partition),
+				   name, NULL, partition, NULL);
+	}
+
+	return 0;
+}
+
 static int i2c_eeprom_std_probe(struct udevice *dev)
 {
 	u8 test_byte;
@@ -118,10 +142,84 @@ U_BOOT_DRIVER(i2c_eeprom_std) = {
 	.name			= "i2c_eeprom",
 	.id			= UCLASS_I2C_EEPROM,
 	.of_match		= i2c_eeprom_std_ids,
+	.bind			= i2c_eeprom_std_bind,
 	.probe			= i2c_eeprom_std_probe,
 	.ofdata_to_platdata	= i2c_eeprom_std_ofdata_to_platdata,
 	.priv_auto_alloc_size	= sizeof(struct i2c_eeprom),
 	.ops			= &i2c_eeprom_std_ops,
+};
+
+struct i2c_eeprom_partition {
+	u32 offset;
+	u32 size;
+};
+
+static int i2c_eeprom_partition_probe(struct udevice *dev)
+{
+	return 0;
+}
+
+static int i2c_eeprom_partition_ofdata_to_platdata(struct udevice *dev)
+{
+	struct i2c_eeprom_partition *priv = dev_get_priv(dev);
+	u32 offset, size;
+	int ret;
+
+	ret = dev_read_u32(dev, "offset", &offset);
+	if (ret)
+		return ret;
+
+	ret = dev_read_u32(dev, "size", &size);
+	if (ret)
+		return ret;
+
+	priv->offset = offset;
+	priv->size = size;
+
+	return 0;
+}
+
+static int i2c_eeprom_partition_read(struct udevice *dev, int offset,
+				     u8 *buf, int size)
+{
+	struct i2c_eeprom_partition *priv = dev_get_priv(dev);
+	struct udevice *parent = dev_get_parent(dev);
+
+	if (!parent)
+		return -ENODEV;
+	if (offset + size > priv->size)
+		return -EINVAL;
+
+	return i2c_eeprom_read(parent, offset + priv->offset, buf, size);
+}
+
+static int i2c_eeprom_partition_write(struct udevice *dev, int offset,
+				      const u8 *buf, int size)
+{
+	struct i2c_eeprom_partition *priv = dev_get_priv(dev);
+	struct udevice *parent = dev_get_parent(dev);
+
+	if (!parent)
+		return -ENODEV;
+	if (offset + size > priv->size)
+		return -EINVAL;
+
+	return i2c_eeprom_write(parent, offset + priv->offset, (uint8_t *)buf,
+				size);
+}
+
+static const struct i2c_eeprom_ops i2c_eeprom_partition_ops = {
+	.read	= i2c_eeprom_partition_read,
+	.write	= i2c_eeprom_partition_write,
+};
+
+U_BOOT_DRIVER(i2c_eeprom_partition) = {
+	.name			= "i2c_eeprom_partition",
+	.id			= UCLASS_I2C_EEPROM,
+	.probe			= i2c_eeprom_partition_probe,
+	.ofdata_to_platdata	= i2c_eeprom_partition_ofdata_to_platdata,
+	.priv_auto_alloc_size	= sizeof(struct i2c_eeprom_partition),
+	.ops			= &i2c_eeprom_partition_ops,
 };
 
 UCLASS_DRIVER(i2c_eeprom) = {
