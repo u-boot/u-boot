@@ -27,6 +27,8 @@ struct sandbox_i2c_flash_plat_data {
 
 struct sandbox_i2c_flash {
 	uint8_t *data;
+	uint prev_addr;		/* slave address of previous access */
+	uint prev_offset;	/* offset of previous access */
 };
 
 void sandbox_i2c_eeprom_set_test_mode(struct udevice *dev,
@@ -44,6 +46,20 @@ void sandbox_i2c_eeprom_set_offset_len(struct udevice *dev, int offset_len)
 	plat->offset_len = offset_len;
 }
 
+uint sanbox_i2c_eeprom_get_prev_addr(struct udevice *dev)
+{
+	struct sandbox_i2c_flash *priv = dev_get_priv(dev);
+
+	return priv->prev_addr;
+}
+
+uint sanbox_i2c_eeprom_get_prev_offset(struct udevice *dev)
+{
+	struct sandbox_i2c_flash *priv = dev_get_priv(dev);
+
+	return priv->prev_offset;
+}
+
 static int sandbox_i2c_eeprom_xfer(struct udevice *emul, struct i2c_msg *msg,
 				  int nmsgs)
 {
@@ -52,6 +68,10 @@ static int sandbox_i2c_eeprom_xfer(struct udevice *emul, struct i2c_msg *msg,
 
 	debug("\n%s\n", __func__);
 	debug_buffer(0, priv->data, 1, 16, 0);
+
+	/* store addr for testing visibity */
+	priv->prev_addr = msg->addr;
+
 	for (; nmsgs > 0; nmsgs--, msg++) {
 		struct sandbox_i2c_flash_plat_data *plat =
 				dev_get_platdata(emul);
@@ -60,11 +80,6 @@ static int sandbox_i2c_eeprom_xfer(struct udevice *emul, struct i2c_msg *msg,
 
 		if (!plat->size)
 			return -ENODEV;
-		if (msg->addr + msg->len > plat->size) {
-			debug("%s: Address %x, len %x is outside range 0..%x\n",
-			      __func__, msg->addr, msg->len, plat->size);
-			return -EINVAL;
-		}
 		len = msg->len;
 		debug("   %s: msg->len=%d",
 		      msg->flags & I2C_M_RD ? "read" : "write",
@@ -73,7 +88,16 @@ static int sandbox_i2c_eeprom_xfer(struct udevice *emul, struct i2c_msg *msg,
 			if (plat->test_mode == SIE_TEST_MODE_SINGLE_BYTE)
 				len = 1;
 			debug(", offset %x, len %x: ", offset, len);
-			memcpy(msg->buf, priv->data + offset, len);
+			if (offset + len > plat->size) {
+				int overflow = offset + len - plat->size;
+				int initial = len - overflow;
+
+				memcpy(msg->buf, priv->data + offset, initial);
+				memcpy(msg->buf + initial, priv->data,
+				       overflow);
+			} else {
+				memcpy(msg->buf, priv->data + offset, len);
+			}
 			memset(msg->buf + len, '\xff', msg->len - len);
 			debug_buffer(0, msg->buf, 1, msg->len, 0);
 		} else if (len >= plat->offset_len) {
@@ -87,15 +111,24 @@ static int sandbox_i2c_eeprom_xfer(struct udevice *emul, struct i2c_msg *msg,
 			if (plat->test_mode == SIE_TEST_MODE_SINGLE_BYTE)
 				len = min(len, 1);
 
-			/* For testing, map offsets into our limited buffer */
-			for (i = 24; i > 0; i -= 8) {
-				if (offset > (1 << i)) {
-					offset = (offset >> i) |
-						(offset & ((1 << i) - 1));
-					offset += i;
-				}
+			/* store offset for testing visibility */
+			priv->prev_offset = offset;
+
+			/* For testing, map offsets into our limited buffer.
+			 * offset wraps every 256 bytes
+			 */
+			offset &= 0xff;
+			debug("mapped offset to %x\n", offset);
+
+			if (offset + len > plat->size) {
+				int overflow = offset + len - plat->size;
+				int initial = len - overflow;
+
+				memcpy(priv->data + offset, ptr, initial);
+				memcpy(priv->data, ptr + initial, overflow);
+			} else {
+				memcpy(priv->data + offset, ptr, len);
 			}
-			memcpy(priv->data + offset, ptr, len);
 		}
 	}
 	debug_buffer(0, priv->data, 1, 16, 0);
