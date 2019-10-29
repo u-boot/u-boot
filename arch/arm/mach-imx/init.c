@@ -108,9 +108,9 @@ void boot_mode_apply(unsigned cfg_val)
 	writel(cfg_val, &psrc->gpr9);
 	reg = readl(&psrc->gpr10);
 	if (cfg_val)
-		reg |= 1 << 28;
+		reg |= IMX6_SRC_GPR10_BMODE;
 	else
-		reg &= ~(1 << 28);
+		reg &= ~IMX6_SRC_GPR10_BMODE;
 	writel(reg, &psrc->gpr10);
 }
 #endif
