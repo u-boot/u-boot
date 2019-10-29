@@ -364,6 +364,7 @@ static const struct rtc_ops rx8010sj_rtc_ops = {
 
 static const struct udevice_id rx8010sj_rtc_ids[] = {
 	{ .compatible = "epson,rx8010sj-rtc" },
+	{ .compatible = "epson,rx8010" },
 	{ }
 };
 
