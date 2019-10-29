@@ -118,7 +118,7 @@ void boot_mode_apply(unsigned cfg_val)
 #if defined(CONFIG_MX6)
 u32 imx6_src_get_boot_mode(void)
 {
-	if (imx6_is_bmode_from_gpr9())
+	if (readl(&src_base->gpr10) & IMX6_SRC_GPR10_BMODE)
 		return readl(&src_base->gpr9);
 	else
 		return readl(&src_base->sbmr1);
