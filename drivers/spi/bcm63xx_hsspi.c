@@ -108,7 +108,7 @@ static int bcm63xx_hsspi_cs_info(struct udevice *bus, uint cs,
 
 	if (cs >= priv->num_cs) {
 		printf("no cs %u\n", cs);
-		return -ENODEV;
+		return -EINVAL;
 	}
 
 	return 0;

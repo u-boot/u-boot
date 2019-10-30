@@ -380,12 +380,12 @@ static int spi_nor_fsr_ready(struct spi_nor *nor)
 
 	if (fsr & (FSR_E_ERR | FSR_P_ERR)) {
 		if (fsr & FSR_E_ERR)
-			dev_dbg(nor->dev, "Erase operation failed.\n");
+			dev_err(nor->dev, "Erase operation failed.\n");
 		else
-			dev_dbg(nor->dev, "Program operation failed.\n");
+			dev_err(nor->dev, "Program operation failed.\n");
 
 		if (fsr & FSR_PT_ERR)
-			dev_dbg(nor->dev,
+			dev_err(nor->dev,
 				"Attempted to modify a protected sector.\n");
 
 		nor->write_reg(nor, SPINOR_OP_CLFSR, NULL, 0);
@@ -1916,7 +1916,7 @@ static int spi_nor_parse_bfpt(struct spi_nor *nor,
 
 		erasesize = 1U << erasesize;
 		opcode = (half >> 8) & 0xff;
-#ifdef CONFIG_MTD_SPI_NOR_USE_4K_SECTORS
+#ifdef CONFIG_SPI_FLASH_USE_4K_SECTORS
 		if (erasesize == SZ_4K) {
 			nor->erase_opcode = opcode;
 			mtd->erasesize = erasesize;

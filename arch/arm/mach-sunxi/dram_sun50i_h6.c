@@ -201,6 +201,9 @@ static void mctl_set_addrmap(struct dram_para *para)
 	u8 rows = para->rows;
 	u8 ranks = para->ranks;
 
+	if (!para->bus_full_width)
+		cols -= 1;
+
 	/* Ranks */
 	if (ranks == 2)
 		mctl_ctl->addrmap[0] = rows + cols - 3;
@@ -213,6 +216,10 @@ static void mctl_set_addrmap(struct dram_para *para)
 	/* Columns */
 	mctl_ctl->addrmap[2] = 0;
 	switch (cols) {
+	case 7:
+		mctl_ctl->addrmap[3] = 0x1F1F1F00;
+		mctl_ctl->addrmap[4] = 0x1F1F;
+		break;
 	case 8:
 		mctl_ctl->addrmap[3] = 0x1F1F0000;
 		mctl_ctl->addrmap[4] = 0x1F1F;
@@ -300,13 +307,16 @@ static void mctl_com_init(struct dram_para *para)
 		reg_val = 0x3f00;
 	clrsetbits_le32(&mctl_com->unk_0x008, 0x3f00, reg_val);
 
-	/* TODO: half DQ, DDR4 */
-	reg_val = MSTR_BUSWIDTH_FULL | MSTR_BURST_LENGTH(8) |
-		  MSTR_ACTIVE_RANKS(para->ranks);
+	/* TODO: DDR4 */
+	reg_val = MSTR_BURST_LENGTH(8) | MSTR_ACTIVE_RANKS(para->ranks);
 	if (para->type == SUNXI_DRAM_TYPE_LPDDR3)
 		reg_val |= MSTR_DEVICETYPE_LPDDR3;
 	if (para->type == SUNXI_DRAM_TYPE_DDR3)
 		reg_val |= MSTR_DEVICETYPE_DDR3 | MSTR_2TMODE;
+	if (para->bus_full_width)
+		reg_val |= MSTR_BUSWIDTH_FULL;
+	else
+		reg_val |= MSTR_BUSWIDTH_HALF;
 	writel(reg_val | BIT(31), &mctl_ctl->mstr);
 
 	if (para->type == SUNXI_DRAM_TYPE_LPDDR3)
@@ -333,7 +343,10 @@ static void mctl_com_init(struct dram_para *para)
 	}
 	writel(reg_val, &mctl_ctl->odtcfg);
 
-	/* TODO: half DQ */
+	if (!para->bus_full_width) {
+		writel(0x0, &mctl_phy->dx[2].gcr[0]);
+		writel(0x0, &mctl_phy->dx[3].gcr[0]);
+	}
 }
 
 static void mctl_bit_delay_set(struct dram_para *para)
@@ -514,22 +527,35 @@ static void mctl_channel_init(struct dram_para *para)
 
 	if (readl(&mctl_phy->pgsr[0]) & 0x400000)
 	{
-		/*
-		 * Detect single rank.
-		 * TODO: also detect half DQ.
-		 */
+		/* Check for single rank and optionally half DQ. */
 		if ((readl(&mctl_phy->dx[0].rsr[0]) & 0x3) == 2 &&
-		    (readl(&mctl_phy->dx[1].rsr[0]) & 0x3) == 2 &&
-		    (readl(&mctl_phy->dx[2].rsr[0]) & 0x3) == 2 &&
-		    (readl(&mctl_phy->dx[3].rsr[0]) & 0x3) == 2) {
+		    (readl(&mctl_phy->dx[1].rsr[0]) & 0x3) == 2) {
 			para->ranks = 1;
+
+			if ((readl(&mctl_phy->dx[2].rsr[0]) & 0x3) != 2 ||
+			    (readl(&mctl_phy->dx[3].rsr[0]) & 0x3) != 2)
+				para->bus_full_width = 0;
+
 			/* Restart DRAM initialization from scratch. */
 			mctl_core_init(para);
 			return;
 		}
-		else {
-			panic("This DRAM setup is currently not supported.\n");
+
+		/*
+		 * Check for dual rank and half DQ. NOTE: This combination
+		 * is highly unlikely and was not tested. Condition is the
+		 * same as in libdram, though.
+		 */
+		if ((readl(&mctl_phy->dx[0].rsr[0]) & 0x3) == 0 &&
+		    (readl(&mctl_phy->dx[1].rsr[0]) & 0x3) == 0) {
+			para->bus_full_width = 0;
+
+			/* Restart DRAM initialization from scratch. */
+			mctl_core_init(para);
+			return;
 		}
+
+		panic("This DRAM setup is currently not supported.\n");
 	}
 
 	if (readl(&mctl_phy->pgsr[0]) & 0xff00000) {
@@ -557,11 +583,8 @@ static void mctl_channel_init(struct dram_para *para)
 
 static void mctl_auto_detect_dram_size(struct dram_para *para)
 {
-	/* TODO: non-LPDDR3, half DQ */
-	/*
-	 * Detect rank number by the code in mctl_channel_init. Furtherly
-	 * when DQ detection is available it will also be executed there.
-	 */
+	/* TODO: non-(LP)DDR3 */
+	/* Detect rank number and half DQ by the code in mctl_channel_init. */
 	mctl_core_init(para);
 
 	/* detect row address bits */
@@ -570,8 +593,9 @@ static void mctl_auto_detect_dram_size(struct dram_para *para)
 	mctl_core_init(para);
 
 	for (para->rows = 13; para->rows < 18; para->rows++) {
-		/* 8 banks, 8 bit per byte and 32 bit width */
-		if (mctl_mem_matches((1 << (para->rows + para->cols + 5))))
+		/* 8 banks, 8 bit per byte and 16/32 bit width */
+		if (mctl_mem_matches((1 << (para->rows + para->cols +
+					    4 + para->bus_full_width))))
 			break;
 	}
 
@@ -580,18 +604,21 @@ static void mctl_auto_detect_dram_size(struct dram_para *para)
 	mctl_core_init(para);
 
 	for (para->cols = 8; para->cols < 11; para->cols++) {
-		/* 8 bits per byte and 32 bit width */
-		if (mctl_mem_matches(1 << (para->cols + 2)))
+		/* 8 bits per byte and 16/32 bit width */
+		if (mctl_mem_matches(1 << (para->cols + 1 +
+					   para->bus_full_width)))
 			break;
 	}
 }
 
 unsigned long mctl_calc_size(struct dram_para *para)
 {
-	/* TODO: non-LPDDR3, half DQ */
+	u8 width = para->bus_full_width ? 4 : 2;
 
-	/* 8 banks, 32-bit (4 byte) data width */
-	return (1ULL << (para->cols + para->rows + 3)) * 4 * para->ranks;
+	/* TODO: non-(LP)DDR3 */
+
+	/* 8 banks */
+	return (1ULL << (para->cols + para->rows + 3)) * width * para->ranks;
 }
 
 #define SUN50I_H6_LPDDR3_DX_WRITE_DELAYS			\
@@ -625,6 +652,7 @@ unsigned long sunxi_dram_init(void)
 		.ranks = 2,
 		.cols = 11,
 		.rows = 14,
+		.bus_full_width = 1,
 #ifdef CONFIG_SUNXI_DRAM_H6_LPDDR3
 		.type = SUNXI_DRAM_TYPE_LPDDR3,
 		.dx_read_delays  = SUN50I_H6_LPDDR3_DX_READ_DELAYS,

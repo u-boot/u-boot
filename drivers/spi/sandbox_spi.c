@@ -117,7 +117,7 @@ static int sandbox_cs_info(struct udevice *bus, uint cs,
 {
 	/* Always allow activity on CS 0 */
 	if (cs >= 1)
-		return -ENODEV;
+		return -EINVAL;
 
 	return 0;
 }

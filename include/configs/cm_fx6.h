@@ -38,13 +38,6 @@
 #define CONFIG_MXC_UART_BASE		UART4_BASE
 #define CONFIG_SYS_BAUDRATE_TABLE	{9600, 19200, 38400, 57600, 115200}
 
-/* SPI flash */
-
-/* MTD support */
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_SPI_FLASH_MTD
-#endif
-
 /* Environment */
 #define CONFIG_ENV_SECT_SIZE		(64 * 1024)
 #define CONFIG_ENV_SIZE			(8 * 1024)

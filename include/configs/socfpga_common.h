@@ -132,10 +132,6 @@
 /*
  * QSPI support
  */
-/* Enable multiple SPI NOR flash manufacturers */
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_SPI_FLASH_MTD
-#endif
 /* QSPI reference clock */
 #ifndef __ASSEMBLY__
 unsigned int cm_get_qspi_controller_clk_hz(void);

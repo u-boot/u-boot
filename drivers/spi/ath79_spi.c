@@ -198,7 +198,7 @@ static int ath79_cs_info(struct udevice *bus, uint cs,
 {
 	/* Always allow activity on CS 0/1/2 */
 	if (cs >= 3)
-		return -ENODEV;
+		return -EINVAL;
 
 	return 0;
 }

@@ -78,7 +78,7 @@ int tegra20_sflash_cs_info(struct udevice *bus, unsigned int cs,
 {
 	/* Tegra20 SPI-Flash - only 1 device ('bus/cs') */
 	if (cs != 0)
-		return -ENODEV;
+		return -EINVAL;
 	else
 		return 0;
 }

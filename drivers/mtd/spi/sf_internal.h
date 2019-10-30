@@ -77,7 +77,7 @@ extern const struct flash_info spi_nor_ids[];
 int spi_flash_cmd_get_sw_write_prot(struct spi_flash *flash);
 
 
-#ifdef CONFIG_SPI_FLASH_MTD
+#if CONFIG_IS_ENABLED(SPI_FLASH_MTD)
 int spi_flash_mtd_register(struct spi_flash *flash);
 void spi_flash_mtd_unregister(void);
 #endif
