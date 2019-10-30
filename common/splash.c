@@ -144,8 +144,6 @@ void splash_display_banner(void)
 	vidconsole_put_string(dev, buf);
 	vidconsole_position_cursor(dev, 0, row);
 }
-#else
-static inline void splash_display_banner(void) { }
 #endif /* CONFIG_DM_VIDEO && !CONFIG_HIDE_LOGO_VERSION */
 
 /*
@@ -177,7 +175,9 @@ int splash_display(void)
 	if (x || y)
 		goto end;
 
+#if defined(CONFIG_DM_VIDEO) && !defined(CONFIG_HIDE_LOGO_VERSION)
 	splash_display_banner();
+#endif
 end:
 	return ret;
 }
