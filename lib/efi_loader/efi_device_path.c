@@ -1032,6 +1032,16 @@ out:
 	return EFI_SUCCESS;
 }
 
+/**
+ * efi_dp_from_name() - convert U-Boot device and file path to device path
+ *
+ * @dev:	U-Boot device, e.g. 'mmc'
+ * @devnr:	U-Boot device number, e.g. 1 for 'mmc:1'
+ * @path:	file path relative to U-Boot device, may be NULL
+ * @device:	pointer to receive device path of the device
+ * @file:	pointer to receive device path for the file
+ * Return:	status code
+ */
 efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 			      const char *path,
 			      struct efi_device_path **device,
@@ -1071,10 +1081,9 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 	s = filename;
 	while ((s = strchr(s, '/')))
 		*s++ = '\\';
-	*file = efi_dp_from_file(((!is_net && device) ? desc : NULL),
-				 part, filename);
+	*file = efi_dp_from_file(is_net ? NULL : desc, part, filename);
 
-	if (!file)
+	if (!*file)
 		return EFI_INVALID_PARAMETER;
 
 	return EFI_SUCCESS;
