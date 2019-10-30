@@ -343,8 +343,6 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 		}
 	}
 
-	raw_sect = spl_mmc_get_uboot_raw_sector(mmc);
-
 	boot_mode = spl_boot_mode(bootdev->boot_device);
 	err = -EINVAL;
 	switch (boot_mode) {
@@ -383,6 +381,9 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 			if (!err)
 				return err;
 		}
+
+		raw_sect = spl_mmc_get_uboot_raw_sector(mmc);
+
 #ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
 		err = mmc_load_image_raw_partition(spl_image, mmc, raw_part,
 						   raw_sect);
