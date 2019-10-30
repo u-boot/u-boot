@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <asm/clk.h>
 #include <dm/test.h>
+#include <dm/device-internal.h>
 #include <linux/err.h>
 #include <test/ut.h>
 
@@ -53,7 +54,18 @@ static int dm_test_clk(struct unit_test_state *uts)
 	ut_assertok(uclass_get_device_by_name(UCLASS_MISC, "clk-test",
 					      &dev_test));
 	ut_assertok(sandbox_clk_test_get(dev_test));
+	ut_assertok(sandbox_clk_test_devm_get(dev_test));
 	ut_assertok(sandbox_clk_test_valid(dev_test));
+
+	ut_asserteq(0, sandbox_clk_test_get_rate(dev_test,
+						 SANDBOX_CLK_TEST_ID_DEVM_NULL));
+	ut_asserteq(0, sandbox_clk_test_set_rate(dev_test,
+						 SANDBOX_CLK_TEST_ID_DEVM_NULL,
+						 0));
+	ut_asserteq(0, sandbox_clk_test_enable(dev_test,
+					       SANDBOX_CLK_TEST_ID_DEVM_NULL));
+	ut_asserteq(0, sandbox_clk_test_disable(dev_test,
+						SANDBOX_CLK_TEST_ID_DEVM_NULL));
 
 	ut_asserteq(1234,
 		    sandbox_clk_test_get_rate(dev_test,
@@ -62,6 +74,10 @@ static int dm_test_clk(struct unit_test_state *uts)
 						 SANDBOX_CLK_TEST_ID_SPI));
 	ut_asserteq(0, sandbox_clk_test_get_rate(dev_test,
 						 SANDBOX_CLK_TEST_ID_I2C));
+	ut_asserteq(321, sandbox_clk_test_get_rate(dev_test,
+						   SANDBOX_CLK_TEST_ID_DEVM1));
+	ut_asserteq(0, sandbox_clk_test_get_rate(dev_test,
+						 SANDBOX_CLK_TEST_ID_DEVM2));
 
 	rate = sandbox_clk_test_set_rate(dev_test, SANDBOX_CLK_TEST_ID_FIXED,
 					 12345);
@@ -121,8 +137,25 @@ static int dm_test_clk(struct unit_test_state *uts)
 	ut_asserteq(0, sandbox_clk_query_enable(dev_clk, SANDBOX_CLK_ID_SPI));
 	ut_asserteq(0, sandbox_clk_query_enable(dev_clk, SANDBOX_CLK_ID_I2C));
 
+	ut_asserteq(1, sandbox_clk_query_requested(dev_clk,
+						   SANDBOX_CLK_ID_SPI));
+	ut_asserteq(1, sandbox_clk_query_requested(dev_clk,
+						   SANDBOX_CLK_ID_I2C));
+	ut_asserteq(1, sandbox_clk_query_requested(dev_clk,
+						   SANDBOX_CLK_ID_UART2));
 	ut_assertok(sandbox_clk_test_free(dev_test));
+	ut_asserteq(0, sandbox_clk_query_requested(dev_clk,
+						   SANDBOX_CLK_ID_SPI));
+	ut_asserteq(0, sandbox_clk_query_requested(dev_clk,
+						   SANDBOX_CLK_ID_I2C));
+	ut_asserteq(0, sandbox_clk_query_requested(dev_clk,
+						   SANDBOX_CLK_ID_UART2));
 
+	ut_asserteq(1, sandbox_clk_query_requested(dev_clk,
+						   SANDBOX_CLK_ID_UART1));
+	ut_assertok(device_remove(dev_test, DM_REMOVE_NORMAL));
+	ut_asserteq(0, sandbox_clk_query_requested(dev_clk,
+						   SANDBOX_CLK_ID_UART1));
 	return 0;
 }
 DM_TEST(dm_test_clk, DM_TESTF_SCAN_FDT);
@@ -159,6 +192,7 @@ static int dm_test_clk_bulk(struct unit_test_state *uts)
 	ut_assertok(sandbox_clk_test_release_bulk(dev_test));
 	ut_asserteq(0, sandbox_clk_query_enable(dev_clk, SANDBOX_CLK_ID_SPI));
 	ut_asserteq(0, sandbox_clk_query_enable(dev_clk, SANDBOX_CLK_ID_I2C));
+	ut_assertok(device_remove(dev_test, DM_REMOVE_NORMAL));
 
 	return 0;
 }
