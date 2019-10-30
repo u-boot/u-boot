@@ -517,7 +517,7 @@ static int bif_add_bit(struct bif_entry *bf)
 	debug("Bitstream Length: 0x%x\n", bitlen);
 	for (i = 0; i < bitlen; i += sizeof(uint32_t)) {
 		uint32_t *bitbin32 = (uint32_t *)&bitbin[i];
-		*bitbin32 = __swab32(*bitbin32);
+		*bitbin32 = __builtin_bswap32(*bitbin32);
 	}
 
 	if (!bf->dest_dev)

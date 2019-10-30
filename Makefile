@@ -1276,10 +1276,21 @@ endif
 
 MKIMAGEFLAGS_u-boot-dtb.img = $(MKIMAGEFLAGS_u-boot.img)
 
-MKIMAGEFLAGS_u-boot.kwb = -n $(srctree)/$(CONFIG_SYS_KWD_CONFIG:"%"=%) \
+# Some boards have the kwbimage.cfg file written in advance, while some
+# other boards generate it on the fly during the build in the build tree.
+# Let's check if the file exists in the build tree first, otherwise we
+# fall back to use the one in the source tree.
+KWD_CONFIG_FILE = $(shell \
+	if [ -f $(objtree)/$(CONFIG_SYS_KWD_CONFIG:"%"=%) ]; then \
+		echo -n $(objtree)/$(CONFIG_SYS_KWD_CONFIG:"%"=%); \
+	else \
+		echo -n $(srctree)/$(CONFIG_SYS_KWD_CONFIG:"%"=%); \
+	fi)
+
+MKIMAGEFLAGS_u-boot.kwb = -n $(KWD_CONFIG_FILE) \
 	-T kwbimage -a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE)
 
-MKIMAGEFLAGS_u-boot-spl.kwb = -n $(srctree)/$(CONFIG_SYS_KWD_CONFIG:"%"=%) \
+MKIMAGEFLAGS_u-boot-spl.kwb = -n $(KWD_CONFIG_FILE) \
 	-T kwbimage -a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE) \
 	$(if $(KEYDIR),-k $(KEYDIR))
 
@@ -1837,11 +1848,14 @@ checkarmreloc: u-boot
 		false; \
 	fi
 
-envtools: scripts_basic $(version_h) $(timestamp_h)
+tools/version.h: include/version.h
+	$(call if_changed,copy)
+
+envtools: scripts_basic $(version_h) $(timestamp_h) tools/version.h
 	$(Q)$(MAKE) $(build)=tools/env
 
 tools-only: export TOOLS_ONLY=y
-tools-only: scripts_basic $(version_h) $(timestamp_h)
+tools-only: scripts_basic $(version_h) $(timestamp_h) tools/version.h
 	$(Q)$(MAKE) $(build)=tools
 
 tools-all: export HOST_TOOLS_ALL=y
@@ -1869,7 +1883,7 @@ CLEAN_DIRS  += $(MODVERDIR) \
 	       $(foreach d, spl tpl, $(patsubst %,$d/%, \
 			$(filter-out include, $(shell ls -1 $d 2>/dev/null))))
 
-CLEAN_FILES += include/bmp_logo.h include/bmp_logo_data.h \
+CLEAN_FILES += include/bmp_logo.h include/bmp_logo_data.h tools/version.h \
 	       boot* u-boot* MLO* SPL System.map fit-dtb.blob*
 
 # Directories & files removed with 'make mrproper'

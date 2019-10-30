@@ -15,6 +15,17 @@ if you want to help out.
 .. toctree::
    :maxdepth: 2
 
+User-oriented documentation
+---------------------------
+
+The following manuals are written for *users* of the U-Boot - those who are
+trying to get it to work optimally on a given system.
+
+.. toctree::
+   :maxdepth: 2
+
+   build/index
+
 Unified Extensible Firmware (UEFI)
 ----------------------------------
 

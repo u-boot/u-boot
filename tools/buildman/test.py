@@ -156,14 +156,6 @@ class TestBuild(unittest.TestCase):
             result.return_code = commit.return_code
             result.stderr = (''.join(commit.error_list)
                 % {'basedir' : base_dir + '/.bm-work/00/'})
-        if stage == 'build':
-            target_dir = None
-            for arg in args:
-                if arg.startswith('O='):
-                    target_dir = arg[2:]
-
-            if not os.path.isdir(target_dir):
-                os.mkdir(target_dir)
 
         result.combined = result.stdout + result.stderr
         return result

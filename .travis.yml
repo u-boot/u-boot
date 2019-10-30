@@ -200,7 +200,7 @@ matrix:
         - BUILDMAN="freescale&aarch64&ls108"
     - name: "buildman NXP AArch64 LS20xx"
       env:
-        - BUILDMAN="freescale&aarch64&&ls20"
+        - BUILDMAN="freescale&aarch64&ls20"
     - name: "buildman NXP AArch64 LX216x"
       env:
         - BUILDMAN="freescale&aarch64&lx216"
