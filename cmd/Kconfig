@@ -1986,6 +1986,14 @@ config CMD_MTDPARTS_SPREAD
 	  at least as large as the size specified in the mtdparts variable and
 	  2) each partition starts on a good block.
 
+config CMD_MTDPARTS_SHOW_NET_SIZES
+	bool "Show net size (w/o bad blocks) of partitions"
+	depends on CMD_MTDPARTS
+	help
+	  Adds two columns to the printed partition table showing the
+	  effective usable size of a partition, if bad blocks are taken
+	  into account.
+
 config CMD_REISER
 	bool "reiser - Access to reiserfs filesystems"
 	help
