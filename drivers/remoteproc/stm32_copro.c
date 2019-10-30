@@ -22,12 +22,14 @@
  * @hold_boot_regmap:	regmap for remote processor reset hold boot
  * @hold_boot_offset:	offset of the register controlling the hold boot setting
  * @hold_boot_mask:	bitmask of the register for the hold boot field
+ * @rsc_table_addr:	resource table address
  */
 struct stm32_copro_privdata {
 	struct reset_ctl reset_ctl;
 	struct regmap *hold_boot_regmap;
 	uint hold_boot_offset;
 	uint hold_boot_mask;
+	ulong rsc_table_addr;
 };
 
 /**
@@ -139,6 +141,7 @@ static void *stm32_copro_device_to_virt(struct udevice *dev, ulong da,
 static int stm32_copro_load(struct udevice *dev, ulong addr, ulong size)
 {
 	struct stm32_copro_privdata *priv;
+	ulong rsc_table_size;
 	int ret;
 
 	priv = dev_get_priv(dev);
@@ -153,6 +156,12 @@ static int stm32_copro_load(struct udevice *dev, ulong addr, ulong size)
 		return ret;
 	}
 
+	if (rproc_elf32_load_rsc_table(dev, addr, size, &priv->rsc_table_addr,
+				       &rsc_table_size)) {
+		priv->rsc_table_addr = 0;
+		dev_warn(dev, "No valid resource table for this firmware\n");
+	}
+
 	return rproc_elf32_load_image(dev, addr, size);
 }
 
@@ -163,7 +172,10 @@ static int stm32_copro_load(struct udevice *dev, ulong addr, ulong size)
  */
 static int stm32_copro_start(struct udevice *dev)
 {
+	struct stm32_copro_privdata *priv;
 	int ret;
+
+	priv = dev_get_priv(dev);
 
 	/* move hold boot from true to false start the copro */
 	ret = stm32_copro_set_hold_boot(dev, false);
@@ -177,6 +189,10 @@ static int stm32_copro_start(struct udevice *dev)
 	ret = stm32_copro_set_hold_boot(dev, true);
 	writel(ret ? TAMP_COPRO_STATE_OFF : TAMP_COPRO_STATE_CRUN,
 	       TAMP_COPRO_STATE);
+	if (!ret)
+		/* Store rsc_address in bkp register */
+		writel(priv->rsc_table_addr, TAMP_COPRO_RSC_TBL_ADDRESS);
+
 	return ret;
 }
 
