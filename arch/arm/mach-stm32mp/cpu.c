@@ -35,7 +35,9 @@
 #define TAMP_CR1		(STM32_TAMP_BASE + 0x00)
 
 #define PWR_CR1			(STM32_PWR_BASE + 0x00)
+#define PWR_MCUCR		(STM32_PWR_BASE + 0x14)
 #define PWR_CR1_DBP		BIT(8)
+#define PWR_MCUCR_SBF		BIT(6)
 
 /* DBGMCU register */
 #define DBGMCU_IDC		(STM32_DBGMCU_BASE + 0x00)
@@ -206,6 +208,11 @@ int arch_cpu_init(void)
 	security_init();
 	update_bootmode();
 #endif
+	/* Reset Coprocessor state unless it wakes up from Standby power mode */
+	if (!(readl(PWR_MCUCR) & PWR_MCUCR_SBF)) {
+		writel(TAMP_COPRO_STATE_OFF, TAMP_COPRO_STATE);
+		writel(0, TAMP_COPRO_RSC_TBL_ADDRESS);
+	}
 #endif
 
 	boot_mode = get_bootmode();
