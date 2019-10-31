@@ -18,7 +18,7 @@
  * a struct called fdt_property. That struct causes swig to create a class in
  * libfdt.py called fdt_property(), which confuses things.
  */
-static int fdt_property_stub(void *fdt, const char *name, const char *val,
+static int fdt_property_stub(void *fdt, const char *name, const void *val,
                              int len)
 {
     return fdt_property(fdt, name, val, len);
@@ -1113,6 +1113,6 @@ int fdt_property_cell(void *fdt, const char *name, uint32_t val);
  * This function has a stub since the name fdt_property is used for both a
   * function and a struct, which confuses SWIG.
  */
-int fdt_property_stub(void *fdt, const char *name, const char *val, int len);
+int fdt_property_stub(void *fdt, const char *name, const void *val, int len);
 
 %include <../libfdt/libfdt.h>
