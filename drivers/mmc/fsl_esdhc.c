@@ -678,22 +678,11 @@ static const struct mmc_ops esdhc_ops = {
 };
 #endif
 
-static int fsl_esdhc_init(struct fsl_esdhc_priv *priv,
-			  struct fsl_esdhc_plat *plat)
+static void fsl_esdhc_get_cfg_common(struct fsl_esdhc_priv *priv,
+				     struct mmc_config *cfg)
 {
-	struct mmc_config *cfg;
-	struct fsl_esdhc *regs;
+	struct fsl_esdhc *regs = priv->esdhc_regs;
 	u32 caps;
-
-	if (!priv)
-		return -EINVAL;
-
-	regs = priv->esdhc_regs;
-
-	cfg = &plat->cfg;
-#ifndef CONFIG_DM_MMC
-	memset(cfg, '\0', sizeof(*cfg));
-#endif
 
 	caps = esdhc_read32(&regs->hostcapblt);
 #ifdef CONFIG_SYS_FSL_ERRATUM_ESDHC135
@@ -710,19 +699,13 @@ static int fsl_esdhc_init(struct fsl_esdhc_priv *priv,
 		cfg->voltages |= MMC_VDD_32_33 | MMC_VDD_33_34;
 
 	cfg->name = "FSL_SDHC";
-#if !CONFIG_IS_ENABLED(DM_MMC)
-	cfg->ops = &esdhc_ops;
-#endif
 
 	if (caps & HOSTCAPBLT_HSS)
 		cfg->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
 
 	cfg->f_min = 400000;
 	cfg->f_max = min(priv->sdhc_clk, (u32)200000000);
-
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
-
-	return 0;
 }
 
 #if !CONFIG_IS_ENABLED(DM_MMC)
@@ -732,7 +715,6 @@ int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 	struct fsl_esdhc_priv *priv;
 	struct mmc_config *mmc_cfg;
 	struct mmc *mmc;
-	int ret;
 
 	if (!cfg)
 		return -EINVAL;
@@ -769,20 +751,15 @@ int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 	if (CONFIG_ESDHC_DETECT_8_BIT_QUIRK)
 		mmc_cfg->host_caps &= ~MMC_MODE_8BIT;
 #endif
-	ret = fsl_esdhc_init(priv, plat);
-	if (ret) {
-		debug("%s init failure\n", __func__);
-		free(plat);
-		free(priv);
-		return ret;
-	}
+	mmc_cfg->ops = &esdhc_ops;
 
-	mmc = mmc_create(&plat->cfg, priv);
+	fsl_esdhc_get_cfg_common(priv, mmc_cfg);
+
+	mmc = mmc_create(mmc_cfg, priv);
 	if (!mmc)
 		return -EIO;
 
 	priv->mmc = mmc;
-
 	return 0;
 }
 
@@ -927,11 +904,7 @@ static int fsl_esdhc_probe(struct udevice *dev)
 		}
 	}
 
-	ret = fsl_esdhc_init(priv, plat);
-	if (ret) {
-		dev_err(dev, "fsl_esdhc_init failure\n");
-		return ret;
-	}
+	fsl_esdhc_get_cfg_common(priv, &plat->cfg);
 
 	mmc_of_parse(dev, &plat->cfg);
 
