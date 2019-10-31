@@ -72,12 +72,12 @@ Signed-off-by: Simon Glass <sjg@chromium.org>
 '''
         out = ''
         inhandle, inname = tempfile.mkstemp()
-        infd = os.fdopen(inhandle, 'w')
+        infd = os.fdopen(inhandle, 'w', encoding='utf-8')
         infd.write(data)
         infd.close()
 
         exphandle, expname = tempfile.mkstemp()
-        expfd = os.fdopen(exphandle, 'w')
+        expfd = os.fdopen(exphandle, 'w', encoding='utf-8')
         expfd.write(expected)
         expfd.close()
 

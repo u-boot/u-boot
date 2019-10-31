@@ -165,7 +165,7 @@ def ReadGitAliases(fname):
         fname: Filename to read
     """
     try:
-        fd = open(fname, 'r')
+        fd = open(fname, 'r', encoding='utf-8')
     except IOError:
         print("Warning: Cannot find alias file '%s'" % fname)
         return
@@ -259,7 +259,7 @@ def _ReadAliasFile(fname):
     """
     if os.path.exists(fname):
         bad_line = None
-        with open(fname) as fd:
+        with open(fname, encoding='utf-8') as fd:
             linenum = 0
             for line in fd:
                 linenum += 1

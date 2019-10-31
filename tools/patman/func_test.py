@@ -51,7 +51,7 @@ class TestFunctional(unittest.TestCase):
 
     @classmethod
     def GetText(self, fname):
-        return open(self.GetPath(fname)).read()
+        return open(self.GetPath(fname), encoding='utf-8').read()
 
     @classmethod
     def GetPatchName(self, subject):
@@ -160,7 +160,7 @@ class TestFunctional(unittest.TestCase):
                     dry_run, not ignore_bad_tags, cc_file,
                     in_reply_to=in_reply_to, thread=None)
             series.ShowActions(args, cmd, process_tags)
-        cc_lines = open(cc_file).read().splitlines()
+        cc_lines = open(cc_file, encoding='utf-8').read().splitlines()
         os.remove(cc_file)
 
         lines = out[0].splitlines()
@@ -229,14 +229,14 @@ Simon Glass (2):
 2.7.4
 
 '''
-        lines = open(cover_fname).read().splitlines()
+        lines = open(cover_fname, encoding='utf-8').read().splitlines()
         self.assertEqual(
                 'Subject: [RFC PATCH v3 0/2] test: A test patch series',
                 lines[3])
         self.assertEqual(expected.splitlines(), lines[7:])
 
         for i, fname in enumerate(args):
-            lines = open(fname).read().splitlines()
+            lines = open(fname, encoding='utf-8').read().splitlines()
             subject = [line for line in lines if line.startswith('Subject')]
             self.assertEqual('Subject: [RFC %d/%d]' % (i + 1, count),
                              subject[0][:18])

@@ -511,8 +511,8 @@ def FixPatch(backup_dir, fname, series, commit):
         A list of errors, or [] if all ok.
     """
     handle, tmpname = tempfile.mkstemp()
-    outfd = os.fdopen(handle, 'w')
-    infd = open(fname, 'r')
+    outfd = os.fdopen(handle, 'w', encoding='utf-8')
+    infd = open(fname, 'r', encoding='utf-8')
     ps = PatchStream(series)
     ps.commit = commit
     ps.ProcessStream(infd, outfd)
