@@ -85,7 +85,6 @@ struct fsl_esdhc_priv {
 	unsigned int sdhc_clk;
 	struct clk per_clk;
 	unsigned int clock;
-	unsigned int bus_width;
 #if !CONFIG_IS_ENABLED(DM_MMC)
 	struct mmc *mmc;
 #endif
@@ -714,27 +713,9 @@ static int fsl_esdhc_init(struct fsl_esdhc_priv *priv,
 #if !CONFIG_IS_ENABLED(DM_MMC)
 	cfg->ops = &esdhc_ops;
 #endif
-	if (priv->bus_width == 8)
-		cfg->host_caps = MMC_MODE_4BIT | MMC_MODE_8BIT;
-	else if (priv->bus_width == 4)
-		cfg->host_caps = MMC_MODE_4BIT;
-
-	cfg->host_caps = MMC_MODE_4BIT | MMC_MODE_8BIT;
-
-	if (priv->bus_width > 0) {
-		if (priv->bus_width < 8)
-			cfg->host_caps &= ~MMC_MODE_8BIT;
-		if (priv->bus_width < 4)
-			cfg->host_caps &= ~MMC_MODE_4BIT;
-	}
 
 	if (caps & HOSTCAPBLT_HSS)
 		cfg->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
-
-#ifdef CONFIG_ESDHC_DETECT_8_BIT_QUIRK
-	if (CONFIG_ESDHC_DETECT_8_BIT_QUIRK)
-		cfg->host_caps &= ~MMC_MODE_8BIT;
-#endif
 
 	cfg->f_min = 400000;
 	cfg->f_max = min(priv->sdhc_clk, (u32)200000000);
@@ -745,24 +726,11 @@ static int fsl_esdhc_init(struct fsl_esdhc_priv *priv,
 }
 
 #if !CONFIG_IS_ENABLED(DM_MMC)
-static int fsl_esdhc_cfg_to_priv(struct fsl_esdhc_cfg *cfg,
-				 struct fsl_esdhc_priv *priv)
-{
-	if (!cfg || !priv)
-		return -EINVAL;
-
-	priv->esdhc_regs = (struct fsl_esdhc *)(unsigned long)(cfg->esdhc_base);
-	priv->bus_width = cfg->max_bus_width;
-	priv->sdhc_clk = cfg->sdhc_clk;
-	priv->wp_enable  = cfg->wp_enable;
-
-	return 0;
-};
-
 int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 {
 	struct fsl_esdhc_plat *plat;
 	struct fsl_esdhc_priv *priv;
+	struct mmc_config *mmc_cfg;
 	struct mmc *mmc;
 	int ret;
 
@@ -778,14 +746,29 @@ int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 		return -ENOMEM;
 	}
 
-	ret = fsl_esdhc_cfg_to_priv(cfg, priv);
-	if (ret) {
-		debug("%s xlate failure\n", __func__);
-		free(plat);
-		free(priv);
-		return ret;
+	priv->esdhc_regs = (struct fsl_esdhc *)(unsigned long)(cfg->esdhc_base);
+	priv->sdhc_clk = cfg->sdhc_clk;
+	priv->wp_enable  = cfg->wp_enable;
+
+	mmc_cfg = &plat->cfg;
+
+	if (cfg->max_bus_width == 8) {
+		mmc_cfg->host_caps |= MMC_MODE_1BIT | MMC_MODE_4BIT |
+				      MMC_MODE_8BIT;
+	} else if (cfg->max_bus_width == 4) {
+		mmc_cfg->host_caps |= MMC_MODE_1BIT | MMC_MODE_4BIT;
+	} else if (cfg->max_bus_width == 1) {
+		mmc_cfg->host_caps |= MMC_MODE_1BIT;
+	} else {
+		mmc_cfg->host_caps |= MMC_MODE_1BIT | MMC_MODE_4BIT |
+				      MMC_MODE_8BIT;
+		printf("No max bus width provided. Assume 8-bit supported.\n");
 	}
 
+#ifdef CONFIG_ESDHC_DETECT_8_BIT_QUIRK
+	if (CONFIG_ESDHC_DETECT_8_BIT_QUIRK)
+		mmc_cfg->host_caps &= ~MMC_MODE_8BIT;
+#endif
 	ret = fsl_esdhc_init(priv, plat);
 	if (ret) {
 		debug("%s init failure\n", __func__);
@@ -897,7 +880,6 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	struct fsl_esdhc_plat *plat = dev_get_platdata(dev);
 	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
 	fdt_addr_t addr;
-	unsigned int val;
 	struct mmc *mmc;
 	int ret;
 
@@ -910,14 +892,6 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	priv->esdhc_regs = (struct fsl_esdhc *)addr;
 #endif
 	priv->dev = dev;
-
-	val = dev_read_u32_default(dev, "bus-width", -1);
-	if (val == 8)
-		priv->bus_width = 8;
-	else if (val == 4)
-		priv->bus_width = 4;
-	else
-		priv->bus_width = 1;
 
 	if (dev_read_bool(dev, "non-removable")) {
 		priv->non_removable = 1;
