@@ -174,7 +174,7 @@ class TestFunctional(unittest.TestCase):
         cls.have_lz4 = True
         try:
             tools.Run('lz4', '--no-frame-crc', '-c',
-                      os.path.join(cls._indir, 'u-boot.bin'))
+                      os.path.join(cls._indir, 'u-boot.bin'), binary=True)
         except:
             cls.have_lz4 = False
 
