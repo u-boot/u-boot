@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 # Script to create enums from datasheet register tables
 #
@@ -43,8 +43,8 @@ class RegField:
         self.desc.append(desc)
 
     def Show(self):
-        print self
-        print
+        print(self)
+        print()
         self.__init__()
 
     def __str__(self):
@@ -65,11 +65,11 @@ class Printer:
             self.output_footer()
 
     def output_header(self):
-        print '/* %s */' % self.name
-        print 'enum {'
+        print('/* %s */' % self.name)
+        print('enum {')
 
     def output_footer(self):
-        print '};';
+        print('};');
 
     def output_regfield(self, regfield):
         lines = regfield.desc
@@ -97,7 +97,7 @@ class Printer:
             self.first = False
             self.output_header()
         else:
-            print
+            print()
         out_enum(field, 'shift', bit_low)
         out_enum(field, 'mask', mask)
         next_val = -1
@@ -175,7 +175,7 @@ def out_enum(field, suffix, value, skip_val=False):
             val_str = '%d' % value
 
         str += '%s= %s' % ('\t' * tabs, val_str)
-    print '\t%s,' % str
+    print('\t%s,' % str)
 
 # Process a CSV file, e.g. from tabula
 def process_csv(name, fd):
