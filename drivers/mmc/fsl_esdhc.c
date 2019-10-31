@@ -75,7 +75,6 @@ struct fsl_esdhc_plat {
  * @mmc: mmc
  * Following is used when Driver Model is enabled for MMC
  * @dev: pointer for the device
- * @non_removable: 0: removable; 1: non-removable
  * @wp_enable: 1: enable checking wp; 0: no check
  * @cd_gpio: gpio for card detection
  * @wp_gpio: gpio for write protection
@@ -89,7 +88,6 @@ struct fsl_esdhc_priv {
 	struct mmc *mmc;
 #endif
 	struct udevice *dev;
-	int non_removable;
 	int wp_enable;
 };
 
@@ -628,12 +626,6 @@ static int esdhc_getcd_common(struct fsl_esdhc_priv *priv)
 	if (CONFIG_ESDHC_DETECT_QUIRK)
 		return 1;
 #endif
-
-#if CONFIG_IS_ENABLED(DM_MMC)
-	if (priv->non_removable)
-		return 1;
-#endif
-
 	while (!(esdhc_read32(&regs->prsstat) & PRSSTAT_CINS) && --timeout)
 		udelay(1000);
 
@@ -870,12 +862,6 @@ static int fsl_esdhc_probe(struct udevice *dev)
 #endif
 	priv->dev = dev;
 
-	if (dev_read_bool(dev, "non-removable")) {
-		priv->non_removable = 1;
-	 } else {
-		priv->non_removable = 0;
-	}
-
 	priv->wp_enable = 1;
 
 	if (IS_ENABLED(CONFIG_CLK)) {
@@ -919,7 +905,11 @@ static int fsl_esdhc_probe(struct udevice *dev)
 
 static int fsl_esdhc_get_cd(struct udevice *dev)
 {
+	struct fsl_esdhc_plat *plat = dev_get_platdata(dev);
 	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
+
+	if (plat->cfg.host_caps & MMC_CAP_NONREMOVABLE)
+		return 1;
 
 	return esdhc_getcd_common(priv);
 }
