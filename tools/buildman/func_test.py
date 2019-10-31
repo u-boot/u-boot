@@ -270,7 +270,7 @@ class TestFunctional(unittest.TestCase):
                                             stdout=''.join(commit_log[:count]))
 
         # Not handled, so abort
-        print 'git log', args
+        print('git log', args)
         sys.exit(1)
 
     def _HandleCommandGitConfig(self, args):
@@ -286,7 +286,7 @@ class TestFunctional(unittest.TestCase):
                                          stdout='refs/heads/master\n')
 
         # Not handled, so abort
-        print 'git config', args
+        print('git config', args)
         sys.exit(1)
 
     def _HandleCommandGit(self, in_args):
@@ -320,7 +320,7 @@ class TestFunctional(unittest.TestCase):
             return command.CommandResult(return_code=0)
 
         # Not handled, so abort
-        print 'git', git_args, sub_cmd, args
+        print('git', git_args, sub_cmd, args)
         sys.exit(1)
 
     def _HandleCommandNm(self, args):
@@ -351,7 +351,7 @@ class TestFunctional(unittest.TestCase):
             if pipe_list[1] == ['wc', '-l']:
                 wc = True
             else:
-                print 'invalid pipe', kwargs
+                print('invalid pipe', kwargs)
                 sys.exit(1)
         cmd = pipe_list[0][0]
         args = pipe_list[0][1:]
@@ -371,7 +371,7 @@ class TestFunctional(unittest.TestCase):
 
         if not result:
             # Not handled, so abort
-            print 'unknown command', kwargs
+            print('unknown command', kwargs)
             sys.exit(1)
 
         if wc:
@@ -404,14 +404,14 @@ class TestFunctional(unittest.TestCase):
             return command.CommandResult(return_code=0)
 
         # Not handled, so abort
-        print 'make', stage
+        print('make', stage)
         sys.exit(1)
 
     # Example function to print output lines
     def print_lines(self, lines):
-        print len(lines)
+        print(len(lines))
         for line in lines:
-            print line
+            print(line)
         #self.print_lines(terminal.GetPrintTestLines())
 
     def testNoBoards(self):
