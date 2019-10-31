@@ -1631,6 +1631,13 @@ config ARCH_ASPEED
 	select OF_CONTROL
 	imply CMD_DM
 
+config TARGET_DURIAN
+	bool "Support Phytium Durian Platform"
+	select ARM64
+	help
+	  Support for durian platform.
+	  It has 2GB Sdram, uart and pcie.
+
 endchoice
 
 config ARCH_SUPPORT_TFABOOT
@@ -1830,6 +1837,7 @@ source "board/woodburn/Kconfig"
 source "board/xilinx/Kconfig"
 source "board/xilinx/zynq/Kconfig"
 source "board/xilinx/zynqmp/Kconfig"
+source "board/phytium/durian/Kconfig"
 
 source "arch/arm/Kconfig.debug"
 
