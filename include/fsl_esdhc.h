@@ -156,12 +156,13 @@
 #define BLKATTR_SIZE(x)	(x & 0x1fff)
 #define MAX_BLK_CNT	0x7fff	/* so malloc will have enough room with 32M */
 
-#define ESDHC_HOSTCAPBLT_VS18	0x04000000
-#define ESDHC_HOSTCAPBLT_VS30	0x02000000
-#define ESDHC_HOSTCAPBLT_VS33	0x01000000
-#define ESDHC_HOSTCAPBLT_SRS	0x00800000
-#define ESDHC_HOSTCAPBLT_DMAS	0x00400000
-#define ESDHC_HOSTCAPBLT_HSS	0x00200000
+/* Host controller capabilities register */
+#define HOSTCAPBLT_VS18		0x04000000
+#define HOSTCAPBLT_VS30		0x02000000
+#define HOSTCAPBLT_VS33		0x01000000
+#define HOSTCAPBLT_SRS		0x00800000
+#define HOSTCAPBLT_DMAS		0x00400000
+#define HOSTCAPBLT_HSS		0x00200000
 
 struct fsl_esdhc_cfg {
 	phys_addr_t esdhc_base;
