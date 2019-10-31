@@ -385,6 +385,7 @@ config CF_SPI
 
 config FSL_ESPI
 	bool "Freescale eSPI driver"
+	imply SPI_FLASH_BAR
 	help
 	  Enable the Freescale eSPI driver. This driver can be used to
 	  access the SPI interface and SPI NOR flash on platforms embedding
