@@ -7,16 +7,7 @@
 from __future__ import print_function
 
 from collections import namedtuple
-
-# importlib was introduced in Python 2.7 but there was a report of it not
-# working in 2.7.12, so we work around this:
-# http://lists.denx.de/pipermail/u-boot/2016-October/269729.html
-try:
-    import importlib
-    have_importlib = True
-except:
-    have_importlib = False
-
+import importlib
 import os
 import sys
 
@@ -119,10 +110,7 @@ class Entry(object):
             old_path = sys.path
             sys.path.insert(0, os.path.join(our_path, 'etype'))
             try:
-                if have_importlib:
-                    module = importlib.import_module(module_name)
-                else:
-                    module = __import__(module_name)
+                module = importlib.import_module(module_name)
             except ImportError as e:
                 raise ValueError("Unknown entry type '%s' in node '%s' (expected etype/%s.py, error '%s'" %
                                  (etype, node_path, module_name, e))

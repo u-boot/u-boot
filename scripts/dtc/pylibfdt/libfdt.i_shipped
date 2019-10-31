@@ -624,7 +624,7 @@ class Fdt(FdtRo):
         Raises:
             FdtException if no parent found or other error occurs
         """
-        val = val.encode('utf-8') + '\0'
+        val = val.encode('utf-8') + b'\0'
         return check_err(fdt_setprop(self._fdt, nodeoffset, prop_name,
                                      val, len(val)), quiet)
 
