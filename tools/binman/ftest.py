@@ -2113,7 +2113,7 @@ class TestFunctional(unittest.TestCase):
         data = self.data = self._DoReadFileRealDtb('115_fdtmap.dts')
         fdtmap_data = data[len(U_BOOT_DATA):]
         magic = fdtmap_data[:8]
-        self.assertEqual('_FDTMAP_', magic)
+        self.assertEqual(b'_FDTMAP_', magic)
         self.assertEqual(tools.GetBytes(0, 8), fdtmap_data[8:16])
 
         fdt_data = fdtmap_data[16:]
@@ -2156,7 +2156,7 @@ class TestFunctional(unittest.TestCase):
         dtb = fdt.Fdt.FromData(fdt_data)
         fdt_size = dtb.GetFdtObj().totalsize()
         hdr_data = data[-8:]
-        self.assertEqual('BinM', hdr_data[:4])
+        self.assertEqual(b'BinM', hdr_data[:4])
         offset = struct.unpack('<I', hdr_data[4:])[0] & 0xffffffff
         self.assertEqual(fdtmap_pos - 0x400, offset - (1 << 32))
 
@@ -2165,7 +2165,7 @@ class TestFunctional(unittest.TestCase):
         data = self.data = self._DoReadFileRealDtb('117_fdtmap_hdr_start.dts')
         fdtmap_pos = 0x100 + len(U_BOOT_DATA)
         hdr_data = data[:8]
-        self.assertEqual('BinM', hdr_data[:4])
+        self.assertEqual(b'BinM', hdr_data[:4])
         offset = struct.unpack('<I', hdr_data[4:])[0]
         self.assertEqual(fdtmap_pos, offset)
 
@@ -2174,7 +2174,7 @@ class TestFunctional(unittest.TestCase):
         data = self.data = self._DoReadFileRealDtb('118_fdtmap_hdr_pos.dts')
         fdtmap_pos = 0x100 + len(U_BOOT_DATA)
         hdr_data = data[0x80:0x88]
-        self.assertEqual('BinM', hdr_data[:4])
+        self.assertEqual(b'BinM', hdr_data[:4])
         offset = struct.unpack('<I', hdr_data[4:])[0]
         self.assertEqual(fdtmap_pos, offset)
 
@@ -2435,9 +2435,9 @@ class TestFunctional(unittest.TestCase):
 '  section               100   %x  section          100' % section_size,
 '    cbfs                100   400  cbfs               0',
 '      u-boot            138     4  u-boot            38',
-'      u-boot-dtb        180   10f  u-boot-dtb        80          3c9',
+'      u-boot-dtb        180   105  u-boot-dtb        80          3c9',
 '    u-boot-dtb          500   %x  u-boot-dtb       400          3c9' % fdt_size,
-'  fdtmap                %x   3b4  fdtmap           %x' %
+'  fdtmap                %x   3bd  fdtmap           %x' %
         (fdtmap_offset, fdtmap_offset),
 '  image-header          bf8     8  image-header     bf8',
             ]
@@ -2522,7 +2522,7 @@ class TestFunctional(unittest.TestCase):
         data = self._RunExtractCmd('section')
         cbfs_data = data[:0x400]
         cbfs = cbfs_util.CbfsReader(cbfs_data)
-        self.assertEqual(['u-boot', 'u-boot-dtb', ''], cbfs.files.keys())
+        self.assertEqual(['u-boot', 'u-boot-dtb', ''], list(cbfs.files.keys()))
         dtb_data = data[0x400:]
         dtb = self._decompress(dtb_data)
         self.assertEqual(EXTRACT_DTB_SIZE, len(dtb))
