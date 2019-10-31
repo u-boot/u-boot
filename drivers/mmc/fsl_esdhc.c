@@ -75,7 +75,6 @@ struct fsl_esdhc_plat {
  * @mmc: mmc
  * Following is used when Driver Model is enabled for MMC
  * @dev: pointer for the device
- * @wp_enable: 1: enable checking wp; 0: no check
  * @cd_gpio: gpio for card detection
  * @wp_gpio: gpio for write protection
  */
@@ -88,7 +87,6 @@ struct fsl_esdhc_priv {
 	struct mmc *mmc;
 #endif
 	struct udevice *dev;
-	int wp_enable;
 };
 
 /* Return the XFERTYP flags for a given command and data packet */
@@ -231,12 +229,10 @@ static int esdhc_setup_data(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 #endif
 		if (wml_value > WML_WR_WML_MAX)
 			wml_value = WML_WR_WML_MAX_VAL;
-		if (priv->wp_enable) {
-			if ((esdhc_read32(&regs->prsstat) &
-			    PRSSTAT_WPSPL) == 0) {
-				printf("\nThe SD card is locked. Can not write to a locked card.\n\n");
-				return -ETIMEDOUT;
-			}
+
+		if (!(esdhc_read32(&regs->prsstat) & PRSSTAT_WPSPL)) {
+			printf("Can not write to locked SD card.\n");
+			return -EINVAL;
 		}
 
 		esdhc_clrsetbits32(&regs->wml, WML_WR_WML_MASK,
@@ -722,7 +718,6 @@ int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 
 	priv->esdhc_regs = (struct fsl_esdhc *)(unsigned long)(cfg->esdhc_base);
 	priv->sdhc_clk = cfg->sdhc_clk;
-	priv->wp_enable  = cfg->wp_enable;
 
 	mmc_cfg = &plat->cfg;
 
@@ -861,8 +856,6 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	priv->esdhc_regs = (struct fsl_esdhc *)addr;
 #endif
 	priv->dev = dev;
-
-	priv->wp_enable = 1;
 
 	if (IS_ENABLED(CONFIG_CLK)) {
 		/* Assigned clock already set clock */
