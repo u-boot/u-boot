@@ -25,13 +25,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define SDHCI_IRQ_EN_BITS		(IRQSTATEN_CC | IRQSTATEN_TC | \
-				IRQSTATEN_CINT | \
-				IRQSTATEN_CTOE | IRQSTATEN_CCE | IRQSTATEN_CEBE | \
-				IRQSTATEN_CIE | IRQSTATEN_DTOE | IRQSTATEN_DCE | \
-				IRQSTATEN_DEBE | IRQSTATEN_BRR | IRQSTATEN_BWR | \
-				IRQSTATEN_DINT)
-
 struct fsl_esdhc {
 	uint    dsaddr;		/* SDMA system address register */
 	uint    blkattr;	/* Block attributes register */
@@ -648,25 +641,6 @@ static int esdhc_getcd_common(struct fsl_esdhc_priv *priv)
 	return timeout > 0;
 }
 
-static int esdhc_reset(struct fsl_esdhc *regs)
-{
-	ulong start;
-
-	/* reset the controller */
-	esdhc_setbits32(&regs->sysctl, SYSCTL_RSTA);
-
-	/* hardware clears the bit when it is done */
-	start = get_timer(0);
-	while ((esdhc_read32(&regs->sysctl) & SYSCTL_RSTA)) {
-		if (get_timer(start) > 100) {
-			printf("MMC/SD: Reset never completed.\n");
-			return -ETIMEDOUT;
-		}
-	}
-
-	return 0;
-}
-
 #if !CONFIG_IS_ENABLED(DM_MMC)
 static int esdhc_getcd(struct mmc *mmc)
 {
@@ -711,22 +685,12 @@ static int fsl_esdhc_init(struct fsl_esdhc_priv *priv,
 	struct mmc_config *cfg;
 	struct fsl_esdhc *regs;
 	u32 caps, voltage_caps;
-	int ret;
 
 	if (!priv)
 		return -EINVAL;
 
 	regs = priv->esdhc_regs;
 
-	/* First reset the eSDHC controller */
-	ret = esdhc_reset(regs);
-	if (ret)
-		return ret;
-
-	esdhc_setbits32(&regs->sysctl, SYSCTL_PEREN | SYSCTL_HCKEN |
-				       SYSCTL_IPGEN | SYSCTL_CKEN);
-
-	writel(SDHCI_IRQ_EN_BITS, &regs->irqstaten);
 	cfg = &plat->cfg;
 #ifndef CONFIG_DM_MMC
 	memset(cfg, '\0', sizeof(*cfg));
