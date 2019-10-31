@@ -628,44 +628,6 @@ static int esdhc_getcd_common(struct fsl_esdhc_priv *priv)
 	return timeout > 0;
 }
 
-#if !CONFIG_IS_ENABLED(DM_MMC)
-static int esdhc_getcd(struct mmc *mmc)
-{
-	struct fsl_esdhc_priv *priv = mmc->priv;
-
-	return esdhc_getcd_common(priv);
-}
-
-static int esdhc_init(struct mmc *mmc)
-{
-	struct fsl_esdhc_priv *priv = mmc->priv;
-
-	return esdhc_init_common(priv, mmc);
-}
-
-static int esdhc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
-			  struct mmc_data *data)
-{
-	struct fsl_esdhc_priv *priv = mmc->priv;
-
-	return esdhc_send_cmd_common(priv, mmc, cmd, data);
-}
-
-static int esdhc_set_ios(struct mmc *mmc)
-{
-	struct fsl_esdhc_priv *priv = mmc->priv;
-
-	return esdhc_set_ios_common(priv, mmc);
-}
-
-static const struct mmc_ops esdhc_ops = {
-	.getcd		= esdhc_getcd,
-	.init		= esdhc_init,
-	.send_cmd	= esdhc_send_cmd,
-	.set_ios	= esdhc_set_ios,
-};
-#endif
-
 static void fsl_esdhc_get_cfg_common(struct fsl_esdhc_priv *priv,
 				     struct mmc_config *cfg)
 {
@@ -695,71 +657,6 @@ static void fsl_esdhc_get_cfg_common(struct fsl_esdhc_priv *priv,
 	cfg->f_max = min(priv->sdhc_clk, (u32)200000000);
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 }
-
-#if !CONFIG_IS_ENABLED(DM_MMC)
-int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
-{
-	struct fsl_esdhc_plat *plat;
-	struct fsl_esdhc_priv *priv;
-	struct mmc_config *mmc_cfg;
-	struct mmc *mmc;
-
-	if (!cfg)
-		return -EINVAL;
-
-	priv = calloc(sizeof(struct fsl_esdhc_priv), 1);
-	if (!priv)
-		return -ENOMEM;
-	plat = calloc(sizeof(struct fsl_esdhc_plat), 1);
-	if (!plat) {
-		free(priv);
-		return -ENOMEM;
-	}
-
-	priv->esdhc_regs = (struct fsl_esdhc *)(unsigned long)(cfg->esdhc_base);
-	priv->sdhc_clk = cfg->sdhc_clk;
-
-	mmc_cfg = &plat->cfg;
-
-	if (cfg->max_bus_width == 8) {
-		mmc_cfg->host_caps |= MMC_MODE_1BIT | MMC_MODE_4BIT |
-				      MMC_MODE_8BIT;
-	} else if (cfg->max_bus_width == 4) {
-		mmc_cfg->host_caps |= MMC_MODE_1BIT | MMC_MODE_4BIT;
-	} else if (cfg->max_bus_width == 1) {
-		mmc_cfg->host_caps |= MMC_MODE_1BIT;
-	} else {
-		mmc_cfg->host_caps |= MMC_MODE_1BIT | MMC_MODE_4BIT |
-				      MMC_MODE_8BIT;
-		printf("No max bus width provided. Assume 8-bit supported.\n");
-	}
-
-#ifdef CONFIG_ESDHC_DETECT_8_BIT_QUIRK
-	if (CONFIG_ESDHC_DETECT_8_BIT_QUIRK)
-		mmc_cfg->host_caps &= ~MMC_MODE_8BIT;
-#endif
-	mmc_cfg->ops = &esdhc_ops;
-
-	fsl_esdhc_get_cfg_common(priv, mmc_cfg);
-
-	mmc = mmc_create(mmc_cfg, priv);
-	if (!mmc)
-		return -EIO;
-
-	priv->mmc = mmc;
-	return 0;
-}
-
-int fsl_esdhc_mmc_init(bd_t *bis)
-{
-	struct fsl_esdhc_cfg *cfg;
-
-	cfg = calloc(sizeof(struct fsl_esdhc_cfg), 1);
-	cfg->esdhc_base = CONFIG_SYS_FSL_ESDHC_ADDR;
-	cfg->sdhc_clk = gd->arch.sdhc_clk;
-	return fsl_esdhc_initialize(bis, cfg);
-}
-#endif
 
 #ifdef CONFIG_FSL_ESDHC_ADAPTER_IDENT
 void mmc_adapter_card_type_ident(void)
@@ -834,7 +731,106 @@ void fdt_fixup_esdhc(void *blob, bd_t *bd)
 }
 #endif
 
-#if CONFIG_IS_ENABLED(DM_MMC)
+#if !CONFIG_IS_ENABLED(DM_MMC)
+static int esdhc_getcd(struct mmc *mmc)
+{
+	struct fsl_esdhc_priv *priv = mmc->priv;
+
+	return esdhc_getcd_common(priv);
+}
+
+static int esdhc_init(struct mmc *mmc)
+{
+	struct fsl_esdhc_priv *priv = mmc->priv;
+
+	return esdhc_init_common(priv, mmc);
+}
+
+static int esdhc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
+			  struct mmc_data *data)
+{
+	struct fsl_esdhc_priv *priv = mmc->priv;
+
+	return esdhc_send_cmd_common(priv, mmc, cmd, data);
+}
+
+static int esdhc_set_ios(struct mmc *mmc)
+{
+	struct fsl_esdhc_priv *priv = mmc->priv;
+
+	return esdhc_set_ios_common(priv, mmc);
+}
+
+static const struct mmc_ops esdhc_ops = {
+	.getcd		= esdhc_getcd,
+	.init		= esdhc_init,
+	.send_cmd	= esdhc_send_cmd,
+	.set_ios	= esdhc_set_ios,
+};
+
+int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
+{
+	struct fsl_esdhc_plat *plat;
+	struct fsl_esdhc_priv *priv;
+	struct mmc_config *mmc_cfg;
+	struct mmc *mmc;
+
+	if (!cfg)
+		return -EINVAL;
+
+	priv = calloc(sizeof(struct fsl_esdhc_priv), 1);
+	if (!priv)
+		return -ENOMEM;
+	plat = calloc(sizeof(struct fsl_esdhc_plat), 1);
+	if (!plat) {
+		free(priv);
+		return -ENOMEM;
+	}
+
+	priv->esdhc_regs = (struct fsl_esdhc *)(unsigned long)(cfg->esdhc_base);
+	priv->sdhc_clk = cfg->sdhc_clk;
+
+	mmc_cfg = &plat->cfg;
+
+	if (cfg->max_bus_width == 8) {
+		mmc_cfg->host_caps |= MMC_MODE_1BIT | MMC_MODE_4BIT |
+				      MMC_MODE_8BIT;
+	} else if (cfg->max_bus_width == 4) {
+		mmc_cfg->host_caps |= MMC_MODE_1BIT | MMC_MODE_4BIT;
+	} else if (cfg->max_bus_width == 1) {
+		mmc_cfg->host_caps |= MMC_MODE_1BIT;
+	} else {
+		mmc_cfg->host_caps |= MMC_MODE_1BIT | MMC_MODE_4BIT |
+				      MMC_MODE_8BIT;
+		printf("No max bus width provided. Assume 8-bit supported.\n");
+	}
+
+#ifdef CONFIG_ESDHC_DETECT_8_BIT_QUIRK
+	if (CONFIG_ESDHC_DETECT_8_BIT_QUIRK)
+		mmc_cfg->host_caps &= ~MMC_MODE_8BIT;
+#endif
+	mmc_cfg->ops = &esdhc_ops;
+
+	fsl_esdhc_get_cfg_common(priv, mmc_cfg);
+
+	mmc = mmc_create(mmc_cfg, priv);
+	if (!mmc)
+		return -EIO;
+
+	priv->mmc = mmc;
+	return 0;
+}
+
+int fsl_esdhc_mmc_init(bd_t *bis)
+{
+	struct fsl_esdhc_cfg *cfg;
+
+	cfg = calloc(sizeof(struct fsl_esdhc_cfg), 1);
+	cfg->esdhc_base = CONFIG_SYS_FSL_ESDHC_ADDR;
+	cfg->sdhc_clk = gd->arch.sdhc_clk;
+	return fsl_esdhc_initialize(bis, cfg);
+}
+#else /* DM_MMC */
 #ifndef CONFIG_PPC
 #include <asm/arch/clock.h>
 #endif
