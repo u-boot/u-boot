@@ -277,7 +277,7 @@ static int virtio_pci_notify(struct udevice *udev, struct virtqueue *vq)
 
 static int virtio_pci_bind(struct udevice *udev)
 {
-	static int num_devs;
+	static unsigned int num_devs;
 	char name[20];
 
 	/* Create a unique device name for PCI type devices */

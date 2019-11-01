@@ -39,6 +39,14 @@ char* avb_sub_cmdline(AvbOps* ops,
     char part_name[AVB_PART_NAME_MAX_SIZE];
     char guid_buf[37];
 
+    /* Don't attempt to query the partition guid unless its search string is
+     * present in the command line. Note: the original cmdline is used here,
+     * not the replaced one. See b/116010959.
+     */
+    if (avb_strstr(cmdline, replace_str[n]) == NULL) {
+      continue;
+    }
+
     if (!avb_str_concat(part_name,
                         sizeof part_name,
                         part_name_str[n],
@@ -70,7 +78,15 @@ char* avb_sub_cmdline(AvbOps* ops,
     }
   }
 
-  avb_assert(ret != NULL);
+  /* It's possible there is no _PARTUUID for replacement above.
+   * Duplicate cmdline to ret for additional substitutions below.
+   */
+  if (ret == NULL) {
+    ret = avb_strdup(cmdline);
+    if (ret == NULL) {
+      goto fail;
+    }
+  }
 
   /* Replace any additional substitutions. */
   if (additional_substitutions != NULL) {
@@ -198,21 +214,27 @@ static int cmdline_append_hex(AvbSlotVerifyData* slot_data,
 
 AvbSlotVerifyResult avb_append_options(
     AvbOps* ops,
+    AvbSlotVerifyFlags flags,
     AvbSlotVerifyData* slot_data,
     AvbVBMetaImageHeader* toplevel_vbmeta,
     AvbAlgorithmType algorithm_type,
-    AvbHashtreeErrorMode hashtree_error_mode) {
+    AvbHashtreeErrorMode hashtree_error_mode,
+    AvbHashtreeErrorMode resolved_hashtree_error_mode) {
   AvbSlotVerifyResult ret;
   const char* verity_mode;
   bool is_device_unlocked;
   AvbIOResult io_ret;
 
-  /* Add androidboot.vbmeta.device option. */
-  if (!cmdline_append_option(slot_data,
-                             "androidboot.vbmeta.device",
-                             "PARTUUID=$(ANDROID_VBMETA_PARTUUID)")) {
-    ret = AVB_SLOT_VERIFY_RESULT_ERROR_OOM;
-    goto out;
+  /* Add androidboot.vbmeta.device option... except if not using a vbmeta
+   * partition since it doesn't make sense in that case.
+   */
+  if (!(flags & AVB_SLOT_VERIFY_FLAGS_NO_VBMETA_PARTITION)) {
+    if (!cmdline_append_option(slot_data,
+                               "androidboot.vbmeta.device",
+                               "PARTUUID=$(ANDROID_VBMETA_PARTUUID)")) {
+      ret = AVB_SLOT_VERIFY_RESULT_ERROR_OOM;
+      goto out;
+    }
   }
 
   /* Add androidboot.vbmeta.avb_version option. */
@@ -304,7 +326,7 @@ AvbSlotVerifyResult avb_append_options(
     const char* dm_verity_mode;
     char* new_ret;
 
-    switch (hashtree_error_mode) {
+    switch (resolved_hashtree_error_mode) {
       case AVB_HASHTREE_ERROR_MODE_RESTART_AND_INVALIDATE:
         if (!cmdline_append_option(
                 slot_data, "androidboot.vbmeta.invalidate_on_error", "yes")) {
@@ -331,6 +353,12 @@ AvbSlotVerifyResult avb_append_options(
         verity_mode = "logging";
         dm_verity_mode = "ignore_corruption";
         break;
+      case AVB_HASHTREE_ERROR_MODE_MANAGED_RESTART_AND_EIO:
+        // Should never get here because MANAGED_RESTART_AND_EIO is
+        // remapped by avb_manage_hashtree_error_mode().
+        avb_assert_not_reached();
+        ret = AVB_SLOT_VERIFY_RESULT_ERROR_INVALID_ARGUMENT;
+        goto out;
       default:
         ret = AVB_SLOT_VERIFY_RESULT_ERROR_INVALID_ARGUMENT;
         goto out;
@@ -348,6 +376,13 @@ AvbSlotVerifyResult avb_append_options(
           slot_data, "androidboot.veritymode", verity_mode)) {
     ret = AVB_SLOT_VERIFY_RESULT_ERROR_OOM;
     goto out;
+  }
+  if (hashtree_error_mode == AVB_HASHTREE_ERROR_MODE_MANAGED_RESTART_AND_EIO) {
+    if (!cmdline_append_option(
+            slot_data, "androidboot.veritymode.managed", "yes")) {
+      ret = AVB_SLOT_VERIFY_RESULT_ERROR_OOM;
+      goto out;
+    }
   }
 
   ret = AVB_SLOT_VERIFY_RESULT_OK;

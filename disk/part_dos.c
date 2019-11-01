@@ -67,28 +67,39 @@ static int test_block_type(unsigned char *buffer)
 {
 	int slot;
 	struct dos_partition *p;
+	int part_count = 0;
 
 	if((buffer[DOS_PART_MAGIC_OFFSET + 0] != 0x55) ||
 	    (buffer[DOS_PART_MAGIC_OFFSET + 1] != 0xaa) ) {
 		return (-1);
 	} /* no DOS Signature at all */
 	p = (struct dos_partition *)&buffer[DOS_PART_TBL_OFFSET];
-	for (slot = 0; slot < 3; slot++) {
-		if (p->boot_ind != 0 && p->boot_ind != 0x80) {
-			if (!slot &&
-			    (strncmp((char *)&buffer[DOS_PBR_FSTYPE_OFFSET],
-				     "FAT", 3) == 0 ||
-			     strncmp((char *)&buffer[DOS_PBR32_FSTYPE_OFFSET],
-				     "FAT32", 5) == 0)) {
-				return DOS_PBR; /* is PBR */
-			} else {
-				return -1;
-			}
-		}
-	}
-	return DOS_MBR;	    /* Is MBR */
-}
 
+	/* Check that the boot indicators are valid and count the partitions. */
+	for (slot = 0; slot < 4; ++slot, ++p) {
+		if (p->boot_ind != 0 && p->boot_ind != 0x80)
+			break;
+		if (p->sys_ind)
+			++part_count;
+	}
+
+	/*
+	 * If the partition table is invalid or empty,
+	 * check if this is a DOS PBR
+	 */
+	if (slot != 4 || !part_count) {
+		if (!strncmp((char *)&buffer[DOS_PBR_FSTYPE_OFFSET],
+			     "FAT", 3) ||
+		    !strncmp((char *)&buffer[DOS_PBR32_FSTYPE_OFFSET],
+			     "FAT32", 5))
+			return DOS_PBR; /* This is a DOS PBR and not an MBR */
+	}
+	if (slot == 4)
+		return DOS_MBR;	/* This is an DOS MBR */
+
+	/* This is neither a DOS MBR nor a DOS PBR */
+	return -1;
+}
 
 static int part_test_dos(struct blk_desc *dev_desc)
 {

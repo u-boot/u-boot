@@ -53,6 +53,14 @@ int avb_memcmp(const void* src1,
  */
 int avb_strcmp(const char* s1, const char* s2);
 
+/* Compare |n| bytes in two strings.
+ *
+ * Return an integer less than, equal to, or greater than zero if the
+ * first |n| bytes of |s1| is found, respectively, to be less than,
+ * to match, or be greater than the first |n| bytes of |s2|.
+ */
+int avb_strncmp(const char* s1, const char* s2, size_t n);
+
 /* Copy |n| bytes from |src| to |dest|. */
 void* avb_memcpy(void* dest, const void* src, size_t n);
 

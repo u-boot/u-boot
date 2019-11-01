@@ -50,6 +50,8 @@ struct ahci_uc_priv *probe_ent = NULL;
 #define WAIT_MS_FLUSH	5000
 #define WAIT_MS_LINKUP	200
 
+#define AHCI_CAP_S64A BIT(31)
+
 __weak void __iomem *ahci_port_base(void __iomem *base, u32 port)
 {
 	return base + 0x100 + (port * 0x80);
@@ -503,9 +505,15 @@ static int ahci_fill_sg(struct ahci_uc_priv *uc_priv, u8 port,
 	}
 
 	for (i = 0; i < sg_count; i++) {
-		ahci_sg->addr =
-		    cpu_to_le32((unsigned long) buf + i * MAX_DATA_BYTE_COUNT);
-		ahci_sg->addr_hi = 0;
+		/* We assume virt=phys */
+		phys_addr_t pa = (unsigned long)buf + i * MAX_DATA_BYTE_COUNT;
+
+		ahci_sg->addr = cpu_to_le32(lower_32_bits(pa));
+		ahci_sg->addr_hi = cpu_to_le32(upper_32_bits(pa));
+		if (ahci_sg->addr_hi && !(uc_priv->cap & AHCI_CAP_S64A)) {
+			printf("Error: DMA address too high\n");
+			return -1;
+		}
 		ahci_sg->flags_size = cpu_to_le32(0x3fffff &
 					  (buf_len < MAX_DATA_BYTE_COUNT
 					   ? (buf_len - 1)

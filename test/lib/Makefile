@@ -6,3 +6,4 @@ obj-y += cmd_ut_lib.o
 obj-y += hexdump.o
 obj-y += lmb.o
 obj-y += string.o
+obj-$(CONFIG_ERRNO_STR) += test_errno_str.o

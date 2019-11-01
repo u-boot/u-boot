@@ -15,11 +15,6 @@
 #define AVB_BOOTARGS	"avb_bootargs"
 static struct AvbOps *avb_ops;
 
-static const char * const requested_partitions[] = {"boot",
-					     "system",
-					     "vendor",
-					     NULL};
-
 int do_avb_init(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned long mmc_dev;
@@ -232,10 +227,12 @@ int do_avb_get_uuid(cmd_tbl_t *cmdtp, int flag,
 int do_avb_verify_part(cmd_tbl_t *cmdtp, int flag,
 		       int argc, char *const argv[])
 {
+	const char * const requested_partitions[] = {"boot", NULL};
 	AvbSlotVerifyResult slot_result;
 	AvbSlotVerifyData *out_data;
 	char *cmdline;
 	char *extra_args;
+	char *slot_suffix = "";
 
 	bool unlocked = false;
 	int res = CMD_RET_FAILURE;
@@ -245,8 +242,11 @@ int do_avb_verify_part(cmd_tbl_t *cmdtp, int flag,
 		return CMD_RET_FAILURE;
 	}
 
-	if (argc != 1)
+	if (argc < 1 || argc > 2)
 		return CMD_RET_USAGE;
+
+	if (argc == 2)
+		slot_suffix = argv[1];
 
 	printf("## Android Verified Boot 2.0 version %s\n",
 	       avb_version_string());
@@ -260,7 +260,7 @@ int do_avb_verify_part(cmd_tbl_t *cmdtp, int flag,
 	slot_result =
 		avb_slot_verify(avb_ops,
 				requested_partitions,
-				"",
+				slot_suffix,
 				unlocked,
 				AVB_HASHTREE_ERROR_MODE_RESTART_AND_INVALIDATE,
 				&out_data);
@@ -420,7 +420,7 @@ static cmd_tbl_t cmd_avb[] = {
 	U_BOOT_CMD_MKENT(read_part, 5, 0, do_avb_read_part, "", ""),
 	U_BOOT_CMD_MKENT(read_part_hex, 4, 0, do_avb_read_part_hex, "", ""),
 	U_BOOT_CMD_MKENT(write_part, 5, 0, do_avb_write_part, "", ""),
-	U_BOOT_CMD_MKENT(verify, 1, 0, do_avb_verify_part, "", ""),
+	U_BOOT_CMD_MKENT(verify, 2, 0, do_avb_verify_part, "", ""),
 #ifdef CONFIG_OPTEE_TA_AVB
 	U_BOOT_CMD_MKENT(read_pvalue, 3, 0, do_avb_read_pvalue, "", ""),
 	U_BOOT_CMD_MKENT(write_pvalue, 3, 0, do_avb_write_pvalue, "", ""),
@@ -463,6 +463,7 @@ U_BOOT_CMD(
 	"avb read_pvalue <name> <bytes> - read a persistent value <name>\n"
 	"avb write_pvalue <name> <value> - write a persistent value <name>\n"
 #endif
-	"avb verify - run verification process using hash data\n"
+	"avb verify [slot_suffix] - run verification process using hash data\n"
 	"    from vbmeta structure\n"
+	"    [slot_suffix] - _a, _b, etc (if vbmeta partition is slotted)\n"
 	);

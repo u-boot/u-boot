@@ -123,6 +123,9 @@ static int nvme_setup_prps(struct nvme_dev *dev, u64 *prp2,
 	}
 	*prp2 = (ulong)dev->prp_pool;
 
+	flush_dcache_range((ulong)dev->prp_pool, (ulong)dev->prp_pool +
+			   dev->prp_entry_num * sizeof(u64));
+
 	return 0;
 }
 
@@ -580,14 +583,19 @@ static int nvme_setup_io_queues(struct nvme_dev *dev)
 
 static int nvme_get_info_from_identify(struct nvme_dev *dev)
 {
-	ALLOC_CACHE_ALIGN_BUFFER(char, buf, sizeof(struct nvme_id_ctrl));
-	struct nvme_id_ctrl *ctrl = (struct nvme_id_ctrl *)buf;
+	struct nvme_id_ctrl *ctrl;
 	int ret;
 	int shift = NVME_CAP_MPSMIN(dev->cap) + 12;
 
+	ctrl = memalign(dev->page_size, sizeof(struct nvme_id_ctrl));
+	if (!ctrl)
+		return -ENOMEM;
+
 	ret = nvme_identify(dev, 0, 1, (dma_addr_t)(long)ctrl);
-	if (ret)
+	if (ret) {
+		free(ctrl);
 		return -EIO;
+	}
 
 	dev->nn = le32_to_cpu(ctrl->nn);
 	dev->vwc = ctrl->vwc;
@@ -618,6 +626,7 @@ static int nvme_get_info_from_identify(struct nvme_dev *dev)
 		dev->max_transfer_shift = 20;
 	}
 
+	free(ctrl);
 	return 0;
 }
 
@@ -658,16 +667,21 @@ static int nvme_blk_probe(struct udevice *udev)
 	struct blk_desc *desc = dev_get_uclass_platdata(udev);
 	struct nvme_ns *ns = dev_get_priv(udev);
 	u8 flbas;
-	ALLOC_CACHE_ALIGN_BUFFER(char, buf, sizeof(struct nvme_id_ns));
-	struct nvme_id_ns *id = (struct nvme_id_ns *)buf;
 	struct pci_child_platdata *pplat;
+	struct nvme_id_ns *id;
+
+	id = memalign(ndev->page_size, sizeof(struct nvme_id_ns));
+	if (!id)
+		return -ENOMEM;
 
 	memset(ns, 0, sizeof(*ns));
 	ns->dev = ndev;
 	/* extract the namespace id from the block device name */
 	ns->ns_id = trailing_strtol(udev->name) + 1;
-	if (nvme_identify(ndev, ns->ns_id, 0, (dma_addr_t)(long)id))
+	if (nvme_identify(ndev, ns->ns_id, 0, (dma_addr_t)(long)id)) {
+		free(id);
 		return -EIO;
+	}
 
 	memcpy(&ns->eui64, &id->eui64, sizeof(id->eui64));
 	flbas = id->flbas & NVME_NS_FLBAS_LBA_MASK;
@@ -686,6 +700,7 @@ static int nvme_blk_probe(struct udevice *udev)
 	memcpy(desc->product, ndev->serial, sizeof(ndev->serial));
 	memcpy(desc->revision, ndev->firmware_rev, sizeof(ndev->firmware_rev));
 
+	free(id);
 	return 0;
 }
 
@@ -705,9 +720,8 @@ static ulong nvme_blk_rw(struct udevice *udev, lbaint_t blknr,
 	u16 lbas = 1 << (dev->max_transfer_shift - ns->lba_shift);
 	u64 total_lbas = blkcnt;
 
-	if (!read)
-		flush_dcache_range((unsigned long)buffer,
-				   (unsigned long)buffer + total_len);
+	flush_dcache_range((unsigned long)buffer,
+			   (unsigned long)buffer + total_len);
 
 	c.rw.opcode = read ? nvme_cmd_read : nvme_cmd_write;
 	c.rw.flags = 0;

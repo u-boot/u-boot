@@ -1,7 +1,7 @@
 variables:
   windows_vm: vs2015-win2012r2
   ubuntu_vm: ubuntu-18.04
-  ci_runner_image: trini/u-boot-gitlab-ci-runner:bionic-20190912.1-03Oct2019
+  ci_runner_image: trini/u-boot-gitlab-ci-runner:bionic-20191010-20Oct2019
   # Add '-u 0' options for Azure pipelines, otherwise we get "permission
   # denied" error when it tries to "useradd -m -u 1001 vsts_azpcontainer",
   # since our $(ci_runner_image) user is not root.
@@ -245,11 +245,6 @@ jobs:
           git clone --depth=1 git://github.com/swarren/uboot-test-hooks.git /tmp/uboot-test-hooks
           ln -s travis-ci /tmp/uboot-test-hooks/bin/`hostname`
           ln -s travis-ci /tmp/uboot-test-hooks/py/`hostname`
-          virtualenv /tmp/venv
-          . /tmp/venv/bin/activate
-          pip install pytest==2.8.7
-          pip install python-subunit
-          pip install coverage
           grub-mkimage --prefix=\"\" -o ~/grub_x86.efi -O i386-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
           grub-mkimage --prefix=\"\" -o ~/grub_x64.efi -O x86_64-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
           mkdir ~/grub2-arm
@@ -266,6 +261,9 @@ jobs:
                   exit $ret;
               fi;
           fi
+          virtualenv -p /usr/bin/python3 /tmp/venv
+          . /tmp/venv/bin/activate
+          pip install -r test/py/requirements.txt
           export UBOOT_TRAVIS_BUILD_DIR=/tmp/.bm-work/${TEST_PY_BD};
           export PATH=/opt/qemu/bin:/tmp/uboot-test-hooks/bin:/usr/bin:/bin;
           export PYTHONPATH=/tmp/uboot-test-hooks/py/travis-ci;

@@ -366,6 +366,22 @@ int sprintf(char *buf, const char *fmt, ...)
 	return ret;
 }
 
+#if CONFIG_IS_ENABLED(LOG)
+/* Note that size is ignored */
+int vsnprintf(char *buf, size_t size, const char *fmt, va_list va)
+{
+	struct printf_info info;
+	int ret;
+
+	info.outstr = buf;
+	info.putc = putc_outstr;
+	ret = _vprintf(&info, fmt, va);
+	*info.outstr = '\0';
+
+	return ret;
+}
+#endif
+
 /* Note that size is ignored */
 int snprintf(char *buf, size_t size, const char *fmt, ...)
 {

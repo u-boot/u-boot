@@ -29,6 +29,18 @@
     *((str) + 0) = (uint8_t)((x) >> 24); \
   }
 
+#define UNPACK64(x, str)                         \
+  {                                              \
+    *((str) + 7) = (uint8_t)x;                   \
+    *((str) + 6) = (uint8_t)((uint64_t)x >> 8);  \
+    *((str) + 5) = (uint8_t)((uint64_t)x >> 16); \
+    *((str) + 4) = (uint8_t)((uint64_t)x >> 24); \
+    *((str) + 3) = (uint8_t)((uint64_t)x >> 32); \
+    *((str) + 2) = (uint8_t)((uint64_t)x >> 40); \
+    *((str) + 1) = (uint8_t)((uint64_t)x >> 48); \
+    *((str) + 0) = (uint8_t)((uint64_t)x >> 56); \
+  }
+
 #define PACK32(str, x)                                                    \
   {                                                                       \
     *(x) = ((uint32_t) * ((str) + 3)) | ((uint32_t) * ((str) + 2) << 8) | \
@@ -96,18 +108,18 @@ void avb_sha256_init(AvbSHA256Ctx* ctx) {
 
 static void SHA256_transform(AvbSHA256Ctx* ctx,
                              const uint8_t* message,
-                             unsigned int block_nb) {
+                             size_t block_nb) {
   uint32_t w[64];
   uint32_t wv[8];
   uint32_t t1, t2;
   const unsigned char* sub_block;
-  int i;
+  size_t i;
 
 #ifndef UNROLL_LOOPS
-  int j;
+  size_t j;
 #endif
 
-  for (i = 0; i < (int)block_nb; i++) {
+  for (i = 0; i < block_nb; i++) {
     sub_block = message + (i << 6);
 
 #ifndef UNROLL_LOOPS
@@ -293,9 +305,9 @@ static void SHA256_transform(AvbSHA256Ctx* ctx,
   }
 }
 
-void avb_sha256_update(AvbSHA256Ctx* ctx, const uint8_t* data, uint32_t len) {
-  unsigned int block_nb;
-  unsigned int new_len, rem_len, tmp_len;
+void avb_sha256_update(AvbSHA256Ctx* ctx, const uint8_t* data, size_t len) {
+  size_t block_nb;
+  size_t new_len, rem_len, tmp_len;
   const uint8_t* shifted_data;
 
   tmp_len = AVB_SHA256_BLOCK_SIZE - ctx->len;
@@ -325,11 +337,11 @@ void avb_sha256_update(AvbSHA256Ctx* ctx, const uint8_t* data, uint32_t len) {
 }
 
 uint8_t* avb_sha256_final(AvbSHA256Ctx* ctx) {
-  unsigned int block_nb;
-  unsigned int pm_len;
-  unsigned int len_b;
+  size_t block_nb;
+  size_t pm_len;
+  uint64_t len_b;
 #ifndef UNROLL_LOOPS
-  int i;
+  size_t i;
 #endif
 
   block_nb =
@@ -340,7 +352,7 @@ uint8_t* avb_sha256_final(AvbSHA256Ctx* ctx) {
 
   avb_memset(ctx->block + ctx->len, 0, pm_len - ctx->len);
   ctx->block[ctx->len] = 0x80;
-  UNPACK32(len_b, ctx->block + pm_len - 4);
+  UNPACK64(len_b, ctx->block + pm_len - 8);
 
   SHA256_transform(ctx, ctx->block, block_nb);
 

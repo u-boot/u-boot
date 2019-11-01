@@ -300,38 +300,38 @@ def fs_obj_basic(request, u_boot_config):
         # Generate the md5sums of reads that we will test against small file
         out = check_output(
             'dd if=%s bs=1M skip=0 count=1 2> /dev/null | md5sum'
-	    % small_file, shell=True)
+	    % small_file, shell=True).decode()
         md5val = [ out.split()[0] ]
 
         # Generate the md5sums of reads that we will test against big file
         # One from beginning of file.
         out = check_output(
             'dd if=%s bs=1M skip=0 count=1 2> /dev/null | md5sum'
-	    % big_file, shell=True)
+	    % big_file, shell=True).decode()
         md5val.append(out.split()[0])
 
         # One from end of file.
         out = check_output(
             'dd if=%s bs=1M skip=2499 count=1 2> /dev/null | md5sum'
-	    % big_file, shell=True)
+	    % big_file, shell=True).decode()
         md5val.append(out.split()[0])
 
         # One from the last 1MB chunk of 2GB
         out = check_output(
             'dd if=%s bs=1M skip=2047 count=1 2> /dev/null | md5sum'
-	    % big_file, shell=True)
+	    % big_file, shell=True).decode()
         md5val.append(out.split()[0])
 
         # One from the start 1MB chunk from 2GB
         out = check_output(
             'dd if=%s bs=1M skip=2048 count=1 2> /dev/null | md5sum'
-	    % big_file, shell=True)
+	    % big_file, shell=True).decode()
         md5val.append(out.split()[0])
 
         # One 1MB chunk crossing the 2GB boundary
         out = check_output(
             'dd if=%s bs=512K skip=4095 count=2 2> /dev/null | md5sum'
-	    % big_file, shell=True)
+	    % big_file, shell=True).decode()
         md5val.append(out.split()[0])
 
         umount_fs(mount_dir)
@@ -390,7 +390,7 @@ def fs_obj_ext(request, u_boot_config):
             % min_file, shell=True)
         out = check_output(
             'dd if=%s bs=1K 2> /dev/null | md5sum'
-            % min_file, shell=True)
+            % min_file, shell=True).decode()
         md5val = [ out.split()[0] ]
 
         # Calculate md5sum of Test Case 4
@@ -399,7 +399,7 @@ def fs_obj_ext(request, u_boot_config):
         check_call('dd if=%s of=%s bs=1K seek=5 count=20'
             % (min_file, tmp_file), shell=True)
         out = check_output('dd if=%s bs=1K 2> /dev/null | md5sum'
-            % tmp_file, shell=True)
+            % tmp_file, shell=True).decode()
         md5val.append(out.split()[0])
 
         # Calculate md5sum of Test Case 5
@@ -408,7 +408,7 @@ def fs_obj_ext(request, u_boot_config):
         check_call('dd if=%s of=%s bs=1K seek=5 count=5'
             % (min_file, tmp_file), shell=True)
         out = check_output('dd if=%s bs=1K 2> /dev/null | md5sum'
-            % tmp_file, shell=True)
+            % tmp_file, shell=True).decode()
         md5val.append(out.split()[0])
 
         # Calculate md5sum of Test Case 7
@@ -417,7 +417,7 @@ def fs_obj_ext(request, u_boot_config):
         check_call('dd if=%s of=%s bs=1K seek=20 count=20'
             % (min_file, tmp_file), shell=True)
         out = check_output('dd if=%s bs=1K 2> /dev/null | md5sum'
-            % tmp_file, shell=True)
+            % tmp_file, shell=True).decode()
         md5val.append(out.split()[0])
 
         check_call('rm %s' % tmp_file, shell=True)
@@ -508,8 +508,8 @@ def fs_obj_unlink(request, u_boot_config):
 
         # Test Case 2
         check_call('mkdir %s/dir2' % mount_dir, shell=True)
-	for i in range(0, 20):
-	    check_call('mkdir %s/dir2/0123456789abcdef%02x'
+        for i in range(0, 20):
+            check_call('mkdir %s/dir2/0123456789abcdef%02x'
                                     % (mount_dir, i), shell=True)
 
         # Test Case 4
@@ -582,11 +582,11 @@ def fs_obj_symlink(request, u_boot_config):
         # Generate the md5sums of reads that we will test against small file
         out = check_output(
             'dd if=%s bs=1M skip=0 count=1 2> /dev/null | md5sum'
-            % small_file, shell=True)
+            % small_file, shell=True).decode()
         md5val = [out.split()[0]]
         out = check_output(
             'dd if=%s bs=10M skip=0 count=1 2> /dev/null | md5sum'
-            % medium_file, shell=True)
+            % medium_file, shell=True).decode()
         md5val.extend([out.split()[0]])
 
         umount_fs(mount_dir)
