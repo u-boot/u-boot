@@ -265,7 +265,7 @@ jobs:
           . /tmp/venv/bin/activate
           pip install -r test/py/requirements.txt
           export UBOOT_TRAVIS_BUILD_DIR=/tmp/.bm-work/${TEST_PY_BD};
-          export PATH=/opt/qemu/bin:/tmp/uboot-test-hooks/bin:/usr/bin:/bin;
+          export PATH=/opt/qemu/bin:/tmp/uboot-test-hooks/bin:${PATH};
           export PYTHONPATH=/tmp/uboot-test-hooks/py/travis-ci;
           if [[ "${TEST_PY_BD}" != "" ]]; then
               ./test/py/test.py --bd ${TEST_PY_BD} ${TEST_PY_ID} -k "${TEST_PY_TEST_SPEC:-not a_test_which_does_not_exist}" --build-dir "$UBOOT_TRAVIS_BUILD_DIR";
