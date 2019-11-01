@@ -57,7 +57,7 @@ int ofnode_read_s32_default(ofnode node, const char *propname, s32 def)
 
 int ofnode_read_u64(ofnode node, const char *propname, u64 *outp)
 {
-	const fdt64_t *cell;
+	const unaligned_fdt64_t *cell;
 	int len;
 
 	assert(ofnode_valid(node));

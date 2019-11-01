@@ -213,4 +213,15 @@ int sandbox_get_pci_ep_irq_count(struct udevice *dev);
  */
 uint sandbox_pci_read_bar(u32 barval, int type, uint size);
 
+/**
+ * sandbox_set_enable_memio() - Enable readl/writel() for sandbox
+ *
+ * Normally these I/O functions do nothing with sandbox. Certain tests need them
+ * to work as for other architectures, so this function can be used to enable
+ * them.
+ *
+ * @enable: true to enable, false to disable
+ */
+void sandbox_set_enable_memio(bool enable);
+
 #endif

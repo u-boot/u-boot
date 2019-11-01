@@ -112,7 +112,7 @@ elif options.cc_cmd:
     for line in fd.readlines():
         match = re_line.match(line)
         if match and match.group(1) == args[0]:
-            for cc in match.group(2).split(', '):
+            for cc in match.group(2).split('\0'):
                 cc = cc.strip()
                 if cc:
                     print(cc)

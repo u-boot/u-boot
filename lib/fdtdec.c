@@ -242,7 +242,7 @@ int fdtdec_get_pci_bar32(struct udevice *dev, struct fdt_pci_addr *addr,
 uint64_t fdtdec_get_uint64(const void *blob, int node, const char *prop_name,
 			   uint64_t default_val)
 {
-	const uint64_t *cell64;
+	const unaligned_fdt64_t *cell64;
 	int length;
 
 	cell64 = fdt_getprop(blob, node, prop_name, &length);

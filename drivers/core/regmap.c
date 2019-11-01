@@ -462,5 +462,5 @@ int regmap_update_bits(struct regmap *map, uint offset, uint mask, uint val)
 
 	reg &= ~mask;
 
-	return regmap_write(map, offset, reg | val);
+	return regmap_write(map, offset, reg | (val & mask));
 }

@@ -670,7 +670,6 @@ static init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_SYS_NONCACHED_MEMORY
 	initr_noncached,
 #endif
-	bootstage_relocate,
 #ifdef CONFIG_OF_LIVE
 	initr_of_live,
 #endif

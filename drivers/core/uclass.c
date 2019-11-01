@@ -6,6 +6,8 @@
  * Pavel Herrmann <morpheus.ibis@gmail.com>
  */
 
+#define LOG_CATEGORY LOGC_DM
+
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
@@ -303,7 +305,7 @@ int uclass_find_device_by_seq(enum uclass_id id, int seq_or_req_seq,
 	int ret;
 
 	*devp = NULL;
-	debug("%s: %d %d\n", __func__, find_req_seq, seq_or_req_seq);
+	log_debug("%d %d\n", find_req_seq, seq_or_req_seq);
 	if (seq_or_req_seq == -1)
 		return -ENODEV;
 	ret = uclass_get(id, &uc);
@@ -311,15 +313,16 @@ int uclass_find_device_by_seq(enum uclass_id id, int seq_or_req_seq,
 		return ret;
 
 	uclass_foreach_dev(dev, uc) {
-		debug("   - %d %d '%s'\n", dev->req_seq, dev->seq, dev->name);
+		log_debug("   - %d %d '%s'\n",
+			  dev->req_seq, dev->seq, dev->name);
 		if ((find_req_seq ? dev->req_seq : dev->seq) ==
 				seq_or_req_seq) {
 			*devp = dev;
-			debug("   - found\n");
+			log_debug("   - found\n");
 			return 0;
 		}
 	}
-	debug("   - not found\n");
+	log_debug("   - not found\n");
 
 	return -ENODEV;
 }
