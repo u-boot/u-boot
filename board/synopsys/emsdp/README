@@ -79,5 +79,5 @@ ARC EM Software Development Platform (AKA EMSDP)
 
       2.1. In case of proprietary MetaWare debugger run:
       ------------------------->8----------------------
-      mdb -dll=opxdarc.so -OK -preloadexec="eval *(int*)0xf0001000=0" u-boot
+      mdb -digilent -OK -preloadexec="eval *(int*)0xf0001000=0" u-boot
       ------------------------->8----------------------

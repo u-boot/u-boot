@@ -91,6 +91,13 @@ config RESET_ROCKCHIP
 	  though is that some reset signals, like I2C or MISC reset multiple
 	  devices.
 
+config RESET_HSDK
+	bool "Synopsys HSDK Reset Driver"
+	depends on DM_RESET && TARGET_HSDK
+	default y
+	help
+	  This enables the reset controller driver for HSDK board.
+
 config RESET_MESON
 	bool "Reset controller driver for Amlogic Meson SoCs"
 	depends on DM_RESET && ARCH_MESON
