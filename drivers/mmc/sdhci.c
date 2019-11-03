@@ -660,7 +660,7 @@ int sdhci_probe(struct udevice *dev)
 	return sdhci_init(mmc);
 }
 
-int sdhci_get_cd(struct udevice *dev)
+static int sdhci_get_cd(struct udevice *dev)
 {
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
 	struct sdhci_host *host = mmc->priv;
