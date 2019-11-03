@@ -433,6 +433,88 @@ err:
 	return ret;
 }
 
+static int do_nandbcb_bcbonly(int argc, char * const argv[])
+{
+	struct fcb_block *fcb;
+	struct dbbt_block *dbbt;
+	u32 fw_len, fw1_off, fw2_off;
+	struct mtd_info *mtd;
+	void *dbbt_page, *dbbt_data_page;
+	int dev, ret;
+
+	dev = nand_curr_device;
+	if ((dev < 0) || (dev >= CONFIG_SYS_MAX_NAND_DEVICE) ||
+	    (!get_nand_dev_by_index(dev))) {
+		puts("No devices available\n");
+		return CMD_RET_FAILURE;
+	}
+
+	mtd = get_nand_dev_by_index(dev);
+
+	if (argc < 3)
+		return CMD_RET_FAILURE;
+
+	fw_len = simple_strtoul(argv[1], NULL, 16);
+	fw1_off = simple_strtoul(argv[2], NULL, 16);
+
+	if (argc > 3)
+		fw2_off = simple_strtoul(argv[3], NULL, 16);
+	else
+		fw2_off = fw1_off;
+
+	/* fill fcb */
+	fcb = kzalloc(sizeof(*fcb), GFP_KERNEL);
+	if (!fcb) {
+		debug("failed to allocate fcb\n");
+		ret = -ENOMEM;
+		return CMD_RET_FAILURE;
+	}
+
+	fill_fcb(fcb, mtd, fw1_off / mtd->writesize,
+		 fw2_off / mtd->writesize, fw_len / mtd->writesize);
+
+	/* fill dbbt */
+	dbbt_page = kzalloc(mtd->writesize, GFP_KERNEL);
+	if (!dbbt_page) {
+		debug("failed to allocate dbbt_page\n");
+		ret = -ENOMEM;
+		goto fcb_err;
+	}
+
+	dbbt_data_page = kzalloc(mtd->writesize, GFP_KERNEL);
+	if (!dbbt_data_page) {
+		debug("failed to allocate dbbt_data_page\n");
+		ret = -ENOMEM;
+		goto dbbt_page_err;
+	}
+
+	dbbt = dbbt_page;
+	dbbt->checksum = 0;
+	dbbt->fingerprint = DBBT_FINGERPRINT2;
+	dbbt->version = DBBT_VERSION_1;
+	ret = dbbt_fill_data(mtd, dbbt_data_page, 0);
+	if (ret < 0)
+		goto dbbt_data_page_err;
+	else if (ret > 0)
+		dbbt->dbbtpages = 1;
+
+	/* write fcb and dbbt to nand */
+	ret = write_fcb_dbbt(mtd, fcb, dbbt, dbbt_data_page, 0);
+dbbt_data_page_err:
+	kfree(dbbt_data_page);
+dbbt_page_err:
+	kfree(dbbt_page);
+fcb_err:
+	kfree(fcb);
+
+	if (ret < 0) {
+		printf("failed to write FCB/DBBT\n");
+		return CMD_RET_FAILURE;
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
 static int do_nandbcb_update(int argc, char * const argv[])
 {
 	struct mtd_info *mtd;
@@ -489,6 +571,11 @@ static int do_nandbcb(cmd_tbl_t *cmdtp, int flag, int argc,
 		goto done;
 	}
 
+	if (strcmp(cmd, "bcbonly") == 0) {
+		ret = do_nandbcb_bcbonly(argc, argv);
+		goto done;
+	}
+
 done:
 	if (ret != -1)
 		return ret;
@@ -499,7 +586,10 @@ usage:
 #ifdef CONFIG_SYS_LONGHELP
 static char nandbcb_help_text[] =
 	"update addr off|partition len	- update 'len' bytes starting at\n"
-	"	'off|part' to memory address 'addr', skipping  bad blocks";
+	"       'off|part' to memory address 'addr', skipping  bad blocks\n"
+	"bcbonly fw-size fw1-off [fw2-off] - write only BCB (FCB and DBBT)\n"
+	"       where `fw-size` is fw sizes in bytes, `fw1-off` and\n"
+	"       and `fw2-off` - firmware offsets		";
 #endif
 
 U_BOOT_CMD(nandbcb, 5, 1, do_nandbcb,
