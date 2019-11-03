@@ -21,6 +21,26 @@
 	clock-frequency = <400000>;
 };
 
+&gpio1 {
+	/delete-property/ u-boot,dm-spl;
+};
+
+&gpio2 {
+	/delete-property/ u-boot,dm-spl;
+};
+
+&gpio3 {
+	/delete-property/ u-boot,dm-spl;
+};
+
+&gpio5 {
+	/delete-property/ u-boot,dm-spl;
+};
+
+&gpio6 {
+	/delete-property/ u-boot,dm-spl;
+};
+
 /delete-node/ &uart2;
 /delete-node/ &uart3;
 /delete-node/ &mmc2;
