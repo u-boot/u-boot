@@ -12,6 +12,10 @@
 	u-boot,dm-spl;
 };
 
+&gpio0 {
+	u-boot,dm-spl;
+};
+
 &ahci0 {
 	u-boot,dm-spl;
 };
