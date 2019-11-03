@@ -156,29 +156,49 @@ void board_boot_order(u32 *spl_boot_list)
 {
 	struct src *psrc = (struct src *)SRC_BASE_ADDR;
 	unsigned int reg = readl(&psrc->sbmr1) >> 11;
-	/*
-	 * Upon reading BOOT_CFG register the following map is done:
-	 * Bit 11 and 12 of BOOT_CFG register can determine the current
-	 * mmc port
-	 * 0x1                  SD1-SOM
-	 * 0x2                  SD2-Baseboard
-	 */
+	u32 boot_mode = imx6_src_get_boot_mode() & IMX6_BMODE_MASK;
+	unsigned int bmode = readl(&src_base->sbmr2);
 
-	reg &= 0x3; /* Only care about bottom 2 bits */
-	switch (reg) {
-	case 0:
-		spl_boot_list[0] = BOOT_DEVICE_MMC1;
+	/* If bmode is serial or USB phy is active, return serial */
+	if (((bmode >> 24) & 0x03) == 0x01 || is_usbotg_phy_active()) {
+		spl_boot_list[0] = BOOT_DEVICE_BOARD;
+		return;
+	}
+
+	switch (boot_mode >> IMX6_BMODE_SHIFT) {
+	case IMX6_BMODE_NAND_MIN ... IMX6_BMODE_NAND_MAX:
+		spl_boot_list[0] = BOOT_DEVICE_NAND;
 		break;
-	case 1:
-		spl_boot_list[0] = BOOT_DEVICE_MMC2;
+	case IMX6_BMODE_SD:
+	case IMX6_BMODE_ESD:
+	case IMX6_BMODE_MMC:
+	case IMX6_BMODE_EMMC:
+		/*
+		 * Upon reading BOOT_CFG register the following map is done:
+		 * Bit 11 and 12 of BOOT_CFG register can determine the current
+		 * mmc port
+		 * 0x1                  SD1-SOM
+		 * 0x2                  SD2-Baseboard
+		 */
+
+		reg &= 0x3; /* Only care about bottom 2 bits */
+		switch (reg) {
+		case 0:
+			spl_boot_list[0] = BOOT_DEVICE_MMC1;
+			break;
+		case 1:
+			spl_boot_list[0] = BOOT_DEVICE_MMC2;
+			break;
+		}
+		break;
+	default:
+		/* By default use USB downloader */
+		spl_boot_list[0] = BOOT_DEVICE_BOARD;
 		break;
 	}
 
-	/* If we cannot find a valid MMC/SD card, try NAND */
-	spl_boot_list[1] = BOOT_DEVICE_NAND;
-
 	/* As a last resort, use serial downloader */
-	spl_boot_list[2] = BOOT_DEVICE_BOARD;
+	spl_boot_list[1] = BOOT_DEVICE_BOARD;
 }
 
 static void ccgr_init(void)
