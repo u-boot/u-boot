@@ -128,7 +128,8 @@ static u32 calc_chksum(void *buf, size_t size)
 	return ~chksum;
 }
 
-static void fill_fcb(struct fcb_block *fcb, struct mtd_info *mtd)
+static void fill_fcb(struct fcb_block *fcb, struct mtd_info *mtd,
+		     u32 fw1_start, u32 fw2_start, u32 fw_pages)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
 	struct mxs_nand_info *nand_info = nand_get_controller_data(chip);
@@ -176,6 +177,11 @@ static void fill_fcb(struct fcb_block *fcb, struct mtd_info *mtd)
 	fcb->disbbm = 0;
 	fcb->disbbm_search = 0;
 
+	fcb->fw1_start = fw1_start; /* Firmware image starts on this sector */
+	fcb->fw2_start = fw2_start; /* Secondary FW Image starting Sector */
+	fcb->fw1_pages = fw_pages; /* Number of sectors in firmware image */
+	fcb->fw2_pages = fw_pages; /* Number of sector in secondary FW image */
+
 	fcb->checksum = calc_chksum((void *)fcb + 4, sizeof(*fcb) - 4);
 }
 
@@ -199,6 +205,114 @@ static int dbbt_fill_data(struct mtd_info *mtd, void *buf, int num_blocks)
 	return n_bad_blocks;
 }
 
+static int write_fcb_dbbt(struct mtd_info *mtd, struct fcb_block *fcb,
+			  struct dbbt_block *dbbt, void *dbbt_data_page,
+			  loff_t off)
+{
+	void *fcb_raw_page = 0;
+	int i, ret;
+	size_t dummy;
+
+	/*
+	 * We prepare raw page only for i.MX6, for i.MX7 we
+	 * leverage BCH hw module instead
+	 */
+	if (is_mx6()) {
+		/* write fcb/dbbt */
+		fcb_raw_page = kzalloc(mtd->writesize + mtd->oobsize,
+				       GFP_KERNEL);
+		if (!fcb_raw_page) {
+			debug("failed to allocate fcb_raw_page\n");
+			ret = -ENOMEM;
+			return ret;
+		}
+
+#if defined(CONFIG_MX6UL) || defined(CONFIG_MX6ULL)
+		/* 40 bit BCH, for i.MX6UL(L) */
+		encode_bch_ecc(fcb_raw_page + 32, fcb, 40);
+#else
+		memcpy(fcb_raw_page + 12, fcb, sizeof(struct fcb_block));
+		encode_hamming_13_8(fcb_raw_page + 12,
+				    fcb_raw_page + 12 + 512, 512);
+#endif
+		/*
+		 * Set the first and second byte of OOB data to 0xFF,
+		 * not 0x00. These bytes are used as the Manufacturers Bad
+		 * Block Marker (MBBM). Since the FCB is mostly written to
+		 * the first page in a block, a scan for
+		 * factory bad blocks will detect these blocks as bad, e.g.
+		 * when function nand_scan_bbt() is executed to build a new
+		 * bad block table.
+		 */
+		memset(fcb_raw_page + mtd->writesize, 0xFF, 2);
+	}
+	for (i = 0; i < 2; i++) {
+		if (mtd_block_isbad(mtd, off)) {
+			printf("Block %d is bad, skipped\n", i);
+			continue;
+		}
+
+		/*
+		 * User BCH ECC hardware module for i.MX7
+		 */
+		if (is_mx7()) {
+			u32 off = i * mtd->erasesize;
+			size_t rwsize = sizeof(*fcb);
+
+			printf("Writing %d bytes to 0x%x: ", rwsize, off);
+
+			/* switch nand BCH to FCB compatible settings */
+			mxs_nand_mode_fcb(mtd);
+			ret = nand_write(mtd, off, &rwsize,
+					 (unsigned char *)fcb);
+			mxs_nand_mode_normal(mtd);
+
+			printf("%s\n", ret ? "ERROR" : "OK");
+		} else if (is_mx6()) {
+			/* raw write */
+			mtd_oob_ops_t ops = {
+				.datbuf = (u8 *)fcb_raw_page,
+				.oobbuf = ((u8 *)fcb_raw_page) +
+					  mtd->writesize,
+				.len = mtd->writesize,
+				.ooblen = mtd->oobsize,
+				.mode = MTD_OPS_RAW
+			};
+
+			ret = mtd_write_oob(mtd, mtd->erasesize * i, &ops);
+			if (ret)
+				goto fcb_raw_page_err;
+			debug("NAND fcb write: 0x%x offset 0x%x written: %s\n",
+			      mtd->erasesize * i, ops.len, ret ?
+			      "ERROR" : "OK");
+		}
+
+		ret = mtd_write(mtd, mtd->erasesize * i + mtd->writesize,
+				mtd->writesize, &dummy, (void *)dbbt);
+		if (ret)
+			goto fcb_raw_page_err;
+		debug("NAND dbbt write: 0x%x offset, 0x%x bytes written: %s\n",
+		      mtd->erasesize * i + mtd->writesize, dummy,
+		      ret ? "ERROR" : "OK");
+
+		/* dbbtpages == 0 if no bad blocks */
+		if (dbbt->dbbtpages > 0) {
+			loff_t to = (mtd->erasesize * i + mtd->writesize * 5);
+
+			ret = mtd_write(mtd, to, mtd->writesize, &dummy,
+					dbbt_data_page);
+			if (ret)
+				goto fcb_raw_page_err;
+		}
+	}
+
+fcb_raw_page_err:
+	if (is_mx6())
+		kfree(fcb_raw_page);
+
+	return ret;
+}
+
 static int nandbcb_update(struct mtd_info *mtd, loff_t off, size_t size,
 			  size_t maxsize, const u_char *buf)
 {
@@ -206,12 +320,12 @@ static int nandbcb_update(struct mtd_info *mtd, loff_t off, size_t size,
 	struct fcb_block *fcb;
 	struct dbbt_block *dbbt;
 	loff_t fw1_off;
-	void *fwbuf, *fcb_raw_page, *dbbt_page, *dbbt_data_page;
+	void *fwbuf, *dbbt_page, *dbbt_data_page;
+	u32 fw1_start, fw1_pages;
 	int nr_blks, nr_blks_fcb, fw1_blk;
-	size_t fwsize, dummy;
-	int i, ret;
+	size_t fwsize;
+	int ret;
 
-	fcb_raw_page = 0;
 	/* erase */
 	memset(&opts, 0, sizeof(opts));
 	opts.offset = off;
@@ -273,9 +387,9 @@ static int nandbcb_update(struct mtd_info *mtd, loff_t off, size_t size,
 		goto fwbuf_err;
 	}
 
-	fcb->fw1_start = (fw1_blk * mtd->erasesize) / mtd->writesize;
-	fcb->fw1_pages = size / mtd->writesize + 1;
-	fill_fcb(fcb, mtd);
+	fw1_start = (fw1_blk * mtd->erasesize) / mtd->writesize;
+	fw1_pages = size / mtd->writesize + 1;
+	fill_fcb(fcb, mtd, fw1_start, 0, fw1_pages);
 
 	/* fill dbbt */
 	dbbt_page = kzalloc(mtd->writesize, GFP_KERNEL);
@@ -302,102 +416,11 @@ static int nandbcb_update(struct mtd_info *mtd, loff_t off, size_t size,
 	else if (ret > 0)
 		dbbt->dbbtpages = 1;
 
-	/*
-	 * We prepare raw page only for i.MX6, for i.MX7 we
-	 * leverage BCH hw module instead
-	 */
-	if (is_mx6()) {
-		/* write fcb/dbbt */
-		fcb_raw_page = kzalloc(mtd->writesize + mtd->oobsize,
-				       GFP_KERNEL);
-		if (!fcb_raw_page) {
-			debug("failed to allocate fcb_raw_page\n");
-			ret = -ENOMEM;
-			goto dbbt_data_page_err;
-		}
+	/* write fcb and dbbt to nand */
+	ret = write_fcb_dbbt(mtd, fcb, dbbt, dbbt_data_page, off);
+	if (ret < 0)
+		printf("failed to write FCB/DBBT\n");
 
-#if defined(CONFIG_MX6UL) || defined(CONFIG_MX6ULL)
-		/* 40 bit BCH, for i.MX6UL(L) */
-		encode_bch_ecc(fcb_raw_page + 32, fcb, 40);
-#else
-		memcpy(fcb_raw_page + 12, fcb, sizeof(struct fcb_block));
-		encode_hamming_13_8(fcb_raw_page + 12,
-				    fcb_raw_page + 12 + 512, 512);
-#endif
-		/*
-		 * Set the first and second byte of OOB data to 0xFF,
-		 * not 0x00. These bytes are used as the Manufacturers Bad
-		 * Block Marker (MBBM). Since the FCB is mostly written to
-		 * the first page in a block, a scan for
-		 * factory bad blocks will detect these blocks as bad, e.g.
-		 * when function nand_scan_bbt() is executed to build a new
-		 * bad block table.
-		 */
-		memset(fcb_raw_page + mtd->writesize, 0xFF, 2);
-	}
-	for (i = 0; i < nr_blks_fcb; i++) {
-		if (mtd_block_isbad(mtd, off)) {
-			printf("Block %d is bad, skipped\n", i);
-			continue;
-		}
-
-		/*
-		 * User BCH ECC hardware module for i.MX7
-		 */
-		if (is_mx7()) {
-			u32 off = i * mtd->erasesize;
-			size_t rwsize = sizeof(*fcb);
-
-			printf("Writing %d bytes to 0x%x: ", rwsize, off);
-
-			/* switch nand BCH to FCB compatible settings */
-			mxs_nand_mode_fcb(mtd);
-			ret = nand_write(mtd, off, &rwsize,
-					 (unsigned char *)fcb);
-			mxs_nand_mode_normal(mtd);
-
-			printf("%s\n", ret ? "ERROR" : "OK");
-		} else if (is_mx6()) {
-			/* raw write */
-			mtd_oob_ops_t ops = {
-				.datbuf = (u8 *)fcb_raw_page,
-				.oobbuf = ((u8 *)fcb_raw_page) +
-					  mtd->writesize,
-				.len = mtd->writesize,
-				.ooblen = mtd->oobsize,
-				.mode = MTD_OPS_RAW
-			};
-
-			ret = mtd_write_oob(mtd, mtd->erasesize * i, &ops);
-			if (ret)
-				goto fcb_raw_page_err;
-			debug("NAND fcb write: 0x%x offset 0x%x written: %s\n",
-			      mtd->erasesize * i, ops.len, ret ?
-			      "ERROR" : "OK");
-		}
-
-		ret = mtd_write(mtd, mtd->erasesize * i + mtd->writesize,
-				mtd->writesize, &dummy, dbbt_page);
-		if (ret)
-			goto fcb_raw_page_err;
-		debug("NAND dbbt write: 0x%x offset, 0x%x bytes written: %s\n",
-		      mtd->erasesize * i + mtd->writesize, dummy,
-		      ret ? "ERROR" : "OK");
-
-		/* dbbtpages == 0 if no bad blocks */
-		if (dbbt->dbbtpages > 0) {
-			loff_t to = (mtd->erasesize * i + mtd->writesize * 5);
-
-			ret = mtd_write(mtd, to, mtd->writesize, &dummy,
-					dbbt_data_page);
-			if (ret)
-				goto fcb_raw_page_err;
-		}
-	}
-
-fcb_raw_page_err:
-	if (is_mx6())
-		kfree(fcb_raw_page);
 dbbt_data_page_err:
 	kfree(dbbt_data_page);
 dbbt_page_err:
@@ -424,7 +447,7 @@ static int do_nandbcb_update(int argc, char * const argv[])
 
 	dev = nand_curr_device;
 	if (dev < 0) {
-		printf("failed to get nand_curr_device, run nand device");
+		printf("failed to get nand_curr_device, run nand device\n");
 		return CMD_RET_FAILURE;
 	}
 
