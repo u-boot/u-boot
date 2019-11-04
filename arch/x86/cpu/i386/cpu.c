@@ -385,6 +385,14 @@ static void setup_mtrr(void)
 	}
 }
 
+int x86_cpu_init_tpl(void)
+{
+	setup_cpu_features();
+	setup_identity();
+
+	return 0;
+}
+
 int x86_cpu_init_f(void)
 {
 	if (ll_boot_init())

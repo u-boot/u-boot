@@ -135,9 +135,7 @@ def LookupAndWriteSymbols(elf_fname, entry, section):
 
             # Look up the symbol in our entry tables.
             value = section.LookupSymbol(name, sym.weak, msg)
-            if value is not None:
-                value += base.address
-            else:
+            if value is None:
                 value = -1
                 pack_string = pack_string.lower()
             value_bytes = struct.pack(pack_string, value)

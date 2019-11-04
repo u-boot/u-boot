@@ -806,6 +806,12 @@ else
 SPL_SIZE_CHECK =
 endif
 
+ifneq ($(CONFIG_TPL_SIZE_LIMIT),0)
+TPL_SIZE_CHECK = @$(call size_check,$@,$(CONFIG_TPL_SIZE_LIMIT))
+else
+TPL_SIZE_CHECK =
+endif
+
 # Statically apply RELA-style relocations (currently arm64 only)
 # This is useful for arm64 where static relocation needs to be performed on
 # the raw binary, but certain simulators only accept an ELF file (but don't
@@ -1806,6 +1812,7 @@ spl/boot.bin: spl/u-boot-spl
 tpl/u-boot-tpl.bin: tools prepare \
 		$(if $(CONFIG_OF_SEPARATE)$(CONFIG_OF_EMBED)$(CONFIG_SPL_OF_PLATDATA),dts/dt.dtb)
 	$(Q)$(MAKE) obj=tpl -f $(srctree)/scripts/Makefile.spl all
+	$(TPL_SIZE_CHECK)
 
 TAG_SUBDIRS := $(patsubst %,$(srctree)/%,$(u-boot-dirs) include)
 

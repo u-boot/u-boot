@@ -1232,6 +1232,14 @@ config TPL
 
 if TPL
 
+config TPL_SIZE_LIMIT
+	hex "Maximum size of TPL image"
+	depends on TPL
+	default 0
+	help
+	  Specifies the maximum length of the U-Boot TPL image.
+	  If this value is zero, it is ignored.
+
 config TPL_HANDOFF
 	bool "Pass hand-off information from TPL to SPL and U-Boot proper"
 	depends on HANDOFF && TPL_BLOBLIST
