@@ -87,6 +87,7 @@
 		spi2 = &ecspi2;
 		spi3 = &ecspi3;
 		spi4 = &ecspi4;
+		ethernet0 = &fec1;
 	};
 
 	cpus {
