@@ -37,7 +37,11 @@ int regulator_common_ofdata_to_platdata(struct udevice *dev,
 	dev_pdata->startup_delay_us = dev_read_u32_default(dev,
 							"startup-delay-us", 0);
 	dev_pdata->off_on_delay_us =
+		dev_read_u32_default(dev, "off-on-delay-us", 0);
+	if (!dev_pdata->off_on_delay_us) {
+		dev_pdata->off_on_delay_us =
 			dev_read_u32_default(dev, "u-boot,off-on-delay-us", 0);
+	}
 
 	return 0;
 }
