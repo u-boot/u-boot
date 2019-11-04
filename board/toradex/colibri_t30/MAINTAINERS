@@ -1,5 +1,5 @@
 Colibri T30
-M:	Stefan Agner <stefan.agner@toradex.com>
+M:	Igor Opaniuk <igor.opaniuk@toradex.com>
 S:	Maintained
 F:	board/toradex/colibri_t30/
 F:	include/configs/colibri_t30.h
