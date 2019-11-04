@@ -375,6 +375,37 @@ static void init_bandgap(void)
 	}
 }
 
+#if defined(CONFIG_MX6Q) || defined(CONFIG_MX6QDL)
+static void noc_setup(void)
+{
+	enable_ipu_clock();
+
+	writel(0x80000201, 0xbb0608);
+	/* Bypass IPU1 QoS generator */
+	writel(0x00000002, 0x00bb048c);
+	/* Bypass IPU2 QoS generator */
+	writel(0x00000002, 0x00bb050c);
+	/* Bandwidth THR for of PRE0 */
+	writel(0x00000200, 0x00bb0690);
+	/* Bandwidth THR for of PRE1 */
+	writel(0x00000200, 0x00bb0710);
+	/* Bandwidth THR for of PRE2 */
+	writel(0x00000200, 0x00bb0790);
+	/* Bandwidth THR for of PRE3 */
+	writel(0x00000200, 0x00bb0810);
+	/* Saturation THR for of PRE0 */
+	writel(0x00000010, 0x00bb0694);
+	/* Saturation THR for of PRE1 */
+	writel(0x00000010, 0x00bb0714);
+	/* Saturation THR for of PRE2 */
+	writel(0x00000010, 0x00bb0794);
+	/* Saturation THR for of PRE */
+	writel(0x00000010, 0x00bb0814);
+
+	disable_ipu_clock();
+}
+#endif
+
 int arch_cpu_init(void)
 {
 	struct mxc_ccm_reg *ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
@@ -452,6 +483,10 @@ int arch_cpu_init(void)
 
 	init_src();
 
+#if defined(CONFIG_MX6Q) || defined(CONFIG_MX6QDL)
+	if (is_mx6dqp())
+		noc_setup();
+#endif
 	return 0;
 }
 
