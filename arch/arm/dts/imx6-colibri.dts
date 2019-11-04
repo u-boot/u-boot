@@ -21,6 +21,7 @@
 		mmc0 = &usdhc3;
 		mmc1 = &usdhc1;
 		usb0 = &usbotg; /* required for ums */
+		ethernet0 = &fec;
 	};
 
 	chosen {
@@ -43,6 +44,25 @@
 		regulator-min-microvolt = <5000000>;
 		regulator-max-microvolt = <5000000>;
 		gpio = <&gpio3 31 GPIO_ACTIVE_LOW>; /* USBH_PEN */
+	};
+};
+
+&fec {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_enet>;
+	phy-mode = "rmii";
+	phy-handle = <&ethphy>;
+	status = "okay";
+
+	mdio {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		ethphy: ethernet-phy@0 {
+			reg = <0>;
+			micrel,led-mode = <0>;
+			status = "okay";
+		};
 	};
 };
 
