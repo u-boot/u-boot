@@ -1647,6 +1647,9 @@ static const struct udevice_id fsl_esdhc_ids[] = {
 	{ .compatible = "fsl,imx7d-usdhc", .data = (ulong)&usdhc_imx7d_data,},
 	{ .compatible = "fsl,imx7ulp-usdhc", },
 	{ .compatible = "fsl,imx8qm-usdhc", .data = (ulong)&usdhc_imx8qm_data,},
+	{ .compatible = "fsl,imx8mm-usdhc", .data = (ulong)&usdhc_imx8qm_data,},
+	{ .compatible = "fsl,imx8mn-usdhc", .data = (ulong)&usdhc_imx8qm_data,},
+	{ .compatible = "fsl,imx8mq-usdhc", .data = (ulong)&usdhc_imx8qm_data,},
 	{ .compatible = "fsl,esdhc", },
 	{ /* sentinel */ }
 };
