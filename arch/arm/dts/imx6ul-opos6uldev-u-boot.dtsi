@@ -7,12 +7,22 @@
 
 #include "imx6ul-opos6ul-u-boot.dtsi"
 
+/ {
+	aliases {
+		display0 = &lcdif;
+	};
+};
+
 &aips1 {
 	u-boot,dm-spl;
 
 	spba-bus@02000000 {
 		u-boot,dm-spl;
 	};
+};
+
+&lcdif {
+	u-boot,dm-pre-proper;
 };
 
 &pinctrl_uart1 {

@@ -81,7 +81,8 @@ config CMD_HDMIDETECT
 config CMD_NANDBCB
 	bool "i.MX6 NAND Boot Control Block(BCB) command"
 	depends on NAND && CMD_MTDPARTS
-	default y if ARCH_MX6 && NAND_MXS
+	select BCH if MX6UL || MX6ULL
+	default y if (ARCH_MX6 && NAND_MXS) || (ARCH_MX7 && NAND_MXS)
 	help
 	  Unlike normal 'nand write/erase' commands, this command update
 	  Boot Control Block(BCB) for i.MX6 platform NAND IP's.

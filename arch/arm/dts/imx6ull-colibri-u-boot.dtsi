@@ -1,0 +1,12 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright 2019 Toradex AG
+ */
+
+&pinctrl_uart1 {
+	u-boot,dm-pre-reloc;
+};
+
+&pinctrl_uart1_ctrl1 {
+	u-boot,dm-pre-reloc;
+};

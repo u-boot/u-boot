@@ -37,7 +37,8 @@ static int imx8m_power_domain_on(struct power_domain *power_domain)
 	if (pdata->has_pd)
 		power_domain_on(&pdata->pd);
 
-	call_imx_sip(IMX_SIP_GPC, IMX_SIP_GPC_PM_DOMAIN, pdata->resource_id, 1);
+	call_imx_sip(IMX_SIP_GPC, IMX_SIP_GPC_PM_DOMAIN,
+		     pdata->resource_id, 1, 0);
 
 	return 0;
 }
@@ -51,7 +52,8 @@ static int imx8m_power_domain_off(struct power_domain *power_domain)
 	if (pdata->resource_id < 0)
 		return -EINVAL;
 
-	call_imx_sip(IMX_SIP_GPC, IMX_SIP_GPC_PM_DOMAIN, pdata->resource_id, 0);
+	call_imx_sip(IMX_SIP_GPC, IMX_SIP_GPC_PM_DOMAIN,
+		     pdata->resource_id, 0, 0);
 
 	if (pdata->has_pd)
 		power_domain_off(&pdata->pd);

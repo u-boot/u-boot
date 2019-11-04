@@ -7,7 +7,8 @@
 #include <asm/arch/sys_proto.h>
 
 unsigned long call_imx_sip(unsigned long id, unsigned long reg0,
-			   unsigned long reg1, unsigned long reg2)
+			   unsigned long reg1, unsigned long reg2,
+			   unsigned long reg3)
 {
 	struct pt_regs regs;
 
@@ -15,6 +16,7 @@ unsigned long call_imx_sip(unsigned long id, unsigned long reg0,
 	regs.regs[1] = reg0;
 	regs.regs[2] = reg1;
 	regs.regs[3] = reg2;
+	regs.regs[4] = reg3;
 
 	smc_call(&regs);
 

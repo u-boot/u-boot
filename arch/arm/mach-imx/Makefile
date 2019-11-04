@@ -155,9 +155,7 @@ ifeq ($(DEPFILE_EXISTS),0)
 endif
 
 flash.bin: spl/u-boot-spl-ddr.bin u-boot.itb FORCE
-ifeq ($(DEPFILE_EXISTS),0)
 	$(call if_changed,mkimage)
-endif
 endif
 
 ifeq ($(CONFIG_ARCH_IMX8), y)

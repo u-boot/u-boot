@@ -99,11 +99,6 @@ enum imx6_bmode {
 	IMX6_BMODE_NAND_MAX = 0xf,
 };
 
-static inline u8 imx6_is_bmode_from_gpr9(void)
-{
-	return readl(&src_base->gpr10) & IMX6_SRC_GPR10_BMODE;
-}
-
 u32 imx6_src_get_boot_mode(void);
 void gpr_init(void);
 
@@ -143,7 +138,8 @@ int mxs_wait_mask_set(struct mxs_register_32 *reg, u32 mask, u32 timeout);
 int mxs_wait_mask_clr(struct mxs_register_32 *reg, u32 mask, u32 timeout);
 
 unsigned long call_imx_sip(unsigned long id, unsigned long reg0,
-			   unsigned long reg1, unsigned long reg2);
+			   unsigned long reg1, unsigned long reg2,
+			   unsigned long reg3);
 unsigned long call_imx_sip_ret2(unsigned long id, unsigned long reg0,
 				unsigned long *reg1, unsigned long reg2,
 				unsigned long reg3);

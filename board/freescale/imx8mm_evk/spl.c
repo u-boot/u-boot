@@ -18,6 +18,9 @@
 #include <dm/uclass-internal.h>
 #include <dm/device-internal.h>
 
+#include <power/pmic.h>
+#include <power/bd71837.h>
+
 DECLARE_GLOBAL_DATA_PTR;
 
 int spl_board_boot_device(enum boot_device boot_dev_spl)
@@ -41,16 +44,7 @@ void spl_dram_init(void)
 
 void spl_board_init(void)
 {
-	struct udevice *dev;
-	int ret;
-
 	puts("Normal Boot\n");
-
-	ret = uclass_get_device_by_name(UCLASS_CLK,
-					"clock-controller@30380000",
-					&dev);
-	if (ret < 0)
-		printf("Failed to find clock node. Check device tree\n");
 }
 
 #ifdef CONFIG_SPL_LOAD_FIT
@@ -88,8 +82,45 @@ int board_early_init_f(void)
 	return 0;
 }
 
+int power_init_board(void)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = pmic_get("pmic@4b", &dev);
+	if (ret == -ENODEV) {
+		puts("No pmic\n");
+		return 0;
+	}
+	if (ret != 0)
+		return ret;
+
+	/* decrease RESET key long push time from the default 10s to 10ms */
+	pmic_reg_write(dev, BD718XX_PWRONCONFIG1, 0x0);
+
+	/* unlock the PMIC regs */
+	pmic_reg_write(dev, BD718XX_REGLOCK, 0x1);
+
+	/* increase VDD_SOC to typical value 0.85v before first DRAM access */
+	pmic_reg_write(dev, BD718XX_BUCK1_VOLT_RUN, 0x0f);
+
+	/* increase VDD_DRAM to 0.975v for 3Ghz DDR */
+	pmic_reg_write(dev, BD718XX_1ST_NODVS_BUCK_VOLT, 0x83);
+
+#ifndef CONFIG_IMX8M_LPDDR4
+	/* increase NVCC_DRAM_1V2 to 1.2v for DDR4 */
+	pmic_reg_write(dev, BD718XX_4TH_NODVS_BUCK_VOLT, 0x28);
+#endif
+
+	/* lock the PMIC regs */
+	pmic_reg_write(dev, BD718XX_REGLOCK, 0x11);
+
+	return 0;
+}
+
 void board_init_f(ulong dummy)
 {
+	struct udevice *dev;
 	int ret;
 
 	arch_cpu_init();
@@ -105,13 +136,23 @@ void board_init_f(ulong dummy)
 	/* Clear the BSS. */
 	memset(__bss_start, 0, __bss_end - __bss_start);
 
-	ret = spl_init();
+	ret = spl_early_init();
 	if (ret) {
-		debug("spl_init() failed: %d\n", ret);
+		debug("spl_early_init() failed: %d\n", ret);
+		hang();
+	}
+
+	ret = uclass_get_device_by_name(UCLASS_CLK,
+					"clock-controller@30380000",
+					&dev);
+	if (ret < 0) {
+		printf("Failed to find clock node. Check device tree\n");
 		hang();
 	}
 
 	enable_tzc380();
+
+	power_init_board();
 
 	/* DDR initialization */
 	spl_dram_init();

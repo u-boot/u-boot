@@ -3,7 +3,7 @@
  * Copyright 2019 NXP
  */
 
-&{/soc} {
+&{/soc@0} {
 	u-boot,dm-pre-reloc;
 	u-boot,dm-spl;
 };
@@ -88,5 +88,25 @@
 };
 
 &usdhc3 {
+	u-boot,dm-spl;
+};
+
+&i2c1 {
+	u-boot,dm-spl;
+};
+
+&{/soc@0/bus@30800000/i2c@30a20000/pmic@4b} {
+	u-boot,dm-spl;
+};
+
+&{/soc@0/bus@30800000/i2c@30a20000/pmic@4b/regulators} {
+	u-boot,dm-spl;
+};
+
+&pinctrl_i2c1 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_pmic {
 	u-boot,dm-spl;
 };

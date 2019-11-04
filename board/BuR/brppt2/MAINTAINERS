@@ -1,0 +1,6 @@
+BUR_PPT2 BOARD
+M:	Hannes Schmelzer <hannes.schmelzer@br-automation.com>
+S:	Maintained
+F:	board/BuR/brppt2/
+F:	include/configs/brppt2.h
+F:	configs/brppt2_defconfig

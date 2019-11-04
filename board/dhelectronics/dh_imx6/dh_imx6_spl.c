@@ -476,6 +476,32 @@ static void setup_iomux_uart(void)
 	SETUP_IOMUX_PADS(uart1_pads);
 }
 
+#ifdef CONFIG_FSL_USDHC
+struct fsl_esdhc_cfg usdhc_cfg[1] = {
+	{USDHC4_BASE_ADDR},
+};
+
+int board_mmc_get_env_dev(int devno)
+{
+	return devno - 1;
+}
+
+int board_mmc_getcd(struct mmc *mmc)
+{
+	return 1; /* eMMC/uSDHC4 is always present */
+}
+
+int board_mmc_init(bd_t *bis)
+{
+	SETUP_IOMUX_PADS(usdhc4_pads);
+	usdhc_cfg[0].esdhc_base = USDHC4_BASE_ADDR;
+	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC4_CLK);
+	usdhc_cfg[0].max_bus_width = 8;
+
+	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
+}
+#endif
+
 /* USB */
 static iomux_v3_cfg_t const usb_pads[] = {
 	IOMUX_PADS(PAD_GPIO_1__USB_OTG_ID	| MUX_PAD_CTRL(NO_PAD_CTRL)),
