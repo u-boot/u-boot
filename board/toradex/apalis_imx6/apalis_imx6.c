@@ -177,22 +177,6 @@ iomux_v3_cfg_t const enet_pads[] = {
 #	define GPIO_ENET_PHY_RESET IMX_GPIO_NR(1, 25)
 };
 
-static void setup_iomux_enet(void)
-{
-	imx_iomux_v3_setup_multiple_pads(enet_pads, ARRAY_SIZE(enet_pads));
-}
-
-static int reset_enet_phy(struct mii_dev *bus)
-{
-	/* Reset KSZ9031 PHY */
-	gpio_request(GPIO_ENET_PHY_RESET, "ETH_RESET#");
-	gpio_direction_output(GPIO_ENET_PHY_RESET, 0);
-	mdelay(10);
-	gpio_set_value(GPIO_ENET_PHY_RESET, 1);
-
-	return 0;
-}
-
 /* mux the Apalis GPIO pins, so they can be used from the U-Boot cmdline */
 iomux_v3_cfg_t const gpio_pads[] = {
 	/* Apalis GPIO1 - GPIO8 */
@@ -363,41 +347,6 @@ int board_phy_config(struct phy_device *phydev)
 	mx6_rgmii_rework(phydev);
 	if (phydev->drv->config)
 		phydev->drv->config(phydev);
-
-	return 0;
-}
-
-int board_eth_init(bd_t *bis)
-{
-	uint32_t base = IMX_FEC_BASE;
-	struct mii_dev *bus = NULL;
-	struct phy_device *phydev = NULL;
-	int ret;
-
-	setup_iomux_enet();
-
-#ifdef CONFIG_FEC_MXC
-	bus = fec_get_miibus(base, -1);
-	if (!bus)
-		return 0;
-
-	bus->reset = reset_enet_phy;
-	/* scan PHY 4,5,6,7 */
-	phydev = phy_find_by_mask(bus, (0xf << 4), PHY_INTERFACE_MODE_RGMII);
-	if (!phydev) {
-		free(bus);
-		puts("no PHY found\n");
-		return 0;
-	}
-
-	printf("using PHY at %d\n", phydev->addr);
-	ret = fec_probe(bis, -1, base, bus, phydev);
-	if (ret) {
-		printf("FEC MXC: %s:failed\n", __func__);
-		free(phydev);
-		free(bus);
-	}
-#endif /* CONFIG_FEC_MXC */
 
 	return 0;
 }
