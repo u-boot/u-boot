@@ -47,7 +47,9 @@ install:
  # prepare buildman environment
  - echo -e "[toolchain]\nroot = /usr" > ~/.buildman
  - echo -e "arc = /tmp/arc_gnu_2018.09_prebuilt_uclibc_le_archs_linux_install" >> ~/.buildman
- - echo -e "\n[toolchain-alias]\nsh = sh2\n" >> ~/.buildman
+ - echo -e "\n[toolchain-alias]\nsh = sh2" >> ~/.buildman
+ - echo -e "x86 = i386" >> ~/.buildman;
+ - echo -e "riscv = riscv64" >> ~/.buildman;
  - cat ~/.buildman
  - grub-mkimage --prefix="" -o ~/grub_x86.efi -O i386-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
  - grub-mkimage --prefix="" -o ~/grub_x64.efi -O x86_64-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
@@ -74,7 +76,6 @@ before_script:
   - if [[ "${TOOLCHAIN}" == *sh* ]]; then ./tools/buildman/buildman --fetch-arch sh2 ; fi
   - if [[ "${TOOLCHAIN}" == *i386* ]]; then
       ./tools/buildman/buildman --fetch-arch i386;
-      echo -e "\n[toolchain-alias]\nx86 = i386" >> ~/.buildman;
     fi
   - if [[ "${TOOLCHAIN}" == arc ]]; then
        wget https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/download/arc-2018.09-release/arc_gnu_2018.09_prebuilt_uclibc_le_archs_linux_install.tar.gz &&
@@ -98,7 +99,6 @@ before_script:
   - if [[ "${TOOLCHAIN}" == "powerpc" ]]; then ./tools/buildman/buildman --fetch-arch powerpc; fi
   - if [[ "${TOOLCHAIN}" == "riscv" ]]; then
        ./tools/buildman/buildman --fetch-arch riscv64;
-       echo -e "\n[toolchain-alias]\nriscv = riscv64" >> ~/.buildman;
     fi
   - if [[ "${QEMU_TARGET}" != "" ]]; then
        git clone git://git.qemu.org/qemu.git /tmp/qemu;
