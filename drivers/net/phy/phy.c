@@ -997,7 +997,7 @@ struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 #endif
 {
 	struct phy_device *phydev = NULL;
-	uint mask = (addr > 0) ? (1 << addr) : 0xffffffff;
+	uint mask = (addr >= 0) ? (1 << addr) : 0xffffffff;
 
 #ifdef CONFIG_PHY_FIXED
 	phydev = phy_connect_fixed(bus, dev, interface);
