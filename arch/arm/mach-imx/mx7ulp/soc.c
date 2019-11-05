@@ -132,6 +132,21 @@ const char *get_imx_type(u32 imxtype)
 	return "7ULP";
 }
 
+#define PMC0_BASE_ADDR		0x410a1000
+#define PMC0_CTRL		0x28
+#define PMC0_CTRL_LDOEN		BIT(31)
+
+static bool ldo_mode_is_enabled(void)
+{
+	unsigned int reg;
+
+	reg = readl(PMC0_BASE_ADDR + PMC0_CTRL);
+	if (reg & PMC0_CTRL_LDOEN)
+		return true;
+	else
+		return false;
+}
+
 int print_cpuinfo(void)
 {
 	u32 cpurev;
@@ -159,6 +174,11 @@ int print_cpuinfo(void)
 		printf("Single boot\n");
 		break;
 	}
+
+	if (ldo_mode_is_enabled())
+		printf("PMC1:  LDO enabled mode\n");
+	else
+		printf("PMC1:  LDO bypass mode\n");
 
 	return 0;
 }
