@@ -3,6 +3,11 @@ if ARCH_MX7ULP
 config SYS_SOC
 	default "mx7ulp"
 
+config LDO_ENABLED_MODE
+	bool "i.MX7ULP LDO Enabled Mode"
+	help
+	  Select this option to enable the PMC1 LDO.
+
 config MX7ULP
 	bool
 
