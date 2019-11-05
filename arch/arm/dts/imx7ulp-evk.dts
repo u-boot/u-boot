@@ -15,7 +15,7 @@
 	compatible = "fsl,imx7ulp-evk", "fsl,imx7ulp", "Generic DT based system";
 
 	chosen {
-		bootargs = "console=ttyLP0,115200 earlycon=lpuart32,0x402D0010,115200";
+		bootargs = "console=ttyLP0,115200 earlycon=lpuart32,0x402D0000,115200";
 		stdout-path = &lpuart4;
 	};
 
@@ -66,7 +66,7 @@
 			compatible = "regulator-fixed";
 			reg = <0>;
 			pinctrl-names = "default";
-			pinctrl-0 = <&pinctrl_usb_otg1>;
+			pinctrl-0 = <&pinctrl_usbotg1_vbus>;
 			regulator-name = "usb_otg1_vbus";
 			regulator-min-microvolt = <5000000>;
 			regulator-max-microvolt = <5000000>;
@@ -84,22 +84,6 @@
 			enable-active-high;
 		};
 
-		reg_vsd_3v3b: regulator@2 {
-			compatible = "regulator-fixed";
-			reg = <2>;
-			regulator-name = "VSD_3V3B";
-			regulator-min-microvolt = <3300000>;
-			regulator-max-microvolt = <3300000>;
-			gpio = <&gpio2 11 GPIO_ACTIVE_HIGH>;
-			enable-active-high;
-		};
-	};
-
-	extcon_usb1: extcon_usb1 {
-		compatible = "linux,extcon-usb-gpio";
-		id-gpio = <&gpio0 8 GPIO_ACTIVE_HIGH>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_extcon_usb1>;
 	};
 
 	pf1550-rpmsg {
@@ -166,134 +150,135 @@
 	imx7ulp-evk {
 		pinctrl_hog_1: hoggrp-1 {
 			fsl,pins = <
-				ULP1_PAD_PTC10__PTC10		0x30100		/* USDHC0 CD */
-				ULP1_PAD_PTC1__PTC1		0x20100
-				ULP1_PAD_PTD0__PTD0		0x30100		/* USDHC0 RST */
-				ULP1_PAD_PTE13__PTE13		0x30103		/* USDHC1 CD */
-				ULP1_PAD_PTE12__PTE12		0x30103		/* USDHC1 WP */
-				ULP1_PAD_PTE14__SDHC1_VS	0x843		/* USDHC1 VSEL */
+				IMX7ULP_PAD_PTC1__PTC1		0x20000
 			>;
 		};
 
 		pinctrl_backlight: backlight_grp {
 			fsl,pins = <
-				ULP1_PAD_PTF2__PTF2		0x20100
+				IMX7ULP_PAD_PTF2__PTF2		0x20100
 			>;
 		};
 
 		pinctrl_lpi2c5: lpi2c5grp {
 			fsl,pins = <
-				ULP1_PAD_PTC4__LPI2C5_SCL       0x527
-				ULP1_PAD_PTC5__LPI2C5_SDA       0x527
+				IMX7ULP_PAD_PTC4__LPI2C5_SCL	0x27
+				IMX7ULP_PAD_PTC5__LPI2C5_SDA	0x27
 			>;
 		};
 
 		pinctrl_mipi_dsi_reset: mipi_dsi_reset_grp {
 			fsl,pins = <
-				ULP1_PAD_PTC19__PTC19		0x20103
+				IMX7ULP_PAD_PTC19__PTC19	0x20003
 			>;
 		};
 
 		pinctrl_lpuart4: lpuart4grp {
 			fsl,pins = <
-				ULP1_PAD_PTC3__LPUART4_RX	0x400
-				ULP1_PAD_PTC2__LPUART4_TX	0x400
+				IMX7ULP_PAD_PTC3__LPUART4_RX	0x3
+				IMX7ULP_PAD_PTC2__LPUART4_TX	0x3
 			>;
 		};
 
 		pinctrl_lpuart6: lpuart6grp {
 			fsl,pins = <
-				ULP1_PAD_PTE10__LPUART6_TX	0x400
-				ULP1_PAD_PTE11__LPUART6_RX	0x400
-				ULP1_PAD_PTE9__LPUART6_RTS_B	0x400
-				ULP1_PAD_PTE8__LPUART6_CTS_B	0x400
-				ULP1_PAD_PTE7__PTE7		0x00 /* BT_REG_ON */
+				IMX7ULP_PAD_PTE10__LPUART6_TX	0x3
+				IMX7ULP_PAD_PTE11__LPUART6_RX	0x3
+				IMX7ULP_PAD_PTE9__LPUART6_RTS_B	0x3
+				IMX7ULP_PAD_PTE8__LPUART6_CTS_B	0x3
+				IMX7ULP_PAD_PTE7__PTE7		0x20000	/* BT_REG_ON */
 			>;
 		};
 
 		pinctrl_lpuart7: lpuart7grp {
 			fsl,pins = <
-				ULP1_PAD_PTF14__LPUART7_TX	0x400
-				ULP1_PAD_PTF15__LPUART7_RX	0x400
-				ULP1_PAD_PTF13__LPUART7_RTS_B	0x400
-				ULP1_PAD_PTF12__LPUART7_CTS_B	0x400
+				IMX7ULP_PAD_PTF14__LPUART7_TX		0x3
+				IMX7ULP_PAD_PTF15__LPUART7_RX		0x3
+				IMX7ULP_PAD_PTF13__LPUART7_RTS_B	0x3
+				IMX7ULP_PAD_PTF12__LPUART7_CTS_B	0x3
 			>;
 		};
 
 		pinctrl_usdhc0: usdhc0grp {
 			fsl,pins = <
-				ULP1_PAD_PTD1__SDHC0_CMD	0x843
-				ULP1_PAD_PTD2__SDHC0_CLK	0x10843
-				ULP1_PAD_PTD7__SDHC0_D3		0x843
-				ULP1_PAD_PTD8__SDHC0_D2		0x843
-				ULP1_PAD_PTD9__SDHC0_D1		0x843
-				ULP1_PAD_PTD10__SDHC0_D0	0x843
+				IMX7ULP_PAD_PTD1__SDHC0_CMD	0x43
+				IMX7ULP_PAD_PTD2__SDHC0_CLK	0x10042
+				IMX7ULP_PAD_PTD7__SDHC0_D3	0x43
+				IMX7ULP_PAD_PTD8__SDHC0_D2	0x43
+				IMX7ULP_PAD_PTD9__SDHC0_D1	0x43
+				IMX7ULP_PAD_PTD10__SDHC0_D0	0x43
+				IMX7ULP_PAD_PTC10__PTC10	0x10000	/* USDHC0 CD */
+				IMX7ULP_PAD_PTD0__PTD0		0x20000	/* USDHC0 RST */
 			>;
 		};
 
 		pinctrl_usdhc0_8bit: usdhc0grp_8bit {
 			fsl,pins = <
-				ULP1_PAD_PTD1__SDHC0_CMD	0x843
-				ULP1_PAD_PTD2__SDHC0_CLK	0x843
-				ULP1_PAD_PTD3__SDHC0_D7		0x843
-				ULP1_PAD_PTD4__SDHC0_D6		0x843
-				ULP1_PAD_PTD5__SDHC0_D5		0x843
-				ULP1_PAD_PTD6__SDHC0_D4		0x843
-				ULP1_PAD_PTD7__SDHC0_D3		0x843
-				ULP1_PAD_PTD8__SDHC0_D2		0x843
-				ULP1_PAD_PTD9__SDHC0_D1		0x843
-				ULP1_PAD_PTD10__SDHC0_D0	0x843
+				IMX7ULP_PAD_PTD1__SDHC0_CMD	0x43
+				IMX7ULP_PAD_PTD2__SDHC0_CLK	0x10042
+				IMX7ULP_PAD_PTD3__SDHC0_D7	0x43
+				IMX7ULP_PAD_PTD4__SDHC0_D6	0x43
+				IMX7ULP_PAD_PTD5__SDHC0_D5	0x43
+				IMX7ULP_PAD_PTD6__SDHC0_D4	0x43
+				IMX7ULP_PAD_PTD7__SDHC0_D3	0x43
+				IMX7ULP_PAD_PTD8__SDHC0_D2	0x43
+				IMX7ULP_PAD_PTD9__SDHC0_D1	0x43
+				IMX7ULP_PAD_PTD10__SDHC0_D0	0x43
+				IMX7ULP_PAD_PTD11__SDHC0_DQS	0x42
 			>;
 		};
 
 		pinctrl_lpi2c7: lpi2c7grp {
 			fsl,pins = <
-				ULP1_PAD_PTF12__LPI2C7_SCL	0x527
-				ULP1_PAD_PTF13__LPI2C7_SDA	0x527
+				IMX7ULP_PAD_PTF12__LPI2C7_SCL	0x27
+				IMX7ULP_PAD_PTF13__LPI2C7_SDA	0x27
 			>;
 		};
 
 		pinctrl_lpspi3: lpspi3grp {
 			fsl,pins = <
-				ULP1_PAD_PTF16__LPSPI3_SIN      0x300
-				ULP1_PAD_PTF17__LPSPI3_SOUT     0x300
-				ULP1_PAD_PTF18__LPSPI3_SCK      0x300
-				ULP1_PAD_PTF19__LPSPI3_PCS0     0x300
+				IMX7ULP_PAD_PTF16__LPSPI3_SIN	0x0
+				IMX7ULP_PAD_PTF17__LPSPI3_SOUT	0x0
+				IMX7ULP_PAD_PTF18__LPSPI3_SCK	0x0
+				IMX7ULP_PAD_PTF19__LPSPI3_PCS0	0x0
 			>;
 		};
 
-		pinctrl_usb_otg1: usbotg1grp {
+		pinctrl_usbotg1_vbus: otg1vbusgrp {
 			fsl,pins = <
-				ULP1_PAD_PTC0__PTC0		0x30100
+				IMX7ULP_PAD_PTC0__PTC0		0x20000
 			>;
 		};
 
-		pinctrl_extcon_usb1: extcon1grp {
+		pinctrl_usbotg1_id: otg1idgrp {
 			fsl,pins = <
-				ULP1_PAD_PTC8__PTC8		0x30103
+				IMX7ULP_PAD_PTC13__USB0_ID	0x10003
 			>;
 		};
 
 		pinctrl_usdhc1: usdhc1grp {
 			fsl,pins = <
-				ULP1_PAD_PTE3__SDHC1_CMD	0x843
-				ULP1_PAD_PTE2__SDHC1_CLK	0x843
-				ULP1_PAD_PTE1__SDHC1_D0		0x843
-				ULP1_PAD_PTE0__SDHC1_D1		0x843
-				ULP1_PAD_PTE5__SDHC1_D2		0x843
-				ULP1_PAD_PTE4__SDHC1_D3		0x843
+				IMX7ULP_PAD_PTE3__SDHC1_CMD	0x43
+				IMX7ULP_PAD_PTE2__SDHC1_CLK	0x10042
+				IMX7ULP_PAD_PTE1__SDHC1_D0	0x43
+				IMX7ULP_PAD_PTE0__SDHC1_D1	0x43
+				IMX7ULP_PAD_PTE5__SDHC1_D2	0x43
+				IMX7ULP_PAD_PTE4__SDHC1_D3	0x43
 			>;
 		};
 
 		pinctrl_usdhc1_rst: usdhc1grp_rst {
 			fsl,pins = <
-				ULP1_PAD_PTE11__PTE11			0x30100	/* USDHC1 RST */
+				IMX7ULP_PAD_PTE11__PTE11	0x20000	/* USDHC1 RST */
+				IMX7ULP_PAD_PTE13__PTE13	0x10003	/* USDHC1 CD */
+				IMX7ULP_PAD_PTE12__PTE12	0x10003	/* USDHC1 WP */
+				IMX7ULP_PAD_PTE14__SDHC1_VS	0x43	/* USDHC1 VSEL */
 			>;
 		};
 
-		pinctrl_wifi: wifigrp {
+		pinctrl_dsi_hdmi: dsi_hdmi_grp {
 			fsl,pins = <
-				ULP1_PAD_PTE6__PTE6		0x43 /* WL_REG_ON */
+				IMX7ULP_PAD_PTC18__PTC18	0x10003	/* DSI_HDMI_INT */
 			>;
 		};
 	};
@@ -304,7 +289,7 @@
 	disp-dev = "mipi_dsi_northwest";
 	display = <&display0>;
 
-	display0: display {
+	display0: display@0 {
 		bits-per-pixel = <16>;
 		bus-width = <24>;
 
@@ -343,21 +328,6 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_lpi2c5>;
 	status = "okay";
-
-	fxas2100x@20 {
-		compatible = "fsl,fxas2100x";
-		reg = <0x20>;
-	};
-
-	fxos8700@1e {
-		compatible = "fsl,fxos8700";
-		reg = <0x1e>;
-	};
-
-	mpl3115@60 {
-		compatible = "fsl,mpl3115";
-		reg = <0x60>;
-	};
 };
 
 &lpspi3 {
@@ -406,11 +376,16 @@
 
 &usbotg1 {
 	vbus-supply = <&reg_usb_otg1_vbus>;
-	extcon = <0>, <&extcon_usb1>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usbotg1_id>;
 	srp-disable;
 	hnp-disable;
 	adp-disable;
 	status = "okay";
+};
+
+&usbphy1 {
+	fsl,tx-d-cal = <88>;
 };
 
 &usdhc0 {
