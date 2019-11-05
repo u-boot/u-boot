@@ -1,10 +1,12 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (c) 2012 The Chromium OS Authors.
 #
 
 """See README for more information"""
+
+from __future__ import print_function
 
 import multiprocessing
 import os
@@ -46,11 +48,11 @@ def RunTests(skip_net_tests):
         suite = unittest.TestLoader().loadTestsFromTestCase(module)
         suite.run(result)
 
-    print result
+    print(result)
     for test, err in result.errors:
-        print err
+        print(err)
     for test, err in result.failures:
-        print err
+        print(err)
 
 
 options, args = cmdline.ParseArgs()

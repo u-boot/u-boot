@@ -27,6 +27,6 @@ class Entry_intel_fit(Entry_blob):
         self.align = 16
 
     def ObtainContents(self):
-        data = struct.pack('<8sIHBB', '_FIT_   ', 1, 0x100, 0x80, 0x7d)
+        data = struct.pack('<8sIHBB', b'_FIT_   ', 1, 0x100, 0x80, 0x7d)
         self.SetContents(data)
         return True

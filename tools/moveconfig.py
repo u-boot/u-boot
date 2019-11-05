@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0+
 #
 # Author: Masahiro Yamada <yamada.masahiro@socionext.com>
@@ -304,7 +304,7 @@ import glob
 import multiprocessing
 import optparse
 import os
-import Queue
+import queue
 import re
 import shutil
 import subprocess
@@ -450,8 +450,8 @@ def get_matched_defconfigs(defconfigs_file):
             line = line.split(' ')[0]  # handle 'git log' input
         matched = get_matched_defconfig(line)
         if not matched:
-            print >> sys.stderr, "warning: %s:%d: no defconfig matched '%s'" % \
-                                                 (defconfigs_file, i + 1, line)
+            print("warning: %s:%d: no defconfig matched '%s'" % \
+                                                 (defconfigs_file, i + 1, line), file=sys.stderr)
 
         defconfigs += matched
 
@@ -494,11 +494,11 @@ def show_diff(a, b, file_path, color_enabled):
 
     for line in diff:
         if line[0] == '-' and line[1] != '-':
-            print color_text(color_enabled, COLOR_RED, line),
+            print(color_text(color_enabled, COLOR_RED, line), end=' ')
         elif line[0] == '+' and line[1] != '+':
-            print color_text(color_enabled, COLOR_GREEN, line),
+            print(color_text(color_enabled, COLOR_GREEN, line), end=' ')
         else:
-            print line,
+            print(line, end=' ')
 
 def extend_matched_lines(lines, matched, pre_patterns, post_patterns, extend_pre,
                          extend_post):
@@ -554,9 +554,9 @@ def extend_matched_lines(lines, matched, pre_patterns, post_patterns, extend_pre
 def confirm(options, prompt):
     if not options.yes:
         while True:
-            choice = raw_input('{} [y/n]: '.format(prompt))
+            choice = input('{} [y/n]: '.format(prompt))
             choice = choice.lower()
-            print choice
+            print(choice)
             if choice == 'y' or choice == 'n':
                 break
 
@@ -809,10 +809,10 @@ def try_expand(line):
         val= val.strip('\"')
         if re.search("[*+-/]|<<|SZ_+|\(([^\)]+)\)", val):
             newval = hex(eval(val, SIZES))
-            print "\tExpanded expression %s to %s" % (val, newval)
+            print("\tExpanded expression %s to %s" % (val, newval))
             return cfg+'='+newval
     except:
-        print "\tFailed to expand expression in %s" % line
+        print("\tFailed to expand expression in %s" % line)
 
     return line
 
@@ -838,7 +838,7 @@ class Progress:
 
     def show(self):
         """Display the progress."""
-        print ' %d defconfigs out of %d\r' % (self.current, self.total),
+        print(' %d defconfigs out of %d\r' % (self.current, self.total), end=' ')
         sys.stdout.flush()
 
 
@@ -1236,7 +1236,7 @@ class Slot:
                     "Tool chain for '%s' is missing.  Do nothing.\n" % arch)
             self.finish(False)
             return
-	env = toolchain.MakeEnvironment(False)
+        env = toolchain.MakeEnvironment(False)
 
         cmd = list(self.make_cmd)
         cmd.append('KCONFIG_IGNORE_DUPLICATES=1')
@@ -1312,7 +1312,7 @@ class Slot:
         log += '\n'.join([ '    ' + s for s in self.log.split('\n') ])
         # Some threads are running in parallel.
         # Print log atomically to not mix up logs from different threads.
-        print >> (sys.stdout if success else sys.stderr), log
+        print(log, file=(sys.stdout if success else sys.stderr))
 
         if not success:
             if self.options.exit_on_error:
@@ -1411,8 +1411,8 @@ class Slots:
             msg = "The following boards were not processed due to error:\n"
             msg += boards
             msg += "(the list has been saved in %s)\n" % output_file
-            print >> sys.stderr, color_text(self.options.color, COLOR_LIGHT_RED,
-                                            msg)
+            print(color_text(self.options.color, COLOR_LIGHT_RED,
+                                            msg), file=sys.stderr)
 
             with open(output_file, 'w') as f:
                 f.write(boards)
@@ -1431,8 +1431,8 @@ class Slots:
             msg += "It is highly recommended to check them manually:\n"
             msg += boards
             msg += "(the list has been saved in %s)\n" % output_file
-            print >> sys.stderr, color_text(self.options.color, COLOR_YELLOW,
-                                            msg)
+            print(color_text(self.options.color, COLOR_YELLOW,
+                                            msg), file=sys.stderr)
 
             with open(output_file, 'w') as f:
                 f.write(boards)
@@ -1448,11 +1448,11 @@ class ReferenceSource:
           commit: commit to git-clone
         """
         self.src_dir = tempfile.mkdtemp()
-        print "Cloning git repo to a separate work directory..."
+        print("Cloning git repo to a separate work directory...")
         subprocess.check_output(['git', 'clone', os.getcwd(), '.'],
                                 cwd=self.src_dir)
-        print "Checkout '%s' to build the original autoconf.mk." % \
-            subprocess.check_output(['git', 'rev-parse', '--short', commit]).strip()
+        print("Checkout '%s' to build the original autoconf.mk." % \
+            subprocess.check_output(['git', 'rev-parse', '--short', commit]).strip())
         subprocess.check_output(['git', 'checkout', commit],
                                 stderr=subprocess.STDOUT, cwd=self.src_dir)
 
@@ -1480,14 +1480,14 @@ def move_config(toolchains, configs, options, db_queue):
     """
     if len(configs) == 0:
         if options.force_sync:
-            print 'No CONFIG is specified. You are probably syncing defconfigs.',
+            print('No CONFIG is specified. You are probably syncing defconfigs.', end=' ')
         elif options.build_db:
-            print 'Building %s database' % CONFIG_DATABASE
+            print('Building %s database' % CONFIG_DATABASE)
         else:
-            print 'Neither CONFIG nor --force-sync is specified. Nothing will happen.',
+            print('Neither CONFIG nor --force-sync is specified. Nothing will happen.', end=' ')
     else:
-        print 'Move ' + ', '.join(configs),
-    print '(jobs: %d)\n' % options.jobs
+        print('Move ' + ', '.join(configs), end=' ')
+    print('(jobs: %d)\n' % options.jobs)
 
     if options.git_ref:
         reference_src = ReferenceSource(options.git_ref)
@@ -1517,7 +1517,7 @@ def move_config(toolchains, configs, options, db_queue):
     while not slots.empty():
         time.sleep(SLEEP_TIME)
 
-    print ''
+    print('')
     slots.show_failed_boards()
     slots.show_suspicious_boards()
 
@@ -1691,15 +1691,15 @@ def do_imply_config(config_list, add_imply, imply_flags, skip_added,
     for config in config_list:
         defconfigs = defconfig_db.get(config)
         if not defconfigs:
-            print '%s not found in any defconfig' % config
+            print('%s not found in any defconfig' % config)
             continue
 
         # Get the set of defconfigs without this one (since a config cannot
         # imply itself)
         non_defconfigs = all_defconfigs - defconfigs
         num_defconfigs = len(defconfigs)
-        print '%s found in %d/%d defconfigs' % (config, num_defconfigs,
-                                                len(all_configs))
+        print('%s found in %d/%d defconfigs' % (config, num_defconfigs,
+                                                len(all_configs)))
 
         # This will hold the results: key=config, value=defconfigs containing it
         imply_configs = {}
@@ -1736,7 +1736,7 @@ def do_imply_config(config_list, add_imply, imply_flags, skip_added,
             if common_defconfigs:
                 skip = False
                 if find_superset:
-                    for prev in imply_configs.keys():
+                    for prev in list(imply_configs.keys()):
                         prev_count = len(imply_configs[prev])
                         count = len(common_defconfigs)
                         if (prev_count > count and
@@ -1806,15 +1806,15 @@ def do_imply_config(config_list, add_imply, imply_flags, skip_added,
                             add_list[fname].append(linenum)
 
             if show and kconfig_info != 'skip':
-                print '%5d : %-30s%-25s %s' % (num_common, iconfig.ljust(30),
-                                              kconfig_info, missing_str)
+                print('%5d : %-30s%-25s %s' % (num_common, iconfig.ljust(30),
+                                              kconfig_info, missing_str))
 
         # Having collected a list of things to add, now we add them. We process
         # each file from the largest line number to the smallest so that
         # earlier additions do not affect our line numbers. E.g. if we added an
         # imply at line 20 it would change the position of each line after
         # that.
-        for fname, linenums in add_list.iteritems():
+        for fname, linenums in add_list.items():
             for linenum in sorted(linenums, reverse=True):
                 add_imply_rule(config[CONFIG_LEN:], fname, linenum)
 
@@ -1891,11 +1891,11 @@ def main():
             for flag in options.imply_flags.split(','):
                 bad = flag not in IMPLY_FLAGS
                 if bad:
-                    print "Invalid flag '%s'" % flag
+                    print("Invalid flag '%s'" % flag)
                 if flag == 'help' or bad:
-                    print "Imply flags: (separate with ',')"
-                    for name, info in IMPLY_FLAGS.iteritems():
-                        print ' %-15s: %s' % (name, info[1])
+                    print("Imply flags: (separate with ',')")
+                    for name, info in IMPLY_FLAGS.items():
+                        print(' %-15s: %s' % (name, info[1]))
                     parser.print_usage()
                     sys.exit(1)
                 imply_flags |= IMPLY_FLAGS[flag][0]
@@ -1905,14 +1905,14 @@ def main():
         return
 
     config_db = {}
-    db_queue = Queue.Queue()
+    db_queue = queue.Queue()
     t = DatabaseThread(config_db, db_queue)
     t.setDaemon(True)
     t.start()
 
     if not options.cleanup_headers_only:
         check_clean_directory()
-	bsettings.Setup('')
+        bsettings.Setup('')
         toolchains = toolchain.Toolchains()
         toolchains.GetSettings()
         toolchains.Scan(verbose=False)
@@ -1939,7 +1939,7 @@ def main():
 
     if options.build_db:
         with open(CONFIG_DATABASE, 'w') as fd:
-            for defconfig, configs in config_db.iteritems():
+            for defconfig, configs in config_db.items():
                 fd.write('%s\n' % defconfig)
                 for config in sorted(configs.keys()):
                     fd.write('   %s=%s\n' % (config, configs[config]))

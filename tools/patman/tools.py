@@ -186,7 +186,7 @@ def PathHasFile(path_spec, fname):
             return True
     return False
 
-def Run(name, *args):
+def Run(name, *args, **kwargs):
     """Run a tool with some arguments
 
     This runs a 'tool', which is a program used by binman to process files and
@@ -201,13 +201,14 @@ def Run(name, *args):
         CommandResult object
     """
     try:
+        binary = kwargs.get('binary')
         env = None
         if tool_search_paths:
             env = dict(os.environ)
             env['PATH'] = ':'.join(tool_search_paths) + ':' + env['PATH']
         all_args = (name,) + args
         result = command.RunPipe([all_args], capture=True, capture_stderr=True,
-                                 env=env, raise_on_error=False)
+                                 env=env, raise_on_error=False, binary=binary)
         if result.return_code:
             raise Exception("Error %d running '%s': %s" %
                (result.return_code,' '.join(all_args),
@@ -375,7 +376,7 @@ def ToBytes(string):
     """Convert a str type into a bytes type
 
     Args:
-        string: string to convert value
+        string: string to convert
 
     Returns:
         Python 3: A bytes type
@@ -384,6 +385,18 @@ def ToBytes(string):
     if sys.version_info[0] >= 3:
         return string.encode('utf-8')
     return string
+
+def ToString(bval):
+    """Convert a bytes type into a str type
+
+    Args:
+        bval: bytes value to convert
+
+    Returns:
+        Python 3: A bytes type
+        Python 2: A string type
+    """
+    return bval.decode('utf-8')
 
 def Compress(indata, algo, with_header=True):
     """Compress some data using a given algorithm
@@ -406,14 +419,14 @@ def Compress(indata, algo, with_header=True):
     fname = GetOutputFilename('%s.comp.tmp' % algo)
     WriteFile(fname, indata)
     if algo == 'lz4':
-        data = Run('lz4', '--no-frame-crc', '-c', fname)
+        data = Run('lz4', '--no-frame-crc', '-c', fname, binary=True)
     # cbfstool uses a very old version of lzma
     elif algo == 'lzma':
         outfname = GetOutputFilename('%s.comp.otmp' % algo)
         Run('lzma_alone', 'e', fname, outfname, '-lc1', '-lp0', '-pb0', '-d8')
         data = ReadFile(outfname)
     elif algo == 'gzip':
-        data = Run('gzip', '-c', fname)
+        data = Run('gzip', '-c', fname, binary=True)
     else:
         raise ValueError("Unknown algorithm '%s'" % algo)
     if with_header:
@@ -446,13 +459,13 @@ def Decompress(indata, algo, with_header=True):
     with open(fname, 'wb') as fd:
         fd.write(indata)
     if algo == 'lz4':
-        data = Run('lz4', '-dc', fname)
+        data = Run('lz4', '-dc', fname, binary=True)
     elif algo == 'lzma':
         outfname = GetOutputFilename('%s.decomp.otmp' % algo)
         Run('lzma_alone', 'd', fname, outfname)
-        data = ReadFile(outfname)
+        data = ReadFile(outfname, binary=True)
     elif algo == 'gzip':
-        data = Run('gzip', '-cd', fname)
+        data = Run('gzip', '-cd', fname, binary=True)
     else:
         raise ValueError("Unknown algorithm '%s'" % algo)
     return data

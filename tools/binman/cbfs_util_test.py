@@ -56,7 +56,7 @@ class TestCbfs(unittest.TestCase):
         cls.have_lz4 = True
         try:
             tools.Run('lz4', '--no-frame-crc', '-c',
-                      tools.GetInputFilename('u-boot.bin'))
+                      tools.GetInputFilename('u-boot.bin'), binary=True)
         except:
             cls.have_lz4 = False
 

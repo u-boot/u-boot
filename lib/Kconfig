@@ -464,6 +464,17 @@ config OF_LIBFDT
 	  particular compatible nodes. The library operates on a flattened
 	  version of the device tree.
 
+config OF_LIBFDT_ASSUME_MASK
+	hex "Mask of conditions to assume for libfdt"
+	depends on OF_LIBFDT || FIT
+	default 0
+	help
+	  Use this to change the assumptions made by libfdt about the
+	  device tree it is working with. A value of 0 means that no assumptions
+	  are made, and libfdt is able to deal with malicious data. A value of
+	  0xff means all assumptions are made and any invalid data may cause
+	  unsafe execution. See FDT_ASSUME_PERFECT, etc. in libfdt_internal.h
+
 config OF_LIBFDT_OVERLAY
 	bool "Enable the FDT library overlay support"
 	depends on OF_LIBFDT
@@ -481,6 +492,17 @@ config SPL_OF_LIBFDT
 	  particular compatible nodes. The library operates on a flattened
 	  version of the device tree.
 
+config SPL_OF_LIBFDT_ASSUME_MASK
+	hex "Mask of conditions to assume for libfdt"
+	depends on SPL_OF_LIBFDT || FIT
+	default 0xff
+	help
+	  Use this to change the assumptions made by libfdt in SPL about the
+	  device tree it is working with. A value of 0 means that no assumptions
+	  are made, and libfdt is able to deal with malicious data. A value of
+	  0xff means all assumptions are made and any invalid data may cause
+	  unsafe execution. See FDT_ASSUME_PERFECT, etc. in libfdt_internal.h
+
 config TPL_OF_LIBFDT
 	bool "Enable the FDT library for TPL"
 	default y if TPL_OF_CONTROL
@@ -490,6 +512,17 @@ config TPL_OF_LIBFDT
 	  removing nodes and properties, scanning through the tree and finding
 	  particular compatible nodes. The library operates on a flattened
 	  version of the device tree.
+
+config TPL_OF_LIBFDT_ASSUME_MASK
+	hex "Mask of conditions to assume for libfdt"
+	depends on TPL_OF_LIBFDT || FIT
+	default 0xff
+	help
+	  Use this to change the assumptions made by libfdt in TPL about the
+	  device tree it is working with. A value of 0 means that no assumptions
+	  are made, and libfdt is able to deal with malicious data. A value of
+	  0xff means all assumptions are made and any invalid data may cause
+	  unsafe execution. See FDT_ASSUME_PERFECT, etc. in libfdt_internal.h
 
 config FDT_FIXUP_PARTITIONS
 	bool "overwrite MTD partitions in DTS through defined in 'mtdparts'"

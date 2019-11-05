@@ -7,16 +7,7 @@
 from __future__ import print_function
 
 from collections import namedtuple
-
-# importlib was introduced in Python 2.7 but there was a report of it not
-# working in 2.7.12, so we work around this:
-# http://lists.denx.de/pipermail/u-boot/2016-October/269729.html
-try:
-    import importlib
-    have_importlib = True
-except:
-    have_importlib = False
-
+import importlib
 import os
 import sys
 
@@ -56,6 +47,8 @@ class Entry(object):
         offset: Offset of entry within the section, None if not known yet (in
             which case it will be calculated by Pack())
         size: Entry size in bytes, None if not known
+        pre_reset_size: size as it was before ResetForPack(). This allows us to
+            keep track of the size we started with and detect size changes
         uncomp_size: Size of uncompressed data in bytes, if the entry is
             compressed, else None
         contents_size: Size of contents in bytes, 0 by default
@@ -80,6 +73,7 @@ class Entry(object):
         self.name = node and (name_prefix + node.name) or 'none'
         self.offset = None
         self.size = None
+        self.pre_reset_size = None
         self.uncomp_size = None
         self.data = None
         self.contents_size = 0
@@ -119,10 +113,7 @@ class Entry(object):
             old_path = sys.path
             sys.path.insert(0, os.path.join(our_path, 'etype'))
             try:
-                if have_importlib:
-                    module = importlib.import_module(module_name)
-                else:
-                    module = __import__(module_name)
+                module = importlib.import_module(module_name)
             except ImportError as e:
                 raise ValueError("Unknown entry type '%s' in node '%s' (expected etype/%s.py, error '%s'" %
                                  (etype, node_path, module_name, e))
@@ -326,6 +317,7 @@ class Entry(object):
         self.Detail('ResetForPack: offset %s->%s, size %s->%s' %
                     (ToHex(self.offset), ToHex(self.orig_offset),
                      ToHex(self.size), ToHex(self.orig_size)))
+        self.pre_reset_size = self.size
         self.offset = self.orig_offset
         self.size = self.orig_size
 
@@ -769,7 +761,10 @@ features to produce new behaviours.
             True if the data did not result in a resize of this entry, False if
                  the entry must be resized
         """
-        self.contents_size = self.size
+        if self.size is not None:
+            self.contents_size = self.size
+        else:
+            self.contents_size = self.pre_reset_size
         ok = self.ProcessContentsUpdate(data)
         self.Detail('WriteData: size=%x, ok=%s' % (len(data), ok))
         section_ok = self.section.WriteChildData(self)
