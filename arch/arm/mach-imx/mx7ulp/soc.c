@@ -19,10 +19,10 @@
 #define PMC1_RUN		0x8
 #define PMC1_STOP		0x10
 #define PMC1_VLPS		0x14
-#define PMC1_RUN_LDOVL_SHIFT	16
-#define PMC1_RUN_LDOVL_MASK	(0x3f << PMC1_RUN_LDOVL_SHIFT)
-#define PMC1_RUN_LDOVL_900	0x1e
-#define PMC1_RUN_LDOVL_950	0x23
+#define PMC1_LDOVL_SHIFT	16
+#define PMC1_LDOVL_MASK		(0x3f << PMC1_LDOVL_SHIFT)
+#define PMC1_LDOVL_900		0x1e
+#define PMC1_LDOVL_950		0x23
 #define PMC1_STATUS		0x20
 #define PMC1_STATUS_LDOVLF	BIT(8)
 
@@ -127,8 +127,8 @@ static void init_ldo_mode(void)
 
 	/* Set LDOVL to 0.95V in PMC1_RUN */
 	reg = readl(PMC1_BASE_ADDR + PMC1_RUN);
-	reg &= ~PMC1_RUN_LDOVL_MASK;
-	reg |= (PMC1_RUN_LDOVL_950 << PMC1_RUN_LDOVL_SHIFT);
+	reg &= ~PMC1_LDOVL_MASK;
+	reg |= (PMC1_LDOVL_950 << PMC1_LDOVL_SHIFT);
 	writel(PMC1_BASE_ADDR + PMC1_RUN, reg);
 
 	/* Wait for LDOVLF to be cleared */
@@ -138,14 +138,14 @@ static void init_ldo_mode(void)
 
 	/* Set LDOVL to 0.95V in PMC1_STOP */
 	reg = readl(PMC1_BASE_ADDR + PMC1_STOP);
-	reg &= ~PMC1_RUN_LDOVL_MASK;
-	reg |= (PMC1_RUN_LDOVL_950 << PMC1_RUN_LDOVL_SHIFT);
+	reg &= ~PMC1_LDOVL_MASK;
+	reg |= (PMC1_LDOVL_950 << PMC1_LDOVL_SHIFT);
 	writel(PMC1_BASE_ADDR + PMC1_STOP, reg);
 
 	/* Set LDOVL to 0.90V in PMC1_VLPS */
 	reg = readl(PMC1_BASE_ADDR + PMC1_VLPS);
-	reg &= ~PMC1_RUN_LDOVL_MASK;
-	reg |= (PMC1_RUN_LDOVL_900 << PMC1_RUN_LDOVL_SHIFT);
+	reg &= ~PMC1_LDOVL_MASK;
+	reg |= (PMC1_LDOVL_900 << PMC1_LDOVL_SHIFT);
 	writel(PMC1_BASE_ADDR + PMC1_VLPS, reg);
 
 	/* Set LDOEN bit */
