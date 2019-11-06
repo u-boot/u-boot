@@ -99,6 +99,7 @@ static int bcm283x_pinctrl_get_gpio_mux(struct udevice *dev, int banknum,
 
 static const struct udevice_id bcm2835_pinctrl_id[] = {
 	{.compatible = "brcm,bcm2835-gpio"},
+	{.compatible = "brcm,bcm2711-gpio"},
 	{}
 };
 
