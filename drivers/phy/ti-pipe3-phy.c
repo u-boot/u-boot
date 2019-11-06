@@ -54,13 +54,17 @@
 #define PLL_IDLE_TIME   100     /* in milliseconds */
 #define PLL_LOCK_TIME   100     /* in milliseconds */
 
+enum pipe3_mode { PIPE3_MODE_PCIE = 1,
+		  PIPE3_MODE_SATA,
+		  PIPE3_MODE_USBSS };
+
 struct omap_pipe3 {
 	void __iomem		*pll_ctrl_base;
 	void __iomem		*power_reg;
 	void __iomem		*pll_reset_reg;
 	struct pipe3_dpll_map	*dpll_map;
+	enum pipe3_mode		mode;
 };
-
 
 struct pipe3_dpll_params {
 	u16     m;
@@ -73,6 +77,11 @@ struct pipe3_dpll_params {
 struct pipe3_dpll_map {
 	unsigned long rate;
 	struct pipe3_dpll_params params;
+};
+
+struct pipe3_data {
+	enum pipe3_mode mode;
+	struct pipe3_dpll_map *dpll_map;
 };
 
 static inline u32 omap_pipe3_readl(void __iomem *addr, unsigned offset)
@@ -317,6 +326,7 @@ static int pipe3_phy_probe(struct udevice *dev)
 	fdt_addr_t addr;
 	fdt_size_t sz;
 	struct omap_pipe3 *pipe3 = dev_get_priv(dev);
+	struct pipe3_data *data;
 
 	addr = devfdt_get_addr_size_index(dev, 2, &sz);
 	if (addr == FDT_ADDR_T_NONE) {
@@ -334,13 +344,15 @@ static int pipe3_phy_probe(struct udevice *dev)
 	if (!pipe3->power_reg)
 		return -EINVAL;
 
-	if (device_is_compatible(dev, "ti,phy-pipe3-sata")) {
+	data = (struct pipe3_data *)dev_get_driver_data(dev);
+	pipe3->mode = data->mode;
+	pipe3->dpll_map = data->dpll_map;
+
+	if (pipe3->mode == PIPE3_MODE_SATA) {
 		pipe3->pll_reset_reg = get_reg(dev, "syscon-pllreset");
 		if (!pipe3->pll_reset_reg)
 			return -EINVAL;
 	}
-
-	pipe3->dpll_map = (struct pipe3_dpll_map *)dev_get_driver_data(dev);
 
 	return 0;
 }
@@ -365,9 +377,19 @@ static struct pipe3_dpll_map dpll_map_usb[] = {
 	{ },					/* Terminator */
 };
 
+static struct pipe3_data data_usb = {
+	.mode = PIPE3_MODE_USBSS,
+	.dpll_map = dpll_map_usb,
+};
+
+static struct pipe3_data data_sata = {
+	.mode = PIPE3_MODE_SATA,
+	.dpll_map = dpll_map_sata,
+};
+
 static const struct udevice_id pipe3_phy_ids[] = {
-	{ .compatible = "ti,phy-pipe3-sata", .data = (ulong)&dpll_map_sata },
-	{ .compatible = "ti,omap-usb3", .data = (ulong)&dpll_map_usb},
+	{ .compatible = "ti,phy-pipe3-sata", .data = (ulong)&data_sata },
+	{ .compatible = "ti,omap-usb3", .data = (ulong)&data_usb},
 	{ }
 };
 
