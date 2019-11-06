@@ -4,7 +4,7 @@
 
 static const struct udevice_id zynqmp_firmware_ids[] = {
 	{ .compatible = "xlnx,zynqmp-firmware" },
-	{ .compatible = "xlnx,versal-firmware-wip"},
+	{ .compatible = "xlnx,versal-firmware"},
 	{ }
 };
 

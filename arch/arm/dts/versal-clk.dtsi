@@ -50,7 +50,7 @@
 
 	firmware {
 		versal_firmware: versal-firmware {
-			compatible = "xlnx,versal-firmware-wip";
+			compatible = "xlnx,versal-firmware";
 			u-boot,dm-pre-reloc;
 			method = "smc";
 			#power-domain-cells = <1>;
