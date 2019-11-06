@@ -40,7 +40,8 @@ int do_thor_down(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	ret = g_dnl_register("usb_dnl_thor");
 	if (ret) {
 		pr_err("g_dnl_register failed %d\n", ret);
-		return ret;
+		ret = CMD_RET_FAILURE;
+		goto exit;
 	}
 
 	ret = thor_init();

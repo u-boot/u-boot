@@ -10,6 +10,8 @@
 #include <dfu.h>
 #include <spi.h>
 #include <spi_flash.h>
+#include <jffs2/load_kernel.h>
+#include <linux/mtd/mtd.h>
 
 static int dfu_get_medium_size_sf(struct dfu_entity *dfu, u64 *size)
 {
@@ -19,7 +21,7 @@ static int dfu_get_medium_size_sf(struct dfu_entity *dfu, u64 *size)
 }
 
 static int dfu_read_medium_sf(struct dfu_entity *dfu, u64 offset, void *buf,
-		long *len)
+			      long *len)
 {
 	return spi_flash_read(dfu->data.sf.dev, dfu->data.sf.start + offset,
 		*len, buf);
@@ -32,7 +34,7 @@ static u64 find_sector(struct dfu_entity *dfu, u64 start, u64 offset)
 }
 
 static int dfu_write_medium_sf(struct dfu_entity *dfu,
-		u64 offset, void *buf, long *len)
+			       u64 offset, void *buf, long *len)
 {
 	int ret;
 
@@ -52,11 +54,33 @@ static int dfu_write_medium_sf(struct dfu_entity *dfu,
 
 static int dfu_flush_medium_sf(struct dfu_entity *dfu)
 {
+	u64 off, length;
+
+	if (!CONFIG_IS_ENABLED(DFU_SF_PART) || !dfu->data.sf.ubi)
+		return 0;
+
+	/* in case of ubi partition, erase rest of the partition */
+	off = find_sector(dfu, dfu->data.sf.start, dfu->offset);
+	/* last write ended with unaligned length jump to next */
+	if (off != dfu->data.sf.start + dfu->offset)
+		off += dfu->data.sf.dev->sector_size;
+	length = dfu->data.sf.start + dfu->data.sf.size - off;
+	if (length)
+		return spi_flash_erase(dfu->data.sf.dev, off, length);
+
 	return 0;
 }
 
 static unsigned int dfu_polltimeout_sf(struct dfu_entity *dfu)
 {
+	/*
+	 * Currently, Poll Timeout != 0 is only needed on nand
+	 * ubi partition, as sectors which are not used need
+	 * to be erased
+	 */
+	if (CONFIG_IS_ENABLED(DFU_SF_PART) && dfu->data.sf.ubi)
+		return DFU_MANIFEST_POLL_TIMEOUT;
+
 	return DFU_DEFAULT_POLL_TIMEOUT;
 }
 
@@ -133,6 +157,34 @@ int dfu_fill_entity_sf(struct dfu_entity *dfu, char *devstr, char *s)
 		dfu->data.sf.start = simple_strtoul(s, &s, 16);
 		s++;
 		dfu->data.sf.size = simple_strtoul(s, &s, 16);
+	} else if (CONFIG_IS_ENABLED(DFU_SF_PART) &&
+		   (!strcmp(st, "part") || !strcmp(st, "partubi"))) {
+		char mtd_id[32];
+		struct mtd_device *mtd_dev;
+		u8 part_num;
+		struct part_info *pi;
+		int ret, dev, part;
+
+		dfu->layout = DFU_RAW_ADDR;
+
+		dev = simple_strtoul(s, &s, 10);
+		s++;
+		part = simple_strtoul(s, &s, 10);
+
+		sprintf(mtd_id, "%s%d,%d", "nor", dev, part - 1);
+		printf("using id '%s'\n", mtd_id);
+
+		mtdparts_init();
+
+		ret = find_dev_and_part(mtd_id, &mtd_dev, &part_num, &pi);
+		if (ret != 0) {
+			printf("Could not locate '%s'\n", mtd_id);
+			return -1;
+		}
+		dfu->data.sf.start = pi->offset;
+		dfu->data.sf.size = pi->size;
+		if (!strcmp(st, "partubi"))
+			dfu->data.sf.ubi = 1;
 	} else {
 		printf("%s: Memory layout (%s) not supported!\n", __func__, st);
 		spi_flash_free(dfu->data.sf.dev);

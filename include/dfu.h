@@ -22,6 +22,8 @@ enum dfu_device_type {
 	DFU_DEV_NAND,
 	DFU_DEV_RAM,
 	DFU_DEV_SF,
+	DFU_DEV_MTD,
+	DFU_DEV_VIRT,
 };
 
 enum dfu_layout {
@@ -55,6 +57,16 @@ struct mmc_internal_data {
 	unsigned int part;
 };
 
+struct mtd_internal_data {
+	struct mtd_info *info;
+
+	/* RAW programming */
+	u64 start;
+	u64 size;
+	/* for ubi partition */
+	unsigned int ubi;
+};
+
 struct nand_internal_data {
 	/* RAW programming */
 	u64 start;
@@ -77,6 +89,12 @@ struct sf_internal_data {
 	/* RAW programming */
 	u64 start;
 	u64 size;
+	/* for sf/ubi use */
+	unsigned int ubi;
+};
+
+struct virt_internal_data {
+	int dev_num;
 };
 
 #define DFU_NAME_SIZE			32
@@ -103,9 +121,11 @@ struct dfu_entity {
 
 	union {
 		struct mmc_internal_data mmc;
+		struct mtd_internal_data mtd;
 		struct nand_internal_data nand;
 		struct ram_internal_data ram;
 		struct sf_internal_data sf;
+		struct virt_internal_data virt;
 	} data;
 
 	int (*get_medium_size)(struct dfu_entity *dfu, u64 *size);
@@ -141,6 +161,8 @@ struct dfu_entity {
 #ifdef CONFIG_SET_DFU_ALT_INFO
 void set_dfu_alt_info(char *interface, char *devstr);
 #endif
+int dfu_alt_init(int num, struct dfu_entity **dfu);
+int dfu_alt_add(struct dfu_entity *dfu, char *interface, char *devstr, char *s);
 int dfu_config_entities(char *s, char *interface, char *devstr);
 void dfu_free_entities(void);
 void dfu_show_entities(void);
@@ -160,6 +182,28 @@ bool dfu_usb_get_reset(void);
 int dfu_read(struct dfu_entity *de, void *buf, int size, int blk_seq_num);
 int dfu_write(struct dfu_entity *de, void *buf, int size, int blk_seq_num);
 int dfu_flush(struct dfu_entity *de, void *buf, int size, int blk_seq_num);
+
+/**
+ * dfu_initiated_callback - weak callback called on DFU transaction start
+ *
+ * It is a callback function called by DFU stack when a DFU transaction is
+ * initiated. This function allows to manage some board specific behavior on
+ * DFU targets.
+ *
+ * @param dfu - pointer to the dfu_entity, which should be initialized
+ *
+ */
+void dfu_initiated_callback(struct dfu_entity *dfu);
+/**
+ * dfu_flush_callback - weak callback called at the end of the DFU write
+ *
+ * It is a callback function called by DFU stack after DFU manifestation.
+ * This function allows to manage some board specific behavior on DFU targets
+ *
+ * @param dfu - pointer to the dfu_entity, which should be flushed
+ *
+ */
+void dfu_flush_callback(struct dfu_entity *dfu);
 
 /*
  * dfu_defer_flush - pointer to store dfu_entity for deferred flashing.
@@ -241,6 +285,33 @@ static inline int dfu_fill_entity_sf(struct dfu_entity *dfu, char *devstr,
 				     char *s)
 {
 	puts("SF support not available!\n");
+	return -1;
+}
+#endif
+
+#if CONFIG_IS_ENABLED(DFU_MTD)
+int dfu_fill_entity_mtd(struct dfu_entity *dfu, char *devstr, char *s);
+#else
+static inline int dfu_fill_entity_mtd(struct dfu_entity *dfu, char *devstr,
+				      char *s)
+{
+	puts("MTD support not available!\n");
+	return -1;
+}
+#endif
+
+#ifdef CONFIG_DFU_VIRT
+int dfu_fill_entity_virt(struct dfu_entity *dfu, char *devstr, char *s);
+int dfu_write_medium_virt(struct dfu_entity *dfu, u64 offset,
+			  void *buf, long *len);
+int dfu_get_medium_size_virt(struct dfu_entity *dfu, u64 *size);
+int dfu_read_medium_virt(struct dfu_entity *dfu, u64 offset,
+			 void *buf, long *len);
+#else
+static inline int dfu_fill_entity_virt(struct dfu_entity *dfu, char *devstr,
+				       char *s)
+{
+	puts("VIRT support not available!\n");
 	return -1;
 }
 #endif

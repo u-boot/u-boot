@@ -46,5 +46,26 @@ config DFU_SF
 	  This option enables using DFU to read and write to SPI flash based
 	  storage.
 
+config DFU_SF_PART
+	bool "MTD partition support for SPI flash back end"
+	depends on DFU_SF && CMD_MTDPARTS
+	default y
+	help
+	  This option enables the support of "part" and "partubi" target in
+	  SPI flash DFU back end.
+
+config DFU_MTD
+	bool "MTD back end for DFU"
+	depends on MTD
+	help
+	  This option enables using DFU to read and write to on any MTD device.
+
+config DFU_VIRT
+	bool "VIRTUAL flash back end for DFU"
+	help
+	  This option enables using DFU to read and write to VIRTUAL device
+	  used at board level to manage specific behavior
+	  (OTP update for example).
+
 endif
 endmenu
