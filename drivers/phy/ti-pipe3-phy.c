@@ -41,14 +41,14 @@
 #define SATA_PLL_SOFT_RESET (1<<18)
 
 /* PHY POWER CONTROL Register */
-#define OMAP_CTRL_PIPE3_PHY_PWRCTL_CLK_CMD_MASK         0x003FC000
-#define OMAP_CTRL_PIPE3_PHY_PWRCTL_CLK_CMD_SHIFT        0xE
+#define PIPE3_PHY_PWRCTL_CLK_CMD_MASK	GENMASK(21, 14)
+#define PIPE3_PHY_PWRCTL_CLK_CMD_SHIFT	14
 
-#define OMAP_CTRL_PIPE3_PHY_PWRCTL_CLK_FREQ_MASK        0xFFC00000
-#define OMAP_CTRL_PIPE3_PHY_PWRCTL_CLK_FREQ_SHIFT       0x16
+#define PIPE3_PHY_PWRCTL_CLK_FREQ_MASK	GENMASK(31, 22)
+#define PIPE3_PHY_PWRCTL_CLK_FREQ_SHIFT	22
 
-#define OMAP_CTRL_PIPE3_PHY_TX_RX_POWERON       0x3
-#define OMAP_CTRL_PIPE3_PHY_TX_RX_POWEROFF      0x0
+#define PIPE3_PHY_RX_POWERON       (0x1 << PIPE3_PHY_PWRCTL_CLK_CMD_SHIFT)
+#define PIPE3_PHY_TX_POWERON       (0x2 << PIPE3_PHY_PWRCTL_CLK_CMD_SHIFT)
 
 /* PHY RX Registers */
 #define PIPE3_PHY_RX_ANA_PROGRAMMABILITY	0x0000000C
@@ -264,19 +264,21 @@ static void omap_control_pipe3_power(struct omap_pipe3 *pipe3, int on)
 	rate = rate/1000000;
 
 	if (on) {
-		val &= ~(OMAP_CTRL_PIPE3_PHY_PWRCTL_CLK_CMD_MASK |
-				OMAP_CTRL_PIPE3_PHY_PWRCTL_CLK_FREQ_MASK);
-		val |= OMAP_CTRL_PIPE3_PHY_TX_RX_POWERON <<
-			OMAP_CTRL_PIPE3_PHY_PWRCTL_CLK_CMD_SHIFT;
-		val |= rate <<
-			OMAP_CTRL_PIPE3_PHY_PWRCTL_CLK_FREQ_SHIFT;
-	} else {
-		val &= ~OMAP_CTRL_PIPE3_PHY_PWRCTL_CLK_CMD_MASK;
-		val |= OMAP_CTRL_PIPE3_PHY_TX_RX_POWEROFF <<
-			OMAP_CTRL_PIPE3_PHY_PWRCTL_CLK_CMD_SHIFT;
-	}
+		val &= ~(PIPE3_PHY_PWRCTL_CLK_CMD_MASK |
+			 PIPE3_PHY_PWRCTL_CLK_FREQ_MASK);
+		val |= rate << PIPE3_PHY_PWRCTL_CLK_FREQ_SHIFT;
+		writel(val, pipe3->power_reg);
 
-	writel(val, pipe3->power_reg);
+		/* Power up TX before RX for SATA & USB */
+		val |= PIPE3_PHY_TX_POWERON;
+		writel(val, pipe3->power_reg);
+
+		val |= PIPE3_PHY_RX_POWERON;
+		writel(val, pipe3->power_reg);
+	} else {
+		val &= ~PIPE3_PHY_PWRCTL_CLK_CMD_MASK;
+		writel(val, pipe3->power_reg);
+	}
 }
 
 static void ti_pipe3_calibrate(struct omap_pipe3 *phy)
