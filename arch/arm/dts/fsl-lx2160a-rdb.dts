@@ -16,7 +16,9 @@
 / {
 	model = "NXP Layerscape LX2160ARDB Board";
 	compatible = "fsl,lx2160ardb", "fsl,lx2160a";
-
+	aliases {
+		spi0 = &fspi;
+	};
 };
 
 &esdhc0 {
@@ -26,6 +28,26 @@
 &esdhc1 {
 	status = "okay";
 	mmc-hs200-1_8v;
+};
+
+&fspi {
+	status = "okay";
+
+	mt35xu512aba0: flash@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "jedec,spi-nor";
+		spi-max-frequency = <50000000>;
+		reg = <0>;
+	};
+
+	mt35xu512aba1: flash@1 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "jedec,spi-nor";
+		spi-max-frequency = <50000000>;
+		reg = <1>;
+	};
 };
 
 &i2c0 {
