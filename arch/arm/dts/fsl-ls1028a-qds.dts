@@ -13,6 +13,10 @@
 / {
 	model = "NXP Layerscape 1028a QDS Board";
 	compatible = "fsl,ls1028a-qds", "fsl,ls1028a";
+	aliases {
+		spi0 = &fspi;
+	};
+
 };
 
 &dspi0 {
@@ -34,6 +38,18 @@
 &esdhc1 {
 	status = "okay";
 
+};
+
+&fspi {
+	status = "okay";
+
+	mt35xu02g0: flash@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "jedec,spi-nor";
+		spi-max-frequency = <50000000>;
+		reg = <0>;
+	};
 };
 
 &i2c0 {
