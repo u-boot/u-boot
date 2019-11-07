@@ -73,7 +73,7 @@
 					CONFIG_SPL_BSS_MAX_SIZE)
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000
 
-#ifdef CONFIG_SECURE_BOOT
+#ifdef CONFIG_NXP_ESBC
 #define CONFIG_U_BOOT_HDR_SIZE				(16 << 10)
 /*
  * HDR would be appended at end of image and copied to DDR along
@@ -84,7 +84,7 @@
 #define CONFIG_SYS_MONITOR_LEN		(0x100000 + CONFIG_U_BOOT_HDR_SIZE)
 #else
 #define CONFIG_SYS_MONITOR_LEN		0x100000
-#endif /* ifdef CONFIG_SECURE_BOOT */
+#endif /* ifdef CONFIG_NXP_ESBC */
 #endif
 
 #if defined(CONFIG_QSPI_BOOT) && defined(CONFIG_SPL)

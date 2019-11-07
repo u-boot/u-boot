@@ -50,8 +50,8 @@ config MAX_CPUS
 	  cores, count the reserved ports. This will allocate enough memory
 	  in spin table to properly handle all cores.
 
-config SECURE_BOOT
-	bool	"Secure Boot"
+config NXP_ESBC
+	bool	"NXP_ESBC"
 	help
 		Enable Freescale Secure Boot feature. Normally selected
 		by defconfig. If unsure, do not change.

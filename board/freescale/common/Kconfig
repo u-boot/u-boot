@@ -1,5 +1,5 @@
 config CHAIN_OF_TRUST
-	depends on !FIT_SIGNATURE && SECURE_BOOT
+	depends on !FIT_SIGNATURE && NXP_ESBC
 	imply CMD_BLOB
 	imply CMD_HASH if ARM
 	select FSL_CAAM
