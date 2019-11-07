@@ -1242,7 +1242,7 @@ class TestFunctional(unittest.TestCase):
 
         self._SetupSplElf('u_boot_binman_syms')
         data = self._DoReadFile('053_symbols.dts')
-        sym_values = struct.pack('<LQLL', 0, 28, 24, 4)
+        sym_values = struct.pack('<LQLL', 0x00, 0x1c, 0x28, 0x04)
         expected = (sym_values + U_BOOT_SPL_DATA[20:] +
                     tools.GetBytes(0xff, 1) + U_BOOT_DATA + sym_values +
                     U_BOOT_SPL_DATA[20:])
@@ -3304,12 +3304,9 @@ class TestFunctional(unittest.TestCase):
         self.assertIn("'intel-fit-ptr' section must have an 'intel-fit' sibling",
                       str(e.exception))
 
-    def testSymbolsTplSection(self):
-        """Test binman can assign symbols embedded in U-Boot TPL in a section"""
-        self._SetupSplElf('u_boot_binman_syms')
-        self._SetupTplElf('u_boot_binman_syms')
-        data = self._DoReadFile('149_symbols_tpl.dts')
-        sym_values = struct.pack('<LQLL', 4, 0x1c, 0x34, 4)
+    def _CheckSymbolsTplSection(self, dts, expected_vals):
+        data = self._DoReadFile(dts)
+        sym_values = struct.pack('<LQLL', *expected_vals)
         upto1 = 4 + len(U_BOOT_SPL_DATA)
         expected1 = tools.GetBytes(0xff, 4) + sym_values + U_BOOT_SPL_DATA[20:]
         self.assertEqual(expected1, data[:upto1])
@@ -3323,7 +3320,22 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(expected3, data[upto2:upto3])
 
         expected4 = sym_values + U_BOOT_TPL_DATA[20:]
-        self.assertEqual(expected4, data[upto3:])
+        self.assertEqual(expected4, data[upto3:upto3 + len(U_BOOT_TPL_DATA)])
+
+    def testSymbolsTplSection(self):
+        """Test binman can assign symbols embedded in U-Boot TPL in a section"""
+        self._SetupSplElf('u_boot_binman_syms')
+        self._SetupTplElf('u_boot_binman_syms')
+        self._CheckSymbolsTplSection('149_symbols_tpl.dts',
+                                     [0x04, 0x1c, 0x10 + 0x34, 0x04])
+
+    def testSymbolsTplSectionX86(self):
+        """Test binman can assign symbols in a section with end-at-4gb"""
+        self._SetupSplElf('u_boot_binman_syms_x86')
+        self._SetupTplElf('u_boot_binman_syms_x86')
+        self._CheckSymbolsTplSection('155_symbols_tpl_x86.dts',
+                                     [0xffffff04, 0xffffff1c, 0xffffff34,
+                                      0x04])
 
     def testPackX86RomIfwiSectiom(self):
         """Test that a section can be placed in an IFWI region"""

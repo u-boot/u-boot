@@ -45,7 +45,7 @@ class FakeSection:
     def GetPath(self):
         return 'section_path'
 
-    def LookupSymbol(self, name, weak, msg):
+    def LookupSymbol(self, name, weak, msg, base_addr):
         """Fake implementation which returns the same value for all symbols"""
         return self.sym_value
 

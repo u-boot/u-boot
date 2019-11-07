@@ -766,20 +766,38 @@ when SPL is finished.
 Binman allows you to declare symbols in the SPL image which are filled in
 with their correct values during the build. For example:
 
-    binman_sym_declare(ulong, u_boot_any, offset);
+    binman_sym_declare(ulong, u_boot_any, image_pos);
 
-declares a ulong value which will be assigned to the offset of any U-Boot
+declares a ulong value which will be assigned to the image-pos of any U-Boot
 image (u-boot.bin, u-boot.img, u-boot-nodtb.bin) that is present in the image.
 You can access this value with something like:
 
-    ulong u_boot_offset = binman_sym(ulong, u_boot_any, offset);
+    ulong u_boot_offset = binman_sym(ulong, u_boot_any, image_pos);
 
-Thus u_boot_offset will be set to the offset of U-Boot in memory, assuming that
-the whole image has been loaded, or is available in flash. You can then jump to
-that address to start U-Boot.
+Thus u_boot_offset will be set to the image-pos of U-Boot in memory, assuming
+that the whole image has been loaded, or is available in flash. You can then
+jump to that address to start U-Boot.
 
-At present this feature is only supported in SPL. In principle it is possible
-to fill in such symbols in U-Boot proper, as well.
+At present this feature is only supported in SPL and TPL. In principle it is
+possible to fill in such symbols in U-Boot proper, as well, but a future C
+library is planned for this instead, to read from the device tree.
+
+As well as image-pos, it is possible to read the size of an entry and its
+offset (which is the start position of the entry within its parent).
+
+A small technical note: Binman automatically adds the base address of the image
+(i.e. __image_copy_start) to the value of the image-pos symbol, so that when the
+image is loaded to its linked address, the value will be correct and actually
+point into the image.
+
+For example, say SPL is at the start of the image and linked to start at address
+80108000. If U-Boot's image-pos is 0x8000 then binman will write an image-pos
+for U-Boot of 80110000 into the SPL binary, since it assumes the image is loaded
+to 80108000, with SPL at 80108000 and U-Boot at 80110000.
+
+For x86 devices (with the end-at-4gb property) this base address is not added
+since it is assumed that images are XIP and the offsets already include the
+address.
 
 
 Access to binman entry offsets at run time (fdt)
