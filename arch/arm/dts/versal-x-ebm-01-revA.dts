@@ -13,7 +13,7 @@
 /{
 	compatible = "xlnx,versal-x-ebm-01-revA", "xlnx,versal-x-ebm-01";
 
-	fragment@0 {
+	fragment {
 		target = <&qspi>;
 
 		__overlay__ {
