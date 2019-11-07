@@ -11,6 +11,11 @@
 	};
 };
 
+&vdd_center {
+	regulator-min-microvolt = <950000>;
+	regulator-max-microvolt = <950000>;
+};
+
 &vdd_log {
 	regulator-init-microvolt = <950000>;
 };
