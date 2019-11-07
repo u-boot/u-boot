@@ -125,6 +125,9 @@
 #define MSDC_PAD_TUNE_DATWRDLY_M	0x1f
 #define MSDC_PAD_TUNE_DATWRDLY_S	0
 
+#define PAD_CMD_TUNE_RX_DLY3		0x3E
+#define PAD_CMD_TUNE_RX_DLY3_S		1
+
 /* EMMC50_CFG0 */
 #define EMMC50_CFG_CFCSTS_SEL		BIT(4)
 
@@ -209,7 +212,8 @@ struct mtk_sd_regs {
 	u32 eco_ver;
 	u32 reserved6[27];
 	u32 pad_ds_tune;
-	u32 reserved7[31];
+	u32 pad_cmd_tune;
+	u32 reserved7[30];
 	u32 emmc50_cfg0;
 	u32 reserved8[7];
 	u32 sdc_fifo_cfg;
@@ -240,6 +244,7 @@ struct msdc_plat {
 struct msdc_tune_para {
 	u32 iocon;
 	u32 pad_tune;
+	u32 pad_cmd_tune;
 };
 
 struct msdc_host {
@@ -364,6 +369,8 @@ static u32 msdc_cmd_prepare_raw_cmd(struct msdc_host *host,
 	case MMC_CMD_WRITE_SINGLE_BLOCK:
 	case MMC_CMD_READ_SINGLE_BLOCK:
 	case SD_CMD_APP_SEND_SCR:
+	case MMC_CMD_SEND_TUNING_BLOCK:
+	case MMC_CMD_SEND_TUNING_BLOCK_HS200:
 		dtype = 1;
 		break;
 	case SD_CMD_SWITCH_FUNC: /* same as MMC_CMD_SWITCH */
@@ -468,6 +475,14 @@ static int msdc_start_command(struct msdc_host *host, struct mmc_cmd *cmd,
 
 	if (!msdc_cmd_is_ready(host))
 		return -EIO;
+
+	if ((readl(&host->base->msdc_fifocs) &
+	    MSDC_FIFOCS_TXCNT_M) >> MSDC_FIFOCS_TXCNT_S ||
+	    (readl(&host->base->msdc_fifocs) &
+	    MSDC_FIFOCS_RXCNT_M) >> MSDC_FIFOCS_RXCNT_S) {
+		pr_err("TX/RX FIFO non-empty before start of IO. Reset\n");
+		msdc_reset_hw(host);
+	}
 
 	msdc_fifo_clr(host);
 
@@ -652,14 +667,22 @@ static int msdc_ops_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 			     struct mmc_data *data)
 {
 	struct msdc_host *host = dev_get_priv(dev);
-	int ret;
+	int cmd_ret, data_ret;
 
-	ret = msdc_start_command(host, cmd, data);
-	if (ret)
-		return ret;
+	cmd_ret = msdc_start_command(host, cmd, data);
+	if (cmd_ret &&
+	    !(cmd_ret == -EIO &&
+	    (cmd->cmdidx == MMC_CMD_SEND_TUNING_BLOCK ||
+	    cmd->cmdidx == MMC_CMD_SEND_TUNING_BLOCK_HS200)))
+		return cmd_ret;
 
-	if (data)
-		return msdc_start_data(host, data);
+	if (data) {
+		data_ret = msdc_start_data(host, data);
+		if (cmd_ret)
+			return cmd_ret;
+		else
+			return data_ret;
+	}
 
 	return 0;
 }
@@ -941,6 +964,56 @@ static struct msdc_delay_phase get_best_delay(struct msdc_host *host, u32 delay)
 	return delay_phase;
 }
 
+static int hs400_tune_response(struct udevice *dev, u32 opcode)
+{
+	struct msdc_plat *plat = dev_get_platdata(dev);
+	struct msdc_host *host = dev_get_priv(dev);
+	struct mmc *mmc = &plat->mmc;
+	u32 cmd_delay  = 0;
+	struct msdc_delay_phase final_cmd_delay = { 0, };
+	u8 final_delay;
+	void __iomem *tune_reg = &host->base->pad_cmd_tune;
+	int cmd_err;
+	int i, j;
+
+	setbits_le32(&host->base->pad_cmd_tune, BIT(0));
+
+	if (mmc->selected_mode == MMC_HS_200 ||
+	    mmc->selected_mode == UHS_SDR104)
+		clrsetbits_le32(tune_reg, MSDC_PAD_TUNE_CMDRRDLY_M,
+				host->hs200_cmd_int_delay <<
+				MSDC_PAD_TUNE_CMDRRDLY_S);
+
+	if (host->r_smpl)
+		clrbits_le32(&host->base->msdc_iocon, MSDC_IOCON_RSPL);
+	else
+		setbits_le32(&host->base->msdc_iocon, MSDC_IOCON_RSPL);
+
+	for (i = 0; i < PAD_DELAY_MAX; i++) {
+		clrsetbits_le32(tune_reg, PAD_CMD_TUNE_RX_DLY3,
+				i << PAD_CMD_TUNE_RX_DLY3_S);
+
+		for (j = 0; j < 3; j++) {
+			mmc_send_tuning(mmc, opcode, &cmd_err);
+			if (!cmd_err) {
+				cmd_delay |= (1 << i);
+			} else {
+				cmd_delay &= ~(1 << i);
+				break;
+			}
+		}
+	}
+
+	final_cmd_delay = get_best_delay(host, cmd_delay);
+	clrsetbits_le32(tune_reg, PAD_CMD_TUNE_RX_DLY3,
+			final_cmd_delay.final_phase <<
+			PAD_CMD_TUNE_RX_DLY3_S);
+	final_delay = final_cmd_delay.final_phase;
+
+	dev_err(dev, "Final cmd pad delay: %x\n", final_delay);
+	return final_delay == 0xff ? -EIO : 0;
+}
+
 static int msdc_tune_response(struct udevice *dev, u32 opcode)
 {
 	struct msdc_plat *plat = dev_get_platdata(dev);
@@ -1132,34 +1205,138 @@ skip_fall:
 	return final_delay == 0xff ? -EIO : 0;
 }
 
+/*
+ * MSDC IP which supports data tune + async fifo can do CMD/DAT tune
+ * together, which can save the tuning time.
+ */
+static int msdc_tune_together(struct udevice *dev, u32 opcode)
+{
+	struct msdc_plat *plat = dev_get_platdata(dev);
+	struct msdc_host *host = dev_get_priv(dev);
+	struct mmc *mmc = &plat->mmc;
+	u32 rise_delay = 0, fall_delay = 0;
+	struct msdc_delay_phase final_rise_delay, final_fall_delay = { 0, };
+	u8 final_delay, final_maxlen;
+	void __iomem *tune_reg = &host->base->pad_tune;
+	int i, ret;
+
+	if (host->dev_comp->pad_tune0)
+		tune_reg = &host->base->pad_tune0;
+
+	clrbits_le32(&host->base->msdc_iocon, MSDC_IOCON_DSPL);
+	clrbits_le32(&host->base->msdc_iocon, MSDC_IOCON_W_DSPL);
+
+	for (i = 0; i < PAD_DELAY_MAX; i++) {
+		clrsetbits_le32(tune_reg, MSDC_PAD_TUNE_CMDRDLY_M,
+				i << MSDC_PAD_TUNE_CMDRDLY_S);
+		clrsetbits_le32(tune_reg, MSDC_PAD_TUNE_DATRRDLY_M,
+				i << MSDC_PAD_TUNE_DATRRDLY_S);
+
+		ret = mmc_send_tuning(mmc, opcode, NULL);
+		if (!ret)
+			rise_delay |= (1 << i);
+	}
+
+	final_rise_delay = get_best_delay(host, rise_delay);
+	if (final_rise_delay.maxlen >= 12 ||
+	    (final_rise_delay.start == 0 && final_rise_delay.maxlen >= 4))
+		goto skip_fall;
+
+	setbits_le32(&host->base->msdc_iocon, MSDC_IOCON_DSPL);
+	setbits_le32(&host->base->msdc_iocon, MSDC_IOCON_W_DSPL);
+
+	for (i = 0; i < PAD_DELAY_MAX; i++) {
+		clrsetbits_le32(tune_reg, MSDC_PAD_TUNE_CMDRDLY_M,
+				i << MSDC_PAD_TUNE_CMDRDLY_S);
+		clrsetbits_le32(tune_reg, MSDC_PAD_TUNE_DATRRDLY_M,
+				i << MSDC_PAD_TUNE_DATRRDLY_S);
+
+		ret = mmc_send_tuning(mmc, opcode, NULL);
+		if (!ret)
+			fall_delay |= (1 << i);
+	}
+
+	final_fall_delay = get_best_delay(host, fall_delay);
+
+skip_fall:
+	final_maxlen = max(final_rise_delay.maxlen, final_fall_delay.maxlen);
+	if (final_maxlen == final_rise_delay.maxlen) {
+		clrbits_le32(&host->base->msdc_iocon, MSDC_IOCON_DSPL);
+		clrbits_le32(&host->base->msdc_iocon, MSDC_IOCON_W_DSPL);
+		clrsetbits_le32(tune_reg, MSDC_PAD_TUNE_CMDRDLY_M,
+				final_rise_delay.final_phase <<
+				MSDC_PAD_TUNE_CMDRDLY_S);
+		clrsetbits_le32(tune_reg, MSDC_PAD_TUNE_DATRRDLY_M,
+				final_rise_delay.final_phase <<
+				MSDC_PAD_TUNE_DATRRDLY_S);
+		final_delay = final_rise_delay.final_phase;
+	} else {
+		setbits_le32(&host->base->msdc_iocon, MSDC_IOCON_DSPL);
+		setbits_le32(&host->base->msdc_iocon, MSDC_IOCON_W_DSPL);
+		clrsetbits_le32(tune_reg, MSDC_PAD_TUNE_CMDRDLY_M,
+				final_fall_delay.final_phase <<
+				MSDC_PAD_TUNE_CMDRDLY_S);
+		clrsetbits_le32(tune_reg, MSDC_PAD_TUNE_DATRRDLY_M,
+				final_fall_delay.final_phase <<
+				MSDC_PAD_TUNE_DATRRDLY_S);
+		final_delay = final_fall_delay.final_phase;
+	}
+
+	dev_err(dev, "Final pad delay: %x\n", final_delay);
+
+	return final_delay == 0xff ? -EIO : 0;
+}
+
 static int msdc_execute_tuning(struct udevice *dev, uint opcode)
 {
 	struct msdc_plat *plat = dev_get_platdata(dev);
 	struct msdc_host *host = dev_get_priv(dev);
 	struct mmc *mmc = &plat->mmc;
-	int ret;
+	int ret = 0;
 
-	if (mmc->selected_mode == MMC_HS_400) {
-		writel(host->hs400_ds_delay, &host->base->pad_ds_tune);
-		/* for hs400 mode it must be set to 0 */
-		clrbits_le32(&host->base->patch_bit2, MSDC_PB2_CFGCRCSTS);
-		host->hs400_mode = true;
+	if (host->dev_comp->data_tune && host->dev_comp->async_fifo) {
+		ret = msdc_tune_together(dev, opcode);
+		if (ret == -EIO) {
+			dev_err(dev, "Tune fail!\n");
+			return ret;
+		}
+
+		if (mmc->selected_mode == MMC_HS_400) {
+			clrbits_le32(&host->base->msdc_iocon,
+				     MSDC_IOCON_DSPL | MSDC_IOCON_W_DSPL);
+			clrsetbits_le32(&host->base->pad_tune,
+					MSDC_PAD_TUNE_DATRRDLY_M, 0);
+
+			writel(host->hs400_ds_delay, &host->base->pad_ds_tune);
+			/* for hs400 mode it must be set to 0 */
+			clrbits_le32(&host->base->patch_bit2,
+				     MSDC_PB2_CFGCRCSTS);
+			host->hs400_mode = true;
+		}
+		goto tune_done;
 	}
 
-	ret = msdc_tune_response(dev, opcode);
+	if (mmc->selected_mode == MMC_HS_400)
+		ret = hs400_tune_response(dev, opcode);
+	else
+		ret = msdc_tune_response(dev, opcode);
 	if (ret == -EIO) {
 		dev_err(dev, "Tune response fail!\n");
 		return ret;
 	}
 
-	if (!host->hs400_mode) {
+	if (mmc->selected_mode != MMC_HS_400) {
 		ret = msdc_tune_data(dev, opcode);
-		if (ret == -EIO)
+		if (ret == -EIO) {
 			dev_err(dev, "Tune data fail!\n");
+			return ret;
+		}
 	}
 
+tune_done:
 	host->saved_tune_para.iocon = readl(&host->base->msdc_iocon);
 	host->saved_tune_para.pad_tune = readl(&host->base->pad_tune);
+	host->saved_tune_para.pad_cmd_tune = readl(&host->base->pad_cmd_tune);
 
 	return ret;
 }
