@@ -19,8 +19,6 @@
 /* High Level Configuration Options */
 #define CONFIG_SOCRATES		1
 
-#define CONFIG_PCI_INDIRECT_BRIDGE
-
 /*
  * Only possible on E500 Version 2 or newer cores.
  */
@@ -96,6 +94,7 @@
  */
 #define CONFIG_SYS_LBC_CACHE_BASE	0xf0000000	/* Localbus cacheable	 */
 
+#define CONFIG_SYS_FLASH_QUIET_TEST
 #define CONFIG_SYS_FLASH0		0xFE000000
 #define CONFIG_SYS_FLASH1		0xFC000000
 #define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH1, CONFIG_SYS_FLASH0 }
@@ -147,50 +146,7 @@
 #define CONFIG_SYS_BR2_PRELIM		0xc80018a1	/* UPMB, 32-bit	*/
 #define CONFIG_SYS_OR2_PRELIM		0xfc000000	/* 64 MB	*/
 
-#define CONFIG_VIDEO_MB862xx
-#define CONFIG_VIDEO_MB862xx_ACCEL
-#define CONFIG_VIDEO_LOGO
-#define CONFIG_VIDEO_BMP_LOGO
-#define VIDEO_FB_16BPP_PIXEL_SWAP
-#define VIDEO_FB_16BPP_WORD_SWAP
-#define CONFIG_SPLASH_SCREEN
-#define CONFIG_VIDEO_BMP_GZIP
-#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(2 << 20)	/* decompressed img */
-
-/* SDRAM Clock frequency, 100MHz (0x0000) or 133MHz (0x10000) */
-#define CONFIG_SYS_MB862xx_CCF		0x10000
-/* SDRAM parameter */
-#define CONFIG_SYS_MB862xx_MMR		0x4157BA63
-
-/* Serial Port */
-
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	1
-#define CONFIG_SYS_NS16550_CLK		get_bus_freq(0)
-
-#define CONFIG_SYS_NS16550_COM1	(CONFIG_SYS_CCSRBAR+0x4500)
-#define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_CCSRBAR+0x4600)
-
-#define CONFIG_SYS_BAUDRATE_TABLE  \
-	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400,115200}
-
-/*
- * I2C
- */
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_FSL
-#define CONFIG_SYS_FSL_I2C_SPEED	102124
-#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C_OFFSET	0x3000
-#define CONFIG_SYS_FSL_I2C2_SPEED	102124
-#define CONFIG_SYS_FSL_I2C2_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C2_OFFSET	0x3100
-
-/* I2C RTC */
-#define CONFIG_SYS_I2C_RTC_ADDR	0x32	/* at address 0x32		*/
-
-/* I2C W83782G HW-Monitoring IC */
-#define CONFIG_SYS_I2C_W83782G_ADDR	0x28	/* W83782G address 		*/
+#define CONFIG_SYS_SPD_BUS_NUM 0
 
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	4
 
@@ -198,7 +154,6 @@
  * General PCI
  * Memory space is mapped 1-1.
  */
-#define CONFIG_SYS_PCI_PHYS		0x80000000	/* 1G PCI TLB */
 
 /* PCI is clocked by the external source at 33 MHz */
 #define CONFIG_PCI_CLK_FREQ	33000000
@@ -208,10 +163,6 @@
 #define CONFIG_SYS_PCI1_IO_BASE	0xE2000000
 #define CONFIG_SYS_PCI1_IO_PHYS	CONFIG_SYS_PCI1_IO_BASE
 #define CONFIG_SYS_PCI1_IO_SIZE	0x01000000	/* 16M			*/
-
-#if defined(CONFIG_PCI)
-#undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup	*/
-#endif	/* CONFIG_PCI */
 
 #define CONFIG_TSEC1	1
 #define CONFIG_TSEC1_NAME	"TSEC0"
@@ -237,9 +188,10 @@
  * Environment
  */
 #define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K(one sector) for env	*/
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - \
+				CONFIG_ENV_SECT_SIZE - CONFIG_ENV_SECT_SIZE)
 #define CONFIG_ENV_SIZE		0x4000
-#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR-CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR - CONFIG_ENV_SECT_SIZE)
 #define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
@@ -279,7 +231,7 @@
 	"bootfile=/home/tftp/syscon3/uImage\0"				\
 	"fdt_file=/home/tftp/syscon3/socrates.dtb\0"			\
 	"initrd_file=/home/tftp/syscon3/uinitrd.gz\0"			\
-	"uboot_addr=FFFA0000\0"						\
+	"uboot_addr=FFF60000\0"						\
 	"kernel_addr=FE000000\0"					\
 	"fdt_addr=FE1E0000\0"						\
 	"ramdisk_addr=FE200000\0"					\
@@ -302,9 +254,9 @@
 		"run nfsargs addip addcons;"				\
 		"bootm ${kernel_addr_r} - ${fdt_addr_r}\0"		\
 	"update_uboot=tftp 100000 ${uboot_file};"			\
-		"protect off fffa0000 ffffffff;"			\
-		"era fffa0000 ffffffff;"				\
-		"cp.b 100000 fffa0000 ${filesize};"			\
+		"protect off fff60000 ffffffff;"			\
+		"era fff60000 ffffffff;"				\
+		"cp.b 100000 fff60000 ${filesize};"			\
 		"setenv filesize;saveenv\0"				\
 	"update_kernel=tftp 100000 ${bootfile};"			\
 		"era fe000000 fe1dffff;"				\
@@ -333,8 +285,6 @@
 /* USB support */
 #define CONFIG_USB_OHCI_NEW		1
 #define CONFIG_PCI_OHCI			1
-#define CONFIG_PCI_OHCI_DEVNO		3 /* Number in PCI list */
-#define CONFIG_PCI_EHCI_DEVNO		(CONFIG_PCI_OHCI_DEVNO / 2)
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	15
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME		"ohci_pci"
 #define CONFIG_SYS_OHCI_SWAP_REG_ACCESS	1

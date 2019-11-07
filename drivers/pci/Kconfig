@@ -68,6 +68,13 @@ config PCIE_FSL
 	  PowerPC MPC85xx, MPC86xx, B series, P series and T series SoCs.
 	  This driver does not support SRIO_PCIE_BOOT feature.
 
+config PCI_MPC85XX
+	bool "MPC85XX PowerPC PCI support"
+	depends on DM_PCI
+	help
+	  Say Y here if you want to enable PCI controller support on FSL
+	  PowerPC MPC85xx SoC.
+
 config PCI_RCAR_GEN2
 	bool "Renesas RCar Gen2 PCIe driver"
 	depends on DM_PCI

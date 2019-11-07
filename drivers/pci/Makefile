@@ -19,6 +19,7 @@ obj-$(CONFIG_PCIE_ECAM_GENERIC) += pcie_ecam_generic.o
 obj-$(CONFIG_FSL_PCI_INIT) += fsl_pci_init.o
 obj-$(CONFIG_PCI_INDIRECT_BRIDGE) += pci_indirect.o
 obj-$(CONFIG_PCI_GT64120) += pci_gt64120.o
+obj-$(CONFIG_PCI_MPC85XX) += pci_mpc85xx.o
 obj-$(CONFIG_PCI_MSC01) += pci_msc01.o
 obj-$(CONFIG_PCIE_IMX) += pcie_imx.o
 obj-$(CONFIG_FTPCI100) += pci_ftpci100.o

@@ -701,6 +701,11 @@ S:	Maintained
 F:	drivers/pci_endpoint/
 F:  include/pci_ep.h
 
+PCI MPC85xx
+M:	Heiko Schocher <hs@denx.de>
+S:	Maintained
+F:	drivers/pci/pci_mpc85xx.c
+
 POWER
 M:	Jaehoon Chung <jh80.chung@samsung.com>
 S:	Maintained
