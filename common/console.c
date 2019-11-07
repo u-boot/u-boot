@@ -252,10 +252,12 @@ static void console_puts(int file, const char *s)
 	}
 }
 
+#if CONFIG_IS_ENABLED(SYS_CONSOLE_IS_IN_ENV)
 static inline void console_doenv(int file, struct stdio_dev *dev)
 {
 	iomux_doenv(file, dev->name);
 }
+#endif
 #else
 static inline int console_getc(int file)
 {
@@ -283,10 +285,12 @@ static inline void console_puts(int file, const char *s)
 	stdio_devices[file]->puts(stdio_devices[file], s);
 }
 
+#if CONFIG_IS_ENABLED(SYS_CONSOLE_IS_IN_ENV)
 static inline void console_doenv(int file, struct stdio_dev *dev)
 {
 	console_setfile(file, dev);
 }
+#endif
 #endif /* CONIFIG_IS_ENABLED(CONSOLE_MUX) */
 
 /** U-Boot INITIAL CONSOLE-NOT COMPATIBLE FUNCTIONS *************************/

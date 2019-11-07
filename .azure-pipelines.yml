@@ -149,6 +149,10 @@ jobs:
         sandbox:
           TEST_PY_BD: "sandbox"
           BUILDMAN: "^sandbox$"
+        sandbox_clang:
+          TEST_PY_BD: "sandbox"
+          BUILDMAN: "^sandbox$"
+          OVERRIDE: "-O clang-7"
         sandbox_spl:
           TEST_PY_BD: "sandbox_spl"
           TEST_PY_TEST_SPEC: "test_ofplatdata"
@@ -238,6 +242,7 @@ jobs:
           export TEST_PY_ID="${TEST_PY_ID}"
           export TEST_PY_TEST_SPEC="${TEST_PY_TEST_SPEC}"
           export BUILDMAN="${BUILDMAN}"
+          export OVERRIDE="${OVERRIDE}"
           EOF
           cat << "EOF" >> test.sh
           # the below corresponds to .gitlab-ci.yml "before_script"
