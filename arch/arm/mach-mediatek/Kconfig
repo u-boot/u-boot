@@ -38,6 +38,15 @@ config TARGET_MT8516
 	  Ethernet, IR TX/RX, I2C, I2S, S/PDIF, and built-in Wi-Fi / Bluetooth combo
 	  chip and several DDR3 and DDR4 options.
 
+config TARGET_MT8518
+	bool "MediaTek MT8518 SoC"
+	select ARM64
+	help
+	  The MediaTek MT8518 is a ARM64-based SoC with a quad-core Cortex-A53.
+	  including UART, SPI, USB2.0 and OTG, SD and MMC cards, NAND, PWM,
+	  Ethernet, IR TX/RX, I2C, I2S, S/PDIF, and built-in Wi-Fi / Bluetooth combo
+	  chip and several DDR3 and DDR4 options.
+
 endchoice
 
 source "board/mediatek/mt7623/Kconfig"
