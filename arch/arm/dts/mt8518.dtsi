@@ -65,7 +65,14 @@
 		reset-on-timeout;
 	};
 
-
+	pinctrl: pinctrl@10005000 {
+		compatible = "mediatek,mt8518-pinctrl";
+		reg = <0x10005000 0x1000>;
+		gpio: gpio-controller {
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
+	};
 
 	mmc0: mmc@11120000 {
 		compatible = "mediatek,mt8516-mmc";
