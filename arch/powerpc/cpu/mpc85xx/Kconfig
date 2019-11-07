@@ -1208,8 +1208,8 @@ config FSL_LAW
 	help
 		Use Freescale common code for Local Access Window
 
-config SECURE_BOOT
-	bool	"Secure Boot"
+config NXP_ESBC
+	bool	"NXP_ESBC"
 	help
 		Enable Freescale Secure Boot feature. Normally selected
 		by defconfig. If unsure, do not change.
