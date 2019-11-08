@@ -11,6 +11,10 @@
 	};
 };
 
+&clkmgr {
+	u-boot,dm-pre-reloc;
+};
+
 &qspi {
 	status = "okay";
 	u-boot,dm-pre-reloc;
@@ -21,5 +25,9 @@
 	spi-max-frequency = <100000000>;
 	spi-tx-bus-width = <4>;
 	spi-rx-bus-width = <4>;
+	u-boot,dm-pre-reloc;
+};
+
+&sysmgr {
 	u-boot,dm-pre-reloc;
 };

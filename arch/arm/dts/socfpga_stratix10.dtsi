@@ -82,7 +82,7 @@
 		ranges = <0 0 0 0xffffffff>;
 		u-boot,dm-pre-reloc;
 
-		clkmgr@ffd1000 {
+		clkmgr: clkmgr@ffd10000 {
 			compatible = "altr,clk-mgr";
 			reg = <0xffd10000 0x1000>;
 		};
