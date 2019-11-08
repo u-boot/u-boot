@@ -208,8 +208,6 @@ int arch_early_init_r(void)
 }
 
 #ifndef CONFIG_SPL_BUILD
-static struct socfpga_reset_manager *reset_manager_base =
-	(struct socfpga_reset_manager *)SOCFPGA_RSTMGR_ADDRESS;
 static struct socfpga_sdr_ctrl *sdr_ctrl =
 	(struct socfpga_sdr_ctrl *)SDR_CTRLGRP_ADDRESS;
 
@@ -228,15 +226,17 @@ void do_bridge_reset(int enable, unsigned int mask)
 
 		writel(iswgrp_handoff[2], &sysmgr_regs->fpgaintfgrp_module);
 		writel(iswgrp_handoff[3], &sdr_ctrl->fpgaport_rst);
-		writel(iswgrp_handoff[0], &reset_manager_base->brg_mod_reset);
+		writel(iswgrp_handoff[0],
+		       socfpga_get_rstmgr_addr() + RSTMGR_GEN5_BRGMODRST);
 		writel(iswgrp_handoff[1], &nic301_regs->remap);
 
-		writel(0x7, &reset_manager_base->brg_mod_reset);
-		writel(iswgrp_handoff[0], &reset_manager_base->brg_mod_reset);
+		writel(0x7, socfpga_get_rstmgr_addr() + RSTMGR_GEN5_BRGMODRST);
+		writel(iswgrp_handoff[0],
+		       socfpga_get_rstmgr_addr() + RSTMGR_GEN5_BRGMODRST);
 	} else {
 		writel(0, &sysmgr_regs->fpgaintfgrp_module);
 		writel(0, &sdr_ctrl->fpgaport_rst);
-		writel(0x7, &reset_manager_base->brg_mod_reset);
+		writel(0x7, socfpga_get_rstmgr_addr() + RSTMGR_GEN5_BRGMODRST);
 		writel(1, &nic301_regs->remap);
 	}
 }

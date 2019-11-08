@@ -10,32 +10,30 @@
 #include <asm/arch/reset_manager.h>
 #include <asm/arch/system_manager.h>
 
-static const struct socfpga_reset_manager *reset_manager_base =
-		(void *)SOCFPGA_RSTMGR_ADDRESS;
 static const struct socfpga_system_manager *sysmgr_regs =
 	(struct socfpga_system_manager *)SOCFPGA_SYSMGR_ADDRESS;
 
 /* Assert or de-assert SoCFPGA reset manager reset. */
 void socfpga_per_reset(u32 reset, int set)
 {
-	const u32 *reg;
+	unsigned long reg;
 	u32 rstmgr_bank = RSTMGR_BANK(reset);
 
 	switch (rstmgr_bank) {
 	case 0:
-		reg = &reset_manager_base->mpu_mod_reset;
+		reg = RSTMGR_GEN5_MPUMODRST;
 		break;
 	case 1:
-		reg = &reset_manager_base->per_mod_reset;
+		reg = RSTMGR_GEN5_PERMODRST;
 		break;
 	case 2:
-		reg = &reset_manager_base->per2_mod_reset;
+		reg = RSTMGR_GEN5_PER2MODRST;
 		break;
 	case 3:
-		reg = &reset_manager_base->brg_mod_reset;
+		reg = RSTMGR_GEN5_BRGMODRST;
 		break;
 	case 4:
-		reg = &reset_manager_base->misc_mod_reset;
+		reg = RSTMGR_GEN5_MISCMODRST;
 		break;
 
 	default:
@@ -43,9 +41,11 @@ void socfpga_per_reset(u32 reset, int set)
 	}
 
 	if (set)
-		setbits_le32(reg, 1 << RSTMGR_RESET(reset));
+		setbits_le32(socfpga_get_rstmgr_addr() + reg,
+			     1 << RSTMGR_RESET(reset));
 	else
-		clrbits_le32(reg, 1 << RSTMGR_RESET(reset));
+		clrbits_le32(socfpga_get_rstmgr_addr() + reg,
+			     1 << RSTMGR_RESET(reset));
 }
 
 /*
@@ -57,8 +57,8 @@ void socfpga_per_reset_all(void)
 {
 	const u32 l4wd0 = 1 << RSTMGR_RESET(SOCFPGA_RESET(L4WD0));
 
-	writel(~l4wd0, &reset_manager_base->per_mod_reset);
-	writel(0xffffffff, &reset_manager_base->per2_mod_reset);
+	writel(~l4wd0, socfpga_get_rstmgr_addr() + RSTMGR_GEN5_PERMODRST);
+	writel(0xffffffff, socfpga_get_rstmgr_addr() + RSTMGR_GEN5_PER2MODRST);
 }
 
 #define L3REGS_REMAP_LWHPS2FPGA_MASK	0x10
@@ -95,7 +95,7 @@ void socfpga_bridges_reset(int enable)
 
 	if (enable) {
 		/* brdmodrst */
-		writel(0x7, &reset_manager_base->brg_mod_reset);
+		writel(0x7, socfpga_get_rstmgr_addr() + RSTMGR_GEN5_BRGMODRST);
 		writel(L3REGS_REMAP_OCRAM_MASK, SOCFPGA_L3REGS_ADDRESS);
 	} else {
 		socfpga_bridges_set_handoff_regs(false, false, false);
@@ -109,7 +109,7 @@ void socfpga_bridges_reset(int enable)
 		}
 
 		/* brdmodrst */
-		writel(0, &reset_manager_base->brg_mod_reset);
+		writel(0, socfpga_get_rstmgr_addr() + RSTMGR_GEN5_BRGMODRST);
 
 		/* Remap the bridges into memory map */
 		writel(l3mask, SOCFPGA_L3REGS_ADDRESS);

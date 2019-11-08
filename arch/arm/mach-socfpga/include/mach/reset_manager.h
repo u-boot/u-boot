@@ -6,6 +6,8 @@
 #ifndef _RESET_MANAGER_H_
 #define _RESET_MANAGER_H_
 
+phys_addr_t socfpga_get_rstmgr_addr(void);
+
 void reset_cpu(ulong addr);
 
 void socfpga_per_reset(u32 reset, int set);

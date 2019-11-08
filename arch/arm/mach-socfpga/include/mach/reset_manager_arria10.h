@@ -14,40 +14,15 @@ int socfpga_reset_deassert_bridges_handoff(void);
 void socfpga_reset_deassert_osc1wd0(void);
 int socfpga_bridges_reset(void);
 
-struct socfpga_reset_manager {
-	u32	stat;
-	u32	ramstat;
-	u32	miscstat;
-	u32	ctrl;
-	u32	hdsken;
-	u32	hdskreq;
-	u32	hdskack;
-	u32	counts;
-	u32	mpumodrst;
-	u32	per0modrst;
-	u32	per1modrst;
-	u32	brgmodrst;
-	u32	sysmodrst;
-	u32	coldmodrst;
-	u32	nrstmodrst;
-	u32	dbgmodrst;
-	u32	mpuwarmmask;
-	u32	per0warmmask;
-	u32	per1warmmask;
-	u32	brgwarmmask;
-	u32	syswarmmask;
-	u32	nrstwarmmask;
-	u32	l3warmmask;
-	u32	tststa;
-	u32	tstscratch;
-	u32	hdsktimeout;
-	u32	hmcintr;
-	u32	hmcintren;
-	u32	hmcintrens;
-	u32	hmcintrenr;
-	u32	hmcgpout;
-	u32	hmcgpin;
-};
+#define RSTMGR_A10_STATUS	0x00
+#define RSTMGR_A10_CTRL		0x0c
+#define RSTMGR_A10_MPUMODRST	0x20
+#define RSTMGR_A10_PER0MODRST	0x24
+#define RSTMGR_A10_PER1MODRST	0x28
+#define RSTMGR_A10_BRGMODRST	0x2c
+#define RSTMGR_A10_SYSMODRST	0x30
+
+#define RSTMGR_CTRL		RSTMGR_A10_CTRL
 
 /*
  * SocFPGA Arria10 reset IDs, bank mapping is as follows:

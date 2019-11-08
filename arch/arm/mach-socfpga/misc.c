@@ -23,6 +23,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+phys_addr_t socfpga_rstmgr_base __section(".data");
+
 #ifdef CONFIG_SYS_L2_PL310
 static const struct pl310_regs *const pl310 =
 	(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
@@ -146,6 +148,8 @@ void socfpga_fpga_add(void *fpga_desc)
 
 int arch_cpu_init(void)
 {
+	socfpga_get_managers_addr();
+
 #ifdef CONFIG_HW_WATCHDOG
 	/*
 	 * In case the watchdog is enabled, make sure to (re-)configure it
@@ -203,3 +207,40 @@ U_BOOT_CMD(bridge, 3, 1, do_bridge,
 );
 
 #endif
+
+static int socfpga_get_base_addr(const char *compat, phys_addr_t *base)
+{
+	const void *blob = gd->fdt_blob;
+	struct fdt_resource r;
+	int node;
+	int ret;
+
+	node = fdt_node_offset_by_compatible(blob, -1, compat);
+	if (node < 0)
+		return node;
+
+	if (!fdtdec_get_is_enabled(blob, node))
+		return -ENODEV;
+
+	ret = fdt_get_resource(blob, node, "reg", 0, &r);
+	if (ret)
+		return ret;
+
+	*base = (phys_addr_t)r.start;
+
+	return 0;
+}
+
+void socfpga_get_managers_addr(void)
+{
+	int ret;
+
+	ret = socfpga_get_base_addr("altr,rst-mgr", &socfpga_rstmgr_base);
+	if (ret)
+		hang();
+}
+
+phys_addr_t socfpga_get_rstmgr_addr(void)
+{
+	return socfpga_rstmgr_base;
+}

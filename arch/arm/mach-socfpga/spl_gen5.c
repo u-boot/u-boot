@@ -67,8 +67,14 @@ void board_init_f(ulong dummy)
 	int ret;
 	struct udevice *dev;
 
+	ret = spl_early_init();
+	if (ret)
+		hang();
+
+	socfpga_get_managers_addr();
+
 	/*
-	 * First C code to run. Clear fake OCRAM ECC first as SBE
+	 * Clear fake OCRAM ECC first as SBE
 	 * and DBE might triggered during power on
 	 */
 	reg = readl(&sysmgr_regs->eccgrp_ocram);
@@ -127,12 +133,6 @@ void board_init_f(ulong dummy)
 	socfpga_per_reset(SOCFPGA_RESET(UART0), 0);
 	debug_uart_init();
 #endif
-
-	ret = spl_early_init();
-	if (ret) {
-		debug("spl_early_init() failed: %d\n", ret);
-		hang();
-	}
 
 	ret = uclass_get_device(UCLASS_RESET, 0, &dev);
 	if (ret)

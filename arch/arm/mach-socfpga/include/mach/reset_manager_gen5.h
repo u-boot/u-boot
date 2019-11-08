@@ -11,19 +11,15 @@
 void socfpga_bridges_set_handoff_regs(bool h2f, bool lwh2f, bool f2h);
 void socfpga_bridges_reset(int enable);
 
-struct socfpga_reset_manager {
-	u32	status;
-	u32	ctrl;
-	u32	counts;
-	u32	padding1;
-	u32	mpu_mod_reset;
-	u32	per_mod_reset;
-	u32	per2_mod_reset;
-	u32	brg_mod_reset;
-	u32	misc_mod_reset;
-	u32	padding2[12];
-	u32	tstscratch;
-};
+#define RSTMGR_GEN5_STATUS	0x00
+#define RSTMGR_GEN5_CTRL	0x04
+#define RSTMGR_GEN5_MPUMODRST	0x10
+#define RSTMGR_GEN5_PERMODRST	0x14
+#define RSTMGR_GEN5_PER2MODRST	0x18
+#define RSTMGR_GEN5_BRGMODRST	0x1c
+#define RSTMGR_GEN5_MISCMODRST	0x20
+
+#define RSTMGR_CTRL		RSTMGR_GEN5_CTRL
 
 /*
  * SocFPGA Cyclone V/Arria V reset IDs, bank mapping is as follows:

@@ -14,6 +14,7 @@
 #include <asm/arch/clock_manager.h>
 #include <asm/arch/firewall_s10.h>
 #include <asm/arch/mailbox_s10.h>
+#include <asm/arch/misc.h>
 #include <asm/arch/reset_manager.h>
 #include <asm/arch/system_manager.h>
 #include <watchdog.h>
@@ -120,6 +121,12 @@ void board_init_f(ulong dummy)
 	const struct cm_config *cm_default_cfg = cm_get_default_config();
 	int ret;
 
+	ret = spl_early_init();
+	if (ret)
+		hang();
+
+	socfpga_get_managers_addr();
+
 #ifdef CONFIG_HW_WATCHDOG
 	/* Ensure watchdog is paused when debugging is happening */
 	writel(SYSMGR_WDDBG_PAUSE_ALL_CPU, &sysmgr_regs->wddbg);
@@ -145,11 +152,6 @@ void board_init_f(ulong dummy)
 	socfpga_per_reset(SOCFPGA_RESET(UART0), 0);
 	debug_uart_init();
 #endif
-	ret = spl_early_init();
-	if (ret) {
-		debug("spl_early_init() failed: %d\n", ret);
-		hang();
-	}
 
 	preloader_console_init();
 	cm_print_clock_quick_summary();
