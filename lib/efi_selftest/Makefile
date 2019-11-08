@@ -5,6 +5,9 @@
 # This file only gets included with CONFIG_EFI_LOADER set, so all
 # object inclusion implicitly depends on it
 
+asflags-y += -DHOST_ARCH="$(HOST_ARCH)"
+ccflags-y += -DHOST_ARCH="$(HOST_ARCH)"
+
 CFLAGS_efi_selftest_miniapp_exit.o := $(CFLAGS_EFI) -Os -ffreestanding
 CFLAGS_REMOVE_efi_selftest_miniapp_exit.o := $(CFLAGS_NON_EFI)
 CFLAGS_efi_selftest_miniapp_return.o := $(CFLAGS_EFI) -Os -ffreestanding
@@ -55,8 +58,8 @@ obj-y += efi_selftest_block_device.o
 endif
 
 # TODO: As of v2019.10 the relocation code for the EFI application cannot
-# be built on ARMv7-M and Sandbox.
-ifeq ($(CONFIG_SANDBOX)$(CONFIG_CPU_V7M),)
+# be built on ARMv7-M.
+ifeq ($(CONFIG_CPU_V7M),)
 
 obj-y += \
 efi_selftest_exception.o \
