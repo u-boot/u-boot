@@ -267,6 +267,27 @@ EXPORT_SYMBOL_GPL(usb_del_gadget_udc);
 
 /* ------------------------------------------------------------------------- */
 
+/**
+ * usb_gadget_udc_set_speed - tells usb device controller speed supported by
+ *    current driver
+ * @udc: The device we want to set maximum speed
+ * @speed: The maximum speed to allowed to run
+ *
+ * This call is issued by the UDC Class driver before calling
+ * usb_gadget_udc_start() in order to make sure that we don't try to
+ * connect on speeds the gadget driver doesn't support.
+ */
+static inline void usb_gadget_udc_set_speed(struct usb_udc *udc,
+					    enum usb_device_speed speed)
+{
+	if (udc->gadget->ops->udc_set_speed) {
+		enum usb_device_speed s;
+
+		s = min(speed, udc->gadget->max_speed);
+		udc->gadget->ops->udc_set_speed(udc->gadget, s);
+	}
+}
+
 static int udc_bind_to_driver(struct usb_udc *udc, struct usb_gadget_driver *driver)
 {
 	int ret;
@@ -275,6 +296,8 @@ static int udc_bind_to_driver(struct usb_udc *udc, struct usb_gadget_driver *dri
 			driver->function);
 
 	udc->driver = driver;
+
+	usb_gadget_udc_set_speed(udc, driver->speed);
 
 	ret = driver->bind(udc->gadget);
 	if (ret)
