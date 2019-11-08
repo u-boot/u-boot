@@ -141,6 +141,7 @@ void spl_board_prepare_for_linux(void)
 int misc_init_r(void)
 {
 	twl4030_power_init();
+	twl4030_power_mmc_init(0);
 	omap_die_id_display();
 	return 0;
 }

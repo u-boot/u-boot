@@ -118,6 +118,13 @@ void board_init_f(ulong dummy)
 	preloader_console_init();
 #endif
 
+#if defined(CONFIG_CPU_V7R) && defined(CONFIG_K3_AVS0)
+	ret = uclass_get_device_by_driver(UCLASS_MISC, DM_GET_DRIVER(k3_avs),
+					  &dev);
+	if (ret)
+		printf("AVS init failed: %d\n", ret);
+#endif
+
 #if defined(CONFIG_K3_J721E_DDRSS)
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
 	if (ret)

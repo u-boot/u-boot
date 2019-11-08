@@ -17,6 +17,26 @@
 	};
 };
 
+&gpio1 {
+	/delete-property/ u-boot,dm-spl;
+};
+
+&gpio2 {
+	/delete-property/ u-boot,dm-spl;
+};
+
+&gpio3 {
+	/delete-property/ u-boot,dm-spl;
+};
+
+&gpio5 {
+	/delete-property/ u-boot,dm-spl;
+};
+
+&gpio6 {
+	/delete-property/ u-boot,dm-spl;
+};
+
 &i2c1 {
 	clock-frequency = <400000>;
 };

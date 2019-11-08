@@ -421,4 +421,13 @@ config MICROCHIP_FLEXCOM
 	  Only one function can be used at a time and is chosen at boot time
 	  according to the device tree.
 
+config K3_AVS0
+	depends on ARCH_K3 && SPL_DM_REGULATOR
+	bool "AVS class 0 support for K3 devices"
+	help
+	  K3 devices have the optimized voltage values for the main voltage
+	  domains stored in efuse within the VTM IP. This driver reads the
+	  optimized voltage from the efuse, so that it can be programmed
+	  to the PMIC on board.
+
 endmenu

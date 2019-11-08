@@ -59,6 +59,13 @@
 		mboxes= <&mcu_secproxy 4>, <&mcu_secproxy 5>;
 		mbox-names = "tx", "rx";
 	};
+
+	wkup_vtm0: wkup_vtm@42040000 {
+		compatible = "ti,am654-vtm", "ti,j721e-avs";
+		reg = <0x0 0x42040000 0x0 0x330>;
+		power-domains = <&k3_pds 154 TI_SCI_PD_EXCLUSIVE>;
+		#thermal-sensor-cells = <1>;
+	};
 };
 
 &dmsc {
@@ -84,6 +91,13 @@
 			J721E_WKUP_IOPAD(0xec, PIN_OUTPUT, 0) /* (J27) WKUP_GPIO0_15.MCU_UART0_RTSn */
 			J721E_WKUP_IOPAD(0xe4, PIN_INPUT, 0) /* (H28) WKUP_GPIO0_13.MCU_UART0_RXD */
 			J721E_WKUP_IOPAD(0xe0, PIN_OUTPUT, 0) /* (G29) WKUP_GPIO0_12.MCU_UART0_TXD */
+		>;
+	};
+
+	wkup_i2c0_pins_default: wkup-i2c0-pins-default {
+		pinctrl-single,pins = <
+			J721E_WKUP_IOPAD(0xf8, PIN_INPUT_PULLUP, 0) /* (J25) WKUP_I2C0_SCL */
+			J721E_WKUP_IOPAD(0xfc, PIN_INPUT_PULLUP, 0) /* (H24) WKUP_I2C0_SDA */
 		>;
 	};
 };
@@ -138,6 +152,36 @@
 	clock-names = "clk_xin";
 	clocks = <&clk_200mhz>;
 	ti,driver-strength-ohm = <50>;
+};
+
+&wkup_i2c0 {
+	u-boot,dm-spl;
+	tps659413a: tps659413a@48 {
+		reg = <0x48>;
+		compatible = "ti,tps659413";
+		u-boot,dm-spl;
+		pinctrl-names = "default";
+		pinctrl-0 = <&wkup_i2c0_pins_default>;
+		clock-frequency = <400000>;
+
+		regulators: regulators {
+			u-boot,dm-spl;
+			buck12_reg: buck12 {
+				/*VDD_MPU*/
+				regulator-name = "buck12";
+				regulator-min-microvolt = <800000>;
+				regulator-max-microvolt = <1250000>;
+				regulator-always-on;
+				regulator-boot-on;
+				u-boot,dm-spl;
+			};
+		};
+	};
+};
+
+&wkup_vtm0 {
+	vdd-supply-2 = <&buck12_reg>;
+	u-boot,dm-spl;
 };
 
 #include "k3-j721e-common-proc-board-u-boot.dtsi"
