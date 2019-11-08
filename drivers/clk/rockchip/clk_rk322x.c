@@ -508,7 +508,7 @@ static int rk322x_clk_bind(struct udevice *dev)
 		sys_child->priv = priv;
 	}
 
-#if CONFIG_IS_ENABLED(CONFIG_RESET_ROCKCHIP)
+#if CONFIG_IS_ENABLED(RESET_ROCKCHIP)
 	ret = offsetof(struct rk322x_cru, cru_softrst_con[0]);
 	ret = rockchip_reset_bind(dev, ret, 9);
 	if (ret)
