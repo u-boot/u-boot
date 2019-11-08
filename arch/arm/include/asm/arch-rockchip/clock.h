@@ -43,12 +43,6 @@ struct sysreset_reg {
 	unsigned int glb_srst_snd_value;
 };
 
-struct softreset_reg {
-        void __iomem *base;
-        unsigned int sf_reset_offset;
-        unsigned int sf_reset_num;
-};
-
 /**
  * clk_get_divisor() - Calculate the required clock divisior
  *
