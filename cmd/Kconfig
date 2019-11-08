@@ -263,13 +263,6 @@ config CMD_BOOTI
 	help
 	  Boot an AArch64 Linux Kernel image from memory.
 
-config CMD_BOOTEFI
-	bool "bootefi"
-	depends on EFI_LOADER
-	default y
-	help
-	  Boot an EFI image from memory.
-
 config BOOTM_LINUX
 	bool "Support booting Linux OS images"
 	depends on CMD_BOOTM || CMD_BOOTZ || CMD_BOOTI
@@ -317,6 +310,13 @@ config BOOTM_VXWORKS
 	default y
 	help
 	  Support booting VxWorks images via the bootm command.
+
+config CMD_BOOTEFI
+	bool "bootefi"
+	depends on EFI_LOADER
+	default y
+	help
+	  Boot an EFI image from memory.
 
 config CMD_BOOTEFI_HELLO_COMPILE
 	bool "Compile a standard EFI hello world binary for testing"
@@ -1985,6 +1985,14 @@ config CMD_MTDPARTS_SPREAD
 	  the size of the partitions such that 1) each partition's net size is
 	  at least as large as the size specified in the mtdparts variable and
 	  2) each partition starts on a good block.
+
+config CMD_MTDPARTS_SHOW_NET_SIZES
+	bool "Show net size (w/o bad blocks) of partitions"
+	depends on CMD_MTDPARTS
+	help
+	  Adds two columns to the printed partition table showing the
+	  effective usable size of a partition, if bad blocks are taken
+	  into account.
 
 config CMD_REISER
 	bool "reiser - Access to reiserfs filesystems"

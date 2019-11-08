@@ -481,6 +481,13 @@ S:	Maintained
 T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-microblaze.git
 F:	arch/arm/mach-zynqmp-r5/
 
+ARM PHYTIUM
+M:	liuhao <liuhao@phytium.com.cn>
+M:	shuyiqi <shuyiqi@phytium.com.cn>
+S:	Maintained
+F:	drivers/pci/pcie_phytium.c
+F:	arch/arm/dts/phytium-durian.dts
+
 BINMAN
 M:	Simon Glass <sjg@chromium.org>
 S:	Maintained

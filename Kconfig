@@ -281,6 +281,20 @@ config SYS_LDSCRIPT
 	  Path within the source tree to the linker script to use for the
 	  main U-Boot binary.
 
+config ERR_PTR_OFFSET
+	hex
+	default 0x0
+	help
+	  Some U-Boot pointers have redundant information, so we can use a
+	  scheme where we can return either an error code or a pointer with the
+	  same return value. The default implementation just casts the pointer
+	  to a number, however, this may fail on platforms where the end of the
+	  address range is used for valid pointers (e.g. 0xffffff00 is a valid
+	  heap pointer in socfpga SPL).
+	  For such platforms, this value provides an upper range of those error
+	  pointer values - up to 'MAX_ERRNO' bytes below this value must be
+	  unused/invalid addresses.
+
 endmenu		# General setup
 
 menu "Boot images"

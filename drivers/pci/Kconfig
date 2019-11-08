@@ -51,6 +51,13 @@ config PCIE_ECAM_GENERIC
 	  Say Y here if you want to enable support for generic ECAM-based
 	  PCIe host controllers, such as the one emulated by QEMU.
 
+config PCI_PHYTIUM
+	bool "Phytium PCIe support"
+	depends on DM_PCI
+	help
+	  Say Y here if you want to enable PCIe controller support on
+	  Phytium SoCs.
+
 config PCIE_DW_MVEBU
 	bool "Enable Armada-8K PCIe driver (DesignWare core)"
 	depends on DM_PCI

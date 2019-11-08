@@ -235,12 +235,18 @@ static void cache_disable(uint32_t cache_bit)
 		/* if cache isn;t enabled no need to disable */
 		if ((reg & CR_C) != CR_C)
 			return;
+#ifdef CONFIG_SYS_ARM_MMU
 		/* if disabling data cache, disable mmu too */
 		cache_bit |= CR_M;
+#endif
 	}
 	reg = get_cr();
 
+#ifdef CONFIG_SYS_ARM_MMU
 	if (cache_bit == (CR_C | CR_M))
+#elif defined(CONFIG_SYS_ARM_MPU)
+	if (cache_bit == CR_C)
+#endif
 		flush_dcache_all();
 	set_cr(reg & ~cache_bit);
 }
