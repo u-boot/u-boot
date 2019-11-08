@@ -20,8 +20,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static const struct socfpga_clock_manager *clock_manager_base =
 		(void *)SOCFPGA_CLKMGR_ADDRESS;
-static const struct socfpga_system_manager *system_manager_base =
-		(void *)SOCFPGA_SYSMGR_ADDRESS;
 
 struct socfpga_dwmci_plat {
 	struct mmc_config cfg;
@@ -61,10 +59,10 @@ static void socfpga_dwmci_clksel(struct dwmci_host *host)
 
 	debug("%s: drvsel %d smplsel %d\n", __func__,
 	      priv->drvsel, priv->smplsel);
-	writel(sdmmc_mask, &system_manager_base->sdmmcgrp_ctrl);
+	writel(sdmmc_mask, socfpga_get_sysmgr_addr() + SYSMGR_SDMMC);
 
 	debug("%s: SYSMGR_SDMMCGRP_CTRL_REG = 0x%x\n", __func__,
-		readl(&system_manager_base->sdmmcgrp_ctrl));
+		readl(socfpga_get_sysmgr_addr() + SYSMGR_SDMMC));
 
 	/* Enable SDMMC clock */
 	setbits_le32(&clock_manager_base->per_pll.en,

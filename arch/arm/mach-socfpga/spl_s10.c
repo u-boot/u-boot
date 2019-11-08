@@ -22,9 +22,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static struct socfpga_system_manager *sysmgr_regs =
-	(struct socfpga_system_manager *)SOCFPGA_SYSMGR_ADDRESS;
-
 u32 spl_boot_device(void)
 {
 	/* TODO: Get from SDM or handoff */
@@ -129,7 +126,8 @@ void board_init_f(ulong dummy)
 
 #ifdef CONFIG_HW_WATCHDOG
 	/* Ensure watchdog is paused when debugging is happening */
-	writel(SYSMGR_WDDBG_PAUSE_ALL_CPU, &sysmgr_regs->wddbg);
+	writel(SYSMGR_WDDBG_PAUSE_ALL_CPU,
+	       socfpga_get_sysmgr_addr() + SYSMGR_S10_WDDBG);
 
 	/* Enable watchdog before initializing the HW */
 	socfpga_per_reset(SOCFPGA_RESET(L4WD0), 1);
@@ -157,8 +155,10 @@ void board_init_f(ulong dummy)
 	cm_print_clock_quick_summary();
 
 	/* enable non-secure interface to DMA330 DMA and peripherals */
-	writel(SYSMGR_DMA_IRQ_NS | SYSMGR_DMA_MGR_NS, &sysmgr_regs->dma);
-	writel(SYSMGR_DMAPERIPH_ALL_NS, &sysmgr_regs->dma_periph);
+	writel(SYSMGR_DMA_IRQ_NS | SYSMGR_DMA_MGR_NS,
+	       socfpga_get_sysmgr_addr() + SYSMGR_S10_DMA);
+	writel(SYSMGR_DMAPERIPH_ALL_NS,
+	       socfpga_get_sysmgr_addr() + SYSMGR_S10_DMA_PERIPH);
 
 	spl_disable_firewall_l4_per();
 

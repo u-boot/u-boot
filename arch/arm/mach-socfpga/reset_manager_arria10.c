@@ -15,9 +15,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static const struct socfpga_system_manager *sysmgr_regs =
-		(struct socfpga_system_manager *)SOCFPGA_SYSMGR_ADDRESS;
-
 struct bridge_cfg {
 	int compat_id;
 	u32  mask_noc;
@@ -98,15 +95,17 @@ int socfpga_reset_deassert_bridges_handoff(void)
 	}
 
 	/* clear idle request to all bridges */
-	setbits_le32(&sysmgr_regs->noc_idlereq_clr, mask_noc);
+	setbits_le32(socfpga_get_sysmgr_addr() + SYSMGR_A10_NOC_IDLEREQ_CLR,
+		     mask_noc);
 
 	/* Release bridges from reset state per handoff value */
 	clrbits_le32(socfpga_get_rstmgr_addr() + RSTMGR_A10_BRGMODRST,
 		     mask_rstmgr);
 
 	/* Poll until all idleack to 0, timeout at 1000ms */
-	return wait_for_bit_le32(&sysmgr_regs->noc_idleack, mask_noc,
-				 false, 1000, false);
+	return wait_for_bit_le32((const void *)(socfpga_get_sysmgr_addr() +
+				 SYSMGR_A10_NOC_IDLEACK),
+				 mask_noc, false, 1000, false);
 }
 
 /* Release L4 OSC1 Watchdog Timer 0 from reset through reset manager */
@@ -197,13 +196,15 @@ int socfpga_bridges_reset(void)
 		ALT_SYSMGR_NOC_F2SDR0_SET_MSK |
 		ALT_SYSMGR_NOC_F2SDR1_SET_MSK |
 		ALT_SYSMGR_NOC_F2SDR2_SET_MSK,
-		&sysmgr_regs->noc_idlereq_set);
+		socfpga_get_sysmgr_addr() + SYSMGR_A10_NOC_IDLEREQ_SET);
 
 	/* Enable the NOC timeout */
-	writel(ALT_SYSMGR_NOC_TMO_EN_SET_MSK, &sysmgr_regs->noc_timeout);
+	writel(ALT_SYSMGR_NOC_TMO_EN_SET_MSK,
+	       socfpga_get_sysmgr_addr() + SYSMGR_A10_NOC_TIMEOUT);
 
 	/* Poll until all idleack to 1 */
-	ret = wait_for_bit_le32(&sysmgr_regs->noc_idleack,
+	ret = wait_for_bit_le32((const void *)(socfpga_get_sysmgr_addr() +
+				SYSMGR_A10_NOC_IDLEACK),
 				ALT_SYSMGR_NOC_H2F_SET_MSK |
 				ALT_SYSMGR_NOC_LWH2F_SET_MSK |
 				ALT_SYSMGR_NOC_F2H_SET_MSK |
@@ -215,7 +216,8 @@ int socfpga_bridges_reset(void)
 		return ret;
 
 	/* Poll until all idlestatus to 1 */
-	ret = wait_for_bit_le32(&sysmgr_regs->noc_idlestatus,
+	ret = wait_for_bit_le32((const void *)(socfpga_get_sysmgr_addr() +
+				SYSMGR_A10_NOC_IDLESTATUS),
 				ALT_SYSMGR_NOC_H2F_SET_MSK |
 				ALT_SYSMGR_NOC_LWH2F_SET_MSK |
 				ALT_SYSMGR_NOC_F2H_SET_MSK |
@@ -236,7 +238,7 @@ int socfpga_bridges_reset(void)
 		      ALT_RSTMGR_BRGMODRST_F2SSDRAM2_SET_MSK));
 
 	/* Disable NOC timeout */
-	writel(0, &sysmgr_regs->noc_timeout);
+	writel(0, socfpga_get_sysmgr_addr() + SYSMGR_A10_NOC_TIMEOUT);
 
 	return 0;
 }

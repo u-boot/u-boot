@@ -33,9 +33,6 @@ struct altera_sdram_platdata {
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static const struct socfpga_system_manager *sysmgr_regs =
-		(void *)SOCFPGA_SYSMGR_ADDRESS;
-
 #define DDR_CONFIG(A, B, C, R)	(((A) << 24) | ((B) << 16) | ((C) << 8) | (R))
 
 #define PGTABLE_OFF	0x4000
@@ -151,7 +148,8 @@ static int emif_reset(struct altera_sdram_platdata *plat)
 
 static int poll_hmc_clock_status(void)
 {
-	return wait_for_bit_le32(&sysmgr_regs->hmc_clk,
+	return wait_for_bit_le32((const void *)(socfpga_get_sysmgr_addr() +
+				 SYSMGR_S10_HMC_CLK),
 				 SYSMGR_HMC_CLK_STATUS_MSK, true, 1000, false);
 }
 

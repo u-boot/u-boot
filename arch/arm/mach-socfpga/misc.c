@@ -24,6 +24,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 phys_addr_t socfpga_rstmgr_base __section(".data");
+phys_addr_t socfpga_sysmgr_base __section(".data");
 
 #ifdef CONFIG_SYS_L2_PL310
 static const struct pl310_regs *const pl310 =
@@ -238,9 +239,18 @@ void socfpga_get_managers_addr(void)
 	ret = socfpga_get_base_addr("altr,rst-mgr", &socfpga_rstmgr_base);
 	if (ret)
 		hang();
+
+	ret = socfpga_get_base_addr("altr,sys-mgr", &socfpga_sysmgr_base);
+	if (ret)
+		hang();
 }
 
 phys_addr_t socfpga_get_rstmgr_addr(void)
 {
 	return socfpga_rstmgr_base;
+}
+
+phys_addr_t socfpga_get_sysmgr_addr(void)
+{
+	return socfpga_sysmgr_base;
 }

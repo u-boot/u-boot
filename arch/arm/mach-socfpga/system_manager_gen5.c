@@ -8,9 +8,6 @@
 #include <asm/arch/system_manager.h>
 #include <asm/arch/fpga_manager.h>
 
-static struct socfpga_system_manager *sysmgr_regs =
-	(struct socfpga_system_manager *)SOCFPGA_SYSMGR_ADDRESS;
-
 /*
  * Populate the value for SYSMGR.FPGAINTF.MODULE based on pinmux setting.
  * The value is not wrote to SYSMGR.FPGAINTF.MODULE but
@@ -21,30 +18,41 @@ static void populate_sysmgr_fpgaintf_module(void)
 	u32 handoff_val = 0;
 
 	/* ISWGRP_HANDOFF_FPGAINTF */
-	writel(0, &sysmgr_regs->iswgrp_handoff[2]);
+	writel(0, socfpga_get_sysmgr_addr() + SYSMGR_ISWGRP_HANDOFF_OFFSET(2));
 
 	/* Enable the signal for those HPS peripherals that use FPGA. */
-	if (readl(&sysmgr_regs->nandusefpga) == SYSMGR_FPGAINTF_USEFPGA)
+	if (readl(socfpga_get_sysmgr_addr() + SYSMGR_GEN5_NAND_USEFPGA) ==
+	    SYSMGR_FPGAINTF_USEFPGA)
 		handoff_val |= SYSMGR_FPGAINTF_NAND;
-	if (readl(&sysmgr_regs->rgmii1usefpga) == SYSMGR_FPGAINTF_USEFPGA)
+	if (readl(socfpga_get_sysmgr_addr() + SYSMGR_GEN5_RGMII1_USEFPGA) ==
+	    SYSMGR_FPGAINTF_USEFPGA)
 		handoff_val |= SYSMGR_FPGAINTF_EMAC1;
-	if (readl(&sysmgr_regs->sdmmcusefpga) == SYSMGR_FPGAINTF_USEFPGA)
+	if (readl(socfpga_get_sysmgr_addr() + SYSMGR_GEN5_SDMMC_USEFPGA) ==
+	    SYSMGR_FPGAINTF_USEFPGA)
 		handoff_val |= SYSMGR_FPGAINTF_SDMMC;
-	if (readl(&sysmgr_regs->rgmii0usefpga) == SYSMGR_FPGAINTF_USEFPGA)
+	if (readl(socfpga_get_sysmgr_addr() + SYSMGR_GEN5_RGMII0_USEFPGA) ==
+	    SYSMGR_FPGAINTF_USEFPGA)
 		handoff_val |= SYSMGR_FPGAINTF_EMAC0;
-	if (readl(&sysmgr_regs->spim0usefpga) == SYSMGR_FPGAINTF_USEFPGA)
+	if (readl(socfpga_get_sysmgr_addr() + SYSMGR_GEN5_SPIM0_USEFPGA) ==
+	    SYSMGR_FPGAINTF_USEFPGA)
 		handoff_val |= SYSMGR_FPGAINTF_SPIM0;
-	if (readl(&sysmgr_regs->spim1usefpga) == SYSMGR_FPGAINTF_USEFPGA)
+	if (readl(socfpga_get_sysmgr_addr() + SYSMGR_GEN5_SPIM1_USEFPGA) ==
+	    SYSMGR_FPGAINTF_USEFPGA)
 		handoff_val |= SYSMGR_FPGAINTF_SPIM1;
 
 	/* populate (not writing) the value for SYSMGR.FPGAINTF.MODULE
 	based on pinmux setting */
-	setbits_le32(&sysmgr_regs->iswgrp_handoff[2], handoff_val);
+	setbits_le32(socfpga_get_sysmgr_addr() +
+		     SYSMGR_ISWGRP_HANDOFF_OFFSET(2),
+		     handoff_val);
 
-	handoff_val = readl(&sysmgr_regs->iswgrp_handoff[2]);
+	handoff_val = readl(socfpga_get_sysmgr_addr() +
+			    SYSMGR_ISWGRP_HANDOFF_OFFSET(2));
 	if (fpgamgr_test_fpga_ready()) {
 		/* Enable the required signals only */
-		writel(handoff_val, &sysmgr_regs->fpgaintfgrp_module);
+		writel(handoff_val,
+		       socfpga_get_sysmgr_addr() +
+		       SYSMGR_GEN5_FPGAINFGRP_MODULE);
 	}
 }
 
@@ -53,7 +61,7 @@ static void populate_sysmgr_fpgaintf_module(void)
  */
 void sysmgr_pinmux_init(void)
 {
-	u32 regs = (u32)&sysmgr_regs->emacio[0];
+	u32 regs = (u32)socfpga_get_sysmgr_addr() + SYSMGR_GEN5_EMACIO;
 	const u8 *sys_mgr_init_table;
 	unsigned int len;
 	int i;
@@ -74,9 +82,11 @@ void sysmgr_pinmux_init(void)
 void sysmgr_config_warmrstcfgio(int enable)
 {
 	if (enable)
-		setbits_le32(&sysmgr_regs->romcodegrp_ctrl,
+		setbits_le32(socfpga_get_sysmgr_addr() +
+			     SYSMGR_GEN5_ROMCODEGRP_CTRL,
 			     SYSMGR_ROMCODEGRP_CTRL_WARMRSTCFGIO);
 	else
-		clrbits_le32(&sysmgr_regs->romcodegrp_ctrl,
+		clrbits_le32(socfpga_get_sysmgr_addr() +
+			     SYSMGR_GEN5_ROMCODEGRP_CTRL,
 			     SYSMGR_ROMCODEGRP_CTRL_WARMRSTCFGIO);
 }

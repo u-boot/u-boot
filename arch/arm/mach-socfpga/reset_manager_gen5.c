@@ -10,9 +10,6 @@
 #include <asm/arch/reset_manager.h>
 #include <asm/arch/system_manager.h>
 
-static const struct socfpga_system_manager *sysmgr_regs =
-	(struct socfpga_system_manager *)SOCFPGA_SYSMGR_ADDRESS;
-
 /* Assert or de-assert SoCFPGA reset manager reset. */
 void socfpga_per_reset(u32 reset, int set)
 {
@@ -83,8 +80,10 @@ void socfpga_bridges_set_handoff_regs(bool h2f, bool lwh2f, bool f2h)
 	if (f2h)
 		brgmask |= BIT(2);
 
-	writel(brgmask, &sysmgr_regs->iswgrp_handoff[0]);
-	writel(l3rmask, &sysmgr_regs->iswgrp_handoff[1]);
+	writel(brgmask,
+	       socfpga_get_sysmgr_addr() + SYSMGR_ISWGRP_HANDOFF_OFFSET(0));
+	writel(l3rmask,
+	       socfpga_get_sysmgr_addr() + SYSMGR_ISWGRP_HANDOFF_OFFSET(1));
 }
 
 void socfpga_bridges_reset(int enable)

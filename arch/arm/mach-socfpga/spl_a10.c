@@ -32,12 +32,9 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static const struct socfpga_system_manager *sysmgr_regs =
-	(struct socfpga_system_manager *)SOCFPGA_SYSMGR_ADDRESS;
-
 u32 spl_boot_device(void)
 {
-	const u32 bsel = readl(&sysmgr_regs->bootinfo);
+	const u32 bsel = readl(socfpga_get_sysmgr_addr() + SYSMGR_A10_BOOTINFO);
 
 	switch (SYSMGR_GET_BOOTINFO_BSEL(bsel)) {
 	case 0x1:	/* FPGA (HPS2FPGA Bridge) */

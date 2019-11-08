@@ -28,8 +28,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static struct pl310_regs *const pl310 =
 	(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
-static struct socfpga_system_manager *sysmgr_regs =
-	(struct socfpga_system_manager *)SOCFPGA_SYSMGR_ADDRESS;
 static struct nic301_registers *nic301_regs =
 	(struct nic301_registers *)SOCFPGA_L3REGS_ADDRESS;
 static struct scu_registers *scu_regs =
@@ -120,8 +118,9 @@ static int socfpga_fpga_id(const bool print_id)
 #if defined(CONFIG_DISPLAY_CPUINFO)
 int print_cpuinfo(void)
 {
-	const u32 bsel =
-		SYSMGR_GET_BOOTINFO_BSEL(readl(&sysmgr_regs->bootinfo));
+	const u32 bootinfo = readl(socfpga_get_sysmgr_addr() +
+				   SYSMGR_GEN5_BOOTINFO);
+	const u32 bsel = SYSMGR_GET_BOOTINFO_BSEL(bootinfo);
 
 	puts("CPU:   Altera SoCFPGA Platform\n");
 	socfpga_fpga_id(1);
@@ -134,7 +133,8 @@ int print_cpuinfo(void)
 #ifdef CONFIG_ARCH_MISC_INIT
 int arch_misc_init(void)
 {
-	const u32 bsel = readl(&sysmgr_regs->bootinfo) & 0x7;
+	const u32 bsel = readl(socfpga_get_sysmgr_addr() +
+			       SYSMGR_GEN5_BOOTINFO) & 0x7;
 	const int fpga_id = socfpga_fpga_id(0);
 	env_set("bootmode", bsel_str[bsel].mode);
 	if (fpga_id >= 0)
@@ -192,10 +192,12 @@ int arch_early_init_r(void)
 	 * to support that old code, we write it here instead of in the
 	 * reset_cpu() function just before resetting the CPU.
 	 */
-	writel(0xae9efebc, &sysmgr_regs->romcodegrp_warmramgrp_enable);
+	writel(0xae9efebc,
+	       socfpga_get_sysmgr_addr() + SYSMGR_GEN5_WARMRAMGRP_EN);
 
 	for (i = 0; i < 8; i++)	/* Cache initial SW setting regs */
-		iswgrp_handoff[i] = readl(&sysmgr_regs->iswgrp_handoff[i]);
+		iswgrp_handoff[i] = readl(socfpga_get_sysmgr_addr() +
+					  SYSMGR_ISWGRP_HANDOFF_OFFSET(i));
 
 	socfpga_bridges_reset(1);
 
@@ -221,10 +223,13 @@ void do_bridge_reset(int enable, unsigned int mask)
 						 !(mask & BIT(2)));
 		for (i = 0; i < 2; i++) {	/* Reload SW setting cache */
 			iswgrp_handoff[i] =
-				readl(&sysmgr_regs->iswgrp_handoff[i]);
+				readl(socfpga_get_sysmgr_addr() +
+				      SYSMGR_ISWGRP_HANDOFF_OFFSET(i));
 		}
 
-		writel(iswgrp_handoff[2], &sysmgr_regs->fpgaintfgrp_module);
+		writel(iswgrp_handoff[2],
+		       socfpga_get_sysmgr_addr() +
+		       SYSMGR_GEN5_FPGAINFGRP_MODULE);
 		writel(iswgrp_handoff[3], &sdr_ctrl->fpgaport_rst);
 		writel(iswgrp_handoff[0],
 		       socfpga_get_rstmgr_addr() + RSTMGR_GEN5_BRGMODRST);
@@ -234,7 +239,8 @@ void do_bridge_reset(int enable, unsigned int mask)
 		writel(iswgrp_handoff[0],
 		       socfpga_get_rstmgr_addr() + RSTMGR_GEN5_BRGMODRST);
 	} else {
-		writel(0, &sysmgr_regs->fpgaintfgrp_module);
+		writel(0, socfpga_get_sysmgr_addr() +
+		       SYSMGR_GEN5_FPGAINFGRP_MODULE);
 		writel(0, &sdr_ctrl->fpgaport_rst);
 		writel(0x7, socfpga_get_rstmgr_addr() + RSTMGR_GEN5_BRGMODRST);
 		writel(1, &nic301_regs->remap);

@@ -15,125 +15,73 @@ void sysmgr_pinmux_table_ctrl(const u32 **table, unsigned int *table_len);
 void sysmgr_pinmux_table_fpga(const u32 **table, unsigned int *table_len);
 void sysmgr_pinmux_table_delay(const u32 **table, unsigned int *table_len);
 
-struct socfpga_system_manager {
-	/* System Manager Module */
-	u32	siliconid1;			/* 0x00 */
-	u32	siliconid2;
-	u32	wddbg;
-	u32	_pad_0xc;
-	u32	mpu_status;			/* 0x10 */
-	u32	mpu_ace;
-	u32	_pad_0x18_0x1c[2];
-	u32	dma;				/* 0x20 */
-	u32	dma_periph;
-	/* SDMMC Controller Group */
-	u32	sdmmcgrp_ctrl;
-	u32	sdmmcgrp_l3master;
-	/* NAND Flash Controller Register Group */
-	u32	nandgrp_bootstrap;		/* 0x30 */
-	u32	nandgrp_l3master;
-	/* USB Controller Group */
-	u32	usb0_l3master;
-	u32	usb1_l3master;
-	/* EMAC Group */
-	u32	emac_gbl;			/* 0x40 */
-	u32	emac0;
-	u32	emac1;
-	u32	emac2;
-	u32	emac0_ace;			/* 0x50 */
-	u32	emac1_ace;
-	u32	emac2_ace;
-	u32	nand_axuser;
-	u32	_pad_0x60_0x64[2];		/* 0x60 */
-	/* FPGA interface Group */
-	u32	fpgaintf_en_1;
-	u32	fpgaintf_en_2;
-	u32	fpgaintf_en_3;			/* 0x70 */
-	u32	dma_l3master;
-	u32	etr_l3master;
-	u32	_pad_0x7c;
-	u32	sec_ctrl_slt;			/* 0x80 */
-	u32	osc_trim;
-	u32	_pad_0x88_0x8c[2];
-	/* ECC Group */
-	u32	ecc_intmask_value;		/* 0x90 */
-	u32	ecc_intmask_set;
-	u32	ecc_intmask_clr;
-	u32	ecc_intstatus_serr;
-	u32	ecc_intstatus_derr;		/* 0xa0 */
-	u32	_pad_0xa4_0xac[3];
-	u32	noc_addr_remap;			/* 0xb0 */
-	u32	hmc_clk;
-	u32	io_pa_ctrl;
-	u32	_pad_0xbc;
-	/* NOC Group */
-	u32	noc_timeout;			/* 0xc0 */
-	u32	noc_idlereq_set;
-	u32	noc_idlereq_clr;
-	u32	noc_idlereq_value;
-	u32	noc_idleack;			/* 0xd0 */
-	u32	noc_idlestatus;
-	u32	fpga2soc_ctrl;
-	u32	fpga_config;
-	u32	iocsrclk_gate;			/* 0xe0 */
-	u32	gpo;
-	u32	gpi;
-	u32	_pad_0xec;
-	u32	mpu;				/* 0xf0 */
-	u32	sdm_hps_spare;
-	u32	hps_sdm_spare;
-	u32	_pad_0xfc_0x1fc[65];
-	/* Boot scratch register group */
-	u32	boot_scratch_cold0;		/* 0x200 */
-	u32	boot_scratch_cold1;
-	u32	boot_scratch_cold2;
-	u32	boot_scratch_cold3;
-	u32	boot_scratch_cold4;		/* 0x210 */
-	u32	boot_scratch_cold5;
-	u32	boot_scratch_cold6;
-	u32	boot_scratch_cold7;
-	u32	boot_scratch_cold8;		/* 0x220 */
-	u32	boot_scratch_cold9;
-	u32	_pad_0x228_0xffc[886];
-	/* Pin select and pin control group */
-	u32	pinsel0[40];			/* 0x1000 */
-	u32	_pad_0x10a0_0x10fc[24];
-	u32	pinsel40[8];
-	u32	_pad_0x1120_0x112c[4];
-	u32	ioctrl0[28];
-	u32	_pad_0x11a0_0x11fc[24];
-	u32	ioctrl28[20];
-	u32	_pad_0x1250_0x12fc[44];
-	/* Use FPGA mux */
-	u32	rgmii0usefpga;			/* 0x1300 */
-	u32	rgmii1usefpga;
-	u32	rgmii2usefpga;
-	u32	i2c0usefpga;
-	u32	i2c1usefpga;
-	u32	i2c_emac0_usefpga;
-	u32	i2c_emac1_usefpga;
-	u32	i2c_emac2_usefpga;
-	u32	nandusefpga;
-	u32	_pad_0x1324;
-	u32	spim0usefpga;
-	u32	spim1usefpga;
-	u32	spis0usefpga;
-	u32	spis1usefpga;
-	u32	uart0usefpga;
-	u32	uart1usefpga;
-	u32	mdio0usefpga;
-	u32	mdio1usefpga;
-	u32	mdio2usefpga;
-	u32	_pad_0x134c;
-	u32	jtagusefpga;
-	u32	sdmmcusefpga;
-	u32	hps_osc_clk;
-	u32	_pad_0x135c_0x13fc[41];
-	u32	iodelay0[40];
-	u32	_pad_0x14a0_0x14fc[24];
-	u32	iodelay40[8];
+#define SYSMGR_S10_WDDBG			0x08
+#define SYSMGR_S10_DMA				0x20
+#define SYSMGR_S10_DMA_PERIPH			0x24
+#define SYSMGR_S10_SDMMC			0x28
+#define SYSMGR_S10_SDMMC_L3MASTER		0x2c
+#define SYSMGR_S10_EMAC_GLOBAL			0x40
+#define SYSMGR_S10_EMAC0			0x44
+#define SYSMGR_S10_EMAC1			0x48
+#define SYSMGR_S10_EMAC2			0x4c
+#define SYSMGR_S10_EMAC0_ACE			0x50
+#define SYSMGR_S10_EMAC1_ACE			0x54
+#define SYSMGR_S10_EMAC2_ACE			0x58
+#define SYSMGR_S10_NAND_AXUSER			0x5c
+#define SYSMGR_S10_FPGAINTF_EN1			0x68
+#define SYSMGR_S10_FPGAINTF_EN2			0x6c
+#define SYSMGR_S10_FPGAINTF_EN3			0x70
+#define SYSMGR_S10_DMA_L3MASTER			0x74
+#define SYSMGR_S10_HMC_CLK			0xb4
+#define SYSMGR_S10_IO_PA_CTRL			0xb8
+#define SYSMGR_S10_NOC_TIMEOUT			0xc0
+#define SYSMGR_S10_NOC_IDLEREQ_SET		0xc4
+#define SYSMGR_S10_NOC_IDLEREQ_CLR		0xc8
+#define SYSMGR_S10_NOC_IDLEREQ_VAL		0xcc
+#define SYSMGR_S10_NOC_IDLEACK			0xd0
+#define SYSMGR_S10_NOC_IDLESTATUS		0xd4
+#define SYSMGR_S10_FPGA2SOC_CTRL		0xd8
+#define SYSMGR_S10_FPGA_CONFIG			0xdc
+#define SYSMGR_S10_IOCSRCLK_GATE		0xe0
+#define SYSMGR_S10_GPO				0xe4
+#define SYSMGR_S10_GPI				0xe8
+#define SYSMGR_S10_MPU				0xf0
+#define SYSMGR_S10_BOOT_SCRATCH_COLD0		0x200
+#define SYSMGR_S10_BOOT_SCRATCH_COLD1		0x204
+#define SYSMGR_S10_BOOT_SCRATCH_COLD2		0x208
+#define SYSMGR_S10_BOOT_SCRATCH_COLD3		0x20c
+#define SYSMGR_S10_BOOT_SCRATCH_COLD4		0x210
+#define SYSMGR_S10_BOOT_SCRATCH_COLD5		0x214
+#define SYSMGR_S10_BOOT_SCRATCH_COLD6		0x218
+#define SYSMGR_S10_BOOT_SCRATCH_COLD7		0x21c
+#define SYSMGR_S10_BOOT_SCRATCH_COLD8		0x220
+#define SYSMGR_S10_BOOT_SCRATCH_COLD9		0x224
+#define SYSMGR_S10_PINSEL0			0x1000
+#define SYSMGR_S10_IOCTRL0			0x1130
+#define SYSMGR_S10_EMAC0_USEFPGA		0x1300
+#define SYSMGR_S10_EMAC1_USEFPGA		0x1304
+#define SYSMGR_S10_EMAC2_USEFPGA		0x1308
+#define SYSMGR_S10_I2C0_USEFPGA			0x130c
+#define SYSMGR_S10_I2C1_USEFPGA			0x1310
+#define SYSMGR_S10_I2C_EMAC0_USEFPGA		0x1314
+#define SYSMGR_S10_I2C_EMAC1_USEFPGA		0x1318
+#define SYSMGR_S10_I2C_EMAC2_USEFPGA		0x131c
+#define SYSMGR_S10_NAND_USEFPGA			0x1320
+#define SYSMGR_S10_SPIM0_USEFPGA		0x1328
+#define SYSMGR_S10_SPIM1_USEFPGA		0x132c
+#define SYSMGR_S10_SPIS0_USEFPGA		0x1330
+#define SYSMGR_S10_SPIS1_USEFPGA		0x1334
+#define SYSMGR_S10_UART0_USEFPGA		0x1338
+#define SYSMGR_S10_UART1_USEFPGA		0x133c
+#define SYSMGR_S10_MDIO0_USEFPGA		0x1340
+#define SYSMGR_S10_MDIO1_USEFPGA		0x1344
+#define SYSMGR_S10_MDIO2_USEFPGA		0x1348
+#define SYSMGR_S10_JTAG_USEFPGA			0x1350
+#define SYSMGR_S10_SDMMC_USEFPGA		0x1354
+#define SYSMGR_S10_HPS_OSC_CLK			0x1358
+#define SYSMGR_S10_IODELAY0			0x1400
 
-};
+#define SYSMGR_SDMMC				SYSMGR_S10_SDMMC
 
 #define SYSMGR_ROMCODEGRP_CTRL_WARMRSTCFGPINMUX	BIT(0)
 #define SYSMGR_ROMCODEGRP_CTRL_WARMRSTCFGIO	BIT(1)
