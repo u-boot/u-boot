@@ -263,13 +263,6 @@ config CMD_BOOTI
 	help
 	  Boot an AArch64 Linux Kernel image from memory.
 
-config CMD_BOOTEFI
-	bool "bootefi"
-	depends on EFI_LOADER
-	default y
-	help
-	  Boot an EFI image from memory.
-
 config BOOTM_LINUX
 	bool "Support booting Linux OS images"
 	depends on CMD_BOOTM || CMD_BOOTZ || CMD_BOOTI
@@ -317,6 +310,13 @@ config BOOTM_VXWORKS
 	default y
 	help
 	  Support booting VxWorks images via the bootm command.
+
+config CMD_BOOTEFI
+	bool "bootefi"
+	depends on EFI_LOADER
+	default y
+	help
+	  Boot an EFI image from memory.
 
 config CMD_BOOTEFI_HELLO_COMPILE
 	bool "Compile a standard EFI hello world binary for testing"
