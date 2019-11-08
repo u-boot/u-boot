@@ -45,71 +45,53 @@ struct cm_config {
 	u32 altera_grp_mpuclk;
 };
 
-struct socfpga_clock_manager_main_pll {
-	u32	vco;
-	u32	misc;
-	u32	mpuclk;
-	u32	mainclk;
-	u32	dbgatclk;
-	u32	mainqspiclk;
-	u32	mainnandsdmmcclk;
-	u32	cfgs2fuser0clk;
-	u32	en;
-	u32	maindiv;
-	u32	dbgdiv;
-	u32	tracediv;
-	u32	l4src;
-	u32	stat;
-	u32	_pad_0x38_0x40[2];
-};
+/* Clock manager group */
+#define CLKMGR_GEN5_CTRL			0x00
+#define CLKMGR_GEN5_BYPASS			0x04
+#define CLKMGR_GEN5_INTER			0x08
+#define CLKMGR_GEN5_STAT			0x14
+/* MainPLL group */
+#define CLKMGR_GEN5_MAINPLL_VCO			0x40
+#define CLKMGR_GEN5_MAINPLL_MISC		0x44
+#define CLKMGR_GEN5_MAINPLL_MPUCLK		0x48
+#define CLKMGR_GEN5_MAINPLL_MAINCLK		0x4c
+#define CLKMGR_GEN5_MAINPLL_DBGATCLK		0x50
+#define CLKMGR_GEN5_MAINPLL_MAINQSPICLK		0x54
+#define CLKMGR_GEN5_MAINPLL_MAINNANDSDMMCCLK	0x58
+#define CLKMGR_GEN5_MAINPLL_CFGS2FUSER0CLK	0x5c
+#define CLKMGR_GEN5_MAINPLL_EN			0x60
+#define CLKMGR_GEN5_MAINPLL_MAINDIV		0x64
+#define CLKMGR_GEN5_MAINPLL_DBGDIV		0x68
+#define CLKMGR_GEN5_MAINPLL_TRACEDIV		0x6c
+#define CLKMGR_GEN5_MAINPLL_L4SRC		0x70
+/* Peripheral PLL group */
+#define CLKMGR_GEN5_PERPLL_VCO			0x80
+#define CLKMGR_GEN5_PERPLL_MISC			0x84
+#define CLKMGR_GEN5_PERPLL_EMAC0CLK		0x88
+#define CLKMGR_GEN5_PERPLL_EMAC1CLK		0x8c
+#define CLKMGR_GEN5_PERPLL_PERQSPICLK		0x90
+#define CLKMGR_GEN5_PERPLL_PERNANDSDMMCCLK	0x94
+#define CLKMGR_GEN5_PERPLL_PERBASECLK		0x98
+#define CLKMGR_GEN5_PERPLL_S2FUSER1CLK		0x9c
+#define CLKMGR_GEN5_PERPLL_EN			0xa0
+#define CLKMGR_GEN5_PERPLL_DIV			0xa4
+#define CLKMGR_GEN5_PERPLL_GPIODIV		0xa8
+#define CLKMGR_GEN5_PERPLL_SRC			0xac
+/* SDRAM PLL group */
+#define CLKMGR_GEN5_SDRPLL_VCO			0xc0
+#define CLKMGR_GEN5_SDRPLL_CTRL			0xc4
+#define CLKMGR_GEN5_SDRPLL_DDRDQSCLK		0xc8
+#define CLKMGR_GEN5_SDRPLL_DDR2XDQSCLK		0xcc
+#define CLKMGR_GEN5_SDRPLL_DDRDQCLK		0xd0
+#define CLKMGR_GEN5_SDRPLL_S2FUSER2CLK		0xd4
+#define CLKMGR_GEN5_SDRPLL_EN			0xd8
+/* Altera group */
+#define CLKMGR_GEN5_ALTR_MPUCLK			0xe0
+#define CLKMGR_GEN5_ALTR_MAINCLK		0xe4
 
-struct socfpga_clock_manager_per_pll {
-	u32	vco;
-	u32	misc;
-	u32	emac0clk;
-	u32	emac1clk;
-	u32	perqspiclk;
-	u32	pernandsdmmcclk;
-	u32	perbaseclk;
-	u32	s2fuser1clk;
-	u32	en;
-	u32	div;
-	u32	gpiodiv;
-	u32	src;
-	u32	stat;
-	u32	_pad_0x34_0x40[3];
-};
-
-struct socfpga_clock_manager_sdr_pll {
-	u32	vco;
-	u32	ctrl;
-	u32	ddrdqsclk;
-	u32	ddr2xdqsclk;
-	u32	ddrdqclk;
-	u32	s2fuser2clk;
-	u32	en;
-	u32	stat;
-};
-
-struct socfpga_clock_manager_altera {
-	u32	mpuclk;
-	u32	mainclk;
-};
-
-struct socfpga_clock_manager {
-	u32	ctrl;
-	u32	bypass;
-	u32	inter;
-	u32	intren;
-	u32	dbctrl;
-	u32	stat;
-	u32	_pad_0x18_0x3f[10];
-	struct socfpga_clock_manager_main_pll main_pll;
-	struct socfpga_clock_manager_per_pll per_pll;
-	struct socfpga_clock_manager_sdr_pll sdr_pll;
-	struct socfpga_clock_manager_altera altera;
-	u32	_pad_0xe8_0x200[70];
-};
+#define CLKMGR_STAT				CLKMGR_GEN5_STAT
+#define CLKMGR_INTER				CLKMGR_GEN5_INTER
+#define CLKMGR_PERPLL_EN			CLKMGR_GEN5_PERPLL_EN
 
 /* Clock speed accessors */
 unsigned long cm_get_mpu_clk_hz(void);

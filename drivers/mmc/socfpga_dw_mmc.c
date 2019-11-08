@@ -18,9 +18,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static const struct socfpga_clock_manager *clock_manager_base =
-		(void *)SOCFPGA_CLKMGR_ADDRESS;
-
 struct socfpga_dwmci_plat {
 	struct mmc_config cfg;
 	struct mmc mmc;
@@ -54,8 +51,8 @@ static void socfpga_dwmci_clksel(struct dwmci_host *host)
 			 ((priv->drvsel & 0x7) << SYSMGR_SDMMC_DRVSEL_SHIFT);
 
 	/* Disable SDMMC clock. */
-	clrbits_le32(&clock_manager_base->per_pll.en,
-		CLKMGR_PERPLLGRP_EN_SDMMCCLK_MASK);
+	clrbits_le32(socfpga_get_clkmgr_addr() + CLKMGR_PERPLL_EN,
+		     CLKMGR_PERPLLGRP_EN_SDMMCCLK_MASK);
 
 	debug("%s: drvsel %d smplsel %d\n", __func__,
 	      priv->drvsel, priv->smplsel);
@@ -65,8 +62,8 @@ static void socfpga_dwmci_clksel(struct dwmci_host *host)
 		readl(socfpga_get_sysmgr_addr() + SYSMGR_SDMMC));
 
 	/* Enable SDMMC clock */
-	setbits_le32(&clock_manager_base->per_pll.en,
-		CLKMGR_PERPLLGRP_EN_SDMMCCLK_MASK);
+	setbits_le32(socfpga_get_clkmgr_addr() + CLKMGR_PERPLL_EN,
+		     CLKMGR_PERPLLGRP_EN_SDMMCCLK_MASK);
 }
 
 static int socfpga_dwmmc_get_clk_rate(struct udevice *dev)

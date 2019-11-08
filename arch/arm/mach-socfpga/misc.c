@@ -23,6 +23,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+phys_addr_t socfpga_clkmgr_base __section(".data");
 phys_addr_t socfpga_rstmgr_base __section(".data");
 phys_addr_t socfpga_sysmgr_base __section(".data");
 
@@ -243,6 +244,10 @@ void socfpga_get_managers_addr(void)
 	ret = socfpga_get_base_addr("altr,sys-mgr", &socfpga_sysmgr_base);
 	if (ret)
 		hang();
+
+	ret = socfpga_get_base_addr("altr,clk-mgr", &socfpga_clkmgr_base);
+	if (ret)
+		hang();
 }
 
 phys_addr_t socfpga_get_rstmgr_addr(void)
@@ -253,4 +258,9 @@ phys_addr_t socfpga_get_rstmgr_addr(void)
 phys_addr_t socfpga_get_sysmgr_addr(void)
 {
 	return socfpga_sysmgr_base;
+}
+
+phys_addr_t socfpga_get_clkmgr_addr(void)
+{
+	return socfpga_clkmgr_base;
 }

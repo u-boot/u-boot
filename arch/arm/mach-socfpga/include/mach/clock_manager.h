@@ -6,6 +6,8 @@
 #ifndef _CLOCK_MANAGER_H_
 #define _CLOCK_MANAGER_H_
 
+phys_addr_t socfpga_get_clkmgr_addr(void);
+
 #ifndef __ASSEMBLER__
 void cm_wait_for_lock(u32 mask);
 int cm_wait_for_fsm(void);
