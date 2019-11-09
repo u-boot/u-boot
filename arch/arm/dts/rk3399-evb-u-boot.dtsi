@@ -5,3 +5,9 @@
 
 #include "rk3399-u-boot.dtsi"
 #include "rk3399-sdram-lpddr3-4GB-1600.dtsi"
+
+/ {
+	chosen {
+		u-boot,spl-boot-order = &sdhci, &sdmmc;
+	};
+};
