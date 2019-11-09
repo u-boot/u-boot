@@ -6,6 +6,7 @@
 	#address-cells = <2>;
 	#size-cells = <2>;
 	model = "sandbox";
+	compatible = "sandbox";
 
 	aliases {
 		i2c0 = &i2c_0;
