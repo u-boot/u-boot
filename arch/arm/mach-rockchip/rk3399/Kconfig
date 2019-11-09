@@ -62,6 +62,25 @@ config TARGET_CHROMEBOOK_BOB
 	  display. It includes a Chrome OS EC (Cortex-M3) to provide access to
 	  the keyboard and battery functions.
 
+config TARGET_ROCKPRO64_RK3399
+	bool "Pine64 Rockpro64 board"
+	help
+	  Rockro64 is SBC produced by Pine64. Key features:
+
+	   * Rockchip RK3399
+	   * 2/4GB Dual-Channel LPDDR3
+	   * SD card slot
+	   * eMMC socket
+	   * 128Mb SPI Flash
+	   * Gigabit ethernet
+	   * PCIe 4X slot
+	   * WiFI/BT module socket
+	   * HDMI In/Out, DP, MIPI DSI/CSI, eDP
+	   * USB 3.0, 2.0
+	   * USB Type C power and data
+	   * GPIO expansion ports
+	   * DC 12V/2A
+
 endchoice
 
 config ROCKCHIP_BOOT_MODE_REG
@@ -98,5 +117,6 @@ source "board/rockchip/evb_rk3399/Kconfig"
 source "board/theobroma-systems/puma_rk3399/Kconfig"
 source "board/vamrs/rock960_rk3399/Kconfig"
 source "board/google/gru/Kconfig"
+source "board/pine64/rockpro64_rk3399/Kconfig"
 
 endif
