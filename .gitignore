@@ -17,6 +17,7 @@
 *.gcda
 *.gcno
 *.i
+*.img
 *.lex.c
 *.lst
 *.mod.c
