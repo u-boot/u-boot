@@ -1931,7 +1931,7 @@ CLEAN_DIRS  += $(MODVERDIR) \
 CLEAN_FILES += include/bmp_logo.h include/bmp_logo_data.h tools/version.h \
 	       boot* u-boot* MLO* SPL System.map fit-dtb.blob* \
 	       u-boot-ivt.img.log u-boot-dtb.imx.log SPL.log u-boot.imx.log \
-	       lpc32xx-*
+	       lpc32xx-* bl31.c bl31.elf bl31_*.bin image.map tispl.bin*
 
 # Directories & files removed with 'make mrproper'
 MRPROPER_DIRS  += include/config include/generated spl tpl \
@@ -1965,8 +1965,7 @@ clean: $(clean-dirs)
 		-o -name modules.builtin -o -name '.tmp_*.o.*' \
 		-o -name 'dsdt.aml' -o -name 'dsdt.asl.tmp' -o -name 'dsdt.c' \
 		-o -name '*.efi' -o -name '*.gcno' -o -name '*.so' \) \
-		-type f -print | xargs rm -f \
-		bl31.c bl31.elf bl31_*.bin image.map tispl.bin*
+		-type f -print | xargs rm -f
 
 # mrproper - Delete all generated files, including .config
 #
