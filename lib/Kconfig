@@ -96,7 +96,7 @@ config SYS_HZ
 	  set to 1000.
 
 config SPL_USE_TINY_PRINTF
-	bool "Enable tiny printf() version"
+	bool "Enable tiny printf() version in SPL"
 	depends on SPL
 	default y
 	help
@@ -108,7 +108,7 @@ config SPL_USE_TINY_PRINTF
 	  The supported format specifiers are %c, %s, %u/%d and %x.
 
 config TPL_USE_TINY_PRINTF
-	bool "Enable tiny printf() version"
+	bool "Enable tiny printf() version in TPL"
 	depends on TPL
 	default y if SPL_USE_TINY_PRINTF
 	help
