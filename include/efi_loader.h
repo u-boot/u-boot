@@ -543,7 +543,6 @@ struct efi_device_path *efi_dp_get_next_instance(struct efi_device_path **dp,
 /* Check if a device path contains muliple instances */
 bool efi_dp_is_multi_instance(const struct efi_device_path *dp);
 
-struct efi_device_path *efi_dp_from_dev(struct udevice *dev);
 struct efi_device_path *efi_dp_from_part(struct blk_desc *desc, int part);
 /* Create a device node for a block device partition. */
 struct efi_device_path *efi_dp_part_node(struct blk_desc *desc, int part);

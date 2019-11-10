@@ -422,7 +422,7 @@ bool efi_dp_is_multi_instance(const struct efi_device_path *dp)
 /* size of device-path not including END node for device and all parents
  * up to the root device.
  */
-static unsigned dp_size(struct udevice *dev)
+__maybe_unused static unsigned int dp_size(struct udevice *dev)
 {
 	if (!dev || !dev->driver)
 		return sizeof(ROOT);
@@ -494,7 +494,7 @@ static unsigned dp_size(struct udevice *dev)
  * @dev		device
  * @return	pointer to the end of the device path
  */
-static void *dp_fill(void *buf, struct udevice *dev)
+__maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 {
 	if (!dev || !dev->driver)
 		return buf;
@@ -653,20 +653,6 @@ static void *dp_fill(void *buf, struct udevice *dev)
 		      dev->name, dev->driver->id);
 		return dp_fill(buf, dev->parent);
 	}
-}
-
-/* Construct a device-path from a device: */
-struct efi_device_path *efi_dp_from_dev(struct udevice *dev)
-{
-	void *buf, *start;
-
-	start = buf = dp_alloc(dp_size(dev) + sizeof(END));
-	if (!buf)
-		return NULL;
-	buf = dp_fill(buf, dev);
-	*((struct efi_device_path *)buf) = END;
-
-	return start;
 }
 #endif
 
