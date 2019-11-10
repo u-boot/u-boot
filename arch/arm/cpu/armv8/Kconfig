@@ -65,7 +65,7 @@ config ARMV8_SEC_FIRMWARE_SUPPORT
 	    - Address of secure firmware.
 	    - Address to hold the return address from secure firmware.
 	    - Secure firmware FIT image related information.
-	      Such as: SEC_FIRMWARE_FIT_IMAGE and SEC_FIRMEWARE_FIT_CNF_NAME
+	      Such as: SEC_FIRMWARE_FIT_IMAGE and SEC_FIRMWARE_FIT_CNF_NAME
 	    - The target exception level that secure monitor firmware will
 	      return to.
 

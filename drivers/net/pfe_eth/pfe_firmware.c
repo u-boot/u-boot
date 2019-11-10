@@ -16,7 +16,7 @@
 #include <fsl_validate.h>
 #endif
 
-#define PFE_FIRMEWARE_FIT_CNF_NAME	"config@1"
+#define PFE_FIRMWARE_FIT_CNF_NAME	"config@1"
 
 static const void *pfe_fit_addr = (void *)CONFIG_SYS_LS_PFE_FW_ADDR;
 
@@ -99,7 +99,7 @@ static int pfe_get_fw(const void **data,
 	char *desc;
 	int ret = 0;
 
-	conf_node_name = PFE_FIRMEWARE_FIT_CNF_NAME;
+	conf_node_name = PFE_FIRMWARE_FIT_CNF_NAME;
 
 	conf_node_off = fit_conf_get_node(pfe_fit_addr, conf_node_name);
 	if (conf_node_off < 0) {
