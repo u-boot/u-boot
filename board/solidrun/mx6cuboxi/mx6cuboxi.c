@@ -66,6 +66,8 @@ enum board_type {
 	UNKNOWN         = 0x03,
 };
 
+static struct gpio_desc board_detect_desc[5];
+
 #define MEM_STRIDE 0x4000000
 static u32 get_ram_size_stride_test(u32 *base, u32 maxsize)
 {
@@ -155,10 +157,6 @@ static iomux_v3_cfg_t const som_rev_detect[] = {
 	IOMUX_PADS(PAD_CSI0_DAT18__GPIO6_IO04  | MUX_PAD_CTRL(UART_PAD_CTRL)),
 };
 
-static iomux_v3_cfg_t const usb_pads[] = {
-	IOMUX_PADS(PAD_GPIO_0__GPIO1_IO00 | MUX_PAD_CTRL(NO_PAD_CTRL)),
-};
-
 static void setup_iomux_uart(void)
 {
 	SETUP_IOMUX_PADS(uart1_pads);
@@ -176,7 +174,7 @@ static struct fsl_esdhc_cfg emmc_cfg = {
 
 int board_mmc_get_env_dev(int devno)
 {
-	return devno - 1;
+	return devno;
 }
 
 #define USDHC2_CD_GPIO  IMX_GPIO_NR(1, 4)
@@ -196,27 +194,6 @@ int board_mmc_getcd(struct mmc *mmc)
 	}
 
 	return ret;
-}
-
-static int mmc_init_main(bd_t *bis)
-{
-	int ret;
-
-	/*
-	 * Following map is done:
-	 * (U-Boot device node)    (Physical Port)
-	 * mmc0                    Carrier board MicroSD
-	 * mmc1                    SOM eMMC
-	 */
-	SETUP_IOMUX_PADS(usdhc2_pads);
-	usdhc_cfg.sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
-	ret = fsl_esdhc_initialize(bis, &usdhc_cfg);
-	if (ret)
-		return ret;
-
-	SETUP_IOMUX_PADS(usdhc3_pads);
-	emmc_cfg.sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
-	return fsl_esdhc_initialize(bis, &emmc_cfg);
 }
 
 static int mmc_init_spl(bd_t *bis)
@@ -252,7 +229,7 @@ int board_mmc_init(bd_t *bis)
 	if (IS_ENABLED(CONFIG_SPL_BUILD))
 		return mmc_init_spl(bis);
 
-	return mmc_init_main(bis);
+	return 0;
 }
 
 static iomux_v3_cfg_t const enet_pads[] = {
@@ -284,12 +261,29 @@ static iomux_v3_cfg_t const enet_pads[] = {
 
 static void setup_iomux_enet(void)
 {
+	struct gpio_desc desc;
+	int ret;
+
 	SETUP_IOMUX_PADS(enet_pads);
+
+	ret = dm_gpio_lookup_name("GPIO4_15", &desc);
+	if (ret) {
+		printf("%s: phy reset lookup failed\n", __func__);
+		return;
+	}
+
+	ret = dm_gpio_request(&desc, "phy-reset");
+	if (ret) {
+		printf("%s: phy reset request failed\n", __func__);
+		return;
+	}
 
 	gpio_direction_output(ETH_PHY_RESET, 0);
 	mdelay(10);
 	gpio_set_value(ETH_PHY_RESET, 1);
 	udelay(100);
+
+	gpio_free_list_nodev(&desc, 1);
 }
 
 int board_phy_config(struct phy_device *phydev)
@@ -434,31 +428,12 @@ static int setup_display(void)
 }
 #endif /* CONFIG_VIDEO_IPUV3 */
 
-#ifdef CONFIG_USB_EHCI_MX6
-static void setup_usb(void)
-{
-	SETUP_IOMUX_PADS(usb_pads);
-}
-
-int board_ehci_hcd_init(int port)
-{
-	if (port == 1)
-		gpio_direction_output(USB_H1_VBUS, 1);
-
-	return 0;
-}
-#endif
-
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
 
 #ifdef CONFIG_CMD_SATA
 	setup_sata();
-#endif
-
-#ifdef CONFIG_USB_EHCI_MX6
-	setup_usb();
 #endif
 	return 0;
 }
@@ -475,6 +450,29 @@ int board_init(void)
 #endif
 
 	return ret;
+}
+
+static int request_detect_gpios(void)
+{
+	int node;
+	int ret;
+
+	node = fdt_node_offset_by_compatible(gd->fdt_blob, 0,
+		"solidrun,hummingboard-detect");
+	if (node < 0)
+		return -ENODEV;
+
+	ret = gpio_request_list_by_name_nodev(offset_to_ofnode(node),
+		"detect-gpios", board_detect_desc,
+		ARRAY_SIZE(board_detect_desc), GPIOD_IS_IN);
+
+	return ret;
+}
+
+static int free_detect_gpios(void)
+{
+	return gpio_free_list_nodev(board_detect_desc,
+		ARRAY_SIZE(board_detect_desc));
 }
 
 static enum board_type board_type(void)
@@ -532,7 +530,7 @@ static bool is_rev_15_som(void)
 static bool has_emmc(void)
 {
 	struct mmc *mmc;
-	mmc = find_mmc_device(1);
+	mmc = find_mmc_device(2);
 	if (!mmc)
 		return 0;
 	return (mmc_get_op_cond(mmc) < 0) ? 0 : 1;
@@ -540,6 +538,8 @@ static bool has_emmc(void)
 
 int checkboard(void)
 {
+	request_detect_gpios();
+
 	switch (board_type()) {
 	case CUBOXI:
 		puts("Board: MX6 Cubox-i");
@@ -561,13 +561,22 @@ int checkboard(void)
 	else
 		puts("\n");
 
+	free_detect_gpios();
 out:
 	return 0;
+}
+
+/* Override the default implementation, DT model is not accurate */
+int show_board_info(void)
+{
+	return checkboard();
 }
 
 int board_late_init(void)
 {
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+	request_detect_gpios();
+
 	switch (board_type()) {
 	case CUBOXI:
 		env_set("board_name", "CUBOXI");
@@ -594,9 +603,25 @@ int board_late_init(void)
 	if (has_emmc())
 		env_set("has_emmc", "yes");
 
+	free_detect_gpios();
 #endif
 
 	return 0;
+}
+
+/*
+ * This is not a perfect match. Avoid dependency on the DM GPIO driver needed
+ * for accurate board detection. Hummingboard2 DT is good enough for U-Boot on
+ * all Hummingboard/Cubox-i platforms.
+ */
+int board_fit_config_name_match(const char *name)
+{
+	char tmp_name[36];
+
+	snprintf(tmp_name, sizeof(tmp_name), "%s-hummingboard2-emmc-som-v15",
+			is_mx6dq() ? "imx6q" : "imx6dl");
+
+	return strcmp(name, tmp_name);
 }
 
 #ifdef CONFIG_SPL_BUILD
