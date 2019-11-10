@@ -588,7 +588,9 @@ dtb-y += \
 	imx6dl-aristainetos2c_4.dtb \
 	imx6dl-aristainetos2c_7.dtb \
 	imx6dl-brppt2.dtb \
+	imx6dl-cubox-i.dtb \
 	imx6dl-dhcom-pdk2.dtb \
+	imx6dl-hummingboard.dtb \
 	imx6dl-icore.dtb \
 	imx6dl-icore-mipi.dtb \
 	imx6dl-icore-rqs.dtb \
@@ -605,8 +607,10 @@ ifneq ($(CONFIG_MX6Q)$(CONFIG_MX6QDL),)
 dtb-y += \
 	imx6-apalis.dtb \
 	imx6q-cm-fx6.dtb \
+	imx6q-cubox-i.dtb \
 	imx6q-dhcom-pdk2.dtb \
 	imx6q-display5.dtb \
+	imx6q-hummingboard.dtb \
 	imx6q-icore.dtb \
 	imx6q-icore-mipi.dtb \
 	imx6q-icore-rqs.dtb \
