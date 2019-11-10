@@ -42,6 +42,7 @@ CONFIG_SPL_OF_CONTROL=y
 CONFIG_DEFAULT_DEVICE_TREE="imx6q-kp"
 CONFIG_OF_SPL_REMOVE_PROPS="interrupt-parent assigned-clocks assigned-clock-rates assigned-clock-parents interrupts dmas dma-names"
 CONFIG_ENV_IS_IN_MMC=y
+CONFIG_SYS_REDUNDAND_ENVIRONMENT=y
 # CONFIG_BLOCK_CACHE is not set
 CONFIG_SPL_CLK_IMX6Q=y
 CONFIG_CLK_IMX6Q=y

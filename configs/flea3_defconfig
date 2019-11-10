@@ -22,6 +22,7 @@ CONFIG_CMD_MTDPARTS=y
 CONFIG_MTDIDS_DEFAULT="nand0=mxc_nand,nor0=physmap-flash.0"
 CONFIG_MTDPARTS_DEFAULT="mtdparts=mxc_nand:50m(root1),32m(rootfb),64m(pcache),64m(app1),10m(app2),-(spool);physmap-flash.0:512k(u-boot),64k(env1),64k(env2),3776k(kernel1),3776k(kernel2)"
 CONFIG_ENV_IS_IN_FLASH=y
+CONFIG_SYS_REDUNDAND_ENVIRONMENT=y
 CONFIG_MXC_GPIO=y
 # CONFIG_MMC is not set
 CONFIG_MTD_NOR_FLASH=y

@@ -56,8 +56,6 @@
 #define CONFIG_ENV_OFFSET_REDUND	0x110000
 #define CONFIG_ENV_TOTAL_SIZE		0x020000
 
-#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
-
 #ifndef __ASSEMBLY__
 unsigned long get_board_sys_clk(unsigned long dummy);
 #endif
