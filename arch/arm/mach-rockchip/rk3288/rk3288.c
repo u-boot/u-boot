@@ -22,8 +22,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define GRF_BASE	0xff770000
 
 const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
-	[BROM_BOOTSOURCE_EMMC] = "dwmmc@ff0f0000",
-	[BROM_BOOTSOURCE_SD] = "dwmmc@ff0c0000",
+	[BROM_BOOTSOURCE_EMMC] = "/dwmmc@ff0f0000",
+	[BROM_BOOTSOURCE_SD] = "/dwmmc@ff0c0000",
 };
 
 #ifdef CONFIG_SPL_BUILD

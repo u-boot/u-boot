@@ -24,6 +24,12 @@ S:	Maintained
 F:	configs/khadas-edge-v-rk3399_defconfig
 F:	arch/arm/dts/rk3399-khadas-edge-v-u-boot.dtsi
 
+LEEZ-P710
+M:	Andy Yan <andy.yan@rock-chips.com>
+S:      Maintained
+F:	arch/arm/dts/rk3399-leez-p710-u-boot.dtsi
+F:	configs/leez-rk3399_defconfig
+
 NANOPC-T4
 M:	Jagan Teki <jagan@amarulasolutions.com>
 S:	Maintained

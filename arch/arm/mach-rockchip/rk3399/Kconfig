@@ -91,6 +91,9 @@ config TPL_STACK
 config TPL_TEXT_BASE
         default 0xff8c2000
 
+config SPL_STACK_R_ADDR
+	default 0x04000000
+
 source "board/rockchip/evb_rk3399/Kconfig"
 source "board/theobroma-systems/puma_rk3399/Kconfig"
 source "board/vamrs/rock960_rk3399/Kconfig"

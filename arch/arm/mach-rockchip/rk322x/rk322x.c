@@ -8,8 +8,8 @@
 #include <asm/arch-rockchip/hardware.h>
 
 const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
-	[BROM_BOOTSOURCE_EMMC] = "dwmmc@30020000",
-	[BROM_BOOTSOURCE_SD] = "dwmmc@30000000",
+	[BROM_BOOTSOURCE_EMMC] = "/dwmmc@30020000",
+	[BROM_BOOTSOURCE_SD] = "/dwmmc@30000000",
 };
 
 #ifdef CONFIG_DEBUG_UART_BOARD_INIT

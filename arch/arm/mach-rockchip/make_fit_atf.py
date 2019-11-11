@@ -63,6 +63,21 @@ def append_bl31_node(file, atf_index, phy_addr, elf_entry):
     file.write('\t\t};\n')
     file.write('\n')
 
+def append_tee_node(file, atf_index, phy_addr, elf_entry):
+    # Append TEE DT node to input FIT dts file.
+    data = 'tee_0x%08x.bin' % phy_addr
+    file.write('\t\tatf_%d {\n' % atf_index)
+    file.write('\t\t\tdescription = \"TEE\";\n')
+    file.write('\t\t\tdata = /incbin/("%s");\n' % data)
+    file.write('\t\t\ttype = "tee";\n')
+    file.write('\t\t\tarch = "arm64";\n')
+    file.write('\t\t\tos = "tee";\n')
+    file.write('\t\t\tcompression = "none";\n')
+    file.write('\t\t\tload = <0x%08x>;\n' % phy_addr)
+    file.write('\t\t\tentry = <0x%08x>;\n' % elf_entry)
+    file.write('\t\t};\n')
+    file.write('\n')
+
 def append_fdt_node(file, dtbs):
     # Append FDT nodes.
     cnt = 1
@@ -115,15 +130,23 @@ def generate_atf_fit_dts_uboot(fit_file, uboot_file_name):
     index, entry, p_paddr, data = segments[0]
     fit_file.write(DT_UBOOT % p_paddr)
 
-def generate_atf_fit_dts_bl31(fit_file, bl31_file_name, dtbs_file_name):
+def generate_atf_fit_dts_bl31(fit_file, bl31_file_name, tee_file_name, dtbs_file_name):
     segments = unpack_elf(bl31_file_name)
     for index, entry, paddr, data in segments:
         append_bl31_node(fit_file, index + 1, paddr, entry)
+    num_segments = len(segments)
+
+    if tee_file_name:
+        tee_segments = unpack_elf(tee_file_name)
+        for index, entry, paddr, data in tee_segments:
+            append_tee_node(fit_file, num_segments + index + 1, paddr, entry)
+        num_segments = num_segments + len(tee_segments)
+
     append_fdt_node(fit_file, dtbs_file_name)
     fit_file.write(DT_IMAGES_NODE_END)
-    append_conf_node(fit_file, dtbs_file_name, len(segments))
+    append_conf_node(fit_file, dtbs_file_name, num_segments)
 
-def generate_atf_fit_dts(fit_file_name, bl31_file_name, uboot_file_name, dtbs_file_name):
+def generate_atf_fit_dts(fit_file_name, bl31_file_name, tee_file_name, uboot_file_name, dtbs_file_name):
     # Generate FIT script for ATF image.
     if fit_file_name != sys.stdout:
         fit_file = open(fit_file_name, "wb")
@@ -132,7 +155,7 @@ def generate_atf_fit_dts(fit_file_name, bl31_file_name, uboot_file_name, dtbs_fi
 
     fit_file.write(DT_HEADER)
     generate_atf_fit_dts_uboot(fit_file, uboot_file_name)
-    generate_atf_fit_dts_bl31(fit_file, bl31_file_name, dtbs_file_name)
+    generate_atf_fit_dts_bl31(fit_file, bl31_file_name, tee_file_name, dtbs_file_name)
     fit_file.write(DT_END)
 
     if fit_file_name != sys.stdout:
@@ -143,6 +166,13 @@ def generate_atf_binary(bl31_file_name):
         file_name = 'bl31_0x%08x.bin' % paddr
         with open(file_name, "wb") as atf:
             atf.write(data)
+
+def generate_tee_binary(tee_file_name):
+    if tee_file_name:
+        for index, entry, paddr, data in unpack_elf(tee_file_name):
+            file_name = 'tee_0x%08x.bin' % paddr
+            with open(file_name, "wb") as atf:
+                atf.write(data)
 
 def unpack_elf(filename):
     with open(filename, 'rb') as file:
@@ -178,7 +208,14 @@ def main():
         logging.warning(' BL31 file bl31.elf NOT found, resulting binary is non-functional')
         logging.warning(' Please read Building section in doc/README.rockchip')
 
-    opts, args = getopt.getopt(sys.argv[1:], "o:u:b:h")
+    if "TEE" in os.environ:
+        tee_elf = os.getenv("TEE")
+    elif os.path.isfile("./tee.elf"):
+        tee_elf = "./tee.elf"
+    else:
+        tee_elf = ""
+
+    opts, args = getopt.getopt(sys.argv[1:], "o:u:b:t:h")
     for opt, val in opts:
         if opt == "-o":
             fit_its = val
@@ -186,14 +223,17 @@ def main():
             uboot_elf = val
         elif opt == "-b":
             bl31_elf = val
+        elif opt == "-t":
+            tee_elf = val
         elif opt == "-h":
             print(__doc__)
             sys.exit(2)
 
     dtbs = args
 
-    generate_atf_fit_dts(fit_its, bl31_elf, uboot_elf, dtbs)
+    generate_atf_fit_dts(fit_its, bl31_elf, tee_elf, uboot_elf, dtbs)
     generate_atf_binary(bl31_elf)
+    generate_tee_binary(tee_elf)
 
 if __name__ == "__main__":
     main()

@@ -282,6 +282,8 @@ static void rkclk_init(struct rk3328_cru *cru)
 	u32 hclk_div;
 	u32 pclk_div;
 
+	rk3328_configure_cpu(cru, APLL_600_MHZ);
+
 	/* configure gpll cpll */
 	rkclk_set_pll(cru, CLK_GENERAL, &gpll_init_cfg);
 	rkclk_set_pll(cru, CLK_CODEC, &cpll_init_cfg);
