@@ -43,7 +43,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	/* *I*** - Covers boot page */
 #if defined(CONFIG_SYS_RAMBOOT) && defined(CONFIG_SYS_INIT_L3_ADDR)
 
-#if !defined(CONFIG_SECURE_BOOT)
+#if !defined(CONFIG_NXP_ESBC)
 	/*
 	 * *I*G - L3SRAM. When L3 is used as 1M SRAM, the address of the
 	 * SRAM is at 0xfff00000, it covered the 0xfffff000.

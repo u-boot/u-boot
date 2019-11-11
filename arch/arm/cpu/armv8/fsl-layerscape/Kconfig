@@ -45,6 +45,7 @@ config ARCH_LS1028A
 	select SYS_FSL_ERRATUM_A008514 if !TFABOOT
 	select SYS_FSL_ERRATUM_A009663 if !TFABOOT
 	select SYS_FSL_ERRATUM_A009942 if !TFABOOT
+	select SYS_FSL_ERRATUM_A050382
 	imply PANIC_HANG
 
 config ARCH_LS1043A
@@ -375,8 +376,8 @@ config EMC2305
 	 Enable the EMC2305 fan controller for configuration of fan
 	 speed.
 
-config SECURE_BOOT
-	bool "Secure Boot"
+config NXP_ESBC
+	bool "NXP_ESBC"
 	help
 		Enable Freescale Secure Boot feature
 
@@ -584,6 +585,8 @@ config SYS_FSL_ERRATUM_A009660
 config SYS_FSL_ERRATUM_A009929
 	bool
 
+config SYS_FSL_ERRATUM_A050382
+	bool
 
 config SYS_FSL_HAS_RGMII
 	bool

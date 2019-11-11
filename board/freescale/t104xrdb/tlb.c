@@ -28,7 +28,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	/* TLB 1 */
 	/* *I*** - Covers boot page */
 #if defined(CONFIG_SYS_RAMBOOT) && defined(CONFIG_SYS_INIT_L3_ADDR) && \
-	!defined(CONFIG_SECURE_BOOT)
+	!defined(CONFIG_NXP_ESBC)
 	/*
 	 * *I*G - L3SRAM. When L3 is used as 256K SRAM, the address of the
 	 * SRAM is at 0xfffc0000, it covered the 0xfffff000.
@@ -37,7 +37,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 0, BOOKE_PAGESZ_256K, 1),
 
-#elif defined(CONFIG_SECURE_BOOT) && defined(CONFIG_SPL_BUILD)
+#elif defined(CONFIG_NXP_ESBC) && defined(CONFIG_SPL_BUILD)
 	/*
 	 * *I*G - L3SRAM. When L3 is used as 256K SRAM, in case of Secure Boot
 	 * the physical address of the SRAM is at 0xbffc0000,

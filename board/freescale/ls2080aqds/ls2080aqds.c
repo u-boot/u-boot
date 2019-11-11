@@ -20,6 +20,7 @@
 #include <hwconfig.h>
 #include <fsl_sec.h>
 #include <asm/arch/ppa.h>
+#include <asm/arch-fsl-layerscape/fsl_icid.h>
 
 
 #include "../common/qixis.h"
@@ -357,6 +358,8 @@ int ft_board_setup(void *blob, bd_t *bd)
 #if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
 	fdt_fixup_board_enet(blob);
 #endif
+
+	fdt_fixup_icid(blob);
 
 	return 0;
 }

@@ -13,7 +13,7 @@
 
 #ifdef CONFIG_RAMBOOT_PBL
 
-#ifndef CONFIG_SECURE_BOOT
+#ifndef CONFIG_NXP_ESBC
 #define CONFIG_SYS_FSL_PBL_PBI $(SRCTREE)/board/freescale/t104xrdb/t104x_pbi.cfg
 #else
 #define CONFIG_SYS_FSL_PBL_PBI \
@@ -32,7 +32,7 @@
 #define BOOT_PAGE_OFFSET		0x27000
 
 #ifdef CONFIG_NAND
-#ifdef CONFIG_SECURE_BOOT
+#ifdef CONFIG_NXP_ESBC
 #define CONFIG_U_BOOT_HDR_SIZE		(16 << 10)
 /*
  * HDR would be appended at end of image and copied to DDR along
@@ -163,7 +163,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #define CONFIG_ENV_SIZE			0x2000
 #define CONFIG_ENV_OFFSET		(512 * 0x800)
 #elif defined(CONFIG_NAND)
-#ifdef CONFIG_SECURE_BOOT
+#ifdef CONFIG_NXP_ESBC
 #define CONFIG_RAMBOOT_NAND
 #define CONFIG_BOOTSCRIPT_COPY_RAM
 #endif

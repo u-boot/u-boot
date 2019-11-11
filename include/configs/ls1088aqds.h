@@ -407,7 +407,7 @@ unsigned long get_board_ddr_clk(void);
 	QIXIS_SDID_MASK) != QIXIS_ESDHC_NO_ADAPTER)
 
 /* Initial environment variables */
-#ifdef CONFIG_SECURE_BOOT
+#ifdef CONFIG_NXP_ESBC
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
@@ -426,7 +426,7 @@ unsigned long get_board_ddr_clk(void);
 	"sf read 0xa0740000 0x740000 0x4000;esbc_validate 0xa0740000;"	\
 	"fsl_mc start mc 0xa0a00000 0xa0e00000\0"			\
 	"mcmemsize=0x70000000 \0"
-#else /* if !(CONFIG_SECURE_BOOT) */
+#else /* if !(CONFIG_NXP_ESBC) */
 #ifdef CONFIG_TFABOOT
 #define QSPI_MC_INIT_CMD				\
 	"sf probe 0:0;sf read 0x80000000 0xA00000 0x100000;"	\
@@ -522,7 +522,7 @@ unsigned long get_board_ddr_clk(void);
 	"mcmemsize=0x70000000 \0"
 #endif
 #endif /* CONFIG_TFABOOT */
-#endif /* CONFIG_SECURE_BOOT */
+#endif /* CONFIG_NXP_ESBC */
 
 #ifdef CONFIG_FSL_MC_ENET
 #define CONFIG_FSL_MEMAC

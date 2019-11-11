@@ -341,7 +341,8 @@ void fsl_lsch3_early_init_f(void)
 		bypass_smmu();
 #endif
 
-#if defined(CONFIG_ARCH_LS1088A) || defined(CONFIG_ARCH_LS1028A)
+#if defined(CONFIG_ARCH_LS1088A) || defined(CONFIG_ARCH_LS1028A) || \
+	defined(CONFIG_ARCH_LS2080A) || defined(CONFIG_ARCH_LX2160A)
 	set_icids();
 #endif
 }
@@ -828,6 +829,11 @@ int fsl_setenv_mcinitcmd(void)
 #endif
 
 #ifdef CONFIG_BOARD_LATE_INIT
+__weak int fsl_board_late_init(void)
+{
+	return 0;
+}
+
 int board_late_init(void)
 {
 #ifdef CONFIG_CHAIN_OF_TRUST
@@ -862,6 +868,6 @@ int board_late_init(void)
 	qspi_ahb_init();
 #endif
 
-	return 0;
+	return fsl_board_late_init();
 }
 #endif

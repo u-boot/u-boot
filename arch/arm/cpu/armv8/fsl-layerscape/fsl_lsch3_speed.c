@@ -64,7 +64,7 @@ void get_sys_info(struct sys_info *sys_info)
 	};
 
 	uint i, cluster;
-#if defined(CONFIG_TARGET_LS1028ARDB) || defined(CONFIG_TARGET_LS1088ARDB)
+#if defined(CONFIG_ARCH_LS1028A) || defined(CONFIG_ARCH_LS1088A)
 	uint rcw_tmp;
 #endif
 	uint freq_c_pll[CONFIG_SYS_FSL_NUM_CC_PLLS];
@@ -131,7 +131,7 @@ void get_sys_info(struct sys_info *sys_info)
 						CONFIG_SYS_FSL_IFC_CLK_DIV;
 #endif
 
-#if defined(CONFIG_TARGET_LS1028ARDB) || defined(CONFIG_TARGET_LS1088ARDB)
+#if defined(CONFIG_ARCH_LS1028A) || defined(CONFIG_ARCH_LS1088A)
 #define HWA_CGA_M2_CLK_SEL      0x00380000
 #define HWA_CGA_M2_CLK_SHIFT    19
 	rcw_tmp = in_le32(&gur->rcwsr[5]);
@@ -159,7 +159,7 @@ void get_sys_info(struct sys_info *sys_info)
 		break;
 	}
 #endif
-#if defined(CONFIG_TARGET_LX2160ARDB) || defined(CONFIG_TARGET_LS2080ARDB)
+#if defined(CONFIG_ARCH_LX2160A) || defined(CONFIG_ARCH_LS2080A)
 	sys_info->freq_cga_m2 = sys_info->freq_systembus;
 #endif
 }
@@ -176,10 +176,10 @@ int get_clocks(void)
 #endif
 #if defined(CONFIG_FSL_ESDHC)
 #if defined(CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK)
-#if defined(CONFIG_TARGET_LS1028ARDB) || defined(CONFIG_TARGET_LX2160ARDB)
+#if defined(CONFIG_ARCH_LS1028A) || defined(CONFIG_ARCH_LX2160A)
 	gd->arch.sdhc_clk = sys_info.freq_cga_m2 / 2;
 #endif
-#if defined(CONFIG_TARGET_LS2080ARDB) || defined(CONFIG_TARGET_LS1088ARDB)
+#if defined(CONFIG_ARCH_LS2080A) || defined(CONFIG_ARCH_LS1088A)
 	gd->arch.sdhc_clk = sys_info.freq_cga_m2;
 #endif
 #else

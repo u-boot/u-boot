@@ -12,7 +12,7 @@
 #include "../board/freescale/common/ics307_clk.h"
 
 #ifdef CONFIG_RAMBOOT_PBL
-#ifdef CONFIG_SECURE_BOOT
+#ifdef CONFIG_NXP_ESBC
 #define CONFIG_RAMBOOT_TEXT_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_RESET_VECTOR_ADDRESS	0xfffffffc
 #ifdef CONFIG_NAND

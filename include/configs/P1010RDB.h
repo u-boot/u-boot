@@ -29,7 +29,7 @@
 #endif
 
 #ifdef CONFIG_SPIFLASH
-#ifdef CONFIG_SECURE_BOOT
+#ifdef CONFIG_NXP_ESBC
 #define CONFIG_RAMBOOT_SPIFLASH
 #define CONFIG_RESET_VECTOR_ADDRESS	0x110bfffc
 #else
@@ -50,7 +50,7 @@
 #endif
 
 #ifdef CONFIG_NAND
-#ifdef CONFIG_SECURE_BOOT
+#ifdef CONFIG_NXP_ESBC
 #define CONFIG_SPL_INIT_MINIMAL
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"

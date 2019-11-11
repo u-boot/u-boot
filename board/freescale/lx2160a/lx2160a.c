@@ -27,6 +27,7 @@
 #include "../common/qixis.h"
 #include "../common/vid.h"
 #include <fsl_immap.h>
+#include <asm/arch-fsl-layerscape/fsl_icid.h>
 
 #ifdef CONFIG_EMC2305
 #include "../common/emc2305.h"
@@ -684,6 +685,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 	fdt_fsl_mc_fixup_iommu_map_entry(blob);
 	fdt_fixup_board_enet(blob);
 #endif
+	fdt_fixup_icid(blob);
 
 	return 0;
 }
