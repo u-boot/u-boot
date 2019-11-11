@@ -605,6 +605,22 @@ config AVB_BUF_SIZE
 
 endif # AVB_VERIFY
 
+config FIOVB
+	bool "Build Foundries.IO Verified Boot operations"
+	depends on PARTITION_UUIDS
+	depends on OPTEE
+	help
+	 This option enables compilation of Foundries.IO verified boot
+	 operations
+
+config SPL_FIOVB
+	bool "Build Foundries.IO Verified Boot operations"
+	depends on PARTITION_UUIDS
+	depends on OPTEE
+	help
+	 This option enables compilation of Foundries.IO verified boot
+	 operations
+
 config SCP03
 	bool "Build SCP03 - Secure Channel Protocol O3 - controls"
 	depends on OPTEE || SANDBOX
