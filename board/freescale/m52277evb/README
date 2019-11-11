@@ -79,7 +79,6 @@ RTC_DEBUG		-- define to show RTC debug message
 CONFIG_CMD_DATE		-- enable to use date feature in U-Boot
 
 CONFIG_MCFTMR		-- define to use DMA timer
-CONFIG_MCFPIT		-- define to use PIT timer
 
 CONFIG_SYS_I2C_FSL	-- define to use FSL common I2C driver
 CONFIG_SYS_I2C_SOFT	-- define for I2C bit-banged

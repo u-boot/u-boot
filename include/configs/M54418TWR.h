@@ -128,7 +128,6 @@
 
 /* Timer */
 #define CONFIG_MCFTMR
-#undef CONFIG_MCFPIT
 
 /* I2c */
 #undef CONFIG_SYS_FSL_I2C

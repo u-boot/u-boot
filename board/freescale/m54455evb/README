@@ -110,7 +110,6 @@ CONFIG_SYS_ATA_STRIDE		-- define for Interval between registers
 _IO_BASE		-- define for IO base address
 
 CONFIG_MCFTMR		-- define to use DMA timer
-CONFIG_MCFPIT		-- define to use PIT timer
 
 CONFIG_SYS_FSL_I2C	-- define to use FSL common I2C driver
 CONFIG_SYS_I2C_SOFT	-- define for I2C bit-banged

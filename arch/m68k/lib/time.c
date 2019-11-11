@@ -110,69 +110,6 @@ ulong get_timer(ulong base)
 
 #endif				/* CONFIG_MCFTMR */
 
-#if defined(CONFIG_MCFPIT)
-#if !defined(CONFIG_SYS_PIT_BASE)
-#	error	"CONFIG_SYS_PIT_BASE not defined!"
-#endif
-
-static unsigned short lastinc;
-
-void __udelay(unsigned long usec)
-{
-	volatile pit_t *timerp = (pit_t *) (CONFIG_SYS_UDELAY_BASE);
-	uint tmp;
-
-	while (usec > 0) {
-		if (usec > 65000)
-			tmp = 65000;
-		else
-			tmp = usec;
-		usec = usec - tmp;
-
-		/* Set up TIMER 3 as timebase clock */
-		timerp->pcsr = PIT_PCSR_OVW;
-		timerp->pmr = 0;
-		/* set period to 1 us */
-		timerp->pcsr |= PIT_PCSR_PRE(CONFIG_SYS_PIT_PRESCALE) | PIT_PCSR_EN;
-
-		timerp->pmr = tmp;
-		while (timerp->pcntr > 0) ;
-	}
-}
-
-void timer_init(void)
-{
-	volatile pit_t *timerp = (pit_t *) (CONFIG_SYS_PIT_BASE);
-	timestamp = 0;
-
-	/* Set up TIMER 4 as poll clock */
-	timerp->pcsr = PIT_PCSR_OVW;
-	timerp->pmr = lastinc = 0;
-	timerp->pcsr |= PIT_PCSR_PRE(CONFIG_SYS_PIT_PRESCALE) | PIT_PCSR_EN;
-
-	return 0;
-}
-
-ulong get_timer(ulong base)
-{
-	unsigned short now, diff;
-	volatile pit_t *timerp = (pit_t *) (CONFIG_SYS_PIT_BASE);
-
-	now = timerp->pcntr;
-	diff = -(now - lastinc);
-
-	timestamp += diff;
-	lastinc = now;
-	return timestamp - base;
-}
-
-void wait_ticks(unsigned long ticks)
-{
-	u32 start = get_timer(0);
-	while (get_timer(start) < ticks) ;
-}
-#endif				/* CONFIG_MCFPIT */
-
 /*
  * This function is derived from PowerPC code (read timebase as long long).
  * On M68K it just returns the timer value.

@@ -60,7 +60,6 @@
 
 /* Timer */
 #define CONFIG_MCFTMR
-#undef CONFIG_MCFPIT
 
 /* DSPI and Serial Flash */
 #define CONFIG_CF_DSPI
