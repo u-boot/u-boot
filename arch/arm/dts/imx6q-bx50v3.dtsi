@@ -42,6 +42,7 @@
  */
 
 #include "imx6q-ba16.dtsi"
+#include "imx6q-bx50v3-uboot.dtsi"
 
 / {
 	mclk: clock-mclk {
