@@ -297,7 +297,6 @@ int board_late_init(void)
 		return res;
 
 	print_cpuinfo();
-	hw_watchdog_init();
 
 	check_time();
 
