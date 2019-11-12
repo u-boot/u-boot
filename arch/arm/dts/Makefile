@@ -851,7 +851,12 @@ dtb-$(CONFIG_ARCH_MEDIATEK) += \
 	mt8516-pumpkin.dtb \
 	mt8518-ap1-emmc.dtb
 
-dtb-$(CONFIG_TARGET_GE_BX50V3) += imx6q-bx50v3.dtb
+dtb-$(CONFIG_TARGET_GE_BX50V3) += \
+	imx6q-bx50v3.dtb \
+	imx6q-b850v3.dtb \
+	imx6q-b650v3.dtb \
+	imx6q-b450v3.dtb
+
 dtb-$(CONFIG_TARGET_MX53PPD) += imx53-ppd.dtb
 
 dtb-$(CONFIG_TARGET_VEXPRESS_CA5X2) += vexpress-v2p-ca5s.dtb

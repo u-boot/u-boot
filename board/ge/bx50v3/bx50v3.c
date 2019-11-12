@@ -32,12 +32,13 @@
 #include <pwm.h>
 #include <version.h>
 #include <stdlib.h>
+#include <dm/root.h>
 #include "../common/ge_common.h"
 #include "../common/vpd_reader.h"
 #include "../../../drivers/net/e1000.h"
 DECLARE_GLOBAL_DATA_PTR;
 
-static int confidx = 3;  /* Default to b850v3. */
+static int confidx;  /* Default to generic. */
 static struct vpd_cache vpd;
 
 #define NC_PAD_CTRL (PAD_CTL_PUS_100K_UP |	\
@@ -553,8 +554,16 @@ int board_init(void)
 	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info3);
 
 	if (!read_vpd(&vpd, vpd_callback)) {
+		int ret, rescan;
+
 		vpd.is_read = true;
 		set_confidx(&vpd);
+
+		ret = fdtdec_resetup(&rescan);
+		if (!ret && rescan) {
+			dm_uninit();
+			dm_init_and_scan(false);
+		}
 	}
 
 	gpio_request(SUS_S3_OUT, "sus_s3_out");
@@ -729,3 +738,26 @@ U_BOOT_CMD(
        "enable Bx50 backlight",
        ""
 );
+
+int board_fit_config_name_match(const char *name)
+{
+	if (!vpd.is_read)
+		return strcmp(name, "imx6q-bx50v3");
+
+	switch (vpd.product_id) {
+	case VPD_PRODUCT_B450:
+		return strcmp(name, "imx6q-b450v3");
+	case VPD_PRODUCT_B650:
+		return strcmp(name, "imx6q-b650v3");
+	case VPD_PRODUCT_B850:
+		return strcmp(name, "imx6q-b850v3");
+	default:
+		return -1;
+	}
+}
+
+int embedded_dtb_select(void)
+{
+	vpd.is_read = false;
+	return fdtdec_setup();
+}
