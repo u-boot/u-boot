@@ -53,6 +53,8 @@
 #define is_imx8mmdl() (is_cpu_type(MXC_CPU_IMX8MMDL))
 #define is_imx8mms() (is_cpu_type(MXC_CPU_IMX8MMS))
 #define is_imx8mmsl() (is_cpu_type(MXC_CPU_IMX8MMSL))
+#define is_imx8mn() (is_cpu_type(MXC_CPU_IMX8MN))
+
 #define is_imx8qxp() (is_cpu_type(MXC_CPU_IMX8QXP))
 
 #ifdef CONFIG_MX6
@@ -103,6 +105,39 @@ u32 imx6_src_get_boot_mode(void);
 void gpr_init(void);
 
 #endif /* CONFIG_MX6 */
+
+#ifdef CONFIG_IMX8M
+struct rom_api {
+	u16 ver;
+	u16 tag;
+	u32 reserved1;
+	u32 (*download_image)(u8 *dest, u32 offset, u32 size,  u32 xor);
+	u32 (*query_boot_infor)(u32 info_type, u32 *info, u32 xor);
+};
+
+enum boot_dev_type_e {
+	BT_DEV_TYPE_SD = 1,
+	BT_DEV_TYPE_MMC = 2,
+	BT_DEV_TYPE_NAND = 3,
+	BT_DEV_TYPE_FLEXSPINOR = 4,
+
+	BT_DEV_TYPE_USB = 0xE,
+	BT_DEV_TYPE_MEM_DEV = 0xF,
+
+	BT_DEV_TYPE_INVALID = 0xFF
+};
+
+#define QUERY_ROM_VER		1
+#define QUERY_BT_DEV		2
+#define QUERY_PAGE_SZ		3
+#define QUERY_IVT_OFF		4
+#define QUERY_BT_STAGE		5
+#define QUERY_IMG_OFF		6
+
+#define ROM_API_OKAY		0xF0
+
+extern struct rom_api *g_rom_api;
+#endif
 
 u32 get_nr_cpus(void);
 u32 get_cpu_rev(void);

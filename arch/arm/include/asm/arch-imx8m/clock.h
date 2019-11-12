@@ -9,7 +9,7 @@
 
 #ifdef CONFIG_IMX8MQ
 #include <asm/arch/clock_imx8mq.h>
-#elif defined(CONFIG_IMX8MM)
+#elif defined(CONFIG_IMX8MM) || defined(CONFIG_IMX8MN)
 #include <asm/arch/clock_imx8mm.h>
 #else
 #error "Error no clock.h"

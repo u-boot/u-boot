@@ -56,7 +56,7 @@ void enable_tzc380(void)
 	/* Enable TZASC and lock setting */
 	setbits_le32(&gpr->gpr[10], GPR_TZASC_EN);
 	setbits_le32(&gpr->gpr[10], GPR_TZASC_EN_LOCK);
-	if (IS_ENABLED(CONFIG_IMX8MM))
+	if (is_imx8mm() || is_imx8mn())
 		setbits_le32(&gpr->gpr[10], BIT(1));
 	/*
 	 * set Region 0 attribute to allow secure and non-secure
@@ -197,7 +197,9 @@ u32 get_cpu_rev(void)
 	reg &= 0xff;
 
 	/* i.MX8MM */
-	if (major_low == 0x41) {
+	if (major_low == 0x42) {
+		return (MXC_CPU_IMX8MN << 12) | reg;
+	} else if (major_low == 0x41) {
 		type = get_cpu_variant_type(MXC_CPU_IMX8MM);
 	} else {
 		if (reg == CHIP_REV_1_0) {
@@ -241,12 +243,14 @@ int arch_cpu_init_dm(void)
 	struct udevice *dev;
 	int ret;
 
-	ret = uclass_get_device_by_name(UCLASS_CLK,
-					"clock-controller@30380000",
-					&dev);
-	if (ret < 0) {
-		printf("Failed to find clock node. Check device tree\n");
-		return ret;
+	if (CONFIG_IS_ENABLED(CLK)) {
+		ret = uclass_get_device_by_name(UCLASS_CLK,
+						"clock-controller@30380000",
+						&dev);
+		if (ret < 0) {
+			printf("Failed to find clock node. Check device tree\n");
+			return ret;
+		}
 	}
 
 	return 0;
@@ -280,6 +284,54 @@ int arch_cpu_init(void)
 
 	return 0;
 }
+
+#if defined(CONFIG_IMX8MN) || defined(CONFIG_IMX8MP)
+struct rom_api *g_rom_api = (struct rom_api *)0x980;
+
+enum boot_device get_boot_device(void)
+{
+	volatile gd_t *pgd = gd;
+	int ret;
+	u32 boot;
+	u16 boot_type;
+	u8 boot_instance;
+	enum boot_device boot_dev = SD1_BOOT;
+
+	ret = g_rom_api->query_boot_infor(QUERY_BT_DEV, &boot,
+					  ((uintptr_t)&boot) ^ QUERY_BT_DEV);
+	gd = pgd;
+
+	if (ret != ROM_API_OKAY) {
+		puts("ROMAPI: failure at query_boot_info\n");
+		return -1;
+	}
+
+	boot_type = boot >> 16;
+	boot_instance = (boot >> 8) & 0xff;
+
+	switch (boot_type) {
+	case BT_DEV_TYPE_SD:
+		boot_dev = boot_instance + SD1_BOOT;
+		break;
+	case BT_DEV_TYPE_MMC:
+		boot_dev = boot_instance + MMC1_BOOT;
+		break;
+	case BT_DEV_TYPE_NAND:
+		boot_dev = NAND_BOOT;
+		break;
+	case BT_DEV_TYPE_FLEXSPINOR:
+		boot_dev = QSPI_BOOT;
+		break;
+	case BT_DEV_TYPE_USB:
+		boot_dev = USB_BOOT;
+		break;
+	default:
+		break;
+	}
+
+	return boot_dev;
+}
+#endif
 
 bool is_usb_boot(void)
 {

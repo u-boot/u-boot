@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2019 NXP
+ * Copyright 2018 NXP
  */
 
-#ifndef __IMX8MM_EVK_H
-#define __IMX8MM_EVK_H
+#ifndef __IMX8MN_EVK_H
+#define __IMX8MN_EVK_H
 
 #include <linux/sizes.h>
 #include <asm/arch/imx-regs.h>
@@ -22,14 +22,17 @@
 	(QSPI0_AMBA_BASE + CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)
 
 #ifdef CONFIG_SPL_BUILD
-#define CONFIG_SPL_STACK		0x920000
-#define CONFIG_SPL_BSS_START_ADDR	0x910000
+#define CONFIG_SPL_STACK		0x95fff0
+#define CONFIG_SPL_BSS_START_ADDR	0x00950000
 #define CONFIG_SPL_BSS_MAX_SIZE		SZ_8K	/* 8 KB */
 #define CONFIG_SYS_SPL_MALLOC_START	0x42200000
 #define CONFIG_SYS_SPL_MALLOC_SIZE	SZ_512K	/* 512 KB */
+#define CONFIG_SYS_ICACHE_OFF
+#define CONFIG_SYS_DCACHE_OFF
 
 /* malloc f used before GD_FLG_FULL_MALLOC_INIT set */
-#define CONFIG_MALLOC_F_ADDR		0x930000
+#define CONFIG_MALLOC_F_ADDR		0x00940000
+
 /* For RAW image gives a error info not panic */
 #define CONFIG_SPL_ABORT_ON_RAW_IMAGE
 
@@ -103,7 +106,7 @@
 /* Link Definitions */
 #define CONFIG_LOADADDR			0x40480000
 
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
+#define CONFIG_SYS_LOAD_ADDR           CONFIG_LOADADDR
 
 #define CONFIG_SYS_INIT_RAM_ADDR        0x40000000
 #define CONFIG_SYS_INIT_RAM_SIZE        0x200000
@@ -127,8 +130,8 @@
 #define PHYS_SDRAM                      0x40000000
 #define PHYS_SDRAM_SIZE			0x80000000 /* 2GB DDR */
 
-#define CONFIG_SYS_MEMTEST_START	PHYS_SDRAM
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + (PHYS_SDRAM_SIZE >> 1))
+#define CONFIG_SYS_MEMTEST_START    PHYS_SDRAM
+#define CONFIG_SYS_MEMTEST_END      (CONFIG_SYS_MEMTEST_START + (PHYS_SDRAM_SIZE >> 1))
 
 #define CONFIG_MXC_UART_BASE		UART2_BASE_ADDR
 
@@ -149,13 +152,5 @@
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
 #define CONFIG_SYS_I2C_SPEED		100000
-
-#define CONFIG_ETHPRIME                 "FEC"
-
-#define CONFIG_FEC_XCV_TYPE             RGMII
-#define CONFIG_FEC_MXC_PHYADDR          0
-#define FEC_QUIRK_ENET_MAC
-
-#define IMX_FEC_BASE			0x30BE0000
 
 #endif

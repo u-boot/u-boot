@@ -26,8 +26,6 @@ struct mu_type {
 
 struct imx8_scu {
 	struct mu_type *base;
-	struct udevice *clk;
-	struct udevice *pinclk;
 };
 
 #define MU_CR_GIE_MASK		0xF0000000u
@@ -202,9 +200,6 @@ static int imx8_scu_probe(struct udevice *dev)
 
 	gd->arch.scu_dev = dev;
 
-	device_probe(plat->clk);
-	device_probe(plat->pinclk);
-
 	return 0;
 }
 
@@ -215,44 +210,17 @@ static int imx8_scu_remove(struct udevice *dev)
 
 static int imx8_scu_bind(struct udevice *dev)
 {
-	struct imx8_scu *plat = dev_get_platdata(dev);
 	int ret;
 	struct udevice *child;
-	int node;
-	char *clk_compatible, *iomuxc_compatible;
-
-	if (IS_ENABLED(CONFIG_IMX8QXP)) {
-		clk_compatible = "fsl,imx8qxp-clk";
-		iomuxc_compatible = "fsl,imx8qxp-iomuxc";
-	} else if (IS_ENABLED(CONFIG_IMX8QM)) {
-		clk_compatible = "fsl,imx8qm-clk";
-		iomuxc_compatible = "fsl,imx8qm-iomuxc";
-	} else {
-		return -EINVAL;
-	}
+	ofnode node;
 
 	debug("%s(dev=%p)\n", __func__, dev);
-
-	node = fdt_node_offset_by_compatible(gd->fdt_blob, -1, clk_compatible);
-	if (node < 0)
-		panic("No clk node found\n");
-
-	ret = lists_bind_fdt(dev, offset_to_ofnode(node), &child, true);
-	if (ret)
-		return ret;
-
-	plat->clk = child;
-
-	node = fdt_node_offset_by_compatible(gd->fdt_blob, -1,
-					     iomuxc_compatible);
-	if (node < 0)
-		panic("No iomuxc node found\n");
-
-	ret = lists_bind_fdt(dev, offset_to_ofnode(node), &child, true);
-	if (ret)
-		return ret;
-
-	plat->pinclk = child;
+	ofnode_for_each_subnode(node, dev_ofnode(dev)) {
+		ret = lists_bind_fdt(dev, node, &child, true);
+		if (ret)
+			return ret;
+		debug("bind child dev %s\n", child->name);
+	}
 
 	return 0;
 }

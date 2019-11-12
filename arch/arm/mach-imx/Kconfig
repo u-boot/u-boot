@@ -109,3 +109,7 @@ config DDRMC_VF610_CALIBRATION
 	  NXP does NOT recommend to perform this calibration at each boot. One
 	  shall perform it on a new PCB and then use those values to program
 	  the ddrmc_cr_setting on relevant board file.
+
+config SPL_IMX_ROMAPI_LOADADDR
+	hex "Default load address to load image through ROM API"
+	depends on IMX8MN
