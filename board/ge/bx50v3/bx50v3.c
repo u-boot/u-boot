@@ -36,6 +36,8 @@
 #include "../common/ge_common.h"
 #include "../common/vpd_reader.h"
 #include "../../../drivers/net/e1000.h"
+#include <pci.h>
+
 DECLARE_GLOBAL_DATA_PTR;
 
 static int confidx;  /* Default to generic. */
@@ -83,38 +85,6 @@ static iomux_v3_cfg_t const uart4_pads[] = {
 	MX6_PAD_KEY_ROW0__UART4_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
 };
 
-static iomux_v3_cfg_t const enet_pads[] = {
-	MX6_PAD_ENET_MDIO__ENET_MDIO | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET_MDC__ENET_MDC   | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_TXC__RGMII_TXC | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_TD0__RGMII_TD0 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_TD1__RGMII_TD1 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_TD2__RGMII_TD2 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_TD3__RGMII_TD3 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII_TX_CTL__RGMII_TX_CTL | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET_REF_CLK__ENET_TX_CLK  | MUX_PAD_CTRL(ENET_CLK_PAD_CTRL),
-	MX6_PAD_RGMII_RXC__RGMII_RXC | MUX_PAD_CTRL(ENET_RX_PAD_CTRL),
-	MX6_PAD_RGMII_RD0__RGMII_RD0 | MUX_PAD_CTRL(ENET_RX_PAD_CTRL),
-	MX6_PAD_RGMII_RD1__RGMII_RD1 | MUX_PAD_CTRL(ENET_RX_PAD_CTRL),
-	MX6_PAD_RGMII_RD2__RGMII_RD2 | MUX_PAD_CTRL(ENET_RX_PAD_CTRL),
-	MX6_PAD_RGMII_RD3__RGMII_RD3 | MUX_PAD_CTRL(ENET_RX_PAD_CTRL),
-	MX6_PAD_RGMII_RX_CTL__RGMII_RX_CTL | MUX_PAD_CTRL(ENET_RX_PAD_CTRL),
-	/* AR8033 PHY Reset */
-	MX6_PAD_ENET_TX_EN__GPIO1_IO28 | MUX_PAD_CTRL(NO_PAD_CTRL),
-};
-
-static void setup_iomux_enet(void)
-{
-	imx_iomux_v3_setup_multiple_pads(enet_pads, ARRAY_SIZE(enet_pads));
-
-	/* Reset AR8033 PHY */
-	gpio_request(IMX_GPIO_NR(1, 28), "fec_rst");
-	gpio_direction_output(IMX_GPIO_NR(1, 28), 0);
-	mdelay(10);
-	gpio_set_value(IMX_GPIO_NR(1, 28), 1);
-	mdelay(1);
-}
-
 static struct i2c_pads_info i2c_pad_info1 = {
 	.scl = {
 		.i2c_mode = MX6_PAD_CSI0_DAT9__I2C1_SCL | I2C_PAD,
@@ -153,16 +123,6 @@ static struct i2c_pads_info i2c_pad_info3 = {
 		.gp = IMX_GPIO_NR(1, 6)
 	}
 };
-
-static iomux_v3_cfg_t const pcie_pads[] = {
-	MX6_PAD_GPIO_5__GPIO1_IO05 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_GPIO_17__GPIO7_IO12 | MUX_PAD_CTRL(NO_PAD_CTRL),
-};
-
-static void setup_pcie(void)
-{
-	imx_iomux_v3_setup_multiple_pads(pcie_pads, ARRAY_SIZE(pcie_pads));
-}
 
 static void setup_iomux_uart(void)
 {
@@ -455,7 +415,7 @@ static int vpd_callback(struct vpd_cache *vpd, u8 id, u8 version, u8 type,
 
 static void process_vpd(struct vpd_cache *vpd)
 {
-	int fec_index = -1;
+	int fec_index = 0;
 	int i210_index = -1;
 
 	if (!vpd->is_read) {
@@ -463,39 +423,28 @@ static void process_vpd(struct vpd_cache *vpd)
 		return;
 	}
 
+	if (vpd->has & VPD_HAS_MAC1)
+		eth_env_set_enetaddr_by_index("eth", fec_index, vpd->mac1);
+
+	env_set("ethact", "eth0");
+
 	switch (vpd->product_id) {
 	case VPD_PRODUCT_B450:
 		env_set("confidx", "1");
-		i210_index = 0;
-		fec_index = 1;
+		i210_index = 1;
 		break;
 	case VPD_PRODUCT_B650:
 		env_set("confidx", "2");
-		i210_index = 0;
-		fec_index = 1;
+		i210_index = 1;
 		break;
 	case VPD_PRODUCT_B850:
 		env_set("confidx", "3");
-		i210_index = 1;
-		fec_index = 2;
+		i210_index = 2;
 		break;
 	}
 
-	if (fec_index >= 0 && (vpd->has & VPD_HAS_MAC1))
-		eth_env_set_enetaddr_by_index("eth", fec_index, vpd->mac1);
-
 	if (i210_index >= 0 && (vpd->has & VPD_HAS_MAC2))
 		eth_env_set_enetaddr_by_index("eth", i210_index, vpd->mac2);
-}
-
-int board_eth_init(bd_t *bis)
-{
-	setup_iomux_enet();
-	setup_pcie();
-
-	e1000_initialize(bis);
-
-	return cpu_eth_init(bis);
 }
 
 static iomux_v3_cfg_t const misc_pads[] = {
@@ -658,6 +607,8 @@ int board_late_init(void)
 	pmic_init();
 
 	check_time();
+
+	pci_init();
 
 	return 0;
 }
