@@ -109,8 +109,6 @@ unsigned int mxc_get_clock(enum mxc_clock clk)
 	switch (clk) {
 	case MXC_I2C_CLK:
 		return get_bus_freq(0) / 2;
-	case MXC_ESDHC_CLK:
-		return get_bus_freq(0);
 	case MXC_DSPI_CLK:
 		return get_bus_freq(0) / 2;
 	case MXC_UART_CLK:

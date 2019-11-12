@@ -227,16 +227,6 @@ ulong get_ddr_freq(ulong dummy)
 	return gd->mem_clk;
 }
 
-#ifdef CONFIG_FSL_ESDHC
-int get_sdhc_freq(ulong dummy)
-{
-	if (!gd->arch.sdhc_clk)
-		get_clocks();
-
-	return gd->arch.sdhc_clk;
-}
-#endif
-
 int get_serial_clock(void)
 {
 	return get_bus_freq(0) / CONFIG_SYS_FSL_DUART_CLK_DIV;
@@ -264,11 +254,6 @@ unsigned int mxc_get_clock(enum mxc_clock clk)
 	switch (clk) {
 	case MXC_I2C_CLK:
 		return get_i2c_freq(0);
-#if defined(CONFIG_FSL_ESDHC)
-	case MXC_ESDHC_CLK:
-	case MXC_ESDHC2_CLK:
-		return get_sdhc_freq(0);
-#endif
 	case MXC_DSPI_CLK:
 		return get_dspi_freq(0);
 #ifdef CONFIG_FSL_LPUART
