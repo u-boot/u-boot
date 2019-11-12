@@ -714,20 +714,23 @@ int ft_board_setup(void *blob, bd_t *bd)
 static int do_backlight_enable(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 #ifdef CONFIG_VIDEO_IPUV3
-	/* We need at least 200ms between power on and backlight on
-	 * as per specifications from CHI MEI */
-	mdelay(250);
+	if (!is_b850v3()) {
+		/* We need at least 200ms between power on and backlight on
+		 * as per specifications from CHI MEI
+		 */
+		mdelay(250);
 
-	/* enable backlight PWM 1 */
-	pwm_init(0, 0, 0);
+		/* enable backlight PWM 1 */
+		pwm_init(0, 0, 0);
 
-	/* duty cycle 5000000ns, period: 5000000ns */
-	pwm_config(0, 5000000, 5000000);
+		/* duty cycle 5000000ns, period: 5000000ns */
+		pwm_config(0, 5000000, 5000000);
 
-	/* Backlight Power */
-	gpio_direction_output(LVDS_BACKLIGHT_GP, 1);
+		/* Backlight Power */
+		gpio_direction_output(LVDS_BACKLIGHT_GP, 1);
 
-	pwm_enable(0);
+		pwm_enable(0);
+	}
 #endif
 
 	return 0;
