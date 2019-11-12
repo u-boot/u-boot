@@ -23,7 +23,6 @@
 #define CONFIG_BMP_16BPP
 
 /* Environment settings */
-#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 #undef CONFIG_ENV_SIZE
 #define CONFIG_ENV_SIZE			0x2000
 #define CONFIG_ENV_SECT_SIZE		0x1000

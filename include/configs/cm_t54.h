@@ -37,7 +37,6 @@
 #define CONFIG_ENV_OFFSET		0xc0000		/* (in bytes) 768 KB */
 #define CONFIG_ENV_SIZE			(16 << 10)	/* 16 KB */
 #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
-#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 
 /* Enhance our eMMC support / experience. */
 #define CONFIG_HSMMC2_8BIT

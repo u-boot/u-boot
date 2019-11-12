@@ -393,6 +393,16 @@ config ENV_IS_IN_UBI
 	  the environment in.  This will enable redundant environments in UBI.
 	  It is assumed that both volumes are in the same MTD partition.
 
+config SYS_REDUNDAND_ENVIRONMENT
+	bool "Enable redundant environment support"
+	depends on ENV_IS_IN_EEPROM || ENV_IS_IN_FLASH || ENV_IS_IN_MMC || \
+		ENV_IS_IN_NAND || ENV_IS_IN_SPI_FLASH || ENV_IS_IN_UBI
+	help
+	  Normally, the environemt is stored in a single location.  By
+	  selecting this option, you can then define where to hold a redundant
+	  copy of the environment data, so that there is a valid backup copy in
+	  case there is a power failure during a "saveenv" operation.
+
 config ENV_FAT_INTERFACE
 	string "Name of the block device for the environment"
 	depends on ENV_IS_IN_FAT
@@ -512,15 +522,9 @@ config ENV_UBI_VOLUME
 
 config ENV_UBI_VOLUME_REDUND
 	string "UBI redundant volume name"
-	depends on ENV_IS_IN_UBI
+	depends on ENV_IS_IN_UBI && SYS_REDUNDAND_ENVIRONMENT
 	help
 	  Name of the redundant volume that you want to store the environment in.
-
-config ENV_UBI_IS_VOLUME_REDUND
-	bool
-	depends on ENV_IS_IN_UBI
-	default y if ENV_UBI_VOLUME_REDUND != ""
-	default n
 
 config ENV_UBI_VID_OFFSET
 	int "ubi environment VID offset"

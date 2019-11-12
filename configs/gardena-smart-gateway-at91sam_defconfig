@@ -52,6 +52,7 @@ CONFIG_SPL_OF_CONTROL=y
 CONFIG_DEFAULT_DEVICE_TREE="at91sam9g25-gardena-smart-gateway"
 CONFIG_OF_SPL_REMOVE_PROPS="pinctrl-0 pinctrl-names clocks clock-names interrupts interrupt-parent interrupts-extended dmas dma-names"
 CONFIG_ENV_IS_IN_UBI=y
+CONFIG_SYS_REDUNDAND_ENVIRONMENT=y
 CONFIG_ENV_UBI_PART="ubi"
 CONFIG_ENV_UBI_VOLUME="env"
 CONFIG_ENV_UBI_VOLUME_REDUND="env_r"

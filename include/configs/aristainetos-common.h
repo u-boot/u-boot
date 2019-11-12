@@ -147,7 +147,6 @@
 
 /* Environment organization */
 #define CONFIG_ENV_SIZE			(12 * 1024)
-#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 #define CONFIG_ENV_SECT_SIZE		(0x010000)
 #define CONFIG_ENV_OFFSET		(0x0d0000)
 #define CONFIG_ENV_OFFSET_REDUND	(0x0e0000)
