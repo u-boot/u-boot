@@ -649,8 +649,13 @@ int checkboard(void)
 #ifdef CONFIG_OF_BOARD_SETUP
 int ft_board_setup(void *blob, bd_t *bd)
 {
+	char *rtc_status = env_get("rtc_status");
+
 	fdt_setprop(blob, 0, "ge,boot-ver", version_string,
-	                                    strlen(version_string) + 1);
+		    strlen(version_string) + 1);
+
+	fdt_setprop(blob, 0, "ge,rtc-status", rtc_status,
+		    strlen(rtc_status) + 1);
 	return 0;
 }
 #endif

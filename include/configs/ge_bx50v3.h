@@ -93,7 +93,7 @@
 	"setargs=setenv bootargs root=/dev/${rootdev}${partnum} " \
 		"ro rootwait cma=128M " \
 		"bootcause=${bootcause} " \
-		"${quiet} console=${console} ${rtc_status} " \
+		"${quiet} console=${console} " \
 		"${videoargs}" "\0" \
 	"doquiet=" \
 		"if ext2load ${dev} ${devnum}:5 0x7000A000 /boot/console; " \
