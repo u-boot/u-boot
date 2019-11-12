@@ -14,7 +14,6 @@
 #include <hwconfig.h>
 #include <mmc.h>
 #include <fsl_csu.h>
-#include <fsl_esdhc.h>
 #include <fsl_ifc.h>
 #include <fsl_sec.h>
 #include <spl.h>
@@ -160,19 +159,6 @@ int dram_init(void)
 	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
 	return fsl_initdram();
 }
-
-#ifdef CONFIG_FSL_ESDHC
-struct fsl_esdhc_cfg esdhc_cfg[1] = {
-	{CONFIG_SYS_FSL_ESDHC_ADDR},
-};
-
-int board_mmc_init(bd_t *bis)
-{
-	esdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
-
-	return fsl_esdhc_initialize(bis, &esdhc_cfg[0]);
-}
-#endif
 
 int board_early_init_f(void)
 {
