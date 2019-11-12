@@ -114,12 +114,11 @@
 	"swappartitions=" \
 		"setexpr partnum 3 - ${partnum}\0" \
 	"failbootcmd=" \
+		"echo reached failbootcmd; " \
 		"bx50_backlight_enable; " \
-		"msg=\"Monitor failed to start.  Try again, or contact GE Service for support.\"; " \
-		"echo $msg; " \
-		"setenv stdout vga; " \
-		"echo \"\n\n\n\n    \" $msg; " \
-		"setenv stdout serial; " \
+		"setcurs 5 4; " \
+		"lcdputs \"Monitor failed to start. " \
+		"Try again, or contact GE Service for support.\"; " \
 		"mw.b 0x7000A000 0xbc; " \
 		"mw.b 0x7000A001 0x00; " \
 		"ext4write ${dev} ${devnum}:5 0x7000A000 /boot/failures 2\0" \

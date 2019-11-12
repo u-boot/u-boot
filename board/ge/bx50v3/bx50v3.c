@@ -219,13 +219,6 @@ static void do_enable_hdmi(struct display_info_t const *dev)
 	imx_enable_hdmi_phy();
 }
 
-int board_cfb_skip(void)
-{
-	gpio_direction_output(LVDS_POWER_GP, 1);
-
-	return 0;
-}
-
 static int is_b850v3(void)
 {
 	return confidx == 3;
@@ -713,8 +706,14 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 static int do_backlight_enable(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
+#if CONFIG_IS_ENABLED(DM_VIDEO)
+	int ret;
+	struct udevice *dev;
+
 #ifdef CONFIG_VIDEO_IPUV3
 	if (!is_b850v3()) {
+		gpio_direction_output(LVDS_POWER_GP, 1);
+
 		/* We need at least 200ms between power on and backlight on
 		 * as per specifications from CHI MEI
 		 */
@@ -731,6 +730,14 @@ static int do_backlight_enable(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 
 		pwm_enable(0);
 	}
+#endif
+
+	/* Probe, to find a video device to be used to show a message on
+	 * the vidconsole.
+	 */
+	ret = uclass_get_device(UCLASS_VIDEO, 0, &dev);
+	if (ret)
+		return ret;
 #endif
 
 	return 0;
