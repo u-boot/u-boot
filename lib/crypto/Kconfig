@@ -16,4 +16,15 @@ config ASYMMETRIC_PUBLIC_KEY_SUBTYPE
 	  appropriate hash algorithms (such as SHA-1) must be available.
 	  ENOPKG will be reported if the requisite algorithm is unavailable.
 
+config RSA_PUBLIC_KEY_PARSER
+	bool "RSA public key parser"
+	depends on ASYMMETRIC_PUBLIC_KEY_SUBTYPE
+	select ASN1_DECODER
+	select ASN1_COMPILER
+	select OID_REGISTRY
+	help
+	  This option provides support for parsing a blob containing RSA
+	  public key data and provides the ability to instantiate a public
+	  key.
+
 endif # ASYMMETRIC_KEY_TYPE
