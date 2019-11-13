@@ -569,6 +569,11 @@ endmenu
 config ASN1_COMPILER
 	bool
 
+config ASN1_DECODER
+	bool
+	help
+	  Enable asn1 decoder library.
+
 source lib/efi/Kconfig
 source lib/efi_loader/Kconfig
 source lib/optee/Kconfig
