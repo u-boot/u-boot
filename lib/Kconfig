@@ -566,6 +566,9 @@ config SMBIOS_PRODUCT_NAME
 
 endmenu
 
+config ASN1_COMPILER
+	bool
+
 source lib/efi/Kconfig
 source lib/efi_loader/Kconfig
 source lib/optee/Kconfig
