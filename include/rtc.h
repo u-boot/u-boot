@@ -18,6 +18,8 @@
 
 #ifdef CONFIG_DM_RTC
 
+struct udevice;
+
 struct rtc_ops {
 	/**
 	 * get() - get the current time
