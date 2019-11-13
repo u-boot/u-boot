@@ -574,6 +574,11 @@ config ASN1_DECODER
 	help
 	  Enable asn1 decoder library.
 
+config OID_REGISTRY
+	bool
+	help
+	  Enable fast lookup object identifier registry.
+
 source lib/efi/Kconfig
 source lib/efi_loader/Kconfig
 source lib/optee/Kconfig
