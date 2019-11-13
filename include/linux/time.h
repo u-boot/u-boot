@@ -2,6 +2,7 @@
 #define _LINUX_TIME_H
 
 #include <rtc.h>
+#include <vsprintf.h>
 #include <linux/types.h>
 
 #define _DEFUN(a,b,c) a(c)
