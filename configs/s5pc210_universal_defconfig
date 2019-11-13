@@ -27,6 +27,7 @@ CONFIG_CMD_EXT4_WRITE=y
 CONFIG_MTDPARTS_DEFAULT="mtdparts=samsung-onenand:128k(s-boot),896k(bootloader),256k(params),2816k(config),8m(csa),7m(kernel),1m(log),12m(modem),60m(qboot),-(UBI)"
 CONFIG_OF_CONTROL=y
 CONFIG_DEFAULT_DEVICE_TREE="exynos4210-universal_c210"
+CONFIG_SYS_RELOC_GD_ENV_ADDR=y
 CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG=y
 CONFIG_DFU_MMC=y
 CONFIG_SYS_I2C_S3C24X0=y

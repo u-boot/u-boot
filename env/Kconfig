@@ -535,6 +535,12 @@ config ENV_UBI_VID_OFFSET
 
 endif
 
+config SYS_RELOC_GD_ENV_ADDR
+	bool "Relocate gd->en_addr"
+	help
+	  Relocate the early env_addr pointer so we know it is not inside
+	  the binary. Some systems need this and for the rest, it doesn't hurt.
+
 config USE_DEFAULT_ENV_FILE
 	bool "Create default environment from file"
 	help

@@ -28,6 +28,7 @@ CONFIG_CMD_MTDPARTS=y
 CONFIG_MTDIDS_DEFAULT="nor0=fe8000000.nor,nand0=fff800000.flash,spi0=spife110000.1"
 CONFIG_MTDPARTS_DEFAULT="mtdparts=fe8000000.nor:1m(uboot),5m(kernel),128k(dtb),96m(fs),-(user);fff800000.flash:1m(uboot),5m(kernel),128k(dtb),96m(fs),-(user);spife110000.1:1m(uboot),5m(kernel),128k(dtb),-(user)"
 # CONFIG_CMD_IRQ is not set
+CONFIG_SYS_RELOC_GD_ENV_ADDR=y
 CONFIG_DM=y
 CONFIG_FSL_ESDHC=y
 CONFIG_MTD_NOR_FLASH=y

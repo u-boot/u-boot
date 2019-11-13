@@ -24,6 +24,7 @@ CONFIG_CMD_MTDPARTS=y
 CONFIG_MTDIDS_DEFAULT="nand0=omap2-nand.0"
 CONFIG_MTDPARTS_DEFAULT="mtdparts=omap2-nand.0:128k(SPL),1m(u-boot),384k(u-boot-env1),1152k(mtdoops),384k(u-boot-env2),5m(kernel),2m(fdt),-(ubi)"
 CONFIG_CMD_UBI=y
+CONFIG_SYS_RELOC_GD_ENV_ADDR=y
 # CONFIG_NET is not set
 CONFIG_LED_STATUS=y
 CONFIG_LED_STATUS0=y
