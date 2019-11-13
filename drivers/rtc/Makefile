@@ -7,7 +7,6 @@
 obj-$(CONFIG_$(SPL_TPL_)DM_RTC) += rtc-uclass.o
 
 obj-$(CONFIG_RTC_AT91SAM9_RTT) += at91sam9_rtt.o
-obj-y += date.o
 obj-y += rtc-lib.o
 obj-$(CONFIG_RTC_DAVINCI) += davinci.o
 obj-$(CONFIG_RTC_DS1302) += ds1302.o

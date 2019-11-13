@@ -574,4 +574,7 @@ config TEST_FDTDEC
 	bool "enable fdtdec test"
 	depends on OF_LIBFDT
 
+config LIB_DATE
+	bool
+
 endmenu

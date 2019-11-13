@@ -1625,6 +1625,7 @@ config CMD_LED
 config CMD_DATE
 	bool "date"
 	default y if DM_RTC
+	select LIB_DATE
 	help
 	  Enable the 'date' command for getting/setting the time/date in RTC
 	  devices.

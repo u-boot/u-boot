@@ -7,6 +7,7 @@ menu "Real Time Clock"
 config DM_RTC
 	bool "Enable Driver Model for RTC drivers"
 	depends on DM
+	select LIB_DATE
 	help
 	  Enable drver model for real-time-clock drivers. The RTC uclass
 	  then provides the rtc_get()/rtc_set() interface, delegating to
