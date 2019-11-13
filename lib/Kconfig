@@ -265,6 +265,7 @@ config AES
 	  present.
 
 source lib/rsa/Kconfig
+source lib/crypto/Kconfig
 
 config TPM
 	bool "Trusted Platform Module (TPM) Support"

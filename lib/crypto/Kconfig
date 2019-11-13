@@ -27,4 +27,16 @@ config RSA_PUBLIC_KEY_PARSER
 	  public key data and provides the ability to instantiate a public
 	  key.
 
+config X509_CERTIFICATE_PARSER
+	bool "X.509 certificate parser"
+	depends on ASYMMETRIC_PUBLIC_KEY_SUBTYPE
+	select ASN1_DECODER
+	select ASN1_COMPILER
+	select OID_REGISTRY
+	select LIB_DATE
+	help
+	  This option provides support for parsing X.509 format blobs for key
+	  data and provides the ability to instantiate a crypto key from a
+	  public key packet found inside the certificate.
+
 endif # ASYMMETRIC_KEY_TYPE

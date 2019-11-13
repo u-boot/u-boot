@@ -18,6 +18,7 @@ obj-$(CONFIG_CMD_DHRYSTONE) += dhry/
 obj-$(CONFIG_ARCH_AT91) += at91/
 obj-$(CONFIG_OPTEE) += optee/
 obj-$(CONFIG_ASN1_DECODER) += asn1_decoder.o
+obj-y += crypto/
 
 obj-$(CONFIG_AES) += aes.o
 
