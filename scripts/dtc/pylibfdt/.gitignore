@@ -1,4 +1,5 @@
-/_libfdt.so
+/_libfdt.*
 /libfdt.py
 /libfdt.pyc
 /libfdt_wrap.c
+/__pycache__
