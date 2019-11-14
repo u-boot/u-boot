@@ -1,0 +1,14 @@
+if ROCKCHIP_RK3308
+
+config SYS_SOC
+	default "rk3308"
+
+config SYS_MALLOC_F_LEN
+	default 0x400
+
+config SPL_SERIAL_SUPPORT
+	default y
+
+config ROCKCHIP_BOOT_MODE_REG
+	default 0xff000500
+endif
