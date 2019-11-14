@@ -64,8 +64,6 @@ typedef void (interrupt_handler_t)(void *);
  */
 void	hang		(void) __attribute__ ((noreturn));
 
-int	cpu_init(void);
-
 #include <display_options.h>
 
 /* common/main.c */
