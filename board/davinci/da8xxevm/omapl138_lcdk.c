@@ -366,4 +366,13 @@ U_BOOT_DEVICE(omapl138_uart) = {
 	.name = "ns16550_serial",
 	.platdata = &serial_pdata,
 };
+
+U_BOOT_DEVICE(omapl138_mmc) = {
+	.name = "davinci_mmc",
+};
+
+void spl_board_init(void)
+{
+	davinci_configure_pin_mux(mmc0_pins, ARRAY_SIZE(mmc0_pins));
+}
 #endif
