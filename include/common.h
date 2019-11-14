@@ -251,9 +251,6 @@ void	irq_install_handler(int, interrupt_handler_t *, void *);
 void	irq_free_handler   (int);
 void	reset_timer	   (void);
 
-/* Return value of monotonic microsecond timer */
-unsigned long timer_get_us(void);
-
 void	enable_interrupts  (void);
 int	disable_interrupts (void);
 

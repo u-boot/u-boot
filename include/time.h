@@ -96,4 +96,11 @@ ulong ticks2usec(unsigned long ticks);
  */
 void wait_ticks(unsigned long ticks);
 
+/**
+ * timer_get_us() - Get monotonic microsecond timer
+ *
+ * @return value of monotonic microsecond timer
+ */
+unsigned long timer_get_us(void);
+
 #endif /* _TIME_H */
