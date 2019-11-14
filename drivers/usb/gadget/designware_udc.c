@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <serial.h>
 #include <asm/io.h>
 
 #include <env.h>

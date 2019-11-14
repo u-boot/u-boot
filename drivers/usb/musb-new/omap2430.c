@@ -10,6 +10,7 @@
  */
 #include <common.h>
 #include <dm.h>
+#include <serial.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <linux/usb/otg.h>

@@ -324,4 +324,15 @@ void pl01x_serial_initialize(void);
 void pxa_serial_initialize(void);
 void sh_serial_initialize(void);
 
+/**
+ * serial_printf() - Write a formatted string to the serial console
+ *
+ * The total size of the output must be less than CONFIG_SYS_PBSIZE.
+ *
+ * @fmt: Printf format string, followed by format arguments
+ * @return number of characters written
+ */
+int serial_printf(const char *fmt, ...)
+		__attribute__ ((format (__printf__, 1, 2)));
+
 #endif

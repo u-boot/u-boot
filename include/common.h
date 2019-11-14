@@ -310,13 +310,6 @@ int ulz4fn(const void *src, size_t srcn, void *dst, size_t *dstn);
 /* lib/vsprintf.c */
 #include <vsprintf.h>
 
-/*
- * STDIO based functions (can always be used)
- */
-/* serial stuff */
-int	serial_printf (const char *fmt, ...)
-		__attribute__ ((format (__printf__, 1, 2)));
-
 /* lib/net_utils.c */
 #include <net.h>
 
