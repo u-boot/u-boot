@@ -74,15 +74,6 @@ extern u8 __dtb_dt_spl_begin[];	/* embedded device tree blob for SPL/TPL */
 int mdm_init(void);
 
 /**
- * Show the DRAM size in a board-specific way
- *
- * This is used by boards to display DRAM information in their own way.
- *
- * @param size	Size of DRAM (which should be displayed along with other info)
- */
-void board_show_dram(phys_size_t size);
-
-/**
  * Get the uppermost pointer that is valid to access
  *
  * Some systems may not map all of their address space. This function allows
