@@ -319,10 +319,6 @@ int	serial_printf (const char *fmt, ...)
 
 /* lib/net_utils.c */
 #include <net.h>
-static inline struct in_addr env_get_ip(char *var)
-{
-	return string_to_ip(env_get(var));
-}
 
 #include <bootstage.h>
 
