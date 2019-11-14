@@ -439,6 +439,13 @@ config SPL_FIT_IMAGE_TINY
 	  ensure this information is available to the next image
 	  invoked).
 
+config SPL_CACHE_SUPPORT
+	bool "Support CACHE drivers"
+	help
+	  Enable CACHE drivers in SPL. These drivers can keep data so that
+	  future requests for that data can be served faster. Enable this option
+	  to build the drivers in drivers/cache as part of an SPL build.
+
 config SPL_CPU_SUPPORT
 	bool "Support CPU drivers"
 	help

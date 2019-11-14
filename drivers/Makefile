@@ -30,6 +30,7 @@ ifndef CONFIG_TPL_BUILD
 ifdef CONFIG_SPL_BUILD
 
 obj-$(CONFIG_SPL_BOOTCOUNT_LIMIT) += bootcount/
+obj-$(CONFIG_SPL_CACHE_SUPPORT) += cache/
 obj-$(CONFIG_SPL_CPU_SUPPORT) += cpu/
 obj-$(CONFIG_SPL_CRYPTO_SUPPORT) += crypto/
 obj-$(CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT) += ddr/fsl/
