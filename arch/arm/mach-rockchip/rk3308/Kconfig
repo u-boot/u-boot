@@ -1,5 +1,9 @@
 if ROCKCHIP_RK3308
 
+config TARGET_EVB_RK3308
+	bool "EVB_RK3308"
+	select BOARD_LATE_INIT
+
 config SYS_SOC
 	default "rk3308"
 
@@ -11,4 +15,8 @@ config SPL_SERIAL_SUPPORT
 
 config ROCKCHIP_BOOT_MODE_REG
 	default 0xff000500
+
+
+source "board/rockchip/evb_rk3308/Kconfig"
+
 endif

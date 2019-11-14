@@ -1,0 +1,6 @@
+EVB-RK3308
+M:      Andy Yan <andy.yan@rock-chips.com>
+S:      Maintained
+F:      board/rockchip/evb_rk3308
+F:      include/configs/evb_rk3308.h
+F:      configs/evb-rk3308_defconfig
