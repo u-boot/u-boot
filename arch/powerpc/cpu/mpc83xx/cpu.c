@@ -196,7 +196,7 @@ void watchdog_reset (void)
 	immr->wdt.swsrr = 0xaa39;
 
 	if (re_enable)
-		enable_interrupts ();
+		enable_interrupts();
 }
 #endif
 

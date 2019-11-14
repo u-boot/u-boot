@@ -38,13 +38,13 @@ static __inline__ void set_dec (unsigned long val)
 }
 #endif /* !CONFIG_MPC83XX_TIMER */
 
-void enable_interrupts (void)
+void enable_interrupts(void)
 {
 	set_msr (get_msr () | MSR_EE);
 }
 
 /* returns flag if MSR_EE was set before */
-int disable_interrupts (void)
+int disable_interrupts(void)
 {
 	ulong msr = get_msr ();
 
@@ -53,7 +53,7 @@ int disable_interrupts (void)
 }
 
 #ifndef CONFIG_MPC83XX_TIMER
-int interrupt_init (void)
+int interrupt_init(void)
 {
 	/* call cpu specific function from $(CPU)/interrupts.c */
 	interrupt_init_cpu (&decrementer_count);
@@ -67,7 +67,7 @@ int interrupt_init (void)
 
 static volatile ulong timestamp = 0;
 
-void timer_interrupt (struct pt_regs *regs)
+void timer_interrupt(struct pt_regs *regs)
 {
 	/* call cpu specific function from $(CPU)/interrupts.c */
 	timer_interrupt_cpu (regs);

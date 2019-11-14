@@ -28,7 +28,7 @@ int cleanup_before_linux (void)
 	 * we turn off caches etc ...
 	 */
 
-	disable_interrupts ();
+	disable_interrupts();
 
 	/* turn off I/D-cache */
 	icache_disable();

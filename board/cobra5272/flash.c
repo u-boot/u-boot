@@ -167,7 +167,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 
 	cflag = icache_status();
 	icache_disable();
-	iflag = disable_interrupts ();
+	iflag = disable_interrupts();
 
 	printf ("\n");
 
@@ -235,7 +235,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	udelay (10000);
 
 	if (iflag)
-		enable_interrupts ();
+		enable_interrupts();
 
 	if (cflag)
 		icache_enable();
@@ -270,7 +270,7 @@ static int write_word (flash_info_t * info, ulong dest, ulong data)
 
 	cflag = icache_status();
 	icache_disable();
-	iflag = disable_interrupts ();
+	iflag = disable_interrupts();
 
 	MEM_FLASH_ADDR1 = CMD_UNLOCK1;
 	MEM_FLASH_ADDR2 = CMD_UNLOCK2;
@@ -301,7 +301,7 @@ static int write_word (flash_info_t * info, ulong dest, ulong data)
 		rc = ERR_PROG_ERROR;
 
 	if (iflag)
-		enable_interrupts ();
+		enable_interrupts();
 
 	if (cflag)
 		icache_enable();

@@ -30,7 +30,7 @@ int cleanup_before_linux (void)
 	 * just disable everything that can disturb booting linux
 	 */
 
-	disable_interrupts ();
+	disable_interrupts();
 
 	/* turn off I-cache */
 	icache_disable();

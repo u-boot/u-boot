@@ -29,7 +29,7 @@ int cleanup_before_linux (void)
 	 * we turn off caches etc ...
 	 */
 
-	disable_interrupts ();
+	disable_interrupts();
 
 	/* ARM926E-S needs the protection unit enabled for the icache to have
 	 * been enabled	 - left for possible later use

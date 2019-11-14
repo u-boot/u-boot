@@ -108,5 +108,5 @@ int do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  */
 void external_interrupt(struct pt_regs *regs)
 {
-	puts("external_interrupt (oops!)\n");
+	puts("external_interrupt(oops!)\n");
 }
