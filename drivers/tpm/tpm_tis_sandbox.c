@@ -8,7 +8,7 @@
 #include <tpm-v1.h>
 #include <asm/state.h>
 #include <asm/unaligned.h>
-#include <linux/crc8.h>
+#include <u-boot/crc.h>
 
 /* TPM NVRAM location indices. */
 #define FIRMWARE_NV_INDEX		0x1007

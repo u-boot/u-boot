@@ -14,11 +14,11 @@
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
-#include <linux/crc8.h>
 #include <linux/mbus.h>
 #ifdef CONFIG_NET
 #include <netdev.h>
 #endif
+#include <u-boot/crc.h>
 #include "theadorable.h"
 
 #include "../drivers/ddr/marvell/axp/ddr3_hw_training.h"

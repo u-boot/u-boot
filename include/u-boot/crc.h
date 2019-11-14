@@ -8,7 +8,19 @@
 #ifndef _UBOOT_CRC_H
 #define _UBOOT_CRC_H
 
-/* lib/crc8.c */
+/**
+ * crc8() - Calculate and return CRC-8 of the data
+ *
+ * This uses an x^8 + x^2 + x + 1 polynomial.  A table-based algorithm would
+ * be faster, but for only a few bytes it isn't worth the code size
+ *
+ * lib/crc8.c
+ *
+ * @crc_start: CRC8 start value
+ * @vptr: Buffer to checksum
+ * @len: Length of buffer in bytes
+ * @return CRC8 checksum
+ */
 unsigned int crc8(unsigned int crc_start, const unsigned char *vptr, int len);
 
 /* lib/crc16.c - 16 bit CRC with polynomial x^16+x^12+x^5+1 (CRC-CCITT) */
