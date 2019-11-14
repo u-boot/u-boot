@@ -190,12 +190,6 @@ static void enetc_start_pcs(struct udevice *dev)
 	case PHY_INTERFACE_MODE_SGMII_2500:
 		enetc_init_sgmii(dev);
 		break;
-	case PHY_INTERFACE_MODE_RGMII:
-	case PHY_INTERFACE_MODE_RGMII_ID:
-	case PHY_INTERFACE_MODE_RGMII_RXID:
-	case PHY_INTERFACE_MODE_RGMII_TXID:
-		enetc_init_rgmii(dev);
-		break;
 	case PHY_INTERFACE_MODE_XGMII:
 	case PHY_INTERFACE_MODE_USXGMII:
 	case PHY_INTERFACE_MODE_XFI:
@@ -257,6 +251,9 @@ static int enetc_probe(struct udevice *dev)
 	priv->port_regs = priv->regs_base + ENETC_PORT_REGS_OFF;
 
 	dm_pci_clrset_config16(dev, PCI_COMMAND, 0, PCI_COMMAND_MEMORY);
+
+	enetc_start_pcs(dev);
+	enetc_config_phy(dev);
 
 	return 0;
 }
@@ -433,8 +430,12 @@ static int enetc_start(struct udevice *dev)
 	enetc_setup_tx_bdr(dev);
 	enetc_setup_rx_bdr(dev);
 
-	enetc_start_pcs(dev);
-	enetc_config_phy(dev);
+	if (priv->if_type == PHY_INTERFACE_MODE_RGMII ||
+	    priv->if_type == PHY_INTERFACE_MODE_RGMII_ID ||
+	    priv->if_type == PHY_INTERFACE_MODE_RGMII_RXID ||
+	    priv->if_type == PHY_INTERFACE_MODE_RGMII_TXID)
+		enetc_init_rgmii(dev);
+
 	if (priv->phy)
 		phy_startup(priv->phy);
 
