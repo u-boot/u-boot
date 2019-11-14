@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <eeprom.h>
 #include <env.h>
 #include <env_internal.h>
 #include <linux/stddef.h>

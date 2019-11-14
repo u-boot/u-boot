@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <eeprom.h>
 #include <env.h>
 #include <i2c.h>
 #include <init.h>

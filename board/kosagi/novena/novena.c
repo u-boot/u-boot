@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <eeprom.h>
 #include <init.h>
 #include <dm/device-internal.h>
 #include <ahci.h>

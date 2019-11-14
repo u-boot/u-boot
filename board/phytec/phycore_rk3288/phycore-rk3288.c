@@ -4,6 +4,7 @@
  * Author: Wadim Egorov <w.egorov@phytec.de>
  */
 
+#include <eeprom.h>
 #include <init.h>
 #include <asm/io.h>
 #include <common.h>
