@@ -115,6 +115,9 @@ struct phy_driver {
 			 u16 val);
 
 	struct list_head list;
+
+	/* driver private data */
+	ulong data;
 };
 
 struct phy_device {
