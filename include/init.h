@@ -205,6 +205,9 @@ int board_late_init(void);
 int board_postclk_init(void); /* after clocks/timebase, before env/serial */
 int board_early_init_r(void);
 
+/* TODO(sjg@chromium.org): Drop this when DM_PCI migration is completed */
+void pci_init_board(void);
+
 #endif	/* __ASSEMBLY__ */
 /* Put only stuff here that the assembler can digest */
 

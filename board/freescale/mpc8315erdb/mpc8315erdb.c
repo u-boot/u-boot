@@ -9,6 +9,7 @@
 #include <common.h>
 #include <hwconfig.h>
 #include <i2c.h>
+#include <init.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <pci.h>

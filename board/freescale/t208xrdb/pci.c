@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <init.h>
 #include <pci.h>
 #include <asm/fsl_pci.h>
 #include <linux/libfdt.h>

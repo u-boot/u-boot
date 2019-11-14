@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <pci.h>
 #include <asm/fsl_pci.h>
 #include <asm/fsl_serdes.h>

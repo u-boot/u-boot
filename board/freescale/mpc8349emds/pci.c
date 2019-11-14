@@ -3,6 +3,7 @@
  * Copyright (C) 2006-2009 Freescale Semiconductor, Inc.
  */
 
+#include <init.h>
 #include <asm/mmu.h>
 #include <asm/io.h>
 #include <common.h>

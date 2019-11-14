@@ -10,6 +10,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <pci.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/iomux.h>

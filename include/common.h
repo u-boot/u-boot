@@ -102,8 +102,6 @@ int do_fat_fsload(cmd_tbl_t *, int, int, char * const []);
 /* common/cmd_ext2.c */
 int do_ext2load(cmd_tbl_t *, int, int, char * const []);
 
-void	pci_init_board(void);
-
 /* common/exports.c */
 void	jumptable_init(void);
 
