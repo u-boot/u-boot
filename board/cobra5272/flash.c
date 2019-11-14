@@ -7,6 +7,7 @@
 #include <common.h>
 #include <console.h>
 #include <cpu_func.h>
+#include <irq_func.h>
 
 #define PHYS_FLASH_1 CONFIG_SYS_FLASH_BASE
 #define FLASH_BANK_SIZE 0x200000

@@ -3,6 +3,7 @@
  * Copyright (C) 2013-2014 Synopsys, Inc. All rights reserved.
  */
 
+#include <irq_func.h>
 #include <asm/cache.h>
 #include <common.h>
 

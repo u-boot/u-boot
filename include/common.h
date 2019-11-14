@@ -46,8 +46,6 @@ typedef volatile unsigned char	vu_char;
 
 #include <log.h>
 
-typedef void (interrupt_handler_t)(void *);
-
 #include <asm/u-boot.h> /* boot information for Linux kernel */
 #include <asm/global_data.h>	/* global data used for startup functions */
 
@@ -206,10 +204,6 @@ void ft_pci_setup(void *blob, bd_t *bd);
 int	get_clocks (void);
 ulong	get_bus_freq  (ulong);
 int get_serial_clock(void);
-
-/* $(CPU)/interrupts.c */
-void	enable_interrupts  (void);
-int	disable_interrupts (void);
 
 /* lib/uuid.c */
 #include <uuid.h>

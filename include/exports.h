@@ -9,6 +9,8 @@
 #include <phy_interface.h>
 #endif
 
+#include <irq_func.h>
+
 struct spi_slave;
 
 /* These are declarations of exported functions available in C code */

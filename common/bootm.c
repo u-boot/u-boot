@@ -11,6 +11,7 @@
 #include <env.h>
 #include <errno.h>
 #include <fdt_support.h>
+#include <irq_func.h>
 #include <lmb.h>
 #include <malloc.h>
 #include <mapmem.h>
