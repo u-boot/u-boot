@@ -11,6 +11,7 @@
 #include <common.h>
 #include <div64.h>
 #include <netdev.h>
+#include <vsprintf.h>
 #include <asm/io.h>
 #include <asm/arch-imx/cpu.h>
 #include <asm/arch/imx-regs.h>

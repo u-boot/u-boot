@@ -2,6 +2,8 @@
  *  linux/lib/vsprintf.c
  *
  *  Copyright (C) 1991, 1992  Linus Torvalds
+ * (C) Copyright 2000-2009
+ * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
 /* vsprintf.c -- Lars Wirzenius & Linus Torvalds. */
@@ -17,6 +19,7 @@
 #include <div64.h>
 #include <hexdump.h>
 #include <stdarg.h>
+#include <vsprintf.h>
 #include <linux/ctype.h>
 #include <linux/err.h>
 #include <linux/types.h>
@@ -872,4 +875,20 @@ bool str2long(const char *p, ulong *num)
 
 	*num = simple_strtoul(p, &endptr, 16);
 	return *p != '\0' && *endptr == '\0';
+}
+
+char *strmhz(char *buf, unsigned long hz)
+{
+	long l, n;
+	long m;
+
+	n = DIV_ROUND_CLOSEST(hz, 1000) / 1000L;
+	l = sprintf(buf, "%ld", n);
+
+	hz -= n * 1000000L;
+	m = DIV_ROUND_CLOSEST(hz, 1000L);
+	if (m != 0)
+		sprintf(buf + l, ".%03ld", m);
+
+	return buf;
 }

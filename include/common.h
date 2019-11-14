@@ -310,9 +310,6 @@ int ulz4fn(const void *src, size_t srcn, void *dst, size_t *dstn);
 /* lib/vsprintf.c */
 #include <vsprintf.h>
 
-/* lib/strmhz.c */
-char *	strmhz(char *buf, unsigned long hz);
-
 /*
  * STDIO based functions (can always be used)
  */

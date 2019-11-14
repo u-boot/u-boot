@@ -109,12 +109,12 @@ ifeq ($(CONFIG_$(SPL_TPL_)BUILD),y)
 ifdef CONFIG_$(SPL_TPL_)USE_TINY_PRINTF
 obj-$(CONFIG_$(SPL_TPL_)SPRINTF) += tiny-printf.o
 else
-obj-$(CONFIG_$(SPL_TPL_)SPRINTF) += vsprintf.o strmhz.o
+obj-$(CONFIG_$(SPL_TPL_)SPRINTF) += vsprintf.o
 endif
 obj-$(CONFIG_$(SPL_TPL_)STRTO) += strto.o
 else
 # Main U-Boot always uses the full printf support
-obj-y += vsprintf.o strto.o strmhz.o
+obj-y += vsprintf.o strto.o
 endif
 
 subdir-ccflags-$(CONFIG_CC_OPTIMIZE_LIBS_FOR_SPEED) += -O2

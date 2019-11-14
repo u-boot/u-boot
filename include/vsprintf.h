@@ -212,4 +212,14 @@ void print_grouped_ull(unsigned long long int_val, int digits);
 
 bool str2off(const char *p, loff_t *num);
 bool str2long(const char *p, ulong *num);
+
+/**
+ * strmhz() - Convert a value to a Hz string
+ *
+ * This creates a string indicating the number of MHz of a value. For example,
+ * 2700000 produces "2.7".
+ * @buf: Buffer to hold output string, which must be large enough
+ * @hz: Value to convert
+ */
+char *strmhz(char *buf, unsigned long hz);
 #endif

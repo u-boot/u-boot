@@ -11,6 +11,7 @@
 #include <version.h>
 #include <video.h>
 #include <video_console.h>
+#include <vsprintf.h>
 #include <asm/io.h>
 #include <asm/arch/clk.h>
 

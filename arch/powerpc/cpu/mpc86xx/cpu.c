@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <vsprintf.h>
 #include <watchdog.h>
 #include <command.h>
 #include <asm/cache.h>

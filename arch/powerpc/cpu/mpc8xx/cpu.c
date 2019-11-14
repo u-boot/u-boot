@@ -17,6 +17,7 @@
  */
 
 #include <common.h>
+#include <vsprintf.h>
 #include <watchdog.h>
 #include <command.h>
 #include <mpc8xx.h>

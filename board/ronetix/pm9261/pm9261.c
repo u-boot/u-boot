@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <vsprintf.h>
 #include <linux/sizes.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
