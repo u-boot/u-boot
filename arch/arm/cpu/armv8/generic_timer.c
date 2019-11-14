@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <time.h>
 #include <asm/system.h>
 
 DECLARE_GLOBAL_DATA_PTR;

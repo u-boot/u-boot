@@ -70,4 +70,20 @@ uint64_t usec_to_tick(unsigned long usec);
 	(time_after_eq(a,b) && \
 	 time_before(a,c))
 
+/**
+ * usec2ticks() - Convert microseconds to internal ticks
+ *
+ * @usec: Value of microseconds to convert
+ * @return Corresponding internal ticks value, calculated using get_tbclk()
+ */
+ulong usec2ticks(unsigned long usec);
+
+/**
+ * ticks2usec() - Convert internal ticks to microseconds
+ *
+ * @ticks: Value of ticks to convert
+ * @return Corresponding microseconds value, calculated using get_tbclk()
+ */
+ulong ticks2usec(unsigned long ticks);
+
 #endif /* _TIME_H */

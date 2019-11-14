@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <time.h>
 
 #include <asm/timer.h>
 #include <asm/immap.h>
