@@ -738,8 +738,10 @@ static void add_u_boot_and_runtime(void)
 	unsigned long uboot_stack_size = 16 * 1024 * 1024;
 
 	/* Add U-Boot */
-	uboot_start = (gd->start_addr_sp - uboot_stack_size) & ~EFI_PAGE_MASK;
-	uboot_pages = (gd->ram_top - uboot_start) >> EFI_PAGE_SHIFT;
+	uboot_start = ((uintptr_t)map_sysmem(gd->start_addr_sp, 0) -
+		       uboot_stack_size) & ~EFI_PAGE_MASK;
+	uboot_pages = ((uintptr_t)map_sysmem(gd->ram_top - 1, 0) -
+		       uboot_start + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
 	efi_add_memory_map(uboot_start, uboot_pages, EFI_LOADER_DATA, false);
 
 #if defined(__aarch64__)
@@ -767,8 +769,7 @@ int efi_memory_init(void)
 {
 	efi_add_known_memory();
 
-	if (!IS_ENABLED(CONFIG_SANDBOX))
-		add_u_boot_and_runtime();
+	add_u_boot_and_runtime();
 
 #ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
 	/* Request a 32bit 64MB bounce buffer region */
