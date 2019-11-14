@@ -10,6 +10,7 @@
 #include <common.h>
 #include <env.h>
 #include <errno.h>
+#include <serial.h>
 #include <linux/libfdt.h>
 #include <spl.h>
 #include <asm/arch/cpu.h>

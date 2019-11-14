@@ -14,6 +14,7 @@
 #include <s_record.h>
 #include <net.h>
 #include <exports.h>
+#include <serial.h>
 #include <xyzModem.h>
 
 DECLARE_GLOBAL_DATA_PTR;

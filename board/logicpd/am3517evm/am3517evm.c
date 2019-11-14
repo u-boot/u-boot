@@ -13,6 +13,7 @@
 #include <common.h>
 #include <dm.h>
 #include <ns16550.h>
+#include <serial.h>
 #include <asm/io.h>
 #include <asm/omap_musb.h>
 #include <asm/arch/am35x_def.h>

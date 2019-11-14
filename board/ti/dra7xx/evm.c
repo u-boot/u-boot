@@ -13,6 +13,7 @@
 #include <env.h>
 #include <palmas.h>
 #include <sata.h>
+#include <serial.h>
 #include <linux/string.h>
 #include <asm/gpio.h>
 #include <usb.h>

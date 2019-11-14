@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <env.h>
+#include <serial.h>
 #include <spl.h>
 #include <linux/libfdt.h>
 #include <asm/io.h>

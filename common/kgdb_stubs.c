@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <kgdb.h>
+#include <serial.h>
 
 int (*debugger_exception_handler)(struct pt_regs *);
 

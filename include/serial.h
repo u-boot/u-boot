@@ -335,4 +335,12 @@ void sh_serial_initialize(void);
 int serial_printf(const char *fmt, ...)
 		__attribute__ ((format (__printf__, 1, 2)));
 
+int serial_init(void);
+void serial_setbrg(void);
+void serial_putc(const char ch);
+void serial_putc_raw(const char ch);
+void serial_puts(const char *str);
+int serial_getc(void);
+int serial_tstc(void);
+
 #endif

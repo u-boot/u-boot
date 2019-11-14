@@ -26,6 +26,7 @@
 #include <os.h>
 #include <post.h>
 #include <relocate.h>
+#include <serial.h>
 #ifdef CONFIG_SPL
 #include <spl.h>
 #endif

@@ -17,6 +17,7 @@
 #include <flash.h>
 #include <nand.h>
 #include <i2c.h>
+#include <serial.h>
 #include <twl4030.h>
 #include <asm/io.h>
 #include <asm/arch/mmc_host_def.h>

@@ -18,6 +18,7 @@
 #include <asm/arch/crm_regs.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
+#include <serial.h>
 #include <spl.h>
 
 #include <asm/arch/mx6-ddr.h>
