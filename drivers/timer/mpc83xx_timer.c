@@ -9,6 +9,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <status_led.h>
+#include <time.h>
 #include <timer.h>
 #include <watchdog.h>
 

@@ -86,4 +86,14 @@ ulong usec2ticks(unsigned long usec);
  */
 ulong ticks2usec(unsigned long ticks);
 
+/**
+ * wait_ticks() - waits a given number of ticks
+ *
+ * This is an internal function typically used to implement udelay() and
+ * similar. Normally you should use udelay() or mdelay() instead.
+ *
+ * @ticks: Number of ticks to wait
+ */
+void wait_ticks(unsigned long ticks);
+
 #endif /* _TIME_H */

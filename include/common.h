@@ -286,7 +286,6 @@ int cleanup_before_linux_select(int flags);
 
 /* arch/$(ARCH)/lib/ticks.S */
 uint64_t get_ticks(void);
-void	wait_ticks    (unsigned long);
 
 /* lib/uuid.c */
 #include <uuid.h>
