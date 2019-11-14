@@ -32,10 +32,6 @@ struct davinci_mmc_priv {
 	uint input_clk;		/* Input clock to MMC controller */
 	struct gpio_desc cd_gpio;       /* Card Detect GPIO */
 	struct gpio_desc wp_gpio;       /* Write Protect GPIO */
-};
-
-struct davinci_mmc_plat
-{
 	struct mmc_config cfg;
 	struct mmc mmc;
 };
@@ -484,9 +480,8 @@ int davinci_mmc_init(bd_t *bis, struct davinci_mmc *host)
 static int davinci_mmc_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
-	struct davinci_mmc_plat *plat = dev_get_platdata(dev);
 	struct davinci_mmc_priv *priv = dev_get_priv(dev);
-	struct mmc_config *cfg = &plat->cfg;
+	struct mmc_config *cfg = &priv->cfg;
 
 	cfg->f_min = 200000;
 	cfg->f_max = 25000000;
@@ -504,16 +499,16 @@ static int davinci_mmc_probe(struct udevice *dev)
 	gpio_request_by_name(dev, "wp-gpios", 0, &priv->wp_gpio, GPIOD_IS_IN);
 #endif
 
-	upriv->mmc = &plat->mmc;
+	upriv->mmc = &priv->mmc;
 
 	return davinci_dm_mmc_init(dev);
 }
 
 static int davinci_mmc_bind(struct udevice *dev)
 {
-	struct davinci_mmc_plat *plat = dev_get_platdata(dev);
+	struct davinci_mmc_priv *priv = dev_get_priv(dev);
 
-	return mmc_bind(dev, &plat->mmc, &plat->cfg);
+	return mmc_bind(dev, &priv->mmc, &priv->cfg);
 }
 
 static const struct udevice_id davinci_mmc_ids[] = {
@@ -530,7 +525,6 @@ U_BOOT_DRIVER(davinci_mmc_drv) = {
 #endif
 	.probe = davinci_mmc_probe,
 	.ops = &davinci_mmc_ops,
-	.platdata_auto_alloc_size = sizeof(struct davinci_mmc_plat),
 	.priv_auto_alloc_size = sizeof(struct davinci_mmc_priv),
 };
 #endif
