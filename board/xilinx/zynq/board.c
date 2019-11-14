@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <dm/uclass.h>
 #include <env.h>
 #include <fdtdec.h>

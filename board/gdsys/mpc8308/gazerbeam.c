@@ -11,6 +11,7 @@
 #include <env.h>
 #include <fdt_support.h>
 #include <fsl_esdhc.h>
+#include <init.h>
 #include <miiphy.h>
 #include <misc.h>
 #include <tpm-v1.h>

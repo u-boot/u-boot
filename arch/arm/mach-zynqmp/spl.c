@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <debug_uart.h>
+#include <init.h>
 #include <spl.h>
 
 #include <asm/io.h>

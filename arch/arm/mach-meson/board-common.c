@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/arch/boot.h>
 #include <env.h>
 #include <linux/libfdt.h>

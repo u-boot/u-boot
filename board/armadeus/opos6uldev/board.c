@@ -3,10 +3,11 @@
  * Copyright (C) 2018 Armadeus Systems
  */
 
+#include <common.h>
+#include <init.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
-#include <common.h>
 
 #ifdef CONFIG_VIDEO_MXS
 int setup_lcd(void)

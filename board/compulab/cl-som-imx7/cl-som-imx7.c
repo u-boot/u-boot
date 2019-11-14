@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <env.h>
+#include <init.h>
 #include <mmc.h>
 #include <phy.h>
 #include <netdev.h>

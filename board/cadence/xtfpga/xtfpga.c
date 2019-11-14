@@ -7,6 +7,7 @@
 #include <common.h>
 #include <command.h>
 #include <dm.h>
+#include <init.h>
 #include <dm/platform_data/net_ethoc.h>
 #include <env.h>
 #include <linux/ctype.h>

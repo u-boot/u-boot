@@ -6,6 +6,7 @@
  * Author: Christoph Fritz <chf.fritz@googlemail.com>
  */
 
+#include <init.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/iomux.h>

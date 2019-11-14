@@ -11,6 +11,7 @@
 #include <dm.h>
 #include <env.h>
 #include <errno.h>
+#include <init.h>
 #include <spl.h>
 #include <serial.h>
 #include <asm/arch/cpu.h>

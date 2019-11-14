@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <env.h>
+#include <init.h>
 #include <miiphy.h>
 #include <input.h>
 #include <mmc.h>

@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <env.h>
+#include <init.h>
 #include <palmas.h>
 #include <sata.h>
 #include <serial.h>

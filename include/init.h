@@ -197,6 +197,14 @@ int show_board_info(void);
  */
 ulong board_get_usable_ram_top(ulong total_size);
 
+int board_early_init_f(void);
+
+/* manipulate the U-Boot fdt before its relocation */
+int board_fix_fdt(void *rw_fdt_blob);
+int board_late_init(void);
+int board_postclk_init(void); /* after clocks/timebase, before env/serial */
+int board_early_init_r(void);
+
 #endif	/* __ASSEMBLY__ */
 /* Put only stuff here that the assembler can digest */
 

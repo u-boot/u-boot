@@ -6,6 +6,7 @@
 #include <common.h>
 #include <env.h>
 #include <errno.h>
+#include <init.h>
 #include <linux/libfdt.h>
 #include <fsl_esdhc_imx.h>
 #include <asm/io.h>

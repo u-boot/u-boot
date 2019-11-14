@@ -7,6 +7,7 @@
  * Author: Markus Niebel <markus.niebel@tq-group.com>
  */
 
+#include <init.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/mx6-pins.h>

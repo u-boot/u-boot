@@ -3,6 +3,7 @@
  * Copyright (C) 2015-2016 Stefan Roese <sr@denx.de>
  */
 
+#include <init.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/imx-regs.h>

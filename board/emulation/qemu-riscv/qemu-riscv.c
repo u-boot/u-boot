@@ -8,6 +8,7 @@
 #include <env.h>
 #include <fdtdec.h>
 #include <spl.h>
+#include <init.h>
 #include <virtio_types.h>
 #include <virtio.h>
 

@@ -13,6 +13,7 @@
 #include <g_dnl.h>
 #include <generic-phy.h>
 #include <i2c.h>
+#include <init.h>
 #include <led.h>
 #include <memalign.h>
 #include <misc.h>

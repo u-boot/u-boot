@@ -13,6 +13,7 @@
 #include <dwc_ahsata.h>
 #include <env.h>
 #include <fsl_esdhc_imx.h>
+#include <init.h>
 #include <miiphy.h>
 #include <mtd_node.h>
 #include <netdev.h>

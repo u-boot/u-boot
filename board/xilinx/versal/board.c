@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <fdtdec.h>
+#include <init.h>
 #include <malloc.h>
 #include <time.h>
 #include <asm/io.h>

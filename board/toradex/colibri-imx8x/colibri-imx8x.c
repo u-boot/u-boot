@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 
 #include <asm/arch/clock.h>
 #include <asm/arch/imx8-pins.h>

@@ -6,6 +6,7 @@
 #include <dm.h>
 #include <env.h>
 #include <clk.h>
+#include <init.h>
 #include <asm/armv7.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/bootrom.h>

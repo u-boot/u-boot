@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <init.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/iomux-mx53.h>

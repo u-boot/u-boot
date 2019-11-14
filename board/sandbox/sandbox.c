@@ -7,6 +7,7 @@
 #include <cpu_func.h>
 #include <cros_ec.h>
 #include <dm.h>
+#include <init.h>
 #include <led.h>
 #include <os.h>
 #include <asm/test.h>

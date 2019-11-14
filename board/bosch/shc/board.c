@@ -14,6 +14,7 @@
 #include <common.h>
 #include <env.h>
 #include <errno.h>
+#include <init.h>
 #include <irq_func.h>
 #include <spl.h>
 #include <asm/arch/cpu.h>

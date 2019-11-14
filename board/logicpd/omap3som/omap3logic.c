@@ -12,6 +12,7 @@
  */
 #include <common.h>
 #include <dm.h>
+#include <init.h>
 #include <ns16550.h>
 #include <netdev.h>
 #include <flash.h>

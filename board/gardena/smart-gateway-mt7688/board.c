@@ -6,6 +6,7 @@
 #include <common.h>
 #include <env.h>
 #include <env_internal.h>
+#include <init.h>
 #include <led.h>
 #include <net.h>
 #include <spi.h>

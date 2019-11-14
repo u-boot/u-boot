@@ -6,6 +6,7 @@
 #include <common.h>
 #include <console.h>
 #include <i2c.h>
+#include <init.h>
 #include <pci.h>
 #if !defined(CONFIG_SPL_BUILD)
 #include <bootcount.h>

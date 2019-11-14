@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <init.h>
 #include <lcd.h>
 #include <miiphy.h>
 #include <phy_interface.h>

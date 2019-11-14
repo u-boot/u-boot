@@ -7,6 +7,7 @@
 #include <command.h>
 #include <env.h>
 #include <i2c.h>
+#include <init.h>
 #include <irq_func.h>
 #include <netdev.h>
 #include <linux/compiler.h>
