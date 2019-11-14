@@ -50,18 +50,20 @@ extern void serial_reinit_all(void);
 /* For usbtty */
 #ifdef CONFIG_USB_TTY
 
-extern int usbtty_getc(void);
-extern void usbtty_putc(const char c);
-extern void usbtty_puts(const char *str);
-extern int usbtty_tstc(void);
+struct stdio_dev;
+
+int usbtty_getc(struct stdio_dev *dev);
+void usbtty_putc(struct stdio_dev *dev, const char c);
+void usbtty_puts(struct stdio_dev *dev, const char *str);
+int usbtty_tstc(struct stdio_dev *dev);
 
 #else
 
 /* stubs */
-#define usbtty_getc() 0
-#define usbtty_putc(a)
-#define usbtty_puts(a)
-#define usbtty_tstc() 0
+#define usbtty_getc(dev) 0
+#define usbtty_putc(dev, a)
+#define usbtty_puts(dev, a)
+#define usbtty_tstc(dev) 0
 
 #endif /* CONFIG_USB_TTY */
 
