@@ -20,6 +20,7 @@
 #include <fdtdec.h>
 #include <fs.h>
 #include <i2c.h>
+#include <init.h>
 #include <initcall.h>
 #include <lcd.h>
 #include <malloc.h>

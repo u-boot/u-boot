@@ -74,17 +74,6 @@ extern u8 __dtb_dt_spl_begin[];	/* embedded device tree blob for SPL/TPL */
 int mdm_init(void);
 
 /**
- * Get the uppermost pointer that is valid to access
- *
- * Some systems may not map all of their address space. This function allows
- * boards to indicate what their highest support pointer value is for DRAM
- * access.
- *
- * @param total_size	Size of U-Boot (unused?)
- */
-ulong board_get_usable_ram_top(ulong total_size);
-
-/**
  * arch_fixup_fdt() - Write arch-specific information to fdt
  *
  * Defined in arch/$(ARCH)/lib/bootm-fdt.c

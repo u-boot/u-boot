@@ -10,6 +10,8 @@
 #ifndef __INIT_H_
 #define __INIT_H_	1
 
+#include <linux/types.h>
+
 #ifndef __ASSEMBLY__		/* put C only stuff in this section */
 
 /*
@@ -149,6 +151,8 @@ ulong board_init_f_alloc_reserve(ulong top);
  */
 void board_init_f_init_reserve(ulong base);
 
+struct global_data;
+
 /**
  * arch_setup_gd() - Set up the global_data pointer
  * @gd_ptr: Pointer to global data
@@ -160,10 +164,11 @@ void board_init_f_init_reserve(ulong base);
  *
  *    gd = gd_ptr;
  */
-void arch_setup_gd(gd_t *gd_ptr);
+void arch_setup_gd(struct global_data *gd_ptr);
 
 /* common/board_r.c */
-void board_init_r(gd_t *id, ulong dest_addr) __attribute__ ((noreturn));
+void board_init_r(struct global_data *id, ulong dest_addr)
+	__attribute__ ((noreturn));
 
 int cpu_init_r(void);
 int last_stage_init(void);
@@ -180,6 +185,17 @@ int init_func_vid(void);
 /* common/board_info.c */
 int checkboard(void);
 int show_board_info(void);
+
+/**
+ * Get the uppermost pointer that is valid to access
+ *
+ * Some systems may not map all of their address space. This function allows
+ * boards to indicate what their highest support pointer value is for DRAM
+ * access.
+ *
+ * @param total_size	Size of U-Boot (unused?)
+ */
+ulong board_get_usable_ram_top(ulong total_size);
 
 #endif	/* __ASSEMBLY__ */
 /* Put only stuff here that the assembler can digest */
