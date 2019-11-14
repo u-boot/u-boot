@@ -325,12 +325,6 @@ char *	strmhz(char *buf, unsigned long hz);
 /* lib/crc32.c */
 #include <u-boot/crc.h>
 
-/* lib/rand.c */
-#define RAND_MAX -1U
-void srand(unsigned int seed);
-unsigned int rand(void);
-unsigned int rand_r(unsigned int *seedp);
-
 /*
  * STDIO based functions (can always be used)
  */
