@@ -319,6 +319,7 @@ static inline bool mmc_is_tuning_cmd(uint cmdidx)
 #define MMC_RSP_CRC	(1 << 2)		/* expect valid crc */
 #define MMC_RSP_BUSY	(1 << 3)		/* card may send busy */
 #define MMC_RSP_OPCODE	(1 << 4)		/* response contains opcode */
+#define MMC_CMD_ADTC	(1 << 5)	/* Addressed data transfer command */
 
 #define MMC_RSP_NONE	(0)
 #define MMC_RSP_R1	(MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE)
