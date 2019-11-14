@@ -174,7 +174,7 @@ spl_clear_bss:
 spl_clear_bss_loop:
 	SREG	zero, 0(t0)
 	addi	t0, t0, REGBYTES
-	bne	t0, t1, spl_clear_bss_loop
+	blt	t0, t1, spl_clear_bss_loop
 
 spl_stack_gd_setup:
 	jal	spl_relocate_stack_gd
@@ -324,7 +324,7 @@ clear_bss:
 clbss_l:
 	SREG	zero, 0(t0)		/* clear loop... */
 	addi	t0, t0, REGBYTES
-	bne	t0, t1, clbss_l
+	blt	t0, t1, clbss_l
 
 relocate_secondary_harts:
 #ifdef CONFIG_SMP
