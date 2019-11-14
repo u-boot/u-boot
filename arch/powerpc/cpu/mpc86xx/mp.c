@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
 #include <ioports.h>

@@ -2983,7 +2983,7 @@ Low Level (hardware related) configuration options:
 - CONFIG_SYS_SRIOn_MEM_VIRT:
 		Virtual Address of SRIO port 'n' memory region
 
-- CONFIG_SYS_SRIOn_MEM_PHYS:
+- CONFIG_SYS_SRIOn_MEM_PHYxS:
 		Physical Address of SRIO port 'n' memory region
 
 - CONFIG_SYS_SRIOn_MEM_SIZE:

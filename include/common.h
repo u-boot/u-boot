@@ -355,14 +355,6 @@ static inline struct in_addr env_get_ip(char *var)
 void show_activity(int arg);
 #endif
 
-/* Multicore arch functions */
-#ifdef CONFIG_MP
-int cpu_status(u32 nr);
-int cpu_reset(u32 nr);
-int cpu_disable(u32 nr);
-int cpu_release(u32 nr, int argc, char * const argv[]);
-#endif
-
 #else	/* __ASSEMBLY__ */
 
 #endif	/* __ASSEMBLY__ */
