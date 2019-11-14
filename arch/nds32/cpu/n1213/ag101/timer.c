@@ -9,6 +9,7 @@
  */
 #ifndef CONFIG_TIMER
 #include <common.h>
+#include <time.h>
 #include <asm/io.h>
 #include <faraday/fttmr010.h>
 

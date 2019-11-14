@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <memalign.h>
 #include <pci.h>
+#include <time.h>
 #include <dm/device-internal.h>
 #include "nvme.h"
 

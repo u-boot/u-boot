@@ -11,6 +11,7 @@
 #include <common.h>
 #include <bootretry.h>
 #include <cli.h>
+#include <time.h>
 #include <watchdog.h>
 
 DECLARE_GLOBAL_DATA_PTR;

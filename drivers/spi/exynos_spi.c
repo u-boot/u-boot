@@ -10,6 +10,7 @@
 #include <malloc.h>
 #include <spi.h>
 #include <fdtdec.h>
+#include <time.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/cpu.h>

@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <charset.h>
+#include <time.h>
 #include <dm/device.h>
 #include <efi_loader.h>
 #include <env.h>

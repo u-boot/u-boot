@@ -10,6 +10,7 @@
 #include <regmap.h>
 #include <spl.h>
 #include <syscon.h>
+#include <time.h>
 #include <vsprintf.h>
 #include <linux/io.h>
 #include <linux/iopoll.h>

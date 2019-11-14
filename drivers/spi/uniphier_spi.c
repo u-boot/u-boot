@@ -7,6 +7,7 @@
 #include <clk.h>
 #include <common.h>
 #include <dm.h>
+#include <time.h>
 #include <linux/bitfield.h>
 #include <linux/io.h>
 #include <spi.h>

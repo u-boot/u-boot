@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <malloc.h>
 #include <spi.h>
+#include <time.h>
 #include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;

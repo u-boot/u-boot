@@ -9,6 +9,7 @@
 #include <div64.h>
 #include <efi_loader.h>
 #include <malloc.h>
+#include <time.h>
 #include <linux/libfdt_env.h>
 #include <u-boot/crc.h>
 #include <bootm.h>

@@ -9,6 +9,7 @@
 #include <config.h>
 #include <common.h>
 #include <div64.h>
+#include <time.h>
 #include <asm/io.h>
 #include <asm/mipsregs.h>
 #include <mach/jz4780.h>

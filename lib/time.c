@@ -7,6 +7,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <time.h>
 #include <timer.h>
 #include <watchdog.h>
 #include <div64.h>

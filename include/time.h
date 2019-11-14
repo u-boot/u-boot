@@ -103,4 +103,14 @@ void wait_ticks(unsigned long ticks);
  */
 unsigned long timer_get_us(void);
 
+/**
+ * get_ticks() - Get the current tick value
+ *
+ * This is an internal value used by the timer on the system. Ticks increase
+ * monotonically at the rate given by get_tbclk().
+ *
+ * @return current tick value
+ */
+uint64_t get_ticks(void);
+
 #endif /* _TIME_H */

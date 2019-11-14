@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <time.h>
 #include <asm/io.h>
 
 #define UBOOT_CNTR	0	/* counter to use for uboot timer */

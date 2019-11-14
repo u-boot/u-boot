@@ -33,6 +33,7 @@
 #include <mapmem.h>
 #include "nfs.h"
 #include "bootp.h"
+#include <time.h>
 
 #define HASHES_PER_LINE 65	/* Number of "loading" hashes per line	*/
 #define NFS_RETRY_COUNT 30

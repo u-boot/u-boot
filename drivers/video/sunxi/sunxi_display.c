@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <efi_loader.h>
+#include <time.h>
 
 #include <asm/arch/clock.h>
 #include <asm/arch/display.h>

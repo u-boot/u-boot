@@ -14,6 +14,7 @@
  */
 
 #include <common.h>
+#include <time.h>
 
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
