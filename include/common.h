@@ -203,26 +203,6 @@ void	relocate_code(ulong, gd_t *, ulong) __attribute__ ((noreturn));
 ulong	get_endaddr   (void);
 void	trap_init     (ulong);
 
-/* $(CPU)/cpu.c */
-static inline int cpumask_next(int cpu, unsigned int mask)
-{
-	for (cpu++; !((1 << cpu) & mask); cpu++)
-		;
-
-	return cpu;
-}
-
-#define for_each_cpu(iter, cpu, num_cpus, mask) \
-	for (iter = 0, cpu = cpumask_next(-1, mask); \
-		iter < num_cpus; \
-		iter++, cpu = cpumask_next(cpu, mask)) \
-
-int	cpu_numcores  (void);
-int	cpu_num_dspcores(void);
-u32	cpu_mask      (void);
-u32	cpu_dsp_mask(void);
-int	is_core_valid (unsigned int);
-
 void s_init(void);
 
 int	checkcpu      (void);
