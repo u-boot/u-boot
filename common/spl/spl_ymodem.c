@@ -37,7 +37,7 @@ static int getcymodem(void) {
 static ulong ymodem_read_fit(struct spl_load_info *load, ulong offset,
 			     ulong size, void *addr)
 {
-	int res, err;
+	int res, err, buf_offset;
 	struct ymodem_fit_info *info = load->priv;
 	char *buf = info->buf;
 
@@ -51,7 +51,11 @@ static ulong ymodem_read_fit(struct spl_load_info *load, ulong offset,
 
 	if (info->image_read > offset) {
 		res = info->image_read - offset;
-		memcpy(addr, &buf[BUF_SIZE - res], res);
+		if (info->image_read % BUF_SIZE)
+			buf_offset = (info->image_read % BUF_SIZE);
+		else
+			buf_offset = BUF_SIZE;
+		memcpy(addr, &buf[buf_offset - res], res);
 		addr = addr + res;
 	}
 
