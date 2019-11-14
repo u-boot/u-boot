@@ -208,6 +208,8 @@ int board_early_init_r(void);
 /* TODO(sjg@chromium.org): Drop this when DM_PCI migration is completed */
 void pci_init_board(void);
 
+void trap_init(unsigned long reloc_addr);
+
 #endif	/* __ASSEMBLY__ */
 /* Put only stuff here that the assembler can digest */
 
