@@ -83,7 +83,7 @@ void timer_interrupt (struct pt_regs *regs)
 #endif    /* CONFIG_WATCHDOG || CONFIG_HW_WATCHDOG */
 
 #ifdef CONFIG_LED_STATUS
-	status_led_tick (timestamp);
+	status_led_tick(timestamp);
 #endif /* CONFIG_LED_STATUS */
 }
 
