@@ -67,6 +67,13 @@
 #define UP_RUN_STALL_OVERRIDE BIT(6)
 #define UP_RUN_STALL BIT(0)
 
+#define AQUANTIA_PMA_RX_VENDOR_P1		0xe400
+#define  AQUANTIA_PMA_RX_VENDOR_P1_MDI_MSK	GENMASK(1, 0)
+/* MDI reversal configured through registers */
+#define  AQUANTIA_PMA_RX_VENDOR_P1_MDI_CFG	BIT(1)
+/* MDI reversal enabled */
+#define  AQUANTIA_PMA_RX_VENDOR_P1_MDI_REV	BIT(0)
+
 /*
  * global start rate, the protocol associated with this speed is used by default
  * on SI.
@@ -323,6 +330,36 @@ static int aquantia_set_proto(struct phy_device *phydev)
 	return 0;
 }
 
+static int aquantia_dts_config(struct phy_device *phydev)
+{
+#ifdef CONFIG_DM_ETH
+	ofnode node = phydev->node;
+	u32 prop;
+	u16 reg;
+
+	/* this code only works on gen2 and gen3 PHYs */
+	if (phydev->drv->data != AQUANTIA_GEN2 &&
+	    phydev->drv->data != AQUANTIA_GEN3)
+		return -ENOTSUPP;
+
+	if (!ofnode_valid(node))
+		return 0;
+
+	if (!ofnode_read_u32(node, "mdi-reversal", &prop)) {
+		debug("mdi-reversal = %d\n", (int)prop);
+		reg =  phy_read(phydev, MDIO_MMD_PMAPMD,
+				AQUANTIA_PMA_RX_VENDOR_P1);
+		reg &= ~AQUANTIA_PMA_RX_VENDOR_P1_MDI_MSK;
+		reg |= AQUANTIA_PMA_RX_VENDOR_P1_MDI_CFG;
+		reg |= prop ? AQUANTIA_PMA_RX_VENDOR_P1_MDI_REV : 0;
+		phy_write(phydev, MDIO_MMD_PMAPMD, AQUANTIA_PMA_RX_VENDOR_P1,
+			  reg);
+	}
+
+#endif
+	return 0;
+}
+
 static bool aquantia_link_is_up(struct phy_device *phydev)
 {
 	u16 reg, regmask;
@@ -415,6 +452,8 @@ int aquantia_config(struct phy_device *phydev)
 
 		/* configure protocol based on phydev->interface */
 		aquantia_set_proto(phydev);
+		/* apply custom configuration based on DT */
+		aquantia_dts_config(phydev);
 
 		/* wake PHY back up */
 		phy_write(phydev, MDIO_MMD_VEND1, AQUANTIA_VND1_GLOBAL_SC, 0);
