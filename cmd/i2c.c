@@ -768,7 +768,7 @@ static int do_i2c_crc (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 #endif
 		if (ret)
 			err++;
-		crc = crc32 (crc, &byte, 1);
+		crc = crc32(crc, &byte, 1);
 		addr++;
 	}
 	if (err > 0)

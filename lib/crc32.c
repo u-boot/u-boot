@@ -244,12 +244,12 @@ uint32_t crc32_wd(uint32_t crc, const unsigned char *buf, uInt len,
 		chunk = end - curr;
 		if (chunk > chunk_sz)
 			chunk = chunk_sz;
-		crc = crc32 (crc, curr, chunk);
+		crc = crc32(crc, curr, chunk);
 		curr += chunk;
 		WATCHDOG_RESET ();
 	}
 #else
-	crc = crc32 (crc, buf, len);
+	crc = crc32(crc, buf, len);
 #endif
 
 	return crc;
