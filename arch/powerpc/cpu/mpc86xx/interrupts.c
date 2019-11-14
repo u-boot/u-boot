@@ -15,6 +15,7 @@
  */
 
 #include <common.h>
+#include <irq_func.h>
 #include <mpc86xx.h>
 #include <command.h>
 #include <asm/processor.h>

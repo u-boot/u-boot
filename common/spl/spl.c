@@ -11,6 +11,7 @@
 #include <binman_sym.h>
 #include <dm.h>
 #include <handoff.h>
+#include <irq_func.h>
 #include <serial.h>
 #include <spl.h>
 #include <asm/u-boot.h>

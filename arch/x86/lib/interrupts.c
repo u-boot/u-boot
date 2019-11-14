@@ -30,6 +30,7 @@
  */
 
 #include <common.h>
+#include <irq_func.h>
 #include <asm/interrupt.h>
 
 #if !CONFIG_IS_ENABLED(X86_64)

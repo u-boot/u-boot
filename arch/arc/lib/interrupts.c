@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <irq_func.h>
 #include <asm/arcregs.h>
 #include <asm/ptrace.h>
 

@@ -21,6 +21,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <irq_func.h>
 #include <kgdb.h>
 #include <asm/processor.h>
 
