@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <cpu_func.h>
 #include <env.h>
 #include <i2c.h>
 #include <net.h>

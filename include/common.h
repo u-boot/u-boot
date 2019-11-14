@@ -3,7 +3,7 @@
  * Common header file for U-Boot
  *
  * This file still includes quite a bit of stuff that should be in separate
- * headers like command.h and cpu.h. Please think before adding more things.
+ * headers like command.h. Please think before adding more things.
  * Patches to remove things are welcome.
  *
  * (C) Copyright 2000-2009
@@ -185,14 +185,6 @@ int board_early_init_r (void);
 int testdram(void);
 #endif /* CONFIG_SYS_DRAM_TEST */
 
-/* $(CPU)/start.S */
-int	icache_status (void);
-void	icache_enable (void);
-void	icache_disable(void);
-int	dcache_status(void);
-void	dcache_enable (void);
-void	dcache_disable(void);
-void	mmu_disable(void);
 #if defined(CONFIG_ARM)
 void	relocate_code(ulong);
 #else

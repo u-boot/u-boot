@@ -21,6 +21,7 @@
 #include <common.h>
 #include <acpi_s3.h>
 #include <command.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>
 #include <malloc.h>

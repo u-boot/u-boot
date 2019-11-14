@@ -14,6 +14,7 @@
  *   RedBoot tx25_misc.c Copyright (C) 2009 Red Hat
  */
 #include <common.h>
+#include <cpu_func.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>

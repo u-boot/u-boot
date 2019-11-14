@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <mpc83xx.h>
 #include <watchdog.h>
 #include <asm/io.h>

@@ -12,6 +12,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <cpu_func.h>
 #include <asm/system.h>
 #include <asm/secure.h>
 #include <linux/compiler.h>
