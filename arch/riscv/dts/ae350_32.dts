@@ -296,8 +296,10 @@
 	};
 
 	nor@0,0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
 		compatible = "cfi-flash";
-		reg = <0x88000000 0x1000>;
+		reg = <0x88000000 0x4000000>;
 		bank-width = <2>;
 		device-width = <1>;
 	};
