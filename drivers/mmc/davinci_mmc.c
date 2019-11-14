@@ -482,6 +482,9 @@ static int davinci_mmc_probe(struct udevice *dev)
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct davinci_mmc_priv *priv = dev_get_priv(dev);
 	struct mmc_config *cfg = &priv->cfg;
+#ifdef CONFIG_SPL_BUILD
+	int ret;
+#endif
 
 	cfg->f_min = 200000;
 	cfg->f_max = 25000000;
@@ -500,6 +503,20 @@ static int davinci_mmc_probe(struct udevice *dev)
 #endif
 
 	upriv->mmc = &priv->mmc;
+
+#ifdef CONFIG_SPL_BUILD
+	/*
+	 * FIXME This is a temporary workaround to enable the driver model in
+	 * SPL on omapl138-lcdk. For some reason the bind() callback is not
+	 * being called in SPL for MMC which breaks the mmc boot - the hack
+	 * is to call mmc_bind() from probe(). We also don't have full DT
+	 * support in SPL, hence the hard-coded base register address.
+	 */
+	priv->reg_base = (struct davinci_mmc_regs *)DAVINCI_MMC_SD0_BASE;
+	ret = mmc_bind(dev, &priv->mmc, &priv->cfg);
+	if (ret)
+		return ret;
+#endif
 
 	return davinci_dm_mmc_init(dev);
 }
