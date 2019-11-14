@@ -555,17 +555,14 @@ int aquantia_startup(struct phy_device *phydev)
 	phydev->duplex = DUPLEX_FULL;
 
 	/* if the AN is still in progress, wait till timeout. */
-	phy_read(phydev, MDIO_MMD_AN, MDIO_STAT1);
-	reg = phy_read(phydev, MDIO_MMD_AN, MDIO_STAT1);
-	if (!(reg & MDIO_AN_STAT1_COMPLETE)) {
+	if (!aquantia_link_is_up(phydev)) {
 		printf("%s Waiting for PHY auto negotiation to complete",
 		       phydev->dev->name);
 		do {
 			udelay(1000);
-			reg = phy_read(phydev, MDIO_MMD_AN, MDIO_STAT1);
 			if ((i++ % 500) == 0)
 				printf(".");
-		} while (!(reg & MDIO_AN_STAT1_COMPLETE) &&
+		} while (!aquantia_link_is_up(phydev) &&
 			 i < (4 * PHY_ANEG_TIMEOUT));
 
 		if (i > PHY_ANEG_TIMEOUT)
