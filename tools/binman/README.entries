@@ -519,7 +519,7 @@ Properties / Entry arguments:
 
 This file contains code used by the SoC that is required to make it work.
 The Management Engine is like a background task that runs things that are
-not clearly documented, but may include keyboard, deplay and network
+not clearly documented, but may include keyboard, display and network
 access. For platform that use ME it is not possible to disable it. U-Boot
 does not directly execute code in the ME binary.
 
@@ -593,7 +593,7 @@ Entry: powerpc-mpc85xx-bootpg-resetvec: PowerPC mpc85xx bootpg + resetvec code f
 Properties / Entry arguments:
     - filename: Filename of u-boot-br.bin (default 'u-boot-br.bin')
 
-This enrty is valid for PowerPC mpc85xx cpus. This entry holds
+This entry is valid for PowerPC mpc85xx cpus. This entry holds
 'bootpg + resetvec' code for PowerPC mpc85xx CPUs which needs to be
 placed at offset 'RESET_VECTOR_ADDRESS - 0xffc'.
 

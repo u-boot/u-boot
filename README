@@ -3082,14 +3082,16 @@ Low Level (hardware related) configuration options:
 		instruction cache) is still performed.
 
 - CONFIG_SPL_BUILD
-		Modifies the behaviour of start.S when compiling a loader
-		that is executed before the actual U-Boot. E.g. when
-		compiling a NAND SPL.
+		Set when the currently-running compilation is for an artifact
+		that will end up in the SPL (as opposed to the TPL or U-Boot
+		proper). Code that needs stage-specific behavior should check
+		this.
 
 - CONFIG_TPL_BUILD
-		Modifies the behaviour of start.S  when compiling a loader
-		that is executed after the SPL and before the actual U-Boot.
-		It is loaded by the SPL.
+		Set when the currently-running compilation is for an artifact
+		that will end up in the TPL (as opposed to the SPL or U-Boot
+		proper). Code that needs stage-specific behavior should check
+		this.
 
 - CONFIG_SYS_MPC85XX_NO_RESETVEC
 		Only for 85xx systems. If this variable is specified, the section
@@ -3306,7 +3308,7 @@ Testing of U-Boot Modifications, Ports to New Hardware, etc.:
 If you have modified U-Boot sources (for instance added a new board
 or support for new devices, a new CPU, etc.) you are expected to
 provide feedback to the other developers. The feedback normally takes
-the form of a "patch", i. e. a context diff against a certain (latest
+the form of a "patch", i.e. a context diff against a certain (latest
 official or latest in the git repository) version of U-Boot sources.
 
 But before you submit such a patch, please verify that your modifi-

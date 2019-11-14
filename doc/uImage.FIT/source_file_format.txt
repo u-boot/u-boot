@@ -262,7 +262,7 @@ o config-1
   - loadables : Unit name containing a list of additional binaries to be
     loaded at their given locations.  "loadables" is a comma-separated list
     of strings. U-Boot will load each binary at its given start-address and
-    may optionaly invoke additional post-processing steps on this binary based
+    may optionally invoke additional post-processing steps on this binary based
     on its component image node type.
   - compatible : The root compatible string of the U-Boot device tree that
     this configuration shall automatically match when CONFIG_FIT_BEST_MATCH is

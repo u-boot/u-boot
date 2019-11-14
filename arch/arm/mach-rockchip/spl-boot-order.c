@@ -35,7 +35,7 @@ static int spl_node_to_boot_device(int node)
 	/*
 	 * This should eventually move into the SPL code, once SPL becomes
 	 * aware of the block-device layer.  Until then (and to avoid unneeded
-	 * delays in getting this feature out, it lives at the board-level).
+	 * delays in getting this feature out), it lives at the board-level.
 	 */
 	if (!uclass_get_device_by_of_offset(UCLASS_MMC, node, &parent)) {
 		struct udevice *dev;
