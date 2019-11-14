@@ -21,6 +21,7 @@
 #define AQUNTIA_SPEED_MSB_MASK	0x40
 
 #define AQUANTIA_SYSTEM_INTERFACE_SR     0xe812
+#define  AQUANTIA_SYSTEM_INTERFACE_SR_READY	BIT(0)
 #define AQUANTIA_VENDOR_PROVISIONING_REG 0xC441
 #define AQUANTIA_FIRMWARE_ID		 0x20
 #define AQUANTIA_RESERVED_STATUS	 0xc885
@@ -33,6 +34,9 @@
 #define AQUANTIA_SI_USXGMII              0x0018
 
 /* registers in MDIO_MMD_VEND1 region */
+#define AQUANTIA_VND1_GLOBAL_SC			0x000
+#define  AQUANTIA_VND1_GLOBAL_SC_LP		BIT(0xb)
+
 #define GLOBAL_FIRMWARE_ID 0x20
 #define GLOBAL_FAULT 0xc850
 #define GLOBAL_RSTATUS_1 0xc885
@@ -62,6 +66,26 @@
 #define UP_RESET BIT(15)
 #define UP_RUN_STALL_OVERRIDE BIT(6)
 #define UP_RUN_STALL BIT(0)
+
+/*
+ * global start rate, the protocol associated with this speed is used by default
+ * on SI.
+ */
+#define AQUANTIA_VND1_GSTART_RATE		0x31a
+#define  AQUANTIA_VND1_GSTART_RATE_OFF		0
+#define  AQUANTIA_VND1_GSTART_RATE_100M		1
+#define  AQUANTIA_VND1_GSTART_RATE_1G		2
+#define  AQUANTIA_VND1_GSTART_RATE_10G		3
+#define  AQUANTIA_VND1_GSTART_RATE_2_5G		4
+#define  AQUANTIA_VND1_GSTART_RATE_5G		5
+
+/* SYSCFG registers for 100M, 1G, 2.5G, 5G, 10G */
+#define AQUANTIA_VND1_GSYSCFG_BASE		0x31b
+#define AQUANTIA_VND1_GSYSCFG_100M		0
+#define AQUANTIA_VND1_GSYSCFG_1G		1
+#define AQUANTIA_VND1_GSYSCFG_2_5G		2
+#define AQUANTIA_VND1_GSYSCFG_5G		3
+#define AQUANTIA_VND1_GSYSCFG_10G		4
 
 /* addresses of memory segments in the phy */
 #define DRAM_BASE_ADDR 0x3FFE0000
@@ -263,6 +287,68 @@ static int aquantia_upload_firmware(struct phy_device *phydev)
 }
 #endif
 
+struct {
+	u16 syscfg;
+	int cnt;
+	u16 start_rate;
+} aquantia_syscfg[PHY_INTERFACE_MODE_COUNT] = {
+	[PHY_INTERFACE_MODE_SGMII] =      {0x04b, AQUANTIA_VND1_GSYSCFG_1G,
+					   AQUANTIA_VND1_GSTART_RATE_1G},
+	[PHY_INTERFACE_MODE_SGMII_2500] = {0x144, AQUANTIA_VND1_GSYSCFG_2_5G,
+					   AQUANTIA_VND1_GSTART_RATE_2_5G},
+	[PHY_INTERFACE_MODE_XGMII] =      {0x100, AQUANTIA_VND1_GSYSCFG_10G,
+					   AQUANTIA_VND1_GSTART_RATE_10G},
+	[PHY_INTERFACE_MODE_XFI] =        {0x100, AQUANTIA_VND1_GSYSCFG_10G,
+					   AQUANTIA_VND1_GSTART_RATE_10G},
+	[PHY_INTERFACE_MODE_USXGMII] =    {0x080, AQUANTIA_VND1_GSYSCFG_10G,
+					   AQUANTIA_VND1_GSTART_RATE_10G},
+};
+
+static int aquantia_set_proto(struct phy_device *phydev)
+{
+	int i;
+
+	if (!aquantia_syscfg[phydev->interface].cnt)
+		return 0;
+
+	/* set the default rate to enable the SI link */
+	phy_write(phydev, MDIO_MMD_VEND1, AQUANTIA_VND1_GSTART_RATE,
+		  aquantia_syscfg[phydev->interface].start_rate);
+
+	/* set selected protocol for all relevant line side link speeds */
+	for (i = 0; i <= aquantia_syscfg[phydev->interface].cnt; i++)
+		phy_write(phydev, MDIO_MMD_VEND1,
+			  AQUANTIA_VND1_GSYSCFG_BASE + i,
+			  aquantia_syscfg[phydev->interface].syscfg);
+	return 0;
+}
+
+static bool aquantia_link_is_up(struct phy_device *phydev)
+{
+	u16 reg, regmask;
+	int devad, regnum;
+
+	/*
+	 * On Gen 2 and 3 we have a bit that indicates that both system and
+	 * line side are ready for data, use that if possible.
+	 */
+	if (phydev->drv->data == AQUANTIA_GEN2 ||
+	    phydev->drv->data == AQUANTIA_GEN3) {
+		devad = MDIO_MMD_PHYXS;
+		regnum = AQUANTIA_SYSTEM_INTERFACE_SR;
+		regmask = AQUANTIA_SYSTEM_INTERFACE_SR_READY;
+	} else {
+		devad = MDIO_MMD_AN;
+		regnum = MDIO_STAT1;
+		regmask = MDIO_AN_STAT1_COMPLETE;
+	}
+	/* the register should be latched, do a double read */
+	phy_read(phydev, devad, regnum);
+	reg = phy_read(phydev, devad, regnum);
+
+	return !!(reg & regmask);
+}
+
 int aquantia_config(struct phy_device *phydev)
 {
 	int interface = phydev->interface;
@@ -312,6 +398,27 @@ int aquantia_config(struct phy_device *phydev)
 			interface = PHY_INTERFACE_MODE_USXGMII;
 		else
 			interface = PHY_INTERFACE_MODE_XFI;
+	}
+
+	/*
+	 * if link is up already we can just use it, otherwise configure
+	 * the protocols in the PHY.  If link is down set the system
+	 * interface protocol to use based on phydev->interface
+	 */
+	if (!aquantia_link_is_up(phydev) &&
+	    (phydev->drv->data == AQUANTIA_GEN2 ||
+	     phydev->drv->data == AQUANTIA_GEN3)) {
+		/* set PHY in low power mode so we can configure protocols */
+		phy_write(phydev, MDIO_MMD_VEND1, AQUANTIA_VND1_GLOBAL_SC,
+			  AQUANTIA_VND1_GLOBAL_SC_LP);
+		mdelay(10);
+
+		/* configure protocol based on phydev->interface */
+		aquantia_set_proto(phydev);
+
+		/* wake PHY back up */
+		phy_write(phydev, MDIO_MMD_VEND1, AQUANTIA_VND1_GLOBAL_SC, 0);
+		mdelay(10);
 	}
 
 	val = phy_read(phydev, MDIO_MMD_PMAPMD, MII_BMCR);
