@@ -12,6 +12,7 @@
 #include <config.h>
 #include <common.h>
 #include <command.h>
+#include <cpu_func.h>
 #include <errno.h>
 #include <hwconfig.h>
 #include <mmc.h>

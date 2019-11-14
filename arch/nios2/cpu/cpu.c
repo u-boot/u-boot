@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <cpu.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>
 #include <asm/cache.h>

@@ -5,6 +5,7 @@
  */
 #include <common.h>
 #include <command.h>
+#include <cpu_func.h>
 #include <part.h>
 
 int common_diskboot(cmd_tbl_t *cmdtp, const char *intf, int argc,

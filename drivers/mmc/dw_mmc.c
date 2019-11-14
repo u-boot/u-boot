@@ -7,6 +7,7 @@
 
 #include <bouncebuf.h>
 #include <common.h>
+#include <cpu_func.h>
 #include <errno.h>
 #include <malloc.h>
 #include <memalign.h>

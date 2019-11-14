@@ -9,6 +9,7 @@
  * Copyright (C) 2010 Freescale Semiconductor, Inc. All Rights Reserved.
  */
 
+#include <cpu_func.h>
 #include <linux/list.h>
 
 #include <common.h>

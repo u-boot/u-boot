@@ -6,6 +6,7 @@
  * Author: Thomas Fitzsimmons <fitzsim@fitzsim.org>
  */
 
+#include <cpu_func.h>
 #include <time.h>
 #include <linux/types.h>
 #include <common.h>

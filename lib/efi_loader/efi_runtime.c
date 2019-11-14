@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <elf.h>
 #include <efi_loader.h>

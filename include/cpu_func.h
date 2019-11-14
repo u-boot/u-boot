@@ -60,4 +60,28 @@ void dcache_enable(void);
 void dcache_disable(void);
 void mmu_disable(void);
 
+/* arch/$(ARCH)/lib/cache.c */
+void enable_caches(void);
+void flush_cache(unsigned long addr, unsigned long size);
+void flush_dcache_all(void);
+void flush_dcache_range(unsigned long start, unsigned long stop);
+void invalidate_dcache_range(unsigned long start, unsigned long stop);
+void invalidate_dcache_all(void);
+void invalidate_icache_all(void);
+
+enum {
+	/* Disable caches (else flush caches but leave them active) */
+	CBL_DISABLE_CACHES		= 1 << 0,
+	CBL_SHOW_BOOTSTAGE_REPORT	= 1 << 1,
+
+	CBL_ALL				= 3,
+};
+
+/**
+ * Clean up ready for linux
+ *
+ * @param flags		Flags to control what is done
+ */
+int cleanup_before_linux_select(int flags);
+;
 #endif

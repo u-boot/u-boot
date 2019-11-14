@@ -3,6 +3,7 @@
  * Copyright (C) 2019, STMicroelectronics - All Rights Reserved
  */
 #include <common.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <elf.h>
 #include <remoteproc.h>
