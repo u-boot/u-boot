@@ -6,6 +6,7 @@
 #include <common.h>
 #include <compiler.h>
 #include <image.h>
+#include <lz4.h>
 #include <linux/kernel.h>
 #include <linux/types.h>
 

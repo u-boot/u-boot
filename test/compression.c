@@ -7,6 +7,7 @@
 #include <bootm.h>
 #include <command.h>
 #include <gzip.h>
+#include <lz4.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <asm/io.h>

@@ -292,9 +292,6 @@ void	wait_ticks    (unsigned long);
 ulong	usec2ticks    (unsigned long usec);
 ulong	ticks2usec    (unsigned long ticks);
 
-/* lib/lz4_wrapper.c */
-int ulz4fn(const void *src, size_t srcn, void *dst, size_t *dstn);
-
 /* lib/uuid.c */
 #include <uuid.h>
 

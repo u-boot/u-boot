@@ -20,6 +20,7 @@
 
 #include <gzip.h>
 #include <image.h>
+#include <lz4.h>
 #include <mapmem.h>
 
 #if IMAGE_ENABLE_FIT || IMAGE_ENABLE_OF_LIBFDT
