@@ -7,3 +7,7 @@ F:	configs/ae350_rv32_defconfig
 F:	configs/ae350_rv64_defconfig
 F:	configs/ae350_rv32_xip_defconfig
 F:	configs/ae350_rv64_xip_defconfig
+F:	configs/ae350_rv32_spl_defconfig
+F:	configs/ae350_rv64_spl_defconfig
+F:	configs/ae350_rv32_spl_xip_defconfig
+F:	configs/ae350_rv64_spl_xip_defconfig
