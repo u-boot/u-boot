@@ -8,6 +8,7 @@
 #include <malloc.h>
 #include <asm/io.h>
 #include <linux/errno.h>
+#include <u-boot/crc.h>
 
 #include "fm.h"
 #include <fsl_qe.h>		/* For struct qe_firmware */

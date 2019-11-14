@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <u-boot/crc.h>
 #include <unistd.h>
 
 #include <linux/kconfig.h>

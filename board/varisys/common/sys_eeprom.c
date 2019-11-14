@@ -15,6 +15,7 @@
 #include <env.h>
 #include <i2c.h>
 #include <linux/ctype.h>
+#include <u-boot/crc.h>
 
 #include "eeprom.h"
 

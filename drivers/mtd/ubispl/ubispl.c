@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <errno.h>
+#include <u-boot/crc.h>
 #include <ubispl.h>
 
 #include <linux/crc32.h>

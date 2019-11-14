@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <u-boot/crc.h>
 #include <unistd.h>
 #include <libgen.h>
 #include <sys/types.h>

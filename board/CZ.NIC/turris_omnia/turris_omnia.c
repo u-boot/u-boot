@@ -18,6 +18,7 @@
 #include <dm/uclass.h>
 #include <fdt_support.h>
 #include <time.h>
+#include <u-boot/crc.h>
 # include <atsha204a-i2c.h>
 
 #include "../drivers/ddr/marvell/a38x/ddr3_init.h"

@@ -76,6 +76,7 @@
 #include <malloc.h>
 #include <asm/byteorder.h>
 #include <linux/compiler.h>
+#include <u-boot/crc.h>
 
 /* Display values from last command.
  * Memory modify remembered values are different from display memory.

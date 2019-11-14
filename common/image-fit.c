@@ -11,6 +11,7 @@
 #ifdef USE_HOSTCC
 #include "mkimage.h"
 #include <time.h>
+#include <u-boot/crc.h>
 #else
 #include <linux/compiler.h>
 #include <linux/kconfig.h>

@@ -11,6 +11,7 @@
 #include <elf.h>
 #include <efi_loader.h>
 #include <rtc.h>
+#include <u-boot/crc.h>
 
 /* For manual relocation support */
 DECLARE_GLOBAL_DATA_PTR;

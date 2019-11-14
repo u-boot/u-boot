@@ -13,6 +13,7 @@
 #include <u-boot/crc.h>
 #include <bootm.h>
 #include <pe.h>
+#include <u-boot/crc.h>
 #include <watchdog.h>
 
 DECLARE_GLOBAL_DATA_PTR;

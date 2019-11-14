@@ -10,6 +10,7 @@
 #include <net.h>
 #include <spi.h>
 #include <spi_flash.h>
+#include <u-boot/crc.h>
 #include <uuid.h>
 #include <linux/ctype.h>
 #include <linux/io.h>

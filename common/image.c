@@ -9,6 +9,7 @@
 #ifndef USE_HOSTCC
 #include <common.h>
 #include <env.h>
+#include <u-boot/crc.h>
 #include <watchdog.h>
 
 #ifdef CONFIG_SHOW_BOOT_PROGRESS

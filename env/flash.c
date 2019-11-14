@@ -17,6 +17,7 @@
 #include <malloc.h>
 #include <search.h>
 #include <errno.h>
+#include <u-boot/crc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

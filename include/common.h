@@ -322,9 +322,6 @@ int strcmp_compar(const void *, const void *);
 /* lib/strmhz.c */
 char *	strmhz(char *buf, unsigned long hz);
 
-/* lib/crc32.c */
-#include <u-boot/crc.h>
-
 /*
  * STDIO based functions (can always be used)
  */

@@ -6,6 +6,7 @@
  */
 #include <common.h>
 #include <i2c.h>
+#include <u-boot/crc.h>
 
 #include "tricorder-eeprom.h"
 

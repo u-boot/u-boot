@@ -17,6 +17,7 @@
 #include <miiphy.h>
 #include <command.h>
 #include <linux/libfdt.h>
+#include <u-boot/crc.h>
 #if defined(CONFIG_PCI)
 #include <pci.h>
 #endif

@@ -25,6 +25,7 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/compiler.h>
+#include <u-boot/crc.h>
 #endif
 #include <linux/types.h>
 
