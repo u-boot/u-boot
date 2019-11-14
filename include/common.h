@@ -144,7 +144,6 @@ void	relocate_code(ulong);
 #else
 void	relocate_code(ulong, gd_t *, ulong) __attribute__ ((noreturn));
 #endif
-ulong	get_endaddr   (void);
 
 void s_init(void);
 
