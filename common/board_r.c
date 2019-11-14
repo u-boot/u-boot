@@ -37,6 +37,7 @@
 #include <onenand_uboot.h>
 #include <scsi.h>
 #include <serial.h>
+#include <status_led.h>
 #include <stdio_dev.h>
 #include <timer.h>
 #include <trace.h>

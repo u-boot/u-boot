@@ -16,6 +16,7 @@
 #include <config.h>
 #include <common.h>
 #include <netdev.h>
+#include <status_led.h>
 #include <asm/io.h>
 #include <asm/mach-types.h>
 #include <asm/arch/ep93xx.h>
