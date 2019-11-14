@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <pci.h>
 #include <qfw.h>
 #include <asm/irq.h>

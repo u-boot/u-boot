@@ -203,7 +203,6 @@ void	trap_init     (ulong);
 
 void s_init(void);
 
-int	checkcpu      (void);
 int	checkicache   (void);
 int	checkdcache   (void);
 void	upmconfig     (unsigned int, unsigned int *, unsigned int);

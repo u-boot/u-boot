@@ -13,6 +13,7 @@
 #include <bloblist.h>
 #include <console.h>
 #include <cpu.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <env.h>
 #include <env_internal.h>
