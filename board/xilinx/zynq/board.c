@@ -85,7 +85,7 @@ int board_late_init(void)
 		env_set("modeboot", "sdboot");
 		break;
 	case ZYNQ_BM_JTAG:
-		mode = "pxe dhcp";
+		mode = "jtag pxe dhcp";
 		env_set("modeboot", "jtagboot");
 		break;
 	default:
