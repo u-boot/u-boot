@@ -15,15 +15,6 @@
 #endif
 
 #ifndef CONFIG_MPC83XX_TIMER
-#ifdef CONFIG_SHOW_ACTIVITY
-void board_show_activity (ulong) __attribute__((weak, alias("__board_show_activity")));
-
-void __board_show_activity (ulong dummy)
-{
-	return;
-}
-#endif /* CONFIG_SHOW_ACTIVITY */
-
 #ifndef CONFIG_SYS_WATCHDOG_FREQ
 #define CONFIG_SYS_WATCHDOG_FREQ (CONFIG_SYS_HZ / 2)
 #endif
@@ -94,10 +85,6 @@ void timer_interrupt (struct pt_regs *regs)
 #ifdef CONFIG_LED_STATUS
 	status_led_tick (timestamp);
 #endif /* CONFIG_LED_STATUS */
-
-#ifdef CONFIG_SHOW_ACTIVITY
-	board_show_activity (timestamp);
-#endif /* CONFIG_SHOW_ACTIVITY */
 }
 
 ulong get_timer (ulong base)

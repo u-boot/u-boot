@@ -561,9 +561,6 @@ restart:
 	 */
 	for (;;) {
 		WATCHDOG_RESET();
-#ifdef CONFIG_SHOW_ACTIVITY
-		show_activity(1);
-#endif
 		if (arp_timeout_check() > 0)
 			time_start = get_timer(0);
 

@@ -171,10 +171,6 @@ void timer_interrupt(struct pt_regs *regs)
 #ifdef CONFIG_LED_STATUS
 	status_led_tick(priv->timestamp);
 #endif /* CONFIG_LED_STATUS */
-
-#ifdef CONFIG_SHOW_ACTIVITY
-	board_show_activity(priv->timestamp);
-#endif /* CONFIG_SHOW_ACTIVITY */
 }
 
 void wait_ticks(ulong ticks)

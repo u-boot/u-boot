@@ -351,10 +351,6 @@ static inline struct in_addr env_get_ip(char *var)
 
 #include <bootstage.h>
 
-#ifdef CONFIG_SHOW_ACTIVITY
-void show_activity(int arg);
-#endif
-
 #else	/* __ASSEMBLY__ */
 
 #endif	/* __ASSEMBLY__ */
