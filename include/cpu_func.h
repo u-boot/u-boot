@@ -49,4 +49,7 @@ int is_core_valid(unsigned int core);
  */
 int checkcpu(void);
 
+void smp_set_core_boot_addr(unsigned long addr, int corenr);
+void smp_kick_all_cpus(void);
+
 #endif

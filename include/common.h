@@ -212,9 +212,6 @@ void	reset_cpu     (ulong addr);
 void ft_cpu_setup(void *blob, bd_t *bd);
 void ft_pci_setup(void *blob, bd_t *bd);
 
-void smp_set_core_boot_addr(unsigned long addr, int corenr);
-void smp_kick_all_cpus(void);
-
 /* $(CPU)/speed.c */
 int	get_clocks (void);
 ulong	get_bus_freq  (ulong);
