@@ -94,6 +94,9 @@
 #define AQUANTIA_VND1_GSYSCFG_5G		3
 #define AQUANTIA_VND1_GSYSCFG_10G		4
 
+#define AQUANTIA_VND1_SMBUS0			0xc485
+#define AQUANTIA_VND1_SMBUS1			0xc495
+
 /* addresses of memory segments in the phy */
 #define DRAM_BASE_ADDR 0x3FFE0000
 #define IRAM_BASE_ADDR 0x40000000
@@ -354,6 +357,18 @@ static int aquantia_dts_config(struct phy_device *phydev)
 		reg |= prop ? AQUANTIA_PMA_RX_VENDOR_P1_MDI_REV : 0;
 		phy_write(phydev, MDIO_MMD_PMAPMD, AQUANTIA_PMA_RX_VENDOR_P1,
 			  reg);
+	}
+	if (!ofnode_read_u32(node, "smb-addr", &prop)) {
+		debug("smb-addr = %x\n", (int)prop);
+		/*
+		 * there are two addresses here, normally just one bus would
+		 * be in use so we're setting both regs using the same DT
+		 * property.
+		 */
+		phy_write(phydev, MDIO_MMD_VEND1, AQUANTIA_VND1_SMBUS0,
+			  (u16)(prop << 1));
+		phy_write(phydev, MDIO_MMD_VEND1, AQUANTIA_VND1_SMBUS1,
+			  (u16)(prop << 1));
 	}
 
 #endif
