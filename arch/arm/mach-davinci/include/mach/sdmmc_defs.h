@@ -149,13 +149,7 @@ struct davinci_mmc {
 	uint input_clk;		/* Input clock to MMC controller */
 	uint host_caps;		/* Host capabilities */
 	uint voltages;		/* Host supported voltages */
-	uint version;		/* MMC Controller version */
 	struct mmc_config cfg;
-};
-
-enum {
-	MMC_CTLR_VERSION_1 = 0,	/* DM644x and DM355 */
-	MMC_CTLR_VERSION_2,	/* DA830 */
 };
 
 int davinci_mmc_init(bd_t *bis, struct davinci_mmc *host);
