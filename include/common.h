@@ -304,11 +304,6 @@ ulong	ticks2usec    (unsigned long ticks);
 /* lib/lz4_wrapper.c */
 int ulz4fn(const void *src, size_t srcn, void *dst, size_t *dstn);
 
-/* lib/qsort.c */
-void qsort(void *base, size_t nmemb, size_t size,
-	   int(*compar)(const void *, const void *));
-int strcmp_compar(const void *, const void *);
-
 /* lib/uuid.c */
 #include <uuid.h>
 
