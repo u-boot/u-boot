@@ -215,8 +215,9 @@ static void enetc_config_phy(struct udevice *dev)
 	if (!priv->phy)
 		return;
 
-	supported = GENMASK(6, 0); /* speeds up to 1G & AN */
-	priv->phy->advertising = priv->phy->supported & supported;
+	supported = PHY_GBIT_FEATURES | SUPPORTED_2500baseX_Full;
+	priv->phy->supported &= supported;
+	priv->phy->advertising &= supported;
 
 	phy_config(priv->phy);
 }
