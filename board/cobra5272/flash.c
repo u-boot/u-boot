@@ -164,8 +164,8 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	 * chip is in programming mode.
 	 */
 
-	cflag = icache_status ();
-	icache_disable ();
+	cflag = icache_status();
+	icache_disable();
 	iflag = disable_interrupts ();
 
 	printf ("\n");
@@ -237,7 +237,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 		enable_interrupts ();
 
 	if (cflag)
-		icache_enable ();
+		icache_enable();
 
 	return rc;
 }
@@ -267,8 +267,8 @@ static int write_word (flash_info_t * info, ulong dest, ulong data)
 	 * chip is in programming mode.
 	 */
 
-	cflag = icache_status ();
-	icache_disable ();
+	cflag = icache_status();
+	icache_disable();
 	iflag = disable_interrupts ();
 
 	MEM_FLASH_ADDR1 = CMD_UNLOCK1;
@@ -303,7 +303,7 @@ static int write_word (flash_info_t * info, ulong dest, ulong data)
 		enable_interrupts ();
 
 	if (cflag)
-		icache_enable ();
+		icache_enable();
 
 	return rc;
 }

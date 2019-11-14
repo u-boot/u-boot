@@ -57,12 +57,12 @@ ulong cpu_post_makecr (long v)
 
 int cpu_post_test (int flags)
 {
-	int ic = icache_status ();
+	int ic = icache_status();
 	int ret = 0;
 
 	WATCHDOG_RESET();
 	if (ic)
-		icache_disable ();
+		icache_disable();
 
 	if (ret == 0)
 		ret = cpu_post_test_cmp ();
@@ -110,7 +110,7 @@ int cpu_post_test (int flags)
 	WATCHDOG_RESET();
 
 	if (ic)
-		icache_enable ();
+		icache_enable();
 
 	WATCHDOG_RESET();
 

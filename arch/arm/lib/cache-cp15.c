@@ -253,17 +253,17 @@ static void cache_disable(uint32_t cache_bit)
 #endif
 
 #if CONFIG_IS_ENABLED(SYS_ICACHE_OFF)
-void icache_enable (void)
+void icache_enable(void)
 {
 	return;
 }
 
-void icache_disable (void)
+void icache_disable(void)
 {
 	return;
 }
 
-int icache_status (void)
+int icache_status(void)
 {
 	return 0;					/* always off */
 }
@@ -285,17 +285,17 @@ int icache_status(void)
 #endif
 
 #if CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
-void dcache_enable (void)
+void dcache_enable(void)
 {
 	return;
 }
 
-void dcache_disable (void)
+void dcache_disable(void)
 {
 	return;
 }
 
-int dcache_status (void)
+int dcache_status(void)
 {
 	return 0;					/* always off */
 }

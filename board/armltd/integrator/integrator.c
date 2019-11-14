@@ -109,7 +109,7 @@ extern void cm_remap(void);
 	writel(SC_CTRL_FLASHVPP | SC_CTRL_FLASHWP, SC_CTRLS);
 #endif
 
-	icache_enable ();
+	icache_enable();
 
 	return 0;
 }

@@ -189,7 +189,7 @@ int testdram(void);
 int	icache_status (void);
 void	icache_enable (void);
 void	icache_disable(void);
-int	dcache_status (void);
+int	dcache_status(void);
 void	dcache_enable (void);
 void	dcache_disable(void);
 void	mmu_disable(void);
