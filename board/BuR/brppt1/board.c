@@ -10,6 +10,7 @@
  */
 
 #include <common.h>
+#include <bootcount.h>
 #include <env.h>
 #include <errno.h>
 #include <spl.h>

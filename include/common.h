@@ -266,10 +266,6 @@ unsigned long timer_get_us(void);
 void	enable_interrupts  (void);
 int	disable_interrupts (void);
 
-/* $(CPU)/.../commproc.c */
-void	bootcount_store (ulong);
-ulong	bootcount_load (void);
-
 /* $(CPU)/.../<eth> */
 void mii_init (void);
 
