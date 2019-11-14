@@ -127,10 +127,6 @@ static inline void bootcount_inc(void)
 #endif /* !CONFIG_SPL_BUILD */
 }
 
-#if defined(CONFIG_SPL_BUILD) && !defined(CONFIG_SPL_BOOTCOUNT_LIMIT)
-void bootcount_store(ulong a) {};
-ulong bootcount_load(void) { return 0; }
-#endif /* CONFIG_SPL_BUILD && !CONFIG_SPL_BOOTCOUNT_LIMIT */
 #else
 static inline int bootcount_error(void) { return 0; }
 static inline void bootcount_inc(void) {}
