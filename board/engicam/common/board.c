@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <env.h>
 #include <mmc.h>
 #include <asm/arch/sys_proto.h>

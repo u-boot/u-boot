@@ -3,7 +3,7 @@
  * Common header file for U-Boot
  *
  * This file still includes quite a bit of stuff that should be in separate
- * headers like command.h. Please think before adding more things.
+ * headers. Please think before adding more things.
  * Patches to remove things are welcome.
  *
  * (C) Copyright 2000-2009
@@ -66,21 +66,6 @@ void	hang		(void) __attribute__ ((noreturn));
 
 /* common/main.c */
 void	main_loop	(void);
-int run_command(const char *cmd, int flag);
-int run_command_repeatable(const char *cmd, int flag);
-
-/**
- * Run a list of commands separated by ; or even \0
- *
- * Note that if 'len' is not -1, then the command does not need to be nul
- * terminated, Memory will be allocated for the command in that case.
- *
- * @param cmd	List of commands to run, each separated bu semicolon
- * @param len	Length of commands excluding terminator if known (-1 if not)
- * @param flag	Execution flags (CMD_FLAG_...)
- * @return 0 on success, or != 0 on error.
- */
-int run_command_list(const char *cmd, int len, int flag);
 
 int checkflash(void);
 int checkdram(void);

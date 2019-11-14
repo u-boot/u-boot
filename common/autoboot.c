@@ -8,6 +8,7 @@
 #include <autoboot.h>
 #include <bootretry.h>
 #include <cli.h>
+#include <command.h>
 #include <console.h>
 #include <env.h>
 #include <fdtdec.h>

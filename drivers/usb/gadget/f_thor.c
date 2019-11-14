@@ -14,6 +14,7 @@
  * Sanghee Kim <sh0130.kim@samsung.com>
  */
 
+#include <command.h>
 #include <errno.h>
 #include <common.h>
 #include <console.h>

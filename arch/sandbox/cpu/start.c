@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <errno.h>
 #include <os.h>
 #include <cli.h>
