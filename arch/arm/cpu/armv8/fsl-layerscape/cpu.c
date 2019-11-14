@@ -39,6 +39,7 @@
 #include <fsl_validate.h>
 #endif
 #endif
+#include <linux/mii.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

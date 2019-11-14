@@ -18,6 +18,7 @@
 
 #include <asm/fec.h>
 #include <asm/immap.h>
+#include <linux/mii.h>
 
 #undef	ET_DEBUG
 #undef	MII_DEBUG

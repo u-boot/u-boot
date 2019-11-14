@@ -12,6 +12,7 @@
 #include <time.h>
 #include <wait_bit.h>
 #include <asm/gpio.h>
+#include <linux/mii.h>
 
 #include "pic32_eth.h"
 
