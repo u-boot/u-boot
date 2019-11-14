@@ -367,6 +367,10 @@ static int rpmb_route_write_req(struct mmc *mmc, struct s_rpmb *req,
 				unsigned short rsp_cnt)
 {
 	int ret;
+	ALLOC_CACHE_ALIGN_BUFFER(struct s_rpmb, req_frame, req_cnt);
+	ALLOC_CACHE_ALIGN_BUFFER(struct s_rpmb, rsp_frame, rsp_cnt);
+
+	memcpy(req_frame, req, sizeof(struct s_rpmb) * req_cnt);
 
 	/*
 	 * Send the write request.
@@ -375,7 +379,7 @@ static int rpmb_route_write_req(struct mmc *mmc, struct s_rpmb *req,
 	if (ret)
 		return ret;
 
-	ret = send_write_mult_block(mmc, req, req_cnt);
+	ret = send_write_mult_block(mmc, req_frame, req_cnt);
 	if (ret)
 		return ret;
 
@@ -386,9 +390,9 @@ static int rpmb_route_write_req(struct mmc *mmc, struct s_rpmb *req,
 	if (ret)
 		return ret;
 
-	memset(rsp, 0, sizeof(*rsp));
-	rsp->request = cpu_to_be16(RPMB_REQ_STATUS);
-	ret = send_write_mult_block(mmc, rsp, 1);
+	memset(rsp_frame, 0, sizeof(*rsp));
+	rsp_frame->request = cpu_to_be16(RPMB_REQ_STATUS);
+	ret = send_write_mult_block(mmc, rsp_frame, 1);
 	if (ret)
 		return ret;
 
@@ -396,14 +400,24 @@ static int rpmb_route_write_req(struct mmc *mmc, struct s_rpmb *req,
 	if (ret)
 		return ret;
 
-	return send_read_mult_block(mmc, rsp, 1);
+	ret = send_read_mult_block(mmc, rsp_frame, 1);
+	if (ret)
+		return ret;
+
+	memcpy(rsp, rsp_frame, sizeof(*rsp));
+
+	return 0;
 }
 
 static int rpmb_route_read_req(struct mmc *mmc, struct s_rpmb *req,
 			       unsigned short req_cnt, struct s_rpmb *rsp,
 			       unsigned short rsp_cnt)
 {
+	ALLOC_CACHE_ALIGN_BUFFER(struct s_rpmb, rsp_frame, rsp_cnt);
+	ALLOC_CACHE_ALIGN_BUFFER(struct s_rpmb, req_frame, req_cnt);
 	int ret;
+
+	memcpy(req_frame, req, sizeof(struct s_rpmb));
 
 	/*
 	 * Send the read request.
@@ -412,7 +426,7 @@ static int rpmb_route_read_req(struct mmc *mmc, struct s_rpmb *req,
 	if (ret)
 		return ret;
 
-	ret = send_write_mult_block(mmc, req, 1);
+	ret = send_write_mult_block(mmc, req_frame, 1);
 	if (ret)
 		return ret;
 
@@ -424,7 +438,13 @@ static int rpmb_route_read_req(struct mmc *mmc, struct s_rpmb *req,
 	if (ret)
 		return ret;
 
-	return send_read_mult_block(mmc, rsp, rsp_cnt);
+	ret = send_read_mult_block(mmc, rsp_frame, rsp_cnt);
+	if (ret)
+		return ret;
+
+	memcpy(rsp, rsp_frame, rsp_cnt * sizeof(struct s_rpmb));
+
+	return 0;
 }
 
 static int rpmb_route_frames(struct mmc *mmc, struct s_rpmb *req,
@@ -432,6 +452,7 @@ static int rpmb_route_frames(struct mmc *mmc, struct s_rpmb *req,
 			     unsigned short rsp_cnt)
 {
 	unsigned short n;
+	int ret = 0;
 
 	/*
 	 * If multiple request frames are provided, make sure that all are
@@ -445,28 +466,37 @@ static int rpmb_route_frames(struct mmc *mmc, struct s_rpmb *req,
 	case RPMB_REQ_KEY:
 		if (req_cnt != 1 || rsp_cnt != 1)
 			return -EINVAL;
-		return rpmb_route_write_req(mmc, req, req_cnt, rsp, rsp_cnt);
-
+		ret = rpmb_route_write_req(mmc, req, req_cnt, rsp, rsp_cnt);
+		if (ret)
+			printf("error: RPMB_REQ_KEY\n");
+		break;
 	case RPMB_REQ_WRITE_DATA:
 		if (!req_cnt || rsp_cnt != 1)
 			return -EINVAL;
-		return rpmb_route_write_req(mmc, req, req_cnt, rsp, rsp_cnt);
-
+		ret = rpmb_route_write_req(mmc, req, req_cnt, rsp, rsp_cnt);
+		if (ret)
+			printf("error: RPMB_REQ_WRITE_DATA\n");
+		break;
 	case RPMB_REQ_WCOUNTER:
 		if (req_cnt != 1 || rsp_cnt != 1)
 			return -EINVAL;
-		return rpmb_route_read_req(mmc, req, req_cnt, rsp, rsp_cnt);
-
+		ret = rpmb_route_read_req(mmc, req, req_cnt, rsp, rsp_cnt);
+		if (ret)
+			printf("error: RPMB_REQ_WCOUNTER\n");
+		break;
 	case RPMB_REQ_READ_DATA:
 		if (req_cnt != 1 || !req_cnt)
 			return -EINVAL;
-		return rpmb_route_read_req(mmc, req, req_cnt, rsp, rsp_cnt);
-
+		ret = rpmb_route_read_req(mmc, req, req_cnt, rsp, rsp_cnt);
+		if (ret)
+			printf("error: RPMB_REQ_READ_DATA\n");
+		break;
 	default:
-		debug("Unsupported message type: %d\n",
+		printf("Unsupported message type: %d\n",
 		      be16_to_cpu(req->request));
 		return -EINVAL;
 	}
+	return ret;
 }
 
 int mmc_rpmb_route_frames(struct mmc *mmc, void *req, unsigned long reqlen,
