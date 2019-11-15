@@ -127,6 +127,13 @@ void board_init_f(ulong dummy)
 		hang();
 	}
 	arch_cpu_init();
+#if !defined(CONFIG_ROCKCHIP_RK3188)
+	rockchip_stimer_init();
+#endif
+#ifdef CONFIG_SYS_ARCH_TIMER
+	/* Init ARM arch timer in arch/arm/cpu/armv7/arch_timer.c */
+	timer_init();
+#endif
 #if !defined(CONFIG_SUPPORT_TPL) || defined(CONFIG_SPL_OS_BOOT)
 	debug("\nspl:init dram\n");
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
@@ -134,13 +141,6 @@ void board_init_f(ulong dummy)
 		printf("DRAM init failed: %d\n", ret);
 		return;
 	}
-#endif
-#if !defined(CONFIG_ROCKCHIP_RK3188)
-	rockchip_stimer_init();
-#endif
-#ifdef CONFIG_SYS_ARCH_TIMER
-	/* Init ARM arch timer in arch/arm/cpu/armv7/arch_timer.c */
-	timer_init();
 #endif
 	preloader_console_init();
 }
