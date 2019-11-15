@@ -14,7 +14,7 @@ CONFIG_SPL_TEXT_BASE=0x60000000
 CONFIG_FIT=y
 CONFIG_FIT_VERBOSE=y
 CONFIG_SPL_LOAD_FIT=y
-CONFIG_SPL_FIT_SOURCE="arch/arm/mach-rockchip/fit_spl_optee.its"
+CONFIG_SPL_FIT_GENERATOR="arch/arm/mach-rockchip/fit_spl_optee.sh"
 CONFIG_USE_PREBOOT=y
 CONFIG_DEFAULT_FDT_FILE="rk3229-evb.dtb"
 # CONFIG_DISPLAY_CPUINFO is not set
