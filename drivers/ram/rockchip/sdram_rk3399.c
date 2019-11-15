@@ -1636,6 +1636,11 @@ static u32 calculate_ddrconfig(struct rk3399_sdram_params *params, u32 channel)
 	return i;
 }
 
+static void set_ddr_stride(struct rk3399_pmusgrf_regs *pmusgrf, u32 stride)
+{
+	rk_clrsetreg(&pmusgrf->soc_con4, 0x1f << 10, stride << 10);
+}
+
 #if !defined(CONFIG_RAM_RK3399_LPDDR4)
 static int data_training_first(struct dram_info *dram, u32 channel, u8 rank,
 			       struct rk3399_sdram_params *params)
@@ -1772,12 +1777,7 @@ static u32 get_ddr_stride(struct rk3399_pmusgrf_regs *pmusgrf)
 	return ((readl(&pmusgrf->soc_con4) >> 10) & 0x1F);
 }
 
-static void set_ddr_stride(struct rk3399_pmusgrf_regs *pmusgrf, u32 stride)
-{
-	rk_clrsetreg(&pmusgrf->soc_con4, 0x1f << 10, stride << 10);
-}
-
-/**
+/*
  * read mr_num mode register
  * rank = 1: cs0
  * rank = 2: cs1
@@ -2575,6 +2575,203 @@ static int lpddr4_set_rate(struct dram_info *dram,
 }
 #endif /* CONFIG_RAM_RK3399_LPDDR4 */
 
+/* CS0,n=1
+ * CS1,n=2
+ * CS0 & CS1, n=3
+ * cs0_cap: MB unit
+ */
+static void dram_set_cs(const struct chan_info *chan, u32 cs_map, u32 cs0_cap,
+			unsigned char dramtype)
+{
+	u32 *denali_ctl = chan->pctl->denali_ctl;
+	u32 *denali_pi = chan->pi->denali_pi;
+	struct msch_regs *ddr_msch_regs = chan->msch;
+
+	clrsetbits_le32(&denali_ctl[196], 0x3, cs_map);
+	writel((cs0_cap / 32) | (((4096 - cs0_cap) / 32) << 8),
+	       &ddr_msch_regs->ddrsize);
+	if (dramtype == LPDDR4) {
+		if (cs_map == 1)
+			cs_map = 0x5;
+		else if (cs_map == 2)
+			cs_map = 0xa;
+		else
+			cs_map = 0xF;
+	}
+	/*PI_41 PI_CS_MAP:RW:24:4*/
+	clrsetbits_le32(&denali_pi[41],
+			0xf << 24, cs_map << 24);
+	if (cs_map == 1 && dramtype == DDR3)
+		writel(0x2EC7FFFF, &denali_pi[34]);
+}
+
+static void dram_set_bw(const struct chan_info *chan, u32 bw)
+{
+	u32 *denali_ctl = chan->pctl->denali_ctl;
+
+	if (bw == 2)
+		clrbits_le32(&denali_ctl[196], 1 << 16);
+	else
+		setbits_le32(&denali_ctl[196], 1 << 16);
+}
+
+static void dram_set_max_col(const struct chan_info *chan, u32 bw, u32 *pcol)
+{
+	u32 *denali_ctl = chan->pctl->denali_ctl;
+	struct msch_regs *ddr_msch_regs = chan->msch;
+	u32 *denali_pi = chan->pi->denali_pi;
+	u32 ddrconfig;
+
+	clrbits_le32(&denali_ctl[191], 0xf);
+	clrsetbits_le32(&denali_ctl[190],
+			(7 << 24),
+			((16 - ((bw == 2) ? 14 : 15)) << 24));
+	/*PI_199 PI_COL_DIFF:RW:0:4*/
+	clrbits_le32(&denali_pi[199], 0xf);
+	/*PI_155 PI_ROW_DIFF:RW:24:3*/
+	clrsetbits_le32(&denali_pi[155],
+			(7 << 24),
+			((16 - 12) << 24));
+	ddrconfig = (bw == 2) ? 3 : 2;
+	writel(ddrconfig | (ddrconfig << 8), &ddr_msch_regs->ddrconf);
+	/* set max cs0 size */
+	writel((4096 / 32) | ((0 / 32) << 8),
+	       &ddr_msch_regs->ddrsize);
+
+	*pcol = 12;
+}
+
+static void dram_set_max_bank(const struct chan_info *chan, u32 bw, u32 *pbank,
+			      u32 *pcol)
+{
+	u32 *denali_ctl = chan->pctl->denali_ctl;
+	u32 *denali_pi = chan->pi->denali_pi;
+
+	clrbits_le32(&denali_ctl[191], 0xf);
+	clrbits_le32(&denali_ctl[190], (3 << 16));
+	/*PI_199 PI_COL_DIFF:RW:0:4*/
+	clrbits_le32(&denali_pi[199], 0xf);
+	/*PI_155 PI_BANK_DIFF:RW:16:2*/
+	clrbits_le32(&denali_pi[155], (3 << 16));
+
+	*pbank = 3;
+	*pcol = 12;
+}
+
+static void dram_set_max_row(const struct chan_info *chan, u32 bw, u32 *prow,
+			     u32 *pbank, u32 *pcol)
+{
+	u32 *denali_ctl = chan->pctl->denali_ctl;
+	u32 *denali_pi = chan->pi->denali_pi;
+	struct msch_regs *ddr_msch_regs = chan->msch;
+
+	clrsetbits_le32(&denali_ctl[191], 0xf, 12 - 10);
+	clrbits_le32(&denali_ctl[190],
+		     (0x3 << 16) | (0x7 << 24));
+	/*PI_199 PI_COL_DIFF:RW:0:4*/
+	clrsetbits_le32(&denali_pi[199], 0xf, 12 - 10);
+	/*PI_155 PI_ROW_DIFF:RW:24:3 PI_BANK_DIFF:RW:16:2*/
+	clrbits_le32(&denali_pi[155],
+		     (0x3 << 16) | (0x7 << 24));
+	writel(1 | (1 << 8), &ddr_msch_regs->ddrconf);
+	/* set max cs0 size */
+	writel((4096 / 32) | ((0 / 32) << 8),
+	       &ddr_msch_regs->ddrsize);
+
+	*prow = 16;
+	*pbank = 3;
+	*pcol = (bw == 2) ? 10 : 11;
+}
+
+static u64 dram_detect_cap(struct dram_info *dram,
+			   struct rk3399_sdram_params *params,
+			   unsigned char channel)
+{
+	const struct chan_info *chan = &dram->chan[channel];
+	struct sdram_cap_info *cap_info = &params->ch[channel].cap_info;
+	u32 bw;
+	u32 col_tmp;
+	u32 bk_tmp;
+	u32 row_tmp;
+	u32 cs0_cap;
+	u32 training_flag;
+	u32 ddrconfig;
+
+	/* detect bw */
+	bw = 2;
+	if (params->base.dramtype != LPDDR4) {
+		dram_set_bw(chan, bw);
+		cap_info->bw = bw;
+		if (data_training(dram, channel, params,
+				  PI_READ_GATE_TRAINING)) {
+			bw = 1;
+			dram_set_bw(chan, 1);
+			cap_info->bw = bw;
+			if (data_training(dram, channel, params,
+					  PI_READ_GATE_TRAINING)) {
+				printf("16bit error!!!\n");
+				goto error;
+			}
+		}
+	}
+	/*
+	 * LPDDR3 CA training msut be trigger before other training.
+	 * DDR3 is not have CA training.
+	 */
+	if (params->base.dramtype == LPDDR3)
+		training_flag = PI_WRITE_LEVELING;
+	else
+		training_flag = PI_FULL_TRAINING;
+
+	if (params->base.dramtype != LPDDR4) {
+		if (data_training(dram, channel, params, training_flag)) {
+			printf("full training error!!!\n");
+			goto error;
+		}
+	}
+
+	/* detect col */
+	dram_set_max_col(chan, bw, &col_tmp);
+	if (sdram_detect_col(cap_info, col_tmp) != 0)
+		goto error;
+
+	/* detect bank */
+	dram_set_max_bank(chan, bw, &bk_tmp, &col_tmp);
+	sdram_detect_bank(cap_info, col_tmp, bk_tmp);
+
+	/* detect row */
+	dram_set_max_row(chan, bw, &row_tmp, &bk_tmp, &col_tmp);
+	if (sdram_detect_row(cap_info, col_tmp, bk_tmp, row_tmp) != 0)
+		goto error;
+
+	/* detect row_3_4 */
+	sdram_detect_row_3_4(cap_info, col_tmp, bk_tmp);
+
+	/* set ddrconfig */
+	cs0_cap = (1 << (cap_info->cs0_row + cap_info->col + cap_info->bk +
+			 cap_info->bw - 20));
+	if (cap_info->row_3_4)
+		cs0_cap = cs0_cap * 3 / 4;
+
+	cap_info->cs1_row = cap_info->cs0_row;
+	set_memory_map(chan, channel, params);
+	ddrconfig = calculate_ddrconfig(params, channel);
+	if (-1 == ddrconfig)
+		goto error;
+	set_ddrconfig(chan, params, channel,
+		      cap_info->ddrconfig);
+
+	/* detect cs1 row */
+	sdram_detect_cs1_row(cap_info, params->base.dramtype);
+
+	/* detect die bw */
+	sdram_detect_dbw(cap_info, params->base.dramtype);
+
+	return 0;
+error:
+	return (-1);
+}
+
 static unsigned char calculate_stride(struct rk3399_sdram_params *params)
 {
 	unsigned int stride = params->base.stride;
@@ -2667,7 +2864,7 @@ static int sdram_init(struct dram_info *dram,
 	unsigned char dramtype = params->base.dramtype;
 	unsigned int ddr_freq = params->base.ddr_freq;
 	int channel, ch, rank;
-	u32 ret;
+	u32 tmp, ret;
 
 	debug("Starting SDRAM initialization...\n");
 
@@ -2700,6 +2897,9 @@ static int sdram_init(struct dram_info *dram,
 			if (dramtype == LPDDR3)
 				udelay(10);
 
+			tmp = (rank == 2) ? 3 : 1;
+			dram_set_cs(&dram->chan[ch], tmp, 2048,
+				    params->base.dramtype);
 			params->ch[ch].cap_info.rank = rank;
 
 			ret = dram->ops->data_training_first(dram, ch,
@@ -2719,10 +2919,9 @@ static int sdram_init(struct dram_info *dram,
 		const struct chan_info *chan = &dram->chan[channel];
 		struct sdram_cap_info *cap_info =
 			&params->ch[channel].cap_info;
-		u8 training_flag = PI_FULL_TRAINING;
 
 		if (cap_info->rank == 0) {
-			clear_channel_params(params, channel);
+			clear_channel_params(params, 1);
 			continue;
 		} else {
 			params->base.num_channels++;
@@ -2731,19 +2930,14 @@ static int sdram_init(struct dram_info *dram,
 		printf("Channel ");
 		printf(channel ? "1: " : "0: ");
 
-		/* LPDDR3 should have write and read gate training */
-		if (params->base.dramtype == LPDDR3)
-			training_flag = PI_WRITE_LEVELING |
-					PI_READ_GATE_TRAINING;
+		if (channel == 0)
+			set_ddr_stride(dram->pmusgrf, 0x17);
+		else
+			set_ddr_stride(dram->pmusgrf, 0x18);
 
-		if (params->base.dramtype != LPDDR4) {
-			ret = data_training(dram, channel, params,
-					    training_flag);
-			if (!ret) {
-				debug("%s: data train failed for channel %d\n",
-				      __func__, ret);
-				continue;
-			}
+		if (dram_detect_cap(dram, params, channel)) {
+			printf("Cap error!\n");
+			continue;
 		}
 
 		sdram_print_ddr_info(cap_info, &params->base);
