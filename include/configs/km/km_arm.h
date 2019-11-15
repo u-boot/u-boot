@@ -158,8 +158,6 @@ int get_scl(void);
 #define CONFIG_ENV_SIZE_REDUND		(CONFIG_ENV_SIZE)
 #endif
 
-#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
-
 #define KM_FLASH_GPIO_PIN	16
 
 #define	CONFIG_KM_UPDATE_UBOOT						\

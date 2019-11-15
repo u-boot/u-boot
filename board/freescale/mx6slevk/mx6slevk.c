@@ -15,7 +15,6 @@
 #include <asm/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/mxc_i2c.h>
-#include <asm/mach-imx/spi.h>
 #include <asm/io.h>
 #include <linux/sizes.h>
 #include <common.h>
@@ -40,9 +39,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ENET_PAD_CTRL  (PAD_CTL_PKE | PAD_CTL_PUE |             \
 	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED   |             \
 	PAD_CTL_DSE_40ohm   | PAD_CTL_HYS)
-
-#define SPI_PAD_CTRL (PAD_CTL_HYS | PAD_CTL_SPEED_MED | \
-		      PAD_CTL_DSE_40ohm | PAD_CTL_SRE_FAST)
 
 #define OTGID_PAD_CTRL (PAD_CTL_PKE | PAD_CTL_PUE |		\
 			PAD_CTL_PUS_47K_UP | PAD_CTL_SPEED_LOW |\
@@ -119,25 +115,6 @@ static iomux_v3_cfg_t const fec_pads[] = {
 	MX6_PAD_FEC_RX_ER__GPIO_4_19 | MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX6_PAD_FEC_TX_CLK__GPIO_4_21 | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
-
-#ifdef CONFIG_MXC_SPI
-static iomux_v3_cfg_t ecspi1_pads[] = {
-	MX6_PAD_ECSPI1_MISO__ECSPI_MISO | MUX_PAD_CTRL(SPI_PAD_CTRL),
-	MX6_PAD_ECSPI1_MOSI__ECSPI_MOSI | MUX_PAD_CTRL(SPI_PAD_CTRL),
-	MX6_PAD_ECSPI1_SCLK__ECSPI_SCLK | MUX_PAD_CTRL(SPI_PAD_CTRL),
-	MX6_PAD_ECSPI1_SS0__GPIO4_IO11  | MUX_PAD_CTRL(NO_PAD_CTRL),
-};
-
-int board_spi_cs_gpio(unsigned bus, unsigned cs)
-{
-	return (bus == 0 && cs == 0) ? (IMX_GPIO_NR(4, 11)) : -1;
-}
-
-static void setup_spi(void)
-{
-	imx_iomux_v3_setup_multiple_pads(ecspi1_pads, ARRAY_SIZE(ecspi1_pads));
-}
-#endif
 
 static void setup_iomux_uart(void)
 {
@@ -231,11 +208,6 @@ int board_init(void)
 {
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
-
-#ifdef CONFIG_MXC_SPI
-	gpio_request(IMX_GPIO_NR(4, 11), "spi_cs");
-	setup_spi();
-#endif
 
 #ifdef	CONFIG_FEC_MXC
 	setup_fec();

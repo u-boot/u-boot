@@ -93,6 +93,7 @@ struct axidma_priv {
 	struct phy_device *phydev;
 	struct mii_dev *bus;
 	u8 eth_hasnobuf;
+	int phy_of_handle;
 };
 
 /* BD descriptors */
@@ -276,6 +277,8 @@ static int axiemac_phy_init(struct udevice *dev)
 	phydev->supported &= supported;
 	phydev->advertising = phydev->supported;
 	priv->phydev = phydev;
+	if (priv->phy_of_handle)
+		priv->phydev->node = offset_to_ofnode(priv->phy_of_handle);
 	phy_config(phydev);
 
 	return 0;
@@ -736,8 +739,10 @@ static int axi_emac_ofdata_to_platdata(struct udevice *dev)
 	priv->phyaddr = -1;
 
 	offset = fdtdec_lookup_phandle(gd->fdt_blob, node, "phy-handle");
-	if (offset > 0)
+	if (offset > 0) {
 		priv->phyaddr = fdtdec_get_int(gd->fdt_blob, offset, "reg", -1);
+		priv->phy_of_handle = offset;
+	}
 
 	phy_mode = fdt_getprop(gd->fdt_blob, node, "phy-mode", NULL);
 	if (phy_mode)

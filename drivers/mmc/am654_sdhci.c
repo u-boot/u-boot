@@ -219,22 +219,9 @@ static int am654_sdhci_probe(struct udevice *dev)
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct sdhci_host *host = dev_get_priv(dev);
 	struct mmc_config *cfg = &plat->cfg;
-	struct power_domain sdhci_pwrdmn;
 	struct clk clk;
 	unsigned long clock;
 	int ret;
-
-	ret = power_domain_get_by_index(dev, &sdhci_pwrdmn, 0);
-	if (!ret) {
-		ret = power_domain_on(&sdhci_pwrdmn);
-		if (ret) {
-			dev_err(dev, "Power domain on failed (%d)\n", ret);
-			return ret;
-		}
-	} else if (ret != -ENOENT && ret != -ENODEV && ret != -ENOSYS) {
-		dev_err(dev, "failed to get power domain (%d)\n", ret);
-		return ret;
-	}
 
 	ret = clk_get_by_index(dev, 0, &clk);
 	if (ret) {

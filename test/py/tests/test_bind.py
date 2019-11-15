@@ -9,11 +9,11 @@ def in_tree(response, name, uclass, drv, depth, last_child):
 	lines = [x.strip() for x in response.splitlines()]
 	leaf = ' ' * 4 * depth;
 	if not last_child:
-		leaf = leaf + '\|'
+		leaf = leaf + r'\|'
 	else:
 		leaf = leaf + '`'
 	leaf = leaf + '-- ' + name
-	line = (' *{:10.10}   [0-9]*  \[ [ +] \]   {:20.20}  {}$'
+	line = (r' *{:10.10}    [0-9]*  \[ [ +] \]   {:20.20}  {}$'
 	        .format(uclass, drv, leaf))
 	prog = re.compile(line)
 	for l in lines:

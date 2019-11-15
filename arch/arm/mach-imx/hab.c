@@ -365,6 +365,21 @@ static int do_hab_failsafe(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
+static int do_hab_version(cmd_tbl_t *cmdtp, int flag, int argc,
+			  char * const argv[])
+{
+	struct hab_hdr *hdr = (struct hab_hdr *)HAB_RVT_BASE;
+
+	if (hdr->tag != HAB_TAG_RVT) {
+		printf("Unexpected header tag: %x\n", hdr->tag);
+		return CMD_RET_FAILURE;
+	}
+
+	printf("HAB version: %d.%d\n", hdr->par >> 4, hdr->par & 0xf);
+
+	return 0;
+}
+
 static int do_authenticate_image_or_failover(cmd_tbl_t *cmdtp, int flag,
 					     int argc, char * const argv[])
 {
@@ -419,6 +434,12 @@ U_BOOT_CMD(
 		"addr - image hex address\n"
 		"length - image hex length\n"
 		"ivt_offset - hex offset of IVT in the image"
+	  );
+
+U_BOOT_CMD(
+		hab_version, 1, 0, do_hab_version,
+		"print HAB major/minor version",
+		""
 	  );
 
 #endif /* !defined(CONFIG_SPL_BUILD) */

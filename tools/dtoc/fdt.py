@@ -56,9 +56,6 @@ def BytesToValue(data):
                 is_string = False
                 break
             for ch in string:
-                # Handle Python 2 treating bytes as str
-                if type(ch) == str:
-                    ch = ord(ch)
                 if ch < 32 or ch > 127:
                     is_string = False
                     break
@@ -66,15 +63,9 @@ def BytesToValue(data):
         is_string = False
     if is_string:
         if count == 1: 
-            if sys.version_info[0] >= 3:  # pragma: no cover
-                return TYPE_STRING, strings[0].decode()
-            else:
-                return TYPE_STRING, strings[0]
+            return TYPE_STRING, strings[0].decode()
         else:
-            if sys.version_info[0] >= 3:  # pragma: no cover
-                return TYPE_STRING, [s.decode() for s in strings[:-1]]
-            else:
-                return TYPE_STRING, strings[:-1]
+            return TYPE_STRING, [s.decode() for s in strings[:-1]]
     if size % 4:
         if size == 1:
             return TYPE_BYTE, tools.ToChar(data[0])
@@ -415,8 +406,8 @@ class Node:
             prop_name: Name of property to set
             val: String value to set (will be \0-terminated in DT)
         """
-        if sys.version_info[0] >= 3:  # pragma: no cover
-            val = bytes(val, 'utf-8')
+        if type(val) == str:
+            val = val.encode('utf-8')
         self._CheckProp(prop_name).props[prop_name].SetData(val + b'\0')
 
     def AddString(self, prop_name, val):

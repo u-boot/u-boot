@@ -102,6 +102,7 @@ struct sandbox_state {
 	ulong next_tag;			/* Next address tag to allocate */
 	struct list_head mapmem_head;	/* struct sandbox_mapmem_entry */
 	bool hwspinlock;		/* Hardware Spinlock status */
+	bool allow_memio;		/* Allow readl() etc. to work */
 
 	/*
 	 * This struct is getting large.

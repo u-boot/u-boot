@@ -50,7 +50,7 @@ U_BOOT_DEVICE(imx6_thermal) = {
 };
 #endif
 
-#if defined(CONFIG_SECURE_BOOT)
+#if defined(CONFIG_IMX_HAB)
 struct imx_sec_config_fuse_t const imx_sec_config_fuse = {
 	.bank = 0,
 	.word = 6,
@@ -85,6 +85,10 @@ u32 get_cpu_rev(void)
 				type = MXC_CPU_MX6D;
 		}
 
+		if (type == MXC_CPU_MX6ULL) {
+			if (readl(SRC_BASE_ADDR + 0x1c) & (1 << 6))
+				type = MXC_CPU_MX6ULZ;
+		}
 	}
 	major = ((reg >> 8) & 0xff);
 	if ((major >= 1) &&

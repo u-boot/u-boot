@@ -16,6 +16,7 @@
 		serial0 = &uart1;
 		spi0 = &qspi;
 		mmc0 = &sdhci0;
+		usb0 = &usb0;
 	};
 
 	memory@0 {

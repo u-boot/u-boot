@@ -80,6 +80,17 @@ static const char *imx8mm_ahb_sels[] = {"osc_24m", "sys_pll1_133m", "sys_pll1_80
 static const char *imx8mm_enet_axi_sels[] = {"clock-osc-24m", "sys_pll1_266m", "sys_pll1_800m", "sys_pll2_250m",
 					     "sys_pll2_200m", "audio_pll1_out", "video_pll1_out", "sys_pll3_out", };
 
+#ifndef CONFIG_SPL_BUILD
+static const char *imx8mm_enet_ref_sels[] = {"clock-osc-24m", "sys_pll2_125m", "sys_pll2_50m", "sys_pll2_100m",
+					     "sys_pll1_160m", "audio_pll1_out", "video_pll1_out", "clk_ext4", };
+
+static const char *imx8mm_enet_timer_sels[] = {"clock-osc-24m", "sys_pll2_100m", "audio_pll1_out", "clk_ext1", "clk_ext2",
+					       "clk_ext3", "clk_ext4", "video_pll1_out", };
+
+static const char *imx8mm_enet_phy_sels[] = {"clock-osc-24m", "sys_pll2_50m", "sys_pll2_125m", "sys_pll2_200m",
+					     "sys_pll2_500m", "video_pll1_out", "audio_pll2_out", };
+#endif
+
 static const char *imx8mm_nand_usdhc_sels[] = {"clock-osc-24m", "sys_pll1_266m", "sys_pll1_800m", "sys_pll2_200m",
 					       "sys_pll1_133m", "sys_pll3_out", "sys_pll2_250m", "audio_pll1_out", };
 
@@ -164,11 +175,30 @@ static int imx8mm_clk_enable(struct clk *clk)
 	return __imx8mm_clk_enable(clk, 1);
 }
 
+static int imx8mm_clk_set_parent(struct clk *clk, struct clk *parent)
+{
+	struct clk *c, *cp;
+	int ret;
+
+	debug("%s(#%lu), parent: %lu\n", __func__, clk->id, parent->id);
+
+	ret = clk_get_by_id(clk->id, &c);
+	if (ret)
+		return ret;
+
+	ret = clk_get_by_id(parent->id, &cp);
+	if (ret)
+		return ret;
+
+	return clk_set_parent(c, cp);
+}
+
 static struct clk_ops imx8mm_clk_ops = {
 	.set_rate = imx8mm_clk_set_rate,
 	.get_rate = imx8mm_clk_get_rate,
 	.enable = imx8mm_clk_enable,
 	.disable = imx8mm_clk_disable,
+	.set_parent = imx8mm_clk_set_parent,
 };
 
 static int imx8mm_clk_probe(struct udevice *dev)
@@ -362,6 +392,22 @@ static int imx8mm_clk_probe(struct udevice *dev)
 	       imx_clk_gate4("wdog3_root_clk", "wdog", base + 0x4550, 0));
 	clk_dm(IMX8MM_CLK_USDHC3_ROOT,
 	       imx_clk_gate4("usdhc3_root_clk", "usdhc3", base + 0x45e0, 0));
+
+	/* clks not needed in SPL stage */
+#ifndef CONFIG_SPL_BUILD
+	clk_dm(IMX8MM_CLK_ENET_REF,
+	       imx8m_clk_composite("enet_ref", imx8mm_enet_ref_sels,
+	       base + 0xa980));
+	clk_dm(IMX8MM_CLK_ENET_TIMER,
+	       imx8m_clk_composite("enet_timer", imx8mm_enet_timer_sels,
+	       base + 0xaa00));
+	clk_dm(IMX8MM_CLK_ENET_PHY_REF,
+	       imx8m_clk_composite("enet_phy", imx8mm_enet_phy_sels,
+	       base + 0xaa80));
+	clk_dm(IMX8MM_CLK_ENET1_ROOT,
+	       imx_clk_gate4("enet1_root_clk", "enet_axi",
+	       base + 0x40a0, 0));
+#endif
 
 #ifdef CONFIG_SPL_BUILD
 	struct clk *clkp, *clkp1;

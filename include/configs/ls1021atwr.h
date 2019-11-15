@@ -66,13 +66,13 @@
 	board/freescale/ls1021atwr/ls102xa_rcw_sd_ifc.cfg
 #endif
 
-#ifdef CONFIG_SECURE_BOOT
+#ifdef CONFIG_NXP_ESBC
 /*
  * HDR would be appended at end of image and copied to DDR along
  * with U-Boot image.
  */
 #define CONFIG_U_BOOT_HDR_SIZE				(16 << 10)
-#endif /* ifdef CONFIG_SECURE_BOOT */
+#endif /* ifdef CONFIG_NXP_ESBC */
 
 #define CONFIG_SPL_MAX_SIZE		0x1a000
 #define CONFIG_SPL_STACK		0x1001d000

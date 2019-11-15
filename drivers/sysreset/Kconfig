@@ -107,6 +107,18 @@ config SYSRESET_X86
 	help
 	  Reboot support for generic x86 processor reset.
 
+config SYSRESET_SPL_X86
+	bool "Enable support for x86 processor reboot driver in SPL"
+	depends on X86
+	help
+	  Reboot support for generic x86 processor reset in SPL.
+
+config SYSRESET_TPL_X86
+	bool "Enable support for x86 processor reboot driver in TPL"
+	depends on X86
+	help
+	  Reboot support for generic x86 processor reset in TPL.
+
 config SYSRESET_MCP83XX
 	bool "Enable support MPC83xx SoC family reboot driver"
 	help

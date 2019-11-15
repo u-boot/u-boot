@@ -720,6 +720,7 @@ static int device_okay(const char *path)
 
 int board_late_init(void)
 {
+	struct udevice *dev;
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	set_board_info_env(NULL);
 
@@ -737,6 +738,10 @@ int board_late_init(void)
 	if (device_okay("/ocp/omap_dwc3@483c0000"))
 		enable_usb_clocks(1);
 #endif
+
+	/* Just probe the potentially supported cdce913 device */
+	uclass_get_device(UCLASS_CLK, 0, &dev);
+
 	return 0;
 }
 #endif

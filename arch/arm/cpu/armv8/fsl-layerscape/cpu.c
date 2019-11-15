@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2017 NXP
+ * Copyright 2017-2019 NXP
  * Copyright 2014-2015 Freescale Semiconductor, Inc.
  */
 
@@ -59,6 +59,9 @@ static struct cpu_type cpu_type_list[] = {
 	CPU_TYPE_ENTRY(LS1026A, LS1026A, 2),
 	CPU_TYPE_ENTRY(LS2040A, LS2040A, 4),
 	CPU_TYPE_ENTRY(LS1012A, LS1012A, 1),
+	CPU_TYPE_ENTRY(LS1017A, LS1017A, 1),
+	CPU_TYPE_ENTRY(LS1018A, LS1018A, 1),
+	CPU_TYPE_ENTRY(LS1027A, LS1027A, 2),
 	CPU_TYPE_ENTRY(LS1028A, LS1028A, 2),
 	CPU_TYPE_ENTRY(LS1088A, LS1088A, 8),
 	CPU_TYPE_ENTRY(LS1084A, LS1084A, 8),
@@ -1069,6 +1072,8 @@ static void config_core_prefetch(void)
 
 	if (env_get_f("hwconfig", buffer, sizeof(buffer)) > 0)
 		buf = buffer;
+	else
+		return;
 
 	prefetch_arg = hwconfig_subarg_f("core_prefetch", "disable",
 					 &arglen, buf);
@@ -1154,7 +1159,8 @@ int timer_init(void)
 #ifdef CONFIG_FSL_LSCH3
 	u32 __iomem *cltbenr = (u32 *)CONFIG_SYS_FSL_PMU_CLTBENR;
 #endif
-#if defined(CONFIG_ARCH_LS2080A) || defined(CONFIG_ARCH_LS1088A)
+#if defined(CONFIG_ARCH_LS2080A) || defined(CONFIG_ARCH_LS1088A) || \
+	defined(CONFIG_ARCH_LS1028A)
 	u32 __iomem *pctbenr = (u32 *)FSL_PMU_PCTBENR_OFFSET;
 	u32 svr_dev_id;
 #endif
@@ -1173,7 +1179,8 @@ int timer_init(void)
 	out_le32(cltbenr, 0xf);
 #endif
 
-#if defined(CONFIG_ARCH_LS2080A) || defined(CONFIG_ARCH_LS1088A)
+#if defined(CONFIG_ARCH_LS2080A) || defined(CONFIG_ARCH_LS1088A) || \
+	defined(CONFIG_ARCH_LS1028A)
 	/*
 	 * In certain Layerscape SoCs, the clock for each core's
 	 * has an enable bit in the PMU Physical Core Time Base Enable
@@ -1216,7 +1223,7 @@ void __efi_runtime reset_cpu(ulong addr)
 #endif
 }
 
-#ifdef CONFIG_EFI_LOADER
+#if defined(CONFIG_EFI_LOADER) && !defined(CONFIG_PSCI_RESET)
 
 void __efi_runtime EFIAPI efi_reset_system(
 		       enum efi_reset_type reset_type,

@@ -150,7 +150,6 @@ static int omap3_wdt_reset(struct udevice *dev)
 {
 	struct omap3_wdt_priv *priv = dev_get_priv(dev);
 
-	priv->wdt_trgr_pattern = 0x1234;
 /*
  * Somebody just triggered watchdog reset and write to WTGR register
  * is in progress. It is resetting right now, no need to trigger it
@@ -231,6 +230,7 @@ static int omap3_wdt_probe(struct udevice *dev)
 	if (!priv->regs)
 		return -EINVAL;
 
+	priv->wdt_trgr_pattern = 0x1234;
 	debug("%s: Probing wdt%u\n", __func__, dev->seq);
 	return 0;
 }

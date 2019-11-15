@@ -26,3 +26,11 @@
 	sd-uhs-sdr104;
 	max-frequency = <208000000>;
 };
+
+&vcc_sdhi0 {
+	u-boot,off-on-delay-us = <20000>;
+};
+
+&vcc_sdhi3 {
+	u-boot,off-on-delay-us = <20000>;
+};

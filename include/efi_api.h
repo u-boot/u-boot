@@ -422,6 +422,7 @@ struct efi_device_path_acpi_path {
 #  define DEVICE_PATH_SUB_TYPE_MSG_USB		0x05
 #  define DEVICE_PATH_SUB_TYPE_MSG_MAC_ADDR	0x0b
 #  define DEVICE_PATH_SUB_TYPE_MSG_USB_CLASS	0x0f
+#  define DEVICE_PATH_SUB_TYPE_MSG_NVME		0x17
 #  define DEVICE_PATH_SUB_TYPE_MSG_SD		0x1a
 #  define DEVICE_PATH_SUB_TYPE_MSG_MMC		0x1d
 
@@ -462,6 +463,12 @@ struct efi_device_path_usb_class {
 struct efi_device_path_sd_mmc_path {
 	struct efi_device_path dp;
 	u8 slot_number;
+} __packed;
+
+struct efi_device_path_nvme {
+	struct efi_device_path dp;
+	u32 ns_id;
+	u8 eui64[8];
 } __packed;
 
 #define DEVICE_PATH_TYPE_MEDIA_DEVICE		0x04

@@ -462,6 +462,22 @@ config TPL_USE_ARCH_MEMSET
 	  Such implementation may be faster under some conditions
 	  but may increase the binary size.
 
+config SET_STACK_SIZE
+	bool "Enable an option to set max stack size that can be used"
+	default y if ARCH_VERSAL || ARCH_ZYNQMP
+	help
+	  This will enable an option to set max stack size that can be
+	  used by u-boot.
+
+config STACK_SIZE
+	hex "Define max stack size that can be used by u-boot"
+	depends on SET_STACK_SIZE
+	default 0x4000000 if ARCH_VERSAL || ARCH_ZYNQMP
+	help
+	  Defines Max stack size that can be used by u-boot so that the
+	  initrd_high will be calculated as base stack pointer minus this
+	  stack size.
+
 config ARM64_SUPPORT_AARCH32
 	bool "ARM64 system support AArch32 execution state"
 	depends on ARM64
@@ -772,6 +788,7 @@ config ARCH_IMX8
 	select ARM64
 	select DM
 	select OF_CONTROL
+	select ENABLE_ARM_SOC_BOOT0_HOOK
 
 config ARCH_IMX8M
 	bool "NXP i.MX8M platform"
@@ -812,7 +829,7 @@ config ARCH_MX7
 	select ARCH_MISC_INIT
 	select BOARD_EARLY_INIT_F
 	select CPU_V7A
-	select SYS_FSL_HAS_SEC if SECURE_BOOT
+	select SYS_FSL_HAS_SEC if IMX_HAB
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_FSL_SEC_LE
 	imply MXC_GPIO
@@ -820,7 +837,7 @@ config ARCH_MX7
 config ARCH_MX6
 	bool "Freescale MX6"
 	select CPU_V7A
-	select SYS_FSL_HAS_SEC if SECURE_BOOT
+	select SYS_FSL_HAS_SEC if IMX_HAB
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_FSL_SEC_LE
 	select SYS_THUMB_BUILD if SPL
@@ -954,7 +971,7 @@ config ARCH_SUNXI
 	select USB if DISTRO_DEFAULTS
 	select USB_KEYBOARD if DISTRO_DEFAULTS
 	select USB_STORAGE if DISTRO_DEFAULTS
-	select USE_TINY_PRINTF
+	select SPL_USE_TINY_PRINTF
 	imply CMD_DM
 	imply CMD_GPT
 	imply CMD_UBI if NAND
@@ -980,6 +997,7 @@ config ARCH_VERSAL
 	select DM_MMC if MMC
 	select DM_SERIAL
 	select OF_CONTROL
+	imply BOARD_LATE_INIT
 
 config ARCH_VF610
 	bool "Freescale Vybrid"
@@ -990,7 +1008,6 @@ config ARCH_VF610
 
 config ARCH_ZYNQ
 	bool "Xilinx Zynq based platform"
-	select BOARD_EARLY_INIT_F if WDT
 	select CLK
 	select CLK_ZYNQ
 	select CPU_V7A
@@ -1034,16 +1051,21 @@ config ARCH_ZYNQMP
 	select CLK
 	select DM
 	select DM_ETH if NET
+	select DM_MAILBOX
 	select DM_MMC if MMC
 	select DM_SERIAL
 	select DM_SPI if SPI
 	select DM_SPI_FLASH if DM_SPI
 	select DM_USB if USB
+	select FIRMWARE
 	select OF_CONTROL
 	select SPL_BOARD_INIT if SPL
 	select SPL_CLK if SPL
+	select SPL_DM_MAILBOX if SPL
+	select SPL_FIRMWARE if SPL
 	select SPL_SEPARATE_BSS if SPL
 	select SUPPORT_SPL
+	select ZYNQMP_IPI
 	imply BOARD_LATE_INIT
 	imply CMD_DM
 	imply FAT_WRITE
@@ -1479,9 +1501,6 @@ config TARGET_LS1046AFRWY
 	  The LS1046A Freeway Board (FRWY) is a high-performance
 	  development platform that supports the QorIQ LS1046A
 	  Layerscape Architecture processor.
-config TARGET_H2200
-	bool "Support h2200"
-	select CPU_PXA
 
 config TARGET_COLIBRI_PXA270
 	bool "Support colibri_pxa270"
@@ -1611,6 +1630,13 @@ config ARCH_ASPEED
 	select DM
 	select OF_CONTROL
 	imply CMD_DM
+
+config TARGET_DURIAN
+	bool "Support Phytium Durian Platform"
+	select ARM64
+	help
+	  Support for durian platform.
+	  It has 2GB Sdram, uart and pcie.
 
 endchoice
 
@@ -1789,7 +1815,6 @@ source "board/freescale/mx35pdk/Kconfig"
 source "board/freescale/s32v234evb/Kconfig"
 source "board/grinn/chiliboard/Kconfig"
 source "board/gumstix/pepper/Kconfig"
-source "board/h2200/Kconfig"
 source "board/hisilicon/hikey/Kconfig"
 source "board/hisilicon/hikey960/Kconfig"
 source "board/hisilicon/poplar/Kconfig"
@@ -1812,6 +1837,7 @@ source "board/woodburn/Kconfig"
 source "board/xilinx/Kconfig"
 source "board/xilinx/zynq/Kconfig"
 source "board/xilinx/zynqmp/Kconfig"
+source "board/phytium/durian/Kconfig"
 
 source "arch/arm/Kconfig.debug"
 

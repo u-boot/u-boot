@@ -18,6 +18,7 @@
 #include <version.h>
 #include <image.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <dm/root.h>
 #include <linux/compiler.h>
 #include <fdt_support.h>
@@ -356,17 +357,23 @@ static int setup_spl_handoff(void)
 	return 0;
 }
 
+__weak int handoff_arch_save(struct spl_handoff *ho)
+{
+	return 0;
+}
+
 static int write_spl_handoff(void)
 {
 	struct spl_handoff *ho;
+	int ret;
 
 	ho = bloblist_find(BLOBLISTT_SPL_HANDOFF, sizeof(struct spl_handoff));
 	if (!ho)
 		return -ENOENT;
 	handoff_save_dram(ho);
-#ifdef CONFIG_SANDBOX
-	ho->arch.magic = TEST_HANDOFF_MAGIC;
-#endif
+	ret = handoff_arch_save(ho);
+	if (ret)
+		return ret;
 	debug(SPL_TPL_PROMPT "Wrote SPL handoff\n");
 
 	return 0;
@@ -390,13 +397,25 @@ static int spl_common_init(bool setup_malloc)
 		gd->malloc_ptr = 0;
 	}
 #endif
-	ret = bootstage_init(true);
+	ret = bootstage_init(u_boot_first_phase());
 	if (ret) {
 		debug("%s: Failed to set up bootstage: ret=%d\n", __func__,
 		      ret);
 		return ret;
 	}
-	bootstage_mark_name(BOOTSTAGE_ID_START_SPL, "spl");
+#ifdef CONFIG_BOOTSTAGE_STASH
+	if (!u_boot_first_phase()) {
+		const void *stash = map_sysmem(CONFIG_BOOTSTAGE_STASH_ADDR,
+					       CONFIG_BOOTSTAGE_STASH_SIZE);
+
+		ret = bootstage_unstash(stash, CONFIG_BOOTSTAGE_STASH_SIZE);
+		if (ret)
+			debug("%s: Failed to unstash bootstage: ret=%d\n",
+			      __func__, ret);
+	}
+#endif /* CONFIG_BOOTSTAGE_STASH */
+	bootstage_mark_name(spl_phase() == PHASE_TPL ? BOOTSTAGE_ID_START_TPL :
+			    BOOTSTAGE_ID_START_SPL, SPL_TPL_NAME);
 #if CONFIG_IS_ENABLED(LOG)
 	ret = log_init();
 	if (ret) {
@@ -404,23 +423,6 @@ static int spl_common_init(bool setup_malloc)
 		return ret;
 	}
 #endif
-	if (CONFIG_IS_ENABLED(BLOBLIST)) {
-		ret = bloblist_init();
-		if (ret) {
-			debug("%s: Failed to set up bloblist: ret=%d\n",
-			      __func__, ret);
-			return ret;
-		}
-	}
-	if (CONFIG_IS_ENABLED(HANDOFF)) {
-		int ret;
-
-		ret = setup_spl_handoff();
-		if (ret) {
-			puts(SPL_TPL_PROMPT "Cannot set up SPL handoff\n");
-			hang();
-		}
-	}
 	if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) {
 		ret = fdtdec_setup();
 		if (ret) {
@@ -429,7 +431,8 @@ static int spl_common_init(bool setup_malloc)
 		}
 	}
 	if (CONFIG_IS_ENABLED(DM)) {
-		bootstage_start(BOOTSTATE_ID_ACCUM_DM_SPL, "dm_spl");
+		bootstage_start(BOOTSTATE_ID_ACCUM_DM_SPL,
+				spl_phase() == PHASE_TPL ? "dm tpl" : "dm_spl");
 		/* With CONFIG_SPL_OF_PLATDATA, bring in all devices */
 		ret = dm_init_and_scan(!CONFIG_IS_ENABLED(OF_PLATDATA));
 		bootstage_accum(BOOTSTATE_ID_ACCUM_DM_SPL);
@@ -566,6 +569,24 @@ static int boot_from_devices(struct spl_image_info *spl_image,
 	return -ENODEV;
 }
 
+#if defined(CONFIG_SPL_FRAMEWORK_BOARD_INIT_F)
+void board_init_f(ulong dummy)
+{
+	if (CONFIG_IS_ENABLED(OF_CONTROL)) {
+		int ret;
+
+		ret = spl_early_init();
+		if (ret) {
+			debug("spl_early_init() failed: %d\n", ret);
+			hang();
+		}
+	}
+
+	if (CONFIG_IS_ENABLED(SERIAL_SUPPORT))
+		preloader_console_init();
+}
+#endif
+
 void board_init_r(gd_t *dummy1, ulong dummy2)
 {
 	u32 spl_boot_list[] = {
@@ -598,6 +619,24 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	 */
 	timer_init();
 #endif
+	if (CONFIG_IS_ENABLED(BLOBLIST)) {
+		ret = bloblist_init();
+		if (ret) {
+			debug("%s: Failed to set up bloblist: ret=%d\n",
+			      __func__, ret);
+			puts(SPL_TPL_PROMPT "Cannot set up bloblist\n");
+			hang();
+		}
+	}
+	if (CONFIG_IS_ENABLED(HANDOFF)) {
+		int ret;
+
+		ret = setup_spl_handoff();
+		if (ret) {
+			puts(SPL_TPL_PROMPT "Cannot set up SPL handoff\n");
+			hang();
+		}
+	}
 
 #if CONFIG_IS_ENABLED(BOARD_INIT)
 	spl_board_init();
@@ -679,8 +718,9 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	debug("SPL malloc() used 0x%lx bytes (%ld KB)\n", gd->malloc_ptr,
 	      gd->malloc_ptr / 1024);
 #endif
+	bootstage_mark_name(spl_phase() == PHASE_TPL ? BOOTSTAGE_ID_END_TPL :
+			    BOOTSTAGE_ID_END_SPL, "end " SPL_TPL_NAME);
 #ifdef CONFIG_BOOTSTAGE_STASH
-	bootstage_mark_name(BOOTSTAGE_ID_END_SPL, "end_spl");
 	ret = bootstage_stash((void *)CONFIG_BOOTSTAGE_STASH_ADDR,
 			      CONFIG_BOOTSTAGE_STASH_SIZE);
 	if (ret)

@@ -63,9 +63,11 @@
 		"rootfs part 0 1\0" \
 
 #define BOOTMENU_ENV \
-	"bootmenu_0=Boot using PICO-Hobbit baseboard=" \
+	"bootmenu_0=Boot using PICO-Dwarf baseboard=" \
+		"setenv fdtfile imx6ul-pico-dwarf.dtb\0" \
+	"bootmenu_1=Boot using PICO-Hobbit baseboard=" \
 		"setenv fdtfile imx6ul-pico-hobbit.dtb\0" \
-	"bootmenu_1=Boot using PICO-Pi baseboard=" \
+	"bootmenu_2=Boot using PICO-Pi baseboard=" \
 		"setenv fdtfile imx6ul-pico-pi.dtb\0" \
 
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
@@ -73,10 +75,12 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
+	"splashpos=m,m\0" \
 	"console=ttymxc5\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
+	"videomode=video=ctfb:x:800,y:480,depth:24,mode:0,pclk:30000,le:46,ri:210,up:22,lo:23,hs:20,vs:10,sync:0,vmode:0\0" \
 	BOOTMENU_ENV \
 	"fdt_addr=0x83000000\0" \
 	"fdt_addr_r=0x83000000\0" \
@@ -132,9 +136,32 @@
 
 /* environment organization */
 #define CONFIG_ENV_SIZE			SZ_8K
-#define CONFIG_ENV_OFFSET		(8 * SZ_64K)
+/* Environment starts at 768k = 768 * 1024 = 786432 */
+#define CONFIG_ENV_OFFSET		786432
+/*
+ * Detect overlap between U-Boot image and environment area in build-time
+ *
+ * CONFIG_BOARD_SIZE_LIMIT = CONFIG_ENV_OFFSET - u-boot.img offset
+ * CONFIG_BOARD_SIZE_LIMIT = 768k - 69k = 699k = 715776
+ *
+ * Currently CONFIG_BOARD_SIZE_LIMIT does not handle expressions, so
+ * write the direct value here
+ */
+#define CONFIG_BOARD_SIZE_LIMIT		715776
+
 
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_SYS_MMC_ENV_PART		0
+
+#ifdef CONFIG_VIDEO
+#define CONFIG_VIDEO_MXS
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_SPLASH_SCREEN
+#define CONFIG_SPLASH_SCREEN_ALIGN
+#define CONFIG_BMP_16BPP
+#define CONFIG_VIDEO_BMP_RLE8
+#define CONFIG_VIDEO_BMP_LOGO
+#define MXS_LCDIF_BASE MX6UL_LCDIF1_BASE_ADDR
+#endif
 
 #endif /* __PICO_IMX6UL_CONFIG_H */

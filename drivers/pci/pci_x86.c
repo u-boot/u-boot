@@ -8,9 +8,21 @@
 #include <pci.h>
 #include <asm/pci.h>
 
+static int _pci_x86_read_config(struct udevice *bus, pci_dev_t bdf, uint offset,
+				ulong *valuep, enum pci_size_t size)
+{
+	return pci_x86_read_config(bdf, offset, valuep, size);
+}
+
+static int _pci_x86_write_config(struct udevice *bus, pci_dev_t bdf,
+				 uint offset, ulong value, enum pci_size_t size)
+{
+	return pci_x86_write_config(bdf, offset, value, size);
+}
+
 static const struct dm_pci_ops pci_x86_ops = {
-	.read_config	= pci_x86_read_config,
-	.write_config	= pci_x86_write_config,
+	.read_config	= _pci_x86_read_config,
+	.write_config	= _pci_x86_write_config,
 };
 
 static const struct udevice_id pci_x86_ids[] = {

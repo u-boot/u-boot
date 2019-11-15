@@ -17,10 +17,6 @@
 
 #define CONFIG_BOARD_LATE_INIT
 
-/* Uncomment to enable secure boot support */
-/* #define CONFIG_SECURE_BOOT */
-#define CONFIG_CSF_SIZE			0x4000
-
 /* Network */
 #define CONFIG_FEC_MXC
 #define CONFIG_FEC_XCV_TYPE             RGMII
@@ -37,10 +33,6 @@
 #define CONFIG_POWER_I2C
 #define CONFIG_POWER_PFUZE3000
 #define CONFIG_POWER_PFUZE3000_I2C_ADDR	0x08
-
-#undef CONFIG_BOOTM_NETBSD
-#undef CONFIG_BOOTM_PLAN9
-#undef CONFIG_BOOTM_RTEMS
 
 /* I2C configs */
 #define CONFIG_SYS_I2C

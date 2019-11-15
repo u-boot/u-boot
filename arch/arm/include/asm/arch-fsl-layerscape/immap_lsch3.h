@@ -87,6 +87,8 @@
 /* SATA */
 #define AHCI_BASE_ADDR1				(CONFIG_SYS_IMMR + 0x02200000)
 #define AHCI_BASE_ADDR2				(CONFIG_SYS_IMMR + 0x02210000)
+#define AHCI_BASE_ADDR3				(CONFIG_SYS_IMMR + 0x02220000)
+#define AHCI_BASE_ADDR4				(CONFIG_SYS_IMMR + 0x02230000)
 
 /* QDMA */
 #define QDMA_BASE_ADDR				(CONFIG_SYS_IMMR + 0x07380000)
@@ -278,6 +280,7 @@ struct sys_info {
 	/* frequency of platform PLL */
 	unsigned long freq_systembus;
 	unsigned long freq_ddrbus;
+	unsigned long freq_cga_m2;
 #ifdef CONFIG_SYS_FSL_HAS_DP_DDR
 	unsigned long freq_ddrbus2;
 #endif
@@ -444,7 +447,9 @@ struct ccsr_gur {
 	u8	res_538[0x550 - 0x538];	/* add more registers when needed */
 	u32	sata1_amqr;
 	u32	sata2_amqr;
-	u8	res_558[0x570-0x558];	/* add more registers when needed */
+	u32	sata3_amqr;
+	u32	sata4_amqr;
+	u8	res_560[0x570 - 0x560];	/* add more registers when needed */
 	u32	misc1_amqr;
 	u8	res_574[0x590-0x574];	/* add more registers when needed */
 	u32	spare1_amqr;

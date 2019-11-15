@@ -143,7 +143,7 @@
 };
 
 &cpsw_emac0 {
-	phy_id = <&mdio0>, <0>;
+	phy-handle = <&phy0>;
 	phy-mode = "rmii";
 };
 

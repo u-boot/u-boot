@@ -187,7 +187,7 @@
 	status = "okay";
 
 	display0: display0 {
-		bits-per-pixel = <32>;
+		bits-per-pixel = <18>;
 		bus-width = <18>;
 
 		display-timings {
@@ -202,7 +202,7 @@
 				hsync-len = <64>;
 				vsync-len = <4>;
 				de-active = <1>;
-				pixelclk-active = <0>;
+				pixelclk-active = <1>;
 			};
 		};
 	};

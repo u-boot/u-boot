@@ -24,3 +24,20 @@
 &mmc2_iodelay_hs200_conf {
 	u-boot,dm-spl;
 };
+
+&omap_dwc3_1 {
+	u-boot,dm-spl;
+};
+
+&usb1 {
+	u-boot,dm-spl;
+	dr_mode = "peripheral";
+};
+
+&usb2_phy1 {
+	u-boot,dm-spl;
+};
+
+&usb3_phy1 {
+	u-boot,dm-spl;
+};

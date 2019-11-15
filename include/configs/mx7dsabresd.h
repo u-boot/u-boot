@@ -30,10 +30,6 @@
 /* MMC Config*/
 #define CONFIG_SYS_FSL_ESDHC_ADDR       0
 
-#undef CONFIG_BOOTM_NETBSD
-#undef CONFIG_BOOTM_PLAN9
-#undef CONFIG_BOOTM_RTEMS
-
 /* I2C configs */
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_SPEED		100000

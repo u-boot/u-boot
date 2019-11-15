@@ -138,8 +138,6 @@
 
 #define CONFIG_CMD_TIME
 
-#define CONFIG_SYS_BOOT_RAMDISK_HIGH
-
 #include "tegra-common-usb-gadget.h"
 #include "tegra-common-post.h"
 

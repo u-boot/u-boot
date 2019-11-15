@@ -91,6 +91,13 @@ config RESET_ROCKCHIP
 	  though is that some reset signals, like I2C or MISC reset multiple
 	  devices.
 
+config RESET_HSDK
+	bool "Synopsys HSDK Reset Driver"
+	depends on DM_RESET && TARGET_HSDK
+	default y
+	help
+	  This enables the reset controller driver for HSDK board.
+
 config RESET_MESON
 	bool "Reset controller driver for Amlogic Meson SoCs"
 	depends on DM_RESET && ARCH_MESON
@@ -113,6 +120,13 @@ config RESET_MEDIATEK
 	help
 	  Support for reset controller on MediaTek SoCs.
 
+config RESET_MTMIPS
+	bool "Reset controller driver for MediaTek MIPS platform"
+	depends on DM_RESET && ARCH_MTMIPS
+	default y
+	help
+	  Support for reset controller on MediaTek MIPS platform.
+
 config RESET_SUNXI
 	bool "RESET support for Allwinner SoCs"
 	depends on DM_RESET && ARCH_SUNXI
@@ -126,5 +140,12 @@ config RESET_HISILICON
 	depends on DM_RESET
 	help
 	  Support for reset controller on HiSilicon SoCs.
+
+config RESET_IMX7
+	bool "i.MX7/8 Reset Driver"
+	depends on DM_RESET && (ARCH_MX7 || ARCH_IMX8M)
+	default y
+	help
+	  Support for reset controller on i.MX7/8 SoCs.
 
 endmenu

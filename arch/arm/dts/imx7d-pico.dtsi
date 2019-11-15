@@ -5,14 +5,9 @@
 /dts-v1/;
 
 #include "imx7d.dtsi"
-
+#include "imx7d-pico-u-boot.dtsi"
 
 / {
-	aliases {
-		mmc0 = &usdhc3;
-		usb0 = &usbotg1;
-	};
-
 	/* Will be filled by the bootloader */
 	memory@80000000 {
 		device_type = "memory";
@@ -98,7 +93,7 @@
 			  <&clks IMX7D_ENET1_TIME_ROOT_CLK>;
 	assigned-clock-parents = <&clks IMX7D_PLL_ENET_MAIN_100M_CLK>;
 	assigned-clock-rates = <0>, <100000000>;
-	phy-mode = "rgmii";
+	phy-mode = "rgmii-id";
 	phy-handle = <&ethphy0>;
 	fsl,magic-packet;
 	phy-reset-gpios = <&gpio6 11 GPIO_ACTIVE_LOW>;
@@ -297,7 +292,6 @@
 
 &usbotg1 {
 	vbus-supply = <&reg_usb_otg1_vbus>;
-	dr_mode = "peripheral";
 	status = "okay";
 };
 

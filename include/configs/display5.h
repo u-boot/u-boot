@@ -35,8 +35,10 @@
  * 0x1540000 - 0x1640000 : SPI.factory  (1MiB)
  */
 
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_SPI_FLASH_MTD
+/* SPI Flash Configs */
+#if defined(CONFIG_SPL_BUILD)
+#undef CONFIG_DM_SPI
+#undef CONFIG_DM_SPI_FLASH
 #endif
 
 /* Below values are "dummy" - only to avoid build break */
@@ -57,23 +59,7 @@
 #define CONFIG_MXC_UART_BASE		UART5_BASE
 
 /* I2C Configs */
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_MXC_I2C1
-#define CONFIG_SYS_I2C_MXC_I2C2
-#define CONFIG_SYS_I2C_MXC_I2C3
 #define CONFIG_I2C_MULTI_BUS
-#define CONFIG_SYS_I2C_SPEED		100000
-#define CONFIG_I2C_EDID
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN  2
-
-/* Ethernet */
-#ifdef CONFIG_FEC_MXC
-#define IMX_FEC_BASE			ENET_BASE_ADDR
-#define CONFIG_FEC_XCV_TYPE		RGMII
-#define CONFIG_ETHPRIME			"FEC"
-#define CONFIG_FEC_MXC_PHYADDR		0
-#endif
 
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
@@ -354,7 +340,11 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* Watchdog */
-#define CONFIG_WATCHDOG_TIMEOUT_MSECS   15000
+#if defined(CONFIG_SPL_BUILD)
+#undef CONFIG_WDT
+#undef CONFIG_WATCHDOG
+#define CONFIG_HW_WATCHDOG
+#endif
 
 /* ENV config */
 #ifdef CONFIG_ENV_IS_IN_SPI_FLASH
@@ -362,7 +352,6 @@
 /* The 0x120000 value corresponds to above SPI-NOR memory MAP */
 #define CONFIG_ENV_OFFSET		(0x120000)
 #define CONFIG_ENV_SECT_SIZE		(SZ_64K)
-#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + \
 						CONFIG_ENV_SECT_SIZE)
 #define CONFIG_ENV_SIZE_REDUND		CONFIG_ENV_SIZE

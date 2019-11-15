@@ -52,6 +52,26 @@ config REMOTEPROC_TI_K3_ARM64
 	  on various TI K3 family of SoCs through the remote processor
 	  framework.
 
+config REMOTEPROC_TI_K3_DSP
+	bool "TI K3 C66 and C71 remoteproc support"
+	select REMOTEPROC
+	depends on ARCH_K3
+	depends on TI_SCI_PROTOCOL
+	help
+	  Say y here to support TI's C66/C71 remote processor subsystems
+	  on various TI K3 family of SoCs through the remote processor
+	  framework.
+
+config REMOTEPROC_TI_K3_R5F
+	bool "TI K3 R5F remoteproc support"
+	select REMOTEPROC
+	depends on ARCH_K3
+	depends on TI_SCI_PROTOCOL
+	help
+	  Say y here to support TI's R5F remote processor subsystems
+	  on various TI K3 family of SoCs through the remote processor
+	  framework.
+
 config REMOTEPROC_TI_POWER
 	bool "Support for TI Power processor"
 	select REMOTEPROC

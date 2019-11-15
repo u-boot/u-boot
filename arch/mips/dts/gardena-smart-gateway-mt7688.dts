@@ -85,14 +85,25 @@
 	};
 };
 
+&pinctrl {
+	state_default: pin_state {
+		p0led {
+			groups = "p0led_a";
+			function = "led";
+		};
+	};
+};
+
 &uart0 {
 	status = "okay";
-	clock-frequency = <40000000>;
 };
 
 &spi0 {
 	status = "okay";
 	num-cs = <2>;
+
+	pinctrl-names = "default";
+	pinctrl-0 = <&spi_dual_pins>;
 
 	spi-flash@0 {
 		#address-cells = <1>;
@@ -109,4 +120,10 @@
 		spi-max-frequency = <40000000>;
 		reg = <1>;
 	};
+};
+
+&eth {
+	pinctrl-names = "default";
+	pinctrl-0 = <&ephy_iot_mode>;
+	mediatek,poll-link-phy = <0>;
 };

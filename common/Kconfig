@@ -764,7 +764,7 @@ config SPL_LOG_CONSOLE
 	  line number are omitted.
 
 config TPL_LOG_CONSOLE
-	bool "Allow log output to the console in SPL"
+	bool "Allow log output to the console in TPL"
 	depends on TPL_LOG
 	default y
 	help

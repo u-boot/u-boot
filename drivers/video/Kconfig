@@ -73,6 +73,14 @@ config VIDEO_ANSI
 	  Enable ANSI escape sequence decoding for a more fully functional
 	  console.
 
+config VIDEO_MIPI_DSI
+	bool "Support MIPI DSI interface"
+	depends on DM_VIDEO
+	help
+	  Support MIPI DSI interface for driving a MIPI compatible device.
+	  The MIPI Display Serial Interface (MIPI DSI) defines a high-speed
+	  serial interface between a host processor and a display module.
+
 config CONSOLE_NORMAL
 	bool "Support a simple text console"
 	depends on DM_VIDEO
@@ -319,6 +327,24 @@ config VIDEO_LCD_ANX9804
 	Support for the ANX9804 bridge chip, which can take pixel data coming
 	from a parallel LCD interface and translate it on the fy into a DP
 	interface for driving eDP TFT displays. It uses I2C for configuration.
+
+config VIDEO_LCD_ORISETECH_OTM8009A
+	bool "OTM8009A DSI LCD panel support"
+	depends on DM_VIDEO
+	select VIDEO_MIPI_DSI
+	default n
+	help
+	Say Y here if you want to enable support for Orise Technology
+	otm8009a 480x800 dsi 2dl panel.
+
+config VIDEO_LCD_RAYDIUM_RM68200
+	bool "RM68200 DSI LCD panel support"
+	depends on DM_VIDEO
+	select VIDEO_MIPI_DSI
+	default n
+	help
+	Say Y here if you want to enable support for Raydium RM68200
+	720x1280 DSI video mode panel.
 
 config VIDEO_LCD_SSD2828
 	bool "SSD2828 bridge chip"
@@ -674,6 +700,27 @@ config VIDEO_DW_HDMI
 	help
 	  Enables the common driver code for the Designware HDMI TX
 	  block found in SoCs from various vendors.
+	  As this does not provide any functionality by itself (but
+	  rather requires a SoC-specific glue driver to call it), it
+	  can not be enabled from the configuration menu.
+
+config VIDEO_DSI_HOST_SANDBOX
+	bool "Enable sandbox for dsi host"
+	depends on SANDBOX
+	select VIDEO_MIPI_DSI
+	help
+	  Enable support for sandbox dsi host device used for testing
+	  purposes.
+	  Display Serial Interface (DSI) defines a serial bus and
+	  a communication protocol between the host and the device
+	  (panel, bridge).
+
+config VIDEO_DW_MIPI_DSI
+	bool
+	select VIDEO_MIPI_DSI
+	help
+	  Enables the common driver code for the Synopsis Designware
+	  MIPI DSI block found in SoCs from various vendors.
 	  As this does not provide any functionality by itself (but
 	  rather requires a SoC-specific glue driver to call it), it
 	  can not be enabled from the configuration menu.

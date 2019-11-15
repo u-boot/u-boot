@@ -9,7 +9,7 @@ ENTRY(_start)
 
 SECTIONS
 {
-	. = 0x00000000;
+	. = 0x00000010;
 	_start = .;
 
 	. = ALIGN(4);
@@ -25,5 +25,6 @@ SECTIONS
 		KEEP(*(SORT(.binman_sym*)));
 		__binman_sym_end = .;
 	}
+	.interp : { *(.interp*) }
 
 }

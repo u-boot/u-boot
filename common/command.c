@@ -496,6 +496,11 @@ void fixup_cmdtable(cmd_tbl_t *cmdtp, int size)
 	for (i = 0; i < size; i++) {
 		ulong addr;
 
+		addr = (ulong)(cmdtp->cmd_rep) + gd->reloc_off;
+		cmdtp->cmd_rep =
+			(int (*)(struct cmd_tbl_s *, int, int,
+				 char * const [], int *))addr;
+
 		addr = (ulong)(cmdtp->cmd) + gd->reloc_off;
 #ifdef DEBUG_COMMANDS
 		printf("Command \"%s\": 0x%08lx => 0x%08lx\n",

@@ -29,3 +29,11 @@
 	sd-uhs-sdr25;
 	max-frequency = <208000000>;
 };
+
+&vcc_sdhi0 {
+	u-boot,off-on-delay-us = <20000>;
+};
+
+&vcc_sdhi1 {
+	u-boot,off-on-delay-us = <20000>;
+};

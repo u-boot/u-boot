@@ -72,13 +72,13 @@ struct cbfs_fileheader {
 
 struct cbfs_cachenode {
 	struct cbfs_cachenode *next;
-	u32 type;
 	void *data;
-	u32 data_length;
 	char *name;
+	u32 type;
+	u32 data_length;
 	u32 name_length;
 	u32 attributes_offset;
-} __packed;
+};
 
 extern enum cbfs_result file_cbfs_result;
 

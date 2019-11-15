@@ -236,7 +236,7 @@ config FEC_MXC_MDIO_BASE
 
 config FEC_MXC
 	bool "FEC Ethernet controller"
-	depends on MX28 || MX5 || MX6 || MX7 || IMX8 || VF610
+	depends on MX28 || MX5 || MX6 || MX7 || IMX8 || IMX8M || VF610
 	help
 	  This driver supports the 10/100 Fast Ethernet controller for
 	  NXP i.MX processors.
@@ -322,6 +322,7 @@ config MACB_ZYNQ
 config MT7628_ETH
 	bool "MediaTek MT7628 Ethernet Interface"
 	depends on SOC_MT7628
+	select PHYLIB
 	help
 	  The MediaTek MT7628 ethernet interface is used on MT7628 and
 	  MT7688 based boards.

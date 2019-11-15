@@ -38,6 +38,7 @@
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
 		clock-frequency = <300000000>;
+		u-boot,dm-pre-reloc;
 	};
 
 	clk600: clk600 {
@@ -220,6 +221,10 @@
 
 &watchdog0 {
 	clocks = <&clk100>;
+};
+
+&lpd_watchdog {
+	clocks = <&clk250>;
 };
 
 &xilinx_drm {

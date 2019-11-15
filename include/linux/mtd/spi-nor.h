@@ -91,6 +91,10 @@
 #define SPINOR_OP_WRDI		0x04	/* Write disable */
 #define SPINOR_OP_AAI_WP	0xad	/* Auto address increment word program */
 
+/* Used for SST26* flashes only. */
+#define SPINOR_OP_READ_BPR	0x72	/* Read block protection register */
+#define SPINOR_OP_WRITE_BPR	0x42	/* Write block protection register */
+
 /* Used for S3AN flashes only */
 #define SPINOR_OP_XSE		0x50	/* Sector erase */
 #define SPINOR_OP_XPP		0x82	/* Page program */
@@ -242,7 +246,13 @@ enum spi_nor_option_flags {
  */
 struct flash_info;
 
-/* TODO: Remove, once all users of spi_flash interface are moved to MTD */
+/*
+ * TODO: Remove, once all users of spi_flash interface are moved to MTD
+ *
+ * struct spi_flash {
+ *	Defined below (keep this text to enable searching for spi_flash decl)
+ * }
+ */
 #define spi_flash spi_nor
 
 /**

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0+
 # Copyright (c) 2012 The Chromium OS Authors.
 
+from collections import OrderedDict
 import re
 
 class Expr:
@@ -120,7 +121,7 @@ class Boards:
         Args:
             fname: Filename of boards.cfg file
         """
-        with open(fname, 'r') as fd:
+        with open(fname, 'r', encoding='utf-8') as fd:
             for line in fd:
                 if line[0] == '#':
                     continue
@@ -155,7 +156,7 @@ class Boards:
                 key is board.target
                 value is board
         """
-        board_dict = {}
+        board_dict = OrderedDict()
         for board in self._boards:
             board_dict[board.target] = board
         return board_dict
@@ -166,7 +167,7 @@ class Boards:
         Returns:
             List of Board objects that are marked selected
         """
-        board_dict = {}
+        board_dict = OrderedDict()
         for board in self._boards:
             if board.build_it:
                 board_dict[board.target] = board
@@ -259,7 +260,7 @@ class Boards:
                     due to each argument, arranged by argument.
                 List of errors found
         """
-        result = {}
+        result = OrderedDict()
         warnings = []
         terms = self._BuildTerms(args)
 

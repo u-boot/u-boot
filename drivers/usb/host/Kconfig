@@ -73,13 +73,6 @@ config USB_XHCI_STI
 	  STiH407 family SoCs. This is a driver for the dwc3 to provide the glue logic
 	  to configure the controller.
 
-config USB_XHCI_ZYNQMP
-	bool "Support for Xilinx ZynqMP on-chip xHCI USB controller"
-	depends on ARCH_ZYNQMP
-	depends on DM_USB
-	help
-	  Enables support for the on-chip xHCI controller on Xilinx ZynqMP SoCs.
-
 config USB_XHCI_DRA7XX_INDEX
 	int "DRA7XX xHCI USB index"
 	range 0 1
@@ -141,8 +134,8 @@ config USB_EHCI_MX5
 	  Enables support for the on-chip EHCI controller on i.MX5 SoCs.
 
 config USB_EHCI_MX6
-	bool "Support for i.MX6 on-chip EHCI USB controller"
-	depends on ARCH_MX6
+	bool "Support for i.MX6/i.MX7ULP on-chip EHCI USB controller"
+	depends on ARCH_MX6 || ARCH_MX7ULP
 	default y
 	---help---
 	  Enables support for the on-chip EHCI controller on i.MX6 SoCs.
@@ -169,7 +162,7 @@ config USB_EHCI_VF
 	help
 	  Enables support for the on-chip EHCI controller on Vybrid SoCs.
 
-if USB_EHCI_MX7
+if USB_EHCI_MX6 || USB_EHCI_MX7
 
 config MXC_USB_OTG_HACTIVE
 	bool "USB Power pin high active"

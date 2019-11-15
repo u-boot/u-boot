@@ -58,10 +58,10 @@ KWB_REPLACE += SEC_FUSE_DUMP
 KWB_CFG_SEC_FUSE_DUMP = a38x
 endif
 
-$(src)/kwbimage.cfg: $(src)/kwbimage.cfg.in include/autoconf.mk \
+$(obj)/kwbimage.cfg: $(src)/kwbimage.cfg.in include/autoconf.mk \
 		include/config/auto.conf
 	$(Q)sed -ne '$(foreach V,$(KWB_REPLACE),s/^#@$(V)/$(V) $(KWB_CFG_$(V))/;)p' \
-	<$< >$(dir $<)$(@F)
+	<$< >$(dir $@)$(@F)
 
 endif # CONFIG_SPL_BUILD
 obj-y	+= gpio.o

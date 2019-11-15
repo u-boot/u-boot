@@ -33,7 +33,7 @@
 #endif
 
 #if !defined(CONFIG_SPL) && !defined(CONFIG_SYS_RAMBOOT) && \
-	!defined(CONFIG_SECURE_BOOT) && !defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
+	!defined(CONFIG_NXP_ESBC) && !defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
 #define NOR_BOOT
 #endif
 
@@ -123,7 +123,7 @@ _start_e500:
 #endif
 
 
-#if defined(CONFIG_SECURE_BOOT) && defined(CONFIG_E500MC) && \
+#if defined(CONFIG_NXP_ESBC) && defined(CONFIG_E500MC) && \
 	!defined(CONFIG_E6500)
 	/* ISBC uses L2 as stack.
 	 * Disable L2 cache here so that u-boot can enable it later
@@ -467,7 +467,7 @@ nexti:	mflr	r1		/* R1 = our PC */
 	blt	1b
 
 #if defined(CONFIG_SYS_PPC_E500_DEBUG_TLB) && !defined(MINIMAL_SPL) && \
-	!defined(CONFIG_SECURE_BOOT)
+	!defined(CONFIG_NXP_ESBC)
 /*
  * TLB entry for debuggging in AS1
  * Create temporary TLB entry in AS0 to handle debug exception
@@ -1065,7 +1065,7 @@ create_init_ram_area:
 		0xffc00000, MAS3_SX|MAS3_SW|MAS3_SR, \
 		0, r6
 
-#elif !defined(CONFIG_SYS_RAMBOOT) && defined(CONFIG_SECURE_BOOT)
+#elif !defined(CONFIG_SYS_RAMBOOT) && defined(CONFIG_NXP_ESBC)
 	/* create a temp mapping in AS = 1 for Flash mapping
 	 * created by PBL for ISBC code
 	 */
@@ -1080,7 +1080,7 @@ create_init_ram_area:
  * and for targets with CONFIG_SPL like T1, T2, T4, only for
  * u-boot-spl i.e. CONFIG_SPL_BUILD
  */
-#elif defined(CONFIG_RAMBOOT_PBL) && defined(CONFIG_SECURE_BOOT) && \
+#elif defined(CONFIG_RAMBOOT_PBL) && defined(CONFIG_NXP_ESBC) && \
 	(!defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD))
 	/* create a temp mapping in AS = 1 for mapping CONFIG_SYS_MONITOR_BASE
 	 * to L3 Address configured by PBL for ISBC code

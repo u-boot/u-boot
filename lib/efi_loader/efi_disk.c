@@ -9,6 +9,7 @@
 #include <blk.h>
 #include <dm.h>
 #include <efi_loader.h>
+#include <fs.h>
 #include <part.h>
 #include <malloc.h>
 
@@ -262,6 +263,27 @@ efi_fs_from_path(struct efi_device_path *full_path)
 	return handler->protocol_interface;
 }
 
+/**
+ * efi_fs_exists() - check if a partition bears a file system
+ *
+ * @desc:	block device descriptor
+ * @part:	partition number
+ * Return:	1 if a file system exists on the partition
+ *		0 otherwise
+ */
+static int efi_fs_exists(struct blk_desc *desc, int part)
+{
+	if (fs_set_blk_dev_with_part(desc, part))
+		return 0;
+
+	if (fs_get_type() == FS_TYPE_ANY)
+		return 0;
+
+	fs_close();
+
+	return 1;
+}
+
 /*
  * Create a handle for a partition or disk
  *
@@ -315,7 +337,7 @@ static efi_status_t efi_disk_add_dev(
 			       diskobj->dp);
 	if (ret != EFI_SUCCESS)
 		return ret;
-	if (part >= 1) {
+	if (part >= 1 && efi_fs_exists(desc, part)) {
 		diskobj->volume = efi_simple_file_system(desc, part,
 							 diskobj->dp);
 		ret = efi_add_protocol(&diskobj->header,

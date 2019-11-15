@@ -9,6 +9,7 @@
 #ifndef __ENV_H
 #define __ENV_H
 
+#include <compiler.h>
 #include <stdbool.h>
 #include <linux/types.h>
 

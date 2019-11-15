@@ -791,6 +791,7 @@ int board_init(void)
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
+	struct udevice *dev;
 #if !defined(CONFIG_SPL_BUILD)
 	uint8_t mac_addr[6];
 	uint32_t mac_hi, mac_lo;
@@ -870,6 +871,9 @@ int board_late_init(void)
 		else
 			env_set("serial#", board_serial);
 	}
+
+	/* Just probe the potentially supported cdce913 device */
+	uclass_get_device(UCLASS_CLK, 0, &dev);
 
 	return 0;
 }

@@ -142,13 +142,19 @@ class Entry_section(Entry):
         return self.GetEntryContents()
 
     def GetData(self):
-        section_data = tools.GetBytes(self._pad_byte, self.size)
+        section_data = b''
 
         for entry in self._entries.values():
             data = entry.GetData()
-            base = self.pad_before + entry.offset - self._skip_at_start
-            section_data = (section_data[:base] + data +
-                            section_data[base + len(data):])
+            base = self.pad_before + (entry.offset or 0) - self._skip_at_start
+            pad = base - len(section_data)
+            if pad > 0:
+                section_data += tools.GetBytes(self._pad_byte, pad)
+            section_data += data
+        if self.size:
+            pad = self.size - len(section_data)
+            if pad > 0:
+                section_data += tools.GetBytes(self._pad_byte, pad)
         self.Detail('GetData: %d entries, total size %#x' %
                     (len(self._entries), len(section_data)))
         return section_data
@@ -284,13 +290,16 @@ class Entry_section(Entry):
                 return entry.GetData()
         source_entry.Raise("Cannot find entry for node '%s'" % node.name)
 
-    def LookupSymbol(self, sym_name, optional, msg):
+    def LookupSymbol(self, sym_name, optional, msg, base_addr):
         """Look up a symbol in an ELF file
 
         Looks up a symbol in an ELF file. Only entry types which come from an
         ELF image can be used by this function.
 
-        At present the only entry property supported is offset.
+        At present the only entry properties supported are:
+            offset
+            image_pos - 'base_addr' is added if this is not an end-at-4gb image
+            size
 
         Args:
             sym_name: Symbol name in the ELF file to look up in the format
@@ -303,6 +312,12 @@ class Entry_section(Entry):
             optional: True if the symbol is optional. If False this function
                 will raise if the symbol is not found
             msg: Message to display if an error occurs
+            base_addr: Base address of image. This is added to the returned
+                image_pos in most cases so that the returned position indicates
+                where the targetted entry/binary has actually been loaded. But
+                if end-at-4gb is used, this is not done, since the binary is
+                already assumed to be linked to the ROM position and using
+                execute-in-place (XIP).
 
         Returns:
             Value that should be assigned to that symbol, or None if it was
@@ -337,7 +352,12 @@ class Entry_section(Entry):
         if prop_name == 'offset':
             return entry.offset
         elif prop_name == 'image_pos':
-            return entry.image_pos
+            value = entry.image_pos
+            if not self.GetImage()._end_4gb:
+                value += base_addr
+            return value
+        if prop_name == 'size':
+            return entry.size
         else:
             raise ValueError("%s: No such property '%s'" % (msg, prop_name))
 
@@ -500,18 +520,12 @@ class Entry_section(Entry):
         return data
 
     def ReadChildData(self, child, decomp=True):
-        """Read the data for a particular child entry
-
-        Args:
-            child: Child entry to read data for
-            decomp: True to return uncompressed data, False to leave the data
-                compressed if it is compressed
-
-        Returns:
-            Data contents of entry
-        """
+        tout.Debug("ReadChildData for child '%s'" % child.GetPath())
         parent_data = self.ReadData(True)
-        data = parent_data[child.offset:child.offset + child.size]
+        offset = child.offset - self._skip_at_start
+        tout.Debug("Extract for child '%s': offset %#x, skip_at_start %#x, result %#x" %
+                   (child.GetPath(), child.offset, self._skip_at_start, offset))
+        data = parent_data[offset:offset + child.size]
         if decomp:
             indata = data
             data = tools.Decompress(indata, child.compress)

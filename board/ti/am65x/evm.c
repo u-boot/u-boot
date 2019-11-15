@@ -96,10 +96,21 @@ int ft_board_setup(void *blob, bd_t *bd)
 	int ret;
 
 	ret = fdt_fixup_msmc_ram(blob, "/interconnect@100000", "sram@70000000");
-	if (ret)
+	if (ret) {
 		printf("%s: fixing up msmc ram failed %d\n", __func__, ret);
+		return ret;
+	}
 
-	return ret;
+#if defined(CONFIG_TI_SECURE_DEVICE)
+	/* Make HW RNG reserved for secure world use */
+	ret = fdt_disable_node(blob, "/interconnect@100000/trng@4e10000");
+	if (ret) {
+		printf("%s: disabling TRGN failed %d\n", __func__, ret);
+		return ret;
+	}
+#endif
+
+	return 0;
 }
 #endif
 
@@ -114,6 +125,19 @@ int do_board_detect(void)
 		       CONFIG_EEPROM_CHIP_ADDRESS, ret);
 
 	return ret;
+}
+
+int checkboard(void)
+{
+	struct ti_am6_eeprom *ep = TI_AM6_EEPROM_DATA;
+
+	if (do_board_detect())
+		/* EEPROM not populated */
+		printf("Board: %s rev %s\n", "AM6-COMPROCEVM", "E3");
+	else
+		printf("Board: %s rev %s\n", ep->name, ep->version);
+
+	return 0;
 }
 
 static void setup_board_eeprom_env(void)
@@ -261,7 +285,7 @@ static int probe_daughtercards(void)
 		if (strncmp(ep.name, cards[i].card_name, sizeof(ep.name)))
 			continue;
 
-		printf("detected %s\n", cards[i].card_name);
+		printf("Detected: %s rev %s\n", ep.name, ep.version);
 
 		/*
 		 * Populate any MAC addresses from daughtercard into the U-Boot

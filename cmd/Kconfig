@@ -48,6 +48,8 @@ config SYS_LONGHELP
 
 config SYS_PROMPT
 	string "Shell prompt"
+	default "Zynq> " if ARCH_ZYNQ
+	default "ZynqMP> " if ARCH_ZYNQMP
 	default "=> "
 	help
 	  This string is displayed in the command line to the left of the
@@ -172,6 +174,7 @@ config AUTOBOOT_MENUKEY
 
 config AUTOBOOT_MENU_SHOW
 	bool "Show a menu on boot"
+	depends on CMD_BOOTMENU
 	help
 	  This enables the boot menu, controlled by environment variables
 	  defined by the board. The menu starts after running the 'preboot'
@@ -259,6 +262,54 @@ config CMD_BOOTI
 	default y
 	help
 	  Boot an AArch64 Linux Kernel image from memory.
+
+config BOOTM_LINUX
+	bool "Support booting Linux OS images"
+	depends on CMD_BOOTM || CMD_BOOTZ || CMD_BOOTI
+	default y
+	help
+	  Support booting the Linux kernel directly via a command such as bootm
+	  or booti or bootz.
+
+config BOOTM_NETBSD
+	bool "Support booting NetBSD (non-EFI) loader images"
+	depends on CMD_BOOTM
+	default y
+	help
+	  Support booting NetBSD via the bootm command.
+
+config BOOTM_OPENRTOS
+	bool "Support booting OPENRTOS / FreeRTOS images"
+	depends on CMD_BOOTM
+	help
+	  Support booting OPENRTOS / FreeRTOS via the bootm command.
+
+config BOOTM_OSE
+	bool "Support booting Enea OSE images"
+	depends on CMD_BOOTM
+	help
+	  Support booting Enea OSE images via the bootm command.
+
+config BOOTM_PLAN9
+	bool "Support booting Plan9 OS images"
+	depends on CMD_BOOTM
+	default y
+	help
+	  Support booting Plan9 images via the bootm command.
+
+config BOOTM_RTEMS
+	bool "Support booting RTEMS OS images"
+	depends on CMD_BOOTM
+	default y
+	help
+	  Support booting RTEMS images via the bootm command.
+
+config BOOTM_VXWORKS
+	bool "Support booting VxWorks OS images"
+	depends on CMD_BOOTM
+	default y
+	help
+	  Support booting VxWorks images via the bootm command.
 
 config CMD_BOOTEFI
 	bool "bootefi"
@@ -391,6 +442,7 @@ config CMD_FITUPD
 
 config CMD_THOR_DOWNLOAD
 	bool "thor - TIZEN 'thor' download"
+	select DFU
 	help
 	  Implements the 'thor' download protocol. This is a way of
 	  downloading a software update over USB from an attached host.
@@ -482,7 +534,6 @@ config CMD_ENV_FLAGS
 config CMD_NVEDIT_EFI
 	bool "env [set|print] -e - set/print UEFI variables"
 	depends on EFI_LOADER
-	default y
 	imply HEXDUMP
 	help
 	  UEFI variables are encoded as some form of U-Boot variables.
@@ -1118,6 +1169,7 @@ config CMD_SDRAM
 config CMD_SF
 	bool "sf"
 	depends on DM_SPI_FLASH || SPI_FLASH
+	default y if DM_SPI_FLASH
 	help
 	  SPI Flash support
 
@@ -1154,6 +1206,13 @@ config CMD_TSI148
 	help
 	  This provides various sub-commands to initialise and configure the
 	  Turndra tsi148 device. See the command help for full details.
+
+config CMD_UFS
+	bool "Enable UFS - Universal Flash Subsystem commands"
+	depends on UFS
+	help
+	  "This provides commands to initialise and configure universal flash
+	   subsystem devices"
 
 config CMD_UNIVERSE
 	bool "universe - Command to set up the Turndra Universe controller"
@@ -1468,7 +1527,7 @@ config CMD_BMP
 	bool "Enable 'bmp' command"
 	depends on LCD || DM_VIDEO || VIDEO
 	help
-	  This provides a way to obtain information about a BMP-format iamge
+	  This provides a way to obtain information about a BMP-format image
 	  and to display it. BMP (which presumably stands for BitMaP) is a
 	  file format defined by Microsoft which supports images of various
 	  depths, formats and compression methods. Headers on the file
@@ -1926,6 +1985,14 @@ config CMD_MTDPARTS_SPREAD
 	  the size of the partitions such that 1) each partition's net size is
 	  at least as large as the size specified in the mtdparts variable and
 	  2) each partition starts on a good block.
+
+config CMD_MTDPARTS_SHOW_NET_SIZES
+	bool "Show net size (w/o bad blocks) of partitions"
+	depends on CMD_MTDPARTS
+	help
+	  Adds two columns to the printed partition table showing the
+	  effective usable size of a partition, if bad blocks are taken
+	  into account.
 
 config CMD_REISER
 	bool "reiser - Access to reiserfs filesystems"

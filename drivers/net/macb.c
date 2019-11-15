@@ -1321,6 +1321,7 @@ static const struct macb_config sifive_config = {
 static const struct udevice_id macb_eth_ids[] = {
 	{ .compatible = "cdns,macb" },
 	{ .compatible = "cdns,at91sam9260-macb" },
+	{ .compatible = "cdns,sam9x60-macb" },
 	{ .compatible = "atmel,sama5d2-gem" },
 	{ .compatible = "atmel,sama5d3-gem" },
 	{ .compatible = "atmel,sama5d4-gem", .data = (ulong)&sama5d4_config },

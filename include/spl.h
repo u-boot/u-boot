@@ -49,6 +49,72 @@ static inline bool u_boot_first_phase(void)
 	return false;
 }
 
+enum u_boot_phase {
+	PHASE_TPL,	/* Running in TPL */
+	PHASE_SPL,	/* Running in SPL */
+	PHASE_BOARD_F,	/* Running in U-Boot before relocation */
+	PHASE_BOARD_R,	/* Running in U-Boot after relocation */
+};
+
+/**
+ * spl_phase() - Find out the phase of U-Boot
+ *
+ * This can be used to avoid #ifdef logic and use if() instead.
+ *
+ * For example, to include code only in TPL, you might do:
+ *
+ *    #ifdef CONFIG_TPL_BUILD
+ *    ...
+ *    #endif
+ *
+ * but with this you can use:
+ *
+ *    if (spl_phase() == PHASE_TPL) {
+ *       ...
+ *    }
+ *
+ * To include code only in SPL, you might do:
+ *
+ *    #if defined(CONFIG_SPL_BUILD) && !defined(CONFIG_TPL_BUILD)
+ *    ...
+ *    #endif
+ *
+ * but with this you can use:
+ *
+ *    if (spl_phase() == PHASE_SPL) {
+ *       ...
+ *    }
+ *
+ * To include code only in U-Boot proper, you might do:
+ *
+ *    #ifndef CONFIG_SPL_BUILD
+ *    ...
+ *    #endif
+ *
+ * but with this you can use:
+ *
+ *    if (spl_phase() == PHASE_BOARD_F) {
+ *       ...
+ *    }
+ *
+ * @return U-Boot phase
+ */
+static inline enum u_boot_phase spl_phase(void)
+{
+#ifdef CONFIG_TPL_BUILD
+	return PHASE_TPL;
+#elif CONFIG_SPL_BUILD
+	return PHASE_SPL;
+#else
+	DECLARE_GLOBAL_DATA_PTR;
+
+	if (!(gd->flags & GD_FLG_RELOC))
+		return PHASE_BOARD_F;
+	else
+		return PHASE_BOARD_R;
+#endif
+}
+
 /* A string name for SPL or TPL */
 #ifdef CONFIG_SPL_BUILD
 # ifdef CONFIG_TPL_BUILD
@@ -133,6 +199,18 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 
 #define SPL_COPY_PAYLOAD_ONLY	1
 #define SPL_FIT_FOUND		2
+
+/**
+ * spl_load_imx_container() - Loads a imx container image from a device.
+ * @spl_image:	Image description to set up
+ * @info:	Structure containing the information required to load data.
+ * @sector:	Sector number where container image is located in the device
+ *
+ * Reads the container image @sector in the device. Loads u-boot image to
+ * specified load address.
+ */
+int spl_load_imx_container(struct spl_image_info *spl_image,
+			   struct spl_load_info *info, ulong sector);
 
 /* SPL common functions */
 void preloader_console_init(void);
@@ -254,14 +332,14 @@ struct spl_image_loader {
  */
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 #define SPL_LOAD_IMAGE_METHOD(_name, _priority, _boot_device, _method) \
-	SPL_LOAD_IMAGE(_method ## _priority ## _boot_device) = { \
+	SPL_LOAD_IMAGE(_boot_device ## _priority ## _method) = { \
 		.name = _name, \
 		.boot_device = _boot_device, \
 		.load_image = _method, \
 	}
 #else
 #define SPL_LOAD_IMAGE_METHOD(_name, _priority, _boot_device, _method) \
-	SPL_LOAD_IMAGE(_method ## _priority ## _boot_device) = { \
+	SPL_LOAD_IMAGE(_boot_device ## _priority ## _method) = { \
 		.boot_device = _boot_device, \
 		.load_image = _method, \
 	}
@@ -356,6 +434,9 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 		 int raw_part,
 		 unsigned long raw_sect);
 
+int spl_ymodem_load_image(struct spl_image_info *spl_image,
+			  struct spl_boot_device *bootdev);
+
 /**
  * spl_invoke_atf - boot using an ARM trusted firmware image
  */
@@ -387,7 +468,8 @@ void spl_invoke_opensbi(struct spl_image_info *spl_image);
  * stage wants to return to the ROM code to continue booting, boards
  * can implement 'board_return_to_bootrom'.
  */
-void board_return_to_bootrom(void);
+int board_return_to_bootrom(struct spl_image_info *spl_image,
+			    struct spl_boot_device *bootdev);
 
 /**
  * board_spl_fit_post_load - allow process images after loading finished

@@ -17,11 +17,48 @@
 
 #ifndef __ASSEMBLY__
 
-int pci_x86_read_config(struct udevice *bus, pci_dev_t bdf, uint offset,
-			ulong *valuep, enum pci_size_t size);
+/**
+ * pci_x86_read_config() - Read a configuration value from a device
+ *
+ * This function can be called before PCI is set up in driver model.
+ *
+ * @bdf:	PCI device address: bus, device and function -see PCI_BDF()
+ * @offset:	Register offset to read
+ * @valuep:	Place to put the returned value
+ * @size:	Access size
+ * @return 0 if OK, -ve on error
+ */
+int pci_x86_read_config(pci_dev_t bdf, uint offset, ulong *valuep,
+			enum pci_size_t size);
 
-int pci_x86_write_config(struct udevice *bus, pci_dev_t bdf, uint offset,
-			 ulong value, enum pci_size_t size);
+/**
+ * pci_bus_write_config() - Write a configuration value to a device
+ *
+ * This function can be called before PCI is set up in driver model.
+ *
+ * @bdf:	PCI device address: bus, device and function -see PCI_BDF()
+ * @offset:	Register offset to write
+ * @value:	Value to write
+ * @size:	Access size
+ * @return 0 if OK, -ve on error
+ */
+int pci_x86_write_config(pci_dev_t bdf, uint offset, ulong value,
+			 enum pci_size_t size);
+
+/**
+ * pci_bus_clrset_config32() - Update a configuration value for a device
+ *
+ * The register at @offset is updated to (oldvalue & ~clr) | set. This function
+ * can be called before PCI is set up in driver model.
+ *
+ * @bdf:	PCI device address: bus, device and function -see PCI_BDF()
+ * @offset:	Register offset to update
+ * @clr:	Bits to clear
+ * @set:	Bits to set
+ * @return 0 if OK, -ve on error
+ */
+int pci_x86_clrset_config(pci_dev_t bdf, uint offset, ulong clr, ulong set,
+			  enum pci_size_t size);
 
 /**
  * Assign IRQ number to a PCI device

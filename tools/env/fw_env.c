@@ -119,13 +119,6 @@ static struct environment environment = {
 
 static int have_redund_env;
 
-static unsigned char ENV_REDUND_ACTIVE = 1;
-/*
- * ENV_REDUND_OBSOLETE must be 0 to efficiently set it on NOR flash without
- * erasing
- */
-static unsigned char ENV_REDUND_OBSOLETE;
-
 #define DEFAULT_ENV_INSTANCE_STATIC
 #include <env_default.h>
 
@@ -1142,6 +1135,7 @@ static int flash_flag_obsolete(int dev, int fd, off_t offset)
 {
 	int rc;
 	struct erase_info_user erase;
+	char tmp = ENV_REDUND_OBSOLETE;
 
 	erase.start = DEVOFFSET(dev);
 	erase.length = DEVESIZE(dev);
@@ -1153,7 +1147,7 @@ static int flash_flag_obsolete(int dev, int fd, off_t offset)
 		return rc;
 	}
 	ioctl(fd, MEMUNLOCK, &erase);
-	rc = write(fd, &ENV_REDUND_OBSOLETE, sizeof(ENV_REDUND_OBSOLETE));
+	rc = write(fd, &tmp, sizeof(tmp));
 	ioctl(fd, MEMLOCK, &erase);
 	if (rc < 0)
 		perror("Could not set obsolete flag");

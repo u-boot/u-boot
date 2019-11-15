@@ -26,6 +26,8 @@ int cleanup_before_linux(void);
 /* drivers/video/sandbox_sdl.c */
 int sandbox_lcd_sdl_early_init(void);
 
+struct udevice;
+
 /**
  * pci_map_physmem() - map a PCI device into memory
  *

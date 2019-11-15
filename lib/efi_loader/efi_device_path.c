@@ -10,9 +10,16 @@
 #include <dm.h>
 #include <usb.h>
 #include <mmc.h>
+#include <nvme.h>
 #include <efi_loader.h>
 #include <part.h>
+#include <sandboxblockdev.h>
 #include <asm-generic/unaligned.h>
+#include <linux/compat.h> /* U16_MAX */
+
+#ifdef CONFIG_SANDBOX
+const efi_guid_t efi_guid_host_dev = U_BOOT_HOST_DEV_GUID;
+#endif
 
 /* template END node: */
 static const struct efi_device_path END = {
@@ -446,6 +453,21 @@ static unsigned dp_size(struct udevice *dev)
 			return dp_size(dev->parent) +
 				sizeof(struct efi_device_path_sd_mmc_path);
 #endif
+#if defined(CONFIG_NVME)
+		case UCLASS_NVME:
+			return dp_size(dev->parent) +
+				sizeof(struct efi_device_path_nvme);
+#endif
+#ifdef CONFIG_SANDBOX
+		case UCLASS_ROOT:
+			 /*
+			  * Sandbox's host device will be represented
+			  * as vendor device with extra one byte for
+			  * device number
+			  */
+			return dp_size(dev->parent)
+				+ sizeof(struct efi_device_path_vendor) + 1;
+#endif
 		default:
 			return dp_size(dev->parent);
 		}
@@ -505,6 +527,24 @@ static void *dp_fill(void *buf, struct udevice *dev)
 #ifdef CONFIG_BLK
 	case UCLASS_BLK:
 		switch (dev->parent->uclass->uc_drv->id) {
+#ifdef CONFIG_SANDBOX
+		case UCLASS_ROOT: {
+			/* stop traversing parents at this point: */
+			struct efi_device_path_vendor *dp = buf;
+			struct blk_desc *desc = dev_get_uclass_platdata(dev);
+
+			dp_fill(buf, dev->parent);
+			dp = buf;
+			++dp;
+			dp->dp.type = DEVICE_PATH_TYPE_HARDWARE_DEVICE;
+			dp->dp.sub_type = DEVICE_PATH_SUB_TYPE_VENDOR;
+			dp->dp.length = sizeof(*dp) + 1;
+			memcpy(&dp->guid, &efi_guid_host_dev,
+			       sizeof(efi_guid_t));
+			dp->vendor_data[0] = desc->devnum;
+			return &dp->vendor_data[1];
+			}
+#endif
 #ifdef CONFIG_IDE
 		case UCLASS_IDE: {
 			struct efi_device_path_atapi *dp =
@@ -549,6 +589,20 @@ static void *dp_fill(void *buf, struct udevice *dev)
 			sddp->dp.length   = sizeof(*sddp);
 			sddp->slot_number = dev->seq;
 			return &sddp[1];
+			}
+#endif
+#if defined(CONFIG_NVME)
+		case UCLASS_NVME: {
+			struct efi_device_path_nvme *dp =
+				dp_fill(buf, dev->parent);
+			u32 ns_id;
+
+			dp->dp.type     = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
+			dp->dp.sub_type = DEVICE_PATH_SUB_TYPE_MSG_NVME;
+			dp->dp.length   = sizeof(*dp);
+			nvme_get_namespace_id(dev, &ns_id, dp->eui64);
+			memcpy(&dp->ns_id, &ns_id, sizeof(ns_id));
+			return &dp[1];
 			}
 #endif
 		default:
@@ -835,13 +889,16 @@ struct efi_device_path *efi_dp_from_file(struct blk_desc *desc, int part,
 {
 	struct efi_device_path_file_path *fp;
 	void *buf, *start;
-	unsigned dpsize = 0, fpsize;
+	size_t dpsize = 0, fpsize;
 
 	if (desc)
 		dpsize = dp_part_size(desc, part);
 
 	fpsize = sizeof(struct efi_device_path) +
 		 2 * (utf8_utf16_strlen(path) + 1);
+	if (fpsize > U16_MAX)
+		return NULL;
+
 	dpsize += fpsize;
 
 	start = buf = dp_alloc(dpsize + sizeof(END));
@@ -855,7 +912,7 @@ struct efi_device_path *efi_dp_from_file(struct blk_desc *desc, int part,
 	fp = buf;
 	fp->dp.type = DEVICE_PATH_TYPE_MEDIA_DEVICE;
 	fp->dp.sub_type = DEVICE_PATH_SUB_TYPE_FILE_PATH;
-	fp->dp.length = fpsize;
+	fp->dp.length = (u16)fpsize;
 	path_to_uefi(fp->str, path);
 	buf += fpsize;
 
@@ -1016,6 +1073,9 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 		*s++ = '\\';
 	*file = efi_dp_from_file(((!is_net && device) ? desc : NULL),
 				 part, filename);
+
+	if (!file)
+		return EFI_INVALID_PARAMETER;
 
 	return EFI_SUCCESS;
 }

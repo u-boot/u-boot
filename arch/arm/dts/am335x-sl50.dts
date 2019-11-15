@@ -507,13 +507,8 @@
 };
 
 &cpsw_emac0 {
-	phy_id = <&davinci_mdio>, <0>;
 	phy-mode = "mii";
-};
-
-&cpsw_emac1 {
-	phy_id = <&davinci_mdio>, <1>;
-	phy-mode = "mii";
+	phy-handle = <&ethphy0>;
 };
 
 &mac {
@@ -528,6 +523,12 @@
 	pinctrl-names = "default", "sleep";
 	pinctrl-0 = <&davinci_mdio_default>;
 	pinctrl-1 = <&davinci_mdio_sleep>;
+	reset-gpios = <&gpio1 14 GPIO_ACTIVE_LOW>;
+	reset-delay-us = <100>;   /* PHY datasheet states 100us min */
+
+	ethphy0: ethernet-phy@0 {
+		reg = <0>;
+	};
 };
 
 &sham {

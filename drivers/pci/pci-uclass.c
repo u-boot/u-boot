@@ -790,7 +790,7 @@ int pci_bind_bus_devices(struct udevice *bus)
 		if (!PCI_FUNC(bdf))
 			found_multi = header_type & 0x80;
 
-		debug("%s: bus %d/%s: found device %x, function %d\n", __func__,
+		debug("%s: bus %d/%s: found device %x, function %d", __func__,
 		      bus->seq, bus->name, PCI_DEV(bdf), PCI_FUNC(bdf));
 		pci_bus_read_config(bus, bdf, PCI_DEVICE_ID, &device,
 				    PCI_SIZE_16);
@@ -800,6 +800,7 @@ int pci_bind_bus_devices(struct udevice *bus)
 
 		/* Find this device in the device tree */
 		ret = pci_bus_find_devfn(bus, PCI_MASK_BUS(bdf), &dev);
+		debug(": find ret=%d\n", ret);
 
 		/* If nothing in the device tree, bind a device */
 		if (ret == -ENODEV) {
@@ -982,7 +983,7 @@ static int pci_uclass_post_probe(struct udevice *bus)
 	if (ret)
 		return ret;
 
-#ifdef CONFIG_PCI_PNP
+#if CONFIG_IS_ENABLED(PCI_PNP)
 	ret = pci_auto_config_devices(bus);
 	if (ret < 0)
 		return ret;

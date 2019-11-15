@@ -13,6 +13,8 @@
 /* MicroBlaze CPU */
 #define	MICROBLAZE_V5		1
 
+#define CONFIG_SYS_BOOTM_LEN	(64 * 1024 * 1024)
+
 /* linear and spi flash memory */
 #ifdef XILINX_FLASH_START
 #define	FLASH
@@ -100,6 +102,9 @@
 #endif /* !SPIFLASH */
 #endif /* !FLASH */
 
+#define XILINX_USE_ICACHE 1
+#define XILINX_USE_DCACHE 1
+
 #if defined(XILINX_USE_ICACHE)
 # define CONFIG_ICACHE
 #else
@@ -151,9 +156,6 @@
 					"serial=setenv stdout serial;"\
 					"setenv stdin serial\0"
 #endif
-
-/* Enable flat device tree support */
-#define CONFIG_LMB		1
 
 #if defined(CONFIG_XILINX_AXIEMAC)
 # define CONFIG_SYS_FAULT_ECHO_LINK_DOWN	1

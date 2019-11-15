@@ -93,6 +93,9 @@
 /* GPIO upper 16 bit mask */
 #define ZYNQ_GPIO_UPPER_MASK 0xFFFF0000
 
+#define PMC_GPIO_NR_GPIOS	116
+#define PMC_GPIO_MAX_BANK	5
+
 struct zynq_gpio_platdata {
 	phys_addr_t base;
 	const struct zynq_platform_data *p_data;
@@ -112,6 +115,33 @@ struct zynq_platform_data {
 	u32 max_bank;
 	u32 bank_min[ZYNQMP_GPIO_MAX_BANK];
 	u32 bank_max[ZYNQMP_GPIO_MAX_BANK];
+};
+
+#define VERSAL_GPIO_NR_GPIOS	58
+#define VERSAL_GPIO_MAX_BANK	4
+
+static const struct zynq_platform_data versal_gpio_def = {
+	.label = "versal_gpio",
+	.ngpio = VERSAL_GPIO_NR_GPIOS,
+	.max_bank = VERSAL_GPIO_MAX_BANK,
+	.bank_min[0] = 0,
+	.bank_max[0] = 25,
+	.bank_min[3] = 26,
+	.bank_max[3] = 57,
+};
+
+static const struct zynq_platform_data pmc_gpio_def = {
+	.label = "pmc_gpio",
+	.ngpio = PMC_GPIO_NR_GPIOS,
+	.max_bank = PMC_GPIO_MAX_BANK,
+	.bank_min[0] = 0,
+	.bank_max[0] = 25,
+	.bank_min[1] = 26,
+	.bank_max[1] = 51,
+	.bank_min[3] = 52,
+	.bank_max[3] = 83,
+	.bank_min[4] = 84,
+	.bank_max[4] = 115,
 };
 
 static const struct zynq_platform_data zynqmp_gpio_def = {
@@ -292,7 +322,7 @@ static int zynq_gpio_direction_output(struct udevice *dev, unsigned gpio,
 	writel(reg, platdata->base + ZYNQ_GPIO_OUTEN_OFFSET(bank_num));
 
 	/* set the state of the pin */
-	gpio_set_value(gpio, value);
+	zynq_gpio_set_value(dev, gpio, value);
 	return 0;
 }
 
@@ -329,6 +359,10 @@ static const struct udevice_id zynq_gpio_ids[] = {
 	  .data = (ulong)&zynq_gpio_def},
 	{ .compatible = "xlnx,zynqmp-gpio-1.0",
 	  .data = (ulong)&zynqmp_gpio_def},
+	{ .compatible = "xlnx,versal-gpio-1.0",
+	  .data = (ulong)&versal_gpio_def},
+	{ .compatible = "xlnx,pmc-gpio-1.0",
+	  .data = (ulong)&pmc_gpio_def },
 	{ }
 };
 

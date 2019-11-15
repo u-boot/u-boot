@@ -229,6 +229,7 @@ static int fit_write_images(struct image_tool_params *params, char *fdt)
 	for (cont = params->content_head; cont; cont = cont->next) {
 		if (cont->type != IH_TYPE_FLATDT)
 			continue;
+		typename = genimg_get_type_short_name(cont->type);
 		snprintf(str, sizeof(str), "%s-%d", FIT_FDT_PROP, ++upto);
 		fdt_begin_node(fdt, str);
 
@@ -253,6 +254,8 @@ static int fit_write_images(struct image_tool_params *params, char *fdt)
 		fdt_property_string(fdt, FIT_TYPE_PROP, FIT_RAMDISK_PROP);
 		fdt_property_string(fdt, FIT_OS_PROP,
 				    genimg_get_os_short_name(params->os));
+		fdt_property_string(fdt, FIT_ARCH_PROP,
+				    genimg_get_arch_short_name(params->arch));
 
 		ret = fdt_property_file(params, fdt, FIT_DATA_PROP,
 					params->fit_ramdisk);

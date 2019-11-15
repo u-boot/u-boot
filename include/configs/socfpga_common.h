@@ -108,7 +108,6 @@
 #define CONFIG_DESIGNWARE_WATCHDOG
 #define CONFIG_DW_WDT_BASE		SOCFPGA_L4WD0_ADDRESS
 #define CONFIG_DW_WDT_CLOCK_KHZ		25000
-#define CONFIG_WATCHDOG_TIMEOUT_MSECS	30000
 #endif
 
 /*
@@ -133,10 +132,6 @@
 /*
  * QSPI support
  */
-/* Enable multiple SPI NOR flash manufacturers */
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_SPI_FLASH_MTD
-#endif
 /* QSPI reference clock */
 #ifndef __ASSEMBLY__
 unsigned int cm_get_qspi_controller_clk_hz(void);

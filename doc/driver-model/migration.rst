@@ -7,6 +7,16 @@ U-Boot has been migrating to a new driver model since its introduction in
 2014. This file describes the schedule for deprecation of pre-driver-model
 features.
 
+CONFIG_DM
+---------
+
+* Status: In progress
+* Deadline: 2020.01
+
+Starting with the 2010.01 release CONFIG_DM will be enabled for all boards.
+This does not concern CONFIG_DM_SPL and CONFIG_DM_TPL. The conversion date for
+these configuration items still needs to be defined.
+
 CONFIG_DM_MMC
 -------------
 
@@ -58,10 +68,8 @@ to move the migration with in the deadline.
 
 No dm conversion yet::
 
-	drivers/spi/cf_spi.c
 	drivers/spi/fsl_espi.c
 	drivers/spi/lpc32xx_ssp.c
-	drivers/spi/mxs_spi.c
 	drivers/spi/sh_spi.c
 	drivers/spi/soft_spi_legacy.c
 
@@ -74,6 +82,7 @@ Partially converted::
 	drivers/spi/fsl_dspi.c
 	drivers/spi/kirkwood_spi.c
 	drivers/spi/mxc_spi.c
+	drivers/spi/mxs_spi.c
 	drivers/spi/omap3_spi.c
 	drivers/spi/sh_qspi.c
 

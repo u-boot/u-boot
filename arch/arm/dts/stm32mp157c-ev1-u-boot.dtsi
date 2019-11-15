@@ -14,6 +14,11 @@
 		spi0 = &qspi;
 		usb0 = &usbotg_hs;
 	};
+
+	dsi_host: dsi_host {
+		compatible = "synopsys,dw-mipi-dsi";
+		status = "okay";
+	};
 };
 
 &flash0 {

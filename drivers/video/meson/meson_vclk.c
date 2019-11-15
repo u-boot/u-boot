@@ -68,14 +68,20 @@ enum {
 #define CTS_HDMI_SYS_EN		BIT(8)
 
 #define HHI_HDMI_PLL_CNTL	0x320 /* 0xc8 offset in data sheet */
+#define HHI_HDMI_PLL_CNTL_EN	BIT(30)
 #define HHI_HDMI_PLL_CNTL2	0x324 /* 0xc9 offset in data sheet */
 #define HHI_HDMI_PLL_CNTL3	0x328 /* 0xca offset in data sheet */
 #define HHI_HDMI_PLL_CNTL4	0x32C /* 0xcb offset in data sheet */
 #define HHI_HDMI_PLL_CNTL5	0x330 /* 0xcc offset in data sheet */
 #define HHI_HDMI_PLL_CNTL6	0x334 /* 0xcd offset in data sheet */
+#define HHI_HDMI_PLL_CNTL7	0x338 /* 0xce offset in data sheet */
 
 #define HDMI_PLL_RESET		BIT(28)
+#define HDMI_PLL_RESET_G12A	BIT(29)
 #define HDMI_PLL_LOCK		BIT(31)
+#define HDMI_PLL_LOCK_G12A	(3 << 30)
+
+#define FREQ_1000_1001(_freq)	DIV_ROUND_CLOSEST(_freq * 1000, 1001)
 
 /* VID PLL Dividers */
 enum {
@@ -206,8 +212,6 @@ static void meson_venci_cvbs_clock_config(struct meson_vpu_priv *priv)
 {
 	unsigned int val;
 
-	debug("%s:%d\n", __func__, __LINE__);
-
 	/* Setup PLL to output 1.485GHz */
 	if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_GXBB)) {
 		hhi_write(HHI_HDMI_PLL_CNTL, 0x5800023d);
@@ -217,6 +221,10 @@ static void meson_venci_cvbs_clock_config(struct meson_vpu_priv *priv)
 		hhi_write(HHI_HDMI_PLL_CNTL5, 0x71486980);
 		hhi_write(HHI_HDMI_PLL_CNTL6, 0x00000e55);
 		hhi_write(HHI_HDMI_PLL_CNTL, 0x4800023d);
+
+		/* Poll for lock bit */
+		readl_poll_timeout(priv->hhi_base + HHI_HDMI_PLL_CNTL, val,
+				   (val & HDMI_PLL_LOCK), 10);
 	} else if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_GXM) ||
 		   meson_vpu_is_compatible(priv, VPU_COMPATIBLE_GXL)) {
 		hhi_write(HHI_HDMI_PLL_CNTL, 0x4000027b);
@@ -231,13 +239,26 @@ static void meson_venci_cvbs_clock_config(struct meson_vpu_priv *priv)
 				HDMI_PLL_RESET, HDMI_PLL_RESET);
 		hhi_update_bits(HHI_HDMI_PLL_CNTL,
 				HDMI_PLL_RESET, 0);
+
+		/* Poll for lock bit */
+		readl_poll_timeout(priv->hhi_base + HHI_HDMI_PLL_CNTL, val,
+				   (val & HDMI_PLL_LOCK), 10);
+	} else if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_G12A)) {
+		hhi_write(HHI_HDMI_PLL_CNTL, 0x1a0504f7);
+		hhi_write(HHI_HDMI_PLL_CNTL2, 0x00010000);
+		hhi_write(HHI_HDMI_PLL_CNTL3, 0x00000000);
+		hhi_write(HHI_HDMI_PLL_CNTL4, 0x6a28dc00);
+		hhi_write(HHI_HDMI_PLL_CNTL5, 0x65771290);
+		hhi_write(HHI_HDMI_PLL_CNTL6, 0x39272000);
+		hhi_write(HHI_HDMI_PLL_CNTL7, 0x56540000);
+		hhi_write(HHI_HDMI_PLL_CNTL, 0x3a0504f7);
+		hhi_write(HHI_HDMI_PLL_CNTL, 0x1a0504f7);
+
+		/* Poll for lock bit */
+		readl_poll_timeout(priv->hhi_base + HHI_HDMI_PLL_CNTL, val,
+			((val & HDMI_PLL_LOCK_G12A) == HDMI_PLL_LOCK_G12A),
+			10);
 	}
-
-	debug("%s:%d\n", __func__, __LINE__);
-
-	/* Poll for lock bit */
-	readl_poll_timeout(priv->hhi_base + HHI_HDMI_PLL_CNTL, val,
-			   (val & HDMI_PLL_LOCK), 10);
 
 	/* Disable VCLK2 */
 	hhi_update_bits(HHI_VIID_CLK_CNTL, VCLK2_EN, 0);
@@ -250,8 +271,13 @@ static void meson_venci_cvbs_clock_config(struct meson_vpu_priv *priv)
 			VCLK2_DIV_MASK, (55 - 1));
 
 	/* select vid_pll for vclk2 */
-	hhi_update_bits(HHI_VIID_CLK_CNTL,
-			VCLK2_SEL_MASK, (4 << VCLK2_SEL_SHIFT));
+	if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_G12A))
+		hhi_update_bits(HHI_VIID_CLK_CNTL,
+				VCLK2_SEL_MASK, (0 << VCLK2_SEL_SHIFT));
+	else
+		hhi_update_bits(HHI_VIID_CLK_CNTL,
+				VCLK2_SEL_MASK, (4 << VCLK2_SEL_SHIFT));
+
 	/* enable vclk2 gate */
 	hhi_update_bits(HHI_VIID_CLK_CNTL, VCLK2_EN, VCLK2_EN);
 
@@ -282,14 +308,12 @@ static void meson_venci_cvbs_clock_config(struct meson_vpu_priv *priv)
 	/* enable vdac_clk */
 	hhi_update_bits(HHI_VID_CLK_CNTL2,
 			CTS_VDAC_EN, CTS_VDAC_EN);
-
-	debug("%s:%d\n", __func__, __LINE__);
 }
 
 enum {
 /* PLL	O1 O2 O3 VP DV     EN TX */
 /* 4320 /4 /4 /1 /5 /1  => /2 /2 */
-	MESON_VCLK_HDMI_ENCI_54000 = 1,
+	MESON_VCLK_HDMI_ENCI_54000 = 0,
 /* 4320 /4 /4 /1 /5 /1  => /1 /2 */
 	MESON_VCLK_HDMI_DDR_54000,
 /* 2970 /4 /1 /1 /5 /1  => /1 /2 */
@@ -305,6 +329,7 @@ enum {
 };
 
 struct meson_vclk_params {
+	unsigned int pixel_freq;
 	unsigned int pll_base_freq;
 	unsigned int pll_od1;
 	unsigned int pll_od2;
@@ -313,6 +338,7 @@ struct meson_vclk_params {
 	unsigned int vclk_div;
 } params[] = {
 	[MESON_VCLK_HDMI_ENCI_54000] = {
+		.pixel_freq = 54000,
 		.pll_base_freq = 4320000,
 		.pll_od1 = 4,
 		.pll_od2 = 4,
@@ -321,6 +347,7 @@ struct meson_vclk_params {
 		.vclk_div = 1,
 	},
 	[MESON_VCLK_HDMI_DDR_54000] = {
+		.pixel_freq = 54000,
 		.pll_base_freq = 4320000,
 		.pll_od1 = 4,
 		.pll_od2 = 4,
@@ -329,6 +356,7 @@ struct meson_vclk_params {
 		.vclk_div = 1,
 	},
 	[MESON_VCLK_HDMI_DDR_148500] = {
+		.pixel_freq = 148500,
 		.pll_base_freq = 2970000,
 		.pll_od1 = 4,
 		.pll_od2 = 1,
@@ -337,6 +365,7 @@ struct meson_vclk_params {
 		.vclk_div = 1,
 	},
 	[MESON_VCLK_HDMI_74250] = {
+		.pixel_freq = 74250,
 		.pll_base_freq = 2970000,
 		.pll_od1 = 2,
 		.pll_od2 = 2,
@@ -345,6 +374,7 @@ struct meson_vclk_params {
 		.vclk_div = 1,
 	},
 	[MESON_VCLK_HDMI_148500] = {
+		.pixel_freq = 148500,
 		.pll_base_freq = 2970000,
 		.pll_od1 = 1,
 		.pll_od2 = 2,
@@ -353,14 +383,16 @@ struct meson_vclk_params {
 		.vclk_div = 1,
 	},
 	[MESON_VCLK_HDMI_297000] = {
-		.pll_base_freq = 2970000,
-		.pll_od1 = 1,
+		.pixel_freq = 297000,
+		.pll_base_freq = 5940000,
+		.pll_od1 = 2,
 		.pll_od2 = 1,
 		.pll_od3 = 1,
 		.vid_pll_div = VID_PLL_DIV_5,
 		.vclk_div = 2,
 	},
 	[MESON_VCLK_HDMI_594000] = {
+		.pixel_freq = 594000,
 		.pll_base_freq = 5940000,
 		.pll_od1 = 1,
 		.pll_od2 = 1,
@@ -368,6 +400,7 @@ struct meson_vclk_params {
 		.vid_pll_div = VID_PLL_DIV_5,
 		.vclk_div = 1,
 	},
+	{ /* sentinel */ },
 };
 
 static inline unsigned int pll_od_to_reg(unsigned int od)
@@ -431,6 +464,50 @@ void meson_hdmi_pll_set_params(struct meson_vpu_priv *priv, unsigned int m,
 		/* Poll for lock bit */
 		readl_poll_timeout(priv->hhi_base + HHI_HDMI_PLL_CNTL, val,
 				   (val & HDMI_PLL_LOCK), 10);
+	} else if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_G12A)) {
+		hhi_write(HHI_HDMI_PLL_CNTL, 0x0b3a0400 | m);
+
+		/* Enable and reset */
+		hhi_update_bits(HHI_HDMI_PLL_CNTL, 0x3 << 28, 0x3 << 28);
+
+		hhi_write(HHI_HDMI_PLL_CNTL2, frac);
+		hhi_write(HHI_HDMI_PLL_CNTL3, 0x00000000);
+
+		/* G12A HDMI PLL Needs specific parameters for 5.4GHz */
+		if (m >= 0xf7) {
+			if (frac < 0x10000) {
+				hhi_write(HHI_HDMI_PLL_CNTL4, 0x6a685c00);
+				hhi_write(HHI_HDMI_PLL_CNTL5, 0x11551293);
+			} else {
+				hhi_write(HHI_HDMI_PLL_CNTL4, 0xea68dc00);
+				hhi_write(HHI_HDMI_PLL_CNTL5, 0x65771290);
+			}
+			hhi_write(HHI_HDMI_PLL_CNTL6, 0x39272000);
+			hhi_write(HHI_HDMI_PLL_CNTL7, 0x55540000);
+		} else {
+			hhi_write(HHI_HDMI_PLL_CNTL4, 0x0a691c00);
+			hhi_write(HHI_HDMI_PLL_CNTL5, 0x33771290);
+			hhi_write(HHI_HDMI_PLL_CNTL6, 0x39270000);
+			hhi_write(HHI_HDMI_PLL_CNTL7, 0x50540000);
+		}
+
+		do {
+			/* Reset PLL */
+			hhi_update_bits(HHI_HDMI_PLL_CNTL,
+					HDMI_PLL_RESET_G12A,
+					HDMI_PLL_RESET_G12A);
+
+			/* UN-Reset PLL */
+			hhi_update_bits(HHI_HDMI_PLL_CNTL,
+					HDMI_PLL_RESET_G12A, 0);
+
+			/* Poll for lock bits */
+			if (!readl_poll_timeout(
+					priv->hhi_base + HHI_HDMI_PLL_CNTL, val,
+					((val & HDMI_PLL_LOCK_G12A)
+						== HDMI_PLL_LOCK_G12A), 100))
+				break;
+		} while (1);
 	}
 
 	if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_GXBB))
@@ -440,6 +517,9 @@ void meson_hdmi_pll_set_params(struct meson_vpu_priv *priv, unsigned int m,
 		 meson_vpu_is_compatible(priv, VPU_COMPATIBLE_GXL))
 		hhi_update_bits(HHI_HDMI_PLL_CNTL3,
 				3 << 21, pll_od_to_reg(od1) << 21);
+	else if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_G12A))
+		hhi_update_bits(HHI_HDMI_PLL_CNTL,
+				3 << 16, pll_od_to_reg(od1) << 16);
 
 	if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_GXBB))
 		hhi_update_bits(HHI_HDMI_PLL_CNTL2,
@@ -448,6 +528,9 @@ void meson_hdmi_pll_set_params(struct meson_vpu_priv *priv, unsigned int m,
 		 meson_vpu_is_compatible(priv, VPU_COMPATIBLE_GXL))
 		hhi_update_bits(HHI_HDMI_PLL_CNTL3,
 				3 << 23, pll_od_to_reg(od2) << 23);
+	else if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_G12A))
+		hhi_update_bits(HHI_HDMI_PLL_CNTL,
+				3 << 18, pll_od_to_reg(od2) << 18);
 
 	if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_GXBB))
 		hhi_update_bits(HHI_HDMI_PLL_CNTL2,
@@ -456,6 +539,9 @@ void meson_hdmi_pll_set_params(struct meson_vpu_priv *priv, unsigned int m,
 		 meson_vpu_is_compatible(priv, VPU_COMPATIBLE_GXL))
 		hhi_update_bits(HHI_HDMI_PLL_CNTL3,
 				3 << 19, pll_od_to_reg(od3) << 19);
+	else if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_G12A))
+		hhi_update_bits(HHI_HDMI_PLL_CNTL,
+				3 << 20, pll_od_to_reg(od3) << 20);
 }
 
 #define XTAL_FREQ 24000
@@ -472,6 +558,7 @@ static unsigned int meson_hdmi_pll_get_m(struct meson_vpu_priv *priv,
 
 #define HDMI_FRAC_MAX_GXBB	4096
 #define HDMI_FRAC_MAX_GXL	1024
+#define HDMI_FRAC_MAX_G12A	131072
 
 static unsigned int meson_hdmi_pll_get_frac(struct meson_vpu_priv *priv,
 					    unsigned int m,
@@ -487,6 +574,9 @@ static unsigned int meson_hdmi_pll_get_frac(struct meson_vpu_priv *priv,
 		frac_max = HDMI_FRAC_MAX_GXBB;
 		parent_freq *= 2;
 	}
+
+	if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_G12A))
+		frac_max = HDMI_FRAC_MAX_G12A;
 
 	/* We can have a perfect match !*/
 	if (pll_freq / m == parent_freq &&
@@ -518,6 +608,12 @@ static bool meson_hdmi_pll_validate_params(struct meson_vpu_priv *priv,
 		if (m < 106 || m > 247)
 			return false;
 		if (frac >= HDMI_FRAC_MAX_GXL)
+			return false;
+	} else if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_G12A)) {
+		/* Empiric supported min/max dividers */
+		if (m < 106 || m > 247)
+			return false;
+		if (frac >= HDMI_FRAC_MAX_G12A)
 			return false;
 	}
 
@@ -595,8 +691,10 @@ meson_vclk_set(struct meson_vpu_priv *priv, unsigned int pll_base_freq,
 	       unsigned int od1, unsigned int od2, unsigned int od3,
 	       unsigned int vid_pll_div, unsigned int vclk_div,
 	       unsigned int hdmi_tx_div, unsigned int venc_div,
-	       bool hdmi_use_enci)
+	       bool hdmi_use_enci, bool vic_alternate_clock)
 {
+	unsigned int m = 0, frac = 0;
+
 	/* Set HDMI-TX sys clock */
 	hhi_update_bits(HHI_HDMI_CLK_CNTL,
 			CTS_HDMI_SYS_SEL_MASK, 0);
@@ -611,34 +709,55 @@ meson_vclk_set(struct meson_vpu_priv *priv, unsigned int pll_base_freq,
 	} else if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_GXBB)) {
 		switch (pll_base_freq) {
 		case 2970000:
-			meson_hdmi_pll_set_params(priv, 0x3d, 0xe00,
-						  od1, od2, od3);
+			m = 0x3d;
+			frac = vic_alternate_clock ? 0xd02 : 0xe00;
 			break;
 		case 4320000:
-			meson_hdmi_pll_set_params(priv, 0x5a, 0,
-						  od1, od2, od3);
+			m = vic_alternate_clock ? 0x59 : 0x5a;
+			frac = vic_alternate_clock ? 0xe8f : 0;
 			break;
 		case 5940000:
-			meson_hdmi_pll_set_params(priv, 0x7b, 0xc00,
-						  od1, od2, od3);
+			m = 0x7b;
+			frac = vic_alternate_clock ? 0xa05 : 0xc00;
 			break;
 		}
+
+		meson_hdmi_pll_set_params(priv, m, frac, od1, od2, od3);
 	} else if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_GXM) ||
 		   meson_vpu_is_compatible(priv, VPU_COMPATIBLE_GXL)) {
 		switch (pll_base_freq) {
 		case 2970000:
-			meson_hdmi_pll_set_params(priv, 0x7b, 0x300,
-						  od1, od2, od3);
+			m = 0x7b;
+			frac = vic_alternate_clock ? 0x281 : 0x300;
 			break;
 		case 4320000:
-			meson_hdmi_pll_set_params(priv, 0xb4, 0,
-						  od1, od2, od3);
+			m = vic_alternate_clock ? 0xb3 : 0xb4;
+			frac = vic_alternate_clock ? 0x347 : 0;
 			break;
 		case 5940000:
-			meson_hdmi_pll_set_params(priv, 0xf7, 0x200,
-						  od1, od2, od3);
+			m = 0xf7;
+			frac = vic_alternate_clock ? 0x102 : 0x200;
 			break;
 		}
+
+		meson_hdmi_pll_set_params(priv, m, frac, od1, od2, od3);
+	} else if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_G12A)) {
+		switch (pll_base_freq) {
+		case 2970000:
+			m = 0x7b;
+			frac = vic_alternate_clock ? 0x140b4 : 0x18000;
+			break;
+		case 4320000:
+			m = vic_alternate_clock ? 0xb3 : 0xb4;
+			frac = vic_alternate_clock ? 0x1a3ee : 0;
+			break;
+		case 5940000:
+			m = 0xf7;
+			frac = vic_alternate_clock ? 0x8148 : 0x10000;
+			break;
+		}
+
+		meson_hdmi_pll_set_params(priv, m, frac, od1, od2, od3);
 	}
 
 	/* Setup vid_pll divider */
@@ -803,6 +922,7 @@ static void meson_vclk_setup(struct meson_vpu_priv *priv, unsigned int target,
 			     unsigned int vclk_freq, unsigned int venc_freq,
 			     unsigned int dac_freq, bool hdmi_use_enci)
 {
+	bool vic_alternate_clock = false;
 	unsigned int freq;
 	unsigned int hdmi_tx_div;
 	unsigned int venc_div;
@@ -820,8 +940,7 @@ static void meson_vclk_setup(struct meson_vpu_priv *priv, unsigned int target,
 		 * - encp encoder
 		 */
 		meson_vclk_set(priv, vclk_freq * 10, 0, 0, 0,
-			       VID_PLL_DIV_5, 2, 1, 1, false);
-
+			       VID_PLL_DIV_5, 2, 1, 1, false, false);
 		return;
 	}
 
@@ -841,31 +960,35 @@ static void meson_vclk_setup(struct meson_vpu_priv *priv, unsigned int target,
 		return;
 	}
 
-	switch (vclk_freq) {
-	case 54000:
-		if (hdmi_use_enci)
-			freq = MESON_VCLK_HDMI_ENCI_54000;
-		else
-			freq = MESON_VCLK_HDMI_DDR_54000;
-		break;
-	case 74250:
-		freq = MESON_VCLK_HDMI_74250;
-		break;
-	case 148500:
-		if (dac_freq != 148500)
-			freq = MESON_VCLK_HDMI_DDR_148500;
-		else
-			freq = MESON_VCLK_HDMI_148500;
-		break;
-	case 297000:
-		freq = MESON_VCLK_HDMI_297000;
-		break;
-	case 594000:
-		freq = MESON_VCLK_HDMI_594000;
-		break;
-	default:
-		printf("Fatal Error, invalid HDMI vclk freq %d\n",
-		       vclk_freq);
+	for (freq = 0 ; params[freq].pixel_freq ; ++freq) {
+		if (vclk_freq == params[freq].pixel_freq ||
+		    vclk_freq == FREQ_1000_1001(params[freq].pixel_freq)) {
+			if (vclk_freq != params[freq].pixel_freq)
+				vic_alternate_clock = true;
+			else
+				vic_alternate_clock = false;
+
+			if (freq == MESON_VCLK_HDMI_ENCI_54000 &&
+			    !hdmi_use_enci)
+				continue;
+
+			if (freq == MESON_VCLK_HDMI_DDR_54000 &&
+			    hdmi_use_enci)
+				continue;
+
+			if (freq == MESON_VCLK_HDMI_DDR_148500 &&
+			    dac_freq == vclk_freq)
+				continue;
+
+			if (freq == MESON_VCLK_HDMI_148500 &&
+			    dac_freq != vclk_freq)
+				continue;
+			break;
+		}
+	}
+
+	if (!params[freq].pixel_freq) {
+		pr_err("Fatal Error, invalid HDMI vclk freq %d\n", vclk_freq);
 		return;
 	}
 
@@ -873,7 +996,7 @@ static void meson_vclk_setup(struct meson_vpu_priv *priv, unsigned int target,
 		       params[freq].pll_od1, params[freq].pll_od2,
 		       params[freq].pll_od3, params[freq].vid_pll_div,
 		       params[freq].vclk_div, hdmi_tx_div, venc_div,
-		       hdmi_use_enci);
+		       hdmi_use_enci, vic_alternate_clock);
 }
 
 void meson_vpu_setup_vclk(struct udevice *dev,

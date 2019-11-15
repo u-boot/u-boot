@@ -92,6 +92,20 @@ int dm_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	return spi_get_ops(bus)->xfer(dev, bitlen, dout, din, flags);
 }
 
+int dm_spi_get_mmap(struct udevice *dev, ulong *map_basep, uint *map_sizep,
+		    uint *offsetp)
+{
+	struct udevice *bus = dev->parent;
+	struct dm_spi_ops *ops = spi_get_ops(bus);
+
+	if (bus->uclass->uc_drv->id != UCLASS_SPI)
+		return -EOPNOTSUPP;
+	if (!ops->get_mmap)
+		return -ENOSYS;
+
+	return ops->get_mmap(dev, map_basep, map_sizep, offsetp);
+}
+
 int spi_claim_bus(struct spi_slave *slave)
 {
 	return log_ret(dm_spi_claim_bus(slave->dev));
@@ -106,6 +120,30 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 	     const void *dout, void *din, unsigned long flags)
 {
 	return dm_spi_xfer(slave->dev, bitlen, dout, din, flags);
+}
+
+int spi_write_then_read(struct spi_slave *slave, const u8 *opcode,
+			size_t n_opcode, const u8 *txbuf, u8 *rxbuf,
+			size_t n_buf)
+{
+	unsigned long flags = SPI_XFER_BEGIN;
+	int ret;
+
+	if (n_buf == 0)
+		flags |= SPI_XFER_END;
+
+	ret = spi_xfer(slave, n_opcode * 8, opcode, NULL, flags);
+	if (ret) {
+		debug("spi: failed to send command (%zu bytes): %d\n",
+		      n_opcode, ret);
+	} else if (n_buf != 0) {
+		ret = spi_xfer(slave, n_buf * 8, txbuf, rxbuf, SPI_XFER_END);
+		if (ret)
+			debug("spi: failed to transfer %zu bytes of data: %d\n",
+			      n_buf, ret);
+	}
+
+	return ret;
 }
 
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
@@ -237,11 +275,10 @@ int spi_cs_info(struct udevice *bus, uint cs, struct spi_cs_info *info)
 		return ops->cs_info(bus, cs, info);
 
 	/*
-	 * We could assume there is at least one valid chip select, but best
-	 * to be sure and return an error in this case. The driver didn't
-	 * care enough to tell us.
+	 * We could assume there is at least one valid chip select.
+	 * The driver didn't care enough to tell us.
 	 */
-	return -ENODEV;
+	return 0;
 }
 
 int spi_find_bus_and_cs(int busnum, int cs, struct udevice **busp,
@@ -275,7 +312,7 @@ int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 	bool created = false;
 	int ret;
 
-#if CONFIG_IS_ENABLED(OF_PLATDATA) || CONFIG_IS_ENABLED(OF_PRIOR_STAGE)
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
 	ret = uclass_first_device_err(UCLASS_SPI, &bus);
 #else
 	ret = uclass_get_device_by_seq(UCLASS_SPI, busnum, &bus);

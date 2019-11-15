@@ -56,6 +56,15 @@ config FPGA_ZYNQMPPL
 	  Enable FPGA driver for loading bitstream in BIT and BIN format
 	  on Xilinx Zynq UltraScale+ (ZynqMP) device.
 
+config FPGA_VERSALPL
+	bool "Enable Xilinx FPGA driver for Versal"
+	depends on FPGA_XILINX
+	help
+	  Enable FPGA driver for loading bitstream in PDI format on Xilinx
+	  Versal device. PDI is a new programmable device image format for
+	  Versal. The bitstream will only be generated as PDI for Versal
+	  platform.
+
 config FPGA_SPARTAN3
 	bool "Enable Spartan3 FPGA driver"
 	depends on FPGA_XILINX

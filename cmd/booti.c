@@ -48,6 +48,9 @@ static int booti_start(cmd_tbl_t *cmdtp, int flag, int argc,
 	}
 
 	images->ep = relocated_addr;
+	images->os.start = relocated_addr;
+	images->os.end = relocated_addr + image_size;
+
 	lmb_reserve(&images->lmb, images->ep, le32_to_cpu(image_size));
 
 	/*

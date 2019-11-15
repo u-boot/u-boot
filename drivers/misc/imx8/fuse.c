@@ -74,7 +74,7 @@ int fuse_prog(u32 bank, u32 word, u32 val)
 	}
 
 	return call_imx_sip(FSL_SIP_OTP_WRITE, (unsigned long)word,
-			    (unsigned long)val, 0);
+			    (unsigned long)val, 0, 0);
 }
 
 int fuse_override(u32 bank, u32 word, u32 val)

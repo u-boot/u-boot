@@ -58,11 +58,6 @@ BUR_COMMON_ENV \
 
 #define CONFIG_BOOTCOMMAND		"mmc dev 1; run b_default"
 
-/* undefine command which we not need here */
-#undef CONFIG_BOOTM_NETBSD
-#undef CONFIG_BOOTM_PLAN9
-#undef CONFIG_BOOTM_RTEMS
-
 /* Support both device trees and ATAGs. */
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
@@ -74,6 +69,5 @@ BUR_COMMON_ENV \
 #define CONFIG_ENV_SIZE			0x10000
 #define CONFIG_ENV_OFFSET		0x40000	/* TODO: Adresse definieren */
 #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
-#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 
 #endif	/* __CONFIG_BRXRE1_H__ */

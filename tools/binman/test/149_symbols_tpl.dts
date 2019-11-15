@@ -1,0 +1,28 @@
+/dts-v1/;
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	binman {
+		pad-byte = <0xff>;
+		u-boot-spl {
+			offset = <4>;
+		};
+
+		u-boot-spl2 {
+			offset = <0x1c>;
+			type = "u-boot-spl";
+		};
+
+		u-boot {
+			offset = <0x34>;
+		};
+
+		section {
+			u-boot-tpl {
+				type = "u-boot-tpl";
+			};
+		};
+	};
+};

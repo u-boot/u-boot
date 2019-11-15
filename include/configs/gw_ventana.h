@@ -47,15 +47,7 @@
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	       UART2_BASE
 
-#ifdef CONFIG_SPI_FLASH
-
-/* SPI */
-#ifdef CONFIG_CMD_SF
-  #define CONFIG_SPI_FLASH_MTD
-					     /* GPIO 3-19 (21248) */
-#endif
-
-#elif defined(CONFIG_SPL_NAND_SUPPORT)
+#if !defined(CONFIG_SPI_FLASH) && defined(CONFIG_SPL_NAND_SUPPORT)
 /* Enable NAND support */
 #ifdef CONFIG_CMD_NAND
   #define CONFIG_SYS_MAX_NAND_DEVICE	1

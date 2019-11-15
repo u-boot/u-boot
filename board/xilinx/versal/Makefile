@@ -5,3 +5,4 @@
 #
 
 obj-y	:= board.o
+obj-y	+= ../common/board.o

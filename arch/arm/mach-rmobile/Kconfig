@@ -32,7 +32,7 @@ config RCAR_GEN3
 	imply SPL_SYS_MALLOC_SIMPLE
 	imply SPL_TINY_MEMSET
 	imply SPL_YMODEM_SUPPORT
-	imply USE_TINY_PRINTF
+	imply SPL_USE_TINY_PRINTF
 
 config RZA1
 	prompt "Renesas ARM SoCs RZ/A1 (32bit)"

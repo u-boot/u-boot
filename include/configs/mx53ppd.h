@@ -22,8 +22,6 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
 
-#define CONFIG_WATCHDOG_TIMEOUT_MSECS 8000
-
 #define CONFIG_BOARD_LATE_INIT
 #define CONFIG_REVISION_TAG
 

@@ -1,0 +1,12 @@
+if TARGET_MEERKAT96
+
+config SYS_BOARD
+	default "meerkat96"
+
+config SYS_VENDOR
+	default "novtech"
+
+config SYS_CONFIG_NAME
+	default "meerkat96"
+
+endif

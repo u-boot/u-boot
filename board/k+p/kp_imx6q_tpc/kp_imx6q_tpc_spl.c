@@ -9,29 +9,11 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/imx-regs.h>
-#include <asm/arch/iomux.h>
 #include <asm/arch/mx6-ddr.h>
-#include <asm/arch/mx6-pins.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/gpio.h>
-#include <asm/mach-imx/boot_mode.h>
-#include <asm/mach-imx/iomux-v3.h>
-#include <asm/mach-imx/mxc_i2c.h>
 #include <asm/io.h>
 #include <errno.h>
-#include <fuse.h>
-#include <fsl_esdhc_imx.h>
-#include <i2c.h>
-#include <mmc.h>
 #include <spl.h>
-
-#define UART_PAD_CTRL							\
-	(PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm |	\
-	 PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
-
-#define USDHC_PAD_CTRL							\
-	(PAD_CTL_PUS_47K_UP | PAD_CTL_SPEED_LOW | PAD_CTL_DSE_80ohm |	\
-	 PAD_CTL_SRE_FAST | PAD_CTL_HYS)
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -46,60 +28,6 @@ static void ccgr_init(void)
 	writel(0x00FFF300, &ccm->CCGR4);
 	writel(0x0F0000C3, &ccm->CCGR5);
 	writel(0x000003FF, &ccm->CCGR6);
-}
-
-/* onboard microSD */
-static iomux_v3_cfg_t const usdhc2_pads[] = {
-	IOMUX_PADS(PAD_SD2_DAT0__SD2_DATA0	| MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD2_DAT1__SD2_DATA1	| MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD2_DAT2__SD2_DATA2	| MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD2_DAT3__SD2_DATA3	| MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD2_CLK__SD2_CLK	| MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD2_CMD__SD2_CMD	| MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_NANDF_CS3__GPIO6_IO16	| MUX_PAD_CTRL(NO_PAD_CTRL)),
-};
-
-/* eMMC */
-static iomux_v3_cfg_t const usdhc4_pads[] = {
-	IOMUX_PADS(PAD_SD4_DAT0__SD4_DATA0	| MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD4_DAT1__SD4_DATA1	| MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD4_DAT2__SD4_DATA2	| MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD4_DAT3__SD4_DATA3	| MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD4_DAT4__SD4_DATA4	| MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD4_DAT5__SD4_DATA5	| MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD4_DAT6__SD4_DATA6	| MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD4_DAT7__SD4_DATA7	| MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD4_CLK__SD4_CLK	| MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD4_CMD__SD4_CMD	| MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-};
-
-/* SD */
-static void setup_iomux_sd(void)
-{
-	SETUP_IOMUX_PADS(usdhc2_pads);
-	SETUP_IOMUX_PADS(usdhc4_pads);
-}
-
-/* UART */
-static iomux_v3_cfg_t const uart1_pads[] = {
-	IOMUX_PADS(PAD_SD3_DAT7__UART1_TX_DATA	| MUX_PAD_CTRL(UART_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD3_DAT6__UART1_RX_DATA	| MUX_PAD_CTRL(UART_PAD_CTRL)),
-};
-
-static void setup_iomux_uart(void)
-{
-	SETUP_IOMUX_PADS(uart1_pads);
-}
-
-/* USB */
-static iomux_v3_cfg_t const usb_pads[] = {
-	IOMUX_PADS(PAD_GPIO_1__USB_OTG_ID	| MUX_PAD_CTRL(NO_PAD_CTRL)),
-	IOMUX_PADS(PAD_EIM_D31__GPIO3_IO31	| MUX_PAD_CTRL(NO_PAD_CTRL)),
-};
-
-static void setup_iomux_usb(void)
-{
-	SETUP_IOMUX_PADS(usb_pads);
 }
 
 /* DDR3 */
@@ -255,57 +183,24 @@ static void spl_dram_init(void)
 #endif
 }
 
-struct fsl_esdhc_cfg usdhc_cfg[] = {
-	{USDHC2_BASE_ADDR},
-	{USDHC4_BASE_ADDR},
-};
-
-#define USDHC2_CD_GPIO	IMX_GPIO_NR(1, 4)
-int board_mmc_getcd(struct mmc *mmc)
+void board_boot_order(u32 *spl_boot_list)
 {
-	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
-	int ret = 0;
+	u32 boot_device = spl_boot_device();
+	u32 reg = imx6_src_get_boot_mode();
 
-	switch (cfg->esdhc_base) {
-	case USDHC2_BASE_ADDR:
-		ret = !gpio_get_value(USDHC2_CD_GPIO);
-		break;
-	case USDHC4_BASE_ADDR:
-		ret = 1; /* eMMC/uSDHC4 is always present */
-		break;
-	}
+	reg = (reg & IMX6_BMODE_MASK) >> IMX6_BMODE_SHIFT;
 
-	return ret;
-}
+	debug("%s: boot device: 0x%x (0x4 SD, 0x6 eMMC)\n", __func__, reg);
+	if (boot_device == BOOT_DEVICE_MMC1)
+		if (reg == IMX6_BMODE_MMC || reg == IMX6_BMODE_EMMC)
+			boot_device = BOOT_DEVICE_MMC2;
 
-int board_mmc_init(bd_t *bd)
-{
-	struct src *psrc = (struct src *)SRC_BASE_ADDR;
-	unsigned int reg = readl(&psrc->sbmr1) >> 11;
+	spl_boot_list[0] = boot_device;
 	/*
-	 * Upon reading BOOT_CFG register the following map is done:
-	 * Bit 11 and 12 of BOOT_CFG register can determine the current
-	 * mmc port
-	 * 0x1                  SD1
-	 * 0x3                  SD4
+	 * Below boot device is a 'fallback' - it shall always be possible to
+	 * boot from SD card
 	 */
-
-	switch (reg & 0x3) {
-	case 0x1:
-		SETUP_IOMUX_PADS(usdhc2_pads);
-		usdhc_cfg[0].esdhc_base = USDHC2_BASE_ADDR;
-		usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
-		gd->arch.sdhc_clk = usdhc_cfg[0].sdhc_clk;
-		break;
-	case 0x3:
-		SETUP_IOMUX_PADS(usdhc4_pads);
-		usdhc_cfg[0].esdhc_base = USDHC4_BASE_ADDR;
-		usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC4_CLK);
-		gd->arch.sdhc_clk = usdhc_cfg[0].sdhc_clk;
-		break;
-	}
-
-	return fsl_esdhc_initialize(bd, &usdhc_cfg[0]);
+	spl_boot_list[1] = BOOT_DEVICE_MMC1;
 }
 
 void board_init_f(ulong dummy)
@@ -319,9 +214,8 @@ void board_init_f(ulong dummy)
 	/* setup GP timer */
 	timer_init();
 
-	setup_iomux_sd();
-	setup_iomux_uart();
-	setup_iomux_usb();
+	/* Early - pre reloc - driver model setup */
+	spl_early_init();
 
 	/* UART clocks enabled and gd valid - init serial console */
 	preloader_console_init();
@@ -331,7 +225,4 @@ void board_init_f(ulong dummy)
 
 	/* Clear the BSS. */
 	memset(__bss_start, 0, __bss_end - __bss_start);
-
-	/* load/boot image from boot device */
-	board_init_r(NULL, 0);
 }

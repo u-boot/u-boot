@@ -13,7 +13,7 @@
 #define CONFIG_SPL_MAX_SIZE				(124 * 1024)
 #define CONFIG_SYS_MONITOR_LEN				(1024 * 1024)
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR		0x250
+#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR		0x800
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION		0
 
 #define CONFIG_SPL_LDSCRIPT		"arch/arm/cpu/armv8/u-boot-spl.lds"
@@ -44,7 +44,6 @@
 #undef CONFIG_CMD_IMLS
 
 #undef CONFIG_CMD_CRC32
-#undef CONFIG_BOOTM_NETBSD
 
 #define CONFIG_SYS_FSL_ESDHC_ADDR       0
 #define USDHC1_BASE_ADDR                0x5B010000
@@ -54,8 +53,15 @@
 
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
+#ifdef CONFIG_AHAB_BOOT
+#define AHAB_ENV "sec_boot=yes\0"
+#else
+#define AHAB_ENV "sec_boot=no\0"
+#endif
+
 /* Initial environment variables */
 #define CONFIG_EXTRA_ENV_SETTINGS		\
+	AHAB_ENV \
 	"script=boot.scr\0" \
 	"image=Image\0" \
 	"panel=NULL\0" \
@@ -76,16 +82,27 @@
 		"source\0" \
 	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
 	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
+	"loadcntr=fatload mmc ${mmcdev}:${mmcpart} ${cntr_addr} ${cntr_file}\0" \
+	"auth_os=auth_cntr ${cntr_addr}\0" \
+	"boot_os=booti ${loadaddr} - ${fdt_addr};\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
-		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
-			"if run loadfdt; then " \
-				"booti ${loadaddr} - ${fdt_addr}; " \
+		"if test ${sec_boot} = yes; then " \
+			"if run auth_os; then " \
+				"run boot_os; " \
 			"else " \
-				"echo WARN: Cannot load the DT; " \
+				"echo ERR: failed to authenticate; " \
 			"fi; " \
 		"else " \
-			"echo wait for boot; " \
+			"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
+				"if run loadfdt; then " \
+					"run boot_os; " \
+				"else " \
+					"echo WARN: Cannot load the DT; " \
+				"fi; " \
+			"else " \
+				"echo wait for boot; " \
+			"fi;" \
 		"fi;\0" \
 	"netargs=setenv bootargs console=${console} " \
 		"root=/dev/nfs " \
@@ -97,15 +114,24 @@
 		"else " \
 			"setenv get_cmd tftp; " \
 		"fi; " \
-		"${get_cmd} ${loadaddr} ${image}; " \
-		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
-			"if ${get_cmd} ${fdt_addr} ${fdt_file}; then " \
-				"booti ${loadaddr} - ${fdt_addr}; " \
+		"if test ${sec_boot} = yes; then " \
+			"${get_cmd} ${cntr_addr} ${cntr_file}; " \
+			"if run auth_os; then " \
+				"run boot_os; " \
 			"else " \
-				"echo WARN: Cannot load the DT; " \
+				"echo ERR: failed to authenticate; " \
 			"fi; " \
 		"else " \
-			"booti; " \
+			"${get_cmd} ${loadaddr} ${image}; " \
+			"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
+				"if ${get_cmd} ${fdt_addr} ${fdt_file}; then " \
+					"run boot_os; " \
+				"else " \
+					"echo WARN: Cannot load the DT; " \
+				"fi; " \
+			"else " \
+				"booti; " \
+			"fi;" \
 		"fi;\0"
 
 #define CONFIG_BOOTCOMMAND \
@@ -113,10 +139,17 @@
 		   "if run loadbootscript; then " \
 			   "run bootscript; " \
 		   "else " \
-			   "if run loadimage; then " \
-				   "run mmcboot; " \
-			   "else run netboot; " \
-			   "fi; " \
+			   "if test ${sec_boot} = yes; then " \
+				   "if run loadcntr; then " \
+					   "run mmcboot; " \
+				   "else run netboot; " \
+				   "fi; " \
+			    "else " \
+				   "if run loadimage; then " \
+					   "run mmcboot; " \
+				   "else run netboot; " \
+				   "fi; " \
+			 "fi; " \
 		   "fi; " \
 	   "else booti ${loadaddr} - ${fdt_addr}; fi"
 

@@ -41,17 +41,9 @@
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2
 #endif
 
-/* Ethernet */
-#ifdef CONFIG_FEC_MXC
-#define IMX_FEC_BASE			ENET_BASE_ADDR
-#define CONFIG_FEC_MXC_PHYADDR          0x1
-#define CONFIG_FEC_XCV_TYPE             RMII
-#define CONFIG_ETHPRIME			"FEC"
-#endif
-
 /* LCD */
 #ifndef CONFIG_SPL_BUILD
-#ifdef CONFIG_VIDEO
+#ifdef CONFIG_DM_VIDEO
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_SPLASH_SCREEN_ALIGN
@@ -59,6 +51,8 @@
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_VIDEO_BMP_LOGO
 #define CONFIG_BMP_16BPP
+#define CONFIG_BMP_24BPP
+#define CONFIG_BMP_32BPP
 #define CONFIG_VIDEO_MXS
 #define MXS_LCDIF_BASE MX6UL_LCDIF1_BASE_ADDR
 #endif
@@ -95,6 +89,8 @@
 	"mmcroot=/dev/mmcblk0p2 ro\0"                                                           \
 	"mmcrootfstype=ext4 rootwait\0"                                                         \
 	"kernelimg="           __stringify(CONFIG_BOARD_NAME)          "-linux.bin\0"           \
+	"splashpos=0,0\0"									\
+	"splashimage="		__stringify(CONFIG_LOADADDR) 		"\0"			\
 	"videomode=video=ctfb:x:800,y:480,depth:18,pclk:33033,le:96,ri:96,up:20,lo:21,hs:64,vs:4,sync:0,vmode:0\0" \
 	"check_env=if test -n ${flash_env_version}; "                                           \
 		"then env default env_version; "                                                \

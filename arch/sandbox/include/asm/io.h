@@ -6,6 +6,13 @@
 #ifndef __SANDBOX_ASM_IO_H
 #define __SANDBOX_ASM_IO_H
 
+enum sandboxio_size_t {
+	SB_SIZE_8,
+	SB_SIZE_16,
+	SB_SIZE_32,
+	SB_SIZE_64,
+};
+
 void *phys_to_virt(phys_addr_t paddr);
 #define phys_to_virt phys_to_virt
 
@@ -38,18 +45,20 @@ static inline void unmap_sysmem(const void *vaddr)
 /* Map from a pointer to our RAM buffer */
 phys_addr_t map_to_sysmem(const void *ptr);
 
-/* Define nops for sandbox I/O access */
-#define readb(addr) ((void)addr, 0)
-#define readw(addr) ((void)addr, 0)
-#define readl(addr) ((void)addr, 0)
+unsigned int sandbox_read(const void *addr, enum sandboxio_size_t size);
+void sandbox_write(void *addr, unsigned int val, enum sandboxio_size_t size);
+
+#define readb(addr) sandbox_read((const void *)addr, SB_SIZE_8)
+#define readw(addr) sandbox_read((const void *)addr, SB_SIZE_16)
+#define readl(addr) sandbox_read((const void *)addr, SB_SIZE_32)
 #ifdef CONFIG_SANDBOX64
-#define readq(addr) ((void)addr, 0)
+#define readq(addr) sandbox_read((const void *)addr, SB_SIZE_64)
 #endif
-#define writeb(v, addr) ((void)addr)
-#define writew(v, addr) ((void)addr)
-#define writel(v, addr) ((void)addr)
+#define writeb(v, addr) sandbox_write((void *)addr, v, SB_SIZE_8)
+#define writew(v, addr) sandbox_write((void *)addr, v, SB_SIZE_16)
+#define writel(v, addr) sandbox_write((void *)addr, v, SB_SIZE_32)
 #ifdef CONFIG_SANDBOX64
-#define writeq(v, addr) ((void)addr)
+#define writeq(v, addr) sandbox_write((void *)addr, v, SB_SIZE_64)
 #endif
 
 /*
@@ -110,13 +119,21 @@ phys_addr_t map_to_sysmem(const void *ptr);
 #define clrsetbits_8(addr, clear, set) clrsetbits(8, addr, clear, set)
 
 /* I/O access functions */
-int inl(unsigned int addr);
-int inw(unsigned int addr);
-int inb(unsigned int addr);
+int _inl(unsigned int addr);
+int _inw(unsigned int addr);
+int _inb(unsigned int addr);
 
-void outl(unsigned int value, unsigned int addr);
-void outw(unsigned int value, unsigned int addr);
-void outb(unsigned int value, unsigned int addr);
+void _outl(unsigned int value, unsigned int addr);
+void _outw(unsigned int value, unsigned int addr);
+void _outb(unsigned int value, unsigned int addr);
+
+#define inb(port)	_inb((uintptr_t)(port))
+#define inw(port)	_inw((uintptr_t)(port))
+#define inl(port)	_inl((uintptr_t)(port))
+
+#define outb(val, port)	_outb(val, (uintptr_t)(port))
+#define outw(val, port)	_outw(val, (uintptr_t)(port))
+#define outl(val, port)	_outl(val, (uintptr_t)(port))
 
 #define out_arch(type,endian,a,v)	write##type(cpu_to_##endian(v),a)
 #define in_arch(type,endian,a)		endian##_to_cpu(read##type(a))
@@ -187,6 +204,28 @@ static inline void memcpy_toio(volatile void *dst, const void *src, int count)
 
 #define insw(port, buf, ns)		_insw((u16 *)port, buf, ns)
 #define outsw(port, buf, ns)		_outsw((u16 *)port, buf, ns)
+
+/* IO space accessors */
+#define clrio(type, addr, clear) \
+	out##type(in##type(addr) & ~(clear), (addr))
+
+#define setio(type, addr, set) \
+	out##type(in##type(addr) | (set), (addr))
+
+#define clrsetio(type, addr, clear, set) \
+	out##type((in##type(addr) & ~(clear)) | (set), (addr))
+
+#define clrio_32(addr, clear) clrio(l, addr, clear)
+#define clrio_16(addr, clear) clrio(w, addr, clear)
+#define clrio_8(addr, clear) clrio(b, addr, clear)
+
+#define setio_32(addr, set) setio(l, addr, set)
+#define setio_16(addr, set) setio(w, addr, set)
+#define setio_8(addr, set) setio(b, addr, set)
+
+#define clrsetio_32(addr, clear, set) clrsetio(l, addr, clear, set)
+#define clrsetio_16(addr, clear, set) clrsetio(w, addr, clear, set)
+#define clrsetio_8(addr, clear, set) clrsetio(b, addr, clear, set)
 
 #include <iotrace.h>
 #include <asm/types.h>

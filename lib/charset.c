@@ -335,6 +335,31 @@ s32 utf_to_upper(const s32 code)
 	return ret;
 }
 
+/*
+ * u16_strncmp() - compare two u16 string
+ *
+ * @s1:		first string to compare
+ * @s2:		second string to compare
+ * @n:		maximum number of u16 to compare
+ * Return:	0  if the first n u16 are the same in s1 and s2
+ *		< 0 if the first different u16 in s1 is less than the
+ *		corresponding u16 in s2
+ *		> 0 if the first different u16 in s1 is greater than the
+ *		corresponding u16 in s2
+ */
+int u16_strncmp(const u16 *s1, const u16 *s2, size_t n)
+{
+	int ret = 0;
+
+	for (; n; --n, ++s1, ++s2) {
+		ret = *s1 - *s2;
+		if (ret || !*s1)
+			break;
+	}
+
+	return ret;
+}
+
 size_t u16_strlen(const void *in)
 {
 	const char *pos = in;

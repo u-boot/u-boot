@@ -25,9 +25,6 @@ struct bcm2835_timer_regs {
 	u32 c2;
 	u32 c3;
 };
-
-extern ulong get_timer_us(ulong base);
-
 #endif
 
 #endif

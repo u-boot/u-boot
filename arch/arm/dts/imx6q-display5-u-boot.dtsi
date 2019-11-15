@@ -31,6 +31,11 @@
 	chosen {
 		stdout-path = &uart5;
 	};
+
+	wdt-reboot {
+		compatible = "wdt-reboot";
+		wdt = <&wdog1>;
+	};
 };
 
 &i2c3 {

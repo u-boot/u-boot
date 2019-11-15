@@ -19,12 +19,14 @@
  * @proc_id: processor id for the consumer remoteproc device
  * @host_id: host id to pass the control over for this consumer remoteproc
  *	     device
+ * @dev_id: Device ID as identified by system controller.
  */
 struct ti_sci_proc {
 	const struct ti_sci_handle *sci;
 	const struct ti_sci_proc_ops *ops;
 	u8 proc_id;
 	u8 host_id;
+	u16 dev_id;
 };
 
 static inline int ti_sci_proc_request(struct ti_sci_proc *tsp)
@@ -118,4 +120,29 @@ static inline int ti_sci_proc_set_control(struct ti_sci_proc *tsp,
 	return ret;
 }
 
+static inline int ti_sci_proc_power_domain_on(struct ti_sci_proc *tsp)
+{
+	int ret;
+
+	debug("%s: dev_id = %d\n", __func__, tsp->dev_id);
+
+	ret = tsp->sci->ops.dev_ops.get_device_exclusive(tsp->sci, tsp->dev_id);
+	if (ret)
+		pr_err("Power-domain on failed for dev = %d\n", tsp->dev_id);
+
+	return ret;
+}
+
+static inline int ti_sci_proc_power_domain_off(struct ti_sci_proc *tsp)
+{
+	int ret;
+
+	debug("%s: dev_id = %d\n", __func__, tsp->dev_id);
+
+	ret = tsp->sci->ops.dev_ops.put_device(tsp->sci, tsp->dev_id);
+	if (ret)
+		pr_err("Power-domain off failed for dev = %d\n", tsp->dev_id);
+
+	return ret;
+}
 #endif /* REMOTEPROC_TI_SCI_PROC_H */

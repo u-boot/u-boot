@@ -518,8 +518,22 @@ static int dw_spi_set_mode(struct udevice *bus, uint mode)
 static int dw_spi_remove(struct udevice *bus)
 {
 	struct dw_spi_priv *priv = dev_get_priv(bus);
+	int ret;
 
-	return reset_release_bulk(&priv->resets);
+	ret = reset_release_bulk(&priv->resets);
+	if (ret)
+		return ret;
+
+#if CONFIG_IS_ENABLED(CLK)
+	ret = clk_disable(&priv->clk);
+	if (ret)
+		return ret;
+
+	ret = clk_free(&priv->clk);
+	if (ret)
+		return ret;
+#endif
+	return 0;
 }
 
 static const struct dm_spi_ops dw_spi_ops = {

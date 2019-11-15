@@ -61,6 +61,7 @@ static const image_header_t *image_get_ramdisk(ulong rd_addr, uint8_t arch,
 #endif /* !USE_HOSTCC*/
 
 #include <u-boot/crc.h>
+#include <imximage.h>
 
 #ifndef CONFIG_SYS_BARGSIZE
 #define CONFIG_SYS_BARGSIZE 512
@@ -378,9 +379,9 @@ void image_print_contents(const void *ptr)
 		}
 	} else if (image_check_type(hdr, IH_TYPE_FIRMWARE_IVT)) {
 		printf("HAB Blocks:   0x%08x   0x0000   0x%08x\n",
-				image_get_load(hdr) - image_get_header_size(),
-				image_get_size(hdr) + image_get_header_size()
-						- 0x1FE0);
+			image_get_load(hdr) - image_get_header_size(),
+			(int)(image_get_size(hdr) + image_get_header_size()
+			+ sizeof(flash_header_v2_t) - 0x2060));
 	}
 }
 
@@ -582,7 +583,7 @@ ulong env_get_bootm_low(void)
 
 #if defined(CONFIG_SYS_SDRAM_BASE)
 	return CONFIG_SYS_SDRAM_BASE;
-#elif defined(CONFIG_ARM)
+#elif defined(CONFIG_ARM) || defined(CONFIG_MICROBLAZE)
 	return gd->bd->bi_dram[0].start;
 #else
 	return 0;
@@ -599,7 +600,8 @@ phys_size_t env_get_bootm_size(void)
 		return tmp;
 	}
 
-#if defined(CONFIG_ARM) && defined(CONFIG_NR_DRAM_BANKS)
+#if (defined(CONFIG_ARM) || defined(CONFIG_MICROBLAZE)) && \
+     defined(CONFIG_NR_DRAM_BANKS)
 	start = gd->bd->bi_dram[0].start;
 	size = gd->bd->bi_dram[0].size;
 #else

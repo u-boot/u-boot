@@ -172,6 +172,8 @@ void sdram_init(void)
 
 int board_init(void)
 {
+	save_omap_boot_params();
+
 #if defined(CONFIG_HW_WATCHDOG)
 	hw_watchdog_init();
 #endif
@@ -183,3 +185,54 @@ int board_init(void)
 #endif
 	return 0;
 }
+
+#ifdef CONFIG_BOARD_LATE_INIT
+static void set_bootmode_env(void)
+{
+	char *boot_device_name = NULL;
+	char *boot_mode_gpio = "gpio@44e07000_14";
+	int   ret;
+	int   value;
+
+	struct gpio_desc boot_mode_desc;
+
+	switch (gd->arch.omap_boot_device) {
+	case BOOT_DEVICE_NAND:
+		boot_device_name = "nand";
+		break;
+	case BOOT_DEVICE_USBETH:
+		boot_device_name = "usbeth";
+		break;
+	default:
+		break;
+	}
+
+	if (boot_device_name)
+		env_set("boot_device", boot_device_name);
+
+	ret = dm_gpio_lookup_name(boot_mode_gpio, &boot_mode_desc);
+	if (ret) {
+		printf("%s is not found\n", boot_mode_gpio);
+		goto err;
+	}
+
+	ret = dm_gpio_request(&boot_mode_desc, "setup_bootmode_env");
+	if (ret && ret != -EBUSY) {
+		printf("requesting gpio: %s failed\n", boot_mode_gpio);
+		goto err;
+	}
+
+	value = dm_gpio_get_value(&boot_mode_desc);
+	value ? env_set("swi_status", "0") : env_set("swi_status", "1");
+	return;
+
+err:
+	env_set("swi_status", "err");
+}
+
+int board_late_init(void)
+{
+	set_bootmode_env();
+	return 0;
+}
+#endif /* CONFIG_BOARD_LATE_INIT */

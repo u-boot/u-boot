@@ -35,6 +35,12 @@ SECTIONS
 	. = ALIGN(4);
 	__data_end = .;
 	__init_end = .;
+	. = ALIGN(4);
+	.binman_sym_table : {
+		__binman_sym_start = .;
+		KEEP(*(SORT(.binman_sym*)));
+		__binman_sym_end = .;
+	}
 
         _image_binary_end = .;
 

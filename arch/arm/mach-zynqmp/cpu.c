@@ -9,6 +9,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/armv8/mmu.h>
 #include <asm/io.h>
+#include <zynqmp_firmware.h>
 
 #define ZYNQ_SILICON_VER_MASK	0xF000
 #define ZYNQ_SILICON_VER_SHIFT	12
@@ -150,58 +151,6 @@ unsigned int zynqmp_get_silicon_version(void)
 	return ZYNQMP_CSU_VERSION_SILICON;
 }
 
-#define ZYNQMP_MMIO_READ	0xC2000014
-#define ZYNQMP_MMIO_WRITE	0xC2000013
-
-int __maybe_unused invoke_smc(u32 pm_api_id, u32 arg0, u32 arg1, u32 arg2,
-			      u32 arg3, u32 *ret_payload)
-{
-	/*
-	 * Added SIP service call Function Identifier
-	 * Make sure to stay in x0 register
-	 */
-	struct pt_regs regs;
-
-	regs.regs[0] = pm_api_id;
-	regs.regs[1] = ((u64)arg1 << 32) | arg0;
-	regs.regs[2] = ((u64)arg3 << 32) | arg2;
-
-	smc_call(&regs);
-
-	if (ret_payload != NULL) {
-		ret_payload[0] = (u32)regs.regs[0];
-		ret_payload[1] = upper_32_bits(regs.regs[0]);
-		ret_payload[2] = (u32)regs.regs[1];
-		ret_payload[3] = upper_32_bits(regs.regs[1]);
-		ret_payload[4] = (u32)regs.regs[2];
-	}
-
-	return regs.regs[0];
-}
-
-unsigned int  __maybe_unused zynqmp_pmufw_version(void)
-{
-	int ret;
-	u32 ret_payload[PAYLOAD_ARG_CNT];
-	static u32 pm_api_version = ZYNQMP_PM_VERSION_INVALID;
-
-	/*
-	 * Get PMU version only once and later
-	 * just return stored values instead of
-	 * asking PMUFW again.
-	 */
-	if (pm_api_version == ZYNQMP_PM_VERSION_INVALID) {
-		ret = invoke_smc(ZYNQMP_SIP_SVC_GET_API_VERSION, 0, 0, 0, 0,
-				 ret_payload);
-		pm_api_version = ret_payload[1];
-
-		if (ret)
-			panic("PMUFW is not found - Please load it!\n");
-	}
-
-	return pm_api_version;
-}
-
 static int zynqmp_mmio_rawwrite(const u32 address,
 		      const u32 mask,
 		      const u32 value)
@@ -233,28 +182,34 @@ int zynqmp_mmio_write(const u32 address,
 {
 	if (IS_ENABLED(CONFIG_SPL_BUILD) || current_el() == 3)
 		return zynqmp_mmio_rawwrite(address, mask, value);
+#if defined(CONFIG_ZYNQMP_FIRMWARE)
 	else
-		return invoke_smc(ZYNQMP_MMIO_WRITE, address, mask,
-				  value, 0, NULL);
+		return xilinx_pm_request(PM_MMIO_WRITE, address, mask,
+					 value, 0, NULL);
+#endif
 
 	return -EINVAL;
 }
 
 int zynqmp_mmio_read(const u32 address, u32 *value)
 {
-	u32 ret_payload[PAYLOAD_ARG_CNT];
-	u32 ret;
+	u32 ret = -EINVAL;
 
 	if (!value)
-		return -EINVAL;
+		return ret;
 
 	if (IS_ENABLED(CONFIG_SPL_BUILD) || current_el() == 3) {
 		ret = zynqmp_mmio_rawread(address, value);
-	} else {
-		ret = invoke_smc(ZYNQMP_MMIO_READ, address, 0, 0,
-				 0, ret_payload);
+	}
+#if defined(CONFIG_ZYNQMP_FIRMWARE)
+	else {
+		u32 ret_payload[PAYLOAD_ARG_CNT];
+
+		ret = xilinx_pm_request(PM_MMIO_READ, address, 0, 0,
+					0, ret_payload);
 		*value = ret_payload[1];
 	}
+#endif
 
 	return ret;
 }

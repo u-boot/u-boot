@@ -214,9 +214,7 @@ int imx_pinctrl_probe(struct udevice *dev,
 	if (info->flags & IMX8_USE_SCU)
 		return 0;
 
-	addr = fdtdec_get_addr_size(gd->fdt_blob, dev_of_offset(dev), "reg",
-				    &size);
-
+	addr = devfdt_get_addr_size_index(dev, 0, &size);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

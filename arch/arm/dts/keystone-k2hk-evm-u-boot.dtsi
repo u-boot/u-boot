@@ -12,3 +12,17 @@
 &i2c1 {
 	u-boot,dm-pre-reloc;
 };
+
+&usb_phy {
+	#phy-cells = <0>;
+	psc-domain = <2>;
+};
+
+&usb {
+	dwc3@2690000 {
+		phys = <&usb_phy>;
+		dr_mode = "host";
+		snps,u2ss_inp3_quirk;
+		status = "okay";
+	};
+};

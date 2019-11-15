@@ -100,6 +100,7 @@ class Entry_image_header(Entry):
                     offset = offset
                 else:
                     offset = image_size - IMAGE_HEADER_LEN
+        offset += self.section.GetStartOffset()
         return Entry.Pack(self, offset)
 
     def ProcessContents(self):

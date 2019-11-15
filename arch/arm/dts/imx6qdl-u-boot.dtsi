@@ -6,10 +6,12 @@
 / {
 	aliases {
 		usb0 = &usbotg;
+		video0 = &ipu1;
 	};
 
 	soc {
 		u-boot,dm-spl;
+		u-boot,dm-pre-reloc;
 
 		aips-bus@2000000 {
 			u-boot,dm-spl;
@@ -30,4 +32,8 @@
 
 &iomuxc {
 	u-boot,dm-spl;
+};
+
+&ipu1 {
+	u-boot,dm-pre-reloc;
 };

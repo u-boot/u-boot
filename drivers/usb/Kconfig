@@ -68,6 +68,8 @@ config SPL_DM_USB_GADGET
 
 source "drivers/usb/host/Kconfig"
 
+source "drivers/usb/cdns3/Kconfig"
+
 source "drivers/usb/dwc3/Kconfig"
 
 source "drivers/usb/musb/Kconfig"

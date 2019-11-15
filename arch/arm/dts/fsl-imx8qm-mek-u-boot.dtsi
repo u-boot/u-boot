@@ -3,6 +3,11 @@
  * Copyright 2018 NXP
  */
 
+&{/imx8qm-pm} {
+
+	u-boot,dm-spl;
+};
+
 &mu {
 	u-boot,dm-spl;
 };
@@ -64,6 +69,14 @@
 };
 
 &pd_conn_sdch2 {
+	u-boot,dm-spl;
+};
+
+&pd_dma {
+	u-boot,dm-spl;
+};
+
+&pd_dma_lpuart0 {
 	u-boot,dm-spl;
 };
 

@@ -25,10 +25,20 @@ config SPL_FRAMEWORK
 	  supports MMC, NAND and YMODEM and other methods loading of U-Boot
 	  and the Linux Kernel.  If unsure, say Y.
 
+config SPL_FRAMEWORK_BOARD_INIT_F
+	bool "Define a generic function board_init_f"
+	depends on SPL_FRAMEWORK
+	help
+	  Define a generic function board_init_f that:
+	  - initialize the spl (spl_early_init)
+	  - initialize the serial (preloader_console_init)
+	  Unless you want to provide your own board_init_f, you should say Y.
+
 config SPL_SIZE_LIMIT
-	int "Maximum size of SPL image"
+	hex "Maximum size of SPL image"
 	depends on SPL
-	default 69632 if ARCH_MX6
+	default 69632 if ARCH_MX6 && !MX6_OCRAM_256KB
+	default 200704 if ARCH_MX6 && MX6_OCRAM_256KB
 	default 0
 	help
 	  Specifies the maximum length of the U-Boot SPL image.
@@ -115,7 +125,7 @@ if SPL
 
 config SPL_HANDOFF
 	bool "Pass hand-off information from SPL to U-Boot proper"
-	depends on HANDOFF
+	depends on HANDOFF && SPL_BLOBLIST
 	default y
 	help
 	  This option enables SPL to write handoff information. This can be
@@ -138,6 +148,7 @@ config SPL_TEXT_BASE
 	default 0x10060 if MACH_SUN50I || MACH_SUN50I_H5 || MACH_SUN9I
 	default 0x20060 if MACH_SUN50I_H6
 	default 0x00060 if ARCH_SUNXI
+	default 0xfffc0000 if ARCH_ZYNQMP
 	default 0x0
 	help
 	  The address in memory that SPL will be running from.
@@ -341,6 +352,28 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION_TYPE
 	help
 	  Partition Type on the MMC to load U-Boot from, when the MMC is being
 	  used in raw mode.
+
+config SUPPORT_EMMC_BOOT_OVERRIDE_PART_CONFIG
+	bool "Override eMMC EXT_CSC_PART_CONFIG by user defined partition"
+	depends on SUPPORT_EMMC_BOOT
+	help
+	  eMMC boot partition is normally configured by the bits of the EXT_CSD
+	  register (EXT_CSC_PART_CONFIG), BOOT_PARTITION_ENABLE field. In some
+	  cases it might be required in SPL to load the image from different
+	  partition than the partition selected by EXT_CSC_PART_CONFIG register.
+	  Enable this option if you intend to use an eMMC boot partition other
+	  then selected via EXT_CSC_PART_CONFIG register and specify the custom
+	  partition number by the CONFIG_SYS_MMCSD_RAW_MODE_EMMC_BOOT_PARTITION
+	  option.
+
+config SYS_MMCSD_RAW_MODE_EMMC_BOOT_PARTITION
+	int "Number of the eMMC boot partition to use"
+	depends on SUPPORT_EMMC_BOOT_OVERRIDE_PART_CONFIG
+	default 1
+	help
+	  eMMC boot partition number to use when the eMMC in raw mode and
+	  the eMMC EXT_CSC_PART_CONFIG selection should be overridden in SPL
+	  by user defined partition number.
 
 config SPL_CRC32_SUPPORT
 	bool "Support CRC32"
@@ -607,6 +640,15 @@ config SPL_MMC_SUPPORT
 	  this option to build the drivers in drivers/mmc as part of an SPL
 	  build.
 
+config SPL_FORCE_MMC_BOOT
+	bool "Force SPL booting from MMC"
+	depends on SPL_MMC_SUPPORT
+	default n
+	help
+	  Force SPL to use MMC device for Linux kernel booting even when the
+	  SoC ROM recognized boot medium is not eMMC/SD. This is crucial for
+	  factory or 'falcon mode' booting.
+
 config SPL_MMC_TINY
 	bool "Tiny MMC framework in SPL"
 	depends on SPL_MMC_SUPPORT
@@ -671,6 +713,13 @@ config SPL_UBI
 	  Enable support for loading payloads from UBI. See
 	  README.ubispl for more info.
 
+if SPL_DM
+config SPL_DM_SPI
+	bool "Support SPI DM drivers in SPL"
+	help
+	  Enable support for SPI DM drivers in SPL.
+
+endif
 if SPL_UBI
 config SPL_UBI_LOAD_BY_VOLNAME
 	bool "Support loading volumes by name"
@@ -963,10 +1012,21 @@ config SPL_SERIAL_SUPPORT
 	  for displaying messages while SPL is running. It also brings in
 	  printf() and panic() functions. This should normally be enabled
 	  unless there are space reasons not to. Even then, consider
-	  enabling USE_TINY_PRINTF which is a small printf() version.
+	  enabling SPL_USE_TINY_PRINTF which is a small printf() version.
+
+config SPL_SPI_SUPPORT
+	bool "Support SPI drivers"
+	help
+	  Enable support for using SPI in SPL. This is used for connecting
+	  to SPI flash for loading U-Boot. See SPL_SPI_FLASH_SUPPORT for
+	  more details on that. The SPI driver provides the transport for
+	  data between the SPI flash and the CPU. This option can be used to
+	  enable SPI drivers that are needed for other purposes also, such
+	  as a SPI PMIC.
 
 config SPL_SPI_FLASH_SUPPORT
 	bool "Support SPI flash drivers"
+	depends on SPL_SPI_SUPPORT
 	help
 	  Enable support for using SPI flash in SPL, and loading U-Boot from
 	  SPI flash. SPI flash (Serial Peripheral Bus flash) is named after
@@ -1010,16 +1070,6 @@ config SYS_SPI_U_BOOT_OFFS
 	help
 	 Address within SPI-Flash from where the u-boot payload is fetched
 	 from.
-
-config SPL_SPI_SUPPORT
-	bool "Support SPI drivers"
-	help
-	  Enable support for using SPI in SPL. This is used for connecting
-	  to SPI flash for loading U-Boot. See SPL_SPI_FLASH_SUPPORT for
-	  more details on that. The SPI driver provides the transport for
-	  data between the SPI flash and the CPU. This option can be used to
-	  enable SPI drivers that are needed for other purposes also, such
-	  as a SPI PMIC.
 
 config SPL_THERMAL
 	bool "Driver support for thermal devices"
@@ -1183,9 +1233,17 @@ config TPL
 
 if TPL
 
+config TPL_SIZE_LIMIT
+	hex "Maximum size of TPL image"
+	depends on TPL
+	default 0
+	help
+	  Specifies the maximum length of the U-Boot TPL image.
+	  If this value is zero, it is ignored.
+
 config TPL_HANDOFF
 	bool "Pass hand-off information from TPL to SPL and U-Boot proper"
-	depends on HANDOFF
+	depends on HANDOFF && TPL_BLOBLIST
 	default y
 	help
 	  This option enables TPL to write handoff information. This can be

@@ -120,13 +120,22 @@
 	x86-start16-tpl {
 		offset = <CONFIG_SYS_X86_START16>;
 	};
+	x86-reset16-tpl {
+		offset = <CONFIG_RESET_VEC_LOC>;
+	};
 #elif defined(CONFIG_SPL)
 	x86-start16-spl {
 		offset = <CONFIG_SYS_X86_START16>;
 	};
+	x86-reset16-spl {
+		offset = <CONFIG_RESET_VEC_LOC>;
+	};
 #else
 	x86-start16 {
 		offset = <CONFIG_SYS_X86_START16>;
+	};
+	x86-reset16 {
+		offset = <CONFIG_RESET_VEC_LOC>;
 	};
 #endif
 };

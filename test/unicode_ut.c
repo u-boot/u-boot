@@ -567,6 +567,19 @@ static int unicode_test_utf_to_upper(struct unit_test_state *uts)
 }
 UNICODE_TEST(unicode_test_utf_to_upper);
 
+static int unicode_test_u16_strncmp(struct unit_test_state *uts)
+{
+	ut_assert(u16_strncmp(L"abc", L"abc", 3) == 0);
+	ut_assert(u16_strncmp(L"abcdef", L"abcghi", 3) == 0);
+	ut_assert(u16_strncmp(L"abcdef", L"abcghi", 6) < 0);
+	ut_assert(u16_strncmp(L"abcghi", L"abcdef", 6) > 0);
+	ut_assert(u16_strcmp(L"abc", L"abc") == 0);
+	ut_assert(u16_strcmp(L"abcdef", L"deghi") < 0);
+	ut_assert(u16_strcmp(L"deghi", L"abcdef") > 0);
+	return 0;
+}
+UNICODE_TEST(unicode_test_u16_strncmp);
+
 int do_ut_unicode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	struct unit_test *tests = ll_entry_start(struct unit_test, unicode_test);

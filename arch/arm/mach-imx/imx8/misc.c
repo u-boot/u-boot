@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 #include <common.h>
 #include <asm/arch/sci/sci.h>
+#include <asm/mach-imx/sys_proto.h>
 
 int sc_pm_setup_uart(sc_rsrc_t uart_rsrc, sc_pm_clock_rate_t clk_rate)
 {
@@ -25,9 +26,14 @@ int sc_pm_setup_uart(sc_rsrc_t uart_rsrc, sc_pm_clock_rate_t clk_rate)
 	return 0;
 }
 
+#define FSL_SIP_BUILDINFO			0xC2000003
+#define FSL_SIP_BUILDINFO_GET_COMMITHASH	0x00
+
 void build_info(void)
 {
+	u32 seco_build = 0, seco_commit = 0;
 	u32 sc_build = 0, sc_commit = 0;
+	ulong atf_commit = 0;
 
 	/* Get SCFW build and commit id */
 	sc_misc_build_info(-1, &sc_build, &sc_commit);
@@ -35,5 +41,23 @@ void build_info(void)
 		printf("SCFW does not support build info\n");
 		sc_commit = 0; /* Display 0 if build info not supported */
 	}
-	printf("Build: SCFW %x\n", sc_commit);
+
+	/* Get SECO FW build and commit id */
+	sc_seco_build_info(-1, &seco_build, &seco_commit);
+	if (!seco_build) {
+		debug("SECO FW does not support build info\n");
+		/* Display 0 when the build info is not supported */
+		seco_commit = 0;
+	}
+
+	/* Get ARM Trusted Firmware commit id */
+	atf_commit = call_imx_sip(FSL_SIP_BUILDINFO,
+				  FSL_SIP_BUILDINFO_GET_COMMITHASH, 0, 0, 0);
+	if (atf_commit == 0xffffffff) {
+		debug("ATF does not support build info\n");
+		atf_commit = 0x30; /* Display 0 */
+	}
+
+	printf("Build: SCFW %08x, SECO-FW %08x, ATF %s\n",
+	       sc_commit, seco_commit, (char *)&atf_commit);
 }

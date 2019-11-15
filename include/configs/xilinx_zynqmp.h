@@ -109,11 +109,10 @@
 
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"fdt_high=10000000\0" \
-	"initrd_high=10000000\0" \
 	"fdt_addr_r=0x40000000\0" \
 	"pxefile_addr_r=0x10000000\0" \
 	"kernel_addr_r=0x18000000\0" \
-	"scriptaddr=0x02000000\0" \
+	"scriptaddr=0x20000000\0" \
 	"ramdisk_addr_r=0x02100000\0" \
 	"script_offset_f=0x3e80000\0" \
 	"script_size_f=0x80000\0" \
@@ -176,7 +175,16 @@
 #define BOOTENV_DEV_NAME_NAND(devtypeu, devtypel, instance) \
 	#devtypel #instance " "
 
+#define BOOT_TARGET_DEVICES_JTAG(func)	func(JTAG, jtag, na)
+
+#define BOOTENV_DEV_JTAG(devtypeu, devtypel, instance) \
+	"bootcmd_jtag=source $scriptaddr; echo SCRIPT FAILED: continuing...;\0"
+
+#define BOOTENV_DEV_NAME_JTAG(devtypeu, devtypel, instance) \
+	"jtag "
+
 #define BOOT_TARGET_DEVICES(func) \
+	BOOT_TARGET_DEVICES_JTAG(func) \
 	BOOT_TARGET_DEVICES_MMC(func) \
 	BOOT_TARGET_DEVICES_QSPI(func) \
 	BOOT_TARGET_DEVICES_NAND(func) \

@@ -103,6 +103,8 @@ A device tree binary file can be provided with -d. If you edit the source
 (it is stored at arch/sandbox/dts/sandbox.dts) you must rebuild U-Boot to
 recreate the binary file.
 
+To use the default device tree, use -D. To use the test device tree, use -T.
+
 To execute commands directly, use the -c option. You can specify a single
 command, or multiple commands separated by a semicolon, as is normal in
 U-Boot. Be careful with quoting as the shell will normally process and
@@ -207,17 +209,12 @@ sandbox_flattree:
   We need this build so that we can test those inline functions, and we
   cannot build with both the inline functions and the non-inline functions
   since they are named the same.
-sandbox_noblk:
-  builds without CONFIG_BLK, which means the legacy block
-  drivers are used. We cannot use both the legacy and driver-model block
-  drivers since they implement the same functions
 sandbox_spl:
   builds sandbox with SPL support, so you can run spl/u-boot-spl
   and it will start up and then load ./u-boot. It is also possible to
   run ./u-boot directly.
 
-Of these sandbox_noblk can be removed once CONFIG_BLK is used everwhere, and
-sandbox_spl can probably be removed since it is a superset of sandbox.
+Of these sandbox_spl can probably be removed since it is a superset of sandbox.
 
 Most of the config options should be identical between these variants.
 
@@ -498,6 +495,13 @@ Note that many of these tests are implemented as commands which you can
 run natively on your board if desired (and enabled).
 
 To run all tests use "make check".
+
+To run a single test in an existing sandbox build, you can use -T to use the
+test device tree, and -c to select the test:
+
+  /tmp/b/sandbox/u-boot -T -c "ut dm pci_busdev"
+
+This runs dm_test_pci_busdev() which is in test/dm/pci.c
 
 
 Memory Map

@@ -122,9 +122,10 @@ struct dm_rproc_ops {
 	 *
 	 * @dev:	Remote proc device
 	 * @da:		Device address
+	 * @size:	Size of the memory region @da is pointing to
 	 * @return virtual address.
 	 */
-	void * (*device_to_virt)(struct udevice *dev, ulong da);
+	void * (*device_to_virt)(struct udevice *dev, ulong da, ulong size);
 };
 
 /* Accessor */
@@ -214,12 +215,68 @@ int rproc_is_running(int id);
 int rproc_elf32_sanity_check(ulong addr, ulong size);
 
 /**
+ * rproc_elf64_sanity_check() - Verify if an image is a valid ELF32 one
+ *
+ * Check if a valid ELF64 image exists at the given memory location. Verify
+ * basic ELF64 format requirements like magic number and sections size.
+ *
+ * @addr:	address of the image to verify
+ * @size:	size of the image
+ * @return 0 if the image looks good, else appropriate error value.
+ */
+int rproc_elf64_sanity_check(ulong addr, ulong size);
+
+/**
+ * rproc_elf_sanity_check() - Verify if an image is a valid ELF one
+ *
+ * Check if a valid ELF image exists at the given memory location. Auto
+ * detects ELF32/ELF64 and verifies basic ELF64/ELF32 format requirements
+ * like magic number and sections size.
+ *
+ * @addr:	address of the image to verify
+ * @size:	size of the image
+ * @return 0 if the image looks good, else appropriate error value.
+ */
+int rproc_elf_sanity_check(ulong addr, ulong size);
+
+/**
  * rproc_elf32_load_image() - load an ELF32 image
  * @dev:	device loading the ELF32 image
  * @addr:	valid ELF32 image address
+ * @size:	size of the image
  * @return 0 if the image is successfully loaded, else appropriate error value.
  */
-int rproc_elf32_load_image(struct udevice *dev, unsigned long addr);
+int rproc_elf32_load_image(struct udevice *dev, unsigned long addr, ulong size);
+
+/**
+ * rproc_elf64_load_image() - load an ELF64 image
+ * @dev:	device loading the ELF64 image
+ * @addr:	valid ELF64 image address
+ * @size:	size of the image
+ * @return 0 if the image is successfully loaded, else appropriate error value.
+ */
+int rproc_elf64_load_image(struct udevice *dev, ulong addr, ulong size);
+
+/**
+ * rproc_elf_load_image() - load an ELF image
+ * @dev:	device loading the ELF image
+ * @addr:	valid ELF image address
+ * @size:	size of the image
+ *
+ * Auto detects if the image is ELF32 or ELF64 image and load accordingly.
+ * @return 0 if the image is successfully loaded, else appropriate error value.
+ */
+int rproc_elf_load_image(struct udevice *dev, unsigned long addr, ulong size);
+
+/**
+ * rproc_elf_get_boot_addr() - Get rproc's boot address.
+ * @dev:	device loading the ELF image
+ * @addr:	valid ELF image address
+ *
+ * This function returns the entry point address of the ELF
+ * image.
+ */
+ulong rproc_elf_get_boot_addr(struct udevice *dev, ulong addr);
 #else
 static inline int rproc_init(void) { return -ENOSYS; }
 static inline int rproc_dev_init(int id) { return -ENOSYS; }
@@ -232,8 +289,21 @@ static inline int rproc_ping(int id) { return -ENOSYS; }
 static inline int rproc_is_running(int id) { return -ENOSYS; }
 static inline int rproc_elf32_sanity_check(ulong addr,
 					   ulong size) { return -ENOSYS; }
+static inline int rproc_elf64_sanity_check(ulong addr,
+					   ulong size) { return -ENOSYS; }
+static inline int rproc_elf_sanity_check(ulong addr,
+					 ulong size) { return -ENOSYS; }
 static inline int rproc_elf32_load_image(struct udevice *dev,
-					 unsigned long addr) { return -ENOSYS; }
+					 unsigned long addr, ulong size)
+{ return -ENOSYS; }
+static inline int rproc_elf64_load_image(struct udevice *dev, ulong addr,
+					 ulong size)
+{ return -ENOSYS; }
+static inline int rproc_elf_load_image(struct udevice *dev, ulong addr,
+				       ulong size)
+{ return -ENOSYS; }
+static inline ulong rproc_elf_get_boot_addr(struct udevice *dev, ulong addr)
+{ return 0; }
 #endif
 
 #endif	/* _RPROC_H_ */

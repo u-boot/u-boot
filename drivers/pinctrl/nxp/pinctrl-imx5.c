@@ -40,7 +40,5 @@ U_BOOT_DRIVER(imx5_pinctrl) = {
 	.remove = imx_pinctrl_remove,
 	.priv_auto_alloc_size = sizeof(struct imx_pinctrl_priv),
 	.ops = &imx_pinctrl_ops,
-#if !CONFIG_IS_ENABLED(OF_CONTROL)
 	.flags = DM_FLAG_PRE_RELOC,
-#endif
 };

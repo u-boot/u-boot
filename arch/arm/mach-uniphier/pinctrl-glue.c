@@ -13,14 +13,14 @@
 
 int uniphier_pin_init(const char *pinconfig_name)
 {
-	struct udevice *pctldev, *config, *next;
+	struct udevice *pctldev, *config;
 	int ret;
 
 	ret = uclass_first_device(UCLASS_PINCTRL, &pctldev);
 	if (ret)
 		return ret;
 
-	device_foreach_child_safe(config, next, pctldev) {
+	device_foreach_child(config, pctldev) {
 		if (strcmp(config->name, pinconfig_name))
 			continue;
 

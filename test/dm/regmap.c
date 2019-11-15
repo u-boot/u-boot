@@ -99,18 +99,27 @@ static int dm_test_regmap_rw(struct unit_test_state *uts)
 	struct regmap *map;
 	uint reg;
 
+	sandbox_set_enable_memio(true);
 	ut_assertok(uclass_get_device(UCLASS_SYSCON, 0, &dev));
 	map = syscon_get_regmap(dev);
 	ut_assertok_ptr(map);
 
 	ut_assertok(regmap_write(map, 0, 0xcacafafa));
-	ut_assertok(regmap_write(map, 3, 0x55aa2211));
+	ut_assertok(regmap_write(map, 5, 0x55aa2211));
 
 	ut_assertok(regmap_read(map, 0, &reg));
-	ut_assertok(regmap_read(map, 3, &reg));
+	ut_asserteq(0xcacafafa, reg);
+	ut_assertok(regmap_read(map, 5, &reg));
+	ut_asserteq(0x55aa2211, reg);
 
+	ut_assertok(regmap_read(map, 0, &reg));
+	ut_asserteq(0xcacafafa, reg);
 	ut_assertok(regmap_update_bits(map, 0, 0xff00ff00, 0x55aa2211));
-	ut_assertok(regmap_update_bits(map, 3, 0x00ff00ff, 0xcacafada));
+	ut_assertok(regmap_read(map, 0, &reg));
+	ut_asserteq(0x55ca22fa, reg);
+	ut_assertok(regmap_update_bits(map, 5, 0x00ff00ff, 0xcacafada));
+	ut_assertok(regmap_read(map, 5, &reg));
+	ut_asserteq(0x55ca22da, reg);
 
 	return 0;
 }
@@ -130,6 +139,7 @@ static int dm_test_regmap_getset(struct unit_test_state *uts)
 		u32 val3;
 	};
 
+	sandbox_set_enable_memio(true);
 	ut_assertok(uclass_get_device(UCLASS_SYSCON, 0, &dev));
 	map = syscon_get_regmap(dev);
 	ut_assertok_ptr(map);
@@ -138,7 +148,9 @@ static int dm_test_regmap_getset(struct unit_test_state *uts)
 	regmap_set(map, struct layout, val3, 0x55aa2211);
 
 	ut_assertok(regmap_get(map, struct layout, val0, &reg));
+	ut_asserteq(0xcacafafa, reg);
 	ut_assertok(regmap_get(map, struct layout, val3, &reg));
+	ut_asserteq(0x55aa2211, reg);
 
 	return 0;
 }
@@ -159,6 +171,7 @@ static int dm_test_regmap_poll(struct unit_test_state *uts)
 
 	start = get_timer(0);
 
+	ut_assertok(regmap_write(map, 0, 0x0));
 	ut_asserteq(-ETIMEDOUT,
 		    regmap_read_poll_timeout_test(map, 0, reg,
 						  (reg == 0xcacafafa),

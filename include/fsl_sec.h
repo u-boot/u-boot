@@ -93,8 +93,7 @@ typedef struct ccsr_sec {
 	struct {
 		u32	ms;	/* DECO LIODN Register, MS */
 		u32	ls;	/* DECO LIODN Register, LS */
-	} decoliodnr[8];
-	u8	res4[0x40];
+	} decoliodnr[16];
 	u32	dar;		/* DECO Avail Register */
 	u32	drr;		/* DECO Reset Register */
 	u8	res5[0x4d8];

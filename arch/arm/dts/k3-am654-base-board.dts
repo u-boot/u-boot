@@ -17,6 +17,11 @@
 		bootargs = "earlycon=ns16550a,mmio32,0x02800000";
 	};
 
+	aliases {
+		remoteproc0 = &mcu_r5fss0_core0;
+		remoteproc1 = &mcu_r5fss0_core1;
+	};
+
 	memory@80000000 {
 		device_type = "memory";
 		/* 4G RAM */

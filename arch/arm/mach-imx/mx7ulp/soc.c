@@ -6,21 +6,25 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/hab.h>
 
 static char *get_reset_cause(char *);
 
-#if defined(CONFIG_SECURE_BOOT)
+#if defined(CONFIG_IMX_HAB)
 struct imx_sec_config_fuse_t const imx_sec_config_fuse = {
 	.bank = 29,
 	.word = 6,
 };
 #endif
 
+#define ROM_VERSION_ADDR 0x80
 u32 get_cpu_rev(void)
 {
-	/* Temporally hard code the CPU rev to 0x73, rev 1.0. Fix it later */
-	return (MXC_CPU_MX7ULP << 12) | (1 << 4);
+	/* Check the ROM version for cpu revision */
+	u32 rom_version = readl((void __iomem *)ROM_VERSION_ADDR);
+
+	return (MXC_CPU_MX7ULP << 12) | (rom_version & 0xFF);
 }
 
 #ifdef CONFIG_REVISION_TAG
@@ -105,6 +109,10 @@ void s_init(void)
 	/* clock configuration. */
 	clock_init();
 
+	if (soc_rev() < CHIP_REV_2_0) {
+		/* enable dumb pmic */
+		writel((readl(SNVS_LP_LPCR) | SNVS_LPCR_DPEN), SNVS_LP_LPCR);
+	}
 	return;
 }
 
@@ -244,3 +252,29 @@ int mmc_get_env_dev(void)
 	return board_mmc_get_env_dev(devno);
 }
 #endif
+
+enum boot_device get_boot_device(void)
+{
+	struct bootrom_sw_info **p =
+		(struct bootrom_sw_info **)ROM_SW_INFO_ADDR;
+
+	enum boot_device boot_dev = SD1_BOOT;
+	u8 boot_type = (*p)->boot_dev_type;
+	u8 boot_instance = (*p)->boot_dev_instance;
+
+	switch (boot_type) {
+	case BOOT_TYPE_SD:
+		boot_dev = boot_instance + SD1_BOOT;
+		break;
+	case BOOT_TYPE_MMC:
+		boot_dev = boot_instance + MMC1_BOOT;
+		break;
+	case BOOT_TYPE_USB:
+		boot_dev = USB_BOOT;
+		break;
+	default:
+		break;
+	}
+
+	return boot_dev;
+}

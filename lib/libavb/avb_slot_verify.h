@@ -51,12 +51,25 @@ typedef enum {
  * be used ONLY for diagnostics and debugging. It cannot be used
  * unless AVB_SLOT_VERIFY_FLAGS_ALLOW_VERIFICATION_ERROR is also
  * used.
+ *
+ * AVB_HASHTREE_ERROR_MODE_MANAGED_RESTART_AND_EIO means that either
+ * AVB_HASHTREE_ERROR_MODE_RESTART or AVB_HASHTREE_ERROR_MODE_EIO is used
+ * depending on state. This mode implements a state machine whereby
+ * AVB_HASHTREE_ERROR_MODE_RESTART is used by default and when
+ * AVB_SLOT_VERIFY_FLAGS_RESTART_CAUSED_BY_HASHTREE_CORRUPTION is passed the
+ * mode transitions to AVB_HASHTREE_ERROR_MODE_EIO. When a new OS has been
+ * detected the device transitions back to the AVB_HASHTREE_ERROR_MODE_RESTART
+ * mode. To do this persistent storage is needed - specifically this means that
+ * the passed in AvbOps will need to have the read_persistent_value() and
+ * write_persistent_value() operations implemented. The name of the persistent
+ * value used is "avb.managed_verity_mode" and 32 bytes of storage is needed.
  */
 typedef enum {
   AVB_HASHTREE_ERROR_MODE_RESTART_AND_INVALIDATE,
   AVB_HASHTREE_ERROR_MODE_RESTART,
   AVB_HASHTREE_ERROR_MODE_EIO,
-  AVB_HASHTREE_ERROR_MODE_LOGGING
+  AVB_HASHTREE_ERROR_MODE_LOGGING,
+  AVB_HASHTREE_ERROR_MODE_MANAGED_RESTART_AND_EIO
 } AvbHashtreeErrorMode;
 
 /* Flags that influence how avb_slot_verify() works.
@@ -80,10 +93,26 @@ typedef enum {
  * contents loaded from |requested_partition| will be the contents of
  * the entire partition instead of just the size specified in the hash
  * descriptor.
+ *
+ * The AVB_SLOT_VERIFY_FLAGS_RESTART_CAUSED_BY_HASHTREE_CORRUPTION flag
+ * should be set if using AVB_HASHTREE_ERROR_MODE_MANAGED_RESTART_AND_EIO
+ * and the reason the boot loader is running is because the device
+ * was restarted by the dm-verity driver.
+ *
+ * If the AVB_SLOT_VERIFY_FLAGS_NO_VBMETA_PARTITION flag is set then
+ * data won't be loaded from the "vbmeta" partition and the
+ * |validate_vbmeta_public_key| operation is never called. Instead, the
+ * vbmeta structs in |requested_partitions| are loaded and processed and the
+ * |validate_public_key_for_partition| operation is called for each of these
+ * vbmeta structs. This flag is useful when booting into recovery on a device
+ * not using A/B - see section "Booting into recovery" in README.md for
+ * more information.
  */
 typedef enum {
   AVB_SLOT_VERIFY_FLAGS_NONE = 0,
-  AVB_SLOT_VERIFY_FLAGS_ALLOW_VERIFICATION_ERROR = (1 << 0)
+  AVB_SLOT_VERIFY_FLAGS_ALLOW_VERIFICATION_ERROR = (1 << 0),
+  AVB_SLOT_VERIFY_FLAGS_RESTART_CAUSED_BY_HASHTREE_CORRUPTION = (1 << 1),
+  AVB_SLOT_VERIFY_FLAGS_NO_VBMETA_PARTITION = (1 << 2),
 } AvbSlotVerifyFlags;
 
 /* Get a textual representation of |result|. */
@@ -188,6 +217,10 @@ typedef struct {
  *   set to AVB_HASHTREE_ERROR_MODE_EIO, and 'logging' if it's set to
  *   AVB_HASHTREE_ERROR_MODE_LOGGING.
  *
+ *   androidboot.veritymode.managed: This is set to 'yes' only
+ *   if hashtree validation isn't disabled and the passed-in hashtree
+ *   error mode is AVB_HASHTREE_ERROR_MODE_MANAGED_RESTART_AND_EIO.
+ *
  *   androidboot.vbmeta.invalidate_on_error: This is set to 'yes' only
  *   if hashtree validation isn't disabled and the passed-in hashtree
  *   error mode is AVB_HASHTREE_ERROR_MODE_RESTART_AND_INVALIDATE.
@@ -203,7 +236,9 @@ typedef struct {
  *   PARTUUID=$(ANDROID_VBMETA_PARTUUID) before substitution so it
  *   will end up pointing to the vbmeta partition for the verified
  *   slot. If there is no vbmeta partition it will point to the boot
- *   partition of the verified slot.
+ *   partition of the verified slot. If the flag
+ *   AVB_SLOT_VERIFY_FLAGS_NO_VBMETA_PARTITION is used, this is not
+ *   set.
  *
  *   androidboot.vbmeta.avb_version: This is set to the decimal value
  *   of AVB_VERSION_MAJOR followed by a dot followed by the decimal
@@ -228,6 +263,15 @@ typedef struct {
  * appropriate system partition is substituted in. Note that none of
  * the androidboot.* options mentioned above will be set.
  *
+ * The |resolved_hashtree_error_mode| is the the value of the passed
+ * avb_slot_verify()'s |hashtree_error_mode| parameter except that it never has
+ * the value AVB_HASHTREE_ERROR_MODE_MANAGED_RESTART_AND_EIO. If this value was
+ * passed in, then the restart/eio state machine is used resulting in
+ * |resolved_hashtree_error_mode| being set to either
+ * AVB_HASHTREE_ERROR_MODE_RESTART or AVB_HASHTREE_ERROR_MODE_EIO.  If set to
+ * AVB_HASHTREE_ERROR_MODE_EIO the boot loader should present a RED warning
+ * screen for the user to click through before continuing to boot.
+ *
  * This struct may grow in the future without it being considered an
  * ABI break.
  */
@@ -239,6 +283,7 @@ typedef struct {
   size_t num_loaded_partitions;
   char* cmdline;
   uint64_t rollback_indexes[AVB_MAX_NUMBER_OF_ROLLBACK_INDEX_LOCATIONS];
+  AvbHashtreeErrorMode resolved_hashtree_error_mode;
 } AvbSlotVerifyData;
 
 /* Calculates a digest of all vbmeta images in |data| using
@@ -282,12 +327,8 @@ void avb_slot_verify_data_free(AvbSlotVerifyData* data);
  * ignore verification errors which is something needed in the
  * UNLOCKED state. See the AvbSlotVerifyFlags enumeration for details.
  *
- * The |hashtree_error_mode| parameter should be set to the desired
- * error handling mode when hashtree validation fails inside the
- * HLOS. This value isn't used by libavb per se - it is forwarded to
- * the HLOS through the androidboot.veritymode and
- * androidboot.vbmeta.invalidate_on_error cmdline parameters. See the
- * AvbHashtreeErrorMode enumeration for details.
+ * The |hashtree_error_mode| parameter should be set to the desired error
+ * handling mode. See the AvbHashtreeErrorMode enumeration for details.
  *
  * Also note that |out_data| is never set if
  * AVB_SLOT_VERIFY_RESULT_ERROR_OOM, AVB_SLOT_VERIFY_RESULT_ERROR_IO,

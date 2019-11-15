@@ -12,6 +12,11 @@
 #include <part_efi.h>
 #include <efi_api.h>
 
+static inline int guidcmp(const void *g1, const void *g2)
+{
+	return memcmp(g1, g2, sizeof(efi_guid_t));
+}
+
 /* No need for efi loader support in SPL */
 #if CONFIG_IS_ENABLED(EFI_LOADER)
 
@@ -24,6 +29,10 @@
 #define U_BOOT_GUID \
 	EFI_GUID(0xe61d73b9, 0xa384, 0x4acc, \
 		 0xae, 0xab, 0x82, 0xe8, 0x28, 0xf3, 0x62, 0x8b)
+/* GUID used as host device on sandbox */
+#define U_BOOT_HOST_DEV_GUID \
+	EFI_GUID(0xbbe4e671, 0x5773, 0x4ea1, \
+		 0x9a, 0xab, 0x3a, 0x7d, 0xbf, 0x40, 0xc4, 0x82)
 
 /* Root node */
 extern efi_handle_t efi_root;
@@ -121,6 +130,10 @@ uint16_t *efi_dp_str(struct efi_device_path *dp);
 
 /* GUID of the U-Boot root node */
 extern const efi_guid_t efi_u_boot_guid;
+#ifdef CONFIG_SANDBOX
+/* GUID of U-Boot host device on sandbox */
+extern const efi_guid_t efi_guid_host_dev;
+#endif
 /* GUID of the EFI_BLOCK_IO_PROTOCOL */
 extern const efi_guid_t efi_block_io_guid;
 extern const efi_guid_t efi_global_variable_guid;
@@ -554,11 +567,6 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 #define EFI_DP_TYPE(_dp, _type, _subtype) \
 	(((_dp)->type == DEVICE_PATH_TYPE_##_type) && \
 	 ((_dp)->sub_type == DEVICE_PATH_SUB_TYPE_##_subtype))
-
-static inline int guidcmp(const void *g1, const void *g2)
-{
-	return memcmp(g1, g2, sizeof(efi_guid_t));
-}
 
 /*
  * Use these to indicate that your code / data should go into the EFI runtime

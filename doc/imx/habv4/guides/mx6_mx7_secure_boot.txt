@@ -17,7 +17,7 @@ introduction_habv4.txt document.
 
 The U-Boot provides support to secure boot configuration and also provide
 access to the HAB APIs exposed by the ROM vector table, the support is
-enabled by selecting the CONFIG_SECURE_BOOT option.
+enabled by selecting the CONFIG_IMX_HAB option.
 
 When built with this configuration, the U-Boot provides extra functions for
 HAB, such as the HAB status logs retrievement through the hab_status command
@@ -57,12 +57,12 @@ The diagram below illustrate a signed u-boot-dtb.imx image layout:
 -------------------------------------
 
 The first step is to generate an U-Boot image supporting the HAB features
-mentioned above, this can be achieved by adding CONFIG_SECURE_BOOT to the
+mentioned above, this can be achieved by adding CONFIG_IMX_HAB to the
 build configuration:
 
 - Defconfig:
 
-  CONFIG_SECURE_BOOT=y
+  CONFIG_IMX_HAB=y
 
 - Kconfig:
 

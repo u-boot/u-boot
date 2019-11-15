@@ -112,6 +112,7 @@ dtb-$(CONFIG_ROCKCHIP_RK3399) += \
 	rk3399-khadas-edge.dtb \
 	rk3399-khadas-edge-captain.dtb \
 	rk3399-khadas-edge-v.dtb \
+	rk3399-leez-p710.dtb \
 	rk3399-nanopc-t4.dtb \
 	rk3399-nanopi-m4.dtb \
 	rk3399-nanopi-neo4.dtb \
@@ -142,7 +143,9 @@ dtb-$(CONFIG_ARCH_MESON) += \
 	meson-axg-s400.dtb \
 	meson-g12a-u200.dtb \
 	meson-g12a-sei510.dtb \
-	meson-g12b-odroid-n2.dtb
+	meson-g12b-odroid-n2.dtb \
+	meson-g12b-a311d-khadas-vim3.dtb \
+	meson-sm1-sei610.dtb
 dtb-$(CONFIG_TEGRA) += tegra20-harmony.dtb \
 	tegra20-medcom-wide.dtb \
 	tegra20-paz00.dtb \
@@ -248,6 +251,13 @@ dtb-$(CONFIG_ARCH_ZYNQ) += \
 dtb-$(CONFIG_ARCH_ZYNQMP) += \
 	avnet-ultra96-rev1.dtb			\
 	avnet-ultrazedev-cc-v1.0-ultrazedev-som-v1.0.dtb	\
+	zynqmp-a2197-revA.dtb			\
+	zynqmp-e-a2197-00-revA.dtb		\
+	zynqmp-g-a2197-00-revA.dtb		\
+	zynqmp-m-a2197-01-revA.dtb		\
+	zynqmp-m-a2197-02-revA.dtb		\
+	zynqmp-m-a2197-03-revA.dtb		\
+	zynqmp-p-a2197-00-revA.dtb		\
 	zynqmp-mini.dtb				\
 	zynqmp-mini-emmc0.dtb			\
 	zynqmp-mini-emmc1.dtb			\
@@ -263,6 +273,7 @@ dtb-$(CONFIG_ARCH_ZYNQMP) += \
 	zynqmp-zcu111-revA.dtb			\
 	zynqmp-zcu1275-revA.dtb			\
 	zynqmp-zcu1275-revB.dtb			\
+	zynqmp-zcu216-revA.dtb			\
 	zynqmp-zc1232-revA.dtb			\
 	zynqmp-zc1254-revA.dtb			\
 	zynqmp-zc1751-xm015-dc1.dtb		\
@@ -531,6 +542,7 @@ dtb-$(CONFIG_MACH_SUN50I) += \
 	sun50i-a64-nanopi-a64.dtb \
 	sun50i-a64-oceanic-5205-5inmfd.dtb \
 	sun50i-a64-olinuxino.dtb \
+	sun50i-a64-olinuxino-emmc.dtb \
 	sun50i-a64-orangepi-win.dtb \
 	sun50i-a64-pine64-lts.dtb \
 	sun50i-a64-pine64-plus.dtb \
@@ -553,33 +565,47 @@ dtb-$(CONFIG_MX53) += imx53-cx9020.dtb \
 	imx53-kp.dtb \
 	imx53-m53menlo.dtb
 
-dtb-$(CONFIG_MX6Q) += \
-	imx6-apalis.dtb \
-	imx6q-display5.dtb \
-	imx6q-logicpd.dtb \
-	imx6q-novena.dtb \
-	imx6q-tbs2910.dtb
-
-dtb-$(CONFIG_MX6QDL) += \
+ifneq ($(CONFIG_MX6DL)$(CONFIG_MX6QDL)$(CONFIG_MX6S),)
+dtb-y += \
+	imx6dl-brppt2.dtb \
 	imx6dl-dhcom-pdk2.dtb \
 	imx6dl-icore.dtb \
 	imx6dl-icore-mipi.dtb \
 	imx6dl-icore-rqs.dtb \
 	imx6dl-mamoj.dtb \
+	imx6dl-nitrogen6x.dtb \
+	imx6dl-pico.dtb \
 	imx6dl-sabreauto.dtb \
 	imx6dl-sabresd.dtb \
 	imx6dl-wandboard-revb1.dtb \
+
+endif
+
+ifneq ($(CONFIG_MX6Q)$(CONFIG_MX6QDL),)
+dtb-y += \
+	imx6-apalis.dtb \
 	imx6q-cm-fx6.dtb \
 	imx6q-dhcom-pdk2.dtb \
+	imx6q-display5.dtb \
 	imx6q-icore.dtb \
 	imx6q-icore-mipi.dtb \
 	imx6q-icore-rqs.dtb \
+	imx6q-kp.dtb \
+	imx6q-logicpd.dtb \
+	imx6q-mccmon6.dtb\
+	imx6q-nitrogen6x.dtb \
+	imx6q-novena.dtb \
+	imx6q-pico.dtb \
 	imx6q-sabreauto.dtb \
+	imx6q-sabrelite.dtb \
 	imx6q-sabresd.dtb \
+	imx6q-tbs2910.dtb \
 	imx6q-wandboard-revb1.dtb \
 	imx6qp-sabreauto.dtb \
 	imx6qp-sabresd.dtb \
-	imx6qp-wandboard-revd1.dtb
+	imx6qp-wandboard-revd1.dtb \
+
+endif
 
 dtb-$(CONFIG_MX6SL) += imx6sl-evk.dtb
 
@@ -607,7 +633,8 @@ dtb-$(CONFIG_MX6ULL) += \
 	imx6ull-14x14-evk.dtb \
 	imx6ull-colibri.dtb \
 	imx6ull-phycore-segin.dtb \
-	imx6ull-dart-6ul.dtb
+	imx6ull-dart-6ul.dtb \
+	imx6ulz-14x14-evk.dtb
 
 dtb-$(CONFIG_ARCH_MX6) += \
 	imx6-apalis.dtb \
@@ -618,6 +645,7 @@ dtb-$(CONFIG_MX7) += imx7d-sdb.dtb \
 	imx7-colibri-emmc.dtb \
 	imx7-colibri-rawnand.dtb \
 	imx7s-warp.dtb \
+	imx7d-meerkat96.dtb \
 	imx7d-pico-pi.dtb \
 	imx7d-pico-hobbit.dtb
 
@@ -627,10 +655,15 @@ dtb-$(CONFIG_ARCH_MX7ULP) += imx7ulp-evk.dtb
 dtb-$(CONFIG_ARCH_IMX8) += \
 	fsl-imx8qm-apalis.dtb \
 	fsl-imx8qm-mek.dtb \
+	imx8qm-rom7720-a1.dtb \
+	fsl-imx8qxp-ai_ml.dtb \
 	fsl-imx8qxp-colibri.dtb \
 	fsl-imx8qxp-mek.dtb
 
-dtb-$(CONFIG_ARCH_IMX8M) += fsl-imx8mq-evk.dtb
+dtb-$(CONFIG_ARCH_IMX8M) += \
+	imx8mm-evk.dtb \
+	imx8mn-ddr4-evk.dtb \
+	imx8mq-evk.dtb
 
 dtb-$(CONFIG_RCAR_GEN2) += \
 	r8a7790-lager-u-boot.dtb \
@@ -692,6 +725,8 @@ dtb-$(CONFIG_TARGET_AT91SAM9X5EK) += \
 	at91sam9x25ek.dtb	\
 	at91sam9x35ek.dtb
 
+dtb-$(CONFIG_TARGET_SAM9X60EK) += sam9x60ek.dtb
+
 dtb-$(CONFIG_TARGET_AT91SAM9N12EK) += at91sam9n12ek.dtb
 
 dtb-$(CONFIG_TARGET_GARDENA_SMART_GATEWAY_AT91SAM) += \
@@ -727,6 +762,9 @@ dtb-$(CONFIG_TARGET_SAMA5D2_XPLAINED) += \
 
 dtb-$(CONFIG_TARGET_SAMA5D27_SOM1_EK) += \
 	at91-sama5d27_som1_ek.dtb
+
+dtb-$(CONFIG_TARGET_SAMA5D27_WLSOM1_EK) += \
+	at91-sama5d27_wlsom1_ek.dtb
 
 dtb-$(CONFIG_TARGET_SAMA5D2_ICP) += \
 	at91-sama5d2_icp.dtb
@@ -799,6 +837,8 @@ dtb-$(CONFIG_TARGET_VEXPRESS_CA5X2) += vexpress-v2p-ca5s.dtb
 dtb-$(CONFIG_TARGET_VEXPRESS_CA9X4) += vexpress-v2p-ca9.dtb
 dtb-$(CONFIG_TARGET_VEXPRESS_CA15_TC2) += vexpress-v2p-ca15_a7.dtb
 
+dtb-$(CONFIG_TARGET_DURIAN) += phytium-durian.dtb
+
 targets += $(dtb-y)
 
 # Add any required device tree compiler flags here
@@ -808,4 +848,4 @@ PHONY += dtbs
 dtbs: $(addprefix $(obj)/, $(dtb-y))
 	@:
 
-clean-files := *.dtb *_HS
+clean-files := *.dtb *.dtbo *_HS

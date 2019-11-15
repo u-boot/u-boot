@@ -44,7 +44,7 @@ config SPL_OF_CONTROL
 	depends on SPL && OF_CONTROL
 	help
 	  Some boards use device tree in U-Boot but only have 4KB of SRAM
-	  which is not enough to support device tree. Enable this option to
+	  which is not enough to support device tree. Disable this option to
 	  allow such boards to be supported by U-Boot SPL.
 
 config TPL_OF_CONTROL
@@ -131,7 +131,7 @@ config OF_LIST
 	  separated by <space>.
 
 choice
-	prompt "SPL OF LIST compression"
+	prompt "OF LIST compression"
 	depends on MULTI_DTB_FIT
 	default MULTI_DTB_FIT_NO_COMPRESSION
 

@@ -84,7 +84,10 @@ int board_late_init(void)
 #endif
 
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-	env_set("board_name", "EVK");
+	if (is_cpu_type(MXC_CPU_MX6ULZ))
+		env_set("board_name", "ULZ-EVK");
+	else
+		env_set("board_name", "EVK");
 	env_set("board_rev", "14X14");
 #endif
 
@@ -93,7 +96,10 @@ int board_late_init(void)
 
 int checkboard(void)
 {
-	puts("Board: MX6ULL 14x14 EVK\n");
+	if (is_cpu_type(MXC_CPU_MX6ULZ))
+		puts("Board: MX6ULZ 14x14 EVK\n");
+	else
+		puts("Board: MX6ULL 14x14 EVK\n");
 
 	return 0;
 }

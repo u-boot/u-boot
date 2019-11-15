@@ -7,7 +7,6 @@
 
 from entry import Entry
 import fdt_util
-import state
 import tools
 import tout
 

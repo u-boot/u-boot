@@ -352,7 +352,7 @@ unsigned long get_board_ddr_clk(void);
 
 /* Initial environment variables */
 #undef CONFIG_EXTRA_ENV_SETTINGS
-#ifdef CONFIG_SECURE_BOOT
+#ifdef CONFIG_NXP_ESBC
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
 	"loadaddr=0x80100000\0"			\
@@ -442,7 +442,7 @@ unsigned long get_board_ddr_clk(void);
 	"mcinitcmd=fsl_mc start mc 0x580a00000" \
 	" 0x580e00000 \0"
 #endif /* CONFIG_TFABOOT */
-#endif /* CONFIG_SECURE_BOOT */
+#endif /* CONFIG_NXP_ESBC */
 
 #ifdef CONFIG_TFABOOT
 #define SD_BOOTCOMMAND						\

@@ -105,6 +105,8 @@ static const struct serdes_phy_config serdes1_phy_config[] = {
 	       EMI1, IO_SLOT_1},
 	     {WRIOP1_DPMAC2, {INPHI_PHY_ADDR1, INPHI_PHY_ADDR2, -1},
 	      EMI1, IO_SLOT_2} } },
+	{14, {{WRIOP1_DPMAC1, {INPHI_PHY_ADDR1, INPHI_PHY_ADDR2, -1},
+	       EMI1, IO_SLOT_1} } },
 	{15, {{WRIOP1_DPMAC1, {INPHI_PHY_ADDR1, INPHI_PHY_ADDR2, -1},
 	       EMI1, IO_SLOT_1},
 	     {WRIOP1_DPMAC2, {INPHI_PHY_ADDR1, INPHI_PHY_ADDR2, -1},
@@ -686,7 +688,7 @@ int fdt_create_phy_node(void *fdt, int offset, u8 phyaddr, int *subnodeoffset,
 			struct phy_device *phy_dev, int phandle)
 {
 	char phy_node_name[] = "ethernet-phy@00";
-	char phy_id_compatible_str[] = "ethernet-phy-id0000.0000";
+	char phy_id_compatible_str[] = "ethernet-phy-id0000.0000,";
 	int ret;
 
 	sprintf(phy_node_name, "ethernet-phy@%x", phyaddr);
@@ -700,7 +702,7 @@ int fdt_create_phy_node(void *fdt, int offset, u8 phyaddr, int *subnodeoffset,
 		return *subnodeoffset;
 	}
 
-	sprintf(phy_id_compatible_str, "ethernet-phy-id%04x.%04x",
+	sprintf(phy_id_compatible_str, "ethernet-phy-id%04x.%04x,",
 		phy_dev->phy_id >> 16, phy_dev->phy_id & 0xFFFF);
 	debug("phy_id_compatible_str %s\n", phy_id_compatible_str);
 

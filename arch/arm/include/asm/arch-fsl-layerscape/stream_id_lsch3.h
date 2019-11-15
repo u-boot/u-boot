@@ -105,8 +105,25 @@
 #define FSL_SEC_JR4_STREAM_ID		68
 
 #define FSL_SDMMC2_STREAM_ID		69
+
+/*
+ * Erratum A-050382 workaround
+ *
+ * Description:
+ *   The eDMA ICID programmed in the eDMA_AMQR register in DCFG is not
+ *   correctly forwarded to the SMMU.
+ * Workaround:
+ *   Program eDMA ICID in the eDMA_AMQR register in DCFG to 40.
+ */
+#ifdef CONFIG_SYS_FSL_ERRATUM_A050382
+#define FSL_EDMA_STREAM_ID		40
+#else
 #define FSL_EDMA_STREAM_ID		70
+#endif
+
 #define FSL_GPU_STREAM_ID		71
 #define FSL_DISPLAY_STREAM_ID		72
+#define FSL_SATA3_STREAM_ID		73
+#define FSL_SATA4_STREAM_ID		74
 
 #endif

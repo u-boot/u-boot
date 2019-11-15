@@ -28,9 +28,6 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #define CONFIG_SYS_FSL_USDHC_NUM	1
 
-#undef CONFIG_BOOTM_PLAN9
-#undef CONFIG_BOOTM_RTEMS
-
 /* I2C configs */
 #define CONFIG_SYS_I2C_SPEED		100000
 
@@ -59,19 +56,6 @@
 		"tftp ${fdt_addr_r} " FDT_FILE " && " \
 		"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0" \
 
-#define SD_BOOTCMD \
-	"set_sdargs=setenv sdargs root=PARTUUID=${uuid} ro rootwait\0" \
-	"sdboot=run setup; run sdfinduuid; run set_sdargs; " \
-	"setenv bootargs ${defargs} ${sdargs} " \
-	"${setupargs} ${vidargs}; echo Booting from MMC/SD card...; " \
-	"load mmc ${sddev}:${sdbootpart} ${kernel_addr_r} ${kernel_file} && " \
-	"load mmc ${sddev}:${sdbootpart} ${fdt_addr_r} " FDT_FILE " && " \
-	"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0" \
-	"sdbootpart=1\0" \
-	"sddev=0\0" \
-	"sdfinduuid=part uuid mmc ${sddev}:${sdrootpart} uuid\0" \
-	"sdrootpart=2\0"
-
 #define UBI_BOOTCMD \
 	"ubiargs=ubi.mtd=ubi root=ubi0:rootfs rw rootfstype=ubifs " \
 		"ubi.fm_autoconvert=1\0" \
@@ -98,7 +82,6 @@
 	BOOTENV \
 	MEM_LAYOUT_ENV_SETTINGS \
 	NFS_BOOTCMD \
-	SD_BOOTCMD \
 	UBI_BOOTCMD \
 	"console=ttymxc0\0" \
 	"defargs=user_debug=30\0" \

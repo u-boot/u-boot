@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0+
 #
 # Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
@@ -91,7 +91,7 @@ def output_is_new(output):
 
     # Detect a board that has been removed since the current board database
     # was generated
-    with open(output) as f:
+    with open(output, encoding="utf-8") as f:
         for line in f:
             if line[0] == '#' or line == '\n':
                 continue
@@ -118,12 +118,12 @@ class KconfigScanner:
     }
 
     def __init__(self):
-        """Scan all the Kconfig files and create a Config object."""
+        """Scan all the Kconfig files and create a Kconfig object."""
         # Define environment variables referenced from Kconfig
         os.environ['srctree'] = os.getcwd()
         os.environ['UBOOTVERSION'] = 'dummy'
         os.environ['KCONFIG_OBJDIR'] = ''
-        self._conf = kconfiglib.Config(print_warnings=False)
+        self._conf = kconfiglib.Kconfig(warn=False)
 
     def __del__(self):
         """Delete a leftover temporary file before exit.
@@ -165,11 +165,7 @@ class KconfigScanner:
                 else:
                     f.write(line[colon + 1:])
 
-        warnings = self._conf.load_config(self._tmpfile)
-        if warnings:
-            for warning in warnings:
-                print '%s: %s' % (defconfig, warning)
-
+        self._conf.load_config(self._tmpfile)
         try_remove(self._tmpfile)
         self._tmpfile = None
 
@@ -177,8 +173,8 @@ class KconfigScanner:
 
         # Get the value of CONFIG_SYS_ARCH, CONFIG_SYS_CPU, ... etc.
         # Set '-' if the value is empty.
-        for key, symbol in self._SYMBOL_TABLE.items():
-            value = self._conf.get_symbol(symbol).get_value()
+        for key, symbol in list(self._SYMBOL_TABLE.items()):
+            value = self._conf.syms.get(symbol).str_value
             if value:
                 params[key] = value
             else:
@@ -242,8 +238,8 @@ def scan_defconfigs(jobs=1):
     processes = []
     queues = []
     for i in range(jobs):
-        defconfigs = all_defconfigs[total_boards * i / jobs :
-                                    total_boards * (i + 1) / jobs]
+        defconfigs = all_defconfigs[total_boards * i // jobs :
+                                    total_boards * (i + 1) // jobs]
         q = multiprocessing.Queue(maxsize=-1)
         p = multiprocessing.Process(target=scan_defconfigs_for_multiprocess,
                                     args=(q, defconfigs))
@@ -290,7 +286,7 @@ class MaintainersDatabase:
           'Active', 'Orphan' or '-'.
         """
         if not target in self.database:
-            print >> sys.stderr, "WARNING: no status info for '%s'" % target
+            print("WARNING: no status info for '%s'" % target, file=sys.stderr)
             return '-'
 
         tmp = self.database[target][0]
@@ -301,8 +297,8 @@ class MaintainersDatabase:
         elif tmp.startswith('Orphan'):
             return 'Orphan'
         else:
-            print >> sys.stderr, ("WARNING: %s: unknown status for '%s'" %
-                                  (tmp, target))
+            print(("WARNING: %s: unknown status for '%s'" %
+                                  (tmp, target)), file=sys.stderr)
             return '-'
 
     def get_maintainers(self, target):
@@ -313,7 +309,7 @@ class MaintainersDatabase:
           they are separated with colons.
         """
         if not target in self.database:
-            print >> sys.stderr, "WARNING: no maintainers for '%s'" % target
+            print("WARNING: no maintainers for '%s'" % target, file=sys.stderr)
             return ''
 
         return ':'.join(self.database[target][1])
@@ -330,7 +326,7 @@ class MaintainersDatabase:
         targets = []
         maintainers = []
         status = '-'
-        for line in open(file):
+        for line in open(file, encoding="utf-8"):
             # Check also commented maintainers
             if line[:3] == '#M:':
                 line = line[1:]
@@ -404,7 +400,7 @@ def format_and_output(params_list, output):
     # ignore case when sorting
     output_lines.sort(key=str.lower)
 
-    with open(output, 'w') as f:
+    with open(output, 'w', encoding="utf-8") as f:
         f.write(COMMENT_BLOCK + '\n'.join(output_lines) + '\n')
 
 def gen_boards_cfg(output, jobs=1, force=False):
@@ -418,7 +414,7 @@ def gen_boards_cfg(output, jobs=1, force=False):
     check_top_directory()
 
     if not force and output_is_new(output):
-        print "%s is up to date. Nothing to do." % output
+        print("%s is up to date. Nothing to do." % output)
         sys.exit(0)
 
     params_list = scan_defconfigs(jobs)

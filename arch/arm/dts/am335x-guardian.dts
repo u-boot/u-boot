@@ -32,12 +32,19 @@
 	gpio_keys {
 		compatible = "gpio-keys";
 		pinctrl-names = "default";
-		pinctrl-0 = <&gpio_keys_pins>;
+		pinctrl-0 = <&guardian_button_pins>;
 
-		button21 {
+		select-button {
+			label = "guardian-select-button";
+			linux,code = <KEY_5>;
+			gpios = <&gpio1 31 GPIO_ACTIVE_LOW>;
+			wakeup-source;
+		};
+
+		power-button {
 			label = "guardian-power-button";
 			linux,code = <KEY_POWER>;
-			gpios = <&gpio2 21 0>;
+			gpios = <&gpio2 21 GPIO_ACTIVE_LOW>;
 			wakeup-source;
 		};
 	};
@@ -45,19 +52,12 @@
 	leds {
 		compatible = "gpio-leds";
 		pinctrl-names = "default";
-		pinctrl-0 = <&leds_pins>;
+		pinctrl-0 = <&guardian_led_pins>;
 
-		led1 {
-			label = "green:heartbeat";
-			gpios = <&gpio1 27 GPIO_ACTIVE_HIGH>;
-			linux,default-trigger = "heartbeat";
-			default-state = "off";
-		};
-
-		led2 {
-			label = "green:mmc0";
+		life-led {
+			label = "guardian:life-led";
 			gpios = <&gpio1 26 GPIO_ACTIVE_HIGH>;
-			linux,default-trigger = "mmc0";
+			linux,default-trigger = "heartbeat";
 			default-state = "off";
 		};
 	};
@@ -140,22 +140,25 @@
 		gpmc,device-width = <1>;
 		gpmc,sync-clk-ps = <0>;
 		gpmc,cs-on-ns = <0>;
-		gpmc,cs-rd-off-ns = <44>;
-		gpmc,cs-wr-off-ns = <44>;
-		gpmc,adv-on-ns = <6>;
-		gpmc,adv-rd-off-ns = <34>;
-		gpmc,adv-wr-off-ns = <44>;
+		gpmc,cs-rd-off-ns = <30>;
+		gpmc,cs-wr-off-ns = <30>;
+		gpmc,adv-on-ns = <0>;
+		gpmc,adv-rd-off-ns = <30>;
+		gpmc,adv-wr-off-ns = <30>;
 		gpmc,we-on-ns = <0>;
-		gpmc,we-off-ns = <40>;
-		gpmc,oe-on-ns = <0>;
-		gpmc,oe-off-ns = <54>;
-		gpmc,access-ns = <64>;
-		gpmc,rd-cycle-ns = <82>;
-		gpmc,wr-cycle-ns = <82>;
+		gpmc,we-off-ns = <15>;
+		gpmc,oe-on-ns = <1>;
+		gpmc,oe-off-ns = <15>;
+		gpmc,access-ns = <30>;
+		gpmc,rd-cycle-ns = <30>;
+		gpmc,wr-cycle-ns = <30>;
+		gpmc,wait-on-read = "true";
+		gpmc,wait-on-write = "true";
 		gpmc,bus-turnaround-ns = <0>;
 		gpmc,cycle2cycle-delay-ns = <0>;
 		gpmc,clk-activation-ns = <0>;
-		gpmc,wr-access-ns = <40>;
+		gpmc,wait-monitoring-ns = <0>;
+		gpmc,wr-access-ns = <0>;
 		gpmc,wr-data-mux-bus-ns = <0>;
 
 		/*
@@ -199,18 +202,8 @@
 		};
 
 		partition@6 {
-			label = "u-boot-env";
-			reg = <0x300000 0x40000>;
-		};
-
-		partition@7 {
-			label = "u-boot-env.backup1";
-			reg = <0x340000 0x40000>;
-		};
-
-		partition@8 {
 			label = "UBI";
-			reg = <0x380000 0x1fc80000>;
+			reg = <0x300000 0x1fd00000>;
 		};
 	};
 };
@@ -326,6 +319,12 @@
 	status = "okay";
 };
 
+&uart2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart2_pins>;
+	status = "okay";
+};
+
 &usb {
 	status = "okay";
 };
@@ -354,7 +353,7 @@
 
 &am33xx_pinmux {
 	pinctrl-names = "default";
-	pinctrl-0 = <&clkout2_pin &gpio_pins>;
+	pinctrl-0 = <&clkout2_pin &guardian_interface_pins>;
 
 	clkout2_pin: pinmux_clkout2_pin {
 		pinctrl-single,pins = <
@@ -368,16 +367,25 @@
 		>;
 	};
 
-	gpio_keys_pins: pinmux_gpio_keys_pins {
+	guardian_button_pins: pinmux_gpio_keys_pins {
 		pinctrl-single,pins = <
 			AM33XX_IOPAD(0x940, PIN_INPUT | MUX_MODE7)
+			AM33XX_IOPAD(0x884, PIN_INPUT | MUX_MODE7)
 		>;
 	};
 
-	gpio_pins: pinmux_gpio_pins {
+	guardian_interface_pins: pinmux_guardian_interface_pins {
 		pinctrl-single,pins = <
-			AM33XX_IOPAD(0x928, PIN_OUTPUT | MUX_MODE7)
-			AM33XX_IOPAD(0x990, PIN_OUTPUT | MUX_MODE7)
+			AM33XX_IOPAD(0x928, PIN_OUTPUT          | MUX_MODE7)
+			AM33XX_IOPAD(0x990, PIN_OUTPUT          | MUX_MODE7)
+			AM33XX_IOPAD(0x9ac, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
+			AM33XX_IOPAD(0x980, PIN_INPUT           | MUX_MODE7)
+			AM33XX_IOPAD(0x984, PIN_INPUT           | MUX_MODE7)
+			AM33XX_IOPAD(0x928, PIN_OUTPUT_PULLUP   | MUX_MODE7)
+			AM33XX_IOPAD(0x90c, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
+			AM33XX_IOPAD(0x944, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
+			AM33XX_IOPAD(0x91c, PIN_INPUT           | MUX_MODE7)
+			AM33XX_IOPAD(0x918, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
 		>;
 	};
 
@@ -452,10 +460,9 @@
 		>;
 	};
 
-	leds_pins: pinmux_leds_pins {
+	guardian_led_pins: pinmux_leds_pins {
 		pinctrl-single,pins = <
 			AM33XX_IOPAD(0x868, PIN_OUTPUT | MUX_MODE7)
-			AM33XX_IOPAD(0x86c, PIN_OUTPUT | MUX_MODE7)
 		>;
 	};
 
@@ -484,6 +491,13 @@
 		pinctrl-single,pins = <
 			AM33XX_IOPAD(0x970, PIN_INPUT_PULLUP | MUX_MODE0)
 			AM33XX_IOPAD(0x974, PIN_OUTPUT_PULLDOWN | MUX_MODE0)
+		>;
+	};
+
+	uart2_pins: pinmux_uart2_pins {
+		pinctrl-single,pins = <
+			AM33XX_IOPAD(0x92c, PIN_INPUT_PULLUP | MUX_MODE1)
+			AM33XX_IOPAD(0x930, PIN_OUTPUT_PULLDOWN | MUX_MODE1)
 		>;
 	};
 

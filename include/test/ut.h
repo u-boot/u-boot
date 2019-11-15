@@ -61,7 +61,8 @@ void ut_failf(struct unit_test_state *uts, const char *fname, int line,
 	if (val1 != val2) {						\
 		ut_failf(uts, __FILE__, __LINE__, __func__,		\
 			 #expr1 " == " #expr2,				\
-			 "Expected %d, got %d", val1, val2);		\
+			 "Expected %#x (%d), got %#x (%d)", val1, val1,	\
+			 val2, val2);					\
 		return CMD_RET_FAILURE;					\
 	}								\
 }

@@ -155,6 +155,37 @@ int clk_get_bulk(struct udevice *dev, struct clk_bulk *bulk);
 int clk_get_by_name(struct udevice *dev, const char *name, struct clk *clk);
 
 /**
+ * devm_clk_get - lookup and obtain a managed reference to a clock producer.
+ * @dev: device for clock "consumer"
+ * @id: clock consumer ID
+ *
+ * Returns a struct clk corresponding to the clock producer, or
+ * valid IS_ERR() condition containing errno.  The implementation
+ * uses @dev and @id to determine the clock consumer, and thereby
+ * the clock producer.  (IOW, @id may be identical strings, but
+ * clk_get may return different clock producers depending on @dev.)
+ *
+ * Drivers must assume that the clock source is not enabled.
+ *
+ * devm_clk_get should not be called from within interrupt context.
+ *
+ * The clock will automatically be freed when the device is unbound
+ * from the bus.
+ */
+struct clk *devm_clk_get(struct udevice *dev, const char *id);
+
+/**
+ * devm_clk_get_optional - lookup and obtain a managed reference to an optional
+ *			   clock producer.
+ * @dev: device for clock "consumer"
+ * @id: clock consumer ID
+ *
+ * Behaves the same as devm_clk_get() except where there is no clock producer.
+ * In this case, instead of returning -ENOENT, the function returns NULL.
+ */
+struct clk *devm_clk_get_optional(struct udevice *dev, const char *id);
+
+/**
  * clk_release_all() - Disable (turn off)/Free an array of previously
  * requested clocks.
  *
@@ -167,6 +198,19 @@ int clk_get_by_name(struct udevice *dev, const char *name, struct clk *clk);
  * @return zero on success, or -ve error code.
  */
 int clk_release_all(struct clk *clk, int count);
+
+/**
+ * devm_clk_put	- "free" a managed clock source
+ * @dev: device used to acquire the clock
+ * @clk: clock source acquired with devm_clk_get()
+ *
+ * Note: drivers must ensure that all clk_enable calls made on this
+ * clock source are balanced by clk_disable calls prior to calling
+ * this function.
+ *
+ * clk_put should not be called from within interrupt context.
+ */
+void devm_clk_put(struct udevice *dev, struct clk *clk);
 
 #else
 static inline int clk_get_by_index(struct udevice *dev, int index,
@@ -200,10 +244,13 @@ static inline int clk_release_all(struct clk *clk, int count)
  *
  * @dev:        A device to process (the ofnode associated with this device
  *              will be processed).
+ * @stage:	A integer. 0 indicates that this is called before the device
+ *		is probed. 1 indicates that this is called just after the
+ *		device has been probed
  */
-int clk_set_defaults(struct udevice *dev);
+int clk_set_defaults(struct udevice *dev, int stage);
 #else
-static inline int clk_set_defaults(struct udevice *dev)
+static inline int clk_set_defaults(struct udevice *dev, int stage)
 {
 	return 0;
 }
@@ -356,7 +403,7 @@ int soc_clk_dump(void);
  */
 static inline bool clk_valid(struct clk *clk)
 {
-	return !!clk->dev;
+	return clk && !!clk->dev;
 }
 
 /**
@@ -379,3 +426,6 @@ int clk_get_by_id(ulong id, struct clk **clkp);
  */
 bool clk_dev_binded(struct clk *clk);
 #endif
+
+#define clk_prepare_enable(clk) clk_enable(clk)
+#define clk_disable_unprepare(clk) clk_disable(clk)

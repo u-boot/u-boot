@@ -13,7 +13,7 @@
  * @type:     HOB type to search
  * @hob_list: A pointer to the HOB list
  *
- * @retval:   A HOB object with matching type; Otherwise NULL.
+ * @return A HOB object with matching type; Otherwise NULL.
  */
 const struct hob_header *hob_get_next_hob(uint type, const void *hob_list)
 {
@@ -38,7 +38,7 @@ const struct hob_header *hob_get_next_hob(uint type, const void *hob_list)
  * @guid:     GUID to search
  * @hob_list: A pointer to the HOB list
  *
- * @retval:   A HOB object with matching GUID; Otherwise NULL.
+ * @return A HOB object with matching GUID; Otherwise NULL.
  */
 const struct hob_header *hob_get_next_guid_hob(const efi_guid_t *guid,
 					       const void *hob_list)
@@ -65,8 +65,8 @@ const struct hob_header *hob_get_next_guid_hob(const efi_guid_t *guid,
  *                 If the GUID HOB is located, the length will be updated.
  * @guid           A pointer to HOB GUID.
  *
- * @retval NULL:   Failed to find the GUID HOB.
- * @retval others: GUID HOB data buffer pointer.
+ * @return NULL:   Failed to find the GUID HOB.
+ * @return others: GUID HOB data buffer pointer.
  */
 void *hob_get_guid_hob_data(const void *hob_list, u32 *len,
 			    const efi_guid_t *guid)

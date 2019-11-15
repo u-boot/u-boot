@@ -56,12 +56,8 @@
 
 /* MMC */
 
-/* Secure boot (HAB) support */
-#ifdef CONFIG_SECURE_BOOT
-#define CONFIG_CSF_SIZE			0x4000
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_SPL_DRIVERS_MISC_SUPPORT
-#endif
 #endif
 
 #endif

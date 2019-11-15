@@ -295,7 +295,8 @@ int regmap_raw_read_range(struct regmap *map, uint range_num, uint offset,
  * @map:	The map returned by regmap_init_mem*()
  * @offset:	Offset of the memory
  * @mask:	Mask to apply to the read value
- * @val:	Value to apply to the value to write
+ * @val:	Value to OR with the read value after masking. Note that any
+ *	bits set in @val which are not set in @mask are ignored
  * Return: 0 if OK, -ve on error
  */
 int regmap_update_bits(struct regmap *map, uint offset, uint mask, uint val);

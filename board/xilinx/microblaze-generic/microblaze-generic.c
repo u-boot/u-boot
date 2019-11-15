@@ -12,19 +12,11 @@
 
 #include <common.h>
 #include <config.h>
-#include <dm.h>
 #include <dm/lists.h>
 #include <fdtdec.h>
-#include <asm/processor.h>
-#include <asm/microblaze_intc.h>
-#include <asm/asm.h>
-#include <asm/gpio.h>
-#include <dm/uclass.h>
-#include <wdt.h>
+#include <linux/sizes.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-ulong ram_base;
 
 int dram_init_banksize(void)
 {
@@ -41,6 +33,8 @@ int dram_init(void)
 
 int board_late_init(void)
 {
+	ulong max_size, lowmem_size;
+
 #if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_SYSRESET_MICROBLAZE)
 	int ret;
 
@@ -49,5 +43,21 @@ int board_late_init(void)
 	if (ret)
 		printf("Warning: No reset driver: ret=%d\n", ret);
 #endif
+
+	if (!(gd->flags & GD_FLG_ENV_DEFAULT)) {
+		debug("Saved variables - Skipping\n");
+		return 0;
+	}
+
+	max_size = gd->start_addr_sp - CONFIG_STACK_SIZE;
+	max_size = round_down(max_size, SZ_16M);
+
+	/* Linux default LOWMEM_SIZE is 0x30000000 = 768MB */
+	lowmem_size = gd->ram_base + 768 * 1024 * 1024;
+
+	env_set_addr("initrd_high", (void *)min_t(ulong, max_size,
+						  lowmem_size));
+	env_set_addr("fdt_high", (void *)min_t(ulong, max_size, lowmem_size));
+
 	return 0;
 }

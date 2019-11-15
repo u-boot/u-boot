@@ -43,11 +43,6 @@ const efi_guid_t efi_guid_unicode_collation_protocol2 =
  * See the Unified Extensible Firmware Interface (UEFI) specification for
  * details.
  *
- * TODO:
- * The implementation does not follow the Unicode collation algorithm.
- * For ASCII characters it results in the same sort order as EDK2.
- * We could use table UNICODE_CAPITALIZATION_TABLE for better results.
- *
  * Return:	0: s1 == s2, > 0: s1 > s2, < 0: s1 < s2
  */
 static efi_intn_t EFIAPI efi_stri_coll(

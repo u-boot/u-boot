@@ -21,7 +21,9 @@
 #include <usb.h>
 #include <dwc3-uboot.h>
 #include <zynqmppl.h>
+#include <zynqmp_firmware.h>
 #include <g_dnl.h>
+#include <linux/sizes.h>
 
 #include "pm_cfg_obj.h"
 
@@ -173,6 +175,14 @@ static const struct {
 		.id = 0x66,
 		.name = "39dr",
 	},
+	{
+		.id = 0x7b,
+		.name = "48dr",
+	},
+	{
+		.id = 0x7e,
+		.name = "49dr",
+	},
 };
 #endif
 
@@ -308,18 +318,6 @@ static char *zynqmp_get_silicon_idcode_name(void)
 int board_early_init_f(void)
 {
 	int ret = 0;
-#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_CLK_ZYNQMP)
-	u32 pm_api_version;
-
-	pm_api_version = zynqmp_pmufw_version();
-	printf("PMUFW:\tv%d.%d\n",
-	       pm_api_version >> ZYNQMP_PM_VERSION_MAJOR_SHIFT,
-	       pm_api_version & ZYNQMP_PM_VERSION_MINOR_MASK);
-
-	if (pm_api_version < ZYNQMP_PM_VERSION)
-		panic("PMUFW version error. Expected: v%d.%d\n",
-		      ZYNQMP_PM_VERSION_MAJOR, ZYNQMP_PM_VERSION_MINOR);
-#endif
 
 #if defined(CONFIG_ZYNQMP_PSU_INIT_ENABLED)
 	ret = psu_init();
@@ -330,6 +328,12 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
+	struct udevice *dev;
+
+	uclass_get_device_by_name(UCLASS_FIRMWARE, "zynqmp-power", &dev);
+	if (!dev)
+		panic("PMU Firmware device not found - Enable it");
+
 #if defined(CONFIG_SPL_BUILD)
 	/* Check *at build time* if the filename is an non-empty string */
 	if (sizeof(CONFIG_ZYNQMP_SPL_PM_CFG_OBJ_FILE) > 1)
@@ -530,6 +534,7 @@ int board_late_init(void)
 	char *new_targets;
 	char *env_targets;
 	int ret;
+	ulong initrd_hi;
 
 #if defined(CONFIG_USB_ETHER) && !defined(CONFIG_USB_GADGET_DOWNLOAD)
 	usb_ether_init();
@@ -562,7 +567,7 @@ int board_late_init(void)
 		break;
 	case JTAG_MODE:
 		puts("JTAG_MODE\n");
-		mode = "pxe dhcp";
+		mode = "jtag pxe dhcp";
 		env_set("modeboot", "jtagboot");
 		break;
 	case QSPI_MODE_24BIT:
@@ -646,6 +651,10 @@ int board_late_init(void)
 			env_targets ? env_targets : "");
 
 	env_set("boot_targets", new_targets);
+
+	initrd_hi = gd->start_addr_sp - CONFIG_STACK_SIZE;
+	initrd_hi = round_down(initrd_hi, SZ_16M);
+	env_set_addr("initrd_high", (void *)initrd_hi);
 
 	reset_reason();
 

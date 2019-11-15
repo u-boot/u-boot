@@ -36,11 +36,6 @@ config COUNTER_FREQUENCY
 config ZYNQ_SDHCI_MAX_FREQ
 	default 200000000
 
-config VERSAL_OF_BOARD_DTB_ADDR
-	hex
-	default 0x1000
-	depends on OF_BOARD
-
 config IOU_SWITCH_DIVISOR0
 	hex "IOU switch divisor0"
 	default 0x20
@@ -53,5 +48,12 @@ config SYS_MEM_RSVD_FOR_MMU
 	  If defined this option is used to setup different space for
 	  MMU table than the one which will be allocated during
 	  relocation.
+
+config DEFINE_TCM_OCM_MMAP
+	bool "Define TCM and OCM memory in MMU Table"
+	default y if MP
+	help
+	  This option if enabled defines the TCM and OCM memory and its
+	  memory attributes in MMU table entry.
 
 endif

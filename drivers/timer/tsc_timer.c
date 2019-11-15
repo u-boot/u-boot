@@ -394,7 +394,7 @@ static int tsc_timer_get_count(struct udevice *dev, u64 *count)
 
 static void tsc_timer_ensure_setup(bool early)
 {
-	if (gd->arch.tsc_base)
+	if (gd->arch.tsc_inited)
 		return;
 	gd->arch.tsc_base = rdtsc();
 
@@ -425,6 +425,7 @@ static void tsc_timer_ensure_setup(bool early)
 done:
 		gd->arch.clock_rate = fast_calibrate * 1000000;
 	}
+	gd->arch.tsc_inited = true;
 }
 
 static int tsc_timer_probe(struct udevice *dev)
@@ -461,6 +462,8 @@ unsigned long notrace timer_early_get_rate(void)
 
 u64 notrace timer_early_get_count(void)
 {
+	tsc_timer_ensure_setup(true);
+
 	return rdtsc() - gd->arch.tsc_base;
 }
 

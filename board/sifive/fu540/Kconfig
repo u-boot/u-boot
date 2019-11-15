@@ -44,6 +44,9 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply MMC_SPI
 	imply MMC_BROKEN_CD
 	imply CMD_MMC
+	imply DM_GPIO
+	imply SIFIVE_GPIO
+	imply CMD_GPIO
 	imply SMP
 
 endif

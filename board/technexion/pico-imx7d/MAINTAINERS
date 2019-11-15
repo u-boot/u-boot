@@ -8,3 +8,5 @@ F:	configs/pico-imx7d_defconfig
 F:	configs/pico-imx7d_bl33_defconfig
 F:	configs/pico-hobbit-imx7d_defconfig
 F:	configs/pico-pi-imx7d_defconfig
+F:	configs/pico-nymph-imx7d_defconfig
+F:	configs/pico-dwarf-imx7d_defconfig

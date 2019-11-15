@@ -991,18 +991,14 @@ struct dwc3_gadget_ep_cmd_params {
 
 /* prototypes */
 int dwc3_gadget_resize_tx_fifos(struct dwc3 *dwc);
+void dwc3_of_parse(struct dwc3 *dwc);
 int dwc3_init(struct dwc3 *dwc);
 void dwc3_remove(struct dwc3 *dwc);
 
-#ifdef CONFIG_USB_DWC3_HOST
-int dwc3_host_init(struct dwc3 *dwc);
-void dwc3_host_exit(struct dwc3 *dwc);
-#else
 static inline int dwc3_host_init(struct dwc3 *dwc)
 { return 0; }
 static inline void dwc3_host_exit(struct dwc3 *dwc)
 { }
-#endif
 
 #ifdef CONFIG_USB_DWC3_GADGET
 int dwc3_gadget_init(struct dwc3 *dwc);

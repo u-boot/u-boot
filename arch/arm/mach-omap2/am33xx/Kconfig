@@ -89,6 +89,7 @@ config TARGET_AM335X_SHC
 
 config TARGET_AM335X_GUARDIAN
 	bool "Support am335x based guardian board from bosch"
+	select BOARD_LATE_INIT
 	select DM
 	select DM_SERIAL
 	select DM_GPIO

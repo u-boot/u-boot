@@ -215,6 +215,10 @@
 #define  PCI_BASE_ADDRESS_IO_MASK	(~0x03ULL)
 /* bit 1 is reserved if address_space = 1 */
 
+/* Convert a regsister address (e.g. PCI_BASE_ADDRESS_1) to a bar # (e.g. 1) */
+#define pci_offset_to_barnum(offset)	\
+		(((offset) - PCI_BASE_ADDRESS_0) / sizeof(u32))
+
 /* Header type 0 (normal devices) */
 #define PCI_CARDBUS_CIS		0x28
 #define PCI_SUBSYSTEM_VENDOR_ID 0x2c
@@ -1487,16 +1491,20 @@ int dm_pci_find_device(unsigned int vendor, unsigned int device, int index,
 int dm_pci_find_class(uint find_class, int index, struct udevice **devp);
 
 /**
+ * struct pci_emul_uc_priv - holds info about an emulator device
+ *
+ * There is always at most one emulator per client
+ *
+ * @client: Client device if any, else NULL
+ */
+struct pci_emul_uc_priv {
+	struct udevice *client;
+};
+
+/**
  * struct dm_pci_emul_ops - PCI device emulator operations
  */
 struct dm_pci_emul_ops {
-	/**
-	 * get_devfn(): Check which device and function this emulators
-	 *
-	 * @dev:	device to check
-	 * @return the device and function this emulates, or -ve on error
-	 */
-	int (*get_devfn)(struct udevice *dev);
 	/**
 	 * read_config() - Read a PCI configuration value
 	 *
@@ -1596,9 +1604,18 @@ int sandbox_pci_get_emul(struct udevice *bus, pci_dev_t find_devfn,
 			 struct udevice **containerp, struct udevice **emulp);
 
 /**
+ * sandbox_pci_get_client() - Find the client for an emulation device
+ *
+ * @emul:	Emulation device to check
+ * @devp:	Returns the client device emulated by this device
+ * @return 0 if OK, -ENOENT if the device has no client yet
+ */
+int sandbox_pci_get_client(struct udevice *emul, struct udevice **devp);
+
+/**
  * pci_get_devfn() - Extract the devfn from fdt_pci_addr of the device
  *
- * Get devfn from fdt_pci_addr of the specifified device
+ * Get devfn from fdt_pci_addr of the specified device
  *
  * @dev:	PCI device
  * @return devfn in bits 15...8 if found, -ENODEV if not found

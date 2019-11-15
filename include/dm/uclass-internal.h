@@ -69,7 +69,7 @@ int uclass_find_device(enum uclass_id id, int index, struct udevice **devp);
  * The device is not prepared for use - this is an internal function.
  * The function uclass_get_device_tail() can be used to probe the device.
  *
- * @return 0 if OK (found or not found), -1 on error
+ * @return 0 if OK (found or not found), -ve on error
  */
 int uclass_find_first_device(enum uclass_id id, struct udevice **devp);
 
@@ -81,7 +81,7 @@ int uclass_find_first_device(enum uclass_id id, struct udevice **devp);
  * The device is not prepared for use - this is an internal function.
  * The function uclass_get_device_tail() can be used to probe the device.
  *
- * @return 0 if OK (found or not found), -1 on error
+ * @return 0 if OK (found or not found), -ve on error
  */
 int uclass_find_next_device(struct udevice **devp);
 

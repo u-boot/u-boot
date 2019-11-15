@@ -87,9 +87,16 @@ static int sp805_wdt_stop(struct udevice *dev)
 	return 0;
 }
 
+static int sp805_wdt_expire_now(struct udevice *dev, ulong flags)
+{
+	sp805_wdt_start(dev, 0, flags);
+
+	return 0;
+}
+
 static int sp805_wdt_probe(struct udevice *dev)
 {
-	debug("%s: Probing wdt%u\n", __func__, dev->seq);
+	debug("%s: Probing wdt%u (sp805-wdt)\n", __func__, dev->seq);
 
 	return 0;
 }
@@ -109,6 +116,7 @@ static const struct wdt_ops sp805_wdt_ops = {
 	.start = sp805_wdt_start,
 	.reset = sp805_wdt_reset,
 	.stop = sp805_wdt_stop,
+	.expire_now = sp805_wdt_expire_now,
 };
 
 static const struct udevice_id sp805_wdt_ids[] = {

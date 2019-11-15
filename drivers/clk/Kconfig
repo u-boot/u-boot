@@ -95,6 +95,14 @@ config CLK_HSDK
 	help
 	  Enable this to support the cgu clocks on Synopsys ARC HSDK
 
+config CLK_VERSAL
+	bool "Enable clock driver support for Versal"
+	depends on ARCH_VERSAL
+	select ZYNQMP_FIRMWARE
+	help
+	  This clock driver adds support for clock realted settings for
+	  Versal platform.
+
 config CLK_VEXPRESS_OSC
 	bool "Enable driver for Arm Versatile Express OSC clock generators"
 	depends on CLK && VEXPRESS_CONFIG
@@ -113,6 +121,7 @@ config CLK_ZYNQ
 config CLK_ZYNQMP
 	bool "Enable clock driver support for ZynqMP"
 	depends on ARCH_ZYNQMP
+	select ZYNQMP_FIRMWARE
 	help
 	  This clock driver adds support for clock realted settings for
 	  ZynqMP platform.
@@ -124,6 +133,13 @@ config CLK_STM32MP1
 	help
 	  Enable the STM32 clock (RCC) driver. Enable support for
 	  manipulating STM32MP1's on-SoC clocks.
+
+config CLK_CDCE9XX
+	bool "Enable CDCD9XX clock driver"
+	depends on CLK
+	help
+	   Enable the clock synthesizer driver for CDCE913/925/937/949
+	   series of chips.
 
 source "drivers/clk/analogbits/Kconfig"
 source "drivers/clk/at91/Kconfig"

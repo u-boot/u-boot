@@ -167,7 +167,6 @@ config MMC_HS200_SUPPORT
 	  The HS200 mode is support by some eMMC. The bus frequency is up to
 	  200MHz. This mode requires tuning the IO.
 
-
 config SPL_MMC_HS200_SUPPORT
 	bool "enable HS200 support in SPL"
 	help
@@ -490,6 +489,17 @@ config MMC_SDHCI_AM654
 	  Support for Secure Digital Host Controller Interface (SDHCI)
 	  controllers present on TI's AM654 SOCs.
 
+config MMC_SDHCI_IPROC
+	bool "SDHCI support for the iProc SD/MMC Controller"
+	depends on MMC_SDHCI
+	help
+	  This selects the iProc SD/MMC controller.
+
+	  If you have a Broadcom IPROC platform with SD or MMC devices,
+	  say Y or M here.
+
+	  If unsure, say N.
+
 config MMC_SDHCI_KONA
 	bool "SDHCI support on Broadcom KONA platform"
 	depends on MMC_SDHCI
@@ -635,6 +645,12 @@ config ZYNQ_SDHCI_MIN_FREQ
 	help
 	  Set the minimum frequency of the controller.
 
+config ZYNQ_HISPD_BROKEN
+	bool "High speed broken for Zynq SDHCI controller"
+	depends on MMC_SDHCI_ZYNQ
+	help
+	  Set if high speed mode is broken.
+
 config MMC_SUNXI
 	bool "Allwinner sunxi SD/MMC Host Controller support"
 	depends on ARCH_SUNXI && !UART0_PORT_F
@@ -682,7 +698,7 @@ config FTSDC010_SDIO
 
 config MMC_MTK
 	bool "MediaTek SD/MMC Card Interface support"
-	depends on ARCH_MEDIATEK
+	depends on ARCH_MEDIATEK || ARCH_MTMIPS
 	depends on BLK && DM_MMC
 	depends on OF_CONTROL
 	help
@@ -695,9 +711,18 @@ endif
 
 config FSL_ESDHC
 	bool "Freescale/NXP eSDHC controller support"
+	select FSL_ESDHC_USE_PERIPHERAL_CLK if MMC_HS200_SUPPORT || MMC_UHS_SUPPORT
 	help
 	  This selects support for the eSDHC (Enhanced Secure Digital Host
 	  Controller) found on numerous Freescale/NXP SoCs.
+
+config FSL_ESDHC_USE_PERIPHERAL_CLK
+	bool "enable ESDHC peripheral clock support"
+	depends on FSL_ESDHC
+	help
+	  eSDHC supports two reference clocks (platform clock and peripheral clock).
+	  Peripheral clock which could provide higher clock frequency is required to
+	  be used for tuning of SD UHS mode and eMMC HS200/HS400 modes.
 
 config FSL_ESDHC_IMX
 	bool "Freescale/NXP i.MX eSDHC controller support"

@@ -1,7 +1,8 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * 32-bit x86 Startup Code when running from SPL
- *
+ * 32-bit x86 Startup Code when running from SPL. This is the startup code in
+ * U-Boot proper, when SPL is used.
+
  * Copyright 2018 Google, Inc
  * Written by Simon Glass <sjg@chromium.org>
  */
@@ -30,6 +31,7 @@ _start:
 
 	call	board_init_f_init_reserve
 
+	call	x86_cpu_reinit_f
 	xorl	%eax, %eax
 	call	board_init_f
 	call	board_init_f_r

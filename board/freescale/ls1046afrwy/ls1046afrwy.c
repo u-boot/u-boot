@@ -126,7 +126,7 @@ int checkboard(void)
 
 int board_init(void)
 {
-#ifdef CONFIG_SECURE_BOOT
+#ifdef CONFIG_NXP_ESBC
 	/*
 	 * In case of Secure Boot, the IBR configures the SMMU
 	 * to allow only Secure transactions.

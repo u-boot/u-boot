@@ -61,6 +61,9 @@ struct driver_info;
  */
 #define DM_FLAG_OS_PREPARE		(1 << 10)
 
+/* DM does not enable/disable the power domains corresponding to this device */
+#define DM_FLAG_DEFAULT_PD_CTRL_OFF	(1 << 11)
+
 /*
  * One or multiple of these flags are passed to device_remove() so that
  * a selective device removal as specified by the remove-stage and the
@@ -405,6 +408,15 @@ const char *dev_get_uclass_name(const struct udevice *dev);
 int device_get_child(struct udevice *parent, int index, struct udevice **devp);
 
 /**
+ * device_get_child_count() - Get the available child count of a device
+ *
+ * Returns the number of children to a device.
+ *
+ * @parent:	Parent device to check
+ */
+int device_get_child_count(struct udevice *parent);
+
+/**
  * device_find_child_by_seq() - Find a child device based on a sequence
  *
  * This searches for a device with the given seq or req_seq.
@@ -680,6 +692,15 @@ static inline bool device_is_on_pci_bus(struct udevice *dev)
 	list_for_each_entry_safe(pos, next, &parent->child_head, sibling_node)
 
 /**
+ * device_foreach_child() - iterate through child devices
+ *
+ * @pos: struct udevice * for the current device
+ * @parent: parent device to scan
+ */
+#define device_foreach_child(pos, parent)	\
+	list_for_each_entry(pos, &parent->child_head, sibling_node)
+
+/**
  * dm_scan_fdt_dev() - Bind child device in a the device tree
  *
  * This handles device which have sub-nodes in the device tree. It scans all
@@ -927,8 +948,8 @@ static inline void *devm_kzalloc(struct udevice *dev, size_t size, gfp_t gfp)
 	return kzalloc(size, gfp);
 }
 
-static inline void *devm_kmaloc_array(struct udevice *dev,
-				      size_t n, size_t size, gfp_t flags)
+static inline void *devm_kmalloc_array(struct udevice *dev,
+				       size_t n, size_t size, gfp_t flags)
 {
 	/* TODO: add kmalloc_array() to linux/compat.h */
 	if (size != 0 && n > SIZE_MAX / size)

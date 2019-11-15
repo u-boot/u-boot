@@ -35,8 +35,19 @@ if [ $post_process = 1 ]; then
 		objcopy -I binary -O binary --pad-to 0x8000 --gap-fill=0x0 $srctree/lpddr4_pmu_train_2d_imem.bin lpddr4_pmu_train_2d_imem_pad.bin
 		cat lpddr4_pmu_train_1d_imem_pad.bin lpddr4_pmu_train_1d_dmem_pad.bin > lpddr4_pmu_train_1d_fw.bin
 		cat lpddr4_pmu_train_2d_imem_pad.bin $srctree/lpddr4_pmu_train_2d_dmem.bin > lpddr4_pmu_train_2d_fw.bin
-		cat spl/u-boot-spl.bin lpddr4_pmu_train_1d_fw.bin lpddr4_pmu_train_2d_fw.bin > spl/u-boot-spl-ddr.bin
-		rm -f lpddr4_pmu_train_1d_fw.bin lpddr4_pmu_train_2d_fw.bin lpddr4_pmu_train_1d_imem_pad.bin lpddr4_pmu_train_1d_dmem_pad.bin lpddr4_pmu_train_2d_imem_pad.bin
+		dd if=spl/u-boot-spl.bin of=spl/u-boot-spl-pad.bin bs=4 conv=sync
+		cat spl/u-boot-spl-pad.bin lpddr4_pmu_train_1d_fw.bin lpddr4_pmu_train_2d_fw.bin > spl/u-boot-spl-ddr.bin
+		rm -f lpddr4_pmu_train_1d_fw.bin lpddr4_pmu_train_2d_fw.bin lpddr4_pmu_train_1d_imem_pad.bin lpddr4_pmu_train_1d_dmem_pad.bin lpddr4_pmu_train_2d_imem_pad.bin spl/u-boot-spl-pad.bin
+	fi
+	if [ -f $srctree/ddr4_imem_1d.bin ]; then
+		objcopy -I binary -O binary --pad-to 0x8000 --gap-fill=0x0 $srctree/ddr4_imem_1d.bin ddr4_imem_1d_pad.bin
+		objcopy -I binary -O binary --pad-to 0x4000 --gap-fill=0x0 $srctree/ddr4_dmem_1d.bin ddr4_dmem_1d_pad.bin
+		objcopy -I binary -O binary --pad-to 0x8000 --gap-fill=0x0 $srctree/ddr4_imem_2d.bin ddr4_imem_2d_pad.bin
+		cat ddr4_imem_1d_pad.bin ddr4_dmem_1d_pad.bin > ddr4_1d_fw.bin
+		cat ddr4_imem_2d_pad.bin $srctree/ddr4_dmem_2d.bin > ddr4_2d_fw.bin
+		dd if=spl/u-boot-spl.bin of=spl/u-boot-spl-pad.bin bs=4 conv=sync
+		cat spl/u-boot-spl-pad.bin ddr4_1d_fw.bin ddr4_2d_fw.bin > spl/u-boot-spl-ddr.bin
+		rm -f ddr4_1d_fw.bin ddr4_2d_fw.bin ddr4_imem_1d_pad.bin ddr4_dmem_1d_pad.bin ddr4_imem_2d_pad.bin spl/u-boot-spl-pad.bin
 	fi
 fi
 

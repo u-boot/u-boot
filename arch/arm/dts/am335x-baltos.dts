@@ -409,16 +409,26 @@
 	pinctrl-1 = <&davinci_mdio_sleep>;
 
 	status = "okay";
+
+	phy0: ethernet-phy@0 {
+		reg = <0>;
+	};
+
+	phy1: ethernet-phy@7 {
+		reg = <7>;
+		eee-broken-100tx;
+		eee-broken-1000t;
+	};
 };
 
 &cpsw_emac0 {
-	phy_id = <&davinci_mdio>, <0>;
+	phy-handle = <&phy0>;
 	phy-mode = "rmii";
 	dual_emac_res_vlan = <1>;
 };
 
 &cpsw_emac1 {
-	phy_id = <&davinci_mdio>, <7>;
+	phy-handle = <&phy1>;
 	phy-mode = "rgmii-txid";
 	dual_emac_res_vlan = <2>;
 };

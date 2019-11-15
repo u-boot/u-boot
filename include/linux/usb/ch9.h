@@ -878,6 +878,9 @@ struct usb_ss_cap_descriptor {		/* Link Power Management */
 	__le16 bU2DevExitLat;
 } __attribute__((packed));
 
+#define USB_DEFAULT_U1_DEV_EXIT_LAT     0x01	/* Less then 1 microsec */
+#define USB_DEFAULT_U2_DEV_EXIT_LAT     0x01F4	/* Less then 500 microsec */
+
 #define USB_DT_USB_SS_CAP_SIZE	10
 
 /*

@@ -66,8 +66,30 @@ struct mxs_nand_info {
 	/* DMA descriptors */
 	struct mxs_dma_desc	**desc;
 	uint32_t		desc_index;
+
+	/* Hardware BCH interface and randomizer */
+	u32 en_randomizer;
+	u32 writesize;
+	u32 oobsize;
+	u32 bch_flash0layout0;
+	u32 bch_flash0layout1;
+};
+
+struct mxs_nand_layout {
+	u32 nblocks;
+	u32 meta_size;
+	u32 data0_size;
+	u32 ecc0;
+	u32 datan_size;
+	u32 eccn;
 };
 
 int mxs_nand_init_ctrl(struct mxs_nand_info *nand_info);
 int mxs_nand_init_spl(struct nand_chip *nand);
 int mxs_nand_setup_ecc(struct mtd_info *mtd);
+
+void mxs_nand_mode_fcb(struct mtd_info *mtd);
+void mxs_nand_mode_normal(struct mtd_info *mtd);
+u32 mxs_nand_mark_byte_offset(struct mtd_info *mtd);
+u32 mxs_nand_mark_bit_offset(struct mtd_info *mtd);
+void mxs_nand_get_layout(struct mtd_info *mtd, struct mxs_nand_layout *l);

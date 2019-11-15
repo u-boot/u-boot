@@ -39,11 +39,8 @@ $ cp imx-sc-firmware-0.7/mx8qx-mek-scfw-tcm.bin	.
 
 Build U-Boot
 ============
-$ export ATF_LOAD_ADDR=0x80000000
-$ export BL33_LOAD_ADDR=0x80020000
 $ make imx8qxp_mek_defconfig
 $ make flash.bin
-$ dd if=u-boot.itb of=flash.bin bs=512 seek=528
 
 Flash the binary into the SD card
 =================================

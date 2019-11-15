@@ -87,7 +87,7 @@ static inline unsigned long scache_line_size(void)
 #ifdef CONFIG_MIPS_L2_CACHE
 	return gd->arch.l2_line_size;
 #else
-	return 0;
+	return CONFIG_SYS_SCACHE_LINE_SIZE;
 #endif
 }
 
