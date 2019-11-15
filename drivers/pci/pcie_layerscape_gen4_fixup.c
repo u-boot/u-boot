@@ -37,7 +37,7 @@ static int ls_pcie_g4_next_streamid(struct ls_pcie_g4 *pcie)
 {
 	int stream_id = pcie->stream_id_cur;
 
-	if (stream_id > FSL_PEX_STREAM_ID_NUM)
+	if (stream_id > FSL_PEX_STREAM_ID_END)
 		return -EINVAL;
 
 	pcie->stream_id_cur++;
