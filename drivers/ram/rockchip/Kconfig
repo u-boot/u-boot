@@ -15,6 +15,7 @@ if RAM_ROCKCHIP
 
 config RAM_ROCKCHIP_DEBUG
 	bool "Rockchip ram drivers debugging"
+	default y
 	help
 	  This enables debugging ram driver API's for the platforms
 	  based on Rockchip SoCs.
