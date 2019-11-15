@@ -14,7 +14,7 @@
 #include <asm/immap.h>
 #include <asm/io.h>
 
-#if defined(CONFIG_CMD_NET)
+#if defined(CONFIG_MCFFEC)
 #include <config.h>
 #include <net.h>
 #include <asm/fec.h>
@@ -94,6 +94,7 @@ void cpu_init_f(void)
 int cpu_init_r(void)
 {
 #ifdef CONFIG_MCFFEC
+	u32 fec_mii_base0, fec_mii_base1;
 	ccm_t *ccm = (ccm_t *) MMAP_CCM;
 #endif
 #ifdef CONFIG_MCFRTC
@@ -105,7 +106,10 @@ int cpu_init_r(void)
 
 #endif
 #ifdef CONFIG_MCFFEC
-	if (CONFIG_SYS_FEC0_MIIBASE != CONFIG_SYS_FEC1_MIIBASE)
+	fec_get_mii_base(0, &fec_mii_base0);
+	fec_get_mii_base(1, &fec_mii_base1);
+
+	if (fec_mii_base0 != fec_mii_base1)
 		setbits_be16(&ccm->misccr, CCM_MISCCR_FECM);
 	else
 		clrbits_be16(&ccm->misccr, CCM_MISCCR_FECM);
@@ -168,13 +172,16 @@ void uart_port_conf(int port)
 }
 
 #if defined(CONFIG_CMD_NET)
-int fecpin_setclear(struct eth_device *dev, int setclear)
+int fecpin_setclear(fec_info_t *info, int setclear)
 {
 	gpio_t *gpio = (gpio_t *) MMAP_GPIO;
-	struct fec_info_s *info = (struct fec_info_s *)dev->priv;
+	u32 fec0_base;
+
+	if (fec_get_base_addr(0, &fec0_base))
+		return -1;
 
 	if (setclear) {
-		if (info->iobase == CONFIG_SYS_FEC0_IOBASE) {
+		if (info->iobase == fec0_base) {
 			setbits_8(&gpio->par_fec,
 				GPIO_PAR_FEC0_7W_FEC | GPIO_PAR_FEC0_RMII_FEC);
 			setbits_8(&gpio->par_feci2c,
@@ -186,7 +193,7 @@ int fecpin_setclear(struct eth_device *dev, int setclear)
 				GPIO_PAR_FECI2C_MDC1 | GPIO_PAR_FECI2C_MDIO1);
 		}
 	} else {
-		if (info->iobase == CONFIG_SYS_FEC0_IOBASE) {
+		if (info->iobase == fec0_base) {
 			clrbits_8(&gpio->par_fec,
 				GPIO_PAR_FEC0_7W_FEC | GPIO_PAR_FEC0_RMII_FEC);
 			clrbits_8(&gpio->par_feci2c, ~GPIO_PAR_FECI2C_RMII0_UNMASK);
@@ -329,7 +336,7 @@ void uart_port_conf(int port)
 }
 
 #if defined(CONFIG_CMD_NET)
-int fecpin_setclear(struct eth_device *dev, int setclear)
+int fecpin_setclear(fec_info_t *info, int setclear)
 {
 	gpio_t *gpio = (gpio_t *) MMAP_GPIO;
 

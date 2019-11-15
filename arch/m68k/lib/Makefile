@@ -12,3 +12,4 @@ obj-y	+= cache.o
 obj-y	+= interrupts.o
 obj-y	+= time.o
 obj-y	+= traps.o
+obj-y   += fec.o

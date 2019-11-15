@@ -402,15 +402,18 @@ void uart_port_conf(int port)
 }
 
 #if defined(CONFIG_CMD_NET)
-int fecpin_setclear(struct eth_device *dev, int setclear)
+int fecpin_setclear(fec_info_t *info, int setclear)
 {
 	gpio_t *gpio = (gpio_t *) MMAP_GPIO;
-#ifdef CONFIG_MCF5445x
-	struct fec_info_s *info = (struct fec_info_s *)dev->priv;
+	u32 fec0_base;
 
+	if (fec_get_base_addr(0, &fec0_base))
+		return -1;
+
+#ifdef CONFIG_MCF5445x
 	if (setclear) {
 #ifdef CONFIG_SYS_FEC_NO_SHARED_PHY
-		if (info->iobase == CONFIG_SYS_FEC0_IOBASE)
+		if (info->iobase == fec0_base)
 			setbits_be16(&gpio->par_feci2c,
 				GPIO_PAR_FECI2C_MDC0_MDC0 |
 				GPIO_PAR_FECI2C_MDIO0_MDIO0);
@@ -423,7 +426,7 @@ int fecpin_setclear(struct eth_device *dev, int setclear)
 			GPIO_PAR_FECI2C_MDC0_MDC0 | GPIO_PAR_FECI2C_MDIO0_MDIO0);
 #endif
 
-		if (info->iobase == CONFIG_SYS_FEC0_IOBASE)
+		if (info->iobase == fec0_base)
 			setbits_8(&gpio->par_fec, GPIO_PAR_FEC_FEC0_RMII_GPIO);
 		else
 			setbits_8(&gpio->par_fec, GPIO_PAR_FEC_FEC1_RMII_ATA);
@@ -431,7 +434,7 @@ int fecpin_setclear(struct eth_device *dev, int setclear)
 		clrbits_be16(&gpio->par_feci2c,
 			GPIO_PAR_FECI2C_MDC0_MDC0 | GPIO_PAR_FECI2C_MDIO0_MDIO0);
 
-		if (info->iobase == CONFIG_SYS_FEC0_IOBASE) {
+		if (info->iobase == fec0_base) {
 #ifdef CONFIG_SYS_FEC_FULL_MII
 			setbits_8(&gpio->par_fec, GPIO_PAR_FEC_FEC0_MII);
 #else
@@ -463,4 +466,3 @@ int fecpin_setclear(struct eth_device *dev, int setclear)
 	return 0;
 }
 #endif
-

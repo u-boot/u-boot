@@ -146,7 +146,6 @@ int watchdog_init(void)
  * create a board-specific function called:
  * 	int board_eth_init(bd_t *bis)
  */
-
 int cpu_eth_init(bd_t *bis)
 {
 	return mcffec_initialize(bis);

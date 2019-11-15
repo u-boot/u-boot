@@ -72,20 +72,21 @@ struct fec_info_dma {
 	int phyname_init;
 	cbd_t *rxbd;		/* Rx BD */
 	cbd_t *txbd;		/* Tx BD */
-	uint rxIdx;
-	uint txIdx;
+	uint rx_idx;
+	uint tx_idx;
 	char *txbuf;
 	int initialized;
 	struct fec_info_dma *next;
-
-	u16 rxTask;		/* DMA receive Task Number */
-	u16 txTask;		/* DMA Transmit Task Number */
-	u16 rxPri;		/* DMA Receive Priority */
-	u16 txPri;		/* DMA Transmit Priority */
-	u16 rxInit;		/* DMA Receive Initiator */
-	u16 txInit;		/* DMA Transmit Initiator */
-	u16 usedTbdIdx;		/* next transmit BD to clean */
-	u16 cleanTbdNum;	/* the number of available transmit BDs */
+	u16 rx_task;		/* DMA receive Task Number */
+	u16 tx_task;		/* DMA Transmit Task Number */
+	u16 rx_pri;		/* DMA Receive Priority */
+	u16 tx_pri;		/* DMA Transmit Priority */
+	u16 rx_init;		/* DMA Receive Initiator */
+	u16 tx_init;		/* DMA Transmit Initiator */
+	u16 used_tbd_idx;	/* next transmit BD to clean */
+	u16 clean_tbd_num;	/* the number of available transmit BDs */
+	int to_loop;
+	struct mii_dev *bus;
 };
 
 /* Bit definitions and macros for IEVENT */

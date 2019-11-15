@@ -158,7 +158,7 @@ void uart_port_conf(int port)
 }
 
 #if defined(CONFIG_CMD_NET)
-int fecpin_setclear(struct eth_device *dev, int setclear)
+int fecpin_setclear(fec_info_t *info, int setclear)
 {
 	gpio_t *gpio = (gpio_t *) MMAP_GPIO;
 
@@ -305,7 +305,7 @@ void uart_port_conf(int port)
 }
 
 #if defined(CONFIG_CMD_NET)
-int fecpin_setclear(struct eth_device *dev, int setclear)
+int fecpin_setclear(fec_info_t *info, int setclear)
 {
 	if (setclear) {
 		/* Enable Ethernet pins */
@@ -426,7 +426,7 @@ void uart_port_conf(int port)
 }
 
 #if defined(CONFIG_CMD_NET)
-int fecpin_setclear(struct eth_device *dev, int setclear)
+int fecpin_setclear(fec_info_t *info, int setclear)
 {
 	gpio_t *gpio = (gpio_t *) MMAP_GPIO;
 
@@ -509,14 +509,17 @@ void uart_port_conf(int port)
 }
 
 #if defined(CONFIG_CMD_NET)
-int fecpin_setclear(struct eth_device *dev, int setclear)
+int fecpin_setclear(fec_info_t *info, int setclear)
 {
-	struct fec_info_s *info = (struct fec_info_s *) dev->priv;
 	gpio_t *gpio = (gpio_t *)MMAP_GPIO;
+	u32 fec0_base;
+
+	if (fec_get_base_addr(0, &fec0_base))
+		return -1;
 
 	if (setclear) {
 		/* Enable Ethernet pins */
-		if (info->iobase == CONFIG_SYS_FEC0_IOBASE) {
+		if (info->iobase == fec0_base) {
 			setbits_be16(&gpio->par_feci2c, 0x0f00);
 			setbits_8(&gpio->par_fec0hl, 0xc0);
 		} else {
@@ -524,7 +527,7 @@ int fecpin_setclear(struct eth_device *dev, int setclear)
 			setbits_8(&gpio->par_fec1hl, 0xc0);
 		}
 	} else {
-		if (info->iobase == CONFIG_SYS_FEC0_IOBASE) {
+		if (info->iobase == fec0_base) {
 			clrbits_be16(&gpio->par_feci2c, 0x0f00);
 			clrbits_8(&gpio->par_fec0hl, 0xc0);
 		} else {
@@ -644,7 +647,7 @@ void uart_port_conf(int port)
 }
 
 #if defined(CONFIG_CMD_NET)
-int fecpin_setclear(struct eth_device *dev, int setclear)
+int fecpin_setclear(fec_info_t *info, int setclear)
 {
 	if (setclear) {
 		MCFGPIO_PASPAR |= 0x0F00;
