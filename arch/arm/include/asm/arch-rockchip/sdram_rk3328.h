@@ -6,6 +6,7 @@
 
 #ifndef _ASM_ARCH_SDRAM_RK3328_H
 #define _ASM_ARCH_SDRAM_RK3328_H
+#include <asm/arch-rockchip/sdram_common.h>
 
 #define SR_IDLE		93
 #define PD_IDLE		13
