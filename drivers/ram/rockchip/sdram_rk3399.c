@@ -78,6 +78,11 @@ struct sdram_rk3399_ops {
 				   struct rk3399_sdram_params *sdram);
 	int (*set_rate_index)(struct dram_info *dram,
 			      struct rk3399_sdram_params *params);
+	void (*modify_param)(const struct chan_info *chan,
+			     struct rk3399_sdram_params *params);
+	struct rk3399_sdram_params *
+		(*get_phy_index_params)(u32 phy_fn,
+					struct rk3399_sdram_params *params);
 };
 
 #if defined(CONFIG_TPL_BUILD) || \
@@ -794,46 +799,107 @@ static void set_ds_odt(const struct chan_info *chan,
 	phy_io_config(chan, params, mr5);
 }
 
-static void pctl_start(struct dram_info *dram, u8 channel)
+static void pctl_start(struct dram_info *dram,
+		       struct rk3399_sdram_params *params,
+		       u32 channel_mask)
 {
-	const struct chan_info *chan = &dram->chan[channel];
-	u32 *denali_ctl = chan->pctl->denali_ctl;
-	u32 *denali_phy = chan->publ->denali_phy;
-	u32 *ddrc0_con = get_ddrc0_con(dram, channel);
+	const struct chan_info *chan_0 = &dram->chan[0];
+	const struct chan_info *chan_1 = &dram->chan[1];
+
+	u32 *denali_ctl_0 = chan_0->pctl->denali_ctl;
+	u32 *denali_phy_0 = chan_0->publ->denali_phy;
+	u32 *ddrc0_con_0 = get_ddrc0_con(dram, 0);
+	u32 *denali_ctl_1 = chan_1->pctl->denali_ctl;
+	u32 *denali_phy_1 = chan_1->publ->denali_phy;
+	u32 *ddrc1_con_0 = get_ddrc0_con(dram, 1);
 	u32 count = 0;
 	u32 byte, tmp;
 
-	writel(0x01000000, &ddrc0_con);
+	/* PHY_DLL_RST_EN */
+	if (channel_mask & 1) {
+		writel(0x01000000, &ddrc0_con_0);
+		clrsetbits_le32(&denali_phy_0[957], 0x3 << 24, 0x2 << 24);
+	}
 
-	clrsetbits_le32(&denali_phy[957], 0x3 << 24, 0x2 << 24);
-
-	while (!(readl(&denali_ctl[203]) & (1 << 3))) {
-		if (count > 1000) {
-			printf("%s: Failed to init pctl for channel %d\n",
-			       __func__, channel);
-			while (1)
-				;
+	if (channel_mask & 1) {
+		count = 0;
+		while (!(readl(&denali_ctl_0[203]) & (1 << 3))) {
+			if (count > 1000) {
+				printf("%s: Failed to init pctl channel 0\n",
+				       __func__);
+				while (1)
+					;
+			}
+			udelay(1);
+			count++;
 		}
 
-		udelay(1);
-		count++;
+		writel(0x01000100, &ddrc0_con_0);
+		for (byte = 0; byte < 4; byte++)	{
+			tmp = 0x820;
+			writel((tmp << 16) | tmp,
+			       &denali_phy_0[53 + (128 * byte)]);
+			writel((tmp << 16) | tmp,
+			       &denali_phy_0[54 + (128 * byte)]);
+			writel((tmp << 16) | tmp,
+			       &denali_phy_0[55 + (128 * byte)]);
+			writel((tmp << 16) | tmp,
+			       &denali_phy_0[56 + (128 * byte)]);
+			writel((tmp << 16) | tmp,
+			       &denali_phy_0[57 + (128 * byte)]);
+			clrsetbits_le32(&denali_phy_0[58 + (128 * byte)],
+					0xffff, tmp);
+		}
+		clrsetbits_le32(&denali_ctl_0[68], PWRUP_SREFRESH_EXIT,
+				dram->pwrup_srefresh_exit[0]);
 	}
 
-	writel(0x01000100, &ddrc0_con);
-
-	for (byte = 0; byte < 4; byte++) {
-		tmp = 0x820;
-		writel((tmp << 16) | tmp, &denali_phy[53 + (128 * byte)]);
-		writel((tmp << 16) | tmp, &denali_phy[54 + (128 * byte)]);
-		writel((tmp << 16) | tmp, &denali_phy[55 + (128 * byte)]);
-		writel((tmp << 16) | tmp, &denali_phy[56 + (128 * byte)]);
-		writel((tmp << 16) | tmp, &denali_phy[57 + (128 * byte)]);
-
-		clrsetbits_le32(&denali_phy[58 + (128 * byte)], 0xffff, tmp);
+	if (channel_mask & 2) {
+		writel(0x01000000, &ddrc1_con_0);
+		clrsetbits_le32(&denali_phy_1[957], 0x3 << 24, 0x2 << 24);
 	}
+	if (channel_mask & 2) {
+		count = 0;
+		while (!(readl(&denali_ctl_1[203]) & (1 << 3))) {
+			if (count > 1000) {
+				printf("%s: Failed to init pctl channel 1\n",
+				       __func__);
+				while (1)
+					;
+			}
+			udelay(1);
+			count++;
+		}
 
-	clrsetbits_le32(&denali_ctl[68], PWRUP_SREFRESH_EXIT,
-			dram->pwrup_srefresh_exit[channel]);
+		writel(0x01000100, &ddrc1_con_0);
+		for (byte = 0; byte < 4; byte++)	{
+			tmp = 0x820;
+			writel((tmp << 16) | tmp,
+			       &denali_phy_1[53 + (128 * byte)]);
+			writel((tmp << 16) | tmp,
+			       &denali_phy_1[54 + (128 * byte)]);
+			writel((tmp << 16) | tmp,
+			       &denali_phy_1[55 + (128 * byte)]);
+			writel((tmp << 16) | tmp,
+			       &denali_phy_1[56 + (128 * byte)]);
+			writel((tmp << 16) | tmp,
+			       &denali_phy_1[57 + (128 * byte)]);
+			clrsetbits_le32(&denali_phy_1[58 + (128 * byte)],
+					0xffff, tmp);
+		}
+
+		clrsetbits_le32(&denali_ctl_1[68], PWRUP_SREFRESH_EXIT,
+				dram->pwrup_srefresh_exit[1]);
+
+		/*
+		 * restore channel 1 RESET original setting
+		 * to avoid 240ohm too weak to prevent ESD test
+		 */
+		if (params->base.dramtype == LPDDR4)
+			clrsetbits_le32(&denali_phy_1[937], 0xff,
+					params->phy_regs.denali_phy[937] &
+					0xFF);
+	}
 }
 
 static int pctl_cfg(struct dram_info *dram, const struct chan_info *chan,
@@ -845,7 +911,10 @@ static int pctl_cfg(struct dram_info *dram, const struct chan_info *chan,
 	const u32 *params_ctl = params->pctl_regs.denali_ctl;
 	const u32 *params_phy = params->phy_regs.denali_phy;
 	u32 tmp, tmp1, tmp2;
+	struct rk3399_sdram_params *params_cfg;
+	u32 byte;
 
+	dram->ops->modify_param(chan, params);
 	/*
 	 * work around controller bug:
 	 * Do not program DRAM_CLASS until NO_PHY_IND_TRAIN_INT is programmed
@@ -926,33 +995,52 @@ static int pctl_cfg(struct dram_info *dram, const struct chan_info *chan,
 	sdram_copy_to_reg(&denali_phy[768], &params_phy[768],
 			  (805 - 768 + 1) * 4);
 
-	set_ds_odt(chan, params, true, 0);
+	if (params->base.dramtype == LPDDR4)
+		params_cfg = dram->ops->get_phy_index_params(1, params);
+	else
+		params_cfg = dram->ops->get_phy_index_params(0, params);
 
-	/*
-	 * phy_dqs_tsel_wr_timing_X 8bits DENALI_PHY_84/212/340/468 offset_8
-	 * dqs_tsel_wr_end[7:4] add Half cycle
-	 */
-	tmp = (readl(&denali_phy[84]) >> 8) & 0xff;
-	clrsetbits_le32(&denali_phy[84], 0xff << 8, (tmp + 0x10) << 8);
-	tmp = (readl(&denali_phy[212]) >> 8) & 0xff;
-	clrsetbits_le32(&denali_phy[212], 0xff << 8, (tmp + 0x10) << 8);
-	tmp = (readl(&denali_phy[340]) >> 8) & 0xff;
-	clrsetbits_le32(&denali_phy[340], 0xff << 8, (tmp + 0x10) << 8);
-	tmp = (readl(&denali_phy[468]) >> 8) & 0xff;
-	clrsetbits_le32(&denali_phy[468], 0xff << 8, (tmp + 0x10) << 8);
+	clrsetbits_le32(&params_cfg->phy_regs.denali_phy[896], 0x3 << 8,
+			0 << 8);
+	writel(params_cfg->phy_regs.denali_phy[896], &denali_phy[896]);
 
-	/*
-	 * phy_dqs_tsel_wr_timing_X 8bits DENALI_PHY_83/211/339/467 offset_8
-	 * dq_tsel_wr_end[7:4] add Half cycle
-	 */
-	tmp = (readl(&denali_phy[83]) >> 16) & 0xff;
-	clrsetbits_le32(&denali_phy[83], 0xff << 16, (tmp + 0x10) << 16);
-	tmp = (readl(&denali_phy[211]) >> 16) & 0xff;
-	clrsetbits_le32(&denali_phy[211], 0xff << 16, (tmp + 0x10) << 16);
-	tmp = (readl(&denali_phy[339]) >> 16) & 0xff;
-	clrsetbits_le32(&denali_phy[339], 0xff << 16, (tmp + 0x10) << 16);
-	tmp = (readl(&denali_phy[467]) >> 16) & 0xff;
-	clrsetbits_le32(&denali_phy[467], 0xff << 16, (tmp + 0x10) << 16);
+	writel(params->phy_regs.denali_phy[83] + (0x10 << 16),
+	       &denali_phy[83]);
+	writel(params->phy_regs.denali_phy[84] + (0x10 << 8),
+	       &denali_phy[84]);
+	writel(params->phy_regs.denali_phy[211] + (0x10 << 16),
+	       &denali_phy[211]);
+	writel(params->phy_regs.denali_phy[212] + (0x10 << 8),
+	       &denali_phy[212]);
+	writel(params->phy_regs.denali_phy[339] + (0x10 << 16),
+	       &denali_phy[339]);
+	writel(params->phy_regs.denali_phy[340] + (0x10 << 8),
+	       &denali_phy[340]);
+	writel(params->phy_regs.denali_phy[467] + (0x10 << 16),
+	       &denali_phy[467]);
+	writel(params->phy_regs.denali_phy[468] + (0x10 << 8),
+	       &denali_phy[468]);
+
+	if (params->base.dramtype == LPDDR4) {
+		/*
+		 * to improve write dqs and dq phase from 1.5ns to 3.5ns
+		 * at 50MHz. this's the measure result from oscilloscope
+		 * of dqs and dq write signal.
+		 */
+		for (byte = 0; byte < 4; byte++) {
+			tmp = 0x680;
+			clrsetbits_le32(&denali_phy[1 + (128 * byte)],
+					0xfff << 8, tmp << 8);
+		}
+		/*
+		 * to workaround 366ball two channel's RESET connect to
+		 * one RESET signal of die
+		 */
+		if (channel == 1)
+			clrsetbits_le32(&denali_phy[937], 0xff,
+					PHY_DRV_ODT_240 |
+					(PHY_DRV_ODT_240 << 0x4));
+	}
 
 	return 0;
 }
@@ -1611,12 +1699,53 @@ static int switch_to_phy_index1(struct dram_info *dram,
 	return 0;
 }
 
+struct rk3399_sdram_params
+	*get_phy_index_params(u32 phy_fn,
+			      struct rk3399_sdram_params *params)
+{
+	if (phy_fn == 0)
+		return params;
+	else
+		return NULL;
+}
+
+void modify_param(const struct chan_info *chan,
+		  struct rk3399_sdram_params *params)
+{
+	struct rk3399_sdram_params *params_cfg;
+	u32 *denali_pi_params;
+
+	denali_pi_params = params->pi_regs.denali_pi;
+
+	/* modify PHY F0/F1/F2 params */
+	params_cfg = get_phy_index_params(0, params);
+	set_ds_odt(chan, params_cfg, false, 0);
+
+	clrsetbits_le32(&denali_pi_params[45], 0x1 << 24, 0x1 << 24);
+	clrsetbits_le32(&denali_pi_params[61], 0x1 << 24, 0x1 << 24);
+	clrsetbits_le32(&denali_pi_params[76], 0x1 << 24, 0x1 << 24);
+	clrsetbits_le32(&denali_pi_params[77], 0x1, 0x1);
+}
 #else
 
 struct rk3399_sdram_params dfs_cfgs_lpddr4[] = {
 #include "sdram-rk3399-lpddr4-400.inc"
 #include "sdram-rk3399-lpddr4-800.inc"
 };
+
+static struct rk3399_sdram_params
+	*lpddr4_get_phy_index_params(u32 phy_fn,
+				     struct rk3399_sdram_params *params)
+{
+	if (phy_fn == 0)
+		return params;
+	else if (phy_fn == 1)
+		return &dfs_cfgs_lpddr4[1];
+	else if (phy_fn == 2)
+		return &dfs_cfgs_lpddr4[0];
+	else
+		return NULL;
+}
 
 static void *get_denali_pi(const struct chan_info *chan,
 			   struct rk3399_sdram_params *params, bool reg)
@@ -2017,6 +2146,56 @@ static void set_lpddr4_MR14(const struct chan_info *chan,
 	}
 }
 
+void lpddr4_modify_param(const struct chan_info *chan,
+			 struct rk3399_sdram_params *params)
+{
+	struct rk3399_sdram_params *params_cfg;
+	u32 *denali_ctl_params;
+	u32 *denali_pi_params;
+	u32 *denali_phy_params;
+
+	denali_ctl_params = params->pctl_regs.denali_ctl;
+	denali_pi_params = params->pi_regs.denali_pi;
+	denali_phy_params = params->phy_regs.denali_phy;
+
+	set_lpddr4_dq_odt(chan, params, 2, true, false, 0);
+	set_lpddr4_ca_odt(chan, params, 2, true, false, 0);
+	set_lpddr4_MR3(chan, params, 2, false, 0);
+	set_lpddr4_MR12(chan, params, 2, false, 0);
+	set_lpddr4_MR14(chan, params, 2, false, 0);
+	params_cfg = lpddr4_get_phy_index_params(0, params);
+	set_ds_odt(chan, params_cfg, false, 0);
+	/* read two cycle preamble */
+	clrsetbits_le32(&denali_ctl_params[200], 0x3 << 24, 0x3 << 24);
+	clrsetbits_le32(&denali_phy_params[7], 0x3 << 24, 0x3 << 24);
+	clrsetbits_le32(&denali_phy_params[135], 0x3 << 24, 0x3 << 24);
+	clrsetbits_le32(&denali_phy_params[263], 0x3 << 24, 0x3 << 24);
+	clrsetbits_le32(&denali_phy_params[391], 0x3 << 24, 0x3 << 24);
+
+	/* boot frequency two cycle preamble */
+	clrsetbits_le32(&denali_phy_params[2], 0x3 << 16, 0x3 << 16);
+	clrsetbits_le32(&denali_phy_params[130], 0x3 << 16, 0x3 << 16);
+	clrsetbits_le32(&denali_phy_params[258], 0x3 << 16, 0x3 << 16);
+	clrsetbits_le32(&denali_phy_params[386], 0x3 << 16, 0x3 << 16);
+
+	clrsetbits_le32(&denali_pi_params[45], 0x3 << 8, 0x3 << 8);
+	clrsetbits_le32(&denali_pi_params[58], 0x1, 0x1);
+
+	/*
+	 * bypass mode need PHY_SLICE_PWR_RDC_DISABLE_x = 1,
+	 * boot frequency mode use bypass mode
+	 */
+	setbits_le32(&denali_phy_params[10], 1 << 16);
+	setbits_le32(&denali_phy_params[138], 1 << 16);
+	setbits_le32(&denali_phy_params[266], 1 << 16);
+	setbits_le32(&denali_phy_params[394], 1 << 16);
+
+	clrsetbits_le32(&denali_pi_params[45], 0x1 << 24, 0x1 << 24);
+	clrsetbits_le32(&denali_pi_params[61], 0x1 << 24, 0x1 << 24);
+	clrsetbits_le32(&denali_pi_params[76], 0x1 << 24, 0x1 << 24);
+	clrsetbits_le32(&denali_pi_params[77], 0x1, 0x1);
+}
+
 static void lpddr4_copy_phy(struct dram_info *dram,
 			    struct rk3399_sdram_params *params, u32 phy_fn,
 			    struct rk3399_sdram_params *params_cfg,
@@ -2259,44 +2438,46 @@ static void lpddr4_copy_phy(struct dram_info *dram,
 	/* phy_939 phy_pad_cs_drive */
 	clrsetbits_le32(&denali_phy[939], 0x3 << 17, speed << 17);
 
-	read_mr(dram->chan[channel].pctl, 1, 5, &mr5);
-	set_ds_odt(&dram->chan[channel], params_cfg, true, mr5);
+	if (params_cfg->base.dramtype == LPDDR4) {
+		read_mr(dram->chan[channel].pctl, 1, 5, &mr5);
+		set_ds_odt(&dram->chan[channel], params_cfg, true, mr5);
 
-	ctl_fn = lpddr4_get_ctl_fn(params_cfg, phy_fn);
-	set_lpddr4_dq_odt(&dram->chan[channel], params_cfg,
-			  ctl_fn, true, true, mr5);
-	set_lpddr4_ca_odt(&dram->chan[channel], params_cfg,
-			  ctl_fn, true, true, mr5);
-	set_lpddr4_MR3(&dram->chan[channel], params_cfg,
-		       ctl_fn, true, mr5);
-	set_lpddr4_MR12(&dram->chan[channel], params_cfg,
-			ctl_fn, true, mr5);
-	set_lpddr4_MR14(&dram->chan[channel], params_cfg,
-			ctl_fn, true, mr5);
+		ctl_fn = lpddr4_get_ctl_fn(params_cfg, phy_fn);
+		set_lpddr4_dq_odt(&dram->chan[channel], params_cfg,
+				  ctl_fn, true, true, mr5);
+		set_lpddr4_ca_odt(&dram->chan[channel], params_cfg,
+				  ctl_fn, true, true, mr5);
+		set_lpddr4_MR3(&dram->chan[channel], params_cfg,
+			       ctl_fn, true, mr5);
+		set_lpddr4_MR12(&dram->chan[channel], params_cfg,
+				ctl_fn, true, mr5);
+		set_lpddr4_MR14(&dram->chan[channel], params_cfg,
+				ctl_fn, true, mr5);
 
-	/*
-	 * if phy_sw_master_mode_x not bypass mode,
-	 * clear phy_slice_pwr_rdc_disable.
-	 * note: need use timings, not ddr_publ_regs
-	 */
-	if (!((denali_phy_params[86] >> 8) & (1 << 2))) {
-		clrbits_le32(&denali_phy[10], 1 << 16);
-		clrbits_le32(&denali_phy[138], 1 << 16);
-		clrbits_le32(&denali_phy[266], 1 << 16);
-		clrbits_le32(&denali_phy[394], 1 << 16);
-	}
+		/*
+		 * if phy_sw_master_mode_x not bypass mode,
+		 * clear phy_slice_pwr_rdc_disable.
+		 * note: need use timings, not ddr_publ_regs
+		 */
+		if (!((denali_phy_params[86] >> 8) & (1 << 2))) {
+			clrbits_le32(&denali_phy[10], 1 << 16);
+			clrbits_le32(&denali_phy[138], 1 << 16);
+			clrbits_le32(&denali_phy[266], 1 << 16);
+			clrbits_le32(&denali_phy[394], 1 << 16);
+		}
 
-	/*
-	 * when PHY_PER_CS_TRAINING_EN=1, W2W_DIFFCS_DLY_Fx can't
-	 * smaller than 8
-	 * NOTE: need use timings, not ddr_publ_regs
-	 */
-	if ((denali_phy_params[84] >> 16) & 1) {
-		if (((readl(&denali_ctl[217 + ctl_fn]) >>
-			16) & 0x1f) < 8)
-			clrsetbits_le32(&denali_ctl[217 + ctl_fn],
-					0x1f << 16,
-					8 << 16);
+		/*
+		 * when PHY_PER_CS_TRAINING_EN=1, W2W_DIFFCS_DLY_Fx can't
+		 * smaller than 8
+		 * NOTE: need use timings, not ddr_publ_regs
+		 */
+		if ((denali_phy_params[84] >> 16) & 1) {
+			if (((readl(&denali_ctl[217 + ctl_fn]) >>
+				16) & 0x1f) < 8)
+				clrsetbits_le32(&denali_ctl[217 + ctl_fn],
+						0x1f << 16,
+						8 << 16);
+		}
 	}
 }
 
@@ -2480,39 +2661,13 @@ static void clear_channel_params(struct rk3399_sdram_params *params, u8 channel)
 	params->ch[channel].cap_info.ddrconfig = 0;
 }
 
-static int pctl_init(struct dram_info *dram, struct rk3399_sdram_params *params)
-{
-	int channel;
-	int ret;
-
-	for (channel = 0; channel < 2; channel++) {
-		const struct chan_info *chan = &dram->chan[channel];
-		struct rk3399_cru *cru = dram->cru;
-		struct rk3399_ddr_publ_regs *publ = chan->publ;
-
-		phy_pctrl_reset(cru, channel);
-		phy_dll_bypass_set(publ, params->base.ddr_freq);
-
-		ret = pctl_cfg(dram, chan, channel, params);
-		if (ret < 0) {
-			printf("%s: pctl config failed\n", __func__);
-			return ret;
-		}
-
-		/* start to trigger initialization */
-		pctl_start(dram, channel);
-	}
-
-	return 0;
-}
-
 static int sdram_init(struct dram_info *dram,
 		      struct rk3399_sdram_params *params)
 {
 	unsigned char dramtype = params->base.dramtype;
 	unsigned int ddr_freq = params->base.ddr_freq;
 	int channel, ch, rank;
-	int ret;
+	u32 ret;
 
 	debug("Starting SDRAM initialization...\n");
 
@@ -2523,14 +2678,23 @@ static int sdram_init(struct dram_info *dram,
 		return -E2BIG;
 	}
 
+	/* detect rank */
 	for (ch = 0; ch < 2; ch++) {
 		params->ch[ch].cap_info.rank = 2;
 		for (rank = 2; rank != 0; rank--) {
-			ret = pctl_init(dram, params);
-			if (ret < 0) {
-				printf("%s: pctl init failed\n", __func__);
-				return ret;
+			for (channel = 0; channel < 2; channel++) {
+				const struct chan_info *chan =
+					&dram->chan[channel];
+				struct rk3399_cru *cru = dram->cru;
+				struct rk3399_ddr_publ_regs *publ = chan->publ;
+
+				phy_pctrl_reset(cru, channel);
+				phy_dll_bypass_set(publ, ddr_freq);
+				pctl_cfg(dram, chan, channel, params);
 			}
+
+			/* start to trigger initialization */
+			pctl_start(dram, params, 3);
 
 			/* LPDDR2/LPDDR3 need to wait DAI complete, max 10us */
 			if (dramtype == LPDDR3)
@@ -2553,7 +2717,8 @@ static int sdram_init(struct dram_info *dram,
 	params->base.num_channels = 0;
 	for (channel = 0; channel < 2; channel++) {
 		const struct chan_info *chan = &dram->chan[channel];
-		struct sdram_cap_info *cap_info = &params->ch[channel].cap_info;
+		struct sdram_cap_info *cap_info =
+			&params->ch[channel].cap_info;
 		u8 training_flag = PI_FULL_TRAINING;
 
 		if (cap_info->rank == 0) {
@@ -2583,8 +2748,12 @@ static int sdram_init(struct dram_info *dram,
 
 		sdram_print_ddr_info(cap_info, &params->base);
 		set_memory_map(chan, channel, params);
-		cap_info->ddrconfig = calculate_ddrconfig(params, channel);
-
+		cap_info->ddrconfig =
+			calculate_ddrconfig(params, channel);
+		if (-1 == cap_info->ddrconfig) {
+			printf("no ddrconfig find, Cap not support!\n");
+			continue;
+		}
 		set_ddrconfig(chan, params, channel, cap_info->ddrconfig);
 		set_cap_relate_config(chan, params, channel);
 	}
@@ -2648,9 +2817,13 @@ static const struct sdram_rk3399_ops rk3399_ops = {
 #if !defined(CONFIG_RAM_RK3399_LPDDR4)
 	.data_training_first = data_training_first,
 	.set_rate_index = switch_to_phy_index1,
+	.modify_param = modify_param,
+	.get_phy_index_params = get_phy_index_params,
 #else
 	.data_training_first = lpddr4_mr_detect,
 	.set_rate_index = lpddr4_set_rate,
+	.modify_param = lpddr4_modify_param,
+	.get_phy_index_params = lpddr4_get_phy_index_params,
 #endif
 };
 
