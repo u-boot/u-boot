@@ -488,7 +488,7 @@ config TPL_HASH_SUPPORT
 	  this option to build system-specific drivers for hash acceleration
 	  as part of an SPL build.
 
-config SPL_DMA_SUPPORT
+config SPL_DMA
 	bool "Support DMA drivers"
 	help
 	  Enable DMA (direct-memory-access) drivers in SPL. These drivers
