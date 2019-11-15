@@ -22,16 +22,16 @@
 			},
 			{
 				.ddrtiminga0 = {
-					0x80241d22,
+					0x801c1819,
 				},
 				.ddrtimingb0 = {
-					0x15050f08,
+					0x10040c05,
 				},
 				.ddrtimingc0 = {
 					0x00000602,
 				},
 				.devtodev0 = {
-					0x00002122,
+					0x00002672,
 				},
 				.ddrmode = {
 					0x0000004c,
