@@ -16,15 +16,23 @@
 				.row_3_4 = 0x0,
 				.cs0_row = 0xF,
 				.cs1_row = 0xF,
+				.cs0_high16bit_row = 0xF,
+				.cs1_high16bit_row = 0xF,
 				.ddrconfig = 1,
 			},
 			{
-				.ddrtiminga0 = 0x80241d22,
-				.ddrtimingb0 = 0x15050f08,
+				.ddrtiminga0 = {
+					0x80241d22,
+				},
+				.ddrtimingb0 = {
+					0x15050f08,
+				},
 				.ddrtimingc0 = {
 					0x00000602,
 				},
-				.devtodev0 = 0x00002122,
+				.devtodev0 = {
+					0x00002122,
+				},
 				.ddrmode = {
 					0x0000004c,
 				},
@@ -41,15 +49,23 @@
 				.row_3_4 = 0x0,
 				.cs0_row = 0xF,
 				.cs1_row = 0xF,
+				.cs0_high16bit_row = 0xF,
+				.cs1_high16bit_row = 0xF,
 				.ddrconfig = 1,
 			},
 			{
-				.ddrtiminga0 = 0x80241d22,
-				.ddrtimingb0 = 0x15050f08,
+				.ddrtiminga0 = {
+					0x80241d22,
+				},
+				.ddrtimingb0 = {
+					0x15050f08,
+				},
 				.ddrtimingc0 = {
 					0x00000602,
 				},
-				.devtodev0 = 0x00002122,
+				.devtodev0 = {
+					0x00002122,
+				},
 				.ddrmode = {
 					0x0000004c,
 				},

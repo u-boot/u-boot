@@ -10,5 +10,5 @@ obj-$(CONFIG_ROCKCHIP_RK3188) = sdram_rk3188.o
 obj-$(CONFIG_ROCKCHIP_RK322X) = sdram_rk322x.o
 obj-$(CONFIG_ROCKCHIP_RK3288) = sdram_rk3288.o
 obj-$(CONFIG_ROCKCHIP_RK3328) = sdram_rk3328.o sdram_pctl_px30.o sdram_phy_px30.o
-obj-$(CONFIG_RAM_RK3399) += sdram_rk3399.o
+obj-$(CONFIG_ROCKCHIP_RK3399) += sdram_rk3399.o
 obj-$(CONFIG_ROCKCHIP_SDRAM_COMMON) += sdram_common.o
