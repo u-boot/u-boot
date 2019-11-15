@@ -6,6 +6,15 @@
 #ifndef _ASM_ARCH_SDRAM_COMMON_H
 #define _ASM_ARCH_SDRAM_COMMON_H
 
+#ifndef MHZ
+#define MHZ		(1000 * 1000)
+#endif
+
+#define PATTERN		(0x5aa5f00f)
+
+#define MIN(a, b)	(((a) > (b)) ? (b) : (a))
+#define MAX(a, b)	(((a) > (b)) ? (a) : (b))
+
 struct sdram_cap_info {
 	unsigned int rank;
 	/* dram column number, 0 means this channel is invalid */
@@ -124,5 +133,27 @@ void sdram_print_ddr_info(struct sdram_cap_info *cap_info,
 			  struct sdram_base_params *base);
 void sdram_print_stride(unsigned int stride);
 #endif /* CONFIG_RAM_ROCKCHIP_DEBUG */
+
+void sdram_org_config(struct sdram_cap_info *cap_info,
+		      struct sdram_base_params *base,
+		      u32 *p_os_reg2, u32 *p_os_reg3, u32 channel);
+
+int sdram_detect_bw(struct sdram_cap_info *cap_info);
+int sdram_detect_cs(struct sdram_cap_info *cap_info);
+int sdram_detect_col(struct sdram_cap_info *cap_info,
+		     u32 coltmp);
+int sdram_detect_bank(struct sdram_cap_info *cap_info,
+		      u32 coltmp, u32 bktmp);
+int sdram_detect_bg(struct sdram_cap_info *cap_info,
+		    u32 coltmp);
+int sdram_detect_dbw(struct sdram_cap_info *cap_info, u32 dram_type);
+int sdram_detect_row(struct sdram_cap_info *cap_info,
+		     u32 coltmp, u32 bktmp, u32 rowtmp);
+int sdram_detect_row_3_4(struct sdram_cap_info *cap_info,
+			 u32 coltmp, u32 bktmp);
+int sdram_detect_high_row(struct sdram_cap_info *cap_info);
+int sdram_detect_cs1_row(struct sdram_cap_info *cap_info, u32 dram_type);
+u64 sdram_get_cs_cap(struct sdram_cap_info *cap_info, u32 cs, u32 dram_type);
+void sdram_copy_to_reg(u32 *dest, const u32 *src, u32 n);
 
 #endif

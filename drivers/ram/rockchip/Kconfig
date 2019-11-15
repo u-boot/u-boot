@@ -5,6 +5,12 @@ config RAM_ROCKCHIP
 	help
 	  This enables support for ram drivers Rockchip SoCs.
 
+config ROCKCHIP_SDRAM_COMMON
+	bool "Enable rockchip sdram common driver"
+	depends on TPL_RAM || SPL_RAM
+	help
+	  This enable sdram common driver
+
 if RAM_ROCKCHIP
 
 config RAM_ROCKCHIP_DEBUG
