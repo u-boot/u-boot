@@ -85,4 +85,13 @@ struct rk3399_sdram_params {
 #define PI_WDQ_LEVELING		BIT(4)
 #define PI_FULL_TRAINING	0xff
 
+enum {
+	STRIDE_128B = 0,
+	STRIDE_256B = 1,
+	STRIDE_512B = 2,
+	STRIDE_4KB = 3,
+	UN_STRIDE = 4,
+	PART_STRIDE = 5,
+};
+
 #endif

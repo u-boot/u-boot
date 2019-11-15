@@ -2758,15 +2758,20 @@ error:
 
 static unsigned char calculate_stride(struct rk3399_sdram_params *params)
 {
-	unsigned int stride = params->base.stride;
-	unsigned int channel, chinfo = 0;
+	unsigned int gstride_type;
+	unsigned int channel;
+	unsigned int chinfo = 0;
+	unsigned int cap = 0;
+	unsigned int stride = -1;
 	unsigned int ch_cap[2] = {0, 0};
-	u64 cap;
+
+	gstride_type = STRIDE_256B;
 
 	for (channel = 0; channel < 2; channel++) {
 		unsigned int cs0_cap = 0;
 		unsigned int cs1_cap = 0;
-		struct sdram_cap_info *cap_info = &params->ch[channel].cap_info;
+		struct sdram_cap_info *cap_info =
+			&params->ch[channel].cap_info;
 
 		if (cap_info->col == 0)
 			continue;
@@ -2784,49 +2789,124 @@ static unsigned char calculate_stride(struct rk3399_sdram_params *params)
 		chinfo |= 1 << channel;
 	}
 
-	/* stride calculation for 1 channel */
-	if (params->base.num_channels == 1 && chinfo & 1)
-		return 0x17;	/* channel a */
-
-	/* stride calculation for 2 channels, default gstride type is 256B */
-	if (ch_cap[0] == ch_cap[1]) {
-		cap = ch_cap[0] + ch_cap[1];
-		switch (cap) {
-		/* 512MB */
-		case 512:
-			stride = 0;
-			break;
-		/* 1GB */
-		case 1024:
-			stride = 0x5;
-			break;
-		/*
-		 * 768MB + 768MB same as total 2GB memory
-		 * useful space: 0-768MB 1GB-1792MB
-		 */
-		case 1536:
-		/* 2GB */
-		case 2048:
-			stride = 0x9;
-			break;
-		/* 1536MB + 1536MB */
-		case 3072:
-			stride = 0x11;
-			break;
-		/* 4GB */
-		case 4096:
-			stride = 0xD;
-			break;
-		default:
-			printf("%s: Unable to calculate stride for ", __func__);
-			print_size((cap * (1 << 20)), " capacity\n");
-			break;
+	cap = ch_cap[0] + ch_cap[1];
+	if (params->base.num_channels == 1) {
+		if (chinfo & 1) /* channel a only */
+			stride = 0x17;
+		else /* channel b only */
+			stride = 0x18;
+	} else {/* 2 channel */
+		if (ch_cap[0] == ch_cap[1]) {
+			/* interleaved */
+			if (gstride_type == PART_STRIDE) {
+			/*
+			 * first 64MB no interleaved other 256B interleaved
+			 * if 786M+768M.useful space from 0-1280MB and
+			 * 1536MB-1792MB
+			 * if 1.5G+1.5G(continuous).useful space from 0-2560MB
+			 * and 3072MB-3584MB
+			 */
+				stride = 0x1F;
+			} else {
+				switch (cap) {
+				/* 512MB */
+				case 512:
+					stride = 0;
+					break;
+				/* 1GB unstride or 256B stride*/
+				case 1024:
+					stride = (gstride_type == UN_STRIDE) ?
+						0x1 : 0x5;
+					break;
+				/*
+				 * 768MB + 768MB same as total 2GB memory
+				 * useful space: 0-768MB 1GB-1792MB
+				 */
+				case 1536:
+				/* 2GB unstride or 256B or 512B stride */
+				case 2048:
+					stride = (gstride_type == UN_STRIDE) ?
+						0x2 :
+						((gstride_type == STRIDE_512B) ?
+						 0xA : 0x9);
+					break;
+				/* 1536MB + 1536MB */
+				case 3072:
+					stride = (gstride_type == UN_STRIDE) ?
+						0x3 :
+						((gstride_type == STRIDE_512B) ?
+						 0x12 : 0x11);
+					break;
+				/* 4GB  unstride or 128B,256B,512B,4KB stride */
+				case 4096:
+					stride = (gstride_type == UN_STRIDE) ?
+						0x3 : (0xC + gstride_type);
+					break;
+				}
+			}
 		}
+		if (ch_cap[0] == 2048 && ch_cap[1] == 1024) {
+			/* 2GB + 1GB */
+			stride = (gstride_type == UN_STRIDE) ? 0x3 : 0x19;
+		}
+		/*
+		 * remain two channel capability not equal OR capability
+		 * power function of 2
+		 */
+		if (stride == (-1)) {
+			switch ((ch_cap[0] > ch_cap[1]) ?
+				ch_cap[0] : ch_cap[1]) {
+			case 256: /* 256MB + 128MB */
+				stride = 0;
+				break;
+			case 512: /* 512MB + 256MB */
+				stride = 1;
+				break;
+			case 1024:/* 1GB + 128MB/256MB/384MB/512MB/768MB */
+				stride = 2;
+				break;
+			case 2048: /* 2GB + 128MB/256MB/384MB/512MB/768MB/1GB */
+				stride = 3;
+				break;
+			default:
+				break;
+			}
+		}
+		if (stride == (-1))
+			goto error;
+	}
+	switch (stride) {
+	case 0xc:
+		printf("128B stride\n");
+		break;
+	case 5:
+	case 9:
+	case 0xd:
+	case 0x11:
+	case 0x19:
+		printf("256B stride\n");
+		break;
+	case 0xa:
+	case 0xe:
+	case 0x12:
+		printf("512B stride\n");
+		break;
+	case 0xf:
+		printf("4K stride\n");
+		break;
+	case 0x1f:
+		printf("32MB + 256B stride\n");
+		break;
+	default:
+		printf("no stride\n");
 	}
 
 	sdram_print_stride(stride);
 
 	return stride;
+error:
+	printf("Cap not support!\n");
+	return (-1);
 }
 
 static void clear_channel_params(struct rk3399_sdram_params *params, u8 channel)
