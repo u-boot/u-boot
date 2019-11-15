@@ -102,7 +102,7 @@ __weak int arch_cpu_init(void)
 void board_init_f(ulong dummy)
 {
 	int ret;
-#if !defined(CONFIG_SUPPORT_TPL) || defined(CONFIG_SPL_OS_BOOT)
+#if !defined(CONFIG_TPL) || defined(CONFIG_SPL_OS_BOOT)
 	struct udevice *dev;
 #endif
 
@@ -134,7 +134,7 @@ void board_init_f(ulong dummy)
 	/* Init ARM arch timer in arch/arm/cpu/armv7/arch_timer.c */
 	timer_init();
 #endif
-#if !defined(CONFIG_SUPPORT_TPL) || defined(CONFIG_SPL_OS_BOOT)
+#if !defined(CONFIG_TPL) || defined(CONFIG_SPL_OS_BOOT)
 	debug("\nspl:init dram\n");
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
 	if (ret) {
