@@ -24,3 +24,11 @@
 	status = "okay";
 };
 
+&fec0 {
+	status = "okay";
+};
+
+&fec1 {
+	status = "okay";
+	mii-base = <0>;
+};
