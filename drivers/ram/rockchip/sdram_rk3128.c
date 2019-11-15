@@ -9,7 +9,7 @@
 #include <syscon.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/grf_rk3128.h>
-#include <asm/arch-rockchip/sdram_common.h>
+#include <asm/arch-rockchip/sdram.h>
 
 struct dram_info {
 	struct ram_info info;

@@ -25,7 +25,7 @@ obj-$(CONFIG_ROCKCHIP_COMMON_BOARD) += board.o
 obj-$(CONFIG_MISC_INIT_R) += misc.o
 endif
 
-obj-$(CONFIG_$(SPL_TPL_)RAM) += sdram_common.o
+obj-$(CONFIG_$(SPL_TPL_)RAM) += sdram.o
 
 obj-$(CONFIG_ROCKCHIP_RK3036) += rk3036/
 obj-$(CONFIG_ROCKCHIP_RK3128) += rk3128/

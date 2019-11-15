@@ -17,7 +17,7 @@
 #include <asm/arch-rockchip/hardware.h>
 #include <asm/arch-rockchip/sdram_rk322x.h>
 #include <asm/arch-rockchip/uart.h>
-#include <asm/arch-rockchip/sdram_common.h>
+#include <asm/arch-rockchip/sdram.h>
 #include <asm/types.h>
 #include <linux/err.h>
 

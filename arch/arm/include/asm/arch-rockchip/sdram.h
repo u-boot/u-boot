@@ -3,8 +3,8 @@
  * Copyright (C) 2017 Rockchip Electronics Co., Ltd.
  */
 
-#ifndef _ASM_ARCH_SDRAM_COMMON_H
-#define _ASM_ARCH_SDRAM_COMMON_H
+#ifndef _ASM_ARCH_SDRAM_H
+#define _ASM_ARCH_SDRAM_H
 
 enum {
 	DDR4 = 0,
