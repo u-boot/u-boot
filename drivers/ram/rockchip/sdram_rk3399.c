@@ -44,6 +44,11 @@
 #define CS0_MR22_VAL		0
 #define CS1_MR22_VAL		3
 
+/* LPDDR3 DRAM DS */
+#define LPDDR3_DS_34		0x1
+#define LPDDR3_DS_40		0x2
+#define LPDDR3_DS_48		0x3
+
 #define CRU_SFTRST_DDR_CTRL(ch, n)	((0x1 << (8 + 16 + (ch) * 4)) | \
 					((n) << (8 + (ch) * 4)))
 #define CRU_SFTRST_DDR_PHY(ch, n)	((0x1 << (9 + 16 + (ch) * 4)) | \
@@ -291,7 +296,8 @@ static void set_memory_map(const struct chan_info *chan, u32 channel,
 	if (sdram_ch->cap_info.ddrconfig < 2 ||
 	    sdram_ch->cap_info.ddrconfig == 4)
 		row = 16;
-	else if (sdram_ch->cap_info.ddrconfig == 3)
+	else if (sdram_ch->cap_info.ddrconfig == 3 ||
+		 sdram_ch->cap_info.ddrconfig == 5)
 		row = 14;
 	else
 		row = 15;
@@ -335,11 +341,12 @@ static int phy_io_config(const struct chan_info *chan,
 			 const struct rk3399_sdram_params *params, u32 mr5)
 {
 	u32 *denali_phy = chan->publ->denali_phy;
+	u32 *denali_ctl = chan->pctl->denali_ctl;
 	u32 vref_mode_dq, vref_value_dq, vref_mode_ac, vref_value_ac;
 	u32 mode_sel;
-	u32 reg_value;
-	u32 drv_value, odt_value;
 	u32 speed;
+	u32 reg_value;
+	u32 ds_value, odt_value;
 
 	/* vref setting & mode setting */
 	if (params->base.dramtype == LPDDR4) {
@@ -365,12 +372,12 @@ static int phy_io_config(const struct chan_info *chan,
 	} else if (params->base.dramtype == LPDDR3) {
 		if (params->base.odt == 1) {
 			vref_mode_dq = 0x5;  /* LPDDR3 ODT */
-			drv_value = (readl(&denali_phy[6]) >> 12) & 0xf;
+			ds_value = readl(&denali_ctl[138]) & 0xf;
 			odt_value = (readl(&denali_phy[6]) >> 4) & 0xf;
-			if (drv_value == PHY_DRV_ODT_48) {
+			if (ds_value == LPDDR3_DS_48) {
 				switch (odt_value) {
 				case PHY_DRV_ODT_240:
-					vref_value_dq = 0x16;
+					vref_value_dq = 0x1B;
 					break;
 				case PHY_DRV_ODT_120:
 					vref_value_dq = 0x26;
@@ -382,7 +389,7 @@ static int phy_io_config(const struct chan_info *chan,
 					debug("Invalid ODT value.\n");
 					return -EINVAL;
 				}
-			} else if (drv_value == PHY_DRV_ODT_40) {
+			} else if (ds_value == LPDDR3_DS_40) {
 				switch (odt_value) {
 				case PHY_DRV_ODT_240:
 					vref_value_dq = 0x19;
@@ -397,7 +404,7 @@ static int phy_io_config(const struct chan_info *chan,
 					debug("Invalid ODT value.\n");
 					return -EINVAL;
 				}
-			} else if (drv_value == PHY_DRV_ODT_34_3) {
+			} else if (ds_value == LPDDR3_DS_34) {
 				switch (odt_value) {
 				case PHY_DRV_ODT_240:
 					vref_value_dq = 0x17;
@@ -509,14 +516,7 @@ static int phy_io_config(const struct chan_info *chan,
 	}
 
 	/* speed setting */
-	if (params->base.ddr_freq < 400)
-		speed = 0x0;
-	else if (params->base.ddr_freq < 800)
-		speed = 0x1;
-	else if (params->base.ddr_freq < 1200)
-		speed = 0x2;
-	else
-		speed = 0x3;
+	speed = 0x2;
 
 	/* PHY_924 PHY_PAD_FDBK_DRIVE */
 	clrsetbits_le32(&denali_phy[924], 0x3 << 21, speed << 21);
@@ -739,9 +739,9 @@ static void set_ds_odt(const struct chan_info *chan,
 
 	/* phy_pad_fdbk_drive 23bit DENALI_PHY_924/925 */
 	clrsetbits_le32(&denali_phy[924], 0xff,
-			tsel_wr_select_dq_n | (tsel_wr_select_dq_p << 4));
+			tsel_wr_select_ca_n | (tsel_wr_select_ca_p << 4));
 	clrsetbits_le32(&denali_phy[925], 0xff,
-			tsel_rd_select_n | (tsel_rd_select_p << 4));
+			tsel_wr_select_dq_n | (tsel_wr_select_dq_p << 4));
 
 	/* phy_dq_tsel_enable_X 3bits DENALI_PHY_5/133/261/389 offset_16 */
 	reg_value = (tsel_rd_en | (tsel_wr_en << 1) | (tsel_idle_en << 2))
@@ -1340,10 +1340,9 @@ static int data_training_wdql(const struct chan_info *chan, u32 channel,
 
 		/*
 		 * disable PI_WDQLVL_VREF_EN before wdq leveling?
-		 * PI_181 PI_WDQLVL_VREF_EN:RW:8:1
+		 * PI_117 PI_WDQLVL_VREF_EN:RW:8:1
 		 */
-		clrbits_le32(&denali_pi[181], 0x1 << 8);
-
+		clrbits_le32(&denali_pi[117], 0x1 << 8);
 		/* PI_124 PI_WDQLVL_EN:RW:16:2 */
 		clrsetbits_le32(&denali_pi[124], 0x3 << 16, 0x2 << 16);
 
