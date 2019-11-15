@@ -34,8 +34,6 @@
 #include <linux/fb.h>
 #include <linux/input.h>
 #include <malloc.h>
-#include <micrel.h>
-#include <miiphy.h>
 #include <mmc.h>
 #include <netdev.h>
 #include <power/pmic.h>

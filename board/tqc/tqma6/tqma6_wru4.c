@@ -26,7 +26,6 @@
 #include <linux/libfdt.h>
 #include <malloc.h>
 #include <i2c.h>
-#include <micrel.h>
 #include <miiphy.h>
 #include <mmc.h>
 #include <netdev.h>

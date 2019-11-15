@@ -28,7 +28,6 @@
 #include <dm/platform_data/serial_mxc.h>
 #include <fsl_esdhc_imx.h>
 #include <imx_thermal.h>
-#include <micrel.h>
 #include <miiphy.h>
 #include <netdev.h>
 #include <cpu.h>
