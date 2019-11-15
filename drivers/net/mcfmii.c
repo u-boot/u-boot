@@ -41,14 +41,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #	define CONFIG_SYS_UNSPEC_STRID		0
 #endif
 
-#ifdef CONFIG_MCF547x_8x
-typedef struct fec_info_dma FEC_INFO_T;
-#define FEC_T fecdma_t
-#else
-typedef struct fec_info_s FEC_INFO_T;
-#define FEC_T fec_t
-#endif
-
 typedef struct phy_info_struct {
 	u32 phyid;
 	char *strid;
@@ -78,7 +70,7 @@ phy_info_t phyinfo[] = {
  * mii_init -- Initialize the MII for MII command without ethernet
  * This function is a subset of eth_init
  */
-void mii_reset(FEC_INFO_T *info)
+void mii_reset(fec_info_t *info)
 {
 	volatile FEC_T *fecp = (FEC_T *) (info->miibase);
 	int i;
@@ -95,9 +87,13 @@ void mii_reset(FEC_INFO_T *info)
 /* send command to phy using mii, wait for result */
 uint mii_send(uint mii_cmd)
 {
-	FEC_INFO_T *info;
-	volatile FEC_T *ep;
+#ifdef CONFIG_DM_ETH
+	struct udevice *dev;
+#else
 	struct eth_device *dev;
+#endif
+	fec_info_t *info;
+	volatile FEC_T *ep;
 	uint mii_reply;
 	int j = 0;
 
@@ -110,11 +106,11 @@ uint mii_send(uint mii_cmd)
 	ep->mmfr = mii_cmd;	/* command to phy */
 
 	/* wait for mii complete */
-	while (!(ep->eir & FEC_EIR_MII) && (j < MCFFEC_TOUT_LOOP)) {
+	while (!(ep->eir & FEC_EIR_MII) && (j < info->to_loop)) {
 		udelay(1);
 		j++;
 	}
-	if (j >= MCFFEC_TOUT_LOOP) {
+	if (j >= info->to_loop) {
 		printf("MII not complete\n");
 		return -1;
 	}
@@ -131,10 +127,9 @@ uint mii_send(uint mii_cmd)
 #endif				/* CONFIG_SYS_DISCOVER_PHY || (CONFIG_MII) */
 
 #if defined(CONFIG_SYS_DISCOVER_PHY)
-int mii_discover_phy(struct eth_device *dev)
+int mii_discover_phy(fec_info_t *info)
 {
 #define MAX_PHY_PASSES 11
-	FEC_INFO_T *info = dev->priv;
 	int phyaddr, pass;
 	uint phyno, phytype;
 	int i, found = 0;
@@ -157,7 +152,7 @@ int mii_discover_phy(struct eth_device *dev)
 
 			phytype = mii_send(mk_mii_read(phyno, MII_PHYSID1));
 #ifdef ET_DEBUG
-			printf("PHY type 0x%x pass %d type\n", phytype, pass);
+			printf("PHY type 0x%x pass %d\n", phytype, pass);
 #endif
 			if (phytype == 0xffff)
 				continue;
@@ -207,9 +202,13 @@ void mii_init(void) __attribute__((weak,alias("__mii_init")));
 
 void __mii_init(void)
 {
-	FEC_INFO_T *info;
-	volatile FEC_T *fecp;
+#ifdef CONFIG_DM_ETH
+	struct udevice *dev;
+#else
 	struct eth_device *dev;
+#endif
+	fec_info_t *info;
+	volatile FEC_T *fecp;
 	int miispd = 0, i = 0;
 	u16 status = 0;
 	u16 linkgood = 0;
@@ -220,7 +219,7 @@ void __mii_init(void)
 
 	fecp = (FEC_T *) info->miibase;
 
-	fecpin_setclear(dev, 1);
+	fecpin_setclear(info, 1);
 
 	mii_reset(info);
 
@@ -234,9 +233,13 @@ void __mii_init(void)
 	miispd = (gd->bus_clk / 1000000) / 5;
 	fecp->mscr = miispd << 1;
 
-	info->phy_addr = mii_discover_phy(dev);
+#ifdef CONFIG_SYS_DISCOVER_PHY
+	info->phy_addr = mii_discover_phy(info);
+#endif
+	if (info->phy_addr == -1)
+		return;
 
-	while (i < MCFFEC_TOUT_LOOP) {
+	while (i < info->to_loop) {
 		status = 0;
 		i++;
 		/* Read PHY control register */
@@ -257,9 +260,8 @@ void __mii_init(void)
 
 		udelay(1);
 	}
-	if (i >= MCFFEC_TOUT_LOOP) {
+	if (i >= info->to_loop)
 		printf("Link UP timeout\n");
-	}
 
 	/* adapt to the duplex and speed settings of the phy */
 	info->dup_spd = miiphy_duplex(dev->name, info->phy_addr) << 16;
