@@ -19,7 +19,7 @@ config SPL_RAM
 
 config TPL_RAM
 	bool "Enable RAM support in TPL"
-	depends on RAM && TPL_DM
+	depends on RAM
 	help
 	  The RAM subsystem adds a small amount of overhead to the image.
 	  If this is acceptable and you have a need to use RAM drivers in
