@@ -149,38 +149,21 @@ struct io_setting {
 		32,	/* rd_vref; (unit %, range 3.3% - 48.7%) */
 	},
 	{
-		800 * MHz,
+		933 * MHz,
 		0,
 		/* dram side */
 		1,	/* dq_odt; */
 		0,	/* ca_odt; */
-		1,	/* pdds; */
+		3,	/* pdds; */
 		0x72,	/* dq_vref; */
 		0x72,	/* ca_vref; */
 		/* phy side */
-		PHY_DRV_ODT_40,	/* rd_odt; */
-		PHY_DRV_ODT_48,	/* wr_dq_drv; */
+		PHY_DRV_ODT_80,	/* rd_odt; */
+		PHY_DRV_ODT_40,	/* wr_dq_drv; */
 		PHY_DRV_ODT_40,	/* wr_ca_drv; */
 		PHY_DRV_ODT_40,	/* wr_ckcs_drv; */
 		1,	/* rd_odt_en; */
-		17,	/* rd_vref; (unit %, range 3.3% - 48.7%) */
-	},
-	{
-		933 * MHz,
-		0,
-		/* dram side */
-		3,	/* dq_odt; */
-		0,	/* ca_odt; */
-		6,	/* pdds; */
-		0x59,	/* dq_vref; 32% */
-		0x72,	/* ca_vref; */
-		/* phy side */
-		PHY_DRV_ODT_HI_Z,	/* rd_odt; */
-		PHY_DRV_ODT_48,	/* wr_dq_drv; */
-		PHY_DRV_ODT_40,	/* wr_ca_drv; */
-		PHY_DRV_ODT_40,	/* wr_ckcs_drv; */
-		0,	/* rd_odt_en; */
-		32,	/* rd_vref; (unit %, range 3.3% - 48.7%) */
+		20,	/* rd_vref; (unit %, range 3.3% - 48.7%) */
 	},
 	{
 		1066 * MHz,
@@ -188,16 +171,16 @@ struct io_setting {
 		/* dram side */
 		6,	/* dq_odt; */
 		0,	/* ca_odt; */
-		1,	/* pdds; */
+		3,	/* pdds; */
 		0x10,	/* dq_vref; */
 		0x72,	/* ca_vref; */
 		/* phy side */
-		PHY_DRV_ODT_40,	/* rd_odt; */
+		PHY_DRV_ODT_80,	/* rd_odt; */
 		PHY_DRV_ODT_60,	/* wr_dq_drv; */
 		PHY_DRV_ODT_40,	/* wr_ca_drv; */
 		PHY_DRV_ODT_40,	/* wr_ckcs_drv; */
 		1,	/* rd_odt_en; */
-		17,	/* rd_vref; (unit %, range 3.3% - 48.7%) */
+		20,	/* rd_vref; (unit %, range 3.3% - 48.7%) */
 	},
 };
 
@@ -599,16 +582,17 @@ static void set_ds_odt(const struct chan_info *chan,
 		tsel_rd_select_n = io->rd_odt;
 
 		tsel_idle_select_p = PHY_DRV_ODT_HI_Z;
-		tsel_idle_select_n = PHY_DRV_ODT_240;
+		tsel_idle_select_n = PHY_DRV_ODT_HI_Z;
 
 		tsel_wr_select_dq_p = io->wr_dq_drv;
-		tsel_wr_select_dq_n = PHY_DRV_ODT_40;
+		tsel_wr_select_dq_n = PHY_DRV_ODT_34_3;
 
 		tsel_wr_select_ca_p = io->wr_ca_drv;
-		tsel_wr_select_ca_n = PHY_DRV_ODT_40;
+		tsel_wr_select_ca_n = PHY_DRV_ODT_34_3;
 
 		tsel_ckcs_select_p = io->wr_ckcs_drv;
 		tsel_ckcs_select_n = PHY_DRV_ODT_34_3;
+
 		switch (tsel_rd_select_n) {
 		case PHY_DRV_ODT_240:
 			soc_odt = 1;
@@ -648,8 +632,8 @@ static void set_ds_odt(const struct chan_info *chan,
 		tsel_wr_select_dq_p = PHY_DRV_ODT_34_3;
 		tsel_wr_select_dq_n = PHY_DRV_ODT_34_3;
 
-		tsel_wr_select_ca_p = PHY_DRV_ODT_48;
-		tsel_wr_select_ca_n = PHY_DRV_ODT_48;
+		tsel_wr_select_ca_p = PHY_DRV_ODT_34_3;
+		tsel_wr_select_ca_n = PHY_DRV_ODT_34_3;
 
 		tsel_ckcs_select_p = PHY_DRV_ODT_34_3;
 		tsel_ckcs_select_n = PHY_DRV_ODT_34_3;
