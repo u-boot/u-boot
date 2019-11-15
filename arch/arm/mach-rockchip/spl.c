@@ -9,7 +9,6 @@
 #include <ram.h>
 #include <spl.h>
 #include <asm/arch-rockchip/bootrom.h>
-#include <asm/arch-rockchip/sdram.h>
 #include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
