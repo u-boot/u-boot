@@ -232,7 +232,7 @@ static void *get_denali_phy(const struct chan_info *chan,
 
 static void *get_ddrc0_con(struct dram_info *dram, u8 channel)
 {
-	return (channel == 0) ? &dram->grf->ddrc0_con0 : &dram->grf->ddrc0_con1;
+	return (channel == 0) ? &dram->grf->ddrc0_con0 : &dram->grf->ddrc1_con0;
 }
 
 static void rkclk_ddr_reset(struct rk3399_cru *cru, u32 channel, u32 ctl,
