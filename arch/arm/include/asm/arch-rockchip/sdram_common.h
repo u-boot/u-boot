@@ -36,6 +36,75 @@ struct sdram_base_params {
 	unsigned int odt;
 };
 
+#define DDR_SYS_REG_VERSION		(0x2)
+/*
+ * sys_reg2 bitfield struct
+ * [31]		row_3_4_ch1
+ * [30]		row_3_4_ch0
+ * [29:28]	chinfo
+ * [27]		rank_ch1
+ * [26:25]	col_ch1
+ * [24]		bk_ch1
+ * [23:22]	cs0_row_ch1
+ * [21:20]	cs1_row_ch1
+ * [19:18]	bw_ch1
+ * [17:16]	dbw_ch1;
+ * [15:13]	ddrtype
+ * [12]		channelnum
+ * [11]		rank_ch0
+ * [10:9]	col_ch0
+ * [8]		bk_ch0
+ * [7:6]	cs0_row_ch0
+ * [5:4]	cs1_row_ch0
+ * [3:2]	bw_ch0
+ * [1:0]	dbw_ch0
+ */
+#define SYS_REG_ENC_ROW_3_4(n, ch)	((n) << (30 + (ch)))
+#define SYS_REG_DEC_ROW_3_4(n, ch)	(((n) >> (30 + (ch))) & 0x1)
+#define SYS_REG_ENC_CHINFO(ch)		(1 << (28 + (ch)))
+#define SYS_REG_ENC_DDRTYPE(n)		((n) << 13)
+#define SYS_REG_DEC_DDRTYPE(n)		(((n) >> 13) & 0x7)
+#define SYS_REG_ENC_NUM_CH(n)		(((n) - 1) << 12)
+#define SYS_REG_DEC_NUM_CH(n)		(1 + (((n) >> 12) & 0x1))
+#define SYS_REG_ENC_RANK(n, ch)		(((n) - 1) << (11 + ((ch) * 16)))
+#define SYS_REG_DEC_RANK(n, ch)		(1 + (((n) >> (11 + 16 * (ch))) & 0x1))
+#define SYS_REG_ENC_COL(n, ch)		(((n) - 9) << (9 + ((ch) * 16)))
+#define SYS_REG_DEC_COL(n, ch)		(9 + (((n) >> (9 + 16 * (ch))) & 0x3))
+#define SYS_REG_ENC_BK(n, ch)		(((n) == 3 ? 0 : 1) << \
+						(8 + ((ch) * 16)))
+#define SYS_REG_DEC_BK(n, ch)		(3 - (((n) >> (8 + 16 * (ch))) & 0x1))
+#define SYS_REG_ENC_BW(n, ch)		((2 >> (n)) << (2 + ((ch) * 16)))
+#define SYS_REG_DEC_BW(n, ch)		(2 >> (((n) >> (2 + 16 * (ch))) & 0x3))
+#define SYS_REG_ENC_DBW(n, ch)		((2 >> (n)) << (0 + ((ch) * 16)))
+#define SYS_REG_DEC_DBW(n, ch)		(2 >> (((n) >> (0 + 16 * (ch))) & 0x3))
+/* sys reg 3 */
+#define SYS_REG_ENC_VERSION(n)		((n) << 28)
+#define SYS_REG_DEC_VERSION(n)		(((n) >> 28) & 0xf)
+#define SYS_REG_ENC_CS0_ROW(n, os_reg2, os_reg3, ch) do { \
+			(os_reg2) |= (((n) - 13) & 0x3) << (6 + 16 * (ch)); \
+			(os_reg3) |= ((((n) - 13) & 0x4) >> 2) << \
+				     (5 + 2 * (ch)); \
+		} while (0)
+
+#define SYS_REG_DEC_CS0_ROW(os_reg2, os_reg3, ch)	\
+		((((((os_reg2) >> (6 + 16 * (ch)) & 0x3) | \
+		 ((((os_reg3) >> (5 + 2 * (ch))) & 0x1) << 2)) + 1) & 0x7) + 12)
+
+#define SYS_REG_ENC_CS1_ROW(n, os_reg2, os_reg3, ch) do { \
+			(os_reg2) &= (~(0x3 << (4 + 16 * (ch)))); \
+			(os_reg3) &= (~(0x1 << (4 + 2 * (ch)))); \
+			(os_reg2) |= (((n) - 13) & 0x3) << (4 + 16 * (ch)); \
+			(os_reg3) |= ((((n) - 13) & 0x4) >> 2) << \
+				     (4 + 2 * (ch)); \
+		} while (0)
+
+#define SYS_REG_DEC_CS1_ROW(os_reg2, os_reg3, ch) \
+		((((((os_reg2) >> (4 + 16 * (ch)) & 0x3) | \
+		 ((((os_reg3) >> (4 + 2 * (ch))) & 0x1) << 2)) + 1) & 0x7) + 12)
+
+#define SYS_REG_ENC_CS1_COL(n, ch)	(((n) - 9) << (0 + 2 * (ch)))
+#define SYS_REG_DEC_CS1_COL(n, ch)	(9 + (((n) >> (0 + 2 * (ch))) & 0x3))
+
 #if !defined(CONFIG_RAM_ROCKCHIP_DEBUG)
 inline void sdram_print_dram_type(unsigned char dramtype)
 {
