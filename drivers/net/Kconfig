@@ -278,6 +278,22 @@ config FTGMAC100
 	  applications.
 
 
+config MCFFEC
+	bool "ColdFire Ethernet Support"
+	depends on DM_ETH
+	select PHYLIB
+	help
+	  This driver supports the network interface units in the
+	  ColdFire family.
+
+config FSLDMAFEC
+        bool "ColdFire DMA Ethernet Support"
+	depends on DM_ETH
+	select PHYLIB
+	help
+	  This driver supports the network interface units in the
+	  ColdFire family.
+
 config MVGBE
 	bool "Marvell Orion5x/Kirkwood network interface support"
 	depends on KIRKWOOD || ORION5X
