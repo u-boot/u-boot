@@ -159,7 +159,7 @@ static int fan53555_regulator_set_value(struct udevice *dev, int uV)
 	debug("%s: uV=%d; writing volume %d: %02x\n",
 	      __func__, uV, pdata->vol_reg, vol);
 
-	return pmic_clrsetbits(dev, pdata->vol_reg, GENMASK(6, 0), vol);
+	return pmic_clrsetbits(dev->parent, pdata->vol_reg, GENMASK(6, 0), vol);
 }
 
 static int fan53555_voltages_setup(struct udevice *dev)
