@@ -351,17 +351,17 @@ static int dp83867_config(struct phy_device *phydev)
 
 		phy_write_mmd(phydev, DP83867_DEVADDR,
 			      DP83867_RGMIIDCTL, delay);
+	}
 
-		if (dp83867->io_impedance >= 0) {
-			val = phy_read_mmd(phydev,
-					   DP83867_DEVADDR,
-					   DP83867_IO_MUX_CFG);
-			val &= ~DP83867_IO_MUX_CFG_IO_IMPEDANCE_CTRL;
-			val |= dp83867->io_impedance &
-			       DP83867_IO_MUX_CFG_IO_IMPEDANCE_CTRL;
-			phy_write_mmd(phydev, DP83867_DEVADDR,
-				      DP83867_IO_MUX_CFG, val);
-		}
+	if (dp83867->io_impedance >= 0) {
+		val = phy_read_mmd(phydev,
+				   DP83867_DEVADDR,
+				   DP83867_IO_MUX_CFG);
+		val &= ~DP83867_IO_MUX_CFG_IO_IMPEDANCE_CTRL;
+		val |= dp83867->io_impedance &
+		       DP83867_IO_MUX_CFG_IO_IMPEDANCE_CTRL;
+		phy_write_mmd(phydev, DP83867_DEVADDR,
+			      DP83867_IO_MUX_CFG, val);
 	}
 
 	if (dp83867->port_mirroring != DP83867_PORT_MIRRORING_KEEP)
