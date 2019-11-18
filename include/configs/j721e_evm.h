@@ -14,6 +14,7 @@
 #include <environment/ti/mmc.h>
 #include <environment/ti/k3_rproc.h>
 #include <environment/ti/ufs.h>
+#include <environment/ti/k3_dfu.h>
 
 /* DDR Configuration */
 #define CONFIG_SYS_SDRAM_BASE1		0x880000000
@@ -100,12 +101,21 @@
 		"7 /lib/firmware/j7-c66_1-fw "				\
 		"8 /lib/firmware/j7-c71_0-fw "
 
+/* set default dfu_bufsiz to 128KB (sector size of OSPI) */
+#define EXTRA_ENV_DFUARGS \
+	"dfu_bufsiz=0x20000\0" \
+	DFU_ALT_INFO_MMC \
+	DFU_ALT_INFO_EMMC \
+	DFU_ALT_INFO_RAM \
+	DFU_ALT_INFO_OSPI
+
 /* Incorporate settings into the U-Boot environment */
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	DEFAULT_MMC_TI_ARGS						\
 	EXTRA_ENV_J721E_BOARD_SETTINGS					\
 	EXTRA_ENV_J721E_BOARD_SETTINGS_MMC				\
 	EXTRA_ENV_RPROC_SETTINGS					\
+	EXTRA_ENV_DFUARGS						\
 	DEFAULT_UFS_TI_ARGS
 
 /* Now for the remaining common defines */
