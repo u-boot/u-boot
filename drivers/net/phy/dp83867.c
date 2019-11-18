@@ -62,9 +62,9 @@
 
 /* PHY CTRL bits */
 #define DP83867_PHYCR_FIFO_DEPTH_SHIFT		14
+#define DP83867_PHYCR_FIFO_DEPTH_MASK		GENMASK(15, 14)
 #define DP83867_PHYCR_RESERVED_MASK	BIT(11)
 #define DP83867_MDI_CROSSOVER		5
-#define DP83867_MDI_CROSSOVER_AUTO	2
 #define DP83867_MDI_CROSSOVER_MDIX	2
 #define DP83867_PHYCTRL_SGMIIEN			0x0800
 #define DP83867_PHYCTRL_RXFIFO_SHIFT	12
@@ -277,11 +277,11 @@ static int dp83867_config(struct phy_device *phydev)
 	}
 
 	if (phy_interface_is_rgmii(phydev)) {
-		ret = phy_write(phydev, MDIO_DEVAD_NONE, MII_DP83867_PHYCTRL,
-			(DP83867_MDI_CROSSOVER_AUTO << DP83867_MDI_CROSSOVER) |
-			(dp83867->fifo_depth << DP83867_PHYCR_FIFO_DEPTH_SHIFT));
-		if (ret)
+		val = phy_read(phydev, MDIO_DEVAD_NONE, MII_DP83867_PHYCTRL);
+		if (val < 0)
 			goto err_out;
+		val &= ~DP83867_PHYCR_FIFO_DEPTH_MASK;
+		val |= (dp83867->fifo_depth << DP83867_PHYCR_FIFO_DEPTH_SHIFT);
 
 		/* The code below checks if "port mirroring" N/A MODE4 has been
 		 * enabled during power on bootstrap.
@@ -293,16 +293,39 @@ static int dp83867_config(struct phy_device *phydev)
 		 * register's bit 11 (marked as RESERVED).
 		 */
 
-		bs = phy_read_mmd(phydev, DP83867_DEVADDR,
-				  DP83867_STRAP_STS1);
-		val = phy_read(phydev, MDIO_DEVAD_NONE, MII_DP83867_PHYCTRL);
-		if (bs & DP83867_STRAP_STS1_RESERVED) {
+		bs = phy_read_mmd(phydev, DP83867_DEVADDR, DP83867_STRAP_STS1);
+		if (bs & DP83867_STRAP_STS1_RESERVED)
 			val &= ~DP83867_PHYCR_RESERVED_MASK;
-			phy_write(phydev, MDIO_DEVAD_NONE, MII_DP83867_PHYCTRL,
-				  val);
-		}
 
-	} else if (phy_interface_is_sgmii(phydev)) {
+		ret = phy_write(phydev, MDIO_DEVAD_NONE,
+				MII_DP83867_PHYCTRL, val);
+
+		val = phy_read_mmd(phydev, DP83867_DEVADDR,
+				   DP83867_RGMIICTL);
+
+		val &= ~(DP83867_RGMII_TX_CLK_DELAY_EN |
+			 DP83867_RGMII_RX_CLK_DELAY_EN);
+		if (phydev->interface == PHY_INTERFACE_MODE_RGMII_ID)
+			val |= (DP83867_RGMII_TX_CLK_DELAY_EN |
+				DP83867_RGMII_RX_CLK_DELAY_EN);
+
+		if (phydev->interface == PHY_INTERFACE_MODE_RGMII_TXID)
+			val |= DP83867_RGMII_TX_CLK_DELAY_EN;
+
+		if (phydev->interface == PHY_INTERFACE_MODE_RGMII_RXID)
+			val |= DP83867_RGMII_RX_CLK_DELAY_EN;
+
+		phy_write_mmd(phydev, DP83867_DEVADDR, DP83867_RGMIICTL, val);
+
+		delay = (dp83867->rx_id_delay |
+			(dp83867->tx_id_delay <<
+			DP83867_RGMII_TX_CLK_DELAY_SHIFT));
+
+		phy_write_mmd(phydev, DP83867_DEVADDR,
+			      DP83867_RGMIIDCTL, delay);
+	}
+
+	if (phy_interface_is_sgmii(phydev)) {
 		phy_write(phydev, MDIO_DEVAD_NONE, MII_BMCR,
 			  (BMCR_ANENABLE | BMCR_FULLDPLX | BMCR_SPEED1000));
 
@@ -325,32 +348,6 @@ static int dp83867_config(struct phy_device *phydev)
 			  (dp83867->fifo_depth << DP83867_PHYCTRL_RXFIFO_SHIFT) |
 			  (dp83867->fifo_depth << DP83867_PHYCTRL_TXFIFO_SHIFT));
 		phy_write(phydev, MDIO_DEVAD_NONE, MII_DP83867_BISCR, 0x0);
-	}
-
-	if (phy_interface_is_rgmii(phydev)) {
-		val = phy_read_mmd(phydev, DP83867_DEVADDR,
-				   DP83867_RGMIICTL);
-
-		val &= ~(DP83867_RGMII_TX_CLK_DELAY_EN |
-			 DP83867_RGMII_RX_CLK_DELAY_EN);
-		if (phydev->interface == PHY_INTERFACE_MODE_RGMII_ID)
-			val |= (DP83867_RGMII_TX_CLK_DELAY_EN |
-				DP83867_RGMII_RX_CLK_DELAY_EN);
-
-		if (phydev->interface == PHY_INTERFACE_MODE_RGMII_TXID)
-			val |= DP83867_RGMII_TX_CLK_DELAY_EN;
-
-		if (phydev->interface == PHY_INTERFACE_MODE_RGMII_RXID)
-			val |= DP83867_RGMII_RX_CLK_DELAY_EN;
-
-		phy_write_mmd(phydev, DP83867_DEVADDR,
-			      DP83867_RGMIICTL, val);
-
-		delay = (dp83867->rx_id_delay |
-			 (dp83867->tx_id_delay << DP83867_RGMII_TX_CLK_DELAY_SHIFT));
-
-		phy_write_mmd(phydev, DP83867_DEVADDR,
-			      DP83867_RGMIIDCTL, delay);
 	}
 
 	if (dp83867->io_impedance >= 0) {
