@@ -210,6 +210,9 @@
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	3
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	5
 
+/* DisplayPort */
+#define DP_PWD_EN_DEFAULT_MASK          0x8
+
 #ifdef CONFIG_NXP_ESBC
 #include <asm/fsl_secure_boot.h>
 #endif
