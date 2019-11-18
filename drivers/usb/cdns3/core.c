@@ -18,7 +18,7 @@
 #include <linux/kernel.h>
 #include <linux/io.h>
 #include <usb.h>
-#include "../host/xhci.h"
+#include <usb/xhci.h>
 
 #include "core.h"
 #include "host-export.h"
