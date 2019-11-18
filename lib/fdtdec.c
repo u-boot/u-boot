@@ -1309,7 +1309,8 @@ int fdtdec_add_reserved_memory(void *blob, const char *basename,
 		}
 
 		if (addr == carveout->start && (addr + size) == carveout->end) {
-			*phandlep = fdt_get_phandle(blob, node);
+			if (phandlep)
+				*phandlep = fdt_get_phandle(blob, node);
 			return 0;
 		}
 	}
@@ -1338,13 +1339,15 @@ int fdtdec_add_reserved_memory(void *blob, const char *basename,
 	if (node < 0)
 		return node;
 
-	err = fdt_generate_phandle(blob, &phandle);
-	if (err < 0)
-		return err;
+	if (phandlep) {
+		err = fdt_generate_phandle(blob, &phandle);
+		if (err < 0)
+			return err;
 
-	err = fdtdec_set_phandle(blob, node, phandle);
-	if (err < 0)
-		return err;
+		err = fdtdec_set_phandle(blob, node, phandle);
+		if (err < 0)
+			return err;
+	}
 
 	/* store one or two address cells */
 	if (na > 1)

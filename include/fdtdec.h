@@ -1061,6 +1061,7 @@ static inline int fdtdec_set_phandle(void *blob, int node, uint32_t phandle)
  * @param basename	base name of the node to create
  * @param carveout	information about the carveout region
  * @param phandlep	return location for the phandle of the carveout region
+ *			can be NULL if no phandle should be added
  * @return 0 on success or a negative error code on failure
  */
 int fdtdec_add_reserved_memory(void *blob, const char *basename,

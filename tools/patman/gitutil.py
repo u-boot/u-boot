@@ -23,7 +23,7 @@ def LogCmd(commit_range, git_dir=None, oneline=False, reverse=False,
 
     Args:
         commit_range: Range expression to use for log, None for none
-        git_dir: Path to git repositiory (None to use default)
+        git_dir: Path to git repository (None to use default)
         oneline: True to use --oneline, else False
         reverse: True to reverse the log (--reverse)
         count: Number of commits to list, or None for no limit
@@ -166,7 +166,7 @@ def CountCommitsInRange(git_dir, range_expr):
         git_dir: Directory containing git repo
         range_expr: Range to check
     Return:
-        Number of patches that exist in the supplied rangem or None if none
+        Number of patches that exist in the supplied range or None if none
         were found
     """
     pipe = [LogCmd(range_expr, git_dir=git_dir, oneline=True)]
