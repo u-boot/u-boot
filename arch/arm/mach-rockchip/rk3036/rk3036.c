@@ -43,7 +43,7 @@ void board_debug_uart_init(void)
 #if !CONFIG_IS_ENABLED(RAM)
 /*
  * When CONFIG_RAM is enabled, the dram_init() function is implemented
- * in sdram_common.c.
+ * in sdram.c.
  */
 int dram_init(void)
 {

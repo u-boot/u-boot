@@ -59,6 +59,15 @@ config ROCKCHIP_EFUSE
 	  extended (by porting the read function from the Linux kernel sources)
 	  to support other recent Rockchip devices.
 
+config ROCKCHIP_OTP
+	bool "Rockchip OTP Support"
+	depends on MISC
+	help
+	  Enable (read-only) access for the one-time-programmable memory block
+	  found in Rockchip SoCs: accesses can either be made using byte
+	  addressing and a length or through child-nodes that are generated
+	  based on the e-fuse map retrieved from the DTS.
+
 config VEXPRESS_CONFIG
 	bool "Enable support for Arm Versatile Express config bus"
 	depends on MISC

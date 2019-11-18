@@ -1195,7 +1195,7 @@ static int rk3399_clk_bind(struct udevice *dev)
 		sys_child->priv = priv;
 	}
 
-#if CONFIG_IS_ENABLED(CONFIG_RESET_ROCKCHIP)
+#if CONFIG_IS_ENABLED(RESET_ROCKCHIP)
 	ret = offsetof(struct rk3399_cru, softrst_con[0]);
 	ret = rockchip_reset_bind(dev, ret, 21);
 	if (ret)

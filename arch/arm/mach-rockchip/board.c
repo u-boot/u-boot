@@ -61,29 +61,55 @@ static struct dwc2_plat_otg_data otg_data = {
 
 int board_usb_init(int index, enum usb_init_type init)
 {
-	int node;
+	ofnode node;
 	const char *mode;
 	bool matched = false;
-	const void *blob = gd->fdt_blob;
 
 	/* find the usb_otg node */
-	node = fdt_node_offset_by_compatible(blob, -1, "snps,dwc2");
-
-	while (node > 0) {
-		mode = fdt_getprop(blob, node, "dr_mode", NULL);
+	node = ofnode_by_compatible(ofnode_null(), "snps,dwc2");
+	while (ofnode_valid(node)) {
+		mode = ofnode_read_string(node, "dr_mode");
 		if (mode && strcmp(mode, "otg") == 0) {
 			matched = true;
 			break;
 		}
 
-		node = fdt_node_offset_by_compatible(blob, node, "snps,dwc2");
+		node = ofnode_by_compatible(node, "snps,dwc2");
 	}
 	if (!matched) {
 		debug("Not found usb_otg device\n");
 		return -ENODEV;
 	}
-	otg_data.regs_otg = fdtdec_get_addr(blob, node, "reg");
+	otg_data.regs_otg = ofnode_get_addr(node);
 
+#ifdef CONFIG_ROCKCHIP_RK3288
+	int ret;
+	u32 phandle, offset;
+	ofnode phy_node;
+
+	ret = ofnode_read_u32(node, "phys", &phandle);
+	if (ret)
+		return ret;
+
+	node = ofnode_get_by_phandle(phandle);
+	if (!ofnode_valid(node)) {
+		debug("Not found usb phy device\n");
+		return -ENODEV;
+	}
+
+	phy_node = ofnode_get_parent(node);
+	if (!ofnode_valid(node)) {
+		debug("Not found usb phy device\n");
+		return -ENODEV;
+	}
+
+	otg_data.phy_of_node = phy_node;
+	ret = ofnode_read_u32(node, "reg", &offset);
+	if (ret)
+		return ret;
+	otg_data.regs_phy =  offset +
+		(u32)syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
+#endif
 	return dwc2_udc_probe(&otg_data);
 }
 

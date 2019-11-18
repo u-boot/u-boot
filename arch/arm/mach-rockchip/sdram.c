@@ -7,7 +7,7 @@
 #include <dm.h>
 #include <ram.h>
 #include <asm/io.h>
-#include <asm/arch-rockchip/sdram_common.h>
+#include <asm/arch-rockchip/sdram.h>
 #include <dm/uclass-internal.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -76,39 +76,88 @@ int dram_init_banksize(void)
 
 size_t rockchip_sdram_size(phys_addr_t reg)
 {
-	u32 rank, col, bk, cs0_row, cs1_row, bw, row_3_4;
+	u32 rank, cs0_col, bk, cs0_row, cs1_row, bw, row_3_4;
 	size_t chipsize_mb = 0;
 	size_t size_mb = 0;
 	u32 ch;
-
-	u32 sys_reg = readl(reg);
-	u32 ch_num = 1 + ((sys_reg >> SYS_REG_NUM_CH_SHIFT)
+	u32 cs1_col = 0;
+	u32 bg = 0;
+	u32 dbw, dram_type;
+	u32 sys_reg2 = readl(reg);
+	u32 sys_reg3 = readl(reg + 4);
+	u32 ch_num = 1 + ((sys_reg2 >> SYS_REG_NUM_CH_SHIFT)
 		       & SYS_REG_NUM_CH_MASK);
 
-	debug("%s %x %x\n", __func__, (u32)reg, sys_reg);
+	dram_type = (sys_reg2 >> SYS_REG_DDRTYPE_SHIFT) & SYS_REG_DDRTYPE_MASK;
+	debug("%s %x %x\n", __func__, (u32)reg, sys_reg2);
 	for (ch = 0; ch < ch_num; ch++) {
-		rank = 1 + (sys_reg >> SYS_REG_RANK_SHIFT(ch) &
+		rank = 1 + (sys_reg2 >> SYS_REG_RANK_SHIFT(ch) &
 			SYS_REG_RANK_MASK);
-		col = 9 + (sys_reg >> SYS_REG_COL_SHIFT(ch) & SYS_REG_COL_MASK);
-		bk = 3 - ((sys_reg >> SYS_REG_BK_SHIFT(ch)) & SYS_REG_BK_MASK);
-		cs0_row = 13 + (sys_reg >> SYS_REG_CS0_ROW_SHIFT(ch) &
+		cs0_col = 9 + (sys_reg2 >> SYS_REG_COL_SHIFT(ch) &
+			  SYS_REG_COL_MASK);
+		cs1_col = cs0_col;
+		bk = 3 - ((sys_reg2 >> SYS_REG_BK_SHIFT(ch)) & SYS_REG_BK_MASK);
+		if ((sys_reg3 >> SYS_REG_VERSION_SHIFT &
+		     SYS_REG_VERSION_MASK) == 0x2) {
+			cs1_col = 9 + (sys_reg3 >> SYS_REG_CS1_COL_SHIFT(ch) &
+				  SYS_REG_CS1_COL_MASK);
+			if (((sys_reg3 >> SYS_REG_EXTEND_CS0_ROW_SHIFT(ch) &
+			    SYS_REG_EXTEND_CS0_ROW_MASK) << 2) + (sys_reg2 >>
+			    SYS_REG_CS0_ROW_SHIFT(ch) &
+			    SYS_REG_CS0_ROW_MASK) == 7)
+				cs0_row = 12;
+			else
+				cs0_row = 13 + (sys_reg2 >>
+					  SYS_REG_CS0_ROW_SHIFT(ch) &
+					  SYS_REG_CS0_ROW_MASK) +
+					  ((sys_reg3 >>
+					  SYS_REG_EXTEND_CS0_ROW_SHIFT(ch) &
+					  SYS_REG_EXTEND_CS0_ROW_MASK) << 2);
+			if (((sys_reg3 >> SYS_REG_EXTEND_CS1_ROW_SHIFT(ch) &
+			    SYS_REG_EXTEND_CS1_ROW_MASK) << 2) + (sys_reg2 >>
+			    SYS_REG_CS1_ROW_SHIFT(ch) &
+			    SYS_REG_CS1_ROW_MASK) == 7)
+				cs1_row = 12;
+			else
+				cs1_row = 13 + (sys_reg2 >>
+					  SYS_REG_CS1_ROW_SHIFT(ch) &
+					  SYS_REG_CS1_ROW_MASK) +
+					  ((sys_reg3 >>
+					  SYS_REG_EXTEND_CS1_ROW_SHIFT(ch) &
+					  SYS_REG_EXTEND_CS1_ROW_MASK) << 2);
+		} else {
+			cs0_row = 13 + (sys_reg2 >> SYS_REG_CS0_ROW_SHIFT(ch) &
 				SYS_REG_CS0_ROW_MASK);
-		cs1_row = 13 + (sys_reg >> SYS_REG_CS1_ROW_SHIFT(ch) &
+			cs1_row = 13 + (sys_reg2 >> SYS_REG_CS1_ROW_SHIFT(ch) &
 				SYS_REG_CS1_ROW_MASK);
-		bw = (2 >> ((sys_reg >> SYS_REG_BW_SHIFT(ch)) &
+		}
+		bw = (2 >> ((sys_reg2 >> SYS_REG_BW_SHIFT(ch)) &
 			SYS_REG_BW_MASK));
-		row_3_4 = sys_reg >> SYS_REG_ROW_3_4_SHIFT(ch) &
+		row_3_4 = sys_reg2 >> SYS_REG_ROW_3_4_SHIFT(ch) &
 			SYS_REG_ROW_3_4_MASK;
-
-		chipsize_mb = (1 << (cs0_row + col + bk + bw - 20));
+		if (dram_type == DDR4) {
+			dbw = (sys_reg2 >> SYS_REG_DBW_SHIFT(ch)) &
+				SYS_REG_DBW_MASK;
+			bg = (dbw == 2) ? 2 : 1;
+		}
+		chipsize_mb = (1 << (cs0_row + cs0_col + bk + bg + bw - 20));
 
 		if (rank > 1)
-			chipsize_mb += chipsize_mb >> (cs0_row - cs1_row);
+			chipsize_mb += chipsize_mb >> ((cs0_row - cs1_row) +
+				       (cs0_col - cs1_col));
 		if (row_3_4)
 			chipsize_mb = chipsize_mb * 3 / 4;
 		size_mb += chipsize_mb;
-		debug("rank %d col %d bk %d cs0_row %d bw %d row_3_4 %d\n",
-		      rank, col, bk, cs0_row, bw, row_3_4);
+		if (rank > 1)
+			debug("rank %d cs0_col %d cs1_col %d bk %d cs0_row %d\
+			       cs1_row %d bw %d row_3_4 %d\n",
+			       rank, cs0_col, cs1_col, bk, cs0_row,
+			       cs1_row, bw, row_3_4);
+		else
+			debug("rank %d cs0_col %d bk %d cs0_row %d\
+			       bw %d row_3_4 %d\n",
+			       rank, cs0_col, bk, cs0_row,
+			       bw, row_3_4);
 	}
 
 	/*

@@ -47,6 +47,11 @@ Two RK3036 boards are supported:
    - EVB RK3036 - use evb-rk3036 configuration
    - Kylin - use kylin_rk3036 configuration
 
+Two RK3308 boards are supported:
+
+   - EVB RK3308 - use evb-rk3308 configuration
+   - ROC-CC-RK3308 - use roc-rk3308-cc configuration
+
 Two RK3328 board are supported:
 
    - EVB RK3328 - use evb-rk3328_defconfig
@@ -94,7 +99,20 @@ For example:
 
     (or you can use another cross compiler if you prefer)
 
-2. To build RK3399 board:
+2. To build RK3308 board:
+   - Get the rkbin
+     => git clone https://github.com/rockchip-linux/rkbin.git
+
+   - Compile U-Boot
+     => cd /path/to/u-boot
+     => export BL31=/path/to/rkbin/bin/rk33/rk3308_bl31_v2.22.elf
+     => make roc-rk3308-cc_defconfig
+     => make CROSS_COMPILE=aarch64-linux-gnu- all
+     => make CROSS_COMPILE=aarch64-linux-gnu- u-boot.itb
+     => ./tools/mkimage -n rk3308 -T rksd -d /path/to/rkbin/bin/rk33/rk3308_ddr_589MHz_uart2_m0_v1.26.bin idbloader.img
+     => cat spl/u-boot-spl.bin  >> idbloader.img
+
+3. To build RK3399 board:
 
    Option 1: Package the image with Rockchip miniloader:
 
@@ -202,6 +220,78 @@ in SPL then we could in principle load U-Boot and boot to a prompt from USB
 as several other platforms do. However it does not seem to be possible to
 use the existing boot ROM code from SPL.
 
+
+Writing to the eMMC with USB on ROC-RK3308-CC
+=============================================
+For USB to work you must get your board into Bootrom mode,
+either by erasing the eMMC or short circuit the GND and D0
+on core board.
+
+Connect the board to your computer via tyepc.
+=> rkdeveloptool db rk3308_loader_v1.26.117.bin
+=> rkdeveloptool wl 0x40 idbloader.img
+=> rkdeveloptool wl 0x4000 u-boot.itb
+=> rkdeveloptool rd
+
+Then you will see the boot log from Debug UART at baud rate 1500000:
+DDR Version V1.26
+REGFB: 0x00000032, 0x00000032
+In
+589MHz
+DDR3
+ Col=10 Bank=8 Row=14 Size=256MB
+msch:1
+Returning to boot ROM...
+
+U-Boot SPL 2020.01-rc1-00225-g34b681327f (Nov 14 2019 - 10:58:04 +0800)
+Trying to boot from MMC1
+INFO:    Preloader serial: 2
+NOTICE:  BL31: v1.3(release):30f1405
+NOTICE:  BL31: Built : 17:08:28, Sep 23 2019
+INFO:    Lastlog: last=0x100000, realtime=0x102000, size=0x2000
+INFO:    ARM GICv2 driver initialized
+INFO:    Using opteed sec cpu_context!
+INFO:    boot cpu mask: 1
+INFO:    plat_rockchip_pmu_init: pd status 0xe b
+INFO:    BL31: Initializing runtime services
+WARNING: No OPTEE provided by BL2 boot loader, Booting device without OPTEE initialization. SMC`s destined for OPTEE will rK
+ERROR:   Error initializing runtime service opteed_fast
+INFO:    BL31: Preparing for EL3 exit to normal world
+INFO:    Entry point address = 0x600000
+INFO:    SPSR = 0x3c9
+
+
+U-Boot 2020.01-rc1-00225-g34b681327f (Nov 14 2019 - 10:58:47 +0800)
+
+Model: Firefly ROC-RK3308-CC board
+DRAM:  254 MiB
+MMC:   dwmmc@ff480000: 0, dwmmc@ff490000: 1
+rockchip_dnl_key_pressed read adc key val failed
+Net:   No ethernet found.
+Hit any key to stop autoboot:  0
+Card did not respond to voltage select!
+switch to partitions #0, OK
+mmc1(part 0) is current device
+Scanning mmc 1:4...
+Found /extlinux/extlinux.conf
+Retrieving file: /extlinux/extlinux.conf
+151 bytes read in 3 ms (48.8 KiB/s)
+1:      kernel-mainline
+Retrieving file: /Image
+14737920 bytes read in 377 ms (37.3 MiB/s)
+append: earlycon=uart8250,mmio32,0xff0c0000 console=ttyS2,1500000n8
+Retrieving file: /rk3308-roc-cc.dtb
+28954 bytes read in 4 ms (6.9 MiB/s)
+Flattened Device Tree blob at 01f00000
+Booting using the fdt blob at 0x1f00000
+## Loading Device Tree to 000000000df3a000, end 000000000df44119 ... OK
+
+Starting kernel ...
+[    0.000000] Booting Linux on physical CPU 0x0000000000 [0x410fd042]
+[    0.000000] Linux version 5.4.0-rc1-00040-g4dc2d508fa47-dirty (andy@B150) (gcc version 6.3.1 20170404 (Linaro GCC 6.3-209
+[    0.000000] Machine model: Firefly ROC-RK3308-CC board
+[    0.000000] earlycon: uart8250 at MMIO32 0x00000000ff0c0000 (options '')
+[    0.000000] printk: bootconsole [uart8250] enabled
 
 Booting from an SD card
 =======================

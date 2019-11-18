@@ -15,8 +15,6 @@
 
 	chosen {
 		stdout-path = &uart2;
-		u-boot,spl-boot-order = \
-			&sdhci, &sdmmc;
 	};
 
 	vdd_center: vdd-center {

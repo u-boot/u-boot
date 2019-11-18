@@ -1,5 +1,27 @@
 if ARCH_ROCKCHIP
 
+config ROCKCHIP_PX30
+	bool "Support Rockchip PX30"
+	select ARM64
+	select SUPPORT_SPL
+	select SUPPORT_TPL
+	select SPL
+	select TPL
+	select TPL_TINY_FRAMEWORK if TPL
+	select TPL_NEEDS_SEPARATE_TEXT_BASE if SPL
+	select TPL_NEEDS_SEPARATE_STACK if TPL
+	imply SPL_SEPARATE_BSS
+	select SPL_SERIAL_SUPPORT
+	select TPL_SERIAL_SUPPORT
+	select DEBUG_UART_BOARD_INIT
+	imply ROCKCHIP_COMMON_BOARD
+	imply SPL_ROCKCHIP_COMMON_BOARD
+	help
+	  The Rockchip PX30 is a ARM-based SoC with a quad-core Cortex-A35
+	  including NEON and GPU, Mali-400 graphics, several DDR3 options
+	  and video codec support. Peripherals include Gigabit Ethernet,
+	  USB2 host and OTG, SDIO, I2S, UART, SPI, I2C and PWMs.
+
 config ROCKCHIP_RK3036
 	bool "Support Rockchip RK3036"
 	select CPU_V7A
@@ -105,6 +127,29 @@ config ROCKCHIP_RK3288
 	  and video codec support. Peripherals include Gigabit Ethernet,
 	  USB2 host and OTG, SDIO, I2S, UARTs, SPI, I2C and PWMs.
 
+config ROCKCHIP_RK3308
+	bool "Support Rockchip RK3308"
+	select ARM64
+	select DEBUG_UART_BOARD_INIT
+	select SUPPORT_SPL
+	select SUPPORT_TPL
+	select SPL
+	select SPL_ATF
+	select SPL_ATF_NO_PLATFORM_PARAM
+	select SPL_LOAD_FIT
+	imply ROCKCHIP_COMMON_BOARD
+	imply SPL_ROCKCHIP_COMMON_BOARD
+	imply SPL_CLK
+	imply SPL_REGMAP
+	imply SPL_SYSCON
+	imply SPL_RAM
+	imply SPL_SERIAL_SUPPORT
+	imply TPL_SERIAL_SUPPORT
+	imply SPL_SEPARATE_BSS
+	help
+	  The Rockchip RK3308 is a ARM-based Soc which embedded with quad
+	  Cortex-A35 and highly integrated audio interfaces.
+
 config ROCKCHIP_RK3328
 	bool "Support Rockchip RK3328"
 	select ARM64
@@ -115,6 +160,7 @@ config ROCKCHIP_RK3328
 	select TPL_NEEDS_SEPARATE_TEXT_BASE if TPL
 	select TPL_NEEDS_SEPARATE_STACK if TPL
 	imply ROCKCHIP_COMMON_BOARD
+	imply ROCKCHIP_SDRAM_COMMON
 	imply SPL_ROCKCHIP_COMMON_BOARD
 	imply SPL_SERIAL_SUPPORT
 	imply TPL_SERIAL_SUPPORT
@@ -183,6 +229,7 @@ config ROCKCHIP_RK3399
 	select DM_REGULATOR_FIXED
 	select BOARD_LATE_INIT
 	imply ROCKCHIP_COMMON_BOARD
+	imply ROCKCHIP_SDRAM_COMMON
 	imply SPL_ROCKCHIP_COMMON_BOARD
 	imply TPL_SERIAL_SUPPORT
 	imply TPL_LIBCOMMON_SUPPORT
@@ -315,11 +362,13 @@ config TPL_ROCKCHIP_EARLYRETURN_TO_BROM
 config SPL_MMC_SUPPORT
 	default y if !SPL_ROCKCHIP_BACK_TO_BROM
 
+source "arch/arm/mach-rockchip/px30/Kconfig"
 source "arch/arm/mach-rockchip/rk3036/Kconfig"
 source "arch/arm/mach-rockchip/rk3128/Kconfig"
 source "arch/arm/mach-rockchip/rk3188/Kconfig"
 source "arch/arm/mach-rockchip/rk322x/Kconfig"
 source "arch/arm/mach-rockchip/rk3288/Kconfig"
+source "arch/arm/mach-rockchip/rk3308/Kconfig"
 source "arch/arm/mach-rockchip/rk3328/Kconfig"
 source "arch/arm/mach-rockchip/rk3368/Kconfig"
 source "arch/arm/mach-rockchip/rk3399/Kconfig"

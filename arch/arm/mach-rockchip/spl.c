@@ -9,7 +9,6 @@
 #include <ram.h>
 #include <spl.h>
 #include <asm/arch-rockchip/bootrom.h>
-#include <asm/arch-rockchip/sdram.h>
 #include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -103,7 +102,7 @@ __weak int arch_cpu_init(void)
 void board_init_f(ulong dummy)
 {
 	int ret;
-#if !defined(CONFIG_SUPPORT_TPL) || defined(CONFIG_SPL_OS_BOOT)
+#if !defined(CONFIG_TPL) || defined(CONFIG_SPL_OS_BOOT)
 	struct udevice *dev;
 #endif
 
@@ -128,20 +127,20 @@ void board_init_f(ulong dummy)
 		hang();
 	}
 	arch_cpu_init();
-#if !defined(CONFIG_SUPPORT_TPL) || defined(CONFIG_SPL_OS_BOOT)
-	debug("\nspl:init dram\n");
-	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
-	if (ret) {
-		printf("DRAM init failed: %d\n", ret);
-		return;
-	}
-#endif
 #if !defined(CONFIG_ROCKCHIP_RK3188)
 	rockchip_stimer_init();
 #endif
 #ifdef CONFIG_SYS_ARCH_TIMER
 	/* Init ARM arch timer in arch/arm/cpu/armv7/arch_timer.c */
 	timer_init();
+#endif
+#if !defined(CONFIG_TPL) || defined(CONFIG_SPL_OS_BOOT)
+	debug("\nspl:init dram\n");
+	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
+	if (ret) {
+		printf("DRAM init failed: %d\n", ret);
+		return;
+	}
 #endif
 	preloader_console_init();
 }

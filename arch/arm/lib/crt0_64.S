@@ -120,6 +120,7 @@ relocation_return:
  */
 	bl	c_runtime_cpu_setup		/* still call old routine */
 #endif /* !CONFIG_SPL_BUILD */
+#if !defined(CONFIG_SPL_BUILD) || CONFIG_IS_ENABLED(FRAMEWORK)
 #if defined(CONFIG_SPL_BUILD)
 	bl	spl_relocate_stack_gd           /* may return NULL */
 	/* set up gd here, outside any C code, if new stack is returned */
@@ -152,5 +153,6 @@ clear_loop:
 	b	board_init_r			/* PC relative jump */
 
 	/* NOTREACHED - board_init_r() does not return */
+#endif
 
 ENDPROC(_main)
