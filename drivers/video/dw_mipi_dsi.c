@@ -816,15 +816,9 @@ static int dw_mipi_dsi_probe(struct udevice *dev)
 	return 0;
 }
 
-static const struct udevice_id dw_mipi_dsi_ids[] = {
-	{ .compatible = "synopsys,dw-mipi-dsi" },
-	{ }
-};
-
 U_BOOT_DRIVER(dw_mipi_dsi) = {
 	.name			= "dw_mipi_dsi",
 	.id			= UCLASS_DSI_HOST,
-	.of_match		= dw_mipi_dsi_ids,
 	.probe			= dw_mipi_dsi_probe,
 	.ops			= &dw_mipi_dsi_ops,
 	.priv_auto_alloc_size	= sizeof(struct dw_mipi_dsi),

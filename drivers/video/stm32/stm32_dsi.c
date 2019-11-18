@@ -20,6 +20,7 @@
 #include <asm/io.h>
 #include <asm/arch/gpio.h>
 #include <dm/device-internal.h>
+#include <dm/lists.h>
 #include <linux/iopoll.h>
 #include <power/regulator.h>
 
@@ -399,6 +400,18 @@ static int stm32_dsi_set_backlight(struct udevice *dev, int percent)
 	return 0;
 }
 
+static int stm32_dsi_bind(struct udevice *dev)
+{
+	int ret;
+
+	ret = device_bind_driver_to_node(dev, "dw_mipi_dsi", "dsihost",
+					 dev_ofnode(dev), NULL);
+	if (ret)
+		return ret;
+
+	return dm_scan_fdt_dev(dev);
+}
+
 static int stm32_dsi_probe(struct udevice *dev)
 {
 	struct stm32_dsi_priv *priv = dev_get_priv(dev);
@@ -483,7 +496,7 @@ U_BOOT_DRIVER(stm32_dsi) = {
 	.name				= "stm32-display-dsi",
 	.id				= UCLASS_VIDEO_BRIDGE,
 	.of_match			= stm32_dsi_ids,
-	.bind				= dm_scan_fdt_dev,
+	.bind				= stm32_dsi_bind,
 	.probe				= stm32_dsi_probe,
 	.ops				= &stm32_dsi_ops,
 	.priv_auto_alloc_size		= sizeof(struct stm32_dsi_priv),
