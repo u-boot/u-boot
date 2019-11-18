@@ -204,18 +204,11 @@ static int dp83867_config(struct phy_device *phydev)
 	unsigned int val, delay, cfg2;
 	int ret, bs;
 
-	if (!phydev->priv) {
-		dp83867 = kzalloc(sizeof(*dp83867), GFP_KERNEL);
-		if (!dp83867)
-			return -ENOMEM;
+	dp83867 = (struct dp83867_private *)phydev->priv;
 
-		phydev->priv = dp83867;
-		ret = dp83867_of_init(phydev);
-		if (ret)
-			goto err_out;
-	} else {
-		dp83867 = (struct dp83867_private *)phydev->priv;
-	}
+	ret = dp83867_of_init(phydev);
+	if (ret)
+		return ret;
 
 	/* Restart the PHY.  */
 	val = phy_read(phydev, MDIO_DEVAD_NONE, DP83867_CTRL);
@@ -324,8 +317,19 @@ static int dp83867_config(struct phy_device *phydev)
 	return 0;
 
 err_out:
-	kfree(dp83867);
 	return ret;
+}
+
+static int dp83867_probe(struct phy_device *phydev)
+{
+	struct dp83867_private *dp83867;
+
+	dp83867 = kzalloc(sizeof(*dp83867), GFP_KERNEL);
+	if (!dp83867)
+		return -ENOMEM;
+
+	phydev->priv = dp83867;
+	return 0;
 }
 
 static struct phy_driver DP83867_driver = {
@@ -333,6 +337,7 @@ static struct phy_driver DP83867_driver = {
 	.uid = 0x2000a231,
 	.mask = 0xfffffff0,
 	.features = PHY_GBIT_FEATURES,
+	.probe = dp83867_probe,
 	.config = &dp83867_config,
 	.startup = &genphy_startup,
 	.shutdown = &genphy_shutdown,
