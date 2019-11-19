@@ -8,4 +8,3 @@
 
 #define CONFIG_REMAKE_ELF
 
-#define CONFIG_ENV_SIZE	SZ_8K

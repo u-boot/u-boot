@@ -32,8 +32,6 @@
 /* UART Definitions */
 #define CONFIG_BAUDRATE			115200
 
-#define CONFIG_ENV_SIZE			0x2000
-
 /* Console configuration */
 #define CONFIG_SYS_CBSIZE		1024	/* Console buffer size */
 #define CONFIG_SYS_MAXARGS		64

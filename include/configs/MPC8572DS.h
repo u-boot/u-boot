@@ -506,18 +506,6 @@
  * Environment
  */
 
-#if defined(CONFIG_SYS_RAMBOOT)
-
-#else
-	#if CONFIG_SYS_MONITOR_BASE > 0xfff80000
-	#define CONFIG_ENV_ADDR	0xfff80000
-	#else
-	#define CONFIG_ENV_ADDR	(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SECT_SIZE)
-	#endif
-	#define CONFIG_ENV_SIZE	0x2000
-	#define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K (one sector) */
-#endif
-
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 

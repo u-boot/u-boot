@@ -214,10 +214,6 @@ extern unsigned long get_clock_freq(void);
  */
 #define CONFIG_ENV_OVERWRITE
 
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SECT_SIZE)
-#define CONFIG_ENV_SIZE		0x2000
-#define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K (one sector) */
-
 #define CONFIG_LOADS_ECHO		/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change */
 

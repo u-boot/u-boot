@@ -15,10 +15,6 @@
 #include "zynq-common.h"
 
 /* Fixup settings */
-#undef CONFIG_ENV_SIZE
-#define CONFIG_ENV_SIZE			0x8000
-#undef CONFIG_ENV_OFFSET
-#define CONFIG_ENV_OFFSET		0x80000
 
 /* SPL settings */
 #undef CONFIG_SPL_ETH_SUPPORT

@@ -19,8 +19,6 @@
 #define CONFIG_MACH_TYPE		MACH_TYPE_APALIS_T30
 
 /* Environment in eMMC, before config block at the end of 1st "boot sector" */
-#define CONFIG_ENV_OFFSET		(-CONFIG_ENV_SIZE + \
-					 CONFIG_TDX_CFG_BLOCK_OFFSET)
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_SYS_MMC_ENV_PART		1
 

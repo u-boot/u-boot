@@ -50,12 +50,6 @@
 /*
  *  Environment variables configurations
  */
-#ifdef CONFIG_CMD_NAND
-#define CONFIG_ENV_SECT_SIZE 0x10000
-#endif
-
-#define CONFIG_ENV_SIZE	0x10000
-#define CONFIG_ENV_OFFSET 0xa0000
 
 /*
  * Default environment variables

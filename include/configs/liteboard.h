@@ -123,8 +123,6 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* FLASH and environment organization */
-#define CONFIG_ENV_SIZE			SZ_8K
-#define CONFIG_ENV_OFFSET		(8 * SZ_64K)
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_SYS_MMC_ENV_PART		0
 #define CONFIG_MMCROOT			"/dev/mmcblk0p2"

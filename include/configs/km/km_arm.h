@@ -141,20 +141,12 @@ int get_scl(void);
  *  Environment variables configurations
  */
 #if defined CONFIG_KM_ENV_IS_IN_SPI_NOR
-#define CONFIG_ENV_OFFSET		0xc0000     /* no bracets! */
-#define CONFIG_ENV_SIZE			0x02000     /* Size of Environment */
-#define CONFIG_ENV_SECT_SIZE		0x10000
-#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + \
-					CONFIG_ENV_SECT_SIZE)
 #define CONFIG_ENV_TOTAL_SIZE		0x20000     /* no bracets! */
 #else
 #define CONFIG_SYS_DEF_EEPROM_ADDR	0x50
 #define CONFIG_ENV_EEPROM_IS_ON_I2C
 #define CONFIG_SYS_EEPROM_WREN
-#define CONFIG_ENV_OFFSET		0x0 /* no bracets! */
-#define CONFIG_ENV_SIZE			(0x2000 - CONFIG_ENV_OFFSET)
 #define CONFIG_I2C_ENV_EEPROM_BUS 5 /* I2C2 (Mux-Port 5) */
-#define CONFIG_ENV_OFFSET_REDUND	0x2000 /* no bracets! */
 #endif
 
 #define KM_FLASH_GPIO_PIN	16

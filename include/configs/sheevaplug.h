@@ -32,16 +32,10 @@
 /*
  *  Environment variables configurations
  */
-#ifdef CONFIG_CMD_NAND
-#define CONFIG_ENV_SECT_SIZE		0x20000	/* 128K */
-#endif
 /*
  * max 4k env size is enough, but in case of nand
  * it has to be rounded to sector size
  */
-#define CONFIG_ENV_SIZE			0x20000	/* 128k */
-#define CONFIG_ENV_ADDR			0x80000
-#define CONFIG_ENV_OFFSET		0x80000	/* env starts here */
 /*
  * Environment is right behind U-Boot in flash. Make sure U-Boot
  * doesn't grow into the environment area.

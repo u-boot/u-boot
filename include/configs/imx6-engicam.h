@@ -16,7 +16,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(16 * SZ_1M)
 
 /* Total Size of Environment Sector */
-#define CONFIG_ENV_SIZE			SZ_128K
 
 /* Allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
@@ -25,11 +24,7 @@
 #ifndef CONFIG_ENV_IS_NOWHERE
 /* Environment in MMC */
 # if defined(CONFIG_ENV_IS_IN_MMC)
-#  define CONFIG_ENV_OFFSET		0x100000
 /* Environment in NAND */
-# elif defined(CONFIG_ENV_IS_IN_NAND)
-#  define CONFIG_ENV_OFFSET		0x400000
-#  define CONFIG_ENV_SECT_SIZE		CONFIG_ENV_SIZE
 # endif
 #endif
 

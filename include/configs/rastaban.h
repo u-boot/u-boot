@@ -46,7 +46,6 @@
 #define CONFIG_FACTORYSET
 
 /* Define own nand partitions */
-#define CONFIG_ENV_OFFSET_REDUND	0x2E0000
 #define CONFIG_ENV_RANGE		(4 * CONFIG_SYS_ENV_SECT_SIZE)
 
 #ifndef CONFIG_SPL_BUILD

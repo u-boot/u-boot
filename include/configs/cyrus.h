@@ -51,8 +51,6 @@
 #if defined(CONFIG_SDCARD)
 #define CONFIG_FSL_FIXED_MMC_LOCATION
 #define CONFIG_SYS_MMC_ENV_DEV          0
-#define CONFIG_ENV_SIZE			0x2000
-#define CONFIG_ENV_OFFSET		(512 * 1658)
 #endif
 
 /*

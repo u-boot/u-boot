@@ -24,10 +24,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if !defined(CONFIG_ENV_OFFSET)
-#define CONFIG_ENV_OFFSET 0
-#endif
-
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 static inline int mmc_offset_try_partition(const char *str, s64 *val)
 {

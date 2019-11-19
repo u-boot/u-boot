@@ -23,8 +23,6 @@
 /* Miscellaneous configurable options */
 #define CONFIG_DEFAULT_CONSOLE		"console=ttySAC2,115200n8\0"
 
-#define CONFIG_ENV_OFFSET	(CONFIG_BL2_OFFSET + CONFIG_BL2_SIZE)
-
 #define CONFIG_IRAM_STACK	0x02050000
 
 #define CONFIG_SYS_INIT_SP_ADDR	CONFIG_IRAM_STACK

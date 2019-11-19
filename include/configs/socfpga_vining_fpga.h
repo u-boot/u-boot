@@ -195,11 +195,6 @@
 		"fi\0"							\
 		"socfpga_legacy_reset_compat=1\0"
 
-#define CONFIG_ENV_SECT_SIZE		(64 * 1024)
-#define CONFIG_ENV_OFFSET		0x100000
-#define CONFIG_ENV_OFFSET_REDUND	\
-	(CONFIG_ENV_OFFSET + CONFIG_ENV_SECT_SIZE)
-
 /* Support changing the prompt string */
 #define CONFIG_CMDLINE_PS_SUPPORT
 

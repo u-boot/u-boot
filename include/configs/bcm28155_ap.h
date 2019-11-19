@@ -76,8 +76,6 @@
 
 /* must fit into GPT:u-boot-env partition */
 #define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_ENV_OFFSET		(0x00011a00 * 512)
-#define CONFIG_ENV_SIZE			(8 * 512)
 
 /* console configuration */
 #define CONFIG_SYS_CBSIZE		1024	/* Console buffer size */

@@ -87,12 +87,6 @@
 /*
  * U-Boot Environment placing definitions.
  */
-#define CONFIG_ENV_SECT_SIZE			0x00010000
-#define CONFIG_ENV_ADDR				(CONFIG_SYS_MONITOR_BASE + \
-						 CONFIG_SYS_MONITOR_LEN)
-#define CONFIG_ENV_SIZE				0x02000
-#define CONFIG_ENV_ADDR_REDUND			(CONFIG_ENV_ADDR + \
-						 CONFIG_ENV_SECT_SIZE)
 
 /* Miscellaneous configurable options */
 #define CONFIG_BOOT_PARAMS_ADDR			0x00000100

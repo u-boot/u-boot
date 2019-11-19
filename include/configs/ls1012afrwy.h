@@ -25,8 +25,6 @@
 
 /* ENV */
 #define CONFIG_SYS_FSL_QSPI_BASE	0x40000000
-#define CONFIG_ENV_ADDR			(CONFIG_SYS_FSL_QSPI_BASE + \
-				CONFIG_ENV_OFFSET)
 
 #ifndef CONFIG_SPL_BUILD
 #undef BOOT_TARGET_DEVICES
@@ -35,14 +33,8 @@
 	func(USB, usb, 0)
 #endif
 
-#undef CONFIG_ENV_OFFSET
-#define CONFIG_ENV_OFFSET              0x1D0000
 #undef FSL_QSPI_FLASH_SIZE
 #define FSL_QSPI_FLASH_SIZE            SZ_16M
-#undef CONFIG_ENV_SECT_SIZE
-#define CONFIG_ENV_SECT_SIZE		0x10000 /*64 KB*/
-#undef CONFIG_ENV_SIZE
-#define CONFIG_ENV_SIZE			0x10000 /*64 KB*/
 
 /*  MMC  */
 #ifdef CONFIG_MMC

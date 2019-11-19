@@ -177,8 +177,6 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_ENV_OFFSET               (64 * SZ_64K)
-#define CONFIG_ENV_SIZE			0x1000
 #define CONFIG_SYS_MMC_ENV_DEV		1   /* USDHC2 */
 #define CONFIG_MMCROOT			"/dev/mmcblk1p2"  /* USDHC2 */
 

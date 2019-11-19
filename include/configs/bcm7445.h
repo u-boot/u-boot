@@ -30,8 +30,6 @@
 /*
  * Environment configuration for SPI flash.
  */
-#define CONFIG_ENV_OFFSET	0x1e0000
-#define CONFIG_ENV_SECT_SIZE	CONFIG_ENV_SIZE
 
 #define CONFIG_SYS_MAX_FLASH_BANKS	1
 

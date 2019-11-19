@@ -16,8 +16,6 @@
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	3  /* 8 Byte write page */
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	10
 
-#define CONFIG_ENV_SIZE		0x04000		/* Size of Environment */
-
 #define CONFIG_SYS_MEMTEST_START 0x00100000	/* memtest works on */
 
 #define CONFIG_SYS_MEMTEST_END	0x00f00000	/* 1 ... 15 MB in DRAM	*/

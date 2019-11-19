@@ -36,13 +36,9 @@
 #define CONFIG_SYS_MALLOC_LEN		(1 * 1024 * 1024)
 
 /* ENV setting */
-#define CONFIG_ENV_ADDR	0xC0000
 
 /* Common ENV setting */
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_ENV_SECT_SIZE	(256 * 1024)
-#define CONFIG_ENV_OFFSET	(CONFIG_ENV_ADDR)
-#define CONFIG_ENV_SIZE		(CONFIG_ENV_SECT_SIZE)
 
 /* SF MTD */
 #ifdef CONFIG_SPL_BUILD

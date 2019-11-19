@@ -91,7 +91,6 @@
 
 #ifdef CONFIG_SYS_USE_MMC
 /* bootstrap + u-boot + env + linux in mmc */
-#define CONFIG_ENV_SIZE		0x4000
 
 #define CONFIG_BOOTCOMMAND	"fatload mmc 0:1 0x21000000 dtb; " \
 				"fatload mmc 0:1 0x22000000 zImage; " \

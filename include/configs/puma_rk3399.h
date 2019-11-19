@@ -10,8 +10,6 @@
 
 #if defined(CONFIG_ENV_IS_IN_MMC)
 #define CONFIG_SYS_MMC_ENV_DEV 1
-#elif defined(CONFIG_ENV_IS_IN_SPI_FLASH)
-#define CONFIG_ENV_SECT_SIZE		(8 * 1024)
 #endif
 
 #define SDRAM_BANK_SIZE			(2UL << 30)

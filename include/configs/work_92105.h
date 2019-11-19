@@ -116,11 +116,6 @@
  * Environment
  */
 
-#define CONFIG_ENV_SIZE			0x00020000
-#define CONFIG_ENV_OFFSET		0x00100000
-#define CONFIG_ENV_OFFSET_REDUND	0x00120000
-#define CONFIG_ENV_ADDR			0x80000100
-
 /*
  * Boot Linux
  */

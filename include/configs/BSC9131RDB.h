@@ -250,16 +250,8 @@ extern unsigned long get_sdram_size(void);
  * Environment
  */
 #if defined(CONFIG_RAMBOOT_SPIFLASH)
-#define CONFIG_ENV_OFFSET	0x100000	/* 1MB */
-#define CONFIG_ENV_SECT_SIZE	0x10000
-#define CONFIG_ENV_SIZE		0x2000
 #elif defined(CONFIG_NAND)
-#define CONFIG_ENV_SIZE		CONFIG_SYS_NAND_BLOCK_SIZE
-#define CONFIG_ENV_OFFSET	((768 * 1024) + CONFIG_SYS_NAND_BLOCK_SIZE)
 #define CONFIG_ENV_RANGE	(3 * CONFIG_ENV_SIZE)
-#elif defined(CONFIG_SYS_RAMBOOT)
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
-#define CONFIG_ENV_SIZE		0x2000
 #endif
 
 #define CONFIG_LOADS_ECHO		/* echo on for serial download */

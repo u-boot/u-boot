@@ -75,8 +75,6 @@
 /* Environment organization */
 #define CONFIG_SYS_MMC_ENV_DEV		2 /* overwritten on SD boot */
 #define CONFIG_SYS_MMC_ENV_PART		1 /* overwritten on SD boot */
-#define CONFIG_ENV_SIZE			(8 * 1024)
-#define CONFIG_ENV_OFFSET		(384 * 1024)
 #define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_BOARD_SIZE_LIMIT		392192 /* (CONFIG_ENV_OFFSET - 1024) */

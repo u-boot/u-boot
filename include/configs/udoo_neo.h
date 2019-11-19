@@ -75,8 +75,6 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* Environment organization */
-#define CONFIG_ENV_OFFSET		(8 * SZ_64K)
-#define CONFIG_ENV_SIZE			SZ_8K
 
 #define CONFIG_IMX_THERMAL
 

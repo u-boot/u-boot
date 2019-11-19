@@ -37,8 +37,6 @@
 
 /* turn on command-line edit/c/auto */
 
-#define CONFIG_ENV_SIZE		8192
-
 /* SPI - enable all SPI flash types for testing purposes */
 
 #define CONFIG_I2C_EDID

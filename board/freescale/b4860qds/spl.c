@@ -100,8 +100,8 @@ void board_init_r(gd_t *gd, ulong dest_addr)
 #else
 	/* relocate environment function pointers etc. */
 	nand_spl_load_image(CONFIG_ENV_OFFSET, CONFIG_ENV_SIZE,
-			    (uchar *)CONFIG_ENV_ADDR);
-	gd->env_addr  = (ulong)(CONFIG_ENV_ADDR);
+			    (uchar *)SPL_ENV_ADDR);
+	gd->env_addr  = (ulong)(SPL_ENV_ADDR);
 	gd->env_valid = ENV_VALID;
 #endif
 

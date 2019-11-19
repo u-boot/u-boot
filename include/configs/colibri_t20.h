@@ -28,9 +28,6 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 
 /* Environment in NAND, 64K is a bit excessive but erase block is 512K anyway */
-#define CONFIG_ENV_OFFSET		(SZ_2M)
-#undef CONFIG_ENV_SIZE		/* undef size from tegra20-common.h */
-#define CONFIG_ENV_SIZE			(SZ_64K)
 
 #define BOARD_EXTRA_ENV_SETTINGS \
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"

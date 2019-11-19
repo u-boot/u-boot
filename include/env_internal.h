@@ -30,26 +30,6 @@
  *************************************************************************/
 
 #if defined(CONFIG_ENV_IS_IN_FLASH)
-# ifndef	CONFIG_ENV_ADDR
-#  define	CONFIG_ENV_ADDR	(CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET)
-# endif
-# ifndef	CONFIG_ENV_OFFSET
-#  define	CONFIG_ENV_OFFSET (CONFIG_ENV_ADDR - CONFIG_SYS_FLASH_BASE)
-# endif
-# if !defined(CONFIG_ENV_ADDR_REDUND) && defined(CONFIG_ENV_OFFSET_REDUND)
-#  define	CONFIG_ENV_ADDR_REDUND	\
-		(CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET_REDUND)
-# endif
-# if defined(CONFIG_ENV_SECT_SIZE) || defined(CONFIG_ENV_SIZE)
-#  ifndef	CONFIG_ENV_SECT_SIZE
-#   define	CONFIG_ENV_SECT_SIZE	CONFIG_ENV_SIZE
-#  endif
-#  ifndef	CONFIG_ENV_SIZE
-#   define	CONFIG_ENV_SIZE	CONFIG_ENV_SECT_SIZE
-#  endif
-# else
-#  error "Both CONFIG_ENV_SECT_SIZE and CONFIG_ENV_SIZE undefined"
-# endif
 # if	defined(CONFIG_ENV_ADDR_REDUND) && \
 	((CONFIG_ENV_ADDR >= CONFIG_SYS_MONITOR_BASE) &&		\
 	(CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SIZE) <=		\
@@ -75,40 +55,8 @@
 #  endif
 extern unsigned long nand_env_oob_offset;
 #  define CONFIG_ENV_OFFSET nand_env_oob_offset
-# else
-#  ifndef CONFIG_ENV_OFFSET
-#   error "Need to define CONFIG_ENV_OFFSET when using CONFIG_ENV_IS_IN_NAND"
-#  endif
 # endif /* CONFIG_ENV_OFFSET_OOB */
-# ifndef CONFIG_ENV_SIZE
-#  error "Need to define CONFIG_ENV_SIZE when using CONFIG_ENV_IS_IN_NAND"
-# endif
 #endif /* CONFIG_ENV_IS_IN_NAND */
-
-#if defined(CONFIG_ENV_IS_IN_UBI)
-# ifndef CONFIG_ENV_UBI_PART
-#  error "Need to define CONFIG_ENV_UBI_PART when using CONFIG_ENV_IS_IN_UBI"
-# endif
-# ifndef CONFIG_ENV_UBI_VOLUME
-#  error "Need to define CONFIG_ENV_UBI_VOLUME when using CONFIG_ENV_IS_IN_UBI"
-# endif
-# ifndef CONFIG_ENV_SIZE
-#  error "Need to define CONFIG_ENV_SIZE when using CONFIG_ENV_IS_IN_UBI"
-# endif
-# ifndef CONFIG_CMD_UBI
-#  error "Need to define CONFIG_CMD_UBI when using CONFIG_ENV_IS_IN_UBI"
-# endif
-#endif /* CONFIG_ENV_IS_IN_UBI */
-
-/* Embedded env is only supported for some flash types */
-#ifdef CONFIG_ENV_IS_EMBEDDED
-# if	!defined(CONFIG_ENV_IS_IN_FLASH)	&& \
-	!defined(CONFIG_ENV_IS_IN_NAND)		&& \
-	!defined(CONFIG_ENV_IS_IN_ONENAND)	&& \
-	!defined(CONFIG_ENV_IS_IN_SPI_FLASH)
-#  error "CONFIG_ENV_IS_EMBEDDED not supported for your flash type"
-# endif
-#endif
 
 /*
  * For the flash types where embedded env is supported, but it cannot be

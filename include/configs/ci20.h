@@ -42,8 +42,6 @@
 
 /* Environment */
 #define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_ENV_SIZE			(32 << 10)
-#define CONFIG_ENV_OFFSET		((14 + 512) << 10)
 #define CONFIG_ENV_OVERWRITE
 
 /* Command line configuration. */

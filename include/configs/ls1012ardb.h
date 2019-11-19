@@ -19,8 +19,6 @@
 
 /* ENV */
 #define CONFIG_SYS_FSL_QSPI_BASE	0x40000000
-#define CONFIG_ENV_ADDR			(CONFIG_SYS_FSL_QSPI_BASE + \
-					 CONFIG_ENV_OFFSET)
 /*
  * I2C IO expander
  */

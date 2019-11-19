@@ -93,15 +93,10 @@
 #ifdef CONFIG_SYS_USE_DATAFLASH
 
 /* bootstrap + u-boot + env in dataflash on CS0 */
-#define CONFIG_ENV_OFFSET	0x4200
-#define CONFIG_ENV_SIZE		0x4200
-#define CONFIG_ENV_SECT_SIZE	0x210
 
 #elif CONFIG_SYS_USE_NANDFLASH
 
 /* bootstrap + u-boot + env + linux in nandflash */
-# define CONFIG_ENV_OFFSET		0xC0000
-# define CONFIG_ENV_SIZE		0x20000
 
 #endif
 

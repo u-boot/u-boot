@@ -143,8 +143,6 @@
 /*
  * after u-boot.bin
  */
-#define CONFIG_ENV_ADDR			\
-		(CONFIG_SYS_FLASH_BASE + CONFIG_SYS_MONITOR_LEN)
 
 /* The following #defines are needed to get flash environment right */
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE

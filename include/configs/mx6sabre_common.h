@@ -179,11 +179,6 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* Environment organization */
-#define CONFIG_ENV_SIZE			(8 * 1024)
-
-#if defined(CONFIG_ENV_IS_IN_MMC)
-#define CONFIG_ENV_OFFSET		(768 * 1024)
-#endif
 
 /* Framebuffer */
 #define CONFIG_VIDEO_BMP_RLE8

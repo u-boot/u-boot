@@ -37,12 +37,6 @@
 /*
  *  Environment variables configurations
  */
-#ifdef CONFIG_CMD_NAND
-#define CONFIG_ENV_SECT_SIZE		0x20000	/* 128K */
-#endif
-
-#define CONFIG_ENV_SIZE			0x20000	/* 128k */
-#define CONFIG_ENV_OFFSET		0x60000	/* env starts here */
 
 /*
  * Default environment variables

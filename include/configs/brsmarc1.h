@@ -69,8 +69,6 @@ BUR_COMMON_ENV \
 /* SPI Flash */
 
 /* Environment */
-#define CONFIG_ENV_OFFSET_REDUND		(CONFIG_ENV_OFFSET + \
-						 CONFIG_ENV_SECT_SIZE)
 
 #define CONFIG_CONS_INDEX			1
 #endif	/* __CONFIG_BRSMARC1_H__ */

@@ -462,20 +462,6 @@
 #define CONFIG_ETHPRIME		"eTSEC0"
 #endif	/* CONFIG_TSEC_ENET */
 
-/*
- * Environment
- */
-#define CONFIG_ENV_SIZE		0x2000
-#if CONFIG_SYS_TEXT_BASE == 0xfff00000	/* Boot from 64MB SODIMM */
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + 0x80000)
-#define CONFIG_ENV_SECT_SIZE	0x80000	/* 512K(one sector) for env */
-#elif CONFIG_SYS_TEXT_BASE == 0xfffa0000	/* Boot from 8MB soldered flash */
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + 0x40000)
-#define CONFIG_ENV_SECT_SIZE	0x20000	/* 128K(one sector) for env */
-#else
-#warning undefined environment size/location.
-#endif
-
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 

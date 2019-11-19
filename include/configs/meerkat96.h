@@ -38,8 +38,6 @@
 /* Environment configs */
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_SYS_MMC_ENV_PART		0
-#define CONFIG_ENV_SIZE			SZ_8K
-#define CONFIG_ENV_OFFSET		(8 * SZ_64K)
 
 /* USB configs */
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET

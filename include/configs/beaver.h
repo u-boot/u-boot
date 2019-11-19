@@ -23,7 +23,6 @@
 #define CONFIG_MACH_TYPE		MACH_TYPE_BEAVER
 
 /* Environment in eMMC, at the end of 2nd "boot sector" */
-#define CONFIG_ENV_OFFSET		(-CONFIG_ENV_SIZE)
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_SYS_MMC_ENV_PART		2
 

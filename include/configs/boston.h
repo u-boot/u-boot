@@ -53,14 +53,5 @@
 /*
  * Environment
  */
-#define CONFIG_ENV_SECT_SIZE		0x20000
-#define CONFIG_ENV_SIZE			CONFIG_ENV_SECT_SIZE
-#ifdef CONFIG_64BIT
-# define CONFIG_ENV_ADDR \
-	(0xffffffffb8000000 + (128 << 20) - CONFIG_ENV_SIZE)
-#else
-# define CONFIG_ENV_ADDR \
-	(0xb8000000 + (128 << 20) - CONFIG_ENV_SIZE)
-#endif
 
 #endif /* __CONFIGS_BOSTON_H__ */

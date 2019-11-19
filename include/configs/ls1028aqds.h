@@ -59,7 +59,6 @@
 #define I2C_MUX_CH_RTC                 0xB
 
 /* Store environment at top of flash */
-#define CONFIG_ENV_SIZE			0x2000
 
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_SYS_MONITOR_BASE CONFIG_SPL_TEXT_BASE

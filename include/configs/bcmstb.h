@@ -149,8 +149,6 @@ extern phys_addr_t prior_stage_fdt_address;
 /*
  * Environment configuration.
  */
-#define CONFIG_ENV_SIZE			(64 << 10) /* 64 KiB */
-#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
 #define CONFIG_ENV_OVERWRITE
 
 /*

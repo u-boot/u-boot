@@ -92,10 +92,7 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* Environment organization */
-#define CONFIG_ENV_SIZE                 (64 * 1024)	/* 64 kb */
-#define CONFIG_ENV_OFFSET               (1024 * 1024)
 /* M25P16 has an erase size of 64 KiB */
-#define CONFIG_ENV_SECT_SIZE            (64 * 1024)
 
 #define CONFIG_BOOTP_SERVERIP
 #define CONFIG_BOOTP_BOOTFILE

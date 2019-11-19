@@ -429,27 +429,10 @@ unsigned long get_board_ddr_clk(void);
 
 #ifdef CONFIG_TFABOOT
 #define CONFIG_SYS_MMC_ENV_DEV		0
-
-#define CONFIG_ENV_SIZE			0x2000
-#define CONFIG_ENV_OFFSET		0x500000        /* 5MB */
-#define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE + 0x500000)
-#define CONFIG_ENV_SECT_SIZE		0x20000
 #else
 #ifdef CONFIG_NAND_BOOT
-#define CONFIG_ENV_SIZE			0x2000
-#define CONFIG_ENV_OFFSET		(12 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #elif defined(CONFIG_SD_BOOT)
-#define CONFIG_ENV_OFFSET		(3 * 1024 * 1024)
 #define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_ENV_SIZE			0x2000
-#elif defined(CONFIG_QSPI_BOOT)
-#define CONFIG_ENV_SIZE			0x2000          /* 8KB */
-#define CONFIG_ENV_OFFSET		0x300000        /* 3MB */
-#define CONFIG_ENV_SECT_SIZE		0x10000
-#else
-#define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE + 0x300000)
-#define CONFIG_ENV_SECT_SIZE		0x20000
-#define CONFIG_ENV_SIZE			0x20000
 #endif
 #endif
 

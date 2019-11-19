@@ -370,48 +370,10 @@
 /*
  * Environment
  */
-#ifdef CONFIG_ENV_FIT_UCBOOT
-
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x20000)
-#define CONFIG_ENV_SIZE		0x20000
-#define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K (one sector) */
-
-#else
-
-
-#ifdef CONFIG_RAMBOOT_SPIFLASH
-
-#define CONFIG_ENV_SIZE		0x3000		/* 12KB */
-#define CONFIG_ENV_OFFSET	0x2000		/* 8KB */
-#define CONFIG_ENV_SECT_SIZE	0x1000
-
-#if defined(CONFIG_SYS_REDUNDAND_ENVIRONMENT)
-/* Address and size of Redundant Environment Sector	*/
-#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
-#endif
-
-#elif defined(CONFIG_RAMBOOT_SDCARD)
+#if !defined(CONFIG_ENV_FIT_UCBOOT) && defined(CONFIG_RAMBOOT_SDCARD)
 #define CONFIG_FSL_FIXED_MMC_LOCATION
-#define CONFIG_ENV_SIZE		0x2000
 #define CONFIG_SYS_MMC_ENV_DEV	0
-
-#elif defined(CONFIG_SYS_RAMBOOT)
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
-#define CONFIG_ENV_SIZE		0x2000
-
-#else
-#define CONFIG_ENV_BASE		(CONFIG_SYS_FLASH_BASE)
-#define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K (one sector) */
-#define CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE
-#define CONFIG_ENV_ADDR		(CONFIG_ENV_BASE + 0xC0000)
-#if defined(CONFIG_SYS_REDUNDAND_ENVIRONMENT)
-/* Address and size of Redundant Environment Sector	*/
-#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR + CONFIG_ENV_SIZE)
 #endif
-
-#endif
-
-#endif	/* CONFIG_ENV_FIT_UCBOOT */
 
 #define CONFIG_LOADS_ECHO		/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change */

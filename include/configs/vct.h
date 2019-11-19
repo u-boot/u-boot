@@ -128,12 +128,7 @@
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
 #ifdef CONFIG_ENV_IS_IN_FLASH
-#define CONFIG_ENV_SECT_SIZE	0x10000		/* size of one complete sector	*/
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + CONFIG_SYS_MONITOR_LEN)
-#define	CONFIG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
-
 /* Address and size of Redundant Environment Sector	*/
-#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE)
 #endif /* CONFIG_ENV_IS_IN_FLASH */
 #endif /* CONFIG_VCT_NOR */
 
@@ -141,8 +136,6 @@
 #define CONFIG_USE_ONENAND_BOARD_INIT
 #define	CONFIG_SYS_ONENAND_BASE		0x00000000	/* this is not real address */
 #define CONFIG_SYS_FLASH_BASE		0x00000000
-#define CONFIG_ENV_ADDR			(128 << 10)	/* after compr. U-Boot image */
-#define	CONFIG_ENV_SIZE			(128 << 10)	/* erase size */
 #endif /* CONFIG_VCT_ONENAND */
 
 /*

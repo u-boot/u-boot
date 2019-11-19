@@ -71,10 +71,6 @@
 	. = DEFINED(env_offset) ? env_offset : .; \
 	env/embedded.o(.text);
 
-#define CONFIG_ENV_OFFSET		0x4000	/* Address of Environment Sector*/
-#define CONFIG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
-#define CONFIG_ENV_SECT_SIZE	0x2000 /* see README - env sector total size	*/
-
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
  * (Set up by the startup code)

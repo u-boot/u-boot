@@ -81,8 +81,6 @@
 #define CONFIG_KSNET_MDIO_PHY_CONFIG_ENABLE
 #define PHY_ANEG_TIMEOUT	10000 /* PHY needs longer aneg time */
 
-#define CONFIG_ENV_SIZE			(256 << 10)  /* 256 KiB */
-
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_CADENCE_QSPI
 #define CONFIG_CQSPI_REF_CLK 384000000

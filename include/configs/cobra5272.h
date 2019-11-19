@@ -92,14 +92,6 @@
  * ---
  */
 
-#ifndef CONFIG_MONITOR_IS_IN_RAM
-#define CONFIG_ENV_OFFSET		0x4000
-#define CONFIG_ENV_SECT_SIZE	0x2000
-#else
-#define CONFIG_ENV_ADDR		0xffe04000
-#define CONFIG_ENV_SECT_SIZE	0x2000
-#endif
-
 #define LDS_BOARD_TEXT \
 	. = DEFINED(env_offset) ? env_offset : .; \
 	env/embedded.o(.text);

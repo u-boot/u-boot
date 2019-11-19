@@ -139,9 +139,6 @@
 /*-----------------------------------------------------------------------
  * Boot configuration
  */
-#define CONFIG_ENV_SIZE			(128 << 10)	/* 128KiB, 0x20000 */
-#define CONFIG_ENV_ADDR			(256 << 10)	/* 256KiB, 0x40000 */
-#define CONFIG_ENV_OFFSET		(256 << 10)	/* 256KiB, 0x40000 */
 
 #define CONFIG_USE_ONENAND_BOARD_INIT
 #define CONFIG_SAMSUNG_ONENAND		1

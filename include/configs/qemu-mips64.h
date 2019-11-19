@@ -90,8 +90,6 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	128
 
 /* Address and size of Primary Environment Sector */
-#define CONFIG_ENV_SIZE		0x8000
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + (4 << 20) - CONFIG_ENV_SIZE)
 
 #define CONFIG_ENV_OVERWRITE	1
 

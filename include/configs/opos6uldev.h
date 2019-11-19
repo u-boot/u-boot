@@ -61,9 +61,6 @@
 /* Environment is stored in the eMMC boot partition */
 #define CONFIG_SYS_MMC_ENV_DEV          0
 #define CONFIG_SYS_MMC_ENV_PART         1
-#define CONFIG_ENV_SIZE                 (10 * 1024)
-#define CONFIG_ENV_OFFSET               (1024 * 1024) /* 1 MB */
-#define CONFIG_ENV_OFFSET_REDUND        (1536 * 1024) /* 512KB from CONFIG_ENV_OFFSET */
 
 #define CONFIG_ENV_VERSION	100
 #define CONFIG_BOARD_NAME	opos6ul

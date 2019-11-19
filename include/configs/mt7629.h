@@ -27,7 +27,6 @@
 #define CONFIG_SYS_NONCACHED_MEMORY	SZ_1M
 
 /* Environment */
-#define CONFIG_ENV_SIZE			SZ_4K
 /* Allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 

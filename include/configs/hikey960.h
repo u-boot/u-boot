@@ -36,8 +36,6 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + SZ_8M)
 
-#define CONFIG_ENV_SIZE			0x1000
-
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0)
 #include <config_distro_bootcmd.h>
@@ -51,8 +49,6 @@
 				"fdt_high=0xffffffffffffffff\0" \
 				"initrd_high=0xffffffffffffffff\0" \
 				BOOTENV
-
-#define CONFIG_ENV_SIZE			0x1000
 
 /* TODO: Remove this once the SD clock is fixed */
 #define CONFIG_SYS_MMC_MAX_BLK_COUNT	1024

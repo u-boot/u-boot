@@ -15,8 +15,6 @@
 #include <environment/ti/k3_rproc.h>
 #include <environment/ti/ufs.h>
 
-#define CONFIG_ENV_SIZE			(128 << 10)
-
 /* DDR Configuration */
 #define CONFIG_SYS_SDRAM_BASE1		0x880000000
 

@@ -132,9 +132,6 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* Environment organization */
-#define CONFIG_ENV_SIZE               (1024 * 1024)
-#define CONFIG_ENV_OFFSET             0x400000
-#define CONFIG_ENV_SECT_SIZE          CONFIG_ENV_SIZE
 
 /* NAND stuff */
 #define CONFIG_SYS_MAX_NAND_DEVICE     1

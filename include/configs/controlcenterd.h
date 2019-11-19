@@ -272,14 +272,8 @@
  * Environment
  */
 #if defined(CONFIG_TRAILBLAZER)
-#define CONFIG_ENV_SIZE		0x2000		/* 8KB */
-#elif defined(CONFIG_RAMBOOT_SPIFLASH)
-#define CONFIG_ENV_SIZE		0x2000		/* 8KB */
-#define CONFIG_ENV_OFFSET	0x100000	/* 1MB */
-#define CONFIG_ENV_SECT_SIZE	0x10000
 #elif defined(CONFIG_RAMBOOT_SDCARD)
 #define CONFIG_FSL_FIXED_MMC_LOCATION
-#define CONFIG_ENV_SIZE		0x2000
 #define CONFIG_SYS_MMC_ENV_DEV	0
 #endif
 

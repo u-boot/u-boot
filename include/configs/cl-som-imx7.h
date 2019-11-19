@@ -134,9 +134,6 @@
 /* SPI Flash support */
 
 /* FLASH and environment organization */
-#define CONFIG_ENV_SIZE			SZ_8K
-#define CONFIG_ENV_OFFSET		(768 * 1024)
-#define CONFIG_ENV_SECT_SIZE		(64 * 1024)
 
 /* MMC Config*/
 #ifdef CONFIG_FSL_USDHC

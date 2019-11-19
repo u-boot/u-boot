@@ -54,8 +54,6 @@
 
 /* Command line configuration */
 #define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_ENV_OFFSET		(0xf80 * 512) /* env_mmc_blknum bytes */
-#define CONFIG_ENV_SIZE			(0x80 * 512)  /* env_mmc_nblks bytes */
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512

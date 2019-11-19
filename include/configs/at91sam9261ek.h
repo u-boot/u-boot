@@ -101,9 +101,6 @@
 #ifdef CONFIG_SYS_USE_DATAFLASH_CS0
 
 /* bootstrap + u-boot + env + linux in dataflash on CS0 */
-#define CONFIG_ENV_OFFSET	0x4200
-#define CONFIG_ENV_SIZE		0x4200
-#define CONFIG_ENV_SECT_SIZE	0x210
 #define CONFIG_BOOTCOMMAND	"sf probe 0; " \
 				"sf read 0x22000000 0x84000 0x294000; " \
 				"bootm 0x22000000"
@@ -111,9 +108,6 @@
 #elif CONFIG_SYS_USE_DATAFLASH_CS3
 
 /* bootstrap + u-boot + env + linux in dataflash on CS3 */
-#define CONFIG_ENV_OFFSET	0x4200
-#define CONFIG_ENV_SIZE		0x4200
-#define CONFIG_ENV_SECT_SIZE	0x210
 #define CONFIG_BOOTCOMMAND	"sf probe 0:3; " \
 				"sf read 0x22000000 0x84000 0x294000; " \
 				"bootm 0x22000000"
@@ -121,9 +115,6 @@
 #else /* CONFIG_SYS_USE_NANDFLASH */
 
 /* bootstrap + u-boot + env + linux in nandflash */
-#define CONFIG_ENV_OFFSET		0x140000
-#define CONFIG_ENV_OFFSET_REDUND	0x100000
-#define CONFIG_ENV_SIZE		0x20000		/* 1 sector = 128 kB */
 #define CONFIG_BOOTCOMMAND	"nand read 0x22000000 0x200000 0x300000; bootm"
 #endif
 

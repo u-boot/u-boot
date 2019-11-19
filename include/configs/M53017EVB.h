@@ -161,9 +161,6 @@
 /* Configuration for environment
  * Environment is embedded in u-boot in the second sector of the flash
  */
-#define CONFIG_ENV_OFFSET		(CONFIG_SYS_FLASH_BASE + 0x40000)
-#define CONFIG_ENV_SIZE			0x1000
-#define CONFIG_ENV_SECT_SIZE		0x8000
 
 #define LDS_BOARD_TEXT \
 	. = DEFINED(env_offset) ? env_offset : .; \

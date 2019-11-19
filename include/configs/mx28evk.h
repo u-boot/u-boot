@@ -19,34 +19,19 @@
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 
 /* Environment */
-#ifndef CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_ENV_SIZE			(16 * 1024)
-#else
-#define CONFIG_ENV_SIZE			(4 * 1024)
-#endif
 #define CONFIG_ENV_OVERWRITE
 
 /* Environment is in MMC */
 #if defined(CONFIG_CMD_MMC) && defined(CONFIG_ENV_IS_IN_MMC)
-#define CONFIG_ENV_OFFSET		(256 * 1024)
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #endif
 
 /* Environment is in NAND */
 #if defined(CONFIG_CMD_NAND) && defined(CONFIG_ENV_IS_IN_NAND)
-#define CONFIG_ENV_SECT_SIZE		(128 * 1024)
 #define CONFIG_ENV_RANGE		(512 * 1024)
-#define CONFIG_ENV_OFFSET		0x300000
-#define CONFIG_ENV_OFFSET_REDUND	\
-		(CONFIG_ENV_OFFSET + CONFIG_ENV_RANGE)
 #endif
 
 /* Environment is in SPI flash */
-#if defined(CONFIG_CMD_SF) && defined(CONFIG_ENV_IS_IN_SPI_FLASH)
-#define CONFIG_ENV_OFFSET		0x40000		/* 256K */
-#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
-#define CONFIG_ENV_SECT_SIZE		0x1000
-#endif
 
 /* UBI and NAND partitioning */
 

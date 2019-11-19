@@ -58,6 +58,5 @@
 #define CONFIG_SYS_MEMTEST_END		(PHYS_SDRAM_0 + PHYS_SDRAM_0_SIZE)
 
 /* When we use RAM as ENV */
-#define CONFIG_ENV_SIZE	0x2000
 
 #endif /* __CONFIG_H */

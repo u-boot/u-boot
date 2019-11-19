@@ -73,15 +73,5 @@
 #define CONFIG_SYS_FSL_USDHC_NUM	1
 
 /* Environment organization */
-#define CONFIG_ENV_SIZE                (16 * 1024)
-#define CONFIG_ENV_OFFSET		(1024 * SZ_1K)
-#define CONFIG_ENV_SECT_SIZE		(64 * SZ_1K)
-#define CONFIG_ENV_OFFSET_REDUND       (CONFIG_ENV_OFFSET + \
-						CONFIG_ENV_SECT_SIZE)
-
-#ifdef CONFIG_ENV_IS_IN_NAND
-#define CONFIG_ENV_OFFSET              (0x1E0000)
-#define CONFIG_ENV_SECT_SIZE           (128 * SZ_1K)
-#endif
 
 #endif

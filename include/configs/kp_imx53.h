@@ -97,9 +97,6 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* environment organization */
-#define CONFIG_ENV_OFFSET      (SZ_1M)
-#define CONFIG_ENV_SIZE        (SZ_8K)
-#define CONFIG_ENV_OFFSET_REDUND        (CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
 #define CONFIG_SYS_MMC_ENV_DEV 0
 
 #endif				/* __CONFIG_H_ */

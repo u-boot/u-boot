@@ -18,7 +18,6 @@
 /* U-Boot general configurations */
 
 /* U-Boot environment */
-#define CONFIG_ENV_SIZE			(16 * 1024)
 /*
  * Environment is on MMC, starting at offset 512KiB from start of the card.
  * Please place first partition at offset 1MiB from the start of the card
@@ -27,9 +26,6 @@
  */
 #ifdef CONFIG_CMD_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_ENV_OFFSET		(512 * 1024)
-#define CONFIG_ENV_OFFSET_REDUND	\
-		(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
 #endif
 
 /* Booting Linux */

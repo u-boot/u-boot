@@ -108,10 +108,6 @@
 #define DFUARGS
 #endif
 
-#ifdef CONFIG_QSPI_BOOT
-#define CONFIG_ENV_OFFSET_REDUND       0x120000
-#endif
-
 #ifndef CONFIG_SPL_BUILD
 #include <environment/ti/dfu.h>
 #include <environment/ti/mmc.h>

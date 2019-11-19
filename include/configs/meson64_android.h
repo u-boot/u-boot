@@ -11,8 +11,6 @@
 
 #define CONFIG_SYS_MMC_ENV_DEV	2
 #define CONFIG_SYS_MMC_ENV_PART	1
-#define CONFIG_ENV_SIZE		0x10000
-#define CONFIG_ENV_OFFSET	(-0x10000)
 
 
 #define BOOTENV_DEV_FASTBOOT(devtypeu, devtypel, instance) \

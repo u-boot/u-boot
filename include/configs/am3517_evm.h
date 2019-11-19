@@ -176,7 +176,6 @@
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
 
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
-#define CONFIG_ENV_ADDR			0x260000
 
 /* Defines for SPL */
 

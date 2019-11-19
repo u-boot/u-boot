@@ -11,7 +11,6 @@
 
 #include <linux/sizes.h>
 
-#define CONFIG_ENV_SIZE			SZ_4K
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MALLOC_LEN		SZ_4M
 

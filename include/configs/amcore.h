@@ -64,11 +64,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(1 * 1024 * 1024)
 #define CONFIG_SYS_BOOTPARAMS_LEN	(64 * 1024)
 
-#define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE + \
-					 CONFIG_SYS_MONITOR_LEN)
-#define CONFIG_ENV_SIZE			0x1000
-#define CONFIG_ENV_SECT_SIZE		0x1000
-
 #define LDS_BOARD_TEXT \
 	. = DEFINED(env_offset) ? env_offset : .; \
 	env/embedded.o(.text*);

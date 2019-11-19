@@ -201,15 +201,11 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	259
 /* Store environment at top of flash in the same location as blank.img */
 /* in the Juno firmware. */
-#define CONFIG_ENV_ADDR			0x0BFC0000
-#define CONFIG_ENV_SECT_SIZE		0x00010000
 #else
 #define CONFIG_SYS_FLASH_BASE		0x0C000000
 /* 256 x 256KiB sectors */
 #define CONFIG_SYS_MAX_FLASH_SECT	256
 /* Store environment at top of flash */
-#define CONFIG_ENV_ADDR			0x0FFC0000
-#define CONFIG_ENV_SECT_SIZE		0x00040000
 #endif
 
 #define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_32BIT
@@ -217,6 +213,5 @@
 
 #define CONFIG_SYS_FLASH_EMPTY_INFO	/* flinfo indicates empty blocks */
 #define FLASH_MAX_SECTOR_SIZE		0x00040000
-#define CONFIG_ENV_SIZE			CONFIG_ENV_SECT_SIZE
 
 #endif /* __VEXPRESS_AEMV8A_H */

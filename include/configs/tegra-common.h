@@ -25,7 +25,6 @@
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
 
 /* Environment */
-#define CONFIG_ENV_SIZE			0x2000	/* Total Size Environment */
 
 /*
  * NS16550 Configuration

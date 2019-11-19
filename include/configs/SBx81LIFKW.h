@@ -56,9 +56,6 @@
 /*
  *  Environment variables configurations
  */
-#define CONFIG_ENV_SECT_SIZE		0x40000		/* 256K */
-#define CONFIG_ENV_SIZE			0x02000
-#define CONFIG_ENV_OFFSET		0xc0000		/* env starts here - 768K */
 
 /*
  * U-Boot bootcode configuration

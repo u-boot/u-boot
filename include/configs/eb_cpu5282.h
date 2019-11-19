@@ -38,9 +38,6 @@
  * Environment is in the second sector of the first 256k of flash	*
  *----------------------------------------------------------------------*/
 
-#define CONFIG_ENV_ADDR		0xFF040000
-#define CONFIG_ENV_SECT_SIZE	0x00020000
-
 /*
  * BOOTP options
  */

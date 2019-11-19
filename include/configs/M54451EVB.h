@@ -185,15 +185,6 @@
  * Environment is not embedded in u-boot. First time runing may have env
  * crc error warning if there is no correct environment on the flash.
  */
-#if defined(CONFIG_SYS_STMICRO_BOOT)
-#	define CONFIG_ENV_OFFSET		0x20000
-#	define CONFIG_ENV_SIZE		0x2000
-#	define CONFIG_ENV_SECT_SIZE	0x10000
-#else
-#	define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x40000)
-#	define CONFIG_ENV_SIZE		0x2000
-#	define CONFIG_ENV_SECT_SIZE	0x20000
-#endif
 #undef CONFIG_ENV_OVERWRITE
 
 /* FLASH organization */

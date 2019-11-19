@@ -44,19 +44,12 @@
 
 #ifdef CONFIG_MVEBU_SPL_BOOT_DEVICE_SPI
 /* Environment in SPI NOR flash */
-#define CONFIG_ENV_SECT_SIZE		SZ_64K
-#define CONFIG_ENV_SIZE			CONFIG_ENV_SECT_SIZE
-#define CONFIG_ENV_OFFSET		SZ_1M
 #endif
 
 #ifdef CONFIG_MVEBU_SPL_BOOT_DEVICE_MMC
 /* Environment in MMC */
 #define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_ENV_SECT_SIZE		0x200
-#define CONFIG_ENV_SIZE			0x2000
 /* stay within first 1M */
-#define CONFIG_ENV_OFFSET		(SZ_1M - CONFIG_ENV_SIZE)
-#define CONFIG_ENV_ADDR			CONFIG_ENV_OFFSET
 #endif
 
 #define CONFIG_PHY_MARVELL		/* there is a marvell phy */

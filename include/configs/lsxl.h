@@ -50,11 +50,7 @@
 #ifdef CONFIG_SPI_FLASH
 #define CONFIG_SYS_MAX_FLASH_BANKS	1
 #define CONFIG_SYS_MAX_FLASH_SECT	8
-#define CONFIG_ENV_SECT_SIZE		0x10000 /* 64K */
 #endif
-
-#define CONFIG_ENV_SIZE			0x10000 /* 64k */
-#define CONFIG_ENV_OFFSET		0x70000 /* env starts here */
 
 /*
  * Default environment variables
