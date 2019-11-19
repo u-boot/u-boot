@@ -405,6 +405,11 @@ M:	Jagan Teki <jagan@amarulasolutions.com>
 S:	Maintained
 F:	configs/orangepi_zero_plus2_defconfig
 
+ORANGEPI ZERO PLUS 2 H3 BOARD
+M:	Diego Rondini <diego.rondini@kynetics.com>
+S:	Maintained
+F:	configs/orangepi_zero_plus2_h3_defconfig
+
 ORANGEPI PC 2 BOARD
 M:	Andre Przywara <andre.przywara@arm.com>
 S:	Maintained
