@@ -10,10 +10,12 @@
 #define __DWC3_UBOOT_H_
 
 #include <linux/usb/otg.h>
+#include <linux/usb/phy.h>
 
 struct dwc3_device {
 	unsigned long base;
 	enum usb_dr_mode dr_mode;
+	enum usb_phy_interface hsphy_mode;
 	u32 maximum_speed;
 	unsigned tx_fifo_resize:1;
 	unsigned has_lpm_erratum;
