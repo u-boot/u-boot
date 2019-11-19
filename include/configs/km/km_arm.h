@@ -155,7 +155,6 @@ int get_scl(void);
 #define CONFIG_ENV_SIZE			(0x2000 - CONFIG_ENV_OFFSET)
 #define CONFIG_I2C_ENV_EEPROM_BUS 5 /* I2C2 (Mux-Port 5) */
 #define CONFIG_ENV_OFFSET_REDUND	0x2000 /* no bracets! */
-#define CONFIG_ENV_SIZE_REDUND		(CONFIG_ENV_SIZE)
 #endif
 
 #define KM_FLASH_GPIO_PIN	16

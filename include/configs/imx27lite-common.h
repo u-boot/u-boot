@@ -98,7 +98,6 @@
 #define CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE
 /* Address and size of Redundant Environment Sector	*/
 #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
-#define CONFIG_ENV_SIZE_REDUND	CONFIG_ENV_SIZE
 
 /*
  * Ethernet

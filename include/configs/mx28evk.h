@@ -34,7 +34,6 @@
 
 /* Environment is in NAND */
 #if defined(CONFIG_CMD_NAND) && defined(CONFIG_ENV_IS_IN_NAND)
-#define CONFIG_ENV_SIZE_REDUND		CONFIG_ENV_SIZE
 #define CONFIG_ENV_SECT_SIZE		(128 * 1024)
 #define CONFIG_ENV_RANGE		(512 * 1024)
 #define CONFIG_ENV_OFFSET		0x300000

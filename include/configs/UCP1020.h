@@ -388,7 +388,6 @@
 #if defined(CONFIG_SYS_REDUNDAND_ENVIRONMENT)
 /* Address and size of Redundant Environment Sector	*/
 #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
-#define CONFIG_ENV_SIZE_REDUND		CONFIG_ENV_SIZE
 #endif
 
 #elif defined(CONFIG_RAMBOOT_SDCARD)
@@ -408,7 +407,6 @@
 #if defined(CONFIG_SYS_REDUNDAND_ENVIRONMENT)
 /* Address and size of Redundant Environment Sector	*/
 #define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR + CONFIG_ENV_SIZE)
-#define CONFIG_ENV_SIZE_REDUND	CONFIG_ENV_SIZE
 #endif
 
 #endif

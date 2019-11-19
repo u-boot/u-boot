@@ -43,7 +43,6 @@
 #define CONFIG_ENV_SECT_SIZE		(64 << 10)
 #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + \
 						CONFIG_ENV_SECT_SIZE)
-#define CONFIG_ENV_SIZE_REDUND		CONFIG_ENV_SIZE
 
 /*
  * Environment is right behind U-Boot in flash. Make sure U-Boot

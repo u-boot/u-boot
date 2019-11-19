@@ -163,7 +163,6 @@
   #define CONFIG_ENV_SECT_SIZE           (128 * SZ_1K)
   #define CONFIG_ENV_SIZE                CONFIG_ENV_SECT_SIZE
   #define CONFIG_ENV_OFFSET_REDUND       (CONFIG_ENV_OFFSET + (512 * SZ_1K))
-  #define CONFIG_ENV_SIZE_REDUND         CONFIG_ENV_SIZE
 #elif defined(CONFIG_ENV_IS_IN_SPI_FLASH)
   #define CONFIG_ENV_OFFSET		(512 * SZ_1K)
   #define CONFIG_ENV_SECT_SIZE		(64 * SZ_1K)

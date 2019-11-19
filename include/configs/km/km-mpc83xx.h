@@ -117,7 +117,6 @@
 /* Address and size of Redundant Environment Sector	*/
 #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + \
 						CONFIG_ENV_SECT_SIZE)
-#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 
 #else /* CFG_SYS_RAMBOOT */
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)

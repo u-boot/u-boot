@@ -134,7 +134,6 @@
 
 /* Address and size of Redundant Environment Sector	*/
 #define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE)
-#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 #endif /* CONFIG_ENV_IS_IN_FLASH */
 #endif /* CONFIG_VCT_NOR */
 

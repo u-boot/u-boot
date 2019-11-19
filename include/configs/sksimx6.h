@@ -58,7 +58,6 @@
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_ENV_OFFSET_REDUND       (CONFIG_ENV_OFFSET + \
 						CONFIG_ENV_SIZE)
-#define CONFIG_ENV_SIZE_REDUND         CONFIG_ENV_SIZE
 
 /* Default environment */
 #define CONFIG_EXTRA_ENV_SETTINGS \

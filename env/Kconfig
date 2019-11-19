@@ -132,7 +132,6 @@ config ENV_IS_IN_FLASH
 	   RAM, your target system will be dead.
 
 	  CONFIG_ENV_ADDR_REDUND
-	  CONFIG_ENV_SIZE_REDUND
 
 	   These settings describe a second storage area used to hold
 	   a redundant copy of the environment data, so that there is
@@ -194,12 +193,6 @@ config ENV_IS_IN_MMC
 
 	  This value is also in units of bytes, but must also be aligned to
 	  an MMC sector boundary.
-
-	  CONFIG_ENV_SIZE_REDUND (optional):
-
-	  This value need not be set, even when CONFIG_ENV_OFFSET_REDUND is
-	  set. If this value is set, it must be set to the same value as
-	  CONFIG_ENV_SIZE.
 
 config ENV_IS_IN_NAND
 	bool "Environment in a NAND device"
