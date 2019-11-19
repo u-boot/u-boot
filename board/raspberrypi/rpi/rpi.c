@@ -27,8 +27,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* From lowlevel_init.S */
-extern unsigned long fw_dtb_pointer;
+/* Assigned in lowlevel_init.S
+ * Push the variable into the .data section so that it
+ * does not get cleared later.
+ */
+unsigned long __section(".data") fw_dtb_pointer;
 
 /* TODO(sjg@chromium.org): Move these to the msg.c file */
 struct msg_get_arm_mem {
