@@ -31,12 +31,15 @@
 &sdmmc {
 	u-boot,dm-pre-reloc;
 
-	/* temporary till I find out why dma mode doesn't work */
-	fifo-mode;
+	/* mmc to sram can't do dma, prevent aborts transfering TF-A parts */
+	u-boot,spl-fifo-mode;
 };
 
 &emmc {
 	u-boot,dm-pre-reloc;
+
+	/* mmc to sram can't do dma, prevent aborts transfering TF-A parts */
+	u-boot,spl-fifo-mode;
 };
 
 &grf {
