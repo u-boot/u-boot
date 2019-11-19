@@ -59,6 +59,7 @@ config USB_GADGET_PRODUCT_NUM
 	hex "Product ID of the USB device"
 	default 0x1010 if ARCH_SUNXI
 	default 0x310a if ROCKCHIP_RK3036
+	default 0x310c if ROCKCHIP_RK3128
 	default 0x320a if ROCKCHIP_RK3229 || ROCKCHIP_RK3288
 	default 0x330a if ROCKCHIP_RK3328
 	default 0x0
