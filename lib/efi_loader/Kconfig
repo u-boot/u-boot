@@ -1,8 +1,10 @@
 config EFI_LOADER
 	bool "Support running UEFI applications"
 	depends on OF_LIBFDT && ( \
-		ARM && (SYS_CPU = armv7 || \
-			SYS_CPU = armv8) || \
+		ARM && (SYS_CPU = arm1136 || \
+			SYS_CPU = arm1176 || \
+			SYS_CPU = armv7   || \
+			SYS_CPU = armv8)  || \
 		X86 || RISCV || SANDBOX)
 	# We need EFI_STUB_64BIT to be set on x86_64 with EFI_STUB
 	depends on !EFI_STUB || !X86_64 || EFI_STUB_64BIT
