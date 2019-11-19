@@ -8,6 +8,8 @@
 
 #include <common.h>
 
+unsigned long rpi_bcm283x_base;
+
 int arch_cpu_init(void)
 {
 	icache_enable();
@@ -15,6 +17,12 @@ int arch_cpu_init(void)
 	return 0;
 }
 
+int mach_cpu_init(void)
+{
+	rpi_bcm283x_base = CONFIG_BCM283x_BASE;
+
+	return 0;
+}
 #ifdef CONFIG_ARMV7_LPAE
 void enable_caches(void)
 {
