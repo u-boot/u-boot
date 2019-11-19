@@ -251,51 +251,6 @@ static uint32_t rev_scheme;
 static uint32_t rev_type;
 static const struct rpi_model *model;
 
-#ifdef CONFIG_ARM64
-#ifndef CONFIG_BCM2711
-static struct mm_region bcm283x_mem_map[] = {
-	{
-		.virt = 0x00000000UL,
-		.phys = 0x00000000UL,
-		.size = 0x3f000000UL,
-		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
-			 PTE_BLOCK_INNER_SHARE
-	}, {
-		.virt = 0x3f000000UL,
-		.phys = 0x3f000000UL,
-		.size = 0x01000000UL,
-		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
-			 PTE_BLOCK_NON_SHARE |
-			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
-	}, {
-		/* List terminator */
-		0,
-	}
-};
-#else
-static struct mm_region bcm283x_mem_map[] = {
-	{
-		.virt = 0x00000000UL,
-		.phys = 0x00000000UL,
-		.size = 0xfe000000UL,
-		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
-			 PTE_BLOCK_INNER_SHARE
-	}, {
-		.virt = 0xfe000000UL,
-		.phys = 0xfe000000UL,
-		.size = 0x01800000UL,
-		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
-			 PTE_BLOCK_NON_SHARE |
-			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
-	}, {
-		/* List terminator */
-		0,
-	}
-};
-#endif
-struct mm_region *mem_map = bcm283x_mem_map;
-#endif
-
 int dram_init(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(struct msg_get_arm_mem, msg, 1);
