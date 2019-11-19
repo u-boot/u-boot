@@ -353,6 +353,7 @@ static int env_mmc_load(void)
 	int ret;
 	int dev = mmc_get_env_dev();
 	const char *errmsg;
+	env_t *ep = NULL;
 
 	mmc = find_mmc_device(dev);
 
@@ -374,6 +375,10 @@ static int env_mmc_load(void)
 	}
 
 	ret = env_import(buf, 1);
+	if (!ret) {
+		ep = (env_t *)buf;
+		gd->env_addr = (ulong)&ep->data;
+	}
 
 fini:
 	fini_mmc_for_env(mmc);
