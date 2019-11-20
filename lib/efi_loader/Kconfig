@@ -10,7 +10,7 @@ config EFI_LOADER
 	depends on !EFI_STUB || !X86_64 || EFI_STUB_64BIT
 	# We need EFI_STUB_32BIT to be set on x86_32 with EFI_STUB
 	depends on !EFI_STUB || !X86 || X86_64 || EFI_STUB_32BIT
-	default y
+	default y if !ARM || SYS_CPU = armv7 || SYS_CPU = armv8
 	select LIB_UUID
 	select HAVE_BLOCK_DEVICE
 	select REGEX
