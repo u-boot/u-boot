@@ -1476,6 +1476,17 @@ cmd_socboot = cat	spl/u-boot-spl.sfp spl/u-boot-spl.sfp	\
 			u-boot.img > $@ || rm -f $@
 u-boot-with-spl.sfp: spl/u-boot-spl.sfp u-boot.img FORCE
 	$(call if_changed,socboot)
+
+quiet_cmd_socnandboot = SOCNANDBOOT $@
+cmd_socnandboot =  dd if=/dev/zero of=spl/u-boot-spl.pad bs=64 count=1024 ; \
+		   cat	spl/u-boot-spl.sfp spl/u-boot-spl.pad \
+			spl/u-boot-spl.sfp spl/u-boot-spl.pad \
+			spl/u-boot-spl.sfp spl/u-boot-spl.pad \
+			spl/u-boot-spl.sfp spl/u-boot-spl.pad \
+			u-boot.img > $@ || rm -f $@ spl/u-boot-spl.pad
+u-boot-with-nand-spl.sfp: spl/u-boot-spl.sfp u-boot.img FORCE
+	$(call if_changed,socnandboot)
+
 endif
 
 ifeq ($(CONFIG_MPC85xx)$(CONFIG_OF_SEPARATE),yy)
