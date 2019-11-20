@@ -2628,6 +2628,12 @@ compute_fsl_memctl_config_regs(const unsigned int ctrl_num,
 	}
 #endif
 
+#ifdef CONFIG_SYS_FSL_ERRATUM_A008109
+	ddr->ddr_sdram_cfg_2 = ddr_in32(&ddr->ddr_sdram_cfg_2) | 0x800; /* DDR_SLOW */
+	ddr->debug[18] = ddr_in32(&ddrc->debug[18]) | 0x2;
+	ddr->debug[28] = 0x30000000;
+#endif
+
 #ifdef CONFIG_SYS_FSL_ERRATUM_A009942
 	ddr_freq = get_ddr_freq(ctrl_num) / 1000000;
 	ddr->debug[28] |= ddr_in32(&ddrc->debug[28]);
