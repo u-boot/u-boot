@@ -79,6 +79,8 @@ static const struct {
 	{ 0x2d02, "Cyclone V, SE/A6 or SX/C6 or ST/D6", "cv_se_a6" },
 	/* Arria V */
 	{ 0x2d03, "Arria V, D5", "av_d5" },
+	/* Arria V ST/SX */
+	{ 0x2d13, "Arria V, ST/D3 or SX/B3", "av_st_d3" },
 };
 
 static int socfpga_fpga_id(const bool print_id)
