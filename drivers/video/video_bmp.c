@@ -157,8 +157,8 @@ __weak void fb_put_word(uchar **fb, uchar **from)
 static void video_splash_align_axis(int *axis, unsigned long panel_size,
 				    unsigned long picture_size)
 {
-	unsigned long panel_picture_delta = panel_size - picture_size;
-	unsigned long axis_alignment;
+	long panel_picture_delta = panel_size - picture_size;
+	long axis_alignment;
 
 	if (*axis == BMP_ALIGN_CENTER)
 		axis_alignment = panel_picture_delta / 2;
