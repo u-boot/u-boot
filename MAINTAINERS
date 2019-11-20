@@ -561,6 +561,16 @@ F:	cmd/efidebug.c
 F:	cmd/nvedit_efi.c
 F:	tools/file2include.c
 
+ENVIRONMENT
+M:	Joe Hershberger <joe.hershberger@ni.com>
+R:	Wolfgang Denk <wd@denx.de>
+S:	Maintained
+F:	env/
+F:	include/env*
+F:	test/env/
+F:	tools/env*
+F:	tools/mkenvimage.c
+
 FPGA
 M:	Michal Simek <michal.simek@xilinx.com>
 S:	Maintained
