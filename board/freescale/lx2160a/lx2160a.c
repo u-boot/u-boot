@@ -128,7 +128,7 @@ int board_fix_fdt(void *fdt)
 		char *old_str;
 		char *new_str;
 	} reg_names_map[] = {
-		{ "ccsr", "dip" },
+		{ "ccsr", "dbi" },
 		{ "pf_ctrl", "ctrl" }
 	};
 	int off = -1, i;
