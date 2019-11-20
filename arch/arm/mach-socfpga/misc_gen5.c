@@ -231,7 +231,7 @@ void do_bridge_reset(int enable, unsigned int mask)
 	} else {
 		writel(0, &sysmgr_regs->fpgaintfgrp_module);
 		writel(0, &sdr_ctrl->fpgaport_rst);
-		writel(0, &reset_manager_base->brg_mod_reset);
+		writel(0x7, &reset_manager_base->brg_mod_reset);
 		writel(1, &nic301_regs->remap);
 	}
 }
