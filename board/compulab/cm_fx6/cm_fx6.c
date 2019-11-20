@@ -147,6 +147,11 @@ int board_video_skip(void)
 static inline void cm_fx6_setup_display(void) {}
 #endif /* CONFIG_VIDEO_IPUV3 */
 
+int ipu_displays_init(void)
+{
+	return board_video_skip();
+}
+
 #ifdef CONFIG_DWC_AHSATA
 static int cm_fx6_issd_gpios[] = {
 	/* The order of the GPIOs in the array is important! */
