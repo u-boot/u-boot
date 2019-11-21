@@ -323,6 +323,7 @@ int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 {
 	struct udevice *bus, *dev;
 	struct dm_spi_slave_platdata *plat;
+	struct spi_slave *slave;
 	bool created = false;
 	int ret;
 
@@ -378,19 +379,20 @@ int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 		slave->dev = dev;
 	}
 
-	plat = dev_get_parent_platdata(dev);
+	slave = dev_get_parent_priv(dev);
 
-	/* get speed and mode from platdata when available */
-	if (plat->max_hz) {
-		speed = plat->max_hz;
-		mode = plat->mode;
+	/*
+	 * In case the operation speed is not yet established by
+	 * dm_spi_claim_bus() ensure the bus is configured properly.
+	 */
+	if (!slave->speed) {
+		ret = spi_claim_bus(slave);
+		if (ret)
+			goto err;
 	}
-	ret = spi_set_speed_mode(bus, speed, mode);
-	if (ret)
-		goto err;
 
 	*busp = bus;
-	*devp = dev_get_parent_priv(dev);
+	*devp = slave;
 	debug("%s: bus=%p, slave=%p\n", __func__, bus, *devp);
 
 	return 0;
