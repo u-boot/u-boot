@@ -94,8 +94,6 @@
 /* Environment Configuration */
 
 /* environment is in FLASH */
-#define CONFIG_ENV_SECT_SIZE	0x2000
-#define CONFIG_ENV_OFFSET	0x4000
 #define CONFIG_ENV_OVERWRITE	1
 
 /* Ethernet configuration part */

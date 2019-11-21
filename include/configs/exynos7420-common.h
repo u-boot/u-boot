@@ -62,7 +62,6 @@
 #define PHYS_SDRAM_8_SIZE	SDRAM_BANK_SIZE
 
 /* Configuration of ENV Blocks */
-#define CONFIG_ENV_SIZE	(16 << 10) /* 16 KB */
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \

@@ -16,10 +16,6 @@
 #define CONFIG_BITBANGMII_MULTI
 
 /* Environment compatibility */
-#undef CONFIG_ENV_SIZE_REDUND
-#undef CONFIG_ENV_SECT_SIZE
-#define CONFIG_ENV_SECT_SIZE	(256 * 1024)
-#define CONFIG_ENV_OFFSET	0x700000
 
 /* Board Clock */
 /* XTAL_CLK : 33.33MHz */

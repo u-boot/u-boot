@@ -89,7 +89,6 @@
 #define CONFIG_RES_BLOCK_SIZE	(512)
 #define CONFIG_BL1_SIZE	(16 << 10) /*16 K reserved for BL1*/
 #define CONFIG_BL2_SIZE	(512UL << 10UL) /* 512 KB */
-#define CONFIG_ENV_SIZE	(16 << 10) /* 16 KB */
 
 #define CONFIG_BL1_OFFSET	(CONFIG_RES_BLOCK_SIZE + CONFIG_SEC_FW_SIZE)
 #define CONFIG_BL2_OFFSET	(CONFIG_BL1_OFFSET + CONFIG_BL1_SIZE)
@@ -107,10 +106,6 @@
 #define CONFIG_SYS_I2C_S3C24X0_SLAVE    0x0
 
 /* SPI */
-
-#ifdef CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_ENV_SECT_SIZE	CONFIG_ENV_SIZE
-#endif
 
 /* Ethernet Controllor Driver */
 #ifdef CONFIG_CMD_NET

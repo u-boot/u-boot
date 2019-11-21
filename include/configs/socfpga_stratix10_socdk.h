@@ -48,9 +48,7 @@
 /*
  * U-Boot environment configurations
  */
-#define CONFIG_ENV_SIZE			0x1000
 #define CONFIG_SYS_MMC_ENV_DEV		0	/* device 0 */
-#define CONFIG_ENV_OFFSET		512	/* just after the MBR */
 
 /*
  * QSPI support
@@ -62,13 +60,6 @@
 /* Flash device info */
 
 /*#define CONFIG_ENV_IS_IN_SPI_FLASH*/
-#ifdef CONFIG_ENV_IS_IN_SPI_FLASH
-#undef CONFIG_ENV_OFFSET
-#undef CONFIG_ENV_SIZE
-#define CONFIG_ENV_OFFSET		0x710000
-#define CONFIG_ENV_SIZE			(4 * 1024)
-#define CONFIG_ENV_SECT_SIZE		(4 * 1024)
-#endif /* CONFIG_ENV_IS_IN_SPI_FLASH */
 
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_MTD_DEVICE

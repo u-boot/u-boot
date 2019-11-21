@@ -168,18 +168,7 @@
 
 /* environment organization */
 #ifdef CONFIG_ENV_IS_IN_MMC
-#define CONFIG_ENV_SIZE			(SZ_8K)
-
-#define CONFIG_ENV_OFFSET		(12 * SZ_64K)
 #define CONFIG_SYS_MMC_ENV_DEV		0
-#endif
-
-#ifdef CONFIG_ENV_IS_IN_NAND
-#define CONFIG_ENV_SECT_SIZE		(SZ_128K)
-#define CONFIG_ENV_SIZE			(SZ_8K)
-#define CONFIG_ENV_OFFSET		0xA0000
-#define CONFIG_ENV_SIZE_REDUND		(SZ_8K)
-#define CONFIG_ENV_OFFSET_REDUND	0xC0000
 #endif
 
 #endif

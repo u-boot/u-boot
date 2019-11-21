@@ -27,11 +27,6 @@
 #include "mv-common.h"
 
 /* environment variables configuration */
-#ifdef CONFIG_CMD_NAND
-#define CONFIG_ENV_SECT_SIZE	0x20000
-#endif
-#define CONFIG_ENV_SIZE		0x20000
-#define CONFIG_ENV_OFFSET	0xe0000
 
 /* default environment variables */
 #define CONFIG_BOOTCOMMAND \

@@ -118,8 +118,6 @@
 /*
  * Environment
  */
-#define CONFIG_ENV_SIZE			SZ_128K
-#define CONFIG_ENV_OFFSET		0x000A0000
 
 #define CONFIG_BOOTCOMMAND			\
 	"dhcp; "				\

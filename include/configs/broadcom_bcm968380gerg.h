@@ -6,8 +6,6 @@
 #include <configs/bmips_common.h>
 #include <configs/bmips_bcm6838.h>
 
-#define CONFIG_ENV_SIZE	SZ_8K
-
 #ifdef CONFIG_NAND
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_SELF_INIT

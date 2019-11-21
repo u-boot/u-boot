@@ -50,10 +50,6 @@
 #define CONFIG_SYS_DPAA_RMAN		/* RMan */
 
 /* Environment in SPI Flash */
-#define CONFIG_ENV_OFFSET               0x100000	/* 1MB for u-boot */
-#define CONFIG_ENV_SIZE			0x004000	/* 16K env */
-#define CONFIG_ENV_SECT_SIZE            0x010000
-#define CONFIG_ENV_OFFSET_REDUND	0x110000
 #define CONFIG_ENV_TOTAL_SIZE		0x020000
 
 #ifndef __ASSEMBLY__

@@ -72,7 +72,6 @@
     "autostart=no\0"
 
 /* bootstrap + u-boot + env in nandflash */
-#define CONFIG_ENV_OFFSET_REDUND    0xC0000
 #define CONFIG_BOOTCOMMAND \
     "nand read 0x22000000 0x000e0000 0x500000; " \
     "bootm"

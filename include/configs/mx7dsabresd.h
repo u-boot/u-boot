@@ -174,7 +174,6 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* environment organization */
-#define CONFIG_ENV_SIZE			SZ_8K
 
 /*
  * If want to use nand, define CONFIG_NAND_MXS and rework board
@@ -190,7 +189,6 @@
 /* DMA stuff, needed for GPMI/MXS NAND support */
 #endif
 
-#define CONFIG_ENV_OFFSET		(12 * SZ_64K)
 #ifdef CONFIG_NAND_MXS
 #define CONFIG_SYS_FSL_USDHC_NUM	1
 #else

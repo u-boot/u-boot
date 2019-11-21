@@ -28,11 +28,6 @@ DECLARE_GLOBAL_DATA_PTR;
 # endif
 #endif
 
-#if defined(CONFIG_ENV_SIZE_REDUND) &&	\
-	(CONFIG_ENV_SIZE_REDUND < CONFIG_ENV_SIZE)
-#error CONFIG_ENV_SIZE_REDUND should not be less then CONFIG_ENV_SIZE
-#endif
-
 /* TODO(sjg@chromium.org): Figure out all these special cases */
 #if (!defined(CONFIG_MICROBLAZE) && !defined(CONFIG_ARCH_ZYNQ) && \
 	!defined(CONFIG_TARGET_MCCMON6) && !defined(CONFIG_TARGET_X600) && \

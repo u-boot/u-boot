@@ -156,9 +156,7 @@
 
 /* Environment organization */
 #ifdef CONFIG_ENV_IS_IN_NAND
-#define CONFIG_ENV_SIZE			(64 * 2048)
 #define CONFIG_ENV_RANGE		(4 * 64 * 2048)
-#define CONFIG_ENV_OFFSET		(12 * 64 * 2048)
 #endif
 
 /* USB Host Support */

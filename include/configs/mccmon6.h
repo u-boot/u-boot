@@ -245,13 +245,7 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* Environment organization */
-#define CONFIG_ENV_SIZE			(SZ_128K)
 
 /* Envs are stored in NOR flash */
-#define CONFIG_ENV_SECT_SIZE    (SZ_128K)
-#define CONFIG_ENV_ADDR	(CONFIG_SYS_FLASH_BASE + 0x40000)
-
-#define CONFIG_ENV_ADDR_REDUND	(CONFIG_SYS_FLASH_BASE + 0x60000)
-#define CONFIG_ENV_SIZE_REDUND	CONFIG_ENV_SIZE
 
 #endif			       /* __CONFIG_H * */

@@ -33,16 +33,12 @@
 
 /* Environment in MMC */
 #define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_ENV_SECT_SIZE		0x200
-#define CONFIG_ENV_SIZE			0x10000
 /*
  * For SD - reserve 1 LBA for MBR + 1M for u-boot image. The MMC/eMMC
  * boot image starts @ LBA-0.
  * As result in MMC/eMMC case it will be a 1 sector gap between u-boot
  * image and environment
  */
-#define CONFIG_ENV_OFFSET		0xf0000
-#define CONFIG_ENV_ADDR			CONFIG_ENV_OFFSET
 
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */
 

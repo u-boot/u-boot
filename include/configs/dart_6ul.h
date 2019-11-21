@@ -39,10 +39,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(16 * SZ_1M)
 
 /* Environment settings */
-#define CONFIG_ENV_SIZE			SZ_8K
-#define CONFIG_ENV_OFFSET		(14 * SZ_64K)
-#define CONFIG_ENV_OFFSET_REDUND	\
-	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
 
 /* Environment in SD */
 #define CONFIG_SYS_MMC_ENV_DEV		0

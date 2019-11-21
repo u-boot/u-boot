@@ -70,35 +70,20 @@
 /* hardware flash protection */
 /* use buffered writes (20x faster) */
 # ifdef	RAMENV
-#  define CONFIG_ENV_SIZE	0x1000
-#  define CONFIG_ENV_ADDR	(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SIZE)
-
 # else	/* FLASH && !RAMENV */
 /* 128K(one sector) for env */
-#  define CONFIG_ENV_SECT_SIZE	0x20000
-#  define CONFIG_ENV_ADDR \
-			(CONFIG_SYS_FLASH_BASE + (2 * CONFIG_ENV_SECT_SIZE))
-#  define CONFIG_ENV_SIZE	0x20000
 # endif /* FLASH && !RAMBOOT */
 #else /* !FLASH */
 
 #ifdef SPIFLASH
 # ifdef	RAMENV
-#  define CONFIG_ENV_SIZE	0x1000
-#  define CONFIG_ENV_ADDR	(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SIZE)
-
 # else	/* SPIFLASH && !RAMENV */
 /* 128K(two sectors) for env */
-#  define CONFIG_ENV_SECT_SIZE	0x10000
-#  define CONFIG_ENV_SIZE	(2 * CONFIG_ENV_SECT_SIZE)
 /* Warning: adjust the offset in respect of other flash content and size */
-#  define CONFIG_ENV_OFFSET	(128 * CONFIG_ENV_SECT_SIZE) /* at 8MB */
 # endif /* SPIFLASH && !RAMBOOT */
 #else /* !SPIFLASH */
 
 /* ENV in RAM */
-# define CONFIG_ENV_SIZE	0x1000
-# define CONFIG_ENV_ADDR	(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SIZE)
 #endif /* !SPIFLASH */
 #endif /* !FLASH */
 

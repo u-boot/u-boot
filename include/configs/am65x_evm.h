@@ -14,8 +14,6 @@
 #include <environment/ti/mmc.h>
 #include <environment/ti/k3_rproc.h>
 
-#define CONFIG_ENV_SIZE			(128 << 10)
-
 /* DDR Configuration */
 #define CONFIG_SYS_SDRAM_BASE1		0x880000000
 
@@ -118,9 +116,6 @@
 #ifdef CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_SYS_MMC_ENV_PART	1
-#define CONFIG_ENV_SIZE		(128 << 10)
-#define CONFIG_ENV_OFFSET		0x680000
-#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
 #endif
 
 #define CONFIG_SUPPORT_EMMC_BOOT

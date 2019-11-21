@@ -113,7 +113,6 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	512
 
 /* environments */
-#define CONFIG_ENV_SECT_SIZE		0x1000
 #define CONFIG_ENV_OVERWRITE
 
 /* SPI FLASH */
@@ -130,7 +129,6 @@
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)
 
 /* When we use RAM as ENV */
-#define CONFIG_ENV_SIZE 0x2000
 
 /* Enable distro boot */
 #define BOOT_TARGET_DEVICES(func) \

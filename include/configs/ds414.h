@@ -29,9 +29,6 @@
 #define CONFIG_SYS_I2C_SPEED		100000
 
 /* Environment in SPI NOR flash */
-#define CONFIG_ENV_OFFSET		0x7E0000   /* RedBoot config partition in DTS */
-#define CONFIG_ENV_SIZE			(64 << 10) /* 64KiB */
-#define CONFIG_ENV_SECT_SIZE		(64 << 10) /* 64KiB sectors */
 
 #define CONFIG_SYS_NETA_INTERFACE_TYPE	PHY_INTERFACE_MODE_RGMII
 

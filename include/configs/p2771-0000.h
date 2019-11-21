@@ -16,7 +16,6 @@
 /* Environment in eMMC, at the end of 2nd "boot sector" */
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_SYS_MMC_ENV_PART		2
-#define CONFIG_ENV_OFFSET		(-CONFIG_ENV_SIZE)
 
 #define BOARD_EXTRA_ENV_SETTINGS \
 	"calculated_vars=kernel_addr_r fdt_addr_r scriptaddr pxefile_addr_r " \

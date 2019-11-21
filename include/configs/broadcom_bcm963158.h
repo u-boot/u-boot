@@ -40,4 +40,3 @@
  * bcm963158
  */
 
-#define CONFIG_ENV_SIZE			(8 * 1024)

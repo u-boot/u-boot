@@ -39,4 +39,3 @@
  * 968580xref
  */
 
-#define CONFIG_ENV_SIZE			(8 * 1024)

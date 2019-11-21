@@ -182,17 +182,12 @@ NANDTGTS \
 #if defined(CONFIG_SPI)
 /* SPI Flash */
 /* Environment */
-#define CONFIG_ENV_OFFSET_REDUND		(CONFIG_ENV_OFFSET + \
-						 CONFIG_ENV_SECT_SIZE)
 #elif defined(CONFIG_ENV_IS_IN_MMC)
 #define CONFIG_SYS_MMC_ENV_DEV		1
 #define CONFIG_SYS_MMC_ENV_PART		2
-#define CONFIG_ENV_OFFSET		0x40000	/* TODO: Adresse definieren */
-#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
 
 #elif defined(CONFIG_ENV_IS_IN_NAND)
 /* No NAND env support in SPL */
-#define CONFIG_ENV_OFFSET		0x60000
 #define CONFIG_SYS_ENV_SECT_SIZE	CONFIG_ENV_SIZE
 #else
 #error "no storage for Environment defined!"

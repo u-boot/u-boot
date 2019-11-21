@@ -50,7 +50,6 @@
 
 
 /* bootstrap + u-boot + env + linux in dataflash on CS0 */
-#define CONFIG_ENV_OFFSET	0x3DE000
 
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND

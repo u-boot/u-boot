@@ -15,7 +15,6 @@
 #define CONFIG_SYS_RTC_BUS_NUM         0
 
 /* Store environment at top of flash */
-#define CONFIG_ENV_SIZE			0x2000
 
 #define CONFIG_DIMM_SLOTS_PER_CTLR          1
 

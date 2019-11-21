@@ -94,9 +94,6 @@
 /*
  * environment organization
  */
-#define CONFIG_ENV_OFFSET		0x40000
-#define CONFIG_ENV_OFFSET_REDUND	0x60000
-#define CONFIG_ENV_SIZE			(128 * 1024)
 
 /*
  * NAND driver

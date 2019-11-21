@@ -348,13 +348,7 @@
 
 /* ENV config */
 #ifdef CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_ENV_SIZE		(SZ_64K)
 /* The 0x120000 value corresponds to above SPI-NOR memory MAP */
-#define CONFIG_ENV_OFFSET		(0x120000)
-#define CONFIG_ENV_SECT_SIZE		(SZ_64K)
-#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + \
-						CONFIG_ENV_SECT_SIZE)
-#define CONFIG_ENV_SIZE_REDUND		CONFIG_ENV_SIZE
 #endif
 
 #define CONFIG_MXC_USB_PORTSC           (PORT_PTS_UTMI | PORT_PTS_PTW)

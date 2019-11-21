@@ -340,16 +340,6 @@ boards, we say we have two, but don't display a message if we find only one. */
  */
 #define CONFIG_ENV_OVERWRITE
 
-#ifndef CONFIG_SYS_RAMBOOT
-  #define CONFIG_ENV_ADDR	\
-			(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
-  #define CONFIG_ENV_SECT_SIZE	0x10000 /* 64K (one sector) for environment */
-  #define CONFIG_ENV_SIZE	0x2000
-#else
-  #define CONFIG_ENV_ADDR	(CONFIG_SYS_MONITOR_BASE - 0x1000)
-  #define CONFIG_ENV_SIZE	0x2000
-#endif
-
 #define CONFIG_LOADS_ECHO	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change */
 

@@ -18,7 +18,7 @@
 
 #define FACTORY_DATA_OFFS	0xc0000
 #define FACTORY_DATA_SECT_SIZE	0x10000
-#if ((CONFIG_ENV_OFFSET_REDUND + CONFIG_ENV_SIZE_REDUND) > FACTORY_DATA_OFFS)
+#if ((CONFIG_ENV_OFFSET_REDUND + CONFIG_ENV_SIZE) > FACTORY_DATA_OFFS)
 #error "U-Boot image with environment too big (overlapping with factory-data)!"
 #endif
 #define FACTORY_DATA_USER_OFFS	0x140

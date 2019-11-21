@@ -62,9 +62,6 @@
 #define CONFIG_SYS_I2C_SLAVE		0x0
 
 /* Environment in SPI NOR flash */
-#define CONFIG_ENV_OFFSET		0x180000 /* as Marvell U-Boot version */
-#define CONFIG_ENV_SIZE			(64 << 10) /* 64KiB */
-#define CONFIG_ENV_SECT_SIZE		(64 << 10) /* 64KiB sectors */
 
 /*
  * Ethernet Driver configuration

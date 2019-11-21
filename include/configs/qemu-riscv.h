@@ -32,7 +32,6 @@
 #define CONFIG_STANDALONE_LOAD_ADDR	0x80200000
 
 /* Environment options */
-#define CONFIG_ENV_SIZE			SZ_128K
 
 #ifndef CONFIG_SPL_BUILD
 #define BOOT_TARGET_DEVICES(func) \

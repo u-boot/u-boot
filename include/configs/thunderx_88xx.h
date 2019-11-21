@@ -61,7 +61,6 @@
 					"fdt_high=0x9fffffff\0"
 
 /* Do not preserve environment */
-#define CONFIG_ENV_SIZE			0x1000
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */

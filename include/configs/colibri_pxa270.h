@@ -116,10 +116,6 @@
 #define	CONFIG_SYS_MONITOR_LEN		0x40000
 
 /* Skip factory configuration block */
-#define	CONFIG_ENV_ADDR			\
-			(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN + 0x40000)
-#define	CONFIG_ENV_SIZE			0x40000
-#define	CONFIG_ENV_SECT_SIZE		0x40000
 
 /*
  * GPIO settings

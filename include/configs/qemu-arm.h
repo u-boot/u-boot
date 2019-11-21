@@ -21,8 +21,6 @@
 #define CONFIG_SYS_HZ                       1000
 
 /* Environment options */
-#define CONFIG_ENV_ADDR			0x4000000
-#define CONFIG_ENV_SIZE			SZ_256K
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(USB, usb, 0) \

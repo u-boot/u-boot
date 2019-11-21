@@ -92,12 +92,9 @@
 
 /* environment organization */
 
-#define CONFIG_ENV_SIZE			(8 * 1024)
-
 #if defined(CONFIG_ENV_IS_IN_MMC)
 #define CONFIG_SYS_MMC_ENV_DEV		1
 #define CONFIG_SYS_MMC_ENV_PART		2
-#define CONFIG_ENV_OFFSET		0x0
 #endif
 
 #endif                         /* __EL6Q_COMMON_CONFIG_H */

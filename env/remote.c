@@ -18,10 +18,6 @@ env_t *env_ptr = (env_t *)CONFIG_ENV_ADDR;
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if !defined(CONFIG_ENV_OFFSET)
-#define CONFIG_ENV_OFFSET 0
-#endif
-
 static int env_remote_init(void)
 {
 	if (crc32(0, env_ptr->data, ENV_SIZE) == env_ptr->crc) {

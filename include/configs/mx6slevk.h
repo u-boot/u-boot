@@ -131,14 +131,6 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* Environment organization */
-#define CONFIG_ENV_SIZE			SZ_8K
-
-#if defined CONFIG_SPI_BOOT
-#define CONFIG_ENV_OFFSET               (768 * 1024)
-#define CONFIG_ENV_SECT_SIZE            (64 * 1024)
-#else
-#define CONFIG_ENV_OFFSET		(8 * SZ_64K)
-#endif
 
 /* USB Configs */
 #ifdef CONFIG_CMD_USB

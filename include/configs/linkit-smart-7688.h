@@ -38,9 +38,6 @@
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 
 /* Environment settings */
-#define CONFIG_ENV_OFFSET		0x80000
-#define CONFIG_ENV_SIZE			(16 << 10)
-#define CONFIG_ENV_SECT_SIZE		(64 << 10)
 
 /*
  * Environment is right behind U-Boot in flash. Make sure U-Boot

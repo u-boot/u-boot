@@ -34,10 +34,6 @@
 					"mtdparts default;" \
 					"bootm 0x9f680000"
 
-#define CONFIG_ENV_OFFSET               0x40000
-#define CONFIG_ENV_SECT_SIZE            0x10000
-#define CONFIG_ENV_SIZE                 0x10000
-
 /* Miscellaneous configurable options */
 
 /*
