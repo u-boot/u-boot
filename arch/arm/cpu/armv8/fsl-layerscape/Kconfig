@@ -397,6 +397,15 @@ config QSPI_AHB_INIT
 	  But some QSPI flash size up to 64MBytes, so initialize the QSPI AHB
 	  bus for those flashes to support the full QSPI flash size.
 
+config FSPI_AHB_EN_4BYTE
+	bool "Enable 4-byte Fast Read command for AHB mode"
+	default n
+	help
+	  The default setting for FlexSPI AHB bus just supports 3-byte addressing.
+	  But some FlexSPI flash sizes are up to 64MBytes.
+	  This flag enables fast read command for AHB mode and modifies required
+	  LUT to support full FlexSPI flash.
+
 config SYS_CCI400_OFFSET
 	hex "Offset for CCI400 base"
 	depends on SYS_FSL_HAS_CCI400
