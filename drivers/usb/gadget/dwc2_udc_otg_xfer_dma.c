@@ -731,7 +731,7 @@ static int write_fifo_ep0(struct dwc2_ep *ep, struct dwc2_request *req)
 	return 0;
 }
 
-static int dwc2_fifo_read(struct dwc2_ep *ep, u32 *cp, int max)
+static int dwc2_fifo_read(struct dwc2_ep *ep, void *cp, int max)
 {
 	invalidate_dcache_range((unsigned long)cp, (unsigned long)cp +
 				ROUND(max, CONFIG_SYS_CACHELINE_SIZE));
@@ -1285,7 +1285,7 @@ static void dwc2_ep0_setup(struct dwc2_udc *dev)
 	nuke(ep, -EPROTO);
 
 	/* read control req from fifo (8 bytes) */
-	dwc2_fifo_read(ep, (u32 *)usb_ctrl, 8);
+	dwc2_fifo_read(ep, usb_ctrl, 8);
 
 	debug_cond(DEBUG_SETUP != 0,
 		   "%s: bRequestType = 0x%x(%s), bRequest = 0x%x"
