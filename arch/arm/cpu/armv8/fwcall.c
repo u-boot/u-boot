@@ -98,6 +98,22 @@ void __noreturn psci_system_reset(void)
 		;
 }
 
+void __noreturn psci_system_reset2(u32 reset_level, u32 cookie)
+{
+	struct pt_regs regs;
+
+	regs.regs[0] = ARM_PSCI_0_2_FN64_SYSTEM_RESET2;
+	regs.regs[1] = PSCI_RESET2_TYPE_VENDOR | reset_level;
+	regs.regs[2] = cookie;
+	if (use_smc_for_psci)
+		smc_call(&regs);
+	else
+		hvc_call(&regs);
+
+	while (1)
+		;
+}
+
 void __noreturn psci_system_off(void)
 {
 	struct pt_regs regs;
