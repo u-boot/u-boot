@@ -183,27 +183,27 @@ matrix:
     - name: "buildman ARM bcm"
       env:
         - BUILDMAN="bcm -x mips"
-    - name: "buildman NXP ARM32"
+    - name: "buildman NXP ARM32 (catch-all)"
       env:
-        - BUILDMAN="freescale -x powerpc,m68k,aarch64"
-    - name: "buildman NXP AArch64 LS101x"
+        - BUILDMAN="freescale -x powerpc,m68k,aarch64,ls101,ls102,ls104,ls108,ls20,lx216"
+    - name: "buildman NXP LS101x"
       env:
-        - BUILDMAN="freescale&aarch64&ls101"
-    - name: "buildman NXP AArch64 LS102x"
+        - BUILDMAN="freescale&ls101"
+    - name: "buildman NXP LS102x"
       env:
-        - BUILDMAN="freescale&aarch64&ls102"
-    - name: "buildman NXP AArch64 LS104x"
+        - BUILDMAN="freescale&ls102"
+    - name: "buildman NXP LS104x"
       env:
-        - BUILDMAN="freescale&aarch64&ls104"
-    - name: "buildman NXP AArch64 LS108x"
+        - BUILDMAN="freescale&ls104"
+    - name: "buildman NXP LS108x"
       env:
-        - BUILDMAN="freescale&aarch64&ls108"
-    - name: "buildman NXP AArch64 LS20xx"
+        - BUILDMAN="freescale&ls108"
+    - name: "buildman NXP LS20xx"
       env:
-        - BUILDMAN="freescale&aarch64&ls20"
-    - name: "buildman NXP AArch64 LX216x"
+        - BUILDMAN="freescale&ls20"
+    - name: "buildman NXP LX216x"
       env:
-        - BUILDMAN="freescale&aarch64&lx216"
+        - BUILDMAN="freescale&lx216"
     - name: "buildman i.MX6 tqc"
       env:
         - BUILDMAN="mx6&tqc"
