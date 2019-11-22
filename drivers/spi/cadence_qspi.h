@@ -16,6 +16,7 @@
 #define CQSPI_READ_CAPTURE_MAX_DELAY	16
 
 struct cadence_spi_platdata {
+	unsigned int	ref_clk_hz;
 	unsigned int	max_hz;
 	void		*regbase;
 	void		*ahbbase;

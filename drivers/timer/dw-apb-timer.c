@@ -8,6 +8,7 @@
 #include <common.h>
 #include <dm.h>
 #include <clk.h>
+#include <reset.h>
 #include <timer.h>
 
 #include <asm/io.h>
@@ -18,7 +19,8 @@
 #define DW_APB_CTRL		0x8
 
 struct dw_apb_timer_priv {
-	fdt_addr_t	regs;
+	fdt_addr_t regs;
+	struct reset_ctl_bulk resets;
 };
 
 static int dw_apb_timer_get_count(struct udevice *dev, u64 *count)
@@ -41,6 +43,12 @@ static int dw_apb_timer_probe(struct udevice *dev)
 	struct dw_apb_timer_priv *priv = dev_get_priv(dev);
 	struct clk clk;
 	int ret;
+
+	ret = reset_get_bulk(dev, &priv->resets);
+	if (ret)
+		dev_warn(dev, "Can't get reset: %d\n", ret);
+	else
+		reset_deassert_bulk(&priv->resets);
 
 	ret = clk_get_by_index(dev, 0, &clk);
 	if (ret)
@@ -67,6 +75,13 @@ static int dw_apb_timer_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
+static int dw_apb_timer_remove(struct udevice *dev)
+{
+	struct dw_apb_timer_priv *priv = dev_get_priv(dev);
+
+	return reset_release_bulk(&priv->resets);
+}
+
 static const struct timer_ops dw_apb_timer_ops = {
 	.get_count	= dw_apb_timer_get_count,
 };
@@ -83,5 +98,6 @@ U_BOOT_DRIVER(dw_apb_timer) = {
 	.probe		= dw_apb_timer_probe,
 	.of_match	= dw_apb_timer_ids,
 	.ofdata_to_platdata = dw_apb_timer_ofdata_to_platdata,
+	.remove		= dw_apb_timer_remove,
 	.priv_auto_alloc_size = sizeof(struct dw_apb_timer_priv),
 };

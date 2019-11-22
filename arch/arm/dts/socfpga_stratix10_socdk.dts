@@ -9,6 +9,7 @@
 	model = "SoCFPGA Stratix 10 SoCDK";
 
 	aliases {
+		ethernet0 = &gmac0;
 		i2c0 = &i2c1;
 		serial0 = &uart0;
 	};
@@ -36,6 +37,8 @@
 	};
 
 	memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
 		device_type = "memory";
 		/* 4GB */
 		reg = <0 0x00000000 0 0x80000000>,
@@ -71,7 +74,7 @@
 			rxd2-skew-ps = <420>; /* 0ps */
 			rxd3-skew-ps = <420>; /* 0ps */
 			txen-skew-ps = <0>; /* -420ps */
-			txc-skew-ps = <1860>; /* 960ps */
+			txc-skew-ps = <900>; /* 0ps */
 			rxdv-skew-ps = <420>; /* 0ps */
 			rxc-skew-ps = <1680>; /* 780ps */
 		};

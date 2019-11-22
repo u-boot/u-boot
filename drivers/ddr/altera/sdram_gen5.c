@@ -626,7 +626,7 @@ static int altera_gen5_sdram_get_info(struct udevice *dev,
 	return 0;
 }
 
-static struct ram_ops altera_gen5_sdram_ops = {
+static const struct ram_ops altera_gen5_sdram_ops = {
 	.get_info = altera_gen5_sdram_get_info,
 };
 

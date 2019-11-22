@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <clk.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <malloc.h>
@@ -24,10 +25,10 @@ static int cadence_spi_write_speed(struct udevice *bus, uint hz)
 	struct cadence_spi_priv *priv = dev_get_priv(bus);
 
 	cadence_qspi_apb_config_baudrate_div(priv->regbase,
-					     CONFIG_CQSPI_REF_CLK, hz);
+					     plat->ref_clk_hz, hz);
 
 	/* Reconfigure delay timing if speed is changed. */
-	cadence_qspi_apb_delay(priv->regbase, CONFIG_CQSPI_REF_CLK, hz,
+	cadence_qspi_apb_delay(priv->regbase, plat->ref_clk_hz, hz,
 			       plat->tshsl_ns, plat->tsd2d_ns,
 			       plat->tchsh_ns, plat->tslch_ns);
 
@@ -294,6 +295,8 @@ static int cadence_spi_ofdata_to_platdata(struct udevice *bus)
 {
 	struct cadence_spi_platdata *plat = bus->platdata;
 	ofnode subnode;
+	struct clk clk;
+	int ret;
 
 	plat->regbase = (void *)devfdt_get_addr_index(bus, 0);
 	plat->ahbbase = (void *)devfdt_get_addr_index(bus, 1);
@@ -324,6 +327,20 @@ static int cadence_spi_ofdata_to_platdata(struct udevice *bus)
 						 255);
 	plat->tchsh_ns = ofnode_read_u32_default(subnode, "cdns,tchsh-ns", 20);
 	plat->tslch_ns = ofnode_read_u32_default(subnode, "cdns,tslch-ns", 20);
+
+	ret = clk_get_by_index(bus, 0, &clk);
+	if (ret) {
+#ifdef CONFIG_CQSPI_REF_CLK
+		plat->ref_clk_hz = CONFIG_CQSPI_REF_CLK;
+#else
+		return ret;
+#endif
+	} else {
+		plat->ref_clk_hz = clk_get_rate(&clk);
+		clk_free(&clk);
+		if (IS_ERR_VALUE(plat->ref_clk_hz))
+			return plat->ref_clk_hz;
+	}
 
 	debug("%s: regbase=%p ahbbase=%p max-frequency=%d page-size=%d\n",
 	      __func__, plat->regbase, plat->ahbbase, plat->max_hz,
