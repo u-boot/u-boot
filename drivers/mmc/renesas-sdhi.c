@@ -622,9 +622,12 @@ static void renesas_sdhi_filter_caps(struct udevice *dev)
 		priv->adjust_hs400_calibrate = 0x2;
 	}
 
-	/* H3 ES2.0 uses 4 tuning taps */
-	if ((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7795) &&
-	    (rmobile_get_cpu_rev_integer() == 2))
+	/* H3 ES1.x, ES2.0 and M3W ES1.0, ES1.1, ES1.2 uses 4 tuning taps */
+	if (((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7795) &&
+	    (rmobile_get_cpu_rev_integer() <= 2)) ||
+	    ((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7796) &&
+	    (rmobile_get_cpu_rev_integer() == 1) &&
+	    (rmobile_get_cpu_rev_fraction() <= 2)))
 		priv->nrtaps = 4;
 	else
 		priv->nrtaps = 8;
