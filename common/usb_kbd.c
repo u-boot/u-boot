@@ -95,12 +95,6 @@ static const u8 usb_special_keys[] = {
 #define USB_KBD_LEDMASK		\
 	(USB_KBD_NUMLOCK | USB_KBD_CAPSLOCK | USB_KBD_SCROLLLOCK)
 
-/*
- * USB Keyboard reports are 8 bytes in boot protocol.
- * Appendix B of HID Device Class Definition 1.11
- */
-#define USB_KBD_BOOT_REPORT_SIZE 8
-
 struct usb_kbd_pdata {
 	unsigned long	intpipe;
 	int		intpktsize;
