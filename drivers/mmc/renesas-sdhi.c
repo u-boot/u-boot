@@ -97,6 +97,7 @@ static bool renesas_sdhi_check_scc_error(struct udevice *dev)
 	struct tmio_sd_priv *priv = dev_get_priv(dev);
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
 	unsigned long new_tap = priv->tap_set;
+	unsigned long error_tap = priv->tap_set;
 	u32 reg, smpcmp;
 
 	if ((priv->caps & TMIO_SD_CAP_RCAR_UHS) &&
@@ -140,13 +141,30 @@ static bool renesas_sdhi_check_scc_error(struct udevice *dev)
 		case RENESAS_SDHI_SCC_SMPCMP_CMD_REQUP:
 			new_tap = (priv->tap_set +
 				   priv->tap_num + 1) % priv->tap_num;
+			error_tap = (priv->tap_set +
+				     priv->tap_num - 1) % priv->tap_num;
 			break;
 		case RENESAS_SDHI_SCC_SMPCMP_CMD_REQDOWN:
 			new_tap = (priv->tap_set +
 				   priv->tap_num - 1) % priv->tap_num;
+			error_tap = (priv->tap_set +
+				     priv->tap_num + 1) % priv->tap_num;
 			break;
 		default:
 			return true;	/* Need re-tune */
+		}
+
+		if (priv->hs400_bad_tap & BIT(new_tap)) {
+			/*
+			 * New tap is bad tap (cannot change).
+			 * Compare with HS200 tuning result.
+			 * In HS200 tuning, when smpcmp[error_tap]
+			 * is OK, retune is executed.
+			 */
+			if (priv->smpcmp & BIT(error_tap))
+				return true;	/* Need retune */
+
+			return false;	/* cannot change */
 		}
 
 		priv->tap_set = new_tap;
@@ -303,6 +321,7 @@ static int renesas_sdhi_hs400(struct udevice *dev)
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
 	bool hs400 = (mmc->selected_mode == MMC_HS_400);
 	int ret, taps = hs400 ? priv->nrtaps : 8;
+	unsigned long new_tap;
 	u32 reg;
 
 	if (taps == 4)	/* HS400 on 4tap SoC needs different clock */
@@ -334,6 +353,24 @@ static int renesas_sdhi_hs400(struct udevice *dev)
 	tmio_sd_writel(priv, (0x8 << RENESAS_SDHI_SCC_DTCNTL_TAPNUM_SHIFT) |
 			     RENESAS_SDHI_SCC_DTCNTL_TAPEN,
 			     RENESAS_SDHI_SCC_DTCNTL);
+
+	/* Avoid bad TAP */
+	if (priv->hs400_bad_tap & BIT(priv->tap_set)) {
+		new_tap = (priv->tap_set +
+			   priv->tap_num + 1) % priv->tap_num;
+
+		if (priv->hs400_bad_tap & BIT(new_tap))
+			new_tap = (priv->tap_set +
+				   priv->tap_num - 1) % priv->tap_num;
+
+		if (priv->hs400_bad_tap & BIT(new_tap)) {
+			new_tap = priv->tap_set;
+			debug("Three consecutive bad tap is prohibited\n");
+		}
+
+		priv->tap_set = new_tap;
+		tmio_sd_writel(priv, priv->tap_set, RENESAS_SDHI_SCC_TAPSET);
+	}
 
 	if (taps == 4) {
 		tmio_sd_writel(priv, priv->tap_set >> 1,
@@ -682,13 +719,23 @@ static void renesas_sdhi_filter_caps(struct udevice *dev)
 	    (rmobile_get_cpu_rev_fraction() <= 2)))
 		plat->cfg.host_caps &= ~MMC_MODE_HS400;
 
-	/* M3W ES1.x for x>2 can use HS400 with manual adjustment */
+	/* H3 ES2.0, ES3.0 and M3W ES1.2 and M3N bad taps */
+	if (((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7795) &&
+	    (rmobile_get_cpu_rev_integer() >= 2)) ||
+	    ((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7796) &&
+	    (rmobile_get_cpu_rev_integer() == 1) &&
+	    (rmobile_get_cpu_rev_fraction() == 2)) ||
+	    (rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A77965))
+		priv->hs400_bad_tap = BIT(2) | BIT(3) | BIT(6) | BIT(7);
+
+	/* M3W ES1.x for x>2 can use HS400 with manual adjustment and taps */
 	if ((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7796) &&
 	    (rmobile_get_cpu_rev_integer() == 1) &&
 	    (rmobile_get_cpu_rev_fraction() > 2)) {
 		priv->adjust_hs400_enable = true;
 		priv->adjust_hs400_offset = 3;
 		priv->adjust_hs400_calibrate = 0x9;
+		priv->hs400_bad_tap = BIT(1) | BIT(3) | BIT(5) | BIT(7);
 	}
 
 	/* M3N can use HS400 with manual adjustment */
