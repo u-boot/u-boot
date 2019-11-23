@@ -138,6 +138,7 @@ struct tmio_sd_priv {
 #endif
 #if CONFIG_IS_ENABLED(RENESAS_SDHI)
 	u8				tap_set;
+	u8				tap_num;
 	u8				nrtaps;
 	bool				needs_adjust_hs400;
 	bool				adjust_hs400_enable;

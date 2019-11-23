@@ -289,8 +289,7 @@ static unsigned int renesas_sdhi_compare_scc_data(struct tmio_sd_priv *priv)
 }
 
 static int renesas_sdhi_select_tuning(struct tmio_sd_priv *priv,
-				     unsigned int tap_num, unsigned int taps,
-				     unsigned int smpcmp)
+				     unsigned int taps, unsigned int smpcmp)
 {
 	unsigned long tap_cnt;  /* counter of tuning success */
 	unsigned long tap_start;/* start position of tuning success */
@@ -307,14 +306,14 @@ static int renesas_sdhi_select_tuning(struct tmio_sd_priv *priv,
 	tmio_sd_writel(priv, 0, RENESAS_SDHI_SCC_RVSREQ);
 
 	/* Merge the results */
-	for (i = 0; i < tap_num * 2; i++) {
+	for (i = 0; i < priv->tap_num * 2; i++) {
 		if (!(taps & BIT(i))) {
-			taps &= ~BIT(i % tap_num);
-			taps &= ~BIT((i % tap_num) + tap_num);
+			taps &= ~BIT(i % priv->tap_num);
+			taps &= ~BIT((i % priv->tap_num) + priv->tap_num);
 		}
 		if (!(smpcmp & BIT(i))) {
-			smpcmp &= ~BIT(i % tap_num);
-			smpcmp &= ~BIT((i % tap_num) + tap_num);
+			smpcmp &= ~BIT(i % priv->tap_num);
+			smpcmp &= ~BIT((i % priv->tap_num) + priv->tap_num);
 		}
 	}
 
@@ -327,7 +326,7 @@ static int renesas_sdhi_select_tuning(struct tmio_sd_priv *priv,
 	ntap = 0;
 	tap_start = 0;
 	tap_end = 0;
-	for (i = 0; i < tap_num * 2; i++) {
+	for (i = 0; i < priv->tap_num * 2; i++) {
 		if (taps & BIT(i))
 			ntap++;
 		else {
@@ -350,12 +349,12 @@ static int renesas_sdhi_select_tuning(struct tmio_sd_priv *priv,
 	 * If all of the TAP is OK, the sampling clock position is selected by
 	 * identifying the change point of data.
 	 */
-	if (tap_cnt == tap_num * 2) {
+	if (tap_cnt == priv->tap_num * 2) {
 		match_cnt = 0;
 		ntap = 0;
 		tap_start = 0;
 		tap_end = 0;
-		for (i = 0; i < tap_num * 2; i++) {
+		for (i = 0; i < priv->tap_num * 2; i++) {
 			if (smpcmp & BIT(i))
 				ntap++;
 			else {
@@ -378,7 +377,7 @@ static int renesas_sdhi_select_tuning(struct tmio_sd_priv *priv,
 		select = true;
 
 	if (select)
-		priv->tap_set = ((tap_start + tap_end) / 2) % tap_num;
+		priv->tap_set = ((tap_start + tap_end) / 2) % priv->tap_num;
 	else
 		return -EIO;
 
@@ -419,15 +418,17 @@ int renesas_sdhi_execute_tuning(struct udevice *dev, uint opcode)
 		/* Tuning is not supported */
 		goto out;
 
-	if (tap_num * 2 >= sizeof(taps) * 8) {
+	priv->tap_num = tap_num;
+
+	if (priv->tap_num * 2 >= sizeof(taps) * 8) {
 		dev_err(dev,
 			"Too many taps, skipping tuning. Please consider updating size of taps field of tmio_mmc_host\n");
 		goto out;
 	}
 
 	/* Issue CMD19 twice for each tap */
-	for (i = 0; i < 2 * tap_num; i++) {
-		renesas_sdhi_prepare_tuning(priv, i % tap_num);
+	for (i = 0; i < 2 * priv->tap_num; i++) {
+		renesas_sdhi_prepare_tuning(priv, i % priv->tap_num);
 
 		/* Force PIO for the tuning */
 		caps = priv->caps;
@@ -447,7 +448,7 @@ int renesas_sdhi_execute_tuning(struct udevice *dev, uint opcode)
 		mdelay(1);
 	}
 
-	ret = renesas_sdhi_select_tuning(priv, tap_num, taps, smpcmp);
+	ret = renesas_sdhi_select_tuning(priv, taps, smpcmp);
 
 out:
 	if (ret < 0) {
