@@ -76,7 +76,11 @@ static const unsigned char usb_kbd_num_keypad[] = {
 };
 
 static const u8 usb_special_keys[] = {
+#ifdef CONFIG_USB_KEYBOARD_FN_KEYS
+	'2', 'H', '5', '3', 'F', '6', 'C', 'D', 'B', 'A'
+#else
 	'C', 'D', 'B', 'A'
+#endif
 };
 
 /*
@@ -233,6 +237,43 @@ static int usb_kbd_translate(struct usb_kbd_pdata *data, unsigned char scancode,
 		return 0;
 	}
 
+#ifdef CONFIG_USB_KEYBOARD_FN_KEYS
+	if (scancode < 0x3a || scancode > 0x52 ||
+	    scancode == 0x46 || scancode == 0x47)
+		return 1;
+
+	usb_kbd_put_queue(data, 0x1b);
+	if (scancode < 0x3e) {
+		/* F1 - F4 */
+		usb_kbd_put_queue(data, 0x4f);
+		usb_kbd_put_queue(data, scancode - 0x3a + 'P');
+		return 0;
+	}
+	usb_kbd_put_queue(data, '[');
+	if (scancode < 0x42) {
+		/* F5 - F8 */
+		usb_kbd_put_queue(data, '1');
+		if (scancode == 0x3e)
+			--scancode;
+		keycode = scancode - 0x3f + '7';
+	} else if (scancode < 0x49) {
+		/* F9 - F12 */
+		usb_kbd_put_queue(data, '2');
+		if (scancode > 0x43)
+			++scancode;
+		keycode = scancode - 0x42 + '0';
+	} else {
+		/*
+		 * INSERT, HOME, PAGE UP, DELETE, END, PAGE DOWN,
+		 * RIGHT, LEFT, DOWN, UP
+		 */
+		keycode = usb_special_keys[scancode - 0x49];
+	}
+	usb_kbd_put_queue(data, keycode);
+	if (scancode < 0x4f && scancode != 0x4a && scancode != 0x4d)
+		usb_kbd_put_queue(data, '~');
+	return 0;
+#else
 	/* Left, Right, Up, Down */
 	if (scancode > 0x4e && scancode < 0x53) {
 		usb_kbd_put_queue(data, 0x1b);
@@ -241,6 +282,7 @@ static int usb_kbd_translate(struct usb_kbd_pdata *data, unsigned char scancode,
 		return 0;
 	}
 	return 1;
+#endif /* CONFIG_USB_KEYBOARD_FN_KEYS */
 }
 
 static uint32_t usb_kbd_service_key(struct usb_device *dev, int i, int up)
