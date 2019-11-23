@@ -137,6 +137,7 @@ struct tmio_sd_priv {
 	struct clk			clk;
 #endif
 #if CONFIG_IS_ENABLED(RENESAS_SDHI)
+	unsigned int			smpcmp;
 	u8				tap_set;
 	u8				tap_num;
 	u8				nrtaps;

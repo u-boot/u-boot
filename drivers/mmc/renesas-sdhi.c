@@ -289,7 +289,7 @@ static unsigned int renesas_sdhi_compare_scc_data(struct tmio_sd_priv *priv)
 }
 
 static int renesas_sdhi_select_tuning(struct tmio_sd_priv *priv,
-				     unsigned int taps, unsigned int smpcmp)
+				     unsigned int taps)
 {
 	unsigned long tap_cnt;  /* counter of tuning success */
 	unsigned long tap_start;/* start position of tuning success */
@@ -311,9 +311,9 @@ static int renesas_sdhi_select_tuning(struct tmio_sd_priv *priv,
 			taps &= ~BIT(i % priv->tap_num);
 			taps &= ~BIT((i % priv->tap_num) + priv->tap_num);
 		}
-		if (!(smpcmp & BIT(i))) {
-			smpcmp &= ~BIT(i % priv->tap_num);
-			smpcmp &= ~BIT((i % priv->tap_num) + priv->tap_num);
+		if (!(priv->smpcmp & BIT(i))) {
+			priv->smpcmp &= ~BIT(i % priv->tap_num);
+			priv->smpcmp &= ~BIT((i % priv->tap_num) + priv->tap_num);
 		}
 	}
 
@@ -355,7 +355,7 @@ static int renesas_sdhi_select_tuning(struct tmio_sd_priv *priv,
 		tap_start = 0;
 		tap_end = 0;
 		for (i = 0; i < priv->tap_num * 2; i++) {
-			if (smpcmp & BIT(i))
+			if (priv->smpcmp & BIT(i))
 				ntap++;
 			else {
 				if (ntap > match_cnt) {
@@ -398,7 +398,7 @@ int renesas_sdhi_execute_tuning(struct udevice *dev, uint opcode)
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct mmc *mmc = upriv->mmc;
 	unsigned int tap_num;
-	unsigned int taps = 0, smpcmp = 0;
+	unsigned int taps = 0;
 	int i, ret = 0;
 	u32 caps;
 
@@ -426,6 +426,8 @@ int renesas_sdhi_execute_tuning(struct udevice *dev, uint opcode)
 		goto out;
 	}
 
+	priv->smpcmp = 0;
+
 	/* Issue CMD19 twice for each tap */
 	for (i = 0; i < 2 * priv->tap_num; i++) {
 		renesas_sdhi_prepare_tuning(priv, i % priv->tap_num);
@@ -443,12 +445,12 @@ int renesas_sdhi_execute_tuning(struct udevice *dev, uint opcode)
 
 		ret = renesas_sdhi_compare_scc_data(priv);
 		if (ret == 0)
-			smpcmp |= BIT(i);
+			priv->smpcmp |= BIT(i);
 
 		mdelay(1);
 	}
 
-	ret = renesas_sdhi_select_tuning(priv, taps, smpcmp);
+	ret = renesas_sdhi_select_tuning(priv, taps);
 
 out:
 	if (ret < 0) {
