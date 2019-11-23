@@ -34,7 +34,12 @@
 #define RENESAS_SDHI_SCC_RVSCNTL_RVSEN		BIT(0)
 #define RENESAS_SDHI_SCC_RVSREQ			0x814
 #define RENESAS_SDHI_SCC_RVSREQ_RVSERR		BIT(2)
+#define RENESAS_SDHI_SCC_RVSREQ_REQTAPUP	BIT(1)
+#define RENESAS_SDHI_SCC_RVSREQ_REQTAPDOWN	BIT(0)
 #define RENESAS_SDHI_SCC_SMPCMP			0x818
+#define RENESAS_SDHI_SCC_SMPCMP_CMD_ERR		(BIT(24) | BIT(8))
+#define RENESAS_SDHI_SCC_SMPCMP_CMD_REQUP	BIT(24)
+#define RENESAS_SDHI_SCC_SMPCMP_CMD_REQDOWN	BIT(8)
 #define RENESAS_SDHI_SCC_TMPPORT2		0x81c
 #define RENESAS_SDHI_SCC_TMPPORT2_HS400EN	BIT(31)
 #define RENESAS_SDHI_SCC_TMPPORT2_HS400OSEL	BIT(4)
@@ -85,6 +90,84 @@ static void sd_scc_tmpport_write32(struct tmio_sd_priv *priv, u32 addr, u32 val)
 	tmio_sd_writel(priv, RENESAS_SDHI_SCC_TMPPORT4_DLL_ACC_START,
 		       RENESAS_SDHI_SCC_TMPPORT4);
 	tmio_sd_writel(priv, 0, RENESAS_SDHI_SCC_TMPPORT4);
+}
+
+static bool renesas_sdhi_check_scc_error(struct udevice *dev)
+{
+	struct tmio_sd_priv *priv = dev_get_priv(dev);
+	struct mmc *mmc = mmc_get_mmc_dev(dev);
+	unsigned long new_tap = priv->tap_set;
+	u32 reg, smpcmp;
+
+	if ((priv->caps & TMIO_SD_CAP_RCAR_UHS) &&
+	    (mmc->selected_mode != UHS_SDR104) &&
+	    (mmc->selected_mode != MMC_HS_200) &&
+	    (mmc->selected_mode != MMC_HS_400) &&
+	    (priv->nrtaps != 4))
+		return false;
+
+	reg = tmio_sd_readl(priv, RENESAS_SDHI_SCC_RVSCNTL);
+	/* Handle automatic tuning correction */
+	if (reg & RENESAS_SDHI_SCC_RVSCNTL_RVSEN) {
+		reg = tmio_sd_readl(priv, RENESAS_SDHI_SCC_RVSREQ);
+		if (reg & RENESAS_SDHI_SCC_RVSREQ_RVSERR) {
+			tmio_sd_writel(priv, 0, RENESAS_SDHI_SCC_RVSREQ);
+			return true;
+		}
+
+		return false;
+	}
+
+	/* Handle manual tuning correction */
+	reg = tmio_sd_readl(priv, RENESAS_SDHI_SCC_RVSREQ);
+	if (!reg)	/* No error */
+		return false;
+
+	tmio_sd_writel(priv, 0, RENESAS_SDHI_SCC_RVSREQ);
+
+	if (mmc->selected_mode == MMC_HS_400) {
+		/*
+		 * Correction Error Status contains CMD and DAT signal status.
+		 * In HS400, DAT signal based on DS signal, not CLK.
+		 * Therefore, use only CMD status.
+		 */
+		smpcmp = tmio_sd_readl(priv, RENESAS_SDHI_SCC_SMPCMP) &
+			 RENESAS_SDHI_SCC_SMPCMP_CMD_ERR;
+
+		switch (smpcmp) {
+		case 0:
+			return false;	/* No error in CMD signal */
+		case RENESAS_SDHI_SCC_SMPCMP_CMD_REQUP:
+			new_tap = (priv->tap_set +
+				   priv->tap_num + 1) % priv->tap_num;
+			break;
+		case RENESAS_SDHI_SCC_SMPCMP_CMD_REQDOWN:
+			new_tap = (priv->tap_set +
+				   priv->tap_num - 1) % priv->tap_num;
+			break;
+		default:
+			return true;	/* Need re-tune */
+		}
+
+		priv->tap_set = new_tap;
+	} else {
+		if (reg & RENESAS_SDHI_SCC_RVSREQ_RVSERR)
+			return true;	/* Need re-tune */
+		else if (reg & RENESAS_SDHI_SCC_RVSREQ_REQTAPUP)
+			priv->tap_set = (priv->tap_set +
+					 priv->tap_num + 1) % priv->tap_num;
+		else if (reg & RENESAS_SDHI_SCC_RVSREQ_REQTAPDOWN)
+			priv->tap_set = (priv->tap_set +
+					 priv->tap_num - 1) % priv->tap_num;
+		else
+			return false;
+	}
+
+	/* Set TAP position */
+	tmio_sd_writel(priv, priv->tap_set >> ((priv->nrtaps == 4) ? 1 : 0),
+		       RENESAS_SDHI_SCC_TAPSET);
+
+	return false;
 }
 
 static void renesas_sdhi_adjust_hs400_mode_enable(struct tmio_sd_priv *priv)
@@ -535,6 +618,8 @@ static int renesas_sdhi_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
     CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) || \
     CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
 	struct tmio_sd_priv *priv = dev_get_priv(dev);
+
+	renesas_sdhi_check_scc_error(dev);
 
 	if (cmd->cmdidx == MMC_CMD_SEND_STATUS)
 		renesas_sdhi_adjust_hs400_mode_enable(priv);
