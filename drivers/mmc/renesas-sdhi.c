@@ -229,7 +229,9 @@ static int renesas_sdhi_hs400(struct udevice *dev)
 	if (ret < 0)
 		return ret;
 
-	tmio_sd_writel(priv, 0, RENESAS_SDHI_SCC_RVSREQ);
+	reg = tmio_sd_readl(priv, RENESAS_SDHI_SCC_RVSCNTL);
+	reg &= ~RENESAS_SDHI_SCC_RVSCNTL_RVSEN;
+	tmio_sd_writel(priv, reg, RENESAS_SDHI_SCC_RVSCNTL);
 
 	reg = tmio_sd_readl(priv, RENESAS_SDHI_SCC_TMPPORT2);
 	if (hs400) {
@@ -263,10 +265,6 @@ static int renesas_sdhi_hs400(struct udevice *dev)
 	reg = tmio_sd_readl(priv, RENESAS_SDHI_SCC_CKSEL);
 	reg |= RENESAS_SDHI_SCC_CKSEL_DTSEL;
 	tmio_sd_writel(priv, reg, RENESAS_SDHI_SCC_CKSEL);
-
-	reg = tmio_sd_readl(priv, RENESAS_SDHI_SCC_RVSCNTL);
-	reg |= RENESAS_SDHI_SCC_RVSCNTL_RVSEN;
-	tmio_sd_writel(priv, reg, RENESAS_SDHI_SCC_RVSCNTL);
 
 	/* Execute adjust hs400 offset after setting to HS400 mode */
 	if (hs400)
