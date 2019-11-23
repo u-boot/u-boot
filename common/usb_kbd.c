@@ -127,7 +127,7 @@ extern int __maybe_unused net_busy_flag;
 static unsigned long __maybe_unused kbd_testc_tms;
 
 /* Puts character in the queue and sets up the in and out pointer. */
-static void usb_kbd_put_queue(struct usb_kbd_pdata *data, char c)
+static void usb_kbd_put_queue(struct usb_kbd_pdata *data, u8 c)
 {
 	if (data->usb_in_pointer == USB_KBD_BUFFER_LEN - 1) {
 		/* Check for buffer full. */
