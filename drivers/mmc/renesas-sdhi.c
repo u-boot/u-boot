@@ -604,22 +604,22 @@ static void renesas_sdhi_filter_caps(struct udevice *dev)
 	    (rmobile_get_cpu_rev_integer() == 1) &&
 	    (rmobile_get_cpu_rev_fraction() > 2)) {
 		priv->adjust_hs400_enable = true;
-		priv->adjust_hs400_offset = 0;
+		priv->adjust_hs400_offset = 3;
 		priv->adjust_hs400_calibrate = 0x9;
 	}
 
 	/* M3N can use HS400 with manual adjustment */
 	if (rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A77965) {
 		priv->adjust_hs400_enable = true;
-		priv->adjust_hs400_offset = 0;
+		priv->adjust_hs400_offset = 3;
 		priv->adjust_hs400_calibrate = 0x0;
 	}
 
 	/* E3 can use HS400 with manual adjustment */
 	if (rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A77990) {
 		priv->adjust_hs400_enable = true;
-		priv->adjust_hs400_offset = 0;
-		priv->adjust_hs400_calibrate = 0x2;
+		priv->adjust_hs400_offset = 3;
+		priv->adjust_hs400_calibrate = 0x4;
 	}
 
 	/* H3 ES1.x, ES2.0 and M3W ES1.0, ES1.1, ES1.2 uses 4 tuning taps */
