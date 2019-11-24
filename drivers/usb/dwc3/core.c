@@ -613,6 +613,31 @@ static void dwc3_core_exit_mode(struct dwc3 *dwc)
 	dwc3_gadget_run(dwc);
 }
 
+static void dwc3_uboot_hsphy_mode(struct dwc3_device *dwc3_dev,
+				  struct dwc3 *dwc)
+{
+	enum usb_phy_interface hsphy_mode = dwc3_dev->hsphy_mode;
+	u32 reg;
+
+	/* Set dwc3 usb2 phy config */
+	reg = dwc3_readl(dwc->regs, DWC3_GUSB2PHYCFG(0));
+	reg |= DWC3_GUSB2PHYCFG_PHYIF;
+	reg &= ~DWC3_GUSB2PHYCFG_USBTRDTIM_MASK;
+
+	switch (hsphy_mode) {
+	case USBPHY_INTERFACE_MODE_UTMI:
+		reg |= DWC3_GUSB2PHYCFG_USBTRDTIM_8BIT;
+		break;
+	case USBPHY_INTERFACE_MODE_UTMIW:
+		reg |= DWC3_GUSB2PHYCFG_USBTRDTIM_16BIT;
+		break;
+	default:
+		break;
+	}
+
+	dwc3_writel(dwc->regs, DWC3_GUSB2PHYCFG(0), reg);
+}
+
 #define DWC3_ALIGN_MASK		(16 - 1)
 
 /**
@@ -720,6 +745,8 @@ int dwc3_uboot_init(struct dwc3_device *dwc3_dev)
 		dev_err(dev, "failed to initialize core\n");
 		goto err0;
 	}
+
+	dwc3_uboot_hsphy_mode(dwc3_dev, dwc);
 
 	ret = dwc3_event_buffers_setup(dwc);
 	if (ret) {
