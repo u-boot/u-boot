@@ -312,19 +312,19 @@ jobs:
         arm_bcm:
           BUILDMAN: "bcm -x mips"
         nxp_arm32:
-          BUILDMAN: "freescale -x powerpc,m68k,aarch64"
-        nxp_aarch64_ls101x:
-          BUILDMAN: "freescale&aarch64&ls101"
-        nxp_aarch64_ls102x:
-          BUILDMAN: "freescale&aarch64&ls102"
-        nxp_aarch64_ls104x:
-          BUILDMAN: "freescale&aarch64&ls104"
-        nxp_aarch64_ls108x:
-          BUILDMAN: "freescale&aarch64&ls108"
-        nxp_aarch64_ls20xx:
-          BUILDMAN: "freescale&aarch64&ls20"
-        nxp_aarch64_lx216x:
-          BUILDMAN: "freescale&aarch64&lx216"
+          BUILDMAN: "freescale -x powerpc,m68k,aarch64,ls101,ls102,ls104,ls108,ls20,lx216"
+        nxp_ls101x:
+          BUILDMAN: "freescale&ls101"
+        nxp_ls102x:
+          BUILDMAN: "freescale&ls102"
+        nxp_ls104x:
+          BUILDMAN: "freescale&ls104"
+        nxp_ls108x:
+          BUILDMAN: "freescale&ls108"
+        nxp_ls20xx:
+          BUILDMAN: "freescale&ls20"
+        nxp_lx216x:
+          BUILDMAN: "freescale&lx216"
         imx6:
           BUILDMAN: "mx6 -x boundary,engicam,freescale,technexion,toradex"
         imx:

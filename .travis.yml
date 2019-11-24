@@ -183,27 +183,27 @@ matrix:
     - name: "buildman ARM bcm"
       env:
         - BUILDMAN="bcm -x mips"
-    - name: "buildman NXP ARM32"
+    - name: "buildman NXP ARM32 (catch-all)"
       env:
-        - BUILDMAN="freescale -x powerpc,m68k,aarch64"
-    - name: "buildman NXP AArch64 LS101x"
+        - BUILDMAN="freescale -x powerpc,m68k,aarch64,ls101,ls102,ls104,ls108,ls20,lx216"
+    - name: "buildman NXP LS101x"
       env:
-        - BUILDMAN="freescale&aarch64&ls101"
-    - name: "buildman NXP AArch64 LS102x"
+        - BUILDMAN="freescale&ls101"
+    - name: "buildman NXP LS102x"
       env:
-        - BUILDMAN="freescale&aarch64&ls102"
-    - name: "buildman NXP AArch64 LS104x"
+        - BUILDMAN="freescale&ls102"
+    - name: "buildman NXP LS104x"
       env:
-        - BUILDMAN="freescale&aarch64&ls104"
-    - name: "buildman NXP AArch64 LS108x"
+        - BUILDMAN="freescale&ls104"
+    - name: "buildman NXP LS108x"
       env:
-        - BUILDMAN="freescale&aarch64&ls108"
-    - name: "buildman NXP AArch64 LS20xx"
+        - BUILDMAN="freescale&ls108"
+    - name: "buildman NXP LS20xx"
       env:
-        - BUILDMAN="freescale&aarch64&ls20"
-    - name: "buildman NXP AArch64 LX216x"
+        - BUILDMAN="freescale&ls20"
+    - name: "buildman NXP LX216x"
       env:
-        - BUILDMAN="freescale&aarch64&lx216"
+        - BUILDMAN="freescale&lx216"
     - name: "buildman i.MX6 tqc"
       env:
         - BUILDMAN="mx6&tqc"
@@ -236,16 +236,16 @@ matrix:
         - BUILDMAN="sun7i"
     - name: "buildman 64bit sun8i"
       env:
-        - BUILDMAN="sun8i&aarch64"
+        - BUILDMAN="sun8i&aarch64 -x orangepi"
     - name: "buildman 32bit sun8i"
       env:
-        - BUILDMAN="sun8i&armv7"
+        - BUILDMAN="sun8i&armv7 -x orangepi"
     - name: "buildman sun9i"
       env:
         - BUILDMAN="sun9i"
     - name: "buildman sun50i"
       env:
-        - BUILDMAN="sun50i"
+        - BUILDMAN="sun50i -x orangepi"
     - name: "buildman catch-all ARM"
       env:
         - BUILDMAN="arm -x arm11,arm7,arm9,aarch64,at91,bcm,freescale,kirkwood,mvebu,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap,rockchip,toradex,socfpga,k2,k3,zynq"
@@ -314,6 +314,9 @@ matrix:
     - name: "buildman omap"
       env:
         - BUILDMAN="omap"
+    - name: "buildman orangepi"
+      env:
+        - BUILDMAN="orangepi"
     - name: "buildman uniphier"
       env:
         - BUILDMAN="uniphier"
@@ -322,7 +325,7 @@ matrix:
         - BUILDMAN="aarch64 -x bcm,k3,tegra,ls1,ls2,mvebu,uniphier,sunxi,samsung,rockchip,versal,zynq"
     - name: "buildman rockchip"
       env:
-        - BUILDMAN="rockchip"
+        - BUILDMAN="rockchip -x orangepi"
     - name: "buildman sh"
       env:
         - BUILDMAN="sh -x arm"
