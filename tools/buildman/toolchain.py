@@ -435,9 +435,10 @@ class Toolchains:
         self._make_flags['target'] = board.target
         arg_str = self.ResolveReferences(self._make_flags,
                            self._make_flags.get(board.target, ''))
-        args = arg_str.split(' ')
+        args = re.findall("(?:\".*?\"|\S)+", arg_str)
         i = 0
         while i < len(args):
+            args[i] = args[i].replace('"', '')
             if not args[i]:
                 del args[i]
             else:
