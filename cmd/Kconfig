@@ -1671,6 +1671,12 @@ config CMD_SOUND
 	     sound init   - set up sound system
 	     sound play   - play a sound
 
+config CMD_SYSBOOT
+	bool "sysboot"
+	select MENU
+	help
+	  Boot image via local extlinux.conf file
+
 config CMD_QFW
 	bool "qfw"
 	select QFW

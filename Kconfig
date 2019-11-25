@@ -88,6 +88,7 @@ config DISTRO_DEFAULTS
 	select CMD_PART if PARTITIONS
 	select CMD_PING if CMD_NET
 	select CMD_PXE if NET
+	select CMD_SYSBOOT
 	select ENV_VARS_UBOOT_CONFIG
 	select HUSH_PARSER
 	select SUPPORT_RAW_INITRD
