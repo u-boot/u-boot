@@ -297,7 +297,7 @@ int ivm_analyze_eeprom(unsigned char *buf, int len)
 	return 0;
 }
 
-static int ivm_populate_env(unsigned char *buf, int len)
+static int ivm_populate_env(unsigned char *buf, int len, int mac_address_offset)
 {
 	unsigned char	*page2;
 	unsigned char	valbuf[MAC_STR_SZ];
@@ -309,23 +309,23 @@ static int ivm_populate_env(unsigned char *buf, int len)
 
 #ifndef CONFIG_KMTEGR1
 	/* if an offset is defined, add it */
-	process_mac(valbuf, page2, CONFIG_PIGGY_MAC_ADDRESS_OFFSET, true);
+	process_mac(valbuf, page2, mac_address_offset, true);
 	env_set((char *)"ethaddr", (char *)valbuf);
 #else
 /* KMTEGR1 has a special setup. eth0 has no connection to the outside and
  * gets an locally administred MAC address, eth1 is the debug interface and
  * gets the official MAC address from the IVM
  */
-	process_mac(valbuf, page2, CONFIG_PIGGY_MAC_ADDRESS_OFFSET, false);
+	process_mac(valbuf, page2, mac_address_offset, false);
 	env_set((char *)"ethaddr", (char *)valbuf);
-	process_mac(valbuf, page2, CONFIG_PIGGY_MAC_ADDRESS_OFFSET, true);
+	process_mac(valbuf, page2, mac_address_offset, true);
 	env_set((char *)"eth1addr", (char *)valbuf);
 #endif
 
 	return 0;
 }
 
-int ivm_read_eeprom(unsigned char *buf, int len)
+int ivm_read_eeprom(unsigned char *buf, int len, int mac_address_offset)
 {
 	int ret;
 
@@ -339,5 +339,5 @@ int ivm_read_eeprom(unsigned char *buf, int len)
 		return -2;
 	}
 
-	return ivm_populate_env(buf, len);
+	return ivm_populate_env(buf, len, mac_address_offset);
 }
