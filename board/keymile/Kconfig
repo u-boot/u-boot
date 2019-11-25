@@ -76,7 +76,7 @@ config KM_COMMON_ETH_INIT
 	  Use the Ethernet initialization implemented in common code, which
 	  detects if a Piggy board is present.
 
-config PIGGY_MAC_ADRESS_OFFSET
+config PIGGY_MAC_ADDRESS_OFFSET
 	int "Piggy Address Offset"
 	default 0
 	help
