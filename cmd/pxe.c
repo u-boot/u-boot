@@ -128,7 +128,7 @@ do_pxe_get(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return 1;
 
 	err = strict_strtoul(pxefile_addr_str, 16,
-				(unsigned long *)&pxefile_addr_r);
+			     (unsigned long *)&pxefile_addr_r);
 	if (err < 0)
 		return 1;
 
@@ -190,7 +190,7 @@ do_pxe_boot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	cfg = parse_pxefile(cmdtp, pxefile_addr_r);
 
-	if (cfg == NULL) {
+	if (!cfg) {
 		printf("Error parsing config file\n");
 		return 1;
 	}
@@ -230,10 +230,9 @@ static int do_pxe(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return CMD_RET_USAGE;
 }
 
-U_BOOT_CMD(
-	pxe, 3, 1, do_pxe,
-	"commands to get and boot from pxe files",
-	"get - try to retrieve a pxe file using tftp\npxe "
-	"boot [pxefile_addr_r] - boot from the pxe file at pxefile_addr_r\n"
+U_BOOT_CMD(pxe, 3, 1, do_pxe,
+	   "commands to get and boot from pxe files",
+	   "get - try to retrieve a pxe file using tftp\n"
+	   "pxe boot [pxefile_addr_r] - boot from the pxe file at pxefile_addr_r\n"
 );
 #endif
