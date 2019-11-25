@@ -10,4 +10,3 @@ F:	configs/kmcoge5un_defconfig
 F:	configs/kmnusa_defconfig
 F:	configs/kmsugp1_defconfig
 F:	configs/kmsuv31_defconfig
-F:	configs/mgcoge3un_defconfig

@@ -122,26 +122,6 @@ static const u32 kwmpp_config[] = {
 
 static uchar ivm_content[CONFIG_SYS_IVM_EEPROM_MAX_LEN];
 
-#if defined(CONFIG_KM_MGCOGE3UN)
-/*
- * Wait for startup OK from mgcoge3ne
- */
-static int startup_allowed(void)
-{
-	unsigned char buf;
-
-	/*
-	 * Read CIRQ16 bit (bit 0)
-	 */
-	if (i2c_read(BOCO, REG_IRQ_CIRQ2, 1, &buf, 1) != 0)
-		printf("%s: Error reading Boco\n", __func__);
-	else
-		if ((buf & MASK_RBI_DEFECT_16) == MASK_RBI_DEFECT_16)
-			return 1;
-	return 0;
-}
-#endif
-
 #if (defined(CONFIG_KM_PIGGY4_88E6061)|defined(CONFIG_KM_PIGGY4_88E6352))
 /*
  * All boards with PIGGY4 connected via a simple switch have ethernet always
@@ -199,39 +179,6 @@ static void set_bootcount_addr(void)
 
 int misc_init_r(void)
 {
-#if defined(CONFIG_KM_MGCOGE3UN)
-	char *wait_for_ne;
-	u8 dip_switch = kw_gpio_get_value(KM_FLASH_ERASE_ENABLE);
-	wait_for_ne = env_get("waitforne");
-
-	if ((wait_for_ne != NULL) && (dip_switch == 0)) {
-		if (strcmp(wait_for_ne, "true") == 0) {
-			int cnt = 0;
-			int abort = 0;
-			puts("NE go: ");
-			while (startup_allowed() == 0) {
-				if (tstc()) {
-					(void) getc(); /* consume input */
-					abort = 1;
-					break;
-				}
-				udelay(200000);
-				cnt++;
-				if (cnt == 5)
-					puts("wait\b\b\b\b");
-				if (cnt == 10) {
-					cnt = 0;
-					puts("    \b\b\b\b");
-				}
-			}
-			if (abort == 1)
-				printf("\nAbort waiting for ne\n");
-			else
-				puts("OK\n");
-		}
-	}
-#endif
-
 	ivm_read_eeprom(ivm_content, CONFIG_SYS_IVM_EEPROM_MAX_LEN,
 			CONFIG_PIGGY_MAC_ADDRESS_OFFSET);
 
@@ -294,7 +241,7 @@ int board_init(void)
 
 int board_late_init(void)
 {
-#if (defined(CONFIG_KM_COGE5UN) | defined(CONFIG_KM_MGCOGE3UN))
+#if defined(CONFIG_KM_COGE5UN)
 	u8 dip_switch = kw_gpio_get_value(KM_FLASH_ERASE_ENABLE);
 
 	/* if pin 1 do full erase */
