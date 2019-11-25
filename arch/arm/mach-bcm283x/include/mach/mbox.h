@@ -7,6 +7,7 @@
 #define _BCM2835_MBOX_H
 
 #include <linux/compiler.h>
+#include <asm/arch/base.h>
 
 /*
  * The BCM2835 SoC contains (at least) two CPUs; the VideoCore (a/k/a "GPU")
@@ -37,7 +38,8 @@
 
 /* Raw mailbox HW */
 
-#define BCM2835_MBOX_PHYSADDR	(CONFIG_BCM283x_BASE + 0x0000b880)
+#define BCM2835_MBOX_PHYSADDR ({ BUG_ON(!rpi_bcm283x_base); \
+				 rpi_bcm283x_base + 0x0000b880; })
 
 struct bcm2835_mbox_regs {
 	u32 read;

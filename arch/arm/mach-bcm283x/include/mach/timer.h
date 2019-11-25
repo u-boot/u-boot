@@ -6,7 +6,12 @@
 #ifndef _BCM2835_TIMER_H
 #define _BCM2835_TIMER_H
 
-#define BCM2835_TIMER_PHYSADDR	(CONFIG_BCM283x_BASE + 0x00003000)
+#ifndef __ASSEMBLY__
+#include <asm/arch/base.h>
+#endif
+
+#define BCM2835_TIMER_PHYSADDR ({ BUG_ON(!rpi_bcm283x_base); \
+				  rpi_bcm283x_base + 0x00003000; })
 
 #define BCM2835_TIMER_CS_M3	(1 << 3)
 #define BCM2835_TIMER_CS_M2	(1 << 2)

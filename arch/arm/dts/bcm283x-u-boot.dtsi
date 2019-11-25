@@ -6,10 +6,6 @@
  * (C) Copyright 2016 Fabian Vogt <fvogt@suse.com>
  */
 
-&soc {
-	u-boot,dm-pre-reloc;
-};
-
 &uart0 {
 	skip-init;
 	u-boot,dm-pre-reloc;
