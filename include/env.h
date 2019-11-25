@@ -113,6 +113,16 @@ int env_match(unsigned char *name, int index);
  */
 char *env_get(const char *varname);
 
+/*
+ * Like env_get, but prints an error if envvar isn't defined in the
+ * environment.  It always returns what env_get does, so it can be used in
+ * place of env_get without changing error handling otherwise.
+ *
+ * @varname:	Variable to look up
+ * @return value of variable, or NULL if not found
+ */
+char *from_env(const char *envvar);
+
 /**
  * env_get_f() - Look up the value of an environment variable (early)
  *

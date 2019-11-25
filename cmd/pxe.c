@@ -37,23 +37,6 @@ const char *pxe_default_paths[] = {
 
 static bool is_pxe;
 
-/*
- * Like env_get, but prints an error if envvar isn't defined in the
- * environment.  It always returns what env_get does, so it can be used in
- * place of env_get without changing error handling otherwise.
- */
-static char *from_env(const char *envvar)
-{
-	char *ret;
-
-	ret = env_get(envvar);
-
-	if (!ret)
-		printf("missing environment variable: %s\n", envvar);
-
-	return ret;
-}
-
 #ifdef CONFIG_CMD_NET
 /*
  * Convert an ethaddr from the environment to the format used by pxelinux

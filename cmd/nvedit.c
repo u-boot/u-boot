@@ -682,6 +682,23 @@ char *env_get(const char *name)
 }
 
 /*
+ * Like env_get, but prints an error if envvar isn't defined in the
+ * environment.  It always returns what env_get does, so it can be used in
+ * place of env_get without changing error handling otherwise.
+ */
+char *from_env(const char *envvar)
+{
+	char *ret;
+
+	ret = env_get(envvar);
+
+	if (!ret)
+		printf("missing environment variable: %s\n", envvar);
+
+	return ret;
+}
+
+/*
  * Look up variable from environment for restricted C runtime env.
  */
 int env_get_f(const char *name, char *buf, unsigned len)
