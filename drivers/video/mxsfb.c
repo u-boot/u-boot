@@ -57,6 +57,9 @@ static void mxs_lcd_init(u32 fb_addr, struct ctfb_res_modes *mode, int bpp)
 	uint32_t word_len = 0, bus_width = 0;
 	uint8_t valid_data = 0;
 
+	/* Kick in the LCDIF clock */
+	mxs_set_lcdclk(MXS_LCDIF_BASE, PS2KHZ(mode->pixclock));
+
 	/* Restart the LCDIF block */
 	mxs_reset_block(&regs->hw_lcdif_ctrl_reg);
 
@@ -126,9 +129,6 @@ static void mxs_lcd_init(u32 fb_addr, struct ctfb_res_modes *mode, int bpp)
 
 	/* FIFO cleared */
 	writel(LCDIF_CTRL1_FIFO_CLEAR, &regs->hw_lcdif_ctrl1_clr);
-
-	/* Kick in the LCDIF clock */
-	mxs_set_lcdclk(MXS_LCDIF_BASE, PS2KHZ(mode->pixclock));
 
 	/* RUN! */
 	writel(LCDIF_CTRL_RUN, &regs->hw_lcdif_ctrl_set);
