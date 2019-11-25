@@ -42,10 +42,10 @@ DECLARE_GLOBAL_DATA_PTR;
 #define QSPI_CMD1_BITLEN_SHIFT		0
 
 /* COMMAND2 */
-#define QSPI_CMD2_TX_CLK_TAP_DELAY	BIT(6)
-#define QSPI_CMD2_TX_CLK_TAP_DELAY_MASK	GENMASK(11,6)
-#define QSPI_CMD2_RX_CLK_TAP_DELAY	BIT(0)
-#define QSPI_CMD2_RX_CLK_TAP_DELAY_MASK	GENMASK(5,0)
+#define QSPI_CMD2_TX_CLK_TAP_DELAY_SHIFT	10
+#define QSPI_CMD2_TX_CLK_TAP_DELAY_MASK	GENMASK(14,10)
+#define QSPI_CMD2_RX_CLK_TAP_DELAY_SHIFT	0
+#define QSPI_CMD2_RX_CLK_TAP_DELAY_MASK	GENMASK(7,0)
 
 /* TRANSFER STATUS */
 #define QSPI_XFER_STS_RDY		BIT(30)
@@ -111,9 +111,9 @@ static int tegra210_qspi_ofdata_to_platdata(struct udevice *bus)
 
 	/* Use 500KHz as a suitable default */
 	plat->frequency = fdtdec_get_int(blob, node, "spi-max-frequency",
-					500000);
+					 500000);
 	plat->deactivate_delay_us = fdtdec_get_int(blob, node,
-					"spi-deactivate-delay", 0);
+						   "spi-deactivate-delay", 0);
 	debug("%s: base=%#08lx, periph_id=%d, max-frequency=%d, deactivate_delay=%d\n",
 	      __func__, plat->base, plat->periph_id, plat->frequency,
 	      plat->deactivate_delay_us);
@@ -127,13 +127,22 @@ static int tegra210_qspi_probe(struct udevice *bus)
 	struct tegra210_qspi_priv *priv = dev_get_priv(bus);
 
 	priv->regs = (struct qspi_regs *)plat->base;
+	struct qspi_regs *regs = priv->regs;
 
 	priv->last_transaction_us = timer_get_us();
 	priv->freq = plat->frequency;
 	priv->periph_id = plat->periph_id;
 
+	debug("%s: Freq = %u, id = %d\n", __func__, priv->freq,
+	      priv->periph_id);
 	/* Change SPI clock to correct frequency, PLLP_OUT0 source */
 	clock_start_periph_pll(priv->periph_id, CLOCK_ID_PERIPH, priv->freq);
+
+	/* Set tap delays here, clock change above resets QSPI controller */
+	u32 reg = (0x09 << QSPI_CMD2_TX_CLK_TAP_DELAY_SHIFT) |
+		   (0x0C << QSPI_CMD2_RX_CLK_TAP_DELAY_SHIFT);
+	writel(reg, &regs->command2);
+	debug("%s: COMMAND2 = %08x\n", __func__, readl(&regs->command2));
 
 	return 0;
 }
@@ -143,9 +152,6 @@ static int tegra210_qspi_claim_bus(struct udevice *dev)
 	struct udevice *bus = dev->parent;
 	struct tegra210_qspi_priv *priv = dev_get_priv(bus);
 	struct qspi_regs *regs = priv->regs;
-
-	/* Change SPI clock to correct frequency, PLLP_OUT0 source */
-	clock_start_periph_pll(priv->periph_id, CLOCK_ID_PERIPH, priv->freq);
 
 	debug("%s: FIFO STATUS = %08x\n", __func__, readl(&regs->fifo_status));
 
