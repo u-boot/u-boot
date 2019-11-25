@@ -78,14 +78,14 @@ static int get_bootfile_path(const char *file_path, char *bootfile_path,
 
 	last_slash = strrchr(bootfile, '/');
 
-	if (last_slash == NULL				)
+	if (!last_slash)
 		goto ret;
 
 	path_len = (last_slash - bootfile) + 1;
 
 	if (bootfile_path_size < path_len) {
 		printf("bootfile_path too small. (%zd < %zd)\n",
-				bootfile_path_size, path_len);
+		       bootfile_path_size, path_len);
 
 		return -1;
 	}
@@ -109,10 +109,10 @@ int (*do_getfile)(cmd_tbl_t *cmdtp, const char *file_path, char *file_addr);
  * Returns 1 for success, or < 0 on error.
  */
 static int get_relfile(cmd_tbl_t *cmdtp, const char *file_path,
-	unsigned long file_addr)
+		       unsigned long file_addr)
 {
 	size_t path_len;
-	char relfile[MAX_TFTP_PATH_LEN+1];
+	char relfile[MAX_TFTP_PATH_LEN + 1];
 	char addr_buf[18];
 	int err;
 
@@ -125,9 +125,7 @@ static int get_relfile(cmd_tbl_t *cmdtp, const char *file_path,
 	path_len += strlen(relfile);
 
 	if (path_len > MAX_TFTP_PATH_LEN) {
-		printf("Base path too long (%s%s)\n",
-					relfile,
-					file_path);
+		printf("Base path too long (%s%s)\n", relfile, file_path);
 
 		return -ENAMETOOLONG;
 	}
@@ -149,7 +147,7 @@ static int get_relfile(cmd_tbl_t *cmdtp, const char *file_path,
  * Returns 1 on success, or < 0 for error.
  */
 int get_pxe_file(cmd_tbl_t *cmdtp, const char *file_path,
-	unsigned long file_addr)
+		 unsigned long file_addr)
 {
 	unsigned long config_file_size;
 	char *tftp_filesize;
@@ -182,7 +180,6 @@ int get_pxe_file(cmd_tbl_t *cmdtp, const char *file_path,
 
 #define PXELINUX_DIR "pxelinux.cfg/"
 
-
 /*
  * Retrieves a file in the 'pxelinux.cfg' folder. Since this uses get_pxe_file
  * to do the hard work, the location of the 'pxelinux.cfg' folder is generated
@@ -191,14 +188,14 @@ int get_pxe_file(cmd_tbl_t *cmdtp, const char *file_path,
  * Returns 1 on success or < 0 on error.
  */
 int get_pxelinux_path(cmd_tbl_t *cmdtp, const char *file,
-	unsigned long pxefile_addr_r)
+		      unsigned long pxefile_addr_r)
 {
 	size_t base_len = strlen(PXELINUX_DIR);
-	char path[MAX_TFTP_PATH_LEN+1];
+	char path[MAX_TFTP_PATH_LEN + 1];
 
 	if (base_len + strlen(file) > MAX_TFTP_PATH_LEN) {
 		printf("path (%s%s) too long, skipping\n",
-				PXELINUX_DIR, file);
+		       PXELINUX_DIR, file);
 		return -ENAMETOOLONG;
 	}
 
@@ -214,7 +211,8 @@ int get_pxelinux_path(cmd_tbl_t *cmdtp, const char *file,
  *
  * Returns 1 on success or < 0 on error.
  */
-static int get_relfile_envaddr(cmd_tbl_t *cmdtp, const char *file_path, const char *envaddr_name)
+static int get_relfile_envaddr(cmd_tbl_t *cmdtp, const char *file_path,
+			       const char *envaddr_name)
 {
 	unsigned long file_addr;
 	char *envaddr;
@@ -365,16 +363,16 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 		return 0;
 	}
 
-	if (label->kernel == NULL) {
+	if (!label->kernel) {
 		printf("No kernel given, skipping %s\n",
-				label->name);
+		       label->name);
 		return 1;
 	}
 
 	if (label->initrd) {
 		if (get_relfile_envaddr(cmdtp, label->initrd, "ramdisk_addr_r") < 0) {
 			printf("Skipping %s for failure retrieving initrd\n",
-					label->name);
+			       label->name);
 			return 1;
 		}
 
@@ -387,7 +385,7 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 
 	if (get_relfile_envaddr(cmdtp, label->kernel, "kernel_addr_r") < 0) {
 		printf("Skipping %s for failure retrieving kernel\n",
-				label->name);
+		       label->name);
 		return 1;
 	}
 
@@ -400,6 +398,7 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 #ifdef CONFIG_CMD_NET
 	if (label->ipappend & 0x2) {
 		int err;
+
 		strcpy(mac_str, " BOOTIF=");
 		err = format_mac_pxe(mac_str + 8, sizeof(mac_str) - 8);
 		if (err < 0)
@@ -418,17 +417,17 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 			       strlen(ip_str), strlen(mac_str),
 			       sizeof(bootargs));
 			return 1;
-		} else {
-			if (label->append)
-				strncpy(bootargs, label->append,
-					sizeof(bootargs));
-			strcat(bootargs, ip_str);
-			strcat(bootargs, mac_str);
-
-			cli_simple_process_macros(bootargs, finalbootargs);
-			env_set("bootargs", finalbootargs);
-			printf("append: %s\n", finalbootargs);
 		}
+
+		if (label->append)
+			strncpy(bootargs, label->append, sizeof(bootargs));
+
+		strcat(bootargs, ip_str);
+		strcat(bootargs, mac_str);
+
+		cli_simple_process_macros(bootargs, finalbootargs);
+		env_set("bootargs", finalbootargs);
+		printf("append: %s\n", finalbootargs);
 	}
 
 	bootm_argv[1] = env_get("kernel_addr_r");
@@ -512,11 +511,13 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 		}
 
 		if (fdtfile) {
-			int err = get_relfile_envaddr(cmdtp, fdtfile, "fdt_addr_r");
+			int err = get_relfile_envaddr(cmdtp, fdtfile,
+						      "fdt_addr_r");
+
 			free(fdtfilefree);
 			if (err < 0) {
 				printf("Skipping %s for failure retrieving fdt\n",
-						label->name);
+				       label->name);
 				goto cleanup;
 			}
 		} else {
@@ -659,7 +660,8 @@ static char *get_string(char **p, struct token *t, char delim, int lower)
 	 * e is incremented until we find the ending delimiter, or a NUL byte
 	 * is reached. Then, we take e - b to find the length of the token.
 	 */
-	b = e = *p;
+	b = *p;
+	e = *p;
 
 	while (*e) {
 		if ((delim == ' ' && isspace(*e)) || delim == *e)
@@ -819,7 +821,7 @@ static int parse_integer(char **c, int *dst)
 }
 
 static int parse_pxefile_top(cmd_tbl_t *cmdtp, char *p, unsigned long base,
-	struct pxe_menu *cfg, int nest_level);
+			     struct pxe_menu *cfg, int nest_level);
 
 /*
  * Parse an include statement, and retrieve and parse the file it mentions.
@@ -830,7 +832,7 @@ static int parse_pxefile_top(cmd_tbl_t *cmdtp, char *p, unsigned long base,
  * incremented here.
  */
 static int handle_include(cmd_tbl_t *cmdtp, char **c, unsigned long base,
-				struct pxe_menu *cfg, int nest_level)
+			  struct pxe_menu *cfg, int nest_level)
 {
 	char *include_path;
 	char *s = *c;
@@ -841,8 +843,7 @@ static int handle_include(cmd_tbl_t *cmdtp, char **c, unsigned long base,
 	err = parse_sliteral(c, &include_path);
 
 	if (err < 0) {
-		printf("Expected include path: %.*s\n",
-				 (int)(*c - s), s);
+		printf("Expected include path: %.*s\n", (int)(*c - s), s);
 		return err;
 	}
 
@@ -871,7 +872,7 @@ static int handle_include(cmd_tbl_t *cmdtp, char **c, unsigned long base,
  * a file it includes, 3 when parsing a file included by that file, and so on.
  */
 static int parse_menu(cmd_tbl_t *cmdtp, char **c, struct pxe_menu *cfg,
-				unsigned long base, int nest_level)
+		      unsigned long base, int nest_level)
 {
 	struct token t;
 	char *s = *c;
@@ -886,8 +887,7 @@ static int parse_menu(cmd_tbl_t *cmdtp, char **c, struct pxe_menu *cfg,
 		break;
 
 	case T_INCLUDE:
-		err = handle_include(cmdtp, c, base, cfg,
-						nest_level + 1);
+		err = handle_include(cmdtp, c, base, cfg, nest_level + 1);
 		break;
 
 	case T_BACKGROUND:
@@ -896,7 +896,7 @@ static int parse_menu(cmd_tbl_t *cmdtp, char **c, struct pxe_menu *cfg,
 
 	default:
 		printf("Ignoring malformed menu command: %.*s\n",
-				(int)(*c - s), s);
+		       (int)(*c - s), s);
 	}
 
 	if (err < 0)
@@ -911,7 +911,7 @@ static int parse_menu(cmd_tbl_t *cmdtp, char **c, struct pxe_menu *cfg,
  * Handles parsing a 'menu line' when we're parsing a label.
  */
 static int parse_label_menu(char **c, struct pxe_menu *cfg,
-				struct pxe_label *label)
+			    struct pxe_label *label)
 {
 	struct token t;
 	char *s;
@@ -934,7 +934,7 @@ static int parse_label_menu(char **c, struct pxe_menu *cfg,
 		break;
 	default:
 		printf("Ignoring malformed menu command: %.*s\n",
-				(int)(*c - s), s);
+		       (int)(*c - s), s);
 	}
 
 	eol_or_eof(c);
@@ -1085,7 +1085,7 @@ static int parse_label(char **c, struct pxe_menu *cfg)
  * Returns 1 on success, < 0 on error.
  */
 static int parse_pxefile_top(cmd_tbl_t *cmdtp, char *p, unsigned long base,
-				struct pxe_menu *cfg, int nest_level)
+			     struct pxe_menu *cfg, int nest_level)
 {
 	struct token t;
 	char *s, *b, *label_name;
@@ -1108,8 +1108,8 @@ static int parse_pxefile_top(cmd_tbl_t *cmdtp, char *p, unsigned long base,
 		case T_MENU:
 			cfg->prompt = 1;
 			err = parse_menu(cmdtp, &p, cfg,
-				base + ALIGN(strlen(b) + 1, 4),
-				nest_level);
+					 base + ALIGN(strlen(b) + 1, 4),
+					 nest_level);
 			break;
 
 		case T_TIMEOUT:
@@ -1135,8 +1135,8 @@ static int parse_pxefile_top(cmd_tbl_t *cmdtp, char *p, unsigned long base,
 
 		case T_INCLUDE:
 			err = handle_include(cmdtp, &p,
-				base + ALIGN(strlen(b), 4), cfg,
-				nest_level + 1);
+					     base + ALIGN(strlen(b), 4), cfg,
+					     nest_level + 1);
 			break;
 
 		case T_PROMPT:
@@ -1151,7 +1151,7 @@ static int parse_pxefile_top(cmd_tbl_t *cmdtp, char *p, unsigned long base,
 
 		default:
 			printf("Ignoring unknown command: %.*s\n",
-							(int)(p - s), s);
+			       (int)(p - s), s);
 			eol_or_eof(&p);
 		}
 
@@ -1252,7 +1252,6 @@ static struct menu *pxe_menu_to_menu(struct pxe_menu *cfg)
 		if (cfg->default_label &&
 		    (strcmp(label->name, cfg->default_label) == 0))
 			default_num = label->num;
-
 	}
 
 	/*
