@@ -156,19 +156,14 @@ static void enetc_start_pcs(struct udevice *dev)
 
 	priv->if_type = PHY_INTERFACE_MODE_NONE;
 
-	/* check internal mdio capability, not all ports need it */
+	/* register internal MDIO for debug purposes */
 	if (enetc_read_port(priv, ENETC_PCAPR0) & ENETC_PCAPRO_MDIO) {
-		/*
-		 * set up internal MDIO, this is part of ETH PCI function and is
-		 * used to access serdes / internal SoC PHYs.
-		 * We don't currently register it as a MDIO bus as it goes away
-		 * when the interface is removed, so it can't practically be
-		 * used in the console.
-		 */
 		priv->imdio.read = enetc_mdio_read;
 		priv->imdio.write = enetc_mdio_write;
 		priv->imdio.priv = priv->port_regs + ENETC_PM_IMDIO_BASE;
 		strncpy(priv->imdio.name, dev->name, MDIO_NAME_LEN);
+		if (!miiphy_get_dev_by_name(priv->imdio.name))
+			mdio_register(&priv->imdio);
 	}
 
 	if (!ofnode_valid(dev->node)) {
@@ -451,6 +446,10 @@ static void enetc_stop(struct udevice *dev)
 {
 	/* FLR is sufficient to quiesce the device */
 	dm_pci_flr(dev);
+	/* leave the BARs accessible after we stop, this is needed to use
+	 * internal MDIO in command line.
+	 */
+	dm_pci_clrset_config16(dev, PCI_COMMAND, 0, PCI_COMMAND_MEMORY);
 }
 
 /*
