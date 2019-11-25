@@ -79,20 +79,20 @@ static int do_sysboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		pxefile_addr_str = argv[4];
 	}
 
-	if (argc < 6)
+	if (argc < 6) {
 		filename = env_get("bootfile");
-	else {
+	} else {
 		filename = argv[5];
 		env_set("bootfile", filename);
 	}
 
-	if (strstr(argv[3], "ext2"))
+	if (strstr(argv[3], "ext2")) {
 		do_getfile = do_get_ext2;
-	else if (strstr(argv[3], "fat"))
+	} else if (strstr(argv[3], "fat")) {
 		do_getfile = do_get_fat;
-	else if (strstr(argv[3], "any"))
+	} else if (strstr(argv[3], "any")) {
 		do_getfile = do_get_any;
-	else {
+	} else {
 		printf("Invalid filesystem: %s\n", argv[3]);
 		return 1;
 	}
@@ -111,7 +111,7 @@ static int do_sysboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	cfg = parse_pxefile(cmdtp, pxefile_addr_r);
 
-	if (cfg == NULL) {
+	if (!cfg) {
 		printf("Error parsing config file\n");
 		return 1;
 	}
@@ -126,10 +126,9 @@ static int do_sysboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-U_BOOT_CMD(
-	sysboot, 7, 1, do_sysboot,
-	"command to get and boot from syslinux files",
-	"[-p] <interface> <dev[:part]> <ext2|fat|any> [addr] [filename]\n"
-	"    - load and parse syslinux menu file 'filename' from ext2, fat\n"
-	"      or any filesystem on 'dev' on 'interface' to address 'addr'"
+U_BOOT_CMD(sysboot, 7, 1, do_sysboot,
+	   "command to get and boot from syslinux files",
+	   "[-p] <interface> <dev[:part]> <ext2|fat|any> [addr] [filename]\n"
+	   "    - load and parse syslinux menu file 'filename' from ext2, fat\n"
+	   "      or any filesystem on 'dev' on 'interface' to address 'addr'"
 );
