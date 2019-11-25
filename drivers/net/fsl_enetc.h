@@ -154,6 +154,7 @@ struct enetc_priv {
 
 	int if_type;
 	struct mii_dev imdio;
+	struct phy_device *phy;
 };
 
 /* register accessors */

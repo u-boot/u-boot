@@ -205,57 +205,20 @@ static void enetc_start_pcs(struct udevice *dev)
 }
 
 /* Configure the actual/external ethernet PHY, if one is found */
-static void enetc_start_phy(struct udevice *dev)
+static void enetc_config_phy(struct udevice *dev)
 {
 	struct enetc_priv *priv = dev_get_priv(dev);
-	struct udevice *miidev;
-	struct phy_device *phy;
-	u32 phandle, phy_id;
-	ofnode phy_node;
 	int supported;
 
-	if (!ofnode_valid(dev->node)) {
-		enetc_dbg(dev, "no enetc ofnode found, skipping PHY set-up\n");
-		return;
-	}
+	priv->phy = dm_eth_phy_connect(dev);
 
-	if (ofnode_read_u32(dev->node, "phy-handle", &phandle)) {
-		enetc_dbg(dev, "phy-handle not found, skipping PHY set-up\n");
+	if (!priv->phy)
 		return;
-	}
-
-	phy_node = ofnode_get_by_phandle(phandle);
-	if (!ofnode_valid(phy_node)) {
-		enetc_dbg(dev, "invalid phy node, skipping PHY set-up\n");
-		return;
-	}
-	enetc_dbg(dev, "phy node: %s\n", ofnode_get_name(phy_node));
-
-	if (ofnode_read_u32(phy_node, "reg", &phy_id)) {
-		enetc_dbg(dev,
-			  "missing reg in PHY node, skipping PHY set-up\n");
-		return;
-	}
-
-	if (uclass_get_device_by_ofnode(UCLASS_MDIO,
-					ofnode_get_parent(phy_node),
-					&miidev)) {
-		enetc_dbg(dev, "can't find MDIO bus for node %s\n",
-			  ofnode_get_name(ofnode_get_parent(phy_node)));
-		return;
-	}
-
-	phy = dm_mdio_phy_connect(miidev, phy_id, dev, priv->if_type);
-	if (!phy) {
-		enetc_dbg(dev, "dm_mdio_phy_connect returned null\n");
-		return;
-	}
 
 	supported = GENMASK(6, 0); /* speeds up to 1G & AN */
-	phy->advertising = phy->supported & supported;
-	phy->node = phy_node;
-	phy_config(phy);
-	phy_startup(phy);
+	priv->phy->advertising = priv->phy->supported & supported;
+
+	phy_config(priv->phy);
 }
 
 /*
@@ -470,7 +433,9 @@ static int enetc_start(struct udevice *dev)
 	enetc_setup_rx_bdr(dev);
 
 	enetc_start_pcs(dev);
-	enetc_start_phy(dev);
+	enetc_config_phy(dev);
+	if (priv->phy)
+		phy_startup(priv->phy);
 
 	return 0;
 }
