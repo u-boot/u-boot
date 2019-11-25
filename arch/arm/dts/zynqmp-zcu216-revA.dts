@@ -253,7 +253,7 @@
 				#io-channel-cells = <1>;
 				label = "ina226-vccint-io-bram-ps";
 				reg = <0x41>;
-				shunt-resistor = <2000>;
+				shunt-resistor = <5000>;
 			};
 			vcc1v8: ina226@42 { /* u60 */
 				compatible = "ti,ina226";
@@ -302,7 +302,7 @@
 				#io-channel-cells = <1>;
 				label = "ina226-vccint-ams";
 				reg = <0x49>;
-				shunt-resistor = <2000>;
+				shunt-resistor = <5000>;
 			};
 			dac_avtt: ina226@4a { /* u59 */
 				compatible = "ti,ina226";
