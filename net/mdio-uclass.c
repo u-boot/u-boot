@@ -104,16 +104,16 @@ static int dm_mdio_pre_remove(struct udevice *dev)
 	return 0;
 }
 
-struct phy_device *dm_mdio_phy_connect(struct udevice *dev, int addr,
+struct phy_device *dm_mdio_phy_connect(struct udevice *mdiodev, int phyaddr,
 				       struct udevice *ethdev,
 				       phy_interface_t interface)
 {
-	struct mdio_perdev_priv *pdata = dev_get_uclass_priv(dev);
+	struct mdio_perdev_priv *pdata = dev_get_uclass_priv(mdiodev);
 
-	if (device_probe(dev))
-		return 0;
+	if (device_probe(mdiodev))
+		return NULL;
 
-	return phy_connect(pdata->mii_bus, addr, ethdev, interface);
+	return phy_connect(pdata->mii_bus, phyaddr, ethdev, interface);
 }
 
 UCLASS_DRIVER(mdio) = {
