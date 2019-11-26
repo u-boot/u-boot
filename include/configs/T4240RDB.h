@@ -548,7 +548,6 @@ unsigned long get_board_ddr_clk(void);
 #ifdef CONFIG_SYS_DPAA_FMAN
 #define CONFIG_PHYLIB_10G
 #define CONFIG_PHY_VITESSE
-#define CONFIG_PHY_CORTINA
 #define CONFIG_SYS_CORTINA_FW_IN_NOR
 #define CONFIG_CORTINA_FW_ADDR		0xefe00000
 #define CONFIG_CORTINA_FW_LENGTH	0x40000
