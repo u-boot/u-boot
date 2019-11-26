@@ -247,12 +247,22 @@ int mmdc_do_write_level_calibration(struct mx6_ddr_sysinfo const *sysinfo)
 
 static void mmdc_set_sdqs(bool set)
 {
-	struct mx6dq_iomux_ddr_regs *mx6_ddr_iomux =
+	struct mx6dq_iomux_ddr_regs *mx6dq_ddr_iomux =
 		(struct mx6dq_iomux_ddr_regs *)MX6DQ_IOM_DDR_BASE;
-	u32 sdqs = (u32)(&mx6_ddr_iomux->dram_sdqs0);
-	int i;
+	struct mx6sx_iomux_ddr_regs *mx6sx_ddr_iomux =
+		(struct mx6sx_iomux_ddr_regs *)MX6SX_IOM_DDR_BASE;
+	int i, sdqs_cnt;
+	u32 sdqs;
 
-	for (i = 0; i < 8; i++) {
+	if (is_mx6sx()) {
+		sdqs = (u32)(&mx6sx_ddr_iomux->dram_sdqs0);
+		sdqs_cnt = 2;
+	} else {	/* MX6DQ */
+		sdqs = (u32)(&mx6dq_ddr_iomux->dram_sdqs0);
+		sdqs_cnt = 8;
+	}
+
+	for (i = 0; i < sdqs_cnt; i++) {
 		if (set)
 			setbits_le32(sdqs + (4 * i), 0x7000);
 		else
