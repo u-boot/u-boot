@@ -91,4 +91,8 @@
 #define CONFIG_SYS_MMC_ENV_PART		1 /* boot0 */
 #endif
 
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_MXC_UART_BASE		UART1_BASE
+#endif
+
 #endif				/* __CONFIG_H */

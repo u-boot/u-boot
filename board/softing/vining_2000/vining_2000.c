@@ -433,3 +433,185 @@ int checkboard(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_SPL_BUILD
+#include <linux/libfdt.h>
+#include <spl.h>
+#include <asm/arch/mx6-ddr.h>
+
+static struct fsl_esdhc_cfg usdhc_cfg = { USDHC4_BASE_ADDR };
+
+static iomux_v3_cfg_t const uart_pads[] = {
+	MX6_PAD_GPIO1_IO04__UART1_TX | MUX_PAD_CTRL(UART_PAD_CTRL),
+	MX6_PAD_GPIO1_IO05__UART1_RX | MUX_PAD_CTRL(UART_PAD_CTRL),
+};
+
+static iomux_v3_cfg_t const usdhc4_pads[] = {
+	MX6_PAD_SD4_CLK__USDHC4_CLK | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD4_CMD__USDHC4_CMD | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD4_DATA0__USDHC4_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD4_DATA1__USDHC4_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD4_DATA2__USDHC4_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD4_DATA3__USDHC4_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD4_DATA4__USDHC4_DATA4 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD4_DATA5__USDHC4_DATA5 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD4_DATA6__USDHC4_DATA6 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD4_DATA7__USDHC4_DATA7 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+};
+
+static void vining2000_spl_setup_iomux_uart(void)
+{
+	imx_iomux_v3_setup_multiple_pads(uart_pads, ARRAY_SIZE(uart_pads));
+}
+
+int board_mmc_init(bd_t *bis)
+{
+	struct src *src_regs = (struct src *)SRC_BASE_ADDR;
+	u32 val;
+	u32 port;
+
+	val = readl(&src_regs->sbmr1);
+
+	if ((val & 0xc0) != 0x40) {
+		printf("Not boot from USDHC!\n");
+		return -EINVAL;
+	}
+
+	port = (val >> 11) & 0x3;
+	printf("port %d\n", port);
+	switch (port) {
+	case 3:
+		imx_iomux_v3_setup_multiple_pads(
+			usdhc4_pads, ARRAY_SIZE(usdhc4_pads));
+		usdhc_cfg.sdhc_clk = mxc_get_clock(MXC_ESDHC4_CLK);
+		usdhc_cfg.esdhc_base = USDHC4_BASE_ADDR;
+		break;
+	}
+
+	gd->arch.sdhc_clk = usdhc_cfg.sdhc_clk;
+	return fsl_esdhc_initialize(bis, &usdhc_cfg);
+}
+
+int board_mmc_getcd(struct mmc *mmc)
+{
+	return 1;
+}
+
+const struct mx6sx_iomux_ddr_regs mx6_ddr_ioregs = {
+	.dram_dqm0		= 0x00000028,
+	.dram_dqm1		= 0x00000028,
+	.dram_dqm2		= 0x00000028,
+	.dram_dqm3		= 0x00000028,
+	.dram_ras		= 0x00000028,
+	.dram_cas		= 0x00000028,
+	.dram_odt0		= 0x00000028,
+	.dram_odt1		= 0x00000028,
+	.dram_sdba2		= 0x00000000,
+	.dram_sdcke0		= 0x00003000,
+	.dram_sdcke1		= 0x00003000,
+	.dram_sdclk_0		= 0x00000030,
+	.dram_sdqs0		= 0x00000028,
+	.dram_sdqs1		= 0x00000028,
+	.dram_sdqs2		= 0x00000028,
+	.dram_sdqs3		= 0x00000028,
+	.dram_reset		= 0x00000028,
+};
+
+const struct mx6sx_iomux_grp_regs mx6_grp_ioregs = {
+	.grp_addds		= 0x00000028,
+	.grp_b0ds		= 0x00000028,
+	.grp_b1ds		= 0x00000028,
+	.grp_b2ds		= 0x00000028,
+	.grp_b3ds		= 0x00000028,
+	.grp_ctlds		= 0x00000028,
+	.grp_ddr_type		= 0x000c0000,
+	.grp_ddrmode		= 0x00020000,
+	.grp_ddrmode_ctl	= 0x00020000,
+	.grp_ddrpke		= 0x00000000,
+};
+
+const struct mx6_mmdc_calibration mx6_mmcd_calib = {
+	.p0_mpwldectrl0		= 0x0022001C,
+	.p0_mpwldectrl1		= 0x001F001A,
+	.p0_mpdgctrl0		= 0x01380134,
+	.p0_mpdgctrl1		= 0x0124011C,
+	.p0_mprddlctl		= 0x42404444,
+	.p0_mpwrdlctl		= 0x36383C38,
+};
+
+static struct mx6_ddr3_cfg mem_ddr = {
+	.mem_speed	= 1600,
+	.density	= 4,
+	.width		= 32,
+	.banks		= 8,
+	.rowaddr	= 15,
+	.coladdr	= 10,
+	.pagesz		= 2,
+	.trcd		= 1391,
+	.trcmin		= 4875,
+	.trasmin	= 3500,
+};
+
+static void ccgr_init(void)
+{
+	struct mxc_ccm_reg *ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+
+	writel(0xF000000F, &ccm->CCGR0);	/* AIPS_TZ{1,2,3} */
+	writel(0x303C0000, &ccm->CCGR1);	/* GPT, OCRAM */
+	writel(0x00FFFCC0, &ccm->CCGR2);	/* IPMUX, I2C1, I2C3 */
+	writel(0x3F300030, &ccm->CCGR3);	/* OCRAM, MMDC, ENET */
+	writel(0x0000C003, &ccm->CCGR4);	/* PCI, PL301 */
+	writel(0x0F0330C3, &ccm->CCGR5);	/* UART, ROM */
+	writel(0x00000F00, &ccm->CCGR6);	/* SDHI4, EIM */
+}
+
+static void vining2000_spl_dram_init(void)
+{
+	struct mx6_ddr_sysinfo sysinfo = {
+		.dsize		= mem_ddr.width / 32,
+		.cs_density	= 24,
+		.ncs		= 1,
+		.cs1_mirror	= 0,
+		.rtt_wr		= 1,	/* RTT_wr = RZQ/4 */
+		.rtt_nom	= 1,	/* RTT_Nom = RZQ/4 */
+		.walat		= 1,	/* Write additional latency */
+		.ralat		= 5,	/* Read additional latency */
+		.mif3_mode	= 3,	/* Command prediction working mode */
+		.bi_on		= 1,	/* Bank interleaving enabled */
+		.sde_to_rst	= 0x10,	/* 14 cycles, 200us (JEDEC default) */
+		.rst_to_cke	= 0x23,	/* 33 cycles, 500us (JEDEC default) */
+		.ddr_type	= DDR_TYPE_DDR3,
+		.refsel		= 1,	/* Refresh cycles at 32KHz */
+		.refr		= 7,	/* 8 refresh commands per refresh cycle */
+	};
+
+	mx6sx_dram_iocfg(mem_ddr.width, &mx6_ddr_ioregs, &mx6_grp_ioregs);
+	mx6_dram_cfg(&sysinfo, &mx6_mmcd_calib, &mem_ddr);
+}
+
+void board_init_f(ulong dummy)
+{
+	/* setup AIPS and disable watchdog */
+	arch_cpu_init();
+
+	ccgr_init();
+
+	/* iomux setup */
+	vining2000_spl_setup_iomux_uart();
+
+	/* setup GP timer */
+	timer_init();
+
+	/* UART clocks enabled and gd valid - init serial console */
+	preloader_console_init();
+
+	/* DDR initialization */
+	vining2000_spl_dram_init();
+
+	/* Clear the BSS. */
+	memset(__bss_start, 0, __bss_end - __bss_start);
+
+	/* load/boot image from boot device */
+	board_init_r(NULL, 0);
+}
+#endif

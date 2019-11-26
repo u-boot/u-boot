@@ -558,6 +558,7 @@ config TARGET_SOFTING_VINING_2000
 	select DM
 	select DM_THERMAL
 	select MX6SX
+	select SUPPORT_SPL
 	imply CMD_DM
 
 config TARGET_WANDBOARD
