@@ -401,7 +401,7 @@
 			 * 768B - 1024B address 0x57
 			 */
 			eeprom: eeprom@54 { /* u21 */
-				compatible = "atmel,24c08";
+				compatible = "atmel,24c128";
 				reg = <0x54>;
 			};
 		};
