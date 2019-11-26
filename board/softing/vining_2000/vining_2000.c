@@ -587,6 +587,11 @@ static void vining2000_spl_dram_init(void)
 
 	mx6sx_dram_iocfg(mem_ddr.width, &mx6_ddr_ioregs, &mx6_grp_ioregs);
 	mx6_dram_cfg(&sysinfo, &mx6_mmcd_calib, &mem_ddr);
+
+	/* Perform DDR DRAM calibration */
+	udelay(100);
+	mmdc_do_write_level_calibration(&sysinfo);
+	mmdc_do_dqs_calibration(&sysinfo);
 }
 
 void board_init_f(ulong dummy)
