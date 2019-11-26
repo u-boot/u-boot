@@ -9,7 +9,6 @@
 
 #if defined(CONFIG_KMCOGE4)
 #define CONFIG_HOSTNAME		"kmcoge4"
-#define CONFIG_KM_BOARD_NAME	"kmcoge4"
 
 #else
 #error ("Board not supported")

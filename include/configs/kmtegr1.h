@@ -21,7 +21,6 @@
  */
 
 #define CONFIG_HOSTNAME   "kmtegr1"
-#define CONFIG_KM_BOARD_NAME   "kmtegr1"
 #define CONFIG_KM_UBI_PARTITION_NAME_BOOT	"ubi0"
 #define CONFIG_KM_UBI_PARTITION_NAME_APP	"ubi1"
 

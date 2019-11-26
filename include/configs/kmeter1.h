@@ -9,7 +9,6 @@
 #define __CONFIG_H
 
 #define CONFIG_HOSTNAME		"kmeter1"
-#define CONFIG_KM_BOARD_NAME   "kmeter1"
 
 /* include common defines/options for all Keymile boards */
 #include "km/keymile-common.h"

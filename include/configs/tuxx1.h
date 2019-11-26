@@ -23,7 +23,6 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_KM_BOARD_NAME	"tuxx1"
 #define CONFIG_HOSTNAME		"tuxx1"
 
 /* include common defines/options for all Keymile boards */
