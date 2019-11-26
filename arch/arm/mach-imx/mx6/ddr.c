@@ -245,12 +245,36 @@ int mmdc_do_write_level_calibration(struct mx6_ddr_sysinfo const *sysinfo)
 	return errors;
 }
 
+static void mmdc_set_sdqs(bool set)
+{
+	struct mx6dq_iomux_ddr_regs *mx6_ddr_iomux =
+		(struct mx6dq_iomux_ddr_regs *)MX6DQ_IOM_DDR_BASE;
+
+	if (set) {
+		setbits_le32(&mx6_ddr_iomux->dram_sdqs0, 0x7000);
+		setbits_le32(&mx6_ddr_iomux->dram_sdqs1, 0x7000);
+		setbits_le32(&mx6_ddr_iomux->dram_sdqs2, 0x7000);
+		setbits_le32(&mx6_ddr_iomux->dram_sdqs3, 0x7000);
+		setbits_le32(&mx6_ddr_iomux->dram_sdqs4, 0x7000);
+		setbits_le32(&mx6_ddr_iomux->dram_sdqs5, 0x7000);
+		setbits_le32(&mx6_ddr_iomux->dram_sdqs6, 0x7000);
+		setbits_le32(&mx6_ddr_iomux->dram_sdqs7, 0x7000);
+	} else {
+		clrbits_le32(&mx6_ddr_iomux->dram_sdqs0, 0x7000);
+		clrbits_le32(&mx6_ddr_iomux->dram_sdqs1, 0x7000);
+		clrbits_le32(&mx6_ddr_iomux->dram_sdqs2, 0x7000);
+		clrbits_le32(&mx6_ddr_iomux->dram_sdqs3, 0x7000);
+		clrbits_le32(&mx6_ddr_iomux->dram_sdqs4, 0x7000);
+		clrbits_le32(&mx6_ddr_iomux->dram_sdqs5, 0x7000);
+		clrbits_le32(&mx6_ddr_iomux->dram_sdqs6, 0x7000);
+		clrbits_le32(&mx6_ddr_iomux->dram_sdqs7, 0x7000);
+	}
+}
+
 int mmdc_do_dqs_calibration(struct mx6_ddr_sysinfo const *sysinfo)
 {
 	struct mmdc_p_regs *mmdc0 = (struct mmdc_p_regs *)MMDC_P0_BASE_ADDR;
 	struct mmdc_p_regs *mmdc1 = (struct mmdc_p_regs *)MMDC_P1_BASE_ADDR;
-	struct mx6dq_iomux_ddr_regs *mx6_ddr_iomux =
-		(struct mx6dq_iomux_ddr_regs *)MX6DQ_IOM_DDR_BASE;
 	bool cs0_enable;
 	bool cs1_enable;
 	bool cs0_enable_initial;
@@ -272,14 +296,7 @@ int mmdc_do_dqs_calibration(struct mx6_ddr_sysinfo const *sysinfo)
 	setbits_le32(&mmdc0->mapsr, 0x1);
 
 	/* set DQS pull ups */
-	setbits_le32(&mx6_ddr_iomux->dram_sdqs0, 0x7000);
-	setbits_le32(&mx6_ddr_iomux->dram_sdqs1, 0x7000);
-	setbits_le32(&mx6_ddr_iomux->dram_sdqs2, 0x7000);
-	setbits_le32(&mx6_ddr_iomux->dram_sdqs3, 0x7000);
-	setbits_le32(&mx6_ddr_iomux->dram_sdqs4, 0x7000);
-	setbits_le32(&mx6_ddr_iomux->dram_sdqs5, 0x7000);
-	setbits_le32(&mx6_ddr_iomux->dram_sdqs6, 0x7000);
-	setbits_le32(&mx6_ddr_iomux->dram_sdqs7, 0x7000);
+	mmdc_set_sdqs(true);
 
 	/* Save old RALAT and WALAT values */
 	esdmisc_val = readl(&mmdc0->mdmisc);
@@ -524,14 +541,7 @@ int mmdc_do_dqs_calibration(struct mx6_ddr_sysinfo const *sysinfo)
 	writel(esdmisc_val, &mmdc0->mdmisc);
 
 	/* Clear DQS pull ups */
-	clrbits_le32(&mx6_ddr_iomux->dram_sdqs0, 0x7000);
-	clrbits_le32(&mx6_ddr_iomux->dram_sdqs1, 0x7000);
-	clrbits_le32(&mx6_ddr_iomux->dram_sdqs2, 0x7000);
-	clrbits_le32(&mx6_ddr_iomux->dram_sdqs3, 0x7000);
-	clrbits_le32(&mx6_ddr_iomux->dram_sdqs4, 0x7000);
-	clrbits_le32(&mx6_ddr_iomux->dram_sdqs5, 0x7000);
-	clrbits_le32(&mx6_ddr_iomux->dram_sdqs6, 0x7000);
-	clrbits_le32(&mx6_ddr_iomux->dram_sdqs7, 0x7000);
+	mmdc_set_sdqs(false);
 
 	/* Re-enable SDE (chip selects) if they were set initially */
 	if (cs1_enable_initial)
