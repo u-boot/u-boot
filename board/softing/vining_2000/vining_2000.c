@@ -406,12 +406,29 @@ int checkboard(void)
 	return 0;
 }
 
+#define PCIE_PHY_PUP_REQ		BIT(7)
+
+void board_preboot_os(void)
+{
+	struct iomuxc *iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
+	struct gpc *gpc_regs = (struct gpc *)GPC_BASE_ADDR;
+
+	/* Bring the PCI power domain up, so that old vendorkernel works. */
+	setbits_le32(&iomuxc_regs->gpr[12], IOMUXC_GPR12_TEST_POWERDOWN);
+	setbits_le32(&iomuxc_regs->gpr[5], IOMUXC_GPR5_PCIE_BTNRST);
+	setbits_le32(&gpc_regs->cntr, PCIE_PHY_PUP_REQ);
+}
+
 #ifdef CONFIG_SPL_BUILD
 #include <linux/libfdt.h>
 #include <spl.h>
 #include <asm/arch/mx6-ddr.h>
 
 static struct fsl_esdhc_cfg usdhc_cfg = { USDHC4_BASE_ADDR };
+
+static iomux_v3_cfg_t const pcie_pads[] = {
+	MX6_PAD_NAND_DATA02__GPIO4_IO_6 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
+};
 
 static iomux_v3_cfg_t const uart_pads[] = {
 	MX6_PAD_GPIO1_IO04__UART1_TX | MUX_PAD_CTRL(UART_PAD_CTRL),
@@ -430,6 +447,11 @@ static iomux_v3_cfg_t const usdhc4_pads[] = {
 	MX6_PAD_SD4_DATA6__USDHC4_DATA6 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
 	MX6_PAD_SD4_DATA7__USDHC4_DATA7 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
 };
+
+static void vining2000_spl_setup_iomux_pcie(void)
+{
+	imx_iomux_v3_setup_multiple_pads(pcie_pads, ARRAY_SIZE(pcie_pads));
+}
 
 static void vining2000_spl_setup_iomux_uart(void)
 {
@@ -574,10 +596,16 @@ void board_init_f(ulong dummy)
 	ccgr_init();
 
 	/* iomux setup */
+	vining2000_spl_setup_iomux_pcie();
 	vining2000_spl_setup_iomux_uart();
 
 	/* setup GP timer */
 	timer_init();
+
+	/* reset the PCIe device */
+	gpio_set_value(IMX_GPIO_NR(4, 6), 1);
+	udelay(50);
+	gpio_set_value(IMX_GPIO_NR(4, 6), 0);
 
 	/* UART clocks enabled and gd valid - init serial console */
 	preloader_console_init();
