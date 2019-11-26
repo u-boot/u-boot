@@ -684,7 +684,7 @@ static void show_efi_boot_opt(int id)
 	efi_guid_t guid;
 	void *data = NULL;
 	efi_uintn_t size;
-	int ret;
+	efi_status_t ret;
 
 	sprintf(var_name, "Boot%04X", id);
 	p = var_name16;
@@ -693,7 +693,7 @@ static void show_efi_boot_opt(int id)
 
 	size = 0;
 	ret = EFI_CALL(RT->get_variable(var_name16, &guid, NULL, &size, NULL));
-	if (ret == (int)EFI_BUFFER_TOO_SMALL) {
+	if (ret == EFI_BUFFER_TOO_SMALL) {
 		data = malloc(size);
 		ret = EFI_CALL(RT->get_variable(var_name16, &guid, NULL, &size,
 						data));
