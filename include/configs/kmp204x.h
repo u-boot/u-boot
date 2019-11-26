@@ -17,8 +17,6 @@
 
 #define CONFIG_KMP204X
 
-#define CONFIG_KM_DEF_NETDEV	"netdev=eth0\0"
-
 /* an additionnal option is required for UBI as subpage access is
  * supported in u-boot
  */
