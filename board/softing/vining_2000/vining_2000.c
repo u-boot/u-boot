@@ -226,6 +226,9 @@ int power_init_board(void)
 	if (ret < 0)
 		return ret;
 
+	set_ldo_voltage(LDO_ARM, 1175);	/* Set VDDARM to 1.175V */
+	set_ldo_voltage(LDO_SOC, 1175);	/* Set VDDSOC to 1.175V */
+
 	return 0;
 }
 
