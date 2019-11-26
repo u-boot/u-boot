@@ -143,6 +143,15 @@
 	};
 };
 
+&mac {
+	assigned-clocks = <&cru SCLK_MAC>;
+	assigned-clock-parents = <&mac_clkin>;
+	clock_in_out = "input";
+	pinctrl-names = "default";
+	pinctrl-0 = <&rmiim1_pins &macm1_refclk>;
+	status = "okay";
+};
+
 &pwm5 {
 	status = "okay";
 	pinctrl-names = "active";
