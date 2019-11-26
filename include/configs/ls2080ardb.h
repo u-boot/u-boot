@@ -560,7 +560,6 @@ unsigned long get_board_sys_clk(void);
 
 /* MAC/PHY configuration */
 #ifdef CONFIG_FSL_MC_ENET
-#define	CONFIG_SYS_CORTINA_FW_IN_NOR
 #ifdef CONFIG_QSPI_BOOT
 #define CONFIG_CORTINA_FW_ADDR		0x20980000
 #else
