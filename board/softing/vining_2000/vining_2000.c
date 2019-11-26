@@ -72,41 +72,22 @@ int dram_init(void)
 	return 0;
 }
 
-static iomux_v3_cfg_t const fec1_pads[] = {
-	MX6_PAD_ENET1_MDC__ENET1_MDC | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET1_MDIO__ENET1_MDIO | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII1_RD0__ENET1_RX_DATA_0 | MUX_PAD_CTRL(ENET_RX_PAD_CTRL),
-	MX6_PAD_RGMII1_RD1__ENET1_RX_DATA_1 | MUX_PAD_CTRL(ENET_RX_PAD_CTRL),
-	MX6_PAD_RGMII1_TD0__ENET1_TX_DATA_0 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII1_TD1__ENET1_TX_DATA_1 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_RGMII1_RX_CTL__ENET1_RX_EN | MUX_PAD_CTRL(ENET_RX_PAD_CTRL),
-	MX6_PAD_RGMII1_TX_CTL__ENET1_TX_EN | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET1_TX_CLK__ENET1_REF_CLK1 | MUX_PAD_CTRL(ENET_CLK_PAD_CTRL) |
-		MUX_MODE_SION,
-	/* LAN8720 PHY Reset */
-	MX6_PAD_RGMII1_TD3__GPIO5_IO_9 | MUX_PAD_CTRL(NO_PAD_CTRL),
-};
-
 static iomux_v3_cfg_t const pwm_led_pads[] = {
 	MX6_PAD_RGMII2_RD2__PWM2_OUT | MUX_PAD_CTRL(NO_PAD_CTRL), /* green */
 	MX6_PAD_RGMII2_TD2__PWM6_OUT | MUX_PAD_CTRL(NO_PAD_CTRL), /* red */
 	MX6_PAD_RGMII2_RD3__PWM1_OUT | MUX_PAD_CTRL(NO_PAD_CTRL), /* blue */
 };
 
-#define PHY_RESET IMX_GPIO_NR(5, 9)
-
-int board_eth_init(bd_t *bis)
+static int board_net_init(void)
 {
 	struct iomuxc *iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
-	int ret;
 	unsigned char eth1addr[6];
+	int ret;
 
-	/* just to get secound mac address */
+	/* just to get second mac address */
 	imx_get_mac_from_fuse(1, eth1addr);
 	if (!env_get("eth1addr") && is_valid_ethaddr(eth1addr))
 		eth_env_set_enetaddr("eth1addr", eth1addr);
-
-	imx_iomux_v3_setup_multiple_pads(fec1_pads, ARRAY_SIZE(fec1_pads));
 
 	/*
 	 * Generate phy reference clock via pin IOMUX ENET_REF_CLK1/2 by erasing
@@ -123,15 +104,7 @@ int board_eth_init(bd_t *bis)
 	if (ret)
 		goto eth_fail;
 
-	/* reset phy */
-	gpio_request(PHY_RESET, "PHY-reset");
-	gpio_direction_output(PHY_RESET, 0);
-	mdelay(16);
-	gpio_set_value(PHY_RESET, 1);
-	mdelay(1);
-
-	ret = fecmxc_initialize_multi(bis, 0, CONFIG_FEC_MXC_PHYADDR,
-					IMX_FEC_BASE);
+	ret = enable_fec_anatop_clock(1, ENET_50MHZ);
 	if (ret)
 		goto eth_fail;
 
@@ -139,7 +112,6 @@ int board_eth_init(bd_t *bis)
 
 eth_fail:
 	printf("FEC MXC: %s:failed (%i)\n", __func__, ret);
-	gpio_set_value(PHY_RESET, 0);
 	return ret;
 }
 
@@ -424,7 +396,7 @@ int board_init(void)
 	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
 #endif
 
-	return 0;
+	return board_net_init();
 }
 
 int checkboard(void)

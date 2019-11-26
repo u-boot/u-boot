@@ -58,8 +58,6 @@
 #define CONFIG_POWER_PFUZE100_I2C_ADDR	0x08
 
 /* Network */
-#define CONFIG_FEC_MXC
-
 #define IMX_FEC_BASE			ENET_BASE_ADDR
 #define CONFIG_FEC_MXC_PHYADDR          0x0
 
