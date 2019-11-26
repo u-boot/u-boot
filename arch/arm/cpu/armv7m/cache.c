@@ -332,6 +332,11 @@ void icache_disable(void)
 	isb();	/* subsequent instructions fetch see cache disable effect */
 }
 #else
+void invalidate_icache_all(void)
+{
+	return;
+}
+
 void icache_enable(void)
 {
 	return;
