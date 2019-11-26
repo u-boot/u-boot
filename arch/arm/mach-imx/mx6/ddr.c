@@ -249,25 +249,14 @@ static void mmdc_set_sdqs(bool set)
 {
 	struct mx6dq_iomux_ddr_regs *mx6_ddr_iomux =
 		(struct mx6dq_iomux_ddr_regs *)MX6DQ_IOM_DDR_BASE;
+	u32 sdqs = (u32)(&mx6_ddr_iomux->dram_sdqs0);
+	int i;
 
-	if (set) {
-		setbits_le32(&mx6_ddr_iomux->dram_sdqs0, 0x7000);
-		setbits_le32(&mx6_ddr_iomux->dram_sdqs1, 0x7000);
-		setbits_le32(&mx6_ddr_iomux->dram_sdqs2, 0x7000);
-		setbits_le32(&mx6_ddr_iomux->dram_sdqs3, 0x7000);
-		setbits_le32(&mx6_ddr_iomux->dram_sdqs4, 0x7000);
-		setbits_le32(&mx6_ddr_iomux->dram_sdqs5, 0x7000);
-		setbits_le32(&mx6_ddr_iomux->dram_sdqs6, 0x7000);
-		setbits_le32(&mx6_ddr_iomux->dram_sdqs7, 0x7000);
-	} else {
-		clrbits_le32(&mx6_ddr_iomux->dram_sdqs0, 0x7000);
-		clrbits_le32(&mx6_ddr_iomux->dram_sdqs1, 0x7000);
-		clrbits_le32(&mx6_ddr_iomux->dram_sdqs2, 0x7000);
-		clrbits_le32(&mx6_ddr_iomux->dram_sdqs3, 0x7000);
-		clrbits_le32(&mx6_ddr_iomux->dram_sdqs4, 0x7000);
-		clrbits_le32(&mx6_ddr_iomux->dram_sdqs5, 0x7000);
-		clrbits_le32(&mx6_ddr_iomux->dram_sdqs6, 0x7000);
-		clrbits_le32(&mx6_ddr_iomux->dram_sdqs7, 0x7000);
+	for (i = 0; i < 8; i++) {
+		if (set)
+			setbits_le32(sdqs + (4 * i), 0x7000);
+		else
+			clrbits_le32(sdqs + (4 * i), 0x7000);
 	}
 }
 
