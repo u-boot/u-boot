@@ -108,7 +108,6 @@ For example:
      => export BL31=/path/to/rkbin/bin/rk33/rk3308_bl31_v2.22.elf
      => make roc-rk3308-cc_defconfig
      => make CROSS_COMPILE=aarch64-linux-gnu- all
-     => make CROSS_COMPILE=aarch64-linux-gnu- u-boot.itb
      => ./tools/mkimage -n rk3308 -T rksd -d /path/to/rkbin/bin/rk33/rk3308_ddr_589MHz_uart2_m0_v1.26.bin idbloader.img
      => cat spl/u-boot-spl.bin  >> idbloader.img
 
