@@ -214,14 +214,14 @@ int mmdc_do_write_level_calibration(struct mx6_ddr_sysinfo const *sysinfo)
 	writel(esdmisc_val, &mmdc0->mdref);
 	writel(zq_val, &mmdc0->mpzqhwctrl);
 
-	debug("\tMMDC_MPWLDECTRL0 after write level cal: 0x%08X\n",
+	debug("\tMMDC_MPWLDECTRL0 after write level cal: 0x%08x\n",
 	      readl(&mmdc0->mpwldectrl0));
-	debug("\tMMDC_MPWLDECTRL1 after write level cal: 0x%08X\n",
+	debug("\tMMDC_MPWLDECTRL1 after write level cal: 0x%08x\n",
 	      readl(&mmdc0->mpwldectrl1));
 	if (sysinfo->dsize == 2) {
-		debug("\tMMDC_MPWLDECTRL0 after write level cal: 0x%08X\n",
+		debug("\tMMDC_MPWLDECTRL0 after write level cal: 0x%08x\n",
 		      readl(&mmdc1->mpwldectrl0));
-		debug("\tMMDC_MPWLDECTRL1 after write level cal: 0x%08X\n",
+		debug("\tMMDC_MPWLDECTRL1 after write level cal: 0x%08x\n",
 		      readl(&mmdc1->mpwldectrl1));
 	}
 
@@ -557,20 +557,20 @@ int mmdc_do_dqs_calibration(struct mx6_ddr_sysinfo const *sysinfo)
 	 */
 	debug("MMDC registers updated from calibration\n");
 	debug("Read DQS gating calibration:\n");
-	debug("\tMPDGCTRL0 PHY0 = 0x%08X\n", readl(&mmdc0->mpdgctrl0));
-	debug("\tMPDGCTRL1 PHY0 = 0x%08X\n", readl(&mmdc0->mpdgctrl1));
+	debug("\tMPDGCTRL0 PHY0 = 0x%08x\n", readl(&mmdc0->mpdgctrl0));
+	debug("\tMPDGCTRL1 PHY0 = 0x%08x\n", readl(&mmdc0->mpdgctrl1));
 	if (sysinfo->dsize == 2) {
-		debug("\tMPDGCTRL0 PHY1 = 0x%08X\n", readl(&mmdc1->mpdgctrl0));
-		debug("\tMPDGCTRL1 PHY1 = 0x%08X\n", readl(&mmdc1->mpdgctrl1));
+		debug("\tMPDGCTRL0 PHY1 = 0x%08x\n", readl(&mmdc1->mpdgctrl0));
+		debug("\tMPDGCTRL1 PHY1 = 0x%08x\n", readl(&mmdc1->mpdgctrl1));
 	}
 	debug("Read calibration:\n");
-	debug("\tMPRDDLCTL PHY0 = 0x%08X\n", readl(&mmdc0->mprddlctl));
+	debug("\tMPRDDLCTL PHY0 = 0x%08x\n", readl(&mmdc0->mprddlctl));
 	if (sysinfo->dsize == 2)
-		debug("\tMPRDDLCTL PHY1 = 0x%08X\n", readl(&mmdc1->mprddlctl));
+		debug("\tMPRDDLCTL PHY1 = 0x%08x\n", readl(&mmdc1->mprddlctl));
 	debug("Write calibration:\n");
-	debug("\tMPWRDLCTL PHY0 = 0x%08X\n", readl(&mmdc0->mpwrdlctl));
+	debug("\tMPWRDLCTL PHY0 = 0x%08x\n", readl(&mmdc0->mpwrdlctl));
 	if (sysinfo->dsize == 2)
-		debug("\tMPWRDLCTL PHY1 = 0x%08X\n", readl(&mmdc1->mpwrdlctl));
+		debug("\tMPWRDLCTL PHY1 = 0x%08x\n", readl(&mmdc1->mpwrdlctl));
 
 	/*
 	 * Registers below are for debugging purposes.  These print out
