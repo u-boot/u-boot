@@ -42,6 +42,10 @@
  *     -the MC is responsible for allocating and setting up 'isolation context
  *      IDs (ICIDs) based on the allocated stream IDs for all DPAA2 devices.
  *
+ *  - ECAM (integrated PCI)
+ *     - U-Boot applies the value here to HW and does DT fix-up for both
+ *       'iommu-map' and 'msi-map'
+ *
  * On Chasis-3 SoCs stream IDs are programmed in AMQ registers (32-bits) for
  * each of the different bus masters.  The relationship between
  * the AMQ registers and stream IDs is defined in the table below:
@@ -97,6 +101,10 @@
 /* DPAA2 - set in MC DPC and alloced by MC */
 #define FSL_DPAA2_STREAM_ID_START	23
 #define FSL_DPAA2_STREAM_ID_END		63
+
+/* PCI IEPs, this overlaps DPAA2 but these two are exclusive at least for now */
+#define FSL_ECAM_STREAM_ID_START	32
+#define FSL_ECAM_STREAM_ID_END		63
 
 #define FSL_SEC_STREAM_ID		64
 #define FSL_SEC_JR1_STREAM_ID		65

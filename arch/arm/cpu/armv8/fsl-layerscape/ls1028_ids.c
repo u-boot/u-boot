@@ -33,3 +33,96 @@ struct icid_id_table icid_tbl[] = {
 };
 
 int icid_tbl_sz = ARRAY_SIZE(icid_tbl);
+
+/* integrated PCI is handled separately as it's not part of CCSR/SCFG */
+#ifdef CONFIG_PCIE_ECAM_GENERIC
+
+#define ECAM_IERB_BASE		0x1f0800000ULL
+#define ECAM_IERB_OFFSET_NA	-1
+#define ECAM_IERB_FUNC_CNT	ARRAY_SIZE(ierb_offset)
+/* cache related transaction attributes for PCIe functions */
+#define ECAM_IERB_MSICAR		(ECAM_IERB_BASE + 0xa400)
+#define ECAM_IERB_MSICAR_VALUE		0x30
+
+/* offset of IERB config register per PCI function */
+static int ierb_offset[] = {
+	0x0800,
+	0x1800,
+	0x2800,
+	0x3800,
+	0x4800,
+	0x5800,
+	0x6800,
+	ECAM_IERB_OFFSET_NA,
+	0x0804,
+	0x0808,
+	0x1804,
+	0x1808,
+};
+
+/*
+ * Use a custom function for LS1028A, for now this is the only SoC with IERB
+ * and we're currently considering reorganizing IERB for future SoCs.
+ */
+void set_ecam_icids(void)
+{
+	int i;
+
+	out_le32(ECAM_IERB_MSICAR, ECAM_IERB_MSICAR_VALUE);
+
+	for (i = 0; i < ECAM_IERB_FUNC_CNT; i++) {
+		if (ierb_offset[i] == ECAM_IERB_OFFSET_NA)
+			continue;
+
+		out_le32(ECAM_IERB_BASE + ierb_offset[i],
+			 FSL_ECAM_STREAM_ID_START + i);
+	}
+}
+
+static int fdt_setprop_inplace_idx_u32(void *fdt, int nodeoffset,
+				       const char *name, uint32_t idx, u32 val)
+{
+	val = cpu_to_be32(val);
+	return fdt_setprop_inplace_namelen_partial(fdt, nodeoffset, name,
+						   strlen(name),
+						   idx * sizeof(val), &val,
+						   sizeof(val));
+}
+
+static int fdt_getprop_len(void *fdt, int nodeoffset, const char *name)
+{
+	int len;
+
+	if (fdt_getprop_namelen(fdt, nodeoffset, name, strlen(name), &len))
+		return len;
+
+	return 0;
+}
+
+void fdt_fixup_ecam(void *blob)
+{
+	int off;
+
+	off = fdt_node_offset_by_compatible(blob, 0, "pci-host-ecam-generic");
+	if (off < 0) {
+		debug("ECAM node not found\n");
+		return;
+	}
+
+	if (fdt_getprop_len(blob, off, "msi-map") != 16 ||
+	    fdt_getprop_len(blob, off, "iommu-map") != 16) {
+		log_err("invalid msi/iommu-map propertly size in ECAM node\n");
+		return;
+	}
+
+	fdt_setprop_inplace_idx_u32(blob, off, "msi-map", 2,
+				    FSL_ECAM_STREAM_ID_START);
+	fdt_setprop_inplace_idx_u32(blob, off, "msi-map", 3,
+				    ECAM_IERB_FUNC_CNT);
+
+	fdt_setprop_inplace_idx_u32(blob, off, "iommu-map", 2,
+				    FSL_ECAM_STREAM_ID_START);
+	fdt_setprop_inplace_idx_u32(blob, off, "iommu-map", 3,
+				    ECAM_IERB_FUNC_CNT);
+}
+#endif /* CONFIG_PCIE_ECAM_GENERIC */
