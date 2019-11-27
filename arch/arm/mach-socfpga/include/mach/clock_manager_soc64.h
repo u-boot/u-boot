@@ -13,9 +13,7 @@ const unsigned int cm_get_f2s_sdr_ref_clk_hz(void);
 const unsigned int cm_get_intosc_clk_hz(void);
 const unsigned int cm_get_fpga_clk_hz(void);
 
-#define CLKMGR_EOSC1_HZ		25000000
-#define CLKMGR_INTOSC_HZ	460000000
-#define CLKMGR_FPGA_CLK_HZ	50000000
+#define CLKMGR_INTOSC_HZ	400000000
 
 /* Clock configuration accessors */
 const struct cm_config * const cm_get_default_config(void);
