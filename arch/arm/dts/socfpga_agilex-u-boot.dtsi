@@ -1,0 +1,96 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * U-Boot additions
+ *
+ * Copyright (C) 2019 Intel Corporation <www.intel.com>
+ */
+
+/{
+	memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		u-boot,dm-pre-reloc;
+	};
+
+	soc {
+		u-boot,dm-pre-reloc;
+
+		ccu: cache-controller@f7000000 {
+			compatible = "arteris,ncore-ccu";
+			reg = <0xf7000000 0x100900>;
+			u-boot,dm-pre-reloc;
+		};
+	};
+};
+
+&clkmgr {
+	u-boot,dm-pre-reloc;
+};
+
+&gmac1 {
+	altr,sysmgr-syscon = <&sysmgr 0x48 0>;
+};
+
+&gmac2 {
+	altr,sysmgr-syscon = <&sysmgr 0x4c 0>;
+};
+
+&i2c0 {
+	reset-names = "i2c";
+};
+
+&i2c1 {
+	reset-names = "i2c";
+};
+
+&i2c2 {
+	reset-names = "i2c";
+};
+
+&i2c3 {
+	reset-names = "i2c";
+};
+
+&mmc {
+	resets = <&rst SDMMC_RESET>, <&rst SDMMC_OCP_RESET>;
+};
+
+&porta {
+	bank-name = "porta";
+};
+
+&portb {
+	bank-name = "portb";
+};
+
+&qspi {
+	u-boot,dm-pre-reloc;
+};
+
+&rst {
+	compatible = "altr,rst-mgr";
+	altr,modrst-offset = <0x20>;
+	u-boot,dm-pre-reloc;
+};
+
+&sdr {
+	compatible = "intel,sdr-ctl-agilex";
+	reg = <0xf8000400 0x80>,
+	      <0xf8010000 0x190>,
+	      <0xf8011000 0x500>;
+	resets = <&rst DDRSCH_RESET>;
+	u-boot,dm-pre-reloc;
+};
+
+&sysmgr {
+	compatible = "altr,sys-mgr", "syscon";
+	u-boot,dm-pre-reloc;
+};
+
+&uart0 {
+	u-boot,dm-pre-reloc;
+};
+
+&watchdog0 {
+	u-boot,dm-pre-reloc;
+};
