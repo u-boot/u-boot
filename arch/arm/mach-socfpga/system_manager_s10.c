@@ -29,33 +29,33 @@ void populate_sysmgr_fpgaintf_module(void)
 	u32 handoff_val = 0;
 
 	/* Enable the signal for those HPS peripherals that use FPGA. */
-	if (readl(socfpga_get_sysmgr_addr() + SYSMGR_S10_NAND_USEFPGA) ==
+	if (readl(socfpga_get_sysmgr_addr() + SYSMGR_SOC64_NAND_USEFPGA) ==
 	    SYSMGR_FPGAINTF_USEFPGA)
 		handoff_val |= SYSMGR_FPGAINTF_NAND;
-	if (readl(socfpga_get_sysmgr_addr() + SYSMGR_S10_SDMMC_USEFPGA) ==
+	if (readl(socfpga_get_sysmgr_addr() + SYSMGR_SOC64_SDMMC_USEFPGA) ==
 	    SYSMGR_FPGAINTF_USEFPGA)
 		handoff_val |= SYSMGR_FPGAINTF_SDMMC;
-	if (readl(socfpga_get_sysmgr_addr() + SYSMGR_S10_SPIM0_USEFPGA) ==
+	if (readl(socfpga_get_sysmgr_addr() + SYSMGR_SOC64_SPIM0_USEFPGA) ==
 	    SYSMGR_FPGAINTF_USEFPGA)
 		handoff_val |= SYSMGR_FPGAINTF_SPIM0;
-	if (readl(socfpga_get_sysmgr_addr() + SYSMGR_S10_SPIM1_USEFPGA) ==
+	if (readl(socfpga_get_sysmgr_addr() + SYSMGR_SOC64_SPIM1_USEFPGA) ==
 	    SYSMGR_FPGAINTF_USEFPGA)
 		handoff_val |= SYSMGR_FPGAINTF_SPIM1;
 	writel(handoff_val,
-	       socfpga_get_sysmgr_addr() + SYSMGR_S10_FPGAINTF_EN2);
+	       socfpga_get_sysmgr_addr() + SYSMGR_SOC64_FPGAINTF_EN2);
 
 	handoff_val = 0;
-	if (readl(socfpga_get_sysmgr_addr() + SYSMGR_S10_EMAC0_USEFPGA) ==
+	if (readl(socfpga_get_sysmgr_addr() + SYSMGR_SOC64_EMAC0_USEFPGA) ==
 	    SYSMGR_FPGAINTF_USEFPGA)
 		handoff_val |= SYSMGR_FPGAINTF_EMAC0;
-	if (readl(socfpga_get_sysmgr_addr() + SYSMGR_S10_EMAC1_USEFPGA) ==
+	if (readl(socfpga_get_sysmgr_addr() + SYSMGR_SOC64_EMAC1_USEFPGA) ==
 	    SYSMGR_FPGAINTF_USEFPGA)
 		handoff_val |= SYSMGR_FPGAINTF_EMAC1;
-	if (readl(socfpga_get_sysmgr_addr() + SYSMGR_S10_EMAC2_USEFPGA) ==
+	if (readl(socfpga_get_sysmgr_addr() + SYSMGR_SOC64_EMAC2_USEFPGA) ==
 	    SYSMGR_FPGAINTF_USEFPGA)
 		handoff_val |= SYSMGR_FPGAINTF_EMAC2;
 	writel(handoff_val,
-	       socfpga_get_sysmgr_addr() + SYSMGR_S10_FPGAINTF_EN3);
+	       socfpga_get_sysmgr_addr() + SYSMGR_SOC64_FPGAINTF_EN3);
 }
 
 /*
@@ -71,7 +71,7 @@ void populate_sysmgr_pinmux(void)
 	for (i = 0; i < len; i = i + 2) {
 		writel(sys_mgr_table_u32[i + 1],
 		       sys_mgr_table_u32[i] +
-		       (u8 *)socfpga_get_sysmgr_addr() + SYSMGR_S10_PINSEL0);
+		       (u8 *)socfpga_get_sysmgr_addr() + SYSMGR_SOC64_PINSEL0);
 	}
 
 	/* setup the pin ctrl */
@@ -79,7 +79,7 @@ void populate_sysmgr_pinmux(void)
 	for (i = 0; i < len; i = i + 2) {
 		writel(sys_mgr_table_u32[i + 1],
 		       sys_mgr_table_u32[i] +
-		       (u8 *)socfpga_get_sysmgr_addr() + SYSMGR_S10_IOCTRL0);
+		       (u8 *)socfpga_get_sysmgr_addr() + SYSMGR_SOC64_IOCTRL0);
 	}
 
 	/* setup the fpga use */
@@ -88,7 +88,7 @@ void populate_sysmgr_pinmux(void)
 		writel(sys_mgr_table_u32[i + 1],
 		       sys_mgr_table_u32[i] +
 		       (u8 *)socfpga_get_sysmgr_addr() +
-		       SYSMGR_S10_EMAC0_USEFPGA);
+		       SYSMGR_SOC64_EMAC0_USEFPGA);
 	}
 
 	/* setup the IO delay */
@@ -96,6 +96,6 @@ void populate_sysmgr_pinmux(void)
 	for (i = 0; i < len; i = i + 2) {
 		writel(sys_mgr_table_u32[i + 1],
 		       sys_mgr_table_u32[i] +
-		       (u8 *)socfpga_get_sysmgr_addr() + SYSMGR_S10_IODELAY0);
+		       (u8 *)socfpga_get_sysmgr_addr() + SYSMGR_SOC64_IODELAY0);
 	}
 }

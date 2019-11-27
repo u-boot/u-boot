@@ -149,7 +149,7 @@ static int emif_reset(struct altera_sdram_platdata *plat)
 static int poll_hmc_clock_status(void)
 {
 	return wait_for_bit_le32((const void *)(socfpga_get_sysmgr_addr() +
-				 SYSMGR_S10_HMC_CLK),
+				 SYSMGR_SOC64_HMC_CLK),
 				 SYSMGR_HMC_CLK_STATUS_MSK, true, 1000, false);
 }
 

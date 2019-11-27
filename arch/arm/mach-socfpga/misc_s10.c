@@ -65,7 +65,7 @@ static u32 socfpga_phymode_setup(u32 gmac_index, const char *phymode)
 	else
 		return -EINVAL;
 
-	clrsetbits_le32(socfpga_get_sysmgr_addr() + SYSMGR_S10_EMAC0 +
+	clrsetbits_le32(socfpga_get_sysmgr_addr() + SYSMGR_SOC64_EMAC0 +
 			gmac_index,
 			SYSMGR_EMACGRP_CTRL_PHYSEL_MASK, modereg);
 

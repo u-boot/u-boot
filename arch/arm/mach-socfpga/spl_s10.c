@@ -53,7 +53,7 @@ void board_init_f(ulong dummy)
 #ifdef CONFIG_HW_WATCHDOG
 	/* Ensure watchdog is paused when debugging is happening */
 	writel(SYSMGR_WDDBG_PAUSE_ALL_CPU,
-	       socfpga_get_sysmgr_addr() + SYSMGR_S10_WDDBG);
+	       socfpga_get_sysmgr_addr() + SYSMGR_SOC64_WDDBG);
 
 	/* Enable watchdog before initializing the HW */
 	socfpga_per_reset(SOCFPGA_RESET(L4WD0), 1);

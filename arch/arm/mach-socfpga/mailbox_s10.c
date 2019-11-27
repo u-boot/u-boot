@@ -316,7 +316,7 @@ int mbox_qspi_open(void)
 	/* We are getting QSPI ref clock and set into sysmgr boot register */
 	printf("QSPI: Reference clock at %d Hz\n", resp_buf[0]);
 	writel(resp_buf[0],
-	       socfpga_get_sysmgr_addr() + SYSMGR_S10_BOOT_SCRATCH_COLD0);
+	       socfpga_get_sysmgr_addr() + SYSMGR_SOC64_BOOT_SCRATCH_COLD0);
 
 	return 0;
 

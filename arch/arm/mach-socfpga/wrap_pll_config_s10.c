@@ -36,9 +36,10 @@ const unsigned int cm_get_osc_clk_hz(void)
 	u32 clock = readl(S10_HANDOFF_CLOCK_OSC);
 
 	writel(clock,
-	       socfpga_get_sysmgr_addr() + SYSMGR_S10_BOOT_SCRATCH_COLD1);
+	       socfpga_get_sysmgr_addr() + SYSMGR_SOC64_BOOT_SCRATCH_COLD1);
 #endif
-	return readl(socfpga_get_sysmgr_addr() + SYSMGR_S10_BOOT_SCRATCH_COLD1);
+	return readl(socfpga_get_sysmgr_addr() +
+		     SYSMGR_SOC64_BOOT_SCRATCH_COLD1);
 }
 
 const unsigned int cm_get_intosc_clk_hz(void)
@@ -52,7 +53,8 @@ const unsigned int cm_get_fpga_clk_hz(void)
 	u32 clock = readl(S10_HANDOFF_CLOCK_FPGA);
 
 	writel(clock,
-	       socfpga_get_sysmgr_addr() + SYSMGR_S10_BOOT_SCRATCH_COLD2);
+	       socfpga_get_sysmgr_addr() + SYSMGR_SOC64_BOOT_SCRATCH_COLD2);
 #endif
-	return readl(socfpga_get_sysmgr_addr() + SYSMGR_S10_BOOT_SCRATCH_COLD2);
+	return readl(socfpga_get_sysmgr_addr() +
+		     SYSMGR_SOC64_BOOT_SCRATCH_COLD2);
 }

@@ -101,7 +101,7 @@ void firewall_setup(void)
 
 	/* enable non-secure interface to DMA330 DMA and peripherals */
 	writel(SYSMGR_DMA_IRQ_NS | SYSMGR_DMA_MGR_NS,
-	       socfpga_get_sysmgr_addr() + SYSMGR_S10_DMA);
+	       socfpga_get_sysmgr_addr() + SYSMGR_SOC64_DMA);
 	writel(SYSMGR_DMAPERIPH_ALL_NS,
-	       socfpga_get_sysmgr_addr() + SYSMGR_S10_DMA_PERIPH);
+	       socfpga_get_sysmgr_addr() + SYSMGR_SOC64_DMA_PERIPH);
 }
