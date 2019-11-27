@@ -18,13 +18,13 @@ void socfpga_per_reset(u32 reset, int set)
 	unsigned long reg;
 
 	if (RSTMGR_BANK(reset) == 0)
-		reg = RSTMGR_S10_MPUMODRST;
+		reg = RSTMGR_SOC64_MPUMODRST;
 	else if (RSTMGR_BANK(reset) == 1)
-		reg = RSTMGR_S10_PER0MODRST;
+		reg = RSTMGR_SOC64_PER0MODRST;
 	else if (RSTMGR_BANK(reset) == 2)
-		reg = RSTMGR_S10_PER1MODRST;
+		reg = RSTMGR_SOC64_PER1MODRST;
 	else if (RSTMGR_BANK(reset) == 3)
-		reg = RSTMGR_S10_BRGMODRST;
+		reg = RSTMGR_SOC64_BRGMODRST;
 	else	/* Invalid reset register, do nothing */
 		return;
 
@@ -47,9 +47,9 @@ void socfpga_per_reset_all(void)
 
 	/* disable all except OCP and l4wd0. OCP disable later */
 	writel(~(l4wd0 | RSTMGR_PER0MODRST_OCP_MASK),
-		      socfpga_get_rstmgr_addr() + RSTMGR_S10_PER0MODRST);
-	writel(~l4wd0, socfpga_get_rstmgr_addr() + RSTMGR_S10_PER0MODRST);
-	writel(0xffffffff, socfpga_get_rstmgr_addr() + RSTMGR_S10_PER1MODRST);
+		      socfpga_get_rstmgr_addr() + RSTMGR_SOC64_PER0MODRST);
+	writel(~l4wd0, socfpga_get_rstmgr_addr() + RSTMGR_SOC64_PER0MODRST);
+	writel(0xffffffff, socfpga_get_rstmgr_addr() + RSTMGR_SOC64_PER1MODRST);
 }
 
 void socfpga_bridges_reset(int enable)
@@ -60,7 +60,7 @@ void socfpga_bridges_reset(int enable)
 			     SYSMGR_S10_NOC_IDLEREQ_CLR, ~0);
 
 		/* Release all bridges from reset state */
-		clrbits_le32(socfpga_get_rstmgr_addr() + RSTMGR_S10_BRGMODRST,
+		clrbits_le32(socfpga_get_rstmgr_addr() + RSTMGR_SOC64_BRGMODRST,
 			     ~0);
 
 		/* Poll until all idleack to 0 */
@@ -86,7 +86,7 @@ void socfpga_bridges_reset(int enable)
 			;
 
 		/* Reset all bridges (except NOR DDR scheduler & F2S) */
-		setbits_le32(socfpga_get_rstmgr_addr() + RSTMGR_S10_BRGMODRST,
+		setbits_le32(socfpga_get_rstmgr_addr() + RSTMGR_SOC64_BRGMODRST,
 			     ~(RSTMGR_BRGMODRST_DDRSCH_MASK |
 			       RSTMGR_BRGMODRST_FPGA2SOC_MASK));
 
@@ -100,6 +100,6 @@ void socfpga_bridges_reset(int enable)
  */
 int cpu_has_been_warmreset(void)
 {
-	return readl(socfpga_get_rstmgr_addr() + RSTMGR_S10_STATUS) &
+	return readl(socfpga_get_rstmgr_addr() + RSTMGR_SOC64_STATUS) &
 			RSTMGR_L4WD_MPU_WARMRESET_MASK;
 }
