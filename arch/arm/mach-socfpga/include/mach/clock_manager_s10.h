@@ -1,11 +1,13 @@
 /* SPDX-License-Identifier: GPL-2.0
  *
- * Copyright (C) 2016-2018 Intel Corporation <www.intel.com>
+ * Copyright (C) 2016-2019 Intel Corporation <www.intel.com>
  *
  */
 
 #ifndef	_CLOCK_MANAGER_S10_
 #define	_CLOCK_MANAGER_S10_
+
+#include <asm/arch/clock_manager_soc64.h>
 
 /* Clock speed accessors */
 unsigned long cm_get_mpu_clk_hz(void);
@@ -14,18 +16,6 @@ unsigned int cm_get_l4_sp_clk_hz(void);
 unsigned int cm_get_mmc_controller_clk_hz(void);
 unsigned int cm_get_qspi_controller_clk_hz(void);
 unsigned int cm_get_spi_controller_clk_hz(void);
-const unsigned int cm_get_osc_clk_hz(void);
-const unsigned int cm_get_f2s_per_ref_clk_hz(void);
-const unsigned int cm_get_f2s_sdr_ref_clk_hz(void);
-const unsigned int cm_get_intosc_clk_hz(void);
-const unsigned int cm_get_fpga_clk_hz(void);
-
-#define CLKMGR_EOSC1_HZ		25000000
-#define CLKMGR_INTOSC_HZ	460000000
-#define CLKMGR_FPGA_CLK_HZ	50000000
-
-/* Clock configuration accessors */
-const struct cm_config * const cm_get_default_config(void);
 
 struct cm_config {
 	/* main group */
