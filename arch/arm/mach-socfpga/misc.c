@@ -245,7 +245,12 @@ void socfpga_get_managers_addr(void)
 	if (ret)
 		hang();
 
+#ifdef CONFIG_TARGET_SOCFPGA_AGILEX
+	ret = socfpga_get_base_addr("intel,agilex-clkmgr",
+				    &socfpga_clkmgr_base);
+#else
 	ret = socfpga_get_base_addr("altr,clk-mgr", &socfpga_clkmgr_base);
+#endif
 	if (ret)
 		hang();
 }
