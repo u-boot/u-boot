@@ -178,6 +178,11 @@ unsigned char *dfu_free_buf(void);
 unsigned long dfu_get_buf_size(void);
 bool dfu_usb_get_reset(void);
 
+#ifdef CONFIG_DFU_TIMEOUT
+unsigned long dfu_get_timeout(void);
+void dfu_set_timeout(unsigned long);
+#endif
+
 int dfu_read(struct dfu_entity *de, void *buf, int size, int blk_seq_num);
 int dfu_write(struct dfu_entity *de, void *buf, int size, int blk_seq_num);
 int dfu_flush(struct dfu_entity *de, void *buf, int size, int blk_seq_num);

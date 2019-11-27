@@ -23,6 +23,12 @@ config DFU_TFTP
 
 	  Detailed description of this feature can be found at ./doc/README.dfutftp
 
+config DFU_TIMEOUT
+	bool "Timeout waiting for DFU"
+	help
+	  This option adds an optional timeout parameter for DFU which, if set,
+	  will cause DFU to only wait for that many seconds before exiting.
+
 config DFU_MMC
 	bool "MMC back end for DFU"
 	help

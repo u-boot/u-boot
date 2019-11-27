@@ -21,6 +21,9 @@ static LIST_HEAD(dfu_list);
 static int dfu_alt_num;
 static int alt_num_cnt;
 static struct hash_algo *dfu_hash_algo;
+#ifdef CONFIG_DFU_TIMEOUT
+static unsigned long dfu_timeout = 0;
+#endif
 
 /*
  * The purpose of the dfu_flush_callback() function is to
@@ -57,6 +60,18 @@ __weak bool dfu_usb_get_reset(void)
 	return true;
 #endif
 }
+
+#ifdef CONFIG_DFU_TIMEOUT
+void dfu_set_timeout(unsigned long timeout)
+{
+	dfu_timeout = timeout;
+}
+
+unsigned long dfu_get_timeout(void)
+{
+	return dfu_timeout;
+}
+#endif
 
 static int dfu_find_alt_num(const char *s)
 {
