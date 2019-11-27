@@ -65,6 +65,7 @@ struct altera_sdram_platdata {
 /* HMC MMR IO48 registers */
 #define CTRLCFG0			0x28
 #define CTRLCFG1			0x2c
+#define CTRLCFG3                        0x34
 #define DRAMTIMING0			0x50
 #define CALTIMING0			0x7c
 #define CALTIMING1			0x80

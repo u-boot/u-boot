@@ -289,6 +289,7 @@ static struct ram_ops altera_sdram_ops = {
 
 static const struct udevice_id altera_sdram_ids[] = {
 	{ .compatible = "altr,sdr-ctl-s10" },
+	{ .compatible = "intel,sdr-ctl-agilex" },
 	{ /* sentinel */ }
 };
 
