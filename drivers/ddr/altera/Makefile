@@ -9,5 +9,5 @@
 ifdef CONFIG_$(SPL_)ALTERA_SDRAM
 obj-$(CONFIG_TARGET_SOCFPGA_GEN5) += sdram_gen5.o sequencer.o
 obj-$(CONFIG_TARGET_SOCFPGA_ARRIA10) += sdram_arria10.o
-obj-$(CONFIG_TARGET_SOCFPGA_STRATIX10) += sdram_s10.o
+obj-$(CONFIG_TARGET_SOCFPGA_STRATIX10) += sdram_soc64.o sdram_s10.o
 endif
