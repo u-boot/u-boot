@@ -51,6 +51,7 @@ ifdef CONFIG_TARGET_SOCFPGA_ARRIA10
 obj-y	+= spl_a10.o
 endif
 ifdef CONFIG_TARGET_SOCFPGA_STRATIX10
+obj-y	+= firewall.o
 obj-y	+= spl_s10.o
 endif
 endif

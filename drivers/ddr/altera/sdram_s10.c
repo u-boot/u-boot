@@ -14,7 +14,7 @@
 #include <reset.h>
 #include "sdram_s10.h"
 #include <wait_bit.h>
-#include <asm/arch/firewall_s10.h>
+#include <asm/arch/firewall.h>
 #include <asm/arch/system_manager.h>
 #include <asm/arch/reset_manager.h>
 #include <asm/io.h>
