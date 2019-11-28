@@ -9,6 +9,7 @@
 #include <command.h>
 #include <imx_sip.h>
 #include <linux/compiler.h>
+#include <cpu_func.h>
 
 int arch_auxiliary_core_up(u32 core_id, ulong boot_private_data)
 {
@@ -26,6 +27,8 @@ int arch_auxiliary_core_up(u32 core_id, ulong boot_private_data)
 	/* Set the stack and pc to M4 bootROM */
 	writel(stack, M4_BOOTROM_BASE_ADDR);
 	writel(pc, M4_BOOTROM_BASE_ADDR + 4);
+
+	flush_dcache_all();
 
 	/* Enable M4 */
 #ifdef CONFIG_IMX8M
