@@ -75,13 +75,12 @@ static const unsigned char usb_kbd_num_keypad[] = {
 	'.', 0, 0, 0, '='
 };
 
-/*
- * map arrow keys to ^F/^B ^N/^P, can't really use the proper
- * ANSI sequence for arrow keys because the queuing code breaks
- * when a single keypress expands to 3 queue elements
- */
-static const unsigned char usb_kbd_arrow[] = {
-	0x6, 0x2, 0xe, 0x10
+static const u8 usb_special_keys[] = {
+#ifdef CONFIG_USB_KEYBOARD_FN_KEYS
+	'2', 'H', '5', '3', 'F', '6', 'C', 'D', 'B', 'A'
+#else
+	'C', 'D', 'B', 'A'
+#endif
 };
 
 /*
@@ -95,12 +94,6 @@ static const unsigned char usb_kbd_arrow[] = {
 
 #define USB_KBD_LEDMASK		\
 	(USB_KBD_NUMLOCK | USB_KBD_CAPSLOCK | USB_KBD_SCROLLLOCK)
-
-/*
- * USB Keyboard reports are 8 bytes in boot protocol.
- * Appendix B of HID Device Class Definition 1.11
- */
-#define USB_KBD_BOOT_REPORT_SIZE 8
 
 struct usb_kbd_pdata {
 	unsigned long	intpipe;
@@ -127,7 +120,7 @@ extern int __maybe_unused net_busy_flag;
 static unsigned long __maybe_unused kbd_testc_tms;
 
 /* Puts character in the queue and sets up the in and out pointer. */
-static void usb_kbd_put_queue(struct usb_kbd_pdata *data, char c)
+static void usb_kbd_put_queue(struct usb_kbd_pdata *data, u8 c)
 {
 	if (data->usb_in_pointer == USB_KBD_BUFFER_LEN - 1) {
 		/* Check for buffer full. */
@@ -144,12 +137,6 @@ static void usb_kbd_put_queue(struct usb_kbd_pdata *data, char c)
 	}
 
 	data->usb_kbd_buffer[data->usb_in_pointer] = c;
-}
-
-static void usb_kbd_put_sequence(struct usb_kbd_pdata *data, char *s)
-{
-	for (; *s; s++)
-		usb_kbd_put_queue(data, *s);
 }
 
 /*
@@ -214,10 +201,6 @@ static int usb_kbd_translate(struct usb_kbd_pdata *data, unsigned char scancode,
 			keycode = usb_kbd_numkey[scancode - 0x1e];
 	}
 
-	/* Arrow keys */
-	if ((scancode >= 0x4f) && (scancode <= 0x52))
-		keycode = usb_kbd_arrow[scancode - 0x4f];
-
 	/* Numeric keypad */
 	if ((scancode >= 0x54) && (scancode <= 0x67))
 		keycode = usb_kbd_num_keypad[scancode - 0x54];
@@ -242,28 +225,58 @@ static int usb_kbd_translate(struct usb_kbd_pdata *data, unsigned char scancode,
 	}
 
 	/* Report keycode if any */
-	if (keycode)
+	if (keycode) {
 		debug("%c", keycode);
-
-	switch (keycode) {
-	case 0x0e:					/* Down arrow key */
-		usb_kbd_put_sequence(data, "\e[B");
-		break;
-	case 0x10:					/* Up arrow key */
-		usb_kbd_put_sequence(data, "\e[A");
-		break;
-	case 0x06:					/* Right arrow key */
-		usb_kbd_put_sequence(data, "\e[C");
-		break;
-	case 0x02:					/* Left arrow key */
-		usb_kbd_put_sequence(data, "\e[D");
-		break;
-	default:
 		usb_kbd_put_queue(data, keycode);
-		break;
+		return 0;
 	}
 
+#ifdef CONFIG_USB_KEYBOARD_FN_KEYS
+	if (scancode < 0x3a || scancode > 0x52 ||
+	    scancode == 0x46 || scancode == 0x47)
+		return 1;
+
+	usb_kbd_put_queue(data, 0x1b);
+	if (scancode < 0x3e) {
+		/* F1 - F4 */
+		usb_kbd_put_queue(data, 0x4f);
+		usb_kbd_put_queue(data, scancode - 0x3a + 'P');
+		return 0;
+	}
+	usb_kbd_put_queue(data, '[');
+	if (scancode < 0x42) {
+		/* F5 - F8 */
+		usb_kbd_put_queue(data, '1');
+		if (scancode == 0x3e)
+			--scancode;
+		keycode = scancode - 0x3f + '7';
+	} else if (scancode < 0x49) {
+		/* F9 - F12 */
+		usb_kbd_put_queue(data, '2');
+		if (scancode > 0x43)
+			++scancode;
+		keycode = scancode - 0x42 + '0';
+	} else {
+		/*
+		 * INSERT, HOME, PAGE UP, DELETE, END, PAGE DOWN,
+		 * RIGHT, LEFT, DOWN, UP
+		 */
+		keycode = usb_special_keys[scancode - 0x49];
+	}
+	usb_kbd_put_queue(data, keycode);
+	if (scancode < 0x4f && scancode != 0x4a && scancode != 0x4d)
+		usb_kbd_put_queue(data, '~');
 	return 0;
+#else
+	/* Left, Right, Up, Down */
+	if (scancode > 0x4e && scancode < 0x53) {
+		usb_kbd_put_queue(data, 0x1b);
+		usb_kbd_put_queue(data, '[');
+		usb_kbd_put_queue(data, usb_special_keys[scancode - 0x4f]);
+		return 0;
+	}
+	return 1;
+#endif /* CONFIG_USB_KEYBOARD_FN_KEYS */
 }
 
 static uint32_t usb_kbd_service_key(struct usb_device *dev, int i, int up)
@@ -339,7 +352,7 @@ static inline void usb_kbd_poll_for_event(struct usb_device *dev)
 #if defined(CONFIG_SYS_USB_EVENT_POLL)
 	struct usb_kbd_pdata *data = dev->privptr;
 
-	/* Submit a interrupt transfer request */
+	/* Submit an interrupt transfer request */
 	if (usb_int_msg(dev, data->intpipe, &data->new[0],
 			data->intpktsize, data->intinterval, true) >= 0)
 		usb_kbd_irq_worker(dev);
