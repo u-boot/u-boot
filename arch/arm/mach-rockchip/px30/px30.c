@@ -222,7 +222,7 @@ void board_debug_uart_init(void)
 		     UART2_CLK_SEL_MASK,
 		     UART2_CLK_SEL_UART2 << UART2_CLK_SEL_SHIFT);
 
-#if (CONFIG_DEBUG_UART2_CHANNEL == 1)
+#if (CONFIG_DEBUG_UART_CHANNEL == 1)
 	/* Enable early UART2 */
 	rk_clrsetreg(&grf->iofunc_con0,
 		     CON_IOMUX_UART2SEL_MASK,
@@ -241,7 +241,7 @@ void board_debug_uart_init(void)
 		     GPIO1D3_MASK | GPIO1D2_MASK,
 		     GPIO1D3_UART2_RXM0 << GPIO1D3_SHIFT |
 		     GPIO1D2_UART2_TXM0 << GPIO1D2_SHIFT);
-#endif /* CONFIG_DEBUG_UART2_CHANNEL == 1 */
+#endif /* CONFIG_DEBUG_UART_CHANNEL == 1 */
 
 #endif /* CONFIG_DEBUG_UART_BASE && CONFIG_DEBUG_UART_BASE == ... */
 }

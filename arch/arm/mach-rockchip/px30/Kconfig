@@ -27,12 +27,12 @@ config TPL_MAX_SIZE
 config TPL_STACK
 	default 0xff0e4fff
 
-config DEBUG_UART2_CHANNEL
-	int "Mux channel to use for debug UART2"
+config DEBUG_UART_CHANNEL
+	int "Mux channel to use for debug UART2/UART3"
 	depends on DEBUG_UART_BOARD_INIT
 	default 0
 	help
-	  UART2 can use two different set of pins to route the output.
+	  UART2 and UART3 can use two different set of pins to route the output.
 	  For using the UART for early debugging the route to use needs
 	  to be declared (0 or 1).
 
