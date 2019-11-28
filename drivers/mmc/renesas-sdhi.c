@@ -34,7 +34,12 @@
 #define RENESAS_SDHI_SCC_RVSCNTL_RVSEN		BIT(0)
 #define RENESAS_SDHI_SCC_RVSREQ			0x814
 #define RENESAS_SDHI_SCC_RVSREQ_RVSERR		BIT(2)
+#define RENESAS_SDHI_SCC_RVSREQ_REQTAPUP	BIT(1)
+#define RENESAS_SDHI_SCC_RVSREQ_REQTAPDOWN	BIT(0)
 #define RENESAS_SDHI_SCC_SMPCMP			0x818
+#define RENESAS_SDHI_SCC_SMPCMP_CMD_ERR		(BIT(24) | BIT(8))
+#define RENESAS_SDHI_SCC_SMPCMP_CMD_REQUP	BIT(24)
+#define RENESAS_SDHI_SCC_SMPCMP_CMD_REQDOWN	BIT(8)
 #define RENESAS_SDHI_SCC_TMPPORT2		0x81c
 #define RENESAS_SDHI_SCC_TMPPORT2_HS400EN	BIT(31)
 #define RENESAS_SDHI_SCC_TMPPORT2_HS400OSEL	BIT(4)
@@ -57,6 +62,49 @@
 #define RENESAS_SDHI_SCC_TMPPORT_MANUAL_MODE		BIT(7)
 
 #define RENESAS_SDHI_MAX_TAP 3
+
+#define CALIB_TABLE_MAX	(RENESAS_SDHI_SCC_TMPPORT_CALIB_CODE_MASK + 1)
+
+static const u8 r8a7795_calib_table[2][CALIB_TABLE_MAX] = {
+	{ 0,  0,  0,  0,  0,  1,  1,  2,  3,  4,  5,  5,  6,  6,  7, 11,
+	 15, 16, 16, 17, 17, 17, 17, 17, 18, 18, 18, 18, 19, 20, 21, 21 },
+	{ 3,  3,  4,  4,  5,  6,  6,  7,  8,  8,  9,  9, 10, 11, 12, 15,
+	 16, 16, 17, 17, 17, 17, 17, 18, 18, 18, 18, 19, 20, 21, 22, 22 }
+};
+
+static const u8 r8a7796_rev1_calib_table[2][CALIB_TABLE_MAX] = {
+	{ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  2,  3,  4,  9,
+	 15, 15, 15, 16, 16, 16, 16, 16, 17, 18, 19, 20, 21, 21, 22, 22 },
+	{ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,
+	  2,  9, 16, 17, 17, 17, 18, 18, 18, 18, 19, 20, 21, 22, 23, 24}
+};
+
+static const u8 r8a7796_rev3_calib_table[2][CALIB_TABLE_MAX] = {
+	{ 0,  0,  0,  0,  2,  3,  4,  4,  5,  6,  7,  7,  8,  9,  9, 10,
+	 11, 12, 13, 15, 16, 17, 17, 18, 19, 19, 20, 21, 21, 22, 23, 23 },
+	{ 1,  2,  2,  3,  4,  4,  5,  6,  6,  7,  8,  9,  9, 10, 11, 12,
+	 13, 14, 15, 16, 17, 17, 18, 19, 20, 20, 21, 22, 22, 23, 24, 24 }
+};
+
+static const u8 r8a77965_calib_table[2][CALIB_TABLE_MAX] = {
+	{ 0,  1,  2,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 15,
+	 16, 17, 18, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 29 },
+	{ 0,  1,  2,  2,  2,  3,  4,  5,  6,  7,  9, 10, 11, 12, 13, 15,
+	 16, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 31 }
+};
+
+static const u8 r8a77990_calib_table[2][CALIB_TABLE_MAX] = {
+	{ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },
+	{ 0,  0,  1,  2,  3,  4,  4,  4,  4,  5,  5,  6,  7,  8, 10, 11,
+	 12, 13, 14, 16, 17, 18, 18, 18, 19, 19, 20, 24, 26, 26, 26, 26 }
+};
+
+static int rmobile_is_gen3_mmc0(struct tmio_sd_priv *priv)
+{
+	/* On R-Car Gen3, MMC0 is at 0xee140000 */
+	return (uintptr_t)(priv->regbase) == 0xee140000;
+}
 
 static u32 sd_scc_tmpport_read32(struct tmio_sd_priv *priv, u32 addr)
 {
@@ -87,6 +135,102 @@ static void sd_scc_tmpport_write32(struct tmio_sd_priv *priv, u32 addr, u32 val)
 	tmio_sd_writel(priv, 0, RENESAS_SDHI_SCC_TMPPORT4);
 }
 
+static bool renesas_sdhi_check_scc_error(struct udevice *dev)
+{
+	struct tmio_sd_priv *priv = dev_get_priv(dev);
+	struct mmc *mmc = mmc_get_mmc_dev(dev);
+	unsigned long new_tap = priv->tap_set;
+	unsigned long error_tap = priv->tap_set;
+	u32 reg, smpcmp;
+
+	if ((priv->caps & TMIO_SD_CAP_RCAR_UHS) &&
+	    (mmc->selected_mode != UHS_SDR104) &&
+	    (mmc->selected_mode != MMC_HS_200) &&
+	    (mmc->selected_mode != MMC_HS_400) &&
+	    (priv->nrtaps != 4))
+		return false;
+
+	reg = tmio_sd_readl(priv, RENESAS_SDHI_SCC_RVSCNTL);
+	/* Handle automatic tuning correction */
+	if (reg & RENESAS_SDHI_SCC_RVSCNTL_RVSEN) {
+		reg = tmio_sd_readl(priv, RENESAS_SDHI_SCC_RVSREQ);
+		if (reg & RENESAS_SDHI_SCC_RVSREQ_RVSERR) {
+			tmio_sd_writel(priv, 0, RENESAS_SDHI_SCC_RVSREQ);
+			return true;
+		}
+
+		return false;
+	}
+
+	/* Handle manual tuning correction */
+	reg = tmio_sd_readl(priv, RENESAS_SDHI_SCC_RVSREQ);
+	if (!reg)	/* No error */
+		return false;
+
+	tmio_sd_writel(priv, 0, RENESAS_SDHI_SCC_RVSREQ);
+
+	if (mmc->selected_mode == MMC_HS_400) {
+		/*
+		 * Correction Error Status contains CMD and DAT signal status.
+		 * In HS400, DAT signal based on DS signal, not CLK.
+		 * Therefore, use only CMD status.
+		 */
+		smpcmp = tmio_sd_readl(priv, RENESAS_SDHI_SCC_SMPCMP) &
+			 RENESAS_SDHI_SCC_SMPCMP_CMD_ERR;
+
+		switch (smpcmp) {
+		case 0:
+			return false;	/* No error in CMD signal */
+		case RENESAS_SDHI_SCC_SMPCMP_CMD_REQUP:
+			new_tap = (priv->tap_set +
+				   priv->tap_num + 1) % priv->tap_num;
+			error_tap = (priv->tap_set +
+				     priv->tap_num - 1) % priv->tap_num;
+			break;
+		case RENESAS_SDHI_SCC_SMPCMP_CMD_REQDOWN:
+			new_tap = (priv->tap_set +
+				   priv->tap_num - 1) % priv->tap_num;
+			error_tap = (priv->tap_set +
+				     priv->tap_num + 1) % priv->tap_num;
+			break;
+		default:
+			return true;	/* Need re-tune */
+		}
+
+		if (priv->hs400_bad_tap & BIT(new_tap)) {
+			/*
+			 * New tap is bad tap (cannot change).
+			 * Compare with HS200 tuning result.
+			 * In HS200 tuning, when smpcmp[error_tap]
+			 * is OK, retune is executed.
+			 */
+			if (priv->smpcmp & BIT(error_tap))
+				return true;	/* Need retune */
+
+			return false;	/* cannot change */
+		}
+
+		priv->tap_set = new_tap;
+	} else {
+		if (reg & RENESAS_SDHI_SCC_RVSREQ_RVSERR)
+			return true;	/* Need re-tune */
+		else if (reg & RENESAS_SDHI_SCC_RVSREQ_REQTAPUP)
+			priv->tap_set = (priv->tap_set +
+					 priv->tap_num + 1) % priv->tap_num;
+		else if (reg & RENESAS_SDHI_SCC_RVSREQ_REQTAPDOWN)
+			priv->tap_set = (priv->tap_set +
+					 priv->tap_num - 1) % priv->tap_num;
+		else
+			return false;
+	}
+
+	/* Set TAP position */
+	tmio_sd_writel(priv, priv->tap_set >> ((priv->nrtaps == 4) ? 1 : 0),
+		       RENESAS_SDHI_SCC_TAPSET);
+
+	return false;
+}
+
 static void renesas_sdhi_adjust_hs400_mode_enable(struct tmio_sd_priv *priv)
 {
 	u32 calib_code;
@@ -97,28 +241,30 @@ static void renesas_sdhi_adjust_hs400_mode_enable(struct tmio_sd_priv *priv)
 	if (!priv->needs_adjust_hs400)
 		return;
 
+	if (!priv->adjust_hs400_calib_table)
+		return;
+
 	/*
 	 * Enabled Manual adjust HS400 mode
 	 *
 	 * 1) Disabled Write Protect
 	 *    W(addr=0x00, WP_DISABLE_CODE)
-	 * 2) Read Calibration code and adjust
-	 *    R(addr=0x26) - adjust value
-	 * 3) Enabled Manual Calibration
+	 *
+	 * 2) Read Calibration code
+	 *    read_value = R(addr=0x26)
+	 * 3) Refer to calibration table
+	 *    Calibration code = table[read_value]
+	 * 4) Enabled Manual Calibration
 	 *    W(addr=0x22, manual mode | Calibration code)
-	 * 4) Set Offset value to TMPPORT3 Reg
+	 * 5) Set Offset value to TMPPORT3 Reg
 	 */
 	sd_scc_tmpport_write32(priv, 0x00,
 			       RENESAS_SDHI_SCC_TMPPORT_DISABLE_WP_CODE);
 	calib_code = sd_scc_tmpport_read32(priv, 0x26);
 	calib_code &= RENESAS_SDHI_SCC_TMPPORT_CALIB_CODE_MASK;
-	if (calib_code > priv->adjust_hs400_calibrate)
-		calib_code -= priv->adjust_hs400_calibrate;
-	else
-		calib_code = 0;
 	sd_scc_tmpport_write32(priv, 0x22,
 			       RENESAS_SDHI_SCC_TMPPORT_MANUAL_MODE |
-			       calib_code);
+			       priv->adjust_hs400_calib_table[calib_code]);
 	tmio_sd_writel(priv, priv->adjust_hs400_offset,
 		       RENESAS_SDHI_SCC_TMPPORT3);
 
@@ -220,6 +366,7 @@ static int renesas_sdhi_hs400(struct udevice *dev)
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
 	bool hs400 = (mmc->selected_mode == MMC_HS_400);
 	int ret, taps = hs400 ? priv->nrtaps : 8;
+	unsigned long new_tap;
 	u32 reg;
 
 	if (taps == 4)	/* HS400 on 4tap SoC needs different clock */
@@ -229,7 +376,9 @@ static int renesas_sdhi_hs400(struct udevice *dev)
 	if (ret < 0)
 		return ret;
 
-	tmio_sd_writel(priv, 0, RENESAS_SDHI_SCC_RVSREQ);
+	reg = tmio_sd_readl(priv, RENESAS_SDHI_SCC_RVSCNTL);
+	reg &= ~RENESAS_SDHI_SCC_RVSCNTL_RVSEN;
+	tmio_sd_writel(priv, reg, RENESAS_SDHI_SCC_RVSCNTL);
 
 	reg = tmio_sd_readl(priv, RENESAS_SDHI_SCC_TMPPORT2);
 	if (hs400) {
@@ -250,23 +399,37 @@ static int renesas_sdhi_hs400(struct udevice *dev)
 			     RENESAS_SDHI_SCC_DTCNTL_TAPEN,
 			     RENESAS_SDHI_SCC_DTCNTL);
 
-	if (taps == 4) {
-		tmio_sd_writel(priv, priv->tap_set >> 1,
-			       RENESAS_SDHI_SCC_TAPSET);
-	} else {
+	/* Avoid bad TAP */
+	if (priv->hs400_bad_tap & BIT(priv->tap_set)) {
+		new_tap = (priv->tap_set +
+			   priv->tap_num + 1) % priv->tap_num;
+
+		if (priv->hs400_bad_tap & BIT(new_tap))
+			new_tap = (priv->tap_set +
+				   priv->tap_num - 1) % priv->tap_num;
+
+		if (priv->hs400_bad_tap & BIT(new_tap)) {
+			new_tap = priv->tap_set;
+			debug("Three consecutive bad tap is prohibited\n");
+		}
+
+		priv->tap_set = new_tap;
 		tmio_sd_writel(priv, priv->tap_set, RENESAS_SDHI_SCC_TAPSET);
 	}
 
-	tmio_sd_writel(priv, hs400 ? 0x704 : 0x300,
-		       RENESAS_SDHI_SCC_DT2FF);
+	if (taps == 4) {
+		tmio_sd_writel(priv, priv->tap_set >> 1,
+			       RENESAS_SDHI_SCC_TAPSET);
+		tmio_sd_writel(priv, hs400 ? 0x100 : 0x300,
+			       RENESAS_SDHI_SCC_DT2FF);
+	} else {
+		tmio_sd_writel(priv, priv->tap_set, RENESAS_SDHI_SCC_TAPSET);
+		tmio_sd_writel(priv, 0x300, RENESAS_SDHI_SCC_DT2FF);
+	}
 
 	reg = tmio_sd_readl(priv, RENESAS_SDHI_SCC_CKSEL);
 	reg |= RENESAS_SDHI_SCC_CKSEL_DTSEL;
 	tmio_sd_writel(priv, reg, RENESAS_SDHI_SCC_CKSEL);
-
-	reg = tmio_sd_readl(priv, RENESAS_SDHI_SCC_RVSCNTL);
-	reg |= RENESAS_SDHI_SCC_RVSCNTL_RVSEN;
-	tmio_sd_writel(priv, reg, RENESAS_SDHI_SCC_RVSCNTL);
 
 	/* Execute adjust hs400 offset after setting to HS400 mode */
 	if (hs400)
@@ -289,8 +452,7 @@ static unsigned int renesas_sdhi_compare_scc_data(struct tmio_sd_priv *priv)
 }
 
 static int renesas_sdhi_select_tuning(struct tmio_sd_priv *priv,
-				     unsigned int tap_num, unsigned int taps,
-				     unsigned int smpcmp)
+				     unsigned int taps)
 {
 	unsigned long tap_cnt;  /* counter of tuning success */
 	unsigned long tap_start;/* start position of tuning success */
@@ -307,14 +469,14 @@ static int renesas_sdhi_select_tuning(struct tmio_sd_priv *priv,
 	tmio_sd_writel(priv, 0, RENESAS_SDHI_SCC_RVSREQ);
 
 	/* Merge the results */
-	for (i = 0; i < tap_num * 2; i++) {
+	for (i = 0; i < priv->tap_num * 2; i++) {
 		if (!(taps & BIT(i))) {
-			taps &= ~BIT(i % tap_num);
-			taps &= ~BIT((i % tap_num) + tap_num);
+			taps &= ~BIT(i % priv->tap_num);
+			taps &= ~BIT((i % priv->tap_num) + priv->tap_num);
 		}
-		if (!(smpcmp & BIT(i))) {
-			smpcmp &= ~BIT(i % tap_num);
-			smpcmp &= ~BIT((i % tap_num) + tap_num);
+		if (!(priv->smpcmp & BIT(i))) {
+			priv->smpcmp &= ~BIT(i % priv->tap_num);
+			priv->smpcmp &= ~BIT((i % priv->tap_num) + priv->tap_num);
 		}
 	}
 
@@ -327,7 +489,7 @@ static int renesas_sdhi_select_tuning(struct tmio_sd_priv *priv,
 	ntap = 0;
 	tap_start = 0;
 	tap_end = 0;
-	for (i = 0; i < tap_num * 2; i++) {
+	for (i = 0; i < priv->tap_num * 2; i++) {
 		if (taps & BIT(i))
 			ntap++;
 		else {
@@ -350,13 +512,13 @@ static int renesas_sdhi_select_tuning(struct tmio_sd_priv *priv,
 	 * If all of the TAP is OK, the sampling clock position is selected by
 	 * identifying the change point of data.
 	 */
-	if (tap_cnt == tap_num * 2) {
+	if (tap_cnt == priv->tap_num * 2) {
 		match_cnt = 0;
 		ntap = 0;
 		tap_start = 0;
 		tap_end = 0;
-		for (i = 0; i < tap_num * 2; i++) {
-			if (smpcmp & BIT(i))
+		for (i = 0; i < priv->tap_num * 2; i++) {
+			if (priv->smpcmp & BIT(i))
 				ntap++;
 			else {
 				if (ntap > match_cnt) {
@@ -378,7 +540,7 @@ static int renesas_sdhi_select_tuning(struct tmio_sd_priv *priv,
 		select = true;
 
 	if (select)
-		priv->tap_set = ((tap_start + tap_end) / 2) % tap_num;
+		priv->tap_set = ((tap_start + tap_end) / 2) % priv->tap_num;
 	else
 		return -EIO;
 
@@ -399,7 +561,7 @@ int renesas_sdhi_execute_tuning(struct udevice *dev, uint opcode)
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct mmc *mmc = upriv->mmc;
 	unsigned int tap_num;
-	unsigned int taps = 0, smpcmp = 0;
+	unsigned int taps = 0;
 	int i, ret = 0;
 	u32 caps;
 
@@ -419,15 +581,19 @@ int renesas_sdhi_execute_tuning(struct udevice *dev, uint opcode)
 		/* Tuning is not supported */
 		goto out;
 
-	if (tap_num * 2 >= sizeof(taps) * 8) {
+	priv->tap_num = tap_num;
+
+	if (priv->tap_num * 2 >= sizeof(taps) * 8) {
 		dev_err(dev,
 			"Too many taps, skipping tuning. Please consider updating size of taps field of tmio_mmc_host\n");
 		goto out;
 	}
 
+	priv->smpcmp = 0;
+
 	/* Issue CMD19 twice for each tap */
-	for (i = 0; i < 2 * tap_num; i++) {
-		renesas_sdhi_prepare_tuning(priv, i % tap_num);
+	for (i = 0; i < 2 * priv->tap_num; i++) {
+		renesas_sdhi_prepare_tuning(priv, i % priv->tap_num);
 
 		/* Force PIO for the tuning */
 		caps = priv->caps;
@@ -442,12 +608,12 @@ int renesas_sdhi_execute_tuning(struct udevice *dev, uint opcode)
 
 		ret = renesas_sdhi_compare_scc_data(priv);
 		if (ret == 0)
-			smpcmp |= BIT(i);
+			priv->smpcmp |= BIT(i);
 
 		mdelay(1);
 	}
 
-	ret = renesas_sdhi_select_tuning(priv, tap_num, taps, smpcmp);
+	ret = renesas_sdhi_select_tuning(priv, taps);
 
 out:
 	if (ret < 0) {
@@ -535,6 +701,8 @@ static int renesas_sdhi_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
     CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
 	struct tmio_sd_priv *priv = dev_get_priv(dev);
 
+	renesas_sdhi_check_scc_error(dev);
+
 	if (cmd->cmdidx == MMC_CMD_SEND_STATUS)
 		renesas_sdhi_adjust_hs400_mode_enable(priv);
 #endif
@@ -582,50 +750,89 @@ static ulong renesas_sdhi_clk_get_rate(struct tmio_sd_priv *priv)
 
 static void renesas_sdhi_filter_caps(struct udevice *dev)
 {
-	struct tmio_sd_plat *plat = dev_get_platdata(dev);
 	struct tmio_sd_priv *priv = dev_get_priv(dev);
 
 	if (!(priv->caps & TMIO_SD_CAP_RCAR_GEN3))
 		return;
 
-	/* HS400 is not supported on H3 ES1.x and M3W ES1.0,ES1.1,ES1.2 */
+#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT) || \
+    CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) || \
+    CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
+	struct tmio_sd_plat *plat = dev_get_platdata(dev);
+
+	/* HS400 is not supported on H3 ES1.x and M3W ES1.0, ES1.1 */
 	if (((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7795) &&
 	    (rmobile_get_cpu_rev_integer() <= 1)) ||
 	    ((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7796) &&
 	    (rmobile_get_cpu_rev_integer() == 1) &&
-	    (rmobile_get_cpu_rev_fraction() <= 2)))
+	    (rmobile_get_cpu_rev_fraction() < 2)))
 		plat->cfg.host_caps &= ~MMC_MODE_HS400;
 
-	/* M3W ES1.x for x>2 can use HS400 with manual adjustment */
+	/* H3 ES2.0, ES3.0 and M3W ES1.2 and M3N bad taps */
+	if (((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7795) &&
+	    (rmobile_get_cpu_rev_integer() >= 2)) ||
+	    ((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7796) &&
+	    (rmobile_get_cpu_rev_integer() == 1) &&
+	    (rmobile_get_cpu_rev_fraction() == 2)) ||
+	    (rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A77965))
+		priv->hs400_bad_tap = BIT(2) | BIT(3) | BIT(6) | BIT(7);
+
+	/* H3 ES3.0 can use HS400 with manual adjustment */
+	if ((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7795) &&
+	    (rmobile_get_cpu_rev_integer() >= 3)) {
+		priv->adjust_hs400_enable = true;
+		priv->adjust_hs400_offset = 0;
+		priv->adjust_hs400_calib_table =
+			r8a7795_calib_table[!rmobile_is_gen3_mmc0(priv)];
+	}
+
+	/* M3W ES1.2 can use HS400 with manual adjustment */
+	if ((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7796) &&
+	    (rmobile_get_cpu_rev_integer() == 1) &&
+	    (rmobile_get_cpu_rev_fraction() == 2)) {
+		priv->adjust_hs400_enable = true;
+		priv->adjust_hs400_offset = 3;
+		priv->adjust_hs400_calib_table =
+			r8a7796_rev1_calib_table[!rmobile_is_gen3_mmc0(priv)];
+	}
+
+	/* M3W ES1.x for x>2 can use HS400 with manual adjustment and taps */
 	if ((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7796) &&
 	    (rmobile_get_cpu_rev_integer() == 1) &&
 	    (rmobile_get_cpu_rev_fraction() > 2)) {
 		priv->adjust_hs400_enable = true;
 		priv->adjust_hs400_offset = 0;
-		priv->adjust_hs400_calibrate = 0x9;
+		priv->hs400_bad_tap = BIT(1) | BIT(3) | BIT(5) | BIT(7);
+		priv->adjust_hs400_calib_table =
+			r8a7796_rev3_calib_table[!rmobile_is_gen3_mmc0(priv)];
 	}
 
 	/* M3N can use HS400 with manual adjustment */
 	if (rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A77965) {
 		priv->adjust_hs400_enable = true;
-		priv->adjust_hs400_offset = 0;
-		priv->adjust_hs400_calibrate = 0x0;
+		priv->adjust_hs400_offset = 3;
+		priv->adjust_hs400_calib_table =
+			r8a77965_calib_table[!rmobile_is_gen3_mmc0(priv)];
 	}
 
 	/* E3 can use HS400 with manual adjustment */
 	if (rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A77990) {
 		priv->adjust_hs400_enable = true;
-		priv->adjust_hs400_offset = 0;
-		priv->adjust_hs400_calibrate = 0x2;
+		priv->adjust_hs400_offset = 3;
+		priv->adjust_hs400_calib_table =
+			r8a77990_calib_table[!rmobile_is_gen3_mmc0(priv)];
 	}
 
-	/* H3 ES2.0 uses 4 tuning taps */
-	if ((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7795) &&
-	    (rmobile_get_cpu_rev_integer() == 2))
+	/* H3 ES1.x, ES2.0 and M3W ES1.0, ES1.1, ES1.2 uses 4 tuning taps */
+	if (((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7795) &&
+	    (rmobile_get_cpu_rev_integer() <= 2)) ||
+	    ((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7796) &&
+	    (rmobile_get_cpu_rev_integer() == 1) &&
+	    (rmobile_get_cpu_rev_fraction() <= 2)))
 		priv->nrtaps = 4;
 	else
 		priv->nrtaps = 8;
-
+#endif
 	/* H3 ES1.x and M3W ES1.0 uses bit 17 for DTRAEND */
 	if (((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7795) &&
 	    (rmobile_get_cpu_rev_integer() <= 1)) ||

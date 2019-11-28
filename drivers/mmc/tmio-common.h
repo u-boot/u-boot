@@ -137,12 +137,16 @@ struct tmio_sd_priv {
 	struct clk			clk;
 #endif
 #if CONFIG_IS_ENABLED(RENESAS_SDHI)
+	unsigned int			smpcmp;
 	u8				tap_set;
+	u8				tap_num;
 	u8				nrtaps;
 	bool				needs_adjust_hs400;
 	bool				adjust_hs400_enable;
 	u8				adjust_hs400_offset;
 	u8				adjust_hs400_calibrate;
+	u8				hs400_bad_tap;
+	const u8			*adjust_hs400_calib_table;
 #endif
 	ulong (*clk_get_rate)(struct tmio_sd_priv *);
 };
