@@ -101,6 +101,7 @@
 &dsi {
 	#address-cells = <1>;
 	#size-cells = <0>;
+	phy-dsi-supply = <&reg18>;
 	status = "okay";
 
 	ports {
@@ -165,7 +166,7 @@
 	#address-cells = <1>;
 	#size-cells = <0>;
 
-	nand: nand@0 {
+	nand@0 {
 		reg = <0>;
 		nand-on-flash-bbt;
 		#address-cells = <1>;

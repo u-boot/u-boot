@@ -20,6 +20,7 @@
 	};
 
 	memory {
+		device_type = "memory";
 		reg = <0x00000000 0x2000000>;
 	};
 
@@ -39,18 +40,18 @@
 		dma-ranges = <0xc0000000 0x0 0x10000000>;
 	};
 
-	regulators {
-		compatible = "simple-bus";
-		#address-cells = <1>;
-		#size-cells = <0>;
+	vdda: regulator-vdda {
+		compatible = "regulator-fixed";
+		regulator-name = "vdda";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+	};
 
-		reg_vref: regulator@0 {
-			compatible = "regulator-fixed";
-			reg = <0>;
-			regulator-name = "vref";
-			regulator-min-microvolt = <3300000>;
-			regulator-max-microvolt = <3300000>;
-		};
+	vref: regulator-vref {
+		compatible = "regulator-fixed";
+		regulator-name = "vref";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
 	};
 
 	leds {
@@ -72,6 +73,7 @@
 
 	gpio_keys {
 		compatible = "gpio-keys";
+		#address-cells = <1>;
 		#size-cells = <0>;
 		autorepeat;
 		button@0 {
@@ -114,7 +116,8 @@
 &adc {
 	pinctrl-names = "default";
 	pinctrl-0 = <&adc3_in8_pin>;
-	vref-supply = <&reg_vref>;
+	vdda-supply = <&vdda>;
+	vref-supply = <&vref>;
 	status = "okay";
 	adc3: adc@200 {
 		st,adc-channels = <8>;
@@ -227,7 +230,7 @@
 	pinctrl-0 = <&sdio_pins>;
 	pinctrl-1 = <&sdio_pins_od>;
 	bus-width = <4>;
-	max-frequency = <14000000>;
+	max-frequency = <12500000>;
 };
 
 &timers1 {

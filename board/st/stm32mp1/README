@@ -390,3 +390,114 @@ B/ Automatically by using FIT feature and generic DISTRO bootcmd
     the correct configuration
 	=> stm32mp157c-ev1-m4
 	=> stm32mp157c-dk2-m4
+
+11. DFU support
+===============
+
+The DFU is supported on ST board.
+The env variable dfu_alt_info is automatically build, and all
+the memory present on the ST boards are exported.
+
+The mode is started by
+
+STM32MP> dfu 0
+
+On EV1 board:
+
+STM32MP> dfu 0 list
+
+DFU alt settings list:
+dev: RAM alt: 0 name: uImage layout: RAM_ADDR
+dev: RAM alt: 1 name: devicetree.dtb layout: RAM_ADDR
+dev: RAM alt: 2 name: uramdisk.image.gz layout: RAM_ADDR
+dev: eMMC alt: 3 name: sdcard_fsbl1 layout: RAW_ADDR
+dev: eMMC alt: 4 name: sdcard_fsbl2 layout: RAW_ADDR
+dev: eMMC alt: 5 name: sdcard_ssbl layout: RAW_ADDR
+dev: eMMC alt: 6 name: sdcard_bootfs layout: RAW_ADDR
+dev: eMMC alt: 7 name: sdcard_vendorfs layout: RAW_ADDR
+dev: eMMC alt: 8 name: sdcard_rootfs layout: RAW_ADDR
+dev: eMMC alt: 9 name: sdcard_userfs layout: RAW_ADDR
+dev: eMMC alt: 10 name: emmc_fsbl1 layout: RAW_ADDR
+dev: eMMC alt: 11 name: emmc_fsbl2 layout: RAW_ADDR
+dev: eMMC alt: 12 name: emmc_ssbl layout: RAW_ADDR
+dev: eMMC alt: 13 name: emmc_bootfs layout: RAW_ADDR
+dev: eMMC alt: 14 name: emmc_vendorfs layout: RAW_ADDR
+dev: eMMC alt: 15 name: emmc_rootfs layout: RAW_ADDR
+dev: eMMC alt: 16 name: emmc_userfs layout: RAW_ADDR
+dev: MTD alt: 17 name: nor_fsbl1 layout: RAW_ADDR
+dev: MTD alt: 18 name: nor_fsbl2 layout: RAW_ADDR
+dev: MTD alt: 19 name: nor_ssbl layout: RAW_ADDR
+dev: MTD alt: 20 name: nor_env layout: RAW_ADDR
+dev: MTD alt: 21 name: nand_fsbl layout: RAW_ADDR
+dev: MTD alt: 22 name: nand_ssbl1 layout: RAW_ADDR
+dev: MTD alt: 23 name: nand_ssbl2 layout: RAW_ADDR
+dev: MTD alt: 24 name: nand_UBI layout: RAW_ADDR
+dev: VIRT alt: 25 name: OTP layout: RAW_ADDR
+dev: VIRT alt: 26 name: PMIC layout: RAW_ADDR
+
+All the supported device are exported for dfu-util tool:
+
+$> dfu-util -l
+Found DFU: [0483:5720] ver=9999, devnum=99, cfg=1, intf=0, alt=26, name="PMIC", serial="002700333338511934383330"
+Found DFU: [0483:5720] ver=9999, devnum=99, cfg=1, intf=0, alt=25, name="OTP", serial="002700333338511934383330"
+Found DFU: [0483:5720] ver=9999, devnum=99, cfg=1, intf=0, alt=24, name="nand_UBI", serial="002700333338511934383330"
+Found DFU: [0483:5720] ver=9999, devnum=99, cfg=1, intf=0, alt=23, name="nand_ssbl2", serial="002700333338511934383330"
+Found DFU: [0483:5720] ver=9999, devnum=99, cfg=1, intf=0, alt=22, name="nand_ssbl1", serial="002700333338511934383330"
+Found DFU: [0483:5720] ver=9999, devnum=99, cfg=1, intf=0, alt=21, name="nand_fsbl", serial="002700333338511934383330"
+Found DFU: [0483:5720] ver=9999, devnum=99, cfg=1, intf=0, alt=20, name="nor_env", serial="002700333338511934383330"
+Found DFU: [0483:5720] ver=9999, devnum=99, cfg=1, intf=0, alt=19, name="nor_ssbl", serial="002700333338511934383330"
+Found DFU: [0483:5720] ver=9999, devnum=99, cfg=1, intf=0, alt=18, name="nor_fsbl2", serial="002700333338511934383330"
+Found DFU: [0483:5720] ver=9999, devnum=99, cfg=1, intf=0, alt=17, name="nor_fsbl1", serial="002700333338511934383330"
+Found DFU: [0483:5720] ver=9999, devnum=99, cfg=1, intf=0, alt=16, name="emmc_userfs", serial="002700333338511934383330"
+Found DFU: [0483:5720] ver=9999, devnum=99, cfg=1, intf=0, alt=15, name="emmc_rootfs", serial="002700333338511934383330"
+Found DFU: [0483:5720] ver=9999, devnum=99, cfg=1, intf=0, alt=14, name="emmc_vendorfs", serial="002700333338511934383330"
+Found DFU: [0483:5720] ver=9999, devnum=99, cfg=1, intf=0, alt=13, name="emmc_bootfs", serial="002700333338511934383330"
+Found DFU: [0483:5720] ver=9999, devnum=99, cfg=1, intf=0, alt=12, name="emmc_ssbl", serial="002700333338511934383330"
+Found DFU: [0483:5720] ver=9999, devnum=99, cfg=1, intf=0, alt=11, name="emmc_fsbl2", serial="002700333338511934383330"
+Found DFU: [0483:5720] ver=9999, devnum=99, cfg=1, intf=0, alt=10, name="emmc_fsbl1", serial="002700333338511934383330"
+Found DFU: [0483:5720] ver=9999, devnum=99, cfg=1, intf=0, alt=9, name="sdcard_userfs", serial="002700333338511934383330"
+Found DFU: [0483:5720] ver=9999, devnum=99, cfg=1, intf=0, alt=8, name="sdcard_rootfs", serial="002700333338511934383330"
+Found DFU: [0483:5720] ver=9999, devnum=99, cfg=1, intf=0, alt=7, name="sdcard_vendorfs", serial="002700333338511934383330"
+Found DFU: [0483:5720] ver=9999, devnum=99, cfg=1, intf=0, alt=6, name="sdcard_bootfs", serial="002700333338511934383330"
+Found DFU: [0483:5720] ver=9999, devnum=99, cfg=1, intf=0, alt=5, name="sdcard_ssbl", serial="002700333338511934383330"
+Found DFU: [0483:5720] ver=9999, devnum=99, cfg=1, intf=0, alt=4, name="sdcard_fsbl2", serial="002700333338511934383330"
+Found DFU: [0483:5720] ver=9999, devnum=99, cfg=1, intf=0, alt=3, name="sdcard_fsbl1", serial="002700333338511934383330"
+Found DFU: [0483:5720] ver=9999, devnum=99, cfg=1, intf=0, alt=2, name="uramdisk.image.gz", serial="002700333338511934383330"
+Found DFU: [0483:5720] ver=9999, devnum=99, cfg=1, intf=0, alt=1, name="devicetree.dtb", serial="002700333338511934383330"
+Found DFU: [0483:5720] ver=9999, devnum=99, cfg=1, intf=0, alt=0, name="uImage", serial="002700333338511934383330"
+
+You can update the boot device:
+
+#SDCARD
+$> dfu-util -d 0483:5720 -a 3 -D tf-a-stm32mp157c-ev1-trusted.stm32
+$> dfu-util -d 0483:5720 -a 4 -D tf-a-stm32mp157c-ev1-trusted.stm32
+$> dfu-util -d 0483:5720 -a 5 -D u-boot-stm32mp157c-ev1-trusted.img
+$> dfu-util -d 0483:5720 -a 6 -D st-image-bootfs-openstlinux-weston-stm32mp1.ext4
+$> dfu-util -d 0483:5720 -a 7 -D st-image-vendorfs-openstlinux-weston-stm32mp1.ext4
+$> dfu-util -d 0483:5720 -a 8 -D st-image-weston-openstlinux-weston-stm32mp1.ext4
+$> dfu-util -d 0483:5720 -a 9 -D st-image-userfs-openstlinux-weston-stm32mp1.ext4
+
+#EMMC
+$> dfu-util -d 0483:5720 -a 10 -D tf-a-stm32mp157c-ev1-trusted.stm32
+$> dfu-util -d 0483:5720 -a 11 -D tf-a-stm32mp157c-ev1-trusted.stm32
+$> dfu-util -d 0483:5720 -a 12 -D u-boot-stm32mp157c-ev1-trusted.img
+$> dfu-util -d 0483:5720 -a 13 -D st-image-bootfs-openstlinux-weston-stm32mp1.ext4
+$> dfu-util -d 0483:5720 -a 14 -D st-image-vendorfs-openstlinux-weston-stm32mp1.ext4
+$> dfu-util -d 0483:5720 -a 15 -D st-image-weston-openstlinux-weston-stm32mp1.ext4
+$> dfu-util -d 0483:5720 -a 16 -D st-image-userfs-openstlinux-weston-stm32mp1.ext4
+
+#NOR
+$> dfu-util -d 0483:5720 -a 17 -D tf-a-stm32mp157c-ev1-trusted.stm32
+$> dfu-util -d 0483:5720 -a 18 -D tf-a-stm32mp157c-ev1-trusted.stm32
+$> dfu-util -d 0483:5720 -a 19 -D u-boot-stm32mp157c-ev1-trusted.img
+
+#NAND (UBI partition used for NAND only boot or NOR + NAND boot)
+$> dfu-util -d 0483:5720 -a 21 -D tf-a-stm32mp157c-ev1-trusted.stm32
+$> dfu-util -d 0483:5720 -a 22 -D u-boot-stm32mp157c-ev1-trusted.img
+$> dfu-util -d 0483:5720 -a 23 -D u-boot-stm32mp157c-ev1-trusted.img
+$> dfu-util -d 0483:5720 -a 24 -D st-image-weston-openstlinux-weston-stm32mp1_nand_4_256_multivolume.ubi
+
+And you can also dump the OTP and the PMIC NVM with:
+
+$> dfu-util -d 0483:5720 -a 25 -U otp.bin
+$> dfu-util -d 0483:5720 -a 26 -U pmic.bin

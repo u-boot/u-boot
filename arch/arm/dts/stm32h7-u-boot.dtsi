@@ -61,17 +61,6 @@
 				st,sdram-refcount = <1539>;
 			};
 		};
-
-		sdmmc1: sdmmc@52007000 {
-			compatible = "st,stm32-sdmmc2";
-			reg = <0x52007000 0x1000>;
-			interrupts = <49>;
-			clocks = <&rcc SDMMC1_CK>;
-			resets = <&rcc STM32H7_AHB3_RESET(SDMMC1)>;
-			st,idma = <1>;
-			cap-sd-highspeed;
-			cap-mmc-highspeed;
-		};
 	};
 };
 
@@ -216,32 +205,6 @@
 			slew-rate = <3>;
 		};
 	};
-
-	pinctrl_sdmmc1_level_shifter: sdmmc0_ls@0 {
-		pins {
-			pinmux = <STM32_PINMUX('B', 8, AF7)>,
-				 <STM32_PINMUX('B', 9, AF7)>,
-				 <STM32_PINMUX('C', 6, AF8)>,
-				 <STM32_PINMUX('C', 7, AF8)>;
-			drive-push-pull;
-			slew-rate = <3>;
-		};
-	};
-
-	sdmmc1_pins: sdmmc@0 {
-		pins {
-			pinmux = <STM32_PINMUX('C', 8, AF12)>,
-				 <STM32_PINMUX('C', 9, AF12)>,
-				 <STM32_PINMUX('C',10, AF12)>,
-				 <STM32_PINMUX('C',11, AF12)>,
-				 <STM32_PINMUX('C',12, AF12)>,
-				 <STM32_PINMUX('D', 2, AF12)>;
-
-			slew-rate = <3>;
-			drive-push-pull;
-			bias-disable;
-		};
-	};
 };
 
 &pwrcfg {
@@ -250,4 +213,8 @@
 
 &rcc {
 	u-boot,dm-pre-reloc;
+};
+
+&sdmmc1 {
+	compatible = "st,stm32-sdmmc2", "arm,pl18x", "arm,primecell";
 };
