@@ -28,6 +28,7 @@
 		mmc0 = &sdhci0;
 		mmc1 = &sdhci1;
 		spi0 = &spi0;
+		spi1 = &spi1;
 		usb0 = &usb0;
 	};
 };
@@ -117,7 +118,7 @@
 	flash@0 { /* U19 */
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "m25p80", "spi-flash";
+		compatible = "sst,sst26vf016b", "m25p80", "spi-flash";
 		spi-max-frequency = <25000000>;
 		reg = <0>;
 
