@@ -79,6 +79,8 @@ static const struct {
 	{ 0x2d02, "Cyclone V, SE/A6 or SX/C6 or ST/D6", "cv_se_a6" },
 	/* Arria V */
 	{ 0x2d03, "Arria V, D5", "av_d5" },
+	/* Arria V ST/SX */
+	{ 0x2d13, "Arria V, ST/D3 or SX/B3", "av_st_d3" },
 };
 
 static int socfpga_fpga_id(const bool print_id)
@@ -228,10 +230,13 @@ void do_bridge_reset(int enable, unsigned int mask)
 		writel(iswgrp_handoff[3], &sdr_ctrl->fpgaport_rst);
 		writel(iswgrp_handoff[0], &reset_manager_base->brg_mod_reset);
 		writel(iswgrp_handoff[1], &nic301_regs->remap);
+
+		writel(0x7, &reset_manager_base->brg_mod_reset);
+		writel(iswgrp_handoff[0], &reset_manager_base->brg_mod_reset);
 	} else {
 		writel(0, &sysmgr_regs->fpgaintfgrp_module);
 		writel(0, &sdr_ctrl->fpgaport_rst);
-		writel(0, &reset_manager_base->brg_mod_reset);
+		writel(0x7, &reset_manager_base->brg_mod_reset);
 		writel(1, &nic301_regs->remap);
 	}
 }

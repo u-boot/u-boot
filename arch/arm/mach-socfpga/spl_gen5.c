@@ -138,6 +138,13 @@ void board_init_f(ulong dummy)
 	if (ret)
 		debug("Reset init failed: %d\n", ret);
 
+#ifdef CONFIG_SPL_NAND_DENALI
+	struct socfpga_reset_manager *reset_manager_base =
+		(struct socfpga_reset_manager *)SOCFPGA_RSTMGR_ADDRESS;
+
+	clrbits_le32(&reset_manager_base->per_mod_reset, BIT(4));
+#endif
+
 	/* enable console uart printing */
 	preloader_console_init();
 
