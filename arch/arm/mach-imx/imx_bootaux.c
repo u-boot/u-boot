@@ -20,6 +20,9 @@ int arch_auxiliary_core_up(u32 core_id, ulong boot_private_data)
 	stack = *(u32 *)boot_private_data;
 	pc = *(u32 *)(boot_private_data + 4);
 
+	printf("## Starting auxiliary core stack = 0x%08lX, pc = 0x%08lX...\n",
+	       stack, pc);
+
 	/* Set the stack and pc to M4 bootROM */
 	writel(stack, M4_BOOTROM_BASE_ADDR);
 	writel(pc, M4_BOOTROM_BASE_ADDR + 4);
@@ -80,7 +83,8 @@ static int do_bootaux(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	addr = simple_strtoul(argv[1], NULL, 16);
 
-	printf("## Starting auxiliary core at 0x%08lX ...\n", addr);
+	if (!addr)
+		return CMD_RET_FAILURE;
 
 	ret = arch_auxiliary_core_up(0, addr);
 	if (ret)
