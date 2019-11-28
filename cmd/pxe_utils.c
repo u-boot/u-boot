@@ -22,7 +22,7 @@
 
 #include "pxe_utils.h"
 
-#define MAX_TFTP_PATH_LEN 127
+#define MAX_TFTP_PATH_LEN 512
 
 bool is_pxe;
 
