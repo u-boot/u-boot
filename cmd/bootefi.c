@@ -196,40 +196,39 @@ static void *get_config_table(const efi_guid_t *guid)
 #endif /* !CONFIG_IS_ENABLED(GENERATE_ACPI_TABLE) */
 
 /**
- * efi_install_fdt() - install fdt passed by a command argument
+ * efi_install_fdt() - install device tree
  *
- * If fdt_opt is available, the device tree located at that memory address will
+ * If fdt_addr is available, the device tree located at that memory address will
  * will be installed as configuration table, otherwise the device tree located
  * at the address indicated by environment variable fdtcontroladdr will be used.
  *
- * On architectures (x86) using ACPI tables device trees shall not be installed
- * as configuration table.
+ * On architectures using ACPI tables device trees shall not be installed as
+ * configuration table.
  *
- * @fdt_opt:	pointer to argument
+ * @fdt_addr:	address of device tree or EFI_FDT_USE_INTERNAL to use the
+ *		internal device tree as indicated by environment variable
+ *		fdtcontroladdr
  * Return:	status code
  */
-static efi_status_t efi_install_fdt(const char *fdt_opt)
+static efi_status_t efi_install_fdt(uintptr_t fdt_addr)
 {
 	/*
 	 * The EBBR spec requires that we have either an FDT or an ACPI table
 	 * but not both.
 	 */
 #if CONFIG_IS_ENABLED(GENERATE_ACPI_TABLE)
-	if (fdt_opt) {
+	if (fdt_addr) {
 		printf("ERROR: can't have ACPI table and device tree.\n");
 		return EFI_LOAD_ERROR;
 	}
 #else
-	unsigned long fdt_addr;
 	void *fdt;
 	bootm_headers_t img = { 0 };
 	efi_status_t ret;
 
-	if (fdt_opt) {
-		fdt_addr = simple_strtoul(fdt_opt, NULL, 16);
-		if (!fdt_addr)
-			return EFI_INVALID_PARAMETER;
-	} else {
+	if (fdt_addr == EFI_FDT_USE_INTERNAL) {
+		const char *fdt_opt;
+
 		/* Look for device tree that is already installed */
 		if (get_config_table(&efi_guid_fdt))
 			return EFI_SUCCESS;
@@ -556,6 +555,7 @@ static int do_efi_selftest(void)
 static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	efi_status_t ret;
+	uintptr_t fdt_addr;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
@@ -568,7 +568,11 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return CMD_RET_FAILURE;
 	}
 
-	ret = efi_install_fdt(argc > 2 ? argv[2] : NULL);
+	if (argc > 2)
+		fdt_addr = simple_strtoul(argv[2], NULL, 16);
+	else
+		fdt_addr = EFI_FDT_USE_INTERNAL;
+	ret = efi_install_fdt(fdt_addr);
 	if (ret == EFI_INVALID_PARAMETER)
 		return CMD_RET_USAGE;
 	else if (ret != EFI_SUCCESS)

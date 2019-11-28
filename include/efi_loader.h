@@ -34,6 +34,9 @@ static inline int guidcmp(const void *g1, const void *g2)
 	EFI_GUID(0xbbe4e671, 0x5773, 0x4ea1, \
 		 0x9a, 0xab, 0x3a, 0x7d, 0xbf, 0x40, 0xc4, 0x82)
 
+/* Use internal device tree when starting UEFI application */
+#define EFI_FDT_USE_INTERNAL 0UL
+
 /* Root node */
 extern efi_handle_t efi_root;
 
