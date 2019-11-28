@@ -67,6 +67,12 @@
 			sata-number = <2>;
 			sata-fpdma = <0>;
 		};
+
+		esdhc: esdhc@114000 {
+			compatible = "fsl,esdhc";
+			reg = <0x114000 0x1000>;
+			clock-frequency = <0>;
+		};
 	};
 
 	pcie@ffe200000 {
