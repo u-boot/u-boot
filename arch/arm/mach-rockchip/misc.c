@@ -30,7 +30,7 @@ int rockchip_setup_macaddr(void)
 
 	/* Only generate a MAC address, if none is set in the environment */
 	if (env_get("ethaddr"))
-		return -1;
+		return 0;
 
 	if (!cpuid) {
 		debug("%s: could not retrieve 'cpuid#'\n", __func__);
