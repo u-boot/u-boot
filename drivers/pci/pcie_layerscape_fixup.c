@@ -253,7 +253,7 @@ static void ft_pcie_ep_fix(void *blob, struct ls_pcie *pcie)
 {
 	int off;
 
-	off = fdt_node_offset_by_compat_reg(blob, "fsl,ls-pcie-ep",
+	off = fdt_node_offset_by_compat_reg(blob, CONFIG_FSL_PCIE_EP_COMPAT,
 					    pcie->dbi_res.start);
 	if (off < 0)
 		return;

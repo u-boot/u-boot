@@ -191,7 +191,7 @@ static void ft_pcie_ep_layerscape_gen4_fix(void *blob, struct ls_pcie_g4 *pcie)
 {
 	int off;
 
-	off = fdt_node_offset_by_compat_reg(blob, "fsl,lx2160a-pcie-ep",
+	off = fdt_node_offset_by_compat_reg(blob, CONFIG_FSL_PCIE_EP_COMPAT,
 					    pcie->ccsr_res.start);
 
 	if (off < 0) {
