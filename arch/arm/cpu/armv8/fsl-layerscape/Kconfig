@@ -253,20 +253,6 @@ menu "Layerscape architecture"
 config FSL_LAYERSCAPE
 	bool
 
-config FSL_PCIE_COMPAT
-	string "PCIe compatible of Kernel DT"
-	depends on PCIE_LAYERSCAPE || PCIE_LAYERSCAPE_GEN4
-	default "fsl,ls1012a-pcie" if ARCH_LS1012A
-	default "fsl,ls1028a-pcie" if ARCH_LS1028A
-	default "fsl,ls1043a-pcie" if ARCH_LS1043A
-	default "fsl,ls1046a-pcie" if ARCH_LS1046A
-	default "fsl,ls2080a-pcie" if ARCH_LS2080A
-	default "fsl,ls1088a-pcie" if ARCH_LS1088A
-	default "fsl,lx2160a-pcie" if ARCH_LX2160A
-	help
-	  This compatible is used to find pci controller node in Kernel DT
-	  to complete fixup.
-
 config HAS_FEATURE_GIC64K_ALIGN
 	bool
 	default y if ARCH_LS1043A
