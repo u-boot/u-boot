@@ -27,6 +27,7 @@
 #define CONFIG_SYS_SPI_ST_ENABLE_WP_PIN
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	"disable_giga=yes\0" \
 	"script=u-boot.scr\0" \
 	"fit_file=/boot/system.itb\0" \
 	"loadaddr=0x12000000\0" \
