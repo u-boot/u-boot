@@ -32,7 +32,7 @@
 		"imi ${fit_addr_r}\0 "
 
 /* Framebuffer */
-#define CONFIG_SYS_LDB_CLOCK 33246000
+#define CONFIG_SYS_LDB_CLOCK	28341000
 #define CONFIG_LG4573
 
 #include "mx6_common.h"
@@ -193,15 +193,14 @@
 
 /* Framebuffer */
 /* check this console not needed, after test remove it */
-#define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_SPLASH_SCREEN_ALIGN
-#define CONFIG_BMP_16BPP
+#define CONFIG_IMX_VIDEO_SKIP
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
-#define CONFIG_IMX_VIDEO_SKIP
+#define CONFIG_BMP_16BPP
+#define CONFIG_VIDEO_BMP_RLE8
 
 #define CONFIG_IMX6_PWM_PER_CLK	66000000
-
 
 #endif                         /* __ARISTAINETOS2_CONFIG_H */

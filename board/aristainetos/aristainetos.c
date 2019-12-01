@@ -19,24 +19,19 @@
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/mxc_i2c.h>
 #include <asm/mach-imx/video.h>
-#include <asm/arch/mxc_hdmi.h>
 #include <asm/arch/crm_regs.h>
-#include <linux/fb.h>
-#include <ipu_pixfmt.h>
-#include <input.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
+#include <bmp_logo.h>
 #include <pwm.h>
 #include <dm/root.h>
 #include <env.h>
 #include <micrel.h>
 #include <miiphy.h>
-#include <video.h>
-#include <../drivers/video/imx/ipu.h>
-#if defined(CONFIG_VIDEO_BMP_LOGO)
-	#include <bmp_logo.h>
-#endif
+#include <lcd.h>
 #include <led.h>
+#include <splash.h>
+#include <video_fb.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -45,8 +40,6 @@ DECLARE_GLOBAL_DATA_PTR;
 	PAD_CTL_ODE | PAD_CTL_SRE_FAST)
 
 #define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
-
-#define DISP_PAD_CTRL	(0x10)
 
 enum {
 	BOARD_TYPE_4 = 4,
@@ -89,37 +82,6 @@ static iomux_v3_cfg_t const backlight_pads[] = {
 	MX6_PAD_EIM_BCLK__GPIO6_IO31 | MUX_PAD_CTRL(NO_PAD_CTRL),
 	/* LCD power enable */
 	MX6_PAD_NANDF_CS2__GPIO6_IO15 | MUX_PAD_CTRL(NO_PAD_CTRL),
-};
-
-static iomux_v3_cfg_t const display_pads[] = {
-	MX6_PAD_DI0_DISP_CLK__IPU1_DI0_DISP_CLK | MUX_PAD_CTRL(DISP_PAD_CTRL),
-	MX6_PAD_DI0_PIN15__IPU1_DI0_PIN15,
-	MX6_PAD_DI0_PIN2__IPU1_DI0_PIN02,
-	MX6_PAD_DI0_PIN3__IPU1_DI0_PIN03,
-	MX6_PAD_DISP0_DAT0__IPU1_DISP0_DATA00,
-	MX6_PAD_DISP0_DAT1__IPU1_DISP0_DATA01,
-	MX6_PAD_DISP0_DAT2__IPU1_DISP0_DATA02,
-	MX6_PAD_DISP0_DAT3__IPU1_DISP0_DATA03,
-	MX6_PAD_DISP0_DAT4__IPU1_DISP0_DATA04,
-	MX6_PAD_DISP0_DAT5__IPU1_DISP0_DATA05,
-	MX6_PAD_DISP0_DAT6__IPU1_DISP0_DATA06,
-	MX6_PAD_DISP0_DAT7__IPU1_DISP0_DATA07,
-	MX6_PAD_DISP0_DAT8__IPU1_DISP0_DATA08,
-	MX6_PAD_DISP0_DAT9__IPU1_DISP0_DATA09,
-	MX6_PAD_DISP0_DAT10__IPU1_DISP0_DATA10,
-	MX6_PAD_DISP0_DAT11__IPU1_DISP0_DATA11,
-	MX6_PAD_DISP0_DAT12__IPU1_DISP0_DATA12,
-	MX6_PAD_DISP0_DAT13__IPU1_DISP0_DATA13,
-	MX6_PAD_DISP0_DAT14__IPU1_DISP0_DATA14,
-	MX6_PAD_DISP0_DAT15__IPU1_DISP0_DATA15,
-	MX6_PAD_DISP0_DAT16__IPU1_DISP0_DATA16,
-	MX6_PAD_DISP0_DAT17__IPU1_DISP0_DATA17,
-	MX6_PAD_DISP0_DAT18__IPU1_DISP0_DATA18,
-	MX6_PAD_DISP0_DAT19__IPU1_DISP0_DATA19,
-	MX6_PAD_DISP0_DAT20__IPU1_DISP0_DATA20,
-	MX6_PAD_DISP0_DAT21__IPU1_DISP0_DATA21,
-	MX6_PAD_DISP0_DAT22__IPU1_DISP0_DATA22,
-	MX6_PAD_DISP0_DAT23__IPU1_DISP0_DATA23,
 };
 
 int board_phy_config(struct phy_device *phydev)
@@ -166,13 +128,15 @@ static int rotate_logo_one(unsigned char *out, unsigned char *in)
 void rotate_logo(int rotations)
 {
 	unsigned char out_logo[BMP_LOGO_WIDTH * BMP_LOGO_HEIGHT];
+	struct bmp_header *header;
 	unsigned char *in_logo;
 	int   i, j;
 
 	if (BMP_LOGO_WIDTH != BMP_LOGO_HEIGHT)
 		return;
 
-	in_logo = bmp_logo_bitmap;
+	header = (struct bmp_header *)bmp_logo_bitmap;
+	in_logo = bmp_logo_bitmap + header->data_offset;
 
 	/* one 90 degree rotation */
 	if (rotations == 1  ||  rotations == 2  ||  rotations == 3)
@@ -192,34 +156,6 @@ void rotate_logo(int rotations)
 			for (j = 0; j < BMP_LOGO_HEIGHT; j++)
 				in_logo[i * BMP_LOGO_WIDTH + j] =
 				out_logo[i * BMP_LOGO_WIDTH + j];
-}
-
-static void enable_display_power(void)
-{
-	imx_iomux_v3_setup_multiple_pads(backlight_pads,
-					 ARRAY_SIZE(backlight_pads));
-
-	/* backlight enable */
-	gpio_request(IMX_GPIO_NR(6, 31), "backlight");
-	gpio_direction_output(IMX_GPIO_NR(6, 31), 1);
-	gpio_free(IMX_GPIO_NR(6, 31));
-	/* LCD power enable */
-	gpio_request(IMX_GPIO_NR(6, 15), "LCD_power_enable");
-	gpio_direction_output(IMX_GPIO_NR(6, 15), 1);
-	gpio_free(IMX_GPIO_NR(6, 15));
-
-	/* enable backlight PWM 1 */
-	if (pwm_init(0, 0, 0))
-		goto error;
-	/* duty cycle 500ns, period: 3000ns */
-	if (pwm_config(0, 50000, 300000))
-		goto error;
-	if (pwm_enable(0))
-		goto error;
-	return;
-
-error:
-	puts("error init pwm for backlight\n");
 }
 
 static void enable_lvds(struct display_info_t const *dev)
@@ -304,15 +240,6 @@ static void enable_spi_display(struct display_info_t const *dev)
 	rotate_logo(3);  /* portrait display in landscape mode */
 #endif
 
-	/*
-	 * set ldb clock to 28341000 Hz calculated through the formula:
-	 * (XRES + LEFT_M + RIGHT_M + HSYNC_LEN) *
-	 * (YRES + UPPER_M + LOWER_M + VSYNC_LEN) * REFRESH)
-	 * see:
-	 * https://community.freescale.com/thread/308170
-	 */
-	ipu_set_ldb_clock(28341000);
-
 	reg = readl(&ccm->cs2cdr);
 
 	/* select pll 5 clock */
@@ -381,15 +308,11 @@ static void enable_spi_display(struct display_info_t const *dev)
 	       | (IOMUXC_GPR3_MUX_SRC_IPU1_DI0
 		  << IOMUXC_GPR3_LVDS0_MUX_CTL_OFFSET);
 	writel(reg, &iomux->gpr[3]);
-
-	imx_iomux_v3_setup_multiple_pads(display_pads,
-					 ARRAY_SIZE(display_pads));
 }
 
 static void setup_display(void)
 {
 	enable_ipu_clock();
-	enable_display_power();
 }
 
 static void set_gpr_register(void)
@@ -410,7 +333,7 @@ static void set_gpr_register(void)
 extern char __bss_start[], __bss_end[];
 int board_early_init_f(void)
 {
-	setup_display();
+	select_ldb_di_clock_source(MXC_PLL5_CLK);
 	set_gpr_register();
 
 	/*
@@ -453,11 +376,13 @@ int board_late_init(void)
 {
 	char *my_bootdelay;
 	char bootmode = 0;
-	char const *panel = env_get("panel");
 	struct gpio_desc *desc;
+	int x, y;
 	int ret;
 
 	led_default_state();
+	splash_get_pos(&x, &y);
+	bmp_display((ulong)&bmp_logo_bitmap[0], x, y);
 	/*
 	 * Check the boot-source. If booting from NOR Flash,
 	 * disable bootdelay
@@ -495,13 +420,6 @@ int board_late_init(void)
 			run_command("run rescue_xload_boot", 0);
 		}
 	}
-
-	/* if we have the lg panel, we can initialze it now */
-	if (panel)
-		if (!strcmp(panel, displays[1].mode.name))
-			lg4573_spi_startup(CONFIG_LG4573_BUS,
-					   CONFIG_LG4573_CS,
-					   10000000, SPI_MODE_0);
 
 	/* set board_type */
 	if (gd->board_type == BOARD_TYPE_4)
@@ -596,12 +514,6 @@ struct display_info_t const displays[] = {
 };
 size_t display_count = ARRAY_SIZE(displays);
 
-/* no console on this board */
-int board_cfb_skip(void)
-{
-	return 1;
-}
-
 iomux_v3_cfg_t nfc_pads[] = {
 	MX6_PAD_NANDF_CLE__NAND_CLE		| MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX6_PAD_NANDF_ALE__NAND_ALE		| MUX_PAD_CTRL(NO_PAD_CTRL),
@@ -673,6 +585,7 @@ int board_init(void)
 
 	setup_board_gpio();
 	setup_gpmi_nand();
+	setup_display();
 
 	/* GPIO_1 for USB_OTG_ID */
 	clrsetbits_le32(&iomux->gpr[1], IOMUXC_GPR1_USB_OTG_ID_SEL_MASK, 0);
