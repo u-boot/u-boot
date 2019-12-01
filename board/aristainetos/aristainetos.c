@@ -38,6 +38,7 @@
 #if defined(CONFIG_VIDEO_BMP_LOGO)
 	#include <bmp_logo.h>
 #endif
+#include <led.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -66,9 +67,6 @@ DECLARE_GLOBAL_DATA_PTR;
 	/* 4.3 display controller */
 	#define ECSPI1_CS1		IMX_GPIO_NR(4, 10)
 #endif
-
-#define SOFT_RESET_GPIO		IMX_GPIO_NR(7, 13)
-#define SD2_DRIVER_ENABLE	IMX_GPIO_NR(7, 8)
 
 enum {
 	BOARD_TYPE_4 = 4,
@@ -102,43 +100,6 @@ struct i2c_pads_info i2c_pad_info4 = {
 		.gpio_mode = MX6_PAD_GPIO_8__GPIO1_IO08 | PC,
 		.gp = IMX_GPIO_NR(1, 8)
 	}
-};
-
-iomux_v3_cfg_t const gpio_pads[] = {
-	/* LED enable*/
-	MX6_PAD_ENET_CRS_DV__GPIO1_IO25 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* LED yellow */
-	MX6_PAD_NANDF_CS3__GPIO6_IO16 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* LED red */
-#if (CONFIG_SYS_BOARD_VERSION == 2)
-	MX6_PAD_EIM_EB0__GPIO2_IO28 | MUX_PAD_CTRL(NO_PAD_CTRL),
-#elif (CONFIG_SYS_BOARD_VERSION == 3)
-	MX6_PAD_EIM_WAIT__GPIO5_IO00 | MUX_PAD_CTRL(NO_PAD_CTRL),
-#endif
-	/* LED green */
-	MX6_PAD_EIM_A24__GPIO5_IO04 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* LED blue */
-	MX6_PAD_EIM_EB1__GPIO2_IO29 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* spi flash WP protect */
-	MX6_PAD_SD4_DAT7__GPIO2_IO15 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* spi CS 0 */
-	MX6_PAD_EIM_D29__GPIO3_IO29 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* spi bus #2 SS driver enable */
-	MX6_PAD_EIM_A23__GPIO6_IO06 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* RST_LOC# PHY reset input (has pull-down!)*/
-	MX6_PAD_GPIO_18__GPIO7_IO13 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* SD 2 level shifter output enable */
-	MX6_PAD_SD3_RST__GPIO7_IO08 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* SD1 card detect input */
-	MX6_PAD_ENET_RXD0__GPIO1_IO27 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* SD1 write protect input */
-	MX6_PAD_DI0_PIN4__GPIO4_IO20 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* SD2 card detect input */
-	MX6_PAD_GPIO_19__GPIO4_IO05 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* SD2 write protect input */
-	MX6_PAD_SD4_DAT2__GPIO2_IO10 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* Touchscreen IRQ */
-	MX6_PAD_SD4_DAT1__GPIO2_IO09 | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
 static iomux_v3_cfg_t const misc_pads[] = {
@@ -265,12 +226,16 @@ static void setup_spi(void)
 	for (i = 0; i < 4; i++)
 		enable_spi_clk(true, i);
 
+	gpio_request(ECSPI1_CS0, "spi1_cs0");
 	gpio_direction_output(ECSPI1_CS0, 1);
 #if (CONFIG_SYS_BOARD_VERSION == 2)
+	gpio_request(ECSPI4_CS1, "spi4_cs1");
 	gpio_direction_output(ECSPI4_CS1, 0);
 	/* set cs0 to high (second device on spi bus #4) */
+	gpio_request(ECSPI4_CS0, "spi4_cs0");
 	gpio_direction_output(ECSPI4_CS0, 1);
 #elif (CONFIG_SYS_BOARD_VERSION == 3)
+	gpio_request(ECSPI1_CS1, "spi1_cs1");
 	gpio_direction_output(ECSPI1_CS1, 1);
 #endif
 }
@@ -359,9 +324,13 @@ static void enable_display_power(void)
 					 ARRAY_SIZE(backlight_pads));
 
 	/* backlight enable */
+	gpio_request(IMX_GPIO_NR(6, 31), "backlight");
 	gpio_direction_output(IMX_GPIO_NR(6, 31), 1);
+	gpio_free(IMX_GPIO_NR(6, 31));
 	/* LCD power enable */
+	gpio_request(IMX_GPIO_NR(6, 15), "LCD_power_enable");
 	gpio_direction_output(IMX_GPIO_NR(6, 15), 1);
+	gpio_free(IMX_GPIO_NR(6, 15));
 
 	/* enable backlight PWM 1 */
 	if (pwm_init(0, 0, 0))
@@ -547,11 +516,6 @@ static void setup_display(void)
 	enable_display_power();
 }
 
-static void setup_iomux_gpio(void)
-{
-	imx_iomux_v3_setup_multiple_pads(gpio_pads, ARRAY_SIZE(gpio_pads));
-}
-
 static void set_gpr_register(void)
 {
 	struct iomuxc *iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
@@ -570,10 +534,6 @@ static void set_gpr_register(void)
 extern char __bss_start[], __bss_end[];
 int board_early_init_f(void)
 {
-	setup_iomux_gpio();
-
-	gpio_direction_output(SOFT_RESET_GPIO, 1);
-	gpio_direction_output(SD2_DRIVER_ENABLE, 1);
 	setup_display();
 	set_gpr_register();
 
@@ -593,37 +553,30 @@ static void setup_i2c4(void)
 		  &i2c_pad_info4);
 }
 
+static void setup_one_led(char *label, int state)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = led_get_by_label(label, &dev);
+	if (ret == 0)
+		led_set_state(dev, state);
+}
+
 static void setup_board_gpio(void)
 {
-	/* enable all LEDs */
-	gpio_request(IMX_GPIO_NR(2, 13), "LED ena"); /* 25 */
-	gpio_direction_output(IMX_GPIO_NR(1, 25), 0);
-
+	setup_one_led("led_ena", LEDST_ON);
 	/* switch off Status LEDs */
-#if (CONFIG_SYS_BOARD_VERSION == 2)
-	gpio_request(IMX_GPIO_NR(6, 16), "LED yellow"); /* 176 */
-	gpio_direction_output(IMX_GPIO_NR(6, 16), 1);
-	gpio_request(IMX_GPIO_NR(2, 28), "LED red"); /* 60 */
-	gpio_direction_output(IMX_GPIO_NR(2, 28), 1);
-	gpio_request(IMX_GPIO_NR(5, 4), "LED green"); /* 132 */
-	gpio_direction_output(IMX_GPIO_NR(5, 4), 1);
-	gpio_request(IMX_GPIO_NR(2, 29), "LED blue"); /* 61 */
-	gpio_direction_output(IMX_GPIO_NR(2, 29), 1);
-#elif (CONFIG_SYS_BOARD_VERSION == 3)
-	gpio_request(IMX_GPIO_NR(6, 16), "LED yellow"); /* 176 */
-	gpio_direction_output(IMX_GPIO_NR(6, 16), 0);
-	gpio_request(IMX_GPIO_NR(5, 0), "LED red"); /* 128 */
-	gpio_direction_output(IMX_GPIO_NR(5, 0), 0);
-	gpio_request(IMX_GPIO_NR(5, 4), "LED green"); /* 132 */
-	gpio_direction_output(IMX_GPIO_NR(5, 4), 0);
-	gpio_request(IMX_GPIO_NR(2, 29), "LED blue"); /* 61 */
-	gpio_direction_output(IMX_GPIO_NR(2, 29), 0);
-#endif
+	setup_one_led("led_yellow", LEDST_OFF);
+	setup_one_led("led_red", LEDST_OFF);
+	setup_one_led("led_green", LEDST_OFF);
+	setup_one_led("led_blue", LEDST_OFF);
 }
 
 static void setup_board_spi(void)
 {
 	/* enable spi bus #2 SS drivers (and spi bus #4 SS1 for rev2b) */
+	gpio_request(IMX_GPIO_NR(6, 6), "spi_ena");
 	gpio_direction_output(IMX_GPIO_NR(6, 6), 1);
 }
 
@@ -632,20 +585,23 @@ int board_late_init(void)
 	char *my_bootdelay;
 	char bootmode = 0;
 	char const *panel = env_get("panel");
+	struct gpio_desc *desc;
+	int ret;
 
+	led_default_state();
 	/*
 	 * Check the boot-source. If booting from NOR Flash,
 	 * disable bootdelay
 	 */
-	gpio_request(IMX_GPIO_NR(7, 6), "bootsel0");
-	gpio_direction_input(IMX_GPIO_NR(7, 6));
-	gpio_request(IMX_GPIO_NR(7, 7), "bootsel1");
-	gpio_direction_input(IMX_GPIO_NR(7, 7));
-	gpio_request(IMX_GPIO_NR(7, 1), "bootsel2");
-	gpio_direction_input(IMX_GPIO_NR(7, 1));
-	bootmode |= (gpio_get_value(IMX_GPIO_NR(7, 6)) ? 1 : 0) << 0;
-	bootmode |= (gpio_get_value(IMX_GPIO_NR(7, 7)) ? 1 : 0) << 1;
-	bootmode |= (gpio_get_value(IMX_GPIO_NR(7, 1)) ? 1 : 0) << 2;
+	desc = gpio_hog_lookup_name("bootsel0");
+	if (desc)
+		bootmode |= (dm_gpio_get_value(desc) ? 1 : 0) << 0;
+	desc = gpio_hog_lookup_name("bootsel1");
+	if (desc)
+		bootmode |= (dm_gpio_get_value(desc) ? 1 : 0) << 1;
+	desc = gpio_hog_lookup_name("bootsel2");
+	if (desc)
+		bootmode |= (dm_gpio_get_value(desc) ? 1 : 0) << 2;
 
 	if (bootmode == 7) {
 		my_bootdelay = env_get("nor_bootdelay");
@@ -653,6 +609,22 @@ int board_late_init(void)
 			env_set("bootdelay", my_bootdelay);
 		else
 			env_set("bootdelay", "-2");
+	}
+
+	/* read out some jumper values*/
+	ret = gpio_hog_lookup_name("env_reset", &desc);
+	if (!ret) {
+		if (dm_gpio_get_value(desc)) {
+			printf("\nClear env (set back to defaults)\n");
+			run_command("run default_env; saveenv; saveenv", 0);
+		}
+	}
+	ret = gpio_hog_lookup_name("boot_rescue", &desc);
+	if (!ret) {
+		if (dm_gpio_get_value(desc)) {
+			aristainetos_run_rescue_command(16);
+			run_command("run rescue_xload_boot", 0);
+		}
 	}
 
 	/* if we have the lg panel, we can initialze it now */
