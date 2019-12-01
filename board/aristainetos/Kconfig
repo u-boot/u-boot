@@ -33,3 +33,15 @@ config SYS_BOARD_VERSION
 	default 4
 
 endif
+
+if TARGET_ARISTAINETOS2C
+
+source "board/aristainetos/common/Kconfig"
+
+config SYS_BOARD
+	default "aristainetos"
+
+config SYS_BOARD_VERSION
+	default 5
+
+endif

@@ -5,6 +5,7 @@ config SYS_BOARD_VERSION
 	  2 version 2
 	  3 version 2b
 	  4 version 2bcsl
+	  5 version 2c
 
 config SYS_I2C_MXC_I2C1
 	default y

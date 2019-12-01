@@ -492,7 +492,8 @@ struct display_info_t const displays[] = {
 	}
 #if ((CONFIG_SYS_BOARD_VERSION == 2) || \
 	(CONFIG_SYS_BOARD_VERSION == 3) || \
-	(CONFIG_SYS_BOARD_VERSION == 4))
+	(CONFIG_SYS_BOARD_VERSION == 4) || \
+	(CONFIG_SYS_BOARD_VERSION == 5))
 	, {
 		.bus	= -1,
 		.addr	= 0,
@@ -520,6 +521,7 @@ struct display_info_t const displays[] = {
 };
 size_t display_count = ARRAY_SIZE(displays);
 
+#if defined(CONFIG_NAND)
 iomux_v3_cfg_t nfc_pads[] = {
 	MX6_PAD_NANDF_CLE__NAND_CLE		| MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX6_PAD_NANDF_ALE__NAND_ALE		| MUX_PAD_CTRL(NO_PAD_CTRL),
@@ -573,6 +575,11 @@ static void setup_gpmi_nand(void)
 	/* enable apbh clock gating */
 	setbits_le32(&mxc_ccm->CCGR0, MXC_CCM_CCGR0_APBHDMA_MASK);
 }
+#else
+static void setup_gpmi_nand(void)
+{
+}
+#endif
 
 int board_init(void)
 {

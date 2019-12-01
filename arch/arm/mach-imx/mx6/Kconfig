@@ -158,6 +158,17 @@ config TARGET_ARISTAINETOS2BCSL
 	imply CMD_SATA
 	imply CMD_DM
 
+config TARGET_ARISTAINETOS2C
+	bool "Support aristainetos2-revC"
+	select BOARD_LATE_INIT
+	select MX6DL
+	select SYS_I2C_MXC
+	select MXC_UART
+	select FEC_MXC
+	select DM
+	imply CMD_SATA
+	imply CMD_DM
+
 config TARGET_CGTQMX6EVAL
 	bool "cgtqmx6eval"
 	select BOARD_LATE_INIT

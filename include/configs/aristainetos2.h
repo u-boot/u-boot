@@ -128,6 +128,33 @@
 		"${fit_file}\0" \
 	"rescue_load_fit=ext4load mmc ${mmcdev}:${mmcrescuepart} " \
 		"${fit_addr_r} ${rescue_fit_file}\0"
+#elif (CONFIG_SYS_BOARD_VERSION == 5)
+#define CONFIG_EXTRA_ENV_BOARD_SETTINGS \
+	"emmcpart=1\0" \
+	"emmc_rescue_part=3\0" \
+	"emmcdev=1\0" \
+	"emmcroot=/dev/mmcblk1p1 rootwait rw\0" \
+	"dead=led led_red on\0" \
+	"mtdids=nor0=spi0.0\0" \
+	"mtdparts=mtdparts=spi0.0:832k(u-boot),64k(env),64k(env-red)," \
+		"-(ubi-nor)\0" \
+	"addmisc=setenv bootargs ${bootargs} net.ifnames=0 consoleblank=0 " \
+		"bootmode=${bootmode} mmcpart=${mmcpart} " \
+		"emmcpart=${emmcpart}\0" \
+	"mainboot=echo Booting from eMMC ...; " \
+		"run mainargs addmtd addmisc;" \
+		"if test -n ${addmiscM}; then run addmiscM;fi;" \
+		"if test -n ${addmiscC}; then run addmiscC;fi;" \
+		"if test -n ${addmiscD}; then run addmiscD;fi;" \
+		"run boot_board_type;" \
+		"bootm ${fit_addr_r}\0" \
+	"mainargs=setenv bootargs console=${console},${baudrate} " \
+		"root=${emmcroot} rootfstype=ext4\0 " \
+	"main_load_fit=ext4load mmc ${emmcdev}:${emmcpart} ${fit_addr_r} " \
+		"${fit_file}; " \
+		"imi ${fit_addr_r}\0 " \
+	"rescue_load_fit=ext4load mmc ${emmcdev}:${emmc_rescue_part} " \
+		"${fit_addr_r} ${rescue_fit_file};imi ${fit_addr_r}\0"
 #else
 #define CONFIG_EXTRA_ENV_BOARD_SETTINGS \
 	"dead=led led_red on\0" \
