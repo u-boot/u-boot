@@ -4,3 +4,6 @@ S:	Maintained
 F:	board/aristainetos/
 F:	include/configs/aristainetos2.h
 F:	configs/aristainetos2_defconfig
+F:	arch/arm/dts/imx6dl-aristainetos2_4.dts
+F:	arch/arm/dts/imx6dl-aristainetos2_7.dts
+F:	arch/arm/dts/imx6qdl-aristainetos2.dtsi
