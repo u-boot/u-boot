@@ -45,7 +45,7 @@
 #define CONFIG_MMCROOT		"/dev/mmcblk0p1"
 
 /* MMC Configs */
-#define CONFIG_SYS_FSL_ESDHC_ADDR      0
+#define CONFIG_SYS_FSL_ESDHC_ADDR      USDHC1_BASE_ADDR
 
 #define IMX_FEC_BASE			ENET_BASE_ADDR
 #define CONFIG_ETHPRIME			"FEC"

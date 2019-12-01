@@ -19,8 +19,6 @@
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/mxc_i2c.h>
 #include <asm/mach-imx/video.h>
-#include <mmc.h>
-#include <fsl_esdhc_imx.h>
 #include <miiphy.h>
 #include <netdev.h>
 #include <asm/arch/mxc_hdmi.h>
@@ -43,10 +41,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define USDHC_PAD_CTRL (PAD_CTL_PUS_47K_UP |			\
-	PAD_CTL_SPEED_LOW | PAD_CTL_DSE_80ohm |			\
-	PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
-
 #define ENET_PAD_CTRL  (PAD_CTL_PUS_100K_UP |			\
 	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS)
 
@@ -62,9 +56,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define DISP_PAD_CTRL	(0x10)
 
 #define ECSPI4_CS1		IMX_GPIO_NR(5, 2)
-
-#define USDHC2_PAD_CTRL (PAD_CTL_SPEED_LOW |			\
-	PAD_CTL_DSE_40ohm | PAD_CTL_SRE_FAST)
 
 #if (CONFIG_SYS_BOARD_VERSION == 2)
 	/* 4.3 display controller */
@@ -706,56 +697,12 @@ struct i2c_pads_info i2c_pad_info2 = {
 	}
 };
 
-iomux_v3_cfg_t const usdhc1_pads[] = {
-	MX6_PAD_SD1_CLK__SD1_CLK	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD1_CMD__SD1_CMD	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD1_DAT0__SD1_DATA0	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD1_DAT1__SD1_DATA1	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD1_DAT2__SD1_DATA2	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD1_DAT3__SD1_DATA3	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
-};
-
 int dram_init(void)
 {
 	gd->ram_size = imx_ddr_size();
 
 	return 0;
 }
-
-#ifdef CONFIG_FSL_ESDHC_IMX
-struct fsl_esdhc_cfg usdhc_cfg[2] = {
-	{USDHC1_BASE_ADDR},
-	{USDHC2_BASE_ADDR},
-};
-
-int board_mmc_getcd(struct mmc *mmc)
-{
-	return 1;
-}
-
-int board_mmc_init(bd_t *bis)
-{
-	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
-	imx_iomux_v3_setup_multiple_pads(usdhc1_pads, ARRAY_SIZE(usdhc1_pads));
-#if (CONFIG_SYS_BOARD_VERSION == 2)
-	/*
-	 * usdhc2 has a levelshifter on the carrier board Rev. DV1,
-	 * that will automatically detect the driving direction.
-	 * During initialisation this isn't working correctly,
-	 * which causes DAT3 to be driven low towards the SD-card.
-	 * This causes a SD-card enetring the SPI-Mode
-	 * and therefore getting inaccessible until next power cycle.
-	 * As workaround we drive the DAT3 line as GPIO and set it high.
-	 * This makes usdhc2 unusable in u-boot, but works for the
-	 * initialisation in Linux
-	 */
-	imx_iomux_v3_setup_pad(MX6_PAD_SD2_DAT3__GPIO1_IO12 |
-			       MUX_PAD_CTRL(NO_PAD_CTRL));
-	gpio_direction_output(IMX_GPIO_NR(1, 12) , 1);
-#endif
-	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
-}
-#endif
 
 struct display_info_t const displays[] = {
 	{
