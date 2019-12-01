@@ -24,6 +24,8 @@
 #include <bmp_logo.h>
 #include <dm/root.h>
 #include <env.h>
+#include <i2c_eeprom.h>
+#include <i2c.h>
 #include <micrel.h>
 #include <miiphy.h>
 #include <lcd.h>
@@ -323,6 +325,64 @@ static void setup_board_gpio(void)
 	setup_one_led("led_blue", LEDST_OFF);
 }
 
+#define ARI_RESC_FMT "setenv rescue_reason setenv bootargs \\${bootargs}" \
+		" rescueReason=%d "
+
+static void aristainetos_run_rescue_command(int reason)
+{
+	char rescue_reason_command[80];
+
+	sprintf(rescue_reason_command, ARI_RESC_FMT, reason);
+	run_command(rescue_reason_command, 0);
+}
+
+static int aristainetos_eeprom(void)
+{
+	struct udevice *dev;
+	int off;
+	int ret;
+	u8 data[0x10];
+	u8 rescue_reason;
+
+	off = fdt_path_offset(gd->fdt_blob, "eeprom0");
+	if (off < 0) {
+		printf("%s: No eeprom0 path offset\n", __func__);
+		return off;
+	}
+
+	ret = uclass_get_device_by_of_offset(UCLASS_I2C_EEPROM, off, &dev);
+	if (ret) {
+		printf("%s: Could not find EEPROM\n", __func__);
+		return ret;
+	}
+
+	ret = i2c_set_chip_offset_len(dev, 2);
+	if (ret)
+		return ret;
+
+	ret = i2c_eeprom_read(dev, 0x1ff0, (uint8_t *)data, 6);
+	if (ret) {
+		printf("%s: Could not read EEPROM\n", __func__);
+		return ret;
+	}
+
+	if (strncmp((char *)&data[3], "ReScUe", 6) == 0) {
+		rescue_reason = *(uint8_t *)&data[9];
+		memset(&data[3], 0xff, 7);
+		i2c_eeprom_write(dev, 0x1ff0, (uint8_t *)&data[3], 7);
+		printf("\nBooting into Rescue System (EEPROM)\n");
+		aristainetos_run_rescue_command(rescue_reason);
+		run_command("run rescue_load_fit rescueboot", 0);
+	} else if (strncmp((char *)data, "DeF", 3) == 0) {
+		memset(data, 0xff, 3);
+		i2c_eeprom_write(dev, 0x1ff0, (uint8_t *)data, 3);
+		printf("\nClear u-boot environment (set back to defaults)\n");
+		run_command("run default_env; saveenv; saveenv", 0);
+	}
+
+	return 0;
+};
+
 int board_late_init(void)
 {
 	char *my_bootdelay;
@@ -372,12 +432,14 @@ int board_late_init(void)
 		}
 	}
 
+	/* eeprom work */
+	aristainetos_eeprom();
+
 	/* set board_type */
 	if (gd->board_type == BOARD_TYPE_4)
 		env_set("board_type", ARI_BT_4);
 	else
 		env_set("board_type", ARI_BT_7);
-
 	return 0;
 }
 
