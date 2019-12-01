@@ -18,19 +18,6 @@
 
 #define CONFIG_FEC_XCV_TYPE		RGMII
 
-#define CONFIG_EXTRA_ENV_BOARD_SETTINGS \
-	"board_type=aristainetos2_7@1\0" \
-	"nor_bootdelay=-2\0" \
-	"mtdids=nand0=gpmi-nand,nor0=spi3.1\0" \
-	"mtdparts=mtdparts=spi3.1:832k(u-boot),64k(env),64k(env-red)," \
-		"-(rescue-system);gpmi-nand:-(ubi)\0" \
-	"addmisc=setenv bootargs ${bootargs} net.ifnames=0 consoleblank=0\0" \
-	"ubiargs=setenv bootargs console=${console},${baudrate} " \
-		"ubi.mtd=0,4096 root=ubi0:rootfs rootfstype=ubifs\0 " \
-	"ubifs_load_fit=sf probe;ubi part ubi 4096;ubifsmount ubi:rootfs;" \
-		"ubifsload ${fit_addr_r} /boot/system.itb; " \
-		"imi ${fit_addr_r}\0 "
-
 /* Framebuffer */
 #define CONFIG_SYS_LDB_CLOCK	28341000
 #define CONFIG_LG4573
@@ -49,49 +36,87 @@
 
 #define CONFIG_SYS_SPI_ST_ENABLE_WP_PIN
 
+#define CONFIG_EXTRA_ENV_BOARD_SETTINGS \
+	"dead=led led_red on\0" \
+	"mtdids=nand0=gpmi-nand,nor0=spi3.1\0" \
+	"mtdparts=mtdparts=spi3.1:832k(u-boot),64k(env),64k(env-red)," \
+		"-(ubi-nor);gpmi-nand:-(ubi)\0" \
+	"addmisc=setenv bootargs ${bootargs} net.ifnames=0 consoleblank=0 " \
+		"bootmode=${bootmode} mmcpart=${mmcpart}\0" \
+	"mainboot=echo Booting from SD-card ...; " \
+		"run mainargs addmtd addmisc;" \
+		"if test -n ${addmiscM}; then run addmiscM;fi;" \
+		"if test -n ${addmiscC}; then run addmiscC;fi;" \
+		"if test -n ${addmiscD}; then run addmiscD;fi;" \
+		"run boot_board_type;" \
+		"bootm ${fit_addr_r}\0" \
+	"mainargs=setenv bootargs console=${console},${baudrate} " \
+		"root=${mmcroot}\0" \
+	"main_load_fit=ext4load mmc ${mmcdev}:${mmcpart} ${fit_addr_r} " \
+		"${fit_file}\0" \
+	"rescue_load_fit=ext4load mmc ${mmcdev}:${mmcrescuepart} " \
+		"${fit_addr_r} ${rescue_fit_file}\0"
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"disable_giga=yes\0" \
+	"usb_pgood_delay=2000\0" \
+	"nor_bootdelay=-2\0" \
 	"script=u-boot.scr\0" \
 	"fit_file=/boot/system.itb\0" \
+	"rescue_fit_file=/boot/rescue.itb\0" \
 	"loadaddr=0x12000000\0" \
 	"fit_addr_r=0x14000000\0" \
 	"uboot=/boot/u-boot.imx\0" \
 	"uboot_sz=d0000\0" \
-	"rescue_sys_addr=f0000\0" \
-	"rescue_sys_length=f10000\0" \
 	"panel=lb07wv8\0" \
 	"splashpos=m,m\0" \
 	"console=" CONSOLE_DEV "\0" \
 	"fdt_high=0xffffffff\0"	  \
 	"initrd_high=0xffffffff\0" \
 	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0" \
-	"set_fit_default=fdt addr ${fit_addr_r};fdt set /configurations " \
-		"default ${board_type}\0" \
+	"boot_board_type=bootm ${fit_addr_r}#${board_type}\0" \
 	"get_env=mw ${loadaddr} 0 0x20000;" \
 		"mmc rescan;" \
-		"ext2load mmc ${mmcdev}:${mmcpart} ${loadaddr} env.txt;" \
+		"ext4load mmc ${mmcdev}:${mmcpart} ${loadaddr} env.txt;" \
 		"env import -t ${loadaddr}\0" \
-	"default_env=mw ${loadaddr} 0 0x20000;" \
-		"env export -t ${loadaddr} serial# ethaddr eth1addr " \
-		"board_type panel;" \
+	"default_env=gpio set wp_spi_nor.gpio-hog;" \
+		"sf probe;" \
+		"sf protect unlock 0 0x1000000;" \
+		"mw ${loadaddr} 0 0x20000;" \
+		"env export -t ${loadaddr} serial# ethaddr " \
+		"board_type panel addmisc addmiscM addmiscC addmiscD;" \
 		"env default -a;" \
 		"env import -t ${loadaddr}\0" \
 	"loadbootscript=" \
-		"ext2load mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
+		"ext4load mmc ${mmcdev}:${mmcpart} ${loadaddr} " \
+		"${script};\0" \
+	"loadbootscriptUSB=" \
+		"ext4load usb 0 ${loadaddr} ${script};\0" \
+	"loadbootscriptUSBf=" \
+		"fatload usb 0 ${loadaddr} ${script};\0" \
+	"bootscriptUSB=echo Running bootscript from usb-stick ...; " \
+		"source\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source\0" \
 	"mmcpart=1\0" \
+	"mmcrescuepart=3\0" \
 	"mmcdev=0\0" \
 	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		"root=${mmcroot}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
-		"run mmcargs addmtd addmisc set_fit_default;" \
+		"run mmcargs addmtd addmisc;" \
+		"if test -n ${addmiscM}; then run addmiscM;fi;" \
+		"if test -n ${addmiscC}; then run addmiscC;fi;" \
+		"if test -n ${addmiscD}; then run addmiscD;fi;" \
+		"run boot_board_type;" \
 		"bootm ${fit_addr_r}\0" \
-	"mmc_load_fit=ext2load mmc ${mmcdev}:${mmcpart} ${fit_addr_r} " \
+	"mmc_load_fit=ext4load mmc ${mmcdev}:${mmcpart} ${fit_addr_r} " \
 		"${fit_file}\0" \
-	"mmc_load_uboot=ext2load mmc ${mmcdev}:${mmcpart} ${loadaddr} " \
+	"mmc_load_uboot=ext4load mmc ${mmcdev}:${mmcpart} ${loadaddr} " \
 		"${uboot}\0" \
+	"mmc_rescue_load_fit=ext4load mmc ${mmcdev}:${mmcrescuepart} " \
+		"${fit_addr_r} ${rescue_fit_file}\0" \
 	"mmc_upd_uboot=mw.b ${loadaddr} 0xff ${uboot_sz};" \
 		"setexpr cmp_buf ${loadaddr} + ${uboot_sz};" \
 		"setexpr uboot_maxsize ${uboot_sz} - 400;" \
@@ -100,50 +125,163 @@
 		"sf write ${loadaddr} 400 ${filesize};" \
 		"sf read ${cmp_buf} 400 ${uboot_sz};" \
 		"cmp.b ${loadaddr} ${cmp_buf} ${uboot_maxsize}\0" \
-	"ubiboot=echo Booting from ubi ...; " \
-		"run ubiargs addmtd addmisc set_fit_default;" \
-		"bootm ${fit_addr_r}\0" \
 	"rescueargs=setenv bootargs console=${console},${baudrate} " \
 		"root=/dev/ram rw\0 " \
-	"rescueboot=echo Booting rescue system from NOR ...; " \
-		"run rescueargs addmtd addmisc set_fit_default;" \
-		"bootm ${fit_addr_r}\0" \
-	"rescue_load_fit=sf probe;sf read ${fit_addr_r} ${rescue_sys_addr} " \
-		"${rescue_sys_length}; imi ${fit_addr_r}\0" \
-	CONFIG_EXTRA_ENV_BOARD_SETTINGS
-
-#define CONFIG_BOOTCOMMAND \
-	"mmc dev ${mmcdev};" \
-	"if mmc rescan; then " \
-		"if run loadbootscript; then " \
-			"run bootscript; " \
+	"rescueboot=echo Booting rescue system ...; " \
+		"run rescueargs addmtd addmisc;" \
+		"if test -n ${rescue_reason}; then run rescue_reason;fi;" \
+		"if test -n ${addmiscM}; then run addmiscM;fi;" \
+		"if test -n ${addmiscC}; then run addmiscC;fi;" \
+		"if test -n ${addmiscD}; then run addmiscD;fi;" \
+		"run boot_board_type;" \
+		"if bootm ${fit_addr_r}; then ; " \
 		"else " \
-			"if run mmc_load_fit; then " \
-				"run mmcboot; " \
+			"run dead; " \
+		"fi; \0" \
+	"r_reason_syserr=setenv rescue_reason setenv bootargs " \
+		"\\\\${bootargs} " \
+	"rescueReason=18\0 " \
+	"usb_load_fit=ext4load usb 0 ${fit_addr_r} ${fit_file}\0" \
+	"usb_load_fitf=fatload usb 0 ${fit_addr_r} ${fit_file}\0" \
+	"usb_load_rescuefit=ext4load usb 0 ${fit_addr_r} " \
+		"${rescue_fit_file}\0" \
+	"usb_load_rescuefitf=fatload usb 0 ${fit_addr_r} " \
+		"${rescue_fit_file}\0" \
+	"usbroot=/dev/sda1 rootwait rw\0" \
+	"usbboot=echo Booting from usb-stick ...; " \
+		"run usbargs addmtd addmisc;" \
+		"if test -n ${addmiscM}; then run addmiscM;fi;" \
+		"if test -n ${addmiscC}; then run addmiscC;fi;" \
+		"if test -n ${addmiscD}; then run addmiscD;fi;" \
+		"run boot_board_type;" \
+		"bootm ${fit_addr_r}\0" \
+	"usbargs=setenv bootargs console=${console},${baudrate} " \
+		"root=${usbroot}\0" \
+	"mmc_rescue_boot=" \
+		"run r_reason_syserr;" \
+		"if run mmc_rescue_load_fit hab_check_file_fit; then " \
+			"run rescueboot; " \
+		"else " \
+			"run dead; " \
+			"echo RESCUE SYSTEM FROM SD-CARD BOOT FAILURE;" \
+		"fi;\0" \
+	"main_rescue_boot=" \
+		"if run main_load_fit hab_check_flash_fit; then " \
+			"if run mainboot; then ; " \
 			"else " \
-				"if run ubifs_load_fit; then " \
-					"run ubiboot; " \
+				"run r_reason_syserr;" \
+				"if run rescue_load_fit hab_check_file_fit;" \
+					"then run rescueboot; " \
 				"else " \
-					"if run rescue_load_fit; then " \
-						"run rescueboot; " \
-					"else " \
-						"echo RESCUE SYSTEM BOOT " \
-							"FAILURE;" \
-					"fi; " \
+					"run dead; " \
+					"echo RESCUE SYSTEM BOOT FAILURE;" \
 				"fi; " \
 			"fi; " \
-		"fi; " \
-	"else " \
-		"if run ubifs_load_fit; then " \
-			"run ubiboot; " \
 		"else " \
-			"if run rescue_load_fit; then " \
+			"run r_reason_syserr;" \
+			"if run rescue_load_fit hab_check_file_fit; then " \
 				"run rescueboot; " \
 			"else " \
+				"run dead; " \
 				"echo RESCUE SYSTEM BOOT FAILURE;" \
 			"fi; " \
+		"fi;\0" \
+	"usb_mmc_rescue_boot=" \
+		"usb start;" \
+		"if usb storage; then " \
+			"if run loadbootscriptUSB " \
+				"hab_check_file_bootscript;" \
+				"then run bootscriptUSB; " \
+			"fi; " \
+			"if run loadbootscriptUSBf " \
+				"hab_check_file_bootscript;" \
+				"then run bootscriptUSB; " \
+			"fi; " \
+			"if run usb_load_fit hab_check_file_fit; then " \
+				"run usbboot; " \
+			"fi; " \
+			"if run usb_load_fitf hab_check_file_fit; then " \
+				"run usbboot; " \
+			"fi; "\
+			"if run usb_load_rescuefit hab_check_file_fit;" \
+				"then run r_reason_syserr rescueboot;" \
+			"fi; " \
+			"if run usb_load_rescuefitf hab_check_file_fit;" \
+				"then run r_reason_syserr rescueboot;" \
+			"fi; " \
+			"run mmc_rescue_boot;" \
+		"fi; "\
+		"run mmc_rescue_boot;\0" \
+	"rescue_xload_boot=" \
+		"run r_reason_syserr;" \
+		"if test ${bootmode} -ne 0 ; then " \
+			"mmc dev ${mmcdev};" \
+			"if mmc rescan; then " \
+				"if run mmc_rescue_load_fit " \
+					"hab_check_file_fit; then " \
+					"run rescueboot; " \
+				"else " \
+					"usb start;" \
+					"if usb storage; then " \
+						"if run usb_load_rescuefit " \
+							"hab_check_file_fit;"\
+							"then " \
+							"run rescueboot;" \
+						"fi; " \
+						"if run usb_load_rescuefitf "\
+							"hab_check_file_fit;"\
+							"then " \
+							"run rescueboot;" \
+						"fi; " \
+					"fi;" \
+				"fi;" \
+				"run dead; " \
+				"echo RESCUE SYSTEM ON SD OR " \
+					"USB BOOT FAILURE;" \
+			"else " \
+				"usb start;" \
+				"if usb storage; then " \
+					"if run usb_load_rescuefit " \
+						"hab_check_file_fit; then " \
+						"run rescueboot;" \
+					"fi; " \
+					"if run usb_load_rescuefitf " \
+						"hab_check_file_fit; then " \
+						"run rescueboot;" \
+					"fi; " \
+				"fi;" \
+				"run dead; " \
+				"echo RESCUE SYSTEM ON USB BOOT FAILURE;" \
+			"fi; " \
+		"else "\
+			"if run rescue_load_fit hab_check_file_fit; then " \
+				"run rescueboot; " \
+			"else " \
+				"run dead; " \
+				"echo RESCUE SYSTEM ON BOARD BOOT FAILURE;" \
+			"fi; " \
+		"fi;\0" \
+	"ari_boot=if test ${bootmode} -ne 0 ; then " \
+		"mmc dev ${mmcdev};" \
+		"if mmc rescan; then " \
+			"if run loadbootscript hab_check_file_bootscript;" \
+				"then run bootscript; " \
+			"fi; " \
+			"if run mmc_load_fit hab_check_file_fit; then " \
+				"if run mmcboot; then ; " \
+				"else " \
+					"run mmc_rescue_boot;" \
+				"fi; " \
+			"else " \
+				"run usb_mmc_rescue_boot;" \
+			"fi; " \
+		"else " \
+			"run usb_mmc_rescue_boot;" \
 		"fi; " \
-	"fi"
+	"else "\
+		"run main_rescue_boot;" \
+	"fi; \0"\
+	CONFIG_EXTRA_ENV_BOARD_SETTINGS
 
 #define CONFIG_ARP_TIMEOUT		200UL
 
