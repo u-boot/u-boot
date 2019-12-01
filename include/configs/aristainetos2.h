@@ -107,6 +107,27 @@
 		"${fit_file}\0" \
 	"rescue_load_fit=ext4load mmc ${mmcdev}:${mmcrescuepart} " \
 		"${fit_addr_r} ${rescue_fit_file}\0"
+#elif (CONFIG_SYS_BOARD_VERSION == 4)
+#define CONFIG_EXTRA_ENV_BOARD_SETTINGS \
+	"dead=led led_red on;led led_red2 on;\0" \
+	"mtdids=nand0=gpmi-nand,nor0=spi0.0\0" \
+	"mtdparts=mtdparts=spi0.0:832k(u-boot),64k(env),64k(env-red)," \
+		"-(ubi-nor);gpmi-nand:-(ubi)\0" \
+	"addmisc=setenv bootargs ${bootargs} net.ifnames=0 consoleblank=0 " \
+		"bootmode=${bootmode} mmcpart=${mmcpart}\0" \
+	"mainboot=echo Booting from SD-card ...; " \
+		"run mainargs addmtd addmisc;" \
+		"if test -n ${addmiscM}; then run addmiscM;fi;" \
+		"if test -n ${addmiscC}; then run addmiscC;fi;" \
+		"if test -n ${addmiscD}; then run addmiscD;fi;" \
+		"run boot_board_type;" \
+		"bootm ${fit_addr_r}\0" \
+	"mainargs=setenv bootargs console=${console},${baudrate} " \
+		"root=${mmcroot}\0" \
+	"main_load_fit=ext4load mmc ${mmcdev}:${mmcpart} ${fit_addr_r} " \
+		"${fit_file}\0" \
+	"rescue_load_fit=ext4load mmc ${mmcdev}:${mmcrescuepart} " \
+		"${fit_addr_r} ${rescue_fit_file}\0"
 #else
 #define CONFIG_EXTRA_ENV_BOARD_SETTINGS \
 	"dead=led led_red on\0" \

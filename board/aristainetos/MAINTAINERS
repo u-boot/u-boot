@@ -5,6 +5,7 @@ F:	board/aristainetos/
 F:	include/configs/aristainetos2.h
 F:	configs/aristainetos2_defconfig
 F:	configs/aristainetos2b_defconfig
+F:	configs/aristainetos2bcsl_defconfig
 F:	arch/arm/dts/imx6qdl-aristainetos2.dtsi
 F:	arch/arm/dts/imx6qdl-aristainetos2-common.dtsi
 F:	arch/arm/dts/imx6qdl-aristainetos2-u-boot.dtsi
@@ -20,3 +21,9 @@ F:	arch/arm/dts/imx6dl-aristainetos2b_7.dts
 F:	arch/arm/dts/imx6dl-aristainetos2b_7-u-boot.dtsi
 F:	arch/arm/dts/imx6qdl-aristainetos2b-u-boot.dtsi
 F:	arch/arm/dts/imx6qdl-aristainetos2b.dtsi
+F:	arch/arm/dts/imx6dl-aristainetos2b_csl_4.dts
+F:	arch/arm/dts/imx6dl-aristainetos2b_csl_4-u-boot.dtsi
+F:	arch/arm/dts/imx6dl-aristainetos2b_csl_7.dts
+F:	arch/arm/dts/imx6dl-aristainetos2b_csl_7-u-boot.dtsi
+F:	arch/arm/dts/imx6qdl-aristainetos2b_csl.dtsi
+F:	arch/arm/dts/imx6qdl-aristainetos2b_csl-u-boot.dtsi

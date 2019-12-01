@@ -21,3 +21,15 @@ config SYS_BOARD_VERSION
 	default 3
 
 endif
+
+if TARGET_ARISTAINETOS2BCSL
+
+source "board/aristainetos/common/Kconfig"
+
+config SYS_BOARD
+	default "aristainetos"
+
+config SYS_BOARD_VERSION
+	default 4
+
+endif
