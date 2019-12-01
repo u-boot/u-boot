@@ -17,7 +17,6 @@
 #include <asm/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/boot_mode.h>
-#include <asm/mach-imx/mxc_i2c.h>
 #include <asm/mach-imx/video.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/io.h>
@@ -35,12 +34,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define I2C_PAD_CTRL	(PAD_CTL_PUS_100K_UP |			\
-	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS |	\
-	PAD_CTL_ODE | PAD_CTL_SRE_FAST)
-
-#define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
-
 enum {
 	BOARD_TYPE_4 = 4,
 	BOARD_TYPE_7 = 7,
@@ -48,32 +41,6 @@ enum {
 
 #define ARI_BT_4 "aristainetos2_4@2"
 #define ARI_BT_7 "aristainetos2_7@1"
-
-struct i2c_pads_info i2c_pad_info3 = {
-	.scl = {
-		.i2c_mode = MX6_PAD_GPIO_5__I2C3_SCL | PC,
-		.gpio_mode = MX6_PAD_GPIO_5__GPIO1_IO05 | PC,
-		.gp = IMX_GPIO_NR(1, 5)
-	},
-	.sda = {
-		.i2c_mode = MX6_PAD_GPIO_6__I2C3_SDA | PC,
-		.gpio_mode = MX6_PAD_GPIO_6__GPIO1_IO06 | PC,
-		.gp = IMX_GPIO_NR(1, 6)
-	}
-};
-
-struct i2c_pads_info i2c_pad_info4 = {
-	.scl = {
-		.i2c_mode = MX6_PAD_GPIO_7__I2C4_SCL | PC,
-		.gpio_mode = MX6_PAD_GPIO_7__GPIO1_IO07 | PC,
-		.gp = IMX_GPIO_NR(1, 7)
-	},
-	.sda = {
-		.i2c_mode = MX6_PAD_GPIO_8__I2C4_SDA | PC,
-		.gpio_mode = MX6_PAD_GPIO_8__GPIO1_IO08 | PC,
-		.gp = IMX_GPIO_NR(1, 8)
-	}
-};
 
 static iomux_v3_cfg_t const backlight_pads[] = {
 	/* backlight PWM brightness control */
@@ -346,12 +313,6 @@ int board_early_init_f(void)
 	return 0;
 }
 
-static void setup_i2c4(void)
-{
-	setup_i2c(3, CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE,
-		  &i2c_pad_info4);
-}
-
 static void setup_one_led(char *label, int state)
 {
 	struct udevice *dev;
@@ -429,32 +390,6 @@ int board_late_init(void)
 
 	return 0;
 }
-
-struct i2c_pads_info i2c_pad_info1 = {
-	.scl = {
-		.i2c_mode = MX6_PAD_CSI0_DAT9__I2C1_SCL | PC,
-		.gpio_mode = MX6_PAD_CSI0_DAT9__GPIO5_IO27 | PC,
-		.gp = IMX_GPIO_NR(5, 27)
-	},
-	.sda = {
-		.i2c_mode = MX6_PAD_CSI0_DAT8__I2C1_SDA | PC,
-		.gpio_mode = MX6_PAD_CSI0_DAT8__GPIO5_IO26 | PC,
-		.gp = IMX_GPIO_NR(5, 26)
-	}
-};
-
-struct i2c_pads_info i2c_pad_info2 = {
-	.scl = {
-		.i2c_mode = MX6_PAD_KEY_COL3__I2C2_SCL | PC,
-		.gpio_mode = MX6_PAD_KEY_COL3__GPIO4_IO12 | PC,
-		.gp = IMX_GPIO_NR(4, 12)
-	},
-	.sda = {
-		.i2c_mode = MX6_PAD_KEY_ROW3__I2C2_SDA | PC,
-		.gpio_mode = MX6_PAD_KEY_ROW3__GPIO4_IO13 | PC,
-		.gp = IMX_GPIO_NR(4, 13)
-	}
-};
 
 int dram_init(void)
 {
@@ -574,14 +509,6 @@ int board_init(void)
 
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
-
-	setup_i2c(0, CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE,
-		  &i2c_pad_info1);
-	setup_i2c(1, CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE,
-		  &i2c_pad_info2);
-	setup_i2c(2, CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE,
-		  &i2c_pad_info3);
-	setup_i2c4();
 
 	setup_board_gpio();
 	setup_gpmi_nand();

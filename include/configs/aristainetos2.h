@@ -165,12 +165,6 @@
 
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 
-/* I2C */
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_SPEED		100000
-#define CONFIG_SYS_I2C_SLAVE		0x7f
-#define CONFIG_SYS_I2C_NOPROBES		{ {0, 0x00} }
-
 /* NAND stuff */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		0x40000000
@@ -178,11 +172,6 @@
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 
 /* DMA stuff, needed for GPMI/MXS NAND support */
-
-/* RTC */
-#define CONFIG_SYS_I2C_RTC_ADDR	0x68
-#define CONFIG_SYS_RTC_BUS_NUM	2
-#define CONFIG_RTC_M41T11
 
 /* USB Configs */
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET	/* For OTG port */
