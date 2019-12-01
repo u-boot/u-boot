@@ -509,12 +509,6 @@ int board_init(void)
 	return 0;
 }
 
-int checkboard(void)
-{
-	printf("Board: %s\n", CONFIG_BOARDNAME);
-	return 0;
-}
-
 int board_fit_config_name_match(const char *name)
 {
 	if (gd->board_type == BOARD_TYPE_4 &&

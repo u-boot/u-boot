@@ -1,8 +1,3 @@
-config BOARDNAME
-	string "name of the board"
-	help
-	  set the name of the board.
-
 config SYS_BOARD_VERSION
 	int "select version of aristainetos board"
 	help

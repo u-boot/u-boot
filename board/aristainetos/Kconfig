@@ -8,7 +8,4 @@ config SYS_BOARD
 config SYS_BOARD_VERSION
 	default 2
 
-config BOARDNAME
-	default "aristainetos2"
-
 endif
