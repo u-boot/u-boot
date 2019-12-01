@@ -383,37 +383,42 @@ static int aristainetos_eeprom(void)
 	return 0;
 };
 
-int board_late_init(void)
+static void aristainetos_bootmode_settings(void)
 {
+	struct gpio_desc *desc;
+	struct src *psrc = (struct src *)SRC_BASE_ADDR;
+	unsigned int sbmr1 = readl(&psrc->sbmr1);
 	char *my_bootdelay;
 	char bootmode = 0;
-	struct gpio_desc *desc;
-	int x, y;
 	int ret;
 
-	led_default_state();
-	splash_get_pos(&x, &y);
-	bmp_display((ulong)&bmp_logo_bitmap[0], x, y);
 	/*
 	 * Check the boot-source. If booting from NOR Flash,
 	 * disable bootdelay
 	 */
-	desc = gpio_hog_lookup_name("bootsel0");
-	if (desc)
+	ret = gpio_hog_lookup_name("bootsel0", &desc);
+	if (!ret)
 		bootmode |= (dm_gpio_get_value(desc) ? 1 : 0) << 0;
-	desc = gpio_hog_lookup_name("bootsel1");
-	if (desc)
+	ret = gpio_hog_lookup_name("bootsel1", &desc);
+	if (!ret)
 		bootmode |= (dm_gpio_get_value(desc) ? 1 : 0) << 1;
-	desc = gpio_hog_lookup_name("bootsel2");
-	if (desc)
+	ret = gpio_hog_lookup_name("bootsel2", &desc);
+	if (!ret)
 		bootmode |= (dm_gpio_get_value(desc) ? 1 : 0) << 2;
 
 	if (bootmode == 7) {
 		my_bootdelay = env_get("nor_bootdelay");
-		if (my_bootdelay != NULL)
+		if (my_bootdelay)
 			env_set("bootdelay", my_bootdelay);
 		else
 			env_set("bootdelay", "-2");
+	}
+
+	if (sbmr1 & 0x40) {
+		env_set("bootmode", "1");
+		printf("SD bootmode jumper set!\n");
+	} else {
+		env_set("bootmode", "0");
 	}
 
 	/* read out some jumper values*/
@@ -431,6 +436,17 @@ int board_late_init(void)
 			run_command("run rescue_xload_boot", 0);
 		}
 	}
+}
+
+int board_late_init(void)
+{
+	int x, y;
+
+	led_default_state();
+	splash_get_pos(&x, &y);
+	bmp_display((ulong)&bmp_logo_bitmap[0], x, y);
+
+	aristainetos_bootmode_settings();
 
 	/* eeprom work */
 	aristainetos_eeprom();
@@ -440,6 +456,7 @@ int board_late_init(void)
 		env_set("board_type", ARI_BT_4);
 	else
 		env_set("board_type", ARI_BT_7);
+
 	return 0;
 }
 
