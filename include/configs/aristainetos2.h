@@ -31,8 +31,6 @@
 		"ubifsload ${fit_addr_r} /boot/system.itb; " \
 		"imi ${fit_addr_r}\0 "
 
-#define ARISTAINETOS_USB_OTG_PWR	IMX_GPIO_NR(4, 15)
-#define ARISTAINETOS_USB_H1_PWR	IMX_GPIO_NR(1, 0)
 #define CONFIG_GPIO_ENABLE_SPI_FLASH	IMX_GPIO_NR(2, 15)
 
 /* Framebuffer */
@@ -189,7 +187,6 @@
 #define CONFIG_RTC_M41T11
 
 /* USB Configs */
-#define CONFIG_USB_MAX_CONTROLLER_COUNT 2
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET	/* For OTG port */
 #define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS	0

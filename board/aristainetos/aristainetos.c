@@ -102,15 +102,6 @@ struct i2c_pads_info i2c_pad_info4 = {
 	}
 };
 
-static iomux_v3_cfg_t const misc_pads[] = {
-	/* USB_OTG_ID = GPIO1_24*/
-	MX6_PAD_ENET_RX_ER__USB_OTG_ID		| MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* H1 Power enable = GPIO1_0*/
-	MX6_PAD_GPIO_0__USB_H1_PWR		| MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* OTG Power enable = GPIO4_15*/
-	MX6_PAD_KEY_ROW4__USB_OTG_PWR		| MUX_PAD_CTRL(NO_PAD_CTRL),
-};
-
 iomux_v3_cfg_t const enet_pads[] = {
 	MX6_PAD_ENET_MDIO__ENET_MDIO		| MUX_PAD_CTRL(ENET_PAD_CTRL),
 	MX6_PAD_ENET_MDC__ENET_MDC		| MUX_PAD_CTRL(ENET_PAD_CTRL),
@@ -815,7 +806,6 @@ int board_init(void)
 
 	/* GPIO_1 for USB_OTG_ID */
 	clrsetbits_le32(&iomux->gpr[1], IOMUXC_GPR1_USB_OTG_ID_SEL_MASK, 0);
-	imx_iomux_v3_setup_multiple_pads(misc_pads, ARRAY_SIZE(misc_pads));
 	return 0;
 }
 
@@ -824,31 +814,6 @@ int checkboard(void)
 	printf("Board: %s\n", CONFIG_BOARDNAME);
 	return 0;
 }
-
-#ifdef CONFIG_USB_EHCI_MX6
-int board_ehci_hcd_init(int port)
-{
-	int ret;
-
-	ret = gpio_request(ARISTAINETOS_USB_H1_PWR, "usb-h1-pwr");
-	if (!ret)
-		gpio_direction_output(ARISTAINETOS_USB_H1_PWR, 1);
-	ret = gpio_request(ARISTAINETOS_USB_OTG_PWR, "usb-OTG-pwr");
-	if (!ret)
-		gpio_direction_output(ARISTAINETOS_USB_OTG_PWR, 1);
-	return 0;
-}
-
-int board_ehci_power(int port, int on)
-{
-	if (port)
-		gpio_set_value(ARISTAINETOS_USB_OTG_PWR, on);
-	else
-		gpio_set_value(ARISTAINETOS_USB_H1_PWR, on);
-
-	return 0;
-}
-#endif
 
 int board_fit_config_name_match(const char *name)
 {
