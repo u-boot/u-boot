@@ -31,6 +31,7 @@
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
 #include <pwm.h>
+#include <dm/root.h>
 #include <env.h>
 #include <micrel.h>
 #include <spi.h>
@@ -81,6 +82,14 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define SOFT_RESET_GPIO		IMX_GPIO_NR(7, 13)
 #define SD2_DRIVER_ENABLE	IMX_GPIO_NR(7, 8)
+
+enum {
+	BOARD_TYPE_4 = 4,
+	BOARD_TYPE_7 = 7,
+};
+
+#define ARI_BT_4 "aristainetos2_4@2"
+#define ARI_BT_7 "aristainetos2_7@1"
 
 struct i2c_pads_info i2c_pad_info3 = {
 	.scl = {
@@ -617,6 +626,7 @@ static void set_gpr_register(void)
 	       &iomuxc_regs->gpr[12]);
 }
 
+extern char __bss_start[], __bss_end[];
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
@@ -626,6 +636,14 @@ int board_early_init_f(void)
 	gpio_direction_output(SD2_DRIVER_ENABLE, 1);
 	setup_display();
 	set_gpr_register();
+
+	/*
+	 * clear bss here, so we can use spi driver
+	 * before relocation and read Environment
+	 * from spi flash.
+	 */
+	memset(__bss_start, 0x00, __bss_end - __bss_start);
+
 	return 0;
 }
 
@@ -703,6 +721,12 @@ int board_late_init(void)
 			lg4573_spi_startup(CONFIG_LG4573_BUS,
 					   CONFIG_LG4573_CS,
 					   10000000, SPI_MODE_0);
+
+	/* set board_type */
+	if (gd->board_type == BOARD_TYPE_4)
+		env_set("board_type", ARI_BT_4);
+	else
+		env_set("board_type", ARI_BT_7);
 
 	return 0;
 }
@@ -962,6 +986,50 @@ int board_ehci_power(int port, int on)
 		gpio_set_value(ARISTAINETOS_USB_OTG_PWR, on);
 	else
 		gpio_set_value(ARISTAINETOS_USB_H1_PWR, on);
+
+	return 0;
+}
+#endif
+
+int board_fit_config_name_match(const char *name)
+{
+	if (gd->board_type == BOARD_TYPE_4 &&
+	    strchr(name, 0x34))
+		return 0;
+
+	if (gd->board_type == BOARD_TYPE_7 &&
+	    strchr(name, 0x37))
+		return 0;
+
+	return -1;
+}
+
+static void do_board_detect(void)
+{
+	int ret;
+	char s[30];
+
+	/* default use board type 7 */
+	gd->board_type = BOARD_TYPE_7;
+	if (env_init())
+		return;
+
+	ret = env_get_f("panel", s, sizeof(s));
+	if (ret < 0)
+		return;
+
+	if (!strncmp("lg4573", s, 6))
+		gd->board_type = BOARD_TYPE_4;
+}
+
+#ifdef CONFIG_DTB_RESELECT
+int embedded_dtb_select(void)
+{
+	int rescan;
+
+	do_board_detect();
+	fdtdec_resetup(&rescan);
+
 	return 0;
 }
 #endif
