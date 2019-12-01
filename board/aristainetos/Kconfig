@@ -12,21 +12,3 @@ config BOARDNAME
 	default "aristainetos2"
 
 endif
-
-if TARGET_ARISTAINETOS2B
-
-source "board/aristainetos/common/Kconfig"
-
-config SYS_BOARD
-	default "aristainetos"
-
-config SYS_CONFIG_NAME
-	default "aristainetos2b"
-
-config SYS_BOARD_VERSION
-	default 3
-
-config BOARDNAME
-	default "aristainetos2-revB"
-
-endif

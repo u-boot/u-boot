@@ -8,7 +8,6 @@ config SYS_BOARD_VERSION
 	help
 	  version of aristainetos board version
 	  2 version 2
-	  3 version 2b
 
 config SYS_I2C_MXC_I2C1
 	default y

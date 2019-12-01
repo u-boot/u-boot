@@ -134,14 +134,6 @@ config TARGET_ARISTAINETOS2
 	select FEC_MXC
 	imply CMD_SATA
 
-config TARGET_ARISTAINETOS2B
-	bool "Support aristainetos2-revB"
-	select BOARD_LATE_INIT
-	select MX6DL
-	select SYS_I2C_MXC
-	select MXC_UART
-	select FEC_MXC
-
 config TARGET_CGTQMX6EVAL
 	bool "cgtqmx6eval"
 	select BOARD_LATE_INIT
