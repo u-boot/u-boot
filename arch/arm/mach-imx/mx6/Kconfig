@@ -128,10 +128,19 @@ config TARGET_APALIS_IMX6
 config TARGET_ARISTAINETOS2
 	bool "aristainetos2"
 	select BOARD_LATE_INIT
+	select MX6DL
+	select SYS_I2C_MXC
+	select MXC_UART
+	select FEC_MXC
+	imply CMD_SATA
 
 config TARGET_ARISTAINETOS2B
 	bool "Support aristainetos2-revB"
 	select BOARD_LATE_INIT
+	select MX6DL
+	select SYS_I2C_MXC
+	select MXC_UART
+	select FEC_MXC
 
 config TARGET_CGTQMX6EVAL
 	bool "cgtqmx6eval"

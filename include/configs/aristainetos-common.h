@@ -17,15 +17,9 @@
 #define CONFIG_MACH_TYPE	4501
 #define CONFIG_MMCROOT		"/dev/mmcblk0p1"
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(64 * SZ_1M)
-
-#define CONFIG_MXC_UART
-
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR      0
 
-#define CONFIG_FEC_MXC
 #define IMX_FEC_BASE			ENET_BASE_ADDR
 #define CONFIG_ETHPRIME			"FEC"
 #define CONFIG_FEC_MXC_PHYADDR		0
@@ -151,10 +145,6 @@
 
 /* I2C */
 #define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
-#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
-#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 #define CONFIG_SYS_I2C_SPEED		100000
 #define CONFIG_SYS_I2C_SLAVE		0x7f
 #define CONFIG_SYS_I2C_NOPROBES		{ {0, 0x00} }

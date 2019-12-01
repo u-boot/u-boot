@@ -11,9 +11,7 @@
 #ifndef __ARISTAINETOS2_CONFIG_H
 #define __ARISTAINETOS2_CONFIG_H
 
-#define CONFIG_SYS_BOARD_VERSION	2
 #define CONFIG_HOSTNAME		"aristainetos2"
-#define CONFIG_BOARDNAME	"aristainetos2"
 
 #define CONFIG_MXC_UART_BASE	UART2_BASE
 #define CONSOLE_DEV	"ttymxc1"
@@ -32,8 +30,6 @@
 	"ubifs_load_fit=sf probe;ubi part ubi 4096;ubifsmount ubi:rootfs;" \
 		"ubifsload ${fit_addr_r} /boot/system.itb; " \
 		"imi ${fit_addr_r}\0 "
-
-#define CONFIG_SYS_I2C_MXC_I2C4		/* enable I2C bus 4 */
 
 #define ARISTAINETOS_USB_OTG_PWR	IMX_GPIO_NR(4, 15)
 #define ARISTAINETOS_USB_H1_PWR	IMX_GPIO_NR(1, 0)
