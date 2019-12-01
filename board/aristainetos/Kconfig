@@ -1,13 +1,3 @@
-if TARGET_ARISTAINETOS
-
-config SYS_BOARD
-	default "aristainetos"
-
-config SYS_CONFIG_NAME
-	default "aristainetos"
-
-endif
-
 if TARGET_ARISTAINETOS2
 
 config SYS_BOARD

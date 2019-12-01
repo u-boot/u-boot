@@ -125,9 +125,6 @@ config TARGET_APALIS_IMX6
 	imply CMD_DM
 	imply CMD_SATA
 
-config TARGET_ARISTAINETOS
-	bool "aristainetos"
-
 config TARGET_ARISTAINETOS2
 	bool "aristainetos2"
 	select BOARD_LATE_INIT

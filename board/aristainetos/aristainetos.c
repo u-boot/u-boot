@@ -58,9 +58,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define ECSPI4_CS1		IMX_GPIO_NR(5, 2)
 
-#if (CONFIG_SYS_BOARD_VERSION == 1)
-#include "./aristainetos-v1.c"
-#elif ((CONFIG_SYS_BOARD_VERSION == 2) || (CONFIG_SYS_BOARD_VERSION == 3))
+#if ((CONFIG_SYS_BOARD_VERSION == 2) || (CONFIG_SYS_BOARD_VERSION == 3))
 #include "./aristainetos-v2.c"
 #endif
 
