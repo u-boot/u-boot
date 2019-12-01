@@ -36,6 +36,56 @@
 
 #define CONFIG_SYS_SPI_ST_ENABLE_WP_PIN
 
+#ifdef CONFIG_IMX_HAB
+#define HAB_EXTRA_SETTINGS \
+	"hab_check_addr=" \
+		"if hab_auth_img ${check_addr} ${filesize} ; then " \
+			"true;" \
+		"else " \
+			"echo \"HAB checks ${hab_check_filetype} " \
+			"failed!\"; " \
+			"false; " \
+		"fi;\0" \
+	"hab_check_file_fit=" \
+		"if env exists enable_hab_check && test " \
+			"${enable_hab_check} -eq 1 ; then " \
+			"setenv hab_check_filetype \"FIT file on SD card " \
+			"or eMMC\";" \
+			"env set check_addr ${fit_addr_r};" \
+			"run hab_check_addr;" \
+		"else " \
+			"true; "\
+		"fi;\0" \
+	"hab_check_file_bootscript=" \
+		"if env exists enable_hab_check && test " \
+			"${enable_hab_check} -eq 1 ; then " \
+			"setenv hab_check_filetype \"Bootscript file\";" \
+			"env set check_addr ${loadaddr};" \
+			"run hab_check_addr;" \
+		"else " \
+			"true; "\
+		"fi;\0" \
+	"hab_check_flash_fit=" \
+		"if env exists enable_hab_check && test " \
+			"${enable_hab_check} -eq 1 ; then " \
+			"setenv hab_check_filetype \"FIT files on flash\";" \
+			"env set check_addr ${fit_addr_r};" \
+			"run hab_check_addr;" \
+		"else " \
+			"true; "\
+		"fi;\0" \
+	"enable_hab_check=1\0"
+#else
+#define HAB_EXTRA_SETTINGS \
+	"hab_check_file_fit=echo HAB check FIT file always returns " \
+		"true;true\0" \
+	"hab_check_flash_fit=echo HAB check flash FIT always returns " \
+		"true;true\0" \
+	"hab_check_file_bootscript=echo HAB check bootscript always " \
+		"returns true;true\0" \
+	"enable_hab_check=0\0"
+#endif
+
 #define CONFIG_EXTRA_ENV_BOARD_SETTINGS \
 	"dead=led led_red on\0" \
 	"mtdids=nand0=gpmi-nand,nor0=spi3.1\0" \
@@ -281,6 +331,7 @@
 	"else "\
 		"run main_rescue_boot;" \
 	"fi; \0"\
+	HAB_EXTRA_SETTINGS \
 	CONFIG_EXTRA_ENV_BOARD_SETTINGS
 
 #define CONFIG_ARP_TIMEOUT		200UL
