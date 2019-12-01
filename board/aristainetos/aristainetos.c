@@ -22,7 +22,6 @@
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
 #include <bmp_logo.h>
-#include <pwm.h>
 #include <dm/root.h>
 #include <env.h>
 #include <micrel.h>
@@ -41,15 +40,6 @@ enum {
 
 #define ARI_BT_4 "aristainetos2_4@2"
 #define ARI_BT_7 "aristainetos2_7@1"
-
-static iomux_v3_cfg_t const backlight_pads[] = {
-	/* backlight PWM brightness control */
-	MX6_PAD_GPIO_9__PWM1_OUT | MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* backlight enable */
-	MX6_PAD_EIM_BCLK__GPIO6_IO31 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* LCD power enable */
-	MX6_PAD_NANDF_CS2__GPIO6_IO15 | MUX_PAD_CTRL(NO_PAD_CTRL),
-};
 
 int board_phy_config(struct phy_device *phydev)
 {
