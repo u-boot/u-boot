@@ -43,10 +43,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define UART_PAD_CTRL  (PAD_CTL_PUS_100K_UP |			\
-	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm |			\
-	PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
-
 #define USDHC_PAD_CTRL (PAD_CTL_PUS_47K_UP |			\
 	PAD_CTL_SPEED_LOW | PAD_CTL_DSE_80ohm |			\
 	PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
@@ -115,30 +111,6 @@ struct i2c_pads_info i2c_pad_info4 = {
 		.gpio_mode = MX6_PAD_GPIO_8__GPIO1_IO08 | PC,
 		.gp = IMX_GPIO_NR(1, 8)
 	}
-};
-
-iomux_v3_cfg_t const uart1_pads[] = {
-	MX6_PAD_CSI0_DAT10__UART1_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_CSI0_DAT11__UART1_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_EIM_D19__UART1_CTS_B    | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_EIM_D20__UART1_RTS_B    | MUX_PAD_CTRL(UART_PAD_CTRL),
-};
-
-iomux_v3_cfg_t const uart2_pads[] = {
-	MX6_PAD_EIM_D26__UART2_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_EIM_D27__UART2_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
-};
-
-iomux_v3_cfg_t const uart3_pads[] = {
-	MX6_PAD_EIM_D24__UART3_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_EIM_D25__UART3_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_EIM_D31__UART3_RTS_B | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_EIM_D23__UART3_CTS_B | MUX_PAD_CTRL(UART_PAD_CTRL),
-};
-
-iomux_v3_cfg_t const uart4_pads[] = {
-	MX6_PAD_KEY_COL0__UART4_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_KEY_ROW0__UART4_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
 };
 
 iomux_v3_cfg_t const gpio_pads[] = {
@@ -310,28 +282,6 @@ static void setup_spi(void)
 #elif (CONFIG_SYS_BOARD_VERSION == 3)
 	gpio_direction_output(ECSPI1_CS1, 1);
 #endif
-}
-
-static void setup_iomux_uart(void)
-{
-	switch (CONFIG_MXC_UART_BASE) {
-	case UART1_BASE:
-		imx_iomux_v3_setup_multiple_pads(uart1_pads,
-						 ARRAY_SIZE(uart1_pads));
-		break;
-	case UART2_BASE:
-		imx_iomux_v3_setup_multiple_pads(uart2_pads,
-						 ARRAY_SIZE(uart2_pads));
-		break;
-	case UART3_BASE:
-		imx_iomux_v3_setup_multiple_pads(uart3_pads,
-						 ARRAY_SIZE(uart3_pads));
-		break;
-	case UART4_BASE:
-		imx_iomux_v3_setup_multiple_pads(uart4_pads,
-						 ARRAY_SIZE(uart4_pads));
-		break;
-	}
 }
 
 int board_phy_config(struct phy_device *phydev)
@@ -629,7 +579,6 @@ static void set_gpr_register(void)
 extern char __bss_start[], __bss_end[];
 int board_early_init_f(void)
 {
-	setup_iomux_uart();
 	setup_iomux_gpio();
 
 	gpio_direction_output(SOFT_RESET_GPIO, 1);
@@ -807,15 +756,6 @@ int board_mmc_init(bd_t *bis)
 	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
 }
 #endif
-
-/*
- * Do not overwrite the console
- * Use always serial for U-Boot console
- */
-int overwrite_console(void)
-{
-	return 1;
-}
 
 struct display_info_t const displays[] = {
 	{

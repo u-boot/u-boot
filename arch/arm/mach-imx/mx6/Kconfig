@@ -132,7 +132,9 @@ config TARGET_ARISTAINETOS2
 	select SYS_I2C_MXC
 	select MXC_UART
 	select FEC_MXC
+	select DM
 	imply CMD_SATA
+	imply CMD_DM
 
 config TARGET_CGTQMX6EVAL
 	bool "cgtqmx6eval"
