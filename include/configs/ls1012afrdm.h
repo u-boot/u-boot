@@ -60,7 +60,7 @@
 	"installer=load usb 0:2 $load_addr "	\
 		   "/flex_installer_arm64.itb; "	\
 		   "bootm $load_addr#$board\0"	\
-	"qspi_bootcmd=echo Trying load from qspi..;"	\
+	"qspi_bootcmd=pfe stop; echo Trying load from qspi..;"	\
 		"sf probe && sf read $load_addr "	\
 		"$kernel_addr $kernel_size && bootm $load_addr#$board\0"
 

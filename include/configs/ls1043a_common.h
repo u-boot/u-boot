@@ -275,8 +275,8 @@
 		"source ${scriptaddr}\0"			\
 	"qspi_bootcmd=echo Trying load from qspi..;"	\
 		"sf probe && sf read $load_addr "	\
-		"$kernel_addr $kernel_size; env exists secureboot "	\
-		"&& sf read $kernelheader_addr_r $kernelheader_addr "	\
+		"$kernel_start $kernel_size; env exists secureboot "	\
+		"&& sf read $kernelheader_addr_r $kernelheader_start "	\
 		"$kernelheader_size && esbc_validate ${kernelheader_addr_r}; " \
 		"bootm $load_addr#$board\0"	\
 	"nor_bootcmd=echo Trying load from nor..;"	\
