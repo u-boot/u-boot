@@ -83,6 +83,26 @@ def pytest_configure(config):
     Returns:
         Nothing.
     """
+    def parse_config(conf_file):
+        """Parse a config file, loading it into the ubconfig container
+
+        Args:
+            conf_file: Filename to load (within build_dir)
+
+        Raises
+            Exception if the file does not exist
+        """
+        dot_config = build_dir + '/' + conf_file
+        if not os.path.exists(dot_config):
+            raise Exception(conf_file + ' does not exist; ' +
+                            'try passing --build option?')
+
+        with open(dot_config, 'rt') as f:
+            ini_str = '[root]\n' + f.read()
+            ini_sio = io.StringIO(ini_str)
+            parser = configparser.RawConfigParser()
+            parser.read_file(ini_sio)
+            ubconfig.buildconfig.update(parser.items('root'))
 
     global log
     global console
@@ -157,18 +177,13 @@ def pytest_configure(config):
 
     ubconfig.buildconfig = dict()
 
-    for conf_file in ('.config', 'include/autoconf.mk'):
-        dot_config = build_dir + '/' + conf_file
-        if not os.path.exists(dot_config):
-            raise Exception(conf_file + ' does not exist; ' +
-                'try passing --build option?')
-
-        with open(dot_config, 'rt') as f:
-            ini_str = '[root]\n' + f.read()
-            ini_sio = io.StringIO(ini_str)
-            parser = configparser.RawConfigParser()
-            parser.read_file(ini_sio)
-            ubconfig.buildconfig.update(parser.items('root'))
+    # buildman -k puts autoconf.mk in the rootdir, so handle this as well
+    # as the standard U-Boot build which leaves it in include/autoconf.mk
+    parse_config('.config')
+    if os.path.exists(build_dir + '/' + 'autoconf.mk'):
+        parse_config('autoconf.mk')
+    else:
+        parse_config('include/autoconf.mk')
 
     ubconfig.test_py_dir = test_py_dir
     ubconfig.source_dir = source_dir
