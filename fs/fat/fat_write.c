@@ -813,7 +813,9 @@ set_contents(fsdata *mydata, dir_entry *dentptr, loff_t pos, __u8 *buffer,
 			offset = 0;
 		else
 			offset = pos - cur_pos;
-		wsize = min(cur_pos + actsize, filesize) - pos;
+		wsize = min_t(unsigned long long, actsize, filesize - cur_pos);
+		wsize -= offset;
+
 		if (get_set_cluster(mydata, curclust, offset,
 				    buffer, wsize, &actsize)) {
 			printf("Error get-and-setting cluster\n");
