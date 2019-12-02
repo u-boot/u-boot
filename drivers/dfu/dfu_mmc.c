@@ -17,7 +17,7 @@
 
 static unsigned char *dfu_file_buf;
 static u64 dfu_file_buf_len;
-static long dfu_file_buf_filled;
+static u64 dfu_file_buf_offset;
 
 static int mmc_block_op(enum dfu_op op, struct dfu_entity *dfu,
 			u64 offset, void *buf, long *len)
@@ -123,7 +123,7 @@ static int mmc_file_op(enum dfu_op op, struct dfu_entity *dfu,
 
 	switch (op) {
 	case DFU_OP_READ:
-		ret = fs_read(dfu->name, (size_t)buf, offset, 0, &size);
+		ret = fs_read(dfu->name, (size_t)buf, offset, *len, &size);
 		if (ret) {
 			puts("dfu: fs_read error!\n");
 			return ret;
@@ -154,25 +154,38 @@ static int mmc_file_op(enum dfu_op op, struct dfu_entity *dfu,
 
 static int mmc_file_buf_write(struct dfu_entity *dfu, u64 offset, void *buf, long *len)
 {
-	if (dfu_file_buf_len + *len > CONFIG_SYS_DFU_MAX_FILE_SIZE) {
+	int ret = 0;
+
+	if (offset == 0) {
 		dfu_file_buf_len = 0;
-		return -EINVAL;
+		dfu_file_buf_offset = 0;
 	}
 
 	/* Add to the current buffer. */
+	if (dfu_file_buf_len + *len > CONFIG_SYS_DFU_MAX_FILE_SIZE)
+		*len = CONFIG_SYS_DFU_MAX_FILE_SIZE - dfu_file_buf_len;
 	memcpy(dfu_file_buf + dfu_file_buf_len, buf, *len);
 	dfu_file_buf_len += *len;
 
-	return 0;
+	if (dfu_file_buf_len == CONFIG_SYS_DFU_MAX_FILE_SIZE) {
+		ret = mmc_file_op(DFU_OP_WRITE, dfu, dfu_file_buf_offset,
+				  dfu_file_buf, &dfu_file_buf_len);
+		dfu_file_buf_offset += dfu_file_buf_len;
+		dfu_file_buf_len = 0;
+	}
+
+	return ret;
 }
 
 static int mmc_file_buf_write_finish(struct dfu_entity *dfu)
 {
-	int ret = mmc_file_op(DFU_OP_WRITE, dfu, 0, dfu_file_buf,
-			&dfu_file_buf_len);
+	int ret = mmc_file_op(DFU_OP_WRITE, dfu, dfu_file_buf_offset,
+			dfu_file_buf, &dfu_file_buf_len);
 
 	/* Now that we're done */
 	dfu_file_buf_len = 0;
+	dfu_file_buf_offset = 0;
+
 	return ret;
 }
 
@@ -219,12 +232,9 @@ int dfu_get_medium_size_mmc(struct dfu_entity *dfu, u64 *size)
 		return 0;
 	case DFU_FS_FAT:
 	case DFU_FS_EXT4:
-		dfu_file_buf_filled = -1;
 		ret = mmc_file_op(DFU_OP_SIZE, dfu, 0, NULL, size);
 		if (ret < 0)
 			return ret;
-		if (*size > CONFIG_SYS_DFU_MAX_FILE_SIZE)
-			return -1;
 		return 0;
 	default:
 		printf("%s: Layout (%s) not (yet) supported!\n", __func__,
@@ -238,19 +248,23 @@ static int mmc_file_buf_read(struct dfu_entity *dfu, u64 offset, void *buf,
 			     long *len)
 {
 	int ret;
-	u64 file_len;
 
-	if (dfu_file_buf_filled == -1) {
-		ret = mmc_file_op(DFU_OP_READ, dfu, 0, dfu_file_buf, &file_len);
+	if (offset == 0 || offset >= dfu_file_buf_offset + dfu_file_buf_len ||
+	    offset + *len < dfu_file_buf_offset) {
+		u64 file_len = CONFIG_SYS_DFU_MAX_FILE_SIZE;
+
+		ret = mmc_file_op(DFU_OP_READ, dfu, offset, dfu_file_buf,
+				  &file_len);
 		if (ret < 0)
 			return ret;
-		dfu_file_buf_filled = file_len;
+		dfu_file_buf_len = file_len;
+		dfu_file_buf_offset = offset;
 	}
-	if (offset + *len > dfu_file_buf_filled)
+	if (offset + *len > dfu_file_buf_offset + dfu_file_buf_len)
 		return -EINVAL;
 
 	/* Add to the current buffer. */
-	memcpy(buf, dfu_file_buf + offset, *len);
+	memcpy(buf, dfu_file_buf + offset - dfu_file_buf_offset, *len);
 
 	return 0;
 }
