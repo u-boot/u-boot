@@ -409,7 +409,6 @@ static unsigned long psu_mio_init_data(void)
 	psu_mask_write(0xFF18007C, 0x000000FEU, 0x00000000U);
 	psu_mask_write(0xFF180080, 0x000000FEU, 0x00000008U);
 	psu_mask_write(0xFF180084, 0x000000FEU, 0x00000008U);
-	psu_mask_write(0xFF180088, 0x000000FEU, 0x00000008U);
 	psu_mask_write(0xFF18008C, 0x000000FEU, 0x00000000U);
 	psu_mask_write(0xFF180090, 0x000000FEU, 0x00000000U);
 	psu_mask_write(0xFF180094, 0x000000FEU, 0x00000000U);
@@ -988,5 +987,11 @@ int psu_init(void)
 
 	if (status == 0)
 		return 1;
+	return 0;
+}
+
+unsigned long psu_post_config_data(void)
+{
+	psu_mask_write(0xFF180088, 0x000000FEU, 0x00000008U);
 	return 0;
 }

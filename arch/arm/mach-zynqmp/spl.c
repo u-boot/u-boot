@@ -13,6 +13,7 @@
 #include <asm/io.h>
 #include <asm/spl.h>
 #include <asm/arch/hardware.h>
+#include <asm/arch/psu_init_gpl.h>
 #include <asm/arch/sys_proto.h>
 
 void board_init_f(ulong dummy)
@@ -53,6 +54,7 @@ void spl_board_init(void)
 	preloader_console_init();
 	ps_mode_reset(MODE_RESET);
 	board_init();
+	psu_post_config_data();
 }
 #endif
 
