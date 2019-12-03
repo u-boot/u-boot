@@ -77,7 +77,7 @@ const struct dpll_params dpll_mpu_opp[NUM_CRYSTAL_FREQ][NUM_OPPS] = {
 		{-1, -1, -1, -1, -1, -1, -1},	/* OPP RESERVED	*/
 		{25, 0, 1, -1, -1, -1, -1},	/* OPP 100 */
 		{30, 0, 1, -1, -1, -1, -1},	/* OPP 120 */
-		{100, 3, 1, -1, -1, -1, -1},	/* OPP TB */
+		{100, 2, 1, -1, -1, -1, -1},	/* OPP TB */
 		{125, 2, 1, -1, -1, -1, -1}	/* OPP NT */
 	},
 	{	/* 25 MHz */
