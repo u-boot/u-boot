@@ -44,10 +44,8 @@ data32 cs	lgdt	gdt_ptr
 ff:
 
 	/* Finally restore BIST and jump to the 32-bit initialization code */
-	movw	$code32start, %ax
-	movw	%ax, %bp
 	movl	%ecx, %eax
-data32 cs	ljmp	*(%bp)
+data32 cs	ljmp	*code32start
 
 	/* 48-bit far pointer */
 code32start:
