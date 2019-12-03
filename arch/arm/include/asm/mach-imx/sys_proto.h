@@ -153,6 +153,8 @@ void init_src(void);
 void init_snvs(void);
 void imx_wdog_disable_powerdown(void);
 
+int arch_auxiliary_core_check_up(u32 core_id);
+
 int board_mmc_get_env_dev(int devno);
 
 int nxp_board_rev(void);
