@@ -11,6 +11,7 @@
 #include <config.h>
 #include <command.h>
 #include <image.h>
+#include <irq_func.h>
 
 
 #undef	FDC_DEBUG

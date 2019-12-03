@@ -5,6 +5,7 @@
  * Author: Fabio Estevam <fabio.estevam@freescale.com>
  */
 
+#include <init.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/iomux.h>

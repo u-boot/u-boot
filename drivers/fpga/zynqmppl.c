@@ -7,6 +7,7 @@
 
 #include <console.h>
 #include <common.h>
+#include <cpu_func.h>
 #include <zynqmppl.h>
 #include <zynqmp_firmware.h>
 #include <linux/sizes.h>

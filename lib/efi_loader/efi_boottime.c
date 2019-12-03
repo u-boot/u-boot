@@ -8,11 +8,14 @@
 #include <common.h>
 #include <div64.h>
 #include <efi_loader.h>
+#include <irq_func.h>
 #include <malloc.h>
+#include <time.h>
 #include <linux/libfdt_env.h>
 #include <u-boot/crc.h>
 #include <bootm.h>
 #include <pe.h>
+#include <u-boot/crc.h>
 #include <watchdog.h>
 
 DECLARE_GLOBAL_DATA_PTR;

@@ -9,8 +9,10 @@
 
 #include <common.h>
 #include <env.h>
+#include <init.h>
 #include <palmas.h>
 #include <sata.h>
+#include <serial.h>
 #include <usb.h>
 #include <asm/omap_common.h>
 #include <asm/omap_sec_common.h>

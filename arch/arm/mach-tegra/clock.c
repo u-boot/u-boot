@@ -9,6 +9,7 @@
 #include <div64.h>
 #include <dm.h>
 #include <errno.h>
+#include <time.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/tegra.h>

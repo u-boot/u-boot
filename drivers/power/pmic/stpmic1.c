@@ -9,6 +9,7 @@
 #include <i2c.h>
 #include <misc.h>
 #include <sysreset.h>
+#include <time.h>
 #include <dm/device.h>
 #include <dm/lists.h>
 #include <power/pmic.h>

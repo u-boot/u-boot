@@ -13,12 +13,14 @@
 #include <bloblist.h>
 #include <console.h>
 #include <cpu.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <env.h>
 #include <env_internal.h>
 #include <fdtdec.h>
 #include <fs.h>
 #include <i2c.h>
+#include <init.h>
 #include <initcall.h>
 #include <lcd.h>
 #include <malloc.h>
@@ -26,6 +28,7 @@
 #include <os.h>
 #include <post.h>
 #include <relocate.h>
+#include <serial.h>
 #ifdef CONFIG_SPL
 #include <spl.h>
 #endif

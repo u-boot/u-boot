@@ -12,6 +12,7 @@
 #include <image.h>
 #include <malloc.h>
 #include <memalign.h>
+#include <u-boot/crc.h>
 #include <watchdog.h>
 #include <u-boot/zlib.h>
 

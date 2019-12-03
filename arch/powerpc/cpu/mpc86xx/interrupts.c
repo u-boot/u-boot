@@ -15,6 +15,7 @@
  */
 
 #include <common.h>
+#include <irq_func.h>
 #include <mpc86xx.h>
 #include <command.h>
 #include <asm/processor.h>
@@ -108,5 +109,5 @@ int do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  */
 void external_interrupt(struct pt_regs *regs)
 {
-	puts("external_interrupt (oops!)\n");
+	puts("external_interrupt(oops!)\n");
 }

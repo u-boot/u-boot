@@ -5,8 +5,10 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <env.h>
 #include <fsl_ddr_sdram.h>
+#include <vsprintf.h>
 #include <asm/io.h>
 #include <linux/errno.h>
 #include <asm/system.h>
@@ -38,6 +40,7 @@
 #include <fsl_validate.h>
 #endif
 #endif
+#include <linux/mii.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

@@ -1212,16 +1212,11 @@ U_BOOT_CMD(
 #endif
 
 #ifdef CONFIG_CMD_MEMINFO
-__weak void board_show_dram(phys_size_t size)
-{
-	puts("DRAM:  ");
-	print_size(size, "\n");
-}
-
 static int do_mem_info(cmd_tbl_t *cmdtp, int flag, int argc,
 		       char * const argv[])
 {
-	board_show_dram(gd->ram_size);
+	puts("DRAM:  ");
+	print_size(gd->ram_size, "\n");
 
 	return 0;
 }

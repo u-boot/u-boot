@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <acpi_s3.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>
 #include <rtc.h>

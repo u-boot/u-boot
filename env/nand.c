@@ -23,6 +23,7 @@
 #include <nand.h>
 #include <search.h>
 #include <errno.h>
+#include <u-boot/crc.h>
 
 #if defined(CONFIG_CMD_SAVEENV) && defined(CONFIG_CMD_NAND) && \
 		!defined(CONFIG_SPL_BUILD)

@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <linux/compiler.h>
 #include <fsl_ifc.h>
 #include <asm/processor.h>

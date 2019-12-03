@@ -6,10 +6,12 @@
 #include <common.h>
 #include <env.h>
 #include <env_internal.h>
+#include <init.h>
 #include <led.h>
 #include <net.h>
 #include <spi.h>
 #include <spi_flash.h>
+#include <u-boot/crc.h>
 #include <uuid.h>
 #include <linux/ctype.h>
 #include <linux/io.h>

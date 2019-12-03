@@ -50,6 +50,7 @@
 #include <linux/err.h>
 #include <linux/slab.h>
 #include <asm/div64.h>
+#include <u-boot/crc.h>
 #else
 #include <ubi_uboot.h>
 #endif

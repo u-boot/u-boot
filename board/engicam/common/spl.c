@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <serial.h>
 #include <spl.h>
 
 #include <asm/io.h>

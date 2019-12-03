@@ -7,9 +7,11 @@
 #ifndef USE_HOSTCC
 #include <common.h>
 #include <bootstage.h>
+#include <cpu_func.h>
 #include <env.h>
 #include <errno.h>
 #include <fdt_support.h>
+#include <irq_func.h>
 #include <lmb.h>
 #include <malloc.h>
 #include <mapmem.h>

@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/arch/chilisom.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/hardware.h>

@@ -11,6 +11,7 @@
 #include <common.h>
 #include <mpc83xx.h>
 #include <command.h>
+#include <vsprintf.h>
 #include <asm/processor.h>
 
 DECLARE_GLOBAL_DATA_PTR;

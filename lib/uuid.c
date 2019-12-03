@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <env.h>
+#include <time.h>
 #include <linux/ctype.h>
 #include <errno.h>
 #include <common.h>

@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <ahci.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <dwc_ahsata.h>
 #include <fis.h>

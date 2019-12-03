@@ -19,6 +19,7 @@
 #include <part_efi.h>
 #include <linux/compiler.h>
 #include <linux/ctype.h>
+#include <u-boot/crc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

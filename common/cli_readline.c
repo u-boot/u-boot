@@ -11,6 +11,7 @@
 #include <common.h>
 #include <bootretry.h>
 #include <cli.h>
+#include <time.h>
 #include <watchdog.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -569,12 +570,6 @@ int cli_readline_into_buffer(const char *const prompt, char *buffer,
 			return -2;	/* timed out */
 		WATCHDOG_RESET();	/* Trigger watchdog, if needed */
 
-#ifdef CONFIG_SHOW_ACTIVITY
-		while (!tstc()) {
-			show_activity(0);
-			WATCHDOG_RESET();
-		}
-#endif
 		c = getc();
 
 		/*

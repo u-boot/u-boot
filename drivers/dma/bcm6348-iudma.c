@@ -17,6 +17,7 @@
 
 #include <common.h>
 #include <clk.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <dma-uclass.h>
 #include <memalign.h>

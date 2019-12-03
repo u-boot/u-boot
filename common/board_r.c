@@ -11,6 +11,9 @@
 
 #include <common.h>
 #include <api.h>
+#include <cpu_func.h>
+#include <irq_func.h>
+#include <u-boot/crc.h>
 /* TODO: can we just include all these headers whether needed or not? */
 #if defined(CONFIG_CMD_BEDBUG)
 #include <bedbug/type.h>
@@ -26,6 +29,7 @@
 #if defined(CONFIG_CMD_KGDB)
 #include <kgdb.h>
 #endif
+#include <irq_func.h>
 #include <malloc.h>
 #include <mapmem.h>
 #ifdef CONFIG_BITBANGMII
@@ -37,6 +41,7 @@
 #include <onenand_uboot.h>
 #include <scsi.h>
 #include <serial.h>
+#include <status_led.h>
 #include <stdio_dev.h>
 #include <timer.h>
 #include <trace.h>

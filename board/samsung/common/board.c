@@ -8,6 +8,7 @@
 #include <cros_ec.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <init.h>
 #include <spi.h>
 #include <tmu.h>
 #include <netdev.h>

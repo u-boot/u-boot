@@ -12,6 +12,7 @@
  */
 
 #include <clk.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <miiphy.h>
 #include <net.h>

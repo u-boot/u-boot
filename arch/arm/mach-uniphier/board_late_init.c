@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <env.h>
+#include <init.h>
 #include <spl.h>
 #include <linux/libfdt.h>
 #include <nand.h>

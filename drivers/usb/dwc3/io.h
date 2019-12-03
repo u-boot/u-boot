@@ -17,6 +17,7 @@
 #ifndef __DRIVERS_USB_DWC3_IO_H
 #define __DRIVERS_USB_DWC3_IO_H
 
+#include <cpu_func.h>
 #include <asm/io.h>
 
 #define	CACHELINE_SIZE		CONFIG_SYS_CACHELINE_SIZE

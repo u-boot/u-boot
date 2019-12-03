@@ -11,10 +11,13 @@
 #include <binman_sym.h>
 #include <dm.h>
 #include <handoff.h>
+#include <irq_func.h>
+#include <serial.h>
 #include <spl.h>
 #include <asm/u-boot.h>
 #include <nand.h>
 #include <fat.h>
+#include <u-boot/crc.h>
 #include <version.h>
 #include <image.h>
 #include <malloc.h>
@@ -829,3 +832,14 @@ ulong spl_relocate_stack_gd(void)
 	return 0;
 #endif
 }
+
+#if defined(CONFIG_BOOTCOUNT_LIMIT) && !defined(CONFIG_SPL_BOOTCOUNT_LIMIT)
+void bootcount_store(ulong a)
+{
+}
+
+ulong bootcount_load(void)
+{
+	return 0;
+}
+#endif

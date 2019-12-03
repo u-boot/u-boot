@@ -22,6 +22,7 @@
 #include <env.h>
 #include <errno.h>
 #include <fdt_support.h>
+#include <irq_func.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/byteorder.h>

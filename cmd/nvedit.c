@@ -33,6 +33,7 @@
 #include <errno.h>
 #include <malloc.h>
 #include <mapmem.h>
+#include <u-boot/crc.h>
 #include <watchdog.h>
 #include <linux/stddef.h>
 #include <asm/byteorder.h>

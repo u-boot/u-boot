@@ -9,6 +9,7 @@
 #include <command.h>
 #include <env_internal.h>
 #include <linux/stddef.h>
+#include <u-boot/crc.h>
 
 #ifdef ENV_IS_EMBEDDED
 env_t *env_ptr = &environment;

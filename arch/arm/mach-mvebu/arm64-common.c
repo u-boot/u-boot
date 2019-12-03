@@ -6,6 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <init.h>
 #include <linux/libfdt.h>
 #include <linux/sizes.h>
 #include <pci.h>

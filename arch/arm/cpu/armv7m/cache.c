@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <errno.h>
 #include <asm/armv7m.h>
 #include <asm/io.h>

@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <efi_loader.h>
 #include <pe.h>
 

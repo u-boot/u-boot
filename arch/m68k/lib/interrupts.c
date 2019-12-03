@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <irq_func.h>
 #include <watchdog.h>
 #include <asm/processor.h>
 #include <asm/immap.h>
@@ -42,7 +43,7 @@ static __inline__ void set_sr (unsigned short sr)
 /*
  * Install and free an interrupt handler
  */
-void irq_install_handler (int vec, interrupt_handler_t * handler, void *arg)
+void irq_install_handler(int vec, interrupt_handler_t * handler, void *arg)
 {
 	if ((vec < 0) || (vec >= NR_IRQS)) {
 		printf ("irq_install_handler: wrong interrupt vector %d\n",
@@ -54,7 +55,7 @@ void irq_install_handler (int vec, interrupt_handler_t * handler, void *arg)
 	irq_vecs[vec].arg = arg;
 }
 
-void irq_free_handler (int vec)
+void irq_free_handler(int vec)
 {
 	if ((vec < 0) || (vec >= NR_IRQS)) {
 		return;
@@ -64,7 +65,7 @@ void irq_free_handler (int vec)
 	irq_vecs[vec].arg = NULL;
 }
 
-void enable_interrupts (void)
+void enable_interrupts(void)
 {
 	unsigned short sr;
 
@@ -72,7 +73,7 @@ void enable_interrupts (void)
 	set_sr (sr & ~0x0700);
 }
 
-int disable_interrupts (void)
+int disable_interrupts(void)
 {
 	unsigned short sr;
 

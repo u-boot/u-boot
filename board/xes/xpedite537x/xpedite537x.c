@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <init.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
 #include <asm/immap_85xx.h>

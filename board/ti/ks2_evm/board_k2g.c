@@ -6,7 +6,9 @@
  *     Texas Instruments Incorporated, <www.ti.com>
  */
 #include <common.h>
+#include <eeprom.h>
 #include <env.h>
+#include <init.h>
 #include <asm/arch/clock.h>
 #include <asm/ti-common/keystone_net.h>
 #include <asm/arch/psc_defs.h>

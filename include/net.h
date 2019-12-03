@@ -16,6 +16,7 @@
 #include <asm/byteorder.h>	/* for nton* / ntoh* stuff */
 #include <env.h>
 #include <linux/if_ether.h>
+#include <rand.h>
 
 #define DEBUG_LL_STATE 0	/* Link local state machine changes */
 #define DEBUG_DEV_PKT 0		/* Packets or info directed to the device */
@@ -828,7 +829,13 @@ static inline void net_random_ethaddr(uchar *addr)
 /* Convert an IP address to a string */
 void ip_to_string(struct in_addr x, char *s);
 
-/* Convert a string to ip address */
+/**
+ * string_to_ip() - Convert a string to ip address
+ *
+ * @s: String to conver, in the format format a.b.c.d, where each value is a
+ *	decimal number from 0 to 255
+ * @return IP address, or 0 if invalid
+ */
 struct in_addr string_to_ip(const char *s);
 
 /* Convert a VLAN id to a string */
@@ -885,5 +892,18 @@ int update_tftp(ulong addr, char *interface, char *devstring);
  * @enetaddr: Place to put MAC address (6 bytes)
  */
 void eth_parse_enetaddr(const char *addr, uint8_t *enetaddr);
+
+/**
+ * env_get_ip() - Convert an environment value to to an ip address
+ *
+ * @var: Environment variable to convert. The value of this variable must be
+ *	in the format format a.b.c.d, where each value is a decimal number from
+ *	0 to 255
+ * @return IP address, or 0 if invalid
+ */
+static inline struct in_addr env_get_ip(char *var)
+{
+	return string_to_ip(env_get(var));
+}
 
 #endif /* __NET_H__ */

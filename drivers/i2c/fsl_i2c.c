@@ -9,6 +9,7 @@
 #include <common.h>
 #include <command.h>
 #include <i2c.h>		/* Functional interface */
+#include <time.h>
 #include <asm/io.h>
 #include <asm/fsl_i2c.h>	/* HW definitions */
 #include <clk.h>

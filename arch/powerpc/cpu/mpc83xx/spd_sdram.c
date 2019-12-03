@@ -13,6 +13,8 @@
 #ifndef CONFIG_MPC83XX_SDRAM
 
 #include <common.h>
+#include <cpu_func.h>
+#include <vsprintf.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <i2c.h>

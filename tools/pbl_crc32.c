@@ -5,6 +5,7 @@
  * Cleaned up and refactored by Charles Manning.
  */
 #include "pblimage.h"
+#include <u-boot/crc.h>
 
 static uint32_t crc_table[256];
 static int crc_table_valid;

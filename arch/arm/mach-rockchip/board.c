@@ -4,7 +4,9 @@
  */
 #include <common.h>
 #include <clk.h>
+#include <cpu_func.h>
 #include <dm.h>
+#include <init.h>
 #include <ram.h>
 #include <syscon.h>
 #include <asm/io.h>

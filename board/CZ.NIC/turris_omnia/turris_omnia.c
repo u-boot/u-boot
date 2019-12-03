@@ -10,6 +10,7 @@
 #include <common.h>
 #include <env.h>
 #include <i2c.h>
+#include <init.h>
 #include <miiphy.h>
 #include <netdev.h>
 #include <asm/io.h>
@@ -18,6 +19,7 @@
 #include <dm/uclass.h>
 #include <fdt_support.h>
 #include <time.h>
+#include <u-boot/crc.h>
 # include <atsha204a-i2c.h>
 
 #include "../drivers/ddr/marvell/a38x/ddr3_init.h"

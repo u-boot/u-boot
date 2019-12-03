@@ -12,6 +12,7 @@
  * Copyright (C) 2013 Jon Nettleton <jon.nettleton@gmail.com>.
  */
 
+#include <init.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/imx-regs.h>

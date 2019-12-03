@@ -6,10 +6,12 @@
 
 #include <common.h>
 #include <dm.h>
+#include <init.h>
 #include <lcd.h>
 #include <miiphy.h>
 #include <phy_interface.h>
 #include <ram.h>
+#include <serial.h>
 #include <spl.h>
 #include <splash.h>
 #include <st_logo_data.h>

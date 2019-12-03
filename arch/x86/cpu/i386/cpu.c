@@ -19,6 +19,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <malloc.h>
 #include <asm/control_regs.h>
 #include <asm/cpu.h>

@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <ide.h>
+#include <init.h>
 #include <netdev.h>
 #include <pci.h>
 #include <pci_gt64120.h>

@@ -18,6 +18,7 @@
 #include <search.h>
 #include <errno.h>
 #include <dm/device-internal.h>
+#include <u-boot/crc.h>
 
 #ifndef CONFIG_SPL_BUILD
 #define CMD_SAVEENV

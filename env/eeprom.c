@@ -9,9 +9,11 @@
 
 #include <common.h>
 #include <command.h>
+#include <eeprom.h>
 #include <env.h>
 #include <env_internal.h>
 #include <linux/stddef.h>
+#include <u-boot/crc.h>
 #if defined(CONFIG_I2C_ENV_EEPROM_BUS)
 #include <i2c.h>
 #endif

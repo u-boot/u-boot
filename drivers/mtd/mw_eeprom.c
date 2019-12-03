@@ -1,6 +1,7 @@
 /* Three-wire (MicroWire) serial eeprom driver (for 93C46 and compatibles) */
 
 #include <common.h>
+#include <eeprom.h>
 #include <asm/ic/ssi.h>
 
 /*

@@ -8,6 +8,7 @@
 #include <bootm.h>
 #include <command.h>
 #include <image.h>
+#include <irq_func.h>
 #include <lmb.h>
 #include <mapmem.h>
 #include <linux/kernel.h>

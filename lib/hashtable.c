@@ -14,6 +14,7 @@
 
 #include <errno.h>
 #include <malloc.h>
+#include <sort.h>
 
 #ifdef USE_HOSTCC		/* HOST build */
 # include <string.h>

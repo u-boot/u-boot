@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <init.h>
 #include <pci.h>
 #include <syscon.h>
 #include <asm/cpu.h>

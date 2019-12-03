@@ -7,6 +7,8 @@
 
 #include <common.h>
 #include <dm.h>
+#include <eeprom.h>
+#include <init.h>
 #include <dm/device-internal.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>

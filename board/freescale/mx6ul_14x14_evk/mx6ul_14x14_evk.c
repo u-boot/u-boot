@@ -3,6 +3,7 @@
  * Copyright (C) 2015 Freescale Semiconductor, Inc.
  */
 
+#include <init.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/imx-regs.h>

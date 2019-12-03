@@ -18,6 +18,7 @@
 #include <hw_sha.h>
 #include <asm/io.h>
 #include <linux/errno.h>
+#include <u-boot/crc.h>
 #else
 #include "mkimage.h"
 #include <time.h>

@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <env.h>
 #include <errno.h>
+#include <init.h>
 #include <ns16550.h>
 #include <usb.h>
 #include <asm/io.h>

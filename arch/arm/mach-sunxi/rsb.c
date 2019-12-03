@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <errno.h>
+#include <time.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/prcm.h>

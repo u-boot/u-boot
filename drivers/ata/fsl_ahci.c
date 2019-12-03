@@ -6,6 +6,7 @@
  *
  */
 #include <common.h>
+#include <cpu_func.h>
 #include <asm/fsl_serdes.h>
 #include <dm/lists.h>
 #include <dm.h>

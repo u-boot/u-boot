@@ -11,6 +11,7 @@
 #endif
 
 #include <common.h>
+#include <command.h>
 #include <dm.h>
 #include <env.h>
 #include <malloc.h>
@@ -18,6 +19,7 @@
 #include <i2c.h>
 #include <mmc.h>
 #include <tpm-v1.h>
+#include <u-boot/crc.h>
 #include <u-boot/sha1.h>
 #include <asm/byteorder.h>
 #include <asm/unaligned.h>

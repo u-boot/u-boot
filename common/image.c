@@ -8,7 +8,9 @@
 
 #ifndef USE_HOSTCC
 #include <common.h>
+#include <cpu_func.h>
 #include <env.h>
+#include <u-boot/crc.h>
 #include <watchdog.h>
 
 #ifdef CONFIG_SHOW_BOOT_PROGRESS
@@ -19,6 +21,7 @@
 
 #include <gzip.h>
 #include <image.h>
+#include <lz4.h>
 #include <mapmem.h>
 
 #if IMAGE_ENABLE_FIT || IMAGE_ENABLE_OF_LIBFDT

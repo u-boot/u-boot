@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <clk.h>
+#include <cpu_func.h>
 #include <fdtdec.h>
 #include <mmc.h>
 #include <dm.h>

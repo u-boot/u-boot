@@ -16,6 +16,7 @@
  * ------------------------------------------------------------------------
  */
 
+#include <serial.h>
 #include <asm/omap_common.h>
 #include <twl4030.h>
 #include <twl6030.h>

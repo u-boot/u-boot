@@ -5,6 +5,7 @@
  * Copyright (C) 2012-2017 Texas Instruments Incorporated, <www.ti.com>
  */
 
+#include <cpu_func.h>
 #include <asm/arch/hardware.h>
 #include <asm/cache.h>
 #include <asm/emif.h>

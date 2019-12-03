@@ -5,6 +5,8 @@
  * Michal  SIMEK <monstr@monstr.cz>
  */
 
+#include <irq_func.h>
+
 typedef volatile struct microblaze_intc_t {
 	int isr; /* interrupt status register */
 	int ipr; /* interrupt pending register */

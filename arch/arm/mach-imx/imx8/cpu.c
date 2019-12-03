@@ -6,6 +6,7 @@
 #include <common.h>
 #include <clk.h>
 #include <cpu.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>

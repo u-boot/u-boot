@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <dm/uclass-internal.h>
 #include <cache.h>

@@ -11,6 +11,7 @@
  * (C) Copyright 2004-2008
  * Texas Instruments, <www.ti.com>
  */
+#include <serial.h>
 #include <twl4030.h>
 #include <common.h>
 #include <asm/io.h>

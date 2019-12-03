@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <i2c.h>
+#include <init.h>
 #include <asm/io.h>
 #include <asm/arch/immap_ls102xa.h>
 #include <asm/arch/clock.h>

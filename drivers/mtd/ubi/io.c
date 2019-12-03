@@ -77,6 +77,7 @@
 #include <linux/crc32.h>
 #include <linux/err.h>
 #include <linux/slab.h>
+#include <u-boot/crc.h>
 #else
 #include <hexdump.h>
 #include <ubi_uboot.h>

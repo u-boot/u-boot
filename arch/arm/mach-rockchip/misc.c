@@ -14,6 +14,7 @@
 #include <dm.h>
 #include <dm/uclass-internal.h>
 #include <misc.h>
+#include <u-boot/crc.h>
 #include <u-boot/sha256.h>
 
 #include <asm/arch-rockchip/misc.h>

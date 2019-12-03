@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/processor.h>
 #include <fsl_ddr_sdram.h>
 #include <asm/mmu.h>

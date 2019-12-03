@@ -10,6 +10,7 @@
  */
 
 #include <efi_selftest.h>
+#include <u-boot/crc.h>
 
 const struct efi_system_table *st;
 efi_status_t (EFIAPI *bs_crc32)(const void *data, efi_uintn_t data_size,

@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <u-boot/crc.h>
 #include <unistd.h>
 
 #include <linux/kconfig.h>
@@ -58,7 +59,7 @@ extern unsigned int env_size;
 extern env_t embedded_environment;
 #endif	/* CONFIG_BUILD_ENVCRC */
 
-extern uint32_t crc32 (uint32_t, const unsigned char *, unsigned int);
+extern uint32_t crc32(uint32_t, const unsigned char *, unsigned int);
 
 int main (int argc, char **argv)
 {
@@ -88,7 +89,7 @@ int main (int argc, char **argv)
 			memset(dataptr + eoe, pad, datasize - eoe);
 	}
 
-	crc = crc32 (0, dataptr, datasize);
+	crc = crc32(0, dataptr, datasize);
 
 	/* Check if verbose mode is activated passing a parameter to the program */
 	if (argc > 1) {

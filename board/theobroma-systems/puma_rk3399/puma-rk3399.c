@@ -9,6 +9,7 @@
 #include <misc.h>
 #include <spl.h>
 #include <syscon.h>
+#include <u-boot/crc.h>
 #include <usb.h>
 #include <dm/pinctrl.h>
 #include <dm/uclass-internal.h>

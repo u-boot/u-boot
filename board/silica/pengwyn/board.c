@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <env.h>
+#include <serial.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/ddr_defs.h>

@@ -5,10 +5,12 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>
 #include <memalign.h>
 #include <pci.h>
+#include <time.h>
 #include <dm/device-internal.h>
 #include "nvme.h"
 

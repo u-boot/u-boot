@@ -14,6 +14,7 @@
 #include <config.h>
 #include <net.h>
 #include <miiphy.h>
+#include <linux/mii.h>
 
 #undef	ET_DEBUG
 #undef	MII_DEBUG

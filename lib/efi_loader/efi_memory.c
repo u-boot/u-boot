@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <efi_loader.h>
+#include <init.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <watchdog.h>

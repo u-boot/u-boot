@@ -17,6 +17,8 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
+#include <vsprintf.h>
 #include <watchdog.h>
 #include <command.h>
 #include <mpc8xx.h>
@@ -32,6 +34,82 @@
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
+
+/* ------------------------------------------------------------------------- */
+/* L1 i-cache                                                                */
+
+int checkicache(void)
+{
+	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
+	memctl8xx_t __iomem *memctl = &immap->im_memctl;
+	u32 cacheon = rd_ic_cst() & IDC_ENABLED;
+	/* probe in flash memoryarea */
+	u32 k = in_be32(&memctl->memc_br0) & ~0x00007fff;
+	u32 m;
+	u32 lines = -1;
+
+	wr_ic_cst(IDC_UNALL);
+	wr_ic_cst(IDC_INVALL);
+	wr_ic_cst(IDC_DISABLE);
+	__asm__ volatile ("isync");
+
+	while (!((m = rd_ic_cst()) & IDC_CERR2)) {
+		wr_ic_adr(k);
+		wr_ic_cst(IDC_LDLCK);
+		__asm__ volatile ("isync");
+
+		lines++;
+		k += 0x10;	/* the number of bytes in a cacheline */
+	}
+
+	wr_ic_cst(IDC_UNALL);
+	wr_ic_cst(IDC_INVALL);
+
+	if (cacheon)
+		wr_ic_cst(IDC_ENABLE);
+	else
+		wr_ic_cst(IDC_DISABLE);
+
+	__asm__ volatile ("isync");
+
+	return lines << 4;
+};
+
+/* ------------------------------------------------------------------------- */
+/* L1 d-cache                                                                */
+/* call with cache disabled                                                  */
+
+static int checkdcache(void)
+{
+	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
+	memctl8xx_t __iomem *memctl = &immap->im_memctl;
+	u32 cacheon = rd_dc_cst() & IDC_ENABLED;
+	/* probe in flash memoryarea */
+	u32 k = in_be32(&memctl->memc_br0) & ~0x00007fff;
+	u32 m;
+	u32 lines = -1;
+
+	wr_dc_cst(IDC_UNALL);
+	wr_dc_cst(IDC_INVALL);
+	wr_dc_cst(IDC_DISABLE);
+
+	while (!((m = rd_dc_cst()) & IDC_CERR2)) {
+		wr_dc_adr(k);
+		wr_dc_cst(IDC_LDLCK);
+		lines++;
+		k += 0x10;	/* the number of bytes in a cacheline */
+	}
+
+	wr_dc_cst(IDC_UNALL);
+	wr_dc_cst(IDC_INVALL);
+
+	if (cacheon)
+		wr_dc_cst(IDC_ENABLE);
+	else
+		wr_dc_cst(IDC_DISABLE);
+
+	return lines << 4;
+};
 
 static int check_CPU(long clock, uint pvr, uint immr)
 {
@@ -96,82 +174,6 @@ int checkcpu(void)
 
 	return check_CPU(clock, pvr, immr);
 }
-
-/* ------------------------------------------------------------------------- */
-/* L1 i-cache                                                                */
-
-int checkicache(void)
-{
-	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
-	memctl8xx_t __iomem *memctl = &immap->im_memctl;
-	u32 cacheon = rd_ic_cst() & IDC_ENABLED;
-	/* probe in flash memoryarea */
-	u32 k = in_be32(&memctl->memc_br0) & ~0x00007fff;
-	u32 m;
-	u32 lines = -1;
-
-	wr_ic_cst(IDC_UNALL);
-	wr_ic_cst(IDC_INVALL);
-	wr_ic_cst(IDC_DISABLE);
-	__asm__ volatile ("isync");
-
-	while (!((m = rd_ic_cst()) & IDC_CERR2)) {
-		wr_ic_adr(k);
-		wr_ic_cst(IDC_LDLCK);
-		__asm__ volatile ("isync");
-
-		lines++;
-		k += 0x10;	/* the number of bytes in a cacheline */
-	}
-
-	wr_ic_cst(IDC_UNALL);
-	wr_ic_cst(IDC_INVALL);
-
-	if (cacheon)
-		wr_ic_cst(IDC_ENABLE);
-	else
-		wr_ic_cst(IDC_DISABLE);
-
-	__asm__ volatile ("isync");
-
-	return lines << 4;
-};
-
-/* ------------------------------------------------------------------------- */
-/* L1 d-cache                                                                */
-/* call with cache disabled                                                  */
-
-int checkdcache(void)
-{
-	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
-	memctl8xx_t __iomem *memctl = &immap->im_memctl;
-	u32 cacheon = rd_dc_cst() & IDC_ENABLED;
-	/* probe in flash memoryarea */
-	u32 k = in_be32(&memctl->memc_br0) & ~0x00007fff;
-	u32 m;
-	u32 lines = -1;
-
-	wr_dc_cst(IDC_UNALL);
-	wr_dc_cst(IDC_INVALL);
-	wr_dc_cst(IDC_DISABLE);
-
-	while (!((m = rd_dc_cst()) & IDC_CERR2)) {
-		wr_dc_adr(k);
-		wr_dc_cst(IDC_LDLCK);
-		lines++;
-		k += 0x10;	/* the number of bytes in a cacheline */
-	}
-
-	wr_dc_cst(IDC_UNALL);
-	wr_dc_cst(IDC_INVALL);
-
-	if (cacheon)
-		wr_dc_cst(IDC_ENABLE);
-	else
-		wr_dc_cst(IDC_DISABLE);
-
-	return lines << 4;
-};
 
 /* ------------------------------------------------------------------------- */
 

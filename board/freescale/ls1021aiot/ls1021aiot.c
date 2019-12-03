@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/arch/immap_ls102xa.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/fsl_serdes.h>

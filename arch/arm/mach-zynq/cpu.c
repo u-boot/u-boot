@@ -4,6 +4,7 @@
  * Copyright (C) 2012 Xilinx, Inc. All rights reserved.
  */
 #include <common.h>
+#include <cpu_func.h>
 #include <zynqpl.h>
 #include <asm/io.h>
 #include <asm/arch/clk.h>

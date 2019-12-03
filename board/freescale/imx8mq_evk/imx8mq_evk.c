@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <env.h>
+#include <init.h>
 #include <malloc.h>
 #include <errno.h>
 #include <asm/io.h>

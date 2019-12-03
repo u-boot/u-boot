@@ -11,6 +11,7 @@
 #include <hexdump.h>
 #include <malloc.h>
 #include <search.h>
+#include <u-boot/crc.h>
 
 #define READ_ONLY BIT(31)
 

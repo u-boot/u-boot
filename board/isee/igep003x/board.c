@@ -8,6 +8,8 @@
 #include <common.h>
 #include <env.h>
 #include <errno.h>
+#include <init.h>
+#include <serial.h>
 #include <spl.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/hardware.h>

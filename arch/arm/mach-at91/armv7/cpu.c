@@ -9,6 +9,8 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
+#include <vsprintf.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/at91_pit.h>

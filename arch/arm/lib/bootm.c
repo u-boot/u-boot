@@ -13,6 +13,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <dm/root.h>
 #include <env.h>

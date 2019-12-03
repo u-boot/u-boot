@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <init.h>
 #include <miiphy.h>
 #include <tpm-v1.h>
 #include <asm/io.h>

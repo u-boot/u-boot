@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <time.h>
 #include <asm/io.h>
 #include <div64.h>
 #include <asm/arch/imx-regs.h>

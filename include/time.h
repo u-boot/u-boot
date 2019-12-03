@@ -70,4 +70,47 @@ uint64_t usec_to_tick(unsigned long usec);
 	(time_after_eq(a,b) && \
 	 time_before(a,c))
 
+/**
+ * usec2ticks() - Convert microseconds to internal ticks
+ *
+ * @usec: Value of microseconds to convert
+ * @return Corresponding internal ticks value, calculated using get_tbclk()
+ */
+ulong usec2ticks(unsigned long usec);
+
+/**
+ * ticks2usec() - Convert internal ticks to microseconds
+ *
+ * @ticks: Value of ticks to convert
+ * @return Corresponding microseconds value, calculated using get_tbclk()
+ */
+ulong ticks2usec(unsigned long ticks);
+
+/**
+ * wait_ticks() - waits a given number of ticks
+ *
+ * This is an internal function typically used to implement udelay() and
+ * similar. Normally you should use udelay() or mdelay() instead.
+ *
+ * @ticks: Number of ticks to wait
+ */
+void wait_ticks(unsigned long ticks);
+
+/**
+ * timer_get_us() - Get monotonic microsecond timer
+ *
+ * @return value of monotonic microsecond timer
+ */
+unsigned long timer_get_us(void);
+
+/**
+ * get_ticks() - Get the current tick value
+ *
+ * This is an internal value used by the timer on the system. Ticks increase
+ * monotonically at the rate given by get_tbclk().
+ *
+ * @return current tick value
+ */
+uint64_t get_ticks(void);
+
 #endif /* _TIME_H */

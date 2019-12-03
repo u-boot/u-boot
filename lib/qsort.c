@@ -18,6 +18,7 @@
 #include <linux/types.h>
 #include <common.h>
 #include <exports.h>
+#include <sort.h>
 
 void qsort(void  *base,
 	   size_t nel,

@@ -14,6 +14,7 @@
 #include <common.h>
 #include <command.h>
 #include <clk.h>
+#include <cpu_func.h>
 #include <errno.h>
 #include <hwconfig.h>
 #include <mmc.h>

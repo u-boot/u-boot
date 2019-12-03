@@ -25,6 +25,7 @@
 #include <sys/types.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
+#include <u-boot/crc.h>
 #include <unistd.h>
 #include <dirent.h>
 
