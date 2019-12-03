@@ -77,3 +77,12 @@ __weak int psu_init(void)
 	 */
 	return -1;
 }
+
+__weak unsigned long psu_post_config_data(void)
+{
+	/*
+	 * This function is overridden by the one in
+	 * board/xilinx/zynqmp/(platform)/psu_init_gpl.c, if it exists.
+	 */
+	return 0;
+}
