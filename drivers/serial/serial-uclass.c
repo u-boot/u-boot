@@ -29,29 +29,31 @@ static const unsigned long baudrate_table[] = CONFIG_SYS_BAUDRATE_TABLE;
 #if CONFIG_IS_ENABLED(SERIAL_PRESENT)
 static int serial_check_stdout(const void *blob, struct udevice **devp)
 {
-	int node;
+	int node = -1;
+	const char *str, *p, *name;
+	int namelen;
 
 	/* Check for a chosen console */
-	node = fdtdec_get_chosen_node(blob, "stdout-path");
-	if (node < 0) {
-		const char *str, *p, *name;
+	str = fdtdec_get_chosen_prop(blob, "stdout-path");
+	if (str) {
+		p = strchr(str, ':');
+		namelen = p ? p - str : strlen(str);
+		node = fdt_path_offset_namelen(blob, str, namelen);
 
-		/*
-		 * Deal with things like
-		 *	stdout-path = "serial0:115200n8";
-		 *
-		 * We need to look up the alias and then follow it to the
-		 * correct node.
-		 */
-		str = fdtdec_get_chosen_prop(blob, "stdout-path");
-		if (str) {
-			p = strchr(str, ':');
-			name = fdt_get_alias_namelen(blob, str,
-					p ? p - str : strlen(str));
+		if (node < 0) {
+			/*
+			 * Deal with things like
+			 *	stdout-path = "serial0:115200n8";
+			 *
+			 * We need to look up the alias and then follow it to
+			 * the correct node.
+			 */
+			name = fdt_get_alias_namelen(blob, str, namelen);
 			if (name)
 				node = fdt_path_offset(blob, name);
 		}
 	}
+
 	if (node < 0)
 		node = fdt_path_offset(blob, "console");
 	if (!uclass_get_device_by_of_offset(UCLASS_SERIAL, node, devp))
