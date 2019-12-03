@@ -354,7 +354,7 @@ bool sec_firmware_support_hwrng(void)
 	return true;
 #endif
 	if (sec_firmware_addr & SEC_FIRMWARE_RUNNING) {
-			return true;
+		return true;
 	}
 
 	return false;

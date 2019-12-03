@@ -134,7 +134,7 @@ int regmap_init_mem_index(ofnode node, struct regmap **mapp, int index)
 
 	ret = init_range(node, map->ranges, addr_len, size_len, index);
 	if (ret)
-		return ret;
+		goto err;
 
 	if (ofnode_read_bool(node, "little-endian"))
 		map->endianness = REGMAP_LITTLE_ENDIAN;
@@ -147,6 +147,10 @@ int regmap_init_mem_index(ofnode node, struct regmap **mapp, int index)
 
 	*mapp = map;
 
+	return 0;
+err:
+	regmap_uninit(map);
+
 	return ret;
 }
 
@@ -158,6 +162,7 @@ int regmap_init_mem(ofnode node, struct regmap **mapp)
 	int addr_len, size_len, both_len;
 	int len;
 	int index;
+	int ret;
 
 	addr_len = ofnode_read_simple_addr_cells(ofnode_get_parent(node));
 	if (addr_len < 0) {
@@ -200,10 +205,9 @@ int regmap_init_mem(ofnode node, struct regmap **mapp)
 
 	for (range = map->ranges, index = 0; count > 0;
 	     count--, range++, index++) {
-		int ret = init_range(node, range, addr_len, size_len, index);
-
+		ret = init_range(node, range, addr_len, size_len, index);
 		if (ret)
-			return ret;
+			goto err;
 	}
 
 	if (ofnode_read_bool(node, "little-endian"))
@@ -218,6 +222,10 @@ int regmap_init_mem(ofnode node, struct regmap **mapp)
 	*mapp = map;
 
 	return 0;
+err:
+	regmap_uninit(map);
+
+	return ret;
 }
 #endif
 

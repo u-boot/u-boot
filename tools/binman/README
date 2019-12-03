@@ -73,7 +73,7 @@ any dependencies between them
 and brought in as needed
 - Provides for a standard image description available in the build and at
 run-time
-- SoC-specific image-signing tools can be accomodated
+- SoC-specific image-signing tools can be accommodated
 - Avoids cluttering the U-Boot build system with image-building code
 - The image description is automatically available at run-time in U-Boot,
 SPL. It can be made available to other software also

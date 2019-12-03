@@ -150,7 +150,9 @@ N:	meson
 ARM BROADCOM BCM283X
 M:	Matthias Brugger <mbrugger@suse.com>
 S:	Maintained
+F:	arch/arm/dts/bcm283*
 F:	arch/arm/mach-bcm283x/
+F:	board/raspberrypi/
 F:	drivers/gpio/bcm2835_gpio.c
 F:	drivers/mmc/bcm2835_sdhci.c
 F:	drivers/mmc/bcm2835_sdhost.c
@@ -158,6 +160,7 @@ F:	drivers/serial/serial_bcm283x_mu.c
 F:	drivers/serial/serial_bcm283x_pl011.c
 F:	drivers/video/bcm2835.c
 F:	include/dm/platform_data/serial_bcm283x_mu.h
+F:	include/dt-bindings/pinctrl/bcm2835.h
 F:	drivers/pinctrl/broadcom/
 
 ARM BROADCOM BCMSTB

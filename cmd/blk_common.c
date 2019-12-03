@@ -11,7 +11,6 @@
 #include <common.h>
 #include <blk.h>
 
-#ifdef CONFIG_HAVE_BLOCK_DEVICE
 int blk_common_cmd(int argc, char * const argv[], enum if_type if_type,
 		   int *cur_devnump)
 {
@@ -96,4 +95,3 @@ int blk_common_cmd(int argc, char * const argv[], enum if_type if_type,
 		}
 	}
 }
-#endif

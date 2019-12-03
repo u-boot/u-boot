@@ -268,7 +268,7 @@ config SPL_BANNER_PRINT
 	default y
 	help
 	  If this option is enabled, SPL will print the banner with version
-	  info. Disabling this option could be useful to reduce TPL boot time
+	  info. Disabling this option could be useful to reduce SPL boot time
 	  (e.g. approx. 6 ms faster, when output on i.MX6 with 115200 baud).
 
 config TPL_BANNER_PRINT
@@ -276,8 +276,8 @@ config TPL_BANNER_PRINT
 	depends on TPL
 	default y
 	help
-	  If this option is enabled, SPL will not print the banner with version
-	  info. Disabling this option could be useful to reduce SPL boot time
+	  If this option is enabled, TPL will print the banner with version
+	  info. Disabling this option could be useful to reduce TPL boot time
 	  (e.g. approx. 6 ms faster, when output on i.MX6 with 115200 baud).
 
 config SPL_EARLY_BSS

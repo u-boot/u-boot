@@ -835,7 +835,8 @@ dtb-$(CONFIG_SOC_K3_J721E) += k3-j721e-common-proc-board.dtb \
 dtb-$(CONFIG_ARCH_MEDIATEK) += \
 	mt7623n-bananapi-bpi-r2.dtb \
 	mt7629-rfb.dtb \
-	mt8516-pumpkin.dtb
+	mt8516-pumpkin.dtb \
+	mt8518-ap1-emmc.dtb
 
 dtb-$(CONFIG_TARGET_GE_BX50V3) += imx6q-bx50v3.dtb
 dtb-$(CONFIG_TARGET_MX53PPD) += imx53-ppd.dtb

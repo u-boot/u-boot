@@ -9,7 +9,7 @@ RK3399 key features we might use in U-Boot:
 * DRAM: 4GB-128MB dual-channel
 * eMMC: support eMMC 5.0/5.1, suport HS400, HS200, DDR50
 * SD/MMC: support SD 3.0, MMC 4.51
-* USB: USB3.0 typc-C port *2 with dwc3 controller
+* USB: USB3.0 type-C port *2 with dwc3 controller
 *      USB2.0 EHCI host port *2
 * Display: RGB/HDMI/DP/MIPI/EDP
 

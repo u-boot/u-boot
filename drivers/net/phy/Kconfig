@@ -100,6 +100,28 @@ config PHY_BROADCOM
 config PHY_CORTINA
 	bool "Cortina Ethernet PHYs support"
 
+choice
+	prompt "Location of the Cortina firmware"
+	default SYS_CORTINA_FW_IN_NOR
+	depends on PHY_CORTINA
+
+config SYS_CORTINA_FW_IN_MMC
+	bool "Cortina firmware in MMC"
+
+config SYS_CORTINA_FW_IN_NAND
+	bool "Cortina firmware in NAND flash"
+
+config SYS_CORTINA_FW_IN_NOR
+	bool "Cortina firmware in NOR flash"
+
+config SYS_CORTINA_FW_IN_REMOTE
+	bool "Cortina firmware in remote device"
+
+config SYS_CORTINA_FW_IN_SPIFLASH
+	bool "Cortina firmware in SPI flash"
+
+endchoice
+
 config PHY_DAVICOM
 	bool "Davicom Ethernet PHYs support"
 

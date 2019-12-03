@@ -76,8 +76,6 @@ static struct class mtd_class = {
 	.resume = mtd_cls_resume,
 };
 #else
-struct mtd_info *mtd_table[MAX_MTD_DEVICES];
-
 #define MAX_IDR_ID	64
 
 struct idr_layer {

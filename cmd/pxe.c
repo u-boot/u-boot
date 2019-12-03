@@ -663,6 +663,7 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 		strncpy(bootm_argv[2], env_get("ramdisk_addr_r"), 18);
 		strcat(bootm_argv[2], ":");
 		strncat(bootm_argv[2], env_get("filesize"), 9);
+		bootm_argc = 3;
 	}
 
 	if (get_relfile_envaddr(cmdtp, label->kernel, "kernel_addr_r") < 0) {

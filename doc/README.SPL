@@ -75,7 +75,7 @@ with:
 - the nodes with one pre-relocation property:
   'u-boot,dm-pre-reloc' or 'u-boot,dm-spl'
 
-ftgrep is also used to remove:
+fdtgrep is also used to remove:
 - the properties defined in CONFIG_OF_SPL_REMOVE_PROPS
 - all the pre-relocation properties
   ('u-boot,dm-pre-reloc', 'u-boot,dm-spl' and 'u-boot,dm-tpl')

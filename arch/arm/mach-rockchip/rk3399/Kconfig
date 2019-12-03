@@ -6,9 +6,9 @@ choice
 config TARGET_EVB_RK3399
 	bool "RK3399 evaluation board"
 	help
-	  RK3399evb is a evaluation board for Rockchp rk3399,
-	  with full function and phisical connectors support like type-C ports,
-	  usb2.0 host ports, LVDS, JTAG, MAC, SDcard, HDMI, USB-2-serial...
+	  RK3399evb is a evaluation board for Rockchip RK3399,
+	  with full function and physical connectors support like Type-C ports,
+	  USB.0 host ports, LVDS, JTAG, MAC, SD card, HDMI, USB-to-serial...
 
 config TARGET_PUMA_RK3399
 	bool "Theobroma Systems RK3399-Q7 (Puma)"
