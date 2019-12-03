@@ -823,6 +823,7 @@ config ARCH_MX7ULP
 	select CPU_V7A
 	select ROM_UNIFIED_SECTIONS
 	imply MXC_GPIO
+	imply SYS_THUMB_BUILD
 
 config ARCH_MX7
 	bool "Freescale MX7"
@@ -833,6 +834,7 @@ config ARCH_MX7
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_FSL_SEC_LE
 	imply MXC_GPIO
+	imply SYS_THUMB_BUILD
 
 config ARCH_MX6
 	bool "Freescale MX6"
@@ -840,8 +842,8 @@ config ARCH_MX6
 	select SYS_FSL_HAS_SEC if IMX_HAB
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_FSL_SEC_LE
-	select SYS_THUMB_BUILD if SPL
 	imply MXC_GPIO
+	imply SYS_THUMB_BUILD
 
 if ARCH_MX6
 config SPL_LDSCRIPT
