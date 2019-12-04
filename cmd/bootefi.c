@@ -200,14 +200,16 @@ static void *get_config_table(const efi_guid_t *guid)
  *
  * If fdt_addr is available, the device tree located at that memory address will
  * will be installed as configuration table, otherwise the device tree located
- * at the address indicated by environment variable fdtcontroladdr will be used.
+ * at the address indicated by environment variable fdt_addr or as fallback
+ * fdtcontroladdr will be used.
  *
  * On architectures using ACPI tables device trees shall not be installed as
  * configuration table.
  *
  * @fdt_addr:	address of device tree or EFI_FDT_USE_INTERNAL to use the
- *		internal device tree as indicated by environment variable
- *		fdtcontroladdr
+ *		the hardware device tree as indicated by environment variable
+ *		fdt_addr or as fallback the internal device tree as indicated by
+ *		the environment variable fdtcontroladdr
  * Return:	status code
  */
 static efi_status_t efi_install_fdt(uintptr_t fdt_addr)
@@ -232,15 +234,19 @@ static efi_status_t efi_install_fdt(uintptr_t fdt_addr)
 		/* Look for device tree that is already installed */
 		if (get_config_table(&efi_guid_fdt))
 			return EFI_SUCCESS;
-		/* Use our own device tree as default */
-		fdt_opt = env_get("fdtcontroladdr");
+		/* Check if there is a hardware device tree */
+		fdt_opt = env_get("fdt_addr");
+		/* Use our own device tree as fallback */
 		if (!fdt_opt) {
-			printf("ERROR: need device tree\n");
-			return EFI_NOT_FOUND;
+			fdt_opt = env_get("fdtcontroladdr");
+			if (!fdt_opt) {
+				printf("ERROR: need device tree\n");
+				return EFI_NOT_FOUND;
+			}
 		}
 		fdt_addr = simple_strtoul(fdt_opt, NULL, 16);
 		if (!fdt_addr) {
-			printf("ERROR: invalid $fdtcontroladdr\n");
+			printf("ERROR: invalid $fdt_addr or $fdtcontroladdr\n");
 			return EFI_LOAD_ERROR;
 		}
 	}
