@@ -424,9 +424,9 @@ int aquantia_config(struct phy_device *phydev)
 	fault = phy_read(phydev, MDIO_MMD_VEND1, GLOBAL_FAULT);
 
 	if (id != 0)
-		printf("%s running firmware version %X.%X.%X\n",
-		       phydev->dev->name, (id >> 8), id & 0xff,
-		       (rstatus >> 4) & 0xf);
+		debug("%s running firmware version %X.%X.%X\n",
+		      phydev->dev->name, (id >> 8), id & 0xff,
+		      (rstatus >> 4) & 0xf);
 
 	if (fault != 0)
 		printf("%s fault 0x%04x detected\n", phydev->dev->name, fault);
@@ -507,12 +507,12 @@ int aquantia_config(struct phy_device *phydev)
 
 		if (usx_an) {
 			reg_val1 |= AQUANTIA_USX_AUTONEG_CONTROL_ENA;
-			printf("%s: system interface USXGMII\n",
-			       phydev->dev->name);
+			debug("%s: system interface USXGMII\n",
+			      phydev->dev->name);
 		} else {
 			reg_val1 &= ~AQUANTIA_USX_AUTONEG_CONTROL_ENA;
-			printf("%s: system interface XFI\n",
-			       phydev->dev->name);
+			debug("%s: system interface XFI\n",
+			      phydev->dev->name);
 		}
 
 		phy_write(phydev, MDIO_MMD_PHYXS,
@@ -539,11 +539,11 @@ int aquantia_config(struct phy_device *phydev)
 	val = phy_read(phydev, MDIO_MMD_VEND1, AQUANTIA_RESERVED_STATUS);
 	reg_val1 = phy_read(phydev, MDIO_MMD_VEND1, AQUANTIA_FIRMWARE_ID);
 
-	printf("%s: %s Firmware Version %x.%x.%x\n", phydev->dev->name,
-	       phydev->drv->name,
-	       (reg_val1 & AQUANTIA_FIRMWARE_MAJOR_MASK) >> 8,
-	       reg_val1 & AQUANTIA_FIRMWARE_MINOR_MASK,
-	       (val & AQUANTIA_FIRMWARE_BUILD_MASK) >> 4);
+	debug("%s: %s Firmware Version %x.%x.%x\n", phydev->dev->name,
+	      phydev->drv->name,
+	      (reg_val1 & AQUANTIA_FIRMWARE_MAJOR_MASK) >> 8,
+	      reg_val1 & AQUANTIA_FIRMWARE_MINOR_MASK,
+	      (val & AQUANTIA_FIRMWARE_BUILD_MASK) >> 4);
 
 	return 0;
 }
