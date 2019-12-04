@@ -306,30 +306,29 @@ struct {
 					   AQUANTIA_VND1_GSTART_RATE_1G},
 	[PHY_INTERFACE_MODE_SGMII_2500] = {0x144, AQUANTIA_VND1_GSYSCFG_2_5G,
 					   AQUANTIA_VND1_GSTART_RATE_2_5G},
-	[PHY_INTERFACE_MODE_XGMII] =      {0x100, AQUANTIA_VND1_GSYSCFG_10G,
-					   AQUANTIA_VND1_GSTART_RATE_10G},
 	[PHY_INTERFACE_MODE_XFI] =        {0x100, AQUANTIA_VND1_GSYSCFG_10G,
 					   AQUANTIA_VND1_GSTART_RATE_10G},
 	[PHY_INTERFACE_MODE_USXGMII] =    {0x080, AQUANTIA_VND1_GSYSCFG_10G,
 					   AQUANTIA_VND1_GSTART_RATE_10G},
 };
 
-static int aquantia_set_proto(struct phy_device *phydev)
+static int aquantia_set_proto(struct phy_device *phydev,
+			      phy_interface_t interface)
 {
 	int i;
 
-	if (!aquantia_syscfg[phydev->interface].cnt)
+	if (!aquantia_syscfg[interface].cnt)
 		return 0;
 
 	/* set the default rate to enable the SI link */
 	phy_write(phydev, MDIO_MMD_VEND1, AQUANTIA_VND1_GSTART_RATE,
-		  aquantia_syscfg[phydev->interface].start_rate);
+		  aquantia_syscfg[interface].start_rate);
 
 	/* set selected protocol for all relevant line side link speeds */
-	for (i = 0; i <= aquantia_syscfg[phydev->interface].cnt; i++)
+	for (i = 0; i <= aquantia_syscfg[interface].cnt; i++)
 		phy_write(phydev, MDIO_MMD_VEND1,
 			  AQUANTIA_VND1_GSYSCFG_BASE + i,
-			  aquantia_syscfg[phydev->interface].syscfg);
+			  aquantia_syscfg[interface].syscfg);
 	return 0;
 }
 
@@ -444,6 +443,8 @@ int aquantia_config(struct phy_device *phydev)
 	 * on FW config
 	 */
 	if (interface == PHY_INTERFACE_MODE_XGMII) {
+		debug("use XFI or USXGMII SI protos, XGMII is not valid\n");
+
 		reg_val1 = phy_read(phydev, MDIO_MMD_PHYXS,
 				    AQUANTIA_SYSTEM_INTERFACE_SR);
 		if ((reg_val1 & AQUANTIA_SI_IN_USE_MASK) == AQUANTIA_SI_USXGMII)
@@ -466,7 +467,7 @@ int aquantia_config(struct phy_device *phydev)
 		mdelay(10);
 
 		/* configure protocol based on phydev->interface */
-		aquantia_set_proto(phydev);
+		aquantia_set_proto(phydev, interface);
 		/* apply custom configuration based on DT */
 		aquantia_dts_config(phydev);
 
