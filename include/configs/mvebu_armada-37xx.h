@@ -56,7 +56,6 @@
  * SPI Flash configuration
  */
 
-#define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
 #define CONFIG_MTD_PARTITIONS		/* required for UBI partition support */
 
 /* Environment in SPI NOR flash */

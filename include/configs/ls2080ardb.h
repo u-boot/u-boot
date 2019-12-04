@@ -196,7 +196,7 @@ unsigned long get_board_sys_clk(void);
 					FTIM2_GPCM_TWP(0x3E))
 #define CONFIG_SYS_CS3_FTIM3		0x0
 
-#if defined(CONFIG_SPL) && defined(CONFIG_NAND)
+#if defined(CONFIG_SPL) && defined(CONFIG_MTD_RAW_NAND)
 #define CONFIG_SYS_CSPR2_EXT		CONFIG_SYS_NOR0_CSPR_EXT
 #define CONFIG_SYS_CSPR2		CONFIG_SYS_NOR0_CSPR_EARLY
 #define CONFIG_SYS_CSPR2_FINAL		CONFIG_SYS_NOR0_CSPR

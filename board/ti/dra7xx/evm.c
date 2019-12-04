@@ -784,7 +784,7 @@ void set_muxconf_regs(void)
 		     early_padconf, ARRAY_SIZE(early_padconf));
 }
 
-#if defined(CONFIG_NAND)
+#if defined(CONFIG_MTD_RAW_NAND)
 static int nand_sw_detect(void)
 {
 	int rc;

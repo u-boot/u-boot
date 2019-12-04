@@ -24,7 +24,7 @@
 #define CONFIG_REVISION_TAG
 
 /* NAND */
-#if defined(CONFIG_NAND)
+#if defined(CONFIG_MTD_RAW_NAND)
 #define CONFIG_SYS_FLASH_BASE		NAND_BASE
 #define CONFIG_SYS_MAX_NAND_DEVICE      1
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
@@ -45,7 +45,7 @@
 #if defined(CONFIG_SPL_OS_BOOT)
 #define CONFIG_SYS_NAND_SPL_KERNEL_OFFS 0x2a0000
 #endif /* CONFIG_SPL_OS_BOOT */
-#endif /* CONFIG_NAND */
+#endif /* CONFIG_MTD_RAW_NAND */
 
 /* USB EHCI */
 #define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO	147
@@ -67,7 +67,7 @@
 #define BOOTENV_DEV_NAME_LEGACY_MMC(devtypeu, devtypel, instance) \
 	#devtypel #instance " "
 
-#if defined(CONFIG_NAND)
+#if defined(CONFIG_MTD_RAW_NAND)
 
 #define BOOTENV_DEV_NAND(devtypeu, devtypel, instance) \
 	"bootcmd_" #devtypel #instance "=" \
@@ -85,13 +85,13 @@
 	func(UBIFS, ubifs, 0) \
 	func(NAND, nand, 0)
 
-#else /* !CONFIG_NAND */
+#else /* !CONFIG_MTD_RAW_NAND */
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
 	func(LEGACY_MMC, legacy_mmc, 0)
 
-#endif /* CONFIG_NAND */
+#endif /* CONFIG_MTD_RAW_NAND */
 
 #include <config_distro_bootcmd.h>
 

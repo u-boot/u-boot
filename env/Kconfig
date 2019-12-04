@@ -366,6 +366,8 @@ config ENV_SPI_MODE
 config ENV_IS_IN_UBI
 	bool "Environment in a UBI volume"
 	depends on !CHAIN_OF_TRUST
+	depends on MTD_UBI
+	depends on CMD_UBI
 	help
 	  Define this if you have an UBI volume that you want to use for the
 	  environment.  This has the benefit of wear-leveling the environment

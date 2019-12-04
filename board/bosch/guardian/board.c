@@ -180,7 +180,7 @@ int board_init(void)
 
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 	gpmc_init();
 #endif
 	return 0;

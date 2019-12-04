@@ -12,7 +12,7 @@
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_SYS_FSL_PBL_PBI	$(SRCTREE)/board/freescale/b4860qds/b4_pbi.cfg
 #define CONFIG_SYS_FSL_PBL_RCW	$(SRCTREE)/board/freescale/b4860qds/b4_rcw.cfg
-#ifndef CONFIG_NAND
+#ifndef CONFIG_MTD_RAW_NAND
 #define CONFIG_RAMBOOT_TEXT_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_RESET_VECTOR_ADDRESS	0xfffffffc
 #else
@@ -309,7 +309,7 @@ unsigned long get_board_ddr_clk(void);
 
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
 
-#if defined(CONFIG_NAND)
+#if defined(CONFIG_MTD_RAW_NAND)
 #define CONFIG_SYS_CSPR0_EXT		CONFIG_SYS_NAND_CSPR_EXT
 #define CONFIG_SYS_CSPR0		CONFIG_SYS_NAND_CSPR
 #define CONFIG_SYS_AMASK0		CONFIG_SYS_NAND_AMASK
@@ -567,7 +567,7 @@ unsigned long get_board_ddr_clk(void);
  * 0x2000 (16 blocks), 8 + 1089 + 16 = 1113, enlarge it to 1130.
  */
 #define CONFIG_SYS_FMAN_FW_ADDR	(512 * 1130)
-#elif defined(CONFIG_NAND)
+#elif defined(CONFIG_MTD_RAW_NAND)
 #define CONFIG_SYS_FMAN_FW_ADDR	(13 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #elif defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
 /*

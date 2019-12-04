@@ -179,7 +179,7 @@
 #define CONFIG_NET_RETRY_COUNT         10
 
 /* NAND support */
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 /* UBI Support */
 
 /* Commen environment */

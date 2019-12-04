@@ -974,7 +974,7 @@ config ARCH_SUNXI
 	select SPL_USE_TINY_PRINTF
 	imply CMD_DM
 	imply CMD_GPT
-	imply CMD_UBI if NAND
+	imply CMD_UBI if MTD_RAW_NAND
 	imply DISTRO_DEFAULTS
 	imply FAT_WRITE
 	imply FIT
@@ -1004,7 +1004,7 @@ config ARCH_VF610
 	select CPU_V7A
 	select SYS_FSL_ERRATUM_ESDHC111
 	imply CMD_MTDPARTS
-	imply NAND
+	imply MTD_RAW_NAND
 
 config ARCH_ZYNQ
 	bool "Xilinx Zynq based platform"

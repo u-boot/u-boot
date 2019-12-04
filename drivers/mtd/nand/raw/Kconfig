@@ -1,7 +1,7 @@
 
-menuconfig NAND
+menuconfig MTD_RAW_NAND
 	bool "Raw NAND Device Support"
-if NAND
+if MTD_RAW_NAND
 
 config SYS_NAND_SELF_INIT
 	bool
@@ -67,7 +67,7 @@ endif
 
 config NAND_BRCMNAND
 	bool "Support Broadcom NAND controller"
-	depends on OF_CONTROL && DM && MTD
+	depends on OF_CONTROL && DM && DM_MTD
 	help
 	  Enable the driver for NAND flash on platforms using a Broadcom NAND
 	  controller.
@@ -173,7 +173,7 @@ if NAND_VF610_NFC
 
 config NAND_VF610_NFC_DT
         bool "Support Vybrid's vf610 NAND controller as a DT device"
-        depends on OF_CONTROL && MTD
+        depends on OF_CONTROL && DM_MTD
         help
           Enable the driver for Vybrid's vf610 NAND flash on platforms
 	  using device tree.
@@ -266,7 +266,7 @@ if NAND_MXS
 
 config NAND_MXS_DT
 	bool "Support MXS NAND controller as a DT device"
-	depends on OF_CONTROL && MTD
+	depends on OF_CONTROL && DM_MTD
 	help
 	  Enable the driver for MXS NAND flash on platforms using
 	  device tree.

@@ -221,7 +221,7 @@ int board_init(void)
 	else
 		config_board_mux(MUX_TYPE_SDHC);
 
-#if defined(CONFIG_NAND) && defined(CONFIG_FSL_QSPI)
+#if defined(CONFIG_MTD_RAW_NAND) && defined(CONFIG_FSL_QSPI)
 	val = in_le32(dcfg_ccsr + DCFG_RCWSR15 / 4);
 
 	if (DCFG_RCWSR15_IFCGRPABASE_QSPI == (val & (u32)0x3))

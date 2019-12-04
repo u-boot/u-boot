@@ -18,7 +18,7 @@
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 #define NANDARGS \
 	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
@@ -87,7 +87,7 @@
 
 #define CONFIG_POWER_TPS65910
 
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 /* NAND: device related configs */
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_PAGE_COUNT	(CONFIG_SYS_NAND_BLOCK_SIZE / \
@@ -114,7 +114,7 @@
 #ifdef CONFIG_SPL_OS_BOOT
 #define CONFIG_SYS_NAND_SPL_KERNEL_OFFS	0x00200000 /* kernel offset */
 #endif
-#endif /* !CONFIG_NAND */
+#endif /* !CONFIG_MTD_RAW_NAND */
 
 /* CPU */
 

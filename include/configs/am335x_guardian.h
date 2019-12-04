@@ -68,7 +68,7 @@
 /* Bootcount using the RTC block */
 #define CONFIG_SYS_BOOTCOUNT_LE
 
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_PAGE_COUNT      (CONFIG_SYS_NAND_BLOCK_SIZE / \
@@ -107,6 +107,6 @@
 
 #define CONFIG_SYS_NAND_BAD_BLOCK_POS   NAND_LARGE_BADBLOCK_POS
 
-#endif /* CONFIG_NAND */
+#endif /* CONFIG_MTD_RAW_NAND */
 
 #endif	/* ! __CONFIG_AM335X_GUARDIAN_H */

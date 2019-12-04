@@ -116,7 +116,7 @@
 /*
  * Flash & Environment
  */
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 #define CONFIG_SYS_NAND_4BIT_HW_ECC_OOBFIRST
 #define	CONFIG_SYS_NAND_PAGE_2K
 #define CONFIG_SYS_NAND_CS		3

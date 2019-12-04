@@ -186,7 +186,7 @@ config SPI_FLASH_DATAFLASH
 
 config SPI_FLASH_MTD
 	bool "SPI Flash MTD support"
-	depends on SPI_FLASH
+	depends on SPI_FLASH && MTD
 	help
           Enable the MTD support for spi flash layer, this adapter is for
 	  translating mtd_read/mtd_write commands into spi_flash_read/write

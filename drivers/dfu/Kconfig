@@ -31,6 +31,7 @@ config DFU_MMC
 config DFU_NAND
 	bool "NAND back end for DFU"
 	depends on CMD_MTDPARTS
+	depends on MTD_RAW_NAND
 	help
 	  This option enables using DFU to read and write to NAND based
 	  storage.
@@ -56,7 +57,7 @@ config DFU_SF_PART
 
 config DFU_MTD
 	bool "MTD back end for DFU"
-	depends on MTD
+	depends on DM_MTD
 	help
 	  This option enables using DFU to read and write to on any MTD device.
 
