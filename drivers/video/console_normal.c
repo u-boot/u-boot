@@ -16,9 +16,9 @@
 static int console_normal_set_row(struct udevice *dev, uint row, int clr)
 {
 	struct video_priv *vid_priv = dev_get_uclass_priv(dev->parent);
-	void *line;
-	int pixels = VIDEO_FONT_HEIGHT * vid_priv->xsize;
-	int i;
+	void * __maybe_unused line;
+	int __maybe_unused pixels = VIDEO_FONT_HEIGHT * vid_priv->xsize;
+	int __maybe_unused i;
 
 	line = vid_priv->fb + row * VIDEO_FONT_HEIGHT * vid_priv->line_length;
 	switch (vid_priv->bpix) {
@@ -76,7 +76,7 @@ static int console_normal_putc_xy(struct udevice *dev, uint x_frac, uint y,
 	struct vidconsole_priv *vc_priv = dev_get_uclass_priv(dev);
 	struct udevice *vid = dev->parent;
 	struct video_priv *vid_priv = dev_get_uclass_priv(vid);
-	int i, row;
+	int __maybe_unused i, row;
 	void *line = vid_priv->fb + y * vid_priv->line_length +
 		VID_TO_PIXEL(x_frac) * VNBYTES(vid_priv->bpix);
 
@@ -85,7 +85,7 @@ static int console_normal_putc_xy(struct udevice *dev, uint x_frac, uint y,
 
 	for (row = 0; row < VIDEO_FONT_HEIGHT; row++) {
 		unsigned int idx = (u8)ch * VIDEO_FONT_HEIGHT + row;
-		uchar bits = video_fontdata[idx];
+		uchar __maybe_unused bits = video_fontdata[idx];
 
 		switch (vid_priv->bpix) {
 #ifdef CONFIG_VIDEO_BPP8
