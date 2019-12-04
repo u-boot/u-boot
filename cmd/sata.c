@@ -26,6 +26,8 @@ int sata_remove(int devnum)
 	struct udevice *dev;
 	int rc;
 
+	blk_unbind_all(IF_TYPE_SATA);
+
 	rc = uclass_find_device(UCLASS_AHCI, devnum, &dev);
 	if (!rc && !dev)
 		rc = uclass_find_first_device(UCLASS_AHCI, &dev);
