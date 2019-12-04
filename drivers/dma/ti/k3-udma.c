@@ -1731,6 +1731,7 @@ static const struct dma_ops udma_ops = {
 
 static const struct udevice_id udma_ids[] = {
 	{ .compatible = "ti,k3-navss-udmap" },
+	{ .compatible = "ti,j721e-navss-mcu-udmap" },
 	{ }
 };
 
