@@ -15,6 +15,7 @@ config EFI_LOADER
 	select HAVE_BLOCK_DEVICE
 	select REGEX
 	imply CFB_CONSOLE_ANSI
+	imply USB_KEYBOARD_FN_KEYS
 	help
 	  Select this option if you want to run UEFI applications (like GNU
 	  GRUB or iPXE) on top of U-Boot. If this option is enabled, U-Boot
