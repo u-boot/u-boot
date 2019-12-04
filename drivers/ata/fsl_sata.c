@@ -22,6 +22,7 @@
 #include <dm.h>
 #include <ahci.h>
 #include <blk.h>
+#include <dm/device-internal.h>
 #else
 #ifndef CONFIG_SYS_SATA1_FLAGS
 	#define CONFIG_SYS_SATA1_FLAGS	FLAGS_DMA
@@ -122,7 +123,7 @@ static int init_sata(struct fsl_ata_priv *priv, int dev)
 	/* Zero all of the device driver struct */
 	memset((void *)sata, 0, sizeof(fsl_sata_t));
 
-	snprintf(sata->name, 12, "SATA%d:\n", dev);
+	snprintf(sata->name, 12, "SATA%d:", dev);
 
 	/* Set the controller register base address to device struct */
 #if !CONFIG_IS_ENABLED(BLK)
@@ -233,10 +234,7 @@ static int init_sata(struct fsl_ata_priv *priv, int dev)
 	mdelay(100);
 
 	/* print sata device name */
-	if (!dev)
-		printf("%s ", sata->name);
-	else
-		printf("       %s ", sata->name);
+	printf("%s ", sata->name);
 
 	/* Wait PHY RDY signal changed for 500ms */
 	ata_wait_register(&reg->hstatus, HSTATUS_PHY_RDY,
@@ -917,15 +915,32 @@ static int fsl_ata_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
+static int fsl_unbind_device(struct udevice *dev)
+{
+	int ret;
+
+	ret = device_remove(dev, DM_REMOVE_NORMAL);
+	if (ret)
+		return ret;
+
+	ret = device_unbind(dev);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
 static int fsl_ata_probe(struct udevice *dev)
 {
 	struct fsl_ata_priv *blk_priv, *priv;
 	struct udevice *blk;
+	int failed_number;
 	char sata_name[10];
 	int nr_ports;
 	int ret;
 	int i;
 
+	failed_number = 0;
 	priv = dev_get_priv(dev);
 	nr_ports = priv->number;
 	nr_ports = min(nr_ports, CONFIG_SYS_SATA_MAX_DEVICE);
@@ -943,7 +958,12 @@ static int fsl_ata_probe(struct udevice *dev)
 		ret = init_sata(priv, i);
 		if (ret) {
 			debug("%s: Failed to init sata\n", __func__);
-			return ret;
+			ret = fsl_unbind_device(blk);
+			if (ret)
+				return ret;
+
+			failed_number++;
+			continue;
 		}
 
 		blk_priv = dev_get_platdata(blk);
@@ -952,9 +972,32 @@ static int fsl_ata_probe(struct udevice *dev)
 		ret = scan_sata(blk);
 		if (ret) {
 			debug("%s: Failed to scan bus\n", __func__);
-			return ret;
+			ret = fsl_unbind_device(blk);
+			if (ret)
+				return ret;
+
+			failed_number++;
+			continue;
 		}
 	}
+
+	if (failed_number == nr_ports)
+		return -ENODEV;
+	else
+		return 0;
+}
+
+static int fsl_ata_remove(struct udevice *dev)
+{
+	fsl_sata_t *sata;
+	struct fsl_ata_priv *priv;
+
+	priv = dev_get_priv(dev);
+	sata = priv->fsl_sata;
+
+	free(sata->cmd_hdr_tbl_offset);
+	free(sata->cmd_desc_offset);
+	free(sata);
 
 	return 0;
 }
@@ -982,6 +1025,7 @@ U_BOOT_DRIVER(fsl_ahci) = {
 	.ops = &sata_fsl_ahci_ops,
 	.ofdata_to_platdata = fsl_ata_ofdata_to_platdata,
 	.probe	= fsl_ata_probe,
+	.remove = fsl_ata_remove,
 	.priv_auto_alloc_size = sizeof(struct fsl_ata_priv),
 };
 #endif
