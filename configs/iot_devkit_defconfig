@@ -14,7 +14,6 @@ CONFIG_SYS_PROMPT="IoTDK# "
 # CONFIG_CMD_BOOTM is not set
 # CONFIG_CMD_ELF is not set
 # CONFIG_CMD_XIMG is not set
-# CONFIG_CMD_FLASH is not set
 # CONFIG_CMD_LOADB is not set
 # CONFIG_CMD_LOADS is not set
 CONFIG_CMD_MMC=y

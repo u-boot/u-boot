@@ -24,7 +24,6 @@ CONFIG_SPL_STACK_R=y
 # CONFIG_CMD_ELF is not set
 # CONFIG_CMD_IMI is not set
 # CONFIG_CMD_XIMG is not set
-# CONFIG_CMD_FLASH is not set
 CONFIG_CMD_GPT=y
 # CONFIG_CMD_LOADB is not set
 # CONFIG_CMD_LOADS is not set

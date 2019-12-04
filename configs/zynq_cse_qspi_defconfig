@@ -46,7 +46,6 @@ CONFIG_SYS_SPI_U_BOOT_OFFS=0x100000
 # CONFIG_CMD_CRC32 is not set
 # CONFIG_CMD_CLK is not set
 # CONFIG_CMD_DM is not set
-# CONFIG_CMD_FLASH is not set
 # CONFIG_CMD_LOADB is not set
 # CONFIG_CMD_LOADS is not set
 # CONFIG_CMD_ECHO is not set

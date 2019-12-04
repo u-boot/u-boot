@@ -30,7 +30,6 @@ CONFIG_HUSH_PARSER=y
 # CONFIG_CMD_ENV_EXISTS is not set
 # CONFIG_CMD_CRC32 is not set
 # CONFIG_CMD_MEMORY is not set
-# CONFIG_CMD_FLASH is not set
 CONFIG_CMD_GPT=y
 # CONFIG_RANDOM_UUID is not set
 # CONFIG_CMD_LOADB is not set

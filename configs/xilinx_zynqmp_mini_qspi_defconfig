@@ -36,7 +36,6 @@ CONFIG_ZYNQMP_NO_DDR=y
 # CONFIG_CMD_ENV_EXISTS is not set
 # CONFIG_CMD_CRC32 is not set
 # CONFIG_CMD_DM is not set
-# CONFIG_CMD_FLASH is not set
 # CONFIG_CMD_LOADB is not set
 # CONFIG_CMD_LOADS is not set
 # CONFIG_CMD_ECHO is not set

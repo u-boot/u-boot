@@ -33,7 +33,6 @@ CONFIG_BOARD_EARLY_INIT_R=y
 # CONFIG_CMD_ENV_EXISTS is not set
 # CONFIG_CMD_CRC32 is not set
 # CONFIG_CMD_DM is not set
-# CONFIG_CMD_FLASH is not set
 # CONFIG_CMD_LOADB is not set
 # CONFIG_CMD_LOADS is not set
 CONFIG_CMD_MMC=y

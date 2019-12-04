@@ -23,7 +23,6 @@ CONFIG_CMD_BOOTZ=y
 # CONFIG_CMD_EDITENV is not set
 # CONFIG_CMD_SAVEENV is not set
 # CONFIG_CMD_ENV_EXISTS is not set
-# CONFIG_CMD_FLASH is not set
 # CONFIG_CMD_LOADB is not set
 CONFIG_CMD_SDRAM=y
 # CONFIG_CMD_ECHO is not set
