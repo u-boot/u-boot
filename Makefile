@@ -1889,6 +1889,7 @@ checkarmreloc: u-boot
 	fi
 
 tools/version.h: include/version.h
+	$(Q)mkdir -p $(dir $@)
 	$(call if_changed,copy)
 
 envtools: scripts_basic $(version_h) $(timestamp_h) tools/version.h
