@@ -170,6 +170,36 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
         print()
         return 0
 
+    # Work out what subset of the boards we are building
+    if not boards:
+        if not os.path.exists(options.output_dir):
+            os.makedirs(options.output_dir)
+        board_file = os.path.join(options.output_dir, 'boards.cfg')
+        genboardscfg = os.path.join(options.git, 'tools/genboardscfg.py')
+        status = subprocess.call([genboardscfg, '-q', '-o', board_file])
+        if status != 0:
+            sys.exit("Failed to generate boards.cfg")
+
+        boards = board.Boards()
+        boards.ReadBoards(board_file)
+
+    exclude = []
+    if options.exclude:
+        for arg in options.exclude:
+            exclude += arg.split(',')
+
+    if options.boards:
+        requested_boards = []
+        for b in options.boards:
+            requested_boards += b.split(',')
+    else:
+        requested_boards = None
+    why_selected, board_warnings = boards.SelectBoards(args, exclude,
+                                                       requested_boards)
+    selected = boards.GetSelected()
+    if not len(selected):
+        sys.exit(col.Color(col.RED, 'No matching boards found'))
+
     # Work out how many commits to build. We want to build everything on the
     # branch. We also build the upstream commit as a control so we can see
     # problems introduced by the first commit on the branch.
@@ -198,37 +228,6 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
         str = ("No commits found to process in branch '%s': "
                "set branch's upstream or use -c flag" % options.branch)
         sys.exit(col.Color(col.RED, str))
-
-    # Work out what subset of the boards we are building
-    if not boards:
-        if not os.path.exists(options.output_dir):
-            os.makedirs(options.output_dir)
-        board_file = os.path.join(options.output_dir, 'boards.cfg')
-        genboardscfg = os.path.join(options.git, 'tools/genboardscfg.py')
-        status = subprocess.call([genboardscfg, '-q', '-o', board_file])
-        if status != 0:
-            sys.exit("Failed to generate boards.cfg")
-
-        boards = board.Boards()
-        boards.ReadBoards(board_file)
-
-    exclude = []
-    if options.exclude:
-        for arg in options.exclude:
-            exclude += arg.split(',')
-
-
-    if options.boards:
-        requested_boards = []
-        for b in options.boards:
-            requested_boards += b.split(',')
-    else:
-        requested_boards = None
-    why_selected, board_warnings = boards.SelectBoards(args, exclude,
-                                                       requested_boards)
-    selected = boards.GetSelected()
-    if not len(selected):
-        sys.exit(col.Color(col.RED, 'No matching boards found'))
 
     # Read the metadata from the commits. First look at the upstream commit,
     # then the ones in the branch. We would like to do something like
