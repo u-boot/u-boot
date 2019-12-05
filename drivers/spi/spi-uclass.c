@@ -461,6 +461,9 @@ int spi_slave_ofdata_to_platdata(struct udevice *dev,
 	case 4:
 		mode |= SPI_TX_QUAD;
 		break;
+	case 8:
+		mode |= SPI_TX_OCTAL;
+		break;
 	default:
 		warn_non_spl("spi-tx-bus-width %d not supported\n", value);
 		break;
@@ -475,6 +478,9 @@ int spi_slave_ofdata_to_platdata(struct udevice *dev,
 		break;
 	case 4:
 		mode |= SPI_RX_QUAD;
+		break;
+	case 8:
+		mode |= SPI_RX_OCTAL;
 		break;
 	default:
 		warn_non_spl("spi-rx-bus-width %d not supported\n", value);
