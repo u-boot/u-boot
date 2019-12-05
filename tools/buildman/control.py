@@ -205,7 +205,7 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
             os.makedirs(options.output_dir)
         board_file = os.path.join(options.output_dir, 'boards.cfg')
         genboardscfg = os.path.join(options.git, 'tools/genboardscfg.py')
-        status = subprocess.call([genboardscfg, '-o', board_file])
+        status = subprocess.call([genboardscfg, '-q', '-o', board_file])
         if status != 0:
             sys.exit("Failed to generate boards.cfg")
 
