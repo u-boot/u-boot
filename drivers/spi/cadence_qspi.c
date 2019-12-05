@@ -340,6 +340,7 @@ static const struct dm_spi_ops cadence_spi_ops = {
 
 static const struct udevice_id cadence_spi_ids[] = {
 	{ .compatible = "cdns,qspi-nor" },
+	{ .compatible = "ti,am654-ospi" },
 	{ }
 };
 
