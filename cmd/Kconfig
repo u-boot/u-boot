@@ -294,6 +294,7 @@ config BOOTM_OPENRTOS
 
 config BOOTM_OSE
 	bool "Support booting Enea OSE images"
+	depends on (ARM && (ARM64 || CPU_V7A || CPU_V7R) || SANDBOX || PPC || X86)
 	depends on CMD_BOOTM
 	help
 	  Support booting Enea OSE images via the bootm command.
