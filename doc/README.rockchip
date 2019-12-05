@@ -340,11 +340,22 @@ You can create the image via the following operations:
    cat firefly-rk3288/u-boot-dtb.bin >> out && \
    sudo dd if=out of=/dev/sdc seek=64
 
+Or:
+   ./firefly-rk3288/tools/mkimage -n rk3288 -T rksd -d \
+	firefly-rk3288/spl/u-boot-spl-dtb.bin:firefly-rk3288/u-boot-dtb.bin \
+	out && \
+   sudo dd if=out of=/dev/sdc seek=64
+
 If you have an HDMI cable attached you should see a video console.
 
 For evb_rk3036 board:
 	./evb-rk3036/tools/mkimage -n rk3036 -T rksd  -d evb-rk3036/spl/u-boot-spl.bin out && \
 	cat evb-rk3036/u-boot-dtb.bin >> out && \
+	sudo dd if=out of=/dev/sdc seek=64
+
+Or:
+	./evb-rk3036/tools/mkimage -n rk3036 -T rksd -d \
+		evb-rk3036/spl/u-boot-spl.bin:evb-rk3036/u-boot-dtb.bin out && \
 	sudo dd if=out of=/dev/sdc seek=64
 
 Note: rk3036 SDMMC and debug uart use the same iomux, so if you boot from SD, the
