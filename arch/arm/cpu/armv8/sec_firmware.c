@@ -29,8 +29,8 @@ phys_addr_t sec_firmware_addr;
 #ifndef SEC_FIRMWARE_FIT_IMAGE
 #define SEC_FIRMWARE_FIT_IMAGE		"firmware"
 #endif
-#ifndef SEC_FIRMEWARE_FIT_CNF_NAME
-#define SEC_FIRMEWARE_FIT_CNF_NAME	"config-1"
+#ifndef SEC_FIRMWARE_FIT_CNF_NAME
+#define SEC_FIRMWARE_FIT_CNF_NAME	"config-1"
 #endif
 #ifndef SEC_FIRMWARE_TARGET_EL
 #define SEC_FIRMWARE_TARGET_EL		2
@@ -44,7 +44,7 @@ static int sec_firmware_get_data(const void *sec_firmware_img,
 	char *desc;
 	int ret;
 
-	conf_node_name = SEC_FIRMEWARE_FIT_CNF_NAME;
+	conf_node_name = SEC_FIRMWARE_FIT_CNF_NAME;
 
 	conf_node_off = fit_conf_get_node(sec_firmware_img, conf_node_name);
 	if (conf_node_off < 0) {
@@ -124,7 +124,7 @@ static int sec_firmware_check_copy_loadable(const void *sec_firmware_img,
 	const char *name, *str, *type;
 	int len;
 
-	conf_node_name = SEC_FIRMEWARE_FIT_CNF_NAME;
+	conf_node_name = SEC_FIRMWARE_FIT_CNF_NAME;
 
 	conf_node_off = fit_conf_get_node(sec_firmware_img, conf_node_name);
 	if (conf_node_off < 0) {

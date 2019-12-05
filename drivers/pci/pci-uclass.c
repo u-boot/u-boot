@@ -677,6 +677,11 @@ static int pci_find_and_bind_driver(struct udevice *parent,
 	/* Determine optional OF node */
 	pci_dev_find_ofnode(parent, bdf, &node);
 
+	if (ofnode_valid(node) && !ofnode_is_available(node)) {
+		debug("%s: Ignoring disabled device\n", __func__);
+		return -EPERM;
+	}
+
 	start = ll_entry_start(struct pci_driver_entry, pci_driver_entry);
 	n_ents = ll_entry_count(struct pci_driver_entry, pci_driver_entry);
 	for (entry = start; entry != start + n_ents; entry++) {

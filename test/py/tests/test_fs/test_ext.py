@@ -233,3 +233,87 @@ class TestFsExt(object):
                     % (fs_type, ADDR, MIN_FILE)])
             assert('Unable to write "/dir1' in ''.join(output))
             assert_fs_integrity(fs_type, fs_img)
+
+    def test_fs_ext10(self, u_boot_console, fs_obj_ext):
+        """
+        'Test Case 10 - create/delete as many directories under root directory
+        as amount of directory entries goes beyond one cluster size)'
+        """
+        fs_type,fs_img,md5val = fs_obj_ext
+        with u_boot_console.log.section('Test Case 10 - create/delete (many)'):
+            # Test Case 10a - Create many files
+            #   Please note that the size of directory entry is 32 bytes.
+            #   So one typical cluster may holds 64 (2048/32) entries.
+            output = u_boot_console.run_command(
+                'host bind 0 %s' % fs_img)
+
+            for i in range(0, 66):
+                output = u_boot_console.run_command(
+                    '%swrite host 0:0 %x /FILE0123456789_%02x 100'
+                    % (fs_type, ADDR, i))
+            output = u_boot_console.run_command('%sls host 0:0 /' % fs_type)
+            assert('FILE0123456789_00' in output)
+            assert('FILE0123456789_41' in output)
+
+            # Test Case 10b - Delete many files
+            for i in range(0, 66):
+                output = u_boot_console.run_command(
+                    '%srm host 0:0 /FILE0123456789_%02x'
+                    % (fs_type, i))
+            output = u_boot_console.run_command('%sls host 0:0 /' % fs_type)
+            assert(not 'FILE0123456789_00' in output)
+            assert(not 'FILE0123456789_41' in output)
+
+            # Test Case 10c - Create many files again
+            # Please note no.64 and 65 are intentionally re-created
+            for i in range(64, 128):
+                output = u_boot_console.run_command(
+                    '%swrite host 0:0 %x /FILE0123456789_%02x 100'
+                    % (fs_type, ADDR, i))
+            output = u_boot_console.run_command('%sls host 0:0 /' % fs_type)
+            assert('FILE0123456789_40' in output)
+            assert('FILE0123456789_79' in output)
+
+            assert_fs_integrity(fs_type, fs_img)
+
+    def test_fs_ext11(self, u_boot_console, fs_obj_ext):
+        """
+        'Test Case 11 - create/delete as many directories under non-root
+        directory as amount of directory entries goes beyond one cluster size)'
+        """
+        fs_type,fs_img,md5val = fs_obj_ext
+        with u_boot_console.log.section('Test Case 11 - create/delete (many)'):
+            # Test Case 11a - Create many files
+            #   Please note that the size of directory entry is 32 bytes.
+            #   So one typical cluster may holds 64 (2048/32) entries.
+            output = u_boot_console.run_command(
+                'host bind 0 %s' % fs_img)
+
+            for i in range(0, 66):
+                output = u_boot_console.run_command(
+                    '%swrite host 0:0 %x /dir1/FILE0123456789_%02x 100'
+                    % (fs_type, ADDR, i))
+            output = u_boot_console.run_command('%sls host 0:0 /dir1' % fs_type)
+            assert('FILE0123456789_00' in output)
+            assert('FILE0123456789_41' in output)
+
+            # Test Case 11b - Delete many files
+            for i in range(0, 66):
+                output = u_boot_console.run_command(
+                    '%srm host 0:0 /dir1/FILE0123456789_%02x'
+                    % (fs_type, i))
+            output = u_boot_console.run_command('%sls host 0:0 /dir1' % fs_type)
+            assert(not 'FILE0123456789_00' in output)
+            assert(not 'FILE0123456789_41' in output)
+
+            # Test Case 11c - Create many files again
+            # Please note no.64 and 65 are intentionally re-created
+            for i in range(64, 128):
+                output = u_boot_console.run_command(
+                    '%swrite host 0:0 %x /dir1/FILE0123456789_%02x 100'
+                    % (fs_type, ADDR, i))
+            output = u_boot_console.run_command('%sls host 0:0 /dir1' % fs_type)
+            assert('FILE0123456789_40' in output)
+            assert('FILE0123456789_79' in output)
+
+            assert_fs_integrity(fs_type, fs_img)
