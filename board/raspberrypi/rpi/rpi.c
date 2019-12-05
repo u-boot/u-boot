@@ -272,7 +272,6 @@ int dram_init(void)
 }
 
 #ifdef CONFIG_OF_BOARD
-#ifdef CONFIG_BCM2711
 int dram_init_banksize(void)
 {
 	int ret;
@@ -283,7 +282,6 @@ int dram_init_banksize(void)
 
 	return fdtdec_setup_mem_size_base();
 }
-#endif
 #endif
 
 static void set_fdtfile(void)
