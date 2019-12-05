@@ -43,6 +43,7 @@
 #define CQSPI_INST_TYPE_SINGLE			0
 #define CQSPI_INST_TYPE_DUAL			1
 #define CQSPI_INST_TYPE_QUAD			2
+#define CQSPI_INST_TYPE_OCTAL			3
 
 #define CQSPI_STIG_DATA_LEN_MAX			8
 
@@ -537,7 +538,10 @@ int cadence_qspi_apb_read_setup(struct cadence_spi_platdata *plat,
 	/* Configure the opcode */
 	rd_reg = op->cmd.opcode << CQSPI_REG_RD_INSTR_OPCODE_LSB;
 
-	if (op->data.buswidth == 4)
+	if (op->data.buswidth == 8)
+		/* Instruction and address at DQ0, data at DQ0-7. */
+		rd_reg |= CQSPI_INST_TYPE_OCTAL << CQSPI_REG_RD_INSTR_TYPE_DATA_LSB;
+	else if (op->data.buswidth == 4)
 		/* Instruction and address at DQ0, data at DQ0-3. */
 		rd_reg |= CQSPI_INST_TYPE_QUAD << CQSPI_REG_RD_INSTR_TYPE_DATA_LSB;
 
@@ -653,7 +657,7 @@ failrd:
 int cadence_qspi_apb_read_execute(struct cadence_spi_platdata *plat,
 				  const struct spi_mem_op *op)
 {
-	u32 from = op->addr.val;
+	u64 from = op->addr.val;
 	void *buf = op->data.buf.in;
 	size_t len = op->data.nbytes;
 
