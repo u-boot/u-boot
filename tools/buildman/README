@@ -1061,6 +1061,9 @@ Other options
 
 Buildman has various other command line options. Try --help to see them.
 
+To find out what architecture or toolchain prefix buildman will use for a build,
+see the -a and -A options.
+
 When doing builds, Buildman's return code will reflect the overall result:
 
     0 (success)     No errors or warnings found

@@ -107,6 +107,34 @@ def CheckOutputDir(output_dir):
             break
         path = parent
 
+def ShowToolchainInfo(boards, toolchains, print_arch, print_prefix):
+    """Show information about a the tool chain used by one or more boards
+
+    The function checks that all boards use the same toolchain.
+
+    Args:
+        boards: Boards object containing selected boards
+        toolchains: Toolchains object containing available toolchains
+        print_arch: True to print ARCH value
+        print_prefix: True to print CROSS_COMPILE value
+
+    Return:
+        None on success, string error message otherwise
+    """
+    boards = boards.GetSelectedDict()
+    tc_set = set()
+    for brd in boards.values():
+        tc_set.add(toolchains.Select(brd.arch))
+    if len(tc_set) != 1:
+        return 'Supplied boards must share one toolchain'
+        return False
+    tc = tc_set.pop()
+    if print_arch:
+        print(tc.GetEnvArgs(toolchain.VAR_ARCH))
+    if print_prefix:
+        print(tc.GetEnvArgs(toolchain.VAR_CROSS_COMPILE))
+    return None
+
 def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
                clean_dir=False):
     """The main control code for buildman
@@ -199,6 +227,13 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
     selected = boards.GetSelected()
     if not len(selected):
         sys.exit(col.Color(col.RED, 'No matching boards found'))
+
+    if options.print_arch or options.print_prefix:
+        err = ShowToolchainInfo(boards, toolchains, options.print_arch,
+                                options.print_prefix)
+        if err:
+            sys.exit(col.Color(col.RED, err))
+        return 0
 
     # Work out how many commits to build. We want to build everything on the
     # branch. We also build the upstream commit as a control so we can see
