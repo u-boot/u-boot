@@ -308,7 +308,7 @@ U_BOOT_ENV_CALLBACK(dnsip, on_dnsip);
  */
 void net_auto_load(void)
 {
-#if defined(CONFIG_CMD_NFS)
+#if defined(CONFIG_CMD_NFS) && !defined(CONFIG_SPL_BUILD)
 	const char *s = env_get("autoload");
 
 	if (s != NULL && strcmp(s, "NFS") == 0) {
@@ -496,7 +496,7 @@ restart:
 			ping_start();
 			break;
 #endif
-#if defined(CONFIG_CMD_NFS)
+#if defined(CONFIG_CMD_NFS) && !defined(CONFIG_SPL_BUILD)
 		case NFS:
 			nfs_start();
 			break;
