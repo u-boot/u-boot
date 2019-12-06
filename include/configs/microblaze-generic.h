@@ -173,8 +173,6 @@
 /* Just for sure that there is a space for stack */
 #define CONFIG_SPL_STACK_SIZE		0x100
 
-#define CONFIG_SYS_UBOOT_START		CONFIG_SYS_TEXT_BASE
-
 #define CONFIG_SPL_MAX_FOOTPRINT	(CONFIG_SYS_INIT_RAM_SIZE - \
 					 CONFIG_SYS_INIT_RAM_ADDR - \
 					 CONFIG_SYS_MALLOC_F_LEN - \
