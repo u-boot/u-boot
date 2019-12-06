@@ -1265,7 +1265,7 @@ u-boot.ldr.hex u-boot.ldr.srec: u-boot.ldr FORCE
 # from the SPL U-Boot version.
 #
 ifndef CONFIG_SYS_UBOOT_START
-CONFIG_SYS_UBOOT_START := 0
+CONFIG_SYS_UBOOT_START := $(CONFIG_SYS_TEXT_BASE)
 endif
 
 # Boards with more complex image requirements can provide an .its source file
