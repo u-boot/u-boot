@@ -14,7 +14,7 @@ spl/board/xilinx/zynq/ps_init_gpl.o board/xilinx/zynq/ps_init_gpl.o: $(PS_INIT_F
 endif
 
 ifeq ($(init-objs),)
-hw-platform-y :=$(shell echo $(CONFIG_DEFAULT_DEVICE_TREE))
+hw-platform-y :=$(shell echo $(DEVICE_TREE))
 init-objs := $(if $(wildcard $(srctree)/$(src)/$(hw-platform-y)/ps7_init_gpl.c),\
 	$(hw-platform-y)/ps7_init_gpl.o)
 endif
