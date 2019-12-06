@@ -37,6 +37,7 @@ static struct mm_region px30_mem_map[] = {
 struct mm_region *mem_map = px30_mem_map;
 
 #define PMU_PWRDN_CON			0xff000018
+#define PMUGRF_BASE			0xff010000
 #define GRF_BASE			0xff140000
 #define CRU_BASE			0xff2b0000
 #define VIDEO_PHY_BASE			0xff2e0000
@@ -48,6 +49,23 @@ struct mm_region *mem_map = px30_mem_map;
 #define QOS_PRIORITY			0x08
 
 #define QOS_PRIORITY_LEVEL(h, l)	((((h) & 3) << 8) | ((l) & 3))
+
+/* GRF_GPIO1BH_IOMUX */
+enum {
+	GPIO1B7_SHIFT		= 12,
+	GPIO1B7_MASK		= 0xf << GPIO1B7_SHIFT,
+	GPIO1B7_GPIO		= 0,
+	GPIO1B7_FLASH_RDN,
+	GPIO1B7_UART3_RXM1,
+	GPIO1B7_SPI0_CLK,
+
+	GPIO1B6_SHIFT		= 8,
+	GPIO1B6_MASK		= 0xf << GPIO1B6_SHIFT,
+	GPIO1B6_GPIO		= 0,
+	GPIO1B6_FLASH_CS1,
+	GPIO1B6_UART3_TXM1,
+	GPIO1B6_SPI0_CSN,
+};
 
 /* GRF_GPIO1CL_IOMUX */
 enum {
@@ -128,6 +146,23 @@ enum {
 	GPIO3A1_UART5_RX	= 4,
 };
 
+/* PMUGRF_GPIO0CL_IOMUX */
+enum {
+	GPIO0C1_SHIFT		= 2,
+	GPIO0C1_MASK		= 0x3 << GPIO0C1_SHIFT,
+	GPIO0C1_GPIO		= 0,
+	GPIO0C1_PWM_3,
+	GPIO0C1_UART3_RXM0,
+	GPIO0C1_PMU_DEBUG4,
+
+	GPIO0C0_SHIFT		= 0,
+	GPIO0C0_MASK		= 0x3 << GPIO0C0_SHIFT,
+	GPIO0C0_GPIO		= 0,
+	GPIO0C0_PWM_1,
+	GPIO0C0_UART3_TXM0,
+	GPIO0C0_PMU_DEBUG3,
+};
+
 int arch_cpu_init(void)
 {
 	static struct px30_grf * const grf = (void *)GRF_BASE;
@@ -175,6 +210,11 @@ int arch_cpu_init(void)
 #ifdef CONFIG_DEBUG_UART_BOARD_INIT
 void board_debug_uart_init(void)
 {
+#if defined(CONFIG_DEBUG_UART_BASE) && \
+	(CONFIG_DEBUG_UART_BASE == 0xff168000) && \
+	(CONFIG_DEBUG_UART_CHANNEL != 1)
+	static struct px30_pmugrf * const pmugrf = (void *)PMUGRF_BASE;
+#endif
 	static struct px30_grf * const grf = (void *)GRF_BASE;
 	static struct px30_cru * const cru = (void *)CRU_BASE;
 
@@ -191,6 +231,43 @@ void board_debug_uart_init(void)
 		     GPIO1C1_MASK | GPIO1C0_MASK,
 		     GPIO1C1_UART1_TX << GPIO1C1_SHIFT |
 		     GPIO1C0_UART1_RX << GPIO1C0_SHIFT);
+#elif defined(CONFIG_DEBUG_UART_BASE) && (CONFIG_DEBUG_UART_BASE == 0xff168000)
+	/* GRF_IOFUNC_CON0 */
+	enum {
+		CON_IOMUX_UART3SEL_SHIFT	= 9,
+		CON_IOMUX_UART3SEL_MASK = 1 << CON_IOMUX_UART3SEL_SHIFT,
+		CON_IOMUX_UART3SEL_M0	= 0,
+		CON_IOMUX_UART3SEL_M1,
+	};
+
+	/* uart_sel_clk default select 24MHz */
+	rk_clrsetreg(&cru->clksel_con[40],
+		     UART3_PLL_SEL_MASK | UART3_DIV_CON_MASK,
+		     UART3_PLL_SEL_24M << UART3_PLL_SEL_SHIFT | 0);
+	rk_clrsetreg(&cru->clksel_con[41],
+		     UART3_CLK_SEL_MASK,
+		     UART3_CLK_SEL_UART3 << UART3_CLK_SEL_SHIFT);
+
+#if (CONFIG_DEBUG_UART_CHANNEL == 1)
+	rk_clrsetreg(&grf->iofunc_con0,
+		     CON_IOMUX_UART3SEL_MASK,
+		     CON_IOMUX_UART3SEL_M1 << CON_IOMUX_UART3SEL_SHIFT);
+
+	rk_clrsetreg(&grf->gpio1bh_iomux,
+		     GPIO1B7_MASK | GPIO1B6_MASK,
+		     GPIO1B7_UART3_RXM1 << GPIO1B7_SHIFT |
+		     GPIO1B6_UART3_TXM1 << GPIO1B6_SHIFT);
+#else
+	rk_clrsetreg(&grf->iofunc_con0,
+		     CON_IOMUX_UART3SEL_MASK,
+		     CON_IOMUX_UART3SEL_M0 << CON_IOMUX_UART3SEL_SHIFT);
+
+	rk_clrsetreg(&pmugrf->gpio0cl_iomux,
+		     GPIO0C1_MASK | GPIO0C0_MASK,
+		     GPIO0C1_UART3_RXM0 << GPIO0C1_SHIFT |
+		     GPIO0C0_UART3_TXM0 << GPIO0C0_SHIFT);
+#endif /* CONFIG_DEBUG_UART_CHANNEL == 1 */
+
 #elif defined(CONFIG_DEBUG_UART_BASE) && (CONFIG_DEBUG_UART_BASE == 0xff178000)
 	/* uart_sel_clk default select 24MHz */
 	rk_clrsetreg(&cru->clksel_con[46],
@@ -222,7 +299,7 @@ void board_debug_uart_init(void)
 		     UART2_CLK_SEL_MASK,
 		     UART2_CLK_SEL_UART2 << UART2_CLK_SEL_SHIFT);
 
-#if (CONFIG_DEBUG_UART2_CHANNEL == 1)
+#if (CONFIG_DEBUG_UART_CHANNEL == 1)
 	/* Enable early UART2 */
 	rk_clrsetreg(&grf->iofunc_con0,
 		     CON_IOMUX_UART2SEL_MASK,
@@ -241,7 +318,7 @@ void board_debug_uart_init(void)
 		     GPIO1D3_MASK | GPIO1D2_MASK,
 		     GPIO1D3_UART2_RXM0 << GPIO1D3_SHIFT |
 		     GPIO1D2_UART2_TXM0 << GPIO1D2_SHIFT);
-#endif /* CONFIG_DEBUG_UART2_CHANNEL == 1 */
+#endif /* CONFIG_DEBUG_UART_CHANNEL == 1 */
 
 #endif /* CONFIG_DEBUG_UART_BASE && CONFIG_DEBUG_UART_BASE == ... */
 }
