@@ -143,9 +143,6 @@ int sdram_mmr_init_full(struct udevice *dev)
 		setbits_le32(plat->hmc + ERRINTEN,
 			     DDR_HMC_ERRINTEN_DERRINTEN_EN_SET_MSK);
 
-		/* Enable non-secure writes to HMC Adapter for SDRAM ECC */
-		writel(FW_HMC_ADAPTOR_MPU_MASK, FW_HMC_ADAPTOR_REG_ADDR);
-
 		if (!cpu_has_been_warmreset())
 			sdram_init_ecc_bits(&bd);
 	} else {
@@ -157,6 +154,9 @@ int sdram_mmr_init_full(struct udevice *dev)
 			     (DDR_HMC_ECCCTL2_RMW_EN_SET_MSK |
 			      DDR_HMC_ECCCTL2_AWB_EN_SET_MSK));
 	}
+
+	/* Enable non-secure reads/writes to HMC Adapter for SDRAM ECC */
+	writel(FW_HMC_ADAPTOR_MPU_MASK, FW_HMC_ADAPTOR_REG_ADDR);
 
 	sdram_size_check(&bd);
 
