@@ -8,9 +8,9 @@
 #include <command.h>
 #include <errno.h>
 #include <rtc.h>
+#include <linux/time.h>
 
-#if defined(CONFIG_CMD_DATE) || defined(CONFIG_DM_RTC) || \
-				defined(CONFIG_TIMESTAMP)
+#if defined(CONFIG_LIB_DATE) || defined(CONFIG_TIMESTAMP)
 
 #define FEBRUARY		2
 #define	STARTOFTIME		1970
@@ -97,4 +97,23 @@ unsigned long rtc_mktime(const struct rtc_time *tm)
 	return (hours * 60 + tm->tm_min) * 60 + tm->tm_sec;
 }
 
+#endif /* CONFIG_LIB_DATE || CONFIG_TIMESTAMP */
+
+#ifdef CONFIG_LIB_DATE
+/* for compatibility with linux code */
+time64_t mktime64(const unsigned int year, const unsigned int mon,
+		  const unsigned int day, const unsigned int hour,
+		  const unsigned int min, const unsigned int sec)
+{
+	struct rtc_time time;
+
+	time.tm_year = year;
+	time.tm_mon = mon;
+	time.tm_mday = day;
+	time.tm_hour = hour;
+	time.tm_min = min;
+	time.tm_sec = sec;
+
+	return (time64_t)rtc_mktime((const struct rtc_time *)&time);
+}
 #endif

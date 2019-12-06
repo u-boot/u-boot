@@ -18,6 +18,7 @@
 #include "ubifs.h"
 #include <u-boot/zlib.h>
 
+#include <linux/compat.h>
 #include <linux/err.h>
 #include <linux/lzo.h>
 
@@ -70,24 +71,6 @@ struct ubifs_compressor *ubifs_compressors[UBIFS_COMPR_TYPES_CNT];
 
 
 #ifdef __UBOOT__
-/* from mm/util.c */
-
-/**
- * kmemdup - duplicate region of memory
- *
- * @src: memory region to duplicate
- * @len: memory region length
- * @gfp: GFP mask to use
- */
-void *kmemdup(const void *src, size_t len, gfp_t gfp)
-{
-	void *p;
-
-	p = kmalloc(len, gfp);
-	if (p)
-		memcpy(p, src, len);
-	return p;
-}
 
 struct crypto_comp {
 	int compressor;

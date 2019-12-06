@@ -265,6 +265,7 @@ config AES
 	  present.
 
 source lib/rsa/Kconfig
+source lib/crypto/Kconfig
 
 config TPM
 	bool "Trusted Platform Module (TPM) Support"
@@ -566,6 +567,19 @@ config SMBIOS_PRODUCT_NAME
 
 endmenu
 
+config ASN1_COMPILER
+	bool
+
+config ASN1_DECODER
+	bool
+	help
+	  Enable asn1 decoder library.
+
+config OID_REGISTRY
+	bool
+	help
+	  Enable fast lookup object identifier registry.
+
 source lib/efi/Kconfig
 source lib/efi_loader/Kconfig
 source lib/optee/Kconfig
@@ -573,5 +587,8 @@ source lib/optee/Kconfig
 config TEST_FDTDEC
 	bool "enable fdtdec test"
 	depends on OF_LIBFDT
+
+config LIB_DATE
+	bool
 
 endmenu

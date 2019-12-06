@@ -12,7 +12,23 @@ config UT_LIB
 	default y
 	help
 	  Enables the 'ut lib' command which tests library functions like
-	  memcat(), memcyp(), memmove().
+	  memcat(), memcyp(), memmove() and ASN1 compiler/decoder.
+
+if UT_LIB
+
+config UT_LIB_ASN1
+	bool "Unit test for asn1 compiler and decoder function"
+	default y
+	imply ASYMMETRIC_KEY_TYPE
+	imply ASYMMETRIC_PUBLIC_KEY_SUBTYPE
+	imply X509_CERTIFICATE_PARSER
+	imply PKCS7_MESSAGE_PARSER
+	imply RSA_PUBLIC_KEY_PARSER
+	help
+	  Enables a test which exercises asn1 compiler and decoder function
+	  via various parsers.
+
+endif
 
 config UT_TIME
 	bool "Unit tests for time functions"
