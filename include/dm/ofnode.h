@@ -118,7 +118,7 @@ static inline ofnode offset_to_ofnode(int of_offset)
 	if (of_live_active())
 		node.np = NULL;
 	else
-		node.of_offset = of_offset;
+		node.of_offset = of_offset >= 0 ? of_offset : -1;
 
 	return node;
 }
