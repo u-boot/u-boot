@@ -18,6 +18,26 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static void *fsp_prepare_mrc_cache(void)
+{
+	struct mrc_data_container *cache;
+	struct mrc_region entry;
+	int ret;
+
+	ret = mrccache_get_region(MRC_TYPE_NORMAL, NULL, &entry);
+	if (ret)
+		return NULL;
+
+	cache = mrccache_find_current(&entry);
+	if (!cache)
+		return NULL;
+
+	debug("%s: mrc cache at %p, size %x checksum %04x\n", __func__,
+	      cache->data, cache->data_size, cache->checksum);
+
+	return cache->data;
+}
+
 int arch_fsp_init(void)
 {
 	void *nvs;
