@@ -1023,22 +1023,6 @@ static int pci_uclass_post_probe(struct udevice *bus)
 	return 0;
 }
 
-int pci_get_devfn(struct udevice *dev)
-{
-	struct fdt_pci_addr addr;
-	int ret;
-
-	/* Extract the devfn from fdt_pci_addr */
-	ret = ofnode_read_pci_addr(dev_ofnode(dev), FDT_PCI_SPACE_CONFIG,
-				   "reg", &addr);
-	if (ret) {
-		if (ret != -ENOENT)
-			return -EINVAL;
-	}
-
-	return addr.phys_hi & 0xff00;
-}
-
 static int pci_uclass_child_post_bind(struct udevice *dev)
 {
 	struct pci_child_platdata *pplat;

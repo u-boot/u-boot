@@ -482,6 +482,8 @@
 
 #ifndef __ASSEMBLY__
 
+#include <dm/pci.h>
+
 #ifdef CONFIG_SYS_PCI_64BIT
 typedef u64 pci_addr_t;
 typedef u64 pci_size_t;
@@ -1618,16 +1620,6 @@ int sandbox_pci_get_emul(struct udevice *bus, pci_dev_t find_devfn,
  * @return 0 if OK, -ENOENT if the device has no client yet
  */
 int sandbox_pci_get_client(struct udevice *emul, struct udevice **devp);
-
-/**
- * pci_get_devfn() - Extract the devfn from fdt_pci_addr of the device
- *
- * Get devfn from fdt_pci_addr of the specified device
- *
- * @dev:	PCI device
- * @return devfn in bits 15...8 if found, -ENODEV if not found
- */
-int pci_get_devfn(struct udevice *dev);
 
 #endif /* CONFIG_DM_PCI */
 
