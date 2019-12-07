@@ -904,4 +904,9 @@ config X86_OFFSET_U_BOOT
 	depends on HAVE_SYS_TEXT_BASE
 	default SYS_TEXT_BASE
 
+config X86_OFFSET_SPL
+	hex "Offset of SPL in ROM image"
+	depends on SPL && X86
+	default SPL_TEXT_BASE
+
 endmenu
