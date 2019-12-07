@@ -1,0 +1,25 @@
+config ACPI_PMC
+	bool "Power Manager (x86 PMC) support"
+	help
+	  Enable support for an x86-style power-management controller which
+	  provides features including checking whether the system started from
+	  resume, powering off the system and enabling/disabling the reset
+	  mechanism.
+
+config SPL_ACPI_PMC
+	bool "Power Manager (x86 PMC) support in SPL"
+	default y if ACPI_PMC
+	help
+	  Enable support for an x86-style power-management controller which
+	  provides features including checking whether the system started from
+	  resume, powering off the system and enabling/disabling the reset
+	  mechanism.
+
+config TPL_ACPI_PMC
+	bool "Power Manager (x86 PMC) support in TPL"
+	default y if ACPI_PMC
+	help
+	  Enable support for an x86-style power-management controller which
+	  provides features including checking whether the system started from
+	  resume, powering off the system and enabling/disabling the reset
+	  mechanism.

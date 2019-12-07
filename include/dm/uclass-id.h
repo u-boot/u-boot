@@ -28,6 +28,7 @@ enum uclass_id {
 	UCLASS_AXI_EMUL,	/* sandbox AXI bus device emulator */
 
 	/* U-Boot uclasses start here - in alphabetical order */
+	UCLASS_ACPI_PMC,	/* (x86) Power-management controller (PMC) */
 	UCLASS_ADC,		/* Analog-to-digital converter */
 	UCLASS_AHCI,		/* SATA disk controller */
 	UCLASS_AUDIO_CODEC,	/* Audio codec with control and data path */
