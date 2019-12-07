@@ -879,4 +879,20 @@ config HIGH_TABLE_SIZE
 	  Increse it if the default size does not fit the board's needs.
 	  This is most likely due to a large ACPI DSDT table is used.
 
+config INTEL_CAR_CQOS
+	bool "Support Intel Cache Quality of Service"
+	help
+	  Cache Quality of Service allows more fine-grained control of cache
+	  usage. As result, it is possible to set up a portion of L2 cache for
+	  CAR and use the remainder for actual caching.
+
+#
+# Each bit in QOS mask controls this many bytes. This is calculated as:
+# (CACHE_WAYS / CACHE_BITS_PER_MASK) * CACHE_LINE_SIZE * CACHE_SETS
+#
+config CACHE_QOS_SIZE_PER_BIT
+	hex
+	depends on INTEL_CAR_CQOS
+	default 0x20000 # 128 KB
+
 endmenu

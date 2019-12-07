@@ -8,6 +8,14 @@ obj-$(CONFIG_$(SPL_TPL_)X86_32BIT_INIT) += me_status.o
 obj-$(CONFIG_$(SPL_TPL_)X86_32BIT_INIT) += report_platform.o
 obj-$(CONFIG_$(SPL_TPL_)X86_32BIT_INIT) += mrc.o
 endif
+
+ifdef CONFIG_INTEL_CAR_CQOS
+obj-$(CONFIG_TPL_BUILD) += car2.o
+ifndef CONFIG_SPL_BUILD
+obj-y += car2_uninit.o
+endif
+endif
+
 obj-y += cpu.o
 obj-y += fast_spi.o
 obj-y += lpc.o
