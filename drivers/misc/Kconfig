@@ -203,6 +203,15 @@ config FSL_SEC_MON
 	  Security Monitor can be transitioned on any security failures,
 	  like software violations or hardware security violations.
 
+config IRQ
+	bool "Intel Interrupt controller"
+	depends on X86 || SANDBOX
+	help
+	  This enables support for Intel interrupt controllers, including ITSS.
+	  Some devices have extra features, such as Apollo Lake. The
+	  device has its own uclass since there are several operations
+	  involved.
+
 config JZ4780_EFUSE
 	bool "Ingenic JZ4780 eFUSE support"
 	depends on ARCH_JZ47XX

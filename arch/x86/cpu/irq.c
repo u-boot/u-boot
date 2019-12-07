@@ -370,8 +370,3 @@ U_BOOT_DRIVER(irq_router_drv) = {
 	.probe		= irq_router_probe,
 	.priv_auto_alloc_size = sizeof(struct irq_router),
 };
-
-UCLASS_DRIVER(irq) = {
-	.id		= UCLASS_IRQ,
-	.name		= "irq",
-};
