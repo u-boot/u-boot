@@ -226,6 +226,39 @@ config NUVOTON_NCT6102D
 	  disable the legacy UART, the watchdog or other devices
 	  in the Nuvoton Super IO chips on X86 platforms.
 
+config P2SB
+	bool "Intel Primary-to-Sideband Bus"
+	depends on X86 || SANDBOX
+	help
+	  This enables support for the Intel Primary-to-Sideband bus,
+	  abbreviated to P2SB. The P2SB is used to access various peripherals
+	  such as eSPI, GPIO, through memory-mapped I/O in a large chunk of PCI
+	  space. The space is segmented into different channels and peripherals
+	  are accessed by device-specific means within those channels. Devices
+	  should be added in the device tree as subnodes of the P2SB. A
+	  Peripheral Channel Register? (PCR) API is provided to access those
+	  devices - see pcr_readl(), etc.
+
+config SPL_P2SB
+	bool "Intel Primary-to-Sideband Bus in SPL"
+	depends on SPL && (X86 || SANDBOX)
+	help
+	  The Primary-to-Sideband bus is used to access various peripherals
+	  through memory-mapped I/O in a large chunk of PCI space. The space is
+	  segmented into different channels and peripherals are accessed by
+	  device-specific means within those channels. Devices should be added
+	  in the device tree as subnodes of the p2sb.
+
+config TPL_P2SB
+	bool "Intel Primary-to-Sideband Bus in TPL"
+	depends on TPL && (X86 || SANDBOX)
+	help
+	  The Primary-to-Sideband bus is used to access various peripherals
+	  through memory-mapped I/O in a large chunk of PCI space. The space is
+	  segmented into different channels and peripherals are accessed by
+	  device-specific means within those channels. Devices should be added
+	  in the device tree as subnodes of the p2sb.
+
 config PWRSEQ
 	bool "Enable power-sequencing drivers"
 	depends on DM
