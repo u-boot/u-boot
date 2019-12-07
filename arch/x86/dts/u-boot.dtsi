@@ -63,9 +63,16 @@
 		offset = <CONFIG_X86_OFFSET_U_BOOT>;
 	};
 #else
+# ifdef CONFIG_SPL
+	u-boot {
+		offset = <CONFIG_SYS_TEXT_BASE>;
+	};
+# else
+	/* If there is no SPL then we need to put microcode in U-Boot */
 	u-boot-with-ucode-ptr {
 		offset = <CONFIG_X86_OFFSET_U_BOOT>;
 	};
+# endif
 #endif
 #ifdef CONFIG_HAVE_MICROCODE
 	u-boot-dtb-with-ucode {
