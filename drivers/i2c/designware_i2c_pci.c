@@ -34,7 +34,6 @@ static int designware_i2c_pci_probe(struct udevice *dev)
 
 static int designware_i2c_pci_bind(struct udevice *dev)
 {
-	static int num_cards;
 	char name[20];
 
 	/*
@@ -45,9 +44,13 @@ static int designware_i2c_pci_bind(struct udevice *dev)
 	 * using this driver is impossible for PCIe I2C devices.
 	 * This can be removed, once a better (correct) way for this
 	 * is found and implemented.
+	 *
+	 * TODO(sjg@chromium.org): Perhaps if uclasses had platdata this would
+	 * be possible. We cannot use static data in drivers since they may be
+	 * used in SPL or before relocation.
 	 */
-	dev->req_seq = num_cards;
-	sprintf(name, "i2c_designware#%u", num_cards++);
+	dev->req_seq = gd->arch.dw_i2c_num_cards++;
+	sprintf(name, "i2c_designware#%u", dev->req_seq);
 	device_set_name(dev, name);
 
 	return 0;

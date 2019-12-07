@@ -96,6 +96,7 @@ struct arch_global_data {
 	ulong table;			/* Table pointer from previous loader */
 	int turbo_state;		/* Current turbo state */
 	struct irq_routing_table *pirq_routing_table;
+	int dw_i2c_num_cards;		/* Used by designware i2c driver */
 #ifdef CONFIG_SEABIOS
 	u32 high_table_ptr;
 	u32 high_table_limit;
