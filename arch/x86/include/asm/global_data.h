@@ -10,6 +10,7 @@
 #ifndef __ASSEMBLY__
 
 #include <asm/processor.h>
+#include <asm/mrccache.h>
 
 enum pei_boot_mode_t {
 	PEI_BOOT_NONE = 0,
@@ -93,6 +94,7 @@ struct arch_global_data {
 	/* MRC training data to save for the next boot */
 	char *mrc_output;
 	unsigned int mrc_output_len;
+	struct mrc_data_container *mrc_cache;
 	ulong table;			/* Table pointer from previous loader */
 	int turbo_state;		/* Current turbo state */
 	struct irq_routing_table *pirq_routing_table;

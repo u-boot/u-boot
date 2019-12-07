@@ -188,8 +188,7 @@ static void mrccache_setup(void *data)
 	cache->reserved = 0;
 	memcpy(cache->data, gd->arch.mrc_output, cache->data_size);
 
-	/* gd->arch.mrc_output now points to the container */
-	gd->arch.mrc_output = (char *)cache;
+	gd->arch.mrc_cache = cache;
 }
 
 int mrccache_reserve(void)
@@ -255,7 +254,7 @@ int mrccache_get_region(struct udevice **devp, struct mrc_region *entry)
 
 int mrccache_save(void)
 {
-	struct mrc_data_container *data;
+	struct mrc_data_container *cache;
 	struct mrc_region entry;
 	struct udevice *sf;
 	int ret;
@@ -271,10 +270,10 @@ int mrccache_save(void)
 	ret = device_probe(sf);
 	if (ret)
 		goto err_entry;
-	data  = (struct mrc_data_container *)gd->arch.mrc_output;
-	ret = mrccache_update(sf, &entry, data);
+	cache = gd->arch.mrc_cache;
+	ret = mrccache_update(sf, &entry, cache);
 	if (!ret) {
-		debug("Saved MRC data with checksum %04x\n", data->checksum);
+		debug("Saved MRC data with checksum %04x\n", cache->checksum);
 	} else if (ret == -EEXIST) {
 		debug("MRC data is the same as last time, skipping save\n");
 		ret = 0;
