@@ -205,6 +205,7 @@ enum hsfsts_cycle_t {
 enum ich_version {
 	ICHV_7,
 	ICHV_9,
+	ICHV_APL,
 };
 
 struct ich_spi_priv {
