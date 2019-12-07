@@ -471,6 +471,16 @@
 			       0x01000810 0 0 0 0>;
 			sandbox,emul = <&swap_case_emul0_1>;
 		};
+		p2sb-pci@2,0 {
+			compatible = "sandbox,p2sb";
+			reg = <0x02001010 0 0 0 0>;
+			sandbox,emul = <&p2sb_emul>;
+
+			adder {
+				intel,p2sb-port-id = <3>;
+				compatible = "sandbox,adder";
+			};
+		};
 		pci@1e,0 {
 			compatible = "sandbox,pmc";
 			reg = <0xf000 0 0 0 0>;
@@ -501,6 +511,9 @@
 		};
 		swap_case_emul0_1f: emul0@1f,0 {
 			compatible = "sandbox,swap-case";
+		};
+		p2sb_emul: emul@2,0 {
+			compatible = "sandbox,p2sb-emul";
 		};
 		pmc_emul1e: emul@1e,0 {
 			compatible = "sandbox,pmc-emul";
