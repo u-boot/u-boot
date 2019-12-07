@@ -545,9 +545,14 @@ config SYS_EXTRA_OPTIONS
 	  configuration to Kconfig. Since this option will be removed sometime,
 	  new boards should not use this option.
 
-config SYS_TEXT_BASE
+config HAVE_SYS_TEXT_BASE
+	bool
 	depends on !NIOS2 && !XTENSA
 	depends on !EFI_APP
+	default y
+
+config SYS_TEXT_BASE
+	depends on HAVE_SYS_TEXT_BASE
 	default 0x80800000 if ARCH_OMAP2PLUS || ARCH_K3
 	default 0x4a000000 if ARCH_SUNXI && !MACH_SUN9I && !MACH_SUN8I_V3S
 	default 0x2a000000 if ARCH_SUNXI && MACH_SUN9I
@@ -555,8 +560,6 @@ config SYS_TEXT_BASE
 	hex "Text Base"
 	help
 	  The address in memory that U-Boot will be running from, initially.
-
-
 
 config SYS_CLK_FREQ
 	depends on ARC || ARCH_SUNXI || MPC83xx

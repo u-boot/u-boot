@@ -899,4 +899,9 @@ config CACHE_QOS_SIZE_PER_BIT
 	depends on INTEL_CAR_CQOS
 	default 0x20000 # 128 KB
 
+config X86_OFFSET_U_BOOT
+	hex "Offset of U-Boot in ROM image"
+	depends on HAVE_SYS_TEXT_BASE
+	default SYS_TEXT_BASE
+
 endmenu

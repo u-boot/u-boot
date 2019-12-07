@@ -50,7 +50,7 @@
 	u-boot-spl-dtb {
 	};
 	u-boot {
-		offset = <CONFIG_SYS_TEXT_BASE>;
+		offset = <CONFIG_X86_OFFSET_U_BOOT>;
 	};
 #elif defined(CONFIG_SPL)
 	u-boot-spl-with-ucode-ptr {
@@ -60,23 +60,11 @@
 		type = "u-boot-dtb-with-ucode";
 	};
 	u-boot {
-		/*
-		 * TODO(sjg@chromium.org):
-		 * Normally we use CONFIG_SYS_TEXT_BASE as the flash offset. But
-		 * for boards with textbase in SDRAM we cannot do this. Just use
-		 * an assumed-valid value (1MB before the end of flash) here so
-		 * that we can actually build an image for coreboot, etc.
-		 * We need a better solution, perhaps a separate Kconfig.
-		 */
-#if CONFIG_SYS_TEXT_BASE == 0x1110000
-		offset = <0xfff00000>;
-#else
-		offset = <CONFIG_SYS_TEXT_BASE>;
-#endif
+		offset = <CONFIG_X86_OFFSET_U_BOOT>;
 	};
 #else
 	u-boot-with-ucode-ptr {
-		offset = <CONFIG_SYS_TEXT_BASE>;
+		offset = <CONFIG_X86_OFFSET_U_BOOT>;
 	};
 #endif
 #ifdef CONFIG_HAVE_MICROCODE
