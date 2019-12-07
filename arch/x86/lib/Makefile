@@ -4,9 +4,11 @@
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
 ifndef CONFIG_X86_64
+ifndef CONFIG_TPL_BUILD
 obj-y += bios.o
 obj-y += bios_asm.o
 obj-y += bios_interrupts.o
+endif
 obj-y += string.o
 endif
 ifndef CONFIG_SPL_BUILD
