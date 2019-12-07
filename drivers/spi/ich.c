@@ -19,8 +19,11 @@
 #include <spi.h>
 #include <spi_flash.h>
 #include <spi-mem.h>
+#include <spl.h>
 #include <asm/fast_spi.h>
 #include <asm/io.h>
+#include <asm/mtrr.h>
+#include <linux/sizes.h>
 
 #include "ich.h"
 
@@ -115,6 +118,8 @@ static bool ich9_can_do_33mhz(struct udevice *dev)
 	struct ich_spi_priv *priv = dev_get_priv(dev);
 	u32 fdod, speed;
 
+	if (!CONFIG_IS_ENABLED(PCI))
+		return false;
 	/* Observe SPI Descriptor Component Section 0 */
 	dm_pci_write_config32(priv->pch, 0xb0, 0x1000);
 
@@ -706,6 +711,15 @@ static int ich_init_controller(struct udevice *dev,
 			       struct ich_spi_platdata *plat,
 			       struct ich_spi_priv *ctlr)
 {
+	if (spl_phase() == PHASE_TPL) {
+		struct ich_spi_platdata *plat = dev_get_platdata(dev);
+		int ret;
+
+		ret = fast_spi_early_init(plat->bdf, plat->mmio_base);
+		if (ret)
+			return ret;
+	}
+
 	ctlr->base = (void *)plat->mmio_base;
 	if (plat->ich_version == ICHV_7) {
 		struct ich7_spi_regs *ich7_spi = ctlr->base;
@@ -754,6 +768,26 @@ static int ich_init_controller(struct udevice *dev,
 	return 0;
 }
 
+static int ich_cache_bios_region(struct udevice *dev)
+{
+	ulong map_base;
+	uint map_size;
+	uint offset;
+	ulong base;
+	int ret;
+
+	ret = ich_get_mmap_bus(dev, &map_base, &map_size, &offset);
+	if (ret)
+		return ret;
+
+	/* Don't use WRBACK since we are not supposed to write to SPI flash */
+	base = SZ_4G - map_size;
+	mtrr_set_next_var(MTRR_TYPE_WRPROT, base, map_size);
+	log_debug("BIOS cache base=%lx, size=%x\n", base, (uint)map_size);
+
+	return 0;
+}
+
 static int ich_spi_probe(struct udevice *dev)
 {
 	struct ich_spi_platdata *plat = dev_get_platdata(dev);
@@ -764,10 +798,16 @@ static int ich_spi_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	ret = ich_protect_lockdown(dev);
-	if (ret)
-		return ret;
-
+	if (spl_phase() == PHASE_TPL) {
+		/* Cache the BIOS to speed things up */
+		ret = ich_cache_bios_region(dev);
+		if (ret)
+			return ret;
+	} else {
+		ret = ich_protect_lockdown(dev);
+		if (ret)
+			return ret;
+	}
 	priv->cur_speed = priv->max_speed;
 
 	return 0;
