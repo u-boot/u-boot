@@ -44,13 +44,21 @@
 	u-boot-tpl-dtb {
 	};
 #endif
-	u-boot-spl {
+	spl {
+		type = "section";
 		offset = <CONFIG_X86_OFFSET_SPL>;
-	};
-	u-boot-spl-dtb {
+		u-boot-spl {
+		};
+		u-boot-spl-dtb {
+		};
 	};
 	u-boot {
+		type = "section";
 		offset = <CONFIG_X86_OFFSET_U_BOOT>;
+		u-boot-nodtb {
+		};
+		u-boot-dtb {
+		};
 	};
 #elif defined(CONFIG_SPL)
 	u-boot-spl-with-ucode-ptr {
