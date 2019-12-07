@@ -17,7 +17,9 @@
 #include <pci.h>
 #include <pci_ids.h>
 #include <spi.h>
+#include <spi_flash.h>
 #include <spi-mem.h>
+#include <asm/fast_spi.h>
 #include <asm/io.h>
 
 #include "ich.h"
@@ -36,6 +38,7 @@ struct ich_spi_platdata {
 	bool lockdown;			/* lock down controller settings? */
 	ulong mmio_base;		/* Base of MMIO registers */
 	pci_dev_t bdf;			/* PCI address used by of-platdata */
+	bool hwseq;			/* Use hardware sequencing (not s/w) */
 };
 
 static u8 ich_readb(struct ich_spi_priv *priv, int reg)
@@ -245,7 +248,8 @@ static void ich_spi_config_opcode(struct udevice *dev)
 	ich_writel(ctlr, SPI_OPMENU_UPPER, ctlr->opmenu + sizeof(u32));
 }
 
-static int ich_spi_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
+static int ich_spi_exec_op_swseq(struct spi_slave *slave,
+				 const struct spi_mem_op *op)
 {
 	struct udevice *bus = dev_get_parent(slave->dev);
 	struct ich_spi_platdata *plat = dev_get_platdata(bus);
@@ -416,6 +420,197 @@ static int ich_spi_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
 	return 0;
 }
 
+/*
+ * Ensure read/write xfer len is not greater than SPIBAR_FDATA_FIFO_SIZE and
+ * that the operation does not cross page boundary.
+ */
+static uint get_xfer_len(u32 offset, int len, int page_size)
+{
+	uint xfer_len = min(len, SPIBAR_FDATA_FIFO_SIZE);
+	uint bytes_left = ALIGN(offset, page_size) - offset;
+
+	if (bytes_left)
+		xfer_len = min(xfer_len, bytes_left);
+
+	return xfer_len;
+}
+
+/* Fill FDATAn FIFO in preparation for a write transaction */
+static void fill_xfer_fifo(struct fast_spi_regs *regs, const void *data,
+			   uint len)
+{
+	memcpy(regs->fdata, data, len);
+}
+
+/* Drain FDATAn FIFO after a read transaction populates data */
+static void drain_xfer_fifo(struct fast_spi_regs *regs, void *dest, uint len)
+{
+	memcpy(dest, regs->fdata, len);
+}
+
+/* Fire up a transfer using the hardware sequencer */
+static void start_hwseq_xfer(struct fast_spi_regs *regs, uint hsfsts_cycle,
+			     uint offset, uint len)
+{
+	/* Make sure all W1C status bits get cleared */
+	u32 hsfsts;
+
+	hsfsts = readl(&regs->hsfsts_ctl);
+	hsfsts &= ~(HSFSTS_FCYCLE_MASK | HSFSTS_FDBC_MASK);
+	hsfsts |= HSFSTS_AEL | HSFSTS_FCERR | HSFSTS_FDONE;
+
+	/* Set up transaction parameters */
+	hsfsts |= hsfsts_cycle << HSFSTS_FCYCLE_SHIFT;
+	hsfsts |= ((len - 1) << HSFSTS_FDBC_SHIFT) & HSFSTS_FDBC_MASK;
+	hsfsts |= HSFSTS_FGO;
+
+	writel(offset, &regs->faddr);
+	writel(hsfsts, &regs->hsfsts_ctl);
+}
+
+static int wait_for_hwseq_xfer(struct fast_spi_regs *regs, uint offset)
+{
+	ulong start;
+	u32 hsfsts;
+
+	start = get_timer(0);
+	do {
+		hsfsts = readl(&regs->hsfsts_ctl);
+		if (hsfsts & HSFSTS_FCERR) {
+			debug("SPI transaction error at offset %x HSFSTS = %08x\n",
+			      offset, hsfsts);
+			return -EIO;
+		}
+		if (hsfsts & HSFSTS_AEL)
+			return -EPERM;
+
+		if (hsfsts & HSFSTS_FDONE)
+			return 0;
+	} while (get_timer(start) < SPIBAR_HWSEQ_XFER_TIMEOUT_MS);
+
+	debug("SPI transaction timeout at offset %x HSFSTS = %08x, timer %d\n",
+	      offset, hsfsts, (uint)get_timer(start));
+
+	return -ETIMEDOUT;
+}
+
+/**
+ * exec_sync_hwseq_xfer() - Execute flash transfer by hardware sequencing
+ *
+ * This waits until complete or timeout
+ *
+ * @regs: SPI registers
+ * @hsfsts_cycle: Cycle type (enum hsfsts_cycle_t)
+ * @offset: Offset to access
+ * @len: Number of bytes to transfer (can be 0)
+ * @return 0 if OK, -EIO on flash-cycle error (FCERR), -EPERM on access error
+ *	(AEL), -ETIMEDOUT on timeout
+ */
+static int exec_sync_hwseq_xfer(struct fast_spi_regs *regs, uint hsfsts_cycle,
+				uint offset, uint len)
+{
+	start_hwseq_xfer(regs, hsfsts_cycle, offset, len);
+
+	return wait_for_hwseq_xfer(regs, offset);
+}
+
+static int ich_spi_exec_op_hwseq(struct spi_slave *slave,
+				 const struct spi_mem_op *op)
+{
+	struct spi_flash *flash = dev_get_uclass_priv(slave->dev);
+	struct udevice *bus = dev_get_parent(slave->dev);
+	struct ich_spi_priv *priv = dev_get_priv(bus);
+	struct fast_spi_regs *regs = priv->base;
+	uint page_size;
+	uint offset;
+	int cycle;
+	uint len;
+	bool out;
+	int ret;
+	u8 *buf;
+
+	offset = op->addr.val;
+	len = op->data.nbytes;
+
+	switch (op->cmd.opcode) {
+	case SPINOR_OP_RDID:
+		cycle = HSFSTS_CYCLE_RDID;
+		break;
+	case SPINOR_OP_READ_FAST:
+		cycle = HSFSTS_CYCLE_READ;
+		break;
+	case SPINOR_OP_PP:
+		cycle = HSFSTS_CYCLE_WRITE;
+		break;
+	case SPINOR_OP_WREN:
+		/* Nothing needs to be done */
+		return 0;
+	case SPINOR_OP_WRSR:
+		cycle = HSFSTS_CYCLE_WR_STATUS;
+		break;
+	case SPINOR_OP_RDSR:
+		cycle = HSFSTS_CYCLE_RD_STATUS;
+		break;
+	case SPINOR_OP_WRDI:
+		return 0;  /* ignore */
+	case SPINOR_OP_BE_4K:
+		cycle = HSFSTS_CYCLE_4K_ERASE;
+		while (len) {
+			uint xfer_len = 0x1000;
+
+			ret = exec_sync_hwseq_xfer(regs, cycle, offset, 0);
+			if (ret)
+				return ret;
+			offset += xfer_len;
+			len -= xfer_len;
+		}
+		return 0;
+	default:
+		debug("Unknown cycle %x\n", op->cmd.opcode);
+		return -EINVAL;
+	};
+
+	out = op->data.dir == SPI_MEM_DATA_OUT;
+	buf = out ? (u8 *)op->data.buf.out : op->data.buf.in;
+	page_size = flash->page_size ? : 256;
+
+	while (len) {
+		uint xfer_len = get_xfer_len(offset, len, page_size);
+
+		if (out)
+			fill_xfer_fifo(regs, buf, xfer_len);
+
+		ret = exec_sync_hwseq_xfer(regs, cycle, offset, xfer_len);
+		if (ret)
+			return ret;
+
+		if (!out)
+			drain_xfer_fifo(regs, buf, xfer_len);
+
+		offset += xfer_len;
+		buf += xfer_len;
+		len -= xfer_len;
+	}
+
+	return 0;
+}
+
+static int ich_spi_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
+{
+	struct udevice *bus = dev_get_parent(slave->dev);
+	struct ich_spi_platdata *plat = dev_get_platdata(bus);
+	int ret;
+
+	bootstage_start(BOOTSTAGE_ID_ACCUM_SPI, "fast_spi");
+	if (plat->hwseq)
+		ret = ich_spi_exec_op_hwseq(slave, op);
+	else
+		ret = ich_spi_exec_op_swseq(slave, op);
+	bootstage_accum(BOOTSTAGE_ID_ACCUM_SPI);
+
+	return ret;
+}
+
 static int ich_spi_adjust_size(struct spi_slave *slave, struct spi_mem_op *op)
 {
 	unsigned int page_offset;
@@ -583,9 +778,11 @@ static int ich_spi_child_pre_probe(struct udevice *dev)
 
 	/*
 	 * Yes this controller can only write a small number of bytes at
-	 * once! The limit is typically 64 bytes.
+	 * once! The limit is typically 64 bytes. For hardware sequencing a
+	 * a loop is used to get around this.
 	 */
-	slave->max_write_size = priv->databytes;
+	if (!plat->hwseq)
+		slave->max_write_size = priv->databytes;
 	/*
 	 * ICH 7 SPI controller only supports array read command
 	 * and byte program command for SST flash
@@ -611,10 +808,16 @@ static int ich_spi_ofdata_to_platdata(struct udevice *dev)
 	plat->ich_version = dev_get_driver_data(dev);
 	plat->lockdown = dev_read_bool(dev, "intel,spi-lock-down");
 	pch_get_spi_base(priv->pch, &plat->mmio_base);
+	/*
+	 * Use an int so that the property is present in of-platdata even
+	 * when false.
+	 */
+	plat->hwseq = dev_read_u32_default(dev, "intel,hardware-seq", 0);
 #else
 	plat->ich_version = ICHV_APL;
 	plat->mmio_base = plat->dtplat.early_regs[0];
 	plat->bdf = pci_ofplat_get_devfn(plat->dtplat.reg[0]);
+	plat->hwseq = plat->dtplat.intel_hardware_seq;
 #endif
 	debug("%s: mmio_base=%lx\n", __func__, plat->mmio_base);
 
