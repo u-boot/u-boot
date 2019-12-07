@@ -80,21 +80,31 @@ struct mrc_data_container *mrccache_find_current(struct mrc_region *entry)
 /**
  * find_next_mrc_cache() - get next cache entry
  *
+ * This moves to the next cache entry in the region, making sure it has enough
+ * space to hold data of size @data_size.
+ *
  * @entry:	MRC cache flash area
  * @cache:	Entry to start from
+ * @data_size:	Required data size of the new entry. Note that we assume that
+ *	all cache entries are the same size
  *
  * @return next cache entry if found, NULL if we got to the end
  */
 static struct mrc_data_container *find_next_mrc_cache(struct mrc_region *entry,
-		struct mrc_data_container *cache)
+		struct mrc_data_container *prev, int data_size)
 {
+	struct mrc_data_container *cache;
 	ulong base_addr, end_addr;
 
 	base_addr = entry->base + entry->offset;
 	end_addr = base_addr + entry->length;
 
-	cache = next_mrc_block(cache);
-	if ((ulong)cache >= end_addr) {
+	/*
+	 * We assume that all cache entries are the same size, but let's use
+	 * data_size here for clarity.
+	 */
+	cache = next_mrc_block(prev);
+	if ((ulong)cache + mrc_block_size(data_size) > end_addr) {
 		/* Crossed the boundary */
 		cache = NULL;
 		debug("%s: no available entries found\n", __func__);
@@ -131,7 +141,7 @@ int mrccache_update(struct udevice *sf, struct mrc_region *entry,
 
 	/* Move to the next block, which will be the first unused block */
 	if (cache)
-		cache = find_next_mrc_cache(entry, cache);
+		cache = find_next_mrc_cache(entry, cache, cur->data_size);
 
 	/*
 	 * If we have got to the end, erase the entire mrc-cache area and start
