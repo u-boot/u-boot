@@ -177,6 +177,14 @@ config PINCTRL_AT91PIO4
 	  This option is to enable the AT91 pinctrl driver for AT91 PIO4
 	  controller which is available on SAMA5D2 SoC.
 
+config PINCTRL_INTEL
+	bool "Standard Intel pin-control and pin-mux driver"
+	help
+	  Recent Intel chips such as Apollo Lake (APL) use a common pin control
+	  and GPIO scheme. The settings for this come from an SoC-specific
+	  driver which must be separately enabled. The driver supports setting
+	  pins on start-up and changing the GPIO attributes.
+
 config PINCTRL_PIC32
 	bool "Microchip PIC32 pin-control and pin-mux driver"
 	depends on DM && MACH_PIC32
@@ -280,6 +288,7 @@ endif
 
 source "drivers/pinctrl/broadcom/Kconfig"
 source "drivers/pinctrl/exynos/Kconfig"
+source "drivers/pinctrl/intel/Kconfig"
 source "drivers/pinctrl/mediatek/Kconfig"
 source "drivers/pinctrl/meson/Kconfig"
 source "drivers/pinctrl/mscc/Kconfig"

@@ -1,0 +1,16 @@
+#
+# Intel PINCTRL drivers
+#
+
+if PINCTRL_INTEL
+
+config INTEL_PINCTRL_DUAL_ROUTE_SUPPORT
+	def_bool y
+
+config INTEL_PINCTRL_PADCFG_PADTOL
+	def_bool n
+
+config INTEL_PINCTRL_IOSTANDBY
+	def_bool y
+
+endif
