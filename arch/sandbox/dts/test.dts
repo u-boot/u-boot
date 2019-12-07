@@ -471,6 +471,17 @@
 			       0x01000810 0 0 0 0>;
 			sandbox,emul = <&swap_case_emul0_1>;
 		};
+		pci@1e,0 {
+			compatible = "sandbox,pmc";
+			reg = <0xf000 0 0 0 0>;
+			sandbox,emul = <&pmc_emul1e>;
+			acpi-base = <0x400>;
+			gpe0-dwx-mask = <0xf>;
+			gpe0-dwx-shift-base = <4>;
+			gpe0-dw = <6 7 9>;
+			gpe0-sts = <0x20>;
+			gpe0-en = <0x30>;
+		};
 		pci@1f,0 {
 			compatible = "pci-generic";
 			/* reg 0 is at 0x10, using FDT_PCI_SPACE_IO */
@@ -490,6 +501,9 @@
 		};
 		swap_case_emul0_1f: emul0@1f,0 {
 			compatible = "sandbox,swap-case";
+		};
+		pmc_emul1e: emul@1e,0 {
+			compatible = "sandbox,pmc-emul";
 		};
 	};
 

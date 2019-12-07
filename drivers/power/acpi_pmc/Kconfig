@@ -23,3 +23,12 @@ config TPL_ACPI_PMC
 	  provides features including checking whether the system started from
 	  resume, powering off the system and enabling/disabling the reset
 	  mechanism.
+
+config ACPI_PMC_SANDBOX
+	bool "Test power manager (PMC) for sandbox"
+	depends on ACPI_PMC && SANDBOX
+	help
+	  This driver emulates a PMC (Power-Management Controller) so that
+	  the uclass logic can be tested. You can use the 'pmc' command to
+	  access information from the driver. It uses I/O access to read
+	  from the PMC.

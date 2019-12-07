@@ -228,6 +228,14 @@ config CMD_LICENSE
 	help
 	  Print GPL license text
 
+config CMD_PMC
+	bool "pmc"
+	help
+	  Provides access to the Intel Power-Management Controller (PMC) so
+	  that its state can be examined. This does not currently support
+	  changing the state but it is still useful for debugging and seeing
+	  what is going on.
+
 config CMD_REGINFO
 	bool "reginfo"
 	depends on PPC

@@ -36,6 +36,7 @@ obj-$(CONFIG_PCI_ENDPOINT) += pci_ep.o
 obj-$(CONFIG_PCH) += pch.o
 obj-$(CONFIG_PHY) += phy.o
 obj-$(CONFIG_POWER_DOMAIN) += power-domain.o
+obj-$(CONFIG_ACPI_PMC) += pmc.o
 obj-$(CONFIG_DM_PWM) += pwm.o
 obj-$(CONFIG_RAM) += ram.o
 obj-y += regmap.o
