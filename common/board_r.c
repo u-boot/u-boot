@@ -18,6 +18,7 @@
 #if defined(CONFIG_CMD_BEDBUG)
 #include <bedbug/type.h>
 #endif
+#include <binman.h>
 #include <command.h>
 #include <console.h>
 #include <dm.h>
@@ -346,6 +347,14 @@ static int initr_manual_reloc_cmdtable(void)
 	return 0;
 }
 #endif
+
+static int initr_binman(void)
+{
+	if (!CONFIG_IS_ENABLED(BINMAN_FDT))
+		return 0;
+
+	return binman_init();
+}
 
 #if defined(CONFIG_MTD_NOR_FLASH)
 static int initr_flash(void)
@@ -697,6 +706,7 @@ static init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_EFI_LOADER
 	efi_memory_init,
 #endif
+	initr_binman,
 	stdio_init_tables,
 	initr_serial,
 	initr_announce,

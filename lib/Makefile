@@ -21,6 +21,7 @@ obj-$(CONFIG_ASN1_DECODER) += asn1_decoder.o
 obj-y += crypto/
 
 obj-$(CONFIG_AES) += aes.o
+obj-$(CONFIG_$(SPL_TPL_)BINMAN_FDT) += binman.o
 
 ifndef API_BUILD
 ifneq ($(CONFIG_UT_UNICODE)$(CONFIG_EFI_LOADER),)
