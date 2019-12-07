@@ -116,7 +116,7 @@ U_BOOT_DEVICES(am33xx_i2c) = {
 };
 #endif
 
-#ifdef CONFIG_DM_GPIO
+#if CONFIG_IS_ENABLED(DM_GPIO)
 static const struct omap_gpio_platdata am33xx_gpio[] = {
 	{ 0, AM33XX_GPIO0_BASE },
 	{ 1, AM33XX_GPIO1_BASE },
@@ -141,7 +141,7 @@ U_BOOT_DEVICES(am33xx_gpios) = {
 #endif
 #endif
 
-#ifndef CONFIG_DM_GPIO
+#if !CONFIG_IS_ENABLED(DM_GPIO)
 static const struct gpio_bank gpio_bank_am33xx[] = {
 	{ (void *)AM33XX_GPIO0_BASE },
 	{ (void *)AM33XX_GPIO1_BASE },

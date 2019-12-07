@@ -33,7 +33,7 @@ extern omap3_sysinfo sysinfo;
 static void omap3_invalidate_l2_cache_secure(void);
 #endif
 
-#ifdef CONFIG_DM_GPIO
+#if CONFIG_IS_ENABLED(DM_GPIO)
 #if !CONFIG_IS_ENABLED(OF_CONTROL)
 /* Manually initialize GPIO banks when OF_CONTROL doesn't */
 static const struct omap_gpio_platdata omap34xx_gpio[] = {

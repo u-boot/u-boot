@@ -14,6 +14,28 @@ config DM_GPIO
 	  particular GPIOs that they provide. The uclass interface
 	  is defined in include/asm-generic/gpio.h.
 
+config SPL_DM_GPIO
+	bool "Enable Driver Model for GPIO drivers in SPL"
+	depends on DM_GPIO && SPL_DM && SPL_GPIO_SUPPORT
+	default y
+	help
+	  Enable driver model for GPIO access in SPL. The standard GPIO
+	  interface (gpio_get_value(), etc.) is then implemented by
+	  the GPIO uclass. Drivers provide methods to query the
+	  particular GPIOs that they provide. The uclass interface
+	  is defined in include/asm-generic/gpio.h.
+
+config TPL_DM_GPIO
+	bool "Enable Driver Model for GPIO drivers in TPL"
+	depends on DM_GPIO && TPL_DM && TPL_GPIO_SUPPORT
+	default y
+	help
+	  Enable driver model for GPIO access in TPL. The standard GPIO
+	  interface (gpio_get_value(), etc.) is then implemented by
+	  the GPIO uclass. Drivers provide methods to query the
+	  particular GPIOs that they provide. The uclass interface
+	  is defined in include/asm-generic/gpio.h.
+
 config GPIO_HOG
 	bool "Enable GPIO hog support"
 	depends on DM_GPIO

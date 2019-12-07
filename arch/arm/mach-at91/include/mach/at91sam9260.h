@@ -133,7 +133,7 @@
 /*
  * Other misc defines
  */
-#ifndef CONFIG_DM_GPIO
+#if !CONFIG_IS_ENABLED(DM_GPIO)
 #define ATMEL_PIO_PORTS		3		/* these SoCs have 3 PIO */
 #define ATMEL_BASE_PIO		ATMEL_BASE_PIOA
 #endif

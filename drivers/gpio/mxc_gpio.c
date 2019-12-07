@@ -30,7 +30,7 @@ struct mxc_bank_info {
 	struct gpio_regs *regs;
 };
 
-#ifndef CONFIG_DM_GPIO
+#if !CONFIG_IS_ENABLED(DM_GPIO)
 #define GPIO_TO_PORT(n)		((n) / 32)
 
 /* GPIO port description */
@@ -161,7 +161,7 @@ int gpio_direction_output(unsigned gpio, int value)
 }
 #endif
 
-#ifdef CONFIG_DM_GPIO
+#if CONFIG_IS_ENABLED(DM_GPIO)
 #include <fdtdec.h>
 static int mxc_gpio_is_output(struct gpio_regs *regs, int offset)
 {
