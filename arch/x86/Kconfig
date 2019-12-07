@@ -217,6 +217,14 @@ config SYS_X86_START16
 	depends on X86_RESET_VECTOR
 	default 0xfffff800
 
+config HAVE_X86_FIT
+	bool
+	help
+	  Enable inclusion of an Intel Firmware Interface Table (FIT) into the
+	  image. This table is supposed to point to microcode and the like. So
+	  far it is just a fixed table with the minimum set of headers, so that
+	  it is actually present.
+
 config X86_LOAD_FROM_32_BIT
 	bool "Boot from a 32-bit program"
 	help
