@@ -188,6 +188,15 @@ config X86_TSC_READ_BASE
 	  The only exception is when U-Boot is used as a secondary bootloader,
 	  where this option should be enabled.
 
+config TPL_X86_TSC_TIMER_NATIVE
+	bool "x86 TSC timer uses native calibration"
+	depends on TPL && X86_TSC_TIMER
+	help
+	  Selects native timer calibration for TPL and don't include the other
+	  methods in the code. This helps to reduce code size in TPL and works
+	  on fairly modern Intel chips. Code-size reductions is about 700
+	  bytes.
+
 config MTK_TIMER
 	bool "MediaTek timer support"
 	depends on TIMER

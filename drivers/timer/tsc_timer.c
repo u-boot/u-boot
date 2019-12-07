@@ -50,8 +50,7 @@ static unsigned long native_calibrate_tsc(void)
 		return 0;
 
 	crystal_freq = tsc_info.ecx / 1000;
-
-	if (!crystal_freq) {
+	if (!CONFIG_IS_ENABLED(X86_TSC_TIMER_NATIVE) && !crystal_freq) {
 		switch (gd->arch.x86_model) {
 		case INTEL_FAM6_SKYLAKE_MOBILE:
 		case INTEL_FAM6_SKYLAKE_DESKTOP:
@@ -406,6 +405,10 @@ static void tsc_timer_ensure_setup(bool early)
 		fast_calibrate = native_calibrate_tsc();
 		if (fast_calibrate)
 			goto done;
+
+		/* Reduce code size by dropping other methods */
+		if (CONFIG_IS_ENABLED(X86_TSC_TIMER_NATIVE))
+			panic("no timer");
 
 		fast_calibrate = cpu_mhz_from_cpuid();
 		if (fast_calibrate)
