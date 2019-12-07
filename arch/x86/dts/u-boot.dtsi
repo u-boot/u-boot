@@ -100,10 +100,40 @@
 		offset = <CONFIG_X86_MRC_ADDR>;
 	};
 #endif
-#ifdef CONFIG_HAVE_FSP
+#ifdef CONFIG_FSP_VERSION1
 	intel-fsp {
 		filename = CONFIG_FSP_FILE;
 		offset = <CONFIG_FSP_ADDR>;
+	};
+#endif
+#ifdef CONFIG_FSP_VERSION2
+	intel-descriptor {
+		filename = CONFIG_FLASH_DESCRIPTOR_FILE;
+	};
+	intel-ifwi {
+		filename = CONFIG_IFWI_INPUT_FILE;
+		convert-fit;
+
+		section {
+			size = <0x8000>;
+			ifwi-replace;
+			ifwi-subpart = "IBBP";
+			ifwi-entry = "IBBL";
+			u-boot-tpl {
+			};
+			x86-start16-tpl {
+				offset = <0x7800>;
+			};
+			x86-reset16-tpl {
+				offset = <0x7ff0>;
+			};
+		};
+	};
+	intel-fsp-m {
+		filename = CONFIG_FSP_FILE_M;
+	};
+	intel-fsp-s {
+		filename = CONFIG_FSP_FILE_S;
 	};
 #endif
 #ifdef CONFIG_HAVE_CMC
