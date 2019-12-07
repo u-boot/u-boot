@@ -5,6 +5,8 @@
  * This file is derived from the flashrom project.
  */
 
+#define LOG_CATEGORY	UCLASS_SPI
+
 #include <common.h>
 #include <div64.h>
 #include <dm.h>
@@ -18,8 +20,6 @@
 #include <asm/io.h>
 
 #include "ich.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef DEBUG_TRACE
 #define debug_trace(fmt, args...) debug(fmt, ##args)
@@ -96,7 +96,7 @@ static void ich_set_bbar(struct ich_spi_priv *ctlr, uint32_t minaddr)
 }
 
 /* @return 1 if the SPI flash supports the 33MHz speed */
-static int ich9_can_do_33mhz(struct udevice *dev)
+static bool ich9_can_do_33mhz(struct udevice *dev)
 {
 	struct ich_spi_priv *priv = dev_get_priv(dev);
 	u32 fdod, speed;
@@ -173,8 +173,7 @@ static int spi_setup_opcode(struct ich_spi_priv *ctlr, struct spi_trans *trans,
 		}
 
 		if (opcode_index == ctlr->menubytes) {
-			printf("ICH SPI: Opcode %x not found\n",
-			       trans->opcode);
+			debug("ICH SPI: Opcode %x not found\n", trans->opcode);
 			return -EINVAL;
 		}
 
@@ -182,8 +181,8 @@ static int spi_setup_opcode(struct ich_spi_priv *ctlr, struct spi_trans *trans,
 		optype = (optypes >> (opcode_index * 2)) & 0x3;
 
 		if (optype != trans->type) {
-			printf("ICH SPI: Transaction doesn't fit type %d\n",
-			       optype);
+			debug("ICH SPI: Transaction doesn't fit type %d\n",
+			      optype);
 			return -ENOSPC;
 		}
 		return opcode_index;
@@ -214,9 +213,9 @@ static int ich_status_poll(struct ich_spi_priv *ctlr, u16 bitmask,
 		}
 		udelay(10);
 	}
+	debug("ICH SPI: SCIP timeout, read %x, expected %x, wts %x %x\n",
+	      status, bitmask, wait_til_set, status & bitmask);
 
-	printf("ICH SPI: SCIP timeout, read %x, expected %x\n",
-	       status, bitmask);
 	return -ETIMEDOUT;
 }
 
