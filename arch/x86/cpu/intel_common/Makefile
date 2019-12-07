@@ -9,6 +9,7 @@ obj-$(CONFIG_$(SPL_TPL_)X86_32BIT_INIT) += report_platform.o
 obj-$(CONFIG_$(SPL_TPL_)X86_32BIT_INIT) += mrc.o
 endif
 obj-y += cpu.o
+obj-y += fast_spi.o
 obj-y += lpc.o
 ifndef CONFIG_TARGET_EFI_APP
 obj-$(CONFIG_$(SPL_TPL_)X86_32BIT_INIT) += microcode.o
