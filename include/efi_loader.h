@@ -341,6 +341,8 @@ extern struct list_head efi_register_notify_events;
 
 /* Initialize efi execution environment */
 efi_status_t efi_init_obj_list(void);
+/* Run loaded UEFI image */
+efi_status_t efi_run_image(void *source_buffer, efi_uintn_t source_size);
 /* Initialize variable services */
 efi_status_t efi_init_variables(void);
 /* Notify ExitBootServices() is called */

@@ -360,11 +360,8 @@ static int do_efibootmgr(void)
 static int do_bootefi_image(const char *image_opt)
 {
 	void *image_buf;
-	struct efi_device_path *device_path, *image_path;
-	struct efi_device_path *file_path = NULL;
 	unsigned long addr, size;
 	const char *size_str;
-	efi_handle_t mem_handle = NULL, handle;
 	efi_status_t ret;
 
 #ifdef CONFIG_CMD_BOOTEFI_HELLO
@@ -382,8 +379,10 @@ static int do_bootefi_image(const char *image_opt)
 		image_buf = map_sysmem(addr, size);
 		memcpy(image_buf, __efi_helloworld_begin, size);
 
-		device_path = NULL;
-		image_path = NULL;
+		efi_free_pool(bootefi_device_path);
+		efi_free_pool(bootefi_image_path);
+		bootefi_device_path = NULL;
+		bootefi_image_path = NULL;
 	} else
 #endif
 	{
@@ -399,19 +398,37 @@ static int do_bootefi_image(const char *image_opt)
 			return CMD_RET_USAGE;
 
 		image_buf = map_sysmem(addr, size);
-
-		device_path = bootefi_device_path;
-		image_path = bootefi_image_path;
 	}
+	ret = efi_run_image(image_buf, size);
 
-	if (!device_path && !image_path) {
+	if (ret != EFI_SUCCESS)
+		return CMD_RET_FAILURE;
+
+	return CMD_RET_SUCCESS;
+}
+
+/**
+ * efi_run_image() - run loaded UEFI image
+ *
+ * @source_buffer:	memory address of the UEFI image
+ * @source_size:	size of the UEFI image
+ * Return:		status code
+ */
+efi_status_t efi_run_image(void *source_buffer, efi_uintn_t source_size)
+{
+	efi_handle_t mem_handle = NULL, handle;
+	struct efi_device_path *file_path = NULL;
+	efi_status_t ret;
+
+	if (!bootefi_device_path || !bootefi_image_path) {
 		/*
 		 * Special case for efi payload not loaded from disk,
 		 * such as 'bootefi hello' or for example payload
 		 * loaded directly into memory via JTAG, etc:
 		 */
 		file_path = efi_dp_from_mem(EFI_RESERVED_MEMORY_TYPE,
-					    (uintptr_t)image_buf, size);
+					    (uintptr_t)source_buffer,
+					    source_size);
 		/*
 		 * Make sure that device for device_path exist
 		 * in load_image(). Otherwise, shell and grub will fail.
@@ -425,12 +442,12 @@ static int do_bootefi_image(const char *image_opt)
 		if (ret != EFI_SUCCESS)
 			goto out;
 	} else {
-		assert(device_path && image_path);
-		file_path = efi_dp_append(device_path, image_path);
+		file_path = efi_dp_append(bootefi_device_path,
+					  bootefi_image_path);
 	}
 
-	ret = EFI_CALL(efi_load_image(false, efi_root,
-				      file_path, image_buf, size, &handle));
+	ret = EFI_CALL(efi_load_image(false, efi_root, file_path, source_buffer,
+				      source_size, &handle));
 	if (ret != EFI_SUCCESS)
 		goto out;
 
@@ -441,11 +458,7 @@ out:
 		efi_delete_handle(mem_handle);
 	if (file_path)
 		efi_free_pool(file_path);
-
-	if (ret != EFI_SUCCESS)
-		return CMD_RET_FAILURE;
-
-	return CMD_RET_SUCCESS;
+	return ret;
 }
 
 #ifdef CONFIG_CMD_BOOTEFI_SELFTEST
