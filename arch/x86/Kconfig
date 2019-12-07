@@ -588,6 +588,10 @@ config HAVE_REFCODE
           broadwell) U-Boot will be missing some critical setup steps.
           Various peripherals may fail to work.
 
+config HAVE_MICROCODE
+	bool
+	default y if !FSP_VERSION2
+
 config SMP
 	bool "Enable Symmetric Multiprocessing"
 	default n

@@ -37,11 +37,13 @@
 	};
 #endif
 #ifdef CONFIG_TPL
+#ifdef CONFIG_HAVE_MICROCODE
 	u-boot-tpl-with-ucode-ptr {
 		offset = <CONFIG_TPL_TEXT_BASE>;
 	};
 	u-boot-tpl-dtb {
 	};
+#endif
 	u-boot-spl {
 		offset = <CONFIG_SPL_TEXT_BASE>;
 	};
@@ -77,11 +79,16 @@
 		offset = <CONFIG_SYS_TEXT_BASE>;
 	};
 #endif
+#ifdef CONFIG_HAVE_MICROCODE
 	u-boot-dtb-with-ucode {
 	};
 	u-boot-ucode {
 		align = <16>;
 	};
+#else
+	u-boot-dtb {
+	};
+#endif
 #ifdef CONFIG_HAVE_X86_FIT
 	intel-fit {
 	};
