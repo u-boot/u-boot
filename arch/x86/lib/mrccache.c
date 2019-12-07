@@ -210,6 +210,9 @@ int mrccache_get_region(struct udevice **devp, struct mrc_region *entry)
 {
 	struct udevice *dev;
 	ofnode mrc_node;
+	ulong map_base;
+	uint map_size;
+	uint offset;
 	u32 reg[2];
 	int ret;
 
@@ -221,10 +224,15 @@ int mrccache_get_region(struct udevice **devp, struct mrc_region *entry)
 	ret = uclass_find_first_device(UCLASS_SPI_FLASH, &dev);
 	if (ret)
 		return log_msg_ret("Cannot find SPI flash\n", ret);
-	ret = dev_read_u32_array(dev, "memory-map", reg, 2);
-	if (ret)
-		return log_msg_ret("Cannot find memory map\n", ret);
-	entry->base = reg[0];
+	ret = dm_spi_get_mmap(dev, &map_base, &map_size, &offset);
+	if (!ret) {
+		entry->base = map_base;
+	} else {
+		ret = dev_read_u32_array(dev, "memory-map", reg, 2);
+		if (ret)
+			return log_msg_ret("Cannot find memory map\n", ret);
+		entry->base = reg[0];
+	}
 
 	/* Find the place where we put the MRC cache */
 	mrc_node = dev_read_subnode(dev, "rw-mrc-cache");
@@ -239,6 +247,8 @@ int mrccache_get_region(struct udevice **devp, struct mrc_region *entry)
 
 	if (devp)
 		*devp = dev;
+	debug("MRC cache in '%s', offset %x, len %x, base %x\n",
+	      dev->name, entry->offset, entry->length, entry->base);
 
 	return 0;
 }
