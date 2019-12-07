@@ -191,6 +191,7 @@ struct ich_spi_priv {
 	ulong max_speed;	/* Maximum bus speed in MHz */
 	ulong cur_speed;	/* Current bus speed */
 	struct spi_trans trans;	/* current transaction in progress */
+	struct udevice *pch;	/* PCH, used to control SPI access */
 };
 
 #endif /* _ICH_H_ */

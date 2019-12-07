@@ -98,13 +98,14 @@ static void ich_set_bbar(struct ich_spi_priv *ctlr, uint32_t minaddr)
 /* @return 1 if the SPI flash supports the 33MHz speed */
 static int ich9_can_do_33mhz(struct udevice *dev)
 {
+	struct ich_spi_priv *priv = dev_get_priv(dev);
 	u32 fdod, speed;
 
 	/* Observe SPI Descriptor Component Section 0 */
-	dm_pci_write_config32(dev->parent, 0xb0, 0x1000);
+	dm_pci_write_config32(priv->pch, 0xb0, 0x1000);
 
 	/* Extract the Write/Erase SPI Frequency from descriptor */
-	dm_pci_read_config32(dev->parent, 0xb4, &fdod);
+	dm_pci_read_config32(priv->pch, 0xb4, &fdod);
 
 	/* Bits 23:21 have the fast read clock frequency, 0=20MHz, 1=33MHz */
 	speed = (fdod >> 21) & 7;
@@ -432,6 +433,37 @@ static int ich_spi_adjust_size(struct spi_slave *slave, struct spi_mem_op *op)
 	return 0;
 }
 
+static int ich_protect_lockdown(struct udevice *dev)
+{
+	struct ich_spi_platdata *plat = dev_get_platdata(dev);
+	struct ich_spi_priv *priv = dev_get_priv(dev);
+	int ret = -ENOSYS;
+
+	/* Disable the BIOS write protect so write commands are allowed */
+	if (priv->pch)
+		ret = pch_set_spi_protect(priv->pch, false);
+	if (ret == -ENOSYS) {
+		u8 bios_cntl;
+
+		bios_cntl = ich_readb(priv, priv->bcr);
+		bios_cntl &= ~BIT(5);	/* clear Enable InSMM_STS (EISS) */
+		bios_cntl |= 1;		/* Write Protect Disable (WPD) */
+		ich_writeb(priv, bios_cntl, priv->bcr);
+	} else if (ret) {
+		debug("%s: Failed to disable write-protect: err=%d\n",
+		      __func__, ret);
+		return ret;
+	}
+
+	/* Lock down SPI controller settings if required */
+	if (plat->lockdown) {
+		ich_spi_config_opcode(dev);
+		spi_lock_down(plat, priv->base);
+	}
+
+	return 0;
+}
+
 static int ich_init_controller(struct udevice *dev,
 			       struct ich_spi_platdata *plat,
 			       struct ich_spi_priv *ctlr)
@@ -497,30 +529,15 @@ static int ich_spi_probe(struct udevice *dev)
 {
 	struct ich_spi_platdata *plat = dev_get_platdata(dev);
 	struct ich_spi_priv *priv = dev_get_priv(dev);
-	uint8_t bios_cntl;
 	int ret;
 
 	ret = ich_init_controller(dev, plat, priv);
 	if (ret)
 		return ret;
-	/* Disable the BIOS write protect so write commands are allowed */
-	ret = pch_set_spi_protect(dev->parent, false);
-	if (ret == -ENOSYS) {
-		bios_cntl = ich_readb(priv, priv->bcr);
-		bios_cntl &= ~BIT(5);	/* clear Enable InSMM_STS (EISS) */
-		bios_cntl |= 1;		/* Write Protect Disable (WPD) */
-		ich_writeb(priv, bios_cntl, priv->bcr);
-	} else if (ret) {
-		debug("%s: Failed to disable write-protect: err=%d\n",
-		      __func__, ret);
-		return ret;
-	}
 
-	/* Lock down SPI controller settings if required */
-	if (plat->lockdown) {
-		ich_spi_config_opcode(dev);
-		spi_lock_down(plat, priv->base);
-	}
+	ret = ich_protect_lockdown(dev);
+	if (ret)
+		return ret;
 
 	priv->cur_speed = priv->max_speed;
 
@@ -579,8 +596,14 @@ static int ich_spi_child_pre_probe(struct udevice *dev)
 static int ich_spi_ofdata_to_platdata(struct udevice *dev)
 {
 	struct ich_spi_platdata *plat = dev_get_platdata(dev);
+	struct ich_spi_priv *priv = dev_get_priv(dev);
 	int node = dev_of_offset(dev);
 	int ret;
+
+	/* Find a PCH if there is one */
+	uclass_first_device(UCLASS_PCH, &priv->pch);
+	if (!priv->pch)
+		priv->pch = dev_get_parent(dev);
 
 	ret = fdt_node_check_compatible(gd->fdt_blob, node, "intel,ich7-spi");
 	if (ret == 0) {
