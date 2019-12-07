@@ -104,6 +104,15 @@ config INTEL_BROADWELL_GPIO
 	  driver from the common Intel ICH6 driver. It supports a total of
 	  95 GPIOs which can be configured from the device tree.
 
+config INTEL_GPIO
+	bool "Intel generic GPIO driver"
+	depends on DM_GPIO
+	help
+	  Say yes here to select Intel generic GPIO driver. This controller
+	  supports recent chips (e.g. Apollo Lake). It permits basic GPIO
+	  control including setting pins to input/output. It makes use of its
+	  parent pinctrl driver to actually effect changes.
+
 config INTEL_ICH6_GPIO
 	bool "Intel ICH6 compatible legacy GPIO driver"
 	depends on DM_GPIO
