@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <spl.h>
 #include "designware_i2c.h"
 
 /* BayTrail HCNT/LCNT/SDA hold time */
@@ -18,17 +19,46 @@ static struct dw_scl_sda_cfg byt_config = {
 	.sda_hold = 0x6,
 };
 
-static int designware_i2c_pci_probe(struct udevice *dev)
+static int designware_i2c_pci_ofdata_to_platdata(struct udevice *dev)
 {
 	struct dw_i2c *priv = dev_get_priv(dev);
 
+	if (spl_phase() < PHASE_SPL) {
+		u32 base;
+		int ret;
+
+		ret = dev_read_u32(dev, "early-regs", &base);
+		if (ret)
+			return log_msg_ret("early-regs", ret);
+
+		/* Set i2c base address */
+		dm_pci_write_config32(dev, PCI_BASE_ADDRESS_0, base);
+
+		/* Enable memory access and bus master */
+		dm_pci_write_config32(dev, PCI_COMMAND, PCI_COMMAND_MEMORY |
+				      PCI_COMMAND_MASTER);
+	}
+
+	if (spl_phase() < PHASE_BOARD_F) {
+		/* Handle early, fixed mapping into a different address space */
+		priv->regs = (struct i2c_regs *)dm_pci_read_bar32(dev, 0);
+	} else {
+		priv->regs = (struct i2c_regs *)
+			dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, PCI_REGION_MEM);
+	}
+	if (!priv->regs)
+		return -EINVAL;
+
 	/* Save base address from PCI BAR */
-	priv->regs = (struct i2c_regs *)
-		dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, PCI_REGION_MEM);
 	if (IS_ENABLED(CONFIG_INTEL_BAYTRAIL))
 		/* Use BayTrail specific timing values */
 		priv->scl_sda_cfg = &byt_config;
 
+	return 0;
+}
+
+static int designware_i2c_pci_probe(struct udevice *dev)
+{
 	return designware_i2c_probe(dev);
 }
 
@@ -56,10 +86,17 @@ static int designware_i2c_pci_bind(struct udevice *dev)
 	return 0;
 }
 
+static const struct udevice_id designware_i2c_pci_ids[] = {
+	{ .compatible = "snps,designware-i2c-pci" },
+	{ }
+};
+
 U_BOOT_DRIVER(i2c_designware_pci) = {
 	.name	= "i2c_designware_pci",
 	.id	= UCLASS_I2C,
+	.of_match = designware_i2c_pci_ids,
 	.bind	= designware_i2c_pci_bind,
+	.ofdata_to_platdata	= designware_i2c_pci_ofdata_to_platdata,
 	.probe	= designware_i2c_pci_probe,
 	.priv_auto_alloc_size = sizeof(struct dw_i2c),
 	.remove = designware_i2c_remove,
