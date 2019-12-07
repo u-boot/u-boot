@@ -10,6 +10,7 @@
 #include <common.h>
 #include <div64.h>
 #include <dm.h>
+#include <dt-structs.h>
 #include <errno.h>
 #include <malloc.h>
 #include <pch.h>
@@ -28,9 +29,13 @@
 #endif
 
 struct ich_spi_platdata {
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	struct dtd_intel_fast_spi dtplat;
+#endif
 	enum ich_version ich_version;	/* Controller version, 7 or 9 */
 	bool lockdown;			/* lock down controller settings? */
 	ulong mmio_base;		/* Base of MMIO registers */
+	pci_dev_t bdf;			/* PCI address used by of-platdata */
 };
 
 static u8 ich_readb(struct ich_spi_priv *priv, int reg)
@@ -594,6 +599,8 @@ static int ich_spi_child_pre_probe(struct udevice *dev)
 static int ich_spi_ofdata_to_platdata(struct udevice *dev)
 {
 	struct ich_spi_platdata *plat = dev_get_platdata(dev);
+
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct ich_spi_priv *priv = dev_get_priv(dev);
 
 	/* Find a PCH if there is one */
@@ -603,8 +610,13 @@ static int ich_spi_ofdata_to_platdata(struct udevice *dev)
 
 	plat->ich_version = dev_get_driver_data(dev);
 	plat->lockdown = dev_read_bool(dev, "intel,spi-lock-down");
-
 	pch_get_spi_base(priv->pch, &plat->mmio_base);
+#else
+	plat->ich_version = ICHV_APL;
+	plat->mmio_base = plat->dtplat.early_regs[0];
+	plat->bdf = pci_ofplat_get_devfn(plat->dtplat.reg[0]);
+#endif
+	debug("%s: mmio_base=%lx\n", __func__, plat->mmio_base);
 
 	return 0;
 }
@@ -632,8 +644,8 @@ static const struct udevice_id ich_spi_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(ich_spi) = {
-	.name	= "ich_spi",
+U_BOOT_DRIVER(intel_fast_spi) = {
+	.name	= "intel_fast_spi",
 	.id	= UCLASS_SPI,
 	.of_match = ich_spi_ids,
 	.ops	= &ich_spi_ops,
