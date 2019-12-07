@@ -3,3 +3,4 @@
 # Copyright 2019 Google LLC
 
 obj-y += pmc.o
+obj-y += uart.o
