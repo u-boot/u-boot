@@ -85,7 +85,7 @@ typedef unsigned int		u_int;
 typedef unsigned long		u_long;
 
 /* sysv */
-typedef unsigned char		unchar;
+typedef unsigned char		uchar;
 typedef unsigned short		ushort;
 typedef unsigned int		uint;
 typedef unsigned long		ulong;
