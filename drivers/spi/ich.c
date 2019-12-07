@@ -611,6 +611,37 @@ static int ich_spi_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
 	return ret;
 }
 
+static int ich_get_mmap_bus(struct udevice *bus, ulong *map_basep,
+			    uint *map_sizep, uint *offsetp)
+{
+	pci_dev_t spi_bdf;
+
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+	struct pci_child_platdata *pplat = dev_get_parent_platdata(bus);
+
+	spi_bdf = pplat->devfn;
+#else
+	struct ich_spi_platdata *plat = dev_get_platdata(bus);
+
+	/*
+	 * We cannot rely on plat->bdf being set up yet since this method can
+	 * be called before the device is probed. Use the of-platdata directly
+	 * instead.
+	 */
+	spi_bdf = pci_ofplat_get_devfn(plat->dtplat.reg[0]);
+#endif
+
+	return fast_spi_get_bios_mmap(spi_bdf, map_basep, map_sizep, offsetp);
+}
+
+static int ich_get_mmap(struct udevice *dev, ulong *map_basep, uint *map_sizep,
+			uint *offsetp)
+{
+	struct udevice *bus = dev_get_parent(dev);
+
+	return ich_get_mmap_bus(bus, map_basep, map_sizep, offsetp);
+}
+
 static int ich_spi_adjust_size(struct spi_slave *slave, struct spi_mem_op *op)
 {
 	unsigned int page_offset;
@@ -835,6 +866,7 @@ static const struct dm_spi_ops ich_spi_ops = {
 	.set_speed	= ich_spi_set_speed,
 	.set_mode	= ich_spi_set_mode,
 	.mem_ops	= &ich_controller_mem_ops,
+	.get_mmap	= ich_get_mmap,
 	/*
 	 * cs_info is not needed, since we require all chip selects to be
 	 * in the device tree explicitly
