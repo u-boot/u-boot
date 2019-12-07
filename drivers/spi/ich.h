@@ -168,11 +168,6 @@ enum ich_version {
 	ICHV_9,
 };
 
-struct ich_spi_platdata {
-	enum ich_version ich_version;	/* Controller version, 7 or 9 */
-	bool lockdown;			/* lock down controller settings? */
-};
-
 struct ich_spi_priv {
 	int opmenu;
 	int menubytes;
