@@ -112,67 +112,6 @@ static int ich9_can_do_33mhz(struct udevice *dev)
 	return speed == 1;
 }
 
-static int ich_init_controller(struct udevice *dev,
-			       struct ich_spi_platdata *plat,
-			       struct ich_spi_priv *ctlr)
-{
-	ulong sbase_addr;
-	void *sbase;
-
-	/* SBASE is similar */
-	pch_get_spi_base(dev->parent, &sbase_addr);
-	sbase = (void *)sbase_addr;
-	debug("%s: sbase=%p\n", __func__, sbase);
-
-	if (plat->ich_version == ICHV_7) {
-		struct ich7_spi_regs *ich7_spi = sbase;
-
-		ctlr->opmenu = offsetof(struct ich7_spi_regs, opmenu);
-		ctlr->menubytes = sizeof(ich7_spi->opmenu);
-		ctlr->optype = offsetof(struct ich7_spi_regs, optype);
-		ctlr->addr = offsetof(struct ich7_spi_regs, spia);
-		ctlr->data = offsetof(struct ich7_spi_regs, spid);
-		ctlr->databytes = sizeof(ich7_spi->spid);
-		ctlr->status = offsetof(struct ich7_spi_regs, spis);
-		ctlr->control = offsetof(struct ich7_spi_regs, spic);
-		ctlr->bbar = offsetof(struct ich7_spi_regs, bbar);
-		ctlr->preop = offsetof(struct ich7_spi_regs, preop);
-		ctlr->base = ich7_spi;
-	} else if (plat->ich_version == ICHV_9) {
-		struct ich9_spi_regs *ich9_spi = sbase;
-
-		ctlr->opmenu = offsetof(struct ich9_spi_regs, opmenu);
-		ctlr->menubytes = sizeof(ich9_spi->opmenu);
-		ctlr->optype = offsetof(struct ich9_spi_regs, optype);
-		ctlr->addr = offsetof(struct ich9_spi_regs, faddr);
-		ctlr->data = offsetof(struct ich9_spi_regs, fdata);
-		ctlr->databytes = sizeof(ich9_spi->fdata);
-		ctlr->status = offsetof(struct ich9_spi_regs, ssfs);
-		ctlr->control = offsetof(struct ich9_spi_regs, ssfc);
-		ctlr->speed = ctlr->control + 2;
-		ctlr->bbar = offsetof(struct ich9_spi_regs, bbar);
-		ctlr->preop = offsetof(struct ich9_spi_regs, preop);
-		ctlr->bcr = offsetof(struct ich9_spi_regs, bcr);
-		ctlr->pr = &ich9_spi->pr[0];
-		ctlr->base = ich9_spi;
-	} else {
-		debug("ICH SPI: Unrecognised ICH version %d\n",
-		      plat->ich_version);
-		return -EINVAL;
-	}
-
-	/* Work out the maximum speed we can support */
-	ctlr->max_speed = 20000000;
-	if (plat->ich_version == ICHV_9 && ich9_can_do_33mhz(dev))
-		ctlr->max_speed = 33000000;
-	debug("ICH SPI: Version ID %d detected at %p, speed %ld\n",
-	      plat->ich_version, ctlr->base, ctlr->max_speed);
-
-	ich_set_bbar(ctlr, 0);
-
-	return 0;
-}
-
 static void spi_lock_down(struct ich_spi_platdata *plat, void *sbase)
 {
 	if (plat->ich_version == ICHV_7) {
@@ -489,6 +428,67 @@ static int ich_spi_adjust_size(struct spi_slave *slave, struct spi_mem_op *op)
 	}
 
 	op->data.nbytes = min(op->data.nbytes, byte_count);
+
+	return 0;
+}
+
+static int ich_init_controller(struct udevice *dev,
+			       struct ich_spi_platdata *plat,
+			       struct ich_spi_priv *ctlr)
+{
+	ulong sbase_addr;
+	void *sbase;
+
+	/* SBASE is similar */
+	pch_get_spi_base(dev->parent, &sbase_addr);
+	sbase = (void *)sbase_addr;
+	debug("%s: sbase=%p\n", __func__, sbase);
+
+	if (plat->ich_version == ICHV_7) {
+		struct ich7_spi_regs *ich7_spi = sbase;
+
+		ctlr->opmenu = offsetof(struct ich7_spi_regs, opmenu);
+		ctlr->menubytes = sizeof(ich7_spi->opmenu);
+		ctlr->optype = offsetof(struct ich7_spi_regs, optype);
+		ctlr->addr = offsetof(struct ich7_spi_regs, spia);
+		ctlr->data = offsetof(struct ich7_spi_regs, spid);
+		ctlr->databytes = sizeof(ich7_spi->spid);
+		ctlr->status = offsetof(struct ich7_spi_regs, spis);
+		ctlr->control = offsetof(struct ich7_spi_regs, spic);
+		ctlr->bbar = offsetof(struct ich7_spi_regs, bbar);
+		ctlr->preop = offsetof(struct ich7_spi_regs, preop);
+		ctlr->base = ich7_spi;
+	} else if (plat->ich_version == ICHV_9) {
+		struct ich9_spi_regs *ich9_spi = sbase;
+
+		ctlr->opmenu = offsetof(struct ich9_spi_regs, opmenu);
+		ctlr->menubytes = sizeof(ich9_spi->opmenu);
+		ctlr->optype = offsetof(struct ich9_spi_regs, optype);
+		ctlr->addr = offsetof(struct ich9_spi_regs, faddr);
+		ctlr->data = offsetof(struct ich9_spi_regs, fdata);
+		ctlr->databytes = sizeof(ich9_spi->fdata);
+		ctlr->status = offsetof(struct ich9_spi_regs, ssfs);
+		ctlr->control = offsetof(struct ich9_spi_regs, ssfc);
+		ctlr->speed = ctlr->control + 2;
+		ctlr->bbar = offsetof(struct ich9_spi_regs, bbar);
+		ctlr->preop = offsetof(struct ich9_spi_regs, preop);
+		ctlr->bcr = offsetof(struct ich9_spi_regs, bcr);
+		ctlr->pr = &ich9_spi->pr[0];
+		ctlr->base = ich9_spi;
+	} else {
+		debug("ICH SPI: Unrecognised ICH version %d\n",
+		      plat->ich_version);
+		return -EINVAL;
+	}
+
+	/* Work out the maximum speed we can support */
+	ctlr->max_speed = 20000000;
+	if (plat->ich_version == ICHV_9 && ich9_can_do_33mhz(dev))
+		ctlr->max_speed = 33000000;
+	debug("ICH SPI: Version ID %d detected at %p, speed %ld\n",
+	      plat->ich_version, ctlr->base, ctlr->max_speed);
+
+	ich_set_bbar(ctlr, 0);
 
 	return 0;
 }
