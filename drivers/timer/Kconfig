@@ -174,6 +174,20 @@ config X86_TSC_TIMER
 	help
 	  Select this to enable Time-Stamp Counter (TSC) timer for x86.
 
+config X86_TSC_READ_BASE
+	bool "Read the TSC timer base on start-up"
+	depends on X86_TSC_TIMER
+	help
+	  On x86 platforms the TSC timer tick starts at the value 0 on reset.
+	  This it makes no sense to read the timer on boot and use that as the
+	  base, since we will miss some time taken to load U-Boot, etc. This
+	  delay is controlled by the SoC and we cannot reduce it, but for
+	  bootstage we want to record the time since reset as accurately as
+	  possible.
+
+	  The only exception is when U-Boot is used as a secondary bootloader,
+	  where this option should be enabled.
+
 config MTK_TIMER
 	bool "MediaTek timer support"
 	depends on TIMER
