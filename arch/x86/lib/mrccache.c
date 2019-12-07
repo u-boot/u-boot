@@ -118,8 +118,20 @@ static struct mrc_data_container *find_next_mrc_cache(struct mrc_region *entry,
 	return cache;
 }
 
-int mrccache_update(struct udevice *sf, struct mrc_region *entry,
-		    struct mrc_data_container *cur)
+/**
+ * mrccache_update() - update the MRC cache with a new record
+ *
+ * This writes a new record to the end of the MRC cache region. If the new
+ * record is the same as the latest record then the write is skipped
+ *
+ * @sf:		SPI flash to write to
+ * @entry:	Position and size of MRC cache in SPI flash
+ * @cur:	Record to write
+ * @return 0 if updated, -EEXIST if the record is the same as the latest
+ * record, -EINVAL if the record is not valid, other error if SPI write failed
+ */
+static int mrccache_update(struct udevice *sf, struct mrc_region *entry,
+			   struct mrc_data_container *cur)
 {
 	struct mrc_data_container *cache;
 	ulong offset;
