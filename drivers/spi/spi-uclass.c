@@ -85,11 +85,14 @@ int dm_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		const void *dout, void *din, unsigned long flags)
 {
 	struct udevice *bus = dev->parent;
+	struct dm_spi_ops *ops = spi_get_ops(bus);
 
 	if (bus->uclass->uc_drv->id != UCLASS_SPI)
 		return -EOPNOTSUPP;
+	if (!ops->xfer)
+		return -ENOSYS;
 
-	return spi_get_ops(bus)->xfer(dev, bitlen, dout, din, flags);
+	return ops->xfer(dev, bitlen, dout, din, flags);
 }
 
 int dm_spi_get_mmap(struct udevice *dev, ulong *map_basep, uint *map_sizep,

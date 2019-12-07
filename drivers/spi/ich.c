@@ -493,13 +493,6 @@ static int ich_spi_adjust_size(struct spi_slave *slave, struct spi_mem_op *op)
 	return 0;
 }
 
-static int ich_spi_xfer(struct udevice *dev, unsigned int bitlen,
-			const void *dout, void *din, unsigned long flags)
-{
-	printf("ICH SPI: Only supports memory operations\n");
-	return -1;
-}
-
 static int ich_spi_probe(struct udevice *dev)
 {
 	struct ich_spi_platdata *plat = dev_get_platdata(dev);
@@ -612,7 +605,7 @@ static const struct spi_controller_mem_ops ich_controller_mem_ops = {
 };
 
 static const struct dm_spi_ops ich_spi_ops = {
-	.xfer		= ich_spi_xfer,
+	/* xfer is not supported */
 	.set_speed	= ich_spi_set_speed,
 	.set_mode	= ich_spi_set_mode,
 	.mem_ops	= &ich_controller_mem_ops,

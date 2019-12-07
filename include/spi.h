@@ -224,7 +224,7 @@ void spi_release_bus(struct spi_slave *slave);
 int spi_set_wordlen(struct spi_slave *slave, unsigned int wordlen);
 
 /**
- * SPI transfer
+ * SPI transfer (optional if mem_ops is used)
  *
  * This writes "bitlen" bits out the SPI MOSI port and simultaneously clocks
  * "bitlen" bits in the SPI MISO port.  That's just the way SPI works.
