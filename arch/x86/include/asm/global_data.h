@@ -67,6 +67,21 @@ struct mtrr_request {
 	uint64_t size;
 };
 
+/**
+ * struct mrc_output - holds the MRC data
+ *
+ * @buf: MRC training data to save for the next boot. This is set to point to
+ *	the raw data after SDRAM init is complete. Then mrccache_setup()
+ *	turns it into a proper cache record with a checksum
+ * @len: Length of @buf
+ * @cache: Resulting cache record
+ */
+struct mrc_output {
+	char *buf;
+	uint len;
+	struct mrc_data_container *cache;
+};
+
 /* Architecture-specific global data */
 struct arch_global_data {
 	u64 gdt[X86_GDT_NUM_ENTRIES] __aligned(16);
@@ -91,10 +106,8 @@ struct arch_global_data {
 	struct mtrr_request mtrr_req[MAX_MTRR_REQUESTS];
 	int mtrr_req_count;
 	int has_mtrr;
-	/* MRC training data to save for the next boot */
-	char *mrc_output;
-	unsigned int mrc_output_len;
-	struct mrc_data_container *mrc_cache;
+	/* MRC training data */
+	struct mrc_output mrc[MRC_TYPE_COUNT];
 	ulong table;			/* Table pointer from previous loader */
 	int turbo_state;		/* Current turbo state */
 	struct irq_routing_table *pirq_routing_table;

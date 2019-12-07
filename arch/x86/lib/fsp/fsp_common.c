@@ -64,7 +64,7 @@ void *fsp_prepare_mrc_cache(void)
 	struct mrc_region entry;
 	int ret;
 
-	ret = mrccache_get_region(NULL, &entry);
+	ret = mrccache_get_region(MRC_TYPE_NORMAL, NULL, &entry);
 	if (ret)
 		return NULL;
 

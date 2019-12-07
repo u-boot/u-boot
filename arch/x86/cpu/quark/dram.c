@@ -24,7 +24,7 @@ static __maybe_unused int prepare_mrc_cache(struct mrc_params *mrc_params)
 	struct mrc_region entry;
 	int ret;
 
-	ret = mrccache_get_region(NULL, &entry);
+	ret = mrccache_get_region(MRC_TYPE_NORMAL, NULL, &entry);
 	if (ret)
 		return ret;
 
@@ -154,9 +154,11 @@ int dram_init(void)
 #ifdef CONFIG_ENABLE_MRC_CACHE
 	cache = malloc(sizeof(struct mrc_timings));
 	if (cache) {
+		struct mrc_output *mrc = &gd->arch.mrc[MRC_TYPE_NORMAL];
+
 		memcpy(cache, &mrc_params.timings, sizeof(struct mrc_timings));
-		gd->arch.mrc_output = cache;
-		gd->arch.mrc_output_len = sizeof(struct mrc_timings);
+		mrc->buf = cache;
+		mrc->len = sizeof(struct mrc_timings);
 	}
 #endif
 

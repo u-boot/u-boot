@@ -174,38 +174,45 @@ int mrccache_update(struct udevice *sf, struct mrc_region *entry,
 	return 0;
 }
 
-static void mrccache_setup(void *data)
+static void mrccache_setup(struct mrc_output *mrc, void *data)
 {
 	struct mrc_data_container *cache = data;
 	u16 checksum;
 
 	cache->signature = MRC_DATA_SIGNATURE;
-	cache->data_size = gd->arch.mrc_output_len;
-	checksum = compute_ip_checksum(gd->arch.mrc_output, cache->data_size);
+	cache->data_size = mrc->len;
+	checksum = compute_ip_checksum(mrc->buf, cache->data_size);
 	debug("Saving %d bytes for MRC output data, checksum %04x\n",
 	      cache->data_size, checksum);
 	cache->checksum = checksum;
 	cache->reserved = 0;
-	memcpy(cache->data, gd->arch.mrc_output, cache->data_size);
+	memcpy(cache->data, mrc->buf, cache->data_size);
 
-	gd->arch.mrc_cache = cache;
+	mrc->cache = cache;
 }
 
 int mrccache_reserve(void)
 {
-	if (!gd->arch.mrc_output_len)
-		return 0;
+	int i;
 
-	/* adjust stack pointer to store pure cache data plus the header */
-	gd->start_addr_sp -= (gd->arch.mrc_output_len + MRC_DATA_HEADER_SIZE);
-	mrccache_setup((void *)gd->start_addr_sp);
+	for (i = 0; i < MRC_TYPE_COUNT; i++) {
+		struct mrc_output *mrc = &gd->arch.mrc[i];
 
-	gd->start_addr_sp &= ~0xf;
+		if (!mrc->len)
+			continue;
+
+		/* adjust stack pointer to store pure cache data plus header */
+		gd->start_addr_sp -= (mrc->len + MRC_DATA_HEADER_SIZE);
+		mrccache_setup(mrc, (void *)gd->start_addr_sp);
+
+		gd->start_addr_sp &= ~0xf;
+	}
 
 	return 0;
 }
 
-int mrccache_get_region(struct udevice **devp, struct mrc_region *entry)
+int mrccache_get_region(enum mrc_type_t type, struct udevice **devp,
+			struct mrc_region *entry)
 {
 	struct udevice *dev;
 	ofnode mrc_node;
@@ -246,31 +253,33 @@ int mrccache_get_region(struct udevice **devp, struct mrc_region *entry)
 
 	if (devp)
 		*devp = dev;
-	debug("MRC cache in '%s', offset %x, len %x, base %x\n",
-	      dev->name, entry->offset, entry->length, entry->base);
+	debug("MRC cache type %d in '%s', offset %x, len %x, base %x\n",
+	      type, dev->name, entry->offset, entry->length, entry->base);
 
 	return 0;
 }
 
-int mrccache_save(void)
+static int mrccache_save_type(enum mrc_type_t type)
 {
 	struct mrc_data_container *cache;
+	struct mrc_output *mrc;
 	struct mrc_region entry;
 	struct udevice *sf;
 	int ret;
 
-	if (!gd->arch.mrc_output_len)
+	mrc = &gd->arch.mrc[type];
+	if (!mrc->len)
 		return 0;
-	debug("Saving %#x bytes of MRC output data to SPI flash\n",
-	      gd->arch.mrc_output_len);
-
-	ret = mrccache_get_region(&sf, &entry);
+	log_debug("Saving %#x bytes of MRC output data type %d to SPI flash\n",
+		  mrc->len, type);
+	ret = mrccache_get_region(type, &sf, &entry);
 	if (ret)
 		return log_msg_ret("Cannot get region", ret);
 	ret = device_probe(sf);
 	if (ret)
 		return log_msg_ret("Cannot probe device", ret);
-	cache = gd->arch.mrc_cache;
+	cache = mrc->cache;
+
 	ret = mrccache_update(sf, &entry, cache);
 	if (!ret)
 		debug("Saved MRC data with checksum %04x\n", cache->checksum);
@@ -280,17 +289,36 @@ int mrccache_save(void)
 	return 0;
 }
 
+int mrccache_save(void)
+{
+	int i;
+
+	for (i = 0; i < MRC_TYPE_COUNT; i++) {
+		int ret;
+
+		ret = mrccache_save_type(i);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+
 int mrccache_spl_save(void)
 {
-	void *data;
-	int size;
+	int i;
 
-	size = gd->arch.mrc_output_len + MRC_DATA_HEADER_SIZE;
-	data = malloc(size);
-	if (!data)
-		return log_msg_ret("Allocate MRC cache block", -ENOMEM);
-	mrccache_setup(data);
-	gd->arch.mrc_output = data;
+	for (i = 0; i < MRC_TYPE_COUNT; i++) {
+		struct mrc_output *mrc = &gd->arch.mrc[i];
+		void *data;
+		int size;
+
+		size = mrc->len + MRC_DATA_HEADER_SIZE;
+		data = malloc(size);
+		if (!data)
+			return log_msg_ret("Allocate MRC cache block", -ENOMEM);
+		mrccache_setup(mrc, data);
+	}
 
 	return mrccache_save();
 }

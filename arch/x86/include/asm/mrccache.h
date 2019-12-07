@@ -27,6 +27,13 @@ struct mrc_region {
 	u32	length;
 };
 
+/* Types of MRC data */
+enum mrc_type_t {
+	MRC_TYPE_NORMAL,
+
+	MRC_TYPE_COUNT,
+};
+
 struct udevice;
 
 /**
@@ -84,6 +91,7 @@ int mrccache_reserve(void);
  *   triggers PCI bus enumeration during which insufficient memory issue
  *   might be exposed and it causes subsequent SPI flash probe fails).
  *
+ * @type:	Type of MRC data to use
  * @devp:	Returns pointer to the SPI flash device
  * @entry:	Position and size of MRC cache in SPI flash
  * @return 0 if success, -ENOENT if SPI flash node does not exist in the
@@ -91,7 +99,8 @@ int mrccache_reserve(void);
  * tree, -EINVAL if MRC region properties format is incorrect, other error
  * if SPI flash probe failed.
  */
-int mrccache_get_region(struct udevice **devp, struct mrc_region *entry);
+int mrccache_get_region(enum mrc_type_t type, struct udevice **devp,
+			struct mrc_region *entry);
 
 /**
  * mrccache_save() - save MRC data to the SPI flash

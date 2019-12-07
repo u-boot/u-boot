@@ -15,9 +15,11 @@ int dram_init(void)
 	if (ret)
 		return ret;
 
-	if (IS_ENABLED(CONFIG_ENABLE_MRC_CACHE))
-		gd->arch.mrc_output = fsp_get_nvs_data(gd->arch.hob_list,
-					       &gd->arch.mrc_output_len);
+	if (IS_ENABLED(CONFIG_ENABLE_MRC_CACHE)) {
+		struct mrc_output *mrc = &gd->arch.mrc[MRC_TYPE_NORMAL];
+
+		mrc->buf = fsp_get_nvs_data(gd->arch.hob_list, &mrc->len);
+	}
 
 	return 0;
 }

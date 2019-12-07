@@ -83,7 +83,7 @@ static int prepare_mrc_cache(struct pei_data *pei_data)
 	struct mrc_region entry;
 	int ret;
 
-	ret = mrccache_get_region(NULL, &entry);
+	ret = mrccache_get_region(MRC_TYPE_NORMAL, NULL, &entry);
 	if (ret)
 		return ret;
 	mrc_cache = mrccache_find_current(&entry);
@@ -169,12 +169,14 @@ int dram_init(void)
 	      pei_data->data_to_save);
 	/* S3 resume: don't save scrambler seed or MRC data */
 	if (pei_data->boot_mode != SLEEP_STATE_S3) {
+		struct mrc_output *mrc = &gd->arch.mrc[MRC_TYPE_NORMAL];
+
 		/*
 		 * This will be copied to SDRAM in reserve_arch(), then written
 		 * to SPI flash in mrccache_save()
 		 */
-		gd->arch.mrc_output = (char *)pei_data->data_to_save;
-		gd->arch.mrc_output_len = pei_data->data_to_save_size;
+		mrc->buf = (char *)pei_data->data_to_save;
+		mrc->len = pei_data->data_to_save_size;
 	}
 	gd->arch.pei_meminfo = pei_data->meminfo;
 
