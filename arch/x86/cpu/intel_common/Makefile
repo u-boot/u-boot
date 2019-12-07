@@ -19,6 +19,7 @@ endif
 obj-y += cpu.o
 obj-y += fast_spi.o
 obj-y += lpc.o
+obj-y += lpss.o
 ifndef CONFIG_TARGET_EFI_APP
 obj-$(CONFIG_$(SPL_TPL_)X86_32BIT_INIT) += microcode.o
 ifndef CONFIG_$(SPL_)X86_64
