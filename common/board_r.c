@@ -311,15 +311,23 @@ static int initr_dm(void)
 	bootstage_accum(BOOTSTATE_ID_ACCUM_DM_R);
 	if (ret)
 		return ret;
-#ifdef CONFIG_TIMER_EARLY
-	ret = dm_timer_init();
-	if (ret)
-		return ret;
-#endif
 
 	return 0;
 }
 #endif
+
+static int initr_dm_devices(void)
+{
+	int ret;
+
+	if (IS_ENABLED(CONFIG_TIMER_EARLY)) {
+		ret = dm_timer_init();
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
 
 static int initr_bootstage(void)
 {
@@ -707,6 +715,7 @@ static init_fnc_t init_sequence_r[] = {
 	efi_memory_init,
 #endif
 	initr_binman,
+	initr_dm_devices,
 	stdio_init_tables,
 	initr_serial,
 	initr_announce,
