@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <div64.h>
 #include <dm.h>
 #include <errno.h>
 #include <malloc.h>
@@ -13,9 +14,8 @@
 #include <pci.h>
 #include <pci_ids.h>
 #include <spi.h>
-#include <asm/io.h>
 #include <spi-mem.h>
-#include <div64.h>
+#include <asm/io.h>
 
 #include "ich.h"
 
