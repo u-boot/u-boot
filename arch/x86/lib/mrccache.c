@@ -168,7 +168,7 @@ int mrccache_update(struct udevice *sf, struct mrc_region *entry,
 				 cur);
 	if (ret) {
 		debug("Failed to write to SPI flash\n");
-		return ret;
+		return log_msg_ret("Cannot update mrccache", ret);
 	}
 
 	return 0;
@@ -261,28 +261,23 @@ int mrccache_save(void)
 
 	if (!gd->arch.mrc_output_len)
 		return 0;
-	debug("Saving %d bytes of MRC output data to SPI flash\n",
+	debug("Saving %#x bytes of MRC output data to SPI flash\n",
 	      gd->arch.mrc_output_len);
 
 	ret = mrccache_get_region(&sf, &entry);
 	if (ret)
-		goto err_entry;
+		return log_msg_ret("Cannot get region", ret);
 	ret = device_probe(sf);
 	if (ret)
-		goto err_entry;
+		return log_msg_ret("Cannot probe device", ret);
 	cache = gd->arch.mrc_cache;
 	ret = mrccache_update(sf, &entry, cache);
-	if (!ret) {
+	if (!ret)
 		debug("Saved MRC data with checksum %04x\n", cache->checksum);
-	} else if (ret == -EEXIST) {
+	else if (ret == -EEXIST)
 		debug("MRC data is the same as last time, skipping save\n");
-		ret = 0;
-	}
 
-err_entry:
-	if (ret)
-		debug("%s: Failed: %d\n", __func__, ret);
-	return ret;
+	return 0;
 }
 
 int mrccache_spl_save(void)
