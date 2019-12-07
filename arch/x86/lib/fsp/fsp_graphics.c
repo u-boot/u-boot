@@ -7,7 +7,7 @@
 #include <dm.h>
 #include <vbe.h>
 #include <video.h>
-#include <asm/fsp1/fsp_support.h>
+#include <asm/fsp/fsp_support.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
