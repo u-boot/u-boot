@@ -30,6 +30,7 @@ struct mrc_region {
 /* Types of MRC data */
 enum mrc_type_t {
 	MRC_TYPE_NORMAL,
+	MRC_TYPE_VAR,
 
 	MRC_TYPE_COUNT,
 };

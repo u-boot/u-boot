@@ -241,7 +241,8 @@ int mrccache_get_region(enum mrc_type_t type, struct udevice **devp,
 	}
 
 	/* Find the place where we put the MRC cache */
-	mrc_node = dev_read_subnode(dev, "rw-mrc-cache");
+	mrc_node = dev_read_subnode(dev, type == MRC_TYPE_NORMAL ?
+				    "rw-mrc-cache" : "rw-var-mrc-cache");
 	if (!ofnode_valid(mrc_node))
 		return log_msg_ret("Cannot find node", -EPERM);
 
