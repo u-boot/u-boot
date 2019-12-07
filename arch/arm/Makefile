@@ -12,8 +12,8 @@ arch-$(CONFIG_CPU_ARM926EJS)	=-march=armv5te
 arch-$(CONFIG_CPU_ARM946ES)	=-march=armv5te
 arch-$(CONFIG_CPU_SA1100)	=-march=armv4
 arch-$(CONFIG_CPU_PXA)		=
-arch-$(CONFIG_CPU_ARM1136)	=-march=armv6
-arch-$(CONFIG_CPU_ARM1176)	=-march=armv6
+arch-$(CONFIG_CPU_ARM1136)	=-march=armv5t
+arch-$(CONFIG_CPU_ARM1176)	=-march=armv5t
 arch-$(CONFIG_CPU_V7A)		=$(call cc-option, -march=armv7-a, \
 				 $(call cc-option, -march=armv7))
 arch-$(CONFIG_CPU_V7M)		=-march=armv7-m
