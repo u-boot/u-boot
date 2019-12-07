@@ -350,14 +350,6 @@ int irq_router_probe(struct udevice *dev)
 	return 0;
 }
 
-ulong write_pirq_routing_table(ulong addr)
-{
-	if (!gd->arch.pirq_routing_table)
-		return addr;
-
-	return copy_pirq_routing_table(addr, gd->arch.pirq_routing_table);
-}
-
 static const struct udevice_id irq_router_ids[] = {
 	{ .compatible = "intel,irq-router" },
 	{ }
