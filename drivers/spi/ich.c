@@ -425,9 +425,11 @@ static int ich_spi_adjust_size(struct spi_slave *slave, struct spi_mem_op *op)
 		page_offset = do_div(aux, ICH_BOUNDARY);
 	}
 
-	if (op->data.dir == SPI_MEM_DATA_IN && slave->max_read_size) {
-		op->data.nbytes = min(ICH_BOUNDARY - page_offset,
-				      slave->max_read_size);
+	if (op->data.dir == SPI_MEM_DATA_IN) {
+		if (slave->max_read_size) {
+			op->data.nbytes = min(ICH_BOUNDARY - page_offset,
+					      slave->max_read_size);
+		}
 	} else if (slave->max_write_size) {
 		op->data.nbytes = min(ICH_BOUNDARY - page_offset,
 				      slave->max_write_size);
