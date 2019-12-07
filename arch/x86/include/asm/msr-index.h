@@ -241,10 +241,17 @@
 #define  PKG_POWER_LIMIT_CLAMP		(1 << 16)
 #define  PKG_POWER_LIMIT_TIME_SHIFT	17
 #define  PKG_POWER_LIMIT_TIME_MASK	0x7f
+/*
+ * For Mobile, RAPL default PL1 time window value set to 28 seconds.
+ * RAPL time window calculation defined as follows:
+ * Time Window = (float)((1+X/4)*(2*^Y), X Corresponds to [23:22],
+ * Y to [21:17] in MSR 0x610. 28 sec is equal to 0x6e.
+ */
+#define  MB_POWER_LIMIT1_TIME_DEFAULT	0x6e
 
 #define MSR_PKG_ENERGY_STATUS		0x00000611
 #define MSR_PKG_PERF_STATUS		0x00000613
-#define MSR_PKG_POWER_INFO		0x00000614
+#define MSR_PKG_POWER_SKU		0x614
 
 #define MSR_DRAM_POWER_LIMIT		0x00000618
 #define MSR_DRAM_ENERGY_STATUS		0x00000619
