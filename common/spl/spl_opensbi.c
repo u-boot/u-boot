@@ -70,6 +70,7 @@ void spl_invoke_opensbi(struct spl_image_info *spl_image)
 	opensbi_info.next_addr = uboot_entry;
 	opensbi_info.next_mode = FW_DYNAMIC_INFO_NEXT_MODE_S;
 	opensbi_info.options = SBI_SCRATCH_NO_BOOT_PRINTS;
+	opensbi_info.boot_hart = gd->arch.boot_hart;
 
 	opensbi_entry = (void (*)(ulong, ulong, ulong))spl_image->entry_point;
 	invalidate_icache_all();
