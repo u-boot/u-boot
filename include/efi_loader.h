@@ -35,7 +35,7 @@ static inline int guidcmp(const void *g1, const void *g2)
 		 0x9a, 0xab, 0x3a, 0x7d, 0xbf, 0x40, 0xc4, 0x82)
 
 /* Use internal device tree when starting UEFI application */
-#define EFI_FDT_USE_INTERNAL 0UL
+#define EFI_FDT_USE_INTERNAL NULL
 
 /* Root node */
 extern efi_handle_t efi_root;
@@ -341,6 +341,8 @@ extern struct list_head efi_register_notify_events;
 
 /* Initialize efi execution environment */
 efi_status_t efi_init_obj_list(void);
+/* Install device tree */
+efi_status_t efi_install_fdt(void *fdt);
 /* Run loaded UEFI image */
 efi_status_t efi_run_image(void *source_buffer, efi_uintn_t source_size);
 /* Initialize variable services */

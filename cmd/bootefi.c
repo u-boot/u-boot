@@ -212,24 +212,24 @@ static void *get_config_table(const efi_guid_t *guid)
  *		the environment variable fdtcontroladdr
  * Return:	status code
  */
-static efi_status_t efi_install_fdt(uintptr_t fdt_addr)
+efi_status_t efi_install_fdt(void *fdt)
 {
 	/*
 	 * The EBBR spec requires that we have either an FDT or an ACPI table
 	 * but not both.
 	 */
 #if CONFIG_IS_ENABLED(GENERATE_ACPI_TABLE)
-	if (fdt_addr) {
+	if (fdt) {
 		printf("ERROR: can't have ACPI table and device tree.\n");
 		return EFI_LOAD_ERROR;
 	}
 #else
-	void *fdt;
 	bootm_headers_t img = { 0 };
 	efi_status_t ret;
 
-	if (fdt_addr == EFI_FDT_USE_INTERNAL) {
+	if (fdt == EFI_FDT_USE_INTERNAL) {
 		const char *fdt_opt;
+		uintptr_t fdt_addr;
 
 		/* Look for device tree that is already installed */
 		if (get_config_table(&efi_guid_fdt))
@@ -249,10 +249,10 @@ static efi_status_t efi_install_fdt(uintptr_t fdt_addr)
 			printf("ERROR: invalid $fdt_addr or $fdtcontroladdr\n");
 			return EFI_LOAD_ERROR;
 		}
+		fdt = map_sysmem(fdt_addr, 0);
 	}
 
 	/* Install device tree */
-	fdt = map_sysmem(fdt_addr, 0);
 	if (fdt_check_header(fdt)) {
 		printf("ERROR: invalid device tree\n");
 		return EFI_LOAD_ERROR;
@@ -574,7 +574,7 @@ static int do_efi_selftest(void)
 static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	efi_status_t ret;
-	uintptr_t fdt_addr;
+	void *fdt;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
@@ -587,11 +587,15 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return CMD_RET_FAILURE;
 	}
 
-	if (argc > 2)
+	if (argc > 2) {
+		uintptr_t fdt_addr;
+
 		fdt_addr = simple_strtoul(argv[2], NULL, 16);
-	else
-		fdt_addr = EFI_FDT_USE_INTERNAL;
-	ret = efi_install_fdt(fdt_addr);
+		fdt = map_sysmem(fdt_addr, 0);
+	} else {
+		fdt = EFI_FDT_USE_INTERNAL;
+	}
+	ret = efi_install_fdt(fdt);
 	if (ret == EFI_INVALID_PARAMETER)
 		return CMD_RET_USAGE;
 	else if (ret != EFI_SUCCESS)
