@@ -99,7 +99,7 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 		if (IMAGE_ENABLE_OF_LIBFDT && images->ft_len) {
 #ifdef CONFIG_SMP
 			ret = smp_call_function(images->ep,
-						(ulong)images->ft_addr, 0);
+						(ulong)images->ft_addr, 0, 0);
 			if (ret)
 				hang();
 #endif

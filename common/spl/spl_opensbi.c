@@ -78,7 +78,7 @@ void spl_invoke_opensbi(struct spl_image_info *spl_image)
 #ifdef CONFIG_SMP
 	ret = smp_call_function((ulong)spl_image->entry_point,
 				(ulong)spl_image->fdt_addr,
-				(ulong)&opensbi_info);
+				(ulong)&opensbi_info, 0);
 	if (ret)
 		hang();
 #endif

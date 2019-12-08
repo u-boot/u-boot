@@ -46,8 +46,9 @@ void handle_ipi(ulong hart);
  * @addr: Address of function
  * @arg0: First argument of function
  * @arg1: Second argument of function
+ * @wait: Wait for harts to acknowledge request
  * @return 0 if OK, -ve on error
  */
-int smp_call_function(ulong addr, ulong arg0, ulong arg1);
+int smp_call_function(ulong addr, ulong arg0, ulong arg1, int wait);
 
 #endif

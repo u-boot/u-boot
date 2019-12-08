@@ -197,6 +197,7 @@ spl_secondary_hart_stack_gd_setup:
 	la	a0, secondary_hart_relocate
 	mv	a1, s0
 	mv	a2, s0
+	mv	a3, zero
 	jal	smp_call_function
 
 	/* hang if relocation of secondary harts has failed */
@@ -337,6 +338,7 @@ relocate_secondary_harts:
 
 	mv	a1, s2
 	mv	a2, s3
+	mv	a3, zero
 	jal	smp_call_function
 
 	/* hang if relocation of secondary harts has failed */
