@@ -17,16 +17,6 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(32 * SZ_1M)
 
-/* Network */
-#define CONFIG_FEC_MXC
-#define CONFIG_FEC_XCV_TYPE             RGMII
-#define CONFIG_ETHPRIME                 "FEC"
-#define CONFIG_FEC_MXC_PHYADDR          0
-
-#define CONFIG_PHY_BROADCOM
-/* ENET1 */
-#define IMX_FEC_BASE			ENET_IPS_BASE_ADDR
-
 /* MMC Config*/
 #define CONFIG_SYS_FSL_ESDHC_ADDR       0
 
