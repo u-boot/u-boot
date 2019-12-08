@@ -60,6 +60,9 @@ config TARGET_SC_SPS_1
 config TARGET_TS4600
 	bool "Support TS4600"
 
+config TARGET_XEA
+	bool "Support XEA"
+
 endchoice
 
 config SYS_SOC
@@ -67,6 +70,7 @@ config SYS_SOC
 
 source "board/bluegiga/apx4devkit/Kconfig"
 source "board/freescale/mx28evk/Kconfig"
+source "board/liebherr/xea/Kconfig"
 source "board/ppcag/bg0900/Kconfig"
 source "board/schulercontrol/sc_sps_1/Kconfig"
 source "board/technologic/ts4600/Kconfig"
