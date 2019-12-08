@@ -23,3 +23,14 @@ int riscv_clear_ipi(int hart)
 
 	return 0;
 }
+
+int riscv_get_ipi(int hart, int *pending)
+{
+	/*
+	 * The SBI does not support reading the IPI status. We always return 0
+	 * to indicate that no IPI is pending.
+	 */
+	*pending = 0;
+
+	return 0;
+}

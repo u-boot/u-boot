@@ -32,6 +32,18 @@ extern int riscv_send_ipi(int hart);
  */
 extern int riscv_clear_ipi(int hart);
 
+/**
+ * riscv_get_ipi() - Get status of inter-processor interrupt (IPI)
+ *
+ * Platform code must provide this function.
+ *
+ * @hart: Hart ID of hart to be checked
+ * @pending: Pointer to variable with result of the check,
+ *           1 if IPI is pending, 0 otherwise
+ * @return 0 if OK, -ve on error
+ */
+extern int riscv_get_ipi(int hart, int *pending);
+
 static int send_ipi_many(struct ipi_data *ipi)
 {
 	ofnode node, cpus;

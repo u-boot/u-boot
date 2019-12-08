@@ -117,6 +117,17 @@ int riscv_clear_ipi(int hart)
 	return 0;
 }
 
+int riscv_get_ipi(int hart, int *pending)
+{
+	PLIC_BASE_GET();
+
+	*pending = readl((void __iomem *)PENDING_REG(gd->arch.plic,
+						     gd->arch.boot_hart));
+	*pending = !!(*pending & SEND_IPI_TO_HART(hart));
+
+	return 0;
+}
+
 static const struct udevice_id andes_plic_ids[] = {
 	{ .compatible = "riscv,plic1", .data = RISCV_SYSCON_PLIC },
 	{ }
