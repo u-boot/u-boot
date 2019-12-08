@@ -76,9 +76,19 @@ void spl_invoke_opensbi(struct spl_image_info *spl_image)
 	invalidate_icache_all();
 
 #ifdef CONFIG_SMP
+	/*
+	 * Start OpenSBI on all secondary harts and wait for acknowledgment.
+	 *
+	 * OpenSBI first relocates itself to its link address. This is done by
+	 * the main hart. To make sure no hart is still running U-Boot SPL
+	 * during relocation, we wait for all secondary harts to acknowledge
+	 * the call-function request before entering OpenSBI on the main hart.
+	 * Otherwise, code corruption can occur if the link address ranges of
+	 * U-Boot SPL and OpenSBI overlap.
+	 */
 	ret = smp_call_function((ulong)spl_image->entry_point,
 				(ulong)spl_image->fdt_addr,
-				(ulong)&opensbi_info, 0);
+				(ulong)&opensbi_info, 1);
 	if (ret)
 		hang();
 #endif
