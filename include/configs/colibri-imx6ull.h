@@ -47,6 +47,12 @@
 	"ramdisk_addr_r=0x82200000\0" \
 	"scriptaddr=0x87000000\0"
 
+#define UBOOT_UPDATE \
+	"update_uboot=nand erase.part u-boot1 && " \
+		"nand write ${loadaddr} u-boot1 ${filesize} && " \
+		"nand erase.part u-boot2 && " \
+		"nand write ${loadaddr} u-boot2 ${filesize}\0"
+
 #define NFS_BOOTCMD \
 	"nfsargs=ip=:::::eth0: root=/dev/nfs\0" \
 	"nfsboot=run setup; " \
@@ -83,6 +89,7 @@
 	MEM_LAYOUT_ENV_SETTINGS \
 	NFS_BOOTCMD \
 	UBI_BOOTCMD \
+	UBOOT_UPDATE \
 	"console=ttymxc0\0" \
 	"defargs=user_debug=30\0" \
 	"dfu_alt_info=" DFU_ALT_NAND_INFO "\0" \
