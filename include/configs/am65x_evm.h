@@ -72,6 +72,7 @@
 	"overlayaddr=0x83000000\0"					\
 	"name_kern=Image\0"						\
 	"console=ttyS2,115200n8\0"					\
+	"stdin=serial,usbkbd\0"						\
 	"args_all=setenv optargs earlycon=ns16550a,mmio32,0x02800000\0" \
 	"run_kern=booti ${loadaddr} ${rd_spec} ${fdtaddr}\0"		\
 
