@@ -270,6 +270,17 @@
 	status = "okay";
 };
 
+&reg_pcie {
+	regulator-always-on;
+};
+
+&pcie {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_pcie>;
+	reset-gpio = <&gpio4 6 GPIO_ACTIVE_HIGH>;
+	status = "okay";
+};
+
 &iomuxc {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_gpios>;
@@ -357,6 +368,12 @@
 		fsl,pins = <
 			MX6SX_PAD_NAND_ALE__I2C3_SDA		0x4001b8b1
 			MX6SX_PAD_NAND_CLE__I2C3_SCL		0x4001b8b1
+		>;
+	};
+
+	pinctrl_pcie: pciegrp {
+		fsl,pins = <
+			MX6SX_PAD_NAND_DATA02__GPIO4_IO_6	0x10b0
 		>;
 	};
 

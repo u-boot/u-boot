@@ -58,8 +58,6 @@
 #define CONFIG_POWER_PFUZE100_I2C_ADDR	0x08
 
 /* Network */
-#define CONFIG_FEC_MXC
-
 #define IMX_FEC_BASE			ENET_BASE_ADDR
 #define CONFIG_FEC_MXC_PHYADDR          0x0
 
@@ -89,6 +87,10 @@
 #define CONFIG_SYS_MMC_ENV_DEV		0 /* USDHC4 eMMC */
 /* 0=user, 1=boot0, 2=boot1, * 4..7=general0..3. */
 #define CONFIG_SYS_MMC_ENV_PART		1 /* boot0 */
+#endif
+
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_MXC_UART_BASE		UART1_BASE
 #endif
 
 #endif				/* __CONFIG_H */

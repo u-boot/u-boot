@@ -217,6 +217,7 @@ u32 get_cpu_rev(void)
 					readl((void __iomem *)ROM_VERSION_A0);
 				if (rom_version != CHIP_REV_1_0) {
 					rom_version = readl((void __iomem *)ROM_VERSION_B0);
+					rom_version &= 0xff;
 					if (rom_version == CHIP_REV_2_0)
 						reg = CHIP_REV_2_0;
 				}
