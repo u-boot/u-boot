@@ -449,9 +449,9 @@ static int udma_start(struct udma_chan *uc)
 
 		pr_debug("%s(tx): RT_CTL:0x%08x PEER RT_ENABLE:0x%08x\n",
 			 __func__,
-			 udma_rchanrt_read(uc->rchan,
+			 udma_tchanrt_read(uc->tchan,
 					   UDMA_TCHAN_RT_CTL_REG),
-			 udma_rchanrt_read(uc->rchan,
+			 udma_tchanrt_read(uc->tchan,
 					   UDMA_TCHAN_RT_PEER_RT_EN_REG));
 		break;
 	case DMA_MEM_TO_MEM:
