@@ -10,6 +10,16 @@
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
 
+/* DT node properties for MAC-PHY interface */
+#define PHY_MODE_STR_CNT	2
+static const char *phy_mode_str[PHY_MODE_STR_CNT] = { "phy-mode",
+						      "phy-connection-type" };
+/* DT node properties that reference a PHY node */
+#define PHY_HANDLE_STR_CNT	3
+const char *phy_handle_str[PHY_HANDLE_STR_CNT] = { "phy-handle",
+						   "phy",
+						   "phy-device" };
+
 void dm_mdio_probe_devices(void)
 {
 	struct udevice *it;
@@ -104,16 +114,96 @@ static int dm_mdio_pre_remove(struct udevice *dev)
 	return 0;
 }
 
-struct phy_device *dm_mdio_phy_connect(struct udevice *dev, int addr,
+struct phy_device *dm_mdio_phy_connect(struct udevice *mdiodev, int phyaddr,
 				       struct udevice *ethdev,
 				       phy_interface_t interface)
 {
-	struct mdio_perdev_priv *pdata = dev_get_uclass_priv(dev);
+	struct mdio_perdev_priv *pdata = dev_get_uclass_priv(mdiodev);
 
-	if (device_probe(dev))
-		return 0;
+	if (device_probe(mdiodev))
+		return NULL;
 
-	return phy_connect(pdata->mii_bus, addr, ethdev, interface);
+	return phy_connect(pdata->mii_bus, phyaddr, ethdev, interface);
+}
+
+static struct phy_device *dm_eth_connect_phy_handle(struct udevice *ethdev,
+						    phy_interface_t interface)
+{
+	u32 phy_addr;
+	struct udevice *mdiodev;
+	struct phy_device *phy;
+	struct ofnode_phandle_args phandle = {.node = ofnode_null()};
+	int i;
+
+	for (i = 0; i < PHY_HANDLE_STR_CNT; i++)
+		if (!dev_read_phandle_with_args(ethdev, phy_handle_str[i], NULL,
+						0, 0, &phandle))
+			break;
+
+	if (!ofnode_valid(phandle.node)) {
+		dev_dbg(dev, "can't find PHY node\n");
+		return NULL;
+	}
+
+	/*
+	 * reading 'reg' directly should be fine.  This is a PHY node, the
+	 * address is always size 1 and requires no translation
+	 */
+	if (ofnode_read_u32(phandle.node, "reg", &phy_addr)) {
+		dev_dbg(ethdev, "missing reg property in phy node\n");
+		return NULL;
+	}
+
+	if (uclass_get_device_by_ofnode(UCLASS_MDIO,
+					ofnode_get_parent(phandle.node),
+					&mdiodev)) {
+		dev_dbg(dev, "can't find MDIO bus for node %s\n",
+			ofnode_get_name(ofnode_get_parent(phandle.node)));
+		return NULL;
+	}
+
+	phy = dm_mdio_phy_connect(mdiodev, phy_addr, ethdev, interface);
+
+	if (phy)
+		phy->node = phandle.node;
+
+	return phy;
+}
+
+/* Connect to a PHY linked in eth DT node */
+struct phy_device *dm_eth_phy_connect(struct udevice *ethdev)
+{
+	const char *if_str;
+	phy_interface_t interface;
+	struct phy_device *phy;
+	int i;
+
+	if (!ofnode_valid(ethdev->node)) {
+		debug("%s: supplied eth dev has no DT node!\n", ethdev->name);
+		return NULL;
+	}
+
+	interface = PHY_INTERFACE_MODE_NONE;
+	for (i = 0; i < PHY_MODE_STR_CNT; i++) {
+		if_str = ofnode_read_string(ethdev->node, phy_mode_str[i]);
+		if (if_str) {
+			interface = phy_get_interface_by_name(if_str);
+			break;
+		}
+	}
+	if (interface < 0)
+		interface = PHY_INTERFACE_MODE_NONE;
+	if (interface == PHY_INTERFACE_MODE_NONE)
+		dev_dbg(ethdev, "can't find interface mode, default to NONE\n");
+
+	phy = dm_eth_connect_phy_handle(ethdev, interface);
+
+	if (!phy)
+		return NULL;
+
+	phy->interface = interface;
+
+	return phy;
 }
 
 UCLASS_DRIVER(mdio) = {

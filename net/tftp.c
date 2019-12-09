@@ -171,8 +171,13 @@ static inline int store_block(int block, uchar *src, unsigned int len)
 		void *ptr;
 
 #ifdef CONFIG_LMB
+		ulong end_addr = tftp_load_addr + tftp_load_size;
+
+		if (!end_addr)
+			end_addr = ULONG_MAX;
+
 		if (store_addr < tftp_load_addr ||
-		    store_addr + len > tftp_load_addr + tftp_load_size) {
+		    store_addr + len > end_addr) {
 			puts("\nTFTP error: ");
 			puts("trying to overwrite reserved memory...\n");
 			return -1;

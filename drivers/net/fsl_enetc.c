@@ -156,19 +156,14 @@ static void enetc_start_pcs(struct udevice *dev)
 
 	priv->if_type = PHY_INTERFACE_MODE_NONE;
 
-	/* check internal mdio capability, not all ports need it */
+	/* register internal MDIO for debug purposes */
 	if (enetc_read_port(priv, ENETC_PCAPR0) & ENETC_PCAPRO_MDIO) {
-		/*
-		 * set up internal MDIO, this is part of ETH PCI function and is
-		 * used to access serdes / internal SoC PHYs.
-		 * We don't currently register it as a MDIO bus as it goes away
-		 * when the interface is removed, so it can't practically be
-		 * used in the console.
-		 */
 		priv->imdio.read = enetc_mdio_read;
 		priv->imdio.write = enetc_mdio_write;
 		priv->imdio.priv = priv->port_regs + ENETC_PM_IMDIO_BASE;
 		strncpy(priv->imdio.name, dev->name, MDIO_NAME_LEN);
+		if (!miiphy_get_dev_by_name(priv->imdio.name))
+			mdio_register(&priv->imdio);
 	}
 
 	if (!ofnode_valid(dev->node)) {
@@ -190,70 +185,30 @@ static void enetc_start_pcs(struct udevice *dev)
 	case PHY_INTERFACE_MODE_SGMII_2500:
 		enetc_init_sgmii(dev);
 		break;
-	case PHY_INTERFACE_MODE_RGMII:
-	case PHY_INTERFACE_MODE_RGMII_ID:
-	case PHY_INTERFACE_MODE_RGMII_RXID:
-	case PHY_INTERFACE_MODE_RGMII_TXID:
-		enetc_init_rgmii(dev);
-		break;
 	case PHY_INTERFACE_MODE_XGMII:
+	case PHY_INTERFACE_MODE_USXGMII:
+	case PHY_INTERFACE_MODE_XFI:
 		enetc_init_sxgmii(dev);
 		break;
 	};
 }
 
 /* Configure the actual/external ethernet PHY, if one is found */
-static void enetc_start_phy(struct udevice *dev)
+static void enetc_config_phy(struct udevice *dev)
 {
 	struct enetc_priv *priv = dev_get_priv(dev);
-	struct udevice *miidev;
-	struct phy_device *phy;
-	u32 phandle, phy_id;
-	ofnode phy_node;
 	int supported;
 
-	if (!ofnode_valid(dev->node)) {
-		enetc_dbg(dev, "no enetc ofnode found, skipping PHY set-up\n");
-		return;
-	}
+	priv->phy = dm_eth_phy_connect(dev);
 
-	if (ofnode_read_u32(dev->node, "phy-handle", &phandle)) {
-		enetc_dbg(dev, "phy-handle not found, skipping PHY set-up\n");
+	if (!priv->phy)
 		return;
-	}
 
-	phy_node = ofnode_get_by_phandle(phandle);
-	if (!ofnode_valid(phy_node)) {
-		enetc_dbg(dev, "invalid phy node, skipping PHY set-up\n");
-		return;
-	}
-	enetc_dbg(dev, "phy node: %s\n", ofnode_get_name(phy_node));
+	supported = PHY_GBIT_FEATURES | SUPPORTED_2500baseX_Full;
+	priv->phy->supported &= supported;
+	priv->phy->advertising &= supported;
 
-	if (ofnode_read_u32(phy_node, "reg", &phy_id)) {
-		enetc_dbg(dev,
-			  "missing reg in PHY node, skipping PHY set-up\n");
-		return;
-	}
-
-	if (uclass_get_device_by_ofnode(UCLASS_MDIO,
-					ofnode_get_parent(phy_node),
-					&miidev)) {
-		enetc_dbg(dev, "can't find MDIO bus for node %s\n",
-			  ofnode_get_name(ofnode_get_parent(phy_node)));
-		return;
-	}
-
-	phy = dm_mdio_phy_connect(miidev, phy_id, dev, priv->if_type);
-	if (!phy) {
-		enetc_dbg(dev, "dm_mdio_phy_connect returned null\n");
-		return;
-	}
-
-	supported = GENMASK(6, 0); /* speeds up to 1G & AN */
-	phy->advertising = phy->supported & supported;
-	phy->node = phy_node;
-	phy_config(phy);
-	phy_startup(phy);
+	phy_config(priv->phy);
 }
 
 /*
@@ -291,6 +246,9 @@ static int enetc_probe(struct udevice *dev)
 	priv->port_regs = priv->regs_base + ENETC_PORT_REGS_OFF;
 
 	dm_pci_clrset_config16(dev, PCI_COMMAND, 0, PCI_COMMAND_MEMORY);
+
+	enetc_start_pcs(dev);
+	enetc_config_phy(dev);
 
 	return 0;
 }
@@ -467,8 +425,14 @@ static int enetc_start(struct udevice *dev)
 	enetc_setup_tx_bdr(dev);
 	enetc_setup_rx_bdr(dev);
 
-	enetc_start_pcs(dev);
-	enetc_start_phy(dev);
+	if (priv->if_type == PHY_INTERFACE_MODE_RGMII ||
+	    priv->if_type == PHY_INTERFACE_MODE_RGMII_ID ||
+	    priv->if_type == PHY_INTERFACE_MODE_RGMII_RXID ||
+	    priv->if_type == PHY_INTERFACE_MODE_RGMII_TXID)
+		enetc_init_rgmii(dev);
+
+	if (priv->phy)
+		phy_startup(priv->phy);
 
 	return 0;
 }
@@ -482,6 +446,10 @@ static void enetc_stop(struct udevice *dev)
 {
 	/* FLR is sufficient to quiesce the device */
 	dm_pci_flr(dev);
+	/* leave the BARs accessible after we stop, this is needed to use
+	 * internal MDIO in command line.
+	 */
+	dm_pci_clrset_config16(dev, PCI_COMMAND, 0, PCI_COMMAND_MEMORY);
 }
 
 /*

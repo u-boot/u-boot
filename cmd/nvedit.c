@@ -361,7 +361,7 @@ ulong env_get_hex(const char *varname, ulong default_val)
 
 int eth_env_get_enetaddr(const char *name, uint8_t *enetaddr)
 {
-	eth_parse_enetaddr(env_get(name), enetaddr);
+	string_to_enetaddr(env_get(name), enetaddr);
 	return is_valid_ethaddr(enetaddr);
 }
 

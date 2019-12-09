@@ -308,7 +308,7 @@ U_BOOT_ENV_CALLBACK(dnsip, on_dnsip);
  */
 void net_auto_load(void)
 {
-#if defined(CONFIG_CMD_NFS)
+#if defined(CONFIG_CMD_NFS) && !defined(CONFIG_SPL_BUILD)
 	const char *s = env_get("autoload");
 
 	if (s != NULL && strcmp(s, "NFS") == 0) {
@@ -496,7 +496,7 @@ restart:
 			ping_start();
 			break;
 #endif
-#if defined(CONFIG_CMD_NFS)
+#if defined(CONFIG_CMD_NFS) && !defined(CONFIG_SPL_BUILD)
 		case NFS:
 			nfs_start();
 			break;
@@ -1271,7 +1271,7 @@ void net_process_received_packet(uchar *in_packet, int len)
 #ifdef CONFIG_UDP_CHECKSUM
 		if (ip->udp_xsum != 0) {
 			ulong   xsum;
-			ushort *sumptr;
+			u8 *sumptr;
 			ushort  sumlen;
 
 			xsum  = ip->ip_p;
@@ -1282,22 +1282,16 @@ void net_process_received_packet(uchar *in_packet, int len)
 			xsum += (ntohl(ip->ip_dst.s_addr) >>  0) & 0x0000ffff;
 
 			sumlen = ntohs(ip->udp_len);
-			sumptr = (ushort *)&(ip->udp_src);
+			sumptr = (u8 *)&ip->udp_src;
 
 			while (sumlen > 1) {
-				ushort sumdata;
-
-				sumdata = *sumptr++;
-				xsum += ntohs(sumdata);
+				/* inlined ntohs() to avoid alignment errors */
+				xsum += (sumptr[0] << 8) + sumptr[1];
+				sumptr += 2;
 				sumlen -= 2;
 			}
-			if (sumlen > 0) {
-				ushort sumdata;
-
-				sumdata = *(unsigned char *)sumptr;
-				sumdata = (sumdata << 8) & 0xff00;
-				xsum += sumdata;
-			}
+			if (sumlen > 0)
+				xsum += (sumptr[0] << 8) + sumptr[0];
 			while ((xsum >> 16) != 0) {
 				xsum = (xsum & 0x0000ffff) +
 				       ((xsum >> 16) & 0x0000ffff);
@@ -1624,16 +1618,4 @@ ushort string_to_vlan(const char *s)
 ushort env_get_vlan(char *var)
 {
 	return string_to_vlan(env_get(var));
-}
-
-void eth_parse_enetaddr(const char *addr, uint8_t *enetaddr)
-{
-	char *end;
-	int i;
-
-	for (i = 0; i < 6; ++i) {
-		enetaddr[i] = addr ? simple_strtoul(addr, &end, 16) : 0;
-		if (addr)
-			addr = (*end) ? end + 1 : end;
-	}
 }

@@ -33,6 +33,7 @@
 #include <linux/mbus.h>
 #include <asm-generic/gpio.h>
 #include <fdt_support.h>
+#include <linux/mdio.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -62,8 +63,6 @@ do {									\
 #define WRAP			(2 + ETH_HLEN + 4 + 32)
 #define MTU			1500
 #define RX_BUFFER_SIZE		(ALIGN(MTU + WRAP, ARCH_DMA_MINALIGN))
-
-#define MVPP2_SMI_TIMEOUT			10000
 
 /* RX Fifo Registers */
 #define MVPP2_RX_DATA_FIFO_SIZE_REG(port)	(0x00 + 4 * (port))
@@ -491,23 +490,8 @@ do {									\
 #define MVPP2_QUEUE_NEXT_DESC(q, index) \
 	(((index) < (q)->last_desc) ? ((index) + 1) : 0)
 
-/* SMI: 0xc0054 -> offset 0x54 to lms_base */
-#define MVPP21_SMI				0x0054
 /* PP2.2: SMI: 0x12a200 -> offset 0x1200 to iface_base */
 #define MVPP22_SMI				0x1200
-#define     MVPP2_PHY_REG_MASK			0x1f
-/* SMI register fields */
-#define     MVPP2_SMI_DATA_OFFS			0	/* Data */
-#define     MVPP2_SMI_DATA_MASK			(0xffff << MVPP2_SMI_DATA_OFFS)
-#define     MVPP2_SMI_DEV_ADDR_OFFS		16	/* PHY device address */
-#define     MVPP2_SMI_REG_ADDR_OFFS		21	/* PHY device reg addr*/
-#define     MVPP2_SMI_OPCODE_OFFS		26	/* Write/Read opcode */
-#define     MVPP2_SMI_OPCODE_READ		(1 << MVPP2_SMI_OPCODE_OFFS)
-#define     MVPP2_SMI_READ_VALID		(1 << 27)	/* Read Valid */
-#define     MVPP2_SMI_BUSY			(1 << 28)	/* Busy */
-
-#define     MVPP2_PHY_ADDR_MASK			0x1f
-#define     MVPP2_PHY_REG_MASK			0x1f
 
 /* Additional PPv2.2 offsets */
 #define MVPP22_MPCS				0x007000
@@ -953,7 +937,6 @@ struct mvpp2_port {
 
 	/* Per-port registers' base address */
 	void __iomem *base;
-	void __iomem *mdio_base;
 
 	struct mvpp2_rx_queue **rxqs;
 	struct mvpp2_tx_queue **txqs;
@@ -974,9 +957,8 @@ struct mvpp2_port {
 
 	struct phy_device *phy_dev;
 	phy_interface_t phy_interface;
-	int phy_node;
 	int phyaddr;
-	struct mii_dev *bus;
+	struct udevice *mdio_dev;
 #ifdef CONFIG_DM_GPIO
 	struct gpio_desc phy_reset_gpio;
 	struct gpio_desc phy_tx_disable_gpio;
@@ -4495,17 +4477,40 @@ static void mvpp2_stop_dev(struct mvpp2_port *port)
 		gop_port_enable(port, 0);
 }
 
-static int mvpp2_phy_connect(struct udevice *dev, struct mvpp2_port *port)
+static void mvpp2_phy_connect(struct udevice *dev, struct mvpp2_port *port)
 {
 	struct phy_device *phy_dev;
 
 	if (!port->init || port->link == 0) {
-		phy_dev = phy_connect(port->bus, port->phyaddr, dev,
-				      port->phy_interface);
+		phy_dev = dm_mdio_phy_connect(port->mdio_dev, port->phyaddr,
+					      dev, port->phy_interface);
+
+		/*
+		 * If the phy doesn't match with any existing u-boot drivers the
+		 * phy framework will connect it to generic one which
+		 * uid == 0xffffffff. In this case act as if the phy wouldn't be
+		 * declared in dts. Otherwise in case of 3310 (for which the
+		 * driver doesn't exist) the link will not be correctly
+		 * detected. Removing phy entry from dts in case of 3310 is not
+		 * an option because it is required for the phy_fw_down
+		 * procedure.
+		 */
+		if (phy_dev &&
+		    phy_dev->drv->uid == 0xffffffff) {/* Generic phy */
+			netdev_warn(port->dev,
+				    "Marking phy as invalid, link will not be checked\n");
+			/* set phy_addr to invalid value */
+			port->phyaddr = PHY_MAX_ADDR;
+			mvpp2_egress_enable(port);
+			mvpp2_ingress_enable(port);
+
+			return;
+		}
+
 		port->phy_dev = phy_dev;
 		if (!phy_dev) {
 			netdev_err(port->dev, "cannot connect to phy\n");
-			return -ENODEV;
+			return;
 		}
 		phy_dev->supported &= PHY_GBIT_FEATURES;
 		phy_dev->advertising = phy_dev->supported;
@@ -4517,18 +4522,14 @@ static int mvpp2_phy_connect(struct udevice *dev, struct mvpp2_port *port)
 
 		phy_config(phy_dev);
 		phy_startup(phy_dev);
-		if (!phy_dev->link) {
+		if (!phy_dev->link)
 			printf("%s: No link\n", phy_dev->dev->name);
-			return -1;
-		}
-
-		port->init = 1;
+		else
+			port->init = 1;
 	} else {
 		mvpp2_egress_enable(port);
 		mvpp2_ingress_enable(port);
 	}
-
-	return 0;
 }
 
 static int mvpp2_open(struct udevice *dev, struct mvpp2_port *port)
@@ -4567,11 +4568,8 @@ static int mvpp2_open(struct udevice *dev, struct mvpp2_port *port)
 		return err;
 	}
 
-	if (port->phy_node) {
-		err = mvpp2_phy_connect(dev, port);
-		if (err < 0)
-			return err;
-
+	if (port->phyaddr < PHY_MAX_ADDR) {
+		mvpp2_phy_connect(dev, port);
 		mvpp2_link_event(port);
 	} else {
 		mvpp2_egress_enable(port);
@@ -4709,35 +4707,25 @@ static int phy_info_parse(struct udevice *dev, struct mvpp2_port *port)
 	u32 id;
 	u32 phyaddr = 0;
 	int phy_mode = -1;
-
-	/* Default mdio_base from the same eth base */
-	if (port->priv->hw_version == MVPP21)
-		port->mdio_base = port->priv->lms_base + MVPP21_SMI;
-	else
-		port->mdio_base = port->priv->iface_base + MVPP22_SMI;
+	int ret;
 
 	phy_node = fdtdec_lookup_phandle(gd->fdt_blob, port_node, "phy");
 
 	if (phy_node > 0) {
-		ofnode phy_ofnode;
-		fdt_addr_t phy_base;
-
+		int parent;
 		phyaddr = fdtdec_get_int(gd->fdt_blob, phy_node, "reg", 0);
 		if (phyaddr < 0) {
 			dev_err(&pdev->dev, "could not find phy address\n");
 			return -1;
 		}
-
-		phy_ofnode = ofnode_get_parent(offset_to_ofnode(phy_node));
-		phy_base = ofnode_get_addr(phy_ofnode);
-		port->mdio_base = (void *)phy_base;
-
-		if (port->mdio_base < 0) {
-			dev_err(&pdev->dev, "could not find mdio base address\n");
-			return -1;
-		}
+		parent = fdt_parent_offset(gd->fdt_blob, phy_node);
+		ret = uclass_get_device_by_of_offset(UCLASS_MDIO, parent,
+						     &port->mdio_dev);
+		if (ret)
+			return ret;
 	} else {
-		phy_node = 0;
+		/* phy_addr is set to invalid value */
+		phyaddr = PHY_MAX_ADDR;
 	}
 
 	phy_mode_str = fdt_getprop(gd->fdt_blob, port_node, "phy-mode", NULL);
@@ -4775,7 +4763,6 @@ static int phy_info_parse(struct udevice *dev, struct mvpp2_port *port)
 		port->first_rxq = port->id * rxq_number;
 	else
 		port->first_rxq = port->id * port->priv->max_port_rxqs;
-	port->phy_node = phy_node;
 	port->phy_interface = phy_mode;
 	port->phyaddr = phyaddr;
 
@@ -5052,118 +5039,6 @@ static int mvpp2_init(struct udevice *dev, struct mvpp2 *priv)
 	return 0;
 }
 
-/* SMI / MDIO functions */
-
-static int smi_wait_ready(struct mvpp2_port *priv)
-{
-	u32 timeout = MVPP2_SMI_TIMEOUT;
-	u32 smi_reg;
-
-	/* wait till the SMI is not busy */
-	do {
-		/* read smi register */
-		smi_reg = readl(priv->mdio_base);
-		if (timeout-- == 0) {
-			printf("Error: SMI busy timeout\n");
-			return -EFAULT;
-		}
-	} while (smi_reg & MVPP2_SMI_BUSY);
-
-	return 0;
-}
-
-/*
- * mpp2_mdio_read - miiphy_read callback function.
- *
- * Returns 16bit phy register value, or 0xffff on error
- */
-static int mpp2_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
-{
-	struct mvpp2_port *priv = bus->priv;
-	u32 smi_reg;
-	u32 timeout;
-
-	/* check parameters */
-	if (addr > MVPP2_PHY_ADDR_MASK) {
-		printf("Error: Invalid PHY address %d\n", addr);
-		return -EFAULT;
-	}
-
-	if (reg > MVPP2_PHY_REG_MASK) {
-		printf("Err: Invalid register offset %d\n", reg);
-		return -EFAULT;
-	}
-
-	/* wait till the SMI is not busy */
-	if (smi_wait_ready(priv) < 0)
-		return -EFAULT;
-
-	/* fill the phy address and regiser offset and read opcode */
-	smi_reg = (addr << MVPP2_SMI_DEV_ADDR_OFFS)
-		| (reg << MVPP2_SMI_REG_ADDR_OFFS)
-		| MVPP2_SMI_OPCODE_READ;
-
-	/* write the smi register */
-	writel(smi_reg, priv->mdio_base);
-
-	/* wait till read value is ready */
-	timeout = MVPP2_SMI_TIMEOUT;
-
-	do {
-		/* read smi register */
-		smi_reg = readl(priv->mdio_base);
-		if (timeout-- == 0) {
-			printf("Err: SMI read ready timeout\n");
-			return -EFAULT;
-		}
-	} while (!(smi_reg & MVPP2_SMI_READ_VALID));
-
-	/* Wait for the data to update in the SMI register */
-	for (timeout = 0; timeout < MVPP2_SMI_TIMEOUT; timeout++)
-		;
-
-	return readl(priv->mdio_base) & MVPP2_SMI_DATA_MASK;
-}
-
-/*
- * mpp2_mdio_write - miiphy_write callback function.
- *
- * Returns 0 if write succeed, -EINVAL on bad parameters
- * -ETIME on timeout
- */
-static int mpp2_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
-			   u16 value)
-{
-	struct mvpp2_port *priv = bus->priv;
-	u32 smi_reg;
-
-	/* check parameters */
-	if (addr > MVPP2_PHY_ADDR_MASK) {
-		printf("Error: Invalid PHY address %d\n", addr);
-		return -EFAULT;
-	}
-
-	if (reg > MVPP2_PHY_REG_MASK) {
-		printf("Err: Invalid register offset %d\n", reg);
-		return -EFAULT;
-	}
-
-	/* wait till the SMI is not busy */
-	if (smi_wait_ready(priv) < 0)
-		return -EFAULT;
-
-	/* fill the phy addr and reg offset and write opcode and data */
-	smi_reg = value << MVPP2_SMI_DATA_OFFS;
-	smi_reg |= (addr << MVPP2_SMI_DEV_ADDR_OFFS)
-		| (reg << MVPP2_SMI_REG_ADDR_OFFS);
-	smi_reg &= ~MVPP2_SMI_OPCODE_READ;
-
-	/* write the smi register */
-	writel(smi_reg, priv->mdio_base);
-
-	return 0;
-}
-
 static int mvpp2_recv(struct udevice *dev, int flags, uchar **packetp)
 {
 	struct mvpp2_port *port = dev_get_priv(dev);
@@ -5175,6 +5050,10 @@ static int mvpp2_recv(struct udevice *dev, int flags, uchar **packetp)
 	int rx_received;
 	struct mvpp2_rx_queue *rxq;
 	u8 *data;
+
+	if (port->phyaddr < PHY_MAX_ADDR)
+		if (!port->phy_dev->link)
+			return 0;
 
 	/* Process RX packets */
 	rxq = port->rxqs[0];
@@ -5240,6 +5119,10 @@ static int mvpp2_send(struct udevice *dev, void *packet, int length)
 	struct mvpp2_tx_desc *tx_desc;
 	int tx_done;
 	int timeout;
+
+	if (port->phyaddr < PHY_MAX_ADDR)
+		if (!port->phy_dev->link)
+			return 0;
 
 	txq = port->txqs[0];
 	aggr_txq = &port->priv->aggr_txqs[smp_processor_id()];
@@ -5421,31 +5304,13 @@ static int mvpp2_probe(struct udevice *dev)
 {
 	struct mvpp2_port *port = dev_get_priv(dev);
 	struct mvpp2 *priv = dev_get_priv(dev->parent);
-	struct mii_dev *bus;
 	int err;
 
 	/* Only call the probe function for the parent once */
 	if (!priv->probe_done)
 		err = mvpp2_base_probe(dev->parent);
 
-	port->priv = dev_get_priv(dev->parent);
-
-	/* Create and register the MDIO bus driver */
-	bus = mdio_alloc();
-	if (!bus) {
-		printf("Failed to allocate MDIO bus\n");
-		return -ENOMEM;
-	}
-
-	bus->read = mpp2_mdio_read;
-	bus->write = mpp2_mdio_write;
-	snprintf(bus->name, sizeof(bus->name), dev->name);
-	bus->priv = (void *)port;
-	port->bus = bus;
-
-	err = mdio_register(bus);
-	if (err)
-		return err;
+	port->priv = priv;
 
 	err = phy_info_parse(dev, port);
 	if (err)
@@ -5474,7 +5339,7 @@ static int mvpp2_probe(struct udevice *dev)
 			port->gop_id * MVPP22_PORT_OFFSET;
 
 		/* Set phy address of the port */
-		if(port->phy_node)
+		if (port->phyaddr < PHY_MAX_ADDR)
 			mvpp22_smi_phy_addr_cfg(port);
 
 		/* GoP Init */

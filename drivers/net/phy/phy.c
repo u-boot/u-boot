@@ -256,11 +256,11 @@ int genphy_update_link(struct phy_device *phydev)
 				return -EINTR;
 			}
 
-			if ((i++ % 500) == 0)
+			if ((i++ % 10) == 0)
 				printf(".");
 
-			udelay(1000);	/* 1 ms */
 			mii_reg = phy_read(phydev, MDIO_DEVAD_NONE, MII_BMSR);
+			mdelay(50);	/* 50 ms */
 		}
 		printf(" done\n");
 		phydev->link = 1;
@@ -997,7 +997,7 @@ struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 #endif
 {
 	struct phy_device *phydev = NULL;
-	uint mask = (addr > 0) ? (1 << addr) : 0xffffffff;
+	uint mask = (addr >= 0) ? (1 << addr) : 0xffffffff;
 
 #ifdef CONFIG_PHY_FIXED
 	phydev = phy_connect_fixed(bus, dev, interface);

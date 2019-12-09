@@ -864,7 +864,7 @@ static int keyword_match_mac_addr(enum ethsw_keyword_id key_id, int argc,
 		return 0;
 	}
 
-	eth_parse_enetaddr(argv[*argc_nr + 1], parsed_cmd->ethaddr);
+	string_to_enetaddr(argv[*argc_nr + 1], parsed_cmd->ethaddr);
 
 	if (is_broadcast_ethaddr(parsed_cmd->ethaddr)) {
 		memset(parsed_cmd->ethaddr, 0xFF, sizeof(parsed_cmd->ethaddr));

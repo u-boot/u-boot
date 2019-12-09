@@ -31,7 +31,7 @@ config IP_DEFRAG
 
 config TFTP_BLOCKSIZE
 	int "TFTP block size"
-	default 512
+	default 1468
 	help
 	  Default TFTP block size.
 

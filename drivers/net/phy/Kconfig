@@ -46,7 +46,7 @@ config B53_PHY_PORTS
 endif # B53_SWITCH
 
 config MV88E61XX_SWITCH
-	bool "Marvel MV88E61xx Ethernet switch PHY support."
+	bool "Marvell MV88E61xx Ethernet switch PHY support."
 
 if MV88E61XX_SWITCH
 

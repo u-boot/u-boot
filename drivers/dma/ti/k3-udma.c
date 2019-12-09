@@ -104,6 +104,8 @@ struct udma_chan {
 	struct udma_rchan *rchan;
 	struct udma_rflow *rflow;
 
+	struct ti_udma_drv_chan_cfg_data cfg_data;
+
 	u32 bcnt; /* number of bytes completed since the start of the channel */
 
 	bool pkt_mode; /* TR or packet */
@@ -1407,6 +1409,11 @@ static int udma_request(struct dma *dma)
 	uc->desc_rx_cur = 0;
 	uc->num_rx_bufs = 0;
 
+	if (uc->dir == DMA_DEV_TO_MEM) {
+		uc->cfg_data.flow_id_base = uc->rflow->id;
+		uc->cfg_data.flow_id_cnt = 1;
+	}
+
 	return 0;
 }
 
@@ -1689,6 +1696,26 @@ int udma_prepare_rcv_buf(struct dma *dma, void *dst, size_t size)
 	return 0;
 }
 
+static int udma_get_cfg(struct dma *dma, u32 id, void **data)
+{
+	struct udma_dev *ud = dev_get_priv(dma->dev);
+	struct udma_chan *uc;
+
+	if (dma->id >= (ud->rchan_cnt + ud->tchan_cnt)) {
+		dev_err(dma->dev, "invalid dma ch_id %lu\n", dma->id);
+		return -EINVAL;
+	}
+
+	switch (id) {
+	case TI_UDMA_CHAN_PRIV_INFO:
+		uc = &ud->channels[dma->id];
+		*data = &uc->cfg_data;
+		return 0;
+	}
+
+	return -EINVAL;
+}
+
 static const struct dma_ops udma_ops = {
 	.transfer	= udma_transfer,
 	.of_xlate	= udma_of_xlate,
@@ -1699,10 +1726,12 @@ static const struct dma_ops udma_ops = {
 	.send		= udma_send,
 	.receive	= udma_receive,
 	.prepare_rcv_buf = udma_prepare_rcv_buf,
+	.get_cfg	= udma_get_cfg,
 };
 
 static const struct udevice_id udma_ids[] = {
 	{ .compatible = "ti,k3-navss-udmap" },
+	{ .compatible = "ti,j721e-navss-mcu-udmap" },
 	{ }
 };
 
