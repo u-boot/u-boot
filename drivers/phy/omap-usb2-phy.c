@@ -179,11 +179,10 @@ int omap_usb2_phy_probe(struct udevice *dev)
 		return -EINVAL;
 
 	if (data->flags & OMAP_USB2_CALIBRATE_FALSE_DISCONNECT) {
-		u32 base = dev_read_addr(dev);
+		priv->phy_base = dev_read_addr_ptr(dev);
 
-		if (base == FDT_ADDR_T_NONE)
+		if (!priv->phy_base)
 			return -EINVAL;
-		priv->phy_base = (void *)base;
 		priv->flags |= OMAP_USB2_CALIBRATE_FALSE_DISCONNECT;
 	}
 
