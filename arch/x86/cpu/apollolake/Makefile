@@ -4,8 +4,10 @@
 
 obj-$(CONFIG_SPL_BUILD) += spl.o
 obj-$(CONFIG_SPL_BUILD) += systemagent.o
+obj-y += cpu_common.o
 
 ifndef CONFIG_TPL_BUILD
+obj-y += cpu.o
 obj-y += punit.o
 endif
 
