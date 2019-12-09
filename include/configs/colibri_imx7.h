@@ -43,6 +43,22 @@
 #define CONFIG_NETMASK			255.255.255.0
 #define CONFIG_SERVERIP			192.168.10.1
 
+#if defined(CONFIG_TARGET_COLIBRI_IMX7_EMMC)
+#define UBOOT_UPDATE \
+	"uboot_hwpart=1\0" \
+	"uboot_blk=2\0" \
+	"set_blkcnt=setexpr blkcnt ${filesize} + 0x1ff && " \
+		"setexpr blkcnt ${blkcnt} / 0x200\0" \
+	"update_uboot=run set_blkcnt && mmc dev 0 ${uboot_hwpart} && " \
+		"mmc write ${loadaddr} ${uboot_blk} ${blkcnt}\0"
+#elif defined(CONFIG_TARGET_COLIBRI_IMX7_NAND)
+#define UBOOT_UPDATE \
+	"update_uboot=nand erase.part u-boot1 && " \
+		"nand write ${loadaddr} u-boot1 ${filesize} && " \
+		"nand erase.part u-boot2 && " \
+		"nand write ${loadaddr} u-boot2 ${filesize}\0"
+#endif
+
 #ifndef PARTS_DEFAULT
 /* Define the default GPT table for eMMC */
 #define PARTS_DEFAULT \
@@ -163,6 +179,7 @@
 	MEM_LAYOUT_ENV_SETTINGS \
 	NFS_BOOTCMD \
 	MODULE_EXTRA_ENV_SETTINGS \
+	UBOOT_UPDATE \
 	"boot_file=zImage\0" \
 	"console=ttymxc0\0" \
 	"defargs=\0" \
