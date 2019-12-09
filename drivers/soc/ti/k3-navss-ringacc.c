@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <asm/io.h>
 #include <malloc.h>
 #include <asm/dma-mapping.h>
@@ -807,6 +808,11 @@ static int k3_nav_ringacc_ring_push_mem(struct k3_nav_ring *ring, void *elem)
 
 	memcpy(elem_ptr, elem, (4 << ring->elm_size));
 
+	flush_dcache_range((unsigned long)ring->ring_mem_virt,
+			   ALIGN((unsigned long)ring->ring_mem_virt +
+				 ring->size * (4 << ring->elm_size),
+				 ARCH_DMA_MINALIGN));
+
 	ring->windex = (ring->windex + 1) % ring->size;
 	ring->free--;
 	ringacc_writel(1, &ring->rt->db);
@@ -822,6 +828,11 @@ static int k3_nav_ringacc_ring_pop_mem(struct k3_nav_ring *ring, void *elem)
 	void *elem_ptr;
 
 	elem_ptr = k3_nav_ringacc_get_elm_addr(ring, ring->rindex);
+
+	invalidate_dcache_range((unsigned long)ring->ring_mem_virt,
+				ALIGN((unsigned long)ring->ring_mem_virt +
+				      ring->size * (4 << ring->elm_size),
+				      ARCH_DMA_MINALIGN));
 
 	memcpy(elem, elem_ptr, (4 << ring->elm_size));
 
