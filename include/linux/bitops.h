@@ -4,6 +4,7 @@
 #include <asm/types.h>
 #include <asm-generic/bitsperlong.h>
 #include <linux/compiler.h>
+#include <linux/kernel.h>
 
 #ifdef	__KERNEL__
 #define BIT(nr)			(1UL << (nr))
@@ -131,6 +132,17 @@ static inline unsigned int generic_hweight8(unsigned int w)
 	unsigned int res = (w & 0x55) + ((w >> 1) & 0x55);
 	res = (res & 0x33) + ((res >> 2) & 0x33);
 	return (res & 0x0F) + ((res >> 4) & 0x0F);
+}
+
+static inline unsigned long generic_hweight64(__u64 w)
+{
+	return generic_hweight32((unsigned int)(w >> 32)) +
+	       generic_hweight32((unsigned int)w);
+}
+
+static inline unsigned long hweight_long(unsigned long w)
+{
+	return sizeof(w) == 4 ? generic_hweight32(w) : generic_hweight64(w);
 }
 
 #include <asm/bitops.h>
