@@ -13,6 +13,7 @@
 #include <config_distro_bootcmd.h>
 #include <environment/ti/mmc.h>
 #include <environment/ti/k3_rproc.h>
+#include <environment/ti/k3_dfu.h>
 
 /* DDR Configuration */
 #define CONFIG_SYS_SDRAM_BASE1		0x880000000
@@ -104,13 +105,20 @@
 		"0 /lib/firmware/am65x-mcu-r5f0_0-fw "			\
 		"1 /lib/firmware/am65x-mcu-r5f0_1-fw "
 
+#define EXTRA_ENV_DFUARGS						\
+	"dfu_bufsiz=0x20000\0"						\
+	DFU_ALT_INFO_MMC						\
+	DFU_ALT_INFO_EMMC						\
+	DFU_ALT_INFO_OSPI
+
 /* Incorporate settings into the U-Boot environment */
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	DEFAULT_MMC_TI_ARGS						\
 	DEFAULT_FIT_TI_ARGS						\
 	EXTRA_ENV_AM65X_BOARD_SETTINGS					\
 	EXTRA_ENV_AM65X_BOARD_SETTINGS_MMC				\
-	EXTRA_ENV_RPROC_SETTINGS
+	EXTRA_ENV_RPROC_SETTINGS					\
+	EXTRA_ENV_DFUARGS
 
 /* MMC ENV related defines */
 #ifdef CONFIG_ENV_IS_IN_MMC
