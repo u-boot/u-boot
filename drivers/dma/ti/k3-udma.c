@@ -1381,6 +1381,14 @@ static int udma_probe(struct udevice *dev)
 	return ret;
 }
 
+static int udma_push_to_ring(struct k3_nav_ring *ring, void *elem)
+{
+	u64 addr = 0;
+
+	memcpy(&addr, &elem, sizeof(elem));
+	return k3_nav_ringacc_ring_push(ring, &addr);
+}
+
 static int *udma_prep_dma_memcpy(struct udma_chan *uc, dma_addr_t dest,
 				 dma_addr_t src, size_t len)
 {
@@ -1472,7 +1480,7 @@ static int *udma_prep_dma_memcpy(struct udma_chan *uc, dma_addr_t dest,
 			   ALIGN((u64)tr_desc + desc_size,
 				 ARCH_DMA_MINALIGN));
 
-	k3_nav_ringacc_ring_push(uc->tchan->t_ring, &tr_desc);
+	udma_push_to_ring(uc->tchan->t_ring, tr_desc);
 
 	return 0;
 }
@@ -1647,7 +1655,7 @@ static int udma_send(struct dma *dma, void *src, size_t len, void *metadata)
 			   ALIGN((u64)desc_tx + uc->hdesc_size,
 				 ARCH_DMA_MINALIGN));
 
-	ret = k3_nav_ringacc_ring_push(uc->tchan->t_ring, &uc->desc_tx);
+	ret = udma_push_to_ring(uc->tchan->t_ring, uc->desc_tx);
 	if (ret) {
 		dev_err(dma->dev, "TX dma push fail ch_id %lu %d\n",
 			dma->id, ret);
@@ -1806,7 +1814,7 @@ int udma_prepare_rcv_buf(struct dma *dma, void *dst, size_t size)
 			   ALIGN((u64)desc_rx + uc->hdesc_size,
 				 ARCH_DMA_MINALIGN));
 
-	k3_nav_ringacc_ring_push(uc->rchan->fd_ring, &desc_rx);
+	udma_push_to_ring(uc->rchan->fd_ring, desc_rx);
 
 	uc->num_rx_bufs++;
 	uc->desc_rx_cur++;
