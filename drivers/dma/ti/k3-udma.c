@@ -1476,8 +1476,8 @@ static int *udma_prep_dma_memcpy(struct udma_chan *uc, dma_addr_t dest,
 
 	cppi5_tr_csf_set(&tr_req[num_tr - 1].flags, CPPI5_TR_CSF_EOP);
 
-	flush_dcache_range((u64)tr_desc,
-			   ALIGN((u64)tr_desc + desc_size,
+	flush_dcache_range((unsigned long)tr_desc,
+			   ALIGN((unsigned long)tr_desc + desc_size,
 				 ARCH_DMA_MINALIGN));
 
 	udma_push_to_ring(uc->tchan->t_ring, tr_desc);
@@ -1648,11 +1648,11 @@ static int udma_send(struct dma *dma, void *src, size_t len, void *metadata)
 	cppi5_hdesc_set_pkttype(desc_tx, packet_data.pkt_type);
 	cppi5_desc_set_tags_ids(&desc_tx->hdr, 0, packet_data.dest_tag);
 
-	flush_dcache_range((u64)dma_src,
-			   ALIGN((u64)dma_src + len,
+	flush_dcache_range((unsigned long)dma_src,
+			   ALIGN((unsigned long)dma_src + len,
 				 ARCH_DMA_MINALIGN));
-	flush_dcache_range((u64)desc_tx,
-			   ALIGN((u64)desc_tx + uc->hdesc_size,
+	flush_dcache_range((unsigned long)desc_tx,
+			   ALIGN((unsigned long)desc_tx + uc->hdesc_size,
 				 ARCH_DMA_MINALIGN));
 
 	ret = udma_push_to_ring(uc->tchan->t_ring, uc->desc_tx);
@@ -1810,8 +1810,8 @@ int udma_prepare_rcv_buf(struct dma *dma, void *dst, size_t size)
 	cppi5_hdesc_set_pktlen(desc_rx, size);
 	cppi5_hdesc_attach_buf(desc_rx, dma_dst, size, dma_dst, size);
 
-	flush_dcache_range((u64)desc_rx,
-			   ALIGN((u64)desc_rx + uc->hdesc_size,
+	flush_dcache_range((unsigned long)desc_rx,
+			   ALIGN((unsigned long)desc_rx + uc->hdesc_size,
 				 ARCH_DMA_MINALIGN));
 
 	udma_push_to_ring(uc->rchan->fd_ring, desc_rx);
