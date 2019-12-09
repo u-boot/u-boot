@@ -132,6 +132,6 @@ int board_fit_config_name_match(const char *name)
 	/* Just empty function now - can't decide what to choose */
 	debug("%s: %s\n", __func__, name);
 
-	return 0;
+	return -1;
 }
 #endif
