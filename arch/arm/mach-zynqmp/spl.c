@@ -58,6 +58,16 @@ void spl_board_init(void)
 }
 #endif
 
+void board_boot_order(u32 *spl_boot_list)
+{
+	spl_boot_list[0] = spl_boot_device();
+
+	if (spl_boot_list[0] == BOOT_DEVICE_MMC1)
+		spl_boot_list[1] = BOOT_DEVICE_MMC2;
+	if (spl_boot_list[0] == BOOT_DEVICE_MMC2)
+		spl_boot_list[1] = BOOT_DEVICE_MMC1;
+}
+
 u32 spl_boot_device(void)
 {
 	u32 reg = 0;
@@ -81,11 +91,7 @@ u32 spl_boot_device(void)
 #ifdef CONFIG_SPL_MMC_SUPPORT
 	case SD_MODE1:
 	case SD1_LSHFT_MODE: /* not working on silicon v1 */
-/* if both controllers enabled, then these two are the second controller */
-#ifdef CONFIG_SPL_ZYNQMP_TWO_SDHCI
 		return BOOT_DEVICE_MMC2;
-/* else, fall through, the one SDHCI controller that is enabled is number 1 */
-#endif
 	case SD_MODE:
 	case EMMC_MODE:
 		return BOOT_DEVICE_MMC1;
