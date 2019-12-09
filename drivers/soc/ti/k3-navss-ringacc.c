@@ -942,7 +942,8 @@ static int k3_nav_ringacc_probe_dt(struct k3_nav_ringacc *ringacc)
 	ringacc->dma_ring_reset_quirk =
 			dev_read_bool(dev, "ti,dma-ring-reset-quirk");
 
-	ret = uclass_get_device_by_name(UCLASS_FIRMWARE, "dmsc", &tisci_dev);
+	ret = uclass_get_device_by_phandle(UCLASS_FIRMWARE, dev,
+					   "ti,sci", &tisci_dev);
 	if (ret) {
 		pr_debug("TISCI RA RM get failed (%d)\n", ret);
 		ringacc->tisci = NULL;
