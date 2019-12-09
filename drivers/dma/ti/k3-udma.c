@@ -781,7 +781,7 @@ static int udma_alloc_tx_resources(struct udma_chan *uc)
 	memset(&ring_cfg, 0, sizeof(ring_cfg));
 	ring_cfg.size = 16;
 	ring_cfg.elm_size = K3_NAV_RINGACC_RING_ELSIZE_8;
-	ring_cfg.mode = K3_NAV_RINGACC_RING_MODE_MESSAGE;
+	ring_cfg.mode = K3_NAV_RINGACC_RING_MODE_RING;
 
 	ret = k3_nav_ringacc_ring_cfg(uc->tchan->t_ring, &ring_cfg);
 	ret |= k3_nav_ringacc_ring_cfg(uc->tchan->tc_ring, &ring_cfg);
@@ -858,7 +858,7 @@ static int udma_alloc_rx_resources(struct udma_chan *uc)
 	memset(&ring_cfg, 0, sizeof(ring_cfg));
 	ring_cfg.size = 16;
 	ring_cfg.elm_size = K3_NAV_RINGACC_RING_ELSIZE_8;
-	ring_cfg.mode = K3_NAV_RINGACC_RING_MODE_MESSAGE;
+	ring_cfg.mode = K3_NAV_RINGACC_RING_MODE_RING;
 
 	ret = k3_nav_ringacc_ring_cfg(uc->rchan->fd_ring, &ring_cfg);
 	ret |= k3_nav_ringacc_ring_cfg(uc->rchan->r_ring, &ring_cfg);
