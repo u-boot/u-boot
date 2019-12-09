@@ -41,6 +41,7 @@ extra-y += call32.o
 endif
 
 obj-y += intel_common/
+obj-$(CONFIG_INTEL_APOLLOLAKE) += apollolake/
 obj-$(CONFIG_INTEL_BAYTRAIL) += baytrail/
 obj-$(CONFIG_INTEL_BRASWELL) += braswell/
 obj-$(CONFIG_INTEL_BROADWELL) += broadwell/

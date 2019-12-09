@@ -106,6 +106,7 @@ source "board/google/Kconfig"
 source "board/intel/Kconfig"
 
 # platform-specific options below
+source "arch/x86/cpu/apollolake/Kconfig"
 source "arch/x86/cpu/baytrail/Kconfig"
 source "arch/x86/cpu/braswell/Kconfig"
 source "arch/x86/cpu/broadwell/Kconfig"
