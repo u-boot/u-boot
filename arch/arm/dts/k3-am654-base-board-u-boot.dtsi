@@ -361,3 +361,7 @@
 &wkup_i2c0 {
 	u-boot,dm-spl;
 };
+
+&usb1 {
+	dr_mode = "peripheral";
+};
