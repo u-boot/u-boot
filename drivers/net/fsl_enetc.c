@@ -14,6 +14,69 @@
 
 #include "fsl_enetc.h"
 
+#define ENETC_DRIVER_NAME	"enetc_eth"
+
+/*
+ * sets the MAC address in IERB registers, this setting is persistent and
+ * carried over to Linux.
+ */
+static void enetc_set_ierb_primary_mac(struct udevice *dev, int devfn,
+				       const u8 *enetaddr)
+{
+#ifdef CONFIG_ARCH_LS1028A
+/*
+ * LS1028A is the only part with IERB at this time and there are plans to change
+ * its structure, keep this LS1028A specific for now
+ */
+#define IERB_BASE		0x1f0800000ULL
+#define IERB_PFMAC(pf, vf, n)	(IERB_BASE + 0x8000 + (pf) * 0x100 + (vf) * 8 \
+				 + (n) * 4)
+
+static int ierb_fn_to_pf[] = {0, 1, 2, -1, -1, -1, 3};
+
+	u16 lower = *(const u16 *)(enetaddr + 4);
+	u32 upper = *(const u32 *)enetaddr;
+
+	if (ierb_fn_to_pf[devfn] < 0)
+		return;
+
+	out_le32(IERB_PFMAC(ierb_fn_to_pf[devfn], 0, 0), upper);
+	out_le32(IERB_PFMAC(ierb_fn_to_pf[devfn], 0, 1), (u32)lower);
+#endif
+}
+
+/* sets up primary MAC addresses in DT/IERB */
+void fdt_fixup_enetc_mac(void *blob)
+{
+	struct pci_child_platdata *ppdata;
+	struct eth_pdata *pdata;
+	struct udevice *dev;
+	struct uclass *uc;
+	char path[256];
+	int offset;
+	int devfn;
+
+	uclass_get(UCLASS_ETH, &uc);
+	uclass_foreach_dev(dev, uc) {
+		if (!dev->driver || !dev->driver->name ||
+		    strcmp(dev->driver->name, ENETC_DRIVER_NAME))
+			continue;
+
+		pdata = dev_get_platdata(dev);
+		ppdata = dev_get_parent_platdata(dev);
+		devfn = PCI_FUNC(ppdata->devfn);
+
+		enetc_set_ierb_primary_mac(dev, devfn, pdata->enetaddr);
+
+		snprintf(path, 256, "/soc/pcie@1f0000000/ethernet@%x,%x",
+			 PCI_DEV(ppdata->devfn), PCI_FUNC(ppdata->devfn));
+		offset = fdt_path_offset(blob, path);
+		if (offset < 0)
+			continue;
+		fdt_setprop(blob, offset, "mac-address", pdata->enetaddr, 6);
+	}
+}
+
 /*
  * Bind the device:
  * - set a more explicit name on the interface
@@ -551,7 +614,7 @@ static const struct eth_ops enetc_ops = {
 };
 
 U_BOOT_DRIVER(eth_enetc) = {
-	.name	= "enetc_eth",
+	.name	= ENETC_DRIVER_NAME,
 	.id	= UCLASS_ETH,
 	.bind	= enetc_bind,
 	.probe	= enetc_probe,

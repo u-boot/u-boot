@@ -25,6 +25,7 @@
 #include <fdtdec.h>
 #include <miiphy.h>
 #include "../common/qixis.h"
+#include "../drivers/net/fsl_enetc.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -161,6 +162,10 @@ int ft_board_setup(void *blob, bd_t *bd)
 	fdt_fixup_memory_banks(blob, base, size, 2);
 
 	fdt_fixup_icid(blob);
+
+#ifdef CONFIG_FSL_ENETC
+	fdt_fixup_enetc_mac(blob);
+#endif
 
 	return 0;
 }
