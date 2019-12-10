@@ -40,18 +40,16 @@ static void draw_encoded_bitmap(ushort **fbp, ushort col, int cnt)
 
 static void video_display_rle8_bitmap(struct udevice *dev,
 				      struct bmp_image *bmp, ushort *cmap,
-				      uchar *fb, int x_off, int y_off)
+				      uchar *fb, int x_off, int y_off,
+				      ulong width, ulong height)
 {
 	struct video_priv *priv = dev_get_uclass_priv(dev);
 	uchar *bmap;
-	ulong width, height;
 	ulong cnt, runlen;
 	int x, y;
 	int decode = 1;
 
 	debug("%s\n", __func__);
-	width = get_unaligned_le32(&bmp->header.width);
-	height = get_unaligned_le32(&bmp->header.height);
 	bmap = (uchar *)bmp + get_unaligned_le32(&bmp->header.data_offset);
 
 	x = 0;
@@ -157,8 +155,8 @@ __weak void fb_put_word(uchar **fb, uchar **from)
 static void video_splash_align_axis(int *axis, unsigned long panel_size,
 				    unsigned long picture_size)
 {
-	unsigned long panel_picture_delta = panel_size - picture_size;
-	unsigned long axis_alignment;
+	long panel_picture_delta = panel_size - picture_size;
+	long axis_alignment;
 
 	if (*axis == BMP_ALIGN_CENTER)
 		axis_alignment = panel_picture_delta / 2;
@@ -277,7 +275,7 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 				return -EPROTONOSUPPORT;
 			}
 			video_display_rle8_bitmap(dev, bmp, cmap_base, fb, x,
-						  y);
+						  y, width, height);
 			break;
 		}
 #endif
