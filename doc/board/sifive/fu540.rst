@@ -58,10 +58,7 @@ firmware. We need to compile OpenSBI with below command:
 
 .. code-block:: none
 
-    make PLATFORM=sifive/fu540 FW_PAYLOAD_PATH=<path to u-boot.bin> FW_PAYLOAD_FDT_PATH=<path to hifive-unleashed-a00.dtb from Linux>
-
-(Note: Prefer hifive-unleashed-a00.dtb from Linux-5.3 or higher)
-(Note: Linux-5.2 is also fine but it does not have ethernet DT node)
+make PLATFORM=sifive/fu540 FW_PAYLOAD_PATH=<path to u-boot-dtb.bin>
 
 More detailed description of steps required to build FW_PAYLOAD firmware
 is beyond the scope of this document. Please refer OpenSBI documenation.

@@ -70,14 +70,25 @@ void spl_invoke_opensbi(struct spl_image_info *spl_image)
 	opensbi_info.next_addr = uboot_entry;
 	opensbi_info.next_mode = FW_DYNAMIC_INFO_NEXT_MODE_S;
 	opensbi_info.options = SBI_SCRATCH_NO_BOOT_PRINTS;
+	opensbi_info.boot_hart = gd->arch.boot_hart;
 
 	opensbi_entry = (void (*)(ulong, ulong, ulong))spl_image->entry_point;
 	invalidate_icache_all();
 
 #ifdef CONFIG_SMP
+	/*
+	 * Start OpenSBI on all secondary harts and wait for acknowledgment.
+	 *
+	 * OpenSBI first relocates itself to its link address. This is done by
+	 * the main hart. To make sure no hart is still running U-Boot SPL
+	 * during relocation, we wait for all secondary harts to acknowledge
+	 * the call-function request before entering OpenSBI on the main hart.
+	 * Otherwise, code corruption can occur if the link address ranges of
+	 * U-Boot SPL and OpenSBI overlap.
+	 */
 	ret = smp_call_function((ulong)spl_image->entry_point,
 				(ulong)spl_image->fdt_addr,
-				(ulong)&opensbi_info);
+				(ulong)&opensbi_info, 1);
 	if (ret)
 		hang();
 #endif

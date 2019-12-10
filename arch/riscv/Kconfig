@@ -224,7 +224,7 @@ config XIP
 
 config STACK_SIZE_SHIFT
 	int
-	default 13
+	default 14
 
 config SPL_LDSCRIPT
 	default "arch/riscv/cpu/u-boot-spl.lds"

@@ -174,7 +174,7 @@ spl_clear_bss:
 spl_clear_bss_loop:
 	SREG	zero, 0(t0)
 	addi	t0, t0, REGBYTES
-	bne	t0, t1, spl_clear_bss_loop
+	blt	t0, t1, spl_clear_bss_loop
 
 spl_stack_gd_setup:
 	jal	spl_relocate_stack_gd
@@ -197,6 +197,7 @@ spl_secondary_hart_stack_gd_setup:
 	la	a0, secondary_hart_relocate
 	mv	a1, s0
 	mv	a2, s0
+	mv	a3, zero
 	jal	smp_call_function
 
 	/* hang if relocation of secondary harts has failed */
@@ -324,7 +325,7 @@ clear_bss:
 clbss_l:
 	SREG	zero, 0(t0)		/* clear loop... */
 	addi	t0, t0, REGBYTES
-	bne	t0, t1, clbss_l
+	blt	t0, t1, clbss_l
 
 relocate_secondary_harts:
 #ifdef CONFIG_SMP
@@ -337,6 +338,7 @@ relocate_secondary_harts:
 
 	mv	a1, s2
 	mv	a2, s3
+	mv	a3, zero
 	jal	smp_call_function
 
 	/* hang if relocation of secondary harts has failed */

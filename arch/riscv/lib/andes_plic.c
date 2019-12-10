@@ -19,7 +19,7 @@
 #include <cpu.h>
 
 /* pending register */
-#define PENDING_REG(base, hart)	((ulong)(base) + 0x1000 + (hart) * 8)
+#define PENDING_REG(base, hart)	((ulong)(base) + 0x1000 + ((hart) / 4) * 4)
 /* enable register */
 #define ENABLE_REG(base, hart)	((ulong)(base) + 0x2000 + (hart) * 0x80)
 /* claim register */
@@ -46,7 +46,7 @@ static int init_plic(void);
 
 static int enable_ipi(int hart)
 {
-	int en;
+	unsigned int en;
 
 	en = ENABLE_HART_IPI >> hart;
 	writel(en, (void __iomem *)ENABLE_REG(gd->arch.plic, hart));
@@ -94,10 +94,13 @@ static int init_plic(void)
 
 int riscv_send_ipi(int hart)
 {
+	unsigned int ipi;
+
 	PLIC_BASE_GET();
 
-	writel(SEND_IPI_TO_HART(hart),
-	       (void __iomem *)PENDING_REG(gd->arch.plic, gd->arch.boot_hart));
+	ipi = (SEND_IPI_TO_HART(hart) << (8 * gd->arch.boot_hart));
+	writel(ipi, (void __iomem *)PENDING_REG(gd->arch.plic,
+				gd->arch.boot_hart));
 
 	return 0;
 }
@@ -110,6 +113,17 @@ int riscv_clear_ipi(int hart)
 
 	source_id = readl((void __iomem *)CLAIM_REG(gd->arch.plic, hart));
 	writel(source_id, (void __iomem *)CLAIM_REG(gd->arch.plic, hart));
+
+	return 0;
+}
+
+int riscv_get_ipi(int hart, int *pending)
+{
+	PLIC_BASE_GET();
+
+	*pending = readl((void __iomem *)PENDING_REG(gd->arch.plic,
+						     gd->arch.boot_hart));
+	*pending = !!(*pending & SEND_IPI_TO_HART(hart));
 
 	return 0;
 }
