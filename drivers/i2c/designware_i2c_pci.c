@@ -8,7 +8,13 @@
 #include <common.h>
 #include <dm.h>
 #include <spl.h>
+#include <asm/lpss.h>
 #include "designware_i2c.h"
+
+enum {
+	VANILLA		= 0,	/* standard I2C with no tweaks */
+	INTEL_APL,		/* Apollo Lake I2C */
+};
 
 /* BayTrail HCNT/LCNT/SDA hold time */
 static struct dw_scl_sda_cfg byt_config = {
@@ -18,6 +24,9 @@ static struct dw_scl_sda_cfg byt_config = {
 	.fs_lcnt = 0x99,
 	.sda_hold = 0x6,
 };
+
+/* Have a weak function for now - possibly should be a new uclass */
+__weak void lpss_reset_release(void *regs);
 
 static int designware_i2c_pci_ofdata_to_platdata(struct udevice *dev)
 {
@@ -59,6 +68,15 @@ static int designware_i2c_pci_ofdata_to_platdata(struct udevice *dev)
 
 static int designware_i2c_pci_probe(struct udevice *dev)
 {
+	struct dw_i2c *priv = dev_get_priv(dev);
+
+	if (dev_get_driver_data(dev) == INTEL_APL) {
+		/* Ensure controller is in D0 state */
+		lpss_set_power_state(dev, STATE_D0);
+
+		lpss_reset_release(priv->regs);
+	}
+
 	return designware_i2c_probe(dev);
 }
 
@@ -88,6 +106,7 @@ static int designware_i2c_pci_bind(struct udevice *dev)
 
 static const struct udevice_id designware_i2c_pci_ids[] = {
 	{ .compatible = "snps,designware-i2c-pci" },
+	{ .compatible = "intel,apl-i2c", .data = INTEL_APL },
 	{ }
 };
 
@@ -113,6 +132,12 @@ static struct pci_device_id designware_pci_supported[] = {
 	{ PCI_VDEVICE(INTEL, 0x0f45) },
 	{ PCI_VDEVICE(INTEL, 0x0f46) },
 	{ PCI_VDEVICE(INTEL, 0x0f47) },
+	{ PCI_VDEVICE(INTEL, 0x5aac), .driver_data = INTEL_APL },
+	{ PCI_VDEVICE(INTEL, 0x5aae), .driver_data = INTEL_APL },
+	{ PCI_VDEVICE(INTEL, 0x5ab0), .driver_data = INTEL_APL },
+	{ PCI_VDEVICE(INTEL, 0x5ab2), .driver_data = INTEL_APL },
+	{ PCI_VDEVICE(INTEL, 0x5ab4), .driver_data = INTEL_APL },
+	{ PCI_VDEVICE(INTEL, 0x5ab6), .driver_data = INTEL_APL },
 	{},
 };
 
