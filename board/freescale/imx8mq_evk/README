@@ -11,7 +11,7 @@ Get and Build the ARM Trusted firmware
 ======================================
 Note: srctree is U-Boot source directory
 Get ATF from: https://source.codeaurora.org/external/imx/imx-atf
-branch: imx_4.14.62_1.0.0_beta
+branch: imx_4.19.35_1.0.0
 $ make PLAT=imx8mq bl31
 $ cp build/imx8mq/release/bl31.bin $(srctree)
 
