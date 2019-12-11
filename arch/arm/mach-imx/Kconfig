@@ -113,3 +113,14 @@ config DDRMC_VF610_CALIBRATION
 config SPL_IMX_ROMAPI_LOADADDR
 	hex "Default load address to load image through ROM API"
 	depends on IMX8MN
+
+config IMX_DCD_ADDR
+	hex "DCD Blocks location on the image"
+	default 0x00910000 if !ARCH_MX7ULP
+	default 0x2f010000 if ARCH_MX7ULP
+	help
+	  Indicates where the Device Configuration Data, a binary table used by
+	  the ROM code to configure the device at early boot stage, is located.
+	  This information is shared with the user via mkimage -l just so the
+	  image can be signed.
+
