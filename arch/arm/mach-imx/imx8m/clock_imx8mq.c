@@ -326,16 +326,20 @@ unsigned int mxc_get_clock(enum mxc_clock clk)
 {
 	u32 val;
 
-	if (clk == MXC_ARM_CLK)
+	switch(clk) {
+	case MXC_ARM_CLK:
 		return get_root_clk(ARM_A53_CLK_ROOT);
-
-	if (clk == MXC_IPG_CLK) {
+	case MXC_IPG_CLK:
 		clock_get_target_val(IPG_CLK_ROOT, &val);
 		val = val & 0x3;
 		return get_root_clk(AHB_CLK_ROOT) / (val + 1);
+	case MXC_ESDHC_CLK:
+		return get_root_clk(USDHC1_CLK_ROOT);
+	case MXC_ESDHC2_CLK:
+		return get_root_clk(USDHC2_CLK_ROOT);
+	default:
+		return get_root_clk(clk);
 	}
-
-	return get_root_clk(clk);
 }
 
 u32 imx_get_uartclk(void)
