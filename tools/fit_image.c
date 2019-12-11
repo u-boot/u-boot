@@ -825,9 +825,9 @@ static int fit_check_params(struct image_tool_params *params)
 {
 	if (params->auto_its)
 		return 0;
-	return	((params->dflag && (params->fflag || params->lflag)) ||
-		(params->fflag && (params->dflag || params->lflag)) ||
-		(params->lflag && (params->dflag || params->fflag)));
+	return	((params->dflag && params->fflag) ||
+		 (params->fflag && params->lflag) ||
+		 (params->lflag && params->dflag));
 }
 
 U_BOOT_IMAGE_TYPE(
