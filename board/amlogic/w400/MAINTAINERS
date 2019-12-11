@@ -4,4 +4,5 @@ S:	Maintained
 L:	u-boot-amlogic@groups.io
 F:	board/amlogic/w400/
 F:	configs/khadas-vim3_defconfig
+F:	configs/khadas-vim3l_defconfig
 F:	configs/odroid-n2_defconfig
