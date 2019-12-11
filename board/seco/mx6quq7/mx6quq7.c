@@ -26,7 +26,6 @@
 #include <ipu_pixfmt.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
-#include <micrel.h>
 #include <asm/mach-imx/mxc_i2c.h>
 #include <i2c.h>
 

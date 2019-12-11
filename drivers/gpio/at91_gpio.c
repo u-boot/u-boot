@@ -556,6 +556,28 @@ static int at91_gpio_get_function(struct udevice *dev, unsigned offset)
 		return GPIOF_INPUT;
 }
 
+static const char *at91_get_bank_name(uint32_t base_addr)
+{
+	switch (base_addr) {
+	case ATMEL_BASE_PIOA:
+		return "PIOA";
+	case ATMEL_BASE_PIOB:
+		return "PIOB";
+	case ATMEL_BASE_PIOC:
+		return "PIOC";
+#if (ATMEL_PIO_PORTS > 3)
+	case ATMEL_BASE_PIOD:
+		return "PIOD";
+#if (ATMEL_PIO_PORTS > 4)
+	case ATMEL_BASE_PIOE:
+		return "PIOE";
+#endif
+#endif
+	}
+
+	return "undefined";
+}
+
 static const struct dm_gpio_ops gpio_at91_ops = {
 	.direction_input	= at91_gpio_direction_input,
 	.direction_output	= at91_gpio_direction_output,
@@ -582,13 +604,14 @@ static int at91_gpio_probe(struct udevice *dev)
 
 	clk_free(&clk);
 
-	uc_priv->bank_name = plat->bank_name;
-	uc_priv->gpio_count = GPIO_PER_BANK;
-
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	plat->base_addr = (uint32_t)devfdt_get_addr_ptr(dev);
 #endif
+	plat->bank_name = at91_get_bank_name(plat->base_addr);
 	port->regs = (struct at91_port *)plat->base_addr;
+
+	uc_priv->bank_name = plat->bank_name;
+	uc_priv->gpio_count = GPIO_PER_BANK;
 
 	return 0;
 }

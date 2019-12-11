@@ -15,8 +15,6 @@
 #include <debug_uart.h>
 #include <env.h>
 #include <linux/ctype.h>
-#include <phy.h>
-#include <micrel.h>
 #include <spl.h>
 #include <asm/arch/atmel_mpddrc.h>
 #include <asm/arch/at91_wdt.h>
