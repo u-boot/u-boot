@@ -272,13 +272,16 @@ int dram_init(void)
 }
 
 #ifdef CONFIG_OF_BOARD
-#ifdef CONFIG_BCM2711
 int dram_init_banksize(void)
 {
-	return fdtdec_decode_ram_size(gd->fdt_blob, NULL, 0, NULL,
-				     (phys_size_t *)&gd->ram_size, gd->bd);
+	int ret;
+
+	ret = fdtdec_setup_memory_banksize();
+	if (ret)
+		return ret;
+
+	return fdtdec_setup_mem_size_base();
 }
-#endif
 #endif
 
 static void set_fdtfile(void)
