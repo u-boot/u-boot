@@ -265,7 +265,7 @@ static int cdns_i2c_write_data(struct i2c_cdns_bus *i2c_bus, u32 addr, u8 *data,
 
 	while (len-- && !is_arbitration_lost(regs)) {
 		writel(*(cur_data++), &regs->data);
-		if (readl(&regs->transfer_size) == CDNS_I2C_FIFO_DEPTH) {
+		if (len && readl(&regs->transfer_size) == CDNS_I2C_FIFO_DEPTH) {
 			ret = cdns_i2c_wait(regs, CDNS_I2C_INTERRUPT_COMP |
 					    CDNS_I2C_INTERRUPT_ARBLOST);
 			if (ret & CDNS_I2C_INTERRUPT_ARBLOST)
