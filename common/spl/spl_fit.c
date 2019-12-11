@@ -259,11 +259,9 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 			debug("%s ", genimg_get_type_name(type));
 	}
 
-	if (IS_ENABLED(CONFIG_SPL_OS_BOOT) && IS_ENABLED(CONFIG_SPL_GZIP)) {
-		if (fit_image_get_comp(fit, node, &image_comp))
-			puts("Cannot get image compression format.\n");
-		else
-			debug("%s ", genimg_get_comp_name(image_comp));
+	if (IS_ENABLED(CONFIG_SPL_GZIP)) {
+		fit_image_get_comp(fit, node, &image_comp);
+		debug("%s ", genimg_get_comp_name(image_comp));
 	}
 
 	if (fit_image_get_load(fit, node, &load_addr))
