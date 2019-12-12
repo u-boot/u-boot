@@ -146,7 +146,7 @@ struct spi_slave {
 	unsigned int max_write_size;
 	void *memory_map;
 
-	u8 flags;
+	u32 flags;
 #define SPI_XFER_BEGIN		BIT(0)	/* Assert CS before transfer */
 #define SPI_XFER_END		BIT(1)	/* Deassert CS after transfer */
 #define SPI_XFER_ONCE		(SPI_XFER_BEGIN | SPI_XFER_END)
@@ -155,6 +155,10 @@ struct spi_slave {
 #define SPI_XFER_U_PAGE		BIT(4)
 
 	u8 option;
+	u8 dio;
+	u32 bytemode;
+	u8 dummy_bytes;
+	bool multi_die;			/* flash with multiple dies */
 };
 
 /**

@@ -961,28 +961,96 @@ static int spi_nor_read(struct mtd_info *mtd, loff_t from, size_t len,
 {
 	struct spi_nor *nor = mtd_to_spi_nor(mtd);
 	int ret;
+	u32 offset = from;
+	u32 stack_shift = 0;
+	u32 read_len = 0;
+	u32 rem_bank_len = 0;
+	u8 bank;
+	u8 is_ofst_odd = 0;
+	u8 cur_bank;
+	u8 nxt_bank;
+	u32 bank_size;
 
 	dev_dbg(nor->dev, "from 0x%08x, len %zd\n", (u32)from, len);
 
+	if (nor->isparallel && (offset & 1)) {
+	    /* We can hit this case when we use file system like ubifs */
+		from = (loff_t)(from - 1);
+		len = (size_t)(len + 1);
+		is_ofst_odd = 1;
+	}
+
 	while (len) {
-		loff_t addr = from;
-		size_t read_len = len;
+		if (nor->addr_width == 3) {
+			bank = (u32)from / (SZ_16M << nor->shift);
+			rem_bank_len = ((SZ_16M << nor->shift) *
+					(bank + 1)) - from;
+		}
+		offset = from;
 
+		if (nor->isstacked) {
+			stack_shift = 1;
+			if (offset >= (mtd->size / 2)) {
+				offset = offset - (mtd->size / 2);
+				nor->spi->flags |= SPI_XFER_U_PAGE;
+			} else {
+				nor->spi->flags &= ~SPI_XFER_U_PAGE;
+			}
+		}
+
+		if (nor->addr_width == 4) {
+			/*
+			 * Some flash devices like N25Q512 have multiple dies
+			 * in it. Read operation in these devices is bounded
+			 * by its die segment. In a continuous read, across
+			 * multiple dies, when the last byte of the selected
+			 * die segment is read, the next byte read is the
+			 * first byte of the same die segment. This is Die
+			 * cross over issue. So to handle this issue, split
+			 * a read transaction, that spans across multiple
+			 * banks, into one read per bank. Bank size is 16MB
+			 * for single and dual stacked mode and 32MB for dual
+			 * parallel mode.
+			 */
+			if (nor->spi && nor->spi->multi_die) {
+				bank_size = (SZ_16M << nor->shift);
+				cur_bank = offset / bank_size;
+				nxt_bank = (offset + len) / bank_size;
+				if (cur_bank != nxt_bank)
+					rem_bank_len = (bank_size *
+							(cur_bank + 1)) -
+							offset;
+				else
+					rem_bank_len = (mtd->size >>
+							stack_shift) -
+							offset;
+			} else {
+				rem_bank_len = (mtd->size >> stack_shift) -
+						offset;
+			}
+		}
+
+		if (nor->isparallel) {
+			offset /= 2;
+			nor->spi->flags = SPI_XFER_STRIPE;
+		}
+
+		if (nor->addr_width == 3) {
 #ifdef CONFIG_SPI_FLASH_BAR
-		u32 remain_len;
+			write_bar(nor, offset);
+#endif
+		}
 
-		ret = write_bar(nor, addr);
-		if (ret < 0)
-			return log_ret(ret);
-		remain_len = (SZ_16M * (nor->bank_curr + 1)) - addr;
-
-		if (len < remain_len)
+		if (len < rem_bank_len)
 			read_len = len;
 		else
-			read_len = remain_len;
-#endif
+			read_len = rem_bank_len;
 
-		ret = nor->read(nor, addr, read_len, buf);
+		ret = spi_nor_wait_till_ready(nor);
+		if (ret)
+			goto read_err;
+
+		ret = nor->read(nor, offset, read_len, buf);
 		if (ret == 0) {
 			/* We shouldn't see 0-length reads */
 			ret = -EIO;
@@ -991,7 +1059,12 @@ static int spi_nor_read(struct mtd_info *mtd, loff_t from, size_t len,
 		if (ret < 0)
 			goto read_err;
 
-		*retlen += ret;
+		if (is_ofst_odd == 1) {
+			memcpy(buf, (buf + 1), (len - 1));
+			*retlen += (ret - 1);
+		} else {
+			*retlen += ret;
+		}
 		buf += ret;
 		from += ret;
 		len -= ret;
