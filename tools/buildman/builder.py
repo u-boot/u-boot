@@ -577,7 +577,8 @@ class Builder:
         sym = {}
         for line in fd.readlines():
             try:
-                size, type, name = line[:-1].split()
+                if line.strip():
+                    size, type, name = line[:-1].split()
             except:
                 Print("Invalid line in file '%s': '%s'" % (fname, line[:-1]))
                 continue

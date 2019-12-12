@@ -313,7 +313,7 @@ static int send_command(struct cros_ec_dev *dev, uint cmd, int cmd_version,
  * @param din_len       Maximum size of response in bytes
  * @return number of bytes in response, or -ve on error
  */
-static int ec_command_inptr(struct udevice *dev, uint8_t cmd,
+static int ec_command_inptr(struct udevice *dev, uint cmd,
 			    int cmd_version, const void *dout, int dout_len,
 			    uint8_t **dinp, int din_len)
 {
