@@ -326,6 +326,18 @@ static int zynqmp_qspi_set_speed(struct udevice *bus, uint speed)
 	return 0;
 }
 
+static int zynqmp_qspi_child_pre_probe(struct udevice *bus)
+{
+	struct spi_slave *slave = dev_get_parent_priv(bus);
+
+#ifdef CONFIG_SPI_FLASH_SPLIT_READ
+	slave->multi_die = 1;
+#endif
+	slave->bytemode = SPI_4BYTE_MODE;
+
+	return 0;
+}
+
 static int zynqmp_qspi_probe(struct udevice *bus)
 {
 	struct zynqmp_qspi_platdata *plat = dev_get_platdata(bus);
@@ -726,4 +738,5 @@ U_BOOT_DRIVER(zynqmp_qspi) = {
 	.platdata_auto_alloc_size = sizeof(struct zynqmp_qspi_platdata),
 	.priv_auto_alloc_size = sizeof(struct zynqmp_qspi_priv),
 	.probe  = zynqmp_qspi_probe,
+	.child_pre_probe = zynqmp_qspi_child_pre_probe,
 };
