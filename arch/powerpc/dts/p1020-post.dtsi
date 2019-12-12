@@ -13,6 +13,18 @@
 	compatible = "fsl,p1020-immr", "simple-bus";
 	bus-frequency = <0x0>;
 
+	usb@22000 {
+		compatible = "fsl-usb2-dr";
+		reg = <0x22000 0x1000>;
+		phy_type = "ulpi";
+	};
+
+	usb@23000 {
+		compatible = "fsl-usb2-dr";
+		reg = <0x23000 0x1000>;
+		phy_type = "ulpi";
+	};
+
 	mpic: pic@40000 {
 		interrupt-controller;
 		#address-cells = <0>;
@@ -31,6 +43,7 @@
 		/* Filled in by U-Boot */
 		clock-frequency = <0>;
 	};
+
 };
 
 /* PCIe controller base address 0x9000 */
