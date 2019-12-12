@@ -158,8 +158,6 @@
 #define CONFIG_SYS_GBL_DATA_OFFSET	\
 			(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
-#define CONFIG_FSL_ELBC		1
-
 /*
  * FLASH on the Local Bus
  */

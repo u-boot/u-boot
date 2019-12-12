@@ -221,6 +221,7 @@ config ARCH_MPC8309
 	select MPC83XX_PCI_SUPPORT
 	select MPC83XX_SECOND_I2C_SUPPORT
 	select SYS_FSL_ERRATUM_ESDHC111
+	select FSL_ELBC
 
 config ARCH_MPC831X
 	bool
@@ -232,6 +233,7 @@ config ARCH_MPC8313
 	bool
 	select ARCH_MPC831X
 	select MPC83XX_SECOND_I2C_SUPPORT
+	select FSL_ELBC
 
 config ARCH_MPC8315
 	bool
@@ -239,6 +241,7 @@ config ARCH_MPC8315
 	select MPC83XX_PCIE1_SUPPORT
 	select MPC83XX_PCIE2_SUPPORT
 	select MPC83XX_SATA_SUPPORT
+	select FSL_ELBC
 
 config ARCH_MPC832X
 	bool
@@ -275,6 +278,7 @@ config ARCH_MPC837X
 	select MPC83XX_SATA_SUPPORT
 	select MPC83XX_LDP_PIN
 	select MPC83XX_SECOND_I2C_SUPPORT
+	select FSL_ELBC
 
 config SYS_IMMR
 	hex "Value for IMMR"
@@ -317,6 +321,9 @@ config PCI_64BIT
 endif
 
 endmenu
+
+config FSL_ELBC
+	bool
 
 source "board/esd/vme8349/Kconfig"
 source "board/freescale/mpc8308rdb/Kconfig"
