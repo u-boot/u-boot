@@ -314,12 +314,17 @@ static u8 spi_nor_convert_3to4_erase(u8 opcode)
 static void spi_nor_set_4byte_opcodes(struct spi_nor *nor,
 				      const struct flash_info *info)
 {
+	bool shift = 0;
+
+	if (nor->isparallel)
+		shift = 1;
+
 	/* Do some manufacturer fixups first */
 	switch (JEDEC_MFR(info)) {
 	case SNOR_MFR_SPANSION:
 		/* No small sector erase for 4-byte command set */
 		nor->erase_opcode = SPINOR_OP_SE;
-		nor->mtd.erasesize = info->sector_size;
+		nor->mtd.erasesize = info->sector_size << shift;
 		break;
 
 	default:
@@ -567,7 +572,7 @@ static int spi_nor_erase_sector(struct spi_nor *nor, u32 addr)
 static int spi_nor_erase(struct mtd_info *mtd, struct erase_info *instr)
 {
 	struct spi_nor *nor = mtd_to_spi_nor(mtd);
-	u32 addr, len, rem;
+	u32 addr, len, rem, offset;
 	int ret;
 
 	dev_dbg(nor->dev, "at 0x%llx, len %lld\n", (long long)instr->addr,
@@ -584,14 +589,37 @@ static int spi_nor_erase(struct mtd_info *mtd, struct erase_info *instr)
 	len = instr->len;
 
 	while (len) {
+		write_enable(nor);
+		offset = addr;
+		if (nor->isparallel) {
+			offset /= 2;
+			nor->spi->flags |= SPI_XFER_STRIPE;
+		}
+
+		if (nor->isstacked) {
+			if (offset >= (mtd->size / 2)) {
+				offset = offset - (mtd->size / 2);
+				nor->spi->flags |= SPI_XFER_U_PAGE;
+			} else {
+				nor->spi->flags &= ~SPI_XFER_U_PAGE;
+			}
+		}
+		if (nor->addr_width == 3) {
 #ifdef CONFIG_SPI_FLASH_BAR
-		ret = write_bar(nor, addr);
-		if (ret < 0)
-			return ret;
+			/* Update Extended Address Register */
+			ret = write_bar(nor, offset);
+			if (ret)
+				goto erase_err;
 #endif
+		}
+
+		ret = spi_nor_wait_till_ready(nor);
+		if (ret)
+			goto erase_err;
+
 		write_enable(nor);
 
-		ret = spi_nor_erase_sector(nor, addr);
+		ret = spi_nor_erase_sector(nor, offset);
 		if (ret)
 			goto erase_err;
 
@@ -2388,15 +2416,15 @@ static int spi_nor_select_erase(struct spi_nor *nor,
 	/* prefer "small sector" erase if possible */
 	if (info->flags & SECT_4K) {
 		nor->erase_opcode = SPINOR_OP_BE_4K;
-		mtd->erasesize = 4096;
+		mtd->erasesize = 4096 << nor->shift;
 	} else if (info->flags & SECT_4K_PMC) {
 		nor->erase_opcode = SPINOR_OP_BE_4K_PMC;
-		mtd->erasesize = 4096;
+		mtd->erasesize = 4096 << nor->shift;
 	} else
 #endif
 	{
 		nor->erase_opcode = SPINOR_OP_SE;
-		mtd->erasesize = info->sector_size;
+		mtd->erasesize = info->sector_size << nor->shift;
 	}
 	return 0;
 }

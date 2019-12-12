@@ -35,6 +35,7 @@
 #define SPI_RX_OCTAL	BIT(15)			/* receive with 8 wires */
 
 /* SPI transfer flags */
+#define SPI_XFER_STRIPE	(1 << 6)
 #define SPI_XFER_LOWER	(1 << 8)
 
 /* Header byte that marks the start of the message */
@@ -151,6 +152,7 @@ struct spi_slave {
 #define SPI_XFER_ONCE		(SPI_XFER_BEGIN | SPI_XFER_END)
 #define SPI_XFER_MMAP		BIT(2)	/* Memory Mapped start */
 #define SPI_XFER_MMAP_END	BIT(3)	/* Memory Mapped End */
+#define SPI_XFER_U_PAGE		BIT(4)
 
 	u8 option;
 };
