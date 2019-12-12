@@ -2100,6 +2100,12 @@ static int spi_nor_init_params(struct spi_nor *nor,
 	params->size = info->sector_size * info->n_sectors;
 	params->page_size = info->page_size;
 
+	if (nor->isparallel)
+		params->page_size <<= nor->shift;
+
+	if (nor->isparallel || nor->isstacked)
+		params->size <<= nor->shift;
+
 	/* (Fast) Read settings. */
 	params->hwcaps.mask |= SNOR_HWCAPS_READ;
 	spi_nor_set_read_settings(&params->reads[SNOR_CMD_READ],
@@ -2448,6 +2454,10 @@ int spi_nor_scan(struct spi_nor *nor)
 			hwcaps.mask |= SNOR_HWCAPS_READ_1_2_2;
 	}
 
+	nor->isparallel = (spi->option == SF_DUAL_PARALLEL_FLASH) ? 1 : 0;
+	nor->isstacked = (spi->option == SF_DUAL_STACKED_FLASH) ? 1 : 0;
+	nor->shift = nor->isparallel;
+
 	info = spi_nor_read_id(nor);
 	if (IS_ERR_OR_NULL(info))
 		return -ENOENT;
@@ -2462,7 +2472,7 @@ int spi_nor_scan(struct spi_nor *nor)
 	mtd->type = MTD_NORFLASH;
 	mtd->writesize = 1;
 	mtd->flags = MTD_CAP_NORFLASH;
-	mtd->size = params.size;
+	mtd->size = params.size << nor->isstacked;
 	mtd->_erase = spi_nor_erase;
 	mtd->_read = spi_nor_read;
 
@@ -2540,6 +2550,7 @@ int spi_nor_scan(struct spi_nor *nor)
 #else
 	/* Configure the BAR - discover bank cmds and read current bank */
 	nor->addr_width = 3;
+	set_4byte(nor, info, 0);
 	ret = read_bar(nor, info);
 	if (ret < 0)
 		return ret;
