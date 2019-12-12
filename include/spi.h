@@ -31,6 +31,9 @@
 #define SPI_RX_DUAL	BIT(12)			/* receive with 2 wires */
 #define SPI_RX_QUAD	BIT(13)			/* receive with 4 wires */
 
+/* SPI transfer flags */
+#define SPI_XFER_LOWER	(1 << 8)
+
 /* Header byte that marks the start of the message */
 #define SPI_PREAMBLE_END_BYTE	0xec
 
