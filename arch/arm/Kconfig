@@ -1154,6 +1154,7 @@ config ARCH_ZYNQMP
 	select DM_USB if USB
 	select FIRMWARE
 	select OF_CONTROL
+	select SPI_FLASH_SPLIT_READ if DM_SPI_FLASH
 	select SPL_BOARD_INIT if SPL
 	select SPL_CLK if SPL
 	select SPL_DM if SPL
