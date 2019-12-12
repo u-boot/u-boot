@@ -85,6 +85,18 @@
 			reg = <0x114000 0x1000>;
 			clock-frequency = <0>;
 		};
+
+		usb0@210000 {
+			compatible = "fsl-usb2-mph";
+			reg = <0x210000 0x1000>;
+			phy_type = "ulpi";
+		};
+
+		usb1@211000 {
+			compatible = "fsl-usb2-dr";
+			reg = <0x211000 0x1000>;
+			phy_type = "ulpi";
+		};
 	};
 
 	pcie@ffe200000 {
