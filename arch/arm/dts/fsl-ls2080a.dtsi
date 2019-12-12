@@ -96,13 +96,13 @@
 	};
 
 	qspi: quadspi@1550000 {
-		compatible = "fsl,vf610-qspi";
+		compatible = "fsl,ls2080a-qspi";
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0x0 0x20c0000 0x0 0x10000>,
 			<0x0 0x20000000 0x0 0x10000000>;
 		reg-names = "QuadSPI", "QuadSPI-memory";
-		num-cs = <4>;
+		status = "disabled";
 	};
 
 	esdhc: esdhc@0 {

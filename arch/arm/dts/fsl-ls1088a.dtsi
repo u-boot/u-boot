@@ -92,7 +92,7 @@
 	};
 
 	qspi: quadspi@1550000 {
-		compatible = "fsl,vf610-qspi";
+		compatible = "fsl,ls1088a-qspi";
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0x0 0x20c0000 0x0 0x10000>,

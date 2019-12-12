@@ -108,10 +108,9 @@
 };
 
 &qspi {
-	bus-num = <0>;
 	status = "okay";
 
-	qflash0: s25fs512s@0 {
+	s25fs512s0: flash@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "jedec,spi-nor";
@@ -119,7 +118,7 @@
 		reg = <0>;
 	};
 
-	qflash1: s25fs512s@1 {
+	s25fs512s1: flash@1 {
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "jedec,spi-nor";
