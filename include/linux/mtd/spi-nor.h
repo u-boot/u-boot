@@ -325,6 +325,9 @@ struct spi_nor {
 	enum spi_nor_protocol	write_proto;
 	enum spi_nor_protocol	reg_proto;
 	bool			sst_write_second;
+	bool			shift;
+	bool			isparallel;
+	bool			isstacked;
 	u32			flags;
 	u8			cmd_buf[SPI_NOR_MAX_CMD_SIZE];
 

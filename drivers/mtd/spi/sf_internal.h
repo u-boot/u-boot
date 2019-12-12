@@ -13,6 +13,13 @@
 #include <linux/types.h>
 #include <linux/compiler.h>
 
+/* Dual SPI flash memories - see SPI_COMM_DUAL_... */
+enum spi_dual_flash {
+	SF_SINGLE_FLASH	= 0,
+	SF_DUAL_STACKED_FLASH	= BIT(0),
+	SF_DUAL_PARALLEL_FLASH	= BIT(1),
+};
+
 #define SPI_NOR_MAX_ID_LEN	6
 #define SPI_NOR_MAX_ADDR_WIDTH	4
 
