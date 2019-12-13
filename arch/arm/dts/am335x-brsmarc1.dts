@@ -266,12 +266,14 @@
 };
 
 &cpsw_emac0 {
+	phy_id = <&davinci_mdio>, <1>;
 	phy-handle = <&ethphy0>;
 	phy-mode = "rmii";
 	ti,ledcr = <0x0480>;
 };
 
 &cpsw_emac1 {
+	phy_id = <&davinci_mdio>, <3>;
 	phy-handle = <&ethphy1>;
 	phy-mode = "rmii";
 	ti,ledcr = <0x0480>;

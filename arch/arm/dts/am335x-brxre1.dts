@@ -221,11 +221,13 @@
 };
 
 &cpsw_emac0 {
+	phy_id = <&davinci_mdio>, <1>;
 	phy-handle = <&ethphy0>;
 	phy-mode = "mii";
 };
 
 &cpsw_emac1 {
+	phy_id = <&davinci_mdio>, <2>;
 	phy-handle = <&ethphy1>;
 	phy-mode = "mii";
 };
