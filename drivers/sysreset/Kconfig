@@ -119,7 +119,7 @@ config SYSRESET_TPL_X86
 	help
 	  Reboot support for generic x86 processor reset in TPL.
 
-config SYSRESET_MCP83XX
+config SYSRESET_MPC83XX
 	bool "Enable support MPC83xx SoC family reboot driver"
 	help
 	  Reboot support for NXP MPC83xx SoCs.
