@@ -61,6 +61,16 @@ config LNX_KRNL_IMG_TEXT_OFFSET_BASE
 endif
 endif
 
+config GIC_V3_ITS
+	bool "ARM GICV3 ITS"
+	help
+	  ARM GICV3 Interrupt translation service (ITS).
+	  Basic support for programming locality specific peripheral
+	  interrupts (LPI) configuration tables and enable LPI tables.
+	  LPI configuration table can be used by u-boot or Linux.
+	  ARM GICV3 has limitation, once the LPI table is enabled, LPI
+	  configuration table can not be re-programmed, unless GICV3 reset.
+
 config STATIC_RELA
 	bool
 	default y if ARM64 && !POSITION_INDEPENDENT
