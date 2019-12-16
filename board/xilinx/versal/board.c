@@ -130,7 +130,14 @@ int board_late_init(void)
 		break;
 	case EMMC_MODE:
 		puts("EMMC_MODE\n");
-		mode = "mmc0";
+		if (uclass_get_device_by_name(UCLASS_MMC,
+					      "sdhci@f1050000", &dev)) {
+			puts("Boot from EMMC but without SD1 enabled!\n");
+			return -1;
+		}
+		debug("mmc1 device found at %p, seq %d\n", dev, dev->seq);
+		mode = "mmc";
+		bootseq = dev->seq;
 		break;
 	case SD_MODE:
 		puts("SD_MODE\n");
