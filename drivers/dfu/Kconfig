@@ -42,6 +42,13 @@ config DFU_NAND
 	  This option enables using DFU to read and write to NAND based
 	  storage.
 
+config DFU_NAND_TRIMFFS
+	bool "Skip empty pages when flashing UBI images to NAND"
+	depends on DFU_NAND
+	help
+	  When flashing UBI images to NAND, enable the DROP_FFS flag to drop
+	  trailing all-0xff pages.
+
 config DFU_RAM
 	bool "RAM back end for DFU"
 	help
