@@ -590,11 +590,14 @@ static char nandbcb_help_text[] =
 	"update addr off|partition len	- update 'len' bytes starting at\n"
 	"       'off|part' to memory address 'addr', skipping  bad blocks\n"
 	"bcbonly fw-size fw1-off [fw2-off] - write only BCB (FCB and DBBT)\n"
-	"       where `fw-size` is fw sizes in bytes, `fw1-off` and\n"
-	"       and `fw2-off` - firmware offsets		";
+	"       where `fw-size` is fw sizes in bytes, `fw1-off`\n"
+	"       and `fw2-off` - firmware offsets\n"
+	"       FIY, BCB isn't erased automatically, so mtd erase should\n"
+	"       be called in advance before writing new BCB:\n"
+	"           > mtd erase mx7-bcb";
 #endif
 
 U_BOOT_CMD(nandbcb, 5, 1, do_nandbcb,
-	   "i.MX6 Nand BCB",
+	   "i.MX6/i.MX7 NAND Boot Control Blocks write",
 	   nandbcb_help_text
 );
