@@ -49,14 +49,16 @@
 			     <1 10 0x8>; /* Hypervisor PPI, active-low */
 	};
 
-	fspi: flexspi@20C0000 {
-		compatible = "nxp,dn-fspi";
+	fspi: flexspi@20c0000 {
+		compatible = "nxp,lx2160a-fspi";
 		#address-cells = <1>;
 		#size-cells = <0>;
-		reg = <0x0 0x20C0000 0x0 0x10000>,
-			<0x0 0x20000000 0x0 0x10000000>; /*64MB flash*/
-		reg-names = "FSPI", "FSPI-memory";
-		num-cs = <1>;
+		reg = <0x0 0x20c0000 0x0 0x10000>,
+		      <0x0 0x20000000 0x0 0x10000000>;
+		reg-names = "fspi_base", "fspi_mmap";
+		clocks = <&clockgen 4 3>, <&clockgen 4 3>;
+		clock-names = "fspi_en", "fspi";
+		interrupts = <0 25 0x4>;
 		status = "disabled";
 	};
 
