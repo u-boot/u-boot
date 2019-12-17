@@ -192,6 +192,13 @@ config MVEBU_A3700_SPI
 	  used to access the SPI NOR flash on platforms embedding this
 	  Marvell IP core.
 
+config NXP_FSPI
+	bool "NXP FlexSPI driver"
+	depends on SPI_MEM
+	help
+	  Enable the NXP FlexSPI (FSPI) driver. This driver can be used to
+	  access the SPI NOR flash on platforms embedding this NXP IP core.
+
 config PIC32_SPI
 	bool "Microchip PIC32 SPI driver"
 	depends on MACH_PIC32
