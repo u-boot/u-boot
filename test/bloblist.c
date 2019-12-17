@@ -183,5 +183,6 @@ int do_ut_bloblist(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 						 bloblist_test);
 	const int n_ents = ll_entry_count(struct unit_test, bloblist_test);
 
-	return cmd_ut_category("bloblist", tests, n_ents, argc, argv);
+	return cmd_ut_category("bloblist", "bloblist_test_",
+			       tests, n_ents, argc, argv);
 }

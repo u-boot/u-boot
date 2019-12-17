@@ -11,17 +11,25 @@
 
 static int do_ut_all(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 
-int cmd_ut_category(const char *name, struct unit_test *tests, int n_ents,
+int cmd_ut_category(const char *name, const char *prefix,
+		    struct unit_test *tests, int n_ents,
 		    int argc, char * const argv[])
 {
 	struct unit_test_state uts = { .fail_count = 0 };
 	struct unit_test *test;
+	int prefix_len = prefix ? strlen(prefix) : 0;
 
 	if (argc == 1)
 		printf("Running %d %s tests\n", n_ents, name);
 
 	for (test = tests; test < tests + n_ents; test++) {
-		if (argc > 1 && strcmp(argv[1], test->name))
+		const char *test_name = test->name;
+
+		/* Remove the prefix */
+		if (!strncmp(test_name, prefix, prefix_len))
+			test_name += prefix_len;
+
+		if (argc > 1 && strcmp(argv[1], test_name))
 			continue;
 		printf("Test: %s\n", test->name);
 

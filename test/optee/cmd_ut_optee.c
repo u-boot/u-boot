@@ -129,20 +129,20 @@ int do_ut_optee(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	ut_assertok(optee_copy_fdt_nodes(fdt_no_optee, fdt));
 
 	expect_success = false;
-	ret = cmd_ut_category("optee", tests, n_ents, argc, argv);
+	ret = cmd_ut_category("optee", "", tests, n_ents, argc, argv);
 
 	/* (2) Try to copy optee nodes from prefilled dt */
 	ut_assertok(optee_copy_fdt_nodes(fdt_optee, fdt));
 
 	expect_success = true;
-	ret = cmd_ut_category("optee", tests, n_ents, argc, argv);
+	ret = cmd_ut_category("optee", "", tests, n_ents, argc, argv);
 
 	/* (3) Try to copy OP-TEE nodes into a already filled DT */
 	ut_assertok(fdt_open_into(fdt_optee, fdt, FDT_COPY_SIZE));
 	ut_assertok(optee_copy_fdt_nodes(fdt_optee, fdt));
 
 	expect_success = true;
-	ret = cmd_ut_category("optee", tests, n_ents, argc, argv);
+	ret = cmd_ut_category("optee", "", tests, n_ents, argc, argv);
 
 	free(fdt);
 	return ret;
