@@ -460,6 +460,7 @@ matrix:
         - TEST_PY_BD="xilinx_versal_virt"
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="aarch64-softmmu"
+          QEMU_VERSION="v4.2.0"
           TEST_PY_ID="--id qemu"
           BUILDMAN="^xilinx_versal_virt$"
     - name: "test/py xtfpga"
