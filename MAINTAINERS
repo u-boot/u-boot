@@ -883,6 +883,8 @@ M:	Marek Vasut <marex@denx.de>
 S:	Maintained
 T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-usb.git
 F:	drivers/usb/
+F:	common/usb.c
+F:	common/usb_kbd.c
 
 USB xHCI
 M:	Bin Meng <bmeng.cn@gmail.com>
