@@ -325,7 +325,7 @@ static void ls_pcie_disable_bars(struct ls_pcie *pcie)
 
 	dbi_writel(pcie, 0, PCIE_CS2_OFFSET + PCI_BASE_ADDRESS_0);
 	dbi_writel(pcie, 0, PCIE_CS2_OFFSET + PCI_BASE_ADDRESS_1);
-	dbi_writel(pcie, 0, PCIE_CS2_OFFSET + PCI_ROM_ADDRESS1);
+	dbi_writel(pcie, 0xfffffffe, PCIE_CS2_OFFSET + PCI_ROM_ADDRESS1);
 }
 
 static void ls_pcie_setup_ctrl(struct ls_pcie *pcie)
