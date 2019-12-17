@@ -72,6 +72,13 @@ void sandbox_i2c_eeprom_set_test_mode(struct udevice *dev,
 
 void sandbox_i2c_eeprom_set_offset_len(struct udevice *dev, int offset_len);
 
+void sandbox_i2c_eeprom_set_chip_addr_offset_mask(struct udevice *dev,
+						  uint mask);
+
+uint sanbox_i2c_eeprom_get_prev_addr(struct udevice *dev);
+
+uint sanbox_i2c_eeprom_get_prev_offset(struct udevice *dev);
+
 /**
  * sandbox_i2c_rtc_set_offset() - set the time offset from system/base time
  *
