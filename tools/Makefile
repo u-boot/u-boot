@@ -77,7 +77,7 @@ RSA_OBJS-$(CONFIG_FIT_SIGNATURE) := $(addprefix lib/rsa/, \
 					rsa-mod-exp.o)
 
 AES_OBJS-$(CONFIG_FIT_CIPHER) := $(addprefix lib/aes/, \
-					aes-encrypt.o)
+					aes-encrypt.o aes-decrypt.o)
 
 ROCKCHIP_OBS = lib/rc4.o rkcommon.o rkimage.o rksd.o rkspi.o
 

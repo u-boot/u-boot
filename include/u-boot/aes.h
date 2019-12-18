@@ -28,4 +28,17 @@ int image_aes_add_cipher_data(struct image_cipher_info *info, void *keydest)
 }
 #endif /* IMAGE_ENABLE_ENCRYPT */
 
+#if IMAGE_ENABLE_DECRYPT
+int image_aes_decrypt(struct image_cipher_info *info,
+		      const void *cipher, size_t cipher_len,
+		      void **data, size_t *size);
+#else
+int image_aes_decrypt(struct image_cipher_info *info,
+		      const void *cipher, size_t cipher_len,
+		      void **data, size_t *size)
+{
+	return -ENXIO;
+}
+#endif /* IMAGE_ENABLE_DECRYPT */
+
 #endif
