@@ -30,3 +30,5 @@ u32 get_cpu_package(void);
 
 /* return boot mode */
 u32 get_bootmode(void);
+
+int setup_mac_address(void);
