@@ -111,6 +111,8 @@ int board_late_init(void)
 
 	env_set("boot_targets", new_targets);
 
+	env_set_hex("script_offset_f", CONFIG_BOOT_SCRIPT_OFFSET);
+
 	return 0;
 }
 
