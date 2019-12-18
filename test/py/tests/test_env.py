@@ -49,7 +49,7 @@ class StateTestEnv(object):
         for l in response.splitlines():
             if not '=' in l:
                 continue
-            (var, value) = l.strip().split('=', 1)
+            (var, value) = l.split('=', 1)
             self.env[var] = value
 
     def get_existent_var(self):
