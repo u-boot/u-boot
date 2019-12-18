@@ -667,6 +667,8 @@ int board_late_init(void)
 	initrd_hi = round_down(initrd_hi, SZ_16M);
 	env_set_addr("initrd_high", (void *)initrd_hi);
 
+	env_set_hex("script_offset_f", CONFIG_BOOT_SCRIPT_OFFSET);
+
 	reset_reason();
 
 	return 0;

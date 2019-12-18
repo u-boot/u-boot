@@ -194,7 +194,6 @@
 	"fdt_high=0x20000000\0"		\
 	"initrd_high=0x20000000\0"	\
 	"scriptaddr=0x20000\0"	\
-	"script_offset_f=0xFC0000\0"	\
 	"script_size_f=0x40000\0"	\
 	"fdt_addr_r=0x1f00000\0"        \
 	"pxefile_addr_r=0x2000000\0"    \
