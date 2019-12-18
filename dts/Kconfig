@@ -25,6 +25,7 @@ menu "Device Tree Control"
 config OF_CONTROL
 	bool "Run-time configuration via Device Tree"
 	select DTC
+	select OF_LIBFDT if !OF_PLATDATA
 	help
 	  This feature provides for run-time configuration of U-Boot
 	  via a flattened device tree.
@@ -42,6 +43,7 @@ config OF_BOARD_FIXUP
 config SPL_OF_CONTROL
 	bool "Enable run-time configuration via Device Tree in SPL"
 	depends on SPL && OF_CONTROL
+	select SPL_OF_LIBFDT if !SPL_OF_PLATDATA
 	help
 	  Some boards use device tree in U-Boot but only have 4KB of SRAM
 	  which is not enough to support device tree. Disable this option to
@@ -50,6 +52,7 @@ config SPL_OF_CONTROL
 config TPL_OF_CONTROL
 	bool "Enable run-time configuration via Device Tree in TPL"
 	depends on TPL && OF_CONTROL
+	select TPL_OF_LIBFDT if !TPL_OF_PLATDATA
 	help
 	  Some boards use device tree in U-Boot but only have 4KB of SRAM
 	  which is not enough to support device tree. Enable this option to
