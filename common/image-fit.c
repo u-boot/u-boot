@@ -1080,6 +1080,33 @@ static int fit_image_hash_get_ignore(const void *fit, int noffset, int *ignore)
 	return 0;
 }
 
+/**
+ * fit_image_cipher_get_algo - get cipher algorithm name
+ * @fit: pointer to the FIT format image header
+ * @noffset: cipher node offset
+ * @algo: double pointer to char, will hold pointer to the algorithm name
+ *
+ * fit_image_cipher_get_algo() finds cipher algorithm property in a given
+ * cipher node. If the property is found its data start address is returned
+ * to the caller.
+ *
+ * returns:
+ *     0, on success
+ *     -1, on failure
+ */
+int fit_image_cipher_get_algo(const void *fit, int noffset, char **algo)
+{
+	int len;
+
+	*algo = (char *)fdt_getprop(fit, noffset, FIT_ALGO_PROP, &len);
+	if (!*algo) {
+		fit_get_debug(fit, noffset, FIT_ALGO_PROP, len);
+		return -1;
+	}
+
+	return 0;
+}
+
 ulong fit_get_end(const void *fit)
 {
 	return map_to_sysmem((void *)(fit + fdt_totalsize(fit)));

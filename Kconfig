@@ -383,6 +383,14 @@ config FIT_ENABLE_RSASSA_PSS_SUPPORT
 	  Enable this to support the pss padding algorithm as described
 	  in the rfc8017 (https://tools.ietf.org/html/rfc8017).
 
+config FIT_CIPHER
+	bool "Enable ciphering data in a FIT uImages"
+	depends on DM
+	select AES
+	help
+	  Enable the feature of data ciphering/unciphering in the tool mkimage
+	  and in the u-boot support of the FIT image.
+
 config FIT_VERBOSE
 	bool "Show verbose messages when FIT images fail"
 	help

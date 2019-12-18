@@ -930,6 +930,10 @@ int booti_setup(ulong image, ulong *relocated_addr, ulong *size,
 #define FIT_IGNORE_PROP		"uboot-ignore"
 #define FIT_SIG_NODENAME	"signature"
 
+/* cipher node */
+#define FIT_CIPHER_NODENAME	"cipher"
+#define FIT_ALGO_PROP		"algo"
+
 /* image node */
 #define FIT_DATA_PROP		"data"
 #define FIT_DATA_POSITION_PROP	"data-position"
@@ -1027,6 +1031,10 @@ int fit_image_hash_get_value(const void *fit, int noffset, uint8_t **value,
 				int *value_len);
 
 int fit_set_timestamp(void *fit, int noffset, time_t timestamp);
+
+int fit_cipher_data(const char *keydir, void *keydest, void *fit,
+		    const char *comment, int require_keys,
+		    const char *engine_id, const char *cmdname);
 
 /**
  * fit_add_verification_data() - add verification data to FIT image nodes
@@ -1138,6 +1146,7 @@ struct image_sign_info {
 	const char *require_keys;	/* Value for 'required' property */
 	const char *engine_id;		/* Engine to use for signing */
 };
+
 #endif /* Allow struct image_region to always be defined for rsa.h */
 
 /* A part of an image, used for hashing */
@@ -1309,6 +1318,60 @@ static inline int fit_image_check_target_arch(const void *fdt, int node)
 	return 0;
 #endif
 }
+
+/*
+ * At present we only support ciphering on the host, and unciphering on the
+ * device
+ */
+#if defined(USE_HOSTCC)
+# if defined(CONFIG_FIT_CIPHER)
+#  define IMAGE_ENABLE_ENCRYPT	1
+#  define IMAGE_ENABLE_DECRYPT	1
+#  include <openssl/evp.h>
+# else
+#  define IMAGE_ENABLE_ENCRYPT	0
+#  define IMAGE_ENABLE_DECRYPT	0
+# endif
+#else
+# define IMAGE_ENABLE_ENCRYPT	0
+# define IMAGE_ENABLE_DECRYPT	CONFIG_IS_ENABLED(FIT_CIPHER)
+#endif
+
+/* Information passed to the ciphering routines */
+struct image_cipher_info {
+	const char *keydir;		/* Directory containing keys */
+	const char *keyname;		/* Name of key to use */
+	const char *ivname;		/* Name of IV to use */
+	const void *fit;		/* Pointer to FIT blob */
+	int node_noffset;		/* Offset of the cipher node */
+	const char *name;		/* Algorithm name */
+	struct cipher_algo *cipher;	/* Cipher algorithm information */
+	const void *fdt_blob;		/* FDT containing key and IV */
+	const void *key;		/* Value of the key */
+	const void *iv;			/* Value of the IV */
+	size_t size_unciphered;		/* Size of the unciphered data */
+};
+
+struct cipher_algo {
+	const char *name;		/* Name of algorithm */
+	int key_len;			/* Length of the key */
+	int iv_len;			/* Length of the IV */
+
+#if IMAGE_ENABLE_ENCRYPT
+	const EVP_CIPHER * (*calculate_type)(void);
+#endif
+
+	int (*encrypt)(struct image_cipher_info *info,
+		       const unsigned char *data, int data_len,
+		       unsigned char **cipher, int *cipher_len);
+
+	int (*add_cipher_data)(struct image_cipher_info *info,
+			       void *keydest);
+};
+
+int fit_image_cipher_get_algo(const void *fit, int noffset, char **algo);
+
+struct cipher_algo *image_get_cipher_algo(const char *full_name);
 
 #ifdef CONFIG_FIT_VERBOSE
 #define fit_unsupported(msg)	printf("! %s:%d " \
