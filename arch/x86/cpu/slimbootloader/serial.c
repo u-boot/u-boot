@@ -34,18 +34,15 @@ static int slimbootloader_serial_ofdata_to_platdata(struct udevice *dev)
 	      data->stride,
 	      data->clk);
 
-	/*
-	 * The data->type provides port io or mmio access type info,
-	 * but the access type will be controlled by
-	 * CONFIG_SYS_NS16550_PORT_MAPPED or CONFIG_SYS_NS16550_MEM32.
-	 *
-	 * TBD: ns16550 access type configuration in runtime.
-	 *      ex) plat->access_type = data->type
-	 */
 	plat->base = data->base;
 	/* ns16550 uses reg_shift, then covert stride to shift */
 	plat->reg_shift = data->stride >> 1;
+	plat->reg_width = data->stride;
 	plat->clock = data->clk;
+	plat->fcr = UART_FCR_DEFVAL;
+	plat->flags = 0;
+	if (data->type == 1)
+		plat->flags |= NS16550_FLAG_IO;
 
 	return 0;
 }
