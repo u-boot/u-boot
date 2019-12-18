@@ -17,3 +17,4 @@ config SYS_SLIMBOOTLOADER
 	imply USB_EHCI_HCD
 	imply USB_XHCI_HCD
 	imply E1000
+	imply X86_TSC_READ_BASE

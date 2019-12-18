@@ -1,0 +1,24 @@
+x86 PCI DT details:
+===================
+
+Some options are available to affect how PCI operates on x86.
+
+Optional properties:
+- u-boot,skip-auto-config-until-reloc : Don't set up PCI configuration until
+	after U-Boot has relocated. Normally if PCI is used before relocation,
+	this happens before relocation also. Some platforms set up static
+	configuration in TPL/SPL to reduce code size and boot time, since these
+	phases only know about a small subset of PCI devices.
+
+Example:
+
+pci {
+	compatible = "pci-x86";
+	#address-cells = <3>;
+	#size-cells = <2>;
+	u-boot,dm-pre-reloc;
+	ranges = <0x02000000 0x0 0xc0000000 0xc0000000 0 0x10000000
+		0x42000000 0x0 0xb0000000 0xb0000000 0 0x10000000
+		0x01000000 0x0 0x1000 0x1000 0 0xefff>;
+	u-boot,skip-auto-config-until-reloc;
+};

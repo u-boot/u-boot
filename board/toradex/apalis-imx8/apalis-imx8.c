@@ -51,7 +51,7 @@ int board_early_init_f(void)
 	return 0;
 }
 
-#if IS_ENABLED(CONFIG_DM_GPIO)
+#if CONFIG_IS_ENABLED(DM_GPIO)
 static void board_gpio_init(void)
 {
 	/* TODO */

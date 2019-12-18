@@ -102,6 +102,18 @@ int spi_flash_erase_dm(struct udevice *dev, u32 offset, size_t len);
  */
 int spl_flash_get_sw_write_prot(struct udevice *dev);
 
+/**
+ * spi_flash_std_probe() - Probe a SPI flash device
+ *
+ * This is the standard internal method for probing a SPI flash device to
+ * determine its type. It can be used in chip-specific drivers which need to
+ * do this, typically with of-platdata
+ *
+ * @dev: SPI-flash device to probe
+ * @return 0 if OK, -ve on error
+ */
+int spi_flash_std_probe(struct udevice *dev);
+
 int spi_flash_probe_bus_cs(unsigned int busnum, unsigned int cs,
 			   unsigned int max_hz, unsigned int spi_mode,
 			   struct udevice **devp);

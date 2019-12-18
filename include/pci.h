@@ -482,6 +482,8 @@
 
 #ifndef __ASSEMBLY__
 
+#include <dm/pci.h>
+
 #ifdef CONFIG_SYS_PCI_64BIT
 typedef u64 pci_addr_t;
 typedef u64 pci_size_t;
@@ -571,15 +573,22 @@ extern void pci_cfgfunc_config_device(struct pci_controller* hose, pci_dev_t dev
 
 #define INDIRECT_TYPE_NO_PCIE_LINK	1
 
-/*
+/**
  * Structure of a PCI controller (host bridge)
  *
  * With driver model this is dev_get_uclass_priv(bus)
+ *
+ * @skip_auto_config_until_reloc: true to avoid auto-config until U-Boot has
+ *	relocated. Normally if PCI is used before relocation, this happens
+ *	before relocation also. Some platforms set up static configuration in
+ *	TPL/SPL to reduce code size and boot time, since these phases only know
+ *	about a small subset of PCI devices. This is normally false.
  */
 struct pci_controller {
 #ifdef CONFIG_DM_PCI
 	struct udevice *bus;
 	struct udevice *ctlr;
+	bool skip_auto_config_until_reloc;
 #else
 	struct pci_controller *next;
 #endif
@@ -1611,16 +1620,6 @@ int sandbox_pci_get_emul(struct udevice *bus, pci_dev_t find_devfn,
  * @return 0 if OK, -ENOENT if the device has no client yet
  */
 int sandbox_pci_get_client(struct udevice *emul, struct udevice **devp);
-
-/**
- * pci_get_devfn() - Extract the devfn from fdt_pci_addr of the device
- *
- * Get devfn from fdt_pci_addr of the specified device
- *
- * @dev:	PCI device
- * @return devfn in bits 15...8 if found, -ENODEV if not found
- */
-int pci_get_devfn(struct udevice *dev);
 
 #endif /* CONFIG_DM_PCI */
 

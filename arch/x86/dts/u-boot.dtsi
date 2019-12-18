@@ -37,62 +37,110 @@
 	};
 #endif
 #ifdef CONFIG_TPL
+#ifdef CONFIG_HAVE_MICROCODE
 	u-boot-tpl-with-ucode-ptr {
 		offset = <CONFIG_TPL_TEXT_BASE>;
 	};
 	u-boot-tpl-dtb {
 	};
-	u-boot-spl {
-		offset = <CONFIG_SPL_TEXT_BASE>;
-	};
-	u-boot-spl-dtb {
+#endif
+	spl {
+		type = "section";
+		offset = <CONFIG_X86_OFFSET_SPL>;
+		u-boot-spl {
+		};
+		u-boot-spl-dtb {
+		};
 	};
 	u-boot {
-		offset = <CONFIG_SYS_TEXT_BASE>;
+		type = "section";
+		offset = <CONFIG_X86_OFFSET_U_BOOT>;
+		u-boot-nodtb {
+		};
+		u-boot-dtb {
+		};
 	};
 #elif defined(CONFIG_SPL)
 	u-boot-spl-with-ucode-ptr {
-		offset = <CONFIG_SPL_TEXT_BASE>;
+		offset = <CONFIG_X86_OFFSET_SPL>;
 	};
 	u-boot-dtb-with-ucode2 {
 		type = "u-boot-dtb-with-ucode";
 	};
 	u-boot {
-		/*
-		 * TODO(sjg@chromium.org):
-		 * Normally we use CONFIG_SYS_TEXT_BASE as the flash offset. But
-		 * for boards with textbase in SDRAM we cannot do this. Just use
-		 * an assumed-valid value (1MB before the end of flash) here so
-		 * that we can actually build an image for coreboot, etc.
-		 * We need a better solution, perhaps a separate Kconfig.
-		 */
-#if CONFIG_SYS_TEXT_BASE == 0x1110000
-		offset = <0xfff00000>;
-#else
-		offset = <CONFIG_SYS_TEXT_BASE>;
-#endif
+		offset = <CONFIG_X86_OFFSET_U_BOOT>;
 	};
 #else
+# ifdef CONFIG_SPL
+	u-boot {
+		offset = <CONFIG_SYS_TEXT_BASE>;
+	};
+# else
+	/* If there is no SPL then we need to put microcode in U-Boot */
 	u-boot-with-ucode-ptr {
-		offset = <CONFIG_SYS_TEXT_BASE>;
+		offset = <CONFIG_X86_OFFSET_U_BOOT>;
 	};
+# endif
 #endif
+#ifdef CONFIG_HAVE_MICROCODE
 	u-boot-dtb-with-ucode {
 	};
 	u-boot-ucode {
 		align = <16>;
 	};
+#else
+	u-boot-dtb {
+	};
+#endif
+#ifdef CONFIG_HAVE_X86_FIT
+	intel-fit {
+	};
+	intel-fit-ptr {
+	};
+#endif
 #ifdef CONFIG_HAVE_MRC
 	intel-mrc {
 		offset = <CONFIG_X86_MRC_ADDR>;
 	};
 #endif
-#ifdef CONFIG_HAVE_FSP
+#ifdef CONFIG_FSP_VERSION1
 	intel-fsp {
 		filename = CONFIG_FSP_FILE;
 		offset = <CONFIG_FSP_ADDR>;
 	};
 #endif
+#ifdef CONFIG_FSP_VERSION2
+	intel-descriptor {
+		filename = CONFIG_FLASH_DESCRIPTOR_FILE;
+	};
+	intel-ifwi {
+		filename = CONFIG_IFWI_INPUT_FILE;
+		convert-fit;
+
+		section {
+			size = <0x8000>;
+			ifwi-replace;
+			ifwi-subpart = "IBBP";
+			ifwi-entry = "IBBL";
+			u-boot-tpl {
+			};
+			x86-start16-tpl {
+				offset = <0x7800>;
+			};
+			x86-reset16-tpl {
+				offset = <0x7ff0>;
+			};
+		};
+	};
+	intel-fsp-m {
+		filename = CONFIG_FSP_FILE_M;
+	};
+	intel-fsp-s {
+		filename = CONFIG_FSP_FILE_S;
+	};
+#endif
+	fdtmap {
+	};
 #ifdef CONFIG_HAVE_CMC
 	intel-cmc {
 		filename = CONFIG_CMC_FILE;
@@ -138,5 +186,8 @@
 		offset = <CONFIG_RESET_VEC_LOC>;
 	};
 #endif
+	image-header {
+		location = "end";
+	};
 };
 #endif

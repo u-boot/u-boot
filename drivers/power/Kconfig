@@ -1,5 +1,7 @@
 menu "Power"
 
+source "drivers/power/acpi_pmc/Kconfig"
+
 source "drivers/power/domain/Kconfig"
 
 source "drivers/power/pmic/Kconfig"

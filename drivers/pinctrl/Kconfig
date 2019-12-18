@@ -82,6 +82,13 @@ config SPL_PINCTRL
 	  This option is an SPL-variant of the PINCTRL option.
 	  See the help of PINCTRL for details.
 
+config TPL_PINCTRL
+	bool "Support pin controllers in TPL"
+	depends on TPL && TPL_DM
+	help
+	  This option is an TPL variant of the PINCTRL option.
+	  See the help of PINCTRL for details.
+
 config SPL_PINCTRL_FULL
 	bool "Support full pin controllers in SPL"
 	depends on SPL_PINCTRL && SPL_OF_CONTROL
@@ -89,6 +96,13 @@ config SPL_PINCTRL_FULL
 	default y
 	help
 	  This option is an SPL-variant of the PINCTRL_FULL option.
+	  See the help of PINCTRL_FULL for details.
+
+config TPL_PINCTRL_FULL
+	bool "Support full pin controllers in TPL"
+	depends on TPL_PINCTRL && TPL_OF_CONTROL
+	help
+	  This option is an TPL-variant of the PINCTRL_FULL option.
 	  See the help of PINCTRL_FULL for details.
 
 config SPL_PINCTRL_GENERIC
@@ -162,6 +176,14 @@ config PINCTRL_AT91PIO4
 	help
 	  This option is to enable the AT91 pinctrl driver for AT91 PIO4
 	  controller which is available on SAMA5D2 SoC.
+
+config PINCTRL_INTEL
+	bool "Standard Intel pin-control and pin-mux driver"
+	help
+	  Recent Intel chips such as Apollo Lake (APL) use a common pin control
+	  and GPIO scheme. The settings for this come from an SoC-specific
+	  driver which must be separately enabled. The driver supports setting
+	  pins on start-up and changing the GPIO attributes.
 
 config PINCTRL_PIC32
 	bool "Microchip PIC32 pin-control and pin-mux driver"
@@ -266,6 +288,7 @@ endif
 
 source "drivers/pinctrl/broadcom/Kconfig"
 source "drivers/pinctrl/exynos/Kconfig"
+source "drivers/pinctrl/intel/Kconfig"
 source "drivers/pinctrl/mediatek/Kconfig"
 source "drivers/pinctrl/meson/Kconfig"
 source "drivers/pinctrl/mscc/Kconfig"

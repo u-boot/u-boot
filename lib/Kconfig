@@ -7,6 +7,16 @@ config BCH
 	  This is used by SoC platforms which do not have built-in ELM
 	  hardware engine required for BCH ECC correction.
 
+config BINMAN_FDT
+	bool "Allow access to binman information in the device tree"
+	depends on BINMAN && OF_CONTROL
+	default y
+	help
+	  This enables U-Boot to access information about binman entries,
+	  stored in the device tree in a binman node. Typical uses are to
+	  locate entries in the firmware image. See binman.h for the available
+	  functionality.
+
 config CC_OPTIMIZE_LIBS_FOR_SPEED
 	bool "Optimize libraries for speed"
 	help

@@ -142,7 +142,6 @@ config FSL_DSPI
 
 config ICH_SPI
 	bool "Intel ICH SPI driver"
-	imply SPI_FLASH_BAR
 	help
 	  Enable the Intel ICH SPI driver. This driver can be used to
 	  access the SPI NOR flash on platforms embedding this Intel

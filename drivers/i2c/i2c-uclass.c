@@ -11,7 +11,7 @@
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dm/pinctrl.h>
-#ifdef CONFIG_DM_GPIO
+#if CONFIG_IS_ENABLED(DM_GPIO)
 #include <asm/gpio.h>
 #endif
 
@@ -485,7 +485,7 @@ uint i2c_get_chip_addr_offset_mask(struct udevice *dev)
 	return chip->chip_addr_offset_mask;
 }
 
-#ifdef CONFIG_DM_GPIO
+#if CONFIG_IS_ENABLED(DM_GPIO)
 static void i2c_gpio_set_pin(struct gpio_desc *pin, int bit)
 {
 	if (bit)
@@ -581,7 +581,7 @@ static int i2c_deblock_gpio(struct udevice *bus)
 {
 	return -ENOSYS;
 }
-#endif // CONFIG_DM_GPIO
+#endif /* DM_GPIO */
 
 int i2c_deblock(struct udevice *bus)
 {

@@ -14,6 +14,8 @@
 #include <spi.h>
 #include <spi_flash.h>
 #include <asm/mrccache.h>
+#include <dm/device-internal.h>
+#include <dm/uclass-internal.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -80,21 +82,31 @@ struct mrc_data_container *mrccache_find_current(struct mrc_region *entry)
 /**
  * find_next_mrc_cache() - get next cache entry
  *
+ * This moves to the next cache entry in the region, making sure it has enough
+ * space to hold data of size @data_size.
+ *
  * @entry:	MRC cache flash area
  * @cache:	Entry to start from
+ * @data_size:	Required data size of the new entry. Note that we assume that
+ *	all cache entries are the same size
  *
  * @return next cache entry if found, NULL if we got to the end
  */
 static struct mrc_data_container *find_next_mrc_cache(struct mrc_region *entry,
-		struct mrc_data_container *cache)
+		struct mrc_data_container *prev, int data_size)
 {
+	struct mrc_data_container *cache;
 	ulong base_addr, end_addr;
 
 	base_addr = entry->base + entry->offset;
 	end_addr = base_addr + entry->length;
 
-	cache = next_mrc_block(cache);
-	if ((ulong)cache >= end_addr) {
+	/*
+	 * We assume that all cache entries are the same size, but let's use
+	 * data_size here for clarity.
+	 */
+	cache = next_mrc_block(prev);
+	if ((ulong)cache + mrc_block_size(data_size) > end_addr) {
 		/* Crossed the boundary */
 		cache = NULL;
 		debug("%s: no available entries found\n", __func__);
@@ -106,8 +118,20 @@ static struct mrc_data_container *find_next_mrc_cache(struct mrc_region *entry,
 	return cache;
 }
 
-int mrccache_update(struct udevice *sf, struct mrc_region *entry,
-		    struct mrc_data_container *cur)
+/**
+ * mrccache_update() - update the MRC cache with a new record
+ *
+ * This writes a new record to the end of the MRC cache region. If the new
+ * record is the same as the latest record then the write is skipped
+ *
+ * @sf:		SPI flash to write to
+ * @entry:	Position and size of MRC cache in SPI flash
+ * @cur:	Record to write
+ * @return 0 if updated, -EEXIST if the record is the same as the latest
+ * record, -EINVAL if the record is not valid, other error if SPI write failed
+ */
+static int mrccache_update(struct udevice *sf, struct mrc_region *entry,
+			   struct mrc_data_container *cur)
 {
 	struct mrc_data_container *cache;
 	ulong offset;
@@ -131,7 +155,7 @@ int mrccache_update(struct udevice *sf, struct mrc_region *entry,
 
 	/* Move to the next block, which will be the first unused block */
 	if (cache)
-		cache = find_next_mrc_cache(entry, cache);
+		cache = find_next_mrc_cache(entry, cache, cur->data_size);
 
 	/*
 	 * If we have got to the end, erase the entire mrc-cache area and start
@@ -156,82 +180,136 @@ int mrccache_update(struct udevice *sf, struct mrc_region *entry,
 				 cur);
 	if (ret) {
 		debug("Failed to write to SPI flash\n");
-		return ret;
+		return log_msg_ret("Cannot update mrccache", ret);
 	}
 
 	return 0;
 }
 
-static void mrccache_setup(void *data)
+static void mrccache_setup(struct mrc_output *mrc, void *data)
 {
 	struct mrc_data_container *cache = data;
 	u16 checksum;
 
 	cache->signature = MRC_DATA_SIGNATURE;
-	cache->data_size = gd->arch.mrc_output_len;
-	checksum = compute_ip_checksum(gd->arch.mrc_output, cache->data_size);
+	cache->data_size = mrc->len;
+	checksum = compute_ip_checksum(mrc->buf, cache->data_size);
 	debug("Saving %d bytes for MRC output data, checksum %04x\n",
 	      cache->data_size, checksum);
 	cache->checksum = checksum;
 	cache->reserved = 0;
-	memcpy(cache->data, gd->arch.mrc_output, cache->data_size);
+	memcpy(cache->data, mrc->buf, cache->data_size);
 
-	/* gd->arch.mrc_output now points to the container */
-	gd->arch.mrc_output = (char *)cache;
+	mrc->cache = cache;
 }
 
 int mrccache_reserve(void)
 {
-	if (!gd->arch.mrc_output_len)
-		return 0;
+	int i;
 
-	/* adjust stack pointer to store pure cache data plus the header */
-	gd->start_addr_sp -= (gd->arch.mrc_output_len + MRC_DATA_HEADER_SIZE);
-	mrccache_setup((void *)gd->start_addr_sp);
+	for (i = 0; i < MRC_TYPE_COUNT; i++) {
+		struct mrc_output *mrc = &gd->arch.mrc[i];
 
-	gd->start_addr_sp &= ~0xf;
+		if (!mrc->len)
+			continue;
+
+		/* adjust stack pointer to store pure cache data plus header */
+		gd->start_addr_sp -= (mrc->len + MRC_DATA_HEADER_SIZE);
+		mrccache_setup(mrc, (void *)gd->start_addr_sp);
+
+		gd->start_addr_sp &= ~0xf;
+	}
 
 	return 0;
 }
 
-int mrccache_get_region(struct udevice **devp, struct mrc_region *entry)
+int mrccache_get_region(enum mrc_type_t type, struct udevice **devp,
+			struct mrc_region *entry)
 {
-	const void *blob = gd->fdt_blob;
-	int node, mrc_node;
+	struct udevice *dev;
+	ofnode mrc_node;
+	ulong map_base;
+	uint map_size;
+	uint offset;
 	u32 reg[2];
 	int ret;
 
-	/* Find the flash chip within the SPI controller node */
-	node = fdtdec_next_compatible(blob, 0, COMPAT_GENERIC_SPI_FLASH);
-	if (node < 0) {
-		debug("%s: Cannot find SPI flash\n", __func__);
-		return -ENOENT;
+	/*
+	 * Find the flash chip within the SPI controller node. Avoid probing
+	 * the device here since it may put it into a strange state where the
+	 * memory map cannot be read.
+	 */
+	ret = uclass_find_first_device(UCLASS_SPI_FLASH, &dev);
+	if (ret)
+		return log_msg_ret("Cannot find SPI flash\n", ret);
+	ret = dm_spi_get_mmap(dev, &map_base, &map_size, &offset);
+	if (!ret) {
+		entry->base = map_base;
+	} else {
+		ret = dev_read_u32_array(dev, "memory-map", reg, 2);
+		if (ret)
+			return log_msg_ret("Cannot find memory map\n", ret);
+		entry->base = reg[0];
 	}
-
-	if (fdtdec_get_int_array(blob, node, "memory-map", reg, 2)) {
-		debug("%s: Cannot find memory map\n", __func__);
-		return -EINVAL;
-	}
-	entry->base = reg[0];
 
 	/* Find the place where we put the MRC cache */
-	mrc_node = fdt_subnode_offset(blob, node, "rw-mrc-cache");
-	if (mrc_node < 0) {
-		debug("%s: Cannot find node\n", __func__);
-		return -EPERM;
-	}
+	mrc_node = dev_read_subnode(dev, type == MRC_TYPE_NORMAL ?
+				    "rw-mrc-cache" : "rw-var-mrc-cache");
+	if (!ofnode_valid(mrc_node))
+		return log_msg_ret("Cannot find node", -EPERM);
 
-	if (fdtdec_get_int_array(blob, mrc_node, "reg", reg, 2)) {
-		debug("%s: Cannot find address\n", __func__);
-		return -EINVAL;
-	}
+	ret = ofnode_read_u32_array(mrc_node, "reg", reg, 2);
+	if (ret)
+		return log_msg_ret("Cannot find address", ret);
 	entry->offset = reg[0];
 	entry->length = reg[1];
 
-	if (devp) {
-		ret = uclass_get_device_by_of_offset(UCLASS_SPI_FLASH, node,
-						     devp);
-		debug("ret = %d\n", ret);
+	if (devp)
+		*devp = dev;
+	debug("MRC cache type %d in '%s', offset %x, len %x, base %x\n",
+	      type, dev->name, entry->offset, entry->length, entry->base);
+
+	return 0;
+}
+
+static int mrccache_save_type(enum mrc_type_t type)
+{
+	struct mrc_data_container *cache;
+	struct mrc_output *mrc;
+	struct mrc_region entry;
+	struct udevice *sf;
+	int ret;
+
+	mrc = &gd->arch.mrc[type];
+	if (!mrc->len)
+		return 0;
+	log_debug("Saving %#x bytes of MRC output data type %d to SPI flash\n",
+		  mrc->len, type);
+	ret = mrccache_get_region(type, &sf, &entry);
+	if (ret)
+		return log_msg_ret("Cannot get region", ret);
+	ret = device_probe(sf);
+	if (ret)
+		return log_msg_ret("Cannot probe device", ret);
+	cache = mrc->cache;
+
+	ret = mrccache_update(sf, &entry, cache);
+	if (!ret)
+		debug("Saved MRC data with checksum %04x\n", cache->checksum);
+	else if (ret == -EEXIST)
+		debug("MRC data is the same as last time, skipping save\n");
+
+	return 0;
+}
+
+int mrccache_save(void)
+{
+	int i;
+
+	for (i = 0; i < MRC_TYPE_COUNT; i++) {
+		int ret;
+
+		ret = mrccache_save_type(i);
 		if (ret)
 			return ret;
 	}
@@ -239,47 +317,21 @@ int mrccache_get_region(struct udevice **devp, struct mrc_region *entry)
 	return 0;
 }
 
-int mrccache_save(void)
-{
-	struct mrc_data_container *data;
-	struct mrc_region entry;
-	struct udevice *sf;
-	int ret;
-
-	if (!gd->arch.mrc_output_len)
-		return 0;
-	debug("Saving %d bytes of MRC output data to SPI flash\n",
-	      gd->arch.mrc_output_len);
-
-	ret = mrccache_get_region(&sf, &entry);
-	if (ret)
-		goto err_entry;
-	data  = (struct mrc_data_container *)gd->arch.mrc_output;
-	ret = mrccache_update(sf, &entry, data);
-	if (!ret) {
-		debug("Saved MRC data with checksum %04x\n", data->checksum);
-	} else if (ret == -EEXIST) {
-		debug("MRC data is the same as last time, skipping save\n");
-		ret = 0;
-	}
-
-err_entry:
-	if (ret)
-		debug("%s: Failed: %d\n", __func__, ret);
-	return ret;
-}
-
 int mrccache_spl_save(void)
 {
-	void *data;
-	int size;
+	int i;
 
-	size = gd->arch.mrc_output_len + MRC_DATA_HEADER_SIZE;
-	data = malloc(size);
-	if (!data)
-		return log_msg_ret("Allocate MRC cache block", -ENOMEM);
-	mrccache_setup(data);
-	gd->arch.mrc_output = data;
+	for (i = 0; i < MRC_TYPE_COUNT; i++) {
+		struct mrc_output *mrc = &gd->arch.mrc[i];
+		void *data;
+		int size;
+
+		size = mrc->len + MRC_DATA_HEADER_SIZE;
+		data = malloc(size);
+		if (!data)
+			return log_msg_ret("Allocate MRC cache block", -ENOMEM);
+		mrccache_setup(mrc, data);
+	}
 
 	return mrccache_save();
 }

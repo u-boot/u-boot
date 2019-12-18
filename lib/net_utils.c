@@ -56,3 +56,51 @@ void string_to_enetaddr(const char *addr, uint8_t *enetaddr)
 			addr = (*end) ? end + 1 : end;
 	}
 }
+
+uint compute_ip_checksum(const void *vptr, uint nbytes)
+{
+	int sum, oddbyte;
+	const unsigned short *ptr = vptr;
+
+	sum = 0;
+	while (nbytes > 1) {
+		sum += *ptr++;
+		nbytes -= 2;
+	}
+	if (nbytes == 1) {
+		oddbyte = 0;
+		((u8 *)&oddbyte)[0] = *(u8 *)ptr;
+		((u8 *)&oddbyte)[1] = 0;
+		sum += oddbyte;
+	}
+	sum = (sum >> 16) + (sum & 0xffff);
+	sum += (sum >> 16);
+	sum = ~sum & 0xffff;
+
+	return sum;
+}
+
+uint add_ip_checksums(uint offset, uint sum, uint new)
+{
+	ulong checksum;
+
+	sum = ~sum & 0xffff;
+	new = ~new & 0xffff;
+	if (offset & 1) {
+		/*
+		 * byte-swap the sum if it came from an odd offset; since the
+		 * computation is endian-independent this works.
+		 */
+		new = ((new >> 8) & 0xff) | ((new << 8) & 0xff00);
+	}
+	checksum = sum + new;
+	if (checksum > 0xffff)
+		checksum -= 0xffff;
+
+	return (~checksum) & 0xffff;
+}
+
+int ip_checksum_ok(const void *addr, uint nbytes)
+{
+	return !(compute_ip_checksum(addr, nbytes) & 0xfffe);
+}

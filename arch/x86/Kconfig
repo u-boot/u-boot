@@ -106,6 +106,7 @@ source "board/google/Kconfig"
 source "board/intel/Kconfig"
 
 # platform-specific options below
+source "arch/x86/cpu/apollolake/Kconfig"
 source "arch/x86/cpu/baytrail/Kconfig"
 source "arch/x86/cpu/braswell/Kconfig"
 source "arch/x86/cpu/broadwell/Kconfig"
@@ -217,6 +218,14 @@ config SYS_X86_START16
 	depends on X86_RESET_VECTOR
 	default 0xfffff800
 
+config HAVE_X86_FIT
+	bool
+	help
+	  Enable inclusion of an Intel Firmware Interface Table (FIT) into the
+	  image. This table is supposed to point to microcode and the like. So
+	  far it is just a fixed table with the minimum set of headers, so that
+	  it is actually present.
+
 config X86_LOAD_FROM_32_BIT
 	bool "Boot from a 32-bit program"
 	help
@@ -326,7 +335,7 @@ config X86_RAMTEST
 
 config FLASH_DESCRIPTOR_FILE
 	string "Flash descriptor binary filename"
-	depends on HAVE_INTEL_ME
+	depends on HAVE_INTEL_ME || FSP_VERSION2
 	default "descriptor.bin"
 	help
 	  The filename of the file to use as flash descriptor in the
@@ -410,6 +419,54 @@ config FSP_ADDR
 
 	  The default base address of 0xfffc0000 indicates that the binary must
 	  be located at offset 0xc0000 from the beginning of a 1MB flash device.
+
+if FSP_VERSION2
+
+config FSP_FILE_T
+	string "Firmware Support Package binary filename (Temp RAM)"
+	default "fsp_t.bin"
+	help
+	  The filename of the file to use for the temporary-RAM init phase from
+	  the Firmware Support Package binary. Put this in the board directory.
+	  It is used to set up an initial area of RAM which can be used for the
+	  stack and other purposes, while bringing up the main system DRAM.
+
+config FSP_ADDR_T
+	hex "Firmware Support Package binary location (Temp RAM)"
+	default 0xffff8000
+	help
+	  FSP is not Position-Independent Code (PIC) and FSP components have to
+	  be rebased if placed at a location which is different from the
+	  perferred base address specified during the FSP build. Use Intel's
+	  Binary Configuration Tool (BCT) to do the rebase.
+
+config FSP_FILE_M
+	string "Firmware Support Package binary filename (Memory Init)"
+	default "fsp_m.bin"
+	help
+	  The filename of the file to use for the RAM init phase from the
+	  Firmware Support Package binary. Put this in the board directory.
+	  It is used to set up the main system DRAM and runs in SPL, once
+	  temporary RAM (CAR) is working.
+
+config FSP_FILE_S
+	string "Firmware Support Package binary filename (Silicon Init)"
+	default "fsp_s.bin"
+	help
+	  The filename of the file to use for the Silicon init phase from the
+	  Firmware Support Package binary. Put this in the board directory.
+	  It is used to set up the silicon to work correctly and must be
+	  executed after DRAM is running.
+
+config IFWI_INPUT_FILE
+	string "Filename containing FIT (Firmware Interface Table) with IFWI"
+	default "fitimage.bin"
+	help
+	  The IFWI is obtained by running a tool on this file to extract the
+	  IFWI. Put this in the board directory. The IFWI contains U-Boot TPL,
+	  microcode and other internal items.
+
+endif
 
 config FSP_TEMP_RAM_ADDR
 	hex
@@ -532,6 +589,10 @@ config HAVE_REFCODE
           broadwell) U-Boot will be missing some critical setup steps.
           Various peripherals may fail to work.
 
+config HAVE_MICROCODE
+	bool
+	default y if !FSP_VERSION2
+
 config SMP
 	bool "Enable Symmetric Multiprocessing"
 	default n
@@ -595,7 +656,7 @@ config VGA_BIOS_ADDR
 
 config HAVE_VBT
 	bool "Add a Video BIOS Table (VBT) image"
-	depends on FSP_VERSION1
+	depends on HAVE_FSP
 	help
 	  Select this option if you have a Video BIOS Table (VBT) image that
 	  you would like to add to your ROM. This is normally required if you
@@ -822,5 +883,31 @@ config HIGH_TABLE_SIZE
 
 	  Increse it if the default size does not fit the board's needs.
 	  This is most likely due to a large ACPI DSDT table is used.
+
+config INTEL_CAR_CQOS
+	bool "Support Intel Cache Quality of Service"
+	help
+	  Cache Quality of Service allows more fine-grained control of cache
+	  usage. As result, it is possible to set up a portion of L2 cache for
+	  CAR and use the remainder for actual caching.
+
+#
+# Each bit in QOS mask controls this many bytes. This is calculated as:
+# (CACHE_WAYS / CACHE_BITS_PER_MASK) * CACHE_LINE_SIZE * CACHE_SETS
+#
+config CACHE_QOS_SIZE_PER_BIT
+	hex
+	depends on INTEL_CAR_CQOS
+	default 0x20000 # 128 KB
+
+config X86_OFFSET_U_BOOT
+	hex "Offset of U-Boot in ROM image"
+	depends on HAVE_SYS_TEXT_BASE
+	default SYS_TEXT_BASE
+
+config X86_OFFSET_SPL
+	hex "Offset of SPL in ROM image"
+	depends on SPL && X86
+	default SPL_TEXT_BASE
 
 endmenu

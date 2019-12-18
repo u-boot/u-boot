@@ -255,7 +255,7 @@ struct fec_priv {
 #ifdef CONFIG_DM_REGULATOR
 	struct udevice *phy_supply;
 #endif
-#ifdef CONFIG_DM_GPIO
+#if CONFIG_IS_ENABLED(DM_GPIO)
 	struct gpio_desc phy_reset_gpio;
 	uint32_t reset_delay;
 	uint32_t reset_post_delay;

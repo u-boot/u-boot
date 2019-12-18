@@ -58,26 +58,6 @@ void board_final_cleanup(void)
 		debug("OK\n");
 }
 
-void *fsp_prepare_mrc_cache(void)
-{
-	struct mrc_data_container *cache;
-	struct mrc_region entry;
-	int ret;
-
-	ret = mrccache_get_region(NULL, &entry);
-	if (ret)
-		return NULL;
-
-	cache = mrccache_find_current(&entry);
-	if (!cache)
-		return NULL;
-
-	debug("%s: mrc cache at %p, size %x checksum %04x\n", __func__,
-	      cache->data, cache->data_size, cache->checksum);
-
-	return cache->data;
-}
-
 #ifdef CONFIG_HAVE_ACPI_RESUME
 int fsp_save_s3_stack(void)
 {

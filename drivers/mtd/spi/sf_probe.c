@@ -137,7 +137,7 @@ static int spi_flash_std_get_sw_write_prot(struct udevice *dev)
 	return spi_flash_cmd_get_sw_write_prot(flash);
 }
 
-static int spi_flash_std_probe(struct udevice *dev)
+int spi_flash_std_probe(struct udevice *dev)
 {
 	struct spi_slave *slave = dev_get_parent_priv(dev);
 	struct dm_spi_slave_platdata *plat = dev_get_parent_platdata(dev);

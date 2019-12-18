@@ -150,7 +150,7 @@ struct fsl_esdhc_priv {
 	struct udevice *vqmmc_dev;
 	struct udevice *vmmc_dev;
 #endif
-#ifdef CONFIG_DM_GPIO
+#if CONFIG_IS_ENABLED(DM_GPIO)
 	struct gpio_desc cd_gpio;
 	struct gpio_desc wp_gpio;
 #endif
@@ -303,8 +303,9 @@ static int esdhc_setup_data(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 				return -ETIMEDOUT;
 			}
 		} else {
-#ifdef CONFIG_DM_GPIO
-			if (dm_gpio_is_valid(&priv->wp_gpio) && dm_gpio_get_value(&priv->wp_gpio)) {
+#if CONFIG_IS_ENABLED(DM_GPIO)
+			if (dm_gpio_is_valid(&priv->wp_gpio) &&
+			    dm_gpio_get_value(&priv->wp_gpio)) {
 				printf("\nThe SD card is locked. Can not write to a locked card.\n\n");
 				return -ETIMEDOUT;
 			}
@@ -1092,7 +1093,7 @@ static int esdhc_getcd_common(struct fsl_esdhc_priv *priv)
 #if CONFIG_IS_ENABLED(DM_MMC)
 	if (priv->non_removable)
 		return 1;
-#ifdef CONFIG_DM_GPIO
+#if CONFIG_IS_ENABLED(DM_GPIO)
 	if (dm_gpio_is_valid(&priv->cd_gpio))
 		return dm_gpio_get_value(&priv->cd_gpio);
 #endif
@@ -1454,7 +1455,7 @@ static int fsl_esdhc_probe(struct udevice *dev)
 		priv->non_removable = 1;
 	 } else {
 		priv->non_removable = 0;
-#ifdef CONFIG_DM_GPIO
+#if CONFIG_IS_ENABLED(DM_GPIO)
 		gpio_request_by_name(dev, "cd-gpios", 0, &priv->cd_gpio,
 				     GPIOD_IS_IN);
 #endif
@@ -1464,7 +1465,7 @@ static int fsl_esdhc_probe(struct udevice *dev)
 		priv->wp_enable = 1;
 	} else {
 		priv->wp_enable = 0;
-#ifdef CONFIG_DM_GPIO
+#if CONFIG_IS_ENABLED(DM_GPIO)
 		gpio_request_by_name(dev, "wp-gpios", 0, &priv->wp_gpio,
 				   GPIOD_IS_IN);
 #endif
