@@ -111,35 +111,16 @@ Download it from http://downloads.yoctoproject.org/releases/yocto/yocto-2.0/mach
 Build Instruction for Slim Bootloader for LeafHill (APL) target
 ---------------------------------------------------------------
 
-LeafHill is using PCI UART2 device as a serial port.
-For MEM32 serial port, CONFIG_SYS_NS16550_MEM32 needs to be enabled in U-Boot.
+Prepare U-Boot and Slim Bootloader as described at the beginning of this page.
+Also, the PayloadId needs to be set for APL board.
 
-1. Enable CONFIG_SYS_NS16550_MEM32 in U-Boot::
-
-    $ vi include/configs/slimbootloader.h
-    +#define CONFIG_SYS_NS16550_MEM32
-     #ifdef CONFIG_SYS_NS16550_MEM3
-
-2. Build U-Boot::
-
-   $ make disclean
-   $ make slimbootloader_defconfig
-   $ make all
-
-3. Copy u-boot-dtb.bin to Slim Bootloader.
-   Slim Bootloader looks for a payload from the specific location.
-   Copy the build u-boot-dtb.bin to the expected location::
-
-   $ mkdir -p <Slim Bootloader Dir>/PayloadPkg/PayloadBins/
-   $ cp <U-Boot Dir>/u-boot-dtb.bin <Slim Bootloader Dir>/PayloadPkg/PayloadBins/u-boot-dtb.bin
-
-4. Update PayloadId. Let's use 'U-BT' as an example::
+1. Update PayloadId. Let's use 'U-BT' as an example::
 
     $ vi Platform/ApollolakeBoardPkg/CfgData/CfgData_Int_LeafHill.dlt
     -GEN_CFG_DATA.PayloadId                     | 'AUTO
     +GEN_CFG_DATA.PayloadId                     | 'U-BT'
 
-5. Update payload text base.
+2. Update payload text base.
 
 * PAYLOAD_EXE_BASE must be the same as U-Boot CONFIG_SYS_TEXT_BASE
   in board/intel/slimbootloader/Kconfig.
@@ -149,18 +130,18 @@ For MEM32 serial port, CONFIG_SYS_NS16550_MEM32 needs to be enabled in U-Boot.
     +               self.PAYLOAD_LOAD_HIGH    = 0
     +               self.PAYLOAD_EXE_BASE     = 0x00100000
 
-6. Build APL target. Make sure u-boot-dtb.bin and U-BT PayloadId
+3. Build APL target. Make sure u-boot-dtb.bin and U-BT PayloadId
    in build command. The output is Outputs/apl/Stitch_Components.zip::
 
    $ python BuildLoader.py build apl -p "OsLoader.efi:LLDR:Lz4;u-boot-dtb.bin:U-BT:Lzma"
 
-7. Stitch IFWI.
+4. Stitch IFWI.
 
    Refer to Apollolake_ page in Slim Bootloader document site::
 
    $ python Platform/ApollolakeBoardPkg/Script/StitchLoader.py -i <Existing IFWI> -s Outputs/apl/Stitch_Components.zip -o <Output IFWI>
 
-8. Flash IFWI.
+5. Flash IFWI.
 
    Use DediProg to flash IFWI. You should reach at U-Boot serial console.
 
@@ -175,7 +156,7 @@ Build Instruction to use ELF U-Boot
 
 2. Build U-Boot::
 
-   $ make disclean
+   $ make distclean
    $ make slimbootloader_defconfig
    $ make all
    $ strip u-boot (removing symbol for reduced size)
