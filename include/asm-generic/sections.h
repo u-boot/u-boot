@@ -8,6 +8,8 @@
 #ifndef _ASM_GENERIC_SECTIONS_H_
 #define _ASM_GENERIC_SECTIONS_H_
 
+#include <linux/types.h>
+
 /* References to section boundaries */
 
 extern char _text[], _stext[], _etext[];
