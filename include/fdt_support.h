@@ -9,6 +9,7 @@
 
 #ifdef CONFIG_OF_LIBFDT
 
+#include <asm/u-boot.h>
 #include <linux/libfdt.h>
 
 u32 fdt_getprop_u32_default_node(const void *fdt, int off, int cell,
