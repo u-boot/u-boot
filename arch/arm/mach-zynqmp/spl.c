@@ -120,8 +120,6 @@ u32 spl_boot_device(void)
 #ifdef CONFIG_SPL_OS_BOOT
 int spl_start_uboot(void)
 {
-	handoff_setup();
-
 	return 0;
 }
 #endif

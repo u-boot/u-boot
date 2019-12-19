@@ -46,8 +46,6 @@ struct zynqmp_ipi_msg {
 int zynq_board_read_rom_ethaddr(unsigned char *ethaddr);
 unsigned int zynqmp_get_silicon_version(void);
 
-void handoff_setup(void);
-
 int zynqmp_mmio_write(const u32 address, const u32 mask, const u32 value);
 int zynqmp_mmio_read(const u32 address, u32 *value);
 
