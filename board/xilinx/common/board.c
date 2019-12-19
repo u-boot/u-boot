@@ -41,20 +41,20 @@ int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
 #if defined(CONFIG_OF_BOARD)
 void *board_fdt_blob_setup(void)
 {
-	static void *fw_dtb = (void *)CONFIG_XILINX_OF_BOARD_DTB_ADDR;
+	static void *fdt_blob = (void *)CONFIG_XILINX_OF_BOARD_DTB_ADDR;
 
-	if (fdt_magic(fw_dtb) == FDT_MAGIC)
-		return fw_dtb;
+	if (fdt_magic(fdt_blob) == FDT_MAGIC)
+		return fdt_blob;
 
-	printf("DTB is not passed via %p\n", fw_dtb);
+	printf("DTB is not passed via %p\n", fdt_blob);
 
 	/* Try to look at FDT is at end of image */
-	fw_dtb = (ulong *)&_end;
+	fdt_blob = (ulong *)&_end;
 
-	if (fdt_magic(fw_dtb) == FDT_MAGIC)
-		return fw_dtb;
+	if (fdt_magic(fdt_blob) == FDT_MAGIC)
+		return fdt_blob;
 
-	printf("DTB is also not passed via %p\n", fw_dtb);
+	printf("DTB is also not passed via %p\n", fdt_blob);
 	return NULL;
 }
 #endif
