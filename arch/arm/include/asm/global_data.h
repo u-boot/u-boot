@@ -13,6 +13,10 @@ struct arch_global_data {
 	u32 sdhc_clk;
 #endif
 
+#if defined(CONFIG_FSL_ESDHC)
+	u32 sdhc_per_clk;
+#endif
+
 #if defined(CONFIG_U_QE)
 	u32 qe_clk;
 	u32 brg_clk;
