@@ -38,7 +38,7 @@ int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
 	return ret;
 }
 
-#if defined(CONFIG_OF_BOARD)
+#if defined(CONFIG_OF_BOARD) || defined(CONFIG_OF_SEPARATE)
 void *board_fdt_blob_setup(void)
 {
 	static void *fdt_blob = (void *)CONFIG_XILINX_OF_BOARD_DTB_ADDR;
@@ -46,15 +46,24 @@ void *board_fdt_blob_setup(void)
 	if (fdt_magic(fdt_blob) == FDT_MAGIC)
 		return fdt_blob;
 
-	printf("DTB is not passed via %p\n", fdt_blob);
+	debug("DTB is not passed via %p\n", fdt_blob);
 
-	/* Try to look at FDT is at end of image */
+#ifdef CONFIG_SPL_BUILD
+	/* FDT is at end of BSS unless it is in a different memory region */
+	if (IS_ENABLED(CONFIG_SPL_SEPARATE_BSS))
+		fdt_blob = (ulong *)&_image_binary_end;
+	else
+		fdt_blob = (ulong *)&__bss_end;
+#else
+	/* FDT is at end of image */
 	fdt_blob = (ulong *)&_end;
+#endif
 
 	if (fdt_magic(fdt_blob) == FDT_MAGIC)
 		return fdt_blob;
 
-	printf("DTB is also not passed via %p\n", fdt_blob);
+	debug("DTB is also not passed via %p\n", fdt_blob);
+
 	return NULL;
 }
 #endif
