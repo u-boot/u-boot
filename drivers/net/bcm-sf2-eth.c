@@ -50,7 +50,7 @@ static int bcm_sf2_eth_init(struct eth_device *dev)
 	eth->port_num = 0;
 	debug("Connecting PHY 0...\n");
 	phydev = phy_connect(miiphy_get_dev_by_name(dev->name),
-			     0, dev, eth->phy_interface);
+			     -1, dev, eth->phy_interface);
 	if (phydev != NULL) {
 		eth->port[0] = phydev;
 		eth->port_num += 1;
