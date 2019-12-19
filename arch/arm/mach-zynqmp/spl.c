@@ -27,13 +27,6 @@ void board_init_f(ulong dummy)
 #endif
 	/* Delay is required for clocks to be propagated */
 	udelay(1000000);
-
-	debug("Clearing BSS 0x%p - 0x%p\n", __bss_start, __bss_end);
-	/* Clear the BSS */
-	memset(__bss_start, 0, __bss_end - __bss_start);
-
-	/* No need to call timer init - it is empty for ZynqMP */
-	board_init_r(NULL, 0);
 }
 
 static void ps_mode_reset(ulong mode)
