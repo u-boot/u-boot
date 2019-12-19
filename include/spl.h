@@ -462,6 +462,26 @@ int spl_ymodem_load_image(struct spl_image_info *spl_image,
 void spl_invoke_atf(struct spl_image_info *spl_image);
 
 /**
+ * bl2_plat_get_bl31_params() - prepare params for bl31.
+ * @bl32_entry	address of BL32 executable (secure)
+ * @bl33_entry	address of BL33 executable (non secure)
+ * @fdt_addr	address of Flat Device Tree
+ *
+ * This function assigns a pointer to the memory that the platform has kept
+ * aside to pass platform specific and trusted firmware related information
+ * to BL31. This memory is allocated by allocating memory to
+ * bl2_to_bl31_params_mem structure which is a superset of all the
+ * structure whose information is passed to BL31
+ * NOTE: This function should be called only once and should be done
+ * before generating params to BL31
+ *
+ * @return bl31 params structure pointer
+ */
+struct bl31_params *bl2_plat_get_bl31_params(uintptr_t bl32_entry,
+					     uintptr_t bl33_entry,
+					     uintptr_t fdt_addr);
+
+/**
  * spl_optee_entry - entry function for optee
  *
  * args defind in op-tee project
