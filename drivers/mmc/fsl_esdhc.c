@@ -81,6 +81,7 @@ struct fsl_esdhc_plat {
 struct fsl_esdhc_priv {
 	struct fsl_esdhc *esdhc_regs;
 	unsigned int sdhc_clk;
+	bool is_sdhc_per_clk;
 	unsigned int clock;
 #if !CONFIG_IS_ENABLED(DM_MMC)
 	struct mmc *mmc;
@@ -523,7 +524,6 @@ static void set_sysctl(struct fsl_esdhc_priv *priv, struct mmc *mmc, uint clock)
 	esdhc_setbits32(&regs->sysctl, SYSCTL_PEREN | SYSCTL_CKEN);
 }
 
-#ifdef CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK
 static void esdhc_clock_control(struct fsl_esdhc_priv *priv, bool enable)
 {
 	struct fsl_esdhc *regs = priv->esdhc_regs;
@@ -550,18 +550,18 @@ static void esdhc_clock_control(struct fsl_esdhc_priv *priv, bool enable)
 		mdelay(1);
 	}
 }
-#endif
 
 static int esdhc_set_ios_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 {
 	struct fsl_esdhc *regs = priv->esdhc_regs;
 
-#ifdef CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK
-	/* Select to use peripheral clock */
-	esdhc_clock_control(priv, false);
-	esdhc_setbits32(&regs->esdhcctl, ESDHCCTL_PCS);
-	esdhc_clock_control(priv, true);
-#endif
+	if (priv->is_sdhc_per_clk) {
+		/* Select to use peripheral clock */
+		esdhc_clock_control(priv, false);
+		esdhc_setbits32(&regs->esdhcctl, ESDHCCTL_PCS);
+		esdhc_clock_control(priv, true);
+	}
+
 	/* Set the clock speed */
 	if (priv->clock != mmc->clock)
 		set_sysctl(priv, mmc, mmc->clock);
@@ -779,6 +779,8 @@ int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 
 	priv->esdhc_regs = (struct fsl_esdhc *)(unsigned long)(cfg->esdhc_base);
 	priv->sdhc_clk = cfg->sdhc_clk;
+	if (gd->arch.sdhc_per_clk)
+		priv->is_sdhc_per_clk = true;
 
 	mmc_cfg = &plat->cfg;
 
@@ -817,7 +819,11 @@ int fsl_esdhc_mmc_init(bd_t *bis)
 
 	cfg = calloc(sizeof(struct fsl_esdhc_cfg), 1);
 	cfg->esdhc_base = CONFIG_SYS_FSL_ESDHC_ADDR;
-	cfg->sdhc_clk = gd->arch.sdhc_clk;
+	/* Prefer peripheral clock which provides higher frequency. */
+	if (gd->arch.sdhc_per_clk)
+		cfg->sdhc_clk = gd->arch.sdhc_per_clk;
+	else
+		cfg->sdhc_clk = gd->arch.sdhc_clk;
 	return fsl_esdhc_initialize(bis, cfg);
 }
 #else /* DM_MMC */
@@ -839,7 +845,13 @@ static int fsl_esdhc_probe(struct udevice *dev)
 #endif
 	priv->dev = dev;
 
-	priv->sdhc_clk = gd->arch.sdhc_clk;
+	if (gd->arch.sdhc_per_clk) {
+		priv->sdhc_clk = gd->arch.sdhc_per_clk;
+		priv->is_sdhc_per_clk = true;
+	} else {
+		priv->sdhc_clk = gd->arch.sdhc_clk;
+	}
+
 	if (priv->sdhc_clk <= 0) {
 		dev_err(dev, "Unable to get clk for %s\n", dev->name);
 		return -EINVAL;
