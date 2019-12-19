@@ -15,12 +15,17 @@
 #include <linux/mtd/nand_ecc.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
+#include <dm.h>
 #include <nand.h>
 
-struct arasan_nand_info {
-	void __iomem *nand_base;
+struct nand_config {
 	u32 page;
 	bool on_die_ecc_enabled;
+};
+
+struct arasan_nand_info {
+	struct udevice *dev;
+	struct nand_chip nand_chip;
 };
 
 struct nand_regs {
@@ -259,8 +264,6 @@ static u32 buf_index;
 
 static struct nand_ecclayout nand_oob;
 
-static struct nand_chip nand_chip[CONFIG_SYS_MAX_NAND_DEVICE];
-
 static void arasan_nand_select_chip(struct mtd_info *mtd, int chip)
 {
 	u32 reg_val;
@@ -323,7 +326,7 @@ static u8 arasan_nand_get_addrcycle(struct mtd_info *mtd)
 static int arasan_nand_read_page(struct mtd_info *mtd, u8 *buf, u32 size)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
-	struct arasan_nand_info *nand = nand_get_controller_data(chip);
+	struct nand_config *nand = nand_get_controller_data(chip);
 	u32 reg_val, i, pktsize, pktnum;
 	u32 *bufptr = (u32 *)buf;
 	u32 timeout;
@@ -505,7 +508,7 @@ static int arasan_nand_write_page_hwecc(struct mtd_info *mtd,
 	u32 size = mtd->writesize;
 	u32 rdcount = 0;
 	u8 column_addr_cycles;
-	struct arasan_nand_info *nand = nand_get_controller_data(chip);
+	struct nand_config *nand = nand_get_controller_data(chip);
 
 	if (chip->ecc_step_ds >= ARASAN_NAND_PKTSIZE_1K)
 		pktsize = ARASAN_NAND_PKTSIZE_1K;
@@ -1033,7 +1036,7 @@ static void arasan_nand_cmd_function(struct mtd_info *mtd, unsigned int command,
 {
 	u32 i, ret = 0;
 	struct nand_chip *chip = mtd_to_nand(mtd);
-	struct arasan_nand_info *nand = nand_get_controller_data(chip);
+	struct nand_config *nand = nand_get_controller_data(chip);
 
 	curr_cmd = NULL;
 	writel(ARASAN_NAND_INT_STS_XFR_CMPLT_MASK,
@@ -1088,7 +1091,7 @@ static void arasan_nand_cmd_function(struct mtd_info *mtd, unsigned int command,
 static void arasan_check_ondie(struct mtd_info *mtd)
 {
 	struct nand_chip *nand_chip = mtd_to_nand(mtd);
-	struct arasan_nand_info *nand = nand_get_controller_data(nand_chip);
+	struct nand_config *nand = nand_get_controller_data(nand_chip);
 	u8 maf_id, dev_id;
 	u8 get_feature[4];
 	u8 set_feature[4] = {ENABLE_ONDIE_ECC, 0x00, 0x00, 0x00};
@@ -1184,19 +1187,20 @@ static int arasan_nand_ecc_init(struct mtd_info *mtd)
 	return 0;
 }
 
-static int arasan_nand_init(struct nand_chip *nand_chip, int devnum)
+static int arasan_probe(struct udevice *dev)
 {
-	struct arasan_nand_info *nand;
+	struct arasan_nand_info *arasan = dev_get_priv(dev);
+	struct nand_chip *nand_chip = &arasan->nand_chip;
+	struct nand_config *nand;
 	struct mtd_info *mtd;
 	int err = -1;
 
-	nand = calloc(1, sizeof(struct arasan_nand_info));
+	nand = calloc(1, sizeof(struct nand_config));
 	if (!nand) {
 		printf("%s: failed to allocate\n", __func__);
 		return err;
 	}
 
-	nand->nand_base = arasan_nand_base;
 	mtd = nand_to_mtd(nand_chip);
 	nand_set_controller_data(nand_chip, nand);
 
@@ -1253,7 +1257,7 @@ static int arasan_nand_init(struct nand_chip *nand_chip, int devnum)
 		goto fail;
 	}
 
-	if (nand_register(devnum, mtd)) {
+	if (nand_register(0, mtd)) {
 		printf("Nand Register Fail\n");
 		goto fail;
 	}
@@ -1264,10 +1268,26 @@ fail:
 	return err;
 }
 
+static const struct udevice_id arasan_nand_dt_ids[] = {
+	{.compatible = "arasan,nfc-v3p10",},
+	{ /* sentinel */ }
+};
+
+U_BOOT_DRIVER(arasan_nand) = {
+	.name = "arasan-nand",
+	.id = UCLASS_MTD,
+	.of_match = arasan_nand_dt_ids,
+	.probe = arasan_probe,
+	.priv_auto_alloc_size = sizeof(struct arasan_nand_info),
+};
+
 void board_nand_init(void)
 {
-	struct nand_chip *nand = &nand_chip[0];
+	struct udevice *dev;
+	int ret;
 
-	if (arasan_nand_init(nand, 0))
-		puts("NAND init failed\n");
+	ret = uclass_get_device_by_driver(UCLASS_MTD,
+					  DM_GET_DRIVER(arasan_nand), &dev);
+	if (ret && ret != -ENODEV)
+		pr_err("Failed to initialize %s. (error %d)\n", dev->name, ret);
 }
