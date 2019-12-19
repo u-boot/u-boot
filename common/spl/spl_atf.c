@@ -112,7 +112,7 @@ static void bl31_entry(uintptr_t bl31_entry, uintptr_t bl32_entry,
 
 static int spl_fit_images_find(void *blob, int os)
 {
-	int parent, node, ndepth;
+	int parent, node, ndepth = 0;
 	const void *data;
 
 	if (!blob)
