@@ -97,6 +97,25 @@ struct cb_serial {
 	u32 type;
 	u32 baseaddr;
 	u32 baud;
+	u32 regwidth;
+
+	/*
+	 * Crystal or input frequency to the chip containing the UART.
+	 * Provide the board specific details to allow the payload to
+	 * initialize the chip containing the UART and make independent
+	 * decisions as to which dividers to select and their values
+	 * to eventually arrive at the desired console baud-rate.
+	 */
+	u32 input_hertz;
+
+	/*
+	 * UART PCI address: bus, device, function
+	 * 1 << 31 - Valid bit, PCI UART in use
+	 * Bus << 20
+	 * Device << 15
+	 * Function << 12
+	 */
+	u32 uart_pci_addr;
 };
 
 #define CB_TAG_CONSOLE			0x0010
