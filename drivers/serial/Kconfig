@@ -542,6 +542,17 @@ config BCM6345_SERIAL
 	help
 	  Select this to enable UART on BCM6345 SoCs.
 
+config COREBOOT_SERIAL
+	bool "Coreboot UART support"
+	depends on DM_SERIAL
+	default y if SYS_COREBOOT
+	select SYS_NS16550
+	help
+	  Select this to enable a ns16550-style UART where the platform data
+	  comes from the coreboot 'sysinfo' tables. This allows U-Boot to have
+	  a serial console on any platform without needing to change the
+	  device tree, etc.
+
 config FSL_LINFLEXUART
 	bool "Freescale Linflex UART support"
 	depends on DM_SERIAL
