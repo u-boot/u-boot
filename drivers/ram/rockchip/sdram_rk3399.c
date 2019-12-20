@@ -337,11 +337,9 @@ static void set_memory_map(const struct chan_info *chan, u32 channel,
 		writel(0x2EC7FFFF, &denali_pi[34]);
 }
 
-static int phy_io_config(const struct chan_info *chan,
+static int phy_io_config(u32 *denali_phy, u32 *denali_ctl,
 			 const struct rk3399_sdram_params *params, u32 mr5)
 {
-	u32 *denali_phy = chan->publ->denali_phy;
-	u32 *denali_ctl = chan->pctl->denali_ctl;
 	u32 vref_mode_dq, vref_value_dq, vref_mode_ac, vref_value_ac;
 	u32 mode_sel;
 	u32 speed;
@@ -780,7 +778,7 @@ static void set_ds_odt(const struct chan_info *chan,
 	/* phy_pad_fdbk_term 1bit DENALI_PHY_930 offset_17 */
 	clrsetbits_le32(&denali_phy[930], 0x1 << 17, reg_value);
 
-	phy_io_config(chan, params, mr5);
+	phy_io_config(denali_phy, denali_ctl, params, mr5);
 }
 
 static void pctl_start(struct dram_info *dram,
