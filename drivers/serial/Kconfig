@@ -601,6 +601,27 @@ config SYS_NS16550
 	  be used. It can be a constant or a function to get clock, eg,
 	  get_serial_clock().
 
+config NS16550_DYNAMIC
+	bool "Allow NS16550 to be configured at runtime"
+	default y if SYS_COREBOOT || SYS_SLIMBOOTLOADER
+	help
+	  Enable this option to allow device-tree control of the driver.
+
+	  Normally this driver is controlled by the following options:
+
+	  CONFIG_SYS_NS16550_PORT_MAPPED - indicates that port I/O is used for
+	     access. If not enabled, then the UART is memory-mapped.
+	  CONFIG_SYS_NS16550_MEM32 - if memory-mapped, indicates that 32-bit
+	     access should be used (instead of 8-bit)
+	  CONFIG_SYS_NS16550_REG_SIZE - indicates register width and also
+	     endianness. If positive, big-endian access is used. If negative,
+	     little-endian is used.
+
+	  It is not a good practice for a driver to be statically configured,
+	  since it prevents the same driver being used for different types of
+	  UARTs in a system. This option avoids this problem at the cost of a
+	  slightly increased code size.
+
 config INTEL_MID_SERIAL
 	bool "Intel MID platform UART support"
 	depends on DM_SERIAL && OF_CONTROL
