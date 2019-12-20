@@ -330,14 +330,19 @@ static int enetc_remove(struct udevice *dev)
 	return 0;
 }
 
-/* ENETC Port MAC address registers, accepts big-endian format */
-static void enetc_set_primary_mac_addr(struct enetc_priv *priv, const u8 *addr)
+static int enetc_write_hwaddr(struct udevice *dev)
 {
+	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct enetc_priv *priv = dev_get_priv(dev);
+	u8 *addr = plat->enetaddr;
+
 	u16 lower = *(const u16 *)(addr + 4);
 	u32 upper = *(const u32 *)addr;
 
 	enetc_write_port(priv, ENETC_PSIPMAR0, upper);
 	enetc_write_port(priv, ENETC_PSIPMAR1, lower);
+
+	return 0;
 }
 
 /* Configure port parameters (# of rings, frame size, enable port) */
@@ -468,19 +473,12 @@ static void enetc_setup_rx_bdr(struct udevice *dev)
  */
 static int enetc_start(struct udevice *dev)
 {
-	struct eth_pdata *plat = dev_get_platdata(dev);
 	struct enetc_priv *priv = dev_get_priv(dev);
 
 	/* reset and enable the PCI device */
 	dm_pci_flr(dev);
 	dm_pci_clrset_config16(dev, PCI_COMMAND, 0,
 			       PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
-
-	if (!is_valid_ethaddr(plat->enetaddr)) {
-		enetc_dbg(dev, "invalid MAC address, generate random ...\n");
-		net_random_ethaddr(plat->enetaddr);
-	}
-	enetc_set_primary_mac_addr(priv, plat->enetaddr);
 
 	enetc_enable_si_port(priv);
 
@@ -611,6 +609,7 @@ static const struct eth_ops enetc_ops = {
 	.send	= enetc_send,
 	.recv	= enetc_recv,
 	.stop	= enetc_stop,
+	.write_hwaddr = enetc_write_hwaddr,
 };
 
 U_BOOT_DRIVER(eth_enetc) = {
