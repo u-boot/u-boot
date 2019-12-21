@@ -116,7 +116,6 @@ static void vidconsole_newline(struct udevice *dev)
 	video_sync(dev->parent, false);
 }
 
-#if CONFIG_IS_ENABLED(VIDEO_BPP16) || CONFIG_IS_ENABLED(VIDEO_BPP32)
 static const struct vid_rgb colors[VID_COLOR_COUNT] = {
 	{ 0x00, 0x00, 0x00 },  /* black */
 	{ 0xc0, 0x00, 0x00 },  /* red */
@@ -135,23 +134,22 @@ static const struct vid_rgb colors[VID_COLOR_COUNT] = {
 	{ 0x00, 0xff, 0xff },  /* bright cyan */
 	{ 0xff, 0xff, 0xff },  /* white */
 };
-#endif
 
 u32 vid_console_color(struct video_priv *priv, unsigned int idx)
 {
 	switch (priv->bpix) {
-#if CONFIG_IS_ENABLED(VIDEO_BPP16)
 	case VIDEO_BPP16:
-		return ((colors[idx].r >> 3) << 11) |
-		       ((colors[idx].g >> 2) <<  5) |
-		       ((colors[idx].b >> 3) <<  0);
-#endif
-#if CONFIG_IS_ENABLED(VIDEO_BPP32)
+		if (CONFIG_IS_ENABLED(VIDEO_BPP16)) {
+			return ((colors[idx].r >> 3) << 11) |
+			       ((colors[idx].g >> 2) <<  5) |
+			       ((colors[idx].b >> 3) <<  0);
+		}
 	case VIDEO_BPP32:
-		return (colors[idx].r << 16) |
-		       (colors[idx].g <<  8) |
-		       (colors[idx].b <<  0);
-#endif
+		if (CONFIG_IS_ENABLED(VIDEO_BPP32)) {
+			return (colors[idx].r << 16) |
+			       (colors[idx].g <<  8) |
+			       (colors[idx].b <<  0);
+		}
 	default:
 		/*
 		 * For unknown bit arrangements just support
