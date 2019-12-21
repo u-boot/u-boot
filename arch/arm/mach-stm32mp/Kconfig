@@ -80,12 +80,7 @@ config STM32MP1_OPTEE
 		OP-TEE monitor provides ST SMC to access to secure resources
 
 config SYS_TEXT_BASE
-	prompt "U-Boot base address"
 	default 0xC0100000
-	help
-		configure the U-Boot base address
-		when DDR driver is used:
-		  DDR + 1MB (0xC0100000)
 
 config NR_DRAM_BANKS
 	default 1
