@@ -1045,7 +1045,7 @@ static int eqos_start(struct udevice *dev)
 	 * don't need to reconnect/reconfigure again
 	 */
 	if (!eqos->phy) {
-		eqos->phy = phy_connect(eqos->mii, 0, dev,
+		eqos->phy = phy_connect(eqos->mii, -1, dev,
 					eqos->config->interface(dev));
 		if (!eqos->phy) {
 			pr_err("phy_connect() failed");
