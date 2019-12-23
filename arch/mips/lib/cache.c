@@ -141,7 +141,7 @@ ops_done:
 	instruction_hazard_barrier();
 }
 
-void flush_dcache_range(ulong start_addr, ulong stop)
+void __weak flush_dcache_range(ulong start_addr, ulong stop)
 {
 	unsigned long lsize = dcache_line_size();
 	unsigned long slsize = scache_line_size();
