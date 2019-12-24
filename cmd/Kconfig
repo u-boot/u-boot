@@ -1672,6 +1672,13 @@ config CMD_GETTIME
 	  milliseconds. See also the 'bootstage' command which provides more
 	  flexibility for boot timing.
 
+config CMD_RNG
+	bool "rng command"
+	depends on DM_RNG
+	select HEXDUMP
+	help
+	  Print bytes from the hardware random number generator.
+
 # TODO: rename to CMD_SLEEP
 config CMD_MISC
 	bool "sleep"
