@@ -363,7 +363,7 @@ static int virtio_mmio_probe(struct udevice *udev)
 		return 0;
 	}
 
-	/* Check devicd ID */
+	/* Check device ID */
 	uc_priv->device = readl(priv->base + VIRTIO_MMIO_DEVICE_ID);
 	if (uc_priv->device == 0) {
 		/*
