@@ -29,7 +29,7 @@ static uchar ivm_content[CONFIG_SYS_IVM_EEPROM_MAX_LEN];
 
 int checkboard(void)
 {
-	printf("Board: Keymile %s\n", CONFIG_KM_BOARD_NAME);
+	printf("Board: Keymile %s\n", CONFIG_SYS_CONFIG_NAME);
 
 	return 0;
 }

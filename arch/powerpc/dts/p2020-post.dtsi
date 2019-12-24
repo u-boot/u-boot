@@ -13,6 +13,12 @@
 	compatible = "fsl,p2020-immr", "simple-bus";
 	bus-frequency = <0x0>;
 
+	usb@22000 {
+		compatible = "fsl-usb2-dr";
+		reg = <0x22000 0x1000>;
+		phy_type = "ulpi";
+	};
+
 	mpic: pic@40000 {
 		interrupt-controller;
 		#address-cells = <0>;
