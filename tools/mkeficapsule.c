@@ -98,7 +98,8 @@ static int create_fwbin(char *path, char *bin, efi_guid_t *guid,
 	}
 	header.capsule_guid = efi_guid_fm_capsule;
 	header.header_size = sizeof(header);
-	header.flags = CAPSULE_FLAGS_PERSIST_ACROSS_RESET; /* TODO */
+	/* TODO: The current implementation ignores flags */
+	header.flags = CAPSULE_FLAGS_PERSIST_ACROSS_RESET;
 	header.capsule_image_size = sizeof(header)
 					+ sizeof(capsule) + sizeof(u64)
 					+ sizeof(image)
