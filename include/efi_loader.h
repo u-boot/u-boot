@@ -820,6 +820,11 @@ efi_status_t EFIAPI efi_query_capsule_caps(
 		u64 *maximum_capsule_size,
 		u32 *reset_type);
 
+#define EFI_CAPSULE_DIR L"\\EFI\\UpdateCapsule\\"
+
+/* Hook at initialization */
+efi_status_t efi_launch_capsules(void);
+
 #else /* CONFIG_IS_ENABLED(EFI_LOADER) */
 
 /* Without CONFIG_EFI_LOADER we don't have a runtime section, stub it out */
@@ -836,6 +841,10 @@ static inline void efi_set_bootdev(const char *dev, const char *devnr,
 				   const char *path) { }
 static inline void efi_net_set_dhcp_ack(void *pkt, int len) { }
 static inline void efi_print_image_infos(void *pc) { }
+static inline efi_status_t efi_launch_capsules(void)
+{
+	return EFI_SUCCESS;
+}
 
 #endif /* CONFIG_IS_ENABLED(EFI_LOADER) */
 
