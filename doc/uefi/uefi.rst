@@ -63,6 +63,40 @@ The environment variable 'bootargs' is passed as load options in the UEFI system
 table. The Linux kernel EFI stub uses the load options as command line
 arguments.
 
+Launching a UEFI binary from a FIT image
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A signed FIT image can be used to securely boot a UEFI image via the
+bootm command. This feature is available if U-Boot is configured with::
+
+    CONFIG_BOOTM_EFI=y
+
+A sample configuration is provided as file doc/uImage.FIT/uefi.its.
+
+Below you find the output of an example session starting GRUB::
+
+    => load mmc 0:1 ${kernel_addr_r} image.fit
+    4620426 bytes read in 83 ms (53.1 MiB/s)
+    => bootm ${kernel_addr_r}#config-grub-nofdt
+    ## Loading kernel from FIT Image at 40400000 ...
+       Using 'config-grub-nofdt' configuration
+       Verifying Hash Integrity ... sha256,rsa2048:dev+ OK
+       Trying 'efi-grub' kernel subimage
+         Description:  GRUB EFI Firmware
+         Created:      2019-11-20   8:18:16 UTC
+         Type:         Kernel Image (no loading done)
+         Compression:  uncompressed
+         Data Start:   0x404000d0
+         Data Size:    450560 Bytes = 440 KiB
+         Hash algo:    sha256
+         Hash value:   4dbee00021112df618f58b3f7cf5e1595533d543094064b9ce991e8b054a9eec
+       Verifying Hash Integrity ... sha256+ OK
+       XIP Kernel Image (no loading done)
+    ## Transferring control to EFI (at address 404000d0) ...
+    Welcome to GRUB!
+
+See doc/uImage.FIT/howto.txt for an introduction to FIT images.
+
 Executing the boot manager
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
