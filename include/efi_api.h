@@ -221,6 +221,10 @@ enum efi_reset_type {
 	EFI_GUID(0x39b68c46, 0xf7fb, 0x441b, 0xb6, 0xec, \
 		 0x16, 0xb0, 0xf6, 0x98, 0x21, 0xf3)
 
+#define EFI_MEMORY_RANGE_CAPSULE_GUID \
+	EFI_GUID(0xde9f0ec, 0x88b6, 0x428f, 0x97, 0x7a, \
+		 0x25, 0x8f, 0x1d, 0xe, 0x5e, 0x72)
+
 struct efi_capsule_header {
 	efi_guid_t capsule_guid;
 	u32 header_size;
@@ -234,6 +238,19 @@ struct efi_capsule_result_variable_header {
 	efi_guid_t capsule_guid;
 	struct efi_time capsule_processed;
 	efi_status_t capsule_status;
+} __packed;
+
+struct efi_memory_range {
+	efi_physical_addr_t	address;
+	u64			length;
+};
+
+struct efi_memory_range_capsule {
+	struct efi_capsule_header *header;
+	/* EFI_MEMORY_TYPE: 0x80000000-0xFFFFFFFF */
+	enum efi_mem_type os_requested_memory_type;
+	u64 number_of_memory_ranges;
+	struct efi_memory_range memory_ranges[];
 } __packed;
 
 #define EFI_RT_SUPPORTED_GET_TIME			0x0001
