@@ -7,10 +7,12 @@
 #include <common.h>
 #include <bootm.h>
 #include <cpu_func.h>
+#include <efi_loader.h>
 #include <env.h>
 #include <fdt_support.h>
 #include <linux/libfdt.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <vxworks.h>
 #include <tee/optee.h>
 
@@ -498,6 +500,57 @@ static int do_bootm_tee(int flag, int argc, char * const argv[],
 }
 #endif
 
+#ifdef CONFIG_BOOTM_EFI
+static int do_bootm_efi(int flag, int argc, char * const argv[],
+			bootm_headers_t *images)
+{
+	int ret;
+	efi_status_t efi_ret;
+	void *image_buf;
+
+	if (flag != BOOTM_STATE_OS_GO)
+		return 0;
+
+	/* Locate FDT, if provided */
+	ret = bootm_find_images(flag, argc, argv);
+	if (ret)
+		return ret;
+
+	/* Initialize EFI drivers */
+	efi_ret = efi_init_obj_list();
+	if (efi_ret != EFI_SUCCESS) {
+		printf("## Failed to initialize UEFI sub-system: r = %lu\n",
+		       efi_ret & ~EFI_ERROR_MASK);
+		return 1;
+	}
+
+	/* Install device tree */
+	efi_ret = efi_install_fdt(images->ft_len
+				  ? images->ft_addr : EFI_FDT_USE_INTERNAL);
+	if (efi_ret != EFI_SUCCESS) {
+		printf("## Failed to install device tree: r = %lu\n",
+		       efi_ret & ~EFI_ERROR_MASK);
+		return 1;
+	}
+
+	/* Run EFI image */
+	printf("## Transferring control to EFI (at address %08lx) ...\n",
+	       images->ep);
+	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
+
+	image_buf = map_sysmem(images->ep, images->os.image_len);
+
+	efi_ret = efi_run_image(image_buf, images->os.image_len);
+	if (efi_ret != EFI_SUCCESS) {
+		printf("## Failed to run EFI image: r = %lu\n",
+		       efi_ret & ~EFI_ERROR_MASK);
+		return 1;
+	}
+
+	return 0;
+}
+#endif
+
 static boot_os_fn *boot_os[] = {
 	[IH_OS_U_BOOT] = do_bootm_standalone,
 #ifdef CONFIG_BOOTM_LINUX
@@ -533,6 +586,9 @@ static boot_os_fn *boot_os[] = {
 #endif
 #ifdef CONFIG_BOOTM_OPTEE
 	[IH_OS_TEE] = do_bootm_tee,
+#endif
+#ifdef CONFIG_BOOTM_EFI
+	[IH_OS_EFI] = do_bootm_efi,
 #endif
 };
 
