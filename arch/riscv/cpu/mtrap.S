@@ -64,7 +64,8 @@ trap_entry:
 	SREG x31, 31 * REGBYTES(sp)
 	csrr a0, MODE_PREFIX(cause)
 	csrr a1, MODE_PREFIX(epc)
-	mv a2, sp
+	csrr a2, MODE_PREFIX(tval)
+	mv a3, sp
 	jal handle_trap
 	csrw MODE_PREFIX(epc), a0
 
