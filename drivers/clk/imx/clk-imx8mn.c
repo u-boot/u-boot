@@ -293,7 +293,7 @@ static int imx8mn_clk_probe(struct udevice *dev)
 	       imx_clk_fixed_factor("sys_pll2_1000m", "sys_pll2_out", 1, 1));
 
 	base = dev_read_addr_ptr(dev);
-	if (base == (void *)FDT_ADDR_T_NONE)
+	if (!base)
 		return -EINVAL;
 
 	clk_dm(IMX8MN_CLK_A53_SRC,
