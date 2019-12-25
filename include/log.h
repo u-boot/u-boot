@@ -9,6 +9,7 @@
 #ifndef __LOG_H
 #define __LOG_H
 
+#include <command.h>
 #include <dm/uclass-id.h>
 #include <linux/list.h>
 
