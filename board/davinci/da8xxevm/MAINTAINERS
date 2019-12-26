@@ -8,7 +8,7 @@ F:	configs/da850evm_nand_defconfig
 F:	configs/da850evm_direct_nor_defconfig
 
 OMAPL138_LCDK BOARD
-M:	Peter Howard <phoward@gme.net.au>
+M:	Lokesh Vutla <lokeshvutla@ti.com>
 S:	Maintained
 F:	include/configs/omap1l38_lcdk.h
 F:	configs/omapl138_lcdk_defconfig
