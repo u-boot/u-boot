@@ -1,5 +1,8 @@
 if TARGET_NSIM
 
+config SYS_BOARD
+	default "nsim"
+
 config SYS_VENDOR
 	default "synopsys"
 
