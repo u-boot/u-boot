@@ -8,7 +8,7 @@
 #define __MESON64_CONFIG_H
 
 /* Generic Interrupt Controller Definitions */
-#if defined(CONFIG_MESON_AXG)
+#if (defined(CONFIG_MESON_AXG) || defined(CONFIG_MESON_G12A))
 #define GICD_BASE			0xffc01000
 #define GICC_BASE			0xffc02000
 #else /* MESON GXL and GXBB */
