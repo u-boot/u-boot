@@ -17,6 +17,7 @@
 #include <linux/mtd/nand_ecc.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
+#include <dm.h>
 
 /* The NAND flash driver defines */
 #define ZYNQ_NAND_CMD_PHASE		1
@@ -124,16 +125,21 @@ struct zynq_nand_smc_regs {
 				ZYNQ_SMC_BASEADDR)
 
 /*
- * struct zynq_nand_info - Defines the NAND flash driver instance
+ * struct nand_config - Defines the NAND flash driver instance
  * @parts:		Pointer to the mtd_partition structure
  * @nand_base:		Virtual address of the NAND flash device
  * @end_cmd_pending:	End command is pending
  * @end_cmd:		End command
  */
-struct zynq_nand_info {
+struct nand_config {
 	void __iomem	*nand_base;
 	u8		end_cmd_pending;
 	u8		end_cmd;
+};
+
+struct zynq_nand_info {
+	struct udevice *dev;
+	struct nand_chip nand_chip;
 };
 
 /*
@@ -782,7 +788,7 @@ static void zynq_nand_cmd_function(struct mtd_info *mtd, unsigned int command,
 	struct nand_chip *chip = mtd->priv;
 	const struct zynq_nand_command_format *curr_cmd = NULL;
 	u8 addr_cycles = 0;
-	struct zynq_nand_info *xnand = (struct zynq_nand_info *)chip->priv;
+	struct nand_config *xnand = (struct nand_config *)chip->priv;
 	void *cmd_addr;
 	unsigned long cmd_data = 0;
 	unsigned long cmd_phase_addr = 0;
@@ -1046,9 +1052,11 @@ static int zynq_nand_check_is_16bit_bw_flash(void)
 	return is_16bit_bw;
 }
 
-static int zynq_nand_init(struct nand_chip *nand_chip, int devnum)
+static int zynq_nand_probe(struct udevice *dev)
 {
-	struct zynq_nand_info *xnand;
+	struct zynq_nand_info *zynq = dev_get_priv(dev);
+	struct nand_chip *nand_chip = &zynq->nand_chip;
+	struct nand_config *xnand;
 	struct mtd_info *mtd;
 	unsigned long ecc_page_size;
 	u8 maf_id, dev_id, i;
@@ -1059,7 +1067,7 @@ static int zynq_nand_init(struct nand_chip *nand_chip, int devnum)
 	int err = -1;
 	int is_16bit_bw;
 
-	xnand = calloc(1, sizeof(struct zynq_nand_info));
+	xnand = calloc(1, sizeof(struct nand_config));
 	if (!xnand) {
 		printf("%s: failed to allocate\n", __func__);
 		goto fail;
@@ -1235,7 +1243,7 @@ static int zynq_nand_init(struct nand_chip *nand_chip, int devnum)
 		printf("%s: nand_scan_tail failed\n", __func__);
 		goto fail;
 	}
-	if (nand_register(devnum, mtd))
+	if (nand_register(0, mtd))
 		goto fail;
 	return 0;
 fail:
@@ -1243,12 +1251,26 @@ fail:
 	return err;
 }
 
-static struct nand_chip nand_chip[CONFIG_SYS_MAX_NAND_DEVICE];
+static const struct udevice_id zynq_nand_dt_ids[] = {
+	{.compatible = "arm,pl353-smc-r2p1",},
+	{ /* sentinel */ }
+};
+
+U_BOOT_DRIVER(zynq_nand) = {
+	.name = "zynq-nand",
+	.id = UCLASS_MTD,
+	.of_match = zynq_nand_dt_ids,
+	.probe = zynq_nand_probe,
+	.priv_auto_alloc_size = sizeof(struct zynq_nand_info),
+};
 
 void board_nand_init(void)
 {
-	struct nand_chip *nand = &nand_chip[0];
+	struct udevice *dev;
+	int ret;
 
-	if (zynq_nand_init(nand, 0))
-		puts("ZYNQ NAND init failed\n");
+	ret = uclass_get_device_by_driver(UCLASS_MTD,
+					  DM_GET_DRIVER(zynq_nand), &dev);
+	if (ret && ret != -ENODEV)
+		pr_err("Failed to initialize %s. (error %d)\n", dev->name, ret);
 }
