@@ -544,6 +544,14 @@ int main(int argc, char **argv)
 			ret = imx8mimage_copy_image(ifd, &params);
 			if (ret)
 				return ret;
+		} else if ((params.type == IH_TYPE_RKSD) ||
+				(params.type == IH_TYPE_RKSPI)) {
+			/* Rockchip has special Image format */
+			int ret;
+
+			ret = rockchip_copy_image(ifd, &params);
+			if (ret)
+				return ret;
 		} else {
 			copy_file(ifd, params.datafile, pad_len);
 		}
