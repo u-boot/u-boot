@@ -57,7 +57,7 @@ void enable_tzc380(void)
 	/* Enable TZASC and lock setting */
 	setbits_le32(&gpr->gpr[10], GPR_TZASC_EN);
 	setbits_le32(&gpr->gpr[10], GPR_TZASC_EN_LOCK);
-	if (is_imx8mm() || is_imx8mn())
+	if (is_imx8mm() || is_imx8mn() || is_imx8mp())
 		setbits_le32(&gpr->gpr[10], BIT(1));
 	/*
 	 * set Region 0 attribute to allow secure and non-secure
