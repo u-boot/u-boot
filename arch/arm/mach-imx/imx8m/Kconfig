@@ -16,6 +16,10 @@ config IMX8MN
 	bool
 	select IMX8M
 
+config IMX8MP
+	bool
+	select IMX8M
+
 config SYS_SOC
 	default "imx8m"
 
