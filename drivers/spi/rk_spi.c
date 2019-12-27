@@ -27,6 +27,12 @@
 /* Change to 1 to output registers at the start of each transaction */
 #define DEBUG_RK_SPI	0
 
+/*
+ * ctrlr1 is 16-bits, so we should support lengths of 0xffff + 1. However,
+ * the controller seems to hang when given 0x10000, so stick with this for now.
+ */
+#define ROCKCHIP_SPI_MAX_TRANLEN		0xffff
+
 struct rockchip_spi_params {
 	/* RXFIFO overruns and TXFIFO underruns stop the master clock */
 	bool master_manages_fifo;
@@ -367,7 +373,7 @@ static inline int rockchip_spi_16bit_reader(struct udevice *dev,
 	 * represented in CTRLR1.
 	 */
 	if (data && data->master_manages_fifo)
-		max_chunk_size = 0x10000;
+		max_chunk_size = ROCKCHIP_SPI_MAX_TRANLEN;
 
 	// rockchip_spi_configure(dev, mode, size)
 	rkspi_enable_chip(regs, false);
@@ -451,7 +457,7 @@ static int rockchip_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 	/* This is the original 8bit reader/writer code */
 	while (len > 0) {
-		int todo = min(len, 0x10000);
+		int todo = min(len, ROCKCHIP_SPI_MAX_TRANLEN);
 
 		rkspi_enable_chip(regs, false);
 		writel(todo - 1, &regs->ctrlr1);
