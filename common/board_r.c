@@ -26,6 +26,7 @@
 #include <env_internal.h>
 #include <fdtdec.h>
 #include <ide.h>
+#include <init.h>
 #include <initcall.h>
 #if defined(CONFIG_CMD_KGDB)
 #include <kgdb.h>
