@@ -14,7 +14,6 @@
 #define __COMMON_H_	1
 
 #ifndef __ASSEMBLY__		/* put C only stuff in this section */
-
 #include <config.h>
 #include <errno.h>
 #include <time.h>
@@ -30,42 +29,19 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <linux/kernel.h>
-
 #include <part.h>
 #include <flash.h>
 #include <image.h>
-
 #include <log.h>
-
 #include <asm/u-boot.h> /* boot information for Linux kernel */
 #include <asm/global_data.h>	/* global data used for startup functions */
-
-/* startup functions, used in:
- * common/board_f.c
- * common/init/board_init.c
- * common/board_r.c
- * common/board_info.c
- */
 #include <init.h>
-
 #include <display_options.h>
-
-/* lib/uuid.c */
 #include <uuid.h>
-
-/* lib/vsprintf.c */
 #include <vsprintf.h>
-
-/* lib/net_utils.c */
 #include <net.h>
-
 #include <bootstage.h>
-
-#else	/* __ASSEMBLY__ */
-
 #endif	/* __ASSEMBLY__ */
-
-/* Put only stuff here that the assembler can digest */
 
 /* Pull in stuff for the build system */
 #ifdef DO_DEPS_ONLY
