@@ -9,6 +9,7 @@
 #include <env.h>
 #include <init.h>
 #include <pci.h>
+#include <time.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
 #include <asm/fsl_pci.h>
@@ -337,7 +338,7 @@ int get_clocks(void)
 	return 0;
 }
 
-unsigned long get_tbclk (void)
+unsigned long get_tbclk(void)
 {
 	void *fdt = get_fdt_virt();
 	int cpus_node = fdt_path_offset(fdt, "/cpus");

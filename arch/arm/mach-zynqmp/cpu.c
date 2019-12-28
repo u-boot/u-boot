@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <time.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/armv8/mmu.h>

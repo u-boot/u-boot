@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <time.h>
 #include <asm/mipsregs.h>
 
 unsigned long notrace timer_read_counter(void)
