@@ -268,4 +268,15 @@
 	const typeof( ((type *)0)->member ) *__mptr = (ptr);	\
 	(type *)( (char *)__mptr - offsetof(type,member) );})
 
+/*
+ * check_member() - Check the offset of a structure member
+ *
+ * @structure:	Name of structure (e.g. global_data)
+ * @member:	Name of member (e.g. baudrate)
+ * @offset:	Expected offset in bytes
+ */
+#define check_member(structure, member, offset) _Static_assert( \
+	offsetof(struct structure, member) == (offset), \
+	"`struct " #structure "` offset for `" #member "` is not " #offset)
+
 #endif
