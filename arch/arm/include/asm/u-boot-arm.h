@@ -54,6 +54,8 @@ void do_fiq(struct pt_regs *pt_regs);
 void do_irq(struct pt_regs *pt_regswq);
 #endif
 
+void reset_misc(void);
+
 #endif /* __ASSEMBLY__ */
 
 #endif	/* _U_BOOT_ARM_H_ */
