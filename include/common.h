@@ -62,10 +62,6 @@ void	hang		(void) __attribute__ ((noreturn));
 /* common/cmd_source.c */
 int	source (ulong addr, const char *fit_uname);
 
-extern ulong image_load_addr;		/* Default Load Address */
-extern ulong image_save_addr;		/* Default Save Address */
-extern ulong image_save_size;		/* Default Save Size */
-
 /* common/memsize.c */
 long	get_ram_size  (long *, long);
 phys_size_t get_effective_memsize(void);

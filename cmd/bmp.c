@@ -13,6 +13,7 @@
 #include <command.h>
 #include <dm.h>
 #include <gzip.h>
+#include <image.h>
 #include <lcd.h>
 #include <malloc.h>
 #include <mapmem.h>

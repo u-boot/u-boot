@@ -8,6 +8,7 @@
 #include <common.h>
 #include <command.h>
 #include <env.h>
+#include <image.h>
 #include <vsprintf.h>
 #include <errno.h>
 #include <dm.h>

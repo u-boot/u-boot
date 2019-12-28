@@ -112,6 +112,10 @@ struct fdt_region;
 # define IMAGE_OF_SYSTEM_SETUP	0
 #endif
 
+extern ulong image_load_addr;		/* Default Load Address */
+extern ulong image_save_addr;		/* Default Save Address */
+extern ulong image_save_size;		/* Default Save Size */
+
 enum ih_category {
 	IH_ARCH,
 	IH_COMP,

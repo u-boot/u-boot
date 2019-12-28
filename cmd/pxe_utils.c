@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <env.h>
+#include <image.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <lcd.h>

@@ -18,6 +18,7 @@
 #include <cpu_func.h>
 #include <elf.h>
 #include <env.h>
+#include <image.h>
 #include <net.h>
 #include <vxworks.h>
 #ifdef CONFIG_X86
