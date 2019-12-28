@@ -423,8 +423,10 @@ static int is_usb_active(void)
 #ifdef CONFIG_CMD_NET
 static size_t tftp_read_file(const char *file_name)
 {
-	/* update global variable load_addr before tftp file from network */
-	load_addr = get_load_addr();
+	/*
+	 * update global variable image_load_addr before tftp file from network
+	 */
+	image_load_addr = get_load_addr();
 	return net_loop(TFTPGET);
 }
 

@@ -294,7 +294,7 @@ int do_bootelf(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		/* Consume address */
 		argc--; argv++;
 	} else
-		addr = load_addr;
+		addr = image_load_addr;
 
 	if (!valid_elf_image(addr))
 		return 1;
@@ -348,7 +348,7 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 * If we don't know where the image is then we're done.
 	 */
 	if (argc < 2)
-		addr = load_addr;
+		addr = image_load_addr;
 	else
 		addr = simple_strtoul(argv[1], NULL, 16);
 

@@ -124,7 +124,7 @@ int common_diskboot(cmd_tbl_t *cmdtp, const char *intf, int argc,
 	flush_cache(addr, (cnt+1)*info.blksz);
 
 	/* Loading ok, update default load address */
-	load_addr = addr;
+	image_load_addr = addr;
 
 	return bootm_maybe_autostart(cmdtp, argv[0]);
 }

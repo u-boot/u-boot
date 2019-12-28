@@ -97,7 +97,7 @@ int do_cramfs_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *filename;
 	int size;
-	ulong offset = load_addr;
+	ulong offset = image_load_addr;
 	char *offset_virt;
 
 	struct part_info part;
@@ -127,7 +127,7 @@ int do_cramfs_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 	if (argc == 3) {
 		offset = simple_strtoul(argv[1], NULL, 0);
-		load_addr = offset;
+		image_load_addr = offset;
 		filename = argv[2];
 	}
 
