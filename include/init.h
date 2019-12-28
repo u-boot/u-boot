@@ -16,6 +16,13 @@ struct global_data;
 
 #ifndef __ASSEMBLY__		/* put C only stuff in this section */
 
+/* Avoid using CONFIG_EFI_STUB directly as we may boot from other loaders */
+#ifdef CONFIG_EFI_STUB
+#define ll_boot_init()	false
+#else
+#define ll_boot_init()	true
+#endif
+
 /*
  * Function Prototypes
  */
