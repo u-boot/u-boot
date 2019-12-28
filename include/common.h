@@ -80,9 +80,6 @@ extern ulong load_addr;		/* Default Load Address */
 extern ulong save_addr;		/* Default Save Address */
 extern ulong save_size;		/* Default Save Size */
 
-/* common/cmd_net.c */
-int do_tftpb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
-
 /* common/cmd_fat.c */
 int do_fat_fsload(cmd_tbl_t *, int, int, char * const []);
 
