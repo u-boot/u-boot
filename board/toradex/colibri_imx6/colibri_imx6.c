@@ -83,7 +83,7 @@ iomux_v3_cfg_t const uart1_pads[] = {
 	MX6_PAD_CSI0_DAT11__UART1_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
 };
 
-#if defined(CONFIG_FSL_ESDHC) && defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_FSL_ESDHC_IMX) && defined(CONFIG_SPL_BUILD)
 /* Colibri MMC */
 iomux_v3_cfg_t const usdhc1_pads[] = {
 	MX6_PAD_SD1_CLK__SD1_CLK    | MUX_PAD_CTRL(USDHC_PAD_CTRL),
@@ -304,7 +304,7 @@ int board_ehci_hcd_init(int port)
 }
 #endif
 
-#if defined(CONFIG_FSL_ESDHC) && defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_FSL_ESDHC_IMX) && defined(CONFIG_SPL_BUILD)
 /* use the following sequence: eMMC, MMC */
 struct fsl_esdhc_cfg usdhc_cfg[CONFIG_SYS_FSL_USDHC_NUM] = {
 	{USDHC3_BASE_ADDR},

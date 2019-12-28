@@ -54,9 +54,9 @@
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
 	"videomode=video=ctfb:x:800,y:480,depth:24,pclk:29850,le:89,ri:164,up:23,lo:10,hs:10,vs:10,sync:0,vmode:0\0" \
-	"mmcdev=2\0" \
+	"mmcdev=3\0" \
 	"mmcpart=1\0" \
-	"finduuid=part uuid mmc 2:2 uuid\0" \
+	"finduuid=part uuid mmc ${mmcdev}:2 uuid\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		"root=PARTUUID=${uuid} rootwait rw\0" \
 	"loadbootscript=" \

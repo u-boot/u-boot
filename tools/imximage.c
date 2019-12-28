@@ -11,9 +11,13 @@
 #include "imagetool.h"
 #include <image.h>
 #include "imximage.h"
+#include <generated/autoconf.h>
 
 #define UNDEFINED 0xFFFFFFFF
 
+#if !defined(CONFIG_IMX_DCD_ADDR)
+#define CONFIG_IMX_DCD_ADDR 0x00910000
+#endif
 /*
  * Supported commands for configuration file
  */
@@ -524,8 +528,8 @@ static void print_hdr_v2(struct imx_header *imx_hdr)
 			printf("HAB Blocks:   0x%08x 0x%08x 0x%08x\n",
 			       (uint32_t)fhdr_v2->self, 0,
 			       (uint32_t)(fhdr_v2->csf - fhdr_v2->self));
-			printf("DCD Blocks:   0x00910000 0x%08x 0x%08x\n",
-			       offs, be16_to_cpu(dcdlen));
+			printf("DCD Blocks:   0x%08x 0x%08x 0x%08x\n",
+			       offs, CONFIG_IMX_DCD_ADDR, be16_to_cpu(dcdlen));
 		}
 	} else {
 		imx_header_v2_t *next_hdr_v2;
