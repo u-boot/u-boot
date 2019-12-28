@@ -630,6 +630,10 @@
 		reset-names = "other", "test";
 	};
 
+	rng {
+		compatible = "sandbox,sandbox-rng";
+	};
+
 	rproc_1: rproc@1 {
 		compatible = "sandbox,test-processor";
 		remoteproc-name = "remoteproc-test-dev1";

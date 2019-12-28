@@ -6,6 +6,14 @@ config DM_RNG
 	  This interface is used to initialise the rng device and to
 	  read the random seed from the device.
 
+config RNG_SANDBOX
+	bool "Sandbox random number generator"
+	depends on SANDBOX && DM_RNG
+	select CONFIG_LIB_RAND
+	help
+	  Enable random number generator for sandbox. This is an
+	  emulation of a rng device.
+
 config RNG_STM32MP1
 	bool "Enable random number generator for STM32MP1"
 	depends on ARCH_STM32MP && DM_RNG
