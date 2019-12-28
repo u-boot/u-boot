@@ -5,3 +5,10 @@ config DM_RNG
 	  Enable driver model for random number generator(rng) devices.
 	  This interface is used to initialise the rng device and to
 	  read the random seed from the device.
+
+config RNG_STM32MP1
+	bool "Enable random number generator for STM32MP1"
+	depends on ARCH_STM32MP && DM_RNG
+	default n
+	help
+	  Enable STM32MP1 rng driver.
