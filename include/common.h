@@ -80,9 +80,6 @@ extern ulong load_addr;		/* Default Load Address */
 extern ulong save_addr;		/* Default Save Address */
 extern ulong save_size;		/* Default Save Size */
 
-/* common/exports.c */
-void	jumptable_init(void);
-
 /* common/kallsysm.c */
 const char *symbol_lookup(unsigned long addr, unsigned long *caddr);
 
