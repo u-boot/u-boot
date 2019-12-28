@@ -70,7 +70,6 @@ int checkflash(void);
 int checkdram(void);
 extern u8 __dtb_dt_begin[];	/* embedded device tree blob */
 extern u8 __dtb_dt_spl_begin[];	/* embedded device tree blob for SPL/TPL */
-int mdm_init(void);
 
 /**
  * arch_fixup_fdt() - Write arch-specific information to fdt
