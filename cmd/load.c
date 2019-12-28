@@ -12,6 +12,7 @@
 #include <console.h>
 #include <cpu_func.h>
 #include <env.h>
+#include <flash.h>
 #include <s_record.h>
 #include <net.h>
 #include <exports.h>
@@ -980,7 +981,7 @@ static ulong load_serial_ymodem(ulong offset, int mode)
 				rc = flash_write((char *) ymodemBuf,
 						  store_addr, res);
 				if (rc != 0) {
-					flash_perror (rc);
+					flash_perror(rc);
 					return (~0);
 				}
 			} else

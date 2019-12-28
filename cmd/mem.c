@@ -16,6 +16,7 @@
 #include <cli.h>
 #include <command.h>
 #include <console.h>
+#include <flash.h>
 #include <hash.h>
 #include <mapmem.h>
 #include <watchdog.h>
@@ -339,7 +340,7 @@ static int do_mem_cp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 		rc = flash_write((char *)src, (ulong)dst, count * size);
 		if (rc != 0) {
-			flash_perror (rc);
+			flash_perror(rc);
 			unmap_sysmem(src);
 			unmap_sysmem(dst);
 			return (1);

@@ -78,9 +78,6 @@ extern u8 __dtb_dt_spl_begin[];	/* embedded device tree blob for SPL/TPL */
  */
 int arch_fixup_fdt(void *blob);
 
-/* common/flash.c */
-void flash_perror (int);
-
 /* common/cmd_source.c */
 int	source (ulong addr, const char *fit_uname);
 
