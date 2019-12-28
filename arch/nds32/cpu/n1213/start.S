@@ -223,7 +223,7 @@ call_board_init_f:
 	j	board_init_f		! jump to board_init_f() in lib/board.c
 
 /*
- * void relocate_code (addr_sp, gd, addr_moni)
+ * void relocate_code(addr_sp, gd, addr_moni)
  *
  * This "function" does not return, instead it continues in RAM
  * after relocating the monitor code.

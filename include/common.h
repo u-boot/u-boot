@@ -102,12 +102,6 @@ void	fdc_hw_init   (void);
 int testdram(void);
 #endif /* CONFIG_SYS_DRAM_TEST */
 
-#if defined(CONFIG_ARM)
-void	relocate_code(ulong);
-#else
-void	relocate_code(ulong, gd_t *, ulong) __attribute__ ((noreturn));
-#endif
-
 void s_init(void);
 
 void	upmconfig     (unsigned int, unsigned int *, unsigned int);

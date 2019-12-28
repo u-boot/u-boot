@@ -12,6 +12,8 @@
 
 #include <linux/types.h>
 
+struct global_data;
+
 #ifndef __ASSEMBLY__		/* put C only stuff in this section */
 
 /*
@@ -227,6 +229,14 @@ void trap_init(unsigned long reloc_addr);
  * This normally runs the command line.
  */
 void main_loop(void);
+
+#if defined(CONFIG_ARM)
+void relocate_code(ulong addr_moni);
+#else
+void relocate_code(ulong start_addr_sp, struct global_data *new_gd,
+		   ulong relocaddr)
+	__attribute__ ((noreturn));
+#endif
 
 #endif	/* __ASSEMBLY__ */
 /* Put only stuff here that the assembler can digest */

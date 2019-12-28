@@ -3,6 +3,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <mpc85xx.h>
 #include <asm/io.h>
 #include <ns16550.h>
