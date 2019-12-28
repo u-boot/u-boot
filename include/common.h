@@ -59,9 +59,6 @@ void	hang		(void) __attribute__ ((noreturn));
 
 #include <display_options.h>
 
-/* common/cmd_source.c */
-int	source (ulong addr, const char *fit_uname);
-
 /* common/memsize.c */
 long	get_ram_size  (long *, long);
 phys_size_t get_effective_memsize(void);
