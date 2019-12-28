@@ -5,6 +5,7 @@
 #include <common.h>
 #include <console.h>
 #include <env_internal.h>
+#include <init.h>
 #include <ns16550.h>
 #include <malloc.h>
 #include <mmc.h>
