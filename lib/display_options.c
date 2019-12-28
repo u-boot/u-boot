@@ -137,7 +137,7 @@ int print_buffer(ulong addr, const void *data, uint width, uint count,
 {
 	/* linebuf as a union causes proper alignment */
 	union linebuf {
-#ifdef CONFIG_SYS_SUPPORT_64BIT_DATA
+#ifdef MEM_SUPPORT_64BIT_DATA
 		uint64_t uq[MAX_LINE_LENGTH_BYTES/sizeof(uint64_t) + 1];
 #endif
 		uint32_t ui[MAX_LINE_LENGTH_BYTES/sizeof(uint32_t) + 1];
@@ -145,7 +145,7 @@ int print_buffer(ulong addr, const void *data, uint width, uint count,
 		uint8_t  uc[MAX_LINE_LENGTH_BYTES/sizeof(uint8_t) + 1];
 	} lb;
 	int i;
-#ifdef CONFIG_SYS_SUPPORT_64BIT_DATA
+#ifdef MEM_SUPPORT_64BIT_DATA
 	uint64_t __maybe_unused x;
 #else
 	uint32_t __maybe_unused x;
@@ -168,7 +168,7 @@ int print_buffer(ulong addr, const void *data, uint width, uint count,
 		for (i = 0; i < thislinelen; i++) {
 			if (width == 4)
 				x = lb.ui[i] = *(volatile uint32_t *)data;
-#ifdef CONFIG_SYS_SUPPORT_64BIT_DATA
+#ifdef MEM_SUPPORT_64BIT_DATA
 			else if (width == 8)
 				x = lb.uq[i] = *(volatile uint64_t *)data;
 #endif
@@ -178,7 +178,7 @@ int print_buffer(ulong addr, const void *data, uint width, uint count,
 				x = lb.uc[i] = *(volatile uint8_t *)data;
 #if defined(CONFIG_SPL_BUILD)
 			printf(" %x", (uint)x);
-#elif defined(CONFIG_SYS_SUPPORT_64BIT_DATA)
+#elif defined(MEM_SUPPORT_64BIT_DATA)
 			printf(" %0*llx", width * 2, (long long)x);
 #else
 			printf(" %0*x", width * 2, x);
