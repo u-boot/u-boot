@@ -14,6 +14,7 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <time.h>
 #include <vsprintf.h>
 #include <asm/processor.h>
 #include <asm/io.h>

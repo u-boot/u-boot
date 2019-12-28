@@ -12,6 +12,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <irq_func.h>
+#include <time.h>
 #include <vsprintf.h>
 #include <watchdog.h>
 #include <command.h>

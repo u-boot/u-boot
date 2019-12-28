@@ -74,7 +74,6 @@ phys_size_t get_effective_memsize(void);
 int testdram(void);
 #endif /* CONFIG_SYS_DRAM_TEST */
 
-ulong	get_tbclk     (void);
 void	reset_misc    (void);
 void	reset_cpu     (ulong addr);
 
