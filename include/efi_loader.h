@@ -17,6 +17,11 @@ static inline int guidcmp(const void *g1, const void *g2)
 	return memcmp(g1, g2, sizeof(efi_guid_t));
 }
 
+static inline void *guidcpy(void *dst, const void *src)
+{
+	return memcpy(dst, src, sizeof(efi_guid_t));
+}
+
 /* No need for efi loader support in SPL */
 #if CONFIG_IS_ENABLED(EFI_LOADER)
 
