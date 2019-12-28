@@ -69,6 +69,8 @@
 
 #define DIV_ROUND_UP_ULL(ll, d)		DIV_ROUND_DOWN_ULL((ll) + (d) - 1, (d))
 
+#define ROUND(a, b)		(((a) + (b) - 1) & ~((b) - 1))
+
 #if BITS_PER_LONG == 32
 # define DIV_ROUND_UP_SECTOR_T(ll,d) DIV_ROUND_UP_ULL(ll, d)
 #else

@@ -71,8 +71,6 @@
 
 /* Put only stuff here that the assembler can digest */
 
-#define ROUND(a,b)		(((a) + (b) - 1) & ~((b) - 1))
-
 /* Pull in stuff for the build system */
 #ifdef DO_DEPS_ONLY
 # include <env_internal.h>
