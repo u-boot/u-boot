@@ -8,6 +8,7 @@
 #include <cpu_func.h>
 #include <env.h>
 #include <fsl_ddr_sdram.h>
+#include <init.h>
 #include <vsprintf.h>
 #include <asm/io.h>
 #include <linux/errno.h>

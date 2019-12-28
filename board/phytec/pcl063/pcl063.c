@@ -6,6 +6,7 @@
  * Copyright (C) 2015-2016 Stefan Roese <sr@denx.de>
  */
 
+#include <init.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/mx6-pins.h>

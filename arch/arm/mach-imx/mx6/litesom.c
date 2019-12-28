@@ -4,6 +4,7 @@
  * Copyright (C) 2016 Grinn
  */
 
+#include <init.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/imx-regs.h>

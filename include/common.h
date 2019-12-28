@@ -59,10 +59,6 @@ void	hang		(void) __attribute__ ((noreturn));
 
 #include <display_options.h>
 
-/* common/memsize.c */
-long	get_ram_size  (long *, long);
-phys_size_t get_effective_memsize(void);
-
 #if defined(CONFIG_SYS_DRAM_TEST)
 int testdram(void);
 #endif /* CONFIG_SYS_DRAM_TEST */

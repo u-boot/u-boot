@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <mpc83xx.h>
 
 #include <asm/bitops.h>

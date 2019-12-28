@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <mmc.h>
 #include <fsl_esdhc_imx.h>
 #include <miiphy.h>

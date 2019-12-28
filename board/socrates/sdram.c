@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/processor.h>
 #include <asm/immap_85xx.h>
 #include <fsl_ddr_sdram.h>

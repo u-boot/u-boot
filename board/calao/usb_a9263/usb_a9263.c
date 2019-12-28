@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/arch/at91sam9_smc.h>
 #include <asm/arch/at91_common.h>
 #include <asm/arch/at91_matrix.h>

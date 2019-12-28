@@ -11,6 +11,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <spl.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/ddr_defs.h>

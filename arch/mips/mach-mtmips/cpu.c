@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <init.h>
 #include <ram.h>
 #include <wdt.h>
 #include <asm/io.h>

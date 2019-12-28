@@ -6,6 +6,7 @@
  */
 
 #include <cpu_func.h>
+#include <init.h>
 #include <asm/arch/hardware.h>
 #include <asm/cache.h>
 #include <asm/emif.h>
