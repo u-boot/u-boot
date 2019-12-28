@@ -6,6 +6,7 @@
  *     Texas Instruments Incorporated, <www.ti.com>
  */
 
+#include <cpu_func.h>
 #include <asm/io.h>
 #include <common.h>
 #include <asm/arch/msmc.h>

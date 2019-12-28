@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <env.h>
 #include <malloc.h>
 #include <dm.h>

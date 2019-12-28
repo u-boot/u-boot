@@ -10,6 +10,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <errno.h>
 
 #include <asm/arch/ddr_defs.h>
