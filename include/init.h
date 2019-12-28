@@ -221,6 +221,13 @@ void pci_init_board(void);
 
 void trap_init(unsigned long reloc_addr);
 
+/**
+ * main_loop() - Enter the main loop of U-Boot
+ *
+ * This normally runs the command line.
+ */
+void main_loop(void);
+
 #endif	/* __ASSEMBLY__ */
 /* Put only stuff here that the assembler can digest */
 

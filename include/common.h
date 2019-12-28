@@ -63,9 +63,6 @@ void	hang		(void) __attribute__ ((noreturn));
 
 #include <display_options.h>
 
-/* common/main.c */
-void	main_loop	(void);
-
 int checkflash(void);
 int checkdram(void);
 extern u8 __dtb_dt_begin[];	/* embedded device tree blob */
