@@ -574,8 +574,7 @@ void get_sys_info(sys_info_t *sys_info)
 #endif
 }
 
-
-int get_clocks (void)
+int get_clocks(void)
 {
 	sys_info_t sys_info;
 #ifdef CONFIG_ARCH_MPC8544
@@ -653,7 +652,7 @@ int get_clocks (void)
  * get_bus_freq
  * return system bus freq in Hz
  *********************************************/
-ulong get_bus_freq (ulong dummy)
+ulong get_bus_freq(ulong dummy)
 {
 	return gd->bus_clk;
 }

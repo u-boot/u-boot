@@ -323,7 +323,7 @@ void get_sys_info(sys_info_t *sys_info)
 	sys_info->freq_processor[0] = freq;
 }
 
-int get_clocks (void)
+int get_clocks(void)
 {
 	sys_info_t sys_info;
 
@@ -350,7 +350,7 @@ unsigned long get_tbclk (void)
  * get_bus_freq
  * return system bus freq in Hz
  *********************************************/
-ulong get_bus_freq (ulong dummy)
+ulong get_bus_freq(ulong dummy)
 {
 	sys_info_t sys_info;
 	get_sys_info(&sys_info);

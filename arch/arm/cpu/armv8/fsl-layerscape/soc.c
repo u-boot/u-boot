@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
 #include <env.h>
 #include <fsl_immap.h>
 #include <fsl_ifc.h>

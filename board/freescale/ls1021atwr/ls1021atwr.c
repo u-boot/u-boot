@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
 #include <fdt_support.h>
 #include <i2c.h>
 #include <init.h>

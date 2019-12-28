@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
 #include <ns16550.h>
 #include <serial.h>
 #include <linux/compiler.h>

@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
 #include <env.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
