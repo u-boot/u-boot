@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <miiphy.h>
+#include <net.h>
 #include <netdev.h>
 #include <led.h>
 #include <linux/io.h>

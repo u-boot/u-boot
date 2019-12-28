@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <net.h>
 #include <netdev.h>
 #include <malloc.h>
 #include <fsl_mdio.h>

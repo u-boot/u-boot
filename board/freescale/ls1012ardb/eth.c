@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <net.h>
 #include <asm/io.h>
 #include <netdev.h>
 #include <fm_eth.h>
