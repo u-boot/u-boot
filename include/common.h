@@ -59,10 +59,6 @@ void	hang		(void) __attribute__ ((noreturn));
 
 #include <display_options.h>
 
-#if defined(CONFIG_SYS_DRAM_TEST)
-int testdram(void);
-#endif /* CONFIG_SYS_DRAM_TEST */
-
 /* lib/uuid.c */
 #include <uuid.h>
 
