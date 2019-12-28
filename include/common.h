@@ -2,9 +2,8 @@
 /*
  * Common header file for U-Boot
  *
- * This file still includes quite a bit of stuff that should be in separate
- * headers. Please think before adding more things.
- * Patches to remove things are welcome.
+ * This file still includes quite a few headers that should be included
+ * individually as needed. Patches to remove things are welcome.
  *
  * (C) Copyright 2000-2009
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
