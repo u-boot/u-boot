@@ -63,9 +63,6 @@ void	hang		(void) __attribute__ ((noreturn));
 
 #include <display_options.h>
 
-extern u8 __dtb_dt_begin[];	/* embedded device tree blob */
-extern u8 __dtb_dt_spl_begin[];	/* embedded device tree blob for SPL/TPL */
-
 /**
  * arch_fixup_fdt() - Write arch-specific information to fdt
  *
