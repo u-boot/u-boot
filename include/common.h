@@ -124,9 +124,6 @@ int get_serial_clock(void);
 
 #ifdef CONFIG_POST
 #define CONFIG_HAS_POST
-#ifndef CONFIG_POST_ALT_LIST
-#define CONFIG_POST_STD_LIST
-#endif
 #endif
 
 #define ROUND(a,b)		(((a) + (b) - 1) & ~((b) - 1))
