@@ -13,6 +13,7 @@
 #include <common.h>
 #include <dm.h>
 #include <env.h>
+#include <hang.h>
 #include <init.h>
 #include <mmc.h>
 #include <axp_pmic.h>

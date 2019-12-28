@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <hang.h>
 #include <linux/types.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/mx6-ddr.h>

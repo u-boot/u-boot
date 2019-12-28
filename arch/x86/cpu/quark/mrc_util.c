@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <hang.h>
 #include <asm/arch/device.h>
 #include <asm/arch/mrc.h>
 #include <asm/arch/msg_port.h>

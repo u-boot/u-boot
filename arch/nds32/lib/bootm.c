@@ -8,6 +8,7 @@
 #include <common.h>
 #include <command.h>
 #include <env.h>
+#include <hang.h>
 #include <image.h>
 #include <u-boot/zlib.h>
 #include <asm/byteorder.h>

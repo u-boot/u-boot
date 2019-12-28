@@ -12,6 +12,7 @@
 
 #include <common.h>
 #include <env.h>
+#include <hang.h>
 #include <malloc.h>
 #include <command.h>
 #include <net.h>

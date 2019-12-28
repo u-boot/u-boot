@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <env_internal.h>
+#include <hang.h>
 #include <serial.h>
 #include <stdio_dev.h>
 #include <post.h>

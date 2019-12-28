@@ -20,6 +20,7 @@
 #include <env_internal.h>
 #include <fdtdec.h>
 #include <fs.h>
+#include <hang.h>
 #include <i2c.h>
 #include <init.h>
 #include <initcall.h>

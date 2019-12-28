@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <hang.h>
 #include <spl.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>

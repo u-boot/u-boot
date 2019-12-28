@@ -12,6 +12,7 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <hang.h>
 #include <init.h>
 #include <asm/mipsregs.h>
 #include <asm/addrspace.h>

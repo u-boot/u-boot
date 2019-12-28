@@ -8,6 +8,7 @@
 #include <common.h>
 #include <command.h>
 #include <env.h>
+#include <hang.h>
 #include <init.h>
 #include <mmc.h>
 #include <asm/arch/clock.h>

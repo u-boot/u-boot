@@ -7,6 +7,7 @@
 #include <cpu_func.h>
 #include <debug_uart.h>
 #include <dm.h>
+#include <hang.h>
 #include <irq_func.h>
 #include <malloc.h>
 #include <spl.h>

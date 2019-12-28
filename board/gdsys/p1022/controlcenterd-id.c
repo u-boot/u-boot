@@ -14,6 +14,7 @@
 #include <command.h>
 #include <dm.h>
 #include <env.h>
+#include <hang.h>
 #include <malloc.h>
 #include <fs.h>
 #include <i2c.h>

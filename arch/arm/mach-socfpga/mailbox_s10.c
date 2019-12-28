@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <hang.h>
 #include <wait_bit.h>
 #include <asm/io.h>
 #include <asm/arch/mailbox_s10.h>

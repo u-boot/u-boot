@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <hang.h>
 
 #ifdef CONFIG_SPL_BUILD
 static int setup_led(void)

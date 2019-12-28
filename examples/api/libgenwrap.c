@@ -10,6 +10,7 @@
  */
 
 #include <common.h>
+#include <hang.h>
 #include <linux/types.h>
 #include <api_public.h>
 
@@ -41,7 +42,7 @@ void *malloc (size_t len)
 	return NULL;
 }
 
-void hang (void)
+void hang(void)
 {
 	while (1) ;
 }
