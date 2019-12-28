@@ -917,4 +917,12 @@ static inline struct in_addr env_get_ip(char *var)
 {
 	return string_to_ip(env_get(var));
 }
+
+/**
+ * reset_phy() - Reset the Ethernet PHY
+ *
+ * This should be implemented by boards if CONFIG_RESET_PHY_R is enabled
+ */
+void reset_phy(void);
+
 #endif /* __NET_H__ */

@@ -5,6 +5,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <errno.h>
+#include <net.h>
 #include <netdev.h>
 #include <fsl_ifc.h>
 #include <fsl_ddr.h>

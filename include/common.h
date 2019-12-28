@@ -87,9 +87,6 @@ const char *symbol_lookup(unsigned long addr, unsigned long *caddr);
 long	get_ram_size  (long *, long);
 phys_size_t get_effective_memsize(void);
 
-/* $(BOARD)/$(BOARD).c */
-void	reset_phy     (void);
-
 #if !defined(CONFIG_ENV_EEPROM_IS_ON_I2C) && defined(CONFIG_SYS_I2C_EEPROM_ADDR)
 # define CONFIG_SYS_DEF_EEPROM_ADDR CONFIG_SYS_I2C_EEPROM_ADDR
 #endif

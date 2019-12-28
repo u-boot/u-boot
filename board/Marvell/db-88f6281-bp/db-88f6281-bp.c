@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 
 #include <common.h>
+#include <net.h>
 #include <linux/io.h>
 #include <miiphy.h>
 #include <netdev.h>
