@@ -2460,7 +2460,7 @@ typically in board_init_f() and board_init_r().
 Configuration Settings:
 -----------------------
 
-- CONFIG_SYS_SUPPORT_64BIT_DATA: Defined automatically if compiled as 64-bit.
+- MEM_SUPPORT_64BIT_DATA: Defined automatically if compiled as 64-bit.
 		Optionally it can be defined to support 64-bit memory commands.
 
 - CONFIG_SYS_LONGHELP: Defined when you want long help messages included;
