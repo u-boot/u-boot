@@ -91,3 +91,45 @@ void *board_fdt_blob_setup(void)
 	/* QEMU loads a generated DTB for us at the start of RAM. */
 	return (void *)CONFIG_SYS_SDRAM_BASE;
 }
+
+#if defined(CONFIG_EFI_RNG_PROTOCOL)
+#include <efi_loader.h>
+#include <efi_rng.h>
+
+#include <dm/device-internal.h>
+
+efi_status_t platform_get_rng_device(struct udevice **dev)
+{
+	int ret;
+	efi_status_t status = EFI_DEVICE_ERROR;
+	struct udevice *bus, *devp;
+
+	for (uclass_first_device(UCLASS_VIRTIO, &bus); bus;
+	     uclass_next_device(&bus)) {
+		for (device_find_first_child(bus, &devp); devp;
+		     device_find_next_child(&devp)) {
+			if (device_get_uclass_id(devp) == UCLASS_RNG) {
+				*dev = devp;
+				status = EFI_SUCCESS;
+				break;
+			}
+		}
+	}
+
+	if (status != EFI_SUCCESS) {
+		debug("No rng device found\n");
+		return EFI_DEVICE_ERROR;
+	}
+
+	if (*dev) {
+		ret = device_probe(*dev);
+		if (ret)
+			return EFI_DEVICE_ERROR;
+	} else {
+		debug("Couldn't get child device\n");
+		return EFI_DEVICE_ERROR;
+	}
+
+	return EFI_SUCCESS;
+}
+#endif /* CONFIG_EFI_RNG_PROTOCOL */

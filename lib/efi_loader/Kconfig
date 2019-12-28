@@ -121,4 +121,12 @@ config EFI_GRUB_ARM32_WORKAROUND
 	  GRUB prior to version 2.04 requires U-Boot to disable caches. This
 	  workaround currently is also needed on systems with caches that
 	  cannot be managed via CP15.
+
+config EFI_RNG_PROTOCOL
+	bool "EFI_RNG_PROTOCOL support"
+	depends on DM_RNG
+	help
+	  "Support for EFI_RNG_PROTOCOL implementation. Uses the rng
+	   device on the platform"
+
 endif
