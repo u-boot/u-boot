@@ -29,6 +29,7 @@
 #include <common.h>
 #include <command.h>
 #include <flash.h>
+#include <image.h>
 #include <net.h>
 #include <malloc.h>
 #include <mapmem.h>
