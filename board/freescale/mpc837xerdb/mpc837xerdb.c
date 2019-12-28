@@ -9,6 +9,7 @@
 #include <env.h>
 #include <hwconfig.h>
 #include <i2c.h>
+#include <init.h>
 #include <asm/io.h>
 #include <asm/fsl_mpc83xx_serdes.h>
 #include <fdt_support.h>

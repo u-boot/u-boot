@@ -109,6 +109,8 @@ int dram_init_banksize(void);
 long get_ram_size(long *base, long size);
 phys_size_t get_effective_memsize(void);
 
+int testdram(void);
+
 /**
  * arch_reserve_stacks() - Reserve all necessary stacks
  *
