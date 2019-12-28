@@ -23,6 +23,8 @@ extern ulong _datarellocal_start_ofs;
 extern ulong _datarelro_start_ofs;
 extern ulong IRQ_STACK_START_IN;	/* 8 bytes in IRQ stack */
 
+void s_init(void);
+
 /* cpu/.../cpu.c */
 int	cleanup_before_linux(void);
 
