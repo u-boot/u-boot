@@ -15,6 +15,7 @@
 
 #include <common.h>
 #include <env.h>
+#include <fdt_support.h>
 #include <init.h>
 #include <ioports.h>
 #include <mpc83xx.h>
