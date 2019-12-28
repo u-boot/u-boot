@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <mmc.h>
 #include <pci_ids.h>
 #include <asm/irq.h>

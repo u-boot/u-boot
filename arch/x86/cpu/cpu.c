@@ -24,6 +24,7 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>
+#include <init.h>
 #include <malloc.h>
 #include <syscon.h>
 #include <asm/acpi.h>

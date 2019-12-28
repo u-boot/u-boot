@@ -8,6 +8,7 @@
 #include <common.h>
 #include <cpu.h>
 #include <dm.h>
+#include <init.h>
 #include <pci.h>
 #include <asm/cpu.h>
 #include <asm/cpu_x86.h>
