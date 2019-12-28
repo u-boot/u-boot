@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #if defined(CONFIG_FTMAC100) && !defined(CONFIG_DM_ETH)
 #include <netdev.h>
 #endif

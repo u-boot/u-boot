@@ -5,6 +5,7 @@
  * Macpaul Lin, Andes Technology Corporation <macpaul@andestech.com>
  */
 
+#include <init.h>
 #include <asm/mach-types.h>
 #include <common.h>
 #if defined(CONFIG_FTMAC100) && !defined(CONFIG_DM_ETH)

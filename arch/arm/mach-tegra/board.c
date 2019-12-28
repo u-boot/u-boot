@@ -7,6 +7,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <init.h>
 #include <ns16550.h>
 #include <spl.h>
 #include <asm/io.h>

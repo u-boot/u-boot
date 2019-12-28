@@ -11,6 +11,7 @@
 #include <common.h>
 #include <env.h>
 #include <i2c.h>
+#include <init.h>
 #include <net.h>
 #include <asm/arch/hardware.h>
 #include <asm/io.h>

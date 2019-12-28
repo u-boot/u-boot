@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <div64.h>
 #include <fdtdec.h>
+#include <init.h>
 #include <ram.h>
 #include <reset.h>
 #include "sdram_s10.h"

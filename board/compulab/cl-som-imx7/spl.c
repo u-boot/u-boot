@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <spl.h>
 #include <fsl_esdhc_imx.h>
 #include <asm/mach-imx/iomux-v3.h>

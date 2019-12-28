@@ -13,6 +13,7 @@
 
 #include <common.h>
 #include <fdt_support.h>
+#include <init.h>
 #include <mpc83xx.h>
 #include <spi.h>
 #include <linux/libfdt.h>
