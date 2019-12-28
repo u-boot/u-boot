@@ -763,7 +763,9 @@ libs-y += cmd/
 libs-y += common/
 libs-y += env/
 libs-$(CONFIG_API) += api/
-libs-$(CONFIG_HAS_POST) += post/
+ifdef CONFIG_POST
+libs-y += post/
+endif
 libs-$(CONFIG_UNIT_TEST) += test/ test/dm/
 libs-$(CONFIG_UT_ENV) += test/env/
 libs-$(CONFIG_UT_OPTEE) += test/optee/

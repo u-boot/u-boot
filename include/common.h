@@ -122,10 +122,6 @@ int get_serial_clock(void);
 
 /* Put only stuff here that the assembler can digest */
 
-#ifdef CONFIG_POST
-#define CONFIG_HAS_POST
-#endif
-
 #define ROUND(a,b)		(((a) + (b) - 1) & ~((b) - 1))
 
 /*
