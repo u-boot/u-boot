@@ -133,6 +133,7 @@ extern const struct efi_hii_config_routing_protocol efi_hii_config_routing;
 extern const struct efi_hii_config_access_protocol efi_hii_config_access;
 extern const struct efi_hii_database_protocol efi_hii_database;
 extern const struct efi_hii_string_protocol efi_hii_string;
+extern const struct efi_rng_protocol efi_rng_protocol;
 
 uint16_t *efi_dp_str(struct efi_device_path *dp);
 
@@ -177,6 +178,9 @@ extern const efi_guid_t efi_guid_hii_config_routing_protocol;
 extern const efi_guid_t efi_guid_hii_config_access_protocol;
 extern const efi_guid_t efi_guid_hii_database_protocol;
 extern const efi_guid_t efi_guid_hii_string_protocol;
+
+/* GUID of RNG protocol */
+extern const efi_guid_t efi_guid_rng_protocol;
 
 extern unsigned int __efi_runtime_start, __efi_runtime_stop;
 extern unsigned int __efi_runtime_rel_start, __efi_runtime_rel_stop;

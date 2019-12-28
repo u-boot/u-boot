@@ -11,6 +11,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+const efi_guid_t efi_guid_rng_protocol = EFI_RNG_PROTOCOL_GUID;
+
 __weak efi_status_t platform_get_rng_device(struct udevice **dev)
 {
 	int ret;
