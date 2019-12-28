@@ -165,11 +165,11 @@ void local_bus_init (void)
 
 	/* Init UPMA for FPGA access */
 	out_be32 (&lbc->mamr, 0x44440); /* Use a customer-supplied value */
-	upmconfig (UPMA, (uint *)UPMTableA, sizeof(UPMTableA)/sizeof(int));
+	upmconfig(UPMA, (uint *)UPMTableA, sizeof(UPMTableA) / sizeof(int));
 
 	/* Init UPMB for Lime controller access */
 	out_be32 (&lbc->mbmr, 0x444440); /* Use a customer-supplied value */
-	upmconfig (UPMB, (uint *)UPMTableB, sizeof(UPMTableB)/sizeof(int));
+	upmconfig(UPMB, (uint *)UPMTableB, sizeof(UPMTableB) / sizeof(int));
 }
 
 #ifdef CONFIG_BOARD_EARLY_INIT_R
