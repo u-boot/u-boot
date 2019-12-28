@@ -59,16 +59,6 @@ void	hang		(void) __attribute__ ((noreturn));
 
 #include <display_options.h>
 
-/**
- * arch_fixup_fdt() - Write arch-specific information to fdt
- *
- * Defined in arch/$(ARCH)/lib/bootm-fdt.c
- *
- * @blob:	FDT blob to write to
- * @return 0 if ok, or -ve FDT_ERR_... on failure
- */
-int arch_fixup_fdt(void *blob);
-
 /* common/cmd_source.c */
 int	source (ulong addr, const char *fit_uname);
 
@@ -90,8 +80,6 @@ void	upmconfig     (unsigned int, unsigned int *, unsigned int);
 ulong	get_tbclk     (void);
 void	reset_misc    (void);
 void	reset_cpu     (ulong addr);
-void ft_cpu_setup(void *blob, bd_t *bd);
-void ft_pci_setup(void *blob, bd_t *bd);
 
 /* $(CPU)/speed.c */
 int	get_clocks (void);
