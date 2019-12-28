@@ -15,10 +15,6 @@
 
 #ifndef __ASSEMBLY__		/* put C only stuff in this section */
 
-typedef volatile unsigned long	vu_long;
-typedef volatile unsigned short vu_short;
-typedef volatile unsigned char	vu_char;
-
 #include <config.h>
 #include <errno.h>
 #include <time.h>
