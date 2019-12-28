@@ -109,7 +109,7 @@ static int do_load_serial(cmd_tbl_t *cmdtp, int flag, int argc,
 		rcode = 1;
 	} else {
 		printf("## Start Addr      = 0x%08lX\n", addr);
-		load_addr = addr;
+		image_load_addr = addr;
 	}
 
 #ifdef	CONFIG_SYS_LOADS_BAUD_CHANGE
@@ -485,12 +485,12 @@ static int do_load_serial_bin(cmd_tbl_t *cmdtp, int flag, int argc,
 		addr = load_serial_bin(offset);
 
 		if (addr == ~0) {
-			load_addr = 0;
+			image_load_addr = 0;
 			printf("## Binary (kermit) download aborted\n");
 			rcode = 1;
 		} else {
 			printf("## Start Addr      = 0x%08lX\n", addr);
-			load_addr = addr;
+			image_load_addr = addr;
 		}
 	}
 	if (load_baudrate != current_baudrate) {

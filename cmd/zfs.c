@@ -112,7 +112,7 @@ static int do_zfs_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	zfs_close(&zfile);
 
 	/* Loading ok, update default load address */
-	load_addr = addr;
+	image_load_addr = addr;
 
 	printf("%llu bytes read\n", zfile.size);
 	env_set_hex("filesize", zfile.size);

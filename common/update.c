@@ -45,7 +45,6 @@
 
 extern ulong tftp_timeout_ms;
 extern int tftp_timeout_count_max;
-extern ulong load_addr;
 #ifdef CONFIG_MTD_NOR_FLASH
 extern flash_info_t flash_info[];
 static uchar *saved_prot_info;
@@ -72,7 +71,7 @@ static int update_load(char *filename, ulong msec_max, int cnt_max, ulong addr)
 	env_set("netretry", "no");
 
 	/* download the update file */
-	load_addr = addr;
+	image_load_addr = addr;
 	copy_filename(net_boot_file_name, filename, sizeof(net_boot_file_name));
 	size = net_loop(TFTPGET);
 

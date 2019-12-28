@@ -88,14 +88,15 @@ static inline int store_block(uchar *src, unsigned offset, unsigned len)
 
 	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++) {
 		/* start address in flash? */
-		if (load_addr + offset >= flash_info[i].start[0]) {
+		if (image_load_addr + offset >= flash_info[i].start[0]) {
 			rc = 1;
 			break;
 		}
 	}
 
 	if (rc) { /* Flash is destination for this packet */
-		rc = flash_write((uchar *)src, (ulong)(load_addr+offset), len);
+		rc = flash_write((uchar *)src, (ulong)image_load_addr + offset,
+				 len);
 		if (rc) {
 			flash_perror(rc);
 			return -1;
@@ -103,7 +104,7 @@ static inline int store_block(uchar *src, unsigned offset, unsigned len)
 	} else
 #endif /* CONFIG_SYS_DIRECT_FLASH_NFS */
 	{
-		void *ptr = map_sysmem(load_addr + offset, len);
+		void *ptr = map_sysmem(image_load_addr + offset, len);
 
 		memcpy(ptr, src, len);
 		unmap_sysmem(ptr);
@@ -912,7 +913,7 @@ void nfs_start(void)
 		       net_boot_file_expected_size_in_blocks << 9);
 		print_size(net_boot_file_expected_size_in_blocks << 9, "");
 	}
-	printf("\nLoad address: 0x%lx\nLoading: *\b", load_addr);
+	printf("\nLoad address: 0x%lx\nLoading: *\b", image_load_addr);
 
 	net_set_timeout_handler(nfs_timeout, nfs_timeout_handler);
 	net_set_udp_handler(nfs_handler);

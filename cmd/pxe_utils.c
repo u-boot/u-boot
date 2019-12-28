@@ -1310,9 +1310,9 @@ void handle_pxe_menu(cmd_tbl_t *cmdtp, struct pxe_menu *cfg)
 #ifdef CONFIG_CMD_BMP
 	/* display BMP if available */
 	if (cfg->bmp) {
-		if (get_relfile(cmdtp, cfg->bmp, load_addr)) {
+		if (get_relfile(cmdtp, cfg->bmp, image_load_addr)) {
 			run_command("cls", 0);
-			bmp_display(load_addr,
+			bmp_display(image_load_addr,
 				    BMP_ALIGN_CENTER, BMP_ALIGN_CENTER);
 		} else {
 			printf("Skipping background bmp %s for failure\n",
