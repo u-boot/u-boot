@@ -117,6 +117,13 @@ extern int jedec_flash_match(flash_info_t *info, ulong base);
 #define CFI_CMDSET_AMD_LEGACY		0xFFF0
 #endif
 
+/**
+ * flash_perror() - Print a flash error
+ *
+ * @err: Error number of message to print (ERR_... as below)
+ */
+void flash_perror(int err);
+
 /*-----------------------------------------------------------------------
  * return codes from flash_write():
  */
