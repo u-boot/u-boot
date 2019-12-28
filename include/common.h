@@ -89,7 +89,6 @@ phys_size_t get_effective_memsize(void);
 
 /* $(BOARD)/$(BOARD).c */
 void	reset_phy     (void);
-void	fdc_hw_init   (void);
 
 #if !defined(CONFIG_ENV_EEPROM_IS_ON_I2C) && defined(CONFIG_SYS_I2C_EEPROM_ADDR)
 # define CONFIG_SYS_DEF_EEPROM_ADDR CONFIG_SYS_I2C_EEPROM_ADDR
