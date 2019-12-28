@@ -5,6 +5,7 @@
  * Sharma Bhupesh <bhupesh.sharma@freescale.com>
  */
 #include <common.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <malloc.h>
 #include <errno.h>

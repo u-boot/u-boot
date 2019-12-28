@@ -7,6 +7,7 @@
  *
  */
 #include <common.h>
+#include <cpu_func.h>
 #include <spl.h>
 #include <dm.h>
 #include <miiphy.h>

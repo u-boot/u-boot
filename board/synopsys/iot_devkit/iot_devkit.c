@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <malloc.h>
 #include <dwmmc.h>
 #include <linux/libfdt.h>

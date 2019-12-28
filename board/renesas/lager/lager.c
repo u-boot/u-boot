@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <env.h>
 #include <env_internal.h>
 #include <malloc.h>

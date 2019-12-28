@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include "cpld.h"

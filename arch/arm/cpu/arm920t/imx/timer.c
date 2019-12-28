@@ -13,6 +13,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <time.h>
 #if defined (CONFIG_IMX)
 
@@ -79,7 +80,7 @@ ulong get_tbclk(void)
 /*
  * Reset the cpu by setting up the watchdog timer and let him time out
  */
-void reset_cpu (ulong ignored)
+void reset_cpu(ulong ignored)
 {
 	/* Disable watchdog and set Time-Out field to 0 */
 	WCR = 0x00000000;

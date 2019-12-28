@@ -83,5 +83,7 @@ enum {
  * @param flags		Flags to control what is done
  */
 int cleanup_before_linux_select(int flags);
+
+void reset_cpu(ulong addr);
 ;
 #endif

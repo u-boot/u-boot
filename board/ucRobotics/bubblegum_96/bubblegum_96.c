@@ -5,6 +5,7 @@
  * Copyright (C) 2018 Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
  */
 
+#include <cpu_func.h>
 #include <linux/arm-smccc.h>
 #include <linux/psci.h>
 #include <common.h>
