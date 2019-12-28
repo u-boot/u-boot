@@ -1,0 +1,7 @@
+config DM_RNG
+	bool "Driver support for Random Number Generator devices"
+	depends on DM
+	help
+	  Enable driver model for random number generator(rng) devices.
+	  This interface is used to initialise the rng device and to
+	  read the random seed from the device.
