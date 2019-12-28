@@ -31,7 +31,7 @@ U_BOOT_CMD(
 	"      and determine its size."
 );
 
-int do_fat_fsload (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_fat_fsload(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	return do_load(cmdtp, flag, argc, argv, FS_TYPE_FAT);
 }

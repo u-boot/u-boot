@@ -14,6 +14,28 @@
 #define FS_TYPE_UBIFS	4
 #define FS_TYPE_BTRFS	5
 
+/**
+ * do_fat_fsload - Run the fatload command
+ *
+ * @cmdtp: Command information for fatload
+ * @flag: Command flags (CMD_FLAG_...)
+ * @argc: Number of arguments
+ * @argv: List of arguments
+ * @return result (see enum command_ret_t)
+ */
+int do_fat_fsload(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[]);
+
+/**
+ * do_ext2load - Run the ext2load command
+ *
+ * @cmdtp: Command information for ext2load
+ * @flag: Command flags (CMD_FLAG_...)
+ * @argc: Number of arguments
+ * @argv: List of arguments
+ * @return result (see enum command_ret_t)
+ */
+int do_ext2load(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[]);
+
 /*
  * Tell the fs layer which block device an partition to use for future
  * commands. This also internally identifies the filesystem that is present

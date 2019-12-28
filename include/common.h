@@ -80,12 +80,6 @@ extern ulong load_addr;		/* Default Load Address */
 extern ulong save_addr;		/* Default Save Address */
 extern ulong save_size;		/* Default Save Size */
 
-/* common/cmd_fat.c */
-int do_fat_fsload(cmd_tbl_t *, int, int, char * const []);
-
-/* common/cmd_ext2.c */
-int do_ext2load(cmd_tbl_t *, int, int, char * const []);
-
 /* common/exports.c */
 void	jumptable_init(void);
 
