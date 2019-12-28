@@ -80,9 +80,6 @@ extern ulong load_addr;		/* Default Load Address */
 extern ulong save_addr;		/* Default Save Address */
 extern ulong save_size;		/* Default Save Size */
 
-/* common/kallsysm.c */
-const char *symbol_lookup(unsigned long addr, unsigned long *caddr);
-
 /* common/memsize.c */
 long	get_ram_size  (long *, long);
 phys_size_t get_effective_memsize(void);
