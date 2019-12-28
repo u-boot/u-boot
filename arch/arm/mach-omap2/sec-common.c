@@ -14,6 +14,7 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <hang.h>
 #include <init.h>
 #include <stdarg.h>
 

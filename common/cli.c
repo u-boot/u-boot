@@ -15,6 +15,7 @@
 #include <console.h>
 #include <env.h>
 #include <fdtdec.h>
+#include <hang.h>
 #include <malloc.h>
 
 DECLARE_GLOBAL_DATA_PTR;

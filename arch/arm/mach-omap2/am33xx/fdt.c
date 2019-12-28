@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <hang.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <malloc.h>

@@ -8,6 +8,7 @@
 #include <command.h>
 #include <cache.h>
 #include <dm.h>
+#include <hang.h>
 #include <asm/io.h>
 #include <dm/ofnode.h>
 

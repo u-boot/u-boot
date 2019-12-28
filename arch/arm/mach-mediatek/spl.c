@@ -6,6 +6,7 @@
 
 #include <clk.h>
 #include <common.h>
+#include <hang.h>
 #include <spl.h>
 
 #include "init.h"

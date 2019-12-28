@@ -10,6 +10,7 @@
  */
 
 #include <common.h>
+#include <hang.h>
 #include <malloc.h>
 #include <sort.h>
 #include <spl.h>

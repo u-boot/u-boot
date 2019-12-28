@@ -52,11 +52,6 @@
  */
 #include <init.h>
 
-/*
- * Function Prototypes
- */
-void	hang		(void) __attribute__ ((noreturn));
-
 #include <display_options.h>
 
 /* lib/uuid.c */

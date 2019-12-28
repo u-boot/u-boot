@@ -10,6 +10,7 @@
 #include <command.h>
 #include <dm.h>
 #include <fdt_support.h>
+#include <hang.h>
 #include <dm/root.h>
 #include <image.h>
 #include <asm/byteorder.h>

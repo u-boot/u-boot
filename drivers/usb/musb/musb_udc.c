@@ -38,6 +38,7 @@
  */
 
 #include <common.h>
+#include <hang.h>
 #include <serial.h>
 #include <usbdevice.h>
 #include <usb/udc.h>

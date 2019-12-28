@@ -13,6 +13,7 @@
 #include <api.h>
 #include <cpu_func.h>
 #include <exports.h>
+#include <hang.h>
 #include <image.h>
 #include <irq_func.h>
 #include <net.h>

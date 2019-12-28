@@ -11,6 +11,7 @@
 #include <dm.h>
 #include <dt-structs.h>
 #include <errno.h>
+#include <hang.h>
 #include <ram.h>
 #include <regmap.h>
 #include <syscon.h>

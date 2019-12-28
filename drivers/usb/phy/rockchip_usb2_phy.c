@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <hang.h>
 #include <asm/io.h>
 
 #include "../gadget/dwc2_udc_otg_priv.h"

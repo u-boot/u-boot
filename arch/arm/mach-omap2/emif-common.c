@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <hang.h>
 #include <init.h>
 #include <net.h>
 #include <asm/emif.h>

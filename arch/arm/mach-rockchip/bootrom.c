@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <hang.h>
 #include <asm/arch-rockchip/bootrom.h>
 #include <asm/arch-rockchip/boot_mode.h>
 #include <asm/io.h>

@@ -11,6 +11,7 @@
 #include <cpu_func.h>
 #include <env.h>
 #include <env_internal.h>
+#include <hang.h>
 #include <malloc.h>
 #include <netdev.h>
 #include <dm.h>

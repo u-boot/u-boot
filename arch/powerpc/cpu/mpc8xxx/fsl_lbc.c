@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <hang.h>
 #include <asm/fsl_lbc.h>
 
 #ifdef CONFIG_MPC83xx

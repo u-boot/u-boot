@@ -13,6 +13,7 @@
 #include <common.h>
 #include <dm.h>
 #include <efi_loader.h>
+#include <hang.h>
 #include <init.h>
 #include <irq_func.h>
 #include <asm/control_regs.h>
