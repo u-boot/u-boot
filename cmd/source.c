@@ -41,8 +41,7 @@ static const char *get_default_image(const void *fit)
 }
 #endif
 
-int
-source (ulong addr, const char *fit_uname)
+int image_source_script(ulong addr, const char *fit_uname)
 {
 	ulong		len;
 #if defined(CONFIG_LEGACY_IMAGE_FORMAT)
@@ -183,7 +182,7 @@ static int do_source(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	printf ("## Executing script at %08lx\n", addr);
-	rcode = source (addr, fit_uname);
+	rcode = image_source_script(addr, fit_uname);
 	return rcode;
 }
 
