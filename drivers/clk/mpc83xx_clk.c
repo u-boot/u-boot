@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <clk-uclass.h>
+#include <clock_legacy.h>
 #include <dm.h>
 #include <vsprintf.h>
 #include <dm/lists.h>

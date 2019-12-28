@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <bloblist.h>
+#include <clock_legacy.h>
 #include <console.h>
 #include <cpu.h>
 #include <cpu_func.h>

@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
 #include <div64.h>
 #include <asm/io.h>
 #include <errno.h>

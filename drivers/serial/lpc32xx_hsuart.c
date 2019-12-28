@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
 #include <dm.h>
 #include <serial.h>
 #include <dm/platform_data/lpc32xx_hsuart.h>

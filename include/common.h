@@ -78,11 +78,6 @@ ulong	get_tbclk     (void);
 void	reset_misc    (void);
 void	reset_cpu     (ulong addr);
 
-/* $(CPU)/speed.c */
-int	get_clocks (void);
-ulong	get_bus_freq  (ulong);
-int get_serial_clock(void);
-
 /* lib/uuid.c */
 #include <uuid.h>
 

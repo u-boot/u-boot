@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
 #include <fdt_support.h>
 #include <init.h>
 #include <asm/arch/immap_ls102xa.h>

@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
 #include <command.h>
 #include <asm/io.h>
 #include <fsl_diu_fb.h>

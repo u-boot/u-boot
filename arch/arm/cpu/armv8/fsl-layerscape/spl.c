@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
 #include <cpu_func.h>
 #include <env.h>
 #include <spl.h>

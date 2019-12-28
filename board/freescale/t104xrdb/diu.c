@@ -4,6 +4,7 @@
  * Author: Priyanka Jain <Priyanka.Jain@freescale.com>
  */
 
+#include <clock_legacy.h>
 #include <asm/io.h>
 #include <common.h>
 #include <command.h>
