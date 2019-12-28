@@ -12,6 +12,7 @@
 #include <common.h>
 #include <api.h>
 #include <cpu_func.h>
+#include <exports.h>
 #include <irq_func.h>
 #include <u-boot/crc.h>
 /* TODO: can we just include all these headers whether needed or not? */
