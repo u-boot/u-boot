@@ -9,3 +9,4 @@ obj-$(CONFIG_VIRTIO_PCI) += virtio_pci_legacy.o virtio_pci_modern.o
 obj-$(CONFIG_VIRTIO_SANDBOX) += virtio_sandbox.o
 obj-$(CONFIG_VIRTIO_NET) += virtio_net.o
 obj-$(CONFIG_VIRTIO_BLK) += virtio_blk.o
+obj-$(CONFIG_VIRTIO_RNG) += virtio_rng.o

@@ -59,4 +59,10 @@ config VIRTIO_BLK
 	  This is the virtual block driver for virtio. It can be used with
 	  QEMU based targets.
 
+config VIRTIO_RNG
+       bool "virtio rng driver"
+       depends on VIRTIO
+       help
+         This is the virtual random number generator driver. It can be used
+	 with Qemu based targets.
 endmenu
