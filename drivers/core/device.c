@@ -431,10 +431,8 @@ int device_probe(struct udevice *dev)
 
 	if (drv->probe) {
 		ret = drv->probe(dev);
-		if (ret) {
-			dev->flags &= ~DM_FLAG_ACTIVATED;
+		if (ret)
 			goto fail;
-		}
 	}
 
 	ret = uclass_post_probe_device(dev);
