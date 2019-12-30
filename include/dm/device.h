@@ -65,6 +65,9 @@ struct driver_info;
 /* DM does not enable/disable the power domains corresponding to this device */
 #define DM_FLAG_DEFAULT_PD_CTRL_OFF	(1 << 11)
 
+/* Driver platdata has been read. Cleared when the device is removed */
+#define DM_FLAG_PLATDATA_VALID		(1 << 12)
+
 /*
  * One or multiple of these flags are passed to device_remove() so that
  * a selective device removal as specified by the remove-stage and the

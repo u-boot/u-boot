@@ -320,7 +320,7 @@ int device_ofdata_to_platdata(struct udevice *dev)
 	if (!dev)
 		return -EINVAL;
 
-	if (dev->flags & DM_FLAG_ACTIVATED)
+	if (dev->flags & DM_FLAG_PLATDATA_VALID)
 		return 0;
 
 	drv = dev->driver;
@@ -367,6 +367,8 @@ int device_ofdata_to_platdata(struct udevice *dev)
 		if (ret)
 			goto fail;
 	}
+
+	dev->flags |= DM_FLAG_PLATDATA_VALID;
 
 	return 0;
 fail:
