@@ -49,6 +49,7 @@ enum log_category_t {
 	LOGC_ALLOC,	/* Memory allocation */
 	LOGC_SANDBOX,	/* Related to the sandbox board */
 	LOGC_BLOBLIST,	/* Bloblist */
+	LOGC_DEVRES,	/* Device resources (devres_... functions) */
 
 	LOGC_COUNT,	/* Number of log categories */
 	LOGC_END,	/* Sentinel value for a list of log categories */

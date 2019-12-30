@@ -7,6 +7,8 @@
  * Copyright (c) 2006  Tejun Heo <teheo@suse.de>
  */
 
+#define LOG_CATEGORY LOGC_DEVRES
+
 #include <common.h>
 #include <linux/compat.h>
 #include <linux/kernel.h>
@@ -46,8 +48,8 @@ static void set_node_dbginfo(struct devres *dr, const char *name, size_t size)
 static void devres_log(struct udevice *dev, struct devres *dr,
 		       const char *op)
 {
-	printf("%s: DEVRES %3s %p %s (%lu bytes)\n",
-	       dev->name, op, dr, dr->name, (unsigned long)dr->size);
+	log_debug("%s: DEVRES %3s %p %s (%lu bytes)\n", dev->name, op, dr,
+		  dr->name, (unsigned long)dr->size);
 }
 #else /* CONFIG_DEBUG_DEVRES */
 #define set_node_dbginfo(dr, n, s)	do {} while (0)
