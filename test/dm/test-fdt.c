@@ -153,6 +153,53 @@ UCLASS_DRIVER(testprobe) = {
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 };
 
+struct dm_testdevres_pdata {
+	void *ptr;
+};
+
+struct dm_testdevres_priv {
+	void *ptr;
+};
+
+static int testdevres_drv_bind(struct udevice *dev)
+{
+	struct dm_testdevres_pdata *pdata = dev_get_platdata(dev);
+
+	pdata->ptr = devm_kmalloc(dev, TEST_DEVRES_SIZE, 0);
+
+	return 0;
+}
+
+static int testdevres_drv_probe(struct udevice *dev)
+{
+	struct dm_testdevres_priv *priv = dev_get_priv(dev);
+
+	priv->ptr = devm_kmalloc(dev, TEST_DEVRES_SIZE2, 0);
+
+	return 0;
+}
+
+static const struct udevice_id testdevres_ids[] = {
+	{ .compatible = "denx,u-boot-devres-test" },
+	{ }
+};
+
+U_BOOT_DRIVER(testdevres_drv) = {
+	.name	= "testdevres_drv",
+	.of_match	= testdevres_ids,
+	.id	= UCLASS_TEST_DEVRES,
+	.bind	= testdevres_drv_bind,
+	.probe	= testdevres_drv_probe,
+	.platdata_auto_alloc_size	= sizeof(struct dm_testdevres_pdata),
+	.priv_auto_alloc_size	= sizeof(struct dm_testdevres_priv),
+};
+
+UCLASS_DRIVER(testdevres) = {
+	.name		= "testdevres",
+	.id		= UCLASS_TEST_DEVRES,
+	.flags		= DM_UC_FLAG_SEQ_ALIAS,
+};
+
 int dm_check_devices(struct unit_test_state *uts, int num_devices)
 {
 	struct udevice *dev;

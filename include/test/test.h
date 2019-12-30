@@ -46,5 +46,14 @@ struct unit_test {
 		.func = _name,						\
 	}
 
+/* Sizes for devres tests */
+enum {
+	TEST_DEVRES_SIZE	= 100,
+	TEST_DEVRES_COUNT	= 10,
+	TEST_DEVRES_TOTAL	= TEST_DEVRES_SIZE * TEST_DEVRES_COUNT,
+
+	/* A different size */
+	TEST_DEVRES_SIZE2	= 15,
+};
 
 #endif /* __TEST_TEST_H */
