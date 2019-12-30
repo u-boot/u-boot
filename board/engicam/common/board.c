@@ -35,35 +35,76 @@ static void mmc_late_init(void)
 }
 #endif
 
-static void setenv_fdt_file(void)
+enum engicam_boards {
+	IMX6Q_ICORE,
+	IMX6DL_ICORE,
+	IMX6Q_ICORE_MIPI,
+	IMX6DL_ICORE_MIPI,
+	IMX6Q_ICORE_RQS,
+	IMX6DL_ICORE_RQS,
+	IMX6UL_GEAM,
+	IMX6UL_ISIOT_EMMC,
+	IMX6UL_ISIOT_NAND,
+	ENGICAM_BOARDS,
+};
+
+static const char * const board_fdt_file[ENGICAM_BOARDS] = {
+	[IMX6Q_ICORE] = "imx6q-icore.dtb",
+	[IMX6DL_ICORE] = "imx6dl-icore.dtb",
+	[IMX6Q_ICORE_MIPI] = "imx6q-icore-mipi.dtb",
+	[IMX6DL_ICORE_MIPI] = "imx6dl-icore-mipi.dtb",
+	[IMX6Q_ICORE_RQS] = "imx6q-icore-rqs.dtb",
+	[IMX6DL_ICORE_RQS] = "imx6dl-icore-rqs.dtb",
+	[IMX6UL_GEAM] = "imx6ul-geam.dtb",
+	[IMX6UL_ISIOT_EMMC] = "imx6ul-isiot-emmc.dtb",
+	[IMX6UL_ISIOT_NAND] = "imx6ul-isiot-nand.dtb",
+};
+
+static int setenv_fdt_file(int board_detected)
+{
+	if (board_detected < 0 || board_detected >= ENGICAM_BOARDS)
+		return -EINVAL;
+
+	if (!board_fdt_file[board_detected])
+		return -ENODEV;
+
+	env_set("fdt_file", board_fdt_file[board_detected]);
+	return 0;
+}
+
+static enum engicam_boards engicam_board_detect(void)
 {
 	const char *cmp_dtb = CONFIG_DEFAULT_DEVICE_TREE;
 
 	if (!strcmp(cmp_dtb, "imx6q-icore")) {
 		if (is_mx6dq())
-			env_set("fdt_file", "imx6q-icore.dtb");
+			return IMX6Q_ICORE;
 		else if (is_mx6dl() || is_mx6solo())
-			env_set("fdt_file", "imx6dl-icore.dtb");
+			return IMX6DL_ICORE;
 	} else if (!strcmp(cmp_dtb, "imx6q-icore-mipi")) {
 		if (is_mx6dq())
-			env_set("fdt_file", "imx6q-icore-mipi.dtb");
+			return IMX6Q_ICORE_MIPI;
 		else if (is_mx6dl() || is_mx6solo())
-			env_set("fdt_file", "imx6dl-icore-mipi.dtb");
+			return IMX6DL_ICORE_MIPI;
 	} else if (!strcmp(cmp_dtb, "imx6q-icore-rqs")) {
 		if (is_mx6dq())
-			env_set("fdt_file", "imx6q-icore-rqs.dtb");
+			return IMX6Q_ICORE_RQS;
 		else if (is_mx6dl() || is_mx6solo())
-			env_set("fdt_file", "imx6dl-icore-rqs.dtb");
+			return IMX6DL_ICORE_RQS;
 	} else if (!strcmp(cmp_dtb, "imx6ul-geam"))
-		env_set("fdt_file", "imx6ul-geam.dtb");
+			return IMX6UL_GEAM;
 	else if (!strcmp(cmp_dtb, "imx6ul-isiot-emmc"))
-		env_set("fdt_file", "imx6ul-isiot-emmc.dtb");
+			return IMX6UL_ISIOT_EMMC;
 	else if (!strcmp(cmp_dtb, "imx6ul-isiot-nand"))
-		env_set("fdt_file", "imx6ul-isiot-nand.dtb");
+			return IMX6UL_ISIOT_NAND;
+
+	return -EINVAL;
 }
 
 int board_late_init(void)
 {
+	enum engicam_boards board_detected = IMX6Q_ICORE;
+
 	switch ((imx6_src_get_boot_mode() & IMX6_BMODE_MASK) >>
 			IMX6_BMODE_SHIFT) {
 	case IMX6_BMODE_SD:
@@ -88,7 +129,11 @@ int board_late_init(void)
 	else
 		env_set("console", "ttymxc3");
 
-	setenv_fdt_file();
+	board_detected = engicam_board_detect();
+	if (board_detected < 0)
+		hang();
+
+	setenv_fdt_file(board_detected);
 
 #ifdef CONFIG_HW_WATCHDOG
 	hw_watchdog_init();
