@@ -15,6 +15,17 @@
 typedef void (*dr_release_t)(struct udevice *dev, void *res);
 typedef int (*dr_match_t)(struct udevice *dev, void *res, void *match_data);
 
+/**
+ * struct devres_stats - Information about devres allocations for a device
+ *
+ * @allocs: Number of allocations
+ * @total_size: Total size of allocations in bytes
+ */
+struct devres_stats {
+	int allocs;
+	int total_size;
+};
+
 #ifdef CONFIG_DEVRES
 
 #ifdef CONFIG_DEBUG_DEVRES
@@ -189,6 +200,9 @@ static inline void *devm_kcalloc(struct udevice *dev,
  */
 void devm_kfree(struct udevice *dev, void *ptr);
 
+/* Get basic stats on allocations */
+void devres_get_stats(const struct udevice *dev, struct devres_stats *stats);
+
 #else /* ! CONFIG_DEVRES */
 
 static inline void *devres_alloc(dr_release_t release, size_t size, gfp_t gfp)
@@ -265,5 +279,11 @@ static inline void devm_kfree(struct udevice *dev, void *ptr)
 {
 	kfree(ptr);
 }
+
+static inline void devres_get_stats(const struct udevice *dev,
+				    struct devres_stats *stats)
+{
+}
+
 #endif /* DEVRES */
 #endif /* _DM_DEVRES_H */

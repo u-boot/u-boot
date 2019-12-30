@@ -223,6 +223,19 @@ void dm_dump_devres(void)
 	if (root)
 		dump_resources(root, 0);
 }
+
+void devres_get_stats(const struct udevice *dev, struct devres_stats *stats)
+{
+	struct devres *dr;
+
+	stats->allocs = 0;
+	stats->total_size = 0;
+	list_for_each_entry(dr, &dev->devres_head, entry) {
+		stats->allocs++;
+		stats->total_size += dr->size;
+	}
+}
+
 #endif
 
 /*

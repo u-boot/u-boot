@@ -18,6 +18,7 @@ obj-$(CONFIG_BLK) += blk.o
 obj-$(CONFIG_BOARD) += board.o
 obj-$(CONFIG_DM_BOOTCOUNT) += bootcount.o
 obj-$(CONFIG_CLK) += clk.o clk_ccf.o
+obj-$(CONFIG_DEVRES) += devres.o
 obj-$(CONFIG_VIDEO_MIPI_DSI) += dsi_host.o
 obj-$(CONFIG_DM_ETH) += eth.o
 obj-$(CONFIG_FIRMWARE) += firmware.o
