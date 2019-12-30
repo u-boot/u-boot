@@ -375,6 +375,13 @@ int device_probe(struct udevice *dev)
 			return 0;
 	}
 
+	if (drv->ofdata_to_platdata &&
+	    (CONFIG_IS_ENABLED(OF_PLATDATA) || dev_has_of_node(dev))) {
+		ret = drv->ofdata_to_platdata(dev);
+		if (ret)
+			goto fail;
+	}
+
 	seq = uclass_resolve_seq(dev);
 	if (seq < 0) {
 		ret = seq;
@@ -407,13 +414,6 @@ int device_probe(struct udevice *dev)
 
 	if (dev->parent && dev->parent->driver->child_pre_probe) {
 		ret = dev->parent->driver->child_pre_probe(dev);
-		if (ret)
-			goto fail;
-	}
-
-	if (drv->ofdata_to_platdata &&
-	    (CONFIG_IS_ENABLED(OF_PLATDATA) || dev_has_of_node(dev))) {
-		ret = drv->ofdata_to_platdata(dev);
 		if (ret)
 			goto fail;
 	}
