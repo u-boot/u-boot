@@ -17,12 +17,21 @@
 #include <dm/root.h>
 #include <dm/util.h>
 
+/** enum devres_phase - Shows where resource was allocated
+ *
+ * DEVRES_PHASE_BIND: In the bind() method
+ * DEVRES_PHASE_PROBE: In the probe() method
+ */
+enum devres_phase {
+	DEVRES_PHASE_BIND,
+	DEVRES_PHASE_PROBE,
+};
+
 /**
  * struct devres - Bookkeeping info for managed device resource
  * @entry: List to associate this structure with a device
  * @release: Callback invoked when this resource is released
- * @probe: Flag to show when this resource was allocated
-	   (true = probe, false = bind)
+ * @probe: Show where this resource was allocated
  * @name: Name of release function
  * @size: Size of resource data
  * @data: Resource data
@@ -30,7 +39,7 @@
 struct devres {
 	struct list_head		entry;
 	dr_release_t			release;
-	bool				probe;
+	enum devres_phase		phase;
 #ifdef CONFIG_DEBUG_DEVRES
 	const char			*name;
 	size_t				size;
@@ -93,7 +102,8 @@ void devres_add(struct udevice *dev, void *res)
 
 	devres_log(dev, dr, "ADD");
 	assert_noisy(list_empty(&dr->entry));
-	dr->probe = dev->flags & DM_FLAG_BOUND ? true : false;
+	dr->phase = dev->flags & DM_FLAG_BOUND ? DEVRES_PHASE_PROBE :
+		DEVRES_PHASE_BIND;
 	list_add_tail(&dr->entry, &dev->devres_head);
 }
 
@@ -179,7 +189,7 @@ static void release_nodes(struct udevice *dev, struct list_head *head,
 	struct devres *dr, *tmp;
 
 	list_for_each_entry_safe_reverse(dr, tmp, head, entry)  {
-		if (probe_only && !dr->probe)
+		if (probe_only && dr->phase != DEVRES_PHASE_PROBE)
 			break;
 		devres_log(dev, dr, "REL");
 		dr->release(dev, dr->data);
@@ -209,7 +219,7 @@ static void dump_resources(struct udevice *dev, int depth)
 	list_for_each_entry(dr, &dev->devres_head, entry)
 		printf("    %p (%lu byte) %s  %s\n", dr,
 		       (unsigned long)dr->size, dr->name,
-		       dr->probe ? "PROBE" : "BIND");
+		       dr->phase == DEVRES_PHASE_PROBE ? "PROBE" : "BIND");
 
 	list_for_each_entry(child, &dev->child_head, sibling_node)
 		dump_resources(child, depth + 1);
