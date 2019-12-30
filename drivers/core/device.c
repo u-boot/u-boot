@@ -346,7 +346,7 @@ int device_probe(struct udevice *dev)
 		}
 	}
 
-	/* Ensure all parents are probed */
+	/* Allocate parent data for this child */
 	if (dev->parent) {
 		size = dev->parent->driver->per_child_auto_alloc_size;
 		if (!size) {
@@ -360,7 +360,17 @@ int device_probe(struct udevice *dev)
 				goto fail;
 			}
 		}
+	}
 
+	if (drv->ofdata_to_platdata &&
+	    (CONFIG_IS_ENABLED(OF_PLATDATA) || dev_has_of_node(dev))) {
+		ret = drv->ofdata_to_platdata(dev);
+		if (ret)
+			goto fail;
+	}
+
+	/* Ensure all parents are probed */
+	if (dev->parent) {
 		ret = device_probe(dev->parent);
 		if (ret)
 			goto fail;
@@ -373,13 +383,6 @@ int device_probe(struct udevice *dev)
 		 */
 		if (dev->flags & DM_FLAG_ACTIVATED)
 			return 0;
-	}
-
-	if (drv->ofdata_to_platdata &&
-	    (CONFIG_IS_ENABLED(OF_PLATDATA) || dev_has_of_node(dev))) {
-		ret = drv->ofdata_to_platdata(dev);
-		if (ret)
-			goto fail;
 	}
 
 	seq = uclass_resolve_seq(dev);
