@@ -106,6 +106,10 @@ int wait_ddrphy_training_complete(void)
 void ddrphy_init_set_dfi_clk(unsigned int drate)
 {
 	switch (drate) {
+	case 4000:
+		dram_pll_init(MHZ(1000));
+		dram_disable_bypass();
+		break;
 	case 3200:
 		dram_pll_init(MHZ(800));
 		dram_disable_bypass();
