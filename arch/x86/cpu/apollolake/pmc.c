@@ -119,8 +119,16 @@ int apl_pmc_ofdata_to_uc_platdata(struct udevice *dev)
 	ret = dev_read_u32_array(dev, "early-regs", base, ARRAY_SIZE(base));
 	if (ret)
 		return log_msg_ret("Missing/short early-regs", ret);
-	upriv->pmc_bar0 = (void *)base[0];
-	upriv->pmc_bar2 = (void *)base[2];
+	if (spl_phase() == PHASE_TPL) {
+		upriv->pmc_bar0 = (void *)base[0];
+		upriv->pmc_bar2 = (void *)base[2];
+
+		/* Since PCI is not enabled, we must get the BDF manually */
+		plat->bdf = pci_get_devfn(dev);
+		if (plat->bdf < 0)
+			return log_msg_ret("Cannot get PMC PCI address",
+					   plat->bdf);
+	}
 	upriv->acpi_base = base[4];
 
 	/* Since PCI is not enabled, we must get the BDF manually */
@@ -187,8 +195,14 @@ static int enable_pmcbar(struct udevice *dev)
 
 static int apl_pmc_probe(struct udevice *dev)
 {
-	if (spl_phase() == PHASE_TPL)
+	if (spl_phase() == PHASE_TPL) {
 		return enable_pmcbar(dev);
+	} else {
+		struct acpi_pmc_upriv *upriv = dev_get_uclass_priv(dev);
+
+		upriv->pmc_bar0 = (void *)dm_pci_read_bar32(dev, 0);
+		upriv->pmc_bar2 = (void *)dm_pci_read_bar32(dev, 2);
+	}
 
 	return 0;
 }
