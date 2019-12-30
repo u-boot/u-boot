@@ -80,7 +80,7 @@ void devres_free(void *res)
 	if (res) {
 		struct devres *dr = container_of(res, struct devres, data);
 
-		BUG_ON(!list_empty(&dr->entry));
+		assert_noisy(list_empty(&dr->entry));
 		kfree(dr);
 	}
 }
@@ -90,7 +90,7 @@ void devres_add(struct udevice *dev, void *res)
 	struct devres *dr = container_of(res, struct devres, data);
 
 	devres_log(dev, dr, "ADD");
-	BUG_ON(!list_empty(&dr->entry));
+	assert_noisy(list_empty(&dr->entry));
 	dr->probe = dev->flags & DM_FLAG_BOUND ? true : false;
 	list_add_tail(&dr->entry, &dev->devres_head);
 }
@@ -254,5 +254,5 @@ void devm_kfree(struct udevice *dev, void *p)
 	int rc;
 
 	rc = devres_destroy(dev, devm_kmalloc_release, devm_kmalloc_match, p);
-	WARN_ON(rc);
+	assert_noisy(!rc);
 }
