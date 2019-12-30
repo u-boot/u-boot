@@ -52,8 +52,9 @@ enum {
 	TEST_DEVRES_COUNT	= 10,
 	TEST_DEVRES_TOTAL	= TEST_DEVRES_SIZE * TEST_DEVRES_COUNT,
 
-	/* A different size */
+	/* A few different sizes */
 	TEST_DEVRES_SIZE2	= 15,
+	TEST_DEVRES_SIZE3	= 37,
 };
 
 #endif /* __TEST_TEST_H */

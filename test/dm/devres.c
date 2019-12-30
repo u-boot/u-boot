@@ -140,6 +140,7 @@ static int dm_test_devres_kcalloc(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_devres_kcalloc, DM_TESTF_SCAN_PDATA);
 
+/* Test devres releases resources automatically as expected */
 static int dm_test_devres_phase(struct unit_test_state *uts)
 {
 	struct devres_stats stats;
@@ -154,14 +155,21 @@ static int dm_test_devres_phase(struct unit_test_state *uts)
 	ut_asserteq(1, stats.allocs);
 	ut_asserteq(TEST_DEVRES_SIZE, stats.total_size);
 
+	/* Getting platdata should add one allocation */
+	ut_assertok(device_ofdata_to_platdata(dev));
+	devres_get_stats(dev, &stats);
+	ut_asserteq(2, stats.allocs);
+	ut_asserteq(TEST_DEVRES_SIZE + TEST_DEVRES_SIZE3, stats.total_size);
+
 	/* Probing the device should add one allocation */
 	ut_assertok(uclass_first_device(UCLASS_TEST_DEVRES, &dev));
 	ut_assert(dev != NULL);
 	devres_get_stats(dev, &stats);
-	ut_asserteq(2, stats.allocs);
-	ut_asserteq(TEST_DEVRES_SIZE + TEST_DEVRES_SIZE2, stats.total_size);
+	ut_asserteq(3, stats.allocs);
+	ut_asserteq(TEST_DEVRES_SIZE + TEST_DEVRES_SIZE2 + TEST_DEVRES_SIZE3,
+		    stats.total_size);
 
-	/* Removing the device should drop one allocation */
+	/* Removing the device should drop both those allocations */
 	device_remove(dev, DM_REMOVE_NORMAL);
 	devres_get_stats(dev, &stats);
 	ut_asserteq(1, stats.allocs);

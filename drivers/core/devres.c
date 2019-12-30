@@ -20,10 +20,12 @@
 /** enum devres_phase - Shows where resource was allocated
  *
  * DEVRES_PHASE_BIND: In the bind() method
+ * DEVRES_PHASE_OFDATA: In the ofdata_to_platdata() method
  * DEVRES_PHASE_PROBE: In the probe() method
  */
 enum devres_phase {
 	DEVRES_PHASE_BIND,
+	DEVRES_PHASE_OFDATA,
 	DEVRES_PHASE_PROBE,
 };
 
@@ -102,8 +104,12 @@ void devres_add(struct udevice *dev, void *res)
 
 	devres_log(dev, dr, "ADD");
 	assert_noisy(list_empty(&dr->entry));
-	dr->phase = dev->flags & DM_FLAG_BOUND ? DEVRES_PHASE_PROBE :
-		DEVRES_PHASE_BIND;
+	if (dev->flags & DM_FLAG_PLATDATA_VALID)
+		dr->phase = DEVRES_PHASE_PROBE;
+	else if (dev->flags & DM_FLAG_BOUND)
+		dr->phase = DEVRES_PHASE_OFDATA;
+	else
+		dr->phase = DEVRES_PHASE_BIND;
 	list_add_tail(&dr->entry, &dev->devres_head);
 }
 
@@ -184,12 +190,12 @@ int devres_release(struct udevice *dev, dr_release_t release,
 }
 
 static void release_nodes(struct udevice *dev, struct list_head *head,
-			  bool probe_only)
+			  bool probe_and_ofdata_only)
 {
 	struct devres *dr, *tmp;
 
 	list_for_each_entry_safe_reverse(dr, tmp, head, entry)  {
-		if (probe_only && dr->phase != DEVRES_PHASE_PROBE)
+		if (probe_and_ofdata_only && dr->phase == DEVRES_PHASE_BIND)
 			break;
 		devres_log(dev, dr, "REL");
 		dr->release(dev, dr->data);
@@ -209,6 +215,8 @@ void devres_release_all(struct udevice *dev)
 }
 
 #ifdef CONFIG_DEBUG_DEVRES
+static char *const devres_phase_name[] = {"BIND", "OFDATA", "PROBE"};
+
 static void dump_resources(struct udevice *dev, int depth)
 {
 	struct devres *dr;
@@ -219,7 +227,7 @@ static void dump_resources(struct udevice *dev, int depth)
 	list_for_each_entry(dr, &dev->devres_head, entry)
 		printf("    %p (%lu byte) %s  %s\n", dr,
 		       (unsigned long)dr->size, dr->name,
-		       dr->phase == DEVRES_PHASE_PROBE ? "PROBE" : "BIND");
+		       devres_phase_name[dr->phase]);
 
 	list_for_each_entry(child, &dev->child_head, sibling_node)
 		dump_resources(child, depth + 1);

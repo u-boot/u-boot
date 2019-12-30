@@ -159,6 +159,7 @@ struct dm_testdevres_pdata {
 
 struct dm_testdevres_priv {
 	void *ptr;
+	void *ptr_ofdata;
 };
 
 static int testdevres_drv_bind(struct udevice *dev)
@@ -166,6 +167,15 @@ static int testdevres_drv_bind(struct udevice *dev)
 	struct dm_testdevres_pdata *pdata = dev_get_platdata(dev);
 
 	pdata->ptr = devm_kmalloc(dev, TEST_DEVRES_SIZE, 0);
+
+	return 0;
+}
+
+static int testdevres_drv_ofdata_to_platdata(struct udevice *dev)
+{
+	struct dm_testdevres_priv *priv = dev_get_priv(dev);
+
+	priv->ptr_ofdata = devm_kmalloc(dev, TEST_DEVRES_SIZE3, 0);
 
 	return 0;
 }
@@ -189,6 +199,7 @@ U_BOOT_DRIVER(testdevres_drv) = {
 	.of_match	= testdevres_ids,
 	.id	= UCLASS_TEST_DEVRES,
 	.bind	= testdevres_drv_bind,
+	.ofdata_to_platdata	= testdevres_drv_ofdata_to_platdata,
 	.probe	= testdevres_drv_probe,
 	.platdata_auto_alloc_size	= sizeof(struct dm_testdevres_pdata),
 	.priv_auto_alloc_size	= sizeof(struct dm_testdevres_priv),
