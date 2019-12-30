@@ -311,12 +311,11 @@ static void *alloc_priv(int size, uint flags)
 	return priv;
 }
 
-int device_probe(struct udevice *dev)
+int device_ofdata_to_platdata(struct udevice *dev)
 {
 	const struct driver *drv;
 	int size = 0;
 	int ret;
-	int seq;
 
 	if (!dev)
 		return -EINVAL;
@@ -368,6 +367,32 @@ int device_probe(struct udevice *dev)
 		if (ret)
 			goto fail;
 	}
+
+	return 0;
+fail:
+	device_free(dev);
+
+	return ret;
+}
+
+int device_probe(struct udevice *dev)
+{
+	const struct driver *drv;
+	int ret;
+	int seq;
+
+	if (!dev)
+		return -EINVAL;
+
+	if (dev->flags & DM_FLAG_ACTIVATED)
+		return 0;
+
+	drv = dev->driver;
+	assert(drv);
+
+	ret = device_ofdata_to_platdata(dev);
+	if (ret)
+		goto fail;
 
 	/* Ensure all parents are probed */
 	if (dev->parent) {
