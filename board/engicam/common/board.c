@@ -10,6 +10,8 @@
 #include <env.h>
 #include <init.h>
 #include <mmc.h>
+#include <asm/arch/clock.h>
+#include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
 #include <watchdog.h>
 
@@ -101,6 +103,32 @@ static enum engicam_boards engicam_board_detect(void)
 	return -EINVAL;
 }
 
+static int fixup_enet_clock(enum engicam_boards board_detected)
+{
+	struct iomuxc *iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
+	int clk_internal = 0;
+
+	switch (board_detected) {
+	case IMX6Q_ICORE_MIPI:
+	case IMX6DL_ICORE_MIPI:
+		clk_internal = 1;
+		break;
+	default:
+		break;
+	}
+
+	/* set gpr1[21] to select anatop clock */
+	debug("fixup_enet_clock %d\n", clk_internal);
+	clrsetbits_le32(&iomuxc_regs->gpr[1], 0x1 << 21, clk_internal << 21);
+
+	if (!clk_internal) {
+		/* clock is external */
+		return 0;
+	}
+
+	return enable_fec_anatop_clock(0, ENET_50MHZ);
+}
+
 int board_late_init(void)
 {
 	enum engicam_boards board_detected = IMX6Q_ICORE;
@@ -133,6 +161,7 @@ int board_late_init(void)
 	if (board_detected < 0)
 		hang();
 
+	fixup_enet_clock(board_detected);
 	setenv_fdt_file(board_detected);
 
 #ifdef CONFIG_HW_WATCHDOG
