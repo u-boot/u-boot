@@ -337,9 +337,11 @@ How to build U-Boot SPL
 Before building U-Boot SPL, OpenSBI must be build first. OpenSBI can be
 cloned and build for AE350 as below:
 
-git clone https://github.com/riscv/opensbi.git
-cd opensbi
-make PLATFORM=andes/ae350
+.. code-block:: none
+
+        git clone https://github.com/riscv/opensbi.git
+        cd opensbi
+        make PLATFORM=andes/ae350
 
 Copy OpenSBI FW_DYNAMIC image (build\platform\andes\ae350\firmware\fw_dynamic.bin)
 into U-Boot root directory
