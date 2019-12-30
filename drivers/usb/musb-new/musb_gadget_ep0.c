@@ -882,7 +882,7 @@ finish:
 
 	default:
 		/* "can't happen" */
-		WARN_ON(1);
+		assert_noisy(false);
 		musb_writew(regs, MUSB_CSR0, MUSB_CSR0_P_SENDSTALL);
 		musb->ep0_state = MUSB_EP0_STAGE_IDLE;
 		break;
