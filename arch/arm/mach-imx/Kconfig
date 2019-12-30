@@ -112,7 +112,7 @@ config DDRMC_VF610_CALIBRATION
 
 config SPL_IMX_ROMAPI_LOADADDR
 	hex "Default load address to load image through ROM API"
-	depends on IMX8MN
+	depends on IMX8MN || IMX8MP
 
 config IMX_DCD_ADDR
 	hex "DCD Blocks location on the image"
@@ -123,4 +123,3 @@ config IMX_DCD_ADDR
 	  the ROM code to configure the device at early boot stage, is located.
 	  This information is shared with the user via mkimage -l just so the
 	  image can be signed.
-
