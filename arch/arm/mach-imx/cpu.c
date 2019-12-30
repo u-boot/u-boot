@@ -159,7 +159,7 @@ int print_cpuinfo(void)
 	int cpu_tmp, minc, maxc, ret;
 
 	printf("CPU:   Freescale i.MX%s rev%d.%d",
-	       get_imx_type((cpurev & 0xFF000) >> 12),
+	       get_imx_type((cpurev & 0x1FF000) >> 12),
 	       (cpurev & 0x000F0) >> 4,
 	       (cpurev & 0x0000F) >> 0);
 	max_freq = get_cpu_speed_grade_hz();
@@ -171,7 +171,7 @@ int print_cpuinfo(void)
 	}
 #else
 	printf("CPU:   Freescale i.MX%s rev%d.%d at %d MHz\n",
-		get_imx_type((cpurev & 0xFF000) >> 12),
+		get_imx_type((cpurev & 0x1FF000) >> 12),
 		(cpurev & 0x000F0) >> 4,
 		(cpurev & 0x0000F) >> 0,
 		mxc_get_clock(MXC_ARM_CLK) / 1000000);
