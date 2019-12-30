@@ -218,6 +218,20 @@ void __assert_fail(const char *assertion, const char *file, unsigned int line,
 	({ if (!(x) && _DEBUG) \
 		__assert_fail(#x, __FILE__, __LINE__, __func__); })
 
+/*
+ * This one actually gets compiled in even without DEBUG. It doesn't include the
+ * full pathname as it may be huge. Only use this when the user should be
+ * warning, similar to BUG_ON() in linux.
+ *
+ * @return true if assertion succeeded (condition is true), else false
+ */
+#define assert_noisy(x) \
+	({ bool _val = (x); \
+	if (!_val) \
+		__assert_fail(#x, "?", __LINE__, __func__); \
+	_val; \
+	})
+
 #if CONFIG_IS_ENABLED(LOG) && defined(CONFIG_LOG_ERROR_RETURN)
 /*
  * Log an error return value, possibly with a message. Usage:
