@@ -8,6 +8,8 @@
 #ifndef _UBOOT_CRC_H
 #define _UBOOT_CRC_H
 
+#include <compiler.h> /* 'uint*' definitions */
+
 /**
  * crc8() - Calculate and return CRC-8 of the data
  *
