@@ -37,9 +37,12 @@ struct mtk_pll_data {
 	u32 flags;
 	u32 rst_bar_mask;
 	u64 fmax;
+	u64 fmin;
 	int pcwbits;
+	int pcwibits;
 	u32 pcw_reg;
 	int pcw_shift;
+	u32 pcw_chg_reg;
 };
 
 /**

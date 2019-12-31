@@ -95,11 +95,13 @@ static unsigned long __mtk_pll_recalc_rate(const struct mtk_pll_data *pll,
 {
 	int pcwbits = pll->pcwbits;
 	int pcwfbits;
+	int ibits;
 	u64 vco;
 	u8 c = 0;
 
 	/* The fractional part of the PLL divider. */
-	pcwfbits = pcwbits > INTEGER_BITS ? pcwbits - INTEGER_BITS : 0;
+	ibits = pll->pcwibits ? pll->pcwibits : INTEGER_BITS;
+	pcwfbits = pcwbits > ibits ? pcwbits - ibits : 0;
 
 	vco = (u64)fin * pcw;
 
@@ -124,7 +126,7 @@ static void mtk_pll_set_rate_regs(struct clk *clk, u32 pcw, int postdiv)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
 	const struct mtk_pll_data *pll = &priv->tree->plls[clk->id];
-	u32 val;
+	u32 val, chg;
 
 	/* set postdiv */
 	val = readl(priv->base + pll->pd_reg);
@@ -140,11 +142,16 @@ static void mtk_pll_set_rate_regs(struct clk *clk, u32 pcw, int postdiv)
 	/* set pcw */
 	val &= ~GENMASK(pll->pcw_shift + pll->pcwbits - 1, pll->pcw_shift);
 	val |= pcw << pll->pcw_shift;
-	val &= ~CON1_PCW_CHG;
-	writel(val, priv->base + pll->pcw_reg);
 
-	val |= CON1_PCW_CHG;
-	writel(val, priv->base + pll->pcw_reg);
+	if (pll->pcw_chg_reg) {
+		chg = readl(priv->base + pll->pcw_chg_reg);
+		chg |= CON1_PCW_CHG;
+		writel(val, priv->base + pll->pcw_reg);
+		writel(chg, priv->base + pll->pcw_chg_reg);
+	} else {
+		val |= CON1_PCW_CHG;
+		writel(val, priv->base + pll->pcw_reg);
+	}
 
 	udelay(20);
 }
@@ -161,8 +168,9 @@ static void mtk_pll_calc_values(struct clk *clk, u32 *pcw, u32 *postdiv,
 {
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
 	const struct mtk_pll_data *pll = &priv->tree->plls[clk->id];
-	unsigned long fmin = 1000 * MHZ;
+	unsigned long fmin = pll->fmin ? pll->fmin : 1000 * MHZ;
 	u64 _pcw;
+	int ibits;
 	u32 val;
 
 	if (freq > pll->fmax)
@@ -175,7 +183,8 @@ static void mtk_pll_calc_values(struct clk *clk, u32 *pcw, u32 *postdiv,
 	}
 
 	/* _pcw = freq * postdiv / xtal_rate * 2^pcwfbits */
-	_pcw = ((u64)freq << val) << (pll->pcwbits - INTEGER_BITS);
+	ibits = pll->pcwibits ? pll->pcwibits : INTEGER_BITS;
+	_pcw = ((u64)freq << val) << (pll->pcwbits - ibits);
 	do_div(_pcw, priv->tree->xtal2_rate);
 
 	*pcw = (u32)_pcw;
