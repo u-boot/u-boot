@@ -67,12 +67,23 @@ static int mtk_clk_mux_set_parent(void __iomem *base, u32 parent,
 		if (++index == mux->num_parents)
 			return -EINVAL;
 
-	/* switch mux to a select parent */
-	val = readl(base + mux->mux_reg);
-	val &= ~(mux->mux_mask << mux->mux_shift);
+	if (mux->flags & CLK_MUX_SETCLR_UPD) {
+		val = (mux->mux_mask << mux->mux_shift);
+		writel(val, base + mux->mux_clr_reg);
 
-	val |= index << mux->mux_shift;
-	writel(val, base + mux->mux_reg);
+		val = (index << mux->mux_shift);
+		writel(val, base + mux->mux_set_reg);
+
+		if (mux->upd_shift >= 0)
+			writel(BIT(mux->upd_shift), base + mux->upd_reg);
+	} else {
+		/* switch mux to a select parent */
+		val = readl(base + mux->mux_reg);
+		val &= ~(mux->mux_mask << mux->mux_shift);
+
+		val |= index << mux->mux_shift;
+		writel(val, base + mux->mux_reg);
+	}
 
 	return 0;
 }
@@ -332,9 +343,14 @@ static int mtk_topckgen_enable(struct clk *clk)
 		return 0;
 
 	/* enable clock gate */
-	val = readl(priv->base + mux->gate_reg);
-	val &= ~BIT(mux->gate_shift);
-	writel(val, priv->base + mux->gate_reg);
+	if (mux->flags & CLK_MUX_SETCLR_UPD) {
+		val = BIT(mux->gate_shift);
+		writel(val, priv->base + mux->mux_clr_reg);
+	} else {
+		val = readl(priv->base + mux->gate_reg);
+		val &= ~BIT(mux->gate_shift);
+		writel(val, priv->base + mux->gate_reg);
+	}
 
 	if (mux->flags & CLK_DOMAIN_SCPSYS) {
 		/* enable scpsys clock off control */
@@ -360,9 +376,14 @@ static int mtk_topckgen_disable(struct clk *clk)
 		return 0;
 
 	/* disable clock gate */
-	val = readl(priv->base + mux->gate_reg);
-	val |= BIT(mux->gate_shift);
-	writel(val, priv->base + mux->gate_reg);
+	if (mux->flags & CLK_MUX_SETCLR_UPD) {
+		val = BIT(mux->gate_shift);
+		writel(val, priv->base + mux->mux_set_reg);
+	} else {
+		val = readl(priv->base + mux->gate_reg);
+		val |= BIT(mux->gate_shift);
+		writel(val, priv->base + mux->gate_reg);
+	}
 
 	return 0;
 }
