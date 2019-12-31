@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
+ * Copyright 2019 NXP
  */
 
 #include <asm/io.h>
@@ -63,7 +64,101 @@ int dcu_set_dvi_encoder(struct fb_videomode *videomode)
 	u8 temp;
 	u16 temp1, temp2;
 	u32 temp3;
+#ifdef CONFIG_DM_I2C
+	struct udevice *dev;
+	int ret;
 
+	ret = i2c_get_chip_for_busnum(CONFIG_SYS_I2C_DVI_BUS_NUM,
+				      CONFIG_SYS_I2C_DVI_ADDR,
+				      1, &dev);
+	if (ret) {
+		printf("%s: Cannot find udev for a bus %d\n", __func__,
+		       CONFIG_SYS_I2C_DVI_BUS_NUM);
+		return ret;
+	}
+
+	/* Enable TPI transmitter mode */
+	temp = TPI_TRANS_MODE_ENABLE;
+	dm_i2c_write(dev, TPI_TRANS_MODE_REG, &temp, 1);
+
+	/* Enter into D0 state, full operation */
+	dm_i2c_read(dev, TPI_PWR_STAT_REG, &temp, 1);
+	temp &= ~TPI_PWR_STAT_MASK;
+	temp |= TPI_PWR_STAT_D0;
+	dm_i2c_write(dev, TPI_PWR_STAT_REG, &temp, 1);
+
+	/* Enable source termination */
+	temp = TPI_SET_PAGE_SII9022A;
+	dm_i2c_write(dev, TPI_SET_PAGE_REG, &temp, 1);
+	temp = TPI_SET_OFFSET_SII9022A;
+	dm_i2c_write(dev, TPI_SET_OFFSET_REG, &temp, 1);
+
+	dm_i2c_read(dev, TPI_RW_ACCESS_REG, &temp, 1);
+	temp |= TPI_RW_EN_SRC_TERMIN;
+	dm_i2c_write(dev, TPI_RW_ACCESS_REG, &temp, 1);
+
+	/* Set TPI system control */
+	temp = TPI_SYS_TMDS_OUTPUT | TPI_SYS_AV_NORAML | TPI_SYS_DVI_MODE;
+	dm_i2c_write(dev, TPI_SYS_CTRL_REG, &temp, 1);
+
+	/* Set pixel clock */
+	temp1 = PICOS2KHZ(videomode->pixclock) / 10;
+	temp = (u8)(temp1 & 0xFF);
+	dm_i2c_write(dev, PIXEL_CLK_LSB_REG, &temp, 1);
+	temp = (u8)(temp1 >> 8);
+	dm_i2c_write(dev, PIXEL_CLK_MSB_REG, &temp, 1);
+
+	/* Set total pixels per line */
+	temp1 = videomode->hsync_len + videomode->left_margin +
+		videomode->xres + videomode->right_margin;
+	temp = (u8)(temp1 & 0xFF);
+	dm_i2c_write(dev, TOTAL_PIXELS_LSB_REG, &temp, 1);
+	temp = (u8)(temp1 >> 8);
+	dm_i2c_write(dev, TOTAL_PIXELS_MSB_REG, &temp, 1);
+
+	/* Set total lines */
+	temp2 = videomode->vsync_len + videomode->upper_margin +
+		videomode->yres + videomode->lower_margin;
+	temp = (u8)(temp2 & 0xFF);
+	dm_i2c_write(dev, TOTAL_LINES_LSB_REG, &temp, 1);
+	temp = (u8)(temp2 >> 8);
+	dm_i2c_write(dev, TOTAL_LINES_MSB_REG, &temp, 1);
+
+	/* Set vertical frequency in Hz */
+	temp3 = temp1 * temp2;
+	temp3 = (PICOS2KHZ(videomode->pixclock) * 1000) / temp3;
+	temp1 = (u16)temp3 * 100;
+	temp = (u8)(temp1 & 0xFF);
+	dm_i2c_write(dev, VERT_FREQ_LSB_REG, &temp, 1);
+	temp = (u8)(temp1 >> 8);
+	dm_i2c_write(dev, VERT_FREQ_MSB_REG, &temp, 1);
+
+	/* Set TPI input bus and pixel repetition data */
+	temp = TPI_INBUS_CLOCK_RATIO_1 | TPI_INBUS_FULL_PIXEL_WIDE |
+		TPI_INBUS_RISING_EDGE;
+	dm_i2c_write(dev, TPI_INBUS_FMT_REG, &temp, 1);
+
+	/* Set TPI AVI Input format data */
+	temp = TPI_INPUT_CLR_DEPTH_8BIT | TPI_INPUT_VRANGE_EXPAN_AUTO |
+		TPI_INPUT_CLR_RGB;
+	dm_i2c_write(dev, TPI_INPUT_FMT_REG, &temp, 1);
+
+	/* Set TPI AVI Output format data */
+	temp = TPI_OUTPUT_CLR_DEPTH_8BIT | TPI_OUTPUT_VRANGE_COMPRE_AUTO |
+		TPI_OUTPUT_CLR_HDMI_RGB;
+	dm_i2c_write(dev, TPI_OUTPUT_FMT_REG, &temp, 1);
+
+	/* Set TPI audio configuration write data */
+	temp = TPI_AUDIO_PASS_BASIC;
+	dm_i2c_write(dev, TPI_AUDIO_HANDING_REG, &temp, 1);
+
+	temp = TPI_AUDIO_INTF_I2S | TPI_AUDIO_INTF_NORMAL |
+		TPI_AUDIO_TYPE_PCM;
+	dm_i2c_write(dev, TPI_AUDIO_INTF_REG, &temp, 1);
+
+	temp = TPI_AUDIO_SAMP_SIZE_16BIT | TPI_AUDIO_SAMP_FREQ_44K;
+	dm_i2c_write(dev, TPI_AUDIO_FREQ_REG, &temp, 1);
+#else
 	i2c_set_bus_num(CONFIG_SYS_I2C_DVI_BUS_NUM);
 
 	/* Enable TPI transmitter mode */
@@ -147,6 +242,7 @@ int dcu_set_dvi_encoder(struct fb_videomode *videomode)
 
 	temp = TPI_AUDIO_SAMP_SIZE_16BIT | TPI_AUDIO_SAMP_FREQ_44K;
 	i2c_write(CONFIG_SYS_I2C_DVI_ADDR, TPI_AUDIO_FREQ_REG, 1, &temp, 1);
+#endif
 
 	return 0;
 }
