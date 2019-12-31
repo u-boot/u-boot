@@ -14,7 +14,6 @@
 #include <malloc.h>
 #include <mapmem.h>
 #include <stdbool.h>
-#include <watchdog.h>
 #include <asm/gpio.h>
 #include <dm/pinctrl.h>
 #include <linux/bitops.h>
@@ -531,6 +530,7 @@ static int msdc_start_command(struct msdc_host *host, struct mmc_cmd *cmd,
 		blocks = data->blocks;
 
 	writel(CMD_INTS_MASK, &host->base->msdc_int);
+	writel(DATA_INTS_MASK, &host->base->msdc_int);
 	writel(blocks, &host->base->sdc_blk_num);
 	writel(cmd->cmdarg, &host->base->sdc_arg);
 	writel(rawcmd, &host->base->sdc_cmd);
@@ -677,12 +677,8 @@ static int msdc_start_data(struct msdc_host *host, struct mmc_data *data)
 	u32 size;
 	int ret;
 
-	WATCHDOG_RESET();
-
 	if (data->flags == MMC_DATA_WRITE)
 		host->last_data_write = 1;
-
-	writel(DATA_INTS_MASK, &host->base->msdc_int);
 
 	size = data->blocks * data->blocksize;
 
