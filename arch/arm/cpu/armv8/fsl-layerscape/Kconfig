@@ -16,8 +16,8 @@ config ARCH_LS1012A
 	select ARCH_EARLY_INIT_R
 	select BOARD_EARLY_INIT_F
 	select SYS_I2C_MXC
-	select SYS_I2C_MXC_I2C1
-	select SYS_I2C_MXC_I2C2
+	select SYS_I2C_MXC_I2C1 if !DM_I2C
+	select SYS_I2C_MXC_I2C2 if !DM_I2C
 	imply PANIC_HANG
 
 config ARCH_LS1028A
