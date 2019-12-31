@@ -6,6 +6,10 @@ config SYS_SOC
 config SYS_VENDOR
 	default "mediatek"
 
+config MT8512
+	bool "MediaTek MT8512 SoC"
+	default n
+
 choice
 	prompt "MediaTek board select"
 
@@ -29,6 +33,16 @@ config TARGET_MT7629
 	  including DDR3, crypto engine, 3x3 11n/ac Wi-Fi, Gigabit Ethernet,
 	  switch, USB3.0, PCIe, UART, SPI, I2C and PWM.
 
+config TARGET_MT8512
+        bool "MediaTek MT8512 M1 Board"
+        select ARM64
+	select MT8512
+        help
+          The MediaTek MT8512 is a ARM64-based SoC with a quad-core Cortex-A53.
+          including UART, SPI, USB2.0 and OTG, SD and MMC cards, NAND, PWM,
+          Ethernet, IR TX/RX, I2C, I2S, S/PDIF, and built-in Wi-Fi / Bluetooth combo
+          chip and several DDR3 and DDR4 options.
+
 config TARGET_MT8516
 	bool "MediaTek MT8516 SoC"
 	select ARM64
@@ -51,6 +65,7 @@ endchoice
 
 source "board/mediatek/mt7623/Kconfig"
 source "board/mediatek/mt7629/Kconfig"
+source "board/mediatek/mt8512/Kconfig"
 source "board/mediatek/mt8518/Kconfig"
 source "board/mediatek/pumpkin/Kconfig"
 
