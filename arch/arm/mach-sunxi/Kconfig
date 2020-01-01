@@ -250,6 +250,7 @@ config MACH_SUN8I_R40
 	select SUPPORT_SPL
 	select SUNXI_DRAM_DW
 	select SUNXI_DRAM_DW_32BIT
+	select PHY_SUN4I_USB
 
 config MACH_SUN8I_V3S
 	bool "sun8i (Allwinner V3s)"
