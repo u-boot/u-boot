@@ -540,6 +540,18 @@ config TARGET_SKSIMX6
 	bool "sks-imx6"
 	select SUPPORT_SPL
 
+config TARGET_SOMLABS_VISIONSOM_6ULL
+	bool "visionsom-6ull"
+	select MX6ULL
+	select BOARD_LATE_INIT
+	select DM
+	select DM_ETH
+	select DM_GPIO
+	select DM_MMC
+	select DM_SERIAL
+	select DM_THERMAL
+	imply CMD_DM
+
 config TARGET_TBS2910
 	bool "TBS2910 Matrix ARM mini PC"
 
@@ -694,6 +706,7 @@ source "board/logicpd/imx6/Kconfig"
 source "board/seco/Kconfig"
 source "board/sks-kinkel/sksimx6/Kconfig"
 source "board/solidrun/mx6cuboxi/Kconfig"
+source "board/somlabs/visionsom-6ull/Kconfig"
 source "board/technexion/pico-imx6/Kconfig"
 source "board/technexion/pico-imx6ul/Kconfig"
 source "board/tbs/tbs2910/Kconfig"
