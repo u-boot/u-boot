@@ -1000,6 +1000,22 @@ const struct pad_conf_entry early_padconf[] = {
 	{I2C1_SCL, (PIN_INPUT_PULLUP | M0)},	/* I2C1_SCL */
 };
 
+#ifdef CONFIG_SUPPORT_EMMC_BOOT
+const struct pad_conf_entry emmc_padconf[] = {
+	{GPMC_A19, (M1 | PIN_INPUT_PULLUP)},		    /*  K7: gpmc_a19.mmc2_dat4 */
+	{GPMC_A20, (M1 | PIN_INPUT_PULLUP)},		    /*  M7: gpmc_a20.mmc2_dat5 */
+	{GPMC_A21, (M1 | PIN_INPUT_PULLUP)},		    /*  J5: gpmc_a21.mmc2_dat6 */
+	{GPMC_A22, (M1 | PIN_INPUT_PULLUP)},		    /*  K6: gpmc_a22.mmc2_dat7 */
+	{GPMC_A23, (M1 | PIN_INPUT_PULLUP)},		    /*  J7: gpmc_a23.mmc2_clk */
+	{GPMC_A24, (M1 | PIN_INPUT_PULLUP)},		    /*  J4: gpmc_a24.mmc2_dat0 */
+	{GPMC_A25, (M1 | PIN_INPUT_PULLUP)},		    /*  J6: gpmc_a25.mmc2_dat1 */
+	{GPMC_A26, (M1 | PIN_INPUT_PULLUP)},		    /*  H4: gpmc_a26.mmc2_dat2 */
+	{GPMC_A27, (M1 | PIN_INPUT_PULLUP)},		    /*  H5: gpmc_a27.mmc2_dat3 */
+	{GPMC_CS1, (M1 | PIN_INPUT_PULLUP)},		    /*  H6: gpmc_cs1.mmc2_cmd */
+	{MCASP1_AXR5, (M14 | PIN_OUTPUT_PULLUP)},	       /* F13: eMMC_RSTn (missing on schematic): mcasp1_axr5.gpio5_7 */
+};
+#endif
+
 #ifdef CONFIG_IODELAY_RECALIBRATION
 const struct iodelay_cfg_entry iodelay_cfg_array_x15_sr1_1[] = {
 	{0x0114, 2980, 0},	/* CFG_GPMC_A0_IN */

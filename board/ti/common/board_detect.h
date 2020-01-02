@@ -268,6 +268,15 @@ struct ti_am6_eeprom {
 int ti_i2c_eeprom_am_get(int bus_addr, int dev_addr);
 
 /**
+ * ti_emmc_boardid_get() - Fetch board ID information from eMMC
+ *
+ * ep in SRAM is populated by the this function that is currently
+ * based on BeagleBone AI, but could be made more general across AM*
+ * platforms.
+ */
+int __maybe_unused ti_emmc_boardid_get(void);
+
+/**
  * ti_i2c_eeprom_dra7_get() - Consolidated eeprom data for DRA7 TI EVMs
  * @bus_addr:	I2C bus address
  * @dev_addr:	I2C slave address
