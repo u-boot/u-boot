@@ -54,6 +54,7 @@ static int board_bootmode_has_emmc(void);
 #define board_is_am574x_idk()	board_ti_is("AM574IDK")
 #define board_is_am572x_idk()	board_ti_is("AM572IDK")
 #define board_is_am571x_idk()	board_ti_is("AM571IDK")
+#define board_is_bbai()		board_ti_is("BBONE-AI")
 
 #ifdef CONFIG_DRIVER_TI_CPSW
 #include <cpsw.h>
@@ -103,12 +104,19 @@ static const struct dmm_lisa_map_regs am574x_idk_lisa_regs = {
 	.is_ma_present  = 0x1
 };
 
+static const struct dmm_lisa_map_regs bbai_lisa_regs = {
+	.dmm_lisa_map_3 = 0x80640100,
+	.is_ma_present  = 0x1
+};
+
 void emif_get_dmm_regs(const struct dmm_lisa_map_regs **dmm_lisa_regs)
 {
 	if (board_is_am571x_idk())
 		*dmm_lisa_regs = &am571x_idk_lisa_regs;
 	else if (board_is_am574x_idk())
 		*dmm_lisa_regs = &am574x_idk_lisa_regs;
+	else if (board_is_bbai())
+		*dmm_lisa_regs = &bbai_lisa_regs;
 	else
 		*dmm_lisa_regs = &beagle_x15_lisa_regs;
 }
@@ -553,6 +561,8 @@ void do_board_detect(void)
 		bname = "AM572x IDK";
 	else if (board_is_am571x_idk())
 		bname = "AM571x IDK";
+	else if (board_is_bbai())
+		bname = "BeagleBone AI";
 
 	if (bname)
 		snprintf(sysinfo.board_string, SYSINFO_BOARD_NAME_MAX_LEN,
@@ -587,6 +597,8 @@ static void setup_board_eeprom_env(void)
 		name = "am572x_idk";
 	} else if (board_is_am571x_idk()) {
 		name = "am571x_idk";
+	} else if (board_is_bbai()) {
+		name = "am5729_beagleboneai";
 	} else {
 		printf("Unidentified board claims %s in eeprom header\n",
 		       board_ti_get_name());
@@ -650,7 +662,7 @@ void am57x_idk_lcd_detect(void)
 	struct udevice *dev;
 
 	/* Only valid for IDKs */
-	if (board_is_x15() || board_is_am572x_evm())
+	if (board_is_x15() || board_is_am572x_evm() ||  board_is_bbai())
 		return;
 
 	/* Only AM571x IDK has gpio control detect.. so check that */
@@ -748,6 +760,9 @@ int board_late_init(void)
 	/* Just probe the potentially supported cdce913 device */
 	uclass_get_device(UCLASS_CLK, 0, &dev);
 
+	if (board_is_bbai())
+		env_set("console", "ttyS0,115200n8");
+
 #if !defined(CONFIG_SPL_BUILD)
 	board_ti_set_ethaddr(2);
 #endif
@@ -795,6 +810,11 @@ void recalibrate_iodelay(void)
 		pconf_sz = ARRAY_SIZE(core_padconf_array_essential_am571x_idk);
 		iod = iodelay_cfg_array_am571x_idk;
 		iod_sz = ARRAY_SIZE(iodelay_cfg_array_am571x_idk);
+	} else if (board_is_bbai()) {
+		pconf = core_padconf_array_essential_bbai;
+		pconf_sz = ARRAY_SIZE(core_padconf_array_essential_bbai);
+		iod = iodelay_cfg_array_bbai;
+		iod_sz = ARRAY_SIZE(iodelay_cfg_array_bbai);
 	} else {
 		/* Common for X15/GPEVM */
 		pconf = core_padconf_array_essential_x15;
@@ -1122,6 +1142,8 @@ int board_fit_config_name_match(const char *name)
 	} else if (board_is_am574x_idk() && !strcmp(name, "am574x-idk")) {
 		return 0;
 	} else if (board_is_am571x_idk() && !strcmp(name, "am571x-idk")) {
+		return 0;
+	} else if (board_is_bbai() && !strcmp(name, "am5729-beagleboneai")) {
 		return 0;
 	}
 
