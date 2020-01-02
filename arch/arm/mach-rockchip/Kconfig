@@ -306,7 +306,7 @@ config SPL_ROCKCHIP_COMMON_BOARD
 	  no TPL for the board.
 
 config TPL_ROCKCHIP_COMMON_BOARD
-	bool ""
+	bool "Rockchip TPL common board file"
 	depends on TPL
 	help
 	  Rockchip SoCs have similar boot process, prefer to use TPL for DRAM

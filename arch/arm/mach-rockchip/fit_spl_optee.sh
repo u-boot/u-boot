@@ -17,6 +17,12 @@ if [ ! -f $TEE ]; then
 fi
 
 dtname=$1
+text_base=`sed -n "/SYS_TEXT_BASE=/s/CONFIG_SYS_TEXT_BASE=//p" .config \
+	   |tr -d '\r'`
+dram_base=`sed -n "/SYS_SDRAM_BASE=/s/CONFIG_SYS_SDRAM_BASE=//p" \
+	   include/autoconf.mk|tr -d '\r'`
+tee_base=`echo "obase=16;$(($dram_base+0x8400000))"|bc`
+tee_base='0x'$tee_base
 
 cat << __HEADER_EOF
 /*
@@ -39,7 +45,7 @@ cat << __HEADER_EOF
 			os = "U-Boot";
 			arch = "arm";
 			compression = "none";
-			load = <0x61000000>;
+			load = <$text_base>;
 		};
 		optee {
 			description = "OP-TEE";
@@ -48,8 +54,8 @@ cat << __HEADER_EOF
 			arch = "arm";
 			os = "tee";
 			compression = "none";
-			load = <0x68400000>;
-			entry = <0x68400000>;
+			load = <$tee_base>;
+			entry = <$tee_base>;
 		};
 		fdt {
 			description = "$(basename $dtname .dtb)";

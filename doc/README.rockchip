@@ -50,7 +50,7 @@ Two RK3036 boards are supported:
 Two RK3308 boards are supported:
 
    - EVB RK3308 - use evb-rk3308 configuration
-   - ROC-CC-RK3308 - use roc-rk3308-cc configuration
+   - ROC-CC-RK3308 - use roc-cc-rk3308 configuration
 
 Two RK3328 board are supported:
 
@@ -106,7 +106,7 @@ For example:
    - Compile U-Boot
      => cd /path/to/u-boot
      => export BL31=/path/to/rkbin/bin/rk33/rk3308_bl31_v2.22.elf
-     => make roc-rk3308-cc_defconfig
+     => make roc-cc-rk3308_defconfig
      => make CROSS_COMPILE=aarch64-linux-gnu- all
      => ./tools/mkimage -n rk3308 -T rksd -d /path/to/rkbin/bin/rk33/rk3308_ddr_589MHz_uart2_m0_v1.26.bin idbloader.img
      => cat spl/u-boot-spl.bin  >> idbloader.img
@@ -340,11 +340,22 @@ You can create the image via the following operations:
    cat firefly-rk3288/u-boot-dtb.bin >> out && \
    sudo dd if=out of=/dev/sdc seek=64
 
+Or:
+   ./firefly-rk3288/tools/mkimage -n rk3288 -T rksd -d \
+	firefly-rk3288/spl/u-boot-spl-dtb.bin:firefly-rk3288/u-boot-dtb.bin \
+	out && \
+   sudo dd if=out of=/dev/sdc seek=64
+
 If you have an HDMI cable attached you should see a video console.
 
 For evb_rk3036 board:
 	./evb-rk3036/tools/mkimage -n rk3036 -T rksd  -d evb-rk3036/spl/u-boot-spl.bin out && \
 	cat evb-rk3036/u-boot-dtb.bin >> out && \
+	sudo dd if=out of=/dev/sdc seek=64
+
+Or:
+	./evb-rk3036/tools/mkimage -n rk3036 -T rksd -d \
+		evb-rk3036/spl/u-boot-spl.bin:evb-rk3036/u-boot-dtb.bin out && \
 	sudo dd if=out of=/dev/sdc seek=64
 
 Note: rk3036 SDMMC and debug uart use the same iomux, so if you boot from SD, the

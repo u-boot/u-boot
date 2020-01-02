@@ -253,6 +253,7 @@ void pbl_load_uboot(int fd, struct image_tool_params *mparams);
 int zynqmpbif_copy_image(int fd, struct image_tool_params *mparams);
 int imx8image_copy_image(int fd, struct image_tool_params *mparams);
 int imx8mimage_copy_image(int fd, struct image_tool_params *mparams);
+int rockchip_copy_image(int fd, struct image_tool_params *mparams);
 
 #define ___cat(a, b) a ## b
 #define __cat(a, b) ___cat(a, b)
