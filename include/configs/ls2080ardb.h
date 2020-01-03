@@ -330,8 +330,8 @@ unsigned long get_board_sys_clk(void);
 	"mmcinfo;mmc read 0x80a00000 0x5000 0x1200;" \
 	"mmc read 0x80e00000 0x7000 0x800;"	\
 	"env exists secureboot && "		\
-	"mmc read 0x80700000 0x3800 0x10 && "	\
-	"mmc read 0x80740000 0x3A00 0x10 && "	\
+	"mmc read 0x80700000 0x3800 0x20 && "	\
+	"mmc read 0x80740000 0x3A00 0x20 && "	\
 	"esbc_validate 0x80700000 && "		\
 	"esbc_validate 0x80740000 ;"		\
 	"fsl_mc start mc 0x80a00000 0x80e00000\0"
@@ -352,8 +352,8 @@ unsigned long get_board_sys_clk(void);
 	"mcinitcmd=mmcinfo;mmc read 0x80000000 0x5000 0x800;" \
 	"mmc read 0x80100000 0x7000 0x800;"	\
 	"env exists secureboot && "		\
-	"mmc read 0x80700000 0x3800 0x10 && "	\
-	"mmc read 0x80740000 0x3A00 0x10 && "	\
+	"mmc read 0x80700000 0x3800 0x20 && "	\
+	"mmc read 0x80740000 0x3A00 0x20 && "	\
 	"esbc_validate 0x80700000 && "		\
 	"esbc_validate 0x80740000 ;"		\
 	"fsl_mc start mc 0x80000000 0x80100000\0" \

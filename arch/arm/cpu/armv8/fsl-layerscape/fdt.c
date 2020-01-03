@@ -421,6 +421,12 @@ static void fdt_disable_multimedia(void *blob, unsigned int svr)
 }
 #endif
 
+#ifdef CONFIG_PCIE_ECAM_GENERIC
+__weak void fdt_fixup_ecam(void *blob)
+{
+}
+#endif
+
 void ft_cpu_setup(void *blob, bd_t *bd)
 {
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
@@ -484,5 +490,8 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 #endif
 #ifdef CONFIG_ARCH_LS1028A
 	fdt_disable_multimedia(blob, svr);
+#endif
+#ifdef CONFIG_PCIE_ECAM_GENERIC
+	fdt_fixup_ecam(blob);
 #endif
 }

@@ -1101,6 +1101,12 @@ static void config_core_prefetch(void)
 	}
 }
 
+#ifdef CONFIG_PCIE_ECAM_GENERIC
+__weak void set_ecam_icids(void)
+{
+}
+#endif
+
 int arch_early_init_r(void)
 {
 #ifdef CONFIG_SYS_FSL_ERRATUM_A009635
@@ -1152,6 +1158,9 @@ int arch_early_init_r(void)
 #endif
 #ifdef CONFIG_SYS_DPAA_QBMAN
 	setup_qbman_portals();
+#endif
+#ifdef CONFIG_PCIE_ECAM_GENERIC
+	set_ecam_icids();
 #endif
 	return 0;
 }

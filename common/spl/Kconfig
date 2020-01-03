@@ -91,20 +91,24 @@ config SPL_SYS_REPORT_STACK_F_USAGE
 	  occurrence of non 0xaa bytes.
 	  This default implementation works for stacks growing down only.
 
-menu "PowerPC SPL Boot options"
-	depends on PPC && (SUPPORT_SPL && !SPL_FRAMEWORK)
+menu "PowerPC and LayerScape SPL Boot options"
 
 config SPL_NAND_BOOT
 	bool "Load SPL from NAND flash"
+	depends on PPC && (SUPPORT_SPL && !SPL_FRAMEWORK)
 
 config SPL_MMC_BOOT
 	bool "Load SPL from SD Card / eMMC"
+	depends on PPC && (SUPPORT_SPL && !SPL_FRAMEWORK)
 
 config SPL_SPI_BOOT
 	bool "Load SPL from SPI flash"
+	depends on PPC && (SUPPORT_SPL && !SPL_FRAMEWORK)
 
 config SPL_FSL_PBL
 	bool "Create SPL in Freescale PBI format"
+	depends on (PPC || ARCH_LS1021A || ARCH_LS1043A || ARCH_LS1046A) && \
+		    SUPPORT_SPL
 	help
 	  Create boot binary having SPL binary in PBI format concatenated with
 	  u-boot binary.

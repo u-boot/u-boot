@@ -27,14 +27,6 @@ config ARCH_LS1021A
 menu "LS102xA architecture"
 	depends on ARCH_LS1021A
 
-config FSL_PCIE_COMPAT
-	string "PCIe compatible of Kernel DT"
-	depends on PCIE_LAYERSCAPE
-	default "fsl,ls1021a-pcie" if ARCH_LS1021A
-	help
-	  This compatible is used to find pci controller node in Kernel DT
-	  to complete fixup.
-
 config LS1_DEEP_SLEEP
 	bool "Deep sleep"
 	depends on ARCH_LS1021A

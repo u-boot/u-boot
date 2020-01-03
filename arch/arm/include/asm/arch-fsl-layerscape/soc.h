@@ -140,6 +140,13 @@ void init_pfe_scfg_dcfg_regs(void);
 int qspi_ahb_init(void);
 #endif
 
+#ifdef CONFIG_FSPI_AHB_EN_4BYTE
+#define SYS_NXP_FSPI_LUTCR_LOCK			0x00000001
+#define SYS_NXP_FSPI_LUTCR_UNLOCK		0x00000002
+#define SYS_NXP_FSPI_LUTKEY			0x5AF05AF0
+int fspi_ahb_init(void);
+#endif
+
 void cpu_name(char *name);
 #ifdef CONFIG_SYS_FSL_ERRATUM_A009635
 void erratum_a009635(void);
