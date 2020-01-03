@@ -28,11 +28,13 @@ static struct efi_device_path *bootefi_device_path;
 /**
  * Set the load options of an image from an environment variable.
  *
- * @handle:	the image handle
- * @env_var:	name of the environment variable
- * Return:	status code
+ * @handle:		the image handle
+ * @env_var:		name of the environment variable
+ * @load_options:	pointer to load options (output)
+ * Return:		status code
  */
-static efi_status_t set_load_options(efi_handle_t handle, const char *env_var)
+static efi_status_t set_load_options(efi_handle_t handle, const char *env_var,
+				     u16 **load_options)
 {
 	struct efi_loaded_image *loaded_image_info;
 	size_t size;
@@ -40,6 +42,7 @@ static efi_status_t set_load_options(efi_handle_t handle, const char *env_var)
 	u16 *pos;
 	efi_status_t ret;
 
+	*load_options = NULL;
 	ret = EFI_CALL(systab.boottime->open_protocol(
 					handle,
 					&efi_guid_loaded_image,
@@ -64,6 +67,7 @@ static efi_status_t set_load_options(efi_handle_t handle, const char *env_var)
 		return EFI_OUT_OF_RESOURCES;
 	}
 	pos = loaded_image_info->load_options;
+	*load_options = pos;
 	utf8_utf16_strcpy(&pos, env);
 	loaded_image_info->load_options_size = size * 2;
 
@@ -298,9 +302,10 @@ static efi_status_t do_bootefi_exec(efi_handle_t handle)
 	efi_status_t ret;
 	efi_uintn_t exit_data_size = 0;
 	u16 *exit_data = NULL;
+	u16 *load_options;
 
 	/* Transfer environment variable as load options */
-	ret = set_load_options(handle, "bootargs");
+	ret = set_load_options(handle, "bootargs", &load_options);
 	if (ret != EFI_SUCCESS)
 		return ret;
 
@@ -314,12 +319,7 @@ static efi_status_t do_bootefi_exec(efi_handle_t handle)
 
 	efi_restore_gd();
 
-	/*
-	 * FIXME: Who is responsible for
-	 *	free(loaded_image_info->load_options);
-	 * Once efi_exit() is implemented correctly,
-	 * handle itself doesn't exist here.
-	 */
+	free(load_options);
 
 	return ret;
 }
@@ -469,6 +469,7 @@ static efi_status_t bootefi_run_prepare(const char *load_options_path,
 		struct efi_loaded_image **loaded_image_infop)
 {
 	efi_status_t ret;
+	u16 *load_options;
 
 	ret = efi_setup_loaded_image(device_path, image_path, image_objp,
 				     loaded_image_infop);
@@ -476,7 +477,8 @@ static efi_status_t bootefi_run_prepare(const char *load_options_path,
 		return ret;
 
 	/* Transfer environment variable as load options */
-	return set_load_options((efi_handle_t)*image_objp, load_options_path);
+	return set_load_options((efi_handle_t)*image_objp, load_options_path,
+				&load_options);
 }
 
 /**
