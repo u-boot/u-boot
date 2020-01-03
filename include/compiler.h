@@ -46,7 +46,6 @@
 # include <byteswap.h>
 #elif defined(__MACH__) || defined(__FreeBSD__)
 # include <machine/endian.h>
-typedef unsigned long ulong;
 #endif
 #ifdef __FreeBSD__
 # include <sys/endian.h> /* htole32 and friends */
@@ -66,6 +65,7 @@ typedef uint8_t __u8;
 typedef uint16_t __u16;
 typedef uint32_t __u32;
 typedef unsigned int uint;
+typedef unsigned long ulong;
 
 #define uswap_16(x) \
 	((((x) & 0xff00) >> 8) | \
