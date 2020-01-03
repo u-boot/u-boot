@@ -91,7 +91,13 @@ typedef struct {
 #define EFI_IP_ADDRESS_CONFLICT		(EFI_ERROR_MASK | 34)
 #define EFI_HTTP_ERROR			(EFI_ERROR_MASK | 35)
 
-#define EFI_WARN_DELETE_FAILURE	2
+#define EFI_WARN_UNKNOWN_GLYPH		1
+#define EFI_WARN_DELETE_FAILURE		2
+#define EFI_WARN_WRITE_FAILURE		3
+#define EFI_WARN_BUFFER_TOO_SMALL	4
+#define EFI_WARN_STALE_DATA		5
+#define EFI_WARN_FILE_SYSTEM		6
+#define EFI_WARN_RESET_REQUIRED		7
 
 typedef unsigned long efi_status_t;
 typedef u64 efi_physical_addr_t;
