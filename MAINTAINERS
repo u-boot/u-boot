@@ -403,6 +403,14 @@ F:	arch/arm/mach-keystone/
 F:	arch/arm/include/asm/arch-omap*/
 F:	arch/arm/include/asm/ti-common/
 
+ARM U8500
+M:	Stephan Gerhold <stephan@gerhold.net>
+R:	Linus Walleij <linus.walleij@linaro.org>
+S:	Maintained
+F:	arch/arm/dts/ste-*
+F:	arch/arm/mach-u8500/
+F:	drivers/timer/nomadik-mtu-timer.c
+
 ARM UNIPHIER
 M:	Masahiro Yamada <yamada.masahiro@socionext.com>
 S:	Maintained
