@@ -127,6 +127,15 @@ config X86_TSC_TIMER_EARLY_FREQ
 	  hardware ways, nor got from device tree at the time when device
 	  tree is not available yet.
 
+config NOMADIK_MTU_TIMER
+	bool "Nomadik MTU Timer"
+	depends on TIMER
+	help
+	  Enables support for the Nomadik Multi Timer Unit (MTU),
+	  used in ST-Ericsson Ux500 SoCs.
+	  The MTU provides 4 decrementing free-running timers.
+	  At the moment, only the first timer is used by the driver.
+
 config OMAP_TIMER
 	bool "Omap timer support"
 	depends on TIMER
