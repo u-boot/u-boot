@@ -16,7 +16,6 @@
 #include <common.h>
 #include <i2c.h>
 #include <miiphy.h>
-#include <netdev.h>
 #include <power/pmic.h>
 #include <power/pfuze3000_pmic.h>
 #include "../../freescale/common/pfuze.h"
@@ -25,11 +24,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define UART_PAD_CTRL  (PAD_CTL_DSE_3P3V_49OHM | \
 	PAD_CTL_PUS_PU100KOHM | PAD_CTL_HYS)
-
-#define ENET_PAD_CTRL  (PAD_CTL_PUS_PU100KOHM | PAD_CTL_DSE_3P3V_49OHM)
-#define ENET_PAD_CTRL_MII  (PAD_CTL_DSE_3P3V_32OHM)
-
-#define ENET_RX_PAD_CTRL  (PAD_CTL_PUS_PU100KOHM | PAD_CTL_DSE_3P3V_49OHM)
 
 #define I2C_PAD_CTRL    (PAD_CTL_DSE_3P3V_32OHM | PAD_CTL_SRE_SLOW | \
 	PAD_CTL_HYS | PAD_CTL_PUE | PAD_CTL_PUS_PU100KOHM)
@@ -123,44 +117,6 @@ static iomux_v3_cfg_t const uart5_pads[] = {
 };
 
 #ifdef CONFIG_FEC_MXC
-static iomux_v3_cfg_t const fec1_pads[] = {
-	MX7D_PAD_SD2_CD_B__ENET1_MDIO | MUX_PAD_CTRL(ENET_PAD_CTRL_MII),
-	MX7D_PAD_SD2_WP__ENET1_MDC | MUX_PAD_CTRL(ENET_PAD_CTRL_MII),
-	MX7D_PAD_ENET1_RGMII_TXC__ENET1_RGMII_TXC | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX7D_PAD_ENET1_RGMII_TD0__ENET1_RGMII_TD0 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX7D_PAD_ENET1_RGMII_TD1__ENET1_RGMII_TD1 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX7D_PAD_ENET1_RGMII_TD2__ENET1_RGMII_TD2 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX7D_PAD_ENET1_RGMII_TD3__ENET1_RGMII_TD3 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX7D_PAD_ENET1_RGMII_TX_CTL__ENET1_RGMII_TX_CTL | MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX7D_PAD_ENET1_RGMII_RXC__ENET1_RGMII_RXC | MUX_PAD_CTRL(ENET_RX_PAD_CTRL),
-	MX7D_PAD_ENET1_RGMII_RD0__ENET1_RGMII_RD0 | MUX_PAD_CTRL(ENET_RX_PAD_CTRL),
-	MX7D_PAD_ENET1_RGMII_RD1__ENET1_RGMII_RD1 | MUX_PAD_CTRL(ENET_RX_PAD_CTRL),
-	MX7D_PAD_ENET1_RGMII_RD2__ENET1_RGMII_RD2 | MUX_PAD_CTRL(ENET_RX_PAD_CTRL),
-	MX7D_PAD_ENET1_RGMII_RD3__ENET1_RGMII_RD3 | MUX_PAD_CTRL(ENET_RX_PAD_CTRL),
-	MX7D_PAD_ENET1_RGMII_RX_CTL__ENET1_RGMII_RX_CTL | MUX_PAD_CTRL(ENET_RX_PAD_CTRL),
-	MX7D_PAD_SD3_STROBE__GPIO6_IO10 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX7D_PAD_SD3_RESET_B__GPIO6_IO11 | MUX_PAD_CTRL(NO_PAD_CTRL),
-};
-
-#define FEC1_RST_GPIO	IMX_GPIO_NR(6, 11)
-
-static void setup_iomux_fec(void)
-{
-	imx_iomux_v3_setup_multiple_pads(fec1_pads, ARRAY_SIZE(fec1_pads));
-	gpio_request(FEC1_RST_GPIO, "phy_rst");
-	gpio_direction_output(FEC1_RST_GPIO, 0);
-	udelay(500);
-	gpio_set_value(FEC1_RST_GPIO, 1);
-}
-
-int board_eth_init(bd_t *bis)
-{
-	setup_iomux_fec();
-
-	return fecmxc_initialize_multi(bis, 0,
-		CONFIG_FEC_MXC_PHYADDR, IMX_FEC_BASE);
-}
-
 static int setup_fec(void)
 {
 	struct iomuxc_gpr_base_regs *const iomuxc_gpr_regs
@@ -235,9 +191,7 @@ int board_init(void)
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
 #ifdef CONFIG_DM_VIDEO
-
 	setup_lcd();
-
 #endif
 #ifdef CONFIG_FEC_MXC
 	setup_fec();
