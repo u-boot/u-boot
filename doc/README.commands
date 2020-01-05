@@ -83,9 +83,9 @@ argv:		Arguments.
 
 Allowable return value are:
 
-CMD_SUCCESS	The command was successfully executed.
+CMD_RET_SUCCESS	The command was successfully executed.
 
-CMD_FAILURE	The command failed.
+CMD_RET_FAILURE	The command failed.
 
 CMD_RET_USAGE	The command was called with invalid parameters. This value
 		leads to the display of the usage string.
