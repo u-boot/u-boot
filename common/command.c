@@ -551,7 +551,7 @@ int cmd_process_error(cmd_tbl_t *cmdtp, int err)
 		return CMD_RET_USAGE;
 
 	if (err) {
-		printf("Command '%s' failed: Error 0x%08x\n", cmdtp->name, err);
+		printf("Command '%s' failed: Error %d\n", cmdtp->name, err);
 		return CMD_RET_FAILURE;
 	}
 
