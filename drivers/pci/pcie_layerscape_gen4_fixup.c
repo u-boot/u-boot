@@ -33,19 +33,6 @@ static int ls_pcie_g4_next_lut_index(struct ls_pcie_g4 *pcie)
 	return -ENOSPC;  /* LUT is full */
 }
 
-/* returns the next available streamid for pcie, -errno if failed */
-static int ls_pcie_g4_next_streamid(struct ls_pcie_g4 *pcie)
-{
-	int stream_id = pcie->stream_id_cur;
-
-	if (stream_id > FSL_PEX_STREAM_ID_END)
-		return -EINVAL;
-
-	pcie->stream_id_cur++;
-
-	return stream_id | ((pcie->idx + 1) << 11);
-}
-
 /*
  * Program a single LUT entry
  */
@@ -162,10 +149,12 @@ static void fdt_fixup_pcie_ls_gen4(void *blob)
 			bus = bus->parent;
 		pcie = dev_get_priv(bus);
 
-		streamid = ls_pcie_g4_next_streamid(pcie);
+		streamid = pcie_next_streamid(pcie->stream_id_cur, pcie->idx);
 		if (streamid < 0) {
 			debug("ERROR: no stream ids free\n");
 			continue;
+		} else {
+			pcie->stream_id_cur++;
 		}
 
 		index = ls_pcie_g4_next_lut_index(pcie);

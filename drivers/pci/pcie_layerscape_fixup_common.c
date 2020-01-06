@@ -25,3 +25,27 @@ void ft_pci_setup(void *blob, bd_t *bd)
 #endif /* CONFIG_PCIE_LAYERSCAPE_GEN4 */
 		ft_pci_setup_ls(blob, bd);
 }
+
+#if defined(CONFIG_FSL_LAYERSCAPE)
+#ifdef CONFIG_ARCH_LX2160A
+/* returns the next available streamid for pcie, -errno if failed */
+int pcie_next_streamid(int currentid, int idx)
+{
+	if (currentid > FSL_PEX_STREAM_ID_END)
+		return -EINVAL;
+
+	return currentid | ((idx + 1) << 11);
+}
+#else
+/* returns the next available streamid for pcie, -errno if failed */
+int pcie_next_streamid(int currentid, int idx)
+{
+	static int next_stream_id = FSL_PEX_STREAM_ID_START;
+
+	if (next_stream_id > FSL_PEX_STREAM_ID_END)
+		return -EINVAL;
+
+	return next_stream_id++;
+}
+#endif
+#endif /* CONFIG_FSL_LAYERSCAPE */

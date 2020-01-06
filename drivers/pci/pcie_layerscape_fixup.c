@@ -31,17 +31,6 @@ static int ls_pcie_next_lut_index(struct ls_pcie *pcie)
 		return -ENOSPC;  /* LUT is full */
 }
 
-/* returns the next available streamid for pcie, -errno if failed */
-static int ls_pcie_next_streamid(void)
-{
-	static int next_stream_id = FSL_PEX_STREAM_ID_START;
-
-	if (next_stream_id > FSL_PEX_STREAM_ID_END)
-		return -EINVAL;
-
-	return next_stream_id++;
-}
-
 static void lut_writel(struct ls_pcie *pcie, unsigned int value,
 		       unsigned int offset)
 {
@@ -192,10 +181,12 @@ static void fdt_fixup_pcie_ls(void *blob)
 			bus = bus->parent;
 		pcie = dev_get_priv(bus);
 
-		streamid = ls_pcie_next_streamid();
+		streamid = pcie_next_streamid(pcie->stream_id_cur, pcie->idx);
 		if (streamid < 0) {
 			debug("ERROR: no stream ids free\n");
 			continue;
+		} else {
+			pcie->stream_id_cur++;
 		}
 
 		index = ls_pcie_next_lut_index(pcie);
