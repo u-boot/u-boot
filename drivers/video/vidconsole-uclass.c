@@ -144,22 +144,26 @@ u32 vid_console_color(struct video_priv *priv, unsigned int idx)
 			       ((colors[idx].g >> 2) <<  5) |
 			       ((colors[idx].b >> 3) <<  0);
 		}
+		break;
 	case VIDEO_BPP32:
 		if (CONFIG_IS_ENABLED(VIDEO_BPP32)) {
 			return (colors[idx].r << 16) |
 			       (colors[idx].g <<  8) |
 			       (colors[idx].b <<  0);
 		}
+		break;
 	default:
-		/*
-		 * For unknown bit arrangements just support
-		 * black and white.
-		 */
-		if (idx)
-			return 0xffffff; /* white */
-		else
-			return 0x000000; /* black */
+		break;
 	}
+
+	/*
+	 * For unknown bit arrangements just support
+	 * black and white.
+	 */
+	if (idx)
+		return 0xffffff; /* white */
+
+	return 0x000000; /* black */
 }
 
 static char *parsenum(char *s, int *num)
