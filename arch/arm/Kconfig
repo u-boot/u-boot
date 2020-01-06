@@ -977,7 +977,6 @@ config ARCH_ZYNQMP
 	imply FAT_WRITE
 	imply MP
 	imply DM_USB_GADGET
-	imply SPL_DRIVERS_MISC_SUPPORT
 
 config TEGRA
 	bool "NVIDIA Tegra"
