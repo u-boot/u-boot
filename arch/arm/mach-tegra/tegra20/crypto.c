@@ -39,34 +39,35 @@ static void left_shift_vector(u8 *in, u8 *out, int size)
 /**
  * Sign a block of data, putting the result into dst.
  *
- * \param key			Input AES key, length AES_KEY_LENGTH
+ * \param key			Input AES key, length AES128_KEY_LENGTH
  * \param key_schedule		Expanded key to use
  * \param src			Source data of length 'num_aes_blocks' blocks
- * \param dst			Destination buffer, length AES_KEY_LENGTH
+ * \param dst			Destination buffer, length AES128_KEY_LENGTH
  * \param num_aes_blocks	Number of AES blocks to encrypt
  */
 static void sign_object(u8 *key, u8 *key_schedule, u8 *src, u8 *dst,
 			u32 num_aes_blocks)
 {
-	u8 tmp_data[AES_KEY_LENGTH];
-	u8 iv[AES_KEY_LENGTH] = {0};
-	u8 left[AES_KEY_LENGTH];
-	u8 k1[AES_KEY_LENGTH];
+	u8 tmp_data[AES128_KEY_LENGTH];
+	u8 iv[AES128_KEY_LENGTH] = {0};
+	u8 left[AES128_KEY_LENGTH];
+	u8 k1[AES128_KEY_LENGTH];
 	u8 *cbc_chain_data;
 	unsigned i;
 
 	cbc_chain_data = zero_key;	/* Convenient array of 0's for IV */
 
 	/* compute K1 constant needed by AES-CMAC calculation */
-	for (i = 0; i < AES_KEY_LENGTH; i++)
+	for (i = 0; i < AES128_KEY_LENGTH; i++)
 		tmp_data[i] = 0;
 
-	aes_cbc_encrypt_blocks(key_schedule, iv, tmp_data, left, 1);
+	aes_cbc_encrypt_blocks(AES128_KEY_LENGTH, key_schedule, iv,
+			       tmp_data, left, 1);
 
 	left_shift_vector(left, k1, sizeof(left));
 
 	if ((left[0] >> 7) != 0) /* get MSB of L */
-		k1[AES_KEY_LENGTH-1] ^= AES_CMAC_CONST_RB;
+		k1[AES128_KEY_LENGTH - 1] ^= AES_CMAC_CONST_RB;
 
 	/* compute the AES-CMAC value */
 	for (i = 0; i < num_aes_blocks; i++) {
@@ -78,31 +79,32 @@ static void sign_object(u8 *key, u8 *key_schedule, u8 *src, u8 *dst,
 			aes_apply_cbc_chain_data(tmp_data, k1, tmp_data);
 
 		/* encrypt the AES block */
-		aes_encrypt(tmp_data, key_schedule, dst);
+		aes_encrypt(AES128_KEY_LENGTH, tmp_data,
+			    key_schedule, dst);
 
 		debug("sign_obj: block %d of %d\n", i, num_aes_blocks);
 
 		/* Update pointers for next loop. */
 		cbc_chain_data = dst;
-		src += AES_KEY_LENGTH;
+		src += AES128_KEY_LENGTH;
 	}
 }
 
 /**
  * Encrypt and sign a block of data (depending on security mode).
  *
- * \param key		Input AES key, length AES_KEY_LENGTH
+ * \param key		Input AES key, length AES128_KEY_LENGTH
  * \param oper		Security operations mask to perform (enum security_op)
  * \param src		Source data
  * \param length	Size of source data
- * \param sig_dst	Destination address for signature, AES_KEY_LENGTH bytes
+ * \param sig_dst	Destination address for signature, AES128_KEY_LENGTH bytes
  */
 static int encrypt_and_sign(u8 *key, enum security_op oper, u8 *src,
 			    u32 length, u8 *sig_dst)
 {
 	u32 num_aes_blocks;
-	u8 key_schedule[AES_EXPAND_KEY_LENGTH];
-	u8 iv[AES_KEY_LENGTH] = {0};
+	u8 key_schedule[AES128_EXPAND_KEY_LENGTH];
+	u8 iv[AES128_KEY_LENGTH] = {0};
 
 	debug("encrypt_and_sign: length = %d\n", length);
 
@@ -110,15 +112,16 @@ static int encrypt_and_sign(u8 *key, enum security_op oper, u8 *src,
 	 * The only need for a key is for signing/checksum purposes, so
 	 * if not encrypting, expand a key of 0s.
 	 */
-	aes_expand_key(oper & SECURITY_ENCRYPT ? key : zero_key, key_schedule);
+	aes_expand_key(oper & SECURITY_ENCRYPT ? key : zero_key,
+		       AES128_KEY_LENGTH, key_schedule);
 
-	num_aes_blocks = (length + AES_KEY_LENGTH - 1) / AES_KEY_LENGTH;
+	num_aes_blocks = (length + AES128_KEY_LENGTH - 1) / AES128_KEY_LENGTH;
 
 	if (oper & SECURITY_ENCRYPT) {
 		/* Perform this in place, resulting in src being encrypted. */
 		debug("encrypt_and_sign: begin encryption\n");
-		aes_cbc_encrypt_blocks(key_schedule, iv, src, src,
-				       num_aes_blocks);
+		aes_cbc_encrypt_blocks(AES128_KEY_LENGTH, key_schedule, iv, src,
+				       src, num_aes_blocks);
 		debug("encrypt_and_sign: end encryption\n");
 	}
 
