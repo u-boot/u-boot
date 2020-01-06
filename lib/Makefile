@@ -21,6 +21,7 @@ obj-$(CONFIG_ASN1_DECODER) += asn1_decoder.o
 obj-y += crypto/
 
 obj-$(CONFIG_AES) += aes.o
+obj-$(CONFIG_$(SPL_TPL_)BINMAN_FDT) += binman.o
 
 ifndef API_BUILD
 ifneq ($(CONFIG_UT_UNICODE)$(CONFIG_EFI_LOADER),)
@@ -77,7 +78,7 @@ endif
 ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_SPL_YMODEM_SUPPORT) += crc16.o
 obj-$(CONFIG_$(SPL_TPL_)HASH_SUPPORT) += crc16.o
-obj-$(CONFIG_SPL_NET_SUPPORT) += net_utils.o
+obj-y += net_utils.o
 endif
 obj-$(CONFIG_ADDR_MAP) += addr_map.o
 obj-y += qsort.o

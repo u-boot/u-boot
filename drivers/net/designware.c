@@ -82,7 +82,7 @@ static int dw_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
 	return ret;
 }
 
-#if defined(CONFIG_DM_ETH) && defined(CONFIG_DM_GPIO)
+#if defined(CONFIG_DM_ETH) && CONFIG_IS_ENABLED(DM_GPIO)
 static int dw_mdio_reset(struct mii_dev *bus)
 {
 	struct udevice *dev = bus->priv;
@@ -128,7 +128,7 @@ static int dw_mdio_init(const char *name, void *priv)
 	bus->read = dw_mdio_read;
 	bus->write = dw_mdio_write;
 	snprintf(bus->name, sizeof(bus->name), "%s", name);
-#if defined(CONFIG_DM_ETH) && defined(CONFIG_DM_GPIO)
+#if defined(CONFIG_DM_ETH) && CONFIG_IS_ENABLED(DM_GPIO)
 	bus->reset = dw_mdio_reset;
 #endif
 
@@ -807,12 +807,12 @@ const struct eth_ops designware_eth_ops = {
 int designware_eth_ofdata_to_platdata(struct udevice *dev)
 {
 	struct dw_eth_pdata *dw_pdata = dev_get_platdata(dev);
-#ifdef CONFIG_DM_GPIO
+#if CONFIG_IS_ENABLED(DM_GPIO)
 	struct dw_eth_dev *priv = dev_get_priv(dev);
 #endif
 	struct eth_pdata *pdata = &dw_pdata->eth_pdata;
 	const char *phy_mode;
-#ifdef CONFIG_DM_GPIO
+#if CONFIG_IS_ENABLED(DM_GPIO)
 	int reset_flags = GPIOD_IS_OUT;
 #endif
 	int ret = 0;
@@ -829,7 +829,7 @@ int designware_eth_ofdata_to_platdata(struct udevice *dev)
 
 	pdata->max_speed = dev_read_u32_default(dev, "max-speed", 0);
 
-#ifdef CONFIG_DM_GPIO
+#if CONFIG_IS_ENABLED(DM_GPIO)
 	if (dev_read_bool(dev, "snps,reset-active-low"))
 		reset_flags |= GPIOD_ACTIVE_LOW;
 

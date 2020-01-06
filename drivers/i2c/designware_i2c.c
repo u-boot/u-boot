@@ -13,34 +13,6 @@
 #include <asm/io.h>
 #include "designware_i2c.h"
 
-struct dw_scl_sda_cfg {
-	u32 ss_hcnt;
-	u32 fs_hcnt;
-	u32 ss_lcnt;
-	u32 fs_lcnt;
-	u32 sda_hold;
-};
-
-#ifdef CONFIG_X86
-/* BayTrail HCNT/LCNT/SDA hold time */
-static struct dw_scl_sda_cfg byt_config = {
-	.ss_hcnt = 0x200,
-	.fs_hcnt = 0x55,
-	.ss_lcnt = 0x200,
-	.fs_lcnt = 0x99,
-	.sda_hold = 0x6,
-};
-#endif
-
-struct dw_i2c {
-	struct i2c_regs *regs;
-	struct dw_scl_sda_cfg *scl_sda_cfg;
-	struct reset_ctl_bulk resets;
-#if CONFIG_IS_ENABLED(CLK)
-	struct clk clk;
-#endif
-};
-
 #ifdef CONFIG_SYS_I2C_DW_ENABLE_STATUS_UNSUPPORTED
 static int  dw_i2c_enable(struct i2c_regs *i2c_base, bool enable)
 {
@@ -90,7 +62,9 @@ static unsigned int __dw_i2c_set_bus_speed(struct i2c_regs *i2c_base,
 	unsigned int ena;
 	int i2c_spd;
 
-	if (speed >= I2C_MAX_SPEED)
+	/* Allow max speed if there is no config, or the config allows it */
+	if (speed >= I2C_MAX_SPEED &&
+	    (!scl_sda_cfg || scl_sda_cfg->has_max_speed))
 		i2c_spd = IC_SPEED_MODE_MAX;
 	else if (speed >= I2C_FAST_SPEED)
 		i2c_spd = IC_SPEED_MODE_FAST;
@@ -106,7 +80,6 @@ static unsigned int __dw_i2c_set_bus_speed(struct i2c_regs *i2c_base,
 	cntl = (readl(&i2c_base->ic_con) & (~IC_CON_SPD_MSK));
 
 	switch (i2c_spd) {
-#ifndef CONFIG_X86 /* No High-speed for BayTrail yet */
 	case IC_SPEED_MODE_MAX:
 		cntl |= IC_CON_SPD_SS;
 		if (scl_sda_cfg) {
@@ -119,7 +92,6 @@ static unsigned int __dw_i2c_set_bus_speed(struct i2c_regs *i2c_base,
 		writel(hcnt, &i2c_base->ic_hs_scl_hcnt);
 		writel(lcnt, &i2c_base->ic_hs_scl_lcnt);
 		break;
-#endif
 
 	case IC_SPEED_MODE_STANDARD:
 		cntl |= IC_CON_SPD_SS;
@@ -565,24 +537,19 @@ static int designware_i2c_probe_chip(struct udevice *bus, uint chip_addr,
 	return ret;
 }
 
-static int designware_i2c_probe(struct udevice *bus)
+static int designware_i2c_ofdata_to_platdata(struct udevice *bus)
+{
+	struct dw_i2c *priv = dev_get_priv(bus);
+
+	priv->regs = (struct i2c_regs *)devfdt_get_addr_ptr(bus);
+
+	return 0;
+}
+
+int designware_i2c_probe(struct udevice *bus)
 {
 	struct dw_i2c *priv = dev_get_priv(bus);
 	int ret;
-
-	if (device_is_on_pci_bus(bus)) {
-#ifdef CONFIG_DM_PCI
-		/* Save base address from PCI BAR */
-		priv->regs = (struct i2c_regs *)
-			dm_pci_map_bar(bus, PCI_BASE_ADDRESS_0, PCI_REGION_MEM);
-#ifdef CONFIG_X86
-		/* Use BayTrail specific timing values */
-		priv->scl_sda_cfg = &byt_config;
-#endif
-#endif
-	} else {
-		priv->regs = (struct i2c_regs *)devfdt_get_addr_ptr(bus);
-	}
 
 	ret = reset_get_bulk(bus, &priv->resets);
 	if (ret)
@@ -606,7 +573,7 @@ static int designware_i2c_probe(struct udevice *bus)
 	return __dw_i2c_init(priv->regs, 0, 0);
 }
 
-static int designware_i2c_remove(struct udevice *dev)
+int designware_i2c_remove(struct udevice *dev)
 {
 	struct dw_i2c *priv = dev_get_priv(dev);
 
@@ -618,30 +585,7 @@ static int designware_i2c_remove(struct udevice *dev)
 	return reset_release_bulk(&priv->resets);
 }
 
-static int designware_i2c_bind(struct udevice *dev)
-{
-	static int num_cards;
-	char name[20];
-
-	/* Create a unique device name for PCI type devices */
-	if (device_is_on_pci_bus(dev)) {
-		/*
-		 * ToDo:
-		 * Setting req_seq in the driver is probably not recommended.
-		 * But without a DT alias the number is not configured. And
-		 * using this driver is impossible for PCIe I2C devices.
-		 * This can be removed, once a better (correct) way for this
-		 * is found and implemented.
-		 */
-		dev->req_seq = num_cards;
-		sprintf(name, "i2c_designware#%u", num_cards++);
-		device_set_name(dev, name);
-	}
-
-	return 0;
-}
-
-static const struct dm_i2c_ops designware_i2c_ops = {
+const struct dm_i2c_ops designware_i2c_ops = {
 	.xfer		= designware_i2c_xfer,
 	.probe_chip	= designware_i2c_probe_chip,
 	.set_bus_speed	= designware_i2c_set_bus_speed,
@@ -656,28 +600,12 @@ U_BOOT_DRIVER(i2c_designware) = {
 	.name	= "i2c_designware",
 	.id	= UCLASS_I2C,
 	.of_match = designware_i2c_ids,
-	.bind	= designware_i2c_bind,
+	.ofdata_to_platdata = designware_i2c_ofdata_to_platdata,
 	.probe	= designware_i2c_probe,
 	.priv_auto_alloc_size = sizeof(struct dw_i2c),
 	.remove = designware_i2c_remove,
-	.flags = DM_FLAG_OS_PREPARE,
+	.flags	= DM_FLAG_OS_PREPARE,
 	.ops	= &designware_i2c_ops,
 };
-
-#ifdef CONFIG_X86
-static struct pci_device_id designware_pci_supported[] = {
-	/* Intel BayTrail has 7 I2C controller located on the PCI bus */
-	{ PCI_VDEVICE(INTEL, 0x0f41) },
-	{ PCI_VDEVICE(INTEL, 0x0f42) },
-	{ PCI_VDEVICE(INTEL, 0x0f43) },
-	{ PCI_VDEVICE(INTEL, 0x0f44) },
-	{ PCI_VDEVICE(INTEL, 0x0f45) },
-	{ PCI_VDEVICE(INTEL, 0x0f46) },
-	{ PCI_VDEVICE(INTEL, 0x0f47) },
-	{},
-};
-
-U_BOOT_PCI_DEVICE(i2c_designware, designware_pci_supported);
-#endif
 
 #endif /* CONFIG_DM_I2C */

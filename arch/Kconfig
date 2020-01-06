@@ -133,6 +133,9 @@ config SANDBOX
 	imply PHYLIB
 	imply DM_MDIO
 	imply DM_MDIO_MUX
+	imply ACPI_PMC
+	imply ACPI_PMC_SANDBOX
+	imply CMD_PMC
 
 config SH
 	bool "SuperH architecture"
@@ -183,12 +186,14 @@ config X86
 	imply USB_HOST_ETHER
 	imply PCH
 	imply RTC_MC146818
+	imply IRQ
 
 	# Thing to enable for when SPL/TPL are enabled: SPL
 	imply SPL_DM
 	imply SPL_OF_LIBFDT
 	imply SPL_DRIVERS_MISC_SUPPORT
 	imply SPL_GPIO_SUPPORT
+	imply SPL_PINCTRL
 	imply SPL_LIBCOMMON_SUPPORT
 	imply SPL_LIBGENERIC_SUPPORT
 	imply SPL_SERIAL_SUPPORT
@@ -200,14 +205,12 @@ config X86
 	imply SPL_SYSCON
 	# TPL
 	imply TPL_DM
-	imply TPL_OF_LIBFDT
 	imply TPL_DRIVERS_MISC_SUPPORT
 	imply TPL_GPIO_SUPPORT
+	imply TPL_PINCTRL
 	imply TPL_LIBCOMMON_SUPPORT
 	imply TPL_LIBGENERIC_SUPPORT
 	imply TPL_SERIAL_SUPPORT
-	imply TPL_SPI_FLASH_SUPPORT
-	imply TPL_SPI_SUPPORT
 	imply TPL_OF_CONTROL
 	imply TPL_TIMER
 	imply TPL_REGMAP

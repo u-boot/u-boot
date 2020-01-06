@@ -21,6 +21,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <malloc.h>
+#include <spl.h>
 #include <asm/control_regs.h>
 #include <asm/cpu.h>
 #include <asm/mp.h>
@@ -58,6 +59,8 @@ struct cpuinfo_x86 {
 	uint8_t x86_mask;
 };
 
+/* gcc 7.3 does not wwant to drop x86_vendors, so use #ifdef */
+#ifndef CONFIG_TPL_BUILD
 /*
  * List of cpu vendor strings along with their normalized
  * id values.
@@ -78,6 +81,7 @@ static const struct {
 	{ X86_VENDOR_NSC,       "Geode by NSC", },
 	{ X86_VENDOR_SIS,       "SiS SiS SiS ", },
 };
+#endif
 
 static void load_ds(u32 segment)
 {
@@ -199,6 +203,7 @@ static inline int test_cyrix_52div(void)
 	return (unsigned char) (test >> 8) == 0x02;
 }
 
+#ifndef CONFIG_TPL_BUILD
 /*
  *	Detect a NexGen CPU running without BIOS hypercode new enough
  *	to have CPUID. (Thanks to Herbert Oppmann)
@@ -219,6 +224,7 @@ static int deep_magic_nexgen_probe(void)
 		: "=a" (ret) : : "cx", "dx");
 	return  ret;
 }
+#endif
 
 static bool has_cpuid(void)
 {
@@ -230,6 +236,7 @@ static bool has_mtrr(void)
 	return cpuid_edx(0x00000001) & (1 << 12) ? true : false;
 }
 
+#ifndef CONFIG_TPL_BUILD
 static int build_vendor_name(char *vendor_name)
 {
 	struct cpuid_result result;
@@ -242,14 +249,40 @@ static int build_vendor_name(char *vendor_name)
 
 	return result.eax;
 }
+#endif
 
 static void identify_cpu(struct cpu_device_id *cpu)
 {
+	cpu->device = 0; /* fix gcc 4.4.4 warning */
+
+	/*
+	 * Do a quick and dirty check to save space - Intel and AMD only and
+	 * just the vendor. This is enough for most TPL code.
+	 */
+	if (spl_phase() == PHASE_TPL) {
+		struct cpuid_result result;
+
+		result = cpuid(0x00000000);
+		switch (result.ecx >> 24) {
+		case 'l': /* GenuineIntel */
+			cpu->vendor = X86_VENDOR_INTEL;
+			break;
+		case 'D': /* AuthenticAMD */
+			cpu->vendor = X86_VENDOR_AMD;
+			break;
+		default:
+			cpu->vendor = X86_VENDOR_ANY;
+			break;
+		}
+		return;
+	}
+
+/* gcc 7.3 does not want to drop x86_vendors, so use #ifdef */
+#ifndef CONFIG_TPL_BUILD
 	char vendor_name[16];
 	int i;
 
 	vendor_name[0] = '\0'; /* Unset */
-	cpu->device = 0; /* fix gcc 4.4.4 warning */
 
 	/* Find the id and vendor_name */
 	if (!has_cpuid()) {
@@ -265,9 +298,8 @@ static void identify_cpu(struct cpu_device_id *cpu)
 		/* Detect NexGen with old hypercode */
 		else if (deep_magic_nexgen_probe())
 			memcpy(vendor_name, "NexGenDriven", 13);
-	}
-	if (has_cpuid()) {
-		int  cpuid_level;
+	} else {
+		int cpuid_level;
 
 		cpuid_level = build_vendor_name(vendor_name);
 		vendor_name[12] = '\0';
@@ -287,6 +319,7 @@ static void identify_cpu(struct cpu_device_id *cpu)
 			break;
 		}
 	}
+#endif
 }
 
 static inline void get_fms(struct cpuinfo_x86 *c, uint32_t tfms)

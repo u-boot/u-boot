@@ -451,6 +451,24 @@ class TestBuild(unittest.TestCase):
                     'crosstool/files/bin/x86_64/.*/'
                     'x86_64-gcc-.*-nolibc_arm-.*linux-gnueabi.tar.xz')
 
+    def testGetEnvArgs(self):
+        """Test the GetEnvArgs() function"""
+        tc = self.toolchains.Select('arm')
+        self.assertEqual('arm-linux-',
+                         tc.GetEnvArgs(toolchain.VAR_CROSS_COMPILE))
+        self.assertEqual('', tc.GetEnvArgs(toolchain.VAR_PATH))
+        self.assertEqual('arm',
+                         tc.GetEnvArgs(toolchain.VAR_ARCH))
+        self.assertEqual('', tc.GetEnvArgs(toolchain.VAR_MAKE_ARGS))
+
+        self.toolchains.Add('/path/to/x86_64-linux-gcc', test=False)
+        tc = self.toolchains.Select('x86')
+        self.assertEqual('/path/to',
+                         tc.GetEnvArgs(toolchain.VAR_PATH))
+        tc.override_toolchain = 'clang'
+        self.assertEqual('HOSTCC=clang CC=clang',
+                         tc.GetEnvArgs(toolchain.VAR_MAKE_ARGS))
+
 
 if __name__ == "__main__":
     unittest.main()

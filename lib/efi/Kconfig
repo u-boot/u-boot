@@ -1,6 +1,7 @@
 config EFI
 	bool "Support running U-Boot from EFI"
 	depends on X86
+	imply X86_TSC_READ_BASE
 	help
 	  U-Boot can be started from EFI on certain platforms. This allows
 	  EFI to perform most of the system init and then jump to U-Boot for

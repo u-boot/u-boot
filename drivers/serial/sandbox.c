@@ -33,7 +33,7 @@ DECLARE_GLOBAL_DATA_PTR;
  *   serial_buf_write		 == serial_buf_read -> empty buffer
  *   (serial_buf_write + 1) % 16 == serial_buf_read -> full buffer
  */
-static char serial_buf[16];
+static unsigned char serial_buf[16];
 static unsigned int serial_buf_write;
 static unsigned int serial_buf_read;
 

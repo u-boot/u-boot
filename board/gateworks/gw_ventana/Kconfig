@@ -1,5 +1,8 @@
 if TARGET_GW_VENTANA
 
+config DM_GPIO
+	default y
+
 config SYS_BOARD
 	default "gw_ventana"
 

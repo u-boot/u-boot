@@ -30,7 +30,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define OMAP_GPIO_DIR_OUT	0
 #define OMAP_GPIO_DIR_IN	1
 
-#ifdef CONFIG_DM_GPIO
+#if CONFIG_IS_ENABLED(DM_GPIO)
 
 #define GPIO_PER_BANK			32
 
@@ -121,7 +121,7 @@ static int _get_gpio_value(const struct gpio_bank *bank, int gpio)
 	return (__raw_readl(reg) & (1 << gpio)) != 0;
 }
 
-#ifndef CONFIG_DM_GPIO
+#if !CONFIG_IS_ENABLED(DM_GPIO)
 
 static inline const struct gpio_bank *get_gpio_bank(int gpio)
 {
@@ -377,4 +377,4 @@ U_BOOT_DRIVER(gpio_omap) = {
 #endif
 };
 
-#endif /* CONFIG_DM_GPIO */
+#endif /* !DM_GPIO */

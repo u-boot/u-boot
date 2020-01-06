@@ -1,0 +1,26 @@
+#
+# Intel PINCTRL drivers
+#
+
+if PINCTRL_INTEL
+
+config INTEL_PINCTRL_DUAL_ROUTE_SUPPORT
+	bool
+	default y
+
+config INTEL_PINCTRL_PADCFG_PADTOL
+	bool n
+
+config INTEL_PINCTRL_IOSTANDBY
+	bool
+	default y
+
+config PINCTRL_INTEL_APL
+	bool "Support Intel Apollo Lake (APL)"
+	help
+	  Add support for Intel Apollo Lake pin-control and pin-mux settings.
+	  These are mostly read from the device tree, with the early-pads
+	  property in the host bridge and the pads property in the fsp-s
+	  subnode of the host bridge.
+
+endif

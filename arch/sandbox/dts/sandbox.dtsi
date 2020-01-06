@@ -100,6 +100,17 @@
 	};
 
 	pci-controller {
+		pci@1e,0 {
+			compatible = "sandbox,pmc";
+			reg = <0xf000 0 0 0 0>;
+			sandbox,emul = <&pmc_emul>;
+			gpe0-dwx-mask = <0xf>;
+			gpe0-dwx-shift-base = <4>;
+			gpe0-dw = <6 7 9>;
+			gpe0-sts = <0x20>;
+			gpe0-en = <0x30>;
+		};
+
 		pci@1f,0 {
 			compatible = "pci-generic";
 			reg = <0xf800 0 0 0 0>;
@@ -109,6 +120,9 @@
 
 	emul {
 		compatible = "sandbox,pci-emul-parent";
+		pmc_emul: emul@1e,0 {
+			compatible = "sandbox,pmc-emul";
+		};
 		swap_case_emul: emul@1f,0 {
 			compatible = "sandbox,swap-case";
 		};

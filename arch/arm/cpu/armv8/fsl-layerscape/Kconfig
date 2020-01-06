@@ -219,6 +219,7 @@ config ARCH_LX2160A
 	select SYS_FSL_DDR_VER_50
 	select SYS_FSL_EC1
 	select SYS_FSL_EC2
+	select SYS_FSL_ERRATUM_A050106
 	select SYS_FSL_HAS_RGMII
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_HAS_CCN508
@@ -251,20 +252,6 @@ menu "Layerscape architecture"
 
 config FSL_LAYERSCAPE
 	bool
-
-config FSL_PCIE_COMPAT
-	string "PCIe compatible of Kernel DT"
-	depends on PCIE_LAYERSCAPE || PCIE_LAYERSCAPE_GEN4
-	default "fsl,ls1012a-pcie" if ARCH_LS1012A
-	default "fsl,ls1028a-pcie" if ARCH_LS1028A
-	default "fsl,ls1043a-pcie" if ARCH_LS1043A
-	default "fsl,ls1046a-pcie" if ARCH_LS1046A
-	default "fsl,ls2080a-pcie" if ARCH_LS2080A
-	default "fsl,ls1088a-pcie" if ARCH_LS1088A
-	default "fsl,lx2160a-pcie" if ARCH_LX2160A
-	help
-	  This compatible is used to find pci controller node in Kernel DT
-	  to complete fixup.
 
 config HAS_FEATURE_GIC64K_ALIGN
 	bool
@@ -348,6 +335,14 @@ config SYS_FSL_ERRATUM_A009008
 config SYS_FSL_ERRATUM_A009798
 	bool "Workaround for USB PHY erratum A009798"
 
+config SYS_FSL_ERRATUM_A050106
+	bool "Workaround for USB PHY erratum A050106"
+	help
+	  USB3.0 Receiver needs to enable fixed equalization
+	  for each of PHY instances in an SOC. This is similar
+	  to erratum A-009007, but this one is for LX2160A,
+	  and the register value is different.
+
 config SYS_FSL_ERRATUM_A010315
 	bool "Workaround for PCIe erratum A010315"
 
@@ -387,6 +382,15 @@ config QSPI_AHB_INIT
 	  The default setting for QSPI AHB bus just support 3bytes addressing.
 	  But some QSPI flash size up to 64MBytes, so initialize the QSPI AHB
 	  bus for those flashes to support the full QSPI flash size.
+
+config FSPI_AHB_EN_4BYTE
+	bool "Enable 4-byte Fast Read command for AHB mode"
+	default n
+	help
+	  The default setting for FlexSPI AHB bus just supports 3-byte addressing.
+	  But some FlexSPI flash sizes are up to 64MBytes.
+	  This flag enables fast read command for AHB mode and modifies required
+	  LUT to support full FlexSPI flash.
 
 config SYS_CCI400_OFFSET
 	hex "Offset for CCI400 base"

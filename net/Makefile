@@ -5,7 +5,6 @@
 
 #ccflags-y += -DDEBUG
 
-obj-y += checksum.o
 obj-$(CONFIG_NET)      += arp.o
 obj-$(CONFIG_CMD_BOOTP) += bootp.o
 obj-$(CONFIG_CMD_CDP)  += cdp.o

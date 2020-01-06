@@ -9,6 +9,7 @@
 #include <asm/fsp/fsp_support.h>
 #include <asm/e820.h>
 #include <asm/mrccache.h>
+#include <asm/mtrr.h>
 #include <asm/post.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -38,8 +39,40 @@ int fsp_scan_for_ram_size(void)
 
 int dram_init_banksize(void)
 {
+	const struct hob_header *hdr;
+	struct hob_res_desc *res_desc;
+	phys_addr_t low_end;
+	uint bank;
+
+	low_end = 0;
+	for (bank = 1, hdr = gd->arch.hob_list;
+	     bank < CONFIG_NR_DRAM_BANKS && !end_of_hob(hdr);
+	     hdr = get_next_hob(hdr)) {
+		if (hdr->type != HOB_TYPE_RES_DESC)
+			continue;
+		res_desc = (struct hob_res_desc *)hdr;
+		if (res_desc->type != RES_SYS_MEM &&
+		    res_desc->type != RES_MEM_RESERVED)
+			continue;
+		if (res_desc->phys_start < (1ULL << 32)) {
+			low_end = max(low_end,
+				      res_desc->phys_start + res_desc->len);
+			continue;
+		}
+
+		gd->bd->bi_dram[bank].start = res_desc->phys_start;
+		gd->bd->bi_dram[bank].size = res_desc->len;
+		mtrr_add_request(MTRR_TYPE_WRBACK, res_desc->phys_start,
+				 res_desc->len);
+		log_debug("ram %llx %llx\n", gd->bd->bi_dram[bank].start,
+			  gd->bd->bi_dram[bank].size);
+	}
+
+	/* Add the memory below 4GB */
 	gd->bd->bi_dram[0].start = 0;
-	gd->bd->bi_dram[0].size = gd->ram_size;
+	gd->bd->bi_dram[0].size = low_end;
+
+	mtrr_add_request(MTRR_TYPE_WRBACK, 0, low_end);
 
 	return 0;
 }

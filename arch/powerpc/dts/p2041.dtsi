@@ -60,6 +60,18 @@
 			clock-frequency = <0x0>;
 		};
 
+		usb0: usb@210000 {
+			compatible = "fsl-usb2-mph";
+			reg = <0x210000 0x1000>;
+			phy_type = "utmi";
+		};
+
+		usb1: usb@211000 {
+			compatible = "fsl-usb2-mph";
+			reg = <0x210000 0x1000>;
+			phy_type = "utmi";
+		};
+
 		sata: sata@220000 {
 			compatible = "fsl,pq-sata-v2";
 			reg = <0x220000 0x1000>;

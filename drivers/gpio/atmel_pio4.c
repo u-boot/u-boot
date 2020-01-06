@@ -168,7 +168,7 @@ int atmel_pio4_get_pio_input(u32 port, u32 pin)
 	return (readl(&port_base->pdsr) & mask) ? 1 : 0;
 }
 
-#ifdef CONFIG_DM_GPIO
+#if CONFIG_IS_ENABLED(DM_GPIO)
 
 struct atmel_pioctrl_data {
 	u32 nbanks;

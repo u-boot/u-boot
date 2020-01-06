@@ -169,10 +169,29 @@ struct spl_load_info {
  * We need to know the position of U-Boot in memory so we can jump to it. We
  * allow any U-Boot binary to be used (u-boot.bin, u-boot-nodtb.bin,
  * u-boot.img), hence the '_any'. These is no checking here that the correct
- * image is found. For * example if u-boot.img is used we don't check that
+ * image is found. For example if u-boot.img is used we don't check that
  * spl_parse_image_header() can parse a valid header.
+ *
+ * Similarly for SPL, so that TPL can jump to SPL.
  */
 binman_sym_extern(ulong, u_boot_any, image_pos);
+binman_sym_extern(ulong, u_boot_any, size);
+binman_sym_extern(ulong, spl, image_pos);
+binman_sym_extern(ulong, spl, size);
+
+/**
+ * spl_get_image_pos() - get the image position of the next phase
+ *
+ * This returns the image position to use to load the next phase of U-Boot
+ */
+ulong spl_get_image_pos(void);
+
+/**
+ * spl_get_image_size() - get the size of the next phase
+ *
+ * This returns the size to use to load the next phase of U-Boot
+ */
+ulong spl_get_image_size(void);
 
 /**
  * spl_load_simple_fit_skip_processing() - Hook to allow skipping the FIT

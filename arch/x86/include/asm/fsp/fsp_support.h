@@ -144,13 +144,6 @@ int fsp_init_phase_pci(void);
 int fsp_scan_for_ram_size(void);
 
 /**
- * fsp_prepare_mrc_cache() - Find the DRAM training data from the MRC cache
- *
- * @return pointer to data, or NULL if no cache or no data found in the cache
- */
-void *fsp_prepare_mrc_cache(void);
-
-/**
  * fsp_notify() - FSP notification wrapper function
  *
  * @fsp_hdr: Pointer to FSP information header

@@ -15,7 +15,7 @@
 
 #include "da8xx_gpio.h"
 
-#ifndef CONFIG_DM_GPIO
+#if !CONFIG_IS_ENABLED(DM_GPIO)
 #include <asm/arch/hardware.h>
 #include <asm/arch/davinci_misc.h>
 
@@ -377,7 +377,8 @@ static int _gpio_direction_output(struct davinci_gpio *bank, unsigned int gpio,
 	_gpio_set_value(bank, gpio, value);
 	return 0;
 }
-#ifndef CONFIG_DM_GPIO
+
+#if !CONFIG_IS_ENABLED(DM_GPIO)
 
 void gpio_info(void)
 {
@@ -428,7 +429,7 @@ int gpio_set_value(unsigned int gpio, int value)
 	return _gpio_set_value(bank, gpio, value);
 }
 
-#else /* CONFIG_DM_GPIO */
+#else /* DM_GPIO */
 
 static struct davinci_gpio *davinci_get_gpio_bank(struct udevice *dev, unsigned int offset)
 {

@@ -5,7 +5,7 @@
  */
 
 #include <common.h>
-#include <asm/fsp1/fsp_support.h>
+#include <asm/fsp/fsp_support.h>
 #include <asm/post.h>
 
 u32 fsp_get_usable_lowmem_top(const void *hob_list)

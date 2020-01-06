@@ -116,7 +116,7 @@ static int prepare_mrc_cache(struct pei_data *pei_data)
 	ret = read_seed_from_cmos(pei_data);
 	if (ret)
 		return ret;
-	ret = mrccache_get_region(NULL, &entry);
+	ret = mrccache_get_region(MRC_TYPE_NORMAL, NULL, &entry);
 	if (ret)
 		return ret;
 	mrc_cache = mrccache_find_current(&entry);
@@ -538,12 +538,14 @@ int dram_init(void)
 
 	/* S3 resume: don't save scrambler seed or MRC data */
 	if (pei_data->boot_mode != PEI_BOOT_RESUME) {
+		struct mrc_output *mrc = &gd->arch.mrc[MRC_TYPE_NORMAL];
+
 		/*
 		 * This will be copied to SDRAM in reserve_arch(), then written
 		 * to SPI flash in mrccache_save()
 		 */
-		gd->arch.mrc_output = (char *)pei_data->mrc_output;
-		gd->arch.mrc_output_len = pei_data->mrc_output_len;
+		mrc->buf = (char *)pei_data->mrc_output;
+		mrc->len = pei_data->mrc_output_len;
 		ret = write_seeds_to_cmos(pei_data);
 		if (ret)
 			debug("Failed to write seeds to CMOS: %d\n", ret);

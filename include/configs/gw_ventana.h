@@ -36,7 +36,6 @@
 
 /* Driver Model */
 #ifndef CONFIG_SPL_BUILD
-#define CONFIG_DM_GPIO
 #define CONFIG_DM_THERMAL
 #endif
 

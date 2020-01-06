@@ -62,6 +62,12 @@ config KM_CONSOLE_TTY
 	help
 	  TTY console to use on board.
 
+config KM_DEF_NETDEV
+	string "Default Netdevice"
+	default "eth0"
+	help
+	  Default netdevice for debug interface
+
 config KM_COMMON_ETH_INIT
 	bool "Common Ethernet Initialization"
 	default y if KIRKWOOD || MPC83xx

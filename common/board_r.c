@@ -18,6 +18,7 @@
 #if defined(CONFIG_CMD_BEDBUG)
 #include <bedbug/type.h>
 #endif
+#include <binman.h>
 #include <command.h>
 #include <console.h>
 #include <dm.h>
@@ -310,15 +311,23 @@ static int initr_dm(void)
 	bootstage_accum(BOOTSTATE_ID_ACCUM_DM_R);
 	if (ret)
 		return ret;
-#ifdef CONFIG_TIMER_EARLY
-	ret = dm_timer_init();
-	if (ret)
-		return ret;
-#endif
 
 	return 0;
 }
 #endif
+
+static int initr_dm_devices(void)
+{
+	int ret;
+
+	if (IS_ENABLED(CONFIG_TIMER_EARLY)) {
+		ret = dm_timer_init();
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
 
 static int initr_bootstage(void)
 {
@@ -346,6 +355,14 @@ static int initr_manual_reloc_cmdtable(void)
 	return 0;
 }
 #endif
+
+static int initr_binman(void)
+{
+	if (!CONFIG_IS_ENABLED(BINMAN_FDT))
+		return 0;
+
+	return binman_init();
+}
 
 #if defined(CONFIG_MTD_NOR_FLASH)
 static int initr_flash(void)
@@ -697,6 +714,11 @@ static init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_EFI_LOADER
 	efi_memory_init,
 #endif
+	initr_binman,
+#ifdef CONFIG_FSP_VERSION2
+	arch_fsp_init_r,
+#endif
+	initr_dm_devices,
 	stdio_init_tables,
 	initr_serial,
 	initr_announce,

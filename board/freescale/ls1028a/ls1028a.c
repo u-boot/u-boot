@@ -86,7 +86,19 @@ int board_init(void)
 	if (!i2c_get_chip_for_busnum(0, I2C_MUX_PCA_ADDR_PRI, 1, &dev))
 		dm_i2c_write(dev, 0x0b, &val, 1);
 #endif
+#endif
 
+#if defined(CONFIG_TARGET_LS1028ARDB)
+	u8 reg;
+
+	reg = QIXIS_READ(brdcfg[4]);
+	/*
+	 * Field | Function
+	 * 3     | DisplayPort Power Enable (net DP_PWR_EN):
+	 * DPPWR | 0= DP_PWR is enabled.
+	 */
+	reg &= ~(DP_PWD_EN_DEFAULT_MASK);
+	QIXIS_WRITE(brdcfg[4], reg);
 #endif
 	return 0;
 }

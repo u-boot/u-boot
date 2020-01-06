@@ -10,6 +10,7 @@
 #ifndef __ASSEMBLY__
 
 #include <asm/processor.h>
+#include <asm/mrccache.h>
 
 enum pei_boot_mode_t {
 	PEI_BOOT_NONE = 0,
@@ -66,6 +67,21 @@ struct mtrr_request {
 	uint64_t size;
 };
 
+/**
+ * struct mrc_output - holds the MRC data
+ *
+ * @buf: MRC training data to save for the next boot. This is set to point to
+ *	the raw data after SDRAM init is complete. Then mrccache_setup()
+ *	turns it into a proper cache record with a checksum
+ * @len: Length of @buf
+ * @cache: Resulting cache record
+ */
+struct mrc_output {
+	char *buf;
+	uint len;
+	struct mrc_data_container *cache;
+};
+
 /* Architecture-specific global data */
 struct arch_global_data {
 	u64 gdt[X86_GDT_NUM_ENTRIES] __aligned(16);
@@ -90,12 +106,12 @@ struct arch_global_data {
 	struct mtrr_request mtrr_req[MAX_MTRR_REQUESTS];
 	int mtrr_req_count;
 	int has_mtrr;
-	/* MRC training data to save for the next boot */
-	char *mrc_output;
-	unsigned int mrc_output_len;
+	/* MRC training data */
+	struct mrc_output mrc[MRC_TYPE_COUNT];
 	ulong table;			/* Table pointer from previous loader */
 	int turbo_state;		/* Current turbo state */
 	struct irq_routing_table *pirq_routing_table;
+	int dw_i2c_num_cards;		/* Used by designware i2c driver */
 #ifdef CONFIG_SEABIOS
 	u32 high_table_ptr;
 	u32 high_table_limit;
@@ -103,6 +119,9 @@ struct arch_global_data {
 #ifdef CONFIG_HAVE_ACPI_RESUME
 	int prev_sleep_state;		/* Previous sleep state ACPI_S0/1../5 */
 	ulong backup_mem;		/* Backup memory address for S3 */
+#endif
+#ifdef CONFIG_FSP_VERSION2
+	struct fsp_header *fsp_s_hdr;	/* Pointer to FSP-S header */
 #endif
 };
 

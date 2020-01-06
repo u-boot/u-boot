@@ -28,7 +28,7 @@ struct davinci_gpio_bank {
 #define MAX_NUM_GPIOS		144
 #define GPIO_BIT(gp)		((gp) & 0x1F)
 
-#ifdef CONFIG_DM_GPIO
+#if CONFIG_IS_ENABLED(DM_GPIO)
 
 /* Information about a GPIO bank */
 struct davinci_gpio_platdata {

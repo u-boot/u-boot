@@ -13,6 +13,8 @@
 
 #define SANDBOX_PCI_VENDOR_ID		0x1234
 #define SANDBOX_PCI_SWAP_CASE_EMUL_ID	0x5678
+#define SANDBOX_PCI_PMC_EMUL_ID		0x5677
+#define SANDBOX_PCI_P2SB_EMUL_ID	0x5676
 #define SANDBOX_PCI_CLASS_CODE		PCI_CLASS_CODE_COMM
 #define SANDBOX_PCI_CLASS_SUB_CODE	PCI_CLASS_SUB_CODE_COMM_SERIAL
 
@@ -71,6 +73,13 @@ void sandbox_i2c_eeprom_set_test_mode(struct udevice *dev,
 				      enum sandbox_i2c_eeprom_test_mode mode);
 
 void sandbox_i2c_eeprom_set_offset_len(struct udevice *dev, int offset_len);
+
+void sandbox_i2c_eeprom_set_chip_addr_offset_mask(struct udevice *dev,
+						  uint mask);
+
+uint sanbox_i2c_eeprom_get_prev_addr(struct udevice *dev);
+
+uint sanbox_i2c_eeprom_get_prev_offset(struct udevice *dev);
 
 /**
  * sandbox_i2c_rtc_set_offset() - set the time offset from system/base time

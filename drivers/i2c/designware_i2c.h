@@ -7,6 +7,8 @@
 #ifndef __DW_I2C_H_
 #define __DW_I2C_H_
 
+#include <reset.h>
+
 struct i2c_regs {
 	u32 ic_con;		/* 0x00 */
 	u32 ic_tar;		/* 0x04 */
@@ -130,5 +132,38 @@ struct i2c_regs {
 #define I2C_MAX_SPEED		3400000
 #define I2C_FAST_SPEED		400000
 #define I2C_STANDARD_SPEED	100000
+
+/**
+ * struct dw_scl_sda_cfg - I2C timing configuration
+ *
+ * @has_max_speed: Support maximum speed (1Mbps)
+ * @ss_hcnt: Standard speed high time in ns
+ * @fs_hcnt: Fast speed high time in ns
+ * @ss_lcnt: Standard speed low time in ns
+ * @fs_lcnt: Fast speed low time in ns
+ * @sda_hold: SDA hold time
+ */
+struct dw_scl_sda_cfg {
+	bool has_max_speed;
+	u32 ss_hcnt;
+	u32 fs_hcnt;
+	u32 ss_lcnt;
+	u32 fs_lcnt;
+	u32 sda_hold;
+};
+
+struct dw_i2c {
+	struct i2c_regs *regs;
+	struct dw_scl_sda_cfg *scl_sda_cfg;
+	struct reset_ctl_bulk resets;
+#if CONFIG_IS_ENABLED(CLK)
+	struct clk clk;
+#endif
+};
+
+extern const struct dm_i2c_ops designware_i2c_ops;
+
+int designware_i2c_probe(struct udevice *bus);
+int designware_i2c_remove(struct udevice *dev);
 
 #endif /* __DW_I2C_H_ */

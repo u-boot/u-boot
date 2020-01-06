@@ -277,7 +277,7 @@ int dram_init(void)
 
 int checkboard(void)
 {
-	puts("Board: Keymile " CONFIG_KM_BOARD_NAME);
+	puts("Board: ABB " CONFIG_SYS_CONFIG_NAME);
 
 	if (piggy_present())
 		puts(" with PIGGY.");

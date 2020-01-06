@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2014-2016 Freescale Semiconductor, Inc.
- * Copyright 2017 NXP
+ * Copyright 2017-2018 NXP
  */
 
 #ifndef _FSL_MC_PRIVATE_H_
@@ -65,7 +65,22 @@ struct fsl_dpni_obj {
 
 extern struct fsl_dpni_obj *dflt_dpni;
 
+/**
+ * struct sp_blob_header - SP Blob header structure
+ * @magic: SP Blob magic number
+ * @blob_ver: SP Blob version
+ * @ip_rev: SP IP revision
+ * @length: Length of the SP Blob
+ */
+struct sp_blob_header {
+	u32 magic;
+	u32 blob_ver;
+	u32 ip_rev;
+	u32 length;
+};
+
 int mc_init(u64 mc_fw_addr, u64 mc_dpc_addr);
 int ldpaa_eth_init(int dpmac_id, phy_interface_t enet_if);
 int mc_apply_dpl(u64 mc_dpl_addr);
+int mc_apply_spb(u64 mc_spb_addr);
 #endif /* _FSL_MC_PRIVATE_H_ */

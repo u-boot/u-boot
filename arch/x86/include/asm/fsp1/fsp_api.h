@@ -4,11 +4,11 @@
  * Copyright (C) 2014, Bin Meng <bmeng.cn@gmail.com>
  */
 
-#ifndef __FSP_API_H__
-#define __FSP_API_H__
+#ifndef __FSP1_API_H__
+#define __FSP1_API_H__
 
 #include <linux/linkage.h>
-
+#include <asm/fsp/fsp_api.h>
 /*
  * FSP common configuration structure.
  * This needs to be included in the platform-specific struct fsp_config_data.
@@ -46,22 +46,7 @@ struct common_buf {
 	u32	reserved[6];	/* Reserved */
 };
 
-enum fsp_phase {
-	/* Notification code for post PCI enuermation */
-	INIT_PHASE_PCI	= 0x20,
-	/* Notification code before transfering control to the payload */
-	INIT_PHASE_BOOT	= 0x40
-};
-
-struct fsp_notify_params {
-	/* Notification phase used for NotifyPhase API */
-	enum fsp_phase	phase;
-};
-
 /* FspInit API function prototype */
 typedef asmlinkage u32 (*fsp_init_f)(struct fsp_init_params *params);
-
-/* FspNotify API function prototype */
-typedef asmlinkage u32 (*fsp_notify_f)(struct fsp_notify_params *params);
 
 #endif

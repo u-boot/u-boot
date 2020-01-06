@@ -9,15 +9,12 @@
 
 #if defined(CONFIG_KMCOGE4)
 #define CONFIG_HOSTNAME		"kmcoge4"
-#define CONFIG_KM_BOARD_NAME	"kmcoge4"
 
 #else
 #error ("Board not supported")
 #endif
 
 #define CONFIG_KMP204X
-
-#define CONFIG_KM_DEF_NETDEV	"netdev=eth0\0"
 
 /* an additionnal option is required for UBI as subpage access is
  * supported in u-boot

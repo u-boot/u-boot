@@ -21,7 +21,6 @@
  */
 
 #define CONFIG_HOSTNAME		"suvd3"
-#define CONFIG_KM_BOARD_NAME	"suvd3"
 
 /* include common defines/options for all Keymile boards */
 #include "km/keymile-common.h"

@@ -17,7 +17,10 @@ SECTIONS
 
 	. = IMAGE_TEXT_BASE;	/* Location of bootcode in flash */
 	__text_start = .;
-	.text  : { *(.text*); }
+	.text  : {
+		__image_copy_start = .;
+		*(.text*);
+	}
 
 	. = ALIGN(4);
 

@@ -210,7 +210,7 @@ int at91_pio3_set_d_periph(unsigned port, unsigned pin, int use_pullup)
 	return 0;
 }
 
-#ifdef CONFIG_DM_GPIO
+#if CONFIG_IS_ENABLED(DM_GPIO)
 static bool at91_get_port_output(struct at91_port *at91_port, int offset)
 {
 	u32 mask, val;
@@ -457,7 +457,7 @@ int at91_get_pio_value(unsigned port, unsigned pin)
 	return 0;
 }
 
-#ifndef CONFIG_DM_GPIO
+#if !CONFIG_IS_ENABLED(DM_GPIO)
 /* Common GPIO API */
 
 int gpio_request(unsigned gpio, const char *label)
@@ -499,7 +499,7 @@ int gpio_set_value(unsigned gpio, int value)
 }
 #endif
 
-#ifdef CONFIG_DM_GPIO
+#if CONFIG_IS_ENABLED(DM_GPIO)
 
 struct at91_port_priv {
 	struct at91_port *regs;
