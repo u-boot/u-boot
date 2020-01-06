@@ -207,6 +207,7 @@ static void fdt_fixup_pcie_ls(void *blob)
 		fdt_pcie_set_iommu_map_entry_ls(blob, pcie, bdf >> 8,
 						streamid);
 	}
+	pcie_board_fix_fdt(blob);
 }
 #endif
 
