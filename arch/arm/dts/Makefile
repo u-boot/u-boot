@@ -224,6 +224,8 @@ dtb-$(CONFIG_ARCH_VERSAL) += \
 	versal-v350-revA.dtb \
 	versal-vck190-revA.dtb \
 	versal-vck190-revA-x-ebm-01-revA.dtb \
+	versal-vck190-revA-x-ebm-02-revA.dtb \
+	versal-vck190-revA-x-ebm-03-revA.dtb \
 	versal-vc-p-a2197-00-revA.dtb \
 	versal-vc-p-a2197-00-revA-x-prc-01-revA.dtb \
 	versal-vc-p-a2197-00-revA-x-prc-01-revA-ospi.dtb \
@@ -234,7 +236,11 @@ dtb-$(CONFIG_ARCH_VERSAL) += \
 	versal-vc-p-a2197-00-revA-x-prc-05-revA.dtb \
 	versal-vmk180-revA.dtb \
 	versal-vmk180-revA-x-ebm-01-revA.dtb \
-	versal-x-ebm-01-revA.dtbo
+	versal-vmk180-revA-x-ebm-02-revA.dtb \
+	versal-vmk180-revA-x-ebm-03-revA.dtb \
+	versal-x-ebm-01-revA.dtbo \
+	versal-x-ebm-02-revA.dtbo \
+	versal-x-ebm-03-revA.dtbo
 dtb-$(CONFIG_ARCH_ZYNQMP_R5) += \
 	zynqmp-r5.dtb
 dtb-$(CONFIG_AM33XX) += am335x-boneblack.dtb am335x-bone.dtb \

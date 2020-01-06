@@ -1,0 +1,16 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * dts file for Xilinx Versal vck190 revA with X-EBM-02-revA module
+ *
+ * (C) Copyright 2020, Xilinx, Inc.
+ *
+ * Michal Simek <michal.simek@xilinx.com>
+ */
+
+#include "versal-vmk180-revA-x-ebm-02-revA.dts"
+
+/ {
+	compatible = "xlnx,versal-vck190-revA-x-ebm-02-revA",
+		     "xlnx,versal-vck190-revA", "xlnx,versal";
+	model = "Xilinx Versal vck190 Eval board revA (EMMC)";
+};
