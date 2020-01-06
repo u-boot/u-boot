@@ -596,62 +596,62 @@ void aes_apply_cbc_chain_data(u8 *cbc_chain_data, u8 *src, u8 *dst)
 {
 	int i;
 
-	for (i = 0; i < AES_KEY_LENGTH; i++)
+	for (i = 0; i < AES_BLOCK_LENGTH; i++)
 		*dst++ = *src++ ^ *cbc_chain_data++;
 }
 
 void aes_cbc_encrypt_blocks(u8 *key_exp, u8 *iv, u8 *src, u8 *dst,
 			    u32 num_aes_blocks)
 {
-	u8 tmp_data[AES_KEY_LENGTH];
+	u8 tmp_data[AES_BLOCK_LENGTH];
 	u8 *cbc_chain_data = iv;
 	u32 i;
 
 	for (i = 0; i < num_aes_blocks; i++) {
 		debug("encrypt_object: block %d of %d\n", i, num_aes_blocks);
-		debug_print_vector("AES Src", AES_KEY_LENGTH, src);
+		debug_print_vector("AES Src", AES_BLOCK_LENGTH, src);
 
 		/* Apply the chain data */
 		aes_apply_cbc_chain_data(cbc_chain_data, src, tmp_data);
-		debug_print_vector("AES Xor", AES_KEY_LENGTH, tmp_data);
+		debug_print_vector("AES Xor", AES_BLOCK_LENGTH, tmp_data);
 
 		/* Encrypt the AES block */
 		aes_encrypt(tmp_data, key_exp, dst);
-		debug_print_vector("AES Dst", AES_KEY_LENGTH, dst);
+		debug_print_vector("AES Dst", AES_BLOCK_LENGTH, dst);
 
 		/* Update pointers for next loop. */
 		cbc_chain_data = dst;
-		src += AES_KEY_LENGTH;
-		dst += AES_KEY_LENGTH;
+		src += AES_BLOCK_LENGTH;
+		dst += AES_BLOCK_LENGTH;
 	}
 }
 
 void aes_cbc_decrypt_blocks(u8 *key_exp, u8 *iv, u8 *src, u8 *dst,
 			    u32 num_aes_blocks)
 {
-	u8 tmp_data[AES_KEY_LENGTH], tmp_block[AES_KEY_LENGTH];
+	u8 tmp_data[AES_BLOCK_LENGTH], tmp_block[AES_BLOCK_LENGTH];
 	/* Convenient array of 0's for IV */
-	u8 cbc_chain_data[AES_KEY_LENGTH];
+	u8 cbc_chain_data[AES_BLOCK_LENGTH];
 	u32 i;
 
-	memcpy(cbc_chain_data, iv, AES_KEY_LENGTH);
+	memcpy(cbc_chain_data, iv, AES_BLOCK_LENGTH);
 	for (i = 0; i < num_aes_blocks; i++) {
 		debug("encrypt_object: block %d of %d\n", i, num_aes_blocks);
-		debug_print_vector("AES Src", AES_KEY_LENGTH, src);
+		debug_print_vector("AES Src", AES_BLOCK_LENGTH, src);
 
-		memcpy(tmp_block, src, AES_KEY_LENGTH);
+		memcpy(tmp_block, src, AES_BLOCK_LENGTH);
 
 		/* Decrypt the AES block */
 		aes_decrypt(src, key_exp, tmp_data);
-		debug_print_vector("AES Xor", AES_KEY_LENGTH, tmp_data);
+		debug_print_vector("AES Xor", AES_BLOCK_LENGTH, tmp_data);
 
 		/* Apply the chain data */
 		aes_apply_cbc_chain_data(cbc_chain_data, tmp_data, dst);
-		debug_print_vector("AES Dst", AES_KEY_LENGTH, dst);
+		debug_print_vector("AES Dst", AES_BLOCK_LENGTH, dst);
 
 		/* Update pointers for next loop. */
-		memcpy(cbc_chain_data, tmp_block, AES_KEY_LENGTH);
-		src += AES_KEY_LENGTH;
-		dst += AES_KEY_LENGTH;
+		memcpy(cbc_chain_data, tmp_block, AES_BLOCK_LENGTH);
+		src += AES_BLOCK_LENGTH;
+		dst += AES_BLOCK_LENGTH;
 	}
 }

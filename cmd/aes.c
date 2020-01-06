@@ -56,7 +56,7 @@ static int do_aes(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	aes_expand_key(key_ptr, key_exp);
 
 	/* Calculate the number of AES blocks to encrypt. */
-	aes_blocks = DIV_ROUND_UP(len, AES_KEY_LENGTH);
+	aes_blocks = DIV_ROUND_UP(len, AES_BLOCK_LENGTH);
 
 	if (enc)
 		aes_cbc_encrypt_blocks(key_exp, iv_ptr, src_ptr, dst_ptr,

@@ -18,7 +18,7 @@ typedef unsigned int u32;
  * AES encryption library, with small code size, supporting only 128-bit AES
  *
  * AES is a stream cipher which works a block at a time, with each block
- * in this case being AES_KEY_LENGTH bytes.
+ * in this case being AES_BLOCK_LENGTH bytes.
  */
 
 enum {
@@ -28,6 +28,7 @@ enum {
 
 	AES_KEY_LENGTH	= 128 / 8,
 	AES_EXPAND_KEY_LENGTH	= 4 * AES_STATECOLS * (AES_ROUNDS + 1),
+	AES_BLOCK_LENGTH	= 128 / 8,
 };
 
 /**
@@ -62,7 +63,7 @@ void aes_decrypt(u8 *in, u8 *expkey, u8 *out);
 /**
  * Apply chain data to the destination using EOR
  *
- * Each array is of length AES_KEY_LENGTH.
+ * Each array is of length AES_BLOCK_LENGTH.
  *
  * @cbc_chain_data	Chain data
  * @src			Source data
