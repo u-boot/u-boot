@@ -122,7 +122,7 @@ void boot_fdt_add_mem_rsv_regions(struct lmb *lmb, void *fdt_blob)
 			/* check if this subnode has a reg property */
 			ret = fdt_get_resource(fdt_blob, subnode, "reg", 0,
 					       &res);
-			if (!ret) {
+			if (!ret && fdtdec_get_is_enabled(fdt_blob, subnode)) {
 				addr = res.start;
 				size = res.end - res.start + 1;
 				boot_fdt_reserve_region(lmb, addr, size);
