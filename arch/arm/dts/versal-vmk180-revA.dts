@@ -1,0 +1,126 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * dts file for Xilinx Versal vmk180 revA
+ *
+ * (C) Copyright 2019, Xilinx, Inc.
+ *
+ * Michal Simek <michal.simek@xilinx.com>
+ */
+
+#include "versal.dtsi"
+#include "versal-clk.dtsi"
+
+/ {
+	compatible = "xlnx,versal-vmk180-revA", "xlnx,versal";
+	model = "Xilinx Versal vmk180 Eval board revA";
+
+	memory: memory@0 {
+		device_type = "memory";
+		reg = <0 0 0 0x80000000>, <0x8 0x0 0x1 0x80000000>;
+	};
+
+	chosen {
+		bootargs = "console=ttyAMA0 earlycon=pl011,mmio32,0xFF000000,115200n8 clk_ignore_unused";
+		stdout-path = "serial0:115200";
+	};
+
+	aliases {
+		serial0 = &serial0;
+		ethernet0 = &gem0;
+		ethernet1 = &gem1;
+		i2c0 = &i2c0;
+		i2c1 = &i2c1;
+		mmc0 = &sdhci1;
+		spi0 = &qspi;
+		usb0 = &usb0;
+		rtc0 = &rtc;
+	};
+};
+
+/* PMC_MIO 0 -12 - configuration header QSPI/OSPI/EMMC */
+/* FIXME PMC_MIO37 ZU4_TRIGGER/PMC_MIO37/38 PCIE */
+
+&can1 { /* MIO40-41 */
+	status = "okay";
+};
+
+&dcc {
+	status = "okay";
+};
+
+&rtc {
+	status = "okay";
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+&gpio1 {
+	status = "okay";
+};
+
+&watchdog {
+	status = "okay";
+};
+
+&sdhci1 { /* PMC_MIO26-36/51 */
+	status = "okay";
+	xlnx,mio_bank = <1>;
+	no-1-8-v;
+};
+
+&serial0 { /* PMC_MIO42/43 */
+	status = "okay";
+};
+
+&gem0 { /* PMC_MIO_48, LPD_MIO0-11/24/25 */
+	status = "okay";
+	phy-handle = <&phy1>; /* u128 */
+	phy-mode = "rgmii-id";
+	phy1: phy@1 {
+		reg = <1>;
+		ti,rx-internal-delay = <0xb>;
+		ti,tx-internal-delay = <0xa>;
+		ti,fifo-depth = <1>;
+		ti,dp83867-rxctrl-strap-quirk;
+	};
+	phy2: phy@2 {
+		reg = <2>;
+		ti,rx-internal-delay = <0xb>;
+		ti,tx-internal-delay = <0xa>;
+		ti,fifo-depth = <1>;
+		ti,dp83867-rxctrl-strap-quirk;
+	};
+};
+
+&gem1 { /* PMC_MIO_49, LPD_MIO12-23 */
+	status = "okay";
+	phy-handle = <&phy2>; /* u134 */
+	phy-mode = "rgmii-id";
+};
+
+&i2c0 { /* PMC_MIO46/47 */
+	status = "okay";
+	clock-frequency = <400000>;
+};
+
+&i2c1 { /* PMC_MIO44/45 */
+	status = "okay";
+	clock-frequency = <400000>;
+};
+
+&usb0 { /* PMC_MIO13_500 - PMC_MIO25 USB 2.0 */
+	status = "okay";
+	xlnx,usb-polarity = <0x0>;
+	xlnx,usb-reset-mode = <0x0>;
+};
+
+&dwc3_0 { /* USB 2.0 host */
+	status = "okay";
+	dr_mode = "host";
+	maximum-speed = "high-speed";
+	snps,dis_u2_susphy_quirk;
+	snps,dis_u3_susphy_quirk;
+	snps,usb3_lpm_capable;
+};

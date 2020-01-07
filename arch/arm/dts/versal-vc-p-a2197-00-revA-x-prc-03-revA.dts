@@ -1,0 +1,111 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * dts file for Xilinx Versal X-PRC-03 revA (SE3)
+ *
+ * (C) Copyright 2019, Xilinx, Inc.
+ *
+ * Michal Simek <michal.simek@xilinx.com>
+ */
+
+#include "versal-vc-p-a2197-00-revA.dts"
+
+/ {
+	compatible = "xlnx,versal-vc-p-a2197-00-revA-x-prc-03-revA",
+		     "xlnx,versal-vc-p-a2197-00-revA",
+		     "xlnx,versal-vc-p-a2197-00",
+		     "xlnx,versal-vc-p-a2197", "xlnx,versal";
+	model = "Xilinx Versal A2197 Processor board revA - x-prc-03 revA";
+
+	chosen {
+		bootargs = "console=ttyAMA0 earlycon=pl011,mmio32,0xFF000000,115200n8 clk_ignore_unused";
+		stdout-path = "serial0:115200";
+	};
+
+	aliases {
+		can0 = &can0;
+		can1 = &can1;
+		i2c0 = &i2c1;
+		mmc0 = &sdhci0;
+		mmc1 = &sdhci1;
+		serial0 = &serial0;
+		spi0 = &qspi;
+		spi1 = &spi0;
+	};
+};
+
+/* SMAP via cc108 */
+
+&can0 {
+	status = "okay";
+};
+
+&can1 {
+	status = "okay";
+};
+
+&i2c0 {
+	status = "okay";
+	clock-frequency = <400000>;
+	/* Must be enabled via J90/J91 */
+	eeprom_versal: eeprom@51 { /* U2 - 128kb RM24C128DS */
+		compatible = "atmel,24c128";
+		reg = <0x51>;
+	};
+};
+
+&qspi {
+	status = "okay"; /* u7 */
+	num-cs = <0x1>;
+	is-dual = <0x1>;
+	spi-rx-bus-width = <4>;
+	spi-tx-bus-width = <1>;
+
+	flash@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "m25p80", "jedec,spi-nor"; /* 64Mb */
+		reg = <0>;
+		spi-tx-bus-width = <1>;
+		spi-rx-bus-width = <4>;
+		spi-max-frequency = <108000000>;
+		partition@0 {
+			label = "spi0-flash0";
+			reg = <0x0 0x800000>;
+		};
+	};
+};
+
+&serial0 {
+	status = "okay";
+};
+
+&sdhci0 { /* J99 MIO28 - MIO33 */
+	status = "okay";
+	xlnx,mio_bank = <1>; /* FIXME */
+};
+
+&sdhci1 { /* EMMC IS21ES08G 200MHz MIO40 - MIO49 */
+	status = "okay";
+	non-removable;
+	disable-wp;
+	bus-width = <8>;
+	xlnx,mio_bank = <0>; /* FIXME */
+};
+
+&spi0 {
+	status = "okay";
+	num-cs = <1>;
+
+	flash@0 { /* U6 - IS25LQ032B - 16Mb */
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "issi,is25lq032b", "m25p80", "jedec,spi-nor";
+		spi-max-frequency = <104000000>;
+		reg = <0>;
+
+		partition@0 {
+			label = "spi0-flash0";
+			reg = <0 0x200000>;
+		};
+	};
+};

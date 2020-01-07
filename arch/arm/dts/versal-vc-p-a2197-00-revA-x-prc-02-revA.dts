@@ -1,0 +1,130 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * dts file for Xilinx Versal X-PRC-02 revA (SE2)
+ *
+ * (C) Copyright 2019, Xilinx, Inc.
+ *
+ * Michal Simek <michal.simek@xilinx.com>
+ */
+
+#include "versal-vc-p-a2197-00-revA.dts"
+
+/ {
+	compatible = "xlnx,versal-vc-p-a2197-00-revA-x-prc-02-revA",
+		     "xlnx,versal-vc-p-a2197-00-revA",
+		     "xlnx,versal-vc-p-a2197-00",
+		     "xlnx,versal-vc-p-a2197", "xlnx,versal";
+	model = "Xilinx Versal A2197 Processor board revA - x-prc-02 revA";
+
+	chosen {
+		bootargs = "console=ttyAMA0 earlycon=pl011,mmio32,0xFF000000,115200n8 clk_ignore_unused";
+		stdout-path = "serial0:115200";
+	};
+
+	aliases {
+		serial0 = &serial0;
+		ethernet0 = &gem0;
+		i2c0 = &i2c1;
+		mmc0 = &sdhci0;
+		mmc1 = &sdhci1;
+		spi0 = &spi0;
+		spi1 = &spi1;
+		usb0 = &usb0;
+	};
+};
+
+&serial0 {
+	status = "okay";
+};
+
+&gem0 {
+	status = "okay";
+	phy-handle = <&phy0>; /* u9 */
+	phy-mode = "rgmii-id";
+	phy0: phy@1 { /* Marvell 88E1512; U9 */
+		reg = <1>;
+	};
+};
+
+&sdhci0 {
+	status = "okay";
+	xlnx,mio_bank = <1>;
+};
+
+&sdhci1 { /* U1A */
+	status = "okay";
+	non-removable;
+	disable-wp;
+	bus-width = <8>;
+	xlnx,mio_bank = <0>;
+};
+
+&usb0 {
+	status = "okay";
+	xlnx,usb-polarity = <0>;
+	xlnx,usb-reset-mode = <0>;
+};
+
+&dwc3_0 { /* U4 */
+	status = "okay";
+	dr_mode = "peripheral";
+	snps,dis_u2_susphy_quirk;
+	snps,dis_u3_susphy_quirk;
+	maximum-speed = "high-speed";
+};
+
+&i2c0 {
+	status = "okay";
+	clock-frequency = <400000>;
+	/* U12 Catalyst EEPROM - AT24 should be equivalent */
+	eeprom_versal: eeprom@51 {
+		compatible = "atmel,24c128";
+		reg = <0x51>;
+	};
+
+	/* FIXME - U13 and U15 */
+};
+
+&can0 {
+	status = "okay";
+};
+
+&can1 {
+	status = "okay";
+};
+
+&spi0 {
+	status = "okay";
+	num-cs = <1>;
+
+	flash@0 { /* U18 */
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "sst,sst25vf016b", "m25p80", "jedec,spi-nor";
+		spi-max-frequency = <25000000>;
+		reg = <0>;
+
+		partition@0 {
+			label = "spi0-flash0";
+			reg = <0x0 0x200000>;
+		};
+	};
+};
+
+&spi1 {
+	status = "okay";
+	num-cs = <3>;	/* FIXME - check SPI1_SS0-2_B */
+
+	flash@0 { /* U19 */
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "sst,sst26vf016b", "m25p80", "jedec,spi-nor";
+		spi-max-frequency = <25000000>;
+		reg = <0>;
+
+		partition@0 {
+			label = "spi1-flash0";
+			reg = <0x0 0x200000>;
+		};
+	};
+};

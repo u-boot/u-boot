@@ -1,0 +1,23 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * dts file for Xilinx X-EBM-01 revA for vck190/vmk180
+ *
+ * (C) Copyright 2019, Xilinx, Inc.
+ *
+ * Michal Simek <michal.simek@xilinx.com>
+ */
+
+/dts-v1/;
+/plugin/;
+
+/{
+	compatible = "xlnx,versal-x-ebm-01-revA", "xlnx,versal-x-ebm-01";
+
+	fragment {
+		target = <&qspi>;
+
+		__overlay__ {
+#include "versal-x-ebm-01-revA.dtsi"
+		};
+	};
+};

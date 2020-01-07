@@ -1,0 +1,39 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * dts file for Xilinx X-EBM-03 revA for vck190/vmk180
+ *
+ * (C) Copyright 2020, Xilinx, Inc.
+ *
+ * Michal Simek <michal.simek@xilinx.com>
+ */
+
+#include <dt-bindings/gpio/gpio.h>
+
+/* U97 MT35XU02G */
+status = "okay";
+compatible = "xlnx,versal-ospi-1.0", "cadence,qspi", "cdns,qspi-nor";
+bus-num = <2>;
+num-cs = <1>;
+#stream-id-cells = <1>;
+#address-cells = <1>;
+#size-cells = <0>;
+reset-gpios = <&gpio1 0xc GPIO_ACTIVE_HIGH>;
+
+flash@0 {
+	compatible = "mt35xu02g", "micron,m25p80", "jedec,spi-nor";
+	reg = <0>;
+	#address-cells = <1>;
+	#size-cells = <1>;
+	cdns,read-delay = <0x0>;
+	cdns,tshsl-ns = <0x0>;
+	cdns,tsd2d-ns = <0x0>;
+	cdns,tchsh-ns = <0x1>;
+	cdns,tslch-ns = <0x1>;
+	spi-tx-bus-width = <1>;
+	spi-rx-bus-width = <8>;
+	spi-max-frequency = <20000000>;
+	partition@0 {
+		label = "spi0-flash0";
+		reg = <0x0 0x8000000>;
+	};
+};

@@ -1,0 +1,83 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * dts file for Xilinx Versal v350 revA
+ *
+ * (C) Copyright 2019, Xilinx, Inc.
+ *
+ * Michal Simek <michal.simek@xilinx.com>
+ */
+
+#include "versal.dtsi"
+#include "versal-clk.dtsi"
+#include <dt-bindings/gpio/gpio.h>
+
+/ {
+	compatible = "xlnx,versal-v350-revA", "xlnx,versal";
+	model = "Xilinx Versal v350 board revA";
+
+	chosen {
+		bootargs = "console=ttyAMA0 earlycon=pl011,mmio32,0xFF010000,115200n8 clk_ignore_unused";
+		stdout-path = "serial0:115200";
+	};
+
+	aliases {
+		serial0 = &serial0;
+		serial1 = &serial1;
+		spi0 = &ospi;
+	};
+
+	memory: memory@0 {
+		device_type = "memory"; /* 16GB total via MC0/1/2/3 */
+		reg = <0 0 0 0x80000000>; /* 2GB here */
+		/* <0x8 0x0 0x3 0x80000000> */ /* 12GB - enable it later */
+	};
+};
+
+&ospi {
+	status = "okay";
+	bus-num = <2>;
+	num-cs = <1>;
+	#stream-id-cells = <1>;
+	#address-cells = <1>;
+	#size-cells = <0>;
+	reset-gpios = <&gpio1 0xc GPIO_ACTIVE_HIGH>;
+
+	flash@0 {
+		compatible = "mt35xu02g", "micron,m25p80", "jedec,spi-nor";
+		reg = <0>;
+		#address-cells = <0x1>;
+		#size-cells = <0x1>;
+		cdns,read-delay = <0x0>;
+		cdns,tshsl-ns = <0x0>;
+		cdns,tsd2d-ns = <0x0>;
+		cdns,tchsh-ns = <0x1>;
+		cdns,tslch-ns = <0x1>;
+		spi-tx-bus-width = <1>;
+		spi-rx-bus-width = <8>;
+		spi-max-frequency = <20000000>;
+		partition@0 {
+			label = "spi0-flash0";
+			reg = <0x0 0x8000000>;
+		};
+	};
+};
+
+&dcc {
+	status = "okay";
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+&gpio1 {
+	status = "okay";
+};
+
+&serial0 {
+	status = "okay";
+};
+
+&serial1 {
+	status = "disabled"; /* communication with MSP432 */
+};

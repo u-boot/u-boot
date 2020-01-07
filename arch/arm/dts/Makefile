@@ -350,7 +350,27 @@ dtb-$(CONFIG_ARCH_VERSAL) += \
 	versal-mini-qspi-x1-single.dtb \
 	versal-mini-qspi-x1-stacked.dtb \
 	versal-mini-qspi-x2-single.dtb \
-	versal-mini-qspi-x2-stacked.dtb
+	versal-mini-qspi-x2-stacked.dtb \
+	versal-v350-revA.dtb \
+	versal-vck190-revA.dtb \
+	versal-vck190-revA-x-ebm-01-revA.dtb \
+	versal-vck190-revA-x-ebm-02-revA.dtb \
+	versal-vck190-revA-x-ebm-03-revA.dtb \
+	versal-vc-p-a2197-00-revA.dtb \
+	versal-vc-p-a2197-00-revA-x-prc-01-revA.dtb \
+	versal-vc-p-a2197-00-revA-x-prc-01-revA-ospi.dtb \
+	versal-vc-p-a2197-00-revA-x-prc-02-revA.dtb \
+	versal-vc-p-a2197-00-revA-x-prc-03-revA.dtb \
+	versal-vc-p-a2197-00-revA-x-prc-04-revA.dtb \
+	versal-vc-p-a2197-00-revA-x-prc-04-revA-ospi.dtb \
+	versal-vc-p-a2197-00-revA-x-prc-05-revA.dtb \
+	versal-vmk180-revA.dtb \
+	versal-vmk180-revA-x-ebm-01-revA.dtb \
+	versal-vmk180-revA-x-ebm-02-revA.dtb \
+	versal-vmk180-revA-x-ebm-03-revA.dtb \
+	versal-x-ebm-01-revA.dtbo \
+	versal-x-ebm-02-revA.dtbo \
+	versal-x-ebm-03-revA.dtbo
 dtb-$(CONFIG_ARCH_ZYNQMP_R5) += \
 	zynqmp-r5.dtb
 dtb-$(CONFIG_AM33XX) += \

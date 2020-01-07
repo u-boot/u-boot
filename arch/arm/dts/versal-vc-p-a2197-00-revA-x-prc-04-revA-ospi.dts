@@ -1,0 +1,30 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * dts file for Xilinx Versal X-PRC-04 revA (SE4)
+ *
+ * (C) Copyright 2019, Xilinx, Inc.
+ *
+ * Michal Simek <michal.simek@xilinx.com>
+ */
+
+#include "versal-vc-p-a2197-00-revA-x-prc-04-revA.dts"
+
+/ {
+	chosen {
+		bootargs = "console=ttyAMA0 earlycon=pl011,mmio32,0xFF000000,115200n8 clk_ignore_unused";
+		stdout-path = "serial0:115200";
+	};
+
+	aliases {
+		spi0 = &ospi;
+	};
+};
+
+/* Mutually exclusive with qspi */
+&ospi {
+	status = "okay"; /* U163/U97 MT35XU02G */
+};
+
+&qspi {
+	status = "disabled";
+};

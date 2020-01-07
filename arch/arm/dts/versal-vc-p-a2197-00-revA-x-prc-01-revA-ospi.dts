@@ -1,0 +1,89 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * dts file for Xilinx Versal X-PRC-01 revA (SE1)
+ *
+ * (C) Copyright 2019, Xilinx, Inc.
+ *
+ * Michal Simek <michal.simek@xilinx.com>
+ */
+
+#include "versal-vc-p-a2197-00-revA-x-prc-01-revA.dts"
+#include <dt-bindings/gpio/gpio.h>
+
+/ {
+	compatible = "xlnx,versal-vc-p-a2197-00-revA-x-prc-01-revA",
+		     "xlnx,versal-vc-p-a2197-00-revA",
+		     "xlnx,versal-vc-p-a2197-00",
+		     "xlnx,versal-vc-p-a2197", "xlnx,versal";
+	model = "Xilinx Versal A2197 Processor board revA - x-prc-01 revA OSPI";
+
+	aliases {
+		spi0 = &ospi;
+	};
+};
+
+/* Mutually exclusive */
+&ospi {
+	status = "okay"; /* U97 MT35XU02G */
+	bus-num = <2>;
+	num-cs = <1>;
+	#stream-id-cells = <1>;
+	#address-cells = <1>;
+	#size-cells = <0>;
+	reset-gpios = <&gpio1 0xc GPIO_ACTIVE_HIGH>;
+
+	flash@0 {
+		compatible = "mt35xu02g", "micron,m25p80", "jedec,spi-nor";
+		reg = <0>;
+		#address-cells = <0x1>;
+		#size-cells = <0x1>;
+		cdns,read-delay = <0x0>;
+		cdns,tshsl-ns = <0x0>;
+		cdns,tsd2d-ns = <0x0>;
+		cdns,tchsh-ns = <0x1>;
+		cdns,tslch-ns = <0x1>;
+		spi-tx-bus-width = <1>;
+		spi-rx-bus-width = <8>;
+		spi-max-frequency = <20000000>;
+		partition@0 {
+			label = "spi0-flash0";
+			reg = <0x0 0x8000000>;
+		};
+	};
+};
+
+&qspi {
+	status = "disabled";
+};
+
+&lpd_dma_chan0 {
+	status = "okay";
+};
+
+&lpd_dma_chan1 {
+	status = "okay";
+};
+
+&lpd_dma_chan2 {
+	status = "okay";
+};
+
+&lpd_dma_chan3 {
+	status = "okay";
+};
+
+&lpd_dma_chan4 {
+	status = "okay";
+};
+
+&lpd_dma_chan5 {
+	status = "okay";
+};
+
+&lpd_dma_chan6 {
+	status = "okay";
+};
+
+&lpd_dma_chan7 {
+	status = "okay";
+};
