@@ -77,7 +77,7 @@
 	flash@0 { /* MX25U12835 128Mbit */
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "m25p80", "spi-flash"; /* 16MB */
+		compatible = "m25p80", "jedec,spi-nor"; /* 16MB */
 		reg = <0>;
 		spi-tx-bus-width = <1>;
 		spi-rx-bus-width = <4>;

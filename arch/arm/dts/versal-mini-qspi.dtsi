@@ -47,7 +47,8 @@
 			clocks = <&clk300 &clk300>;
 
 			flash0: flash@0 {
-				compatible = "n25q512a", "micron,m25p80", "spi-flash";
+				compatible = "n25q512a", "micron,m25p80",
+					     "jedec,spi-nor";
 				reg = <0x0>;
 				spi-tx-bus-width = <1>;
 				spi-rx-bus-width = <4>;

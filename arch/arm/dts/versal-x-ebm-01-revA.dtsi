@@ -17,7 +17,7 @@ is-dual = <1>;
 flash@0 {
 	#address-cells = <1>;
 	#size-cells = <1>;
-	compatible = "m25p80", "spi-flash"; /* 256MB */
+	compatible = "m25p80", "jedec,spi-nor"; /* 256MB */
 	reg = <0>;
 	spi-tx-bus-width = <1>;
 	spi-rx-bus-width = <4>;

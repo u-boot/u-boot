@@ -20,7 +20,7 @@ num-cs = <1>;
 reset-gpios = <&gpio1 0xc GPIO_ACTIVE_HIGH>;
 
 flash@0 {
-	compatible = "mt35xu02g", "micron,m25p80", "spi-flash";
+	compatible = "mt35xu02g", "micron,m25p80", "jedec,spi-nor";
 	reg = <0>;
 	#address-cells = <1>;
 	#size-cells = <1>;

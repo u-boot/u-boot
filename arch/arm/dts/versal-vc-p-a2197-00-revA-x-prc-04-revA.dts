@@ -80,7 +80,7 @@
 	flash@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "m25p80", "spi-flash"; /* 512MB */
+		compatible = "m25p80", "jedec,spi-nor"; /* 512MB */
 		reg = <0>;
 		spi-tx-bus-width = <4>;
 		spi-rx-bus-width = <4>;
@@ -113,7 +113,7 @@
 	flash@0 { /* U171 - IS25LP016B - 16Mb */
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "issi,is25lp016b", "m25p80", "spi-flash";
+		compatible = "issi,is25lp016b", "m25p80", "jedec,spi-nor";
 		spi-max-frequency = <104000000>;
 		reg = <0>;
 

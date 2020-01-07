@@ -49,7 +49,7 @@
 	spi-tx-bus-width = <4>;
 
 	flash@0 {
-		compatible = "m25p80", "spi-flash";
+		compatible = "m25p80", "jedec,spi-nor";
 		#address-cells = <1>;
 		#size-cells = <1>;
 		reg = <0x0>;
