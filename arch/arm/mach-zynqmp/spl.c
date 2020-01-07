@@ -6,7 +6,6 @@
  */
 
 #include <common.h>
-#include <debug_uart.h>
 #include <init.h>
 #include <spl.h>
 
@@ -21,11 +20,6 @@ void board_init_f(ulong dummy)
 	board_early_init_f();
 	board_early_init_r();
 
-#ifdef CONFIG_DEBUG_UART
-	/* Uart debug for sure */
-	debug_uart_init();
-	puts("Debug uart enabled\n"); /* or printch() */
-#endif
 	/* Delay is required for clocks to be propagated */
 	udelay(1000000);
 }

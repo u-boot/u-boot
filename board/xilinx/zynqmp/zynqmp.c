@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <debug_uart.h>
 #include <env.h>
 #include <init.h>
 #include <sata.h>
@@ -319,13 +320,21 @@ static char *zynqmp_get_silicon_idcode_name(void)
 
 int board_early_init_f(void)
 {
-	int ret = 0;
-
 #if defined(CONFIG_ZYNQMP_PSU_INIT_ENABLED)
+	int ret;
+
 	ret = psu_init();
+	if (ret)
+		return ret;
 #endif
 
-	return ret;
+#ifdef CONFIG_DEBUG_UART
+	/* Uart debug for sure */
+	debug_uart_init();
+	puts("Debug uart enabled\n"); /* or printch() */
+#endif
+
+	return 0;
 }
 
 static int multi_boot(void)
