@@ -1,0 +1,141 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * dts file for Xilinx Versal X-PRC-04 revA (SE4)
+ *
+ * (C) Copyright 2019, Xilinx, Inc.
+ *
+ * Michal Simek <michal.simek@xilinx.com>
+ */
+
+#include "versal-vc-p-a2197-00-revA.dts"
+
+/ {
+	compatible = "xlnx,versal-vc-p-a2197-00-revA-x-prc-04-revA",
+		     "xlnx,versal-vc-p-a2197-00-revA",
+		     "xlnx,versal-vc-p-a2197-00",
+		     "xlnx,versal-vc-p-a2197", "xlnx,versal";
+	model = "Xilinx Versal A2197 Processor board revA - x-prc-04 revA";
+
+	chosen {
+		bootargs = "console=ttyAMA0 earlycon=pl011,mmio32,0xFF000000,115200n8 clk_ignore_unused";
+		stdout-path = "serial0:115200";
+	};
+
+	aliases {
+		serial0 = &serial0;
+		serial1 = &serial1;
+		ethernet1 = &gem1;
+		i2c0 = &i2c0;
+		i2c1 = &i2c1;
+		mmc0 = &sdhci1;
+		spi0 = &qspi;
+		spi1 = &spi0;
+		usb0 = &usb0;
+	};
+};
+
+&gem1 {
+	status = "okay";
+	phy-handle = <&phy1>; /* u175 */
+	phy-mode = "rgmii-id"; /* RTL8211DN */
+	phy1: phy@1 {
+		reg = <2>;
+	};
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+&gpio1 {
+	status = "okay";
+};
+
+&i2c0 {
+	status = "okay";
+	clock-frequency = <400000>;
+	eeprom_versal: eeprom@51 { /* U153 */
+		compatible = "st,24c128", "atmel,24c128";
+		reg = <0x51>;
+	};
+};
+
+&i2c1 {
+	status = "okay";
+	clock-frequency = <400000>;
+	eeprom: eeprom@51 { /* U155 */
+		compatible = "st,24c128", "atmel,24c128";
+		reg = <0x51>;
+	};
+};
+
+&qspi {
+	status = "okay"; /* u93 and u92 and u161 and u160 */
+	num-cs = <1>;
+	is-dual = <0>;
+	is-stacked = <1>;
+	spi-rx-bus-width = <4>;
+	spi-tx-bus-width = <4>;
+
+	flash@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "m25p80", "jedec,spi-nor"; /* 512MB */
+		reg = <0>;
+		spi-tx-bus-width = <4>;
+		spi-rx-bus-width = <4>;
+		spi-max-frequency = <108000000>;
+		partition@0 {
+			label = "spi0-flash0";
+			reg = <0x0 0x20000000>;
+		};
+	};
+};
+
+&sdhci1 { /* J3 MIO26, MIO29 - MIO33 */
+	status = "okay";
+	disable-wp;
+	xlnx,mio_bank = <1>; /* FIXME */
+};
+
+&serial0 { /* MIO35 - MIO37 */
+	status = "okay";
+};
+
+&serial1 { /* MIO4 - MIO7 RS232 */
+	status = "okay";
+};
+
+&spi0 {
+	status = "okay";
+	num-cs = <1>;
+
+	flash@0 { /* U171 - IS25LP016B - 16Mb */
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "issi,is25lp016b", "m25p80", "jedec,spi-nor";
+		spi-max-frequency = <104000000>;
+		reg = <0>;
+
+		partition@0 {
+			label = "spi0-flash0";
+			reg = <0 0x200000>;
+		};
+	};
+};
+
+&usb0 {
+	status = "okay";
+	xlnx,usb-polarity = <0x0>;
+	xlnx,usb-reset-mode = <0x0>;
+};
+
+&dwc3_0 { /* USB 2.0 host - U99 */
+	status = "okay";
+	dr_mode = "host";
+	maximum-speed = "high-speed";
+	snps,dis_u2_susphy_quirk;
+	snps,dis_u3_susphy_quirk;
+	snps,usb3_lpm_capable;
+	phy-names = "usb3-phy";
+};

@@ -1,0 +1,158 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * dts file for Xilinx Versal X-PRC-01 revA (SE1)
+ *
+ * (C) Copyright 2019, Xilinx, Inc.
+ *
+ * Michal Simek <michal.simek@xilinx.com>
+ */
+
+#include "versal-vc-p-a2197-00-revA.dts"
+
+/ {
+	compatible = "xlnx,versal-vc-p-a2197-00-revA-x-prc-01-revA",
+		     "xlnx,versal-vc-p-a2197-00-revA",
+		     "xlnx,versal-vc-p-a2197-00",
+		     "xlnx,versal-vc-p-a2197", "xlnx,versal";
+	model = "Xilinx Versal A2197 Processor board revA - x-prc-01 revA QSPI";
+
+	chosen {
+		bootargs = "console=ttyAMA0 earlycon=pl011,mmio32,0xFF000000,115200n8 clk_ignore_unused";
+		stdout-path = "serial0:115200";
+	};
+
+	aliases {
+		serial0 = &serial0;
+		ethernet0 = &gem0;
+		ethernet1 = &gem1;
+		i2c0 = &i2c1;
+		mmc0 = &sdhci1;
+		spi0 = &qspi;
+		usb0 = &usb0;
+		rtc0 = &rtc;
+	};
+};
+
+&can0 {
+	status = "okay";
+};
+
+&can1 {
+	status = "okay";
+};
+
+&qspi {
+	status = "okay"; /* u93 and u92 */
+	num-cs = <0x1>;
+	is-dual = <0x1>;
+	spi-rx-bus-width = <4>;
+	spi-tx-bus-width = <4>;
+
+	flash@0 {
+		compatible = "m25p80", "jedec,spi-nor";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		reg = <0x0>;
+		spi-tx-bus-width = <1>;
+		spi-rx-bus-width = <4>;
+		spi-max-frequency = <35000000>;
+		partition@0 {
+			label = "spi0-flash0";
+			reg = <0x0 0x8000000>;
+		};
+	};
+};
+
+&sdhci1 { /* U104 */
+	status = "okay";
+	xlnx,mio_bank = <1>;
+};
+
+&serial0 {
+	status = "okay";
+};
+
+&gem0 {
+	status = "okay";
+	phy-handle = <&phy1>; /* u128 */
+	phy-mode = "rgmii-id";
+	phy1: phy@1 {
+		reg = <1>;
+		ti,rx-internal-delay = <0xb>;
+		ti,tx-internal-delay = <0xa>;
+		ti,fifo-depth = <1>;
+		ti,dp83867-rxctrl-strap-quirk; /* FIXME - Remove if board is fixed */
+	};
+	phy2: phy@2 {
+		reg = <2>;
+		ti,rx-internal-delay = <0xb>;
+		ti,tx-internal-delay = <0xa>;
+		ti,fifo-depth = <1>;
+		ti,dp83867-rxctrl-strap-quirk; /* FIXME - Remove if board is fixed */
+	};
+};
+
+&gem1 {
+	status = "okay";
+	phy-handle = <&phy2>; /* u134 */
+	phy-mode = "rgmii-id";
+};
+
+&i2c1 {
+	status = "okay";
+	clock-frequency = <400000>;
+	eeprom_versal: eeprom@51 { /* U116 */
+		compatible = "st,24c128", "atmel,24c128";
+		reg = <0x51>;
+	};
+
+	/* FIXME - U117 and U118 */
+};
+
+&usb0 {
+	status = "okay";
+	xlnx,usb-polarity = <0x0>;
+	xlnx,usb-reset-mode = <0x0>;
+};
+
+&dwc3_0 { /* USB 2.0 host - U99 */
+	status = "okay";
+	dr_mode = "host";
+	maximum-speed = "high-speed";
+	snps,dis_u2_susphy_quirk;
+	snps,dis_u3_susphy_quirk;
+	snps,usb3_lpm_capable;
+	phy-names = "usb3-phy";
+};
+
+&lpd_dma_chan0 {
+	status = "okay";
+};
+
+&lpd_dma_chan1 {
+	status = "okay";
+};
+
+&lpd_dma_chan2 {
+	status = "okay";
+};
+
+&lpd_dma_chan3 {
+	status = "okay";
+};
+
+&lpd_dma_chan4 {
+	status = "okay";
+};
+
+&lpd_dma_chan5 {
+	status = "okay";
+};
+
+&lpd_dma_chan6 {
+	status = "okay";
+};
+
+&lpd_dma_chan7 {
+	status = "okay";
+};

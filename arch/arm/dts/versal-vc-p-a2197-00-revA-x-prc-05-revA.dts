@@ -1,0 +1,123 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * dts file for Xilinx Versal X-PRC-05 revA (SE5)
+ *
+ * (C) Copyright 2019, Xilinx, Inc.
+ *
+ * Michal Simek <michal.simek@xilinx.com>
+ */
+
+#include "versal-vc-p-a2197-00-revA.dts"
+
+/ {
+	compatible = "xlnx,versal-vc-p-a2197-00-revA-x-prc-05-revA",
+		     "xlnx,versal-vc-p-a2197-00-revA",
+		     "xlnx,versal-vc-p-a2197-00",
+		     "xlnx,versal-vc-p-a2197", "xlnx,versal";
+	model = "Xilinx Versal A2197 Processor board revA - x-prc-05 revA";
+
+	chosen {
+		bootargs = "console=ttyAMA0 earlycon=pl011,mmio32,0xFF000000,115200n8 clk_ignore_unused";
+		stdout-path = "serial0:115200";
+	};
+
+	aliases {
+		serial0 = &serial0;
+		ethernet0 = &gem0;
+		ethernet1 = &gem1;
+		i2c0 = &i2c0;
+		mmc0 = &sdhci0;
+		mmc1 = &sdhci1;
+		spi0 = &qspi;
+		usb0 = &usb0;
+	};
+};
+
+&gem0 {
+	status = "okay";
+	phy-handle = <&phy1>;
+	phy-mode = "rgmii-id";
+	phy1: phy@1 { /* 88e1510 */
+		reg = <1>; /* FIXME */
+	};
+	phy2: phy@2 { /* VSC8531 */
+		reg = <2>; /* FIXME */
+	};
+};
+
+&gem1 {
+	status = "okay";
+	phy-handle = <&phy2>;
+	phy-mode = "rgmii-id";
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+&gpio1 {
+	status = "okay";
+};
+
+&i2c0 {
+	status = "okay";
+	clock-frequency = <400000>;
+	eeprom_versal: eeprom@51 {
+		compatible = "st,24c128", "atmel,24c128";
+		reg = <0x51>;
+	};
+};
+
+&qspi {
+	status = "okay";
+	num-cs = <0x1>;
+	spi-tx-bus-width = <1>;
+	spi-rx-bus-width = <4>;
+
+	flash@0 { /* MX25U12835 128Mbit */
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "m25p80", "jedec,spi-nor"; /* 16MB */
+		reg = <0>;
+		spi-tx-bus-width = <1>;
+		spi-rx-bus-width = <4>;
+		spi-max-frequency = <104000000>;
+		partition@0 {
+			label = "spi0-flash0";
+			reg = <0x0 0x1000000>;
+		};
+	};
+};
+
+&sdhci0 { /* emmc0 */
+	status = "okay";
+	non-removable;
+	disable-wp;
+	bus-width = <8>;
+	xlnx,mio_bank = <0>; /* FIXME */
+};
+
+&sdhci1 { /* connector */
+	status = "okay";
+	xlnx,mio_bank = <1>; /* FIXME */
+};
+
+&serial0 {
+	status = "okay";
+};
+
+&usb0 {
+	status = "okay";
+	xlnx,usb-polarity = <0>;
+	xlnx,usb-reset-mode = <0>;
+};
+
+&dwc3_0 { /* USB 2.0 host */
+	status = "okay";
+	dr_mode = "host";
+	maximum-speed = "high-speed";
+	snps,dis_u2_susphy_quirk;
+	snps,dis_u3_susphy_quirk;
+	snps,usb3_lpm_capable;
+	phy-names = "usb3-phy";
+};
