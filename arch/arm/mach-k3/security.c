@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <linux/soc/ti/ti_sci_protocol.h>
 #include <mach/spl.h>
@@ -22,8 +23,14 @@ void board_fit_image_post_process(void **p_image, size_t *p_size)
 	int ret;
 
 	image_addr = (uintptr_t)*p_image;
+	image_size = *p_size;
 
 	debug("Authenticating image at address 0x%016llx\n", image_addr);
+	debug("Authenticating image of size %d bytes\n", image_size);
+
+	flush_dcache_range((unsigned long)image_addr,
+			   ALIGN((unsigned long)image_addr + image_size,
+				 ARCH_DMA_MINALIGN));
 
 	/* Authenticate image */
 	ret = proc_ops->proc_auth_boot_image(ti_sci, &image_addr, &image_size);
@@ -31,6 +38,11 @@ void board_fit_image_post_process(void **p_image, size_t *p_size)
 		printf("Authentication failed!\n");
 		hang();
 	}
+
+	if (image_size)
+		invalidate_dcache_range((unsigned long)image_addr,
+					ALIGN((unsigned long)image_addr +
+					      image_size, ARCH_DMA_MINALIGN));
 
 	/*
 	 * The image_size returned may be 0 when the authentication process has
