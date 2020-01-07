@@ -94,7 +94,7 @@ static int __maybe_unused ti_i2c_eeprom_get(int bus_addr, int dev_addr,
 	rc = uclass_get_device_by_seq(UCLASS_I2C, bus_addr, &bus);
 	if (rc)
 		return rc;
-	rc = i2c_get_chip(bus, dev_addr, 1, &dev);
+	rc = dm_i2c_probe(bus, dev_addr, 0, &dev);
 	if (rc)
 		return rc;
 
