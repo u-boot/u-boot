@@ -251,6 +251,19 @@ static const struct {
 		"PXE Base Code",
 		EFI_PXE_BASE_CODE_PROTOCOL_GUID,
 	},
+	/* Configuration table GUIDs */
+	{
+		"ACPI table",
+		EFI_ACPI_TABLE_GUID,
+	},
+	{
+		"device tree",
+		EFI_FDT_GUID,
+	},
+	{
+		"SMBIOS table",
+		SMBIOS_TABLE_GUID,
+	},
 };
 
 /**
@@ -476,6 +489,34 @@ static int do_efi_show_memmap(cmd_tbl_t *cmdtp, int flag,
 	}
 
 	EFI_CALL(BS->free_pool(memmap));
+
+	return CMD_RET_SUCCESS;
+}
+
+/**
+ * do_efi_show_tables() - show UEFI configuration tables
+ *
+ * @cmdtp:	Command table
+ * @flag:	Command flag
+ * @argc:	Number of arguments
+ * @argv:	Argument array
+ * Return:	CMD_RET_SUCCESS on success, CMD_RET_RET_FAILURE on failure
+ *
+ * Implement efidebug "tables" sub-command.
+ * Show UEFI configuration tables.
+ */
+static int do_efi_show_tables(cmd_tbl_t *cmdtp, int flag,
+			      int argc, char * const argv[])
+{
+	efi_uintn_t i;
+	const char *guid_str;
+
+	for (i = 0; i < systab.nr_tables; ++i) {
+		guid_str = get_guid_text(&systab.tables[i].guid);
+		if (!guid_str)
+			guid_str = "";
+		printf("%pUl %s\n", &systab.tables[i].guid, guid_str);
+	}
 
 	return CMD_RET_SUCCESS;
 }
@@ -1047,6 +1088,8 @@ static cmd_tbl_t cmd_efidebug_sub[] = {
 			 "", ""),
 	U_BOOT_CMD_MKENT(memmap, CONFIG_SYS_MAXARGS, 1, do_efi_show_memmap,
 			 "", ""),
+	U_BOOT_CMD_MKENT(tables, CONFIG_SYS_MAXARGS, 1, do_efi_show_tables,
+			 "", ""),
 };
 
 /**
@@ -1114,7 +1157,9 @@ static char efidebug_help_text[] =
 	"efidebug images\n"
 	"  - show loaded images\n"
 	"efidebug memmap\n"
-	"  - show uefi memory map\n";
+	"  - show uefi memory map\n"
+	"efidebug tables\n"
+	"  - show UEFI configuration tables\n";
 #endif
 
 U_BOOT_CMD(
