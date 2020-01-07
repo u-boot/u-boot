@@ -11,6 +11,7 @@
 #include "zynqmp.dtsi"
 #include "zynqmp-clk-ccf.dtsi"
 #include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/phy/phy.h>
 
 / {
 	model = "Versal System Controller on a2197 Processor Char board RevA"; /* Tenzing */
@@ -43,6 +44,36 @@
 		device_type = "memory";
 		reg = <0x0 0x0 0x0 0x80000000>;
 	};
+
+	ref_clk: ref_clk {
+		status = "okay";
+		compatible = "xlnx,fclk";
+		clocks = <&si570_ref_clk>;
+	};
+
+	ddr4_dimm1_si570: ddr4_dimm1_si570 {
+		status = "okay";
+		compatible = "xlnx,fclk";
+		clocks = <&si570_ddr_dimm1>;
+	};
+
+	ddr4_dimm2_si570: ddr4_dimm2_si570 {
+		status = "okay";
+		compatible = "xlnx,fclk";
+		clocks = <&si570_ddr_dimm2>;
+	};
+
+	lpddr4_si570: lpddr4_si570 {
+		status = "okay";
+		compatible = "xlnx,fclk";
+		clocks = <&si570_lpddr4>;
+	};
+
+	hsdp_si570: hsdp_si570 {
+		status = "okay";
+		compatible = "xlnx,fclk";
+		clocks = <&si570_hsdp>;
+	};
 };
 
 &sdhci0 { /* emmc MIO 13-23 - with some settings  16GB */
@@ -68,6 +99,10 @@
 	no-1-8-v;
 	disable-wp;
 	xlnx,mio-bank = <1>;
+};
+
+&serdes {
+	status = "okay";
 };
 
 &gem0 {
@@ -536,6 +571,8 @@
 	snps,dis_u2_susphy_quirk;
 	snps,dis_u3_susphy_quirk;
 	maximum-speed = "super-speed";
+	phy-names = "usb3-phy";
+	phys = <&lane1 PHY_TYPE_USB3 0 1 26000000>;
 };
 
 &usb1 {

@@ -995,6 +995,8 @@
 
 &zynqmp_dpsub {
 	status = "okay";
+	phy-names = "dp-phy0";
+	phys = <&lane1 PHY_TYPE_DP 0 3 27000000>;
 };
 
 &zynqmp_dp_snd_codec0 {

@@ -212,6 +212,22 @@
 	clocks = <&zynqmp_clk I2C1_REF>;
 };
 
+&perf_monitor_ocm {
+	clocks = <&zynqmp_clk LPD_LSBUS>;
+};
+
+&perf_monitor_ddr {
+	clocks = <&zynqmp_clk TOPSW_LSBUS>;
+};
+
+&perf_monitor_cci {
+	clocks = <&zynqmp_clk TOPSW_LSBUS>;
+};
+
+&perf_monitor_lpd {
+	clocks = <&zynqmp_clk LPD_LSBUS>;
+};
+
 &pcie {
 	clocks = <&zynqmp_clk PCIE_REF>;
 };
