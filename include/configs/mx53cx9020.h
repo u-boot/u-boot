@@ -21,7 +21,7 @@
 #define CONFIG_SYS_FSL_CLK
 
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
+#define CONFIG_SYS_MALLOC_LEN		(32 * 1024 * 1024)
 
 #define CONFIG_REVISION_TAG
 
@@ -35,10 +35,6 @@
 
 /* bootz: zImage/initrd.img support */
 
-/* Eth Configs */
-#define IMX_FEC_BASE	FEC_BASE_ADDR
-#define CONFIG_ETHPRIME		"FEC0"
-#define CONFIG_FEC_MXC_PHYADDR	0x1F
 
 /* USB Configs */
 #define CONFIG_MXC_USB_PORT	1
@@ -52,80 +48,27 @@
 
 #define CONFIG_LOADADDR		0x70010000	/* loadaddr env var */
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
-	"fdt_addr_r=0x71ff0000\0" \
-	"pxefile_addr_r=0x73000000\0" \
-	"ramdisk_addr_r=0x72000000\0" \
-	"console=ttymxc1,115200\0" \
-	"uenv=/boot/uEnv.txt\0" \
-	"optargs=\0" \
-	"cmdline=\0" \
-	"mmcdev=0\0" \
-	"mmcpart=1\0" \
-	"mmcrootfstype=ext4 rootwait fixrtc\0" \
-	"mmcargs=setenv bootargs console=${console} " \
-		"${optargs} " \
-		"root=/dev/mmcblk${mmcdev}p${mmcpart} ro " \
-		"rootfstype=${mmcrootfstype} " \
-		"${cmdline}\0" \
-	"loadimage=load mmc ${bootpart} ${loadaddr} ${bootdir}/${bootfile}\0" \
-	"loadpxe=dhcp;setenv kernel_addr_r ${loadaddr};pxe get;pxe boot;\0" \
-	"loadrd=load mmc ${bootpart} ${ramdisk_addr_r} ${bootdir}/${rdfile};" \
-		"setenv rdsize ${filesize}\0" \
-	"loadfdt=echo loading ${fdt_path} ...;" \
-		"load mmc ${bootpart} ${fdt_addr_r} ${fdt_path}\0" \
-	"mmcboot=mmc dev ${mmcdev}; " \
-		"if mmc rescan; then " \
-			"echo SD/MMC found on device ${mmcdev};" \
-			"echo Checking for: ${uenv} ...;" \
-			"setenv bootpart ${mmcdev}:${mmcpart};" \
-			"if test -e mmc ${bootpart} ${uenv}; then " \
-				"load mmc ${bootpart} ${loadaddr} ${uenv};" \
-				"env import -t ${loadaddr} ${filesize};" \
-				"echo Loaded environment from ${uenv};" \
-				"if test -n ${dtb}; then " \
-					"setenv fdt_file ${dtb};" \
-					"echo Using: dtb=${fdt_file} ...;" \
-				"fi;" \
-				"echo Checking for uname_r in ${uenv}...;" \
-				"if test -n ${uname_r}; then " \
-					"echo Running uname_boot ...;" \
-					"run uname_boot;" \
-				"fi;" \
-			"fi;" \
-		"fi;\0" \
-	"uname_boot="\
-		"setenv bootdir /boot; " \
-		"setenv bootfile vmlinuz-${uname_r}; " \
-		"setenv ccatfile /boot/ccat.rbf; " \
-		"echo loading CCAT firmware from ${ccatfile}; " \
-		"load mmc ${bootpart} ${loadaddr} ${ccatfile}; " \
-		"fpga load 0 ${loadaddr} ${filesize}; " \
-		"if test -e mmc ${bootpart} ${bootdir}/${bootfile}; then " \
-			"echo loading ${bootdir}/${bootfile} ...; " \
-			"run loadimage;" \
-			"setenv fdt_path /boot/dtbs/${uname_r}/${fdt_file}; " \
-			"if test -e mmc ${bootpart} ${fdt_path}; then " \
-				"run loadfdt;" \
-			"else " \
-				"echo; echo unable to find ${fdt_file} ...;" \
-				"echo booting legacy ...;"\
-				"run mmcargs;" \
-				"echo debug: [${bootargs}] ... ;" \
-				"echo debug: [bootz ${loadaddr}] ... ;" \
-				"bootz ${loadaddr}; " \
-			"fi;" \
-			"run mmcargs;" \
-			"echo debug: [${bootargs}] ... ;" \
-			"echo debug: [bootz ${loadaddr} - ${fdt_addr_r}];" \
-			"bootz ${loadaddr} - ${fdt_addr_r}; " \
-		"else " \
-			"echo loading from dhcp ...; " \
-			"run loadpxe; " \
-		"fi;\0"
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 0) \
+	func(MMC, mmc, 1) \
+	func(USB, usb, 0) \
+	func(PXE, pxe, na)
 
-#define CONFIG_BOOTCOMMAND \
-	"run mmcboot;"
+#include <config_distro_bootcmd.h>
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	"fdt_addr_r=0x75000000\0" \
+	"pxefile_addr_r=0x73000000\0" \
+	"scriptaddr=0x74000000\0" \
+	"ramdisk_addr_r=0x80000000\0" \
+	"kernel_addr_r=0x72000000\0"  \
+	"fdt_high=0xffffffff\0" \
+	"console=ttymxc1,115200\0" \
+	"stdin=serial\0" \
+	"stdout=serial,vidconsole\0" \
+	"stderr=serial,vidconsole\0" \
+	"fdtfile=imx53-cx9020.dtb\0" \
+	BOOTENV
 
 #define CONFIG_ARP_TIMEOUT	200UL
 

@@ -36,7 +36,6 @@
 				MX53_PAD_GPIO_1__GPIO1_1          0x80000000
 				MX53_PAD_GPIO_4__GPIO1_4          0x80000000
 				MX53_PAD_PATA_DA_0__GPIO7_6       0x80000000
-				MX53_PAD_PATA_DA_2__GPIO7_8	  0x80000000
 				MX53_PAD_GPIO_16__GPIO7_11        0x80000000
 
 				MX53_PAD_EIM_OE__EMI_WEIM_OE            0x80000000
@@ -99,17 +98,6 @@
 				MX53_PAD_KEY_COL1__AUDMUX_AUD5_TXFS	0x80000000
 				MX53_PAD_KEY_ROW1__AUDMUX_AUD5_RXD	0x80000000
 
-				MX53_PAD_FEC_MDC__FEC_MDC		0x4
-				MX53_PAD_FEC_MDIO__FEC_MDIO		0x1fc
-				MX53_PAD_FEC_REF_CLK__FEC_TX_CLK	0x180
-				MX53_PAD_FEC_RX_ER__FEC_RX_ER		0x180
-				MX53_PAD_FEC_CRS_DV__FEC_RX_DV		0x180
-				MX53_PAD_FEC_RXD1__FEC_RDATA_1		0x180
-				MX53_PAD_FEC_RXD0__FEC_RDATA_0		0x180
-				MX53_PAD_FEC_TX_EN__FEC_TX_EN		0x4
-				MX53_PAD_FEC_TXD1__FEC_TDATA_1		0x4
-				MX53_PAD_FEC_TXD0__FEC_TDATA_0		0x4
-
 				MX53_PAD_CSI0_DAT8__I2C1_SDA		0x400001ec
 				MX53_PAD_CSI0_DAT9__I2C1_SCL		0x400001ec
 
@@ -145,6 +133,21 @@
 				MX53_PAD_DISP0_DAT21__IPU_DISP0_DAT_21	0x5
 				MX53_PAD_DISP0_DAT22__IPU_DISP0_DAT_22	0x5
 				MX53_PAD_DISP0_DAT23__IPU_DISP0_DAT_23	0x5
+			>;
+		};
+
+		pinctrl_fec0: fec0grp {
+			fsl,pins = <
+				MX53_PAD_FEC_MDC__FEC_MDC		0x4
+				MX53_PAD_FEC_MDIO__FEC_MDIO		0x1fc
+				MX53_PAD_FEC_REF_CLK__FEC_TX_CLK	0x180
+				MX53_PAD_FEC_RX_ER__FEC_RX_ER		0x180
+				MX53_PAD_FEC_CRS_DV__FEC_RX_DV		0x180
+				MX53_PAD_FEC_RXD1__FEC_RDATA_1		0x180
+				MX53_PAD_FEC_RXD0__FEC_RDATA_0		0x180
+				MX53_PAD_FEC_TX_EN__FEC_TX_EN		0x4
+				MX53_PAD_FEC_TXD1__FEC_TDATA_1		0x4
+				MX53_PAD_FEC_TXD0__FEC_TDATA_0		0x4
 			>;
 		};
 
@@ -209,5 +212,20 @@
 	pinctrl-names = "default";
 	phy-mode = "rmii";
 	phy-reset-gpios = <&gpio7 6 0>;
+	pinctrl-0 = <&pinctrl_fec0>;
+	status = "okay";
+	fixed-link { /* RMII fixed link to KZ8863 */
+		speed = <100>;
+		full-duplex;
+	};
+};
+
+&usbh1 {
+	phy_type = "utmi";
+	status = "okay";
+};
+
+&usbotg {
+	dr_mode = "host";
 	status = "okay";
 };

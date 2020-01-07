@@ -106,6 +106,13 @@ void gpr_init(void);
 
 #endif /* CONFIG_MX6 */
 
+/* address translation table */
+struct rproc_att {
+	u32 da; /* device address (From Cortex M4 view) */
+	u32 sa; /* system bus address */
+	u32 size; /* size of reg range */
+};
+
 #ifdef CONFIG_IMX8M
 struct rom_api {
 	u16 ver;

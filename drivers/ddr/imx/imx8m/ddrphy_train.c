@@ -8,13 +8,14 @@
 #include <asm/arch/ddr.h>
 #include <asm/arch/lpddr4_define.h>
 
-void ddr_cfg_phy(struct dram_timing_info *dram_timing)
+int ddr_cfg_phy(struct dram_timing_info *dram_timing)
 {
 	struct dram_cfg_param *dram_cfg;
 	struct dram_fsp_msg *fsp_msg;
 	unsigned int num;
 	int i = 0;
 	int j = 0;
+	int ret;
 
 	/* initialize PHY configuration */
 	dram_cfg = dram_timing->ddrphy_cfg;
@@ -60,7 +61,9 @@ void ddr_cfg_phy(struct dram_timing_info *dram_timing)
 		dwc_ddrphy_apb_wr(0xd0099, 0x0);
 
 		/* Wait for the training firmware to complete */
-		wait_ddrphy_training_complete();
+		ret = wait_ddrphy_training_complete();
+		if (ret)
+			return ret;
 
 		/* Halt the microcontroller. */
 		dwc_ddrphy_apb_wr(0xd0099, 0x1);
@@ -83,4 +86,6 @@ void ddr_cfg_phy(struct dram_timing_info *dram_timing)
 
 	/* save the ddr PHY trained CSR in memory for low power use */
 	ddrphy_trained_csr_save(ddrphy_trained_csr, ddrphy_trained_csr_num);
+
+	return 0;
 }

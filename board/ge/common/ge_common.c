@@ -17,8 +17,10 @@ void check_time(void)
 	unsigned int current_i2c_bus = i2c_get_bus_num();
 
 	ret = i2c_set_bus_num(CONFIG_SYS_RTC_BUS_NUM);
-	if (ret < 0)
+	if (ret < 0) {
+		env_set("rtc_status", "FAIL");
 		return;
+	}
 
 	rtc_init();
 
@@ -28,10 +30,7 @@ void check_time(void)
 			break;
 	}
 
-	if (ret < 0)
-		env_set("rtc_status", "RTC_ERROR");
-
-	if (tm.tm_year > 2037) {
+	if (!ret && tm.tm_year > 2037) {
 		tm.tm_sec  = 0;
 		tm.tm_min  = 0;
 		tm.tm_hour = 0;
@@ -46,9 +45,16 @@ void check_time(void)
 				break;
 		}
 
-		if (ret < 0)
-			env_set("rtc_status", "RTC_ERROR");
+		if (ret >= 0)
+			ret = 2038;
 	}
+
+	if (ret < 0)
+		env_set("rtc_status", "FAIL");
+	else if (ret == 2038)
+		env_set("rtc_status", "2038");
+	else
+		env_set("rtc_status", "OK");
 
 	i2c_set_bus_num(current_i2c_bus);
 }

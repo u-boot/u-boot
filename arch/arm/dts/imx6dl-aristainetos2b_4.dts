@@ -1,0 +1,50 @@
+// SPDX-License-Identifier: (GPL-2.0)
+/*
+ * support for the imx6 based aristainetos2b board
+ * parts for 4.3 inch LG display on spi1 port1
+ *
+ * Copyright (C) 2019 Heiko Schocher <hs@denx.de>
+ *
+ */
+/dts-v1/;
+
+#include "imx6dl-aristainetos2_4.dtsi"
+#include "imx6qdl-aristainetos2b.dtsi"
+
+/ {
+	model = "aristainetos2b i.MX6 Dual Lite Board 4";
+	compatible = "fsl,imx6dl";
+
+};
+
+&ecspi1 {
+	lcd_panel: display@0 {
+		compatible = "lg,lg4573";
+		spi-max-frequency = <10000000>;
+		reg = <1>;
+		power-on-delay = <10>;
+
+		display-timings {
+			480x800p57 {
+				native-mode;
+				clock-frequency = <27000027>;
+				hactive = <480>;
+				vactive = <800>;
+				hfront-porch = <10>;
+				hback-porch = <59>;
+				hsync-len = <10>;
+				vback-porch = <15>;
+				vfront-porch = <15>;
+				vsync-len = <15>;
+				hsync-active = <1>;
+				vsync-active = <1>;
+			};
+		};
+
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&display_out>;
+			};
+		};
+	};
+};

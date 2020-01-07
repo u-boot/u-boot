@@ -1,0 +1,46 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright 2019
+ * Lukasz Majewski, DENX Software Engineering, lukma@denx.de
+ *
+ * SPDX-License-Identifier:     GPL-2.0+ or X11
+ */
+
+/*
+ * The minimal augmentation DTS U-Boot file to allow eMMC driver
+ * configuration in SPL for falcon boot.
+ */
+#include "imx28-u-boot.dtsi"
+/ {
+	apb@80000000 {
+		u-boot,dm-spl;
+
+		apbh@80000000 {
+			u-boot,dm-spl;
+		};
+
+		apbx@80040000 {
+			u-boot,dm-spl;
+		};
+	};
+};
+
+&clks {
+	u-boot,dm-spl;
+};
+
+&gpio0 {
+	u-boot,dm-spl;
+};
+
+&pinctrl {
+	u-boot,dm-spl;
+};
+
+&ssp0 {
+	u-boot,dm-spl;
+};
+
+&ssp3 {
+	u-boot,dm-spl;
+};

@@ -214,14 +214,14 @@ int mmdc_do_write_level_calibration(struct mx6_ddr_sysinfo const *sysinfo)
 	writel(esdmisc_val, &mmdc0->mdref);
 	writel(zq_val, &mmdc0->mpzqhwctrl);
 
-	debug("\tMMDC_MPWLDECTRL0 after write level cal: 0x%08X\n",
+	debug("\tMMDC_MPWLDECTRL0 after write level cal: 0x%08x\n",
 	      readl(&mmdc0->mpwldectrl0));
-	debug("\tMMDC_MPWLDECTRL1 after write level cal: 0x%08X\n",
+	debug("\tMMDC_MPWLDECTRL1 after write level cal: 0x%08x\n",
 	      readl(&mmdc0->mpwldectrl1));
 	if (sysinfo->dsize == 2) {
-		debug("\tMMDC_MPWLDECTRL0 after write level cal: 0x%08X\n",
+		debug("\tMMDC_MPWLDECTRL0 after write level cal: 0x%08x\n",
 		      readl(&mmdc1->mpwldectrl0));
-		debug("\tMMDC_MPWLDECTRL1 after write level cal: 0x%08X\n",
+		debug("\tMMDC_MPWLDECTRL1 after write level cal: 0x%08x\n",
 		      readl(&mmdc1->mpwldectrl1));
 	}
 
@@ -245,12 +245,35 @@ int mmdc_do_write_level_calibration(struct mx6_ddr_sysinfo const *sysinfo)
 	return errors;
 }
 
+static void mmdc_set_sdqs(bool set)
+{
+	struct mx6dq_iomux_ddr_regs *mx6dq_ddr_iomux =
+		(struct mx6dq_iomux_ddr_regs *)MX6DQ_IOM_DDR_BASE;
+	struct mx6sx_iomux_ddr_regs *mx6sx_ddr_iomux =
+		(struct mx6sx_iomux_ddr_regs *)MX6SX_IOM_DDR_BASE;
+	int i, sdqs_cnt;
+	u32 sdqs;
+
+	if (is_mx6sx()) {
+		sdqs = (u32)(&mx6sx_ddr_iomux->dram_sdqs0);
+		sdqs_cnt = 2;
+	} else {	/* MX6DQ */
+		sdqs = (u32)(&mx6dq_ddr_iomux->dram_sdqs0);
+		sdqs_cnt = 8;
+	}
+
+	for (i = 0; i < sdqs_cnt; i++) {
+		if (set)
+			setbits_le32(sdqs + (4 * i), 0x7000);
+		else
+			clrbits_le32(sdqs + (4 * i), 0x7000);
+	}
+}
+
 int mmdc_do_dqs_calibration(struct mx6_ddr_sysinfo const *sysinfo)
 {
 	struct mmdc_p_regs *mmdc0 = (struct mmdc_p_regs *)MMDC_P0_BASE_ADDR;
 	struct mmdc_p_regs *mmdc1 = (struct mmdc_p_regs *)MMDC_P1_BASE_ADDR;
-	struct mx6dq_iomux_ddr_regs *mx6_ddr_iomux =
-		(struct mx6dq_iomux_ddr_regs *)MX6DQ_IOM_DDR_BASE;
 	bool cs0_enable;
 	bool cs1_enable;
 	bool cs0_enable_initial;
@@ -272,14 +295,7 @@ int mmdc_do_dqs_calibration(struct mx6_ddr_sysinfo const *sysinfo)
 	setbits_le32(&mmdc0->mapsr, 0x1);
 
 	/* set DQS pull ups */
-	setbits_le32(&mx6_ddr_iomux->dram_sdqs0, 0x7000);
-	setbits_le32(&mx6_ddr_iomux->dram_sdqs1, 0x7000);
-	setbits_le32(&mx6_ddr_iomux->dram_sdqs2, 0x7000);
-	setbits_le32(&mx6_ddr_iomux->dram_sdqs3, 0x7000);
-	setbits_le32(&mx6_ddr_iomux->dram_sdqs4, 0x7000);
-	setbits_le32(&mx6_ddr_iomux->dram_sdqs5, 0x7000);
-	setbits_le32(&mx6_ddr_iomux->dram_sdqs6, 0x7000);
-	setbits_le32(&mx6_ddr_iomux->dram_sdqs7, 0x7000);
+	mmdc_set_sdqs(true);
 
 	/* Save old RALAT and WALAT values */
 	esdmisc_val = readl(&mmdc0->mdmisc);
@@ -524,14 +540,7 @@ int mmdc_do_dqs_calibration(struct mx6_ddr_sysinfo const *sysinfo)
 	writel(esdmisc_val, &mmdc0->mdmisc);
 
 	/* Clear DQS pull ups */
-	clrbits_le32(&mx6_ddr_iomux->dram_sdqs0, 0x7000);
-	clrbits_le32(&mx6_ddr_iomux->dram_sdqs1, 0x7000);
-	clrbits_le32(&mx6_ddr_iomux->dram_sdqs2, 0x7000);
-	clrbits_le32(&mx6_ddr_iomux->dram_sdqs3, 0x7000);
-	clrbits_le32(&mx6_ddr_iomux->dram_sdqs4, 0x7000);
-	clrbits_le32(&mx6_ddr_iomux->dram_sdqs5, 0x7000);
-	clrbits_le32(&mx6_ddr_iomux->dram_sdqs6, 0x7000);
-	clrbits_le32(&mx6_ddr_iomux->dram_sdqs7, 0x7000);
+	mmdc_set_sdqs(false);
 
 	/* Re-enable SDE (chip selects) if they were set initially */
 	if (cs1_enable_initial)
@@ -557,20 +566,20 @@ int mmdc_do_dqs_calibration(struct mx6_ddr_sysinfo const *sysinfo)
 	 */
 	debug("MMDC registers updated from calibration\n");
 	debug("Read DQS gating calibration:\n");
-	debug("\tMPDGCTRL0 PHY0 = 0x%08X\n", readl(&mmdc0->mpdgctrl0));
-	debug("\tMPDGCTRL1 PHY0 = 0x%08X\n", readl(&mmdc0->mpdgctrl1));
+	debug("\tMPDGCTRL0 PHY0 = 0x%08x\n", readl(&mmdc0->mpdgctrl0));
+	debug("\tMPDGCTRL1 PHY0 = 0x%08x\n", readl(&mmdc0->mpdgctrl1));
 	if (sysinfo->dsize == 2) {
-		debug("\tMPDGCTRL0 PHY1 = 0x%08X\n", readl(&mmdc1->mpdgctrl0));
-		debug("\tMPDGCTRL1 PHY1 = 0x%08X\n", readl(&mmdc1->mpdgctrl1));
+		debug("\tMPDGCTRL0 PHY1 = 0x%08x\n", readl(&mmdc1->mpdgctrl0));
+		debug("\tMPDGCTRL1 PHY1 = 0x%08x\n", readl(&mmdc1->mpdgctrl1));
 	}
 	debug("Read calibration:\n");
-	debug("\tMPRDDLCTL PHY0 = 0x%08X\n", readl(&mmdc0->mprddlctl));
+	debug("\tMPRDDLCTL PHY0 = 0x%08x\n", readl(&mmdc0->mprddlctl));
 	if (sysinfo->dsize == 2)
-		debug("\tMPRDDLCTL PHY1 = 0x%08X\n", readl(&mmdc1->mprddlctl));
+		debug("\tMPRDDLCTL PHY1 = 0x%08x\n", readl(&mmdc1->mprddlctl));
 	debug("Write calibration:\n");
-	debug("\tMPWRDLCTL PHY0 = 0x%08X\n", readl(&mmdc0->mpwrdlctl));
+	debug("\tMPWRDLCTL PHY0 = 0x%08x\n", readl(&mmdc0->mpwrdlctl));
 	if (sysinfo->dsize == 2)
-		debug("\tMPWRDLCTL PHY1 = 0x%08X\n", readl(&mmdc1->mpwrdlctl));
+		debug("\tMPWRDLCTL PHY1 = 0x%08x\n", readl(&mmdc1->mpwrdlctl));
 
 	/*
 	 * Registers below are for debugging purposes.  These print out

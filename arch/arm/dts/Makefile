@@ -570,14 +570,34 @@ dtb-$(CONFIG_VF610) += vf500-colibri.dtb \
 	vf610-pcm052.dtb \
 	vf610-bk4r1.dtb
 
+dtb-$(CONFIG_MX28) += \
+	imx28-xea.dtb
+
 dtb-$(CONFIG_MX53) += imx53-cx9020.dtb \
 	imx53-kp.dtb \
 	imx53-m53menlo.dtb
 
 ifneq ($(CONFIG_MX6DL)$(CONFIG_MX6QDL)$(CONFIG_MX6S),)
 dtb-y += \
+	imx6dl-aristainetos2_4.dtb \
+	imx6dl-aristainetos2_7.dtb \
+	imx6dl-aristainetos2b_4.dtb \
+	imx6dl-aristainetos2b_7.dtb \
+	imx6dl-aristainetos2b_csl_4.dtb \
+	imx6dl-aristainetos2b_csl_7.dtb \
+	imx6dl-aristainetos2c_4.dtb \
+	imx6dl-aristainetos2c_7.dtb \
 	imx6dl-brppt2.dtb \
+	imx6dl-cubox-i.dtb \
+	imx6dl-cubox-i-emmc-som-v15.dtb \
+	imx6dl-cubox-i-som-v15.dtb \
 	imx6dl-dhcom-pdk2.dtb \
+	imx6dl-hummingboard2.dtb \
+	imx6dl-hummingboard2-emmc-som-v15.dtb \
+	imx6dl-hummingboard2-som-v15.dtb \
+	imx6dl-hummingboard.dtb \
+	imx6dl-hummingboard-emmc-som-v15.dtb \
+	imx6dl-hummingboard-som-v15.dtb \
 	imx6dl-icore.dtb \
 	imx6dl-icore-mipi.dtb \
 	imx6dl-icore-rqs.dtb \
@@ -594,8 +614,17 @@ ifneq ($(CONFIG_MX6Q)$(CONFIG_MX6QDL),)
 dtb-y += \
 	imx6-apalis.dtb \
 	imx6q-cm-fx6.dtb \
+	imx6q-cubox-i.dtb \
+	imx6q-cubox-i-emmc-som-v15.dtb \
+	imx6q-cubox-i-som-v15.dtb \
 	imx6q-dhcom-pdk2.dtb \
 	imx6q-display5.dtb \
+	imx6q-hummingboard2.dtb \
+	imx6q-hummingboard2-emmc-som-v15.dtb \
+	imx6q-hummingboard2-som-v15.dtb \
+	imx6q-hummingboard.dtb \
+	imx6q-hummingboard-emmc-som-v15.dtb \
+	imx6q-hummingboard-som-v15.dtb \
 	imx6q-icore.dtb \
 	imx6q-icore-mipi.dtb \
 	imx6q-icore-rqs.dtb \
@@ -634,14 +663,14 @@ dtb-$(CONFIG_MX6UL) += \
 	imx6ul-9x9-evk.dtb \
 	imx6ul-9x9-evk.dtb \
 	imx6ul-liteboard.dtb \
-	imx6ul-phycore-segin.dtb \
+	imx6ul-phytec-segin-ff-rdk-nand.dtb \
 	imx6ul-pico-hobbit.dtb \
 	imx6ul-pico-pi.dtb
 
 dtb-$(CONFIG_MX6ULL) += \
 	imx6ull-14x14-evk.dtb \
 	imx6ull-colibri.dtb \
-	imx6ull-phycore-segin.dtb \
+	imx6ull-phytec-segin-ff-rdk-emmc.dtb \
 	imx6ull-dart-6ul.dtb \
 	imx6ulz-14x14-evk.dtb
 
@@ -659,7 +688,8 @@ dtb-$(CONFIG_MX7) += imx7d-sdb.dtb \
 	imx7d-pico-hobbit.dtb
 
 
-dtb-$(CONFIG_ARCH_MX7ULP) += imx7ulp-evk.dtb
+dtb-$(CONFIG_ARCH_MX7ULP) += imx7ulp-com.dtb \
+	imx7ulp-evk.dtb
 
 dtb-$(CONFIG_ARCH_IMX8) += \
 	fsl-imx8qm-apalis.dtb \
@@ -840,7 +870,12 @@ dtb-$(CONFIG_ARCH_MEDIATEK) += \
 	mt8516-pumpkin.dtb \
 	mt8518-ap1-emmc.dtb
 
-dtb-$(CONFIG_TARGET_GE_BX50V3) += imx6q-bx50v3.dtb
+dtb-$(CONFIG_TARGET_GE_BX50V3) += \
+	imx6q-bx50v3.dtb \
+	imx6q-b850v3.dtb \
+	imx6q-b650v3.dtb \
+	imx6q-b450v3.dtb
+
 dtb-$(CONFIG_TARGET_MX53PPD) += imx53-ppd.dtb
 
 dtb-$(CONFIG_TARGET_VEXPRESS_CA5X2) += vexpress-v2p-ca5s.dtb

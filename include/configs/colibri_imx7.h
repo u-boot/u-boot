@@ -16,17 +16,6 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(32 * SZ_1M)
 
-/* Network */
-#define CONFIG_FEC_MXC
-#define CONFIG_FEC_XCV_TYPE             RMII
-#define CONFIG_ETHPRIME                 "FEC"
-#define CONFIG_FEC_MXC_PHYADDR          0
-
-#define CONFIG_TFTP_TSIZE
-
-/* ENET1 */
-#define IMX_FEC_BASE			ENET_IPS_BASE_ADDR
-
 /* MMC Config*/
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #ifdef CONFIG_TARGET_COLIBRI_IMX7_NAND
@@ -42,6 +31,22 @@
 #define CONFIG_IPADDR			192.168.10.2
 #define CONFIG_NETMASK			255.255.255.0
 #define CONFIG_SERVERIP			192.168.10.1
+
+#if defined(CONFIG_TARGET_COLIBRI_IMX7_EMMC)
+#define UBOOT_UPDATE \
+	"uboot_hwpart=1\0" \
+	"uboot_blk=2\0" \
+	"set_blkcnt=setexpr blkcnt ${filesize} + 0x1ff && " \
+		"setexpr blkcnt ${blkcnt} / 0x200\0" \
+	"update_uboot=run set_blkcnt && mmc dev 0 ${uboot_hwpart} && " \
+		"mmc write ${loadaddr} ${uboot_blk} ${blkcnt}\0"
+#elif defined(CONFIG_TARGET_COLIBRI_IMX7_NAND)
+#define UBOOT_UPDATE \
+	"update_uboot=nand erase.part u-boot1 && " \
+		"nand write ${loadaddr} u-boot1 ${filesize} && " \
+		"nand erase.part u-boot2 && " \
+		"nand write ${loadaddr} u-boot2 ${filesize}\0"
+#endif
 
 #ifndef PARTS_DEFAULT
 /* Define the default GPT table for eMMC */
@@ -163,6 +168,7 @@
 	MEM_LAYOUT_ENV_SETTINGS \
 	NFS_BOOTCMD \
 	MODULE_EXTRA_ENV_SETTINGS \
+	UBOOT_UPDATE \
 	"boot_file=zImage\0" \
 	"console=ttymxc0\0" \
 	"defargs=\0" \

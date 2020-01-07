@@ -1,0 +1,36 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+#include "imx6qdl-u-boot.dtsi"
+
+/ {
+	board-detect {
+		compatible = "solidrun,hummingboard-detect";
+		detect-gpios = <
+			&gpio2 8 0
+			&gpio3 4 0
+			&gpio4 9 0
+			&gpio6 0 0
+			&gpio6 4 0
+		>;
+	};
+};
+
+&gpio2 {
+	u-boot,dm-pre-reloc;
+};
+
+&gpio3 {
+	u-boot,dm-pre-reloc;
+};
+
+&gpio4 {
+	u-boot,dm-pre-reloc;
+};
+
+&gpio6 {
+	u-boot,dm-pre-reloc;
+};
+
+&usdhc1 {
+	status = "disabled";
+};

@@ -815,6 +815,7 @@ static const struct dm_pci_ops imx_pcie_ops = {
 
 static const struct udevice_id imx_pcie_ids[] = {
 	{ .compatible = "fsl,imx6q-pcie" },
+	{ .compatible = "fsl,imx6sx-pcie" },
 	{ }
 };
 

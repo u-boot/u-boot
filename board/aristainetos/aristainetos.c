@@ -17,138 +17,454 @@
 #include <asm/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/boot_mode.h>
-#include <asm/mach-imx/mxc_i2c.h>
 #include <asm/mach-imx/video.h>
-#include <mmc.h>
-#include <fsl_esdhc_imx.h>
-#include <miiphy.h>
-#include <netdev.h>
-#include <asm/arch/mxc_hdmi.h>
 #include <asm/arch/crm_regs.h>
-#include <linux/fb.h>
-#include <ipu_pixfmt.h>
-#include <input.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
-#include <pwm.h>
+#include <bmp_logo.h>
+#include <dm/root.h>
+#include <env.h>
+#include <i2c_eeprom.h>
+#include <i2c.h>
+#include <micrel.h>
+#include <miiphy.h>
+#include <lcd.h>
+#include <led.h>
+#include <splash.h>
+#include <video_fb.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define UART_PAD_CTRL  (PAD_CTL_PUS_100K_UP |			\
-	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm |			\
-	PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
+enum {
+	BOARD_TYPE_4 = 4,
+	BOARD_TYPE_7 = 7,
+};
 
-#define USDHC_PAD_CTRL (PAD_CTL_PUS_47K_UP |			\
-	PAD_CTL_SPEED_LOW | PAD_CTL_DSE_80ohm |			\
-	PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
+#define ARI_BT_4 "aristainetos2_4@2"
+#define ARI_BT_7 "aristainetos2_7@1"
 
-#define ENET_PAD_CTRL  (PAD_CTL_PUS_100K_UP |			\
-	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS)
+int board_phy_config(struct phy_device *phydev)
+{
+	/* control data pad skew - devaddr = 0x02, register = 0x04 */
+	ksz9031_phy_extended_write(phydev, 0x02,
+				   MII_KSZ9031_EXT_RGMII_CTRL_SIG_SKEW,
+				   MII_KSZ9031_MOD_DATA_NO_POST_INC, 0x0000);
+	/* rx data pad skew - devaddr = 0x02, register = 0x05 */
+	ksz9031_phy_extended_write(phydev, 0x02,
+				   MII_KSZ9031_EXT_RGMII_RX_DATA_SKEW,
+				   MII_KSZ9031_MOD_DATA_NO_POST_INC, 0x0000);
+	/* tx data pad skew - devaddr = 0x02, register = 0x06 */
+	ksz9031_phy_extended_write(phydev, 0x02,
+				   MII_KSZ9031_EXT_RGMII_TX_DATA_SKEW,
+				   MII_KSZ9031_MOD_DATA_NO_POST_INC, 0x0000);
+	/* gtx and rx clock pad skew - devaddr = 0x02, register = 0x08 */
+	ksz9031_phy_extended_write(phydev, 0x02,
+				   MII_KSZ9031_EXT_RGMII_CLOCK_SKEW,
+				   MII_KSZ9031_MOD_DATA_NO_POST_INC, 0x03FF);
 
-#define SPI_PAD_CTRL (PAD_CTL_HYS | PAD_CTL_SPEED_MED | \
-		      PAD_CTL_DSE_40ohm | PAD_CTL_SRE_FAST)
+	if (phydev->drv->config)
+		phydev->drv->config(phydev);
 
-#define I2C_PAD_CTRL	(PAD_CTL_PUS_100K_UP |			\
-	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS |	\
-	PAD_CTL_ODE | PAD_CTL_SRE_FAST)
+	return 0;
+}
 
-#define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
+static int rotate_logo_one(unsigned char *out, unsigned char *in)
+{
+	int   i, j;
 
-#define DISP_PAD_CTRL	(0x10)
+	for (i = 0; i < BMP_LOGO_WIDTH; i++)
+		for (j = 0; j < BMP_LOGO_HEIGHT; j++)
+			out[j * BMP_LOGO_WIDTH + BMP_LOGO_HEIGHT - 1 - i] =
+			in[i * BMP_LOGO_WIDTH + j];
+	return 0;
+}
 
-#define ECSPI4_CS1		IMX_GPIO_NR(5, 2)
+/*
+ * Rotate the BMP_LOGO (only)
+ * Will only work, if the logo is square, as
+ * BMP_LOGO_HEIGHT and BMP_LOGO_WIDTH are defines, not variables
+ */
+void rotate_logo(int rotations)
+{
+	unsigned char out_logo[BMP_LOGO_WIDTH * BMP_LOGO_HEIGHT];
+	struct bmp_header *header;
+	unsigned char *in_logo;
+	int   i, j;
 
-#if (CONFIG_SYS_BOARD_VERSION == 1)
-#include "./aristainetos-v1.c"
-#elif ((CONFIG_SYS_BOARD_VERSION == 2) || (CONFIG_SYS_BOARD_VERSION == 3))
-#include "./aristainetos-v2.c"
+	if (BMP_LOGO_WIDTH != BMP_LOGO_HEIGHT)
+		return;
+
+	header = (struct bmp_header *)bmp_logo_bitmap;
+	in_logo = bmp_logo_bitmap + header->data_offset;
+
+	/* one 90 degree rotation */
+	if (rotations == 1  ||  rotations == 2  ||  rotations == 3)
+		rotate_logo_one(out_logo, in_logo);
+
+	/* second 90 degree rotation */
+	if (rotations == 2  ||  rotations == 3)
+		rotate_logo_one(in_logo, out_logo);
+
+	/* third 90 degree rotation */
+	if (rotations == 3)
+		rotate_logo_one(out_logo, in_logo);
+
+	/* copy result back to original array */
+	if (rotations == 1  ||  rotations == 3)
+		for (i = 0; i < BMP_LOGO_WIDTH; i++)
+			for (j = 0; j < BMP_LOGO_HEIGHT; j++)
+				in_logo[i * BMP_LOGO_WIDTH + j] =
+				out_logo[i * BMP_LOGO_WIDTH + j];
+}
+
+static void enable_lvds(struct display_info_t const *dev)
+{
+	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
+	struct mxc_ccm_reg *ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	int reg;
+	s32 timeout = 100000;
+
+	/* set PLL5 clock */
+	reg = readl(&ccm->analog_pll_video);
+	reg |= BM_ANADIG_PLL_VIDEO_POWERDOWN;
+	writel(reg, &ccm->analog_pll_video);
+
+	/* set PLL5 to 232720000Hz */
+	reg &= ~BM_ANADIG_PLL_VIDEO_DIV_SELECT;
+	reg |= BF_ANADIG_PLL_VIDEO_DIV_SELECT(0x26);
+	reg &= ~BM_ANADIG_PLL_VIDEO_POST_DIV_SELECT;
+	reg |= BF_ANADIG_PLL_VIDEO_POST_DIV_SELECT(0);
+	writel(reg, &ccm->analog_pll_video);
+
+	writel(BF_ANADIG_PLL_VIDEO_NUM_A(0xC0238),
+	       &ccm->analog_pll_video_num);
+	writel(BF_ANADIG_PLL_VIDEO_DENOM_B(0xF4240),
+	       &ccm->analog_pll_video_denom);
+
+	reg &= ~BM_ANADIG_PLL_VIDEO_POWERDOWN;
+	writel(reg, &ccm->analog_pll_video);
+
+	while (timeout--)
+		if (readl(&ccm->analog_pll_video) & BM_ANADIG_PLL_VIDEO_LOCK)
+			break;
+	if (timeout < 0)
+		printf("Warning: video pll lock timeout!\n");
+
+	reg = readl(&ccm->analog_pll_video);
+	reg |= BM_ANADIG_PLL_VIDEO_ENABLE;
+	reg &= ~BM_ANADIG_PLL_VIDEO_BYPASS;
+	writel(reg, &ccm->analog_pll_video);
+
+	/* set LDB0, LDB1 clk select to 000/000 (PLL5 clock) */
+	reg = readl(&ccm->cs2cdr);
+	reg &= ~(MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_MASK
+		 | MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_MASK);
+	reg |= (0 << MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_OFFSET)
+		| (0 << MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_OFFSET);
+	writel(reg, &ccm->cs2cdr);
+
+	reg = readl(&ccm->cscmr2);
+	reg |= MXC_CCM_CSCMR2_LDB_DI0_IPU_DIV;
+	writel(reg, &ccm->cscmr2);
+
+	reg = readl(&ccm->chsccdr);
+	reg |= (CHSCCDR_CLK_SEL_LDB_DI0
+		<< MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_OFFSET);
+	writel(reg, &ccm->chsccdr);
+
+	reg = IOMUXC_GPR2_BGREF_RRMODE_EXTERNAL_RES
+	      | IOMUXC_GPR2_DI1_VS_POLARITY_ACTIVE_HIGH
+	      | IOMUXC_GPR2_DI0_VS_POLARITY_ACTIVE_HIGH
+	      | IOMUXC_GPR2_BIT_MAPPING_CH0_SPWG
+	      | IOMUXC_GPR2_DATA_WIDTH_CH0_24BIT
+	      | IOMUXC_GPR2_LVDS_CH1_MODE_DISABLED
+	      | IOMUXC_GPR2_LVDS_CH0_MODE_ENABLED_DI0;
+	writel(reg, &iomux->gpr[2]);
+
+	reg = readl(&iomux->gpr[3]);
+	reg = (reg & ~IOMUXC_GPR3_LVDS0_MUX_CTL_MASK)
+	       | (IOMUXC_GPR3_MUX_SRC_IPU1_DI0
+		  << IOMUXC_GPR3_LVDS0_MUX_CTL_OFFSET);
+	writel(reg, &iomux->gpr[3]);
+}
+
+static void enable_spi_display(struct display_info_t const *dev)
+{
+	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
+	struct mxc_ccm_reg *ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	int reg;
+	s32 timeout = 100000;
+
+#if defined(CONFIG_VIDEO_BMP_LOGO)
+	rotate_logo(3);  /* portrait display in landscape mode */
 #endif
 
+	reg = readl(&ccm->cs2cdr);
 
-struct i2c_pads_info i2c_pad_info1 = {
-	.scl = {
-		.i2c_mode = MX6_PAD_CSI0_DAT9__I2C1_SCL | PC,
-		.gpio_mode = MX6_PAD_CSI0_DAT9__GPIO5_IO27 | PC,
-		.gp = IMX_GPIO_NR(5, 27)
-	},
-	.sda = {
-		.i2c_mode = MX6_PAD_CSI0_DAT8__I2C1_SDA | PC,
-		.gpio_mode = MX6_PAD_CSI0_DAT8__GPIO5_IO26 | PC,
-		.gp = IMX_GPIO_NR(5, 26)
+	/* select pll 5 clock */
+	reg &= ~(MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_MASK
+		| MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_MASK);
+	writel(reg, &ccm->cs2cdr);
+
+	/* set PLL5 to 197994996Hz */
+	reg &= ~BM_ANADIG_PLL_VIDEO_DIV_SELECT;
+	reg |= BF_ANADIG_PLL_VIDEO_DIV_SELECT(0x21);
+	reg &= ~BM_ANADIG_PLL_VIDEO_POST_DIV_SELECT;
+	reg |= BF_ANADIG_PLL_VIDEO_POST_DIV_SELECT(0);
+	writel(reg, &ccm->analog_pll_video);
+
+	writel(BF_ANADIG_PLL_VIDEO_NUM_A(0xfbf4),
+	       &ccm->analog_pll_video_num);
+	writel(BF_ANADIG_PLL_VIDEO_DENOM_B(0xf4240),
+	       &ccm->analog_pll_video_denom);
+
+	reg &= ~BM_ANADIG_PLL_VIDEO_POWERDOWN;
+	writel(reg, &ccm->analog_pll_video);
+
+	while (timeout--)
+		if (readl(&ccm->analog_pll_video) & BM_ANADIG_PLL_VIDEO_LOCK)
+			break;
+	if (timeout < 0)
+		printf("Warning: video pll lock timeout!\n");
+
+	reg = readl(&ccm->analog_pll_video);
+	reg |= BM_ANADIG_PLL_VIDEO_ENABLE;
+	reg &= ~BM_ANADIG_PLL_VIDEO_BYPASS;
+	writel(reg, &ccm->analog_pll_video);
+
+	/* set LDB0, LDB1 clk select to 000/000 (PLL5 clock) */
+	reg = readl(&ccm->cs2cdr);
+	reg &= ~(MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_MASK
+		 | MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_MASK);
+	reg |= (0 << MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_OFFSET)
+		| (0 << MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_OFFSET);
+	writel(reg, &ccm->cs2cdr);
+
+	reg = readl(&ccm->cscmr2);
+	reg |= MXC_CCM_CSCMR2_LDB_DI0_IPU_DIV;
+	writel(reg, &ccm->cscmr2);
+
+	reg = readl(&ccm->chsccdr);
+	reg |= (CHSCCDR_CLK_SEL_LDB_DI0
+		<< MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_OFFSET);
+	reg &= ~MXC_CCM_CHSCCDR_IPU1_DI0_PODF_MASK;
+	reg |= (2 << MXC_CCM_CHSCCDR_IPU1_DI0_PODF_OFFSET);
+	reg &= ~MXC_CCM_CHSCCDR_IPU1_DI0_PRE_CLK_SEL_MASK;
+	reg |= (2 << MXC_CCM_CHSCCDR_IPU1_DI0_PRE_CLK_SEL_OFFSET);
+	writel(reg, &ccm->chsccdr);
+
+	reg = IOMUXC_GPR2_BGREF_RRMODE_EXTERNAL_RES
+	      | IOMUXC_GPR2_DI1_VS_POLARITY_ACTIVE_HIGH
+	      | IOMUXC_GPR2_DI0_VS_POLARITY_ACTIVE_HIGH
+	      | IOMUXC_GPR2_BIT_MAPPING_CH0_SPWG
+	      | IOMUXC_GPR2_DATA_WIDTH_CH0_24BIT
+	      | IOMUXC_GPR2_LVDS_CH1_MODE_DISABLED
+	      | IOMUXC_GPR2_LVDS_CH0_MODE_ENABLED_DI0;
+	writel(reg, &iomux->gpr[2]);
+
+	reg = readl(&iomux->gpr[3]);
+	reg = (reg & ~IOMUXC_GPR3_LVDS0_MUX_CTL_MASK)
+	       | (IOMUXC_GPR3_MUX_SRC_IPU1_DI0
+		  << IOMUXC_GPR3_LVDS0_MUX_CTL_OFFSET);
+	writel(reg, &iomux->gpr[3]);
+}
+
+static void setup_display(void)
+{
+	enable_ipu_clock();
+}
+
+static void set_gpr_register(void)
+{
+	struct iomuxc *iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
+
+	writel(IOMUXC_GPR1_APP_CLK_REQ_N | IOMUXC_GPR1_PCIE_RDY_L23 |
+	       IOMUXC_GPR1_EXC_MON_SLVE |
+	       (2 << IOMUXC_GPR1_ADDRS0_OFFSET) |
+	       IOMUXC_GPR1_ACT_CS0,
+	       &iomuxc_regs->gpr[1]);
+	writel(0x0, &iomuxc_regs->gpr[8]);
+	writel(IOMUXC_GPR12_ARMP_IPG_CLK_EN | IOMUXC_GPR12_ARMP_AHB_CLK_EN |
+	       IOMUXC_GPR12_ARMP_ATB_CLK_EN | IOMUXC_GPR12_ARMP_APB_CLK_EN,
+	       &iomuxc_regs->gpr[12]);
+}
+
+extern char __bss_start[], __bss_end[];
+int board_early_init_f(void)
+{
+	select_ldb_di_clock_source(MXC_PLL5_CLK);
+	set_gpr_register();
+
+	/*
+	 * clear bss here, so we can use spi driver
+	 * before relocation and read Environment
+	 * from spi flash.
+	 */
+	memset(__bss_start, 0x00, __bss_end - __bss_start);
+
+	return 0;
+}
+
+static void setup_one_led(char *label, int state)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = led_get_by_label(label, &dev);
+	if (ret == 0)
+		led_set_state(dev, state);
+}
+
+static void setup_board_gpio(void)
+{
+	setup_one_led("led_ena", LEDST_ON);
+	/* switch off Status LEDs */
+	setup_one_led("led_yellow", LEDST_OFF);
+	setup_one_led("led_red", LEDST_OFF);
+	setup_one_led("led_green", LEDST_OFF);
+	setup_one_led("led_blue", LEDST_OFF);
+}
+
+#define ARI_RESC_FMT "setenv rescue_reason setenv bootargs \\${bootargs}" \
+		" rescueReason=%d "
+
+static void aristainetos_run_rescue_command(int reason)
+{
+	char rescue_reason_command[80];
+
+	sprintf(rescue_reason_command, ARI_RESC_FMT, reason);
+	run_command(rescue_reason_command, 0);
+}
+
+static int aristainetos_eeprom(void)
+{
+	struct udevice *dev;
+	int off;
+	int ret;
+	u8 data[0x10];
+	u8 rescue_reason;
+
+	off = fdt_path_offset(gd->fdt_blob, "eeprom0");
+	if (off < 0) {
+		printf("%s: No eeprom0 path offset\n", __func__);
+		return off;
 	}
-};
 
-struct i2c_pads_info i2c_pad_info2 = {
-	.scl = {
-		.i2c_mode = MX6_PAD_KEY_COL3__I2C2_SCL | PC,
-		.gpio_mode = MX6_PAD_KEY_COL3__GPIO4_IO12 | PC,
-		.gp = IMX_GPIO_NR(4, 12)
-	},
-	.sda = {
-		.i2c_mode = MX6_PAD_KEY_ROW3__I2C2_SDA | PC,
-		.gpio_mode = MX6_PAD_KEY_ROW3__GPIO4_IO13 | PC,
-		.gp = IMX_GPIO_NR(4, 13)
+	ret = uclass_get_device_by_of_offset(UCLASS_I2C_EEPROM, off, &dev);
+	if (ret) {
+		printf("%s: Could not find EEPROM\n", __func__);
+		return ret;
 	}
+
+	ret = i2c_set_chip_offset_len(dev, 2);
+	if (ret)
+		return ret;
+
+	ret = i2c_eeprom_read(dev, 0x1ff0, (uint8_t *)data, 6);
+	if (ret) {
+		printf("%s: Could not read EEPROM\n", __func__);
+		return ret;
+	}
+
+	if (strncmp((char *)&data[3], "ReScUe", 6) == 0) {
+		rescue_reason = *(uint8_t *)&data[9];
+		memset(&data[3], 0xff, 7);
+		i2c_eeprom_write(dev, 0x1ff0, (uint8_t *)&data[3], 7);
+		printf("\nBooting into Rescue System (EEPROM)\n");
+		aristainetos_run_rescue_command(rescue_reason);
+		run_command("run rescue_load_fit rescueboot", 0);
+	} else if (strncmp((char *)data, "DeF", 3) == 0) {
+		memset(data, 0xff, 3);
+		i2c_eeprom_write(dev, 0x1ff0, (uint8_t *)data, 3);
+		printf("\nClear u-boot environment (set back to defaults)\n");
+		run_command("run default_env; saveenv; saveenv", 0);
+	}
+
+	return 0;
 };
 
-iomux_v3_cfg_t const usdhc1_pads[] = {
-	MX6_PAD_SD1_CLK__SD1_CLK	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD1_CMD__SD1_CMD	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD1_DAT0__SD1_DATA0	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD1_DAT1__SD1_DATA1	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD1_DAT2__SD1_DATA2	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD1_DAT3__SD1_DATA3	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
-};
+static void aristainetos_bootmode_settings(void)
+{
+	struct gpio_desc *desc;
+	struct src *psrc = (struct src *)SRC_BASE_ADDR;
+	unsigned int sbmr1 = readl(&psrc->sbmr1);
+	char *my_bootdelay;
+	char bootmode = 0;
+	int ret;
+
+	/*
+	 * Check the boot-source. If booting from NOR Flash,
+	 * disable bootdelay
+	 */
+	ret = gpio_hog_lookup_name("bootsel0", &desc);
+	if (!ret)
+		bootmode |= (dm_gpio_get_value(desc) ? 1 : 0) << 0;
+	ret = gpio_hog_lookup_name("bootsel1", &desc);
+	if (!ret)
+		bootmode |= (dm_gpio_get_value(desc) ? 1 : 0) << 1;
+	ret = gpio_hog_lookup_name("bootsel2", &desc);
+	if (!ret)
+		bootmode |= (dm_gpio_get_value(desc) ? 1 : 0) << 2;
+
+	if (bootmode == 7) {
+		my_bootdelay = env_get("nor_bootdelay");
+		if (my_bootdelay)
+			env_set("bootdelay", my_bootdelay);
+		else
+			env_set("bootdelay", "-2");
+	}
+
+	if (sbmr1 & 0x40) {
+		env_set("bootmode", "1");
+		printf("SD bootmode jumper set!\n");
+	} else {
+		env_set("bootmode", "0");
+	}
+
+	/* read out some jumper values*/
+	ret = gpio_hog_lookup_name("env_reset", &desc);
+	if (!ret) {
+		if (dm_gpio_get_value(desc)) {
+			printf("\nClear env (set back to defaults)\n");
+			run_command("run default_env; saveenv; saveenv", 0);
+		}
+	}
+	ret = gpio_hog_lookup_name("boot_rescue", &desc);
+	if (!ret) {
+		if (dm_gpio_get_value(desc)) {
+			aristainetos_run_rescue_command(16);
+			run_command("run rescue_xload_boot", 0);
+		}
+	}
+}
+
+int board_late_init(void)
+{
+	int x, y;
+
+	led_default_state();
+	splash_get_pos(&x, &y);
+	bmp_display((ulong)&bmp_logo_bitmap[0], x, y);
+
+	aristainetos_bootmode_settings();
+
+	/* eeprom work */
+	aristainetos_eeprom();
+
+	/* set board_type */
+	if (gd->board_type == BOARD_TYPE_4)
+		env_set("board_type", ARI_BT_4);
+	else
+		env_set("board_type", ARI_BT_7);
+
+	return 0;
+}
 
 int dram_init(void)
 {
 	gd->ram_size = imx_ddr_size();
 
 	return 0;
-}
-
-#ifdef CONFIG_FSL_ESDHC_IMX
-struct fsl_esdhc_cfg usdhc_cfg[2] = {
-	{USDHC1_BASE_ADDR},
-	{USDHC2_BASE_ADDR},
-};
-
-int board_mmc_getcd(struct mmc *mmc)
-{
-	return 1;
-}
-
-int board_mmc_init(bd_t *bis)
-{
-	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
-	imx_iomux_v3_setup_multiple_pads(usdhc1_pads, ARRAY_SIZE(usdhc1_pads));
-#if (CONFIG_SYS_BOARD_VERSION == 2)
-	/*
-	 * usdhc2 has a levelshifter on the carrier board Rev. DV1,
-	 * that will automatically detect the driving direction.
-	 * During initialisation this isn't working correctly,
-	 * which causes DAT3 to be driven low towards the SD-card.
-	 * This causes a SD-card enetring the SPI-Mode
-	 * and therefore getting inaccessible until next power cycle.
-	 * As workaround we drive the DAT3 line as GPIO and set it high.
-	 * This makes usdhc2 unusable in u-boot, but works for the
-	 * initialisation in Linux
-	 */
-	imx_iomux_v3_setup_pad(MX6_PAD_SD2_DAT3__GPIO1_IO12 |
-			       MUX_PAD_CTRL(NO_PAD_CTRL));
-	gpio_direction_output(IMX_GPIO_NR(1, 12) , 1);
-#endif
-	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
-}
-#endif
-
-/*
- * Do not overwrite the console
- * Use always serial for U-Boot console
- */
-int overwrite_console(void)
-{
-	return 1;
 }
 
 struct display_info_t const displays[] = {
@@ -174,7 +490,10 @@ struct display_info_t const displays[] = {
 			.vmode          = FB_VMODE_NONINTERLACED
 		}
 	}
-#if ((CONFIG_SYS_BOARD_VERSION == 2) || (CONFIG_SYS_BOARD_VERSION == 3))
+#if ((CONFIG_SYS_BOARD_VERSION == 2) || \
+	(CONFIG_SYS_BOARD_VERSION == 3) || \
+	(CONFIG_SYS_BOARD_VERSION == 4) || \
+	(CONFIG_SYS_BOARD_VERSION == 5))
 	, {
 		.bus	= -1,
 		.addr	= 0,
@@ -202,12 +521,7 @@ struct display_info_t const displays[] = {
 };
 size_t display_count = ARRAY_SIZE(displays);
 
-/* no console on this board */
-int board_cfb_skip(void)
-{
-	return 1;
-}
-
+#if defined(CONFIG_NAND)
 iomux_v3_cfg_t nfc_pads[] = {
 	MX6_PAD_NANDF_CLE__NAND_CLE		| MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX6_PAD_NANDF_ALE__NAND_ALE		| MUX_PAD_CTRL(NO_PAD_CTRL),
@@ -261,6 +575,11 @@ static void setup_gpmi_nand(void)
 	/* enable apbh clock gating */
 	setbits_le32(&mxc_ccm->CCGR0, MXC_CCM_CCGR0_APBHDMA_MASK);
 }
+#else
+static void setup_gpmi_nand(void)
+{
+}
+#endif
 
 int board_init(void)
 {
@@ -269,57 +588,54 @@ int board_init(void)
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
-	setup_spi();
-
-	setup_i2c(0, CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE,
-		  &i2c_pad_info1);
-	setup_i2c(1, CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE,
-		  &i2c_pad_info2);
-	setup_i2c(2, CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE,
-		  &i2c_pad_info3);
-	setup_i2c4();
-
-	/* SPI NOR Flash read only */
-	gpio_request(CONFIG_GPIO_ENABLE_SPI_FLASH, "ena_spi_nor");
-	gpio_direction_output(CONFIG_GPIO_ENABLE_SPI_FLASH, 0);
-	gpio_free(CONFIG_GPIO_ENABLE_SPI_FLASH);
-
 	setup_board_gpio();
 	setup_gpmi_nand();
-	setup_board_spi();
+	setup_display();
 
 	/* GPIO_1 for USB_OTG_ID */
 	clrsetbits_le32(&iomux->gpr[1], IOMUXC_GPR1_USB_OTG_ID_SEL_MASK, 0);
-	imx_iomux_v3_setup_multiple_pads(misc_pads, ARRAY_SIZE(misc_pads));
 	return 0;
 }
 
-int checkboard(void)
+int board_fit_config_name_match(const char *name)
 {
-	printf("Board: %s\n", CONFIG_BOARDNAME);
-	return 0;
+	if (gd->board_type == BOARD_TYPE_4 &&
+	    strchr(name, 0x34))
+		return 0;
+
+	if (gd->board_type == BOARD_TYPE_7 &&
+	    strchr(name, 0x37))
+		return 0;
+
+	return -1;
 }
 
-#ifdef CONFIG_USB_EHCI_MX6
-int board_ehci_hcd_init(int port)
+static void do_board_detect(void)
 {
 	int ret;
+	char s[30];
 
-	ret = gpio_request(ARISTAINETOS_USB_H1_PWR, "usb-h1-pwr");
-	if (!ret)
-		gpio_direction_output(ARISTAINETOS_USB_H1_PWR, 1);
-	ret = gpio_request(ARISTAINETOS_USB_OTG_PWR, "usb-OTG-pwr");
-	if (!ret)
-		gpio_direction_output(ARISTAINETOS_USB_OTG_PWR, 1);
-	return 0;
+	/* default use board type 7 */
+	gd->board_type = BOARD_TYPE_7;
+	if (env_init())
+		return;
+
+	ret = env_get_f("panel", s, sizeof(s));
+	if (ret < 0)
+		return;
+
+	if (!strncmp("lg4573", s, 6))
+		gd->board_type = BOARD_TYPE_4;
 }
 
-int board_ehci_power(int port, int on)
+#ifdef CONFIG_DTB_RESELECT
+int embedded_dtb_select(void)
 {
-	if (port)
-		gpio_set_value(ARISTAINETOS_USB_OTG_PWR, on);
-	else
-		gpio_set_value(ARISTAINETOS_USB_H1_PWR, on);
+	int rescan;
+
+	do_board_detect();
+	fdtdec_resetup(&rescan);
+
 	return 0;
 }
 #endif

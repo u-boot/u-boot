@@ -193,6 +193,34 @@ static void init_cpu_basic(void)
 #endif
 }
 
+#ifdef CONFIG_IMX_BOOTAUX
+/*
+ * Table of mappings of physical mem regions in both
+ * Cortex-A7 and Cortex-M4 address spaces.
+ *
+ * For additional details check sections 2.1.2 and 2.1.3 in
+ * i.MX7Dual Applications Processor Reference Manual
+ *
+ */
+const struct rproc_att hostmap[] = {
+	/* aux core , host core,  size */
+	{ 0x00000000, 0x00180000, 0x8000 }, /* OCRAM_S */
+	{ 0x00180000, 0x00180000, 0x8000 }, /* OCRAM_S */
+	{ 0x20180000, 0x00180000, 0x8000 }, /* OCRAM_S */
+	{ 0x1fff8000, 0x007f8000, 0x8000 }, /* TCML */
+	{ 0x20000000, 0x00800000, 0x8000 }, /* TCMU */
+	{ 0x00900000, 0x00900000, 0x20000 }, /* OCRAM_128KB */
+	{ 0x20200000, 0x00900000, 0x20000 }, /* OCRAM_128KB */
+	{ 0x00920000, 0x00920000, 0x20000 }, /* OCRAM_EPDC */
+	{ 0x20220000, 0x00920000, 0x20000 }, /* OCRAM_EPDC */
+	{ 0x00940000, 0x00940000, 0x20000 }, /* OCRAM_PXP */
+	{ 0x20240000, 0x00940000, 0x20000 }, /* OCRAM_PXP */
+	{ 0x10000000, 0x80000000, 0x0fff0000 }, /* DDR Code alias */
+	{ 0x80000000, 0x80000000, 0xe0000000 }, /* DDRC */
+	{ /* sentinel */ }
+};
+#endif
+
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
 /* enable all periherial can be accessed in nosec mode */
 static void init_csu(void)

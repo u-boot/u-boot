@@ -53,13 +53,7 @@
 #endif
 
 /* Network */
-#define CONFIG_FEC_MXC
-#define IMX_FEC_BASE			ENET_BASE_ADDR
-#define CONFIG_FEC_XCV_TYPE		RGMII
-#define CONFIG_ETHPRIME			"FEC"
 #define PHY_ANEG_TIMEOUT		15000 /* PHY needs longer aneg time */
-#define CONFIG_FEC_MXC_PHYADDR		6
-#define CONFIG_TFTP_TSIZE
 
 /* USB Configs */
 /* Host */
@@ -121,6 +115,17 @@
 	"imx6q-apalis-eval.dtb fat 0 1;" \
 	"imx6q-apalis-cam-eval.dtb fat 0 1"
 
+#define UBOOT_UPDATE \
+	"uboot_hwpart=1\0" \
+	"uboot_blk=8a\0" \
+	"uboot_spl_blk=2\0" \
+	"set_blkcnt=setexpr blkcnt ${filesize} + 0x1ff && " \
+		"setexpr blkcnt ${blkcnt} / 0x200\0" \
+	"update_uboot=run set_blkcnt && mmc dev 0 ${uboot_hwpart} && " \
+		"mmc write ${loadaddr} ${uboot_blk} ${blkcnt}\0" \
+	"update_spl=run set_blkcnt && mmc dev 0 ${uboot_hwpart} && " \
+		"mmc write ${loadaddr} ${uboot_spl_blk} ${blkcnt}\0"
+
 #define EMMC_BOOTCMD \
 	"set_emmcargs=setenv emmcargs ip=off root=PARTUUID=${uuid} " \
 		"ro,noatime rootfstype=ext4 rootwait\0" \
@@ -178,6 +183,7 @@
 	"fdt_fixup=;\0" \
 	MEM_LAYOUT_ENV_SETTINGS \
 	NFS_BOOTCMD \
+	UBOOT_UPDATE \
 	"setethupdate=if env exists ethaddr; then; else setenv ethaddr " \
 		"00:14:2d:00:00:00; fi; tftpboot ${loadaddr} " \
 		"flash_eth.img && source ${loadaddr}\0" \

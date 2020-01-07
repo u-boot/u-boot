@@ -1,0 +1,101 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2019 Heiko Schocher <hs@denx.de>
+ */
+
+/ {
+	chosen {
+		u-boot,dm-pre-reloc;
+		stdout-path = &uart2;
+	};
+
+	wdt-reboot {
+		compatible = "wdt-reboot";
+		wdt = <&wdog1>;
+	};
+};
+
+&uart2 {
+	u-boot,dm-pre-reloc;
+};
+
+&pinctrl_gpio {
+	u-boot,dm-pre-reloc;
+};
+
+&pinctrl_uart2 {
+	u-boot,dm-pre-reloc;
+};
+
+&aips2 {
+	u-boot,dm-pre-reloc;
+};
+
+&backlight {
+	pwms = <&pwm1 0 300000>;
+	default-brightness-level = <2>;
+};
+
+/*
+ * allow switching write protect pin by gpio,
+ * because "pinctrl-assert-gpios" from &ecspi1 isn't handled by u-boot
+ */
+&gpio2 {
+	u-boot,dm-pre-reloc;
+
+	wp_spi_nor {
+		gpio-hog;
+		output-high;
+		gpios = <15 GPIO_ACTIVE_HIGH>;
+	};
+};
+
+&iomuxc {
+	pinctrl-0 = <&pinctrl_gpio &pinctrl_gpio_fix>;
+	u-boot,dm-pre-reloc;
+
+	pinctrl_gpio_fix: gpiofixgrp {
+		/*
+		 * usdhc2 has a levelshifter on the carrier board Rev. DV1,
+		 * that will automatically detect the driving direction.
+		 * During initialisation this isn't working correctly,
+		 * which causes DAT3 to be driven low towards the SD-card.
+		 * This causes a SD-card enetring the SPI-Mode
+		 * and therefore getting inaccessible until next power cycle.
+		 * As workaround we drive the DAT3 line as GPIO and set it high.
+		 * This makes usdhc2 unusable in u-boot, but works for the
+		 * initialisation in Linux
+		 */
+		fsl,pins = <
+			MX6QDL_PAD_SD2_DAT3__GPIO1_IO12	0x20000
+		>;
+	};
+};
+
+&gpio1 {
+	usdhc_fix {
+		gpio-hog;
+		output-high;
+		gpios = <12 GPIO_ACTIVE_HIGH>;
+	};
+};
+
+&gpio3 {
+	u-boot,dm-pre-reloc;
+};
+
+&gpio5 {
+	u-boot,dm-pre-reloc;
+};
+
+&ecspi4 {
+	u-boot,dm-pre-reloc;
+};
+
+&flash {
+	u-boot,dm-pre-reloc;
+};
+
+&pinctrl_ecspi4 {
+	u-boot,dm-pre-reloc;
+};

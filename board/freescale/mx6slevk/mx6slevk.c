@@ -145,7 +145,7 @@ int power_init_board(void)
 	u32 switch_num = 6;
 	u32 offset = PFUZE100_SW1CMODE;
 
-	ret = pmic_get("pfuze100", &dev);
+	ret = pmic_get("pfuze100@08", &dev);
 	if (ret == -ENODEV)
 		return 0;
 

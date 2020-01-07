@@ -101,7 +101,7 @@
 	"lvds=ldb\0" \
 	"setargs=setenv bootargs ${lvds} jtag=on mem=2G " \
 		"vt.global_cursor_default=0 bootcause=${bootcause} ${quiet} " \
-		"console=${console} ${rtc_status}\0" \
+		"console=${console}\0" \
 	"bootargs_emmc=setenv bootargs root=/dev/${rootdev}${partnum} ro " \
 		"rootwait ${bootargs}\0" \
 	"doquiet=if ext2load ${dev} ${devnum}:5 0x7000A000 /boot/console; " \
