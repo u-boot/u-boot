@@ -10,3 +10,16 @@ config SYS_CONFIG_NAME
 	default "giedi"
 
 endif
+
+if TARGET_DENEB
+
+config SYS_BOARD
+	default "capricorn"
+
+config SYS_VENDOR
+	default "siemens"
+
+config SYS_CONFIG_NAME
+	default "deneb"
+
+endif

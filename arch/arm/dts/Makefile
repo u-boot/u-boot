@@ -700,6 +700,7 @@ dtb-$(CONFIG_ARCH_IMX8) += \
 	fsl-imx8qxp-ai_ml.dtb \
 	fsl-imx8qxp-colibri.dtb \
 	fsl-imx8qxp-mek.dtb \
+	imx8-deneb.dtb \
 	imx8-giedi.dtb
 
 dtb-$(CONFIG_ARCH_IMX8M) += \
