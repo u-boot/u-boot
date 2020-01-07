@@ -55,6 +55,11 @@ config TARGET_COLIBRI_IMX8X
 	select BOARD_LATE_INIT
 	select IMX8QXP
 
+config TARGET_GIEDI
+	bool "Support i.MX8QXP Capricorn Giedi board"
+	select BOARD_LATE_INIT
+	select IMX8QXP
+
 config TARGET_IMX8QM_MEK
 	bool "Support i.MX8QM MEK board"
 	select BOARD_LATE_INIT
@@ -78,5 +83,6 @@ source "board/freescale/imx8qxp_mek/Kconfig"
 source "board/advantech/imx8qm_rom7720_a1/Kconfig"
 source "board/toradex/apalis-imx8/Kconfig"
 source "board/toradex/colibri-imx8x/Kconfig"
+source "board/siemens/capricorn/Kconfig"
 
 endif
