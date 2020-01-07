@@ -174,8 +174,8 @@ int fdt_disable_node(void *blob, char *node_path)
 
 	offs = fdt_path_offset(blob, node_path);
 	if (offs < 0) {
-		debug("Node %s not found.\n", node_path);
-		return 0;
+		printf("Node %s not found.\n", node_path);
+		return offs;
 	}
 	ret = fdt_setprop_string(blob, offs, "status", "disabled");
 	if (ret < 0) {
