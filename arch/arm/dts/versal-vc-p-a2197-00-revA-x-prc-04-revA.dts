@@ -72,7 +72,7 @@
 &qspi {
 	status = "okay"; /* u93 and u92 and u161 and u160 */
 	num-cs = <1>;
-	is-dual = <1>;
+	is-dual = <0>;
 	is-stacked = <1>;
 	spi-rx-bus-width = <4>;
 	spi-tx-bus-width = <4>;
