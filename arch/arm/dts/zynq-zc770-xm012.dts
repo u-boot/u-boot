@@ -53,6 +53,47 @@
 	};
 };
 
+&nor0 {
+	status = "okay";
+	bank-width = <1>;
+	xlnx,sram-cycle-t0 = <0xb>;
+	xlnx,sram-cycle-t1 = <0xb>;
+	xlnx,sram-cycle-t2 = <0x4>;
+	xlnx,sram-cycle-t3 = <0x4>;
+	xlnx,sram-cycle-t4 = <0x3>;
+	xlnx,sram-cycle-t5 = <0x3>;
+	xlnx,sram-cycle-t6 = <0x2>;
+	partition@0 {
+		label = "nor-fsbl-uboot";
+		reg = <0x0 0x100000>;
+	};
+	partition@100000 {
+		label = "nor-linux";
+		reg = <0x100000 0x500000>;
+	};
+	partition@600000 {
+		label = "nor-device-tree";
+		reg = <0x600000 0x20000>;
+	};
+	partition@620000 {
+		label = "nor-rootfs";
+		reg = <0x620000 0x5E0000>;
+	};
+	partition@c00000 {
+		label = "nor-bitstream";
+		reg = <0xC00000 0x400000>;
+	};
+};
+
+&smcc {
+	status = "okay";
+	arm,addr25 = <0x1>;
+	arm,nor-chip-sel0 = <0x1>;
+	arm,nor-chip-sel1 = <0x0>;
+	arm,sram-chip-sel0 = <0x0>;
+	arm,sram-chip-sel1 = <0x0>;
+};
+
 &spi1 {
 	status = "okay";
 	num-cs = <4>;
