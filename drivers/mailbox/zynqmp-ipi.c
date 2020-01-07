@@ -133,7 +133,7 @@ struct mbox_ops zynqmp_ipi_mbox_ops = {
 };
 
 U_BOOT_DRIVER(zynqmp_ipi) = {
-	.name = "zynqmp-ipi",
+	.name = "zynqmp_ipi",
 	.id = UCLASS_MAILBOX,
 	.of_match = zynqmp_ipi_ids,
 	.probe = zynqmp_ipi_probe,
