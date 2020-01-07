@@ -1,0 +1,21 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Xilinx ZynqMP QSPI x1 Stacked DTS
+ *
+ * Copyright (C) 2015 - 2017 Xilinx, Inc.
+ */
+
+#include "zynqmp-mini-qspi.dts"
+
+/ {
+	model = "ZynqMP MINI QSPI X1 STACKED";
+};
+
+&qspi {
+	is-dual = <0>;
+	is-stacked = <1>;
+};
+
+&flash0 {
+	spi-rx-bus-width = <1>;
+};
