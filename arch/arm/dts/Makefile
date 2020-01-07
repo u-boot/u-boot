@@ -859,6 +859,9 @@ dtb-$(CONFIG_ARCH_BCM283X) += \
 dtb-$(CONFIG_ARCH_BCM63158) += \
 	bcm963158.dtb
 
+dtb-$(CONFIG_ARCH_BCM68360) += \
+	bcm968360bg.dtb
+
 dtb-$(CONFIG_ARCH_BCM6858) += \
 	bcm968580xref.dtb
 
