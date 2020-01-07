@@ -55,7 +55,8 @@ config ALTERA_PIO
 
 config BCM6345_GPIO
 	bool "BCM6345 GPIO driver"
-	depends on DM_GPIO && (ARCH_BMIPS || ARCH_BCM6858 || ARCH_BCM63158)
+	depends on DM_GPIO && (ARCH_BMIPS || ARCH_BCM68360 || \
+			       ARCH_BCM6858 || ARCH_BCM63158)
 	help
 	  This driver supports the GPIO banks on BCM6345 SoCs.
 
