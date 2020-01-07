@@ -187,6 +187,5 @@ static const struct udevice_id zynqmp_firmware_ids[] = {
 U_BOOT_DRIVER(zynqmp_firmware) = {
 	.id = UCLASS_FIRMWARE,
 	.name = "zynqmp-firmware",
-	.probe = dm_scan_fdt_dev,
 	.of_match = zynqmp_firmware_ids,
 };
