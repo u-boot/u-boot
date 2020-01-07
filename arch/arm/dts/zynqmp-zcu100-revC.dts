@@ -577,6 +577,33 @@
 	status = "okay";
 };
 
+&zynqmp_dpsub {
+	status = "okay";
+	phy-names = "dp-phy0", "dp-phy1";
+	phys = <&lane1 PHY_TYPE_DP 0 1 27000000>,
+	       <&lane0 PHY_TYPE_DP 1 1 27000000>;
+};
+
+&zynqmp_dp_snd_pcm0 {
+	status = "okay";
+};
+
+&zynqmp_dp_snd_pcm1 {
+	status = "okay";
+};
+
+&zynqmp_dp_snd_card0 {
+	status = "okay";
+};
+
+&zynqmp_dp_snd_codec0 {
+	status = "okay";
+};
+
+&xlnx_dpdma {
+	status = "okay";
+};
+
 &xilinx_ams {
 	status = "okay";
 };

@@ -179,6 +179,22 @@
 	clocks = <&clk100>;
 };
 
+&perf_monitor_ocm {
+	clocks = <&clk100>;
+};
+
+&perf_monitor_ddr {
+	clocks = <&clk100>;
+};
+
+&perf_monitor_cci {
+	clocks = <&clk100>;
+};
+
+&perf_monitor_lpd {
+	clocks = <&clk100>;
+};
+
 &qspi {
 	clocks = <&clk300 &clk300>;
 };
@@ -227,18 +243,14 @@
 	clocks = <&clk250>;
 };
 
-&xilinx_drm {
-	clocks = <&drm_clock>;
-};
-
-&xlnx_dp {
-	clocks = <&dp_aclk>, <&dp_aud_clk>;
+&zynqmp_dpsub {
+	clocks = <&dp_aclk>, <&dp_aud_clk>, <&drm_clock>;
 };
 
 &xlnx_dpdma {
 	clocks = <&dpdma_clk>;
 };
 
-&xlnx_dp_snd_codec0 {
+&zynqmp_dp_snd_codec0 {
 	clocks = <&dp_aud_clk>;
 };
