@@ -254,24 +254,27 @@ static const struct {
 };
 
 /**
- * get_guid_text - get string of protocol guid
- * @guid:	Protocol guid
- * Return:	String
+ * get_guid_text - get string of GUID
  *
- * Return string for display to represent the protocol.
+ * Return description of GUID.
+ *
+ * @guid:	GUID
+ * Return:	description of GUID or NULL
  */
-static const char *get_guid_text(const efi_guid_t *guid)
+static const char *get_guid_text(const void *guid)
 {
 	int i;
 
-	for (i = 0; i < ARRAY_SIZE(guid_list); i++)
+	for (i = 0; i < ARRAY_SIZE(guid_list); i++) {
+		/*
+		 * As guidcmp uses memcmp() we can safely accept unaligned
+		 * GUIDs.
+		 */
 		if (!guidcmp(&guid_list[i].guid, guid))
-			break;
+			return guid_list[i].text;
+	}
 
-	if (i != ARRAY_SIZE(guid_list))
-		return guid_list[i].text;
-	else
-		return NULL;
+	return NULL;
 }
 
 /**
