@@ -633,6 +633,12 @@ config ARCH_BCM63158
 	select OF_CONTROL
 	imply CMD_DM
 
+config ARCH_BCM68360
+	bool "Broadcom BCM68360 family"
+	select DM
+	select OF_CONTROL
+	imply CMD_DM
+
 config ARCH_BCM6858
 	bool "Broadcom BCM6858 family"
 	select DM
