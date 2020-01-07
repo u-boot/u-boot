@@ -47,6 +47,47 @@
 	};
 };
 
+&nand0 {
+	status = "okay";
+	arm,nand-cycle-t0 = <0x4>;
+	arm,nand-cycle-t1 = <0x4>;
+	arm,nand-cycle-t2 = <0x1>;
+	arm,nand-cycle-t3 = <0x2>;
+	arm,nand-cycle-t4 = <0x2>;
+	arm,nand-cycle-t5 = <0x2>;
+	arm,nand-cycle-t6 = <0x4>;
+
+	partition@nand-fsbl-uboot {
+		label = "nand-fsbl-uboot";
+		reg = <0x0 0x100000>;
+	};
+	partition@nand-linux {
+		label = "nand-linux";
+		reg = <0x100000 0x500000>;
+	};
+	partition@nand-device-tree {
+		label = "nand-device-tree";
+		reg = <0x600000 0x20000>;
+	};
+	partition@nand-rootfs {
+		label = "nand-rootfs";
+		reg = <0x620000 0x5E0000>;
+	};
+	partition@nand-bitstream {
+		label = "nand-bitstream";
+		reg = <0xC00000 0x400000>;
+	};
+};
+
+&smcc {
+	status = "okay";
+	arm,addr25 = <0x0>;
+	arm,nor-chip-sel0 = <0x0>;
+	arm,nor-chip-sel1 = <0x0>;
+	arm,sram-chip-sel0 = <0x0>;
+	arm,sram-chip-sel1 = <0x0>;
+};
+
 &spi0 {
 	status = "okay";
 	num-cs = <4>;
