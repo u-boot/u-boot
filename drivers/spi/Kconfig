@@ -84,7 +84,8 @@ config ATMEL_SPI
 
 config BCM63XX_HSSPI
 	bool "BCM63XX HSSPI driver"
-	depends on (ARCH_BMIPS || ARCH_BCM6858 || ARCH_BCM63158)
+	depends on (ARCH_BMIPS || ARCH_BCM68360 || \
+		    ARCH_BCM6858 || ARCH_BCM63158)
 	help
 	  Enable the BCM6328 HSSPI driver. This driver can be used to
 	  access the SPI NOR flash on platforms embedding this Broadcom
