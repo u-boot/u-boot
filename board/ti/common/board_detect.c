@@ -548,6 +548,15 @@ int __maybe_unused ti_i2c_eeprom_am6_get_base(int bus_addr, int dev_addr)
 	return ret;
 }
 
+bool __maybe_unused board_ti_k3_is(char *name_tag)
+{
+	struct ti_am6_eeprom *ep = TI_AM6_EEPROM_DATA;
+
+	if (ep->header == TI_DEAD_EEPROM_MAGIC)
+		return false;
+	return !strncmp(ep->name, name_tag, AM6_EEPROM_HDR_NAME_LEN);
+}
+
 bool __maybe_unused board_ti_is(char *name_tag)
 {
 	struct ti_common_eeprom *ep = TI_EEPROM_DATA;

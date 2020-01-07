@@ -320,6 +320,15 @@ int __maybe_unused ti_i2c_eeprom_am6_get_base(int bus_addr, int dev_addr);
 bool board_ti_is(char *name_tag);
 
 /**
+ * board_ti_k3_is() - Board detection logic for TI K3 EVMs
+ * @name_tag:	Tag used in eeprom for the board
+ *
+ * Return: false if board information does not match OR eeprom wasn't read.
+ *	   true otherwise
+ */
+bool board_ti_k3_is(char *name_tag);
+
+/**
  * board_ti_rev_is() - Compare board revision for TI EVMs
  * @rev_tag:	Revision tag to check in eeprom
  * @cmp_len:	How many chars to compare?
