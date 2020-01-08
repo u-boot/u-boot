@@ -1401,7 +1401,7 @@ static efi_status_t EFIAPI efi_register_protocol_notify(
 	}
 
 	item->event = event;
-	memcpy(&item->protocol, protocol, sizeof(efi_guid_t));
+	guidcpy(&item->protocol, protocol);
 	INIT_LIST_HEAD(&item->handles);
 
 	list_add_tail(&item->link, &efi_register_notify_events);
@@ -1632,7 +1632,7 @@ efi_status_t efi_install_configuration_table(const efi_guid_t *guid,
 		return EFI_OUT_OF_RESOURCES;
 
 	/* Add a new entry */
-	memcpy(&systab.tables[i].guid, guid, sizeof(*guid));
+	guidcpy(&systab.tables[i].guid, guid);
 	systab.tables[i].table = table;
 	systab.nr_tables = i + 1;
 

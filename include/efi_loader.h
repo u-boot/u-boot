@@ -17,6 +17,11 @@ static inline int guidcmp(const void *g1, const void *g2)
 	return memcmp(g1, g2, sizeof(efi_guid_t));
 }
 
+static inline void *guidcpy(void *dst, const void *src)
+{
+	return memcpy(dst, src, sizeof(efi_guid_t));
+}
+
 /* No need for efi loader support in SPL */
 #if CONFIG_IS_ENABLED(EFI_LOADER)
 
@@ -33,6 +38,9 @@ static inline int guidcmp(const void *g1, const void *g2)
 #define U_BOOT_HOST_DEV_GUID \
 	EFI_GUID(0xbbe4e671, 0x5773, 0x4ea1, \
 		 0x9a, 0xab, 0x3a, 0x7d, 0xbf, 0x40, 0xc4, 0x82)
+
+/* Use internal device tree when starting UEFI application */
+#define EFI_FDT_USE_INTERNAL NULL
 
 /* Root node */
 extern efi_handle_t efi_root;
@@ -125,6 +133,7 @@ extern const struct efi_hii_config_routing_protocol efi_hii_config_routing;
 extern const struct efi_hii_config_access_protocol efi_hii_config_access;
 extern const struct efi_hii_database_protocol efi_hii_database;
 extern const struct efi_hii_string_protocol efi_hii_string;
+extern const struct efi_rng_protocol efi_rng_protocol;
 
 uint16_t *efi_dp_str(struct efi_device_path *dp);
 
@@ -169,6 +178,9 @@ extern const efi_guid_t efi_guid_hii_config_routing_protocol;
 extern const efi_guid_t efi_guid_hii_config_access_protocol;
 extern const efi_guid_t efi_guid_hii_database_protocol;
 extern const efi_guid_t efi_guid_hii_string_protocol;
+
+/* GUID of RNG protocol */
+extern const efi_guid_t efi_guid_rng_protocol;
 
 extern unsigned int __efi_runtime_start, __efi_runtime_stop;
 extern unsigned int __efi_runtime_rel_start, __efi_runtime_rel_stop;
@@ -338,6 +350,10 @@ extern struct list_head efi_register_notify_events;
 
 /* Initialize efi execution environment */
 efi_status_t efi_init_obj_list(void);
+/* Install device tree */
+efi_status_t efi_install_fdt(void *fdt);
+/* Run loaded UEFI image */
+efi_status_t efi_run_image(void *source_buffer, efi_uintn_t source_size);
 /* Initialize variable services */
 efi_status_t efi_init_variables(void);
 /* Notify ExitBootServices() is called */

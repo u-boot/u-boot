@@ -81,6 +81,10 @@ efi_status_t efi_root_node_register(void)
 			 &efi_guid_hii_config_routing_protocol,
 			 (void *)&efi_hii_config_routing,
 #endif
+#if CONFIG_IS_ENABLED(EFI_RNG_PROTOCOL)
+			 &efi_guid_rng_protocol,
+			 (void *)&efi_rng_protocol,
+#endif
 			 NULL));
 	efi_root->type = EFI_OBJECT_TYPE_U_BOOT_FIRMWARE;
 	return ret;

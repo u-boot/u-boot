@@ -259,6 +259,13 @@ config CMD_BOOTM
 	help
 	  Boot an application image from the memory.
 
+config BOOTM_EFI
+	bool "Support booting UEFI FIT images"
+	depends on CMD_BOOTEFI && CMD_BOOTM && FIT
+	default y
+	help
+	  Support booting UEFI FIT images via the bootm command.
+
 config CMD_BOOTZ
 	bool "bootz"
 	help
@@ -1665,6 +1672,13 @@ config CMD_GETTIME
 	  U-Boot started running. This shows the time in seconds and
 	  milliseconds. See also the 'bootstage' command which provides more
 	  flexibility for boot timing.
+
+config CMD_RNG
+	bool "rng command"
+	depends on DM_RNG
+	select HEXDUMP
+	help
+	  Print bytes from the hardware random number generator.
 
 # TODO: rename to CMD_SLEEP
 config CMD_MISC

@@ -137,6 +137,7 @@ static const table_entry_t uimage_os[] = {
 	{	IH_OS_OPENRTOS,	"openrtos",	"OpenRTOS",		},
 #endif
 	{	IH_OS_OPENSBI,	"opensbi",	"RISC-V OpenSBI",	},
+	{	IH_OS_EFI,	"efi",		"EFI Firmware" },
 
 	{	-1,		"",		"",			},
 };

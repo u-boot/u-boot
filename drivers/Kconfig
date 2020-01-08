@@ -90,6 +90,8 @@ source "drivers/remoteproc/Kconfig"
 
 source "drivers/reset/Kconfig"
 
+source "drivers/rng/Kconfig"
+
 source "drivers/rtc/Kconfig"
 
 source "drivers/scsi/Kconfig"

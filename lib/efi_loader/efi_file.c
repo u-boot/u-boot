@@ -656,9 +656,16 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
 		memset(info, 0, required_size);
 
 		info->size = required_size;
-		info->read_only = true;
+		/*
+		 * TODO: We cannot determine if the volume can be written to.
+		 */
+		info->read_only = false;
 		info->volume_size = part.size * part.blksz;
-		info->free_space = 0;
+		/*
+		 * TODO: We currently have no function to determine the free
+		 * space. The volume size is the best upper bound we have.
+		 */
+		info->free_space = info->volume_size;
 		info->block_size = part.blksz;
 		/*
 		 * TODO: The volume label is not available in U-Boot.

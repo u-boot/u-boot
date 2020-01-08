@@ -360,12 +360,26 @@ static efi_status_t EFIAPI efi_cout_set_attribute(
 	return EFI_EXIT(EFI_SUCCESS);
 }
 
+/**
+ * efi_cout_clear_screen() - clear screen
+ *
+ * This function implements the ClearScreen service of the
+ * EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL. See the Unified Extensible Firmware
+ * Interface (UEFI) specification for details.
+ *
+ * @this:	pointer to the protocol instance
+ * Return:	status code
+ */
 static efi_status_t EFIAPI efi_cout_clear_screen(
 			struct efi_simple_text_output_protocol *this)
 {
 	EFI_ENTRY("%p", this);
 
-	printf(ESC"[2J");
+	/*
+	 * The Linux console wants both a clear and a home command. The video
+	 * uclass does not support <ESC>[H without coordinates, yet.
+	 */
+	printf(ESC "[2J" ESC "[1;1H");
 	efi_con_mode.cursor_column = 0;
 	efi_con_mode.cursor_row = 0;
 
