@@ -17,6 +17,8 @@
 
 #include <stdio_dev.h>
 
+struct udevice;
+
 struct video_uc_platdata {
 	uint align;
 	uint size;
