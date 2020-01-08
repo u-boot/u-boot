@@ -8,86 +8,57 @@
 
 #ifndef __ASSEMBLER__
 
-struct socfpga_clock_manager_main_pll {
-	u32  vco0;
-	u32  vco1;
-	u32  en;
-	u32  ens;
-	u32  enr;
-	u32  bypass;
-	u32  bypasss;
-	u32  bypassr;
-	u32  mpuclk;
-	u32  nocclk;
-	u32  cntr2clk;
-	u32  cntr3clk;
-	u32  cntr4clk;
-	u32  cntr5clk;
-	u32  cntr6clk;
-	u32  cntr7clk;
-	u32  cntr8clk;
-	u32  cntr9clk;
-	u32  pad_0x48_0x5b[5];
-	u32  cntr15clk;
-	u32  outrst;
-	u32  outrststat;
-	u32  nocdiv;
-	u32  pad_0x6c_0x80[5];
-};
+/* Clock manager group */
+#define CLKMGR_A10_CTRL				0x00
+#define CLKMGR_A10_INTR				0x04
+#define CLKMGR_A10_STAT				0x1c
+/* MainPLL group */
+#define CLKMGR_A10_MAINPLL_VCO0			0x40
+#define CLKMGR_A10_MAINPLL_VCO1			0x44
+#define CLKMGR_A10_MAINPLL_EN			0x48
+#define CLKMGR_A10_MAINPLL_ENS			0x4c
+#define CLKMGR_A10_MAINPLL_ENR			0x50
+#define CLKMGR_A10_MAINPLL_BYPASS		0x54
+#define CLKMGR_A10_MAINPLL_BYPASSS		0x58
+#define CLKMGR_A10_MAINPLL_BYPASSR		0x5c
+#define CLKMGR_A10_MAINPLL_MPUCLK		0x60
+#define CLKMGR_A10_MAINPLL_NOCCLK		0x64
+#define CLKMGR_A10_MAINPLL_CNTR2CLK		0x68
+#define CLKMGR_A10_MAINPLL_CNTR3CLK		0x6c
+#define CLKMGR_A10_MAINPLL_CNTR4CLK		0x70
+#define CLKMGR_A10_MAINPLL_CNTR5CLK		0x74
+#define CLKMGR_A10_MAINPLL_CNTR6CLK		0x78
+#define CLKMGR_A10_MAINPLL_CNTR7CLK		0x7c
+#define CLKMGR_A10_MAINPLL_CNTR8CLK		0x80
+#define CLKMGR_A10_MAINPLL_CNTR9CLK		0x84
+#define CLKMGR_A10_MAINPLL_CNTR15CLK		0x9c
+#define CLKMGR_A10_MAINPLL_NOCDIV		0xa8
+/* Peripheral PLL group */
+#define CLKMGR_A10_PERPLL_VCO0			0xc0
+#define CLKMGR_A10_PERPLL_VCO1			0xc4
+#define CLKMGR_A10_PERPLL_EN			0xc8
+#define CLKMGR_A10_PERPLL_ENS			0xcc
+#define CLKMGR_A10_PERPLL_ENR			0xd0
+#define CLKMGR_A10_PERPLL_BYPASS		0xd4
+#define CLKMGR_A10_PERPLL_BYPASSS		0xd8
+#define CLKMGR_A10_PERPLL_BYPASSR		0xdc
+#define CLKMGR_A10_PERPLL_CNTR2CLK		0xe8
+#define CLKMGR_A10_PERPLL_CNTR3CLK		0xec
+#define CLKMGR_A10_PERPLL_CNTR4CLK		0xf0
+#define CLKMGR_A10_PERPLL_CNTR5CLK		0xf4
+#define CLKMGR_A10_PERPLL_CNTR6CLK		0xf8
+#define CLKMGR_A10_PERPLL_CNTR7CLK		0xfc
+#define CLKMGR_A10_PERPLL_CNTR8CLK		0x100
+#define CLKMGR_A10_PERPLL_CNTR9CLK		0x104
+#define CLKMGR_A10_PERPLL_EMACCTL		0x128
+#define CLKMGR_A10_PERPLL_GPIOFIV		0x12c
+/* Altera group */
+#define CLKMGR_A10_ALTR_MPUCLK			0x140
+#define CLKMGR_A10_ALTR_NOCCLK			0x144
 
-struct socfpga_clock_manager_per_pll {
-	u32  vco0;
-	u32  vco1;
-	u32  en;
-	u32  ens;
-	u32  enr;
-	u32  bypass;
-	u32  bypasss;
-	u32  bypassr;
-	u32  pad_0x20_0x27[2];
-	u32  cntr2clk;
-	u32  cntr3clk;
-	u32  cntr4clk;
-	u32  cntr5clk;
-	u32  cntr6clk;
-	u32  cntr7clk;
-	u32  cntr8clk;
-	u32  cntr9clk;
-	u32  pad_0x48_0x5f[6];
-	u32  outrst;
-	u32  outrststat;
-	u32  emacctl;
-	u32  gpiodiv;
-	u32  pad_0x70_0x80[4];
-};
-
-struct socfpga_clock_manager_altera {
-	u32	mpuclk;
-	u32	nocclk;
-	u32	mainmisc0;
-	u32	mainmisc1;
-	u32	perimisc0;
-	u32	perimisc1;
-};
-
-struct socfpga_clock_manager {
-	/* clkmgr */
-	u32  ctrl;
-	u32  intr;
-	u32  intrs;
-	u32  intrr;
-	u32  intren;
-	u32  intrens;
-	u32  intrenr;
-	u32  stat;
-	u32  testioctrl;
-	u32  _pad_0x24_0x40[7];
-	/* mainpllgrp */
-	struct socfpga_clock_manager_main_pll main_pll;
-	/* perpllgrp */
-	struct socfpga_clock_manager_per_pll per_pll;
-	struct socfpga_clock_manager_altera altera;
-};
+#define CLKMGR_STAT				CLKMGR_A10_STAT
+#define CLKMGR_INTER				CLKMGR_A10_INTER
+#define CLKMGR_PERPLL_EN			CLKMGR_A10_PERPLL_EN
 
 #ifdef CONFIG_SPL_BUILD
 int cm_basic_init(const void *blob);
@@ -100,8 +71,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 
 #endif /* __ASSEMBLER__ */
 
-#define CLKMGR_ALTERAGRP_MPU_CLK_OFFSET			0x140
-#define CLKMGR_MAINPLL_NOC_CLK_OFFSET			0x144
 #define LOCKED_MASK	(CLKMGR_CLKMGR_STAT_MAINPLLLOCKED_SET_MSK | \
 			 CLKMGR_CLKMGR_STAT_PERPLLLOCKED_SET_MSK)
 

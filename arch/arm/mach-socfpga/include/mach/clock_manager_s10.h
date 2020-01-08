@@ -1,11 +1,13 @@
 /* SPDX-License-Identifier: GPL-2.0
  *
- * Copyright (C) 2016-2018 Intel Corporation <www.intel.com>
+ * Copyright (C) 2016-2019 Intel Corporation <www.intel.com>
  *
  */
 
 #ifndef	_CLOCK_MANAGER_S10_
 #define	_CLOCK_MANAGER_S10_
+
+#include <asm/arch/clock_manager_soc64.h>
 
 /* Clock speed accessors */
 unsigned long cm_get_mpu_clk_hz(void);
@@ -14,18 +16,6 @@ unsigned int cm_get_l4_sp_clk_hz(void);
 unsigned int cm_get_mmc_controller_clk_hz(void);
 unsigned int cm_get_qspi_controller_clk_hz(void);
 unsigned int cm_get_spi_controller_clk_hz(void);
-const unsigned int cm_get_osc_clk_hz(void);
-const unsigned int cm_get_f2s_per_ref_clk_hz(void);
-const unsigned int cm_get_f2s_sdr_ref_clk_hz(void);
-const unsigned int cm_get_intosc_clk_hz(void);
-const unsigned int cm_get_fpga_clk_hz(void);
-
-#define CLKMGR_EOSC1_HZ		25000000
-#define CLKMGR_INTOSC_HZ	460000000
-#define CLKMGR_FPGA_CLK_HZ	50000000
-
-/* Clock configuration accessors */
-const struct cm_config * const cm_get_default_config(void);
 
 struct cm_config {
 	/* main group */
@@ -69,75 +59,54 @@ struct cm_config {
 
 void cm_basic_init(const struct cm_config * const cfg);
 
-struct socfpga_clock_manager_main_pll {
-	u32	en;
-	u32	ens;
-	u32	enr;
-	u32	bypass;
-	u32	bypasss;
-	u32	bypassr;
-	u32	mpuclk;
-	u32	nocclk;
-	u32	cntr2clk;
-	u32	cntr3clk;
-	u32	cntr4clk;
-	u32	cntr5clk;
-	u32	cntr6clk;
-	u32	cntr7clk;
-	u32	cntr8clk;
-	u32	cntr9clk;
-	u32	nocdiv;
-	u32	pllglob;
-	u32	fdbck;
-	u32	mem;
-	u32	memstat;
-	u32	pllc0;
-	u32	pllc1;
-	u32	vcocalib;
-	u32	_pad_0x90_0xA0[5];
-};
+/* Control status */
+#define CLKMGR_S10_CTRL					0x00
+#define CLKMGR_S10_STAT					0x04
+#define CLKMGR_S10_INTRCLR				0x14
+/* Mainpll group */
+#define CLKMGR_S10_MAINPLL_EN				0x30
+#define CLKMGR_S10_MAINPLL_BYPASS			0x3c
+#define CLKMGR_S10_MAINPLL_MPUCLK			0x48
+#define CLKMGR_S10_MAINPLL_NOCCLK			0x4c
+#define CLKMGR_S10_MAINPLL_CNTR2CLK			0x50
+#define CLKMGR_S10_MAINPLL_CNTR3CLK			0x54
+#define CLKMGR_S10_MAINPLL_CNTR4CLK			0x58
+#define CLKMGR_S10_MAINPLL_CNTR5CLK			0x5c
+#define CLKMGR_S10_MAINPLL_CNTR6CLK			0x60
+#define CLKMGR_S10_MAINPLL_CNTR7CLK			0x64
+#define CLKMGR_S10_MAINPLL_CNTR8CLK			0x68
+#define CLKMGR_S10_MAINPLL_CNTR9CLK			0x6c
+#define CLKMGR_S10_MAINPLL_NOCDIV			0x70
+#define CLKMGR_S10_MAINPLL_PLLGLOB			0x74
+#define CLKMGR_S10_MAINPLL_FDBCK			0x78
+#define CLKMGR_S10_MAINPLL_MEMSTAT			0x80
+#define CLKMGR_S10_MAINPLL_PLLC0			0x84
+#define CLKMGR_S10_MAINPLL_PLLC1			0x88
+#define CLKMGR_S10_MAINPLL_VCOCALIB			0x8c
+/* Periphpll group */
+#define CLKMGR_S10_PERPLL_EN				0xa4
+#define CLKMGR_S10_PERPLL_BYPASS			0xac
+#define CLKMGR_S10_PERPLL_CNTR2CLK			0xbc
+#define CLKMGR_S10_PERPLL_CNTR3CLK			0xc0
+#define CLKMGR_S10_PERPLL_CNTR4CLK			0xc4
+#define CLKMGR_S10_PERPLL_CNTR5CLK			0xc8
+#define CLKMGR_S10_PERPLL_CNTR6CLK			0xcc
+#define CLKMGR_S10_PERPLL_CNTR7CLK			0xd0
+#define CLKMGR_S10_PERPLL_CNTR8CLK			0xd4
+#define CLKMGR_S10_PERPLL_CNTR9CLK			0xd8
+#define CLKMGR_S10_PERPLL_EMACCTL			0xdc
+#define CLKMGR_S10_PERPLL_GPIODIV			0xe0
+#define CLKMGR_S10_PERPLL_PLLGLOB			0xe4
+#define CLKMGR_S10_PERPLL_FDBCK				0xe8
+#define CLKMGR_S10_PERPLL_MEMSTAT			0xf0
+#define CLKMGR_S10_PERPLL_PLLC0				0xf4
+#define CLKMGR_S10_PERPLL_PLLC1				0xf8
+#define CLKMGR_S10_PERPLL_VCOCALIB			0xfc
 
-struct socfpga_clock_manager_per_pll {
-	u32	en;
-	u32	ens;
-	u32	enr;
-	u32	bypass;
-	u32	bypasss;
-	u32	bypassr;
-	u32	cntr2clk;
-	u32	cntr3clk;
-	u32	cntr4clk;
-	u32	cntr5clk;
-	u32	cntr6clk;
-	u32	cntr7clk;
-	u32	cntr8clk;
-	u32	cntr9clk;
-	u32	emacctl;
-	u32	gpiodiv;
-	u32	pllglob;
-	u32	fdbck;
-	u32	mem;
-	u32	memstat;
-	u32	pllc0;
-	u32	pllc1;
-	u32	vcocalib;
-	u32	_pad_0x100_0x124[10];
-};
+#define CLKMGR_STAT					CLKMGR_S10_STAT
+#define CLKMGR_INTER					CLKMGR_S10_INTER
+#define CLKMGR_PERPLL_EN				CLKMGR_S10_PERPLL_EN
 
-struct socfpga_clock_manager {
-	u32	ctrl;
-	u32	stat;
-	u32	testioctrl;
-	u32	intrgen;
-	u32	intrmsk;
-	u32	intrclr;
-	u32	intrsts;
-	u32	intrstk;
-	u32	intrraw;
-	u32	_pad_0x24_0x2c[3];
-	struct socfpga_clock_manager_main_pll main_pll;
-	struct socfpga_clock_manager_per_pll per_pll;
-};
 
 #define CLKMGR_CTRL_SAFEMODE				BIT(0)
 #define CLKMGR_BYPASS_MAINPLL_ALL			0x00000007

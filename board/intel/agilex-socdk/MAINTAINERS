@@ -1,0 +1,7 @@
+SOCFPGA BOARD
+M:	Ley Foon Tan <ley.foon.tan@intel.com>
+M:	Chee Hong Ang <chee.hong.ang@intel.com>
+S:	Maintained
+F:	board/intel/agilex-socdk/
+F:	include/configs/socfpga_agilex_socdk.h
+F:	configs/socfpga_agilex_defconfig

@@ -180,3 +180,11 @@
 &l4_sp_clk {
 	u-boot,dm-pre-reloc;
 };
+
+&clkmgr {
+	u-boot,dm-pre-reloc;
+};
+
+&sysmgr {
+	u-boot,dm-pre-reloc;
+};

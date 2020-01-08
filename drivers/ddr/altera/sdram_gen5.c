@@ -40,9 +40,6 @@ struct sdram_prot_rule {
 	u32	hi_prot_id;
 };
 
-static struct socfpga_system_manager *sysmgr_regs =
-	(struct socfpga_system_manager *)SOCFPGA_SYSMGR_ADDRESS;
-
 static unsigned long sdram_calculate_size(struct socfpga_sdr_ctrl *sdr_ctrl);
 
 /**
@@ -455,12 +452,14 @@ int sdram_mmr_init_full(struct socfpga_sdr_ctrl *sdr_ctrl,
 			SDR_CTRLGRP_DRAMADDRW_ROWBITS_LSB;
 	int ret;
 
-	writel(rows, &sysmgr_regs->iswgrp_handoff[4]);
+	writel(rows,
+	       socfpga_get_sysmgr_addr() + SYSMGR_ISWGRP_HANDOFF_OFFSET(4));
 
 	sdr_load_regs(sdr_ctrl, cfg);
 
 	/* saving this value to SYSMGR.ISWGRP.HANDOFF.FPGA2SDR */
-	writel(cfg->fpgaport_rst, &sysmgr_regs->iswgrp_handoff[3]);
+	writel(cfg->fpgaport_rst,
+	       socfpga_get_sysmgr_addr() + SYSMGR_ISWGRP_HANDOFF_OFFSET(3));
 
 	/* only enable if the FPGA is programmed */
 	if (fpgamgr_test_fpga_ready()) {
@@ -516,7 +515,8 @@ static unsigned long sdram_calculate_size(struct socfpga_sdr_ctrl *sdr_ctrl)
 	 * since the FB specifies we modify ROWBITs to work around SDRAM
 	 * controller issue.
 	 */
-	row = readl(&sysmgr_regs->iswgrp_handoff[4]);
+	row = readl(socfpga_get_sysmgr_addr() +
+		    SYSMGR_ISWGRP_HANDOFF_OFFSET(4));
 	if (row == 0)
 		row = rowbits;
 	/*

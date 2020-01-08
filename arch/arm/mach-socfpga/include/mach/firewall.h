@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: GPL-2.0
  *
- * Copyright (C) 2017-2018 Intel Corporation <www.intel.com>
+ * Copyright (C) 2017-2019 Intel Corporation <www.intel.com>
  *
  */
 
-#ifndef	_FIREWALL_S10_
-#define	_FIREWALL_S10_
+#ifndef	_FIREWALL_H_
+#define	_FIREWALL_H_
 
 struct socfpga_firwall_l4_per {
 	u32	nand;		/* 0x00 */
@@ -95,6 +95,13 @@ struct socfpga_firwall_l4_sys {
 
 #define CCU_IOM_MPRT_ADMASK_MEM_RAM0		0x18628
 
+#define CCU_TCU_MPRT_ADBASE_MEMSPACE0		0x2c520
+#define CCU_TCU_MPRT_ADBASE_MEMSPACE1A		0x2c540
+#define CCU_TCU_MPRT_ADBASE_MEMSPACE1B		0x2c560
+#define CCU_TCU_MPRT_ADBASE_MEMSPACE1C		0x2c580
+#define CCU_TCU_MPRT_ADBASE_MEMSPACE1D		0x2c5a0
+#define CCU_TCU_MPRT_ADBASE_MEMSPACE1E		0x2c5c0
+
 #define CCU_ADMASK_P_MASK			BIT(0)
 #define CCU_ADMASK_NS_MASK			BIT(1)
 
@@ -117,4 +124,6 @@ struct socfpga_firwall_l4_sys {
 #define FW_MPU_DDR_SCR_WRITEL(data, reg)		\
 	writel(data, SOCFPGA_FW_MPU_DDR_SCR_ADDRESS + (reg))
 
-#endif /* _FIREWALL_S10_ */
+void firewall_setup(void);
+
+#endif /* _FIREWALL_H_ */

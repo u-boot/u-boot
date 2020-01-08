@@ -41,5 +41,6 @@ void socfpga_sdram_remap_zero(void);
 
 void do_bridge_reset(int enable, unsigned int mask);
 void socfpga_pl310_clear(void);
+void socfpga_get_managers_addr(void);
 
 #endif /* _SOCFPGA_MISC_H_ */

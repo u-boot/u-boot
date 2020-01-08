@@ -6,8 +6,11 @@
 #ifndef _SYSTEM_MANAGER_H_
 #define _SYSTEM_MANAGER_H_
 
-#if defined(CONFIG_TARGET_SOCFPGA_STRATIX10)
-#include <asm/arch/system_manager_s10.h>
+phys_addr_t socfpga_get_sysmgr_addr(void);
+
+#if defined(CONFIG_TARGET_SOCFPGA_STRATIX10) || \
+	defined(CONFIG_TARGET_SOCFPGA_AGILEX)
+#include <asm/arch/system_manager_soc64.h>
 #else
 #define SYSMGR_ROMCODEGRP_CTRL_WARMRSTCFGPINMUX	BIT(0)
 #define SYSMGR_ROMCODEGRP_CTRL_WARMRSTCFGIO	BIT(1)

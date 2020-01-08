@@ -12,31 +12,28 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static const struct socfpga_reset_manager *reset_manager_base =
-		(void *)SOCFPGA_RSTMGR_ADDRESS;
-static const struct socfpga_system_manager *system_manager_base =
-		(void *)SOCFPGA_SYSMGR_ADDRESS;
-
 /* Assert or de-assert SoCFPGA reset manager reset. */
 void socfpga_per_reset(u32 reset, int set)
 {
-	const void *reg;
+	unsigned long reg;
 
 	if (RSTMGR_BANK(reset) == 0)
-		reg = &reset_manager_base->mpumodrst;
+		reg = RSTMGR_SOC64_MPUMODRST;
 	else if (RSTMGR_BANK(reset) == 1)
-		reg = &reset_manager_base->per0modrst;
+		reg = RSTMGR_SOC64_PER0MODRST;
 	else if (RSTMGR_BANK(reset) == 2)
-		reg = &reset_manager_base->per1modrst;
+		reg = RSTMGR_SOC64_PER1MODRST;
 	else if (RSTMGR_BANK(reset) == 3)
-		reg = &reset_manager_base->brgmodrst;
+		reg = RSTMGR_SOC64_BRGMODRST;
 	else	/* Invalid reset register, do nothing */
 		return;
 
 	if (set)
-		setbits_le32(reg, 1 << RSTMGR_RESET(reset));
+		setbits_le32(socfpga_get_rstmgr_addr() + reg,
+			     1 << RSTMGR_RESET(reset));
 	else
-		clrbits_le32(reg, 1 << RSTMGR_RESET(reset));
+		clrbits_le32(socfpga_get_rstmgr_addr() + reg,
+			     1 << RSTMGR_RESET(reset));
 }
 
 /*
@@ -50,47 +47,52 @@ void socfpga_per_reset_all(void)
 
 	/* disable all except OCP and l4wd0. OCP disable later */
 	writel(~(l4wd0 | RSTMGR_PER0MODRST_OCP_MASK),
-	       &reset_manager_base->per0modrst);
-	writel(~l4wd0, &reset_manager_base->per0modrst);
-	writel(0xffffffff, &reset_manager_base->per1modrst);
+		      socfpga_get_rstmgr_addr() + RSTMGR_SOC64_PER0MODRST);
+	writel(~l4wd0, socfpga_get_rstmgr_addr() + RSTMGR_SOC64_PER0MODRST);
+	writel(0xffffffff, socfpga_get_rstmgr_addr() + RSTMGR_SOC64_PER1MODRST);
 }
 
 void socfpga_bridges_reset(int enable)
 {
 	if (enable) {
 		/* clear idle request to all bridges */
-		setbits_le32(&system_manager_base->noc_idlereq_clr, ~0);
+		setbits_le32(socfpga_get_sysmgr_addr() +
+			     SYSMGR_SOC64_NOC_IDLEREQ_CLR, ~0);
 
 		/* Release all bridges from reset state */
-		clrbits_le32(&reset_manager_base->brgmodrst, ~0);
+		clrbits_le32(socfpga_get_rstmgr_addr() + RSTMGR_SOC64_BRGMODRST,
+			     ~0);
 
 		/* Poll until all idleack to 0 */
-		while (readl(&system_manager_base->noc_idleack))
+		while (readl(socfpga_get_sysmgr_addr() +
+			     SYSMGR_SOC64_NOC_IDLEACK))
 			;
 	} else {
 		/* set idle request to all bridges */
-		writel(~0, &system_manager_base->noc_idlereq_set);
+		writel(~0,
+		       socfpga_get_sysmgr_addr() +
+		       SYSMGR_SOC64_NOC_IDLEREQ_SET);
 
 		/* Enable the NOC timeout */
-		writel(1, &system_manager_base->noc_timeout);
+		writel(1, socfpga_get_sysmgr_addr() + SYSMGR_SOC64_NOC_TIMEOUT);
 
 		/* Poll until all idleack to 1 */
-		while ((readl(&system_manager_base->noc_idleack) ^
+		while ((readl(socfpga_get_sysmgr_addr() + SYSMGR_SOC64_NOC_IDLEACK) ^
 			(SYSMGR_NOC_H2F_MSK | SYSMGR_NOC_LWH2F_MSK)))
 			;
 
 		/* Poll until all idlestatus to 1 */
-		while ((readl(&system_manager_base->noc_idlestatus) ^
+		while ((readl(socfpga_get_sysmgr_addr() + SYSMGR_SOC64_NOC_IDLESTATUS) ^
 			(SYSMGR_NOC_H2F_MSK | SYSMGR_NOC_LWH2F_MSK)))
 			;
 
 		/* Reset all bridges (except NOR DDR scheduler & F2S) */
-		setbits_le32(&reset_manager_base->brgmodrst,
+		setbits_le32(socfpga_get_rstmgr_addr() + RSTMGR_SOC64_BRGMODRST,
 			     ~(RSTMGR_BRGMODRST_DDRSCH_MASK |
-			     RSTMGR_BRGMODRST_FPGA2SOC_MASK));
+			       RSTMGR_BRGMODRST_FPGA2SOC_MASK));
 
 		/* Disable NOC timeout */
-		writel(0, &system_manager_base->noc_timeout);
+		writel(0, socfpga_get_sysmgr_addr() + SYSMGR_SOC64_NOC_TIMEOUT);
 	}
 }
 
@@ -99,6 +101,6 @@ void socfpga_bridges_reset(int enable)
  */
 int cpu_has_been_warmreset(void)
 {
-	return readl(&reset_manager_base->status) &
-		RSTMGR_L4WD_MPU_WARMRESET_MASK;
+	return readl(socfpga_get_rstmgr_addr() + RSTMGR_SOC64_STATUS) &
+			RSTMGR_L4WD_MPU_WARMRESET_MASK;
 }

@@ -23,9 +23,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static struct socfpga_system_manager *sysmgr_regs =
-	(struct socfpga_system_manager *)SOCFPGA_SYSMGR_ADDRESS;
-
 /*
  * FPGA programming support for SoC FPGA Stratix 10
  */
@@ -68,9 +65,9 @@ static u32 socfpga_phymode_setup(u32 gmac_index, const char *phymode)
 	else
 		return -EINVAL;
 
-	clrsetbits_le32(&sysmgr_regs->emac0 + gmac_index,
-			SYSMGR_EMACGRP_CTRL_PHYSEL_MASK,
-			modereg);
+	clrsetbits_le32(socfpga_get_sysmgr_addr() + SYSMGR_SOC64_EMAC0 +
+			gmac_index,
+			SYSMGR_EMACGRP_CTRL_PHYSEL_MASK, modereg);
 
 	return 0;
 }

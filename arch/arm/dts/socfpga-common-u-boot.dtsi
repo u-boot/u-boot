@@ -10,10 +10,18 @@
 	};
 };
 
+&clkmgr {
+	u-boot,dm-pre-reloc;
+};
+
 &rst {
 	u-boot,dm-pre-reloc;
 };
 
 &sdr {
+	u-boot,dm-pre-reloc;
+};
+
+&sysmgr {
 	u-boot,dm-pre-reloc;
 };

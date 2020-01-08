@@ -29,6 +29,15 @@ config SYS_TEXT_BASE
 	default 0x01000040 if TARGET_SOCFPGA_ARRIA10
 	default 0x01000040 if TARGET_SOCFPGA_GEN5
 
+config TARGET_SOCFPGA_AGILEX
+	bool
+	select ARMV8_MULTIENTRY
+	select ARMV8_SET_SMPEN
+	select ARMV8_SPIN_TABLE
+	select CLK
+	select NCORE_CACHE
+	select SPL_CLK if SPL
+
 config TARGET_SOCFPGA_ARRIA5
 	bool
 	select TARGET_SOCFPGA_GEN5
@@ -74,6 +83,10 @@ config TARGET_SOCFPGA_STRATIX10
 choice
 	prompt "Altera SOCFPGA board select"
 	optional
+
+config TARGET_SOCFPGA_AGILEX_SOCDK
+	bool "Intel SOCFPGA SoCDK (Agilex)"
+	select TARGET_SOCFPGA_AGILEX
 
 config TARGET_SOCFPGA_ARIES_MCVEVK
 	bool "Aries MCVEVK (Cyclone V)"
@@ -135,6 +148,7 @@ config TARGET_SOCFPGA_TERASIC_SOCKIT
 endchoice
 
 config SYS_BOARD
+	default "agilex-socdk" if TARGET_SOCFPGA_AGILEX_SOCDK
 	default "arria5-socdk" if TARGET_SOCFPGA_ARRIA5_SOCDK
 	default "arria10-socdk" if TARGET_SOCFPGA_ARRIA10_SOCDK
 	default "cyclone5-socdk" if TARGET_SOCFPGA_CYCLONE5_SOCDK
@@ -151,6 +165,7 @@ config SYS_BOARD
 	default "vining_fpga" if TARGET_SOCFPGA_SOFTING_VINING_FPGA
 
 config SYS_VENDOR
+	default "intel" if TARGET_SOCFPGA_AGILEX_SOCDK
 	default "altera" if TARGET_SOCFPGA_ARRIA5_SOCDK
 	default "altera" if TARGET_SOCFPGA_ARRIA10_SOCDK
 	default "altera" if TARGET_SOCFPGA_CYCLONE5_SOCDK
@@ -168,6 +183,7 @@ config SYS_SOC
 	default "socfpga"
 
 config SYS_CONFIG_NAME
+	default "socfpga_agilex_socdk" if TARGET_SOCFPGA_AGILEX_SOCDK
 	default "socfpga_arria5_socdk" if TARGET_SOCFPGA_ARRIA5_SOCDK
 	default "socfpga_arria10_socdk" if TARGET_SOCFPGA_ARRIA10_SOCDK
 	default "socfpga_cyclone5_socdk" if TARGET_SOCFPGA_CYCLONE5_SOCDK
