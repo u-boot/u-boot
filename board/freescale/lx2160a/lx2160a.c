@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2018-2019 NXP
+ * Copyright 2018-2020 NXP
  */
 
 #include <common.h>
@@ -191,9 +191,9 @@ void esdhc_dspi_status_fixup(void *blob)
 {
 	const char esdhc0_path[] = "/soc/esdhc@2140000";
 	const char esdhc1_path[] = "/soc/esdhc@2150000";
-	const char dspi0_path[] = "/soc/dspi@2100000";
-	const char dspi1_path[] = "/soc/dspi@2110000";
-	const char dspi2_path[] = "/soc/dspi@2120000";
+	const char dspi0_path[] = "/soc/spi@2100000";
+	const char dspi1_path[] = "/soc/spi@2110000";
+	const char dspi2_path[] = "/soc/spi@2120000";
 
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
 	u32 sdhc1_base_pmux;
@@ -243,10 +243,12 @@ void esdhc_dspi_status_fixup(void *blob)
 		& FSL_CHASSIS3_IIC5_PMUX_MASK;
 	iic5_pmux >>= FSL_CHASSIS3_IIC5_PMUX_SHIFT;
 
-	if (iic5_pmux == IIC5_PMUX_SPI3) {
+	if (iic5_pmux == IIC5_PMUX_SPI3)
 		do_fixup_by_path(blob, dspi2_path, "status", "okay",
 				 sizeof("okay"), 1);
-	}
+	else
+		do_fixup_by_path(blob, dspi2_path, "status", "disabled",
+				 sizeof("disabled"), 1);
 }
 #endif
 
