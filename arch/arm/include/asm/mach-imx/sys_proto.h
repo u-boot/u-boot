@@ -54,6 +54,7 @@
 #define is_imx8mms() (is_cpu_type(MXC_CPU_IMX8MMS))
 #define is_imx8mmsl() (is_cpu_type(MXC_CPU_IMX8MMSL))
 #define is_imx8mn() (is_cpu_type(MXC_CPU_IMX8MN))
+#define is_imx8mp() (is_cpu_type(MXC_CPU_IMX8MP))
 
 #define is_imx8qxp() (is_cpu_type(MXC_CPU_IMX8QXP))
 
