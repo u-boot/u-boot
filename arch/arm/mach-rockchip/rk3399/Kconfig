@@ -3,6 +3,15 @@ if ROCKCHIP_RK3399
 choice
 	prompt "RK3399 board select"
 
+config TARGET_CHROMEBOOK_BOB
+	bool "Asus Flip C101PA Chromebook (RK3399)"
+	help
+	  Bob is a small RK3299-based device similar in apperance to Minnie.
+	  It has two USB 3.0 type-C ports, 4GB of SDRAM, WiFi and a 10.1",
+	  1280x800 display. It uses its USB ports for both power and external
+	  display. It includes a Chrome OS EC (Cortex-M3) to provide access to
+	  the keyboard and battery functions.
+
 config TARGET_EVB_RK3399
 	bool "RK3399 evaluation board"
 	help
@@ -52,15 +61,6 @@ config TARGET_ROCK960_RK3399
 	   * Dual SATA
 	   * 2x USB 3.0 type A, 2x USB 2.0 type A (host mode only),
 	     1x USB 3.0 type C OTG
-
-config TARGET_CHROMEBOOK_BOB
-	bool "Asus Flip C101PA Chromebook (RK3399)"
-	help
-	  Bob is a small RK3299-based device similar in apperance to Minnie.
-	  It has two USB 3.0 type-C ports, 4GB of SDRAM, WiFi and a 10.1",
-	  1280x800 display. It uses its USB ports for both power and external
-	  display. It includes a Chrome OS EC (Cortex-M3) to provide access to
-	  the keyboard and battery functions.
 
 config TARGET_ROCKPRO64_RK3399
 	bool "Pine64 Rockpro64 board"
@@ -142,11 +142,11 @@ config SYS_BOOTCOUNT_ADDR
 
 endif # BOOTCOUNT_LIMIT
 
+source "board/firefly/roc-pc-rk3399/Kconfig"
+source "board/google/gru/Kconfig"
+source "board/pine64/rockpro64_rk3399/Kconfig"
 source "board/rockchip/evb_rk3399/Kconfig"
 source "board/theobroma-systems/puma_rk3399/Kconfig"
 source "board/vamrs/rock960_rk3399/Kconfig"
-source "board/google/gru/Kconfig"
-source "board/pine64/rockpro64_rk3399/Kconfig"
-source "board/firefly/roc-pc-rk3399/Kconfig"
 
 endif
