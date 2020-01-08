@@ -136,10 +136,14 @@ void arch_setup_gd(gd_t *new_gd)
 	/* DS: data, read/write, 4 GB, base 0 */
 	gdt_addr[X86_GDT_ENTRY_32BIT_DS] = GDT_ENTRY(0xc093, 0, 0xfffff);
 
-	/* FS: data, read/write, 4 GB, base (Global Data Pointer) */
+	/*
+	 * FS: data, read/write, sizeof (Global Data Pointer),
+	 * base (Global Data Pointer)
+	 */
 	new_gd->arch.gd_addr = new_gd;
-	gdt_addr[X86_GDT_ENTRY_32BIT_FS] = GDT_ENTRY(0xc093,
-		     (ulong)&new_gd->arch.gd_addr, 0xfffff);
+	gdt_addr[X86_GDT_ENTRY_32BIT_FS] = GDT_ENTRY(0x8093,
+					(ulong)&new_gd->arch.gd_addr,
+					sizeof(new_gd->arch.gd_addr) - 1);
 
 	/* 16-bit CS: code, read/execute, 64 kB, base 0 */
 	gdt_addr[X86_GDT_ENTRY_16BIT_CS] = GDT_ENTRY(0x009b, 0, 0x0ffff);
