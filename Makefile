@@ -1265,7 +1265,7 @@ u-boot.ldr.hex u-boot.ldr.srec: u-boot.ldr FORCE
 # from the SPL U-Boot version.
 #
 ifndef CONFIG_SYS_UBOOT_START
-CONFIG_SYS_UBOOT_START := 0
+CONFIG_SYS_UBOOT_START := $(CONFIG_SYS_TEXT_BASE)
 endif
 
 # Boards with more complex image requirements can provide an .its source file
@@ -1292,7 +1292,8 @@ MKIMAGEFLAGS_u-boot.img = -f auto -A $(ARCH) -T firmware -C none -O u-boot \
 	-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_UBOOT_START) \
 	-p $(CONFIG_FIT_EXTERNAL_OFFSET) \
 	-n "U-Boot $(UBOOTRELEASE) for $(BOARD) board" -E \
-	$(patsubst %,-b arch/$(ARCH)/dts/%.dtb,$(subst ",,$(CONFIG_OF_LIST)))
+	$(patsubst %,-b arch/$(ARCH)/dts/%.dtb,$(subst ",,$(CONFIG_OF_LIST))) \
+	$(patsubst %,-b arch/$(ARCH)/dts/%.dtbo,$(subst ",,$(CONFIG_OF_OVERLAY_LIST)))
 else
 MKIMAGEFLAGS_u-boot.img = -A $(ARCH) -T firmware -C none -O u-boot \
 	-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_UBOOT_START) \

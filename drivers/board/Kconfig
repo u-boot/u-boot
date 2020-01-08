@@ -8,6 +8,9 @@ menuconfig BOARD
 
 if BOARD
 
+config SPL_BOARD
+	depends on SPL_DM
+	bool "Enable board driver support in SPL"
 
 config BOARD_GAZERBEAM
 	bool "Enable board driver for the Gazerbeam board"

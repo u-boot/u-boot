@@ -741,9 +741,14 @@ static int fit_image_extract(
 {
 	const void *file_data;
 	size_t file_size = 0;
+	int ret;
 
-	/* get the "data" property of component at offset "image_noffset" */
-	fit_image_get_data(fit, image_noffset, &file_data, &file_size);
+	/* get the data address and size of component at offset "image_noffset" */
+	ret = fit_image_get_data_and_size(fit, image_noffset, &file_data, &file_size);
+	if (ret) {
+		fprintf(stderr, "Could not get component information\n");
+		return ret;
+	}
 
 	/* save the "file_data" into the file specified by "file_name" */
 	return imagetool_save_subimage(file_name, (ulong) file_data, file_size);

@@ -23,6 +23,17 @@ int board_detect(struct udevice *dev)
 	return ops->detect(dev);
 }
 
+int board_get_fit_loadable(struct udevice *dev, int index,
+			   const char *type, const char **strp)
+{
+	struct board_ops *ops = board_get_ops(dev);
+
+	if (!ops->get_fit_loadable)
+		return -ENOSYS;
+
+	return ops->get_fit_loadable(dev, index, type, strp);
+}
+
 int board_get_bool(struct udevice *dev, int id, bool *val)
 {
 	struct board_ops *ops = board_get_ops(dev);

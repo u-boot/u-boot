@@ -31,6 +31,7 @@
  * to read the serial number.
  */
 
+#if CONFIG_IS_ENABLED(BOARD)
 struct board_ops {
 	/**
 	 * detect() - Run the hardware info detection procedure for this
@@ -79,6 +80,24 @@ struct board_ops {
 	 * Return: 0 if OK, -ve on error.
 	 */
 	int (*get_str)(struct udevice *dev, int id, size_t size, char *val);
+
+	/**
+	 * get_fit_loadable - Get the name of an image to load from FIT
+	 * This function can be used to provide the image names based on runtime
+	 * detection. A classic use-case would when DTBOs are used to describe
+	 * additionnal daughter cards.
+	 *
+	 * @dev:	The board instance to gather the data.
+	 * @index:	Index of the image. Starts at 0 and gets incremented
+	 *		after each call to this function.
+	 * @type:	The type of image. For example, "fdt" for DTBs
+	 * @strp:	A pointer to string. Untouched if the function fails
+	 *
+	 * Return: 0 if OK, -ENOENT if no loadable is available else -ve on
+	 * error.
+	 */
+	int (*get_fit_loadable)(struct udevice *dev, int index,
+				const char *type, const char **strp);
 };
 
 #define board_get_ops(dev)	((struct board_ops *)(dev)->driver->ops)
@@ -137,3 +156,58 @@ int board_get_str(struct udevice *dev, int id, size_t size, char *val);
  * Return: 0 if OK, -ve on error.
  */
 int board_get(struct udevice **devp);
+
+/**
+ * board_get_fit_loadable - Get the name of an image to load from FIT
+ * This function can be used to provide the image names based on runtime
+ * detection. A classic use-case would when DTBOs are used to describe
+ * additionnal daughter cards.
+ *
+ * @dev:	The board instance to gather the data.
+ * @index:	Index of the image. Starts at 0 and gets incremented
+ *		after each call to this function.
+ * @type:	The type of image. For example, "fdt" for DTBs
+ * @strp:	A pointer to string. Untouched if the function fails
+ *
+ *
+ * Return: 0 if OK, -ENOENT if no loadable is available else -ve on
+ * error.
+ */
+int board_get_fit_loadable(struct udevice *dev, int index,
+			   const char *type, const char **strp);
+
+#else
+
+static inline int board_detect(struct udevice *dev)
+{
+	return -ENOSYS;
+}
+
+static inline int board_get_bool(struct udevice *dev, int id, bool *val)
+{
+	return -ENOSYS;
+}
+
+static inline int board_get_int(struct udevice *dev, int id, int *val)
+{
+	return -ENOSYS;
+}
+
+static inline int board_get_str(struct udevice *dev, int id, size_t size,
+				char *val)
+{
+	return -ENOSYS;
+}
+
+static inline int board_get(struct udevice **devp)
+{
+	return -ENOSYS;
+}
+
+static inline int board_get_fit_loadable(struct udevice *dev, int index,
+					 const char *type, const char **strp)
+{
+	return -ENOSYS;
+}
+
+#endif

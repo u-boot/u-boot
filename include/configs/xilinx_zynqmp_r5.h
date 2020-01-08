@@ -35,8 +35,6 @@
 /* Extend size of kernel image for uncompression */
 #define CONFIG_SYS_BOOTM_LEN	(60 * 1024 * 1024)
 
-#define CONFIG_SYS_UBOOT_START	CONFIG_SYS_TEXT_BASE
-
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
 /* 0x0 - 0x40 is used for placing exception vectors */

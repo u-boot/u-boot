@@ -272,7 +272,7 @@ int do_ut_overlay(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	/* Apply the stacked overlay */
 	ut_assertok(fdt_overlay_apply(fdt, fdt_overlay_stacked_copy));
 
-	ret = cmd_ut_category("overlay", tests, n_ents, argc, argv);
+	ret = cmd_ut_category("overlay", "", tests, n_ents, argc, argv);
 
 	free(fdt_overlay_stacked_copy);
 err3:

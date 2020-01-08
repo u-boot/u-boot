@@ -20,6 +20,7 @@
 #if CONFIG_IS_ENABLED(BLK)
 #include <dm.h>
 #include <blk.h>
+#include <dm/device-internal.h>
 #endif
 
 #include "sata_sil.h"
@@ -763,14 +764,32 @@ U_BOOT_DRIVER(sata_sil_driver) = {
 	.platdata_auto_alloc_size = sizeof(struct sil_sata_priv),
 };
 
+static int sil_unbind_device(struct udevice *dev)
+{
+	int ret;
+
+	ret = device_remove(dev, DM_REMOVE_NORMAL);
+	if (ret)
+		return ret;
+
+	ret = device_unbind(dev);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
 static int sil_pci_probe(struct udevice *dev)
 {
 	struct udevice *blk;
+	int failed_number;
 	char sata_name[10];
 	pci_dev_t devno;
 	u16 word;
 	int ret;
 	int i;
+
+	failed_number = 0;
 
 	/* Get PCI device number */
 	devno = dm_pci_get_bdf(dev);
@@ -824,12 +843,44 @@ static int sil_pci_probe(struct udevice *dev)
 		}
 
 		ret = sil_init_sata(blk, i);
-		if (ret)
-			return -ENODEV;
+		if (ret) {
+			ret = sil_unbind_device(blk);
+			if (ret)
+				return ret;
+
+			failed_number++;
+			continue;
+		}
 
 		ret = scan_sata(blk, i);
-		if (ret)
-			return -ENODEV;
+		if (ret) {
+			ret = sil_unbind_device(blk);
+			if (ret)
+				return ret;
+
+			failed_number++;
+			continue;
+		}
+	}
+
+	if (failed_number == sata_info.maxport)
+		return -ENODEV;
+	else
+		return 0;
+}
+
+static int sil_pci_remove(struct udevice *dev)
+{
+	int i;
+	struct sil_sata *sata;
+	struct sil_sata_priv *priv;
+
+	priv = dev_get_priv(dev);
+
+	for (i = sata_info.portbase; i < sata_info.maxport; i++) {
+		sata = priv->sil_sata_desc[i];
+		if (sata)
+			free(sata);
 	}
 
 	return 0;
@@ -857,6 +908,7 @@ U_BOOT_DRIVER(sil_ahci_pci) = {
 	.of_match = sil_pci_ids,
 	.ops = &sata_sil_ops,
 	.probe = sil_pci_probe,
+	.remove = sil_pci_remove,
 	.priv_auto_alloc_size = sizeof(struct sil_sata_priv),
 };
 

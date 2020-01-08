@@ -22,14 +22,14 @@
  * @hold_boot_regmap:	regmap for remote processor reset hold boot
  * @hold_boot_offset:	offset of the register controlling the hold boot setting
  * @hold_boot_mask:	bitmask of the register for the hold boot field
- * @is_running:		is the remote processor running
+ * @rsc_table_addr:	resource table address
  */
 struct stm32_copro_privdata {
 	struct reset_ctl reset_ctl;
 	struct regmap *hold_boot_regmap;
 	uint hold_boot_offset;
 	uint hold_boot_mask;
-	bool is_running;
+	ulong rsc_table_addr;
 };
 
 /**
@@ -141,6 +141,7 @@ static void *stm32_copro_device_to_virt(struct udevice *dev, ulong da,
 static int stm32_copro_load(struct udevice *dev, ulong addr, ulong size)
 {
 	struct stm32_copro_privdata *priv;
+	ulong rsc_table_size;
 	int ret;
 
 	priv = dev_get_priv(dev);
@@ -153,6 +154,12 @@ static int stm32_copro_load(struct udevice *dev, ulong addr, ulong size)
 	if (ret) {
 		dev_err(dev, "Unable to assert reset line (ret=%d)\n", ret);
 		return ret;
+	}
+
+	if (rproc_elf32_load_rsc_table(dev, addr, size, &priv->rsc_table_addr,
+				       &rsc_table_size)) {
+		priv->rsc_table_addr = 0;
+		dev_warn(dev, "No valid resource table for this firmware\n");
 	}
 
 	return rproc_elf32_load_image(dev, addr, size);
@@ -180,7 +187,12 @@ static int stm32_copro_start(struct udevice *dev)
 	 * rebooting autonomously
 	 */
 	ret = stm32_copro_set_hold_boot(dev, true);
-	priv->is_running = !ret;
+	writel(ret ? TAMP_COPRO_STATE_OFF : TAMP_COPRO_STATE_CRUN,
+	       TAMP_COPRO_STATE);
+	if (!ret)
+		/* Store rsc_address in bkp register */
+		writel(priv->rsc_table_addr, TAMP_COPRO_RSC_TBL_ADDRESS);
+
 	return ret;
 }
 
@@ -206,7 +218,7 @@ static int stm32_copro_reset(struct udevice *dev)
 		return ret;
 	}
 
-	priv->is_running = false;
+	writel(TAMP_COPRO_STATE_OFF, TAMP_COPRO_STATE);
 
 	return 0;
 }
@@ -224,14 +236,11 @@ static int stm32_copro_stop(struct udevice *dev)
 /**
  * stm32_copro_is_running() - Is the STM32 remote processor running
  * @dev:	corresponding STM32 remote processor device
- * @return 1 if the remote processor is running, 0 otherwise
+ * @return 0 if the remote processor is running, 1 otherwise
  */
 static int stm32_copro_is_running(struct udevice *dev)
 {
-	struct stm32_copro_privdata *priv;
-
-	priv = dev_get_priv(dev);
-	return priv->is_running;
+	return (readl(TAMP_COPRO_STATE) == TAMP_COPRO_STATE_OFF);
 }
 
 static const struct dm_rproc_ops stm32_copro_ops = {

@@ -1096,10 +1096,8 @@ static void board_copro_image_process(ulong fw_image, size_t fw_size)
 	printf("Load Remote Processor %d with data@addr=0x%08lx %u bytes:%s\n",
 	       id, fw_image, fw_size, ret ? " Failed!" : " Success!");
 
-	if (!ret) {
+	if (!ret)
 		rproc_start(id);
-		env_set("copro_state", "booted");
-	}
 }
 
 U_BOOT_FIT_LOADABLE_HANDLER(IH_TYPE_COPRO, board_copro_image_process);

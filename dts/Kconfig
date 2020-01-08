@@ -130,6 +130,14 @@ config OF_LIST
 	  device tree files (without the directory or .dtb suffix)
 	  separated by <space>.
 
+config OF_OVERLAY_LIST
+	string "List of device tree overlays to include for DT control"
+	depends on SPL_LOAD_FIT_APPLY_OVERLAY
+	help
+	  This option specifies a list of device tree overlays to use for DT
+	  control. This option can then be used by a FIT generator to include
+	  the overlays in the FIT image.
+
 choice
 	prompt "OF LIST compression"
 	depends on MULTI_DTB_FIT
