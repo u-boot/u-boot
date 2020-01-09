@@ -293,4 +293,7 @@ static inline cmd_tbl_t *get_tpm2_commands(unsigned int *size)
  */
 enum tpm_version tpm_get_version(struct udevice *dev);
 
+/* Iterate on all TPM devices */
+#define for_each_tpm_device(dev) uclass_foreach_dev_probe(UCLASS_TPM, (dev))
+
 #endif /* __TPM_COMMON_H */
