@@ -30,27 +30,34 @@ static int do_dfu(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #if defined(CONFIG_DFU_OVER_USB) || defined(CONFIG_DFU_OVER_TFTP)
 	char *interface = NULL;
 	char *devstring = NULL;
+#if defined(CONFIG_DFU_TIMEOUT) || defined(CONFIG_DFU_OVER_TFTP)
+	unsigned long value = 0;
+#endif
 
 	if (argc >= 4) {
 		interface = argv[2];
 		devstring = argv[3];
 	}
+
+#if defined(CONFIG_DFU_TIMEOUT) || defined(CONFIG_DFU_OVER_TFTP)
+	if (argc == 5 || argc == 3)
+		value = simple_strtoul(argv[argc - 1], NULL, 0);
+#endif
 #endif
 
 	int ret = 0;
 #ifdef CONFIG_DFU_OVER_TFTP
-	unsigned long addr = 0;
-	if (!strcmp(argv[1], "tftp")) {
-		if (argc == 5 || argc == 3)
-			addr = simple_strtoul(argv[argc - 1], NULL, 0);
-
-		return update_tftp(addr, interface, devstring);
-	}
+	if (!strcmp(argv[1], "tftp"))
+		return update_tftp(value, interface, devstring);
 #endif
 #ifdef CONFIG_DFU_OVER_USB
 	ret = dfu_init_env_entities(interface, devstring);
 	if (ret)
 		goto done;
+
+#ifdef CONFIG_DFU_TIMEOUT
+	dfu_set_timeout(value * 1000);
+#endif
 
 	ret = CMD_RET_SUCCESS;
 	if (strcmp(argv[argc - 1], "list") == 0) {
@@ -72,10 +79,17 @@ U_BOOT_CMD(dfu, CONFIG_SYS_MAXARGS, 1, do_dfu,
 	"Device Firmware Upgrade",
 	""
 #ifdef CONFIG_DFU_OVER_USB
+#ifdef CONFIG_DFU_TIMEOUT
+	"<USB_controller> [<interface> <dev>] [<timeout>] [list]\n"
+#else
 	"<USB_controller> [<interface> <dev>] [list]\n"
+#endif
 	"  - device firmware upgrade via <USB_controller>\n"
 	"    on device <dev>, attached to interface\n"
 	"    <interface>\n"
+#ifdef CONFIG_DFU_TIMEOUT
+	"    [<timeout>] - specify inactivity timeout in seconds\n"
+#endif
 	"    [list] - list available alt settings\n"
 #endif
 #ifdef CONFIG_DFU_OVER_TFTP

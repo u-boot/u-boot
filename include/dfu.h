@@ -171,13 +171,17 @@ const char *dfu_get_dev_type(enum dfu_device_type t);
 const char *dfu_get_layout(enum dfu_layout l);
 struct dfu_entity *dfu_get_entity(int alt);
 char *dfu_extract_token(char** e, int *n);
-void dfu_trigger_reset(void);
 int dfu_get_alt(char *name);
 int dfu_init_env_entities(char *interface, char *devstr);
 unsigned char *dfu_get_buf(struct dfu_entity *dfu);
 unsigned char *dfu_free_buf(void);
 unsigned long dfu_get_buf_size(void);
 bool dfu_usb_get_reset(void);
+
+#ifdef CONFIG_DFU_TIMEOUT
+unsigned long dfu_get_timeout(void);
+void dfu_set_timeout(unsigned long);
+#endif
 
 int dfu_read(struct dfu_entity *de, void *buf, int size, int blk_seq_num);
 int dfu_write(struct dfu_entity *de, void *buf, int size, int blk_seq_num);

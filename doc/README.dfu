@@ -43,6 +43,7 @@ Configuration Options:
   CONFIG_DFU_RAM
   CONFIG_DFU_SF
   CONFIG_DFU_SF_PART
+  CONFIG_DFU_TIMEOUT
   CONFIG_DFU_VIRTUAL
   CONFIG_CMD_DFU
 
@@ -70,12 +71,15 @@ Commands:
   dfu <USB_controller> [<interface> <dev>] list
     list the alternate device defined in "dfu_alt_info"
 
-  dfu <USB_controller> [<interface> <dev>]
+  dfu <USB_controller> [<interface> <dev>] [<timeout>]
     start the dfu stack on the USB instance with the selected medium
     backend and use the "dfu_alt_info" variable to configure the
     alternate setting and link each one with the medium
     The dfu command continue until receive a ^C in console or
-    a DFU detach transaction from HOST.
+    a DFU detach transaction from HOST. If CONFIG_DFU_TIMEOUT option
+    is enabled and <timeout> parameter is present in the command line,
+    the DFU operation will be aborted automatically after <timeout>
+    seconds of waiting remote to initiate DFU session.
 
   The possible values of <interface> are :
   (with <USB controller> = 0 in the dfu command example)
