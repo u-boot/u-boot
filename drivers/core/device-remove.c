@@ -140,6 +140,7 @@ void device_free(struct udevice *dev)
 			dev->parent_priv = NULL;
 		}
 	}
+	dev->flags &= ~DM_FLAG_PLATDATA_VALID;
 
 	devres_release_probe(dev);
 }

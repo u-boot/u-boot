@@ -7,6 +7,8 @@
  * Copyright (c) 2006  Tejun Heo <teheo@suse.de>
  */
 
+#define LOG_CATEGORY LOGC_DEVRES
+
 #include <common.h>
 #include <linux/compat.h>
 #include <linux/kernel.h>
@@ -15,12 +17,23 @@
 #include <dm/root.h>
 #include <dm/util.h>
 
+/** enum devres_phase - Shows where resource was allocated
+ *
+ * DEVRES_PHASE_BIND: In the bind() method
+ * DEVRES_PHASE_OFDATA: In the ofdata_to_platdata() method
+ * DEVRES_PHASE_PROBE: In the probe() method
+ */
+enum devres_phase {
+	DEVRES_PHASE_BIND,
+	DEVRES_PHASE_OFDATA,
+	DEVRES_PHASE_PROBE,
+};
+
 /**
  * struct devres - Bookkeeping info for managed device resource
  * @entry: List to associate this structure with a device
  * @release: Callback invoked when this resource is released
- * @probe: Flag to show when this resource was allocated
-	   (true = probe, false = bind)
+ * @probe: Show where this resource was allocated
  * @name: Name of release function
  * @size: Size of resource data
  * @data: Resource data
@@ -28,7 +41,7 @@
 struct devres {
 	struct list_head		entry;
 	dr_release_t			release;
-	bool				probe;
+	enum devres_phase		phase;
 #ifdef CONFIG_DEBUG_DEVRES
 	const char			*name;
 	size_t				size;
@@ -46,8 +59,8 @@ static void set_node_dbginfo(struct devres *dr, const char *name, size_t size)
 static void devres_log(struct udevice *dev, struct devres *dr,
 		       const char *op)
 {
-	printf("%s: DEVRES %3s %p %s (%lu bytes)\n",
-	       dev->name, op, dr, dr->name, (unsigned long)dr->size);
+	log_debug("%s: DEVRES %3s %p %s (%lu bytes)\n", dev->name, op, dr,
+		  dr->name, (unsigned long)dr->size);
 }
 #else /* CONFIG_DEBUG_DEVRES */
 #define set_node_dbginfo(dr, n, s)	do {} while (0)
@@ -80,7 +93,7 @@ void devres_free(void *res)
 	if (res) {
 		struct devres *dr = container_of(res, struct devres, data);
 
-		BUG_ON(!list_empty(&dr->entry));
+		assert_noisy(list_empty(&dr->entry));
 		kfree(dr);
 	}
 }
@@ -90,8 +103,13 @@ void devres_add(struct udevice *dev, void *res)
 	struct devres *dr = container_of(res, struct devres, data);
 
 	devres_log(dev, dr, "ADD");
-	BUG_ON(!list_empty(&dr->entry));
-	dr->probe = dev->flags & DM_FLAG_BOUND ? true : false;
+	assert_noisy(list_empty(&dr->entry));
+	if (dev->flags & DM_FLAG_PLATDATA_VALID)
+		dr->phase = DEVRES_PHASE_PROBE;
+	else if (dev->flags & DM_FLAG_BOUND)
+		dr->phase = DEVRES_PHASE_OFDATA;
+	else
+		dr->phase = DEVRES_PHASE_BIND;
 	list_add_tail(&dr->entry, &dev->devres_head);
 }
 
@@ -172,12 +190,12 @@ int devres_release(struct udevice *dev, dr_release_t release,
 }
 
 static void release_nodes(struct udevice *dev, struct list_head *head,
-			  bool probe_only)
+			  bool probe_and_ofdata_only)
 {
 	struct devres *dr, *tmp;
 
 	list_for_each_entry_safe_reverse(dr, tmp, head, entry)  {
-		if (probe_only && !dr->probe)
+		if (probe_and_ofdata_only && dr->phase == DEVRES_PHASE_BIND)
 			break;
 		devres_log(dev, dr, "REL");
 		dr->release(dev, dr->data);
@@ -197,6 +215,8 @@ void devres_release_all(struct udevice *dev)
 }
 
 #ifdef CONFIG_DEBUG_DEVRES
+static char *const devres_phase_name[] = {"BIND", "OFDATA", "PROBE"};
+
 static void dump_resources(struct udevice *dev, int depth)
 {
 	struct devres *dr;
@@ -207,7 +227,7 @@ static void dump_resources(struct udevice *dev, int depth)
 	list_for_each_entry(dr, &dev->devres_head, entry)
 		printf("    %p (%lu byte) %s  %s\n", dr,
 		       (unsigned long)dr->size, dr->name,
-		       dr->probe ? "PROBE" : "BIND");
+		       devres_phase_name[dr->phase]);
 
 	list_for_each_entry(child, &dev->child_head, sibling_node)
 		dump_resources(child, depth + 1);
@@ -221,6 +241,19 @@ void dm_dump_devres(void)
 	if (root)
 		dump_resources(root, 0);
 }
+
+void devres_get_stats(const struct udevice *dev, struct devres_stats *stats)
+{
+	struct devres *dr;
+
+	stats->allocs = 0;
+	stats->total_size = 0;
+	list_for_each_entry(dr, &dev->devres_head, entry) {
+		stats->allocs++;
+		stats->total_size += dr->size;
+	}
+}
+
 #endif
 
 /*
@@ -254,5 +287,5 @@ void devm_kfree(struct udevice *dev, void *p)
 	int rc;
 
 	rc = devres_destroy(dev, devm_kmalloc_release, devm_kmalloc_match, p);
-	WARN_ON(rc);
+	assert_noisy(!rc);
 }

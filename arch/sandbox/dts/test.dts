@@ -201,6 +201,10 @@
 		compatible = "denx,u-boot-fdt-test1";
 	};
 
+	devres-test {
+		compatible = "denx,u-boot-devres-test";
+	};
+
 	clocks {
 		clk_fixed: clk-fixed {
 			compatible = "fixed-clock";

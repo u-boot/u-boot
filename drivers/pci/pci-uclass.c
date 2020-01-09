@@ -48,6 +48,19 @@ pci_dev_t dm_pci_get_bdf(struct udevice *dev)
 	struct pci_child_platdata *pplat = dev_get_parent_platdata(dev);
 	struct udevice *bus = dev->parent;
 
+	/*
+	 * This error indicates that @dev is a device on an unprobed PCI bus.
+	 * The bus likely has bus=seq == -1, so the PCI_ADD_BUS() macro below
+	 * will produce a bad BDF>
+	 *
+	 * A common cause of this problem is that this function is called in the
+	 * ofdata_to_platdata() method of @dev. Accessing the PCI bus in that
+	 * method is not allowed, since it has not yet been probed. To fix this,
+	 * move that access to the probe() method of @dev instead.
+	 */
+	if (!device_active(bus))
+		log_err("PCI: Device '%s' on unprobed bus '%s'\n", dev->name,
+			bus->name);
 	return PCI_ADD_BUS(bus->seq, pplat->devfn);
 }
 

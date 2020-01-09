@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <malloc.h>
 #include <test/test.h>
 #include <test/ut.h>
 
@@ -32,3 +33,16 @@ void ut_failf(struct unit_test_state *uts, const char *fname, int line,
 	putc('\n');
 	uts->fail_count++;
 }
+
+ulong ut_check_free(void)
+{
+	struct mallinfo info = mallinfo();
+
+	return info.uordblks;
+}
+
+long ut_check_delta(ulong last)
+{
+	return ut_check_free() - last;
+}
+

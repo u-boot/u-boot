@@ -311,17 +311,16 @@ static void *alloc_priv(int size, uint flags)
 	return priv;
 }
 
-int device_probe(struct udevice *dev)
+int device_ofdata_to_platdata(struct udevice *dev)
 {
 	const struct driver *drv;
 	int size = 0;
 	int ret;
-	int seq;
 
 	if (!dev)
 		return -EINVAL;
 
-	if (dev->flags & DM_FLAG_ACTIVATED)
+	if (dev->flags & DM_FLAG_PLATDATA_VALID)
 		return 0;
 
 	drv = dev->driver;
@@ -346,7 +345,7 @@ int device_probe(struct udevice *dev)
 		}
 	}
 
-	/* Ensure all parents are probed */
+	/* Allocate parent data for this child */
 	if (dev->parent) {
 		size = dev->parent->driver->per_child_auto_alloc_size;
 		if (!size) {
@@ -360,7 +359,45 @@ int device_probe(struct udevice *dev)
 				goto fail;
 			}
 		}
+	}
 
+	if (drv->ofdata_to_platdata &&
+	    (CONFIG_IS_ENABLED(OF_PLATDATA) || dev_has_of_node(dev))) {
+		ret = drv->ofdata_to_platdata(dev);
+		if (ret)
+			goto fail;
+	}
+
+	dev->flags |= DM_FLAG_PLATDATA_VALID;
+
+	return 0;
+fail:
+	device_free(dev);
+
+	return ret;
+}
+
+int device_probe(struct udevice *dev)
+{
+	const struct driver *drv;
+	int ret;
+	int seq;
+
+	if (!dev)
+		return -EINVAL;
+
+	if (dev->flags & DM_FLAG_ACTIVATED)
+		return 0;
+
+	drv = dev->driver;
+	assert(drv);
+
+	ret = device_ofdata_to_platdata(dev);
+	if (ret)
+		goto fail;
+
+	/* Ensure all parents are probed */
+	if (dev->parent) {
 		ret = device_probe(dev->parent);
 		if (ret)
 			goto fail;
@@ -411,13 +448,6 @@ int device_probe(struct udevice *dev)
 			goto fail;
 	}
 
-	if (drv->ofdata_to_platdata &&
-	    (CONFIG_IS_ENABLED(OF_PLATDATA) || dev_has_of_node(dev))) {
-		ret = drv->ofdata_to_platdata(dev);
-		if (ret)
-			goto fail;
-	}
-
 	/* Only handle devices that have a valid ofnode */
 	if (dev_of_valid(dev)) {
 		/*
@@ -431,10 +461,8 @@ int device_probe(struct udevice *dev)
 
 	if (drv->probe) {
 		ret = drv->probe(dev);
-		if (ret) {
-			dev->flags &= ~DM_FLAG_ACTIVATED;
+		if (ret)
 			goto fail;
-		}
 	}
 
 	ret = uclass_post_probe_device(dev);

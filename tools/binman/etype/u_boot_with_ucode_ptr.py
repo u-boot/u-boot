@@ -18,7 +18,7 @@ class Entry_u_boot_with_ucode_ptr(Entry_blob):
     """U-Boot with embedded microcode pointer
 
     Properties / Entry arguments:
-        - filename: Filename of u-boot-nodtb.dtb (default 'u-boot-nodtb.dtb')
+        - filename: Filename of u-boot-nodtb.bin (default 'u-boot-nodtb.bin')
         - optional-ucode: boolean property to make microcode optional. If the
             u-boot.bin image does not include microcode, no error will
             be generated.

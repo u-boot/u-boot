@@ -84,6 +84,22 @@ int device_bind_by_name(struct udevice *parent, bool pre_reloc_only,
 			const struct driver_info *info, struct udevice **devp);
 
 /**
+ * device_ofdata_to_platdata() - Read platform data for a device
+ *
+ * Read platform data for a device (typically from the device tree) so that
+ * the information needed to probe the device is present.
+ *
+ * This may cause some others devices to be probed if this one depends on them,
+ * e.g. a GPIO line will cause a GPIO device to be probed.
+ *
+ * All private data associated with the device is allocated.
+ *
+ * @dev: Pointer to device to process
+ * @return 0 if OK, -ve on error
+ */
+int device_ofdata_to_platdata(struct udevice *dev);
+
+/**
  * device_probe() - Probe a device, activating it
  *
  * Activate a device so that it is ready for use. All its parents are probed

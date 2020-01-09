@@ -9,6 +9,7 @@
 #ifndef __LOG_H
 #define __LOG_H
 
+#include <command.h>
 #include <dm/uclass-id.h>
 #include <linux/list.h>
 
@@ -49,6 +50,7 @@ enum log_category_t {
 	LOGC_ALLOC,	/* Memory allocation */
 	LOGC_SANDBOX,	/* Related to the sandbox board */
 	LOGC_BLOBLIST,	/* Bloblist */
+	LOGC_DEVRES,	/* Device resources (devres_... functions) */
 
 	LOGC_COUNT,	/* Number of log categories */
 	LOGC_END,	/* Sentinel value for a list of log categories */
@@ -217,6 +219,20 @@ void __assert_fail(const char *assertion, const char *file, unsigned int line,
 #define assert(x) \
 	({ if (!(x) && _DEBUG) \
 		__assert_fail(#x, __FILE__, __LINE__, __func__); })
+
+/*
+ * This one actually gets compiled in even without DEBUG. It doesn't include the
+ * full pathname as it may be huge. Only use this when the user should be
+ * warning, similar to BUG_ON() in linux.
+ *
+ * @return true if assertion succeeded (condition is true), else false
+ */
+#define assert_noisy(x) \
+	({ bool _val = (x); \
+	if (!_val) \
+		__assert_fail(#x, "?", __LINE__, __func__); \
+	_val; \
+	})
 
 #if CONFIG_IS_ENABLED(LOG) && defined(CONFIG_LOG_ERROR_RETURN)
 /*

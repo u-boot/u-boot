@@ -176,8 +176,10 @@ int lists_bind_fdt(struct udevice *parent, ofnode node, struct udevice **devp,
 
 		if (pre_reloc_only) {
 			if (!dm_ofnode_pre_reloc(node) &&
-			    !(entry->flags & DM_FLAG_PRE_RELOC))
+			    !(entry->flags & DM_FLAG_PRE_RELOC)) {
+				log_debug("Skipping device pre-relocation\n");
 				return 0;
+			}
 		}
 
 		log_debug("   - found match at '%s': '%s' matches '%s'\n",
