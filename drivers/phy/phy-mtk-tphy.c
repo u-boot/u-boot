@@ -338,7 +338,8 @@ static int mtk_tphy_probe(struct udevice *dev)
 		tphy->phys[index] = instance;
 		index++;
 
-		err = clk_get_by_index_nodev(subnode, 0, &instance->ref_clk);
+		err = clk_get_optional_nodev(subnode, "ref",
+					     &instance->ref_clk);
 		if (err)
 			return err;
 	}
