@@ -204,9 +204,8 @@ static int mtk_phy_init(struct phy *phy)
 	struct mtk_phy_instance *instance = tphy->phys[phy->id];
 	int ret;
 
-	/* we may use a fixed-clock here */
 	ret = clk_enable(&instance->ref_clk);
-	if (ret && ret != -ENOSYS)
+	if (ret)
 		return ret;
 
 	switch (instance->type) {
