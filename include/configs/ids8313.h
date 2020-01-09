@@ -14,8 +14,6 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_FSL_ELBC
-
 #define CONFIG_BOOT_RETRY_TIME		900
 #define CONFIG_BOOT_RETRY_MIN		30
 #define CONFIG_RESET_TO_RETRY

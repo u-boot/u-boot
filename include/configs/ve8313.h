@@ -18,7 +18,6 @@
 #define CONFIG_E300		1
 
 #define CONFIG_PCI_INDIRECT_BRIDGE 1
-#define CONFIG_FSL_ELBC		1
 
 /*
  * On-board devices
