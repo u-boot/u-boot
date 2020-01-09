@@ -344,6 +344,34 @@ int clk_get_by_name(struct udevice *dev, const char *name, struct clk *clk)
 	return clk_get_by_index(dev, index, clk);
 }
 
+int clk_get_by_name_nodev(ofnode node, const char *name, struct clk *clk)
+{
+	int index;
+
+	debug("%s(node=%p, name=%s, clk=%p)\n", __func__,
+		ofnode_get_name(node), name, clk);
+	clk->dev = NULL;
+
+	index = ofnode_stringlist_search(node, "clock-names", name);
+	if (index < 0) {
+		debug("fdt_stringlist_search() failed: %d\n", index);
+		return index;
+	}
+
+	return clk_get_by_index_nodev(node, index, clk);
+}
+
+int clk_get_optional_nodev(ofnode node, const char *name, struct clk *clk)
+{
+	int ret;
+
+	ret = clk_get_by_name_nodev(node, name, clk);
+	if (ret == -ENODATA)
+		return 0;
+
+	return ret;
+}
+
 int clk_release_all(struct clk *clk, int count)
 {
 	int i, ret;
