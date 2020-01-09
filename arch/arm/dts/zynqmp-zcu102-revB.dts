@@ -25,7 +25,7 @@
 		/* reset-gpios = <&tca6416_u97 6 GPIO_ACTIVE_LOW>; */
 	};
 	/* Cleanup from RevA */
-	/delete-node/ phy@21;
+	/delete-node/ ethernet-phy@21;
 };
 
 /* Fix collision with u61 */
