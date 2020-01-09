@@ -99,13 +99,8 @@
 		};
 	};
 
-	dcc: dcc {
-		compatible = "arm,dcc";
-		status = "disabled";
-		u-boot,dm-pre-reloc;
-	};
-
 	zynqmp_ipi {
+		u-boot,dm-pre-reloc;
 		compatible = "xlnx,zynqmp-ipi-mailbox";
 		interrupt-parent = <&gic>;
 		interrupts = <0 35 4>;
@@ -115,6 +110,7 @@
 		ranges;
 
 		ipi_mailbox_pmu1: mailbox@ff990400 {
+			u-boot,dm-pre-reloc;
 			reg = <0x0 0xff9905c0 0x0 0x20>,
 			      <0x0 0xff9905e0 0x0 0x20>,
 			      <0x0 0xff990e80 0x0 0x20>,
@@ -124,6 +120,12 @@
 			#mbox-cells = <1>;
 			xlnx,ipi-id = <4>;
 		};
+	};
+
+	dcc: dcc {
+		compatible = "arm,dcc";
+		status = "disabled";
+		u-boot,dm-pre-reloc;
 	};
 
 	pmu {
@@ -148,6 +150,7 @@
 			u-boot,dm-pre-reloc;
 
 			zynqmp_power: zynqmp-power {
+				u-boot,dm-pre-reloc;
 				compatible = "xlnx,zynqmp-power";
 				interrupt-parent = <&gic>;
 				interrupts = <0 35 4>;

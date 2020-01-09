@@ -15,7 +15,8 @@
 
 / {
 	model = "ZynqMP ZCU1275 RevA";
-	compatible = "xlnx,zynqmp-zcu1275-revA", "xlnx,zynqmp-zcu1275", "xlnx,zynqmp";
+	compatible = "xlnx,zynqmp-zcu1275-revA", "xlnx,zynqmp-zcu1275",
+		     "xlnx,zynqmp";
 
 	aliases {
 		serial0 = &uart0;
