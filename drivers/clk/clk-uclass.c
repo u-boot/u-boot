@@ -678,7 +678,7 @@ struct clk *devm_clk_get_optional(struct udevice *dev, const char *id)
 {
 	struct clk *clk = devm_clk_get(dev, id);
 
-	if (IS_ERR(clk))
+	if (PTR_ERR(clk) == -ENODATA)
 		return NULL;
 
 	return clk;
