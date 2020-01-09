@@ -131,6 +131,12 @@ Network protocols
 .. kernel-doc:: lib/efi_loader/efi_net.c
    :internal:
 
+Random number generator protocol
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. kernel-doc:: lib/efi_loader/efi_rng.c
+   :internal:
+
 Text IO protocols
 ~~~~~~~~~~~~~~~~~
 
