@@ -257,9 +257,9 @@ static int teardown(void)
 				disk_handle, &block_io_protocol_guid,
 				&block_io);
 		if (r != EFI_SUCCESS) {
-			efi_st_todo(
+			efi_st_error(
 				"Failed to uninstall block I/O protocol\n");
-			return EFI_ST_SUCCESS;
+			return EFI_ST_FAILURE;
 		}
 	}
 
