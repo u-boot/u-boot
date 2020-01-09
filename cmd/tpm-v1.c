@@ -645,6 +645,7 @@ TPM_COMMAND_NO_ARG(tpm_physical_enable)
 TPM_COMMAND_NO_ARG(tpm_physical_disable)
 
 static cmd_tbl_t tpm1_commands[] = {
+	U_BOOT_CMD_MKENT(device, 0, 1, do_tpm_device, "", ""),
 	U_BOOT_CMD_MKENT(info, 0, 1, do_tpm_info, "", ""),
 	U_BOOT_CMD_MKENT(init, 0, 1, do_tpm_init, "", ""),
 	U_BOOT_CMD_MKENT(startup, 0, 1,
@@ -721,6 +722,8 @@ U_BOOT_CMD(tpm, CONFIG_SYS_MAXARGS, 1, do_tpm,
 "cmd args...\n"
 "    - Issue TPM command <cmd> with arguments <args...>.\n"
 "Admin Startup and State Commands:\n"
+"  device [num device]\n"
+"    - Show all devices or set the specified device\n"
 "  info - Show information about the TPM\n"
 "  init\n"
 "    - Put TPM into a state where it waits for 'startup' command.\n"
