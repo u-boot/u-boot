@@ -129,17 +129,17 @@
 		gpio-controller;
 		#gpio-cells = <2>;
 		/*
-		  * IRQ not connected
-		  * Lines:
-		  * 0 - IRPS5401_ALERT_B
-		  * 1 - HDMI_8T49N241_INT_ALM
-		  * 2 - MAX6643_OT_B
-		  * 3 - MAX6643_FANFAIL_B
-		  * 5 - IIC_MUX_RESET_B
-		  * 6 - GEM3_EXP_RESET_B
-		  * 7 - FMC_LPC_PRSNT_M2C_B
-		  * 4, 10 - 17 - not connected
-		  */
+		 * IRQ not connected
+		 * Lines:
+		 * 0 - IRPS5401_ALERT_B
+		 * 1 - HDMI_8T49N241_INT_ALM
+		 * 2 - MAX6643_OT_B
+		 * 3 - MAX6643_FANFAIL_B
+		 * 5 - IIC_MUX_RESET_B
+		 * 6 - GEM3_EXP_RESET_B
+		 * 7 - FMC_LPC_PRSNT_M2C_B
+		 * 4, 10 - 17 - not connected
+		 */
 	};
 
 	/* Another connection to this bus via PL i2c via PCA9306 - u45 */
