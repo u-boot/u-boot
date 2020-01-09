@@ -27,11 +27,11 @@
 /* Private data for the clock driver - used by rockchip_get_cru() */
 struct rk3288_clk_priv {
 	struct rk3288_grf *grf;
-	struct rk3288_cru *cru;
+	struct rockchip_cru *cru;
 	ulong rate;
 };
 
-struct rk3288_cru {
+struct rockchip_cru {
 	struct rk3288_pll {
 		u32 con0;
 		u32 con1;
@@ -58,7 +58,7 @@ struct rk3288_cru {
 	u32 cru_sdio1_con[2];
 	u32 cru_emmc_con[2];
 };
-check_member(rk3288_cru, cru_emmc_con[1], 0x021c);
+check_member(rockchip_cru, cru_emmc_con[1], 0x021c);
 
 /* CRU_CLKSEL11_CON */
 enum {

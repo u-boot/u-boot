@@ -11,7 +11,7 @@
 #include <asm/io.h>
 #include <asm/arch-rockchip/bootrom.h>
 #include <asm/arch-rockchip/clock.h>
-#include <asm/arch-rockchip/cru_rk3288.h>
+#include <asm/arch-rockchip/cru.h>
 #include <asm/arch-rockchip/hardware.h>
 #include <asm/arch-rockchip/grf_rk3288.h>
 #include <asm/arch-rockchip/pmu_rk3288.h>
@@ -104,7 +104,7 @@ void board_debug_uart_init(void)
 
 static void rk3288_detect_reset_reason(void)
 {
-	struct rk3288_cru *cru = rockchip_get_cru();
+	struct rockchip_cru *cru = rockchip_get_cru();
 	const char *reason;
 
 	if (IS_ERR(cru))

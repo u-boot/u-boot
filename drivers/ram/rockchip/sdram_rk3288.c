@@ -17,7 +17,7 @@
 #include <syscon.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/clock.h>
-#include <asm/arch-rockchip/cru_rk3288.h>
+#include <asm/arch-rockchip/cru.h>
 #include <asm/arch-rockchip/ddr_rk3288.h>
 #include <asm/arch-rockchip/grf_rk3288.h>
 #include <asm/arch-rockchip/pmu_rk3288.h>
@@ -37,7 +37,7 @@ struct dram_info {
 	struct chan_info chan[2];
 	struct ram_info info;
 	struct clk ddr_clk;
-	struct rk3288_cru *cru;
+	struct rockchip_cru *cru;
 	struct rk3288_grf *grf;
 	struct rk3288_sgrf *sgrf;
 	struct rk3288_pmu *pmu;
@@ -93,7 +93,7 @@ static void copy_to_reg(u32 *dest, const u32 *src, u32 n)
 	}
 }
 
-static void ddr_reset(struct rk3288_cru *cru, u32 ch, u32 ctl, u32 phy)
+static void ddr_reset(struct rockchip_cru *cru, u32 ch, u32 ctl, u32 phy)
 {
 	u32 phy_ctl_srstn_shift = 4 + 5 * ch;
 	u32 ctl_psrstn_shift = 3 + 5 * ch;
@@ -110,7 +110,7 @@ static void ddr_reset(struct rk3288_cru *cru, u32 ch, u32 ctl, u32 phy)
 		     phy << phy_srstn_shift);
 }
 
-static void ddr_phy_ctl_reset(struct rk3288_cru *cru, u32 ch, u32 n)
+static void ddr_phy_ctl_reset(struct rockchip_cru *cru, u32 ch, u32 n)
 {
 	u32 phy_ctl_srstn_shift = 4 + 5 * ch;
 
@@ -118,7 +118,7 @@ static void ddr_phy_ctl_reset(struct rk3288_cru *cru, u32 ch, u32 n)
 		     1 << phy_ctl_srstn_shift, n << phy_ctl_srstn_shift);
 }
 
-static void phy_pctrl_reset(struct rk3288_cru *cru,
+static void phy_pctrl_reset(struct rockchip_cru *cru,
 			    struct rk3288_ddr_publ *publ,
 			    int channel)
 {
