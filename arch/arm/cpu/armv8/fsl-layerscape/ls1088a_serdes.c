@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2017 NXP
+ * Copyright 2017-2019 NXP
  */
 
 #include <common.h>
 #include <asm/arch/fsl_serdes.h>
+#include <asm/arch/soc.h>
+#include <asm/io.h>
 
 struct serdes_config {
 	u8 ip_protocol;
@@ -32,6 +34,7 @@ static struct serdes_config serdes1_cfg_tbl[] = {
 	{0x3A, {SGMII3, PCIE1, SGMII1, SGMII2 }, {3, 5, 3, 3 } },
 		{}
 };
+
 static struct serdes_config serdes2_cfg_tbl[] = {
 	/* SerDes 2 */
 	{0x0C, {PCIE1, PCIE1, PCIE1, PCIE1 }, {8, 8, 8, 8 } },
@@ -47,6 +50,15 @@ static struct serdes_config *serdes_cfg_tbl[] = {
 	serdes1_cfg_tbl,
 	serdes2_cfg_tbl,
 };
+
+bool soc_has_mac1(void)
+{
+	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	unsigned int svr = gur_in32(&gur->svr);
+	unsigned int version = SVR_SOC_VER(svr);
+
+	return (version == SVR_LS1088A || version == SVR_LS1084A);
+}
 
 int serdes_get_number(int serdes, int cfg)
 {
@@ -87,7 +99,14 @@ enum srds_prtcl serdes_get_prtcl(int serdes, int cfg, int lane)
 
 	if (serdes >= ARRAY_SIZE(serdes_cfg_tbl))
 		return 0;
-
+	/*
+	 * LS1044A/1048A  support only one XFI port
+	 * Disable MAC1 for LS1044A/1048A
+	 */
+	if (serdes == FSL_SRDS_1 && lane == 2) {
+		if (!soc_has_mac1())
+			return 0;
+	}
 	ptr = serdes_cfg_tbl[serdes];
 	while (ptr->ip_protocol) {
 		if (ptr->ip_protocol == cfg)
