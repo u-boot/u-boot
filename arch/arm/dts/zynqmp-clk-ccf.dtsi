@@ -2,7 +2,7 @@
 /*
  * Clock specification for Xilinx ZynqMP
  *
- * (C) Copyright 2017, Xilinx, Inc.
+ * (C) Copyright 2017 - 2019, Xilinx, Inc.
  *
  * Michal Simek <michal.simek@xilinx.com>
  */
@@ -173,26 +173,30 @@
 };
 
 &gem0 {
-	clocks = <&zynqmp_clk LPD_LSBUS>, <&zynqmp_clk GEM0_REF>, <&zynqmp_clk GEM0_TX>,
-		 <&zynqmp_clk GEM0_RX>, <&zynqmp_clk GEM_TSU>;
+	clocks = <&zynqmp_clk LPD_LSBUS>, <&zynqmp_clk GEM0_REF>,
+		 <&zynqmp_clk GEM0_TX>, <&zynqmp_clk GEM0_RX>,
+		 <&zynqmp_clk GEM_TSU>;
 	clock-names = "pclk", "hclk", "tx_clk", "rx_clk", "tsu_clk";
 };
 
 &gem1 {
-	clocks = <&zynqmp_clk LPD_LSBUS>, <&zynqmp_clk GEM1_REF>, <&zynqmp_clk GEM1_TX>,
-		 <&zynqmp_clk GEM1_RX>, <&zynqmp_clk GEM_TSU>;
+	clocks = <&zynqmp_clk LPD_LSBUS>, <&zynqmp_clk GEM1_REF>,
+		 <&zynqmp_clk GEM1_TX>, <&zynqmp_clk GEM1_RX>,
+		 <&zynqmp_clk GEM_TSU>;
 	clock-names = "pclk", "hclk", "tx_clk", "rx_clk", "tsu_clk";
 };
 
 &gem2 {
-	clocks = <&zynqmp_clk LPD_LSBUS>, <&zynqmp_clk GEM2_REF>, <&zynqmp_clk GEM2_TX>,
-		 <&zynqmp_clk GEM2_RX>, <&zynqmp_clk GEM_TSU>;
+	clocks = <&zynqmp_clk LPD_LSBUS>, <&zynqmp_clk GEM2_REF>,
+		 <&zynqmp_clk GEM2_TX>, <&zynqmp_clk GEM2_RX>,
+		 <&zynqmp_clk GEM_TSU>;
 	clock-names = "pclk", "hclk", "tx_clk", "rx_clk", "tsu_clk";
 };
 
 &gem3 {
-	clocks = <&zynqmp_clk LPD_LSBUS>, <&zynqmp_clk GEM3_REF>, <&zynqmp_clk GEM3_TX>,
-		 <&zynqmp_clk GEM3_RX>, <&zynqmp_clk GEM_TSU>;
+	clocks = <&zynqmp_clk LPD_LSBUS>, <&zynqmp_clk GEM3_REF>,
+		 <&zynqmp_clk GEM3_TX>, <&zynqmp_clk GEM3_RX>,
+		 <&zynqmp_clk GEM_TSU>;
 	clock-names = "pclk", "hclk", "tx_clk", "rx_clk", "tsu_clk";
 };
 
