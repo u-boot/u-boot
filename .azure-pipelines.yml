@@ -1,7 +1,7 @@
 variables:
   windows_vm: vs2015-win2012r2
   ubuntu_vm: ubuntu-18.04
-  ci_runner_image: trini/u-boot-gitlab-ci-runner:bionic-20191010-20Oct2019
+  ci_runner_image: trini/u-boot-gitlab-ci-runner:bionic-20191202-10Jan2020
   # Add '-u 0' options for Azure pipelines, otherwise we get "permission
   # denied" error when it tries to "useradd -m -u 1001 vsts_azpcontainer",
   # since our $(ci_runner_image) user is not root.
