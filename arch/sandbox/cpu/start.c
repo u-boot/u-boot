@@ -319,13 +319,6 @@ static int sandbox_cmdline_cb_show_of_platdata(struct sandbox_state *state,
 }
 SANDBOX_CMDLINE_OPT(show_of_platdata, 0, "Show of-platdata in SPL");
 
-int board_run_command(const char *cmdline)
-{
-	printf("## Commands are disabled. Please enable CONFIG_CMDLINE.\n");
-
-	return 1;
-}
-
 static void setup_ram_buf(struct sandbox_state *state)
 {
 	/* Zero the RAM buffer if we didn't read it, to keep valgrind happy */

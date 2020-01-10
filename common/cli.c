@@ -71,6 +71,13 @@ int run_command_repeatable(const char *cmd, int flag)
 	return 0;
 #endif
 }
+#else
+__weak int board_run_command(const char *cmdline)
+{
+	printf("## Commands are disabled. Please enable CONFIG_CMDLINE.\n");
+
+	return 1;
+}
 #endif /* CONFIG_CMDLINE */
 
 int run_command_list(const char *cmd, int len, int flag)
