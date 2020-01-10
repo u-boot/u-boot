@@ -2933,10 +2933,10 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 	ret = EFI_CALL(image_obj->entry(image_handle, &systab));
 
 	/*
-	 * Usually UEFI applications call Exit() instead of returning.
-	 * But because the world doesn't consist of ponies and unicorns,
-	 * we're happy to emulate that behavior on behalf of a payload
-	 * that forgot.
+	 * Control is returned from a started UEFI image either by calling
+	 * Exit() (where exit data can be provided) or by simply returning from
+	 * the entry point. In the latter case call Exit() on behalf of the
+	 * image.
 	 */
 	return EFI_CALL(systab.boottime->exit(image_handle, ret, 0, NULL));
 }
