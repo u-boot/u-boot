@@ -32,7 +32,6 @@
 
 #define CONFIG_SYS_OMAP_ABE_SYSCK
 
-#ifdef CONFIG_SPL_DFU
 #ifndef CONFIG_SPL_BUILD
 #define DFUARGS \
 	"dfu_bufsiz=0x10000\0" \
@@ -42,6 +41,7 @@
 	DFU_ALT_INFO_QSPI
 #else
 #undef CONFIG_CMD_BOOTD
+#ifdef CONFIG_SPL_DFU
 #define CONFIG_SPL_LOAD_FIT_ADDRESS 0x80200000
 #define DFUARGS \
 	"dfu_bufsiz=0x10000\0" \
