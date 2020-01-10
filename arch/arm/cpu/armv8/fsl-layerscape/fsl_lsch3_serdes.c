@@ -600,3 +600,62 @@ void fsl_serdes_init(void)
 		    serdes3_prtcl_map);
 #endif
 }
+
+int serdes_set_env(int sd, int rcwsr, int sd_prctl_mask, int sd_prctl_shift)
+{
+	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	char scfg[16], snum[16];
+	int cfgr = 0;
+	u32 cfg;
+
+	cfg = gur_in32(&gur->rcwsr[rcwsr - 1]) & sd_prctl_mask;
+	cfg >>= sd_prctl_shift;
+	cfg = serdes_get_number(sd, cfg);
+
+#if defined(SRDS_BITS_PER_LANE)
+	/*
+	 * reverse lanes, lane 0 should be printed first so it must be moved to
+	 * high order bits.
+	 * For example bb58 should read 85bb, lane 0 being protocol 8.
+	 * This only applies to SoCs that define SRDS_BITS_PER_LANE and have
+	 * independent per-lane protocol configuration, at this time LS1028A and
+	 * LS1088A. LS2 and LX2 SoCs encode the full protocol mix across all
+	 * lanes as a single value.
+	 */
+	for (int i = 0; i < SRDS_MAX_LANES; i++) {
+		int tmp;
+
+		tmp = cfg >> (i * SRDS_BITS_PER_LANE);
+		tmp &= GENMASK(SRDS_BITS_PER_LANE - 1, 0);
+		tmp <<= (SRDS_MAX_LANES - i - 1) * SRDS_BITS_PER_LANE;
+		cfgr |= tmp;
+	}
+#endif /* SRDS_BITS_PER_LANE */
+
+	snprintf(snum, 16, "serdes%d", sd);
+	snprintf(scfg, 16, "%x", cfgr);
+	env_set(snum, scfg);
+
+	return 0;
+}
+
+int serdes_misc_init(void)
+{
+#ifdef CONFIG_SYS_FSL_SRDS_1
+	serdes_set_env(FSL_SRDS_1, FSL_CHASSIS3_SRDS1_REGSR,
+		       FSL_CHASSIS3_SRDS1_PRTCL_MASK,
+		       FSL_CHASSIS3_SRDS1_PRTCL_SHIFT);
+#endif
+#ifdef CONFIG_SYS_FSL_SRDS_2
+	serdes_set_env(FSL_SRDS_2, FSL_CHASSIS3_SRDS2_REGSR,
+		       FSL_CHASSIS3_SRDS2_PRTCL_MASK,
+		       FSL_CHASSIS3_SRDS2_PRTCL_SHIFT);
+#endif
+#ifdef CONFIG_SYS_NXP_SRDS_3
+	serdes_set_env(NXP_SRDS_3, FSL_CHASSIS3_SRDS3_REGSR,
+		       FSL_CHASSIS3_SRDS3_PRTCL_MASK,
+		       FSL_CHASSIS3_SRDS3_PRTCL_SHIFT);
+#endif
+
+	return 0;
+}

@@ -123,6 +123,7 @@
 #define CONFIG_SYS_PAGE_SIZE		0x10000
 
 #define	SRDS_MAX_LANES	4
+#define	SRDS_BITS_PER_LANE	4
 
 /* TZ Protection Controller Definitions */
 #define TZPC_BASE				0x02200000
@@ -252,6 +253,7 @@
 #define TZPCDECPROT_2_CLR_BASE			(TZPC_BASE + 0x820)
 
 #define	SRDS_MAX_LANES	4
+#define	SRDS_BITS_PER_LANE	4
 
 #define CONFIG_SYS_FSL_OCRAM_BASE		0x18000000 /* initial RAM */
 #define SYS_FSL_OCRAM_SPACE_SIZE		0x00200000 /* 2M */
