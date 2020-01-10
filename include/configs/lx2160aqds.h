@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2018-2019 NXP
+ * Copyright 2018-2020 NXP
  */
 
 #ifndef __LX2_QDS_H
@@ -120,6 +120,8 @@ u8 qixis_esdhc_detect_quirk(void);
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	EXTRA_ENV_SETTINGS			\
 	"lx2160aqds_vdd_mv=800\0"		\
+	"boot_scripts=lx2160aqds_boot.scr\0"	\
+	"boot_script_hdr=hdr_lx2160aqds_bs.out\0"	\
 	"BOARD=lx2160aqds\0"			\
 	"xspi_bootcmd=echo Trying load from flexspi..;"		\
 		"sf probe 0:0 && sf read $load_addr "		\
