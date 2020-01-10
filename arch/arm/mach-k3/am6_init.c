@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * K3: Architecture initialization
+ * AM6: SoC specific initialization
  *
  * Copyright (C) 2017-2018 Texas Instruments Incorporated - http://www.ti.com/
  *	Lokesh Vutla <lokeshvutla@ti.com>
