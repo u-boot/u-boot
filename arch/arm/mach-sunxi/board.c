@@ -274,6 +274,26 @@ uint32_t sunxi_get_boot_device(void)
 }
 
 #ifdef CONFIG_SPL_BUILD
+/*
+ * The eGON SPL image can be located at 8KB or at 128KB into an SD card or
+ * an eMMC device. The boot source has bit 4 set in the latter case.
+ * By adding 120KB to the normal offset when booting from a "high" location
+ * we can support both cases.
+ */
+unsigned long spl_mmc_get_uboot_raw_sector(struct mmc *mmc)
+{
+	unsigned long sector = CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR;
+
+	switch (sunxi_get_boot_source()) {
+	case SUNXI_BOOTED_FROM_MMC0_HIGH:
+	case SUNXI_BOOTED_FROM_MMC2_HIGH:
+		sector += (128 - 8) * 2;
+		break;
+	}
+
+	return sector;
+}
+
 u32 spl_boot_device(void)
 {
 	return sunxi_get_boot_device();
