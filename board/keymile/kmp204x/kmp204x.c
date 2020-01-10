@@ -138,7 +138,7 @@ int board_early_init_r(void)
 	/* enable Application Buffer */
 	qrio_enable_app_buffer();
 
-	return ret;
+	return 0;
 }
 
 unsigned long get_board_sys_clk(unsigned long dummy)
