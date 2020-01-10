@@ -112,7 +112,7 @@ static efi_status_t EFIAPI efi_uc_start(
 	struct efi_driver_binding_extended_protocol *bp =
 			(struct efi_driver_binding_extended_protocol *)this;
 
-	EFI_ENTRY("%p, %pUl, %ls", this, controller_handle,
+	EFI_ENTRY("%p, %p, %ls", this, controller_handle,
 		  efi_dp_str(remaining_device_path));
 
 	/* Attach driver to controller */
@@ -200,7 +200,7 @@ static efi_status_t EFIAPI efi_uc_stop(
 	struct efi_driver_binding_extended_protocol *bp =
 			(struct efi_driver_binding_extended_protocol *)this;
 
-	EFI_ENTRY("%p, %pUl, %zu, %p", this, controller_handle,
+	EFI_ENTRY("%p, %p, %zu, %p", this, controller_handle,
 		  number_of_children, child_handle_buffer);
 
 	/* Destroy provided child controllers */
