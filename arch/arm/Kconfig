@@ -1235,7 +1235,6 @@ config TARGET_LS2081ARDB
 config TARGET_LX2160ARDB
 	bool "Support lx2160ardb"
 	select ARCH_LX2160A
-	select ARCH_MISC_INIT
 	select ARM64
 	select ARMV8_MULTIENTRY
 	select ARCH_SUPPORT_TFABOOT
@@ -1249,7 +1248,6 @@ config TARGET_LX2160ARDB
 config TARGET_LX2160AQDS
 	bool "Support lx2160aqds"
 	select ARCH_LX2160A
-	select ARCH_MISC_INIT
 	select ARM64
 	select ARMV8_MULTIENTRY
 	select ARCH_SUPPORT_TFABOOT

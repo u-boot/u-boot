@@ -582,8 +582,8 @@ void detail_board_ddr_info(void)
 	print_ddr_info(0);
 }
 
-#if defined(CONFIG_ARCH_MISC_INIT)
-int arch_misc_init(void)
+#ifdef CONFIG_MISC_INIT_R
+int misc_init_r(void)
 {
 	config_board_mux();
 
