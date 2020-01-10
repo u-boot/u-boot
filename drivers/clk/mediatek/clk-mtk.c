@@ -39,7 +39,7 @@
  * this function is recursively called to find the parent to calculate
  * the accurate frequency.
  */
-static int mtk_clk_find_parent_rate(struct clk *clk, int id,
+static ulong mtk_clk_find_parent_rate(struct clk *clk, int id,
 				    const struct driver *drv)
 {
 	struct clk parent = { .id = id, };
@@ -285,7 +285,7 @@ static ulong mtk_factor_recalc_rate(const struct mtk_fixed_factor *fdiv,
 	return rate;
 }
 
-static int mtk_topckgen_get_factor_rate(struct clk *clk, u32 off)
+static ulong mtk_topckgen_get_factor_rate(struct clk *clk, u32 off)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
 	const struct mtk_fixed_factor *fdiv = &priv->tree->fdivs[off];
@@ -307,7 +307,7 @@ static int mtk_topckgen_get_factor_rate(struct clk *clk, u32 off)
 	return mtk_factor_recalc_rate(fdiv, rate);
 }
 
-static int mtk_topckgen_get_mux_rate(struct clk *clk, u32 off)
+static ulong mtk_topckgen_get_mux_rate(struct clk *clk, u32 off)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
 	const struct mtk_composite *mux = &priv->tree->muxes[off];
