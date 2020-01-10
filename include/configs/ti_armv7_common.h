@@ -61,7 +61,6 @@
 		"setenv overlaystring ${overlaystring}'#'${overlay};" \
 		"done;\0" \
 	"run_fit=bootm ${addr_fit}#${fdtfile}${overlaystring}\0" \
-	"loadfit=run args_mmc; run run_fit;\0" \
 
 /*
  * DDR information.  If the CONFIG_NR_DRAM_BANKS is not defined,
