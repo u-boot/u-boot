@@ -55,9 +55,11 @@ struct clk *imx_clk_pllv3(enum imx_pllv3_type type, const char *name,
 	switch (type) {
 	case IMX_PLLV3_GENERIC:
 		drv_name = UBOOT_DM_CLK_IMX_PLLV3_GENERIC;
+		pll->div_shift = 0;
 		break;
 	case IMX_PLLV3_USB:
 		drv_name = UBOOT_DM_CLK_IMX_PLLV3_USB;
+		pll->div_shift = 1;
 		break;
 	default:
 		kfree(pll);
