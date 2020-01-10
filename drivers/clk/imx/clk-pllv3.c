@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <div64.h>
 #include <malloc.h>
 #include <clk-uclass.h>
 #include <dm/device.h>
@@ -16,6 +17,10 @@
 #define UBOOT_DM_CLK_IMX_PLLV3_GENERIC	"imx_clk_pllv3_generic"
 #define UBOOT_DM_CLK_IMX_PLLV3_SYS	"imx_clk_pllv3_sys"
 #define UBOOT_DM_CLK_IMX_PLLV3_USB	"imx_clk_pllv3_usb"
+#define UBOOT_DM_CLK_IMX_PLLV3_AV	"imx_clk_pllv3_av"
+
+#define PLL_NUM_OFFSET		0x10
+#define PLL_DENOM_OFFSET	0x20
 
 #define BM_PLL_POWER		(0x1 << 12)
 #define BM_PLL_LOCK		(0x1 << 31)
@@ -143,6 +148,65 @@ static const struct clk_ops clk_pllv3_sys_ops = {
 	.set_rate	= clk_pllv3_sys_set_rate,
 };
 
+static ulong clk_pllv3_av_get_rate(struct clk *clk)
+{
+	struct clk_pllv3 *pll = to_clk_pllv3(clk);
+	unsigned long parent_rate = clk_get_parent_rate(clk);
+	u32 mfn = readl(pll->base + PLL_NUM_OFFSET);
+	u32 mfd = readl(pll->base + PLL_DENOM_OFFSET);
+	u32 div = readl(pll->base) & pll->div_mask;
+	u64 temp64 = (u64)parent_rate;
+
+	temp64 *= mfn;
+	do_div(temp64, mfd);
+
+	return parent_rate * div + (unsigned long)temp64;
+}
+
+static ulong clk_pllv3_av_set_rate(struct clk *clk, ulong rate)
+{
+	struct clk_pllv3 *pll = to_clk_pllv3(clk);
+	unsigned long parent_rate = clk_get_parent_rate(clk);
+	unsigned long min_rate = parent_rate * 27;
+	unsigned long max_rate = parent_rate * 54;
+	u32 val, div;
+	u32 mfn, mfd = 1000000;
+	u32 max_mfd = 0x3FFFFFFF;
+	u64 temp64;
+
+	if (rate < min_rate || rate > max_rate)
+		return -EINVAL;
+
+	if (parent_rate <= max_mfd)
+		mfd = parent_rate;
+
+	div = rate / parent_rate;
+	temp64 = (u64)(rate - div * parent_rate);
+	temp64 *= mfd;
+	do_div(temp64, parent_rate);
+	mfn = temp64;
+
+	val = readl(pll->base);
+	val &= ~pll->div_mask;
+	val |= div;
+	writel(val, pll->base);
+	writel(mfn, pll->base + PLL_NUM_OFFSET);
+	writel(mfd, pll->base + PLL_DENOM_OFFSET);
+
+	/* Wait for PLL to lock */
+	while (!(readl(pll->base) & BM_PLL_LOCK))
+		;
+
+	return 0;
+}
+
+static const struct clk_ops clk_pllv3_av_ops = {
+	.enable		= clk_pllv3_generic_enable,
+	.disable	= clk_pllv3_generic_disable,
+	.get_rate	= clk_pllv3_av_get_rate,
+	.set_rate	= clk_pllv3_av_set_rate,
+};
+
 struct clk *imx_clk_pllv3(enum imx_pllv3_type type, const char *name,
 			  const char *parent_name, void __iomem *base,
 			  u32 div_mask)
@@ -173,6 +237,11 @@ struct clk *imx_clk_pllv3(enum imx_pllv3_type type, const char *name,
 		drv_name = UBOOT_DM_CLK_IMX_PLLV3_USB;
 		pll->div_shift = 1;
 		pll->powerup_set = true;
+		break;
+	case IMX_PLLV3_AV:
+		drv_name = UBOOT_DM_CLK_IMX_PLLV3_AV;
+		pll->div_shift = 0;
+		pll->powerup_set = false;
 		break;
 	default:
 		kfree(pll);
@@ -210,5 +279,12 @@ U_BOOT_DRIVER(clk_pllv3_usb) = {
 	.name	= UBOOT_DM_CLK_IMX_PLLV3_USB,
 	.id	= UCLASS_CLK,
 	.ops	= &clk_pllv3_generic_ops,
+	.flags = DM_FLAG_PRE_RELOC,
+};
+
+U_BOOT_DRIVER(clk_pllv3_av) = {
+	.name	= UBOOT_DM_CLK_IMX_PLLV3_AV,
+	.id	= UCLASS_CLK,
+	.ops	= &clk_pllv3_av_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
