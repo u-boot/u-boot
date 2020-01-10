@@ -1242,6 +1242,8 @@ static struct mtk_pinctrl_soc mt7623_data = {
 	.ngrps = ARRAY_SIZE(mt7623_groups),
 	.funcs = mt7623_functions,
 	.nfuncs = ARRAY_SIZE(mt7623_functions),
+	.gpio_mode = 0,
+	.rev = MTK_PINCTRL_V1,
 };
 
 /*

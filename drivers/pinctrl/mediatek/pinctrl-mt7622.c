@@ -728,6 +728,8 @@ static struct mtk_pinctrl_soc mt7622_data = {
 	.ngrps = ARRAY_SIZE(mt7622_groups),
 	.funcs = mt7622_functions,
 	.nfuncs = ARRAY_SIZE(mt7622_functions),
+	.gpio_mode = 1,
+	.rev = MTK_PINCTRL_V0,
 };
 
 static int mtk_pinctrl_mt7622_probe(struct udevice *dev)
