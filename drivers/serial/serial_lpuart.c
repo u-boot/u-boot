@@ -483,6 +483,22 @@ static int lpuart_serial_pending(struct udevice *dev, bool input)
 
 static int lpuart_serial_probe(struct udevice *dev)
 {
+#if CONFIG_IS_ENABLED(CLK)
+	struct clk per_clk;
+	int ret;
+
+	ret = clk_get_by_name(dev, "per", &per_clk);
+	if (!ret) {
+		ret = clk_enable(&per_clk);
+		if (ret) {
+			dev_err(dev, "Failed to get per clk: %d\n", ret);
+			return ret;
+		}
+	} else {
+		dev_warn(dev, "Failed to get per clk: %d\n",  ret);
+	}
+#endif
+
 	if (is_lpuart32(dev))
 		return _lpuart32_serial_init(dev);
 	else
