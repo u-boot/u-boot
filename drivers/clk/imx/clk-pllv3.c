@@ -14,6 +14,7 @@
 #include "clk.h"
 
 #define UBOOT_DM_CLK_IMX_PLLV3_GENERIC	"imx_clk_pllv3_generic"
+#define UBOOT_DM_CLK_IMX_PLLV3_SYS	"imx_clk_pllv3_sys"
 #define UBOOT_DM_CLK_IMX_PLLV3_USB	"imx_clk_pllv3_usb"
 
 #define BM_PLL_POWER		(0x1 << 12)
@@ -102,6 +103,46 @@ static const struct clk_ops clk_pllv3_generic_ops = {
 	.set_rate	= clk_pllv3_generic_set_rate,
 };
 
+static ulong clk_pllv3_sys_get_rate(struct clk *clk)
+{
+	struct clk_pllv3 *pll = to_clk_pllv3(clk);
+	unsigned long parent_rate = clk_get_parent_rate(clk);
+	u32 div = readl(pll->base) & pll->div_mask;
+
+	return parent_rate * div / 2;
+}
+
+static ulong clk_pllv3_sys_set_rate(struct clk *clk, ulong rate)
+{
+	struct clk_pllv3 *pll = to_clk_pllv3(clk);
+	unsigned long parent_rate = clk_get_parent_rate(clk);
+	unsigned long min_rate = parent_rate * 54 / 2;
+	unsigned long max_rate = parent_rate * 108 / 2;
+	u32 val, div;
+
+	if (rate < min_rate || rate > max_rate)
+		return -EINVAL;
+
+	div = rate * 2 / parent_rate;
+	val = readl(pll->base);
+	val &= ~pll->div_mask;
+	val |= div;
+	writel(val, pll->base);
+
+	/* Wait for PLL to lock */
+	while (!(readl(pll->base) & BM_PLL_LOCK))
+		;
+
+	return 0;
+}
+
+static const struct clk_ops clk_pllv3_sys_ops = {
+	.enable 	= clk_pllv3_generic_enable,
+	.disable	= clk_pllv3_generic_disable,
+	.get_rate	= clk_pllv3_sys_get_rate,
+	.set_rate	= clk_pllv3_sys_set_rate,
+};
+
 struct clk *imx_clk_pllv3(enum imx_pllv3_type type, const char *name,
 			  const char *parent_name, void __iomem *base,
 			  u32 div_mask)
@@ -120,6 +161,11 @@ struct clk *imx_clk_pllv3(enum imx_pllv3_type type, const char *name,
 	switch (type) {
 	case IMX_PLLV3_GENERIC:
 		drv_name = UBOOT_DM_CLK_IMX_PLLV3_GENERIC;
+		pll->div_shift = 0;
+		pll->powerup_set = false;
+		break;
+	case IMX_PLLV3_SYS:
+		drv_name = UBOOT_DM_CLK_IMX_PLLV3_SYS;
 		pll->div_shift = 0;
 		pll->powerup_set = false;
 		break;
@@ -150,6 +196,13 @@ U_BOOT_DRIVER(clk_pllv3_generic) = {
 	.name	= UBOOT_DM_CLK_IMX_PLLV3_GENERIC,
 	.id	= UCLASS_CLK,
 	.ops	= &clk_pllv3_generic_ops,
+	.flags = DM_FLAG_PRE_RELOC,
+};
+
+U_BOOT_DRIVER(clk_pllv3_sys) = {
+	.name	= UBOOT_DM_CLK_IMX_PLLV3_SYS,
+	.id	= UCLASS_CLK,
+	.ops	= &clk_pllv3_sys_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
