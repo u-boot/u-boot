@@ -49,13 +49,6 @@ void detail_board_ddr_info(void)
 #endif
 }
 
-#if defined(CONFIG_ARCH_MISC_INIT)
-int arch_misc_init(void)
-{
-	return 0;
-}
-#endif
-
 int board_eth_init(bd_t *bis)
 {
 	int error = 0;
