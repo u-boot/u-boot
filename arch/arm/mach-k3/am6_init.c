@@ -19,6 +19,26 @@
 #include <linux/soc/ti/ti_sci_protocol.h>
 
 #ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_K3_LOAD_SYSFW
+#ifdef CONFIG_TI_SECURE_DEVICE
+struct fwl_data main_cbass_fwls[] = {
+	{ "MMCSD1_CFG", 2057, 1 },
+	{ "MMCSD0_CFG", 2058, 1 },
+	{ "USB3SS0_SLV0", 2176, 2 },
+	{ "PCIE0_SLV", 2336, 8 },
+	{ "PCIE1_SLV", 2337, 8 },
+	{ "PCIE0_CFG", 2688, 1 },
+	{ "PCIE1_CFG", 2689, 1 },
+}, mcu_cbass_fwls[] = {
+	{ "MCU_ARMSS0_CORE0_SLV", 1024, 1 },
+	{ "MCU_ARMSS0_CORE1_SLV", 1028, 1 },
+	{ "MCU_FSS0_S1", 1033, 8 },
+	{ "MCU_FSS0_S0", 1036, 8 },
+	{ "MCU_CPSW0", 1220, 1 },
+};
+#endif
+#endif
+
 static void mmr_unlock(u32 base, u32 partition)
 {
 	/* Translate the base address */
@@ -109,6 +129,12 @@ void board_init_f(ulong dummy)
 	 * output.
 	 */
 	k3_sysfw_loader(preloader_console_init);
+
+	/* Disable ROM configured firewalls right after loading sysfw */
+#ifdef CONFIG_TI_SECURE_DEVICE
+	remove_fwl_configs(main_cbass_fwls, ARRAY_SIZE(main_cbass_fwls));
+	remove_fwl_configs(mcu_cbass_fwls, ARRAY_SIZE(mcu_cbass_fwls));
+#endif
 #else
 	/* Prepare console output */
 	preloader_console_init();
