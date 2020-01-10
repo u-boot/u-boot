@@ -13,6 +13,14 @@ config MT8512
 choice
 	prompt "MediaTek board select"
 
+config TARGET_MT7622
+	bool "MediaTek MT7622 SoC"
+	select ARM64
+	help
+	  The MediaTek MT7622 is a ARM64-based SoC with a dual-core Cortex-A53.
+	  including UART, SPI, USB3.0, SD and MMC cards, NAND, SNFI, PWM, PCIe,
+	  Gigabit Ethernet, I2C, built-in Wi-Fi, and PCIe.
+
 config TARGET_MT7623
 	bool "MediaTek MT7623 SoC"
 	select CPU_V7A
@@ -63,6 +71,7 @@ config TARGET_MT8518
 
 endchoice
 
+source "board/mediatek/mt7622/Kconfig"
 source "board/mediatek/mt7623/Kconfig"
 source "board/mediatek/mt7629/Kconfig"
 source "board/mediatek/mt8512/Kconfig"

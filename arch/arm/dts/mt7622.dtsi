@@ -1,0 +1,185 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (c) 2019 MediaTek Inc.
+ * Author: Sam Shih <sam.shih@mediatek.com>
+ */
+
+#include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+#include <dt-bindings/clock/mt7622-clk.h>
+
+/ {
+	compatible = "mediatek,mt7622";
+	interrupt-parent = <&sysirq>;
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		cpu0: cpu@0 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a53";
+			reg = <0x0>;
+			clock-frequency = <1300000000>;
+		};
+
+		cpu1: cpu@1 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a53";
+			reg = <0x1>;
+			clock-frequency = <1300000000>;
+		};
+	};
+
+	snfi: snfi@1100d000 {
+		compatible = "mediatek,mtk-snfi-spi";
+		reg = <0x1100d000 0x2000>;
+		clocks = <&pericfg CLK_PERI_NFI_PD>,
+			 <&pericfg CLK_PERI_SNFI_PD>;
+		clock-names = "nfi_clk", "pad_clk";
+		assigned-clocks = <&topckgen CLK_TOP_AXI_SEL>,
+				  <&topckgen CLK_TOP_NFI_INFRA_SEL>;
+
+		assigned-clock-parents = <&topckgen CLK_TOP_SYSPLL1_D2>,
+					 <&topckgen CLK_TOP_UNIVPLL2_D8>;
+		status = "disabled";
+		#address-cells = <1>;
+		#size-cells = <0>;
+	};
+
+	timer {
+		compatible = "arm,armv8-timer";
+		interrupt-parent = <&gic>;
+		interrupts = <GIC_PPI 13 (GIC_CPU_MASK_SIMPLE(2) |
+			      IRQ_TYPE_LEVEL_HIGH)>,
+			     <GIC_PPI 14 (GIC_CPU_MASK_SIMPLE(2) |
+			      IRQ_TYPE_LEVEL_HIGH)>,
+			     <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(2) |
+			      IRQ_TYPE_LEVEL_HIGH)>,
+			     <GIC_PPI 10 (GIC_CPU_MASK_SIMPLE(2) |
+			      IRQ_TYPE_LEVEL_HIGH)>;
+		arm,cpu-registers-not-fw-configured;
+	};
+
+	timer0: timer@10004000 {
+		compatible = "mediatek,timer";
+		reg = <0x10004000 0x80>;
+		interrupts = <GIC_SPI 152 IRQ_TYPE_LEVEL_LOW>;
+		clocks = <&system_clk>;
+		clock-names = "system-clk";
+	};
+
+	system_clk: dummy13m {
+		compatible = "fixed-clock";
+		clock-frequency = <13000000>;
+		#clock-cells = <0>;
+	};
+
+	infracfg: infracfg@10000000 {
+		compatible = "mediatek,mt7622-infracfg",
+			     "syscon";
+		reg = <0x10000000 0x1000>;
+		#clock-cells = <1>;
+		#reset-cells = <1>;
+	};
+
+	pericfg: pericfg@10002000 {
+		compatible = "mediatek,mt7622-pericfg", "syscon";
+		reg = <0x10002000 0x1000>;
+		#clock-cells = <1>;
+	};
+
+	scpsys: scpsys@10006000 {
+		compatible = "mediatek,mt7622-scpsys",
+			     "syscon";
+		#power-domain-cells = <1>;
+		reg = <0x10006000 0x1000>;
+		interrupts = <GIC_SPI 165 IRQ_TYPE_LEVEL_LOW>,
+			     <GIC_SPI 166 IRQ_TYPE_LEVEL_LOW>,
+			     <GIC_SPI 167 IRQ_TYPE_LEVEL_LOW>,
+			     <GIC_SPI 168 IRQ_TYPE_LEVEL_LOW>;
+		infracfg = <&infracfg>;
+		clocks = <&topckgen CLK_TOP_HIF_SEL>;
+		clock-names = "hif_sel";
+	};
+
+	sysirq: interrupt-controller@10200620 {
+		compatible = "mediatek,sysirq";
+		reg = <0x10200620 0x20>;
+		interrupt-controller;
+		#interrupt-cells = <3>;
+		interrupt-parent = <&gic>;
+	};
+
+	apmixedsys: apmixedsys@10209000 {
+		compatible = "mediatek,mt7622-apmixedsys";
+		reg = <0x10209000 0x1000>;
+		#clock-cells = <1>;
+	};
+
+	topckgen: topckgen@10210000 {
+		compatible = "mediatek,mt7622-topckgen";
+		reg = <0x10210000 0x1000>;
+		#clock-cells = <1>;
+	};
+
+	pinctrl: pinctrl@10211000 {
+		compatible = "mediatek,mt7622-pinctrl";
+		reg = <0x10211000 0x1000>;
+		gpio: gpio-controller {
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
+	};
+
+	watchdog: watchdog@10212000 {
+		compatible = "mediatek,wdt";
+		reg = <0x10212000 0x800>;
+	};
+
+	gic: interrupt-controller@10300000 {
+		compatible = "arm,gic-400";
+		interrupt-controller;
+		#interrupt-cells = <3>;
+		interrupt-parent = <&gic>;
+		reg = <0x10310000 0x1000>,
+		      <0x10320000 0x1000>,
+		      <0x10340000 0x2000>,
+		      <0x10360000 0x2000>;
+	};
+
+	uart0: serial@11002000 {
+		compatible = "mediatek,hsuart";
+		reg = <0x11002000 0x400>;
+		reg-shift = <2>;
+		interrupts = <GIC_SPI 91 IRQ_TYPE_LEVEL_LOW>;
+		clocks = <&topckgen CLK_TOP_UART_SEL>,
+			 <&pericfg CLK_PERI_UART0_PD>;
+		clock-names = "baud", "bus";
+		status = "disabled";
+		assigned-clocks = <&topckgen CLK_TOP_AXI_SEL>;
+		assigned-clock-parents = <&topckgen CLK_TOP_SYSPLL1_D2>;
+	};
+
+	mmc0: mmc@11230000 {
+		compatible = "mediatek,mt7622-mmc";
+		reg = <0x11230000 0x1000>;
+		interrupts = <GIC_SPI 79 IRQ_TYPE_LEVEL_LOW>;
+		clocks = <&pericfg CLK_PERI_MSDC30_0_PD>,
+			 <&topckgen CLK_TOP_MSDC50_0_SEL>;
+		clock-names = "source", "hclk";
+		status = "disabled";
+	};
+
+	mmc1: mmc@11240000 {
+		compatible = "mediatek,mt7622-mmc";
+		reg = <0x11240000 0x1000>;
+		interrupts = <GIC_SPI 80 IRQ_TYPE_LEVEL_LOW>;
+		clocks = <&pericfg CLK_PERI_MSDC30_1_PD>,
+			 <&topckgen CLK_TOP_AXI_SEL>;
+		clock-names = "source", "hclk";
+		status = "disabled";
+	};
+};
