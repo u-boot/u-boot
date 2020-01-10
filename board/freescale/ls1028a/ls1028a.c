@@ -109,8 +109,8 @@ int board_eth_init(bd_t *bis)
 	return pci_eth_init(bis);
 }
 
-#if defined(CONFIG_ARCH_MISC_INIT)
-int arch_misc_init(void)
+#ifdef CONFIG_MISC_INIT_R
+int misc_init_r(void)
 {
 	config_board_mux();
 
