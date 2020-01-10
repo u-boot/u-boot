@@ -24,6 +24,7 @@
 #include <fm_eth.h>
 
 #include "../common/common.h"
+#include "../common/qrio.h"
 #include "kmp204x.h"
 
 static uchar ivm_content[CONFIG_SYS_IVM_EEPROM_MAX_LEN];
@@ -34,51 +35,6 @@ int checkboard(void)
 
 	return 0;
 }
-
-/* I2C deblocking uses the algorithm defined in board/keymile/common/common.c
- * 2 dedicated QRIO GPIOs externally pull the SCL and SDA lines
- * For I2C only the low state is activly driven and high state is pulled-up
- * by a resistor. Therefore the deblock GPIOs are used
- *  -> as an active output to drive a low state
- *  -> as an open-drain input to have a pulled-up high state
- */
-
-/* QRIO GPIOs used for deblocking */
-#define DEBLOCK_PORT1	GPIO_A
-#define DEBLOCK_SCL1	20
-#define DEBLOCK_SDA1	21
-
-/* By default deblock GPIOs are floating */
-static void i2c_deblock_gpio_cfg(void)
-{
-	/* set I2C bus 1 deblocking GPIOs input, but 0 value for open drain */
-	qrio_gpio_direction_input(DEBLOCK_PORT1, DEBLOCK_SCL1);
-	qrio_gpio_direction_input(DEBLOCK_PORT1, DEBLOCK_SDA1);
-
-	qrio_set_gpio(DEBLOCK_PORT1, DEBLOCK_SCL1, 0);
-	qrio_set_gpio(DEBLOCK_PORT1, DEBLOCK_SDA1, 0);
-}
-
-void set_sda(int state)
-{
-	qrio_set_opendrain_gpio(DEBLOCK_PORT1, DEBLOCK_SDA1, state);
-}
-
-void set_scl(int state)
-{
-	qrio_set_opendrain_gpio(DEBLOCK_PORT1, DEBLOCK_SCL1, state);
-}
-
-int get_sda(void)
-{
-	return qrio_get_gpio(DEBLOCK_PORT1, DEBLOCK_SDA1);
-}
-
-int get_scl(void)
-{
-	return qrio_get_gpio(DEBLOCK_PORT1, DEBLOCK_SCL1);
-}
-
 
 #define ZL30158_RST	8
 #define BFTIC4_RST	0
@@ -297,7 +253,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 #if defined(CONFIG_POST)
 
 /* DIC26_SELFTEST GPIO used to start factory test sw */
-#define SELFTEST_PORT	GPIO_A
+#define SELFTEST_PORT	QRIO_GPIO_A
 #define SELFTEST_PIN	31
 
 int post_hotkeys_pressed(void)

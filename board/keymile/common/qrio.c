@@ -6,8 +6,8 @@
 
 #include <common.h>
 
-#include "../common/common.h"
-#include "kmp204x.h"
+#include "common.h"
+#include "qrio.h"
 
 /* QRIO GPIO register offsets */
 #define DIRECT_OFF		0x18
@@ -135,10 +135,10 @@ void qrio_prstcfg(u8 bit, u8 mode)
 	prstcfg = in_be32(qrio_base + PRSTCFG_OFF);
 
 	for (i = 0; i < 2; i++) {
-		if (mode & (1<<i))
-			set_bit(2*bit+i, &prstcfg);
+		if (mode & (1 << i))
+			set_bit(2 * bit + i, &prstcfg);
 		else
-			clear_bit(2*bit+i, &prstcfg);
+			clear_bit(2 * bit + i, &prstcfg);
 	}
 
 	out_be32(qrio_base + PRSTCFG_OFF, prstcfg);
@@ -180,12 +180,38 @@ void qrio_cpuwd_flag(bool flag)
 {
 	u8 reason1;
 	void __iomem *qrio_base = (void *)CONFIG_SYS_QRIO_BASE;
+
 	reason1 = in_8(qrio_base + REASON1_OFF);
 	if (flag)
 		reason1 |= REASON1_CPUWD;
 	else
 		reason1 &= ~REASON1_CPUWD;
 	out_8(qrio_base + REASON1_OFF, reason1);
+}
+
+#define REASON0_OFF	0x13
+#define REASON0_SWURST	0x80
+#define REASON0_CPURST	0x40
+#define REASON0_BPRST	0x20
+#define REASON0_COPRST	0x10
+#define REASON0_SWCRST	0x08
+#define REASON0_WDRST	0x04
+#define REASON0_KBRST	0x02
+#define REASON0_POWUP	0x01
+#define UNIT_RESET\
+	((REASON1_CPUWD << 8) |\
+	REASON0_POWUP | REASON0_COPRST | REASON0_KBRST |\
+	REASON0_BPRST | REASON0_SWURST | REASON0_WDRST)
+#define CORE_RESET      REASON0_SWCRST
+
+bool qrio_reason_unitrst(void)
+{
+	u16 reason;
+	void __iomem *qrio_base = (void *)CONFIG_SYS_QRIO_BASE;
+
+	reason = in_be16(qrio_base + REASON1_OFF);
+
+	return (reason & UNIT_RESET) > 0;
 }
 
 #define RSTCFG_OFF	0x11
@@ -204,3 +230,51 @@ void qrio_uprstreq(u8 mode)
 
 	out_8(qrio_base + RSTCFG_OFF, rstcfg);
 }
+
+/* I2C deblocking uses the algorithm defined in board/keymile/common/common.c
+ * 2 dedicated QRIO GPIOs externally pull the SCL and SDA lines
+ * For I2C only the low state is activly driven and high state is pulled-up
+ * by a resistor. Therefore the deblock GPIOs are used
+ *  -> as an active output to drive a low state
+ *  -> as an open-drain input to have a pulled-up high state
+ */
+
+/* By default deblock GPIOs are floating */
+void i2c_deblock_gpio_cfg(void)
+{
+	/* set I2C bus 1 deblocking GPIOs input, but 0 value for open drain */
+	qrio_gpio_direction_input(KM_I2C_DEBLOCK_PORT,
+				  KM_I2C_DEBLOCK_SCL);
+	qrio_gpio_direction_input(KM_I2C_DEBLOCK_PORT,
+				  KM_I2C_DEBLOCK_SDA);
+
+	qrio_set_gpio(KM_I2C_DEBLOCK_PORT,
+		      KM_I2C_DEBLOCK_SCL, 0);
+	qrio_set_gpio(KM_I2C_DEBLOCK_PORT,
+		      KM_I2C_DEBLOCK_SDA, 0);
+}
+
+void set_sda(int state)
+{
+	qrio_set_opendrain_gpio(KM_I2C_DEBLOCK_PORT,
+				KM_I2C_DEBLOCK_SDA, state);
+}
+
+void set_scl(int state)
+{
+	qrio_set_opendrain_gpio(KM_I2C_DEBLOCK_PORT,
+				KM_I2C_DEBLOCK_SCL, state);
+}
+
+int get_sda(void)
+{
+	return qrio_get_gpio(KM_I2C_DEBLOCK_PORT,
+			     KM_I2C_DEBLOCK_SDA);
+}
+
+int get_scl(void)
+{
+	return qrio_get_gpio(KM_I2C_DEBLOCK_PORT,
+			     KM_I2C_DEBLOCK_SCL);
+}
+

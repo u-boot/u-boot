@@ -224,6 +224,10 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_KM_CONSOLE_TTY	"ttyS0"
 
 /* I2C */
+/* QRIO GPIOs used for deblocking */
+#define KM_I2C_DEBLOCK_PORT     QRIO_GPIO_A
+#define KM_I2C_DEBLOCK_SCL      20
+#define KM_I2C_DEBLOCK_SDA      21
 
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_INIT_BOARD

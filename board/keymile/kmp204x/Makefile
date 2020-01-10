@@ -6,5 +6,5 @@
 # See file CREDITS for list of people who contributed to this
 # project.
 
-obj-y	:= kmp204x.o ddr.o eth.o tlb.o pci.o law.o qrio.o \
-	../common/common.o ../common/ivm.o
+obj-y	:= kmp204x.o ddr.o eth.o tlb.o pci.o law.o ../common/common.o\
+		../common/ivm.o ../common/qrio.o
