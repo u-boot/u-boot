@@ -54,9 +54,25 @@ static int clk_pllv3_generic_enable(struct clk *clk)
 	return 0;
 }
 
+static int clk_pllv3_generic_disable(struct clk *clk)
+{
+	struct clk_pllv3 *pll = to_clk_pllv3(clk);
+	u32 val;
+
+	val = readl(pll->base);
+	if (pll->powerup_set)
+		val &= ~pll->power_bit;
+	else
+		val |= pll->power_bit;
+	writel(val, pll->base);
+
+	return 0;
+}
+
 static const struct clk_ops clk_pllv3_generic_ops = {
 	.get_rate	= clk_pllv3_generic_get_rate,
 	.enable		= clk_pllv3_generic_enable,
+	.disable	= clk_pllv3_generic_disable,
 };
 
 struct clk *imx_clk_pllv3(enum imx_pllv3_type type, const char *name,
