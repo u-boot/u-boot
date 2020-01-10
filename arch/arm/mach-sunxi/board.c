@@ -221,12 +221,22 @@ void s_init(void)
 	eth_init_board();
 }
 
+#define SUNXI_INVALID_BOOT_SOURCE	-1
+
+static int sunxi_get_boot_source(void)
+{
+	if (!is_boot0_magic(SPL_ADDR + 4)) /* eGON.BT0 */
+		return SUNXI_INVALID_BOOT_SOURCE;
+
+	return readb(SPL_ADDR + 0x28);
+}
+
 /* The sunxi internal brom will try to loader external bootloader
  * from mmc0, nand flash, mmc2.
  */
 uint32_t sunxi_get_boot_device(void)
 {
-	int boot_source;
+	int boot_source = sunxi_get_boot_source();
 
 	/*
 	 * When booting from the SD card or NAND memory, the "eGON.BT0"
@@ -244,11 +254,9 @@ uint32_t sunxi_get_boot_device(void)
 	 * binary over USB. If it is found, it determines where SPL was
 	 * read from.
 	 */
-	if (!is_boot0_magic(SPL_ADDR + 4)) /* eGON.BT0 */
-		return BOOT_DEVICE_BOARD;
-
-	boot_source = readb(SPL_ADDR + 0x28);
 	switch (boot_source) {
+	case SUNXI_INVALID_BOOT_SOURCE:
+		return BOOT_DEVICE_BOARD;
 	case SUNXI_BOOTED_FROM_MMC0:
 	case SUNXI_BOOTED_FROM_MMC0_HIGH:
 		return BOOT_DEVICE_MMC1;
