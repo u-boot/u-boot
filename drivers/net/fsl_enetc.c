@@ -185,16 +185,34 @@ static int enetc_init_rgmii(struct udevice *dev)
 	return 0;
 }
 
-/* set up MAC and serdes for SXGMII */
-static int enetc_init_sxgmii(struct udevice *dev)
+/* set up MAC configuration for the given interface type */
+static void enetc_setup_mac_iface(struct udevice *dev)
 {
 	struct enetc_priv *priv = dev_get_priv(dev);
 	u32 if_mode;
 
-	/* set ifmode to (US)XGMII */
-	if_mode = enetc_read_port(priv, ENETC_PM_IF_MODE);
-	if_mode &= ~ENETC_PM_IF_IFMODE_MASK;
-	enetc_write_port(priv, ENETC_PM_IF_MODE, if_mode);
+	switch (priv->if_type) {
+	case PHY_INTERFACE_MODE_RGMII:
+	case PHY_INTERFACE_MODE_RGMII_ID:
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+	case PHY_INTERFACE_MODE_RGMII_TXID:
+		enetc_init_rgmii(dev);
+		break;
+	case PHY_INTERFACE_MODE_XGMII:
+	case PHY_INTERFACE_MODE_USXGMII:
+	case PHY_INTERFACE_MODE_XFI:
+		/* set ifmode to (US)XGMII */
+		if_mode = enetc_read_port(priv, ENETC_PM_IF_MODE);
+		if_mode &= ~ENETC_PM_IF_IFMODE_MASK;
+		enetc_write_port(priv, ENETC_PM_IF_MODE, if_mode);
+		break;
+	};
+}
+
+/* set up serdes for SXGMII */
+static int enetc_init_sxgmii(struct udevice *dev)
+{
+	struct enetc_priv *priv = dev_get_priv(dev);
 
 	if (!enetc_has_imdio(dev))
 		return 0;
@@ -524,11 +542,7 @@ static int enetc_start(struct udevice *dev)
 	enetc_setup_tx_bdr(dev);
 	enetc_setup_rx_bdr(dev);
 
-	if (priv->if_type == PHY_INTERFACE_MODE_RGMII ||
-	    priv->if_type == PHY_INTERFACE_MODE_RGMII_ID ||
-	    priv->if_type == PHY_INTERFACE_MODE_RGMII_RXID ||
-	    priv->if_type == PHY_INTERFACE_MODE_RGMII_TXID)
-		enetc_init_rgmii(dev);
+	enetc_setup_mac_iface(dev);
 
 	if (priv->phy)
 		phy_startup(priv->phy);
