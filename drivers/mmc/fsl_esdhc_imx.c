@@ -78,7 +78,7 @@ struct fsl_esdhc {
 	uint    vendorspec;
 	uint    mmcboot;
 	uint    vendorspec2;
-	uint    tuning_ctrl;	/* on i.MX6/7/8 */
+	uint    tuning_ctrl;	/* on i.MX6/7/8/RT */
 	char	reserved5[44];
 	uint    hostver;	/* Host controller version register */
 	char    reserved6[4];	/* reserved */
@@ -1660,6 +1660,7 @@ static const struct udevice_id fsl_esdhc_ids[] = {
 	{ .compatible = "fsl,imx8mm-usdhc", .data = (ulong)&usdhc_imx8qm_data,},
 	{ .compatible = "fsl,imx8mn-usdhc", .data = (ulong)&usdhc_imx8qm_data,},
 	{ .compatible = "fsl,imx8mq-usdhc", .data = (ulong)&usdhc_imx8qm_data,},
+	{ .compatible = "fsl,imxrt-usdhc", },
 	{ .compatible = "fsl,esdhc", },
 	{ /* sentinel */ }
 };
