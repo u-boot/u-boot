@@ -13,7 +13,8 @@
 #include <clk.h>
 #include "clk.h"
 
-#define UBOOT_DM_CLK_IMX_PLLV3 "imx_clk_pllv3"
+#define UBOOT_DM_CLK_IMX_PLLV3_GENERIC	"imx_clk_pllv3_generic"
+#define UBOOT_DM_CLK_IMX_PLLV3_USB	"imx_clk_pllv3_usb"
 
 struct clk_pllv3 {
 	struct clk	clk;
@@ -24,7 +25,7 @@ struct clk_pllv3 {
 
 #define to_clk_pllv3(_clk) container_of(_clk, struct clk_pllv3, clk)
 
-static ulong clk_pllv3_get_rate(struct clk *clk)
+static ulong clk_pllv3_generic_get_rate(struct clk *clk)
 {
 	struct clk_pllv3 *pll = to_clk_pllv3(dev_get_clk_ptr(clk->dev));
 	unsigned long parent_rate = clk_get_parent_rate(clk);
@@ -35,7 +36,7 @@ static ulong clk_pllv3_get_rate(struct clk *clk)
 }
 
 static const struct clk_ops clk_pllv3_generic_ops = {
-	.get_rate       = clk_pllv3_get_rate,
+	.get_rate	= clk_pllv3_generic_get_rate,
 };
 
 struct clk *imx_clk_pllv3(enum imx_pllv3_type type, const char *name,
@@ -53,8 +54,10 @@ struct clk *imx_clk_pllv3(enum imx_pllv3_type type, const char *name,
 
 	switch (type) {
 	case IMX_PLLV3_GENERIC:
+		drv_name = UBOOT_DM_CLK_IMX_PLLV3_GENERIC;
+		break;
 	case IMX_PLLV3_USB:
-		drv_name = UBOOT_DM_CLK_IMX_PLLV3;
+		drv_name = UBOOT_DM_CLK_IMX_PLLV3_USB;
 		break;
 	default:
 		kfree(pll);
@@ -75,7 +78,14 @@ struct clk *imx_clk_pllv3(enum imx_pllv3_type type, const char *name,
 }
 
 U_BOOT_DRIVER(clk_pllv3_generic) = {
-	.name	= UBOOT_DM_CLK_IMX_PLLV3,
+	.name	= UBOOT_DM_CLK_IMX_PLLV3_GENERIC,
+	.id	= UCLASS_CLK,
+	.ops	= &clk_pllv3_generic_ops,
+	.flags = DM_FLAG_PRE_RELOC,
+};
+
+U_BOOT_DRIVER(clk_pllv3_usb) = {
+	.name	= UBOOT_DM_CLK_IMX_PLLV3_USB,
 	.id	= UCLASS_CLK,
 	.ops	= &clk_pllv3_generic_ops,
 	.flags = DM_FLAG_PRE_RELOC,
