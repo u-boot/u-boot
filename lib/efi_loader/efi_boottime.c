@@ -2779,7 +2779,7 @@ static void EFIAPI efi_set_mem(void *buffer, size_t size, uint8_t value)
  *
  * Return: status code
  */
-static efi_status_t efi_protocol_open(
+efi_status_t efi_protocol_open(
 			struct efi_handler *handler,
 			void **protocol_interface, void *agent_handle,
 			void *controller_handle, uint32_t attributes)
