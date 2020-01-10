@@ -17,6 +17,7 @@
 #define UBOOT_DM_CLK_IMX_PLLV3_USB	"imx_clk_pllv3_usb"
 
 #define BM_PLL_POWER		(0x1 << 12)
+#define BM_PLL_LOCK		(0x1 << 31)
 
 struct clk_pllv3 {
 	struct clk	clk;
@@ -37,6 +38,31 @@ static ulong clk_pllv3_generic_get_rate(struct clk *clk)
 	u32 div = (readl(pll->base) >> pll->div_shift) & pll->div_mask;
 
 	return (div == 1) ? parent_rate * 22 : parent_rate * 20;
+}
+
+static ulong clk_pllv3_generic_set_rate(struct clk *clk, ulong rate)
+{
+	struct clk_pllv3 *pll = to_clk_pllv3(clk);
+	unsigned long parent_rate = clk_get_parent_rate(clk);
+	u32 val, div;
+
+	if (rate == parent_rate * 22)
+		div = 1;
+	else if (rate == parent_rate * 20)
+		div = 0;
+	else
+		return -EINVAL;
+
+	val = readl(pll->base);
+	val &= ~(pll->div_mask << pll->div_shift);
+	val |= (div << pll->div_shift);
+	writel(val, pll->base);
+
+	/* Wait for PLL to lock */
+	while (!(readl(pll->base) & BM_PLL_LOCK))
+		;
+
+	return 0;
 }
 
 static int clk_pllv3_generic_enable(struct clk *clk)
@@ -73,6 +99,7 @@ static const struct clk_ops clk_pllv3_generic_ops = {
 	.get_rate	= clk_pllv3_generic_get_rate,
 	.enable		= clk_pllv3_generic_enable,
 	.disable	= clk_pllv3_generic_disable,
+	.set_rate	= clk_pllv3_generic_set_rate,
 };
 
 struct clk *imx_clk_pllv3(enum imx_pllv3_type type, const char *name,
