@@ -4,10 +4,11 @@ altbootcmd=run ${subbootcmds}
 bootcmd=run ${subbootcmds}
 subbootcmds=tftpfdt tftpkernel setrootfsaddr tftpramfs flashargs add_default addpanic addramfs boot
 nfsargs=setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath}
-configure=run set_uimage; km_setboardid && saveenv && reset
+configure=run set_uimage; run set_tftppath; km_setboardid && saveenv && reset
 rootfsfile=${hostname}/rootfsImage
 setrootfsaddr=setexpr value ${pnvramaddr} - ${rootfssize} && setenv rootfsaddr 0x${value}
-tftpfdt=if run set_fdthigh || test ${arch} != arm; then tftpboot ${fdt_addr_r} ${hostname}/${hostname}.dtb; else true; fi
-tftpkernel=tftpboot ${load_addr_r} ${hostname}/${uimage}
-tftpramfs=tftpboot ${rootfsaddr} ${hostname}/rootfsImage
+tftpfdt=if run set_fdthigh || test ${arch} != arm; then if tftpboot ${fdt_addr_r} ${tftppath}/fdt_0x${IVM_BoardId}_0x${IVM_HWKey}.dtb; then; else tftpboot ${fdt_addr_r} ${tftppath}/${hostname}.dtb; fi; else true; fi
+tftpkernel=tftpboot ${load_addr_r} ${tftppath}/${uimage}
+tftpramfs=tftpboot ${rootfsaddr} ${tftppath}/rootfsImage
 set_uimage=printenv uimage || setenv uimage uImage
+set_tftppath=if test ${hostname} = kmcoge5un; then setenv tftppath CI5UN; else if test ${hostname} = kmcoge5ne; then setenv tftppath CI5NE; else setenv tftppath ${IVM_Symbol}; fi; fi
