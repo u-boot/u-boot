@@ -1,0 +1,17 @@
+if TARGET_MT7622
+
+config SYS_BOARD
+	default "mt7622"
+
+config SYS_CONFIG_NAME
+	default "mt7622"
+
+config MTK_BROM_HEADER_INFO
+	string
+	default "lk=1"
+
+config MTK_BROM_HEADER_INFO
+	string
+	default "media=nor"
+
+endif
