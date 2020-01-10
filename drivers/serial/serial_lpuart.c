@@ -49,7 +49,7 @@
 #define FIFO_RXSIZE_MASK	0x7
 #define FIFO_RXSIZE_OFF	0
 #define FIFO_TXFE		0x80
-#ifdef CONFIG_ARCH_IMX8
+#if defined(CONFIG_ARCH_IMX8) || defined(CONFIG_ARCH_IMXRT)
 #define FIFO_RXFE		0x08
 #else
 #define FIFO_RXFE		0x40
@@ -67,7 +67,8 @@ enum lpuart_devtype {
 	DEV_VF610 = 1,
 	DEV_LS1021A,
 	DEV_MX7ULP,
-	DEV_IMX8
+	DEV_IMX8,
+	DEV_IMXRT,
 };
 
 struct lpuart_serial_platdata {
@@ -409,7 +410,8 @@ static int _lpuart32_serial_init(struct udevice *dev)
 
 	lpuart_write32(plat->flags, &base->match, 0);
 
-	if (plat->devtype == DEV_MX7ULP || plat->devtype == DEV_IMX8) {
+	if (plat->devtype == DEV_MX7ULP || plat->devtype == DEV_IMX8 ||
+	    plat->devtype == DEV_IMXRT) {
 		_lpuart32_serial_setbrg_7ulp(dev, gd->baudrate);
 	} else {
 		/* provide data bits, parity, stop bit, etc */
@@ -426,7 +428,8 @@ static int lpuart_serial_setbrg(struct udevice *dev, int baudrate)
 	struct lpuart_serial_platdata *plat = dev_get_platdata(dev);
 
 	if (is_lpuart32(dev)) {
-		if (plat->devtype == DEV_MX7ULP || plat->devtype == DEV_IMX8)
+		if (plat->devtype == DEV_MX7ULP || plat->devtype == DEV_IMX8 ||
+		    plat->devtype == DEV_IMXRT)
 			_lpuart32_serial_setbrg_7ulp(dev, baudrate);
 		else
 			_lpuart32_serial_setbrg(dev, baudrate);
@@ -530,6 +533,8 @@ static int lpuart_serial_ofdata_to_platdata(struct udevice *dev)
 		plat->devtype = DEV_VF610;
 	else if (!fdt_node_check_compatible(blob, node, "fsl,imx8qm-lpuart"))
 		plat->devtype = DEV_IMX8;
+	else if (!fdt_node_check_compatible(blob, node, "fsl,imxrt-lpuart"))
+		plat->devtype = DEV_IMXRT;
 
 	return 0;
 }
@@ -548,6 +553,8 @@ static const struct udevice_id lpuart_serial_ids[] = {
 		.data = LPUART_FLAG_REGMAP_32BIT_REG },
 	{ .compatible = "fsl,vf610-lpuart"},
 	{ .compatible = "fsl,imx8qm-lpuart",
+		.data = LPUART_FLAG_REGMAP_32BIT_REG },
+	{ .compatible = "fsl,imxrt-lpuart",
 		.data = LPUART_FLAG_REGMAP_32BIT_REG },
 	{ }
 };
