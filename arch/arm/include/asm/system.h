@@ -254,6 +254,7 @@ void mmu_change_region_attr(phys_addr_t start, size_t size, u64 attrs);
 void smc_call(struct pt_regs *args);
 
 void __noreturn psci_system_reset(void);
+void __noreturn psci_system_reset2(u32 reset_level, u32 cookie);
 void __noreturn psci_system_off(void);
 
 #ifdef CONFIG_ARMV8_PSCI

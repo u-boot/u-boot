@@ -8,6 +8,7 @@
 
 	aliases {
 		serial0 = &uart0;
+		fec0 = &fec0;
 	};
 
 	soc {
@@ -37,6 +38,15 @@
 			uart2: uart@280 {
 				compatible = "fsl,mcf-uart";
 				reg = <0x280 0x40>;
+				status = "disabled";
+			};
+
+			fec0: ethernet@1000 {
+				compatible = "fsl,mcf-fec";
+				reg = <0x1000 0x400>;
+				mii-base = <0>;
+				max-speed = <100>;
+				timeout-loop = <50000>;
 				status = "disabled";
 			};
 		};

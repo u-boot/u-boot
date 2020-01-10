@@ -87,7 +87,6 @@ CONFIG_SYS_FEC0_MIIBASE	-- Set FEC0 MII base register
 MCFFEC_TOUT_LOOP	-- set FEC timeout loop
 
 CONFIG_MCFTMR		-- define to use DMA timer
-CONFIG_MCFPIT		-- define to use PIT timer
 
 CONFIG_SYS_I2C_FSL	-- define to use FSL common I2C driver
 CONFIG_SYS_I2C_SOFT	-- define for I2C bit-banged

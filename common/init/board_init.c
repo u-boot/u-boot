@@ -19,6 +19,19 @@ __weak void arch_setup_gd(struct global_data *gd_ptr)
 #endif /* !CONFIG_X86 && !CONFIG_ARM */
 
 /**
+ * This function is called from board_init_f_init_reserve to set up
+ * gd->start_addr_sp for stack protection if not already set otherwise
+ */
+__weak void board_init_f_init_stack_protection_addr(ulong base)
+{
+#if CONFIG_IS_ENABLED(SYS_REPORT_STACK_F_USAGE)
+	/* set up stack pointer for stack usage if not set yet */
+	if (!gd->start_addr_sp)
+		gd->start_addr_sp = base;
+#endif
+}
+
+/**
  * This function is called after the position of the initial stack is
  * determined in gd->start_addr_sp. Boards can override it to set up
  * stack-checking markers.
@@ -129,6 +142,10 @@ void board_init_f_init_reserve(ulong base)
 #if !defined(CONFIG_ARM)
 	arch_setup_gd(gd_ptr);
 #endif
+
+	if (CONFIG_IS_ENABLED(SYS_REPORT_STACK_F_USAGE))
+		board_init_f_init_stack_protection_addr(base);
+
 	/* next alloc will be higher by one GD plus 16-byte alignment */
 	base += roundup(sizeof(struct global_data), 16);
 

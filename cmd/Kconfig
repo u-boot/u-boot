@@ -364,8 +364,8 @@ config CMD_BOOTMENU
 	help
 	  Add an ANSI terminal boot menu command.
 
-config CMD_DTIMG
-	bool "dtimg"
+config CMD_ADTIMG
+	bool "adtimg"
 	help
 	  Android DTB/DTBO image manipulation commands. Read dtb/dtbo files from
 	  image into RAM, dump image structure information, etc. Those dtb/dtbo

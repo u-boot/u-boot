@@ -308,7 +308,7 @@ static int eeprom_execute_command(enum eeprom_action action, int i2c_bus,
 {
 	int rcode = 0;
 	const char *const fmt =
-		"\nEEPROM @0x%lX %s: addr %08lx  off %04lx  count %ld ... ";
+		"\nEEPROM @0x%lX %s: addr 0x%08lx  off 0x%04lx  count %ld ... ";
 #ifdef CONFIG_CMD_EEPROM_LAYOUT
 	struct eeprom_layout layout;
 #endif

@@ -96,6 +96,16 @@ config DM_BOOTCOUNT_RTC
 	  Accesses to the backing store are performed using the write16
 	  and read16 ops of DM RTC devices.
 
+config DM_BOOTCOUNT_I2C_EEPROM
+	bool "Support i2c eeprom devices as a backing store for bootcount"
+	depends on I2C_EEPROM
+	help
+	  Enabled reading/writing the bootcount in a DM i2c eeprom device.
+	  The wrapper device is to be specified with the compatible string
+	  'u-boot,bootcount-i2c-eeprom' and the 'i2c-eeprom'-property (a phandle
+	  pointing to the underlying i2c eeprom device) and an optional 'offset'
+	  property are supported.
+
 endmenu
 
 endif

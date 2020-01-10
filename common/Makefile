@@ -117,7 +117,7 @@ obj-$(CONFIG_IO_TRACE) += iotrace.o
 obj-y += memsize.o
 obj-y += stdio.o
 
-obj-$(CONFIG_CMD_DTIMG) += image-android-dt.o
+obj-$(CONFIG_CMD_ADTIMG) += image-android-dt.o
 
 ifdef CONFIG_CMD_EEPROM_LAYOUT
 obj-y += eeprom/eeprom_field.o eeprom/eeprom_layout.o

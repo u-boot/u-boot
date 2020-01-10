@@ -17,6 +17,7 @@
 #if defined(CONFIG_CMD_NET)
 #include <config.h>
 #include <net.h>
+#include <asm/fec.h>
 #include <asm/fsl_mcdmafec.h>
 #endif
 
@@ -124,18 +125,21 @@ void uart_port_conf(int port)
 }
 
 #if defined(CONFIG_CMD_NET)
-int fecpin_setclear(struct eth_device *dev, int setclear)
+int fecpin_setclear(fec_info_t *info, int setclear)
 {
 	gpio_t *gpio = (gpio_t *) MMAP_GPIO;
-	struct fec_info_dma *info = (struct fec_info_dma *)dev->priv;
+	u32 fec0_base;
+
+	if (fec_get_base_addr(0, &fec0_base))
+		return -1;
 
 	if (setclear) {
-		if (info->iobase == CONFIG_SYS_FEC0_IOBASE)
+		if (info->iobase == fec0_base)
 			setbits_be16(&gpio->par_feci2cirq, 0xf000);
 		else
 			setbits_be16(&gpio->par_feci2cirq, 0x0fc0);
 	} else {
-		if (info->iobase == CONFIG_SYS_FEC0_IOBASE)
+		if (info->iobase == fec0_base)
 			clrbits_be16(&gpio->par_feci2cirq, 0xf000);
 		else
 			clrbits_be16(&gpio->par_feci2cirq, 0x0fc0);

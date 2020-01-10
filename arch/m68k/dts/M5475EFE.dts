@@ -11,3 +11,11 @@
 	compatible = "fsl,M5475EFE";
 };
 
+&fec0 {
+	status = "okay";
+};
+
+&fec1 {
+	status = "okay";
+	mii-base = <0>;
+};

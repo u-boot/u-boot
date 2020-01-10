@@ -26,7 +26,7 @@ int cmd_ut_category(const char *name, const char *prefix,
 		const char *test_name = test->name;
 
 		/* Remove the prefix */
-		if (!strncmp(test_name, prefix, prefix_len))
+		if (prefix && !strncmp(test_name, prefix, prefix_len))
 			test_name += prefix_len;
 
 		if (argc > 1 && strcmp(argv[1], test_name))
