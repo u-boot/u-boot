@@ -789,6 +789,15 @@ F:	arch/riscv/
 F:	cmd/riscv/
 F:	tools/prelink-riscv.c
 
+RNG
+M:	Sughosh Ganu <sughosh.ganu@linaro.org>
+R:	Heinrich Schuchardt <xypron.glpk@gmx.de>
+S:	Maintained
+F:	cmd/rng.c
+F:	drivers/rng/
+F:	drivers/virtio/virtio_rng.c
+F:	include/rng.h
+
 ROCKUSB
 M:	Eddie Cai <eddie.cai.linux@gmail.com>
 S:	Maintained
