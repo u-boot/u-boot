@@ -68,14 +68,12 @@
 		compatible = "mediatek,mt7629-infracfg", "syscon";
 		reg = <0x10000000 0x1000>;
 		#clock-cells = <1>;
-		u-boot,dm-pre-reloc;
 	};
 
 	pericfg: syscon@10002000 {
 		compatible = "mediatek,mt7629-pericfg", "syscon";
 		reg = <0x10002000 0x1000>;
 		#clock-cells = <1>;
-		u-boot,dm-pre-reloc;
 	};
 
 	timer0: timer@10004000 {
@@ -85,7 +83,6 @@
 		clocks = <&topckgen CLK_TOP_CLKXTAL_D4>,
 			 <&topckgen CLK_TOP_10M_SEL>;
 		clock-names = "mux", "src";
-		u-boot,dm-pre-reloc;
 	};
 
 	scpsys: scpsys@10006000 {
@@ -103,7 +100,6 @@
 		compatible = "mediatek,mt7629-mcucfg", "syscon";
 		reg = <0x10200000 0x1000>;
 		#clock-cells = <1>;
-		u-boot,dm-pre-reloc;
 	};
 
 	sysirq: interrupt-controller@10200a80 {
@@ -124,21 +120,18 @@
 			 <&topckgen CLK_TOP_MEM_SEL>,
 			 <&topckgen CLK_TOP_DMPLL>;
 		clock-names = "phy", "phy_mux", "mem", "mem_mux";
-		u-boot,dm-pre-reloc;
 	};
 
 	apmixedsys: clock-controller@10209000 {
 		compatible = "mediatek,mt7629-apmixedsys";
 		reg = <0x10209000 0x1000>;
 		#clock-cells = <1>;
-		u-boot,dm-pre-reloc;
 	};
 
 	topckgen: clock-controller@10210000 {
 		compatible = "mediatek,mt7629-topckgen";
 		reg = <0x10210000 0x1000>;
 		#clock-cells = <1>;
-		u-boot,dm-pre-reloc;
 	};
 
 	watchdog: watchdog@10212000 {
@@ -186,7 +179,6 @@
 		status = "disabled";
 		assigned-clocks = <&topckgen CLK_TOP_AXI_SEL>;
 		assigned-clock-parents = <&topckgen CLK_TOP_SYSPLL1_D2>;
-		u-boot,dm-pre-reloc;
 	};
 
 	uart1: serial@11003000 {
@@ -228,7 +220,6 @@
 		status = "disabled";
 		#address-cells = <1>;
 		#size-cells = <0>;
-		u-boot,dm-pre-reloc;
 	};
 
 	ethsys: syscon@1b000000 {

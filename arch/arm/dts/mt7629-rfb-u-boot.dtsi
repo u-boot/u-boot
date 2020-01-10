@@ -22,3 +22,39 @@
 #endif
 	};
 };
+
+&infracfg {
+	u-boot,dm-pre-reloc;
+};
+
+&pericfg {
+	u-boot,dm-pre-reloc;
+};
+
+&timer0 {
+	u-boot,dm-pre-reloc;
+};
+
+&mcucfg {
+	u-boot,dm-pre-reloc;
+};
+
+&dramc {
+	u-boot,dm-pre-reloc;
+};
+
+&apmixedsys {
+	u-boot,dm-pre-reloc;
+};
+
+&topckgen {
+	u-boot,dm-pre-reloc;
+};
+
+&uart0 {
+	u-boot,dm-pre-reloc;
+};
+
+&snfi {
+	u-boot,dm-pre-reloc;
+};

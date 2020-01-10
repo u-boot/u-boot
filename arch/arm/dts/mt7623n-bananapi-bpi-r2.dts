@@ -7,6 +7,7 @@
 
 /dts-v1/;
 #include "mt7623.dtsi"
+#include "mt7623-u-boot.dtsi"
 
 / {
 	model = "Bananapi BPI-R2";
