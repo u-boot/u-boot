@@ -1404,11 +1404,13 @@
 			clock-names = "stmmaceth",
 				      "mac-clk-tx",
 				      "mac-clk-rx",
+				      "eth-ck",
 				      "ethstp",
 				      "syscfg-clk";
 			clocks = <&rcc ETHMAC>,
 				 <&rcc ETHTX>,
 				 <&rcc ETHRX>,
+				 <&rcc ETHCK_K>,
 				 <&rcc ETHSTP>,
 				 <&rcc SYSCFG>;
 			st,syscon = <&syscfg 0x4>;
