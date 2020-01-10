@@ -4,6 +4,10 @@ config PINCTRL_MTK
 	depends on PINCTRL_GENERIC
 	bool
 
+config PINCTRL_MT7622
+	bool "MT7622 SoC pinctrl driver"
+	select PINCTRL_MTK
+
 config PINCTRL_MT7623
 	bool "MT7623 SoC pinctrl driver"
 	select PINCTRL_MTK
