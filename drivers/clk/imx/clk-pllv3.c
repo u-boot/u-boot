@@ -16,9 +16,13 @@
 #define UBOOT_DM_CLK_IMX_PLLV3_GENERIC	"imx_clk_pllv3_generic"
 #define UBOOT_DM_CLK_IMX_PLLV3_USB	"imx_clk_pllv3_usb"
 
+#define BM_PLL_POWER		(0x1 << 12)
+
 struct clk_pllv3 {
 	struct clk	clk;
 	void __iomem	*base;
+	u32		power_bit;
+	bool		powerup_set;
 	u32		div_mask;
 	u32		div_shift;
 };
@@ -35,8 +39,24 @@ static ulong clk_pllv3_generic_get_rate(struct clk *clk)
 	return (div == 1) ? parent_rate * 22 : parent_rate * 20;
 }
 
+static int clk_pllv3_generic_enable(struct clk *clk)
+{
+	struct clk_pllv3 *pll = to_clk_pllv3(clk);
+	u32 val;
+
+	val = readl(pll->base);
+	if (pll->powerup_set)
+		val |= pll->power_bit;
+	else
+		val &= ~pll->power_bit;
+	writel(val, pll->base);
+
+	return 0;
+}
+
 static const struct clk_ops clk_pllv3_generic_ops = {
 	.get_rate	= clk_pllv3_generic_get_rate,
+	.enable		= clk_pllv3_generic_enable,
 };
 
 struct clk *imx_clk_pllv3(enum imx_pllv3_type type, const char *name,
@@ -52,14 +72,18 @@ struct clk *imx_clk_pllv3(enum imx_pllv3_type type, const char *name,
 	if (!pll)
 		return ERR_PTR(-ENOMEM);
 
+	pll->power_bit = BM_PLL_POWER;
+
 	switch (type) {
 	case IMX_PLLV3_GENERIC:
 		drv_name = UBOOT_DM_CLK_IMX_PLLV3_GENERIC;
 		pll->div_shift = 0;
+		pll->powerup_set = false;
 		break;
 	case IMX_PLLV3_USB:
 		drv_name = UBOOT_DM_CLK_IMX_PLLV3_USB;
 		pll->div_shift = 1;
+		pll->powerup_set = true;
 		break;
 	default:
 		kfree(pll);
