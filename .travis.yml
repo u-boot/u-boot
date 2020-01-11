@@ -66,7 +66,7 @@ env:
     - BUILD_DIR=build
     - HOSTCC="cc"
     - HOSTCXX="c++"
-    - QEMU_VERSION="v3.1.0"
+    - QEMU_VERSION="v4.2.0"
 
 before_script:
   # install toolchains based on TOOLCHAIN} variable
@@ -410,14 +410,12 @@ matrix:
         - TEST_PY_BD="evb-ast2500"
           TEST_PY_ID="--id qemu"
           QEMU_TARGET="arm-softmmu"
-          QEMU_VERSION="506179e42112be77bfd071f050b15762d3b2cd43"
           BUILDMAN="^evb-ast2500$"
     - name: "test/py vexpress_ca15_tc2"
       env:
         - TEST_PY_BD="vexpress_ca15_tc2"
           TEST_PY_ID="--id qemu"
           QEMU_TARGET="arm-softmmu"
-          QEMU_VERSION="v3.0.0"
           BUILDMAN="^vexpress_ca15_tc2$"
     - name: "test/py vexpress_ca9x4"
       env:
