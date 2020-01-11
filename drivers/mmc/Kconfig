@@ -79,7 +79,7 @@ config MMC_QUIRKS
 	help
 	  Some cards and hosts may sometimes behave unexpectedly (quirks).
 	  This option enable workarounds to handle those quirks. Some of them
-	  are enabled by default, other may require additionnal flags or are
+	  are enabled by default, other may require additional flags or are
 	  enabled by the host driver.
 
 config MMC_HW_PARTITIONING
