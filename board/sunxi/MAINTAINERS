@@ -323,6 +323,11 @@ M:	Chen-Yu Tsai <wens@csie.org>
 S:	Maintained
 F:	configs/libretech_all_h3_it_h5_defconfig
 
+LIBRETECH ALL-H5-CC BOARDS
+M:	Chen-Yu Tsai <wens@csie.org>
+S:	Maintained
+F:	configs/libretech_all_h5_cc_h5_defconfig
+
 NANOPI-M1 BOARD
 M:	Mylène Josserand <mylene.josserand@free-electrons.com>
 S:	Maintained
