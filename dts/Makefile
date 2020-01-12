@@ -19,8 +19,13 @@ endif
 $(obj)/dt-spl.dtb: $(DTB) $(objtree)/tools/fdtgrep FORCE
 	$(call if_changed,fdtgrep)
 
+ifeq ($(CONFIG_OF_DTB_PROPS_REMOVE),y)
+$(obj)/dt.dtb: $(DTB) $(objtree)/tools/fdtgrep FORCE
+	$(call if_changed,fdt_rm_props)
+else
 $(obj)/dt.dtb: $(DTB) FORCE
 	$(call if_changed,shipped)
+endif
 
 targets += dt.dtb dt-spl.dtb
 

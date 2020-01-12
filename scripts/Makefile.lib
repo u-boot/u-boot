@@ -544,3 +544,11 @@ quiet_cmd_fdtgrep = FDTGREP $@
 	$(objtree)/tools/fdtgrep -r -O dtb - -o $@ \
 		-P u-boot,dm-pre-reloc -P u-boot,dm-spl -P u-boot,dm-tpl \
 		$(addprefix -P ,$(subst $\",,$(CONFIG_OF_SPL_REMOVE_PROPS)))
+
+# fdt_rm_props
+# ---------------------------------------------------------------------------
+# Pass the original device tree file through fdtgrep. This removes various
+# unused properties. The output is typically a smaller device tree file.
+quiet_cmd_fdt_rm_props = FDTGREP $@
+	cmd_fdt_rm_props = cat $< | $(objtree)/tools/fdtgrep -r -O dtb - -o $@ \
+			$(addprefix -P ,$(subst $\",,$(CONFIG_OF_REMOVE_PROPS)))

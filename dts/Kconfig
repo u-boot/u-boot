@@ -314,6 +314,26 @@ config OF_SPL_REMOVE_PROPS
 	  can be discarded. This option defines the list of properties to
 	  discard.
 
+config OF_DTB_PROPS_REMOVE
+	bool "Enable removal of device tree properties"
+	depends on OF_CONTROL
+	help
+	  Some boards have restricted amount of storage for U-Boot image.
+	  If the generated binary doesn't fit into available image storage,
+	  the built-in device tree could probably be cut down by removing
+	  some not required device tree properties to reduce the image size.
+	  Enable this option and define the properties to be removed in the
+	  CONFIG_OF_REMOVE_PROPS list. Do not enable this option if you must
+	  pass the built-in DTB directly to the kernel!
+
+config OF_REMOVE_PROPS
+	string "List of device tree properties to drop"
+	depends on OF_DTB_PROPS_REMOVE
+	default "interrupt-parent interrupts" if PINCTRL
+	help
+	  Some properties are not used by U-Boot and can be discarded.
+	  This option defines the list of properties to discard.
+
 config SPL_OF_PLATDATA
 	bool "Generate platform data for use in SPL"
 	depends on SPL_OF_CONTROL
