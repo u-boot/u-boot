@@ -572,11 +572,16 @@ static int _dm_gpio_set_dir_flags(struct gpio_desc *desc, ulong flags)
 		return ret;
 	}
 
-	if (flags & GPIOD_IS_OUT) {
-		ret = ops->direction_output(dev, desc->offset,
-					    GPIOD_FLAGS_OUTPUT(flags));
-	} else if (flags & GPIOD_IS_IN) {
-		ret = ops->direction_input(dev, desc->offset);
+	/* GPIOD_ are directly managed by driver in set_dir_flags*/
+	if (ops->set_dir_flags) {
+		ret = ops->set_dir_flags(dev, desc->offset, flags);
+	} else {
+		if (flags & GPIOD_IS_OUT) {
+			ret = ops->direction_output(dev, desc->offset,
+						    GPIOD_FLAGS_OUTPUT(flags));
+		} else if (flags & GPIOD_IS_IN) {
+			ret = ops->direction_input(dev, desc->offset);
+		}
 	}
 
 	return ret;
@@ -1146,6 +1151,8 @@ static int gpio_post_bind(struct udevice *dev)
 			ops->get_function += gd->reloc_off;
 		if (ops->xlate)
 			ops->xlate += gd->reloc_off;
+		if (ops->set_dir_flags)
+			ops->set_dir_flags += gd->reloc_off;
 		if (ops->get_dir_flags)
 			ops->get_dir_flags += gd->reloc_off;
 

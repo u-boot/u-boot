@@ -299,6 +299,22 @@ struct dm_gpio_ops {
 		     struct ofnode_phandle_args *args);
 
 	/**
+	 * set_dir_flags() - Set GPIO dir flags
+	 *
+	 * This function should set up the GPIO configuration according to the
+	 * information provide by the direction flags bitfield.
+	 *
+	 * This method is optional.
+	 *
+	 * @dev:	GPIO device
+	 * @offset:	GPIO offset within that device
+	 * @flags:	GPIO configuration to use
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*set_dir_flags)(struct udevice *dev, unsigned int offset,
+			     ulong flags);
+
+	/**
 	 * get_dir_flags() - Get GPIO dir flags
 	 *
 	 * This function return the GPIO direction flags used.
