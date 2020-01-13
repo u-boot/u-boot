@@ -592,8 +592,7 @@ int dm_gpio_set_value(const struct gpio_desc *desc, int value);
 /**
  * dm_gpio_set_dir() - Set the direction for a GPIO
  *
- * This sets up the direction according tot the provided flags. It will do
- * nothing unless the direction is actually specified.
+ * This sets up the direction according to the GPIO flags: desc->flags.
  *
  * @desc:	GPIO description containing device, offset and flags,
  *		previously returned by gpio_request_by_name()
@@ -602,11 +601,10 @@ int dm_gpio_set_value(const struct gpio_desc *desc, int value);
 int dm_gpio_set_dir(struct gpio_desc *desc);
 
 /**
- * dm_gpio_set_dir_flags() - Set direction using specific flags
+ * dm_gpio_set_dir_flags() - Set direction using description and added flags
  *
- * This is like dm_gpio_set_dir() except that the flags value is provided
- * instead of being used from desc->flags. This is needed because in many
- * cases the GPIO description does not include direction information.
+ * This sets up the direction according to the provided flags and the GPIO
+ * description (desc->flags) which include direction information.
  * Note that desc->flags is updated by this function.
  *
  * @desc:	GPIO description containing device, offset and flags,
@@ -615,6 +613,18 @@ int dm_gpio_set_dir(struct gpio_desc *desc);
  * @return 0 if OK, -ve on error, in which case desc->flags is not updated
  */
 int dm_gpio_set_dir_flags(struct gpio_desc *desc, ulong flags);
+
+/**
+ * dm_gpio_get_dir_flags() - Get direction flags
+ *
+ * read the current direction flags
+ *
+ * @desc:	GPIO description containing device, offset and flags,
+ *		previously returned by gpio_request_by_name()
+ * @flags:	place to put the used flags
+ * @return 0 if OK, -ve on error, in which case desc->flags is not updated
+ */
+int dm_gpio_get_dir_flags(struct gpio_desc *desc, ulong *flags);
 
 /**
  * gpio_get_number() - Get the global GPIO number of a GPIO

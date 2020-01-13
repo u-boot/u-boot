@@ -141,8 +141,9 @@ int gpio_xlate_offs_flags(struct udevice *dev, struct gpio_desc *desc,
 	if (args->args_count < 2)
 		return 0;
 
+	desc->flags = 0;
 	if (args->args[1] & GPIO_ACTIVE_LOW)
-		desc->flags = GPIOD_ACTIVE_LOW;
+		desc->flags |= GPIOD_ACTIVE_LOW;
 
 	return 0;
 }
@@ -559,6 +560,8 @@ int dm_gpio_set_dir_flags(struct gpio_desc *desc, ulong flags)
 	if (ret)
 		return ret;
 
+	/* combine the requested flags (for IN/OUT) and the descriptor flags */
+	flags |= desc->flags;
 	ret = _dm_gpio_set_dir_flags(desc, flags);
 
 	/* update the descriptor flags */
@@ -577,6 +580,26 @@ int dm_gpio_set_dir(struct gpio_desc *desc)
 		return ret;
 
 	return _dm_gpio_set_dir_flags(desc, desc->flags);
+}
+
+int dm_gpio_get_dir_flags(struct gpio_desc *desc, ulong *flags)
+{
+	int ret;
+	ulong dir_flags;
+
+	ret = check_reserved(desc, "get_dir_flags");
+	if (ret)
+		return ret;
+
+	dir_flags = desc->flags;
+	/* only GPIOD_IS_OUT_ACTIVE is provided by uclass */
+	dir_flags &= ~GPIOD_IS_OUT_ACTIVE;
+	if ((desc->flags & GPIOD_IS_OUT) && _gpio_get_value(desc))
+		dir_flags |= GPIOD_IS_OUT_ACTIVE;
+
+	*flags = dir_flags;
+
+	return 0;
 }
 
 /**
@@ -849,7 +872,7 @@ static int gpio_request_tail(int ret, const char *nodename,
 		debug("%s: dm_gpio_requestf failed\n", __func__);
 		goto err;
 	}
-	ret = dm_gpio_set_dir_flags(desc, flags | desc->flags);
+	ret = dm_gpio_set_dir_flags(desc, flags);
 	if (ret) {
 		debug("%s: dm_gpio_set_dir failed\n", __func__);
 		goto err;
