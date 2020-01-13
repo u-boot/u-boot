@@ -119,8 +119,12 @@ struct gpio_desc {
 	unsigned long flags;
 #define GPIOD_IS_OUT		BIT(1)	/* GPIO is an output */
 #define GPIOD_IS_IN		BIT(2)	/* GPIO is an input */
-#define GPIOD_ACTIVE_LOW	BIT(3)	/* value has active low */
+#define GPIOD_ACTIVE_LOW	BIT(3)	/* GPIO is active when value is low */
 #define GPIOD_IS_OUT_ACTIVE	BIT(4)	/* set output active */
+#define GPIOD_OPEN_DRAIN	BIT(5)	/* GPIO is open drain type */
+#define GPIOD_OPEN_SOURCE	BIT(6)	/* GPIO is open source type */
+#define GPIOD_PULL_UP		BIT(7)	/* GPIO has pull-up enabled */
+#define GPIOD_PULL_DOWN		BIT(8)	/* GPIO has pull-down enabled */
 
 	uint offset;		/* GPIO offset within the device */
 	/*

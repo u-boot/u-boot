@@ -145,6 +145,24 @@ int gpio_xlate_offs_flags(struct udevice *dev, struct gpio_desc *desc,
 	if (args->args[1] & GPIO_ACTIVE_LOW)
 		desc->flags |= GPIOD_ACTIVE_LOW;
 
+	/*
+	 * need to test 2 bits for gpio output binding:
+	 * OPEN_DRAIN (0x6) = SINGLE_ENDED (0x2) | LINE_OPEN_DRAIN (0x4)
+	 * OPEN_SOURCE (0x2) = SINGLE_ENDED (0x2) | LINE_OPEN_SOURCE (0x0)
+	 */
+	if (args->args[1] & GPIO_SINGLE_ENDED) {
+		if (args->args[1] & GPIO_LINE_OPEN_DRAIN)
+			desc->flags |= GPIOD_OPEN_DRAIN;
+		else
+			desc->flags |= GPIOD_OPEN_SOURCE;
+	}
+
+	if (args->args[1] & GPIO_PULL_UP)
+		desc->flags |= GPIOD_PULL_UP;
+
+	if (args->args[1] & GPIO_PULL_DOWN)
+		desc->flags |= GPIOD_PULL_DOWN;
+
 	return 0;
 }
 
@@ -517,6 +535,18 @@ static int check_dir_flags(ulong flags)
 {
 	if ((flags & GPIOD_IS_OUT) && (flags & GPIOD_IS_IN)) {
 		log_debug("%s: flags 0x%lx has GPIOD_IS_OUT and GPIOD_IS_IN\n",
+			  __func__, flags);
+		return -EINVAL;
+	}
+
+	if ((flags & GPIOD_PULL_UP) && (flags & GPIOD_PULL_DOWN)) {
+		log_debug("%s: flags 0x%lx has GPIOD_PULL_UP and GPIOD_PULL_DOWN\n",
+			  __func__, flags);
+		return -EINVAL;
+	}
+
+	if ((flags & GPIOD_OPEN_DRAIN) && (flags & GPIOD_OPEN_SOURCE)) {
+		log_debug("%s: flags 0x%lx has GPIOD_OPEN_DRAIN and GPIOD_OPEN_SOURCE\n",
 			  __func__, flags);
 		return -EINVAL;
 	}
