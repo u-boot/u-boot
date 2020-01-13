@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dm/uclass-internal.h>
@@ -510,11 +511,35 @@ int dm_gpio_set_value(const struct gpio_desc *desc, int value)
 	return 0;
 }
 
+/* check dir flags invalid configuration */
+static int check_dir_flags(ulong flags)
+{
+	if ((flags & GPIOD_IS_OUT) && (flags & GPIOD_IS_IN)) {
+		log_debug("%s: flags 0x%lx has GPIOD_IS_OUT and GPIOD_IS_IN\n",
+			  __func__, flags);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
 static int _dm_gpio_set_dir_flags(struct gpio_desc *desc, ulong flags)
 {
 	struct udevice *dev = desc->dev;
 	struct dm_gpio_ops *ops = gpio_get_ops(dev);
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	int ret = 0;
+
+	ret = check_dir_flags(flags);
+	if (ret) {
+		dev_dbg(dev,
+			"%s error: set_dir_flags for gpio %s%d has invalid dir flags 0x%lx\n",
+			desc->dev->name,
+			uc_priv->bank_name ? uc_priv->bank_name : "",
+			desc->offset, flags);
+
+		return ret;
+	}
 
 	if (flags & GPIOD_IS_OUT) {
 		int value = flags & GPIOD_IS_OUT_ACTIVE ? 1 : 0;
