@@ -299,28 +299,32 @@
 		};
 	};
 
-	gpio_a: base-gpios {
-		compatible = "sandbox,gpio";
-		gpio-controller;
-		#gpio-cells = <1>;
-		gpio-bank-name = "a";
-		sandbox,gpio-count = <20>;
-	};
+	pinctrl-gpio {
+		compatible = "sandbox,pinctrl-gpio";
 
-	gpio_b: extra-gpios {
-		compatible = "sandbox,gpio";
-		gpio-controller;
-		#gpio-cells = <5>;
-		gpio-bank-name = "b";
-		sandbox,gpio-count = <10>;
-	};
+		gpio_a: base-gpios {
+			compatible = "sandbox,gpio";
+			gpio-controller;
+			#gpio-cells = <1>;
+			gpio-bank-name = "a";
+			sandbox,gpio-count = <20>;
+		};
 
-	gpio_c: extra2-gpios {
-		compatible = "sandbox,gpio";
-		gpio-controller;
-		#gpio-cells = <2>;
-		gpio-bank-name = "c";
-		sandbox,gpio-count = <10>;
+		gpio_b: extra-gpios {
+			compatible = "sandbox,gpio";
+			gpio-controller;
+			#gpio-cells = <5>;
+			gpio-bank-name = "b";
+			sandbox,gpio-count = <10>;
+		};
+
+		gpio_c: pinmux-gpios {
+			compatible = "sandbox,gpio";
+			gpio-controller;
+			#gpio-cells = <2>;
+			gpio-bank-name = "c";
+			sandbox,gpio-count = <10>;
+		};
 	};
 
 	i2c@0 {

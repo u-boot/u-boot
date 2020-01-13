@@ -8,6 +8,7 @@
 #include <fdtdec.h>
 #include <malloc.h>
 #include <asm/gpio.h>
+#include <dm/device_compat.h>
 #include <dm/lists.h>
 #include <dm/of.h>
 #include <dm/pinctrl.h>
@@ -250,4 +251,199 @@ U_BOOT_DRIVER(gpio_sandbox) = {
 	.probe	= gpio_sandbox_probe,
 	.remove	= gpio_sandbox_remove,
 	.ops	= &gpio_sandbox_ops,
+};
+
+/* pincontrol: used only to check GPIO pin configuration (pinmux command) */
+
+struct sb_pinctrl_priv {
+	int pinctrl_ngpios;
+	struct list_head gpio_dev;
+};
+
+struct sb_gpio_bank {
+	struct udevice *gpio_dev;
+	struct list_head list;
+};
+
+static int sb_populate_gpio_dev_list(struct udevice *dev)
+{
+	struct sb_pinctrl_priv *priv = dev_get_priv(dev);
+	struct udevice *gpio_dev;
+	struct udevice *child;
+	struct sb_gpio_bank *gpio_bank;
+	int ret;
+
+	/*
+	 * parse pin-controller sub-nodes (ie gpio bank nodes) and fill
+	 * a list with all gpio device reference which belongs to the
+	 * current pin-controller. This list is used to find pin_name and
+	 * pin muxing
+	 */
+	list_for_each_entry(child, &dev->child_head, sibling_node) {
+		ret = uclass_get_device_by_name(UCLASS_GPIO, child->name,
+						&gpio_dev);
+		if (ret < 0)
+			continue;
+
+		gpio_bank = malloc(sizeof(*gpio_bank));
+		if (!gpio_bank) {
+			dev_err(dev, "Not enough memory\n");
+			return -ENOMEM;
+		}
+
+		gpio_bank->gpio_dev = gpio_dev;
+		list_add_tail(&gpio_bank->list, &priv->gpio_dev);
+	}
+
+	return 0;
+}
+
+static int sb_pinctrl_get_pins_count(struct udevice *dev)
+{
+	struct sb_pinctrl_priv *priv = dev_get_priv(dev);
+	struct gpio_dev_priv *uc_priv;
+	struct sb_gpio_bank *gpio_bank;
+
+	/*
+	 * if get_pins_count has already been executed once on this
+	 * pin-controller, no need to run it again
+	 */
+	if (priv->pinctrl_ngpios)
+		return priv->pinctrl_ngpios;
+
+	if (list_empty(&priv->gpio_dev))
+		sb_populate_gpio_dev_list(dev);
+	/*
+	 * walk through all banks to retrieve the pin-controller
+	 * pins number
+	 */
+	list_for_each_entry(gpio_bank, &priv->gpio_dev, list) {
+		uc_priv = dev_get_uclass_priv(gpio_bank->gpio_dev);
+
+		priv->pinctrl_ngpios += uc_priv->gpio_count;
+	}
+
+	return priv->pinctrl_ngpios;
+}
+
+static struct udevice *sb_pinctrl_get_gpio_dev(struct udevice *dev,
+					       unsigned int selector,
+					       unsigned int *idx)
+{
+	struct sb_pinctrl_priv *priv = dev_get_priv(dev);
+	struct sb_gpio_bank *gpio_bank;
+	struct gpio_dev_priv *uc_priv;
+	int pin_count = 0;
+
+	if (list_empty(&priv->gpio_dev))
+		sb_populate_gpio_dev_list(dev);
+
+	/* look up for the bank which owns the requested pin */
+	list_for_each_entry(gpio_bank, &priv->gpio_dev, list) {
+		uc_priv = dev_get_uclass_priv(gpio_bank->gpio_dev);
+
+		if (selector < (pin_count + uc_priv->gpio_count)) {
+			/*
+			 * we found the bank, convert pin selector to
+			 * gpio bank index
+			 */
+			*idx = selector - pin_count;
+
+			return gpio_bank->gpio_dev;
+		}
+		pin_count += uc_priv->gpio_count;
+	}
+
+	return NULL;
+}
+
+static const char *sb_pinctrl_get_pin_name(struct udevice *dev,
+					   unsigned int selector)
+{
+	struct gpio_dev_priv *uc_priv;
+	struct udevice *gpio_dev;
+	unsigned int gpio_idx;
+	static char pin_name[PINNAME_SIZE];
+
+	/* look up for the bank which owns the requested pin */
+	gpio_dev = sb_pinctrl_get_gpio_dev(dev, selector, &gpio_idx);
+	if (!gpio_dev) {
+		snprintf(pin_name, PINNAME_SIZE, "Error");
+	} else {
+		uc_priv = dev_get_uclass_priv(gpio_dev);
+
+		snprintf(pin_name, PINNAME_SIZE, "%s%d",
+			 uc_priv->bank_name,
+			 gpio_idx);
+	}
+
+	return pin_name;
+}
+
+static char *get_dir_flags_string(ulong flags)
+{
+	if (flags & GPIOD_OPEN_DRAIN)
+		return "drive-open-drain";
+	if (flags & GPIOD_OPEN_SOURCE)
+		return "drive-open-source";
+	if (flags & GPIOD_PULL_UP)
+		return "bias-pull-up";
+	if (flags & GPIOD_PULL_DOWN)
+		return "bias-pull-down";
+	return ".";
+}
+
+static int sb_pinctrl_get_pin_muxing(struct udevice *dev,
+				     unsigned int selector,
+				     char *buf, int size)
+{
+	struct udevice *gpio_dev;
+	unsigned int gpio_idx;
+	ulong dir_flags;
+	int function;
+
+	/* look up for the bank which owns the requested pin */
+	gpio_dev = sb_pinctrl_get_gpio_dev(dev, selector, &gpio_idx);
+	if (!gpio_dev) {
+		snprintf(buf, size, "Error");
+	} else {
+		function = sb_gpio_get_function(gpio_dev, gpio_idx);
+		dir_flags = *get_gpio_dir_flags(gpio_dev, gpio_idx);
+
+		snprintf(buf, size, "gpio %s %s",
+			 function == GPIOF_OUTPUT ? "output" : "input",
+			 get_dir_flags_string(dir_flags));
+	}
+
+	return 0;
+}
+
+static int sandbox_pinctrl_probe(struct udevice *dev)
+{
+	struct sb_pinctrl_priv *priv = dev_get_priv(dev);
+
+	INIT_LIST_HEAD(&priv->gpio_dev);
+
+	return 0;
+}
+
+static struct pinctrl_ops sandbox_pinctrl_gpio_ops = {
+	.get_pin_name		= sb_pinctrl_get_pin_name,
+	.get_pins_count		= sb_pinctrl_get_pins_count,
+	.get_pin_muxing		= sb_pinctrl_get_pin_muxing,
+};
+
+static const struct udevice_id sandbox_pinctrl_gpio_match[] = {
+	{ .compatible = "sandbox,pinctrl-gpio" },
+	{ /* sentinel */ }
+};
+
+U_BOOT_DRIVER(sandbox_pinctrl_gpio) = {
+	.name = "sandbox_pinctrl_gpio",
+	.id = UCLASS_PINCTRL,
+	.of_match = sandbox_pinctrl_gpio_match,
+	.ops = &sandbox_pinctrl_gpio_ops,
+	.bind = dm_scan_fdt_dev,
+	.probe = sandbox_pinctrl_probe,
+	.priv_auto_alloc_size	= sizeof(struct sb_pinctrl_priv),
 };

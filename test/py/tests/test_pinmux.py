@@ -22,6 +22,12 @@ def test_pinmux_usage_2(u_boot_console):
 def test_pinmux_status_all(u_boot_console):
     """Test that 'pinmux status -a' displays pin's muxing."""
     output = u_boot_console.run_command('pinmux status -a')
+
+    assert ('pinctrl-gpio:' in output)
+    assert ('a5        : gpio output .' in output)
+    assert ('a6        : gpio output .' in output)
+
+    assert ('pinctrl:' in output)
     assert ('SCL       : I2C SCL.' in output)
     assert ('SDA       : I2C SDA.' in output)
     assert ('TX        : Uart TX.' in output)
@@ -63,6 +69,10 @@ def test_pinmux_status(u_boot_console):
     """Test that 'pinmux status' displays selected pincontroller's pin
     muxing descriptions."""
     output = u_boot_console.run_command('pinmux status')
+
+    assert (not 'pinctrl-gpio:' in output)
+    assert (not 'pinctrl:' in output)
+
     assert ('SCL       : I2C SCL.' in output)
     assert ('SDA       : I2C SDA.' in output)
     assert ('TX        : Uart TX.' in output)
