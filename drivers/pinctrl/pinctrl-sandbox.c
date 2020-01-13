@@ -14,7 +14,11 @@ static const char * const sandbox_pins[] = {
 	"SDA",
 	"TX",
 	"RX",
-	"W1"
+	"W1",
+	"GPIO0",
+	"GPIO1",
+	"GPIO2",
+	"GPIO3",
 };
 
 static const char * const sandbox_pins_muxing[] = {
@@ -23,6 +27,10 @@ static const char * const sandbox_pins_muxing[] = {
 	"Uart TX",
 	"Uart RX",
 	"1-wire gpio",
+	"gpio",
+	"gpio",
+	"gpio",
+	"gpio",
 };
 
 static const char * const sandbox_groups[] = {
@@ -38,6 +46,10 @@ static const char * const sandbox_functions[] = {
 	"serial",
 	"spi",
 	"w1",
+	"gpio",
+	"gpio",
+	"gpio",
+	"gpio",
 };
 
 static const struct pinconf_param sandbox_conf_params[] = {

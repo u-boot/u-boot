@@ -905,6 +905,31 @@
 
 	pinctrl {
 		compatible = "sandbox,pinctrl";
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&gpios>;
+
+		gpios: gpios {
+			gpio0 {
+				pins = "GPIO0";
+				bias-pull-up;
+				input-disable;
+			};
+			gpio1 {
+				pins = "GPIO1";
+				output-high;
+				drive-open-drain;
+			};
+			gpio2 {
+				pins = "GPIO2";
+				bias-pull-down;
+				input-enable;
+			};
+			gpio3 {
+				pins = "GPIO3";
+				bias-disable;
+			};
+		};
 	};
 
 	hwspinlock@0 {
