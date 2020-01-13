@@ -33,8 +33,8 @@ config SYS_MALLOC_LEN
 config ENV_SIZE
 	default 0x2000
 
-config TARGET_STM32MP1
-	bool "Support stm32mp1xx"
+config STM32MP15x
+	bool "Support STMicroelectronics STM32MP15x Soc"
 	select ARCH_SUPPORT_PSCI if !STM32MP1_TRUSTED
 	select CPU_V7A
 	select CPU_V7_HAS_NONSEC if !STM32MP1_TRUSTED
@@ -45,19 +45,35 @@ config TARGET_STM32MP1
 	select STM32_RESET
 	select STM32_SERIAL
 	select SYS_ARCH_TIMER
+	imply SYSRESET_PSCI if STM32MP1_TRUSTED
+	imply SYSRESET_SYSCON if !STM32MP1_TRUSTED
+	help
+		support of STMicroelectronics SOC STM32MP15x family
+		STM32MP157, STM32MP153 or STM32MP151
+		STMicroelectronics MPU with core ARMv7
+		dual core A7 for STM32MP157/3, monocore for STM32MP151
+		target all the STMicroelectronics board with SOC STM32MP1 family
+
+choice
+	prompt "STM32MP15x board select"
+	optional
+
+config TARGET_ST_STM32MP15x
+	bool "STMicroelectronics STM32MP15x boards"
+	select STM32MP15x
 	imply BOOTCOUNT_LIMIT
 	imply CMD_BOOTCOUNT
 	imply CMD_CLS if CMD_BMP
 	imply DISABLE_CONSOLE
 	imply PRE_CONSOLE_BUFFER
 	imply SILENT_CONSOLE
-	imply SYSRESET_PSCI if STM32MP1_TRUSTED
-	imply SYSRESET_SYSCON if !STM32MP1_TRUSTED
 	help
-		target STMicroelectronics SOC STM32MP1 family
-		STM32MP157, STM32MP153 or STM32MP151
-		STMicroelectronics MPU with core ARMv7
-		dual core A7 for STM32MP157/3, monocore for STM32MP151
+		target the STMicroelectronics board with SOC STM32MP15x
+		managed by board/st/stm32mp1:
+		Evalulation board (EV1) or Discovery board (DK1 and DK2).
+		The difference between board are managed with devicetree
+
+endchoice
 
 config STM32MP1_TRUSTED
 	bool "Support trusted boot with TF-A"
