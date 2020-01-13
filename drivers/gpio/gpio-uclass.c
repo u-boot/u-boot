@@ -19,6 +19,22 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /**
+ * gpio_desc_init() - Initialize the GPIO descriptor
+ *
+ * @desc:	GPIO descriptor to initialize
+ * @dev:	GPIO device
+ * @offset:	Offset of device GPIO
+ */
+static void gpio_desc_init(struct gpio_desc *desc,
+			   struct udevice *dev,
+			   uint offset)
+{
+	desc->dev = dev;
+	desc->offset = offset;
+	desc->flags = 0;
+}
+
+/**
  * gpio_to_device() - Convert global GPIO number to device, number
  *
  * Convert the GPIO number to an entry in the list of GPIOs
@@ -41,9 +57,7 @@ static int gpio_to_device(unsigned int gpio, struct gpio_desc *desc)
 		uc_priv = dev_get_uclass_priv(dev);
 		if (gpio >= uc_priv->gpio_base &&
 		    gpio < uc_priv->gpio_base + uc_priv->gpio_count) {
-			desc->dev = dev;
-			desc->offset = gpio - uc_priv->gpio_base;
-			desc->flags = 0;
+			gpio_desc_init(desc, dev, gpio - uc_priv->gpio_base);
 			return 0;
 		}
 	}
@@ -85,8 +99,7 @@ int dm_gpio_lookup_name(const char *name, struct gpio_desc *desc)
 	if (!dev)
 		return ret ? ret : -EINVAL;
 
-	desc->dev = dev;
-	desc->offset = offset;
+	gpio_desc_init(desc, dev, offset);
 
 	return 0;
 }
@@ -772,9 +785,7 @@ static int gpio_request_tail(int ret, const char *nodename,
 			     struct gpio_desc *desc, int flags,
 			     bool add_index, struct udevice *gpio_dev)
 {
-	desc->dev = gpio_dev;
-	desc->offset = 0;
-	desc->flags = 0;
+	gpio_desc_init(desc, gpio_dev, 0);
 	if (ret)
 		goto err;
 
