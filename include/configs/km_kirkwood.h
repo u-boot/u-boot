@@ -38,15 +38,10 @@
 #define CONFIG_SYS_KWD_CONFIG $(CONFIG_BOARDDIR)/kwbimage_128M16_1.cfg
 #define CONFIG_KM_DISABLE_PCIE
 
-/* KM_NUSA / KM_SUGP1 */
-#elif defined(CONFIG_KM_NUSA) || defined(CONFIG_KM_SUGP1)
+/* KM_NUSA */
+#elif defined(CONFIG_KM_NUSA)
 
-# if defined(CONFIG_KM_NUSA)
 #define CONFIG_HOSTNAME			"kmnusa"
-# elif defined(CONFIG_KM_SUGP1)
-#define CONFIG_HOSTNAME			"kmsugp1"
-#define KM_PCIE_RESET_MPP7
-#endif
 
 #undef CONFIG_SYS_KWD_CONFIG
 #define CONFIG_SYS_KWD_CONFIG $(CONFIG_BOARDDIR)/kwbimage_128M16_1.cfg

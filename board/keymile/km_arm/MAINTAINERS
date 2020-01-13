@@ -8,6 +8,5 @@ F:	configs/km_kirkwood_128m16_defconfig
 F:	configs/km_kirkwood_pci_defconfig
 F:	configs/kmcoge5un_defconfig
 F:	configs/kmnusa_defconfig
-F:	configs/kmsugp1_defconfig
 F:	configs/kmsuse2_defconfig
 F:	configs/kmsuv31_defconfig
