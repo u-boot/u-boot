@@ -297,6 +297,21 @@ struct dm_gpio_ops {
 	 */
 	int (*xlate)(struct udevice *dev, struct gpio_desc *desc,
 		     struct ofnode_phandle_args *args);
+
+	/**
+	 * get_dir_flags() - Get GPIO dir flags
+	 *
+	 * This function return the GPIO direction flags used.
+	 *
+	 * This method is optional.
+	 *
+	 * @dev:	GPIO device
+	 * @offset:	GPIO offset within that device
+	 * @flags:	place to put the used direction flags by GPIO
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*get_dir_flags)(struct udevice *dev, unsigned int offset,
+			     ulong *flags);
 };
 
 /**
