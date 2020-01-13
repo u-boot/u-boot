@@ -16,6 +16,7 @@
 		eth5 = &eth_5;
 		gpio1 = &gpio_a;
 		gpio2 = &gpio_b;
+		gpio3 = &gpio_c;
 		i2c0 = "/i2c@0";
 		mmc0 = "/mmc0";
 		mmc1 = "/mmc1";
@@ -97,6 +98,13 @@
 			<&gpio_b 7 GPIO_IN 3 2 1>,
 			<&gpio_b 8 GPIO_OUT 3 2 1>,
 			<&gpio_b 9 (GPIO_OUT|GPIO_OUT_ACTIVE) 3 2 1>;
+		test3-gpios =
+			<&gpio_c 0 (GPIO_OUT|GPIO_OPEN_DRAIN)>,
+			<&gpio_c 1 (GPIO_OUT|GPIO_OPEN_SOURCE)>,
+			<&gpio_c 2 GPIO_OUT>,
+			<&gpio_c 3 (GPIO_IN|GPIO_PULL_UP)>,
+			<&gpio_c 4 (GPIO_IN|GPIO_PULL_DOWN)>,
+			<&gpio_c 5 GPIO_IN>;
 		int-value = <1234>;
 		uint-value = <(-1234)>;
 		int64-value = /bits/ 64 <0x1111222233334444>;
@@ -304,6 +312,14 @@
 		gpio-controller;
 		#gpio-cells = <5>;
 		gpio-bank-name = "b";
+		sandbox,gpio-count = <10>;
+	};
+
+	gpio_c: extra2-gpios {
+		compatible = "sandbox,gpio";
+		gpio-controller;
+		#gpio-cells = <2>;
+		gpio-bank-name = "c";
 		sandbox,gpio-count = <10>;
 	};
 

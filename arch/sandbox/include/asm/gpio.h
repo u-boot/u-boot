@@ -62,4 +62,24 @@ int sandbox_gpio_get_direction(struct udevice *dev, unsigned int offset);
 int sandbox_gpio_set_direction(struct udevice *dev, unsigned int offset,
 			       int output);
 
+/**
+ * Return the simulated flags of a GPIO (used only in sandbox test code)
+ *
+ * @param dev		device to use
+ * @param offset	GPIO offset within bank
+ * @return dir_flags: bitfield accesses by GPIOD_ defines
+ */
+ulong sandbox_gpio_get_dir_flags(struct udevice *dev, unsigned int offset);
+
+/**
+ * Set the simulated flags of a GPIO (used only in sandbox test code)
+ *
+ * @param dev		device to use
+ * @param offset	GPIO offset within bank
+ * @param flags		dir_flags: bitfield accesses by GPIOD_ defines
+ * @return -1 on error, 0 if ok
+ */
+int sandbox_gpio_set_dir_flags(struct udevice *dev, unsigned int offset,
+			       ulong flags);
+
 #endif

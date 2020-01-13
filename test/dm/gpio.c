@@ -24,9 +24,9 @@ static int dm_test_gpio(struct unit_test_state *uts)
 	char buf[80];
 
 	/*
-	 * We expect to get 3 banks. One is anonymous (just numbered) and
-	 * comes from platdata. The other two are named a (20 gpios)
-	 * and b (10 gpios) and come from the device tree. See
+	 * We expect to get 4 banks. One is anonymous (just numbered) and
+	 * comes from platdata. The other are named a (20 gpios),
+	 * b (10 gpios) and c (10 gpios) and come from the device tree. See
 	 * test/dm/test.dts.
 	 */
 	ut_assertok(gpio_lookup_name("b4", &dev, &offset, &gpio));
@@ -72,6 +72,18 @@ static int dm_test_gpio(struct unit_test_state *uts)
 	ut_asserteq_str("b4: output: 0 [x] testing", buf);
 	ut_assertok(ops->set_value(dev, offset, 1));
 	ut_asserteq(1, ops->get_value(dev, offset));
+
+	/* Make it an open drain output, and reset it */
+	ut_asserteq(GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE,
+		    sandbox_gpio_get_dir_flags(dev, offset));
+	ut_assertok(ops->set_dir_flags(dev, offset,
+				       GPIOD_IS_OUT | GPIOD_OPEN_DRAIN));
+	ut_asserteq(GPIOD_IS_OUT | GPIOD_OPEN_DRAIN,
+		    sandbox_gpio_get_dir_flags(dev, offset));
+	ut_assertok(ops->set_dir_flags(dev, offset,
+				       GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE));
+	ut_asserteq(GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE,
+		    sandbox_gpio_get_dir_flags(dev, offset));
 
 	/* Make it an input */
 	ut_assertok(ops->direction_input(dev, offset));
@@ -208,11 +220,14 @@ static int dm_test_gpio_phandles(struct unit_test_state *uts)
 						      desc_list2,
 						      ARRAY_SIZE(desc_list2),
 						      0));
+	ut_asserteq(GPIOF_INPUT, gpio_get_function(gpio_a, 4, NULL));
 	ut_assertok(gpio_free_list(dev, desc_list, 3));
+	ut_asserteq(GPIOF_UNUSED, gpio_get_function(gpio_a, 4, NULL));
 	ut_asserteq(3, gpio_request_list_by_name(dev,  "test-gpios", desc_list,
 						 ARRAY_SIZE(desc_list),
 						 GPIOD_IS_OUT |
 						 GPIOD_IS_OUT_ACTIVE));
+	ut_asserteq(GPIOF_OUTPUT, gpio_get_function(gpio_a, 4, NULL));
 	ut_asserteq_ptr(gpio_a, desc_list[0].dev);
 	ut_asserteq(1, desc_list[0].offset);
 	ut_asserteq_ptr(gpio_a, desc_list[1].dev);
@@ -222,10 +237,14 @@ static int dm_test_gpio_phandles(struct unit_test_state *uts)
 	ut_asserteq(1, dm_gpio_get_value(desc_list));
 	ut_assertok(gpio_free_list(dev, desc_list, 3));
 
+	ut_asserteq(GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE,
+		    sandbox_gpio_get_dir_flags(gpio_a, 1));
 	ut_asserteq(6, gpio_request_list_by_name(dev, "test2-gpios", desc_list,
 						 ARRAY_SIZE(desc_list), 0));
-	/* This was set to output previously, so still will be */
-	ut_asserteq(GPIOF_OUTPUT, gpio_get_function(gpio_a, 1, NULL));
+
+	/* This was set to output previously but flags resetted to 0 = INPUT */
+	ut_asserteq(0, sandbox_gpio_get_dir_flags(gpio_a, 1));
+	ut_asserteq(GPIOF_INPUT, gpio_get_function(gpio_a, 1, NULL));
 
 	/* Active low should invert the input value */
 	ut_asserteq(GPIOF_INPUT, gpio_get_function(gpio_b, 6, NULL));
@@ -237,7 +256,42 @@ static int dm_test_gpio_phandles(struct unit_test_state *uts)
 	ut_asserteq(GPIOF_OUTPUT, gpio_get_function(gpio_b, 9, NULL));
 	ut_asserteq(1, dm_gpio_get_value(&desc_list[5]));
 
-
 	return 0;
 }
 DM_TEST(dm_test_gpio_phandles, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Check the gpio pin configuration get from device tree information */
+static int dm_test_gpio_get_dir_flags(struct unit_test_state *uts)
+{
+	struct gpio_desc desc_list[6];
+	struct udevice *dev;
+	ulong flags;
+
+	ut_assertok(uclass_get_device(UCLASS_TEST_FDT, 0, &dev));
+
+	ut_asserteq(6, gpio_request_list_by_name(dev, "test3-gpios", desc_list,
+						 ARRAY_SIZE(desc_list), 0));
+
+	ut_assertok(dm_gpio_get_dir_flags(&desc_list[0], &flags));
+	ut_asserteq(GPIOD_IS_OUT | GPIOD_OPEN_DRAIN, flags);
+
+	ut_assertok(dm_gpio_get_dir_flags(&desc_list[1], &flags));
+	ut_asserteq(GPIOD_IS_OUT | GPIOD_OPEN_SOURCE, flags);
+
+	ut_assertok(dm_gpio_get_dir_flags(&desc_list[2], &flags));
+	ut_asserteq(GPIOD_IS_OUT, flags);
+
+	ut_assertok(dm_gpio_get_dir_flags(&desc_list[3], &flags));
+	ut_asserteq(GPIOD_IS_IN | GPIOD_PULL_UP, flags);
+
+	ut_assertok(dm_gpio_get_dir_flags(&desc_list[4], &flags));
+	ut_asserteq(GPIOD_IS_IN | GPIOD_PULL_DOWN, flags);
+
+	ut_assertok(dm_gpio_get_dir_flags(&desc_list[5], &flags));
+	ut_asserteq(GPIOD_IS_IN, flags);
+
+	ut_assertok(gpio_free_list(dev, desc_list, 6));
+
+	return 0;
+}
+DM_TEST(dm_test_gpio_get_dir_flags, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
