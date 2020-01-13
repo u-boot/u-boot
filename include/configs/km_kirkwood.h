@@ -53,14 +53,6 @@
 #define CONFIG_HOSTNAME			"kmcoge5un"
 #define CONFIG_KM_DISABLE_PCIE
 
-/* KM_SUV31 */
-#elif defined(CONFIG_KM_SUV31)
-#define CONFIG_HOSTNAME			"kmsuv31"
-#undef CONFIG_SYS_KWD_CONFIG
-#define CONFIG_SYS_KWD_CONFIG $(CONFIG_BOARDDIR)/kwbimage_128M16_1.cfg
-#define CONFIG_KM_UBI_PART_BOOT_OPTS		",2048"
-#define CONFIG_SYS_NAND_NO_SUBPAGE_WRITE
-
 /* KM_SUSE2 */
 #elif defined(CONFIG_KM_SUSE2)
 #define CONFIG_HOSTNAME			"kmsuse2"
