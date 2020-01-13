@@ -82,6 +82,7 @@ static int boco_set_bits(u8 reg, u8 flags)
 #define FPGA_INIT_B	0x10
 #define FPGA_DONE	0x20
 
+#ifndef CONFIG_KM_FPGA_FORCE_CONFIG
 static int fpga_done(void)
 {
 	int ret = 0;
@@ -100,13 +101,16 @@ static int fpga_done(void)
 
 	return regval & FPGA_DONE ? 1 : 0;
 }
+#endif /* CONFIG_KM_FPGA_FORCE_CONFIG */
 
-int skip;
+static int skip;
 
 int trigger_fpga_config(void)
 {
 	int ret = 0;
 
+	skip = 0;
+#ifndef CONFIG_KM_FPGA_FORCE_CONFIG
 	/* if the FPGA is already configured, we do not want to
 	 * reconfigure it */
 	skip = 0;
@@ -115,6 +119,7 @@ int trigger_fpga_config(void)
 		skip = 1;
 		return 0;
 	}
+#endif /* CONFIG_KM_FPGA_FORCE_CONFIG */
 
 	if (check_boco2()) {
 		/* we have a BOCO2, this has to be triggered here */
@@ -188,7 +193,13 @@ int wait_for_fpga_config(void)
 	return 0;
 }
 
-#if defined(KM_PCIE_RESET_MPP7)
+#if defined(CONFIG_KM_FPGA_NO_RESET)
+int fpga_reset(void)
+{
+	/* no dedicated reset pin for FPGA */
+	return 0;
+}
+#elif defined(KM_PCIE_RESET_MPP7)
 
 #define KM_PEX_RST_GPIO_PIN	7
 int fpga_reset(void)

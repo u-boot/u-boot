@@ -65,6 +65,14 @@
 #define CONFIG_SYS_KWD_CONFIG $(CONFIG_BOARDDIR)/kwbimage_128M16_1.cfg
 #define CONFIG_KM_UBI_PART_BOOT_OPTS		",2048"
 #define CONFIG_SYS_NAND_NO_SUBPAGE_WRITE
+
+/* KM_SUSE2 */
+#elif defined(CONFIG_KM_SUSE2)
+#define CONFIG_HOSTNAME			"kmsuse2"
+#undef CONFIG_SYS_KWD_CONFIG
+#define CONFIG_SYS_KWD_CONFIG $(CONFIG_BOARDDIR)/kwbimage_128M16_1.cfg
+#define CONFIG_KM_UBI_PART_BOOT_OPTS		",2048"
+#define CONFIG_SYS_NAND_NO_SUBPAGE_WRITE
 #else
 #error ("Board unsupported")
 #endif
