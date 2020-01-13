@@ -510,15 +510,11 @@ int dm_gpio_set_value(const struct gpio_desc *desc, int value)
 	return 0;
 }
 
-int dm_gpio_set_dir_flags(struct gpio_desc *desc, ulong flags)
+static int _dm_gpio_set_dir_flags(struct gpio_desc *desc, ulong flags)
 {
 	struct udevice *dev = desc->dev;
 	struct dm_gpio_ops *ops = gpio_get_ops(dev);
-	int ret;
-
-	ret = check_reserved(desc, "set_dir");
-	if (ret)
-		return ret;
+	int ret = 0;
 
 	if (flags & GPIOD_IS_OUT) {
 		int value = flags & GPIOD_IS_OUT_ACTIVE ? 1 : 0;
@@ -529,20 +525,36 @@ int dm_gpio_set_dir_flags(struct gpio_desc *desc, ulong flags)
 	} else  if (flags & GPIOD_IS_IN) {
 		ret = ops->direction_input(dev, desc->offset);
 	}
+
+	return ret;
+}
+
+int dm_gpio_set_dir_flags(struct gpio_desc *desc, ulong flags)
+{
+	int ret;
+
+	ret = check_reserved(desc, "set_dir_flags");
 	if (ret)
 		return ret;
-	/*
-	 * Update desc->flags here, so that GPIO_ACTIVE_LOW is honoured in
-	 * futures
-	 */
-	desc->flags = flags;
 
-	return 0;
+	ret = _dm_gpio_set_dir_flags(desc, flags);
+
+	/* update the descriptor flags */
+	if (ret)
+		desc->flags = flags;
+
+	return ret;
 }
 
 int dm_gpio_set_dir(struct gpio_desc *desc)
 {
-	return dm_gpio_set_dir_flags(desc, desc->flags);
+	int ret;
+
+	ret = check_reserved(desc, "set_dir");
+	if (ret)
+		return ret;
+
+	return _dm_gpio_set_dir_flags(desc, desc->flags);
 }
 
 /**
