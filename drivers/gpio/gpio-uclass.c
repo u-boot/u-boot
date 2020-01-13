@@ -476,18 +476,24 @@ int gpio_direction_output(unsigned gpio, int value)
 							desc.offset, value);
 }
 
-int dm_gpio_get_value(const struct gpio_desc *desc)
+static int _gpio_get_value(const struct gpio_desc *desc)
 {
 	int value;
+
+	value = gpio_get_ops(desc->dev)->get_value(desc->dev, desc->offset);
+
+	return desc->flags & GPIOD_ACTIVE_LOW ? !value : value;
+}
+
+int dm_gpio_get_value(const struct gpio_desc *desc)
+{
 	int ret;
 
 	ret = check_reserved(desc, "get_value");
 	if (ret)
 		return ret;
 
-	value = gpio_get_ops(desc->dev)->get_value(desc->dev, desc->offset);
-
-	return desc->flags & GPIOD_ACTIVE_LOW ? !value : value;
+	return _gpio_get_value(desc);
 }
 
 int dm_gpio_set_value(const struct gpio_desc *desc, int value)
