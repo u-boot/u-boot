@@ -255,6 +255,22 @@ const void *dev_read_prop(const struct udevice *dev, const char *propname,
 	return ofnode_get_property(dev_ofnode(dev), propname, lenp);
 }
 
+int dev_read_first_prop(const struct udevice *dev, struct ofprop *prop)
+{
+	return ofnode_get_first_property(dev_ofnode(dev), prop);
+}
+
+int dev_read_next_prop(struct ofprop *prop)
+{
+	return ofnode_get_next_property(prop);
+}
+
+const void *dev_read_prop_by_prop(struct ofprop *prop,
+				  const char **propname, int *lenp)
+{
+	return ofnode_get_property_by_prop(prop, propname, lenp);
+}
+
 int dev_read_alias_seq(const struct udevice *dev, int *devnump)
 {
 	ofnode node = dev_ofnode(dev);
