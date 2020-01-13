@@ -145,6 +145,12 @@ config TPM2_TIS_SPI
 	  to the device using the standard TPM Interface Specification (TIS)
 	  protocol.
 
+config TPM2_FTPM_TEE
+	bool "TEE based fTPM Interface"
+	depends on TEE && OPTEE && TPM_V2
+	help
+	  This driver supports firmware TPM running in TEE.
+
 endif # TPM_V2
 
 endmenu
