@@ -129,6 +129,12 @@ struct gpio_desc {
 	 */
 };
 
+/* helper to compute the value of the gpio output */
+#define GPIOD_FLAGS_OUTPUT_MASK (GPIOD_ACTIVE_LOW | GPIOD_IS_OUT_ACTIVE)
+#define GPIOD_FLAGS_OUTPUT(flags) \
+	(((((flags) & GPIOD_FLAGS_OUTPUT_MASK) == GPIOD_IS_OUT_ACTIVE) || \
+	  (((flags) & GPIOD_FLAGS_OUTPUT_MASK) == GPIOD_ACTIVE_LOW)))
+
 /**
  * dm_gpio_is_valid() - Check if a GPIO is valid
  *

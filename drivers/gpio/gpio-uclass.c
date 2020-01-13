@@ -542,12 +542,9 @@ static int _dm_gpio_set_dir_flags(struct gpio_desc *desc, ulong flags)
 	}
 
 	if (flags & GPIOD_IS_OUT) {
-		int value = flags & GPIOD_IS_OUT_ACTIVE ? 1 : 0;
-
-		if (flags & GPIOD_ACTIVE_LOW)
-			value = !value;
-		ret = ops->direction_output(dev, desc->offset, value);
-	} else  if (flags & GPIOD_IS_IN) {
+		ret = ops->direction_output(dev, desc->offset,
+					    GPIOD_FLAGS_OUTPUT(flags));
+	} else if (flags & GPIOD_IS_IN) {
 		ret = ops->direction_input(dev, desc->offset);
 	}
 
