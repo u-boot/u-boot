@@ -805,7 +805,7 @@ static int do_fdtgrep(struct display_info *disp, const char *filename)
 	 * we do another pass to actually record them.
 	 */
 	for (i = 0; i < 2; i++) {
-		region = malloc(count * sizeof(struct fdt_region));
+		region = realloc(region, count * sizeof(struct fdt_region));
 		if (!region) {
 			fprintf(stderr, "Out of memory for %d regions\n",
 				count);
@@ -823,8 +823,10 @@ static int do_fdtgrep(struct display_info *disp, const char *filename)
 		}
 		if (count <= max_regions)
 			break;
+	}
+	if (count > max_regions) {
 		free(region);
-		fprintf(stderr, "Internal error with fdtgrep_find_region)(\n");
+		fprintf(stderr, "Internal error with fdtgrep_find_region()\n");
 		return -1;
 	}
 
