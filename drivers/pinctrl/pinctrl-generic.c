@@ -9,8 +9,6 @@
 #include <linux/compat.h>
 #include <dm/pinctrl.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /**
  * pinctrl_pin_name_to_selector() - return the pin selector for a pin
  *
@@ -244,18 +242,14 @@ static int pinctrl_generic_set_state_one(struct udevice *dev,
 					 struct udevice *config,
 					 bool is_group, unsigned selector)
 {
-	const void *fdt = gd->fdt_blob;
-	int node_offset = dev_of_offset(config);
 	const char *propname;
 	const void *value;
-	int prop_offset, len, func_selector, param, ret;
+	struct ofprop property;
+	int len, func_selector, param, ret;
 	u32 arg, default_val;
 
-	for (prop_offset = fdt_first_property_offset(fdt, node_offset);
-	     prop_offset > 0;
-	     prop_offset = fdt_next_property_offset(fdt, prop_offset)) {
-		value = fdt_getprop_by_offset(fdt, prop_offset,
-					      &propname, &len);
+	dev_for_each_property(property, config) {
+		value = dev_read_prop_by_prop(&property, &propname, &len);
 		if (!value)
 			return -EINVAL;
 
@@ -299,19 +293,17 @@ static int pinctrl_generic_set_state_one(struct udevice *dev,
 static int pinctrl_generic_set_state_subnode(struct udevice *dev,
 					     struct udevice *config)
 {
-	const void *fdt = gd->fdt_blob;
-	int node = dev_of_offset(config);
 	const char *subnode_target_type = "pins";
 	bool is_group = false;
 	const char *name;
 	int strings_count, selector, i, ret;
 
-	strings_count = fdt_stringlist_count(fdt, node, subnode_target_type);
+	strings_count = dev_read_string_count(config, subnode_target_type);
 	if (strings_count < 0) {
 		subnode_target_type = "groups";
 		is_group = true;
-		strings_count = fdt_stringlist_count(fdt, node,
-						     subnode_target_type);
+		strings_count = dev_read_string_count(config,
+						      subnode_target_type);
 		if (strings_count < 0) {
 			/* skip this node; may contain config child nodes */
 			return 0;
@@ -319,10 +311,10 @@ static int pinctrl_generic_set_state_subnode(struct udevice *dev,
 	}
 
 	for (i = 0; i < strings_count; i++) {
-		name = fdt_stringlist_get(fdt, node, subnode_target_type, i,
-					  NULL);
-		if (!name)
-			return -EINVAL;
+		ret = dev_read_string_index(config, subnode_target_type, i,
+					    &name);
+		if (ret)
+			return ret;
 
 		if (is_group)
 			selector = pinctrl_group_name_to_selector(dev, name);
