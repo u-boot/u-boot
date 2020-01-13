@@ -1,0 +1,6 @@
+config CMD_STBOARD
+	bool "stboard - command for OTP board information"
+	default y
+	help
+	  This compile the stboard command to
+	  read and write the board in the OTP.
