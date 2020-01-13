@@ -10,6 +10,7 @@
 #include <asm/gpio.h>
 #include <dm/of.h>
 #include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/gpio/sandbox-gpio.h>
 
 /* Flags for each GPIO */
 #define GPIOF_OUTPUT	(1 << 0)	/* Currently set as an output */
@@ -136,13 +137,15 @@ static int sb_gpio_xlate(struct udevice *dev, struct gpio_desc *desc,
 	desc->offset = args->args[0];
 	if (args->args_count < 2)
 		return 0;
-	if (args->args[1] & GPIO_ACTIVE_LOW)
-		desc->flags |= GPIOD_ACTIVE_LOW;
-	if (args->args[1] & 2)
+	/* treat generic binding with gpio uclass */
+	gpio_xlate_offs_flags(dev, desc, args);
+
+	/* sandbox test specific, not defined in gpio.h */
+	if (args->args[1] & GPIO_IN)
 		desc->flags |= GPIOD_IS_IN;
-	if (args->args[1] & 4)
+	if (args->args[1] & GPIO_OUT)
 		desc->flags |= GPIOD_IS_OUT;
-	if (args->args[1] & 8)
+	if (args->args[1] & GPIO_OUT_ACTIVE)
 		desc->flags |= GPIOD_IS_OUT_ACTIVE;
 
 	return 0;
