@@ -305,4 +305,16 @@
 #define DA9063_LDO_DRIVER	"da9063_ldo"
 #define DA9063_BUCK_DRIVER	"da9063_buck"
 
+/* Regulator modes */
+enum {
+	DA9063_LDOMODE_SLEEP,
+	DA9063_LDOMODE_NORMAL
+};
+
+enum {
+	DA9063_BUCKMODE_SLEEP,
+	DA9063_BUCKMODE_SYNC,
+	DA9063_BUCKMODE_AUTO,
+};
+
 #endif
