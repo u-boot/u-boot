@@ -37,7 +37,7 @@ int spl_board_boot_device(enum boot_device boot_dev_spl)
 	}
 }
 
-void spl_dram_init(void)
+static void spl_dram_init(void)
 {
 	ddr_init(&dram_timing);
 }
@@ -82,7 +82,7 @@ int board_early_init_f(void)
 	return 0;
 }
 
-int power_init_board(void)
+static int power_init_board(void)
 {
 	struct udevice *dev;
 	int ret;
