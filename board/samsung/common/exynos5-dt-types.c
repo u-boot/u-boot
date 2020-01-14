@@ -67,7 +67,7 @@ static int odroid_get_adc_val(unsigned int *adcval)
 	unsigned int adcval_prev = 0;
 	int ret, retries = 20;
 
-	ret = adc_channel_single_shot("adc", CONFIG_ODROID_REV_AIN,
+	ret = adc_channel_single_shot("adc@12D10000", CONFIG_ODROID_REV_AIN,
 				      &adcval_prev);
 	if (ret)
 		return ret;
@@ -75,8 +75,8 @@ static int odroid_get_adc_val(unsigned int *adcval)
 	while (retries--) {
 		mdelay(5);
 
-		ret = adc_channel_single_shot("adc", CONFIG_ODROID_REV_AIN,
-					      adcval);
+		ret = adc_channel_single_shot("adc@12D10000",
+					      CONFIG_ODROID_REV_AIN, adcval);
 		if (ret)
 			return ret;
 
