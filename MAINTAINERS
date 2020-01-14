@@ -52,7 +52,7 @@ Maintainers List (try to look for most precise areas first)
 		-----------------------------------
 ANDROID AB
 M:	Igor Opaniuk <igor.opaniuk@gmail.com>
-R:	Sam Protsenko <semen.protsenko@linaro.org>
+R:	Sam Protsenko <joe.skb7@gmail.com>
 S:	Maintained
 F:	cmd/ab_select.c
 F:	common/android_ab.c
