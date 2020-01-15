@@ -655,7 +655,7 @@ static int zynq_gem_probe(struct udevice *dev)
 		return -ENOMEM;
 
 	memset(priv->rxbuffers, 0, RX_BUF * PKTSIZE_ALIGN);
-	u32 addr = (ulong)priv->rxbuffers;
+	ulong addr = (ulong)priv->rxbuffers;
 	flush_dcache_range(addr, addr + roundup(RX_BUF * PKTSIZE_ALIGN, ARCH_DMA_MINALIGN));
 	barrier();
 
