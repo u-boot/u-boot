@@ -52,8 +52,30 @@ static unsigned long clk_pfd_recalc_rate(struct clk *clk)
 	return tmp;
 }
 
+static unsigned long clk_pfd_set_rate(struct clk *clk, unsigned long rate)
+{
+	struct clk_pfd *pfd = to_clk_pfd(clk);
+	unsigned long parent_rate = clk_get_parent_rate(clk);
+	u64 tmp = parent_rate;
+	u8 frac;
+
+	tmp = tmp * 18 + rate / 2;
+	do_div(tmp, rate);
+	frac = tmp;
+	if (frac < 12)
+		frac = 12;
+	else if (frac > 35)
+		frac = 35;
+
+	writel(0x3f << (pfd->idx * 8), pfd->reg + CLR);
+	writel(frac << (pfd->idx * 8), pfd->reg + SET);
+
+	return 0;
+}
+
 static const struct clk_ops clk_pfd_ops = {
 	.get_rate	= clk_pfd_recalc_rate,
+	.set_rate	= clk_pfd_set_rate,
 };
 
 struct clk *imx_clk_pfd(const char *name, const char *parent_name,

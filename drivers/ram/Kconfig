@@ -65,5 +65,13 @@ config K3_J721E_DDRSS
 	  Enabling this config adds support for the DDR memory controller
 	  on J721E family of SoCs.
 
+config IMXRT_SDRAM
+	bool "Enable i.MXRT SDRAM support"
+	depends on RAM
+	help
+	  i.MXRT family devices support smart external memory controller(SEMC)
+	  to support external memories like sdram, psram & nand.
+	  This driver is for the sdram memory interface with the SEMC.
+
 source "drivers/ram/rockchip/Kconfig"
 source "drivers/ram/stm32mp1/Kconfig"

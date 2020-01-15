@@ -56,18 +56,22 @@ ulong imx8_clk_get_rate(struct clk *clk)
 		pm_clk = SC_PM_CLK_CPU;
 		break;
 	case IMX8QXP_I2C0_CLK:
+	case IMX8QXP_I2C0_IPG_CLK:
 		resource = SC_R_I2C_0;
 		pm_clk = SC_PM_CLK_PER;
 		break;
 	case IMX8QXP_I2C1_CLK:
+	case IMX8QXP_I2C1_IPG_CLK:
 		resource = SC_R_I2C_1;
 		pm_clk = SC_PM_CLK_PER;
 		break;
 	case IMX8QXP_I2C2_CLK:
+	case IMX8QXP_I2C2_IPG_CLK:
 		resource = SC_R_I2C_2;
 		pm_clk = SC_PM_CLK_PER;
 		break;
 	case IMX8QXP_I2C3_CLK:
+	case IMX8QXP_I2C3_IPG_CLK:
 		resource = SC_R_I2C_3;
 		pm_clk = SC_PM_CLK_PER;
 		break;
@@ -145,18 +149,22 @@ ulong imx8_clk_set_rate(struct clk *clk, unsigned long rate)
 
 	switch (clk->id) {
 	case IMX8QXP_I2C0_CLK:
+	case IMX8QXP_I2C0_IPG_CLK:
 		resource = SC_R_I2C_0;
 		pm_clk = SC_PM_CLK_PER;
 		break;
 	case IMX8QXP_I2C1_CLK:
+	case IMX8QXP_I2C1_IPG_CLK:
 		resource = SC_R_I2C_1;
 		pm_clk = SC_PM_CLK_PER;
 		break;
 	case IMX8QXP_I2C2_CLK:
+	case IMX8QXP_I2C2_IPG_CLK:
 		resource = SC_R_I2C_2;
 		pm_clk = SC_PM_CLK_PER;
 		break;
 	case IMX8QXP_I2C3_CLK:
+	case IMX8QXP_I2C3_IPG_CLK:
 		resource = SC_R_I2C_3;
 		pm_clk = SC_PM_CLK_PER;
 		break;
@@ -234,18 +242,22 @@ int __imx8_clk_enable(struct clk *clk, bool enable)
 
 	switch (clk->id) {
 	case IMX8QXP_I2C0_CLK:
+	case IMX8QXP_I2C0_IPG_CLK:
 		resource = SC_R_I2C_0;
 		pm_clk = SC_PM_CLK_PER;
 		break;
 	case IMX8QXP_I2C1_CLK:
+	case IMX8QXP_I2C1_IPG_CLK:
 		resource = SC_R_I2C_1;
 		pm_clk = SC_PM_CLK_PER;
 		break;
 	case IMX8QXP_I2C2_CLK:
+	case IMX8QXP_I2C2_IPG_CLK:
 		resource = SC_R_I2C_2;
 		pm_clk = SC_PM_CLK_PER;
 		break;
 	case IMX8QXP_I2C3_CLK:
+	case IMX8QXP_I2C3_IPG_CLK:
 		resource = SC_R_I2C_3;
 		pm_clk = SC_PM_CLK_PER;
 		break;

@@ -732,7 +732,7 @@ config FSL_ESDHC_IMX
 
 config FSL_USDHC
 	bool "Freescale/NXP i.MX uSDHC controller support"
-	depends on MX6 || MX7 ||ARCH_MX7ULP || IMX8 || IMX8M || TARGET_S32V234EVB
+	depends on MX6 || MX7 ||ARCH_MX7ULP || IMX8 || IMX8M || IMXRT || TARGET_S32V234EVB
 	select FSL_ESDHC_IMX
 	help
 	  This enables the Ultra Secured Digital Host Controller enhancements

@@ -284,9 +284,9 @@ int spl_parse_image_header(struct spl_image_info *spl_image,
 			spl_image->entry_point = image_get_ep(header);
 			spl_image->size = image_get_data_size(header);
 		} else {
-			spl_image->entry_point = image_get_load(header);
+			spl_image->entry_point = image_get_ep(header);
 			/* Load including the header */
-			spl_image->load_addr = spl_image->entry_point -
+			spl_image->load_addr = image_get_load(header) -
 				header_size;
 			spl_image->size = image_get_data_size(header) +
 				header_size;

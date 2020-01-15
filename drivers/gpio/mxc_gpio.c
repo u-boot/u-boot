@@ -41,14 +41,15 @@ static unsigned long gpio_ports[] = {
 #if defined(CONFIG_MX25) || defined(CONFIG_MX27) || defined(CONFIG_MX51) || \
 		defined(CONFIG_MX53) || defined(CONFIG_MX6) || \
 		defined(CONFIG_MX7) || defined(CONFIG_IMX8M) || \
-		defined(CONFIG_ARCH_IMX8)
+		defined(CONFIG_ARCH_IMX8) || defined(CONFIG_IMXRT1050)
 	[3] = GPIO4_BASE_ADDR,
 #endif
 #if defined(CONFIG_MX27) || defined(CONFIG_MX53) || defined(CONFIG_MX6) || \
 		defined(CONFIG_MX7) || defined(CONFIG_IMX8M) || \
-		defined(CONFIG_ARCH_IMX8)
+		defined(CONFIG_ARCH_IMX8) || defined(CONFIG_IMXRT1050)
 	[4] = GPIO5_BASE_ADDR,
-#if !(defined(CONFIG_MX6UL) || defined(CONFIG_MX6ULL) || defined(CONFIG_IMX8M))
+#if !(defined(CONFIG_MX6UL) || defined(CONFIG_MX6ULL) || \
+		defined(CONFIG_IMX8M) || defined(CONFIG_IMXRT1050))
 	[5] = GPIO6_BASE_ADDR,
 #endif
 #endif

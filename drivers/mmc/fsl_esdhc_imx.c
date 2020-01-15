@@ -78,7 +78,7 @@ struct fsl_esdhc {
 	uint    vendorspec;
 	uint    mmcboot;
 	uint    vendorspec2;
-	uint    tuning_ctrl;	/* on i.MX6/7/8 */
+	uint    tuning_ctrl;	/* on i.MX6/7/8/RT */
 	char	reserved5[44];
 	uint    hostver;	/* Host controller version register */
 	char    reserved6[4];	/* reserved */
@@ -115,6 +115,7 @@ struct esdhc_soc_data {
  * Following is used when Driver Model is enabled for MMC
  * @dev: pointer for the device
  * @non_removable: 0: removable; 1: non-removable
+ * @broken_cd: 0: use GPIO for card detect; 1: Do not use GPIO for card detect
  * @wp_enable: 1: enable checking wp; 0: no check
  * @vs18_enable: 1: use 1.8V voltage; 0: use 3.3V
  * @flags: ESDHC_FLAG_xx in include/fsl_esdhc_imx.h
@@ -138,6 +139,7 @@ struct fsl_esdhc_priv {
 #endif
 	struct udevice *dev;
 	int non_removable;
+	int broken_cd;
 	int wp_enable;
 	int vs18_enable;
 	u32 flags;
@@ -1093,6 +1095,9 @@ static int esdhc_getcd_common(struct fsl_esdhc_priv *priv)
 #if CONFIG_IS_ENABLED(DM_MMC)
 	if (priv->non_removable)
 		return 1;
+
+	if (priv->broken_cd)
+		return 1;
 #if CONFIG_IS_ENABLED(DM_GPIO)
 	if (dm_gpio_is_valid(&priv->cd_gpio))
 		return dm_gpio_get_value(&priv->cd_gpio);
@@ -1451,6 +1456,9 @@ static int fsl_esdhc_probe(struct udevice *dev)
 			     ESDHC_STROBE_DLL_CTRL_SLV_DLY_TARGET_DEFAULT);
 	priv->strobe_dll_delay_target = val;
 
+	if (dev_read_bool(dev, "broken-cd"))
+		priv->broken_cd = 1;
+
 	if (dev_read_bool(dev, "non-removable")) {
 		priv->non_removable = 1;
 	 } else {
@@ -1515,27 +1523,27 @@ static int fsl_esdhc_probe(struct udevice *dev)
 
 	init_clk_usdhc(dev->seq);
 
-	if (CONFIG_IS_ENABLED(CLK)) {
-		/* Assigned clock already set clock */
-		ret = clk_get_by_name(dev, "per", &priv->per_clk);
-		if (ret) {
-			printf("Failed to get per_clk\n");
-			return ret;
-		}
-		ret = clk_enable(&priv->per_clk);
-		if (ret) {
-			printf("Failed to enable per_clk\n");
-			return ret;
-		}
-
-		priv->sdhc_clk = clk_get_rate(&priv->per_clk);
-	} else {
-		priv->sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK + dev->seq);
-		if (priv->sdhc_clk <= 0) {
-			dev_err(dev, "Unable to get clk for %s\n", dev->name);
-			return -EINVAL;
-		}
+#if CONFIG_IS_ENABLED(CLK)
+	/* Assigned clock already set clock */
+	ret = clk_get_by_name(dev, "per", &priv->per_clk);
+	if (ret) {
+		printf("Failed to get per_clk\n");
+		return ret;
 	}
+	ret = clk_enable(&priv->per_clk);
+	if (ret) {
+		printf("Failed to enable per_clk\n");
+		return ret;
+	}
+
+	priv->sdhc_clk = clk_get_rate(&priv->per_clk);
+#else
+	priv->sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK + dev->seq);
+	if (priv->sdhc_clk <= 0) {
+		dev_err(dev, "Unable to get clk for %s\n", dev->name);
+		return -EINVAL;
+	}
+#endif
 
 	ret = fsl_esdhc_init(priv, plat);
 	if (ret) {
@@ -1652,6 +1660,7 @@ static const struct udevice_id fsl_esdhc_ids[] = {
 	{ .compatible = "fsl,imx8mm-usdhc", .data = (ulong)&usdhc_imx8qm_data,},
 	{ .compatible = "fsl,imx8mn-usdhc", .data = (ulong)&usdhc_imx8qm_data,},
 	{ .compatible = "fsl,imx8mq-usdhc", .data = (ulong)&usdhc_imx8qm_data,},
+	{ .compatible = "fsl,imxrt-usdhc", },
 	{ .compatible = "fsl,esdhc", },
 	{ /* sentinel */ }
 };

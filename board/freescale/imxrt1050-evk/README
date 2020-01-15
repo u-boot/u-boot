@@ -1,0 +1,31 @@
+How to use U-Boot on NXP i.MXRT1050 EVK
+-----------------------------------------------
+
+- Build U-Boot for i.MXRT1050 EVK:
+
+$ make mrproper
+$ make imxrt1050-evk_defconfig
+$ make
+
+This will generate the SPL image called SPL and the u-boot.img.
+
+- Flash the SPL image into the micro SD card:
+
+sudo dd if=SPL of=/dev/mmcblk0 bs=1k seek=1; sync
+
+- Flash the u-boot.img image into the micro SD card:
+
+sudo dd if=u-boot.img of=/dev/sdb bs=1k seek=128; sync
+
+- Jumper settings:
+
+SW7: 1 0 1 0
+
+where 0 means bottom position and 1 means top position (from the
+switch label numbers reference).
+
+- Connect the USB cable between the EVK and the PC for the console.
+(The USB console connector is the one close the ethernet connector)
+
+- Insert the micro SD card in the board, power it up and U-Boot messages should
+come up.
