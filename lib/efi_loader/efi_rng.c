@@ -13,6 +13,17 @@ DECLARE_GLOBAL_DATA_PTR;
 
 const efi_guid_t efi_guid_rng_protocol = EFI_RNG_PROTOCOL_GUID;
 
+/**
+ * platform_get_rng_device() - retrieve random number generator
+ *
+ * This function retrieves the udevice implementing a hardware random
+ * number generator.
+ *
+ * This function may be overridden if special initialization is needed.
+ *
+ * @dev:	udevice
+ * Return:	status code
+ */
 __weak efi_status_t platform_get_rng_device(struct udevice **dev)
 {
 	int ret;
@@ -29,6 +40,18 @@ __weak efi_status_t platform_get_rng_device(struct udevice **dev)
 	return EFI_SUCCESS;
 }
 
+/**
+ * rng_getinfo() - get information about random number generation
+ *
+ * This function implement the GetInfo() service of the EFI random number
+ * generator protocol. See the UEFI spec for details.
+ *
+ * @this:			random number generator protocol instance
+ * @rng_algorithm_list_size:	number of random number generation algorithms
+ * @rng_algorithm_list:		descriptions of random number generation
+ *				algorithms
+ * Return:			status code
+ */
 static efi_status_t EFIAPI rng_getinfo(struct efi_rng_protocol *this,
 				       efi_uintn_t *rng_algorithm_list_size,
 				       efi_guid_t *rng_algorithm_list)
@@ -64,6 +87,18 @@ back:
 	return EFI_EXIT(ret);
 }
 
+/**
+ * rng_getrng() - get random value
+ *
+ * This function implement the GetRng() service of the EFI random number
+ * generator protocol. See the UEFI spec for details.
+ *
+ * @this:		random number generator protocol instance
+ * @rng_algorithm:	random number generation algorithm
+ * @rng_value_length:	number of random bytes to generate, buffer length
+ * @rng_value:		buffer to receive random bytes
+ * Return:		status code
+ */
 static efi_status_t EFIAPI getrng(struct efi_rng_protocol *this,
 				  efi_guid_t *rng_algorithm,
 				  efi_uintn_t rng_value_length,
