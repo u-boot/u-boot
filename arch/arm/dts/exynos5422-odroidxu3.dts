@@ -10,7 +10,7 @@
 #include "exynos54xx.dtsi"
 
 / {
-	model = "Odroid XU3 based on EXYNOS5422";
+	model = "Odroid XU3/XU4/HC1/HC2 based on Exynos5422";
 	compatible = "samsung,odroidxu3", "samsung,exynos5";
 
 	aliases {
