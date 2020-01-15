@@ -146,7 +146,7 @@ static struct pmic *pfuze_init(unsigned char i2cbus)
 		return NULL;
 
 	pmic_reg_read(p, PFUZE100_DEVICEID, &reg);
-	printf("PMIC:  PFUZE100 ID=0x%02x\n", reg);
+	printf("PMIC:  PFUZE%i00 ID=0x%02x\n", (reg & 1) ? 2 : 1, reg);
 
 	/* Set SW1AB stanby volage to 0.975V */
 	pmic_reg_read(p, PFUZE100_SW1ABSTBY, &reg);
