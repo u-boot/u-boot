@@ -427,8 +427,6 @@ void board_preboot_os(void)
 #include <spl.h>
 #include <asm/arch/mx6-ddr.h>
 
-static struct fsl_esdhc_cfg usdhc_cfg = { USDHC4_BASE_ADDR };
-
 static iomux_v3_cfg_t const pcie_pads[] = {
 	MX6_PAD_NAND_DATA02__GPIO4_IO_6 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 };
@@ -461,30 +459,13 @@ static void vining2000_spl_setup_iomux_uart(void)
 	imx_iomux_v3_setup_multiple_pads(uart_pads, ARRAY_SIZE(uart_pads));
 }
 
+static struct fsl_esdhc_cfg usdhc_cfg = { USDHC4_BASE_ADDR };
+
 int board_mmc_init(bd_t *bis)
 {
-	struct src *src_regs = (struct src *)SRC_BASE_ADDR;
-	u32 val;
-	u32 port;
+	imx_iomux_v3_setup_multiple_pads(usdhc4_pads, ARRAY_SIZE(usdhc4_pads));
 
-	val = readl(&src_regs->sbmr1);
-
-	if ((val & 0xc0) != 0x40) {
-		printf("Not boot from USDHC!\n");
-		return -EINVAL;
-	}
-
-	port = (val >> 11) & 0x3;
-	printf("port %d\n", port);
-	switch (port) {
-	case 3:
-		imx_iomux_v3_setup_multiple_pads(
-			usdhc4_pads, ARRAY_SIZE(usdhc4_pads));
-		usdhc_cfg.sdhc_clk = mxc_get_clock(MXC_ESDHC4_CLK);
-		usdhc_cfg.esdhc_base = USDHC4_BASE_ADDR;
-		break;
-	}
-
+	usdhc_cfg.sdhc_clk = mxc_get_clock(MXC_ESDHC4_CLK);
 	gd->arch.sdhc_clk = usdhc_cfg.sdhc_clk;
 	return fsl_esdhc_initialize(bis, &usdhc_cfg);
 }
