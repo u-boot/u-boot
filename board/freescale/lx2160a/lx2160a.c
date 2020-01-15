@@ -132,7 +132,7 @@ int board_fix_fdt(void *fdt)
 		{ "ccsr", "dbi" },
 		{ "pf_ctrl", "ctrl" }
 	};
-	int off = -1, i;
+	int off = -1, i = 0;
 
 	if (IS_SVR_REV(get_svr(), 1, 0))
 		return 0;
@@ -149,7 +149,7 @@ int board_fix_fdt(void *fdt)
 
 		reg_name = reg_names;
 		remaining_names_len = names_len - (reg_name - reg_names);
-		for (i = 0; (i < ARRAY_SIZE(reg_names_map)) && names_len; i++) {
+		while ((i < ARRAY_SIZE(reg_names_map)) && remaining_names_len) {
 			old_name_len = strlen(reg_names_map[i].old_str);
 			new_name_len = strlen(reg_names_map[i].new_str);
 			if (memcmp(reg_name, reg_names_map[i].old_str,
@@ -165,6 +165,7 @@ int board_fix_fdt(void *fdt)
 				       new_name_len);
 				names_len -= old_name_len;
 				names_len += new_name_len;
+				i++;
 			}
 
 			reg_name = memchr(reg_name, '\0', remaining_names_len);
