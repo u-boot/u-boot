@@ -329,6 +329,18 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
 	  Address on the MMC to load U-Boot from, when the MMC is being used
 	  in raw mode. Units: MMC sectors (1 sector = 512 bytes).
 
+config SYS_MMCSD_RAW_MODE_U_BOOT_DATA_PART_OFFSET
+	hex "U-Boot main hardware partition image offset"
+	depends on SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
+	default 0x0
+	help
+	  On some platforms SPL location depends on hardware partition. The ROM
+	  code skips the MBR sector when loading SPL from main hardware data
+	  partition. This adds offset to the main U-Boot image. Set this symbol
+	  to the number of skipped sectors.
+
+	  If unsure, leave the default.
+
 config SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
 	bool "MMC Raw mode: by partition"
 	help
