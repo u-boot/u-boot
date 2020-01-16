@@ -325,3 +325,7 @@
 		reg-names = "gmii-sel";
 	};
 };
+
+&main_mmc1_pins_default {
+	u-boot,dm-spl;
+};
