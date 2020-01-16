@@ -67,14 +67,12 @@
 
 &main_sdhci0 {
 	/* eMMC */
-	voltage-ranges = <1800 1800>;
 	non-removable;
 	ti,driver-strength-ohm = <50>;
 };
 
 &main_sdhci1 {
 	/* SD/MMC */
-	voltage-ranges = <1800 1800 3300 3300>;
 	ti,driver-strength-ohm = <50>;
 };
 
