@@ -327,8 +327,6 @@ static int _macb_send(struct macb_device *macb, const char *name, void *packet,
 	macb->tx_ring[tx_head].addr = paddr;
 	barrier();
 	macb_flush_ring_desc(macb, TX);
-	/* Do we need check paddr and length is dcache line aligned? */
-	flush_dcache_range(paddr, paddr + ALIGN(length, ARCH_DMA_MINALIGN));
 	macb_writel(macb, NCR, MACB_BIT(TE) | MACB_BIT(RE) | MACB_BIT(TSTART));
 
 	/*
@@ -344,7 +342,7 @@ static int _macb_send(struct macb_device *macb, const char *name, void *packet,
 		udelay(1);
 	}
 
-	dma_unmap_single(packet, length, paddr);
+	dma_unmap_single(packet, length, DMA_TO_DEVICE);
 
 	if (i <= MACB_TX_TIMEOUT) {
 		if (ctrl & MACB_BIT(TX_UNDERRUN))
