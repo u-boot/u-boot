@@ -17,7 +17,7 @@
 		serial0 = "/serial@13800000";
 		console = "/serial@13810000";
 		mmc0 = &mshc_0;
-		mmc1 = &sdhci2;
+		mmc2 = &sdhci2;
 	};
 
 	serial@13810000 {

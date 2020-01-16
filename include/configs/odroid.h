@@ -80,7 +80,7 @@
 	"tzsw raw 0x83f 0x138\0"
 
 #define BOOT_TARGET_DEVICES(func) \
-	func(MMC, mmc, 1) \
+	func(MMC, mmc, 2) \
 	func(MMC, mmc, 0)
 
 #include <config_distro_bootcmd.h>
