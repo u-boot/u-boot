@@ -49,6 +49,16 @@ static ulong h_spl_load_read(struct spl_load_info *load, ulong sector,
 	return blk_dread(mmc_get_blk_desc(mmc), sector, count, buf);
 }
 
+static __maybe_unused unsigned long spl_mmc_raw_uboot_offset(int part)
+{
+#if IS_ENABLED(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR)
+	if (part == 0)
+		return CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_DATA_PART_OFFSET;
+#endif
+
+	return 0;
+}
+
 static __maybe_unused
 int mmc_load_image_raw_sector(struct spl_image_info *spl_image,
 			      struct mmc *mmc, unsigned long sector)
@@ -325,7 +335,7 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 	static struct mmc *mmc;
 	u32 boot_mode;
 	int err = 0;
-	__maybe_unused int part;
+	__maybe_unused int part = 0;
 
 	/* Perform peripheral init only once */
 	if (!mmc) {
@@ -391,7 +401,8 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 			return err;
 #endif
 #ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
-		err = mmc_load_image_raw_sector(spl_image, mmc, raw_sect);
+		err = mmc_load_image_raw_sector(spl_image, mmc,
+				raw_sect + spl_mmc_raw_uboot_offset(part));
 		if (!err)
 			return err;
 #endif
