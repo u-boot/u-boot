@@ -71,6 +71,11 @@
 	"args_all=setenv optargs earlycon=ns16550a,mmio32,0x02800000\0" \
 	"run_kern=booti ${loadaddr} ${rd_spec} ${fdtaddr}\0"
 
+#define PARTS_DEFAULT \
+	/* Linux partitions */ \
+	"uuid_disk=${uuid_gpt_disk};" \
+	"name=rootfs,start=0,size=-,uuid=${uuid_gpt_rootfs}\0"
+
 /* U-Boot MMC-specific configuration */
 #define EXTRA_ENV_J721E_BOARD_SETTINGS_MMC				\
 	"boot=mmc\0"							\
@@ -88,6 +93,7 @@
 		"load mmc ${bootpart} ${overlayaddr} ${bootdir}/${overlay} && "	\
 		"fdt apply ${overlayaddr};"				\
 		"done;\0"						\
+	"partitions=" PARTS_DEFAULT					\
 	"get_kern_mmc=load mmc ${bootpart} ${loadaddr} "		\
 		"${bootdir}/${name_kern}\0"
 
