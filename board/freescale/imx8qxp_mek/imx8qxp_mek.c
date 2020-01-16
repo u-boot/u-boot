@@ -9,6 +9,7 @@
 #include <init.h>
 #include <linux/libfdt.h>
 #include <fsl_esdhc_imx.h>
+#include <fdt_support.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/arch/clock.h>
