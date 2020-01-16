@@ -13,8 +13,15 @@ static ulong clk_fixed_rate_get_rate(struct clk *clk)
 	return to_clk_fixed_rate(clk->dev)->fixed_rate;
 }
 
+/* avoid clk_enable() return -ENOSYS */
+static int dummy_enable(struct clk *clk)
+{
+	return 0;
+}
+
 const struct clk_ops clk_fixed_rate_ops = {
 	.get_rate = clk_fixed_rate_get_rate,
+	.enable = dummy_enable,
 };
 
 static int clk_fixed_rate_ofdata_to_platdata(struct udevice *dev)

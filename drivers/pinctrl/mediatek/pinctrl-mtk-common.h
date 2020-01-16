@@ -3,9 +3,11 @@
  * Copyright (C) 2018 MediaTek Inc.
  * Author: Ryder Lee <ryder.lee@mediatek.com>
  */
-
 #ifndef __PINCTRL_MEDIATEK_H__
 #define __PINCTRL_MEDIATEK_H__
+
+#define MTK_PINCTRL_V0 0x0
+#define MTK_PINCTRL_V1 0x1
 
 #define MTK_RANGE(_a)		{ .range = (_a), .nranges = ARRAY_SIZE(_a), }
 #define MTK_PIN(_number, _name, _drv_n) {				\
@@ -40,8 +42,12 @@ enum {
 	PINCTRL_PIN_REG_DIR,
 	PINCTRL_PIN_REG_DI,
 	PINCTRL_PIN_REG_DO,
-	PINCTRL_PIN_REG_IES,
 	PINCTRL_PIN_REG_SMT,
+	PINCTRL_PIN_REG_PD,
+	PINCTRL_PIN_REG_PU,
+	PINCTRL_PIN_REG_E4,
+	PINCTRL_PIN_REG_E8,
+	PINCTRL_PIN_REG_IES,
 	PINCTRL_PIN_REG_PULLEN,
 	PINCTRL_PIN_REG_PULLSEL,
 	PINCTRL_PIN_REG_DRV,
@@ -161,6 +167,8 @@ struct mtk_pinctrl_soc {
 	int ngrps;
 	const struct mtk_function_desc *funcs;
 	int nfuncs;
+	int gpio_mode;
+	int rev;
 };
 
 /**

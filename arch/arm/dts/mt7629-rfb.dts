@@ -7,6 +7,7 @@
 
 /dts-v1/;
 #include "mt7629.dtsi"
+#include "mt7629-rfb-u-boot.dtsi"
 
 / {
 	model = "MediaTek MT7629 RFB";

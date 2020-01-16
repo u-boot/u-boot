@@ -389,6 +389,8 @@ static struct mtk_pinctrl_soc mt8518_data = {
 	.ngrps = ARRAY_SIZE(mt8518_groups),
 	.funcs = mt8518_functions,
 	.nfuncs = ARRAY_SIZE(mt8518_functions),
+	.gpio_mode = 0,
+	.rev = MTK_PINCTRL_V1,
 };
 
 static int mtk_pinctrl_mt8518_probe(struct udevice *dev)

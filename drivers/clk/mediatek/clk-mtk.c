@@ -39,7 +39,7 @@
  * this function is recursively called to find the parent to calculate
  * the accurate frequency.
  */
-static int mtk_clk_find_parent_rate(struct clk *clk, int id,
+static ulong mtk_clk_find_parent_rate(struct clk *clk, int id,
 				    const struct driver *drv)
 {
 	struct clk parent = { .id = id, };
@@ -67,12 +67,23 @@ static int mtk_clk_mux_set_parent(void __iomem *base, u32 parent,
 		if (++index == mux->num_parents)
 			return -EINVAL;
 
-	/* switch mux to a select parent */
-	val = readl(base + mux->mux_reg);
-	val &= ~(mux->mux_mask << mux->mux_shift);
+	if (mux->flags & CLK_MUX_SETCLR_UPD) {
+		val = (mux->mux_mask << mux->mux_shift);
+		writel(val, base + mux->mux_clr_reg);
 
-	val |= index << mux->mux_shift;
-	writel(val, base + mux->mux_reg);
+		val = (index << mux->mux_shift);
+		writel(val, base + mux->mux_set_reg);
+
+		if (mux->upd_shift >= 0)
+			writel(BIT(mux->upd_shift), base + mux->upd_reg);
+	} else {
+		/* switch mux to a select parent */
+		val = readl(base + mux->mux_reg);
+		val &= ~(mux->mux_mask << mux->mux_shift);
+
+		val |= index << mux->mux_shift;
+		writel(val, base + mux->mux_reg);
+	}
 
 	return 0;
 }
@@ -84,11 +95,13 @@ static unsigned long __mtk_pll_recalc_rate(const struct mtk_pll_data *pll,
 {
 	int pcwbits = pll->pcwbits;
 	int pcwfbits;
+	int ibits;
 	u64 vco;
 	u8 c = 0;
 
 	/* The fractional part of the PLL divider. */
-	pcwfbits = pcwbits > INTEGER_BITS ? pcwbits - INTEGER_BITS : 0;
+	ibits = pll->pcwibits ? pll->pcwibits : INTEGER_BITS;
+	pcwfbits = pcwbits > ibits ? pcwbits - ibits : 0;
 
 	vco = (u64)fin * pcw;
 
@@ -113,7 +126,7 @@ static void mtk_pll_set_rate_regs(struct clk *clk, u32 pcw, int postdiv)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
 	const struct mtk_pll_data *pll = &priv->tree->plls[clk->id];
-	u32 val;
+	u32 val, chg;
 
 	/* set postdiv */
 	val = readl(priv->base + pll->pd_reg);
@@ -129,11 +142,16 @@ static void mtk_pll_set_rate_regs(struct clk *clk, u32 pcw, int postdiv)
 	/* set pcw */
 	val &= ~GENMASK(pll->pcw_shift + pll->pcwbits - 1, pll->pcw_shift);
 	val |= pcw << pll->pcw_shift;
-	val &= ~CON1_PCW_CHG;
-	writel(val, priv->base + pll->pcw_reg);
 
-	val |= CON1_PCW_CHG;
-	writel(val, priv->base + pll->pcw_reg);
+	if (pll->pcw_chg_reg) {
+		chg = readl(priv->base + pll->pcw_chg_reg);
+		chg |= CON1_PCW_CHG;
+		writel(val, priv->base + pll->pcw_reg);
+		writel(chg, priv->base + pll->pcw_chg_reg);
+	} else {
+		val |= CON1_PCW_CHG;
+		writel(val, priv->base + pll->pcw_reg);
+	}
 
 	udelay(20);
 }
@@ -150,8 +168,9 @@ static void mtk_pll_calc_values(struct clk *clk, u32 *pcw, u32 *postdiv,
 {
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
 	const struct mtk_pll_data *pll = &priv->tree->plls[clk->id];
-	unsigned long fmin = 1000 * MHZ;
+	unsigned long fmin = pll->fmin ? pll->fmin : 1000 * MHZ;
 	u64 _pcw;
+	int ibits;
 	u32 val;
 
 	if (freq > pll->fmax)
@@ -164,7 +183,8 @@ static void mtk_pll_calc_values(struct clk *clk, u32 *pcw, u32 *postdiv,
 	}
 
 	/* _pcw = freq * postdiv / xtal_rate * 2^pcwfbits */
-	_pcw = ((u64)freq << val) << (pll->pcwbits - INTEGER_BITS);
+	ibits = pll->pcwibits ? pll->pcwibits : INTEGER_BITS;
+	_pcw = ((u64)freq << val) << (pll->pcwbits - ibits);
 	do_div(_pcw, priv->tree->xtal2_rate);
 
 	*pcw = (u32)_pcw;
@@ -265,7 +285,7 @@ static ulong mtk_factor_recalc_rate(const struct mtk_fixed_factor *fdiv,
 	return rate;
 }
 
-static int mtk_topckgen_get_factor_rate(struct clk *clk, u32 off)
+static ulong mtk_topckgen_get_factor_rate(struct clk *clk, u32 off)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
 	const struct mtk_fixed_factor *fdiv = &priv->tree->fdivs[off];
@@ -287,7 +307,7 @@ static int mtk_topckgen_get_factor_rate(struct clk *clk, u32 off)
 	return mtk_factor_recalc_rate(fdiv, rate);
 }
 
-static int mtk_topckgen_get_mux_rate(struct clk *clk, u32 off)
+static ulong mtk_topckgen_get_mux_rate(struct clk *clk, u32 off)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
 	const struct mtk_composite *mux = &priv->tree->muxes[off];
@@ -332,9 +352,14 @@ static int mtk_topckgen_enable(struct clk *clk)
 		return 0;
 
 	/* enable clock gate */
-	val = readl(priv->base + mux->gate_reg);
-	val &= ~BIT(mux->gate_shift);
-	writel(val, priv->base + mux->gate_reg);
+	if (mux->flags & CLK_MUX_SETCLR_UPD) {
+		val = BIT(mux->gate_shift);
+		writel(val, priv->base + mux->mux_clr_reg);
+	} else {
+		val = readl(priv->base + mux->gate_reg);
+		val &= ~BIT(mux->gate_shift);
+		writel(val, priv->base + mux->gate_reg);
+	}
 
 	if (mux->flags & CLK_DOMAIN_SCPSYS) {
 		/* enable scpsys clock off control */
@@ -360,9 +385,14 @@ static int mtk_topckgen_disable(struct clk *clk)
 		return 0;
 
 	/* disable clock gate */
-	val = readl(priv->base + mux->gate_reg);
-	val |= BIT(mux->gate_shift);
-	writel(val, priv->base + mux->gate_reg);
+	if (mux->flags & CLK_MUX_SETCLR_UPD) {
+		val = BIT(mux->gate_shift);
+		writel(val, priv->base + mux->mux_set_reg);
+	} else {
+		val = readl(priv->base + mux->gate_reg);
+		val |= BIT(mux->gate_shift);
+		writel(val, priv->base + mux->gate_reg);
+	}
 
 	return 0;
 }

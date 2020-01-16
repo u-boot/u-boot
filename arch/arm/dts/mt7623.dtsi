@@ -101,21 +101,18 @@
 		compatible = "mediatek,mt7623-topckgen";
 		reg = <0x10000000 0x1000>;
 		#clock-cells = <1>;
-		u-boot,dm-pre-reloc;
 	};
 
 	infracfg: syscon@10001000 {
 		compatible = "mediatek,mt7623-infracfg", "syscon";
 		reg = <0x10001000 0x1000>;
 		#clock-cells = <1>;
-		u-boot,dm-pre-reloc;
 	};
 
 	pericfg: syscon@10003000 {
 		compatible = "mediatek,mt7623-pericfg", "syscon";
 		reg = <0x10003000 0x1000>;
 		#clock-cells = <1>;
-		u-boot,dm-pre-reloc;
 	};
 
 	pinctrl: pinctrl@10005000 {
@@ -155,7 +152,6 @@
 		interrupts = <GIC_SPI 112 IRQ_TYPE_LEVEL_LOW>;
 		clocks = <&system_clk>;
 		clock-names = "system-clk";
-		u-boot,dm-pre-reloc;
 	};
 
 	sysirq: interrupt-controller@10200100 {
@@ -170,7 +166,6 @@
 		compatible = "mediatek,mt7623-apmixedsys";
 		reg = <0x10209000 0x1000>;
 		#clock-cells = <1>;
-		u-boot,dm-pre-reloc;
 	};
 
 	gic: interrupt-controller@10211000 {
@@ -215,7 +210,6 @@
 			 <&pericfg CLK_PERI_UART2>;
 		clock-names = "baud", "bus";
 		status = "disabled";
-		u-boot,dm-pre-reloc;
 	};
 
 	uart3: serial@11005000 {

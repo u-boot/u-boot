@@ -155,6 +155,34 @@ int clk_get_bulk(struct udevice *dev, struct clk_bulk *bulk);
 int clk_get_by_name(struct udevice *dev, const char *name, struct clk *clk);
 
 /**
+ * clk_get_by_name_nodev - Get/request a clock by name without a device.
+ *
+ * This is a version of clk_get_by_name() that does not use a device.
+ *
+ * @node:	The client ofnode.
+ * @name:	The name of the clock to request, within the client's list of
+ *		clocks.
+ * @clock:	A pointer to a clock struct to initialize.
+ * @return 0 if OK, or a negative error code.
+ */
+int clk_get_by_name_nodev(ofnode node, const char *name, struct clk *clk);
+
+/**
+ * clock_get_optional_nodev - Get/request an optinonal clock by name
+ *		without a device.
+ * @node:	The client ofnode.
+ * @name:	The name of the clock to request.
+ * @name:	The name of the clock to request, within the client's list of
+ *		clocks.
+ * @clock:	A pointer to a clock struct to initialize.
+ *
+ * Behaves the same as clk_get_by_name_nodev() except where there is
+ * no clock producer, in this case, skip the error number -ENODATA, and
+ * the function returns 0.
+ */
+int clk_get_optional_nodev(ofnode node, const char *name, struct clk *clk);
+
+/**
  * devm_clk_get - lookup and obtain a managed reference to a clock producer.
  * @dev: device for clock "consumer"
  * @id: clock consumer ID
@@ -226,6 +254,18 @@ static inline int clk_get_bulk(struct udevice *dev, struct clk_bulk *bulk)
 
 static inline int clk_get_by_name(struct udevice *dev, const char *name,
 			   struct clk *clk)
+{
+	return -ENOSYS;
+}
+
+static inline int
+clk_get_by_name_nodev(ofnode node, const char *name, struct clk *clk)
+{
+	return -ENOSYS;
+}
+
+static inline int
+clk_get_optional_nodev(ofnode node, const char *name, struct clk *clk)
 {
 	return -ENOSYS;
 }

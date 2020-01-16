@@ -60,6 +60,7 @@
 #define DCM_TOP_EN		BIT(0)
 
 enum scp_domain_type {
+	SCPSYS_MT7622,
 	SCPSYS_MT7623,
 	SCPSYS_MT7629,
 };
@@ -328,6 +329,7 @@ static int mtk_power_domain_hook(struct udevice *dev)
 	case SCPSYS_MT7623:
 		scpd->data = scp_domain_mt7623;
 		break;
+	case SCPSYS_MT7622:
 	case SCPSYS_MT7629:
 		scpd->data = scp_domain_mt7629;
 		break;
@@ -378,6 +380,10 @@ static int mtk_power_domain_probe(struct udevice *dev)
 }
 
 static const struct udevice_id mtk_power_domain_ids[] = {
+	{
+		.compatible = "mediatek,mt7622-scpsys",
+		.data = SCPSYS_MT7622,
+	},
 	{
 		.compatible = "mediatek,mt7623-scpsys",
 		.data = SCPSYS_MT7623,
