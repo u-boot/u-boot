@@ -394,7 +394,7 @@ F:	arch/arm/mach-tegra/
 F:	arch/arm/include/asm/arch-tegra*/
 
 ARM TI
-M:	Tom Rini <trini@konsulko.com>
+M:	Lokesh Vutla <lokeshvutla@ti.com>
 S:	Maintained
 T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-ti.git
 F:	arch/arm/mach-davinci/
