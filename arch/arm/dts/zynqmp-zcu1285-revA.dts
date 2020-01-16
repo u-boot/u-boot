@@ -1,0 +1,245 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * dts file for Xilinx ZynqMP ZCU1285 RevA
+ *
+ * (C) Copyright 2018 - 2019, Xilinx, Inc.
+ *
+ * Michal Simek <michal.simek@xilinx.com>
+ * Siva Durga Prasad Paladugu <sivadur@xilinx.com>
+ */
+
+/dts-v1/;
+
+#include "zynqmp.dtsi"
+#include "zynqmp-clk-ccf.dtsi"
+
+/ {
+	model = "ZynqMP ZCU1285 RevA";
+	compatible = "xlnx,zynqmp-zcu1285-revA", "xlnx,zynqmp-zcu1285",
+		     "xlnx,zynqmp";
+
+	aliases {
+		serial0 = &uart0;
+		serial1 = &dcc;
+		spi0 = &qspi;
+		mmc0 = &sdhci1;
+		i2c = &i2c0; /* EMIO */
+	};
+
+	chosen {
+		bootargs = "earlycon";
+		stdout-path = "serial0:115200n8";
+	};
+
+	memory@0 {
+		device_type = "memory";
+		reg = <0x0 0x0 0x0 0x80000000>;
+	};
+
+	ina226-u60 {
+		compatible = "iio-hwmon";
+		io-channels = <&u60 0>, <&u60 1>, <&u60 2>, <&u60 3>;
+	};
+	ina226-u61 {
+		compatible = "iio-hwmon";
+		io-channels = <&u61 0>, <&u61 1>, <&u61 2>, <&u61 3>;
+	};
+	ina226-u63 {
+		compatible = "iio-hwmon";
+		io-channels = <&u63 0>, <&u63 1>, <&u63 2>, <&u63 3>;
+	};
+	ina226-u65 {
+		compatible = "iio-hwmon";
+		io-channels = <&u65 0>, <&u65 1>, <&u65 2>, <&u65 3>;
+	};
+	ina226-u64 {
+		compatible = "iio-hwmon";
+		io-channels = <&u64 0>, <&u64 1>, <&u64 2>, <&u64 3>;
+	};
+};
+
+&dcc {
+	status = "okay";
+};
+
+&i2c0 {
+	status = "okay";
+	clock-frequency = <400000>;
+
+	i2c-mux@75 {
+		compatible = "nxp,pca9548"; /* u22 */
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x75>;
+
+		i2c@0 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0>;
+			/* PMBUS */
+			max20751@74 { /* u23 */
+				compatible = "maxim,max20751";
+				reg = <0x74>;
+			};
+			max20751@70 { /* u89 */
+				compatible = "maxim,max20751";
+				reg = <0x70>;
+			};
+			max15301@a { /* u28 */
+				compatible = "maxim,max15301";
+				reg = <0xa>;
+			};
+			max15303@b { /* u48 */
+				compatible = "maxim,max15303";
+				reg = <0xb>;
+			};
+			max15303@d { /* u27 */
+				compatible = "maxim,max15303";
+				reg = <0xd>;
+			};
+			max15303@e { /* u11 */
+				compatible = "maxim,max15303";
+				reg = <0xe>;
+			};
+			max15303@f { /* u96 */
+				compatible = "maxim,max15303";
+				reg = <0xf>;
+			};
+			max15303@11 { /* u47 */
+				compatible = "maxim,max15303";
+				reg = <0x11>;
+			};
+			max15303@12 { /* u24 */
+				compatible = "maxim,max15303";
+				reg = <0x12>;
+			};
+			max15301@13 { /* u29 */
+				compatible = "maxim,max15301";
+				reg = <0x13>;
+			};
+			max15303@14 { /* u51 */
+				compatible = "maxim,max15303";
+				reg = <0x14>;
+			};
+			max15303@15 { /* u30 */
+				compatible = "maxim,max15303";
+				reg = <0x15>;
+			};
+			max15303@16 { /* u102 */
+				compatible = "maxim,max15303";
+				reg = <0x16>;
+			};
+			max15301@17 { /* u50 */
+				compatible = "maxim,max15301";
+				reg = <0x17>;
+			};
+			max15301@18 { /* u31 */
+				compatible = "maxim,max15301";
+				reg = <0x18>;
+			};
+		};
+		i2c@1 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <1>;
+			/* CM_I2C */
+		};
+		i2c@2 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <2>;
+			/* SYS_EEPROM */
+			eeprom: eeprom@54 { /* u101 */
+				compatible = "atmel,24c32"; /* 24LC32A */
+				reg = <0x54>;
+			};
+		};
+		i2c@3 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <3>;
+			/* FMC1 */
+		};
+		i2c@4 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <4>;
+			/* FMC2 */
+		};
+		i2c@5 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <5>;
+			/* ANALOG_PMBUS */
+			u60: ina226@40 { /* u60 */
+				compatible = "ti,ina226";
+				#io-channel-cells = <1>;
+				label = "ina226-u60";
+				reg = <0x40>;
+				shunt-resistor = <1000>;
+			};
+			u61: ina226@41 { /* u61 */
+				compatible = "ti,ina226";
+				#io-channel-cells = <1>;
+				label = "ina226-u61";
+				reg = <0x41>;
+				shunt-resistor = <1000>;
+			};
+			u63: ina226@42 { /* u63 */
+				compatible = "ti,ina226";
+				#io-channel-cells = <1>;
+				label = "ina226-u63";
+				reg = <0x42>;
+				shunt-resistor = <1000>;
+			};
+			u65: ina226@43 { /* u65 */
+				compatible = "ti,ina226";
+				#io-channel-cells = <1>;
+				label = "ina226-u65";
+				reg = <0x43>;
+				shunt-resistor = <1000>;
+			};
+			u64: ina226@44 { /* u64 */
+				compatible = "ti,ina226";
+				#io-channel-cells = <1>;
+				label = "ina226-u64";
+				reg = <0x44>;
+				shunt-resistor = <1000>;
+			};
+		};
+		i2c@6 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <6>;
+			/* ANALOG_CM_I2C */
+		};
+		i2c@7 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <7>;
+			/* FMC3 */
+		};
+	};
+};
+
+&qspi {
+	status = "okay";
+	flash@0 {
+		compatible = "m25p80", "jedec,spi-nor"; /* 32MB */
+		#address-cells = <1>;
+		#size-cells = <1>;
+		reg = <0x0>;
+		spi-tx-bus-width = <1>;
+		spi-rx-bus-width = <1>;
+		spi-max-frequency = <108000000>; /* Based on DC1 spec */
+	};
+};
+
+&uart0 {
+	status = "okay";
+};
+
+&sdhci1 {
+	status = "okay";
+	xlnx,mio_bank = <1>;
+};

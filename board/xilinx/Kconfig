@@ -44,6 +44,15 @@ config XILINX_OF_BOARD_DTB_ADDR
 	hex
 	default 0x1000 if ARCH_VERSAL
 	default 0x100000 if ARCH_ZYNQ || ARCH_ZYNQMP
-	depends on OF_BOARD
+	depends on OF_BOARD || OF_SEPARATE
 	help
 	  Offset in the memory where the board configuration DTB is placed.
+
+config BOOT_SCRIPT_OFFSET
+	hex "Boot script offset"
+	depends on ARCH_ZYNQ || ARCH_ZYNQMP || ARCH_VERSAL
+	default 0xFC0000 if ARCH_ZYNQ
+	default 0x3E80000 if ARCH_ZYNQMP
+	default 0x7F80000 if ARCH_VERSAL
+	help
+	   Specifies distro boot script offset in NAND/NOR flash.

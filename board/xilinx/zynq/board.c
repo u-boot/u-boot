@@ -50,7 +50,7 @@ int board_late_init(void)
 		env_set("modeboot", "sdboot");
 		break;
 	case ZYNQ_BM_JTAG:
-		mode = "pxe dhcp";
+		mode = "jtag pxe dhcp";
 		env_set("modeboot", "jtagboot");
 		break;
 	default:
@@ -75,6 +75,8 @@ int board_late_init(void)
 		env_targets ? env_targets : "");
 
 	env_set("boot_targets", new_targets);
+
+	env_set_hex("script_offset_f", CONFIG_BOOT_SCRIPT_OFFSET);
 
 	return 0;
 }

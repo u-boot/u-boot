@@ -236,6 +236,7 @@ endif
 config NAND_ARASAN
 	bool "Configure Arasan Nand"
 	select SYS_NAND_SELF_INIT
+	select DM_MTD
 	imply CMD_NAND
 	help
 	  This enables Nand driver support for Arasan nand flash
@@ -280,6 +281,7 @@ endif
 config NAND_ZYNQ
 	bool "Support for Zynq Nand controller"
 	select SYS_NAND_SELF_INIT
+	select DM_MTD
 	imply CMD_NAND
 	help
 	  This enables Nand driver support for Nand flash controller

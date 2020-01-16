@@ -94,7 +94,6 @@
 /* Console I/O Buffer Size */
 #define CONFIG_SYS_CBSIZE		2048
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-#define CONFIG_PANIC_HANG
 #define CONFIG_SYS_MAXARGS		64
 
 /* Ethernet driver */
@@ -114,7 +113,6 @@
 	"kernel_addr_r=0x18000000\0" \
 	"scriptaddr=0x20000000\0" \
 	"ramdisk_addr_r=0x02100000\0" \
-	"script_offset_f=0x3e80000\0" \
 	"script_size_f=0x80000\0" \
 
 #if defined(CONFIG_MMC_SDHCI_ZYNQ)
@@ -243,7 +241,11 @@
 # define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0 /* unused */
 # define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	0 /* unused */
 # define CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR	0 /* unused */
-# define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
+# if defined(CONFIG_SPL_LOAD_FIT)
+#  define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.itb"
+# else
+#  define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
+# endif
 #endif
 
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_DFU)

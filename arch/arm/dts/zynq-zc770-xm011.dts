@@ -47,6 +47,14 @@
 	};
 };
 
+&nand0 {
+	status = "okay";
+};
+
+&smcc {
+	status = "okay";
+};
+
 &spi0 {
 	status = "okay";
 	num-cs = <4>;

@@ -486,14 +486,6 @@ static unsigned long psu_peripherals_init_data(void)
 	psu_mask_write(0xFE980FB0, 0xFFFFFFFFU, 0xC5ACCE55U);
 	psu_mask_write(0xFE980004, 0x80000000U, 0x80000000U);
 	psu_mask_write(0xFE980FB0, 0xFFFFFFFFU, 0x00000000U);
-	psu_mask_write(0xFF000034, 0x000000FFU, 0x00000005U);
-	psu_mask_write(0xFF000018, 0x0000FFFFU, 0x0000008FU);
-	psu_mask_write(0xFF000000, 0x000001FFU, 0x00000017U);
-	psu_mask_write(0xFF000004, 0x000003FFU, 0x00000020U);
-	psu_mask_write(0xFF010034, 0x000000FFU, 0x00000005U);
-	psu_mask_write(0xFF010018, 0x0000FFFFU, 0x0000008FU);
-	psu_mask_write(0xFF010000, 0x000001FFU, 0x00000017U);
-	psu_mask_write(0xFF010004, 0x000003FFU, 0x00000020U);
 	psu_mask_write(0xFF4B0024, 0x000000FFU, 0x000000FFU);
 	psu_mask_write(0xFFCA5000, 0x00001FFFU, 0x00000000U);
 	psu_mask_write(0xFD5C0060, 0x000F000FU, 0x00000000U);

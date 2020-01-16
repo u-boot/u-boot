@@ -18,20 +18,7 @@
 static struct bl2_to_bl31_params_mem bl31_params_mem;
 static struct bl31_params *bl2_to_bl31_params;
 
-/**
- * bl2_plat_get_bl31_params() - prepare params for bl31.
- *
- * This function assigns a pointer to the memory that the platform has kept
- * aside to pass platform specific and trusted firmware related information
- * to BL31. This memory is allocated by allocating memory to
- * bl2_to_bl31_params_mem structure which is a superset of all the
- * structure whose information is passed to BL31
- * NOTE: This function should be called only once and should be done
- * before generating params to BL31
- *
- * @return bl31 params structure pointer
- */
-static struct bl31_params *bl2_plat_get_bl31_params(uintptr_t bl32_entry,
+__weak struct bl31_params *bl2_plat_get_bl31_params(uintptr_t bl32_entry,
 						    uintptr_t bl33_entry,
 						    uintptr_t fdt_addr)
 {
@@ -112,7 +99,7 @@ static void bl31_entry(uintptr_t bl31_entry, uintptr_t bl32_entry,
 
 static int spl_fit_images_find(void *blob, int os)
 {
-	int parent, node, ndepth;
+	int parent, node, ndepth = 0;
 	const void *data;
 
 	if (!blob)

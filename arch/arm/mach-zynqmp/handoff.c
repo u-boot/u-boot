@@ -66,7 +66,9 @@ struct xfsbl_atf_handoff_params {
 };
 
 #ifdef CONFIG_SPL_OS_BOOT
-void handoff_setup(void)
+struct bl31_params *bl2_plat_get_bl31_params(uintptr_t bl32_entry,
+					     uintptr_t bl33_entry,
+					     uintptr_t fdt_addr)
 {
 	struct xfsbl_atf_handoff_params *atfhandoffparams;
 
@@ -76,11 +78,16 @@ void handoff_setup(void)
 	atfhandoffparams->magic[2] = 'N';
 	atfhandoffparams->magic[3] = 'X';
 
-	atfhandoffparams->num_entries = 1;
-	atfhandoffparams->partition[0].entry_point = CONFIG_SYS_TEXT_BASE;
-	atfhandoffparams->partition[0].flags = FSBL_FLAGS_EL2 <<
-					       FSBL_FLAGS_EL_SHIFT;
+	atfhandoffparams->num_entries = 0;
+	if (bl33_entry) {
+		atfhandoffparams->partition[0].entry_point = bl33_entry;
+		atfhandoffparams->partition[0].flags = FSBL_FLAGS_EL2 <<
+						       FSBL_FLAGS_EL_SHIFT;
+		atfhandoffparams->num_entries++;
+	}
 
 	writel(CONFIG_SPL_TEXT_BASE, &pmu_base->gen_storage6);
+
+	return NULL;
 }
 #endif

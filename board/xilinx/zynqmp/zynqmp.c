@@ -580,8 +580,17 @@ int board_late_init(void)
 		break;
 	case EMMC_MODE:
 		puts("EMMC_MODE\n");
-		mode = "mmc0";
-		env_set("modeboot", "emmcboot");
+		if (uclass_get_device_by_name(UCLASS_MMC,
+					      "mmc@ff160000", &dev) &&
+		    uclass_get_device_by_name(UCLASS_MMC,
+					      "sdhci@ff160000", &dev)) {
+			puts("Boot from EMMC but without SD0 enabled!\n");
+			return -1;
+		}
+		debug("mmc0 device found at %p, seq %d\n", dev, dev->seq);
+
+		mode = "mmc";
+		bootseq = dev->seq;
 		break;
 	case SD_MODE:
 		puts("SD_MODE\n");
@@ -657,6 +666,8 @@ int board_late_init(void)
 	initrd_hi = gd->start_addr_sp - CONFIG_STACK_SIZE;
 	initrd_hi = round_down(initrd_hi, SZ_16M);
 	env_set_addr("initrd_high", (void *)initrd_hi);
+
+	env_set_hex("script_offset_f", CONFIG_BOOT_SCRIPT_OFFSET);
 
 	reset_reason();
 
