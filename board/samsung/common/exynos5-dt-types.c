@@ -129,7 +129,7 @@ static const char *odroid_get_type_str(void)
 	if (gd->board_type != EXYNOS5_BOARD_ODROID_XU3_REV02)
 		goto exit;
 
-	ret = pmic_get("s2mps11", &dev);
+	ret = pmic_get("s2mps11_pmic@66", &dev);
 	if (ret)
 		goto exit;
 
