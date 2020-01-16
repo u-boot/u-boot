@@ -223,7 +223,7 @@ static int am654_sdhci_probe(struct udevice *dev)
 	unsigned long clock;
 	int ret;
 
-	ret = clk_get_by_index(dev, 0, &clk);
+	ret = clk_get_by_name(dev, "clk_xin", &clk);
 	if (ret) {
 		dev_err(dev, "failed to get clock\n");
 		return ret;
