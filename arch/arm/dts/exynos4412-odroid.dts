@@ -236,6 +236,7 @@
 &sdhci2 {
 	samsung,bus-width = <4>;
 	samsung,timing = <1 2 3>;
+	cd-inverted;
 	cd-gpios = <&gpk2 2 0>;
 	status = "okay";
 };
