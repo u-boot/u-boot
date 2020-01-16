@@ -40,6 +40,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CREG_BASE		(ARC_PERIPHERAL_BASE + 0x1000)
 #define CREG_CPU_START		(CREG_BASE + 0x400)
 #define CREG_CPU_START_MASK	0xF
+#define CREG_CPU_START_POL	BIT(4)
 
 #define SDIO_BASE		(ARC_PERIPHERAL_BASE + 0xA000)
 #define SDIO_UHS_REG_EXT	(SDIO_BASE + 0x108)
@@ -331,25 +332,36 @@ static inline void halt_this_cpu(void)
 	__builtin_arc_flag(1);
 }
 
-static void smp_kick_cpu_x(u32 cpu_id)
+static u32 get_masked_cpu_ctart_reg(void)
 {
 	int cmd = readl((void __iomem *)CREG_CPU_START);
+
+	/*
+	 * Quirk for HSDK-4xD - due to HW issues HSDK can use any pulse polarity
+	 * and HSDK-4xD require active low polarity of cpu_start pulse.
+	 */
+	cmd &= ~CREG_CPU_START_POL;
+
+	cmd &= ~CREG_CPU_START_MASK;
+
+	return cmd;
+}
+
+static void smp_kick_cpu_x(u32 cpu_id)
+{
+	int cmd;
 
 	if (cpu_id > NR_CPUS)
 		return;
 
-	cmd &= ~CREG_CPU_START_MASK;
+	cmd = get_masked_cpu_ctart_reg();
 	cmd |= (1 << cpu_id);
 	writel(cmd, (void __iomem *)CREG_CPU_START);
 }
 
 static u32 prepare_cpu_ctart_reg(void)
 {
-	int cmd = readl((void __iomem *)CREG_CPU_START);
-
-	cmd &= ~CREG_CPU_START_MASK;
-
-	return cmd | env_common.core_mask.val;
+	return get_masked_cpu_ctart_reg() | env_common.core_mask.val;
 }
 
 /* slave CPU entry for configuration */
