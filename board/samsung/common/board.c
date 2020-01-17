@@ -25,6 +25,8 @@
 #include <asm/arch/sromc.h>
 #include <lcd.h>
 #include <i2c.h>
+#include <mmc.h>
+#include <stdio_dev.h>
 #include <usb.h>
 #include <dwc3-uboot.h>
 #include <samsung/misc.h>
@@ -40,6 +42,20 @@ __weak int exynos_early_init_f(void)
 
 __weak int exynos_power_init(void)
 {
+	return 0;
+}
+
+/**
+ * get_boot_mmc_dev() - read boot MMC device id from XOM[7:5] pins.
+ */
+static int get_boot_mmc_dev(void)
+{
+	u32 mode = readl(EXYNOS4_OP_MODE) & 0x1C;
+
+	if (mode == 0x04)
+		return 2; /* MMC2: SD */
+
+	/* MMC0: eMMC or unknown */
 	return 0;
 }
 
@@ -281,6 +297,8 @@ int board_late_init(void)
 {
 	struct udevice *dev;
 	int ret;
+	int mmcbootdev = get_boot_mmc_dev();
+	char mmcbootdev_str[16];
 
 	stdio_print_current_devices();
 	ret = uclass_first_device_err(UCLASS_CROS_EC, &dev);
@@ -293,6 +311,11 @@ int board_late_init(void)
 		panic("Cannot init cros-ec device");
 		return -1;
 	}
+
+	printf("Boot device: MMC(%u)\n", mmcbootdev);
+	sprintf(mmcbootdev_str, "%u", mmcbootdev);
+	env_set("mmcbootdev", mmcbootdev_str);
+
 	return 0;
 }
 #endif
@@ -359,4 +382,9 @@ int board_usb_cleanup(int index, enum usb_init_type init)
 	dwc3_uboot_exit(index);
 #endif
 	return 0;
+}
+
+int mmc_get_env_dev(void)
+{
+	return get_boot_mmc_dev();
 }
