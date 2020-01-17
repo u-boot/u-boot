@@ -146,13 +146,13 @@
 		"run kernel_args;" \
 		"bootz ${kernel_addr_r} ${initrd_addr} ${fdt_addr};\0" \
 	"autoboot=" \
-		"if test -e mmc 0 boot.scr; then; " \
+		"if test -e mmc ${mmcbootdev} boot.scr; then; " \
 			"run boot_script; " \
-		"elif test -e mmc 0 Image.itb; then; " \
+		"elif test -e mmc ${mmcbootdev} Image.itb; then; " \
 			"run boot_fit;" \
-		"elif test -e mmc 0 zImage; then; " \
+		"elif test -e mmc ${mmcbootdev} zImage; then; " \
 			"run boot_zimg;" \
-		"elif test -e mmc 0 uImage; then; " \
+		"elif test -e mmc ${mmcbootdev} uImage; then; " \
 			"run boot_uimg;" \
 		"fi;\0" \
 	"console=" CONFIG_DEFAULT_CONSOLE \
