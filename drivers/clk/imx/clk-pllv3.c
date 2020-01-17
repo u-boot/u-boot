@@ -163,6 +163,9 @@ static ulong clk_pllv3_av_get_rate(struct clk *clk)
 	u32 div = readl(pll->base) & pll->div_mask;
 	u64 temp64 = (u64)parent_rate;
 
+	if (mfd == 0)
+		return -EIO;
+
 	temp64 *= mfn;
 	do_div(temp64, mfd);
 
