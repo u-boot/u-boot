@@ -107,7 +107,7 @@ def append_conf_section(file, cnt, dtname, segments):
             file.write(';\n')
     if segments <= 1:
         file.write(';\n')
-    file.write('\t\t\tfdt = "fdt_1";\n')
+    file.write('\t\t\tfdt = "fdt_%d";\n' % cnt)
     file.write('\t\t};\n')
     file.write('\n')
 
