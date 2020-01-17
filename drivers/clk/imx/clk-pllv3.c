@@ -176,12 +176,18 @@ static ulong clk_pllv3_av_set_rate(struct clk *clk, ulong rate)
 {
 	struct clk_pllv3 *pll = to_clk_pllv3(clk);
 	unsigned long parent_rate = clk_get_parent_rate(clk);
-	unsigned long min_rate = parent_rate * 27;
-	unsigned long max_rate = parent_rate * 54;
+	unsigned long min_rate;
+	unsigned long max_rate;
 	u32 val, div;
 	u32 mfn, mfd = 1000000;
 	u32 max_mfd = 0x3FFFFFFF;
 	u64 temp64;
+
+	if (parent_rate == 0)
+		return -EINVAL;
+
+	min_rate = parent_rate * 27;
+	max_rate = parent_rate * 54;
 
 	if (rate < min_rate || rate > max_rate)
 		return -EINVAL;
