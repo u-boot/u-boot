@@ -12,6 +12,7 @@
 #include <bootm.h>
 #include <image.h>
 #include <version.h>
+#include <uboot_aes.h>
 
 /**
  * fit_set_hash_value - set hash value in requested has node
@@ -263,6 +264,262 @@ static int fit_image_process_sig(const char *keydir, void *keydest,
 			       node_name, image_name);
 			return ret;
 		}
+	}
+
+	return 0;
+}
+
+static int fit_image_read_data(char *filename, unsigned char *data,
+			       int expected_size)
+{
+	struct stat sbuf;
+	int fd, ret = -1;
+	ssize_t n;
+
+	/* Open file */
+	fd = open(filename, O_RDONLY | O_BINARY);
+	if (fd < 0) {
+		printf("Can't open file %s (err=%d => %s)\n",
+		       filename, errno, strerror(errno));
+		return -1;
+	}
+
+	/* Compute file size */
+	if (fstat(fd, &sbuf) < 0) {
+		printf("Can't fstat file %s (err=%d => %s)\n",
+		       filename, errno, strerror(errno));
+		goto err;
+	}
+
+	/* Check file size */
+	if (sbuf.st_size != expected_size) {
+		printf("File %s don't have the expected size (size=%ld, expected=%d)\n",
+		       filename, sbuf.st_size, expected_size);
+		goto err;
+	}
+
+	/* Read data */
+	n = read(fd, data, sbuf.st_size);
+	if (n < 0) {
+		printf("Can't read file %s (err=%d => %s)\n",
+		       filename, errno, strerror(errno));
+		goto err;
+	}
+
+	/* Check that we have read all the file */
+	if (n != sbuf.st_size) {
+		printf("Can't read all file %s (read %ld bytes, expexted %ld)\n",
+		       filename, n, sbuf.st_size);
+		goto err;
+	}
+
+	ret = 0;
+
+err:
+	close(fd);
+	return ret;
+}
+
+static int fit_image_setup_cipher(struct image_cipher_info *info,
+				  const char *keydir, void *fit,
+				  const char *image_name, int image_noffset,
+				  const char *node_name, int noffset)
+{
+	char *algo_name;
+	char filename[128];
+	int ret = -1;
+
+	if (fit_image_cipher_get_algo(fit, noffset, &algo_name)) {
+		printf("Can't get algo name for cipher '%s' in image '%s'\n",
+		       node_name, image_name);
+		goto out;
+	}
+
+	info->keydir = keydir;
+
+	/* Read the key name */
+	info->keyname = fdt_getprop(fit, noffset, "key-name-hint", NULL);
+	if (!info->keyname) {
+		printf("Can't get key name for cipher '%s' in image '%s'\n",
+		       node_name, image_name);
+		goto out;
+	}
+
+	/* Read the IV name */
+	info->ivname = fdt_getprop(fit, noffset, "iv-name-hint", NULL);
+	if (!info->ivname) {
+		printf("Can't get iv name for cipher '%s' in image '%s'\n",
+		       node_name, image_name);
+		goto out;
+	}
+
+	info->fit = fit;
+	info->node_noffset = noffset;
+	info->name = algo_name;
+
+	info->cipher = image_get_cipher_algo(algo_name);
+	if (!info->cipher) {
+		printf("Can't get algo for cipher '%s'\n", image_name);
+		goto out;
+	}
+
+	/* Read the key in the file */
+	snprintf(filename, sizeof(filename), "%s/%s%s",
+		 info->keydir, info->keyname, ".bin");
+	info->key = malloc(info->cipher->key_len);
+	if (!info->key) {
+		printf("Can't allocate memory for key\n");
+		ret = -1;
+		goto out;
+	}
+	ret = fit_image_read_data(filename, (unsigned char *)info->key,
+				  info->cipher->key_len);
+	if (ret < 0)
+		goto out;
+
+	/* Read the IV in the file */
+	snprintf(filename, sizeof(filename), "%s/%s%s",
+		 info->keydir, info->ivname, ".bin");
+	info->iv = malloc(info->cipher->iv_len);
+	if (!info->iv) {
+		printf("Can't allocate memory for iv\n");
+		ret = -1;
+		goto out;
+	}
+	ret = fit_image_read_data(filename, (unsigned char *)info->iv,
+				  info->cipher->iv_len);
+
+ out:
+	return ret;
+}
+
+int fit_image_write_cipher(void *fit, int image_noffset, int noffset,
+			   const void *data, size_t size,
+			   unsigned char *data_ciphered, int data_ciphered_len)
+{
+	int ret = -1;
+
+	/* Remove unciphered data */
+	ret = fdt_delprop(fit, image_noffset, FIT_DATA_PROP);
+	if (ret) {
+		printf("Can't remove data (err = %d)\n", ret);
+		goto out;
+	}
+
+	/* Add ciphered data */
+	ret = fdt_setprop(fit, image_noffset, FIT_DATA_PROP,
+			  data_ciphered, data_ciphered_len);
+	if (ret) {
+		printf("Can't add ciphered data (err = %d)\n", ret);
+		goto out;
+	}
+
+	/* add non ciphered data size */
+	ret = fdt_setprop_u32(fit, image_noffset, "data-size-unciphered", size);
+	if (ret) {
+		printf("Can't add unciphered data size (err = %d)\n", ret);
+		goto out;
+	}
+
+ out:
+	return ret;
+}
+
+static int
+fit_image_process_cipher(const char *keydir, void *keydest, void *fit,
+			 const char *image_name, int image_noffset,
+			 const char *node_name, int node_noffset,
+			 const void *data, size_t size,
+			 const char *cmdname)
+{
+	struct image_cipher_info info;
+	unsigned char *data_ciphered = NULL;
+	int data_ciphered_len;
+	int ret;
+
+	memset(&info, 0, sizeof(info));
+
+	ret = fit_image_setup_cipher(&info, keydir, fit, image_name,
+				     image_noffset, node_name, node_noffset);
+	if (ret)
+		goto out;
+
+	ret = info.cipher->encrypt(&info, data, size,
+				    &data_ciphered, &data_ciphered_len);
+	if (ret)
+		goto out;
+
+	/*
+	 * Write the public key into the supplied FDT file; this might fail
+	 * several times, since we try signing with successively increasing
+	 * size values
+	 */
+	if (keydest) {
+		ret = info.cipher->add_cipher_data(&info, keydest);
+		if (ret) {
+			printf("Failed to add verification data for cipher '%s' in image '%s'\n",
+			       info.keyname, image_name);
+			goto out;
+		}
+	}
+
+	ret = fit_image_write_cipher(fit, image_noffset, node_noffset,
+				     data, size,
+				     data_ciphered, data_ciphered_len);
+
+ out:
+	free(data_ciphered);
+	free((void *)info.key);
+	free((void *)info.iv);
+	return ret;
+}
+
+int fit_image_cipher_data(const char *keydir, void *keydest,
+			  void *fit, int image_noffset, const char *comment,
+			  int require_keys, const char *engine_id,
+			  const char *cmdname)
+{
+	const char *image_name;
+	const void *data;
+	size_t size;
+	int node_noffset;
+
+	/* Get image name */
+	image_name = fit_get_name(fit, image_noffset, NULL);
+	if (!image_name) {
+		printf("Can't get image name\n");
+		return -1;
+	}
+
+	/* Get image data and data length */
+	if (fit_image_get_data(fit, image_noffset, &data, &size)) {
+		printf("Can't get image data/size\n");
+		return -1;
+	}
+
+	/* Process all hash subnodes of the component image node */
+	for (node_noffset = fdt_first_subnode(fit, image_noffset);
+	     node_noffset >= 0;
+	     node_noffset = fdt_next_subnode(fit, node_noffset)) {
+		const char *node_name;
+		int ret = 0;
+
+		node_name = fit_get_name(fit, node_noffset, NULL);
+		if (!node_name) {
+			printf("Can't get node name\n");
+			return -1;
+		}
+
+		if (IMAGE_ENABLE_ENCRYPT && keydir &&
+		    !strncmp(node_name, FIT_CIPHER_NODENAME,
+			     strlen(FIT_CIPHER_NODENAME)))
+			ret = fit_image_process_cipher(keydir, keydest,
+						       fit, image_name,
+						       image_noffset,
+						       node_name, node_noffset,
+						       data, size, cmdname);
+		if (ret)
+			return ret;
 	}
 
 	return 0;
@@ -668,6 +925,41 @@ static int fit_config_add_verification_data(const char *keydir, void *keydest,
 				fit, conf_name, conf_noffset, noffset, comment,
 				require_keys, engine_id, cmdname);
 		}
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+
+int fit_cipher_data(const char *keydir, void *keydest, void *fit,
+		    const char *comment, int require_keys,
+		    const char *engine_id, const char *cmdname)
+{
+	int images_noffset;
+	int noffset;
+	int ret;
+
+	/* Find images parent node offset */
+	images_noffset = fdt_path_offset(fit, FIT_IMAGES_PATH);
+	if (images_noffset < 0) {
+		printf("Can't find images parent node '%s' (%s)\n",
+		       FIT_IMAGES_PATH, fdt_strerror(images_noffset));
+		return images_noffset;
+	}
+
+	/* Process its subnodes, print out component images details */
+	for (noffset = fdt_first_subnode(fit, images_noffset);
+	     noffset >= 0;
+	     noffset = fdt_next_subnode(fit, noffset)) {
+		/*
+		 * Direct child node of the images parent node,
+		 * i.e. component image node.
+		 */
+		ret = fit_image_cipher_data(keydir, keydest,
+					    fit, noffset, comment,
+					    require_keys, engine_id,
+					    cmdname);
 		if (ret)
 			return ret;
 	}
