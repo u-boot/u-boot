@@ -9,8 +9,8 @@
 #include <dm.h>
 #include <u-boot/rsa-mod-exp.h>
 
-int mod_exp_sw(struct udevice *dev, const uint8_t *sig, uint32_t sig_len,
-		struct key_prop *prop, uint8_t *out)
+static int mod_exp_sw(struct udevice *dev, const uint8_t *sig, uint32_t sig_len,
+		      struct key_prop *prop, uint8_t *out)
 {
 	int ret = 0;
 
