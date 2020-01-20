@@ -280,7 +280,13 @@ int ddr3_tip_configure_cs(u32 dev_num, u32 if_id, u32 cs_num, u32 enable)
 {
 	u32 data, addr_hi, data_high;
 	u32 mem_index;
+	u32 clk_enable;
 	struct mv_ddr_topology_map *tm = mv_ddr_topology_map_get();
+
+	if (tm->clk_enable & (1 << cs_num))
+		clk_enable = 1;
+	else
+		clk_enable = enable;
 
 	if (enable == 1) {
 		data = (tm->interface_params[if_id].bus_width ==
@@ -316,13 +322,13 @@ int ddr3_tip_configure_cs(u32 dev_num, u32 if_id, u32 cs_num, u32 enable)
 	case 2:
 		CHECK_STATUS(ddr3_tip_if_write
 			     (dev_num, ACCESS_TYPE_UNICAST, if_id,
-			      DUNIT_CTRL_LOW_REG, (enable << (cs_num + 11)),
+			      DUNIT_CTRL_LOW_REG, (clk_enable << (cs_num + 11)),
 			      1 << (cs_num + 11)));
 		break;
 	case 3:
 		CHECK_STATUS(ddr3_tip_if_write
 			     (dev_num, ACCESS_TYPE_UNICAST, if_id,
-			      DUNIT_CTRL_LOW_REG, (enable << 15), 1 << 15));
+			      DUNIT_CTRL_LOW_REG, (clk_enable << 15), 1 << 15));
 		break;
 	}
 
