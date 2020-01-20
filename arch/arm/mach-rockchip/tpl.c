@@ -6,6 +6,7 @@
 #include <common.h>
 #include <debug_uart.h>
 #include <dm.h>
+#include <hang.h>
 #include <ram.h>
 #include <spl.h>
 #include <version.h>

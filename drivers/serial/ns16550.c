@@ -4,6 +4,7 @@
  * modified to use CONFIG_SYS_ISA_MEM and new defines
  */
 
+#include <clock_legacy.h>
 #include <common.h>
 #include <clk.h>
 #include <dm.h>

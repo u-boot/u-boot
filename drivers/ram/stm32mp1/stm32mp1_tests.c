@@ -4,6 +4,7 @@
  */
 #include <common.h>
 #include <console.h>
+#include <init.h>
 #include <watchdog.h>
 #include <asm/io.h>
 #include <linux/log2.h>

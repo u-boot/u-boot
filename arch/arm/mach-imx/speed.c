@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
 

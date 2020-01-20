@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <hang.h>
 #include <asm/utils.h>
 #include <asm/arch/dra7xx_iodelay.h>
 #include <asm/arch/omap.h>

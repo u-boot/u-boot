@@ -4,6 +4,8 @@
  */
 
 #include <common.h>
+#include <hang.h>
+#include <init.h>
 #include <spl.h>
 #include <i2c.h>
 #include <asm/arch/clock.h>

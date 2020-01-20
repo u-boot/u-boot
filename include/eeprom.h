@@ -21,4 +21,8 @@ int eeprom_write(uint dev_addr, uint offset, uchar *buffer, uint cnt);
 #define eeprom_write(dev_addr, offset, buffer, cnt) ((void)-ENOSYS)
 #endif
 
+#if !defined(CONFIG_ENV_EEPROM_IS_ON_I2C) && defined(CONFIG_SYS_I2C_EEPROM_ADDR)
+# define CONFIG_SYS_DEF_EEPROM_ADDR CONFIG_SYS_I2C_EEPROM_ADDR
+#endif
+
 #endif

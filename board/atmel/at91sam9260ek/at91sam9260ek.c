@@ -7,6 +7,8 @@
 
 #include <common.h>
 #include <debug_uart.h>
+#include <init.h>
+#include <net.h>
 #include <asm/io.h>
 #include <asm/arch/at91sam9260_matrix.h>
 #include <asm/arch/at91sam9_smc.h>

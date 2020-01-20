@@ -12,6 +12,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <irq_func.h>
+#include <time.h>
 #include <vsprintf.h>
 #include <watchdog.h>
 #include <command.h>
@@ -332,7 +333,7 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #ifndef CONFIG_SYS_FSL_TBCLK_DIV
 #define CONFIG_SYS_FSL_TBCLK_DIV 8
 #endif
-__weak unsigned long get_tbclk (void)
+__weak unsigned long get_tbclk(void)
 {
 	unsigned long tbclk_div = CONFIG_SYS_FSL_TBCLK_DIV;
 

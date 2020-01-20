@@ -12,7 +12,11 @@
 #include <common.h>
 #include <api.h>
 #include <cpu_func.h>
+#include <exports.h>
+#include <hang.h>
+#include <image.h>
 #include <irq_func.h>
+#include <net.h>
 #include <u-boot/crc.h>
 /* TODO: can we just include all these headers whether needed or not? */
 #if defined(CONFIG_CMD_BEDBUG)
@@ -26,6 +30,7 @@
 #include <env_internal.h>
 #include <fdtdec.h>
 #include <ide.h>
+#include <init.h>
 #include <initcall.h>
 #if defined(CONFIG_CMD_KGDB)
 #include <kgdb.h>
@@ -481,7 +486,7 @@ static int initr_env(void)
 #endif
 
 	/* Initialize from environment */
-	load_addr = env_get_ulong("loadaddr", 16, load_addr);
+	image_load_addr = env_get_ulong("loadaddr", 16, image_load_addr);
 
 	return 0;
 }

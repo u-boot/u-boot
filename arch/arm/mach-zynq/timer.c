@@ -31,6 +31,7 @@
 #include <common.h>
 #include <div64.h>
 #include <dm.h>
+#include <time.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/clk.h>

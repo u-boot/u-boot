@@ -5,6 +5,7 @@
  * (C) Copyright 2017 Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
  */
 
+#include <cpu_func.h>
 #include <asm/arch/sysmap-apq8096.h>
 #include <env.h>
 #include <linux/arm-smccc.h>

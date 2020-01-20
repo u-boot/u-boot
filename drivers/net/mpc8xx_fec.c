@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <hang.h>
 #include <malloc.h>
 #include <net.h>
 #include <netdev.h>

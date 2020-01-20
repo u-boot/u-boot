@@ -8,6 +8,7 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <hang.h>
 #include <ram.h>
 #include <asm/io.h>
 #include <power-domain.h>

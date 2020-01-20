@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <fdt_support.h>
 #include <ioports.h>
 #include <mpc83xx.h>
 #include <i2c.h>

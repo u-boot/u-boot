@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/immap.h>
 #include <netdev.h>
 #include <asm/io.h>

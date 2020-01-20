@@ -8,6 +8,7 @@
 #include <asm/u-boot.h>
 #include <asm/utils.h>
 #include <common.h>
+#include <hang.h>
 #include <image.h>
 #include <spl.h>
 #include <asm/arch/clock_manager.h>

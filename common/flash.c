@@ -179,7 +179,7 @@ flash_write (char *src, ulong addr, ulong cnt)
 /*-----------------------------------------------------------------------
  */
 
-void flash_perror (int err)
+void flash_perror(int err)
 {
 	switch (err) {
 	case ERR_OK:

@@ -6,6 +6,7 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <init.h>
 #include <ram.h>
 #include <regmap.h>
 #include <syscon.h>

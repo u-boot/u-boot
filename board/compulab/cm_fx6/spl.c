@@ -8,6 +8,9 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
+#include <hang.h>
+#include <init.h>
 #include <spl.h>
 #include <asm/io.h>
 #include <asm/gpio.h>

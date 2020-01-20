@@ -4,6 +4,8 @@
  */
 
 #include <common.h>
+#include <fdt_support.h>
+#include <hang.h>
 #include <i2c.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>

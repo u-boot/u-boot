@@ -20,6 +20,7 @@
  */
 
 #include <common.h>
+#include <image.h>
 #include <linux/mtd/mtd.h>
 #include <command.h>
 #include <console.h>
@@ -925,7 +926,7 @@ static int nand_load_image(cmd_tbl_t *cmdtp, struct mtd_info *mtd,
 
 	/* Loading ok, update default load address */
 
-	load_addr = addr;
+	image_load_addr = addr;
 
 	return bootm_maybe_autostart(cmdtp, cmd);
 }

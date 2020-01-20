@@ -7,6 +7,7 @@
 #include <common.h>
 #include <bootm.h>
 #include <command.h>
+#include <image.h>
 #include <irq_func.h>
 #include <lmb.h>
 #include <linux/compiler.h>
@@ -33,9 +34,9 @@ static int bootz_start(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	/* Setup Linux kernel zImage entry point */
 	if (!argc) {
-		images->ep = load_addr;
+		images->ep = image_load_addr;
 		debug("*  kernel: default image load address = 0x%08lx\n",
-				load_addr);
+				image_load_addr);
 	} else {
 		images->ep = simple_strtoul(argv[0], NULL, 16);
 		debug("*  kernel: cmdline image address = 0x%08lx\n",

@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
 #include <dm.h>
 #include <dm/platform_data/serial_pl01x.h>
 #include <i2c.h>

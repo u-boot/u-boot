@@ -2,6 +2,7 @@
 /*
  * Copyright (C) 2016 Freescale Semiconductor, Inc.
  */
+#include <cpu_func.h>
 #include <init.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>

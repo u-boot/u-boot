@@ -8,6 +8,7 @@
 #include <common.h>
 #include <eeprom.h>
 #include <env.h>
+#include <hang.h>
 #include <init.h>
 #include <asm/arch/clock.h>
 #include <asm/ti-common/keystone_net.h>

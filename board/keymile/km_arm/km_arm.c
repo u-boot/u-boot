@@ -16,6 +16,7 @@
 #include <i2c.h>
 #include <init.h>
 #include <nand.h>
+#include <net.h>
 #include <netdev.h>
 #include <miiphy.h>
 #include <spi.h>

@@ -3,8 +3,10 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
 #include <console.h>
 #include <env_internal.h>
+#include <init.h>
 #include <malloc.h>
 #include <ns16550.h>
 #include <nand.h>

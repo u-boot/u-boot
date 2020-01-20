@@ -9,6 +9,9 @@
  */
 
 #include <common.h>
+#include <hang.h>
+#include <init.h>
+#include <net.h>
 #include <asm/emif.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>

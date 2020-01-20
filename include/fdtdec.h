@@ -111,6 +111,9 @@ struct fdt_pci_addr {
 	u32	phys_lo;
 };
 
+extern u8 __dtb_dt_begin[];	/* embedded device tree blob */
+extern u8 __dtb_dt_spl_begin[];	/* embedded device tree blob for SPL/TPL */
+
 /**
  * Compute the size of a resource.
  *

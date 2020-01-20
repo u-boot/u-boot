@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <bloblist.h>
+#include <clock_legacy.h>
 #include <console.h>
 #include <cpu.h>
 #include <cpu_func.h>
@@ -19,6 +20,7 @@
 #include <env_internal.h>
 #include <fdtdec.h>
 #include <fs.h>
+#include <hang.h>
 #include <i2c.h>
 #include <init.h>
 #include <initcall.h>

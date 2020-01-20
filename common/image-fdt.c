@@ -285,7 +285,8 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 	*of_flat_tree = NULL;
 	*of_size = 0;
 
-	img_addr = (argc == 0) ? load_addr : simple_strtoul(argv[0], NULL, 16);
+	img_addr = (argc == 0) ? image_load_addr :
+			simple_strtoul(argv[0], NULL, 16);
 	buf = map_sysmem(img_addr, 0);
 
 	if (argc > 2)
@@ -304,7 +305,7 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 			else if (images->fit_uname_os)
 				default_addr = (ulong)images->fit_hdr_os;
 			else
-				default_addr = load_addr;
+				default_addr = image_load_addr;
 
 			if (fit_parse_conf(select, default_addr,
 					   &fdt_addr, &fit_uname_config)) {

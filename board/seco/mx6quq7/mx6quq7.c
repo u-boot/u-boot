@@ -7,6 +7,7 @@
  * Modified by: Boris Brezillon <boris.brezillon@free-electrons.com>
  */
 
+#include <init.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/iomux.h>

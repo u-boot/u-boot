@@ -10,6 +10,7 @@
 #include <command.h>
 #include <efi_loader.h>
 #include <env.h>
+#include <image.h>
 #include <mapmem.h>
 #include <net.h>
 #include <net/tftp.h>
@@ -221,7 +222,7 @@ static int load_block(unsigned block, uchar *dst, unsigned len)
 	ulong tosend = len;
 
 	tosend = min(net_boot_file_size - offset, tosend);
-	(void)memcpy(dst, (void *)(save_addr + offset), tosend);
+	(void)memcpy(dst, (void *)(image_save_addr + offset), tosend);
 	debug("%s: block=%d, offset=%ld, len=%d, tosend=%ld\n", __func__,
 	      block, offset, len, tosend);
 	return tosend;
@@ -605,7 +606,7 @@ static void tftp_timeout_handler(void)
 	}
 }
 
-/* Initialize tftp_load_addr and tftp_load_size from load_addr and lmb */
+/* Initialize tftp_load_addr and tftp_load_size from image_load_addr and lmb */
 static int tftp_init_load_addr(void)
 {
 #ifdef CONFIG_LMB
@@ -614,13 +615,13 @@ static int tftp_init_load_addr(void)
 
 	lmb_init_and_reserve(&lmb, gd->bd, (void *)gd->fdt_blob);
 
-	max_size = lmb_get_free_size(&lmb, load_addr);
+	max_size = lmb_get_free_size(&lmb, image_load_addr);
 	if (!max_size)
 		return -1;
 
 	tftp_load_size = max_size;
 #endif
-	tftp_load_addr = load_addr;
+	tftp_load_addr = image_load_addr;
 	return 0;
 }
 
@@ -710,9 +711,9 @@ void tftp_start(enum proto_t protocol)
 #ifdef CONFIG_CMD_TFTPPUT
 	tftp_put_active = (protocol == TFTPPUT);
 	if (tftp_put_active) {
-		printf("Save address: 0x%lx\n", save_addr);
-		printf("Save size:    0x%lx\n", save_size);
-		net_boot_file_size = save_size;
+		printf("Save address: 0x%lx\n", image_save_addr);
+		printf("Save size:    0x%lx\n", image_save_size);
+		net_boot_file_size = image_save_size;
 		puts("Saving: *\b");
 		tftp_state = STATE_SEND_WRQ;
 		new_transfer();

@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <debug_uart.h>
 #include <fdtdec.h>
+#include <hang.h>
 #include <spl.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>

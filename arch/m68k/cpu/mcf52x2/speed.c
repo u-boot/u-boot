@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <clock_legacy.h>
 #include <asm/processor.h>
 #include <asm/immap.h>
 #include <asm/io.h>
@@ -15,7 +16,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /* get_clocks() fills in gd->cpu_clock and gd->bus_clk */
-int get_clocks (void)
+int get_clocks(void)
 {
 #if defined(CONFIG_M5208)
 	pll_t *pll = (pll_t *) MMAP_PLL;

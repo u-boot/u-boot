@@ -12,6 +12,7 @@
 #include <command.h>
 #include <env.h>
 #include <i2c.h>
+#include <net.h>
 #include <asm/mach-types.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>

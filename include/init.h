@@ -12,7 +12,16 @@
 
 #include <linux/types.h>
 
+struct global_data;
+
 #ifndef __ASSEMBLY__		/* put C only stuff in this section */
+
+/* Avoid using CONFIG_EFI_STUB directly as we may boot from other loaders */
+#ifdef CONFIG_EFI_STUB
+#define ll_boot_init()	false
+#else
+#define ll_boot_init()	true
+#endif
 
 /*
  * Function Prototypes
@@ -96,6 +105,11 @@ int dram_init(void);
  * Return: 0 if OK, -ve on error
  */
 int dram_init_banksize(void);
+
+long get_ram_size(long *base, long size);
+phys_size_t get_effective_memsize(void);
+
+int testdram(void);
 
 /**
  * arch_reserve_stacks() - Reserve all necessary stacks
@@ -220,6 +234,21 @@ int board_early_init_r(void);
 void pci_init_board(void);
 
 void trap_init(unsigned long reloc_addr);
+
+/**
+ * main_loop() - Enter the main loop of U-Boot
+ *
+ * This normally runs the command line.
+ */
+void main_loop(void);
+
+#if defined(CONFIG_ARM)
+void relocate_code(ulong addr_moni);
+#else
+void relocate_code(ulong start_addr_sp, struct global_data *new_gd,
+		   ulong relocaddr)
+	__attribute__ ((noreturn));
+#endif
 
 #endif	/* __ASSEMBLY__ */
 /* Put only stuff here that the assembler can digest */

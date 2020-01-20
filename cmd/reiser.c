@@ -154,7 +154,7 @@ int do_reiserload (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	/* Loading ok, update default load address */
-	load_addr = addr;
+	image_load_addr = addr;
 
 	printf ("\n%ld bytes read\n", filelen);
 	env_set_hex("filesize", filelen);

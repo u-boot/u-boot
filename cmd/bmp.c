@@ -13,6 +13,7 @@
 #include <command.h>
 #include <dm.h>
 #include <gzip.h>
+#include <image.h>
 #include <lcd.h>
 #include <malloc.h>
 #include <mapmem.h>
@@ -95,8 +96,8 @@ static int do_bmp_info(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[
 	ulong addr;
 
 	switch (argc) {
-	case 1:		/* use load_addr as default address */
-		addr = load_addr;
+	case 1:		/* use image_load_addr as default address */
+		addr = image_load_addr;
 		break;
 	case 2:		/* use argument */
 		addr = simple_strtoul(argv[1], NULL, 16);
@@ -116,8 +117,8 @@ static int do_bmp_display(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 	splash_get_pos(&x, &y);
 
 	switch (argc) {
-	case 1:		/* use load_addr as default address */
-		addr = load_addr;
+	case 1:		/* use image_load_addr as default address */
+		addr = image_load_addr;
 		break;
 	case 2:		/* use argument */
 		addr = simple_strtoul(argv[1], NULL, 16);

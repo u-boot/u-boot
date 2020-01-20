@@ -6,6 +6,8 @@
 #include <linux/typecheck.h>
 #include <linux/types.h>
 
+ulong get_tbclk(void);
+
 unsigned long get_timer(unsigned long base);
 
 /*

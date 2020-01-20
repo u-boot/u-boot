@@ -73,6 +73,7 @@
 #include <common.h>
 #include <command.h>
 #include <env.h>
+#include <image.h>
 #include <malloc.h>
 #include <jffs2/jffs2.h>
 #include <linux/list.h>
@@ -476,7 +477,7 @@ int do_jffs2_fsload(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	char *filename;
 	int size;
 	struct part_info *part;
-	ulong offset = load_addr;
+	ulong offset = image_load_addr;
 
 	/* pre-set Boot file name */
 	filename = env_get("bootfile");
@@ -488,7 +489,7 @@ int do_jffs2_fsload(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 	if (argc == 3) {
 		offset = simple_strtoul(argv[1], NULL, 16);
-		load_addr = offset;
+		image_load_addr = offset;
 		filename = argv[2];
 	}
 

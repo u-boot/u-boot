@@ -112,6 +112,10 @@ struct fdt_region;
 # define IMAGE_OF_SYSTEM_SETUP	0
 #endif
 
+extern ulong image_load_addr;		/* Default Load Address */
+extern ulong image_save_addr;		/* Default Save Address */
+extern ulong image_save_size;		/* Default Save Size */
+
 enum ih_category {
 	IH_ARCH,
 	IH_COMP,
@@ -669,6 +673,18 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 		   const char **fit_unamep, const char **fit_uname_configp,
 		   int arch, int image_type, int bootstage_id,
 		   enum fit_load_op load_op, ulong *datap, ulong *lenp);
+
+/**
+ * image_source_script() - Execute a script
+ *
+ * Executes a U-Boot script at a particular address in memory. The script should
+ * have a header (FIT or legacy) with the script type (IH_TYPE_SCRIPT).
+ *
+ * @addr: Address of script
+ * @fit_uname: FIT subimage name
+ * @return result code (enum command_ret_t)
+ */
+int image_source_script(ulong addr, const char *fit_uname);
 
 #ifndef USE_HOSTCC
 /**

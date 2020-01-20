@@ -557,9 +557,9 @@ static const image_header_t *image_get_ramdisk(ulong rd_addr, uint8_t arch,
 /* Shared dual-format routines */
 /*****************************************************************************/
 #ifndef USE_HOSTCC
-ulong load_addr = CONFIG_SYS_LOAD_ADDR;	/* Default Load Address */
-ulong save_addr;			/* Default Save Address */
-ulong save_size;			/* Default Save Size (in bytes) */
+ulong image_load_addr = CONFIG_SYS_LOAD_ADDR;	/* Default Load Address */
+ulong image_save_addr;			/* Default Save Address */
+ulong image_save_size;			/* Default Save Size (in bytes) */
 
 static int on_loadaddr(const char *name, const char *value, enum env_op op,
 	int flags)
@@ -567,7 +567,7 @@ static int on_loadaddr(const char *name, const char *value, enum env_op op,
 	switch (op) {
 	case env_op_create:
 	case env_op_overwrite:
-		load_addr = simple_strtoul(value, NULL, 16);
+		image_load_addr = simple_strtoul(value, NULL, 16);
 		break;
 	default:
 		break;
@@ -936,15 +936,15 @@ ulong genimg_get_kernel_addr_fit(char * const img_addr,
 
 	/* find out kernel image address */
 	if (!img_addr) {
-		kernel_addr = load_addr;
+		kernel_addr = image_load_addr;
 		debug("*  kernel: default image load address = 0x%08lx\n",
-		      load_addr);
+		      image_load_addr);
 #if CONFIG_IS_ENABLED(FIT)
-	} else if (fit_parse_conf(img_addr, load_addr, &kernel_addr,
+	} else if (fit_parse_conf(img_addr, image_load_addr, &kernel_addr,
 				  fit_uname_config)) {
 		debug("*  kernel: config '%s' from image at 0x%08lx\n",
 		      *fit_uname_config, kernel_addr);
-	} else if (fit_parse_subimage(img_addr, load_addr, &kernel_addr,
+	} else if (fit_parse_subimage(img_addr, image_load_addr, &kernel_addr,
 				     fit_uname_kernel)) {
 		debug("*  kernel: subimage '%s' from image at 0x%08lx\n",
 		      *fit_uname_kernel, kernel_addr);
@@ -1102,7 +1102,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 			if (images->fit_uname_os)
 				default_addr = (ulong)images->fit_hdr_os;
 			else
-				default_addr = load_addr;
+				default_addr = image_load_addr;
 
 			if (fit_parse_conf(select, default_addr,
 					   &rd_addr, &fit_uname_config)) {

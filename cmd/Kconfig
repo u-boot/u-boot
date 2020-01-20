@@ -858,11 +858,6 @@ config CMD_FASTBOOT
 
 	  See doc/android/fastboot.txt for more information.
 
-config CMD_FDC
-	bool "fdcboot - Boot from floppy device"
-	help
-	  The 'fdtboot' command allows booting an image from a floppy disk.
-
 config CMD_FLASH
 	bool "flinfo, erase, protect"
 	default y

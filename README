@@ -2460,7 +2460,7 @@ typically in board_init_f() and board_init_r().
 Configuration Settings:
 -----------------------
 
-- CONFIG_SYS_SUPPORT_64BIT_DATA: Defined automatically if compiled as 64-bit.
+- MEM_SUPPORT_64BIT_DATA: Defined automatically if compiled as 64-bit.
 		Optionally it can be defined to support 64-bit memory commands.
 
 - CONFIG_SYS_LONGHELP: Defined when you want long help messages included;
@@ -2869,32 +2869,6 @@ Low Level (hardware related) configuration options:
 - CONFIG_SYS_CCSR_DO_NOT_RELOCATE:
 		If this macro is defined, then CONFIG_SYS_CCSRBAR_PHYS will be
 		forced to a value that ensures that CCSR is not relocated.
-
-- Floppy Disk Support:
-		CONFIG_SYS_FDC_DRIVE_NUMBER
-
-		the default drive number (default value 0)
-
-		CONFIG_SYS_ISA_IO_STRIDE
-
-		defines the spacing between FDC chipset registers
-		(default value 1)
-
-		CONFIG_SYS_ISA_IO_OFFSET
-
-		defines the offset of register from address. It
-		depends on which part of the data bus is connected to
-		the FDC chipset. (default value 0)
-
-		If CONFIG_SYS_ISA_IO_STRIDE CONFIG_SYS_ISA_IO_OFFSET and
-		CONFIG_SYS_FDC_DRIVE_NUMBER are undefined, they take their
-		default value.
-
-		if CONFIG_SYS_FDC_HW_INIT is defined, then the function
-		fdc_hw_init() is called at the beginning of the FDC
-		setup. fdc_hw_init() must be provided by the board
-		source code. It is used to make hardware-dependent
-		initializations.
 
 - CONFIG_IDE_AHB:
 		Most IDE controllers were designed to be connected with PCI

@@ -5,6 +5,7 @@
  * Author: Richard Hu <richard.hu@technexion.com>
  */
 
+#include <cpu_func.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/crm_regs.h>

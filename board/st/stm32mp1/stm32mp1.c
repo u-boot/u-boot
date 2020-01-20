@@ -12,6 +12,7 @@
 #include <env_internal.h>
 #include <g_dnl.h>
 #include <generic-phy.h>
+#include <hang.h>
 #include <i2c.h>
 #include <init.h>
 #include <led.h>

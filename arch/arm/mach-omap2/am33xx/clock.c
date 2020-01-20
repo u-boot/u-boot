@@ -8,6 +8,7 @@
  * Copyright (C) 2013, Texas Instruments, Incorporated - http://www.ti.com/
  */
 #include <common.h>
+#include <hang.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/hardware.h>

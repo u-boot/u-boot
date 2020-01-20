@@ -4,7 +4,9 @@
  * Peter Griffin <peter.griffin@linaro.org>
  */
 #include <common.h>
+#include <cpu_func.h>
 #include <dm.h>
+#include <fdt_support.h>
 #include <dm/platform_data/serial_pl01x.h>
 #include <errno.h>
 #include <malloc.h>

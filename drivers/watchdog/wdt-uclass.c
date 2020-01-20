@@ -6,6 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <hang.h>
 #include <wdt.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>

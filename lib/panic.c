@@ -10,6 +10,7 @@
  */
 
 #include <common.h>
+#include <hang.h>
 #if !defined(CONFIG_PANIC_HANG)
 #include <command.h>
 #endif

@@ -9,6 +9,7 @@
 #include <env.h>
 #include <init.h>
 #include <pci.h>
+#include <time.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
 #include <asm/fsl_pci.h>
@@ -323,7 +324,7 @@ void get_sys_info(sys_info_t *sys_info)
 	sys_info->freq_processor[0] = freq;
 }
 
-int get_clocks (void)
+int get_clocks(void)
 {
 	sys_info_t sys_info;
 
@@ -337,7 +338,7 @@ int get_clocks (void)
 	return 0;
 }
 
-unsigned long get_tbclk (void)
+unsigned long get_tbclk(void)
 {
 	void *fdt = get_fdt_virt();
 	int cpus_node = fdt_path_offset(fdt, "/cpus");
@@ -350,7 +351,7 @@ unsigned long get_tbclk (void)
  * get_bus_freq
  * return system bus freq in Hz
  *********************************************/
-ulong get_bus_freq (ulong dummy)
+ulong get_bus_freq(ulong dummy)
 {
 	sys_info_t sys_info;
 	get_sys_info(&sys_info);

@@ -6,6 +6,7 @@
 #include "ddr3_init.h"
 #include "mv_ddr_regs.h"
 #include "ddr_training_ip_db.h"
+#include <image.h>
 
 #define PATTERN_1	0x55555555
 #define PATTERN_2	0xaaaaaaaa
@@ -612,9 +613,9 @@ int ddr3_tip_load_pattern_to_odpg(u32 dev_num, enum hws_access_type access_type,
 			      MASK_ALL_BITS));
 	}
 
-	CHECK_STATUS(ddr3_tip_if_write
-		     (dev_num, access_type, if_id,
-		      ODPG_DATA_BUFFER_OFFS_REG, load_addr, MASK_ALL_BITS));
+	CHECK_STATUS(ddr3_tip_if_write(dev_num, access_type, if_id,
+				       ODPG_DATA_BUFFER_OFFS_REG,
+				       image_load_addr, MASK_ALL_BITS));
 
 	return MV_OK;
 }

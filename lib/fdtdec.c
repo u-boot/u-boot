@@ -7,6 +7,8 @@
 #include <common.h>
 #include <boot_fit.h>
 #include <dm.h>
+#include <hang.h>
+#include <init.h>
 #include <dm/of_extra.h>
 #include <env.h>
 #include <errno.h>

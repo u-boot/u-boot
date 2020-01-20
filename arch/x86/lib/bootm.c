@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <hang.h>
 #include <dm/device.h>
 #include <dm/root.h>
 #include <errno.h>

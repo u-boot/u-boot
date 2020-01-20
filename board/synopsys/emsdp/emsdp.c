@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <dwmmc.h>
 #include <malloc.h>
 

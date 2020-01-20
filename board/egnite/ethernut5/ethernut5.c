@@ -53,6 +53,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <net.h>
 #include <netdev.h>
 #include <miiphy.h>

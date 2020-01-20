@@ -10,6 +10,7 @@
 #include <common.h>
 #include <eeprom.h>
 #include <env.h>
+#include <fdt_support.h>
 #include <i2c.h>
 #include <init.h>
 #include <linux/errno.h>

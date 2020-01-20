@@ -7,6 +7,7 @@
 #include <env.h>
 #include <fdt_support.h>
 #include <fdtdec.h>
+#include <hang.h>
 #include <stdlib.h>
 #include <string.h>
 

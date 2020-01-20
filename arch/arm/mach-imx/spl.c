@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <hang.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
