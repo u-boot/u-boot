@@ -68,7 +68,10 @@ static struct mv_ddr_topology_map board_topology_map = {
 	BUS_MASK_32BIT,			/* Busses mask */
 	MV_DDR_CFG_DEFAULT,		/* ddr configuration data source */
 	{ {0} },			/* raw spd data */
-	{0}				/* timing parameters */
+	{0},				/* timing parameters */
+	{ {0} },			/* electrical configuration */
+	{0,},				/* electrical parameters */
+	0x3,				/* clock enable mask */
 };
 
 struct mv_ddr_topology_map *mv_ddr_topology_map_get(void)
