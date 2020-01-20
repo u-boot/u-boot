@@ -53,6 +53,14 @@ static struct serdes_map board_serdes_map[] = {
 
 int hws_board_topology_load(struct serdes_map **serdes_map_array, u8 *count)
 {
+	cf_read_tlv_data();
+
+	if (sr_product_is(&cf_tlv_data, "Clearfog GTR")) {
+		board_serdes_map[0].serdes_type = PEX0;
+		board_serdes_map[0].serdes_speed = SERDES_SPEED_5_GBPS;
+		board_serdes_map[0].serdes_mode = PEX_ROOT_COMPLEX_X1;
+	}
+
 	*serdes_map_array = board_serdes_map;
 	*count = ARRAY_SIZE(board_serdes_map);
 	return 0;
