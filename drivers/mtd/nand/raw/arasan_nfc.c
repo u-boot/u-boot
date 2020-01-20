@@ -1120,11 +1120,14 @@ static void arasan_nand_cmd_function(struct mtd_info *mtd, unsigned int command,
 static void arasan_check_ondie(struct mtd_info *mtd)
 {
 	struct nand_chip *nand_chip = mtd_to_nand(mtd);
-	struct nand_config *nand = nand_get_controller_data(nand_chip);
+	struct nand_drv *info = nand_get_controller_data(nand_chip);
+	struct nand_config *nand = &info->config;
 	u8 maf_id, dev_id;
 	u8 get_feature[4];
 	u8 set_feature[4] = {ENABLE_ONDIE_ECC, 0x00, 0x00, 0x00};
 	u32 i;
+
+	nand_chip->select_chip(mtd, 0);
 
 	/* Send the command for reading device ID */
 	nand_chip->cmdfunc(mtd, NAND_CMD_RESET, -1, -1);
@@ -1150,10 +1153,12 @@ static void arasan_check_ondie(struct mtd_info *mtd)
 		for (i = 0; i < 4; i++)
 			get_feature[i] = nand_chip->read_byte(mtd);
 
-		if (get_feature[0] & ENABLE_ONDIE_ECC)
+		if (get_feature[0] & ENABLE_ONDIE_ECC) {
 			nand->on_die_ecc_enabled = true;
-		else
+			printf("On-DIE ECC Enabled\n");
+		} else {
 			printf("%s: Unable to enable OnDie ECC\n", __func__);
+		}
 
 		/* Use the BBT pattern descriptors */
 		nand_chip->bbt_td = &bbt_main_descr;
