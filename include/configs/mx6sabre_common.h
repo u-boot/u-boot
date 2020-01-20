@@ -20,14 +20,6 @@
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR      0
 
-#define CONFIG_FEC_MXC
-#define IMX_FEC_BASE			ENET_BASE_ADDR
-#define CONFIG_FEC_XCV_TYPE		RGMII
-#define CONFIG_ETHPRIME			"FEC"
-#define CONFIG_FEC_MXC_PHYADDR		1
-
-#define CONFIG_PHY_ATHEROS
-
 #ifdef CONFIG_SUPPORT_EMMC_BOOT
 #define EMMC_ENV \
 	"emmcdev=2\0" \
