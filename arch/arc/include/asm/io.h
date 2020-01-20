@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright (C) 2013-2014 Synopsys, Inc. All rights reserved.
+ * Copyright (C) 2013-2014, 2020 Synopsys, Inc. All rights reserved.
  */
 
 #ifndef __ASM_ARC_IO_H
@@ -54,134 +54,97 @@ static inline void sync(void)
 	/* Not yet implemented */
 }
 
-static inline u8 __raw_readb(const volatile void __iomem *addr)
-{
-	u8 b;
+#define __arch_getb(a)		(*(unsigned char *)(a))
+#define __arch_getw(a)		(*(unsigned short *)(a))
+#define __arch_getl(a)		(*(unsigned int *)(a))
+#define __arch_getq(a)		(*(unsigned long long *)(a))
 
-	__asm__ __volatile__("ldb%U1	%0, %1\n"
-			     : "=r" (b)
-			     : "m" (*(volatile u8 __force *)addr)
-			     : "memory");
-	return b;
+#define __arch_putb(v, a)	(*(unsigned char *)(a) = (v))
+#define __arch_putw(v, a)	(*(unsigned short *)(a) = (v))
+#define __arch_putl(v, a)	(*(unsigned int *)(a) = (v))
+#define __arch_putq(v, a)	(*(unsigned long long *)(a) = (v))
+
+#define __raw_writeb(v, a)	__arch_putb(v, a)
+#define __raw_writew(v, a)	__arch_putw(v, a)
+#define __raw_writel(v, a)	__arch_putl(v, a)
+#define __raw_writeq(v, a)	__arch_putq(v, a)
+
+#define __raw_readb(a)		__arch_getb(a)
+#define __raw_readw(a)		__arch_getw(a)
+#define __raw_readl(a)		__arch_getl(a)
+#define __raw_readq(a)		__arch_getq(a)
+
+static inline void __raw_writesb(unsigned long addr, const void *data,
+				 int bytelen)
+{
+	u8 *buf = (uint8_t *)data;
+
+	while (bytelen--)
+		__arch_putb(*buf++, addr);
 }
 
-static inline u16 __raw_readw(const volatile void __iomem *addr)
+static inline void __raw_writesw(unsigned long addr, const void *data,
+				 int wordlen)
 {
-	u16 s;
+	u16 *buf = (uint16_t *)data;
 
-	__asm__ __volatile__("ldw%U1	%0, %1\n"
-			     : "=r" (s)
-			     : "m" (*(volatile u16 __force *)addr)
-			     : "memory");
-	return s;
+	while (wordlen--)
+		__arch_putw(*buf++, addr);
 }
 
-static inline u32 __raw_readl(const volatile void __iomem *addr)
+static inline void __raw_writesl(unsigned long addr, const void *data,
+				 int longlen)
 {
-	u32 w;
+	u32 *buf = (uint32_t *)data;
 
-	__asm__ __volatile__("ld%U1	%0, %1\n"
-			     : "=r" (w)
-			     : "m" (*(volatile u32 __force *)addr)
-			     : "memory");
-	return w;
+	while (longlen--)
+		__arch_putl(*buf++, addr);
 }
 
-static inline void __raw_writeb(u8 b, volatile void __iomem *addr)
+static inline void __raw_readsb(unsigned long addr, void *data, int bytelen)
 {
-	__asm__ __volatile__("stb%U1	%0, %1\n"
-			     :
-			     : "r" (b), "m" (*(volatile u8 __force *)addr)
-			     : "memory");
+	u8 *buf = (uint8_t *)data;
+
+	while (bytelen--)
+		*buf++ = __arch_getb(addr);
 }
 
-static inline void __raw_writew(u16 s, volatile void __iomem *addr)
+static inline void __raw_readsw(unsigned long addr, void *data, int wordlen)
 {
-	__asm__ __volatile__("stw%U1	%0, %1\n"
-			     :
-			     : "r" (s), "m" (*(volatile u16 __force *)addr)
-			     : "memory");
+	u16 *buf = (uint16_t *)data;
+
+	while (wordlen--)
+		*buf++ = __arch_getw(addr);
 }
 
-static inline void __raw_writel(u32 w, volatile void __iomem *addr)
+static inline void __raw_readsl(unsigned long addr, void *data, int longlen)
 {
-	__asm__ __volatile__("st%U1	%0, %1\n"
-			     :
-			     : "r" (w), "m" (*(volatile u32 __force *)addr)
-			     : "memory");
+	u32 *buf = (uint32_t *)data;
+
+	while (longlen--)
+		*buf++ = __arch_getl(addr);
 }
 
-static inline int __raw_readsb(unsigned int addr, void *data, int bytelen)
-{
-	__asm__ __volatile__ ("1:ld.di	r8, [r0]\n"
-			      "sub.f	r2, r2, 1\n"
-			      "bnz.d	1b\n"
-			      "stb.ab	r8, [r1, 1]\n"
-			      :
-			      : "r" (addr), "r" (data), "r" (bytelen)
-			      : "r8");
-	return bytelen;
-}
+/*
+ * Relaxed I/O memory access primitives. These follow the Device memory
+ * ordering rules but do not guarantee any ordering relative to Normal memory
+ * accesses.
+ */
+#define readb_relaxed(c)	({ u8  __r = __raw_readb(c); __r; })
+#define readw_relaxed(c)	({ u16 __r = le16_to_cpu((__force __le16) \
+						__raw_readw(c)); __r; })
+#define readl_relaxed(c)	({ u32 __r = le32_to_cpu((__force __le32) \
+						__raw_readl(c)); __r; })
+#define readq_relaxed(c)	({ u64 __r = le64_to_cpu((__force __le64) \
+						__raw_readq(c)); __r; })
 
-static inline int __raw_readsw(unsigned int addr, void *data, int wordlen)
-{
-	__asm__ __volatile__ ("1:ld.di	r8, [r0]\n"
-			      "sub.f	r2, r2, 1\n"
-			      "bnz.d	1b\n"
-			      "stw.ab	r8, [r1, 2]\n"
-			      :
-			      : "r" (addr), "r" (data), "r" (wordlen)
-			      : "r8");
-	return wordlen;
-}
-
-static inline int __raw_readsl(unsigned int addr, void *data, int longlen)
-{
-	__asm__ __volatile__ ("1:ld.di	r8, [r0]\n"
-			      "sub.f	r2, r2, 1\n"
-			      "bnz.d	1b\n"
-			      "st.ab	r8, [r1, 4]\n"
-			      :
-			      : "r" (addr), "r" (data), "r" (longlen)
-			      : "r8");
-	return longlen;
-}
-
-static inline int __raw_writesb(unsigned int addr, void *data, int bytelen)
-{
-	__asm__ __volatile__ ("1:ldb.ab	r8, [r1, 1]\n"
-			      "sub.f	r2, r2, 1\n"
-			      "bnz.d	1b\n"
-			      "st.di	r8, [r0, 0]\n"
-			      :
-			      : "r" (addr), "r" (data), "r" (bytelen)
-			      : "r8");
-	return bytelen;
-}
-
-static inline int __raw_writesw(unsigned int addr, void *data, int wordlen)
-{
-	__asm__ __volatile__ ("1:ldw.ab	r8, [r1, 2]\n"
-			      "sub.f	r2, r2, 1\n"
-			      "bnz.d	1b\n"
-			      "st.ab.di	r8, [r0, 0]\n"
-			      :
-			      : "r" (addr), "r" (data), "r" (wordlen)
-			      : "r8");
-	return wordlen;
-}
-
-static inline int __raw_writesl(unsigned int addr, void *data, int longlen)
-{
-	__asm__ __volatile__ ("1:ld.ab	r8, [r1, 4]\n"
-			      "sub.f	r2, r2, 1\n"
-			      "bnz.d	1b\n"
-			      "st.ab.di	r8, [r0, 0]\n"
-			      :
-			      : "r" (addr), "r" (data), "r" (longlen)
-			      : "r8");
-	return longlen;
-}
+#define writeb_relaxed(v, c)	((void)__raw_writeb((v), (c)))
+#define writew_relaxed(v, c)	((void)__raw_writew((__force u16) \
+						    cpu_to_le16(v), (c)))
+#define writel_relaxed(v, c)	((void)__raw_writel((__force u32) \
+						    cpu_to_le32(v), (c)))
+#define writeq_relaxed(v, c)	((void)__raw_writeq((__force u64) \
+						    cpu_to_le64(v), (c)))
 
 /*
  * MMIO can also get buffered/optimized in micro-arch, so barriers needed
@@ -195,32 +158,15 @@ static inline int __raw_writesl(unsigned int addr, void *data, int longlen)
  *
  * http://lkml.kernel.org/r/20150622133656.GG1583@arm.com
  */
-#define readb(c)		({ u8  __v = readb_relaxed(c); __iormb(); __v; })
-#define readw(c)		({ u16 __v = readw_relaxed(c); __iormb(); __v; })
-#define readl(c)		({ u32 __v = readl_relaxed(c); __iormb(); __v; })
+#define readb(c)	({ u8  __v = readb_relaxed(c); __iormb(); __v; })
+#define readw(c)	({ u16 __v = readw_relaxed(c); __iormb(); __v; })
+#define readl(c)	({ u32 __v = readl_relaxed(c); __iormb(); __v; })
+#define readq(c)	({ u64 __v = readq_relaxed(c); __iormb(); __v; })
 
-#define writeb(v,c)		({ __iowmb(); writeb_relaxed(v,c); })
-#define writew(v,c)		({ __iowmb(); writew_relaxed(v,c); })
-#define writel(v,c)		({ __iowmb(); writel_relaxed(v,c); })
-
-/*
- * Relaxed API for drivers which can handle barrier ordering themselves
- *
- * Also these are defined to perform little endian accesses.
- * To provide the typical device register semantics of fixed endian,
- * swap the byte order for Big Endian
- *
- * http://lkml.kernel.org/r/201603100845.30602.arnd@arndb.de
- */
-#define readb_relaxed(c)	__raw_readb(c)
-#define readw_relaxed(c) ({ u16 __r = le16_to_cpu((__force __le16) \
-					__raw_readw(c)); __r; })
-#define readl_relaxed(c) ({ u32 __r = le32_to_cpu((__force __le32) \
-					__raw_readl(c)); __r; })
-
-#define writeb_relaxed(v,c)	__raw_writeb(v,c)
-#define writew_relaxed(v,c)	__raw_writew((__force u16) cpu_to_le16(v),c)
-#define writel_relaxed(v,c)	__raw_writel((__force u32) cpu_to_le32(v),c)
+#define writeb(v, c)	({ __iowmb(); writeb_relaxed(v, c); })
+#define writew(v, c)	({ __iowmb(); writew_relaxed(v, c); })
+#define writel(v, c)	({ __iowmb(); writel_relaxed(v, c); })
+#define writeq(v, c)	({ __iowmb(); writeq_relaxed(v, c); })
 
 #define out_arch(type, endian, a, v)	__raw_write##type(cpu_to_##endian(v), a)
 #define in_arch(type, endian, a)	endian##_to_cpu(__raw_read##type(a))
