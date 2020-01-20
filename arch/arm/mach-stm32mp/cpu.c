@@ -456,7 +456,7 @@ static void setup_boot_mode(void)
  * If there is no MAC address in the environment, then it will be initialized
  * (silently) from the value in the OTP.
  */
-static int setup_mac_address(void)
+__weak int setup_mac_address(void)
 {
 #if defined(CONFIG_NET)
 	int ret;

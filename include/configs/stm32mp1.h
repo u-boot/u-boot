@@ -33,9 +33,10 @@
 #define CONFIG_SYS_CBSIZE			SZ_1K
 
 /*
- * Needed by "loadb"
+ * default load address used for command tftp,  bootm , loadb, ...
  */
-#define CONFIG_SYS_LOAD_ADDR			STM32_DDR_BASE
+#define CONFIG_LOADADDR			0xc2000000
+#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 /* ATAGs */
 #define CONFIG_CMDLINE_TAG
@@ -98,12 +99,34 @@
 
 #if !defined(CONFIG_SPL_BUILD)
 
-#define BOOT_TARGET_DEVICES(func) \
-	func(MMC, mmc, 1) \
-	func(UBIFS, ubifs, 0) \
-	func(MMC, mmc, 0) \
-	func(MMC, mmc, 2) \
-	func(PXE, pxe, na)
+#ifdef CONFIG_CMD_MMC
+#define BOOT_TARGET_MMC0(func)	func(MMC, mmc, 0)
+#define BOOT_TARGET_MMC1(func)	func(MMC, mmc, 1)
+#define BOOT_TARGET_MMC2(func)	func(MMC, mmc, 2)
+#else
+#define BOOT_TARGET_MMC0(func)
+#define BOOT_TARGET_MMC1(func)
+#define BOOT_TARGET_MMC2(func)
+#endif
+
+#ifdef CONFIG_NET
+#define BOOT_TARGET_PXE(func)	func(PXE, pxe, na)
+#else
+#define BOOT_TARGET_PXE(func)
+#endif
+
+#ifdef CONFIG_CMD_UBIFS
+#define BOOT_TARGET_UBIFS(func)	func(UBIFS, ubifs, 0)
+#else
+#define BOOT_TARGET_UBIFS(func)
+#endif
+
+#define BOOT_TARGET_DEVICES(func)	\
+	BOOT_TARGET_MMC1(func)		\
+	BOOT_TARGET_UBIFS(func)		\
+	BOOT_TARGET_MMC0(func)		\
+	BOOT_TARGET_MMC2(func)		\
+	BOOT_TARGET_PXE(func)
 
 /*
  * bootcmd for stm32mp1:

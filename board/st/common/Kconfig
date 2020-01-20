@@ -1,0 +1,7 @@
+config CMD_STBOARD
+	bool "stboard - command for OTP board information"
+	depends on ARCH_STM32MP
+	default y if TARGET_ST_STM32MP15x
+	help
+	  This compile the stboard command to
+	  read and write the board in the OTP.

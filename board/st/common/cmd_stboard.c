@@ -3,6 +3,7 @@
  * Copyright (C) 2019, STMicroelectronics - All Rights Reserved
  */
 
+#ifndef CONFIG_SPL_BUILD
 #include <common.h>
 #include <console.h>
 #include <misc.h>
@@ -143,3 +144,5 @@ U_BOOT_CMD(stboard, 6, 0, do_stboard,
 	   "  - Variant: 1 ... 15\n"
 	   "  - Revision: A...O\n"
 	   "  - BOM: 1...15\n");
+
+#endif
