@@ -175,8 +175,8 @@ int fdt_disable_node(void *blob, char *node_path)
 
 	offs = fdt_path_offset(blob, node_path);
 	if (offs < 0) {
-		debug("Node %s not found.\n", node_path);
-		return 0;
+		printf("Node %s not found.\n", node_path);
+		return offs;
 	}
 	ret = fdt_setprop_string(blob, offs, "status", "disabled");
 	if (ret < 0) {
@@ -270,3 +270,33 @@ void disable_linefill_optimization(void)
 	asm("mcr p15, 0, %0, c1, c0, 1" : : "r" (actlr));
 }
 #endif
+
+void remove_fwl_configs(struct fwl_data *fwl_data, size_t fwl_data_size)
+{
+	struct ti_sci_msg_fwl_region region;
+	struct ti_sci_fwl_ops *fwl_ops;
+	struct ti_sci_handle *ti_sci;
+	size_t i, j;
+
+	ti_sci = get_ti_sci_handle();
+	fwl_ops = &ti_sci->ops.fwl_ops;
+	for (i = 0; i < fwl_data_size; i++) {
+		for (j = 0; j <  fwl_data[i].regions; j++) {
+			region.fwl_id = fwl_data[i].fwl_id;
+			region.region = j;
+			region.n_permission_regs = 3;
+
+			fwl_ops->get_fwl_region(ti_sci, &region);
+
+			if (region.control != 0) {
+				pr_debug("Attempting to disable firewall %5d (%25s)\n",
+					 region.fwl_id, fwl_data[i].name);
+				region.control = 0;
+
+				if (fwl_ops->set_fwl_region(ti_sci, &region))
+					pr_err("Could not disable firewall %5d (%25s)\n",
+					       region.fwl_id, fwl_data[i].name);
+			}
+		}
+	}
+}

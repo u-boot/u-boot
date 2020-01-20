@@ -282,6 +282,20 @@
 	u-boot,dm-spl;
 };
 
+&main_usbss0_pins_default {
+	u-boot,dm-spl;
+};
+
+&usbss0 {
+	u-boot,dm-spl;
+	ti,usb2-only;
+};
+
+&usb0 {
+	dr_mode = "peripheral";
+	u-boot,dm-spl;
+};
+
 &mcu_cpsw {
 	pinctrl-names = "default";
 	pinctrl-0 = <&mcu_cpsw_pins_default &mcu_mdio_pins_default>;
@@ -310,4 +324,16 @@
 		reg= <0x0 0x40f04040 0x0 0x4>;
 		reg-names = "gmii-sel";
 	};
+};
+
+&main_mmc1_pins_default {
+	u-boot,dm-spl;
+};
+
+&wkup_i2c0_pins_default {
+	u-boot,dm-spl;
+};
+
+&wkup_i2c0 {
+	u-boot,dm-spl;
 };

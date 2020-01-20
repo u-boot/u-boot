@@ -8,9 +8,23 @@
 / {
 	aliases {
 		i2c0 = &i2c0;
+		mmc0 = &mmc0;
+		serial2 = &serial2;
+	};
+
+	soc@1c00000 {
+		u-boot,dm-spl;
 	};
 
 	nand {
 		compatible = "ti,davinci-nand";
 	};
+};
+
+&mmc0 {
+	u-boot,dm-spl;
+};
+
+&serial2 {
+	u-boot,dm-spl;
 };

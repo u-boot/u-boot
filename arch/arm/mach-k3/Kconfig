@@ -119,7 +119,7 @@ config K3_SYSFW_IMAGE_MMCSD_RAW_MODE_PART
 config K3_SYSFW_IMAGE_SIZE_MAX
 	int "Amount of memory dynamically allocated for loading SYSFW blob"
 	depends on K3_LOAD_SYSFW
-	default	276000
+	default	277000
 	help
 	  Amount of memory (in bytes) reserved through dynamic allocation at
 	  runtime for loading the combined System Firmware and configuration image

@@ -13,6 +13,7 @@
 #include <env.h>
 #include <fdt_support.h>
 #include <init.h>
+#include <spl.h>
 #include <palmas.h>
 #include <sata.h>
 #include <serial.h>
@@ -32,7 +33,6 @@
 #include <dwc3-omap-uboot.h>
 #include <i2c.h>
 #include <ti-usb-phy-uboot.h>
-#include <miiphy.h>
 
 #include "mux_data.h"
 #include "../common/board_detect.h"
@@ -47,10 +47,6 @@
 				(strncmp("C", board_ti_get_rev(), 1) <= 0))
 #define board_ti_get_emif_size()	board_ti_get_emif1_size() +	\
 					board_ti_get_emif2_size()
-
-#ifdef CONFIG_DRIVER_TI_CPSW
-#include <cpsw.h>
-#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -989,106 +985,6 @@ int spl_start_uboot(void)
 #endif
 
 	return 0;
-}
-#endif
-
-#ifdef CONFIG_DRIVER_TI_CPSW
-extern u32 *const omap_si_rev;
-
-static void cpsw_control(int enabled)
-{
-	/* VTP can be added here */
-
-	return;
-}
-
-static struct cpsw_slave_data cpsw_slaves[] = {
-	{
-		.slave_reg_ofs	= 0x208,
-		.sliver_reg_ofs	= 0xd80,
-		.phy_addr	= 2,
-	},
-	{
-		.slave_reg_ofs	= 0x308,
-		.sliver_reg_ofs	= 0xdc0,
-		.phy_addr	= 3,
-	},
-};
-
-static struct cpsw_platform_data cpsw_data = {
-	.mdio_base		= CPSW_MDIO_BASE,
-	.cpsw_base		= CPSW_BASE,
-	.mdio_div		= 0xff,
-	.channels		= 8,
-	.cpdma_reg_ofs		= 0x800,
-	.slaves			= 2,
-	.slave_data		= cpsw_slaves,
-	.ale_reg_ofs		= 0xd00,
-	.ale_entries		= 1024,
-	.host_port_reg_ofs	= 0x108,
-	.hw_stats_reg_ofs	= 0x900,
-	.bd_ram_ofs		= 0x2000,
-	.mac_control		= (1 << 5),
-	.control		= cpsw_control,
-	.host_port_num		= 0,
-	.version		= CPSW_CTRL_VERSION_2,
-};
-
-int board_eth_init(bd_t *bis)
-{
-	int ret;
-	uint8_t mac_addr[6];
-	uint32_t mac_hi, mac_lo;
-	uint32_t ctrl_val;
-
-	/* try reading mac address from efuse */
-	mac_lo = readl((*ctrl)->control_core_mac_id_0_lo);
-	mac_hi = readl((*ctrl)->control_core_mac_id_0_hi);
-	mac_addr[0] = (mac_hi & 0xFF0000) >> 16;
-	mac_addr[1] = (mac_hi & 0xFF00) >> 8;
-	mac_addr[2] = mac_hi & 0xFF;
-	mac_addr[3] = (mac_lo & 0xFF0000) >> 16;
-	mac_addr[4] = (mac_lo & 0xFF00) >> 8;
-	mac_addr[5] = mac_lo & 0xFF;
-
-	if (!env_get("ethaddr")) {
-		printf("<ethaddr> not set. Validating first E-fuse MAC\n");
-
-		if (is_valid_ethaddr(mac_addr))
-			eth_env_set_enetaddr("ethaddr", mac_addr);
-	}
-
-	mac_lo = readl((*ctrl)->control_core_mac_id_1_lo);
-	mac_hi = readl((*ctrl)->control_core_mac_id_1_hi);
-	mac_addr[0] = (mac_hi & 0xFF0000) >> 16;
-	mac_addr[1] = (mac_hi & 0xFF00) >> 8;
-	mac_addr[2] = mac_hi & 0xFF;
-	mac_addr[3] = (mac_lo & 0xFF0000) >> 16;
-	mac_addr[4] = (mac_lo & 0xFF00) >> 8;
-	mac_addr[5] = mac_lo & 0xFF;
-
-	if (!env_get("eth1addr")) {
-		if (is_valid_ethaddr(mac_addr))
-			eth_env_set_enetaddr("eth1addr", mac_addr);
-	}
-
-	ctrl_val = readl((*ctrl)->control_core_control_io1) & (~0x33);
-	ctrl_val |= 0x22;
-	writel(ctrl_val, (*ctrl)->control_core_control_io1);
-
-	if (*omap_si_rev == DRA722_ES1_0)
-		cpsw_data.active_slave = 1;
-
-	if (board_is_dra72x_revc_or_later()) {
-		cpsw_slaves[0].phy_if = PHY_INTERFACE_MODE_RGMII_ID;
-		cpsw_slaves[1].phy_if = PHY_INTERFACE_MODE_RGMII_ID;
-	}
-
-	ret = cpsw_register(&cpsw_data);
-	if (ret < 0)
-		printf("Error %d registering CPSW switch\n", ret);
-
-	return ret;
 }
 #endif
 

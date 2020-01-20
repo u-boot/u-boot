@@ -426,6 +426,7 @@ static const struct udevice_id dwc3_glue_ids[] = {
 	{ .compatible = "ti,keystone-dwc3"},
 	{ .compatible = "ti,dwc3", .data = (ulong)&ti_ops },
 	{ .compatible = "ti,am437x-dwc3", .data = (ulong)&ti_ops },
+	{ .compatible = "ti,am654-dwc3" },
 	{ }
 };
 

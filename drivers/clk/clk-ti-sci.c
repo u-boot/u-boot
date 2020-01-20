@@ -106,8 +106,7 @@ static ulong ti_sci_clk_set_rate(struct clk *clk, ulong rate)
 	k3_avs_notify_freq(clk->id, clk->data, rate);
 #endif
 
-	/* Ask for exact frequency by using same value for min/target/max */
-	ret = cops->set_freq(sci, clk->id, clk->data, rate, rate, rate);
+	ret = cops->set_freq(sci, clk->id, clk->data, 0, rate, ULONG_MAX);
 	if (ret)
 		dev_err(clk->dev, "%s: set_freq failed (%d)\n", __func__, ret);
 

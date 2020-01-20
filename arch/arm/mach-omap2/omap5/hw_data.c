@@ -418,6 +418,7 @@ void enable_basic_clocks(void)
 		(*prcm)->cm_l3init_hsmmc2_clkctrl,
 		(*prcm)->cm_l4per_gptimer2_clkctrl,
 		(*prcm)->cm_wkup_wdtimer2_clkctrl,
+		(*prcm)->cm_l4per_uart1_clkctrl,
 		(*prcm)->cm_l4per_uart3_clkctrl,
 		(*prcm)->cm_l4per_i2c1_clkctrl,
 #ifdef CONFIG_DRIVER_TI_CPSW

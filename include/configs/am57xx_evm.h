@@ -22,7 +22,6 @@
 
 #define CONFIG_SYS_BOOTM_LEN		SZ_64M
 
-#define CONSOLEDEV			"ttyS2"
 #define CONFIG_SYS_NS16550_COM1		UART1_BASE	/* Base EVM has UART0 */
 #define CONFIG_SYS_NS16550_COM2		UART2_BASE	/* UART2 */
 #define CONFIG_SYS_NS16550_COM3		UART3_BASE	/* UART3 */
@@ -33,7 +32,6 @@
 
 #define CONFIG_SYS_OMAP_ABE_SYSCK
 
-#ifdef CONFIG_SPL_DFU
 #ifndef CONFIG_SPL_BUILD
 #define DFUARGS \
 	"dfu_bufsiz=0x10000\0" \
@@ -43,6 +41,7 @@
 	DFU_ALT_INFO_QSPI
 #else
 #undef CONFIG_CMD_BOOTD
+#ifdef CONFIG_SPL_DFU
 #define CONFIG_SPL_LOAD_FIT_ADDRESS 0x80200000
 #define DFUARGS \
 	"dfu_bufsiz=0x10000\0" \

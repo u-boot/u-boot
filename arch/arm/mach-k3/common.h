@@ -14,6 +14,13 @@
 #define REV_PG1_0	0
 #define REV_PG2_0	1
 
+struct fwl_data {
+	const char *name;
+	u16 fwl_id;
+	u16 regions;
+};
+
 void setup_k3_mpu_regions(void);
 int early_console_init(void);
 void disable_linefill_optimization(void);
+void remove_fwl_configs(struct fwl_data *fwl_data, size_t fwl_data_size);

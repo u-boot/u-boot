@@ -15,6 +15,7 @@
 
 &i2c1 {
 	clock-frequency = <400000>;
+	/delete-property/ u-boot,dm-spl;
 };
 
 &i2c2 {
@@ -33,6 +34,10 @@
 	/delete-property/ u-boot,dm-spl;
 };
 
+&gpio4 {
+	/delete-property/ u-boot,dm-spl;
+};
+
 &gpio5 {
 	/delete-property/ u-boot,dm-spl;
 };
@@ -41,8 +46,9 @@
 	/delete-property/ u-boot,dm-spl;
 };
 
+/delete-node/ &bandgap;
 /delete-node/ &uart2;
 /delete-node/ &uart3;
 /delete-node/ &mmc2;
 /delete-node/ &mmc3;
-
+/delete-node/ &thermal_zones;

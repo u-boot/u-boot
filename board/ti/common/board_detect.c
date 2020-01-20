@@ -14,6 +14,9 @@
 #include <dm/uclass.h>
 #include <env.h>
 #include <i2c.h>
+#include <mmc.h>
+#include <errno.h>
+#include <malloc.h>
 
 #include "board_detect.h"
 
@@ -91,7 +94,7 @@ static int __maybe_unused ti_i2c_eeprom_get(int bus_addr, int dev_addr,
 	rc = uclass_get_device_by_seq(UCLASS_I2C, bus_addr, &bus);
 	if (rc)
 		return rc;
-	rc = i2c_get_chip(bus, dev_addr, 1, &dev);
+	rc = dm_i2c_probe(bus, dev_addr, 0, &dev);
 	if (rc)
 		return rc;
 
@@ -169,6 +172,79 @@ static int __maybe_unused ti_i2c_eeprom_get(int bus_addr, int dev_addr,
 		return rc;
 #endif
 	return 0;
+}
+
+int __maybe_unused ti_emmc_boardid_get(void)
+{
+	int rc;
+	struct udevice *dev;
+	struct mmc *mmc;
+	struct ti_common_eeprom *ep;
+	struct ti_am_eeprom brdid;
+	struct blk_desc *bdesc;
+	uchar *buffer;
+
+	ep = TI_EEPROM_DATA;
+	if (ep->header == TI_EEPROM_HEADER_MAGIC)
+		return 0;       /* EEPROM has already been read */
+
+	/* Initialize with a known bad marker for emmc fails.. */
+	ep->header = TI_DEAD_EEPROM_MAGIC;
+	ep->name[0] = 0x0;
+	ep->version[0] = 0x0;
+	ep->serial[0] = 0x0;
+	ep->config[0] = 0x0;
+
+	/* uclass object initialization */
+	rc = mmc_initialize(NULL);
+	if (rc)
+		return rc;
+
+	/* Set device to /dev/mmcblk1 */
+	rc = uclass_get_device(UCLASS_MMC, 1, &dev);
+	if (rc)
+		return rc;
+
+	/* Grab the mmc device */
+	mmc = mmc_get_mmc_dev(dev);
+	if (!mmc)
+		return -ENODEV;
+
+	/* mmc hardware initialization routine */
+	mmc_init(mmc);
+
+	/* Set partition to /dev/mmcblk1boot1 */
+	rc = mmc_switch_part(mmc, 2);
+	if (rc)
+		return rc;
+
+	buffer = malloc(mmc->read_bl_len);
+	if (!buffer)
+		return -ENOMEM;
+
+	bdesc = mmc_get_blk_desc(mmc);
+
+	/* blk_dread returns the number of blocks read*/
+	if (blk_dread(bdesc, 0L, 1, buffer) != 1) {
+		rc = -EIO;
+		goto cleanup;
+	}
+
+	memcpy(&brdid, buffer, sizeof(brdid));
+
+	/* Write out the ep struct values */
+	ep->header = brdid.header;
+	strlcpy(ep->name, brdid.name, TI_EEPROM_HDR_NAME_LEN + 1);
+	ti_eeprom_string_cleanup(ep->name);
+	strlcpy(ep->version, brdid.version, TI_EEPROM_HDR_REV_LEN + 1);
+	ti_eeprom_string_cleanup(ep->version);
+	strlcpy(ep->serial, brdid.serial, TI_EEPROM_HDR_SERIAL_LEN + 1);
+	ti_eeprom_string_cleanup(ep->serial);
+
+cleanup:
+	free(buffer);
+
+	return rc;
 }
 
 int __maybe_unused ti_i2c_eeprom_am_set(const char *name, const char *rev)
@@ -470,6 +546,15 @@ int __maybe_unused ti_i2c_eeprom_am6_get_base(int bus_addr, int dev_addr)
 				    AM6_EEPROM_HDR_NO_OF_MAC_ADDR,
 				    &ep->mac_addr_cnt);
 	return ret;
+}
+
+bool __maybe_unused board_ti_k3_is(char *name_tag)
+{
+	struct ti_am6_eeprom *ep = TI_AM6_EEPROM_DATA;
+
+	if (ep->header == TI_DEAD_EEPROM_MAGIC)
+		return false;
+	return !strncmp(ep->name, name_tag, AM6_EEPROM_HDR_NAME_LEN);
 }
 
 bool __maybe_unused board_ti_is(char *name_tag)
