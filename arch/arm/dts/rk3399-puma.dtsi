@@ -518,7 +518,7 @@
 	status = "disabled";
 };
 
-&dwc3_typec0 {
+&usbdrd3_0 {
 	status = "okay";
 };
 
@@ -530,7 +530,7 @@
 	status = "disabled";
 };
 
-&dwc3_typec1 {
+&usbdrd3_1 {
 	status = "okay";
 	tsd,usb-port-power = "usbhub_enable";
 };
