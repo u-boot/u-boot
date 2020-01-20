@@ -175,3 +175,17 @@ int board_eth_init(bd_t *bis)
 	cpu_eth_init(bis); /* Built in controller(s) come first */
 	return pci_eth_init(bis);
 }
+
+int board_late_init(void)
+{
+	cf_read_tlv_data();
+
+	if (sr_product_is(&cf_tlv_data, "Clearfog Base"))
+		env_set("fdtfile", "armada-388-clearfog-base.dtb");
+	else if (sr_product_is(&cf_tlv_data, "Clearfog GTR S4"))
+		env_set("fdtfile", "armada-385-clearfog-gtr-s4.dtb");
+	else if (sr_product_is(&cf_tlv_data, "Clearfog GTR L8"))
+		env_set("fdtfile", "armada-385-clearfog-gtr-l8.dtb");
+
+	return 0;
+}
