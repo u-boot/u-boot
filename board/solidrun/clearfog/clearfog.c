@@ -156,7 +156,16 @@ int board_init(void)
 
 int checkboard(void)
 {
-	puts("Board: SolidRun ClearFog\n");
+	char *board = "ClearFog";
+
+	cf_read_tlv_data();
+	if (strlen(cf_tlv_data.tlv_product_name[0]) > 0)
+		board = cf_tlv_data.tlv_product_name[0];
+
+	printf("Board: SolidRun %s", board);
+	if (strlen(cf_tlv_data.tlv_product_name[1]) > 0)
+		printf(", %s", cf_tlv_data.tlv_product_name[1]);
+	puts("\n");
 
 	return 0;
 }
