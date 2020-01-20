@@ -123,21 +123,27 @@ const struct flash_info spi_nor_ids[] = {
 	/* ISSI */
 	{ INFO("is25lq040b", 0x9d4013, 0, 64 * 1024,   8,
 			SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ) },
-	{ INFO("is25lp032",	0x9d6016, 0, 64 * 1024,  64, 0) },
-	{ INFO("is25lp064",	0x9d6017, 0, 64 * 1024, 128, 0) },
+	{ INFO("is25lp008d", 0x9d6014, 0, 64 * 1024,  16, SPI_NOR_QUAD_READ) },
+	{ INFO("is25lp016d", 0x9d6015, 0, 64 * 1024,  32, SPI_NOR_QUAD_READ) },
+	{ INFO("is25lp032d", 0x9d6016, 0, 64 * 1024,  64, SPI_NOR_QUAD_READ) },
+	{ INFO("is25lp064",  0x9d6017, 0, 64 * 1024, 128, 0) },
 	{ INFO("is25lp128",  0x9d6018, 0, 64 * 1024, 256,
 			SECT_4K | SPI_NOR_DUAL_READ) },
 	{ INFO("is25lp256",  0x9d6019, 0, 64 * 1024, 512,
-			SECT_4K | SPI_NOR_DUAL_READ) },
-	{ INFO("is25wp032",  0x9d7016, 0, 64 * 1024,  64,
 			SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ) },
-	{ INFO("is25wp064",  0x9d7017, 0, 64 * 1024, 128,
+	{ INFO("is25lp512",  0x9d601a, 0, 64 * 1024, 1024,
 			SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ) },
+	{ INFO("is25wp008d", 0x9d7014, 0, 64 * 1024,  16, SPI_NOR_QUAD_READ) },
+	{ INFO("is25wp016d", 0x9d7015, 0, 64 * 1024,  32, SPI_NOR_QUAD_READ) },
+	{ INFO("is25wp032d", 0x9d7016, 0, 64 * 1024,  64, SPI_NOR_QUAD_READ) },
+	{ INFO("is25wp064d", 0x9d7017, 0, 64 * 1024, 128, SPI_NOR_QUAD_READ) },
 	{ INFO("is25wp128",  0x9d7018, 0, 64 * 1024, 256,
 			SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ) },
 	{ INFO("is25wp256",  0x9d7019, 0, 64 * 1024, 512,
 			SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ |
 			SPI_NOR_4B_OPCODES) },
+	{ INFO("is25wp512",  0x9d701a, 0, 64 * 1024, 1024,
+			SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ) },
 #endif
 #ifdef CONFIG_SPI_FLASH_MACRONIX	/* MACRONIX */
 	/* Macronix */
