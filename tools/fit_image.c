@@ -59,6 +59,14 @@ static int fit_add_file_data(struct image_tool_params *params, size_t size_inc,
 	}
 
 	if (!ret) {
+		ret = fit_cipher_data(params->keydir, dest_blob, ptr,
+				      params->comment,
+				      params->require_keys,
+				      params->engine_id,
+				      params->cmdname);
+	}
+
+	if (!ret) {
 		ret = fit_add_verification_data(params->keydir, dest_blob, ptr,
 						params->comment,
 						params->require_keys,
@@ -74,7 +82,6 @@ static int fit_add_file_data(struct image_tool_params *params, size_t size_inc,
 err_keydest:
 	munmap(ptr, sbuf.st_size);
 	close(tfd);
-
 	return ret;
 }
 
@@ -621,6 +628,62 @@ err_no_fd:
 	return ret;
 }
 
+static int copyfile(const char *src, const char *dst)
+{
+	int fd_src = -1, fd_dst = -1;
+	void *buf = NULL;
+	ssize_t size;
+	size_t count;
+	int ret = -1;
+
+	fd_src = open(src, O_RDONLY);
+	if (fd_src < 0) {
+		printf("Can't open file %s (%s)\n", src, strerror(errno));
+		goto out;
+	}
+
+	fd_dst = open(dst, O_WRONLY | O_CREAT, 0700);
+	if (fd_dst < 0) {
+		printf("Can't open file %s (%s)\n", dst, strerror(errno));
+		goto out;
+	}
+
+	buf = malloc(512);
+	if (!buf) {
+		printf("Can't allocate buffer to copy file\n");
+		goto out;
+	}
+
+	while (1) {
+		size = read(fd_src, buf, 512);
+		if (size < 0) {
+			printf("Can't read file %s\n", src);
+			goto out;
+		}
+		if (!size)
+			break;
+
+		count = size;
+		size = write(fd_dst, buf, count);
+		if (size < 0) {
+			printf("Can't write file %s\n", dst);
+			goto out;
+		}
+	}
+
+	ret = 0;
+
+ out:
+	if (fd_src >= 0)
+		close(fd_src);
+	if (fd_dst >= 0)
+		close(fd_dst);
+	if (buf)
+		free(buf);
+
+	return ret;
+}
+
 /**
  * fit_handle_file - main FIT file processing function
  *
@@ -636,6 +699,7 @@ err_no_fd:
 static int fit_handle_file(struct image_tool_params *params)
 {
 	char tmpfile[MKIMAGE_MAX_TMPFILE_LEN];
+	char bakfile[MKIMAGE_MAX_TMPFILE_LEN + 4] = {0};
 	char cmd[MKIMAGE_MAX_DTC_CMDLINE_LEN];
 	size_t size_inc;
 	int ret;
@@ -670,6 +734,7 @@ static int fit_handle_file(struct image_tool_params *params)
 		snprintf(cmd, sizeof(cmd), "cp \"%s\" \"%s\"",
 			 params->imagefile, tmpfile);
 	}
+
 	if (*cmd && system(cmd) == -1) {
 		fprintf (stderr, "%s: system(%s) failed: %s\n",
 				params->cmdname, cmd, strerror(errno));
@@ -682,6 +747,14 @@ static int fit_handle_file(struct image_tool_params *params)
 		goto err_system;
 
 	/*
+	 * Copy the tmpfile to bakfile, then in the following loop
+	 * we copy bakfile to tmpfile. So we always start from the
+	 * beginning.
+	 */
+	sprintf(bakfile, "%s%s", tmpfile, ".bak");
+	rename(tmpfile, bakfile);
+
+	/*
 	 * Set hashes for images in the blob. Unfortunately we may need more
 	 * space in either FDT, so keep trying until we succeed.
 	 *
@@ -692,6 +765,11 @@ static int fit_handle_file(struct image_tool_params *params)
 	 * steps of this loop is enough to sign with several keys.
 	 */
 	for (size_inc = 0; size_inc < 64 * 1024; size_inc += 1024) {
+		if (copyfile(bakfile, tmpfile) < 0) {
+			printf("Can't copy %s to %s\n", bakfile, tmpfile);
+			ret = -EIO;
+			break;
+		}
 		ret = fit_add_file_data(params, size_inc, tmpfile);
 		if (!ret || ret != -ENOSPC)
 			break;
@@ -715,13 +793,16 @@ static int fit_handle_file(struct image_tool_params *params)
 				params->cmdname, tmpfile, params->imagefile,
 				strerror (errno));
 		unlink (tmpfile);
+		unlink(bakfile);
 		unlink (params->imagefile);
 		return EXIT_FAILURE;
 	}
+	unlink(bakfile);
 	return EXIT_SUCCESS;
 
 err_system:
 	unlink(tmpfile);
+	unlink(bakfile);
 	return -1;
 }
 
