@@ -61,6 +61,12 @@ int hws_board_topology_load(struct serdes_map **serdes_map_array, u8 *count)
 		board_serdes_map[0].serdes_mode = PEX_ROOT_COMPLEX_X1;
 	}
 
+	if (sr_product_is(&cf_tlv_data, "Clearfog Base")) {
+		board_serdes_map[4].serdes_type = USB3_HOST0;
+		board_serdes_map[4].serdes_speed = SERDES_SPEED_5_GBPS;
+		board_serdes_map[4].serdes_mode = SERDES_DEFAULT_MODE;
+	}
+
 	*serdes_map_array = board_serdes_map;
 	*count = ARRAY_SIZE(board_serdes_map);
 	return 0;
