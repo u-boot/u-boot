@@ -269,6 +269,7 @@ static u8 spi_nor_convert_3to4_read(u8 opcode)
 		{ SPINOR_OP_READ_1_2_2,	SPINOR_OP_READ_1_2_2_4B },
 		{ SPINOR_OP_READ_1_1_4,	SPINOR_OP_READ_1_1_4_4B },
 		{ SPINOR_OP_READ_1_4_4,	SPINOR_OP_READ_1_4_4_4B },
+		{ SPINOR_OP_READ_1_1_8, SPINOR_OP_READ_1_1_8_4B },
 
 		{ SPINOR_OP_READ_1_1_1_DTR,	SPINOR_OP_READ_1_1_1_DTR_4B },
 		{ SPINOR_OP_READ_1_2_2_DTR,	SPINOR_OP_READ_1_2_2_DTR_4B },
@@ -2327,6 +2328,13 @@ static int spi_nor_init_params(struct spi_nor *nor,
 					  SNOR_PROTO_1_1_4);
 	}
 
+	if (info->flags & SPI_NOR_OCTAL_READ) {
+		params->hwcaps.mask |= SNOR_HWCAPS_READ_1_1_8;
+		spi_nor_set_read_settings(&params->reads[SNOR_CMD_READ_1_1_8],
+					  0, 8, SPINOR_OP_READ_1_1_8,
+					  SNOR_PROTO_1_1_8);
+	}
+
 	/* Page Program settings. */
 	params->hwcaps.mask |= SNOR_HWCAPS_PP;
 	spi_nor_set_pp_settings(&params->page_programs[SNOR_CMD_PP],
@@ -2646,7 +2654,8 @@ int spi_nor_scan(struct spi_nor *nor)
 
 		if (spi->mode & SPI_TX_DUAL)
 			hwcaps.mask |= SNOR_HWCAPS_READ_1_2_2;
-	}
+	} else if (spi->mode & SPI_RX_OCTAL)
+		hwcaps.mask |= SNOR_HWCAPS_READ_1_1_8;
 
 	nor->isparallel = (spi->option == SF_DUAL_PARALLEL_FLASH) ? 1 : 0;
 	nor->isstacked = (spi->option == SF_DUAL_STACKED_FLASH) ? 1 : 0;
