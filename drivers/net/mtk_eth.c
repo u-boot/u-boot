@@ -136,7 +136,8 @@ enum mtk_switch {
 
 enum mtk_soc {
 	SOC_MT7623,
-	SOC_MT7629
+	SOC_MT7629,
+	SOC_MT7622
 };
 
 struct mtk_eth_priv {
@@ -1195,6 +1196,7 @@ static int mtk_eth_ofdata_to_platdata(struct udevice *dev)
 static const struct udevice_id mtk_eth_ids[] = {
 	{ .compatible = "mediatek,mt7629-eth", .data = SOC_MT7629 },
 	{ .compatible = "mediatek,mt7623-eth", .data = SOC_MT7623 },
+	{ .compatible = "mediatek,mt7622-eth", .data = SOC_MT7622 },
 	{}
 };
 
