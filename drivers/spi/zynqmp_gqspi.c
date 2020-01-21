@@ -33,6 +33,7 @@
 #define GQSPI_IXR_TXFULL_MASK		0x00000008 /* QSPI TX FIFO is full */
 #define GQSPI_IXR_RXNEMTY_MASK		0x00000010 /* QSPI RX FIFO Not Empty */
 #define GQSPI_IXR_GFEMTY_MASK		0x00000080 /* QSPI Generic FIFO Empty */
+#define GQSPI_IXR_GFNFULL_MASK		0x00000200 /* QSPI GENFIFO not full */
 #define GQSPI_IXR_ALL_MASK		(GQSPI_IXR_TXNFULL_MASK | \
 					 GQSPI_IXR_RXNEMTY_MASK)
 
@@ -70,6 +71,7 @@
 
 #define GQSPI_GFIFO_SELECT		BIT(0)
 #define GQSPI_FIFO_THRESHOLD		1
+#define GQSPI_GENFIFO_THRESHOLD		31
 
 #define SPI_XFER_ON_BOTH		0
 #define SPI_XFER_ON_LOWER		1
@@ -161,6 +163,7 @@ struct zynqmp_qspi_platdata {
 	struct zynqmp_qspi_dma_regs *dma_regs;
 	u32 frequency;
 	u32 speed_hz;
+	unsigned int io_mode;
 };
 
 struct zynqmp_qspi_priv {
@@ -173,6 +176,7 @@ struct zynqmp_qspi_priv {
 	int bytes_to_receive;
 	unsigned int is_inst;
 	unsigned int cs_change:1;
+	unsigned int io_mode;
 };
 
 static int zynqmp_qspi_ofdata_to_platdata(struct udevice *bus)
@@ -185,6 +189,8 @@ static int zynqmp_qspi_ofdata_to_platdata(struct udevice *bus)
 						 GQSPI_REG_OFFSET);
 	plat->dma_regs = (struct zynqmp_qspi_dma_regs *)
 			  (devfdt_get_addr(bus) + GQSPI_DMA_REG_OFFSET);
+	plat->io_mode = fdtdec_get_bool(gd->fdt_blob, dev_of_offset(bus),
+					"has-io-mode");
 
 	return 0;
 }
@@ -198,14 +204,21 @@ static void zynqmp_qspi_init_hw(struct zynqmp_qspi_priv *priv)
 	writel(GQSPI_GFIFO_ALL_INT_MASK, &regs->idisr);
 	writel(GQSPI_FIFO_THRESHOLD, &regs->txftr);
 	writel(GQSPI_FIFO_THRESHOLD, &regs->rxftr);
+	writel(GQSPI_GENFIFO_THRESHOLD, &regs->gqfthr);
 	writel(GQSPI_GFIFO_ALL_INT_MASK, &regs->isr);
+	writel(0x0, &regs->enbr);
 
 	config_reg = readl(&regs->confr);
-	config_reg &= ~(GQSPI_GFIFO_STRT_MODE_MASK |
-			GQSPI_CONFIG_MODE_EN_MASK);
-	config_reg |= GQSPI_CONFIG_DMA_MODE |
-		      GQSPI_GFIFO_WP_HOLD |
+	config_reg &= ~(GQSPI_CONFIG_MODE_EN_MASK);
+	config_reg |= GQSPI_GFIFO_WP_HOLD |
 		      GQSPI_DFLT_BAUD_RATE_DIV;
+	if (priv->io_mode) {
+		config_reg |= GQSPI_GFIFO_STRT_MODE_MASK;
+	} else {
+		config_reg &= ~(GQSPI_GFIFO_STRT_MODE_MASK);
+		config_reg |= GQSPI_CONFIG_DMA_MODE;
+	}
+
 	writel(config_reg, &regs->confr);
 
 	writel(GQSPI_ENABLE_ENABLE_MASK, &regs->enbr);
@@ -225,8 +238,22 @@ static void zynqmp_qspi_fill_gen_fifo(struct zynqmp_qspi_priv *priv,
 				      u32 gqspi_fifo_reg)
 {
 	struct zynqmp_qspi_regs *regs = priv->regs;
+	u32 config_reg, ier;
 	int ret = 0;
 
+	config_reg = readl(&regs->confr);
+	/* Manual start if needed */
+	if (config_reg & GQSPI_GEN_FIFO_STRT_MOD) {
+		config_reg |= GQSPI_STRT_GEN_FIFO;
+		writel(config_reg, &regs->confr);
+
+		/* Enable interrupts */
+		ier = readl(&regs->ier);
+		ier |= GQSPI_IXR_ALL_MASK;
+		writel(ier, &regs->ier);
+	}
+
+	/* Wait until the fifo is not full to write the new command */
 	ret = wait_for_bit_le32(&regs->isr, GQSPI_IXR_GFEMTY_MASK, 1,
 				GQSPI_TIMEOUT, 1);
 	if (ret)
@@ -371,6 +398,7 @@ static int zynqmp_qspi_probe(struct udevice *bus)
 
 	priv->regs = plat->regs;
 	priv->dma_regs = plat->dma_regs;
+	priv->io_mode = plat->io_mode;
 
 	ret = clk_get_by_index(bus, 0, &clk);
 	if (ret < 0) {
@@ -423,7 +451,7 @@ static int zynqmp_qspi_set_mode(struct udevice *bus, uint mode)
 
 static int zynqmp_qspi_fill_tx_fifo(struct zynqmp_qspi_priv *priv, u32 size)
 {
-	u32 data;
+	u32 data, config_reg, ier;
 	int ret = 0;
 	struct zynqmp_qspi_regs *regs = priv->regs;
 	u32 *buf = (u32 *)priv->tx_buf;
@@ -431,6 +459,17 @@ static int zynqmp_qspi_fill_tx_fifo(struct zynqmp_qspi_priv *priv, u32 size)
 
 	debug("TxFIFO: 0x%x, size: 0x%x\n", readl(&regs->isr),
 	      size);
+
+	config_reg = readl(&regs->confr);
+	/* Manual start if needed */
+	if (config_reg & GQSPI_GEN_FIFO_STRT_MOD) {
+		config_reg |= GQSPI_STRT_GEN_FIFO;
+		writel(config_reg, &regs->confr);
+		/* Enable interrupts */
+		ier = readl(&regs->ier);
+		ier |= GQSPI_IXR_ALL_MASK;
+		writel(ier, &regs->ier);
+	}
 
 	while (size) {
 		ret = wait_for_bit_le32(&regs->isr, GQSPI_IXR_TXNFULL_MASK, 1,
@@ -550,6 +589,66 @@ static int zynqmp_qspi_genfifo_fill_tx(struct zynqmp_qspi_priv *priv)
 	return ret;
 }
 
+static int zynqmp_qspi_start_io(struct zynqmp_qspi_priv *priv,
+				u32 gen_fifo_cmd, u32 *buf)
+{
+	u32 len;
+	u32 actuallen = priv->len;
+	u32 config_reg, ier, isr;
+	u32 timeout = GQSPI_TIMEOUT;
+	struct zynqmp_qspi_regs *regs = priv->regs;
+	u32 last_bits;
+	u32 *traverse = buf;
+
+	while (priv->len) {
+		len = zynqmp_qspi_calc_exp(priv, &gen_fifo_cmd);
+		/* If exponent bit is set, reset immediate to be 2^len */
+		if (gen_fifo_cmd & GQSPI_GFIFO_EXP_MASK)
+			priv->bytes_to_receive = (1 << len);
+		else
+			priv->bytes_to_receive = len;
+		zynqmp_qspi_fill_gen_fifo(priv, gen_fifo_cmd);
+		debug("GFIFO_CMD_RX:0x%x\n", gen_fifo_cmd);
+		/* Manual start */
+		config_reg = readl(&regs->confr);
+		config_reg |= GQSPI_STRT_GEN_FIFO;
+		writel(config_reg, &regs->confr);
+		/* Enable RX interrupts for IO mode */
+		ier = readl(&regs->ier);
+		ier |= GQSPI_IXR_ALL_MASK;
+		writel(ier, &regs->ier);
+		while (priv->bytes_to_receive && timeout) {
+			isr = readl(&regs->isr);
+			if (isr & GQSPI_IXR_RXNEMTY_MASK) {
+				if (priv->bytes_to_receive >= 4) {
+					*traverse = readl(&regs->drxr);
+					traverse++;
+					priv->bytes_to_receive -= 4;
+				} else {
+					last_bits = readl(&regs->drxr);
+					memcpy(traverse, &last_bits,
+					       priv->bytes_to_receive);
+					priv->bytes_to_receive = 0;
+				}
+				timeout = GQSPI_TIMEOUT;
+			} else {
+				udelay(1);
+				timeout--;
+			}
+		}
+
+		debug("buf:0x%lx, rxbuf:0x%lx, *buf:0x%x len: 0x%x\n",
+		      (unsigned long)buf, (unsigned long)priv->rx_buf,
+		      *buf, actuallen);
+		if (!timeout) {
+			printf("IO timeout: %d\n", readl(&regs->isr));
+			return -1;
+		}
+	}
+
+	return 0;
+}
+
 static int zynqmp_qspi_start_dma(struct zynqmp_qspi_priv *priv,
 				 u32 gen_fifo_cmd, u32 *buf)
 {
@@ -613,10 +712,13 @@ static int zynqmp_qspi_genfifo_fill_rx(struct zynqmp_qspi_priv *priv)
 	 * Check if receive buffer is aligned to 4 byte and length
 	 * is multiples of four byte as we are using dma to receive.
 	 */
-	if (!((unsigned long)priv->rx_buf & (GQSPI_DMA_ALIGN - 1)) &&
-	    !(actuallen % GQSPI_DMA_ALIGN)) {
+	if ((!((unsigned long)priv->rx_buf & (GQSPI_DMA_ALIGN - 1)) &&
+	     !(actuallen % GQSPI_DMA_ALIGN)) || priv->io_mode) {
 		buf = (u32 *)priv->rx_buf;
-		return zynqmp_qspi_start_dma(priv, gen_fifo_cmd, buf);
+		if (priv->io_mode)
+			return zynqmp_qspi_start_io(priv, gen_fifo_cmd, buf);
+		else
+			return zynqmp_qspi_start_dma(priv, gen_fifo_cmd, buf);
 	}
 
 	ALLOC_CACHE_ALIGN_BUFFER(u8, tmp, roundup(priv->len,
