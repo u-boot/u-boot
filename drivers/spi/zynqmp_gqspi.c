@@ -199,6 +199,8 @@ static int zynqmp_qspi_ofdata_to_platdata(struct udevice *bus)
 						 GQSPI_REG_OFFSET);
 	plat->dma_regs = (struct zynqmp_qspi_dma_regs *)
 			  (dev_read_addr(bus) + GQSPI_DMA_REG_OFFSET);
+	plat->io_mode = fdtdec_get_bool(gd->fdt_blob, dev_of_offset(bus),
+					"has-io-mode");
 
 	plat->io_mode = dev_read_bool(bus, "has-io-mode");
 	return 0;
