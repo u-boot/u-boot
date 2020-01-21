@@ -313,6 +313,8 @@
 	"kernel_size=0x2800000\0"	\
 	"kernel_addr_sd=0x8000\0"	\
 	"kernel_size_sd=0x14000\0"	\
+	"$othbootargs\0"		\
+	"othbootargs=cma=64M@0x0-0xb0000000\0"	\
 	BOOTENV				\
 	"boot_scripts=ls1021atwr_boot.scr\0"	\
 	"boot_script_hdr=hdr_ls1021atwr_bs.out\0"	\
@@ -373,6 +375,8 @@
 	"kernel_size_sd=0x14000\0"	\
 	"kernelhdr_addr_sd=0x4000\0"		\
 	"kernelhdr_size_sd=0x10\0"		\
+	"$othbootargs\0"			\
+	"othbootargs=cma=64M@0x0-0xb0000000\0"	\
 	BOOTENV				\
 	"boot_scripts=ls1021atwr_boot.scr\0"	\
 	"boot_script_hdr=hdr_ls1021atwr_bs.out\0"	\
