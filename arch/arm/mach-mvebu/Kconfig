@@ -91,6 +91,7 @@ choice
 config TARGET_CLEARFOG
 	bool "Support ClearFog"
 	select 88F6820
+	select BOARD_LATE_INIT
 
 config TARGET_HELIOS4
 	bool "Support Helios4"

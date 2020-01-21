@@ -10,6 +10,7 @@
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
+#include "../common/tlv_data.h"
 
 #include "../drivers/ddr/marvell/a38x/ddr3_init.h"
 #include <../serdes/a38x/high_speed_env_spec.h>
@@ -28,6 +29,19 @@ DECLARE_GLOBAL_DATA_PTR;
 #define BOARD_GPP_POL_LOW	0x0
 #define BOARD_GPP_POL_MID	0x0
 
+static struct tlv_data cf_tlv_data;
+
+static void cf_read_tlv_data(void)
+{
+	static bool read_once;
+
+	if (read_once)
+		return;
+	read_once = true;
+
+	read_tlv_data(&cf_tlv_data);
+}
+
 static struct serdes_map board_serdes_map[] = {
 	{SATA0, SERDES_SPEED_3_GBPS, SERDES_DEFAULT_MODE, 0, 0},
 	{SGMII1, SERDES_SPEED_1_25_GBPS, SERDES_DEFAULT_MODE, 0, 0},
@@ -39,6 +53,20 @@ static struct serdes_map board_serdes_map[] = {
 
 int hws_board_topology_load(struct serdes_map **serdes_map_array, u8 *count)
 {
+	cf_read_tlv_data();
+
+	if (sr_product_is(&cf_tlv_data, "Clearfog GTR")) {
+		board_serdes_map[0].serdes_type = PEX0;
+		board_serdes_map[0].serdes_speed = SERDES_SPEED_5_GBPS;
+		board_serdes_map[0].serdes_mode = PEX_ROOT_COMPLEX_X1;
+	}
+
+	if (sr_product_is(&cf_tlv_data, "Clearfog Base")) {
+		board_serdes_map[4].serdes_type = USB3_HOST0;
+		board_serdes_map[4].serdes_speed = SERDES_SPEED_5_GBPS;
+		board_serdes_map[4].serdes_mode = SERDES_DEFAULT_MODE;
+	}
+
 	*serdes_map_array = board_serdes_map;
 	*count = ARRAY_SIZE(board_serdes_map);
 	return 0;
@@ -68,11 +96,28 @@ static struct mv_ddr_topology_map board_topology_map = {
 	BUS_MASK_32BIT,			/* Busses mask */
 	MV_DDR_CFG_DEFAULT,		/* ddr configuration data source */
 	{ {0} },			/* raw spd data */
-	{0}				/* timing parameters */
+	{0},				/* timing parameters */
+	{ {0} },			/* electrical configuration */
+	{0,},				/* electrical parameters */
+	0x3,				/* clock enable mask */
 };
 
 struct mv_ddr_topology_map *mv_ddr_topology_map_get(void)
 {
+	struct if_params *ifp = &board_topology_map.interface_params[0];
+
+	cf_read_tlv_data();
+
+	switch (cf_tlv_data.ram_size) {
+	case 4:
+	default:
+		ifp->memory_size = MV_DDR_DIE_CAP_4GBIT;
+		break;
+	case 8:
+		ifp->memory_size = MV_DDR_DIE_CAP_8GBIT;
+		break;
+	}
+
 	/* Return the board topology as defined in the board code */
 	return &board_topology_map;
 }
@@ -125,7 +170,16 @@ int board_init(void)
 
 int checkboard(void)
 {
-	puts("Board: SolidRun ClearFog\n");
+	char *board = "ClearFog";
+
+	cf_read_tlv_data();
+	if (strlen(cf_tlv_data.tlv_product_name[0]) > 0)
+		board = cf_tlv_data.tlv_product_name[0];
+
+	printf("Board: SolidRun %s", board);
+	if (strlen(cf_tlv_data.tlv_product_name[1]) > 0)
+		printf(", %s", cf_tlv_data.tlv_product_name[1]);
+	puts("\n");
 
 	return 0;
 }
@@ -134,4 +188,18 @@ int board_eth_init(bd_t *bis)
 {
 	cpu_eth_init(bis); /* Built in controller(s) come first */
 	return pci_eth_init(bis);
+}
+
+int board_late_init(void)
+{
+	cf_read_tlv_data();
+
+	if (sr_product_is(&cf_tlv_data, "Clearfog Base"))
+		env_set("fdtfile", "armada-388-clearfog-base.dtb");
+	else if (sr_product_is(&cf_tlv_data, "Clearfog GTR S4"))
+		env_set("fdtfile", "armada-385-clearfog-gtr-s4.dtb");
+	else if (sr_product_is(&cf_tlv_data, "Clearfog GTR L8"))
+		env_set("fdtfile", "armada-385-clearfog-gtr-l8.dtb");
+
+	return 0;
 }
