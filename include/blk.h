@@ -113,6 +113,12 @@ struct blk_desc {
 	(PAD_SIZE(size, blk_desc->blksz))
 
 #if CONFIG_IS_ENABLED(BLOCK_CACHE)
+
+/**
+ * blkcache_init() - initialize the block cache list pointers
+ */
+int blkcache_init(void);
+
 /**
  * blkcache_read() - attempt to read a set of blocks from cache
  *
