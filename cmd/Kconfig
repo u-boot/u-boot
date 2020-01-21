@@ -242,6 +242,20 @@ config CMD_REGINFO
 	help
 	  Register dump
 
+config CMD_TLV_EEPROM
+	bool "tlv_eeprom"
+	depends on I2C_EEPROM
+	help
+	  Display and program the system EEPROM data block in ONIE Tlvinfo
+	  format. TLV stands for Type-Length-Value.
+
+config SPL_CMD_TLV_EEPROM
+	bool "tlv_eeprom for SPL"
+	depends on SPL_I2C_EEPROM
+	select SPL_DRIVERS_MISC_SUPPORT
+	help
+	  Read system EEPROM data block in ONIE Tlvinfo format from SPL.
+
 endmenu
 
 menu "Boot commands"
