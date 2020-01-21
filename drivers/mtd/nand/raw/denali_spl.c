@@ -173,6 +173,13 @@ void nand_init(void)
 	page_size = readl(denali_flash_reg + DEVICE_MAIN_AREA_SIZE);
 	oob_size = readl(denali_flash_reg + DEVICE_SPARE_AREA_SIZE);
 	pages_per_block = readl(denali_flash_reg + PAGES_PER_BLOCK);
+
+	/* Do as denali_hw_init() does. */
+	writel(CONFIG_NAND_DENALI_SPARE_AREA_SKIP_BYTES,
+	       denali_flash_reg + SPARE_AREA_SKIP_BYTES);
+	writel(0x0F, denali_flash_reg + RB_PIN_ENABLED);
+	writel(CHIP_EN_DONT_CARE__FLAG, denali_flash_reg + CHIP_ENABLE_DONT_CARE);
+	writel(0xffff, denali_flash_reg + SPARE_AREA_MARKER);
 }
 
 int nand_spl_load_image(uint32_t offs, unsigned int size, void *dst)
