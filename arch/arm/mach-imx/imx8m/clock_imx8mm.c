@@ -47,7 +47,7 @@ static struct imx_int_pll_rate_table imx8mm_fracpll_tbl[] = {
 	PLL_1443X_RATE(100000000U, 300, 9, 3, 0),
 };
 
-int fracpll_configure(enum pll_clocks pll, u32 freq)
+static int fracpll_configure(enum pll_clocks pll, u32 freq)
 {
 	int i;
 	u32 tmp, div_val;
@@ -268,7 +268,7 @@ u32 imx_get_uartclk(void)
 	return 24000000U;
 }
 
-u32 decode_intpll(enum clk_root_src intpll)
+static u32 decode_intpll(enum clk_root_src intpll)
 {
 	u32 pll_gnrl_ctl, pll_div_ctl, pll_clke_mask;
 	u32 main_div, pre_div, post_div, div;
@@ -415,7 +415,7 @@ u32 decode_intpll(enum clk_root_src intpll)
 	return lldiv(freq, pre_div * (1 << post_div) * div);
 }
 
-u32 decode_fracpll(enum clk_root_src frac_pll)
+static u32 decode_fracpll(enum clk_root_src frac_pll)
 {
 	u32 pll_gnrl_ctl, pll_fdiv_ctl0, pll_fdiv_ctl1;
 	u32 main_div, pre_div, post_div, k;
@@ -480,7 +480,7 @@ u32 decode_fracpll(enum clk_root_src frac_pll)
 		     65536 * pre_div * (1 << post_div));
 }
 
-u32 get_root_src_clk(enum clk_root_src root_src)
+static u32 get_root_src_clk(enum clk_root_src root_src)
 {
 	switch (root_src) {
 	case OSC_24M_CLK:
@@ -524,7 +524,7 @@ u32 get_root_src_clk(enum clk_root_src root_src)
 	return 0;
 }
 
-u32 get_root_clk(enum clk_root_index clock_id)
+static u32 get_root_clk(enum clk_root_index clock_id)
 {
 	enum clk_root_src root_src;
 	u32 post_podf, pre_podf, root_src_clk;

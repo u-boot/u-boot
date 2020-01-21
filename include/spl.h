@@ -269,6 +269,7 @@ int spl_parse_image_header(struct spl_image_info *spl_image,
 void spl_board_prepare_for_linux(void);
 void spl_board_prepare_for_boot(void);
 int spl_board_ubi_load_image(u32 boot_device);
+int spl_board_boot_device(u32 boot_device);
 
 /**
  * jump_to_image_linux() - Jump to a Linux kernel from SPL

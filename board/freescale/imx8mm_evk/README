@@ -15,12 +15,12 @@ branch: imx_4.19.35_1.0.0
 $ make PLAT=imx8mm bl31
 $ cp build/imx8mm/release/bl31.bin $(builddir)
 
-Get the ddr and hdmi firmware
+Get the ddr firmware
 =============================
 $ wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-8.0.bin
 $ chmod +x firmware-imx-8.0.bin
 $ ./firmware-imx-8.0
-$ cp firmware-imx-7.9/firmware/ddr/synopsys/lpddr4*.bin $(builddir)
+$ cp firmware-imx-8.0/firmware/ddr/synopsys/lpddr4*.bin $(builddir)
 
 Build U-Boot
 ============

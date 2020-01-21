@@ -90,11 +90,6 @@ int board_init(void)
 	return 0;
 }
 
-void detail_board_ddr_info(void)
-{
-	puts("\nDDR    ");
-}
-
 /*
  * Board specific reset that is system reset.
  */

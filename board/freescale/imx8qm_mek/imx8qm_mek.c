@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <init.h>
 #include <linux/libfdt.h>
+#include <fdt_support.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/arch/clock.h>
@@ -98,11 +99,6 @@ int board_init(void)
 	board_gpio_init();
 
 	return 0;
-}
-
-void detail_board_ddr_info(void)
-{
-	puts("\nDDR    ");
 }
 
 /*

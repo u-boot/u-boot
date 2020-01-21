@@ -212,7 +212,7 @@ struct fsl_secboot_sg_table {
 
 /* ESBC global structure.
  * Data to be used across verification of different images.
- * Stores follwoing Data:
+ * Stores following Data:
  * IE Table
  */
 struct fsl_secboot_glb {
