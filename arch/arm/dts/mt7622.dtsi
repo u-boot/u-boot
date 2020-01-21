@@ -7,6 +7,9 @@
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/clock/mt7622-clk.h>
+#include <dt-bindings/power/mt7629-power.h>
+#include <dt-bindings/reset/mt7629-reset.h>
+#include <dt-bindings/gpio/gpio.h>
 
 / {
 	compatible = "mediatek,mt7622";
@@ -182,4 +185,46 @@
 		clock-names = "source", "hclk";
 		status = "disabled";
 	};
+
+	ethsys: syscon@1b000000 {
+		compatible = "mediatek,mt7622-ethsys", "syscon";
+		reg = <0x1b000000 0x1000>;
+		#clock-cells = <1>;
+		#reset-cells = <1>;
+	};
+
+	eth: ethernet@1b100000 {
+		compatible = "mediatek,mt7622-eth", "syscon";
+		reg = <0x1b100000 0x20000>;
+		clocks = <&topckgen CLK_TOP_ETH_SEL>,
+			 <&ethsys CLK_ETH_ESW_EN>,
+			 <&ethsys CLK_ETH_GP0_EN>,
+			 <&ethsys CLK_ETH_GP1_EN>,
+			 <&ethsys CLK_ETH_GP2_EN>,
+			 <&sgmiisys CLK_SGMII_TX250M_EN>,
+			 <&sgmiisys CLK_SGMII_RX250M_EN>,
+			 <&sgmiisys CLK_SGMII_CDR_REF>,
+			 <&sgmiisys CLK_SGMII_CDR_FB>,
+			 <&topckgen CLK_TOP_SGMIIPLL>,
+			 <&apmixedsys CLK_APMIXED_ETH2PLL>;
+		clock-names = "ethif", "esw", "gp0", "gp1", "gp2",
+			      "sgmii_tx250m", "sgmii_rx250m",
+			      "sgmii_cdr_ref", "sgmii_cdr_fb", "sgmii_ck",
+			      "eth2pll";
+		power-domains = <&scpsys MT7629_POWER_DOMAIN_ETHSYS>;
+		resets = <&ethsys ETHSYS_FE_RST>;
+		reset-names = "fe";
+		mediatek,ethsys = <&ethsys>;
+		mediatek,sgmiisys = <&sgmiisys>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "disabled";
+	};
+
+	sgmiisys: sgmiisys@1b128000 {
+		compatible = "mediatek,mt7622-sgmiisys", "syscon";
+		reg = <0x1b128000 0x3000>;
+		#clock-cells = <1>;
+	};
+
 };
