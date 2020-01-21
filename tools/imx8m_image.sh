@@ -14,10 +14,8 @@ for f in $blobs; do
 		continue
 	fi
 
-	if [ -f $f ]; then
-		continue
-	else
-		echo "WARNING '$tmp' not found, resulting binary is not-functional" >&2
+	if [ ! -f $f ]; then
+		echo "WARNING '$f' not found, resulting binary is not-functional" >&2
 		exit 1
 	fi
 done
