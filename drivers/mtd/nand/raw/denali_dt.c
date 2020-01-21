@@ -91,7 +91,7 @@ static int denali_dt_probe(struct udevice *dev)
 	if (ret)
 		ret = clk_get_by_index(dev, 0, &clk);
 	if (ret)
-		return ret;
+		clk.dev = NULL;
 
 	ret = clk_get_by_name(dev, "nand_x", &clk_x);
 	if (ret)
@@ -101,9 +101,11 @@ static int denali_dt_probe(struct udevice *dev)
 	if (ret)
 		clk_ecc.dev = NULL;
 
-	ret = clk_enable(&clk);
-	if (ret)
-		return ret;
+	if (clk.dev) {
+		ret = clk_enable(&clk);
+		if (ret)
+			return ret;
+	}
 
 	if (clk_x.dev) {
 		ret = clk_enable(&clk_x);
