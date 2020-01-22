@@ -120,6 +120,7 @@ struct zynq_qspi_platdata {
 struct zynq_qspi_priv {
 	struct zynq_qspi_regs *regs;
 	u8 mode;
+	u8 fifo_depth;
 	u32 freq;		/* required frequency */
 	const void *tx_buf;
 	void *rx_buf;
@@ -306,6 +307,7 @@ static int zynq_qspi_probe(struct udevice *bus)
 	struct zynq_qspi_priv *priv = dev_get_priv(bus);
 
 	priv->regs = plat->regs;
+	priv->fifo_depth = ZYNQ_QSPI_FIFO_DEPTH;
 	priv->is_dual = plat->is_dual;
 
 	if (priv->is_dual == -1) {
@@ -637,7 +639,7 @@ static int zynq_qspi_start_transfer(struct zynq_qspi_priv *priv)
 	if (priv->len < 4)
 		zynq_qspi_fill_tx_fifo(priv, priv->len);
 	else
-		zynq_qspi_fill_tx_fifo(priv, ZYNQ_QSPI_FIFO_DEPTH);
+		zynq_qspi_fill_tx_fifo(priv, priv->fifo_depth);
 
 	writel(ZYNQ_QSPI_IXR_ALL_MASK, &regs->ier);
 	/* Start the transfer by enabling manual start bit */
