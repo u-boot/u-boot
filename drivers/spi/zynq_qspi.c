@@ -67,6 +67,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ZYNQ_QSPI_QUEUE_RUNNING		1
 #define ZYNQ_QSPI_RXFIFO_THRESHOLD	32
 #define ZYNQ_QSPI_FIFO_DEPTH		63
+#ifndef CONFIG_SYS_ZYNQ_QSPI_WAIT
+#define CONFIG_SYS_ZYNQ_QSPI_WAIT	CONFIG_SYS_HZ/100	/* 10 ms */
+#endif
 
 /* QSPI MIO's count for different connection topologies */
 #define ZYNQ_QSPI_MIO_NUM_QSPI0		6
@@ -505,21 +508,20 @@ static void zynq_qspi_fill_tx_fifo(struct zynq_qspi_priv *priv, u32 size)
 static int zynq_qspi_irq_poll(struct zynq_qspi_priv *priv)
 {
 	struct zynq_qspi_regs *regs = priv->regs;
-	int max_loop;
 	u32 rxindex = 0;
 	u32 rxcount;
-	u32 status;
+	u32 status, timeout;
 
 	/* Poll until any of the interrupt status bits are set */
-	max_loop = 0;
+	timeout = get_timer(0);
 	do {
 		status = readl(&regs->isr);
-		max_loop++;
-	} while ((status == 0) && (max_loop < 100000));
+	} while ((status == 0) &&
+		(get_timer(timeout) < CONFIG_SYS_ZYNQ_QSPI_WAIT));
 
 	if (status == 0) {
-		debug("%s: Timeout\n", __func__);
-		return 0;
+		printf("zynq_qspi_irq_poll: Timeout!\n");
+		return -ETIMEDOUT;
 	}
 
 	writel(status, &regs->isr);
