@@ -19,48 +19,30 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/* zynq qspi register bit masks ZYNQ_QSPI_<REG>_<BIT>_MASK */
+#define ZYNQ_QSPI_CR_IFMODE_MASK	BIT(31)	/* Flash intrface mode*/
+#define ZYNQ_QSPI_CR_MSA_MASK		BIT(15)	/* Manual start enb */
+#define ZYNQ_QSPI_CR_MCS_MASK		BIT(14)	/* Manual chip select */
+#define ZYNQ_QSPI_CR_PCS_MASK		BIT(10)	/* Peri chip select */
+#define ZYNQ_QSPI_CR_FW_MASK		GENMASK(7, 6)	/* FIFO width */
+#define ZYNQ_QSPI_CR_SS_MASK		GENMASK(13, 10)	/* Slave Select */
+#define ZYNQ_QSPI_CR_BAUD_MASK		GENMASK(5, 3)	/* Baud rate div */
+#define ZYNQ_QSPI_CR_CPHA_MASK		BIT(2)	/* Clock phase */
+#define ZYNQ_QSPI_CR_CPOL_MASK		BIT(1)	/* Clock polarity */
+#define ZYNQ_QSPI_CR_MSTREN_MASK	BIT(0)	/* Mode select */
+#define ZYNQ_QSPI_CR_MANSRT_MASK	BIT(16)	/* Manual TX Start */
+#define ZYNQ_QSPI_IXR_RXNEMPTY_MASK	BIT(4)	/* RX FIFO not empty */
+#define ZYNQ_QSPI_IXR_TXOW_MASK		BIT(2)	/* TX FIFO not full */
+#define ZYNQ_QSPI_IXR_TXFULL_MASK	BIT(3)	/* TX FIFO is full */
+#define ZYNQ_QSPI_IXR_ALL_MASK		(ZYNQ_QSPI_IXR_TXOW_MASK | \
+					ZYNQ_QSPI_IXR_RXNEMPTY_MASK)
+#define ZYNQ_QSPI_ENR_SPI_EN_MASK	BIT(0)	/* SPI Enable */
+
 /* zynq qspi Transmit Data Register */
 #define ZYNQ_QSPI_TXD_00_00_OFFSET	0x1C	/* Transmit 4-byte inst */
 #define ZYNQ_QSPI_TXD_00_01_OFFSET	0x80	/* Transmit 1-byte inst */
 #define ZYNQ_QSPI_TXD_00_10_OFFSET	0x84	/* Transmit 2-byte inst */
 #define ZYNQ_QSPI_TXD_00_11_OFFSET	0x88	/* Transmit 3-byte inst */
-
-/*
- * QSPI Configuration Register bit Masks
- *
- * This register contains various control bits that effect the operation
- * of the QSPI controller
- */
-#define ZYNQ_QSPI_CR_IFMODE_MASK	(1 << 31)  /* Flash intrface mode*/
-#define ZYNQ_QSPI_CR_MSA_MASK	(1 << 15)  /* Manual start enb */
-#define ZYNQ_QSPI_CR_MCS_MASK	(1 << 14)  /* Manual chip select */
-#define ZYNQ_QSPI_CR_PCS_MASK	(1 << 10)  /* Peri chip select */
-#define ZYNQ_QSPI_CR_FW_MASK	(0x3 << 6) /* FIFO width */
-#define ZYNQ_QSPI_CR_BAUD_MASK	(0x7 << 3) /* Baud rate div */
-#define ZYNQ_QSPI_CR_MSTREN_MASK	(1 << 0)   /* Mode select */
-#define ZYNQ_QSPI_CR_MANSRT_MASK	0x00010000 /* Manual TX Start */
-#define ZYNQ_QSPI_CR_CPHA_MASK	0x00000004 /* Clock Phase Control */
-#define ZYNQ_QSPI_CR_CPOL_MASK	0x00000002 /* Clock Polarity Control */
-#define ZYNQ_QSPI_CR_SS_MASK	0x00003C00 /* Slave Select Mask */
-
-/*
- * QSPI Interrupt Registers bit Masks
- *
- * All the four interrupt registers (Status/Mask/Enable/Disable) have the same
- * bit definitions.
- */
-#define ZYNQ_QSPI_IXR_TXOW_MASK	0x00000004 /* QSPI TX FIFO Overflow */
-#define ZYNQ_QSPI_IXR_TXFULL_MASK	0x00000008 /* QSPI TX FIFO is full */
-#define ZYNQ_QSPI_IXR_RXNEMPTY_MASK	0x00000010 /* QSPI RX FIFO Not Empty */
-#define ZYNQ_QSPI_IXR_ALL_MASK		(ZYNQ_QSPI_IXR_TXOW_MASK | \
-					ZYNQ_QSPI_IXR_RXNEMPTY_MASK)
-
-/*
- * QSPI Enable Register bit Masks
- *
- * This register is used to enable or disable the QSPI controller
- */
-#define ZYNQ_QSPI_ENR_SPI_EN_MASK	0x00000001 /* QSPI Enable Bit Mask */
 
 /*
  * QSPI Linear Configuration Register
