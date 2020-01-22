@@ -12,9 +12,6 @@
 #include <spi_flash.h>
 #include <ubi_uboot.h>
 #include <asm/io.h>
-#include <asm/arch/hardware.h>
-#include <asm/arch/sys_proto.h>
-#include <asm/arch/clk.h>
 #include "../mtd/spi/sf_internal.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -139,28 +136,31 @@ struct zynq_qspi_priv {
 static int zynq_qspi_ofdata_to_platdata(struct udevice *bus)
 {
 	struct zynq_qspi_platdata *plat = bus->platdata;
+	const void *blob = gd->fdt_blob;
+	int node = dev_of_offset(bus);
 	int is_dual;
 	u32 mode = 0;
 	int offset;
 	u32 value;
 
-	plat->regs = (struct zynq_qspi_regs *)ZYNQ_QSPI_BASEADDR;
+	plat->regs = (struct zynq_qspi_regs *)fdtdec_get_addr(blob,
+							      node, "reg");
 
-	is_dual = fdtdec_get_int(gd->fdt_blob, dev_of_offset(bus), "is-dual", -1);
+	is_dual = fdtdec_get_int(blob, node, "is-dual", -1);
 	if (is_dual < 0)
 		plat->is_dual = SF_SINGLE_FLASH;
 	else if (is_dual == 1)
 		plat->is_dual = SF_DUAL_PARALLEL_FLASH;
 	else
-		if (fdtdec_get_int(gd->fdt_blob, dev_of_offset(bus),
+		if (fdtdec_get_int(blob, node,
 				   "is-stacked", -1) < 0)
 			plat->is_dual = SF_SINGLE_FLASH;
 		else
 			plat->is_dual = SF_DUAL_STACKED_FLASH;
 
-	offset = fdt_first_subnode(gd->fdt_blob, dev_of_offset(bus));
+	offset = fdt_first_subnode(blob, node);
 
-	value = fdtdec_get_uint(gd->fdt_blob, offset, "spi-rx-bus-width", 1);
+	value = fdtdec_get_uint(blob, offset, "spi-rx-bus-width", 1);
 	switch (value) {
 	case 1:
 		break;
@@ -175,7 +175,7 @@ static int zynq_qspi_ofdata_to_platdata(struct udevice *bus)
 		break;
 	}
 
-	value = fdtdec_get_uint(gd->fdt_blob, offset, "spi-tx-bus-width", 1);
+	value = fdtdec_get_uint(blob, offset, "spi-tx-bus-width", 1);
 	switch (value) {
 	case 1:
 		break;
@@ -192,8 +192,13 @@ static int zynq_qspi_ofdata_to_platdata(struct udevice *bus)
 
 	plat->tx_rx_mode = mode;
 
-	plat->frequency = 166666666;
+	/* FIXME: Use 166MHz as a suitable default */
+	plat->frequency = fdtdec_get_int(blob, node, "spi-max-frequency",
+					166666666);
 	plat->speed_hz = plat->frequency / 2;
+
+	debug("%s: regs=%p max-frequency=%d\n", __func__,
+	      plat->regs, plat->frequency);
 
 	return 0;
 }
