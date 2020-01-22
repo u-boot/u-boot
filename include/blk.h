@@ -129,7 +129,7 @@ int blkcache_init(void);
  * @param blksz - size in bytes of each block
  * @param buf - buffer to contain cached data
  *
- * @return - '1' if block returned from cache, '0' otherwise.
+ * @return - 1 if block returned from cache, 0 otherwise.
  */
 int blkcache_read(int iftype, int dev,
 		  lbaint_t start, lbaint_t blkcnt,
