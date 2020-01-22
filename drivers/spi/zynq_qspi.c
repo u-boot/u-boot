@@ -31,35 +31,36 @@ DECLARE_GLOBAL_DATA_PTR;
  * This register contains various control bits that effect the operation
  * of the QSPI controller
  */
-#define ZYNQ_QSPI_CONFIG_IFMODE_MASK	(1 << 31)  /* Flash intrface mode*/
-#define ZYNQ_QSPI_CONFIG_MSA_MASK	(1 << 15)  /* Manual start enb */
-#define ZYNQ_QSPI_CONFIG_MCS_MASK	(1 << 14)  /* Manual chip select */
-#define ZYNQ_QSPI_CONFIG_PCS_MASK	(1 << 10)  /* Peri chip select */
-#define ZYNQ_QSPI_CONFIG_FW_MASK	(0x3 << 6) /* FIFO width */
-#define ZYNQ_QSPI_CONFIG_BAUD_DIV_MASK	(0x7 << 3) /* Baud rate div */
-#define ZYNQ_QSPI_CONFIG_MSTREN_MASK	(1 << 0)   /* Mode select */
-#define ZYNQ_QSPI_CONFIG_MANSRT_MASK	0x00010000 /* Manual TX Start */
-#define ZYNQ_QSPI_CONFIG_CPHA_MASK	0x00000004 /* Clock Phase Control */
-#define ZYNQ_QSPI_CONFIG_CPOL_MASK	0x00000002 /* Clock Polarity Control */
-#define ZYNQ_QSPI_CONFIG_SSCTRL_MASK	0x00003C00 /* Slave Select Mask */
+#define ZYNQ_QSPI_CR_IFMODE_MASK	(1 << 31)  /* Flash intrface mode*/
+#define ZYNQ_QSPI_CR_MSA_MASK	(1 << 15)  /* Manual start enb */
+#define ZYNQ_QSPI_CR_MCS_MASK	(1 << 14)  /* Manual chip select */
+#define ZYNQ_QSPI_CR_PCS_MASK	(1 << 10)  /* Peri chip select */
+#define ZYNQ_QSPI_CR_FW_MASK	(0x3 << 6) /* FIFO width */
+#define ZYNQ_QSPI_CR_BAUD_MASK	(0x7 << 3) /* Baud rate div */
+#define ZYNQ_QSPI_CR_MSTREN_MASK	(1 << 0)   /* Mode select */
+#define ZYNQ_QSPI_CR_MANSRT_MASK	0x00010000 /* Manual TX Start */
+#define ZYNQ_QSPI_CR_CPHA_MASK	0x00000004 /* Clock Phase Control */
+#define ZYNQ_QSPI_CR_CPOL_MASK	0x00000002 /* Clock Polarity Control */
+#define ZYNQ_QSPI_CR_SS_MASK	0x00003C00 /* Slave Select Mask */
+
 /*
  * QSPI Interrupt Registers bit Masks
  *
  * All the four interrupt registers (Status/Mask/Enable/Disable) have the same
  * bit definitions.
  */
-#define ZYNQ_QSPI_IXR_TXNFULL_MASK	0x00000004 /* QSPI TX FIFO Overflow */
+#define ZYNQ_QSPI_IXR_TXOW_MASK	0x00000004 /* QSPI TX FIFO Overflow */
 #define ZYNQ_QSPI_IXR_TXFULL_MASK	0x00000008 /* QSPI TX FIFO is full */
-#define ZYNQ_QSPI_IXR_RXNEMTY_MASK	0x00000010 /* QSPI RX FIFO Not Empty */
-#define ZYNQ_QSPI_IXR_ALL_MASK		(ZYNQ_QSPI_IXR_TXNFULL_MASK | \
-					ZYNQ_QSPI_IXR_RXNEMTY_MASK)
+#define ZYNQ_QSPI_IXR_RXNEMPTY_MASK	0x00000010 /* QSPI RX FIFO Not Empty */
+#define ZYNQ_QSPI_IXR_ALL_MASK		(ZYNQ_QSPI_IXR_TXOW_MASK | \
+					ZYNQ_QSPI_IXR_RXNEMPTY_MASK)
 
 /*
  * QSPI Enable Register bit Masks
  *
  * This register is used to enable or disable the QSPI controller
  */
-#define ZYNQ_QSPI_ENABLE_ENABLE_MASK	0x00000001 /* QSPI Enable Bit Mask */
+#define ZYNQ_QSPI_ENR_SPI_EN_MASK	0x00000001 /* QSPI Enable Bit Mask */
 
 /*
  * QSPI Linear Configuration Register
@@ -240,7 +241,7 @@ static void zynq_qspi_init_hw(struct zynq_qspi_priv *priv)
 	u32 config_reg;
 	struct zynq_qspi_regs *regs = priv->regs;
 
-	writel(~ZYNQ_QSPI_ENABLE_ENABLE_MASK, &regs->enbr);
+	writel(~ZYNQ_QSPI_ENR_SPI_EN_MASK, &regs->enbr);
 	writel(0x7F, &regs->idisr);
 
 	/* Disable linear mode as the boot loader may have used it */
@@ -251,17 +252,17 @@ static void zynq_qspi_init_hw(struct zynq_qspi_priv *priv)
 	writel(ZYNQ_QSPI_RXFIFO_THRESHOLD, &regs->rxftr);
 
 	/* Clear the RX FIFO */
-	while (readl(&regs->isr) & ZYNQ_QSPI_IXR_RXNEMTY_MASK)
+	while (readl(&regs->isr) & ZYNQ_QSPI_IXR_RXNEMPTY_MASK)
 		readl(&regs->drxr);
 
 	debug("%s is_dual:0x%x, is_dio:0x%x\n", __func__, priv->is_dual, priv->is_dio);
 
 	writel(0x7F, &regs->isr);
 	config_reg = readl(&regs->confr);
-	config_reg &= ~ZYNQ_QSPI_CONFIG_MSA_MASK;
-	config_reg |= ZYNQ_QSPI_CONFIG_IFMODE_MASK |
-		ZYNQ_QSPI_CONFIG_MCS_MASK | ZYNQ_QSPI_CONFIG_PCS_MASK |
-		ZYNQ_QSPI_CONFIG_FW_MASK | ZYNQ_QSPI_CONFIG_MSTREN_MASK;
+	config_reg &= ~ZYNQ_QSPI_CR_MSA_MASK;
+	config_reg |= ZYNQ_QSPI_CR_IFMODE_MASK |
+		ZYNQ_QSPI_CR_MCS_MASK | ZYNQ_QSPI_CR_PCS_MASK |
+		ZYNQ_QSPI_CR_FW_MASK | ZYNQ_QSPI_CR_MSTREN_MASK;
 	if (priv->is_dual == SF_DUAL_STACKED_FLASH)
 		config_reg |= 0x10;
 	writel(config_reg, &regs->confr);
@@ -297,7 +298,7 @@ static void zynq_qspi_init_hw(struct zynq_qspi_priv *priv)
 				ZYNQ_QSPI_FR_QOUT_CODE),
 				&regs->lcr);
 	}
-	writel(ZYNQ_QSPI_ENABLE_ENABLE_MASK, &regs->enbr);
+	writel(ZYNQ_QSPI_ENR_SPI_EN_MASK, &regs->enbr);
 }
 
 static int zynq_qspi_child_pre_probe(struct udevice *bus)
@@ -363,7 +364,7 @@ static int zynq_qspi_set_speed(struct udevice *bus, uint speed)
 
 		plat->speed_hz = speed / (2 << baud_rate_val);
 	}
-	confr &= ~ZYNQ_QSPI_CONFIG_BAUD_DIV_MASK;
+	confr &= ~ZYNQ_QSPI_CR_BAUD_MASK;
 	confr |= (baud_rate_val << 3);
 
 	writel(confr, &regs->confr);
@@ -383,12 +384,12 @@ static int zynq_qspi_set_mode(struct udevice *bus, uint mode)
 	debug("%s\n", __func__);
 	/* Set the SPI Clock phase and polarities */
 	confr = readl(&regs->confr);
-	confr &= ~(ZYNQ_QSPI_CONFIG_CPHA_MASK | ZYNQ_QSPI_CONFIG_CPOL_MASK);
+	confr &= ~(ZYNQ_QSPI_CR_CPHA_MASK | ZYNQ_QSPI_CR_CPOL_MASK);
 
 	if (priv->mode & SPI_CPHA)
-		confr |= ZYNQ_QSPI_CONFIG_CPHA_MASK;
+		confr |= ZYNQ_QSPI_CR_CPHA_MASK;
 	if (priv->mode & SPI_CPOL)
-		confr |= ZYNQ_QSPI_CONFIG_CPOL_MASK;
+		confr |= ZYNQ_QSPI_CR_CPOL_MASK;
 
 	writel(confr, &regs->confr);
 	priv->mode = mode;
@@ -516,12 +517,12 @@ static void zynq_qspi_chipselect(struct  zynq_qspi_priv *priv, int is_on)
 
 	if (is_on) {
 		/* Select the slave */
-		config_reg &= ~ZYNQ_QSPI_CONFIG_SSCTRL_MASK;
+		config_reg &= ~ZYNQ_QSPI_CR_SS_MASK;
 		config_reg |= (((~(0x0001 << 0)) << 10) &
-				ZYNQ_QSPI_CONFIG_SSCTRL_MASK);
+				ZYNQ_QSPI_CR_SS_MASK);
 	} else
 		/* Deselect the slave */
-		config_reg |= ZYNQ_QSPI_CONFIG_SSCTRL_MASK;
+		config_reg |= ZYNQ_QSPI_CR_SS_MASK;
 
 	writel(config_reg, &regs->confr);
 }
@@ -555,7 +556,7 @@ static void zynq_qspi_fill_tx_fifo(struct zynq_qspi_priv *priv, u32 size)
 		} else {
 			/* Write TXD1, TXD2, TXD3 only if TxFIFO is empty. */
 			if (!(readl(&regs->isr)
-					& ZYNQ_QSPI_IXR_TXNFULL_MASK) &&
+					& ZYNQ_QSPI_IXR_TXOW_MASK) &&
 					!priv->rxbuf)
 				return;
 			len = priv->bytes_to_transfer;
@@ -606,8 +607,8 @@ static int zynq_qspi_irq_poll(struct zynq_qspi_priv *priv)
 
 	/* Disable all interrupts */
 	writel(ZYNQ_QSPI_IXR_ALL_MASK, &regs->idisr);
-	if ((intr_status & ZYNQ_QSPI_IXR_TXNFULL_MASK) ||
-	    (intr_status & ZYNQ_QSPI_IXR_RXNEMTY_MASK)) {
+	if ((intr_status & ZYNQ_QSPI_IXR_TXOW_MASK) ||
+	    (intr_status & ZYNQ_QSPI_IXR_RXNEMPTY_MASK)) {
 		/*
 		 * This bit is set when Tx FIFO has < THRESHOLD entries. We have
 		 * the THRESHOLD value set to 1, so this bit indicates Tx FIFO
@@ -783,7 +784,7 @@ static int zynq_qspi_claim_bus(struct udevice *dev)
 	struct zynq_qspi_regs *regs = priv->regs;
 
 	debug("%s\n", __func__);
-	writel(ZYNQ_QSPI_ENABLE_ENABLE_MASK, &regs->enbr);
+	writel(ZYNQ_QSPI_ENR_SPI_EN_MASK, &regs->enbr);
 
 	return 0;
 }
@@ -795,7 +796,7 @@ static int zynq_qspi_release_bus(struct udevice *dev)
 	struct zynq_qspi_regs *regs = priv->regs;
 
 	debug("%s\n", __func__);
-	writel(~ZYNQ_QSPI_ENABLE_ENABLE_MASK, &regs->enbr);
+	writel(~ZYNQ_QSPI_ENR_SPI_EN_MASK, &regs->enbr);
 
 	return 0;
 }
