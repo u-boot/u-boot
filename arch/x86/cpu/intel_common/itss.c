@@ -17,10 +17,10 @@
 #include <spl.h>
 #include <asm/itss.h>
 
-struct apl_itss_platdata {
+struct itss_platdata {
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	/* Put this first since driver model will copy the data here */
-	struct dtd_intel_apl_itss dtplat;
+	struct dtd_intel_itss dtplat;
 #endif
 };
 
@@ -30,13 +30,13 @@ struct pmc_route {
 	u32 gpio;
 };
 
-struct apl_itss_priv {
+struct itss_priv {
 	struct pmc_route *route;
 	uint route_count;
 	u32 irq_snapshot[NUM_IPC_REGS];
 };
 
-static int apl_set_polarity(struct udevice *dev, uint irq, bool active_low)
+static int set_polarity(struct udevice *dev, uint irq, bool active_low)
 {
 	u32 mask;
 	uint reg;
@@ -53,9 +53,9 @@ static int apl_set_polarity(struct udevice *dev, uint irq, bool active_low)
 }
 
 #ifndef CONFIG_TPL_BUILD
-static int apl_snapshot_polarities(struct udevice *dev)
+static int snapshot_polarities(struct udevice *dev)
 {
-	struct apl_itss_priv *priv = dev_get_priv(dev);
+	struct itss_priv *priv = dev_get_priv(dev);
 	const int start = GPIO_IRQ_START;
 	const int end = GPIO_IRQ_END;
 	int reg_start;
@@ -86,9 +86,9 @@ static void show_polarities(struct udevice *dev, const char *msg)
 	}
 }
 
-static int apl_restore_polarities(struct udevice *dev)
+static int restore_polarities(struct udevice *dev)
 {
-	struct apl_itss_priv *priv = dev_get_priv(dev);
+	struct itss_priv *priv = dev_get_priv(dev);
 	const int start = GPIO_IRQ_START;
 	const int end = GPIO_IRQ_END;
 	int reg_start;
@@ -132,9 +132,9 @@ static int apl_restore_polarities(struct udevice *dev)
 }
 #endif
 
-static int apl_route_pmc_gpio_gpe(struct udevice *dev, uint pmc_gpe_num)
+static int route_pmc_gpio_gpe(struct udevice *dev, uint pmc_gpe_num)
 {
-	struct apl_itss_priv *priv = dev_get_priv(dev);
+	struct itss_priv *priv = dev_get_priv(dev);
 	struct pmc_route *route;
 	int i;
 
@@ -146,14 +146,14 @@ static int apl_route_pmc_gpio_gpe(struct udevice *dev, uint pmc_gpe_num)
 	return -ENOENT;
 }
 
-static int apl_itss_ofdata_to_platdata(struct udevice *dev)
+static int itss_ofdata_to_platdata(struct udevice *dev)
 {
-	struct apl_itss_priv *priv = dev_get_priv(dev);
+	struct itss_priv *priv = dev_get_priv(dev);
 	int ret;
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct apl_itss_platdata *plat = dev_get_platdata(dev);
-	struct dtd_intel_apl_itss *dtplat = &plat->dtplat;
+	struct itss_platdata *plat = dev_get_platdata(dev);
+	struct dtd_intel_itss *dtplat = &plat->dtplat;
 
 	/*
 	 * It would be nice to do this in the bind() method, but with
@@ -189,26 +189,26 @@ static int apl_itss_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
-static const struct irq_ops apl_itss_ops = {
-	.route_pmc_gpio_gpe	= apl_route_pmc_gpio_gpe,
-	.set_polarity	= apl_set_polarity,
+static const struct irq_ops itss_ops = {
+	.route_pmc_gpio_gpe	= route_pmc_gpio_gpe,
+	.set_polarity	= set_polarity,
 #ifndef CONFIG_TPL_BUILD
-	.snapshot_polarities = apl_snapshot_polarities,
-	.restore_polarities = apl_restore_polarities,
+	.snapshot_polarities = snapshot_polarities,
+	.restore_polarities = restore_polarities,
 #endif
 };
 
-static const struct udevice_id apl_itss_ids[] = {
-	{ .compatible = "intel,apl-itss"},
+static const struct udevice_id itss_ids[] = {
+	{ .compatible = "intel,itss"},
 	{ }
 };
 
-U_BOOT_DRIVER(apl_itss_drv) = {
-	.name		= "intel_apl_itss",
+U_BOOT_DRIVER(itss_drv) = {
+	.name		= "intel_itss",
 	.id		= UCLASS_IRQ,
-	.of_match	= apl_itss_ids,
-	.ops		= &apl_itss_ops,
-	.ofdata_to_platdata = apl_itss_ofdata_to_platdata,
-	.platdata_auto_alloc_size = sizeof(struct apl_itss_platdata),
-	.priv_auto_alloc_size = sizeof(struct apl_itss_priv),
+	.of_match	= itss_ids,
+	.ops		= &itss_ops,
+	.ofdata_to_platdata = itss_ofdata_to_platdata,
+	.platdata_auto_alloc_size = sizeof(struct itss_platdata),
+	.priv_auto_alloc_size = sizeof(struct itss_priv),
 };
