@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Something to do with Interrupts, but I don't know what ITSS stands for
+ * Interrupt Timer Subsystem
  *
  * Copyright (C) 2017 Intel Corporation.
  * Copyright (C) 2017 Siemens AG
