@@ -189,18 +189,18 @@ unsigned long get_board_ddr_clk(void);
 /* Initial environment variables */
 #define XSPI_MC_INIT_CMD			\
 	"env exists secureboot && "		\
-	"esbc_validate 0x20700000 && "		\
-	"esbc_validate 0x20740000 ;"		\
+	"esbc_validate 0x20640000 && "		\
+	"esbc_validate 0x20680000 ;"		\
 	"fsl_mc start mc 0x20a00000 0x20e00000\0"
 
 #define SD_MC_INIT_CMD				\
 	"mmc read 0x80a00000 0x5000 0x1200;"	\
 	"mmc read 0x80e00000 0x7000 0x800;"	\
 	"env exists secureboot && "		\
-	"mmc read 0x80700000 0x3800 0x20 && "	\
-	"mmc read 0x80740000 0x3A00 0x20 && "	\
-	"esbc_validate 0x80700000 && "		\
-	"esbc_validate 0x80740000 ;"		\
+	"mmc read 0x80640000 0x3200 0x20 && "	\
+	"mmc read 0x80680000 0x3400 0x20 && "	\
+	"esbc_validate 0x80640000 && "		\
+	"esbc_validate 0x80680000 ;"		\
 	"fsl_mc start mc 0x80a00000 0x80e00000\0"
 
 #define EXTRA_ENV_SETTINGS			\
@@ -211,7 +211,7 @@ unsigned long get_board_ddr_clk(void);
 	"initrd_high=0xffffffffffffffff\0"	\
 	"fdt_addr=0x64f00000\0"			\
 	"kernel_start=0x1000000\0"		\
-	"kernelheader_start=0x7C0000\0"		\
+	"kernelheader_start=0x600000\0"		\
 	"scriptaddr=0x80000000\0"		\
 	"scripthdraddr=0x80080000\0"		\
 	"fdtheader_addr_r=0x80100000\0"		\
@@ -222,7 +222,7 @@ unsigned long get_board_ddr_clk(void);
 	"load_addr=0xa0000000\0"		\
 	"kernel_size=0x2800000\0"		\
 	"kernel_addr_sd=0x8000\0"		\
-	"kernelhdr_addr_sd=0x3E00\0"            \
+	"kernelhdr_addr_sd=0x3000\0"            \
 	"kernel_size_sd=0x1d000\0"              \
 	"kernelhdr_size_sd=0x20\0"              \
 	"console=ttyAMA0,38400n8\0"		\
@@ -250,7 +250,7 @@ unsigned long get_board_ddr_clk(void);
 
 #define XSPI_NOR_BOOTCOMMAND						\
 			"env exists mcinitcmd && env exists secureboot "\
-			"&& esbc_validate 0x20780000; "			\
+			"&& esbc_validate 0x206C0000; "			\
 			"env exists mcinitcmd && "			\
 			"fsl_mc lazyapply dpl 0x20d00000; "		\
 			"run distro_bootcmd;run xspi_bootcmd; "		\
@@ -260,8 +260,8 @@ unsigned long get_board_ddr_clk(void);
 		"env exists mcinitcmd && mmcinfo; "		\
 		"mmc read 0x80d00000 0x6800 0x800; "		\
 		"env exists mcinitcmd && env exists secureboot "	\
-		" && mmc read 0x80780000 0x3C00 0x20 "		\
-		"&& esbc_validate 0x80780000;env exists mcinitcmd "	\
+		" && mmc read 0x806C0000 0x3600 0x20 "		\
+		"&& esbc_validate 0x806C0000;env exists mcinitcmd "	\
 		"&& fsl_mc lazyapply dpl 0x80d00000;"		\
 		"run distro_bootcmd;run sd_bootcmd;"		\
 		"env exists secureboot && esbc_halt;"
