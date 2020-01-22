@@ -27,6 +27,9 @@ obj-y += microcode.o
 endif
 endif
 obj-y += pch.o
+ifdef CONFIG_INTEL_APOLLOLAKE
+obj-y += itss.o
+endif
 
 ifdef CONFIG_SPL
 ifndef CONFIG_SPL_BUILD
