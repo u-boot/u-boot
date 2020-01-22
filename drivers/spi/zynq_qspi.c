@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * (C) Copyright 2011 - 2013 Xilinx
+ * (C) Copyright 2011 - 2020 Xilinx, Inc.
+ * (C) Copyright 2015 Jagan Teki <jteki@openedev.com>
  *
  * Xilinx Zynq Quad-SPI(QSPI) controller driver (master mode only)
  */
