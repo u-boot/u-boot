@@ -6,11 +6,11 @@
  */
 
 #include <common.h>
-#include <malloc.h>
 #include <dm.h>
-#include <ubi_uboot.h>
+#include <malloc.h>
 #include <spi.h>
 #include <spi_flash.h>
+#include <ubi_uboot.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
@@ -222,8 +222,8 @@ static int zynq_qspi_ofdata_to_platdata(struct udevice *bus)
  */
 static void zynq_qspi_init_hw(struct zynq_qspi_priv *priv)
 {
-	u32 config_reg;
 	struct zynq_qspi_regs *regs = priv->regs;
+	u32 confr;
 
 	writel(~ZYNQ_QSPI_ENR_SPI_EN_MASK, &regs->enr);
 	writel(0x7F, &regs->idr);
@@ -242,14 +242,14 @@ static void zynq_qspi_init_hw(struct zynq_qspi_priv *priv)
 	debug("%s is_dual:0x%x, is_dio:0x%x\n", __func__, priv->is_dual, priv->is_dio);
 
 	writel(0x7F, &regs->isr);
-	config_reg = readl(&regs->cr);
-	config_reg &= ~ZYNQ_QSPI_CR_MSA_MASK;
-	config_reg |= ZYNQ_QSPI_CR_IFMODE_MASK |
+	confr = readl(&regs->cr);
+	confr &= ~ZYNQ_QSPI_CR_MSA_MASK;
+	confr |= ZYNQ_QSPI_CR_IFMODE_MASK |
 		ZYNQ_QSPI_CR_MCS_MASK | ZYNQ_QSPI_CR_PCS_MASK |
 		ZYNQ_QSPI_CR_FW_MASK | ZYNQ_QSPI_CR_MSTREN_MASK;
 	if (priv->is_dual == SF_DUAL_STACKED_FLASH)
-		config_reg |= 0x10;
-	writel(config_reg, &regs->cr);
+		confr |= 0x10;
+	writel(confr, &regs->cr);
 
 	if (priv->is_dual == SF_DUAL_PARALLEL_FLASH) {
 		if (priv->is_dio == SF_DUALIO_FLASH)
@@ -321,12 +321,12 @@ static int zynq_qspi_probe(struct udevice *bus)
 }
 
 /*
- * zynq_qspi_copy_read_data - Copy data to RX buffer
+ * zynq_qspi_read_data - Copy data to RX buffer
  * @zqspi:	Pointer to the zynq_qspi structure
  * @data:	The 32 bit variable where data is stored
  * @size:	Number of bytes to be copied from data to RX buffer
  */
-static void zynq_qspi_copy_read_data(struct zynq_qspi_priv *priv, u32 data, u8 size)
+static void zynq_qspi_read_data(struct zynq_qspi_priv *priv, u32 data, u8 size)
 {
 	u8 byte3;
 
@@ -370,12 +370,12 @@ static void zynq_qspi_copy_read_data(struct zynq_qspi_priv *priv, u32 data, u8 s
 }
 
 /*
- * zynq_qspi_copy_write_data - Copy data from TX buffer
+ * zynq_qspi_write_data - Copy data from TX buffer
  * @zqspi:	Pointer to the zynq_qspi structure
  * @data:	Pointer to the 32 bit variable where data is to be copied
  * @size:	Number of bytes to be copied from TX buffer to data
  */
-static void zynq_qspi_copy_write_data(struct  zynq_qspi_priv *priv,
+static void zynq_qspi_write_data(struct  zynq_qspi_priv *priv,
 		u32 *data, u8 size)
 {
 	if (priv->tx_buf) {
@@ -429,23 +429,23 @@ static void zynq_qspi_copy_write_data(struct  zynq_qspi_priv *priv,
  */
 static void zynq_qspi_chipselect(struct  zynq_qspi_priv *priv, int is_on)
 {
-	u32 config_reg;
+	u32 confr;
 	struct zynq_qspi_regs *regs = priv->regs;
 
 	debug("%s: is_on: %d\n", __func__, is_on);
 
-	config_reg = readl(&regs->cr);
+	confr = readl(&regs->cr);
 
 	if (is_on) {
 		/* Select the slave */
-		config_reg &= ~ZYNQ_QSPI_CR_SS_MASK;
-		config_reg |= (((~(0x0001 << 0)) << 10) &
-				ZYNQ_QSPI_CR_SS_MASK);
+		confr &= ~ZYNQ_QSPI_CR_SS_MASK;
+		confr |= ((~(0x0001 << 0)) << 10) &
+					ZYNQ_QSPI_CR_SS_MASK;
 	} else
 		/* Deselect the slave */
-		config_reg |= ZYNQ_QSPI_CR_SS_MASK;
+		confr |= ZYNQ_QSPI_CR_SS_MASK;
 
-	writel(config_reg, &regs->cr);
+	writel(confr, &regs->cr);
 }
 
 /*
@@ -481,7 +481,7 @@ static void zynq_qspi_fill_tx_fifo(struct zynq_qspi_priv *priv, u32 size)
 					!priv->rx_buf)
 				return;
 			len = priv->bytes_to_transfer;
-			zynq_qspi_copy_write_data(priv, &data, len);
+			zynq_qspi_write_data(priv, &data, len);
 			offset = (priv->rx_buf) ? offsets[0] : offsets[len];
 			writel(data, &regs->cr + (offset / 4));
 		}
@@ -504,32 +504,32 @@ static void zynq_qspi_fill_tx_fifo(struct zynq_qspi_priv *priv, u32 size)
  */
 static int zynq_qspi_irq_poll(struct zynq_qspi_priv *priv)
 {
+	struct zynq_qspi_regs *regs = priv->regs;
 	int max_loop;
-	u32 intr_status;
 	u32 rxindex = 0;
 	u32 rxcount;
-	struct zynq_qspi_regs *regs = priv->regs;
+	u32 status;
 
 	debug("%s: zqspi: 0x%08x\n", __func__, (u32)priv);
 
 	/* Poll until any of the interrupt status bits are set */
 	max_loop = 0;
 	do {
-		intr_status = readl(&regs->isr);
+		status = readl(&regs->isr);
 		max_loop++;
-	} while ((intr_status == 0) && (max_loop < 100000));
+	} while ((status == 0) && (max_loop < 100000));
 
-	if (intr_status == 0) {
+	if (status == 0) {
 		debug("%s: Timeout\n", __func__);
 		return 0;
 	}
 
-	writel(intr_status, &regs->isr);
+	writel(status, &regs->isr);
 
 	/* Disable all interrupts */
 	writel(ZYNQ_QSPI_IXR_ALL_MASK, &regs->idr);
-	if ((intr_status & ZYNQ_QSPI_IXR_TXOW_MASK) ||
-	    (intr_status & ZYNQ_QSPI_IXR_RXNEMPTY_MASK)) {
+	if ((status & ZYNQ_QSPI_IXR_TXOW_MASK) ||
+	    (status & ZYNQ_QSPI_IXR_RXNEMPTY_MASK)) {
 		/*
 		 * This bit is set when Tx FIFO has < THRESHOLD entries. We have
 		 * the THRESHOLD value set to 1, so this bit indicates Tx FIFO
@@ -550,8 +550,8 @@ static int zynq_qspi_irq_poll(struct zynq_qspi_priv *priv)
 				}
 				priv->bytes_to_receive -= 4;
 			} else {
-				zynq_qspi_copy_read_data(priv, data,
-					priv->bytes_to_receive);
+				zynq_qspi_read_data(priv, data,
+						    priv->bytes_to_receive);
 			}
 			rxindex++;
 		}
@@ -662,7 +662,6 @@ static int zynq_qspi_transfer(struct zynq_qspi_priv *priv)
 	debug("%s\n", __func__);
 
 	while (1) {
-
 		/* Select the chip if required */
 		if (cs_change)
 			zynq_qspi_chipselect(priv, 1);
@@ -683,7 +682,8 @@ static int zynq_qspi_transfer(struct zynq_qspi_priv *priv)
 		if (status != priv->len) {
 			if (status > 0)
 				status = -EMSGSIZE;
-			debug("zynq_qspi_transfer:%d len:%d\n", status, priv->len);
+			debug("zynq_qspi_transfer:%d len:%d\n",
+			      status, priv->len);
 			break;
 		}
 		status = 0;
@@ -722,8 +722,8 @@ static int zynq_qspi_release_bus(struct udevice *dev)
 	return 0;
 }
 
-static int zynq_qspi_xfer(struct udevice *dev, unsigned int bitlen, const void *dout,
-		void *din, unsigned long flags)
+static int zynq_qspi_xfer(struct udevice *dev, unsigned int bitlen,
+		const void *dout, void *din, unsigned long flags)
 {
 	struct udevice *bus = dev->parent;
 	struct zynq_qspi_priv *priv = dev_get_priv(bus);
@@ -767,7 +767,7 @@ static int zynq_qspi_set_speed(struct udevice *bus, uint speed)
 	struct zynq_qspi_platdata *plat = bus->platdata;
 	struct zynq_qspi_priv *priv = dev_get_priv(bus);
 	struct zynq_qspi_regs *regs = priv->regs;
-	uint32_t cr;
+	uint32_t confr;
 	u8 baud_rate_val = 0;
 
 	debug("%s\n", __func__);
@@ -775,7 +775,7 @@ static int zynq_qspi_set_speed(struct udevice *bus, uint speed)
 		speed = plat->frequency;
 
 	/* Set the clock frequency */
-	cr = readl(&regs->cr);
+	confr = readl(&regs->cr);
 	if (speed == 0) {
 		/* Set baudrate x8, if the freq is 0 */
 		baud_rate_val = 0x2;
@@ -790,10 +790,10 @@ static int zynq_qspi_set_speed(struct udevice *bus, uint speed)
 
 		plat->speed_hz = speed / (2 << baud_rate_val);
 	}
-	cr &= ~ZYNQ_QSPI_CR_BAUD_MASK;
-	cr |= (baud_rate_val << 3);
+	confr &= ~ZYNQ_QSPI_CR_BAUD_MASK;
+	confr |= (baud_rate_val << 3);
 
-	writel(cr, &regs->cr);
+	writel(confr, &regs->cr);
 	priv->freq = speed;
 
 	debug("zynq_spi_set_speed: regs=%p, mode=%d\n", priv->regs, priv->freq);
@@ -805,19 +805,19 @@ static int zynq_qspi_set_mode(struct udevice *bus, uint mode)
 {
 	struct zynq_qspi_priv *priv = dev_get_priv(bus);
 	struct zynq_qspi_regs *regs = priv->regs;
-	uint32_t cr;
+	uint32_t confr;
 
 	debug("%s\n", __func__);
 	/* Set the SPI Clock phase and polarities */
-	cr = readl(&regs->cr);
-	cr &= ~(ZYNQ_QSPI_CR_CPHA_MASK | ZYNQ_QSPI_CR_CPOL_MASK);
+	confr = readl(&regs->cr);
+	confr &= ~(ZYNQ_QSPI_CR_CPHA_MASK | ZYNQ_QSPI_CR_CPOL_MASK);
 
 	if (priv->mode & SPI_CPHA)
-		cr |= ZYNQ_QSPI_CR_CPHA_MASK;
+		confr |= ZYNQ_QSPI_CR_CPHA_MASK;
 	if (priv->mode & SPI_CPOL)
-		cr |= ZYNQ_QSPI_CR_CPOL_MASK;
+		confr |= ZYNQ_QSPI_CR_CPOL_MASK;
 
-	writel(cr, &regs->cr);
+	writel(confr, &regs->cr);
 	priv->mode = mode;
 
 	debug("zynq_spi_set_mode: regs=%p, mode=%d\n", priv->regs, priv->mode);
