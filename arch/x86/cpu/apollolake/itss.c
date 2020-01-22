@@ -15,7 +15,7 @@
 #include <irq.h>
 #include <p2sb.h>
 #include <spl.h>
-#include <asm/arch/itss.h>
+#include <asm/itss.h>
 
 struct apl_itss_platdata {
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
