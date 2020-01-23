@@ -52,17 +52,20 @@ static int dw_i2c_enable(struct i2c_regs *i2c_base, bool enable)
  *
  * Set the i2c speed.
  */
-static unsigned int __dw_i2c_set_bus_speed(struct i2c_regs *i2c_base,
-					   struct dw_scl_sda_cfg *scl_sda_cfg,
+static unsigned int __dw_i2c_set_bus_speed(struct dw_i2c *priv,
+					   struct i2c_regs *i2c_base,
 					   unsigned int speed,
 					   unsigned int bus_clk)
 {
+	const struct dw_scl_sda_cfg *scl_sda_cfg = NULL;
 	ulong bus_khz = bus_clk / 1000;
 	enum i2c_speed_mode i2c_spd;
 	unsigned int cntl;
 	unsigned int hcnt, lcnt;
 	unsigned int ena;
 
+	if (priv)
+		scl_sda_cfg = priv->scl_sda_cfg;
 	/* Allow high speed if there is no config, or the config allows it */
 	if (speed >= I2C_HIGH_SPEED &&
 	    (!scl_sda_cfg || scl_sda_cfg->has_high_speed))
@@ -371,7 +374,7 @@ static int __dw_i2c_init(struct i2c_regs *i2c_base, int speed, int slaveaddr)
 	writel(IC_TX_TL, &i2c_base->ic_tx_tl);
 	writel(IC_STOP_DET, &i2c_base->ic_intr_mask);
 #ifndef CONFIG_DM_I2C
-	__dw_i2c_set_bus_speed(i2c_base, NULL, speed, IC_CLK);
+	__dw_i2c_set_bus_speed(NULL, i2c_base, speed, IC_CLK);
 	writel(slaveaddr, &i2c_base->ic_sar);
 #endif
 
@@ -416,7 +419,7 @@ static unsigned int dw_i2c_set_bus_speed(struct i2c_adapter *adap,
 					 unsigned int speed)
 {
 	adap->speed = speed;
-	return __dw_i2c_set_bus_speed(i2c_get_base(adap), NULL, speed, IC_CLK);
+	return __dw_i2c_set_bus_speed(NULL, i2c_get_base(adap), speed, IC_CLK);
 }
 
 static void dw_i2c_init(struct i2c_adapter *adap, int speed, int slaveaddr)
@@ -515,8 +518,7 @@ static int designware_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
 #else
 	rate = IC_CLK;
 #endif
-	return __dw_i2c_set_bus_speed(i2c->regs, i2c->scl_sda_cfg, speed,
-				      rate);
+	return __dw_i2c_set_bus_speed(i2c, i2c->regs, speed, rate);
 }
 
 static int designware_i2c_probe_chip(struct udevice *bus, uint chip_addr,
