@@ -7,6 +7,7 @@
 #ifndef __DW_I2C_H_
 #define __DW_I2C_H_
 
+#include <clk.h>
 #include <reset.h>
 
 struct i2c_regs {

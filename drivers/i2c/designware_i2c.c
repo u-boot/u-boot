@@ -4,8 +4,8 @@
  * Vipin Kumar, ST Micoelectronics, vipin.kumar@st.com.
  */
 
-#include <clk.h>
 #include <common.h>
+#include <clk.h>
 #include <dm.h>
 #include <i2c.h>
 #include <pci.h>
