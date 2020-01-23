@@ -43,8 +43,20 @@ struct i2c_regs {
 	u32 ic_rxflr;		/* 0x78 */
 	u32 ic_sda_hold;	/* 0x7c */
 	u32 ic_tx_abrt_source;	/* 0x80 */
-	u8 res1[0x18];		/* 0x84 */
+	u32 slv_data_nak_only;
+	u32 dma_cr;
+	u32 dma_tdlr;
+	u32 dma_rdlr;
+	u32 sda_setup;
+	u32 ack_general_call;
 	u32 ic_enable_status;	/* 0x9c */
+	u32 fs_spklen;
+	u32 hs_spklen;
+	u32 clr_restart_det;
+	u8 reserved[0xf4 - 0xac];
+	u32 comp_param1;	/* 0xf4 */
+	u32 comp_version;
+	u32 comp_type;
 };
 
 #if !defined(IC_CLK)
