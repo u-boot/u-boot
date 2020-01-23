@@ -374,28 +374,6 @@ void init_wdog_clk(void)
 	clock_enable(CCGR_WDOG3, 1);
 }
 
-void init_usb_clk(void)
-{
-	if (!is_usb_boot()) {
-		clock_enable(CCGR_USB_CTRL1, 0);
-		clock_enable(CCGR_USB_CTRL2, 0);
-		clock_enable(CCGR_USB_PHY1, 0);
-		clock_enable(CCGR_USB_PHY2, 0);
-		/* 500MHz */
-		clock_set_target_val(USB_BUS_CLK_ROOT, CLK_ROOT_ON |
-				     CLK_ROOT_SOURCE_SEL(1));
-		/* 100MHz */
-		clock_set_target_val(USB_CORE_REF_CLK_ROOT, CLK_ROOT_ON |
-				     CLK_ROOT_SOURCE_SEL(1));
-		/* 100MHz */
-		clock_set_target_val(USB_PHY_REF_CLK_ROOT, CLK_ROOT_ON |
-				     CLK_ROOT_SOURCE_SEL(1));
-		clock_enable(CCGR_USB_CTRL1, 1);
-		clock_enable(CCGR_USB_CTRL2, 1);
-		clock_enable(CCGR_USB_PHY1, 1);
-		clock_enable(CCGR_USB_PHY2, 1);
-	}
-}
 
 void init_nand_clk(void)
 {
