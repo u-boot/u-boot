@@ -57,10 +57,10 @@ static unsigned int __dw_i2c_set_bus_speed(struct i2c_regs *i2c_base,
 					   unsigned int speed,
 					   unsigned int bus_mhz)
 {
+	enum i2c_speed_mode i2c_spd;
 	unsigned int cntl;
 	unsigned int hcnt, lcnt;
 	unsigned int ena;
-	int i2c_spd;
 
 	/* Allow high speed if there is no config, or the config allows it */
 	if (speed >= I2C_HIGH_SPEED &&
