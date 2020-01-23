@@ -130,11 +130,10 @@ static inline int initr_watchdog(void)
 		}
 	}
 
-	if (CONFIG_IS_ENABLED(OF_CONTROL)) {
+	if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) {
 		timeout = dev_read_u32_default(gd->watchdog_dev, "timeout-sec",
 					       WATCHDOG_TIMEOUT_SECS);
 	}
-
 	wdt_start(gd->watchdog_dev, timeout * 1000, 0);
 	gd->flags |= GD_FLG_WDT_READY;
 	printf("WDT:   Started with%s servicing (%ds timeout)\n",
