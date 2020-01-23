@@ -116,6 +116,13 @@ static const struct i2c_mode_info info_for_mode[] = {
 		300,
 		300,
 	},
+	[IC_SPEED_MODE_FAST_PLUS] = {
+		I2C_SPEED_FAST_PLUS_RATE,
+		MIN_FP_SCL_HIGHTIME,
+		MIN_FP_SCL_LOWTIME,
+		260,
+		500,
+	},
 	[IC_SPEED_MODE_HIGH] = {
 		I2C_SPEED_HIGH_RATE,
 		MIN_HS_SCL_HIGHTIME,
@@ -230,6 +237,8 @@ static unsigned int __dw_i2c_set_bus_speed(struct dw_i2c *priv,
 	    (!scl_sda_cfg || scl_sda_cfg->has_high_speed))
 		i2c_spd = IC_SPEED_MODE_HIGH;
 	else if (speed >= I2C_SPEED_FAST_RATE)
+		i2c_spd = IC_SPEED_MODE_FAST_PLUS;
+	else if (speed >= I2C_SPEED_FAST_PLUS_RATE)
 		i2c_spd = IC_SPEED_MODE_FAST;
 	else
 		i2c_spd = IC_SPEED_MODE_STANDARD;
@@ -271,13 +280,12 @@ static unsigned int __dw_i2c_set_bus_speed(struct dw_i2c *priv,
 		writel(config.scl_hcnt, &i2c_base->ic_hs_scl_hcnt);
 		writel(config.scl_lcnt, &i2c_base->ic_hs_scl_lcnt);
 		break;
-
 	case IC_SPEED_MODE_STANDARD:
 		cntl |= IC_CON_SPD_SS;
 		writel(config.scl_hcnt, &i2c_base->ic_ss_scl_hcnt);
 		writel(config.scl_lcnt, &i2c_base->ic_ss_scl_lcnt);
 		break;
-
+	case IC_SPEED_MODE_FAST_PLUS:
 	case IC_SPEED_MODE_FAST:
 	default:
 		cntl |= IC_CON_SPD_FS;
