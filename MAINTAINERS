@@ -403,6 +403,14 @@ F:	arch/arm/mach-keystone/
 F:	arch/arm/include/asm/arch-omap*/
 F:	arch/arm/include/asm/ti-common/
 
+ARM U8500
+M:	Stephan Gerhold <stephan@gerhold.net>
+R:	Linus Walleij <linus.walleij@linaro.org>
+S:	Maintained
+F:	arch/arm/dts/ste-*
+F:	arch/arm/mach-u8500/
+F:	drivers/timer/nomadik-mtu-timer.c
+
 ARM UNIPHIER
 M:	Masahiro Yamada <yamada.masahiro@socionext.com>
 S:	Maintained
@@ -780,6 +788,15 @@ T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-riscv.git
 F:	arch/riscv/
 F:	cmd/riscv/
 F:	tools/prelink-riscv.c
+
+RNG
+M:	Sughosh Ganu <sughosh.ganu@linaro.org>
+R:	Heinrich Schuchardt <xypron.glpk@gmx.de>
+S:	Maintained
+F:	cmd/rng.c
+F:	drivers/rng/
+F:	drivers/virtio/virtio_rng.c
+F:	include/rng.h
 
 ROCKUSB
 M:	Eddie Cai <eddie.cai.linux@gmail.com>

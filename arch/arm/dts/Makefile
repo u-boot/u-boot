@@ -389,6 +389,8 @@ dtb-$(CONFIG_FSL_LSCH2) += fsl-ls1043a-qds-duart.dtb \
 dtb-$(CONFIG_TARGET_DRAGONBOARD410C) += dragonboard410c.dtb
 dtb-$(CONFIG_TARGET_DRAGONBOARD820C) += dragonboard820c.dtb
 
+dtb-$(CONFIG_TARGET_STEMMY) += ste-ux500-samsung-stemmy.dtb
+
 dtb-$(CONFIG_STM32F4) += stm32f429-disco.dtb \
 	stm32429i-eval.dtb \
 	stm32f469-disco.dtb
@@ -856,6 +858,9 @@ dtb-$(CONFIG_ARCH_BCM283X) += \
 
 dtb-$(CONFIG_ARCH_BCM63158) += \
 	bcm963158.dtb
+
+dtb-$(CONFIG_ARCH_BCM68360) += \
+	bcm968360bg.dtb
 
 dtb-$(CONFIG_ARCH_BCM6858) += \
 	bcm968580xref.dtb

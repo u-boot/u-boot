@@ -1,0 +1,6 @@
+STEMMY BOARD
+M:	Stephan Gerhold <stephan@gerhold.net>
+S:	Maintained
+F:	board/ste/stemmy/
+F:	include/configs/stemmy.h
+F:	configs/stemmy_defconfig

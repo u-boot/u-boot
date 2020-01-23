@@ -3,12 +3,13 @@
 # (C) Copyright 2004-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
-obj-y += common.o env.o
+obj-$(CONFIG_$(SPL_TPL_)ENV_SUPPORT) += common.o
+obj-$(CONFIG_$(SPL_TPL_)ENV_SUPPORT) += env.o
+obj-$(CONFIG_$(SPL_TPL_)ENV_SUPPORT) += attr.o
+obj-$(CONFIG_$(SPL_TPL_)ENV_SUPPORT) += flags.o
+obj-$(CONFIG_$(SPL_TPL_)ENV_SUPPORT) += callback.o
 
 ifndef CONFIG_SPL_BUILD
-obj-y += attr.o
-obj-y += callback.o
-obj-y += flags.o
 obj-$(CONFIG_ENV_IS_IN_EEPROM) += eeprom.o
 extra-$(CONFIG_ENV_IS_EMBEDDED) += embedded.o
 obj-$(CONFIG_ENV_IS_IN_EEPROM) += embedded.o
@@ -19,10 +20,6 @@ obj-$(CONFIG_ENV_IS_IN_ONENAND) += onenand.o
 obj-$(CONFIG_ENV_IS_IN_SATA) += sata.o
 obj-$(CONFIG_ENV_IS_IN_REMOTE) += remote.o
 obj-$(CONFIG_ENV_IS_IN_UBI) += ubi.o
-else
-obj-$(CONFIG_$(SPL_TPL_)ENV_SUPPORT) += attr.o
-obj-$(CONFIG_$(SPL_TPL_)ENV_SUPPORT) += flags.o
-obj-$(CONFIG_$(SPL_TPL_)ENV_SUPPORT) += callback.o
 endif
 
 obj-$(CONFIG_$(SPL_TPL_)ENV_IS_NOWHERE) += nowhere.o

@@ -1312,7 +1312,8 @@ void handle_pxe_menu(cmd_tbl_t *cmdtp, struct pxe_menu *cfg)
 	/* display BMP if available */
 	if (cfg->bmp) {
 		if (get_relfile(cmdtp, cfg->bmp, image_load_addr)) {
-			run_command("cls", 0);
+			if (CONFIG_IS_ENABLED(CMD_CLS))
+				run_command("cls", 0);
 			bmp_display(image_load_addr,
 				    BMP_ALIGN_CENTER, BMP_ALIGN_CENTER);
 		} else {

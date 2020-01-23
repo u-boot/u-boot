@@ -69,11 +69,7 @@ static const u32 kwmpp_config[] = {
 	MPP4_NF_IO6,
 	MPP5_NF_IO7,
 	MPP6_SYSRST_OUTn,
-#if defined(KM_PCIE_RESET_MPP7)
-	MPP7_GPO,
-#else
 	MPP7_PEX_RST_OUTn,
-#endif
 #if defined(CONFIG_SYS_I2C_SOFT)
 	MPP8_GPIO,		/* SDA */
 	MPP9_GPIO,		/* SCL */

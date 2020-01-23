@@ -1,0 +1,6 @@
+BCM968360BG BOARD
+M:	Philippe Reynes <philippe.reynes@softathome.com>
+S:	Maintained
+F:	board/broadcom/bcm968360bg
+F:	include/configs/broadcom_bcm968360bg.h
+F:	configs/bcm968360bg_ram_defconfig

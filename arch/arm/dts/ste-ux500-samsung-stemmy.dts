@@ -1,0 +1,20 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+/dts-v1/;
+
+#include "ste-dbx5x0-u-boot.dtsi"
+#include "ste-ab8500.dtsi"
+
+/ {
+	compatible = "samsung,stemmy", "st-ericsson,u8500";
+
+	chosen {
+		stdout-path = &serial2;
+	};
+
+	soc {
+		/* Debugging console UART */
+		uart@80007000 {
+			status = "okay";
+		};
+	};
+};

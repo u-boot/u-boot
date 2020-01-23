@@ -633,6 +633,12 @@ config ARCH_BCM63158
 	select OF_CONTROL
 	imply CMD_DM
 
+config ARCH_BCM68360
+	bool "Broadcom BCM68360 family"
+	select DM
+	select OF_CONTROL
+	imply CMD_DM
+
 config ARCH_BCM6858
 	bool "Broadcom BCM6858 family"
 	select DM
@@ -1008,6 +1014,24 @@ config ARCH_SUNXI
 	imply SPL_POWER_SUPPORT
 	imply SPL_SERIAL_SUPPORT
 	imply USB_GADGET
+
+config ARCH_U8500
+	bool "ST-Ericsson U8500 Series"
+	select CPU_V7A
+	select DM
+	select DM_GPIO
+	select DM_MMC if MMC
+	select DM_SERIAL
+	select DM_USB if USB
+	select OF_CONTROL
+	select SYSRESET
+	select TIMER
+	imply ARM_PL180_MMCI
+	imply DM_RTC
+	imply NOMADIK_MTU_TIMER
+	imply PL01X_SERIAL
+	imply RTC_PL031
+	imply SYSRESET_SYSCON
 
 config ARCH_VERSAL
 	bool "Support Xilinx Versal Platform"
@@ -1779,6 +1803,8 @@ source "arch/arm/mach-sunxi/Kconfig"
 
 source "arch/arm/mach-tegra/Kconfig"
 
+source "arch/arm/mach-u8500/Kconfig"
+
 source "arch/arm/mach-uniphier/Kconfig"
 
 source "arch/arm/cpu/armv7/vf610/Kconfig"
@@ -1808,6 +1834,7 @@ source "board/armltd/vexpress64/Kconfig"
 source "board/broadcom/bcm23550_w1d/Kconfig"
 source "board/broadcom/bcm28155_ap/Kconfig"
 source "board/broadcom/bcm963158/Kconfig"
+source "board/broadcom/bcm968360bg/Kconfig"
 source "board/broadcom/bcm968580xref/Kconfig"
 source "board/broadcom/bcmcygnus/Kconfig"
 source "board/broadcom/bcmnsp/Kconfig"

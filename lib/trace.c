@@ -130,13 +130,13 @@ static void __attribute__((no_instrument_function)) add_textbase(void)
 }
 
 /**
- * This is called on every function entry
+ * __cyg_profile_func_enter() - record function entry
  *
  * We add to our tally for this function and add to the list of called
  * functions.
  *
- * @param func_ptr	Pointer to function being entered
- * @param caller	Pointer to function which called this function
+ * @func_ptr:	pointer to function being entered
+ * @caller:	pointer to function which called this function
  */
 void __attribute__((no_instrument_function)) __cyg_profile_func_enter(
 		void *func_ptr, void *caller)
@@ -161,12 +161,10 @@ void __attribute__((no_instrument_function)) __cyg_profile_func_enter(
 }
 
 /**
- * This is called on every function exit
+ * __cyg_profile_func_exit() - record function exit
  *
- * We do nothing here.
- *
- * @param func_ptr	Pointer to function being entered
- * @param caller	Pointer to function which called this function
+ * @func_ptr:	pointer to function being entered
+ * @caller:	pointer to function which called this function
  */
 void __attribute__((no_instrument_function)) __cyg_profile_func_exit(
 		void *func_ptr, void *caller)
@@ -180,16 +178,16 @@ void __attribute__((no_instrument_function)) __cyg_profile_func_exit(
 }
 
 /**
- * Produce a list of called functions
+ * trace_list_functions() - produce a list of called functions
  *
  * The information is written into the supplied buffer - a header followed
  * by a list of function records.
  *
- * @param buff		Buffer to place list into
- * @param buff_size	Size of buffer
- * @param needed	Returns size of buffer needed, which may be
- *			greater than buff_size if we ran out of space.
- * @return 0 if ok, -1 if space was exhausted
+ * @buff:	buffer to place list into
+ * @buff_size:	size of buffer
+ * @needed:	returns size of buffer needed, which may be
+ *		greater than buff_size if we ran out of space.
+ * Return:	0 if ok, -ENOSPC if space was exhausted
  */
 int trace_list_functions(void *buff, size_t buff_size, size_t *needed)
 {
@@ -236,6 +234,18 @@ int trace_list_functions(void *buff, size_t buff_size, size_t *needed)
 	return 0;
 }
 
+/**
+ * trace_list_functions() - produce a list of function calls
+ *
+ * The information is written into the supplied buffer - a header followed
+ * by a list of function records.
+ *
+ * @buff:	buffer to place list into
+ * @buff_size:	size of buffer
+ * @needed:	returns size of buffer needed, which may be
+ *		greater than buff_size if we ran out of space.
+ * Return:	0 if ok, -ENOSPC if space was exhausted
+ */
 int trace_list_calls(void *buff, size_t buff_size, size_t *needed)
 {
 	struct trace_output_hdr *output_hdr = NULL;
@@ -281,7 +291,9 @@ int trace_list_calls(void *buff, size_t buff_size, size_t *needed)
 	return 0;
 }
 
-/* Print basic information about tracing */
+/**
+ * trace_print_stats() - print basic information about tracing
+ */
 void trace_print_stats(void)
 {
 	ulong count;
@@ -320,10 +332,11 @@ void __attribute__((no_instrument_function)) trace_set_enabled(int enabled)
 }
 
 /**
- * Init the tracing system ready for used, and enable it
+ * trace_init() - initialize the tracing system and enable it
  *
- * @param buff		Pointer to trace buffer
- * @param buff_size	Size of trace buffer
+ * @buff:	Pointer to trace buffer
+ * @buff_size:	Size of trace buffer
+ * Return:	0 if ok
  */
 int __attribute__((no_instrument_function)) trace_init(void *buff,
 		size_t buff_size)
@@ -385,6 +398,11 @@ int __attribute__((no_instrument_function)) trace_init(void *buff,
 }
 
 #ifdef CONFIG_TRACE_EARLY
+/**
+ * trace_early_init() - initialize the tracing system for early tracing
+ *
+ * Return:	0 if ok, -ENOSPC if not enough memory is available
+ */
 int __attribute__((no_instrument_function)) trace_early_init(void)
 {
 	ulong func_count = gd->mon_len / FUNC_SITE_SIZE;
