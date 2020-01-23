@@ -177,7 +177,7 @@ static int uniphier_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
 	struct uniphier_i2c_priv *priv = dev_get_priv(bus);
 
 	/* max supported frequency is 400 kHz */
-	if (speed > 400000)
+	if (speed > I2C_SPEED_FAST_RATE)
 		return -EINVAL;
 
 	/* bus reset: make sure the bus is idle when change the frequency */

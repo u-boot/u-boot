@@ -169,7 +169,7 @@ static int bus_i2c_start(struct udevice *bus, u8 addr, u8 dir)
 		debug("i2c: start check busy bus: 0x%x\n", result);
 
 		/* Try to init the lpi2c then check the bus busy again */
-		bus_i2c_init(bus, 100000);
+		bus_i2c_init(bus, I2C_SPEED_STANDARD_RATE);
 		result = imx_lpci2c_check_busy_bus(regs);
 		if (result) {
 			printf("i2c: Error check busy bus: 0x%x\n", result);
@@ -388,13 +388,13 @@ static int imx_lpi2c_probe_chip(struct udevice *bus, u32 chip,
 	result = bus_i2c_start(bus, chip, 0);
 	if (result) {
 		bus_i2c_stop(bus);
-		bus_i2c_init(bus, 100000);
+		bus_i2c_init(bus, I2C_SPEED_STANDARD_RATE);
 		return result;
 	}
 
 	result = bus_i2c_stop(bus);
 	if (result)
-		bus_i2c_init(bus, 100000);
+		bus_i2c_init(bus, I2C_SPEED_STANDARD_RATE);
 
 	return result;
 }
@@ -489,7 +489,7 @@ static int imx_lpi2c_probe(struct udevice *bus)
 			return ret;
 	}
 
-	ret = bus_i2c_init(bus, 100000);
+	ret = bus_i2c_init(bus, I2C_SPEED_STANDARD_RATE);
 	if (ret < 0)
 		return ret;
 

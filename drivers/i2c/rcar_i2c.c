@@ -344,7 +344,7 @@ static int rcar_i2c_probe(struct udevice *dev)
 	writel(0, priv->base + RCAR_I2C_ICMSR);
 	writel(0, priv->base + RCAR_I2C_ICMAR);
 
-	ret = rcar_i2c_set_speed(dev, 100000);
+	ret = rcar_i2c_set_speed(dev, I2C_SPEED_STANDARD_RATE);
 	if (ret)
 		clk_disable(&priv->clk);
 

@@ -434,7 +434,7 @@ void i2c_init(int speed, int slaveaddr)
 	base_glob = (struct mv_i2c *)CONFIG_MV_I2C_REG;
 #endif
 
-	if (speed > 100000)
+	if (speed > I2C_SPEED_STANDARD_RATE)
 		val = ICR_FM;
 	else
 		val = ICR_SM;
@@ -565,7 +565,7 @@ static int mv_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
 	struct mv_i2c_priv *priv = dev_get_priv(bus);
 	u32 val;
 
-	if (speed > 100000)
+	if (speed > I2C_SPEED_STANDARD_RATE)
 		val = ICR_FM;
 	else
 		val = ICR_SM;
