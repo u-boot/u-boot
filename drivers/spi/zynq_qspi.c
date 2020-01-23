@@ -320,69 +320,6 @@ static int zynq_qspi_probe(struct udevice *bus)
 	return 0;
 }
 
-static int zynq_qspi_set_speed(struct udevice *bus, uint speed)
-{
-	struct zynq_qspi_platdata *plat = bus->platdata;
-	struct zynq_qspi_priv *priv = dev_get_priv(bus);
-	struct zynq_qspi_regs *regs = priv->regs;
-	uint32_t cr;
-	u8 baud_rate_val = 0;
-
-	debug("%s\n", __func__);
-	if (speed > plat->frequency)
-		speed = plat->frequency;
-
-	/* Set the clock frequency */
-	cr = readl(&regs->cr);
-	if (speed == 0) {
-		/* Set baudrate x8, if the freq is 0 */
-		baud_rate_val = 0x2;
-	} else if (plat->speed_hz != speed) {
-		while ((baud_rate_val < 8) &&
-		       ((plat->frequency /
-		       (2 << baud_rate_val)) > speed))
-			baud_rate_val++;
-
-		if (baud_rate_val > ZYNQ_QSPI_MAX_BAUD_RATE)
-			baud_rate_val = ZYNQ_QSPI_DEFAULT_BAUD_RATE;
-
-		plat->speed_hz = speed / (2 << baud_rate_val);
-	}
-	cr &= ~ZYNQ_QSPI_CR_BAUD_MASK;
-	cr |= (baud_rate_val << 3);
-
-	writel(cr, &regs->cr);
-	priv->freq = speed;
-
-	debug("zynq_spi_set_speed: regs=%p, mode=%d\n", priv->regs, priv->freq);
-
-	return 0;
-}
-
-static int zynq_qspi_set_mode(struct udevice *bus, uint mode)
-{
-	struct zynq_qspi_priv *priv = dev_get_priv(bus);
-	struct zynq_qspi_regs *regs = priv->regs;
-	uint32_t cr;
-
-	debug("%s\n", __func__);
-	/* Set the SPI Clock phase and polarities */
-	cr = readl(&regs->cr);
-	cr &= ~(ZYNQ_QSPI_CR_CPHA_MASK | ZYNQ_QSPI_CR_CPOL_MASK);
-
-	if (priv->mode & SPI_CPHA)
-		cr |= ZYNQ_QSPI_CR_CPHA_MASK;
-	if (priv->mode & SPI_CPOL)
-		cr |= ZYNQ_QSPI_CR_CPOL_MASK;
-
-	writel(cr, &regs->cr);
-	priv->mode = mode;
-
-	debug("zynq_spi_set_mode: regs=%p, mode=%d\n", priv->regs, priv->mode);
-
-	return 0;
-}
-
 /*
  * zynq_qspi_copy_read_data - Copy data to RX buffer
  * @zqspi:	Pointer to the zynq_qspi structure
@@ -821,6 +758,69 @@ static int zynq_qspi_xfer(struct udevice *dev, unsigned int bitlen, const void *
 		priv->u_page = 0;
 
 	zynq_qspi_transfer(priv);
+
+	return 0;
+}
+
+static int zynq_qspi_set_speed(struct udevice *bus, uint speed)
+{
+	struct zynq_qspi_platdata *plat = bus->platdata;
+	struct zynq_qspi_priv *priv = dev_get_priv(bus);
+	struct zynq_qspi_regs *regs = priv->regs;
+	uint32_t cr;
+	u8 baud_rate_val = 0;
+
+	debug("%s\n", __func__);
+	if (speed > plat->frequency)
+		speed = plat->frequency;
+
+	/* Set the clock frequency */
+	cr = readl(&regs->cr);
+	if (speed == 0) {
+		/* Set baudrate x8, if the freq is 0 */
+		baud_rate_val = 0x2;
+	} else if (plat->speed_hz != speed) {
+		while ((baud_rate_val < 8) &&
+		       ((plat->frequency /
+		       (2 << baud_rate_val)) > speed))
+			baud_rate_val++;
+
+		if (baud_rate_val > ZYNQ_QSPI_MAX_BAUD_RATE)
+			baud_rate_val = ZYNQ_QSPI_DEFAULT_BAUD_RATE;
+
+		plat->speed_hz = speed / (2 << baud_rate_val);
+	}
+	cr &= ~ZYNQ_QSPI_CR_BAUD_MASK;
+	cr |= (baud_rate_val << 3);
+
+	writel(cr, &regs->cr);
+	priv->freq = speed;
+
+	debug("zynq_spi_set_speed: regs=%p, mode=%d\n", priv->regs, priv->freq);
+
+	return 0;
+}
+
+static int zynq_qspi_set_mode(struct udevice *bus, uint mode)
+{
+	struct zynq_qspi_priv *priv = dev_get_priv(bus);
+	struct zynq_qspi_regs *regs = priv->regs;
+	uint32_t cr;
+
+	debug("%s\n", __func__);
+	/* Set the SPI Clock phase and polarities */
+	cr = readl(&regs->cr);
+	cr &= ~(ZYNQ_QSPI_CR_CPHA_MASK | ZYNQ_QSPI_CR_CPOL_MASK);
+
+	if (priv->mode & SPI_CPHA)
+		cr |= ZYNQ_QSPI_CR_CPHA_MASK;
+	if (priv->mode & SPI_CPOL)
+		cr |= ZYNQ_QSPI_CR_CPOL_MASK;
+
+	writel(cr, &regs->cr);
+	priv->mode = mode;
+
+	debug("zynq_spi_set_mode: regs=%p, mode=%d\n", priv->regs, priv->mode);
 
 	return 0;
 }
