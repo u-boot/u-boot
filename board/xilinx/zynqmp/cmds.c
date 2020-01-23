@@ -121,7 +121,7 @@ static int do_zynqmp_aes(cmd_tbl_t *cmdtp, int flag, int argc,
 	int ret;
 	u32 ret_payload[PAYLOAD_ARG_CNT];
 
-	if (zynqmp_pmufw_version() <= PMUFW_V1_0) {
+	if (zynqmp_firmware_version() <= PMUFW_V1_0) {
 		puts("ERR: PMUFW v1.0 or less is detected\n");
 		puts("ERR: Encrypt/Decrypt feature is not supported\n");
 		puts("ERR: Please upgrade PMUFW\n");
@@ -208,7 +208,7 @@ static int do_zynqmp_rsa(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (argc != cmdtp->maxargs)
 		return CMD_RET_USAGE;
 
-	if (zynqmp_pmufw_version() <= PMUFW_V1_0) {
+	if (zynqmp_firmware_version() <= PMUFW_V1_0) {
 		puts("ERR: PMUFW v1.0 or less is detected\n");
 		puts("ERR: Encrypt/Decrypt feature is not supported\n");
 		puts("ERR: Please upgrade PMUFW\n");
@@ -274,7 +274,7 @@ static int do_zynqmp_sha3(cmd_tbl_t *cmdtp, int flag,
 	if (argc != cmdtp->maxargs)
 		return CMD_RET_USAGE;
 
-	if (zynqmp_pmufw_version() <= PMUFW_V1_0) {
+	if (zynqmp_firmware_version() <= PMUFW_V1_0) {
 		puts("ERR: PMUFW v1.0 or less is detected\n");
 		puts("ERR: Encrypt/Decrypt feature is not supported\n");
 		puts("ERR: Please upgrade PMUFW\n");

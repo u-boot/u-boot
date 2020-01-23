@@ -133,15 +133,15 @@ int cadence_spi_versal_flash_reset(struct udevice *dev)
 	reset_gpio = PMIO_NODE_ID_BASE + gpio.offset;
 
 	/* Request for pin */
-	versal_pm_request(PM_PINCTRL_REQUEST, reset_gpio, 0, 0, 0, NULL);
+	xilinx_pm_request(PM_PINCTRL_REQUEST, reset_gpio, 0, 0, 0, NULL);
 
 	/* Enable hysteresis in cmos receiver */
-	versal_pm_request(PM_PINCTRL_CONFIG_PARAM_SET, reset_gpio,
+	xilinx_pm_request(PM_PINCTRL_CONFIG_PARAM_SET, reset_gpio,
 			  PM_PINCTRL_CONFIG_SCHMITT_CMOS,
 			  PM_PINCTRL_INPUT_TYPE_SCHMITT, 0, NULL);
 
 	/* Disable Tri-state */
-	versal_pm_request(PM_PINCTRL_CONFIG_PARAM_SET, reset_gpio,
+	xilinx_pm_request(PM_PINCTRL_CONFIG_PARAM_SET, reset_gpio,
 			  PM_PINCTRL_CONFIG_TRI_STATE,
 			  PM_PINCTRL_TRI_STATE_DISABLE, 0, NULL);
 	udelay(1);

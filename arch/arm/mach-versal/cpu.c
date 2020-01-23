@@ -130,7 +130,7 @@ void *board_fdt_blob_setup(void)
 }
 #endif
 
-int versal_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
+int xilinx_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
 		      u32 arg3, u32 *ret_payload)
 {
 	struct pt_regs regs;

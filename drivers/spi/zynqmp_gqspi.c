@@ -464,7 +464,7 @@ static int zynqmp_qspi_probe(struct udevice *bus)
 	}
 
 #if defined(CONFIG_ARCH_VERSAL)
-	ret = versal_pm_request(PM_REQUEST_NODE, 0x1822402b, 1, 100, 0, NULL);
+	ret = xilinx_pm_request(PM_REQUEST_NODE, 0x1822402b, 1, 100, 0, NULL);
 	if (ret)
 		printf("Request node failed\n");
 
