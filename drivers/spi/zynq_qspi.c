@@ -524,6 +524,7 @@ static int zynq_qspi_irq_poll(struct zynq_qspi_priv *priv)
  */
 static int zynq_qspi_start_transfer(struct zynq_qspi_priv *priv)
 {
+	static u8 current_u_page;
 	u32 data = 0;
 	struct zynq_qspi_regs *regs = priv->regs;
 
@@ -532,6 +533,42 @@ static int zynq_qspi_start_transfer(struct zynq_qspi_priv *priv)
 
 	priv->bytes_to_transfer = priv->len;
 	priv->bytes_to_receive = priv->len;
+
+	if (priv->is_inst && (priv->is_dual == SF_DUAL_STACKED_FLASH) &&
+	    (current_u_page != priv->u_page)) {
+		if (priv->u_page) {
+			if (priv->is_dio == SF_DUALIO_FLASH)
+				writel((ZYNQ_QSPI_LCFG_TWO_MEM_MASK |
+					ZYNQ_QSPI_LCFG_U_PAGE |
+					(1 << ZYNQ_QSPI_LCFG_DUMMY_SHIFT) |
+					ZYNQ_QSPI_FR_DUALIO_CODE),
+					&regs->lqspicfg);
+			else
+				/* Configure two memories on shared bus
+				 * by enabling upper mem
+				 */
+				writel((ZYNQ_QSPI_LCFG_TWO_MEM_MASK |
+					ZYNQ_QSPI_LCFG_U_PAGE |
+					(1 << ZYNQ_QSPI_LCFG_DUMMY_SHIFT) |
+					ZYNQ_QSPI_FR_QOUT_CODE),
+					&regs->lqspicfg);
+		} else {
+			if (priv->is_dio == SF_DUALIO_FLASH)
+				writel((ZYNQ_QSPI_LCFG_TWO_MEM_MASK |
+					(1 << ZYNQ_QSPI_LCFG_DUMMY_SHIFT) |
+					ZYNQ_QSPI_FR_DUALIO_CODE),
+					&regs->lqspicfg);
+			else
+				/* Configure two memories on shared bus
+				 * by enabling lower mem
+				 */
+				writel((ZYNQ_QSPI_LCFG_TWO_MEM_MASK |
+					(1 << ZYNQ_QSPI_LCFG_DUMMY_SHIFT) |
+					ZYNQ_QSPI_FR_QOUT_CODE),
+					&regs->lqspicfg);
+		}
+		current_u_page = priv->u_page;
+	}
 
 	if (priv->len < 4)
 		zynq_qspi_fill_tx_fifo(priv, priv->len);
