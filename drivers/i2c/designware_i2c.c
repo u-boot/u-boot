@@ -55,8 +55,9 @@ static int dw_i2c_enable(struct i2c_regs *i2c_base, bool enable)
 static unsigned int __dw_i2c_set_bus_speed(struct i2c_regs *i2c_base,
 					   struct dw_scl_sda_cfg *scl_sda_cfg,
 					   unsigned int speed,
-					   unsigned int bus_mhz)
+					   unsigned int bus_clk)
 {
+	ulong bus_khz = bus_clk / 1000;
 	enum i2c_speed_mode i2c_spd;
 	unsigned int cntl;
 	unsigned int hcnt, lcnt;
@@ -86,8 +87,8 @@ static unsigned int __dw_i2c_set_bus_speed(struct i2c_regs *i2c_base,
 			hcnt = scl_sda_cfg->fs_hcnt;
 			lcnt = scl_sda_cfg->fs_lcnt;
 		} else {
-			hcnt = (bus_mhz * MIN_HS_SCL_HIGHTIME) / NANO_TO_MICRO;
-			lcnt = (bus_mhz * MIN_HS_SCL_LOWTIME) / NANO_TO_MICRO;
+			hcnt = (bus_khz * MIN_HS_SCL_HIGHTIME) / NANO_TO_KILO;
+			lcnt = (bus_khz * MIN_HS_SCL_LOWTIME) / NANO_TO_KILO;
 		}
 		writel(hcnt, &i2c_base->ic_hs_scl_hcnt);
 		writel(lcnt, &i2c_base->ic_hs_scl_lcnt);
@@ -99,8 +100,8 @@ static unsigned int __dw_i2c_set_bus_speed(struct i2c_regs *i2c_base,
 			hcnt = scl_sda_cfg->ss_hcnt;
 			lcnt = scl_sda_cfg->ss_lcnt;
 		} else {
-			hcnt = (bus_mhz * MIN_SS_SCL_HIGHTIME) / NANO_TO_MICRO;
-			lcnt = (bus_mhz * MIN_SS_SCL_LOWTIME) / NANO_TO_MICRO;
+			hcnt = (bus_khz * MIN_SS_SCL_HIGHTIME) / NANO_TO_KILO;
+			lcnt = (bus_khz * MIN_SS_SCL_LOWTIME) / NANO_TO_KILO;
 		}
 		writel(hcnt, &i2c_base->ic_ss_scl_hcnt);
 		writel(lcnt, &i2c_base->ic_ss_scl_lcnt);
@@ -113,8 +114,8 @@ static unsigned int __dw_i2c_set_bus_speed(struct i2c_regs *i2c_base,
 			hcnt = scl_sda_cfg->fs_hcnt;
 			lcnt = scl_sda_cfg->fs_lcnt;
 		} else {
-			hcnt = (bus_mhz * MIN_FS_SCL_HIGHTIME) / NANO_TO_MICRO;
-			lcnt = (bus_mhz * MIN_FS_SCL_LOWTIME) / NANO_TO_MICRO;
+			hcnt = (bus_khz * MIN_FS_SCL_HIGHTIME) / NANO_TO_KILO;
+			lcnt = (bus_khz * MIN_FS_SCL_LOWTIME) / NANO_TO_KILO;
 		}
 		writel(hcnt, &i2c_base->ic_fs_scl_hcnt);
 		writel(lcnt, &i2c_base->ic_fs_scl_lcnt);
@@ -511,9 +512,6 @@ static int designware_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
 	rate = clk_get_rate(&i2c->clk);
 	if (IS_ERR_VALUE(rate))
 		return -EINVAL;
-
-	/* Convert to MHz */
-	rate /= 1000000;
 #else
 	rate = IC_CLK;
 #endif
