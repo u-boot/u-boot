@@ -306,7 +306,7 @@ static int __omap24_i2c_setspeed(void __iomem *i2c_base, int ip_rev, uint speed,
 	int hsscll = 0, hssclh = 0;
 	u32 scll = 0, sclh = 0;
 
-	if (speed >= OMAP_I2C_HIGH_SPEED) {
+	if (speed >= I2C_SPEED_HIGH_RATE) {
 		/* High speed */
 		psc = I2C_IP_CLK / I2C_INTERNAL_SAMPLING_CLK;
 		psc -= 1;
