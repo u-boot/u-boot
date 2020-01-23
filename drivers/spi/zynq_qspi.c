@@ -247,14 +247,14 @@ static void zynq_qspi_init_hw(struct zynq_qspi_priv *priv)
 
 	if (priv->is_dual == SF_DUAL_PARALLEL_FLASH) {
 		if (priv->is_dio == SF_DUALIO_FLASH)
-			/* Enable two memories on seperate buses */
+			/* Enable two memories on separate buses */
 			writel((ZYNQ_QSPI_LCFG_TWO_MEM_MASK |
 				ZYNQ_QSPI_LCFG_SEP_BUS_MASK |
 				(1 << ZYNQ_QSPI_LCFG_DUMMY_SHIFT) |
 				ZYNQ_QSPI_FR_DUALIO_CODE),
 				&regs->lqspicfg);
 		else
-			/* Enable two memories on seperate buses */
+			/* Enable two memories on separate buses */
 			writel((ZYNQ_QSPI_LCFG_TWO_MEM_MASK |
 				ZYNQ_QSPI_LCFG_SEP_BUS_MASK |
 				(1 << ZYNQ_QSPI_LCFG_DUMMY_SHIFT) |
@@ -263,19 +263,23 @@ static void zynq_qspi_init_hw(struct zynq_qspi_priv *priv)
 	} else if (priv->is_dual == SF_DUAL_STACKED_FLASH) {
 		if (priv->is_dio == SF_DUALIO_FLASH)
 			/* Configure two memories on shared bus
-			 * by enabling lower mem */
+			 * by enabling lower mem
+			 */
 			writel((ZYNQ_QSPI_LCFG_TWO_MEM_MASK |
 				(1 << ZYNQ_QSPI_LCFG_DUMMY_SHIFT) |
 				ZYNQ_QSPI_FR_DUALIO_CODE),
 				&regs->lqspicfg);
 		else
 			/* Configure two memories on shared bus
-			 * by enabling lower mem */
+			 * by enabling lower mem
+			 */
 			writel((ZYNQ_QSPI_LCFG_TWO_MEM_MASK |
 				(1 << ZYNQ_QSPI_LCFG_DUMMY_SHIFT) |
 				ZYNQ_QSPI_FR_QOUT_CODE),
 				&regs->lqspicfg);
 	}
+
+	/* Enable SPI */
 	writel(ZYNQ_QSPI_ENR_SPI_EN_MASK, &regs->enr);
 }
 
