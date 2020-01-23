@@ -63,7 +63,7 @@ static int designware_i2c_pci_ofdata_to_platdata(struct udevice *dev)
 		/* Use BayTrail specific timing values */
 		priv->scl_sda_cfg = &byt_config;
 
-	return 0;
+	return designware_i2c_ofdata_to_platdata(dev);
 }
 
 static int designware_i2c_pci_probe(struct udevice *dev)

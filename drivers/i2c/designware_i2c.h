@@ -167,10 +167,24 @@ struct dw_scl_sda_cfg {
 	u32 sda_hold;
 };
 
+/**
+ * struct dw_i2c - private information for the bus
+ *
+ * @regs: Registers pointer
+ * @scl_sda_cfg: Deprecated information for x86 (should move to device tree)
+ * @resets: Resets for the I2C controller
+ * @scl_rise_time_ns: Configured SCL rise time in nanoseconds
+ * @scl_fall_time_ns: Configured SCL fall time in nanoseconds
+ * @sda_hold_time_ns: Configured SDA hold time in nanoseconds
+ * @clk: Clock input to the I2C controller
+ */
 struct dw_i2c {
 	struct i2c_regs *regs;
 	struct dw_scl_sda_cfg *scl_sda_cfg;
 	struct reset_ctl_bulk resets;
+	u32 scl_rise_time_ns;
+	u32 scl_fall_time_ns;
+	u32 sda_hold_time_ns;
 #if CONFIG_IS_ENABLED(CLK)
 	struct clk clk;
 #endif
@@ -180,5 +194,6 @@ extern const struct dm_i2c_ops designware_i2c_ops;
 
 int designware_i2c_probe(struct udevice *bus);
 int designware_i2c_remove(struct udevice *dev);
+int designware_i2c_ofdata_to_platdata(struct udevice *bus);
 
 #endif /* __DW_I2C_H_ */
