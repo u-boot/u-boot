@@ -123,6 +123,7 @@ struct zynq_qspi_platdata {
 /* zynq qspi priv */
 struct zynq_qspi_priv {
 	struct zynq_qspi_regs *regs;
+	u8 cs;
 	u8 mode;
 	u8 fifo_depth;
 	u32 freq;		/* required frequency */
@@ -724,10 +725,15 @@ static int zynq_qspi_xfer(struct udevice *dev, unsigned int bitlen,
 {
 	struct udevice *bus = dev->parent;
 	struct zynq_qspi_priv *priv = dev_get_priv(bus);
+	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
 
+	priv->cs = slave_plat->cs;
 	priv->tx_buf = dout;
 	priv->rx_buf = din;
 	priv->len = bitlen / 8;
+
+	debug("%s: bus:%i cs:%i bitlen:%i len:%i flags:%lx\n", __func__,
+	      bus->seq, slave_plat->cs, bitlen, priv->len, flags);
 
 	/*
 	 * Festering sore.
