@@ -30,6 +30,32 @@ enum dm_i2c_chip_flags {
 	DM_I2C_CHIP_WR_ADDRESS	= 1 << 2, /* Send address for each write byte */
 };
 
+/** enum i2c_speed_mode - standard I2C speed modes */
+enum i2c_speed_mode {
+	IC_SPEED_MODE_STANDARD,
+	IC_SPEED_MODE_FAST,
+	IC_SPEED_MODE_FAST_PLUS,
+	IC_SPEED_MODE_HIGH,
+	IC_SPEED_MODE_FAST_ULTRA,
+
+	IC_SPEED_MODE_COUNT,
+};
+
+/** enum i2c_speed_rate - standard I2C speeds in Hz */
+enum i2c_speed_rate {
+	I2C_SPEED_STANDARD_RATE		= 100000,
+	I2C_SPEED_FAST_RATE		= 400000,
+	I2C_SPEED_FAST_PLUS_RATE	= 1000000,
+	I2C_SPEED_HIGH_RATE		= 3400000,
+	I2C_SPEED_FAST_ULTRA_RATE	= 5000000,
+};
+
+/** enum i2c_address_mode - available address modes */
+enum i2c_address_mode {
+	I2C_MODE_7_BIT,
+	I2C_MODE_10_BIT
+};
+
 struct udevice;
 /**
  * struct dm_i2c_chip - information about an i2c chip
