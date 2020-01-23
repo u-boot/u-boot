@@ -103,21 +103,21 @@ struct i2c_mode_info {
 
 static const struct i2c_mode_info info_for_mode[] = {
 	[IC_SPEED_MODE_STANDARD] = {
-		I2C_STANDARD_SPEED,
+		I2C_SPEED_STANDARD_RATE,
 		MIN_SS_SCL_HIGHTIME,
 		MIN_SS_SCL_LOWTIME,
 		1000,
 		300,
 	},
 	[IC_SPEED_MODE_FAST] = {
-		I2C_FAST_SPEED,
+		I2C_SPEED_FAST_RATE,
 		MIN_FS_SCL_HIGHTIME,
 		MIN_FS_SCL_LOWTIME,
 		300,
 		300,
 	},
 	[IC_SPEED_MODE_HIGH] = {
-		I2C_HIGH_SPEED,
+		I2C_SPEED_HIGH_RATE,
 		MIN_HS_SCL_HIGHTIME,
 		MIN_HS_SCL_LOWTIME,
 		120,
@@ -226,10 +226,10 @@ static unsigned int __dw_i2c_set_bus_speed(struct dw_i2c *priv,
 	if (priv)
 		scl_sda_cfg = priv->scl_sda_cfg;
 	/* Allow high speed if there is no config, or the config allows it */
-	if (speed >= I2C_HIGH_SPEED &&
+	if (speed >= I2C_SPEED_HIGH_RATE &&
 	    (!scl_sda_cfg || scl_sda_cfg->has_high_speed))
 		i2c_spd = IC_SPEED_MODE_HIGH;
-	else if (speed >= I2C_FAST_SPEED)
+	else if (speed >= I2C_SPEED_FAST_RATE)
 		i2c_spd = IC_SPEED_MODE_FAST;
 	else
 		i2c_spd = IC_SPEED_MODE_STANDARD;
