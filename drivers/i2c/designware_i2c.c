@@ -62,10 +62,10 @@ static unsigned int __dw_i2c_set_bus_speed(struct i2c_regs *i2c_base,
 	unsigned int ena;
 	int i2c_spd;
 
-	/* Allow max speed if there is no config, or the config allows it */
-	if (speed >= I2C_MAX_SPEED &&
-	    (!scl_sda_cfg || scl_sda_cfg->has_max_speed))
-		i2c_spd = IC_SPEED_MODE_MAX;
+	/* Allow high speed if there is no config, or the config allows it */
+	if (speed >= I2C_HIGH_SPEED &&
+	    (!scl_sda_cfg || scl_sda_cfg->has_high_speed))
+		i2c_spd = IC_SPEED_MODE_HIGH;
 	else if (speed >= I2C_FAST_SPEED)
 		i2c_spd = IC_SPEED_MODE_FAST;
 	else
@@ -80,7 +80,7 @@ static unsigned int __dw_i2c_set_bus_speed(struct i2c_regs *i2c_base,
 	cntl = (readl(&i2c_base->ic_con) & (~IC_CON_SPD_MSK));
 
 	switch (i2c_spd) {
-	case IC_SPEED_MODE_MAX:
+	case IC_SPEED_MODE_HIGH:
 		cntl |= IC_CON_SPD_SS;
 		if (scl_sda_cfg) {
 			hcnt = scl_sda_cfg->fs_hcnt;

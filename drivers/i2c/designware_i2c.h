@@ -138,16 +138,16 @@ struct i2c_regs {
 /* Speed Selection */
 #define IC_SPEED_MODE_STANDARD	1
 #define IC_SPEED_MODE_FAST	2
-#define IC_SPEED_MODE_MAX	3
+#define IC_SPEED_MODE_HIGH	3
 
-#define I2C_MAX_SPEED		3400000
+#define I2C_HIGH_SPEED		3400000
 #define I2C_FAST_SPEED		400000
 #define I2C_STANDARD_SPEED	100000
 
 /**
  * struct dw_scl_sda_cfg - I2C timing configuration
  *
- * @has_max_speed: Support maximum speed (1Mbps)
+ * @has_high_speed: Support high speed (3.4Mbps)
  * @ss_hcnt: Standard speed high time in ns
  * @fs_hcnt: Fast speed high time in ns
  * @ss_lcnt: Standard speed low time in ns
@@ -155,7 +155,7 @@ struct i2c_regs {
  * @sda_hold: SDA hold time
  */
 struct dw_scl_sda_cfg {
-	bool has_max_speed;
+	bool has_high_speed;
 	u32 ss_hcnt;
 	u32 fs_hcnt;
 	u32 ss_lcnt;
