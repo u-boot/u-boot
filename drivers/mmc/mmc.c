@@ -24,10 +24,6 @@
 #define DEFAULT_CMD6_TIMEOUT_MS  500
 
 static int mmc_set_signal_voltage(struct mmc *mmc, uint signal_voltage);
-static int mmc_power_cycle(struct mmc *mmc);
-#if !CONFIG_IS_ENABLED(MMC_TINY)
-static int mmc_select_mode_and_width(struct mmc *mmc, uint card_caps);
-#endif
 
 #if !CONFIG_IS_ENABLED(DM_MMC)
 
