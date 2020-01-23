@@ -2577,7 +2577,7 @@ static int mmc_startup(struct mmc *mmc)
 		err = mmc_get_capabilities(mmc);
 		if (err)
 			return err;
-		mmc_select_mode_and_width(mmc, mmc->card_caps);
+		err = mmc_select_mode_and_width(mmc, mmc->card_caps);
 	}
 #endif
 	if (err)
