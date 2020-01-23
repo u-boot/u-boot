@@ -64,23 +64,11 @@ DECLARE_GLOBAL_DATA_PTR;
 #define MODEBITS			(SPI_CPOL | SPI_CPHA)
 
 /* Definitions for the status of queue */
-#define ZYNQ_QSPI_QUEUE_STOPPED		0
-#define ZYNQ_QSPI_QUEUE_RUNNING		1
 #define ZYNQ_QSPI_RXFIFO_THRESHOLD	32
 #define ZYNQ_QSPI_FIFO_DEPTH		63
 #ifndef CONFIG_SYS_ZYNQ_QSPI_WAIT
 #define CONFIG_SYS_ZYNQ_QSPI_WAIT	CONFIG_SYS_HZ/100	/* 10 ms */
 #endif
-
-/* QSPI MIO's count for different connection topologies */
-#define ZYNQ_QSPI_MIO_NUM_QSPI0		6
-#define ZYNQ_QSPI_MIO_NUM_QSPI1		5
-#define ZYNQ_QSPI_MIO_NUM_QSPI1_CS	1
-
-/* QSPI MIO's count for different connection topologies */
-#define ZYNQ_QSPI_MIO_NUM_QSPI0_DIO	4
-#define ZYNQ_QSPI_MIO_NUM_QSPI1_DIO	3
-#define ZYNQ_QSPI_MIO_NUM_QSPI1_CS_DIO	1
 
 #define ZYNQ_QSPI_MAX_BAUD_RATE		0x7
 #define ZYNQ_QSPI_DEFAULT_BAUD_RATE	0x2
@@ -107,8 +95,6 @@ struct zynq_qspi_regs {
 	u32 reserved1[5];
 	u32 lqspicfg;	/* 0xA0 */
 	u32 lqspists;	/* 0xA4 */
-	u32 reserved2[21];
-	u32 midr;	/* 0xFC */
 };
 
 /* zynq qspi platform data */
