@@ -14,6 +14,8 @@
 
 struct udevice;
 
+#define SF_DUALIO_FLASH		1
+
 /* by default ENV use the same parameters than SF command */
 #ifndef CONFIG_ENV_SPI_BUS
 # define CONFIG_ENV_SPI_BUS	CONFIG_SF_DEFAULT_BUS
