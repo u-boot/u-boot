@@ -36,10 +36,6 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-#if defined(CONFIG_ENV_IS_IN_EEPROM) && !defined(CONFIG_SPL_BUILD)
-	unsigned char eepromsel = CONFIG_SYS_I2C_MUX_EEPROM_SEL;
-#endif
-
 #if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_WDT)
 	if (uclass_get_device_by_seq(UCLASS_WDT, 0, &watchdog_dev)) {
 		debug("Watchdog: Not found by seq!\n");
@@ -53,10 +49,6 @@ int board_init(void)
 	puts("Watchdog: Started\n");
 # endif
 
-#if defined(CONFIG_ENV_IS_IN_EEPROM) && !defined(CONFIG_SPL_BUILD)
-	if (eeprom_write(CONFIG_SYS_I2C_MUX_ADDR, 0, &eepromsel, 1))
-		puts("I2C:EEPROM selection failed\n");
-#endif
 	return 0;
 }
 

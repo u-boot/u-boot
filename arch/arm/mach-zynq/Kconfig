@@ -74,13 +74,6 @@ config ZYNQ_M29EW_WB_HACK
 	  The option provides hack for Zynq NOR driver which is required
 	  for NOR operations to work as expected.
 
-# Temporary Kconfig options which needs to be fixed
-config SYS_I2C_MUX_ADDR
-	int
-
-config SYS_I2C_MUX_EEPROM_SEL
-	int
-
 config ZYNQ_SDHCI_MAX_FREQ
 	default 52000000
 
