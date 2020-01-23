@@ -636,7 +636,7 @@ void dram_pll_init(ulong pll_val)
 		;
 }
 
-int frac_pll_init(u32 pll, enum frac_pll_out_val val)
+static int frac_pll_init(u32 pll, enum frac_pll_out_val val)
 {
 	void __iomem *pll_cfg0, __iomem *pll_cfg1;
 	u32 val_cfg0, val_cfg1;
