@@ -176,6 +176,7 @@ struct dw_scl_sda_cfg {
  * @scl_rise_time_ns: Configured SCL rise time in nanoseconds
  * @scl_fall_time_ns: Configured SCL fall time in nanoseconds
  * @sda_hold_time_ns: Configured SDA hold time in nanoseconds
+ * @has_spk_cnt: true if the spike-count register is present
  * @clk: Clock input to the I2C controller
  */
 struct dw_i2c {
@@ -185,6 +186,7 @@ struct dw_i2c {
 	u32 scl_rise_time_ns;
 	u32 scl_fall_time_ns;
 	u32 sda_hold_time_ns;
+	bool has_spk_cnt;
 #if CONFIG_IS_ENABLED(CLK)
 	struct clk clk;
 #endif

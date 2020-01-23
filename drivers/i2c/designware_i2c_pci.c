@@ -62,6 +62,8 @@ static int designware_i2c_pci_ofdata_to_platdata(struct udevice *dev)
 	if (IS_ENABLED(CONFIG_INTEL_BAYTRAIL))
 		/* Use BayTrail specific timing values */
 		priv->scl_sda_cfg = &byt_config;
+	if (dev_get_driver_data(dev) == INTEL_APL)
+		priv->has_spk_cnt = true;
 
 	return designware_i2c_ofdata_to_platdata(dev);
 }

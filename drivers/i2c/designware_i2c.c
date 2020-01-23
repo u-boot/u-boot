@@ -220,6 +220,7 @@ static unsigned int __dw_i2c_set_bus_speed(struct dw_i2c *priv,
 	enum i2c_speed_mode i2c_spd;
 	unsigned int cntl;
 	unsigned int ena;
+	int spk_cnt;
 	int ret;
 
 	if (priv)
@@ -241,6 +242,13 @@ static unsigned int __dw_i2c_set_bus_speed(struct dw_i2c *priv,
 
 	cntl = (readl(&i2c_base->ic_con) & (~IC_CON_SPD_MSK));
 
+	/* Get the proper spike-suppression count based on target speed */
+	if (!priv || !priv->has_spk_cnt)
+		spk_cnt = 0;
+	else if (i2c_spd >= IC_SPEED_MODE_HIGH)
+		spk_cnt = readl(&i2c_base->hs_spklen);
+	else
+		spk_cnt = readl(&i2c_base->fs_spklen);
 	if (scl_sda_cfg) {
 		config.sda_hold = scl_sda_cfg->sda_hold;
 		if (i2c_spd == IC_SPEED_MODE_STANDARD) {
@@ -251,7 +259,7 @@ static unsigned int __dw_i2c_set_bus_speed(struct dw_i2c *priv,
 			config.scl_lcnt = scl_sda_cfg->fs_lcnt;
 		}
 	} else {
-		ret = dw_i2c_calc_timing(priv, i2c_spd, bus_clk, 0,
+		ret = dw_i2c_calc_timing(priv, i2c_spd, bus_clk, spk_cnt,
 					 &config);
 		if (ret)
 			return log_msg_ret("gen_confg", ret);
