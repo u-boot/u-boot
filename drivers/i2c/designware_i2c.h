@@ -157,6 +157,23 @@ struct dw_scl_sda_cfg {
 };
 
 /**
+ * struct dw_i2c_speed_config - timings to use for a particular speed
+ *
+ * This holds calculated values to be written to the I2C controller. Each value
+ * is represented as a number of IC clock cycles.
+ *
+ * @scl_lcnt: Low count value for SCL
+ * @scl_hcnt: High count value for SCL
+ * @sda_hold: Data hold count
+ */
+struct dw_i2c_speed_config {
+	/* SCL high and low period count */
+	u16 scl_lcnt;
+	u16 scl_hcnt;
+	u32 sda_hold;
+};
+
+/**
  * struct dw_i2c - private information for the bus
  *
  * @regs: Registers pointer
