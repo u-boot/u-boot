@@ -306,6 +306,8 @@ int checkboard(void)
 
 	if (src == BOOT_SOURCE_SD_MMC) {
 		puts("SD\n");
+	} else if (src == BOOT_SOURCE_SD_MMC2) {
+		puts("eMMC\n");
 	} else {
 		sw = QIXIS_READ(brdcfg[0]);
 		sw = (sw >> QIXIS_XMAP_SHIFT) & QIXIS_XMAP_MASK;
