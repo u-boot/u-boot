@@ -81,6 +81,45 @@
 #define AB_SELECT_ARGS ""
 #endif
 
+/*
+ * Prepares complete device tree blob for current board (for Android boot).
+ *
+ * Boot image or recovery image should be loaded into $loadaddr prior to running
+ * these commands. The logic of these commnads is next:
+ *
+ *   1. Read correct DTB for current SoC/board from boot image in $loadaddr
+ *      to $fdtaddr
+ *   2. Merge all needed DTBO for current board from 'dtbo' partition into read
+ *      DTB
+ *   3. User should provide $fdtaddr as 3rd argument to 'bootm'
+ */
+#define PREPARE_FDT \
+	"echo Preparing FDT...; " \
+	"if test $board_name = am57xx_evm_reva3; then " \
+		"echo \"  Reading DTBO partition...\"; " \
+		"part start mmc ${mmcdev} dtbo${slot_suffix} p_dtbo_start; " \
+		"part size mmc ${mmcdev} dtbo${slot_suffix} p_dtbo_size; " \
+		"mmc read ${dtboaddr} ${p_dtbo_start} ${p_dtbo_size}; " \
+		"echo \"  Reading DTB for AM57x EVM RevA3...\"; " \
+		"abootimg get dtb --index=0 dtb_start dtb_size; " \
+		"cp.b $dtb_start $fdtaddr $dtb_size; " \
+		"fdt addr $fdtaddr; " \
+		"echo \"  Applying DTBOs for AM57x EVM RevA3...\"; " \
+		"adtimg addr $dtboaddr; " \
+		"adtimg get dt --index=0 dtbo0_addr; " \
+		"fdt apply $dtbo0_addr; " \
+		"adtimg get dt --index=1 dtbo1_addr; " \
+		"fdt apply $dtbo1_addr; " \
+	"elif test $board_name = beagle_x15_revc; then " \
+		"echo \"  Reading DTB for Beagle X15 RevC...\"; " \
+		"abootimg get dtb --index=0 dtb_start dtb_size; " \
+		"cp.b $dtb_start $fdtaddr $dtb_size; " \
+		"fdt addr $fdtaddr; " \
+	"else " \
+		"echo Error: Android boot is not supported for $board_name; " \
+		"exit; " \
+	"fi; " \
+
 #define FASTBOOT_CMD \
 	"echo Booting into fastboot ...; " \
 	"fastboot " __stringify(CONFIG_FASTBOOT_USB_DEV) "; "
@@ -137,9 +176,7 @@
 		"if part start mmc $mmcdev $apart boot_start; then " \
 			"part size mmc $mmcdev $apart boot_size; " \
 			"mmc read $loadaddr $boot_start $boot_size; " \
-			"abootimg get dtb --index=0 dtb_start dtb_size; " \
-			"cp.b $dtb_start $fdtaddr $dtb_size; " \
-			"fdt addr $fdtaddr; " \
+			PREPARE_FDT \
 			"bootm $loadaddr $ardaddr $fdtaddr; " \
 		"else " \
 			"echo $apart partition not found; " \

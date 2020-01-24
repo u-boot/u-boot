@@ -37,11 +37,18 @@
  * seen large trees).  We say all of this must be within the first 256MB
  * as that will normally be within the kernel lowmem and thus visible via
  * bootm_size and we only run on platforms with 256MB or more of memory.
+ *
+ * As a temporary storage for DTBO blobs (which should be applied into DTB
+ * blob), we use the location 15.5 MB above the ramdisk. If someone wants to
+ * use ramdisk bigger than 15.5 MB, then DTBO can be loaded and applied to DTB
+ * blob before loading the ramdisk, as DTBO location is only used as a temporary
+ * storage, and can be re-used after 'fdt apply' command is done.
  */
 #define DEFAULT_LINUX_BOOT_ENV \
 	"loadaddr=0x82000000\0" \
 	"kernel_addr_r=0x82000000\0" \
 	"fdtaddr=0x88000000\0" \
+	"dtboaddr=0x89000000\0" \
 	"fdt_addr_r=0x88000000\0" \
 	"rdaddr=0x88080000\0" \
 	"ramdisk_addr_r=0x88080000\0" \
