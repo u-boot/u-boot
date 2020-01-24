@@ -198,6 +198,67 @@ int android_image_get_second(const struct andr_img_hdr *hdr,
 }
 
 /**
+ * android_image_get_dtbo() - Get address and size of recovery DTBO image.
+ * @hdr_addr: Boot image header address
+ * @addr: If not NULL, will contain address of recovery DTBO image
+ * @size: If not NULL, will contain size of recovery DTBO image
+ *
+ * Get the address and size of DTBO image in "Recovery DTBO" area of Android
+ * Boot Image in RAM. The format of this image is Android DTBO (see
+ * corresponding "DTB/DTBO Partitions" AOSP documentation for details). Once
+ * the address is obtained from this function, one can use 'adtimg' U-Boot
+ * command or android_dt_*() functions to extract desired DTBO blob.
+ *
+ * This DTBO (included in boot image) is only needed for non-A/B devices, and it
+ * only can be found in recovery image. On A/B devices we can always rely on
+ * "dtbo" partition. See "Including DTBO in Recovery for Non-A/B Devices" in
+ * AOSP documentation for details.
+ *
+ * Return: true on success or false on error.
+ */
+bool android_image_get_dtbo(ulong hdr_addr, ulong *addr, u32 *size)
+{
+	const struct andr_img_hdr *hdr;
+	ulong dtbo_img_addr;
+	bool ret = true;
+
+	hdr = map_sysmem(hdr_addr, sizeof(*hdr));
+	if (android_image_check_header(hdr)) {
+		printf("Error: Boot Image header is incorrect\n");
+		ret = false;
+		goto exit;
+	}
+
+	if (hdr->header_version < 1) {
+		printf("Error: header_version must be >= 1 to get dtbo\n");
+		ret = false;
+		goto exit;
+	}
+
+	if (hdr->recovery_dtbo_size == 0) {
+		printf("Error: recovery_dtbo_size is 0\n");
+		ret = false;
+		goto exit;
+	}
+
+	/* Calculate the address of DTB area in boot image */
+	dtbo_img_addr = hdr_addr;
+	dtbo_img_addr += hdr->page_size;
+	dtbo_img_addr += ALIGN(hdr->kernel_size, hdr->page_size);
+	dtbo_img_addr += ALIGN(hdr->ramdisk_size, hdr->page_size);
+	dtbo_img_addr += ALIGN(hdr->second_size, hdr->page_size);
+
+	if (addr)
+		*addr = dtbo_img_addr;
+	if (size)
+		*size = hdr->recovery_dtbo_size;
+
+exit:
+	unmap_sysmem(hdr);
+	return ret;
+}
+
+/**
  * android_image_get_dtb_img_addr() - Get the address of DTB area in boot image.
  * @hdr_addr: Boot image header address
  * @addr: Will contain the address of DTB area in boot image
