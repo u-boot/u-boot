@@ -188,7 +188,7 @@ static int omap3_wdt_stop(struct udevice *dev)
 static int omap3_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 {
 	struct omap3_wdt_priv *priv = dev_get_priv(dev);
-	u32 pre_margin = GET_WLDR_VAL(timeout_ms);
+	u32 pre_margin = GET_WLDR_VAL(timeout_ms / 1000);
 /*
  * Make sure the watchdog is disabled. This is unfortunately required
  * because writing to various registers with the watchdog running has no
