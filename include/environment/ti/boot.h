@@ -63,7 +63,7 @@
 			"else " \
 				"echo AVB verification failed.;" \
 			"exit; fi;"
-#define AVB_VERIFY_CMD "avb_verify=avb init 1; avb verify;\0"
+#define AVB_VERIFY_CMD "avb_verify=avb init 1; avb verify $slot_suffix;\0"
 #else
 #define AVB_VERIFY_CHECK ""
 #define AVB_VERIFY_CMD ""
