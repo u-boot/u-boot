@@ -219,6 +219,16 @@ static int omap3_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 	while ((readl(&priv->regs->wdtwwps)) & WDT_WWPS_PEND_WSPR)
 		;
 
+	/* Trigger the watchdog to actually reload the counter. */
+	while ((readl(&priv->regs->wdtwwps)) & WDT_WWPS_PEND_WTGR)
+		;
+
+	priv->wdt_trgr_pattern = ~(priv->wdt_trgr_pattern);
+	writel(priv->wdt_trgr_pattern, &priv->regs->wdtwtgr);
+
+	while ((readl(&priv->regs->wdtwwps)) & WDT_WWPS_PEND_WTGR)
+		;
+
 	return 0;
 }
 
