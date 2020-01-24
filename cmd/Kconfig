@@ -394,6 +394,8 @@ config CMD_ABOOTIMG
 	  images contained in boot.img, like kernel, ramdisk, dtb, etc, and
 	  obtain corresponding meta-information from boot.img.
 
+	  See doc/android/boot-image.rst for details.
+
 config CMD_ELF
 	bool "bootelf, bootvx"
 	default y
