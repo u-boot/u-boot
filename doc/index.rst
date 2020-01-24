@@ -86,6 +86,18 @@ organized in a vendor subdirectory.
 
    board/index
 
+Android-specific doc
+--------------------
+
+These books provide information about booting the Android OS from U-Boot,
+manipulating Android images from U-Boot shell and discusses other
+Android-specific features available in U-Boot.
+
+.. toctree::
+   :maxdepth: 2
+
+   android/index
+
 Indices and tables
 ==================
 

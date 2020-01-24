@@ -880,7 +880,7 @@ config CMD_FASTBOOT
 	  Android devices. Fastboot requires either the network stack
 	  enabled or support for acting as a USB device.
 
-	  See doc/android/fastboot.txt for more information.
+	  See doc/android/fastboot.rst for more information.
 
 config CMD_FLASH
 	bool "flinfo, erase, protect"

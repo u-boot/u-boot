@@ -56,7 +56,7 @@ R:	Sam Protsenko <joe.skb7@gmail.com>
 S:	Maintained
 F:	cmd/ab_select.c
 F:	common/android_ab.c
-F:	doc/android/ab.txt
+F:	doc/android/ab.rst
 F:	include/android_ab.h
 F:	test/py/tests/test_android/test_ab.py
 
@@ -65,7 +65,7 @@ M:	Igor Opaniuk <igor.opaniuk@gmail.com>
 S:	Maintained
 F:	cmd/avb.c
 F:	common/avb_verify.c
-F:	doc/android/avb2.txt
+F:	doc/android/avb2.rst
 F:	include/avb_verify.h
 F:	lib/libavb/
 F:	test/py/tests/test_android/test_avb.py
