@@ -73,6 +73,14 @@ config TARGET_ST_STM32MP15x
 		Evalulation board (EV1) or Discovery board (DK1 and DK2).
 		The difference between board are managed with devicetree
 
+config TARGET_DH_STM32MP1_PDK2
+	bool "DH STM32MP1 PDK2"
+	select STM32MP15x
+	imply BOOTCOUNT_LIMIT
+	imply CMD_BOOTCOUNT
+	help
+		Target the DH PDK2 development kit with STM32MP15x SoM.
+
 endchoice
 
 config STM32MP1_TRUSTED
@@ -158,5 +166,6 @@ config DEBUG_UART_CLOCK
 endif
 
 source "board/st/stm32mp1/Kconfig"
+source "board/dhelectronics/dh_stm32mp1/Kconfig"
 
 endif
