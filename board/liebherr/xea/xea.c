@@ -150,4 +150,36 @@ int dram_init(void)
 	return mxs_dram_init();
 }
 
+#ifdef CONFIG_OF_BOARD_SETUP
+static int fdt_fixup_l2switch(void *blob)
+{
+	u8 ethaddr[6];
+	int ret;
+
+	if (eth_env_get_enetaddr("ethaddr", ethaddr)) {
+		ret = fdt_find_and_setprop(blob,
+					   "/ahb@80080000/switch@800f0000",
+					   "local-mac-address", ethaddr, 6, 1);
+		if (ret < 0)
+			printf("%s: can't find usbether@1 node: %d\n",
+			       __func__, ret);
+	}
+
+	return 0;
+}
+
+int ft_board_setup(void *blob, bd_t *bd)
+{
+	/*
+	 * i.MX28 L2 switch needs manual update (fixup) of eth MAC address
+	 * (in 'local-mac-address' property) as it uses "switch@800f0000"
+	 * node, not set by default FIT image handling code in
+	 * "ethernet@800f0000"
+	 */
+	fdt_fixup_l2switch(blob);
+
+	return 0;
+}
+#endif
+
 #endif	/* CONFIG_SPL_BUILD */
