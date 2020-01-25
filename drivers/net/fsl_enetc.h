@@ -227,4 +227,7 @@ int enetc_mdio_read_priv(struct enetc_mdio_priv *priv, int addr, int devad,
 int enetc_mdio_write_priv(struct enetc_mdio_priv *priv, int addr, int devad,
 			  int reg, u16 val);
 
+/* sets up primary MAC addresses in DT/IERB */
+void fdt_fixup_enetc_mac(void *blob);
+
 #endif /* _ENETC_H */

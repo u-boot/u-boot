@@ -14,6 +14,69 @@
 
 #include "fsl_enetc.h"
 
+#define ENETC_DRIVER_NAME	"enetc_eth"
+
+/*
+ * sets the MAC address in IERB registers, this setting is persistent and
+ * carried over to Linux.
+ */
+static void enetc_set_ierb_primary_mac(struct udevice *dev, int devfn,
+				       const u8 *enetaddr)
+{
+#ifdef CONFIG_ARCH_LS1028A
+/*
+ * LS1028A is the only part with IERB at this time and there are plans to change
+ * its structure, keep this LS1028A specific for now
+ */
+#define IERB_BASE		0x1f0800000ULL
+#define IERB_PFMAC(pf, vf, n)	(IERB_BASE + 0x8000 + (pf) * 0x100 + (vf) * 8 \
+				 + (n) * 4)
+
+static int ierb_fn_to_pf[] = {0, 1, 2, -1, -1, -1, 3};
+
+	u16 lower = *(const u16 *)(enetaddr + 4);
+	u32 upper = *(const u32 *)enetaddr;
+
+	if (ierb_fn_to_pf[devfn] < 0)
+		return;
+
+	out_le32(IERB_PFMAC(ierb_fn_to_pf[devfn], 0, 0), upper);
+	out_le32(IERB_PFMAC(ierb_fn_to_pf[devfn], 0, 1), (u32)lower);
+#endif
+}
+
+/* sets up primary MAC addresses in DT/IERB */
+void fdt_fixup_enetc_mac(void *blob)
+{
+	struct pci_child_platdata *ppdata;
+	struct eth_pdata *pdata;
+	struct udevice *dev;
+	struct uclass *uc;
+	char path[256];
+	int offset;
+	int devfn;
+
+	uclass_get(UCLASS_ETH, &uc);
+	uclass_foreach_dev(dev, uc) {
+		if (!dev->driver || !dev->driver->name ||
+		    strcmp(dev->driver->name, ENETC_DRIVER_NAME))
+			continue;
+
+		pdata = dev_get_platdata(dev);
+		ppdata = dev_get_parent_platdata(dev);
+		devfn = PCI_FUNC(ppdata->devfn);
+
+		enetc_set_ierb_primary_mac(dev, devfn, pdata->enetaddr);
+
+		snprintf(path, 256, "/soc/pcie@1f0000000/ethernet@%x,%x",
+			 PCI_DEV(ppdata->devfn), PCI_FUNC(ppdata->devfn));
+		offset = fdt_path_offset(blob, path);
+		if (offset < 0)
+			continue;
+		fdt_setprop(blob, offset, "mac-address", pdata->enetaddr, 6);
+	}
+}
+
 /*
  * Bind the device:
  * - set a more explicit name on the interface
@@ -122,16 +185,34 @@ static int enetc_init_rgmii(struct udevice *dev)
 	return 0;
 }
 
-/* set up MAC and serdes for SXGMII */
-static int enetc_init_sxgmii(struct udevice *dev)
+/* set up MAC configuration for the given interface type */
+static void enetc_setup_mac_iface(struct udevice *dev)
 {
 	struct enetc_priv *priv = dev_get_priv(dev);
 	u32 if_mode;
 
-	/* set ifmode to (US)XGMII */
-	if_mode = enetc_read_port(priv, ENETC_PM_IF_MODE);
-	if_mode &= ~ENETC_PM_IF_IFMODE_MASK;
-	enetc_write_port(priv, ENETC_PM_IF_MODE, if_mode);
+	switch (priv->if_type) {
+	case PHY_INTERFACE_MODE_RGMII:
+	case PHY_INTERFACE_MODE_RGMII_ID:
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+	case PHY_INTERFACE_MODE_RGMII_TXID:
+		enetc_init_rgmii(dev);
+		break;
+	case PHY_INTERFACE_MODE_XGMII:
+	case PHY_INTERFACE_MODE_USXGMII:
+	case PHY_INTERFACE_MODE_XFI:
+		/* set ifmode to (US)XGMII */
+		if_mode = enetc_read_port(priv, ENETC_PM_IF_MODE);
+		if_mode &= ~ENETC_PM_IF_IFMODE_MASK;
+		enetc_write_port(priv, ENETC_PM_IF_MODE, if_mode);
+		break;
+	};
+}
+
+/* set up serdes for SXGMII */
+static int enetc_init_sxgmii(struct udevice *dev)
+{
+	struct enetc_priv *priv = dev_get_priv(dev);
 
 	if (!enetc_has_imdio(dev))
 		return 0;
@@ -267,14 +348,57 @@ static int enetc_remove(struct udevice *dev)
 	return 0;
 }
 
-/* ENETC Port MAC address registers, accepts big-endian format */
-static void enetc_set_primary_mac_addr(struct enetc_priv *priv, const u8 *addr)
+/*
+ * LS1028A is the only part with IERB at this time and there are plans to
+ * change its structure, keep this LS1028A specific for now.
+ */
+#define LS1028A_IERB_BASE		0x1f0800000ULL
+#define LS1028A_IERB_PSIPMAR0(pf, vf)	(LS1028A_IERB_BASE + 0x8000 \
+					 + (pf) * 0x100 + (vf) * 8)
+#define LS1028A_IERB_PSIPMAR1(pf, vf)	(LS1028A_IERB_PSIPMAR0(pf, vf) + 4)
+
+static int enetc_ls1028a_write_hwaddr(struct udevice *dev)
 {
+	struct pci_child_platdata *ppdata = dev_get_parent_platdata(dev);
+	const int devfn_to_pf[] = {0, 1, 2, -1, -1, -1, 3};
+	struct eth_pdata *plat = dev_get_platdata(dev);
+	int devfn = PCI_FUNC(ppdata->devfn);
+	u8 *addr = plat->enetaddr;
+	u32 lower, upper;
+	int pf;
+
+	if (devfn >= ARRAY_SIZE(devfn_to_pf))
+		return 0;
+
+	pf = devfn_to_pf[devfn];
+	if (pf < 0)
+		return 0;
+
+	lower = *(const u16 *)(addr + 4);
+	upper = *(const u32 *)addr;
+
+	out_le32(LS1028A_IERB_PSIPMAR0(pf, 0), upper);
+	out_le32(LS1028A_IERB_PSIPMAR1(pf, 0), lower);
+
+	return 0;
+}
+
+static int enetc_write_hwaddr(struct udevice *dev)
+{
+	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct enetc_priv *priv = dev_get_priv(dev);
+	u8 *addr = plat->enetaddr;
+
+	if (IS_ENABLED(CONFIG_ARCH_LS1028A))
+		return enetc_ls1028a_write_hwaddr(dev);
+
 	u16 lower = *(const u16 *)(addr + 4);
 	u32 upper = *(const u32 *)addr;
 
 	enetc_write_port(priv, ENETC_PSIPMAR0, upper);
 	enetc_write_port(priv, ENETC_PSIPMAR1, lower);
+
+	return 0;
 }
 
 /* Configure port parameters (# of rings, frame size, enable port) */
@@ -405,7 +529,6 @@ static void enetc_setup_rx_bdr(struct udevice *dev)
  */
 static int enetc_start(struct udevice *dev)
 {
-	struct eth_pdata *plat = dev_get_platdata(dev);
 	struct enetc_priv *priv = dev_get_priv(dev);
 
 	/* reset and enable the PCI device */
@@ -413,23 +536,13 @@ static int enetc_start(struct udevice *dev)
 	dm_pci_clrset_config16(dev, PCI_COMMAND, 0,
 			       PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
 
-	if (!is_valid_ethaddr(plat->enetaddr)) {
-		enetc_dbg(dev, "invalid MAC address, generate random ...\n");
-		net_random_ethaddr(plat->enetaddr);
-	}
-	enetc_set_primary_mac_addr(priv, plat->enetaddr);
-
 	enetc_enable_si_port(priv);
 
 	/* setup Tx/Rx buffer descriptors */
 	enetc_setup_tx_bdr(dev);
 	enetc_setup_rx_bdr(dev);
 
-	if (priv->if_type == PHY_INTERFACE_MODE_RGMII ||
-	    priv->if_type == PHY_INTERFACE_MODE_RGMII_ID ||
-	    priv->if_type == PHY_INTERFACE_MODE_RGMII_RXID ||
-	    priv->if_type == PHY_INTERFACE_MODE_RGMII_TXID)
-		enetc_init_rgmii(dev);
+	enetc_setup_mac_iface(dev);
 
 	if (priv->phy)
 		phy_startup(priv->phy);
@@ -548,10 +661,11 @@ static const struct eth_ops enetc_ops = {
 	.send	= enetc_send,
 	.recv	= enetc_recv,
 	.stop	= enetc_stop,
+	.write_hwaddr = enetc_write_hwaddr,
 };
 
 U_BOOT_DRIVER(eth_enetc) = {
-	.name	= "enetc_eth",
+	.name	= ENETC_DRIVER_NAME,
 	.id	= UCLASS_ETH,
 	.bind	= enetc_bind,
 	.probe	= enetc_probe,

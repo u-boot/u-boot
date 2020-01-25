@@ -1632,3 +1632,17 @@ __weak int dram_init(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_ARCH_MISC_INIT
+__weak int serdes_misc_init(void)
+{
+	return 0;
+}
+
+int arch_misc_init(void)
+{
+	serdes_misc_init();
+
+	return 0;
+}
+#endif

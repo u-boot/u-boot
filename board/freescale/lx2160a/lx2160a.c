@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2018-2019 NXP
+ * Copyright 2018-2020 NXP
  */
 
 #include <common.h>
@@ -132,7 +132,7 @@ int board_fix_fdt(void *fdt)
 		{ "ccsr", "dbi" },
 		{ "pf_ctrl", "ctrl" }
 	};
-	int off = -1, i;
+	int off = -1, i = 0;
 
 	if (IS_SVR_REV(get_svr(), 1, 0))
 		return 0;
@@ -149,7 +149,7 @@ int board_fix_fdt(void *fdt)
 
 		reg_name = reg_names;
 		remaining_names_len = names_len - (reg_name - reg_names);
-		for (i = 0; (i < ARRAY_SIZE(reg_names_map)) && names_len; i++) {
+		while ((i < ARRAY_SIZE(reg_names_map)) && remaining_names_len) {
 			old_name_len = strlen(reg_names_map[i].old_str);
 			new_name_len = strlen(reg_names_map[i].new_str);
 			if (memcmp(reg_name, reg_names_map[i].old_str,
@@ -165,6 +165,7 @@ int board_fix_fdt(void *fdt)
 				       new_name_len);
 				names_len -= old_name_len;
 				names_len += new_name_len;
+				i++;
 			}
 
 			reg_name = memchr(reg_name, '\0', remaining_names_len);
@@ -191,9 +192,9 @@ void esdhc_dspi_status_fixup(void *blob)
 {
 	const char esdhc0_path[] = "/soc/esdhc@2140000";
 	const char esdhc1_path[] = "/soc/esdhc@2150000";
-	const char dspi0_path[] = "/soc/dspi@2100000";
-	const char dspi1_path[] = "/soc/dspi@2110000";
-	const char dspi2_path[] = "/soc/dspi@2120000";
+	const char dspi0_path[] = "/soc/spi@2100000";
+	const char dspi1_path[] = "/soc/spi@2110000";
+	const char dspi2_path[] = "/soc/spi@2120000";
 
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
 	u32 sdhc1_base_pmux;
@@ -243,10 +244,12 @@ void esdhc_dspi_status_fixup(void *blob)
 		& FSL_CHASSIS3_IIC5_PMUX_MASK;
 	iic5_pmux >>= FSL_CHASSIS3_IIC5_PMUX_SHIFT;
 
-	if (iic5_pmux == IIC5_PMUX_SPI3) {
+	if (iic5_pmux == IIC5_PMUX_SPI3)
 		do_fixup_by_path(blob, dspi2_path, "status", "okay",
 				 sizeof("okay"), 1);
-	}
+	else
+		do_fixup_by_path(blob, dspi2_path, "status", "disabled",
+				 sizeof("disabled"), 1);
 }
 #endif
 
@@ -580,8 +583,8 @@ void detail_board_ddr_info(void)
 	print_ddr_info(0);
 }
 
-#if defined(CONFIG_ARCH_MISC_INIT)
-int arch_misc_init(void)
+#ifdef CONFIG_MISC_INIT_R
+int misc_init_r(void)
 {
 	config_board_mux();
 

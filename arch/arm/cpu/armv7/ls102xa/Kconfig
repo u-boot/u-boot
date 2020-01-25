@@ -29,11 +29,9 @@ menu "LS102xA architecture"
 
 config LS1_DEEP_SLEEP
 	bool "Deep sleep"
-	depends on ARCH_LS1021A
 
 config MAX_CPUS
 	int "Maximum number of CPUs permitted for LS102xA"
-	depends on ARCH_LS1021A
 	default 2
 	help
 	  Set this number to the maximum number of possible CPUs in the SoC.
@@ -98,7 +96,6 @@ config SYS_HAS_SERDES
 
 config SYS_FSL_IFC_BANK_COUNT
 	int "Maximum banks of Integrated flash controller"
-	depends on ARCH_LS1021A
 	default 8
 
 config SYS_FSL_ERRATUM_A008407

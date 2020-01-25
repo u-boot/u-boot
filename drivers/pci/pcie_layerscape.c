@@ -312,20 +312,9 @@ static void ls_pcie_drop_msg_tlp(struct ls_pcie *pcie)
 /* Disable all bars in RC mode */
 static void ls_pcie_disable_bars(struct ls_pcie *pcie)
 {
-	u32 sriov;
-
-	sriov = in_le32(pcie->dbi + PCIE_SRIOV);
-
-	/*
-	 * TODO: For PCIe controller with SRIOV, the method to disable bars
-	 * is different and more complex, so will add later.
-	 */
-	if (PCI_EXT_CAP_ID(sriov) == PCI_EXT_CAP_ID_SRIOV)
-		return;
-
 	dbi_writel(pcie, 0, PCIE_CS2_OFFSET + PCI_BASE_ADDRESS_0);
 	dbi_writel(pcie, 0, PCIE_CS2_OFFSET + PCI_BASE_ADDRESS_1);
-	dbi_writel(pcie, 0, PCIE_CS2_OFFSET + PCI_ROM_ADDRESS1);
+	dbi_writel(pcie, 0xfffffffe, PCIE_CS2_OFFSET + PCI_ROM_ADDRESS1);
 }
 
 static void ls_pcie_setup_ctrl(struct ls_pcie *pcie)

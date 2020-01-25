@@ -242,6 +242,7 @@ config FSL_LSCH2
 	select SYS_FSL_SEC_BE
 
 config FSL_LSCH3
+	select ARCH_MISC_INIT
 	bool
 
 config NXP_LSCH3_2

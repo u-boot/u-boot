@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2017-2019 NXP
+ * Copyright 2017-2020 NXP
  * Copyright 2014-2015 Freescale Semiconductor, Inc.
  * Layerscape PCIe driver
  */
@@ -17,6 +17,7 @@
 #include <asm/arch/clock.h>
 #endif
 #include "pcie_layerscape.h"
+#include "pcie_layerscape_fixup_common.h"
 
 #if defined(CONFIG_FSL_LSCH3) || defined(CONFIG_FSL_LSCH2)
 /*
@@ -28,17 +29,6 @@ static int ls_pcie_next_lut_index(struct ls_pcie *pcie)
 		return pcie->next_lut_index++;
 	else
 		return -ENOSPC;  /* LUT is full */
-}
-
-/* returns the next available streamid for pcie, -errno if failed */
-static int ls_pcie_next_streamid(void)
-{
-	static int next_stream_id = FSL_PEX_STREAM_ID_START;
-
-	if (next_stream_id > FSL_PEX_STREAM_ID_END)
-		return -EINVAL;
-
-	return next_stream_id++;
 }
 
 static void lut_writel(struct ls_pcie *pcie, unsigned int value,
@@ -191,10 +181,12 @@ static void fdt_fixup_pcie_ls(void *blob)
 			bus = bus->parent;
 		pcie = dev_get_priv(bus);
 
-		streamid = ls_pcie_next_streamid();
+		streamid = pcie_next_streamid(pcie->stream_id_cur, pcie->idx);
 		if (streamid < 0) {
 			debug("ERROR: no stream ids free\n");
 			continue;
+		} else {
+			pcie->stream_id_cur++;
 		}
 
 		index = ls_pcie_next_lut_index(pcie);
@@ -215,6 +207,7 @@ static void fdt_fixup_pcie_ls(void *blob)
 		fdt_pcie_set_iommu_map_entry_ls(blob, pcie, bdf >> 8,
 						streamid);
 	}
+	pcie_board_fix_fdt(blob);
 }
 #endif
 
@@ -271,7 +264,7 @@ static void ft_pcie_ls_setup(void *blob, struct ls_pcie *pcie)
 }
 
 /* Fixup Kernel DT for PCIe */
-void ft_pci_setup(void *blob, bd_t *bd)
+void ft_pci_setup_ls(void *blob, bd_t *bd)
 {
 	struct ls_pcie *pcie;
 
@@ -284,7 +277,7 @@ void ft_pci_setup(void *blob, bd_t *bd)
 }
 
 #else /* !CONFIG_OF_BOARD_SETUP */
-void ft_pci_setup(void *blob, bd_t *bd)
+void ft_pci_setup_ls(void *blob, bd_t *bd)
 {
 }
 #endif
