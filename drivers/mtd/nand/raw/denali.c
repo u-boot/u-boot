@@ -5,7 +5,7 @@
  * Copyright (C) 2009-2010, Intel Corporation and its suppliers.
  */
 
-#include <cpu_func.h>
+#include <asm/dma-mapping.h>
 #include <dm.h>
 #include <nand.h>
 #include <linux/bitfield.h>
@@ -16,35 +16,6 @@
 #include <linux/mtd/rawnand.h>
 
 #include "denali.h"
-
-static dma_addr_t dma_map_single(void *dev, void *ptr, size_t size,
-				 enum dma_data_direction dir)
-{
-	unsigned long addr = (unsigned long)ptr;
-
-	size = ALIGN(size, ARCH_DMA_MINALIGN);
-
-	if (dir == DMA_FROM_DEVICE)
-		invalidate_dcache_range(addr, addr + size);
-	else
-		flush_dcache_range(addr, addr + size);
-
-	return addr;
-}
-
-static void dma_unmap_single(void *dev, dma_addr_t addr, size_t size,
-			     enum dma_data_direction dir)
-{
-	size = ALIGN(size, ARCH_DMA_MINALIGN);
-
-	if (dir != DMA_TO_DEVICE)
-		invalidate_dcache_range(addr, addr + size);
-}
-
-static int dma_mapping_error(void *dev, dma_addr_t addr)
-{
-	return 0;
-}
 
 #define DENALI_NAND_NAME    "denali-nand"
 
@@ -565,7 +536,7 @@ static int denali_dma_xfer(struct denali_nand_info *denali, void *buf,
 	enum dma_data_direction dir = write ? DMA_TO_DEVICE : DMA_FROM_DEVICE;
 	int ret = 0;
 
-	dma_addr = dma_map_single(denali->dev, buf, size, dir);
+	dma_addr = dma_map_single(buf, size, dir);
 	if (dma_mapping_error(denali->dev, dma_addr)) {
 		dev_dbg(denali->dev, "Failed to DMA-map buffer. Trying PIO.\n");
 		return denali_pio_xfer(denali, buf, size, page, raw, write);
@@ -606,7 +577,7 @@ static int denali_dma_xfer(struct denali_nand_info *denali, void *buf,
 
 	iowrite32(0, denali->reg + DMA_ENABLE);
 
-	dma_unmap_single(denali->dev, dma_addr, size, dir);
+	dma_unmap_single(buf, size, dir);
 
 	if (irq_status & INTR__ERASED_PAGE)
 		memset(buf, 0xff, size);

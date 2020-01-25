@@ -865,6 +865,9 @@ static init_fnc_t init_sequence_r[] = {
 #if defined(CONFIG_PRAM)
 	initr_mem,
 #endif
+#ifdef CONFIG_BLOCK_CACHE
+	blkcache_init,
+#endif
 	run_main_loop,
 };
 

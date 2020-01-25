@@ -9,7 +9,6 @@ config DM_RNG
 config RNG_SANDBOX
 	bool "Sandbox random number generator"
 	depends on SANDBOX && DM_RNG
-	select CONFIG_LIB_RAND
 	help
 	  Enable random number generator for sandbox. This is an
 	  emulation of a rng device.

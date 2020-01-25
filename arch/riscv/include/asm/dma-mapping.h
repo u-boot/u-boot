@@ -9,7 +9,11 @@
 #ifndef __ASM_RISCV_DMA_MAPPING_H
 #define __ASM_RISCV_DMA_MAPPING_H
 
+#include <common.h>
+#include <asm/cache.h>
+#include <cpu_func.h>
 #include <linux/dma-direction.h>
+#include <malloc.h>
 
 #define dma_mapping_error(x, y)	0
 
@@ -27,12 +31,27 @@ static inline void dma_free_coherent(void *addr)
 static inline unsigned long dma_map_single(volatile void *vaddr, size_t len,
 					   enum dma_data_direction dir)
 {
-	return (unsigned long)vaddr;
+	unsigned long addr = (unsigned long)vaddr;
+
+	len = ALIGN(len, ARCH_DMA_MINALIGN);
+
+	if (dir == DMA_FROM_DEVICE)
+		invalidate_dcache_range(addr, addr + len);
+	else
+		flush_dcache_range(addr, addr + len);
+
+	return addr;
 }
 
 static inline void dma_unmap_single(volatile void *vaddr, size_t len,
-				    unsigned long paddr)
+				    enum dma_data_direction dir)
 {
+	unsigned long addr = (unsigned long)vaddr;
+
+	len = ALIGN(len, ARCH_DMA_MINALIGN);
+
+	if (dir != DMA_TO_DEVICE)
+		invalidate_dcache_range(addr, addr + len);
 }
 
 #endif /* __ASM_RISCV_DMA_MAPPING_H */

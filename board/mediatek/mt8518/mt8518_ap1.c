@@ -16,3 +16,21 @@ int board_init(void)
 	debug("gd->fdt_blob is %p\n", gd->fdt_blob);
 	return 0;
 }
+
+int board_late_init(void)
+{
+#ifdef CONFIG_USB_GADGET
+	struct udevice *dev;
+	int ret;
+#endif
+
+#ifdef CONFIG_USB_GADGET
+	ret = uclass_get_device(UCLASS_USB_GADGET_GENERIC, 0, &dev);
+	if (ret) {
+		pr_err("%s: Cannot find USB device\n", __func__);
+		return ret;
+	}
+#endif
+
+	return 0;
+}

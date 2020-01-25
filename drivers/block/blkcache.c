@@ -21,12 +21,19 @@ struct block_cache_node {
 	char *cache;
 };
 
-static LIST_HEAD(block_cache);
+static struct list_head block_cache;
 
 static struct block_cache_stats _stats = {
 	.max_blocks_per_entry = 8,
 	.max_entries = 32
 };
+
+int blkcache_init(void)
+{
+	INIT_LIST_HEAD(&block_cache);
+
+	return 0;
+}
 
 static struct block_cache_node *cache_find(int iftype, int devnum,
 					   lbaint_t start, lbaint_t blkcnt,

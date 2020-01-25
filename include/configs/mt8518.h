@@ -11,7 +11,6 @@
 
 #include <linux/sizes.h>
 
-/* Machine ID */
 #define CONFIG_SYS_NONCACHED_MEMORY		SZ_1M
 
 #define CONFIG_CPU_ARMV8
@@ -54,10 +53,15 @@
 #define ENV_BOOT_CMD \
 	"mtk_boot=run boot_rd_img;bootm;\0"
 
+#define ENV_FASTBOOT \
+	"serial#=1234567890ABCDEF\0" \
+	"board=mt8518\0"
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"fdt_high=0x6c000000\0" \
 	ENV_DEVICE_SETTINGS \
 	ENV_BOOT_READ_IMAGE \
+	ENV_FASTBOOT \
 	ENV_BOOT_CMD \
 	"bootcmd=run mtk_boot;\0" \
 

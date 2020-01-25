@@ -10,8 +10,6 @@ Converter from Kconfig and MAINTAINERS to a board database.
 Run 'tools/genboardscfg.py' to create a board database.
 
 Run 'tools/genboardscfg.py -h' for available options.
-
-Python 2.6 or later, but not Python 3.x is necessary to run this script.
 """
 
 import errno

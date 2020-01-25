@@ -171,6 +171,13 @@ void NS16550_init(NS16550_t com_port, int baud_divisor)
 	     == UART_LSR_THRE) {
 		if (baud_divisor != -1)
 			NS16550_setbrg(com_port, baud_divisor);
+		else {
+			// Re-use old baud rate divisor to flush transmit reg.
+			const int dll = serial_in(&com_port->dll);
+			const int dlm = serial_in(&com_port->dlm);
+			const int divisor = dll | (dlm << 8);
+			NS16550_setbrg(com_port, divisor);
+		}
 		serial_out(0, &com_port->mdr1);
 	}
 #endif
