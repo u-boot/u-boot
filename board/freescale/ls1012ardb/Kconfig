@@ -82,8 +82,8 @@ if FSL_PFE
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
 	select PHYLIB
-	imply CONFIG_PHYLIB_10G
-	imply CONFIG_PHY_AQUANTIA
+	imply PHYLIB_10G
+	imply PHY_AQUANTIA
 
 config SYS_LS_PFE_FW_ADDR
 	hex "Flash address of PFE firmware"
