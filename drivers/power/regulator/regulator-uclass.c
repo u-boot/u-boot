@@ -464,6 +464,9 @@ static int regulator_pre_probe(struct udevice *dev)
 	    (uc_pdata->min_uA == uc_pdata->max_uA))
 		uc_pdata->flags |= REGULATOR_FLAG_AUTOSET_UA;
 
+	if (uc_pdata->boot_on)
+		regulator_set_enable(dev, uc_pdata->boot_on);
+
 	return 0;
 }
 
