@@ -64,8 +64,23 @@ static int boot_tiva0, boot_tiva1;
 /* Check if TIVAs request booting via U-Boot proper */
 void spl_board_init(void)
 {
-	struct gpio_desc btiva0, btiva1;
+	struct gpio_desc btiva0, btiva1, en_3_3v;
 	int ret;
+
+	/*
+	 * Setup GPIO0_0 (TIVA power enable pin) to be output high
+	 * to allow TIVA startup.
+	 */
+	ret = dm_gpio_lookup_name("GPIO0_0", &en_3_3v);
+	if (ret)
+		printf("Cannot get GPIO0_0\n");
+
+	ret = dm_gpio_request(&en_3_3v, "pwr_3_3v");
+	if (ret)
+		printf("Cannot request GPIO0_0\n");
+
+	/* Set GPIO0_0 to HIGH */
+	dm_gpio_set_dir_flags(&en_3_3v, GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
 
 	ret = dm_gpio_lookup_name("GPIO0_23", &btiva0);
 	if (ret)
