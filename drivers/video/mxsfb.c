@@ -429,6 +429,6 @@ U_BOOT_DRIVER(mxs_video) = {
 	.bind	= mxs_video_bind,
 	.probe	= mxs_video_probe,
 	.remove = mxs_video_remove,
-	.flags	= DM_FLAG_PRE_RELOC,
+	.flags	= DM_FLAG_PRE_RELOC | DM_FLAG_OS_PREPARE,
 };
 #endif /* ifndef CONFIG_DM_VIDEO */
