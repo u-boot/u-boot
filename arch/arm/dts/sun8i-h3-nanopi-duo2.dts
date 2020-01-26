@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Copyright (C) 2017 Icenowy Zheng <icenowy@aosc.io>
- *
- * Based on sun8i-h3-bananapi-m2-plus.dts, which is:
- *   Copyright (C) 2016 Chen-Yu Tsai <wens@csie.org>
+ * Copyright (C) 2019 Karl Palsson <karlp@tweak.net.au>
  */
 
 /dts-v1/;
@@ -14,12 +11,11 @@
 #include <dt-bindings/input/input.h>
 
 / {
-	model = "Banana Pi BPI-M2-Zero";
-	compatible = "sinovoip,bpi-m2-zero", "allwinner,sun8i-h2-plus";
+	model = "FriendlyARM NanoPi Duo2";
+	compatible = "friendlyarm,nanopi-duo2", "allwinner,sun8i-h3";
 
 	aliases {
 		serial0 = &uart0;
-		serial1 = &uart1;
 	};
 
 	chosen {
@@ -29,38 +25,67 @@
 	leds {
 		compatible = "gpio-leds";
 
-		pwr_led {
-			label = "bananapi-m2-zero:red:pwr";
+		pwr {
+			label = "nanopi:red:pwr";
 			gpios = <&r_pio 0 10 GPIO_ACTIVE_HIGH>; /* PL10 */
 			default-state = "on";
 		};
+
+		status {
+			label = "nanopi:green:status";
+			gpios = <&pio 0 10 GPIO_ACTIVE_HIGH>; /* PA10 */
+		};
 	};
 
-	gpio_keys {
+	r_gpio_keys {
 		compatible = "gpio-keys";
 
-		sw4 {
-			label = "power";
+		k1 {
+			label = "k1";
 			linux,code = <BTN_0>;
-			gpios = <&r_pio 0 3 GPIO_ACTIVE_LOW>;
+			gpios = <&r_pio 0 3 GPIO_ACTIVE_LOW>; /* PL3 */
 		};
 	};
 
 	reg_vdd_cpux: vdd-cpux-regulator {
 		compatible = "regulator-gpio";
 		regulator-name = "vdd-cpux";
-		regulator-type = "voltage";
-		regulator-boot-on;
-		regulator-always-on;
 		regulator-min-microvolt = <1100000>;
 		regulator-max-microvolt = <1300000>;
+		regulator-always-on;
+		regulator-boot-on;
 		regulator-ramp-delay = <50>; /* 4ms */
 
-		gpios = <&r_pio 0 1 GPIO_ACTIVE_HIGH>; /* PL1 */
 		enable-active-high;
+		enable-gpio = <&r_pio 0 8 GPIO_ACTIVE_HIGH>; /* PL8 */
+		gpios = <&r_pio 0 6 GPIO_ACTIVE_HIGH>; /* PL6 */
 		gpios-states = <0x1>;
 		states = <1100000 0>, <1300000 1>;
 	};
+
+	reg_vcc_dram: vcc-dram {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc-dram";
+		regulator-min-microvolt = <1500000>;
+		regulator-max-microvolt = <1500000>;
+		regulator-always-on;
+		regulator-boot-on;
+		enable-active-high;
+		gpio = <&r_pio 0 9 GPIO_ACTIVE_HIGH>; /* PL9 */
+		vin-supply = <&reg_vcc5v0>;
+        };
+
+	reg_vdd_sys: vdd-sys {
+		compatible = "regulator-fixed";
+		regulator-name = "vdd-sys";
+		regulator-min-microvolt = <1200000>;
+		regulator-max-microvolt = <1200000>;
+		regulator-always-on;
+		regulator-boot-on;
+		enable-active-high;
+		gpio = <&r_pio 0 8 GPIO_ACTIVE_HIGH>; /* PL8 */
+		vin-supply = <&reg_vcc5v0>;
+        };
 
 	wifi_pwrseq: wifi_pwrseq {
 		compatible = "mmc-pwrseq-simple";
@@ -68,6 +93,7 @@
 		clocks = <&rtc 1>;
 		clock-names = "ext_clock";
 	};
+
 };
 
 &cpu0 {
@@ -79,15 +105,10 @@
 };
 
 &mmc0 {
-	vmmc-supply = <&reg_vcc3v3>;
 	bus-width = <4>;
-	/*
-	 * On the production batch of this board the card detect GPIO is
-	 * high active (card inserted), although on the early samples it's
-	 * low active.
-	 */
-	cd-gpios = <&pio 5 6 GPIO_ACTIVE_HIGH>; /* PF6 */
+	cd-gpios = <&pio 5 6 GPIO_ACTIVE_LOW>; /* PF6 */
 	status = "okay";
+	vmmc-supply = <&reg_vcc3v3>;
 };
 
 &mmc1 {
@@ -98,7 +119,7 @@
 	non-removable;
 	status = "okay";
 
-	brcmf: wifi@1 {
+	sdio_wifi: sdio_wifi@1 {
 		reg = <1>;
 		compatible = "brcm,bcm4329-fmac";
 		interrupt-parent = <&pio>;
@@ -111,15 +132,20 @@
 	status = "okay";
 };
 
+&reg_usb0_vbus {
+	gpio = <&r_pio 0 2 GPIO_ACTIVE_HIGH>; /* PL2 */
+	status = "okay";
+};
+
 &uart0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart0_pa_pins>;
 	status = "okay";
 };
 
-&uart1 {
+&uart2 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&uart1_pins>, <&uart1_rts_cts_pins>;
+	pinctrl-0 = <&uart2_pins>, <&uart2_rts_cts_pins>;
 	uart-has-rtscts;
 	status = "okay";
 
@@ -129,25 +155,19 @@
 		clock-names = "lpo";
 		vbat-supply = <&reg_vcc3v3>;
 		vddio-supply = <&reg_vcc3v3>;
-		device-wakeup-gpios = <&pio 6 13 GPIO_ACTIVE_HIGH>; /* PG13 */
-		host-wakeup-gpios = <&pio 6 11 GPIO_ACTIVE_HIGH>; /* PG11 */
-		shutdown-gpios = <&pio 6 12 GPIO_ACTIVE_HIGH>; /* PG12 */
+		device-wakeup-gpios = <&pio 0 8 GPIO_ACTIVE_HIGH>; /* PA8 */
+		host-wakeup-gpios = <&pio 0 7 GPIO_ACTIVE_HIGH>; /* PA7 */
+		shutdown-gpios = <&pio 6 13 GPIO_ACTIVE_HIGH>; /* PG13 */
 	};
-
 };
 
 &usb_otg {
-	dr_mode = "otg";
 	status = "okay";
+	dr_mode = "otg";
 };
 
 &usbphy {
-	usb0_id_det-gpios = <&r_pio 0 6 GPIO_ACTIVE_HIGH>; /* PL6 */
-	/*
-	 * There're two micro-USB connectors, one is power-only and another is
-	 * OTG. The Vbus of these two connectors are connected together, so
-	 * the external USB device will be powered just by the power input
-	 * from the power-only USB port.
-	 */
+	usb0_id_det-gpios = <&pio 6 12 GPIO_ACTIVE_HIGH>; /* PG12 */
+	usb0_vbus-supply = <&reg_usb0_vbus>;
 	status = "okay";
 };
