@@ -615,7 +615,7 @@ int ddr3_tip_load_pattern_to_odpg(u32 dev_num, enum hws_access_type access_type,
 
 	CHECK_STATUS(ddr3_tip_if_write(dev_num, access_type, if_id,
 				       ODPG_DATA_BUFFER_OFFS_REG,
-				       image_load_addr, MASK_ALL_BITS));
+				       load_addr, MASK_ALL_BITS));
 
 	return MV_OK;
 }
