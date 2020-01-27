@@ -23,6 +23,8 @@
 #ifdef CONFIG_TARGET_J721E_A72_EVM
 #define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SPL_TEXT_BASE +	\
 					 CONFIG_SYS_K3_NON_SECURE_MSRAM_SIZE)
+/* Image load address in RAM for DFU boot*/
+#define CONFIG_SPL_LOAD_FIT_ADDRESS	0x81000000
 #else
 /*
  * Maximum size in memory allocated to the SPL BSS. Keep it as tight as
@@ -45,6 +47,8 @@
 /* Configure R5 SPL post-relocation malloc pool in DDR */
 #define CONFIG_SYS_SPL_MALLOC_START	0x84000000
 #define CONFIG_SYS_SPL_MALLOC_SIZE	SZ_16M
+/* Image load address in RAM for DFU boot*/
+#define CONFIG_SPL_LOAD_FIT_ADDRESS	0x80080000
 #endif
 
 #ifdef CONFIG_SYS_K3_SPL_ATF
