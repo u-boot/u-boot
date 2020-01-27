@@ -40,6 +40,13 @@
 		clock-frequency = <200000000>;
 		u-boot,dm-spl;
 	};
+
+	clk_19_2mhz: dummy_clock {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <19200000>;
+		u-boot,dm-spl;
+	};
 };
 
 &cbass_mcu_wakeup {
@@ -205,6 +212,17 @@
 &wkup_vtm0 {
 	vdd-supply-2 = <&buck12_reg>;
 	u-boot,dm-spl;
+};
+
+&usbss0 {
+	/delete-property/ power-domains;
+	/delete-property/ assigned-clocks;
+	/delete-property/ assigned-clock-parents;
+	clocks = <&clk_19_2mhz>;
+	clock-names = "usb2_refclk";
+	pinctrl-names = "default";
+	pinctrl-0 = <&main_usbss0_pins_default>;
+	ti,vbus-divider;
 };
 
 #include "k3-j721e-common-proc-board-u-boot.dtsi"
