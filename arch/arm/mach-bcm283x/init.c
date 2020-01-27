@@ -42,9 +42,9 @@ static struct mm_region bcm2711_mem_map[] = {
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
-		.virt = 0xfe000000UL,
-		.phys = 0xfe000000UL,
-		.size = 0x01800000UL,
+		.virt = 0xfc000000UL,
+		.phys = 0xfc000000UL,
+		.size = 0x03800000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
