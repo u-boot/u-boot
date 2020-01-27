@@ -844,7 +844,8 @@ static inline ofnode dev_read_next_subnode(ofnode node)
 }
 
 static inline const uint8_t *dev_read_u8_array_ptr(const struct udevice *dev,
-					const char *propname, size_t sz)
+						   const char *propname,
+						   size_t sz)
 {
 	return ofnode_read_u8_array_ptr(dev_ofnode(dev), propname, sz);
 }

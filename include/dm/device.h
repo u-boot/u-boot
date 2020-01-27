@@ -578,6 +578,31 @@ int device_find_child_by_name(const struct udevice *parent, const char *name,
 			      struct udevice **devp);
 
 /**
+ * device_first_child_ofdata_err() - Find the first child and reads its platdata
+ *
+ * The ofdata_to_platdata() method is called on the child before it is returned,
+ * but the child is not probed.
+ *
+ * @parent: Parent to check
+ * @devp: Returns child that was found, if any
+ * @return 0 on success, -ENODEV if no children, other -ve on error
+ */
+int device_first_child_ofdata_err(struct udevice *parent,
+				  struct udevice **devp);
+
+/*
+ * device_next_child_ofdata_err() - Find the next child and read its platdata
+ *
+ * The ofdata_to_platdata() method is called on the child before it is returned,
+ * but the child is not probed.
+ *
+ * @devp: On entry, points to the previous child; on exit returns the child that
+ *	was found, if any
+ * @return 0 on success, -ENODEV if no children, other -ve on error
+ */
+int device_next_child_ofdata_err(struct udevice **devp);
+
+/**
  * device_has_children() - check if a device has any children
  *
  * @dev:	Device to check
@@ -705,6 +730,23 @@ static inline bool device_is_on_pci_bus(const struct udevice *dev)
  */
 #define device_foreach_child(pos, parent)	\
 	list_for_each_entry(pos, &parent->child_head, sibling_node)
+
+/**
+ * device_foreach_child_ofdata_to_platdata() - iterate through children
+ *
+ * This stops when it gets an error, with @pos set to the device that failed to
+ * read ofdata.
+
+ * This creates a for() loop which works through the available children of
+ * a device in order from start to end. Device ofdata is read by calling
+ * device_ofdata_to_platdata() on each one. The devices are not probed.
+ *
+ * @pos: struct udevice * for the current device
+ * @parent: parent device to scan
+ */
+#define device_foreach_child_ofdata_to_platdata(pos, parent)	\
+	for (int _ret = device_first_child_ofdata_err(parent, &dev); !_ret; \
+	     _ret = device_next_child_ofdata_err(&dev))
 
 /**
  * dm_scan_fdt_dev() - Bind child device in a the device tree
