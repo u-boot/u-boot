@@ -105,12 +105,21 @@ static int sandbox_i2c_pmic_ofdata_to_platdata(struct udevice *emul)
 {
 	struct sandbox_i2c_pmic_plat_data *plat = dev_get_platdata(emul);
 	struct udevice *pmic_dev = i2c_emul_get_device(emul);
-	struct uc_pmic_priv *priv = dev_get_uclass_priv(pmic_dev);
-	const u8 *reg_defaults;
 
 	debug("%s:%d Setting PMIC default registers\n", __func__, __LINE__);
 	plat->reg_count = pmic_reg_count(pmic_dev);
-	plat->trans_len = priv->trans_len;
+
+	return 0;
+}
+
+static int sandbox_i2c_pmic_probe(struct udevice *emul)
+{
+	struct sandbox_i2c_pmic_plat_data *plat = dev_get_platdata(emul);
+	struct udevice *pmic_dev = i2c_emul_get_device(emul);
+	struct uc_pmic_priv *upriv = dev_get_uclass_priv(pmic_dev);
+	const u8 *reg_defaults;
+
+	plat->trans_len = upriv->trans_len;
 	plat->buf_size = plat->reg_count * plat->trans_len;
 
 	plat->reg = calloc(1, plat->buf_size);
@@ -149,6 +158,7 @@ U_BOOT_DRIVER(sandbox_i2c_pmic_emul) = {
 	.id		= UCLASS_I2C_EMUL,
 	.of_match	= sandbox_i2c_pmic_ids,
 	.ofdata_to_platdata = sandbox_i2c_pmic_ofdata_to_platdata,
+	.probe		= sandbox_i2c_pmic_probe,
 	.platdata_auto_alloc_size = sizeof(struct sandbox_i2c_pmic_plat_data),
 	.ops		= &sandbox_i2c_pmic_emul_ops,
 };
