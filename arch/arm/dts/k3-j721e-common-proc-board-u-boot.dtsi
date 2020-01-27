@@ -337,3 +337,15 @@
 &wkup_i2c0 {
 	u-boot,dm-spl;
 };
+
+&main_i2c0 {
+	u-boot,dm-spl;
+};
+
+&main_i2c0_pins_default {
+	u-boot,dm-spl;
+};
+
+&exp2 {
+	u-boot,dm-spl;
+};
