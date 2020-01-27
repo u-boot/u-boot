@@ -17,7 +17,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static int riscv_cpu_get_desc(struct udevice *dev, char *buf, int size)
+static int riscv_cpu_get_desc(const struct udevice *dev, char *buf, int size)
 {
 	const char *isa;
 
@@ -30,7 +30,7 @@ static int riscv_cpu_get_desc(struct udevice *dev, char *buf, int size)
 	return 0;
 }
 
-static int riscv_cpu_get_info(struct udevice *dev, struct cpu_info *info)
+static int riscv_cpu_get_info(const struct udevice *dev, struct cpu_info *info)
 {
 	int ret;
 	struct clk clk;
@@ -39,7 +39,7 @@ static int riscv_cpu_get_info(struct udevice *dev, struct cpu_info *info)
 	u32 d_cache_size;
 
 	/* First try getting the frequency from the assigned clock */
-	ret = clk_get_by_index(dev, 0, &clk);
+	ret = clk_get_by_index((struct udevice *)dev, 0, &clk);
 	if (!ret) {
 		ret = clk_get_rate(&clk);
 		if (!IS_ERR_VALUE(ret))
@@ -67,7 +67,7 @@ static int riscv_cpu_get_info(struct udevice *dev, struct cpu_info *info)
 	return 0;
 }
 
-static int riscv_cpu_get_count(struct udevice *dev)
+static int riscv_cpu_get_count(const struct udevice *dev)
 {
 	ofnode node;
 	int num = 0;
