@@ -603,6 +603,28 @@ int device_first_child_ofdata_err(struct udevice *parent,
 int device_next_child_ofdata_err(struct udevice **devp);
 
 /**
+ * device_first_child_err() - Get the first child of a device
+ *
+ * The device returned is probed if necessary, and ready for use
+ *
+ * @parent:	Parent device to search
+ * @devp:	Returns device found, if any
+ * @return 0 if found, -ENODEV if not, -ve error if device failed to probe
+ */
+int device_first_child_err(struct udevice *parent, struct udevice **devp);
+
+/**
+ * device_next_child_err() - Get the next child of a parent device
+ *
+ * The device returned is probed if necessary, and ready for use
+ *
+ * @devp: On entry, pointer to device to lookup. On exit, returns pointer
+ * to the next sibling if no error occurred
+ * @return 0 if found, -ENODEV if not, -ve error if device failed to probe
+ */
+int device_next_child_err(struct udevice **devp);
+
+/**
  * device_has_children() - check if a device has any children
  *
  * @dev:	Device to check
@@ -747,6 +769,23 @@ static inline bool device_is_on_pci_bus(const struct udevice *dev)
 #define device_foreach_child_ofdata_to_platdata(pos, parent)	\
 	for (int _ret = device_first_child_ofdata_err(parent, &dev); !_ret; \
 	     _ret = device_next_child_ofdata_err(&dev))
+
+/**
+ * device_foreach_child_probe() - iterate through children, probing them
+ *
+ * This creates a for() loop which works through the available children of
+ * a device in order from start to end. Devices are probed if necessary,
+ * and ready for use.
+ *
+ * This stops when it gets an error, with @pos set to the device that failed to
+ * probe
+ *
+ * @pos: struct udevice * for the current device
+ * @parent: parent device to scan
+ */
+#define device_foreach_child_probe(pos, parent)	\
+	for (int _ret = device_first_child_err(parent, &dev); !_ret; \
+	     _ret = device_next_child_err(&dev))
 
 /**
  * dm_scan_fdt_dev() - Bind child device in a the device tree

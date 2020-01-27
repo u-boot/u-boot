@@ -792,6 +792,28 @@ int device_find_child_by_name(const struct udevice *parent, const char *name,
 	return -ENODEV;
 }
 
+int device_first_child_err(struct udevice *parent, struct udevice **devp)
+{
+	struct udevice *dev;
+
+	device_find_first_child(parent, &dev);
+	if (!dev)
+		return -ENODEV;
+
+	return device_get_device_tail(dev, 0, devp);
+}
+
+int device_next_child_err(struct udevice **devp)
+{
+	struct udevice *dev = *devp;
+
+	device_find_next_child(&dev);
+	if (!dev)
+		return -ENODEV;
+
+	return device_get_device_tail(dev, 0, devp);
+}
+
 int device_first_child_ofdata_err(struct udevice *parent, struct udevice **devp)
 {
 	struct udevice *dev;
