@@ -8,14 +8,14 @@
 #include <dm.h>
 #include <cpu.h>
 
-int cpu_sandbox_get_desc(struct udevice *dev, char *buf, int size)
+int cpu_sandbox_get_desc(const struct udevice *dev, char *buf, int size)
 {
 	snprintf(buf, size, "LEG Inc. SuperMegaUltraTurbo CPU No. 1");
 
 	return 0;
 }
 
-int cpu_sandbox_get_info(struct udevice *dev, struct cpu_info *info)
+int cpu_sandbox_get_info(const struct udevice *dev, struct cpu_info *info)
 {
 	info->cpu_freq = 42 * 42 * 42 * 42 * 42;
 	info->features = 0x42424242;
@@ -24,12 +24,12 @@ int cpu_sandbox_get_info(struct udevice *dev, struct cpu_info *info)
 	return 0;
 }
 
-int cpu_sandbox_get_count(struct udevice *dev)
+int cpu_sandbox_get_count(const struct udevice *dev)
 {
 	return 42;
 }
 
-int cpu_sandbox_get_vendor(struct udevice *dev, char *buf, int size)
+int cpu_sandbox_get_vendor(const struct udevice *dev, char *buf, int size)
 {
 	snprintf(buf, size, "Languid Example Garbage Inc.");
 
