@@ -115,7 +115,7 @@ static int imx6q_clk_probe(struct udevice *dev)
 
 	/* CCM clocks */
 	base = dev_read_addr_ptr(dev);
-	if (base == (void *)FDT_ADDR_T_NONE)
+	if (!base)
 		return -EINVAL;
 
 	clk_dm(IMX6QDL_CLK_USDHC1_SEL,

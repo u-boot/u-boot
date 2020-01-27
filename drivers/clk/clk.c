@@ -20,8 +20,10 @@ int clk_register(struct clk *clk, const char *drv_name,
 	int ret;
 
 	ret = uclass_get_device_by_name(UCLASS_CLK, parent_name, &parent);
-	if (ret)
-		printf("%s: UCLASS parent: 0x%p\n", __func__, parent);
+	if (ret) {
+		printf("%s: name: %s parent: %s [0x%p]\n",
+		       __func__, name, parent->name, parent);
+	}
 
 	debug("%s: name: %s parent: %s [0x%p]\n", __func__, name, parent->name,
 	      parent);

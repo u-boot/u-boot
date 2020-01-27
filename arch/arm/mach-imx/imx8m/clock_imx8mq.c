@@ -374,28 +374,6 @@ void init_wdog_clk(void)
 	clock_enable(CCGR_WDOG3, 1);
 }
 
-void init_usb_clk(void)
-{
-	if (!is_usb_boot()) {
-		clock_enable(CCGR_USB_CTRL1, 0);
-		clock_enable(CCGR_USB_CTRL2, 0);
-		clock_enable(CCGR_USB_PHY1, 0);
-		clock_enable(CCGR_USB_PHY2, 0);
-		/* 500MHz */
-		clock_set_target_val(USB_BUS_CLK_ROOT, CLK_ROOT_ON |
-				     CLK_ROOT_SOURCE_SEL(1));
-		/* 100MHz */
-		clock_set_target_val(USB_CORE_REF_CLK_ROOT, CLK_ROOT_ON |
-				     CLK_ROOT_SOURCE_SEL(1));
-		/* 100MHz */
-		clock_set_target_val(USB_PHY_REF_CLK_ROOT, CLK_ROOT_ON |
-				     CLK_ROOT_SOURCE_SEL(1));
-		clock_enable(CCGR_USB_CTRL1, 1);
-		clock_enable(CCGR_USB_CTRL2, 1);
-		clock_enable(CCGR_USB_PHY1, 1);
-		clock_enable(CCGR_USB_PHY2, 1);
-	}
-}
 
 void init_nand_clk(void)
 {
@@ -658,7 +636,7 @@ void dram_pll_init(ulong pll_val)
 		;
 }
 
-int frac_pll_init(u32 pll, enum frac_pll_out_val val)
+static int frac_pll_init(u32 pll, enum frac_pll_out_val val)
 {
 	void __iomem *pll_cfg0, __iomem *pll_cfg1;
 	u32 val_cfg0, val_cfg1;
@@ -699,77 +677,6 @@ int frac_pll_init(u32 pll, enum frac_pll_out_val val)
 	return 0;
 }
 
-int sscg_pll_init(u32 pll)
-{
-	void __iomem *pll_cfg0, __iomem *pll_cfg1, __iomem *pll_cfg2;
-	u32 val_cfg0, val_cfg1, val_cfg2, val;
-	u32 bypass1_mask = 0x20, bypass2_mask = 0x10;
-	int ret;
-
-	switch (pll) {
-	case ANATOP_SYSTEM_PLL1:
-		pll_cfg0 = &ana_pll->sys_pll1_cfg0;
-		pll_cfg1 = &ana_pll->sys_pll1_cfg1;
-		pll_cfg2 = &ana_pll->sys_pll1_cfg2;
-		/* 800MHz */
-		val_cfg2 = SSCG_PLL_FEEDBACK_DIV_F1_VAL(3) |
-			SSCG_PLL_FEEDBACK_DIV_F2_VAL(3);
-		val_cfg1 = 0;
-		val_cfg0 = SSCG_PLL_CLKE_MASK | SSCG_PLL_DIV2_CLKE_MASK |
-			SSCG_PLL_DIV3_CLKE_MASK | SSCG_PLL_DIV4_CLKE_MASK |
-			SSCG_PLL_DIV5_CLKE_MASK | SSCG_PLL_DIV6_CLKE_MASK |
-			SSCG_PLL_DIV8_CLKE_MASK | SSCG_PLL_DIV10_CLKE_MASK |
-			SSCG_PLL_DIV20_CLKE_MASK | SSCG_PLL_LOCK_SEL_MASK |
-			SSCG_PLL_REFCLK_SEL_OSC_25M;
-		break;
-	case ANATOP_SYSTEM_PLL2:
-		pll_cfg0 = &ana_pll->sys_pll2_cfg0;
-		pll_cfg1 = &ana_pll->sys_pll2_cfg1;
-		pll_cfg2 = &ana_pll->sys_pll2_cfg2;
-		/* 1000MHz */
-		val_cfg2 = SSCG_PLL_FEEDBACK_DIV_F1_VAL(3) |
-			SSCG_PLL_FEEDBACK_DIV_F2_VAL(4);
-		val_cfg1 = 0;
-		val_cfg0 = SSCG_PLL_CLKE_MASK | SSCG_PLL_DIV2_CLKE_MASK |
-			SSCG_PLL_DIV3_CLKE_MASK | SSCG_PLL_DIV4_CLKE_MASK |
-			SSCG_PLL_DIV5_CLKE_MASK | SSCG_PLL_DIV6_CLKE_MASK |
-			SSCG_PLL_DIV8_CLKE_MASK | SSCG_PLL_DIV10_CLKE_MASK |
-			SSCG_PLL_DIV20_CLKE_MASK | SSCG_PLL_LOCK_SEL_MASK |
-			SSCG_PLL_REFCLK_SEL_OSC_25M;
-		break;
-	case ANATOP_SYSTEM_PLL3:
-		pll_cfg0 = &ana_pll->sys_pll3_cfg0;
-		pll_cfg1 = &ana_pll->sys_pll3_cfg1;
-		pll_cfg2 = &ana_pll->sys_pll3_cfg2;
-		/* 800MHz */
-		val_cfg2 = SSCG_PLL_FEEDBACK_DIV_F1_VAL(3) |
-			SSCG_PLL_FEEDBACK_DIV_F2_VAL(3);
-		val_cfg1 = 0;
-		val_cfg0 = SSCG_PLL_PLL3_CLKE_MASK |  SSCG_PLL_LOCK_SEL_MASK |
-			SSCG_PLL_REFCLK_SEL_OSC_25M;
-		break;
-	default:
-		return -EINVAL;
-	}
-
-	/*bypass*/
-	setbits_le32(pll_cfg0, bypass1_mask | bypass2_mask);
-	/* set value */
-	writel(val_cfg2, pll_cfg2);
-	writel(val_cfg1, pll_cfg1);
-	/*unbypass1 and wait 70us */
-	writel(val_cfg0 | bypass2_mask, pll_cfg1);
-
-	__udelay(70);
-
-	/* unbypass2 and wait lock */
-	writel(val_cfg0, pll_cfg1);
-	ret = readl_poll_timeout(pll_cfg0, val, val & SSCG_PLL_LOCK_MASK, 1);
-	if (ret)
-		printf("%s timeout\n", __func__);
-
-	return ret;
-}
 
 int clock_init(void)
 {
@@ -833,7 +740,7 @@ int clock_init(void)
  * Dump some clockes.
  */
 #ifndef CONFIG_SPL_BUILD
-int do_imx8m_showclocks(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_imx8m_showclocks(cmd_tbl_t *cmdtp, int flag, int argc,
 		       char * const argv[])
 {
 	u32 freq;

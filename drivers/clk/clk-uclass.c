@@ -326,7 +326,6 @@ int clk_set_defaults(struct udevice *dev, int stage)
 
 	return 0;
 }
-# endif /* OF_PLATDATA */
 
 int clk_get_by_name(struct udevice *dev, const char *name, struct clk *clk)
 {
@@ -343,6 +342,7 @@ int clk_get_by_name(struct udevice *dev, const char *name, struct clk *clk)
 
 	return clk_get_by_index(dev, index, clk);
 }
+# endif /* OF_PLATDATA */
 
 int clk_get_by_name_nodev(ofnode node, const char *name, struct clk *clk)
 {
