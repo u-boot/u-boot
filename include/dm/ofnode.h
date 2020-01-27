@@ -520,11 +520,14 @@ ofnode ofnode_path(const char *path);
 const char *ofnode_get_chosen_prop(const char *propname);
 
 /**
- * ofnode_get_chosen_node() - get the chosen node
+ * ofnode_get_chosen_node() - get a referenced node from the chosen node
  *
- * @return the chosen node if present, else ofnode_null()
+ * This looks up a named property in the chosen node and uses that as a path to
+ * look up a code.
+ *
+ * @return the referenced node if present, else ofnode_null()
  */
-ofnode ofnode_get_chosen_node(const char *name);
+ofnode ofnode_get_chosen_node(const char *propname);
 
 struct display_timing;
 /**
