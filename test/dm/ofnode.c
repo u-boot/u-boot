@@ -58,3 +58,24 @@ static int dm_test_ofnode_fmap(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_ofnode_fmap, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+static int dm_test_ofnode_read_chosen(struct unit_test_state *uts)
+{
+	const char *str;
+	ofnode node;
+
+	str = ofnode_read_chosen_string("setting");
+	ut_assertnonnull(str);
+	ut_asserteq_str("sunrise ohoka", str);
+	ut_asserteq_ptr(NULL, ofnode_read_chosen_string("no-setting"));
+
+	node = ofnode_get_chosen_node("other-node");
+	ut_assert(ofnode_valid(node));
+	ut_asserteq_str("c-test@5", ofnode_get_name(node));
+
+	node = ofnode_get_chosen_node("setting");
+	ut_assert(!ofnode_valid(node));
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_read_chosen, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

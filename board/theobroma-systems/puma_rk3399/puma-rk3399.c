@@ -49,7 +49,7 @@ static void setup_iodomain(void)
 static int setup_boottargets(void)
 {
 	const char *boot_device =
-		ofnode_get_chosen_prop("u-boot,spl-boot-device");
+		ofnode_read_chosen_string("u-boot,spl-boot-device");
 	char *env_default, *env;
 
 	if (!boot_device) {

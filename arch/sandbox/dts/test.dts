@@ -774,6 +774,8 @@
 	chosen {
 		#address-cells = <1>;
 		#size-cells = <1>;
+		setting = "sunrise ohoka";
+		other-node = "/some-bus/c-test@5";
 		chosen-test {
 			compatible = "denx,u-boot-fdt-test";
 			reg = <9 1>;

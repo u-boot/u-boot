@@ -419,7 +419,7 @@ ofnode ofnode_path(const char *path)
 		return offset_to_ofnode(fdt_path_offset(gd->fdt_blob, path));
 }
 
-const char *ofnode_get_chosen_prop(const char *name)
+const char *ofnode_read_chosen_string(const char *name)
 {
 	ofnode chosen_node;
 
@@ -432,7 +432,7 @@ ofnode ofnode_get_chosen_node(const char *name)
 {
 	const char *prop;
 
-	prop = ofnode_get_chosen_prop(name);
+	prop = ofnode_read_chosen_string(name);
 	if (!prop)
 		return ofnode_null();
 
