@@ -59,6 +59,32 @@ static int dm_test_ofnode_fmap(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_fmap, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
+static int dm_test_ofnode_read(struct unit_test_state *uts)
+{
+	const u32 *val;
+	ofnode node;
+	int size;
+
+	node = ofnode_path("/a-test");
+	ut_assert(ofnode_valid(node));
+
+	val = ofnode_read_prop(node, "int-value", &size);
+	ut_assertnonnull(val);
+	ut_asserteq(4, size);
+	ut_asserteq(1234, fdt32_to_cpu(val[0]));
+
+	val = ofnode_read_prop(node, "missing", &size);
+	ut_assertnull(val);
+	ut_asserteq(-FDT_ERR_NOTFOUND, size);
+
+	/* Check it works without a size parameter */
+	val = ofnode_read_prop(node, "missing", NULL);
+	ut_assertnull(val);
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_read, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
 static int dm_test_ofnode_read_chosen(struct unit_test_state *uts)
 {
 	const char *str;

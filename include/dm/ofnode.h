@@ -257,9 +257,20 @@ int ofnode_read_u64(ofnode node, const char *propname, u64 *outp);
 u64 ofnode_read_u64_default(ofnode node, const char *propname, u64 def);
 
 /**
+ * ofnode_read_prop() - Read a property from a node
+ *
+ * @node:	valid node reference to read property from
+ * @propname:	name of the property to read
+ * @sizep:	if non-NULL, returns the size of the property, or an error code
+		if not found
+ * @return property value, or NULL if there is no such property
+ */
+const void *ofnode_read_prop(ofnode node, const char *propname, int *sizep);
+
+/**
  * ofnode_read_string() - Read a string from a property
  *
- * @ref:	valid node reference to read property from
+ * @node:	valid node reference to read property from
  * @propname:	name of the property to read
  * @return string from property value, or NULL if there is no such property
  */

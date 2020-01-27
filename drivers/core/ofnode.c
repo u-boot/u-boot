@@ -101,30 +101,47 @@ bool ofnode_read_bool(ofnode node, const char *propname)
 	return prop ? true : false;
 }
 
-const char *ofnode_read_string(ofnode node, const char *propname)
+const void *ofnode_read_prop(ofnode node, const char *propname, int *sizep)
 {
-	const char *str = NULL;
-	int len = -1;
+	const char *val = NULL;
+	int len;
 
 	assert(ofnode_valid(node));
 	debug("%s: %s: ", __func__, propname);
 
 	if (ofnode_is_np(node)) {
 		struct property *prop = of_find_property(
-				ofnode_to_np(node), propname, NULL);
+				ofnode_to_np(node), propname, &len);
 
 		if (prop) {
-			str = prop->value;
+			val = prop->value;
 			len = prop->length;
 		}
 	} else {
-		str = fdt_getprop(gd->fdt_blob, ofnode_to_offset(node),
+		val = fdt_getprop(gd->fdt_blob, ofnode_to_offset(node),
 				  propname, &len);
 	}
-	if (!str) {
+	if (!val) {
 		debug("<not found>\n");
+		if (sizep)
+			*sizep = -FDT_ERR_NOTFOUND;
 		return NULL;
 	}
+	if (sizep)
+		*sizep = len;
+
+	return val;
+}
+
+const char *ofnode_read_string(ofnode node, const char *propname)
+{
+	const char *str;
+	int len;
+
+	str = ofnode_read_prop(node, propname, &len);
+	if (!str)
+		return NULL;
+
 	if (strnlen(str, len) >= len) {
 		debug("<invalid>\n");
 		return NULL;
