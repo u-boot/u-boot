@@ -11,6 +11,7 @@
 #include <malloc.h>
 #include <reset.h>
 #include <spi.h>
+#include <spi-mem.h>
 #include <linux/errno.h>
 #include "cadence_qspi.h"
 
@@ -35,12 +36,21 @@ static int cadence_spi_write_speed(struct udevice *bus, uint hz)
 	return 0;
 }
 
+static int cadence_spi_read_id(void *reg_base, u8 len, u8 *idcode)
+{
+	struct spi_mem_op op = SPI_MEM_OP(SPI_MEM_OP_CMD(0x9F, 1),
+					  SPI_MEM_OP_NO_ADDR,
+					  SPI_MEM_OP_NO_DUMMY,
+					  SPI_MEM_OP_DATA_IN(len, idcode, 1));
+
+	return cadence_qspi_apb_command_read(reg_base, &op);
+}
+
 /* Calibration sequence to determine the read data capture delay register */
 static int spi_calibration(struct udevice *bus, uint hz)
 {
 	struct cadence_spi_priv *priv = dev_get_priv(bus);
 	void *base = priv->regbase;
-	u8 opcode_rdid = 0x9F;
 	unsigned int idcode = 0, temp = 0;
 	int err = 0, i, range_lo = -1, range_hi = -1;
 
@@ -54,8 +64,7 @@ static int spi_calibration(struct udevice *bus, uint hz)
 	cadence_qspi_apb_controller_enable(base);
 
 	/* read the ID which will be our golden value */
-	err = cadence_qspi_apb_command_read(base, 1, &opcode_rdid,
-		3, (u8 *)&idcode);
+	err = cadence_spi_read_id(base, 3, (u8 *)&idcode);
 	if (err) {
 		puts("SF: Calibration failed (read)\n");
 		return err;
@@ -74,8 +83,7 @@ static int spi_calibration(struct udevice *bus, uint hz)
 		cadence_qspi_apb_controller_enable(base);
 
 		/* issue a RDID to get the ID value */
-		err = cadence_qspi_apb_command_read(base, 1, &opcode_rdid,
-			3, (u8 *)&temp);
+		err = cadence_spi_read_id(base, 3, (u8 *)&temp);
 		if (err) {
 			puts("SF: Calibration failed (read)\n");
 			return err;
@@ -196,96 +204,56 @@ static int cadence_spi_set_mode(struct udevice *bus, uint mode)
 	return 0;
 }
 
-static int cadence_spi_xfer(struct udevice *dev, unsigned int bitlen,
-			    const void *dout, void *din, unsigned long flags)
+static int cadence_spi_mem_exec_op(struct spi_slave *spi,
+				   const struct spi_mem_op *op)
 {
-	struct udevice *bus = dev->parent;
+	struct udevice *bus = spi->dev->parent;
 	struct cadence_spi_platdata *plat = bus->platdata;
 	struct cadence_spi_priv *priv = dev_get_priv(bus);
-	struct dm_spi_slave_platdata *dm_plat = dev_get_parent_platdata(dev);
 	void *base = priv->regbase;
-	u8 *cmd_buf = priv->cmd_buf;
-	size_t data_bytes;
 	int err = 0;
-	u32 mode = CQSPI_STIG_WRITE;
-
-	if (flags & SPI_XFER_BEGIN) {
-		/* copy command to local buffer */
-		priv->cmd_len = bitlen / 8;
-		memcpy(cmd_buf, dout, priv->cmd_len);
-	}
-
-	if (flags == (SPI_XFER_BEGIN | SPI_XFER_END)) {
-		/* if start and end bit are set, the data bytes is 0. */
-		data_bytes = 0;
-	} else {
-		data_bytes = bitlen / 8;
-	}
-	debug("%s: len=%zu [bytes]\n", __func__, data_bytes);
+	u32 mode;
 
 	/* Set Chip select */
-	cadence_qspi_apb_chipselect(base, spi_chip_select(dev),
+	cadence_qspi_apb_chipselect(base, spi_chip_select(spi->dev),
 				    plat->is_decoded_cs);
 
-	if ((flags & SPI_XFER_END) || (flags == 0)) {
-		if (priv->cmd_len == 0) {
-			printf("QSPI: Error, command is empty.\n");
-			return -1;
-		}
+	if (op->data.dir == SPI_MEM_DATA_IN && op->data.buf.in) {
+		if (!op->addr.nbytes)
+			mode = CQSPI_STIG_READ;
+		else
+			mode = CQSPI_INDIRECT_READ;
+	} else {
+		if (!op->addr.nbytes || !op->data.buf.out)
+			mode = CQSPI_STIG_WRITE;
+		else
+			mode = CQSPI_INDIRECT_WRITE;
+	}
 
-		if (din && data_bytes) {
-			/* read */
-			/* Use STIG if no address. */
-			if (!CQSPI_IS_ADDR(priv->cmd_len))
-				mode = CQSPI_STIG_READ;
-			else
-				mode = CQSPI_INDIRECT_READ;
-		} else if (dout && !(flags & SPI_XFER_BEGIN)) {
-			/* write */
-			if (!CQSPI_IS_ADDR(priv->cmd_len))
-				mode = CQSPI_STIG_WRITE;
-			else
-				mode = CQSPI_INDIRECT_WRITE;
+	switch (mode) {
+	case CQSPI_STIG_READ:
+		err = cadence_qspi_apb_command_read(base, op);
+		break;
+	case CQSPI_STIG_WRITE:
+		err = cadence_qspi_apb_command_write(base, op);
+		break;
+	case CQSPI_INDIRECT_READ:
+		err = cadence_qspi_apb_indirect_read_setup(plat, op);
+		if (!err) {
+			err = cadence_qspi_apb_indirect_read_execute
+				(plat, op->data.nbytes, op->data.buf.in);
 		}
-
-		switch (mode) {
-		case CQSPI_STIG_READ:
-			err = cadence_qspi_apb_command_read(
-				base, priv->cmd_len, cmd_buf,
-				data_bytes, din);
-
 		break;
-		case CQSPI_STIG_WRITE:
-			err = cadence_qspi_apb_command_write(base,
-				priv->cmd_len, cmd_buf,
-				data_bytes, dout);
-		break;
-		case CQSPI_INDIRECT_READ:
-			err = cadence_qspi_apb_indirect_read_setup(plat,
-				priv->cmd_len, dm_plat->mode, cmd_buf);
-			if (!err) {
-				err = cadence_qspi_apb_indirect_read_execute
-				(plat, data_bytes, din);
-			}
-		break;
-		case CQSPI_INDIRECT_WRITE:
-			err = cadence_qspi_apb_indirect_write_setup
-				(plat, priv->cmd_len, dm_plat->mode, cmd_buf);
-			if (!err) {
-				err = cadence_qspi_apb_indirect_write_execute
-				(plat, data_bytes, dout);
-			}
-		break;
-		default:
-			err = -1;
-			break;
+	case CQSPI_INDIRECT_WRITE:
+		err = cadence_qspi_apb_indirect_write_setup(plat, op);
+		if (!err) {
+			err = cadence_qspi_apb_indirect_write_execute
+			(plat, op->data.nbytes, op->data.buf.out);
 		}
-
-		if (flags & SPI_XFER_END) {
-			/* clear command buffer */
-			memset(cmd_buf, 0, sizeof(priv->cmd_buf));
-			priv->cmd_len = 0;
-		}
+		break;
+	default:
+		err = -1;
+		break;
 	}
 
 	return err;
@@ -349,10 +317,14 @@ static int cadence_spi_ofdata_to_platdata(struct udevice *bus)
 	return 0;
 }
 
+static const struct spi_controller_mem_ops cadence_spi_mem_ops = {
+	.exec_op = cadence_spi_mem_exec_op,
+};
+
 static const struct dm_spi_ops cadence_spi_ops = {
-	.xfer		= cadence_spi_xfer,
 	.set_speed	= cadence_spi_set_speed,
 	.set_mode	= cadence_spi_set_mode,
+	.mem_ops	= &cadence_spi_mem_ops,
 	/*
 	 * cs_info is not needed, since we require all chip selects to be
 	 * in the device tree explicitly

@@ -55,17 +55,16 @@ void cadence_qspi_apb_controller_enable(void *reg_base_addr);
 void cadence_qspi_apb_controller_disable(void *reg_base_addr);
 
 int cadence_qspi_apb_command_read(void *reg_base_addr,
-	unsigned int cmdlen, const u8 *cmdbuf, unsigned int rxlen, u8 *rxbuf);
+				  const struct spi_mem_op *op);
 int cadence_qspi_apb_command_write(void *reg_base_addr,
-	unsigned int cmdlen, const u8 *cmdbuf,
-	unsigned int txlen,  const u8 *txbuf);
+				   const struct spi_mem_op *op);
 
 int cadence_qspi_apb_indirect_read_setup(struct cadence_spi_platdata *plat,
-	unsigned int cmdlen, unsigned int rx_width, const u8 *cmdbuf);
+	const struct spi_mem_op *op);
 int cadence_qspi_apb_indirect_read_execute(struct cadence_spi_platdata *plat,
 	unsigned int rxlen, u8 *rxbuf);
 int cadence_qspi_apb_indirect_write_setup(struct cadence_spi_platdata *plat,
-	unsigned int cmdlen, unsigned int tx_width, const u8 *cmdbuf);
+	const struct spi_mem_op *op);
 int cadence_qspi_apb_indirect_write_execute(struct cadence_spi_platdata *plat,
 	unsigned int txlen, const u8 *txbuf);
 
