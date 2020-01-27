@@ -409,7 +409,8 @@ const char *dev_get_uclass_name(const struct udevice *dev);
  * @return 0 if OK, -ENODEV if no such device, other error if the device fails
  *	   to probe
  */
-int device_get_child(struct udevice *parent, int index, struct udevice **devp);
+int device_get_child(const struct udevice *parent, int index,
+		     struct udevice **devp);
 
 /**
  * device_get_child_count() - Get the available child count of a device
@@ -418,7 +419,7 @@ int device_get_child(struct udevice *parent, int index, struct udevice **devp);
  *
  * @parent:	Parent device to check
  */
-int device_get_child_count(struct udevice *parent);
+int device_get_child_count(const struct udevice *parent);
 
 /**
  * device_find_child_by_seq() - Find a child device based on a sequence
@@ -439,7 +440,7 @@ int device_get_child_count(struct udevice *parent);
  * Set to NULL if none is found
  * @return 0 if OK, -ve on error
  */
-int device_find_child_by_seq(struct udevice *parent, int seq_or_req_seq,
+int device_find_child_by_seq(const struct udevice *parent, int seq_or_req_seq,
 			     bool find_req_seq, struct udevice **devp);
 
 /**
@@ -457,7 +458,7 @@ int device_find_child_by_seq(struct udevice *parent, int seq_or_req_seq,
  * Set to NULL if none is found
  * @return 0 if OK, -ve on error
  */
-int device_get_child_by_seq(struct udevice *parent, int seq,
+int device_get_child_by_seq(const struct udevice *parent, int seq,
 			    struct udevice **devp);
 
 /**
@@ -470,7 +471,7 @@ int device_get_child_by_seq(struct udevice *parent, int seq,
  * @devp: Returns pointer to device if found, otherwise this is set to NULL
  * @return 0 if OK, -ve on error
  */
-int device_find_child_by_of_offset(struct udevice *parent, int of_offset,
+int device_find_child_by_of_offset(const struct udevice *parent, int of_offset,
 				   struct udevice **devp);
 
 /**
@@ -485,7 +486,7 @@ int device_find_child_by_of_offset(struct udevice *parent, int of_offset,
  * @devp: Returns pointer to device if found, otherwise this is set to NULL
  * @return 0 if OK, -ve on error
  */
-int device_get_child_by_of_offset(struct udevice *parent, int of_offset,
+int device_get_child_by_of_offset(const struct udevice *parent, int of_offset,
 				  struct udevice **devp);
 
 /**
@@ -524,7 +525,8 @@ int device_get_global_by_ofnode(ofnode node, struct udevice **devp);
  * @devp: Returns first child device, or NULL if none
  * @return 0
  */
-int device_find_first_child(struct udevice *parent, struct udevice **devp);
+int device_find_first_child(const struct udevice *parent,
+			    struct udevice **devp);
 
 /**
  * device_find_next_child() - Find the next child of a device
@@ -548,7 +550,7 @@ int device_find_next_child(struct udevice **devp);
  * @devp:	Returns device found, if any
  * @return 0 if found, else -ENODEV
  */
-int device_find_first_inactive_child(struct udevice *parent,
+int device_find_first_inactive_child(const struct udevice *parent,
 				     enum uclass_id uclass_id,
 				     struct udevice **devp);
 
@@ -560,7 +562,7 @@ int device_find_first_inactive_child(struct udevice *parent,
  * @devp: Returns first child device in that uclass, if any
  * @return 0 if found, else -ENODEV
  */
-int device_find_first_child_by_uclass(struct udevice *parent,
+int device_find_first_child_by_uclass(const struct udevice *parent,
 				      enum uclass_id uclass_id,
 				      struct udevice **devp);
 
@@ -572,7 +574,7 @@ int device_find_first_child_by_uclass(struct udevice *parent,
  * @devp:	Returns device found, if any
  * @return 0 if found, else -ENODEV
  */
-int device_find_child_by_name(struct udevice *parent, const char *name,
+int device_find_child_by_name(const struct udevice *parent, const char *name,
 			      struct udevice **devp);
 
 /**
@@ -590,7 +592,7 @@ bool device_has_children(const struct udevice *dev);
  * @return true if the device has one or more children and at least one of
  * them is active (probed).
  */
-bool device_has_active_children(struct udevice *dev);
+bool device_has_active_children(const struct udevice *dev);
 
 /**
  * device_is_last_sibling() - check if a device is the last sibling
@@ -603,7 +605,7 @@ bool device_has_active_children(struct udevice *dev);
  * @return true if there are no more siblings after this one - i.e. is it
  * last in the list.
  */
-bool device_is_last_sibling(struct udevice *dev);
+bool device_is_last_sibling(const struct udevice *dev);
 
 /**
  * device_set_name() - set the name of a device
@@ -643,7 +645,7 @@ void device_set_name_alloced(struct udevice *dev);
  *		device
  * @return true if OK, false if the compatible is not found
  */
-bool device_is_compatible(struct udevice *dev, const char *compat);
+bool device_is_compatible(const struct udevice *dev, const char *compat);
 
 /**
  * of_machine_is_compatible() - check if the machine is compatible with
@@ -678,7 +680,7 @@ int dev_enable_by_path(const char *path);
  * @dev:	device to test
  * @return:	true if it is on a PCI bus, false otherwise
  */
-static inline bool device_is_on_pci_bus(struct udevice *dev)
+static inline bool device_is_on_pci_bus(const struct udevice *dev)
 {
 	return device_get_uclass_id(dev->parent) == UCLASS_PCI;
 }
