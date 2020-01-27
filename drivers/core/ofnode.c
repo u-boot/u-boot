@@ -151,6 +151,16 @@ const char *ofnode_read_string(ofnode node, const char *propname)
 	return str;
 }
 
+int ofnode_read_size(ofnode node, const char *propname)
+{
+	int len;
+
+	if (!ofnode_read_prop(node, propname, &len))
+		return -EINVAL;
+
+	return len;
+}
+
 ofnode ofnode_find_subnode(ofnode node, const char *subnode_name)
 {
 	ofnode subnode;
@@ -251,25 +261,6 @@ ofnode ofnode_get_by_phandle(uint phandle)
 							    phandle);
 
 	return node;
-}
-
-int ofnode_read_size(ofnode node, const char *propname)
-{
-	int len;
-
-	if (ofnode_is_np(node)) {
-		struct property *prop = of_find_property(
-				ofnode_to_np(node), propname, NULL);
-
-		if (prop)
-			return prop->length;
-	} else {
-		if (fdt_getprop(gd->fdt_blob, ofnode_to_offset(node), propname,
-				&len))
-			return len;
-	}
-
-	return -EINVAL;
 }
 
 fdt_addr_t ofnode_get_addr_size_index(ofnode node, int index, fdt_size_t *size)
