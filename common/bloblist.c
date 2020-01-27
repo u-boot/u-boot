@@ -59,11 +59,10 @@ static int bloblist_addrec(uint tag, int size, struct bloblist_rec **recp)
 	struct bloblist_rec *rec;
 	int new_alloced;
 
-	new_alloced = hdr->alloced + sizeof(*rec) +
-			ALIGN(size, BLOBLIST_ALIGN);
+	new_alloced = hdr->alloced + sizeof(*rec) + ALIGN(size, BLOBLIST_ALIGN);
 	if (new_alloced >= hdr->size) {
 		log(LOGC_BLOBLIST, LOGL_ERR,
-		    "Failed to allocate %x bytes size=%x, need size>=%x\n",
+		    "Failed to allocate %x bytes size=%x, need size=%x\n",
 		    size, hdr->size, new_alloced);
 		return log_msg_ret("bloblist add", -ENOSPC);
 	}

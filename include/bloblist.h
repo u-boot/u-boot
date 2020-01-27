@@ -183,7 +183,8 @@ int bloblist_new(ulong addr, uint size, uint flags);
  * @return 0 if OK, -ENOENT if the magic number doesn't match (indicating that
  *	there problem is no bloblist at the given address), -EPROTONOSUPPORT
  *	if the version does not match, -EIO if the checksum does not match,
- *	-EFBIG if the expected size does not match the detected size
+ *	-EFBIG if the expected size does not match the detected size, -ENOSPC
+ *	if the size is not large enough to hold the headers
  */
 int bloblist_check(ulong addr, uint size);
 
