@@ -88,7 +88,9 @@ DM_TEST(dm_test_ofnode_read, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 static int dm_test_ofnode_read_chosen(struct unit_test_state *uts)
 {
 	const char *str;
+	const u32 *val;
 	ofnode node;
+	int size;
 
 	str = ofnode_read_chosen_string("setting");
 	ut_assertnonnull(str);
@@ -101,6 +103,12 @@ static int dm_test_ofnode_read_chosen(struct unit_test_state *uts)
 
 	node = ofnode_get_chosen_node("setting");
 	ut_assert(!ofnode_valid(node));
+
+	val = ofnode_read_chosen_prop("int-values", &size);
+	ut_assertnonnull(val);
+	ut_asserteq(8, size);
+	ut_asserteq(0x1937, fdt32_to_cpu(val[0]));
+	ut_asserteq(72993, fdt32_to_cpu(val[1]));
 
 	return 0;
 }

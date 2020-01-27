@@ -815,6 +815,7 @@
 		#size-cells = <1>;
 		setting = "sunrise ohoka";
 		other-node = "/some-bus/c-test@5";
+		int-values = <0x1937 72993>;
 		chosen-test {
 			compatible = "denx,u-boot-fdt-test";
 			reg = <9 1>;
