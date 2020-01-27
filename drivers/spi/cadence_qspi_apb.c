@@ -27,6 +27,7 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <dma.h>
 #include <linux/errno.h>
 #include <wait_bit.h>
 #include <spi.h>
@@ -186,6 +187,15 @@ void cadence_qspi_apb_controller_disable(void *reg_base)
 	unsigned int reg;
 	reg = readl(reg_base + CQSPI_REG_CONFIG);
 	reg &= ~CQSPI_REG_CONFIG_ENABLE;
+	writel(reg, reg_base + CQSPI_REG_CONFIG);
+}
+
+void cadence_qspi_apb_dac_mode_enable(void *reg_base)
+{
+	unsigned int reg;
+
+	reg = readl(reg_base + CQSPI_REG_CONFIG);
+	reg |= CQSPI_REG_CONFIG_DIRECT;
 	writel(reg, reg_base + CQSPI_REG_CONFIG);
 }
 
@@ -512,8 +522,8 @@ int cadence_qspi_apb_command_write(void *reg_base, const struct spi_mem_op *op)
 }
 
 /* Opcode + Address (3/4 bytes) + dummy bytes (0-4 bytes) */
-int cadence_qspi_apb_indirect_read_setup(struct cadence_spi_platdata *plat,
-	const struct spi_mem_op *op)
+int cadence_qspi_apb_read_setup(struct cadence_spi_platdata *plat,
+				const struct spi_mem_op *op)
 {
 	unsigned int reg;
 	unsigned int rd_reg;
@@ -577,8 +587,9 @@ static int cadence_qspi_wait_for_data(struct cadence_spi_platdata *plat)
 	return -ETIMEDOUT;
 }
 
-int cadence_qspi_apb_indirect_read_execute(struct cadence_spi_platdata *plat,
-	unsigned int n_rx, u8 *rxbuf)
+static int
+cadence_qspi_apb_indirect_read_execute(struct cadence_spi_platdata *plat,
+				       unsigned int n_rx, u8 *rxbuf)
 {
 	unsigned int remaining = n_rx;
 	unsigned int bytes_to_read = 0;
@@ -639,9 +650,29 @@ failrd:
 	return ret;
 }
 
+int cadence_qspi_apb_read_execute(struct cadence_spi_platdata *plat,
+				  const struct spi_mem_op *op)
+{
+	u32 from = op->addr.val;
+	void *buf = op->data.buf.in;
+	size_t len = op->data.nbytes;
+
+	if (plat->use_dac_mode && (from + len < plat->ahbsize)) {
+		if (len < 256 ||
+		    dma_memcpy(buf, plat->ahbbase + from, len) < 0) {
+			memcpy_fromio(buf, plat->ahbbase + from, len);
+		}
+		if (!cadence_qspi_wait_idle(plat->regbase))
+			return -EIO;
+		return 0;
+	}
+
+	return cadence_qspi_apb_indirect_read_execute(plat, len, buf);
+}
+
 /* Opcode + Address (3/4 bytes) */
-int cadence_qspi_apb_indirect_write_setup(struct cadence_spi_platdata *plat,
-	const struct spi_mem_op *op)
+int cadence_qspi_apb_write_setup(struct cadence_spi_platdata *plat,
+				 const struct spi_mem_op *op)
 {
 	unsigned int reg;
 
@@ -662,8 +693,9 @@ int cadence_qspi_apb_indirect_write_setup(struct cadence_spi_platdata *plat,
 	return 0;
 }
 
-int cadence_qspi_apb_indirect_write_execute(struct cadence_spi_platdata *plat,
-	unsigned int n_tx, const u8 *txbuf)
+static int
+cadence_qspi_apb_indirect_write_execute(struct cadence_spi_platdata *plat,
+					unsigned int n_tx, const u8 *txbuf)
 {
 	unsigned int page_size = plat->page_size;
 	unsigned int remaining = n_tx;
@@ -733,6 +765,23 @@ failwr:
 	if (bounce_buf)
 		free(bounce_buf);
 	return ret;
+}
+
+int cadence_qspi_apb_write_execute(struct cadence_spi_platdata *plat,
+				   const struct spi_mem_op *op)
+{
+	u32 to = op->addr.val;
+	const void *buf = op->data.buf.out;
+	size_t len = op->data.nbytes;
+
+	if (plat->use_dac_mode && (to + len < plat->ahbsize)) {
+		memcpy_toio(plat->ahbbase + to, buf, len);
+		if (!cadence_qspi_wait_idle(plat->regbase))
+			return -EIO;
+		return 0;
+	}
+
+	return cadence_qspi_apb_indirect_write_execute(plat, len, buf);
 }
 
 void cadence_qspi_apb_enter_xip(void *reg_base, char xip_dummy)
