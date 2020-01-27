@@ -136,7 +136,7 @@ static inline struct mvebu_pcie *hose_to_pcie(struct pci_controller *hose)
 	return container_of(hose, struct mvebu_pcie, hose);
 }
 
-static int mvebu_pcie_read_config(struct udevice *bus, pci_dev_t bdf,
+static int mvebu_pcie_read_config(const struct udevice *bus, pci_dev_t bdf,
 				  uint offset, ulong *valuep,
 				  enum pci_size_t size)
 {

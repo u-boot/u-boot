@@ -297,7 +297,7 @@ static int pcie_advk_check_pio_status(struct pcie_advk *pcie,
  *
  * Return: 0 on success
  */
-static int pcie_advk_read_config(struct udevice *bus, pci_dev_t bdf,
+static int pcie_advk_read_config(const struct udevice *bus, pci_dev_t bdf,
 				 uint offset, ulong *valuep,
 				 enum pci_size_t size)
 {

@@ -124,7 +124,7 @@ static void pci_dev_find_ofnode(struct udevice *bus, phys_addr_t bdf,
 	}
 };
 
-int pci_bus_find_devfn(struct udevice *bus, pci_dev_t find_devfn,
+int pci_bus_find_devfn(const struct udevice *bus, pci_dev_t find_devfn,
 		       struct udevice **devp)
 {
 	struct udevice *dev;
@@ -551,8 +551,9 @@ int pci_auto_config_devices(struct udevice *bus)
 }
 
 int pci_generic_mmap_write_config(
-	struct udevice *bus,
-	int (*addr_f)(struct udevice *bus, pci_dev_t bdf, uint offset, void **addrp),
+	const struct udevice *bus,
+	int (*addr_f)(const struct udevice *bus, pci_dev_t bdf, uint offset,
+		      void **addrp),
 	pci_dev_t bdf,
 	uint offset,
 	ulong value,
@@ -579,8 +580,9 @@ int pci_generic_mmap_write_config(
 }
 
 int pci_generic_mmap_read_config(
-	struct udevice *bus,
-	int (*addr_f)(struct udevice *bus, pci_dev_t bdf, uint offset, void **addrp),
+	const struct udevice *bus,
+	int (*addr_f)(const struct udevice *bus, pci_dev_t bdf, uint offset,
+		      void **addrp),
 	pci_dev_t bdf,
 	uint offset,
 	ulong *valuep,
@@ -1054,7 +1056,7 @@ static int pci_uclass_child_post_bind(struct udevice *dev)
 	return 0;
 }
 
-static int pci_bridge_read_config(struct udevice *bus, pci_dev_t bdf,
+static int pci_bridge_read_config(const struct udevice *bus, pci_dev_t bdf,
 				  uint offset, ulong *valuep,
 				  enum pci_size_t size)
 {

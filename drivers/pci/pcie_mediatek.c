@@ -66,7 +66,7 @@ struct mtk_pcie {
 	struct list_head ports;
 };
 
-static int mtk_pcie_config_address(struct udevice *udev, pci_dev_t bdf,
+static int mtk_pcie_config_address(const struct udevice *udev, pci_dev_t bdf,
 				   uint offset, void **paddress)
 {
 	struct mtk_pcie *pcie = dev_get_priv(udev);
@@ -77,7 +77,7 @@ static int mtk_pcie_config_address(struct udevice *udev, pci_dev_t bdf,
 	return 0;
 }
 
-static int mtk_pcie_read_config(struct udevice *bus, pci_dev_t bdf,
+static int mtk_pcie_read_config(const struct udevice *bus, pci_dev_t bdf,
 				uint offset, ulong *valuep,
 				enum pci_size_t size)
 {

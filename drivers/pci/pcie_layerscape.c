@@ -243,7 +243,7 @@ static int ls_pcie_addr_valid(struct ls_pcie *pcie, pci_dev_t bdf)
 	return 0;
 }
 
-int ls_pcie_conf_address(struct udevice *bus, pci_dev_t bdf,
+int ls_pcie_conf_address(const struct udevice *bus, pci_dev_t bdf,
 			 uint offset, void **paddress)
 {
 	struct ls_pcie *pcie = dev_get_priv(bus);
@@ -271,7 +271,7 @@ int ls_pcie_conf_address(struct udevice *bus, pci_dev_t bdf,
 	return 0;
 }
 
-static int ls_pcie_read_config(struct udevice *bus, pci_dev_t bdf,
+static int ls_pcie_read_config(const struct udevice *bus, pci_dev_t bdf,
 			       uint offset, ulong *valuep,
 			       enum pci_size_t size)
 {

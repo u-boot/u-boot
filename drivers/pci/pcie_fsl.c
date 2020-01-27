@@ -42,7 +42,7 @@ static int fsl_pcie_addr_valid(struct fsl_pcie *pcie, pci_dev_t bdf)
 	return 0;
 }
 
-static int fsl_pcie_read_config(struct udevice *bus, pci_dev_t bdf,
+static int fsl_pcie_read_config(const struct udevice *bus, pci_dev_t bdf,
 				uint offset, ulong *valuep,
 				enum pci_size_t size)
 {

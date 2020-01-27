@@ -80,12 +80,12 @@ static int sh7751_pci_addr_valid(pci_dev_t d, uint offset)
 	return 0;
 }
 
-static u32 get_bus_address(struct udevice *dev, pci_dev_t bdf, u32 offset)
+static u32 get_bus_address(const struct udevice *dev, pci_dev_t bdf, u32 offset)
 {
 	return BIT(31) | (PCI_DEV(bdf) << 8) | (offset & ~3);
 }
 
-static int sh7751_pci_read_config(struct udevice *dev, pci_dev_t bdf,
+static int sh7751_pci_read_config(const struct udevice *dev, pci_dev_t bdf,
 				  uint offset, ulong *value,
 				  enum pci_size_t size)
 {

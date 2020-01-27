@@ -748,7 +748,7 @@ void pci_init_board(void)
 	imx_pcie_init();
 }
 #else
-static int imx_pcie_dm_read_config(struct udevice *dev, pci_dev_t bdf,
+static int imx_pcie_dm_read_config(const struct udevice *dev, pci_dev_t bdf,
 				   uint offset, ulong *value,
 				   enum pci_size_t size)
 {

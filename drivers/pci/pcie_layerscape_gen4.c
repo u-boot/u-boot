@@ -227,7 +227,7 @@ void *ls_pcie_g4_conf_address(struct ls_pcie_g4 *pcie, pci_dev_t bdf,
 	return pcie->cfg + offset;
 }
 
-static int ls_pcie_g4_read_config(struct udevice *bus, pci_dev_t bdf,
+static int ls_pcie_g4_read_config(const struct udevice *bus, pci_dev_t bdf,
 				  uint offset, ulong *valuep,
 				  enum pci_size_t size)
 {
