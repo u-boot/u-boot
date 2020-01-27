@@ -43,7 +43,7 @@ struct udevice *pci_get_controller(struct udevice *dev)
 	return dev;
 }
 
-pci_dev_t dm_pci_get_bdf(struct udevice *dev)
+pci_dev_t dm_pci_get_bdf(const struct udevice *dev)
 {
 	struct pci_child_platdata *pplat = dev_get_parent_platdata(dev);
 	struct udevice *bus = dev->parent;
@@ -349,7 +349,7 @@ int dm_pci_write_config32(struct udevice *dev, int offset, u32 value)
 	return dm_pci_write_config(dev, offset, value, PCI_SIZE_32);
 }
 
-int pci_bus_read_config(struct udevice *bus, pci_dev_t bdf, int offset,
+int pci_bus_read_config(const struct udevice *bus, pci_dev_t bdf, int offset,
 			unsigned long *valuep, enum pci_size_t size)
 {
 	struct dm_pci_ops *ops;
@@ -373,10 +373,10 @@ int pci_read_config(pci_dev_t bdf, int offset, unsigned long *valuep,
 	return pci_bus_read_config(bus, bdf, offset, valuep, size);
 }
 
-int dm_pci_read_config(struct udevice *dev, int offset, unsigned long *valuep,
-		       enum pci_size_t size)
+int dm_pci_read_config(const struct udevice *dev, int offset,
+		       unsigned long *valuep, enum pci_size_t size)
 {
-	struct udevice *bus;
+	const struct udevice *bus;
 
 	for (bus = dev; device_is_on_pci_bus(bus);)
 		bus = bus->parent;
@@ -423,7 +423,7 @@ int pci_read_config8(pci_dev_t bdf, int offset, u8 *valuep)
 	return 0;
 }
 
-int dm_pci_read_config8(struct udevice *dev, int offset, u8 *valuep)
+int dm_pci_read_config8(const struct udevice *dev, int offset, u8 *valuep)
 {
 	unsigned long value;
 	int ret;
@@ -436,7 +436,7 @@ int dm_pci_read_config8(struct udevice *dev, int offset, u8 *valuep)
 	return 0;
 }
 
-int dm_pci_read_config16(struct udevice *dev, int offset, u16 *valuep)
+int dm_pci_read_config16(const struct udevice *dev, int offset, u16 *valuep)
 {
 	unsigned long value;
 	int ret;
@@ -449,7 +449,7 @@ int dm_pci_read_config16(struct udevice *dev, int offset, u16 *valuep)
 	return 0;
 }
 
-int dm_pci_read_config32(struct udevice *dev, int offset, u32 *valuep)
+int dm_pci_read_config32(const struct udevice *dev, int offset, u32 *valuep)
 {
 	unsigned long value;
 	int ret;
@@ -1203,7 +1203,7 @@ int pci_get_regions(struct udevice *dev, struct pci_region **iop,
 	return (*iop != NULL) + (*memp != NULL) + (*prefp != NULL);
 }
 
-u32 dm_pci_read_bar32(struct udevice *dev, int barnum)
+u32 dm_pci_read_bar32(const struct udevice *dev, int barnum)
 {
 	u32 addr;
 	int bar;
