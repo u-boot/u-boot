@@ -18,7 +18,7 @@
 /* With BootMode B = 1 */
 #define BOOT_DEVICE_MMC2		0x10
 #define BOOT_DEVICE_MMC1		0x11
-#define BOOT_DEVICE_USB			0x12
+#define BOOT_DEVICE_DFU			0x12
 #define BOOT_DEVICE_UFS			0x13
 #define BOOT_DEVIE_GPMC			0x14
 #define BOOT_DEVICE_PCIE		0x15
