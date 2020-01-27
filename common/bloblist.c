@@ -73,6 +73,9 @@ static int bloblist_addrec(uint tag, int size, struct bloblist_rec **recp)
 	rec->hdr_size = sizeof(*rec);
 	rec->size = size;
 	rec->spare = 0;
+
+	/* Zero the record data */
+	memset(rec + 1, '\0', rec->size);
 	*recp = rec;
 
 	return 0;
