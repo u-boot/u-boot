@@ -42,6 +42,25 @@ void console_record_reset(void);
 void console_record_reset_enable(void);
 
 /**
+ * console_record_readline() - Read a line from the console output
+ *
+ * This reads the next available line from the console output previously
+ * recorded.
+ *
+ * @str: Place to put string
+ * @maxlen: Maximum length of @str including nul terminator
+ * @return length of string returned
+ */
+int console_record_readline(char *str, int maxlen);
+
+/**
+ * console_record_avail() - Get the number of available bytes in console output
+ *
+ * @return available bytes (0 if empty)
+ */
+int console_record_avail(void);
+
+/**
  * console_announce_r() - print a U-Boot console on non-serial consoles
  *
  * When U-Boot starts up with a display it generally does not announce itself
