@@ -97,11 +97,11 @@ static int dm_do_test(struct unit_test_state *uts, struct unit_test *test,
 	 * Silence the console and rely on console recording to get
 	 * our output.
 	 */
-	console_record_reset();
+	console_record_reset_enable();
 	if (!state->show_test_output)
 		gd->flags |= GD_FLG_SILENT;
 	test->func(uts);
-	gd->flags &= ~GD_FLG_SILENT;
+	gd->flags &= ~(GD_FLG_SILENT | GD_FLG_RECORD);
 	state_set_skip_delays(false);
 
 	ut_assertok(dm_test_destroy(uts));
