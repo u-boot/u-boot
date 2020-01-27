@@ -38,6 +38,43 @@ void ut_failf(struct unit_test_state *uts, const char *fname, int line,
 	      const char *func, const char *cond, const char *fmt, ...)
 			__attribute__ ((format (__printf__, 6, 7)));
 
+/**
+ * ut_check_console_line() - Check the next console line against expectations
+ *
+ * This creates a string and then checks it against the next line of console
+ * output obtained with console_record_readline().
+ *
+ * After the function returns, uts->expect_str holds the expected string and
+ * uts->actual_str holds the actual string read from the console.
+ *
+ * @uts: Test state
+ * @fmt: printf() format string for the error, followed by args
+ * @return 0 if OK, other value on error
+ */
+int ut_check_console_line(struct unit_test_state *uts, const char *fmt, ...)
+			__attribute__ ((format (__printf__, 2, 3)));
+
+/**
+ * ut_check_console_end() - Check there is no more console output
+ *
+ * After the function returns, uts->actual_str holds the actual string read
+ * from the console
+ *
+ * @uts: Test state
+ * @return 0 if OK (console has no output), other value on error
+ */
+int ut_check_console_end(struct unit_test_state *uts);
+
+/**
+ * ut_check_console_dump() - Check that next lines have a print_buffer() dump
+ *
+ * This only supports a byte dump.
+ *
+ * @total_bytes: Size of the expected dump in bytes`
+ * @return 0 if OK (looks like a dump and the length matches), other value on
+ *	error
+ */
+int ut_check_console_dump(struct unit_test_state *uts, int total_bytes);
 
 /* Assert that a condition is non-zero */
 #define ut_assert(cond)							\
@@ -148,6 +185,34 @@ void ut_failf(struct unit_test_state *uts, const char *fname, int line,
 
 /* Assert that an operation succeeds (returns 0) */
 #define ut_assertok(cond)	ut_asserteq(0, cond)
+
+/* Assert that the next console output line matches */
+#define ut_assert_nextline(fmt, args...)				\
+	if (ut_check_console_line(uts, fmt, ##args)) {			\
+		ut_failf(uts, __FILE__, __LINE__, __func__,		\
+			 "console", "\nExpected '%s',\n     got '%s'",	\
+			 uts->expect_str, uts->actual_str);		\
+		return CMD_RET_FAILURE;					\
+	}								\
+
+/* Assert that there is no more console output */
+#define ut_assert_console_end()						\
+	if (ut_check_console_end(uts)) {				\
+		ut_failf(uts, __FILE__, __LINE__, __func__,		\
+			 "console", "Expected no more output, got '%s'",\
+			 uts->actual_str);				\
+		return CMD_RET_FAILURE;					\
+	}								\
+
+/* Assert that the next lines are print_buffer() dump at an address */
+#define ut_assert_nextlines_are_dump(total_bytes)			\
+	if (ut_check_console_dump(uts, total_bytes)) {			\
+		ut_failf(uts, __FILE__, __LINE__, __func__,		\
+			 "console",					\
+			"Expected dump of length %x bytes, got '%s'",	\
+			 total_bytes, uts->actual_str);			\
+		return CMD_RET_FAILURE;					\
+	}								\
 
 /**
  * ut_check_free() - Return the number of bytes free in the malloc() pool
