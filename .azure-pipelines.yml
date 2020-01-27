@@ -1,5 +1,5 @@
 variables:
-  windows_vm: vs2015-win2012r2
+  windows_vm: vs2017-win2016
   ubuntu_vm: ubuntu-18.04
   ci_runner_image: trini/u-boot-gitlab-ci-runner:bionic-20200112-17Jan2020
   # Add '-u 0' options for Azure pipelines, otherwise we get "permission
