@@ -16,7 +16,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-fdt_addr_t devfdt_get_addr_index(struct udevice *dev, int index)
+fdt_addr_t devfdt_get_addr_index(const struct udevice *dev, int index)
 {
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	fdt_addr_t addr;
@@ -91,8 +91,8 @@ fdt_addr_t devfdt_get_addr_index(struct udevice *dev, int index)
 #endif
 }
 
-fdt_addr_t devfdt_get_addr_size_index(struct udevice *dev, int index,
-				   fdt_size_t *size)
+fdt_addr_t devfdt_get_addr_size_index(const struct udevice *dev, int index,
+				      fdt_size_t *size)
 {
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	/*
@@ -113,7 +113,7 @@ fdt_addr_t devfdt_get_addr_size_index(struct udevice *dev, int index,
 #endif
 }
 
-fdt_addr_t devfdt_get_addr_name(struct udevice *dev, const char *name)
+fdt_addr_t devfdt_get_addr_name(const struct udevice *dev, const char *name)
 {
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	int index;
@@ -129,8 +129,8 @@ fdt_addr_t devfdt_get_addr_name(struct udevice *dev, const char *name)
 #endif
 }
 
-fdt_addr_t devfdt_get_addr_size_name(struct udevice *dev, const char *name,
-				     fdt_size_t *size)
+fdt_addr_t devfdt_get_addr_size_name(const struct udevice *dev,
+				     const char *name, fdt_size_t *size)
 {
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	int index;
@@ -146,17 +146,17 @@ fdt_addr_t devfdt_get_addr_size_name(struct udevice *dev, const char *name,
 #endif
 }
 
-fdt_addr_t devfdt_get_addr(struct udevice *dev)
+fdt_addr_t devfdt_get_addr(const struct udevice *dev)
 {
 	return devfdt_get_addr_index(dev, 0);
 }
 
-void *devfdt_get_addr_ptr(struct udevice *dev)
+void *devfdt_get_addr_ptr(const struct udevice *dev)
 {
 	return (void *)(uintptr_t)devfdt_get_addr_index(dev, 0);
 }
 
-void *devfdt_remap_addr_index(struct udevice *dev, int index)
+void *devfdt_remap_addr_index(const struct udevice *dev, int index)
 {
 	fdt_addr_t addr = devfdt_get_addr_index(dev, index);
 
@@ -166,7 +166,7 @@ void *devfdt_remap_addr_index(struct udevice *dev, int index)
 	return map_physmem(addr, 0, MAP_NOCACHE);
 }
 
-void *devfdt_remap_addr_name(struct udevice *dev, const char *name)
+void *devfdt_remap_addr_name(const struct udevice *dev, const char *name)
 {
 	fdt_addr_t addr = devfdt_get_addr_name(dev, name);
 
@@ -176,12 +176,12 @@ void *devfdt_remap_addr_name(struct udevice *dev, const char *name)
 	return map_physmem(addr, 0, MAP_NOCACHE);
 }
 
-void *devfdt_remap_addr(struct udevice *dev)
+void *devfdt_remap_addr(const struct udevice *dev)
 {
 	return devfdt_remap_addr_index(dev, 0);
 }
 
-void *devfdt_map_physmem(struct udevice *dev, unsigned long size)
+void *devfdt_map_physmem(const struct udevice *dev, unsigned long size)
 {
 	fdt_addr_t addr = devfdt_get_addr(dev);
 
@@ -191,7 +191,7 @@ void *devfdt_map_physmem(struct udevice *dev, unsigned long size)
 	return map_physmem(addr, size, MAP_NOCACHE);
 }
 
-fdt_addr_t devfdt_get_addr_pci(struct udevice *dev)
+fdt_addr_t devfdt_get_addr_pci(const struct udevice *dev)
 {
 	ulong addr;
 
