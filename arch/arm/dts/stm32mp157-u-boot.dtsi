@@ -134,6 +134,8 @@
 
 &rcc {
 	u-boot,dm-pre-reloc;
+	#address-cells = <1>;
+	#size-cells = <0>;
 };
 
 &sdmmc1 {
