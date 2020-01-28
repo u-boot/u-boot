@@ -352,11 +352,12 @@ static int stmfx_chip_init(struct udevice *dev)
 	int ret;
 	struct dm_i2c_chip *chip = dev_get_parent_platdata(dev);
 
-	id = dm_i2c_reg_read(dev, STMFX_REG_CHIP_ID);
-	if (id < 0) {
-		dev_err(dev, "error reading chip id: %d\n", id);
+	ret = dm_i2c_reg_read(dev, STMFX_REG_CHIP_ID);
+	if (ret < 0) {
+		dev_err(dev, "error reading chip id: %d\n", ret);
 		return ret;
 	}
+	id = (u8)ret;
 	/*
 	 * Check that ID is the complement of the I2C address:
 	 * STMFX I2C address follows the 7-bit format (MSB), that's why
