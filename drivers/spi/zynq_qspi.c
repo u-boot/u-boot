@@ -431,7 +431,7 @@ static void zynq_qspi_chipselect(struct  zynq_qspi_priv *priv, int is_on)
 	if (is_on) {
 		/* Select the slave */
 		confr &= ~ZYNQ_QSPI_CR_SS_MASK;
-		confr |= ((~(0x0001 << 0)) << ZYNQ_QSPI_CR_SS_SHIFT) &
+		confr |= (~(1 << priv->cs) << ZYNQ_QSPI_CR_SS_SHIFT) &
 					ZYNQ_QSPI_CR_SS_MASK;
 	} else
 		/* Deselect the slave */
