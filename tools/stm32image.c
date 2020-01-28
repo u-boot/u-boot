@@ -45,7 +45,7 @@ static void stm32image_default_header(struct stm32_header *ptr)
 	ptr->magic_number = HEADER_MAGIC;
 	ptr->header_version[VER_MAJOR_IDX] = HEADER_VERSION_V1;
 	ptr->option_flags = HEADER_DEFAULT_OPTION;
-	ptr->ecdsa_algorithm = 1;
+	ptr->ecdsa_algorithm = cpu_to_le32(1);
 	ptr->binary_type = HEADER_TYPE_UBOOT;
 }
 
@@ -131,7 +131,8 @@ static void stm32image_set_header(void *ptr, struct stat *sbuf, int ifd,
 	stm32hdr->image_entry_point = cpu_to_le32(params->ep);
 	stm32hdr->image_length = cpu_to_le32((uint32_t)sbuf->st_size -
 					     sizeof(struct stm32_header));
-	stm32hdr->image_checksum = stm32image_checksum(ptr, sbuf->st_size);
+	stm32hdr->image_checksum =
+		cpu_to_le32(stm32image_checksum(ptr, sbuf->st_size));
 }
 
 /*
