@@ -28,8 +28,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ZYNQ_QSPI_CR_CPHA_MASK		BIT(2)	/* Clock phase */
 #define ZYNQ_QSPI_CR_CPOL_MASK		BIT(1)	/* Clock polarity */
 #define ZYNQ_QSPI_CR_MSTREN_MASK	BIT(0)	/* Mode select */
-#define ZYNQ_QSPI_IXR_RXNEMPTY_MASK	BIT(4)	/* RX FIFO not empty */
-#define ZYNQ_QSPI_IXR_TXOW_MASK		BIT(2)	/* TX FIFO not full */
+#define ZYNQ_QSPI_IXR_RXNEMPTY_MASK	BIT(4)	/* RX_FIFO_not_empty */
+#define ZYNQ_QSPI_IXR_TXOW_MASK		BIT(2)	/* TX_FIFO_not_full */
 #define ZYNQ_QSPI_IXR_ALL_MASK		GENMASK(6, 0)	/* All IXR bits */
 #define ZYNQ_QSPI_ENR_SPI_EN_MASK	BIT(0)	/* SPI Enable */
 
@@ -50,12 +50,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ZYNQ_QSPI_LCFG_TWO_MEM_MASK	0x40000000 /* QSPI Enable Bit Mask */
 #define ZYNQ_QSPI_LCFG_SEP_BUS_MASK	0x20000000 /* QSPI Enable Bit Mask */
 #define ZYNQ_QSPI_LCFG_U_PAGE		0x10000000 /* QSPI Upper memory set */
-
 #define ZYNQ_QSPI_LCFG_DUMMY_SHIFT	8
 
-
-/* Definitions for the status of queue */
-#define ZYNQ_QSPI_TXFIFO_THRESHOLD	1	/* Tx FIFO threshold level */
+#define ZYNQ_QSPI_TXFIFO_THRESHOLD	1	/* Tx FIFO threshold level*/
 #define ZYNQ_QSPI_RXFIFO_THRESHOLD	32	/* Rx FIFO threshold level */
 
 #define ZYNQ_QSPI_CR_BAUD_MAX		8	/* Baud rate divisor max val */
@@ -218,7 +215,10 @@ static void zynq_qspi_init_hw(struct zynq_qspi_priv *priv)
 	struct zynq_qspi_regs *regs = priv->regs;
 	u32 confr;
 
+	/* Disable QSPI */
 	writel(~ZYNQ_QSPI_ENR_SPI_EN_MASK, &regs->enr);
+
+	/* Disable Interrupts */
 	writel(ZYNQ_QSPI_IXR_ALL_MASK, &regs->idr);
 
 	/* Disable linear mode as the boot loader may have used it */
@@ -232,14 +232,19 @@ static void zynq_qspi_init_hw(struct zynq_qspi_priv *priv)
 	while (readl(&regs->isr) & ZYNQ_QSPI_IXR_RXNEMPTY_MASK)
 		readl(&regs->drxr);
 
+	/* Clear Interrupts */
 	writel(ZYNQ_QSPI_IXR_ALL_MASK, &regs->isr);
+
+	/* Manual slave select and Auto start */
 	confr = readl(&regs->cr);
 	confr &= ~ZYNQ_QSPI_CR_MSA_MASK;
-	confr |= ZYNQ_QSPI_CR_IFMODE_MASK |
-		ZYNQ_QSPI_CR_MCS_MASK | ZYNQ_QSPI_CR_PCS_MASK |
-		ZYNQ_QSPI_CR_FW_MASK | ZYNQ_QSPI_CR_MSTREN_MASK;
+	confr |= ZYNQ_QSPI_CR_IFMODE_MASK | ZYNQ_QSPI_CR_MCS_MASK |
+		ZYNQ_QSPI_CR_PCS_MASK | ZYNQ_QSPI_CR_FW_MASK |
+		ZYNQ_QSPI_CR_MSTREN_MASK;
+
 	if (priv->is_dual == SF_DUAL_STACKED_FLASH)
 		confr |= 0x10;
+
 	writel(confr, &regs->cr);
 
 	if (priv->is_dual == SF_DUAL_PARALLEL_FLASH) {
@@ -635,7 +640,6 @@ static int zynq_qspi_start_transfer(struct zynq_qspi_priv *priv)
 		zynq_qspi_fill_tx_fifo(priv, priv->fifo_depth);
 
 	writel(ZYNQ_QSPI_IXR_ALL_MASK, &regs->ier);
-	/* Start the transfer by enabling manual start bit */
 
 	/* wait for completion */
 	do {
@@ -721,7 +725,7 @@ static int zynq_qspi_xfer(struct udevice *dev, unsigned int bitlen,
 	priv->rx_buf = din;
 	priv->len = bitlen / 8;
 
-	debug("%s: bus:%i cs:%i bitlen:%i len:%i flags:%lx\n", __func__,
+	debug("zynq_qspi_xfer: bus:%i cs:%i bitlen:%i len:%i flags:%lx\n",
 	      bus->seq, slave_plat->cs, bitlen, priv->len, flags);
 
 	/*
