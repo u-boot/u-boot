@@ -11,7 +11,6 @@
 #include <malloc.h>
 #include <spi.h>
 #include <spi_flash.h>
-#include <ubi_uboot.h>
 #include <asm/io.h>
 #include "../mtd/spi/sf_internal.h"
 
