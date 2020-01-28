@@ -189,6 +189,26 @@ static int zynq_qspi_ofdata_to_platdata(struct udevice *bus)
 	return 0;
 }
 
+/**
+ * zynq_qspi_init_hw - Initialize the hardware
+ * @priv:	Pointer to the zynq_qspi_priv structure
+ *
+ * The default settings of the QSPI controller's configurable parameters on
+ * reset are
+ *	- Master mode
+ *	- Baud rate divisor is set to 2
+ *	- Threshold value for TX FIFO not full interrupt is set to 1
+ *	- Flash memory interface mode enabled
+ *	- Size of the word to be transferred as 8 bit
+ * This function performs the following actions
+ *	- Disable and clear all the interrupts
+ *	- Enable manual slave select
+ *	- Enable auto start
+ *	- Deselect all the chip select lines
+ *	- Set the size of the word to be transferred as 32 bit
+ *	- Set the little endian mode of TX FIFO and
+ *	- Enable the QSPI controller
+ */
 static void zynq_qspi_init_hw(struct zynq_qspi_priv *priv)
 {
 	struct zynq_qspi_regs *regs = priv->regs;
@@ -300,9 +320,9 @@ static int zynq_qspi_probe(struct udevice *bus)
 	return 0;
 }
 
-/*
+/**
  * zynq_qspi_read_data - Copy data to RX buffer
- * @zqspi:	Pointer to the zynq_qspi structure
+ * @priv:	Pointer to the zynq_qspi_priv structure
  * @data:	The 32 bit variable where data is stored
  * @size:	Number of bytes to be copied from data to RX buffer
  */
@@ -349,9 +369,9 @@ static void zynq_qspi_read_data(struct zynq_qspi_priv *priv, u32 data, u8 size)
 		priv->bytes_to_receive = 0;
 }
 
-/*
+/**
  * zynq_qspi_write_data - Copy data from TX buffer
- * @zqspi:	Pointer to the zynq_qspi structure
+ * @priv:	Pointer to the zynq_qspi_priv structure
  * @data:	Pointer to the 32 bit variable where data is to be copied
  * @size:	Number of bytes to be copied from TX buffer to data
  */
@@ -402,6 +422,11 @@ static void zynq_qspi_write_data(struct  zynq_qspi_priv *priv,
 		priv->bytes_to_transfer = 0;
 }
 
+/**
+ * zynq_qspi_chipselect - Select or deselect the chip select line
+ * @priv:	Pointer to the zynq_qspi_priv structure
+ * @is_on:	Select(1) or deselect (0) the chip select line
+ */
 static void zynq_qspi_chipselect(struct  zynq_qspi_priv *priv, int is_on)
 {
 	u32 confr;
@@ -421,9 +446,10 @@ static void zynq_qspi_chipselect(struct  zynq_qspi_priv *priv, int is_on)
 	writel(confr, &regs->cr);
 }
 
-/*
+/**
  * zynq_qspi_fill_tx_fifo - Fills the TX FIFO with as many bytes as possible
- * @zqspi:	Pointer to the zynq_qspi structure
+ * @priv:	Pointer to the zynq_qspi_priv structure
+ * @size:	Number of bytes to be copied to fifo
  */
 static void zynq_qspi_fill_tx_fifo(struct zynq_qspi_priv *priv, u32 size)
 {
@@ -461,9 +487,9 @@ static void zynq_qspi_fill_tx_fifo(struct zynq_qspi_priv *priv, u32 size)
 	}
 }
 
-/*
+/**
  * zynq_qspi_irq_poll - Interrupt service routine of the QSPI controller
- * @zqspi:	Pointer to the zynq_qspi structure
+ * @priv:	Pointer to the zynq_qspi structure
  *
  * This function handles TX empty and Mode Fault interrupts only.
  * On TX empty interrupt this function reads the received data from RX FIFO and
@@ -549,11 +575,9 @@ static int zynq_qspi_irq_poll(struct zynq_qspi_priv *priv)
 	return 0;
 }
 
-/*
+/**
  * zynq_qspi_start_transfer - Initiates the QSPI transfer
- * @qspi:	Pointer to the spi_device structure
- * @transfer:	Pointer to the spi_transfer structure which provide information
- *		about next transfer parameters
+ * @priv:	Pointer to the zynq_qspi_priv structure
  *
  * This function fills the TX FIFO, starts the QSPI transfer, and waits for the
  * transfer to be completed.
