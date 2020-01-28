@@ -72,7 +72,12 @@
 /*****************************************************************************/
 
 #define CCM_AHB_GATING0             (0x01C20000 + 0x60)
+#define CCM_H6_SPI_BGR_REG          (0x03001000 + 0x96c)
+#ifdef CONFIG_MACH_SUN50I_H6
+#define CCM_SPI0_CLK                (0x03001000 + 0x940)
+#else
 #define CCM_SPI0_CLK                (0x01C20000 + 0xA0)
+#endif
 #define SUN6I_BUS_SOFT_RST_REG0     (0x01C20000 + 0x2C0)
 
 #define AHB_RESET_SPI0_SHIFT        20
@@ -86,14 +91,21 @@
 /*
  * Allwinner A10/A20 SoCs were using pins PC0,PC1,PC2,PC23 for booting
  * from SPI Flash, everything else is using pins PC0,PC1,PC2,PC3.
+ * The H6 uses PC0, PC2, PC3, PC5.
  */
 static void spi0_pinmux_setup(unsigned int pin_function)
 {
-	unsigned int pin;
+	/* All chips use PC0 and PC2. */
+	sunxi_gpio_set_cfgpin(SUNXI_GPC(0), pin_function);
+	sunxi_gpio_set_cfgpin(SUNXI_GPC(2), pin_function);
 
-	for (pin = SUNXI_GPC(0); pin <= SUNXI_GPC(2); pin++)
-		sunxi_gpio_set_cfgpin(pin, pin_function);
+	/* All chips except H6 use PC1, and only H6 uses PC5. */
+	if (!IS_ENABLED(CONFIG_MACH_SUN50I_H6))
+		sunxi_gpio_set_cfgpin(SUNXI_GPC(1), pin_function);
+	else
+		sunxi_gpio_set_cfgpin(SUNXI_GPC(5), pin_function);
 
+	/* Older generations use PC23 for CS, newer ones use PC3. */
 	if (IS_ENABLED(CONFIG_MACH_SUN4I) || IS_ENABLED(CONFIG_MACH_SUN7I) ||
 	    IS_ENABLED(CONFIG_MACH_SUN8I_R40))
 		sunxi_gpio_set_cfgpin(SUNXI_GPC(23), pin_function);
@@ -103,13 +115,17 @@ static void spi0_pinmux_setup(unsigned int pin_function)
 
 static bool is_sun6i_gen_spi(void)
 {
-	return IS_ENABLED(CONFIG_SUNXI_GEN_SUN6I);
+	return IS_ENABLED(CONFIG_SUNXI_GEN_SUN6I) ||
+	       IS_ENABLED(CONFIG_MACH_SUN50I_H6);
 }
 
 static uintptr_t spi0_base_address(void)
 {
 	if (IS_ENABLED(CONFIG_MACH_SUN8I_R40))
 		return 0x01C05000;
+
+	if (IS_ENABLED(CONFIG_MACH_SUN50I_H6))
+		return 0x05010000;
 
 	if (!is_sun6i_gen_spi())
 		return 0x01C05000;
@@ -125,12 +141,15 @@ static void spi0_enable_clock(void)
 	uintptr_t base = spi0_base_address();
 
 	/* Deassert SPI0 reset on SUN6I */
-	if (is_sun6i_gen_spi())
+	if (IS_ENABLED(CONFIG_MACH_SUN50I_H6))
+		setbits_le32(CCM_H6_SPI_BGR_REG, (1U << 16) | 0x1);
+	else if (is_sun6i_gen_spi())
 		setbits_le32(SUN6I_BUS_SOFT_RST_REG0,
 			     (1 << AHB_RESET_SPI0_SHIFT));
 
 	/* Open the SPI0 gate */
-	setbits_le32(CCM_AHB_GATING0, (1 << AHB_GATE_OFFSET_SPI0));
+	if (!IS_ENABLED(CONFIG_MACH_SUN50I_H6))
+		setbits_le32(CCM_AHB_GATING0, (1 << AHB_GATE_OFFSET_SPI0));
 
 	/* Divide by 4 */
 	writel(SPI0_CLK_DIV_BY_4, base + (is_sun6i_gen_spi() ?
@@ -170,10 +189,13 @@ static void spi0_disable_clock(void)
 	writel(0, CCM_SPI0_CLK);
 
 	/* Close the SPI0 gate */
-	clrbits_le32(CCM_AHB_GATING0, (1 << AHB_GATE_OFFSET_SPI0));
+	if (!IS_ENABLED(CONFIG_MACH_SUN50I_H6))
+		clrbits_le32(CCM_AHB_GATING0, (1 << AHB_GATE_OFFSET_SPI0));
 
 	/* Assert SPI0 reset on SUN6I */
-	if (is_sun6i_gen_spi())
+	if (IS_ENABLED(CONFIG_MACH_SUN50I_H6))
+		clrbits_le32(CCM_H6_SPI_BGR_REG, (1U << 16) | 0x1);
+	else if (is_sun6i_gen_spi())
 		clrbits_le32(SUN6I_BUS_SOFT_RST_REG0,
 			     (1 << AHB_RESET_SPI0_SHIFT));
 }
@@ -182,7 +204,8 @@ static void spi0_init(void)
 {
 	unsigned int pin_function = SUNXI_GPC_SPI0;
 
-	if (IS_ENABLED(CONFIG_MACH_SUN50I))
+	if (IS_ENABLED(CONFIG_MACH_SUN50I) ||
+	    IS_ENABLED(CONFIG_MACH_SUN50I_H6))
 		pin_function = SUN50I_GPC_SPI0;
 
 	spi0_pinmux_setup(pin_function);
