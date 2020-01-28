@@ -32,8 +32,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ZYNQ_QSPI_IXR_RXNEMPTY_MASK	BIT(4)	/* RX FIFO not empty */
 #define ZYNQ_QSPI_IXR_TXOW_MASK		BIT(2)	/* TX FIFO not full */
 #define ZYNQ_QSPI_IXR_TXFULL_MASK	BIT(3)	/* TX FIFO is full */
-#define ZYNQ_QSPI_IXR_ALL_MASK		(ZYNQ_QSPI_IXR_TXOW_MASK | \
-					ZYNQ_QSPI_IXR_RXNEMPTY_MASK)
+#define ZYNQ_QSPI_IXR_ALL_MASK		GENMASK(6, 0)	/* All IXR bits */
 #define ZYNQ_QSPI_ENR_SPI_EN_MASK	BIT(0)	/* SPI Enable */
 
 /* zynq qspi Transmit Data Register */
@@ -64,7 +63,13 @@ DECLARE_GLOBAL_DATA_PTR;
 #define MODEBITS			(SPI_CPOL | SPI_CPHA)
 
 /* Definitions for the status of queue */
-#define ZYNQ_QSPI_RXFIFO_THRESHOLD	32
+#define ZYNQ_QSPI_TXFIFO_THRESHOLD	1	/* Tx FIFO threshold level */
+#define ZYNQ_QSPI_RXFIFO_THRESHOLD	32	/* Rx FIFO threshold level */
+
+#define ZYNQ_QSPI_CR_BAUD_MAX		8	/* Baud rate divisor max val */
+#define ZYNQ_QSPI_CR_BAUD_SHIFT		3	/* Baud rate divisor shift */
+#define ZYNQ_QSPI_CR_SS_SHIFT		10	/* Slave select shift */
+
 #define ZYNQ_QSPI_FIFO_DEPTH		63
 #ifndef CONFIG_SYS_ZYNQ_QSPI_WAIT
 #define CONFIG_SYS_ZYNQ_QSPI_WAIT	CONFIG_SYS_HZ/100	/* 10 ms */
@@ -222,20 +227,20 @@ static void zynq_qspi_init_hw(struct zynq_qspi_priv *priv)
 	u32 confr;
 
 	writel(~ZYNQ_QSPI_ENR_SPI_EN_MASK, &regs->enr);
-	writel(0x7F, &regs->idr);
+	writel(ZYNQ_QSPI_IXR_ALL_MASK, &regs->idr);
 
 	/* Disable linear mode as the boot loader may have used it */
 	writel(0x0, &regs->lqspicfg);
 
 	/* Clear the TX and RX threshold reg */
-	writel(0x1, &regs->txftr);
+	writel(ZYNQ_QSPI_TXFIFO_THRESHOLD, &regs->txftr);
 	writel(ZYNQ_QSPI_RXFIFO_THRESHOLD, &regs->rxftr);
 
 	/* Clear the RX FIFO */
 	while (readl(&regs->isr) & ZYNQ_QSPI_IXR_RXNEMPTY_MASK)
 		readl(&regs->drxr);
 
-	writel(0x7F, &regs->isr);
+	writel(ZYNQ_QSPI_IXR_ALL_MASK, &regs->isr);
 	confr = readl(&regs->cr);
 	confr &= ~ZYNQ_QSPI_CR_MSA_MASK;
 	confr |= ZYNQ_QSPI_CR_IFMODE_MASK |
@@ -434,7 +439,7 @@ static void zynq_qspi_chipselect(struct  zynq_qspi_priv *priv, int is_on)
 	if (is_on) {
 		/* Select the slave */
 		confr &= ~ZYNQ_QSPI_CR_SS_MASK;
-		confr |= ((~(0x0001 << 0)) << 10) &
+		confr |= ((~(0x0001 << 0)) << ZYNQ_QSPI_CR_SS_SHIFT) &
 					ZYNQ_QSPI_CR_SS_MASK;
 	} else
 		/* Deselect the slave */
@@ -767,7 +772,7 @@ static int zynq_qspi_set_speed(struct udevice *bus, uint speed)
 		/* Set baudrate x8, if the freq is 0 */
 		baud_rate_val = 0x2;
 	} else if (plat->speed_hz != speed) {
-		while ((baud_rate_val < 8) &&
+		while ((baud_rate_val < ZYNQ_QSPI_CR_BAUD_MAX) &&
 		       ((plat->frequency /
 		       (2 << baud_rate_val)) > speed))
 			baud_rate_val++;
@@ -778,7 +783,7 @@ static int zynq_qspi_set_speed(struct udevice *bus, uint speed)
 		plat->speed_hz = speed / (2 << baud_rate_val);
 	}
 	confr &= ~ZYNQ_QSPI_CR_BAUD_MASK;
-	confr |= (baud_rate_val << 3);
+	confr |= (baud_rate_val << ZYNQ_QSPI_CR_BAUD_SHIFT);
 
 	writel(confr, &regs->cr);
 	priv->freq = speed;
