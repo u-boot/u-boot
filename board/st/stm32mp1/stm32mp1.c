@@ -7,6 +7,7 @@
 #include <bootm.h>
 #include <clk.h>
 #include <config.h>
+#include <dfu.h>
 #include <dm.h>
 #include <env.h>
 #include <env_internal.h>
