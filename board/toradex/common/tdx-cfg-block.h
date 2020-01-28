@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright (c) 2016 Toradex, Inc.
+ * Copyright (c) 2016-2020 Toradex
  */
 
 #ifndef _TDX_CFG_BLOCK_H
@@ -73,6 +73,8 @@ enum {
 	COLIBRI_IMX8QXP_IT, /* 50 */
 	COLIBRI_IMX8DX_WIFI_BT,
 	COLIBRI_IMX8DX,
+	APALIS_IMX8QXP,
+	APALIS_IMX8DXP,
 };
 
 extern const char * const toradex_modules[];

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (c) 2016-2019 Toradex, Inc.
+ * Copyright (c) 2016-2020 Toradex
  */
 
 #include <common.h>
@@ -8,6 +8,7 @@
 
 #if defined(CONFIG_TARGET_APALIS_IMX6) || \
 	defined(CONFIG_TARGET_APALIS_IMX8) || \
+	defined(CONFIG_TARGET_APALIS_IMX8X) || \
 	defined(CONFIG_TARGET_COLIBRI_IMX6) || \
 	defined(CONFIG_TARGET_COLIBRI_IMX8X)
 #include <asm/arch/sys_proto.h>
@@ -112,6 +113,8 @@ const char * const toradex_modules[] = {
 	[50] = "Colibri iMX8 QuadXPlus 2GB IT",
 	[51] = "Colibri iMX8 DualX 1GB Wi-Fi / Bluetooth",
 	[52] = "Colibri iMX8 DualX 1GB",
+	[53] = "Apalis iMX8 QuadXPlus 2GB ECC IT",
+	[54] = "Apalis iMX8 DualXPlus 1GB",
 };
 
 #ifdef CONFIG_TDX_CFG_BLOCK_IS_IN_MMC
@@ -307,6 +310,7 @@ static int get_cfgblock_interactive(void)
 	it = console_buffer[0];
 
 #if defined(CONFIG_TARGET_APALIS_IMX8) || \
+		defined(CONFIG_TARGET_APALIS_IMX8X) || \
 		defined(CONFIG_TARGET_COLIBRI_IMX6ULL) || \
 		defined(CONFIG_TARGET_COLIBRI_IMX8X)
 	sprintf(message, "Does the module have Wi-Fi / Bluetooth? [y/N] ");
@@ -370,6 +374,16 @@ static int get_cfgblock_interactive(void)
 				tdx_hw_tag.prodid = APALIS_IMX8QP;
 		}
 	} else if (is_cpu_type(MXC_CPU_IMX8QXP)) {
+#ifdef CONFIG_TARGET_APALIS_IMX8X
+		if (it == 'y' || it == 'Y' || wb == 'y' || wb == 'Y') {
+				tdx_hw_tag.prodid = APALIS_IMX8QXP_WIFI_BT_IT;
+		} else {
+			if (gd->ram_size == 0x40000000)
+				tdx_hw_tag.prodid = APALIS_IMX8DXP;
+			else
+				tdx_hw_tag.prodid = APALIS_IMX8QXP;
+		}
+#elif CONFIG_TARGET_COLIBRI_IMX8X
 		if (it == 'y' || it == 'Y') {
 			if (wb == 'y' || wb == 'Y')
 				tdx_hw_tag.prodid = COLIBRI_IMX8QXP_WIFI_BT_IT;
@@ -381,6 +395,7 @@ static int get_cfgblock_interactive(void)
 			else
 				tdx_hw_tag.prodid = COLIBRI_IMX8DX;
 		}
+#endif
 	} else if (!strcmp("tegra20", soc)) {
 		if (it == 'y' || it == 'Y')
 			if (gd->ram_size == 0x10000000)
