@@ -24,6 +24,8 @@ struct cadence_spi_platdata {
 	u32		fifo_depth;
 	u32		fifo_width;
 	u32		trigger_address;
+	fdt_addr_t	ahbsize;
+	bool		use_dac_mode;
 
 	/* Flash parameters */
 	u32		page_size;
@@ -53,21 +55,21 @@ struct cadence_spi_priv {
 void cadence_qspi_apb_controller_init(struct cadence_spi_platdata *plat);
 void cadence_qspi_apb_controller_enable(void *reg_base_addr);
 void cadence_qspi_apb_controller_disable(void *reg_base_addr);
+void cadence_qspi_apb_dac_mode_enable(void *reg_base);
 
 int cadence_qspi_apb_command_read(void *reg_base_addr,
-	unsigned int cmdlen, const u8 *cmdbuf, unsigned int rxlen, u8 *rxbuf);
+				  const struct spi_mem_op *op);
 int cadence_qspi_apb_command_write(void *reg_base_addr,
-	unsigned int cmdlen, const u8 *cmdbuf,
-	unsigned int txlen,  const u8 *txbuf);
+				   const struct spi_mem_op *op);
 
-int cadence_qspi_apb_indirect_read_setup(struct cadence_spi_platdata *plat,
-	unsigned int cmdlen, unsigned int rx_width, const u8 *cmdbuf);
-int cadence_qspi_apb_indirect_read_execute(struct cadence_spi_platdata *plat,
-	unsigned int rxlen, u8 *rxbuf);
-int cadence_qspi_apb_indirect_write_setup(struct cadence_spi_platdata *plat,
-	unsigned int cmdlen, unsigned int tx_width, const u8 *cmdbuf);
-int cadence_qspi_apb_indirect_write_execute(struct cadence_spi_platdata *plat,
-	unsigned int txlen, const u8 *txbuf);
+int cadence_qspi_apb_read_setup(struct cadence_spi_platdata *plat,
+				const struct spi_mem_op *op);
+int cadence_qspi_apb_read_execute(struct cadence_spi_platdata *plat,
+				  const struct spi_mem_op *op);
+int cadence_qspi_apb_write_setup(struct cadence_spi_platdata *plat,
+				 const struct spi_mem_op *op);
+int cadence_qspi_apb_write_execute(struct cadence_spi_platdata *plat,
+				   const struct spi_mem_op *op);
 
 void cadence_qspi_apb_chipselect(void *reg_base,
 	unsigned int chip_select, unsigned int decoder_enable);

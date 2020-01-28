@@ -77,10 +77,10 @@ static int dm_test_spi_find(struct unit_test_state *uts)
 	/* We should be able to add something to another chip select */
 	ut_assertok(sandbox_sf_bind_emul(state, busnum, cs_b, bus, node,
 					 "name"));
-	ut_assertok(spi_get_bus_and_cs(busnum, cs_b, speed, mode,
+	ut_asserteq(-EINVAL, spi_get_bus_and_cs(busnum, cs_b, speed, mode,
 				       "spi_flash_std", "name", &bus, &slave));
-	ut_assertok(spi_cs_info(bus, cs_b, &info));
-	ut_asserteq_ptr(info.dev, slave->dev);
+	ut_asserteq(-EINVAL, spi_cs_info(bus, cs_b, &info));
+	ut_asserteq_ptr(NULL, info.dev);
 
 	/*
 	 * Since we are about to destroy all devices, we must tell sandbox

@@ -27,9 +27,11 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <dma.h>
 #include <linux/errno.h>
 #include <wait_bit.h>
 #include <spi.h>
+#include <spi-mem.h>
 #include <malloc.h>
 #include "cadence_qspi.h"
 
@@ -41,6 +43,7 @@
 #define CQSPI_INST_TYPE_SINGLE			0
 #define CQSPI_INST_TYPE_DUAL			1
 #define CQSPI_INST_TYPE_QUAD			2
+#define CQSPI_INST_TYPE_OCTAL			3
 
 #define CQSPI_STIG_DATA_LEN_MAX			8
 
@@ -172,19 +175,6 @@
 	(((readl(reg_base + CQSPI_REG_SDRAMLEVEL)) >>	\
 	CQSPI_REG_SDRAMLEVEL_WR_LSB) & CQSPI_REG_SDRAMLEVEL_WR_MASK)
 
-static unsigned int cadence_qspi_apb_cmd2addr(const unsigned char *addr_buf,
-	unsigned int addr_width)
-{
-	unsigned int addr;
-
-	addr = (addr_buf[0] << 16) | (addr_buf[1] << 8) | addr_buf[2];
-
-	if (addr_width == 4)
-		addr = (addr << 8) | addr_buf[3];
-
-	return addr;
-}
-
 void cadence_qspi_apb_controller_enable(void *reg_base)
 {
 	unsigned int reg;
@@ -198,6 +188,15 @@ void cadence_qspi_apb_controller_disable(void *reg_base)
 	unsigned int reg;
 	reg = readl(reg_base + CQSPI_REG_CONFIG);
 	reg &= ~CQSPI_REG_CONFIG_ENABLE;
+	writel(reg, reg_base + CQSPI_REG_CONFIG);
+}
+
+void cadence_qspi_apb_dac_mode_enable(void *reg_base)
+{
+	unsigned int reg;
+
+	reg = readl(reg_base + CQSPI_REG_CONFIG);
+	reg |= CQSPI_REG_CONFIG_DIRECT;
 	writel(reg, reg_base + CQSPI_REG_CONFIG);
 }
 
@@ -433,21 +432,20 @@ static int cadence_qspi_apb_exec_flash_cmd(void *reg_base,
 }
 
 /* For command RDID, RDSR. */
-int cadence_qspi_apb_command_read(void *reg_base,
-	unsigned int cmdlen, const u8 *cmdbuf, unsigned int rxlen,
-	u8 *rxbuf)
+int cadence_qspi_apb_command_read(void *reg_base, const struct spi_mem_op *op)
 {
 	unsigned int reg;
 	unsigned int read_len;
 	int status;
+	unsigned int rxlen = op->data.nbytes;
+	void *rxbuf = op->data.buf.in;
 
-	if (!cmdlen || rxlen > CQSPI_STIG_DATA_LEN_MAX || rxbuf == NULL) {
-		printf("QSPI: Invalid input arguments cmdlen %d rxlen %d\n",
-		       cmdlen, rxlen);
+	if (rxlen > CQSPI_STIG_DATA_LEN_MAX || !rxbuf) {
+		printf("QSPI: Invalid input arguments rxlen %u\n", rxlen);
 		return -EINVAL;
 	}
 
-	reg = cmdbuf[0] << CQSPI_REG_CMDCTRL_OPCODE_LSB;
+	reg = op->cmd.opcode << CQSPI_REG_CMDCTRL_OPCODE_LSB;
 
 	reg |= (0x1 << CQSPI_REG_CMDCTRL_RD_EN_LSB);
 
@@ -475,34 +473,30 @@ int cadence_qspi_apb_command_read(void *reg_base,
 }
 
 /* For commands: WRSR, WREN, WRDI, CHIP_ERASE, BE, etc. */
-int cadence_qspi_apb_command_write(void *reg_base, unsigned int cmdlen,
-	const u8 *cmdbuf, unsigned int txlen,  const u8 *txbuf)
+int cadence_qspi_apb_command_write(void *reg_base, const struct spi_mem_op *op)
 {
 	unsigned int reg = 0;
-	unsigned int addr_value;
 	unsigned int wr_data;
 	unsigned int wr_len;
+	unsigned int txlen = op->data.nbytes;
+	const void *txbuf = op->data.buf.out;
+	u32 addr;
 
-	if (!cmdlen || cmdlen > 5 || txlen > 8 || cmdbuf == NULL) {
-		printf("QSPI: Invalid input arguments cmdlen %d txlen %d\n",
-		       cmdlen, txlen);
+	/* Reorder address to SPI bus order if only transferring address */
+	if (!txlen) {
+		addr = cpu_to_be32(op->addr.val);
+		if (op->addr.nbytes == 3)
+			addr >>= 8;
+		txbuf = &addr;
+		txlen = op->addr.nbytes;
+	}
+
+	if (txlen > CQSPI_STIG_DATA_LEN_MAX) {
+		printf("QSPI: Invalid input arguments txlen %u\n", txlen);
 		return -EINVAL;
 	}
 
-	reg |= cmdbuf[0] << CQSPI_REG_CMDCTRL_OPCODE_LSB;
-
-	if (cmdlen == 4 || cmdlen == 5) {
-		/* Command with address */
-		reg |= (0x1 << CQSPI_REG_CMDCTRL_ADDR_EN_LSB);
-		/* Number of bytes to write. */
-		reg |= ((cmdlen - 2) & CQSPI_REG_CMDCTRL_ADD_BYTES_MASK)
-			<< CQSPI_REG_CMDCTRL_ADD_BYTES_LSB;
-		/* Get address */
-		addr_value = cadence_qspi_apb_cmd2addr(&cmdbuf[1],
-			cmdlen >= 5 ? 4 : 3);
-
-		writel(addr_value, reg_base + CQSPI_REG_CMDADDRESS);
-	}
+	reg |= op->cmd.opcode << CQSPI_REG_CMDCTRL_OPCODE_LSB;
 
 	if (txlen) {
 		/* writing data = yes */
@@ -529,62 +523,36 @@ int cadence_qspi_apb_command_write(void *reg_base, unsigned int cmdlen,
 }
 
 /* Opcode + Address (3/4 bytes) + dummy bytes (0-4 bytes) */
-int cadence_qspi_apb_indirect_read_setup(struct cadence_spi_platdata *plat,
-	unsigned int cmdlen, unsigned int rx_width, const u8 *cmdbuf)
+int cadence_qspi_apb_read_setup(struct cadence_spi_platdata *plat,
+				const struct spi_mem_op *op)
 {
 	unsigned int reg;
 	unsigned int rd_reg;
-	unsigned int addr_value;
 	unsigned int dummy_clk;
-	unsigned int dummy_bytes;
-	unsigned int addr_bytes;
-
-	/*
-	 * Identify addr_byte. All NOR flash device drivers are using fast read
-	 * which always expecting 1 dummy byte, 1 cmd byte and 3/4 addr byte.
-	 * With that, the length is in value of 5 or 6. Only FRAM chip from
-	 * ramtron using normal read (which won't need dummy byte).
-	 * Unlikely NOR flash using normal read due to performance issue.
-	 */
-	if (cmdlen >= 5)
-		/* to cater fast read where cmd + addr + dummy */
-		addr_bytes = cmdlen - 2;
-	else
-		/* for normal read (only ramtron as of now) */
-		addr_bytes = cmdlen - 1;
+	unsigned int dummy_bytes = op->dummy.nbytes;
 
 	/* Setup the indirect trigger address */
 	writel(plat->trigger_address,
 	       plat->regbase + CQSPI_REG_INDIRECTTRIGGER);
 
 	/* Configure the opcode */
-	rd_reg = cmdbuf[0] << CQSPI_REG_RD_INSTR_OPCODE_LSB;
+	rd_reg = op->cmd.opcode << CQSPI_REG_RD_INSTR_OPCODE_LSB;
 
-	if (rx_width & SPI_RX_QUAD)
+	if (op->data.buswidth == 8)
+		/* Instruction and address at DQ0, data at DQ0-7. */
+		rd_reg |= CQSPI_INST_TYPE_OCTAL << CQSPI_REG_RD_INSTR_TYPE_DATA_LSB;
+	else if (op->data.buswidth == 4)
 		/* Instruction and address at DQ0, data at DQ0-3. */
 		rd_reg |= CQSPI_INST_TYPE_QUAD << CQSPI_REG_RD_INSTR_TYPE_DATA_LSB;
 
-	/* Get address */
-	addr_value = cadence_qspi_apb_cmd2addr(&cmdbuf[1], addr_bytes);
-	writel(addr_value, plat->regbase + CQSPI_REG_INDIRECTRDSTARTADDR);
+	writel(op->addr.val, plat->regbase + CQSPI_REG_INDIRECTRDSTARTADDR);
 
-	/* The remaining lenght is dummy bytes. */
-	dummy_bytes = cmdlen - addr_bytes - 1;
 	if (dummy_bytes) {
 		if (dummy_bytes > CQSPI_DUMMY_BYTES_MAX)
 			dummy_bytes = CQSPI_DUMMY_BYTES_MAX;
 
-		rd_reg |= (1 << CQSPI_REG_RD_INSTR_MODE_EN_LSB);
-#if defined(CONFIG_SPL_SPI_XIP) && defined(CONFIG_SPL_BUILD)
-		writel(0x0, plat->regbase + CQSPI_REG_MODE_BIT);
-#else
-		writel(0xFF, plat->regbase + CQSPI_REG_MODE_BIT);
-#endif
-
 		/* Convert to clock cycles. */
 		dummy_clk = dummy_bytes * CQSPI_DUMMY_CLKS_PER_BYTE;
-		/* Need to minus the mode byte (8 clocks). */
-		dummy_clk -= CQSPI_DUMMY_CLKS_PER_BYTE;
 
 		if (dummy_clk)
 			rd_reg |= (dummy_clk & CQSPI_REG_RD_INSTR_DUMMY_MASK)
@@ -596,7 +564,7 @@ int cadence_qspi_apb_indirect_read_setup(struct cadence_spi_platdata *plat,
 	/* set device size */
 	reg = readl(plat->regbase + CQSPI_REG_SIZE);
 	reg &= ~CQSPI_REG_SIZE_ADDRESS_MASK;
-	reg |= (addr_bytes - 1);
+	reg |= (op->addr.nbytes - 1);
 	writel(reg, plat->regbase + CQSPI_REG_SIZE);
 	return 0;
 }
@@ -623,8 +591,9 @@ static int cadence_qspi_wait_for_data(struct cadence_spi_platdata *plat)
 	return -ETIMEDOUT;
 }
 
-int cadence_qspi_apb_indirect_read_execute(struct cadence_spi_platdata *plat,
-	unsigned int n_rx, u8 *rxbuf)
+static int
+cadence_qspi_apb_indirect_read_execute(struct cadence_spi_platdata *plat,
+				       unsigned int n_rx, u8 *rxbuf)
 {
 	unsigned int remaining = n_rx;
 	unsigned int bytes_to_read = 0;
@@ -685,43 +654,52 @@ failrd:
 	return ret;
 }
 
+int cadence_qspi_apb_read_execute(struct cadence_spi_platdata *plat,
+				  const struct spi_mem_op *op)
+{
+	u64 from = op->addr.val;
+	void *buf = op->data.buf.in;
+	size_t len = op->data.nbytes;
+
+	if (plat->use_dac_mode && (from + len < plat->ahbsize)) {
+		if (len < 256 ||
+		    dma_memcpy(buf, plat->ahbbase + from, len) < 0) {
+			memcpy_fromio(buf, plat->ahbbase + from, len);
+		}
+		if (!cadence_qspi_wait_idle(plat->regbase))
+			return -EIO;
+		return 0;
+	}
+
+	return cadence_qspi_apb_indirect_read_execute(plat, len, buf);
+}
+
 /* Opcode + Address (3/4 bytes) */
-int cadence_qspi_apb_indirect_write_setup(struct cadence_spi_platdata *plat,
-	unsigned int cmdlen, unsigned int tx_width, const u8 *cmdbuf)
+int cadence_qspi_apb_write_setup(struct cadence_spi_platdata *plat,
+				 const struct spi_mem_op *op)
 {
 	unsigned int reg;
-	unsigned int addr_bytes = cmdlen > 4 ? 4 : 3;
 
-	if (cmdlen < 4 || cmdbuf == NULL) {
-		printf("QSPI: Invalid input argument, len %d cmdbuf %p\n",
-		       cmdlen, cmdbuf);
-		return -EINVAL;
-	}
 	/* Setup the indirect trigger address */
 	writel(plat->trigger_address,
 	       plat->regbase + CQSPI_REG_INDIRECTTRIGGER);
 
 	/* Configure the opcode */
-	reg = cmdbuf[0] << CQSPI_REG_WR_INSTR_OPCODE_LSB;
-
-	if (tx_width & SPI_TX_QUAD)
-		reg |= CQSPI_INST_TYPE_QUAD << CQSPI_REG_WR_INSTR_TYPE_DATA_LSB;
-
+	reg = op->cmd.opcode << CQSPI_REG_WR_INSTR_OPCODE_LSB;
 	writel(reg, plat->regbase + CQSPI_REG_WR_INSTR);
 
-	/* Setup write address. */
-	reg = cadence_qspi_apb_cmd2addr(&cmdbuf[1], addr_bytes);
-	writel(reg, plat->regbase + CQSPI_REG_INDIRECTWRSTARTADDR);
+	writel(op->addr.val, plat->regbase + CQSPI_REG_INDIRECTWRSTARTADDR);
 
 	reg = readl(plat->regbase + CQSPI_REG_SIZE);
 	reg &= ~CQSPI_REG_SIZE_ADDRESS_MASK;
-	reg |= (addr_bytes - 1);
+	reg |= (op->addr.nbytes - 1);
 	writel(reg, plat->regbase + CQSPI_REG_SIZE);
 	return 0;
 }
 
-int cadence_qspi_apb_indirect_write_execute(struct cadence_spi_platdata *plat,
-	unsigned int n_tx, const u8 *txbuf)
+static int
+cadence_qspi_apb_indirect_write_execute(struct cadence_spi_platdata *plat,
+					unsigned int n_tx, const u8 *txbuf)
 {
 	unsigned int page_size = plat->page_size;
 	unsigned int remaining = n_tx;
@@ -791,6 +769,23 @@ failwr:
 	if (bounce_buf)
 		free(bounce_buf);
 	return ret;
+}
+
+int cadence_qspi_apb_write_execute(struct cadence_spi_platdata *plat,
+				   const struct spi_mem_op *op)
+{
+	u32 to = op->addr.val;
+	const void *buf = op->data.buf.out;
+	size_t len = op->data.nbytes;
+
+	if (plat->use_dac_mode && (to + len < plat->ahbsize)) {
+		memcpy_toio(plat->ahbbase + to, buf, len);
+		if (!cadence_qspi_wait_idle(plat->regbase))
+			return -EIO;
+		return 0;
+	}
+
+	return cadence_qspi_apb_indirect_write_execute(plat, len, buf);
 }
 
 void cadence_qspi_apb_enter_xip(void *reg_base, char xip_dummy)
