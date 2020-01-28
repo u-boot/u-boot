@@ -36,13 +36,13 @@
 /* SUN4I variant of the SPI controller                                       */
 /*****************************************************************************/
 
-#define SUN4I_SPI0_CCTL             (0x01C05000 + 0x1C)
-#define SUN4I_SPI0_CTL              (0x01C05000 + 0x08)
-#define SUN4I_SPI0_RX               (0x01C05000 + 0x00)
-#define SUN4I_SPI0_TX               (0x01C05000 + 0x04)
-#define SUN4I_SPI0_FIFO_STA         (0x01C05000 + 0x28)
-#define SUN4I_SPI0_BC               (0x01C05000 + 0x20)
-#define SUN4I_SPI0_TC               (0x01C05000 + 0x24)
+#define SUN4I_SPI0_CCTL             0x1C
+#define SUN4I_SPI0_CTL              0x08
+#define SUN4I_SPI0_RX               0x00
+#define SUN4I_SPI0_TX               0x04
+#define SUN4I_SPI0_FIFO_STA         0x28
+#define SUN4I_SPI0_BC               0x20
+#define SUN4I_SPI0_TC               0x24
 
 #define SUN4I_CTL_ENABLE            BIT(0)
 #define SUN4I_CTL_MASTER            BIT(1)
@@ -54,15 +54,15 @@
 /* SUN6I variant of the SPI controller                                       */
 /*****************************************************************************/
 
-#define SUN6I_SPI0_CCTL             (0x01C68000 + 0x24)
-#define SUN6I_SPI0_GCR              (0x01C68000 + 0x04)
-#define SUN6I_SPI0_TCR              (0x01C68000 + 0x08)
-#define SUN6I_SPI0_FIFO_STA         (0x01C68000 + 0x1C)
-#define SUN6I_SPI0_MBC              (0x01C68000 + 0x30)
-#define SUN6I_SPI0_MTC              (0x01C68000 + 0x34)
-#define SUN6I_SPI0_BCC              (0x01C68000 + 0x38)
-#define SUN6I_SPI0_TXD              (0x01C68000 + 0x200)
-#define SUN6I_SPI0_RXD              (0x01C68000 + 0x300)
+#define SUN6I_SPI0_CCTL             0x24
+#define SUN6I_SPI0_GCR              0x04
+#define SUN6I_SPI0_TCR              0x08
+#define SUN6I_SPI0_FIFO_STA         0x1C
+#define SUN6I_SPI0_MBC              0x30
+#define SUN6I_SPI0_MTC              0x34
+#define SUN6I_SPI0_BCC              0x38
+#define SUN6I_SPI0_TXD              0x200
+#define SUN6I_SPI0_RXD              0x300
 
 #define SUN6I_CTL_ENABLE            BIT(0)
 #define SUN6I_CTL_MASTER            BIT(1)
@@ -100,11 +100,21 @@ static void spi0_pinmux_setup(unsigned int pin_function)
 		sunxi_gpio_set_cfgpin(SUNXI_GPC(3), pin_function);
 }
 
+static uintptr_t spi0_base_address(void)
+{
+	if (!IS_ENABLED(CONFIG_SUNXI_GEN_SUN6I))
+		return 0x01C05000;
+
+	return 0x01C68000;
+}
+
 /*
  * Setup 6 MHz from OSC24M (because the BROM is doing the same).
  */
 static void spi0_enable_clock(void)
 {
+	uintptr_t base = spi0_base_address();
+
 	/* Deassert SPI0 reset on SUN6I */
 	if (IS_ENABLED(CONFIG_SUNXI_GEN_SUN6I))
 		setbits_le32(SUN6I_BUS_SOFT_RST_REG0,
@@ -114,36 +124,37 @@ static void spi0_enable_clock(void)
 	setbits_le32(CCM_AHB_GATING0, (1 << AHB_GATE_OFFSET_SPI0));
 
 	/* Divide by 4 */
-	writel(SPI0_CLK_DIV_BY_4, IS_ENABLED(CONFIG_SUNXI_GEN_SUN6I) ?
-				  SUN6I_SPI0_CCTL : SUN4I_SPI0_CCTL);
+	writel(SPI0_CLK_DIV_BY_4, base + (IS_ENABLED(CONFIG_SUNXI_GEN_SUN6I) ?
+				  SUN6I_SPI0_CCTL : SUN4I_SPI0_CCTL));
 	/* 24MHz from OSC24M */
 	writel((1 << 31), CCM_SPI0_CLK);
 
 	if (IS_ENABLED(CONFIG_SUNXI_GEN_SUN6I)) {
 		/* Enable SPI in the master mode and do a soft reset */
-		setbits_le32(SUN6I_SPI0_GCR, SUN6I_CTL_MASTER |
-					     SUN6I_CTL_ENABLE |
-					     SUN6I_CTL_SRST);
+		setbits_le32(base + SUN6I_SPI0_GCR, SUN6I_CTL_MASTER |
+			     SUN6I_CTL_ENABLE | SUN6I_CTL_SRST);
 		/* Wait for completion */
-		while (readl(SUN6I_SPI0_GCR) & SUN6I_CTL_SRST)
+		while (readl(base + SUN6I_SPI0_GCR) & SUN6I_CTL_SRST)
 			;
 	} else {
 		/* Enable SPI in the master mode and reset FIFO */
-		setbits_le32(SUN4I_SPI0_CTL, SUN4I_CTL_MASTER |
-					     SUN4I_CTL_ENABLE |
-					     SUN4I_CTL_TF_RST |
-					     SUN4I_CTL_RF_RST);
+		setbits_le32(base + SUN4I_SPI0_CTL, SUN4I_CTL_MASTER |
+						    SUN4I_CTL_ENABLE |
+						    SUN4I_CTL_TF_RST |
+						    SUN4I_CTL_RF_RST);
 	}
 }
 
 static void spi0_disable_clock(void)
 {
+	uintptr_t base = spi0_base_address();
+
 	/* Disable the SPI0 controller */
 	if (IS_ENABLED(CONFIG_SUNXI_GEN_SUN6I))
-		clrbits_le32(SUN6I_SPI0_GCR, SUN6I_CTL_MASTER |
+		clrbits_le32(base + SUN6I_SPI0_GCR, SUN6I_CTL_MASTER |
 					     SUN6I_CTL_ENABLE);
 	else
-		clrbits_le32(SUN4I_SPI0_CTL, SUN4I_CTL_MASTER |
+		clrbits_le32(base + SUN4I_SPI0_CTL, SUN4I_CTL_MASTER |
 					     SUN4I_CTL_ENABLE);
 
 	/* Disable the SPI0 clock */
@@ -227,6 +238,7 @@ static void spi0_read_data(void *buf, u32 addr, u32 len)
 {
 	u8 *buf8 = buf;
 	u32 chunk_len;
+	uintptr_t base = spi0_base_address();
 
 	while (len > 0) {
 		chunk_len = len;
@@ -235,23 +247,23 @@ static void spi0_read_data(void *buf, u32 addr, u32 len)
 
 		if (IS_ENABLED(CONFIG_SUNXI_GEN_SUN6I)) {
 			sunxi_spi0_read_data(buf8, addr, chunk_len,
-					     SUN6I_SPI0_TCR,
+					     base + SUN6I_SPI0_TCR,
 					     SUN6I_TCR_XCH,
-					     SUN6I_SPI0_FIFO_STA,
-					     SUN6I_SPI0_TXD,
-					     SUN6I_SPI0_RXD,
-					     SUN6I_SPI0_MBC,
-					     SUN6I_SPI0_MTC,
-					     SUN6I_SPI0_BCC);
+					     base + SUN6I_SPI0_FIFO_STA,
+					     base + SUN6I_SPI0_TXD,
+					     base + SUN6I_SPI0_RXD,
+					     base + SUN6I_SPI0_MBC,
+					     base + SUN6I_SPI0_MTC,
+					     base + SUN6I_SPI0_BCC);
 		} else {
 			sunxi_spi0_read_data(buf8, addr, chunk_len,
-					     SUN4I_SPI0_CTL,
+					     base + SUN4I_SPI0_CTL,
 					     SUN4I_CTL_XCH,
-					     SUN4I_SPI0_FIFO_STA,
-					     SUN4I_SPI0_TX,
-					     SUN4I_SPI0_RX,
-					     SUN4I_SPI0_BC,
-					     SUN4I_SPI0_TC,
+					     base + SUN4I_SPI0_FIFO_STA,
+					     base + SUN4I_SPI0_TX,
+					     base + SUN4I_SPI0_RX,
+					     base + SUN4I_SPI0_BC,
+					     base + SUN4I_SPI0_TC,
 					     0);
 		}
 
