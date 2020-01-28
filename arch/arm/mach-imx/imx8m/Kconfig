@@ -50,11 +50,18 @@ config TARGET_IMX8MP_EVK
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
 
+config TARGET_VERDIN_IMX8MM
+       bool "Support Toradex Verdin iMX8M Mini module"
+       select IMX8MM
+       select SUPPORT_SPL
+       select IMX8M_LPDDR4
+
 endchoice
 
 source "board/freescale/imx8mq_evk/Kconfig"
 source "board/freescale/imx8mm_evk/Kconfig"
 source "board/freescale/imx8mn_evk/Kconfig"
 source "board/freescale/imx8mp_evk/Kconfig"
+source "board/toradex/verdin-imx8mm/Kconfig"
 
 endif
