@@ -38,6 +38,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ZYNQ_QSPI_TXD_00_01_OFFSET	0x80	/* Transmit 1-byte inst */
 #define ZYNQ_QSPI_TXD_00_10_OFFSET	0x84	/* Transmit 2-byte inst */
 #define ZYNQ_QSPI_TXD_00_11_OFFSET	0x88	/* Transmit 3-byte inst */
+#define ZYNQ_QSPI_FR_QOUT_CODE		0x6B	/* read instruction code */
+#define ZYNQ_QSPI_FR_DUALIO_CODE	0xBB
 
 /*
  * QSPI Linear Configuration Register
@@ -51,8 +53,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define ZYNQ_QSPI_LCFG_DUMMY_SHIFT	8
 
-#define ZYNQ_QSPI_FR_QOUT_CODE	0x6B	/* read instruction code */
-#define ZYNQ_QSPI_FR_DUALIO_CODE	0xBB
 
 /* Definitions for the status of queue */
 #define ZYNQ_QSPI_TXFIFO_THRESHOLD	1	/* Tx FIFO threshold level */
@@ -62,13 +62,13 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ZYNQ_QSPI_CR_BAUD_SHIFT		3	/* Baud rate divisor shift */
 #define ZYNQ_QSPI_CR_SS_SHIFT		10	/* Slave select shift */
 
+#define ZYNQ_QSPI_MAX_BAUD_RATE		0x7
+#define ZYNQ_QSPI_DEFAULT_BAUD_RATE	0x2
+
 #define ZYNQ_QSPI_FIFO_DEPTH		63
 #ifndef CONFIG_SYS_ZYNQ_QSPI_WAIT
 #define CONFIG_SYS_ZYNQ_QSPI_WAIT	CONFIG_SYS_HZ/100	/* 10 ms */
 #endif
-
-#define ZYNQ_QSPI_MAX_BAUD_RATE		0x7
-#define ZYNQ_QSPI_DEFAULT_BAUD_RATE	0x2
 
 /* zynq qspi register set */
 struct zynq_qspi_regs {
