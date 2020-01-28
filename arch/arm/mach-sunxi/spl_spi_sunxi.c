@@ -100,9 +100,14 @@ static void spi0_pinmux_setup(unsigned int pin_function)
 		sunxi_gpio_set_cfgpin(SUNXI_GPC(3), pin_function);
 }
 
+static bool is_sun6i_gen_spi(void)
+{
+	return IS_ENABLED(CONFIG_SUNXI_GEN_SUN6I);
+}
+
 static uintptr_t spi0_base_address(void)
 {
-	if (!IS_ENABLED(CONFIG_SUNXI_GEN_SUN6I))
+	if (!is_sun6i_gen_spi())
 		return 0x01C05000;
 
 	return 0x01C68000;
@@ -116,7 +121,7 @@ static void spi0_enable_clock(void)
 	uintptr_t base = spi0_base_address();
 
 	/* Deassert SPI0 reset on SUN6I */
-	if (IS_ENABLED(CONFIG_SUNXI_GEN_SUN6I))
+	if (is_sun6i_gen_spi())
 		setbits_le32(SUN6I_BUS_SOFT_RST_REG0,
 			     (1 << AHB_RESET_SPI0_SHIFT));
 
@@ -124,12 +129,12 @@ static void spi0_enable_clock(void)
 	setbits_le32(CCM_AHB_GATING0, (1 << AHB_GATE_OFFSET_SPI0));
 
 	/* Divide by 4 */
-	writel(SPI0_CLK_DIV_BY_4, base + (IS_ENABLED(CONFIG_SUNXI_GEN_SUN6I) ?
+	writel(SPI0_CLK_DIV_BY_4, base + (is_sun6i_gen_spi() ?
 				  SUN6I_SPI0_CCTL : SUN4I_SPI0_CCTL));
 	/* 24MHz from OSC24M */
 	writel((1 << 31), CCM_SPI0_CLK);
 
-	if (IS_ENABLED(CONFIG_SUNXI_GEN_SUN6I)) {
+	if (is_sun6i_gen_spi()) {
 		/* Enable SPI in the master mode and do a soft reset */
 		setbits_le32(base + SUN6I_SPI0_GCR, SUN6I_CTL_MASTER |
 			     SUN6I_CTL_ENABLE | SUN6I_CTL_SRST);
@@ -150,7 +155,7 @@ static void spi0_disable_clock(void)
 	uintptr_t base = spi0_base_address();
 
 	/* Disable the SPI0 controller */
-	if (IS_ENABLED(CONFIG_SUNXI_GEN_SUN6I))
+	if (is_sun6i_gen_spi())
 		clrbits_le32(base + SUN6I_SPI0_GCR, SUN6I_CTL_MASTER |
 					     SUN6I_CTL_ENABLE);
 	else
@@ -164,7 +169,7 @@ static void spi0_disable_clock(void)
 	clrbits_le32(CCM_AHB_GATING0, (1 << AHB_GATE_OFFSET_SPI0));
 
 	/* Assert SPI0 reset on SUN6I */
-	if (IS_ENABLED(CONFIG_SUNXI_GEN_SUN6I))
+	if (is_sun6i_gen_spi())
 		clrbits_le32(SUN6I_BUS_SOFT_RST_REG0,
 			     (1 << AHB_RESET_SPI0_SHIFT));
 }
@@ -184,7 +189,8 @@ static void spi0_deinit(void)
 {
 	/* New SoCs can disable pins, older could only set them as input */
 	unsigned int pin_function = SUNXI_GPIO_INPUT;
-	if (IS_ENABLED(CONFIG_SUNXI_GEN_SUN6I))
+
+	if (is_sun6i_gen_spi())
 		pin_function = SUNXI_GPIO_DISABLE;
 
 	spi0_disable_clock();
@@ -245,7 +251,7 @@ static void spi0_read_data(void *buf, u32 addr, u32 len)
 		if (chunk_len > SPI_READ_MAX_SIZE)
 			chunk_len = SPI_READ_MAX_SIZE;
 
-		if (IS_ENABLED(CONFIG_SUNXI_GEN_SUN6I)) {
+		if (is_sun6i_gen_spi()) {
 			sunxi_spi0_read_data(buf8, addr, chunk_len,
 					     base + SUN6I_SPI0_TCR,
 					     SUN6I_TCR_XCH,
