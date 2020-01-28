@@ -434,7 +434,7 @@ int gpio_set_value(unsigned int gpio, int value)
 static struct davinci_gpio *davinci_get_gpio_bank(struct udevice *dev, unsigned int offset)
 {
 	struct davinci_gpio_bank *bank = dev_get_priv(dev);
-	unsigned int addr;
+	unsigned long addr;
 
 	/*
 	 * The device tree is not broken into banks but the infrastructure is
