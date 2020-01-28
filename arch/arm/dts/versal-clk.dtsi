@@ -2,7 +2,7 @@
 /*
  * dts file for Xilinx Versal with PM
  *
- * (C) Copyright 2017 - 2019, Xilinx, Inc.
+ * (C) Copyright 2017 - 2020, Xilinx, Inc.
  *
  * Michal Simek <michal.simek@xilinx.com>
  */
@@ -131,7 +131,7 @@
 
 &gpio1 {
 	clocks = <&versal_clk PMC_LSBUS_REF>;
-	power-domains = <&versal_firmware PM_DEV_GPIO>;
+	power-domains = <&versal_firmware PM_DEV_GPIO_PMC>;
 };
 
 &i2c0 {
