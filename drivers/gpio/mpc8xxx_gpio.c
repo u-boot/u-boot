@@ -57,13 +57,6 @@ static inline u32 mpc8xxx_gpio_get_dir(struct ccsr_gpio *base, u32 mask)
 	return in_be32(&base->gpdir) & mask;
 }
 
-static inline void mpc8xxx_gpio_set_in(struct ccsr_gpio *base, u32 gpios)
-{
-	clrbits_be32(&base->gpdat, gpios);
-	/* GPDIR register 0 -> input */
-	clrbits_be32(&base->gpdir, gpios);
-}
-
 static inline void mpc8xxx_gpio_set_low(struct ccsr_gpio *base, u32 gpios)
 {
 	clrbits_be32(&base->gpdat, gpios);
@@ -100,8 +93,11 @@ static inline void mpc8xxx_gpio_open_drain_off(struct ccsr_gpio *base,
 static int mpc8xxx_gpio_direction_input(struct udevice *dev, uint gpio)
 {
 	struct mpc8xxx_gpio_data *data = dev_get_priv(dev);
+	u32 mask = gpio_mask(gpio);
 
-	mpc8xxx_gpio_set_in(data->base, gpio_mask(gpio));
+	/* GPDIR register 0 -> input */
+	clrbits_be32(&data->base->gpdir, mask);
+
 	return 0;
 }
 
