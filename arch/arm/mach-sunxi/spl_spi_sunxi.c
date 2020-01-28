@@ -94,7 +94,8 @@ static void spi0_pinmux_setup(unsigned int pin_function)
 	for (pin = SUNXI_GPC(0); pin <= SUNXI_GPC(2); pin++)
 		sunxi_gpio_set_cfgpin(pin, pin_function);
 
-	if (IS_ENABLED(CONFIG_MACH_SUN4I) || IS_ENABLED(CONFIG_MACH_SUN7I))
+	if (IS_ENABLED(CONFIG_MACH_SUN4I) || IS_ENABLED(CONFIG_MACH_SUN7I) ||
+	    IS_ENABLED(CONFIG_MACH_SUN8I_R40))
 		sunxi_gpio_set_cfgpin(SUNXI_GPC(23), pin_function);
 	else
 		sunxi_gpio_set_cfgpin(SUNXI_GPC(3), pin_function);
@@ -107,6 +108,9 @@ static bool is_sun6i_gen_spi(void)
 
 static uintptr_t spi0_base_address(void)
 {
+	if (IS_ENABLED(CONFIG_MACH_SUN8I_R40))
+		return 0x01C05000;
+
 	if (!is_sun6i_gen_spi())
 		return 0x01C05000;
 
