@@ -75,6 +75,9 @@ enum {
 	COLIBRI_IMX8DX,
 	APALIS_IMX8QXP,
 	APALIS_IMX8DXP,
+	VERDIN_IMX8MMQ_WIFI_BT_IT,
+	VERDIN_IMX8MNSL,
+	VERDIN_IMX8MMDL,
 };
 
 extern const char * const toradex_modules[];
