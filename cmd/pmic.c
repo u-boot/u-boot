@@ -95,7 +95,7 @@ static int do_dump(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	for (reg = 0; reg < pmic_reg_count(dev); reg++) {
 		ret = pmic_reg_read(dev, reg);
-		if (ret < 0) {
+		if (ret < 0 && ret != -ENODATA) {
 			printf("Can't read register: %d\n", reg);
 			return failure(ret);
 		}
@@ -103,7 +103,15 @@ static int do_dump(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (!(reg % 16))
 			printf("\n0x%02x: ", reg);
 
-		printf(fmt, ret);
+		if (ret == -ENODATA) {
+			int i;
+
+			for (i = 0; i < priv->trans_len; i++)
+				puts("--");
+			puts(" ");
+		} else {
+			printf(fmt, ret);
+		}
 	}
 	printf("\n");
 

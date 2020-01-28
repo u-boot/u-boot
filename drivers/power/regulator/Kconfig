@@ -60,6 +60,26 @@ config SPL_DM_REGULATOR_BD71837
 	This config enables implementation of driver-model regulator uclass
 	features for regulators on ROHM BD71837 and BD71847 in SPL.
 
+config DM_REGULATOR_DA9063
+	bool "Enable Driver Model for REGULATOR DA9063"
+	depends on DM_REGULATOR && DM_PMIC_DA9063
+	help
+	  This config enables implementation of driver-model regulator uclass
+	  features for REGULATOR DA9063.
+	  The driver implements get/set api for value, enable and mode for all
+	  regulators. It also implements the get/set api for current for the
+	  buck regulators.
+
+config SPL_DM_REGULATOR_DA9063
+	bool "Enable Driver Model for REGULATOR DA9063 in SPL"
+	depends on DM_REGULATOR && DM_PMIC_DA9063  && SPL
+	help
+	  This config enables implementation of driver-model regulator uclass
+	  features for REGULATOR DA9063.
+	  The driver implements get/set api for value, enable and mode for all
+	  regulators. It also implements the get/set api for current for the
+	  buck regulators.
+
 config DM_REGULATOR_PFUZE100
 	bool "Enable Driver Model for REGULATOR PFUZE100"
 	depends on DM_REGULATOR && DM_PMIC_PFUZE100

@@ -40,6 +40,20 @@ config PMIC_ACT8846
 	functions. It uses an I2C interface and is designed for use with
 	tablets and smartphones.
 
+config DM_PMIC_DA9063
+	bool "Enable Driver Model for the Dialog DA9063 PMIC"
+	depends on DM_PMIC
+	help
+	  This config enables implementation of driver-model pmic uclass features
+	  for PMIC DA9063. The driver implements read/write operations.
+
+config SPL_DM_PMIC_DA9063
+	bool "Enable Driver Model for the Dialog DA9063 PMIC in SPL"
+	depends on DM_PMIC && SPL
+	help
+	  This config enables implementation of driver-model pmic uclass features
+	  for PMIC DA9063. The driver implements read/write operations.
+
 config PMIC_AS3722
 	bool "Enable support for the Austria Micro Systems (AMS) AS7322 PMIC"
 	help

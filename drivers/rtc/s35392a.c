@@ -24,11 +24,13 @@
 #include <linux/bitrev.h>
 #include <rtc.h>
 
-#define S35390A_CMD_STATUS1		0x30
-#define S35390A_CMD_STATUS2		0x31
-#define S35390A_CMD_TIME1		0x32
-#define S35390A_CMD_TIME2		0x33
-#define S35390A_CMD_INT2_REG1	0x35
+#define S35390A_CHIP_ADDR	0x30
+
+#define S35390A_CMD_STATUS1	0x0
+#define S35390A_CMD_STATUS2	0x1
+#define S35390A_CMD_TIME1	0x2
+#define S35390A_CMD_TIME2	0x3
+#define S35390A_CMD_INT2_REG1	0x5
 
 #define S35390A_BYTE_YEAR	0
 #define S35390A_BYTE_MONTH	1
@@ -85,11 +87,10 @@ static int s35392a_rtc_read(DEV_TYPE *dev, u8 reg, u8 *buf, int len)
 	int ret;
 
 #ifdef CONFIG_DM_RTC
-	/* TODO: we need to tweak the chip address to reg */
-	ret = dm_i2c_read(dev, 0, buf, len);
+	ret = dm_i2c_read(dev, reg, buf, len);
 #else
 	(void)dev;
-	ret = i2c_read(reg, 0, -1, buf, len);
+	ret = i2c_read(S35390A_CHIP_ADDR | reg, 0, -1, buf, len);
 #endif
 
 	return ret;
@@ -100,11 +101,10 @@ static int s35392a_rtc_write(DEV_TYPE *dev, u8 reg, u8 *buf, int len)
 	int ret;
 
 #ifdef CONFIG_DM_RTC
-	/* TODO: we need to tweak the chip address to reg */
-	ret = dm_i2c_write(dev, 0, buf, 1);
+	ret = dm_i2c_write(dev, reg, buf, len);
 #else
 	(void)dev;
-	ret = i2c_write(reg, 0, 0, buf, len);
+	ret = i2c_write(S35390A_CHIP_ADDR | reg, 0, 0, buf, len);
 #endif
 
 	return ret;
@@ -336,6 +336,13 @@ void rtc_init(void)
 
 static int s35392a_probe(struct udevice *dev)
 {
+#if defined(CONFIG_DM_RTC)
+	/* 3-bit "command", or register, is encoded within the device address.
+	 */
+	i2c_set_chip_offset_len(dev, 0);
+	i2c_set_chip_addr_offset_mask(dev, 0x7);
+#endif
+
 	s35392a_rtc_init(dev);
 	return 0;
 }
