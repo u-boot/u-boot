@@ -28,10 +28,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ZYNQ_QSPI_CR_CPHA_MASK		BIT(2)	/* Clock phase */
 #define ZYNQ_QSPI_CR_CPOL_MASK		BIT(1)	/* Clock polarity */
 #define ZYNQ_QSPI_CR_MSTREN_MASK	BIT(0)	/* Mode select */
-#define ZYNQ_QSPI_CR_MANSRT_MASK	BIT(16)	/* Manual TX Start */
 #define ZYNQ_QSPI_IXR_RXNEMPTY_MASK	BIT(4)	/* RX FIFO not empty */
 #define ZYNQ_QSPI_IXR_TXOW_MASK		BIT(2)	/* TX FIFO not full */
-#define ZYNQ_QSPI_IXR_TXFULL_MASK	BIT(3)	/* TX FIFO is full */
 #define ZYNQ_QSPI_IXR_ALL_MASK		GENMASK(6, 0)	/* All IXR bits */
 #define ZYNQ_QSPI_ENR_SPI_EN_MASK	BIT(0)	/* SPI Enable */
 
@@ -55,12 +53,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define ZYNQ_QSPI_FR_QOUT_CODE	0x6B	/* read instruction code */
 #define ZYNQ_QSPI_FR_DUALIO_CODE	0xBB
-
-/*
- * The modebits configurable by the driver to make the SPI support different
- * data formats
- */
-#define MODEBITS			(SPI_CPOL | SPI_CPHA)
 
 /* Definitions for the status of queue */
 #define ZYNQ_QSPI_TXFIFO_THRESHOLD	1	/* Tx FIFO threshold level */
