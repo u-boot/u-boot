@@ -128,7 +128,7 @@
 	u-boot,dm-pre-reloc;
 };
 
-&pwr {
+&pwr_regulators {
 	u-boot,dm-pre-reloc;
 };
 
