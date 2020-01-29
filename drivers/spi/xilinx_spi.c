@@ -75,7 +75,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define XILSPI_MAX_XFER_BITS	8
 #define XILSPI_SPICR_DFLT_ON	(SPICR_MANUAL_SS | SPICR_MASTER_MODE | \
-				SPICR_SPE)
+				SPICR_SPE | SPICR_MASTER_INHIBIT)
 #define XILSPI_SPICR_DFLT_OFF	(SPICR_MASTER_INHIBIT | SPICR_MANUAL_SS)
 
 #define XILINX_SPI_IDLE_VAL	GENMASK(7, 0)
@@ -83,6 +83,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #define XILINX_SPISR_TIMEOUT	10000 /* in milliseconds */
 
 #define XILINX_SPI_QUAD_MODE	2
+
+#define XILINX_SPI_QUAD_EXTRA_DUMMY	3
+#define SPI_QUAD_OUT_FAST_READ		0x6B
 
 /* xilinx spi register set */
 struct xilinx_spi_regs {
@@ -155,7 +158,10 @@ static void spi_cs_deactivate(struct udevice *dev)
 	struct udevice *bus = dev_get_parent(dev);
 	struct xilinx_spi_priv *priv = dev_get_priv(bus);
 	struct xilinx_spi_regs *regs = priv->regs;
+	u32 reg;
 
+	reg = readl(&regs->spicr) | SPICR_RXFIFO_RESEST | SPICR_TXFIFO_RESEST;
+	writel(reg, &regs->spicr);
 	writel(SPISSR_OFF, &regs->spissr);
 }
 
@@ -286,8 +292,18 @@ static int xilinx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		goto done;
 	}
 
-	if (flags & SPI_XFER_BEGIN)
+	if (flags & SPI_XFER_BEGIN) {
 		spi_cs_activate(dev, slave_plat->cs);
+		/* FIX ME Temporary hack to fix Quad read
+		 * check if the command is Quad out fast read
+		 * and increase dummy bytes by 3 so a total of 4
+		 * (3 here + 1 from framework)
+		 */
+		if (*txp == SPI_QUAD_OUT_FAST_READ) {
+			txbytes += XILINX_SPI_QUAD_EXTRA_DUMMY;
+			rxbytes += XILINX_SPI_QUAD_EXTRA_DUMMY;
+		}
+	}
 
 	/*
 	 * This is the work around for the startup block issue in
