@@ -135,6 +135,10 @@ static int xilinx_spi_probe(struct udevice *bus)
 	struct xilinx_spi_priv *priv = dev_get_priv(bus);
 	struct xilinx_spi_regs *regs = priv->regs;
 
+	priv->regs = (struct xilinx_spi_regs *)dev_read_addr(bus);
+
+	priv->fifo_depth = dev_read_u32_default(bus, "fifo-size", 0);
+
 	writel(SPISSR_RESET_VALUE, &regs->srr);
 
 	return 0;
@@ -384,21 +388,6 @@ static const struct dm_spi_ops xilinx_spi_ops = {
 	.set_mode	= xilinx_spi_set_mode,
 };
 
-
-static int xilinx_spi_ofdata_to_platdata(struct udevice *bus)
-{
-	struct xilinx_spi_priv *priv = dev_get_priv(bus);
-
-	priv->regs = (struct xilinx_spi_regs *)devfdt_get_addr(bus);
-
-	debug("%s: regs=%p\n", __func__, priv->regs);
-
-	priv->fifo_depth = fdtdec_get_int(gd->fdt_blob, dev_of_offset(bus),
-					  "fifo-size", 0);
-
-	return 0;
-}
-
 static const struct udevice_id xilinx_spi_ids[] = {
 	{ .compatible = "xlnx,xps-spi-2.00.a" },
 	{ .compatible = "xlnx,xps-spi-2.00.b" },
@@ -410,7 +399,6 @@ U_BOOT_DRIVER(xilinx_spi) = {
 	.id	= UCLASS_SPI,
 	.of_match = xilinx_spi_ids,
 	.ops	= &xilinx_spi_ops,
-	.ofdata_to_platdata = xilinx_spi_ofdata_to_platdata,
 	.priv_auto_alloc_size = sizeof(struct xilinx_spi_priv),
 	.probe	= xilinx_spi_probe,
 	.child_pre_probe = xilinx_spi_child_pre_probe,
