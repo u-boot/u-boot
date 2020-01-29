@@ -7,6 +7,8 @@
 #ifndef __DW_I2C_H_
 #define __DW_I2C_H_
 
+#include <clk.h>
+#include <i2c.h>
 #include <reset.h>
 
 struct i2c_regs {
@@ -43,20 +45,32 @@ struct i2c_regs {
 	u32 ic_rxflr;		/* 0x78 */
 	u32 ic_sda_hold;	/* 0x7c */
 	u32 ic_tx_abrt_source;	/* 0x80 */
-	u8 res1[0x18];		/* 0x84 */
+	u32 slv_data_nak_only;
+	u32 dma_cr;
+	u32 dma_tdlr;
+	u32 dma_rdlr;
+	u32 sda_setup;
+	u32 ack_general_call;
 	u32 ic_enable_status;	/* 0x9c */
+	u32 fs_spklen;
+	u32 hs_spklen;
+	u32 clr_restart_det;
+	u8 reserved[0xf4 - 0xac];
+	u32 comp_param1;	/* 0xf4 */
+	u32 comp_version;
+	u32 comp_type;
 };
 
-#if !defined(IC_CLK)
-#define IC_CLK			166
-#endif
-#define NANO_TO_MICRO		1000
+#define IC_CLK			166666666
+#define NANO_TO_KILO		1000000
 
 /* High and low times in different speed modes (in ns) */
 #define MIN_SS_SCL_HIGHTIME	4000
 #define MIN_SS_SCL_LOWTIME	4700
 #define MIN_FS_SCL_HIGHTIME	600
 #define MIN_FS_SCL_LOWTIME	1300
+#define MIN_FP_SCL_HIGHTIME	260
+#define MIN_FP_SCL_LOWTIME	500
 #define MIN_HS_SCL_HIGHTIME	60
 #define MIN_HS_SCL_LOWTIME	160
 
@@ -124,19 +138,10 @@ struct i2c_regs {
 #define IC_STATUS_TFNF		0x0002
 #define IC_STATUS_ACT		0x0001
 
-/* Speed Selection */
-#define IC_SPEED_MODE_STANDARD	1
-#define IC_SPEED_MODE_FAST	2
-#define IC_SPEED_MODE_MAX	3
-
-#define I2C_MAX_SPEED		3400000
-#define I2C_FAST_SPEED		400000
-#define I2C_STANDARD_SPEED	100000
-
 /**
  * struct dw_scl_sda_cfg - I2C timing configuration
  *
- * @has_max_speed: Support maximum speed (1Mbps)
+ * @has_high_speed: Support high speed (3.4Mbps)
  * @ss_hcnt: Standard speed high time in ns
  * @fs_hcnt: Fast speed high time in ns
  * @ss_lcnt: Standard speed low time in ns
@@ -144,7 +149,7 @@ struct i2c_regs {
  * @sda_hold: SDA hold time
  */
 struct dw_scl_sda_cfg {
-	bool has_max_speed;
+	bool has_high_speed;
 	u32 ss_hcnt;
 	u32 fs_hcnt;
 	u32 ss_lcnt;
@@ -152,10 +157,45 @@ struct dw_scl_sda_cfg {
 	u32 sda_hold;
 };
 
+/**
+ * struct dw_i2c_speed_config - timings to use for a particular speed
+ *
+ * This holds calculated values to be written to the I2C controller. Each value
+ * is represented as a number of IC clock cycles.
+ *
+ * @scl_lcnt: Low count value for SCL
+ * @scl_hcnt: High count value for SCL
+ * @sda_hold: Data hold count
+ * @speed_mode: Speed mode being used
+ */
+struct dw_i2c_speed_config {
+	/* SCL high and low period count */
+	u16 scl_lcnt;
+	u16 scl_hcnt;
+	u32 sda_hold;
+	enum i2c_speed_mode speed_mode;
+};
+
+/**
+ * struct dw_i2c - private information for the bus
+ *
+ * @regs: Registers pointer
+ * @scl_sda_cfg: Deprecated information for x86 (should move to device tree)
+ * @resets: Resets for the I2C controller
+ * @scl_rise_time_ns: Configured SCL rise time in nanoseconds
+ * @scl_fall_time_ns: Configured SCL fall time in nanoseconds
+ * @sda_hold_time_ns: Configured SDA hold time in nanoseconds
+ * @has_spk_cnt: true if the spike-count register is present
+ * @clk: Clock input to the I2C controller
+ */
 struct dw_i2c {
 	struct i2c_regs *regs;
 	struct dw_scl_sda_cfg *scl_sda_cfg;
 	struct reset_ctl_bulk resets;
+	u32 scl_rise_time_ns;
+	u32 scl_fall_time_ns;
+	u32 sda_hold_time_ns;
+	bool has_spk_cnt;
 #if CONFIG_IS_ENABLED(CLK)
 	struct clk clk;
 #endif
@@ -165,5 +205,6 @@ extern const struct dm_i2c_ops designware_i2c_ops;
 
 int designware_i2c_probe(struct udevice *bus);
 int designware_i2c_remove(struct udevice *dev);
+int designware_i2c_ofdata_to_platdata(struct udevice *bus);
 
 #endif /* __DW_I2C_H_ */

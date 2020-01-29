@@ -126,6 +126,4 @@ struct ast_i2c_regs {
 #define I2CD_RX_DATA_SHIFT			8
 #define I2CD_RX_DATA_MASK			(0xff << I2CD_RX_DATA_SHIFT)
 
-#define I2C_HIGHSPEED_RATE    400000
-
 #endif				/* __AST_I2C_H_ */

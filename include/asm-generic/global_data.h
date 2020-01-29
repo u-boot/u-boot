@@ -90,9 +90,6 @@ typedef struct global_data {
 #if defined(CONFIG_SYS_I2C)
 	int		cur_i2c_bus;	/* current used i2c bus */
 #endif
-#ifdef CONFIG_SYS_I2C_MXC
-	void *srdata[10];
-#endif
 	unsigned int timebase_h;
 	unsigned int timebase_l;
 #if CONFIG_VAL(SYS_MALLOC_F_LEN)

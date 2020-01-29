@@ -213,7 +213,7 @@ static int cdns_i2c_set_bus_speed(struct udevice *dev, unsigned int speed)
 	unsigned long speed_p = speed;
 	int ret = 0;
 
-	if (speed > 400000) {
+	if (speed > I2C_SPEED_FAST_RATE) {
 		debug("%s, failed to set clock speed to %u\n", __func__,
 		      speed);
 		return -EINVAL;

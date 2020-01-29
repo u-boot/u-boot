@@ -306,7 +306,7 @@ static int __omap24_i2c_setspeed(void __iomem *i2c_base, int ip_rev, uint speed,
 	int hsscll = 0, hssclh = 0;
 	u32 scll = 0, sclh = 0;
 
-	if (speed >= OMAP_I2C_HIGH_SPEED) {
+	if (speed >= I2C_SPEED_HIGH_RATE) {
 		/* High speed */
 		psc = I2C_IP_CLK / I2C_INTERNAL_SAMPLING_CLK;
 		psc -= 1;
@@ -1066,7 +1066,8 @@ static int omap_i2c_ofdata_to_platdata(struct udevice *bus)
 	struct omap_i2c_platdata *plat = dev_get_platdata(bus);
 
 	plat->base = devfdt_get_addr(bus);
-	plat->speed = dev_read_u32_default(bus, "clock-frequency", 100000);
+	plat->speed = dev_read_u32_default(bus, "clock-frequency",
+					   I2C_SPEED_STANDARD_RATE);
 	plat->ip_rev = dev_get_driver_data(bus);
 
 	return 0;

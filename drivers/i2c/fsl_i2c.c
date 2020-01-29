@@ -584,7 +584,8 @@ static int fsl_i2c_ofdata_to_platdata(struct udevice *bus)
 	dev->index = dev_read_u32_default(bus, "cell-index", -1);
 	dev->slaveadd = dev_read_u32_default(bus, "u-boot,i2c-slave-addr",
 					     0x7f);
-	dev->speed = dev_read_u32_default(bus, "clock-frequency", 400000);
+	dev->speed = dev_read_u32_default(bus, "clock-frequency",
+					  I2C_SPEED_FAST_RATE);
 
 	if (!clk_get_by_index(bus, 0, &clock))
 		dev->i2c_clk = clk_get_rate(&clock);

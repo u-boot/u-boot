@@ -4,8 +4,8 @@
  * Vipin Kumar, ST Micoelectronics, vipin.kumar@st.com.
  */
 
-#include <clk.h>
 #include <common.h>
+#include <clk.h>
 #include <dm.h>
 #include <i2c.h>
 #include <pci.h>
@@ -46,30 +46,220 @@ static int dw_i2c_enable(struct i2c_regs *i2c_base, bool enable)
 }
 #endif
 
+/* High and low times in different speed modes (in ns) */
+enum {
+	/* SDA Hold Time */
+	DEFAULT_SDA_HOLD_TIME		= 300,
+};
+
+/**
+ * calc_counts() - Convert a period to a number of IC clk cycles
+ *
+ * @ic_clk: Input clock in Hz
+ * @period_ns: Period to represent, in ns
+ * @return calculated count
+ */
+static uint calc_counts(uint ic_clk, uint period_ns)
+{
+	return DIV_ROUND_UP(ic_clk / 1000 * period_ns, NANO_TO_KILO);
+}
+
+/**
+ * struct i2c_mode_info - Information about an I2C speed mode
+ *
+ * Each speed mode has its own characteristics. This struct holds these to aid
+ * calculations in dw_i2c_calc_timing().
+ *
+ * @speed: Speed in Hz
+ * @min_scl_lowtime_ns: Minimum value for SCL low period in ns
+ * @min_scl_hightime_ns: Minimum value for SCL high period in ns
+ * @def_rise_time_ns: Default rise time in ns
+ * @def_fall_time_ns: Default fall time in ns
+ */
+struct i2c_mode_info {
+	int speed;
+	int min_scl_hightime_ns;
+	int min_scl_lowtime_ns;
+	int def_rise_time_ns;
+	int def_fall_time_ns;
+};
+
+static const struct i2c_mode_info info_for_mode[] = {
+	[IC_SPEED_MODE_STANDARD] = {
+		I2C_SPEED_STANDARD_RATE,
+		MIN_SS_SCL_HIGHTIME,
+		MIN_SS_SCL_LOWTIME,
+		1000,
+		300,
+	},
+	[IC_SPEED_MODE_FAST] = {
+		I2C_SPEED_FAST_RATE,
+		MIN_FS_SCL_HIGHTIME,
+		MIN_FS_SCL_LOWTIME,
+		300,
+		300,
+	},
+	[IC_SPEED_MODE_FAST_PLUS] = {
+		I2C_SPEED_FAST_PLUS_RATE,
+		MIN_FP_SCL_HIGHTIME,
+		MIN_FP_SCL_LOWTIME,
+		260,
+		500,
+	},
+	[IC_SPEED_MODE_HIGH] = {
+		I2C_SPEED_HIGH_RATE,
+		MIN_HS_SCL_HIGHTIME,
+		MIN_HS_SCL_LOWTIME,
+		120,
+		120,
+	},
+};
+
+/**
+ * dw_i2c_calc_timing() - Calculate the timings to use for a bus
+ *
+ * @priv: Bus private information (NULL if not using driver model)
+ * @mode: Speed mode to use
+ * @ic_clk: IC clock speed in Hz
+ * @spk_cnt: Spike-suppression count
+ * @config: Returns value to use
+ * @return 0 if OK, -EINVAL if the calculation failed due to invalid data
+ */
+static int dw_i2c_calc_timing(struct dw_i2c *priv, enum i2c_speed_mode mode,
+			      int ic_clk, int spk_cnt,
+			      struct dw_i2c_speed_config *config)
+{
+	int fall_cnt, rise_cnt, min_tlow_cnt, min_thigh_cnt;
+	int hcnt, lcnt, period_cnt, diff, tot;
+	int sda_hold_time_ns, scl_rise_time_ns, scl_fall_time_ns;
+	const struct i2c_mode_info *info;
+
+	/*
+	 * Find the period, rise, fall, min tlow, and min thigh in terms of
+	 * counts of the IC clock
+	 */
+	info = &info_for_mode[mode];
+	period_cnt = ic_clk / info->speed;
+	scl_rise_time_ns = priv && priv->scl_rise_time_ns ?
+		 priv->scl_rise_time_ns : info->def_rise_time_ns;
+	scl_fall_time_ns = priv && priv->scl_fall_time_ns ?
+		 priv->scl_fall_time_ns : info->def_fall_time_ns;
+	rise_cnt = calc_counts(ic_clk, scl_rise_time_ns);
+	fall_cnt = calc_counts(ic_clk, scl_fall_time_ns);
+	min_tlow_cnt = calc_counts(ic_clk, info->min_scl_lowtime_ns);
+	min_thigh_cnt = calc_counts(ic_clk, info->min_scl_hightime_ns);
+
+	debug("dw_i2c: period %d rise %d fall %d tlow %d thigh %d spk %d\n",
+	      period_cnt, rise_cnt, fall_cnt, min_tlow_cnt, min_thigh_cnt,
+	      spk_cnt);
+
+	/*
+	 * Back-solve for hcnt and lcnt according to the following equations:
+	 * SCL_High_time = [(HCNT + IC_*_SPKLEN + 7) * ic_clk] + SCL_Fall_time
+	 * SCL_Low_time = [(LCNT + 1) * ic_clk] - SCL_Fall_time + SCL_Rise_time
+	 */
+	hcnt = min_thigh_cnt - fall_cnt - 7 - spk_cnt;
+	lcnt = min_tlow_cnt - rise_cnt + fall_cnt - 1;
+
+	if (hcnt < 0 || lcnt < 0) {
+		debug("dw_i2c: bad counts. hcnt = %d lcnt = %d\n", hcnt, lcnt);
+		return -EINVAL;
+	}
+
+	/*
+	 * Now add things back up to ensure the period is hit. If it is off,
+	 * split the difference and bias to lcnt for remainder
+	 */
+	tot = hcnt + lcnt + 7 + spk_cnt + rise_cnt + 1;
+
+	if (tot < period_cnt) {
+		diff = (period_cnt - tot) / 2;
+		hcnt += diff;
+		lcnt += diff;
+		tot = hcnt + lcnt + 7 + spk_cnt + rise_cnt + 1;
+		lcnt += period_cnt - tot;
+	}
+
+	config->scl_lcnt = lcnt;
+	config->scl_hcnt = hcnt;
+
+	/* Use internal default unless other value is specified */
+	sda_hold_time_ns = priv && priv->sda_hold_time_ns ?
+		 priv->sda_hold_time_ns : DEFAULT_SDA_HOLD_TIME;
+	config->sda_hold = calc_counts(ic_clk, sda_hold_time_ns);
+
+	debug("dw_i2c: hcnt = %d lcnt = %d sda hold = %d\n", hcnt, lcnt,
+	      config->sda_hold);
+
+	return 0;
+}
+
+static int calc_bus_speed(struct dw_i2c *priv, int speed, ulong bus_clk,
+			  struct dw_i2c_speed_config *config)
+{
+	const struct dw_scl_sda_cfg *scl_sda_cfg = NULL;
+	struct i2c_regs *regs = priv->regs;
+	enum i2c_speed_mode i2c_spd;
+	int spk_cnt;
+	int ret;
+
+	if (priv)
+		scl_sda_cfg = priv->scl_sda_cfg;
+	/* Allow high speed if there is no config, or the config allows it */
+	if (speed >= I2C_SPEED_HIGH_RATE &&
+	    (!scl_sda_cfg || scl_sda_cfg->has_high_speed))
+		i2c_spd = IC_SPEED_MODE_HIGH;
+	else if (speed >= I2C_SPEED_FAST_RATE)
+		i2c_spd = IC_SPEED_MODE_FAST_PLUS;
+	else if (speed >= I2C_SPEED_FAST_PLUS_RATE)
+		i2c_spd = IC_SPEED_MODE_FAST;
+	else
+		i2c_spd = IC_SPEED_MODE_STANDARD;
+
+	/* Get the proper spike-suppression count based on target speed */
+	if (!priv || !priv->has_spk_cnt)
+		spk_cnt = 0;
+	else if (i2c_spd >= IC_SPEED_MODE_HIGH)
+		spk_cnt = readl(&regs->hs_spklen);
+	else
+		spk_cnt = readl(&regs->fs_spklen);
+	if (scl_sda_cfg) {
+		config->sda_hold = scl_sda_cfg->sda_hold;
+		if (i2c_spd == IC_SPEED_MODE_STANDARD) {
+			config->scl_hcnt = scl_sda_cfg->ss_hcnt;
+			config->scl_lcnt = scl_sda_cfg->ss_lcnt;
+		} else {
+			config->scl_hcnt = scl_sda_cfg->fs_hcnt;
+			config->scl_lcnt = scl_sda_cfg->fs_lcnt;
+		}
+	} else {
+		ret = dw_i2c_calc_timing(priv, i2c_spd, bus_clk, spk_cnt,
+					 config);
+		if (ret)
+			return log_msg_ret("gen_confg", ret);
+	}
+	config->speed_mode = i2c_spd;
+
+	return 0;
+}
+
 /*
- * i2c_set_bus_speed - Set the i2c speed
+ * _dw_i2c_set_bus_speed - Set the i2c speed
  * @speed:	required i2c speed
  *
  * Set the i2c speed.
  */
-static unsigned int __dw_i2c_set_bus_speed(struct i2c_regs *i2c_base,
-					   struct dw_scl_sda_cfg *scl_sda_cfg,
-					   unsigned int speed,
-					   unsigned int bus_mhz)
+static int _dw_i2c_set_bus_speed(struct dw_i2c *priv, struct i2c_regs *i2c_base,
+				 unsigned int speed, unsigned int bus_clk)
 {
+	struct dw_i2c_speed_config config;
 	unsigned int cntl;
-	unsigned int hcnt, lcnt;
 	unsigned int ena;
-	int i2c_spd;
+	int ret;
 
-	/* Allow max speed if there is no config, or the config allows it */
-	if (speed >= I2C_MAX_SPEED &&
-	    (!scl_sda_cfg || scl_sda_cfg->has_max_speed))
-		i2c_spd = IC_SPEED_MODE_MAX;
-	else if (speed >= I2C_FAST_SPEED)
-		i2c_spd = IC_SPEED_MODE_FAST;
-	else
-		i2c_spd = IC_SPEED_MODE_STANDARD;
+	ret = calc_bus_speed(priv, speed, bus_clk, &config);
+	if (ret)
+		return ret;
 
 	/* Get enable setting for restore later */
 	ena = readl(&i2c_base->ic_enable) & IC_ENABLE_0B;
@@ -79,53 +269,31 @@ static unsigned int __dw_i2c_set_bus_speed(struct i2c_regs *i2c_base,
 
 	cntl = (readl(&i2c_base->ic_con) & (~IC_CON_SPD_MSK));
 
-	switch (i2c_spd) {
-	case IC_SPEED_MODE_MAX:
+	switch (config.speed_mode) {
+	case IC_SPEED_MODE_HIGH:
 		cntl |= IC_CON_SPD_SS;
-		if (scl_sda_cfg) {
-			hcnt = scl_sda_cfg->fs_hcnt;
-			lcnt = scl_sda_cfg->fs_lcnt;
-		} else {
-			hcnt = (bus_mhz * MIN_HS_SCL_HIGHTIME) / NANO_TO_MICRO;
-			lcnt = (bus_mhz * MIN_HS_SCL_LOWTIME) / NANO_TO_MICRO;
-		}
-		writel(hcnt, &i2c_base->ic_hs_scl_hcnt);
-		writel(lcnt, &i2c_base->ic_hs_scl_lcnt);
+		writel(config.scl_hcnt, &i2c_base->ic_hs_scl_hcnt);
+		writel(config.scl_lcnt, &i2c_base->ic_hs_scl_lcnt);
 		break;
-
 	case IC_SPEED_MODE_STANDARD:
 		cntl |= IC_CON_SPD_SS;
-		if (scl_sda_cfg) {
-			hcnt = scl_sda_cfg->ss_hcnt;
-			lcnt = scl_sda_cfg->ss_lcnt;
-		} else {
-			hcnt = (bus_mhz * MIN_SS_SCL_HIGHTIME) / NANO_TO_MICRO;
-			lcnt = (bus_mhz * MIN_SS_SCL_LOWTIME) / NANO_TO_MICRO;
-		}
-		writel(hcnt, &i2c_base->ic_ss_scl_hcnt);
-		writel(lcnt, &i2c_base->ic_ss_scl_lcnt);
+		writel(config.scl_hcnt, &i2c_base->ic_ss_scl_hcnt);
+		writel(config.scl_lcnt, &i2c_base->ic_ss_scl_lcnt);
 		break;
-
+	case IC_SPEED_MODE_FAST_PLUS:
 	case IC_SPEED_MODE_FAST:
 	default:
 		cntl |= IC_CON_SPD_FS;
-		if (scl_sda_cfg) {
-			hcnt = scl_sda_cfg->fs_hcnt;
-			lcnt = scl_sda_cfg->fs_lcnt;
-		} else {
-			hcnt = (bus_mhz * MIN_FS_SCL_HIGHTIME) / NANO_TO_MICRO;
-			lcnt = (bus_mhz * MIN_FS_SCL_LOWTIME) / NANO_TO_MICRO;
-		}
-		writel(hcnt, &i2c_base->ic_fs_scl_hcnt);
-		writel(lcnt, &i2c_base->ic_fs_scl_lcnt);
+		writel(config.scl_hcnt, &i2c_base->ic_fs_scl_hcnt);
+		writel(config.scl_lcnt, &i2c_base->ic_fs_scl_lcnt);
 		break;
 	}
 
 	writel(cntl, &i2c_base->ic_con);
 
 	/* Configure SDA Hold Time if required */
-	if (scl_sda_cfg)
-		writel(scl_sda_cfg->sda_hold, &i2c_base->ic_sda_hold);
+	if (config.sda_hold)
+		writel(config.sda_hold, &i2c_base->ic_sda_hold);
 
 	/* Restore back i2c now speed set */
 	if (ena == IC_ENABLE_0B)
@@ -370,7 +538,7 @@ static int __dw_i2c_init(struct i2c_regs *i2c_base, int speed, int slaveaddr)
 	writel(IC_TX_TL, &i2c_base->ic_tx_tl);
 	writel(IC_STOP_DET, &i2c_base->ic_intr_mask);
 #ifndef CONFIG_DM_I2C
-	__dw_i2c_set_bus_speed(i2c_base, NULL, speed, IC_CLK);
+	_dw_i2c_set_bus_speed(NULL, i2c_base, speed, IC_CLK);
 	writel(slaveaddr, &i2c_base->ic_sar);
 #endif
 
@@ -415,7 +583,7 @@ static unsigned int dw_i2c_set_bus_speed(struct i2c_adapter *adap,
 					 unsigned int speed)
 {
 	adap->speed = speed;
-	return __dw_i2c_set_bus_speed(i2c_get_base(adap), NULL, speed, IC_CLK);
+	return _dw_i2c_set_bus_speed(NULL, i2c_get_base(adap), speed, IC_CLK);
 }
 
 static void dw_i2c_init(struct i2c_adapter *adap, int speed, int slaveaddr)
@@ -511,14 +679,10 @@ static int designware_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
 	rate = clk_get_rate(&i2c->clk);
 	if (IS_ERR_VALUE(rate))
 		return -EINVAL;
-
-	/* Convert to MHz */
-	rate /= 1000000;
 #else
 	rate = IC_CLK;
 #endif
-	return __dw_i2c_set_bus_speed(i2c->regs, i2c->scl_sda_cfg, speed,
-				      rate);
+	return _dw_i2c_set_bus_speed(i2c, i2c->regs, speed, rate);
 }
 
 static int designware_i2c_probe_chip(struct udevice *bus, uint chip_addr,
@@ -537,19 +701,16 @@ static int designware_i2c_probe_chip(struct udevice *bus, uint chip_addr,
 	return ret;
 }
 
-static int designware_i2c_ofdata_to_platdata(struct udevice *bus)
-{
-	struct dw_i2c *priv = dev_get_priv(bus);
-
-	priv->regs = (struct i2c_regs *)devfdt_get_addr_ptr(bus);
-
-	return 0;
-}
-
-int designware_i2c_probe(struct udevice *bus)
+int designware_i2c_ofdata_to_platdata(struct udevice *bus)
 {
 	struct dw_i2c *priv = dev_get_priv(bus);
 	int ret;
+
+	if (!priv->regs)
+		priv->regs = (struct i2c_regs *)devfdt_get_addr_ptr(bus);
+	dev_read_u32(bus, "i2c-scl-rising-time-ns", &priv->scl_rise_time_ns);
+	dev_read_u32(bus, "i2c-scl-falling-time-ns", &priv->scl_fall_time_ns);
+	dev_read_u32(bus, "i2c-sda-hold-time-ns", &priv->sda_hold_time_ns);
 
 	ret = reset_get_bulk(bus, &priv->resets);
 	if (ret)
@@ -569,6 +730,13 @@ int designware_i2c_probe(struct udevice *bus)
 		return ret;
 	}
 #endif
+
+	return 0;
+}
+
+int designware_i2c_probe(struct udevice *bus)
+{
+	struct dw_i2c *priv = dev_get_priv(bus);
 
 	return __dw_i2c_init(priv->regs, 0, 0);
 }

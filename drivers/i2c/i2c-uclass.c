@@ -641,7 +641,8 @@ static int i2c_post_probe(struct udevice *dev)
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct dm_i2c_bus *i2c = dev_get_uclass_priv(dev);
 
-	i2c->speed_hz = dev_read_u32_default(dev, "clock-frequency", 100000);
+	i2c->speed_hz = dev_read_u32_default(dev, "clock-frequency",
+					     I2C_SPEED_STANDARD_RATE);
 
 	return dm_i2c_set_bus_speed(dev, i2c->speed_hz);
 #else
@@ -699,11 +700,10 @@ int i2c_uclass_init(struct uclass *class)
 		return -ENOMEM;
 
 	/* Get the last allocated alias. */
-#if CONFIG_IS_ENABLED(OF_CONTROL)
-	priv->max_id = dev_read_alias_highest_id("i2c");
-#else
-	priv->max_id = -1;
-#endif
+	if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA))
+		priv->max_id = dev_read_alias_highest_id("i2c");
+	else
+		priv->max_id = -1;
 
 	debug("%s: highest alias id is %d\n", __func__, priv->max_id);
 
