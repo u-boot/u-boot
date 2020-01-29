@@ -276,7 +276,7 @@ static int xilinx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	unsigned char *rxp = din;
 	u32 txbytes = bytes;
 	u32 rxbytes = bytes;
-	u32 reg, count, timeout;
+	u32 reg, count;
 	int ret;
 
 	debug("spi_xfer: bus:%i cs:%i bitlen:%i bytes:%i flags:%lx\n",
