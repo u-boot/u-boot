@@ -17,7 +17,7 @@ config TARGET_MX25PDK
 config TARGET_ZMX25
 	bool "Support zmx25"
 	select BOARD_LATE_INIT
-	select CPU_ARM926EJS1
+	select CPU_ARM926EJS
 
 endchoice
 

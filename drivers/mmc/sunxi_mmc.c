@@ -12,6 +12,8 @@
 #include <errno.h>
 #include <malloc.h>
 #include <mmc.h>
+#include <clk.h>
+#include <reset.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/cpu.h>
@@ -21,7 +23,6 @@
 
 #ifdef CONFIG_DM_MMC
 struct sunxi_mmc_variant {
-	u16 gate_offset;
 	u16 mclk_offset;
 };
 #endif
@@ -607,9 +608,11 @@ static int sunxi_mmc_probe(struct udevice *dev)
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct sunxi_mmc_plat *plat = dev_get_platdata(dev);
 	struct sunxi_mmc_priv *priv = dev_get_priv(dev);
+	struct reset_ctl_bulk reset_bulk;
+	struct clk gate_clk;
 	struct mmc_config *cfg = &plat->cfg;
 	struct ofnode_phandle_args args;
-	u32 *gate_reg, *ccu_reg;
+	u32 *ccu_reg;
 	int bus_width, ret;
 
 	cfg->name = dev->name;
@@ -641,15 +644,22 @@ static int sunxi_mmc_probe(struct udevice *dev)
 	priv->mmc_no = ((uintptr_t)priv->reg - SUNXI_MMC0_BASE) / 0x1000;
 	priv->mclkreg = (void *)ccu_reg +
 			(priv->variant->mclk_offset + (priv->mmc_no * 4));
-	gate_reg = (void *)ccu_reg + priv->variant->gate_offset;
-	setbits_le32(gate_reg, BIT(AHB_GATE_OFFSET_MMC(priv->mmc_no)));
+
+	ret = clk_get_by_name(dev, "ahb", &gate_clk);
+	if (!ret)
+		clk_enable(&gate_clk);
+
+	ret = reset_get_bulk(dev, &reset_bulk);
+	if (!ret)
+		reset_deassert_bulk(&reset_bulk);
 
 	ret = mmc_set_mod_clk(priv, 24000000);
 	if (ret)
 		return ret;
 
 	/* This GPIO is optional */
-	if (!gpio_request_by_name(dev, "cd-gpios", 0, &priv->cd_gpio,
+	if (!dev_read_bool(dev, "non-removable") &&
+	    !gpio_request_by_name(dev, "cd-gpios", 0, &priv->cd_gpio,
 				  GPIOD_IS_IN)) {
 		int cd_pin = gpio_get_number(&priv->cd_gpio);
 
@@ -676,8 +686,15 @@ static int sunxi_mmc_bind(struct udevice *dev)
 }
 
 static const struct sunxi_mmc_variant sun4i_a10_variant = {
-	.gate_offset = 0x60,
 	.mclk_offset = 0x88,
+};
+
+static const struct sunxi_mmc_variant sun9i_a80_variant = {
+	.mclk_offset = 0x410,
+};
+
+static const struct sunxi_mmc_variant sun50i_h6_variant = {
+	.mclk_offset = 0x830,
 };
 
 static const struct udevice_id sunxi_mmc_ids[] = {
@@ -692,6 +709,30 @@ static const struct udevice_id sunxi_mmc_ids[] = {
 	{
 	  .compatible = "allwinner,sun7i-a20-mmc",
 	  .data = (ulong)&sun4i_a10_variant,
+	},
+	{
+	  .compatible = "allwinner,sun8i-a83t-emmc",
+	  .data = (ulong)&sun4i_a10_variant,
+	},
+	{
+	  .compatible = "allwinner,sun9i-a80-mmc",
+	  .data = (ulong)&sun9i_a80_variant,
+	},
+	{
+	  .compatible = "allwinner,sun50i-a64-mmc",
+	  .data = (ulong)&sun4i_a10_variant,
+	},
+	{
+	  .compatible = "allwinner,sun50i-a64-emmc",
+	  .data = (ulong)&sun4i_a10_variant,
+	},
+	{
+	  .compatible = "allwinner,sun50i-h6-mmc",
+	  .data = (ulong)&sun50i_h6_variant,
+	},
+	{
+	  .compatible = "allwinner,sun50i-h6-emmc",
+	  .data = (ulong)&sun50i_h6_variant,
 	},
 	{ /* sentinel */ }
 };

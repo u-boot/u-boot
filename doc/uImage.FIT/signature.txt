@@ -167,6 +167,68 @@ For RSA the following are mandatory:
 - rsa,r-squared: (2^num-bits)^2 as a big-endian multi-word integer
 - rsa,n0-inverse: -1 / modulus[0] mod 2^32
 
+These parameters can be added to a binary device tree using parameter -K of the
+mkimage command::
+
+    tools/mkimage -f fit.its -K control.dtb -k keys -r image.fit
+
+Here is an example of a generated device tree node::
+
+	signature {
+		key-dev {
+			required = "conf";
+			algo = "sha256,rsa2048";
+			rsa,r-squared = <0xb76d1acf 0xa1763ca5 0xeb2f126
+					0x742edc80 0xd3f42177 0x9741d9d9
+					0x35bb476e 0xff41c718 0xd3801430
+					0xf22537cb 0xa7e79960 0xae32a043
+					0x7da1427a 0x341d6492 0x3c2762f5
+					0xaac04726 0x5b262d96 0xf984e86d
+					0xb99443c7 0x17080c33 0x940f6892
+					0xd57a95d1 0x6ea7b691 0xc5038fa8
+					0x6bb48a6e 0x73f1b1ea 0x37160841
+					0xe05715ce 0xa7c45bbd 0x690d82d5
+					0x99c2454c 0x6ff117b3 0xd830683b
+					0x3f81c9cf 0x1ca38a91 0x0c3392e4
+					0xd817c625 0x7b8e9a24 0x175b89ea
+					0xad79f3dc 0x4d50d7b4 0x9d4e90f8
+					0xad9e2939 0xc165d6a4 0x0ada7e1b
+					0xfb1bf495 0xfc3131c2 0xb8c6e604
+					0xc2761124 0xf63de4a6 0x0e9565f9
+					0xc8e53761 0x7e7a37a5 0xe99dcdae
+					0x9aff7e1e 0xbd44b13d 0x6b0e6aa4
+					0x038907e4 0x8e0d6850 0xef51bc20
+					0xf73c94af 0x88bea7b1 0xcbbb1b30
+					0xd024b7f3>;
+			rsa,modulus = <0xc0711d6cb 0x9e86db7f 0x45986dbe
+				       0x023f1e8c9 0xe1a4c4d0 0x8a0dfdc9
+				       0x023ba0c48 0x06815f6a 0x5caa0654
+				       0x07078c4b7 0x3d154853 0x40729023
+				       0x0b007c8fe 0x5a3647e5 0x23b41e20
+				       0x024720591 0x66915305 0x0e0b29b0
+				       0x0de2ad30d 0x8589430f 0xb1590325
+				       0x0fb9f5d5e 0x9eba752a 0xd88e6de9
+				       0x056b3dcc6 0x9a6b8e61 0x6784f61f
+				       0x000f39c21 0x5eec6b33 0xd78e4f78
+				       0x0921a305f 0xaa2cc27e 0x1ca917af
+				       0x06e1134f4 0xd48cac77 0x4e914d07
+				       0x0f707aa5a 0x0d141f41 0x84677f1d
+				       0x0ad47a049 0x028aedb6 0xd5536fcf
+				       0x03fef1e4f 0x133a03d2 0xfd7a750a
+				       0x0f9159732 0xd207812e 0x6a807375
+				       0x06434230d 0xc8e22dad 0x9f29b3d6
+				       0x07c44ac2b 0xfa2aad88 0xe2429504
+				       0x041febd41 0x85d0d142 0x7b194d65
+				       0x06e5d55ea 0x41116961 0xf3181dde
+				       0x068bf5fbc 0x3dd82047 0x00ee647e
+				       0x0d7a44ab3>;
+			rsa,exponent = <0x00 0x10001>;
+			rsa,n0-inverse = <0xb3928b85>;
+			rsa,num-bits = <0x800>;
+			key-name-hint = "dev";
+		};
+	};
+
 
 Signed Configurations
 ---------------------
@@ -216,7 +278,7 @@ As an example, consider this FIT:
 			kernel = "kernel-1";
 			fdt = "fdt-1";
 		};
-		conf-1 {
+		conf-2 {
 			kernel = "kernel-2";
 			fdt = "fdt-2";
 		};
@@ -232,7 +294,7 @@ configuration 3 with kernel 1 and fdt 2:
 			kernel = "kernel-1";
 			fdt = "fdt-1";
 		};
-		conf-1 {
+		conf-2 {
 			kernel = "kernel-2";
 			fdt = "fdt-2";
 		};
@@ -335,7 +397,8 @@ CONFIG_RSA - enable RSA algorithm for signing
 
 WARNING: When relying on signed FIT images with required signature check
 the legacy image format is default disabled by not defining
-CONFIG_IMAGE_FORMAT_LEGACY
+CONFIG_LEGACY_IMAGE_FORMAT
+
 
 Testing
 -------
@@ -349,6 +412,8 @@ A sample run is show below:
 $ make O=sandbox sandbox_config
 $ make O=sandbox
 $ O=sandbox ./test/vboot/vboot_test.sh
+
+
 Simple Verified Boot Test
 =========================
 
@@ -388,8 +453,8 @@ Test Verified Boot Run: signed config with bad hash: OK
 Test passed
 
 
-Hardware Signing with PKCS#11
------------------------------
+Hardware Signing with PKCS#11 or with HSM
+-----------------------------------------
 
 Securely managing private signing keys can challenging, especially when the
 keys are stored on the file system of a computer that is connected to the
@@ -402,14 +467,43 @@ them perform the signing. PKCS#11 is standard for interfacing with these crypto
 device.
 
 Requirements:
-Smartcard/USB token/HSM which can work with the pkcs11 engine
+Smartcard/USB token/HSM which can work with some openssl engine
 openssl
+
+For pkcs11 engine usage:
 libp11 (provides pkcs11 engine)
 p11-kit (recommended to simplify setup)
 opensc (for smartcards and smartcard like USB devices)
 gnutls (recommended for key generation, p11tool)
 
-The following examples use the Nitrokey Pro. Instructions for other devices may vary.
+For generic HSMs respective openssl engine must be installed and locateable by
+openssl. This may require setting up LD_LIBRARY_PATH if engine is not installed
+to openssl's default search paths.
+
+PKCS11 engine support forms "key id" based on "keydir" and with
+"key-name-hint". "key-name-hint" is used as "object" name and "keydir" if
+defined is used to define (prefix for) which PKCS11 source is being used for
+lookup up for the key.
+
+PKCS11 engine key ids:
+   "pkcs11:<keydir>;object=<key-name-hint>;type=<public|private>"
+or
+   "pkcs11:object=<key-name-hint>;type=<public|private>",
+
+Generic HSM engine support forms "key id" based on "keydir" and with
+"key-name-hint". If "keydir" is specified for mkimage it is used as a prefix in
+"key id" and is appended with "key-name-hint".
+
+Generic engine key ids:
+  "<keydir><key-name-hint>"
+or
+  "<key-name-hint>"
+
+As mkimage does not at this time support prompting for passwords HSM may need
+key preloading wrapper to be used when invoking mkimage.
+
+The following examples use the Nitrokey Pro using pkcs11 engine. Instructions
+for other devices may vary.
 
 Notes on pkcs11 engine setup:
 

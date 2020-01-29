@@ -12,7 +12,7 @@
 #define	__ASM_STUB_PROCESSOR_H__	/* don't include asm/processor. */
 #include <config.h>
 #undef	__ASSEMBLY__
-#include <environment.h>
+#include <env_internal.h>
 #include <linux/stringify.h>
 
 /* Handle HOSTS that have prepended crap on symbol names, not TARGETS. */
@@ -91,6 +91,6 @@ unsigned long env_size __UBOOT_ENV_SECTION__(env_size) = sizeof(env_t);
 /*
  * Add in absolutes.
  */
-GEN_ABS(env_offset, CONFIG_ENV_OFFSET);
+GEN_ABS(env_offset, (CONFIG_ENV_ADDR - CONFIG_SYS_FLASH_BASE));
 
 #endif /* ENV_IS_EMBEDDED */

@@ -110,7 +110,6 @@ static int pfe_phy_write(struct mii_dev *bus, int phy_addr, int dev_addr,
 	u32 phy;
 	u32 reg_data;
 	int timeout = MDIO_TIMEOUT;
-	int val;
 
 	if (dev_addr == MDIO_DEVAD_NONE) {
 		reg = ((reg_addr & EMAC_MII_DATA_RA_MASK) <<
@@ -150,7 +149,7 @@ static int pfe_phy_write(struct mii_dev *bus, int phy_addr, int dev_addr,
 	debug("%s: phy: %02x reg:%02x val:%#x\n", __func__, phy_addr,
 	      reg_addr, data);
 
-	return val;
+	return 0;
 }
 
 static void pfe_configure_serdes(struct pfe_eth_dev *priv)

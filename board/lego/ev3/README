@@ -50,3 +50,6 @@ software or a 3rd party program capable of uploading a firmware file.
 If you are booting from the microSD card, it is enough to just write uboot.bin
 to the flash. If you are not using a microSD card, you will need to create an
 image file using the layout described above.
+
+IMPORTANT: The EEPROM bootloader only copies 256k, so u-boot.img must not
+exceed that size!

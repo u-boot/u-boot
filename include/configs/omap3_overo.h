@@ -11,8 +11,6 @@
  * We are only ever GP parts and will utilize all of the "downloaded image"
  * area in SRAM which starts at 0x40200000 and ends at 0x4020FFFF (64KB).
  */
-#undef CONFIG_SPL_TEXT_BASE
-#define CONFIG_SPL_TEXT_BASE		0x40200000
 
 /* call misc_init_r */
 
@@ -21,7 +19,6 @@
 
 /* override size of malloc() pool */
 #undef CONFIG_SYS_MALLOC_LEN
-#define CONFIG_ENV_SIZE		(128 << 10)	/* 128 KiB sector */
 /* Shift 128 << 15 provides 4 MiB heap to support UBI commands.
  * Shift 128 << 10 provides 128 KiB heap for limited-memory devices. */
 #define CONFIG_SYS_MALLOC_LEN	(CONFIG_ENV_SIZE + (128 << 15))
@@ -35,7 +32,7 @@
 
 /* commands to include */
 
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 /* NAND block size is 128 KiB.  Synchronize these values with
  * overo_nand_partitions in mach-omap2/board-overo.c in Linux:
  *  xloader              4 * NAND_BLOCK_SIZE = 512 KiB
@@ -44,7 +41,7 @@
  *  linux               64 * NAND_BLOCK_SIZE = 8 MiB
  *  rootfs              remainder
  */
-#endif /* CONFIG_NAND */
+#endif /* CONFIG_MTD_RAW_NAND */
 
 /* Board NAND Info. */
 /* Environment information */
@@ -148,7 +145,7 @@
 					0x01F00000) /* 31MB */
 
 /* FLASH and environment organization */
-#if defined(CONFIG_NAND)
+#if defined(CONFIG_MTD_RAW_NAND)
 #define CONFIG_SYS_FLASH_BASE		NAND_BASE
 #endif
 
@@ -158,8 +155,6 @@
 
 #define ONENAND_ENV_OFFSET		0x240000 /* environment starts here */
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
-#define CONFIG_ENV_OFFSET		0x240000
-#define CONFIG_ENV_ADDR			0x240000
 
 /* Initial RAM setup */
 #define CONFIG_SYS_INIT_RAM_ADDR	0x4020f800

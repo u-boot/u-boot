@@ -13,7 +13,7 @@
 
 static int do_sdp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	int ret = CMD_RET_FAILURE;
+	int ret;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
@@ -23,7 +23,11 @@ static int do_sdp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	usb_gadget_initialize(controller_index);
 
 	g_dnl_clear_detach();
-	g_dnl_register("usb_dnl_sdp");
+	ret = g_dnl_register("usb_dnl_sdp");
+	if (ret) {
+		pr_err("SDP dnl register failed: %d\n", ret);
+		goto exit_register;
+	}
 
 	ret = sdp_init(controller_index);
 	if (ret) {
@@ -37,9 +41,10 @@ static int do_sdp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 exit:
 	g_dnl_unregister();
+exit_register:
 	usb_gadget_release(controller_index);
 
-	return ret;
+	return CMD_RET_FAILURE;
 }
 
 U_BOOT_CMD(sdp, 2, 1, do_sdp,

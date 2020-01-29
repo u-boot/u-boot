@@ -23,17 +23,19 @@
 #include <linux/mtd/mtd.h>
 #include <command.h>
 #include <console.h>
+#include <env.h>
 #include <watchdog.h>
 #include <malloc.h>
 #include <asm/byteorder.h>
 #include <jffs2/jffs2.h>
 #include <nand.h>
 
+#include "legacy-mtd-utils.h"
+
 #if defined(CONFIG_CMD_MTDPARTS)
 
 /* partition handling routines */
 int mtdparts_init(void);
-int id_parse(const char *id, const char **ret_id, u8 *dev_type, u8 *dev_num);
 int find_dev_and_part(const char *id, struct mtd_device **dev,
 		      u8 *part_num, struct part_info **part);
 #endif
@@ -846,7 +848,7 @@ static int nand_load_image(cmd_tbl_t *cmdtp, struct mtd_info *mtd,
 	int r;
 	char *s;
 	size_t cnt;
-#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
+#if defined(CONFIG_LEGACY_IMAGE_FORMAT)
 	image_header_t *hdr;
 #endif
 #if defined(CONFIG_FIT)
@@ -874,7 +876,7 @@ static int nand_load_image(cmd_tbl_t *cmdtp, struct mtd_info *mtd,
 	bootstage_mark(BOOTSTAGE_ID_NAND_HDR_READ);
 
 	switch (genimg_get_format ((void *)addr)) {
-#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
+#if defined(CONFIG_LEGACY_IMAGE_FORMAT)
 	case IMAGE_FORMAT_LEGACY:
 		hdr = (image_header_t *)addr;
 

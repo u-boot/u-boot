@@ -12,7 +12,7 @@
 #include <asm/post.h>
 #include <asm/arch/device.h>
 #include <asm/arch/tnc.h>
-#include <asm/fsp/fsp_support.h>
+#include <asm/fsp1/fsp_support.h>
 #include <asm/processor.h>
 
 static int __maybe_unused disable_igd(void)

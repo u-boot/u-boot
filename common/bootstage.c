@@ -10,9 +10,11 @@
  */
 
 #include <common.h>
-#include <linux/libfdt.h>
 #include <malloc.h>
+#include <sort.h>
+#include <spl.h>
 #include <linux/compiler.h>
+#include <linux/libfdt.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -41,24 +43,34 @@ enum {
 };
 
 struct bootstage_hdr {
-	uint32_t version;	/* BOOTSTAGE_VERSION */
-	uint32_t count;		/* Number of records */
-	uint32_t size;		/* Total data size (non-zero if valid) */
-	uint32_t magic;		/* Unused */
+	u32 version;		/* BOOTSTAGE_VERSION */
+	u32 count;		/* Number of records */
+	u32 size;		/* Total data size (non-zero if valid) */
+	u32 magic;		/* Magic number */
+	u32 next_id;		/* Next ID to use for bootstage */
 };
 
 int bootstage_relocate(void)
 {
 	struct bootstage_data *data = gd->bootstage;
 	int i;
+	char *ptr;
+
+	/* Figure out where to relocate the strings to */
+	ptr = (char *)(data + 1);
 
 	/*
 	 * Duplicate all strings.  They may point to an old location in the
 	 * program .text section that can eventually get trashed.
 	 */
 	debug("Relocating %d records\n", data->rec_count);
-	for (i = 0; i < data->rec_count; i++)
-		data->record[i].name = strdup(data->record[i].name);
+	for (i = 0; i < data->rec_count; i++) {
+		const char *from = data->record[i].name;
+
+		strcpy(ptr, from);
+		data->record[i].name = ptr;
+		ptr += strlen(ptr) + 1;
+	}
 
 	return 0;
 }
@@ -99,6 +111,13 @@ ulong bootstage_add_record(enum bootstage_id id, const char *name,
 	struct bootstage_data *data = gd->bootstage;
 	struct bootstage_record *rec;
 
+	/*
+	 * initf_bootstage() is called very early during boot but since hang()
+	 * calls bootstage_error() we can be called before bootstage is set up.
+	 * Add a check to avoid this.
+	 */
+	if (!data)
+		return mark;
 	if (flags & BOOTSTAGEF_ALLOC)
 		id = data->next_id++;
 
@@ -365,7 +384,6 @@ int bootstage_stash(void *base, int size)
 	const struct bootstage_record *rec;
 	char buf[20];
 	char *ptr = base, *end = ptr + size;
-	uint32_t count;
 	int i;
 
 	if (hdr + 1 > (struct bootstage_hdr *)end) {
@@ -376,21 +394,15 @@ int bootstage_stash(void *base, int size)
 	/* Write an arbitrary version number */
 	hdr->version = BOOTSTAGE_VERSION;
 
-	/* Count the number of records, and write that value first */
-	for (rec = data->record, i = count = 0; i < data->rec_count;
-	     i++, rec++) {
-		if (rec->id != 0)
-			count++;
-	}
-	hdr->count = count;
+	hdr->count = data->rec_count;
 	hdr->size = 0;
 	hdr->magic = BOOTSTAGE_MAGIC;
+	hdr->next_id = data->next_id;
 	ptr += sizeof(*hdr);
 
 	/* Write the records, silently stopping when we run out of space */
-	for (rec = data->record, i = 0; i < data->rec_count; i++, rec++) {
+	for (rec = data->record, i = 0; i < data->rec_count; i++, rec++)
 		append_data(&ptr, end, rec, sizeof(*rec));
-	}
 
 	/* Write the name strings */
 	for (rec = data->record, i = 0; i < data->rec_count; i++, rec++) {
@@ -471,6 +483,8 @@ int bootstage_unstash(const void *base, int size)
 	for (rec = data->record + data->next_id, i = 0; i < hdr->count;
 	     i++, rec++) {
 		rec->name = ptr;
+		if (spl_phase() == PHASE_SPL)
+			rec->name = strdup(ptr);
 
 		/* Assume no data corruption here */
 		ptr += strlen(ptr) + 1;
@@ -478,6 +492,7 @@ int bootstage_unstash(const void *base, int size)
 
 	/* Mark the records as read */
 	data->rec_count += hdr->count;
+	data->next_id = hdr->next_id;
 	debug("Unstashed %d records\n", hdr->count);
 
 	return 0;
@@ -485,7 +500,17 @@ int bootstage_unstash(const void *base, int size)
 
 int bootstage_get_size(void)
 {
-	return sizeof(struct bootstage_data);
+	struct bootstage_data *data = gd->bootstage;
+	struct bootstage_record *rec;
+	int size;
+	int i;
+
+	size = sizeof(struct bootstage_data);
+	for (rec = data->record, i = 0; i < data->rec_count;
+	     i++, rec++)
+		size += strlen(rec->name) + 1;
+
+	return size;
 }
 
 int bootstage_init(bool first)

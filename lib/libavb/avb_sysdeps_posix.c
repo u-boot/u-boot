@@ -24,14 +24,12 @@ int avb_strcmp(const char* s1, const char* s2) {
   return strcmp(s1, s2);
 }
 
-size_t avb_strlen(const char* str) {
-  return strlen(str);
+int avb_strncmp(const char* s1, const char* s2, size_t n) {
+  return strncmp(s1, s2, n);
 }
 
-uint32_t avb_div_by_10(uint64_t* dividend) {
-  uint32_t rem = (uint32_t)(*dividend % 10);
-  *dividend /= 10;
-  return rem;
+size_t avb_strlen(const char* str) {
+  return strlen(str);
 }
 
 void avb_abort(void) {
@@ -59,4 +57,10 @@ void* avb_malloc_(size_t size) {
 
 void avb_free(void* ptr) {
   free(ptr);
+}
+
+uint32_t avb_div_by_10(uint64_t* dividend) {
+  uint32_t rem = (uint32_t)(*dividend % 10);
+  *dividend /= 10;
+  return rem;
 }

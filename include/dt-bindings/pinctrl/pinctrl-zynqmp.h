@@ -1,15 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * MIO pin configuration defines for Xilinx ZynqMP
  *
  * Copyright (C) 2017 Xilinx, Inc.
  * Author: Chirag Parekh <chirag.parekh@xilinx.com>
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef _DT_BINDINGS_PINCTRL_ZYNQMP_H

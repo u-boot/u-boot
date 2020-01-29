@@ -12,14 +12,6 @@ void eth_init_board(void)
 	struct sunxi_ccm_reg *const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 
-	/* Set up clock gating */
-#ifdef CONFIG_SUNXI_GEN_SUN6I
-	setbits_le32(&ccm->ahb_reset0_cfg, 0x1 << AHB_RESET_OFFSET_GMAC);
-	setbits_le32(&ccm->ahb_gate0, 0x1 << AHB_GATE_OFFSET_GMAC);
-#else
-	setbits_le32(&ccm->ahb_gate1, 0x1 << AHB_GATE_OFFSET_GMAC);
-#endif
-
 	/* Set MII clock */
 #ifdef CONFIG_RGMII
 	setbits_le32(&ccm->gmac_clk_cfg, CCM_GMAC_CTRL_TX_CLK_SRC_INT_RGMII |

@@ -39,16 +39,15 @@ $ cp imx-sc-firmware-0.7/mx8qx-mek-scfw-tcm.bin	.
 
 Build U-Boot
 ============
-
 $ make imx8qxp_mek_defconfig
-$ make
+$ make flash.bin
 
 Flash the binary into the SD card
 =================================
 
 Burn the flash.bin binary to SD card offset 32KB:
 
-$ sudo dd if=u-boot-dtb.imx of=/dev/sd[x] bs=1024 seek=32
+$ sudo dd if=flash.bin of=/dev/sd[x] bs=1024 seek=32
 
 Boot
 ====

@@ -3,7 +3,6 @@
 # (C) Copyright 2000-2007
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 obj-$(CONFIG_DM_I2C) += i2c-uclass.o
-obj-$(CONFIG_DM_I2C_COMPAT) += i2c-uclass-compat.o
 obj-$(CONFIG_DM_I2C_GPIO) += i2c-gpio.o
 obj-$(CONFIG_$(SPL_)I2C_CROS_EC_TUNNEL) += cros_ec_tunnel.o
 obj-$(CONFIG_$(SPL_)I2C_CROS_EC_LDO) += cros_ec_ldo.o
@@ -38,7 +37,6 @@ obj-$(CONFIG_SYS_I2C_UNIPHIER) += i2c-uniphier.o
 obj-$(CONFIG_SYS_I2C_UNIPHIER_F) += i2c-uniphier-f.o
 obj-$(CONFIG_SYS_I2C_VERSATILE) += i2c-versatile.o
 obj-$(CONFIG_SYS_I2C_XILINX_XIIC) += xilinx_xiic.o
-obj-$(CONFIG_SYS_I2C_ZYNQ) += zynq_i2c.o
 obj-$(CONFIG_TEGRA186_BPMP_I2C) += tegra186_bpmp_i2c.o
 
 obj-$(CONFIG_I2C_MUX) += muxes/

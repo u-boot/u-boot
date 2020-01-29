@@ -34,6 +34,7 @@ enum cpu_target {
 	CPU_TARGET_PCIE02 = 0x4,
 	CPU_TARGET_ETH01 = 0x7,
 	CPU_TARGET_PCIE13 = 0x8,
+	CPU_TARGET_DFX = 0x8,
 	CPU_TARGET_SASRAM = 0x9,
 	CPU_TARGET_SATA01 = 0xa, /* A38X */
 	CPU_TARGET_NAND = 0xd,
@@ -79,6 +80,8 @@ enum {
 #define MBUS_PCI_IO_SIZE	(64 << 10)
 #define MBUS_SPI_BASE		0xF4000000
 #define MBUS_SPI_SIZE		(8 << 20)
+#define MBUS_DFX_BASE		0xF6000000
+#define MBUS_DFX_SIZE		(1 << 20)
 #define MBUS_BOOTROM_BASE	0xF8000000
 #define MBUS_BOOTROM_SIZE	(8 << 20)
 
@@ -141,7 +144,9 @@ u32 mvebu_get_nand_clock(void);
 
 void return_to_bootrom(void);
 
+#ifndef CONFIG_DM_MMC
 int mv_sdh_init(unsigned long regbase, u32 max_clk, u32 min_clk, u32 quirks);
+#endif
 
 void get_sar_freq(struct sar_freq_modes *sar_freq);
 
@@ -158,17 +163,12 @@ int serdes_phy_config(void);
  */
 int ddr3_init(void);
 
-struct mvebu_lcd_info {
-	u32 fb_base;
-	int x_res;
-	int y_res;
-	int x_fp;		/* frontporch */
-	int y_fp;
-	int x_bp;		/* backporch */
-	int y_bp;
-};
-
-int mvebu_lcd_register_init(struct mvebu_lcd_info *lcd_info);
+/* Auto Voltage Scaling */
+#if defined(CONFIG_ARMADA_38X) || defined(CONFIG_ARMADA_39X)
+void mv_avs_init(void);
+#else
+static inline void mv_avs_init(void) {}
+#endif
 
 /*
  * get_ref_clk

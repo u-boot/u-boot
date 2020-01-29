@@ -1,39 +1,44 @@
-STM32 QSPI controller device tree bindings
---------------------------------------------
+* STMicroelectronics Quad Serial Peripheral Interface(QSPI)
 
 Required properties:
-- compatible		: should be "st,stm32-qspi".
-- reg			: 1. Physical base address and size of SPI registers map.
-			  2. Physical base address & size of mapped NOR Flash.
-- spi-max-frequency	: Max supported spi frequency.
-- status		: enable in requried dts.
+- compatible: should be "st,stm32f469-qspi"
+- reg: the first contains the register location and length.
+       the second contains the memory mapping address and length
+- reg-names: should contain the reg names "qspi" "qspi_mm"
+- interrupts: should contain the interrupt for the device
+- clocks: the phandle of the clock needed by the QSPI controller
+- A pinctrl must be defined to set pins in mode of operation for QSPI transfer
 
-Connected flash properties
---------------------------
-- spi-max-frequency	: Max supported spi frequency.
-- spi-tx-bus-width	: Bus width (number of lines) for writing (1-4)
-- spi-rx-bus-width	: Bus width (number of lines) for reading (1-4)
-- memory-map		: Address and size for memory-mapping the flash
+Optional properties:
+- resets: must contain the phandle to the reset controller.
+
+A spi flash (NOR/NAND) must be a child of spi node and could have some
+properties. Also see jedec,spi-nor.txt.
+
+Required properties:
+- reg: chip-Select number (QSPI controller may connect 2 flashes)
+- spi-max-frequency: max frequency of spi bus
+
+Optional property:
+- spi-rx-bus-width: see ./spi-bus.txt for the description
 
 Example:
-	qspi: quadspi@A0001000 {
-		compatible = "st,stm32-qspi";
-		#address-cells = <1>;
-		#size-cells = <0>;
-		reg = <0xA0001000 0x1000>, <0x90000000 0x10000000>;
-		reg-names = "QuadSPI", "QuadSPI-memory";
-		interrupts = <92>;
-		spi-max-frequency = <108000000>;
-		status = "okay";
 
-		qflash0: n25q128a {
-			#address-cells = <1>;
-			#size-cells = <1>;
-			compatible = "micron,n25q128a13", "spi-flash";
-			spi-max-frequency = <108000000>;
-			spi-tx-bus-width = <4>;
-			spi-rx-bus-width = <4>;
-			memory-map = <0x90000000 0x1000000>;
-			reg = <0>;
-		};
+qspi: spi@a0001000 {
+	compatible = "st,stm32f469-qspi";
+	reg = <0xa0001000 0x1000>, <0x90000000 0x10000000>;
+	reg-names = "qspi", "qspi_mm";
+	interrupts = <91>;
+	resets = <&rcc STM32F4_AHB3_RESET(QSPI)>;
+	clocks = <&rcc 0 STM32F4_AHB3_CLOCK(QSPI)>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_qspi0>;
+
+	flash@0 {
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		spi-rx-bus-width = <4>;
+		spi-max-frequency = <108000000>;
+		...
 	};
+};

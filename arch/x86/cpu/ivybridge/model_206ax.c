@@ -12,6 +12,7 @@
 #include <fdtdec.h>
 #include <malloc.h>
 #include <asm/cpu.h>
+#include <asm/cpu_common.h>
 #include <asm/cpu_x86.h>
 #include <asm/msr.h>
 #include <asm/msr-index.h>
@@ -139,19 +140,16 @@ static const u8 power_limit_time_msr_to_sec[] = {
 	[0x11] = 128,
 };
 
-int cpu_config_tdp_levels(void)
+bool cpu_ivybridge_config_tdp_levels(void)
 {
 	struct cpuid_result result;
-	msr_t platform_info;
 
 	/* Minimum CPU revision */
 	result = cpuid(1);
 	if (result.eax < IVB_CONFIG_TDP_MIN_CPUID)
-		return 0;
+		return false;
 
-	/* Bits 34:33 indicate how many levels supported */
-	platform_info = msr_read(MSR_PLATFORM_INFO);
-	return (platform_info.hi >> 1) & 3;
+	return cpu_config_tdp_levels();
 }
 
 /*
@@ -212,7 +210,7 @@ void set_power_limits(u8 power_limit_1_time)
 	msr_write(MSR_PKG_POWER_LIMIT, limit);
 
 	/* Use nominal TDP values for CPUs with configurable TDP */
-	if (cpu_config_tdp_levels()) {
+	if (cpu_ivybridge_config_tdp_levels()) {
 		msr = msr_read(MSR_CONFIG_TDP_NOMINAL);
 		limit.hi = 0;
 		limit.lo = msr.lo & 0xff;
@@ -282,26 +280,6 @@ static void configure_c_states(void)
 	msr_write(MSR_PP1_CURRENT_CONFIG, msr);
 }
 
-static int configure_thermal_target(struct udevice *dev)
-{
-	int tcc_offset;
-	msr_t msr;
-
-	tcc_offset = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-				    "tcc-offset", 0);
-
-	/* Set TCC activaiton offset if supported */
-	msr = msr_read(MSR_PLATFORM_INFO);
-	if ((msr.lo & (1 << 30)) && tcc_offset) {
-		msr = msr_read(MSR_TEMPERATURE_TARGET);
-		msr.lo &= ~(0xf << 24); /* Bits 27:24 */
-		msr.lo |= (tcc_offset & 0xf) << 24;
-		msr_write(MSR_TEMPERATURE_TARGET, msr);
-	}
-
-	return 0;
-}
-
 static void configure_misc(void)
 {
 	msr_t msr;
@@ -348,24 +326,20 @@ static void configure_dca_cap(void)
 
 static void set_max_ratio(void)
 {
-	msr_t msr, perf_ctl;
-
-	perf_ctl.hi = 0;
+	msr_t msr;
+	uint ratio;
 
 	/* Check for configurable TDP option */
-	if (cpu_config_tdp_levels()) {
+	if (cpu_ivybridge_config_tdp_levels()) {
 		/* Set to nominal TDP ratio */
 		msr = msr_read(MSR_CONFIG_TDP_NOMINAL);
-		perf_ctl.lo = (msr.lo & 0xff) << 8;
+		ratio = msr.lo & 0xff;
 	} else {
 		/* Platform Info bits 15:8 give max ratio */
 		msr = msr_read(MSR_PLATFORM_INFO);
-		perf_ctl.lo = msr.lo & 0xff00;
+		ratio = (msr.lo & 0xff00) >> 8;
 	}
-	msr_write(MSR_IA32_PERF_CTL, perf_ctl);
-
-	debug("model_x06ax: frequency set to %d\n",
-	      ((perf_ctl.lo >> 8) & 0xff) * SANDYBRIDGE_BCLK);
+	cpu_set_perf_control(ratio);
 }
 
 static void set_energy_perf_bias(u8 policy)
@@ -413,10 +387,11 @@ static int model_206ax_init(struct udevice *dev)
 	configure_misc();
 
 	/* Thermal throttle activation offset */
-	ret = configure_thermal_target(dev);
+	ret = cpu_configure_thermal_target(dev);
 	if (ret) {
 		debug("Cannot set thermal target\n");
-		return ret;
+		if (ret != -ENOENT)
+			return ret;
 	}
 
 	/* Enable Direct Cache Access */
@@ -436,12 +411,7 @@ static int model_206ax_init(struct udevice *dev)
 
 static int model_206ax_get_info(struct udevice *dev, struct cpu_info *info)
 {
-	msr_t msr;
-
-	msr = msr_read(MSR_IA32_PERF_CTL);
-	info->cpu_freq = ((msr.lo >> 8) & 0xff) * SANDYBRIDGE_BCLK * 1000000;
-	info->features = 1 << CPU_FEAT_L1_CACHE | 1 << CPU_FEAT_MMU |
-		1 << CPU_FEAT_UCODE;
+	return cpu_intel_get_info(info, INTEL_BCLK_MHZ);
 
 	return 0;
 }

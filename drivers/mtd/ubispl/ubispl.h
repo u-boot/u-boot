@@ -77,6 +77,8 @@ struct ubi_vol_info {
  * @blockinfo:		The vid headers of the scanned blocks
  * @volinfo:		The volume information of the interesting (toload)
  *			volumes
+ * @vtbl_corrupted:	Flag to indicate status of volume table
+ * @vtbl:		Volume table
  *
  * @fm_buf:		The large fastmap attach buffer
  */
@@ -112,6 +114,11 @@ struct ubi_scan_info {
 	struct ubi_vol_info		volinfo[UBI_SPL_VOL_IDS];
 	struct ubi_vid_hdr		blockinfo[CONFIG_SPL_UBI_MAX_PEBS];
 
+#ifdef CONFIG_SPL_UBI_LOAD_BY_VOLNAME
+	/* Volume table */
+	int                             vtbl_valid;
+	struct ubi_vtbl_record          vtbl[UBI_SPL_VOL_IDS];
+#endif
 	/* The large buffer for the fastmap */
 	uint8_t				fm_buf[UBI_FM_BUF_SIZE];
 };
@@ -122,7 +129,7 @@ struct ubi_scan_info {
 #define ubi_dbg(fmt, ...)
 #endif
 
-#ifdef CONFIG_UBI_SILENCE_MSG
+#ifdef CONFIG_UBI_SPL_SILENCE_MSG
 #define ubi_msg(fmt, ...)
 #else
 #define ubi_msg(fmt, ...) printf("UBI: " fmt "\n", ##__VA_ARGS__)

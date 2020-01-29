@@ -8,7 +8,7 @@
  */
 
 #include <common.h>
-#include <environment.h>
+#include <env.h>
 #include <malloc.h>
 
 #include <command.h>
@@ -18,6 +18,7 @@
 
 #include <asm/fec.h>
 #include <asm/immap.h>
+#include <linux/mii.h>
 
 #undef	ET_DEBUG
 #undef	MII_DEBUG

@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <errno.h>
 #include <asm/armv7m.h>
 #include <asm/io.h>
@@ -54,7 +55,7 @@ enum cache_action {
 	FLUSH_INVAL_SET_WAY,	/* d-cache clean & invalidate by set/ways */
 };
 
-#ifndef CONFIG_SYS_DCACHE_OFF
+#if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 struct dcache_config {
 	u32 ways;
 	u32 sets;
@@ -292,7 +293,7 @@ void invalidate_dcache_all(void)
 }
 #endif
 
-#ifndef CONFIG_SYS_ICACHE_OFF
+#if !CONFIG_IS_ENABLED(SYS_ICACHE_OFF)
 
 void invalidate_icache_all(void)
 {
@@ -331,6 +332,11 @@ void icache_disable(void)
 	isb();	/* subsequent instructions fetch see cache disable effect */
 }
 #else
+void invalidate_icache_all(void)
+{
+	return;
+}
+
 void icache_enable(void)
 {
 	return;
@@ -349,10 +355,10 @@ int icache_status(void)
 
 void enable_caches(void)
 {
-#ifndef CONFIG_SYS_ICACHE_OFF
+#if !CONFIG_IS_ENABLED(SYS_ICACHE_OFF)
 	icache_enable();
 #endif
-#ifndef CONFIG_SYS_DCACHE_OFF
+#if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 	dcache_enable();
 #endif
 }

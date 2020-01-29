@@ -9,7 +9,7 @@ obj-$(CONFIG_AXP_GPIO)		+= axp_gpio.o
 endif
 obj-$(CONFIG_DM_GPIO)		+= gpio-uclass.o
 
-obj-$(CONFIG_DM_PCA953X)	+= pca953x_gpio.o
+obj-$(CONFIG_$(SPL_)DM_PCA953X)	+= pca953x_gpio.o
 obj-$(CONFIG_DM_74X164)		+= 74x164_gpio.o
 
 obj-$(CONFIG_AT91_GPIO)	+= at91_gpio.o
@@ -27,6 +27,7 @@ obj-$(CONFIG_PCA953X)		+= pca953x.o
 obj-$(CONFIG_PCA9698)		+= pca9698.o
 obj-$(CONFIG_ROCKCHIP_GPIO)	+= rk_gpio.o
 obj-$(CONFIG_RCAR_GPIO)		+= gpio-rcar.o
+obj-$(CONFIG_RZA1_GPIO)		+= gpio-rza1.o
 obj-$(CONFIG_S5P)		+= s5p_gpio.o
 obj-$(CONFIG_SANDBOX_GPIO)	+= sandbox.o
 obj-$(CONFIG_SPEAR_GPIO)	+= spear_gpio.o
@@ -46,7 +47,7 @@ obj-$(CONFIG_ADI_GPIO2)	+= adi_gpio2.o
 obj-$(CONFIG_TCA642X)		+= tca642x.o
 obj-$(CONFIG_SUNXI_GPIO)	+= sunxi_gpio.o
 obj-$(CONFIG_LPC32XX_GPIO)	+= lpc32xx_gpio.o
-obj-$(CONFIG_STM32F7_GPIO)	+= stm32f7_gpio.o
+obj-$(CONFIG_STM32_GPIO)	+= stm32_gpio.o
 obj-$(CONFIG_GPIO_UNIPHIER)	+= gpio-uniphier.o
 obj-$(CONFIG_ZYNQ_GPIO)		+= zynq_gpio.o
 obj-$(CONFIG_VYBRID_GPIO)	+= vybrid_gpio.o
@@ -59,4 +60,5 @@ obj-$(CONFIG_MSM_GPIO)		+= msm_gpio.o
 obj-$(CONFIG_$(SPL_)PCF8575_GPIO)	+= pcf8575_gpio.o
 obj-$(CONFIG_PM8916_GPIO)	+= pm8916_gpio.o
 obj-$(CONFIG_MT7621_GPIO)	+= mt7621_gpio.o
-obj-$(CONFIG_MSCC_BITBANG_SPI_GPIO)	+= gpio-mscc-bitbang-spi.o
+obj-$(CONFIG_MSCC_SGPIO)	+= mscc_sgpio.o
+obj-$(CONFIG_SIFIVE_GPIO)	+= sifive-gpio.o

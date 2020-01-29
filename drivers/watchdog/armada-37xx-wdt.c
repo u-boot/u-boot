@@ -22,42 +22,63 @@ struct a37xx_wdt {
 };
 
 /*
- * We use Counter 1 for watchdog timer, because so does Marvell's Linux by
- * default.
+ * We use Counter 1 as watchdog timer, and Counter 0 for re-triggering Counter 1
  */
 
-#define CNTR_CTRL			0x10
+#define CNTR_CTRL(id)			((id) * 0x10)
 #define CNTR_CTRL_ENABLE		0x0001
 #define CNTR_CTRL_ACTIVE		0x0002
 #define CNTR_CTRL_MODE_MASK		0x000c
 #define CNTR_CTRL_MODE_ONESHOT		0x0000
+#define CNTR_CTRL_MODE_HWSIG		0x000c
+#define CNTR_CTRL_TRIG_SRC_MASK		0x00f0
+#define CNTR_CTRL_TRIG_SRC_PREV_CNTR	0x0050
 #define CNTR_CTRL_PRESCALE_MASK		0xff00
 #define CNTR_CTRL_PRESCALE_MIN		2
 #define CNTR_CTRL_PRESCALE_SHIFT	8
 
-#define CNTR_COUNT_LOW			0x14
-#define CNTR_COUNT_HIGH			0x18
+#define CNTR_COUNT_LOW(id)		(CNTR_CTRL(id) + 0x4)
+#define CNTR_COUNT_HIGH(id)		(CNTR_CTRL(id) + 0x8)
 
-static void set_counter_value(struct a37xx_wdt *priv)
+static void set_counter_value(struct a37xx_wdt *priv, int id, u64 val)
 {
-	writel(priv->timeout & 0xffffffff, priv->reg + CNTR_COUNT_LOW);
-	writel(priv->timeout >> 32, priv->reg + CNTR_COUNT_HIGH);
+	writel(val & 0xffffffff, priv->reg + CNTR_COUNT_LOW(id));
+	writel(val >> 32, priv->reg + CNTR_COUNT_HIGH(id));
 }
 
-static void a37xx_wdt_enable(struct a37xx_wdt *priv)
+static void counter_enable(struct a37xx_wdt *priv, int id)
 {
-	u32 reg = readl(priv->reg + CNTR_CTRL);
-
-	reg |= CNTR_CTRL_ENABLE;
-	writel(reg, priv->reg + CNTR_CTRL);
+	setbits_le32(priv->reg + CNTR_CTRL(id), CNTR_CTRL_ENABLE);
 }
 
-static void a37xx_wdt_disable(struct a37xx_wdt *priv)
+static void counter_disable(struct a37xx_wdt *priv, int id)
 {
-	u32 reg = readl(priv->reg + CNTR_CTRL);
+	clrbits_le32(priv->reg + CNTR_CTRL(id), CNTR_CTRL_ENABLE);
+}
 
-	reg &= ~CNTR_CTRL_ENABLE;
-	writel(reg, priv->reg + CNTR_CTRL);
+static int init_counter(struct a37xx_wdt *priv, int id, u32 mode, u32 trig_src)
+{
+	u32 reg;
+
+	reg = readl(priv->reg + CNTR_CTRL(id));
+	if (reg & CNTR_CTRL_ACTIVE)
+		return -EBUSY;
+
+	reg &= ~(CNTR_CTRL_MODE_MASK | CNTR_CTRL_PRESCALE_MASK |
+		 CNTR_CTRL_TRIG_SRC_MASK);
+
+	/* set mode */
+	reg |= mode;
+
+	/* set prescaler to the min value */
+	reg |= CNTR_CTRL_PRESCALE_MIN << CNTR_CTRL_PRESCALE_SHIFT;
+
+	/* set trigger source */
+	reg |= trig_src;
+
+	writel(reg, priv->reg + CNTR_CTRL(id));
+
+	return 0;
 }
 
 static int a37xx_wdt_reset(struct udevice *dev)
@@ -67,9 +88,9 @@ static int a37xx_wdt_reset(struct udevice *dev)
 	if (!priv->timeout)
 		return -EINVAL;
 
-	a37xx_wdt_disable(priv);
-	set_counter_value(priv);
-	a37xx_wdt_enable(priv);
+	/* counter 1 is retriggered by forcing end count on counter 0 */
+	counter_disable(priv, 0);
+	counter_enable(priv, 0);
 
 	return 0;
 }
@@ -78,10 +99,14 @@ static int a37xx_wdt_expire_now(struct udevice *dev, ulong flags)
 {
 	struct a37xx_wdt *priv = dev_get_priv(dev);
 
-	a37xx_wdt_disable(priv);
-	priv->timeout = 0;
-	set_counter_value(priv);
-	a37xx_wdt_enable(priv);
+	/* first we set timeout to 0 */
+	counter_disable(priv, 1);
+	set_counter_value(priv, 1, 0);
+	counter_enable(priv, 1);
+
+	/* and then we start counter 1 by forcing end count on counter 0 */
+	counter_disable(priv, 0);
+	counter_enable(priv, 0);
 
 	return 0;
 }
@@ -89,26 +114,25 @@ static int a37xx_wdt_expire_now(struct udevice *dev, ulong flags)
 static int a37xx_wdt_start(struct udevice *dev, u64 ms, ulong flags)
 {
 	struct a37xx_wdt *priv = dev_get_priv(dev);
-	u32 reg;
+	int err;
 
-	reg = readl(priv->reg + CNTR_CTRL);
+	err = init_counter(priv, 0, CNTR_CTRL_MODE_ONESHOT, 0);
+	if (err < 0)
+		return err;
 
-	if (reg & CNTR_CTRL_ACTIVE)
-		return -EBUSY;
-
-	/* set mode */
-	reg = (reg & ~CNTR_CTRL_MODE_MASK) | CNTR_CTRL_MODE_ONESHOT;
-
-	/* set prescaler to the min value */
-	reg &= ~CNTR_CTRL_PRESCALE_MASK;
-	reg |= CNTR_CTRL_PRESCALE_MIN << CNTR_CTRL_PRESCALE_SHIFT;
+	err = init_counter(priv, 1, CNTR_CTRL_MODE_HWSIG,
+			   CNTR_CTRL_TRIG_SRC_PREV_CNTR);
+	if (err < 0)
+		return err;
 
 	priv->timeout = ms * priv->clk_rate / 1000 / CNTR_CTRL_PRESCALE_MIN;
 
-	writel(reg, priv->reg + CNTR_CTRL);
+	set_counter_value(priv, 0, 0);
+	set_counter_value(priv, 1, priv->timeout);
+	counter_enable(priv, 1);
 
-	set_counter_value(priv);
-	a37xx_wdt_enable(priv);
+	/* we have to force end count on counter 0 to start counter 1 */
+	counter_enable(priv, 0);
 
 	return 0;
 }
@@ -117,7 +141,9 @@ static int a37xx_wdt_stop(struct udevice *dev)
 {
 	struct a37xx_wdt *priv = dev_get_priv(dev);
 
-	a37xx_wdt_disable(priv);
+	counter_disable(priv, 1);
+	counter_disable(priv, 0);
+	writel(0, priv->sel_reg);
 
 	return 0;
 }
@@ -139,11 +165,10 @@ static int a37xx_wdt_probe(struct udevice *dev)
 
 	priv->clk_rate = (ulong)get_ref_clk() * 1000000;
 
-	a37xx_wdt_disable(priv);
-
 	/*
-	 * We use timer 1 as watchdog timer (because Marvell's Linux uses that
-	 * timer as default), therefore we only set bit TIMER1_IS_WCHDOG_TIMER.
+	 * We use counter 1 as watchdog timer, therefore we only set bit
+	 * TIMER1_IS_WCHDOG_TIMER. Counter 0 is only used to force re-trigger on
+	 * counter 1.
 	 */
 	writel(1 << 1, priv->sel_reg);
 

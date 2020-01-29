@@ -33,9 +33,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
-/* MMC */
-#define CONFIG_SUPPORT_EMMC_BOOT
-
 /* USB */
 #ifdef CONFIG_USB_EHCI_MX6
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
@@ -44,17 +41,9 @@
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2
 #endif
 
-/* Ethernet */
-#ifdef CONFIG_FEC_MXC
-#define IMX_FEC_BASE			ENET_BASE_ADDR
-#define CONFIG_FEC_MXC_PHYADDR          0x1
-#define CONFIG_FEC_XCV_TYPE             RMII
-#define CONFIG_ETHPRIME			"FEC"
-#endif
-
 /* LCD */
 #ifndef CONFIG_SPL_BUILD
-#ifdef CONFIG_VIDEO
+#ifdef CONFIG_DM_VIDEO
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_SPLASH_SCREEN_ALIGN
@@ -62,6 +51,8 @@
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_VIDEO_BMP_LOGO
 #define CONFIG_BMP_16BPP
+#define CONFIG_BMP_24BPP
+#define CONFIG_BMP_32BPP
 #define CONFIG_VIDEO_MXS
 #define MXS_LCDIF_BASE MX6UL_LCDIF1_BASE_ADDR
 #endif
@@ -70,16 +61,12 @@
 /* Environment is stored in the eMMC boot partition */
 #define CONFIG_SYS_MMC_ENV_DEV          0
 #define CONFIG_SYS_MMC_ENV_PART         1
-#define CONFIG_ENV_SIZE                 (10 * 1024)
-#define CONFIG_ENV_OFFSET               (1024 * 1024) /* 1 MB */
-#define CONFIG_ENV_OFFSET_REDUND        (1536 * 1024) /* 512KB from CONFIG_ENV_OFFSET */
 
 #define CONFIG_ENV_VERSION	100
 #define CONFIG_BOARD_NAME	opos6ul
 #define ACFG_CONSOLE_DEV        ttymxc0
 #define CONFIG_SYS_AUTOLOAD     "no"
 #define CONFIG_ROOTPATH         "/tftpboot/" __stringify(CONFIG_BOARD_NAME) "-root"
-#define CONFIG_PREBOOT          "run check_env"
 #define CONFIG_BOOTCOMMAND	"run emmcboot"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -99,6 +86,8 @@
 	"mmcroot=/dev/mmcblk0p2 ro\0"                                                           \
 	"mmcrootfstype=ext4 rootwait\0"                                                         \
 	"kernelimg="           __stringify(CONFIG_BOARD_NAME)          "-linux.bin\0"           \
+	"splashpos=0,0\0"									\
+	"splashimage="		__stringify(CONFIG_LOADADDR) 		"\0"			\
 	"videomode=video=ctfb:x:800,y:480,depth:18,pclk:33033,le:96,ri:96,up:20,lo:21,hs:64,vs:4,sync:0,vmode:0\0" \
 	"check_env=if test -n ${flash_env_version}; "                                           \
 		"then env default env_version; "                                                \

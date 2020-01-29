@@ -3,7 +3,7 @@ if ARM64
 config ARMV8_SPL_EXCEPTION_VECTORS
 	bool "Install crash dump exception vectors"
 	depends on SPL
-	default y
+	default n
 	help
 	  The default exception vector table is only used for the crash
 	  dump, but still takes quite a lot of space in the image size.
@@ -65,7 +65,7 @@ config ARMV8_SEC_FIRMWARE_SUPPORT
 	    - Address of secure firmware.
 	    - Address to hold the return address from secure firmware.
 	    - Secure firmware FIT image related information.
-	      Such as: SEC_FIRMWARE_FIT_IMAGE and SEC_FIRMEWARE_FIT_CNF_NAME
+	      Such as: SEC_FIRMWARE_FIT_IMAGE and SEC_FIRMWARE_FIT_CNF_NAME
 	    - The target exception level that secure monitor firmware will
 	      return to.
 
@@ -104,9 +104,12 @@ config PSCI_RESET
 		   !TARGET_LS1012ARDB && !TARGET_LS1012AFRDM && \
 		   !TARGET_LS1012A2G5RDB && !TARGET_LS1012AQDS && \
 		   !TARGET_LS1012AFRWY && \
+		   !TARGET_LS1028ARDB && !TARGET_LS1028AQDS && \
 		   !TARGET_LS1043ARDB && !TARGET_LS1043AQDS && \
 		   !TARGET_LS1046ARDB && !TARGET_LS1046AQDS && \
-		   !TARGET_LS2081ARDB && \
+		   !TARGET_LS1046AFRWY && \
+		   !TARGET_LS2081ARDB && !TARGET_LX2160ARDB && \
+		   !TARGET_LX2160AQDS && \
 		   !ARCH_UNIPHIER && !TARGET_S32V234EVB
 	help
 	  Most armv8 systems have PSCI support enabled in EL3, either through

@@ -10,7 +10,7 @@
 #include <common.h>
 #include <bootm.h>
 #include <command.h>
-#include <environment.h>
+#include <env.h>
 #include <errno.h>
 #include <image.h>
 #include <malloc.h>
@@ -19,6 +19,7 @@
 #include <linux/ctype.h>
 #include <linux/err.h>
 #include <u-boot/zlib.h>
+#include <mapmem.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -244,21 +245,23 @@ static int do_iminfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 static int image_info(ulong addr)
 {
-	void *hdr = (void *)addr;
+	void *hdr = (void *)map_sysmem(addr, 0);
 
 	printf("\n## Checking Image at %08lx ...\n", addr);
 
 	switch (genimg_get_format(hdr)) {
-#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
+#if defined(CONFIG_LEGACY_IMAGE_FORMAT)
 	case IMAGE_FORMAT_LEGACY:
 		puts("   Legacy image found\n");
 		if (!image_check_magic(hdr)) {
 			puts("   Bad Magic Number\n");
+			unmap_sysmem(hdr);
 			return 1;
 		}
 
 		if (!image_check_hcrc(hdr)) {
 			puts("   Bad Header Checksum\n");
+			unmap_sysmem(hdr);
 			return 1;
 		}
 
@@ -267,15 +270,18 @@ static int image_info(ulong addr)
 		puts("   Verifying Checksum ... ");
 		if (!image_check_dcrc(hdr)) {
 			puts("   Bad Data CRC\n");
+			unmap_sysmem(hdr);
 			return 1;
 		}
 		puts("OK\n");
+		unmap_sysmem(hdr);
 		return 0;
 #endif
 #if defined(CONFIG_ANDROID_BOOT_IMAGE)
 	case IMAGE_FORMAT_ANDROID:
 		puts("   Android image found\n");
 		android_print_contents(hdr);
+		unmap_sysmem(hdr);
 		return 0;
 #endif
 #if defined(CONFIG_FIT)
@@ -284,6 +290,7 @@ static int image_info(ulong addr)
 
 		if (!fit_check_format(hdr)) {
 			puts("Bad FIT image format!\n");
+			unmap_sysmem(hdr);
 			return 1;
 		}
 
@@ -291,9 +298,11 @@ static int image_info(ulong addr)
 
 		if (!fit_all_image_verify(hdr)) {
 			puts("Bad hash in FIT image!\n");
+			unmap_sysmem(hdr);
 			return 1;
 		}
 
+		unmap_sysmem(hdr);
 		return 0;
 #endif
 	default:
@@ -301,6 +310,7 @@ static int image_info(ulong addr)
 		break;
 	}
 
+	unmap_sysmem(hdr);
 	return 1;
 }
 
@@ -337,7 +347,7 @@ static int do_imls_nor(void)
 				goto next_sector;
 
 			switch (genimg_get_format(hdr)) {
-#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
+#if defined(CONFIG_LEGACY_IMAGE_FORMAT)
 			case IMAGE_FORMAT_LEGACY:
 				if (!image_check_hcrc(hdr))
 					goto next_sector;
@@ -485,7 +495,7 @@ static int do_imls_nand(void)
 			}
 
 			switch (genimg_get_format(buffer)) {
-#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
+#if defined(CONFIG_LEGACY_IMAGE_FORMAT)
 			case IMAGE_FORMAT_LEGACY:
 				header = (const image_header_t *)buffer;
 

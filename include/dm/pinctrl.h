@@ -70,6 +70,13 @@ struct pinconf_param {
  * @set_state_simple: do needed pinctrl operations for a peripherl @periph.
  *	(necessary for pinctrl_simple)
  * @get_pin_muxing: display the muxing of a given pin.
+ * @gpio_request_enable: requests and enables GPIO on a certain pin.
+ *	Implement this only if you can mux every pin individually as GPIO. The
+ *	affected GPIO range is passed along with an offset(pin number) into that
+ *	specific GPIO range - function selectors and pin groups are orthogonal
+ *	to this, the core will however make sure the pins do not collide.
+ * @gpio_disable_free: free up GPIO muxing on a certain pin, the reverse of
+ *	@gpio_request_enable
  */
 struct pinctrl_ops {
 	int (*get_pins_count)(struct udevice *dev);
@@ -151,6 +158,24 @@ struct pinctrl_ops {
 	 */
 	 int (*get_pin_muxing)(struct udevice *dev, unsigned int selector,
 			       char *buf, int size);
+
+	/**
+	 * gpio_request_enable: requests and enables GPIO on a certain pin.
+	 *
+	 * @dev:	Pinctrl device to use
+	 * @selector:	Pin selector
+	 * return 0 if OK, -ve on error
+	 */
+	int (*gpio_request_enable)(struct udevice *dev, unsigned int selector);
+
+	/**
+	 * gpio_disable_free: free up GPIO muxing on a certain pin.
+	 *
+	 * @dev:	Pinctrl device to use
+	 * @selector:	Pin selector
+	 * return 0 if OK, -ve on error
+	 */
+	int (*gpio_disable_free)(struct udevice *dev, unsigned int selector);
 };
 
 #define pinctrl_get_ops(dev)	((struct pinctrl_ops *)(dev)->driver->ops)
@@ -200,6 +225,8 @@ struct pinctrl_ops {
  *	push-pull mode, the argument is ignored.
  * @PIN_CONFIG_DRIVE_STRENGTH: the pin will sink or source at most the current
  *	passed as argument. The argument is in mA.
+ * @PIN_CONFIG_DRIVE_STRENGTH_UA: the pin will sink or source at most the current
+ *	passed as argument. The argument is in uA.
  * @PIN_CONFIG_INPUT_DEBOUNCE: this will configure the pin to debounce mode,
  *	which means it will wait for signals to settle when reading inputs. The
  *	argument gives the debounce time in usecs. Setting the
@@ -256,6 +283,7 @@ enum pin_config_param {
 	PIN_CONFIG_DRIVE_OPEN_SOURCE,
 	PIN_CONFIG_DRIVE_PUSH_PULL,
 	PIN_CONFIG_DRIVE_STRENGTH,
+	PIN_CONFIG_DRIVE_STRENGTH_UA,
 	PIN_CONFIG_INPUT_DEBOUNCE,
 	PIN_CONFIG_INPUT_ENABLE,
 	PIN_CONFIG_INPUT_SCHMITT,
@@ -342,31 +370,6 @@ int pinctrl_request_noflags(struct udevice *dev, int func);
 int pinctrl_get_periph_id(struct udevice *dev, struct udevice *periph);
 
 /**
- * pinctrl_decode_pin_config() - decode pin configuration flags
- *
- * This decodes some of the PIN_CONFIG values into flags, with each value
- * being (1 << pin_cfg). This does not support things with values like the
- * slew rate.
- *
- * @blob:	Device tree blob
- * @node:	Node containing the PIN_CONFIG values
- * @return decoded flag value, or -ve on error
- */
-int pinctrl_decode_pin_config(const void *blob, int node);
-
-/**
- * pinctrl_decode_pin_config_dm() - decode pin configuration flags
- *
- * This decodes some of the PIN_CONFIG values into flags, with each value
- * being (1 << pin_cfg). This does not support things with values like the
- * slew rate.
- *
- * @pinconfig:	Pinconfig udevice
- * @return decoded flag value, or -ve on error
- */
-int pinctrl_decode_pin_config_dm(struct udevice *dev);
-
-/**
  * pinctrl_get_gpio_mux() - get the mux value for a particular GPIO
  *
  * This allows the raw mux value for a GPIO to be obtained. It is
@@ -419,4 +422,23 @@ int pinctrl_get_pins_count(struct udevice *dev);
  */
 int pinctrl_get_pin_name(struct udevice *dev, int selector, char *buf,
 			 int size);
+
+/**
+ * pinctrl_gpio_request() - request a single pin to be used as GPIO
+ *
+ * @dev: GPIO peripheral device
+ * @offset: the GPIO pin offset from the GPIO controller
+ * @return: 0 on success, or negative error code on failure
+ */
+int pinctrl_gpio_request(struct udevice *dev, unsigned offset);
+
+/**
+ * pinctrl_gpio_free() - free a single pin used as GPIO
+ *
+ * @dev: GPIO peripheral device
+ * @offset: the GPIO pin offset from the GPIO controller
+ * @return: 0 on success, or negative error code on failure
+ */
+int pinctrl_gpio_free(struct udevice *dev, unsigned offset);
+
 #endif /* __PINCTRL_H */

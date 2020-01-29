@@ -9,7 +9,7 @@
 #include <asm/arch/clk.h>
 #include <asm/arch/sama5d2.h>
 
-int cpu_is_sama5d2(void)
+int _cpu_is_sama5d2(void)
 {
 	unsigned int chip_id = get_chip_id();
 
@@ -57,8 +57,16 @@ char *get_cpu_name(void)
 			return "SAMA5D27 512M bits DDR2 SDRAM";
 		case ARCH_EXID_SAMA5D27C_D1G:
 			return "SAMA5D27 1G bits DDR2 SDRAM";
+		case ARCH_EXID_SAMA5D27C_LD1G:
+			return "SAMA5D27 1G bits LPDDR2 SDRAM";
+		case ARCH_EXID_SAMA5D27C_LD2G:
+			return "SAMA5D27 2G bits LPDDR2 SDRAM";
 		case ARCH_EXID_SAMA5D28C_D1G:
 			return "SAMA5D28 1G bits DDR2 SDRAM";
+		case ARCH_EXID_SAMA5D28C_LD1G:
+			return "SAMA5D28 1G bits LPDDR2 SDRAM";
+		case ARCH_EXID_SAMA5D28C_LD2G:
+			return "SAMA5D28 2G bits LPDDR2 SDRAM";
 		}
 	}
 

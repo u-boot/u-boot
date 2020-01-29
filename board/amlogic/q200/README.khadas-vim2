@@ -48,9 +48,9 @@ the git tree published by the board vendor:
  > tar xvfJ gcc-linaro-aarch64-none-elf-4.8-2013.11_linux.tar.xz
  > tar xvfJ gcc-linaro-arm-none-eabi-4.8-2013.11_linux.tar.xz
  > export PATH=$PWD/gcc-linaro-aarch64-none-elf-4.8-2013.11_linux/bin:$PWD/gcc-linaro-arm-none-eabi-4.8-2013.11_linux/bin:$PATH
- > git clone https://github.com/khadas/u-boot -b Vim vim-u-boot
+ > git clone https://github.com/khadas/u-boot -b khadas-vim-v2015.01 vim-u-boot
  > cd vim-u-boot
- > make kvim_defconfig
+ > make kvim2_defconfig
  > make
  > export FIPDIR=$PWD/fip
 

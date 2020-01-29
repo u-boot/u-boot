@@ -153,6 +153,10 @@ static inline int ffs (int x)
 }
 #define PLATFORM_FFS
 
+#define hweight32(x) generic_hweight32(x)
+#define hweight16(x) generic_hweight16(x)
+#define hweight8(x) generic_hweight8(x)
+
 #endif /* __KERNEL__ */
 
 #endif /* __ASM_SH_BITOPS_H */

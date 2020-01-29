@@ -8,8 +8,9 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <dm.h>
-#include <environment.h>
+#include <env.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <miiphy.h>
@@ -123,30 +124,38 @@ static int fec_mdio_read(struct ethernet_regs *eth, uint8_t phyaddr,
 	return val;
 }
 
+#ifndef imx_get_fecclk
+u32 __weak imx_get_fecclk(void)
+{
+	return 0;
+}
+#endif
+
 static int fec_get_clk_rate(void *udev, int idx)
 {
-#if IS_ENABLED(CONFIG_IMX8)
 	struct fec_priv *fec;
 	struct udevice *dev;
 	int ret;
 
-	dev = udev;
-	if (!dev) {
-		ret = uclass_get_device(UCLASS_ETH, idx, &dev);
-		if (ret < 0) {
-			debug("Can't get FEC udev: %d\n", ret);
-			return ret;
+	if (IS_ENABLED(CONFIG_IMX8) ||
+	    CONFIG_IS_ENABLED(CLK_CCF)) {
+		dev = udev;
+		if (!dev) {
+			ret = uclass_get_device(UCLASS_ETH, idx, &dev);
+			if (ret < 0) {
+				debug("Can't get FEC udev: %d\n", ret);
+				return ret;
+			}
 		}
+
+		fec = dev_get_priv(dev);
+		if (fec)
+			return fec->clk_rate;
+
+		return -EINVAL;
+	} else {
+		return imx_get_fecclk();
 	}
-
-	fec = dev_get_priv(dev);
-	if (fec)
-		return fec->clk_rate;
-
-	return -EINVAL;
-#else
-	return imx_get_fecclk();
-#endif
 }
 
 static void fec_mii_setspeed(struct ethernet_regs *eth)
@@ -604,7 +613,7 @@ static int fec_init(struct eth_device *dev, bd_t *bd)
 	writel(0x00000000, &fec->eth->gaddr2);
 
 	/* Do not access reserved register */
-	if (!is_mx6ul() && !is_mx6ull() && !is_imx8m()) {
+	if (!is_mx6ul() && !is_mx6ull() && !is_imx8() && !is_imx8m()) {
 		/* clear MIB RAM */
 		for (i = mib_ptr; i <= mib_ptr + 0xfc; i += 4)
 			writel(0, i);
@@ -1264,20 +1273,35 @@ static const struct eth_ops fecmxc_ops = {
 	.read_rom_hwaddr	= fecmxc_read_rom_hwaddr,
 };
 
+static int device_get_phy_addr(struct udevice *dev)
+{
+	struct ofnode_phandle_args phandle_args;
+	int reg;
+
+	if (dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0,
+				       &phandle_args)) {
+		debug("Failed to find phy-handle");
+		return -ENODEV;
+	}
+
+	reg = ofnode_read_u32_default(phandle_args.node, "reg", 0);
+
+	return reg;
+}
+
 static int fec_phy_init(struct fec_priv *priv, struct udevice *dev)
 {
 	struct phy_device *phydev;
-	int mask = 0xffffffff;
+	int addr;
 
+	addr = device_get_phy_addr(dev);
 #ifdef CONFIG_FEC_MXC_PHYADDR
-	mask = 1 << CONFIG_FEC_MXC_PHYADDR;
+	addr = CONFIG_FEC_MXC_PHYADDR;
 #endif
 
-	phydev = phy_find_by_mask(priv->bus, mask, priv->interface);
+	phydev = phy_connect(priv->bus, addr, dev, priv->interface);
 	if (!phydev)
 		return -ENODEV;
-
-	phy_connect_dev(phydev, dev);
 
 	priv->phydev = phydev;
 	phy_config(phydev);
@@ -1294,6 +1318,8 @@ static void fec_gpio_reset(struct fec_priv *priv)
 		dm_gpio_set_value(&priv->phy_reset_gpio, 1);
 		mdelay(priv->reset_delay);
 		dm_gpio_set_value(&priv->phy_reset_gpio, 0);
+		if (priv->reset_post_delay)
+			mdelay(priv->reset_post_delay);
 	}
 }
 #endif
@@ -1319,6 +1345,47 @@ static int fecmxc_probe(struct udevice *dev)
 		}
 
 		priv->clk_rate = clk_get_rate(&priv->ipg_clk);
+	} else if (CONFIG_IS_ENABLED(CLK_CCF)) {
+		ret = clk_get_by_name(dev, "ipg", &priv->ipg_clk);
+		if (ret < 0) {
+			debug("Can't get FEC ipg clk: %d\n", ret);
+			return ret;
+		}
+		ret = clk_enable(&priv->ipg_clk);
+		if(ret)
+			return ret;
+
+		ret = clk_get_by_name(dev, "ahb", &priv->ahb_clk);
+		if (ret < 0) {
+			debug("Can't get FEC ahb clk: %d\n", ret);
+			return ret;
+		}
+		ret = clk_enable(&priv->ahb_clk);
+		if (ret)
+			return ret;
+
+		ret = clk_get_by_name(dev, "enet_out", &priv->clk_enet_out);
+		if (!ret) {
+			ret = clk_enable(&priv->clk_enet_out);
+			if (ret)
+				return ret;
+		}
+
+		ret = clk_get_by_name(dev, "enet_clk_ref", &priv->clk_ref);
+		if (!ret) {
+			ret = clk_enable(&priv->clk_ref);
+			if (ret)
+				return ret;
+		}
+
+		ret = clk_get_by_name(dev, "ptp", &priv->clk_ptp);
+		if (!ret) {
+			ret = clk_enable(&priv->clk_ptp);
+			if (ret)
+				return ret;
+		}
+
+		priv->clk_rate = clk_get_rate(&priv->ipg_clk);
 	}
 
 	ret = fec_alloc_descs(priv);
@@ -1327,7 +1394,7 @@ static int fecmxc_probe(struct udevice *dev)
 
 #ifdef CONFIG_DM_REGULATOR
 	if (priv->phy_supply) {
-		ret = regulator_autoset(priv->phy_supply);
+		ret = regulator_set_enable(priv->phy_supply, true);
 		if (ret) {
 			printf("%s: Error enabling phy supply\n", dev->name);
 			return ret;
@@ -1453,18 +1520,29 @@ static int fecmxc_ofdata_to_platdata(struct udevice *dev)
 		/* property value wrong, use default value */
 		priv->reset_delay = 1;
 	}
+
+	priv->reset_post_delay = dev_read_u32_default(dev,
+						      "phy-reset-post-delay",
+						      0);
+	if (priv->reset_post_delay > 1000) {
+		printf("FEC MXC: phy reset post delay should be <= 1000ms\n");
+		/* property value wrong, use default value */
+		priv->reset_post_delay = 0;
+	}
 #endif
 
 	return 0;
 }
 
 static const struct udevice_id fecmxc_ids[] = {
+	{ .compatible = "fsl,imx28-fec" },
 	{ .compatible = "fsl,imx6q-fec" },
 	{ .compatible = "fsl,imx6sl-fec" },
 	{ .compatible = "fsl,imx6sx-fec" },
 	{ .compatible = "fsl,imx6ul-fec" },
 	{ .compatible = "fsl,imx53-fec" },
 	{ .compatible = "fsl,imx7d-fec" },
+	{ .compatible = "fsl,mvf600-fec" },
 	{ }
 };
 

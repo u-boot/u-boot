@@ -16,8 +16,8 @@
 #include <asm/io.h>
 #include <asm/pci.h>
 
-int pci_x86_read_config(struct udevice *bus, pci_dev_t bdf, uint offset,
-			ulong *valuep, enum pci_size_t size)
+int pci_x86_read_config(pci_dev_t bdf, uint offset, ulong *valuep,
+			enum pci_size_t size)
 {
 	outl(bdf | (offset & 0xfc) | PCI_CFG_EN, PCI_REG_ADDR);
 	switch (size) {
@@ -35,8 +35,8 @@ int pci_x86_read_config(struct udevice *bus, pci_dev_t bdf, uint offset,
 	return 0;
 }
 
-int pci_x86_write_config(struct udevice *bus, pci_dev_t bdf, uint offset,
-			 ulong value, enum pci_size_t size)
+int pci_x86_write_config(pci_dev_t bdf, uint offset, ulong value,
+			 enum pci_size_t size)
 {
 	outl(bdf | (offset & 0xfc) | PCI_CFG_EN, PCI_REG_ADDR);
 	switch (size) {
@@ -52,6 +52,21 @@ int pci_x86_write_config(struct udevice *bus, pci_dev_t bdf, uint offset,
 	}
 
 	return 0;
+}
+
+int pci_x86_clrset_config(pci_dev_t bdf, uint offset, ulong clr, ulong set,
+			  enum pci_size_t size)
+{
+	ulong value;
+	int ret;
+
+	ret = pci_x86_read_config(bdf, offset, &value, size);
+	if (ret)
+		return ret;
+	value &= ~clr;
+	value |= set;
+
+	return pci_x86_write_config(bdf, offset, value, size);
 }
 
 void pci_assign_irqs(int bus, int device, u8 irq[4])

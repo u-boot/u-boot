@@ -5,6 +5,9 @@
 
 #include <common.h>
 #include <dm.h>
+#include <dm/device-internal.h>
+#include <dm/lists.h>
+#include <dm/uclass-internal.h>
 #include <dt-bindings/gpio/gpio.h>
 #include <errno.h>
 #include <fdtdec.h>
@@ -141,6 +144,129 @@ static int gpio_find_and_xlate(struct gpio_desc *desc,
 		return gpio_xlate_offs_flags(desc->dev, desc, args);
 }
 
+#if defined(CONFIG_GPIO_HOG)
+
+struct gpio_hog_priv {
+	struct gpio_desc gpiod;
+};
+
+struct gpio_hog_data {
+	int gpiod_flags;
+	int value;
+	u32 val[2];
+};
+
+static int gpio_hog_ofdata_to_platdata(struct udevice *dev)
+{
+	struct gpio_hog_data *plat = dev_get_platdata(dev);
+	const char *nodename;
+	int ret;
+
+	plat->value = 0;
+	if (dev_read_bool(dev, "input")) {
+		plat->gpiod_flags = GPIOD_IS_IN;
+	} else if (dev_read_bool(dev, "output-high")) {
+		plat->value = 1;
+		plat->gpiod_flags = GPIOD_IS_OUT;
+	} else if (dev_read_bool(dev, "output-low")) {
+		plat->gpiod_flags = GPIOD_IS_OUT;
+	} else {
+		printf("%s: missing gpio-hog state.\n", __func__);
+		return -EINVAL;
+	}
+	ret = dev_read_u32_array(dev, "gpios", plat->val, 2);
+	if (ret) {
+		printf("%s: wrong gpios property, 2 values needed %d\n",
+		       __func__, ret);
+		return ret;
+	}
+	nodename = dev_read_string(dev, "line-name");
+	if (nodename)
+		device_set_name(dev, nodename);
+
+	return 0;
+}
+
+static int gpio_hog_probe(struct udevice *dev)
+{
+	struct gpio_hog_data *plat = dev_get_platdata(dev);
+	struct gpio_hog_priv *priv = dev_get_priv(dev);
+	int ret;
+
+	ret = gpio_dev_request_index(dev->parent, dev->name, "gpio-hog",
+				     plat->val[0], plat->gpiod_flags,
+				     plat->val[1], &priv->gpiod);
+	if (ret < 0) {
+		debug("%s: node %s could not get gpio.\n", __func__,
+		      dev->name);
+		return ret;
+	}
+
+	if (plat->gpiod_flags == GPIOD_IS_OUT) {
+		ret = dm_gpio_set_value(&priv->gpiod, plat->value);
+		if (ret < 0) {
+			debug("%s: node %s could not set gpio.\n", __func__,
+			      dev->name);
+			return ret;
+		}
+	}
+
+	return 0;
+}
+
+int gpio_hog_probe_all(void)
+{
+	struct udevice *dev;
+	int ret;
+	int retval = 0;
+
+	for (uclass_first_device(UCLASS_NOP, &dev);
+	     dev;
+	     uclass_find_next_device(&dev)) {
+		if (dev->driver == DM_GET_DRIVER(gpio_hog)) {
+			ret = device_probe(dev);
+			if (ret) {
+				printf("Failed to probe device %s err: %d\n",
+				       dev->name, ret);
+				retval = ret;
+			}
+		}
+	}
+
+	return retval;
+}
+
+int gpio_hog_lookup_name(const char *name, struct gpio_desc **desc)
+{
+	struct udevice *dev;
+
+	*desc = NULL;
+	gpio_hog_probe_all();
+	if (!uclass_get_device_by_name(UCLASS_NOP, name, &dev)) {
+		struct gpio_hog_priv *priv = dev_get_priv(dev);
+
+		*desc = &priv->gpiod;
+		return 0;
+	}
+
+	return -ENODEV;
+}
+
+U_BOOT_DRIVER(gpio_hog) = {
+	.name	= "gpio_hog",
+	.id	= UCLASS_NOP,
+	.ofdata_to_platdata = gpio_hog_ofdata_to_platdata,
+	.probe = gpio_hog_probe,
+	.priv_auto_alloc_size = sizeof(struct gpio_hog_priv),
+	.platdata_auto_alloc_size = sizeof(struct gpio_hog_data),
+};
+#else
+int gpio_hog_lookup_name(const char *name, struct gpio_desc **desc)
+{
+	return 0;
+}
+#endif
+
 int dm_gpio_request(struct gpio_desc *desc, const char *label)
 {
 	struct udevice *dev = desc->dev;
@@ -168,7 +294,7 @@ int dm_gpio_request(struct gpio_desc *desc, const char *label)
 
 static int dm_gpio_requestf(struct gpio_desc *desc, const char *fmt, ...)
 {
-#if !defined(CONFIG_SPL_BUILD) || !defined(CONFIG_USE_TINY_PRINTF)
+#if !defined(CONFIG_SPL_BUILD) || !CONFIG_IS_ENABLED(USE_TINY_PRINTF)
 	va_list args;
 	char buf[40];
 
@@ -217,7 +343,7 @@ int gpio_request(unsigned gpio, const char *label)
  */
 int gpio_requestf(unsigned gpio, const char *fmt, ...)
 {
-#if !defined(CONFIG_SPL_BUILD) || !defined(CONFIG_USE_TINY_PRINTF)
+#if !defined(CONFIG_SPL_BUILD) || !CONFIG_IS_ENABLED(USE_TINY_PRINTF)
 	va_list args;
 	char buf[40];
 
@@ -640,22 +766,58 @@ int dm_gpio_get_values_as_int(const struct gpio_desc *desc_list, int count)
 	return vector;
 }
 
-static int gpio_request_tail(int ret, ofnode node,
+/**
+ * gpio_request_tail: common work for requesting a gpio.
+ *
+ * ret:		return value from previous work in function which calls
+ *		this function.
+ *		This seems bogus (why calling this function instead not
+ *		calling it and end caller function instead?).
+ *		Because on error in caller function we want to set some
+ *		default values in gpio desc and have a common error
+ *		debug message, which provides this function.
+ * nodename:	Name of node for which gpio gets requested
+ *		used for gpio label name.
+ * args:	pointer to output arguments structure
+ * list_name:	Name of GPIO list
+ *		used for gpio label name.
+ * index:	gpio index in gpio list
+ *		used for gpio label name.
+ * desc:	pointer to gpio descriptor, filled from this
+ *		function.
+ * flags:	gpio flags to use.
+ * add_index:	should index added to gpio label name
+ * gpio_dev:	pointer to gpio device from which the gpio
+ *		will be requested. If NULL try to get the
+ *		gpio device with uclass_get_device_by_ofnode()
+ *
+ * return:	In error case this function sets default values in
+ *		gpio descriptor, also emmits a debug message.
+ *		On success it returns 0 else the error code from
+ *		function calls, or the error code passed through
+ *		ret to this function.
+ *
+ */
+static int gpio_request_tail(int ret, const char *nodename,
 			     struct ofnode_phandle_args *args,
 			     const char *list_name, int index,
-			     struct gpio_desc *desc, int flags, bool add_index)
+			     struct gpio_desc *desc, int flags,
+			     bool add_index, struct udevice *gpio_dev)
 {
-	desc->dev = NULL;
+	desc->dev = gpio_dev;
 	desc->offset = 0;
 	desc->flags = 0;
 	if (ret)
 		goto err;
 
-	ret = uclass_get_device_by_ofnode(UCLASS_GPIO, args->node,
-					  &desc->dev);
-	if (ret) {
-		debug("%s: uclass_get_device_by_ofnode failed\n", __func__);
-		goto err;
+	if (!desc->dev) {
+		ret = uclass_get_device_by_ofnode(UCLASS_GPIO, args->node,
+						  &desc->dev);
+		if (ret) {
+			debug("%s: uclass_get_device_by_ofnode failed\n",
+			      __func__);
+			goto err;
+		}
 	}
 	ret = gpio_find_and_xlate(desc, args);
 	if (ret) {
@@ -663,8 +825,7 @@ static int gpio_request_tail(int ret, ofnode node,
 		goto err;
 	}
 	ret = dm_gpio_requestf(desc, add_index ? "%s.%s%d" : "%s.%s",
-			       ofnode_get_name(node),
-			       list_name, index);
+			       nodename, list_name, index);
 	if (ret) {
 		debug("%s: dm_gpio_requestf failed\n", __func__);
 		goto err;
@@ -678,7 +839,7 @@ static int gpio_request_tail(int ret, ofnode node,
 	return 0;
 err:
 	debug("%s: Node '%s', property '%s', failed to request GPIO index %d: %d\n",
-	      __func__, ofnode_get_name(node), list_name, index, ret);
+	      __func__, nodename, list_name, index, ret);
 	return ret;
 }
 
@@ -692,8 +853,8 @@ static int _gpio_request_by_name_nodev(ofnode node, const char *list_name,
 	ret = ofnode_parse_phandle_with_args(node, list_name, "#gpio-cells", 0,
 					     index, &args);
 
-	return gpio_request_tail(ret, node, &args, list_name, index, desc,
-				 flags, add_index);
+	return gpio_request_tail(ret, ofnode_get_name(node), &args, list_name,
+				 index, desc, flags, add_index, NULL);
 }
 
 int gpio_request_by_name_nodev(ofnode node, const char *list_name, int index,
@@ -707,13 +868,14 @@ int gpio_request_by_name(struct udevice *dev, const char *list_name, int index,
 			 struct gpio_desc *desc, int flags)
 {
 	struct ofnode_phandle_args args;
+	ofnode node;
 	int ret;
 
 	ret = dev_read_phandle_with_args(dev, list_name, "#gpio-cells", 0,
 					 index, &args);
-
-	return gpio_request_tail(ret, dev_ofnode(dev), &args, list_name,
-				 index, desc, flags, index > 0);
+	node = dev_ofnode(dev);
+	return gpio_request_tail(ret, ofnode_get_name(node), &args, list_name,
+				 index, desc, flags, index > 0, NULL);
 }
 
 int gpio_request_list_by_name_nodev(ofnode node, const char *list_name,
@@ -854,8 +1016,26 @@ static int gpio_pre_remove(struct udevice *dev)
 	return gpio_renumber(dev);
 }
 
+int gpio_dev_request_index(struct udevice *dev, const char *nodename,
+			   char *list_name, int index, int flags,
+			   int dtflags, struct gpio_desc *desc)
+{
+	struct ofnode_phandle_args args;
+
+	args.node =  ofnode_null();
+	args.args_count = 2;
+	args.args[0] = index;
+	args.args[1] = dtflags;
+
+	return gpio_request_tail(0, nodename, &args, list_name, index, desc,
+				 flags, 0, dev);
+}
+
 static int gpio_post_bind(struct udevice *dev)
 {
+	struct udevice *child;
+	ofnode node;
+
 #if defined(CONFIG_NEEDS_MANUAL_RELOC)
 	struct dm_gpio_ops *ops = (struct dm_gpio_ops *)device_get_ops(dev);
 	static int reloc_done;
@@ -885,6 +1065,22 @@ static int gpio_post_bind(struct udevice *dev)
 		reloc_done++;
 	}
 #endif
+
+	if (IS_ENABLED(CONFIG_GPIO_HOG)) {
+		dev_for_each_subnode(node, dev) {
+			if (ofnode_read_bool(node, "gpio-hog")) {
+				const char *name = ofnode_get_name(node);
+				int ret;
+
+				ret = device_bind_driver_to_node(dev,
+								 "gpio_hog",
+								 name, node,
+								 &child);
+				if (ret)
+					return ret;
+			}
+		}
+	}
 	return 0;
 }
 

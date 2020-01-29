@@ -29,9 +29,7 @@ Compilation
 ===========
 The exact build target you need will depend on the board you have.  For
 Logic PD boards, or other boards which store the ethernet MAC address at
-the end of SPI flash, run 'make da850evm'.  For boards which store the
-ethernet MAC address in the i2c EEPROM located at 0x50, run
-'make da850_am18xxevm'.  Once this build completes you will have a
+the end of SPI flash, run 'make da850evm'.  Once this build completes you will have a
 u-boot.ais file that needs to be written to the correct persistent
 storage.
 
@@ -87,6 +85,14 @@ In this case the commands would be simplified to:
   U-Boot > tftp u-boot.ais
   U-Boot > nand erase.part bootloader
   U-Boot > nand write 0xc0700000 bootloader
+
+On the DA850-EVM, NAND can also be written with SW7:7-8 ON and
+
+  sudo mono sfh_OMAP-L138.exe -targetType AM1808 -p /dev/ttyUSB0 \
+	-flash_noubl -flashType NAND ~/src/u-boot/u-boot.ais
+
+To boot the DA850-EVM from NAND, SW7:5 should be switched on and all others
+off.
 
 Flashing the images to MMC
 ==========================

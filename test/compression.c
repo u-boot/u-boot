@@ -6,6 +6,8 @@
 #include <common.h>
 #include <bootm.h>
 #include <command.h>
+#include <gzip.h>
+#include <lz4.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <asm/io.h>
@@ -471,15 +473,15 @@ static int run_bootm_test(struct unit_test_state *uts, int comp_type,
 	unc_len = strlen(plain);
 	compress(uts, (void *)plain, unc_len, compress_buff, compress_size,
 		 &compress_size);
-	err = bootm_decomp_image(comp_type, load_addr, image_start,
-				 IH_TYPE_KERNEL, map_sysmem(load_addr, 0),
-				 compress_buff, compress_size, unc_len,
-				 &load_end);
+	err = image_decomp(comp_type, load_addr, image_start,
+			   IH_TYPE_KERNEL, map_sysmem(load_addr, 0),
+			   compress_buff, compress_size, unc_len,
+			   &load_end);
 	ut_assertok(err);
-	err = bootm_decomp_image(comp_type, load_addr, image_start,
-				 IH_TYPE_KERNEL, map_sysmem(load_addr, 0),
-				 compress_buff, compress_size, unc_len - 1,
-				 &load_end);
+	err = image_decomp(comp_type, load_addr, image_start,
+			   IH_TYPE_KERNEL, map_sysmem(load_addr, 0),
+			   compress_buff, compress_size, unc_len - 1,
+			   &load_end);
 	ut_assert(err);
 
 	/* We can't detect corruption when not decompressing */
@@ -487,10 +489,10 @@ static int run_bootm_test(struct unit_test_state *uts, int comp_type,
 		return 0;
 	memset(compress_buff + compress_size / 2, '\x49',
 	       compress_size / 2);
-	err = bootm_decomp_image(comp_type, load_addr, image_start,
-				 IH_TYPE_KERNEL, map_sysmem(load_addr, 0),
-				 compress_buff, compress_size, 0x10000,
-				 &load_end);
+	err = image_decomp(comp_type, load_addr, image_start,
+			   IH_TYPE_KERNEL, map_sysmem(load_addr, 0),
+			   compress_buff, compress_size, 0x10000,
+			   &load_end);
 	ut_assert(err);
 
 	return 0;

@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2013-2015 Arcturus Networks, Inc.
- *           http://www.arcturusnetworks.com/products/ucp1020/
+ * Copyright 2013-2019 Arcturus Networks, Inc.
+ *           https://www.arcturusnetworks.com/products/ucp1020/
  * based on include/configs/p1_p2_rdb_pc.h
  * original copyright follows:
  * Copyright 2009-2011 Freescale Semiconductor, Inc.
@@ -13,11 +13,66 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+/*** Arcturus FirmWare Environment */
+
+#define MAX_SERIAL_SIZE 15
+#define MAX_HWADDR_SIZE 17
+
+#define MAX_FWENV_ADDR	4
+
+#define FWENV_MMC	1
+#define FWENV_SPI_FLASH	2
+#define FWENV_NOR_FLASH	3
+/*
+ #define FWENV_TYPE    FWENV_MMC
+ #define FWENV_TYPE    FWENV_SPI_FLASH
+*/
+#define FWENV_TYPE	FWENV_NOR_FLASH
+
+#if (FWENV_TYPE == FWENV_MMC)
+#ifndef CONFIG_SYS_MMC_ENV_DEV
+#define CONFIG_SYS_MMC_ENV_DEV 1
+#endif
+#define FWENV_ADDR1 -1
+#define FWENV_ADDR2 -1
+#define FWENV_ADDR3 -1
+#define FWENV_ADDR4 -1
+#define EMPY_CHAR 0
+#endif
+
+#if (FWENV_TYPE == FWENV_SPI_FLASH)
+#ifndef CONFIG_SF_DEFAULT_SPEED
+#define CONFIG_SF_DEFAULT_SPEED	1000000
+#endif
+#ifndef CONFIG_SF_DEFAULT_MODE
+#define CONFIG_SF_DEFAULT_MODE	SPI_MODE0
+#endif
+#ifndef CONFIG_SF_DEFAULT_CS
+#define CONFIG_SF_DEFAULT_CS	0
+#endif
+#ifndef CONFIG_SF_DEFAULT_BUS
+#define CONFIG_SF_DEFAULT_BUS	0
+#endif
+#define FWENV_ADDR1 (0x200 - sizeof(smac))
+#define FWENV_ADDR2 (0x400 - sizeof(smac))
+#define FWENV_ADDR3 (CONFIG_ENV_SECT_SIZE + 0x200 - sizeof(smac))
+#define FWENV_ADDR4 (CONFIG_ENV_SECT_SIZE + 0x400 - sizeof(smac))
+#define EMPY_CHAR 0xff
+#endif
+
+#if (FWENV_TYPE == FWENV_NOR_FLASH)
+#define FWENV_ADDR1 0xEC080000
+#define FWENV_ADDR2 -1
+#define FWENV_ADDR3 -1
+#define FWENV_ADDR4 -1
+#define EMPY_CHAR 0xff
+#endif
+/***********************************/
+
 #define CONFIG_PCIE1	/* PCIE controller 1 (slot 1) */
 #define CONFIG_PCIE2	/* PCIE controller 2 (slot 2) */
 #define CONFIG_FSL_PCI_INIT	/* Use common FSL init code */
 #define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
-#define CONFIG_FSL_PCIE_RESET	/* need PCIe reset errata */
 #define CONFIG_SYS_PCI_64BIT	/* enable 64-bit PCI resources */
 
 #if defined(CONFIG_TARTGET_UCP1020T1)
@@ -38,8 +93,6 @@
 #define CONFIG_NETMASK		255.255.252.0
 #define CONFIG_ETHPRIME		"eTSEC3"
 
-#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
-
 #define CONFIG_SYS_L2_SIZE	(256 << 10)
 
 #endif
@@ -52,7 +105,6 @@
 #define CONFIG_BOARDNAME_LOCAL "uCP1020-64EEE512-OU1-XR"
 
 #define CONFIG_TSEC1
-#define CONFIG_TSEC2
 #define CONFIG_TSEC3
 #define CONFIG_HAS_ETH0
 #define CONFIG_HAS_ETH1
@@ -67,8 +119,6 @@
 #define CONFIG_GATEWAYIP	102.168.1.1
 #define CONFIG_NETMASK		255.255.255.0
 #define CONFIG_ETHPRIME		"eTSEC1"
-
-#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 
 #define CONFIG_SYS_L2_SIZE	(256 << 10)
 
@@ -133,7 +183,6 @@
 #define CONFIG_DDR_SPD
 #endif
 #define CONFIG_SYS_SPD_BUS_NUM 1
-#undef CONFIG_FSL_DDR_INTERACTIVE
 
 #define CONFIG_SYS_SDRAM_SIZE_LAW	LAW_SIZE_512M
 #define CONFIG_CHIP_SELECTS_PER_CTRL	1
@@ -287,9 +336,6 @@
 #define CONFIG_SYS_I2C_NCT72_ADDR	0x4C
 #define CONFIG_SYS_I2C_IDT6V49205B	0x69
 
-#define CONFIG_SF_DEFAULT_SPEED		10000000
-#define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
-
 #if defined(CONFIG_PCI)
 /*
  * General PCI
@@ -324,54 +370,10 @@
 /*
  * Environment
  */
-#ifdef CONFIG_ENV_FIT_UCBOOT
-
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x20000)
-#define CONFIG_ENV_SIZE		0x20000
-#define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K (one sector) */
-
-#else
-
-#define CONFIG_ENV_SPI_BUS	0
-#define CONFIG_ENV_SPI_CS	0
-#define CONFIG_ENV_SPI_MAX_HZ	10000000
-#define CONFIG_ENV_SPI_MODE	0
-
-#ifdef CONFIG_RAMBOOT_SPIFLASH
-
-#define CONFIG_ENV_SIZE		0x3000		/* 12KB */
-#define CONFIG_ENV_OFFSET	0x2000		/* 8KB */
-#define CONFIG_ENV_SECT_SIZE	0x1000
-
-#if defined(CONFIG_SYS_REDUNDAND_ENVIRONMENT)
-/* Address and size of Redundant Environment Sector	*/
-#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
-#define CONFIG_ENV_SIZE_REDUND		CONFIG_ENV_SIZE
-#endif
-
-#elif defined(CONFIG_RAMBOOT_SDCARD)
+#if !defined(CONFIG_ENV_FIT_UCBOOT) && defined(CONFIG_RAMBOOT_SDCARD)
 #define CONFIG_FSL_FIXED_MMC_LOCATION
-#define CONFIG_ENV_SIZE		0x2000
 #define CONFIG_SYS_MMC_ENV_DEV	0
-
-#elif defined(CONFIG_SYS_RAMBOOT)
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
-#define CONFIG_ENV_SIZE		0x2000
-
-#else
-#define CONFIG_ENV_BASE		(CONFIG_SYS_FLASH_BASE)
-#define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K (one sector) */
-#define CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE
-#define CONFIG_ENV_ADDR		(CONFIG_ENV_BASE + 0xC0000)
-#if defined(CONFIG_SYS_REDUNDAND_ENVIRONMENT)
-/* Address and size of Redundant Environment Sector	*/
-#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR + CONFIG_ENV_SIZE)
-#define CONFIG_ENV_SIZE_REDUND	CONFIG_ENV_SIZE
 #endif
-
-#endif
-
-#endif	/* CONFIG_ENV_FIT_UCBOOT */
 
 #define CONFIG_LOADS_ECHO		/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change */
@@ -394,7 +396,6 @@
 
 #ifdef CONFIG_MMC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC85xx_ESDHC_ADDR
-#define CONFIG_MMC_SPI
 #endif
 
 /* Misc Extra Settings */

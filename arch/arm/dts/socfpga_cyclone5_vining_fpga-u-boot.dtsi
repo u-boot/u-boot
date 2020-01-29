@@ -6,14 +6,12 @@
  * Copyright (c) 2018 Simon Goldschmidt
  */
 
+#include "socfpga-common-u-boot.dtsi"
+
 /{
 	aliases {
 		spi0 = "/soc/spi@ff705000";
 		udc0 = &usb0;
-	};
-
-	soc {
-		u-boot,dm-pre-reloc;
 	};
 };
 
@@ -22,18 +20,18 @@
 };
 
 &mmc {
-	u-boot,dm-pre-reloc;
+	status = "disabled";
 };
 
 &qspi {
 	u-boot,dm-pre-reloc;
 
 	n25q128@0 {
-		compatible = "n25q128", "spi-flash";
+		compatible = "n25q128", "jedec,spi-nor";
 		u-boot,dm-pre-reloc;
 	};
 	n25q00@1 {
-		compatible = "n25q00", "spi-flash";
+		compatible = "n25q00", "jedec,spi-nor";
 		u-boot,dm-pre-reloc;
 	};
 };

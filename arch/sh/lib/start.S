@@ -12,12 +12,6 @@
 
 	.global	_start
 _start:
-#ifdef CONFIG_CPU_SH2
-	.long 0x00000010        /* Ppower ON reset PC*/
-	.long 0x00000000
-	.long 0x00000010        /* Manual reset PC */
-	.long 0x00000000
-#endif
 	mov.l	._lowlevel_init, r0
 100:	bsrf	r0
 	nop
@@ -28,6 +22,17 @@ _start:
 	mov.l	._reloc_dst, r4
 	add	#(_start-1b), r5
 	mov.l	._reloc_dst_end, r6
+#ifdef CONFIG_OF_SEPARATE
+	mov.l	._reloc_size, r0
+	add	r5, r0
+	add	#4, r0
+	mov.l	@r0, r0
+	swap.b	r0, r0
+	swap.w	r0, r0
+	swap.b	r0, r0
+	add	#4, r0
+	add	r0, r6
+#endif
 
 2:	mov.l	@r5+, r1
 	mov.l	r1, @r4
@@ -35,6 +40,7 @@ _start:
 	cmp/hs	r6, r4
 	bf	2b
 
+#ifndef CONFIG_OF_SEPARATE
 	mov.l	._bss_start, r4
 	mov.l	._bss_end, r5
 	mov	#0, r1
@@ -43,6 +49,7 @@ _start:
 	add	#4, r4
 	cmp/hs	r5, r4
 	bf	3b
+#endif
 
 	mov.l	._gd_init, r13		/* global data */
 	mov.l	._stack_init, r15	/* stack */
@@ -59,6 +66,7 @@ loop:
 ._lowlevel_init:	.long	(lowlevel_init - (100b + 4))
 ._reloc_dst:		.long	_start
 ._reloc_dst_end:	.long	reloc_dst_end
+._reloc_size:		.long	(_end - _start)
 ._bss_start:		.long	bss_start
 ._bss_end:		.long	bss_end
 ._gd_init:		.long	(_start - GENERATED_GBL_DATA_SIZE)

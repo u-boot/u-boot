@@ -139,7 +139,7 @@
 					#address-cells = <1>;
 					reg = <0>;
 					compatible = "winbond,w25q64",
-						"spi-flash";
+						"jedec,spi-nor";
 					memory-map = <0xff800000 0x00800000>;
 					rw-mrc-cache {
 						label = "rw-mrc-cache";

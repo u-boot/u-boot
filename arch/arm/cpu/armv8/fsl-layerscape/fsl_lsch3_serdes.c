@@ -548,11 +548,31 @@ void fsl_serdes_init(void)
 #if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
 	int i , j;
 
+#ifdef CONFIG_ARCH_LX2160A
+	for (i = XFI1, j = 1; i <= XFI14; i++, j++)
+		xfi_dpmac[i] = j;
+
+	for (i = SGMII1, j = 1; i <= SGMII18; i++, j++)
+		sgmii_dpmac[i] = j;
+
+	for (i = _25GE1, j = 1; i <= _25GE10; i++, j++)
+		a25gaui_dpmac[i] = j;
+
+	for (i = _40GE1, j = 1; i <= _40GE2; i++, j++)
+		xlaui_dpmac[i] = j;
+
+	for (i = _50GE1, j = 1; i <= _50GE2; i++, j++)
+		caui2_dpmac[i] = j;
+
+	for (i = _100GE1, j = 1; i <= _100GE2; i++, j++)
+		caui4_dpmac[i] = j;
+#else
 	for (i = XFI1, j = 1; i <= XFI8; i++, j++)
 		xfi_dpmac[i] = j;
 
 	for (i = SGMII1, j = 1; i <= SGMII16; i++, j++)
 		sgmii_dpmac[i] = j;
+#endif
 #endif
 
 #ifdef CONFIG_SYS_FSL_SRDS_1

@@ -17,6 +17,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <asm/io.h>
 #include <asm/msr.h>
 #include <asm/mtrr.h>
@@ -50,11 +51,20 @@ void mtrr_close(struct mtrr_state *state, bool do_caches)
 		enable_caches();
 }
 
+static void set_var_mtrr(uint reg, uint type, uint64_t start, uint64_t size)
+{
+	u64 mask;
+
+	wrmsrl(MTRR_PHYS_BASE_MSR(reg), start | type);
+	mask = ~(size - 1);
+	mask &= (1ULL << CONFIG_CPU_ADDR_BITS) - 1;
+	wrmsrl(MTRR_PHYS_MASK_MSR(reg), mask | MTRR_PHYS_MASK_VALID);
+}
+
 int mtrr_commit(bool do_caches)
 {
 	struct mtrr_request *req = gd->arch.mtrr_req;
 	struct mtrr_state state;
-	uint64_t mask;
 	int i;
 
 	debug("%s: enabled=%d, count=%d\n", __func__, gd->arch.has_mtrr,
@@ -65,12 +75,8 @@ int mtrr_commit(bool do_caches)
 	debug("open\n");
 	mtrr_open(&state, do_caches);
 	debug("open done\n");
-	for (i = 0; i < gd->arch.mtrr_req_count; i++, req++) {
-		mask = ~(req->size - 1);
-		mask &= (1ULL << CONFIG_CPU_ADDR_BITS) - 1;
-		wrmsrl(MTRR_PHYS_BASE_MSR(i), req->start | req->type);
-		wrmsrl(MTRR_PHYS_MASK_MSR(i), mask | MTRR_PHYS_MASK_VALID);
-	}
+	for (i = 0; i < gd->arch.mtrr_req_count; i++, req++)
+		set_var_mtrr(i, req->type, req->start, req->size);
 
 	/* Clear the ones that are unused */
 	debug("clear\n");
@@ -104,6 +110,44 @@ int mtrr_add_request(int type, uint64_t start, uint64_t size)
 	mask &= (1ULL << CONFIG_CPU_ADDR_BITS) - 1;
 	mask |= MTRR_PHYS_MASK_VALID;
 	debug("   %016llx %016llx\n", req->start | req->type, mask);
+
+	return 0;
+}
+
+static int get_var_mtrr_count(void)
+{
+	return msr_read(MSR_MTRR_CAP_MSR).lo & MSR_MTRR_CAP_VCNT;
+}
+
+static int get_free_var_mtrr(void)
+{
+	struct msr_t maskm;
+	int vcnt;
+	int i;
+
+	vcnt = get_var_mtrr_count();
+
+	/* Identify the first var mtrr which is not valid */
+	for (i = 0; i < vcnt; i++) {
+		maskm = msr_read(MTRR_PHYS_MASK_MSR(i));
+		if ((maskm.lo & MTRR_PHYS_MASK_VALID) == 0)
+			return i;
+	}
+
+	/* No free var mtrr */
+	return -ENOSPC;
+}
+
+int mtrr_set_next_var(uint type, uint64_t start, uint64_t size)
+{
+	int mtrr;
+
+	mtrr = get_free_var_mtrr();
+	if (mtrr < 0)
+		return mtrr;
+
+	set_var_mtrr(mtrr, type, start, size);
+	debug("MTRR %x: start=%x, size=%x\n", mtrr, (uint)start, (uint)size);
 
 	return 0;
 }

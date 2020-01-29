@@ -27,7 +27,6 @@
  */
 #define CONFIG_SPL_TARGET	"u-boot-with-spl.bin"
 #define CONFIG_SPL_MAX_SIZE	2048
-#define CONFIG_SPL_TEXT_BASE    0xA0000000
 
 /* NAND boot config */
 #define CONFIG_SYS_NAND_U_BOOT_START    CONFIG_SYS_TEXT_BASE
@@ -67,12 +66,7 @@
 #define	ACFG_MONITOR_OFFSET		0x00000000
 #define	CONFIG_SYS_MONITOR_LEN		0x00100000	/* 1MiB */
 #define	CONFIG_ENV_OVERWRITE
-#define	CONFIG_ENV_OFFSET		0x00100000	/* NAND offset */
-#define	CONFIG_ENV_SIZE			0x00020000	/* 128kB  */
 #define CONFIG_ENV_RANGE		0X00080000	/* 512kB */
-#define	CONFIG_ENV_OFFSET_REDUND	\
-		(CONFIG_ENV_OFFSET + CONFIG_ENV_RANGE)	/* +512kB */
-#define	CONFIG_ENV_SIZE_REDUND		CONFIG_ENV_SIZE	/* 512kB */
 #define	CONFIG_FIRMWARE_OFFSET		0x00200000
 #define	CONFIG_FIRMWARE_SIZE		0x00080000	/* 512kB  */
 #define	CONFIG_KERNEL_OFFSET		0x00300000
@@ -84,7 +78,6 @@
 #define CONFIG_SYS_CBSIZE		2048		/* console I/O buffer */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 						/* Boot argument buffer size */
-#define CONFIG_PREBOOT			"run check_flash check_env;"
 
 /*
  * Boot Linux

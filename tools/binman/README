@@ -36,10 +36,9 @@ suitable padding and alignment. It provides a way to process binaries before
 they are included, by adding a Python plug-in. The device tree is available
 to U-Boot at run-time so that the images can be interpreted.
 
-Binman does not yet update the device tree with the final location of
-everything when it is done. A simple C structure could be generated for
-constrained environments like SPL (using dtoc) but this is also not
-implemented.
+Binman can update the device tree with the final location of everything when it
+is done. Entry positions can be provided to U-Boot SPL as run-time symbols,
+avoiding device-tree code overhead.
 
 Binman can also support incorporating filesystems in the image if required.
 For example x86 platforms may use CBFS in some cases.
@@ -74,7 +73,7 @@ any dependencies between them
 and brought in as needed
 - Provides for a standard image description available in the build and at
 run-time
-- SoC-specific image-signing tools can be accomodated
+- SoC-specific image-signing tools can be accommodated
 - Avoids cluttering the U-Boot build system with image-building code
 - The image description is automatically available at run-time in U-Boot,
 SPL. It can be made available to other software also
@@ -181,9 +180,14 @@ the configuration of the Intel-format descriptor.
 Running binman
 --------------
 
+First install prerequisites, e.g.
+
+	sudo apt-get install python-pyelftools python3-pyelftools lzma-alone \
+		liblz4-tool
+
 Type:
 
-	binman -b <board_name>
+	binman build -b <board_name>
 
 to build an image for a board. The board name is the same name used when
 configuring U-Boot (e.g. for sandbox_defconfig the board name is 'sandbox').
@@ -191,7 +195,7 @@ Binman assumes that the input files for the build are in ../b/<board_name>.
 
 Or you can specify this explicitly:
 
-	binman -I <build_path>
+	binman build -I <build_path>
 
 where <build_path> is the build directory containing the output of the U-Boot
 build.
@@ -335,12 +339,23 @@ expand-size:
 	limited by the size of the image/section and the position of the next
 	entry.
 
+compress:
+	Sets the compression algortihm to use (for blobs only). See the entry
+	documentation for details.
+
 The attributes supported for images and sections are described below. Several
 are similar to those for entries.
 
 size:
 	Sets the image size in bytes, for example 'size = <0x100000>' for a
 	1MB image.
+
+offset:
+	This is similar to 'offset' in entries, setting the offset of a section
+	within the image or section containing it. The first byte of the section
+	is normally at offset 0. If 'offset' is not provided, binman sets it to
+	the end of the previous region, or the start of the image's entry area
+	(normally 0) if there is no previous region.
 
 align-size:
 	This sets the alignment of the image size. For example, to ensure
@@ -466,13 +481,150 @@ name-prefix:
 	distinguish binaries with otherwise identical names.
 
 
+Image Properties
+----------------
+
+Image nodes act like sections but also have a few extra properties:
+
+filename:
+	Output filename for the image. This defaults to image.bin (or in the
+	case of multiple images <nodename>.bin where <nodename> is the name of
+	the image node.
+
+allow-repack:
+	Create an image that can be repacked. With this option it is possible
+	to change anything in the image after it is created, including updating
+	the position and size of image components. By default this is not
+	permitted since it is not possibly to know whether this might violate a
+	constraint in the image description. For example, if a section has to
+	increase in size to hold a larger binary, that might cause the section
+	to fall out of its allow region (e.g. read-only portion of flash).
+
+	Adding this property causes the original offset and size values in the
+	image description to be stored in the FDT and fdtmap.
+
+
 Entry Documentation
 -------------------
 
 For details on the various entry types supported by binman and how to use them,
 see README.entries. This is generated from the source code using:
 
-	binman -E >tools/binman/README.entries
+	binman entry-docs >tools/binman/README.entries
+
+
+Listing images
+--------------
+
+It is possible to list the entries in an existing firmware image created by
+binman, provided that there is an 'fdtmap' entry in the image. For example:
+
+    $ binman ls -i image.bin
+    Name              Image-pos  Size  Entry-type    Offset  Uncomp-size
+    ----------------------------------------------------------------------
+    main-section                  c00  section            0
+      u-boot                  0     4  u-boot             0
+      section                     5fc  section            4
+        cbfs                100   400  cbfs               0
+          u-boot            138     4  u-boot            38
+          u-boot-dtb        180   108  u-boot-dtb        80          3b5
+        u-boot-dtb          500   1ff  u-boot-dtb       400          3b5
+      fdtmap                6fc   381  fdtmap           6fc
+      image-header          bf8     8  image-header     bf8
+
+This shows the hierarchy of the image, the position, size and type of each
+entry, the offset of each entry within its parent and the uncompressed size if
+the entry is compressed.
+
+It is also possible to list just some files in an image, e.g.
+
+    $ binman ls -i image.bin section/cbfs
+    Name              Image-pos  Size  Entry-type  Offset  Uncomp-size
+    --------------------------------------------------------------------
+        cbfs                100   400  cbfs             0
+          u-boot            138     4  u-boot          38
+          u-boot-dtb        180   108  u-boot-dtb      80          3b5
+
+or with wildcards:
+
+    $ binman ls -i image.bin "*cb*" "*head*"
+    Name              Image-pos  Size  Entry-type    Offset  Uncomp-size
+    ----------------------------------------------------------------------
+        cbfs                100   400  cbfs               0
+          u-boot            138     4  u-boot            38
+          u-boot-dtb        180   108  u-boot-dtb        80          3b5
+      image-header          bf8     8  image-header     bf8
+
+
+Extracting files from images
+----------------------------
+
+You can extract files from an existing firmware image created by binman,
+provided that there is an 'fdtmap' entry in the image. For example:
+
+    $ binman extract -i image.bin section/cbfs/u-boot
+
+which will write the uncompressed contents of that entry to the file 'u-boot' in
+the current directory. You can also extract to a particular file, in this case
+u-boot.bin:
+
+    $ binman extract -i image.bin section/cbfs/u-boot -f u-boot.bin
+
+It is possible to extract all files into a destination directory, which will
+put files in subdirectories matching the entry hierarchy:
+
+    $ binman extract -i image.bin -O outdir
+
+or just a selection:
+
+    $ binman extract -i image.bin "*u-boot*" -O outdir
+
+
+Replacing files in an image
+---------------------------
+
+You can replace files in an existing firmware image created by binman, provided
+that there is an 'fdtmap' entry in the image. For example:
+
+    $ binman replace -i image.bin section/cbfs/u-boot
+
+which will write the contents of the file 'u-boot' from the current directory
+to the that entry, compressing if necessary. If the entry size changes, you must
+add the 'allow-repack' property to the original image before generating it (see
+above), otherwise you will get an error.
+
+You can also use a particular file, in this case u-boot.bin:
+
+    $ binman replace -i image.bin section/cbfs/u-boot -f u-boot.bin
+
+It is possible to replace all files from a source directory which uses the same
+hierarchy as the entries:
+
+    $ binman replace -i image.bin -I indir
+
+Files that are missing will generate a warning.
+
+You can also replace just a selection of entries:
+
+    $ binman replace -i image.bin "*u-boot*" -I indir
+
+
+Logging
+-------
+
+Binman normally operates silently unless there is an error, in which case it
+just displays the error. The -D/--debug option can be used to create a full
+backtrace when errors occur.
+
+Internally binman logs some output while it is running. This can be displayed
+by increasing the -v/--verbosity from the default of 1:
+
+   0: silent
+   1: warnings only
+   2: notices (important messages)
+   3: info about major operations
+   4: detailed information about each operation
+   5: debug (all output)
 
 
 Hashing Entries
@@ -544,21 +696,35 @@ large enough to hold all the entries.
 7. CheckEntries() - checks that the entries do not overlap, nor extend
 outside the image.
 
-8. SetCalculatedProperties() - update any calculated properties in the device
+8. SetImagePos() - sets the image position of every entry. This is the absolute
+position 'image-pos', as opposed to 'offset' which is relative to the containing
+section. This must be done after all offsets are known, which is why it is quite
+late in the ordering.
+
+9. SetCalculatedProperties() - update any calculated properties in the device
 tree. This sets the correct 'offset' and 'size' vaues, for example.
 
-9. ProcessEntryContents() - this calls Entry.ProcessContents() on each entry.
+10. ProcessEntryContents() - this calls Entry.ProcessContents() on each entry.
 The default implementatoin does nothing. This can be overriden to adjust the
 contents of an entry in some way. For example, it would be possible to create
 an entry containing a hash of the contents of some other entries. At this
-stage the offset and size of entries should not be adjusted.
+stage the offset and size of entries should not be adjusted unless absolutely
+necessary, since it requires a repack (going back to PackEntries()).
 
-10. WriteSymbols() - write the value of symbols into the U-Boot SPL binary.
+11. ResetForPack() - if the ProcessEntryContents() step failed, in that an entry
+has changed its size, then there is no alternative but to go back to step 5 and
+try again, repacking the entries with the updated size. ResetForPack() removes
+the fixed offset/size values added by binman, so that the packing can start from
+scratch.
+
+12. WriteSymbols() - write the value of symbols into the U-Boot SPL binary.
 See 'Access to binman entry offsets at run time' below for a description of
 what happens in this stage.
 
-11. BuildImage() - builds the image and writes it to a file. This is the final
-step.
+13. BuildImage() - builds the image and writes it to a file
+
+14. WriteMap() - writes a text file containing a map of the image. This is the
+final step.
 
 
 Automatic .dtsi inclusion
@@ -600,20 +766,38 @@ when SPL is finished.
 Binman allows you to declare symbols in the SPL image which are filled in
 with their correct values during the build. For example:
 
-    binman_sym_declare(ulong, u_boot_any, offset);
+    binman_sym_declare(ulong, u_boot_any, image_pos);
 
-declares a ulong value which will be assigned to the offset of any U-Boot
+declares a ulong value which will be assigned to the image-pos of any U-Boot
 image (u-boot.bin, u-boot.img, u-boot-nodtb.bin) that is present in the image.
 You can access this value with something like:
 
-    ulong u_boot_offset = binman_sym(ulong, u_boot_any, offset);
+    ulong u_boot_offset = binman_sym(ulong, u_boot_any, image_pos);
 
-Thus u_boot_offset will be set to the offset of U-Boot in memory, assuming that
-the whole image has been loaded, or is available in flash. You can then jump to
-that address to start U-Boot.
+Thus u_boot_offset will be set to the image-pos of U-Boot in memory, assuming
+that the whole image has been loaded, or is available in flash. You can then
+jump to that address to start U-Boot.
 
-At present this feature is only supported in SPL. In principle it is possible
-to fill in such symbols in U-Boot proper, as well.
+At present this feature is only supported in SPL and TPL. In principle it is
+possible to fill in such symbols in U-Boot proper, as well, but a future C
+library is planned for this instead, to read from the device tree.
+
+As well as image-pos, it is possible to read the size of an entry and its
+offset (which is the start position of the entry within its parent).
+
+A small technical note: Binman automatically adds the base address of the image
+(i.e. __image_copy_start) to the value of the image-pos symbol, so that when the
+image is loaded to its linked address, the value will be correct and actually
+point into the image.
+
+For example, say SPL is at the start of the image and linked to start at address
+80108000. If U-Boot's image-pos is 0x8000 then binman will write an image-pos
+for U-Boot of 80110000 into the SPL binary, since it assumes the image is loaded
+to 80108000, with SPL at 80108000 and U-Boot at 80110000.
+
+For x86 devices (with the end-at-4gb property) this base address is not added
+since it is assumed that images are XIP and the offsets already include the
+address.
 
 
 Access to binman entry offsets at run time (fdt)
@@ -627,20 +811,27 @@ the image definition, binman calculates the final values and writes these to
 the device tree. These can be used by U-Boot at run-time to find the location
 of each entry.
 
+Alternatively, an FDT map entry can be used to add a special FDT containing
+just the information about the image. This is preceded by a magic string so can
+be located anywhere in the image. An image header (typically at the start or end
+of the image) can be used to point to the FDT map. See fdtmap and image-header
+entries for more information.
+
 
 Compression
 -----------
 
 Binman support compression for 'blob' entries (those of type 'blob' and
-derivatives). To enable this for an entry, add a 'compression' property:
+derivatives). To enable this for an entry, add a 'compress' property:
 
     blob {
         filename = "datafile";
-        compression = "lz4";
+        compress = "lz4";
     };
 
 The entry will then contain the compressed data, using the 'lz4' compression
-algorithm. Currently this is the only one that is supported.
+algorithm. Currently this is the only one that is supported. The uncompressed
+size is written to the node in an 'uncomp-size' property, if -u is used.
 
 
 
@@ -684,15 +875,47 @@ Not all properties can be provided this way. Only some entries support it,
 typically for filenames.
 
 
+External tools
+--------------
+
+Binman can make use of external command-line tools to handle processing of
+entry contents or to generate entry contents. These tools are executed using
+the 'tools' module's Run() method. The tools generally must exist on the PATH,
+but the --toolpath option can be used to specify additional search paths to
+use. This option can be specified multiple times to add more than one path.
+
+
 Code coverage
 -------------
 
 Binman is a critical tool and is designed to be very testable. Entry
-implementations target 100% test coverage. Run 'binman -T' to check this.
+implementations target 100% test coverage. Run 'binman test -T' to check this.
 
 To enable Python test coverage on Debian-type distributions (e.g. Ubuntu):
 
-   $ sudo apt-get install python-coverage python-pytest
+   $ sudo apt-get install python-coverage python3-coverage python-pytest
+
+
+Concurrent tests
+----------------
+
+Binman tries to run tests concurrently. This means that the tests make use of
+all available CPUs to run.
+
+ To enable this:
+
+   $ sudo apt-get install python-subunit python3-subunit
+
+Use '-P 1' to disable this. It is automatically disabled when code coverage is
+being used (-T) since they are incompatible.
+
+
+Debugging tests
+---------------
+
+Sometimes when debugging tests it is useful to keep the input and output
+directories so they can be examined later. Use -X or --test-preserve-dirs for
+this.
 
 
 Advanced Features / Technical docs
@@ -726,8 +949,14 @@ old.
 To enable a full backtrace and other debugging features in binman, pass
 BINMAN_DEBUG=1 to your build:
 
-   make sandbox_defconfig
+   make qemu-x86_defconfig
    make BINMAN_DEBUG=1
+
+To enable verbose logging from binman, base BINMAN_VERBOSE to your build, which
+adds a -v<level> option to the call to binman:
+
+   make qemu-x86_defconfig
+   make BINMAN_VERBOSE=5
 
 
 History / Credits
@@ -767,13 +996,12 @@ Some ideas:
 - Use of-platdata to make the information available to code that is unable
   to use device tree (such as a very small SPL image)
 - Allow easy building of images by specifying just the board name
-- Produce a full Python binding for libfdt (for upstream). This is nearing
-    completion but some work remains
-- Add an option to decode an image into the constituent binaries
 - Support building an image for a board (-b) more completely, with a
   configurable build directory
-- Consider making binman work with buildman, although if it is used in the
-  Makefile, this will be automatic
+- Support adding FITs to an image
+- Support for ARM Trusted Firmware (ATF)
+- Detect invalid properties in nodes
+- Sort the fdtmap by offset
 
 --
 Simon Glass <sjg@chromium.org>

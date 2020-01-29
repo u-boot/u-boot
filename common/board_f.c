@@ -13,17 +13,22 @@
 #include <bloblist.h>
 #include <console.h>
 #include <cpu.h>
+#include <cpu_func.h>
 #include <dm.h>
-#include <environment.h>
+#include <env.h>
+#include <env_internal.h>
 #include <fdtdec.h>
 #include <fs.h>
 #include <i2c.h>
+#include <init.h>
 #include <initcall.h>
+#include <lcd.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <os.h>
 #include <post.h>
 #include <relocate.h>
+#include <serial.h>
 #ifdef CONFIG_SPL
 #include <spl.h>
 #endif
@@ -381,7 +386,7 @@ static int reserve_round_4k(void)
 #ifdef CONFIG_ARM
 __weak int reserve_mmu(void)
 {
-#if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
+#if !(CONFIG_IS_ENABLED(SYS_ICACHE_OFF) && CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
 	/* reserve TLB table */
 	gd->arch.tlb_size = PGTABLE_SIZE;
 	gd->relocaddr -= gd->arch.tlb_size;
@@ -425,13 +430,6 @@ static int reserve_video(void)
 	gd->relocaddr = lcd_setmem(gd->relocaddr);
 	gd->fb_base = gd->relocaddr;
 #  endif /* CONFIG_FB_ADDR */
-#elif defined(CONFIG_VIDEO) && \
-		(!defined(CONFIG_PPC)) && \
-		!defined(CONFIG_ARM) && !defined(CONFIG_X86) && \
-		!defined(CONFIG_M68K)
-	/* reserve memory for video display (always full pages) */
-	gd->relocaddr = video_setmem(gd->relocaddr);
-	gd->fb_base = gd->relocaddr;
 #endif
 
 	return 0;
@@ -442,8 +440,8 @@ static int reserve_trace(void)
 #ifdef CONFIG_TRACE
 	gd->relocaddr -= CONFIG_TRACE_BUFFER_SIZE;
 	gd->trace_buff = map_sysmem(gd->relocaddr, CONFIG_TRACE_BUFFER_SIZE);
-	debug("Reserving %dk for trace data at: %08lx\n",
-	      CONFIG_TRACE_BUFFER_SIZE >> 10, gd->relocaddr);
+	debug("Reserving %luk for trace data at: %08lx\n",
+	      (unsigned long)CONFIG_TRACE_BUFFER_SIZE >> 10, gd->relocaddr);
 #endif
 
 	return 0;
@@ -472,12 +470,38 @@ static int reserve_uboot(void)
 	return 0;
 }
 
+#ifdef CONFIG_SYS_NONCACHED_MEMORY
+static int reserve_noncached(void)
+{
+	/*
+	 * The value of gd->start_addr_sp must match the value of malloc_start
+	 * calculated in boatrd_f.c:initr_malloc(), which is passed to
+	 * board_r.c:mem_malloc_init() and then used by
+	 * cache.c:noncached_init()
+	 *
+	 * These calculations must match the code in cache.c:noncached_init()
+	 */
+	gd->start_addr_sp = ALIGN(gd->start_addr_sp, MMU_SECTION_SIZE) -
+		MMU_SECTION_SIZE;
+	gd->start_addr_sp -= ALIGN(CONFIG_SYS_NONCACHED_MEMORY,
+				   MMU_SECTION_SIZE);
+	debug("Reserving %dM for noncached_alloc() at: %08lx\n",
+	      CONFIG_SYS_NONCACHED_MEMORY >> 20, gd->start_addr_sp);
+
+	return 0;
+}
+#endif
+
 /* reserve memory for malloc() area */
 static int reserve_malloc(void)
 {
 	gd->start_addr_sp = gd->start_addr_sp - TOTAL_MALLOC_LEN;
 	debug("Reserving %dk for malloc() at: %08lx\n",
 	      TOTAL_MALLOC_LEN >> 10, gd->start_addr_sp);
+#ifdef CONFIG_SYS_NONCACHED_MEMORY
+	reserve_noncached();
+#endif
+
 	return 0;
 }
 
@@ -567,6 +591,7 @@ static int reserve_stacks(void)
 static int reserve_bloblist(void)
 {
 #ifdef CONFIG_BLOBLIST
+	gd->start_addr_sp &= ~0xf;
 	gd->start_addr_sp -= CONFIG_BLOBLIST_SIZE;
 	gd->new_bloblist = map_sysmem(gd->start_addr_sp, CONFIG_BLOBLIST_SIZE);
 #endif
@@ -674,6 +699,7 @@ static int reloc_bootstage(void)
 		      gd->bootstage, gd->new_bootstage, size);
 		memcpy(gd->new_bootstage, gd->bootstage, size);
 		gd->bootstage = gd->new_bootstage;
+		bootstage_relocate();
 	}
 #endif
 
@@ -714,7 +740,7 @@ static int setup_reloc(void)
 	 * just after the default vector table location, so at 0x400
 	 */
 	gd->reloc_off = gd->relocaddr - (CONFIG_SYS_TEXT_BASE + 0x400);
-#else
+#elif !defined(CONFIG_SANDBOX)
 	gd->reloc_off = gd->relocaddr - CONFIG_SYS_TEXT_BASE;
 #endif
 #endif
@@ -839,7 +865,7 @@ static const init_fnc_t init_sequence_f[] = {
 #ifdef CONFIG_OF_CONTROL
 	fdtdec_setup,
 #endif
-#ifdef CONFIG_TRACE
+#ifdef CONFIG_TRACE_EARLY
 	trace_early_init,
 #endif
 	initf_malloc,

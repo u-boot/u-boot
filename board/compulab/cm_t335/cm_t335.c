@@ -8,9 +8,10 @@
  */
 
 #include <common.h>
-#include <environment.h>
+#include <env.h>
 #include <errno.h>
 #include <miiphy.h>
+#include <status_led.h>
 #include <cpsw.h>
 
 #include <asm/arch/sys_proto.h>

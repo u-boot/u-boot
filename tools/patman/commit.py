@@ -21,6 +21,8 @@ class Commit:
             The dict is indexed by change version (an integer)
         cc_list: List of people to aliases/emails to cc on this commit
         notes: List of lines in the commit (not series) notes
+        change_id: the Change-Id: tag that was stripped from this commit
+            and can be used to generate the Message-Id.
     """
     def __init__(self, hash):
         self.hash = hash
@@ -30,6 +32,7 @@ class Commit:
         self.cc_list = []
         self.signoff_set = set()
         self.notes = []
+        self.change_id = None
 
     def AddChange(self, version, info):
         """Add a new change line to the change list for a version.

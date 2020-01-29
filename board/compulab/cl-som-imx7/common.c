@@ -8,7 +8,7 @@
  */
 
 #include <common.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
 #include <asm-generic/gpio.h>
 #include "common.h"
 
@@ -23,7 +23,7 @@ int board_spi_cs_gpio(unsigned int bus, unsigned int cs)
 
 #endif /* CONFIG_SPI */
 
-#ifdef CONFIG_FSL_ESDHC
+#ifdef CONFIG_FSL_ESDHC_IMX
 
 int board_mmc_getcd(struct mmc *mmc)
 {
@@ -42,4 +42,4 @@ int board_mmc_getcd(struct mmc *mmc)
 	return ret;
 }
 
-#endif /* CONFIG_FSL_ESDHC */
+#endif /* CONFIG_FSL_ESDHC_IMX */

@@ -45,7 +45,7 @@ config SERIAL_PRESENT
 
 config SPL_SERIAL_PRESENT
 	bool "Provide a serial driver in SPL"
-	depends on DM_SERIAL
+	depends on DM_SERIAL && SPL
 	default y
 	help
 	  In very space-constrained devices even the full UART driver is too
@@ -55,7 +55,7 @@ config SPL_SERIAL_PRESENT
 
 config TPL_SERIAL_PRESENT
 	bool "Provide a serial driver in TPL"
-	depends on DM_SERIAL
+	depends on DM_SERIAL && TPL
 	default y
 	help
 	  In very space-constrained devices even the full UART driver is too
@@ -145,7 +145,7 @@ config SPL_DM_SERIAL
 
 config TPL_DM_SERIAL
 	bool "Enable Driver Model for serial drivers in TPL"
-	depends on DM_SERIAL
+	depends on DM_SERIAL && TPL_DM
 	default y if TPL && DM_SERIAL
 	help
 	  Enable driver model for serial in TPL. This replaces
@@ -442,9 +442,22 @@ config DEBUG_UART_ANNOUNCE
 
 config DEBUG_UART_SKIP_INIT
 	bool "Skip UART initialization"
+	depends on DEBUG_UART
 	help
 	  Select this if the UART you want to use for debug output is already
 	  initialized by the time U-Boot starts its execution.
+
+config DEBUG_UART_NS16550_CHECK_ENABLED
+	bool "Check if UART is enabled on output"
+	depends on DEBUG_UART
+	depends on DEBUG_UART_NS16550
+	help
+	  Select this if puts()/putc() might be called before the debug UART
+	  has been initialized. If this is disabled, putc() might sit in a
+	  tight loop if it is called before debug_uart_init() has been called.
+
+	  Note that this does not work for every ns16550-compatible UART and
+	  so has to be enabled carefully or you might notice lost characters.
 
 config ALTERA_JTAG_UART
 	bool "Altera JTAG UART support"
@@ -495,6 +508,15 @@ config ATMEL_USART
 	  configured in the device tree, and input clock frequency can
 	  be got from the clk node.
 
+config SPL_UART_CLOCK
+	int "SPL fixed UART input clock"
+	depends on ATMEL_USART && SPL && !SPL_CLK
+	default 132096000 if ARCH_AT91
+	help
+	  Provide a fixed clock value as input to the UART controller. This
+	  might be needed on platforms which can't enable CONFIG_SPL_CLK
+	  because of SPL image size restrictions.
+
 config BCM283X_MU_SERIAL
 	bool "Support for BCM283x Mini-UART"
 	depends on DM_SERIAL && ARCH_BCM283X
@@ -537,9 +559,17 @@ config MVEBU_A3700_UART
 	  Choose this option to add support for UART driver on the Marvell
 	  Armada 3700 SoC. The base address is configured via DT.
 
+config MCFUART
+	bool "Freescale ColdFire UART support"
+        help
+          Choose this option to add support for UART driver on the ColdFire
+          SoC's family. The serial communication channel provides a full-duplex
+          asynchronous/synchronous receiver and transmitter deriving an
+          operating frequency from the internal bus clock or an external clock.
+
 config MXC_UART
 	bool "IMX serial port support"
-	depends on MX5 || MX6
+	depends on MX5 || MX6 || MX7 || IMX8M
 	help
 	  If you have a machine based on a Motorola IMX CPU you
 	  can enable its onboard serial port by enabling this option.

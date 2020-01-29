@@ -1,5 +1,6 @@
 source "drivers/net/phy/Kconfig"
 source "drivers/net/pfe_eth/Kconfig"
+source "drivers/net/fsl-mc/Kconfig"
 
 config DM_ETH
 	bool "Enable Driver Model for Ethernet drivers"
@@ -10,6 +11,51 @@ config DM_ETH
 	  The eth_*() interface will be implemented by the UCLASS_ETH class
 	  This is currently implemented in net/eth-uclass.c
 	  Look in include/net.h for details.
+
+config DM_MDIO
+	bool "Enable Driver Model for MDIO devices"
+	depends on DM_ETH && PHYLIB
+	help
+	  Enable driver model for MDIO devices
+
+	  Adds UCLASS_MDIO DM class supporting MDIO buses that are probed as
+	  stand-alone devices.  Useful in particular for systems that support
+	  DM_ETH and have a stand-alone MDIO hardware block shared by multiple
+	  Ethernet interfaces.
+	  This is currently implemented in net/mdio-uclass.c
+	  Look in include/miiphy.h for details.
+
+config DM_MDIO_MUX
+	bool "Enable Driver Model for MDIO MUX devices"
+	depends on DM_MDIO
+	help
+	  Enable driver model for MDIO MUX devices
+
+	  Adds UCLASS_MDIO_MUX DM class supporting MDIO MUXes.  Useful for
+	  systems that support DM_MDIO and integrate one or multiple muxes on
+	  the MDIO bus.
+	  This is currently implemented in net/mdio-mux-uclass.c
+	  Look in include/miiphy.h for details.
+
+config MDIO_SANDBOX
+	depends on DM_MDIO && SANDBOX
+	default y
+	bool "Sandbox: Mocked MDIO driver"
+	help
+	  This driver implements dummy read/write/reset MDIO functions mimicking
+	  a bus with a single PHY.
+
+	  This driver is used in for testing in test/dm/mdio.c
+
+config MDIO_MUX_SANDBOX
+	depends on DM_MDIO_MUX && MDIO_SANDBOX
+	default y
+	bool "Sandbox: Mocked MDIO-MUX driver"
+	help
+	  This driver implements dummy select/deselect ops mimicking a MUX on
+	  the MDIO bux.  It uses mdio_sandbox driver as parent MDIO.
+
+	  This driver is used for testing in test/dm/mdio.c
 
 menuconfig NETDEVICES
 	bool "Network device support"
@@ -151,17 +197,20 @@ config ETH_SANDBOX_RAW
 	  This driver is a bridge from the bottom of the network stack
 	  in U-Boot to the RAW AF_PACKET API in Linux. This allows real
 	  network traffic to be tested from within sandbox. See
-	  board/sandbox/README.sandbox for more details.
+	  doc/arch/index.rst for more details.
 
 config ETH_DESIGNWARE
 	bool "Synopsys Designware Ethernet MAC"
 	select PHYLIB
+	imply ETH_DESIGNWARE_SOCFPGA if ARCH_SOCFPGA
 	help
 	  This MAC is present in SoCs from various vendors. It supports
 	  100Mbit and 1 Gbit operation. You must enable CONFIG_PHYLIB to
 	  provide the PHY (physical media interface).
 
 config ETH_DESIGNWARE_SOCFPGA
+	select REGMAP
+	select SYSCON
 	bool "Altera SoCFPGA extras for Synopsys Designware Ethernet MAC"
 	depends on DM_ETH && ETH_DESIGNWARE
 	help
@@ -187,10 +236,16 @@ config FEC_MXC_MDIO_BASE
 
 config FEC_MXC
 	bool "FEC Ethernet controller"
-	depends on MX5 || MX6 || MX7 || IMX8
+	depends on MX28 || MX5 || MX6 || MX7 || IMX8 || IMX8M || VF610
 	help
 	  This driver supports the 10/100 Fast Ethernet controller for
 	  NXP i.MX processors.
+
+config FMAN_ENET
+	bool "Freescale FMan ethernet support"
+	depends on ARM || PPC
+	help
+	  This driver support the Freescale FMan Ethernet controller
 
 config FTMAC100
 	bool "Ftmac100 Ethernet Support"
@@ -243,6 +298,8 @@ config MVPP2
 	bool "Marvell Armada 375/7K/8K network interface support"
 	depends on ARMADA_375 || ARMADA_8K
 	select PHYLIB
+	select MVMDIO
+	select DM_MDIO
 	help
 	  This driver supports the network interface units in the
 	  Marvell ARMADA 375, 7K and 8K SoCs.
@@ -266,7 +323,8 @@ config MACB_ZYNQ
 
 config MT7628_ETH
 	bool "MediaTek MT7628 Ethernet Interface"
-	depends on ARCH_MT7620
+	depends on SOC_MT7628
+	select PHYLIB
 	help
 	  The MediaTek MT7628 ethernet interface is used on MT7628 and
 	  MT7688 based boards.
@@ -432,6 +490,8 @@ config SNI_AVE
 	  This driver implements support for the Socionext AVE Ethernet
 	  controller, as found on the Socionext UniPhier family.
 
+source "drivers/net/mscc_eswitch/Kconfig"
+
 config ETHER_ON_FEC1
 	bool "FEC1"
 	depends on MPC8XX_FEC
@@ -512,5 +572,49 @@ config TSEC_ENET
 	help
 	  This driver implements support for the (Enhanced) Three-Speed
 	  Ethernet Controller found on Freescale SoCs.
+
+config MEDIATEK_ETH
+	bool "MediaTek Ethernet GMAC Driver"
+	depends on DM_ETH
+	select PHYLIB
+	select DM_GPIO
+	select DM_RESET
+	help
+	  This Driver support MediaTek Ethernet GMAC
+	  Say Y to enable support for the MediaTek Ethernet GMAC.
+
+config HIGMACV300_ETH
+	bool "HiSilicon Gigabit Ethernet Controller"
+	depends on DM_ETH
+	select DM_RESET
+	select PHYLIB
+	help
+	  This driver supports HIGMACV300 Ethernet controller found on
+	  HiSilicon SoCs.
+
+config FSL_ENETC
+	bool "NXP ENETC Ethernet controller"
+	depends on DM_PCI && DM_ETH && DM_MDIO
+	help
+	  This driver supports the NXP ENETC Ethernet controller found on some
+	  of the NXP SoCs.
+
+config MDIO_MUX_I2CREG
+	bool "MDIO MUX accessed as a register over I2C"
+	depends on DM_MDIO_MUX && DM_I2C
+	help
+	  This driver is used for MDIO muxes driven by writing to a register of
+	  an I2C chip.  The board it was developed for uses a mux controlled by
+	  on-board FPGA which in turn is accessed as a chip over I2C.
+
+config MVMDIO
+	bool "Marvell MDIO interface support"
+	depends on DM_MDIO
+	help
+	  This driver supports the MDIO interface found in the network
+	  interface units of the Marvell EBU SoCs (Kirkwood, Orion5x,
+	  Dove, Armada 370, Armada XP, Armada 37xx and Armada7K/8K/8KP).
+
+	  This driver is used by the MVPP2 and MVNETA drivers.
 
 endif # NETDEVICES

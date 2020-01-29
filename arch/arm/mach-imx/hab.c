@@ -17,7 +17,7 @@
 #define ALIGN_SIZE		0x1000
 #define MX6DQ_PU_IROM_MMU_EN_VAR	0x009024a8
 #define MX6DLS_PU_IROM_MMU_EN_VAR	0x00901dd0
-#define MX6SL_PU_IROM_MMU_EN_VAR	0x00900a18
+#define MX6SL_PU_IROM_MMU_EN_VAR	0x00901c60
 #define IS_HAB_ENABLED_BIT \
 	(is_soc_type(MXC_SOC_MX7ULP) ? 0x80000000 :	\
 	 (is_soc_type(MXC_SOC_MX7) ? 0x2000000 : 0x2))
@@ -310,7 +310,7 @@ static ulong get_image_ivt_offset(ulong img_addr)
 
 	buf = map_sysmem(img_addr, 0);
 	switch (genimg_get_format(buf)) {
-#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
+#if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
 	case IMAGE_FORMAT_LEGACY:
 		return (image_get_image_size((image_header_t *)img_addr)
 			+ 0x1000 - 1)  & ~(0x1000 - 1);
@@ -361,6 +361,21 @@ static int do_hab_failsafe(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	hab_rvt_failsafe = (hab_rvt_failsafe_t *)HAB_RVT_FAILSAFE;
 	hab_rvt_failsafe();
+
+	return 0;
+}
+
+static int do_hab_version(cmd_tbl_t *cmdtp, int flag, int argc,
+			  char * const argv[])
+{
+	struct hab_hdr *hdr = (struct hab_hdr *)HAB_RVT_BASE;
+
+	if (hdr->tag != HAB_TAG_RVT) {
+		printf("Unexpected header tag: %x\n", hdr->tag);
+		return CMD_RET_FAILURE;
+	}
+
+	printf("HAB version: %d.%d\n", hdr->par >> 4, hdr->par & 0xf);
 
 	return 0;
 }
@@ -419,6 +434,12 @@ U_BOOT_CMD(
 		"addr - image hex address\n"
 		"length - image hex length\n"
 		"ivt_offset - hex offset of IVT in the image"
+	  );
+
+U_BOOT_CMD(
+		hab_version, 1, 0, do_hab_version,
+		"print HAB major/minor version",
+		""
 	  );
 
 #endif /* !defined(CONFIG_SPL_BUILD) */
@@ -585,8 +606,10 @@ int imx_hab_authenticate_image(uint32_t ddr_start, uint32_t image_size,
 	}
 
 	/* Verify if IVT DCD pointer is NULL */
-	if (ivt->dcd)
-		puts("Warning: DCD pointer should be NULL\n");
+	if (ivt->dcd) {
+		puts("Error: DCD pointer must be NULL\n");
+		goto hab_authentication_exit;
+	}
 
 	start = ddr_start;
 	bytes = image_size;

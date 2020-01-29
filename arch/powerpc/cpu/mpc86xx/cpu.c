@@ -6,6 +6,8 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
+#include <vsprintf.h>
 #include <watchdog.h>
 #include <command.h>
 #include <asm/cache.h>

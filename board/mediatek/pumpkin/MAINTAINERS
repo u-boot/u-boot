@@ -1,0 +1,6 @@
+Pumpkin
+M:	Fabien Parent <fparent@baylibre.com>
+S:	Maintained
+F:	board/mediatek/pumpkin
+F:	include/configs/pumpkin.h
+F:	configs/pumpkin_defconfig

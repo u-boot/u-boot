@@ -22,8 +22,6 @@
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_USB_A9263
 
-#define CONFIG_ARCH_CPU_INIT
-
 #define CONFIG_CMDLINE_TAG	/* enable passing of ATAGs      */
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
@@ -79,10 +77,6 @@
 #define CONFIG_SYS_MEMTEST_END			0x23e00000
 
 /* bootstrap + u-boot + env + linux in dataflash on CS0 */
-#define CONFIG_ENV_OFFSET	0x2000
-#define CONFIG_ENV_SIZE		0x2000
-#define CONFIG_ENV_SECT_SIZE	CONFIG_ENV_SIZE
-#define CONFIG_ENV_SPI_MAX_HZ	15000000
 #define CONFIG_BOOTCOMMAND	"nboot 21000000 0"
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \

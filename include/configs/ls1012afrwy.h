@@ -23,6 +23,9 @@
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		0x9fffffff
 
+/* ENV */
+#define CONFIG_SYS_FSL_QSPI_BASE	0x40000000
+
 #ifndef CONFIG_SPL_BUILD
 #undef BOOT_TARGET_DEVICES
 #define BOOT_TARGET_DEVICES(func) \
@@ -30,18 +33,11 @@
 	func(USB, usb, 0)
 #endif
 
-#undef CONFIG_ENV_OFFSET
-#define CONFIG_ENV_OFFSET              0x1D0000
 #undef FSL_QSPI_FLASH_SIZE
 #define FSL_QSPI_FLASH_SIZE            SZ_16M
-#undef CONFIG_ENV_SECT_SIZE
-#define CONFIG_ENV_SECT_SIZE		0x10000 /*64 KB*/
-#undef CONFIG_ENV_SIZE
-#define CONFIG_ENV_SIZE			0x10000 /*64 KB*/
 
 /*  MMC  */
 #ifdef CONFIG_MMC
-#define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
 #endif
 
@@ -98,19 +94,20 @@
 			"${scriptaddr} ${prefix}${script}; "    \
 		"env exists secureboot && load ${devtype} "     \
 			"${devnum}:${distro_bootpart} "		\
-			"${scripthdraddr} ${prefix}${boot_script_hdr} " \
+			"${scripthdraddr} ${prefix}${boot_script_hdr}; " \
+			"env exists secureboot "	\
 			"&& esbc_validate ${scripthdraddr};"    \
 		"source ${scriptaddr}\0"	  \
 	"installer=load mmc 0:2 $load_addr "	\
 		   "/flex_installer_arm64.itb; "	\
 		   "bootm $load_addr#$board\0"	\
-	"qspi_bootcmd=echo Trying load from qspi..;"	\
+	"qspi_bootcmd=pfe stop; echo Trying load from qspi..;"	\
 		"sf probe && sf read $load_addr "	\
 		"$kernel_addr $kernel_size; env exists secureboot "	\
 		"&& sf read $kernelheader_addr_r $kernelheader_addr "	\
 		"$kernelheader_size && esbc_validate ${kernelheader_addr_r}; " \
 		"bootm $load_addr#$board\0"	\
-	"sd_bootcmd=echo Trying load from sd card..;"		\
+	"sd_bootcmd=pfe stop; echo Trying load from sd card..;"		\
 		"mmcinfo; mmc read $load_addr "			\
 		"$kernel_addr_sd $kernel_size_sd ;"		\
 		"env exists secureboot && mmc read $kernelheader_addr_r "\

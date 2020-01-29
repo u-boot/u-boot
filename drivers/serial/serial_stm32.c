@@ -106,10 +106,11 @@ static int stm32_serial_getc(struct udevice *dev)
 	if ((isr & USART_ISR_RXNE) == 0)
 		return -EAGAIN;
 
-	if (isr & (USART_ISR_PE | USART_ISR_ORE)) {
+	if (isr & (USART_ISR_PE | USART_ISR_ORE | USART_ISR_FE)) {
 		if (!stm32f4)
 			setbits_le32(base + ICR_OFFSET,
-				     USART_ICR_PCECF | USART_ICR_ORECF);
+				     USART_ICR_PCECF | USART_ICR_ORECF |
+				     USART_ICR_FECF);
 		else
 			readl(base + RDR_OFFSET(stm32f4));
 		return -EIO;
@@ -195,9 +196,9 @@ static int stm32_serial_probe(struct udevice *dev)
 	}
 
 	plat->clock_rate = clk_get_rate(&clk);
-	if (plat->clock_rate < 0) {
+	if (!plat->clock_rate) {
 		clk_disable(&clk);
-		return plat->clock_rate;
+		return -EINVAL;
 	};
 
 	_stm32_serial_init(plat->base, plat->uart_info);
@@ -269,7 +270,6 @@ static inline void _debug_uart_init(void)
 	_stm32_serial_setbrg(base, uart_info,
 			     CONFIG_DEBUG_UART_CLOCK,
 			     CONFIG_BAUDRATE);
-	printf("DEBUG done\n");
 }
 
 static inline void _debug_uart_putc(int c)
@@ -278,7 +278,7 @@ static inline void _debug_uart_putc(int c)
 	struct stm32_uart_info *uart_info = _debug_uart_info();
 
 	while (_stm32_serial_putc(base, uart_info, c) == -EAGAIN)
-		WATCHDOG_RESET();
+		;
 }
 
 DEBUG_UART_FUNCS

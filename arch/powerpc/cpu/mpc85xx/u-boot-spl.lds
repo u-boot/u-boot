@@ -18,7 +18,7 @@ PHDRS
 #endif
 SECTIONS
 {
-	. = CONFIG_SPL_TEXT_BASE;
+	. = IMAGE_TEXT_BASE;
 	.text : {
 		*(.text*)
 	}

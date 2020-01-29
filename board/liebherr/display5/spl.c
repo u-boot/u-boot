@@ -5,6 +5,8 @@
  */
 
 #include <common.h>
+#include <env.h>
+#include <serial.h>
 #include <spl.h>
 #include <linux/libfdt.h>
 #include <asm/io.h>
@@ -17,8 +19,7 @@
 #include "asm/arch/iomux.h"
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/gpio.h>
-#include <environment.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
 #include <netdev.h>
 #include <bootcount.h>
 #include <watchdog.h>
@@ -103,6 +104,80 @@ static const struct mx6_ddr3_cfg mt41k128m16jt_125 = {
 	.trcmin = 4875,
 	.trasmin = 3500,
 };
+
+iomux_v3_cfg_t const uart_console_pads[] = {
+	/* UART5 */
+	MX6_PAD_CSI0_DAT14__UART5_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
+	MX6_PAD_CSI0_DAT15__UART5_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
+	MX6_PAD_CSI0_DAT18__UART5_RTS_B | MUX_PAD_CTRL(UART_PAD_CTRL),
+	MX6_PAD_CSI0_DAT19__UART5_CTS_B | MUX_PAD_CTRL(UART_PAD_CTRL),
+};
+
+void displ5_set_iomux_uart_spl(void)
+{
+	SETUP_IOMUX_PADS(uart_console_pads);
+}
+
+iomux_v3_cfg_t const misc_pads_spl[] = {
+	/* Emergency recovery pin */
+	MX6_PAD_EIM_D29__GPIO3_IO29 | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+void displ5_set_iomux_misc_spl(void)
+{
+	SETUP_IOMUX_PADS(misc_pads_spl);
+}
+
+#ifdef CONFIG_MXC_SPI
+iomux_v3_cfg_t const ecspi2_pads[] = {
+	/* SPI2, NOR Flash nWP, CS0 */
+	MX6_PAD_CSI0_DAT10__ECSPI2_MISO	| MUX_PAD_CTRL(SPI_PAD_CTRL),
+	MX6_PAD_CSI0_DAT9__ECSPI2_MOSI	| MUX_PAD_CTRL(SPI_PAD_CTRL),
+	MX6_PAD_CSI0_DAT8__ECSPI2_SCLK	| MUX_PAD_CTRL(SPI_PAD_CTRL),
+	MX6_PAD_CSI0_DAT11__GPIO5_IO29	| MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX6_PAD_SD3_DAT5__GPIO7_IO00	| MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+int board_spi_cs_gpio(unsigned int bus, unsigned int cs)
+{
+	if (bus != 1 || cs != 0)
+		return -EINVAL;
+
+	return IMX_GPIO_NR(5, 29);
+}
+
+void displ5_set_iomux_ecspi_spl(void)
+{
+	SETUP_IOMUX_PADS(ecspi2_pads);
+}
+
+#else
+void displ5_set_iomux_ecspi_spl(void) {}
+#endif
+
+#ifdef CONFIG_FSL_ESDHC_IMX
+iomux_v3_cfg_t const usdhc4_pads[] = {
+	MX6_PAD_SD4_CLK__SD4_CLK	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD4_CMD__SD4_CMD	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD4_DAT0__SD4_DATA0	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD4_DAT1__SD4_DATA1	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD4_DAT2__SD4_DATA2	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD4_DAT3__SD4_DATA3	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD4_DAT4__SD4_DATA4	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD4_DAT5__SD4_DATA5	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD4_DAT6__SD4_DATA6	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD4_DAT7__SD4_DATA7	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_NANDF_ALE__SD4_RESET	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
+};
+
+void displ5_set_iomux_usdhc_spl(void)
+{
+	SETUP_IOMUX_PADS(usdhc4_pads);
+}
+
+#else
+void displ5_set_iomux_usdhc_spl(void) {}
+#endif
 
 static void ccgr_init(void)
 {

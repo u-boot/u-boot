@@ -6,7 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <syscon.h>
-#include <asm/arch/clock.h>
+#include <asm/arch-rockchip/clock.h>
 
 static const struct udevice_id rv1108_syscon_ids[] = {
 	{ .compatible = "rockchip,rv1108-grf", .data = ROCKCHIP_SYSCON_GRF },

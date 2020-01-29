@@ -5,7 +5,6 @@
  */
 
 #include <common.h>
-#include <netdev.h>
 #include <asm/arch/hardware.h>
 #include <asm/io.h>
 
@@ -27,25 +26,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define PLLC_PLLDIV8	0x170
 #define PLLC_PLLDIV9	0x174
 
-/* SOC-specific pll info */
-#ifdef CONFIG_SOC_DM355
-#define ARM_PLLDIV	PLLC_PLLDIV1
-#define DDR_PLLDIV	PLLC_PLLDIV1
-#endif
-
-#ifdef CONFIG_SOC_DM644X
-#define ARM_PLLDIV	PLLC_PLLDIV2
-#define DSP_PLLDIV	PLLC_PLLDIV1
-#define DDR_PLLDIV	PLLC_PLLDIV2
-#endif
-
-#ifdef CONFIG_SOC_DM646X
-#define DSP_PLLDIV	PLLC_PLLDIV1
-#define ARM_PLLDIV	PLLC_PLLDIV2
-#define DDR_PLLDIV	PLLC_PLLDIV1
-#endif
-
-#ifdef CONFIG_SOC_DA8XX
 unsigned int sysdiv[9] = {
 	PLLC_PLLDIV1, PLLC_PLLDIV2, PLLC_PLLDIV3, PLLC_PLLDIV4, PLLC_PLLDIV5,
 	PLLC_PLLDIV6, PLLC_PLLDIV7, PLLC_PLLDIV8, PLLC_PLLDIV9
@@ -107,114 +87,5 @@ int set_cpu_clk_info(void)
 	gd->bd->bi_ddr_freq = cpu_is_da830() ? 0 :
 				(clk_get(DAVINCI_DDR_CLKID) / 1000000);
 	gd->bd->bi_dsp_freq = 0;
-	return 0;
-}
-
-#else /* CONFIG_SOC_DA8XX */
-
-static unsigned pll_div(volatile void *pllbase, unsigned offset)
-{
-	u32	div;
-
-	div = REG(pllbase + offset);
-	return (div & BIT(15)) ? (1 + (div & 0x1f)) : 1;
-}
-
-static inline unsigned pll_prediv(volatile void *pllbase)
-{
-#ifdef CONFIG_SOC_DM355
-	/* this register read seems to fail on pll0 */
-	if (pllbase == (volatile void *)DAVINCI_PLL_CNTRL0_BASE)
-		return 8;
-	else
-		return pll_div(pllbase, PLLC_PREDIV);
-#elif defined(CONFIG_SOC_DM365)
-	return pll_div(pllbase, PLLC_PREDIV);
-#endif
-	return 1;
-}
-
-static inline unsigned pll_postdiv(volatile void *pllbase)
-{
-#if defined(CONFIG_SOC_DM355) || defined(CONFIG_SOC_DM365)
-	return pll_div(pllbase, PLLC_POSTDIV);
-#elif defined(CONFIG_SOC_DM6446)
-	if (pllbase == (volatile void *)DAVINCI_PLL_CNTRL0_BASE)
-		return pll_div(pllbase, PLLC_POSTDIV);
-#endif
-	return 1;
-}
-
-static unsigned pll_sysclk_mhz(unsigned pll_addr, unsigned div)
-{
-	volatile void	*pllbase = (volatile void *) pll_addr;
-#ifdef CONFIG_SOC_DM646X
-	unsigned	base = CONFIG_REFCLK_FREQ / 1000;
-#else
-	unsigned	base = CONFIG_SYS_HZ_CLOCK / 1000;
-#endif
-
-	/* the PLL might be bypassed */
-	if (readl(pllbase + PLLC_PLLCTL) & BIT(0)) {
-		base /= pll_prediv(pllbase);
-#if defined(CONFIG_SOC_DM365)
-		base *=  2 * (readl(pllbase + PLLC_PLLM) & 0x0ff);
-#else
-		base *= 1 + (REG(pllbase + PLLC_PLLM) & 0x0ff);
-#endif
-		base /= pll_postdiv(pllbase);
-	}
-	return DIV_ROUND_UP(base, 1000 * pll_div(pllbase, div));
-}
-
-#ifdef DAVINCI_DM6467EVM
-unsigned int davinci_arm_clk_get()
-{
-	return pll_sysclk_mhz(DAVINCI_PLL_CNTRL0_BASE, ARM_PLLDIV) * 1000000;
-}
-#endif
-
-#if defined(CONFIG_SOC_DM365)
-unsigned int davinci_clk_get(unsigned int div)
-{
-	return pll_sysclk_mhz(DAVINCI_PLL_CNTRL0_BASE, div) * 1000000;
-}
-#endif
-
-int set_cpu_clk_info(void)
-{
-	unsigned int pllbase = DAVINCI_PLL_CNTRL0_BASE;
-#if defined(CONFIG_SOC_DM365)
-	pllbase = DAVINCI_PLL_CNTRL1_BASE;
-#endif
-	gd->bd->bi_arm_freq = pll_sysclk_mhz(pllbase, ARM_PLLDIV);
-
-#ifdef DSP_PLLDIV
-	gd->bd->bi_dsp_freq =
-		pll_sysclk_mhz(DAVINCI_PLL_CNTRL0_BASE, DSP_PLLDIV);
-#else
-	gd->bd->bi_dsp_freq = 0;
-#endif
-
-	pllbase = DAVINCI_PLL_CNTRL1_BASE;
-#if defined(CONFIG_SOC_DM365)
-	pllbase = DAVINCI_PLL_CNTRL0_BASE;
-#endif
-	gd->bd->bi_ddr_freq = pll_sysclk_mhz(pllbase, DDR_PLLDIV) / 2;
-
-	return 0;
-}
-
-#endif /* !CONFIG_SOC_DA8XX */
-
-/*
- * Initializes on-chip ethernet controllers.
- * to override, implement board_eth_init()
- */
-int cpu_eth_init(bd_t *bis)
-{
-#if defined(CONFIG_DRIVER_TI_EMAC)
-	davinci_emac_initialize();
-#endif
 	return 0;
 }

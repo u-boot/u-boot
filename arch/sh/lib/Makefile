@@ -7,17 +7,12 @@ extra-y	+= start.o
 
 obj-y	+= board.o
 obj-$(CONFIG_CMD_BOOTM) += bootm.o
-ifeq ($(CONFIG_CPU_SH2),y)
-obj-y	+= time_sh2.o
-else
 obj-y	+= time.o
-endif
 obj-$(CONFIG_CMD_SH_ZIMAGEBOOT) += zimageboot.o
 
 udivsi3-y			:= udivsi3_i4i-Os.o
 
 ifneq ($(CONFIG_CC_OPTIMIZE_FOR_SIZE),y)
-udivsi3-$(CONFIG_CPU_SH3)	:= udivsi3_i4i.o
 udivsi3-$(CONFIG_CPU_SH4)	:= udivsi3_i4i.o
 endif
 udivsi3-y			+= udivsi3.o

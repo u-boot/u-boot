@@ -11,6 +11,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/gpio.h>
 #include <asm/gpio.h>
+#include <env.h>
 #include <twl6030.h>
 
 #include "panda_mux_data.h"

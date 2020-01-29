@@ -211,9 +211,7 @@ u32 tpm_nv_write_value(struct udevice *dev, u32 index, const void *data,
 
 uint32_t tpm_set_global_lock(struct udevice *dev)
 {
-	u32 x;
-
-	return tpm_nv_write_value(dev, TPM_NV_INDEX_0, (uint8_t *)&x, 0);
+	return tpm_nv_write_value(dev, TPM_NV_INDEX_0, NULL, 0);
 }
 
 u32 tpm_extend(struct udevice *dev, u32 index, const void *in_digest,

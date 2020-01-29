@@ -2,4 +2,4 @@
 #
 # Makefile for the U-Boot SOC specific device drivers.
 
-obj-$(CONFIG_ARCH_KEYSTONE)	+= keystone/
+obj-$(CONFIG_SOC_TI) += ti/

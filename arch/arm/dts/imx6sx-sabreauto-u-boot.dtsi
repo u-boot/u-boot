@@ -7,10 +7,10 @@
 	num-cs = <2>;
 
 	flash0: n25q256a@0 {
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 	};
 
 	flash1: n25q256a@1 {
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 	};
 };

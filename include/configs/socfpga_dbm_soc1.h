@@ -12,7 +12,6 @@
 
 /* Booting Linux */
 #define CONFIG_BOOTFILE		"fitImage"
-#define CONFIG_PREBOOT		"run try_bootscript"
 #define CONFIG_BOOTCOMMAND	"run mmc_mmc"
 #define CONFIG_LOADADDR		0x01000000
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
@@ -87,7 +86,8 @@
 			"echo Running bootscript... ; "			\
 			"source ${kernel_addr_r} ; "			\
 		"fi ; "							\
-		"fi\0"
+		"fi\0"							\
+	"socfpga_legacy_reset_compat=1\0"
 
 /* The rest of the configuration is shared */
 #include <configs/socfpga_common.h>

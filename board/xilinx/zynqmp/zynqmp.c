@@ -5,7 +5,9 @@
  */
 
 #include <common.h>
-#include <uboot_aes.h>
+#include <cpu_func.h>
+#include <env.h>
+#include <init.h>
 #include <sata.h>
 #include <ahci.h>
 #include <scsi.h>
@@ -19,18 +21,16 @@
 #include <dm/device.h>
 #include <dm/uclass.h>
 #include <usb.h>
+#include <uboot_aes.h>
 #include <dwc3-uboot.h>
 #include <zynqmppl.h>
+#include <zynqmp_firmware.h>
 #include <g_dnl.h>
 #include <linux/sizes.h>
 
 #include "pm_cfg_obj.h"
 
 DECLARE_GLOBAL_DATA_PTR;
-
-#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_WDT)
-static struct udevice *watchdog_dev;
-#endif
 
 #if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_ZYNQMPPL) && \
     !defined(CONFIG_SPL_BUILD)
@@ -321,26 +321,9 @@ static char *zynqmp_get_silicon_idcode_name(void)
 int board_early_init_f(void)
 {
 	int ret = 0;
-#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_CLK_ZYNQMP)
-	u32 pm_api_version;
-
-	pm_api_version = zynqmp_firmware_version();
-	printf("PMUFW:\tv%d.%d\n",
-	       pm_api_version >> ZYNQMP_PM_VERSION_MAJOR_SHIFT,
-	       pm_api_version & ZYNQMP_PM_VERSION_MINOR_MASK);
-
-	if (pm_api_version < ZYNQMP_PM_VERSION)
-		panic("PMUFW version error. Expected: v%d.%d\n",
-		      ZYNQMP_PM_VERSION_MAJOR, ZYNQMP_PM_VERSION_MINOR);
-#endif
 
 #if defined(CONFIG_ZYNQMP_PSU_INIT_ENABLED)
 	ret = psu_init();
-#endif
-
-#if defined(CONFIG_WDT) && !defined(CONFIG_SPL_BUILD)
-	/* bss is not cleared at time when watchdog_reset() is called */
-	watchdog_dev = NULL;
 #endif
 
 	return ret;
@@ -348,6 +331,12 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
+	struct udevice *dev;
+
+	uclass_get_device_by_name(UCLASS_FIRMWARE, "zynqmp-power", &dev);
+	if (!dev)
+		panic("PMU Firmware device not found - Enable it");
+
 #if defined(CONFIG_SPL_BUILD)
 	/* Check *at build time* if the filename is an non-empty string */
 	if (sizeof(CONFIG_ZYNQMP_SPL_PM_CFG_OBJ_FILE) > 1)
@@ -368,43 +357,8 @@ int board_init(void)
 	}
 #endif
 
-#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_WDT)
-	if (uclass_get_device_by_seq(UCLASS_WDT, 0, &watchdog_dev)) {
-		debug("Watchdog: Not found by seq!\n");
-		if (uclass_get_device(UCLASS_WDT, 0, &watchdog_dev)) {
-			puts("Watchdog: Not found!\n");
-			return 0;
-		}
-	}
-
-	wdt_start(watchdog_dev, 0, 0);
-	puts("Watchdog: Started\n");
-#endif
-
 	return 0;
 }
-
-#ifdef CONFIG_WATCHDOG
-/* Called by macro WATCHDOG_RESET */
-void watchdog_reset(void)
-{
-# if !defined(CONFIG_SPL_BUILD)
-	static ulong next_reset;
-	ulong now;
-
-	if (!watchdog_dev)
-		return;
-
-	now = timer_get_us();
-
-	/* Do not reset the watchdog too often */
-	if (now > next_reset) {
-		wdt_reset(watchdog_dev);
-		next_reset = now + 1000;
-	}
-# endif
-}
-#endif
 
 int board_early_init_r(void)
 {
@@ -652,7 +606,6 @@ int board_late_init(void)
 
 		mode = "mmc";
 		bootseq = dev->seq;
-		env_set_ulong("sdbootdev", bootseq);
 		env_set("modeboot", "sdboot");
 		break;
 	case SD1_LSHFT_MODE:
@@ -671,7 +624,6 @@ int board_late_init(void)
 
 		mode = "mmc";
 		bootseq = dev->seq;
-		env_set_ulong("sdbootdev", bootseq);
 		env_set("modeboot", "sdboot");
 		break;
 	case NAND_MODE:
@@ -757,7 +709,7 @@ int aes_decrypt_hw(u8 *key_ptr, u8 *src_ptr, u8 *dst_ptr, u32 len)
 	len = ROUND(len + KEY_LEN + IV_LEN, CONFIG_SYS_CACHELINE_SIZE);
 	flush_dcache_range((ulong)src_ptr, (ulong)(src_ptr + len));
 
-	ret = invoke_smc(ZYNQMP_SIP_SVC_PM_SECURE_LOAD, src_lo, src_hi, wlen,
+	ret = xilinx_pm_request(PM_SECURE_LOAD, src_lo, src_hi, wlen,
 			 ZYNQMP_PM_SECURE_AES, ret_payload);
 	if (ret)
 		printf("Fail: %s: %d\n", __func__, ret);

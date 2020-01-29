@@ -5,9 +5,10 @@
 
 #include <common.h>
 #include <dm.h>
+#include <init.h>
 #include <asm/io.h>
-#include <asm/arch/uart.h>
-#include <asm/arch/sdram_rk3036.h>
+#include <asm/arch-rockchip/uart.h>
+#include <asm/arch-rockchip/sdram_rk3036.h>
 #include <asm/gpio.h>
 
 void get_ddr_config(struct rk3036_ddr_config *config)

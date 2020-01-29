@@ -10,23 +10,24 @@ alias u-boot uboot
 
 # Maintainer aliases.  Use the same alias here as patchwork to keep
 # things simple and easy to look up/coordinate.
-alias aaribaud       Albert Aribaud <albert.u.boot@aribaud.net>
 alias abiessmann     Andreas Bießmann <andreas@biessmann.org>
 alias abrodkin       Alexey Brodkin <alexey.brodkin@synopsys.com>
 alias afleming       Andy Fleming <afleming@gmail.com>
 alias ag             Anatolij Gustschin <agust@denx.de>
-alias agraf          Alexander Graf <agraf@suse.de>
+alias agraf          Alexander Graf <agraf@csgraf.de>
 alias alisonwang     Alison Wang <alison.wang@nxp.com>
 alias angelo_ts      Angelo Dureghello <angelo@sysam.it>
 alias bmeng          Bin Meng <bmeng.cn@gmail.com>
 alias danielschwierzeck Daniel Schwierzeck <daniel.schwierzeck@gmail.com>
 alias dinh           Dinh Nguyen <dinguyen@kernel.org>
 alias hs             Heiko Schocher <hs@denx.de>
+alias freenix        Peng Fan <peng.fan@nxp.com>
 alias iwamatsu       Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
 alias jaehoon        Jaehoon Chung <jh80.chung@samsung.com>
-alias jagan          Jagan Teki <jagan@openedev.com>
+alias jagan          Jagan Teki <jagan@amarulasolutions.com>
 alias jhersh         Joe Hershberger <joe.hershberger@ni.com>
-alias luka           Luka Perkov <luka.perkov@sartura.hr>
+alias kevery         Kever Yang <kever.yang@rock-chips.com>
+alias leyfoon        Ley Foon Tan <ley.foon.tan@intel.com>
 alias lukma          Lukasz Majewski <lukma@denx.de>
 alias macpaul        Macpaul Lin <macpaul@andestech.com>
 alias marex          Marek Vasut <marex@denx.de>
@@ -34,17 +35,18 @@ alias mariosix       Mario Six <mario.six@gdsys.cc>
 alias masahiro       Masahiro Yamada <yamada.masahiro@socionext.com>
 alias mateusz        Mateusz Kulikowski <mateusz.kulikowski@gmail.com>
 alias maxime         Maxime Ripard <maxime.ripard@free-electrons.com>
+alias mbrugger       Matthias Brugger <mbrugger@suse.com>
 alias monstr         Michal Simek <monstr@monstr.eu>
-alias prafulla       Prafulla Wadaskar <prafulla@marvell.com>
 alias prom           Minkyu Kang <mk7.kang@samsung.com>
 alias ptomsich       Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
 alias sbabic         Stefano Babic <sbabic@denx.de>
+alias simongoldschmidt Simon Goldschmidt <simon.k.r.goldschmidt@gmail.com>
 alias sjg            Simon Glass <sjg@chromium.org>
 alias smcnutt        Scott McNutt <smcnutt@psyent.com>
 alias stroese        Stefan Roese <sr@denx.de>
 alias trini          Tom Rini <trini@konsulko.com>
 alias wd             Wolfgang Denk <wd@denx.de>
-alias yorksun        York Sun <york.sun@nxp.com>
+alias priyankajain   Priyanka Jain <priyanka.jain@nxp.com>
 
 # Architecture aliases
 alias arch           arc, arm, m68k, microblaze, mips, nds32, nios2, powerpc, sandbox, superh, x86
@@ -52,11 +54,11 @@ alias arches         arch
 
 alias arc            uboot, abrodkin
 
-alias arm            uboot, aaribaud, trini
+alias arm            uboot, trini
 alias at91           uboot, abiessmann
 alias davinci        ti
 alias imx            uboot, sbabic
-alias kirkwood       uboot, prafulla, luka, stroese
+alias kirkwood       uboot, stroese
 alias omap           ti
 alias pxa            uboot, marex
 alias rmobile        uboot, iwamatsu
@@ -64,14 +66,17 @@ alias s3c            samsung
 alias s5pc           samsung
 alias samsung        uboot, prom
 alias snapdragon     uboot, mateusz
-alias socfpga        uboot, marex, dinh
+alias socfpga        uboot, marex, dinh, simongoldschmidt, leyfoon
 alias sunxi          uboot, jagan, maxime
 alias tegra          uboot, sjg, Tom Warren <twarren@nvidia.com>, Stephen Warren <swarren@nvidia.com>
 alias tegra2         tegra
 alias ti             uboot, trini
 alias uniphier       uboot, masahiro
 alias zynq           uboot, monstr
-alias rockchip       uboot, sjg, Kever Yang <kever.yang@rock-chips.com>, ptomsich
+alias rockchip       uboot, sjg, kevery, ptomsich
+
+alias bcm283x        uboot, mbrugger
+alias rpi            uboot, mbrugger
 
 alias m68k           uboot, alisonwang, angelo_ts
 alias coldfire       m68k
@@ -86,12 +91,12 @@ alias nds32          uboot, macpaul
 alias nios           uboot, Thomas Chou <thomas@wytron.com.tw>, smcnutt
 alias nios2          nios
 
-alias powerpc        uboot, afleming, stroese, wd, yorksun, mariosix
+alias powerpc        uboot, afleming, stroese, wd, priyankajain, mariosix
 alias ppc            powerpc
 alias mpc8xx         uboot, wd, Christophe Leroy <christophe.leroy@c-s.fr>
-alias mpc83xx        uboot, yorksun, mariosix
-alias mpc85xx        uboot, afleming, yorksun
-alias mpc86xx        uboot, afleming, yorksun
+alias mpc83xx        uboot, mariosix
+alias mpc85xx        uboot, afleming, priyankajain
+alias mpc86xx        uboot, afleming, priyankajain
 
 alias sandbox        sjg
 alias sb             sandbox
@@ -111,7 +116,7 @@ alias kerneldoc      uboot, marex
 alias fdt            uboot, sjg
 alias i2c            uboot, hs
 alias kconfig        uboot, masahiro
-alias mmc            uboot, jaehoon
+alias mmc            uboot, freenix
 alias nand           uboot
 alias net            uboot, jhersh
 alias phy            uboot, jhersh

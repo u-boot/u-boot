@@ -16,14 +16,6 @@ import tempfile
 import command
 import tools
 
-VERSION3 = sys.version_info > (3, 0)
-
-def get_plain_bytes(val):
-    """Handle Python 3 strings"""
-    if isinstance(val, bytes):
-        val = val.decode('utf-8')
-    return val.encode('raw_unicode_escape')
-
 def fdt32_to_cpu(val):
     """Convert a device tree cell to an integer
 
@@ -33,9 +25,6 @@ def fdt32_to_cpu(val):
     Return:
         A native-endian integer value
     """
-    if VERSION3:
-        # This code is not reached in Python 2
-        val = get_plain_bytes(val)  # pragma: no cover
     return struct.unpack('>I', val)[0]
 
 def fdt_cells_to_cpu(val, cells):
@@ -45,21 +34,23 @@ def fdt_cells_to_cpu(val, cells):
         Value to convert (array of one or more 4-character strings)
 
     Return:
-        A native-endian long value
+        A native-endian integer value
     """
     if not cells:
         return 0
-    out = long(fdt32_to_cpu(val[0]))
+    out = int(fdt32_to_cpu(val[0]))
     if cells == 2:
         out = out << 32 | fdt32_to_cpu(val[1])
     return out
 
-def EnsureCompiled(fname, capture_stderr=False):
+def EnsureCompiled(fname, tmpdir=None, capture_stderr=False):
     """Compile an fdt .dts source file into a .dtb binary blob if needed.
 
     Args:
         fname: Filename (if .dts it will be compiled). It not it will be
             left alone
+        tmpdir: Temporary directory for output files, or None to use the
+            tools-module output directory
 
     Returns:
         Filename of resulting .dtb file
@@ -68,8 +59,12 @@ def EnsureCompiled(fname, capture_stderr=False):
     if ext != '.dts':
         return fname
 
-    dts_input = tools.GetOutputFilename('source.dts')
-    dtb_output = tools.GetOutputFilename('source.dtb')
+    if tmpdir:
+        dts_input = os.path.join(tmpdir, 'source.dts')
+        dtb_output = os.path.join(tmpdir, 'source.dtb')
+    else:
+        dts_input = tools.GetOutputFilename('source.dts')
+        dtb_output = tools.GetOutputFilename('source.dtb')
 
     search_paths = [os.path.join(os.getcwd(), 'include')]
     root, _ = os.path.splitext(fname)

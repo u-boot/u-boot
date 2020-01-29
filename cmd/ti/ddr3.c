@@ -5,6 +5,7 @@
  * Copyright (C) 2012-2017 Texas Instruments Incorporated, <www.ti.com>
  */
 
+#include <cpu_func.h>
 #include <asm/arch/hardware.h>
 #include <asm/cache.h>
 #include <asm/emif.h>
@@ -202,10 +203,6 @@ static int ddr_memory_ecc_err(u32 addr, u32 ecc_err)
 	writel(val2, addr);
 
 	val3 = readl(addr);
-	printf("\tECC test: addr 0x%x, read data 0x%x, written data 0x%x, err pattern: 0x%x, read after write data 0x%x\n",
-	       addr, val1, val2, ecc_err, val3);
-
-	puts("\tECC test: Enabling DDR ECC ...\n");
 #ifdef CONFIG_ARCH_KEYSTONE
 	ecc_ctrl = ECC_START_ADDR1 | (ECC_END_ADDR1 << 16);
 	writel(ecc_ctrl, EMIF1_BASE + KS2_DDR3_ECC_ADDR_RANGE1_OFFSET);
@@ -213,6 +210,11 @@ static int ddr_memory_ecc_err(u32 addr, u32 ecc_err)
 #else
 	writel(ecc_ctrl, &emif->emif_ecc_ctrl_reg);
 #endif
+
+	printf("\tECC test: addr 0x%x, read data 0x%x, written data 0x%x, err pattern: 0x%x, read after write data 0x%x\n",
+	       addr, val1, val2, ecc_err, val3);
+
+	puts("\tECC test: Enabled DDR ECC ...\n");
 
 	val1 = readl(addr);
 	printf("\tECC test: addr 0x%x, read data 0x%x\n", addr, val1);
@@ -242,8 +244,8 @@ static int is_addr_valid(u32 addr)
 	if (ecc_ctrl & EMIF_ECC_REG_ECC_ADDR_RGN_1_EN_MASK) {
 		start_addr = ((range & EMIF_ECC_REG_ECC_START_ADDR_MASK) << 16)
 				+ CONFIG_SYS_SDRAM_BASE;
-		end_addr = start_addr + (range & EMIF_ECC_REG_ECC_END_ADDR_MASK)
-				+ 0xFFFF;
+		end_addr = (range & EMIF_ECC_REG_ECC_END_ADDR_MASK) + 0xFFFF +
+				CONFIG_SYS_SDRAM_BASE;
 		if ((addr >= start_addr) && (addr <= end_addr))
 			/* addr within ecc address range 1 */
 			return 1;
@@ -254,8 +256,8 @@ static int is_addr_valid(u32 addr)
 		range = readl(&emif->emif_ecc_address_range_2);
 		start_addr = ((range & EMIF_ECC_REG_ECC_START_ADDR_MASK) << 16)
 				+ CONFIG_SYS_SDRAM_BASE;
-		end_addr = start_addr + (range & EMIF_ECC_REG_ECC_END_ADDR_MASK)
-				+ 0xFFFF;
+		end_addr = (range & EMIF_ECC_REG_ECC_END_ADDR_MASK) + 0xFFFF +
+				CONFIG_SYS_SDRAM_BASE;
 		if ((addr >= start_addr) && (addr <= end_addr))
 			/* addr within ecc address range 2 */
 			return 1;

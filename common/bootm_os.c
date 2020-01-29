@@ -6,6 +6,8 @@
 
 #include <common.h>
 #include <bootm.h>
+#include <cpu_func.h>
+#include <env.h>
 #include <fdt_support.h>
 #include <linux/libfdt.h>
 #include <malloc.h>
@@ -317,8 +319,8 @@ static void do_bootvx_fdt(bootm_headers_t *images)
 	puts("## vxWorks terminated\n");
 }
 
-int do_bootm_vxworks(int flag, int argc, char * const argv[],
-		     bootm_headers_t *images)
+static int do_bootm_vxworks_legacy(int flag, int argc, char * const argv[],
+				   bootm_headers_t *images)
 {
 	if (flag != BOOTM_STATE_OS_GO)
 		return 0;
@@ -333,6 +335,41 @@ int do_bootm_vxworks(int flag, int argc, char * const argv[],
 	do_bootvx_fdt(images);
 
 	return 1;
+}
+
+int do_bootm_vxworks(int flag, int argc, char * const argv[],
+		     bootm_headers_t *images)
+{
+	char *bootargs;
+	int pos;
+	unsigned long vxflags;
+	bool std_dtb = false;
+
+	/* get bootargs env */
+	bootargs = env_get("bootargs");
+
+	if (bootargs != NULL) {
+		for (pos = 0; pos < strlen(bootargs); pos++) {
+			/* find f=0xnumber flag */
+			if ((bootargs[pos] == '=') && (pos >= 1) &&
+			    (bootargs[pos - 1] == 'f')) {
+				vxflags = simple_strtoul(&bootargs[pos + 1],
+							 NULL, 16);
+				if (vxflags & VXWORKS_SYSFLG_STD_DTB)
+					std_dtb = true;
+			}
+		}
+	}
+
+	if (std_dtb) {
+		if (flag & BOOTM_STATE_OS_PREP)
+			printf("   Using standard DTB\n");
+		return do_bootm_linux(flag, argc, argv, images);
+	} else {
+		if (flag & BOOTM_STATE_OS_PREP)
+			printf("   !!! WARNING !!! Using legacy DTB\n");
+		return do_bootm_vxworks_legacy(flag, argc, argv, images);
+	}
 }
 #endif
 

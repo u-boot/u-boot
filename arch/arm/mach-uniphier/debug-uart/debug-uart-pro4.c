@@ -20,11 +20,11 @@ unsigned int uniphier_pro4_debug_uart_init(void)
 	sg_set_iectrl(0);
 	sg_set_pinsel(128, 0, 4, 8);	/* TXD0 -> TXD0 */
 
-	writel(1, SG_LOADPINCTRL);
+	writel(1, sg_base + SG_LOADPINCTRL);
 
-	tmp = readl(SC_CLKCTRL);
+	tmp = readl(sc_base + SC_CLKCTRL);
 	tmp |= SC_CLKCTRL_CEN_PERI;
-	writel(tmp, SC_CLKCTRL);
+	writel(tmp, sc_base + SC_CLKCTRL);
 
 	return DIV_ROUND_CLOSEST(UNIPHIER_PRO4_UART_CLK, 16 * CONFIG_BAUDRATE);
 }

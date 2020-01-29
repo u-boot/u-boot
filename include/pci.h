@@ -215,6 +215,10 @@
 #define  PCI_BASE_ADDRESS_IO_MASK	(~0x03ULL)
 /* bit 1 is reserved if address_space = 1 */
 
+/* Convert a regsister address (e.g. PCI_BASE_ADDRESS_1) to a bar # (e.g. 1) */
+#define pci_offset_to_barnum(offset)	\
+		(((offset) - PCI_BASE_ADDRESS_0) / sizeof(u32))
+
 /* Header type 0 (normal devices) */
 #define PCI_CARDBUS_CIS		0x28
 #define PCI_SUBSYSTEM_VENDOR_ID 0x2c
@@ -405,6 +409,7 @@
 #define  PCI_MSI_FLAGS_QSIZE	0x70	/* Message queue size configured */
 #define  PCI_MSI_FLAGS_QMASK	0x0e	/* Maximum queue size available */
 #define  PCI_MSI_FLAGS_ENABLE	0x01	/* MSI feature enabled */
+#define  PCI_MSI_FLAGS_MASKBIT	0x0100	/* Per-vector masking capable */
 #define PCI_MSI_RFU		3	/* Rest of capability flags */
 #define PCI_MSI_ADDRESS_LO	4	/* Lower 32 bits */
 #define PCI_MSI_ADDRESS_HI	8	/* Upper 32 bits (if PCI_MSI_FLAGS_64BIT set) */
@@ -454,6 +459,23 @@
 #define PCI_EXT_CAP_ID_PTM	0x1F	/* Precision Time Measurement */
 #define PCI_EXT_CAP_ID_MAX	PCI_EXT_CAP_ID_PTM
 
+/* Enhanced Allocation Registers */
+#define PCI_EA_NUM_ENT		2	/* Number of Capability Entries */
+#define  PCI_EA_NUM_ENT_MASK	0x3f	/* Num Entries Mask */
+#define PCI_EA_FIRST_ENT	4	/* First EA Entry in List */
+#define  PCI_EA_ES		0x00000007 /* Entry Size */
+#define  PCI_EA_BEI		0x000000f0 /* BAR Equivalent Indicator */
+/* Base, MaxOffset registers */
+/* bit 0 is reserved */
+#define  PCI_EA_IS_64		0x00000002	/* 64-bit field flag */
+#define  PCI_EA_FIELD_MASK	0xfffffffc	/* For Base & Max Offset */
+
+/* PCI Express capabilities */
+#define PCI_EXP_DEVCAP		4	/* Device capabilities */
+#define  PCI_EXP_DEVCAP_FLR     0x10000000 /* Function Level Reset */
+#define PCI_EXP_DEVCTL		8	/* Device Control */
+#define  PCI_EXP_DEVCTL_BCR_FLR 0x8000  /* Bridge Configuration Retry / FLR */
+
 /* Include the ID list */
 
 #include <pci_ids.h>
@@ -499,9 +521,20 @@ static inline void pci_set_region(struct pci_region *reg,
 typedef int pci_dev_t;
 
 #define PCI_BUS(d)		(((d) >> 16) & 0xff)
+
+/*
+ * Please note the difference in DEVFN usage in U-Boot vs Linux. U-Boot
+ * uses DEVFN in bits 15-8 but Linux instead expects DEVFN in bits 7-0.
+ * Please see the Linux header include/uapi/linux/pci.h for more details.
+ * This is relevant for the following macros:
+ * PCI_DEV, PCI_FUNC, PCI_DEVFN
+ * The U-Boot macro PCI_DEV is equivalent to the Linux PCI_SLOT version with
+ * the remark from above (input d in bits 15-8 instead of 7-0.
+ */
 #define PCI_DEV(d)		(((d) >> 11) & 0x1f)
 #define PCI_FUNC(d)		(((d) >> 8) & 0x7)
 #define PCI_DEVFN(d, f)		((d) << 11 | (f) << 8)
+
 #define PCI_MASK_BUS(bdf)	((bdf) & 0xffff)
 #define PCI_ADD_BUS(bus, devfn)	(((bus) << 16) | (devfn))
 #define PCI_BDF(b, d, f)	((b) << 16 | PCI_DEVFN(d, f))
@@ -735,12 +768,6 @@ extern pci_dev_t pci_find_device (unsigned int vendor, unsigned int device, int 
 extern pci_dev_t pci_find_devices (struct pci_device_id *ids, int index);
 pci_dev_t pci_find_class(unsigned int find_class, int index);
 
-extern int pci_hose_config_device(struct pci_controller *hose,
-				  pci_dev_t dev,
-				  unsigned long io,
-				  pci_addr_t mem,
-				  unsigned long command);
-
 extern int pci_hose_find_capability(struct pci_controller *hose, pci_dev_t dev,
 				    int cap);
 extern int pci_hose_find_cap_start(struct pci_controller *hose, pci_dev_t dev,
@@ -828,7 +855,7 @@ struct udevice;
  *
  * Every device on a PCI bus has this per-child data.
  *
- * It can be accessed using dev_get_parent_priv(dev) if dev->parent is a
+ * It can be accessed using dev_get_parent_platdata(dev) if dev->parent is a
  * PCI bus (i.e. UCLASS_PCI)
  *
  * @devfn:	Encoded device and function index - see PCI_DEVFN()
@@ -1303,12 +1330,16 @@ pci_addr_t dm_pci_phys_to_bus(struct udevice *dev, phys_addr_t addr,
  * dm_pci_map_bar() - get a virtual address associated with a BAR region
  *
  * Looks up a base address register and finds the physical memory address
- * that corresponds to it
+ * that corresponds to it.
+ * Can be used for 32b BARs 0-5 on type 0 functions and for 32b BARs 0-1 on
+ * type 1 functions.
+ * Can also be used on type 0 functions that support Enhanced Allocation for
+ * 32b/64b BARs.  Note that duplicate BEI entries are not supported.
  *
  * @dev:	Device to check
- * @bar:	Bar number to read (numbered from 0)
+ * @bar:	Bar register offset (PCI_BASE_ADDRESS_...)
  * @flags:	Flags for the region type (PCI_REGION_...)
- * @return: pointer to the virtual address to use
+ * @return: pointer to the virtual address to use or 0 on error
  */
 void *dm_pci_map_bar(struct udevice *dev, int bar, int flags);
 
@@ -1405,6 +1436,14 @@ int dm_pci_find_next_ext_capability(struct udevice *dev, int start, int cap);
  */
 int dm_pci_find_ext_capability(struct udevice *dev, int cap);
 
+/**
+ * dm_pci_flr() - Perform FLR if the device suppoorts it
+ *
+ * @dev:	PCI device to reset
+ * @return:	0 if OK, -ENOENT if FLR is not supported by dev
+ */
+int dm_pci_flr(struct udevice *dev);
+
 #define dm_pci_virt_to_bus(dev, addr, flags) \
 	dm_pci_phys_to_bus(dev, (virt_to_phys(addr)), (flags))
 #define dm_pci_bus_to_virt(dev, addr, flags, len, map_flags) \
@@ -1452,16 +1491,20 @@ int dm_pci_find_device(unsigned int vendor, unsigned int device, int index,
 int dm_pci_find_class(uint find_class, int index, struct udevice **devp);
 
 /**
+ * struct pci_emul_uc_priv - holds info about an emulator device
+ *
+ * There is always at most one emulator per client
+ *
+ * @client: Client device if any, else NULL
+ */
+struct pci_emul_uc_priv {
+	struct udevice *client;
+};
+
+/**
  * struct dm_pci_emul_ops - PCI device emulator operations
  */
 struct dm_pci_emul_ops {
-	/**
-	 * get_devfn(): Check which device and function this emulators
-	 *
-	 * @dev:	device to check
-	 * @return the device and function this emulates, or -ve on error
-	 */
-	int (*get_devfn)(struct udevice *dev);
 	/**
 	 * read_config() - Read a PCI configuration value
 	 *
@@ -1559,6 +1602,25 @@ struct dm_pci_emul_ops {
  */
 int sandbox_pci_get_emul(struct udevice *bus, pci_dev_t find_devfn,
 			 struct udevice **containerp, struct udevice **emulp);
+
+/**
+ * sandbox_pci_get_client() - Find the client for an emulation device
+ *
+ * @emul:	Emulation device to check
+ * @devp:	Returns the client device emulated by this device
+ * @return 0 if OK, -ENOENT if the device has no client yet
+ */
+int sandbox_pci_get_client(struct udevice *emul, struct udevice **devp);
+
+/**
+ * pci_get_devfn() - Extract the devfn from fdt_pci_addr of the device
+ *
+ * Get devfn from fdt_pci_addr of the specified device
+ *
+ * @dev:	PCI device
+ * @return devfn in bits 15...8 if found, -ENODEV if not found
+ */
+int pci_get_devfn(struct udevice *dev);
 
 #endif /* CONFIG_DM_PCI */
 

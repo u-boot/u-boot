@@ -1,108 +1,86 @@
-/* SPDX-License-Identifier: GPL-2.0 */
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright (c) 2015 Google, Inc
- *
- * Copyright 2014 Rockchip Inc.
+ * Copyright (C) 2017 Rockchip Electronics Co., Ltd.
  */
 
-#ifndef _ASM_ARCH_RK3288_SDRAM_H__
-#define _ASM_ARCH_RK3288_SDRAM_H__
+#ifndef _ASM_ARCH_SDRAM_H
+#define _ASM_ARCH_SDRAM_H
 
 enum {
-	DDR3 = 3,
-	LPDDR3 = 6,
-	UNUSED = 0xFF,
+	DDR4 = 0,
+	DDR3 = 0x3,
+	LPDDR2 = 0x5,
+	LPDDR3 = 0x6,
+	LPDDR4 = 0x7,
+	UNUSED = 0xFF
 };
 
-struct rk3288_sdram_channel {
-	/*
-	 * bit width in address, eg:
-	 * 8 banks using 3 bit to address,
-	 * 2 cs using 1 bit to address.
-	 */
-	u8 rank;
-	u8 col;
-	u8 bk;
-	u8 bw;
-	u8 dbw;
-	u8 row_3_4;
-	u8 cs0_row;
-	u8 cs1_row;
-#if CONFIG_IS_ENABLED(OF_PLATDATA)
-	/*
-	 * For of-platdata, which would otherwise convert this into two
-	 * byte-swapped integers. With a size of 9 bytes, this struct will
-	 * appear in of-platdata as a byte array.
-	 *
-	 * If OF_PLATDATA enabled, need to add a dummy byte in dts.(i.e 0xff)
-	 */
-	u8 dummy;
-#endif
-};
+/*
+ * sys_reg2 bitfield struct
+ * [31]		row_3_4_ch1
+ * [30]		row_3_4_ch0
+ * [29:28]	chinfo
+ * [27]		rank_ch1
+ * [26:25]	col_ch1
+ * [24]		bk_ch1
+ * [23:22]	low bits of cs0_row_ch1
+ * [21:20]	low bits of cs1_row_ch1
+ * [19:18]	bw_ch1
+ * [17:16]	dbw_ch1;
+ * [15:13]	ddrtype
+ * [12]		channelnum
+ * [11]		rank_ch0
+ * [10:9]	col_ch0,
+ * [8]		bk_ch0
+ * [7:6]	low bits of cs0_row_ch0
+ * [5:4]	low bits of cs1_row_ch0
+ * [3:2]	bw_ch0
+ * [1:0]	dbw_ch0
+ */
+#define SYS_REG_DDRTYPE_SHIFT		13
+#define SYS_REG_DDRTYPE_MASK		7
+#define SYS_REG_NUM_CH_SHIFT		12
+#define SYS_REG_NUM_CH_MASK		1
+#define SYS_REG_ROW_3_4_SHIFT(ch)	(30 + (ch))
+#define SYS_REG_ROW_3_4_MASK		1
+#define SYS_REG_CHINFO_SHIFT(ch)	(28 + (ch))
+#define SYS_REG_RANK_SHIFT(ch)		(11 + (ch) * 16)
+#define SYS_REG_RANK_MASK		1
+#define SYS_REG_COL_SHIFT(ch)		(9 + (ch) * 16)
+#define SYS_REG_COL_MASK		3
+#define SYS_REG_BK_SHIFT(ch)		(8 + (ch) * 16)
+#define SYS_REG_BK_MASK			1
+#define SYS_REG_CS0_ROW_SHIFT(ch)	(6 + (ch) * 16)
+#define SYS_REG_CS0_ROW_MASK		3
+#define SYS_REG_CS1_ROW_SHIFT(ch)	(4 + (ch) * 16)
+#define SYS_REG_CS1_ROW_MASK		3
+#define SYS_REG_BW_SHIFT(ch)		(2 + (ch) * 16)
+#define SYS_REG_BW_MASK			3
+#define SYS_REG_DBW_SHIFT(ch)		((ch) * 16)
+#define SYS_REG_DBW_MASK		3
 
-struct rk3288_sdram_pctl_timing {
-	u32 togcnt1u;
-	u32 tinit;
-	u32 trsth;
-	u32 togcnt100n;
-	u32 trefi;
-	u32 tmrd;
-	u32 trfc;
-	u32 trp;
-	u32 trtw;
-	u32 tal;
-	u32 tcl;
-	u32 tcwl;
-	u32 tras;
-	u32 trc;
-	u32 trcd;
-	u32 trrd;
-	u32 trtp;
-	u32 twr;
-	u32 twtr;
-	u32 texsr;
-	u32 txp;
-	u32 txpdll;
-	u32 tzqcs;
-	u32 tzqcsi;
-	u32 tdqs;
-	u32 tcksre;
-	u32 tcksrx;
-	u32 tcke;
-	u32 tmod;
-	u32 trstl;
-	u32 tzqcl;
-	u32 tmrr;
-	u32 tckesr;
-	u32 tdpd;
-};
-check_member(rk3288_sdram_pctl_timing, tdpd, 0x144 - 0xc0);
+/*
+ * sys_reg3 bitfield struct
+ * [7]		high bit of cs0_row_ch1
+ * [6]		high bit of cs1_row_ch1
+ * [5]		high bit of cs0_row_ch0
+ * [4]		high bit of cs1_row_ch0
+ * [3:2]	cs1_col_ch1
+ * [1:0]	cs1_col_ch0
+ */
+#define SYS_REG_VERSION_SHIFT			28
+#define SYS_REG_VERSION_MASK			0xf
+#define SYS_REG_EXTEND_CS0_ROW_SHIFT(ch)	(5 + (ch) * 2)
+#define SYS_REG_EXTEND_CS0_ROW_MASK		1
+#define SYS_REG_EXTEND_CS1_ROW_SHIFT(ch)	(4 + (ch) * 2)
+#define SYS_REG_EXTEND_CS1_ROW_MASK		1
+#define SYS_REG_CS1_COL_SHIFT(ch)		(0 + (ch) * 2)
+#define SYS_REG_CS1_COL_MASK			3
 
-struct rk3288_sdram_phy_timing {
-	u32 dtpr0;
-	u32 dtpr1;
-	u32 dtpr2;
-	u32 mr[4];
-};
+/* Get sdram size decode from reg */
+size_t rockchip_sdram_size(phys_addr_t reg);
 
-struct rk3288_base_params {
-	u32 noc_timing;
-	u32 noc_activate;
-	u32 ddrconfig;
-	u32 ddr_freq;
-	u32 dramtype;
-	/*
-	 * DDR Stride is address mapping for DRAM space
-	 * Stride	Ch 0 range	Ch1 range	Total
-	 * 0x00		0-256MB		256MB-512MB	512MB
-	 * 0x05		0-1GB		0-1GB		1GB
-	 * 0x09		0-2GB		0-2GB		2GB
-	 * 0x0d		0-4GB		0-4GB		4GB
-	 * 0x17		N/A		0-4GB		4GB
-	 * 0x1a		0-4GB		4GB-8GB		8GB
-	 */
-	u32 stride;
-	u32 odt;
-};
+/* Called by U-Boot board_init_r for Rockchip SoCs */
+int dram_init(void);
 
 #endif

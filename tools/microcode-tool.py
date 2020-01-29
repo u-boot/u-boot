@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (c) 2014 Google, Inc
@@ -126,15 +126,15 @@ def List(date, microcodes, model):
         microcodes:     Dict of Microcode objects indexed by name
         model:          Model string to search for, or None
     """
-    print 'Date: %s' % date
+    print('Date: %s' % date)
     if model:
         mcode_list, tried = FindMicrocode(microcodes, model.lower())
-        print 'Matching models %s:' % (', '.join(tried))
+        print('Matching models %s:' % (', '.join(tried)))
     else:
-        print 'All models:'
-        mcode_list = [microcodes[m] for m in microcodes.keys()]
+        print('All models:')
+        mcode_list = [microcodes[m] for m in list(microcodes.keys())]
     for mcode in mcode_list:
-        print '%-20s: model %s' % (mcode.name, mcode.model)
+        print('%-20s: model %s' % (mcode.name, mcode.model))
 
 def FindMicrocode(microcodes, model):
     """Find all the microcode chunks which match the given model.
@@ -164,7 +164,7 @@ def FindMicrocode(microcodes, model):
     for i in range(3):
         abbrev = model[:-i] if i else model
         tried.append(abbrev)
-        for mcode in microcodes.values():
+        for mcode in list(microcodes.values()):
             if mcode.model.startswith(abbrev):
                 found.append(mcode)
         if found:
@@ -229,17 +229,17 @@ data = <%s
     args += [mcode.words[i] for i in range(7)]
     args.append(words)
     if outfile == '-':
-        print out % tuple(args)
+        print(out % tuple(args))
     else:
         if not outfile:
             if not os.path.exists(MICROCODE_DIR):
-                print >> sys.stderr, "Creating directory '%s'" % MICROCODE_DIR
+                print("Creating directory '%s'" % MICROCODE_DIR, file=sys.stderr)
                 os.makedirs(MICROCODE_DIR)
             outfile = os.path.join(MICROCODE_DIR, mcode.name + '.dtsi')
-        print >> sys.stderr, "Writing microcode for '%s' to '%s'" % (
-                ', '.join([mcode.name for mcode in mcodes]), outfile)
+        print("Writing microcode for '%s' to '%s'" % (
+                ', '.join([mcode.name for mcode in mcodes]), outfile), file=sys.stderr)
         with open(outfile, 'w') as fd:
-            print >> fd, out % tuple(args)
+            print(out % tuple(args), file=fd)
 
 def MicrocodeTool():
     """Run the microcode tool"""
@@ -289,14 +289,14 @@ def MicrocodeTool():
     if cmd == 'list':
         List(date, microcodes, options.model)
     elif cmd == 'license':
-        print '\n'.join(license_text)
+        print('\n'.join(license_text))
     elif cmd == 'create':
         if not options.model:
             parser.error('You must specify a model to create')
         model = options.model.lower()
         if options.model == 'all':
             options.multiple = True
-            mcode_list = microcodes.values()
+            mcode_list = list(microcodes.values())
             tried = []
         else:
             mcode_list, tried = FindMicrocode(microcodes, model)

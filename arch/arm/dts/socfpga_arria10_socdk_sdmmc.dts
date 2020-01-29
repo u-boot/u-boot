@@ -17,6 +17,25 @@
 
 /dts-v1/;
 #include "socfpga_arria10_socdk.dtsi"
+#include "socfpga_arria10_socdk_sdmmc_handoff.dtsi"
+#include "socfpga_arria10_handoff_u-boot.dtsi"
+
+/ {
+	chosen {
+		firmware-loader = <&fs_loader0>;
+	};
+
+	fs_loader0: fs-loader {
+		u-boot,dm-pre-reloc;
+		compatible = "u-boot,fs-loader";
+		phandlepart = <&mmc 1>;
+	};
+};
+
+&fpga_mgr {
+	u-boot,dm-pre-reloc;
+	altr,bitstream = "fit_spl_fpga.itb";
+};
 
 &mmc {
 	u-boot,dm-pre-reloc;

@@ -20,7 +20,7 @@ void *kmalloc(size_t size, int flags)
 	void *p;
 
 	p = malloc_cache_aligned(size);
-	if (flags & __GFP_ZERO)
+	if (p && flags & __GFP_ZERO)
 		memset(p, 0, size);
 
 	return p;
@@ -39,4 +39,23 @@ struct kmem_cache *get_mem(int element_sz)
 void *kmem_cache_alloc(struct kmem_cache *obj, int flag)
 {
 	return malloc_cache_aligned(obj->sz);
+}
+
+/**
+ * kmemdup - duplicate region of memory
+ *
+ * @src: memory region to duplicate
+ * @len: memory region length
+ * @gfp: GFP mask to use
+ *
+ * Return: newly allocated copy of @src or %NULL in case of error
+ */
+void *kmemdup(const void *src, size_t len, gfp_t gfp)
+{
+	void *p;
+
+	p = kmalloc(len, gfp);
+	if (p)
+		memcpy(p, src, len);
+	return p;
 }

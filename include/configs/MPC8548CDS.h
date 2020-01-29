@@ -18,9 +18,6 @@
 #define CONFIG_PCI1		/* PCI controller 1 */
 #define CONFIG_PCIE1		/* PCIE controller 1 (slot 1) */
 #undef CONFIG_PCI2
-#define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
-#define CONFIG_PCI_INDIRECT_BRIDGE 1	/* indirect PCI bridge support */
-#define CONFIG_FSL_PCIE_RESET	1	/* need PCIe reset errata */
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
 
 #define CONFIG_ENV_OVERWRITE
@@ -56,7 +53,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
 
 /* DDR Setup */
-#undef CONFIG_FSL_DDR_INTERACTIVE
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup*/
 #define CONFIG_DDR_SPD
 
@@ -291,7 +287,7 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CONFIG_SYS_MONITOR_LEN		(256 * 1024) /* Reserve 256 kB for Mon */
+#define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
 #define CONFIG_SYS_MALLOC_LEN	(1024 * 1024)	/* Reserved for malloc */
 
 /* Serial Port */
@@ -345,24 +341,18 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_PCI1_IO_SIZE	0x00100000	/* 1M */
 
 #ifdef CONFIG_PCIE1
-#define CONFIG_SYS_PCIE1_NAME		"Slot"
 #define CONFIG_SYS_PCIE1_MEM_VIRT	0xa0000000
 #ifdef CONFIG_PHYS_64BIT
-#define CONFIG_SYS_PCIE1_MEM_BUS	0xe0000000
 #define CONFIG_SYS_PCIE1_MEM_PHYS	0xc20000000ull
 #else
-#define CONFIG_SYS_PCIE1_MEM_BUS	0xa0000000
 #define CONFIG_SYS_PCIE1_MEM_PHYS	0xa0000000
 #endif
-#define CONFIG_SYS_PCIE1_MEM_SIZE	0x20000000	/* 512M */
 #define CONFIG_SYS_PCIE1_IO_VIRT	0xe3000000
-#define CONFIG_SYS_PCIE1_IO_BUS	0x00000000
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_PCIE1_IO_PHYS        0xfe3000000ull
 #else
 #define CONFIG_SYS_PCIE1_IO_PHYS	0xe3000000
 #endif
-#define CONFIG_SYS_PCIE1_IO_SIZE	0x00100000	/*   1M */
 #endif
 
 /*
@@ -387,6 +377,20 @@ extern unsigned long get_clock_freq(void);
 #if defined(CONFIG_PCI)
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
+
+#if !defined(CONFIG_DM_PCI)
+#define CONFIG_FSL_PCI_INIT		1	/* Use common FSL init code */
+#define CONFIG_PCI_INDIRECT_BRIDGE	1
+#define CONFIG_SYS_PCIE1_NAME		"Slot"
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_PCIE1_MEM_BUS	0xe0000000
+#else
+#define CONFIG_SYS_PCIE1_MEM_BUS	0xa0000000
+#endif
+#define CONFIG_SYS_PCIE1_MEM_SIZE	0x20000000      /* 512M */
+#define CONFIG_SYS_PCIE1_IO_BUS		0x00000000
+#define CONFIG_SYS_PCIE1_IO_SIZE	0x00100000	/*   1M */
+#endif
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 
@@ -425,13 +429,6 @@ extern unsigned long get_clock_freq(void);
 /*
  * Environment
  */
-#if CONFIG_SYS_MONITOR_BASE > 0xfff80000
-#define CONFIG_ENV_ADDR	0xfff80000
-#else
-#define CONFIG_ENV_ADDR	(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SECT_SIZE)
-#endif
-#define CONFIG_ENV_SECT_SIZE	0x20000	/* 128K for env */
-#define CONFIG_ENV_SIZE		0x2000
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */

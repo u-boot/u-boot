@@ -8,8 +8,10 @@
  */
 
 #include <common.h>
+#include <serial.h>
 #include <asm/io.h>
 
+#include <env.h>
 #include <usbdevice.h>
 #include "ep0.h"
 #include <usb/designware_udc.h>

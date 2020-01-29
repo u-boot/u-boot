@@ -4,14 +4,24 @@
 # and/or not always written the same way, making contributions from the
 # same person appearing not to be so or badly displayed.
 #
+# This file is also used by scripts/get_maintainer.pl.
+#
 # This file can be modified by hand or updated by the following command:
 #  scripts/mailmapper > tmp; mv tmp .mailmap
 #
+# Entries in this file take one of the following forms:
+# Proper Name <commit@email.xx>
+# <proper@email.xx> <commit@email.xx>
+# Proper Name <proper@email.xx> <commit@email.xx>
+# Proper Name <proper@email.xx> Commit Name <commit@email.xx>
 
+Alexander Graf <agraf@csgraf.de> <agraf@suse.de>
 Allen Martin <amartin@nvidia.com>
 Andreas Bießmann <andreas.devel@googlemail.com>
 Andreas Bießmann <andreas@biessmann.org>
 Aneesh V <aneesh@ti.com>
+Boris Brezillon <bbrezillon@kernel.org> <boris.brezillon@bootlin.com>
+Boris Brezillon <bbrezillon@kernel.org> <boris.brezillon@free-electrons.com>
 Dirk Behme <dirk.behme@googlemail.com>
 Fabio Estevam <fabio.estevam@nxp.com>
 Jagan Teki <402jagan@gmail.com>
@@ -19,12 +29,13 @@ Jagan Teki <jaganna@gmail.com>
 Jagan Teki <jaganna@xilinx.com>
 Jagan Teki <jagannadh.teki@gmail.com>
 Jagan Teki <jagannadha.sutradharudu-teki@xilinx.com>
+Igor Opaniuk <igor.opaniuk@gmail.com> <igor.opaniuk@linaro.org>
 Markus Klotzbuecher <mk@denx.de>
 Paul Burton <paul.burton@mips.com> <paul.burton@imgtec.com>
 Prabhakar Kushwaha <prabhakar@freescale.com>
 Rajeshwari Shinde <rajeshwari.s@samsung.com>
-Ricardo Ribalda <ricardo.ribalda@uam.es>
-Ricardo Ribalda <ricardo.ribalda@gmail.com>
+Ricardo Ribalda <ricardo@ribalda.com> <ricardo.ribalda@uam.es>
+Ricardo Ribalda <ricardo@ribalda.com> <ricardo.ribalda@gmail.com>
 Sandeep Paulraj <s-paulraj@ti.com>
 Shaohui Xie <Shaohui.Xie@freescale.com>
 Stefan Roese <stroese>

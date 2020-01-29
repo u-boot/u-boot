@@ -6,4 +6,4 @@
 # (C) Copyright 2007
 # Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
 #
-PLATFORM_CPPFLAGS += -m4-nofpu
+PLATFORM_CPPFLAGS += $(call cc-option,-m4-nofpu,-m4)

@@ -40,4 +40,4 @@ class Entry_u_boot_spl(Entry_blob):
         return 'spl/u-boot-spl.bin'
 
     def WriteSymbols(self, section):
-        elf.LookupAndWriteSymbols(self.elf_fname, self, section)
+        elf.LookupAndWriteSymbols(self.elf_fname, self, section.GetImage())

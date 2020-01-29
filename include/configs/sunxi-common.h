@@ -32,7 +32,6 @@
 #endif
 
 #ifdef CONFIG_ARM64
-#define CONFIG_BUILD_TARGET "u-boot.itb"
 #define CONFIG_SYS_BOOTM_LEN		(32 << 20)
 #endif
 
@@ -105,13 +104,7 @@
 #define PHYS_SDRAM_0_SIZE		0x80000000 /* 2 GiB */
 
 #ifdef CONFIG_AHCI
-#define CONFIG_SCSI_AHCI_PLAT
-#define CONFIG_SUNXI_AHCI
 #define CONFIG_SYS_64BIT_LBA
-#define CONFIG_SYS_SCSI_MAX_SCSI_ID	1
-#define CONFIG_SYS_SCSI_MAX_LUN		1
-#define CONFIG_SYS_SCSI_MAX_DEVICE	(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
-					 CONFIG_SYS_SCSI_MAX_LUN)
 #endif
 
 #define CONFIG_SETUP_MEMORY_TAGS
@@ -123,10 +116,6 @@
 #define CONFIG_SYS_NAND_MAX_ECCPOS 1664
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 #define CONFIG_SYS_MAX_NAND_DEVICE 8
-#endif
-
-#ifdef CONFIG_SPL_SPI_SUNXI
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x8000
 #endif
 
 /* mmc config */
@@ -185,7 +174,6 @@
  * autoconf.mk.
  */
 #if CONFIG_SUNXI_SRAM_ADDRESS == 0x10000
-#define CONFIG_SPL_TEXT_BASE		0x10060		/* sram start+header */
 #define CONFIG_SPL_MAX_SIZE		0x7fa0		/* 32 KiB */
 #ifdef CONFIG_ARM64
 /* end of SRAM A2 for now, as SRAM A1 is pretty tight for an ARM64 build */
@@ -194,12 +182,10 @@
 #define LOW_LEVEL_SRAM_STACK		0x00018000
 #endif /* !CONFIG_ARM64 */
 #elif CONFIG_SUNXI_SRAM_ADDRESS == 0x20000
-#define CONFIG_SPL_TEXT_BASE		0x20060		/* sram start+header */
 #define CONFIG_SPL_MAX_SIZE		0x7fa0		/* 32 KiB */
 /* end of SRAM A2 on H6 for now */
 #define LOW_LEVEL_SRAM_STACK		0x00118000
 #else
-#define CONFIG_SPL_TEXT_BASE		0x60		/* sram start+header */
 #define CONFIG_SPL_MAX_SIZE		0x5fa0		/* 24KB on sun4i/sun7i */
 #define LOW_LEVEL_SRAM_STACK		0x00008000	/* End of sram */
 #endif
@@ -267,9 +253,6 @@ extern int soft_i2c_gpio_scl;
 #endif
 #endif /* ifdef CONFIG_REQUIRE_SERIAL_CONSOLE */
 
-/* GPIO */
-#define CONFIG_SUNXI_GPIO
-
 #ifdef CONFIG_VIDEO_SUNXI
 /*
  * The amount of RAM to keep free at the top of RAM when relocating u-boot,
@@ -295,12 +278,7 @@ extern int soft_i2c_gpio_scl;
 
 #ifdef CONFIG_USB_EHCI_HCD
 #define CONFIG_USB_OHCI_NEW
-#define CONFIG_USB_OHCI_SUNXI
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS 1
-#endif
-
-#ifdef CONFIG_USB_KEYBOARD
-#define CONFIG_PREBOOT
 #endif
 
 #ifndef CONFIG_SPL_BUILD
@@ -401,6 +379,18 @@ extern int soft_i2c_gpio_scl;
 #define BOOT_TARGET_DEVICES_USB(func)
 #endif
 
+#ifdef CONFIG_CMD_PXE
+#define BOOT_TARGET_DEVICES_PXE(func) func(PXE, pxe, na)
+#else
+#define BOOT_TARGET_DEVICES_PXE(func)
+#endif
+
+#ifdef CONFIG_CMD_DHCP
+#define BOOT_TARGET_DEVICES_DHCP(func) func(DHCP, dhcp, na)
+#else
+#define BOOT_TARGET_DEVICES_DHCP(func)
+#endif
+
 /* FEL boot support, auto-execute boot.scr if a script address was provided */
 #define BOOTENV_DEV_FEL(devtypeu, devtypel, instance) \
 	"bootcmd_fel=" \
@@ -416,8 +406,8 @@ extern int soft_i2c_gpio_scl;
 	BOOT_TARGET_DEVICES_MMC(func) \
 	BOOT_TARGET_DEVICES_SCSI(func) \
 	BOOT_TARGET_DEVICES_USB(func) \
-	func(PXE, pxe, na) \
-	func(DHCP, dhcp, na)
+	BOOT_TARGET_DEVICES_PXE(func) \
+	BOOT_TARGET_DEVICES_DHCP(func)
 
 #ifdef CONFIG_OLD_SUNXI_KERNEL_COMPAT
 #define BOOTCMD_SUNXI_COMPAT \
@@ -451,7 +441,6 @@ extern int soft_i2c_gpio_scl;
 	"stdout=serial,vga\0" \
 	"stderr=serial,vga\0"
 #elif CONFIG_DM_VIDEO
-#define CONFIG_SYS_WHITE_ON_BLACK
 #define CONSOLE_STDOUT_SETTINGS \
 	"stdout=serial,vidconsole\0" \
 	"stderr=serial,vidconsole\0"

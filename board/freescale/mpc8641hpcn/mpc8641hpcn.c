@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <pci.h>
 #include <asm/processor.h>
 #include <asm/immap_86xx.h>

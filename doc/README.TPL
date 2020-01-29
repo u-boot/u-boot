@@ -31,8 +31,12 @@ make environment and also appended to CPPFLAGS with -DCONFIG_TPL_BUILD.
 
 The SPL options are shared by SPL and TPL, the board config file should
 determine which SPL options to choose based on whether CONFIG_TPL_BUILD
-is set. Source files can be compiled for TPL with options choosed in the
+is set. Source files can be compiled for TPL with options chosen in the
 board config file.
+
+TPL use a small device tree (u-boot-tpl.dtb), containing only the nodes with
+the pre-relocation properties: 'u-boot,dm-pre-reloc' and 'u-boot,dm-tpl'
+(see README.SPL for details).
 
 For example:
 

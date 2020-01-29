@@ -45,13 +45,8 @@
  * ENV at MMC Boot0 Partition - 0/Undefined=user, 1=boot0, 2=boot1,
  * 4..7=general0..3
  */
-#define CONFIG_ENV_SIZE				0x1000 /* 4 KB */
-#define CONFIG_ENV_OFFSET			0x7000 /* 28 kB */
 
 #define CONFIG_HSMMC2_8BIT
-
-#define CONFIG_ENV_OFFSET_REDUND    0x9000 /* 36 kB */
-#define CONFIG_ENV_SIZE_REDUND      CONFIG_ENV_SIZE
 
 #ifndef CONFIG_SHC_ICT
 /*
@@ -258,6 +253,4 @@
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
 #define CONFIG_SYS_I2C_SPEED		400000
 #define CONFIG_SYS_I2C_SLAVE		1
-
-#define CONFIG_SHOW_BOOT_PROGRESS
 #endif	/* ! __CONFIG_AM335X_SHC_H */

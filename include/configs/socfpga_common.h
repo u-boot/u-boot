@@ -10,12 +10,7 @@
  */
 #define CONFIG_CLOCKS
 
-#define CONFIG_SYS_BOOTMAPSZ		(64 * 1024 * 1024)
-
 #define CONFIG_TIMESTAMP		/* Print image info with timestamp */
-
-/* add target to build it automatically upon "make" */
-#define CONFIG_BUILD_TARGET		"u-boot-with-spl.sfp"
 
 /*
  * Memory configurations
@@ -29,7 +24,13 @@
 #define CONFIG_SYS_INIT_RAM_SIZE	0x10000
 #elif defined(CONFIG_TARGET_SOCFPGA_ARRIA10)
 #define CONFIG_SYS_INIT_RAM_ADDR	0xFFE00000
-#define CONFIG_SYS_INIT_RAM_SIZE	0x40000 /* 256KB */
+/* SPL memory allocation configuration, this is for FAT implementation */
+#ifndef CONFIG_SYS_SPL_MALLOC_SIZE
+#define CONFIG_SYS_SPL_MALLOC_SIZE	0x10000
+#endif
+#define CONFIG_SYS_INIT_RAM_SIZE	(0x40000 - CONFIG_SYS_SPL_MALLOC_SIZE)
+#define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SYS_INIT_RAM_ADDR + \
+					 CONFIG_SYS_INIT_RAM_SIZE)
 #endif
 
 /*
@@ -41,10 +42,21 @@
 #if ((CONFIG_SYS_BOOTCOUNT_ADDR > CONFIG_SYS_INIT_RAM_ADDR) &&	\
      (CONFIG_SYS_BOOTCOUNT_ADDR < (CONFIG_SYS_INIT_RAM_ADDR +	\
 				   CONFIG_SYS_INIT_RAM_SIZE)))
-#define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_BOOTCOUNT_ADDR
+#define CONFIG_SPL_STACK		CONFIG_SYS_BOOTCOUNT_ADDR
 #else
-#define CONFIG_SYS_INIT_SP_ADDR			\
+#define CONFIG_SPL_STACK			\
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_RAM_SIZE)
+#endif
+
+/*
+ * U-Boot stack setup: if SPL post-reloc uses DDR stack, use it in pre-reloc
+ * phase of U-Boot, too. This prevents overwriting SPL data if stack/heap usage
+ * in U-Boot pre-reloc is higher than in SPL.
+ */
+#if defined(CONFIG_SPL_STACK_R_ADDR) && CONFIG_SPL_STACK_R_ADDR
+#define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SPL_STACK_R_ADDR
+#else
+#define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SPL_STACK
 #endif
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
@@ -58,29 +70,11 @@
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 						/* Boot argument buffer size */
 
-#ifndef CONFIG_SYS_HOSTNAME
-#define CONFIG_SYS_HOSTNAME	CONFIG_SYS_BOARD
-#endif
-
 /*
  * Cache
  */
 #define CONFIG_SYS_L2_PL310
 #define CONFIG_SYS_PL310_BASE		SOCFPGA_MPUL2_ADDRESS
-
-/*
- * EPCS/EPCQx1 Serial Flash Controller
- */
-#ifdef CONFIG_ALTERA_SPI
-#define CONFIG_SF_DEFAULT_SPEED		30000000
-/*
- * The base address is configurable in QSys, each board must specify the
- * base address based on it's particular FPGA configuration. Please note
- * that the address here is incremented by  0x400  from the Base address
- * selected in QSys, since the SPI registers are at offset +0x400.
- * #define CONFIG_SYS_SPI_BASE		0xff240400
- */
-#endif
 
 /*
  * Ethernet on SoC (EMAC)
@@ -114,14 +108,12 @@
 #define CONFIG_DESIGNWARE_WATCHDOG
 #define CONFIG_DW_WDT_BASE		SOCFPGA_L4WD0_ADDRESS
 #define CONFIG_DW_WDT_CLOCK_KHZ		25000
-#define CONFIG_WATCHDOG_TIMEOUT_MSECS	30000
 #endif
 
 /*
  * MMC Driver
  */
 #ifdef CONFIG_CMD_MMC
-#define CONFIG_BOUNCE_BUFFER
 /* FIXME */
 /* using smaller max blk cnt to avoid flooding the limited stack we have */
 #define CONFIG_SYS_MMC_MAX_BLK_COUNT	256	/* FIXME -- SPL only? */
@@ -138,52 +130,13 @@
 #endif
 
 /*
- * I2C support
- */
-#ifndef CONFIG_DM_I2C
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_BASE		SOCFPGA_I2C0_ADDRESS
-#define CONFIG_SYS_I2C_BASE1		SOCFPGA_I2C1_ADDRESS
-#define CONFIG_SYS_I2C_BASE2		SOCFPGA_I2C2_ADDRESS
-#define CONFIG_SYS_I2C_BASE3		SOCFPGA_I2C3_ADDRESS
-/* Using standard mode which the speed up to 100Kb/s */
-#define CONFIG_SYS_I2C_SPEED		100000
-#define CONFIG_SYS_I2C_SPEED1		100000
-#define CONFIG_SYS_I2C_SPEED2		100000
-#define CONFIG_SYS_I2C_SPEED3		100000
-/* Address of device when used as slave */
-#define CONFIG_SYS_I2C_SLAVE		0x02
-#define CONFIG_SYS_I2C_SLAVE1		0x02
-#define CONFIG_SYS_I2C_SLAVE2		0x02
-#define CONFIG_SYS_I2C_SLAVE3		0x02
-#ifndef __ASSEMBLY__
-/* Clock supplied to I2C controller in unit of MHz */
-unsigned int cm_get_l4_sp_clk_hz(void);
-#define IC_CLK				(cm_get_l4_sp_clk_hz() / 1000000)
-#endif
-#endif /* CONFIG_DM_I2C */
-
-/*
  * QSPI support
  */
-/* Enable multiple SPI NOR flash manufacturers */
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_SPI_FLASH_MTD
-#endif
 /* QSPI reference clock */
 #ifndef __ASSEMBLY__
 unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_CQSPI_REF_CLK		cm_get_qspi_controller_clk_hz()
 #endif
-
-/*
- * Designware SPI support
- */
-
-/*
- * Serial Driver
- */
-#define CONFIG_SYS_NS16550_SERIAL
 
 /*
  * USB
@@ -204,35 +157,13 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 /*
  * U-Boot environment
  */
-#if !defined(CONFIG_ENV_SIZE)
-#define CONFIG_ENV_SIZE			(8 * 1024)
-#endif
 
 /* Environment for SDMMC boot */
-#if defined(CONFIG_ENV_IS_IN_MMC) && !defined(CONFIG_ENV_OFFSET)
+#if defined(CONFIG_ENV_IS_IN_MMC)
 #define CONFIG_SYS_MMC_ENV_DEV		0 /* device 0 */
-#define CONFIG_ENV_OFFSET		(34 * 512) /* just after the GPT */
 #endif
 
 /* Environment for QSPI boot */
-#if defined(CONFIG_ENV_IS_IN_SPI_FLASH) && !defined(CONFIG_ENV_OFFSET)
-#define CONFIG_ENV_OFFSET		0x00100000
-#define CONFIG_ENV_SECT_SIZE		(64 * 1024)
-#endif
-
-/*
- * mtd partitioning for serial NOR flash
- *
- * device nor0 <ff705000.spi.0>, # parts = 6
- * #: name                size            offset          mask_flags
- * 0: u-boot              0x00100000      0x00000000      0
- * 1: env1                0x00040000      0x00100000      0
- * 2: env2                0x00040000      0x00140000      0
- * 3: UBI                 0x03e80000      0x00180000      0
- * 4: boot                0x00e80000      0x00180000      0
- * 5: rootfs              0x01000000      0x01000000      0
- *
- */
 
 /*
  * SPL
@@ -241,9 +172,9 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
  *
  * 0xFFFF_0000 ...... Start of SRAM
  * 0xFFFF_xxxx ...... Top of stack (grows down)
- * 0xFFFF_yyyy ...... Malloc area
- * 0xFFFF_zzzz ...... Global Data
- * 0xFFFF_FF00 ...... End of SRAM
+ * 0xFFFF_yyyy ...... Global Data
+ * 0xFFFF_zzzz ...... Malloc area
+ * 0xFFFF_FFFF ...... End of SRAM
  *
  * SRAM Memory layout for Arria 10:
  * 0xFFE0_0000 ...... Start of SRAM (bottom)
@@ -252,23 +183,14 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
  * 0xFFEz_zzzz ...... Malloc area (grows up to top)
  * 0xFFE3_FFFF ...... End of SRAM (top)
  */
-#define CONFIG_SPL_TEXT_BASE		CONFIG_SYS_INIT_RAM_ADDR
+#ifndef CONFIG_SPL_TEXT_BASE
 #define CONFIG_SPL_MAX_SIZE		CONFIG_SYS_INIT_RAM_SIZE
-
-#if defined(CONFIG_TARGET_SOCFPGA_ARRIA10)
-/* SPL memory allocation configuration, this is for FAT implementation */
-#ifndef CONFIG_SYS_SPL_MALLOC_START
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x00010000
-#define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SYS_INIT_RAM_SIZE - \
-					 CONFIG_SYS_SPL_MALLOC_SIZE + \
-					 CONFIG_SYS_INIT_RAM_ADDR)
-#endif
 #endif
 
 /* SPL SDMMC boot support */
 #ifdef CONFIG_SPL_MMC_SUPPORT
-#if defined(CONFIG_SPL_FAT_SUPPORT) || defined(CONFIG_SPL_EXT_SUPPORT)
-#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot-dtb.img"
+#if defined(CONFIG_SPL_FS_FAT) || defined(CONFIG_SPL_FS_EXT4)
+#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.img"
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 #endif
 #else
@@ -278,23 +200,14 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #endif
 
 /* SPL QSPI boot support */
-#ifdef CONFIG_SPL_SPI_SUPPORT
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x40000
-#endif
 
 /* SPL NAND boot support */
 #ifdef CONFIG_SPL_NAND_SUPPORT
-#define CONFIG_SYS_NAND_BAD_BLOCK_POS	0
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x40000
-#endif
-
-/*
- * Stack setup
- */
 #if defined(CONFIG_TARGET_SOCFPGA_GEN5)
-#define CONFIG_SPL_STACK		CONFIG_SYS_INIT_SP_ADDR
+#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x40000
 #elif defined(CONFIG_TARGET_SOCFPGA_ARRIA10)
-#define CONFIG_SPL_STACK		CONFIG_SYS_SPL_MALLOC_START
+#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x100000
+#endif
 #endif
 
 /* Extra Environment */
@@ -334,6 +247,7 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 	"scriptaddr=0x02100000\0" \
 	"pxefile_addr_r=0x02200000\0" \
 	"ramdisk_addr_r=0x02300000\0" \
+	"socfpga_legacy_reset_compat=1\0" \
 	BOOTENV
 
 #endif

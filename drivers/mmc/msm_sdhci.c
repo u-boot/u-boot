@@ -141,12 +141,12 @@ static int msm_sdc_probe(struct udevice *dev)
 		writel(caps, host->ioaddr + SDHCI_VENDOR_SPEC_CAPABILITIES0);
 	}
 
-	ret = sdhci_setup_cfg(&plat->cfg, host, 0, 0);
 	host->mmc = &plat->mmc;
+	host->mmc->dev = dev;
+	ret = sdhci_setup_cfg(&plat->cfg, host, 0, 0);
 	if (ret)
 		return ret;
 	host->mmc->priv = &prv->host;
-	host->mmc->dev = dev;
 	upriv->mmc = host->mmc;
 
 	return sdhci_probe(dev);

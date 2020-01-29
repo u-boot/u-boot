@@ -77,8 +77,6 @@
 
 /* must fit into GPT:u-boot-env partition */
 #define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_ENV_OFFSET		(0x00011a00 * 512)
-#define CONFIG_ENV_SIZE			(8 * 512)
 
 /* console configuration */
 #define CONFIG_SYS_CBSIZE		1024	/* Console buffer size */
@@ -93,15 +91,11 @@
 
 /* version string, parser, etc */
 
-#define CONFIG_MX_CYCLIC
-
 /* Initial upstream - boot to cmd prompt only */
 #define CONFIG_BOOTCOMMAND		""
 
 #define CONFIG_USBID_ADDR		0x34052c46
 
-#define CONFIG_SYS_ICACHE_OFF
-#define CONFIG_SYS_DCACHE_OFF
 #define CONFIG_SYS_L2CACHE_OFF
 
 #endif /* __BCM23550_W1D_H */

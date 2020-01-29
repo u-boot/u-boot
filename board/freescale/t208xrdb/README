@@ -262,3 +262,22 @@ How to update the ucode of Freescale FMAN
 
 For more details, please refer to T2080PCIe-RDB User Guide and access
 website www.freescale.com and Freescale QorIQ SDK Infocenter document.
+
+Device tree support and how to enable it for different configs
+--------------------------------------------------------------
+Device tree support is available for t2080rdb for below mentioned boot,
+1. NOR Boot
+2. NAND Boot
+3. SD Boot
+4. SPIFLASH Boot
+
+To enable device tree support for other boot, below configs need to be
+enabled in relative defconfig file,
+1. CONFIG_DEFAULT_DEVICE_TREE="t2080rdb" (Change default device tree name if required)
+2. CONFIG_OF_CONTROL
+3. CONFIG_MPC85XX_HAVE_RESET_VECTOR if reset vector is located at
+   CONFIG_RESET_VECTOR_ADDRESS - 0xffc
+
+If device tree support is enabled in defconfig,
+1. use 'u-boot-with-dtb.bin' for NOR boot.
+2. use 'u-boot-with-spl-pbl.bin' for other boot.

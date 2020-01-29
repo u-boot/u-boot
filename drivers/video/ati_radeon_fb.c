@@ -19,6 +19,7 @@
 
 #include <command.h>
 #include <bios_emul.h>
+#include <env.h>
 #include <pci.h>
 #include <asm/processor.h>
 #include <linux/errno.h>

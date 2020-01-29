@@ -8,6 +8,15 @@ config WATCHDOG
 	  this option if you want to service enabled watchdog by U-Boot. Disable
 	  this option if you want U-Boot to start watchdog but never service it.
 
+config WATCHDOG_TIMEOUT_MSECS
+	int "Watchdog timeout in msec"
+	default 128000 if ARCH_MX25 || ARCH_MX31 || ARCH_MX5 || ARCH_MX6
+	default 128000 if ARCH_MX7 || ARCH_VF610
+	default 30000 if ARCH_SOCFPGA
+	default 60000
+	help
+	  Watchdog timeout in msec
+
 config HW_WATCHDOG
 	bool
 
@@ -17,31 +26,19 @@ config WATCHDOG_RESET_DISABLE
 	   Disable reset watchdog, which can let WATCHDOG_RESET invalid, so
 	   that the watchdog will not be fed in u-boot.
 
-config BCM2835_WDT
-	bool "Enable BCM2835/2836 watchdog driver"
-	select HW_WATCHDOG
+config IMX_WATCHDOG
+	bool "Enable Watchdog Timer support for IMX and LSCH2 of NXP"
+	select HW_WATCHDOG if !WDT
 	help
-	  Say Y here to enable the BCM2835/2836 watchdog
-
-	  This provides basic infrastructure to support BCM2835/2836 watchdog
-	  hardware, with a max timeout of ~15secs.
+	   Select this to enable the IMX and LSCH2 of Layerscape watchdog
+	   driver.
 
 config OMAP_WATCHDOG
 	bool "TI OMAP watchdog driver"
 	depends on ARCH_OMAP2PLUS
 	select HW_WATCHDOG
-	default y if AM33XX
 	help
 	  Say Y here to enable the OMAP3+ watchdog driver.
-
-config TANGIER_WATCHDOG
-	bool "Intel Tangier watchdog"
-	depends on INTEL_MID
-	select HW_WATCHDOG
-	help
-	  This enables support for watchdog controller available on
-	  Intel Tangier SoC. If you're using a board with Intel Tangier
-	  SoC, say Y here.
 
 config ULP_WATCHDOG
 	bool "i.MX7ULP watchdog"
@@ -51,20 +48,13 @@ config ULP_WATCHDOG
 config WDT
 	bool "Enable driver model for watchdog timer drivers"
 	depends on DM
+	imply WATCHDOG
 	help
 	  Enable driver model for watchdog timer. At the moment the API
 	  is very simple and only supports four operations:
-	  start, restart, stop and reset (expire immediately).
+	  start, stop, reset and expire_now (expire immediately).
 	  What exactly happens when the timer expires is up to a particular
 	  device/driver.
-
-config WDT_SANDBOX
-	bool "Enable Watchdog Timer support for Sandbox"
-	depends on SANDBOX && WDT
-	help
-	  Enable Watchdog Timer support in Sandbox. This is a dummy device that
-	  can be probed and supports all of the methods of WDT, but does not
-	  really do anything.
 
 config WDT_ARMADA_37XX
 	bool "Marvell Armada 37xx watchdog timer support"
@@ -86,20 +76,20 @@ config WDT_ASPEED
 	  It currently does not support Boot Flash Addressing Mode Detection or
 	  Second Boot.
 
+config WDT_AT91
+	bool "AT91 watchdog timer support"
+	depends on WDT
+	help
+	   Select this to enable Microchip watchdog timer, which can be found on
+	   some AT91 devices.
+
 config WDT_BCM6345
 	bool "BCM6345 watchdog timer support"
-	depends on WDT && ARCH_BMIPS
+	depends on WDT && (ARCH_BMIPS || ARCH_BCM6858 || ARCH_BCM63158)
 	help
 	  Select this to enable watchdog timer for BCM6345 SoCs.
 	  The watchdog timer is stopped when initialized.
 	  It performs full SoC reset.
-
-config WDT_ORION
-	bool "Orion watchdog timer support"
-	depends on WDT
-	help
-	   Select this to enable Orion watchdog timer, which can be found on some
-	   Marvell Armada chips.
 
 config WDT_CDNS
 	bool "Cadence watchdog timer support"
@@ -109,6 +99,20 @@ config WDT_CDNS
 	   Select this to enable Cadence watchdog timer, which can be found on some
 	   Xilinx Microzed Platform.
 
+config WDT_MPC8xx
+	bool "MPC8xx watchdog timer support"
+	depends on WDT && MPC8xx
+	select CONFIG_MPC8xx_WATCHDOG
+	help
+	   Select this to enable mpc8xx watchdog timer
+
+config WDT_MT7621
+	bool "MediaTek MT7621 watchdog timer support"
+	depends on WDT && SOC_MT7628
+	help
+	   Select this to enable Ralink / Mediatek watchdog timer,
+	   which can be found on some MediaTek chips.
+
 config WDT_MTK
 	bool "MediaTek watchdog timer support"
 	depends on WDT && ARCH_MEDIATEK
@@ -116,6 +120,45 @@ config WDT_MTK
 	  Select this to enable watchdog timer for MediaTek SoCs.
 	  The watchdog timer is stopped when initialized.
 	  It performs full SoC reset.
+
+config WDT_OMAP3
+        bool "TI OMAP watchdog timer support"
+        depends on WDT && ARCH_OMAP2PLUS
+        default y if AM33XX
+        help
+	  This enables OMAP3+ watchdog timer driver, which can be
+	  found on some TI chipsets and inline with driver model.
+
+config WDT_ORION
+	bool "Orion watchdog timer support"
+	depends on WDT
+	select CLK
+	help
+	   Select this to enable Orion watchdog timer, which can be found on some
+	   Marvell Armada chips.
+
+config WDT_SANDBOX
+	bool "Enable Watchdog Timer support for Sandbox"
+	depends on SANDBOX && WDT
+	help
+	  Enable Watchdog Timer support in Sandbox. This is a dummy device that
+	  can be probed and supports all of the methods of WDT, but does not
+	  really do anything.
+
+config WDT_SP805
+	bool "SP805 watchdog timer support"
+	depends on WDT
+	help
+	   Select this to enable SP805 watchdog timer, which can be found on some
+	   nxp layerscape chips.
+
+config WDT_STM32MP
+	bool "IWDG watchdog driver for STM32 MP's family"
+	depends on WDT
+	imply WATCHDOG
+	help
+	  Enable the STM32 watchdog (IWDG) driver. Enable support to
+	  configure STM32's on-SoC watchdog.
 
 config XILINX_TB_WATCHDOG
 	bool "Xilinx Axi watchdog timer support"
@@ -125,36 +168,19 @@ config XILINX_TB_WATCHDOG
 	   Select this to enable Xilinx Axi watchdog timer, which can be found on some
 	   Xilinx Microblaze Platforms.
 
-config IMX_WATCHDOG
-	bool "Enable Watchdog Timer support for IMX and LSCH2 of NXP"
-	select HW_WATCHDOG
+config WDT_TANGIER
+	bool "Intel Tangier watchdog timer support"
+	depends on WDT && INTEL_MID
 	help
-	   Select this to enable the IMX and LSCH2 of Layerscape watchdog
-	   driver.
+	  This enables support for watchdog controller available on
+	  Intel Tangier SoC. If you're using a board with Intel Tangier
+	  SoC, say Y here.
 
-config WDT_AT91
-	bool "AT91 watchdog timer support"
-	depends on WDT
+config SPL_WDT
+	bool "Enable driver model for watchdog timer drivers in SPL"
+	depends on SPL_DM
 	help
-	   Select this to enable Microchip watchdog timer, which can be found on
-	   some AT91 devices.
-
-config AT91_HW_WDT_TIMEOUT
-	bool "AT91 watchdog timeout specified"
-	depends on WDT_AT91
-
-config WDT_MT7621
-	bool "MediaTek MT7621 watchdog timer support"
-	depends on WDT && ARCH_MT7620
-	help
-	   Select this to enable Ralink / Mediatek watchdog timer,
-	   which can be found on some MediaTek chips.
-
-config WDT_MPC8xx
-	bool "MPC8xx watchdog timer support"
-	depends on WDT && MPC8xx
-	select CONFIG_MPC8xx_WATCHDOG
-	help
-	   Select this to enable mpc8xx watchdog timer
+	  Enable driver model for watchdog timer in SPL.
+	  This is similar to CONFIG_WDT in U-Boot.
 
 endmenu

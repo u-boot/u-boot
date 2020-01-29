@@ -36,9 +36,9 @@ enum env_flags_varaccess {
 #define CONFIG_ENV_FLAGS_LIST_STATIC ""
 #endif
 
-#ifdef CONFIG_CMD_NET
+#ifdef CONFIG_NET
 #ifdef CONFIG_REGEX
-#define ETHADDR_WILDCARD "\\d?"
+#define ETHADDR_WILDCARD "\\d*"
 #else
 #define ETHADDR_WILDCARD
 #endif
@@ -146,19 +146,20 @@ int env_flags_validate_env_set_params(char *name, char *const val[], int count);
 
 #else /* !USE_HOSTCC */
 
+#include <env.h>
 #include <search.h>
 
 /*
  * When adding a variable to the environment, initialize the flags for that
  * variable.
  */
-void env_flags_init(ENTRY *var_entry);
+void env_flags_init(struct env_entry *var_entry);
 
 /*
  * Validate the newval for to conform with the requirements defined by its flags
  */
-int env_flags_validate(const ENTRY *item, const char *newval, enum env_op op,
-	int flag);
+int env_flags_validate(const struct env_entry *item, const char *newval,
+		       enum env_op op, int flag);
 
 #endif /* USE_HOSTCC */
 

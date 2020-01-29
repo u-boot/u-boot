@@ -4,7 +4,8 @@
  */
 
 #include <common.h>
-#include <environment.h>
+#include <env.h>
+#include <init.h>
 #include <malloc.h>
 #include <asm/processor.h>
 #include <asm/io.h>
@@ -100,7 +101,7 @@ static void set_mac_to_sh_giga_eth_register(int channel, char *mac_string)
 	unsigned char mac[6];
 	unsigned long val;
 
-	eth_parse_enetaddr(mac_string, mac);
+	string_to_enetaddr(mac_string, mac);
 
 	if (!channel)
 		ether = GETHER0_MAC_BASE;
@@ -190,6 +191,7 @@ int board_mmc_init(bd_t *bis)
 
 static int get_sh_eth_mac_raw(unsigned char *buf, int size)
 {
+#ifdef CONFIG_DEPRECATED
 	struct spi_flash *spi;
 	int ret;
 
@@ -206,6 +208,7 @@ static int get_sh_eth_mac_raw(unsigned char *buf, int size)
 		return 1;
 	}
 	spi_flash_free(spi);
+#endif
 
 	return 0;
 }
@@ -255,6 +258,7 @@ int board_late_init(void)
 	return 0;
 }
 
+#ifdef CONFIG_DEPRECATED
 int do_write_mac(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int i, ret;
@@ -318,3 +322,4 @@ U_BOOT_CMD(
 	"write MAC address for GETHERC",
 	"[GETHERC ch0] [GETHERC ch1]\n"
 );
+#endif

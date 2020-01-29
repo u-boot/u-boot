@@ -25,18 +25,9 @@
 /* Generic Timer Definitions */
 #define COUNTER_FREQUENCY		19000000
 
-#define CONFIG_SYS_LDSCRIPT "board/qualcomm/dragonboard410c/u-boot.lds"
-
 /* Fixup - in init code we switch from device to host mode,
  * it has to be done after each HCD reset */
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
-
-/* Support all possible USB ethernet dongles */
-
-/* Extra Commands */
-/* Enable that for switching of boot partitions */
-/* Disabled by default as some sub-commands can brick eMMC */
-/*#define CONFIG_SUPPORT_EMMC_BOOT */
 
 /* BOOTP options */
 #define CONFIG_BOOTP_BOOTFILESIZE
@@ -89,7 +80,6 @@ REFLASH(dragonboard/u-boot.img, 8)\
 	"pxefile_addr_r=0x90100000\0"\
 	BOOTENV
 
-#define CONFIG_ENV_SIZE			0x2000
 #define CONFIG_SYS_MMC_ENV_DEV		0	/* mmc0 = emmc, mmc1 = sd */
 #define CONFIG_SYS_MMC_ENV_PART 2 /* Set env partition to BOOT2 partition */
 

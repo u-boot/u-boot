@@ -154,8 +154,6 @@ config MACH_SUN4I
 	bool "sun4i (Allwinner A10)"
 	select CPU_V7A
 	select ARM_CORTEX_CPU_IS_UP
-	select DM_MMC if MMC
-	select DM_SCSI if SCSI
 	select PHY_SUN4I_USB
 	select DRAM_SUN4I
 	select SUNXI_GEN_SUN4I
@@ -277,7 +275,10 @@ config MACH_SUN9I
 config MACH_SUN50I
 	bool "sun50i (Allwinner A64)"
 	select ARM64
+	select SPI
 	select DM_I2C
+	select DM_SPI if SPI
+	select DM_SPI_FLASH
 	select PHY_SUN4I_USB
 	select SUN6I_PRCM
 	select SUNXI_DE2
@@ -302,6 +303,7 @@ config MACH_SUN50I_H6
 	select ARM64
 	select SUPPORT_SPL
 	select FIT
+	select PHY_SUN4I_USB
 	select SPL_LOAD_FIT
 	select DRAM_SUN50I_H6
 
@@ -342,7 +344,7 @@ config ARM_BOOT_HOOK_RMR
 	This allows both the SPL and the U-Boot proper to be entered in
 	either mode and switch to AArch64 if needed.
 
-if SUNXI_DRAM_DW
+if SUNXI_DRAM_DW || DRAM_SUN50I_H6
 config SUNXI_DRAM_DDR3
 	bool
 
@@ -371,6 +373,22 @@ config SUNXI_DRAM_LPDDR3_STOCK
 	---help---
 	This option is the LPDDR3 timing used by the stock boot0 by
 	Allwinner.
+
+config SUNXI_DRAM_H6_LPDDR3
+	bool "LPDDR3 DRAM chips on the H6 DRAM controller"
+	select SUNXI_DRAM_LPDDR3
+	depends on DRAM_SUN50I_H6
+	---help---
+	This option is the LPDDR3 timing used by the stock boot0 by
+	Allwinner.
+
+config SUNXI_DRAM_H6_DDR3_1333
+	bool "DDR3-1333 boot0 timings on the H6 DRAM controller"
+	select SUNXI_DRAM_DDR3
+	depends on DRAM_SUN50I_H6
+	---help---
+	This option is the DDR3 timing used by the boot0 on H6 TV boxes
+	which use a DDR3-1333 timing.
 
 config SUNXI_DRAM_DDR2_V3S
 	bool "DDR2 found in V3s chip"
@@ -415,10 +433,11 @@ endif
 
 config DRAM_ZQ
 	int "sunxi dram zq value"
-	default 123 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || MACH_SUN8I
+	default 123 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || \
+		       MACH_SUN8I_A23 || MACH_SUN8I_A33 || MACH_SUN8I_A83T
 	default 127 if MACH_SUN7I
 	default 14779 if MACH_SUN8I_V3S
-	default 3881979 if MACH_SUN8I_R40 || MACH_SUN50I_H6
+	default 3881979 if MACH_SUNXI_H3_H5 || MACH_SUN8I_R40 || MACH_SUN50I_H6
 	default 4145117 if MACH_SUN9I
 	default 3881915 if MACH_SUN50I
 	---help---
@@ -427,6 +446,7 @@ config DRAM_ZQ
 config DRAM_ODT_EN
 	bool "sunxi dram odt enable"
 	default y if MACH_SUN8I_A23
+	default y if MACH_SUNXI_H3_H5
 	default y if MACH_SUN8I_R40
 	default y if MACH_SUN50I
 	default y if MACH_SUN50I_H6

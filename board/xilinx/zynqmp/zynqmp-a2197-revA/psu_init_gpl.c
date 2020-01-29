@@ -632,7 +632,6 @@ static unsigned long psu_afi_config(void)
 	return 1;
 }
 
-
 static void dpll_prog(int ddr_pll_fbdiv, int d_lock_dly, int d_lock_cnt,
 		      int d_lfhf, int d_cp, int d_res)
 {

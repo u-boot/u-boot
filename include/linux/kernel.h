@@ -1,8 +1,8 @@
 #ifndef _LINUX_KERNEL_H
 #define _LINUX_KERNEL_H
 
-
 #include <linux/types.h>
+#include <linux/printk.h> /* for printf/pr_* utilities */
 
 #define USHRT_MAX	((u16)(~0U))
 #define SHRT_MAX	((s16)(USHRT_MAX>>1))
@@ -36,6 +36,8 @@
 /* Aliases defined by stdint.h */
 #define UINT32_MAX	U32_MAX
 #define UINT64_MAX	U64_MAX
+
+#define INT32_MAX	S32_MAX
 
 #define STACK_MAGIC	0xdeadbeef
 

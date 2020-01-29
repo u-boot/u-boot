@@ -7,7 +7,7 @@
  */
 
 #include <common.h>
-#include <environment.h>
+#include <env.h>
 #include <net.h>
 #include <netdev.h>
 #include <asm/io.h>
@@ -42,7 +42,7 @@ static void ci20_mux_eth(void)
 {
 	void __iomem *gpio_regs = (void __iomem *)GPIO_BASE;
 
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 	/* setup pins (some already setup for NAND) */
 	writel(0x04030000, gpio_regs + GPIO_PXINTC(0));
 	writel(0x04030000, gpio_regs + GPIO_PXMASKC(0));

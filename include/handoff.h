@@ -31,6 +31,19 @@ struct spl_handoff {
 void handoff_save_dram(struct spl_handoff *ho);
 void handoff_load_dram_size(struct spl_handoff *ho);
 void handoff_load_dram_banks(struct spl_handoff *ho);
+
+/**
+ * handoff_arch_save() - Save arch-specific info into the handoff area
+ *
+ * This is defined to an empty function by default, but arch-specific code can
+ * define it to write to spi_handoff->arch. It is called from
+ * write_spl_handoff().
+ *
+ * @ho: Handoff area to fill in
+ * @return 0 if OK, -ve on error
+ */
+int handoff_arch_save(struct spl_handoff *ho);
+
 #endif
 
 #endif

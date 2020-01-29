@@ -38,6 +38,14 @@
 #include <asm/omap_musb.h>
 #include <asm/davinci_rtc.h>
 
+#define AM43XX_EMIF_BASE				0x4C000000
+#define AM43XX_SDRAM_CONFIG_OFFSET			0x8
+#define AM43XX_SDRAM_TYPE_MASK				0xE0000000
+#define AM43XX_SDRAM_TYPE_SHIFT				29
+#define AM43XX_SDRAM_TYPE_DDR3				3
+#define AM43XX_READ_WRITE_LEVELING_CTRL_OFFSET		0xDC
+#define AM43XX_RDWRLVLFULL_START			0x80000000
+
 DECLARE_GLOBAL_DATA_PTR;
 
 int dram_init(void)
@@ -367,8 +375,8 @@ void update_rtc_magic(void)
  */
 int board_early_init_f(void)
 {
-	prcm_init();
 	set_mux_conf_regs();
+	prcm_init();
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_RTC_DDR_SUPPORT)
 	update_rtc_magic();
 #endif
@@ -435,7 +443,7 @@ static void rtc_only(void)
 	struct prm_device_inst *prm_device =
 				(struct prm_device_inst *)PRM_DEVICE_INST;
 
-	u32 scratch1;
+	u32 scratch1, sdrc;
 	void (*resume_func)(void);
 
 	scratch1 = readl(&rtc->scratch1);
@@ -473,8 +481,25 @@ static void rtc_only(void)
 	rtc_only_prcm_init();
 	sdram_init();
 
-	/* Disable EMIF_DEVOFF for normal operation and to exit self-refresh */
-	writel(0, &prm_device->emif_ctrl);
+	/* Check EMIF4D_SDRAM_CONFIG[31:29] SDRAM_TYPE */
+	/* Only perform leveling if SDRAM_TYPE = 3 (DDR3) */
+	sdrc = readl(AM43XX_EMIF_BASE + AM43XX_SDRAM_CONFIG_OFFSET);
+
+	sdrc &= AM43XX_SDRAM_TYPE_MASK;
+	sdrc >>= AM43XX_SDRAM_TYPE_SHIFT;
+
+	if (sdrc == AM43XX_SDRAM_TYPE_DDR3) {
+		writel(AM43XX_RDWRLVLFULL_START,
+		       AM43XX_EMIF_BASE +
+		       AM43XX_READ_WRITE_LEVELING_CTRL_OFFSET);
+		mdelay(1);
+
+am43xx_wait:
+		sdrc = readl(AM43XX_EMIF_BASE +
+			     AM43XX_READ_WRITE_LEVELING_CTRL_OFFSET);
+		if (sdrc == AM43XX_RDWRLVLFULL_START)
+			goto am43xx_wait;
+	}
 
 	resume_func = (void *)readl(&rtc->scratch0);
 	if (resume_func)

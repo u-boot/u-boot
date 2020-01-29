@@ -14,3 +14,22 @@ int board_init(void)
 
 	return 0;
 }
+
+int mmc_get_boot_dev(void)
+{
+	int g_mmc_devid = -1;
+	char *uflag = (char *)0x81DFFFF0;
+	if (strncmp(uflag,"eMMC",4)==0) {
+		g_mmc_devid = 0;
+		printf("Boot From Emmc(id:%d)\n\n", g_mmc_devid);
+	} else {
+		g_mmc_devid = 1;
+		printf("Boot From SD(id:%d)\n\n", g_mmc_devid);
+	}
+	return g_mmc_devid;
+}
+
+int mmc_get_env_dev(void)
+{
+	return mmc_get_boot_dev();
+}

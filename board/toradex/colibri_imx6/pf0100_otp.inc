@@ -5,16 +5,17 @@
 
 // Register Output for PF0100 programmer
 // Customer: Toradex AG
-// Program: Colibri iMX6
+// Program: Colibri iMX6 V1.1
 // Sample marking:
-// Date: 24.07.2015
-// Time: 10:52:58
+// Date: 01.05.2017
+// Time: 16:22:32
 // Generated from Spreadsheet Revision: P1.8
 
-/* sed commands to get from programmer script to struct */
+/* sed commands to get from programmer script to struct content */
 /* sed -e 's/^WRITE_I2C:\(..\):\(..\)/\{pmic_i2c, 0x\1, 0x\2\},/g' -e 's/^DELAY:\([0-9]*\)/\{pmic_delay, 0, \1\},/g' pf0100_otp_Colibri_iMX6.txt > pf0100_otp.inc
    sed -i -e 's/^VPGM:ON/\{pmic_vpgm, 0, 1},/g' -e 's/^VPGM:OFF/\{pmic_vpgm, 0, 0},/g' pf0100_otp.inc
-   sed -i -e 's/^PWRON: HIGH/\{pmic_pwr, 0, 1},/g' -e 's/^PWRON:LOW/\{pmic_pwr, 0, 0},/g' pf0100_otp.inc */
+   sed -i -e 's/^PWRON: HIGH/\{pmic_pwr, 0, 1},/g' -e 's/^PWRON:LOW/\{pmic_pwr, 0, 0},/g' pf0100_otp.inc
+*/
 
 enum { pmic_i2c, pmic_delay, pmic_vpgm, pmic_pwr };
 struct pmic_otp_prog_t{
@@ -47,7 +48,8 @@ struct pmic_otp_prog_t pmic_otp_prog[] = {
 {pmic_i2c, 0xC8, 0x0E}, // Auto gen from Row134
 {pmic_i2c, 0xCC, 0x0E}, // Auto gen from Row138
 {pmic_i2c, 0xCD, 0x05}, // Auto gen from Row139
-{pmic_i2c, 0xD0, 0x0C}, // Auto gen from Row142
+{pmic_i2c, 0xD0, 0x0F}, // Auto gen from Row142
+{pmic_i2c, 0xD1, 0x05}, // Auto gen from Row143
 {pmic_i2c, 0xD5, 0x07}, // Auto gen from Row147
 {pmic_i2c, 0xD8, 0x07}, // Auto gen from Row150
 {pmic_i2c, 0xD9, 0x06}, // Auto gen from Row151

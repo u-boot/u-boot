@@ -24,7 +24,9 @@ obj-$(CONFIG_MMC_DW_EXYNOS)		+= exynos_dw_mmc.o
 obj-$(CONFIG_MMC_DW_K3)			+= hi6220_dw_mmc.o
 obj-$(CONFIG_MMC_DW_ROCKCHIP)		+= rockchip_dw_mmc.o
 obj-$(CONFIG_MMC_DW_SOCFPGA)		+= socfpga_dw_mmc.o
+obj-$(CONFIG_MMC_DW_SNPS)		+= snps_dw_mmc.o
 obj-$(CONFIG_FSL_ESDHC) += fsl_esdhc.o
+obj-$(CONFIG_FSL_ESDHC_IMX) += fsl_esdhc_imx.o
 obj-$(CONFIG_FTSDC010) += ftsdc010_mci.o
 obj-$(CONFIG_GENERIC_ATMEL_MCI) += gen_atmel_mci.o
 obj-$(CONFIG_MMC_MESON_GX) += meson_gx_mmc.o
@@ -44,11 +46,13 @@ obj-$(CONFIG_JZ47XX_MMC) += jz_mmc.o
 
 # SDHCI
 obj-$(CONFIG_MMC_SDHCI)			+= sdhci.o
+obj-$(CONFIG_MMC_SDHCI_ASPEED)		+= aspeed_sdhci.o
 obj-$(CONFIG_MMC_SDHCI_ATMEL)		+= atmel_sdhci.o
 obj-$(CONFIG_MMC_SDHCI_BCM2835)		+= bcm2835_sdhci.o
 obj-$(CONFIG_MMC_SDHCI_BCMSTB)		+= bcmstb_sdhci.o
 obj-$(CONFIG_MMC_SDHCI_CADENCE)		+= sdhci-cadence.o
-obj-$(CONFIG_MMC_SDHCI_K3_ARASAN)	+= k3_arsan_sdhci.o
+obj-$(CONFIG_MMC_SDHCI_AM654)		+= am654_sdhci.o
+obj-$(CONFIG_MMC_SDHCI_IPROC)		+= iproc_sdhci.o
 obj-$(CONFIG_MMC_SDHCI_KONA)		+= kona_sdhci.o
 obj-$(CONFIG_MMC_SDHCI_MSM)		+= msm_sdhci.o
 obj-$(CONFIG_MMC_SDHCI_MV)		+= mv_sdhci.o

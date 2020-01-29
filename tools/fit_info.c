@@ -80,7 +80,7 @@ int main(int argc, char **argv)
 		fprintf(stderr, "%s: Missing property name\n", *argv);
 		usage(*argv);
 	}
-	ffd = mmap_fdt(cmdname, fdtfile, 0, &fit_blob, &fsbuf, false);
+	ffd = mmap_fdt(cmdname, fdtfile, 0, &fit_blob, &fsbuf, false, false);
 
 	if (ffd < 0) {
 		printf("Could not open %s\n", fdtfile);

@@ -21,51 +21,35 @@
  *
  * Startup Code (reset vector)
  *
- * Below are the critical initializations already taken place in BootROM.
- * So, these are not taken care in Xloader
- * 1. Relocation to RAM
- * 2. Initializing stacks
+ * The BootROM already initialized its own stack in the [0-0xb00] reserved
+ * range of the SRAM. The SPL (in _main) will update the stack pointer to
+ * its own SRAM area (right before the gd section).
  *
  *************************************************************************
  */
 
 	.globl	reset
+	.globl	back_to_bootrom
 
 reset:
-/*
- * Xloader has to return back to BootROM in a few cases.
- * eg. Ethernet boot, UART boot, USB boot
- * Saving registers for returning back
- */
-	stmdb	sp!, {r0-r12,r14}
-	bl	cpu_init_crit
-/*
- * Clearing bss area is not done in Xloader.
- * BSS area lies in the DDR location which is not yet initialized
- * bss is assumed to be uninitialized.
- */
-	ldmia	sp!, {r0-r12,pc}
-
-/*
- *************************************************************************
- *
- * CPU_init_critical registers
- *
- * setup important registers
- * setup memory timing
- *
- *************************************************************************
- */
-cpu_init_crit:
 	/*
-	 * flush v4 I/D caches
+	* SPL has to return back to BootROM in a few cases (eg. Ethernet boot,
+	* UART boot, USB boot): save registers in BootROM's stack and then the
+	* BootROM's stack pointer in the SPL's data section.
+	*/
+	push	{r0-r12,lr}
+	ldr	r0, =bootrom_stash_sp
+	str	sp, [r0]
+
+	/*
+	 * Flush v4 I/D caches
 	 */
 	mov	r0, #0
-	mcr	p15, 0, r0, c7, c7, 0	/* flush v3/v4 cache */
-	mcr	p15, 0, r0, c8, c7, 0	/* flush v4 TLB */
+	mcr	p15, 0, r0, c7, c7, 0	/* Flush v3/v4 cache */
+	mcr	p15, 0, r0, c8, c7, 0	/* Flush v4 TLB */
 
 	/*
-	 * enable instruction cache
+	 * Enable instruction cache
 	 */
 	mrc	p15, 0, r0, c1, c0, 0
 	orr	r0, r0, #0x00001000	/* set bit 12 (I) I-Cache */
@@ -73,7 +57,9 @@ cpu_init_crit:
 
 	/*
 	 * Go setup Memory and board specific bits prior to relocation.
+	 * This call is not supposed to return.
 	 */
-	stmdb	sp!, {lr}
-	bl	_main	/* _main will call board_init_f */
-	ldmia	sp!, {pc}
+	b	_main	/* _main will call board_init_f */
+
+back_to_bootrom:
+	pop	{r0-r12,pc}

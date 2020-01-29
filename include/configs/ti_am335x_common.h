@@ -11,7 +11,6 @@
 #ifndef __CONFIG_TI_AM335X_COMMON_H__
 #define __CONFIG_TI_AM335X_COMMON_H__
 
-#define CONFIG_ARCH_CPU_INIT
 #define CONFIG_MAX_RAM_BANK_SIZE	(1024 << 20)	/* 1GB */
 #define CONFIG_SYS_TIMERBASE		0x48040000	/* Use Timer2 */
 
@@ -40,7 +39,6 @@
  * supports X-MODEM loading via UART, and we leverage this and then use
  * Y-MODEM to load u-boot.img, when booted over UART.
  */
-#define CONFIG_SPL_TEXT_BASE		CONFIG_ISW_ENTRY_ADDR
 #define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + \
 					 (128 << 20))
 

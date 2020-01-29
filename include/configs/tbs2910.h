@@ -40,25 +40,8 @@
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE		UART1_BASE /* select UART1/UART2 */
 
-/* Filesystems / image support */
-
-/* MMC */
-#define CONFIG_SYS_FSL_USDHC_NUM	3
-#define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC4_BASE_ADDR
-#define CONFIG_SUPPORT_EMMC_BOOT
-
-/* Ethernet */
-#define CONFIG_FEC_MXC
-#define CONFIG_FEC_MXC
-#define IMX_FEC_BASE			ENET_BASE_ADDR
-#define CONFIG_FEC_XCV_TYPE		RGMII
-#define CONFIG_ETHPRIME			"FEC"
-#define CONFIG_FEC_MXC_PHYADDR		4
-#define CONFIG_PHY_ATHEROS
-
 /* Framebuffer */
 #ifdef CONFIG_VIDEO
-#define CONFIG_VIDEO_IPUV3
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
@@ -77,49 +60,21 @@
 #define CONFIG_DWC_AHSATA_PORT_ID	0
 #define CONFIG_DWC_AHSATA_BASE_ADDR	SATA_ARB_BASE_ADDR
 #define CONFIG_LBA48
+#define CONFIG_SYS_64BIT_LBA
 #endif
 
 /* USB */
 #ifdef CONFIG_CMD_USB
-#define CONFIG_USB_MAX_CONTROLLER_COUNT 2
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 #ifdef CONFIG_CMD_USB_MASS_STORAGE
 #define CONFIG_USBD_HS
 #endif /* CONFIG_CMD_USB_MASS_STORAGE */
-#ifdef CONFIG_USB_KEYBOARD
-#define CONFIG_PREBOOT \
-	"usb start; " \
-	"if hdmidet; then " \
-		"run set_con_hdmi; " \
-	"else " \
-		"run set_con_serial; " \
-	"fi;"
-#endif /* CONFIG_USB_KEYBOARD */
 #endif /* CONFIG_CMD_USB      */
-
-/* RTC */
-#ifdef CONFIG_CMD_DATE
-#define CONFIG_RTC_DS1307
-#define CONFIG_SYS_RTC_BUS_NUM		2
-#endif
-
-/* I2C */
-#ifdef CONFIG_CMD_I2C
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
-#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
-#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
-#define CONFIG_SYS_I2C_SPEED		100000
-#define CONFIG_I2C_EDID
-#endif
 
 /* Environment organization */
 #define CONFIG_SYS_MMC_ENV_DEV		2 /* overwritten on SD boot */
 #define CONFIG_SYS_MMC_ENV_PART		1 /* overwritten on SD boot */
-#define CONFIG_ENV_SIZE			(8 * 1024)
-#define CONFIG_ENV_OFFSET		(384 * 1024)
 #define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_BOARD_SIZE_LIMIT		392192 /* (CONFIG_ENV_OFFSET - 1024) */
@@ -142,12 +97,12 @@
 	"console=ttymxc0\0" \
 	"fan=gpio set 92\0" \
 	"set_con_serial=setenv stdout serial; " \
-			"setenv stderr serial;\0" \
+			"setenv stderr serial\0" \
 	"set_con_hdmi=setenv stdout serial,vga; " \
-			"setenv stderr serial,vga;\0" \
-	"stderr=serial,vga;\0" \
-	"stdin=serial,usbkbd;\0" \
-	"stdout=serial,vga;\0"
+			"setenv stderr serial,vga\0" \
+	"stderr=serial,vga\0" \
+	"stdin=serial,usbkbd\0" \
+	"stdout=serial,vga\0"
 
 #define CONFIG_BOOTCOMMAND \
 	"mmc rescan; " \

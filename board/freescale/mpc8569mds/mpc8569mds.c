@@ -8,6 +8,7 @@
 #include <common.h>
 #include <console.h>
 #include <hwconfig.h>
+#include <init.h>
 #include <pci.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>

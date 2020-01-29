@@ -67,6 +67,8 @@ CONFIG_SYS_NAND_SPL_KERNEL_OFFS	Offset in NAND where the kernel is stored
 
 CONFIG_CMD_SPL_NAND_OFS	Offset in NAND where the parameters area was saved.
 
+CONFIG_CMD_SPL_NOR_OFS	Offset in NOR where the parameters area was saved.
+
 CONFIG_CMD_SPL_WRITE_SIZE 	Size of the parameters area to be copied
 
 CONFIG_SPL_OS_BOOT	Activate Falcon Mode.

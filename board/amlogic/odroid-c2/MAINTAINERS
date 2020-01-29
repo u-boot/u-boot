@@ -1,8 +1,0 @@
-ODROID-C2
-M:	Beniamino Galvani <b.galvani@gmail.com>
-M:	Neil Armstrong <narmstrong@baylibre.com>
-S:	Maintained
-F:	board/amlogic/odroid-c2/
-F:	include/configs/odroid-c2.h
-F:	configs/nanopi-k2_defconfig
-F:	configs/odroid-c2_defconfig

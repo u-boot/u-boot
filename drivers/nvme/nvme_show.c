@@ -111,14 +111,14 @@ int nvme_print_info(struct udevice *udev)
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf_ctrl, sizeof(struct nvme_id_ctrl));
 	struct nvme_id_ctrl *ctrl = (struct nvme_id_ctrl *)buf_ctrl;
 
-	if (nvme_identify(dev, 0, 1, (dma_addr_t)ctrl))
+	if (nvme_identify(dev, 0, 1, (dma_addr_t)(long)ctrl))
 		return -EIO;
 
 	print_optional_admin_cmd(le16_to_cpu(ctrl->oacs), ns->devnum);
 	print_optional_nvm_cmd(le16_to_cpu(ctrl->oncs), ns->devnum);
 	print_format_nvme_attributes(ctrl->fna, ns->devnum);
 
-	if (nvme_identify(dev, ns->ns_id, 0, (dma_addr_t)id))
+	if (nvme_identify(dev, ns->ns_id, 0, (dma_addr_t)(long)id))
 		return -EIO;
 
 	print_formats(id, ns);

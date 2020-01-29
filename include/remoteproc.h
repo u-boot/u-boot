@@ -45,117 +45,238 @@ struct dm_rproc_uclass_pdata {
 };
 
 /**
- * struct dm_rproc_ops - Operations that are provided by remote proc driver
- * @init:	Initialize the remoteproc device invoked after probe (optional)
- *		Return 0 on success, -ve error on fail
- * @load:	Load the remoteproc device using data provided(mandatory)
- *		This takes the following additional arguments.
- *			addr- Address of the binary image to be loaded
- *			size- Size of the binary image to be loaded
- *		Return 0 on success, -ve error on fail
- * @start:	Start the remoteproc device (mandatory)
- *		Return 0 on success, -ve error on fail
- * @stop:	Stop the remoteproc device (optional)
- *		Return 0 on success, -ve error on fail
- * @reset:	Reset the remote proc device (optional)
- *		Return 0 on success, -ve error on fail
- * @is_running:	Check if the remote processor is running(optional)
- *		Return 0 on success, 1 if not running, -ve on others errors
- * @ping:	Ping the remote device for basic communication check(optional)
- *		Return 0 on success, 1 if not responding, -ve on other errors
+ * struct dm_rproc_ops - Driver model remote proc operations.
+ *
+ * This defines the operations provided by remote proc driver.
  */
 struct dm_rproc_ops {
+	/**
+	 * init() - Initialize the remoteproc device (optional)
+	 *
+	 * This is called after the probe is completed allowing the remote
+	 * processor drivers to split up the initializations between probe and
+	 * init if needed.
+	 *
+	 * @dev:	Remote proc device
+	 * @return 0 if all ok, else appropriate error value.
+	 */
 	int (*init)(struct udevice *dev);
+
+	/**
+	 * load() - Load the remoteproc device using data provided (mandatory)
+	 *
+	 * Load the remoteproc device with an image, do not start the device.
+	 *
+	 * @dev:	Remote proc device
+	 * @addr:	Address of the image to be loaded
+	 * @size:	Size of the image to be loaded
+	 * @return 0 if all ok, else appropriate error value.
+	 */
 	int (*load)(struct udevice *dev, ulong addr, ulong size);
+
+	/**
+	 * start() - Start the remoteproc device (mandatory)
+	 *
+	 * @dev:	Remote proc device
+	 * @return 0 if all ok, else appropriate error value.
+	 */
 	int (*start)(struct udevice *dev);
+
+	/**
+	 * stop() - Stop the remoteproc device (optional)
+	 *
+	 * @dev:	Remote proc device
+	 * @return 0 if all ok, else appropriate error value.
+	 */
 	int (*stop)(struct udevice *dev);
+
+	/**
+	 * reset() - Reset the remoteproc device (optional)
+	 *
+	 * @dev:	Remote proc device
+	 * @return 0 if all ok, else appropriate error value.
+	 */
 	int (*reset)(struct udevice *dev);
+
+	/**
+	 * is_running() - Check if the remote processor is running (optional)
+	 *
+	 * @dev:	Remote proc device
+	 * @return 0 if running, 1 if not running, -ve on error.
+	 */
 	int (*is_running)(struct udevice *dev);
+
+	/**
+	 * ping() - Ping the remote device for basic communication (optional)
+	 *
+	 * @dev:	Remote proc device
+	 * @return 0 on success, 1 if not responding, -ve on other errors.
+	 */
 	int (*ping)(struct udevice *dev);
+
+	/**
+	 * device_to_virt() - Return translated virtual address (optional)
+	 *
+	 * Translate a device address (remote processor view) to virtual
+	 * address (main processor view).
+	 *
+	 * @dev:	Remote proc device
+	 * @da:		Device address
+	 * @size:	Size of the memory region @da is pointing to
+	 * @return virtual address.
+	 */
+	void * (*device_to_virt)(struct udevice *dev, ulong da, ulong size);
 };
 
 /* Accessor */
 #define rproc_get_ops(dev) ((struct dm_rproc_ops *)(dev)->driver->ops)
 
-#ifdef CONFIG_REMOTEPROC
+#if CONFIG_IS_ENABLED(REMOTEPROC)
 /**
  * rproc_init() - Initialize all bound remote proc devices
- *
- * Return: 0 if all ok, else appropriate error value.
+ * @return 0 if all ok, else appropriate error value.
  */
 int rproc_init(void);
 
 /**
  * rproc_dev_init() - Initialize a remote proc device based on id
  * @id:		id of the remote processor
- *
- * Return: 0 if all ok, else appropriate error value.
+ * @return 0 if all ok, else appropriate error value.
  */
 int rproc_dev_init(int id);
 
 /**
  * rproc_is_initialized() - check to see if remoteproc devices are initialized
- *
- * Return: 0 if all devices are initialized, else appropriate error value.
+ * @return true if all devices are initialized, false otherwise.
  */
 bool rproc_is_initialized(void);
 
 /**
- * rproc_load() - load binary to a remote processor
+ * rproc_load() - load binary or elf to a remote processor
  * @id:		id of the remote processor
- * @addr:	address in memory where the binary image is located
- * @size:	size of the binary image
- *
- * Return: 0 if all ok, else appropriate error value.
+ * @addr:	address in memory where the image is located
+ * @size:	size of the image
+ * @return 0 if all ok, else appropriate error value.
  */
 int rproc_load(int id, ulong addr, ulong size);
 
 /**
  * rproc_start() - Start a remote processor
  * @id:		id of the remote processor
- *
- * Return: 0 if all ok, else appropriate error value.
+ * @return 0 if all ok, else appropriate error value.
  */
 int rproc_start(int id);
 
 /**
  * rproc_stop() - Stop a remote processor
  * @id:		id of the remote processor
- *
- * Return: 0 if all ok, else appropriate error value.
+ * @return 0 if all ok, else appropriate error value.
  */
 int rproc_stop(int id);
 
 /**
  * rproc_reset() - reset a remote processor
  * @id:		id of the remote processor
- *
- * Return: 0 if all ok, else appropriate error value.
+ * @return 0 if all ok, else appropriate error value.
  */
 int rproc_reset(int id);
 
 /**
  * rproc_ping() - ping a remote processor to check if it can communicate
  * @id:		id of the remote processor
+ * @return 0 if all ok, else appropriate error value.
  *
  * NOTE: this might need communication path available, which is not implemented
  * as part of remoteproc framework - hook on to appropriate bus architecture to
  * do the same
- *
- * Return: 0 if all ok, else appropriate error value.
  */
 int rproc_ping(int id);
 
 /**
  * rproc_is_running() - check to see if remote processor is running
  * @id:		id of the remote processor
+ * @return 0 if running, 1 if not running, -ve on error.
  *
  * NOTE: this may not involve actual communication capability of the remote
  * processor, but just ensures that it is out of reset and executing code.
- *
- * Return: 0 if all ok, else appropriate error value.
  */
 int rproc_is_running(int id);
+
+/**
+ * rproc_elf32_sanity_check() - Verify if an image is a valid ELF32 one
+ *
+ * Check if a valid ELF32 image exists at the given memory location. Verify
+ * basic ELF32 format requirements like magic number and sections size.
+ *
+ * @addr:	address of the image to verify
+ * @size:	size of the image
+ * @return 0 if the image looks good, else appropriate error value.
+ */
+int rproc_elf32_sanity_check(ulong addr, ulong size);
+
+/**
+ * rproc_elf64_sanity_check() - Verify if an image is a valid ELF32 one
+ *
+ * Check if a valid ELF64 image exists at the given memory location. Verify
+ * basic ELF64 format requirements like magic number and sections size.
+ *
+ * @addr:	address of the image to verify
+ * @size:	size of the image
+ * @return 0 if the image looks good, else appropriate error value.
+ */
+int rproc_elf64_sanity_check(ulong addr, ulong size);
+
+/**
+ * rproc_elf_sanity_check() - Verify if an image is a valid ELF one
+ *
+ * Check if a valid ELF image exists at the given memory location. Auto
+ * detects ELF32/ELF64 and verifies basic ELF64/ELF32 format requirements
+ * like magic number and sections size.
+ *
+ * @addr:	address of the image to verify
+ * @size:	size of the image
+ * @return 0 if the image looks good, else appropriate error value.
+ */
+int rproc_elf_sanity_check(ulong addr, ulong size);
+
+/**
+ * rproc_elf32_load_image() - load an ELF32 image
+ * @dev:	device loading the ELF32 image
+ * @addr:	valid ELF32 image address
+ * @size:	size of the image
+ * @return 0 if the image is successfully loaded, else appropriate error value.
+ */
+int rproc_elf32_load_image(struct udevice *dev, unsigned long addr, ulong size);
+
+/**
+ * rproc_elf64_load_image() - load an ELF64 image
+ * @dev:	device loading the ELF64 image
+ * @addr:	valid ELF64 image address
+ * @size:	size of the image
+ * @return 0 if the image is successfully loaded, else appropriate error value.
+ */
+int rproc_elf64_load_image(struct udevice *dev, ulong addr, ulong size);
+
+/**
+ * rproc_elf_load_image() - load an ELF image
+ * @dev:	device loading the ELF image
+ * @addr:	valid ELF image address
+ * @size:	size of the image
+ *
+ * Auto detects if the image is ELF32 or ELF64 image and load accordingly.
+ * @return 0 if the image is successfully loaded, else appropriate error value.
+ */
+int rproc_elf_load_image(struct udevice *dev, unsigned long addr, ulong size);
+
+/**
+ * rproc_elf_get_boot_addr() - Get rproc's boot address.
+ * @dev:	device loading the ELF image
+ * @addr:	valid ELF image address
+ *
+ * This function returns the entry point address of the ELF
+ * image.
+ */
+ulong rproc_elf_get_boot_addr(struct udevice *dev, ulong addr);
 #else
 static inline int rproc_init(void) { return -ENOSYS; }
 static inline int rproc_dev_init(int id) { return -ENOSYS; }
@@ -166,6 +287,23 @@ static inline int rproc_stop(int id) { return -ENOSYS; }
 static inline int rproc_reset(int id) { return -ENOSYS; }
 static inline int rproc_ping(int id) { return -ENOSYS; }
 static inline int rproc_is_running(int id) { return -ENOSYS; }
+static inline int rproc_elf32_sanity_check(ulong addr,
+					   ulong size) { return -ENOSYS; }
+static inline int rproc_elf64_sanity_check(ulong addr,
+					   ulong size) { return -ENOSYS; }
+static inline int rproc_elf_sanity_check(ulong addr,
+					 ulong size) { return -ENOSYS; }
+static inline int rproc_elf32_load_image(struct udevice *dev,
+					 unsigned long addr, ulong size)
+{ return -ENOSYS; }
+static inline int rproc_elf64_load_image(struct udevice *dev, ulong addr,
+					 ulong size)
+{ return -ENOSYS; }
+static inline int rproc_elf_load_image(struct udevice *dev, ulong addr,
+				       ulong size)
+{ return -ENOSYS; }
+static inline ulong rproc_elf_get_boot_addr(struct udevice *dev, ulong addr)
+{ return 0; }
 #endif
 
 #endif	/* _RPROC_H_ */

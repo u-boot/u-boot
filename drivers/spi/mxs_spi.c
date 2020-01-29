@@ -2,6 +2,9 @@
 /*
  * Freescale i.MX28 SPI driver
  *
+ * Copyright (C) 2019 DENX Software Engineering
+ * Lukasz Majewski, DENX Software Engineering, lukma@denx.de
+ *
  * Copyright (C) 2011 Marek Vasut <marek.vasut@gmail.com>
  * on behalf of DENX Software Engineering GmbH
  *
@@ -10,6 +13,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <spi.h>
@@ -27,89 +31,6 @@
 
 #define MXSSSP_SMALL_TRANSFER	512
 
-struct mxs_spi_slave {
-	struct spi_slave	slave;
-	uint32_t		max_khz;
-	uint32_t		mode;
-	struct mxs_ssp_regs	*regs;
-};
-
-static inline struct mxs_spi_slave *to_mxs_slave(struct spi_slave *slave)
-{
-	return container_of(slave, struct mxs_spi_slave, slave);
-}
-
-int spi_cs_is_valid(unsigned int bus, unsigned int cs)
-{
-	/* MXS SPI: 4 ports and 3 chip selects maximum */
-	if (!mxs_ssp_bus_id_valid(bus) || cs > 2)
-		return 0;
-	else
-		return 1;
-}
-
-struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
-				  unsigned int max_hz, unsigned int mode)
-{
-	struct mxs_spi_slave *mxs_slave;
-
-	if (!spi_cs_is_valid(bus, cs)) {
-		printf("mxs_spi: invalid bus %d / chip select %d\n", bus, cs);
-		return NULL;
-	}
-
-	mxs_slave = spi_alloc_slave(struct mxs_spi_slave, bus, cs);
-	if (!mxs_slave)
-		return NULL;
-
-	if (mxs_dma_init_channel(MXS_DMA_CHANNEL_AHB_APBH_SSP0 + bus))
-		goto err_init;
-
-	mxs_slave->max_khz = max_hz / 1000;
-	mxs_slave->mode = mode;
-	mxs_slave->regs = mxs_ssp_regs_by_bus(bus);
-
-	return &mxs_slave->slave;
-
-err_init:
-	free(mxs_slave);
-	return NULL;
-}
-
-void spi_free_slave(struct spi_slave *slave)
-{
-	struct mxs_spi_slave *mxs_slave = to_mxs_slave(slave);
-	free(mxs_slave);
-}
-
-int spi_claim_bus(struct spi_slave *slave)
-{
-	struct mxs_spi_slave *mxs_slave = to_mxs_slave(slave);
-	struct mxs_ssp_regs *ssp_regs = mxs_slave->regs;
-	uint32_t reg = 0;
-
-	mxs_reset_block(&ssp_regs->hw_ssp_ctrl0_reg);
-
-	writel((slave->cs << MXS_SSP_CHIPSELECT_SHIFT) |
-	       SSP_CTRL0_BUS_WIDTH_ONE_BIT,
-	       &ssp_regs->hw_ssp_ctrl0);
-
-	reg = SSP_CTRL1_SSP_MODE_SPI | SSP_CTRL1_WORD_LENGTH_EIGHT_BITS;
-	reg |= (mxs_slave->mode & SPI_CPOL) ? SSP_CTRL1_POLARITY : 0;
-	reg |= (mxs_slave->mode & SPI_CPHA) ? SSP_CTRL1_PHASE : 0;
-	writel(reg, &ssp_regs->hw_ssp_ctrl1);
-
-	writel(0, &ssp_regs->hw_ssp_cmd0);
-
-	mxs_set_ssp_busclock(slave->bus, mxs_slave->max_khz);
-
-	return 0;
-}
-
-void spi_release_bus(struct spi_slave *slave)
-{
-}
-
 static void mxs_spi_start_xfer(struct mxs_ssp_regs *ssp_regs)
 {
 	writel(SSP_CTRL0_LOCK_CS, &ssp_regs->hw_ssp_ctrl0_set);
@@ -122,10 +43,61 @@ static void mxs_spi_end_xfer(struct mxs_ssp_regs *ssp_regs)
 	writel(SSP_CTRL0_IGNORE_CRC, &ssp_regs->hw_ssp_ctrl0_set);
 }
 
+#if !CONFIG_IS_ENABLED(DM_SPI)
+struct mxs_spi_slave {
+	struct spi_slave	slave;
+	uint32_t		max_khz;
+	uint32_t		mode;
+	struct mxs_ssp_regs	*regs;
+};
+
+static inline struct mxs_spi_slave *to_mxs_slave(struct spi_slave *slave)
+{
+	return container_of(slave, struct mxs_spi_slave, slave);
+}
+#else
+#include <dm.h>
+#include <errno.h>
+#include <dt-structs.h>
+
+#ifdef CONFIG_MX28
+#define dtd_fsl_imx_spi dtd_fsl_imx28_spi
+#else /* CONFIG_MX23 */
+#define dtd_fsl_imx_spi dtd_fsl_imx23_spi
+#endif
+
+struct mxs_spi_platdata {
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	struct dtd_fsl_imx_spi dtplat;
+#endif
+	s32 frequency;		/* Default clock frequency, -1 for none */
+	fdt_addr_t base;        /* SPI IP block base address */
+	int num_cs;             /* Number of CSes supported */
+	int dma_id;             /* ID of the DMA channel */
+	int clk_id;             /* ID of the SSP clock */
+};
+
+struct mxs_spi_priv {
+	struct mxs_ssp_regs *regs;
+	unsigned int dma_channel;
+	unsigned int max_freq;
+	unsigned int clk_id;
+	unsigned int mode;
+};
+#endif
+
+#if !CONFIG_IS_ENABLED(DM_SPI)
 static int mxs_spi_xfer_pio(struct mxs_spi_slave *slave,
 			char *data, int length, int write, unsigned long flags)
 {
 	struct mxs_ssp_regs *ssp_regs = slave->regs;
+#else
+static int mxs_spi_xfer_pio(struct mxs_spi_priv *priv,
+			    char *data, int length, int write,
+			    unsigned long flags)
+{
+	struct mxs_ssp_regs *ssp_regs = priv->regs;
+#endif
 
 	if (flags & SPI_XFER_BEGIN)
 		mxs_spi_start_xfer(ssp_regs);
@@ -181,12 +153,19 @@ static int mxs_spi_xfer_pio(struct mxs_spi_slave *slave,
 	return 0;
 }
 
+#if !CONFIG_IS_ENABLED(DM_SPI)
 static int mxs_spi_xfer_dma(struct mxs_spi_slave *slave,
 			char *data, int length, int write, unsigned long flags)
 {
+	struct mxs_ssp_regs *ssp_regs = slave->regs;
+#else
+static int mxs_spi_xfer_dma(struct mxs_spi_priv *priv,
+			    char *data, int length, int write,
+			    unsigned long flags)
+{	struct mxs_ssp_regs *ssp_regs = priv->regs;
+#endif
 	const int xfer_max_sz = 0xff00;
 	const int desc_count = DIV_ROUND_UP(length, xfer_max_sz) + 1;
-	struct mxs_ssp_regs *ssp_regs = slave->regs;
 	struct mxs_dma_desc *dp;
 	uint32_t ctrl0;
 	uint32_t cache_data_count;
@@ -225,7 +204,11 @@ static int mxs_spi_xfer_dma(struct mxs_spi_slave *slave,
 	/* Invalidate the area, so no writeback into the RAM races with DMA */
 	invalidate_dcache_range(dstart, dstart + cache_data_count);
 
+#if !CONFIG_IS_ENABLED(DM_SPI)
 	dmach = MXS_DMA_CHANNEL_AHB_APBH_SSP0 + slave->slave.bus;
+#else
+	dmach = priv->dma_channel;
+#endif
 
 	dp = desc;
 	while (length) {
@@ -302,11 +285,20 @@ static int mxs_spi_xfer_dma(struct mxs_spi_slave *slave,
 	return ret;
 }
 
+#if !CONFIG_IS_ENABLED(DM_SPI)
 int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 		const void *dout, void *din, unsigned long flags)
 {
 	struct mxs_spi_slave *mxs_slave = to_mxs_slave(slave);
 	struct mxs_ssp_regs *ssp_regs = mxs_slave->regs;
+#else
+int mxs_spi_xfer(struct udevice *dev, unsigned int bitlen,
+		 const void *dout, void *din, unsigned long flags)
+{
+	struct udevice *bus = dev_get_parent(dev);
+	struct mxs_spi_priv *priv = dev_get_priv(bus);
+	struct mxs_ssp_regs *ssp_regs = priv->regs;
+#endif
 	int len = bitlen / 8;
 	char dummy;
 	int write = 0;
@@ -350,9 +342,284 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 
 	if (!dma || (len < MXSSSP_SMALL_TRANSFER)) {
 		writel(SSP_CTRL1_DMA_ENABLE, &ssp_regs->hw_ssp_ctrl1_clr);
+#if !CONFIG_IS_ENABLED(DM_SPI)
 		return mxs_spi_xfer_pio(mxs_slave, data, len, write, flags);
+#else
+		return mxs_spi_xfer_pio(priv, data, len, write, flags);
+#endif
 	} else {
 		writel(SSP_CTRL1_DMA_ENABLE, &ssp_regs->hw_ssp_ctrl1_set);
+#if !CONFIG_IS_ENABLED(DM_SPI)
 		return mxs_spi_xfer_dma(mxs_slave, data, len, write, flags);
+#else
+		return mxs_spi_xfer_dma(priv, data, len, write, flags);
+#endif
 	}
 }
+
+#if !CONFIG_IS_ENABLED(DM_SPI)
+int spi_cs_is_valid(unsigned int bus, unsigned int cs)
+{
+	/* MXS SPI: 4 ports and 3 chip selects maximum */
+	if (!mxs_ssp_bus_id_valid(bus) || cs > 2)
+		return 0;
+	else
+		return 1;
+}
+
+struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
+				  unsigned int max_hz, unsigned int mode)
+{
+	struct mxs_spi_slave *mxs_slave;
+
+	if (!spi_cs_is_valid(bus, cs)) {
+		printf("mxs_spi: invalid bus %d / chip select %d\n", bus, cs);
+		return NULL;
+	}
+
+	mxs_slave = spi_alloc_slave(struct mxs_spi_slave, bus, cs);
+	if (!mxs_slave)
+		return NULL;
+
+	if (mxs_dma_init_channel(MXS_DMA_CHANNEL_AHB_APBH_SSP0 + bus))
+		goto err_init;
+
+	mxs_slave->max_khz = max_hz / 1000;
+	mxs_slave->mode = mode;
+	mxs_slave->regs = mxs_ssp_regs_by_bus(bus);
+
+	return &mxs_slave->slave;
+
+err_init:
+	free(mxs_slave);
+	return NULL;
+}
+
+void spi_free_slave(struct spi_slave *slave)
+{
+	struct mxs_spi_slave *mxs_slave = to_mxs_slave(slave);
+
+	free(mxs_slave);
+}
+
+int spi_claim_bus(struct spi_slave *slave)
+{
+	struct mxs_spi_slave *mxs_slave = to_mxs_slave(slave);
+	struct mxs_ssp_regs *ssp_regs = mxs_slave->regs;
+	u32 reg = 0;
+
+	mxs_reset_block(&ssp_regs->hw_ssp_ctrl0_reg);
+
+	writel((slave->cs << MXS_SSP_CHIPSELECT_SHIFT) |
+	       SSP_CTRL0_BUS_WIDTH_ONE_BIT,
+	       &ssp_regs->hw_ssp_ctrl0);
+
+	reg = SSP_CTRL1_SSP_MODE_SPI | SSP_CTRL1_WORD_LENGTH_EIGHT_BITS;
+	reg |= (mxs_slave->mode & SPI_CPOL) ? SSP_CTRL1_POLARITY : 0;
+	reg |= (mxs_slave->mode & SPI_CPHA) ? SSP_CTRL1_PHASE : 0;
+	writel(reg, &ssp_regs->hw_ssp_ctrl1);
+
+	writel(0, &ssp_regs->hw_ssp_cmd0);
+
+	mxs_set_ssp_busclock(slave->bus, mxs_slave->max_khz);
+
+	return 0;
+}
+
+void spi_release_bus(struct spi_slave *slave)
+{
+}
+
+#else /* CONFIG_DM_SPI */
+/* Base numbers of i.MX2[38] clk for ssp0 IP block */
+#define MXS_SSP_IMX23_CLKID_SSP0 33
+#define MXS_SSP_IMX28_CLKID_SSP0 46
+
+static int mxs_spi_probe(struct udevice *bus)
+{
+	struct mxs_spi_platdata *plat = dev_get_platdata(bus);
+	struct mxs_spi_priv *priv = dev_get_priv(bus);
+	int ret;
+
+	debug("%s: probe\n", __func__);
+
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	struct dtd_fsl_imx_spi *dtplat = &plat->dtplat;
+	struct phandle_1_arg *p1a = &dtplat->clocks[0];
+
+	priv->regs = (struct mxs_ssp_regs *)dtplat->reg[0];
+	priv->dma_channel = dtplat->dmas[1];
+	priv->clk_id = p1a->arg[0];
+	priv->max_freq = dtplat->spi_max_frequency;
+	plat->num_cs = dtplat->num_cs;
+
+	debug("OF_PLATDATA: regs: 0x%x max freq: %d clkid: %d\n",
+	      (unsigned int)priv->regs, priv->max_freq, priv->clk_id);
+#else
+	priv->regs = (struct mxs_ssp_regs *)plat->base;
+	priv->max_freq = plat->frequency;
+
+	priv->dma_channel = plat->dma_id;
+	priv->clk_id = plat->clk_id;
+#endif
+
+	mxs_reset_block(&priv->regs->hw_ssp_ctrl0_reg);
+
+	ret = mxs_dma_init_channel(priv->dma_channel);
+	if (ret) {
+		printf("%s: DMA init channel error %d\n", __func__, ret);
+		return ret;
+	}
+
+	return 0;
+}
+
+static int mxs_spi_claim_bus(struct udevice *dev)
+{
+	struct udevice *bus = dev_get_parent(dev);
+	struct mxs_spi_priv *priv = dev_get_priv(bus);
+	struct mxs_ssp_regs *ssp_regs = priv->regs;
+	int cs = spi_chip_select(dev);
+
+	/*
+	 * i.MX28 supports up to 3 CS (SSn0, SSn1, SSn2)
+	 * To set them it uses following tuple (WAIT_FOR_IRQ,WAIT_FOR_CMD),
+	 * where:
+	 *
+	 * WAIT_FOR_IRQ is bit 21 of HW_SSP_CTRL0
+	 * WAIT_FOR_CMD is bit 20 (#defined as MXS_SSP_CHIPSELECT_SHIFT here) of
+	 *                        HW_SSP_CTRL0
+	 * SSn0 b00
+	 * SSn1 b01
+	 * SSn2 b10 (which require setting WAIT_FOR_IRQ)
+	 *
+	 * However, for now i.MX28 SPI driver will support up till 2 CSes
+	 * (SSn0, and SSn1).
+	 */
+
+	/* Ungate SSP clock and set active CS */
+	clrsetbits_le32(&ssp_regs->hw_ssp_ctrl0,
+			BIT(MXS_SSP_CHIPSELECT_SHIFT) |
+			SSP_CTRL0_CLKGATE, (cs << MXS_SSP_CHIPSELECT_SHIFT));
+
+	return 0;
+}
+
+static int mxs_spi_release_bus(struct udevice *dev)
+{
+	struct udevice *bus = dev_get_parent(dev);
+	struct mxs_spi_priv *priv = dev_get_priv(bus);
+	struct mxs_ssp_regs *ssp_regs = priv->regs;
+
+	/* Gate SSP clock */
+	setbits_le32(&ssp_regs->hw_ssp_ctrl0, SSP_CTRL0_CLKGATE);
+
+	return 0;
+}
+
+static int mxs_spi_set_speed(struct udevice *bus, uint speed)
+{
+	struct mxs_spi_priv *priv = dev_get_priv(bus);
+#ifdef CONFIG_MX28
+	int clkid = priv->clk_id - MXS_SSP_IMX28_CLKID_SSP0;
+#else /* CONFIG_MX23 */
+	int clkid = priv->clk_id - MXS_SSP_IMX23_CLKID_SSP0;
+#endif
+	if (speed > priv->max_freq)
+		speed = priv->max_freq;
+
+	debug("%s speed: %u [Hz] clkid: %d\n", __func__, speed, clkid);
+	mxs_set_ssp_busclock(clkid, speed / 1000);
+
+	return 0;
+}
+
+static int mxs_spi_set_mode(struct udevice *bus, uint mode)
+{
+	struct mxs_spi_priv *priv = dev_get_priv(bus);
+	struct mxs_ssp_regs *ssp_regs = priv->regs;
+	u32 reg;
+
+	priv->mode = mode;
+	debug("%s: mode 0x%x\n", __func__, mode);
+
+	reg = SSP_CTRL1_SSP_MODE_SPI | SSP_CTRL1_WORD_LENGTH_EIGHT_BITS;
+	reg |= (priv->mode & SPI_CPOL) ? SSP_CTRL1_POLARITY : 0;
+	reg |= (priv->mode & SPI_CPHA) ? SSP_CTRL1_PHASE : 0;
+	writel(reg, &ssp_regs->hw_ssp_ctrl1);
+
+	/* Single bit SPI support */
+	writel(SSP_CTRL0_BUS_WIDTH_ONE_BIT, &ssp_regs->hw_ssp_ctrl0);
+
+	return 0;
+}
+
+static const struct dm_spi_ops mxs_spi_ops = {
+	.claim_bus	= mxs_spi_claim_bus,
+	.release_bus    = mxs_spi_release_bus,
+	.xfer		= mxs_spi_xfer,
+	.set_speed	= mxs_spi_set_speed,
+	.set_mode	= mxs_spi_set_mode,
+	/*
+	 * cs_info is not needed, since we require all chip selects to be
+	 * in the device tree explicitly
+	 */
+};
+
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+static int mxs_ofdata_to_platdata(struct udevice *bus)
+{
+	struct mxs_spi_platdata *plat = bus->platdata;
+	u32 prop[2];
+	int ret;
+
+	plat->base = dev_read_addr(bus);
+	plat->frequency =
+		dev_read_u32_default(bus, "spi-max-frequency", 40000000);
+	plat->num_cs = dev_read_u32_default(bus, "num-cs", 2);
+
+	ret = dev_read_u32_array(bus, "dmas", prop, ARRAY_SIZE(prop));
+	if (ret) {
+		printf("%s: Reading 'dmas' property failed!\n", __func__);
+		return ret;
+	}
+	plat->dma_id = prop[1];
+
+	ret = dev_read_u32_array(bus, "clocks", prop, ARRAY_SIZE(prop));
+	if (ret) {
+		printf("%s: Reading 'clocks' property failed!\n", __func__);
+		return ret;
+	}
+	plat->clk_id = prop[1];
+
+	debug("%s: base=0x%x, max-frequency=%d num-cs=%d dma_id=%d clk_id=%d\n",
+	      __func__, (uint)plat->base, plat->frequency, plat->num_cs,
+	      plat->dma_id, plat->clk_id);
+
+	return 0;
+}
+
+static const struct udevice_id mxs_spi_ids[] = {
+	{ .compatible = "fsl,imx23-spi" },
+	{ .compatible = "fsl,imx28-spi" },
+	{ }
+};
+#endif
+
+U_BOOT_DRIVER(mxs_spi) = {
+#ifdef CONFIG_MX28
+	.name = "fsl_imx28_spi",
+#else /* CONFIG_MX23 */
+	.name = "fsl_imx23_spi",
+#endif
+	.id	= UCLASS_SPI,
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+	.of_match = mxs_spi_ids,
+	.ofdata_to_platdata = mxs_ofdata_to_platdata,
+#endif
+	.platdata_auto_alloc_size = sizeof(struct mxs_spi_platdata),
+	.ops	= &mxs_spi_ops,
+	.priv_auto_alloc_size = sizeof(struct mxs_spi_priv),
+	.probe	= mxs_spi_probe,
+};
+#endif

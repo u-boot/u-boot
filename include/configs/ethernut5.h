@@ -20,7 +20,6 @@
 #define CONFIG_MACH_TYPE MACH_TYPE_ETHERNUT5
 
 /* CPU information */
-#define CONFIG_ARCH_CPU_INIT
 
 /* ARM asynchronous clock */
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768	/* slow clock xtal */
@@ -51,10 +50,6 @@
 
 
 /* bootstrap + u-boot + env + linux in dataflash on CS0 */
-#define CONFIG_ENV_OFFSET	0x3DE000
-#define CONFIG_ENV_SIZE		(132 << 10)
-#define CONFIG_ENV_SECT_SIZE	CONFIG_ENV_SIZE
-#define CONFIG_ENV_SPI_MAX_HZ	15000000
 
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND

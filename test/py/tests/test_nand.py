@@ -46,7 +46,7 @@ def nand_pre_commands(u_boot_console):
         except ValueError:
             pytest.fail("NAND page size not recognized")
 
-        print 'Page size is: ' + str(page_size) + " B"
+        print ('Page size is: ' + str(page_size) + " B")
 
     m = re.search('sector size (.+?) KiB', output)
     if m:
@@ -59,7 +59,7 @@ def nand_pre_commands(u_boot_console):
            pytest.fail("NAND erase size not recognized")
 
         erase_size *= 1024
-        print 'Erase size is: ' + str(erase_size) + " B"
+        print ('Erase size is: ' + str(erase_size) + " B")
 
     output = u_boot_console.run_command('nand bad')
     if not "bad blocks:" in output:
@@ -68,22 +68,22 @@ def nand_pre_commands(u_boot_console):
     count = 0
     m = re.search('bad blocks:([\n\s\s\d\w]*)', output)
     if m:
-        print m.group(1)
+        print (m.group(1))
         var = m.group(1).split()
         count = len(var)
-    print 'bad blocks count= ' + str(count)
+    print ('bad blocks count= ' + str(count))
 
     global total_size
     total_size = u_boot_console.config.env.get('env__nand_size', False)
-    print total_size
+    print (total_size)
     m = re.search('(.+?)MiB', total_size)
     if m:
         try:
             total_size = int(m.group(1))
             total_size *= 1024 * 1024
-            print 'Total size is: ' + str(total_size) + " B"
+            print ('Total size is: ' + str(total_size) + " B")
             total_size -= count * sector_size * 1024
-            print 'New Total size is: ' + str(total_size) + " B"
+            print ('New Total size is: ' + str(total_size) + " B")
         except ValueError:
             pytest.fail("NAND size not recognized")
 

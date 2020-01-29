@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) 2018 Ãlvaro FernÃ¡ndez Rojas <noltari@gmail.com>
+ * Copyright (C) 2018 Álvaro Fernández Rojas <noltari@gmail.com>
  */
 
 #include <dt-bindings/clock/bcm6362-clock.h>
@@ -131,6 +131,24 @@
 			compatible = "brcm,bcm6345-uart";
 			reg = <0x10000120 0x18>;
 			clocks = <&periph_osc>;
+
+			status = "disabled";
+		};
+
+		nand: nand-controller@10000200 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "brcm,nand-bcm6368",
+				     "brcm,brcmnand-v2.2",
+				     "brcm,brcmnand";
+			reg-names = "nand",
+				    "nand-cache",
+				    "nand-int-base";
+			reg = <0x10000200 0x180>,
+			      <0x10000600 0x200>,
+			      <0x100000b0 0x10>;
+			clocks = <&periph_clk BCM6362_CLK_NAND>;
+			clock-names = "nand";
 
 			status = "disabled";
 		};

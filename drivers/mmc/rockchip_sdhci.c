@@ -68,14 +68,14 @@ static int arasan_sdhci_probe(struct udevice *dev)
 	if (host->bus_width == 8)
 		host->host_caps |= MMC_MODE_8BIT;
 
-	ret = sdhci_setup_cfg(&plat->cfg, host, 0, EMMC_MIN_FREQ);
-
 	host->mmc = &plat->mmc;
-	if (ret)
-		return ret;
 	host->mmc->priv = &prv->host;
 	host->mmc->dev = dev;
 	upriv->mmc = host->mmc;
+
+	ret = sdhci_setup_cfg(&plat->cfg, host, 0, EMMC_MIN_FREQ);
+	if (ret)
+		return ret;
 
 	return sdhci_probe(dev);
 }

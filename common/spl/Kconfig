@@ -25,6 +25,92 @@ config SPL_FRAMEWORK
 	  supports MMC, NAND and YMODEM and other methods loading of U-Boot
 	  and the Linux Kernel.  If unsure, say Y.
 
+config SPL_FRAMEWORK_BOARD_INIT_F
+	bool "Define a generic function board_init_f"
+	depends on SPL_FRAMEWORK
+	help
+	  Define a generic function board_init_f that:
+	  - initialize the spl (spl_early_init)
+	  - initialize the serial (preloader_console_init)
+	  Unless you want to provide your own board_init_f, you should say Y.
+
+config SPL_SIZE_LIMIT
+	hex "Maximum size of SPL image"
+	depends on SPL
+	default 69632 if ARCH_MX6 && !MX6_OCRAM_256KB
+	default 200704 if ARCH_MX6 && MX6_OCRAM_256KB
+	default 0
+	help
+	  Specifies the maximum length of the U-Boot SPL image.
+	  If this value is zero, it is ignored.
+
+config SPL_SIZE_LIMIT_SUBTRACT_GD
+	bool "SPL image size check: provide space for global data"
+	depends on SPL_SIZE_LIMIT > 0
+	help
+	  If enabled, aligned size of global data is reserved in
+	  SPL_SIZE_LIMIT check to ensure such an image does not overflow SRAM
+	  if SPL_SIZE_LIMIT describes the size of SRAM available for SPL when
+	  pre-reloc global data is put into this SRAM, too.
+
+config SPL_SIZE_LIMIT_SUBTRACT_MALLOC
+	bool "SPL image size check: provide space for malloc() pool before relocation"
+	depends on SPL_SIZE_LIMIT > 0
+	help
+	  If enabled, SPL_SYS_MALLOC_F_LEN is reserved in SPL_SIZE_LIMIT check
+	  to ensure such an image does not overflow SRAM if SPL_SIZE_LIMIT
+	  describes the size of SRAM available for SPL when pre-reloc malloc
+	  pool is put into this SRAM, too.
+
+config SPL_SIZE_LIMIT_PROVIDE_STACK
+	hex "SPL image size check: provide stack space before relocation"
+	depends on SPL_SIZE_LIMIT > 0
+	default 0
+	help
+	  If set, this size is reserved in SPL_SIZE_LIMIT check to ensure such
+	  an image does not overflow SRAM if SPL_SIZE_LIMIT describes the size
+	  of SRAM available for SPL when the stack required before reolcation
+	  uses this SRAM, too.
+
+config SPL_SYS_STACK_F_CHECK_BYTE
+	hex
+	default 0xaa
+	help
+	  Constant used to check the stack
+
+config SPL_SYS_REPORT_STACK_F_USAGE
+	depends on SPL_SIZE_LIMIT_PROVIDE_STACK != 0
+	bool "Check and report stack usage in SPL before relocation"
+	help
+	  If this option is enabled, the initial SPL stack is filled with 0xaa
+	  very early, up to the size configured with
+	  SPL_SIZE_LIMIT_PROVIDE_STACK.
+	  Later when SPL is done using this initial stack and switches to a
+	  stack in DRAM, the actually used size of this initial stack is
+	  reported by examining the memory and searching for the lowest
+	  occurrence of non 0xaa bytes.
+	  This default implementation works for stacks growing down only.
+
+menu "PowerPC SPL Boot options"
+	depends on PPC && (SUPPORT_SPL && !SPL_FRAMEWORK)
+
+config SPL_NAND_BOOT
+	bool "Load SPL from NAND flash"
+
+config SPL_MMC_BOOT
+	bool "Load SPL from SD Card / eMMC"
+
+config SPL_SPI_BOOT
+	bool "Load SPL from SPI flash"
+
+config SPL_FSL_PBL
+	bool "Create SPL in Freescale PBI format"
+	help
+	  Create boot binary having SPL binary in PBI format concatenated with
+	  u-boot binary.
+
+endmenu
+
 config HANDOFF
 	bool "Pass hand-off information from SPL to U-Boot proper"
 	depends on BLOBLIST
@@ -39,7 +125,7 @@ if SPL
 
 config SPL_HANDOFF
 	bool "Pass hand-off information from SPL to U-Boot proper"
-	depends on HANDOFF
+	depends on HANDOFF && SPL_BLOBLIST
 	default y
 	help
 	  This option enables SPL to write handoff information. This can be
@@ -55,6 +141,17 @@ config SPL_LDSCRIPT
 	  (as it runs from a different memory region) than the regular
 	  U-Boot stage.	 Set this to the path of the linker-script to
 	  be used for SPL.
+
+config SPL_TEXT_BASE
+	hex "SPL Text Base"
+	default ISW_ENTRY_ADDR if AM43XX || AM33XX || OMAP54XX || ARCH_KEYSTONE
+	default 0x10060 if MACH_SUN50I || MACH_SUN50I_H5 || MACH_SUN9I
+	default 0x20060 if MACH_SUN50I_H6
+	default 0x00060 if ARCH_SUNXI
+	default 0xfffc0000 if ARCH_ZYNQMP
+	default 0x0
+	help
+	  The address in memory that SPL will be running from.
 
 config SPL_BOARD_INIT
 	bool "Call board-specific initialization in SPL"
@@ -94,11 +191,21 @@ config SPL_RAW_IMAGE_SUPPORT
 
 config SPL_LEGACY_IMAGE_SUPPORT
 	bool "Support SPL loading and booting of Legacy images"
-	default y if !TI_SECURE_DEVICE
+	default y if !TI_SECURE_DEVICE && !SPL_LOAD_FIT
 	help
 	  SPL will support loading and booting Legacy images when this option
 	  is y. If this is not set, SPL will move on to other available
 	  boot media to find a suitable image.
+
+config SPL_LEGACY_IMAGE_CRC_CHECK
+	bool "Check CRC of Legacy images"
+	depends on SPL_LEGACY_IMAGE_SUPPORT
+	select SPL_CRC32_SUPPORT
+	help
+	  Enable this to check the CRC of Legacy images. While this increases
+	  reliability, it affects both code size and boot duration.
+	  If disabled, Legacy images are booted if the image magic and size
+	  are correct, without further integrity checks.
 
 config SPL_SYS_MALLOC_SIMPLE
 	bool
@@ -112,6 +219,7 @@ config SPL_SYS_MALLOC_SIMPLE
 config TPL_SYS_MALLOC_SIMPLE
 	bool
 	prompt "Only use malloc_simple functions in the TPL"
+	depends on TPL
 	help
 	  Say Y here to only use the *_simple malloc functions from
 	  malloc_simple.c, rather then using the versions from dlmalloc.c;
@@ -160,16 +268,27 @@ config SPL_BANNER_PRINT
 	default y
 	help
 	  If this option is enabled, SPL will print the banner with version
-	  info. Disabling this option could be useful to reduce TPL boot time
+	  info. Disabling this option could be useful to reduce SPL boot time
 	  (e.g. approx. 6 ms faster, when output on i.MX6 with 115200 baud).
 
 config TPL_BANNER_PRINT
 	bool "Enable output of the TPL banner 'U-Boot TPL ...'"
+	depends on TPL
 	default y
 	help
-	  If this option is enabled, SPL will not print the banner with version
-	  info. Disabling this option could be useful to reduce SPL boot time
+	  If this option is enabled, TPL will print the banner with version
+	  info. Disabling this option could be useful to reduce TPL boot time
 	  (e.g. approx. 6 ms faster, when output on i.MX6 with 115200 baud).
+
+config SPL_EARLY_BSS
+	depends on ARM && !ARM64
+	bool "Allows initializing BSS early before entering board_init_f"
+	help
+	  On some platform we have sufficient memory available early on to
+	  allow setting up and using a basic BSS prior to entering
+	  board_init_f. Activating this option will also de-activate the
+	  clearing of BSS during the SPL relocation process, thus allowing
+	  to carry state from board_init_f to board_init_r by way of BSS.
 
 config SPL_DISPLAY_PRINT
 	bool "Display a board-specific message in SPL"
@@ -234,15 +353,37 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION_TYPE
 	  Partition Type on the MMC to load U-Boot from, when the MMC is being
 	  used in raw mode.
 
+config SUPPORT_EMMC_BOOT_OVERRIDE_PART_CONFIG
+	bool "Override eMMC EXT_CSC_PART_CONFIG by user defined partition"
+	depends on SUPPORT_EMMC_BOOT
+	help
+	  eMMC boot partition is normally configured by the bits of the EXT_CSD
+	  register (EXT_CSC_PART_CONFIG), BOOT_PARTITION_ENABLE field. In some
+	  cases it might be required in SPL to load the image from different
+	  partition than the partition selected by EXT_CSC_PART_CONFIG register.
+	  Enable this option if you intend to use an eMMC boot partition other
+	  then selected via EXT_CSC_PART_CONFIG register and specify the custom
+	  partition number by the CONFIG_SYS_MMCSD_RAW_MODE_EMMC_BOOT_PARTITION
+	  option.
+
+config SYS_MMCSD_RAW_MODE_EMMC_BOOT_PARTITION
+	int "Number of the eMMC boot partition to use"
+	depends on SUPPORT_EMMC_BOOT_OVERRIDE_PART_CONFIG
+	default 1
+	help
+	  eMMC boot partition number to use when the eMMC in raw mode and
+	  the eMMC EXT_CSC_PART_CONFIG selection should be overridden in SPL
+	  by user defined partition number.
+
 config SPL_CRC32_SUPPORT
 	bool "Support CRC32"
-	depends on SPL_FIT
+	default y if SPL_LEGACY_IMAGE_SUPPORT
 	help
-	  Enable this to support CRC32 in FIT images within SPL. This is a
-	  32-bit checksum value that can be used to verify images. This is
-	  the least secure type of checksum, suitable for detected
-	  accidental image corruption. For secure applications you should
-	  consider SHA1 or SHA256.
+	  Enable this to support CRC32 in uImages or FIT images within SPL.
+	  This is a 32-bit checksum value that can be used to verify images.
+	  For FIT images, this is the least secure type of checksum, suitable
+	  for detected accidental image corruption. For secure applications you
+	  should consider SHA1 or SHA256.
 
 config SPL_MD5_SUPPORT
 	bool "Support MD5"
@@ -265,7 +406,7 @@ config SPL_SHA1_SUPPORT
 	  checksum is a 160-bit (20-byte) hash value used to check that the
 	  image contents have not been corrupted or maliciously altered.
 	  While SHA1 is fairly secure it is coming to the end of its life
-	  due to the expanding computing power avaiable to brute-force
+	  due to the expanding computing power available to brute-force
 	  attacks. For more security, consider SHA256.
 
 config SPL_SHA256_SUPPORT
@@ -298,6 +439,13 @@ config SPL_FIT_IMAGE_TINY
 	  ensure this information is available to the next image
 	  invoked).
 
+config SPL_CACHE_SUPPORT
+	bool "Support CACHE drivers"
+	help
+	  Enable CACHE drivers in SPL. These drivers can keep data so that
+	  future requests for that data can be served faster. Enable this option
+	  to build the drivers in drivers/cache as part of an SPL build.
+
 config SPL_CPU_SUPPORT
 	bool "Support CPU drivers"
 	help
@@ -327,6 +475,7 @@ config SPL_HASH_SUPPORT
 
 config TPL_HASH_SUPPORT
 	bool "Support hashing drivers in TPL"
+	depends on TPL
 	select SHA1
 	select SHA256
 	help
@@ -342,6 +491,12 @@ config SPL_DMA_SUPPORT
 	  can be used to handle memory-to-peripheral data transfer without
 	  the CPU moving the data. Enable this option to build the drivers
 	  in drivers/dma as part of an SPL build.
+
+config SPL_DM_GPIO
+	bool "Support Driver Model GPIO drivers"
+	depends on SPL_GPIO_SUPPORT && DM_GPIO
+	help
+	  Enable support for Driver Model based GPIO drivers in SPL.
 
 config SPL_DRIVERS_MISC_SUPPORT
 	bool "Support misc drivers"
@@ -387,7 +542,7 @@ config SPL_ETH_SUPPORT
 	  is required since the network stack uses a number of environment
 	  variables. See also SPL_NET_SUPPORT.
 
-config SPL_EXT_SUPPORT
+config SPL_FS_EXT4
 	bool "Support EXT filesystems"
 	help
 	  Enable support for EXT2/3/4 filesystems with SPL. This permits
@@ -395,7 +550,7 @@ config SPL_EXT_SUPPORT
 	  filesystem from within SPL. Support for the underlying block
 	  device (e.g. MMC or USB) must be enabled separately.
 
-config SPL_FAT_SUPPORT
+config SPL_FS_FAT
 	bool "Support FAT filesystems"
 	select FS_FAT
 	help
@@ -403,6 +558,13 @@ config SPL_FAT_SUPPORT
 	  permits U-Boot (or Linux in Falcon mode) to be loaded from a FAT
 	  filesystem from within SPL. Support for the underlying block
 	  device (e.g. MMC or USB) must be enabled separately.
+
+config SPL_FAT_WRITE
+	bool "Support write for FAT filesystems"
+	help
+	  Enable write support for FAT and VFAT filesystems with SPL.
+	  Support for the underlying block device (e.g. MMC or USB) must be
+	  enabled separately.
 
 config SPL_FPGA_SUPPORT
 	bool "Support FPGAs"
@@ -491,6 +653,32 @@ config SPL_MMC_SUPPORT
 	  this option to build the drivers in drivers/mmc as part of an SPL
 	  build.
 
+config SPL_FORCE_MMC_BOOT
+	bool "Force SPL booting from MMC"
+	depends on SPL_MMC_SUPPORT
+	default n
+	help
+	  Force SPL to use MMC device for Linux kernel booting even when the
+	  SoC ROM recognized boot medium is not eMMC/SD. This is crucial for
+	  factory or 'falcon mode' booting.
+
+config SPL_MMC_TINY
+	bool "Tiny MMC framework in SPL"
+	depends on SPL_MMC_SUPPORT
+	default n
+	help
+	  Enable MMC framework tinification support. This option is useful if
+	  if your SPL is extremely size constrained. Heed the warning, enable
+	  this option if and only if you know exactly what you are doing, if
+	  you are reading this help text, you most likely have no idea :-)
+
+	  The MMC framework is reduced to bare minimum to be useful. No malloc
+	  support is needed for the MMC framework operation with this option
+	  enabled. The framework supports exactly one MMC device and exactly
+	  one MMC driver. The MMC driver can be adjusted to avoid any malloc
+	  operations too, which can remove the need for malloc support in SPL
+	  and thus further reduce footprint.
+
 config SPL_MMC_WRITE
 	bool "MMC/SD/SDIO card support for write operations in SPL"
 	depends on SPL_MMC_SUPPORT
@@ -531,6 +719,111 @@ config SPL_NAND_SUPPORT
 	  can be used to allow SPL to load U-Boot from supported devices.
 	  This enables the drivers in drivers/mtd/nand/raw as part of an SPL
 	  build.
+
+config SPL_UBI
+	bool "Support UBI"
+	help
+	  Enable support for loading payloads from UBI. See
+	  README.ubispl for more info.
+
+if SPL_DM
+config SPL_DM_SPI
+	bool "Support SPI DM drivers in SPL"
+	help
+	  Enable support for SPI DM drivers in SPL.
+
+endif
+if SPL_UBI
+config SPL_UBI_LOAD_BY_VOLNAME
+	bool "Support loading volumes by name"
+	help
+	  This enables support for loading UBI volumes by name. When this
+	  is set, CONFIG_SPL_UBI_LOAD_MONITOR_VOLNAME can be used to
+	  configure the volume name from which to load U-Boot.
+
+config SPL_UBI_MAX_VOL_LEBS
+	int "Maximum number of LEBs per volume"
+	depends on SPL_UBI
+	help
+	  The maximum number of logical eraseblocks which a static volume
+	  to load can contain. Used for sizing the scan data structure.
+
+config SPL_UBI_MAX_PEB_SIZE
+	int "Maximum PEB size"
+	depends on SPL_UBI
+	help
+	  The maximum physical erase block size.
+
+config SPL_UBI_MAX_PEBS
+	int "Maximum number of PEBs"
+	depends on SPL_UBI
+	help
+	  The maximum physical erase block size. If not overridden by
+	  board code, this value will be used as the actual number of PEBs.
+
+config SPL_UBI_PEB_OFFSET
+	int "Offset to first UBI PEB"
+	depends on SPL_UBI
+	help
+	  The offset in number of PEBs from the start of flash to the first
+	  PEB part of the UBI image.
+
+config SPL_UBI_VID_OFFSET
+	int "Offset to VID header"
+	depends on SPL_UBI
+
+config SPL_UBI_LEB_START
+	int "Offset to LEB in PEB"
+	depends on SPL_UBI
+	help
+	  The offset in bytes to the LEB within a PEB.
+
+config SPL_UBI_INFO_ADDR
+	hex "Address to place UBI scan info"
+	depends on SPL_UBI
+	help
+	  Address for ubispl to place the scan info. Read README.ubispl to
+	  determine the required size
+
+config SPL_UBI_VOL_IDS
+	int "Maximum volume id"
+	depends on SPL_UBI
+	help
+	  The maximum volume id which can be loaded. Used for sizing the
+	  scan data structure.
+
+config SPL_UBI_LOAD_MONITOR_ID
+	int "id of U-Boot volume"
+	depends on SPL_UBI
+	help
+	  The UBI volume id from which to load U-Boot
+
+config SPL_UBI_LOAD_MONITOR_VOLNAME
+	string "volume name of U-Boot volume"
+	depends on SPL_UBI_LOAD_BY_VOLNAME
+	help
+	  The UBI volume name from which to load U-Boot
+
+config SPL_UBI_LOAD_KERNEL_ID
+	int "id of kernel volume"
+	depends on SPL_OS_BOOT && SPL_UBI
+	help
+	  The UBI volume id from which to load the kernel
+
+config SPL_UBI_LOAD_ARGS_ID
+	int "id of kernel args volume"
+	depends on SPL_OS_BOOT && SPL_UBI
+	help
+	  The UBI volume id from which to load the device tree
+
+config UBI_SPL_SILENCE_MSG
+	bool "silence UBI SPL messages"
+	default n
+	help
+	  Disable messages from UBI SPL. This leaves warnings
+	  and errors enabled.
+
+endif   # if SPL_UBI
 
 config SPL_NET_SUPPORT
 	bool "Support networking"
@@ -608,7 +901,7 @@ config SPL_PAYLOAD
 	default "tpl/u-boot-with-tpl.bin" if TPL
 	default "u-boot.bin"
 	help
-	  Payload for SPL boot. For backward compability, default to
+	  Payload for SPL boot. For backward compatibility, default to
 	  u-boot.bin, i.e. RAW image without any header. In case of
 	  TPL, tpl/u-boot-with-tpl.bin. For new boards, suggest to
 	  use u-boot.img.
@@ -709,6 +1002,20 @@ config SPL_SATA_SUPPORT
 	  expense and power consumption. This enables loading from SATA
 	  using a configured device.
 
+config SPL_SATA_RAW_U_BOOT_USE_SECTOR
+	bool "SATA raw mode: by sector"
+	depends on SPL_SATA_SUPPORT
+	help
+	  Use sector number for specifying U-Boot location on SATA disk in
+	  raw mode.
+
+config SPL_SATA_RAW_U_BOOT_SECTOR
+	hex "Sector on the SATA disk to load U-Boot from"
+	depends on SPL_SATA_RAW_U_BOOT_USE_SECTOR
+	help
+	  Sector on the SATA disk to load U-Boot from, when the SATA disk is being
+	  used in raw mode. Units: SATA disk sectors (1 sector = 512 bytes).
+
 config SPL_SERIAL_SUPPORT
 	bool "Support serial"
 	select SPL_PRINTF
@@ -718,24 +1025,7 @@ config SPL_SERIAL_SUPPORT
 	  for displaying messages while SPL is running. It also brings in
 	  printf() and panic() functions. This should normally be enabled
 	  unless there are space reasons not to. Even then, consider
-	  enabling USE_TINY_PRINTF which is a small printf() version.
-
-config SPL_SPI_FLASH_SUPPORT
-	bool "Support SPI flash drivers"
-	help
-	  Enable support for using SPI flash in SPL, and loading U-Boot from
-	  SPI flash. SPI flash (Serial Peripheral Bus flash) is named after
-	  the SPI bus that is used to connect it to a system. It is a simple
-	  but fast bidirectional 4-wire bus (clock, chip select and two data
-	  lines). This enables the drivers in drivers/mtd/spi as part of an
-	  SPL build. This normally requires SPL_SPI_SUPPORT.
-
-config SPL_SPI_LOAD
-	bool "Support loading from SPI flash"
-	depends on SPL_SPI_FLASH_SUPPORT
-	help
-	  Enable support for loading next stage, U-Boot or otherwise, from
-	  SPI NOR in U-Boot SPL.
+	  enabling SPL_USE_TINY_PRINTF which is a small printf() version.
 
 config SPL_SPI_SUPPORT
 	bool "Support SPI drivers"
@@ -746,6 +1036,53 @@ config SPL_SPI_SUPPORT
 	  data between the SPI flash and the CPU. This option can be used to
 	  enable SPI drivers that are needed for other purposes also, such
 	  as a SPI PMIC.
+
+config SPL_SPI_FLASH_SUPPORT
+	bool "Support SPI flash drivers"
+	depends on SPL_SPI_SUPPORT
+	help
+	  Enable support for using SPI flash in SPL, and loading U-Boot from
+	  SPI flash. SPI flash (Serial Peripheral Bus flash) is named after
+	  the SPI bus that is used to connect it to a system. It is a simple
+	  but fast bidirectional 4-wire bus (clock, chip select and two data
+	  lines). This enables the drivers in drivers/mtd/spi as part of an
+	  SPL build. This normally requires SPL_SPI_SUPPORT.
+
+if SPL_SPI_FLASH_SUPPORT
+
+config SPL_SPI_FLASH_TINY
+	bool "Enable low footprint SPL SPI Flash support"
+	depends on !SPI_FLASH_BAR
+	default y if SPI_FLASH
+	help
+	 Enable lightweight SPL SPI Flash support that supports just reading
+	 data/images from flash. No support to write/erase flash. Enable
+	 this if you have SPL size limitations and don't need full
+	 fledged SPI flash support.
+
+config SPL_SPI_FLASH_SFDP_SUPPORT
+	bool "SFDP table parsing support for SPI NOR flashes"
+	depends on !SPI_FLASH_BAR && !SPL_SPI_FLASH_TINY
+	help
+	 Enable support for parsing and auto discovery of parameters for
+	 SPI NOR flashes using Serial Flash Discoverable Parameters (SFDP)
+	 tables as per JESD216 standard in SPL.
+
+config SPL_SPI_LOAD
+	bool "Support loading from SPI flash"
+	help
+	  Enable support for loading next stage, U-Boot or otherwise, from
+	  SPI NOR in U-Boot SPL.
+
+endif # SPL_SPI_FLASH_SUPPORT
+
+config SYS_SPI_U_BOOT_OFFS
+	hex "address of u-boot payload in SPI flash"
+	default 0x0
+	depends on SPL_SPI_LOAD || SPL_SPI_SUNXI
+	help
+	 Address within SPI-Flash from where the u-boot payload is fetched
+	 from.
 
 config SPL_THERMAL
 	bool "Driver support for thermal devices"
@@ -766,9 +1103,9 @@ config SPL_USB_HOST_SUPPORT
 	  device can be attached. This option enables the drivers in
 	  drivers/usb/host as part of an SPL build.
 
-config SPL_USB_SUPPORT
+config SPL_USB_STORAGE
 	bool "Support loading from USB"
-	depends on SPL_USB_HOST_SUPPORT
+	depends on SPL_USB_HOST_SUPPORT && !(BLK && !DM_USB)
 	help
 	  Enable support for USB devices in SPL. This allows use of USB
 	  devices such as hard drives and flash drivers for loading U-Boot.
@@ -794,7 +1131,7 @@ config SPL_USB_ETHER
 	  since the network stack uses a number of environment variables.
 	  See also SPL_NET_SUPPORT and SPL_ETH_SUPPORT.
 
-config SPL_DFU_SUPPORT
+config SPL_DFU
 	bool "Support DFU (Device Firmware Upgrade)"
 	select SPL_HASH_SUPPORT
 	select SPL_DFU_NO_RESET
@@ -809,11 +1146,11 @@ config SPL_DFU_SUPPORT
 
 choice
 	bool "DFU device selection"
-	depends on SPL_DFU_SUPPORT
+	depends on SPL_DFU
 
 config SPL_DFU_RAM
 	bool "RAM device"
-	depends on SPL_DFU_SUPPORT && SPL_RAM_SUPPORT
+	depends on SPL_DFU && SPL_RAM_SUPPORT
 	help
 	 select RAM/DDR memory device for loading binary images
 	 (u-boot/kernel) to the selected device partition using
@@ -831,6 +1168,7 @@ endif
 
 config SPL_WATCHDOG_SUPPORT
 	bool "Support watchdog drivers"
+	imply SPL_WDT if !HW_WATCHDOG
 	help
 	  Enable support for watchdog drivers in SPL. A watchdog is
 	  typically a hardware peripheral which can reset the system when it
@@ -882,6 +1220,23 @@ config SPL_OPTEE
 	  OP-TEE is an open source Trusted OS  which is loaded by SPL.
 	  More detail at: https://github.com/OP-TEE/optee_os
 
+config SPL_OPENSBI
+	bool "Support RISC-V OpenSBI"
+	depends on RISCV && SPL_RISCV_MMODE && RISCV_SMODE
+	help
+	  OpenSBI is an open-source implementation of the RISC-V Supervisor Binary
+	  Interface (SBI) specification. U-Boot supports the OpenSBI FW_DYNAMIC
+	  firmware. It is loaded and started by U-Boot SPL.
+
+	  More details are available at https://github.com/riscv/opensbi and
+	  https://github.com/riscv/riscv-sbi-doc
+
+config SPL_OPENSBI_LOAD_ADDR
+	hex "OpenSBI load address"
+	depends on SPL_OPENSBI
+	help
+	  Load address of the OpenSBI binary.
+
 config TPL
 	bool
 	depends on SUPPORT_TPL
@@ -891,9 +1246,25 @@ config TPL
 
 if TPL
 
+config TPL_SIZE_LIMIT
+	hex "Maximum size of TPL image"
+	depends on TPL
+	default 0
+	help
+	  Specifies the maximum length of the U-Boot TPL image.
+	  If this value is zero, it is ignored.
+
+config TPL_FRAMEWORK
+	bool "Support TPL based upon the common SPL framework"
+	default y if SPL_FRAMEWORK
+	help
+	  Enable the SPL framework under common/spl/ for TPL builds.
+	  This framework supports MMC, NAND and YMODEM and other methods
+	  loading of U-Boot's SPL stage. If unsure, say Y.
+
 config TPL_HANDOFF
 	bool "Pass hand-off information from TPL to SPL and U-Boot proper"
-	depends on HANDOFF
+	depends on HANDOFF && TPL_BLOBLIST
 	default y
 	help
 	  This option enables TPL to write handoff information. This can be
@@ -911,6 +1282,8 @@ config TPL_BOARD_INIT
 config TPL_LDSCRIPT
         string "Linker script for the TPL stage"
 	depends on TPL
+	default "arch/arm/cpu/armv8/u-boot-spl.lds" if ARM64
+	default "arch/$(ARCH)/cpu/u-boot-spl.lds"
 	help
 	  The TPL stage will usually require a different linker-script
 	  (as it runs from a different memory region) than the regular
@@ -1103,6 +1476,18 @@ config TPL_YMODEM_SUPPORT
 	  with a checksum to ensure correctness.
 
 endif # TPL
+
+config SPL_AT91_MCK_BYPASS
+	bool "Use external clock signal as a source of main clock for AT91 platforms"
+	depends on ARCH_AT91
+	default n
+	help
+	  Use external 8 to 24 Mhz clock signal as source of main clock instead
+	  of an external crystal oscillator.
+	  This option disables the internal driving on the XOUT pin.
+	  The external source has to provide a stable clock on the XIN pin.
+	  If this option is disabled, the SoC expects a crystal oscillator
+	  that needs driving on both XIN and XOUT lines.
 
 endif # SPL
 endmenu

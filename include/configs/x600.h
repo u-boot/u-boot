@@ -87,20 +87,11 @@
 /*
  * U-Boot Environment placing definitions.
  */
-#define CONFIG_ENV_SECT_SIZE			0x00010000
-#define CONFIG_ENV_ADDR				(CONFIG_SYS_MONITOR_BASE + \
-						 CONFIG_SYS_MONITOR_LEN)
-#define CONFIG_ENV_SIZE				0x02000
-#define CONFIG_ENV_ADDR_REDUND			(CONFIG_ENV_ADDR + \
-						 CONFIG_ENV_SECT_SIZE)
-#define CONFIG_ENV_SIZE_REDUND			(CONFIG_ENV_SIZE)
 
 /* Miscellaneous configurable options */
-#define CONFIG_ARCH_CPU_INIT
 #define CONFIG_BOOT_PARAMS_ADDR			0x00000100
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_MX_CYCLIC		/* enable mdc/mwc commands      */
 
 #define CONFIG_SYS_MEMTEST_START		0x00800000
 #define CONFIG_SYS_MEMTEST_END			0x04000000
@@ -199,7 +190,6 @@
 /*
  * SPL related defines
  */
-#define CONFIG_SPL_TEXT_BASE		0xd2800b00
 #define CONFIG_SPL_MAX_SIZE		(CONFIG_SRAM_SIZE - 0xb00)
 #define	CONFIG_SPL_START_S_PATH	"arch/arm/cpu/arm926ejs/spear"
 

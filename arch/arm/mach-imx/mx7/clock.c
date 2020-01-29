@@ -19,13 +19,13 @@ struct mxc_ccm_anatop_reg *ccm_anatop = (struct mxc_ccm_anatop_reg *)
 					 ANATOP_BASE_ADDR;
 struct mxc_ccm_reg *ccm_reg = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
 
-#ifdef CONFIG_FSL_ESDHC
+#ifdef CONFIG_FSL_ESDHC_IMX
 DECLARE_GLOBAL_DATA_PTR;
 #endif
 
 int get_clocks(void)
 {
-#ifdef CONFIG_FSL_ESDHC
+#ifdef CONFIG_FSL_ESDHC_IMX
 #if CONFIG_SYS_FSL_ESDHC_ADDR == USDHC2_BASE_ADDR
 	gd->arch.sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
 #elif CONFIG_SYS_FSL_ESDHC_ADDR == USDHC3_BASE_ADDR
@@ -53,7 +53,7 @@ static u32 get_ipg_clk(void)
 
 u32 imx_get_uartclk(void)
 {
-	return get_root_clk(UART1_CLK_ROOT);
+	return get_root_clk(UART_CLK_ROOT);
 }
 
 u32 imx_get_fecclk(void)
@@ -1074,7 +1074,7 @@ void clock_init(void)
 	}
 }
 
-#ifdef CONFIG_SECURE_BOOT
+#ifdef CONFIG_IMX_HAB
 void hab_caam_clock_enable(unsigned char enable)
 {
 	if (enable)

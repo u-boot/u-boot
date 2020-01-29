@@ -1,0 +1,187 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2019 Texas Instruments Incorporated - http://www.ti.com/
+ */
+
+/dts-v1/;
+
+#include "k3-j721e-som-p0.dtsi"
+#include "k3-j721e-ddr-evm-lp4-3733.dtsi"
+#include "k3-j721e-ddr.dtsi"
+
+/ {
+	aliases {
+		remoteproc0 = &sysctrler;
+		remoteproc1 = &a72_0;
+	};
+
+	chosen {
+		stdout-path = "serial2:115200n8";
+		tick-timer = &timer1;
+	};
+
+	a72_0: a72@0 {
+		compatible = "ti,am654-rproc";
+		reg = <0x0 0x00a90000 0x0 0x10>;
+		power-domains = <&k3_pds 61 TI_SCI_PD_EXCLUSIVE>,
+				<&k3_pds 202 TI_SCI_PD_EXCLUSIVE>;
+		resets = <&k3_reset 202 0>;
+		assigned-clocks = <&k3_clks 202 2>, <&k3_clks 61 1>;
+		assigned-clock-rates = <2000000000>, <200000000>;
+		ti,sci = <&dmsc>;
+		ti,sci-proc-id = <32>;
+		ti,sci-host-id = <10>;
+		u-boot,dm-spl;
+	};
+
+	clk_200mhz: dummy_clock {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <200000000>;
+		u-boot,dm-spl;
+	};
+};
+
+&cbass_mcu_wakeup {
+	mcu_secproxy: secproxy@28380000 {
+		u-boot,dm-spl;
+		compatible = "ti,am654-secure-proxy";
+		reg = <0x0 0x2a380000 0x0 0x80000>,
+		      <0x0 0x2a400000 0x0 0x80000>,
+		      <0x0 0x2a480000 0x0 0x80000>;
+		reg-names = "rt", "scfg", "target_data";
+		#mbox-cells = <1>;
+	};
+
+	sysctrler: sysctrler {
+		u-boot,dm-spl;
+		compatible = "ti,am654-system-controller";
+		mboxes= <&mcu_secproxy 4>, <&mcu_secproxy 5>;
+		mbox-names = "tx", "rx";
+	};
+
+	wkup_vtm0: wkup_vtm@42040000 {
+		compatible = "ti,am654-vtm", "ti,j721e-avs";
+		reg = <0x0 0x42040000 0x0 0x330>;
+		power-domains = <&k3_pds 154 TI_SCI_PD_EXCLUSIVE>;
+		#thermal-sensor-cells = <1>;
+	};
+};
+
+&dmsc {
+	mboxes= <&mcu_secproxy 8>, <&mcu_secproxy 6>, <&mcu_secproxy 5>;
+	mbox-names = "tx", "rx", "notify";
+	ti,host-id = <4>;
+	ti,secure-host;
+};
+
+&wkup_pmx0 {
+	wkup_uart0_pins_default: wkup_uart0_pins_default {
+		u-boot,dm-spl;
+		pinctrl-single,pins = <
+			J721E_WKUP_IOPAD(0xa0, PIN_INPUT, 0) /* (J29) WKUP_UART0_RXD */
+			J721E_WKUP_IOPAD(0xa4, PIN_OUTPUT, 0) /* (J28) WKUP_UART0_TXD */
+		>;
+	};
+
+	mcu_uart0_pins_default: mcu_uart0_pins_default {
+		u-boot,dm-spl;
+		pinctrl-single,pins = <
+			J721E_WKUP_IOPAD(0xe8, PIN_INPUT, 0) /* (H29) WKUP_GPIO0_14.MCU_UART0_CTSn */
+			J721E_WKUP_IOPAD(0xec, PIN_OUTPUT, 0) /* (J27) WKUP_GPIO0_15.MCU_UART0_RTSn */
+			J721E_WKUP_IOPAD(0xe4, PIN_INPUT, 0) /* (H28) WKUP_GPIO0_13.MCU_UART0_RXD */
+			J721E_WKUP_IOPAD(0xe0, PIN_OUTPUT, 0) /* (G29) WKUP_GPIO0_12.MCU_UART0_TXD */
+		>;
+	};
+
+	wkup_i2c0_pins_default: wkup-i2c0-pins-default {
+		pinctrl-single,pins = <
+			J721E_WKUP_IOPAD(0xf8, PIN_INPUT_PULLUP, 0) /* (J25) WKUP_I2C0_SCL */
+			J721E_WKUP_IOPAD(0xfc, PIN_INPUT_PULLUP, 0) /* (H24) WKUP_I2C0_SDA */
+		>;
+	};
+};
+
+&main_pmx0 {
+	main_uart0_pins_default: main_uart0_pins_default {
+		u-boot,dm-spl;
+		pinctrl-single,pins = <
+			J721E_IOPAD(0x1d4, PIN_INPUT, 1) /* (Y3) SPI1_CS0.UART0_CTSn */
+			J721E_IOPAD(0x1c0, PIN_OUTPUT, 1) /* (AA2) SPI0_CS0.UART0_RTSn */
+			J721E_IOPAD(0x1e8, PIN_INPUT, 0) /* (AB2) UART0_RXD */
+			J721E_IOPAD(0x1ec, PIN_OUTPUT, 0) /* (AB3) UART0_TXD */
+		>;
+	};
+};
+
+&wkup_uart0 {
+	u-boot,dm-spl;
+	pinctrl-names = "default";
+	pinctrl-0 = <&wkup_uart0_pins_default>;
+	status = "okay";
+};
+
+&mcu_uart0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&mcu_uart0_pins_default>;
+	status = "okay";
+};
+
+&main_uart0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&main_uart0_pins_default>;
+	status = "okay";
+	power-domains = <&k3_pds 146 TI_SCI_PD_SHARED>;
+};
+
+&main_sdhci0 {
+	/delete-property/ power-domains;
+	/delete-property/ assigned-clocks;
+	/delete-property/ assigned-clock-parents;
+	clock-names = "clk_xin";
+	clocks = <&clk_200mhz>;
+	ti,driver-strength-ohm = <50>;
+	non-removable;
+	bus-width = <8>;
+};
+
+&main_sdhci1 {
+	/delete-property/ power-domains;
+	/delete-property/ assigned-clocks;
+	/delete-property/ assigned-clock-parents;
+	clock-names = "clk_xin";
+	clocks = <&clk_200mhz>;
+	ti,driver-strength-ohm = <50>;
+};
+
+&wkup_i2c0 {
+	u-boot,dm-spl;
+	tps659413a: tps659413a@48 {
+		reg = <0x48>;
+		compatible = "ti,tps659413";
+		u-boot,dm-spl;
+		pinctrl-names = "default";
+		pinctrl-0 = <&wkup_i2c0_pins_default>;
+		clock-frequency = <400000>;
+
+		regulators: regulators {
+			u-boot,dm-spl;
+			buck12_reg: buck12 {
+				/*VDD_MPU*/
+				regulator-name = "buck12";
+				regulator-min-microvolt = <800000>;
+				regulator-max-microvolt = <1250000>;
+				regulator-always-on;
+				regulator-boot-on;
+				u-boot,dm-spl;
+			};
+		};
+	};
+};
+
+&wkup_vtm0 {
+	vdd-supply-2 = <&buck12_reg>;
+	u-boot,dm-spl;
+};
+
+#include "k3-j721e-common-proc-board-u-boot.dtsi"

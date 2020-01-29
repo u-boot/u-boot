@@ -21,7 +21,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define UART_MCRVAL (UART_MCR_DTR | \
 		     UART_MCR_RTS)		/* RTS/DTR */
 
-#ifndef CONFIG_DM_SERIAL
+#if !CONFIG_IS_ENABLED(DM_SERIAL)
 #ifdef CONFIG_SYS_NS16550_PORT_MAPPED
 #define serial_out(x, y)	outb(x, (ulong)y)
 #define serial_in(y)		inb((ulong)y)
@@ -86,7 +86,7 @@ static inline int serial_in_shift(void *addr, int shift)
 #endif
 }
 
-#ifdef CONFIG_DM_SERIAL
+#if CONFIG_IS_ENABLED(DM_SERIAL)
 
 #ifndef CONFIG_SYS_NS16550_CLK
 #define CONFIG_SYS_NS16550_CLK  0
@@ -272,12 +272,28 @@ static inline void _debug_uart_init(void)
 	serial_dout(&com_port->lcr, UART_LCRVAL);
 }
 
+static inline int NS16550_read_baud_divisor(struct NS16550 *com_port)
+{
+	int ret;
+
+	serial_dout(&com_port->lcr, UART_LCR_BKSE | UART_LCRVAL);
+	ret = serial_din(&com_port->dll) & 0xff;
+	ret |= (serial_din(&com_port->dlm) & 0xff) << 8;
+	serial_dout(&com_port->lcr, UART_LCRVAL);
+
+	return ret;
+}
+
 static inline void _debug_uart_putc(int ch)
 {
 	struct NS16550 *com_port = (struct NS16550 *)CONFIG_DEBUG_UART_BASE;
 
-	while (!(serial_din(&com_port->lsr) & UART_LSR_THRE))
-		;
+	while (!(serial_din(&com_port->lsr) & UART_LSR_THRE)) {
+#ifdef CONFIG_DEBUG_UART_NS16550_CHECK_ENABLED
+		if (!NS16550_read_baud_divisor(com_port))
+			return;
+#endif
+	}
 	serial_dout(&com_port->thr, ch);
 }
 
@@ -285,7 +301,7 @@ DEBUG_UART_FUNCS
 
 #endif
 
-#ifdef CONFIG_DM_SERIAL
+#if CONFIG_IS_ENABLED(DM_SERIAL)
 static int ns16550_serial_putc(struct udevice *dev, const char ch)
 {
 	struct NS16550 *const com_port = dev_get_priv(dev);
@@ -424,36 +440,7 @@ int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 	int err;
 
 	/* try Processor Local Bus device first */
-	addr = dev_read_addr(dev);
-#if CONFIG_IS_ENABLED(PCI) && defined(CONFIG_DM_PCI)
-	if (addr == FDT_ADDR_T_NONE) {
-		/* then try pci device */
-		struct fdt_pci_addr pci_addr;
-		u32 bar;
-		int ret;
-
-		/* we prefer to use a memory-mapped register */
-		ret = fdtdec_get_pci_addr(gd->fdt_blob, dev_of_offset(dev),
-					  FDT_PCI_SPACE_MEM32, "reg",
-					  &pci_addr);
-		if (ret) {
-			/* try if there is any i/o-mapped register */
-			ret = fdtdec_get_pci_addr(gd->fdt_blob,
-						  dev_of_offset(dev),
-						  FDT_PCI_SPACE_IO,
-						  "reg", &pci_addr);
-			if (ret)
-				return ret;
-		}
-
-		ret = fdtdec_get_pci_bar32(dev, &pci_addr, &bar);
-		if (ret)
-			return ret;
-
-		addr = bar;
-	}
-#endif
-
+	addr = dev_read_addr_pci(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 

@@ -11,9 +11,9 @@
 #include <errno.h>
 #include <syscon.h>
 #include <asm/io.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/cru_rv1108.h>
-#include <asm/arch/hardware.h>
+#include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/cru_rv1108.h>
+#include <asm/arch-rockchip/hardware.h>
 #include <dm/lists.h>
 #include <dt-bindings/clock/rv1108-cru.h>
 
@@ -679,9 +679,8 @@ static int rv1108_clk_probe(struct udevice *dev)
 static int rv1108_clk_bind(struct udevice *dev)
 {
 	int ret;
-	struct udevice *sys_child, *sf_child;
+	struct udevice *sys_child;
 	struct sysreset_reg *priv;
-	struct softreset_reg *sf_priv;
 
 	/* The reset driver does not have a device node, so bind it here */
 	ret = device_bind_driver(dev, "rockchip_sysreset", "sysreset",
@@ -697,23 +696,12 @@ static int rv1108_clk_bind(struct udevice *dev)
 		sys_child->priv = priv;
 	}
 
-#if CONFIG_IS_ENABLED(CONFIG_RESET_ROCKCHIP)
-	ret = offsetof(struct rk3368_cru, softrst_con[0]);
+#if CONFIG_IS_ENABLED(RESET_ROCKCHIP)
+	ret = offsetof(struct rv1108_cru, softrst_con[0]);
 	ret = rockchip_reset_bind(dev, ret, 13);
 	if (ret)
 		debug("Warning: software reset driver bind faile\n");
 #endif
-	ret = device_bind_driver_to_node(dev, "rockchip_reset", "reset",
-					 dev_ofnode(dev), &sf_child);
-	if (ret) {
-		debug("Warning: No rockchip reset driver: ret=%d\n", ret);
-	} else {
-		sf_priv = malloc(sizeof(struct softreset_reg));
-		sf_priv->sf_reset_offset = offsetof(struct rv1108_cru,
-						    softrst_con[0]);
-		sf_priv->sf_reset_num = 13;
-		sf_child->priv = sf_priv;
-	}
 
 	return 0;
 }

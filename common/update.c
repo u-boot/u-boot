@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 
 #if !(defined(CONFIG_FIT) && defined(CONFIG_OF_LIBFDT))
 #error "CONFIG_FIT and CONFIG_OF_LIBFDT are required for auto-update feature"
@@ -17,6 +18,7 @@
 #endif
 
 #include <command.h>
+#include <env.h>
 #include <flash.h>
 #include <net.h>
 #include <net/tftp.h>

@@ -18,10 +18,12 @@
 
 	aliases {
 		serial0 = &serial0;
+		serial1 = &serial1;
+		serial2 = &serial2;
 	};
 
 	chosen {
-		stdout-path = &serial0;
+		stdout-path = &serial2;
 	};
 
 	cpus {
@@ -53,7 +55,23 @@
 			  0x01000000 0x0 0x2000 0x2000 0 0xe000>;
 	};
 
-	serial0: serial@ff010180 {
+	serial0: serial@ff010080 {
+		compatible = "intel,mid-uart";
+		reg = <0xff010080 0x100>;
+		reg-shift = <0>;
+		clock-frequency = <29491200>;
+		current-speed = <115200>;
+	};
+
+	serial1: serial@ff010100 {
+		compatible = "intel,mid-uart";
+		reg = <0xff010100 0x100>;
+		reg-shift = <0>;
+		clock-frequency = <29491200>;
+		current-speed = <115200>;
+	};
+
+	serial2: serial@ff010180 {
 		compatible = "intel,mid-uart";
 		reg = <0xff010180 0x100>;
 		reg-shift = <0>;
@@ -66,15 +84,10 @@
 		reg = <0xff3fc000 0x1000>;
 	};
 
-/*
- * FIXME: For now U-Boot DM model doesn't allow to power up this controller.
- * Enabling it will make U-Boot hang.
- *
 	sdcard: mmc@ff3fa000 {
 		compatible = "intel,sdhci-tangier";
 		reg = <0xff3fa000 0x1000>;
 	};
- */
 
 	pmu: power@ff00b000 {
 		compatible = "intel,pmu-mid";
@@ -84,6 +97,10 @@
 	scu: ipc@ff009000 {
 		compatible = "intel,scu-ipc";
 		reg = <0xff009000 0x1000>;
+	};
+
+	watchdog: wdt@0 {
+		compatible = "intel,tangier-wdt";
 	};
 
 	reset {

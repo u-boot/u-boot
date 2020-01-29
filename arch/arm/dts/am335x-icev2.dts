@@ -397,13 +397,13 @@
 };
 
 &cpsw_emac0 {
-	phy_id = <&davinci_mdio>, <1>;
+	phy-handle = <&ethphy0>;
 	phy-mode = "rmii";
 	dual_emac_res_vlan = <1>;
 };
 
 &cpsw_emac1 {
-	phy_id = <&davinci_mdio>, <3>;
+	phy-handle = <&ethphy1>;
 	phy-mode = "rmii";
 	dual_emac_res_vlan = <2>;
 };
@@ -427,4 +427,12 @@
 	status = "okay";
 	reset-gpios = <&gpio2 5 GPIO_ACTIVE_LOW>;
 	reset-delay-us = <2>;   /* PHY datasheet states 1uS min */
+
+	ethphy0: ethernet-phy@1 {
+		reg = <1>;
+	};
+
+	ethphy1: ethernet-phy@3 {
+		reg = <3>;
+	};
 };

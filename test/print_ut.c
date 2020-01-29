@@ -15,6 +15,26 @@
 #define FAKE_BUILD_TAG	"jenkins-u-boot-denx_uboot_dm-master-build-aarch64" \
 			"and a lot more text to come"
 
+/* Test printing GUIDs */
+static void guid_ut_print(void)
+{
+#if CONFIG_IS_ENABLED(LIB_UUID)
+	unsigned char guid[16] = {
+		1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
+	};
+	char str[40];
+
+	sprintf(str, "%pUb", guid);
+	assert(!strcmp("01020304-0506-0708-090a-0b0c0d0e0f10", str));
+	sprintf(str, "%pUB", guid);
+	assert(!strcmp("01020304-0506-0708-090A-0B0C0D0E0F10", str));
+	sprintf(str, "%pUl", guid);
+	assert(!strcmp("04030201-0605-0807-090a-0b0c0d0e0f10", str));
+	sprintf(str, "%pUL", guid);
+	assert(!strcmp("04030201-0605-0807-090A-0B0C0D0E0F10", str));
+#endif
+}
+
 /* Test efi_loader specific printing */
 static void efi_ut_print(void)
 {
@@ -79,14 +99,18 @@ static int do_ut_print(cmd_tbl_t *cmdtp, int flag, int argc,
 	assert(s == str);
 	assert(!strcmp("\n\nU-Boo\n\n", s));
 
-	s = display_options_get_banner(true, str, 1);
-	assert(s == str);
-	assert(!strcmp("", s));
+	/* Assert that we do not overwrite memory before the buffer */
+	str[0] = '`';
+	s = display_options_get_banner(true, str + 1, 1);
+	assert(s == str + 1);
+	assert(!strcmp("`", str));
 
-	s = display_options_get_banner(true, str, 2);
-	assert(s == str);
-	assert(!strcmp("\n", s));
+	str[0] = '~';
+	s = display_options_get_banner(true, str + 1, 2);
+	assert(s == str + 1);
+	assert(!strcmp("~\n", str));
 
+	/* The last two characters are set to \n\n for all buffer sizes > 2 */
 	s = display_options_get_banner(false, str, sizeof(str));
 	assert(s == str);
 	assert(!strcmp("U-Boot \n\n", s));
@@ -112,6 +136,9 @@ static int do_ut_print(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	/* Test efi_loader specific printing */
 	efi_ut_print();
+
+	/* Test printing GUIDs */
+	guid_ut_print();
 
 	printf("%s: Everything went swimmingly\n", __func__);
 	return 0;

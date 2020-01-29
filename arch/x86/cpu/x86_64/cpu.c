@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <debug_uart.h>
 
 /*
@@ -58,6 +59,11 @@ int checkcpu(void)
 }
 
 int print_cpuinfo(void)
+{
+	return 0;
+}
+
+int x86_cpu_reinit_f(void)
 {
 	return 0;
 }

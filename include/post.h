@@ -21,7 +21,7 @@
 #define _POST_WORD_ADDR	CONFIG_SYS_POST_WORD_ADDR
 #else
 
-#if defined(CONFIG_MPC8360)
+#if defined(CONFIG_ARCH_MPC8360)
 #include <linux/immap_qe.h>
 #define _POST_WORD_ADDR	(CONFIG_SYS_IMMR + CPM_POST_WORD_ADDR)
 

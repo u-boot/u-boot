@@ -22,13 +22,31 @@
 #define PCF2127_REG_MO		0x08
 #define PCF2127_REG_YR		0x09
 
+static int pcf2127_read_reg(struct udevice *dev, uint offset,
+			    u8 *buffer, int len)
+{
+	struct dm_i2c_chip *chip = dev_get_parent_platdata(dev);
+	struct i2c_msg msg;
+	int ret;
+
+	/* Set the address of the start register to be read */
+	ret = dm_i2c_write(dev, offset, NULL, 0);
+	if (ret < 0)
+		return ret;
+
+	/* Read register's data */
+	msg.addr = chip->chip_addr;
+	msg.flags |= I2C_M_RD;
+	msg.len = len;
+	msg.buf = buffer;
+
+	return dm_i2c_xfer(dev, &msg, 1);
+}
+
 static int pcf2127_rtc_set(struct udevice *dev, const struct rtc_time *tm)
 {
-	uchar buf[8];
+	uchar buf[7] = {0};
 	int i = 0, ret;
-
-	/* start register address */
-	buf[i++] = PCF2127_REG_SC;
 
 	/* hours, minutes and seconds */
 	buf[i++] = bin2bcd(tm->tm_sec);
@@ -44,7 +62,7 @@ static int pcf2127_rtc_set(struct udevice *dev, const struct rtc_time *tm)
 	buf[i++] = bin2bcd(tm->tm_year % 100);
 
 	/* write register's data */
-	ret = dm_i2c_write(dev, PCF2127_REG_CTRL1, buf, sizeof(buf));
+	ret = dm_i2c_write(dev, PCF2127_REG_SC, buf, i);
 
 	return ret;
 }
@@ -54,10 +72,7 @@ static int pcf2127_rtc_get(struct udevice *dev, struct rtc_time *tm)
 	int ret = 0;
 	uchar buf[10] = { PCF2127_REG_CTRL1 };
 
-	ret = dm_i2c_write(dev, PCF2127_REG_CTRL1, buf, 1);
-	if (ret < 0)
-		return ret;
-	ret = dm_i2c_read(dev, PCF2127_REG_CTRL1, buf, sizeof(buf));
+	ret = pcf2127_read_reg(dev, PCF2127_REG_CTRL1, buf, sizeof(buf));
 	if (ret < 0)
 		return ret;
 

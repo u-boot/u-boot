@@ -21,7 +21,6 @@
 
 #include <configs/ti_am335x_common.h>
 
-#define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
 #define CONFIG_MACH_TYPE		MACH_TYPE_PCM051
 
 /* set to negative value for no autoboot */
@@ -99,8 +98,6 @@
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START \
 					+ (8 * 1024 * 1024))
 
-#define CONFIG_SF_DEFAULT_SPEED		24000000
-
 /* NS16550 Configuration */
 #define CONFIG_SYS_NS16550_COM1		0x44e09000	/* Base EVM has UART0 */
 #define CONFIG_SYS_NS16550_COM2		0x48022000	/* UART1 */
@@ -120,7 +117,6 @@
 /* CPU */
 
 #ifdef CONFIG_SPI_BOOT
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
 #define CONFIG_SYS_SPI_U_BOOT_SIZE	0x40000
 #endif
 

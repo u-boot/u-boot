@@ -4,8 +4,10 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <init.h>
 #include <malloc.h>
 #include <asm/mrccache.h>
 #include <asm/mtrr.h>

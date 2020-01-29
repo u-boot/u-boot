@@ -12,7 +12,6 @@
 enum mxc_clock {
 	MXC_ARM_CLK = 0,
 	MXC_UART_CLK,
-	MXC_ESDHC_CLK,
 	MXC_I2C_CLK,
 	MXC_DSPI_CLK,
 };

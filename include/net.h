@@ -14,7 +14,9 @@
 
 #include <asm/cache.h>
 #include <asm/byteorder.h>	/* for nton* / ntoh* stuff */
+#include <env.h>
 #include <linux/if_ether.h>
+#include <rand.h>
 
 #define DEBUG_LL_STATE 0	/* Link local state machine changes */
 #define DEBUG_DEV_PKT 0		/* Packets or info directed to the device */
@@ -92,12 +94,14 @@ enum eth_state_t {
  * @enetaddr: The Ethernet MAC address that is loaded from EEPROM or env
  * @phy_interface: PHY interface to use - see PHY_INTERFACE_MODE_...
  * @max_speed: Maximum speed of Ethernet connection supported by MAC
+ * @priv_pdata: device specific platdata
  */
 struct eth_pdata {
 	phys_addr_t iobase;
 	unsigned char enetaddr[ARP_HLEN];
 	int phy_interface;
 	int max_speed;
+	void *priv_pdata;
 };
 
 enum eth_recv_flags {
@@ -140,9 +144,7 @@ struct eth_ops {
 	int (*recv)(struct udevice *dev, int flags, uchar **packetp);
 	int (*free_pkt)(struct udevice *dev, uchar *packet, int length);
 	void (*stop)(struct udevice *dev);
-#ifdef CONFIG_MCAST_TFTP
 	int (*mcast)(struct udevice *dev, const u8 *enetaddr, int join);
-#endif
 	int (*write_hwaddr)(struct udevice *dev);
 	int (*read_rom_hwaddr)(struct udevice *dev);
 };
@@ -175,9 +177,7 @@ struct eth_device {
 	int (*send)(struct eth_device *, void *packet, int length);
 	int (*recv)(struct eth_device *);
 	void (*halt)(struct eth_device *);
-#ifdef CONFIG_MCAST_TFTP
-	int (*mcast)(struct eth_device *, const u8 *enetaddr, u8 set);
-#endif
+	int (*mcast)(struct eth_device *, const u8 *enetaddr, int join);
 	int (*write_hwaddr)(struct eth_device *);
 	struct eth_device *next;
 	int index;
@@ -286,12 +286,7 @@ extern void (*push_packet)(void *packet, int length);
 int eth_rx(void);			/* Check for received packets */
 void eth_halt(void);			/* stop SCC */
 const char *eth_get_name(void);		/* get name of current device */
-
-#ifdef CONFIG_MCAST_TFTP
 int eth_mcast_join(struct in_addr mcast_addr, int join);
-u32 ether_crc(size_t len, unsigned char const *p);
-#endif
-
 
 /**********************************************************************/
 /*
@@ -578,10 +573,6 @@ extern struct in_addr	net_ntp_server;		/* the ip address to NTP */
 extern int net_ntp_time_offset;			/* offset time from UTC */
 #endif
 
-#if defined(CONFIG_MCAST_TFTP)
-extern struct in_addr net_mcast_addr;
-#endif
-
 /* Initialize the network adapter */
 void net_init(void);
 int net_loop(enum proto_t);
@@ -739,7 +730,7 @@ static inline struct in_addr net_read_ip(void *from)
 }
 
 /* return ulong *in network byteorder* */
-static inline u32 net_read_u32(u32 *from)
+static inline u32 net_read_u32(void *from)
 {
 	u32 l;
 
@@ -760,7 +751,7 @@ static inline void net_copy_ip(void *to, void *from)
 }
 
 /* copy ulong */
-static inline void net_copy_u32(u32 *to, u32 *from)
+static inline void net_copy_u32(void *to, void *from)
 {
 	memcpy((void *)to, (void *)from, sizeof(u32));
 }
@@ -826,7 +817,7 @@ static inline int is_valid_ethaddr(const u8 *addr)
 static inline void net_random_ethaddr(uchar *addr)
 {
 	int i;
-	unsigned int seed = get_timer(0);
+	unsigned int seed = get_ticks();
 
 	for (i = 0; i < 6; i++)
 		addr[i] = rand_r(&seed);
@@ -835,10 +826,30 @@ static inline void net_random_ethaddr(uchar *addr)
 	addr[0] |= 0x02;	/* set local assignment bit (IEEE802) */
 }
 
+/**
+ * string_to_enetaddr() - Parse a MAC address
+ *
+ * Convert a string MAC address
+ *
+ * Implemented in lib/net_utils.c (built unconditionally)
+ *
+ * @addr: MAC address in aa:bb:cc:dd:ee:ff format, where each part is a 2-digit
+ *	hex value
+ * @enetaddr: Place to put MAC address (6 bytes)
+ */
+void string_to_enetaddr(const char *addr, uint8_t *enetaddr);
+
 /* Convert an IP address to a string */
 void ip_to_string(struct in_addr x, char *s);
 
-/* Convert a string to ip address */
+/**
+ * string_to_ip() - Convert a string to ip address
+ *
+ * Implemented in lib/net_utils.c (built unconditionally)
+ *
+ * @s: Input string to parse
+ * @return: in_addr struct containing the parsed IP address
+ */
 struct in_addr string_to_ip(const char *s);
 
 /* Convert a VLAN id to a string */
@@ -883,6 +894,16 @@ unsigned int random_port(void);
  */
 int update_tftp(ulong addr, char *interface, char *devstring);
 
-/**********************************************************************/
-
+/**
+ * env_get_ip() - Convert an environment value to to an ip address
+ *
+ * @var: Environment variable to convert. The value of this variable must be
+ *	in the format format a.b.c.d, where each value is a decimal number from
+ *	0 to 255
+ * @return IP address, or 0 if invalid
+ */
+static inline struct in_addr env_get_ip(char *var)
+{
+	return string_to_ip(env_get(var));
+}
 #endif /* __NET_H__ */

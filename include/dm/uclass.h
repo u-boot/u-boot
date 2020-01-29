@@ -297,7 +297,7 @@ int uclass_first_device_err(enum uclass_id id, struct udevice **devp);
  *
  * The device returned is probed if necessary, and ready for use
  *
- * This function is useful to start iterating through a list of devices which
+ * This function is useful to iterate through a list of devices which
  * are functioning correctly and can be probed.
  *
  * @devp: On entry, pointer to device to lookup. On exit, returns pointer

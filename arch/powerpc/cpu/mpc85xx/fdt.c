@@ -7,7 +7,7 @@
  */
 
 #include <common.h>
-#include <environment.h>
+#include <env.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <asm/processor.h>

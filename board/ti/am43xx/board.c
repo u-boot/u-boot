@@ -8,8 +8,10 @@
  */
 
 #include <common.h>
-#include <environment.h>
+#include <eeprom.h>
+#include <env.h>
 #include <i2c.h>
+#include <init.h>
 #include <linux/errno.h>
 #include <spl.h>
 #include <usb.h>
@@ -244,7 +246,7 @@ const struct emif_regs ddr3_emif_regs_400Mhz_production = {
 	.read_idle_ctrl			= 0x00050000,
 	.zq_config			= 0x50074BE4,
 	.temp_alert_config		= 0x0,
-	.emif_ddr_phy_ctlr_1		= 0x0E004008,
+	.emif_ddr_phy_ctlr_1		= 0x00048008,
 	.emif_ddr_ext_phy_ctrl_1	= 0x08020080,
 	.emif_ddr_ext_phy_ctrl_2	= 0x00000066,
 	.emif_ddr_ext_phy_ctrl_3	= 0x00000091,
@@ -720,6 +722,7 @@ static int device_okay(const char *path)
 
 int board_late_init(void)
 {
+	struct udevice *dev;
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	set_board_info_env(NULL);
 
@@ -737,6 +740,10 @@ int board_late_init(void)
 	if (device_okay("/ocp/omap_dwc3@483c0000"))
 		enable_usb_clocks(1);
 #endif
+
+	/* Just probe the potentially supported cdce913 device */
+	uclass_get_device(UCLASS_CLK, 0, &dev);
+
 	return 0;
 }
 #endif

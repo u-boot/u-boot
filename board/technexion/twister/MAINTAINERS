@@ -1,6 +1,0 @@
-TWISTER BOARD
-M:	Stefano Babic <sbabic@denx.de>
-S:	Maintained
-F:	board/technexion/twister/
-F:	include/configs/twister.h
-F:	configs/twister_defconfig

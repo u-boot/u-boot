@@ -137,7 +137,7 @@
 				status = "okay";
 				spi_flash@0 {
 					u-boot,dm-pre-reloc;
-					compatible = "spi-flash";
+					compatible = "jedec,spi-nor";
 					spi-max-frequency = <50000000>;
 					reg = <0>;
 				};

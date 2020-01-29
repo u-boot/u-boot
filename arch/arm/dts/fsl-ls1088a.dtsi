@@ -34,6 +34,38 @@
 			     <1 10 0x8>; /* Hypervisor PPI, active-low */
 	};
 
+	i2c0: i2c@2000000 {
+		compatible = "fsl,vf610-i2c";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x0 0x2000000 0x0 0x10000>;
+		interrupts = <0 34 4>;
+	};
+
+	i2c1: i2c@2010000 {
+		compatible = "fsl,vf610-i2c";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x0 0x2010000 0x0 0x10000>;
+		interrupts = <0 34 4>;
+	};
+
+	i2c2: i2c@2020000 {
+		compatible = "fsl,vf610-i2c";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x0 0x2020000 0x0 0x10000>;
+		interrupts = <0 35 4>;
+	};
+
+	i2c3: i2c@2030000 {
+		compatible = "fsl,vf610-i2c";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x0 0x2030000 0x0 0x10000>;
+		interrupts = <0 35 4>;
+	};
+
 	serial0: serial@21c0500 {
 		device_type = "serial";
 		compatible = "fsl,ns16550", "ns16550a";
@@ -153,9 +185,16 @@
 
 	sata: sata@3200000 {
 		compatible = "fsl,ls1088a-ahci";
-		reg = <0x0 0x3200000 0x0 0x10000>;
+		reg = <0x0 0x3200000 0x0 0x10000 /* ccsr sata base */
+		       0x7 0x100520  0x0 0x4>;	 /* ecc sata addr*/
+		reg-names = "sata-base", "ecc-addr";
 		interrupts = <0 133 4>;
 		status = "disabled";
+	};
+
+	psci {
+		compatible = "arm,psci-0.2";
+		method = "smc";
 	};
 
 };

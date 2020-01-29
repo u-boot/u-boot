@@ -16,6 +16,12 @@
 #include <asm/arch/spr_syscntl.h>
 #include <linux/mtd/st_smi.h>
 
+/* Reserve some space to store the BootROM's stack pointer during SPL operation.
+ * The BSS cannot be used for this purpose because it will be zeroed after
+ * having stored the pointer, so force the location to the data section.
+ */
+u32 bootrom_stash_sp __attribute__((section(".data")));
+
 static void ddr_clock_init(void)
 {
 	struct misc_regs *misc_p = (struct misc_regs *)CONFIG_SPEAR_MISCBASE;
@@ -223,8 +229,9 @@ u32 spl_boot_device(void)
 {
 	u32 mode = 0;
 
-	/* Currently only SNOR is supported as the only */
-	if (snor_boot_selected()) {
+	if (usb_boot_selected()) {
+		mode = BOOT_DEVICE_BOOTROM;
+	} else if (snor_boot_selected()) {
 		/* SNOR-SMI initialization */
 		snor_init();
 
@@ -232,6 +239,18 @@ u32 spl_boot_device(void)
 	}
 
 	return mode;
+}
+
+void board_boot_order(u32 *spl_boot_list)
+{
+	spl_boot_list[0] = spl_boot_device();
+
+	/*
+	 * If the main boot device (eg. NOR) is empty, try to jump back into the
+	 * BootROM for USB boot process.
+	 */
+	if (USB_BOOT_SUPPORTED)
+		spl_boot_list[1] = BOOT_DEVICE_BOOTROM;
 }
 
 void board_init_f(ulong dummy)
@@ -251,6 +270,31 @@ void board_init_f(ulong dummy)
 	puts("Configure DDR\n");
 	mpmc_init();
 	spear_late_init();
+}
 
-	board_init_r(NULL, 0);
+/*
+ * In a few cases (Ethernet, UART or USB boot, we might want to go back into the
+ * BootROM code right after having initialized a few components like the DRAM).
+ * The following function is called from SPL common code (board_init_r).
+ */
+int board_return_to_bootrom(struct spl_image_info *spl_image,
+			    struct spl_boot_device *bootdev)
+{
+	/*
+	 * Retrieve the BootROM's stack pointer and jump back to the start of
+	 * the SPL, where we can easily branch back into the BootROM. Don't do
+	 * it right here because SPL might be compiled in Thumb mode while the
+	 * BootROM expects ARM mode.
+	 */
+	asm volatile ("ldr r0, =bootrom_stash_sp;"
+		      "ldr r0, [r0];"
+		      "mov sp, r0;"
+#if defined(CONFIG_SPL_SYS_THUMB_BUILD)
+		      "blx back_to_bootrom;"
+#else
+		      "bl back_to_bootrom;"
+#endif
+		      );
+
+	return 0;
 }

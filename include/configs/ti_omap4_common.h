@@ -24,11 +24,6 @@
 #define CONFIG_SYS_TIMERBASE		GPT2_BASE
 
 /*
- * Total Size Environment - 128k
- */
-#define CONFIG_ENV_SIZE			(128 << 10)
-
-/*
  * For the DDR timing information we can either dynamically determine
  * the timings to use or use pre-determined timings (based on using the
  * dynamic method.  Default to the static timing infomation.
@@ -124,7 +119,6 @@
  * SPL is overlapped with public stack and breaking non HS devices to boot.
  * So moving TEXT_BASE down to non-HS limit.
  */
-#define CONFIG_SPL_TEXT_BASE		0x40300000
 #define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + \
 					 (128 << 20))
 

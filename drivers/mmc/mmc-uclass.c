@@ -47,34 +47,19 @@ int mmc_set_ios(struct mmc *mmc)
 	return dm_mmc_set_ios(mmc->dev);
 }
 
-void dm_mmc_send_init_stream(struct udevice *dev)
-{
-	struct dm_mmc_ops *ops = mmc_get_ops(dev);
-
-	if (ops->send_init_stream)
-		ops->send_init_stream(dev);
-}
-
-void mmc_send_init_stream(struct mmc *mmc)
-{
-	dm_mmc_send_init_stream(mmc->dev);
-}
-
-#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT)
-int dm_mmc_wait_dat0(struct udevice *dev, int state, int timeout)
+int dm_mmc_wait_dat0(struct udevice *dev, int state, int timeout_us)
 {
 	struct dm_mmc_ops *ops = mmc_get_ops(dev);
 
 	if (!ops->wait_dat0)
 		return -ENOSYS;
-	return ops->wait_dat0(dev, state, timeout);
+	return ops->wait_dat0(dev, state, timeout_us);
 }
 
-int mmc_wait_dat0(struct mmc *mmc, int state, int timeout)
+int mmc_wait_dat0(struct mmc *mmc, int state, int timeout_us)
 {
-	return dm_mmc_wait_dat0(mmc->dev, state, timeout);
+	return dm_mmc_wait_dat0(mmc->dev, state, timeout_us);
 }
-#endif
 
 int dm_mmc_get_wp(struct udevice *dev)
 {
@@ -119,6 +104,37 @@ int mmc_execute_tuning(struct mmc *mmc, uint opcode)
 	return dm_mmc_execute_tuning(mmc->dev, opcode);
 }
 #endif
+
+#if CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
+int dm_mmc_set_enhanced_strobe(struct udevice *dev)
+{
+	struct dm_mmc_ops *ops = mmc_get_ops(dev);
+
+	if (ops->set_enhanced_strobe)
+		return ops->set_enhanced_strobe(dev);
+
+	return -ENOTSUPP;
+}
+
+int mmc_set_enhanced_strobe(struct mmc *mmc)
+{
+	return dm_mmc_set_enhanced_strobe(mmc->dev);
+}
+#endif
+
+int dm_mmc_host_power_cycle(struct udevice *dev)
+{
+	struct dm_mmc_ops *ops = mmc_get_ops(dev);
+
+	if (ops->host_power_cycle)
+		return ops->host_power_cycle(dev);
+	return 0;
+}
+
+int mmc_host_power_cycle(struct mmc *mmc)
+{
+	return dm_mmc_host_power_cycle(mmc->dev);
+}
 
 int mmc_of_parse(struct udevice *dev, struct mmc_config *cfg)
 {
@@ -170,6 +186,22 @@ int mmc_of_parse(struct udevice *dev, struct mmc_config *cfg)
 		cfg->host_caps |= MMC_CAP(MMC_HS_400);
 	if (dev_read_bool(dev, "mmc-hs400-1_2v"))
 		cfg->host_caps |= MMC_CAP(MMC_HS_400);
+	if (dev_read_bool(dev, "mmc-hs400-enhanced-strobe"))
+		cfg->host_caps |= MMC_CAP(MMC_HS_400_ES);
+
+	if (dev_read_bool(dev, "non-removable")) {
+		cfg->host_caps |= MMC_CAP_NONREMOVABLE;
+	} else {
+		if (dev_read_bool(dev, "cd-inverted"))
+			cfg->host_caps |= MMC_CAP_CD_ACTIVE_HIGH;
+		if (dev_read_bool(dev, "broken-cd"))
+			cfg->host_caps |= MMC_CAP_NEEDS_POLL;
+	}
+
+	if (dev_read_bool(dev, "no-1-8-v")) {
+		cfg->host_caps &= ~(UHS_CAPS | MMC_MODE_HS200 |
+				    MMC_MODE_HS400 | MMC_MODE_HS400_ES);
+	}
 
 	return 0;
 }
@@ -342,6 +374,7 @@ static int mmc_select_hwpart(struct udevice *bdev, int hwpart)
 	struct udevice *mmc_dev = dev_get_parent(bdev);
 	struct mmc *mmc = mmc_get_mmc_dev(mmc_dev);
 	struct blk_desc *desc = dev_get_uclass_platdata(bdev);
+	int ret;
 
 	if (desc->hwpart == hwpart)
 		return 0;
@@ -349,7 +382,11 @@ static int mmc_select_hwpart(struct udevice *bdev, int hwpart)
 	if (mmc->part_config == MMCPART_NOAVAILABLE)
 		return -EMEDIUMTYPE;
 
-	return mmc_switch_part(mmc, hwpart);
+	ret = mmc_switch_part(mmc, hwpart);
+	if (!ret)
+		blkcache_invalidate(desc->if_type, desc->devnum);
+
+	return ret;
 }
 
 static int mmc_blk_probe(struct udevice *dev)
@@ -368,6 +405,19 @@ static int mmc_blk_probe(struct udevice *dev)
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT) || \
+    CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) || \
+    CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
+static int mmc_blk_remove(struct udevice *dev)
+{
+	struct udevice *mmc_dev = dev_get_parent(dev);
+	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(mmc_dev);
+	struct mmc *mmc = upriv->mmc;
+
+	return mmc_deinit(mmc);
+}
+#endif
+
 static const struct blk_ops mmc_blk_ops = {
 	.read	= mmc_bread,
 #if CONFIG_IS_ENABLED(MMC_WRITE)
@@ -382,13 +432,15 @@ U_BOOT_DRIVER(mmc_blk) = {
 	.id		= UCLASS_BLK,
 	.ops		= &mmc_blk_ops,
 	.probe		= mmc_blk_probe,
+#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT) || \
+    CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) || \
+    CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
+	.remove		= mmc_blk_remove,
+	.flags		= DM_FLAG_OS_PREPARE,
+#endif
 };
 #endif /* CONFIG_BLK */
 
-U_BOOT_DRIVER(mmc) = {
-	.name	= "mmc",
-	.id	= UCLASS_MMC,
-};
 
 UCLASS_DRIVER(mmc) = {
 	.id		= UCLASS_MMC,

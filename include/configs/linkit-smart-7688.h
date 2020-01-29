@@ -7,7 +7,7 @@
 #define __CONFIG_LINKIT_SMART_7688_H
 
 /* CPU */
-#define CONFIG_SYS_MIPS_TIMER_FREQ	200000000
+#define CONFIG_SYS_MIPS_TIMER_FREQ	290000000
 
 /* RAM */
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
@@ -22,7 +22,7 @@
 
 /* UART */
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, \
-					  230400, 500000, 1500000 }
+					  230400, 460800, 921600 }
 
 /* RAM */
 #define CONFIG_SYS_MEMTEST_START	0x80100000
@@ -38,9 +38,6 @@
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 
 /* Environment settings */
-#define CONFIG_ENV_OFFSET		0x80000
-#define CONFIG_ENV_SIZE			(16 << 10)
-#define CONFIG_ENV_SECT_SIZE		(64 << 10)
 
 /*
  * Environment is right behind U-Boot in flash. Make sure U-Boot

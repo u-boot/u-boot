@@ -32,14 +32,9 @@
 
 /* MMC ENV related defines */
 #define CONFIG_SYS_MMC_ENV_DEV		1	/* SLOT2: eMMC(1) */
-#define CONFIG_ENV_SIZE			(128 << 10)
-#define CONFIG_ENV_OFFSET		0x260000
-#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
-#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 
 /* Enhance our eMMC support / experience. */
 #define CONFIG_HSMMC2_8BIT
-#define CONFIG_SUPPORT_EMMC_BOOT
 
 /* Required support for the TCA642X GPIO we have on the uEVM */
 #define CONFIG_TCA642X
@@ -56,7 +51,7 @@
 
 /* USB Networking options */
 
-#define CONSOLEDEV		"ttyO2"
+#define CONSOLEDEV		"ttyS2"
 
 #define CONFIG_SCSI_AHCI_PLAT
 #define CONFIG_SYS_SCSI_MAX_SCSI_ID	1

@@ -1,4 +1,4 @@
-if TARGET_CHROMEBOOK_SAMUS
+if TARGET_CHROMEBOOK_SAMUS || TARGET_CHROMEBOOK_SAMUS_TPL
 
 config SYS_BOARD
 	default "chromebook_samus"
@@ -10,7 +10,8 @@ config SYS_SOC
 	default "broadwell"
 
 config SYS_CONFIG_NAME
-	default "chromebook_samus"
+	default "chromebook_samus" if TARGET_CHROMEBOOK_SAMUS
+	default "chromebook_samus" if TARGET_CHROMEBOOK_SAMUS_TPL
 
 config SYS_TEXT_BASE
 	default 0xffe00000
@@ -37,5 +38,14 @@ config SYS_CAR_ADDR
 config SYS_CAR_SIZE
 	hex
 	default 0x40000
+
+endif
+
+if TARGET_CHROMEBOOK_SAMUS_TPL
+
+config BOARD_SPECIFIC_OPTIONS_TPL # dummy
+	def_bool y
+	select SPL
+	select TPL
 
 endif

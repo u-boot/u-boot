@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <u-boot/crc.h>
 #include <unistd.h>
 
 #include <linux/kconfig.h>
@@ -33,15 +34,9 @@
 # ifndef  CONFIG_ENV_SIZE
 #  define CONFIG_ENV_SIZE	CONFIG_ENV_SECT_SIZE
 # endif
-# if defined(CONFIG_ENV_ADDR_REDUND) && !defined(CONFIG_ENV_SIZE_REDUND)
-#  define CONFIG_ENV_SIZE_REDUND	CONFIG_ENV_SIZE
-# endif
 # if (CONFIG_ENV_ADDR >= CONFIG_SYS_MONITOR_BASE) && \
      ((CONFIG_ENV_ADDR + CONFIG_ENV_SIZE) <= (CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN))
 #  define ENV_IS_EMBEDDED
-# endif
-# if defined(CONFIG_ENV_ADDR_REDUND) || defined(CONFIG_ENV_OFFSET_REDUND)
-#  define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 # endif
 #endif	/* CONFIG_ENV_IS_IN_FLASH */
 
@@ -59,19 +54,19 @@
 
 
 #ifdef CONFIG_BUILD_ENVCRC
-# include <environment.h>
+# include <env_internal.h>
 extern unsigned int env_size;
-extern env_t environment;
+extern env_t embedded_environment;
 #endif	/* CONFIG_BUILD_ENVCRC */
 
-extern uint32_t crc32 (uint32_t, const unsigned char *, unsigned int);
+extern uint32_t crc32(uint32_t, const unsigned char *, unsigned int);
 
 int main (int argc, char **argv)
 {
 #ifdef CONFIG_BUILD_ENVCRC
 	unsigned char pad = 0x00;
 	uint32_t crc;
-	unsigned char *envptr = (unsigned char *)&environment,
+	unsigned char *envptr = (unsigned char *)&embedded_environment,
 		*dataptr = envptr + ENV_HEADER_SIZE;
 	unsigned int datasize = ENV_SIZE;
 	unsigned int eoe;
@@ -94,7 +89,7 @@ int main (int argc, char **argv)
 			memset(dataptr + eoe, pad, datasize - eoe);
 	}
 
-	crc = crc32 (0, dataptr, datasize);
+	crc = crc32(0, dataptr, datasize);
 
 	/* Check if verbose mode is activated passing a parameter to the program */
 	if (argc > 1) {

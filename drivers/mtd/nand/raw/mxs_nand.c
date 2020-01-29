@@ -13,6 +13,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <linux/mtd/rawnand.h>
 #include <linux/sizes.h>
@@ -25,7 +26,7 @@
 #include <asm/mach-imx/regs-bch.h>
 #include <asm/mach-imx/regs-gpmi.h>
 #include <asm/arch/sys_proto.h>
-#include "mxs_nand.h"
+#include <mxs_nand.h>
 
 #define	MXS_NAND_DMA_DESCRIPTOR_COUNT		4
 
@@ -50,7 +51,7 @@ struct nand_ecclayout fake_ecc_layout;
 /*
  * Cache management functions
  */
-#ifndef	CONFIG_SYS_DCACHE_OFF
+#if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 static void mxs_nand_flush_data_buf(struct mxs_nand_info *info)
 {
 	uint32_t addr = (uint32_t)info->data_buf;
@@ -740,6 +741,19 @@ static int mxs_nand_ecc_write_page(struct mtd_info *mtd,
 	d->cmd.pio_words[4] = (dma_addr_t)nand_info->data_buf;
 	d->cmd.pio_words[5] = (dma_addr_t)nand_info->oob_buf;
 
+	if (is_mx7() && nand_info->en_randomizer) {
+		d->cmd.pio_words[2] |= GPMI_ECCCTRL_RANDOMIZER_ENABLE |
+				       GPMI_ECCCTRL_RANDOMIZER_TYPE2;
+		/*
+		 * Write NAND page number needed to be randomized
+		 * to GPMI_ECCCOUNT register.
+		 *
+		 * The value is between 0-255. For additional details
+		 * check 9.6.6.4 of i.MX7D Applications Processor reference
+		 */
+		d->cmd.pio_words[3] |= (page % 255) << 16;
+	}
+
 	mxs_dma_desc_append(channel, d);
 
 	/* Flush caches */
@@ -1003,6 +1017,10 @@ int mxs_nand_setup_ecc(struct mtd_info *mtd)
 	uint32_t tmp;
 	int ret;
 
+	nand_info->en_randomizer = 0;
+	nand_info->oobsize = mtd->oobsize;
+	nand_info->writesize = mtd->writesize;
+
 	ret = mxs_nand_set_geometry(mtd, geo);
 	if (ret)
 		return ret;
@@ -1020,6 +1038,7 @@ int mxs_nand_setup_ecc(struct mtd_info *mtd)
 	tmp |= (geo->gf_len == 14 ? 1 : 0) <<
 		BCH_FLASHLAYOUT0_GF13_0_GF14_1_OFFSET;
 	writel(tmp, &bch_regs->hw_bch_flash0layout0);
+	nand_info->bch_flash0layout0 = tmp;
 
 	tmp = (mtd->writesize + mtd->oobsize)
 		<< BCH_FLASHLAYOUT1_PAGE_SIZE_OFFSET;
@@ -1028,6 +1047,7 @@ int mxs_nand_setup_ecc(struct mtd_info *mtd)
 	tmp |= (geo->gf_len == 14 ? 1 : 0) <<
 		BCH_FLASHLAYOUT1_GF13_0_GF14_1_OFFSET;
 	writel(tmp, &bch_regs->hw_bch_flash0layout1);
+	nand_info->bch_flash0layout1 = tmp;
 
 	/* Set *all* chip selects to use layout 0 */
 	writel(0, &bch_regs->hw_bch_layoutselect);
@@ -1092,7 +1112,7 @@ int mxs_nand_alloc_buffers(struct mxs_nand_info *nand_info)
 /*
  * Initializes the NFC hardware.
  */
-int mxs_nand_init_dma(struct mxs_nand_info *info)
+static int mxs_nand_init_dma(struct mxs_nand_info *info)
 {
 	int i = 0, j, ret = 0;
 
@@ -1163,6 +1183,12 @@ int mxs_nand_init_spl(struct nand_chip *nand)
 
 	nand_info->gpmi_regs = (struct mxs_gpmi_regs *)MXS_GPMI_BASE;
 	nand_info->bch_regs = (struct mxs_bch_regs *)MXS_BCH_BASE;
+
+	if (is_mx6sx() || is_mx7())
+		nand_info->max_ecc_strength_supported = 62;
+	else
+		nand_info->max_ecc_strength_supported = 40;
+
 	err = mxs_nand_alloc_buffers(nand_info);
 	if (err)
 		return err;
@@ -1185,9 +1211,6 @@ int mxs_nand_init_spl(struct nand_chip *nand)
 	nand->ecc.read_page	= mxs_nand_ecc_read_page;
 
 	nand->ecc.mode		= NAND_ECC_HW;
-	nand->ecc.bytes		= 9;
-	nand->ecc.size		= 512;
-	nand->ecc.strength	= 8;
 
 	return 0;
 }
@@ -1300,3 +1323,100 @@ err:
 	free(nand_info);
 }
 #endif
+
+/*
+ * Read NAND layout for FCB block generation.
+ */
+void mxs_nand_get_layout(struct mtd_info *mtd, struct mxs_nand_layout *l)
+{
+	struct mxs_bch_regs *bch_regs = (struct mxs_bch_regs *)MXS_BCH_BASE;
+	u32 tmp;
+
+	tmp = readl(&bch_regs->hw_bch_flash0layout0);
+	l->nblocks = (tmp & BCH_FLASHLAYOUT0_NBLOCKS_MASK) >>
+			BCH_FLASHLAYOUT0_NBLOCKS_OFFSET;
+	l->meta_size = (tmp & BCH_FLASHLAYOUT0_META_SIZE_MASK) >>
+			BCH_FLASHLAYOUT0_META_SIZE_OFFSET;
+
+	tmp = readl(&bch_regs->hw_bch_flash0layout1);
+	l->data0_size = 4 * ((tmp & BCH_FLASHLAYOUT0_DATA0_SIZE_MASK) >>
+			BCH_FLASHLAYOUT0_DATA0_SIZE_OFFSET);
+	l->ecc0 = (tmp & BCH_FLASHLAYOUT0_ECC0_MASK) >>
+			BCH_FLASHLAYOUT0_ECC0_OFFSET;
+	l->datan_size = 4 * ((tmp & BCH_FLASHLAYOUT1_DATAN_SIZE_MASK) >>
+			BCH_FLASHLAYOUT1_DATAN_SIZE_OFFSET);
+	l->eccn = (tmp & BCH_FLASHLAYOUT1_ECCN_MASK) >>
+			BCH_FLASHLAYOUT1_ECCN_OFFSET;
+}
+
+/*
+ * Set BCH to specific layout used by ROM bootloader to read FCB.
+ */
+void mxs_nand_mode_fcb(struct mtd_info *mtd)
+{
+	u32 tmp;
+	struct mxs_bch_regs *bch_regs = (struct mxs_bch_regs *)MXS_BCH_BASE;
+	struct nand_chip *nand = mtd_to_nand(mtd);
+	struct mxs_nand_info *nand_info = nand_get_controller_data(nand);
+
+	nand_info->en_randomizer = 1;
+
+	mtd->writesize = 1024;
+	mtd->oobsize = 1862 - 1024;
+
+	/* 8 ecc_chunks_*/
+	tmp = 7	<< BCH_FLASHLAYOUT0_NBLOCKS_OFFSET;
+	/* 32 bytes for metadata */
+	tmp |= 32 << BCH_FLASHLAYOUT0_META_SIZE_OFFSET;
+	/* using ECC62 level to be performed */
+	tmp |= 0x1F << BCH_FLASHLAYOUT0_ECC0_OFFSET;
+	/* 0x20 * 4 bytes of the data0 block */
+	tmp |= 0x20 << BCH_FLASHLAYOUT0_DATA0_SIZE_OFFSET;
+	tmp |= 0 << BCH_FLASHLAYOUT0_GF13_0_GF14_1_OFFSET;
+	writel(tmp, &bch_regs->hw_bch_flash0layout0);
+
+	/* 1024 for data + 838 for OOB */
+	tmp = 1862 << BCH_FLASHLAYOUT1_PAGE_SIZE_OFFSET;
+	/* using ECC62 level to be performed */
+	tmp |= 0x1F << BCH_FLASHLAYOUT1_ECCN_OFFSET;
+	/* 0x20 * 4 bytes of the data0 block */
+	tmp |= 0x20 << BCH_FLASHLAYOUT1_DATAN_SIZE_OFFSET;
+	tmp |= 0 << BCH_FLASHLAYOUT1_GF13_0_GF14_1_OFFSET;
+	writel(tmp, &bch_regs->hw_bch_flash0layout1);
+}
+
+/*
+ * Restore BCH to normal settings.
+ */
+void mxs_nand_mode_normal(struct mtd_info *mtd)
+{
+	struct mxs_bch_regs *bch_regs = (struct mxs_bch_regs *)MXS_BCH_BASE;
+	struct nand_chip *nand = mtd_to_nand(mtd);
+	struct mxs_nand_info *nand_info = nand_get_controller_data(nand);
+
+	nand_info->en_randomizer = 0;
+
+	mtd->writesize = nand_info->writesize;
+	mtd->oobsize = nand_info->oobsize;
+
+	writel(nand_info->bch_flash0layout0, &bch_regs->hw_bch_flash0layout0);
+	writel(nand_info->bch_flash0layout1, &bch_regs->hw_bch_flash0layout1);
+}
+
+uint32_t mxs_nand_mark_byte_offset(struct mtd_info *mtd)
+{
+	struct nand_chip *chip = mtd_to_nand(mtd);
+	struct mxs_nand_info *nand_info = nand_get_controller_data(chip);
+	struct bch_geometry *geo = &nand_info->bch_geometry;
+
+	return geo->block_mark_byte_offset;
+}
+
+uint32_t mxs_nand_mark_bit_offset(struct mtd_info *mtd)
+{
+	struct nand_chip *chip = mtd_to_nand(mtd);
+	struct mxs_nand_info *nand_info = nand_get_controller_data(chip);
+	struct bch_geometry *geo = &nand_info->bch_geometry;
+
+	return geo->block_mark_bit_offset;
+}

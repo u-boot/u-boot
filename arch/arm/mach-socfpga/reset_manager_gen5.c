@@ -61,17 +61,31 @@ void socfpga_per_reset_all(void)
 	writel(0xffffffff, &reset_manager_base->per2_mod_reset);
 }
 
-/*
- * Release peripherals from reset based on handoff
- */
-void reset_deassert_peripherals_handoff(void)
-{
-	writel(0, &reset_manager_base->per_mod_reset);
-}
-
 #define L3REGS_REMAP_LWHPS2FPGA_MASK	0x10
 #define L3REGS_REMAP_HPS2FPGA_MASK	0x08
 #define L3REGS_REMAP_OCRAM_MASK		0x01
+
+void socfpga_bridges_set_handoff_regs(bool h2f, bool lwh2f, bool f2h)
+{
+	u32 brgmask = 0x0;
+	u32 l3rmask = L3REGS_REMAP_OCRAM_MASK;
+
+	if (h2f)
+		brgmask |= BIT(0);
+	else
+		l3rmask |= L3REGS_REMAP_HPS2FPGA_MASK;
+
+	if (lwh2f)
+		brgmask |= BIT(1);
+	else
+		l3rmask |= L3REGS_REMAP_LWHPS2FPGA_MASK;
+
+	if (f2h)
+		brgmask |= BIT(2);
+
+	writel(brgmask, &sysmgr_regs->iswgrp_handoff[0]);
+	writel(l3rmask, &sysmgr_regs->iswgrp_handoff[1]);
+}
 
 void socfpga_bridges_reset(int enable)
 {
@@ -81,10 +95,10 @@ void socfpga_bridges_reset(int enable)
 
 	if (enable) {
 		/* brdmodrst */
-		writel(0xffffffff, &reset_manager_base->brg_mod_reset);
+		writel(0x7, &reset_manager_base->brg_mod_reset);
+		writel(L3REGS_REMAP_OCRAM_MASK, SOCFPGA_L3REGS_ADDRESS);
 	} else {
-		writel(0, &sysmgr_regs->iswgrp_handoff[0]);
-		writel(l3mask, &sysmgr_regs->iswgrp_handoff[1]);
+		socfpga_bridges_set_handoff_regs(false, false, false);
 
 		/* Check signal from FPGA. */
 		if (!fpgamgr_test_fpga_ready()) {

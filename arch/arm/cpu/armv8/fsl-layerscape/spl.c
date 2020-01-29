@@ -4,6 +4,8 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
+#include <env.h>
 #include <spl.h>
 #include <asm/io.h>
 #include <fsl_ifc.h>
@@ -33,7 +35,7 @@ u32 spl_boot_device(void)
 
 void spl_board_init(void)
 {
-#if defined(CONFIG_SECURE_BOOT) && defined(CONFIG_FSL_LSCH2)
+#if defined(CONFIG_NXP_ESBC) && defined(CONFIG_FSL_LSCH2)
 	/*
 	 * In case of Secure Boot, the IBR configures the SMMU
 	 * to allow only Secure transactions.

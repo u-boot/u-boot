@@ -10,7 +10,7 @@
 #include <syscon.h>
 #include <linux/io.h>
 #include <mach/at91_pmc.h>
-#include <mach/sama5_sfr.h>
+#include <mach/at91_sfr.h>
 #include "pmc.h"
 
 /*

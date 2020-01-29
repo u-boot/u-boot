@@ -19,7 +19,7 @@ config SPL_RAM
 
 config TPL_RAM
 	bool "Enable RAM support in TPL"
-	depends on RAM && TPL_DM
+	depends on RAM
 	help
 	  The RAM subsystem adds a small amount of overhead to the image.
 	  If this is acceptable and you have a need to use RAM drivers in
@@ -54,4 +54,16 @@ config K3_AM654_DDRSS
 	  config add support for the initialization of the external
 	  SDRAM devices connected to DDR subsystem.
 
+config K3_J721E_DDRSS
+	bool "Enable J721E DDRSS support"
+	depends on RAM
+	help
+	  The J721E DDR subsystem comprises DDR controller, DDR PHY and
+	  wrapper logic to integrate these blocks in the device. The DDR
+	  subsystem is used to provide an interface to external SDRAM
+	  devices which can be utilized for storing program or data.
+	  Enabling this config adds support for the DDR memory controller
+	  on J721E family of SoCs.
+
+source "drivers/ram/rockchip/Kconfig"
 source "drivers/ram/stm32mp1/Kconfig"

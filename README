@@ -83,7 +83,7 @@ Where we come from:
   * Provide extended interface to Linux boot loader
   * S-Record download
   * network boot
-  * PCMCIA / CompactFlash / ATA disk / SCSI ... boot
+  * ATA disk / SCSI ... boot
 - create ARMBoot project (http://sourceforge.net/projects/armboot)
 - add other CPU families (starting with ARM)
 - create U-Boot project (http://sourceforge.net/projects/u-boot)
@@ -212,7 +212,7 @@ board. This allows feature development which is not board- or architecture-
 specific to be undertaken on a native platform. The sandbox is also used to
 run some of U-Boot's tests.
 
-See board/sandbox/README.sandbox for more details.
+See doc/arch/index.rst for more details.
 
 
 Board Initialisation Flow:
@@ -267,6 +267,13 @@ board_init_f():
 	- preloader_console_init() can be called here in extremis
 	- should set up SDRAM, and anything needed to make the UART work
 	- these is no need to clear BSS, it will be done by crt0.S
+	- for specific scenarios on certain architectures an early BSS *can*
+	  be made available (via CONFIG_SPL_EARLY_BSS by moving the clearing
+	  of BSS prior to entering board_init_f()) but doing so is discouraged.
+	  Instead it is strongly recommended to architect any code changes
+	  or additions such to not depend on the availability of BSS during
+	  board_init_f() as indicated in other sections of this README to
+	  maintain compatibility and consistency across the entire code base.
 	- must return normally from this function (don't call board_init_r()
 		directly)
 
@@ -486,10 +493,6 @@ The following options need to be configured:
 		PBI commands can be used to configure SoC before it starts the execution.
 		Please refer doc/README.pblimage for more details
 
-		CONFIG_SPL_FSL_PBL
-		It adds a target to create boot binary having SPL binary in PBI format
-		concatenated with u-boot binary.
-
 		CONFIG_SYS_FSL_DDR_BE
 		Defines the DDR controller register space as Big Endian
 
@@ -634,8 +637,6 @@ The following options need to be configured:
 		the defaults discussed just above.
 
 - Cache Configuration:
-		CONFIG_SYS_ICACHE_OFF - Do not enable instruction cache in U-Boot
-		CONFIG_SYS_DCACHE_OFF - Do not enable data cache in U-Boot
 		CONFIG_SYS_L2CACHE_OFF- Do not enable L2 cache in U-Boot
 
 - Cache Configuration for ARM:
@@ -686,22 +687,6 @@ The following options need to be configured:
 		"ramboot" and "nfsboot" respectively, and can be used
 		as a convenience, when switching between booting from
 		RAM and NFS.
-
-- Pre-Boot Commands:
-		CONFIG_PREBOOT
-
-		When this option is #defined, the existence of the
-		environment variable "preboot" will be checked
-		immediately before starting the CONFIG_BOOTDELAY
-		countdown and/or running the auto-boot command resp.
-		entering interactive mode.
-
-		This feature is especially useful when "preboot" is
-		automatically generated or modified. For an example
-		see the LWMON board specific code: here "preboot" is
-		modified when the user holds down a certain
-		combination of keys on the (special) keyboard when
-		booting the systems
 
 - Serial Download Echo Mode:
 		CONFIG_LOADS_ECHO
@@ -782,9 +767,6 @@ The following options need to be configured:
 		When using a watchdog circuitry external to the used
 		SoC, then define this variable and provide board
 		specific code for the "hw_watchdog_reset" function.
-
-		CONFIG_AT91_HW_WDT_TIMEOUT
-		specify the timeout in seconds. default 2 seconds.
 
 - Real-Time Clock:
 
@@ -985,10 +967,6 @@ The following options need to be configured:
 			CONFIG_SH_ETHER_CACHE_WRITEBACK
 			If this option is set, the driver enables cache flush.
 
-- PWM Support:
-		CONFIG_PWM_IMX
-		Support for PWM module on the imx6.
-
 - TPM Support:
 		CONFIG_TPM
 		Support TPM devices.
@@ -1139,15 +1117,9 @@ The following options need to be configured:
 			CONFIG_SH_MMCIF_CLK
 			Define the clock frequency for MMCIF
 
-		CONFIG_SUPPORT_EMMC_BOOT
-		Enable some additional features of the eMMC boot partitions.
-
 - USB Device Firmware Update (DFU) class support:
 		CONFIG_DFU_OVER_USB
 		This enables the USB portion of the DFU USB class
-
-		CONFIG_DFU_MMC
-		This enables support for exposing (e)MMC devices via DFU.
 
 		CONFIG_DFU_NAND
 		This enables support for exposing NAND devices via DFU.
@@ -1429,15 +1401,6 @@ The following options need to be configured:
 		forwarded through a router.
 		(Environment variable "netmask")
 
-- Multicast TFTP Mode:
-		CONFIG_MCAST_TFTP
-
-		Defines whether you want to support multicast TFTP as per
-		rfc-2090; for example to work with atftp.  Lets lots of targets
-		tftp down the same boot image concurrently.  Note: the Ethernet
-		driver in use must provide a function: mcast() to join/leave a
-		multicast group.
-
 - BOOTP Recovery Mode:
 		CONFIG_BOOTP_RANDOM_DELAY
 
@@ -1707,11 +1670,6 @@ The following options need to be configured:
 		  - CONFIG_SYS_OMAP24_I2C_SLAVE3 slave addr channel 3
 		  - CONFIG_SYS_OMAP24_I2C_SPEED4 speed channel 4
 		  - CONFIG_SYS_OMAP24_I2C_SLAVE4 slave addr channel 4
-
-		- drivers/i2c/zynq_i2c.c
-		  - activate this driver with CONFIG_SYS_I2C_ZYNQ
-		  - set CONFIG_SYS_I2C_ZYNQ_SPEED for speed setting
-		  - set CONFIG_SYS_I2C_ZYNQ_SLAVE for slave addr
 
 		- drivers/i2c/s3c24x0_i2c.c:
 		  - activate this driver with CONFIG_SYS_I2C_S3C24X0
@@ -1998,13 +1956,6 @@ The following options need to be configured:
 		200 ms.
 
 - Configuration Management:
-		CONFIG_BUILD_TARGET
-
-		Some SoCs need special image types (e.g. U-Boot binary
-		with a special header) as build targets. By defining
-		CONFIG_BUILD_TARGET in the SoC / board header, this
-		special image will be automatically built upon calling
-		make / buildman.
 
 		CONFIG_IDENT_STRING
 
@@ -2170,21 +2121,6 @@ The following options need to be configured:
 		this is instead controlled by the value of
 		/config/load-environment.
 
-- Serial Flash support
-		Usage requires an initial 'sf probe' to define the serial
-		flash parameters, followed by read/write/erase/update
-		commands.
-
-		The following defaults may be provided by the platform
-		to handle the common case when only a single serial
-		flash is present on the system.
-
-		CONFIG_SF_DEFAULT_BUS		Bus identifier
-		CONFIG_SF_DEFAULT_CS		Chip-select
-		CONFIG_SF_DEFAULT_MODE 		(see include/spi.h)
-		CONFIG_SF_DEFAULT_SPEED		in Hz
-
-
 - TFTP Fixed UDP Port:
 		CONFIG_TFTP_PORT
 
@@ -2205,171 +2141,6 @@ The following options need to be configured:
 		A better solution is to properly configure the firewall,
 		but sometimes that is not allowed.
 
-- Show boot progress:
-		CONFIG_SHOW_BOOT_PROGRESS
-
-		Defining this option allows to add some board-
-		specific code (calling a user-provided function
-		"show_boot_progress(int)") that enables you to show
-		the system's boot progress on some display (for
-		example, some LED's) on your board. At the moment,
-		the following checkpoints are implemented:
-
-
-Legacy uImage format:
-
-  Arg	Where			When
-    1	common/cmd_bootm.c	before attempting to boot an image
-   -1	common/cmd_bootm.c	Image header has bad	 magic number
-    2	common/cmd_bootm.c	Image header has correct magic number
-   -2	common/cmd_bootm.c	Image header has bad	 checksum
-    3	common/cmd_bootm.c	Image header has correct checksum
-   -3	common/cmd_bootm.c	Image data   has bad	 checksum
-    4	common/cmd_bootm.c	Image data   has correct checksum
-   -4	common/cmd_bootm.c	Image is for unsupported architecture
-    5	common/cmd_bootm.c	Architecture check OK
-   -5	common/cmd_bootm.c	Wrong Image Type (not kernel, multi)
-    6	common/cmd_bootm.c	Image Type check OK
-   -6	common/cmd_bootm.c	gunzip uncompression error
-   -7	common/cmd_bootm.c	Unimplemented compression type
-    7	common/cmd_bootm.c	Uncompression OK
-    8	common/cmd_bootm.c	No uncompress/copy overwrite error
-   -9	common/cmd_bootm.c	Unsupported OS (not Linux, BSD, VxWorks, QNX)
-
-    9	common/image.c		Start initial ramdisk verification
-  -10	common/image.c		Ramdisk header has bad	   magic number
-  -11	common/image.c		Ramdisk header has bad	   checksum
-   10	common/image.c		Ramdisk header is OK
-  -12	common/image.c		Ramdisk data   has bad	   checksum
-   11	common/image.c		Ramdisk data   has correct checksum
-   12	common/image.c		Ramdisk verification complete, start loading
-  -13	common/image.c		Wrong Image Type (not PPC Linux ramdisk)
-   13	common/image.c		Start multifile image verification
-   14	common/image.c		No initial ramdisk, no multifile, continue.
-
-   15	arch/<arch>/lib/bootm.c All preparation done, transferring control to OS
-
-  -30	arch/powerpc/lib/board.c	Fatal error, hang the system
-  -31	post/post.c		POST test failed, detected by post_output_backlog()
-  -32	post/post.c		POST test failed, detected by post_run_single()
-
-   34	common/cmd_doc.c	before loading a Image from a DOC device
-  -35	common/cmd_doc.c	Bad usage of "doc" command
-   35	common/cmd_doc.c	correct usage of "doc" command
-  -36	common/cmd_doc.c	No boot device
-   36	common/cmd_doc.c	correct boot device
-  -37	common/cmd_doc.c	Unknown Chip ID on boot device
-   37	common/cmd_doc.c	correct chip ID found, device available
-  -38	common/cmd_doc.c	Read Error on boot device
-   38	common/cmd_doc.c	reading Image header from DOC device OK
-  -39	common/cmd_doc.c	Image header has bad magic number
-   39	common/cmd_doc.c	Image header has correct magic number
-  -40	common/cmd_doc.c	Error reading Image from DOC device
-   40	common/cmd_doc.c	Image header has correct magic number
-   41	common/cmd_ide.c	before loading a Image from a IDE device
-  -42	common/cmd_ide.c	Bad usage of "ide" command
-   42	common/cmd_ide.c	correct usage of "ide" command
-  -43	common/cmd_ide.c	No boot device
-   43	common/cmd_ide.c	boot device found
-  -44	common/cmd_ide.c	Device not available
-   44	common/cmd_ide.c	Device available
-  -45	common/cmd_ide.c	wrong partition selected
-   45	common/cmd_ide.c	partition selected
-  -46	common/cmd_ide.c	Unknown partition table
-   46	common/cmd_ide.c	valid partition table found
-  -47	common/cmd_ide.c	Invalid partition type
-   47	common/cmd_ide.c	correct partition type
-  -48	common/cmd_ide.c	Error reading Image Header on boot device
-   48	common/cmd_ide.c	reading Image Header from IDE device OK
-  -49	common/cmd_ide.c	Image header has bad magic number
-   49	common/cmd_ide.c	Image header has correct magic number
-  -50	common/cmd_ide.c	Image header has bad	 checksum
-   50	common/cmd_ide.c	Image header has correct checksum
-  -51	common/cmd_ide.c	Error reading Image from IDE device
-   51	common/cmd_ide.c	reading Image from IDE device OK
-   52	common/cmd_nand.c	before loading a Image from a NAND device
-  -53	common/cmd_nand.c	Bad usage of "nand" command
-   53	common/cmd_nand.c	correct usage of "nand" command
-  -54	common/cmd_nand.c	No boot device
-   54	common/cmd_nand.c	boot device found
-  -55	common/cmd_nand.c	Unknown Chip ID on boot device
-   55	common/cmd_nand.c	correct chip ID found, device available
-  -56	common/cmd_nand.c	Error reading Image Header on boot device
-   56	common/cmd_nand.c	reading Image Header from NAND device OK
-  -57	common/cmd_nand.c	Image header has bad magic number
-   57	common/cmd_nand.c	Image header has correct magic number
-  -58	common/cmd_nand.c	Error reading Image from NAND device
-   58	common/cmd_nand.c	reading Image from NAND device OK
-
-  -60	common/env_common.c	Environment has a bad CRC, using default
-
-   64	net/eth.c		starting with Ethernet configuration.
-  -64	net/eth.c		no Ethernet found.
-   65	net/eth.c		Ethernet found.
-
-  -80	common/cmd_net.c	usage wrong
-   80	common/cmd_net.c	before calling net_loop()
-  -81	common/cmd_net.c	some error in net_loop() occurred
-   81	common/cmd_net.c	net_loop() back without error
-  -82	common/cmd_net.c	size == 0 (File with size 0 loaded)
-   82	common/cmd_net.c	trying automatic boot
-   83	common/cmd_net.c	running "source" command
-  -83	common/cmd_net.c	some error in automatic boot or "source" command
-   84	common/cmd_net.c	end without errors
-
-FIT uImage format:
-
-  Arg	Where			When
-  100	common/cmd_bootm.c	Kernel FIT Image has correct format
- -100	common/cmd_bootm.c	Kernel FIT Image has incorrect format
-  101	common/cmd_bootm.c	No Kernel subimage unit name, using configuration
- -101	common/cmd_bootm.c	Can't get configuration for kernel subimage
-  102	common/cmd_bootm.c	Kernel unit name specified
- -103	common/cmd_bootm.c	Can't get kernel subimage node offset
-  103	common/cmd_bootm.c	Found configuration node
-  104	common/cmd_bootm.c	Got kernel subimage node offset
- -104	common/cmd_bootm.c	Kernel subimage hash verification failed
-  105	common/cmd_bootm.c	Kernel subimage hash verification OK
- -105	common/cmd_bootm.c	Kernel subimage is for unsupported architecture
-  106	common/cmd_bootm.c	Architecture check OK
- -106	common/cmd_bootm.c	Kernel subimage has wrong type
-  107	common/cmd_bootm.c	Kernel subimage type OK
- -107	common/cmd_bootm.c	Can't get kernel subimage data/size
-  108	common/cmd_bootm.c	Got kernel subimage data/size
- -108	common/cmd_bootm.c	Wrong image type (not legacy, FIT)
- -109	common/cmd_bootm.c	Can't get kernel subimage type
- -110	common/cmd_bootm.c	Can't get kernel subimage comp
- -111	common/cmd_bootm.c	Can't get kernel subimage os
- -112	common/cmd_bootm.c	Can't get kernel subimage load address
- -113	common/cmd_bootm.c	Image uncompress/copy overwrite error
-
-  120	common/image.c		Start initial ramdisk verification
- -120	common/image.c		Ramdisk FIT image has incorrect format
-  121	common/image.c		Ramdisk FIT image has correct format
-  122	common/image.c		No ramdisk subimage unit name, using configuration
- -122	common/image.c		Can't get configuration for ramdisk subimage
-  123	common/image.c		Ramdisk unit name specified
- -124	common/image.c		Can't get ramdisk subimage node offset
-  125	common/image.c		Got ramdisk subimage node offset
- -125	common/image.c		Ramdisk subimage hash verification failed
-  126	common/image.c		Ramdisk subimage hash verification OK
- -126	common/image.c		Ramdisk subimage for unsupported architecture
-  127	common/image.c		Architecture check OK
- -127	common/image.c		Can't get ramdisk subimage data/size
-  128	common/image.c		Got ramdisk subimage data/size
-  129	common/image.c		Can't get ramdisk load address
- -129	common/image.c		Got ramdisk load address
-
- -130	common/cmd_doc.c	Incorrect FIT image format
-  131	common/cmd_doc.c	FIT image format OK
-
- -140	common/cmd_ide.c	Incorrect FIT image format
-  141	common/cmd_ide.c	FIT image format OK
-
- -150	common/cmd_nand.c	Incorrect FIT image format
-  151	common/cmd_nand.c	FIT image format OK
-
-- Standalone program support:
 		CONFIG_STANDALONE_LOAD_ADDR
 
 		This option defines a board specific value for the
@@ -2480,9 +2251,6 @@ FIT uImage format:
 		linker lists sections), BSS excluded.
 		When defined, the linker checks that the actual size does
 		not exceed it.
-
-		CONFIG_SPL_TEXT_BASE
-		TEXT_BASE for linking the SPL binary.
 
 		CONFIG_SPL_RELOC_TEXT_BASE
 		Address to relocate to.  If unspecified, this is equal to
@@ -2611,9 +2379,6 @@ FIT uImage format:
 		CONFIG_SYS_NAND_ECCBYTES
 		Defines the size and behavior of the NAND that SPL uses
 		to read U-Boot
-
-		CONFIG_SPL_NAND_BOOT
-		Add support NAND boot
 
 		CONFIG_SYS_NAND_U_BOOT_OFFS
 		Location in NAND to read U-Boot from
@@ -3218,7 +2983,7 @@ Low Level (hardware related) configuration options:
 - CONFIG_SYS_SRIOn_MEM_VIRT:
 		Virtual Address of SRIO port 'n' memory region
 
-- CONFIG_SYS_SRIOn_MEM_PHYS:
+- CONFIG_SYS_SRIOn_MEM_PHYxS:
 		Physical Address of SRIO port 'n' memory region
 
 - CONFIG_SYS_SRIOn_MEM_SIZE:
@@ -3317,14 +3082,16 @@ Low Level (hardware related) configuration options:
 		instruction cache) is still performed.
 
 - CONFIG_SPL_BUILD
-		Modifies the behaviour of start.S when compiling a loader
-		that is executed before the actual U-Boot. E.g. when
-		compiling a NAND SPL.
+		Set when the currently-running compilation is for an artifact
+		that will end up in the SPL (as opposed to the TPL or U-Boot
+		proper). Code that needs stage-specific behavior should check
+		this.
 
 - CONFIG_TPL_BUILD
-		Modifies the behaviour of start.S  when compiling a loader
-		that is executed after the SPL and before the actual U-Boot.
-		It is loaded by the SPL.
+		Set when the currently-running compilation is for an artifact
+		that will end up in the TPL (as opposed to the SPL or U-Boot
+		proper). Code that needs stage-specific behavior should check
+		this.
 
 - CONFIG_SYS_MPC85XX_NO_RESETVEC
 		Only for 85xx systems. If this variable is specified, the section
@@ -3360,12 +3127,12 @@ within that device.
 
 - CONFIG_SYS_FMAN_FW_ADDR
 	The address in the storage device where the FMAN microcode is located.  The
-	meaning of this address depends on which CONFIG_SYS_QE_FW_IN_xxx macro
+	meaning of this address depends on which CONFIG_SYS_QE_FMAN_FW_IN_xxx macro
 	is also specified.
 
 - CONFIG_SYS_QE_FW_ADDR
 	The address in the storage device where the QE microcode is located.  The
-	meaning of this address depends on which CONFIG_SYS_QE_FW_IN_xxx macro
+	meaning of this address depends on which CONFIG_SYS_QE_FMAN_FW_IN_xxx macro
 	is also specified.
 
 - CONFIG_SYS_QE_FMAN_FW_LENGTH
@@ -3541,7 +3308,7 @@ Testing of U-Boot Modifications, Ports to New Hardware, etc.:
 If you have modified U-Boot sources (for instance added a new board
 or support for new devices, a new CPU, etc.) you are expected to
 provide feedback to the other developers. The feedback normally takes
-the form of a "patch", i. e. a context diff against a certain (latest
+the form of a "patch", i.e. a context diff against a certain (latest
 official or latest in the git repository) version of U-Boot sources.
 
 But before you submit such a patch, please verify that your modifi-
@@ -3662,6 +3429,8 @@ List of environment variables (most likely not complete):
 		  a hexadecimal number and defines the size of the region
 		  allowed for use by the bootm command. See also "bootm_low"
 		  environment variable.
+
+  bootstopkeysha256, bootdelaykey, bootstopkey	- See README.autoboot
 
   updatefile	- Location of the software update file on a TFTP server, used
 		  by the automatic software update feature. Please refer to

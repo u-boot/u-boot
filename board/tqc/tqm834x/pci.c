@@ -5,6 +5,7 @@
  * Copyright (C) 2006-2009 Freescale Semiconductor, Inc.
  */
 
+#include <init.h>
 #include <asm/mmu.h>
 #include <asm/io.h>
 #include <common.h>
@@ -71,7 +72,7 @@ pci_init_board(void)
 	reg32 = 0xff000000;
 #endif
 	if (clk->spmr & SPMR_CKID) {
-		/* PCI Clock is half CONFIG_83XX_CLKIN so need to set up OCCR
+		/* PCI Clock is half CONFIG_SYS_CLK_FREQ so need to set up OCCR
 		 * fields accordingly */
 		reg32 |= (OCCR_PCI1CR | OCCR_PCI2CR);
 

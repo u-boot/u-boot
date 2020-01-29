@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <vsprintf.h>
 #include <asm/immap.h>
 #include <asm/io.h>
 

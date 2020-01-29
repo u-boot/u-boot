@@ -6,9 +6,6 @@
 #ifndef __ASM_ARCH_PCH_H
 #define __ASM_ARCH_PCH_H
 
-/* CPU bus clock is fixed at 100MHz */
-#define CPU_BCLK		100
-
 #define PMBASE			0x40
 #define ACPI_CNTL		0x44
 #define  ACPI_EN		(1 << 7)
@@ -109,6 +106,9 @@
 #define SATA_DTLE_EDGE_SHIFT	16
 
 /* Power Management */
+#define PCH_PCS			0x84
+#define  PCH_PCS_PS_D3HOT	3
+
 #define GEN_PMCON_1		0xa0
 #define  SMI_LOCK		(1 << 4)
 #define GEN_PMCON_2		0xa2

@@ -11,6 +11,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <cpu_func.h>
 #include <malloc.h>
 #include <net.h>
 #include <asm/io.h>

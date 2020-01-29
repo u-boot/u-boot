@@ -4,6 +4,7 @@
  * Copyright 2017 NXP
  */
 #include <common.h>
+#include <env.h>
 #include <malloc.h>
 #include <errno.h>
 #include <netdev.h>
@@ -14,13 +15,14 @@
 #include <fdt_support.h>
 #include <linux/libfdt.h>
 #include <fsl-mc/fsl_mc.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <efi_loader.h>
 #include <i2c.h>
 #include <asm/arch/mmu.h>
 #include <asm/arch/soc.h>
 #include <asm/arch/ppa.h>
 #include <fsl_sec.h>
+#include <asm/arch-fsl-layerscape/fsl_icid.h>
 
 #ifdef CONFIG_FSL_QIXIS
 #include "../common/qixis.h"
@@ -163,7 +165,16 @@ int select_i2c_ch_pca9547(u8 ch)
 {
 	int ret;
 
+#ifndef CONFIG_DM_I2C
 	ret = i2c_write(I2C_MUX_PCA_ADDR_PRI, 0, 1, &ch, 1);
+#else
+	struct udevice *dev;
+
+	ret = i2c_get_chip_for_busnum(0, I2C_MUX_PCA_ADDR_PRI, 1, &dev);
+	if (!ret)
+		ret = dm_i2c_write(dev, 0, &ch, 1);
+#endif
+
 	if (ret) {
 		puts("PCA: failed to select proper channel\n");
 		return ret;
@@ -330,7 +341,8 @@ void fdt_fixup_board_enet(void *fdt)
 		return;
 	}
 
-	if ((get_mc_boot_status() == 0) && (get_dpl_apply_status() == 0))
+	if (get_mc_boot_status() == 0 &&
+	    (is_lazy_dpl_addr_valid() || get_dpl_apply_status() == 0))
 		fdt_status_okay(fdt, offset);
 	else
 		fdt_status_fail(fdt, offset);
@@ -346,12 +358,47 @@ void board_quiesce_devices(void)
 void fsl_fdt_fixup_flash(void *fdt)
 {
 	int offset;
+#ifdef CONFIG_TFABOOT
+	u32 __iomem *dcfg_ccsr = (u32 __iomem *)DCFG_BASE;
+	u32 val;
+#endif
 
 /*
  * IFC and QSPI are muxed on board.
  * So disable IFC node in dts if QSPI is enabled or
  * disable QSPI node in dts in case QSPI is not enabled.
  */
+#ifdef CONFIG_TFABOOT
+	enum boot_src src = get_boot_src();
+	bool disable_ifc = false;
+
+	switch (src) {
+	case BOOT_SOURCE_IFC_NOR:
+		disable_ifc = false;
+		break;
+	case BOOT_SOURCE_QSPI_NOR:
+		disable_ifc = true;
+		break;
+	default:
+		val = in_le32(dcfg_ccsr + DCFG_RCWSR15 / 4);
+		if (DCFG_RCWSR15_IFCGRPABASE_QSPI == (val & (u32)0x3))
+			disable_ifc = true;
+		break;
+	}
+
+	if (disable_ifc) {
+		offset = fdt_path_offset(fdt, "/soc/ifc");
+
+		if (offset < 0)
+			offset = fdt_path_offset(fdt, "/ifc");
+	} else {
+		offset = fdt_path_offset(fdt, "/soc/quadspi");
+
+		if (offset < 0)
+			offset = fdt_path_offset(fdt, "/quadspi");
+	}
+
+#else
 #ifdef CONFIG_FSL_QSPI
 	offset = fdt_path_offset(fdt, "/soc/ifc");
 
@@ -363,6 +410,8 @@ void fsl_fdt_fixup_flash(void *fdt)
 	if (offset < 0)
 		offset = fdt_path_offset(fdt, "/quadspi");
 #endif
+#endif
+
 	if (offset < 0)
 		return;
 
@@ -371,10 +420,26 @@ void fsl_fdt_fixup_flash(void *fdt)
 
 int ft_board_setup(void *blob, bd_t *bd)
 {
-	u64 base[CONFIG_NR_DRAM_BANKS];
-	u64 size[CONFIG_NR_DRAM_BANKS];
+	int i;
+	u16 mc_memory_bank = 0;
+
+	u64 *base;
+	u64 *size;
+	u64 mc_memory_base = 0;
+	u64 mc_memory_size = 0;
+	u16 total_memory_banks;
 
 	ft_cpu_setup(blob, bd);
+
+	fdt_fixup_mc_ddr(&mc_memory_base, &mc_memory_size);
+
+	if (mc_memory_base != 0)
+		mc_memory_bank++;
+
+	total_memory_banks = CONFIG_NR_DRAM_BANKS + mc_memory_bank;
+
+	base = calloc(total_memory_banks, sizeof(u64));
+	size = calloc(total_memory_banks, sizeof(u64));
 
 	/* fixup DT for the two GPP DDR banks */
 	base[0] = gd->bd->bi_dram[0].start;
@@ -392,7 +457,17 @@ int ft_board_setup(void *blob, bd_t *bd)
 		size[1] = gd->arch.resv_ram - base[1];
 #endif
 
-	fdt_fixup_memory_banks(blob, base, size, 2);
+	if (mc_memory_base != 0) {
+		for (i = 0; i <= total_memory_banks; i++) {
+			if (base[i] == 0 && size[i] == 0) {
+				base[i] = mc_memory_base;
+				size[i] = mc_memory_size;
+				break;
+			}
+		}
+	}
+
+	fdt_fixup_memory_banks(blob, base, size, total_memory_banks);
 
 	fdt_fsl_mc_fixup_iommu_map_entry(blob);
 
@@ -403,6 +478,8 @@ int ft_board_setup(void *blob, bd_t *bd)
 #ifdef CONFIG_FSL_MC_ENET
 	fdt_fixup_board_enet(blob);
 #endif
+
+	fdt_fixup_icid(blob);
 
 	return 0;
 }

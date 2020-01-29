@@ -13,6 +13,8 @@
  */
 
 #include <common.h>
+#include <env.h>
+#include <irq_func.h>
 #include <malloc.h>
 #include <asm/acpi_table.h>
 #include <asm/io.h>
@@ -285,6 +287,10 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 #ifdef CONFIG_INTEL_MID
 	if (bootproto >= 0x0207)
 		hdr->hardware_subarch = X86_SUBARCH_INTEL_MID;
+#endif
+
+#ifdef CONFIG_GENERATE_ACPI_TABLE
+	setup_base->acpi_rsdp_addr = acpi_get_rsdp_addr();
 #endif
 
 	setup_device_tree(hdr, (const void *)env_get_hex("fdtaddr", 0));

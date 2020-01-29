@@ -58,11 +58,3 @@ int uniphier_ld20_boot_device_is_usb(u32 pinmon)
 {
 	return !!(~pinmon & 0x00000780);
 }
-
-unsigned int uniphier_ld11_boot_device_fixup(unsigned int mode)
-{
-	if (mode == BOOT_DEVICE_MMC1 || mode == BOOT_DEVICE_USB)
-		mode = BOOT_DEVICE_BOARD;
-
-	return mode;
-}

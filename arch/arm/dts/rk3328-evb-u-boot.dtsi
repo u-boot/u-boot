@@ -1,0 +1,12 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * (C) Copyright 2016-2019 Rockchip Electronics Co., Ltd
+ */
+
+#include "rk3328-u-boot.dtsi"
+#include "rk3328-sdram-ddr3-666.dtsi"
+
+&usb_host0_xhci {
+	vbus-supply = <&vcc5v0_host_xhci>;
+	status = "okay";
+};

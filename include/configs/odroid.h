@@ -48,8 +48,6 @@
 #define CONFIG_SYS_MONITOR_BASE	0x00000000
 
 #define CONFIG_SYS_MMC_ENV_DEV		CONFIG_MMC_DEFAULT_DEV
-#define CONFIG_ENV_SIZE			SZ_16K
-#define CONFIG_ENV_OFFSET		(SZ_1K * 1280) /* 1.25 MiB offset */
 #define CONFIG_ENV_OVERWRITE
 
 /* Partitions name */
@@ -132,7 +130,7 @@
 		"setenv kernelname Image.itb;" \
 		"run loadkernel;" \
 		"run kernel_args;" \
-		"bootm ${kernel_addr_r}#${boardname}\0" \
+		"bootm ${kernel_addr_r}#${board_name}\0" \
 	"boot_uimg=" \
 		"setenv kernelname uImage;" \
 		"run check_dtb;" \
@@ -186,7 +184,6 @@
  * TODO: Add Odroid X support
  */
 #define CONFIG_MISC_COMMON
-#define CONFIG_BOARD_TYPES
 
 #undef CONFIG_REVISION_TAG
 

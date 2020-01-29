@@ -24,9 +24,6 @@ struct swap_case_platdata {
 	u32 bar[6];
 };
 
-#define offset_to_barnum(offset)	\
-		(((offset) - PCI_BASE_ADDRESS_0) / sizeof(u32))
-
 enum {
 	MEM_TEXT_SIZE	= 0x100,
 };
@@ -54,17 +51,62 @@ struct swap_case_priv {
 	char mem_text[MEM_TEXT_SIZE];
 };
 
-static int sandbox_swap_case_get_devfn(struct udevice *dev)
+static int sandbox_swap_case_use_ea(struct udevice *dev)
 {
-	struct pci_child_platdata *plat = dev_get_parent_platdata(dev);
+	return !!ofnode_get_property(dev->node, "use-ea", NULL);
+}
 
-	return plat->devfn;
+/* Please keep these macros in sync with ea_regs below */
+#define PCI_CAP_ID_EA_SIZE		(sizeof(ea_regs) + 4)
+#define PCI_CAP_ID_EA_ENTRY_CNT		4
+/* Hardcoded EA structure, excluding 1st DW. */
+static const u32 ea_regs[] = {
+	/* BEI=0, ES=2, BAR0 32b Base + 32b MaxOffset, I/O space */
+	(2 << 8) | 2,
+	PCI_CAP_EA_BASE_LO0,
+	0,
+	/* BEI=1, ES=2, BAR1 32b Base + 32b MaxOffset */
+	(1 << 4) | 2,
+	PCI_CAP_EA_BASE_LO1,
+	MEM_TEXT_SIZE - 1,
+	/* BEI=2, ES=3, BAR2 64b Base + 32b MaxOffset */
+	(2 << 4) | 3,
+	PCI_CAP_EA_BASE_LO2 | PCI_EA_IS_64,
+	PCI_CAP_EA_SIZE_LO,
+	PCI_CAP_EA_BASE_HI2,
+	/* BEI=4, ES=4, BAR4 64b Base + 64b MaxOffset */
+	(4 << 4) | 4,
+	PCI_CAP_EA_BASE_LO4 | PCI_EA_IS_64,
+	PCI_CAP_EA_SIZE_LO | PCI_EA_IS_64,
+	PCI_CAP_EA_BASE_HI4,
+	PCI_CAP_EA_SIZE_HI,
+};
+
+static int sandbox_swap_case_read_ea(struct udevice *emul, uint offset,
+				     ulong *valuep, enum pci_size_t size)
+{
+	u32 reg;
+
+	offset = offset - PCI_CAP_ID_EA_OFFSET - 4;
+	reg = ea_regs[offset >> 2];
+	reg >>= (offset % 4) * 8;
+
+	*valuep = reg;
+	return 0;
 }
 
 static int sandbox_swap_case_read_config(struct udevice *emul, uint offset,
 					 ulong *valuep, enum pci_size_t size)
 {
 	struct swap_case_platdata *plat = dev_get_platdata(emul);
+
+	/*
+	 * The content of the EA capability structure is handled elsewhere to
+	 * keep the switch/case below sane
+	 */
+	if (offset > PCI_CAP_ID_EA_OFFSET + PCI_CAP_LIST_NEXT &&
+	    offset < PCI_CAP_ID_EA_OFFSET + PCI_CAP_ID_EA_SIZE)
+		return sandbox_swap_case_read_ea(emul, offset, valuep, size);
 
 	switch (offset) {
 	case PCI_COMMAND:
@@ -77,7 +119,7 @@ static int sandbox_swap_case_read_config(struct udevice *emul, uint offset,
 		*valuep = SANDBOX_PCI_VENDOR_ID;
 		break;
 	case PCI_DEVICE_ID:
-		*valuep = SANDBOX_PCI_DEVICE_ID;
+		*valuep = SANDBOX_PCI_SWAP_CASE_EMUL_ID;
 		break;
 	case PCI_CLASS_DEVICE:
 		if (size == PCI_SIZE_8) {
@@ -97,25 +139,13 @@ static int sandbox_swap_case_read_config(struct udevice *emul, uint offset,
 	case PCI_BASE_ADDRESS_4:
 	case PCI_BASE_ADDRESS_5: {
 		int barnum;
-		u32 *bar, result;
+		u32 *bar;
 
-		barnum = offset_to_barnum(offset);
+		barnum = pci_offset_to_barnum(offset);
 		bar = &plat->bar[barnum];
 
-		result = *bar;
-		if (*bar == 0xffffffff) {
-			if (barinfo[barnum].type) {
-				result = (~(barinfo[barnum].size - 1) &
-					PCI_BASE_ADDRESS_IO_MASK) |
-					PCI_BASE_ADDRESS_SPACE_IO;
-			} else {
-				result = (~(barinfo[barnum].size - 1) &
-					PCI_BASE_ADDRESS_MEM_MASK) |
-					PCI_BASE_ADDRESS_MEM_TYPE_32;
-			}
-		}
-		debug("r bar %d=%x\n", barnum, result);
-		*valuep = result;
+		*valuep = sandbox_pci_read_bar(*bar, barinfo[barnum].type,
+					       barinfo[barnum].size);
 		break;
 	}
 	case PCI_CAPABILITY_LIST:
@@ -134,9 +164,21 @@ static int sandbox_swap_case_read_config(struct udevice *emul, uint offset,
 		*valuep = PCI_CAP_ID_MSIX_OFFSET;
 		break;
 	case PCI_CAP_ID_MSIX_OFFSET:
-		*valuep = PCI_CAP_ID_MSIX;
+		if (sandbox_swap_case_use_ea(emul))
+			*valuep = (PCI_CAP_ID_EA_OFFSET << 8) | PCI_CAP_ID_MSIX;
+		else
+			*valuep = PCI_CAP_ID_MSIX;
 		break;
 	case PCI_CAP_ID_MSIX_OFFSET + PCI_CAP_LIST_NEXT:
+		if (sandbox_swap_case_use_ea(emul))
+			*valuep = PCI_CAP_ID_EA_OFFSET;
+		else
+			*valuep = 0;
+		break;
+	case PCI_CAP_ID_EA_OFFSET:
+		*valuep = (PCI_CAP_ID_EA_ENTRY_CNT << 16) | PCI_CAP_ID_EA;
+		break;
+	case PCI_CAP_ID_EA_OFFSET + PCI_CAP_LIST_NEXT:
 		*valuep = 0;
 		break;
 	case PCI_EXT_CAP_ID_ERR_OFFSET:
@@ -167,7 +209,7 @@ static int sandbox_swap_case_write_config(struct udevice *emul, uint offset,
 		int barnum;
 		u32 *bar;
 
-		barnum = offset_to_barnum(offset);
+		barnum = pci_offset_to_barnum(offset);
 		bar = &plat->bar[barnum];
 
 		debug("w bar %d=%lx\n", barnum, value);
@@ -222,8 +264,8 @@ static void sandbox_swap_case_do_op(enum swap_case_op op, char *str, int len)
 	}
 }
 
-int sandbox_swap_case_read_io(struct udevice *dev, unsigned int addr,
-			      ulong *valuep, enum pci_size_t size)
+static int sandbox_swap_case_read_io(struct udevice *dev, unsigned int addr,
+				     ulong *valuep, enum pci_size_t size)
 {
 	struct swap_case_priv *priv = dev_get_priv(dev);
 	unsigned int offset;
@@ -240,8 +282,8 @@ int sandbox_swap_case_read_io(struct udevice *dev, unsigned int addr,
 	return 0;
 }
 
-int sandbox_swap_case_write_io(struct udevice *dev, unsigned int addr,
-			       ulong value, enum pci_size_t size)
+static int sandbox_swap_case_write_io(struct udevice *dev, unsigned int addr,
+				      ulong value, enum pci_size_t size)
 {
 	struct swap_case_priv *priv = dev_get_priv(dev);
 	unsigned int offset;
@@ -257,6 +299,9 @@ int sandbox_swap_case_write_io(struct udevice *dev, unsigned int addr,
 	return 0;
 }
 
+static int pci_ea_bar2_magic = PCI_EA_BAR2_MAGIC;
+static int pci_ea_bar4_magic = PCI_EA_BAR4_MAGIC;
+
 static int sandbox_swap_case_map_physmem(struct udevice *dev,
 		phys_addr_t addr, unsigned long *lenp, void **ptrp)
 {
@@ -265,9 +310,42 @@ static int sandbox_swap_case_map_physmem(struct udevice *dev,
 	int barnum;
 	int ret;
 
+	if (sandbox_swap_case_use_ea(dev)) {
+		/*
+		 * only support mapping base address in EA test for now, we
+		 * don't handle mapping an offset inside a BAR.  Seems good
+		 * enough for the current test.
+		 */
+		switch (addr) {
+		case (phys_addr_t)PCI_CAP_EA_BASE_LO0:
+			*ptrp = &priv->op;
+			*lenp = 4;
+			break;
+		case (phys_addr_t)PCI_CAP_EA_BASE_LO1:
+			*ptrp = priv->mem_text;
+			*lenp = barinfo[1].size - 1;
+			break;
+		case (phys_addr_t)((PCI_CAP_EA_BASE_HI2 << 32) |
+				   PCI_CAP_EA_BASE_LO2):
+			*ptrp = &pci_ea_bar2_magic;
+			*lenp = PCI_CAP_EA_SIZE_LO;
+			break;
+		case (phys_addr_t)((PCI_CAP_EA_BASE_HI4 << 32) |
+				   PCI_CAP_EA_BASE_LO4):
+			*ptrp = &pci_ea_bar4_magic;
+			*lenp = (PCI_CAP_EA_SIZE_HI << 32) |
+				PCI_CAP_EA_SIZE_LO;
+			break;
+		default:
+			return -ENOENT;
+		}
+		return 0;
+	}
+
 	ret = sandbox_swap_case_find_bar(dev, addr, &barnum, &offset);
 	if (ret)
 		return ret;
+
 	if (barnum == 1) {
 		*ptrp = priv->mem_text + offset;
 		avail = barinfo[1].size - offset;
@@ -292,8 +370,7 @@ static int sandbox_swap_case_unmap_physmem(struct udevice *dev,
 	return 0;
 }
 
-struct dm_pci_emul_ops sandbox_swap_case_emul_ops = {
-	.get_devfn = sandbox_swap_case_get_devfn,
+static struct dm_pci_emul_ops sandbox_swap_case_emul_ops = {
 	.read_config = sandbox_swap_case_read_config,
 	.write_config = sandbox_swap_case_write_config,
 	.read_io = sandbox_swap_case_read_io,
@@ -317,7 +394,8 @@ U_BOOT_DRIVER(sandbox_swap_case_emul) = {
 };
 
 static struct pci_device_id sandbox_swap_case_supported[] = {
-	{ PCI_VDEVICE(SANDBOX, SANDBOX_PCI_DEVICE_ID), SWAP_CASE_DRV_DATA },
+	{ PCI_VDEVICE(SANDBOX, SANDBOX_PCI_SWAP_CASE_EMUL_ID),
+		SWAP_CASE_DRV_DATA },
 	{},
 };
 

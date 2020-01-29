@@ -9,4 +9,8 @@
 	aliases {
 		i2c0 = &i2c0;
 	};
+
+	nand {
+		compatible = "ti,davinci-nand";
+	};
 };

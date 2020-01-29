@@ -8,6 +8,7 @@
 #include <asm/io.h>
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch/soc.h>
+#include <linux/mii.h>
 
 u32 dpmac_to_devdisr[] = {
 	[WRIOP1_DPMAC1] = FSL_CHASSIS3_DEVDISR2_DPMAC1,
@@ -91,7 +92,7 @@ void fsl_rgmii_init(void)
 		& FSL_CHASSIS3_EC1_REGSR_PRTCL_MASK;
 	ec >>= FSL_CHASSIS3_EC1_REGSR_PRTCL_SHIFT;
 
-	if (!ec)
+	if (!ec && (wriop_is_enabled_dpmac(17) == -ENODEV))
 		wriop_init_dpmac_enet_if(17, PHY_INTERFACE_MODE_RGMII_ID);
 #endif
 
@@ -100,7 +101,7 @@ void fsl_rgmii_init(void)
 		& FSL_CHASSIS3_EC2_REGSR_PRTCL_MASK;
 	ec >>= FSL_CHASSIS3_EC2_REGSR_PRTCL_SHIFT;
 
-	if (!ec)
+	if (!ec && (wriop_is_enabled_dpmac(18) == -ENODEV))
 		wriop_init_dpmac_enet_if(18, PHY_INTERFACE_MODE_RGMII_ID);
 #endif
 }

@@ -196,7 +196,7 @@ int board_init(void)
 	init_final_memctl_regs();
 #endif
 
-#ifdef CONFIG_SECURE_BOOT
+#ifdef CONFIG_NXP_ESBC
 	/* In case of Secure Boot, the IBR configures the SMMU
 	 * to allow only Secure transactions.
 	 * SMMU must be reset in bypass mode.

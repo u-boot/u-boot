@@ -15,6 +15,7 @@
 #include <asm/fec.h>
 #endif
 #include <asm/immap.h>
+#include <linux/mii.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

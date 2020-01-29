@@ -7,7 +7,6 @@
 
 from entry import Entry
 from blob_dtb import Entry_blob_dtb
-import state
 import tools
 
 class Entry_u_boot_dtb_with_ucode(Entry_blob_dtb):
@@ -25,8 +24,12 @@ class Entry_u_boot_dtb_with_ucode(Entry_blob_dtb):
     it available to u_boot_ucode.
     """
     def __init__(self, section, etype, node):
+        # Put this here to allow entry-docs and help to work without libfdt
+        global state
+        import state
+
         Entry_blob_dtb.__init__(self, section, etype, node)
-        self.ucode_data = ''
+        self.ucode_data = b''
         self.collate = False
         self.ucode_offset = None
         self.ucode_size = None
@@ -35,6 +38,9 @@ class Entry_u_boot_dtb_with_ucode(Entry_blob_dtb):
 
     def GetDefaultFilename(self):
         return 'u-boot.dtb'
+
+    def GetFdtEtype(self):
+        return 'u-boot-dtb'
 
     def ProcessFdt(self, fdt):
         # So the module can be loaded without it
@@ -53,11 +59,11 @@ class Entry_u_boot_dtb_with_ucode(Entry_blob_dtb):
             return True
 
         # Remove the microcode
-        fname = self.GetDefaultFilename()
-        fdt = state.GetFdt(fname)
+        etype = self.GetFdtEtype()
+        fdt = state.GetFdtForEtype(etype)
         self.ucode = fdt.GetNode('/microcode')
         if not self.ucode:
-            raise self.Raise("No /microcode node found in '%s'" % fname)
+            raise self.Raise("No /microcode node found in '%s'" % etype)
 
         # There's no need to collate it (move all microcode into one place)
         # if we only have one chunk of microcode.
@@ -65,7 +71,7 @@ class Entry_u_boot_dtb_with_ucode(Entry_blob_dtb):
         for node in self.ucode.subnodes:
             data_prop = node.props.get('data')
             if data_prop:
-                self.ucode_data += ''.join(data_prop.bytes)
+                self.ucode_data += data_prop.bytes
                 if self.collate:
                     node.DeleteProp('data')
         return True

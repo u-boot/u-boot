@@ -240,6 +240,7 @@ o config-1
   |- fdt = "fdt sub-node unit-name" [, "fdt overlay sub-node unit-name", ...]
   |- fpga = "fpga sub-node unit-name"
   |- loadables = "loadables sub-node unit-name"
+  |- compatible = "vendor,board-style device tree compatible string"
 
 
   Mandatory properties:
@@ -261,8 +262,14 @@ o config-1
   - loadables : Unit name containing a list of additional binaries to be
     loaded at their given locations.  "loadables" is a comma-separated list
     of strings. U-Boot will load each binary at its given start-address and
-    may optionaly invoke additional post-processing steps on this binary based
+    may optionally invoke additional post-processing steps on this binary based
     on its component image node type.
+  - compatible : The root compatible string of the U-Boot device tree that
+    this configuration shall automatically match when CONFIG_FIT_BEST_MATCH is
+    enabled. If this property is not provided, the compatible string will be
+    extracted from the fdt blob instead. This is only possible if the fdt is
+    not compressed, so images with compressed fdts that want to use compatible
+    string matching must always provide this property.
 
 The FDT blob is required to properly boot FDT based kernel, so the minimal
 configuration for 2.6 FDT kernel is (kernel, fdt) pair.

@@ -47,20 +47,7 @@
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	       UART2_BASE
 
-#ifdef CONFIG_SPI_FLASH
-
-/* SPI */
-#ifdef CONFIG_CMD_SF
-  #define CONFIG_SPI_FLASH_MTD
-  #define CONFIG_SPI_FLASH_BAR
-  #define CONFIG_SF_DEFAULT_BUS              0
-  #define CONFIG_SF_DEFAULT_CS               0
-					     /* GPIO 3-19 (21248) */
-  #define CONFIG_SF_DEFAULT_SPEED            30000000
-  #define CONFIG_SF_DEFAULT_MODE             (SPI_MODE_0)
-#endif
-
-#elif defined(CONFIG_SPL_NAND_SUPPORT)
+#if !defined(CONFIG_SPI_FLASH) && defined(CONFIG_SPL_NAND_SUPPORT)
 /* Enable NAND support */
 #ifdef CONFIG_CMD_NAND
   #define CONFIG_SYS_MAX_NAND_DEVICE	1
@@ -85,9 +72,6 @@
 
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR      0
-
-/* eMMC Configs */
-#define CONFIG_SUPPORT_EMMC_BOOT
 
 /*
  * SATA Configs
@@ -137,7 +121,6 @@
 #define CONFIG_NETCONSOLE
 
 /* Framebuffer and LCD */
-#define CONFIG_VIDEO_IPUV3
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
@@ -147,7 +130,6 @@
 
 /* Miscellaneous configurable options */
 #define CONFIG_HWCONFIG
-#define CONFIG_PREBOOT
 
 /* Memory configuration */
 #define CONFIG_SYS_MEMTEST_START       0x10000000
@@ -173,23 +155,6 @@
 #if defined(CONFIG_ENV_IS_IN_MMC)
   #define CONFIG_SYS_MMC_ENV_DEV         0
   #define CONFIG_SYS_MMC_ENV_PART        1
-  #define CONFIG_ENV_OFFSET              (709 * SZ_1K)
-  #define CONFIG_ENV_SIZE                (128 * SZ_1K)
-  #define CONFIG_ENV_OFFSET_REDUND       (CONFIG_ENV_OFFSET + (128 * SZ_1K))
-#elif defined(CONFIG_ENV_IS_IN_NAND)
-  #define CONFIG_ENV_OFFSET              (16 * SZ_1M)
-  #define CONFIG_ENV_SECT_SIZE           (128 * SZ_1K)
-  #define CONFIG_ENV_SIZE                CONFIG_ENV_SECT_SIZE
-  #define CONFIG_ENV_OFFSET_REDUND       (CONFIG_ENV_OFFSET + (512 * SZ_1K))
-  #define CONFIG_ENV_SIZE_REDUND         CONFIG_ENV_SIZE
-#elif defined(CONFIG_ENV_IS_IN_SPI_FLASH)
-  #define CONFIG_ENV_OFFSET		(512 * SZ_1K)
-  #define CONFIG_ENV_SECT_SIZE		(64 * SZ_1K)
-  #define CONFIG_ENV_SIZE		(8 * SZ_1K)
-  #define CONFIG_ENV_SPI_BUS             CONFIG_SF_DEFAULT_BUS
-  #define CONFIG_ENV_SPI_CS              CONFIG_SF_DEFAULT_CS
-  #define CONFIG_ENV_SPI_MODE            CONFIG_SF_DEFAULT_MODE
-  #define CONFIG_ENV_SPI_MAX_HZ          CONFIG_SF_DEFAULT_SPEED
 #endif
 
 /* Environment */

@@ -1,0 +1,64 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * (C) Copyright 2019 Rockchip Electronics Co., Ltd
+ */
+
+/ {
+	aliases {
+		mmc0 = &emmc;
+		mmc1 = &sdmmc;
+	};
+
+	chosen {
+		u-boot,spl-boot-order = &emmc, &sdmmc;
+	};
+
+	dmc: dmc {
+		u-boot,dm-pre-reloc;
+		compatible = "rockchip,rk3328-dmc";
+		reg = <0x0 0xff400000 0x0 0x1000
+		       0x0 0xff780000 0x0 0x3000
+		       0x0 0xff100000 0x0 0x1000
+		       0x0 0xff440000 0x0 0x1000
+		       0x0 0xff720000 0x0 0x1000
+		       0x0 0xff798000 0x0 0x1000>;
+	};
+
+	usb_host0_xhci: usb@ff600000 {
+		compatible = "rockchip,rk3328-xhci";
+		reg = <0x0 0xff600000 0x0 0x100000>;
+		interrupts = <GIC_SPI 67 IRQ_TYPE_LEVEL_HIGH>;
+		snps,dis-enblslpm-quirk;
+		snps,phyif-utmi-bits = <16>;
+		snps,dis-u2-freeclk-exists-quirk;
+		snps,dis-u2-susphy-quirk;
+		status = "disabled";
+	};
+};
+
+&cru {
+	u-boot,dm-pre-reloc;
+};
+
+&grf {
+	u-boot,dm-pre-reloc;
+};
+
+&uart2 {
+	u-boot,dm-pre-reloc;
+	clock-frequency = <24000000>;
+};
+
+&emmc {
+	u-boot,dm-pre-reloc;
+
+	/* mmc to sram can't do dma, prevent aborts transfering TF-A parts */
+	u-boot,spl-fifo-mode;
+};
+
+&sdmmc {
+	u-boot,dm-pre-reloc;
+
+	/* mmc to sram can't do dma, prevent aborts transfering TF-A parts */
+	u-boot,spl-fifo-mode;
+};

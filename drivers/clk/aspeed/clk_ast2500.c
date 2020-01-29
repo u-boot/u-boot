@@ -143,6 +143,17 @@ static ulong ast2500_clk_get_rate(struct clk *clk)
 			rate = rate / apb_div;
 		}
 		break;
+	case BCLK_SDCLK:
+		{
+			ulong apb_div = 4 + 4 * ((readl(&priv->scu->clk_sel1)
+						  & SCU_SDCLK_DIV_MASK)
+						 >> SCU_SDCLK_DIV_SHIFT);
+			rate = ast2500_get_hpll_rate(clkin,
+						     readl(&priv->
+							   scu->h_pll_param));
+			rate = rate / apb_div;
+		}
+		break;
 	case PCLK_UART1:
 		rate = ast2500_get_uart_clk_rate(priv->scu, 1);
 		break;
@@ -436,6 +447,22 @@ static int ast2500_clk_enable(struct clk *clk)
 	struct ast2500_clk_priv *priv = dev_get_priv(clk->dev);
 
 	switch (clk->id) {
+	case BCLK_SDCLK:
+		if (readl(&priv->scu->clk_stop_ctrl1) & SCU_CLKSTOP_SDCLK) {
+			ast_scu_unlock(priv->scu);
+
+			setbits_le32(&priv->scu->sysreset_ctrl1,
+				     SCU_SYSRESET_SDIO);
+			udelay(100);
+			clrbits_le32(&priv->scu->clk_stop_ctrl1,
+				     SCU_CLKSTOP_SDCLK);
+			mdelay(10);
+			clrbits_le32(&priv->scu->sysreset_ctrl1,
+				     SCU_SYSRESET_SDIO);
+
+			ast_scu_lock(priv->scu);
+		}
+		break;
 	/*
 	 * For MAC clocks the clock rate is
 	 * configured based on whether RGMII or RMII mode has been selected

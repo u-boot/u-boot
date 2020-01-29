@@ -37,8 +37,6 @@
 #define CONFIG_REVISION_TAG		1
 
 /* Size of malloc() pool */
-#define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
-						/* Sector */
 #undef CONFIG_SYS_MALLOC_LEN
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (128 << 10))
 
@@ -144,18 +142,11 @@
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + \
 					0x01000000) /* 16MB */
 
-/* NAND and environment organization  */
-
-#define CONFIG_ENV_OFFSET		0x260000
-
 /* SRAM config */
 #define CONFIG_SYS_SRAM_START              0x40200000
 #define CONFIG_SYS_SRAM_SIZE               0x10000
 
 /* Defines for SPL */
-
-#undef CONFIG_SPL_TEXT_BASE
-#define CONFIG_SPL_TEXT_BASE		0x40200000 /*CONFIG_SYS_SRAM_START*/
 
 /* NAND boot config */
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE

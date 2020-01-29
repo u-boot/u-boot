@@ -11,6 +11,7 @@ import sys
 import fdt_util
 import libfdt
 from libfdt import QUIET_NOTFOUND
+import tools
 
 # This deals with a device tree, presenting it as an assortment of Node and
 # Prop objects, representing nodes and properties, respectively. This file
@@ -28,6 +29,57 @@ def CheckErr(errnum, msg):
         raise ValueError('Error %d: %s: %s' %
             (errnum, libfdt.fdt_strerror(errnum), msg))
 
+
+def BytesToValue(data):
+    """Converts a string of bytes into a type and value
+
+    Args:
+        A bytes value (which on Python 2 is an alias for str)
+
+    Return:
+        A tuple:
+            Type of data
+            Data, either a single element or a list of elements. Each element
+            is one of:
+                TYPE_STRING: str/bytes value from the property
+                TYPE_INT: a byte-swapped integer stored as a 4-byte str/bytes
+                TYPE_BYTE: a byte stored as a single-byte str/bytes
+    """
+    data = bytes(data)
+    size = len(data)
+    strings = data.split(b'\0')
+    is_string = True
+    count = len(strings) - 1
+    if count > 0 and not len(strings[-1]):
+        for string in strings[:-1]:
+            if not string:
+                is_string = False
+                break
+            for ch in string:
+                if ch < 32 or ch > 127:
+                    is_string = False
+                    break
+    else:
+        is_string = False
+    if is_string:
+        if count == 1: 
+            return TYPE_STRING, strings[0].decode()
+        else:
+            return TYPE_STRING, [s.decode() for s in strings[:-1]]
+    if size % 4:
+        if size == 1:
+            return TYPE_BYTE, tools.ToChar(data[0])
+        else:
+            return TYPE_BYTE, [tools.ToChar(ch) for ch in list(data)]
+    val = []
+    for i in range(0, size, 4):
+        val.append(data[i:i + 4])
+    if size == 4:
+        return TYPE_INT, val[0]
+    else:
+        return TYPE_INT, val
+
+
 class Prop:
     """A device tree property
 
@@ -37,18 +89,18 @@ class Prop:
             bytes
         type: Value type
     """
-    def __init__(self, node, offset, name, bytes):
+    def __init__(self, node, offset, name, data):
         self._node = node
         self._offset = offset
         self.name = name
         self.value = None
-        self.bytes = str(bytes)
+        self.bytes = bytes(data)
         self.dirty = False
-        if not bytes:
+        if not data:
             self.type = TYPE_BOOL
             self.value = True
             return
-        self.type, self.value = self.BytesToValue(bytes)
+        self.type, self.value = BytesToValue(bytes(data))
 
     def RefreshOffset(self, poffset):
         self._offset = poffset
@@ -86,55 +138,6 @@ class Prop:
             val = self.GetEmpty(self.type)
             while len(self.value) < len(newprop.value):
                 self.value.append(val)
-
-    def BytesToValue(self, bytes):
-        """Converts a string of bytes into a type and value
-
-        Args:
-            A string containing bytes
-
-        Return:
-            A tuple:
-                Type of data
-                Data, either a single element or a list of elements. Each element
-                is one of:
-                    TYPE_STRING: string value from the property
-                    TYPE_INT: a byte-swapped integer stored as a 4-byte string
-                    TYPE_BYTE: a byte stored as a single-byte string
-        """
-        bytes = str(bytes)
-        size = len(bytes)
-        strings = bytes.split('\0')
-        is_string = True
-        count = len(strings) - 1
-        if count > 0 and not strings[-1]:
-            for string in strings[:-1]:
-                if not string:
-                    is_string = False
-                    break
-                for ch in string:
-                    if ch < ' ' or ch > '~':
-                        is_string = False
-                        break
-        else:
-            is_string = False
-        if is_string:
-            if count == 1:
-                return TYPE_STRING, strings[0]
-            else:
-                return TYPE_STRING, strings[:-1]
-        if size % 4:
-            if size == 1:
-                return TYPE_BYTE, bytes[0]
-            else:
-                return TYPE_BYTE, list(bytes)
-        val = []
-        for i in range(0, size, 4):
-            val.append(bytes[i:i + 4])
-        if size == 4:
-            return TYPE_INT, val[0]
-        else:
-            return TYPE_INT, val
 
     @classmethod
     def GetEmpty(self, type):
@@ -181,8 +184,8 @@ class Prop:
         Args:
             bytes: New property value to set
         """
-        self.bytes = str(bytes)
-        self.type, self.value = self.BytesToValue(bytes)
+        self.bytes = bytes
+        self.type, self.value = BytesToValue(bytes)
         self.dirty = True
 
     def Sync(self, auto_resize=False):
@@ -334,7 +337,8 @@ class Node:
         Args:
             prop_name: Name of property
         """
-        self.props[prop_name] = Prop(self, None, prop_name, '\0' * 4)
+        self.props[prop_name] = Prop(self, None, prop_name,
+                                     tools.GetBytes(0, 4))
 
     def AddEmptyProp(self, prop_name, len):
         """Add a property with a fixed data size, for filling in later
@@ -346,8 +350,25 @@ class Node:
             prop_name: Name of property
             len: Length of data in property
         """
-        value = chr(0) * len
+        value = tools.GetBytes(0, len)
         self.props[prop_name] = Prop(self, None, prop_name, value)
+
+    def _CheckProp(self, prop_name):
+        """Check if a property is present
+
+        Args:
+            prop_name: Name of property
+
+        Returns:
+            self
+
+        Raises:
+            ValueError if the property is missing
+        """
+        if prop_name not in self.props:
+            raise ValueError("Fdt '%s', node '%s': Missing property '%s'" %
+                             (self._fdt._fname, self.path, prop_name))
+        return self
 
     def SetInt(self, prop_name, val):
         """Update an integer property int the device tree.
@@ -361,7 +382,7 @@ class Node:
             prop_name: Name of property
             val: Value to set
         """
-        self.props[prop_name].SetInt(val)
+        self._CheckProp(prop_name).props[prop_name].SetInt(val)
 
     def SetData(self, prop_name, val):
         """Set the data value of a property
@@ -373,7 +394,7 @@ class Node:
             prop_name: Name of property to set
             val: Data value to set
         """
-        self.props[prop_name].SetData(val)
+        self._CheckProp(prop_name).props[prop_name].SetData(val)
 
     def SetString(self, prop_name, val):
         """Set the string value of a property
@@ -385,7 +406,9 @@ class Node:
             prop_name: Name of property to set
             val: String value to set (will be \0-terminated in DT)
         """
-        self.props[prop_name].SetData(val + chr(0))
+        if type(val) == str:
+            val = val.encode('utf-8')
+        self._CheckProp(prop_name).props[prop_name].SetData(val + b'\0')
 
     def AddString(self, prop_name, val):
         """Add a new string property to a node
@@ -397,7 +420,9 @@ class Node:
             prop_name: Name of property to add
             val: String value of property
         """
-        self.props[prop_name] = Prop(self, None, prop_name, val + chr(0))
+        if sys.version_info[0] >= 3:  # pragma: no cover
+            val = bytes(val, 'utf-8')
+        self.props[prop_name] = Prop(self, None, prop_name, val + b'\0')
 
     def AddSubnode(self, name):
         """Add a new subnode to the node
@@ -448,8 +473,11 @@ class Node:
 
         # Sync properties now, whose offsets should not have been disturbed.
         # We do this after subnodes, since this disturbs the offsets of these
-        # properties.
-        prop_list = sorted(self.props.values(), key=lambda prop: prop._offset,
+        # properties. Note that new properties will have an offset of None here,
+        # which Python 3 cannot sort against int. So use a large value instead
+        # to ensure that the new properties are added first.
+        prop_list = sorted(self.props.values(),
+                           key=lambda prop: prop._offset or 1 << 31,
                            reverse=True)
         for prop in prop_list:
             prop.Sync(auto_resize)
@@ -461,29 +489,35 @@ class Fdt:
     Properties:
       fname: Filename of fdt
       _root: Root of device tree (a Node object)
+      name: Helpful name for this Fdt for the user (useful when creating the
+        DT from data rather than a file)
     """
     def __init__(self, fname):
         self._fname = fname
         self._cached_offsets = False
         self.phandle_to_node = {}
+        self.name = ''
         if self._fname:
+            self.name = self._fname
             self._fname = fdt_util.EnsureCompiled(self._fname)
 
-            with open(self._fname) as fd:
+            with open(self._fname, 'rb') as fd:
                 self._fdt_obj = libfdt.Fdt(fd.read())
 
     @staticmethod
-    def FromData(data):
+    def FromData(data, name=''):
         """Create a new Fdt object from the given data
 
         Args:
             data: Device-tree data blob
+            name: Helpful name for this Fdt for the user
 
         Returns:
             Fdt object containing the data
         """
         fdt = Fdt(None)
-        fdt._fdt_obj = libfdt.Fdt(bytearray(data))
+        fdt._fdt_obj = libfdt.Fdt(bytes(data))
+        fdt.name = name
         return fdt
 
     def LookupPhandle(self, phandle):
@@ -531,6 +565,8 @@ class Fdt:
         parts = path.split('/')
         if len(parts) < 2:
             return None
+        if len(parts) == 2 and parts[1] == '':
+            return node
         for part in parts[1:]:
             node = node.FindNode(part)
             if not node:
@@ -573,7 +609,7 @@ class Fdt:
         Returns:
             The FDT contents as a string of bytes
         """
-        return self._fdt_obj.as_bytearray()
+        return bytes(self._fdt_obj.as_bytearray())
 
     def GetFdtObj(self):
         """Get the contents of the FDT
@@ -649,6 +685,14 @@ class Fdt:
         """
         node = Node(fdt, parent, offset, name, path)
         return node
+
+    def GetFilename(self):
+        """Get the filename of the device tree
+
+        Returns:
+            String filename
+        """
+        return self._fname
 
 def FdtScan(fname):
     """Returns a new Fdt object"""

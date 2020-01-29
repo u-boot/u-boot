@@ -7,8 +7,8 @@
 #include <common.h>
 #include <asm/io.h>
 #include <fdtdec.h>
-#include <asm/arch/grf_rv1108.h>
-#include <asm/arch/hardware.h>
+#include <asm/arch-rockchip/grf_rv1108.h>
+#include <asm/arch-rockchip/hardware.h>
 #include <asm/gpio.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -50,7 +50,7 @@ int mach_cpu_init(void)
 
 #define MODEM_ENABLE_GPIO 111
 
-int board_init(void)
+int board_early_init_f(void)
 {
 	gpio_request(MODEM_ENABLE_GPIO, "modem_enable");
 	gpio_direction_output(MODEM_ENABLE_GPIO, 0);

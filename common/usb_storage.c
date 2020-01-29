@@ -650,8 +650,8 @@ static int usb_stor_CBI_get_status(struct scsi_cmd *srb, struct us_data *us)
 	int timeout;
 
 	us->ip_wanted = 1;
-	submit_int_msg(us->pusb_dev, us->irqpipe,
-			(void *) &us->ip_data, us->irqmaxp, us->irqinterval);
+	usb_int_msg(us->pusb_dev, us->irqpipe,
+		    (void *)&us->ip_data, us->irqmaxp, us->irqinterval, false);
 	timeout = 1000;
 	while (timeout--) {
 		if (us->ip_wanted == 0)
@@ -938,31 +938,32 @@ do_retry:
 static void usb_stor_set_max_xfer_blk(struct usb_device *udev,
 				      struct us_data *us)
 {
-	unsigned short blk;
-	size_t __maybe_unused size;
-	int __maybe_unused ret;
-
-#if !CONFIG_IS_ENABLED(DM_USB)
-#ifdef CONFIG_USB_EHCI_HCD
 	/*
-	 * The U-Boot EHCI driver can handle any transfer length as long as
-	 * there is enough free heap space left, but the SCSI READ(10) and
-	 * WRITE(10) commands are limited to 65535 blocks.
+	 * Limit the total size of a transfer to 120 KB.
+	 *
+	 * Some devices are known to choke with anything larger. It seems like
+	 * the problem stems from the fact that original IDE controllers had
+	 * only an 8-bit register to hold the number of sectors in one transfer
+	 * and even those couldn't handle a full 256 sectors.
+	 *
+	 * Because we want to make sure we interoperate with as many devices as
+	 * possible, we will maintain a 240 sector transfer size limit for USB
+	 * Mass Storage devices.
+	 *
+	 * Tests show that other operating have similar limits with Microsoft
+	 * Windows 7 limiting transfers to 128 sectors for both USB2 and USB3
+	 * and Apple Mac OS X 10.11 limiting transfers to 256 sectors for USB2
+	 * and 2048 for USB3 devices.
 	 */
-	blk = USHRT_MAX;
-#else
-	blk = 20;
-#endif
-#else
+	unsigned short blk = 240;
+
+#if CONFIG_IS_ENABLED(DM_USB)
+	size_t size;
+	int ret;
+
 	ret = usb_get_max_xfer_size(udev, (size_t *)&size);
-	if (ret < 0) {
-		/* unimplemented, let's use default 20 */
-		blk = 20;
-	} else {
-		if (size > USHRT_MAX * 512)
-			size = USHRT_MAX * 512;
+	if ((ret >= 0) && (size < blk * 512))
 		blk = size / 512;
-	}
 #endif
 
 	us->max_xfer_blk = blk;
@@ -1179,6 +1180,7 @@ retry_it:
 		srb->pdata = (unsigned char *)buf_addr;
 		if (usb_read_10(srb, ss, start, smallblks)) {
 			debug("Read ERROR\n");
+			ss->flags &= ~USB_READY;
 			usb_request_sense(srb, ss);
 			if (retry--)
 				goto retry_it;
@@ -1189,7 +1191,6 @@ retry_it:
 		blks -= smallblks;
 		buf_addr += srb->datalen;
 	} while (blks != 0);
-	ss->flags &= ~USB_READY;
 
 	debug("usb_read: end startblk " LBAF ", blccnt %x buffer %lx\n",
 	      start, smallblks, buf_addr);
@@ -1264,6 +1265,7 @@ retry_it:
 		srb->pdata = (unsigned char *)buf_addr;
 		if (usb_write_10(srb, ss, start, smallblks)) {
 			debug("Write ERROR\n");
+			ss->flags &= ~USB_READY;
 			usb_request_sense(srb, ss);
 			if (retry--)
 				goto retry_it;
@@ -1274,7 +1276,6 @@ retry_it:
 		blks -= smallblks;
 		buf_addr += srb->datalen;
 	} while (blks != 0);
-	ss->flags &= ~USB_READY;
 
 	debug("usb_write: end startblk " LBAF ", blccnt %x buffer %lx\n",
 	      start, smallblks, buf_addr);
@@ -1469,10 +1470,10 @@ int usb_stor_get_info(struct usb_device *dev, struct us_data *ss,
 	memset(pccb->pdata, 0, 8);
 	if (usb_read_capacity(pccb, ss) != 0) {
 		printf("READ_CAP ERROR\n");
+		ss->flags &= ~USB_READY;
 		cap[0] = 2880;
 		cap[1] = 0x200;
 	}
-	ss->flags &= ~USB_READY;
 	debug("Read Capacity returns: 0x%08x, 0x%08x\n", cap[0], cap[1]);
 #if 0
 	if (cap[0] > (0x200000 * 10)) /* greater than 10 GByte */

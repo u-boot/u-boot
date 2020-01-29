@@ -7,17 +7,13 @@
 
 #include <avb_verify.h>
 #include <command.h>
+#include <env.h>
 #include <image.h>
 #include <malloc.h>
 #include <mmc.h>
 
 #define AVB_BOOTARGS	"avb_bootargs"
 static struct AvbOps *avb_ops;
-
-static const char * const requested_partitions[] = {"boot",
-					     "system",
-					     "vendor",
-					     NULL};
 
 int do_avb_init(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
@@ -231,10 +227,12 @@ int do_avb_get_uuid(cmd_tbl_t *cmdtp, int flag,
 int do_avb_verify_part(cmd_tbl_t *cmdtp, int flag,
 		       int argc, char *const argv[])
 {
+	const char * const requested_partitions[] = {"boot", NULL};
 	AvbSlotVerifyResult slot_result;
 	AvbSlotVerifyData *out_data;
 	char *cmdline;
 	char *extra_args;
+	char *slot_suffix = "";
 
 	bool unlocked = false;
 	int res = CMD_RET_FAILURE;
@@ -244,8 +242,11 @@ int do_avb_verify_part(cmd_tbl_t *cmdtp, int flag,
 		return CMD_RET_FAILURE;
 	}
 
-	if (argc != 1)
+	if (argc < 1 || argc > 2)
 		return CMD_RET_USAGE;
+
+	if (argc == 2)
+		slot_suffix = argv[1];
 
 	printf("## Android Verified Boot 2.0 version %s\n",
 	       avb_version_string());
@@ -259,7 +260,7 @@ int do_avb_verify_part(cmd_tbl_t *cmdtp, int flag,
 	slot_result =
 		avb_slot_verify(avb_ops,
 				requested_partitions,
-				"",
+				slot_suffix,
 				unlocked,
 				AVB_HASHTREE_ERROR_MODE_RESTART_AND_INVALIDATE,
 				&out_data);
@@ -340,6 +341,76 @@ int do_avb_is_unlocked(cmd_tbl_t *cmdtp, int flag,
 	return CMD_RET_FAILURE;
 }
 
+int do_avb_read_pvalue(cmd_tbl_t *cmdtp, int flag, int argc,
+		       char * const argv[])
+{
+	const char *name;
+	size_t bytes;
+	size_t bytes_read;
+	void *buffer;
+	char *endp;
+
+	if (!avb_ops) {
+		printf("AVB 2.0 is not initialized, run 'avb init' first\n");
+		return CMD_RET_FAILURE;
+	}
+
+	if (argc != 3)
+		return CMD_RET_USAGE;
+
+	name = argv[1];
+	bytes = simple_strtoul(argv[2], &endp, 10);
+	if (*endp && *endp != '\n')
+		return CMD_RET_USAGE;
+
+	buffer = malloc(bytes);
+	if (!buffer)
+		return CMD_RET_FAILURE;
+
+	if (avb_ops->read_persistent_value(avb_ops, name, bytes, buffer,
+					   &bytes_read) == AVB_IO_RESULT_OK) {
+		printf("Read %zu bytes, value = %s\n", bytes_read,
+		       (char *)buffer);
+		free(buffer);
+		return CMD_RET_SUCCESS;
+	}
+
+	printf("Failed to read persistent value\n");
+
+	free(buffer);
+
+	return CMD_RET_FAILURE;
+}
+
+int do_avb_write_pvalue(cmd_tbl_t *cmdtp, int flag, int argc,
+			char * const argv[])
+{
+	const char *name;
+	const char *value;
+
+	if (!avb_ops) {
+		printf("AVB 2.0 is not initialized, run 'avb init' first\n");
+		return CMD_RET_FAILURE;
+	}
+
+	if (argc != 3)
+		return CMD_RET_USAGE;
+
+	name = argv[1];
+	value = argv[2];
+
+	if (avb_ops->write_persistent_value(avb_ops, name, strlen(value) + 1,
+					    (const uint8_t *)value) ==
+	    AVB_IO_RESULT_OK) {
+		printf("Wrote %zu bytes\n", strlen(value) + 1);
+		return CMD_RET_SUCCESS;
+	}
+
+	printf("Failed to write persistent value\n");
+
+	return CMD_RET_FAILURE;
+}
+
 static cmd_tbl_t cmd_avb[] = {
 	U_BOOT_CMD_MKENT(init, 2, 0, do_avb_init, "", ""),
 	U_BOOT_CMD_MKENT(read_rb, 2, 0, do_avb_read_rb, "", ""),
@@ -349,7 +420,11 @@ static cmd_tbl_t cmd_avb[] = {
 	U_BOOT_CMD_MKENT(read_part, 5, 0, do_avb_read_part, "", ""),
 	U_BOOT_CMD_MKENT(read_part_hex, 4, 0, do_avb_read_part_hex, "", ""),
 	U_BOOT_CMD_MKENT(write_part, 5, 0, do_avb_write_part, "", ""),
-	U_BOOT_CMD_MKENT(verify, 1, 0, do_avb_verify_part, "", ""),
+	U_BOOT_CMD_MKENT(verify, 2, 0, do_avb_verify_part, "", ""),
+#ifdef CONFIG_OPTEE_TA_AVB
+	U_BOOT_CMD_MKENT(read_pvalue, 3, 0, do_avb_read_pvalue, "", ""),
+	U_BOOT_CMD_MKENT(write_pvalue, 3, 0, do_avb_write_pvalue, "", ""),
+#endif
 };
 
 static int do_avb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -384,6 +459,11 @@ U_BOOT_CMD(
 	"    partition <partname> and print to stdout\n"
 	"avb write_part <partname> <offset> <num> <addr> - write <num> bytes to\n"
 	"    <partname> by <offset> using data from <addr>\n"
-	"avb verify - run verification process using hash data\n"
+#ifdef CONFIG_OPTEE_TA_AVB
+	"avb read_pvalue <name> <bytes> - read a persistent value <name>\n"
+	"avb write_pvalue <name> <value> - write a persistent value <name>\n"
+#endif
+	"avb verify [slot_suffix] - run verification process using hash data\n"
 	"    from vbmeta structure\n"
+	"    [slot_suffix] - _a, _b, etc (if vbmeta partition is slotted)\n"
 	);

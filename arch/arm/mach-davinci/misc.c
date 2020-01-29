@@ -9,7 +9,7 @@
  */
 
 #include <common.h>
-#include <environment.h>
+#include <env.h>
 #include <i2c.h>
 #include <net.h>
 #include <asm/arch/hardware.h>
@@ -68,7 +68,6 @@ err:
 /*
  * Set the mii mode as MII or RMII
  */
-#if defined(CONFIG_SOC_DA8XX)
 void davinci_emac_mii_mode_sel(int mode_sel)
 {
 	int val;
@@ -80,7 +79,7 @@ void davinci_emac_mii_mode_sel(int mode_sel)
 		val |= (1 << 8);
 	writel(val, &davinci_syscfg_regs->cfgchip3);
 }
-#endif
+
 /*
  * If there is no MAC address in the environment, then it will be initialized
  * (silently) from the value in the EEPROM.
@@ -106,7 +105,6 @@ void davinci_sync_env_enetaddr(uint8_t *rom_enetaddr)
 }
 #endif	/* CONFIG_DRIVER_TI_EMAC */
 
-#if defined(CONFIG_SOC_DA8XX)
 void irq_init(void)
 {
 	/*
@@ -135,4 +133,3 @@ int da8xx_configure_lpsc_items(const struct lpsc_resource *item,
 
 	return 0;
 }
-#endif

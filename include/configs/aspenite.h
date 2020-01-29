@@ -35,6 +35,5 @@
 /*
  * Environment variables configurations
  */
-#define CONFIG_ENV_SIZE	0x20000	/* 64k */
 
 #endif	/* __CONFIG_ASPENITE_H */

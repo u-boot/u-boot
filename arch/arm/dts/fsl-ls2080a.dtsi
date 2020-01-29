@@ -56,6 +56,42 @@
 		      <0x00000000 0x08340000 0 0x40000>; /* MC control reg */
 	};
 
+	i2c0: i2c@2000000 {
+		status = "disabled";
+		compatible = "fsl,vf610-i2c";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x0 0x2000000 0x0 0x10000>;
+		interrupts = <0 34 0x4>; /* Level high type */
+	};
+
+	i2c1: i2c@2010000 {
+		status = "disabled";
+		compatible = "fsl,vf610-i2c";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x0 0x2010000 0x0 0x10000>;
+		interrupts = <0 34 0x4>; /* Level high type */
+	};
+
+	i2c2: i2c@2020000 {
+		status = "disabled";
+		compatible = "fsl,vf610-i2c";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x0 0x2020000 0x0 0x10000>;
+		interrupts = <0 35 0x4>; /* Level high type */
+	};
+
+	i2c3: i2c@2030000 {
+		status = "disabled";
+		compatible = "fsl,vf610-i2c";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x0 0x2030000 0x0 0x10000>;
+		interrupts = <0 35 0x4>; /* Level high type */
+	};
+
 	dspi: dspi@2100000 {
 		compatible = "fsl,vf610-dspi";
 		#address-cells = <1>;

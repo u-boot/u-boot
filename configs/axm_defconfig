@@ -1,46 +1,76 @@
 CONFIG_ARM=y
-CONFIG_SPL_SYS_THUMB_BUILD=y
+CONFIG_SPL_SYS_DCACHE_OFF=y
+CONFIG_ARCH_CPU_INIT=y
+CONFIG_SYS_THUMB_BUILD=y
 # CONFIG_SPL_USE_ARCH_MEMCPY is not set
 # CONFIG_SPL_USE_ARCH_MEMSET is not set
 CONFIG_ARCH_AT91=y
+CONFIG_SPL_LDSCRIPT="arch/$(ARCH)/cpu/u-boot-spl.lds"
 CONFIG_SYS_TEXT_BASE=0x21000000
 CONFIG_TARGET_TAURUS=y
 CONFIG_SPL_GPIO_SUPPORT=y
 CONFIG_SPL_LIBCOMMON_SUPPORT=y
 CONFIG_SPL_LIBGENERIC_SUPPORT=y
-CONFIG_SPL_SERIAL_SUPPORT=y
+CONFIG_SYS_MALLOC_F_LEN=0x2000
+CONFIG_ENV_OFFSET=0x100000
+CONFIG_SPL_SYS_MALLOC_F_LEN=0x1000
+CONFIG_NR_DRAM_BANKS=1
 CONFIG_SPL=y
+CONFIG_DEBUG_UART_BASE=0xfffff200
+CONFIG_DEBUG_UART_CLOCK=18432000
 CONFIG_SPL_SPI_FLASH_SUPPORT=y
 CONFIG_SPL_SPI_SUPPORT=y
-CONFIG_NR_DRAM_BANKS=1
-CONFIG_SYS_EXTRA_OPTIONS="AT91SAM9G20,MACH_TYPE=2068,BOARD_AXM"
+CONFIG_DEBUG_UART=y
+CONFIG_SYS_EXTRA_OPTIONS="AT91SAM9G20,MACH_TYPE=2068"
 CONFIG_BOOTDELAY=3
-CONFIG_USE_BOOTARGS=y
-CONFIG_BOOTARGS="\0addip=setenv bootargs ${bootargs} ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}:${netdev}::off\0addtest=setenv bootargs ${bootargs} loglevel=4 test\0baudrate=115200\0boot_file=setenv bootfile /${project_dir}/kernel/uImage\0boot_retries=0\0bootcmd=run flash_self\0bootdelay=3\0ethact=macb0\0flash_nfs=run nand_kernel;run nfsargs;run addip;upgrade_available;bootm ${kernel_ram};reset\0flash_self=run nand_kernel;run setbootargs;upgrade_available;bootm ${kernel_ram};reset\0flash_self_test=run nand_kernel;run setbootargs addtest; upgrade_available;bootm ${kernel_ram};reset\0hostname=systemone\0kernel_Off=0x00200000\0kernel_Off_fallback=0x03800000\0kernel_ram=0x21500000\0kernel_size=0x00400000\0kernel_size_fallback=0x00400000\0loads_echo=1\0nand_kernel=nand read.e ${kernel_ram} ${kernel_Off} ${kernel_size}\0net_nfs=run boot_file;tftp ${kernel_ram} ${bootfile};run nfsargs;run addip;upgrade_available;bootm ${kernel_ram};reset\0netdev=eth0\0nfsargs=run root_path;setenv bootargs ${bootargs} root=/dev/nfs rw nfsroot=${serverip}:${rootpath} at91sam9_wdt.wdt_timeout=16\0partitionset_active=A\0preboot=echo;echo Type 'run flash_self' to use kernel and root filesystem on memory;echo Type 'run flash_nfs' to use kernel from memory and root filesystem over NFS;echo Type 'run net_nfs' to get Kernel over TFTP and mount root filesystem over NFS;echo\0project_dir=systemone\0root_path=setenv rootpath /home/projects/${project_dir}/rootfs\0rootfs=/dev/mtdblock5\0rootfs_fallback=/dev/mtdblock7\0setbootargs=setenv bootargs ${bootargs} console=ttyMTD,mtdoops root=${rootfs} rootfstype=jffs2 panic=7 at91sam9_wdt.wdt_timeout=16\0stderr=serial\0stdin=serial\0stdout=serial\0upgrade_available=0\0"
+CONFIG_USE_BOOTCOMMAND=y
+CONFIG_BOOTCOMMAND="run flash_self"
 # CONFIG_DISPLAY_BOARDINFO is not set
 CONFIG_BOARD_EARLY_INIT_F=y
+# CONFIG_SPL_LEGACY_IMAGE_SUPPORT is not set
+CONFIG_SPL_SYS_MALLOC_SIMPLE=y
+CONFIG_SPL_CRC32_SUPPORT=y
 CONFIG_SPL_NAND_SUPPORT=y
-CONFIG_SPL_SPI_LOAD=y
 CONFIG_HUSH_PARSER=y
+CONFIG_SYS_PROMPT="U-Boot> "
 # CONFIG_CMD_BDI is not set
 CONFIG_CMD_BOOTZ=y
 # CONFIG_CMD_IMI is not set
 # CONFIG_CMD_LOADS is not set
 CONFIG_CMD_NAND=y
-CONFIG_CMD_SF=y
+# CONFIG_CMD_PINMUX is not set
 CONFIG_CMD_SPI=y
 # CONFIG_CMD_SOURCE is not set
 # CONFIG_CMD_SETEXPR is not set
 CONFIG_CMD_DHCP=y
 CONFIG_CMD_PING=y
+CONFIG_CMD_MTDPARTS=y
 CONFIG_OF_CONTROL=y
-CONFIG_OF_EMBED=y
+CONFIG_SPL_OF_CONTROL=y
 CONFIG_DEFAULT_DEVICE_TREE="at91sam9g20-taurus"
+CONFIG_SPL_OF_PLATDATA=y
 CONFIG_ENV_IS_IN_NAND=y
+CONFIG_SYS_REDUNDAND_ENVIRONMENT=y
+CONFIG_ENV_OFFSET_REDUND=0x180000
+CONFIG_SYS_RELOC_GD_ENV_ADDR=y
+CONFIG_SPL_DM=y
+CONFIG_BLK=y
+CONFIG_HAVE_BLOCK_DEVICE=y
+CONFIG_CLK=y
+CONFIG_CLK_AT91=y
 # CONFIG_MMC is not set
-CONFIG_NAND=y
+CONFIG_MTD=y
+CONFIG_MTD_RAW_NAND=y
+# CONFIG_SYS_NAND_USE_FLASH_BBT is not set
 CONFIG_NAND_ATMEL=y
-CONFIG_SPI_FLASH=y
+CONFIG_DM_SPI_FLASH=y
 CONFIG_SPI_FLASH_STMICRO=y
 CONFIG_PHYLIB=y
-CONFIG_USE_TINY_PRINTF=y
+CONFIG_PINCTRL=y
+CONFIG_PINCTRL_AT91=y
+CONFIG_SPECIFY_CONSOLE_INDEX=y
+CONFIG_DEBUG_UART_ATMEL=y
+CONFIG_ATMEL_USART=y
+CONFIG_WDT=y
+CONFIG_WDT_AT91=y
+CONFIG_HEXDUMP=y

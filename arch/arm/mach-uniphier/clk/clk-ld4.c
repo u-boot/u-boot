@@ -15,18 +15,18 @@ void uniphier_ld4_clk_init(void)
 	u32 tmp;
 
 	/* deassert reset */
-	tmp = readl(SC_RSTCTRL);
+	tmp = readl(sc_base + SC_RSTCTRL);
 #ifdef CONFIG_NAND_DENALI
 	tmp |= SC_RSTCTRL_NRST_NAND;
 #endif
-	writel(tmp, SC_RSTCTRL);
-	readl(SC_RSTCTRL); /* dummy read */
+	writel(tmp, sc_base + SC_RSTCTRL);
+	readl(sc_base + SC_RSTCTRL); /* dummy read */
 
 	/* provide clocks */
-	tmp = readl(SC_CLKCTRL);
+	tmp = readl(sc_base + SC_CLKCTRL);
 #ifdef CONFIG_NAND_DENALI
 	tmp |= SC_CLKCTRL_CEN_NAND;
 #endif
-	writel(tmp, SC_CLKCTRL);
-	readl(SC_CLKCTRL); /* dummy read */
+	writel(tmp, sc_base + SC_CLKCTRL);
+	readl(sc_base + SC_CLKCTRL); /* dummy read */
 }

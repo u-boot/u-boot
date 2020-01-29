@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <MCD_dma.h>
+#include <cpu_func.h>
 #include <asm/immap.h>
 #include <asm/io.h>
 

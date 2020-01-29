@@ -14,7 +14,7 @@
 	interrupt-parent = <&lic>;
 
 
-	pcie-controller@01003000 {
+	pcie@1003000 {
 		compatible = "nvidia,tegra124-pcie";
 		device_type = "pci";
 		reg = <0x01003000 0x00000800   /* PADS registers */

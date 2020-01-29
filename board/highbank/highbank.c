@@ -5,6 +5,8 @@
 
 #include <common.h>
 #include <ahci.h>
+#include <cpu_func.h>
+#include <env.h>
 #include <netdev.h>
 #include <scsi.h>
 

@@ -303,6 +303,7 @@ static int do_mem_cmp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 static int do_mem_cp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong	addr, dest, count;
+	void	*src, *dst;
 	int	size;
 
 	if (argc != 4)
@@ -326,25 +327,34 @@ static int do_mem_cp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return 1;
 	}
 
+	src = map_sysmem(addr, count * size);
+	dst = map_sysmem(dest, count * size);
+
 #ifdef CONFIG_MTD_NOR_FLASH
 	/* check if we are copying to Flash */
-	if (addr2info(dest) != NULL) {
+	if (addr2info((ulong)dst)) {
 		int rc;
 
 		puts ("Copy to Flash... ");
 
-		rc = flash_write ((char *)addr, dest, count*size);
+		rc = flash_write((char *)src, (ulong)dst, count * size);
 		if (rc != 0) {
 			flash_perror (rc);
+			unmap_sysmem(src);
+			unmap_sysmem(dst);
 			return (1);
 		}
 		puts ("done\n");
+		unmap_sysmem(src);
+		unmap_sysmem(dst);
 		return 0;
 	}
 #endif
 
-	memcpy((void *)dest, (void *)addr, count * size);
+	memcpy(dst, src, count * size);
 
+	unmap_sysmem(src);
+	unmap_sysmem(dst);
 	return 0;
 }
 
@@ -1082,6 +1092,49 @@ static int do_mem_crc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 #endif
 
+#ifdef CONFIG_CMD_RANDOM
+static int do_random(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	unsigned long addr, len;
+	unsigned long seed; // NOT INITIALIZED ON PURPOSE
+	unsigned int *buf, *start;
+	unsigned char *buf8;
+	unsigned int i;
+
+	if (argc < 3 || argc > 4) {
+		printf("usage: %s <addr> <len> [<seed>]\n", argv[0]);
+		return 0;
+	}
+
+	len = simple_strtoul(argv[2], NULL, 16);
+	addr = simple_strtoul(argv[1], NULL, 16);
+
+	if (argc == 4) {
+		seed = simple_strtoul(argv[3], NULL, 16);
+		if (seed == 0) {
+			printf("The seed cannot be 0. Using 0xDEADBEEF.\n");
+			seed = 0xDEADBEEF;
+		}
+	} else {
+		seed = get_timer(0) ^ rand();
+	}
+
+	srand(seed);
+	start = map_sysmem(addr, len);
+	buf = start;
+	for (i = 0; i < (len / 4); i++)
+		*buf++ = rand();
+
+	buf8 = (unsigned char *)buf;
+	for (i = 0; i < (len % 4); i++)
+		*buf8++ = rand() & 0xFF;
+
+	unmap_sysmem(start);
+	printf("%lu bytes filled with random data\n", len);
+	return 1;
+}
+#endif
+
 /**************************************************/
 U_BOOT_CMD(
 	md,	3,	1,	do_mem_md,
@@ -1169,16 +1222,11 @@ U_BOOT_CMD(
 #endif
 
 #ifdef CONFIG_CMD_MEMINFO
-__weak void board_show_dram(phys_size_t size)
-{
-	puts("DRAM:  ");
-	print_size(size, "\n");
-}
-
 static int do_mem_info(cmd_tbl_t *cmdtp, int flag, int argc,
 		       char * const argv[])
 {
-	board_show_dram(gd->ram_size);
+	puts("DRAM:  ");
+	print_size(gd->ram_size, "\n");
 
 	return 0;
 }
@@ -1248,5 +1296,14 @@ U_BOOT_CMD(
 	meminfo,	3,	1,	do_mem_info,
 	"display memory information",
 	""
+);
+#endif
+
+#ifdef CONFIG_CMD_RANDOM
+U_BOOT_CMD(
+	random,	4,	0,	do_random,
+	"fill memory with random pattern",
+	"<addr> <len> [<seed>]\n"
+	"   - Fill 'len' bytes of memory starting at 'addr' with random data\n"
 );
 #endif

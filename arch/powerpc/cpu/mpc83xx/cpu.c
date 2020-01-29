@@ -10,6 +10,9 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
+#include <irq_func.h>
+#include <vsprintf.h>
 #include <watchdog.h>
 #include <command.h>
 #include <mpc83xx.h>
@@ -18,7 +21,7 @@
 #include <tsec.h>
 #include <netdev.h>
 #include <fsl_esdhc.h>
-#if defined(CONFIG_BOOTCOUNT_LIMIT) && !defined(CONFIG_MPC831x)
+#if defined(CONFIG_BOOTCOUNT_LIMIT) && !defined(CONFIG_ARCH_MPC831X)
 #include <linux/immap_qe.h>
 #include <asm/io.h>
 #endif
@@ -133,18 +136,18 @@ do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 #ifdef MPC83xx_RESET
 
 	/* Interrupts and MMU off */
-	__asm__ __volatile__ ("mfmsr    %0":"=r" (msr):);
-
-	msr &= ~( MSR_EE | MSR_IR | MSR_DR);
-	__asm__ __volatile__ ("mtmsr    %0"::"r" (msr));
+	msr = mfmsr();
+	msr &= ~(MSR_EE | MSR_IR | MSR_DR);
+	mtmsr(msr);
 
 	/* enable Reset Control Reg */
 	immap->reset.rpr = 0x52535445;
-	__asm__ __volatile__ ("sync");
-	__asm__ __volatile__ ("isync");
+	sync();
+	isync();
 
 	/* confirm Reset Control Reg is enabled */
-	while(!((immap->reset.rcer) & RCER_CRE));
+	while(!((immap->reset.rcer) & RCER_CRE))
+		;
 
 	udelay(200);
 
@@ -156,10 +159,9 @@ do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	immap->reset.rmr = RMR_CSRE;    /* Checkstop Reset enable */
 
 	/* Interrupts and MMU off */
-	__asm__ __volatile__ ("mfmsr    %0":"=r" (msr):);
-
+	msr = mfmsr();
 	msr &= ~(MSR_ME | MSR_EE | MSR_IR | MSR_DR);
-	__asm__ __volatile__ ("mtmsr    %0"::"r" (msr));
+	mtmsr(msr);
 
 	/*
 	 * Trying to execute the next instruction at a non-existing address
@@ -195,10 +197,11 @@ void watchdog_reset (void)
 	immr->wdt.swsrr = 0xaa39;
 
 	if (re_enable)
-		enable_interrupts ();
+		enable_interrupts();
 }
 #endif
 
+#ifndef CONFIG_DM_ETH
 /*
  * Initializes on-chip ethernet controllers.
  * to override, implement board_eth_init()
@@ -214,6 +217,7 @@ int cpu_eth_init(bd_t *bis)
 #endif
 	return 0;
 }
+#endif /* !CONFIG_DM_ETH */
 
 /*
  * Initializes on-chip MMC controllers.
@@ -226,4 +230,22 @@ int cpu_mmc_init(bd_t *bis)
 #else
 	return 0;
 #endif
+}
+
+void ppcDWstore(unsigned int *addr, unsigned int *value)
+{
+	asm("lfd 1, 0(%1)\n\t"
+	    "stfd 1, 0(%0)"
+	    :
+	    : "r" (addr), "r" (value)
+	    : "memory");
+}
+
+void ppcDWload(unsigned int *addr, unsigned int *ret)
+{
+	asm("lfd 1, 0(%0)\n\t"
+	    "stfd 1, 0(%1)"
+	    :
+	    : "r" (addr), "r" (ret)
+	    : "memory");
 }

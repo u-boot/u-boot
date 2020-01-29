@@ -1,87 +1,24 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
+ * (C) Copyright 2018
+ * Lukasz Majewski, DENX Software Engineering, lukma@denx.de.
+ *
  * Copyright 2013 Freescale Semiconductor, Inc.
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/iomux-vf610.h>
 #include <asm/arch/ddrmc-vf610.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/clock.h>
-#include <mmc.h>
-#include <fsl_esdhc.h>
+#include <env.h>
+#include <led.h>
 #include <miiphy.h>
-#include <netdev.h>
-#include <i2c.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-/*
- * Default DDR pad settings in arch/arm/include/asm/arch-vf610/iomux-vf610.h
- * do not match our settings. Let us (re)define our own settings here.
- */
-
-#define PCM052_VF610_DDR_PAD_CTRL	PAD_CTL_DSE_20ohm
-#define PCM052_VF610_DDR_PAD_CTRL_1	(PAD_CTL_DSE_20ohm | \
-					PAD_CTL_INPUT_DIFFERENTIAL)
-#define PCM052_VF610_DDR_RESET_PAD_CTL	(PAD_CTL_DSE_150ohm | \
-					PAD_CTL_PUS_100K_UP | \
-					PAD_CTL_INPUT_DIFFERENTIAL)
-
-enum {
-	PCM052_VF610_PAD_DDR_RESETB			= IOMUX_PAD(0x021c, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_RESET_PAD_CTL),
-	PCM052_VF610_PAD_DDR_A15__DDR_A_15		= IOMUX_PAD(0x0220, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_A14__DDR_A_14		= IOMUX_PAD(0x0224, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_A13__DDR_A_13		= IOMUX_PAD(0x0228, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_A12__DDR_A_12		= IOMUX_PAD(0x022c, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_A11__DDR_A_11		= IOMUX_PAD(0x0230, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_A10__DDR_A_10		= IOMUX_PAD(0x0234, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_A9__DDR_A_9		= IOMUX_PAD(0x0238, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_A8__DDR_A_8		= IOMUX_PAD(0x023c, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_A7__DDR_A_7		= IOMUX_PAD(0x0240, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_A6__DDR_A_6		= IOMUX_PAD(0x0244, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_A5__DDR_A_5		= IOMUX_PAD(0x0248, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_A4__DDR_A_4		= IOMUX_PAD(0x024c, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_A3__DDR_A_3		= IOMUX_PAD(0x0250, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_A2__DDR_A_2		= IOMUX_PAD(0x0254, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_A1__DDR_A_1		= IOMUX_PAD(0x0258, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_A0__DDR_A_0		= IOMUX_PAD(0x025c, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_BA2__DDR_BA_2		= IOMUX_PAD(0x0260, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_BA1__DDR_BA_1		= IOMUX_PAD(0x0264, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_BA0__DDR_BA_0		= IOMUX_PAD(0x0268, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_CAS__DDR_CAS_B		= IOMUX_PAD(0x026c, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_CKE__DDR_CKE_0		= IOMUX_PAD(0x0270, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_CLK__DDR_CLK_0		= IOMUX_PAD(0x0274, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL_1),
-	PCM052_VF610_PAD_DDR_CS__DDR_CS_B_0		= IOMUX_PAD(0x0278, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_D15__DDR_D_15		= IOMUX_PAD(0x027c, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_D14__DDR_D_14		= IOMUX_PAD(0x0280, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_D13__DDR_D_13		= IOMUX_PAD(0x0284, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_D12__DDR_D_12		= IOMUX_PAD(0x0288, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_D11__DDR_D_11		= IOMUX_PAD(0x028c, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_D10__DDR_D_10		= IOMUX_PAD(0x0290, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_D9__DDR_D_9		= IOMUX_PAD(0x0294, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_D8__DDR_D_8		= IOMUX_PAD(0x0298, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_D7__DDR_D_7		= IOMUX_PAD(0x029c, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_D6__DDR_D_6		= IOMUX_PAD(0x02a0, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_D5__DDR_D_5		= IOMUX_PAD(0x02a4, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_D4__DDR_D_4		= IOMUX_PAD(0x02a8, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_D3__DDR_D_3		= IOMUX_PAD(0x02ac, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_D2__DDR_D_2		= IOMUX_PAD(0x02b0, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_D1__DDR_D_1		= IOMUX_PAD(0x02b4, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_D0__DDR_D_0		= IOMUX_PAD(0x02b8, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_DQM1__DDR_DQM_1		= IOMUX_PAD(0x02bc, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_DQM0__DDR_DQM_0		= IOMUX_PAD(0x02c0, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_DQS1__DDR_DQS_1		= IOMUX_PAD(0x02c4, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL_1),
-	PCM052_VF610_PAD_DDR_DQS0__DDR_DQS_0		= IOMUX_PAD(0x02c8, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL_1),
-	PCM052_VF610_PAD_DDR_RAS__DDR_RAS_B		= IOMUX_PAD(0x02cc, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_WE__DDR_WE_B		= IOMUX_PAD(0x02d0, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_ODT1__DDR_ODT_0		= IOMUX_PAD(0x02d4, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_ODT0__DDR_ODT_1		= IOMUX_PAD(0x02d8, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_DDRBYTE1__DDR_DDRBYTE1	= IOMUX_PAD(0x02dc, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-	PCM052_VF610_PAD_DDR_DDRBYTE0__DDR_DDRBYTE0	= IOMUX_PAD(0x02e0, __NA_, 0, __NA_, 0, PCM052_VF610_DDR_PAD_CTRL),
-};
 
 static struct ddrmc_cr_setting pcm052_cr_settings[] = {
 	/* not in the datasheets, but in the original code */
@@ -151,59 +88,6 @@ static struct ddrmc_phy_setting pcm052_phy_settings[] = {
 
 int dram_init(void)
 {
-	static const iomux_v3_cfg_t pcm052_pads[] = {
-		PCM052_VF610_PAD_DDR_A15__DDR_A_15,
-		PCM052_VF610_PAD_DDR_A14__DDR_A_14,
-		PCM052_VF610_PAD_DDR_A13__DDR_A_13,
-		PCM052_VF610_PAD_DDR_A12__DDR_A_12,
-		PCM052_VF610_PAD_DDR_A11__DDR_A_11,
-		PCM052_VF610_PAD_DDR_A10__DDR_A_10,
-		PCM052_VF610_PAD_DDR_A9__DDR_A_9,
-		PCM052_VF610_PAD_DDR_A8__DDR_A_8,
-		PCM052_VF610_PAD_DDR_A7__DDR_A_7,
-		PCM052_VF610_PAD_DDR_A6__DDR_A_6,
-		PCM052_VF610_PAD_DDR_A5__DDR_A_5,
-		PCM052_VF610_PAD_DDR_A4__DDR_A_4,
-		PCM052_VF610_PAD_DDR_A3__DDR_A_3,
-		PCM052_VF610_PAD_DDR_A2__DDR_A_2,
-		PCM052_VF610_PAD_DDR_A1__DDR_A_1,
-		PCM052_VF610_PAD_DDR_A0__DDR_A_0,
-		PCM052_VF610_PAD_DDR_BA2__DDR_BA_2,
-		PCM052_VF610_PAD_DDR_BA1__DDR_BA_1,
-		PCM052_VF610_PAD_DDR_BA0__DDR_BA_0,
-		PCM052_VF610_PAD_DDR_CAS__DDR_CAS_B,
-		PCM052_VF610_PAD_DDR_CKE__DDR_CKE_0,
-		PCM052_VF610_PAD_DDR_CLK__DDR_CLK_0,
-		PCM052_VF610_PAD_DDR_CS__DDR_CS_B_0,
-		PCM052_VF610_PAD_DDR_D15__DDR_D_15,
-		PCM052_VF610_PAD_DDR_D14__DDR_D_14,
-		PCM052_VF610_PAD_DDR_D13__DDR_D_13,
-		PCM052_VF610_PAD_DDR_D12__DDR_D_12,
-		PCM052_VF610_PAD_DDR_D11__DDR_D_11,
-		PCM052_VF610_PAD_DDR_D10__DDR_D_10,
-		PCM052_VF610_PAD_DDR_D9__DDR_D_9,
-		PCM052_VF610_PAD_DDR_D8__DDR_D_8,
-		PCM052_VF610_PAD_DDR_D7__DDR_D_7,
-		PCM052_VF610_PAD_DDR_D6__DDR_D_6,
-		PCM052_VF610_PAD_DDR_D5__DDR_D_5,
-		PCM052_VF610_PAD_DDR_D4__DDR_D_4,
-		PCM052_VF610_PAD_DDR_D3__DDR_D_3,
-		PCM052_VF610_PAD_DDR_D2__DDR_D_2,
-		PCM052_VF610_PAD_DDR_D1__DDR_D_1,
-		PCM052_VF610_PAD_DDR_D0__DDR_D_0,
-		PCM052_VF610_PAD_DDR_DQM1__DDR_DQM_1,
-		PCM052_VF610_PAD_DDR_DQM0__DDR_DQM_0,
-		PCM052_VF610_PAD_DDR_DQS1__DDR_DQS_1,
-		PCM052_VF610_PAD_DDR_DQS0__DDR_DQS_0,
-		PCM052_VF610_PAD_DDR_RAS__DDR_RAS_B,
-		PCM052_VF610_PAD_DDR_WE__DDR_WE_B,
-		PCM052_VF610_PAD_DDR_ODT1__DDR_ODT_0,
-		PCM052_VF610_PAD_DDR_ODT0__DDR_ODT_1,
-		PCM052_VF610_PAD_DDR_DDRBYTE1__DDR_DDRBYTE1,
-		PCM052_VF610_PAD_DDR_DDRBYTE0__DDR_DDRBYTE0,
-		PCM052_VF610_PAD_DDR_RESETB,
-	};
-
 #if defined(CONFIG_TARGET_PCM052)
 
 	static const struct ddr3_jedec_timings pcm052_ddr_timings = {
@@ -320,143 +204,12 @@ int dram_init(void)
 
 #endif
 
-	imx_iomux_v3_setup_multiple_pads(pcm052_pads, ARRAY_SIZE(pcm052_pads));
-
 	ddrmc_ctrl_init_ddr3(&pcm052_ddr_timings, pcm052_cr_settings,
 			     pcm052_phy_settings, 1, row_diff);
 
 	gd->ram_size = get_ram_size((void *)PHYS_SDRAM, PHYS_SDRAM_SIZE);
 
 	return 0;
-}
-
-static void setup_iomux_uart(void)
-{
-	static const iomux_v3_cfg_t uart1_pads[] = {
-		NEW_PAD_CTRL(VF610_PAD_PTB4__UART1_TX, VF610_UART_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTB5__UART1_RX, VF610_UART_PAD_CTRL),
-	};
-
-	imx_iomux_v3_setup_multiple_pads(uart1_pads, ARRAY_SIZE(uart1_pads));
-}
-
-#define ENET_PAD_CTRL	(PAD_CTL_PUS_47K_UP | PAD_CTL_SPEED_HIGH | \
-			PAD_CTL_DSE_50ohm | PAD_CTL_OBE_IBE_ENABLE)
-
-static void setup_iomux_enet(void)
-{
-	static const iomux_v3_cfg_t enet0_pads[] = {
-		NEW_PAD_CTRL(VF610_PAD_PTA6__RMII0_CLKIN, ENET_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTC1__RMII0_MDIO, ENET_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTC0__RMII0_MDC, ENET_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTC2__RMII0_CRS_DV, ENET_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTC3__RMII0_RD1, ENET_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTC4__RMII0_RD0, ENET_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTC5__RMII0_RXER, ENET_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTC6__RMII0_TD1, ENET_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTC7__RMII0_TD0, ENET_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTC8__RMII0_TXEN, ENET_PAD_CTRL),
-	};
-
-	imx_iomux_v3_setup_multiple_pads(enet0_pads, ARRAY_SIZE(enet0_pads));
-}
-
-/*
- * I2C2 is the only I2C used, on pads PTA22/PTA23.
- */
-
-static void setup_iomux_i2c(void)
-{
-	static const iomux_v3_cfg_t i2c_pads[] = {
-		VF610_PAD_PTA22__I2C2_SCL,
-		VF610_PAD_PTA23__I2C2_SDA,
-	};
-
-	imx_iomux_v3_setup_multiple_pads(i2c_pads, ARRAY_SIZE(i2c_pads));
-}
-
-#ifdef CONFIG_NAND_VF610_NFC
-static void setup_iomux_nfc(void)
-{
-	static const iomux_v3_cfg_t nfc_pads[] = {
-		VF610_PAD_PTD31__NF_IO15,
-		VF610_PAD_PTD30__NF_IO14,
-		VF610_PAD_PTD29__NF_IO13,
-		VF610_PAD_PTD28__NF_IO12,
-		VF610_PAD_PTD27__NF_IO11,
-		VF610_PAD_PTD26__NF_IO10,
-		VF610_PAD_PTD25__NF_IO9,
-		VF610_PAD_PTD24__NF_IO8,
-		VF610_PAD_PTD23__NF_IO7,
-		VF610_PAD_PTD22__NF_IO6,
-		VF610_PAD_PTD21__NF_IO5,
-		VF610_PAD_PTD20__NF_IO4,
-		VF610_PAD_PTD19__NF_IO3,
-		VF610_PAD_PTD18__NF_IO2,
-		VF610_PAD_PTD17__NF_IO1,
-		VF610_PAD_PTD16__NF_IO0,
-		VF610_PAD_PTB24__NF_WE_B,
-		VF610_PAD_PTB25__NF_CE0_B,
-		VF610_PAD_PTB27__NF_RE_B,
-		VF610_PAD_PTC26__NF_RB_B,
-		VF610_PAD_PTC27__NF_ALE,
-		VF610_PAD_PTC28__NF_CLE
-	};
-
-	imx_iomux_v3_setup_multiple_pads(nfc_pads, ARRAY_SIZE(nfc_pads));
-}
-#endif
-
-static void setup_iomux_qspi(void)
-{
-	static const iomux_v3_cfg_t qspi0_pads[] = {
-		VF610_PAD_PTD0__QSPI0_A_QSCK,
-		VF610_PAD_PTD1__QSPI0_A_CS0,
-		VF610_PAD_PTD2__QSPI0_A_DATA3,
-		VF610_PAD_PTD3__QSPI0_A_DATA2,
-		VF610_PAD_PTD4__QSPI0_A_DATA1,
-		VF610_PAD_PTD5__QSPI0_A_DATA0,
-		VF610_PAD_PTD7__QSPI0_B_QSCK,
-		VF610_PAD_PTD8__QSPI0_B_CS0,
-		VF610_PAD_PTD9__QSPI0_B_DATA3,
-		VF610_PAD_PTD10__QSPI0_B_DATA2,
-		VF610_PAD_PTD11__QSPI0_B_DATA1,
-		VF610_PAD_PTD12__QSPI0_B_DATA0,
-	};
-
-	imx_iomux_v3_setup_multiple_pads(qspi0_pads, ARRAY_SIZE(qspi0_pads));
-}
-
-#define ESDHC_PAD_CTRL	(PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_HIGH | \
-			PAD_CTL_DSE_20ohm | PAD_CTL_OBE_IBE_ENABLE)
-
-struct fsl_esdhc_cfg esdhc_cfg[1] = {
-	{ESDHC1_BASE_ADDR},
-};
-
-int board_mmc_getcd(struct mmc *mmc)
-{
-	/* eSDHC1 is always present */
-	return 1;
-}
-
-int board_mmc_init(bd_t *bis)
-{
-	static const iomux_v3_cfg_t esdhc1_pads[] = {
-		NEW_PAD_CTRL(VF610_PAD_PTA24__ESDHC1_CLK, ESDHC_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTA25__ESDHC1_CMD, ESDHC_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTA26__ESDHC1_DAT0, ESDHC_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTA27__ESDHC1_DAT1, ESDHC_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTA28__ESDHC1_DAT2, ESDHC_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTA29__ESDHC1_DAT3, ESDHC_PAD_CTRL),
-	};
-
-	esdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
-
-	imx_iomux_v3_setup_multiple_pads(
-		esdhc1_pads, ARRAY_SIZE(esdhc1_pads));
-
-	return fsl_esdhc_initialize(bis, &esdhc_cfg[0]);
 }
 
 static void clock_init(void)
@@ -485,7 +238,7 @@ static void clock_init(void)
 	clrsetbits_le32(&ccm->ccgr9, CCM_REG_CTRL_MASK,
 			CCM_CCGR9_FEC0_CTRL_MASK | CCM_CCGR9_FEC1_CTRL_MASK);
 	clrsetbits_le32(&ccm->ccgr10, CCM_REG_CTRL_MASK,
-			CCM_CCGR10_NFC_CTRL_MASK | CCM_CCGR10_I2C2_CTRL_MASK);
+			CCM_CCGR10_NFC_CTRL_MASK);
 
 	clrsetbits_le32(&anadig->pll2_ctrl, ANADIG_PLL2_CTRL_POWERDOWN,
 			ANADIG_PLL2_CTRL_ENABLE | ANADIG_PLL2_CTRL_DIV_SELECT);
@@ -531,23 +284,10 @@ static void mscm_init(void)
 		writew(MSCM_IRSPRC_CP0_EN, &mscmir->irsprc[i]);
 }
 
-int board_phy_config(struct phy_device *phydev)
-{
-	if (phydev->drv->config)
-		phydev->drv->config(phydev);
-
-	return 0;
-}
-
 int board_early_init_f(void)
 {
 	clock_init();
 	mscm_init();
-	setup_iomux_uart();
-	setup_iomux_enet();
-	setup_iomux_i2c();
-	setup_iomux_qspi();
-	setup_iomux_nfc();
 
 	return 0;
 }
@@ -571,47 +311,115 @@ int board_init(void)
 	return 0;
 }
 
-int checkboard(void)
+#ifdef CONFIG_TARGET_BK4R1
+void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 {
-	puts("Board: PCM-052\n");
+	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
+	struct fuse_bank *bank = &ocotp->bank[4];
+	struct fuse_bank4_regs *fuse =
+		(struct fuse_bank4_regs *)bank->fuse_regs;
+	u32 value;
+
+	/*
+	 * BK4 has different layout of stored MAC address
+	 * than one used in imx_get_mac_from_fuse() @ generic.c
+	 */
+
+	switch (dev_id) {
+	case 0:
+		value = readl(&fuse->mac_addr1);
+
+		mac[0] = value >> 8;
+		mac[1] = value;
+
+		value = readl(&fuse->mac_addr0);
+		mac[2] = value >> 24;
+		mac[3] = value >> 16;
+		mac[4] = value >> 8;
+		mac[5] = value;
+		break;
+	case 1:
+		value = readl(&fuse->mac_addr2);
+
+		mac[0] = value >> 24;
+		mac[1] = value >> 16;
+		mac[2] = value >> 8;
+		mac[3] = value;
+
+		value = readl(&fuse->mac_addr1);
+		mac[4] = value >> 24;
+		mac[5] = value >> 16;
+		break;
+	}
+}
+
+int board_late_init(void)
+{
+	struct src *psrc = (struct src *)SRC_BASE_ADDR;
+	u32 reg;
+
+	if (IS_ENABLED(CONFIG_LED))
+		led_default_state();
+
+	/*
+	 * BK4r1 handle emergency/service SD card boot
+	 * Checking the SBMR1 register BOOTCFG1 byte:
+	 * NAND:
+	 *      bit [2] - NAND data width - 16
+	 *	bit [5] - NAND fast boot
+	 *	bit [7] = 1 - NAND as a source of booting
+	 * SD card (0x64):
+	 *      bit [4] = 0 - SD card source
+	 *	bit [6] = 1 - SD/MMC source
+	 */
+
+	reg = readl(&psrc->sbmr1);
+	if ((reg & SRC_SBMR1_BOOTCFG1_SDMMC) &&
+	    !(reg & SRC_SBMR1_BOOTCFG1_MMC)) {
+		printf("------ SD card boot -------\n");
+		env_set_default("!LVFBootloader", 0);
+		env_set("bootcmd",
+			"run prepare_install_bk4r1_envs; run install_bk4r1rs");
+	}
 
 	return 0;
 }
 
-static int do_m4go(cmd_tbl_t *cmdtp, int flag, int argc,
-		       char * const argv[])
+/**
+ * KSZ8081
+ */
+#define MII_KSZ8081_REFERENCE_CLOCK_SELECT	0x1f
+#define RMII_50MHz_CLOCK	0x8180
+
+int board_phy_config(struct phy_device *phydev)
 {
-	ulong addr;
+	/* Set 50 MHz reference clock */
+	phy_write(phydev, MDIO_DEVAD_NONE, MII_KSZ8081_REFERENCE_CLOCK_SELECT,
+		  RMII_50MHz_CLOCK);
 
-	/* Consume 'm4go' */
-	argc--; argv++;
-
-	/*
-	 * Parse provided address - default to load_addr in case not provided.
-	 */
-
-	if (argc)
-		addr = simple_strtoul(argv[0], NULL, 16);
-	else
-		addr = load_addr;
-
-	/*
-	 * Write boot address in PERSISTENT_ENTRY1[31:0] aka SRC_GPR2[31:0]
-	 */
-	writel(addr + 0x401, 0x4006E028);
-
-	/*
-	 * Start secondary processor by enabling its clock
-	 */
-	writel(0x15a5a, 0x4006B08C);
-
-	return 1;
+	return genphy_config(phydev);
 }
+#endif /* CONFIG_TARGET_BK4R1 */
 
-U_BOOT_CMD(
-	m4go, 2 /* one arg max */, 1 /* repeatable */, do_m4go,
-	"start the secondary Cortex-M4 from scatter file image",
-	"[<addr>]\n"
-	"    - start secondary Cortex-M4 core using a scatter file image\n"
-	"The argument needs to be a scatter file\n"
-);
+int checkboard(void)
+{
+#ifdef CONFIG_TARGET_BK4R1
+	u32 *gpio3_pdir = (u32 *)(GPIO3_BASE_ADDR + 0x10);
+
+	/*
+	 * USB_RESET_N (PTC30 - GPIO103 - PORT3[7]):
+	 * L333 -> pull up added -> read 1
+	 * L320 -> no pull up -> read 0
+	 *
+	 * Default iomuxc_ptc30 value after reset: 0x300061 -> RCON28
+	 * - input enabled, pull (up/down) disabled
+	 */
+	if (*gpio3_pdir & BIT(7))
+		puts("Board: BK4r1 (L333)\n");
+	else
+		puts("Board: BK4r1 (L320)\n");
+#else
+	puts("Board: PCM-052\n");
+#endif
+	return 0;
+}

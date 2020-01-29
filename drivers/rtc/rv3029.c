@@ -10,6 +10,7 @@
 #include <common.h>
 #include <command.h>
 #include <dm.h>
+#include <eeprom.h>
 #include <i2c.h>
 #include <rtc.h>
 

@@ -13,9 +13,9 @@
 #include <mapmem.h>
 #include <syscon.h>
 #include <bitfield.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/cru_rk3368.h>
-#include <asm/arch/hardware.h>
+#include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/cru_rk3368.h>
+#include <asm/arch-rockchip/hardware.h>
 #include <asm/io.h>
 #include <dm/lists.h>
 #include <dt-bindings/clock/rk3368-cru.h>
@@ -566,31 +566,12 @@ static int __maybe_unused rk3368_clk_set_parent(struct clk *clk, struct clk *par
 	return -ENOENT;
 }
 
-static int rk3368_clk_enable(struct clk *clk)
-{
-	switch (clk->id) {
-	case SCLK_MAC:
-	case SCLK_MAC_RX:
-	case SCLK_MAC_TX:
-	case SCLK_MACREF:
-	case SCLK_MACREF_OUT:
-	case ACLK_GMAC:
-	case PCLK_GMAC:
-		/* Required to successfully probe the Designware GMAC driver */
-		return 0;
-	}
-
-	debug("%s: unsupported clk %ld\n", __func__, clk->id);
-	return -ENOENT;
-}
-
 static struct clk_ops rk3368_clk_ops = {
 	.get_rate = rk3368_clk_get_rate,
 	.set_rate = rk3368_clk_set_rate,
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.set_parent = rk3368_clk_set_parent,
 #endif
-	.enable = rk3368_clk_enable,
 };
 
 static int rk3368_clk_probe(struct udevice *dev)
@@ -639,7 +620,7 @@ static int rk3368_clk_bind(struct udevice *dev)
 		sys_child->priv = priv;
 	}
 
-#if CONFIG_IS_ENABLED(CONFIG_RESET_ROCKCHIP)
+#if CONFIG_IS_ENABLED(RESET_ROCKCHIP)
 	ret = offsetof(struct rk3368_cru, softrst_con[0]);
 	ret = rockchip_reset_bind(dev, ret, 15);
 	if (ret)

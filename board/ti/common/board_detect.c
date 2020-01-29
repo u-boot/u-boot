@@ -8,8 +8,11 @@
  */
 
 #include <common.h>
+#include <eeprom.h>
+#include <asm/arch/hardware.h>
 #include <asm/omap_common.h>
 #include <dm/uclass.h>
+#include <env.h>
 #include <i2c.h>
 
 #include "board_detect.h"
@@ -284,6 +287,191 @@ int __maybe_unused ti_i2c_eeprom_dra7_get(int bus_addr, int dev_addr)
 	return 0;
 }
 
+static int ti_i2c_eeprom_am6_parse_record(struct ti_am6_eeprom_record *record,
+					  struct ti_am6_eeprom *ep,
+					  char **mac_addr,
+					  u8 mac_addr_max_cnt,
+					  u8 *mac_addr_cnt)
+{
+	switch (record->header.id) {
+	case TI_AM6_EEPROM_RECORD_BOARD_INFO:
+		if (record->header.len != sizeof(record->data.board_info))
+			return -EINVAL;
+
+		if (!ep)
+			break;
+
+		/* Populate (and clean, if needed) the board name */
+		strlcpy(ep->name, record->data.board_info.name,
+			sizeof(ep->name));
+		ti_eeprom_string_cleanup(ep->name);
+
+		/* Populate selected other fields from the board info record */
+		strlcpy(ep->version, record->data.board_info.version,
+			sizeof(ep->version));
+		strlcpy(ep->software_revision,
+			record->data.board_info.software_revision,
+			sizeof(ep->software_revision));
+		strlcpy(ep->serial, record->data.board_info.serial,
+			sizeof(ep->serial));
+		break;
+	case TI_AM6_EEPROM_RECORD_MAC_INFO:
+		if (record->header.len != sizeof(record->data.mac_info))
+			return -EINVAL;
+
+		if (!mac_addr || !mac_addr_max_cnt)
+			break;
+
+		*mac_addr_cnt = ((record->data.mac_info.mac_control &
+				 TI_AM6_EEPROM_MAC_ADDR_COUNT_MASK) >>
+				 TI_AM6_EEPROM_MAC_ADDR_COUNT_SHIFT) + 1;
+
+		/*
+		 * The EEPROM can (but may not) hold a very large amount
+		 * of MAC addresses, by far exceeding what we want/can store
+		 * in the common memory array, so only grab what we can fit.
+		 * Note that a value of 0 means 1 MAC address, and so on.
+		 */
+		*mac_addr_cnt = min(*mac_addr_cnt, mac_addr_max_cnt);
+
+		memcpy(mac_addr, record->data.mac_info.mac_addr,
+		       *mac_addr_cnt * TI_EEPROM_HDR_ETH_ALEN);
+		break;
+	case 0x00:
+		/* Illegal value... Fall through... */
+	case 0xFF:
+		/* Illegal value... Something went horribly wrong... */
+		return -EINVAL;
+	default:
+		pr_warn("%s: Ignoring record id %u\n", __func__,
+			record->header.id);
+	}
+
+	return 0;
+}
+
+int __maybe_unused ti_i2c_eeprom_am6_get(int bus_addr, int dev_addr,
+					 struct ti_am6_eeprom *ep,
+					 char **mac_addr,
+					 u8 mac_addr_max_cnt,
+					 u8 *mac_addr_cnt)
+{
+	struct udevice *dev;
+	struct udevice *bus;
+	unsigned int eeprom_addr;
+	struct ti_am6_eeprom_record_board_id board_id;
+	struct ti_am6_eeprom_record record;
+	int rc;
+
+	/* Initialize with a known bad marker for i2c fails.. */
+	memset(ep, 0, sizeof(*ep));
+	ep->header = TI_DEAD_EEPROM_MAGIC;
+
+	/* Read the board ID record which is always the first EEPROM record */
+	rc = ti_i2c_eeprom_get(bus_addr, dev_addr, TI_EEPROM_HEADER_MAGIC,
+			       sizeof(board_id), (uint8_t *)&board_id);
+	if (rc)
+		return rc;
+
+	if (board_id.header.id != TI_AM6_EEPROM_RECORD_BOARD_ID) {
+		pr_err("%s: Invalid board ID record!\n", __func__);
+		return -EINVAL;
+	}
+
+	/* Establish DM handle to board config EEPROM */
+	rc = uclass_get_device_by_seq(UCLASS_I2C, bus_addr, &bus);
+	if (rc)
+		return rc;
+	rc = i2c_get_chip(bus, dev_addr, 1, &dev);
+	if (rc)
+		return rc;
+
+	ep->header = TI_EEPROM_HEADER_MAGIC;
+
+	/* Ready to parse TLV structure. Initialize variables... */
+	*mac_addr_cnt = 0;
+
+	/*
+	 * After the all-encompassing board ID record all other records follow
+	 * a TLV-type scheme. Point to the first such record and then start
+	 * parsing those one by one.
+	 */
+	eeprom_addr = sizeof(board_id);
+
+	while (true) {
+		rc = dm_i2c_read(dev, eeprom_addr, (uint8_t *)&record.header,
+				 sizeof(record.header));
+		if (rc)
+			return rc;
+
+		/*
+		 * Check for end of list marker. If we reached it don't go
+		 * any further and stop parsing right here.
+		 */
+		if (record.header.id == TI_AM6_EEPROM_RECORD_END_LIST)
+			break;
+
+		eeprom_addr += sizeof(record.header);
+
+		debug("%s: dev_addr=0x%02x header.id=%u header.len=%u\n",
+		      __func__, dev_addr, record.header.id,
+		      record.header.len);
+
+		/* Read record into memory if it fits */
+		if (record.header.len <= sizeof(record.data)) {
+			rc = dm_i2c_read(dev, eeprom_addr,
+					 (uint8_t *)&record.data,
+					 record.header.len);
+			if (rc)
+				return rc;
+
+			/* Process record */
+			rc = ti_i2c_eeprom_am6_parse_record(&record, ep,
+							    mac_addr,
+							    mac_addr_max_cnt,
+							    mac_addr_cnt);
+			if (rc) {
+				pr_err("%s: EEPROM parsing error!\n", __func__);
+				return rc;
+			}
+		} else {
+			/*
+			 * We may get here in case of larger records which
+			 * are not yet understood.
+			 */
+			pr_err("%s: Ignoring record id %u\n", __func__,
+			       record.header.id);
+		}
+
+		eeprom_addr += record.header.len;
+	}
+
+	return 0;
+}
+
+int __maybe_unused ti_i2c_eeprom_am6_get_base(int bus_addr, int dev_addr)
+{
+	struct ti_am6_eeprom *ep = TI_AM6_EEPROM_DATA;
+	int ret;
+
+	/*
+	 * Always execute EEPROM read by not allowing to bypass it during the
+	 * first invocation of SPL which happens on the R5 core.
+	 */
+#if !(defined(CONFIG_SPL_BUILD) && defined(CONFIG_CPU_V7R))
+	if (ep->header == TI_EEPROM_HEADER_MAGIC) {
+		debug("%s: EEPROM has already been read\n", __func__);
+		return 0;
+	}
+#endif
+
+	ret = ti_i2c_eeprom_am6_get(bus_addr, dev_addr, ep,
+				    (char **)ep->mac_addr,
+				    AM6_EEPROM_HDR_NO_OF_MAC_ADDR,
+				    &ep->mac_addr_cnt);
+	return ret;
+}
+
 bool __maybe_unused board_ti_is(char *name_tag)
 {
 	struct ti_common_eeprom *ep = TI_EEPROM_DATA;
@@ -348,6 +536,25 @@ fail:
 	memset(mac_addr, 0, TI_EEPROM_HDR_ETH_ALEN);
 }
 
+void __maybe_unused
+board_ti_am6_get_eth_mac_addr(int index,
+			      u8 mac_addr[TI_EEPROM_HDR_ETH_ALEN])
+{
+	struct ti_am6_eeprom *ep = TI_AM6_EEPROM_DATA;
+
+	if (ep->header == TI_DEAD_EEPROM_MAGIC)
+		goto fail;
+
+	if (index < 0 || index >= ep->mac_addr_cnt)
+		goto fail;
+
+	memcpy(mac_addr, ep->mac_addr[index], TI_EEPROM_HDR_ETH_ALEN);
+	return;
+
+fail:
+	memset(mac_addr, 0, TI_EEPROM_HDR_ETH_ALEN);
+}
+
 u64 __maybe_unused board_ti_get_emif1_size(void)
 {
 	struct ti_common_eeprom *ep = TI_EEPROM_DATA;
@@ -384,6 +591,34 @@ void __maybe_unused set_board_info_env(char *name)
 		env_set("board_rev", ep->version);
 	else
 		env_set("board_rev", unknown);
+
+	if (ep->serial)
+		env_set("board_serial", ep->serial);
+	else
+		env_set("board_serial", unknown);
+}
+
+void __maybe_unused set_board_info_env_am6(char *name)
+{
+	char *unknown = "unknown";
+	struct ti_am6_eeprom *ep = TI_AM6_EEPROM_DATA;
+
+	if (name)
+		env_set("board_name", name);
+	else if (ep->name)
+		env_set("board_name", ep->name);
+	else
+		env_set("board_name", unknown);
+
+	if (ep->version)
+		env_set("board_rev", ep->version);
+	else
+		env_set("board_rev", unknown);
+
+	if (ep->software_revision)
+		env_set("board_software_revision", ep->software_revision);
+	else
+		env_set("board_software_revision", unknown);
 
 	if (ep->serial)
 		env_set("board_serial", ep->serial);
@@ -450,6 +685,19 @@ void board_ti_set_ethaddr(int index)
 							      mac_addr);
 			}
 		}
+	}
+}
+
+void board_ti_am6_set_ethaddr(int index, int count)
+{
+	u8 mac_addr[6];
+	int i;
+
+	for (i = 0; i < count; i++) {
+		board_ti_am6_get_eth_mac_addr(i, mac_addr);
+		if (is_valid_ethaddr(mac_addr))
+			eth_env_set_enetaddr_by_index("eth", i + index,
+						      mac_addr);
 	}
 }
 

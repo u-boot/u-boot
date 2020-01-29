@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <SA-1100.h>
+#include <time.h>
 
 static ulong get_timer_masked (void)
 {

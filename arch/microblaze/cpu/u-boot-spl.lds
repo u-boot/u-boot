@@ -57,6 +57,6 @@ SECTIONS
 }
 
 #if defined(CONFIG_SPL_MAX_FOOTPRINT)
-ASSERT(__end - _start < (CONFIG_SPL_MAX_FOOTPRINT), \
+ASSERT(__end - _start <= (CONFIG_SPL_MAX_FOOTPRINT), \
         "SPL image plus BSS too big");
 #endif

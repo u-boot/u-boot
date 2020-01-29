@@ -1,9 +1,9 @@
 config CMD_BOOTEFI_SELFTEST
-	bool "Allow booting an EFI efi_selftest"
+	bool "UEFI unit tests"
 	depends on CMD_BOOTEFI
 	imply FAT
 	imply FAT_WRITE
 	help
-	  This adds an EFI test application to U-Boot that can be executed
-	  with the 'bootefi selftest' command. It provides extended tests of
-	  the EFI API implementation.
+	  This adds a UEFI test application to U-Boot that can be executed
+	  via the 'bootefi selftest' command. It provides extended tests of
+	  the UEFI API implementation.

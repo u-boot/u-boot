@@ -96,6 +96,16 @@
 				#size-cells = <0>;
 				compatible = "marvell,orion-mdio";
 				reg = <0x12a200 0x10>;
+				device-name = "cps-mdio";
+			};
+
+			cps_xmdio: mdio@12a600 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				compatible = "marvell,xmdio";
+				reg = <0x12a600 0x16>;
+				status = "disabled";
+				device-name = "cps-xmdio";
 			};
 
 			cps_syscon0: system-controller@440000 {

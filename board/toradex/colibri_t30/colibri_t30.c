@@ -66,3 +66,12 @@ void pin_mux_usb(void)
 	udelay(5);
 	gpio_set_value(TEGRA_GPIO(DD, 0), 1);
 }
+
+/*
+ * Backlight off before OS handover
+ */
+void board_preboot_os(void)
+{
+	gpio_request(TEGRA_GPIO(V, 2), "BL_ON");
+	gpio_direction_output(TEGRA_GPIO(V, 2), 0);
+}

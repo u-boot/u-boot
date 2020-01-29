@@ -13,7 +13,36 @@ extern char gdt_rom[];
 
 /* cpu/.../cpu.c */
 int arch_cpu_init(void);
+
+/**
+ * x86_cpu_init_f() - Set up basic features of the x86 CPU
+ *
+ * 0 on success, -ve on error
+ */
 int x86_cpu_init_f(void);
+
+/**
+ * x86_cpu_reinit_f() - Set up the CPU a second time
+ *
+ * Once cpu_init_f() has been called (e.g. in SPL) we should not call it
+ * again (e.g. in U-Boot proper) since it sets up the state from scratch.
+ * Call this function in later phases of U-Boot instead. It reads the CPU
+ * identify so that CPU functions can be used correctly, but does not change
+ * anything.
+ *
+ * @return 0 (indicating success, to mimic cpu_init_f())
+ */
+int x86_cpu_reinit_f(void);
+
+/**
+ * x86_cpu_init_tpl() - Do the minimum possible CPU init
+ *
+ * This just sets up the CPU features and figured out the identity
+ *
+ * @return 0 (indicating success, to mimic cpu_init_f())
+ */
+int x86_cpu_init_tpl(void);
+
 int cpu_init_f(void);
 void setup_gdt(struct global_data *id, u64 *gdt_addr);
 /*
@@ -54,7 +83,7 @@ u32 isa_map_rom(u32 bus_addr, int size);
 /* arch/x86/lib/... */
 int video_bios_init(void);
 
-/* arch/x86/lib/fsp/... */
+/* arch/x86/lib/fsp1,2/... */
 
 /**
  * fsp_save_s3_stack() - save stack address to CMOS for next S3 boot

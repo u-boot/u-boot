@@ -97,14 +97,6 @@ static int select_vidconsole(struct unit_test_state *uts, const char *drv_name)
 	return 0;
 }
 
-static void vidconsole_put_string(struct udevice *dev, const char *str)
-{
-	const char *s;
-
-	for (s = str; *s; s++)
-		vidconsole_put_char(dev, *s);
-}
-
 /* Test text output works on the video console */
 static int dm_test_video_text(struct unit_test_state *uts)
 {

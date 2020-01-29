@@ -12,8 +12,10 @@
  */
 #include <common.h>
 #include <dm.h>
+#include <env.h>
 #include <ns16550.h>
 #include <netdev.h>
+#include <serial.h>
 #include <asm/io.h>
 #include <asm/arch/mem.h>
 #include <asm/arch/mux.h>
@@ -30,27 +32,10 @@
 #include <linux/usb/musb.h>
 #include "evm.h"
 
-#ifdef CONFIG_USB_EHCI_HCD
-#include <usb.h>
-#include <asm/ehci-omap.h>
-#endif
-
 #define OMAP3EVM_GPIO_ETH_RST_GEN1 64
 #define OMAP3EVM_GPIO_ETH_RST_GEN2 7
 
 DECLARE_GLOBAL_DATA_PTR;
-
-static const struct ns16550_platdata omap3_evm_serial = {
-	.base = OMAP34XX_UART1,
-	.reg_shift = 2,
-	.clock = V_NS16550_CLK,
-	.fcr = UART_FCR_DEFVAL,
-};
-
-U_BOOT_DEVICE(omap3_evm_uart) = {
-	"ns16550_serial",
-	&omap3_evm_serial
-};
 
 static u32 omap3_evm_version;
 
@@ -318,32 +303,6 @@ void board_mmc_power_init(void)
 	twl4030_power_mmc_init(0);
 }
 #endif /* CONFIG_MMC */
-
-#if defined(CONFIG_USB_EHCI_HCD) && !defined(CONFIG_SPL_BUILD)
-/* Call usb_stop() before starting the kernel */
-void show_boot_progress(int val)
-{
-	if (val == BOOTSTAGE_ID_RUN_OS)
-		usb_stop();
-}
-
-static struct omap_usbhs_board_data usbhs_bdata = {
-	.port_mode[0] = OMAP_USBHS_PORT_MODE_UNUSED,
-	.port_mode[1] = OMAP_EHCI_PORT_MODE_PHY,
-	.port_mode[2] = OMAP_USBHS_PORT_MODE_UNUSED
-};
-
-int ehci_hcd_init(int index, enum usb_init_type init,
-		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
-{
-	return omap_ehci_hcd_init(index, &usbhs_bdata, hccr, hcor);
-}
-
-int ehci_hcd_stop(int index)
-{
-	return omap_ehci_hcd_stop();
-}
-#endif /* CONFIG_USB_EHCI_HCD */
 
 #if defined(CONFIG_USB_ETHER) && defined(CONFIG_USB_MUSB_GADGET) && !defined(CONFIG_CMD_NET)
 int board_eth_init(bd_t *bis)

@@ -7,3 +7,19 @@
 		u-boot,dm-spl;
 	};
 };
+
+&sdhci {
+	u-boot,dm-spl;
+};
+
+&gpio0 {
+	u-boot,dm-spl;
+};
+
+&ahci0 {
+	u-boot,dm-spl;
+};
+
+&ahci1 {
+	u-boot,dm-spl;
+};

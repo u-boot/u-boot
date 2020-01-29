@@ -155,6 +155,15 @@ static int m41t62_rtc_reset(struct udevice *dev)
 	return ret;
 }
 
+/*
+ * Make sure HT bit is cleared. This bit is set on entering battery backup
+ * mode, so do this before the first read access.
+ */
+static int m41t62_rtc_probe(struct udevice *dev)
+{
+	return m41t62_rtc_reset(dev);
+}
+
 static const struct rtc_ops m41t62_rtc_ops = {
 	.get = m41t62_rtc_get,
 	.set = m41t62_rtc_set,
@@ -163,6 +172,7 @@ static const struct rtc_ops m41t62_rtc_ops = {
 
 static const struct udevice_id m41t62_rtc_ids[] = {
 	{ .compatible = "st,m41t62" },
+	{ .compatible = "st,m41t82" },
 	{ .compatible = "microcrystal,rv4162" },
 	{ }
 };
@@ -172,6 +182,7 @@ U_BOOT_DRIVER(rtc_m41t62) = {
 	.id	= UCLASS_RTC,
 	.of_match = m41t62_rtc_ids,
 	.ops	= &m41t62_rtc_ops,
+	.probe  = &m41t62_rtc_probe,
 };
 
 #else /* NON DM RTC code - will be removed */

@@ -6,11 +6,13 @@
 #include <common.h>
 #include <clk.h>
 #include <cpu.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dm/uclass.h>
 #include <errno.h>
+#include <thermal.h>
 #include <asm/arch/sci/sci.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch-imx/cpu.h>
@@ -35,15 +37,20 @@ struct pass_over_info_t *get_pass_over_info(void)
 
 int arch_cpu_init(void)
 {
-	struct pass_over_info_t *pass_over = get_pass_over_info();
+#ifdef CONFIG_SPL_BUILD
+	struct pass_over_info_t *pass_over;
 
-	if (pass_over && pass_over->g_ap_mu == 0) {
-		/*
-		 * When ap_mu is 0, means the U-Boot booted
-		 * from first container
-		 */
-		sc_misc_boot_status(-1, SC_MISC_BOOT_STATUS_SUCCESS);
+	if (is_soc_rev(CHIP_REV_A)) {
+		pass_over = get_pass_over_info();
+		if (pass_over && pass_over->g_ap_mu == 0) {
+			/*
+			 * When ap_mu is 0, means the U-Boot booted
+			 * from first container
+			 */
+			sc_misc_boot_status(-1, SC_MISC_BOOT_STATUS_SUCCESS);
+		}
 	}
+#endif
 
 	return 0;
 }
@@ -54,18 +61,18 @@ int arch_cpu_init_dm(void)
 	int node, ret;
 
 	node = fdt_node_offset_by_compatible(gd->fdt_blob, -1, "fsl,imx8-mu");
-	ret = device_bind_driver_to_node(gd->dm_root, "imx8_scu", "imx8_scu",
-					 offset_to_ofnode(node), &devp);
 
+	ret = uclass_get_device_by_of_offset(UCLASS_MISC, node, &devp);
 	if (ret) {
-		printf("could not find scu %d\n", ret);
+		printf("could not get scu %d\n", ret);
 		return ret;
 	}
 
-	ret = device_probe(devp);
-	if (ret) {
-		printf("scu probe failed %d\n", ret);
-		return ret;
+	if (is_imx8qm()) {
+		ret = sc_pm_set_resource_power_mode(-1, SC_R_SMMU,
+						    SC_PM_PW_MODE_ON);
+		if (ret)
+			return ret;
 	}
 
 	return 0;
@@ -441,7 +448,7 @@ void enable_caches(void)
 	dcache_enable();
 }
 
-#ifndef CONFIG_SYS_DCACHE_OFF
+#if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 u64 get_page_table_size(void)
 {
 	u64 one_pt = MAX_PTE_ENTRIES * sizeof(u64);
@@ -469,10 +476,17 @@ u64 get_page_table_size(void)
 }
 #endif
 
+#if defined(CONFIG_IMX8QM)
+#define FUSE_MAC0_WORD0 452
+#define FUSE_MAC0_WORD1 453
+#define FUSE_MAC1_WORD0 454
+#define FUSE_MAC1_WORD1 455
+#elif defined(CONFIG_IMX8QXP)
 #define FUSE_MAC0_WORD0 708
 #define FUSE_MAC0_WORD1 709
 #define FUSE_MAC1_WORD0 710
 #define FUSE_MAC1_WORD1 711
+#endif
 
 void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 {
@@ -507,15 +521,6 @@ err:
 	printf("%s: fuse %d, err: %d\n", __func__, word[i], ret);
 }
 
-#if CONFIG_IS_ENABLED(CPU)
-struct cpu_imx_platdata {
-	const char *name;
-	const char *rev;
-	const char *type;
-	u32 cpurev;
-	u32 freq_mhz;
-};
-
 u32 get_cpu_rev(void)
 {
 	u32 id = 0, rev = 0;
@@ -531,116 +536,3 @@ u32 get_cpu_rev(void)
 	return (id << 12) | rev;
 }
 
-const char *get_imx8_type(u32 imxtype)
-{
-	switch (imxtype) {
-	case MXC_CPU_IMX8QXP:
-	case MXC_CPU_IMX8QXP_A0:
-		return "QXP";
-	default:
-		return "??";
-	}
-}
-
-const char *get_imx8_rev(u32 rev)
-{
-	switch (rev) {
-	case CHIP_REV_A:
-		return "A";
-	case CHIP_REV_B:
-		return "B";
-	default:
-		return "?";
-	}
-}
-
-const char *get_core_name(void)
-{
-	if (is_cortex_a35())
-		return "A35";
-	else if (is_cortex_a53())
-		return "A53";
-	else if (is_cortex_a72())
-		return "A72";
-	else
-		return "?";
-}
-
-int cpu_imx_get_desc(struct udevice *dev, char *buf, int size)
-{
-	struct cpu_imx_platdata *plat = dev_get_platdata(dev);
-
-	if (size < 100)
-		return -ENOSPC;
-
-	snprintf(buf, size, "NXP i.MX8%s Rev%s %s at %u MHz\n",
-		 plat->type, plat->rev, plat->name, plat->freq_mhz);
-
-	return 0;
-}
-
-static int cpu_imx_get_info(struct udevice *dev, struct cpu_info *info)
-{
-	struct cpu_imx_platdata *plat = dev_get_platdata(dev);
-
-	info->cpu_freq = plat->freq_mhz * 1000;
-	info->features = BIT(CPU_FEAT_L1_CACHE) | BIT(CPU_FEAT_MMU);
-	return 0;
-}
-
-static int cpu_imx_get_count(struct udevice *dev)
-{
-	return 4;
-}
-
-static int cpu_imx_get_vendor(struct udevice *dev,  char *buf, int size)
-{
-	snprintf(buf, size, "NXP");
-	return 0;
-}
-
-static const struct cpu_ops cpu_imx8_ops = {
-	.get_desc	= cpu_imx_get_desc,
-	.get_info	= cpu_imx_get_info,
-	.get_count	= cpu_imx_get_count,
-	.get_vendor	= cpu_imx_get_vendor,
-};
-
-static const struct udevice_id cpu_imx8_ids[] = {
-	{ .compatible = "arm,cortex-a35" },
-	{ }
-};
-
-static int imx8_cpu_probe(struct udevice *dev)
-{
-	struct cpu_imx_platdata *plat = dev_get_platdata(dev);
-	struct clk cpu_clk;
-	u32 cpurev;
-	int ret;
-
-	cpurev = get_cpu_rev();
-	plat->cpurev = cpurev;
-	plat->name = get_core_name();
-	plat->rev = get_imx8_rev(cpurev & 0xFFF);
-	plat->type = get_imx8_type((cpurev & 0xFF000) >> 12);
-
-	ret = clk_get_by_index(dev, 0, &cpu_clk);
-	if (ret) {
-		debug("%s: Failed to get CPU clk: %d\n", __func__, ret);
-		return 0;
-	}
-
-	plat->freq_mhz = clk_get_rate(&cpu_clk) / 1000000;
-	return 0;
-}
-
-U_BOOT_DRIVER(cpu_imx8_drv) = {
-	.name		= "imx8x_cpu",
-	.id		= UCLASS_CPU,
-	.of_match	= cpu_imx8_ids,
-	.ops		= &cpu_imx8_ops,
-	.probe		= imx8_cpu_probe,
-	.platdata_auto_alloc_size = sizeof(struct cpu_imx_platdata),
-	.flags		= DM_FLAG_PRE_RELOC,
-};
-#endif

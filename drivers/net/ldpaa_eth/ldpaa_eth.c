@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <asm/io.h>
 #include <asm/types.h>
 #include <malloc.h>
@@ -1074,6 +1075,7 @@ int ldpaa_eth_init(int dpmac_id, phy_interface_t enet_if)
 	priv = (struct ldpaa_eth_priv *)malloc(sizeof(struct ldpaa_eth_priv));
 	if (!priv) {
 		printf("ldpaa_eth_priv malloc() failed\n");
+		free(net_dev);
 		return -ENOMEM;
 	}
 	memset(priv, 0, sizeof(struct ldpaa_eth_priv));

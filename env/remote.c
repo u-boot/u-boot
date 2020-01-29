@@ -7,8 +7,9 @@
 
 #include <common.h>
 #include <command.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <linux/stddef.h>
+#include <u-boot/crc.h>
 
 #ifdef ENV_IS_EMBEDDED
 env_t *env_ptr = &environment;
@@ -17,10 +18,6 @@ env_t *env_ptr = (env_t *)CONFIG_ENV_ADDR;
 #endif /* ENV_IS_EMBEDDED */
 
 DECLARE_GLOBAL_DATA_PTR;
-
-#if !defined(CONFIG_ENV_OFFSET)
-#define CONFIG_ENV_OFFSET 0
-#endif
 
 static int env_remote_init(void)
 {

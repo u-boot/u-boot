@@ -156,14 +156,6 @@ class TestBuild(unittest.TestCase):
             result.return_code = commit.return_code
             result.stderr = (''.join(commit.error_list)
                 % {'basedir' : base_dir + '/.bm-work/00/'})
-        if stage == 'build':
-            target_dir = None
-            for arg in args:
-                if arg.startswith('O='):
-                    target_dir = arg[2:]
-
-            if not os.path.isdir(target_dir):
-                os.mkdir(target_dir)
 
         result.combined = result.stdout + result.stderr
         return result
@@ -220,11 +212,11 @@ class TestBuild(unittest.TestCase):
         self.assertEqual(lines[1].text, '02: %s' % commits[1][1])
 
         col = terminal.Color()
-        self.assertSummary(lines[2].text, 'sandbox', 'w+', ['board4'],
+        self.assertSummary(lines[2].text, 'arm', 'w+', ['board1'],
                            outcome=OUTCOME_WARN)
-        self.assertSummary(lines[3].text, 'arm', 'w+', ['board1'],
+        self.assertSummary(lines[3].text, 'powerpc', 'w+', ['board2', 'board3'],
                            outcome=OUTCOME_WARN)
-        self.assertSummary(lines[4].text, 'powerpc', 'w+', ['board2', 'board3'],
+        self.assertSummary(lines[4].text, 'sandbox', 'w+', ['board4'],
                            outcome=OUTCOME_WARN)
 
         # Second commit: The warnings should be listed
@@ -234,10 +226,10 @@ class TestBuild(unittest.TestCase):
 
         # Third commit: Still fails
         self.assertEqual(lines[6].text, '03: %s' % commits[2][1])
-        self.assertSummary(lines[7].text, 'sandbox', '+', ['board4'])
-        self.assertSummary(lines[8].text, 'arm', '', ['board1'],
+        self.assertSummary(lines[7].text, 'arm', '', ['board1'],
                            outcome=OUTCOME_OK)
-        self.assertSummary(lines[9].text, 'powerpc', '+', ['board2', 'board3'])
+        self.assertSummary(lines[8].text, 'powerpc', '+', ['board2', 'board3'])
+        self.assertSummary(lines[9].text, 'sandbox', '+', ['board4'])
 
         # Expect a compiler error
         self.assertEqual(lines[10].text, '+%s' %
@@ -245,8 +237,6 @@ class TestBuild(unittest.TestCase):
 
         # Fourth commit: Compile errors are fixed, just have warning for board3
         self.assertEqual(lines[11].text, '04: %s' % commits[3][1])
-        self.assertSummary(lines[12].text, 'sandbox', 'w+', ['board4'],
-                           outcome=OUTCOME_WARN)
         expect = '%10s: ' % 'powerpc'
         expect += ' ' + col.Color(col.GREEN, '')
         expect += '  '
@@ -254,7 +244,9 @@ class TestBuild(unittest.TestCase):
         expect += ' ' + col.Color(col.YELLOW, 'w+')
         expect += '  '
         expect += col.Color(col.YELLOW, ' %s' % 'board3')
-        self.assertEqual(lines[13].text, expect)
+        self.assertEqual(lines[12].text, expect)
+        self.assertSummary(lines[13].text, 'sandbox', 'w+', ['board4'],
+                           outcome=OUTCOME_WARN)
 
         # Compile error fixed
         self.assertEqual(lines[14].text, '-%s' %
@@ -267,9 +259,9 @@ class TestBuild(unittest.TestCase):
 
         # Fifth commit
         self.assertEqual(lines[16].text, '05: %s' % commits[4][1])
-        self.assertSummary(lines[17].text, 'sandbox', '+', ['board4'])
-        self.assertSummary(lines[18].text, 'powerpc', '', ['board3'],
+        self.assertSummary(lines[17].text, 'powerpc', '', ['board3'],
                            outcome=OUTCOME_OK)
+        self.assertSummary(lines[18].text, 'sandbox', '+', ['board4'])
 
         # The second line of errors[3] is a duplicate, so buildman will drop it
         expect = errors[3].rstrip().split('\n')

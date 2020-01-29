@@ -9,14 +9,14 @@
 
 #include <common.h>
 #include <spl.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/arch-mx7/mx7-pins.h>
 #include <asm/arch-mx7/clock.h>
 #include <asm/arch-mx7/mx7-ddr.h>
 #include "common.h"
 
-#ifdef CONFIG_FSL_ESDHC
+#ifdef CONFIG_FSL_ESDHC_IMX
 
 static struct fsl_esdhc_cfg cl_som_imx7_spl_usdhc_cfg = {
 	USDHC1_BASE_ADDR, 0, 4};
@@ -27,7 +27,7 @@ int board_mmc_init(bd_t *bis)
 	cl_som_imx7_spl_usdhc_cfg.sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
 	return fsl_esdhc_initialize(bis, &cl_som_imx7_spl_usdhc_cfg);
 }
-#endif /* CONFIG_FSL_ESDHC */
+#endif /* CONFIG_FSL_ESDHC_IMX */
 
 static iomux_v3_cfg_t const led_pads[] = {
 	MX7D_PAD_SAI1_TX_SYNC__GPIO6_IO14 | MUX_PAD_CTRL(PAD_CTL_PUS_PU5KOHM |

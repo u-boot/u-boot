@@ -1,6 +1,0 @@
-RSK7269 BOARD
-#M:	-
-S:	Maintained
-F:	board/renesas/rsk7269/
-F:	include/configs/rsk7269.h
-F:	configs/rsk7269_defconfig

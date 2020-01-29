@@ -5,40 +5,32 @@
 #ifndef __CONFIG_RK322X_COMMON_H
 #define __CONFIG_RK322X_COMMON_H
 
-#include <asm/arch/hardware.h>
+#include <asm/arch-rockchip/hardware.h>
 #include "rockchip-common.h"
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
-#define CONFIG_SYS_MALLOC_LEN		(32 << 20)
 #define CONFIG_SYS_CBSIZE		1024
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/*  64M */
 
-#define CONFIG_SYS_TIMER_RATE		(24 * 1000 * 1000)
-#define CONFIG_SYS_TIMER_BASE		0x110c00a0 /* TIMER5 */
-#define CONFIG_SYS_TIMER_COUNTER	(CONFIG_SYS_TIMER_BASE + 8)
+#define CONFIG_ROCKCHIP_STIMER_BASE	0x110d0020
+#define COUNTER_FREQUENCY		24000000
+#define CONFIG_SYS_ARCH_TIMER
+#define CONFIG_SYS_HZ_CLOCK		24000000
 
-#define CONFIG_SYS_INIT_SP_ADDR		0x60100000
-#define CONFIG_SYS_LOAD_ADDR		0x60800800
-#define CONFIG_SPL_STACK		0x10088000
-#define CONFIG_SPL_TEXT_BASE		0x10081000
+#define CONFIG_SYS_INIT_SP_ADDR		0x61100000
+#define CONFIG_SYS_LOAD_ADDR		0x61800800
+#define CONFIG_SPL_MAX_SIZE		0x100000
 
 #define CONFIG_ROCKCHIP_MAX_INIT_SIZE	(28 << 10)
 #define CONFIG_ROCKCHIP_CHIP_TAG	"RK32"
-
-/* MMC/SD IP block */
-#define CONFIG_BOUNCE_BUFFER
+#define CONFIG_IRAM_BASE		0x10080000
 
 #define CONFIG_SYS_SDRAM_BASE		0x60000000
 #define SDRAM_BANK_SIZE			(512UL << 20UL)
 #define SDRAM_MAX_SIZE			0x80000000
 
 #ifndef CONFIG_SPL_BUILD
-/* usb otg */
 
-/* usb mass storage */
-#define CONFIG_CMD_USB_MASS_STORAGE
-
-/* usb host */
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"scriptaddr=0x60000000\0" \
 	"pxefile_addr_r=0x60100000\0" \
@@ -57,7 +49,5 @@
 	ENV_MEM_LAYOUT_SETTINGS \
 	BOOTENV
 #endif
-
-#define CONFIG_PREBOOT
 
 #endif

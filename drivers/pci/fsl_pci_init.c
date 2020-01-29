@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <malloc.h>
 #include <asm/fsl_serdes.h>
 

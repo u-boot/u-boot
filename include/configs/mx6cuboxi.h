@@ -35,7 +35,6 @@
 #define CONFIG_PHY_ATHEROS
 
 /* Framebuffer */
-#define CONFIG_VIDEO_IPUV3
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_SPLASH_SCREEN_ALIGN
@@ -50,17 +49,6 @@
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS		0
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2
-#define CONFIG_PREBOOT \
-	"if hdmidet; then " \
-		"usb start; "		       \
-		"setenv stdin  serial,usbkbd; "\
-		"setenv stdout serial,vga; "   \
-		"setenv stderr serial,vga; "   \
-	"else " \
-		"setenv stdin  serial; " \
-		"setenv stdout serial; " \
-		"setenv stderr serial; " \
-	"fi;"
 
 /* Command definition */
 
@@ -143,7 +131,5 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* Environment organization */
-#define CONFIG_ENV_SIZE			(8 * 1024)
-#define CONFIG_ENV_OFFSET		(SZ_1M - CONFIG_ENV_SIZE)
 
 #endif                         /* __MX6CUBOXI_CONFIG_H */

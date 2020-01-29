@@ -172,7 +172,7 @@ static int send_reconfig_data(const void *rbf_data, size_t rbf_size,
 	u32 resp_windex = 0;
 	u32 resp_count = 0;
 	u32 xfer_count = 0;
-	u8 resp_err = 0;
+	int resp_err = 0;
 	u8 cmd_id = 1;
 	u32 args[3];
 	int ret;
@@ -195,11 +195,9 @@ static int send_reconfig_data(const void *rbf_data, size_t rbf_size,
 				rbf_size = 0;
 			}
 
-			ret = mbox_send_cmd_only(cmd_id, MBOX_RECONFIG_DATA,
+			resp_err = mbox_send_cmd_only(cmd_id, MBOX_RECONFIG_DATA,
 						 MBOX_CMD_INDIRECT, 3, args);
-			if (ret) {
-				resp_err = 1;
-			} else {
+			if (!resp_err) {
 				xfer_count++;
 				cmd_id = add_transfer(xfer_pending,
 						      MBOX_RESP_BUFFER_SIZE,
@@ -222,11 +220,8 @@ static int send_reconfig_data(const void *rbf_data, size_t rbf_size,
 
 			/* Check for response's status */
 			if (!resp_err) {
-				ret = MBOX_RESP_ERR_GET(resp_hdr);
-				debug("Response error code: %08x\n", ret);
-				/* Error in response */
-				if (ret)
-					resp_err = 1;
+				resp_err = MBOX_RESP_ERR_GET(resp_hdr);
+				debug("Response error code: %08x\n", resp_err);
 			}
 
 			ret = get_and_clr_transfer(xfer_pending,
@@ -239,7 +234,7 @@ static int send_reconfig_data(const void *rbf_data, size_t rbf_size,
 			}
 
 			if (resp_err && !xfer_count)
-				return ret;
+				return resp_err;
 		}
 	}
 

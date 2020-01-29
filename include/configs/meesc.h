@@ -33,14 +33,11 @@
 
 /* Misc CPU related */
 #define CONFIG_SKIP_LOWLEVEL_INIT
-#define CONFIG_ARCH_CPU_INIT
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
 #define CONFIG_SERIAL_TAG
 #define CONFIG_REVISION_TAG
 #define CONFIG_CMDLINE_TAG			/* enable passing of ATAGs */
-
-#define CONFIG_PREBOOT				/* enable preboot variable */
 
 /*
  * Hardware drivers
@@ -96,16 +93,10 @@
 #ifdef CONFIG_SYS_USE_DATAFLASH
 
 /* bootstrap + u-boot + env in dataflash on CS0 */
-#define CONFIG_ENV_OFFSET	0x4200
-#define CONFIG_ENV_SIZE		0x4200
-#define CONFIG_ENV_SECT_SIZE	0x210
-#define CONFIG_ENV_SPI_MAX_HZ	15000000
 
 #elif CONFIG_SYS_USE_NANDFLASH
 
 /* bootstrap + u-boot + env + linux in nandflash */
-# define CONFIG_ENV_OFFSET		0xC0000
-# define CONFIG_ENV_SIZE		0x20000
 
 #endif
 

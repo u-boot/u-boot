@@ -77,6 +77,7 @@
 #include <linux/crc32.h>
 #include <linux/err.h>
 #include <linux/slab.h>
+#include <u-boot/crc.h>
 #else
 #include <hexdump.h>
 #include <ubi_uboot.h>
@@ -1351,6 +1352,7 @@ static int self_check_write(struct ubi_device *ubi, const void *buf, int pnum,
 
 		ubi_err(ubi, "self-check failed for PEB %d:%d, len %d",
 			pnum, offset, len);
+#if !defined(CONFIG_UBI_SILENCE_MSG)
 		ubi_msg(ubi, "data differ at position %d", i);
 		ubi_msg(ubi, "hex dump of the original buffer from %d to %d",
 			i, i + dump_len);
@@ -1360,6 +1362,7 @@ static int self_check_write(struct ubi_device *ubi, const void *buf, int pnum,
 			i, i + dump_len);
 		print_hex_dump("", DUMP_PREFIX_OFFSET, 32, 1,
 			       buf1 + i, dump_len, 1);
+#endif
 		dump_stack();
 		err = -EINVAL;
 		goto out_free;

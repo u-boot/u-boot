@@ -13,17 +13,7 @@
 /*
  * Board
  */
-#undef CONFIG_USE_SPIFLASH
-#undef	CONFIG_SYS_USE_NOR
 
-/*
-* Disable DM_* for SPL build and can be re-enabled after adding
-* DM support in SPL
-*/
-#ifdef CONFIG_SPL_BUILD
-#undef CONFIG_DM_I2C
-#undef CONFIG_DM_I2C_COMPAT
-#endif
 /*
  * SoC Configuration
  */
@@ -33,7 +23,7 @@
 #define CONFIG_SYS_TIMERBASE		DAVINCI_TIMER0_BASE
 #define CONFIG_SYS_HZ_CLOCK		clk_get(DAVINCI_AUXCLK_CLKID)
 #define CONFIG_SYS_HZ			1000
-#define CONFIG_SKIP_LOWLEVEL_INIT
+#define CONFIG_SKIP_LOWLEVEL_INIT_ONLY
 
 /*
  * Memory Info
@@ -42,6 +32,9 @@
 #define PHYS_SDRAM_1		DAVINCI_DDR_EMIF_DATA_BASE /* DDR Start */
 #define PHYS_SDRAM_1_SIZE	(128 << 20) /* SDRAM size 128MB */
 #define CONFIG_MAX_RAM_BANK_SIZE (512 << 20) /* max size from SPRS586*/
+
+#define CONFIG_SPL_BSS_START_ADDR DAVINCI_DDR_EMIF_DATA_BASE
+#define CONFIG_SPL_BSS_MAX_SIZE 0x1080000
 
 /* memtest start addr */
 #define CONFIG_SYS_MEMTEST_START	(PHYS_SDRAM_1 + 0x2000000)
@@ -109,23 +102,9 @@
  * Serial Driver info
  */
 #define CONFIG_SYS_NS16550_CLK	clk_get(DAVINCI_UART2_CLKID)
-#if !defined(CONFIG_DM_SERIAL)
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	-4	/* NS16550 register size */
-#define CONFIG_SYS_NS16550_COM1	DAVINCI_UART2_BASE /* Base address of UART2 */
-#define CONFIG_SYS_NS16550_CLK	clk_get(DAVINCI_UART2_CLKID)
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
-#endif
 
 #define CONFIG_SYS_SPI_BASE		DAVINCI_SPI1_BASE
 #define CONFIG_SYS_SPI_CLK		clk_get(DAVINCI_SPI1_CLKID)
-#define CONFIG_SF_DEFAULT_SPEED		30000000
-#define CONFIG_ENV_SPI_MAX_HZ	CONFIG_SF_DEFAULT_SPEED
-
-#ifdef CONFIG_USE_SPIFLASH
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x8000
-#define CONFIG_SYS_SPI_U_BOOT_SIZE	0x30000
-#endif
 
 /*
  * I2C Configuration
@@ -137,10 +116,7 @@
 /*
  * Flash & Environment
  */
-#ifdef CONFIG_NAND
-#define CONFIG_ENV_OFFSET		0x0 /* Block 0--not used by bootcode */
-#define CONFIG_ENV_SIZE			(128 << 9)
-#define	CONFIG_SYS_NAND_USE_FLASH_BBT
+#ifdef CONFIG_MTD_RAW_NAND
 #define CONFIG_SYS_NAND_4BIT_HW_ECC_OOBFIRST
 #define	CONFIG_SYS_NAND_PAGE_2K
 #define CONFIG_SYS_NAND_CS		3
@@ -177,24 +153,6 @@
 #define CONFIG_SPL_NAND_LOAD
 #endif
 
-#ifdef CONFIG_SYS_USE_NOR
-#define CONFIG_SYS_MAX_FLASH_BANKS	1 /* max number of flash banks */
-#define CONFIG_SYS_FLASH_SECT_SZ	(128 << 10) /* 128KB */
-#define CONFIG_ENV_OFFSET		(CONFIG_SYS_FLASH_SECT_SZ * 3)
-#define CONFIG_ENV_SIZE			(128 << 10)
-#define CONFIG_SYS_FLASH_BASE		DAVINCI_ASYNC_EMIF_DATA_CE2_BASE
-#define PHYS_FLASH_SIZE			(8 << 20) /* Flash size 8MB */
-#define CONFIG_SYS_MAX_FLASH_SECT ((PHYS_FLASH_SIZE/CONFIG_SYS_FLASH_SECT_SZ)\
-	       + 3)
-#define CONFIG_ENV_SECT_SIZE		CONFIG_SYS_FLASH_SECT_SZ
-#endif
-
-#ifdef CONFIG_USE_SPIFLASH
-#define CONFIG_ENV_SIZE			(64 << 10)
-#define CONFIG_ENV_OFFSET		(256 << 10)
-#define CONFIG_ENV_SECT_SIZE		(64 << 10)
-#endif
-
 /*
  * Network & Ethernet Configuration
  */
@@ -213,7 +171,12 @@
 #define CONFIG_SYS_CBSIZE	1024 /* Console I/O Buffer Size	*/
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE /* Boot Args Buffer Size */
 #define CONFIG_SYS_LOAD_ADDR	(PHYS_SDRAM_1 + 0x700000)
-#define CONFIG_MX_CYCLIC
+
+/*
+ * USB Configs
+ */
+#define CONFIG_USB_OHCI_NEW
+#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	15
 
 /*
  * Linux Information
@@ -248,31 +211,15 @@
 #define CONFIG_CLOCKS
 #endif
 
-#if !defined(CONFIG_NAND) && \
-	!defined(CONFIG_SYS_USE_NOR) && \
-	!defined(CONFIG_USE_SPIFLASH)
-#define CONFIG_ENV_SIZE		(16 << 10)
-#endif
-
 /* SD/MMC */
 
-#ifdef CONFIG_ENV_IS_IN_MMC
-#undef CONFIG_ENV_SIZE
-#undef CONFIG_ENV_OFFSET
-#define CONFIG_ENV_SIZE		(16 << 10)	/* 16 KiB */
-#define CONFIG_ENV_OFFSET	(51 << 9)	/* Sector 51 */
-#endif
-
-#ifndef CONFIG_DIRECT_NOR_BOOT
 /* defines for SPL */
 #define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SYS_TEXT_BASE - \
 						CONFIG_SYS_MALLOC_LEN)
 #define CONFIG_SYS_SPL_MALLOC_SIZE	CONFIG_SYS_MALLOC_LEN
 #define CONFIG_SPL_STACK	0x8001ff00
-#define CONFIG_SPL_TEXT_BASE	0x80000000
 #define CONFIG_SPL_MAX_FOOTPRINT	32768
 #define CONFIG_SPL_PAD_TO	32768
-#endif
 
 /* additions for new relocation code, must added to all boards */
 #define CONFIG_SYS_SDRAM_BASE		0xc0000000

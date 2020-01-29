@@ -7,6 +7,8 @@
  */
 
 #include <common.h>
+#include <dm.h>
+#include <init.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
@@ -17,8 +19,10 @@
 #include <asm/mach-imx/video.h>
 #include <asm/gpio.h>
 #include <asm/spl.h>
+#include <env.h>
 #include <fdt_support.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
+#include <gzip.h>
 #include <i2c.h>
 #include <ipu_pixfmt.h>
 #include <linux/errno.h>
@@ -28,6 +32,7 @@
 #include <spl.h>
 #include <splash.h>
 #include <usb/ehci-ci.h>
+#include <video_console.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -80,33 +85,6 @@ static void setup_iomux_uart(void)
 	imx_iomux_v3_setup_multiple_pads(uart_pads, ARRAY_SIZE(uart_pads));
 }
 
-#ifdef CONFIG_USB_EHCI_MX5
-int board_ehci_hcd_init(int port)
-{
-	if (port == 0) {
-		/* USB OTG PWRON */
-		imx_iomux_v3_setup_pad(NEW_PAD_CTRL(MX53_PAD_GPIO_4__GPIO1_4,
-						    PAD_CTL_PKE |
-						    PAD_CTL_DSE_HIGH));
-		gpio_direction_output(IMX_GPIO_NR(1, 4), 0);
-
-		/* USB OTG Over Current */
-		imx_iomux_v3_setup_pad(MX53_PAD_GPIO_18__GPIO7_13);
-	} else if (port == 1) {
-		/* USB Host PWRON */
-		imx_iomux_v3_setup_pad(NEW_PAD_CTRL(MX53_PAD_GPIO_2__GPIO1_2,
-						    PAD_CTL_PKE |
-						    PAD_CTL_DSE_HIGH));
-		gpio_direction_output(IMX_GPIO_NR(1, 2), 0);
-
-		/* USB Host Over Current */
-		imx_iomux_v3_setup_pad(MX53_PAD_GPIO_3__USBOH3_USBH1_OC);
-	}
-
-	return 0;
-}
-#endif
-
 static void setup_iomux_fec(void)
 {
 	static const iomux_v3_cfg_t fec_pads[] = {
@@ -150,7 +128,7 @@ static void setup_iomux_fec(void)
 	imx_iomux_v3_setup_multiple_pads(fec_pads, ARRAY_SIZE(fec_pads));
 }
 
-#ifdef CONFIG_FSL_ESDHC
+#ifdef CONFIG_FSL_ESDHC_IMX
 struct fsl_esdhc_cfg esdhc_cfg = {
 	MMC_SDHC1_BASE_ADDR,
 };
@@ -187,7 +165,6 @@ int board_mmc_init(bd_t *bis)
 }
 #endif
 
-#ifdef CONFIG_VIDEO
 static void enable_lvds_clock(struct display_info_t const *dev, const u8 hclk)
 {
 	static struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)MXC_CCM_BASE;
@@ -215,6 +192,8 @@ static void enable_lvds_clock(struct display_info_t const *dev, const u8 hclk)
 
 static void enable_lvds_etm0430g0dh6(struct display_info_t const *dev)
 {
+	gpio_request(IMX_GPIO_NR(6, 0), "LCD");
+
 	/* For ETM0430G0DH6 model, this must be enabled before the clock. */
 	gpio_direction_output(IMX_GPIO_NR(6, 0), 1);
 
@@ -227,6 +206,8 @@ static void enable_lvds_etm0430g0dh6(struct display_info_t const *dev)
 
 static void enable_lvds_etm0700g0dh6(struct display_info_t const *dev)
 {
+	gpio_request(IMX_GPIO_NR(6, 0), "LCD");
+
 	/*
 	 * Set LVDS clock to 33.28 MHz for the display. The PLL4 is set to
 	 * 233 MHz, divided by 7 by setting CCM_CSCMR2 LDB_DI0_IPU_DIV=1 .
@@ -330,7 +311,6 @@ struct display_info_t const displays[] = {
 };
 
 size_t display_count = ARRAY_SIZE(displays);
-#endif
 
 #ifdef CONFIG_SPLASH_SCREEN
 static struct splash_location default_splash_locations[] = {
@@ -348,6 +328,50 @@ int splash_screen_prepare(void)
 				  ARRAY_SIZE(default_splash_locations));
 }
 #endif
+
+int board_late_init(void)
+{
+#if defined(CONFIG_VIDEO_IPUV3)
+	struct udevice *dev;
+	int xpos, ypos, ret;
+	char *s;
+	void *dst;
+	ulong addr, len;
+
+	splash_get_pos(&xpos, &ypos);
+
+	s = env_get("splashimage");
+	if (!s)
+		return 0;
+
+	addr = simple_strtoul(s, NULL, 16);
+	dst = malloc(CONFIG_SYS_VIDEO_LOGO_MAX_SIZE);
+	if (!dst)
+		return -ENOMEM;
+
+	ret = splash_screen_prepare();
+	if (ret < 0)
+		return ret;
+
+	len = CONFIG_SYS_VIDEO_LOGO_MAX_SIZE;
+	ret = gunzip(dst + 2, CONFIG_SYS_VIDEO_LOGO_MAX_SIZE - 2,
+		     (uchar *)addr, &len);
+	if (ret) {
+		printf("Error: no valid bmp or bmp.gz image at %lx\n", addr);
+		free(dst);
+		return ret;
+	}
+
+	ret = uclass_get_device(UCLASS_VIDEO, 0, &dev);
+	if (ret)
+		return ret;
+
+	ret = video_bmp_display(dev, (ulong)dst + 2, xpos, ypos, true);
+	if (ret)
+		return ret;
+#endif
+	return 0;
+}
 
 #define I2C_PAD_CTRL	(PAD_CTL_SRE_FAST | PAD_CTL_DSE_HIGH | \
 			 PAD_CTL_PUS_100K_UP | PAD_CTL_ODE)
@@ -423,6 +447,8 @@ static void m53_set_clock(void)
 	const u32 ref_clk = MXC_HCLK;
 	const u32 dramclk = 400;
 	u32 cpuclk;
+
+	gpio_request(IMX_GPIO_NR(4, 0), "CPUCLK");
 
 	imx_iomux_v3_setup_pad(NEW_PAD_CTRL(MX53_PAD_GPIO_10__GPIO4_0,
 					    PAD_CTL_DSE_HIGH | PAD_CTL_PKE));

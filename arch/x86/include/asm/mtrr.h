@@ -25,6 +25,7 @@
 #define MTRR_CAP_FIX		(1 << 8)
 #define MTRR_CAP_VCNT_MASK	0xff
 
+#define MTRR_DEF_TYPE_MASK	0xff
 #define MTRR_DEF_TYPE_EN	(1 << 11)
 #define MTRR_DEF_TYPE_FIX_EN	(1 << 10)
 
@@ -115,6 +116,18 @@ int mtrr_add_request(int type, uint64_t start, uint64_t size);
  * @return:	0 on success, non-zero on failure
  */
 int mtrr_commit(bool do_caches);
+
+/**
+ * mtrr_set_next_var() - set up a variable MTRR
+ *
+ * This finds the first free variable MTRR and sets to the given area
+ *
+ * @type:	Requested type (MTRR_TYPE_)
+ * @start:	Start address
+ * @size:	Size
+ * @return 0 on success, -ENOSPC if there are no more MTRRs
+ */
+int mtrr_set_next_var(uint type, uint64_t base, uint64_t size);
 
 #endif
 

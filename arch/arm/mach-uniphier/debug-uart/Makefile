@@ -7,8 +7,6 @@ obj-$(CONFIG_ARCH_UNIPHIER_SLD8)	+= debug-uart-sld8.o
 obj-$(CONFIG_ARCH_UNIPHIER_PRO5)	+= debug-uart-pro5.o
 obj-$(CONFIG_ARCH_UNIPHIER_PXS2)	+= debug-uart-pxs2.o
 obj-$(CONFIG_ARCH_UNIPHIER_LD6B)	+= debug-uart-ld6b.o
-obj-$(CONFIG_ARCH_UNIPHIER_LD11)	+= debug-uart-ld20.o
-obj-$(CONFIG_ARCH_UNIPHIER_LD20)	+= debug-uart-ld20.o
 endif
 
 obj-y					+= debug-uart.o

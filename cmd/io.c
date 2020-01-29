@@ -11,6 +11,13 @@
 #include <command.h>
 #include <asm/io.h>
 
+/* Display values from last command */
+static ulong last_addr, last_size;
+static ulong last_length = 0x40;
+static ulong base_address;
+
+#define DISP_LINE_LEN	16
+
 /*
  * IO Display
  *
@@ -19,26 +26,66 @@
  */
 int do_io_iod(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
-	ulong addr;
-	int size;
+	ulong addr, length, bytes;
+	u8 buf[DISP_LINE_LEN];
+	int size, todo;
 
-	if (argc != 2)
+	/*
+	 * We use the last specified parameters, unless new ones are
+	 * entered.
+	 */
+	addr = last_addr;
+	size = last_size;
+	length = last_length;
+
+	if (argc < 2)
 		return CMD_RET_USAGE;
 
-	size = cmd_get_data_size(argv[0], 4);
-	if (size < 0)
-		return 1;
+	if ((flag & CMD_FLAG_REPEAT) == 0) {
+		/*
+		 * New command specified.  Check for a size specification.
+		 * Defaults to long if no or incorrect specification.
+		 */
+		size = cmd_get_data_size(argv[0], 4);
+		if (size < 0)
+			return 1;
 
-	addr = simple_strtoul(argv[1], NULL, 16);
+		/* Address is specified since argc > 1 */
+		addr = simple_strtoul(argv[1], NULL, 16);
+		addr += base_address;
 
-	printf("%04x: ", (u16) addr);
+		/*
+		 * If another parameter, it is the length to display.
+		 * Length is the number of objects, not number of bytes.
+		 */
+		if (argc > 2)
+			length = simple_strtoul(argv[2], NULL, 16);
+	}
 
-	if (size == 4)
-		printf("%08x\n", inl(addr));
-	else if (size == 2)
-		printf("%04x\n", inw(addr));
-	else
-		printf("%02x\n", inb(addr));
+	bytes = size * length;
+
+	/* Print the lines */
+	for (; bytes > 0; addr += todo) {
+		u8 *ptr = buf;
+		int i;
+
+		todo = min(bytes, (ulong)DISP_LINE_LEN);
+		for (i = 0; i < todo; i += size, ptr += size) {
+			if (size == 4)
+				*(u32 *)ptr = inl(addr + i);
+			else if (size == 2)
+				*(u16 *)ptr = inw(addr + i);
+			else
+				*ptr = inb(addr + i);
+		}
+		print_buffer(addr, buf, size, todo / size,
+			     DISP_LINE_LEN / size);
+		bytes -= todo;
+	}
+
+	last_addr = addr;
+	last_length = length;
+	last_size = size;
 
 	return 0;
 }
@@ -69,7 +116,7 @@ int do_io_iow(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 }
 
 /**************************************************/
-U_BOOT_CMD(iod, 2, 0, do_io_iod,
+U_BOOT_CMD(iod, 3, 1, do_io_iod,
 	   "IO space display", "[.b, .w, .l] address");
 
 U_BOOT_CMD(iow, 3, 0, do_io_iow,

@@ -5,16 +5,24 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <ns16550.h>
 #include <spl.h>
 #include <asm/io.h>
+#if IS_ENABLED(CONFIG_TEGRA_CLKRST)
 #include <asm/arch/clock.h>
+#endif
+#if IS_ENABLED(CONFIG_TEGRA_PINCTRL)
 #include <asm/arch/funcmux.h>
+#endif
+#if IS_ENABLED(CONFIG_TEGRA_MC)
 #include <asm/arch/mc.h>
+#endif
 #include <asm/arch/tegra.h>
 #include <asm/arch-tegra/ap.h>
 #include <asm/arch-tegra/board.h>
+#include <asm/arch-tegra/cboot.h>
 #include <asm/arch-tegra/pmc.h>
 #include <asm/arch-tegra/sys_proto.h>
 #include <asm/arch-tegra/warmboot.h>
@@ -36,9 +44,25 @@ enum {
 static bool from_spl __attribute__ ((section(".data")));
 
 #ifndef CONFIG_SPL_BUILD
-void save_boot_params(u32 r0, u32 r1, u32 r2, u32 r3)
+void save_boot_params(unsigned long r0, unsigned long r1, unsigned long r2,
+		      unsigned long r3)
 {
 	from_spl = r0 != UBOOT_NOT_LOADED_FROM_SPL;
+
+	/*
+	 * The logic for this is somewhat indirect. The purpose of the marker
+	 * (UBOOT_NOT_LOADED_FROM_SPL) is in fact used to determine if U-Boot
+	 * was loaded from a read-only instance of itself, which is something
+	 * that can happen in secure boot setups. So basically the presence
+	 * of the marker is an indication that U-Boot was loaded by one such
+	 * special variant of U-Boot. Conversely, the absence of the marker
+	 * indicates that this instance of U-Boot was loaded by something
+	 * other than a special U-Boot. This could be SPL, but it could just
+	 * as well be one of any number of other first stage bootloaders.
+	 */
+	if (from_spl)
+		cboot_save_boot_params(r0, r1, r2, r3);
+
 	save_boot_params_ret();
 }
 #endif
@@ -66,6 +90,7 @@ bool tegra_cpu_is_non_secure(void)
 }
 #endif
 
+#if IS_ENABLED(CONFIG_TEGRA_MC)
 /* Read the RAM size directly from the memory controller */
 static phys_size_t query_sdram_size(void)
 {
@@ -115,14 +140,26 @@ static phys_size_t query_sdram_size(void)
 
 	return size_bytes;
 }
+#endif
 
 int dram_init(void)
 {
+	int err;
+
+	/* try to initialize DRAM from cboot DTB first */
+	err = cboot_dram_init();
+	if (err == 0)
+		return 0;
+
+#if IS_ENABLED(CONFIG_TEGRA_MC)
 	/* We do not initialise DRAM here. We just query the size */
 	gd->ram_size = query_sdram_size();
+#endif
+
 	return 0;
 }
 
+#if IS_ENABLED(CONFIG_TEGRA_PINCTRL)
 static int uart_configs[] = {
 #if defined(CONFIG_TEGRA20)
  #if defined(CONFIG_TEGRA_UARTA_UAA_UAB)
@@ -190,9 +227,11 @@ static void setup_uarts(int uart_ids)
 		}
 	}
 }
+#endif
 
 void board_init_uart_f(void)
 {
+#if IS_ENABLED(CONFIG_TEGRA_PINCTRL)
 	int uart_ids = 0;	/* bit mask of which UART ids to enable */
 
 #ifdef CONFIG_TEGRA_ENABLE_UARTA
@@ -211,6 +250,7 @@ void board_init_uart_f(void)
 	uart_ids |= UARTE;
 #endif
 	setup_uarts(uart_ids);
+#endif
 }
 
 #if !CONFIG_IS_ENABLED(OF_CONTROL)
@@ -226,7 +266,7 @@ U_BOOT_DEVICE(ns16550_com1) = {
 };
 #endif
 
-#if !defined(CONFIG_SYS_DCACHE_OFF) && !defined(CONFIG_ARM64)
+#if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF) && !defined(CONFIG_ARM64)
 void enable_caches(void)
 {
 	/* Enable D-cache. I-cache is already enabled in start.S */

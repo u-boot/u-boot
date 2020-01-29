@@ -7,7 +7,7 @@
 
 #include "k3-am654.dtsi"
 #include "k3-am654-base-board-u-boot.dtsi"
-#include "k3-am654-base-board-ddr4-1600MHz.dtsi"
+#include "k3-am654-base-board-ddr4-1600MTs.dtsi"
 #include "k3-am654-ddr.dtsi"
 
 / {
@@ -16,6 +16,7 @@
 
 	aliases {
 		serial0 = &wkup_uart0;
+		serial1 = &mcu_uart0;
 		serial2 = &main_uart0;
 	};
 
@@ -32,8 +33,8 @@
 	a53_0: a53@0 {
 		compatible = "ti,am654-rproc";
 		reg = <0x0 0x00a90000 0x0 0x10>;
-		power-domains = <&k3_pds 61>,
-				<&k3_pds 202>;
+		power-domains = <&k3_pds 61 TI_SCI_PD_EXCLUSIVE>,
+				<&k3_pds 202 TI_SCI_PD_EXCLUSIVE>;
 		resets = <&k3_reset 202 0>;
 		assigned-clocks = <&k3_clks 202 0>;
 		assigned-clock-rates = <800000000>;
@@ -96,10 +97,23 @@
 		u-boot,dm-spl;
 	};
 
+	wkup_vtm0: wkup_vtm@42050000 {
+		compatible = "ti,am654-vtm", "ti,am654-avs";
+		reg = <0x42050000 0x25c>;
+		power-domains = <&k3_pds 80>;
+		#thermal-sensor-cells = <1>;
+	};
+
+	clk_200mhz: dummy_clock {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <200000000>;
+		u-boot,dm-spl;
+	};
 };
 
 &dmsc {
-	mboxes= <&mcu_secproxy 7>, <&mcu_secproxy 6>, <&mcu_secproxy 5>;
+	mboxes= <&mcu_secproxy 8>, <&mcu_secproxy 6>, <&mcu_secproxy 5>;
 	mbox-names = "tx", "rx", "notify";
 	ti,host-id = <4>;
 	ti,secure-host;
@@ -112,23 +126,77 @@
 	status = "okay";
 };
 
+&mcu_uart0 {
+	u-boot,dm-spl;
+	pinctrl-names = "default";
+	pinctrl-0 = <&mcu_uart0_pins_default>;
+	clock-frequency = <48000000>;
+	status = "okay";
+};
+
+&main_uart0 {
+	power-domains = <&k3_pds 146 TI_SCI_PD_SHARED>;
+};
+
+&wkup_vtm0 {
+	vdd-supply-3 = <&vdd_mpu>;
+	vdd-supply-4 = <&vdd_mpu>;
+	u-boot,dm-spl;
+};
+
 &wkup_pmx0 {
 	u-boot,dm-spl;
 	wkup_uart0_pins_default: wkup_uart0_pins_default {
 		pinctrl-single,pins = <
-			AM65X_WKUP_IOPAD(0x00a0, PIN_INPUT | MUX_MODE0) /* (AB1) WKUP_UART0_RXD */
-			AM65X_WKUP_IOPAD(0x00a4, PIN_OUTPUT | MUX_MODE0) /* (AB5) WKUP_UART0_TXD */
-			AM65X_WKUP_IOPAD(0x00c8, PIN_INPUT | MUX_MODE1) /* (AC2) WKUP_GPIO0_6.WKUP_UART0_CTSn */
-			AM65X_WKUP_IOPAD(0x00cc, PIN_OUTPUT | MUX_MODE1) /* (AC1) WKUP_GPIO0_7.WKUP_UART0_RTSn */
+			AM65X_WKUP_IOPAD(0x00a0, PIN_INPUT, 0)	/* (AB1) WKUP_UART0_RXD */
+			AM65X_WKUP_IOPAD(0x00a4, PIN_OUTPUT, 0)	/* (AB5) WKUP_UART0_TXD */
+			AM65X_WKUP_IOPAD(0x00c8, PIN_INPUT, 1)	/* (AC2) WKUP_GPIO0_6.WKUP_UART0_CTSn */
+			AM65X_WKUP_IOPAD(0x00cc, PIN_OUTPUT, 1)	/* (AC1) WKUP_GPIO0_7.WKUP_UART0_RTSn */
 		>;
 		u-boot,dm-spl;
 	};
 
 	wkup_vtt_pins_default: wkup_vtt_pins_default {
 		pinctrl-single,pins = <
-			AM65X_WKUP_IOPAD(0x0040, PIN_OUTPUT_PULLUP | MUX_MODE7) /* WKUP_GPIO0_28 */
+			AM65X_WKUP_IOPAD(0x0040, PIN_OUTPUT_PULLUP, 7)	/* WKUP_GPIO0_28 */
 		>;
 		u-boot,dm-spl;
+	};
+
+	mcu_uart0_pins_default: mcu_uart0_pins_default {
+		pinctrl-single,pins = <
+			AM65X_WKUP_IOPAD(0x0044, PIN_INPUT, 4)	/* (P4) MCU_OSPI1_D1.MCU_UART0_RXD */
+			AM65X_WKUP_IOPAD(0x0048, PIN_OUTPUT, 4)	/* (P5) MCU_OSPI1_D2.MCU_UART0_TXD */
+			AM65X_WKUP_IOPAD(0x004C, PIN_INPUT, 4)	/* (P1) MCU_OSPI1_D3.MCU_UART0_CTSn */
+			AM65X_WKUP_IOPAD(0x0054, PIN_OUTPUT, 4)	/* (N3) MCU_OSPI1_CSn1.MCU_UART0_RTSn */
+		>;
+		u-boot,dm-spl;
+	};
+
+	wkup_i2c0_pins_default: wkup-i2c0-pins-default {
+		pinctrl-single,pins = <
+			AM65X_WKUP_IOPAD(0x00e0, PIN_INPUT, 0) /* (AC7) WKUP_I2C0_SCL */
+			AM65X_WKUP_IOPAD(0x00e4, PIN_INPUT, 0) /* (AD6) WKUP_I2C0_SDA */
+		>;
+	};
+};
+
+&main_pmx0 {
+	u-boot,dm-spl;
+	main_mmc0_pins_default: main_mmc0_pins_default {
+		pinctrl-single,pins = <
+			AM65X_IOPAD(0x01a8, PIN_INPUT_PULLDOWN, 0)	/* (B25) MMC0_CLK */
+			AM65X_IOPAD(0x01aC, PIN_INPUT_PULLUP, 0)	/* (B27) MMC0_CMD */
+			AM65X_IOPAD(0x01a4, PIN_INPUT_PULLUP, 0)	/* (A26) MMC0_DAT0 */
+			AM65X_IOPAD(0x01a0, PIN_INPUT_PULLUP, 0)	/* (E25) MMC0_DAT1 */
+			AM65X_IOPAD(0x019c, PIN_INPUT_PULLUP, 0)	/* (C26) MMC0_DAT2 */
+			AM65X_IOPAD(0x0198, PIN_INPUT_PULLUP, 0)	/* (A25) MMC0_DAT3 */
+			AM65X_IOPAD(0x0194, PIN_INPUT_PULLUP, 0)	/* (E24) MMC0_DAT4 */
+			AM65X_IOPAD(0x0190, PIN_INPUT_PULLUP, 0)	/* (A24) MMC0_DAT5 */
+			AM65X_IOPAD(0x018c, PIN_INPUT_PULLUP, 0)	/* (B26) MMC0_DAT6 */
+			AM65X_IOPAD(0x0188, PIN_INPUT_PULLUP, 0)	/* (D25) MMC0_DAT7 */
+			AM65X_IOPAD(0x01b0, PIN_INPUT, 0)		/* (C25) MMC0_DS */
+		>;
 	};
 };
 
@@ -136,4 +204,38 @@
 	vtt-supply = <&vtt_supply>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&wkup_vtt_pins_default>;
+};
+
+&sdhci0 {
+	clock-names = "clk_xin";
+	clocks = <&clk_200mhz>;
+	/delete-property/ power-domains;
+	ti,driver-strength-ohm = <50>;
+};
+
+&sdhci1 {
+	clock-names = "clk_xin";
+	clocks = <&clk_200mhz>;
+	/delete-property/ power-domains;
+	ti,driver-strength-ohm = <50>;
+};
+
+&wkup_i2c0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&wkup_i2c0_pins_default>;
+	clock-frequency = <400000>;
+	u-boot,dm-spl;
+
+	vdd_mpu: tps62363@60 {
+		compatible = "ti,tps62363";
+		reg = <0x60>;
+		regulator-name = "VDD_MPU";
+		regulator-min-microvolt = <500000>;
+		regulator-max-microvolt = <1770000>;
+		regulator-always-on;
+		regulator-boot-on;
+		ti,vsel0-state-high;
+		ti,vsel1-state-high;
+		u-boot,dm-spl;
+	};
 };

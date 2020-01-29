@@ -13,7 +13,7 @@ $ make mrproper
 $ make pico-imx6ul_defconfig
 $ make
 
-This generates the SPL and u-boot.img binaries.
+This generates the SPL and u-boot-dtb.img binaries.
 
 1. Loading U-Boot via USB Serial Download Protocol
 
@@ -31,15 +31,15 @@ Connect a USB cable between the OTG pico port and the host PC.
 
 Open a terminal program such as minicom.
 
-Copy SPL and u-boot.img to the imx_usb_loader folder.
+Copy SPL and u-boot-dtb.img to the imx_usb_loader folder.
 
 Load the SPL binary via USB:
 
 $ sudo ./imx_usb SPL
 
-Load the u-boot.img binary via USB:
+Load the u-boot-dtb.img binary via USB:
 
-$ sudo ./imx_usb u-boot.img
+$ sudo ./imx_usb u-boot-dtb.img
 
 Then U-Boot starts and its messages appear in the console program.
 
@@ -54,11 +54,11 @@ Run the DFU agent so we can flash the new images using dfu-util tool:
 
 => dfu 0 mmc 0
 
-Flash SPL and u-boot.img into the eMMC running the following commands on a PC:
+Flash SPL and u-boot-dtb.img into the eMMC running the following commands on a PC:
 
 $ sudo dfu-util -D SPL -a spl
 
-$ sudo dfu-util -D u-boot.img -a u-boot
+$ sudo dfu-util -D u-boot-dtb.img -a u-boot
 
 Remove power from the pico board.
 
@@ -75,7 +75,7 @@ $ make imx_v6_v7_defconfig (Using the default imx_v6_v7_defconfig configuration
 just for an example. In order to boot faster the user should customize the
 defconfig by only enabling the minimal required drivers).
 
-$ make -j4 uImage LOADADDR=0x80800000
+$ make -j4 uImage LOADADDR=0x80008000
 
 $ cp arch/arm/boot/uImage /tftpboot
 $ cp arch/arm/boot/dts/imx6ul-pico-hobbit.dtb /tftpboot
@@ -93,7 +93,7 @@ Get the kernel:
 => tftp ${loadaddr} uImage
 
 Write the kernel at 2MB offset:
-=> mmc write ${loadaddr} 0x1000 0x4000
+=> mmc write ${loadaddr} 0x1000 0x5000
 
 Setup the bootargs:
 => setenv bootargs 'console=ttymxc5,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rootwait rw'
@@ -104,8 +104,8 @@ Prepare args:
    Image Name:   Linux-4.19.0-rc2-next-20180905-0
    Image Type:   ARM Linux Kernel Image (uncompressed)
    Data Size:    8365608 Bytes = 8 MiB
-   Load Address: 80800000
-   Entry Point:  80800000
+   Load Address: 80008000
+   Entry Point:  80008000
    Verifying Checksum ... OK
 ## Flattened Device Tree blob at 83000000
    Booting using the fdt blob at 0x83000000
@@ -142,7 +142,7 @@ Launch UMS:
 Flash the new binaries:
 
 $ sudo dd if=SPL of=/dev/sdX bs=1k seek=1; sync
-$ sudo dd if=u-boot.img  of=/dev/sdX bs=1k seek=69; sync
+$ sudo dd if=u-boot-dtb.img  of=/dev/sdX bs=1k seek=69; sync
 
 And then SPL binary will load and jump directly to the kernel:
 

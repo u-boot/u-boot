@@ -248,6 +248,8 @@ int regmap_raw_read_range(struct regmap *map, uint range_num, uint offset,
  * @cond:	Break condition (usually involving @val)
  * @sleep_us:	Maximum time to sleep between reads in us (0 tight-loops).
  * @timeout_ms:	Timeout in ms, 0 means never timeout
+ * @test_add_time: Used for sandbox testing - amount of time to add after
+ *		starting the loop (0 if not testing)
  *
  * Returns 0 on success and -ETIMEDOUT upon a timeout or the regmap_read
  * error return value in case of a error read. In the two former cases,
@@ -256,8 +258,12 @@ int regmap_raw_read_range(struct regmap *map, uint range_num, uint offset,
  *
  * This is modelled after the regmap_read_poll_timeout macros in linux but
  * with millisecond timeout.
+ *
+ * The _test version is for sandbox testing only. Do not use this in normal
+ * code as it advances the timer.
  */
-#define regmap_read_poll_timeout(map, addr, val, cond, sleep_us, timeout_ms) \
+#define regmap_read_poll_timeout_test(map, addr, val, cond, sleep_us, \
+				      timeout_ms, test_add_time) \
 ({ \
 	unsigned long __start = get_timer(0); \
 	int __ret; \
@@ -267,6 +273,8 @@ int regmap_raw_read_range(struct regmap *map, uint range_num, uint offset,
 			break; \
 		if (cond) \
 			break; \
+		if (IS_ENABLED(CONFIG_SANDBOX) && test_add_time) \
+			timer_test_add_offset(test_add_time); \
 		if ((timeout_ms) && get_timer(__start) > (timeout_ms)) { \
 			__ret = regmap_read((map), (addr), &(val)); \
 			break; \
@@ -277,13 +285,18 @@ int regmap_raw_read_range(struct regmap *map, uint range_num, uint offset,
 	__ret ?: ((cond) ? 0 : -ETIMEDOUT); \
 })
 
+#define regmap_read_poll_timeout(map, addr, val, cond, sleep_us, timeout_ms) \
+	regmap_read_poll_timeout_test(map, addr, val, cond, sleep_us, \
+				      timeout_ms, 0) \
+
 /**
  * regmap_update_bits() - Perform a read/modify/write using a mask
  *
  * @map:	The map returned by regmap_init_mem*()
  * @offset:	Offset of the memory
  * @mask:	Mask to apply to the read value
- * @val:	Value to apply to the value to write
+ * @val:	Value to OR with the read value after masking. Note that any
+ *	bits set in @val which are not set in @mask are ignored
  * Return: 0 if OK, -ve on error
  */
 int regmap_update_bits(struct regmap *map, uint offset, uint mask, uint val);
@@ -317,6 +330,8 @@ int regmap_init_mem(ofnode node, struct regmap **mapp);
  */
 int regmap_init_mem_platdata(struct udevice *dev, fdt_val_t *reg, int count,
 			     struct regmap **mapp);
+
+int regmap_init_mem_index(ofnode node, struct regmap **mapp, int index);
 
 /**
  * regmap_get_range() - Obtain the base memory address of a regmap range

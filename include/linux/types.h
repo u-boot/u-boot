@@ -85,7 +85,7 @@ typedef unsigned int		u_int;
 typedef unsigned long		u_long;
 
 /* sysv */
-typedef unsigned char		unchar;
+typedef unsigned char		uchar;
 typedef unsigned short		ushort;
 typedef unsigned int		uint;
 typedef unsigned long		ulong;
@@ -151,12 +151,14 @@ typedef __u32 __bitwise __wsum;
 
 typedef unsigned __bitwise__	gfp_t;
 
+#ifdef __linux__
 struct ustat {
 	__kernel_daddr_t	f_tfree;
 	__kernel_ino_t		f_tinode;
 	char			f_fname[6];
 	char			f_fpack[6];
 };
+#endif
 
 #define DECLARE_BITMAP(name, bits) \
 	unsigned long name[BITS_TO_LONGS(bits)]

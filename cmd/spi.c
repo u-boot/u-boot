@@ -22,13 +22,6 @@
 #   define MAX_SPI_BYTES 32	/* Maximum number of bytes we can handle */
 #endif
 
-#ifndef CONFIG_DEFAULT_SPI_BUS
-#   define CONFIG_DEFAULT_SPI_BUS	0
-#endif
-#ifndef CONFIG_DEFAULT_SPI_MODE
-#   define CONFIG_DEFAULT_SPI_MODE	SPI_MODE_0
-#endif
-
 /*
  * Values from last command.
  */

@@ -1,9 +1,0 @@
-if TARGET_MS7720SE
-
-config SYS_BOARD
-	default "ms7720se"
-
-config SYS_CONFIG_NAME
-	default "ms7720se"
-
-endif

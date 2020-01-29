@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/io.h>
 #include <asm/arch/sama5d3_smc.h>
 #include <asm/arch/at91_common.h>
@@ -12,9 +13,8 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/clk.h>
 #include <debug_uart.h>
+#include <env.h>
 #include <linux/ctype.h>
-#include <phy.h>
-#include <micrel.h>
 #include <spl.h>
 #include <asm/arch/atmel_mpddrc.h>
 #include <asm/arch/at91_wdt.h>

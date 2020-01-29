@@ -15,9 +15,6 @@
 #define CONFIG_KW88F6702		1	/* SOC Name */
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
-/* add target to build it automatically upon "make" */
-#define CONFIG_BUILD_TARGET		"u-boot.kwb"
-
 /* compression configuration */
 #define CONFIG_BZIP2
 
@@ -30,11 +27,6 @@
 #include "mv-common.h"
 
 /* environment variables configuration */
-#ifdef CONFIG_CMD_NAND
-#define CONFIG_ENV_SECT_SIZE	0x20000
-#endif
-#define CONFIG_ENV_SIZE		0x20000
-#define CONFIG_ENV_OFFSET	0xe0000
 
 /* default environment variables */
 #define CONFIG_BOOTCOMMAND \

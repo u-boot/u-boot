@@ -256,11 +256,6 @@ static int execute(void)
 		efi_st_error("GetNextDevicePathInstance did not signal end\n");
 		return EFI_ST_FAILURE;
 	}
-	ret = boottime->free_pool(dp2);
-	if (ret != EFI_ST_SUCCESS) {
-		efi_st_error("FreePool failed\n");
-		return EFI_ST_FAILURE;
-	}
 
 	/* Clean up */
 	ret = boottime->free_pool(dp2);

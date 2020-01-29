@@ -11,6 +11,7 @@
 #include <dt-bindings/input/input.h>
 #include <dt-bindings/pinctrl/pads-imx8qxp.h>
 #include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/thermal/thermal.h>
 
 / {
 	model = "Freescale i.MX8DX";
@@ -30,6 +31,14 @@
 		i2c1 = &i2c1;
 		i2c2 = &i2c2;
 		i2c3 = &i2c3;
+		gpio0 = &gpio0;
+		gpio1 = &gpio1;
+		gpio2 = &gpio2;
+		gpio3 = &gpio3;
+		gpio4 = &gpio4;
+		gpio5 = &gpio5;
+		gpio6 = &gpio6;
+		gpio7 = &gpio7;
 	};
 
 	memory@80000000 {
@@ -236,6 +245,21 @@
 				power-domains = <&pd_dma>;
 				wakeup-irq = <225>;
 			};
+			pd_dma_lpuart1: PD_DMA_UART1 {
+				reg = <SC_R_UART_1>;
+				#power-domain-cells = <0>;
+				power-domains = <&pd_dma>;
+			};
+			pd_dma_lpuart2: PD_DMA_UART2 {
+				reg = <SC_R_UART_2>;
+				#power-domain-cells = <0>;
+				power-domains = <&pd_dma>;
+			};
+			pd_dma_lpuart3: PD_DMA_UART3 {
+				reg = <SC_R_UART_3>;
+				#power-domain-cells = <0>;
+				power-domains = <&pd_dma>;
+			};
 		};
 	};
 
@@ -402,6 +426,45 @@
 		status = "disabled";
 	};
 
+	lpuart1: serial@5a070000 {
+		compatible = "fsl,imx8qm-lpuart";
+		reg = <0x0 0x5a070000 0x0 0x1000>;
+		interrupts = <GIC_SPI 226 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&clk IMX8QXP_UART1_CLK>,
+			 <&clk IMX8QXP_UART1_IPG_CLK>;
+		clock-names = "per", "ipg";
+		assigned-clocks = <&clk IMX8QXP_UART1_CLK>;
+		assigned-clock-rates = <80000000>;
+		power-domains = <&pd_dma_lpuart1>;
+		status = "disabled";
+	};
+
+	lpuart2: serial@5a080000 {
+		compatible = "fsl,imx8qm-lpuart";
+		reg = <0x0 0x5a080000 0x0 0x1000>;
+		interrupts = <GIC_SPI 227 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&clk IMX8QXP_UART2_CLK>,
+			 <&clk IMX8QXP_UART2_IPG_CLK>;
+		clock-names = "per", "ipg";
+		assigned-clocks = <&clk IMX8QXP_UART2_CLK>;
+		assigned-clock-rates = <80000000>;
+		power-domains = <&pd_dma_lpuart2>;
+		status = "disabled";
+	};
+
+	lpuart3: serial@5a090000 {
+		compatible = "fsl,imx8qm-lpuart";
+		reg = <0x0 0x5a090000 0x0 0x1000>;
+		interrupts = <GIC_SPI 228 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&clk IMX8QXP_UART3_CLK>,
+			 <&clk IMX8QXP_UART3_IPG_CLK>;
+		clock-names = "per", "ipg";
+		assigned-clocks = <&clk IMX8QXP_UART3_CLK>;
+		assigned-clock-rates = <80000000>;
+		power-domains = <&pd_dma_lpuart3>;
+		status = "disabled";
+	};
+
 	usdhc1: usdhc@5b010000 {
 		compatible = "fsl,imx8qm-usdhc", "fsl,imx6sl-usdhc";
 		interrupt-parent = <&gic>;
@@ -488,6 +551,61 @@
 		fsl,num-rx-queues=<3>;
 		power-domains = <&pd_conn_enet1>;
 		status = "disabled";
+	};
+
+	tsens: thermal-sensor {
+		compatible = "nxp,imx8qxp-sc-tsens";
+		/* number of the temp sensor on the chip */
+		tsens-num = <2>;
+		#thermal-sensor-cells = <1>;
+	};
+
+	thermal_zones: thermal-zones {
+		/* cpu thermal */
+		cpu-thermal0 {
+			polling-delay-passive = <250>;
+			polling-delay = <2000>;
+			/*the slope and offset of the temp sensor */
+			thermal-sensors = <&tsens 0>;
+			trips {
+				cpu_alert0: trip0 {
+					temperature = <107000>;
+					hysteresis = <2000>;
+					type = "passive";
+				};
+				cpu_crit0: trip1 {
+					temperature = <127000>;
+					hysteresis = <2000>;
+					type = "critical";
+				};
+			};
+			cooling-maps {
+				map0 {
+					trip = <&cpu_alert0>;
+					cooling-device =
+					<&A35_0 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
+				};
+			};
+		};
+
+		drc-thermal0 {
+			polling-delay-passive = <250>;
+			polling-delay = <2000>;
+			thermal-sensors = <&tsens 1>;
+			status = "disabled";
+			trips {
+				drc_alert0: trip0 {
+					temperature = <107000>;
+					hysteresis = <2000>;
+					type = "passive";
+				};
+				drc_crit0: trip1 {
+					temperature = <127000>;
+					hysteresis = <2000>;
+					type = "critical";
+				};
+			};
+		};
 	};
 };
 

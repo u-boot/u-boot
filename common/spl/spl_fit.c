@@ -7,9 +7,12 @@
 #include <common.h>
 #include <errno.h>
 #include <fpga.h>
+#include <gzip.h>
 #include <image.h>
 #include <linux/libfdt.h>
 #include <spl.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 #ifndef CONFIG_SYS_BOOTM_LEN
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)
@@ -278,25 +281,34 @@ static int spl_fit_append_fdt(struct spl_image_info *spl_image,
 			      void *fit, int images, ulong base_offset)
 {
 	struct spl_image_info image_info;
-	int node, ret;
+	int node, ret = 0;
+
+	/*
+	 * Use the address following the image as target address for the
+	 * device tree.
+	 */
+	image_info.load_addr = spl_image->load_addr + spl_image->size;
 
 	/* Figure out which device tree the board wants to use */
 	node = spl_fit_get_image_node(fit, images, FIT_FDT_PROP, 0);
 	if (node < 0) {
 		debug("%s: cannot find FDT node\n", __func__);
-		return node;
+
+		/*
+		 * U-Boot did not find a device tree inside the FIT image. Use
+		 * the U-Boot device tree instead.
+		 */
+		if (gd->fdt_blob)
+			memcpy((void *)image_info.load_addr, gd->fdt_blob,
+			       fdt_totalsize(gd->fdt_blob));
+		else
+			return node;
+	} else {
+		ret = spl_load_fit_image(info, sector, fit, base_offset, node,
+					 &image_info);
+		if (ret < 0)
+			return ret;
 	}
-
-	/*
-	 * Read the device tree and place it after the image.
-	 * Align the destination address to ARCH_DMA_MINALIGN.
-	 */
-	image_info.load_addr = spl_image->load_addr + spl_image->size;
-	ret = spl_load_fit_image(info, sector, fit, base_offset, node,
-				 &image_info);
-
-	if (ret < 0)
-		return ret;
 
 	/* Make the load-address of the FDT available for the SPL framework */
 	spl_image->fdt_addr = (void *)image_info.load_addr;
@@ -333,11 +345,21 @@ static int spl_fit_record_loadable(const void *fit, int images, int index,
 
 static int spl_fit_image_get_os(const void *fit, int noffset, uint8_t *os)
 {
-#if CONFIG_IS_ENABLED(FIT_IMAGE_TINY)
+#if CONFIG_IS_ENABLED(FIT_IMAGE_TINY) && !defined(CONFIG_SPL_OS_BOOT)
 	return -ENOTSUPP;
 #else
 	return fit_image_get_os(fit, noffset, os);
 #endif
+}
+
+/*
+ * Weak default function to allow customizing SPL fit loading for load-only
+ * use cases by allowing to skip the parsing/processing of the FIT contents
+ * (so that this can be done separately in a more customized fashion)
+ */
+__weak bool spl_load_simple_fit_skip_processing(void)
+{
+	return false;
 }
 
 int spl_load_simple_fit(struct spl_image_info *spl_image,
@@ -388,6 +410,10 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 
 	if (count == 0)
 		return -EIO;
+
+	/* skip further processing if requested to enable load-only use cases */
+	if (spl_load_simple_fit_skip_processing())
+		return 0;
 
 	/* find the node holding the images information */
 	images = fdt_path_offset(fit, FIT_IMAGES_PATH);
@@ -491,6 +517,10 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 
 		if (!spl_fit_image_get_os(fit, node, &os_type))
 			debug("Loadable is %s\n", genimg_get_os_name(os_type));
+#if CONFIG_IS_ENABLED(FIT_IMAGE_TINY)
+		else
+			os_type = IH_OS_U_BOOT;
+#endif
 
 		if (os_type == IH_OS_U_BOOT) {
 			spl_fit_append_fdt(&image_info, info, sector,
@@ -523,7 +553,7 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 
 	spl_image->flags |= SPL_FIT_FOUND;
 
-#ifdef CONFIG_SECURE_BOOT
+#ifdef CONFIG_IMX_HAB
 	board_spl_fit_post_load((ulong)fit, size);
 #endif
 

@@ -17,6 +17,7 @@
 #include <asm/io.h>
 #include <asm/arch/at91_wdt.h>
 #include <common.h>
+#include <div64.h>
 #include <dm.h>
 #include <errno.h>
 #include <wdt.h>
@@ -30,28 +31,21 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 #define WDT_SEC2TICKS(s)	(((s) << 8) - 1)
 
-/* Hardware timeout in seconds */
-#define WDT_MAX_TIMEOUT 16
-#define WDT_MIN_TIMEOUT 0
-#define WDT_DEFAULT_TIMEOUT 2
-
-struct at91_wdt_priv {
-	void __iomem *regs;
-	u32	regval;
-	u32	timeout;
-};
-
 /*
  * Set the watchdog time interval in 1/256Hz (write-once)
  * Counter is 12 bit.
  */
-static int at91_wdt_start(struct udevice *dev, u64 timeout_s, ulong flags)
+static int at91_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 {
 	struct at91_wdt_priv *priv = dev_get_priv(dev);
-	u32 timeout = WDT_SEC2TICKS(timeout_s);
+	u64 timeout;
+	u32 ticks;
 
-	if (timeout_s > WDT_MAX_TIMEOUT || timeout_s < WDT_MIN_TIMEOUT)
-		timeout = priv->timeout;
+	/* Calculate timeout in seconds and the resulting ticks */
+	timeout = timeout_ms;
+	do_div(timeout, 1000);
+	timeout = min_t(u64, timeout, WDT_MAX_TIMEOUT);
+	ticks = WDT_SEC2TICKS(timeout);
 
 	/* Check if disabled */
 	if (readl(priv->regs + AT91_WDT_MR) & AT91_WDT_MR_WDDIS) {
@@ -65,12 +59,10 @@ static int at91_wdt_start(struct udevice *dev, u64 timeout_s, ulong flags)
 	 * Since WDV is a 12-bit counter, the maximum period is
 	 * 4096 / 256 = 16 seconds.
 	 */
-
 	priv->regval = AT91_WDT_MR_WDRSTEN	/* causes watchdog reset */
 		| AT91_WDT_MR_WDDBGHLT		/* disabled in debug mode */
 		| AT91_WDT_MR_WDD(0xfff)	/* restart at any time */
-		| AT91_WDT_MR_WDV(timeout);	/* timer value */
-
+		| AT91_WDT_MR_WDV(ticks);	/* timer value */
 	writel(priv->regval, priv->regs + AT91_WDT_MR);
 
 	return 0;
@@ -114,12 +106,6 @@ static int at91_wdt_probe(struct udevice *dev)
 	priv->regs = dev_remap_addr(dev);
 	if (!priv->regs)
 		return -EINVAL;
-
-#ifdef CONFIG_AT91_HW_WDT_TIMEOUT
-	priv->timeout = dev_read_u32_default(dev, "timeout-sec",
-					     WDT_DEFAULT_TIMEOUT);
-	debug("%s: timeout %d", __func__, priv->timeout);
-#endif
 
 	debug("%s: Probing wdt%u\n", __func__, dev->seq);
 

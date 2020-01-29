@@ -5,7 +5,9 @@
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  */
 
+#include <common.h>
 #include <linux/io.h>
+#include <asm/global_data.h>
 
 #include "../init.h"
 #include "sbc-regs.h"
@@ -31,6 +33,20 @@
 #define SBCTRL2_SAVEPIN_MEM_VALUE	0x34000009
 #define SBCTRL4_SAVEPIN_MEM_VALUE	0x02110210
 
+int uniphier_sbc_is_enabled(void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+	const void *fdt = gd->fdt_blob;
+	int offset;
+
+	offset = fdt_node_offset_by_compatible(fdt, 0,
+					       "socionext,uniphier-system-bus");
+	if (offset < 0)
+		return 0;
+
+	return fdtdec_get_is_enabled(fdt, offset);
+}
+
 static void __uniphier_sbc_init(int savepin)
 {
 	/*
@@ -48,7 +64,7 @@ static void __uniphier_sbc_init(int savepin)
 		writel(SBCTRL2_ADMULTIPLX_MEM_VALUE, SBCTRL12);
 	}
 
-	if (boot_is_swapped()) {
+	if (uniphier_sbc_boot_is_swapped()) {
 		/*
 		 * Boot Swap On: boot from external NOR/SRAM
 		 * 0x42000000-0x43ffffff is a mirror of 0x40000000-0x41ffffff.

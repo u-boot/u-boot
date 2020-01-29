@@ -68,6 +68,8 @@ config SPL_DM_USB_GADGET
 
 source "drivers/usb/host/Kconfig"
 
+source "drivers/usb/cdns3/Kconfig"
+
 source "drivers/usb/dwc3/Kconfig"
 
 source "drivers/usb/musb/Kconfig"
@@ -97,6 +99,12 @@ config USB_KEYBOARD
 	  input.
 
 if USB_KEYBOARD
+
+config USB_KEYBOARD_FN_KEYS
+	bool "USB keyboard function key support"
+	help
+	  Say Y here if you want support for keys F1 - F12, INS, HOME, DELETE,
+	  END, PAGE UP, and PAGE DOWN.
 
 choice
 	prompt "USB keyboard polling"

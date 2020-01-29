@@ -22,9 +22,9 @@ unsigned int uniphier_ld6b_debug_uart_init(void)
 	sg_set_pinsel(115, 0, 8, 4);	/* TXD1 -> TXD1 */
 	sg_set_pinsel(113, 2, 8, 4);	/* SBO0 -> TXD2 */
 
-	tmp = readl(SC_CLKCTRL);
+	tmp = readl(sc_base + SC_CLKCTRL);
 	tmp |= SC_CLKCTRL_CEN_PERI;
-	writel(tmp, SC_CLKCTRL);
+	writel(tmp, sc_base + SC_CLKCTRL);
 
 	return DIV_ROUND_CLOSEST(UNIPHIER_LD6B_UART_CLK, 16 * CONFIG_BAUDRATE);
 }

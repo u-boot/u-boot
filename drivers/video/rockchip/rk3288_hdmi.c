@@ -13,9 +13,9 @@
 #include <syscon.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/hardware.h>
-#include <asm/arch/grf_rk3288.h>
+#include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/hardware.h>
+#include <asm/arch-rockchip/grf_rk3288.h>
 #include <power/regulator.h>
 #include "rk_hdmi.h"
 
@@ -33,7 +33,7 @@ static int rk3288_hdmi_enable(struct udevice *dev, int panel_bpp,
 	/* hdmi data from vop id */
 	rk_clrsetreg(&grf->soc_con6, 1 << 4, (vop_id == 1) ? (1 << 4) : 0);
 
-	return 0;
+	return dw_hdmi_enable(&priv->hdmi, edid);
 }
 
 static int rk3288_hdmi_ofdata_to_platdata(struct udevice *dev)

@@ -17,16 +17,16 @@
 void uniphier_ld11_clk_init(void)
 {
 	/* if booted from a device other than USB, without stand-by MPU */
-	if ((readl(SG_PINMON0) & BIT(27)) &&
+	if ((readl(sg_base + SG_PINMON0) & BIT(27)) &&
 	    uniphier_boot_device_raw() != BOOT_DEVICE_USB) {
-		writel(1, SG_ETPHYPSHUT);
-		writel(1, SG_ETPHYCNT);
+		writel(1, sg_base + SG_ETPHYPSHUT);
+		writel(1, sg_base + SG_ETPHYCNT);
 
 		udelay(1); /* wait for regulator level 1.1V -> 2.5V */
 
-		writel(3, SG_ETPHYCNT);
-		writel(3, SG_ETPHYPSHUT);
-		writel(7, SG_ETPHYCNT);
+		writel(3, sg_base + SG_ETPHYCNT);
+		writel(3, sg_base + SG_ETPHYPSHUT);
+		writel(7, sg_base + SG_ETPHYCNT);
 	}
 
 	/* TODO: use "mmc-pwrseq-emmc" */
@@ -37,7 +37,7 @@ void uniphier_ld11_clk_init(void)
 		int ch;
 
 		for (ch = 0; ch < 3; ch++) {
-			void __iomem *phyctrl = (void __iomem *)SG_USBPHYCTRL;
+			void __iomem *phyctrl = sg_base + SG_USBPHYCTRL;
 
 			writel(0x82280600, phyctrl + 8 * ch);
 			writel(0x00000106, phyctrl + 8 * ch + 4);

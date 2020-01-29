@@ -1,0 +1,72 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2019 Jagan Teki <jagan@amarulasolutions.com>
+ */
+
+&cic {
+	u-boot,dm-pre-reloc;
+};
+
+&cru {
+	u-boot,dm-pre-reloc;
+};
+
+&dmc {
+	u-boot,dm-pre-reloc;
+};
+
+&grf {
+	u-boot,dm-pre-reloc;
+};
+
+&pinctrl {
+	u-boot,dm-pre-reloc;
+};
+
+&pmu {
+	u-boot,dm-pre-reloc;
+};
+
+&pmugrf {
+	u-boot,dm-pre-reloc;
+};
+
+&pmu {
+	u-boot,dm-pre-reloc;
+};
+
+&pmucru {
+	u-boot,dm-pre-reloc;
+};
+
+&pmusgrf {
+	u-boot,dm-pre-reloc;
+};
+
+&sdhci {
+	u-boot,dm-pre-reloc;
+};
+
+&sdmmc {
+	u-boot,dm-pre-reloc;
+};
+
+&spi1 {
+	u-boot,dm-pre-reloc;
+};
+
+&uart0 {
+	u-boot,dm-pre-reloc;
+};
+
+&uart2 {
+	u-boot,dm-pre-reloc;
+};
+
+&vopb {
+	u-boot,dm-pre-reloc;
+};
+
+&vopl {
+	u-boot,dm-pre-reloc;
+};

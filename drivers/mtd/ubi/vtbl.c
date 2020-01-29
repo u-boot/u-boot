@@ -50,6 +50,7 @@
 #include <linux/err.h>
 #include <linux/slab.h>
 #include <asm/div64.h>
+#include <u-boot/crc.h>
 #else
 #include <ubi_uboot.h>
 #endif
@@ -553,6 +554,9 @@ static int init_volumes(struct ubi_device *ubi,
 		memcpy(vol->name, vtbl[i].name, vol->name_len);
 		vol->name[vol->name_len] = '\0';
 		vol->vol_id = i;
+
+		if (vtbl[i].flags & UBI_VTBL_SKIP_CRC_CHECK_FLG)
+			vol->skip_check = 1;
 
 		if (vtbl[i].flags & UBI_VTBL_AUTORESIZE_FLG) {
 			/* Auto re-size flag may be set only for one volume */

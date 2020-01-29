@@ -12,12 +12,11 @@
 #endif
 #include <linux/mtd/spinand.h>
 
-#define SPINAND_MFR_GIGADEVICE			0xc8
+#define SPINAND_MFR_GIGADEVICE			0xC8
+#define GD5FXGQ4XA_STATUS_ECC_1_7_BITFLIPS	(1 << 4)
+#define GD5FXGQ4XA_STATUS_ECC_8_BITFLIPS	(3 << 4)
 
-#define GIGADEVICE_STATUS_ECC_MASK		GENMASK(5, 4)
-#define GIGADEVICE_STATUS_ECC_NO_BITFLIPS	(0 << 4)
-#define GIGADEVICE_STATUS_ECC_1TO7_BITFLIPS	(1 << 4)
-#define GIGADEVICE_STATUS_ECC_8_BITFLIPS	(3 << 4)
+#define GD5FXGQ4XEXXG_REG_STATUS2		0xf0
 
 static SPINAND_OP_VARIANTS(read_cache_variants,
 		SPINAND_PAGE_READ_FROM_CACHE_QUADIO_OP(0, 2, NULL, 0),
@@ -35,8 +34,8 @@ static SPINAND_OP_VARIANTS(update_cache_variants,
 		SPINAND_PROG_LOAD_X4(false, 0, NULL, 0),
 		SPINAND_PROG_LOAD(false, 0, NULL, 0));
 
-static int gd5f1gq4u_ooblayout_ecc(struct mtd_info *mtd, int section,
-				   struct mtd_oob_region *region)
+static int gd5fxgq4xexxg_ooblayout_ecc(struct mtd_info *mtd, int section,
+				       struct mtd_oob_region *region)
 {
 	if (section)
 		return -ERANGE;
@@ -47,38 +46,49 @@ static int gd5f1gq4u_ooblayout_ecc(struct mtd_info *mtd, int section,
 	return 0;
 }
 
-static int gd5f1gq4u_ooblayout_free(struct mtd_info *mtd, int section,
-				    struct mtd_oob_region *region)
+static int gd5fxgq4xexxg_ooblayout_free(struct mtd_info *mtd, int section,
+					struct mtd_oob_region *region)
 {
 	if (section)
 		return -ERANGE;
 
-	/* Reserve 2 bytes for the BBM. */
-	region->offset = 2;
-	region->length = 62;
+	/* Reserve 1 bytes for the BBM. */
+	region->offset = 1;
+	region->length = 63;
 
 	return 0;
 }
 
-static const struct mtd_ooblayout_ops gd5f1gq4u_ooblayout = {
-	.ecc = gd5f1gq4u_ooblayout_ecc,
-	.free = gd5f1gq4u_ooblayout_free,
-};
-
-static int gd5f1gq4u_ecc_get_status(struct spinand_device *spinand,
-				    u8 status)
+static int gd5fxgq4xexxg_ecc_get_status(struct spinand_device *spinand,
+					u8 status)
 {
-	if (status)
-		debug("%s (%d): status=%02x\n", __func__, __LINE__, status);
+	u8 status2;
+	struct spi_mem_op op = SPINAND_GET_FEATURE_OP(GD5FXGQ4XEXXG_REG_STATUS2,
+						      &status2);
+	int ret;
 
-	switch (status & GIGADEVICE_STATUS_ECC_MASK) {
+	switch (status & STATUS_ECC_MASK) {
 	case STATUS_ECC_NO_BITFLIPS:
 		return 0;
 
-	case GIGADEVICE_STATUS_ECC_1TO7_BITFLIPS:
-		return 7;
+	case GD5FXGQ4XA_STATUS_ECC_1_7_BITFLIPS:
+		/*
+		 * Read status2 register to determine a more fine grained
+		 * bit error status
+		 */
+		ret = spi_mem_exec_op(spinand->slave, &op);
+		if (ret)
+			return ret;
 
-	case GIGADEVICE_STATUS_ECC_8_BITFLIPS:
+		/*
+		 * 4 ... 7 bits are flipped (1..4 can't be detected, so
+		 * report the maximum of 4 in this case
+		 */
+		/* bits sorted this way (3...0): ECCS1,ECCS0,ECCSE1,ECCSE0 */
+		return ((status & STATUS_ECC_MASK) >> 2) |
+			((status2 & STATUS_ECC_MASK) >> 4);
+
+	case GD5FXGQ4XA_STATUS_ECC_8_BITFLIPS:
 		return 8;
 
 	case STATUS_ECC_UNCOR_ERROR:
@@ -91,16 +101,21 @@ static int gd5f1gq4u_ecc_get_status(struct spinand_device *spinand,
 	return -EINVAL;
 }
 
+static const struct mtd_ooblayout_ops gd5fxgq4xexxg_ooblayout = {
+	.ecc = gd5fxgq4xexxg_ooblayout_ecc,
+	.free = gd5fxgq4xexxg_ooblayout_free,
+};
+
 static const struct spinand_info gigadevice_spinand_table[] = {
-	SPINAND_INFO("GD5F1GQ4UC", 0xd1,
+	SPINAND_INFO("GD5F1GQ4UExxG", 0xd1,
 		     NAND_MEMORG(1, 2048, 128, 64, 1024, 1, 1, 1),
-		     NAND_ECCREQ(8, 2048),
+		     NAND_ECCREQ(8, 512),
 		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
 					      &write_cache_variants,
 					      &update_cache_variants),
 		     0,
-		     SPINAND_ECCINFO(&gd5f1gq4u_ooblayout,
-				     gd5f1gq4u_ecc_get_status)),
+		     SPINAND_ECCINFO(&gd5fxgq4xexxg_ooblayout,
+				     gd5fxgq4xexxg_ecc_get_status)),
 };
 
 static int gigadevice_spinand_detect(struct spinand_device *spinand)
@@ -109,8 +124,8 @@ static int gigadevice_spinand_detect(struct spinand_device *spinand)
 	int ret;
 
 	/*
-	 * Gigadevice SPI NAND read ID need a dummy byte,
-	 * so the first byte in raw_id is dummy.
+	 * For GD NANDs, There is an address byte needed to shift in before IDs
+	 * are read out, so the first byte in raw_id is dummy.
 	 */
 	if (id[1] != SPINAND_MFR_GIGADEVICE)
 		return 0;

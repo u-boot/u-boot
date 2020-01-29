@@ -150,6 +150,15 @@ struct mmc *mmc_create(const struct mmc_config *cfg, void *priv)
 {
 	struct mmc *mmc = &mmc_static;
 
+	/* First MMC device registered, fail to register a new one.
+	 * Given users are not expecting this to fail, instead
+	 * of failing let's just return the only MMC device
+	 */
+	if (mmc->cfg) {
+		debug("Warning: MMC_TINY doesn't support multiple MMC devices\n");
+		return mmc;
+	}
+
 	mmc->cfg = cfg;
 	mmc->priv = priv;
 

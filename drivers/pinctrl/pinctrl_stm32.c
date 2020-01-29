@@ -1,10 +1,11 @@
 #include <common.h>
 #include <dm.h>
-#include <dm/pinctrl.h>
 #include <hwspinlock.h>
 #include <asm/arch/gpio.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <dm/lists.h>
+#include <dm/pinctrl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -136,7 +137,7 @@ static struct udevice *stm32_pinctrl_get_gpio_dev(struct udevice *dev,
 			 */
 			*idx = stm32_offset_to_index(gpio_bank->gpio_dev,
 						     selector - pin_count);
-			if (*idx < 0)
+			if (IS_ERR_VALUE(*idx))
 				return NULL;
 
 			return gpio_bank->gpio_dev;
@@ -215,7 +216,7 @@ static int stm32_pinctrl_get_pin_muxing(struct udevice *dev,
 
 #endif
 
-int stm32_pinctrl_probe(struct udevice *dev)
+static int stm32_pinctrl_probe(struct udevice *dev)
 {
 	struct stm32_pinctrl_priv *priv = dev_get_priv(dev);
 	int ret;
@@ -364,6 +365,35 @@ static int stm32_pinctrl_config(int offset)
 	return 0;
 }
 
+static int stm32_pinctrl_bind(struct udevice *dev)
+{
+	ofnode node;
+	const char *name;
+	int ret;
+
+	dev_for_each_subnode(node, dev) {
+		debug("%s: bind %s\n", __func__, ofnode_get_name(node));
+
+		ofnode_get_property(node, "gpio-controller", &ret);
+		if (ret < 0)
+			continue;
+		/* Get the name of each gpio node */
+		name = ofnode_get_name(node);
+		if (!name)
+			return -EINVAL;
+
+		/* Bind each gpio node */
+		ret = device_bind_driver_to_node(dev, "gpio_stm32",
+						 name, node, NULL);
+		if (ret)
+			return ret;
+
+		debug("%s: bind %s\n", __func__, name);
+	}
+
+	return 0;
+}
+
 #if CONFIG_IS_ENABLED(PINCTRL_FULL)
 static int stm32_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 {
@@ -421,6 +451,7 @@ static const struct udevice_id stm32_pinctrl_ids[] = {
 	{ .compatible = "st,stm32f429-pinctrl" },
 	{ .compatible = "st,stm32f469-pinctrl" },
 	{ .compatible = "st,stm32f746-pinctrl" },
+	{ .compatible = "st,stm32f769-pinctrl" },
 	{ .compatible = "st,stm32h743-pinctrl" },
 	{ .compatible = "st,stm32mp157-pinctrl" },
 	{ .compatible = "st,stm32mp157-z-pinctrl" },
@@ -432,7 +463,7 @@ U_BOOT_DRIVER(pinctrl_stm32) = {
 	.id			= UCLASS_PINCTRL,
 	.of_match		= stm32_pinctrl_ids,
 	.ops			= &stm32_pinctrl_ops,
-	.bind			= dm_scan_fdt_dev,
+	.bind			= stm32_pinctrl_bind,
 	.probe			= stm32_pinctrl_probe,
 	.priv_auto_alloc_size	= sizeof(struct stm32_pinctrl_priv),
 };

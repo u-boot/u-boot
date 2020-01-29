@@ -289,10 +289,10 @@ enum pcc3_entry {
 #define PCC_INUSE_MASK		(0x1 << PCC_INUSE_OFFSET)
 #define PCC_PCS_OFFSET	24
 #define PCC_PCS_MASK	(0x7 << PCC_PCS_OFFSET)
-#define PCC_FRAC_OFFSET	4
+#define PCC_FRAC_OFFSET	3
 #define PCC_FRAC_MASK	(0x1 << PCC_FRAC_OFFSET)
 #define PCC_PCD_OFFSET	0
-#define PCC_PCD_MASK	(0xf << PCC_PCD_OFFSET)
+#define PCC_PCD_MASK	(0x7 << PCC_PCD_OFFSET)
 
 
 enum pcc_clksrc_type {

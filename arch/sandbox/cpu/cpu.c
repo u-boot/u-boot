@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>
 #include <linux/libfdt.h>
@@ -223,6 +224,57 @@ phys_addr_t map_to_sysmem(const void *ptr)
 	 * will return ptr
 	 */
 	return mentry->tag;
+}
+
+unsigned int sandbox_read(const void *addr, enum sandboxio_size_t size)
+{
+	struct sandbox_state *state = state_get_current();
+
+	if (!state->allow_memio)
+		return 0;
+
+	switch (size) {
+	case SB_SIZE_8:
+		return *(u8 *)addr;
+	case SB_SIZE_16:
+		return *(u16 *)addr;
+	case SB_SIZE_32:
+		return *(u32 *)addr;
+	case SB_SIZE_64:
+		return *(u64 *)addr;
+	}
+
+	return 0;
+}
+
+void sandbox_write(void *addr, unsigned int val, enum sandboxio_size_t size)
+{
+	struct sandbox_state *state = state_get_current();
+
+	if (!state->allow_memio)
+		return;
+
+	switch (size) {
+	case SB_SIZE_8:
+		*(u8 *)addr = val;
+		break;
+	case SB_SIZE_16:
+		*(u16 *)addr = val;
+		break;
+	case SB_SIZE_32:
+		*(u32 *)addr = val;
+		break;
+	case SB_SIZE_64:
+		*(u64 *)addr = val;
+		break;
+	}
+}
+
+void sandbox_set_enable_memio(bool enable)
+{
+	struct sandbox_state *state = state_get_current();
+
+	state->allow_memio = enable;
 }
 
 void sandbox_set_enable_pci_map(int enable)

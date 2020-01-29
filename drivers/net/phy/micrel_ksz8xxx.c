@@ -24,6 +24,7 @@ static struct phy_driver KSZ804_driver = {
 };
 
 #define MII_KSZPHY_OMSO		0x16
+#define KSZPHY_OMSO_FACTORY_TEST BIT(15)
 #define KSZPHY_OMSO_B_CAST_OFF	(1 << 9)
 
 static int ksz_genconfig_bcastoff(struct phy_device *phydev)
@@ -80,12 +81,30 @@ static struct phy_driver KSZ8051_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
+static int ksz8081_config(struct phy_device *phydev)
+{
+	int ret;
+
+	ret = phy_read(phydev, MDIO_DEVAD_NONE, MII_KSZPHY_OMSO);
+	if (ret < 0)
+		return ret;
+
+	ret &= ~KSZPHY_OMSO_FACTORY_TEST;
+
+	ret = phy_write(phydev, MDIO_DEVAD_NONE, MII_KSZPHY_OMSO,
+			ret | KSZPHY_OMSO_B_CAST_OFF);
+	if (ret < 0)
+		return ret;
+
+	return genphy_config(phydev);
+}
+
 static struct phy_driver KSZ8081_driver = {
 	.name = "Micrel KSZ8081",
 	.uid = 0x221560,
 	.mask = 0xfffff0,
 	.features = PHY_BASIC_FEATURES,
-	.config = &ksz_genconfig_bcastoff,
+	.config = &ksz8081_config,
 	.startup = &genphy_startup,
 	.shutdown = &genphy_shutdown,
 };
@@ -147,11 +166,13 @@ static struct phy_driver ksz8895_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
-/* Micrel used the exact same part number for the KSZ9021. */
+/* Micrel used the exact same model number for the KSZ9021,
+ * so the revision number is used to distinguish them.
+ */
 static struct phy_driver KS8721_driver = {
 	.name = "Micrel KS8721BL",
-	.uid = 0x221610,
-	.mask = 0xfffff0,
+	.uid = 0x221618,
+	.mask = 0xfffffc,
 	.features = PHY_BASIC_FEATURES,
 	.config = &genphy_config,
 	.startup = &genphy_startup,

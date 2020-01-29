@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <console.h>
+#include <cpu_func.h>
 #include <asm/io.h>
 #include <fs.h>
 #include <zynqpl.h>
@@ -424,7 +425,8 @@ static int zynq_loadfs(xilinx_desc *desc, const void *buf, size_t bsize,
 	loff_t blocksize, actread;
 	loff_t pos = 0;
 	int fstype;
-	char *interface, *dev_part, *filename;
+	char *interface, *dev_part;
+	const char *filename;
 
 	blocksize = fsinfo->blocksize;
 	interface = fsinfo->interface;

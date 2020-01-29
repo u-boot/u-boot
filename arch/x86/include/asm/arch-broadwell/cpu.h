@@ -21,9 +21,6 @@
 #define CPUID_BROADWELL_D0	0x306d3
 #define CPUID_BROADWELL_E0	0x306d4
 
-/* Broadwell bus clock is fixed at 100MHz */
-#define BROADWELL_BCLK		100
-
 #define BROADWELL_FAMILY_ULT	0x306d0
 
 #define CORE_THREAD_COUNT_MSR		0x35

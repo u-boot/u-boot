@@ -23,8 +23,6 @@
 #define V_OSCK				25000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
 
-#define CONFIG_ENV_SIZE			(16 << 10)	/* 16 KiB */
-
 #ifndef CONFIG_SPL_BUILD
 #define MMCARGS \
 	"mmcdev=0\0" \
@@ -118,7 +116,6 @@
 #undef CONFIG_SYS_NAND_U_BOOT_OFFS
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x200000
 
-#define CONFIG_ENV_OFFSET		0x300000 /* environment starts here */
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 #ifdef CONFIG_SPL_OS_BOOT

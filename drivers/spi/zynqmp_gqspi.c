@@ -6,17 +6,20 @@
  */
 
 #include <common.h>
-#include <asm/arch/hardware.h>
+#include <cpu_func.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>
 #include <clk.h>
+#include <dm.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <spi.h>
 #include <spi_flash.h>
 #include <ubi_uboot.h>
 #include <wait_bit.h>
+#include <linux/mtd/spi-nor.h>
 #include "../mtd/spi/sf_internal.h"
+#include <zynqmp_firmware.h>
 
 #define GQSPI_GFIFO_STRT_MODE_MASK	BIT(29)
 #define GQSPI_CONFIG_MODE_EN_MASK	(3 << 30)
@@ -432,6 +435,9 @@ static int zynqmp_qspi_child_pre_probe(struct udevice *bus)
 	struct zynqmp_qspi_priv *priv = dev_get_priv(bus->parent);
 
 	slave->option = priv->is_dual;
+#ifdef CONFIG_SPI_FLASH_SPLIT_READ
+	slave->multi_die = 1;
+#endif
 	slave->bytemode = SPI_4BYTE_MODE;
 
 	return 0;

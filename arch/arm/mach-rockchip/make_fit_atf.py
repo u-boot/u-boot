@@ -1,39 +1,34 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
-A script to generate FIT image source for rockchip boards
-with ARM Trusted Firmware
-and multiple device trees (given on the command line)
-
-usage: $0 <dt_name> [<dt_name> [<dt_name] ...]
+# SPDX-License-Identifier: GPL-2.0+
+#
+# A script to generate FIT image source for rockchip boards
+# with ARM Trusted Firmware
+# and multiple device trees (given on the command line)
+#
+# usage: $0 <dt_name> [<dt_name> [<dt_name] ...]
 """
 
 import os
 import sys
 import getopt
+import logging
+import struct
 
-# pip install pyelftools
-from elftools.elf.elffile import ELFFile
-
-ELF_SEG_P_TYPE='p_type'
-ELF_SEG_P_PADDR='p_paddr'
-ELF_SEG_P_VADDR='p_vaddr'
-ELF_SEG_P_OFFSET='p_offset'
-ELF_SEG_P_FILESZ='p_filesz'
-ELF_SEG_P_MEMSZ='p_memsz'
-
-DT_HEADER="""// SPDX-License-Identifier: GPL-2.0+ OR X11
+DT_HEADER = """
 /*
- * Copyright (C) 2017 Fuzhou Rockchip Electronics Co., Ltd
- *
- * Minimal dts for a SPL FIT image payload.
+ * This is a generated file.
  */
 /dts-v1/;
 
 / {
-	description = "Configuration to load ATF before U-Boot";
+	description = "FIT image for U-Boot with bl31 (TF-A)";
 	#address-cells = <1>;
 
 	images {
+"""
+
+DT_UBOOT = """
 		uboot {
 			description = "U-Boot (64-bit)";
 			data = /incbin/("u-boot-nodtb.bin");
@@ -46,18 +41,14 @@ DT_HEADER="""// SPDX-License-Identifier: GPL-2.0+ OR X11
 
 """
 
-DT_IMAGES_NODE_END="""
-    };
+DT_IMAGES_NODE_END = """	};
+
 """
 
-DT_END="""
-};
-"""
+DT_END = "};"
 
-def append_atf_node(file, atf_index, phy_addr, elf_entry):
-    """
-    Append ATF DT node to input FIT dts file.
-    """
+def append_bl31_node(file, atf_index, phy_addr, elf_entry):
+    # Append BL31 DT node to input FIT dts file.
     data = 'bl31_0x%08x.bin' % phy_addr
     file.write('\t\tatf_%d {\n' % atf_index)
     file.write('\t\t\tdescription = \"ARM Trusted Firmware\";\n')
@@ -72,10 +63,23 @@ def append_atf_node(file, atf_index, phy_addr, elf_entry):
     file.write('\t\t};\n')
     file.write('\n')
 
+def append_tee_node(file, atf_index, phy_addr, elf_entry):
+    # Append TEE DT node to input FIT dts file.
+    data = 'tee_0x%08x.bin' % phy_addr
+    file.write('\t\tatf_%d {\n' % atf_index)
+    file.write('\t\t\tdescription = \"TEE\";\n')
+    file.write('\t\t\tdata = /incbin/("%s");\n' % data)
+    file.write('\t\t\ttype = "tee";\n')
+    file.write('\t\t\tarch = "arm64";\n')
+    file.write('\t\t\tos = "tee";\n')
+    file.write('\t\t\tcompression = "none";\n')
+    file.write('\t\t\tload = <0x%08x>;\n' % phy_addr)
+    file.write('\t\t\tentry = <0x%08x>;\n' % elf_entry)
+    file.write('\t\t};\n')
+    file.write('\n')
+
 def append_fdt_node(file, dtbs):
-    """
-    Append FDT nodes.
-    """
+    # Append FDT nodes.
     cnt = 1
     for dtb in dtbs:
         dtname = os.path.basename(dtb)
@@ -88,133 +92,148 @@ def append_fdt_node(file, dtbs):
         file.write('\n')
         cnt = cnt + 1
 
-def append_conf_section(file, cnt, dtname, atf_cnt):
+def append_conf_section(file, cnt, dtname, segments):
     file.write('\t\tconfig_%d {\n' % cnt)
     file.write('\t\t\tdescription = "%s";\n' % dtname)
     file.write('\t\t\tfirmware = "atf_1";\n')
-    file.write('\t\t\tloadables = "uboot",')
-    for i in range(1, atf_cnt):
-        file.write('"atf_%d"' % (i+1))
-        if i != (atf_cnt - 1):
+    file.write('\t\t\tloadables = "uboot"')
+    if segments > 1:
+        file.write(',')
+    for i in range(1, segments):
+        file.write('"atf_%d"' % (i + 1))
+        if i != (segments - 1):
             file.write(',')
         else:
             file.write(';\n')
+    if segments <= 1:
+        file.write(';\n')
     file.write('\t\t\tfdt = "fdt_1";\n')
     file.write('\t\t};\n')
     file.write('\n')
 
-def append_conf_node(file, dtbs, atf_cnt):
-    """
-    Append configeration nodes.
-    """
+def append_conf_node(file, dtbs, segments):
+    # Append configeration nodes.
     cnt = 1
     file.write('\tconfigurations {\n')
     file.write('\t\tdefault = "config_1";\n')
     for dtb in dtbs:
         dtname = os.path.basename(dtb)
-        append_conf_section(file, cnt, dtname, atf_cnt)
+        append_conf_section(file, cnt, dtname, segments)
         cnt = cnt + 1
     file.write('\t};\n')
     file.write('\n')
 
-def generate_atf_fit_dts(fit_file_name, bl31_file_name, uboot_file_name, dtbs_file_name):
-    """
-    Generate FIT script for ATF image.
-    """
+def generate_atf_fit_dts_uboot(fit_file, uboot_file_name):
+    segments = unpack_elf(uboot_file_name)
+    if len(segments) != 1:
+        raise ValueError("Invalid u-boot ELF image '%s'" % uboot_file_name)
+    index, entry, p_paddr, data = segments[0]
+    fit_file.write(DT_UBOOT % p_paddr)
+
+def generate_atf_fit_dts_bl31(fit_file, bl31_file_name, tee_file_name, dtbs_file_name):
+    segments = unpack_elf(bl31_file_name)
+    for index, entry, paddr, data in segments:
+        append_bl31_node(fit_file, index + 1, paddr, entry)
+    num_segments = len(segments)
+
+    if tee_file_name:
+        tee_segments = unpack_elf(tee_file_name)
+        for index, entry, paddr, data in tee_segments:
+            append_tee_node(fit_file, num_segments + index + 1, paddr, entry)
+        num_segments = num_segments + len(tee_segments)
+
+    append_fdt_node(fit_file, dtbs_file_name)
+    fit_file.write(DT_IMAGES_NODE_END)
+    append_conf_node(fit_file, dtbs_file_name, num_segments)
+
+def generate_atf_fit_dts(fit_file_name, bl31_file_name, tee_file_name, uboot_file_name, dtbs_file_name):
+    # Generate FIT script for ATF image.
     if fit_file_name != sys.stdout:
         fit_file = open(fit_file_name, "wb")
     else:
         fit_file = sys.stdout
 
-    num_load_seg = 0
-    p_paddr = 0xFFFFFFFF
-    with open(uboot_file_name, 'rb') as uboot_file:
-        uboot = ELFFile(uboot_file)
-        for i in range(uboot.num_segments()):
-            seg = uboot.get_segment(i)
-            if ('PT_LOAD' == seg.__getitem__(ELF_SEG_P_TYPE)):
-                p_paddr = seg.__getitem__(ELF_SEG_P_PADDR)
-                num_load_seg = num_load_seg + 1
-
-    assert (p_paddr != 0xFFFFFFFF and num_load_seg == 1)
-
-    fit_file.write(DT_HEADER % p_paddr)
-
-    with open(bl31_file_name, 'rb') as bl31_file:
-        bl31 = ELFFile(bl31_file)
-        elf_entry = bl31.header['e_entry']
-        for i in range(bl31.num_segments()):
-            seg = bl31.get_segment(i)
-            if ('PT_LOAD' == seg.__getitem__(ELF_SEG_P_TYPE)):
-                paddr = seg.__getitem__(ELF_SEG_P_PADDR)
-                p= seg.__getitem__(ELF_SEG_P_PADDR)
-                append_atf_node(fit_file, i+1, paddr, elf_entry)
-    atf_cnt = i+1
-    append_fdt_node(fit_file, dtbs_file_name)
-    fit_file.write('%s\n' % DT_IMAGES_NODE_END)
-    append_conf_node(fit_file, dtbs_file_name, atf_cnt)
-    fit_file.write('%s\n' % DT_END)
+    fit_file.write(DT_HEADER)
+    generate_atf_fit_dts_uboot(fit_file, uboot_file_name)
+    generate_atf_fit_dts_bl31(fit_file, bl31_file_name, tee_file_name, dtbs_file_name)
+    fit_file.write(DT_END)
 
     if fit_file_name != sys.stdout:
         fit_file.close()
 
 def generate_atf_binary(bl31_file_name):
-    with open(bl31_file_name, 'rb') as bl31_file:
-        bl31 = ELFFile(bl31_file)
+    for index, entry, paddr, data in unpack_elf(bl31_file_name):
+        file_name = 'bl31_0x%08x.bin' % paddr
+        with open(file_name, "wb") as atf:
+            atf.write(data)
 
-        num = bl31.num_segments()
-        for i in range(num):
-            seg = bl31.get_segment(i)
-            if ('PT_LOAD' == seg.__getitem__(ELF_SEG_P_TYPE)):
-                paddr = seg.__getitem__(ELF_SEG_P_PADDR)
-                file_name = 'bl31_0x%08x.bin' % paddr
-                with open(file_name, "wb") as atf:
-                    atf.write(seg.data());
+def generate_tee_binary(tee_file_name):
+    if tee_file_name:
+        for index, entry, paddr, data in unpack_elf(tee_file_name):
+            file_name = 'tee_0x%08x.bin' % paddr
+            with open(file_name, "wb") as atf:
+                atf.write(data)
 
-def get_bl31_segments_info(bl31_file_name):
-    """
-    Get load offset, physical offset, file size
-    from bl31 elf file program headers.
-    """
-    with open(bl31_file_name) as bl31_file:
-        bl31 = ELFFile(bl31_file)
+def unpack_elf(filename):
+    with open(filename, 'rb') as file:
+        elf = file.read()
+    if elf[0:7] != b'\x7fELF\x02\x01\x01' or elf[18:20] != b'\xb7\x00':
+        raise ValueError("Invalid arm64 ELF file '%s'" % filename)
 
-        num = bl31.num_segments()
-        print('Number of Segments : %d' % bl31.num_segments())
-        for i in range(num):
-            print('Segment %d' % i)
-            seg = bl31.get_segment(i)
-            ptype = seg[ELF_SEG_P_TYPE]
-            poffset = seg[ELF_SEG_P_OFFSET]
-            pmemsz = seg[ELF_SEG_P_MEMSZ]
-            pfilesz = seg[ELF_SEG_P_FILESZ]
-            print('type: %s\nfilesz: %08x\nmemsz: %08x\noffset: %08x' % (ptype, pfilesz, pmemsz, poffset))
-            paddr = seg[ELF_SEG_P_PADDR]
-            print('paddr: %08x' % paddr)
+    e_entry, e_phoff = struct.unpack_from('<2Q', elf, 0x18)
+    e_phentsize, e_phnum = struct.unpack_from('<2H', elf, 0x36)
+    segments = []
+
+    for index in range(e_phnum):
+        offset = e_phoff + e_phentsize * index
+        p_type, p_flags, p_offset = struct.unpack_from('<LLQ', elf, offset)
+        if p_type == 1: # PT_LOAD
+            p_paddr, p_filesz = struct.unpack_from('<2Q', elf, offset + 0x18)
+            p_data = elf[p_offset:p_offset + p_filesz]
+            segments.append((index, e_entry, p_paddr, p_data))
+    return segments
 
 def main():
-    uboot_elf="./u-boot"
-    bl31_elf="./bl31.elf"
-    FIT_ITS=sys.stdout
+    uboot_elf = "./u-boot"
+    fit_its = sys.stdout
+    if "BL31" in os.environ:
+        bl31_elf=os.getenv("BL31");
+    elif os.path.isfile("./bl31.elf"):
+        bl31_elf = "./bl31.elf"
+    else:
+        os.system("echo 'int main(){}' > bl31.c")
+        os.system("${CROSS_COMPILE}gcc -c bl31.c -o bl31.elf")
+        bl31_elf = "./bl31.elf"
+        logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+        logging.warning(' BL31 file bl31.elf NOT found, resulting binary is non-functional')
+        logging.warning(' Please read Building section in doc/README.rockchip')
 
-    opts, args = getopt.getopt(sys.argv[1:], "o:u:b:h")
+    if "TEE" in os.environ:
+        tee_elf = os.getenv("TEE")
+    elif os.path.isfile("./tee.elf"):
+        tee_elf = "./tee.elf"
+    else:
+        tee_elf = ""
+
+    opts, args = getopt.getopt(sys.argv[1:], "o:u:b:t:h")
     for opt, val in opts:
         if opt == "-o":
-            FIT_ITS=val
+            fit_its = val
         elif opt == "-u":
-            uboot_elf=val
+            uboot_elf = val
         elif opt == "-b":
-            bl31_elf=val
+            bl31_elf = val
+        elif opt == "-t":
+            tee_elf = val
         elif opt == "-h":
             print(__doc__)
             sys.exit(2)
 
     dtbs = args
-    #get_bl31_segments_info("u-boot")
-    #get_bl31_segments_info("bl31.elf")
 
-    generate_atf_fit_dts(FIT_ITS, bl31_elf, uboot_elf, dtbs)
-    generate_atf_binary(bl31_elf);
+    generate_atf_fit_dts(fit_its, bl31_elf, tee_elf, uboot_elf, dtbs)
+    generate_atf_binary(bl31_elf)
+    generate_tee_binary(tee_elf)
 
 if __name__ == "__main__":
     main()

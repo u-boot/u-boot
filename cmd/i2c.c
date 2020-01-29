@@ -71,12 +71,12 @@
 #include <console.h>
 #include <dm.h>
 #include <edid.h>
-#include <environment.h>
 #include <errno.h>
 #include <i2c.h>
 #include <malloc.h>
 #include <asm/byteorder.h>
 #include <linux/compiler.h>
+#include <u-boot/crc.h>
 
 /* Display values from last command.
  * Memory modify remembered values are different from display memory.
@@ -769,7 +769,7 @@ static int do_i2c_crc (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 #endif
 		if (ret)
 			err++;
-		crc = crc32 (crc, &byte, 1);
+		crc = crc32(crc, &byte, 1);
 		addr++;
 	}
 	if (err > 0)

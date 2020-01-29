@@ -53,13 +53,7 @@
 #define CONFIG_SYS_FSL_USDHC_NUM	1
 
 /* Environment organization */
-#define CONFIG_ENV_SIZE                (16 * 1024)
-#define CONFIG_ENV_OFFSET		(6 * 64 * 1024)
 #define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
-#define CONFIG_ENV_OFFSET_REDUND       (CONFIG_ENV_OFFSET + \
-						CONFIG_ENV_SIZE)
-#define CONFIG_ENV_SIZE_REDUND         CONFIG_ENV_SIZE
 
 /* Default environment */
 #define CONFIG_EXTRA_ENV_SETTINGS \

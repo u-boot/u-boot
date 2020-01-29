@@ -18,7 +18,7 @@
 #include <asm/processor.h>
 #include <dm.h>
 #include <dm/platform_data/serial_sh.h>
-#include <environment.h>
+#include <env.h>
 #include <i2c.h>
 #include <linux/errno.h>
 #include <malloc.h>

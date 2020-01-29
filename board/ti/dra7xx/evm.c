@@ -10,8 +10,11 @@
  * Steve Sakoman  <steve@sakoman.com>
  */
 #include <common.h>
+#include <env.h>
+#include <init.h>
 #include <palmas.h>
 #include <sata.h>
+#include <serial.h>
 #include <linux/string.h>
 #include <asm/gpio.h>
 #include <usb.h>
@@ -24,9 +27,9 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/sata.h>
-#include <environment.h>
 #include <dwc3-uboot.h>
 #include <dwc3-omap-uboot.h>
+#include <i2c.h>
 #include <ti-usb-phy-uboot.h>
 #include <miiphy.h>
 
@@ -54,6 +57,10 @@ DECLARE_GLOBAL_DATA_PTR;
 #define GPIO_DDR_VTT_EN 203
 
 #define SYSINFO_BOARD_NAME_MAX_LEN	37
+
+/* I2C I/O Expander */
+#define NAND_PCF8575_ADDR	0x21
+#define NAND_PCF8575_I2C_BUS_NUM	0
 
 const struct omap_sysinfo sysinfo = {
 	"Board: UNKNOWN(DRA7 EVM) REV UNKNOWN\n"
@@ -777,6 +784,44 @@ void set_muxconf_regs(void)
 		     early_padconf, ARRAY_SIZE(early_padconf));
 }
 
+#if defined(CONFIG_MTD_RAW_NAND)
+static int nand_sw_detect(void)
+{
+	int rc;
+	uchar data[2];
+	struct udevice *dev;
+
+	rc = i2c_get_chip_for_busnum(NAND_PCF8575_I2C_BUS_NUM,
+				     NAND_PCF8575_ADDR, 0, &dev);
+	if (rc)
+		return -1;
+
+	rc = dm_i2c_read(dev, 0, (uint8_t *)&data, sizeof(data));
+	if (rc)
+		return -1;
+
+	/* We are only interested in P10 and P11 on PCF8575 which is equal to
+	 * bits 8 and 9.
+	 */
+	data[1] = data[1] & 0x3;
+
+	/* Ensure only P11 is set and P10 is cleared. This ensures only
+	 * NAND (P10) is configured and not NOR (P11) which are both low
+	 * true signals. NAND and NOR settings should not be enabled at
+	 * the same time.
+	 */
+	if (data[1] == 0x2)
+		return 0;
+
+	return -1;
+}
+#else
+int nand_sw_detect(void)
+{
+	return -1;
+}
+#endif
+
 #ifdef CONFIG_IODELAY_RECALIBRATION
 void recalibrate_iodelay(void)
 {
@@ -796,6 +841,19 @@ void recalibrate_iodelay(void)
 			npads = ARRAY_SIZE(dra71x_core_padconf_array);
 			iodelay = dra71_iodelay_cfg_array;
 			niodelays = ARRAY_SIZE(dra71_iodelay_cfg_array);
+			/* If SW8 on the EVM is set to enable NAND then
+			 * overwrite the pins used by VOUT3 with NAND.
+			 */
+			if (!nand_sw_detect()) {
+				delta_pads = dra71x_nand_padconf_array;
+				delta_npads =
+					ARRAY_SIZE(dra71x_nand_padconf_array);
+			} else {
+				delta_pads = dra71x_vout3_padconf_array;
+				delta_npads =
+					ARRAY_SIZE(dra71x_vout3_padconf_array);
+			}
+
 		} else if (board_is_dra72x_revc_or_later()) {
 			delta_pads = dra72x_rgmii_padconf_array_revc;
 			delta_npads =
@@ -1092,6 +1150,16 @@ int board_fit_config_name_match(const char *name)
 }
 #endif
 
+#if CONFIG_IS_ENABLED(FASTBOOT) && !CONFIG_IS_ENABLED(ENV_IS_NOWHERE)
+int fastboot_set_reboot_flag(void)
+{
+	printf("Setting reboot to fastboot flag ...\n");
+	env_set("dofastboot", "1");
+	env_save();
+	return 0;
+}
+#endif
+
 #ifdef CONFIG_TI_SECURE_DEVICE
 void board_fit_image_post_process(void **p_image, size_t *p_size)
 {
@@ -1102,16 +1170,6 @@ void board_tee_image_process(ulong tee_image, size_t tee_size)
 {
 	secure_tee_install((u32)tee_image);
 }
-
-#if CONFIG_IS_ENABLED(FASTBOOT) && !CONFIG_IS_ENABLED(ENV_IS_NOWHERE)
-int fastboot_set_reboot_flag(void)
-{
-	printf("Setting reboot to fastboot flag ...\n");
-	env_set("dofastboot", "1");
-	env_save();
-	return 0;
-}
-#endif
 
 U_BOOT_FIT_LOADABLE_HANDLER(IH_TYPE_TEE, board_tee_image_process);
 #endif

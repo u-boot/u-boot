@@ -36,10 +36,6 @@
 #define CONFIG_SYS_MAX_FLASH_SECT  256
 #define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE }
 
-#define CONFIG_ENV_SECT_SIZE	0x40000
-#define CONFIG_ENV_SIZE        (CONFIG_ENV_SECT_SIZE)
-#define CONFIG_ENV_ADDR        (CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
-
 /*
  * SuperH Clock setting
  */
@@ -64,19 +60,6 @@
 /*
  * SuperH PCI Bridge Configration
  */
-#define CONFIG_SH4_PCI
 #define CONFIG_SH7751_PCI
-#define CONFIG_PCI_SCAN_SHOW	1
-#define __mem_pci
-
-#define CONFIG_PCI_MEM_BUS	0xFD000000	/* Memory space base addr */
-#define CONFIG_PCI_MEM_PHYS	CONFIG_PCI_MEM_BUS
-#define CONFIG_PCI_MEM_SIZE	0x01000000	/* Size of Memory window */
-#define CONFIG_PCI_IO_BUS	0xFE240000	/* IO space base address */
-#define CONFIG_PCI_IO_PHYS	CONFIG_PCI_IO_BUS
-#define CONFIG_PCI_IO_SIZE	0x00040000	/* Size of IO window */
-#define CONFIG_PCI_SYS_BUS	CONFIG_SYS_SDRAM_BASE
-#define CONFIG_PCI_SYS_PHYS	CONFIG_SYS_SDRAM_BASE
-#define CONFIG_PCI_SYS_SIZE	CONFIG_SYS_SDRAM_SIZE
 
 #endif /* __CONFIG_H */

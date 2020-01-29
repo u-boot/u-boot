@@ -7,6 +7,10 @@
 	soc {
 		u-boot,dm-pre-reloc;
 	};
+	aliases {
+		usb0 = &usb0;
+		usb1 = &usb1;
+	};
 };
 
 &i2c0 {
@@ -15,4 +19,28 @@
 
 &i2c1 {
 	u-boot,dm-pre-reloc;
+};
+
+&usb0_phy {
+	compatible = "ti,keystone-usbphy";
+	#phy-cells = <0>;
+	reg = <0x2620738 24>;
+	psc-domain = <25>;
+};
+
+&usb0 {
+	phys = <&usb0_phy>;
+	snps,u2ss_inp3_quirk;
+};
+
+&usb1_phy {
+	compatible = "ti,keystone-usbphy";
+	#phy-cells = <0>;
+	reg = <0x2620750 24>;
+	psc-domain = <26>;
+};
+
+&usb1 {
+	phys = <&usb1_phy>;
+	snps,u2ss_inp3_quirk;
 };

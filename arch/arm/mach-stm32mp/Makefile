@@ -11,6 +11,9 @@ ifdef CONFIG_SPL_BUILD
 obj-y += spl.o
 else
 obj-y += bsec.o
-endif
+obj-$(CONFIG_CMD_STM32KEY) += cmd_stm32key.o
 obj-$(CONFIG_ARMV7_PSCI) += psci.o
+endif
+
 obj-$(CONFIG_$(SPL_)DM_REGULATOR) += pwr_regulator.o
+obj-$(CONFIG_OF_SYSTEM_SETUP) += fdt.o

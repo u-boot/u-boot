@@ -20,7 +20,7 @@
 #include <asm/io.h>
 #include <errno.h>
 #include <fuse.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
 #include <i2c.h>
 #include <mmc.h>
 #include <spl.h>
@@ -161,18 +161,18 @@ static const struct mx6_mmdc_calibration dhcom_mmdc_calib_2x4g_800 = {
 };
 
 static const struct mx6_mmdc_calibration dhcom_mmdc_calib_4x2g_1066 = {
-	.p0_mpwldectrl0	= 0x0011000E,
-	.p0_mpwldectrl1	= 0x000E001B,
-	.p1_mpwldectrl0	= 0x00190015,
-	.p1_mpwldectrl1	= 0x00070018,
-	.p0_mpdgctrl0	= 0x42720306,
-	.p0_mpdgctrl1	= 0x026F0266,
-	.p1_mpdgctrl0	= 0x4273030A,
-	.p1_mpdgctrl1	= 0x02740240,
-	.p0_mprddlctl	= 0x45393B3E,
-	.p1_mprddlctl	= 0x403A3747,
-	.p0_mpwrdlctl	= 0x40434541,
-	.p1_mpwrdlctl	= 0x473E4A3B,
+	.p0_mpwldectrl0	= 0x001a001a,
+	.p0_mpwldectrl1	= 0x00260015,
+	.p0_mpdgctrl0	= 0x030c0320,
+	.p0_mpdgctrl1	= 0x03100304,
+	.p0_mprddlctl	= 0x432e3538,
+	.p0_mpwrdlctl	= 0x363f423d,
+	.p1_mpwldectrl0	= 0x0006001e,
+	.p1_mpwldectrl1	= 0x00050015,
+	.p1_mpdgctrl0	= 0x031c0324,
+	.p1_mpdgctrl1	= 0x030c0258,
+	.p1_mprddlctl	= 0x3834313f,
+	.p1_mpwrdlctl	= 0x47374a42,
 };
 
 static const struct mx6_mmdc_calibration dhcom_mmdc_calib_4x2g_800 = {
@@ -440,8 +440,13 @@ static void setup_iomux_sd(void)
 
 /* SPI */
 static iomux_v3_cfg_t const ecspi1_pads[] = {
-	/* SS0 */
-	IOMUX_PADS(PAD_EIM_EB2__GPIO2_IO30	| MUX_PAD_CTRL(SPI_PAD_CTRL)),
+	/* SS0 - SS of boot flash */
+	IOMUX_PADS(PAD_EIM_EB2__GPIO2_IO30	|
+		MUX_PAD_CTRL(SPI_PAD_CTRL | PAD_CTL_PUS_100K_UP)),
+	/* SS2 - SS of DHCOM SPI1 */
+	IOMUX_PADS(PAD_KEY_ROW2__GPIO4_IO11	|
+		MUX_PAD_CTRL(SPI_PAD_CTRL | PAD_CTL_PUS_100K_UP)),
+
 	IOMUX_PADS(PAD_EIM_D17__ECSPI1_MISO	| MUX_PAD_CTRL(SPI_PAD_CTRL)),
 	IOMUX_PADS(PAD_EIM_D18__ECSPI1_MOSI	| MUX_PAD_CTRL(SPI_PAD_CTRL)),
 	IOMUX_PADS(PAD_EIM_D16__ECSPI1_SCLK	| MUX_PAD_CTRL(SPI_PAD_CTRL)),
@@ -471,6 +476,32 @@ static void setup_iomux_uart(void)
 	SETUP_IOMUX_PADS(uart1_pads);
 }
 
+#ifdef CONFIG_FSL_USDHC
+struct fsl_esdhc_cfg usdhc_cfg[1] = {
+	{USDHC4_BASE_ADDR},
+};
+
+int board_mmc_get_env_dev(int devno)
+{
+	return devno - 1;
+}
+
+int board_mmc_getcd(struct mmc *mmc)
+{
+	return 1; /* eMMC/uSDHC4 is always present */
+}
+
+int board_mmc_init(bd_t *bis)
+{
+	SETUP_IOMUX_PADS(usdhc4_pads);
+	usdhc_cfg[0].esdhc_base = USDHC4_BASE_ADDR;
+	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC4_CLK);
+	usdhc_cfg[0].max_bus_width = 8;
+
+	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
+}
+#endif
+
 /* USB */
 static iomux_v3_cfg_t const usb_pads[] = {
 	IOMUX_PADS(PAD_GPIO_1__USB_OTG_ID	| MUX_PAD_CTRL(NO_PAD_CTRL)),
@@ -480,6 +511,29 @@ static iomux_v3_cfg_t const usb_pads[] = {
 static void setup_iomux_usb(void)
 {
 	SETUP_IOMUX_PADS(usb_pads);
+}
+
+/* Perform DDR DRAM calibration */
+static int spl_dram_perform_cal(struct mx6_ddr_sysinfo const *sysinfo)
+{
+	int ret = 0;
+
+#ifdef CONFIG_MX6_DDRCAL
+	udelay(100);
+	ret = mmdc_do_write_level_calibration(sysinfo);
+	if (ret) {
+		printf("DDR3: Write level calibration error [%d]\n", ret);
+		return ret;
+	}
+
+	ret = mmdc_do_dqs_calibration(sysinfo);
+	if (ret) {
+		printf("DDR3: DQS calibration error [%d]\n", ret);
+		return ret;
+	}
+#endif /* CONFIG_MX6_DDRCAL */
+
+	return ret;
 }
 
 
@@ -509,8 +563,7 @@ static void dhcom_spl_dram_init(void)
 		}
 
 		/* Perform DDR DRAM calibration */
-		udelay(100);
-		mmdc_do_dqs_calibration(&dhcom_ddr_64bit);
+		spl_dram_perform_cal(&dhcom_ddr_64bit);
 
 	} else if (is_cpu_type(MXC_CPU_MX6DL)) {
 		mx6sdl_dram_iocfg(64, &dhcom6sdl_ddr_ioregs,
@@ -528,8 +581,7 @@ static void dhcom_spl_dram_init(void)
 		}
 
 		/* Perform DDR DRAM calibration */
-		udelay(100);
-		mmdc_do_dqs_calibration(&dhcom_ddr_64bit);
+		spl_dram_perform_cal(&dhcom_ddr_64bit);
 
 	} else if (is_cpu_type(MXC_CPU_MX6SOLO)) {
 		mx6sdl_dram_iocfg(32, &dhcom6sdl_ddr_ioregs,
@@ -552,8 +604,7 @@ static void dhcom_spl_dram_init(void)
 		}
 
 		/* Perform DDR DRAM calibration */
-		udelay(100);
-		mmdc_do_dqs_calibration(&dhcom_ddr_32bit);
+		spl_dram_perform_cal(&dhcom_ddr_32bit);
 	}
 }
 

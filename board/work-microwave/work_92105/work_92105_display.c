@@ -15,6 +15,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/emc.h>
 #include <asm/gpio.h>
+#include <env.h>
 #include <spi.h>
 #include <i2c.h>
 #include <version.h>

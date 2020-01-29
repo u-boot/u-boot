@@ -9,6 +9,8 @@
 	model = "SoCFPGA Stratix 10 SoCDK";
 
 	aliases {
+		ethernet0 = &gmac0;
+		i2c0 = &i2c1;
 		serial0 = &uart0;
 	};
 
@@ -35,8 +37,12 @@
 	};
 
 	memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
 		device_type = "memory";
-		reg = <0 0 0 0x80000000>; /* 2GB */
+		/* 4GB */
+		reg = <0 0x00000000 0 0x80000000>,
+		      <1 0x80000000 0 0x80000000>;
 		u-boot,dm-pre-reloc;
 	};
 };
@@ -68,11 +74,15 @@
 			rxd2-skew-ps = <420>; /* 0ps */
 			rxd3-skew-ps = <420>; /* 0ps */
 			txen-skew-ps = <0>; /* -420ps */
-			txc-skew-ps = <1860>; /* 960ps */
+			txc-skew-ps = <900>; /* 0ps */
 			rxdv-skew-ps = <420>; /* 0ps */
 			rxc-skew-ps = <1680>; /* 780ps */
 		};
 	};
+};
+
+&i2c1 {
+	status = "okay";
 };
 
 &mmc {
@@ -83,6 +93,41 @@
 	bus-width = <4>;
 	drvsel = <3>;
 	smplsel = <0>;
+};
+
+&qspi {
+	flash0: flash@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "n25q00a";
+		reg = <0>;
+		spi-max-frequency = <50000000>;
+
+		m25p,fast-read;
+		cdns,page-size = <256>;
+		cdns,block-size = <16>;
+		cdns,read-delay = <1>;
+		cdns,tshsl-ns = <50>;
+		cdns,tsd2d-ns = <50>;
+		cdns,tchsh-ns = <4>;
+		cdns,tslch-ns = <4>;
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			qspi_boot: partition@0 {
+				label = "Boot and fpga data";
+				reg = <0x0 0x4000000>;
+			};
+
+			qspi_rootfs: partition@4000000 {
+				label = "Root Filesystem - JFFS2";
+				reg = <0x4000000 0x4000000>;
+			};
+		};
+	};
 };
 
 &uart0 {

@@ -62,7 +62,14 @@ int spl_ubi_load_image(struct spl_image_info *spl_image,
 	}
 #endif
 	header = spl_get_load_buffer(-sizeof(*header), sizeof(header));
+#ifdef CONFIG_SPL_UBI_LOAD_BY_VOLNAME
+	volumes[0].vol_id = -1;
+	strncpy(volumes[0].name,
+		CONFIG_SPL_UBI_LOAD_MONITOR_VOLNAME,
+		UBI_VOL_NAME_MAX + 1);
+#else
 	volumes[0].vol_id = CONFIG_SPL_UBI_LOAD_MONITOR_ID;
+#endif
 	volumes[0].load_addr = (void *)header;
 
 	ret = ubispl_load_volumes(&info, volumes, 1);

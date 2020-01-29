@@ -11,26 +11,18 @@
  *</auto-generated>
  */
 
-#include "socfpga_arria10.dtsi"
-
 / {
 	#address-cells = <1>;
 	#size-cells = <1>;
 	model = "SOCFPGA Arria10 Dev Kit";	/* Bootloader setting: uboot.model */
 
-	chosen {
-		cff-file = "socfpga.rbf";	/* Bootloader setting: uboot.rbf_filename */
-	};
-
 	/* Clock sources */
 	clocks {
-		u-boot,dm-pre-reloc;
 		#address-cells = <1>;
 		#size-cells = <1>;
 
 		/* Clock source: altera_arria10_hps_eosc1 */
 		altera_arria10_hps_eosc1: altera_arria10_hps_eosc1 {
-			u-boot,dm-pre-reloc;
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
 			clock-frequency = <25000000>;
@@ -39,7 +31,6 @@
 
 		/* Clock source: altera_arria10_hps_cb_intosc_ls */
 		altera_arria10_hps_cb_intosc_ls: altera_arria10_hps_cb_intosc_ls {
-			u-boot,dm-pre-reloc;
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
 			clock-frequency = <60000000>;
@@ -48,7 +39,6 @@
 
 		/* Clock source: altera_arria10_hps_f2h_free */
 		altera_arria10_hps_f2h_free: altera_arria10_hps_f2h_free {
-			u-boot,dm-pre-reloc;
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
 			clock-frequency = <200000000>;
@@ -62,14 +52,12 @@
 	 * Binding: device
 	 */
 	i_clk_mgr: clock_manager@0xffd04000 {
-		u-boot,dm-pre-reloc;
 		compatible = "altr,socfpga-a10-clk-init";
 		reg = <0xffd04000 0x00000200>;
 		reg-names = "soc_clock_manager_OCP_SLV";
 
 		/* Address Block: soc_clock_manager_OCP_SLV.i_clk_mgr_mainpllgrp */
 		mainpll {
-			u-boot,dm-pre-reloc;
 			vco0-psrc = <0>;	/* Field: vco0.psrc */
 			vco1-denom = <1>;	/* Field: vco1.denom */
 			vco1-numer = <191>;	/* Field: vco1.numer */
@@ -98,7 +86,6 @@
 
 		/* Address Block: soc_clock_manager_OCP_SLV.i_clk_mgr_perpllgrp */
 		perpll {
-			u-boot,dm-pre-reloc;
 			vco0-psrc = <0>;	/* Field: vco0.psrc */
 			vco1-denom = <1>;	/* Field: vco1.denom */
 			vco1-numer = <159>;	/* Field: vco1.numer */
@@ -124,7 +111,6 @@
 
 		/* Address Block: soc_clock_manager_OCP_SLV.i_clk_mgr_alteragrp */
 		alteragrp {
-			u-boot,dm-pre-reloc;
 			nocclk = <0x0384000b>;	/* Register: nocclk */
 			mpuclk = <0x03840001>;	/* Register: mpuclk */
 		};
@@ -136,7 +122,6 @@
 	 * Binding: pinmux
 	 */
 	i_io48_pin_mux: pinmux@0xffd07000 {
-		u-boot,dm-pre-reloc;
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "pinctrl-single";
@@ -145,7 +130,6 @@
 
 		/* Address Block: soc_3v_io48_pin_mux_OCP_SLV.i_io48_pin_mux_shared_3v_io_grp */
 		shared {
-			u-boot,dm-pre-reloc;
 			reg = <0xffd07000 0x00000200>;
 			pinctrl-single,register-width = <32>;
 			pinctrl-single,function-mask = <0x0000000f>;
@@ -202,7 +186,6 @@
 
 		/* Address Block: soc_3v_io48_pin_mux_OCP_SLV.i_io48_pin_mux_dedicated_io_grp */
 		dedicated {
-			u-boot,dm-pre-reloc;
 			reg = <0xffd07200 0x00000200>;
 			pinctrl-single,register-width = <32>;
 			pinctrl-single,function-mask = <0x0000000f>;
@@ -225,7 +208,6 @@
 
 		/* Address Block: soc_3v_io48_pin_mux_OCP_SLV.i_io48_pin_mux_dedicated_io_grp */
 		dedicated_cfg {
-			u-boot,dm-pre-reloc;
 			reg = <0xffd07200 0x00000200>;
 			pinctrl-single,register-width = <32>;
 			pinctrl-single,function-mask = <0x003f3f3f>;
@@ -252,7 +234,6 @@
 
 		/* Address Block: soc_3v_io48_pin_mux_OCP_SLV.i_io48_pin_mux_fpga_interface_grp */
 		fpga {
-			u-boot,dm-pre-reloc;
 			reg = <0xffd07400 0x00000100>;
 			pinctrl-single,register-width = <32>;
 			pinctrl-single,function-mask = <0x00000001>;
@@ -283,13 +264,11 @@
 	 * Binding: device
 	 */
 	i_noc: noc@0xffd10000 {
-		u-boot,dm-pre-reloc;
 		compatible = "altr,socfpga-a10-noc";
 		reg = <0xffd10000 0x00008000>;
 		reg-names = "mpu_m0";
 
 		firewall {
-			u-boot,dm-pre-reloc;
 			/*
 			 * Driver setting: altera_arria10_soc_noc_arria10_uboot_driver.I_NOC.mpu_m0.noc_fw_ddr_mpu_fpga2sdram_ddr_scr.mpuregion0addr.base
 			 * Driver setting: altera_arria10_soc_noc_arria10_uboot_driver.I_NOC.mpu_m0.noc_fw_ddr_mpu_fpga2sdram_ddr_scr.mpuregion0addr.limit

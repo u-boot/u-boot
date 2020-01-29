@@ -55,11 +55,6 @@
 		stdout-path = &uart2;
 	};
 
-	config {
-		u-boot,dm-pre-reloc;
-		u-boot,boot0 = &emmc;
-	};
-
 	user_buttons: user-buttons {
 		compatible = "gpio-keys";
 		pinctrl-names = "default";

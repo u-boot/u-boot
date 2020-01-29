@@ -1,0 +1,139 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2019 Philippe Reynes <philippe.reynes@softathome.com>
+ */
+
+/dts-v1/;
+
+#include "bcm63158.dtsi"
+
+/ {
+	model = "Broadcom bcm963158";
+	compatible = "broadcom,bcm963158", "brcm,bcm63158";
+
+	aliases {
+		serial0 = &uart0;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0x0 0x0 0x0 0x40000000>;
+	};
+};
+
+&uart0 {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+&gpio1 {
+	status = "okay";
+};
+
+&gpio2 {
+	status = "okay";
+};
+
+&gpio3 {
+	status = "okay";
+};
+
+&gpio4 {
+	status = "okay";
+};
+
+&gpio5 {
+	status = "okay";
+};
+
+&gpio6 {
+	status = "okay";
+};
+
+&gpio7 {
+	status = "okay";
+};
+
+&nand {
+	status = "okay";
+	write-protect = <0>;
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	nandcs@0 {
+		compatible = "brcm,nandcs";
+		reg = <0>;
+		nand-ecc-strength = <4>;
+		nand-ecc-step-size = <512>;
+		brcm,nand-oob-sector-size = <16>;
+	};
+};
+
+&leds {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+	brcm,serial-led-en-pol;
+	brcm,serial-led-data-ppol;
+
+	led@16 {
+		reg = <16>;
+		label = "red:dsl2";
+	};
+
+	led@17 {
+		reg = <17>;
+		label = "green:dsl1";
+	};
+
+	led@18 {
+		reg = <18>;
+		label = "green:fxs2";
+	};
+
+	led@19 {
+		reg = <19>;
+		label = "green:fxs1";
+	};
+
+	led@26 {
+		reg = <26>;
+		label = "green:wan1_act";
+	};
+
+	led@27 {
+		reg = <27>;
+		label = "green:wps";
+	};
+
+	led@28 {
+		reg = <28>;
+		active-low;
+		label = "green:aggregate_act";
+	};
+
+	led@29 {
+		reg = <29>;
+		label = "green:aggregate_link";
+	};
+};
+
+&hsspi {
+	status = "okay";
+
+	flash: mt25@0 {
+		compatible = "jedec,spi-nor";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		reg = <0>;
+		spi-max-frequency = <25000000>;
+	};
+};

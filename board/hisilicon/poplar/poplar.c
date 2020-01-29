@@ -9,7 +9,6 @@
 #include <asm/io.h>
 #include <dm/platform_data/serial_pl01x.h>
 #include <asm/arch/hi3798cv200.h>
-#include <asm/arch/dwmmc.h>
 #include <asm/armv8/mmu.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -155,16 +154,34 @@ static void usb2_phy_init(void)
 	udelay(200);
 }
 
-int board_mmc_init(bd_t *bis)
+#if defined(CONFIG_USB_GADGET) && defined(CONFIG_USB_GADGET_DWC2_OTG)
+#include <env.h>
+#include <usb.h>
+#include <usb/dwc2_udc.h>
+#include <g_dnl.h>
+
+static struct dwc2_plat_otg_data poplar_otg_data = {
+	.regs_otg = HIOTG_BASE_ADDR
+};
+
+static void set_usb_to_device(void)
 {
-	int ret;
-
-	ret = hi6220_dwmci_add_port(0, REG_BASE_MCI, 8);
-	if (ret)
-		printf("mmc init error (%d)\n", ret);
-
-	return ret;
+	setbits_le32(PERI_CTRL_USB3, USB2_2P_CHIPID);
 }
+
+int board_usb_init(int index, enum usb_init_type init)
+{
+	set_usb_to_device();
+	return dwc2_udc_probe(&poplar_otg_data);
+}
+
+int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
+{
+	if (!env_get("serial#"))
+		g_dnl_set_serialnumber("0123456789POPLAR");
+	return 0;
+}
+#endif
 
 int board_init(void)
 {

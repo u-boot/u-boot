@@ -42,8 +42,6 @@
 
 /* Environment */
 #define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_ENV_SIZE			(32 << 10)
-#define CONFIG_ENV_OFFSET		((14 + 512) << 10)
 #define CONFIG_ENV_OVERWRITE
 
 /* Command line configuration. */
@@ -59,7 +57,6 @@
 /* SPL */
 #define CONFIG_SPL_STACK		0xf4008000 /* only max. 2KB spare! */
 
-#define CONFIG_SPL_TEXT_BASE		0xf4000a00
 #define CONFIG_SPL_MAX_SIZE		((14 * 1024) - 0xa00)
 
 #define CONFIG_SPL_BSS_START_ADDR	0xf4004000

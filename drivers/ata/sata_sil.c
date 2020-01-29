@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2011 Freescale Semiconductor, Inc.
+ * Copyright 2019 NXP
  * Author: Tang Yuantian <b29983@freescale.com>
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <pci.h>
 #include <command.h>
 #include <asm/byteorder.h>
@@ -14,18 +16,29 @@
 #include <sata.h>
 #include <libata.h>
 #include <sata.h>
+
+#if CONFIG_IS_ENABLED(BLK)
+#include <dm.h>
+#include <blk.h>
+#endif
+
 #include "sata_sil.h"
 
-/* Convert sectorsize to wordsize */
-#define ATA_SECTOR_WORDS (ATA_SECT_SIZE/2)
 #define virt_to_bus(devno, v)	pci_virt_to_mem(devno, (void *) (v))
+
+/* just compatible ahci_ops */
+struct sil_ops {
+	int *rev0;
+	int *rev1;
+	int (*scan)(struct udevice *dev);
+};
 
 static struct sata_info sata_info;
 
 static struct pci_device_id supported[] = {
-	{PCI_VENDOR_ID_SILICONIMAGE, PCI_DEVICE_ID_SIL3131},
-	{PCI_VENDOR_ID_SILICONIMAGE, PCI_DEVICE_ID_SIL3132},
-	{PCI_VENDOR_ID_SILICONIMAGE, PCI_DEVICE_ID_SIL3124},
+	{ PCI_DEVICE(PCI_VENDOR_ID_SILICONIMAGE, PCI_DEVICE_ID_SIL3131) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_SILICONIMAGE, PCI_DEVICE_ID_SIL3132) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_SILICONIMAGE, PCI_DEVICE_ID_SIL3124) },
 	{}
 };
 
@@ -113,9 +126,9 @@ static int sil_init_port(void *port)
 	return 0;
 }
 
-static void sil_read_fis(int dev, int tag, struct sata_fis_d2h *fis)
+static void sil_read_fis(struct sil_sata *sata, int tag,
+			 struct sata_fis_d2h *fis)
 {
-	struct sil_sata *sata = sata_dev_desc[dev].priv;
 	void *port = sata->port;
 	struct sil_prb *prb;
 	int i;
@@ -128,9 +141,9 @@ static void sil_read_fis(int dev, int tag, struct sata_fis_d2h *fis)
 		*dst++ = readl(src++);
 }
 
-static int sil_exec_cmd(int dev, struct sil_cmd_block *pcmd, int tag)
+static int sil_exec_cmd(struct sil_sata *sata, struct sil_cmd_block *pcmd,
+			int tag)
 {
-	struct sil_sata *sata = sata_dev_desc[dev].priv;
 	void *port = sata->port;
 	u64 paddr = virt_to_bus(sata->devno, pcmd);
 	u32 irq_mask, irq_stat;
@@ -164,9 +177,8 @@ static int sil_exec_cmd(int dev, struct sil_cmd_block *pcmd, int tag)
 	return rc;
 }
 
-static int sil_cmd_set_feature(int dev)
+static int sil_cmd_set_feature(struct sil_sata *sata)
 {
-	struct sil_sata *sata = sata_dev_desc[dev].priv;
 	struct sil_cmd_block cmdb, *pcmd = &cmdb;
 	struct sata_fis_d2h fis;
 	u8 udma_cap;
@@ -191,9 +203,9 @@ static int sil_cmd_set_feature(int dev)
 	if (udma_cap == ATA_UDMA3)
 		pcmd->prb.fis.sector_count = XFER_UDMA_3;
 
-	ret = sil_exec_cmd(dev, pcmd, 0);
+	ret = sil_exec_cmd(sata, pcmd, 0);
 	if (ret) {
-		sil_read_fis(dev, 0, &fis);
+		sil_read_fis(sata, 0, &fis);
 		printf("Err: exe cmd(0x%x).\n",
 				readl(sata->port + PORT_SERROR));
 		sil_sata_dump_fis(&fis);
@@ -203,9 +215,34 @@ static int sil_cmd_set_feature(int dev)
 	return 0;
 }
 
-static int sil_cmd_identify_device(int dev, u16 *id)
+static void sil_sata_init_wcache(struct sil_sata *sata, u16 *id)
 {
-	struct sil_sata *sata = sata_dev_desc[dev].priv;
+	if (ata_id_has_wcache(id) && ata_id_wcache_enabled(id))
+		sata->wcache = 1;
+	if (ata_id_has_flush(id))
+		sata->flush = 1;
+	if (ata_id_has_flush_ext(id))
+		sata->flush_ext = 1;
+}
+
+static void sil_sata_set_feature_by_id(struct sil_sata *sata, u16 *id)
+{
+#ifdef CONFIG_LBA48
+	/* Check if support LBA48 */
+	if (ata_id_has_lba48(id)) {
+		sata->lba48 = 1;
+		debug("Device supports LBA48\n");
+	} else {
+		debug("Device supports LBA28\n");
+	}
+#endif
+
+	sil_sata_init_wcache(sata, id);
+	sil_cmd_set_feature(sata);
+}
+
+static int sil_cmd_identify_device(struct sil_sata *sata, u16 *id)
+{
 	struct sil_cmd_block cmdb, *pcmd = &cmdb;
 	struct sata_fis_d2h fis;
 	int ret;
@@ -220,9 +257,9 @@ static int sil_cmd_identify_device(int dev, u16 *id)
 	pcmd->sge.cnt = cpu_to_le32(sizeof(id[0]) * ATA_ID_WORDS);
 	pcmd->sge.flags = cpu_to_le32(SGE_TRM);
 
-	ret = sil_exec_cmd(dev, pcmd, 0);
+	ret = sil_exec_cmd(sata, pcmd, 0);
 	if (ret) {
-		sil_read_fis(dev, 0, &fis);
+		sil_read_fis(sata, 0, &fis);
 		printf("Err: id cmd(0x%x).\n", readl(sata->port + PORT_SERROR));
 		sil_sata_dump_fis(&fis);
 		return 1;
@@ -232,17 +269,16 @@ static int sil_cmd_identify_device(int dev, u16 *id)
 	return 0;
 }
 
-static int sil_cmd_soft_reset(int dev)
+static int sil_cmd_soft_reset(struct sil_sata *sata)
 {
 	struct sil_cmd_block cmdb, *pcmd = &cmdb;
-	struct sil_sata *sata = sata_dev_desc[dev].priv;
 	struct sata_fis_d2h fis;
 	void *port = sata->port;
 	int ret;
 
 	/* put the port into known state */
 	if (sil_init_port(port)) {
-		printf("SRST: port %d not ready\n", dev);
+		printf("SRST: port %d not ready\n", sata->id);
 		return 1;
 	}
 
@@ -252,9 +288,9 @@ static int sil_cmd_soft_reset(int dev)
 	pcmd->prb.fis.fis_type = SATA_FIS_TYPE_REGISTER_H2D;
 	pcmd->prb.fis.pm_port_c = 0xf;
 
-	ret = sil_exec_cmd(dev, &cmdb, 0);
+	ret = sil_exec_cmd(sata, &cmdb, 0);
 	if (ret) {
-		sil_read_fis(dev, 0, &fis);
+		sil_read_fis(sata, 0, &fis);
 		printf("SRST cmd error.\n");
 		sil_sata_dump_fis(&fis);
 		return 1;
@@ -263,10 +299,9 @@ static int sil_cmd_soft_reset(int dev)
 	return 0;
 }
 
-static ulong sil_sata_rw_cmd(int dev, ulong start, ulong blkcnt,
-		u8 *buffer, int is_write)
+static ulong sil_sata_rw_cmd(struct sil_sata *sata, ulong start, ulong blkcnt,
+			     u8 *buffer, int is_write)
 {
-	struct sil_sata *sata = sata_dev_desc[dev].priv;
 	struct sil_cmd_block cmdb, *pcmd = &cmdb;
 	struct sata_fis_d2h fis;
 	u64 block;
@@ -296,9 +331,9 @@ static ulong sil_sata_rw_cmd(int dev, ulong start, ulong blkcnt,
 	pcmd->sge.cnt = cpu_to_le32(blkcnt * ATA_SECT_SIZE);
 	pcmd->sge.flags = cpu_to_le32(SGE_TRM);
 
-	ret = sil_exec_cmd(dev, pcmd, 0);
+	ret = sil_exec_cmd(sata, pcmd, 0);
 	if (ret) {
-		sil_read_fis(dev, 0, &fis);
+		sil_read_fis(sata, 0, &fis);
 		printf("Err: rw cmd(0x%08x).\n",
 				readl(sata->port + PORT_SERROR));
 		sil_sata_dump_fis(&fis);
@@ -308,10 +343,9 @@ static ulong sil_sata_rw_cmd(int dev, ulong start, ulong blkcnt,
 	return blkcnt;
 }
 
-static ulong sil_sata_rw_cmd_ext(int dev, ulong start, ulong blkcnt,
-		u8 *buffer, int is_write)
+static ulong sil_sata_rw_cmd_ext(struct sil_sata *sata, ulong start,
+				 ulong blkcnt, u8 *buffer, int is_write)
 {
-	struct sil_sata *sata = sata_dev_desc[dev].priv;
 	struct sil_cmd_block cmdb, *pcmd = &cmdb;
 	struct sata_fis_d2h fis;
 	u64 block;
@@ -344,9 +378,9 @@ static ulong sil_sata_rw_cmd_ext(int dev, ulong start, ulong blkcnt,
 	pcmd->sge.cnt = cpu_to_le32(blkcnt * ATA_SECT_SIZE);
 	pcmd->sge.flags = cpu_to_le32(SGE_TRM);
 
-	ret = sil_exec_cmd(dev, pcmd, 0);
+	ret = sil_exec_cmd(sata, pcmd, 0);
 	if (ret) {
-		sil_read_fis(dev, 0, &fis);
+		sil_read_fis(sata, 0, &fis);
 		printf("Err: rw ext cmd(0x%08x).\n",
 				readl(sata->port + PORT_SERROR));
 		sil_sata_dump_fis(&fis);
@@ -356,8 +390,9 @@ static ulong sil_sata_rw_cmd_ext(int dev, ulong start, ulong blkcnt,
 	return blkcnt;
 }
 
-static ulong sil_sata_rw_lba28(int dev, ulong blknr, lbaint_t blkcnt,
-			       const void *buffer, int is_write)
+static ulong sil_sata_rw_lba28(struct sil_sata *sata, ulong blknr,
+			       lbaint_t blkcnt, const void *buffer,
+			       int is_write)
 {
 	ulong start, blks, max_blks;
 	u8 *addr;
@@ -369,12 +404,12 @@ static ulong sil_sata_rw_lba28(int dev, ulong blknr, lbaint_t blkcnt,
 	max_blks = ATA_MAX_SECTORS;
 	do {
 		if (blks > max_blks) {
-			sil_sata_rw_cmd(dev, start, max_blks, addr, is_write);
+			sil_sata_rw_cmd(sata, start, max_blks, addr, is_write);
 			start += max_blks;
 			blks -= max_blks;
 			addr += ATA_SECT_SIZE * max_blks;
 		} else {
-			sil_sata_rw_cmd(dev, start, blks, addr, is_write);
+			sil_sata_rw_cmd(sata, start, blks, addr, is_write);
 			start += blks;
 			blks = 0;
 			addr += ATA_SECT_SIZE * blks;
@@ -384,8 +419,9 @@ static ulong sil_sata_rw_lba28(int dev, ulong blknr, lbaint_t blkcnt,
 	return blkcnt;
 }
 
-static ulong sil_sata_rw_lba48(int dev, ulong blknr, lbaint_t blkcnt,
-			       const void *buffer, int is_write)
+static ulong sil_sata_rw_lba48(struct sil_sata *sata, ulong blknr,
+			       lbaint_t blkcnt, const void *buffer,
+			       int is_write)
 {
 	ulong start, blks, max_blks;
 	u8 *addr;
@@ -397,14 +433,14 @@ static ulong sil_sata_rw_lba48(int dev, ulong blknr, lbaint_t blkcnt,
 	max_blks = ATA_MAX_SECTORS_LBA48;
 	do {
 		if (blks > max_blks) {
-			sil_sata_rw_cmd_ext(dev, start, max_blks,
-					addr, is_write);
+			sil_sata_rw_cmd_ext(sata, start, max_blks,
+					    addr, is_write);
 			start += max_blks;
 			blks -= max_blks;
 			addr += ATA_SECT_SIZE * max_blks;
 		} else {
-			sil_sata_rw_cmd_ext(dev, start, blks,
-					addr, is_write);
+			sil_sata_rw_cmd_ext(sata, start, blks,
+					    addr, is_write);
 			start += blks;
 			blks = 0;
 			addr += ATA_SECT_SIZE * blks;
@@ -414,7 +450,7 @@ static ulong sil_sata_rw_lba48(int dev, ulong blknr, lbaint_t blkcnt,
 	return blkcnt;
 }
 
-static void sil_sata_cmd_flush_cache(int dev)
+static void sil_sata_cmd_flush_cache(struct sil_sata *sata)
 {
 	struct sil_cmd_block cmdb, *pcmd = &cmdb;
 
@@ -423,10 +459,10 @@ static void sil_sata_cmd_flush_cache(int dev)
 	pcmd->prb.fis.pm_port_c = (1 << 7);
 	pcmd->prb.fis.command = ATA_CMD_FLUSH;
 
-	sil_exec_cmd(dev, pcmd, 0);
+	sil_exec_cmd(sata, pcmd, 0);
 }
 
-static void sil_sata_cmd_flush_cache_ext(int dev)
+static void sil_sata_cmd_flush_cache_ext(struct sil_sata *sata)
 {
 	struct sil_cmd_block cmdb, *pcmd = &cmdb;
 
@@ -435,54 +471,30 @@ static void sil_sata_cmd_flush_cache_ext(int dev)
 	pcmd->prb.fis.pm_port_c = (1 << 7);
 	pcmd->prb.fis.command = ATA_CMD_FLUSH_EXT;
 
-	sil_exec_cmd(dev, pcmd, 0);
-}
-
-static void sil_sata_init_wcache(int dev, u16 *id)
-{
-	struct sil_sata *sata = sata_dev_desc[dev].priv;
-
-	if (ata_id_has_wcache(id) && ata_id_wcache_enabled(id))
-		sata->wcache = 1;
-	if (ata_id_has_flush(id))
-		sata->flush = 1;
-	if (ata_id_has_flush_ext(id))
-		sata->flush_ext = 1;
-}
-
-static int sil_sata_get_wcache(int dev)
-{
-	struct sil_sata *sata = sata_dev_desc[dev].priv;
-
-	return sata->wcache;
-}
-
-static int sil_sata_get_flush(int dev)
-{
-	struct sil_sata *sata = sata_dev_desc[dev].priv;
-
-	return sata->flush;
-}
-
-static int sil_sata_get_flush_ext(int dev)
-{
-	struct sil_sata *sata = sata_dev_desc[dev].priv;
-
-	return sata->flush_ext;
+	sil_exec_cmd(sata, pcmd, 0);
 }
 
 /*
  * SATA interface between low level driver and command layer
  */
+#if !CONFIG_IS_ENABLED(BLK)
 ulong sata_read(int dev, ulong blknr, lbaint_t blkcnt, void *buffer)
 {
-	struct sil_sata *sata = sata_dev_desc[dev].priv;
+	struct sil_sata *sata = (struct sil_sata *)sata_dev_desc[dev].priv;
+#else
+static ulong sata_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
+		       void *buffer)
+{
+	struct sil_sata_priv *priv = dev_get_platdata(dev);
+	int port_number = priv->port_num;
+	struct sil_sata *sata = priv->sil_sata_desc[port_number];
+#endif
 	ulong rc;
 
 	if (sata->lba48)
-		rc = sil_sata_rw_lba48(dev, blknr, blkcnt, buffer, READ_CMD);
+		rc = sil_sata_rw_lba48(sata, blknr, blkcnt, buffer, READ_CMD);
 	else
-		rc = sil_sata_rw_lba28(dev, blknr, blkcnt, buffer, READ_CMD);
+		rc = sil_sata_rw_lba28(sata, blknr, blkcnt, buffer, READ_CMD);
 
 	return rc;
 }
@@ -490,111 +502,48 @@ ulong sata_read(int dev, ulong blknr, lbaint_t blkcnt, void *buffer)
 /*
  * SATA interface between low level driver and command layer
  */
+#if !CONFIG_IS_ENABLED(BLK)
 ulong sata_write(int dev, ulong blknr, lbaint_t blkcnt, const void *buffer)
 {
-	struct sil_sata *sata = sata_dev_desc[dev].priv;
+	struct sil_sata *sata = (struct sil_sata *)sata_dev_desc[dev].priv;
+#else
+ulong sata_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
+		 const void *buffer)
+{
+	struct sil_sata_priv *priv = dev_get_platdata(dev);
+	int port_number = priv->port_num;
+	struct sil_sata *sata = priv->sil_sata_desc[port_number];
+#endif
 	ulong rc;
 
 	if (sata->lba48) {
-		rc = sil_sata_rw_lba48(dev, blknr, blkcnt, buffer, WRITE_CMD);
-		if (sil_sata_get_wcache(dev) && sil_sata_get_flush_ext(dev))
-			sil_sata_cmd_flush_cache_ext(dev);
+		rc = sil_sata_rw_lba48(sata, blknr, blkcnt, buffer, WRITE_CMD);
+		if (sata->wcache && sata->flush_ext)
+			sil_sata_cmd_flush_cache_ext(sata);
 	} else {
-		rc = sil_sata_rw_lba28(dev, blknr, blkcnt, buffer, WRITE_CMD);
-		if (sil_sata_get_wcache(dev) && sil_sata_get_flush(dev))
-			sil_sata_cmd_flush_cache(dev);
+		rc = sil_sata_rw_lba28(sata, blknr, blkcnt, buffer, WRITE_CMD);
+		if (sata->wcache && sata->flush)
+			sil_sata_cmd_flush_cache(sata);
 	}
 
 	return rc;
 }
 
-/*
- * SATA interface between low level driver and command layer
- */
-int init_sata(int dev)
+#if !CONFIG_IS_ENABLED(BLK)
+static int sil_init_sata(int dev)
 {
-	static int init_done, idx;
-	pci_dev_t devno;
-	u16 word;
-
-	if (init_done == 1 && dev < sata_info.maxport)
-		return 0;
-
-	init_done = 1;
-
-	/* Find PCI device(s) */
-	devno = pci_find_devices(supported, idx++);
-	if (devno == -1)
-		return 1;
-
-	pci_read_config_word(devno, PCI_DEVICE_ID, &word);
-
-	/* get the port count */
-	word &= 0xf;
-
-	sata_info.portbase = sata_info.maxport;
-	sata_info.maxport = sata_info.portbase + word;
-	sata_info.devno = devno;
-
-	/* Read out all BARs */
-	sata_info.iobase[0] = (ulong)pci_map_bar(devno,
-			PCI_BASE_ADDRESS_0, PCI_REGION_MEM);
-	sata_info.iobase[1] = (ulong)pci_map_bar(devno,
-			PCI_BASE_ADDRESS_2, PCI_REGION_MEM);
-	sata_info.iobase[2] = (ulong)pci_map_bar(devno,
-			PCI_BASE_ADDRESS_4, PCI_REGION_MEM);
-
-	/* mask out the unused bits */
-	sata_info.iobase[0] &= 0xffffff80;
-	sata_info.iobase[1] &= 0xfffffc00;
-	sata_info.iobase[2] &= 0xffffff80;
-
-	/* Enable Bus Mastering and memory region */
-	pci_write_config_word(devno, PCI_COMMAND,
-			PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
-
-	/* Check if mem accesses and Bus Mastering are enabled. */
-	pci_read_config_word(devno, PCI_COMMAND, &word);
-	if (!(word & PCI_COMMAND_MEMORY) ||
-			(!(word & PCI_COMMAND_MASTER))) {
-		printf("Error: Can not enable MEM access or Bus Mastering.\n");
-		debug("PCI command: %04x\n", word);
-		return 1;
-	}
-
-	/* GPIO off */
-	writel(0, (void *)(sata_info.iobase[0] + HOST_FLASH_CMD));
-	/* clear global reset & mask interrupts during initialization */
-	writel(0, (void *)(sata_info.iobase[0] + HOST_CTRL));
-
-	return 0;
-}
-
-int reset_sata(int dev)
+#else
+static int sil_init_sata(struct udevice *uc_dev, int dev)
 {
-	return 0;
-}
-
-/*
- * SATA interface between low level driver and command layer
- */
-int scan_sata(int dev)
-{
-	unsigned char serial[ATA_ID_SERNO_LEN + 1];
-	unsigned char firmware[ATA_ID_FW_REV_LEN + 1];
-	unsigned char product[ATA_ID_PROD_LEN + 1];
+	struct sil_sata_priv *priv = dev_get_platdata(uc_dev);
+#endif
 	struct sil_sata *sata;
 	void *port;
-	int cnt;
-	u16 *id;
 	u32 tmp;
+	int cnt;
 
-	if (dev >= sata_info.maxport) {
-		printf("SATA#%d is not present\n", dev);
-		return 1;
-	}
+	printf("SATA#%d:\n", dev);
 
-	printf("SATA#%d\n", dev);
 	port = (void *)sata_info.iobase[1] +
 		PORT_REGS_SIZE * (dev - sata_info.portbase);
 
@@ -653,62 +602,263 @@ int scan_sata(int dev)
 	}
 	memset((void *)sata, 0, sizeof(struct sil_sata));
 
-	/* turn on port interrupt */
-	tmp = readl((void *)(sata_info.iobase[0] + HOST_CTRL));
-	tmp |= (1 << (dev - sata_info.portbase));
-	writel(tmp, (void *)(sata_info.iobase[0] + HOST_CTRL));
-
 	/* Save the private struct to block device struct */
+#if !CONFIG_IS_ENABLED(BLK)
 	sata_dev_desc[dev].priv = (void *)sata;
+#else
+	priv->sil_sata_desc[dev] = sata;
+	priv->port_num = dev;
+#endif
+	sata->id = dev;
 	sata->port = port;
 	sata->devno = sata_info.devno;
 	sprintf(sata->name, "SATA#%d", dev);
-	sil_cmd_soft_reset(dev);
+	sil_cmd_soft_reset(sata);
 	tmp = readl(port + PORT_SSTATUS);
 	tmp = (tmp >> 4) & 0xf;
 	printf("	(%s)\n", sata_spd_string(tmp));
 
+	return 0;
+}
+
+#if !CONFIG_IS_ENABLED(BLK)
+/*
+ * SATA interface between low level driver and command layer
+ */
+int init_sata(int dev)
+{
+	static int init_done, idx;
+	pci_dev_t devno;
+	u16 word;
+
+	if (init_done == 1 && dev < sata_info.maxport)
+		goto init_start;
+
+	init_done = 1;
+
+	/* Find PCI device(s) */
+	devno = pci_find_devices(supported, idx++);
+	if (devno == -1)
+		return 1;
+
+	pci_read_config_word(devno, PCI_DEVICE_ID, &word);
+
+	/* get the port count */
+	word &= 0xf;
+
+	sata_info.portbase = 0;
+	sata_info.maxport = sata_info.portbase + word;
+	sata_info.devno = devno;
+
+	/* Read out all BARs */
+	sata_info.iobase[0] = (ulong)pci_map_bar(devno,
+			PCI_BASE_ADDRESS_0, PCI_REGION_MEM);
+	sata_info.iobase[1] = (ulong)pci_map_bar(devno,
+			PCI_BASE_ADDRESS_2, PCI_REGION_MEM);
+
+	/* mask out the unused bits */
+	sata_info.iobase[0] &= 0xffffff80;
+	sata_info.iobase[1] &= 0xfffffc00;
+
+	/* Enable Bus Mastering and memory region */
+	pci_write_config_word(devno, PCI_COMMAND,
+			      PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
+
+	/* Check if mem accesses and Bus Mastering are enabled. */
+	pci_read_config_word(devno, PCI_COMMAND, &word);
+	if (!(word & PCI_COMMAND_MEMORY) ||
+	    (!(word & PCI_COMMAND_MASTER))) {
+		printf("Error: Can not enable MEM access or Bus Mastering.\n");
+		debug("PCI command: %04x\n", word);
+		return 1;
+	}
+
+	/* GPIO off */
+	writel(0, (void *)(sata_info.iobase[0] + HOST_FLASH_CMD));
+	/* clear global reset & mask interrupts during initialization */
+	writel(0, (void *)(sata_info.iobase[0] + HOST_CTRL));
+
+init_start:
+	return sil_init_sata(dev);
+}
+
+int reset_sata(int dev)
+{
+	return 0;
+}
+
+/*
+ * SATA interface between low level driver and command layer
+ */
+int scan_sata(int dev)
+{
+	struct sil_sata *sata = (struct sil_sata *)sata_dev_desc[dev].priv;
+#else
+static int scan_sata(struct udevice *blk_dev, int dev)
+{
+	struct blk_desc *desc = dev_get_uclass_platdata(blk_dev);
+	struct sil_sata_priv *priv = dev_get_platdata(blk_dev);
+	struct sil_sata *sata = priv->sil_sata_desc[dev];
+#endif
+	unsigned char serial[ATA_ID_SERNO_LEN + 1];
+	unsigned char firmware[ATA_ID_FW_REV_LEN + 1];
+	unsigned char product[ATA_ID_PROD_LEN + 1];
+	u16 *id;
+
 	id = (u16 *)malloc(ATA_ID_WORDS * 2);
 	if (!id) {
 		printf("Id malloc failed\n");
-		free((void *)sata);
 		return 1;
 	}
-	sil_cmd_identify_device(dev, id);
+	sil_cmd_identify_device(sata, id);
 
-#ifdef CONFIG_LBA48
-	/* Check if support LBA48 */
-	if (ata_id_has_lba48(id)) {
-		sata_dev_desc[dev].lba48 = 1;
-		sata->lba48 = 1;
-		debug("Device supports LBA48\n");
-	} else
-		debug("Device supports LBA28\n");
-#endif
+	sil_sata_set_feature_by_id(sata, id);
 
 	/* Serial number */
 	ata_id_c_string(id, serial, ATA_ID_SERNO, sizeof(serial));
-	memcpy(sata_dev_desc[dev].product, serial, sizeof(serial));
 
 	/* Firmware version */
 	ata_id_c_string(id, firmware, ATA_ID_FW_REV, sizeof(firmware));
-	memcpy(sata_dev_desc[dev].revision, firmware, sizeof(firmware));
 
 	/* Product model */
 	ata_id_c_string(id, product, ATA_ID_PROD, sizeof(product));
-	memcpy(sata_dev_desc[dev].vendor, product, sizeof(product));
 
+#if !CONFIG_IS_ENABLED(BLK)
+	memcpy(sata_dev_desc[dev].product, serial, sizeof(serial));
+	memcpy(sata_dev_desc[dev].revision, firmware, sizeof(firmware));
+	memcpy(sata_dev_desc[dev].vendor, product, sizeof(product));
 	/* Totoal sectors */
 	sata_dev_desc[dev].lba = ata_id_n_sectors(id);
-
-	sil_sata_init_wcache(dev, id);
-	sil_cmd_set_feature(dev);
+#ifdef CONFIG_LBA48
+	sata_dev_desc[dev].lba48 = sata->lba48;
+#endif
+#else
+	memcpy(desc->product, serial, sizeof(serial));
+	memcpy(desc->revision, firmware, sizeof(firmware));
+	memcpy(desc->vendor, product, sizeof(product));
+	desc->lba = ata_id_n_sectors(id);
+#ifdef CONFIG_LBA48
+	desc->lba48 = sata->lba48;
+#endif
+#endif
 
 #ifdef DEBUG
-	sil_cmd_identify_device(dev, id);
 	ata_dump_id(id);
 #endif
 	free((void *)id);
 
 	return 0;
 }
+
+#if CONFIG_IS_ENABLED(BLK)
+static const struct blk_ops sata_sil_blk_ops = {
+	.read	= sata_read,
+	.write	= sata_write,
+};
+
+U_BOOT_DRIVER(sata_sil_driver) = {
+	.name = "sata_sil_blk",
+	.id = UCLASS_BLK,
+	.ops = &sata_sil_blk_ops,
+	.platdata_auto_alloc_size = sizeof(struct sil_sata_priv),
+};
+
+static int sil_pci_probe(struct udevice *dev)
+{
+	struct udevice *blk;
+	char sata_name[10];
+	pci_dev_t devno;
+	u16 word;
+	int ret;
+	int i;
+
+	/* Get PCI device number */
+	devno = dm_pci_get_bdf(dev);
+	if (devno == -1)
+		return 1;
+
+	dm_pci_read_config16(dev, PCI_DEVICE_ID, &word);
+
+	/* get the port count */
+	word &= 0xf;
+
+	sata_info.portbase = 0;
+	sata_info.maxport = sata_info.portbase + word;
+	sata_info.devno = devno;
+
+	/* Read out all BARs */
+	sata_info.iobase[0] = (ulong)dm_pci_map_bar(dev,
+			PCI_BASE_ADDRESS_0, PCI_REGION_MEM);
+	sata_info.iobase[1] = (ulong)dm_pci_map_bar(dev,
+			PCI_BASE_ADDRESS_2, PCI_REGION_MEM);
+
+	/* mask out the unused bits */
+	sata_info.iobase[0] &= 0xffffff80;
+	sata_info.iobase[1] &= 0xfffffc00;
+
+	/* Enable Bus Mastering and memory region */
+	dm_pci_write_config16(dev, PCI_COMMAND,
+			      PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
+
+	/* Check if mem accesses and Bus Mastering are enabled. */
+	dm_pci_read_config16(dev, PCI_COMMAND, &word);
+	if (!(word & PCI_COMMAND_MEMORY) ||
+	    (!(word & PCI_COMMAND_MASTER))) {
+		printf("Error: Can not enable MEM access or Bus Mastering.\n");
+		debug("PCI command: %04x\n", word);
+		return 1;
+	}
+
+	/* GPIO off */
+	writel(0, (void *)(sata_info.iobase[0] + HOST_FLASH_CMD));
+	/* clear global reset & mask interrupts during initialization */
+	writel(0, (void *)(sata_info.iobase[0] + HOST_CTRL));
+
+	for (i = sata_info.portbase; i < sata_info.maxport; i++) {
+		snprintf(sata_name, sizeof(sata_name), "sil_sata%d", i);
+		ret = blk_create_devicef(dev, "sata_sil_blk", sata_name,
+					 IF_TYPE_SATA, -1, 512, 0, &blk);
+		if (ret) {
+			debug("Can't create device\n");
+			return ret;
+		}
+
+		ret = sil_init_sata(blk, i);
+		if (ret)
+			return -ENODEV;
+
+		ret = scan_sata(blk, i);
+		if (ret)
+			return -ENODEV;
+	}
+
+	return 0;
+}
+
+static int sata_sil_scan(struct udevice *dev)
+{
+	/* Nothing to do here */
+
+	return 0;
+}
+
+struct sil_ops sata_sil_ops = {
+	.scan = sata_sil_scan,
+};
+
+static const struct udevice_id sil_pci_ids[] = {
+	{ .compatible = "sil-pci-sample" },
+	{ }
+};
+
+U_BOOT_DRIVER(sil_ahci_pci) = {
+	.name	= "sil_ahci_pci",
+	.id	= UCLASS_AHCI,
+	.of_match = sil_pci_ids,
+	.ops = &sata_sil_ops,
+	.probe = sil_pci_probe,
+	.priv_auto_alloc_size = sizeof(struct sil_sata_priv),
+};
+
+U_BOOT_PCI_DEVICE(sil_ahci_pci, supported);
+#endif

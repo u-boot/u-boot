@@ -40,4 +40,4 @@ class Entry_u_boot_tpl(Entry_blob):
         return 'tpl/u-boot-tpl.bin'
 
     def WriteSymbols(self, section):
-        elf.LookupAndWriteSymbols(self.elf_fname, self, section)
+        elf.LookupAndWriteSymbols(self.elf_fname, self, section.GetImage())

@@ -16,7 +16,7 @@
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/gpio.h>
 #include <asm/mach-imx/mxc_i2c.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
 #include <mmc.h>
 #include <power/pmic.h>
 #include <power/pfuze100_pmic.h>
@@ -27,7 +27,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 extern struct dram_timing_info dram_timing_b0;
 
-void spl_dram_init(void)
+static void spl_dram_init(void)
 {
 	/* ddr init */
 	if ((get_cpu_rev() & 0xfff) == CHIP_REV_2_1)
@@ -38,7 +38,7 @@ void spl_dram_init(void)
 
 #define I2C_PAD_CTRL	(PAD_CTL_DSE6 | PAD_CTL_HYS | PAD_CTL_PUE)
 #define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
-struct i2c_pads_info i2c_pad_info1 = {
+static struct i2c_pads_info i2c_pad_info1 = {
 	.scl = {
 		.i2c_mode = IMX8MQ_PAD_I2C1_SCL__I2C1_SCL | PC,
 		.gpio_mode = IMX8MQ_PAD_I2C1_SCL__GPIO5_IO14 | PC,

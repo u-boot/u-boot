@@ -8,8 +8,7 @@
 #include <i2c.h>
 #ifdef CONFIG_DM_I2C
 #include <dm.h>
-#include <fpgamap.h>
-#include "../misc/gdsys_soc.h"
+#include <regmap.h>
 #else
 #include <gdsys_fpga.h>
 #endif
@@ -18,17 +17,23 @@
 #ifdef CONFIG_DM_I2C
 struct ihs_i2c_priv {
 	uint speed;
-	phys_addr_t addr;
+	struct regmap *map;
 };
 
-enum {
-	REG_INTERRUPT_STATUS = 0x00,
-	REG_INTERRUPT_ENABLE_CONTROL = 0x02,
-	REG_WRITE_MAILBOX_EXT = 0x04,
-	REG_WRITE_MAILBOX = 0x06,
-	REG_READ_MAILBOX_EXT = 0x08,
-	REG_READ_MAILBOX = 0x0A,
+struct ihs_i2c_regs {
+	u16 interrupt_status;
+	u16 interrupt_enable_control;
+	u16 write_mailbox_ext;
+	u16 write_mailbox;
+	u16 read_mailbox_ext;
+	u16 read_mailbox;
 };
+
+#define ihs_i2c_set(map, member, val) \
+	regmap_set(map, struct ihs_i2c_regs, member, val)
+
+#define ihs_i2c_get(map, member, valp) \
+	regmap_get(map, struct ihs_i2c_regs, member, valp)
 
 #else /* !CONFIG_DM_I2C */
 DECLARE_GLOBAL_DATA_PTR;
@@ -92,14 +97,10 @@ static int wait_for_int(bool read)
 	uint ctr = 0;
 #ifdef CONFIG_DM_I2C
 	struct ihs_i2c_priv *priv = dev_get_priv(dev);
-	struct udevice *fpga;
-
-	gdsys_soc_get_fpga(dev, &fpga);
 #endif
 
 #ifdef CONFIG_DM_I2C
-	fpgamap_read(fpga, priv->addr + REG_INTERRUPT_STATUS, &val,
-		     FPGAMAP_SIZE_16);
+	ihs_i2c_get(priv->map, interrupt_status, &val);
 #else
 	I2C_GET_REG(interrupt_status, &val);
 #endif
@@ -107,17 +108,18 @@ static int wait_for_int(bool read)
 	while (!(val & (I2CINT_ERROR_EV
 	       | (read ? I2CINT_RECEIVE_EV : I2CINT_TRANSMIT_EV)))) {
 		udelay(10);
-		if (ctr++ > 5000)
-			return 1;
+		if (ctr++ > 5000) {
+			debug("%s: timed out\n", __func__);
+			return -ETIMEDOUT;
+		}
 #ifdef CONFIG_DM_I2C
-		fpgamap_read(fpga, priv->addr + REG_INTERRUPT_STATUS, &val,
-			     FPGAMAP_SIZE_16);
+		ihs_i2c_get(priv->map, interrupt_status, &val);
 #else
 		I2C_GET_REG(interrupt_status, &val);
 #endif
 	}
 
-	return (val & I2CINT_ERROR_EV) ? 1 : 0;
+	return (val & I2CINT_ERROR_EV) ? -EIO : 0;
 }
 
 #ifdef CONFIG_DM_I2C
@@ -130,20 +132,16 @@ static int ihs_i2c_transfer(uchar chip, uchar *buffer, int len, bool read,
 {
 	u16 val;
 	u16 data;
+	int res;
 #ifdef CONFIG_DM_I2C
 	struct ihs_i2c_priv *priv = dev_get_priv(dev);
-	struct udevice *fpga;
-
-	gdsys_soc_get_fpga(dev, &fpga);
 #endif
 
 	/* Clear interrupt status */
 	data = I2CINT_ERROR_EV | I2CINT_RECEIVE_EV | I2CINT_TRANSMIT_EV;
 #ifdef CONFIG_DM_I2C
-	fpgamap_write(fpga, priv->addr + REG_INTERRUPT_STATUS, &data,
-		      FPGAMAP_SIZE_16);
-	fpgamap_read(fpga, priv->addr + REG_INTERRUPT_STATUS, &val,
-		     FPGAMAP_SIZE_16);
+	ihs_i2c_set(priv->map, interrupt_status, data);
+	ihs_i2c_get(priv->map, interrupt_status, &val);
 #else
 	I2C_SET_REG(interrupt_status, data);
 	I2C_GET_REG(interrupt_status, &val);
@@ -156,8 +154,7 @@ static int ihs_i2c_transfer(uchar chip, uchar *buffer, int len, bool read,
 		if (len > 1)
 			val |= buffer[1] << 8;
 #ifdef CONFIG_DM_I2C
-		fpgamap_write(fpga, priv->addr + REG_WRITE_MAILBOX_EXT, &val,
-			      FPGAMAP_SIZE_16);
+		ihs_i2c_set(priv->map, write_mailbox_ext, val);
 #else
 		I2C_SET_REG(write_mailbox_ext, val);
 #endif
@@ -170,24 +167,27 @@ static int ihs_i2c_transfer(uchar chip, uchar *buffer, int len, bool read,
 	       | (is_last ? 0 : I2CMB_HOLD_BUS);
 
 #ifdef CONFIG_DM_I2C
-	fpgamap_write(fpga, priv->addr + REG_WRITE_MAILBOX, &data,
-		      FPGAMAP_SIZE_16);
+	ihs_i2c_set(priv->map, write_mailbox, data);
 #else
 	I2C_SET_REG(write_mailbox, data);
 #endif
 
 #ifdef CONFIG_DM_I2C
-	if (wait_for_int(dev, read))
+	res = wait_for_int(dev, read);
 #else
-	if (wait_for_int(read))
+	res = wait_for_int(read);
 #endif
-		return 1;
+	if (res) {
+		if (res == -ETIMEDOUT)
+			debug("%s: time out while waiting for event\n", __func__);
+
+		return res;
+	}
 
 	/* If we want to read, get the bytes from the mailbox */
 	if (read) {
 #ifdef CONFIG_DM_I2C
-		fpgamap_read(fpga, priv->addr + REG_READ_MAILBOX_EXT, &val,
-			     FPGAMAP_SIZE_16);
+		ihs_i2c_get(priv->map, read_mailbox_ext, &val);
 #else
 		I2C_GET_REG(read_mailbox_ext, &val);
 #endif
@@ -206,19 +206,21 @@ static int ihs_i2c_send_buffer(uchar chip, u8 *data, int len, bool hold_bus,
 			       int read)
 #endif
 {
+	int res;
+
 	while (len) {
 		int transfer = min(len, 2);
 		bool is_last = len <= transfer;
 
 #ifdef CONFIG_DM_I2C
-		if (ihs_i2c_transfer(dev, chip, data, transfer, read,
-				     hold_bus ? false : is_last))
-			return 1;
+		res = ihs_i2c_transfer(dev, chip, data, transfer, read,
+				       hold_bus ? false : is_last);
 #else
-		if (ihs_i2c_transfer(chip, data, transfer, read,
-				     hold_bus ? false : is_last))
-			return 1;
+		res = ihs_i2c_transfer(chip, data, transfer, read,
+				       hold_bus ? false : is_last);
 #endif
+		if (res)
+			return res;
 
 		data += transfer;
 		len -= transfer;
@@ -249,14 +251,19 @@ static int ihs_i2c_access(struct i2c_adapter *adap, uchar chip, u8 *addr,
 			  int alen, uchar *buffer, int len, int read)
 #endif
 {
+	int res;
+
 	/* Don't hold the bus if length of data to send/receive is zero */
+	if (len <= 0)
+		return -EINVAL;
+
 #ifdef CONFIG_DM_I2C
-	if (len <= 0 || ihs_i2c_address(dev, chip, addr, alen, len))
-		return 1;
+	res = ihs_i2c_address(dev, chip, addr, alen, len);
 #else
-	if (len <= 0 || ihs_i2c_address(chip, addr, alen, len))
-		return 1;
+	res = ihs_i2c_address(chip, addr, alen, len);
 #endif
+	if (res)
+		return res;
 
 #ifdef CONFIG_DM_I2C
 	return ihs_i2c_send_buffer(dev, chip, buffer, len, false, read);
@@ -270,11 +277,8 @@ static int ihs_i2c_access(struct i2c_adapter *adap, uchar chip, u8 *addr,
 int ihs_i2c_probe(struct udevice *bus)
 {
 	struct ihs_i2c_priv *priv = dev_get_priv(bus);
-	int addr;
 
-	addr = dev_read_u32_default(bus, "reg", -1);
-
-	priv->addr = addr;
+	regmap_init_mem(dev_ofnode(bus), &priv->map);
 
 	return 0;
 }
@@ -284,7 +288,7 @@ static int ihs_i2c_set_bus_speed(struct udevice *bus, uint speed)
 	struct ihs_i2c_priv *priv = dev_get_priv(bus);
 
 	if (speed != priv->speed && priv->speed != 0)
-		return 1;
+		return -EINVAL;
 
 	priv->speed = speed;
 
@@ -301,8 +305,8 @@ static int ihs_i2c_xfer(struct udevice *bus, struct i2c_msg *msg, int nmsgs)
 	 * actucal data) or one message (just data)
 	 */
 	if (nmsgs > 2 || nmsgs == 0) {
-		debug("%s: Only one or two messages are supported.", __func__);
-		return -1;
+		debug("%s: Only one or two messages are supported\n", __func__);
+		return -ENOTSUPP;
 	}
 
 	omsg = nmsgs == 1 ? &dummy : msg;
@@ -322,9 +326,11 @@ static int ihs_i2c_probe_chip(struct udevice *bus, u32 chip_addr,
 			      u32 chip_flags)
 {
 	uchar buffer[2];
+	int res;
 
-	if (ihs_i2c_transfer(bus, chip_addr, buffer, 0, I2COP_READ, true))
-		return 1;
+	res = ihs_i2c_transfer(bus, chip_addr, buffer, 0, I2COP_READ, true);
+	if (res)
+		return res;
 
 	return 0;
 }
@@ -366,9 +372,11 @@ static void ihs_i2c_init(struct i2c_adapter *adap, int speed, int slaveaddr)
 static int ihs_i2c_probe(struct i2c_adapter *adap, uchar chip)
 {
 	uchar buffer[2];
+	int res;
 
-	if (ihs_i2c_transfer(chip, buffer, 0, I2COP_READ, true))
-		return 1;
+	res = ihs_i2c_transfer(chip, buffer, 0, I2COP_READ, true);
+	if (res)
+		return res;
 
 	return 0;
 }
@@ -399,7 +407,7 @@ static unsigned int ihs_i2c_set_bus_speed(struct i2c_adapter *adap,
 					  unsigned int speed)
 {
 	if (speed != adap->speed)
-		return 1;
+		return -EINVAL;
 	return speed;
 }
 

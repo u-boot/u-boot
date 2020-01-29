@@ -23,6 +23,12 @@ static int ast_wdt_start(struct udevice *dev, u64 timeout, ulong flags)
 	ulong driver_data = dev_get_driver_data(dev);
 	u32 reset_mode = ast_reset_mode_from_flags(flags);
 
+	/* 32 bits at 1MHz is 4294967ms */
+	timeout = min_t(u64, timeout, 4294967);
+
+	/* WDT counts in ticks of 1MHz clock. 1ms / 1e3 * 1e6 */
+	timeout *= 1000;
+
 	clrsetbits_le32(&priv->regs->ctrl,
 			WDT_CTRL_RESET_MASK << WDT_CTRL_RESET_MODE_SHIFT,
 			reset_mode << WDT_CTRL_RESET_MODE_SHIFT);

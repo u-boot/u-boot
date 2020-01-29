@@ -6,6 +6,12 @@
  */
 
 #include <common.h>
+#include <dm.h>
+#include <eeprom.h>
+#include <init.h>
+#include <dm/device-internal.h>
+#include <ahci.h>
+#include <env.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
@@ -20,21 +26,20 @@
 #include <asm/mach-imx/mxc_i2c.h>
 #include <asm/mach-imx/sata.h>
 #include <asm/mach-imx/video.h>
-#include <environment.h>
-#include <fsl_esdhc.h>
+#include <dwc_ahsata.h>
+#include <fsl_esdhc_imx.h>
 #include <i2c.h>
 #include <input.h>
 #include <ipu_pixfmt.h>
 #include <linux/fb.h>
 #include <linux/input.h>
 #include <malloc.h>
-#include <micrel.h>
-#include <miiphy.h>
 #include <mmc.h>
 #include <netdev.h>
 #include <power/pmic.h>
 #include <power/pfuze100_pmic.h>
 #include <stdio_dev.h>
+#include <video_console.h>
 
 #include "novena.h"
 
@@ -83,6 +88,8 @@ int drv_keyboard_init(void)
 		.tstc	= novena_gpio_button_tstc,
 	};
 
+	gpio_request(NOVENA_BUTTON_GPIO, "button");
+
 	error = input_init(&button_input, 0);
 	if (error) {
 		debug("%s: Cannot set up input\n", __func__);
@@ -96,60 +103,6 @@ int drv_keyboard_init(void)
 		return error;
 
 	return 0;
-}
-#endif
-
-/*
- * SDHC
- */
-#ifdef CONFIG_FSL_ESDHC
-static struct fsl_esdhc_cfg usdhc_cfg[] = {
-	{ USDHC3_BASE_ADDR, 0, 4 },	/* Micro SD */
-	{ USDHC2_BASE_ADDR, 0, 4 },	/* Big SD */
-};
-
-int board_mmc_getcd(struct mmc *mmc)
-{
-	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
-
-	/* There is no CD for a microSD card, assume always present. */
-	if (cfg->esdhc_base == USDHC3_BASE_ADDR)
-		return 1;
-	else
-		return !gpio_get_value(NOVENA_SD_CD);
-}
-
-int board_mmc_getwp(struct mmc *mmc)
-{
-	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
-
-	/* There is no WP for a microSD card, assume always read-write. */
-	if (cfg->esdhc_base == USDHC3_BASE_ADDR)
-		return 0;
-	else
-		return gpio_get_value(NOVENA_SD_WP);
-}
-
-
-int board_mmc_init(bd_t *bis)
-{
-	s32 status = 0;
-	int index;
-
-	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
-	usdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
-
-	/* Big SD write-protect and card-detect */
-	gpio_direction_input(NOVENA_SD_WP);
-	gpio_direction_input(NOVENA_SD_CD);
-
-	for (index = 0; index < ARRAY_SIZE(usdhc_cfg); index++) {
-		status = fsl_esdhc_initialize(bis, &usdhc_cfg[index]);
-		if (status)
-			return status;
-	}
-
-	return status;
 }
 #endif
 
@@ -167,17 +120,25 @@ int board_init(void)
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
-#ifdef CONFIG_SATA
-	setup_sata();
-#endif
-
 	return 0;
 }
 
 int board_late_init(void)
 {
 #if defined(CONFIG_VIDEO_IPUV3)
+	struct udevice *con;
+	char buf[DISPLAY_OPTIONS_BANNER_LENGTH];
+	int ret;
+
 	setup_display_lvds();
+
+	ret = uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con);
+	if (ret)
+		return ret;
+
+	display_options_get_banner(false, buf, sizeof(buf));
+	vidconsole_position_cursor(con, 0, 0);
+	vidconsole_put_string(con, buf);
 #endif
 	return 0;
 }

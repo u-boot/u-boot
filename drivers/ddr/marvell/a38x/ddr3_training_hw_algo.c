@@ -50,6 +50,7 @@ int ddr3_tip_write_additional_odt_setting(u32 dev_num, u32 if_id)
 	int max_phase = MIN_VALUE, current_phase;
 	enum hws_access_type access_type = ACCESS_TYPE_UNICAST;
 	u32 octets_per_if_num = ddr3_tip_dev_attr_get(dev_num, MV_ATTR_OCTET_PER_INTERFACE);
+	unsigned int max_cs = mv_ddr_cs_num_get();
 
 	CHECK_STATUS(ddr3_tip_if_write(dev_num, access_type, if_id,
 				       DUNIT_ODT_CTRL_REG,
@@ -59,7 +60,7 @@ int ddr3_tip_write_additional_odt_setting(u32 dev_num, u32 if_id)
 				      data_read, MASK_ALL_BITS));
 	val = data_read[if_id];
 
-	for (cs_num = 0; cs_num < MAX_CS_NUM; cs_num++) {
+	for (cs_num = 0; cs_num < max_cs; cs_num++) {
 		read_sample[cs_num] = GET_RD_SAMPLE_DELAY(val, cs_num);
 
 		/* find maximum of read_samples */

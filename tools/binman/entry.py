@@ -7,23 +7,14 @@
 from __future__ import print_function
 
 from collections import namedtuple
-
-# importlib was introduced in Python 2.7 but there was a report of it not
-# working in 2.7.12, so we work around this:
-# http://lists.denx.de/pipermail/u-boot/2016-October/269729.html
-try:
-    import importlib
-    have_importlib = True
-except:
-    have_importlib = False
-
+import importlib
 import os
-from sets import Set
 import sys
 
 import fdt_util
-import state
 import tools
+from tools import ToHex, ToHexSize
+import tout
 
 modules = {}
 
@@ -34,6 +25,10 @@ our_path = os.path.dirname(os.path.realpath(__file__))
 # device-tree properties.
 EntryArg = namedtuple('EntryArg', ['name', 'datatype'])
 
+# Information about an entry for use when displaying summaries
+EntryInfo = namedtuple('EntryInfo', ['indent', 'name', 'etype', 'size',
+                                     'image_pos', 'uncomp_size', 'offset',
+                                     'entry'])
 
 class Entry(object):
     """An Entry in the section
@@ -52,6 +47,10 @@ class Entry(object):
         offset: Offset of entry within the section, None if not known yet (in
             which case it will be calculated by Pack())
         size: Entry size in bytes, None if not known
+        pre_reset_size: size as it was before ResetForPack(). This allows us to
+            keep track of the size we started with and detect size changes
+        uncomp_size: Size of uncompressed data in bytes, if the entry is
+            compressed, else None
         contents_size: Size of contents in bytes, 0 by default
         align: Entry start offset alignment, or None
         align_size: Entry size alignment, or None
@@ -59,14 +58,23 @@ class Entry(object):
         pad_before: Number of pad bytes before the contents, 0 if none
         pad_after: Number of pad bytes after the contents, 0 if none
         data: Contents of entry (string of bytes)
+        compress: Compression algoithm used (e.g. 'lz4'), 'none' if none
+        orig_offset: Original offset value read from node
+        orig_size: Original size value read from node
     """
-    def __init__(self, section, etype, node, read_node=True, name_prefix=''):
+    def __init__(self, section, etype, node, name_prefix=''):
+        # Put this here to allow entry-docs and help to work without libfdt
+        global state
+        import state
+
         self.section = section
         self.etype = etype
         self._node = node
         self.name = node and (name_prefix + node.name) or 'none'
         self.offset = None
         self.size = None
+        self.pre_reset_size = None
+        self.uncomp_size = None
         self.data = None
         self.contents_size = 0
         self.align = None
@@ -77,15 +85,13 @@ class Entry(object):
         self.offset_unset = False
         self.image_pos = None
         self._expand_size = False
-        if read_node:
-            self.ReadNode()
+        self.compress = 'none'
 
     @staticmethod
-    def Lookup(section, node_path, etype):
+    def Lookup(node_path, etype):
         """Look up the entry class for a node.
 
         Args:
-            section:   Section object containing this node
             node_node: Path name of Node object containing information about
                        the entry to create (used for errors)
             etype:   Entry type to use
@@ -107,10 +113,7 @@ class Entry(object):
             old_path = sys.path
             sys.path.insert(0, os.path.join(our_path, 'etype'))
             try:
-                if have_importlib:
-                    module = importlib.import_module(module_name)
-                else:
-                    module = __import__(module_name)
+                module = importlib.import_module(module_name)
             except ImportError as e:
                 raise ValueError("Unknown entry type '%s' in node '%s' (expected etype/%s.py, error '%s'" %
                                  (etype, node_path, module_name, e))
@@ -136,7 +139,7 @@ class Entry(object):
         """
         if not etype:
             etype = fdt_util.GetString(node, 'type', node.name)
-        obj = Entry.Lookup(section, node.path, etype)
+        obj = Entry.Lookup(node.path, etype)
 
         # Call its constructor to get the object we want.
         return obj(section, etype, node)
@@ -144,12 +147,25 @@ class Entry(object):
     def ReadNode(self):
         """Read entry information from the node
 
+        This must be called as the first thing after the Entry is created.
+
         This reads all the fields we recognise from the node, ready for use.
         """
         if 'pos' in self._node.props:
             self.Raise("Please use 'offset' instead of 'pos'")
         self.offset = fdt_util.GetInt(self._node, 'offset')
         self.size = fdt_util.GetInt(self._node, 'size')
+        self.orig_offset = fdt_util.GetInt(self._node, 'orig-offset')
+        self.orig_size = fdt_util.GetInt(self._node, 'orig-size')
+        if self.GetImage().copy_to_orig:
+            self.orig_offset = self.offset
+            self.orig_size = self.size
+
+        # These should not be set in input files, but are set in an FDT map,
+        # which is also read by this code.
+        self.image_pos = fdt_util.GetInt(self._node, 'image-pos')
+        self.uncomp_size = fdt_util.GetInt(self._node, 'uncomp-size')
+
         self.align = fdt_util.GetInt(self._node, 'align')
         if tools.NotPowerOfTwo(self.align):
             raise ValueError("Node '%s': Alignment %s must be a power of two" %
@@ -158,8 +174,8 @@ class Entry(object):
         self.pad_after = fdt_util.GetInt(self._node, 'pad-after', 0)
         self.align_size = fdt_util.GetInt(self._node, 'align-size')
         if tools.NotPowerOfTwo(self.align_size):
-            raise ValueError("Node '%s': Alignment size %s must be a power "
-                             "of two" % (self._node.path, self.align_size))
+            self.Raise("Alignment size %s must be a power of two" %
+                       self.align_size)
         self.align_end = fdt_util.GetInt(self._node, 'align-end')
         self.offset_unset = fdt_util.GetBool(self._node, 'offset-unset')
         self.expand_size = fdt_util.GetBool(self._node, 'expand-size')
@@ -167,19 +183,18 @@ class Entry(object):
     def GetDefaultFilename(self):
         return None
 
-    def GetFdtSet(self):
-        """Get the set of device trees used by this entry
+    def GetFdts(self):
+        """Get the device trees used by this entry
 
         Returns:
-            Set containing the filename from this entry, if it is a .dtb, else
-            an empty set
+            Empty dict, if this entry is not a .dtb, otherwise:
+            Dict:
+                key: Filename from this entry (without the path)
+                value: Tuple:
+                    Fdt object for this dtb, or None if not available
+                    Filename of file containing this dtb
         """
-        fname = self.GetDefaultFilename()
-        # It would be better to use isinstance(self, Entry_blob_dtb) here but
-        # we cannot access Entry_blob_dtb
-        if fname and fname.endswith('.dtb'):
-            return Set([fname])
-        return Set()
+        return {}
 
     def ExpandEntries(self):
         pass
@@ -189,6 +204,14 @@ class Entry(object):
         for prop in ['offset', 'size', 'image-pos']:
             if not prop in self._node.props:
                 state.AddZeroProp(self._node, prop)
+        if self.GetImage().allow_repack:
+            if self.orig_offset is not None:
+                state.AddZeroProp(self._node, 'orig-offset', True)
+            if self.orig_size is not None:
+                state.AddZeroProp(self._node, 'orig-size', True)
+
+        if self.compress != 'none':
+            state.AddZeroProp(self._node, 'uncomp-size')
         err = state.CheckAddHashProp(self._node)
         if err:
             self.Raise(err)
@@ -197,8 +220,15 @@ class Entry(object):
         """Set the value of device-tree properties calculated by binman"""
         state.SetInt(self._node, 'offset', self.offset)
         state.SetInt(self._node, 'size', self.size)
-        state.SetInt(self._node, 'image-pos',
-                       self.image_pos - self.section.GetRootSkipAtStart())
+        base = self.section.GetRootSkipAtStart() if self.section else 0
+        state.SetInt(self._node, 'image-pos', self.image_pos - base)
+        if self.GetImage().allow_repack:
+            if self.orig_offset is not None:
+                state.SetInt(self._node, 'orig-offset', self.orig_offset, True)
+            if self.orig_size is not None:
+                state.SetInt(self._node, 'orig-size', self.orig_size, True)
+        if self.uncomp_size is not None:
+            state.SetInt(self._node, 'uncomp-size', self.uncomp_size)
         state.CheckSetHashValue(self._node, self.GetData)
 
     def ProcessFdt(self, fdt):
@@ -230,26 +260,47 @@ class Entry(object):
         This sets both the data and content_size properties
 
         Args:
-            data: Data to set to the contents (string)
+            data: Data to set to the contents (bytes)
         """
         self.data = data
         self.contents_size = len(self.data)
 
     def ProcessContentsUpdate(self, data):
-        """Update the contens of an entry, after the size is fixed
+        """Update the contents of an entry, after the size is fixed
 
-        This checks that the new data is the same size as the old.
+        This checks that the new data is the same size as the old. If the size
+        has changed, this triggers a re-run of the packing algorithm.
 
         Args:
-            data: Data to set to the contents (string)
+            data: Data to set to the contents (bytes)
 
         Raises:
             ValueError if the new data size is not the same as the old
         """
-        if len(data) != self.contents_size:
-            self.Raise('Cannot update entry size from %d to %d' %
-                       (len(data), self.contents_size))
+        size_ok = True
+        new_size = len(data)
+        if state.AllowEntryExpansion() and new_size > self.contents_size:
+            # self.data will indicate the new size needed
+            size_ok = False
+        elif state.AllowEntryContraction() and new_size < self.contents_size:
+            size_ok = False
+
+        # If not allowed to change, try to deal with it or give up
+        if size_ok:
+            if new_size > self.contents_size:
+                self.Raise('Cannot update entry size from %d to %d' %
+                        (self.contents_size, new_size))
+
+            # Don't let the data shrink. Pad it if necessary
+            if size_ok and new_size < self.contents_size:
+                data += tools.GetBytes(0, self.contents_size - new_size)
+
+        if not size_ok:
+            tout.Debug("Entry '%s' size change from %s to %s" % (
+                self._node.path, ToHex(self.contents_size),
+                ToHex(new_size)))
         self.SetContents(data)
+        return size_ok
 
     def ObtainContents(self):
         """Figure out the contents of an entry.
@@ -260,6 +311,15 @@ class Entry(object):
         """
         # No contents by default: subclasses can implement this
         return True
+
+    def ResetForPack(self):
+        """Reset offset/size fields so that packing can be done again"""
+        self.Detail('ResetForPack: offset %s->%s, size %s->%s' %
+                    (ToHex(self.offset), ToHex(self.orig_offset),
+                     ToHex(self.size), ToHex(self.orig_size)))
+        self.pre_reset_size = self.size
+        self.offset = self.orig_offset
+        self.size = self.orig_size
 
     def Pack(self, offset):
         """Figure out how to pack the entry into the section
@@ -279,6 +339,9 @@ class Entry(object):
         Returns:
             New section offset pointer (after this entry)
         """
+        self.Detail('Packing: offset=%s, size=%s, content_size=%x' %
+                    (ToHex(self.offset), ToHex(self.size),
+                     self.contents_size))
         if self.offset is None:
             if self.offset_unset:
                 self.Raise('No offset set with offset-unset: should another '
@@ -310,12 +373,19 @@ class Entry(object):
         if self.offset != tools.Align(self.offset, self.align):
             self.Raise("Offset %#x (%d) does not match align %#x (%d)" %
                   (self.offset, self.offset, self.align, self.align))
+        self.Detail('   - packed: offset=%#x, size=%#x, content_size=%#x, next_offset=%x' %
+                    (self.offset, self.size, self.contents_size, new_offset))
 
         return new_offset
 
     def Raise(self, msg):
         """Convenience function to raise an error referencing a node"""
         raise ValueError("Node '%s': %s" % (self._node.path, msg))
+
+    def Detail(self, msg):
+        """Convenience function to log detail referencing a node"""
+        tag = "Node '%s'" % self._node.path
+        tout.Detail('%30s: %s' % (tag, msg))
 
     def GetEntryArgsOrProps(self, props, required=False):
         """Return the values of a set of properties
@@ -353,14 +423,38 @@ class Entry(object):
         return self._node.path
 
     def GetData(self):
+        self.Detail('GetData: size %s' % ToHexSize(self.data))
         return self.data
 
     def GetOffsets(self):
+        """Get the offsets for siblings
+
+        Some entry types can contain information about the position or size of
+        other entries. An example of this is the Intel Flash Descriptor, which
+        knows where the Intel Management Engine section should go.
+
+        If this entry knows about the position of other entries, it can specify
+        this by returning values here
+
+        Returns:
+            Dict:
+                key: Entry type
+                value: List containing position and size of the given entry
+                    type. Either can be None if not known
+        """
         return {}
 
-    def SetOffsetSize(self, pos, size):
-        self.offset = pos
-        self.size = size
+    def SetOffsetSize(self, offset, size):
+        """Set the offset and/or size of an entry
+
+        Args:
+            offset: New offset, or None to leave alone
+            size: New size, or None to leave alone
+        """
+        if offset is not None:
+            self.offset = offset
+        if size is not None:
+            self.size = size
 
     def SetImagePos(self, image_pos):
         """Set the position in the image
@@ -371,7 +465,22 @@ class Entry(object):
         self.image_pos = image_pos + self.offset
 
     def ProcessContents(self):
-        pass
+        """Do any post-packing updates of entry contents
+
+        This function should call ProcessContentsUpdate() to update the entry
+        contents, if necessary, returning its return value here.
+
+        Args:
+            data: Data to set to the contents (bytes)
+
+        Returns:
+            True if the new data size is OK, False if expansion is needed
+
+        Raises:
+            ValueError if the new data size is not the same as the old and
+                state.AllowEntryExpansion() is False
+        """
+        return True
 
     def WriteSymbols(self, section):
         """Write symbol values into binary files for access at run time
@@ -483,7 +592,9 @@ features to produce new behaviours.
             modules.remove('_testing')
         missing = []
         for name in modules:
-            module = Entry.Lookup(name, name, name)
+            if name.startswith('__'):
+                continue
+            module = Entry.Lookup(name, name)
             docs = getattr(module, '__doc__')
             if test_missing == name:
                 docs = None
@@ -530,3 +641,164 @@ features to produce new behaviours.
             # the data grows. This should not fail, but check it to be sure.
             if not self.ObtainContents():
                 self.Raise('Cannot obtain contents when expanding entry')
+
+    def HasSibling(self, name):
+        """Check if there is a sibling of a given name
+
+        Returns:
+            True if there is an entry with this name in the the same section,
+                else False
+        """
+        return name in self.section.GetEntries()
+
+    def GetSiblingImagePos(self, name):
+        """Return the image position of the given sibling
+
+        Returns:
+            Image position of sibling, or None if the sibling has no position,
+                or False if there is no such sibling
+        """
+        if not self.HasSibling(name):
+            return False
+        return self.section.GetEntries()[name].image_pos
+
+    @staticmethod
+    def AddEntryInfo(entries, indent, name, etype, size, image_pos,
+                     uncomp_size, offset, entry):
+        """Add a new entry to the entries list
+
+        Args:
+            entries: List (of EntryInfo objects) to add to
+            indent: Current indent level to add to list
+            name: Entry name (string)
+            etype: Entry type (string)
+            size: Entry size in bytes (int)
+            image_pos: Position within image in bytes (int)
+            uncomp_size: Uncompressed size if the entry uses compression, else
+                None
+            offset: Entry offset within parent in bytes (int)
+            entry: Entry object
+        """
+        entries.append(EntryInfo(indent, name, etype, size, image_pos,
+                                 uncomp_size, offset, entry))
+
+    def ListEntries(self, entries, indent):
+        """Add files in this entry to the list of entries
+
+        This can be overridden by subclasses which need different behaviour.
+
+        Args:
+            entries: List (of EntryInfo objects) to add to
+            indent: Current indent level to add to list
+        """
+        self.AddEntryInfo(entries, indent, self.name, self.etype, self.size,
+                          self.image_pos, self.uncomp_size, self.offset, self)
+
+    def ReadData(self, decomp=True):
+        """Read the data for an entry from the image
+
+        This is used when the image has been read in and we want to extract the
+        data for a particular entry from that image.
+
+        Args:
+            decomp: True to decompress any compressed data before returning it;
+                False to return the raw, uncompressed data
+
+        Returns:
+            Entry data (bytes)
+        """
+        # Use True here so that we get an uncompressed section to work from,
+        # although compressed sections are currently not supported
+        tout.Debug("ReadChildData section '%s', entry '%s'" %
+                   (self.section.GetPath(), self.GetPath()))
+        data = self.section.ReadChildData(self, decomp)
+        return data
+
+    def ReadChildData(self, child, decomp=True):
+        """Read the data for a particular child entry
+
+        This reads data from the parent and extracts the piece that relates to
+        the given child.
+
+        Args:
+            child: Child entry to read data for (must be valid)
+            decomp: True to decompress any compressed data before returning it;
+                False to return the raw, uncompressed data
+
+        Returns:
+            Data for the child (bytes)
+        """
+        pass
+
+    def LoadData(self, decomp=True):
+        data = self.ReadData(decomp)
+        self.contents_size = len(data)
+        self.ProcessContentsUpdate(data)
+        self.Detail('Loaded data size %x' % len(data))
+
+    def GetImage(self):
+        """Get the image containing this entry
+
+        Returns:
+            Image object containing this entry
+        """
+        return self.section.GetImage()
+
+    def WriteData(self, data, decomp=True):
+        """Write the data to an entry in the image
+
+        This is used when the image has been read in and we want to replace the
+        data for a particular entry in that image.
+
+        The image must be re-packed and written out afterwards.
+
+        Args:
+            data: Data to replace it with
+            decomp: True to compress the data if needed, False if data is
+                already compressed so should be used as is
+
+        Returns:
+            True if the data did not result in a resize of this entry, False if
+                 the entry must be resized
+        """
+        if self.size is not None:
+            self.contents_size = self.size
+        else:
+            self.contents_size = self.pre_reset_size
+        ok = self.ProcessContentsUpdate(data)
+        self.Detail('WriteData: size=%x, ok=%s' % (len(data), ok))
+        section_ok = self.section.WriteChildData(self)
+        return ok and section_ok
+
+    def WriteChildData(self, child):
+        """Handle writing the data in a child entry
+
+        This should be called on the child's parent section after the child's
+        data has been updated. It
+
+        This base-class implementation does nothing, since the base Entry object
+        does not have any children.
+
+        Args:
+            child: Child Entry that was written
+
+        Returns:
+            True if the section could be updated successfully, False if the
+                data is such that the section could not updat
+        """
+        return True
+
+    def GetSiblingOrder(self):
+        """Get the relative order of an entry amoung its siblings
+
+        Returns:
+            'start' if this entry is first among siblings, 'end' if last,
+                otherwise None
+        """
+        entries = list(self.section.GetEntries().values())
+        if entries:
+            if self == entries[0]:
+                return 'start'
+            elif self == entries[-1]:
+                return 'end'
+        return 'middle'

@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <time.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/timer.h>
@@ -33,6 +34,9 @@ static void lpc32xx_timer_reset(struct timer_regs *timer, u32 freq)
 
 	/* Set prescale counter value */
 	writel((get_periph_clk_rate() / freq) - 1, &timer->pr);
+
+	/* Ensure that the counter is not reset when matching TC */
+	writel(0,  &timer->mcr);
 }
 
 static void lpc32xx_timer_count(struct timer_regs *timer, int enable)

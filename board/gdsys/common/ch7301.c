@@ -6,6 +6,8 @@
 
 /* Chrontel CH7301C DVI Transmitter */
 
+#ifdef CONFIG_GDSYS_LEGACY_DRIVERS
+
 #include <common.h>
 #include <asm/io.h>
 #include <errno.h>
@@ -61,3 +63,5 @@ int ch7301_probe(unsigned screen, bool power)
 
 	return 0;
 }
+
+#endif /* CONFIG_GDSYS_LEGACY_DRIVERS */

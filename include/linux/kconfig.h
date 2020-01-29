@@ -75,6 +75,7 @@
  * CONFIG_VAL(FOO) evaluates to the value of
  *  CONFIG_FOO if CONFIG_SPL_BUILD is undefined,
  *  CONFIG_SPL_FOO if CONFIG_SPL_BUILD is defined.
+ *  CONFIG_TPL_FOO if CONFIG_TPL_BUILD is defined.
  */
 #define CONFIG_VAL(option)  config_val(option)
 
@@ -82,6 +83,7 @@
  * CONFIG_IS_ENABLED(FOO) evaluates to
  *  1 if CONFIG_SPL_BUILD is undefined and CONFIG_FOO is set to 'y' or 'm',
  *  1 if CONFIG_SPL_BUILD is defined and CONFIG_SPL_FOO is set to 'y' or 'm',
+ *  1 if CONFIG_TPL_BUILD is defined and CONFIG_TPL_FOO is set to 'y' or 'm',
  *  0 otherwise.
  */
 #define CONFIG_IS_ENABLED(option) \

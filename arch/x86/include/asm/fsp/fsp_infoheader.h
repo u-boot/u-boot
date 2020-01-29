@@ -33,6 +33,19 @@ struct __packed fsp_header {
 #define FSP_HEADER_REVISION_1		1
 #define FSP_HEADER_REVISION_2		2
 
-#define FSP_ATTR_GRAPHICS_SUPPORT	(1 << 0)
+enum fsp_type {
+	FSP_ATTR_COMP_TYPE_FSP_T	= 1,
+	FSP_ATTR_COMP_TYPE_FSP_M	= 2,
+	FSP_ATTR_COMP_TYPE_FSP_S	= 3,
+};
+
+enum {
+	FSP_ATTR_GRAPHICS_SUPPORT	= 1 << 0,
+	FSP_ATTR_COMP_TYPE_SHIFT	= 28,
+	FSP_ATTR_COMP_TYPE_MASK		= 0xfU << FSP_ATTR_COMP_TYPE_SHIFT,
+
+};
+
+#define EFI_FSPH_SIGNATURE		SIGNATURE_32('F', 'S', 'P', 'H')
 
 #endif

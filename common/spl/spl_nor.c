@@ -6,7 +6,6 @@
 #include <common.h>
 #include <spl.h>
 
-#ifdef CONFIG_SPL_LOAD_FIT
 static ulong spl_nor_load_read(struct spl_load_info *load, ulong sector,
 			       ulong count, void *buf)
 {
@@ -16,7 +15,11 @@ static ulong spl_nor_load_read(struct spl_load_info *load, ulong sector,
 
 	return count;
 }
-#endif
+
+unsigned long __weak spl_nor_get_uboot_base(void)
+{
+	return CONFIG_SYS_UBOOT_BASE;
+}
 
 static int spl_nor_load_image(struct spl_image_info *spl_image,
 			      struct spl_boot_device *bootdev)
@@ -48,6 +51,11 @@ static int spl_nor_load_image(struct spl_image_info *spl_image,
 						  CONFIG_SYS_OS_BASE,
 						  (void *)header);
 
+#if defined CONFIG_SYS_SPL_ARGS_ADDR && defined CONFIG_CMD_SPL_NOR_OFS
+			memcpy((void *)CONFIG_SYS_SPL_ARGS_ADDR,
+			       (void *)CONFIG_CMD_SPL_NOR_OFS,
+			       CONFIG_CMD_SPL_WRITE_SIZE);
+#endif
 			return ret;
 		}
 #endif
@@ -80,25 +88,32 @@ static int spl_nor_load_image(struct spl_image_info *spl_image,
 	 * defined location in SDRAM
 	 */
 #ifdef CONFIG_SPL_LOAD_FIT
-	header = (const struct image_header *)CONFIG_SYS_UBOOT_BASE;
+	header = (const struct image_header *)spl_nor_get_uboot_base();
 	if (image_get_magic(header) == FDT_MAGIC) {
 		debug("Found FIT format U-Boot\n");
 		load.bl_len = 1;
 		load.read = spl_nor_load_read;
 		ret = spl_load_simple_fit(spl_image, &load,
-					  CONFIG_SYS_UBOOT_BASE,
+					  spl_nor_get_uboot_base(),
 					  (void *)header);
 
 		return ret;
 	}
 #endif
+	if (IS_ENABLED(CONFIG_SPL_LOAD_IMX_CONTAINER)) {
+		load.bl_len = 1;
+		load.read = spl_nor_load_read;
+		return spl_load_imx_container(spl_image, &load,
+					      spl_nor_get_uboot_base());
+	}
+
 	ret = spl_parse_image_header(spl_image,
-			(const struct image_header *)CONFIG_SYS_UBOOT_BASE);
+			(const struct image_header *)spl_nor_get_uboot_base());
 	if (ret)
 		return ret;
 
 	memcpy((void *)(unsigned long)spl_image->load_addr,
-	       (void *)(CONFIG_SYS_UBOOT_BASE + sizeof(struct image_header)),
+	       (void *)(spl_nor_get_uboot_base() + sizeof(struct image_header)),
 	       spl_image->size);
 
 	return 0;

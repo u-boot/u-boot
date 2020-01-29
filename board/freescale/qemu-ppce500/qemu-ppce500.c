@@ -5,6 +5,9 @@
 
 #include <common.h>
 #include <command.h>
+#include <cpu_func.h>
+#include <env.h>
+#include <init.h>
 #include <pci.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>

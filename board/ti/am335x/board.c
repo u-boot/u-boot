@@ -9,7 +9,9 @@
 
 #include <common.h>
 #include <dm.h>
+#include <env.h>
 #include <errno.h>
+#include <init.h>
 #include <spl.h>
 #include <serial.h>
 #include <asm/arch/cpu.h>
@@ -33,9 +35,8 @@
 #include <cpsw.h>
 #include <power/tps65217.h>
 #include <power/tps65910.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <watchdog.h>
-#include <environment.h>
 #include "../common/board_detect.h"
 #include "board.h"
 
@@ -709,7 +710,7 @@ int board_init(void)
 #endif
 
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
-#if defined(CONFIG_NOR) || defined(CONFIG_NAND)
+#if defined(CONFIG_NOR) || defined(CONFIG_MTD_RAW_NAND)
 	gpmc_init();
 #endif
 
@@ -791,6 +792,7 @@ int board_init(void)
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
+	struct udevice *dev;
 #if !defined(CONFIG_SPL_BUILD)
 	uint8_t mac_addr[6];
 	uint32_t mac_hi, mac_lo;
@@ -871,160 +873,61 @@ int board_late_init(void)
 			env_set("serial#", board_serial);
 	}
 
+	/* Just probe the potentially supported cdce913 device */
+	uclass_get_device(UCLASS_CLK, 0, &dev);
+
 	return 0;
 }
 #endif
 
-#ifndef CONFIG_DM_ETH
-
-#if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) || \
-	(defined(CONFIG_SPL_ETH_SUPPORT) && defined(CONFIG_SPL_BUILD))
-static void cpsw_control(int enabled)
-{
-	/* VTP can be added here */
-
-	return;
-}
-
-static struct cpsw_slave_data cpsw_slaves[] = {
+/* CPSW platdata */
+#if !CONFIG_IS_ENABLED(OF_CONTROL)
+struct cpsw_slave_data slave_data[] = {
 	{
-		.slave_reg_ofs	= 0x208,
-		.sliver_reg_ofs	= 0xd80,
-		.phy_addr	= 0,
+		.slave_reg_ofs  = CPSW_SLAVE0_OFFSET,
+		.sliver_reg_ofs = CPSW_SLIVER0_OFFSET,
+		.phy_addr       = 0,
 	},
 	{
-		.slave_reg_ofs	= 0x308,
-		.sliver_reg_ofs	= 0xdc0,
-		.phy_addr	= 1,
+		.slave_reg_ofs  = CPSW_SLAVE1_OFFSET,
+		.sliver_reg_ofs = CPSW_SLIVER1_OFFSET,
+		.phy_addr       = 1,
 	},
 };
 
-static struct cpsw_platform_data cpsw_data = {
-	.mdio_base		= CPSW_MDIO_BASE,
+struct cpsw_platform_data am335_eth_data = {
 	.cpsw_base		= CPSW_BASE,
-	.mdio_div		= 0xff,
-	.channels		= 8,
-	.cpdma_reg_ofs		= 0x800,
-	.slaves			= 1,
-	.slave_data		= cpsw_slaves,
-	.ale_reg_ofs		= 0xd00,
-	.ale_entries		= 1024,
-	.host_port_reg_ofs	= 0x108,
-	.hw_stats_reg_ofs	= 0x900,
-	.bd_ram_ofs		= 0x2000,
-	.mac_control		= (1 << 5),
-	.control		= cpsw_control,
-	.host_port_num		= 0,
 	.version		= CPSW_CTRL_VERSION_2,
+	.bd_ram_ofs		= CPSW_BD_OFFSET,
+	.ale_reg_ofs		= CPSW_ALE_OFFSET,
+	.cpdma_reg_ofs		= CPSW_CPDMA_OFFSET,
+	.mdio_div		= CPSW_MDIO_DIV,
+	.host_port_reg_ofs	= CPSW_HOST_PORT_OFFSET,
+	.channels		= 8,
+	.slaves			= 2,
+	.slave_data		= slave_data,
+	.ale_entries		= 1024,
+	.bd_ram_ofs		= 0x2000,
+	.mac_control		= 0x20,
+	.active_slave		= 0,
+	.mdio_base		= 0x4a101000,
+	.gmii_sel		= 0x44e10650,
+	.phy_sel_compat		= "ti,am3352-cpsw-phy-sel",
+	.syscon_addr		= 0x44e10630,
+	.macid_sel_compat	= "cpsw,am33xx",
+};
+
+struct eth_pdata cpsw_pdata = {
+	.iobase = 0x4a100000,
+	.phy_interface = 0,
+	.priv_pdata = &am335_eth_data,
+};
+
+U_BOOT_DEVICE(am335x_eth) = {
+	.name = "eth_cpsw",
+	.platdata = &cpsw_pdata,
 };
 #endif
-
-#if ((defined(CONFIG_SPL_ETH_SUPPORT) || defined(CONFIG_SPL_USB_ETHER)) &&\
-	defined(CONFIG_SPL_BUILD)) || \
-	((defined(CONFIG_DRIVER_TI_CPSW) || \
-	  defined(CONFIG_USB_ETHER) && defined(CONFIG_MUSB_GADGET)) && \
-	 !defined(CONFIG_SPL_BUILD))
-
-/*
- * This function will:
- * Read the eFuse for MAC addresses, and set ethaddr/eth1addr/usbnet_devaddr
- * in the environment
- * Perform fixups to the PHY present on certain boards.  We only need this
- * function in:
- * - SPL with either CPSW or USB ethernet support
- * - Full U-Boot, with either CPSW or USB ethernet
- * Build in only these cases to avoid warnings about unused variables
- * when we build an SPL that has neither option but full U-Boot will.
- */
-int board_eth_init(bd_t *bis)
-{
-	int rv, n = 0;
-#if defined(CONFIG_USB_ETHER) && \
-	(!defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_USB_ETHER))
-	uint8_t mac_addr[6];
-	uint32_t mac_hi, mac_lo;
-
-	/*
-	 * use efuse mac address for USB ethernet as we know that
-	 * both CPSW and USB ethernet will never be active at the same time
-	 */
-	mac_lo = readl(&cdev->macid0l);
-	mac_hi = readl(&cdev->macid0h);
-	mac_addr[0] = mac_hi & 0xFF;
-	mac_addr[1] = (mac_hi & 0xFF00) >> 8;
-	mac_addr[2] = (mac_hi & 0xFF0000) >> 16;
-	mac_addr[3] = (mac_hi & 0xFF000000) >> 24;
-	mac_addr[4] = mac_lo & 0xFF;
-	mac_addr[5] = (mac_lo & 0xFF00) >> 8;
-#endif
-
-
-#if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) || \
-	(defined(CONFIG_SPL_ETH_SUPPORT) && defined(CONFIG_SPL_BUILD))
-
-#ifdef CONFIG_DRIVER_TI_CPSW
-	if (board_is_bone() || board_is_bone_lt() || board_is_bben() ||
-	    board_is_idk()) {
-		writel(MII_MODE_ENABLE, &cdev->miisel);
-		cpsw_slaves[0].phy_if = cpsw_slaves[1].phy_if =
-				PHY_INTERFACE_MODE_MII;
-	} else if (board_is_icev2()) {
-		writel(RMII_MODE_ENABLE | RMII_CHIPCKL_ENABLE, &cdev->miisel);
-		cpsw_slaves[0].phy_if = PHY_INTERFACE_MODE_RMII;
-		cpsw_slaves[1].phy_if = PHY_INTERFACE_MODE_RMII;
-		cpsw_slaves[0].phy_addr = 1;
-		cpsw_slaves[1].phy_addr = 3;
-	} else {
-		writel((RGMII_MODE_ENABLE | RGMII_INT_DELAY), &cdev->miisel);
-		cpsw_slaves[0].phy_if = cpsw_slaves[1].phy_if =
-				PHY_INTERFACE_MODE_RGMII;
-	}
-
-	rv = cpsw_register(&cpsw_data);
-	if (rv < 0)
-		printf("Error %d registering CPSW switch\n", rv);
-	else
-		n += rv;
-#endif
-
-	/*
-	 *
-	 * CPSW RGMII Internal Delay Mode is not supported in all PVT
-	 * operating points.  So we must set the TX clock delay feature
-	 * in the AR8051 PHY.  Since we only support a single ethernet
-	 * device in U-Boot, we only do this for the first instance.
-	 */
-#define AR8051_PHY_DEBUG_ADDR_REG	0x1d
-#define AR8051_PHY_DEBUG_DATA_REG	0x1e
-#define AR8051_DEBUG_RGMII_CLK_DLY_REG	0x5
-#define AR8051_RGMII_TX_CLK_DLY		0x100
-
-	if (board_is_evm_sk() || board_is_gp_evm() || board_is_bben()) {
-		const char *devname;
-		devname = miiphy_get_current_dev();
-
-		miiphy_write(devname, 0x0, AR8051_PHY_DEBUG_ADDR_REG,
-				AR8051_DEBUG_RGMII_CLK_DLY_REG);
-		miiphy_write(devname, 0x0, AR8051_PHY_DEBUG_DATA_REG,
-				AR8051_RGMII_TX_CLK_DLY);
-	}
-#endif
-#if defined(CONFIG_USB_ETHER) && \
-	(!defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_USB_ETHER))
-	if (is_valid_ethaddr(mac_addr))
-		eth_env_set_enetaddr("usbnet_devaddr", mac_addr);
-
-	rv = usb_eth_initialize(bis);
-	if (rv < 0)
-		printf("Error %d registering USB_ETHER\n", rv);
-	else
-		n += rv;
-#endif
-	return n;
-}
-#endif
-
-#endif /* CONFIG_DM_ETH */
 
 #ifdef CONFIG_SPL_LOAD_FIT
 int board_fit_config_name_match(const char *name)

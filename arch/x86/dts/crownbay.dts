@@ -10,6 +10,7 @@
 /include/ "skeleton.dtsi"
 /include/ "serial.dtsi"
 /include/ "keyboard.dtsi"
+/include/ "pcspkr.dtsi"
 /include/ "reset.dtsi"
 /include/ "rtc.dtsi"
 /include/ "tsc_timer.dtsi"
@@ -223,7 +224,7 @@
 				spi-flash@0 {
 					reg = <0>;
 					compatible = "sst,25vf016b",
-						"spi-flash";
+						"jedec,spi-nor";
 					memory-map = <0xffe00000 0x00200000>;
 				};
 			};

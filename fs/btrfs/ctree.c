@@ -185,10 +185,20 @@ int btrfs_search_tree(const struct btrfs_root *root, struct btrfs_key *key,
 		p->slots[lvl] = slot;
 		p->nodes[lvl] = buf;
 
-		if (lvl)
+		if (lvl) {
 			logical = buf->node.ptrs[slot].blockptr;
-		else
+		} else {
+			/*
+			 * The path might be invalid if:
+			 *   cur leaf max < searched value < next leaf min
+			 *
+			 * Jump to the next valid element if it exists.
+			 */
+			if (slot >= buf->header.nritems)
+				if (btrfs_next_slot(p) < 0)
+					goto err;
 			break;
+		}
 	}
 
 	return 0;

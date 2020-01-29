@@ -9,6 +9,7 @@
  * Copyright (C) 2015 Stefan Roese <sr@denx.de>
  */
 
+#include <init.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/mx6-pins.h>
@@ -21,11 +22,10 @@
 #include <asm/mach-imx/mxc_i2c.h>
 
 #include <common.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
 #include <linux/libfdt.h>
 #include <malloc.h>
 #include <i2c.h>
-#include <micrel.h>
 #include <miiphy.h>
 #include <mmc.h>
 #include <netdev.h>

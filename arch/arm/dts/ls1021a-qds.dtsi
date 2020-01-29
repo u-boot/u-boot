@@ -11,11 +11,11 @@
 	model = "LS1021A QDS Board";
 
 	aliases {
-		enet0_rgmii_phy = &rgmii_phy1;
-		enet1_rgmii_phy = &rgmii_phy2;
-		enet2_rgmii_phy = &rgmii_phy3;
-		enet0_sgmii_phy = &sgmii_phy1c;
-		enet1_sgmii_phy = &sgmii_phy1d;
+		enet0-rgmii-phy = &rgmii_phy1;
+		enet1-rgmii-phy = &rgmii_phy2;
+		enet2-rgmii-phy = &rgmii_phy3;
+		enet0-sgmii-phy = &sgmii_phy1c;
+		enet1-sgmii-phy = &sgmii_phy1d;
 		spi0 = &qspi;
 		spi1 = &dspi0;
 	};
@@ -43,7 +43,7 @@
 	qflash0: s25fl128s@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <20000000>;
 		reg = <0>;
 	};

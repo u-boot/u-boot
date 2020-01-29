@@ -9,9 +9,10 @@ ENTRY(_start)
 
 SECTIONS
 {
-	. = 0xfffffdf0;
+	. = 0xfffffe14;
 	_start = .;
 	.ucode : {
 		*(.ucode)
 	}
+	.interp : { *(.interp*) }
 }

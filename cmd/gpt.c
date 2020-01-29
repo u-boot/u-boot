@@ -11,6 +11,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <malloc.h>
 #include <command.h>
 #include <part_efi.h>
@@ -876,21 +877,21 @@ U_BOOT_CMD(gpt, CONFIG_SYS_MAXARGS, 1, do_gpt,
 	" Example usage:\n"
 	" gpt write mmc 0 $partitions\n"
 	" gpt verify mmc 0 $partitions\n"
-	" read <interface> <dev>\n"
-	"    - read GPT into a data structure for manipulation\n"
-	" guid <interface> <dev>\n"
+	" gpt guid <interface> <dev>\n"
 	"    - print disk GUID\n"
-	" guid <interface> <dev> <varname>\n"
+	" gpt guid <interface> <dev> <varname>\n"
 	"    - set environment variable to disk GUID\n"
 	" Example usage:\n"
 	" gpt guid mmc 0\n"
 	" gpt guid mmc 0 varname\n"
 #ifdef CONFIG_CMD_GPT_RENAME
 	"gpt partition renaming commands:\n"
-	"gpt swap <interface> <dev> <name1> <name2>\n"
+	" gpt read <interface> <dev>\n"
+	"    - read GPT into a data structure for manipulation\n"
+	" gpt swap <interface> <dev> <name1> <name2>\n"
 	"    - change all partitions named name1 to name2\n"
 	"      and vice-versa\n"
-	"gpt rename <interface> <dev> <part> <name>\n"
+	" gpt rename <interface> <dev> <part> <name>\n"
 	"    - rename the specified partition\n"
 	" Example usage:\n"
 	" gpt swap mmc 0 foo bar\n"

@@ -57,7 +57,7 @@ writing of this document, that is "10.12.01". To obtain the file from command
 line, use:
 
 	$ VER="10.12.01"
-	$ wget ftp://ftp.denx.de/pub/tools/elftosb-${VER}.tar.gz
+	$ wget http://repository.timesys.com/buildsources/e/elftosb/elftosb-10.12.01/elftosb-${VER}.tar.gz
 
 Extract the file:
 

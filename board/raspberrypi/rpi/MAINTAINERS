@@ -1,5 +1,5 @@
 RPI BOARD
-M:	Alexander Graf <agraf@suse.de>
+M:	Matthias Brugger <mbrugger@suse.com>
 S:	Maintained
 F:	board/raspberrypi/rpi/
 F:	include/configs/rpi.h

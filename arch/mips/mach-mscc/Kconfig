@@ -15,46 +15,48 @@ config SOC_VCOREIII
 config SYS_SOC
 	default "mscc"
 
+choice
+
+	prompt "SOC Family Variant"
+
 config SOC_OCELOT
-	bool
+	bool "Ocelot SOC Family"
 	select SOC_VCOREIII
+	select DESIGNWARE_SPI
 	help
 	  This supports MSCC Ocelot family of SOCs.
 
 config SOC_LUTON
-	bool
+	bool "Luton SOC Family"
 	select SOC_VCOREIII
 	help
 	  This supports MSCC Luton family of SOCs.
 
+config SOC_JR2
+	bool "Jaguar2 SOC Family"
+	select SOC_VCOREIII
+	select DESIGNWARE_SPI
+	help
+	  This supports MSCC Jaguar2 family of SOCs.
+
+config SOC_SERVALT
+	bool "Servalt SOC Family"
+	select SOC_VCOREIII
+	select MSCC_BB_SPI
+	help
+	  This supports MSCC Servalt family of SOCs.
+
+config SOC_SERVAL
+	bool "Serval SOC Family"
+	select SOC_VCOREIII
+	select MSCC_BB_SPI
+	help
+	  This supports MSCC Serval family of SOCs.
+
+endchoice
+
 config SYS_CONFIG_NAME
 	default "vcoreiii"
-
-choice
-	prompt "Board select"
-
-config TARGET_OCELOT_PCB120
-	bool "MSCC PCB120 Reference Board (aka VSC5635EV)"
-	select SOC_OCELOT
-	help
-	  When selected, CONFIG_DEFAULT_DEVICE_TREE should be set to
-	  ocelot_pcb120
-
-config TARGET_OCELOT_PCB123
-	bool "MSCC PCB123 Reference Board (aka VSC7514EV))"
-	select SOC_OCELOT
-	help
-	  When selected, CONFIG_DEFAULT_DEVICE_TREE should be set to
-	  ocelot_pcb123
-
-config TARGET_LUTON_PCB091
-	bool "MSCC PCB091 Reference Board"
-	select SOC_LUTON
-	select MSCC_BITBANG_SPI_GPIO
-	help
-	  When selected, CONFIG_DEFAULT_DEVICE_TREE should be set to
-	  luton_pcb091
-endchoice
 
 choice
 	prompt "DDR type"
@@ -83,4 +85,9 @@ source "board/mscc/ocelot/Kconfig"
 
 source "board/mscc/luton/Kconfig"
 
+source "board/mscc/jr2/Kconfig"
+
+source "board/mscc/servalt/Kconfig"
+
+source "board/mscc/serval/Kconfig"
 endmenu

@@ -109,8 +109,6 @@
  */
 
 #ifndef CONFIG_MONITOR_IS_IN_RAM
-#define CONFIG_ENV_OFFSET		0x1FF8000
-#define CONFIG_ENV_SECT_SIZE		0x8000
 #else
 /*
  * environment in RAM - This is used to use a single PC-based application
@@ -118,8 +116,6 @@
  * to execute the commands from the environment. Feedback is done via setting
  * and reading memory locations.
  */
-#define CONFIG_ENV_ADDR		0x40060000
-#define CONFIG_ENV_SECT_SIZE	0x8000
 #endif
 
 /* here we put our FPGA configuration... */

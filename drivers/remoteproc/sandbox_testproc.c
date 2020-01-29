@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <remoteproc.h>
+#include <asm/io.h>
 
 /**
  * enum sandbox_state - different device states
@@ -300,6 +301,25 @@ static int sandbox_testproc_ping(struct udevice *dev)
 	return ret;
 }
 
+#define SANDBOX_RPROC_DEV_TO_PHY_OFFSET	0x1000
+/**
+ * sandbox_testproc_device_to_virt() - Convert device address to virtual address
+ * @dev:	device to operate upon
+ * @da:		device address
+ * @size:	Size of the memory region @da is pointing to
+ * @return converted virtual address
+ */
+static void *sandbox_testproc_device_to_virt(struct udevice *dev, ulong da,
+					     ulong size)
+{
+	u64 paddr;
+
+	/* Use a simple offset conversion */
+	paddr = da + SANDBOX_RPROC_DEV_TO_PHY_OFFSET;
+
+	return phys_to_virt(paddr);
+}
+
 static const struct dm_rproc_ops sandbox_testproc_ops = {
 	.init = sandbox_testproc_init,
 	.reset = sandbox_testproc_reset,
@@ -308,6 +328,7 @@ static const struct dm_rproc_ops sandbox_testproc_ops = {
 	.stop = sandbox_testproc_stop,
 	.is_running = sandbox_testproc_is_running,
 	.ping = sandbox_testproc_ping,
+	.device_to_virt = sandbox_testproc_device_to_virt,
 };
 
 static const struct udevice_id sandbox_ids[] = {

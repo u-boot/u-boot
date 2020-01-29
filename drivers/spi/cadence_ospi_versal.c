@@ -7,12 +7,14 @@
 
 #include <clk.h>
 #include <common.h>
+#include <cpu_func.h>
 #include <memalign.h>
 #include <wait_bit.h>
 #include <asm/io.h>
 #include "cadence_qspi.h"
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
+#include <zynqmp_firmware.h>
 
 #define CMD_4BYTE_READ  0x13
 

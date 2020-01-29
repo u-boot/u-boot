@@ -6,6 +6,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/mach-types.h>
+#include <env.h>
 #include <mmc.h>
 #include <asm/kona-common/kona_sdhci.h>
 #include <asm/kona-common/clk.h>

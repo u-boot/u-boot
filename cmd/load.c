@@ -10,9 +10,12 @@
 #include <common.h>
 #include <command.h>
 #include <console.h>
+#include <cpu_func.h>
+#include <env.h>
 #include <s_record.h>
 #include <net.h>
 #include <exports.h>
+#include <serial.h>
 #include <xyzModem.h>
 
 DECLARE_GLOBAL_DATA_PTR;

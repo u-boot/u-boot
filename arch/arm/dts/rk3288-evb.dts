@@ -26,31 +26,6 @@
 	rockchip,sdram-params = <0x20d266a4 0x5b6 2 533000000 6 9 0>;
 };
 
-&pinctrl {
-	u-boot,dm-pre-reloc;
-};
-
 &pwm1 {
 	status = "okay";
-};
-
-&uart2 {
-	u-boot,dm-pre-reloc;
-	reg-shift = <2>;
-};
-
-&sdmmc {
-	u-boot,dm-pre-reloc;
-};
-
-&emmc {
-	u-boot,dm-pre-reloc;
-};
-
-&gpio3 {
-	u-boot,dm-pre-reloc;
-};
-
-&gpio8 {
-	u-boot,dm-pre-reloc;
 };

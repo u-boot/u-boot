@@ -29,7 +29,6 @@
 	status = "okay";
 	ethphy0: ethernet-phy@0 {
 		reg = <0>;
-		phy-mode = "rgmii-id";
 	};
 };
 
@@ -75,7 +74,7 @@
 	spi_nor: flash@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <50000000>;
 		m25p,fast-read;
 		reg = <0>;
@@ -97,7 +96,7 @@
 	status = "okay";
 
 	flash0: m25p80@0 {
-		compatible = "s25fl512s","spi-flash";
+		compatible = "s25fl512s","jedec,spi-nor";
 		reg = <0>;
 		spi-tx-bus-width = <1>;
 		spi-rx-bus-width = <4>;

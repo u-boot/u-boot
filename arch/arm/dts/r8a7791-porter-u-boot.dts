@@ -16,3 +16,10 @@
 	status = "okay";
 	clock-frequency = <400000>;
 };
+
+&qspi {
+	flash@0 {
+		spi-tx-bus-width = <1>;
+		spi-rx-bus-width = <1>;
+	};
+};

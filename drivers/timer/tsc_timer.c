@@ -9,6 +9,7 @@
 #include <common.h>
 #include <dm.h>
 #include <malloc.h>
+#include <time.h>
 #include <timer.h>
 #include <asm/cpu.h>
 #include <asm/io.h>
@@ -19,7 +20,58 @@
 
 #define MAX_NUM_FREQS	9
 
+#define INTEL_FAM6_SKYLAKE_MOBILE	0x4E
+#define INTEL_FAM6_ATOM_GOLDMONT	0x5C /* Apollo Lake */
+#define INTEL_FAM6_SKYLAKE_DESKTOP	0x5E
+#define INTEL_FAM6_ATOM_GOLDMONT_X	0x5F /* Denverton */
+#define INTEL_FAM6_KABYLAKE_MOBILE	0x8E
+#define INTEL_FAM6_KABYLAKE_DESKTOP	0x9E
+
 DECLARE_GLOBAL_DATA_PTR;
+
+/*
+ * native_calibrate_tsc
+ * Determine TSC frequency via CPUID, else return 0.
+ */
+static unsigned long native_calibrate_tsc(void)
+{
+	struct cpuid_result tsc_info;
+	unsigned int crystal_freq;
+
+	if (gd->arch.x86_vendor != X86_VENDOR_INTEL)
+		return 0;
+
+	if (cpuid_eax(0) < 0x15)
+		return 0;
+
+	tsc_info = cpuid(0x15);
+
+	if (tsc_info.ebx == 0 || tsc_info.eax == 0)
+		return 0;
+
+	crystal_freq = tsc_info.ecx / 1000;
+
+	if (!crystal_freq) {
+		switch (gd->arch.x86_model) {
+		case INTEL_FAM6_SKYLAKE_MOBILE:
+		case INTEL_FAM6_SKYLAKE_DESKTOP:
+		case INTEL_FAM6_KABYLAKE_MOBILE:
+		case INTEL_FAM6_KABYLAKE_DESKTOP:
+			crystal_freq = 24000;	/* 24.0 MHz */
+			break;
+		case INTEL_FAM6_ATOM_GOLDMONT_X:
+			crystal_freq = 25000;	/* 25.0 MHz */
+			break;
+		case INTEL_FAM6_ATOM_GOLDMONT:
+			crystal_freq = 19200;	/* 19.2 MHz */
+			break;
+		default:
+			return 0;
+		}
+	}
+
+	return (crystal_freq * tsc_info.ebx / tsc_info.eax) / 1000;
+}
 
 static unsigned long cpu_mhz_from_cpuid(void)
 {
@@ -343,12 +395,16 @@ static int tsc_timer_get_count(struct udevice *dev, u64 *count)
 
 static void tsc_timer_ensure_setup(bool early)
 {
-	if (gd->arch.tsc_base)
+	if (gd->arch.tsc_inited)
 		return;
 	gd->arch.tsc_base = rdtsc();
 
 	if (!gd->arch.clock_rate) {
 		unsigned long fast_calibrate;
+
+		fast_calibrate = native_calibrate_tsc();
+		if (fast_calibrate)
+			goto done;
 
 		fast_calibrate = cpu_mhz_from_cpuid();
 		if (fast_calibrate)
@@ -370,6 +426,7 @@ static void tsc_timer_ensure_setup(bool early)
 done:
 		gd->arch.clock_rate = fast_calibrate * 1000000;
 	}
+	gd->arch.tsc_inited = true;
 }
 
 static int tsc_timer_probe(struct udevice *dev)
@@ -406,6 +463,8 @@ unsigned long notrace timer_early_get_rate(void)
 
 u64 notrace timer_early_get_count(void)
 {
+	tsc_timer_ensure_setup(true);
+
 	return rdtsc() - gd->arch.tsc_base;
 }
 

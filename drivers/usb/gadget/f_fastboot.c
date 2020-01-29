@@ -11,6 +11,7 @@
  */
 #include <config.h>
 #include <common.h>
+#include <env.h>
 #include <errno.h>
 #include <fastboot.h>
 #include <malloc.h>

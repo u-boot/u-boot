@@ -5,7 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <errno.h>
 #include <os.h>
 #include <serial.h>
@@ -29,29 +29,31 @@ static const unsigned long baudrate_table[] = CONFIG_SYS_BAUDRATE_TABLE;
 #if CONFIG_IS_ENABLED(SERIAL_PRESENT)
 static int serial_check_stdout(const void *blob, struct udevice **devp)
 {
-	int node;
+	int node = -1;
+	const char *str, *p, *name;
+	int namelen;
 
 	/* Check for a chosen console */
-	node = fdtdec_get_chosen_node(blob, "stdout-path");
-	if (node < 0) {
-		const char *str, *p, *name;
+	str = fdtdec_get_chosen_prop(blob, "stdout-path");
+	if (str) {
+		p = strchr(str, ':');
+		namelen = p ? p - str : strlen(str);
+		node = fdt_path_offset_namelen(blob, str, namelen);
 
-		/*
-		 * Deal with things like
-		 *	stdout-path = "serial0:115200n8";
-		 *
-		 * We need to look up the alias and then follow it to the
-		 * correct node.
-		 */
-		str = fdtdec_get_chosen_prop(blob, "stdout-path");
-		if (str) {
-			p = strchr(str, ':');
-			name = fdt_get_alias_namelen(blob, str,
-					p ? p - str : strlen(str));
+		if (node < 0) {
+			/*
+			 * Deal with things like
+			 *	stdout-path = "serial0:115200n8";
+			 *
+			 * We need to look up the alias and then follow it to
+			 * the correct node.
+			 */
+			name = fdt_get_alias_namelen(blob, str, namelen);
 			if (name)
 				node = fdt_path_offset(blob, name);
 		}
 	}
+
 	if (node < 0)
 		node = fdt_path_offset(blob, "console");
 	if (!uclass_get_device_by_of_offset(UCLASS_SERIAL, node, devp))
@@ -294,49 +296,40 @@ void serial_setbrg(void)
 		ops->setbrg(gd->cur_serial_dev, gd->baudrate);
 }
 
-int serial_getconfig(uint *config)
+int serial_getconfig(struct udevice *dev, uint *config)
 {
 	struct dm_serial_ops *ops;
 
-	if (!gd->cur_serial_dev)
-		return 0;
-
-	ops = serial_get_ops(gd->cur_serial_dev);
+	ops = serial_get_ops(dev);
 	if (ops->getconfig)
-		return ops->getconfig(gd->cur_serial_dev, config);
+		return ops->getconfig(dev, config);
 
 	return 0;
 }
 
-int serial_setconfig(uint config)
+int serial_setconfig(struct udevice *dev, uint config)
 {
 	struct dm_serial_ops *ops;
 
-	if (!gd->cur_serial_dev)
-		return 0;
-
-	ops = serial_get_ops(gd->cur_serial_dev);
+	ops = serial_get_ops(dev);
 	if (ops->setconfig)
-		return ops->setconfig(gd->cur_serial_dev, config);
+		return ops->setconfig(dev, config);
 
 	return 0;
 }
 
-int serial_getinfo(struct serial_device_info *info)
+int serial_getinfo(struct udevice *dev, struct serial_device_info *info)
 {
 	struct dm_serial_ops *ops;
-
-	if (!gd->cur_serial_dev)
-		return -ENODEV;
 
 	if (!info)
 		return -EINVAL;
 
 	info->baudrate = gd->baudrate;
 
-	ops = serial_get_ops(gd->cur_serial_dev);
+	ops = serial_get_ops(dev);
 	if (ops->getinfo)
-		return ops->getinfo(gd->cur_serial_dev, info);
+		return ops->getinfo(dev, info);
 
 	return -EINVAL;
 }

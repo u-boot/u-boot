@@ -1,0 +1,50 @@
+U-Boot for the NXP i.MX8QM ROM 7720a1 board
+
+Quick Start
+===========
+
+- Build the ARM Trusted firmware binary
+- Get scfw_tcm.bin and ahab-container.img
+- Get imx-mkimage
+- Build U-Boot
+- Build imx-mkimage
+- Flash the binary into the SD card
+- Boot
+
+Get and Build the ARM Trusted firmware
+======================================
+
+$ git clone https://source.codeaurora.org/external/imx/imx-atf
+$ cd imx-atf/
+$ git checkout origin/imx_4.14.78_1.0.0_ga -b imx_4.14.78_1.0.0_ga
+$ make PLAT=imx8qm bl31
+
+Get scfw_tcm.bin and ahab-container.img
+==============================
+
+$ wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/imx-sc-firmware-1.1.bin
+$ chmod +x imx-sc-firmware-1.1.bin
+$ ./imx-sc-firmware-1.1.bin
+$ wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-8.0.bin
+$ chmod +x firmware-imx-8.0.bin
+$ ./firmware-imx-8.0.bin
+
+Build U-Boot
+============
+
+$ export ATF_LOAD_ADDR=0x80000000
+$ export BL33_LOAD_ADDR=0x80020000
+$ make imx8qm_rom7720_a1_4G_defconfig
+$ make u-boot.bin
+$ make flash.bin
+
+Flash the binary into the SD card
+=================================
+
+Burn the flash.bin binary to SD card offset 32KB:
+
+$ sudo dd if=flash.bin of=/dev/sd[x] bs=1k seek=32 conv=fsync
+
+Boot
+====
+Set Boot switch SW2: 1100.

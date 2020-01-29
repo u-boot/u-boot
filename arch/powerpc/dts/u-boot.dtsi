@@ -24,6 +24,9 @@
 #endif
 		};
 #ifdef CONFIG_MPC85XX_HAVE_RESET_VECTOR
+#ifndef CONFIG_RESET_VECTOR_ADDRESS
+#define CONFIG_RESET_VECTOR_ADDRESS 0xfffffffc
+#endif
 		powerpc-mpc85xx-bootpg-resetvec {
 			offset = <(CONFIG_RESET_VECTOR_ADDRESS - 0xffc)>;
 		};

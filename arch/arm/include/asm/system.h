@@ -516,6 +516,21 @@ enum {
  */
 void mmu_page_table_flush(unsigned long start, unsigned long stop);
 
+#ifdef CONFIG_ARMV7_PSCI
+void psci_arch_cpu_entry(void);
+u32 psci_version(void);
+s32 psci_features(u32 function_id, u32 psci_fid);
+s32 psci_cpu_off(void);
+s32 psci_cpu_on(u32 function_id, u32 target_cpu, u32 pc,
+		u32 context_id);
+s32 psci_affinity_info(u32 function_id, u32 target_affinity,
+		       u32  lowest_affinity_level);
+u32 psci_migrate_info_type(void);
+void psci_system_off(void);
+void psci_system_reset(void);
+s32 psci_features(u32 function_id, u32 psci_fid);
+#endif
+
 #endif /* __ASSEMBLY__ */
 
 #define arch_align_stack(x) (x)

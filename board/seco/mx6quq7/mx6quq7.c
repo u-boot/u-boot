@@ -17,7 +17,7 @@
 #include <asm/mach-imx/boot_mode.h>
 #include <malloc.h>
 #include <mmc.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
 #include <miiphy.h>
 #include <netdev.h>
 #include <asm/arch/mxc_hdmi.h>
@@ -26,7 +26,6 @@
 #include <ipu_pixfmt.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
-#include <micrel.h>
 #include <asm/mach-imx/mxc_i2c.h>
 #include <i2c.h>
 

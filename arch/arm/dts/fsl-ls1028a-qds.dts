@@ -1,0 +1,164 @@
+// SPDX-License-Identifier: GPL-2.0+ OR X11
+/*
+ * NXP ls1028AQDS device tree source
+ *
+ * Copyright 2019 NXP
+ *
+ */
+
+/dts-v1/;
+
+#include "fsl-ls1028a.dtsi"
+
+/ {
+	model = "NXP Layerscape 1028a QDS Board";
+	compatible = "fsl,ls1028a-qds", "fsl,ls1028a";
+};
+
+&dspi0 {
+	status = "okay";
+};
+
+&dspi1 {
+	status = "okay";
+};
+
+&dspi2 {
+	status = "okay";
+};
+
+&esdhc0 {
+	status = "okay";
+};
+
+&esdhc1 {
+	status = "okay";
+
+};
+
+&i2c0 {
+	status = "okay";
+	u-boot,dm-pre-reloc;
+
+	fpga@66 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "simple-mfd";
+		reg = <0x66>;
+
+		mux-mdio@54 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "mdio-mux-i2creg";
+			reg = <0x54>;
+			#mux-control-cells = <1>;
+			mux-reg-masks = <0x54 0xf0>;
+			mdio-parent-bus = <&mdio0>;
+
+			/* on-board MDIO with a single RGMII PHY */
+			mdio@00 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				reg = <0x00>;
+
+				qds_phy0: phy@5 {
+					reg = <5>;
+				};
+			};
+			/* slot 1 */
+			slot1: mdio@40 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				reg = <0x40>;
+			};
+			/* slot 2 */
+			slot2: mdio@50 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				reg = <0x50>;
+			};
+			/* slot 3 */
+			slot3: mdio@60 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				reg = <0x60>;
+			};
+			/* slot 4 */
+			slot4: mdio@70 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				reg = <0x70>;
+			};
+		};
+	};
+
+	i2c-mux@77 {
+		compatible = "nxp,pca9547";
+		reg = <0x77>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+	};
+};
+
+&i2c1 {
+	status = "okay";
+
+	rtc@51 {
+		compatible = "pcf2127-rtc";
+		reg = <0x51>;
+	};
+};
+
+&i2c2 {
+	status = "okay";
+};
+
+&i2c3 {
+	status = "okay";
+};
+
+&i2c4 {
+	status = "okay";
+};
+
+&i2c5 {
+	status = "okay";
+};
+
+&i2c6 {
+	status = "okay";
+};
+
+&i2c7 {
+	status = "okay";
+};
+
+&sata {
+	status = "okay";
+};
+
+&serial0 {
+	status = "okay";
+};
+
+&serial1 {
+	status = "okay";
+};
+
+&usb1 {
+	status = "okay";
+};
+
+&usb2 {
+	status = "okay";
+};
+
+&enetc1 {
+	status = "okay";
+	phy-mode = "rgmii";
+	phy-handle = <&qds_phy0>;
+};
+
+&mdio0 {
+	status = "okay";
+};

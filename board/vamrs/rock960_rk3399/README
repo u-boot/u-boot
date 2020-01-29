@@ -61,7 +61,6 @@ Compile the U-Boot
   > export CROSS_COMPILE=aarch64-linux-gnu-
   > make rock960-rk3399_defconfig
   > make
-  > make u-boot.itb
 
 Compile the rkdeveloptool
 =========================

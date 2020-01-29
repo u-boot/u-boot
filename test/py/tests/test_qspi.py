@@ -41,7 +41,7 @@ def qspi_pre_commands(u_boot_console, freq):
         except ValueError:
             pytest.fail("QSPI page size not recognized")
 
-        print 'Page size is: ' + str(page_size) + " B"
+        print ('Page size is: ' + str(page_size) + " B")
 
     m = re.search('erase size (.+?) KiB', output)
     if m:
@@ -52,7 +52,7 @@ def qspi_pre_commands(u_boot_console, freq):
            pytest.fail("QSPI erase size not recognized")
 
         erase_size *= 1024
-        print 'Erase size is: ' + str(erase_size) + " B"
+        print ('Erase size is: ' + str(erase_size) + " B")
 
     m = re.search('total (.+?) MiB', output)
     if m:
@@ -63,7 +63,7 @@ def qspi_pre_commands(u_boot_console, freq):
             pytest.fail("QSPI total size not recognized")
 
         total_size *= 1024 * 1024
-        print 'Total size is: ' + str(total_size) + " B"
+        print ('Total size is: ' + str(total_size) + " B")
 
 # Find out minimum and maximum frequnecies that device can operate
 def qspi_find_freq_range(u_boot_console):
@@ -170,14 +170,14 @@ def qspi_write_twice(u_boot_console):
         expected_crc32 = m.group(1)
         # print expected_crc32
         if old_size % page_size:
-            old_size /= page_size
+            old_size = int(old_size / page_size)
             old_size *= page_size
 
         if size % erase_size:
-            erasesize = size/erase_size + 1
+            erasesize = int(size/erase_size + 1)
             erasesize *= erase_size
 
-        eraseoffset = old_size/erase_size
+        eraseoffset = int(old_size/erase_size)
         eraseoffset *= erase_size
 
         timeout = 100000000
@@ -224,12 +224,12 @@ def qspi_write_continues(u_boot_console):
     timeout = 10000000
     old_size = 0
     for size in random.randint(4, page_size), random.randint(page_size, total_size), total_size:
-	size = size & ~3
+        size = size & ~3
         size = size - old_size
         with u_boot_console.temporary_timeout(timeout):
             output = u_boot_console.run_command('sf write %x %x %x' % (addr + 0x10000 + old_size, old_size, size))
             assert expected_write in output
-        old_size = size
+        old_size += size
 
     with u_boot_console.temporary_timeout(timeout):
         output = u_boot_console.run_command('sf read %x %x %x' % (addr + 0x10000 + total_size, 0, total_size))

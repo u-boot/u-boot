@@ -14,7 +14,7 @@ void uniphier_ld4_dpll_ssc_en(void)
 {
 	u32 tmp;
 
-	tmp = readl(SC_DPLLCTRL);
+	tmp = readl(sc_base + SC_DPLLCTRL);
 	tmp |= SC_DPLLCTRL_SSC_EN;
-	writel(tmp, SC_DPLLCTRL);
+	writel(tmp, sc_base + SC_DPLLCTRL);
 }

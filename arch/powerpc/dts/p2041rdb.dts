@@ -1,0 +1,18 @@
+// SPDX-License-Identifier: GPL-2.0+ OR X11
+/*
+ * P2041RDB Device Tree Source
+ *
+ * Copyright 2011 - 2015 Freescale Semiconductor Inc.
+ * Copyright 2019 NXP
+ */
+
+/include/ "p2041.dtsi"
+
+/ {
+	model = "fsl,P2041RDB";
+	compatible = "fsl,P2041RDB";
+	#address-cells = <2>;
+	#size-cells = <2>;
+	interrupt-parent = <&mpic>;
+
+};

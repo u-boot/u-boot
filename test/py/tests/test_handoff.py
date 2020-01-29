@@ -6,7 +6,7 @@ import pytest
 # Magic number to check that SPL handoff is working
 TEST_HANDOFF_MAGIC = 0x14f93c7b
 
-@pytest.mark.boardspec('sandbox')
+@pytest.mark.boardspec('sandbox_spl')
 @pytest.mark.buildconfigspec('spl')
 def test_handoff(u_boot_console):
     """Test that of-platdata can be generated and used in sandbox"""

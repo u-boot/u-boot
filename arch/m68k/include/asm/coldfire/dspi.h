@@ -138,4 +138,8 @@ typedef struct dspi {
 /* Bit definitions and macros for DRFDR group */
 #define DSPI_RFDR_RXDATA(x)		(((x)&0x0000FFFF))
 
+/* Architecture-related operations */
+void dspi_chip_select(int cs);
+void dspi_chip_unselect(int cs);
+
 #endif				/* __DSPI_H__ */

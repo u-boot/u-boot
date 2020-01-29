@@ -99,6 +99,7 @@ static int bcm283x_pinctrl_get_gpio_mux(struct udevice *dev, int banknum,
 
 static const struct udevice_id bcm2835_pinctrl_id[] = {
 	{.compatible = "brcm,bcm2835-gpio"},
+	{.compatible = "brcm,bcm2711-gpio"},
 	{}
 };
 
@@ -148,7 +149,7 @@ U_BOOT_DRIVER(pinctrl_bcm283x) = {
 	.priv_auto_alloc_size = sizeof(struct bcm283x_pinctrl_priv),
 	.ops		= &bcm283x_pinctrl_ops,
 	.probe		= bcm283x_pinctl_probe,
-#if !CONFIG_IS_ENABLED(OF_CONTROL)
+#if !CONFIG_IS_ENABLED(OF_CONTROL) || CONFIG_IS_ENABLED(OF_BOARD)
 	.flags		= DM_FLAG_PRE_RELOC,
 #endif
 };

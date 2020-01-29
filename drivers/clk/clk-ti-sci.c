@@ -13,6 +13,7 @@
 #include <errno.h>
 #include <clk-uclass.h>
 #include <linux/soc/ti/ti_sci_protocol.h>
+#include <k3-avs.h>
 
 /**
  * struct ti_sci_clk_data - clock controller information structure
@@ -100,6 +101,10 @@ static ulong ti_sci_clk_set_rate(struct clk *clk, ulong rate)
 	int ret;
 
 	debug("%s(clk=%p, rate=%lu)\n", __func__, clk, rate);
+
+#ifdef CONFIG_K3_AVS0
+	k3_avs_notify_freq(clk->id, clk->data, rate);
+#endif
 
 	/* Ask for exact frequency by using same value for min/target/max */
 	ret = cops->set_freq(sci, clk->id, clk->data, rate, rate, rate);

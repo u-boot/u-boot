@@ -161,7 +161,7 @@ int axp_set_dldo(int dldo_num, unsigned int mvolt)
 	cfg = axp818_mvolt_to_cfg(mvolt, 700, 3300, 100);
 	if (dldo_num == 2 && mvolt > 3300)
 		cfg += 1 + axp818_mvolt_to_cfg(mvolt, 3400, 4200, 200);
-	ret = pmic_bus_write(AXP818_ELDO1_CTRL + (dldo_num - 1), cfg);
+	ret = pmic_bus_write(AXP818_DLDO1_CTRL + (dldo_num - 1), cfg);
 	if (ret)
 		return ret;
 

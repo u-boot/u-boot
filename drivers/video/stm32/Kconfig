@@ -13,6 +13,15 @@ menuconfig VIDEO_STM32
 	  DSI. This option enables these supports which can be used on
 	  devices which have RGB TFT or DSI display connected.
 
+config VIDEO_STM32_DSI
+	bool "Enable STM32 DSI video support"
+	depends on VIDEO_STM32
+	select VIDEO_BRIDGE
+	select VIDEO_DW_MIPI_DSI
+	help
+	  This option enables support DSI internal bridge which can be used on
+	  devices which have DSI devices connected.
+
 config VIDEO_STM32_MAX_XRES
 	int "Maximum horizontal resolution (for memory allocation purposes)"
 	depends on VIDEO_STM32

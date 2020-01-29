@@ -72,6 +72,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <env.h>
 #include <malloc.h>
 #include <jffs2/load_kernel.h>
 #include <linux/list.h>
@@ -1232,11 +1233,11 @@ static uint64_t net_part_size(struct mtd_info *mtd, struct part_info *part)
 {
 	uint64_t i, net_size = 0;
 
-	if (!mtd->block_isbad)
+	if (!mtd->_block_isbad)
 		return part->size;
 
 	for (i = 0; i < part->size; i += mtd->erasesize) {
-		if (!mtd->block_isbad(mtd, part->offset + i))
+		if (!mtd->_block_isbad(mtd, part->offset + i))
 			net_size += mtd->erasesize;
 	}
 
@@ -1273,7 +1274,7 @@ static void print_partition_table(void)
 			part = list_entry(pentry, struct part_info, link);
 			net_size = net_part_size(mtd, part);
 			size_note = part->size == net_size ? " " : " (!)";
-			printf("%2d: %-20s0x%08x\t0x%08x%s\t0x%08x\t%d\n",
+			printf("%2d: %-20s0x%08llx\t0x%08x%s\t0x%08llx\t%d\n",
 					part_num, part->name, part->size,
 					net_size, size_note, part->offset,
 					part->mask_flags);

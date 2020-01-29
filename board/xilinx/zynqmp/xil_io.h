@@ -9,17 +9,17 @@
 
 #define xil_printf(...)
 
-void Xil_Out32(unsigned long addr, unsigned long val)
+static void Xil_Out32(unsigned long addr, unsigned long val)
 {
 	writel(val, addr);
 }
 
-int Xil_In32(unsigned long addr)
+static int Xil_In32(unsigned long addr)
 {
 	return readl(addr);
 }
 
-void usleep(u32 sleep)
+static void __maybe_unused usleep(u32 sleep)
 {
 	udelay(sleep);
 }

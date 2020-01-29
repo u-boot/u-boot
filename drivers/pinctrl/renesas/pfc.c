@@ -28,7 +28,9 @@ enum sh_pfc_model {
 	SH_PFC_R8A7794,
 	SH_PFC_R8A7795,
 	SH_PFC_R8A7796,
+	SH_PFC_R8A77965,
 	SH_PFC_R8A77970,
+	SH_PFC_R8A77980,
 	SH_PFC_R8A77990,
 	SH_PFC_R8A77995,
 };
@@ -458,16 +460,17 @@ static const char *sh_pfc_pinctrl_get_function_name(struct udevice *dev,
 	return priv->pfc.info->functions[selector].name;
 }
 
-int sh_pfc_config_mux_for_gpio(struct udevice *dev, unsigned pin_selector)
+static int sh_pfc_gpio_request_enable(struct udevice *dev,
+				      unsigned pin_selector)
 {
 	struct sh_pfc_pinctrl_priv *priv = dev_get_priv(dev);
 	struct sh_pfc_pinctrl *pmx = &priv->pmx;
 	struct sh_pfc *pfc = &priv->pfc;
 	struct sh_pfc_pin_config *cfg;
 	const struct sh_pfc_pin *pin = NULL;
-	int i, idx;
+	int i, ret, idx;
 
-	for (i = 1; i < pfc->info->nr_pins; i++) {
+	for (i = 0; i < pfc->info->nr_pins; i++) {
 		if (priv->pfc.info->pins[i].pin != pin_selector)
 			continue;
 
@@ -484,7 +487,42 @@ int sh_pfc_config_mux_for_gpio(struct udevice *dev, unsigned pin_selector)
 	if (cfg->type != PINMUX_TYPE_NONE)
 		return -EBUSY;
 
-	return sh_pfc_config_mux(pfc, pin->enum_id, PINMUX_TYPE_GPIO);
+	ret = sh_pfc_config_mux(pfc, pin->enum_id, PINMUX_TYPE_GPIO);
+	if (ret)
+		return ret;
+
+	cfg->type = PINMUX_TYPE_GPIO;
+
+	return 0;
+}
+
+static int sh_pfc_gpio_disable_free(struct udevice *dev,
+				    unsigned pin_selector)
+{
+	struct sh_pfc_pinctrl_priv *priv = dev_get_priv(dev);
+	struct sh_pfc_pinctrl *pmx = &priv->pmx;
+	struct sh_pfc *pfc = &priv->pfc;
+	struct sh_pfc_pin_config *cfg;
+	const struct sh_pfc_pin *pin = NULL;
+	int i, idx;
+
+	for (i = 0; i < pfc->info->nr_pins; i++) {
+		if (priv->pfc.info->pins[i].pin != pin_selector)
+			continue;
+
+		pin = &priv->pfc.info->pins[i];
+		break;
+	}
+
+	if (!pin)
+		return -EINVAL;
+
+	idx = sh_pfc_get_pin_index(pfc, pin->pin);
+	cfg = &pmx->configs[idx];
+
+	cfg->type = PINMUX_TYPE_NONE;
+
+	return 0;
 }
 
 static int sh_pfc_pinctrl_pin_set(struct udevice *dev, unsigned pin_selector,
@@ -745,6 +783,9 @@ static struct pinctrl_ops sh_pfc_pinctrl_ops = {
 	.pinmux_set		= sh_pfc_pinctrl_pin_set,
 	.pinmux_group_set	= sh_pfc_pinctrl_group_set,
 	.set_state		= pinctrl_generic_set_state,
+
+	.gpio_request_enable	= sh_pfc_gpio_request_enable,
+	.gpio_disable_free	= sh_pfc_gpio_disable_free,
 };
 
 static int sh_pfc_map_pins(struct sh_pfc *pfc, struct sh_pfc_pinctrl *pmx)
@@ -808,9 +849,17 @@ static int sh_pfc_pinctrl_probe(struct udevice *dev)
 	if (model == SH_PFC_R8A7796)
 		priv->pfc.info = &r8a7796_pinmux_info;
 #endif
+#ifdef CONFIG_PINCTRL_PFC_R8A77965
+	if (model == SH_PFC_R8A77965)
+		priv->pfc.info = &r8a77965_pinmux_info;
+#endif
 #ifdef CONFIG_PINCTRL_PFC_R8A77970
 	if (model == SH_PFC_R8A77970)
 		priv->pfc.info = &r8a77970_pinmux_info;
+#endif
+#ifdef CONFIG_PINCTRL_PFC_R8A77980
+	if (model == SH_PFC_R8A77980)
+		priv->pfc.info = &r8a77980_pinmux_info;
 #endif
 #ifdef CONFIG_PINCTRL_PFC_R8A77990
 	if (model == SH_PFC_R8A77990)
@@ -869,15 +918,24 @@ static const struct udevice_id sh_pfc_pinctrl_ids[] = {
 	{
 		.compatible = "renesas,pfc-r8a7796",
 		.data = SH_PFC_R8A7796,
-	}, {
+	},
+#endif
+#ifdef CONFIG_PINCTRL_PFC_R8A77965
+	{
 		.compatible = "renesas,pfc-r8a77965",
-		.data = SH_PFC_R8A7796,
+		.data = SH_PFC_R8A77965,
 	},
 #endif
 #ifdef CONFIG_PINCTRL_PFC_R8A77970
 	{
 		.compatible = "renesas,pfc-r8a77970",
 		.data = SH_PFC_R8A77970,
+	},
+#endif
+#ifdef CONFIG_PINCTRL_PFC_R8A77980
+	{
+		.compatible = "renesas,pfc-r8a77980",
+		.data = SH_PFC_R8A77980,
 	},
 #endif
 #ifdef CONFIG_PINCTRL_PFC_R8A77990

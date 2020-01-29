@@ -6,7 +6,6 @@
 
 #ifndef __CONFIG_STV0991_H
 #define __CONFIG_STV0991_H
-#define CONFIG_SYS_DCACHE_OFF
 #define CONFIG_SYS_EXCEPTION_VECTORS_HIGH
 
 /* ram memory-related information */
@@ -14,11 +13,6 @@
 #define CONFIG_SYS_SDRAM_BASE			PHYS_SDRAM_1
 #define PHYS_SDRAM_1_SIZE			0x00198000
 
-#define CONFIG_ENV_SIZE				0x10000
-#define CONFIG_ENV_SECT_SIZE			CONFIG_ENV_SIZE
-#define CONFIG_ENV_OFFSET			0x30000
-#define CONFIG_ENV_ADDR				\
-	(PHYS_SDRAM_1_SIZE - CONFIG_ENV_SIZE)
 #define CONFIG_SYS_MALLOC_LEN			(CONFIG_ENV_SIZE + 16 * 1024)
 
 /* user interface */

@@ -25,11 +25,6 @@
 #include <asm/mach-types.h>
 #include <asm/setup.h>
 
-#ifdef CONFIG_MMC_DAVINCI
-#include <mmc.h>
-#include <asm/arch/sdmmc_defs.h>
-#endif
-
 DECLARE_GLOBAL_DATA_PTR;
 
 u8 board_rev;
@@ -37,23 +32,6 @@ u8 board_rev;
 #define EEPROM_I2C_ADDR		0x50
 #define EEPROM_REV_OFFSET	0x3F00
 #define EEPROM_MAC_OFFSET	0x3F06
-
-#ifdef CONFIG_MMC_DAVINCI
-static struct davinci_mmc mmc_sd0 = {
-	.reg_base = (struct davinci_mmc_regs *)DAVINCI_MMC_SD0_BASE,
-	.host_caps = MMC_MODE_4BIT,     /* DA850 supports only 4-bit SD/MMC */
-	.voltages = MMC_VDD_32_33 | MMC_VDD_33_34,
-	.version = MMC_CTLR_VERSION_2,
-};
-
-int board_mmc_init(bd_t *bis)
-{
-	mmc_sd0.input_clk = clk_get(DAVINCI_MMCSD_CLKID);
-
-	/* Add slot-0 to mmc subsystem */
-	return davinci_mmc_init(bis, &mmc_sd0);
-}
-#endif
 
 const struct pinmux_resource pinmuxes[] = {
 	PINMUX_ITEM(spi0_pins_base),

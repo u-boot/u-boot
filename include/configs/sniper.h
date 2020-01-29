@@ -64,7 +64,6 @@
  * SPL
  */
 
-#define CONFIG_SPL_TEXT_BASE		0x40200000
 #define CONFIG_SPL_MAX_SIZE		(SRAM_SCRATCH_SPACE_ADDR - \
 					 CONFIG_SPL_TEXT_BASE)
 #define CONFIG_SPL_BSS_START_ADDR	0x80000000
@@ -96,8 +95,6 @@
 /*
  * Environment
  */
-
-#define CONFIG_ENV_SIZE		(128 * 1024)
 
 #define CONFIG_ENV_OVERWRITE
 

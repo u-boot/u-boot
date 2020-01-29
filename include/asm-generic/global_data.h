@@ -20,6 +20,7 @@
  */
 
 #ifndef __ASSEMBLY__
+#include <fdtdec.h>
 #include <membuff.h>
 #include <linux/list.h>
 
@@ -32,7 +33,7 @@ typedef struct global_data {
 	/* We cannot bracket this with CONFIG_PCI due to mpc5xxx */
 	unsigned long pci_clk;
 	unsigned long mem_clk;
-#if defined(CONFIG_LCD) || defined(CONFIG_VIDEO)
+#if defined(CONFIG_LCD) || defined(CONFIG_VIDEO) || defined(CONFIG_DM_VIDEO)
 	unsigned long fb_base;		/* Base address of framebuffer mem */
 #endif
 #if defined(CONFIG_POST)
@@ -133,6 +134,12 @@ typedef struct global_data {
 	struct spl_handoff *spl_handoff;
 # endif
 #endif
+#if defined(CONFIG_TRANSLATION_OFFSET)
+	fdt_addr_t translation_offset;	/* optional translation offset */
+#endif
+#if CONFIG_IS_ENABLED(WDT)
+	struct udevice *watchdog_dev;
+#endif
 } gd_t;
 #endif
 
@@ -143,7 +150,7 @@ typedef struct global_data {
 #endif
 
 /*
- * Global Data Flags - the top 16 bits are reserved for arch-specific flags
+ * Global Data Flags
  */
 #define GD_FLG_RELOC		0x00001	/* Code was relocated to RAM	   */
 #define GD_FLG_DEVINIT		0x00002	/* Devices have been initialized   */
@@ -161,5 +168,6 @@ typedef struct global_data {
 #define GD_FLG_ENV_DEFAULT	0x02000 /* Default variable flag	   */
 #define GD_FLG_SPL_EARLY_INIT	0x04000 /* Early SPL init is done	   */
 #define GD_FLG_LOG_READY	0x08000 /* Log system is ready for use	   */
+#define GD_FLG_WDT_READY	0x10000 /* Watchdog is ready for use	   */
 
 #endif /* __ASM_GENERIC_GBL_DATA_H */

@@ -149,18 +149,11 @@ extern phys_addr_t prior_stage_fdt_address;
 /*
  * Environment configuration.
  */
-#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
-#define CONFIG_ENV_SIZE			(64 << 10) /* 64 KiB */
-#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
 #define CONFIG_ENV_OVERWRITE
 
 /*
  * Save the prior stage provided DTB.
  */
-#define CONFIG_PREBOOT					\
-	"fdt addr ${fdtcontroladdr};"			\
-	"fdt move ${fdtcontroladdr} ${fdtsaveaddr};"	\
-	"fdt addr ${fdtsaveaddr};"
 /*
  * Enable in-place RFS with this initrd_high setting.
  */

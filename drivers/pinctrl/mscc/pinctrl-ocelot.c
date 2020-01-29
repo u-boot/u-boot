@@ -138,6 +138,19 @@ static const struct mscc_pin_data ocelot_pins[] = {
 	OCELOT_PIN(21),
 };
 
+static const unsigned long ocelot_gpios[] = {
+	[MSCC_GPIO_OUT_SET] = 0x00,
+	[MSCC_GPIO_OUT_CLR] = 0x04,
+	[MSCC_GPIO_OUT] = 0x08,
+	[MSCC_GPIO_IN] = 0x0c,
+	[MSCC_GPIO_OE] = 0x10,
+	[MSCC_GPIO_INTR] = 0x14,
+	[MSCC_GPIO_INTR_ENA] = 0x18,
+	[MSCC_GPIO_INTR_IDENT] = 0x1c,
+	[MSCC_GPIO_ALT0] = 0x20,
+	[MSCC_GPIO_ALT1] = 0x24,
+};
+
 static int ocelot_gpio_probe(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv;
@@ -162,7 +175,8 @@ int ocelot_pinctrl_probe(struct udevice *dev)
 
 	ret = mscc_pinctrl_probe(dev, FUNC_MAX, ocelot_pins,
 				 ARRAY_SIZE(ocelot_pins),
-				 ocelot_function_names);
+				 ocelot_function_names,
+				 ocelot_gpios);
 
 	if (ret)
 		return ret;

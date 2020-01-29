@@ -57,12 +57,48 @@ static unsigned int odroid_get_rev(void)
 	return 0;
 }
 
+/*
+ * Read ADC at least twice and check the resuls.  If regulator providing voltage
+ * on to measured point was just turned on, first reads might require time
+ * to stabilize.
+ */
+static int odroid_get_adc_val(unsigned int *adcval)
+{
+	unsigned int adcval_prev = 0;
+	int ret, retries = 20;
+
+	ret = adc_channel_single_shot("adc", CONFIG_ODROID_REV_AIN,
+				      &adcval_prev);
+	if (ret)
+		return ret;
+
+	while (retries--) {
+		mdelay(5);
+
+		ret = adc_channel_single_shot("adc", CONFIG_ODROID_REV_AIN,
+					      adcval);
+		if (ret)
+			return ret;
+
+		/*
+		 * If difference between ADC reads is less than 3%,
+		 * accept the result
+		 */
+		if ((100 * abs(*adcval - adcval_prev) / adcval_prev) < 3)
+			return ret;
+
+		adcval_prev = *adcval;
+	}
+
+	return ret;
+}
+
 static int odroid_get_board_type(void)
 {
 	unsigned int adcval;
 	int ret, i;
 
-	ret = adc_channel_single_shot("adc", CONFIG_ODROID_REV_AIN, &adcval);
+	ret = odroid_get_adc_val(&adcval);
 	if (ret)
 		goto rev_default;
 
@@ -192,8 +228,11 @@ const char *get_board_type(void)
 
 /**
  * set_board_type() - set board type in gd->board_type.
- * As default type set EXYNOS5_BOARD_GENERIC, if detect Odroid,
- * then set its proper type.
+ * As default type set EXYNOS5_BOARD_GENERIC. If Odroid is detected,
+ * set its proper type based on device tree.
+ *
+ * This might be called early when some more specific ways to detect revision
+ * are not yet available.
  */
 void set_board_type(void)
 {
@@ -211,8 +250,15 @@ void set_board_type(void)
 		gd->board_type = of_match->data;
 		break;
 	}
+}
 
-	/* If Odroid, then check its revision */
+/**
+ * set_board_revision() - set detailed board type in gd->board_type.
+ * Should be called when resources (e.g. regulators) are available
+ * so ADC can be used to detect the specific revision of a board.
+ */
+void set_board_revision(void)
+{
 	if (board_is_odroidxu3())
 		gd->board_type = odroid_get_board_type();
 }

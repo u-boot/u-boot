@@ -9,4 +9,21 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "stm32mp1"
 
+config ENV_SECT_SIZE
+	default 0x40000 if ENV_IS_IN_SPI_FLASH
+
+config ENV_OFFSET
+	default 0x280000 if ENV_IS_IN_SPI_FLASH
+
+config CMD_STBOARD
+	bool "stboard - command for OTP board information"
+	default y
+	help
+	  This compile the stboard command to
+	  read and write the board in the OTP.
+
+config TARGET_STM32MP157C_DK2
+	bool "support of STMicroelectronics STM32MP157C-DK2 Discovery Board"
+	default y
+
 endif

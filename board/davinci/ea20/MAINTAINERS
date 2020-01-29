@@ -1,6 +1,0 @@
-EA20 BOARD
-M:	Stefano Babic <sbabic@denx.de>
-S:	Maintained
-F:	board/davinci/ea20/
-F:	include/configs/ea20.h
-F:	configs/ea20_defconfig

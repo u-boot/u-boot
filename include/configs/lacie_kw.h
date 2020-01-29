@@ -65,10 +65,8 @@
 #include "mv-common.h"
 
 /* Remove or override few declarations from mv-common.h */
-#undef CONFIG_ENV_SPI_MAX_HZ
 #undef CONFIG_SYS_IDE_MAXBUS
 #undef CONFIG_SYS_IDE_MAXDEVICE
-#define CONFIG_ENV_SPI_MAX_HZ           20000000 /* 20Mhz */
 
 /*
  * Enable platform initialisation via misc_init_r() function
@@ -127,10 +125,6 @@
 /*
  * Environment variables configurations
  */
-#define CONFIG_ENV_SECT_SIZE		0x10000	/* 64KB */
-#define CONFIG_ENV_SIZE			0x1000	/* 4KB */
-#define CONFIG_ENV_ADDR			0x70000
-#define CONFIG_ENV_OFFSET		0x70000	/* env starts here */
 
 /*
  * Default environment variables

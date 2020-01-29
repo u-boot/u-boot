@@ -27,11 +27,13 @@ U_BOOT_CMD(
 	"	- print detailed usage of 'command'"
 );
 
+#ifdef CONFIG_CMDLINE
 /* This does not use the U_BOOT_CMD macro as ? can't be used in symbol names */
 ll_entry_declare(cmd_tbl_t, question_mark, cmd) = {
-	"?",	CONFIG_SYS_MAXARGS,	1,	do_help,
+	"?",	CONFIG_SYS_MAXARGS, cmd_always_repeatable,	do_help,
 	"alias for 'help'",
 #ifdef  CONFIG_SYS_LONGHELP
 	""
 #endif /* CONFIG_SYS_LONGHELP */
 };
+#endif

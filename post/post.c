@@ -5,7 +5,9 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <stdio_dev.h>
+#include <time.h>
 #include <watchdog.h>
 #include <div64.h>
 #include <post.h>

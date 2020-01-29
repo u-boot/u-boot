@@ -68,21 +68,6 @@ int board_init(void)
 	return 0;
 }
 
-int dram_init(void)
-{
-	if (fdtdec_setup_mem_size_base() != 0)
-		return -EINVAL;
-
-	return 0;
-}
-
-int dram_init_banksize(void)
-{
-	fdtdec_setup_memory_banksize();
-
-	return 0;
-}
-
 #ifdef CONFIG_MULTI_DTB_FIT
 int board_fit_config_name_match(const char *name)
 {
@@ -95,6 +80,10 @@ int board_fit_config_name_match(const char *name)
 
 	if ((cpu_type == RMOBILE_CPU_TYPE_R8A7796) &&
 	    !strcmp(name, "r8a7796-m3ulcb-u-boot"))
+		return 0;
+
+	if ((cpu_type == RMOBILE_CPU_TYPE_R8A77965) &&
+	    !strcmp(name, "r8a77965-m3nulcb-u-boot"))
 		return 0;
 
 	return -1;

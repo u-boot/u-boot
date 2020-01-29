@@ -9,6 +9,7 @@
 #include <log.h>
 #include <mapmem.h>
 #include <spl.h>
+#include <u-boot/crc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

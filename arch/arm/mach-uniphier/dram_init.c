@@ -7,87 +7,33 @@
 
 #include <common.h>
 #include <linux/errno.h>
+#include <linux/io.h>
 #include <linux/kernel.h>
 #include <linux/printk.h>
 #include <linux/sizes.h>
 #include <asm/global_data.h>
 
+#include "init.h"
 #include "sg-regs.h"
 #include "soc-info.h"
 
 DECLARE_GLOBAL_DATA_PTR;
-
-struct uniphier_memif_data {
-	unsigned int soc_id;
-	unsigned long sparse_ch1_base;
-	int have_ch2;
-};
-
-static const struct uniphier_memif_data uniphier_memif_data[] = {
-	{
-		.soc_id = UNIPHIER_LD4_ID,
-		.sparse_ch1_base = 0xc0000000,
-	},
-	{
-		.soc_id = UNIPHIER_PRO4_ID,
-		.sparse_ch1_base = 0xa0000000,
-	},
-	{
-		.soc_id = UNIPHIER_SLD8_ID,
-		.sparse_ch1_base = 0xc0000000,
-	},
-	{
-		.soc_id = UNIPHIER_PRO5_ID,
-		.sparse_ch1_base = 0xc0000000,
-	},
-	{
-		.soc_id = UNIPHIER_PXS2_ID,
-		.sparse_ch1_base = 0xc0000000,
-		.have_ch2 = 1,
-	},
-	{
-		.soc_id = UNIPHIER_LD6B_ID,
-		.sparse_ch1_base = 0xc0000000,
-		.have_ch2 = 1,
-	},
-	{
-		.soc_id = UNIPHIER_LD11_ID,
-		.sparse_ch1_base = 0xc0000000,
-	},
-	{
-		.soc_id = UNIPHIER_LD20_ID,
-		.sparse_ch1_base = 0xc0000000,
-		.have_ch2 = 1,
-	},
-	{
-		.soc_id = UNIPHIER_PXS3_ID,
-		.sparse_ch1_base = 0xc0000000,
-		.have_ch2 = 1,
-	},
-};
-UNIPHIER_DEFINE_SOCDATA_FUNC(uniphier_get_memif_data, uniphier_memif_data)
 
 struct uniphier_dram_map {
 	unsigned long base;
 	unsigned long size;
 };
 
-static int uniphier_memconf_decode(struct uniphier_dram_map *dram_map)
+static int uniphier_memconf_decode(struct uniphier_dram_map *dram_map,
+				   unsigned long sparse_ch1_base, bool have_ch2)
 {
-	const struct uniphier_memif_data *data;
 	unsigned long size;
 	u32 val;
 
-	data = uniphier_get_memif_data();
-	if (!data) {
-		pr_err("unsupported SoC\n");
-		return -EINVAL;
-	}
-
-	val = readl(SG_MEMCONF);
+	val = readl(sg_base + SG_MEMCONF);
 
 	/* set up ch0 */
-	dram_map[0].base = CONFIG_SYS_SDRAM_BASE;
+	dram_map[0].base = 0x80000000;
 
 	switch (val & SG_MEMCONF_CH0_SZ_MASK) {
 	case SG_MEMCONF_CH0_SZ_64M:
@@ -119,14 +65,14 @@ static int uniphier_memconf_decode(struct uniphier_dram_map *dram_map)
 	dram_map[1].base = dram_map[0].base + size;
 
 	if (val & SG_MEMCONF_SPARSEMEM) {
-		if (dram_map[1].base > data->sparse_ch1_base) {
+		if (dram_map[1].base > sparse_ch1_base) {
 			pr_warn("Sparse mem is enabled, but ch0 and ch1 overlap\n");
 			pr_warn("Only ch0 is available\n");
 			dram_map[1].base = 0;
 			return 0;
 		}
 
-		dram_map[1].base = data->sparse_ch1_base;
+		dram_map[1].base = sparse_ch1_base;
 	}
 
 	switch (val & SG_MEMCONF_CH1_SZ_MASK) {
@@ -155,7 +101,7 @@ static int uniphier_memconf_decode(struct uniphier_dram_map *dram_map)
 
 	dram_map[1].size = size;
 
-	if (!data->have_ch2 || val & SG_MEMCONF_CH2_DISABLE)
+	if (!have_ch2 || val & SG_MEMCONF_CH2_DISABLE)
 		return 0;
 
 	/* set up ch2 */
@@ -190,14 +136,90 @@ static int uniphier_memconf_decode(struct uniphier_dram_map *dram_map)
 	return 0;
 }
 
+static int uniphier_ld4_dram_map_get(struct uniphier_dram_map dram_map[])
+{
+	return uniphier_memconf_decode(dram_map, 0xc0000000, false);
+}
+
+static int uniphier_pro4_dram_map_get(struct uniphier_dram_map dram_map[])
+{
+	return uniphier_memconf_decode(dram_map, 0xa0000000, false);
+}
+
+static int uniphier_pxs2_dram_map_get(struct uniphier_dram_map dram_map[])
+{
+	return uniphier_memconf_decode(dram_map, 0xc0000000, true);
+}
+
+struct uniphier_dram_init_data {
+	unsigned int soc_id;
+	int (*dram_map_get)(struct uniphier_dram_map dram_map[]);
+};
+
+static const struct uniphier_dram_init_data uniphier_dram_init_data[] = {
+	{
+		.soc_id = UNIPHIER_LD4_ID,
+		.dram_map_get = uniphier_ld4_dram_map_get,
+	},
+	{
+		.soc_id = UNIPHIER_PRO4_ID,
+		.dram_map_get = uniphier_pro4_dram_map_get,
+	},
+	{
+		.soc_id = UNIPHIER_SLD8_ID,
+		.dram_map_get = uniphier_ld4_dram_map_get,
+	},
+	{
+		.soc_id = UNIPHIER_PRO5_ID,
+		.dram_map_get = uniphier_ld4_dram_map_get,
+	},
+	{
+		.soc_id = UNIPHIER_PXS2_ID,
+		.dram_map_get = uniphier_pxs2_dram_map_get,
+	},
+	{
+		.soc_id = UNIPHIER_LD6B_ID,
+		.dram_map_get = uniphier_pxs2_dram_map_get,
+	},
+	{
+		.soc_id = UNIPHIER_LD11_ID,
+		.dram_map_get = uniphier_ld4_dram_map_get,
+	},
+	{
+		.soc_id = UNIPHIER_LD20_ID,
+		.dram_map_get = uniphier_pxs2_dram_map_get,
+	},
+	{
+		.soc_id = UNIPHIER_PXS3_ID,
+		.dram_map_get = uniphier_pxs2_dram_map_get,
+	},
+};
+UNIPHIER_DEFINE_SOCDATA_FUNC(uniphier_get_dram_init_data,
+			     uniphier_dram_init_data)
+
+static int uniphier_dram_map_get(struct uniphier_dram_map *dram_map)
+{
+	const struct uniphier_dram_init_data *data;
+
+	data = uniphier_get_dram_init_data();
+	if (!data) {
+		pr_err("unsupported SoC\n");
+		return -ENOTSUPP;
+	}
+
+	return data->dram_map_get(dram_map);
+}
+
 int dram_init(void)
 {
 	struct uniphier_dram_map dram_map[3] = {};
+	bool valid_bank_found = false;
+	unsigned long prev_top;
 	int ret, i;
 
 	gd->ram_size = 0;
 
-	ret = uniphier_memconf_decode(dram_map);
+	ret = uniphier_dram_map_get(dram_map);
 	if (ret)
 		return ret;
 
@@ -205,15 +227,14 @@ int dram_init(void)
 		unsigned long max_size;
 
 		if (!dram_map[i].size)
-			break;
+			continue;
 
 		/*
 		 * U-Boot relocates itself to the tail of the memory region,
 		 * but it does not expect sparse memory.  We use the first
 		 * contiguous chunk here.
 		 */
-		if (i > 0 && dram_map[i - 1].base + dram_map[i - 1].size <
-							dram_map[i].base)
+		if (valid_bank_found && prev_top < dram_map[i].base)
 			break;
 
 		/*
@@ -233,6 +254,12 @@ int dram_init(void)
 		}
 
 		gd->ram_size += dram_map[i].size;
+
+		if (!valid_bank_found)
+			gd->ram_base = dram_map[i].base;
+
+		prev_top = dram_map[i].base + dram_map[i].size;
+		valid_bank_found = true;
 	}
 
 	/*
@@ -248,17 +275,34 @@ int dram_init(void)
 int dram_init_banksize(void)
 {
 	struct uniphier_dram_map dram_map[3] = {};
-	int i;
+	unsigned long base, top;
+	bool valid_bank_found = false;
+	int ret, i;
 
-	uniphier_memconf_decode(dram_map);
+	ret = uniphier_dram_map_get(dram_map);
+	if (ret)
+		return ret;
 
 	for (i = 0; i < ARRAY_SIZE(dram_map); i++) {
-		if (i >= ARRAY_SIZE(gd->bd->bi_dram))
-			break;
+		if (i < ARRAY_SIZE(gd->bd->bi_dram)) {
+			gd->bd->bi_dram[i].start = dram_map[i].base;
+			gd->bd->bi_dram[i].size = dram_map[i].size;
+		}
 
-		gd->bd->bi_dram[i].start = dram_map[i].base;
-		gd->bd->bi_dram[i].size = dram_map[i].size;
+		if (!dram_map[i].size)
+			continue;
+
+		if (!valid_bank_found)
+			base = dram_map[i].base;
+		top = dram_map[i].base + dram_map[i].size;
+		valid_bank_found = true;
 	}
+
+	if (!valid_bank_found)
+		return -EINVAL;
+
+	/* map all the DRAM regions */
+	uniphier_mem_map_init(base, top - base);
 
 	return 0;
 }

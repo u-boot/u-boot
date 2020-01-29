@@ -24,8 +24,8 @@
 
 static struct efi_boot_services *boottime;
 
-static const efi_guid_t block_io_protocol_guid = BLOCK_IO_GUID;
-static const efi_guid_t guid_device_path = DEVICE_PATH_GUID;
+static const efi_guid_t block_io_protocol_guid = EFI_BLOCK_IO_PROTOCOL_GUID;
+static const efi_guid_t guid_device_path = EFI_DEVICE_PATH_PROTOCOL_GUID;
 static const efi_guid_t guid_simple_file_system_protocol =
 					EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_GUID;
 static const efi_guid_t guid_file_system_info = EFI_FILE_SYSTEM_INFO_GUID;
@@ -264,7 +264,7 @@ static int teardown(void)
 	}
 
 	if (image) {
-		r = efi_free_pool(image);
+		r = boottime->free_pool(image);
 		if (r != EFI_SUCCESS) {
 			efi_st_error("Failed to free image\n");
 			return EFI_ST_FAILURE;
@@ -337,7 +337,7 @@ static int execute(void)
 		}
 		if (len >= dp_size(dp_partition))
 			continue;
-		if (efi_st_memcmp(dp, dp_partition, len))
+		if (memcmp(dp, dp_partition, len))
 			continue;
 		handle_partition = handles[i];
 		break;
@@ -387,7 +387,7 @@ static int execute(void)
 	}
 
 	/* Read file */
-	ret = root->open(root, &file, (s16 *)L"hello.txt", EFI_FILE_MODE_READ,
+	ret = root->open(root, &file, L"hello.txt", EFI_FILE_MODE_READ,
 			 0);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("Failed to open file\n");
@@ -409,7 +409,7 @@ static int execute(void)
 			     (unsigned int)buf_size);
 		return EFI_ST_FAILURE;
 	}
-	if (efi_st_memcmp(buf, "ello world!", 11)) {
+	if (memcmp(buf, "ello world!", 11)) {
 		efi_st_error("Unexpected file content\n");
 		return EFI_ST_FAILURE;
 	}
@@ -431,7 +431,7 @@ static int execute(void)
 
 #ifdef CONFIG_FAT_WRITE
 	/* Write file */
-	ret = root->open(root, &file, (s16 *)L"u-boot.txt", EFI_FILE_MODE_READ |
+	ret = root->open(root, &file, L"u-boot.txt", EFI_FILE_MODE_READ |
 			 EFI_FILE_MODE_WRITE | EFI_FILE_MODE_CREATE, 0);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("Failed to open file\n");
@@ -463,7 +463,7 @@ static int execute(void)
 
 	/* Verify file */
 	boottime->set_mem(buf, sizeof(buf), 0);
-	ret = root->open(root, &file, (s16 *)L"u-boot.txt", EFI_FILE_MODE_READ,
+	ret = root->open(root, &file, L"u-boot.txt", EFI_FILE_MODE_READ,
 			 0);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("Failed to open file\n");
@@ -480,7 +480,7 @@ static int execute(void)
 			     (unsigned int)buf_size);
 		return EFI_ST_FAILURE;
 	}
-	if (efi_st_memcmp(buf, "U-Boot", 7)) {
+	if (memcmp(buf, "U-Boot", 7)) {
 		efi_st_error("Unexpected file content %s\n", buf);
 		return EFI_ST_FAILURE;
 	}

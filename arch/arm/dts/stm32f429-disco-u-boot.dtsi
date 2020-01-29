@@ -70,74 +70,55 @@
 	u-boot,dm-pre-reloc;
 };
 
-&clk_lse {
-	u-boot,dm-pre-reloc;
-};
-
 &clk_i2s_ckin {
 	u-boot,dm-pre-reloc;
 };
 
-&pwrcfg {
-	u-boot,dm-pre-reloc;
-};
-
-&rcc {
+&clk_lse {
 	u-boot,dm-pre-reloc;
 };
 
 &gpioa {
-	compatible = "st,stm32-gpio";
 	u-boot,dm-pre-reloc;
 };
 
 &gpiob {
-	compatible = "st,stm32-gpio";
 	u-boot,dm-pre-reloc;
 };
 
 &gpioc {
-	compatible = "st,stm32-gpio";
 	u-boot,dm-pre-reloc;
 };
 
 &gpiod {
-	compatible = "st,stm32-gpio";
 	u-boot,dm-pre-reloc;
 };
 
 &gpioe {
-	compatible = "st,stm32-gpio";
 	u-boot,dm-pre-reloc;
 };
 
 &gpiof {
-	compatible = "st,stm32-gpio";
 	u-boot,dm-pre-reloc;
 };
 
 &gpiog {
-	compatible = "st,stm32-gpio";
 	u-boot,dm-pre-reloc;
 };
 
 &gpioh {
-	compatible = "st,stm32-gpio";
 	u-boot,dm-pre-reloc;
 };
 
 &gpioi {
-	compatible = "st,stm32-gpio";
 	u-boot,dm-pre-reloc;
 };
 
 &gpioj {
-	compatible = "st,stm32-gpio";
 	u-boot,dm-pre-reloc;
 };
 
 &gpiok {
-	compatible = "st,stm32-gpio";
 	u-boot,dm-pre-reloc;
 };
 
@@ -202,4 +183,12 @@
 			u-boot,dm-pre-reloc;
 		};
 	};
+};
+
+&pwrcfg {
+	u-boot,dm-pre-reloc;
+};
+
+&rcc {
+	u-boot,dm-pre-reloc;
 };

@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <asm/io.h>
 #include <errno.h>
 #include <fdtdec.h>
@@ -48,10 +49,10 @@ int dram_init(void)
 
 void enable_caches(void)
 {
-#ifndef CONFIG_SYS_ICACHE_OFF
+#if !CONFIG_IS_ENABLED(SYS_ICACHE_OFF)
 	icache_enable();
 #endif
-#ifndef CONFIG_SYS_DCACHE_OFF
+#if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 	dcache_enable();
 #endif
 }
@@ -59,8 +60,29 @@ void enable_caches(void)
 #ifdef CONFIG_SYS_L2_PL310
 void v7_outer_cache_enable(void)
 {
+	struct udevice *dev;
+
+	if (uclass_get_device(UCLASS_CACHE, 0, &dev))
+		pr_err("cache controller driver NOT found!\n");
+}
+
+void v7_outer_cache_disable(void)
+{
 	/* Disable the L2 cache */
 	clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
+}
+
+void socfpga_pl310_clear(void)
+{
+	u32 mask = 0xff, ena = 0;
+
+	icache_enable();
+
+	/* Disable the L2 cache */
+	clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
+
+	writel(0x0, &pl310->pl310_tag_latency_ctrl);
+	writel(0x10, &pl310->pl310_data_latency_ctrl);
 
 	/* enable BRESP, instruction and data prefetch, full line of zeroes */
 	setbits_le32(&pl310->pl310_aux_ctrl,
@@ -69,11 +91,37 @@ void v7_outer_cache_enable(void)
 		     L310_SHARED_ATT_OVERRIDE_ENABLE);
 
 	/* Enable the L2 cache */
-	setbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
-}
+	ena = readl(&pl310->pl310_ctrl);
+	ena |= L2X0_CTRL_EN;
 
-void v7_outer_cache_disable(void)
-{
+	/*
+	 * Invalidate the PL310 L2 cache. Keep the invalidation code
+	 * entirely in L1 I-cache to avoid any bus traffic through
+	 * the L2.
+	 */
+	asm volatile(
+		".align	5			\n"
+		"	b	3f		\n"
+		"1:	str	%1,	[%4]	\n"
+		"	dsb			\n"
+		"	isb			\n"
+		"	str	%0,	[%2]	\n"
+		"	dsb			\n"
+		"	isb			\n"
+		"2:	ldr	%0,	[%2]	\n"
+		"	cmp	%0,	#0	\n"
+		"	bne	2b		\n"
+		"	str	%0,	[%3]	\n"
+		"	dsb			\n"
+		"	isb			\n"
+		"	b	4f		\n"
+		"3:	b	1b		\n"
+		"4:	nop			\n"
+	: "+r"(mask), "+r"(ena)
+	: "r"(&pl310->pl310_inv_way),
+	  "r"(&pl310->pl310_cache_sync), "r"(&pl310->pl310_ctrl)
+	: "memory", "cc");
+
 	/* Disable the L2 cache */
 	clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
 }
@@ -120,85 +168,25 @@ int arch_cpu_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_ETH_DESIGNWARE
-static int dwmac_phymode_to_modereg(const char *phymode, u32 *modereg)
-{
-	if (!phymode)
-		return -EINVAL;
-
-	if (!strcmp(phymode, "mii") || !strcmp(phymode, "gmii")) {
-		*modereg = SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_GMII_MII;
-		return 0;
-	}
-
-	if (!strcmp(phymode, "rgmii")) {
-		*modereg = SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_RGMII;
-		return 0;
-	}
-
-	if (!strcmp(phymode, "rmii")) {
-		*modereg = SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_RMII;
-		return 0;
-	}
-
-	return -EINVAL;
-}
-
-int socfpga_eth_reset_common(void (*resetfn)(const u8 of_reset_id,
-					     const u8 phymode))
-{
-	const void *fdt = gd->fdt_blob;
-	struct fdtdec_phandle_args args;
-	const char *phy_mode;
-	u32 phy_modereg;
-	int nodes[2];	/* Max. two GMACs */
-	int ret, count;
-	int i, node;
-
-	count = fdtdec_find_aliases_for_id(fdt, "ethernet",
-					   COMPAT_ALTERA_SOCFPGA_DWMAC,
-					   nodes, ARRAY_SIZE(nodes));
-	for (i = 0; i < count; i++) {
-		node = nodes[i];
-		if (node <= 0)
-			continue;
-
-		ret = fdtdec_parse_phandle_with_args(fdt, node, "resets",
-						     "#reset-cells", 1, 0,
-						     &args);
-		if (ret || (args.args_count != 1)) {
-			debug("GMAC%i: Failed to parse DT 'resets'!\n", i);
-			continue;
-		}
-
-		phy_mode = fdt_getprop(fdt, node, "phy-mode", NULL);
-		ret = dwmac_phymode_to_modereg(phy_mode, &phy_modereg);
-		if (ret) {
-			debug("GMAC%i: Failed to parse DT 'phy-mode'!\n", i);
-			continue;
-		}
-
-		resetfn(args.args[0], phy_modereg);
-	}
-
-	return 0;
-}
-#endif
-
 #ifndef CONFIG_SPL_BUILD
 static int do_bridge(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	if (argc != 2)
+	unsigned int mask = ~0;
+
+	if (argc < 2 || argc > 3)
 		return CMD_RET_USAGE;
 
 	argv++;
 
+	if (argc == 3)
+		mask = simple_strtoul(argv[1], NULL, 16);
+
 	switch (*argv[0]) {
 	case 'e':	/* Enable */
-		do_bridge_reset(1);
+		do_bridge_reset(1, mask);
 		break;
 	case 'd':	/* Disable */
-		do_bridge_reset(0);
+		do_bridge_reset(0, mask);
 		break;
 	default:
 		return CMD_RET_USAGE;
@@ -207,10 +195,10 @@ static int do_bridge(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-U_BOOT_CMD(bridge, 2, 1, do_bridge,
+U_BOOT_CMD(bridge, 3, 1, do_bridge,
 	   "SoCFPGA HPS FPGA bridge control",
-	   "enable  - Enable HPS-to-FPGA, FPGA-to-HPS, LWHPS-to-FPGA bridges\n"
-	   "bridge disable - Enable HPS-to-FPGA, FPGA-to-HPS, LWHPS-to-FPGA bridges\n"
+	   "enable [mask] - Enable HPS-to-FPGA, FPGA-to-HPS, LWHPS-to-FPGA bridges\n"
+	   "bridge disable [mask] - Enable HPS-to-FPGA, FPGA-to-HPS, LWHPS-to-FPGA bridges\n"
 	   ""
 );
 

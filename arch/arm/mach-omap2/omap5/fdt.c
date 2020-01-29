@@ -180,6 +180,14 @@ u32 dra7_opp_dsp_clk_rates[NUM_OPPS][OPP_DSP_CLK_NUM] = {
 	{750000000, 750000000, 500000000}, /* OPP_HIGH */
 };
 
+/* DSP clock rates on DRA76x ACD-package based SoCs */
+u32 dra76_opp_dsp_clk_rates[NUM_OPPS][OPP_DSP_CLK_NUM] = {
+	{}, /* OPP_LOW */
+	{600000000, 600000000, 400000000}, /* OPP_NOM */
+	{700000000, 700000000, 466666667}, /* OPP_OD */
+	{850000000, 850000000, 566666667}, /* OPP_HIGH */
+};
+
 /* IVA voltage domain */
 u32 dra7_opp_iva_clk_rates[NUM_OPPS][OPP_IVA_CLK_NUM] = {
 	{}, /* OPP_LOW */
@@ -201,7 +209,9 @@ static int ft_fixup_clocks(void *fdt, const char **names, u32 *rates, int num)
 	int offs, node_offs, ret, i;
 	uint32_t phandle;
 
-	offs = fdt_path_offset(fdt, "/ocp/l4@4a000000/cm_core_aon@5000/clocks");
+	offs = fdt_path_offset(fdt, "/ocp/interconnect@4a000000/segment@0/target-module@5000/cm_core_aon@0/clocks");
+	if (offs < 0)
+		offs = fdt_path_offset(fdt, "/ocp/l4@4a000000/cm_core_aon@5000/clocks");
 	if (offs < 0) {
 		debug("Could not find cm_core_aon clocks node path offset : %s\n",
 		      fdt_strerror(offs));
@@ -255,6 +265,10 @@ static void ft_opp_clock_fixups(void *fdt, bd_t *bd)
 	/* fixup DSP clocks */
 	clk_names = dra7_opp_dsp_clk_names;
 	clk_rates = dra7_opp_dsp_clk_rates[get_voltrail_opp(VOLT_EVE)];
+	/* adjust for higher OPP_HIGH clock rate on DRA76xP/DRA77xP SoCs */
+	if (is_dra76x_acd())
+		clk_rates = dra76_opp_dsp_clk_rates[get_voltrail_opp(VOLT_EVE)];
+
 	ret = ft_fixup_clocks(fdt, clk_names, clk_rates, OPP_DSP_CLK_NUM);
 	if (ret) {
 		printf("ft_fixup_clocks failed for DSP voltage domain: %s\n",

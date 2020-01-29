@@ -126,6 +126,7 @@ U_BOOT_DRIVER(serial_arc) = {
 	.id	= UCLASS_SERIAL,
 	.of_match = arc_serial_ids,
 	.ofdata_to_platdata = arc_serial_ofdata_to_platdata,
+	.platdata_auto_alloc_size = sizeof(struct arc_serial_platdata),
 	.probe = arc_serial_probe,
 	.ops	= &arc_serial_ops,
 };

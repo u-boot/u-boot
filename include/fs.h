@@ -38,6 +38,28 @@ int fs_set_blk_dev(const char *ifname, const char *dev_part_str, int fstype);
 int fs_set_blk_dev_with_part(struct blk_desc *desc, int part);
 
 /**
+ * fs_close() - Unset current block device and partition
+ *
+ * fs_close() closes the connection to a file system opened with either
+ * fs_set_blk_dev() or fs_set_dev_with_part().
+ *
+ * Many file functions implicitly call fs_close(), e.g. fs_closedir(),
+ * fs_exist(), fs_ln(), fs_ls(), fs_mkdir(), fs_read(), fs_size(), fs_write(),
+ * fs_unlink().
+ */
+void fs_close(void);
+
+/**
+ * fs_get_type() - Get type of current filesystem
+ *
+ * Return: filesystem type
+ *
+ * Returns filesystem type representing the current filesystem, or
+ * FS_TYPE_ANY for any unrecognised filesystem.
+ */
+int fs_get_type(void);
+
+/**
  * fs_get_type_name() - Get type of current filesystem
  *
  * Return: Pointer to filesystem name
@@ -71,30 +93,33 @@ int fs_exists(const char *filename);
  */
 int fs_size(const char *filename, loff_t *size);
 
-/*
- * fs_read - Read file from the partition previously set by fs_set_blk_dev()
- * Note that not all filesystem types support either/both offset!=0 or len!=0.
+/**
+ * fs_read() - read file from the partition previously set by fs_set_blk_dev()
  *
- * @filename: Name of file to read from
- * @addr: The address to read into
- * @offset: The offset in file to read from
- * @len: The number of bytes to read. Maybe 0 to read entire file
- * @actread: Returns the actual number of bytes read
- * @return 0 if ok with valid *actread, -1 on error conditions
+ * Note that not all filesystem drivers support either or both of offset != 0
+ * and len != 0.
+ *
+ * @filename:	full path of the file to read from
+ * @addr:	address of the buffer to write to
+ * @offset:	offset in the file from where to start reading
+ * @len:	the number of bytes to read. Use 0 to read entire file.
+ * @actread:	returns the actual number of bytes read
+ * Return:	0 if OK with valid *actread, -1 on error conditions
  */
 int fs_read(const char *filename, ulong addr, loff_t offset, loff_t len,
 	    loff_t *actread);
 
-/*
- * fs_write - Write file to the partition previously set by fs_set_blk_dev()
- * Note that not all filesystem types support offset!=0.
+/**
+ * fs_write() - write file to the partition previously set by fs_set_blk_dev()
  *
- * @filename: Name of file to read from
- * @addr: The address to read into
- * @offset: The offset in file to read from. Maybe 0 to write to start of file
- * @len: The number of bytes to write
- * @actwrite: Returns the actual number of bytes written
- * @return 0 if ok with valid *actwrite, -1 on error conditions
+ * Note that not all filesystem drivers support offset != 0.
+ *
+ * @filename:	full path of the file to write to
+ * @addr:	address of the buffer to read from
+ * @offset:	offset in the file from where to start writing
+ * @len:	the number of bytes to write
+ * @actwrite:	returns the actual number of bytes written
+ * Return:	0 if OK with valid *actwrite, -1 on error conditions
  */
 int fs_write(const char *filename, ulong addr, loff_t offset, loff_t len,
 	     loff_t *actwrite);
@@ -191,6 +216,8 @@ int do_rm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 		int fstype);
 int do_mkdir(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 		int fstype);
+int do_ln(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
+	  int fstype);
 
 /*
  * Determine the UUID of the specified filesystem and print it. Optionally it is

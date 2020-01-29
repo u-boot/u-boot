@@ -15,9 +15,9 @@
 #include <asm/arch/firewall_s10.h>
 #include <asm/arch/mailbox_s10.h>
 #include <asm/arch/reset_manager.h>
-#include <asm/arch/sdram_s10.h>
 #include <asm/arch/system_manager.h>
 #include <watchdog.h>
+#include <dm/uclass.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -33,7 +33,7 @@ u32 spl_boot_device(void)
 #ifdef CONFIG_SPL_MMC_SUPPORT
 u32 spl_boot_mode(const u32 boot_device)
 {
-#if defined(CONFIG_SPL_FAT_SUPPORT) || defined(CONFIG_SPL_EXT_SUPPORT)
+#if defined(CONFIG_SPL_FS_FAT) || defined(CONFIG_SPL_FS_EXT4)
 	return MMCSD_MODE_FS;
 #else
 	return MMCSD_MODE_RAW;
@@ -175,22 +175,15 @@ void board_init_f(ulong dummy)
 	clrbits_le32(CCU_REG_ADDR(CCU_IOM_MPRT_ADMASK_MEM_RAM0),
 		     CCU_ADMASK_P_MASK | CCU_ADMASK_NS_MASK);
 
-	debug("DDR: Initializing Hard Memory Controller\n");
-	if (sdram_mmr_init_full(0)) {
-		puts("DDR: Initialization failed.\n");
-		hang();
-	}
+#if CONFIG_IS_ENABLED(ALTERA_SDRAM)
+		struct udevice *dev;
 
-	gd->ram_size = sdram_calculate_size();
-	printf("DDR: %d MiB\n", (int)(gd->ram_size >> 20));
-
-	/* Sanity check ensure correct SDRAM size specified */
-	debug("DDR: Running SDRAM size sanity check\n");
-	if (get_ram_size(0, gd->ram_size) != gd->ram_size) {
-		puts("DDR: SDRAM size check failed!\n");
-		hang();
-	}
-	debug("DDR: SDRAM size check passed!\n");
+		ret = uclass_get_device(UCLASS_RAM, 0, &dev);
+		if (ret) {
+			debug("DRAM init failed: %d\n", ret);
+			hang();
+		}
+#endif
 
 	mbox_init();
 

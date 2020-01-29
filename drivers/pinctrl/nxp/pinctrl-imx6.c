@@ -10,7 +10,7 @@
 
 #include "pinctrl-imx.h"
 
-static struct imx_pinctrl_soc_info imx6_pinctrl_soc_info;
+static struct imx_pinctrl_soc_info imx6_pinctrl_soc_info __section(".data");
 
 /* FIXME Before reloaction, BSS is overlapped with DT area */
 static struct imx_pinctrl_soc_info imx6ul_pinctrl_soc_info = {
@@ -49,7 +49,5 @@ U_BOOT_DRIVER(imx6_pinctrl) = {
 	.remove = imx_pinctrl_remove,
 	.priv_auto_alloc_size = sizeof(struct imx_pinctrl_priv),
 	.ops = &imx_pinctrl_ops,
-#if !CONFIG_IS_ENABLED(OF_CONTROL)
 	.flags = DM_FLAG_PRE_RELOC,
-#endif
 };

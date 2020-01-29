@@ -7,6 +7,7 @@
  * All rights reserved.
  */
 #include <common.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>
 #include <asm/byteorder.h>
@@ -307,7 +308,7 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	volatile struct qTD *vtd;
 	unsigned long ts;
 	uint32_t *tdp;
-	uint32_t endpt, maxpacket, token, usbsts;
+	uint32_t endpt, maxpacket, token, usbsts, qhtoken;
 	uint32_t c, toggle;
 	uint32_t cmd;
 	int timeout;
@@ -551,22 +552,21 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	flush_dcache_range((unsigned long)qtd,
 			   ALIGN_END_ADDR(struct qTD, qtd, qtd_count));
 
-	/* Set async. queue head pointer. */
-	ehci_writel(&ctrl->hcor->or_asynclistaddr, virt_to_phys(&ctrl->qh_list));
-
 	usbsts = ehci_readl(&ctrl->hcor->or_usbsts);
 	ehci_writel(&ctrl->hcor->or_usbsts, (usbsts & 0x3f));
 
 	/* Enable async. schedule. */
 	cmd = ehci_readl(&ctrl->hcor->or_usbcmd);
-	cmd |= CMD_ASE;
-	ehci_writel(&ctrl->hcor->or_usbcmd, cmd);
+	if (!(cmd & CMD_ASE)) {
+		cmd |= CMD_ASE;
+		ehci_writel(&ctrl->hcor->or_usbcmd, cmd);
 
-	ret = handshake((uint32_t *)&ctrl->hcor->or_usbsts, STS_ASS, STS_ASS,
-			100 * 1000);
-	if (ret < 0) {
-		printf("EHCI fail timeout STS_ASS set\n");
-		goto fail;
+		ret = handshake((uint32_t *)&ctrl->hcor->or_usbsts, STS_ASS, STS_ASS,
+				100 * 1000);
+		if (ret < 0) {
+			printf("EHCI fail timeout STS_ASS set\n");
+			goto fail;
+		}
 	}
 
 	/* Wait for TDs to be processed. */
@@ -587,6 +587,11 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 			break;
 		WATCHDOG_RESET();
 	} while (get_timer(ts) < timeout);
+	qhtoken = hc32_to_cpu(qh->qh_overlay.qt_token);
+
+	ctrl->qh_list.qh_link = cpu_to_hc32(virt_to_phys(&ctrl->qh_list) | QH_LINK_TYPE_QH);
+	flush_dcache_range((unsigned long)&ctrl->qh_list,
+		ALIGN_END_ADDR(struct QH, &ctrl->qh_list, 1));
 
 	/*
 	 * Invalidate the memory area occupied by buffer
@@ -605,25 +610,12 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	if (QT_TOKEN_GET_STATUS(token) & QT_TOKEN_STATUS_ACTIVE)
 		printf("EHCI timed out on TD - token=%#x\n", token);
 
-	/* Disable async schedule. */
-	cmd = ehci_readl(&ctrl->hcor->or_usbcmd);
-	cmd &= ~CMD_ASE;
-	ehci_writel(&ctrl->hcor->or_usbcmd, cmd);
-
-	ret = handshake((uint32_t *)&ctrl->hcor->or_usbsts, STS_ASS, 0,
-			100 * 1000);
-	if (ret < 0) {
-		printf("EHCI fail timeout STS_ASS reset\n");
-		goto fail;
-	}
-
-	token = hc32_to_cpu(qh->qh_overlay.qt_token);
-	if (!(QT_TOKEN_GET_STATUS(token) & QT_TOKEN_STATUS_ACTIVE)) {
-		debug("TOKEN=%#x\n", token);
-		switch (QT_TOKEN_GET_STATUS(token) &
+	if (!(QT_TOKEN_GET_STATUS(qhtoken) & QT_TOKEN_STATUS_ACTIVE)) {
+		debug("TOKEN=%#x\n", qhtoken);
+		switch (QT_TOKEN_GET_STATUS(qhtoken) &
 			~(QT_TOKEN_STATUS_SPLITXSTATE | QT_TOKEN_STATUS_PERR)) {
 		case 0:
-			toggle = QT_TOKEN_GET_DT(token);
+			toggle = QT_TOKEN_GET_DT(qhtoken);
 			usb_settoggle(dev, usb_pipeendpoint(pipe),
 				       usb_pipeout(pipe), toggle);
 			dev->status = 0;
@@ -641,11 +633,11 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 			break;
 		default:
 			dev->status = USB_ST_CRC_ERR;
-			if (QT_TOKEN_GET_STATUS(token) & QT_TOKEN_STATUS_HALTED)
+			if (QT_TOKEN_GET_STATUS(qhtoken) & QT_TOKEN_STATUS_HALTED)
 				dev->status |= USB_ST_STALLED;
 			break;
 		}
-		dev->act_len = length - QT_TOKEN_GET_TOTALBYTES(token);
+		dev->act_len = length - QT_TOKEN_GET_TOTALBYTES(qhtoken);
 	} else {
 		dev->act_len = 0;
 #ifndef CONFIG_USB_EHCI_FARADAY
@@ -1482,7 +1474,8 @@ out:
 }
 
 static int _ehci_submit_int_msg(struct usb_device *dev, unsigned long pipe,
-				void *buffer, int length, int interval)
+				void *buffer, int length, int interval,
+				bool nonblock)
 {
 	void *backbuffer;
 	struct int_queue *queue;
@@ -1532,9 +1525,10 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 }
 
 int submit_int_msg(struct usb_device *dev, unsigned long pipe,
-		   void *buffer, int length, int interval)
+		   void *buffer, int length, int interval, bool nonblock)
 {
-	return _ehci_submit_int_msg(dev, pipe, buffer, length, interval);
+	return _ehci_submit_int_msg(dev, pipe, buffer, length, interval,
+				    nonblock);
 }
 
 struct int_queue *create_int_queue(struct usb_device *dev,
@@ -1576,10 +1570,11 @@ static int ehci_submit_bulk_msg(struct udevice *dev, struct usb_device *udev,
 
 static int ehci_submit_int_msg(struct udevice *dev, struct usb_device *udev,
 			       unsigned long pipe, void *buffer, int length,
-			       int interval)
+			       int interval, bool nonblock)
 {
 	debug("%s: dev='%s', udev=%p\n", __func__, dev->name, udev);
-	return _ehci_submit_int_msg(udev, pipe, buffer, length, interval);
+	return _ehci_submit_int_msg(udev, pipe, buffer, length, interval,
+				    nonblock);
 }
 
 static struct int_queue *ehci_create_int_queue(struct udevice *dev,

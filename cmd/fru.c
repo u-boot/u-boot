@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
  * (C) Copyright 2019 Xilinx, Inc.
- *
  */
 
 #include <common.h>
@@ -19,7 +18,7 @@ static int do_fru_capture(cmd_tbl_t *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 
 	addr = simple_strtoul(argv[2], &endp, 16);
-	if (*argv[1] == 0 || *endp != 0) /* FIXME */
+	if (*argv[1] == 0 || *endp != 0)
 		return -1;
 
 	return fru_capture(addr);
@@ -61,7 +60,6 @@ static int do_fru(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	c = find_cmd_tbl(argv[1], &cmd_fru_sub[0],
 			 ARRAY_SIZE(cmd_fru_sub));
-
 	if (c)
 		return c->cmd(c, flag, argc, argv);
 

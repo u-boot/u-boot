@@ -16,6 +16,3 @@ reset_vector:
 	cli
 	cld
 	jmp start16
-
-	.org 0xf
-	nop

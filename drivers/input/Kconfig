@@ -73,6 +73,12 @@ config I8042_KEYB
 	  variable 'keymap' to "de" to select German. Keyboard repeat is
 	  handled by the keyboard itself.
 
+config TEGRA_KEYBOARD
+	bool "NVIDIA Tegra internal matrix keyboard controller support"
+	help
+	  A matrix keyboard connected directly to the internal keyboard
+	  controller on Tegra SoCs.
+
 config TWL4030_INPUT
 	bool "Enable TWL4030 Input controller"
 	help

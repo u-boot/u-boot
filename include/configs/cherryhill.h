@@ -15,7 +15,5 @@
 					"stderr=vidconsole,serial\0"
 
 /* Environment configuration */
-#define CONFIG_ENV_SECT_SIZE		0x10000
-#define CONFIG_ENV_OFFSET		0x005f0000
 
 #endif	/* __CONFIG_H */

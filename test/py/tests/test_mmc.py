@@ -22,10 +22,11 @@ def test_mmc_list(u_boot_console):
         pytest.skip('No SD/MMC card present')
 
     array = output.split( )
-
     global devices
     global controllers
-    controllers = len(array) / 3
+    # FIXME this should be changed - 2020.01 U-Boot doesn't
+    # detect type by default. After mmcinfor you can see (SD)
+    controllers = int(len(array) / 2)
     for x in range(0, controllers):
         y = x * 2
         devices[x] = {}
@@ -70,7 +71,7 @@ def test_mmcinfo(u_boot_console):
             obj = re.search(r'Capacity: (\d+|\d+[\.]?\d)', output)
             try:
                 capacity = float(obj.groups()[0])
-                print capacity
+                print (capacity)
                 devices[x]["capacity"] = capacity
                 print ("Capacity of dev %d is: %g GiB" % (x, capacity))
             except ValueError:
@@ -90,7 +91,7 @@ def test_mmc_info(u_boot_console):
             obj = re.search(r'Capacity: (\d+|\d+[\.]?\d)', output)
             try:
                 capacity = float(obj.groups()[0])
-                print capacity
+                print (capacity)
                 if devices[x]["capacity"] != capacity:
                       pytest.fail("MMC capacity doesn't match mmcinfo")
 
@@ -138,10 +139,10 @@ def test_mmc_part(u_boot_console):
                     print ("part_id:%d, part_type:%s" % (part_id, part_type))
 
                     if part_type == '0c' or part_type == '0b' or part_type == '0e':
-                        print "Fat detected"
+                        print ("Fat detected")
                         part_fat.append(part_id)
                     elif part_type == '83':
-                        print "ext detected"
+                        print ("ext detected")
                         part_ext.append(part_id)
                     else:
                         pytest.fail("Unsupported Filesystem on device %d" % x)
@@ -178,7 +179,7 @@ def test_mmc_fatls_fatinfo(u_boot_console):
                         partitions.remove(part)
                         pytest.fail("Unrecognized filesystem")
 
-                if not re.search("\d file\(s\), \d dir\(s\)", output):
+                if not re.search(r'\d file\(s\), \d dir\(s\)', output):
                     pytest.fail("%s read failed on device %d" % (fs.upper, x))
                 # Maybe separate this usecase
                 # Also maybe detect not readable chars
@@ -440,7 +441,7 @@ def test_mmc_ls(u_boot_console):
                 for part in partitions:
                     part_detect = 1
                     output = u_boot_console.run_command("ls mmc %d:%s" % (x, part))
-                    if re.search("No \w+ table on this device", output):
+                    if re.search(r'No \w+ table on this device', output):
                         pytest.fail("%s: Partition table not found %d" % (fs.upper(), x))
 
     if not part_detect:

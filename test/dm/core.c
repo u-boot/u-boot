@@ -749,6 +749,9 @@ static int dm_test_uclass_devices_find(struct unit_test_state *uts)
 		ut_assert(dev);
 	}
 
+	ut_assertok(uclass_find_first_device(UCLASS_TEST_DUMMY, &dev));
+	ut_assert(!dev);
+
 	return 0;
 }
 DM_TEST(dm_test_uclass_devices_find, DM_TESTF_SCAN_PDATA);

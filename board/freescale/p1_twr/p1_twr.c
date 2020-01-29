@@ -5,7 +5,9 @@
 
 #include <common.h>
 #include <command.h>
+#include <env.h>
 #include <hwconfig.h>
+#include <init.h>
 #include <pci.h>
 #include <i2c.h>
 #include <asm/processor.h>

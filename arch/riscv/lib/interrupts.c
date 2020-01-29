@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <irq_func.h>
 #include <asm/ptrace.h>
 #include <asm/system.h>
 #include <asm/encoding.h>
@@ -37,7 +38,8 @@ static void _exit_trap(ulong code, ulong epc, struct pt_regs *regs)
 		printf("exception code: %ld , %s , epc %lx , ra %lx\n",
 		       code, exception_code[code], epc, regs->ra);
 	} else {
-		printf("Reserved\n");
+		printf("reserved exception code: %ld , epc %lx , ra %lx\n",
+		       code, epc, regs->ra);
 	}
 
 	hang();

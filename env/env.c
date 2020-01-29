@@ -5,7 +5,8 @@
  */
 
 #include <common.h>
-#include <environment.h>
+#include <env.h>
+#include <env_internal.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -24,6 +25,8 @@ void env_fix_drivers(void)
 			entry->load += gd->reloc_off;
 		if (entry->save)
 			entry->save += gd->reloc_off;
+		if (entry->erase)
+			entry->erase += gd->reloc_off;
 		if (entry->init)
 			entry->init += gd->reloc_off;
 	}
@@ -177,6 +180,7 @@ int env_get_char(int index)
 int env_load(void)
 {
 	struct env_driver *drv;
+	int best_prio = -1;
 	int prio;
 
 	for (prio = 0; (drv = env_driver_lookup(ENVOP_LOAD, prio)); prio++) {
@@ -195,20 +199,32 @@ int env_load(void)
 		 * one message.
 		 */
 		ret = drv->load();
-		if (ret) {
-			debug("Failed (%d)\n", ret);
-		} else {
+		if (!ret) {
 			printf("OK\n");
 			return 0;
+		} else if (ret == -ENOMSG) {
+			/* Handle "bad CRC" case */
+			if (best_prio == -1)
+				best_prio = prio;
+		} else {
+			debug("Failed (%d)\n", ret);
 		}
 	}
 
 	/*
 	 * In case of invalid environment, we set the 'default' env location
-	 * to the highest priority. In this way, next calls to env_save()
-	 * will restore the environment at the right place.
+	 * to the best choice, i.e.:
+	 *   1. Environment location with bad CRC, if such location was found
+	 *   2. Otherwise use the location with highest priority
+	 *
+	 * This way, next calls to env_save() will restore the environment
+	 * at the right place.
 	 */
-	env_get_location(ENVOP_LOAD, 0);
+	if (best_prio >= 0)
+		debug("Selecting environment with bad CRC\n");
+	else
+		best_prio = 0;
+	env_get_location(ENVOP_LOAD, best_prio);
 
 	return -ENODEV;
 }
@@ -229,6 +245,34 @@ int env_save(void)
 
 		printf("Saving Environment to %s... ", drv->name);
 		ret = drv->save();
+		if (ret)
+			printf("Failed (%d)\n", ret);
+		else
+			printf("OK\n");
+
+		if (!ret)
+			return 0;
+	}
+
+	return -ENODEV;
+}
+
+int env_erase(void)
+{
+	struct env_driver *drv;
+
+	drv = env_driver_lookup(ENVOP_ERASE, gd->env_load_prio);
+	if (drv) {
+		int ret;
+
+		if (!drv->erase)
+			return -ENODEV;
+
+		if (!env_has_inited(drv->location))
+			return -ENODEV;
+
+		printf("Erasing Environment on %s... ", drv->name);
+		ret = drv->erase();
 		if (ret)
 			printf("Failed (%d)\n", ret);
 		else

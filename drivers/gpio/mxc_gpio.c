@@ -31,7 +31,7 @@ struct mxc_bank_info {
 };
 
 #ifndef CONFIG_DM_GPIO
-#define GPIO_TO_PORT(n)		(n / 32)
+#define GPIO_TO_PORT(n)		((n) / 32)
 
 /* GPIO port description */
 static unsigned long gpio_ports[] = {

@@ -141,6 +141,15 @@ static int rsa_engine_get_pub_key(const char *keydir, const char *name,
 			snprintf(key_id, sizeof(key_id),
 				 "pkcs11:object=%s;type=public",
 				 name);
+	} else if (engine_id) {
+		if (keydir)
+			snprintf(key_id, sizeof(key_id),
+				 "%s%s",
+				 keydir, name);
+		else
+			snprintf(key_id, sizeof(key_id),
+				 "%s",
+				 name);
 	} else {
 		fprintf(stderr, "Engine not supported\n");
 		return -ENOTSUP;
@@ -251,6 +260,15 @@ static int rsa_engine_get_priv_key(const char *keydir, const char *name,
 		else
 			snprintf(key_id, sizeof(key_id),
 				 "pkcs11:object=%s;type=private",
+				 name);
+	} else if (engine_id) {
+		if (keydir)
+			snprintf(key_id, sizeof(key_id),
+				 "%s%s",
+				 keydir, name);
+		else
+			snprintf(key_id, sizeof(key_id),
+				 "%s",
 				 name);
 	} else {
 		fprintf(stderr, "Engine not supported\n");

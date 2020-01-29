@@ -24,8 +24,6 @@
 #define CONFIG_DP_DDR_DIMM_SLOTS_PER_CTLR	1
 #endif
 
-#define CONFIG_FSL_DDR_SYNC_REFRESH
-
 #define CONFIG_SYS_NOR0_CSPR_EXT	(0x0)
 #define CONFIG_SYS_NOR_AMASK	IFC_AMASK(128*1024*1024)
 /*
@@ -78,6 +76,5 @@
 #define CONFIG_SYS_LS_MC_BOOT_TIMEOUT_MS 200000
 
 /* Store environment at top of flash */
-#define CONFIG_ENV_SIZE			0x1000
 
 #endif /* __LS2_EMU_H */

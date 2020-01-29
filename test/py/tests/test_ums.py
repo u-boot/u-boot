@@ -23,35 +23,35 @@ For example:
 # Leave this list empty if you have no block_devs below with writable
 # partitions defined.
 env__mount_points = (
-    "/mnt/ubtest-mnt-p2371-2180-na",
+    '/mnt/ubtest-mnt-p2371-2180-na',
 )
 
 env__usb_dev_ports = (
     {
-        "fixture_id": "micro_b",
-        "tgt_usb_ctlr": "0",
-        "host_ums_dev_node": "/dev/disk/by-path/pci-0000:00:14.0-usb-0:13:1.0-scsi-0:0:0:0",
+        'fixture_id': 'micro_b',
+        'tgt_usb_ctlr': '0',
+        'host_ums_dev_node': '/dev/disk/by-path/pci-0000:00:14.0-usb-0:13:1.0-scsi-0:0:0:0',
     },
 )
 
 env__block_devs = (
     # eMMC; always present
     {
-        "fixture_id": "emmc",
-        "type": "mmc",
-        "id": "0",
+        'fixture_id': 'emmc',
+        'type': 'mmc',
+        'id': '0',
         # The following two properties are optional.
         # If present, the partition will be mounted and a file written-to and
         # read-from it. If missing, only a simple block read test will be
         # performed.
-        "writable_fs_partition": 1,
-        "writable_fs_subdir": "tmp/",
+        'writable_fs_partition': 1,
+        'writable_fs_subdir': 'tmp/',
     },
     # SD card; present since I plugged one in
     {
-        "fixture_id": "sd",
-        "type": "mmc",
-        "id": "1"
+        'fixture_id': 'sd',
+        'type': 'mmc',
+        'id': '1'
     },
 )
 

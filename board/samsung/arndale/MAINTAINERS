@@ -1,5 +1,5 @@
 ARNDALE BOARD
-M:	Chander Kashyap <k.chander@samsung.com>
+M:	Krzysztof Kozlowski <krzk@kernel.org>
 S:	Maintained
 F:	board/samsung/arndale/
 F:	include/configs/arndale.h

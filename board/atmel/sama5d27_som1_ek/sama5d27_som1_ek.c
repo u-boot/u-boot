@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <debug_uart.h>
+#include <init.h>
 #include <asm/io.h>
 #include <asm/arch/at91_common.h>
 #include <asm/arch/atmel_pio4.h>

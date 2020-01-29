@@ -11,6 +11,7 @@
  */
 
 #include <common.h>
+#include <vsprintf.h>
 #include <asm/io.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/at91sam9g45_matrix.h>

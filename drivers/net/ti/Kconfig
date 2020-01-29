@@ -18,3 +18,11 @@ config DRIVER_TI_KEYSTONE_NET
 	bool "TI Keystone 2 Ethernet"
 	help
 	   This driver supports the TI Keystone 2 Ethernet subsystem
+
+config TI_AM65_CPSW_NUSS
+	bool "TI K3 AM65x MCU CPSW Nuss Ethernet controller driver"
+	depends on ARCH_K3
+	select PHYLIB
+	help
+	  This driver supports TI K3 MCU CPSW Nuss Ethernet controller
+	  in Texas Instruments K3 AM65x SoCs.

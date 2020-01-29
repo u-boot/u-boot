@@ -6,6 +6,7 @@
 #include <common.h>
 #include <config.h>
 #include <command.h>
+#include <irq_func.h>
 
 static int do_interrupts(cmd_tbl_t *cmdtp, int flag, int argc,
 			 char * const argv[])

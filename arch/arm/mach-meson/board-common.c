@@ -4,7 +4,9 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/arch/boot.h>
+#include <env.h>
 #include <linux/libfdt.h>
 #include <linux/err.h>
 #include <asm/arch/mem.h>
@@ -12,6 +14,12 @@
 #include <asm/armv8/mmu.h>
 #include <asm/unaligned.h>
 #include <efi_loader.h>
+#include <u-boot/crc.h>
+
+#if CONFIG_IS_ENABLED(FASTBOOT)
+#include <asm/psci.h>
+#include <fastboot.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -67,6 +75,36 @@ void meson_board_add_reserved_memory(void *fdt, u64 start, u64 size)
 	}
 }
 
+int meson_generate_serial_ethaddr(void)
+{
+	u8 mac_addr[ARP_HLEN];
+	char serial[SM_SERIAL_SIZE];
+	u32 sid;
+	u16 sid16;
+
+	if (!meson_sm_get_serial(serial, SM_SERIAL_SIZE)) {
+		sid = crc32(0, (unsigned char *)serial, SM_SERIAL_SIZE);
+		sid16 = crc16_ccitt(0, (unsigned char *)serial,	SM_SERIAL_SIZE);
+
+		/* Ensure the NIC specific bytes of the mac are not all 0 */
+		if ((sid & 0xffffff) == 0)
+			sid |= 0x800000;
+
+		/* Non OUI / registered MAC address */
+		mac_addr[0] = ((sid16 >> 8) & 0xfc) | 0x02;
+		mac_addr[1] = (sid16 >>  0) & 0xff;
+		mac_addr[2] = (sid >> 24) & 0xff;
+		mac_addr[3] = (sid >> 16) & 0xff;
+		mac_addr[4] = (sid >>  8) & 0xff;
+		mac_addr[5] = (sid >>  0) & 0xff;
+
+		eth_env_set_enetaddr("ethaddr", mac_addr);
+	} else
+		return -EINVAL;
+
+	return 0;
+}
+
 static void meson_set_boot_source(void)
 {
 	const char *source;
@@ -111,7 +149,35 @@ int board_late_init(void)
 	return meson_board_late_init();
 }
 
+#if CONFIG_IS_ENABLED(FASTBOOT)
+static unsigned int reboot_reason = REBOOT_REASON_NORMAL;
+
+int fastboot_set_reboot_flag()
+{
+	reboot_reason = REBOOT_REASON_BOOTLOADER;
+
+	printf("Using reboot reason: 0x%x\n", reboot_reason);
+
+	return 0;
+}
+
+void reset_cpu(ulong addr)
+{
+	struct pt_regs regs;
+
+	regs.regs[0] = ARM_PSCI_0_2_FN_SYSTEM_RESET;
+	regs.regs[1] = reboot_reason;
+
+	printf("Rebooting with reason: 0x%lx\n", regs.regs[1]);
+
+	smc_call(&regs);
+
+	while (1)
+		;
+}
+#else
 void reset_cpu(ulong addr)
 {
 	psci_system_reset();
 }
+#endif

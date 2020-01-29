@@ -14,6 +14,7 @@ obj-$(CONFIG_AT91SAM9M10G45)	+= at91sam9m10g45_devices.o
 obj-$(CONFIG_AT91SAM9G45)	+= at91sam9m10g45_devices.o
 obj-$(CONFIG_AT91SAM9N12)	+= at91sam9n12_devices.o
 obj-$(CONFIG_AT91SAM9X5)	+= at91sam9x5_devices.o
+obj-$(CONFIG_SAM9X60)		+= sam9x60_devices.o
 obj-$(CONFIG_AT91_EFLASH)	+= eflash.o
 obj-$(CONFIG_AT91_LED)	+= led.o
 obj-y += clock.o
@@ -24,7 +25,9 @@ obj-y	+= timer.o
 endif
 
 ifndef CONFIG_SKIP_LOWLEVEL_INIT
+ifndef CONFIG_SKIP_LOWLEVEL_INIT_ONLY
 obj-y	+= lowlevel_init.o
+endif
 endif
 
 ifdef CONFIG_$(SPL_)SYS_THUMB_BUILD

@@ -10,6 +10,7 @@
  * same pins (SD4)
  */
 #include <common.h>
+#include <init.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
@@ -25,7 +26,7 @@
 #include <asm/gpio.h>
 #include <mmc.h>
 #include <i2c.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
 #include <nand.h>
 #include <miiphy.h>
 #include <netdev.h>

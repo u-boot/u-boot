@@ -256,11 +256,11 @@ int genphy_update_link(struct phy_device *phydev)
 				return -EINTR;
 			}
 
-			if ((i++ % 500) == 0)
+			if ((i++ % 10) == 0)
 				printf(".");
 
-			udelay(1000);	/* 1 ms */
 			mii_reg = phy_read(phydev, MDIO_DEVAD_NONE, MII_BMSR);
+			mdelay(50);	/* 50 ms */
 		}
 		printf(" done\n");
 		phydev->link = 1;
@@ -571,6 +571,10 @@ int phy_register(struct phy_driver *drv)
 		drv->readext += gd->reloc_off;
 	if (drv->writeext)
 		drv->writeext += gd->reloc_off;
+	if (drv->read_mmd)
+		drv->read_mmd += gd->reloc_off;
+	if (drv->write_mmd)
+		drv->write_mmd += gd->reloc_off;
 #endif
 	return 0;
 }
@@ -642,7 +646,7 @@ static struct phy_driver *get_phy_driver(struct phy_device *phydev,
 }
 
 static struct phy_device *phy_device_create(struct mii_dev *bus, int addr,
-					    u32 phy_id,
+					    u32 phy_id, bool is_c45,
 					    phy_interface_t interface)
 {
 	struct phy_device *dev;
@@ -672,6 +676,7 @@ static struct phy_device *phy_device_create(struct mii_dev *bus, int addr,
 
 	dev->addr = addr;
 	dev->phy_id = phy_id;
+	dev->is_c45 = is_c45;
 	dev->bus = bus;
 
 	dev->drv = get_phy_driver(dev, interface);
@@ -727,13 +732,28 @@ static struct phy_device *create_phy_by_mask(struct mii_dev *bus,
 					     phy_interface_t interface)
 {
 	u32 phy_id = 0xffffffff;
+	bool is_c45;
 
 	while (phy_mask) {
 		int addr = ffs(phy_mask) - 1;
 		int r = get_phy_id(bus, addr, devad, &phy_id);
+
+		/*
+		 * If the PHY ID is flat 0 we ignore it.  There are C45 PHYs
+		 * that return all 0s for C22 reads (like Aquantia AQR112) and
+		 * there are C22 PHYs that return all 0s for C45 reads (like
+		 * Atheros AR8035).
+		 */
+		if (r == 0 && phy_id == 0)
+			goto next;
+
 		/* If the PHY ID is mostly f's, we didn't find anything */
-		if (r == 0 && (phy_id & 0x1fffffff) != 0x1fffffff)
-			return phy_device_create(bus, addr, phy_id, interface);
+		if (r == 0 && (phy_id & 0x1fffffff) != 0x1fffffff) {
+			is_c45 = (devad == MDIO_DEVAD_NONE) ? false : true;
+			return phy_device_create(bus, addr, phy_id, is_c45,
+						 interface);
+		}
+next:
 		phy_mask &= ~(1 << addr);
 	}
 	return NULL;
@@ -920,8 +940,8 @@ static struct phy_device *phy_connect_gmii2rgmii(struct mii_dev *bus,
 		off = fdt_node_offset_by_compatible(gd->fdt_blob, sn,
 						    "xlnx,gmii-to-rgmii-1.0");
 		if (off > 0) {
-			phydev = phy_device_create(bus,
-						   off, PHY_GMII2RGMII_ID,
+			phydev = phy_device_create(bus, off,
+						   PHY_GMII2RGMII_ID, false,
 						   interface);
 			break;
 		}
@@ -955,8 +975,8 @@ static struct phy_device *phy_connect_fixed(struct mii_dev *bus,
 	while (sn > 0) {
 		name = fdt_get_name(gd->fdt_blob, sn, NULL);
 		if (name && strcmp(name, "fixed-link") == 0) {
-			phydev = phy_device_create(bus,
-						   sn, PHY_FIXED_ID, interface);
+			phydev = phy_device_create(bus, sn, PHY_FIXED_ID, false,
+						   interface);
 			break;
 		}
 		sn = fdt_next_subnode(gd->fdt_blob, sn);
@@ -977,7 +997,7 @@ struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 #endif
 {
 	struct phy_device *phydev = NULL;
-	uint mask = (addr > 0) ? (0x1 << addr) : 0xffffffff;
+	uint mask = (addr >= 0) ? (1 << addr) : 0xffffffff;
 
 #ifdef CONFIG_PHY_FIXED
 	phydev = phy_connect_fixed(bus, dev, interface);

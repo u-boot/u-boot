@@ -21,21 +21,28 @@
 static int do_dfu(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 
-	if (argc < 4)
+	if (argc < 2)
 		return CMD_RET_USAGE;
 
 #ifdef CONFIG_DFU_OVER_USB
 	char *usb_controller = argv[1];
 #endif
-	char *interface = argv[2];
-	char *devstring = argv[3];
+#if defined(CONFIG_DFU_OVER_USB) || defined(CONFIG_DFU_OVER_TFTP)
+	char *interface = NULL;
+	char *devstring = NULL;
+
+	if (argc >= 4) {
+		interface = argv[2];
+		devstring = argv[3];
+	}
+#endif
 
 	int ret = 0;
 #ifdef CONFIG_DFU_OVER_TFTP
 	unsigned long addr = 0;
 	if (!strcmp(argv[1], "tftp")) {
-		if (argc == 5)
-			addr = simple_strtoul(argv[4], NULL, 0);
+		if (argc == 5 || argc == 3)
+			addr = simple_strtoul(argv[argc - 1], NULL, 0);
 
 		return update_tftp(addr, interface, devstring);
 	}
@@ -46,7 +53,7 @@ static int do_dfu(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		goto done;
 
 	ret = CMD_RET_SUCCESS;
-	if (argc > 4 && strcmp(argv[4], "list") == 0) {
+	if (strcmp(argv[argc - 1], "list") == 0) {
 		dfu_show_entities();
 		goto done;
 	}
@@ -63,8 +70,9 @@ done:
 
 U_BOOT_CMD(dfu, CONFIG_SYS_MAXARGS, 1, do_dfu,
 	"Device Firmware Upgrade",
+	""
 #ifdef CONFIG_DFU_OVER_USB
-	"<USB_controller> <interface> <dev> [list]\n"
+	"<USB_controller> [<interface> <dev>] [list]\n"
 	"  - device firmware upgrade via <USB_controller>\n"
 	"    on device <dev>, attached to interface\n"
 	"    <interface>\n"
@@ -74,7 +82,7 @@ U_BOOT_CMD(dfu, CONFIG_SYS_MAXARGS, 1, do_dfu,
 #ifdef CONFIG_DFU_OVER_USB
 	"dfu "
 #endif
-	"tftp <interface> <dev> [<addr>]\n"
+	"tftp [<interface> <dev>] [<addr>]\n"
 	"  - device firmware upgrade via TFTP\n"
 	"    on device <dev>, attached to interface\n"
 	"    <interface>\n"

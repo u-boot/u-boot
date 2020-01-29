@@ -1,7 +1,0 @@
-SH7785LCR BOARD
-#M:	-
-S:	Maintained
-F:	board/renesas/sh7785lcr/
-F:	include/configs/sh7785lcr.h
-F:	configs/sh7785lcr_defconfig
-F:	configs/sh7785lcr_32bit_defconfig

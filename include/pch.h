@@ -11,7 +11,41 @@
 
 #define BIOS_CTRL_BIOSWE	BIT(0)
 
-/* Operations for the Platform Controller Hub */
+/* All the supported PCH ioctls */
+enum pch_req_t {
+	/* Returns HDA config info if Azalia V1CTL enabled, -ENOENT if not */
+	PCH_REQ_HDA_CONFIG,
+
+	/* Fills out a struct pch_pmbase_info if available */
+	PCH_REQ_PMBASE_INFO,
+
+	PCH_REQ_TEST1,		/* Test requests for sandbox driver */
+	PCH_REQ_TEST2,
+	PCH_REQ_TEST3,
+
+	PCH_REQ_COUNT,		/* Number of ioctrls supported */
+};
+
+/**
+ * struct pch_pmbase_info - Information filled in by PCH_REQ_PMBASE_INFO
+ *
+ * @pmbase: IO address of power-management controller
+ * @gpio0_en_ofs: Offset of GPIO0 enable register
+ * @pm1_sts_ofs: Offset of status register
+ * @pm1_cnt_ofs: Offset of control register
+ */
+struct pch_pmbase_info {
+	u16 base;
+	u8 gpio0_en_ofs;
+	u8 pm1_sts_ofs;
+	u8 pm1_cnt_ofs;
+};
+
+/**
+ * struct pch_ops - Operations for the Platform Controller Hub
+ *
+ * Consider using ioctl() to add rarely used or driver-specific operations.
+ */
 struct pch_ops {
 	/**
 	 * get_spi_base() - get the address of SPI base
@@ -49,6 +83,23 @@ struct pch_ops {
 	 * @return 0 if OK, -ve on error (e.g. there is no IO base)
 	 */
 	int (*get_io_base)(struct udevice *dev, u32 *iobasep);
+
+	/**
+	 * ioctl() - perform misc read/write operations
+	 *
+	 * This is a catch-all operation intended to avoid adding lots of
+	 * methods to this uclass, of which few are commonly used. Uncommon
+	 * operations that pertain only to a few devices in this uclass should
+	 * use this method instead of adding new methods.
+	 *
+	 * @dev:	PCH device to check
+	 * @req:	PCH request ID
+	 * @data:	Input/output data
+	 * @size:	Size of input data (and maximum size of output data)
+	 * @return size of output data on sucesss, -ve on error
+	 */
+	int (*ioctl)(struct udevice *dev, enum pch_req_t req, void *data,
+		     int size);
 };
 
 #define pch_get_ops(dev)        ((struct pch_ops *)(dev)->driver->ops)
@@ -89,5 +140,21 @@ int pch_get_gpio_base(struct udevice *dev, u32 *gbasep);
  * @return 0 if OK, -ve on error (e.g. there is no IO base)
  */
 int pch_get_io_base(struct udevice *dev, u32 *iobasep);
+
+/**
+ * pch_ioctl() - perform misc read/write operations
+ *
+ * This is a catch-all operation intended to avoid adding lots of
+ * methods to this uclass, of which few are commonly used. Uncommon
+ * operations that pertain only to a few devices in this uclass should
+ * use this method instead of adding new methods.
+ *
+ * @dev:	PCH device to check
+ * @req:	PCH request ID
+ * @data:	Input/output data
+ * @size:	Size of input data (and maximum size of output data)
+ * @return size of output data on sucesss, -ve on error
+ */
+int pch_ioctl(struct udevice *dev, ulong req, void *data, int size);
 
 #endif

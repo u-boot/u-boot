@@ -11,8 +11,9 @@
 #include <ahci.h>
 #include <dm.h>
 #include <dwc_ahsata.h>
-#include <environment.h>
-#include <fsl_esdhc.h>
+#include <env.h>
+#include <fsl_esdhc_imx.h>
+#include <init.h>
 #include <miiphy.h>
 #include <mtd_node.h>
 #include <netdev.h>
@@ -608,7 +609,7 @@ int board_init(void)
 	cm_fx6_setup_display();
 
 	/* This should be done in the MMC driver when MX6 has a clock driver */
-#ifdef CONFIG_FSL_ESDHC
+#ifdef CONFIG_FSL_ESDHC_IMX
 	if (IS_ENABLED(CONFIG_BLK)) {
 		int i;
 

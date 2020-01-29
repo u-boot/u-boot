@@ -22,8 +22,6 @@
 #define CONFIG_ETHPRIME                 "FEC"
 #define CONFIG_FEC_MXC_PHYADDR          0
 
-#define CONFIG_IP_DEFRAG
-#define CONFIG_TFTP_BLOCKSIZE		16352
 #define CONFIG_TFTP_TSIZE
 
 /* ENET1 */
@@ -35,12 +33,7 @@
 #define CONFIG_SYS_FSL_USDHC_NUM	1
 #elif CONFIG_TARGET_COLIBRI_IMX7_EMMC
 #define CONFIG_SYS_FSL_USDHC_NUM	2
-
-#define CONFIG_SUPPORT_EMMC_BOOT
 #endif
-
-#undef CONFIG_BOOTM_PLAN9
-#undef CONFIG_BOOTM_RTEMS
 
 /* I2C configs */
 #define CONFIG_SYS_I2C_MXC
@@ -50,15 +43,62 @@
 #define CONFIG_NETMASK			255.255.255.0
 #define CONFIG_SERVERIP			192.168.10.1
 
+#ifndef PARTS_DEFAULT
+/* Define the default GPT table for eMMC */
+#define PARTS_DEFAULT \
+	/* Android partitions */ \
+	"partitions_android=" \
+	"uuid_disk=${uuid_gpt_disk};" \
+	"name=boot,start=1M,size=32M,uuid=${uuid_gpt_boot};" \
+	"name=environment,size=4M,uuid=${uuid_gpt_environment};" \
+	"name=recovery,size=16M,uuid=${uuid_gpt_recovery};" \
+	"name=system,size=1536M,uuid=${uuid_gpt_system};" \
+	"name=cache,size=512M,uuid=${uuid_gpt_cache};" \
+	"name=device,size=8M,uuid=${uuid_gpt_device};" \
+	"name=misc,size=4M,uuid=${uuid_gpt_misc};" \
+	"name=datafooter,size=2M,uuid=${uuid_gpt_datafooter};" \
+	"name=metadata,size=2M,uuid=${uuid_gpt_metadata};" \
+	"name=persistdata,size=2M,uuid=${uuid_gpt_persistdata};" \
+	"name=userdata,size=128M,uuid=${uuid_gpt_userdata};" \
+	"name=fbmisc,size=-,uuid=${uuid_gpt_fbmisc}\0"
+#endif /* PARTS_DEFAULT */
+
+#define EMMC_ANDROID_BOOTCMD \
+	"android_args=androidboot.storage_type=emmc\0" \
+	PARTS_DEFAULT \
+	"android_fdt_addr=0x83700000\0" \
+	"android_mmc_dev=0\0" \
+	"m4binary=rpmsg_imu_freertos.elf\0" \
+	"androidboot=ext4load mmc 0:a ${loadaddr} media/0/${m4binary}; "\
+		"bootaux ${loadaddr}; " \
+		"setenv loadaddr 0x88000000; " \
+		"setenv bootm_boot_mode sec;" \
+		"setenv bootargs androidboot.serialno=${serial#} " \
+			"$android_args; " \
+		"part start mmc ${android_mmc_dev} boot boot_start; " \
+		"part size mmc ${android_mmc_dev} boot boot_size; " \
+		"mmc read ${loadaddr} ${boot_start} ${boot_size}; " \
+		"part start mmc ${android_mmc_dev} environment env_start; " \
+		"part size mmc ${android_mmc_dev} environment env_size; " \
+		"mmc read ${android_fdt_addr} ${env_start} ${env_size}; " \
+		"bootm ${loadaddr} ${loadaddr} ${android_fdt_addr}\0 "
+
 #define EMMC_BOOTCMD \
-	"emmcargs=ip=off root=/dev/mmcblk0p2 ro rootfstype=ext4 rootwait\0" \
-	"emmcboot=run setup; " \
+	"set_emmcargs=setenv emmcargs ip=off root=PARTUUID=${uuid} ro " \
+		"rootfstype=ext4 rootwait\0" \
+	"emmcboot=run setup; run emmcfinduuid; run set_emmcargs; " \
 		"setenv bootargs ${defargs} ${emmcargs} ${setupargs} " \
 		"${vidargs}; echo Booting from internal eMMC chip...; " \
 		"run m4boot && " \
-		"load mmc 0:1 ${fdt_addr_r} ${soc}-colibri-emmc-${fdt_board}.dtb && " \
-		"load mmc 0:1 ${kernel_addr_r} ${boot_file} && " \
-		"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0"
+		"load mmc ${emmcdev}:${emmcbootpart} ${fdt_addr_r} " \
+		"${soc}-colibri-emmc-${fdt_board}.dtb && " \
+		"load mmc ${emmcdev}:${emmcbootpart} ${kernel_addr_r} " \
+		"${boot_file} && run fdt_fixup && " \
+		"bootz ${kernel_addr_r} - ${fdt_addr_r}\0" \
+	"emmcbootpart=1\0" \
+	"emmcdev=0\0" \
+	"emmcfinduuid=part uuid mmc ${emmcdev}:${emmcrootpart} uuid\0" \
+	"emmcrootpart=2\0"
 
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"bootm_size=0x10000000\0" \
@@ -66,28 +106,8 @@
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"kernel_addr_r=0x81000000\0" \
-	"ramdisk_addr_r=0x82100000\0"
-
-#if defined(CONFIG_TARGET_COLIBRI_IMX7_NAND)
-#define SD_BOOTCMD \
-	"sdargs=root=/dev/mmcblk0p2 ro rootwait\0" \
-	"sdboot=run setup; setenv bootargs ${defargs} ${sdargs} " \
-	"${setupargs} ${vidargs}; echo Booting from MMC/SD card...; " \
-	"run m4boot && " \
-	"load mmc 0:1 ${kernel_addr_r} ${kernel_file} && " \
-	"load mmc 0:1 ${fdt_addr_r} ${soc}-colibri-${fdt_board}.dtb && " \
-	"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0"
-#elif defined(CONFIG_TARGET_COLIBRI_IMX7_EMMC)
-#define SD_BOOTCMD \
-	"sdargs=root=/dev/mmcblk1p2 ro rootwait\0" \
-	"sdboot=run setup; setenv bootargs ${defargs} ${sdargs} " \
-	"${setupargs} ${vidargs}; echo Booting from MMC/SD card...; " \
-	"run m4boot && " \
-	"load mmc 1:1 ${kernel_addr_r} ${kernel_file} && " \
-	"load mmc 1:1 ${fdt_addr_r} ${soc}-colibri-${fdt_board}.dtb && " \
-	"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0"
-#endif
-
+	"ramdisk_addr_r=0x82100000\0" \
+	"scriptaddr=0x82500000\0"
 
 #define NFS_BOOTCMD \
 	"nfsargs=ip=:::::eth0: root=/dev/nfs\0" \
@@ -110,17 +130,18 @@
 		"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0" \
 
 #if defined(CONFIG_TARGET_COLIBRI_IMX7_NAND)
-#define CONFIG_BOOTCOMMAND "run emmcboot ; echo ; echo emmcboot failed ; " \
+#define CONFIG_BOOTCOMMAND "run ubiboot ; echo ; echo ubiboot failed ; " \
 	"setenv fdtfile ${soc}-colibri-${fdt_board}.dtb && run distro_bootcmd;"
 #define MODULE_EXTRA_ENV_SETTINGS \
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	UBI_BOOTCMD
 #elif defined(CONFIG_TARGET_COLIBRI_IMX7_EMMC)
-#define CONFIG_BOOTCOMMAND "run ubiboot ; echo ; echo ubiboot failed ; " \
+#define CONFIG_BOOTCOMMAND \
 	"setenv fdtfile ${soc}-colibri-emmc-${fdt_board}.dtb && run distro_bootcmd;"
 #define MODULE_EXTRA_ENV_SETTINGS \
 	"variant=-emmc\0" \
-	EMMC_BOOTCMD
+	EMMC_BOOTCMD \
+	EMMC_ANDROID_BOOTCMD
 #endif
 
 #if defined(CONFIG_TARGET_COLIBRI_IMX7_NAND)
@@ -141,8 +162,8 @@
 	BOOTENV \
 	MEM_LAYOUT_ENV_SETTINGS \
 	NFS_BOOTCMD \
-	SD_BOOTCMD \
 	MODULE_EXTRA_ENV_SETTINGS \
+	"boot_file=zImage\0" \
 	"console=ttymxc0\0" \
 	"defargs=\0" \
 	"fdt_board=eval-v3\0" \
@@ -191,15 +212,8 @@
 
 #if defined(CONFIG_ENV_IS_IN_MMC)
 /* Environment in eMMC, before config block at the end of 1st "boot sector" */
-#define CONFIG_ENV_SIZE			(8 * 1024)
-#define CONFIG_ENV_OFFSET		(-CONFIG_ENV_SIZE + \
-					 CONFIG_TDX_CFG_BLOCK_OFFSET)
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_SYS_MMC_ENV_PART		1
-#elif defined(CONFIG_ENV_IS_IN_NAND)
-#define CONFIG_ENV_SECT_SIZE		(128 * 1024)
-#define CONFIG_ENV_OFFSET		(28 * CONFIG_ENV_SECT_SIZE)
-#define CONFIG_ENV_SIZE			CONFIG_ENV_SECT_SIZE
 #endif
 
 #ifdef CONFIG_TARGET_COLIBRI_IMX7_NAND
@@ -226,7 +240,7 @@
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE	SZ_16M
 #define DFU_DEFAULT_POLL_TIMEOUT	300
 
-#ifdef CONFIG_VIDEO
+#if defined(CONFIG_VIDEO) || defined(CONFIG_DM_VIDEO)
 #define CONFIG_VIDEO_MXS
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_SPLASH_SCREEN

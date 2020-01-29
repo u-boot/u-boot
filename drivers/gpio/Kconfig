@@ -14,6 +14,16 @@ config DM_GPIO
 	  particular GPIOs that they provide. The uclass interface
 	  is defined in include/asm-generic/gpio.h.
 
+config GPIO_HOG
+	bool "Enable GPIO hog support"
+	depends on DM_GPIO
+	default n
+	help
+	  Enable gpio hog support
+	  The GPIO chip may contain GPIO hog definitions. GPIO hogging
+	  is a mechanism providing automatic GPIO request and config-
+	  uration as part of the gpio-controller's driver probe function.
+
 config ALTERA_PIO
 	bool "Altera PIO driver"
 	depends on DM_GPIO
@@ -23,7 +33,7 @@ config ALTERA_PIO
 
 config BCM6345_GPIO
 	bool "BCM6345 GPIO driver"
-	depends on DM_GPIO && ARCH_BMIPS
+	depends on DM_GPIO && (ARCH_BMIPS || ARCH_BCM6858 || ARCH_BCM63158)
 	help
 	  This driver supports the GPIO banks on BCM6345 SoCs.
 
@@ -99,12 +109,16 @@ config LPC32XX_GPIO
 	help
 	  Support for the LPC32XX GPIO driver.
 
-config MSCC_BITBANG_SPI_GPIO
-	bool "Microsemi bitbang spi GPIO driver"
+config MSCC_SGPIO
+	bool "Microsemi Serial GPIO driver"
 	depends on DM_GPIO && SOC_VCOREIII
 	help
-	  Support controlling the GPIO used for SPI bitbang by software. Can
-	  be used by the VCoreIII SoCs, but it was mainly useful for Luton.
+	  Support for the VCoreIII SoC serial GPIO device. By using a
+          serial interface, the SIO controller significantly extends
+          the number of available GPIOs with a minimum number of
+          additional pins on the device. The primary purpose of the
+          SIO controller is to connect control signals from SFP
+          modules and to act as an LED controller.
 
 config MSM_GPIO
 	bool "Qualcomm GPIO driver"
@@ -124,6 +138,11 @@ config MXC_GPIO
 	bool "Freescale/NXP MXC GPIO driver"
 	help
 	  Support GPIO controllers on various i.MX platforms
+
+config MXS_GPIO
+	bool "Freescale/NXP MXS GPIO driver"
+	help
+	  Support GPIO controllers on i.MX23 and i.MX28 platforms
 
 config OMAP_GPIO
 	bool "TI OMAP GPIO driver"
@@ -165,6 +184,12 @@ config RCAR_GPIO
 	help
 	  This driver supports the GPIO banks on Renesas RCar SoCs.
 
+config RZA1_GPIO
+	bool "Renesas RZ/A1 GPIO driver"
+	depends on DM_GPIO && RZA1
+	help
+	  This driver supports the GPIO banks on Renesas RZ/A1 R7S72100 SoCs.
+
 config ROCKCHIP_GPIO
 	bool "Rockchip GPIO driver"
 	depends on DM_GPIO
@@ -194,6 +219,12 @@ config SANDBOX_GPIO_COUNT
 	  are specified using the device tree. But you can also have a number
 	  of 'anonymous' GPIOs that do not belong to any device or bank.
 	  Select a suitable value depending on your needs.
+
+config SUNXI_GPIO
+	bool "Allwinner GPIO driver"
+	depends on ARCH_SUNXI
+	help
+	  Support the GPIO device in Allwinner SoCs.
 
 config XILINX_GPIO
 	bool "Xilinx GPIO driver"
@@ -245,14 +276,21 @@ config PIC32_GPIO
 	help
 	  Say yes here to support Microchip PIC32 GPIOs.
 
-config STM32F7_GPIO
+config STM32_GPIO
 	bool "ST STM32 GPIO driver"
 	depends on DM_GPIO && (STM32 || ARCH_STM32MP)
 	default y
 	help
 	  Device model driver support for STM32 GPIO controller. It should be
-	  usable on many stm32 families like stm32f4 & stm32H7.
+	  usable on many stm32 families like stm32f4/f7/h7 and stm32mp1.
 	  Tested on STM32F7.
+
+config SIFIVE_GPIO
+	bool "SiFive GPIO driver"
+	depends on DM_GPIO
+	help
+	  Device model driver for GPIO controller present in SiFive FU540 SoC. This
+	  driver enables GPIO interface on HiFive Unleashed A00 board.
 
 config MVEBU_GPIO
 	bool "Marvell MVEBU GPIO driver"
@@ -299,6 +337,29 @@ config DM_PCA953X
 	  Now, max 24 bits chips and PCA953X compatible chips are
 	  supported
 
+config SPL_DM_PCA953X
+	bool "PCA95[357]x, PCA9698, TCA64xx, and MAX7310 I/O ports in SPL"
+	depends on DM_GPIO
+	help
+	  Say yes here to provide access to several register-oriented
+	  SMBus I/O expanders, made mostly by NXP or TI.  Compatible
+	  models include:
+
+	  4 bits:	pca9536, pca9537
+
+	  8 bits:	max7310, max7315, pca6107, pca9534, pca9538, pca9554,
+			pca9556, pca9557, pca9574, tca6408, xra1202
+
+	  16 bits:	max7312, max7313, pca9535, pca9539, pca9555, pca9575,
+			tca6416
+
+	  24 bits:	tca6424
+
+	  40 bits:	pca9505, pca9698
+
+	  Now, max 24 bits chips and PCA953X compatible chips are
+	  supported
+
 config MPC8XXX_GPIO
 	bool "Freescale MPC8XXX GPIO driver"
 	depends on DM_GPIO
@@ -324,7 +385,7 @@ config MPC8XXX_GPIO
 
 config MT7621_GPIO
 	bool "MediaTek MT7621 GPIO driver"
-	depends on DM_GPIO && ARCH_MT7620
+	depends on DM_GPIO && SOC_MT7628
 	default y
 	help
 	  Say yes here to support MediaTek MT7621 compatible GPIOs.

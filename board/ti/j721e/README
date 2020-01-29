@@ -1,0 +1,227 @@
+Introduction:
+-------------
+The J721e family of SoCs are part of K3 Multicore SoC architecture platform
+targeting automotive applications. They are designed as a low power, high
+performance and highly integrated device architecture, adding significant
+enhancement on processing power, graphics capability, video and imaging
+processing, virtualization and coherent memory support.
+
+The device is partitioned into three functional domains, each containing
+specific processing cores and peripherals:
+1. Wake-up (WKUP) domain:
+	- Device Management and Security Controller (DMSC)
+2. Microcontroller (MCU) domain:
+	- Dual Core ARM Cortex-R5F processor
+3. MAIN domain:
+	- Dual core 64-bit ARM Cortex-A72
+	- 2 x Dual cortex ARM Cortex-R5 subsystem
+	- 2 x C66x Digital signal processor sub system
+	- C71x Digital signal processor sub-system with MMA.
+
+More info can be found in TRM: http://www.ti.com/lit/pdf/spruil1
+
+Boot Flow:
+----------
+Boot flow is similar to that of AM65x SoC and extending it with remoteproc
+support. Below is the pictorial representation of boot flow:
+
++------------------------------------------------------------------------+-----------------------+
+|        DMSC            |      MCU R5           |        A72            |  MAIN R5/C66x/C7x     |
++------------------------------------------------------------------------+-----------------------+
+|    +--------+          |                       |                       |                       |
+|    |  Reset |          |                       |                       |                       |
+|    +--------+          |                       |                       |                       |
+|         :              |                       |                       |                       |
+|    +--------+          |   +-----------+       |                       |                       |
+|    | *ROM*  |----------|-->| Reset rls |       |                       |                       |
+|    +--------+          |   +-----------+       |                       |                       |
+|    |        |          |         :             |                       |                       |
+|    |  ROM   |          |         :             |                       |                       |
+|    |services|          |         :             |                       |                       |
+|    |        |          |   +-------------+     |                       |                       |
+|    |        |          |   |  *R5 ROM*   |     |                       |                       |
+|    |        |          |   +-------------+     |                       |                       |
+|    |        |<---------|---|Load and auth|     |                       |                       |
+|    |        |          |   | tiboot3.bin |     |                       |                       |
+|    |        |          |   +-------------+     |                       |                       |
+|    |        |          |         :             |                       |                       |
+|    |        |          |         :             |                       |                       |
+|    |        |          |         :             |                       |                       |
+|    |        |          |   +-------------+     |                       |                       |
+|    |        |          |   |  *R5 SPL*   |     |                       |                       |
+|    |        |          |   +-------------+     |                       |                       |
+|    |        |          |   |    Load     |     |                       |                       |
+|    |        |          |   |  sysfw.itb  |     |                       |                       |
+|    | Start  |          |   +-------------+     |                       |                       |
+|    | System |<---------|---|    Start    |     |                       |                       |
+|    |Firmware|          |   |    SYSFW    |     |                       |                       |
+|    +--------+          |   +-------------+     |                       |                       |
+|        :               |   |             |     |                       |                       |
+|    +---------+         |   |   Load      |     |                       |                       |
+|    | *SYSFW* |         |   |   system    |     |                       |                       |
+|    +---------+         |   | Config data |     |                       |                       |
+|    |         |<--------|---|             |     |                       |                       |
+|    |         |         |   +-------------+     |                       |                       |
+|    |         |         |   |    DDR      |     |                       |                       |
+|    |         |         |   |   config    |     |                       |                       |
+|    |         |         |   +-------------+     |                       |                       |
+|    |         |         |   |    Load     |     |                       |                       |
+|    |         |         |   |  tispl.bin  |     |                       |                       |
+|    |         |         |   +-------------+     |                       |                       |
+|    |         |         |   |   Load R5   |     |                       |                       |
+|    |         |         |   |   firmware  |     |                       |                       |
+|    |         |         |   +-------------+     |                       |                       |
+|    |         |<--------|---| Start A72   |     |                       |                       |
+|    |         |         |   | and jump to |     |                       |                       |
+|    |         |         |   | next image  |     |                       |                       |
+|    |         |         |   +-------------+     |                       |                       |
+|    |         |         |                       |     +-----------+     |                       |
+|    |         |---------|-----------------------|---->| Reset rls |     |                       |
+|    |         |         |                       |     +-----------+     |                       |
+|    |  DMSC   |         |                       |          :            |                       |
+|    |Services |         |                       |     +-----------+     |                       |
+|    |         |<--------|-----------------------|---->|*ATF/OPTEE*|     |                       |
+|    |         |         |                       |     +-----------+     |                       |
+|    |         |         |                       |          :            |                       |
+|    |         |         |                       |     +-----------+     |                       |
+|    |         |<--------|-----------------------|---->| *A72 SPL* |     |                       |
+|    |         |         |                       |     +-----------+     |                       |
+|    |         |         |                       |     |   Load    |     |                       |
+|    |         |         |                       |     | u-boot.img|     |                       |
+|    |         |         |                       |     +-----------+     |                       |
+|    |         |         |                       |          :            |                       |
+|    |         |         |                       |     +-----------+     |                       |
+|    |         |<--------|-----------------------|---->| *U-Boot*  |     |                       |
+|    |         |         |                       |     +-----------+     |                       |
+|    |         |         |                       |     |  prompt   |     |                       |
+|    |         |         |                       |     +-----------+     |                       |
+|    |         |         |                       |     |  Load R5  |     |                       |
+|    |         |         |                       |     |  Firmware |     |                       |
+|    |         |         |                       |     +-----------+     |                       |
+|    |         |<--------|-----------------------|-----|  Start R5 |     |      +-----------+    |
+|    |         |---------|-----------------------|-----+-----------+-----|----->| R5 starts |    |
+|    |         |         |                       |     |  Load C6  |     |      +-----------+    |
+|    |         |         |                       |     |  Firmware |     |                       |
+|    |         |         |                       |     +-----------+     |                       |
+|    |         |<--------|-----------------------|-----|  Start C6 |     |      +-----------+    |
+|    |         |---------|-----------------------|-----+-----------+-----|----->| C6 starts |    |
+|    |         |         |                       |     |  Load C7  |     |      +-----------+    |
+|    |         |         |                       |     |  Firmware |     |                       |
+|    |         |         |                       |     +-----------+     |                       |
+|    |         |<--------|-----------------------|-----|  Start C7 |     |      +-----------+    |
+|    |         |---------|-----------------------|-----+-----------+-----|----->| C7 starts |    |
+|    +---------+         |                       |                       |      +-----------+    |
+|                        |                       |                       |                       |
++------------------------------------------------------------------------+-----------------------+
+
+- Here DMSC acts as master and provides all the critical services. R5/A72
+requests DMSC to get these services done as shown in the above diagram.
+
+Sources:
+--------
+1. SYSFW:
+	Tree: git://git.ti.com/processor-firmware/system-firmware-image-gen.git
+	Branch: master
+
+2. ATF:
+	Tree: https://github.com/ARM-software/arm-trusted-firmware.git
+	Branch: master
+
+3. OPTEE:
+	Tree: https://github.com/OP-TEE/optee_os.git
+	Branch: master
+
+4. U-Boot:
+	Tree: https://gitlab.denx.de/u-boot/u-boot
+	Branch: master
+
+Build procedure:
+----------------
+1. SYSFW:
+$ make CROSS_COMPILE=arm-linux-gnueabihf-
+
+2. ATF:
+$ make CROSS_COMPILE=aarch64-linux-gnu- ARCH=aarch64 PLAT=k3 TARGET_BOARD=generic SPD=opteed
+
+3. OPTEE:
+$ make PLATFORM=k3-j721e CFG_ARM64_core=y
+
+4. U-Boot:
+
+4.1. R5:
+$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- j721e_evm_r5_defconfig O=/tmp/r5
+$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- O=/tmp/r5
+
+4.2. A72:
+$ make ARCH=arm CROSS_COMPILE=aarch64-linux-gnu- j721e_evm_a72_defconfig O=/tmp/a72
+$ make ARCH=arm CROSS_COMPILE=aarch64-linux-gnu- ATF=<path to ATF dir>/build/k3/generic/release/bl31.bin TEE=<path to OPTEE OS dir>/out/arm-plat-k3/core/tee-pager.bin O=/tmp/a72
+
+Target Images
+--------------
+Copy the below images to an SD card and boot:
+- sysfw.itb from step 1
+- tiboot3.bin from step 4.1
+- tispl.bin, u-boot.img from 4.2
+
+Image formats:
+--------------
+
+- tiboot3.bin:
+                +-----------------------+
+                |        X.509          |
+                |      Certificate      |
+                | +-------------------+ |
+                | |                   | |
+                | |        R5         | |
+                | |   u-boot-spl.bin  | |
+                | |                   | |
+                | +-------------------+ |
+                | |                   | |
+                | |     FIT header    | |
+                | | +---------------+ | |
+                | | |               | | |
+                | | |   DTB 1...N   | | |
+                | | +---------------+ | |
+                | +-------------------+ |
+                +-----------------------+
+
+- tispl.bin
+                +-----------------------+
+                |                       |
+                |       FIT HEADER      |
+                | +-------------------+ |
+                | |                   | |
+                | |      A72 ATF      | |
+                | +-------------------+ |
+                | |                   | |
+                | |     A72 OPTEE     | |
+                | +-------------------+ |
+                | |                   | |
+                | |      A72 SPL      | |
+                | +-------------------+ |
+                | |                   | |
+                | |   SPL DTB 1...N   | |
+                | +-------------------+ |
+                +-----------------------+
+
+- sysfw.itb
+                +-----------------------+
+                |                       |
+                |       FIT HEADER      |
+                | +-------------------+ |
+                | |                   | |
+                | |     sysfw.bin     | |
+                | +-------------------+ |
+                | |                   | |
+                | |    board config   | |
+                | +-------------------+ |
+                | |                   | |
+                | |     PM config     | |
+                | +-------------------+ |
+                | |                   | |
+                | |     RM config     | |
+                | +-------------------+ |
+                | |                   | |
+                | |    Secure config  | |
+                | +-------------------+ |
+                +-----------------------+

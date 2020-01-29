@@ -15,7 +15,6 @@
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/byteorder.h>
-#include <environment.h>
 
 #define P_ID_AMD_STD CFI_CMDSET_AMD_LEGACY
 

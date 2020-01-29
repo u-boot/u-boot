@@ -155,14 +155,20 @@ static void *keyb_desc_list[] = {
 	NULL,
 };
 
-int sandbox_usb_keyb_add_string(struct udevice *dev, const char *str)
+/**
+ * sandbox_usb_keyb_add_string() - provide a USB scancode buffer
+ *
+ * @dev:	the keyboard emulation device
+ * @scancode:	scancode buffer with USB_KBD_BOOT_REPORT_SIZE bytes
+ */
+int sandbox_usb_keyb_add_string(struct udevice *dev,
+				const char scancode[USB_KBD_BOOT_REPORT_SIZE])
 {
 	struct sandbox_keyb_priv *priv = dev_get_priv(dev);
-	int len, ret;
+	int ret;
 
-	len = strlen(str);
-	ret = membuff_put(&priv->in, str, len);
-	if (ret != len)
+	ret = membuff_put(&priv->in, scancode, USB_KBD_BOOT_REPORT_SIZE);
+	if (ret != USB_KBD_BOOT_REPORT_SIZE)
 		return -ENOSPC;
 
 	return 0;
@@ -178,16 +184,17 @@ static int sandbox_keyb_control(struct udevice *dev, struct usb_device *udev,
 }
 
 static int sandbox_keyb_interrupt(struct udevice *dev, struct usb_device *udev,
-		unsigned long pipe, void *buffer, int length, int interval)
+		unsigned long pipe, void *buffer, int length, int interval,
+		bool nonblock)
 {
 	struct sandbox_keyb_priv *priv = dev_get_priv(dev);
 	uint8_t *data = buffer;
-	int ch;
 
 	memset(data, '\0', length);
-	ch = membuff_getbyte(&priv->in);
-	if (ch != -1)
-		data[2] = 4 + ch - 'a';
+	if (length < USB_KBD_BOOT_REPORT_SIZE)
+		return 0;
+
+	membuff_get(&priv->in, buffer, USB_KBD_BOOT_REPORT_SIZE);
 
 	return 0;
 }
@@ -212,7 +219,8 @@ static int sandbox_keyb_probe(struct udevice *dev)
 {
 	struct sandbox_keyb_priv *priv = dev_get_priv(dev);
 
-	return membuff_new(&priv->in, 256);
+	/* Provide an 80 character keyboard buffer */
+	return membuff_new(&priv->in, 80 * USB_KBD_BOOT_REPORT_SIZE);
 }
 
 static const struct dm_usb_ops sandbox_usb_keyb_ops = {

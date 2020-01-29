@@ -10,6 +10,9 @@
 
 void uniphier_pxs2_sbc_init(void)
 {
+	if (!uniphier_sbc_is_enabled())
+		return;
+
 	uniphier_sbc_init_savepin();
 
 	/* necessary for ROM boot ?? */

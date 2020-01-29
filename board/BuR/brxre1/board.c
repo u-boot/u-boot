@@ -9,7 +9,9 @@
  *
  */
 #include <common.h>
+#include <env.h>
 #include <errno.h>
+#include <init.h>
 #include <spl.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/hardware.h>
@@ -22,40 +24,29 @@
 #include <asm/io.h>
 #include <asm/emif.h>
 #include <asm/gpio.h>
-#include <i2c.h>
+#include <dm.h>
 #include <power/tps65217.h>
 #include "../common/bur_common.h"
-#include <lcd.h>
+#include "../common/br_resetc.h"
 
 /* -------------------------------------------------------------------------*/
 /* -- defines for used GPIO Hardware -- */
-#define ESC_KEY					(0+19)
-#define LCD_PWR					(0+5)
-#define PUSH_KEY				(0+31)
-/* -------------------------------------------------------------------------*/
-/* -- PSOC Resetcontroller Register defines -- */
+#define ESC_KEY					(0 + 19)
+#define LCD_PWR					(0 + 5)
 
-/* I2C Address of controller */
-#define	RSTCTRL_ADDR				0x75
-/* Register for CTRL-word */
-#define RSTCTRL_CTRLREG				0x01
-/* Register for giving some information to VxWorks OS */
-#define RSTCTRL_SCRATCHREG			0x04
-
-/* -- defines for RSTCTRL_CTRLREG  -- */
-#define	RSTCTRL_FORCE_PWR_NEN			0x0404
-#define	RSTCTRL_CAN_STB				0x4040
+#define	RSTCTRL_FORCE_PWR_NEN			0x04
+#define	RSTCTRL_CAN_STB				0x40
 
 DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_SPL_BUILD)
-/* TODO: check ram-timing ! */
 static const struct ddr_data ddr3_data = {
 	.datardsratio0 = MT41K256M16HA125E_RD_DQS,
 	.datawdsratio0 = MT41K256M16HA125E_WR_DQS,
 	.datafwsratio0 = MT41K256M16HA125E_PHY_FIFO_WE,
 	.datawrsratio0 = MT41K256M16HA125E_PHY_WR_DATA,
 };
+
 static const struct cmd_control ddr3_cmd_ctrl_data = {
 	.cmd0csratio = MT41K256M16HA125E_RATIO,
 	.cmd0iclkout = MT41K256M16HA125E_INVERT_CLKOUT,
@@ -66,6 +57,7 @@ static const struct cmd_control ddr3_cmd_ctrl_data = {
 	.cmd2csratio = MT41K256M16HA125E_RATIO,
 	.cmd2iclkout = MT41K256M16HA125E_INVERT_CLKOUT,
 };
+
 static struct emif_regs ddr3_emif_reg_data = {
 	.sdram_config = MT41K256M16HA125E_EMIF_SDCFG,
 	.ref_ctrl = MT41K256M16HA125E_EMIF_SDREF,
@@ -84,13 +76,12 @@ static const struct ctrl_ioregs ddr3_ioregs = {
 	.dt1ioctl = MT41K256M16HA125E_IOCTRL_VALUE,
 };
 
-#define OSC	(V_OSCK/1000000)
-const struct dpll_params dpll_ddr3 = { 400, OSC-1, 1, -1, -1, -1, -1};
+#define OSC	(V_OSCK / 1000000)
+const struct dpll_params dpll_ddr3 = { 400, OSC - 1, 1, -1, -1, -1, -1};
 
 void am33xx_spl_board_init(void)
 {
-	unsigned int oldspeed;
-	unsigned short buf;
+	int rc;
 
 	struct cm_perpll *const cmper = (struct cm_perpll *)CM_PER;
 	struct cm_wkuppll *const cmwkup = (struct cm_wkuppll *)CM_WKUP;
@@ -114,25 +105,21 @@ void am33xx_spl_board_init(void)
 	};
 	do_enable_clocks(clk_domains, clk_modules_xre1specific, 1);
 	/* power-OFF LCD-Display */
-	gpio_direction_output(LCD_PWR, 0);
+	if (gpio_request(LCD_PWR, "LCD_PWR") != 0)
+		printf("cannot request gpio for LCD_PWR!\n");
+	else if (gpio_direction_output(LCD_PWR, 0) != 0)
+		printf("cannot set direction output on LCD_PWR!\n");
 
 	/* setup I2C */
 	enable_i2c_pin_mux();
-	i2c_set_bus_num(0);
-	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
 
-	/* power-ON  3V3 via Resetcontroller */
-	oldspeed = i2c_get_bus_speed();
-	if (i2c_set_bus_speed(CONFIG_SYS_OMAP24_I2C_SPEED_PSOC) >= 0) {
-		buf = RSTCTRL_FORCE_PWR_NEN | RSTCTRL_CAN_STB;
-		i2c_write(RSTCTRL_ADDR, RSTCTRL_CTRLREG, 1,
-			  (uint8_t *)&buf, sizeof(buf));
-		i2c_set_bus_speed(oldspeed);
-	} else {
-		puts("ERROR: i2c_set_bus_speed failed! (turn on PWR_nEN)\n");
-	}
+	/* power-ON 3V3 via Resetcontroller */
+	rc = br_resetc_regset(RSTCTRL_CTRLREG,
+			      RSTCTRL_FORCE_PWR_NEN | RSTCTRL_CAN_STB);
+	if (rc != 0)
+		printf("ERROR: cannot write to resetc (turn on PWR_nEN)!\n");
 
-	pmicsetup(0);
+	pmicsetup(0, 0);
 }
 
 const struct dpll_params *get_dpll_ddr_params(void)
@@ -153,133 +140,33 @@ void sdram_init(void)
  */
 int board_init(void)
 {
-	gpmc_init();
+	/* request common used gpios */
+	gpio_request(ESC_KEY, "boot-key");
+
+	if (power_tps65217_init(0))
+		printf("WARN: cannot setup PMIC 0x24 @ bus #0, not found!.\n");
+
 	return 0;
 }
 
 #ifdef CONFIG_BOARD_LATE_INIT
+
+int board_boot_key(void)
+{
+	return gpio_get_value(ESC_KEY);
+}
+
 int board_late_init(void)
 {
-	const unsigned int toff = 1000;
-	unsigned int cnt  = 3;
-	unsigned short buf = 0xAAAA;
-	unsigned char scratchreg = 0;
-	unsigned int oldspeed;
-
-	/* try to read out some boot-instruction from resetcontroller */
-	oldspeed = i2c_get_bus_speed();
-	if (i2c_set_bus_speed(CONFIG_SYS_OMAP24_I2C_SPEED_PSOC) >= 0) {
-		i2c_read(RSTCTRL_ADDR, RSTCTRL_SCRATCHREG, 1,
-			 &scratchreg, sizeof(scratchreg));
-		i2c_set_bus_speed(oldspeed);
-	} else {
-		puts("ERROR: i2c_set_bus_speed failed! (scratchregister)\n");
-	}
-
-	if (gpio_get_value(ESC_KEY)) {
-		do {
-			lcd_position_cursor(1, 8);
-			switch (cnt) {
-			case 3:
-				lcd_puts(
-				"release ESC-KEY to enter SERVICE-mode.");
-				break;
-			case 2:
-				lcd_puts(
-				"release ESC-KEY to enter DIAGNOSE-mode.");
-				break;
-			case 1:
-				lcd_puts(
-				"release ESC-KEY to enter BOOT-mode.    ");
-				break;
-			}
-			mdelay(toff);
-			cnt--;
-			if (!gpio_get_value(ESC_KEY) &&
-			    gpio_get_value(PUSH_KEY) && 2 == cnt) {
-				lcd_position_cursor(1, 8);
-				lcd_puts(
-				"switching to network-console ...       ");
-				env_set("bootcmd", "run netconsole");
-				cnt = 4;
-				break;
-			} else if (!gpio_get_value(ESC_KEY) &&
-			    gpio_get_value(PUSH_KEY) && 1 == cnt) {
-				lcd_position_cursor(1, 8);
-				lcd_puts(
-				"starting u-boot script from USB ...    ");
-				env_set("bootcmd", "run usbscript");
-				cnt = 4;
-				break;
-			} else if ((!gpio_get_value(ESC_KEY) &&
-				    gpio_get_value(PUSH_KEY) && cnt == 0) ||
-				    (gpio_get_value(ESC_KEY) &&
-				    gpio_get_value(PUSH_KEY) && cnt == 0)) {
-				lcd_position_cursor(1, 8);
-				lcd_puts(
-				"starting script from network ...      ");
-				env_set("bootcmd", "run netscript");
-				cnt = 4;
-				break;
-			} else if (!gpio_get_value(ESC_KEY)) {
-				break;
-			}
-		} while (cnt);
-	} else if (scratchreg == 0xCC) {
-		lcd_position_cursor(1, 8);
-		lcd_puts(
-		"starting vxworks from network ...      ");
-		env_set("bootcmd", "run netboot");
-		cnt = 4;
-	} else if (scratchreg == 0xCD) {
-		lcd_position_cursor(1, 8);
-		lcd_puts(
-		"starting script from network ...      ");
-		env_set("bootcmd", "run netscript");
-		cnt = 4;
-	} else if (scratchreg == 0xCE) {
-		lcd_position_cursor(1, 8);
-		lcd_puts(
-		"starting AR from eMMC ...             ");
-		env_set("bootcmd", "run mmcboot");
-		cnt = 4;
-	}
-
-	lcd_position_cursor(1, 8);
-	switch (cnt) {
-	case 0:
-		lcd_puts("entering BOOT-mode.                    ");
-		env_set("bootcmd", "run defaultAR");
-		buf = 0x0000;
-		break;
-	case 1:
-		lcd_puts("entering DIAGNOSE-mode.                ");
-		buf = 0x0F0F;
-		break;
-	case 2:
-		lcd_puts("entering SERVICE mode.                 ");
-		buf = 0xB4B4;
-		break;
-	case 3:
-		lcd_puts("loading OS...                          ");
-		buf = 0x0404;
-		break;
-	}
-	/* write bootinfo into scratchregister of resetcontroller */
-	oldspeed = i2c_get_bus_speed();
-	if (i2c_set_bus_speed(CONFIG_SYS_OMAP24_I2C_SPEED_PSOC) >= 0) {
-		i2c_write(RSTCTRL_ADDR, RSTCTRL_SCRATCHREG, 1,
-			  (uint8_t *)&buf, sizeof(buf));
-		i2c_set_bus_speed(oldspeed);
-	} else {
-		puts("ERROR: i2c_set_bus_speed failed! (scratchregister)\n");
-	}
-	/* setup othbootargs for bootvx-command (vxWorks bootline) */
 	char othbootargs[128];
+
+	br_resetc_bmode();
+
+	/* setup othbootargs for bootvx-command (vxWorks bootline) */
 	snprintf(othbootargs, sizeof(othbootargs),
 		 "u=vxWorksFTP pw=vxWorks o=0x%08x;0x%08x;0x%08x;0x%08x",
-		 (unsigned int) gd->fb_base-0x20,
-		 (u32)env_get_ulong("vx_memtop", 16, gd->fb_base-0x20),
+		 (u32)gd->fb_base - 0x20,
+		 (u32)env_get_ulong("vx_memtop", 16, gd->fb_base - 0x20),
 		 (u32)env_get_ulong("vx_romfsbase", 16, 0),
 		 (u32)env_get_ulong("vx_romfssize", 16, 0));
 	env_set("othbootargs", othbootargs);

@@ -14,8 +14,6 @@
 #define CONFIG_EXYNOS4210		1	/* which is a EXYNOS4210 SoC */
 #define CONFIG_ORIGEN			1	/* working with ORIGEN*/
 
-#define CONFIG_SYS_DCACHE_OFF		1
-
 /* ORIGEN has 4 bank of DRAM */
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 #define PHYS_SDRAM_1			CONFIG_SYS_SDRAM_BASE
@@ -44,7 +42,6 @@
 
 /* MMC SPL */
 #define COPY_BL2_FNPTR_ADDR	0x02020030
-#define CONFIG_SPL_TEXT_BASE	0x02021410
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x40007000\0" \
@@ -83,10 +80,8 @@
 #define CONFIG_MIU_2BIT_21_7_INTERLEAVED
 
 #define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_ENV_SIZE			(16 << 10)	/* 16 KB */
 #define RESERVE_BLOCK_SIZE		(512)
 #define BL1_SIZE			(16 << 10) /*16 K reserved for BL1*/
-#define CONFIG_ENV_OFFSET		(RESERVE_BLOCK_SIZE + BL1_SIZE)
 
 #define CONFIG_SPL_MAX_FOOTPRINT	(14 * 1024)
 

@@ -24,6 +24,10 @@
 #include <asm/mmu.h>
 #include <asm/u-boot.h>
 
+#include "hrcw/hrcw.h"
+#include "bats/bats.h"
+#include "hid/hid.h"
+
 /* We don't want the  MMU yet.
  */
 #undef	MSR_KERNEL
@@ -114,18 +118,6 @@ disable_addr_trans:
 	mtspr	SRR0, r4
 	mtspr	SRR1, r3
 	rfi
-
-	.globl	ppcDWstore
-ppcDWstore:
-	lfd	1, 0(r4)
-	stfd	1, 0(r3)
-	blr
-
-	.globl	ppcDWload
-ppcDWload:
-	lfd	1, 0(r3)
-	stfd	1, 0(r4)
-	blr
 
 #ifndef CONFIG_DEFAULT_IMMR
 #error CONFIG_DEFAULT_IMMR must be defined
@@ -288,6 +280,9 @@ in_flash:
 	/*------------------------------------------------------*/
 
 	GET_GOT			/* initialize GOT access	*/
+	/* Needed for -msingle-pic-base */
+	bl	_GLOBAL_OFFSET_TABLE_@local-4
+	mflr	r30
 
 	/* r3: IMMR */
 	lis	r3, CONFIG_SYS_IMMR@h

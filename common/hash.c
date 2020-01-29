@@ -12,11 +12,13 @@
 #ifndef USE_HOSTCC
 #include <common.h>
 #include <command.h>
+#include <env.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <hw_sha.h>
 #include <asm/io.h>
 #include <linux/errno.h>
+#include <u-boot/crc.h>
 #else
 #include "mkimage.h"
 #include <time.h>

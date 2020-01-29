@@ -4,7 +4,10 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
+#include <env.h>
 #include <asm/processor.h>
+#include <env.h>
 #include <ioports.h>
 #include <lmb.h>
 #include <asm/io.h>

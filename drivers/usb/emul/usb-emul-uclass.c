@@ -245,7 +245,8 @@ int usb_emul_bulk(struct udevice *emul, struct usb_device *udev,
 }
 
 int usb_emul_int(struct udevice *emul, struct usb_device *udev,
-		  unsigned long pipe, void *buffer, int length, int interval)
+		  unsigned long pipe, void *buffer, int length, int interval,
+		  bool nonblock)
 {
 	struct dm_usb_ops *ops = usb_get_emul_ops(emul);
 
@@ -253,7 +254,8 @@ int usb_emul_int(struct udevice *emul, struct usb_device *udev,
 		return -ENOSYS;
 	debug("%s: dev=%s\n", __func__, emul->name);
 
-	return ops->interrupt(emul, udev, pipe, buffer, length, interval);
+	return ops->interrupt(emul, udev, pipe, buffer, length, interval,
+			      nonblock);
 }
 
 int usb_emul_setup_device(struct udevice *dev, struct usb_string *strings,

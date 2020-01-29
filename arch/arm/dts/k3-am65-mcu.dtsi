@@ -2,7 +2,7 @@
 /*
  * Device Tree Source for AM6 SoC Family MCU Domain peripherals
  *
- * Copyright (C) 2016-2018 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2016-2019 Texas Instruments Incorporated - http://www.ti.com/
  */
 
 &cbass_mcu {
@@ -14,5 +14,54 @@
 			interrupts = <GIC_SPI 565 IRQ_TYPE_LEVEL_HIGH>;
 			clock-frequency = <96000000>;
 			current-speed = <115200>;
+	};
+
+	mcu_i2c0: i2c@40b00000 {
+		compatible = "ti,am654-i2c", "ti,omap4-i2c";
+		reg = <0x0 0x40b00000 0x0 0x100>;
+		interrupts = <GIC_SPI 564 IRQ_TYPE_LEVEL_HIGH>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		clock-names = "fck";
+		clocks = <&k3_clks 114 1>;
+		power-domains = <&k3_pds 114 TI_SCI_PD_EXCLUSIVE>;
+	};
+
+	mcu_r5fss0: r5fss@41000000 {
+		compatible = "ti,am654-r5fss";
+		lockstep-mode = <0>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges = <0x41000000 0x00 0x41000000 0x20000>,
+			 <0x41400000 0x00 0x41400000 0x20000>;
+		power-domains = <&k3_pds 129 TI_SCI_PD_EXCLUSIVE>;
+
+		mcu_r5fss0_core0: r5f@41000000 {
+			compatible = "ti,am654-r5f";
+			reg = <0x41000000 0x00008000>,
+			      <0x41010000 0x00008000>;
+			reg-names = "atcm", "btcm";
+			ti,sci = <&dmsc>;
+			ti,sci-dev-id = <159>;
+			ti,sci-proc-ids = <0x01 0xFF>;
+			resets = <&k3_reset 159 1>;
+			atcm-enable = <1>;
+			btcm-enable = <1>;
+			loczrama = <1>;
+		};
+
+		mcu_r5fss0_core1: r5f@41400000 {
+			compatible = "ti,am654-r5f";
+			reg = <0x41400000 0x00008000>,
+			      <0x41410000 0x00008000>;
+			reg-names = "atcm", "btcm";
+			ti,sci = <&dmsc>;
+			ti,sci-dev-id = <245>;
+			ti,sci-proc-ids = <0x02 0xFF>;
+			resets = <&k3_reset 245 1>;
+			atcm-enable = <1>;
+			btcm-enable = <1>;
+			loczrama = <1>;
+		};
 	};
 };

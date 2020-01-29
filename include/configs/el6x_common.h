@@ -20,7 +20,6 @@
 #define CONFIG_MXC_UART
 
 #ifdef CONFIG_SPL
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	(64 * 1024)
 #include "imx6_spl.h"
 #endif
 
@@ -43,10 +42,6 @@
 #define CONFIG_POWER_PFUZE100_I2C_ADDR	0x08
 
 /* Commands */
-#define CONFIG_SF_DEFAULT_BUS		3
-#define CONFIG_SF_DEFAULT_CS		0
-#define CONFIG_SF_DEFAULT_SPEED		20000000
-#define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
@@ -97,12 +92,9 @@
 
 /* environment organization */
 
-#define CONFIG_ENV_SIZE			(8 * 1024)
-
 #if defined(CONFIG_ENV_IS_IN_MMC)
 #define CONFIG_SYS_MMC_ENV_DEV		1
 #define CONFIG_SYS_MMC_ENV_PART		2
-#define CONFIG_ENV_OFFSET		0x0
 #endif
 
 #endif                         /* __EL6Q_COMMON_CONFIG_H */

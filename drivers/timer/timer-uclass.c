@@ -48,6 +48,10 @@ static int timer_pre_probe(struct udevice *dev)
 	int err;
 	ulong ret;
 
+	/* It is possible that a timer device has a null ofnode */
+	if (!dev_of_valid(dev))
+		return 0;
+
 	err = clk_get_by_index(dev, 0, &timer_clk);
 	if (!err) {
 		ret = clk_get_rate(&timer_clk);

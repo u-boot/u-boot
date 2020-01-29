@@ -74,17 +74,10 @@
 /* DMA config, needed for GPMI/MXS NAND support */
 
 /* Environment in NAND */
-#define CONFIG_ENV_OFFSET		(16 << 20)
-#define CONFIG_ENV_SECT_SIZE		(128 << 10)
-#define CONFIG_ENV_SIZE			CONFIG_ENV_SECT_SIZE
-#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + (512 << 10))
-#define CONFIG_ENV_SIZE_REDUND		CONFIG_ENV_SIZE
 
 #else /* CONFIG_CMD_NAND */
 
 /* Environment in MMC */
-#define CONFIG_ENV_SIZE			(8 << 10)
-#define CONFIG_ENV_OFFSET		(6 * 64 * 1024)
 #define CONFIG_SYS_MMC_ENV_DEV		0
 
 #endif /* CONFIG_CMD_NAND */
@@ -102,7 +95,6 @@
 #define CONFIG_BOOTCOMMAND			"run bootubi_scr"
 
 /* Miscellaneous configurable options */
-#define CONFIG_PREBOOT
 
 /* MTD/UBI/UBIFS config */
 

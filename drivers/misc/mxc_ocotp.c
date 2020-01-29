@@ -321,6 +321,11 @@ int fuse_sense(u32 bank, u32 word, u32 *val)
 	struct ocotp_regs *regs;
 	int ret;
 
+	if (is_imx8mq() && is_soc_rev(CHIP_REV_2_1)) {
+		printf("mxc_ocotp %s(): fuse sense is disabled\n", __func__);
+		return -EPERM;
+	}
+
 	ret = prepare_read(&regs, bank, word, val, __func__);
 	if (ret)
 		return ret;
@@ -354,13 +359,17 @@ static int prepare_write(struct ocotp_regs **regs, u32 bank, u32 word,
 
 	/* Only bank 0 and 1 are redundancy mode, others are ECC mode */
 	if (bank != 0 && bank != 1) {
-		ret = fuse_sense(bank, word, &val);
-		if (ret)
-			return ret;
+		if ((soc_rev() < CHIP_REV_2_0) ||
+		    ((soc_rev() >= CHIP_REV_2_0) &&
+		    bank != 9 && bank != 10 && bank != 28)) {
+			ret = fuse_sense(bank, word, &val);
+			if (ret)
+				return ret;
 
-		if (val != 0) {
-			printf("mxc_ocotp: The word has been programmed, no more write\n");
-			return -EPERM;
+			if (val != 0) {
+				printf("mxc_ocotp: The word has been programmed, no more write\n");
+				return -EPERM;
+			}
 		}
 	}
 #endif

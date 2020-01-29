@@ -8,6 +8,7 @@
 #include <cros_ec.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <init.h>
 #include <spi.h>
 #include <tmu.h>
 #include <netdev.h>
@@ -249,56 +250,27 @@ int board_eth_init(bd_t *bis)
 	return 0;
 }
 
-#ifdef CONFIG_MMC
-static int init_mmc(void)
-{
-#ifdef CONFIG_MMC_SDHCI
-	return exynos_mmc_init(gd->fdt_blob);
-#else
-	return 0;
-#endif
-}
-
-static int init_dwmmc(void)
-{
-#ifdef CONFIG_MMC_DW
-	return exynos_dwmmc_init(gd->fdt_blob);
-#else
-	return 0;
-#endif
-}
-
-int board_mmc_init(bd_t *bis)
-{
-	int ret;
-
-	if (get_boot_mode() == BOOT_MODE_SD) {
-		ret = init_mmc();
-		ret |= init_dwmmc();
-	} else {
-		ret = init_dwmmc();
-		ret |= init_mmc();
-	}
-
-	if (ret)
-		debug("mmc init failed\n");
-
-	return ret;
-}
-#endif
-
-#ifdef CONFIG_DISPLAY_BOARDINFO
+#if defined(CONFIG_DISPLAY_BOARDINFO) || defined(CONFIG_DISPLAY_BOARDINFO_LATE)
 int checkboard(void)
 {
-	const char *board_info;
+	if (IS_ENABLED(CONFIG_BOARD_TYPES)) {
+		const char *board_info;
 
-	board_info = fdt_getprop(gd->fdt_blob, 0, "model", NULL);
-	printf("Board: %s\n", board_info ? board_info : "unknown");
-#ifdef CONFIG_BOARD_TYPES
-	board_info = get_board_type();
-	if (board_info)
-		printf("Type:  %s\n", board_info);
-#endif
+		if (IS_ENABLED(CONFIG_DISPLAY_BOARDINFO_LATE)) {
+			/*
+			 * Printing type requires having revision, although
+			 * this will succeed only if done late.
+			 * Otherwise revision will be set in misc_init_r().
+			 */
+			set_board_revision();
+		}
+
+		board_info = get_board_type();
+
+		if (board_info)
+			printf("Type:  %s\n", board_info);
+	}
+
 	return 0;
 }
 #endif
@@ -327,6 +299,16 @@ int board_late_init(void)
 #ifdef CONFIG_MISC_INIT_R
 int misc_init_r(void)
 {
+	if (IS_ENABLED(CONFIG_BOARD_TYPES) &&
+	    !IS_ENABLED(CONFIG_DISPLAY_BOARDINFO_LATE)) {
+		/*
+		 * If revision was not set by late display boardinfo,
+		 * set it here. At this point regulators should be already
+		 * available.
+		 */
+		set_board_revision();
+	}
+
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	set_board_info();
 #endif

@@ -5,7 +5,7 @@
  * From coreboot src/arch/x86/wakeup.S
  */
 
-#include <asm/acpi_s3.h>
+#include <acpi_s3.h>
 #include <asm/processor.h>
 #include <asm/processor-flags.h>
 

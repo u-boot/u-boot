@@ -6,6 +6,7 @@
 /dts-v1/;
 
 #include "fsl-imx8qxp.dtsi"
+#include "fsl-imx8qxp-mek-u-boot.dtsi"
 
 / {
 	model = "Freescale i.MX8QXP MEK";
@@ -223,6 +224,7 @@
 	status = "okay";
 	phy-reset-gpios = <&pca9557_a 4 GPIO_ACTIVE_LOW>;
 	phy-reset-duration = <10>;
+	phy-reset-post-delay = <150>;
 
 	mdio {
 		#address-cells = <1>;

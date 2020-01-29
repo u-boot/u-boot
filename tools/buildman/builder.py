@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 import glob
 import os
 import re
-import Queue
+import queue
 import shutil
 import signal
 import string
@@ -92,11 +92,10 @@ u-boot/             source directory
 """
 
 # Possible build outcomes
-OUTCOME_OK, OUTCOME_WARNING, OUTCOME_ERROR, OUTCOME_UNKNOWN = range(4)
+OUTCOME_OK, OUTCOME_WARNING, OUTCOME_ERROR, OUTCOME_UNKNOWN = list(range(4))
 
 # Translate a commit subject into a valid filename (and handle unicode)
-trans_valid_chars = string.maketrans('/: ', '---')
-trans_valid_chars = trans_valid_chars.decode('latin-1')
+trans_valid_chars = str.maketrans('/: ', '---')
 
 BASE_CONFIG_FILENAMES = [
     'u-boot.cfg', 'u-boot-spl.cfg', 'u-boot-tpl.cfg'
@@ -122,8 +121,8 @@ class Config:
     def __hash__(self):
         val = 0
         for fname in self.config:
-            for key, value in self.config[fname].iteritems():
-                print key, value
+            for key, value in self.config[fname].items():
+                print(key, value)
                 val = val ^ hash(key) & hash(value)
         return val
 
@@ -293,8 +292,8 @@ class Builder:
         self._re_dtb_warning = re.compile('(.*): Warning .*')
         self._re_note = re.compile('(.*):(\d*):(\d*): note: this is the location of the previous.*')
 
-        self.queue = Queue.Queue()
-        self.out_queue = Queue.Queue()
+        self.queue = queue.Queue()
+        self.out_queue = queue.Queue()
         for i in range(self.num_threads):
             t = builderthread.BuilderThread(self, i, incremental,
                     per_board_out_dir)
@@ -673,7 +672,12 @@ class Builder:
         environment = {}
         if os.path.exists(done_file):
             with open(done_file, 'r') as fd:
-                return_code = int(fd.readline())
+                try:
+                    return_code = int(fd.readline())
+                except ValueError:
+                    # The file may be empty due to running out of disk space.
+                    # Try a rebuild
+                    return_code = 1
                 err_lines = []
                 err_file = self.GetErrFile(commit_upto, target)
                 if os.path.exists(err_file):
@@ -776,7 +780,7 @@ class Builder:
         config = {}
         environment = {}
 
-        for board in boards_selected.itervalues():
+        for board in boards_selected.values():
             outcome = self.GetBuildOutcome(commit_upto, board.target,
                                            read_func_sizes, read_config,
                                            read_environment)
@@ -809,13 +813,13 @@ class Builder:
             tconfig = Config(self.config_filenames, board.target)
             for fname in self.config_filenames:
                 if outcome.config:
-                    for key, value in outcome.config[fname].iteritems():
+                    for key, value in outcome.config[fname].items():
                         tconfig.Add(fname, key, value)
             config[board.target] = tconfig
 
             tenvironment = Environment(board.target)
             if outcome.environment:
-                for key, value in outcome.environment.iteritems():
+                for key, value in outcome.environment.items():
                     tenvironment.Add(key, value)
             environment[board.target] = tenvironment
 
@@ -1035,12 +1039,12 @@ class Builder:
 
         # We now have a list of image size changes sorted by arch
         # Print out a summary of these
-        for arch, target_list in arch_list.iteritems():
+        for arch, target_list in arch_list.items():
             # Get total difference for each type
             totals = {}
             for result in target_list:
                 total = 0
-                for name, diff in result.iteritems():
+                for name, diff in result.items():
                     if name.startswith('_'):
                         continue
                     total += diff
@@ -1245,7 +1249,7 @@ class Builder:
             if self._show_unknown:
                 self.AddOutcome(board_selected, arch_list, unknown_boards, '?',
                         self.col.MAGENTA)
-            for arch, target_list in arch_list.iteritems():
+            for arch, target_list in arch_list.items():
                 Print('%10s: %s' % (arch, target_list))
                 self._error_lines += 1
             if better_err:
@@ -1278,13 +1282,13 @@ class Builder:
                 environment_minus = {}
                 environment_change = {}
                 base = tbase.environment
-                for key, value in tenvironment.environment.iteritems():
+                for key, value in tenvironment.environment.items():
                     if key not in base:
                         environment_plus[key] = value
-                for key, value in base.iteritems():
+                for key, value in base.items():
                     if key not in tenvironment.environment:
                         environment_minus[key] = value
-                for key, value in base.iteritems():
+                for key, value in base.items():
                     new_value = tenvironment.environment.get(key)
                     if new_value and value != new_value:
                         desc = '%s -> %s' % (value, new_value)
@@ -1337,15 +1341,15 @@ class Builder:
                     config_minus = {}
                     config_change = {}
                     base = tbase.config[name]
-                    for key, value in tconfig.config[name].iteritems():
+                    for key, value in tconfig.config[name].items():
                         if key not in base:
                             config_plus[key] = value
                             all_config_plus[key] = value
-                    for key, value in base.iteritems():
+                    for key, value in base.items():
                         if key not in tconfig.config[name]:
                             config_minus[key] = value
                             all_config_minus[key] = value
-                    for key, value in base.iteritems():
+                    for key, value in base.items():
                         new_value = tconfig.config.get(key)
                         if new_value and value != new_value:
                             desc = '%s -> %s' % (value, new_value)
@@ -1363,7 +1367,7 @@ class Builder:
                 summary[target] = '\n'.join(lines)
 
             lines_by_target = {}
-            for target, lines in summary.iteritems():
+            for target, lines in summary.items():
                 if lines in lines_by_target:
                     lines_by_target[lines].append(target)
                 else:
@@ -1387,7 +1391,7 @@ class Builder:
                     Print('%s:' % arch)
                     _OutputConfigInfo(lines)
 
-            for lines, targets in lines_by_target.iteritems():
+            for lines, targets in lines_by_target.items():
                 if not lines:
                     continue
                 Print('%s :' % ' '.join(sorted(targets)))
@@ -1458,7 +1462,7 @@ class Builder:
             commits: Selected commits to build
         """
         # First work out how many commits we will build
-        count = (self.commit_count + self._step - 1) / self._step
+        count = (self.commit_count + self._step - 1) // self._step
         self.count = len(board_selected) * count
         self.upto = self.warned = self.fail = 0
         self._timestamps = collections.deque()
@@ -1561,7 +1565,7 @@ class Builder:
         self.ProcessResult(None)
 
         # Create jobs to build all commits for each board
-        for brd in board_selected.itervalues():
+        for brd in board_selected.values():
             job = builderthread.BuilderJob()
             job.board = brd
             job.commits = commits

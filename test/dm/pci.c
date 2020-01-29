@@ -38,7 +38,7 @@ static int dm_test_pci_busdev(struct unit_test_state *uts)
 	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(0, 0x1f, 0), &swap));
 	device = 0;
 	ut_assertok(dm_pci_read_config16(swap, PCI_DEVICE_ID, &device));
-	ut_asserteq(SANDBOX_PCI_DEVICE_ID, device);
+	ut_asserteq(SANDBOX_PCI_SWAP_CASE_EMUL_ID, device);
 
 	/* Test bus#1 and its devices */
 	ut_assertok(uclass_get_device_by_seq(UCLASS_PCI, 1, &bus));
@@ -50,7 +50,7 @@ static int dm_test_pci_busdev(struct unit_test_state *uts)
 	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(1, 0x0c, 0), &swap));
 	device = 0;
 	ut_assertok(dm_pci_read_config16(swap, PCI_DEVICE_ID, &device));
-	ut_asserteq(SANDBOX_PCI_DEVICE_ID, device);
+	ut_asserteq(SANDBOX_PCI_SWAP_CASE_EMUL_ID, device);
 
 	return 0;
 }
@@ -170,7 +170,7 @@ static int dm_test_pci_mixed(struct unit_test_state *uts)
 	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(2, 0x1f, 0), &swap));
 	device = 0;
 	ut_assertok(dm_pci_read_config16(swap, PCI_DEVICE_ID, &device));
-	ut_asserteq(SANDBOX_PCI_DEVICE_ID, device);
+	ut_asserteq(SANDBOX_PCI_SWAP_CASE_EMUL_ID, device);
 
 	/* First test I/O */
 	io_addr = dm_pci_read_bar32(swap, 0);
@@ -245,3 +245,97 @@ static int dm_test_pci_cap(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_pci_cap, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test looking up BARs in EA capability structure */
+static int dm_test_pci_ea(struct unit_test_state *uts)
+{
+	struct udevice *bus, *swap;
+	void *bar;
+	int cap;
+
+	/*
+	 * use emulated device mapping function, we're not using real physical
+	 * addresses in this test
+	 */
+	sandbox_set_enable_pci_map(true);
+
+	ut_assertok(uclass_get_device_by_seq(UCLASS_PCI, 0, &bus));
+	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(0, 0x01, 0), &swap));
+
+	/* look up PCI_CAP_ID_EA */
+	cap = dm_pci_find_capability(swap, PCI_CAP_ID_EA);
+	ut_asserteq(PCI_CAP_ID_EA_OFFSET, cap);
+
+	/* test swap case in BAR 1 */
+	bar = dm_pci_map_bar(swap, PCI_BASE_ADDRESS_0, 0);
+	ut_assertnonnull(bar);
+	*(int *)bar = 2; /* swap upper/lower */
+
+	bar = dm_pci_map_bar(swap, PCI_BASE_ADDRESS_1, 0);
+	ut_assertnonnull(bar);
+	strcpy(bar, "ea TEST");
+	unmap_sysmem(bar);
+	bar = dm_pci_map_bar(swap, PCI_BASE_ADDRESS_1, 0);
+	ut_assertnonnull(bar);
+	ut_asserteq_str("EA test", bar);
+
+	/* test magic values in BARs2, 4;  BAR 3 is n/a */
+	bar = dm_pci_map_bar(swap, PCI_BASE_ADDRESS_2, 0);
+	ut_assertnonnull(bar);
+	ut_asserteq(PCI_EA_BAR2_MAGIC, *(u32 *)bar);
+
+	bar = dm_pci_map_bar(swap, PCI_BASE_ADDRESS_3, 0);
+	ut_assertnull(bar);
+
+	bar = dm_pci_map_bar(swap, PCI_BASE_ADDRESS_4, 0);
+	ut_assertnonnull(bar);
+	ut_asserteq(PCI_EA_BAR4_MAGIC, *(u32 *)bar);
+
+	return 0;
+}
+DM_TEST(dm_test_pci_ea, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test the dev_read_addr_pci() function */
+static int dm_test_pci_addr_flat(struct unit_test_state *uts)
+{
+	struct udevice *swap1f, *swap1;
+	ulong io_addr, mem_addr;
+
+	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(0, 0x1f, 0), &swap1f));
+	io_addr = dm_pci_read_bar32(swap1f, 0);
+	ut_asserteq(io_addr, dev_read_addr_pci(swap1f));
+
+	/*
+	 * This device has both I/O and MEM spaces but the MEM space appears
+	 * first
+	 */
+	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(0, 0x1, 0), &swap1));
+	mem_addr = dm_pci_read_bar32(swap1, 1);
+	ut_asserteq(mem_addr, dev_read_addr_pci(swap1));
+
+	return 0;
+}
+DM_TEST(dm_test_pci_addr_flat, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT |
+		DM_TESTF_FLAT_TREE);
+
+/*
+ * Test the dev_read_addr_pci() function with livetree. That function is
+ * not currently fully implemented, in that it fails to return the BAR address.
+ * Once that is implemented this test can be removed and dm_test_pci_addr_flat()
+ * can be used for both flattree and livetree by removing the DM_TESTF_FLAT_TREE
+ * flag above.
+ */
+static int dm_test_pci_addr_live(struct unit_test_state *uts)
+{
+	struct udevice *swap1f, *swap1;
+
+	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(0, 0x1f, 0), &swap1f));
+	ut_asserteq(FDT_ADDR_T_NONE, dev_read_addr_pci(swap1f));
+
+	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(0, 0x1, 0), &swap1));
+	ut_asserteq(FDT_ADDR_T_NONE, dev_read_addr_pci(swap1));
+
+	return 0;
+}
+DM_TEST(dm_test_pci_addr_live, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT |
+		DM_TESTF_LIVE_TREE);

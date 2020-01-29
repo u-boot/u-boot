@@ -80,7 +80,7 @@ struct fv_header {
 	 * Declares the file system with which the firmware volume
 	 * is formatted.
 	 */
-	struct efi_guid		fs_guid;
+	efi_guid_t		fs_guid;
 	/*
 	 * Length in bytes of the complete firmware volume, including
 	 * the header.
@@ -128,7 +128,7 @@ struct fv_header {
 /* Extension header pointed by ExtHeaderOffset of volume header */
 struct fv_ext_header {
 	/* firmware volume name */
-	struct efi_guid		fv_name;
+	efi_guid_t		fv_name;
 	/* Size of the rest of the extension header including this structure */
 	u32			ext_hdr_size;
 };

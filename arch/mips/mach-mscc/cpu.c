@@ -87,8 +87,15 @@ int mach_cpu_init(void)
 	       ICPU_SPI_MST_CFG_CS_DESELECT_TIME(0x19) +
 	       ICPU_SPI_MST_CFG_CLK_DIV(9), BASE_CFG + ICPU_SPI_MST_CFG);
 #else
+#if defined(CONFIG_SOC_OCELOT) || defined(CONFIG_SOC_SERVAL)
 	writel(ICPU_SPI_MST_CFG_CS_DESELECT_TIME(0x19) +
 	       ICPU_SPI_MST_CFG_CLK_DIV(9), BASE_CFG + ICPU_SPI_MST_CFG);
+#endif
+#if defined(CONFIG_SOC_JR2) || defined(CONFIG_SOC_SERVALT)
+	writel(ICPU_SPI_MST_CFG_FAST_READ_ENA +
+	       ICPU_SPI_MST_CFG_CS_DESELECT_TIME(0x19) +
+	       ICPU_SPI_MST_CFG_CLK_DIV(14), BASE_CFG + ICPU_SPI_MST_CFG);
+#endif
 	/*
 	 * Legacy and mainline linux kernel expect that the
 	 * interruption map was set as it was done by redboot.

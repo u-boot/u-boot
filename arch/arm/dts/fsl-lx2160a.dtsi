@@ -49,6 +49,80 @@
 			     <1 10 0x8>; /* Hypervisor PPI, active-low */
 	};
 
+	i2c0: i2c@2000000 {
+		compatible = "fsl,vf610-i2c";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x0 0x2000000 0x0 0x10000>;
+		interrupts = <0 34 4>;
+		scl-gpio = <&gpio2 15 0>;
+		status = "disabled";
+	};
+
+	i2c1: i2c@2010000 {
+		compatible = "fsl,vf610-i2c";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x0 0x2010000 0x0 0x10000>;
+		interrupts = <0 34 4>;
+		status = "disabled";
+	};
+
+	i2c2: i2c@2020000 {
+		compatible = "fsl,vf610-i2c";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x0 0x2020000 0x0 0x10000>;
+		interrupts = <0 35 4>;
+		status = "disabled";
+	};
+
+	i2c3: i2c@2030000 {
+		compatible = "fsl,vf610-i2c";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x0 0x2030000 0x0 0x10000>;
+		interrupts = <0 35 4>;
+		status = "disabled";
+	};
+
+	i2c4: i2c@2040000 {
+		compatible = "fsl,vf610-i2c";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x0 0x2040000 0x0 0x10000>;
+		interrupts = <0 74 4>;
+		scl-gpio = <&gpio2 16 0>;
+		status = "disabled";
+	};
+
+	i2c5: i2c@2050000 {
+		compatible = "fsl,vf610-i2c";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x0 0x2050000 0x0 0x10000>;
+		interrupts = <0 74 4>;
+		status = "disabled";
+	};
+
+	i2c6: i2c@2060000 {
+		compatible = "fsl,vf610-i2c";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x0 0x2060000 0x0 0x10000>;
+		interrupts = <0 75 4>;
+		status = "disabled";
+	};
+
+	i2c7: i2c@2070000 {
+		compatible = "fsl,vf610-i2c";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x0 0x2070000 0x0 0x10000>;
+		interrupts = <0 75 4>;
+		status = "disabled";
+	};
+
 	uart0: serial@21c0000 {
 		compatible = "arm,pl011";
 		reg = <0x0 0x21c0000 0x0 0x1000>;
@@ -89,7 +163,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0x0 0x2110000 0x0 0x10000>;
-		interrupts = <0 240 0x4>; /* Level high type */
+		interrupts = <0 26 0x4>; /* Level high type */
 		num-cs = <6>;
 	};
 
@@ -100,6 +174,17 @@
 		reg = <0x0 0x2120000 0x0 0x10000>;
 		interrupts = <0 241 0x4>; /* Level high type */
 		num-cs = <6>;
+	};
+
+	gpio2: gpio@2320000 {
+		compatible = "fsl,qoriq-gpio";
+		reg = <0x0 0x2320000 0x0 0x10000>;
+		interrupts = <0 37 4>;
+		gpio-controller;
+		little-endian;
+		#gpio-cells = <2>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
 	};
 
 	usb0: usb3@3100000 {
@@ -114,5 +199,151 @@
 		reg = <0x0 0x3110000 0x0 0x10000>;
 		interrupts = <0 81 0x4>; /* Level high type */
 		dr_mode = "host";
+	};
+
+	esdhc0: esdhc@2140000 {
+		compatible = "fsl,esdhc";
+		reg = <0x0 0x2140000 0x0 0x10000>;
+		interrupts = <0 28 0x4>; /* Level high type */
+		clocks = <&clockgen 4 1>;
+		voltage-ranges = <1800 1800 3300 3300>;
+		sdhci,auto-cmd12;
+		little-endian;
+		bus-width = <4>;
+		status = "disabled";
+	};
+
+	esdhc1: esdhc@2150000 {
+		compatible = "fsl,esdhc";
+		reg = <0x0 0x2150000 0x0 0x10000>;
+		interrupts = <0 63 0x4>; /* Level high type */
+		clocks = <&clockgen 4 1>;
+		voltage-ranges = <1800 1800 3300 3300>;
+		sdhci,auto-cmd12;
+		non-removable;
+		little-endian;
+		bus-width = <4>;
+		status = "disabled";
+	};
+
+	sata0: sata@3200000 {
+			compatible = "fsl,ls2080a-ahci";
+			reg = <0x0 0x3200000 0x0 0x10000>;
+			interrupts = <0 133 4>;
+			clocks = <&clockgen 4 3>;
+			status = "disabled";
+
+	};
+
+	sata1: sata@3210000 {
+			compatible = "fsl,ls2080a-ahci";
+			reg = <0x0 0x3210000 0x0 0x10000>;
+			interrupts = <0 136 4>;
+			clocks = <&clockgen 4 3>;
+			status = "disabled";
+
+	};
+
+	sata2: sata@3220000 {
+			compatible = "fsl,ls2080a-ahci";
+			reg = <0x0 0x3220000 0x0 0x10000>;
+			interrupts = <0 97 4>;
+			clocks = <&clockgen 4 3>;
+			status = "disabled";
+
+	};
+
+	sata3: sata@3230000 {
+			compatible = "fsl,ls2080a-ahci";
+			reg = <0x0 0x3230000 0x0 0x10000>;
+			interrupts = <0 100 4>;
+			clocks = <&clockgen 4 3>;
+			status = "disabled";
+
+	};
+
+	pcie@3400000 {
+		compatible = "fsl,lx2160a-pcie";
+		reg = <0x00 0x03400000 0x0 0x80000   /* PAB registers */
+		       0x00 0x03480000 0x0 0x40000   /* LUT registers */
+		       0x00 0x034c0000 0x0 0x40000   /* PF control registers */
+		       0x80 0x00000000 0x0 0x1000>; /* configuration space */
+		reg-names = "ccsr", "lut", "pf_ctrl", "config";
+		#address-cells = <3>;
+		#size-cells = <2>;
+		device_type = "pci";
+		bus-range = <0x0 0xff>;
+		ranges = <0x82000000 0x0 0x40000000 0x80 0x40000000 0x0 0x40000000>;
+	};
+
+	pcie@3500000 {
+		compatible = "fsl,lx2160a-pcie";
+		reg = <0x00 0x03500000 0x0 0x80000   /* PAB registers */
+		       0x00 0x03580000 0x0 0x40000   /* LUT registers */
+		       0x00 0x035c0000 0x0 0x40000   /* PF control registers */
+		       0x88 0x00000000 0x0 0x1000>; /* configuration space */
+		reg-names = "ccsr", "lut", "pf_ctrl", "config";
+		#address-cells = <3>;
+		#size-cells = <2>;
+		device_type = "pci";
+		num-lanes = <2>;
+		bus-range = <0x0 0xff>;
+		ranges = <0x82000000 0x0 0x40000000 0x88 0x40000000 0x0 0x40000000>;
+	};
+
+	pcie@3600000 {
+		compatible = "fsl,lx2160a-pcie";
+		reg = <0x00 0x03600000 0x0 0x80000   /* PAB registers */
+		       0x00 0x03680000 0x0 0x40000   /* LUT registers */
+		       0x00 0x036c0000 0x0 0x40000   /* PF control registers */
+		       0x90 0x00000000 0x0 0x1000>; /* configuration space */
+		reg-names = "ccsr", "lut", "pf_ctrl", "config";
+		#address-cells = <3>;
+		#size-cells = <2>;
+		device_type = "pci";
+		bus-range = <0x0 0xff>;
+		ranges = <0x82000000 0x0 0x40000000 0x90 0x40000000 0x0 0x40000000>;
+	};
+
+	pcie@3700000 {
+		compatible = "fsl,lx2160a-pcie";
+		reg = <0x00 0x03700000 0x0 0x80000   /* PAB registers */
+		       0x00 0x03780000 0x0 0x40000   /* LUT registers */
+		       0x00 0x037c0000 0x0 0x40000   /* PF control registers */
+		       0x98 0x00000000 0x0 0x1000>; /* configuration space */
+		reg-names = "ccsr", "lut", "pf_ctrl", "config";
+		#address-cells = <3>;
+		#size-cells = <2>;
+		device_type = "pci";
+		bus-range = <0x0 0xff>;
+		ranges = <0x82000000 0x0 0x40000000 0x98 0x40000000 0x0 0x40000000>;
+	};
+
+	pcie@3800000 {
+		compatible = "fsl,lx2160a-pcie";
+		reg = <0x00 0x03800000 0x0 0x80000   /* PAB registers */
+		       0x00 0x03880000 0x0 0x40000   /* LUT registers */
+		       0x00 0x038c0000 0x0 0x40000   /* PF control registers */
+		       0xa0 0x00000000 0x0 0x1000>; /* configuration space */
+		reg-names = "ccsr", "lut", "pf_ctrl", "config";
+		#address-cells = <3>;
+		#size-cells = <2>;
+		device_type = "pci";
+		bus-range = <0x0 0xff>;
+		ranges = <0x82000000 0x0 0x40000000 0xa0 0x40000000 0x0 0x40000000>;
+	};
+
+	pcie@3900000 {
+		compatible = "fsl,lx2160a-pcie";
+		reg = <0x00 0x03900000 0x0 0x80000   /* PAB registers */
+		       0x00 0x03980000 0x0 0x40000   /* LUT registers */
+		       0x00 0x039c0000 0x0 0x40000   /* PF control registers */
+		       0xa8 0x00000000 0x0 0x1000>; /* configuration space */
+		reg-names = "ccsr", "lut", "pf_ctrl", "config";
+		#address-cells = <3>;
+		#size-cells = <2>;
+		device_type = "pci";
+		bus-range = <0x0 0xff>;
+		ranges = <0x82000000 0x0 0x40000000 0xa8 0x40000000 0x0 0x40000000>;
 	};
 };

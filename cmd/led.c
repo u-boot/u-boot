@@ -85,7 +85,7 @@ int do_led(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (argc < 2)
 		return CMD_RET_USAGE;
 	led_label = argv[1];
-	if (*led_label == 'l')
+	if (strncmp(led_label, "list", 4) == 0)
 		return list_leds();
 
 	cmd = argc > 2 ? get_led_cmd(argv[2]) : LEDST_COUNT;
@@ -137,6 +137,6 @@ U_BOOT_CMD(
 	led, 4, 1, do_led,
 	"manage LEDs",
 	"<led_label> on|off|toggle" BLINK "\tChange LED state\n"
-	"led [<led_label>\tGet LED state\n"
+	"led <led_label>\tGet LED state\n"
 	"led list\t\tshow a list of LEDs"
 );

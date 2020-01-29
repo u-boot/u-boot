@@ -74,6 +74,7 @@
 #include <linux/slab.h>
 #include <linux/crc32.h>
 #include <linux/random.h>
+#include <u-boot/crc.h>
 #else
 #include <div64.h>
 #include <linux/err.h>

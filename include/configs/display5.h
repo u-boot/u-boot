@@ -35,8 +35,10 @@
  * 0x1540000 - 0x1640000 : SPI.factory  (1MiB)
  */
 
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_SPI_FLASH_MTD
+/* SPI Flash Configs */
+#if defined(CONFIG_SPL_BUILD)
+#undef CONFIG_DM_SPI
+#undef CONFIG_DM_SPI_FLASH
 #endif
 
 /* Below values are "dummy" - only to avoid build break */
@@ -45,7 +47,6 @@
 #define CONFIG_SYS_SPI_ARGS_SIZE        0x10000
 
 #include "imx6_spl.h"
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
 
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
@@ -55,41 +56,14 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(16 * 1024 * 1024)
 
-/*#define CONFIG_MXC_UART*/
 #define CONFIG_MXC_UART_BASE		UART5_BASE
 
-/* SPI NOR Flash */
-#ifdef CONFIG_CMD_SF
-#define CONFIG_SF_DEFAULT_BUS		1
-#define CONFIG_SF_DEFAULT_CS		(0 | (IMX_GPIO_NR(5, 29) << 8))
-#define CONFIG_SF_DEFAULT_SPEED		50000000
-#define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
-#endif
-
 /* I2C Configs */
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_MXC_I2C1
-#define CONFIG_SYS_I2C_MXC_I2C2
-#define CONFIG_SYS_I2C_MXC_I2C3
 #define CONFIG_I2C_MULTI_BUS
-#define CONFIG_SYS_I2C_SPEED		100000
-#define CONFIG_I2C_EDID
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN  2
-
-/* Ethernet */
-#ifdef CONFIG_FEC_MXC
-#define IMX_FEC_BASE			ENET_BASE_ADDR
-#define CONFIG_FEC_XCV_TYPE		RGMII
-#define CONFIG_ETHPRIME			"FEC"
-#define CONFIG_FEC_MXC_PHYADDR		0
-#endif
 
 /* MMC Configs */
-#define CONFIG_FSL_USDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #define CONFIG_SYS_FSL_USDHC_NUM	2
-#define CONFIG_SUPPORT_EMMC_BOOT
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
@@ -365,26 +339,16 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
-/* Commands */
-
 /* Watchdog */
-#define CONFIG_WATCHDOG_TIMEOUT_MSECS   15000
+#if defined(CONFIG_SPL_BUILD)
+#undef CONFIG_WDT
+#undef CONFIG_WATCHDOG
+#define CONFIG_HW_WATCHDOG
+#endif
 
 /* ENV config */
 #ifdef CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_ENV_SIZE		(SZ_64K)
 /* The 0x120000 value corresponds to above SPI-NOR memory MAP */
-#define CONFIG_ENV_OFFSET		(0x120000)
-#define CONFIG_ENV_SECT_SIZE		(SZ_64K)
-#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
-#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + \
-						CONFIG_ENV_SECT_SIZE)
-#define CONFIG_ENV_SIZE_REDUND		CONFIG_ENV_SIZE
-
-#define CONFIG_ENV_SPI_BUS		CONFIG_SF_DEFAULT_BUS
-#define CONFIG_ENV_SPI_CS		CONFIG_SF_DEFAULT_CS
-#define CONFIG_ENV_SPI_MODE		CONFIG_SF_DEFAULT_MODE
-#define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED
 #endif
 
 #define CONFIG_MXC_USB_PORTSC           (PORT_PTS_UTMI | PORT_PTS_PTW)

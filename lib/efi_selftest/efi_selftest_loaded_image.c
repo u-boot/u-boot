@@ -60,9 +60,8 @@ static int execute(void)
 	efi_st_printf("%u protocols installed on image handle\n",
 		      (unsigned int)protocol_buffer_count);
 	for (i = 0; i < protocol_buffer_count; ++i) {
-		if (efi_st_memcmp(protocol_buffer[i],
-				  &loaded_image_protocol_guid,
-				  sizeof(efi_guid_t)))
+		if (memcmp(protocol_buffer[i], &loaded_image_protocol_guid,
+			   sizeof(efi_guid_t)))
 			found = true;
 	}
 	if (!found) {

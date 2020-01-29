@@ -12,6 +12,7 @@
  */
 #include <common.h>
 #include <command.h>
+#include <env.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <linux/list.h>

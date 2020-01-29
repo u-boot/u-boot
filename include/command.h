@@ -10,6 +10,7 @@
 #ifndef __COMMAND_H
 #define __COMMAND_H
 
+#include <env.h>
 #include <linker_lists.h>
 
 #ifndef NULL
@@ -18,7 +19,7 @@
 
 /* Default to a width of 8 characters for help message command width */
 #ifndef CONFIG_SYS_HELP_CMD_WIDTH
-#define CONFIG_SYS_HELP_CMD_WIDTH	8
+#define CONFIG_SYS_HELP_CMD_WIDTH	10
 #endif
 
 #ifndef	__ASSEMBLY__
@@ -29,7 +30,16 @@
 struct cmd_tbl_s {
 	char		*name;		/* Command Name			*/
 	int		maxargs;	/* maximum number of arguments	*/
-	int		repeatable;	/* autorepeat allowed?		*/
+					/*
+					 * Same as ->cmd() except the command
+					 * tells us if it can be repeated.
+					 * Replaces the old ->repeatable field
+					 * which was not able to make
+					 * repeatable property different for
+					 * the main command and sub-commands.
+					 */
+	int		(*cmd_rep)(struct cmd_tbl_s *cmd, int flags, int argc,
+				   char * const argv[], int *repeatable);
 					/* Implementation function	*/
 	int		(*cmd)(struct cmd_tbl_s *, int, int, char * const []);
 	char		*usage;		/* Usage message	(short)	*/
@@ -54,8 +64,24 @@ int _do_help (cmd_tbl_t *cmd_start, int cmd_items, cmd_tbl_t * cmdtp, int
 	      flag, int argc, char * const argv[]);
 cmd_tbl_t *find_cmd(const char *cmd);
 cmd_tbl_t *find_cmd_tbl (const char *cmd, cmd_tbl_t *table, int table_len);
+int complete_subcmdv(cmd_tbl_t *cmdtp, int count, int argc,
+		     char * const argv[], char last_char, int maxv,
+		     char *cmdv[]);
 
 extern int cmd_usage(const cmd_tbl_t *cmdtp);
+
+/* Dummy ->cmd and ->cmd_rep wrappers. */
+int cmd_always_repeatable(cmd_tbl_t *cmdtp, int flag, int argc,
+			  char * const argv[], int *repeatable);
+int cmd_never_repeatable(cmd_tbl_t *cmdtp, int flag, int argc,
+			 char * const argv[], int *repeatable);
+int cmd_discard_repeatable(cmd_tbl_t *cmdtp, int flag, int argc,
+			   char * const argv[]);
+
+static inline bool cmd_is_repeatable(cmd_tbl_t *cmdtp)
+{
+	return cmdtp->cmd_rep == cmd_always_repeatable;
+}
 
 #ifdef CONFIG_AUTO_COMPLETE
 extern int var_complete(int argc, char * const argv[], char last_char, int maxv, char *cmdv[]);
@@ -84,7 +110,8 @@ int cmd_process_error(cmd_tbl_t *cmdtp, int err);
 #if defined(CONFIG_CMD_MEMORY) || \
 	defined(CONFIG_CMD_I2C) || \
 	defined(CONFIG_CMD_ITEST) || \
-	defined(CONFIG_CMD_PCI)
+	defined(CONFIG_CMD_PCI) || \
+	defined(CONFIG_CMD_SETEXPR)
 #define CMD_DATA_SIZE
 extern int cmd_get_data_size(char* arg, int default_size);
 #endif
@@ -114,6 +141,14 @@ extern int do_poweroff(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 
 extern unsigned long do_go_exec(ulong (*entry)(int, char * const []), int argc,
 				char * const argv[]);
+
+#if defined(CONFIG_CMD_NVEDIT_EFI)
+extern int do_env_print_efi(cmd_tbl_t *cmdtp, int flag, int argc,
+			    char * const argv[]);
+extern int do_env_set_efi(cmd_tbl_t *cmdtp, int flag, int argc,
+			  char * const argv[]);
+#endif
+
 /*
  * Error codes that commands return to cmd_process(). We use the standard 0
  * and 1 for success and failure, but add one more case - failure with a
@@ -164,6 +199,22 @@ void fixup_cmdtable(cmd_tbl_t *cmdtp, int size);
  * @return 0 if OK, 1 for error
  */
 int board_run_command(const char *cmdline);
+
+int run_command(const char *cmd, int flag);
+int run_command_repeatable(const char *cmd, int flag);
+
+/**
+ * Run a list of commands separated by ; or even \0
+ *
+ * Note that if 'len' is not -1, then the command does not need to be nul
+ * terminated, Memory will be allocated for the command in that case.
+ *
+ * @param cmd	List of commands to run, each separated bu semicolon
+ * @param len	Length of commands excluding terminator if known (-1 if not)
+ * @param flag	Execution flags (CMD_FLAG_...)
+ * @return 0 on success, or != 0 on error.
+ */
+int run_command_list(const char *cmd, int len, int flag);
 #endif	/* __ASSEMBLY__ */
 
 /*
@@ -184,16 +235,92 @@ int board_run_command(const char *cmdline);
 # define _CMD_HELP(x)
 #endif
 
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
+#define U_BOOT_SUBCMDS_RELOC(_cmdname)					\
+	static void _cmdname##_subcmds_reloc(void)			\
+	{								\
+		static int relocated;					\
+									\
+		if (relocated)						\
+			return;						\
+									\
+		fixup_cmdtable(_cmdname##_subcmds,			\
+			       ARRAY_SIZE(_cmdname##_subcmds));		\
+		relocated = 1;						\
+	}
+#else
+#define U_BOOT_SUBCMDS_RELOC(_cmdname)					\
+	static void _cmdname##_subcmds_reloc(void) { }
+#endif
+
+#define U_BOOT_SUBCMDS_DO_CMD(_cmdname)					\
+	static int do_##_cmdname(cmd_tbl_t *cmdtp, int flag, int argc,	\
+				 char * const argv[], int *repeatable)	\
+	{								\
+		cmd_tbl_t *subcmd;					\
+									\
+		_cmdname##_subcmds_reloc();				\
+									\
+		/* We need at least the cmd and subcmd names. */	\
+		if (argc < 2 || argc > CONFIG_SYS_MAXARGS)		\
+			return CMD_RET_USAGE;				\
+									\
+		subcmd = find_cmd_tbl(argv[1], _cmdname##_subcmds,	\
+				      ARRAY_SIZE(_cmdname##_subcmds));	\
+		if (!subcmd || argc - 1 > subcmd->maxargs)		\
+			return CMD_RET_USAGE;				\
+									\
+		if (flag == CMD_FLAG_REPEAT &&				\
+		    !cmd_is_repeatable(subcmd))				\
+			return CMD_RET_SUCCESS;				\
+									\
+		return subcmd->cmd_rep(subcmd, flag, argc - 1,		\
+				       argv + 1, repeatable);		\
+	}
+
+#ifdef CONFIG_AUTO_COMPLETE
+#define U_BOOT_SUBCMDS_COMPLETE(_cmdname)				\
+	static int complete_##_cmdname(int argc, char * const argv[],	\
+				       char last_char, int maxv,	\
+				       char *cmdv[])			\
+	{								\
+		return complete_subcmdv(_cmdname##_subcmds,		\
+					ARRAY_SIZE(_cmdname##_subcmds),	\
+					argc - 1, argv + 1, last_char,	\
+					maxv, cmdv);			\
+	}
+#else
+#define U_BOOT_SUBCMDS_COMPLETE(_cmdname)
+#endif
+
+#define U_BOOT_SUBCMDS(_cmdname, ...)					\
+	static cmd_tbl_t _cmdname##_subcmds[] = { __VA_ARGS__ };	\
+	U_BOOT_SUBCMDS_RELOC(_cmdname)					\
+	U_BOOT_SUBCMDS_DO_CMD(_cmdname)					\
+	U_BOOT_SUBCMDS_COMPLETE(_cmdname)
+
 #ifdef CONFIG_CMDLINE
+#define U_BOOT_CMDREP_MKENT_COMPLETE(_name, _maxargs, _cmd_rep,		\
+				     _usage, _help, _comp)		\
+		{ #_name, _maxargs, _cmd_rep, cmd_discard_repeatable,	\
+		  _usage, _CMD_HELP(_help) _CMD_COMPLETE(_comp) }
+
 #define U_BOOT_CMD_MKENT_COMPLETE(_name, _maxargs, _rep, _cmd,		\
 				_usage, _help, _comp)			\
-		{ #_name, _maxargs, _rep, _cmd, _usage,			\
-			_CMD_HELP(_help) _CMD_COMPLETE(_comp) }
+		{ #_name, _maxargs,					\
+		 _rep ? cmd_always_repeatable : cmd_never_repeatable,	\
+		 _cmd, _usage, _CMD_HELP(_help) _CMD_COMPLETE(_comp) }
 
 #define U_BOOT_CMD_COMPLETE(_name, _maxargs, _rep, _cmd, _usage, _help, _comp) \
 	ll_entry_declare(cmd_tbl_t, _name, cmd) =			\
 		U_BOOT_CMD_MKENT_COMPLETE(_name, _maxargs, _rep, _cmd,	\
 						_usage, _help, _comp);
+
+#define U_BOOT_CMDREP_COMPLETE(_name, _maxargs, _cmd_rep, _usage,	\
+			       _help, _comp)				\
+	ll_entry_declare(cmd_tbl_t, _name, cmd) =			\
+		U_BOOT_CMDREP_MKENT_COMPLETE(_name, _maxargs, _cmd_rep,	\
+					     _usage, _help, _comp)
 
 #else
 #define U_BOOT_SUBCMD_START(name)	static cmd_tbl_t name[] = {};
@@ -206,14 +333,24 @@ int board_run_command(const char *cmdline);
 			_cmd(NULL, 0, 0, NULL);				\
 		return 0;						\
 	}
+
+#define U_BOOT_CMDREP_MKENT_COMPLETE(_name, _maxargs, _cmd_rep,		\
+				     _usage, _help, _comp)		\
+		{ #_name, _maxargs, 0 ? _cmd_rep : NULL, NULL, _usage,	\
+			_CMD_HELP(_help) _CMD_COMPLETE(_comp) }
+
 #define U_BOOT_CMD_MKENT_COMPLETE(_name, _maxargs, _rep, _cmd, _usage,	\
 				  _help, _comp)				\
-		{ #_name, _maxargs, _rep, 0 ? _cmd : NULL, _usage,	\
+		{ #_name, _maxargs, NULL, 0 ? _cmd : NULL, _usage,	\
 			_CMD_HELP(_help) _CMD_COMPLETE(_comp) }
 
 #define U_BOOT_CMD_COMPLETE(_name, _maxargs, _rep, _cmd, _usage, _help,	\
 			    _comp)				\
 	_CMD_REMOVE(sub_ ## _name, _cmd)
+
+#define U_BOOT_CMDREP_COMPLETE(_name, _maxargs, _cmd_rep, _usage,	\
+			       _help, _comp)				\
+	_CMD_REMOVE(sub_ ## _name, _cmd_rep)
 
 #endif /* CONFIG_CMDLINE */
 
@@ -223,5 +360,19 @@ int board_run_command(const char *cmdline);
 #define U_BOOT_CMD_MKENT(_name, _maxargs, _rep, _cmd, _usage, _help)	\
 	U_BOOT_CMD_MKENT_COMPLETE(_name, _maxargs, _rep, _cmd,		\
 					_usage, _help, NULL)
+
+#define U_BOOT_SUBCMD_MKENT_COMPLETE(_name, _maxargs, _rep, _do_cmd,	\
+				     _comp)				\
+	U_BOOT_CMD_MKENT_COMPLETE(_name, _maxargs, _rep, _do_cmd,	\
+				  "", "", _comp)
+
+#define U_BOOT_SUBCMD_MKENT(_name, _maxargs, _rep, _do_cmd)		\
+	U_BOOT_SUBCMD_MKENT_COMPLETE(_name, _maxargs, _rep, _do_cmd,	\
+				     NULL)
+
+#define U_BOOT_CMD_WITH_SUBCMDS(_name, _usage, _help, ...)		\
+	U_BOOT_SUBCMDS(_name, __VA_ARGS__)				\
+	U_BOOT_CMDREP_COMPLETE(_name, CONFIG_SYS_MAXARGS, do_##_name,	\
+			       _usage, _help, complete_##_name)
 
 #endif	/* __COMMAND_H */

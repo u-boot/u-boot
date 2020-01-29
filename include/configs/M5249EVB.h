@@ -36,7 +36,6 @@
  */
 
 #define CONFIG_SYS_DEVICE_NULLDEV	1	/* include nulldev device	*/
-#define CONFIG_MX_CYCLIC	1	/* enable mdc/mwc commands	*/
 
 #define CONFIG_SYS_LOAD_ADDR		0x200000	/* default load address */
 
@@ -71,10 +70,6 @@
 #define LDS_BOARD_TEXT \
 	. = DEFINED(env_offset) ? env_offset : .; \
 	env/embedded.o(.text);
-
-#define CONFIG_ENV_OFFSET		0x4000	/* Address of Environment Sector*/
-#define CONFIG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
-#define CONFIG_ENV_SECT_SIZE	0x2000 /* see README - env sector total size	*/
 
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration

@@ -10,28 +10,23 @@
  */
 #include <version.h>
 #include <common.h>
-#include <environment.h>
-#include <errno.h>
-#include <asm/arch/cpu.h>
-#include <asm/arch/hardware.h>
-#include <asm/arch/omap.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/gpio.h>
-#include <asm/arch/sys_proto.h>
-#include <asm/arch/mmc_host_def.h>
-#include <asm/io.h>
-#include <asm/gpio.h>
+#include <env.h>
+#include <fdtdec.h>
 #include <i2c.h>
-#include <power/tps65217.h>
 #include <lcd.h>
 #include "bur_common.h"
-#include "../../../drivers/video/am335x-fb.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
 /* --------------------------------------------------------------------------*/
 #if defined(CONFIG_LCD) && defined(CONFIG_AM335X_LCD) && \
 	!defined(CONFIG_SPL_BUILD)
+#include <asm/arch/hardware.h>
+#include <asm/arch/cpu.h>
+#include <asm/gpio.h>
+#include <power/tps65217.h>
+#include "../../../drivers/video/am335x-fb.h"
+
 void lcdbacklight(int on)
 {
 	unsigned int driver = env_get_ulong("ds1_bright_drv", 16, 0UL);
@@ -181,6 +176,7 @@ void br_summaryscreen(void)
 void lcdpower(int on)
 {
 	u32 pin, swval, i;
+	char buf[16] = { 0 };
 
 	pin = env_get_ulong("ds1_pwr", 16, ~0UL);
 
@@ -191,6 +187,12 @@ void lcdpower(int on)
 
 	for (i = 0; i < 3; i++) {
 		if (pin != 0) {
+			snprintf(buf, sizeof(buf), "ds1_pwr#%d", i);
+			if (gpio_request(pin & 0x7F, buf) != 0) {
+				printf("%s: not able to request gpio %s",
+				       __func__, buf);
+				continue;
+			}
 			swval = pin & 0x80 ? 0 : 1;
 			if (on)
 				gpio_direction_output(pin & 0x7F, swval);
@@ -265,17 +267,62 @@ int ft_board_setup(void *blob, bd_t *bd)
 	return 0;
 }
 
-#ifdef CONFIG_SPL_BUILD
+int brdefaultip_setup(int bus, int chip)
+{
+	int rc;
+	struct udevice *i2cdev;
+	u8 u8buf = 0;
+	char defip[256] = { 0 };
+
+	rc = i2c_get_chip_for_busnum(bus, chip, 2, &i2cdev);
+	if (rc != 0) {
+		printf("WARN: cannot probe baseboard EEPROM!\n");
+		return -1;
+	}
+
+	rc = dm_i2c_read(i2cdev, 0, &u8buf, 1);
+	if (rc != 0) {
+		printf("WARN: cannot read baseboard EEPROM!\n");
+		return -1;
+	}
+
+	if (u8buf != 0xFF)
+		snprintf(defip, sizeof(defip),
+			 "if test -r ${ipaddr}; then; else setenv ipaddr 192.168.60.%d; setenv serverip 192.168.60.254; setenv gatewayip 192.168.60.254; setenv netmask 255.255.255.0; fi;",
+			 u8buf);
+	else
+		strncpy(defip,
+			"if test -r ${ipaddr}; then; else setenv ipaddr 192.168.60.1; setenv serverip 192.168.60.254; setenv gatewayip 192.168.60.254; setenv netmask 255.255.255.0; fi;",
+			sizeof(defip));
+
+	env_set("brdefaultip", defip);
+	env_set_hex("board_id", u8buf);
+
+	return 0;
+}
+
+int overwrite_console(void)
+{
+	return 1;
+}
+
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_AM33XX)
+#include <asm/arch/hardware.h>
+#include <asm/arch/omap.h>
+#include <asm/arch/clock.h>
+#include <asm/arch/sys_proto.h>
+#include <power/tps65217.h>
 
 static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 
-void pmicsetup(u32 mpupll)
+void pmicsetup(u32 mpupll, unsigned int bus)
 {
 	int mpu_vdd;
 	int usb_cur_lim;
 
-	if (i2c_probe(TPS65217_CHIP_PM)) {
-		puts("PMIC (0x24) not found! skip further initalization.\n");
+	if (power_tps65217_init(bus)) {
+		printf("WARN: cannot setup PMIC 0x24 @ bus #%d, not found!.\n",
+		       bus);
 		return;
 	}
 
@@ -351,9 +398,4 @@ void set_mux_conf_regs(void)
 	enable_board_pin_mux();
 }
 
-#endif /* CONFIG_SPL_BUILD */
-
-int overwrite_console(void)
-{
-	return 1;
-}
+#endif /* CONFIG_SPL_BUILD && CONFIG_AM33XX */

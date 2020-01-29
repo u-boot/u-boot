@@ -38,8 +38,8 @@ config TARGET_AM335X_EVM
 	imply SPL_DM
 	imply SPL_DM_SEQ_ALIAS
 	imply SPL_ENV_SUPPORT
-	imply SPL_EXT_SUPPORT
-	imply SPL_FAT_SUPPORT
+	imply SPL_FS_EXT4
+	imply SPL_FS_FAT
 	imply SPL_GPIO_SUPPORT
 	imply SPL_I2C_SUPPORT
 	imply SPL_LIBCOMMON_SUPPORT
@@ -87,6 +87,14 @@ config TARGET_AM335X_SHC
 	imply CMD_DM
 	imply CMD_SPL
 
+config TARGET_AM335X_GUARDIAN
+	bool "Support am335x based guardian board from bosch"
+	select BOARD_LATE_INIT
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+	select DM_USB
+
 config TARGET_AM335X_SL50
 	bool "Support am335x_sl50"
 	select BOARD_LATE_INIT
@@ -112,6 +120,10 @@ config TARGET_BAV335X
 
 config TARGET_BRXRE1
 	bool "Support BRXRE1"
+	select BOARD_LATE_INIT
+
+config TARGET_BRSMARC1
+	bool "Support BRSMARC1"
 	select BOARD_LATE_INIT
 
 config TARGET_BRPPT1
@@ -165,6 +177,13 @@ config TARGET_PENGWYN
 
 config TARGET_PEPPER
 	bool "Support pepper"
+	select DM
+	select DM_GPIO
+	select DM_SERIAL
+	imply CMD_DM
+
+config TARGET_PHYCORE_AM335X_R2
+	bool "Support phyCORE AM335X R2"
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
@@ -230,10 +249,9 @@ config TARGET_AM43XX_EVM
 	imply DM_I2C
 	imply DM_SPI
 	imply DM_SPI_FLASH
-	imply SPI_FLASH_BAR
 	imply SPL_ENV_SUPPORT
-	imply SPL_EXT_SUPPORT
-	imply SPL_FAT_SUPPORT
+	imply SPL_FS_EXT4
+	imply SPL_FS_FAT
 	imply SPL_GPIO_SUPPORT
 	imply SPL_I2C_SUPPORT
 	imply SPL_LIBCOMMON_SUPPORT
@@ -275,21 +293,6 @@ config SPL_RTC_DDR_SUPPORT
 endif
 
 if AM43XX || AM33XX
-config ISW_ENTRY_ADDR
-	hex "Address in memory or XIP flash of bootloader entry point"
-	default 0x402F4000 if AM43XX
-	default 0x402F0400 if AM33XX
-	help
-	  After any reset, the boot ROM on the AM43XX SOC
-	  searches the boot media for a valid boot image.
-	  For non-XIP devices, the ROM then copies the
-	  image into internal memory.
-	  For all boot modes, after the ROM processes the
-	  boot image it eventually computes the entry
-	  point address depending on the device type
-	  (secure/non-secure), boot media (xip/non-xip) and
-	  image headers.
-
 config PUB_ROM_DATA_SIZE
 	hex "Size in bytes of the L3 SRAM reserved by ROM to store data"
 	default 0x8400

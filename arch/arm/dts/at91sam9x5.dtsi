@@ -1180,7 +1180,7 @@
 				};
 			};
 
-			watchdog@fffffe40 {
+			watchdog: watchdog@fffffe40 {
 				compatible = "atmel,at91sam9260-wdt";
 				reg = <0xfffffe40 0x10>;
 				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;

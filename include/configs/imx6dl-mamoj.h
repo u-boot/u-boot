@@ -17,7 +17,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(35 * SZ_1M)
 
 /* Total Size of Environment Sector */
-#define CONFIG_ENV_SIZE			SZ_128K
 
 /* Allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
@@ -25,9 +24,6 @@
 /* Environment */
 #ifndef CONFIG_ENV_IS_NOWHERE
 /* Environment in MMC */
-# if defined(CONFIG_ENV_IS_IN_MMC)
-#  define CONFIG_ENV_OFFSET		0x100000
-# endif
 #endif
 
 #ifndef CONFIG_SPL_BUILD
@@ -51,7 +47,6 @@
 
 /* MMC */
 #define CONFIG_SYS_MMC_ENV_DEV		2
-#define CONFIG_SUPPORT_EMMC_BOOT
 
 /* Ethernet */
 #define CONFIG_FEC_MXC_PHYADDR		1

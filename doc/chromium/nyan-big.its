@@ -6,7 +6,7 @@
 
 	images {
 		kernel {
-			description = "U-Boot mainline";
+			description = "U-Boot mainline    ";
 			type = "kernel_noload";
 			arch = "arm";
 			os = "linux";

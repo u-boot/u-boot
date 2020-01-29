@@ -1,0 +1,7 @@
+phyCORE AM335x R2 WEGA BOARD
+M:	Niel Fourie <lusus@denx.de>
+M:	Parthiban Nallathambi <pn@denx.de>
+S:	Maintained
+F:	board/phytec/phycore_am335x_r2
+F:	include/configs/phycore_am335x_r2.h
+F:	configs/phycore-am335x-r2-wega_defconfig

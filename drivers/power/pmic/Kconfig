@@ -48,6 +48,21 @@ config PMIC_AS3722
 	  interface and is designs to cover most of the power managementment
 	  required for a tablets or laptop.
 
+config DM_PMIC_BD71837
+ 	bool "Enable Driver Model for PMIC BD71837"
+ 	depends on DM_PMIC
+ 	help
+	  This config enables implementation of driver-model pmic uclass features
+	  for PMIC BD71837. The driver implements read/write operations.
+
+config SPL_DM_PMIC_BD71837
+	bool "Enable Driver Model for PMIC BD71837 in SPL stage"
+	depends on DM_PMIC
+	help
+	  This config enables implementation of driver-model pmic uclass
+	  features for PMIC BD71837. The driver implements read/write
+	  operations.
+
 config DM_PMIC_FAN53555
 	bool "Enable support for OnSemi FAN53555"
 	depends on DM_PMIC && DM_REGULATOR && DM_I2C
@@ -231,10 +246,39 @@ config DM_PMIC_TPS65910
 	DC-DC converter, 8 LDOs and a RTC. This driver binds the SMPS and LDO
 	pmic children.
 
-config PMIC_STPMU1
-	bool "Enable support for STMicroelectronics STPMU1 PMIC"
+config PMIC_STPMIC1
+	bool "Enable support for STMicroelectronics STPMIC1 PMIC"
 	depends on DM_PMIC && DM_I2C
+	select SYSRESET_CMD_POWEROFF if CMD_POWEROFF && !ARM_PSCI_FW
 	---help---
-	The STPMU1 PMIC provides 4 BUCKs, 6 LDOs, 1 VREF and 2 power switches.
+	The STPMIC1 PMIC provides 4 BUCKs, 6 LDOs, 1 VREF and 2 power switches.
 	It is accessed via an I2C interface. The device is used with STM32MP1
 	SoCs. This driver implements register read/write operations.
+
+config SPL_PMIC_PALMAS
+	bool "Enable driver for Texas Instruments PALMAS PMIC"
+	depends on DM_PMIC
+	help
+	The PALMAS is a PMIC containing several LDOs, SMPS.
+	This driver binds the pmic children in SPL.
+
+config SPL_PMIC_LP873X
+	bool "Enable driver for Texas Instruments LP873X PMIC"
+	depends on DM_PMIC
+	help
+	The LP873X is a PMIC containing couple of LDOs and couple of SMPS.
+	This driver binds the pmic children in SPL.
+
+config SPL_PMIC_LP87565
+	bool "Enable driver for Texas Instruments LP87565 PMIC"
+	depends on DM_PMIC
+	help
+	The LP87565 is a PMIC containing a bunch of SMPS.
+	This driver binds the pmic children in SPL.
+
+config PMIC_TPS65941
+	bool "Enable driver for Texas Instruments TPS65941 PMIC"
+	depends on DM_PMIC
+	help
+	The TPS65941 is a PMIC containing a bunch of SMPS & LDOs.
+	This driver binds the pmic children.

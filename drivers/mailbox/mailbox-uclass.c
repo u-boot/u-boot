@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <mailbox.h>
 #include <mailbox-uclass.h>
+#include <time.h>
 
 static inline struct mbox_ops *mbox_dev_ops(struct udevice *dev)
 {
@@ -49,7 +50,16 @@ int mbox_get_by_index(struct udevice *dev, int index, struct mbox_chan *chan)
 	if (ret) {
 		debug("%s: uclass_get_device_by_of_offset failed: %d\n",
 		      __func__, ret);
-		return ret;
+
+		/* Test with parent node */
+		ret = uclass_get_device_by_ofnode(UCLASS_MAILBOX,
+						  ofnode_get_parent(args.node),
+						  &dev_mbox);
+		if (ret) {
+			debug("%s: mbox node from parent failed: %d\n",
+			      __func__, ret);
+			return ret;
+		};
 	}
 	ops = mbox_dev_ops(dev_mbox);
 
@@ -63,7 +73,8 @@ int mbox_get_by_index(struct udevice *dev, int index, struct mbox_chan *chan)
 		return ret;
 	}
 
-	ret = ops->request(chan);
+	if (ops->request)
+		ret = ops->request(chan);
 	if (ret) {
 		debug("ops->request() failed: %d\n", ret);
 		return ret;
@@ -94,7 +105,10 @@ int mbox_free(struct mbox_chan *chan)
 
 	debug("%s(chan=%p)\n", __func__, chan);
 
-	return ops->free(chan);
+	if (ops->free)
+		return ops->free(chan);
+
+	return 0;
 }
 
 int mbox_send(struct mbox_chan *chan, const void *data)

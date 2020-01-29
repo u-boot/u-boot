@@ -69,6 +69,13 @@ config SPL_BOOTSTAGE_RECORD_COUNT
 	  This is the size of the bootstage record list and is the maximum
 	  number of bootstage records that can be recorded.
 
+config TPL_BOOTSTAGE_RECORD_COUNT
+	int "Number of boot stage records to store for TPL"
+	default 5
+	help
+	  This is the size of the bootstage record list and is the maximum
+	  number of bootstage records that can be recorded.
+
 config BOOTSTAGE_FDT
 	bool "Store boot timing information in the OS device tree"
 	depends on BOOTSTAGE
@@ -118,6 +125,168 @@ config BOOTSTAGE_STASH_SIZE
 	  This should be large enough to hold the bootstage stash. A value of
 	  4096 (4KiB) is normally plenty.
 
+config SHOW_BOOT_PROGRESS
+	bool "Show boot progress in a board-specific manner"
+	help
+	  Defining this option allows to add some board-specific code (calling
+	  a user-provided function show_boot_progress(int) that enables you to
+	  show the system's boot progress on some display (for example, some
+	  LEDs) on your board. At the moment, the following checkpoints are
+	  implemented:
+
+	  Legacy uImage format:
+
+	  Arg	Where			When
+	    1	common/cmd_bootm.c	before attempting to boot an image
+	   -1	common/cmd_bootm.c	Image header has bad	 magic number
+	    2	common/cmd_bootm.c	Image header has correct magic number
+	   -2	common/cmd_bootm.c	Image header has bad	 checksum
+	    3	common/cmd_bootm.c	Image header has correct checksum
+	   -3	common/cmd_bootm.c	Image data   has bad	 checksum
+	    4	common/cmd_bootm.c	Image data   has correct checksum
+	   -4	common/cmd_bootm.c	Image is for unsupported architecture
+	    5	common/cmd_bootm.c	Architecture check OK
+	   -5	common/cmd_bootm.c	Wrong Image Type (not kernel, multi)
+	    6	common/cmd_bootm.c	Image Type check OK
+	   -6	common/cmd_bootm.c	gunzip uncompression error
+	   -7	common/cmd_bootm.c	Unimplemented compression type
+	    7	common/cmd_bootm.c	Uncompression OK
+	    8	common/cmd_bootm.c	No uncompress/copy overwrite error
+	   -9	common/cmd_bootm.c	Unsupported OS (not Linux, BSD, VxWorks, QNX)
+
+	    9	common/image.c		Start initial ramdisk verification
+	  -10	common/image.c		Ramdisk header has bad	   magic number
+	  -11	common/image.c		Ramdisk header has bad	   checksum
+	   10	common/image.c		Ramdisk header is OK
+	  -12	common/image.c		Ramdisk data   has bad	   checksum
+	   11	common/image.c		Ramdisk data   has correct checksum
+	   12	common/image.c		Ramdisk verification complete, start loading
+	  -13	common/image.c		Wrong Image Type (not PPC Linux ramdisk)
+	   13	common/image.c		Start multifile image verification
+	   14	common/image.c		No initial ramdisk, no multifile, continue.
+
+	   15	arch/<arch>/lib/bootm.c All preparation done, transferring control to OS
+
+	  -30	arch/powerpc/lib/board.c	Fatal error, hang the system
+	  -31	post/post.c		POST test failed, detected by post_output_backlog()
+	  -32	post/post.c		POST test failed, detected by post_run_single()
+
+	   34	common/cmd_doc.c	before loading a Image from a DOC device
+	  -35	common/cmd_doc.c	Bad usage of "doc" command
+	   35	common/cmd_doc.c	correct usage of "doc" command
+	  -36	common/cmd_doc.c	No boot device
+	   36	common/cmd_doc.c	correct boot device
+	  -37	common/cmd_doc.c	Unknown Chip ID on boot device
+	   37	common/cmd_doc.c	correct chip ID found, device available
+	  -38	common/cmd_doc.c	Read Error on boot device
+	   38	common/cmd_doc.c	reading Image header from DOC device OK
+	  -39	common/cmd_doc.c	Image header has bad magic number
+	   39	common/cmd_doc.c	Image header has correct magic number
+	  -40	common/cmd_doc.c	Error reading Image from DOC device
+	   40	common/cmd_doc.c	Image header has correct magic number
+	   41	common/cmd_ide.c	before loading a Image from a IDE device
+	  -42	common/cmd_ide.c	Bad usage of "ide" command
+	   42	common/cmd_ide.c	correct usage of "ide" command
+	  -43	common/cmd_ide.c	No boot device
+	   43	common/cmd_ide.c	boot device found
+	  -44	common/cmd_ide.c	Device not available
+	   44	common/cmd_ide.c	Device available
+	  -45	common/cmd_ide.c	wrong partition selected
+	   45	common/cmd_ide.c	partition selected
+	  -46	common/cmd_ide.c	Unknown partition table
+	   46	common/cmd_ide.c	valid partition table found
+	  -47	common/cmd_ide.c	Invalid partition type
+	   47	common/cmd_ide.c	correct partition type
+	  -48	common/cmd_ide.c	Error reading Image Header on boot device
+	   48	common/cmd_ide.c	reading Image Header from IDE device OK
+	  -49	common/cmd_ide.c	Image header has bad magic number
+	   49	common/cmd_ide.c	Image header has correct magic number
+	  -50	common/cmd_ide.c	Image header has bad	 checksum
+	   50	common/cmd_ide.c	Image header has correct checksum
+	  -51	common/cmd_ide.c	Error reading Image from IDE device
+	   51	common/cmd_ide.c	reading Image from IDE device OK
+	   52	common/cmd_nand.c	before loading a Image from a NAND device
+	  -53	common/cmd_nand.c	Bad usage of "nand" command
+	   53	common/cmd_nand.c	correct usage of "nand" command
+	  -54	common/cmd_nand.c	No boot device
+	   54	common/cmd_nand.c	boot device found
+	  -55	common/cmd_nand.c	Unknown Chip ID on boot device
+	   55	common/cmd_nand.c	correct chip ID found, device available
+	  -56	common/cmd_nand.c	Error reading Image Header on boot device
+	   56	common/cmd_nand.c	reading Image Header from NAND device OK
+	  -57	common/cmd_nand.c	Image header has bad magic number
+	   57	common/cmd_nand.c	Image header has correct magic number
+	  -58	common/cmd_nand.c	Error reading Image from NAND device
+	   58	common/cmd_nand.c	reading Image from NAND device OK
+
+	  -60	common/env_common.c	Environment has a bad CRC, using default
+
+	   64	net/eth.c		starting with Ethernet configuration.
+	  -64	net/eth.c		no Ethernet found.
+	   65	net/eth.c		Ethernet found.
+
+	  -80	common/cmd_net.c	usage wrong
+	   80	common/cmd_net.c	before calling net_loop()
+	  -81	common/cmd_net.c	some error in net_loop() occurred
+	   81	common/cmd_net.c	net_loop() back without error
+	  -82	common/cmd_net.c	size == 0 (File with size 0 loaded)
+	   82	common/cmd_net.c	trying automatic boot
+	   83	common/cmd_net.c	running "source" command
+	  -83	common/cmd_net.c	some error in automatic boot or "source" command
+	   84	common/cmd_net.c	end without errors
+
+	  FIT uImage format:
+
+	  Arg	Where			When
+	  100	common/cmd_bootm.c	Kernel FIT Image has correct format
+	  -100	common/cmd_bootm.c	Kernel FIT Image has incorrect format
+	  101	common/cmd_bootm.c	No Kernel subimage unit name, using configuration
+	  -101	common/cmd_bootm.c	Can't get configuration for kernel subimage
+	  102	common/cmd_bootm.c	Kernel unit name specified
+	  -103	common/cmd_bootm.c	Can't get kernel subimage node offset
+	  103	common/cmd_bootm.c	Found configuration node
+	  104	common/cmd_bootm.c	Got kernel subimage node offset
+	  -104	common/cmd_bootm.c	Kernel subimage hash verification failed
+	  105	common/cmd_bootm.c	Kernel subimage hash verification OK
+	  -105	common/cmd_bootm.c	Kernel subimage is for unsupported architecture
+	  106	common/cmd_bootm.c	Architecture check OK
+	  -106	common/cmd_bootm.c	Kernel subimage has wrong type
+	  107	common/cmd_bootm.c	Kernel subimage type OK
+	  -107	common/cmd_bootm.c	Can't get kernel subimage data/size
+	  108	common/cmd_bootm.c	Got kernel subimage data/size
+	  -108	common/cmd_bootm.c	Wrong image type (not legacy, FIT)
+	  -109	common/cmd_bootm.c	Can't get kernel subimage type
+	  -110	common/cmd_bootm.c	Can't get kernel subimage comp
+	  -111	common/cmd_bootm.c	Can't get kernel subimage os
+	  -112	common/cmd_bootm.c	Can't get kernel subimage load address
+	  -113	common/cmd_bootm.c	Image uncompress/copy overwrite error
+
+	  120	common/image.c		Start initial ramdisk verification
+	  -120	common/image.c		Ramdisk FIT image has incorrect format
+	  121	common/image.c		Ramdisk FIT image has correct format
+	  122	common/image.c		No ramdisk subimage unit name, using configuration
+	  -122	common/image.c		Can't get configuration for ramdisk subimage
+	  123	common/image.c		Ramdisk unit name specified
+	  -124	common/image.c		Can't get ramdisk subimage node offset
+	  125	common/image.c		Got ramdisk subimage node offset
+	  -125	common/image.c		Ramdisk subimage hash verification failed
+	  126	common/image.c		Ramdisk subimage hash verification OK
+	  -126	common/image.c		Ramdisk subimage for unsupported architecture
+	  127	common/image.c		Architecture check OK
+	  -127	common/image.c		Can't get ramdisk subimage data/size
+	  128	common/image.c		Got ramdisk subimage data/size
+	  129	common/image.c		Can't get ramdisk load address
+	  -129	common/image.c		Got ramdisk load address
+
+	  -130	common/cmd_doc.c	Incorrect FIT image format
+	  131	common/cmd_doc.c	FIT image format OK
+
+	  -140	common/cmd_ide.c	Incorrect FIT image format
+	  141	common/cmd_ide.c	FIT image format OK
+
+	  -150	common/cmd_nand.c	Incorrect FIT image format
+	  151	common/cmd_nand.c	FIT image format OK
+
 endmenu
 
 menu "Boot media"
@@ -134,7 +303,7 @@ config NOR_BOOT
 config NAND_BOOT
 	bool "Support for booting from NAND flash"
 	default n
-	imply NAND
+	imply MTD_RAW_NAND
 	help
 	  Enabling this will make a U-Boot binary that is capable of being
 	  booted via NAND flash. This is not a must, some SoCs need this,
@@ -143,7 +312,7 @@ config NAND_BOOT
 config ONENAND_BOOT
 	bool "Support for booting from ONENAND"
 	default n
-	imply NAND
+	imply MTD_RAW_NAND
 	help
 	  Enabling this will make a U-Boot binary that is capable of being
 	  booted via ONENAND. This is not a must, some SoCs need this,
@@ -232,6 +401,25 @@ config BOOTCOMMAND
 	  This is the string of commands that will be used as bootcmd and if
 	  AUTOBOOT is set, automatically run.
 
+config USE_PREBOOT
+	bool "Enable preboot"
+	help
+	  When this option is enabled, the existence of the environment
+	  variable "preboot" will be checked immediately before starting the
+	  CONFIG_BOOTDELAY countdown and/or running the auto-boot command resp.
+	  entering interactive mode.
+
+	  This feature is especially useful when "preboot" is automatically
+	  generated or modified. For example, the boot code can modify the
+	  "preboot" when a user holds down a certain combination of keys.
+
+config PREBOOT
+	string "preboot default value"
+	depends on USE_PREBOOT
+	default ""
+	help
+	  This is the default of "preboot" environment variable.
+
 menu "Console"
 
 config MENU
@@ -286,14 +474,16 @@ config LOGLEVEL
 	  All Messages with a loglevel smaller than the console loglevel will
 	  be compiled in. The loglevels are defined as follows:
 
-	  0 (KERN_EMERG)          system is unusable
-	  1 (KERN_ALERT)          action must be taken immediately
-	  2 (KERN_CRIT)           critical conditions
-	  3 (KERN_ERR)            error conditions
-	  4 (KERN_WARNING)        warning conditions
-	  5 (KERN_NOTICE)         normal but significant condition
-	  6 (KERN_INFO)           informational
-	  7 (KERN_DEBUG)          debug-level messages
+	    0 - emergency
+	    1 - alert
+	    2 - critical
+	    3 - error
+	    4 - warning
+	    5 - note
+	    6 - info
+	    7 - debug
+	    8 - debug content
+	    9 - debug hardware I/O
 
 config SPL_LOGLEVEL
 	int
@@ -308,7 +498,7 @@ config SILENT_CONSOLE
 	help
 	  This option allows the console to be silenced, meaning that no
 	  output will appear on the console devices. This is controlled by
-	  setting the environment vaariable 'silent' to a non-empty value.
+	  setting the environment variable 'silent' to a non-empty value.
 	  Note this also silences the console when booting Linux.
 
 	  When the console is set up, the variable is checked, and the
@@ -430,7 +620,7 @@ config SYS_CONSOLE_INFO_QUIET
 	help
 	  Normally U-Boot displays the current settings for stdout, stdin
 	  and stderr on boot when the post-relocation console is set up.
-	  Enable this option to supress this output. It can be obtained by
+	  Enable this option to suppress this output. It can be obtained by
 	  calling stdio_print_current_devices() from board code.
 
 config SYS_STDIO_DEREGISTER
@@ -482,14 +672,16 @@ config LOG_MAX_LEVEL
 	  higher than this will be ignored. If possible log statements below
 	  this level will be discarded at build time. Levels:
 
-	    0 - panic
-	    1 - critical
-	    2 - error
-	    3 - warning
-	    4 - note
-	    5 - info
-	    6 - detail
+	    0 - emergency
+	    1 - alert
+	    2 - critical
+	    3 - error
+	    4 - warning
+	    5 - note
+	    6 - info
 	    7 - debug
+	    8 - debug content
+	    9 - debug hardware I/O
 
 config SPL_LOG_MAX_LEVEL
 	int "Maximum log level to record in SPL"
@@ -500,14 +692,16 @@ config SPL_LOG_MAX_LEVEL
 	  higher than this will be ignored. If possible log statements below
 	  this level will be discarded at build time. Levels:
 
-	    0 - panic
-	    1 - critical
-	    2 - error
-	    3 - warning
-	    4 - note
-	    5 - info
-	    6 - detail
+	    0 - emergency
+	    1 - alert
+	    2 - critical
+	    3 - error
+	    4 - warning
+	    5 - note
+	    6 - info
 	    7 - debug
+	    8 - debug content
+	    9 - debug hardware I/O
 
 config TPL_LOG_MAX_LEVEL
 	int "Maximum log level to record in TPL"
@@ -518,14 +712,36 @@ config TPL_LOG_MAX_LEVEL
 	  higher than this will be ignored. If possible log statements below
 	  this level will be discarded at build time. Levels:
 
-	    0 - panic
-	    1 - critical
-	    2 - error
-	    3 - warning
-	    4 - note
-	    5 - info
-	    6 - detail
+	    0 - emergency
+	    1 - alert
+	    2 - critical
+	    3 - error
+	    4 - warning
+	    5 - note
+	    6 - info
 	    7 - debug
+	    8 - debug content
+	    9 - debug hardware I/O
+
+config LOG_DEFAULT_LEVEL
+	int "Default logging level to display"
+	default 6
+	help
+	  This is the default logging level set when U-Boot starts. It can
+	  be adjusted later using the 'log level' command. Note that setting
+	  this to a value above LOG_MAX_LEVEL will be ineffective, since the
+	  higher levels are not compiled in to U-Boot.
+
+	    0 - emergency
+	    1 - alert
+	    2 - critical
+	    3 - error
+	    4 - warning
+	    5 - note
+	    6 - info
+	    7 - debug
+	    8 - debug content
+	    9 - debug hardware I/O
 
 config LOG_CONSOLE
 	bool "Allow log output to the console"
@@ -548,7 +764,7 @@ config SPL_LOG_CONSOLE
 	  line number are omitted.
 
 config TPL_LOG_CONSOLE
-	bool "Allow log output to the console in SPL"
+	bool "Allow log output to the console in TPL"
 	depends on TPL_LOG
 	default y
 	help
@@ -565,14 +781,14 @@ config LOG_TEST
 	  This enables a 'log test' command to test logging. It is normally
 	  executed from a pytest and simply outputs logging information
 	  in various different ways to test that the logging system works
-	  correctly with varoius settings.
+	  correctly with various settings.
 
 config LOG_ERROR_RETURN
 	bool "Log all functions which return an error"
 	depends on LOG
 	help
 	  When an error is returned in U-Boot it is sometimes difficult to
-	  figure out the root cause. For eaxmple, reading from SPI flash may
+	  figure out the root cause. For example, reading from SPI flash may
 	  fail due to a problem in the SPI controller or due to the flash part
 	  not returning the expected information. This option changes
 	  log_ret() to log any errors it sees. With this option disabled,
@@ -645,6 +861,25 @@ config DISPLAY_BOARDINFO_LATE
 	  the relocation phase. The board function checkboard() is called to do
 	  this.
 
+config BOUNCE_BUFFER
+	bool "Include bounce buffer API"
+	help
+	  Some peripherals support DMA from a subset of physically
+	  addressable memory only.  To support such peripherals, the
+	  bounce buffer API uses a temporary buffer: it copies data
+	  to/from DMA regions while managing cache operations.
+
+	  A second possible use of bounce buffers is their ability to
+	  provide aligned buffers for DMA operations.
+
+config BOARD_TYPES
+	bool "Call get_board_type() to get and display the board type"
+	help
+	  If this option is enabled, checkboard() will call get_board_type()
+	  to get a string containing the board type and this will be
+	  displayed immediately after the model is shown on the console
+	  early in boot.
+
 menu "Start-up hooks"
 
 config ARCH_EARLY_INIT_R
@@ -661,7 +896,7 @@ config ARCH_MISC_INIT
 	  With this option U-Boot will call arch_misc_init() after
 	  relocation to allow miscellaneous arch-dependent initialisation
 	  to be performed. This function should be defined by the board
-	  and will be called after the console is set up, after relocaiton.
+	  and will be called after the console is set up, after relocation.
 
 config BOARD_EARLY_INIT_F
 	bool "Call board-specific init before relocation"
@@ -747,6 +982,16 @@ config UPDATE_TFTP_MSEC_MAX
 	int "Delay in mSec to wait for the TFTP server during auto-update"
 	default 100
 	depends on UPDATE_TFTP
+
+config ANDROID_AB
+	bool "Android A/B updates"
+	default n
+	help
+	  If enabled, adds support for the new Android A/B update model. This
+	  allows the bootloader to select which slot to boot from based on the
+	  information provided by userspace via the Android boot_ctrl HAL. This
+	  allows a bootloader to try a new version of the system but roll back
+	  to previous version if the new one didn't boot all the way.
 
 endmenu
 

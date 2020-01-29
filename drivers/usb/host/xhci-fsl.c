@@ -13,7 +13,7 @@
 #include <linux/compat.h>
 #include <linux/usb/xhci-fsl.h>
 #include <linux/usb/dwc3.h>
-#include "xhci.h"
+#include <usb/xhci.h>
 #include <fsl_errata.h>
 #include <fsl_usb.h>
 #include <dm.h>

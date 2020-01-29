@@ -20,6 +20,7 @@
  * Linus Walleij <linus.walleij@linaro.org>
  */
 #include <common.h>
+#include <init.h>
 #include <pci.h>
 #include <asm/io.h>
 #include "integrator-sc.h"

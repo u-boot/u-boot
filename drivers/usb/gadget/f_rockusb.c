@@ -6,6 +6,7 @@
  */
 #include <config.h>
 #include <common.h>
+#include <env.h>
 #include <errno.h>
 #include <malloc.h>
 #include <memalign.h>
@@ -15,7 +16,7 @@
 #include <linux/compiler.h>
 #include <version.h>
 #include <g_dnl.h>
-#include <asm/arch/f_rockusb.h>
+#include <asm/arch-rockchip/f_rockusb.h>
 
 static inline struct f_rockusb *func_to_rockusb(struct usb_function *f)
 {

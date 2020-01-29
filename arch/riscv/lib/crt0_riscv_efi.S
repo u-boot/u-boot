@@ -14,12 +14,12 @@
 #define SIZE_LONG	8
 #define SAVE_LONG(reg, idx)	sd	reg, (idx*SIZE_LONG)(sp)
 #define LOAD_LONG(reg, idx)	ld	reg, (idx*SIZE_LONG)(sp)
-#define PE_MACHINE	0x5064
+#define PE_MACHINE	IMAGE_FILE_MACHINE_RISCV64
 #else
 #define SIZE_LONG	4
 #define SAVE_LONG(reg, idx)	sw	reg, (idx*SIZE_LONG)(sp)
 #define LOAD_LONG(reg, idx)	lw	reg, (idx*SIZE_LONG)(sp)
-#define PE_MACHINE	0x5032
+#define PE_MACHINE	IMAGE_FILE_MACHINE_RISCV32
 #endif
 
 
@@ -30,12 +30,11 @@
 	 */
 	.globl	ImageBase
 ImageBase:
-	.ascii	"MZ"
+	.short	IMAGE_DOS_SIGNATURE		/* 'MZ' */
 	.skip	58				/* 'MZ' + pad + offset == 64 */
 	.long	pe_header - ImageBase		/* Offset to the PE header */
 pe_header:
-	.ascii	"PE"
-	.short	0
+	.long	IMAGE_NT_SIGNATURE		/* 'PE' */
 coff_header:
 	.short	PE_MACHINE			/* RISC-V 64/32-bit */
 	.short	2				/* nr_sections */
@@ -49,7 +48,7 @@ coff_header:
 		 IMAGE_FILE_LOCAL_SYMS_STRIPPED | \
 		 IMAGE_FILE_DEBUG_STRIPPED)
 optional_header:
-	.short	0x20b				/* PE32+ format */
+	.short	IMAGE_NT_OPTIONAL_HDR64_MAGIC	/* PE32+ format */
 	.byte	0x02				/* MajorLinkerVersion */
 	.byte	0x14				/* MinorLinkerVersion */
 	.long	_edata - _start			/* SizeOfCode */

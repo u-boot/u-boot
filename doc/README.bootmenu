@@ -91,7 +91,7 @@ To run the bootmenu at startup add these additional definitions:
 
   #define CONFIG_AUTOBOOT_KEYED
   #define CONFIG_BOOTDELAY 30
-  #define CONFIG_MENU_SHOW
+  #define CONFIG_AUTOBOOT_MENU_SHOW
 
 When you intend to use the bootmenu on color frame buffer console,
 make sure to additionally define CONFIG_CFB_CONSOLE_ANSI in the

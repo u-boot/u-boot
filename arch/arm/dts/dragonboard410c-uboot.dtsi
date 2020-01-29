@@ -28,8 +28,8 @@
 
 		serial@78b0000 {
 			u-boot,dm-pre-reloc;
-			};
 		};
+	};
 };
 
 

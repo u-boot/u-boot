@@ -9,11 +9,10 @@ import os
 import sys
 import unittest
 
+import entry
 import fdt
 import fdt_util
 import tools
-
-entry = None
 
 class TestEntry(unittest.TestCase):
     def setUp(self):
@@ -29,33 +28,25 @@ class TestEntry(unittest.TestCase):
         dtb = fdt.FdtScan(fname)
         return dtb.GetNode('/binman/u-boot')
 
-    def test1EntryNoImportLib(self):
-        """Test that we can import Entry subclassess successfully"""
-
-        sys.modules['importlib'] = None
-        global entry
-        import entry
-        entry.Entry.Create(None, self.GetNode(), 'u-boot')
-
-    def test2EntryImportLib(self):
-        del sys.modules['importlib']
+    def _ReloadEntry(self):
         global entry
         if entry:
-            reload(entry)
+            if sys.version_info[0] >= 3:
+                import importlib
+                importlib.reload(entry)
+            else:
+                reload(entry)
         else:
             import entry
-        entry.Entry.Create(None, self.GetNode(), 'u-boot-spl')
-        del entry
 
     def testEntryContents(self):
         """Test the Entry bass class"""
         import entry
-        base_entry = entry.Entry(None, None, None, read_node=False)
+        base_entry = entry.Entry(None, None, None)
         self.assertEqual(True, base_entry.ObtainContents())
 
     def testUnknownEntry(self):
         """Test that unknown entry types are detected"""
-        import entry
         Node = collections.namedtuple('Node', ['name', 'path'])
         node = Node('invalid-name', 'invalid-path')
         with self.assertRaises(ValueError) as e:
@@ -65,20 +56,37 @@ class TestEntry(unittest.TestCase):
 
     def testUniqueName(self):
         """Test Entry.GetUniqueName"""
-        import entry
         Node = collections.namedtuple('Node', ['name', 'parent'])
         base_node = Node('root', None)
-        base_entry = entry.Entry(None, None, base_node, read_node=False)
+        base_entry = entry.Entry(None, None, base_node)
         self.assertEqual('root', base_entry.GetUniqueName())
         sub_node = Node('subnode', base_node)
-        sub_entry = entry.Entry(None, None, sub_node, read_node=False)
+        sub_entry = entry.Entry(None, None, sub_node)
         self.assertEqual('root.subnode', sub_entry.GetUniqueName())
 
     def testGetDefaultFilename(self):
         """Trivial test for this base class function"""
-        import entry
-        base_entry = entry.Entry(None, None, None, read_node=False)
+        base_entry = entry.Entry(None, None, None)
         self.assertIsNone(base_entry.GetDefaultFilename())
+
+    def testBlobFdt(self):
+        """Test the GetFdtEtype() method of the blob-dtb entries"""
+        base = entry.Entry.Create(None, self.GetNode(), 'blob-dtb')
+        self.assertIsNone(base.GetFdtEtype())
+
+        dtb = entry.Entry.Create(None, self.GetNode(), 'u-boot-dtb')
+        self.assertEqual('u-boot-dtb', dtb.GetFdtEtype())
+
+    def testWriteChildData(self):
+        """Test the WriteChildData() method of the base class"""
+        base = entry.Entry.Create(None, self.GetNode(), 'blob-dtb')
+        self.assertTrue(base.WriteChildData(base))
+
+    def testReadChildData(self):
+        """Test the ReadChildData() method of the base class"""
+        base = entry.Entry.Create(None, self.GetNode(), 'blob-dtb')
+        self.assertIsNone(base.ReadChildData(base))
+
 
 if __name__ == "__main__":
     unittest.main()

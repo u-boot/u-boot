@@ -19,8 +19,6 @@
  * area in SRAM which starts at 0x40200000 and ends at 0x4020FFFF (64KB) in
  * order to allow for BCH8 to fit in.
  */
-#undef CONFIG_SPL_TEXT_BASE
-#define CONFIG_SPL_TEXT_BASE		0x40200000
 
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
 #define CONFIG_SETUP_MEMORY_TAGS
@@ -32,8 +30,15 @@
 /* I2C */
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* EEPROM AT24C64      */
 
+#ifdef CONFIG_SPL_BUILD
+#undef CONFIG_USB_EHCI_OMAP
+#endif
+#ifdef CONFIG_USB_EHCI_OMAP
+#define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO	4
+#endif
+
 /* Board NAND Info. */
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 #define CONFIG_SYS_MAX_NAND_DEVICE	1	  /* Max number of */
 						  /* NAND devices */
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
@@ -58,16 +63,12 @@
 
 /* Environment information */
 
-#define CONFIG_PREBOOT \
-	"setenv preboot;"						\
-	"saveenv;"
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
 	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"	\
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"mmcdev=0\0" \
-	"mmcroot=/dev/mmcblk0p2 rw\0" \
+	"finduuid=part uuid mmc ${mmcdev}:2 uuid\0" \
 	"mmcrootfstype=ext4 rootwait\0" \
 	"nandroot=ubi0:rootfs rw ubi.mtd=fs noinitrd\0" \
 	"nandrootfstype=ubifs rootwait\0" \
@@ -106,7 +107,8 @@
 	"ramargs=setenv bootargs "\
 		"root=/dev/ram rw ramdisk_size=${ramdisksize}\0" \
 	"mmcargs=setenv bootargs "\
-		"root=${mmcroot} rootfstype=${mmcrootfstype}\0" \
+		"root=PARTUUID=${uuid} " \
+		"rootfstype=${mmcrootfstype} rw\0" \
 	"nandargs=setenv bootargs "\
 		"root=${nandroot} " \
 		"rootfstype=${nandrootfstype}\0" \
@@ -120,6 +122,7 @@
 	"loadfdt=mmc rescan; " \
 		"load mmc ${mmcdev} ${fdtaddr} ${fdtimage}\0" \
 	"mmcbootcommon=echo Booting with DT from mmc${mmcdev} ...; " \
+		"run finduuid; "\
 		"run mmcargs; " \
 		"run common_bootargs; " \
 		"run dump_bootargs; " \
@@ -194,11 +197,7 @@
 /* Monitor at start of flash */
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
 
-#define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
-
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
-#define CONFIG_ENV_OFFSET		0x260000
-#define CONFIG_ENV_ADDR			0x260000
 
 /* Defines for SPL */
 

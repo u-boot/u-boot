@@ -43,28 +43,28 @@
 					reg = <0x1>;
 					interrupt-parent = <&pioB>;
 					interrupts = <25 IRQ_TYPE_EDGE_FALLING>;
-					txen-skew-ps = <800>;
-					txc-skew-ps = <3000>;
-					rxdv-skew-ps = <400>;
-					rxc-skew-ps = <3000>;
-					rxd0-skew-ps = <400>;
-					rxd1-skew-ps = <400>;
-					rxd2-skew-ps = <400>;
-					rxd3-skew-ps = <400>;
+					txen-skew-ps = <480>;
+					txc-skew-ps = <1800>;
+					rxdv-skew-ps = <240>;
+					rxc-skew-ps = <1800>;
+					rxd0-skew-ps = <240>;
+					rxd1-skew-ps = <240>;
+					rxd2-skew-ps = <240>;
+					rxd3-skew-ps = <240>;
 				};
 
 				ethernet-phy@7 {
 					reg = <0x7>;
 					interrupt-parent = <&pioB>;
 					interrupts = <25 IRQ_TYPE_EDGE_FALLING>;
-					txen-skew-ps = <800>;
-					txc-skew-ps = <3000>;
-					rxdv-skew-ps = <400>;
-					rxc-skew-ps = <3000>;
-					rxd0-skew-ps = <400>;
-					rxd1-skew-ps = <400>;
-					rxd2-skew-ps = <400>;
-					rxd3-skew-ps = <400>;
+					txen-skew-ps = <480>;
+					txc-skew-ps = <1800>;
+					rxdv-skew-ps = <240>;
+					rxc-skew-ps = <1800>;
+					rxd0-skew-ps = <240>;
+					rxd1-skew-ps = <240>;
+					rxd2-skew-ps = <240>;
+					rxd3-skew-ps = <240>;
 				};
 			};
 

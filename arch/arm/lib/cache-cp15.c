@@ -5,12 +5,13 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <asm/system.h>
 #include <asm/cache.h>
 #include <linux/compiler.h>
 #include <asm/armv7_mpu.h>
 
-#if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
+#if !(CONFIG_IS_ENABLED(SYS_ICACHE_OFF) && CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -235,29 +236,35 @@ static void cache_disable(uint32_t cache_bit)
 		/* if cache isn;t enabled no need to disable */
 		if ((reg & CR_C) != CR_C)
 			return;
+#ifdef CONFIG_SYS_ARM_MMU
 		/* if disabling data cache, disable mmu too */
 		cache_bit |= CR_M;
+#endif
 	}
 	reg = get_cr();
 
+#ifdef CONFIG_SYS_ARM_MMU
 	if (cache_bit == (CR_C | CR_M))
+#elif defined(CONFIG_SYS_ARM_MPU)
+	if (cache_bit == CR_C)
+#endif
 		flush_dcache_all();
 	set_cr(reg & ~cache_bit);
 }
 #endif
 
-#ifdef CONFIG_SYS_ICACHE_OFF
-void icache_enable (void)
+#if CONFIG_IS_ENABLED(SYS_ICACHE_OFF)
+void icache_enable(void)
 {
 	return;
 }
 
-void icache_disable (void)
+void icache_disable(void)
 {
 	return;
 }
 
-int icache_status (void)
+int icache_status(void)
 {
 	return 0;					/* always off */
 }
@@ -278,18 +285,18 @@ int icache_status(void)
 }
 #endif
 
-#ifdef CONFIG_SYS_DCACHE_OFF
-void dcache_enable (void)
+#if CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
+void dcache_enable(void)
 {
 	return;
 }
 
-void dcache_disable (void)
+void dcache_disable(void)
 {
 	return;
 }
 
-int dcache_status (void)
+int dcache_status(void)
 {
 	return 0;					/* always off */
 }

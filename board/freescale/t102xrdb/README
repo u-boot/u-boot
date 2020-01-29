@@ -251,6 +251,25 @@ Software configurations and board settings
    SW3[3] = '0' for eMMC (or 'switch emmc' by software)
 
 
+device tree support and how to enable it for different configs
+--------------------------------------------------------------
+device tree support is available for t1024rdb for below mentioned boot,
+1. nor boot
+2. nand boot
+3. sd boot
+4. spiflash boot
+
+to enable device tree support for other boot, below configs need to be
+enabled in relative defconfig file,
+1. config_default_device_tree="t1024rdb" (change default device tree name if required)
+2. config_of_control
+3. config_mpc85xx_have_reset_vector if reset vector is located at
+   config_reset_vector_address - 0xffc
+
+if device tree support is enabled in defconfig,
+1. use 'u-boot-with-dtb.bin' for nor boot.
+2. use 'u-boot-with-spl-pbl.bin' for other boot.
+
 2-stage NAND/SPI/SD boot loader
 -------------------------------
 PBL initializes the internal CPC-SRAM and copy SPL(160K) to SRAM.

@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <asm/cacheops.h>
 #ifdef CONFIG_MIPS_L2_CACHE
 #include <asm/cm.h>
@@ -87,7 +88,7 @@ static inline unsigned long scache_line_size(void)
 #ifdef CONFIG_MIPS_L2_CACHE
 	return gd->arch.l2_line_size;
 #else
-	return 0;
+	return CONFIG_SYS_SCACHE_LINE_SIZE;
 #endif
 }
 

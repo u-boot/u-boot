@@ -59,6 +59,11 @@ static u32 get_boot_device(void)
 	case BOOT_FROM_UART_ALT:
 #endif
 		return BOOT_DEVICE_UART;
+#ifdef BOOT_FROM_SATA
+	case BOOT_FROM_SATA:
+	case BOOT_FROM_SATA_ALT:
+		return BOOT_DEVICE_SATA;
+#endif
 	case BOOT_FROM_SPI:
 	default:
 		return BOOT_DEVICE_SPI;
@@ -93,14 +98,20 @@ void board_init_f(ulong dummy)
 	 */
 #endif
 
+	/*
+	 * Use special translation offset for SPL. This needs to be
+	 * configured *before* spl_init() is called as this function
+	 * calls dm_init() which calls the bind functions of the
+	 * device drivers. Here the base address needs to be configured
+	 * (translated) correctly.
+	 */
+	gd->translation_offset = 0xd0000000 - 0xf1000000;
+
 	ret = spl_init();
 	if (ret) {
 		debug("spl_init() failed: %d\n", ret);
 		hang();
 	}
-
-	/* Use special translation offset for SPL */
-	dm_set_translation_offset(0xd0000000 - 0xf1000000);
 
 	preloader_console_init();
 
@@ -114,6 +125,9 @@ void board_init_f(ulong dummy)
 	/* Setup DDR */
 	ddr3_init();
 #endif
+
+	/* Initialize Auto Voltage Scaling */
+	mv_avs_init();
 
 	/*
 	 * Return to the BootROM to continue the Marvell xmodem

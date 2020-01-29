@@ -5,6 +5,7 @@
  */
 
 #include "yportenv.h"
+#include <sort.h>
 /* #include <linux/string.h> */
 
 /*

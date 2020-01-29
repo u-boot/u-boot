@@ -80,6 +80,11 @@ static void configure_mr(int nr, u32 cs)
  */
 void config_sdram_emif4d5(const struct emif_regs *regs, int nr)
 {
+#ifdef CONFIG_AM43XX
+	struct prm_device_inst *prm_device =
+			(struct prm_device_inst *)PRM_DEVICE_INST;
+#endif
+
 	writel(0xA0, &emif_reg[nr]->emif_pwr_mgmt_ctrl);
 	writel(0xA0, &emif_reg[nr]->emif_pwr_mgmt_ctrl_shdw);
 	writel(regs->zq_config, &emif_reg[nr]->emif_zq_config);
@@ -126,6 +131,15 @@ void config_sdram_emif4d5(const struct emif_regs *regs, int nr)
 	writel(regs->ref_ctrl, &emif_reg[nr]->emif_sdram_ref_ctrl);
 	writel(regs->ref_ctrl, &emif_reg[nr]->emif_sdram_ref_ctrl_shdw);
 
+#ifdef CONFIG_AM43XX
+	/*
+	 * Disable EMIF_DEVOFF
+	 * -> Cold Boot: This is just rewriting the default register value.
+	 * -> RTC Resume: Must disable DEVOFF before leveling.
+	 */
+	writel(0, &prm_device->emif_ctrl);
+#endif
+
 	/* Perform hardware leveling for DDR3 */
 	if (emif_sdram_type(regs->sdram_config) == EMIF_SDRAM_TYPE_DDR3) {
 		writel(readl(&emif_reg[nr]->emif_ddr_ext_phy_ctrl_36) |
@@ -137,6 +151,9 @@ void config_sdram_emif4d5(const struct emif_regs *regs, int nr)
 
 		/* Enable read leveling */
 		writel(0x80000000, &emif_reg[nr]->emif_rd_wr_lvl_ctl);
+
+		/* Wait 1ms because of L3 timeout error */
+		udelay(1000);
 
 		/*
 		 * Enable full read and write leveling.  Wait for read and write
@@ -256,8 +273,16 @@ static void ext_phy_settings_hwlvl(const struct emif_regs *regs, int nr)
 	 * Enable hardware leveling on the EMIF.  For details about these
 	 * magic values please see the EMIF registers section of the TRM.
 	 */
-	writel(0x08020080, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_1);
-	writel(0x08020080, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_1_shdw);
+	if (regs->emif_ddr_phy_ctlr_1 & 0x00040000) {
+		/* PHY_INVERT_CLKOUT = 1 */
+		writel(0x00040100, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_1);
+		writel(0x00040100, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_1_shdw);
+	} else {
+		/* PHY_INVERT_CLKOUT = 0 */
+		writel(0x08020080, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_1);
+		writel(0x08020080, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_1_shdw);
+	}
+
 	writel(0x00000000, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_22);
 	writel(0x00000000, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_22_shdw);
 	writel(0x00600020, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_23);
@@ -286,8 +311,8 @@ static void ext_phy_settings_hwlvl(const struct emif_regs *regs, int nr)
 	writel(0x00000000, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_34_shdw);
 	writel(0x00000000, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_35);
 	writel(0x00000000, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_35_shdw);
-	writel(0x000000FF, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_36);
-	writel(0x000000FF, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_36_shdw);
+	writel(0x00000077, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_36);
+	writel(0x00000077, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_36_shdw);
 
 	/*
 	 * Sequence to ensure that the PHY is again in a known state after

@@ -222,13 +222,9 @@
 #define MMC_CAP_SDIO_IRQ			(1 << 3)
 /* Talks only SPI protocols */
 #define MMC_CAP_SPI				(1 << 4)
-/* Needs polling for card-detection */
-#define MMC_CAP_NEEDS_POLL			(1 << 5)
 /* Can the host do 8 bit transfers */
 #define MMC_CAP_8_BIT_DATA			(1 << 6)
 
-/* Nonremovable e.g. eMMC */
-#define MMC_CAP_NONREMOVABLE			(1 << 8)
 /* Waits while card is busy */
 #define MMC_CAP_WAIT_WHILE_BUSY			(1 << 9)
 /* Allow erase/trim commands */

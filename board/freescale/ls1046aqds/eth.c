@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2016 Freescale Semiconductor, Inc.
+ * Copyright 2018-2019 NXP
  */
 
 #include <common.h>
@@ -153,23 +154,26 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 			      enum fm_port port, int offset)
 {
 	struct fixed_link f_link;
+	const u32 *handle;
+	const char *prop = NULL;
+	int off;
 
 	if (fm_info_get_enet_if(port) == PHY_INTERFACE_MODE_SGMII) {
 		switch (port) {
 		case FM1_DTSEC9:
-			fdt_set_phy_handle(fdt, compat, addr, "sgmii_s1_p1");
+			fdt_set_phy_handle(fdt, compat, addr, "sgmii-s1-p1");
 			break;
 		case FM1_DTSEC10:
-			fdt_set_phy_handle(fdt, compat, addr, "sgmii_s1_p2");
+			fdt_set_phy_handle(fdt, compat, addr, "sgmii-s1-p2");
 			break;
 		case FM1_DTSEC5:
-			fdt_set_phy_handle(fdt, compat, addr, "sgmii_s1_p3");
+			fdt_set_phy_handle(fdt, compat, addr, "sgmii-s1-p3");
 			break;
 		case FM1_DTSEC6:
-			fdt_set_phy_handle(fdt, compat, addr, "sgmii_s1_p4");
+			fdt_set_phy_handle(fdt, compat, addr, "sgmii-s1-p4");
 			break;
 		case FM1_DTSEC2:
-			fdt_set_phy_handle(fdt, compat, addr, "sgmii_s4_p1");
+			fdt_set_phy_handle(fdt, compat, addr, "sgmii-s4-p1");
 			break;
 		default:
 			break;
@@ -189,16 +193,16 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 	} else if (fm_info_get_enet_if(port) == PHY_INTERFACE_MODE_QSGMII) {
 		switch (port) {
 		case FM1_DTSEC1:
-			fdt_set_phy_handle(fdt, compat, addr, "qsgmii_s2_p4");
+			fdt_set_phy_handle(fdt, compat, addr, "qsgmii-s2-p4");
 			break;
 		case FM1_DTSEC5:
-			fdt_set_phy_handle(fdt, compat, addr, "qsgmii_s2_p2");
+			fdt_set_phy_handle(fdt, compat, addr, "qsgmii-s2-p2");
 			break;
 		case FM1_DTSEC6:
-			fdt_set_phy_handle(fdt, compat, addr, "qsgmii_s2_p1");
+			fdt_set_phy_handle(fdt, compat, addr, "qsgmii-s2-p1");
 			break;
 		case FM1_DTSEC10:
-			fdt_set_phy_handle(fdt, compat, addr, "qsgmii_s2_p3");
+			fdt_set_phy_handle(fdt, compat, addr, "qsgmii-s2-p3");
 			break;
 		default:
 			break;
@@ -208,16 +212,27 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 				   "qsgmii");
 	} else if (fm_info_get_enet_if(port) == PHY_INTERFACE_MODE_XGMII &&
 		   (port == FM1_10GEC1 || port == FM1_10GEC2)) {
-		/* XFI interface */
-		f_link.phy_id = cpu_to_fdt32(port);
-		f_link.duplex = cpu_to_fdt32(1);
-		f_link.link_speed = cpu_to_fdt32(10000);
-		f_link.pause = 0;
-		f_link.asym_pause = 0;
-		/* no PHY for XFI */
-		fdt_delprop(fdt, offset, "phy-handle");
-		fdt_setprop(fdt, offset, "fixed-link", &f_link, sizeof(f_link));
-		fdt_setprop_string(fdt, offset, "phy-connection-type", "xgmii");
+		handle = fdt_getprop(fdt, offset, "phy-handle", NULL);
+		prop = NULL;
+		if (handle) {
+			off = fdt_node_offset_by_phandle(fdt,
+							 fdt32_to_cpu(*handle));
+			prop = fdt_getprop(fdt, off, "backplane-mode", NULL);
+		}
+		if (!prop || strcmp(prop, "10gbase-kr")) {
+			/* XFI interface */
+			f_link.phy_id = cpu_to_fdt32(port);
+			f_link.duplex = cpu_to_fdt32(1);
+			f_link.link_speed = cpu_to_fdt32(10000);
+			f_link.pause = 0;
+			f_link.asym_pause = 0;
+			/* no PHY for XFI */
+			fdt_delprop(fdt, offset, "phy-handle");
+			fdt_setprop(fdt, offset, "fixed-link", &f_link,
+				    sizeof(f_link));
+			fdt_setprop_string(fdt, offset, "phy-connection-type",
+					   "xgmii");
+		}
 	}
 }
 
@@ -231,13 +246,13 @@ void fdt_fixup_board_enet(void *fdt)
 		case PHY_INTERFACE_MODE_QSGMII:
 			switch (mdio_mux[i]) {
 			case EMI1_SLOT1:
-				fdt_status_okay_by_alias(fdt, "emi1_slot1");
+				fdt_status_okay_by_alias(fdt, "emi1-slot1");
 				break;
 			case EMI1_SLOT2:
-				fdt_status_okay_by_alias(fdt, "emi1_slot2");
+				fdt_status_okay_by_alias(fdt, "emi1-slot2");
 				break;
 			case EMI1_SLOT4:
-				fdt_status_okay_by_alias(fdt, "emi1_slot4");
+				fdt_status_okay_by_alias(fdt, "emi1-slot4");
 				break;
 			default:
 				break;

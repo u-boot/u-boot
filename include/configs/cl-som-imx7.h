@@ -17,10 +17,6 @@
 
 #define CONFIG_BOARD_LATE_INIT
 
-/* Uncomment to enable secure boot support */
-/* #define CONFIG_SECURE_BOOT */
-#define CONFIG_CSF_SIZE			0x4000
-
 /* Network */
 #define CONFIG_FEC_MXC
 #define CONFIG_FEC_XCV_TYPE             RGMII
@@ -37,10 +33,6 @@
 #define CONFIG_POWER_I2C
 #define CONFIG_POWER_PFUZE3000
 #define CONFIG_POWER_PFUZE3000_I2C_ADDR	0x08
-
-#undef CONFIG_BOOTM_NETBSD
-#undef CONFIG_BOOTM_PLAN9
-#undef CONFIG_BOOTM_RTEMS
 
 /* I2C configs */
 #define CONFIG_SYS_I2C
@@ -140,28 +132,15 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* SPI Flash support */
-#define CONFIG_SF_DEFAULT_BUS		0
-#define CONFIG_SF_DEFAULT_CS		0
-#define CONFIG_SF_DEFAULT_SPEED		20000000
-#define CONFIG_SF_DEFAULT_MODE		(SPI_MODE_0)
 
 /* FLASH and environment organization */
-#define CONFIG_ENV_SIZE			SZ_8K
-#define CONFIG_ENV_OFFSET		(768 * 1024)
-#define CONFIG_ENV_SECT_SIZE		(64 * 1024)
-#define CONFIG_ENV_SPI_BUS		CONFIG_SF_DEFAULT_BUS
-#define CONFIG_ENV_SPI_CS		CONFIG_SF_DEFAULT_CS
-#define CONFIG_ENV_SPI_MODE		CONFIG_SF_DEFAULT_MODE
-#define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED
 
 /* MMC Config*/
-#define CONFIG_FSL_USDHC
 #ifdef CONFIG_FSL_USDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR       USDHC1_BASE_ADDR
 
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 #define CONFIG_MMCROOT			"/dev/mmcblk0p2" /* USDHC1 */
-#define CONFIG_SUPPORT_EMMC_BOOT /* eMMC specific */
 #endif
 
 /* USB Configs */
@@ -175,8 +154,5 @@
 
 /* SPL */
 #include "imx7_spl.h"
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	(64 * 1024)
-#endif /* CONFIG_SPL_BUILD */
 
 #endif	/* __CONFIG_H */

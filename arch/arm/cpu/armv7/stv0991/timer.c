@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <time.h>
 #include <asm/io.h>
 #include <asm/arch-stv0991/hardware.h>
 #include <asm/arch-stv0991/stv0991_cgu.h>

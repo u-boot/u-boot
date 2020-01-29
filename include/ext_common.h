@@ -21,6 +21,7 @@
 #define __EXT_COMMON__
 #include <command.h>
 #define SECTOR_SIZE		0x200
+#define LOG2_SECTOR_SIZE	9
 
 /* Magic value used to identify an ext2 filesystem.  */
 #define	EXT2_MAGIC			0xEF53

@@ -332,13 +332,13 @@ static int execute(void)
 		efi_st_error("Failed to get protocols per handle\n");
 		return EFI_ST_FAILURE;
 	}
-	if (efi_st_memcmp(prot_buffer[0], &guid1, 16) &&
-	    efi_st_memcmp(prot_buffer[1], &guid1, 16)) {
+	if (memcmp(prot_buffer[0], &guid1, 16) &&
+	    memcmp(prot_buffer[1], &guid1, 16)) {
 		efi_st_error("Failed to get protocols per handle\n");
 		return EFI_ST_FAILURE;
 	}
-	if (efi_st_memcmp(prot_buffer[0], &guid3, 16) &&
-	    efi_st_memcmp(prot_buffer[1], &guid3, 16)) {
+	if (memcmp(prot_buffer[0], &guid3, 16) &&
+	    memcmp(prot_buffer[1], &guid3, 16)) {
 		efi_st_error("Failed to get protocols per handle\n");
 		return EFI_ST_FAILURE;
 	}

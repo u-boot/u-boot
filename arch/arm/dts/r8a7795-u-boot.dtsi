@@ -11,12 +11,14 @@
 	u-boot,dm-pre-reloc;
 };
 
-&soc {
-	rpc: rpc@0xee200000 {
-		compatible = "renesas,rpc-r8a7795", "renesas,rpc";
-		reg = <0 0xee200000 0 0x100>, <0 0x08000000 0 0>;
-		clocks = <&cpg CPG_MOD 917>;
-		bank-width = <2>;
-		status = "disabled";
+/ {
+	soc {
+		rpc: rpc@0xee200000 {
+			compatible = "renesas,rpc-r8a7795", "renesas,rpc";
+			reg = <0 0xee200000 0 0x100>, <0 0x08000000 0 0>;
+			clocks = <&cpg CPG_MOD 917>;
+			bank-width = <2>;
+			status = "disabled";
+		};
 	};
 };

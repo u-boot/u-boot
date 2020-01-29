@@ -107,7 +107,6 @@ extern unsigned long long get_phys_ccsrbar_addr_early(void);
 /*
  * Environment
  */
-#define CONFIG_ENV_SIZE		0x2000
 
 #define CONFIG_LOADS_ECHO		/* echo on for serial download */
 

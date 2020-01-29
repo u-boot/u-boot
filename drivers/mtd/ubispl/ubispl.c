@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <errno.h>
+#include <u-boot/crc.h>
 #include <ubispl.h>
 
 #include <linux/crc32.h>
@@ -44,6 +45,187 @@ static int ubi_io_is_bad(struct ubi_scan_info *ubi, int peb)
 {
 	return peb >= ubi->peb_count || peb < 0;
 }
+
+#ifdef CONFIG_SPL_UBI_LOAD_BY_VOLNAME
+
+/**
+ * ubi_dump_vtbl_record - dump a &struct ubi_vtbl_record object.
+ * @r: the object to dump
+ * @idx: volume table index
+ */
+void ubi_dump_vtbl_record(const struct ubi_vtbl_record *r, int idx)
+{
+	int name_len = be16_to_cpu(r->name_len);
+
+	ubi_dbg("Volume table record %d dump: size: %d",
+		idx, sizeof(struct ubi_vtbl_record));
+	ubi_dbg("\treserved_pebs   %d", be32_to_cpu(r->reserved_pebs));
+	ubi_dbg("\talignment       %d", be32_to_cpu(r->alignment));
+	ubi_dbg("\tdata_pad        %d", be32_to_cpu(r->data_pad));
+	ubi_dbg("\tvol_type        %d", (int)r->vol_type);
+	ubi_dbg("\tupd_marker      %d", (int)r->upd_marker);
+	ubi_dbg("\tname_len        %d", name_len);
+
+	if (r->name[0] == '\0') {
+		ubi_dbg("\tname            NULL");
+		return;
+	}
+
+	if (name_len <= UBI_VOL_NAME_MAX &&
+	    strnlen(&r->name[0], name_len + 1) == name_len) {
+		ubi_dbg("\tname            %s", &r->name[0]);
+	} else {
+		ubi_dbg("\t1st 5 characters of name: %c%c%c%c%c",
+			r->name[0], r->name[1], r->name[2], r->name[3],
+			r->name[4]);
+	}
+	ubi_dbg("\tcrc             %#08x", be32_to_cpu(r->crc));
+}
+
+/* Empty volume table record */
+static struct ubi_vtbl_record empty_vtbl_record;
+
+/**
+ * vtbl_check - check if volume table is not corrupted and sensible.
+ * @ubi: UBI device description object
+ * @vtbl: volume table
+ *
+ * This function returns zero if @vtbl is all right, %1 if CRC is incorrect,
+ * and %-EINVAL if it contains inconsistent data.
+ */
+static int vtbl_check(struct ubi_scan_info *ubi,
+		      struct ubi_vtbl_record *vtbl)
+{
+	int i, n, reserved_pebs, alignment, data_pad, vol_type, name_len;
+	int upd_marker, err;
+	uint32_t crc;
+	const char *name;
+
+	for (i = 0; i < UBI_SPL_VOL_IDS; i++) {
+		reserved_pebs = be32_to_cpu(vtbl[i].reserved_pebs);
+		alignment = be32_to_cpu(vtbl[i].alignment);
+		data_pad = be32_to_cpu(vtbl[i].data_pad);
+		upd_marker = vtbl[i].upd_marker;
+		vol_type = vtbl[i].vol_type;
+		name_len = be16_to_cpu(vtbl[i].name_len);
+		name = &vtbl[i].name[0];
+
+		crc = crc32(UBI_CRC32_INIT, &vtbl[i], UBI_VTBL_RECORD_SIZE_CRC);
+		if (be32_to_cpu(vtbl[i].crc) != crc) {
+			ubi_err("bad CRC at record %u: %#08x, not %#08x",
+				i, crc, be32_to_cpu(vtbl[i].crc));
+			ubi_dump_vtbl_record(&vtbl[i], i);
+			return 1;
+		}
+
+		if (reserved_pebs == 0) {
+			if (memcmp(&vtbl[i], &empty_vtbl_record,
+				   UBI_VTBL_RECORD_SIZE)) {
+				err = 2;
+				goto bad;
+			}
+			continue;
+		}
+
+		if (reserved_pebs < 0 || alignment < 0 || data_pad < 0 ||
+		    name_len < 0) {
+			err = 3;
+			goto bad;
+		}
+
+		if (alignment > ubi->leb_size || alignment == 0) {
+			err = 4;
+			goto bad;
+		}
+
+		n = alignment & (CONFIG_SPL_UBI_VID_OFFSET - 1);
+		if (alignment != 1 && n) {
+			err = 5;
+			goto bad;
+		}
+
+		n = ubi->leb_size % alignment;
+		if (data_pad != n) {
+			ubi_err("bad data_pad, has to be %d", n);
+			err = 6;
+			goto bad;
+		}
+
+		if (vol_type != UBI_VID_DYNAMIC && vol_type != UBI_VID_STATIC) {
+			err = 7;
+			goto bad;
+		}
+
+		if (upd_marker != 0 && upd_marker != 1) {
+			err = 8;
+			goto bad;
+		}
+
+		if (name_len > UBI_VOL_NAME_MAX) {
+			err = 10;
+			goto bad;
+		}
+
+		if (name[0] == '\0') {
+			err = 11;
+			goto bad;
+		}
+
+		if (name_len != strnlen(name, name_len + 1)) {
+			err = 12;
+			goto bad;
+		}
+
+		ubi_dump_vtbl_record(&vtbl[i], i);
+	}
+
+	/* Checks that all names are unique */
+	for (i = 0; i < UBI_SPL_VOL_IDS - 1; i++) {
+		for (n = i + 1; n < UBI_SPL_VOL_IDS; n++) {
+			int len1 = be16_to_cpu(vtbl[i].name_len);
+			int len2 = be16_to_cpu(vtbl[n].name_len);
+
+			if (len1 > 0 && len1 == len2 &&
+			    !strncmp(vtbl[i].name, vtbl[n].name, len1)) {
+				ubi_err("volumes %d and %d have the same name \"%s\"",
+					i, n, vtbl[i].name);
+				ubi_dump_vtbl_record(&vtbl[i], i);
+				ubi_dump_vtbl_record(&vtbl[n], n);
+				return -EINVAL;
+			}
+		}
+	}
+
+	return 0;
+
+bad:
+	ubi_err("volume table check failed: record %d, error %d", i, err);
+	ubi_dump_vtbl_record(&vtbl[i], i);
+	return -EINVAL;
+}
+
+static int ubi_read_volume_table(struct ubi_scan_info *ubi, u32 pnum)
+{
+	int err = -EINVAL;
+
+	empty_vtbl_record.crc = cpu_to_be32(0xf116c36b);
+
+	err = ubi_io_read(ubi, &ubi->vtbl, pnum, ubi->leb_start,
+			  sizeof(struct ubi_vtbl_record) * UBI_SPL_VOL_IDS);
+	if (err && err != UBI_IO_BITFLIPS) {
+		ubi_err("unable to read volume table");
+		goto out;
+	}
+
+	if (!vtbl_check(ubi, ubi->vtbl)) {
+		ubi->vtbl_valid = 1;
+		err = 0;
+	}
+out:
+	return err;
+}
+
+#endif /* CONFIG_SPL_UBI_LOAD_BY_VOLNAME */
 
 static int ubi_io_read_vid_hdr(struct ubi_scan_info *ubi, int pnum,
 			       struct ubi_vid_hdr *vh, int unused)
@@ -210,14 +392,23 @@ static int ubi_scan_vid_hdr(struct ubi_scan_info *ubi, struct ubi_vid_hdr *vh,
 	if (vol_id == UBI_FM_SB_VOLUME_ID)
 		return ubi->fm_enabled ? UBI_FASTMAP_ANCHOR : 0;
 
+#ifdef CONFIG_SPL_UBI_LOAD_BY_VOLNAME
+	/* If this is a UBI volume table, read it and return */
+	if (vol_id == UBI_LAYOUT_VOLUME_ID && !ubi->vtbl_valid) {
+		res = ubi_read_volume_table(ubi, pnum);
+		return res;
+	}
+#endif
+
 	/* We only care about static volumes with an id < UBI_SPL_VOL_IDS */
 	if (vol_id >= UBI_SPL_VOL_IDS || vh->vol_type != UBI_VID_STATIC)
 		return 0;
 
+#ifndef CONFIG_SPL_UBI_LOAD_BY_VOLNAME
 	/* We are only interested in the volumes to load */
 	if (!test_bit(vol_id, ubi->toload))
 		return 0;
-
+#endif
 	lnum = be32_to_cpu(vh->lnum);
 	return ubi_add_peb_to_vol(ubi, vh, vol_id, pnum, lnum);
 }
@@ -232,13 +423,14 @@ static int assign_aeb_to_av(struct ubi_scan_info *ubi, u32 pnum, u32 lnum,
 
 	ubi->fastmap_pebs++;
 
+#ifndef CONFIG_SPL_UBI_LOAD_BY_VOLNAME
 	if (vol_id >= UBI_SPL_VOL_IDS || vol_type != UBI_STATIC_VOLUME)
 		return 0;
 
 	/* We are only interested in the volumes to load */
 	if (!test_bit(vol_id, ubi->toload))
 		return 0;
-
+#endif
 	vh = ubi->blockinfo + pnum;
 
 	return ubi_scan_vid_hdr(ubi, vh, pnum);
@@ -892,6 +1084,10 @@ retry:
 	ubi->peb_count = info->peb_count;
 	ubi->peb_offset = info->peb_offset;
 
+#ifdef CONFIG_SPL_UBI_LOAD_BY_VOLNAME
+	ubi->vtbl_valid = 0;
+#endif
+
 	fsize = info->peb_size * info->peb_count;
 	ubi->fsize_mb = fsize >> 20;
 
@@ -910,7 +1106,23 @@ retry:
 	for (i = 0; i < nrvols; i++) {
 		struct ubispl_load *lv = lvols + i;
 
+#ifdef CONFIG_SPL_UBI_LOAD_BY_VOLNAME
+		if (lv->vol_id == -1) {
+			for (int j = 0; j < UBI_SPL_VOL_IDS; j++) {
+				int len = be16_to_cpu(ubi->vtbl[j].name_len);
+
+				if (strncmp(lv->name,
+					    ubi->vtbl[j].name,
+					    len) == 0) {
+					lv->vol_id = j;
+					break;
+				}
+			}
+		}
+		ubi_msg("Loading VolName %s (VolId #%d)", lv->name, lv->vol_id);
+#else
 		ubi_msg("Loading VolId #%d", lv->vol_id);
+#endif
 		res = ipl_load(ubi, lv->vol_id, lv->load_addr);
 		if (res < 0) {
 			if (fastmap) {

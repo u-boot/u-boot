@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <errno.h>
 #include <os.h>
 #include <cli.h>
@@ -146,6 +147,31 @@ static int sandbox_cmdline_cb_default_fdt(struct sandbox_state *state,
 }
 SANDBOX_CMDLINE_OPT_SHORT(default_fdt, 'D', 0,
 		"Use the default u-boot.dtb control FDT in U-Boot directory");
+
+static int sandbox_cmdline_cb_test_fdt(struct sandbox_state *state,
+				       const char *arg)
+{
+	const char *fmt = "/arch/sandbox/dts/test.dtb";
+	char *p;
+	char *fname;
+	int len;
+
+	len = strlen(state->argv[0]) + strlen(fmt) + 1;
+	fname = os_malloc(len);
+	if (!fname)
+		return -ENOMEM;
+	strcpy(fname, state->argv[0]);
+	p = strrchr(fname, '/');
+	if (!p)
+		p = fname + strlen(fname);
+	len -= p - fname;
+	snprintf(p, len, fmt, p);
+	state->fdt_fname = fname;
+
+	return 0;
+}
+SANDBOX_CMDLINE_OPT_SHORT(test_fdt, 'T', 0,
+			  "Use the test.dtb control FDT in U-Boot directory");
 
 static int sandbox_cmdline_cb_interactive(struct sandbox_state *state,
 					  const char *arg)
@@ -303,10 +329,8 @@ int board_run_command(const char *cmdline)
 static void setup_ram_buf(struct sandbox_state *state)
 {
 	/* Zero the RAM buffer if we didn't read it, to keep valgrind happy */
-	if (!state->ram_buf_read) {
+	if (!state->ram_buf_read)
 		memset(state->ram_buf, '\0', state->ram_size);
-		printf("clear %p %x\n", state->ram_buf, state->ram_size);
-	}
 
 	gd->arch.ram_buf = state->ram_buf;
 	gd->ram_size = state->ram_size;
@@ -328,6 +352,10 @@ int main(int argc, char *argv[])
 	gd_t data;
 	int ret;
 
+	memset(&data, '\0', sizeof(data));
+	gd = &data;
+	gd->arch.text_base = os_find_text_base();
+
 	ret = state_init();
 	if (ret)
 		goto err;
@@ -340,8 +368,6 @@ int main(int argc, char *argv[])
 	if (ret)
 		goto err;
 
-	memset(&data, '\0', sizeof(data));
-	gd = &data;
 #if CONFIG_VAL(SYS_MALLOC_F_LEN)
 	gd->malloc_base = CONFIG_MALLOC_F_ADDR;
 #endif
@@ -349,6 +375,12 @@ int main(int argc, char *argv[])
 	gd->default_log_level = state->default_log_level;
 #endif
 	setup_ram_buf(state);
+
+	/*
+	 * Set up the relocation offset here, since sandbox symbols are always
+	 * relocated by the OS before sandbox is entered.
+	 */
+	gd->reloc_off = (ulong)gd->arch.text_base;
 
 	/* Do pre- and post-relocation init */
 	board_init_f(0);

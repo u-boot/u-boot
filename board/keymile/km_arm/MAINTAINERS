@@ -1,5 +1,5 @@
 KM_ARM BOARD
-M:	Valentin Longchamp <valentin.longchamp@keymile.com>
+M:	Valentin Longchamp <valentin.longchamp@ch.abb.com>
 S:	Maintained
 F:	board/keymile/km_arm/
 F:	include/configs/km_kirkwood.h
@@ -11,4 +11,3 @@ F:	configs/kmnusa_defconfig
 F:	configs/kmsugp1_defconfig
 F:	configs/kmsuv31_defconfig
 F:	configs/mgcoge3un_defconfig
-F:	configs/portl2_defconfig

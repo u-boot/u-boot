@@ -61,7 +61,7 @@ static int _read_board_variant_data(struct udevice *dev)
 	struct udevice *i2c_bus;
 	struct udevice *dummy;
 	char *listname;
-	int mc4, mc2, sc, con;
+	int mc4, mc2, sc, mc2_sc, con;
 	int gpio_num;
 	int res;
 
@@ -78,16 +78,16 @@ static int _read_board_variant_data(struct udevice *dev)
 		return -EIO;
 	}
 
-	mc2 = !dm_i2c_probe(i2c_bus, MC2_EXPANDER_ADDR, 0, &dummy);
+	mc2_sc = !dm_i2c_probe(i2c_bus, MC2_EXPANDER_ADDR, 0, &dummy);
 	mc4 = !dm_i2c_probe(i2c_bus, MC4_EXPANDER_ADDR, 0, &dummy);
 
-	if (mc2 && mc4) {
+	if (mc2_sc && mc4) {
 		debug("%s: Board hardware configuration inconsistent.\n",
 		      dev->name);
 		return -EINVAL;
 	}
 
-	listname = mc2 ? "var-gpios-mc2" : "var-gpios-mc4";
+	listname = mc2_sc ? "var-gpios-mc2" : "var-gpios-mc4";
 
 	gpio_num = gpio_request_list_by_name(dev, listname, priv->var_gpios,
 					     ARRAY_SIZE(priv->var_gpios),
@@ -105,17 +105,19 @@ static int _read_board_variant_data(struct udevice *dev)
 		return sc;
 	}
 
-	con = dm_gpio_get_value(&priv->var_gpios[CON_GPIO_NO]);
-	if (con < 0) {
-		debug("%s: Error while reading 'con' GPIO (err = %d)",
-		      dev->name, con);
-		return con;
-	}
+	mc2 = mc2_sc ? (sc ? 0 : 1) : 0;
 
 	if ((sc && mc2) || (sc && mc4) || (!sc && !mc2 && !mc4)) {
 		debug("%s: Board hardware configuration inconsistent.\n",
 		      dev->name);
 		return -EINVAL;
+	}
+
+	con = dm_gpio_get_value(&priv->var_gpios[CON_GPIO_NO]);
+	if (con < 0) {
+		debug("%s: Error while reading 'con' GPIO (err = %d)",
+		      dev->name, con);
+		return con;
 	}
 
 	priv->variant = con ? VAR_CON : VAR_CPU;

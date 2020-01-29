@@ -8,11 +8,13 @@ config EEPROM_BUS_ADDRESS
 	int "Board EEPROM's I2C bus address"
 	range 0 8
 	default 0
+	depends on TI_I2C_BOARD_DETECT
 
 config EEPROM_CHIP_ADDRESS
 	hex "Board EEPROM's I2C chip address"
 	range 0 0xff
 	default 0x50
+	depends on TI_I2C_BOARD_DETECT
 
 config TI_COMMON_CMD_OPTIONS
 	bool "Enable cmd options on TI platforms"

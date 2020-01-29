@@ -19,10 +19,6 @@
 /* Enable passing of ATAGs */
 #define CONFIG_CMDLINE_TAG
 
-#ifdef CONFIG_CMD_FUSE
-#define CONFIG_MXC_OCOTP
-#endif
-
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2 * 1024 * 1024)
 
@@ -191,17 +187,11 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 #ifdef CONFIG_ENV_IS_IN_MMC
-#define CONFIG_ENV_SIZE			(8 * 1024)
-
-#define CONFIG_ENV_OFFSET		(12 * 64 * 1024)
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #endif
 
 #ifdef CONFIG_ENV_IS_IN_NAND
-#define CONFIG_ENV_SIZE			(64 * 2048)
-#define CONFIG_ENV_SECT_SIZE		(64 * 2048)
 #define CONFIG_ENV_RANGE		(512 * 1024)
-#define CONFIG_ENV_OFFSET		0x180000
 #endif
 
 #endif

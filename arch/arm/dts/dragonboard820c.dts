@@ -8,6 +8,7 @@
 /dts-v1/;
 
 #include "skeleton64.dtsi"
+#include <dt-bindings/pinctrl/pinctrl-snapdragon.h>
 
 / {
 	model = "Qualcomm Technologies, Inc. DB820c";
@@ -16,7 +17,7 @@
 	#size-cells = <2>;
 
 	aliases {
-		serial0 = &blsp2_uart1;
+		serial0 = &blsp2_uart2;
 	};
 
 	chosen {
@@ -63,18 +64,32 @@
 			reg = <0x300000 0x90000>;
 		};
 
-		blsp2_uart1: serial@75b0000 {
+		pinctrl: qcom,tlmm@1010000 {
+			compatible = "qcom,tlmm-apq8096";
+			reg = <0x1010000 0x400000>;
+
+			blsp8_uart: uart {
+				function = "blsp_uart8";
+				pins = "GPIO_4", "GPIO_5";
+				drive-strength = <DRIVE_STRENGTH_8MA>;
+				bias-disable;
+			};
+		};
+
+		blsp2_uart2: serial@75b0000 {
 			compatible = "qcom,msm-uartdm-v1.4", "qcom,msm-uartdm";
 			reg = <0x75b0000 0x1000>;
 			clock = <&gcc 4>;
+			pinctrl-names = "uart";
+			pinctrl-0 = <&blsp8_uart>;
 		};
 
 		sdhc2: sdhci@74a4900 {
-			 compatible = "qcom,sdhci-msm-v4";
-			 reg = <0x74a4900 0x314>, <0x74a4000 0x800>;
-			 index = <0x0>;
-			 bus-width = <4>;
-			 clock = <&gcc 0>;
+			compatible = "qcom,sdhci-msm-v4";
+			reg = <0x74a4900 0x314>, <0x74a4000 0x800>;
+			index = <0x0>;
+			bus-width = <4>;
+			clock = <&gcc 0>;
 			clock-frequency = <200000000>;
 		 };
 

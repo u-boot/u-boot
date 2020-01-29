@@ -47,10 +47,6 @@
 #define CONFIG_BOOTP_BOOTFILESIZE
 #define CONFIG_BOOTP_MAY_FAIL
 
-#if defined(CONFIG_MMC_SDHCI_ZYNQ)
-# define CONFIG_SUPPORT_EMMC_BOOT
-#endif
-
 #ifdef CONFIG_NAND_ARASAN
 # define CONFIG_SYS_MAX_NAND_DEVICE	1
 # define CONFIG_SYS_NAND_ONFI_DETECTION
@@ -214,7 +210,7 @@
 #endif
 
 /* SPL can't handle all huge variables - define just DFU */
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_DFU_SUPPORT)
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_DFU)
 #undef CONFIG_EXTRA_ENV_SETTINGS
 # define CONFIG_EXTRA_ENV_SETTINGS \
 	"dfu_alt_info_ram=uboot.bin ram 0x8000000 0x1000000;" \
@@ -224,7 +220,6 @@
 	"dfu_bufsiz=0x1000\0"
 #endif
 
-#define CONFIG_SPL_TEXT_BASE		0xfffc0000
 #define CONFIG_SPL_STACK		0xfffffffc
 #define CONFIG_SPL_MAX_SIZE		0x40000
 
@@ -236,8 +231,6 @@
 # define CONFIG_SYS_SPI_KERNEL_OFFS	0x80000
 # define CONFIG_SYS_SPI_ARGS_OFFS	0xa0000
 # define CONFIG_SYS_SPI_ARGS_SIZE	0xa0000
-
-# define CONFIG_SYS_SPI_U_BOOT_OFFS	0x170000
 #endif
 
 /* u-boot is like dtb */
@@ -259,7 +252,7 @@
 # define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
 #endif
 
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_DFU_SUPPORT)
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_DFU)
 # undef CONFIG_CMD_BOOTD
 # define CONFIG_SPL_ENV_SUPPORT
 # define CONFIG_SPL_HASH_SUPPORT

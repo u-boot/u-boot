@@ -35,17 +35,18 @@ AvbVBMetaVerifyResult avb_vbmeta_image_verify(
     *out_public_key_length = 0;
   }
 
+  /* Before we byteswap or compare Magic, ensure length is long enough. */
+  if (length < sizeof(AvbVBMetaImageHeader)) {
+    avb_error("Length is smaller than header.\n");
+    goto out;
+  }
+
   /* Ensure magic is correct. */
   if (avb_safe_memcmp(data, AVB_MAGIC, AVB_MAGIC_LEN) != 0) {
     avb_error("Magic is incorrect.\n");
     goto out;
   }
 
-  /* Before we byteswap, ensure length is long enough. */
-  if (length < sizeof(AvbVBMetaImageHeader)) {
-    avb_error("Length is smaller than header.\n");
-    goto out;
-  }
   avb_vbmeta_image_header_to_host_byte_order((const AvbVBMetaImageHeader*)data,
                                              &h);
 

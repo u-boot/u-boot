@@ -4,6 +4,8 @@
  */
 
 #include <common.h>
+#include <command.h>
+#include <env.h>
 #include <fastboot.h>
 #include <fastboot-internal.h>
 #include <fb_mmc.h>

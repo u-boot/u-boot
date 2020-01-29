@@ -7,19 +7,18 @@
 
 #include <common.h>
 #include <clk.h>
+#include <display.h>
 #include <dm.h>
 #include <panel.h>
 #include <reset.h>
 #include <video.h>
+#include <video_bridge.h>
 #include <asm/io.h>
 #include <asm/arch/gpio.h>
 #include <dm/device-internal.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct stm32_ltdc_priv {
 	void __iomem *regs;
-	struct display_timing timing;
 	enum video_log2_bpp l2bpp;
 	u32 bg_col_argb;
 	u32 crop_x, crop_y, crop_w, crop_h;
@@ -174,8 +173,8 @@ static u32 stm32_ltdc_get_pixel_format(enum video_log2_bpp l2bpp)
 	case VIDEO_BPP2:
 	case VIDEO_BPP4:
 	default:
-		debug("%s: warning %dbpp not supported yet, %dbpp instead\n",
-		      __func__, VNBITS(l2bpp), VNBITS(VIDEO_BPP16));
+		pr_warn("%s: warning %dbpp not supported yet, %dbpp instead\n",
+			__func__, VNBITS(l2bpp), VNBITS(VIDEO_BPP16));
 		pf = PF_RGB565;
 		break;
 	}
@@ -209,23 +208,23 @@ static void stm32_ltdc_enable(struct stm32_ltdc_priv *priv)
 	setbits_le32(priv->regs + LTDC_GCR, GCR_LTDCEN);
 }
 
-static void stm32_ltdc_set_mode(struct stm32_ltdc_priv *priv)
+static void stm32_ltdc_set_mode(struct stm32_ltdc_priv *priv,
+				struct display_timing *timings)
 {
 	void __iomem *regs = priv->regs;
-	struct display_timing *timing = &priv->timing;
 	u32 hsync, vsync, acc_hbp, acc_vbp, acc_act_w, acc_act_h;
 	u32 total_w, total_h;
 	u32 val;
 
 	/* Convert video timings to ltdc timings */
-	hsync = timing->hsync_len.typ - 1;
-	vsync = timing->vsync_len.typ - 1;
-	acc_hbp = hsync + timing->hback_porch.typ;
-	acc_vbp = vsync + timing->vback_porch.typ;
-	acc_act_w = acc_hbp + timing->hactive.typ;
-	acc_act_h = acc_vbp + timing->vactive.typ;
-	total_w = acc_act_w + timing->hfront_porch.typ;
-	total_h = acc_act_h + timing->vfront_porch.typ;
+	hsync = timings->hsync_len.typ - 1;
+	vsync = timings->vsync_len.typ - 1;
+	acc_hbp = hsync + timings->hback_porch.typ;
+	acc_vbp = vsync + timings->vback_porch.typ;
+	acc_act_w = acc_hbp + timings->hactive.typ;
+	acc_act_h = acc_vbp + timings->vactive.typ;
+	total_w = acc_act_w + timings->hfront_porch.typ;
+	total_h = acc_act_h + timings->vfront_porch.typ;
 
 	/* Synchronization sizes */
 	val = (hsync << 16) | vsync;
@@ -247,14 +246,14 @@ static void stm32_ltdc_set_mode(struct stm32_ltdc_priv *priv)
 
 	/* Signal polarities */
 	val = 0;
-	debug("%s: timing->flags 0x%08x\n", __func__, timing->flags);
-	if (timing->flags & DISPLAY_FLAGS_HSYNC_HIGH)
+	debug("%s: timing->flags 0x%08x\n", __func__, timings->flags);
+	if (timings->flags & DISPLAY_FLAGS_HSYNC_HIGH)
 		val |= GCR_HSPOL;
-	if (timing->flags & DISPLAY_FLAGS_VSYNC_HIGH)
+	if (timings->flags & DISPLAY_FLAGS_VSYNC_HIGH)
 		val |= GCR_VSPOL;
-	if (timing->flags & DISPLAY_FLAGS_DE_HIGH)
+	if (timings->flags & DISPLAY_FLAGS_DE_HIGH)
 		val |= GCR_DEPOL;
-	if (timing->flags & DISPLAY_FLAGS_PIXDATA_NEGEDGE)
+	if (timings->flags & DISPLAY_FLAGS_PIXDATA_NEGEDGE)
 		val |= GCR_PCPOL;
 	clrsetbits_le32(regs + LTDC_GCR,
 			GCR_HSPOL | GCR_VSPOL | GCR_DEPOL | GCR_PCPOL, val);
@@ -330,95 +329,119 @@ static int stm32_ltdc_probe(struct udevice *dev)
 	struct video_uc_platdata *uc_plat = dev_get_uclass_platdata(dev);
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct stm32_ltdc_priv *priv = dev_get_priv(dev);
-	struct udevice *panel;
+	struct udevice *bridge = NULL;
+	struct udevice *panel = NULL;
+	struct display_timing timings;
 	struct clk pclk;
 	struct reset_ctl rst;
-	int rate, ret;
+	int ret;
 
 	priv->regs = (void *)dev_read_addr(dev);
 	if ((fdt_addr_t)priv->regs == FDT_ADDR_T_NONE) {
-		debug("%s: ltdc dt register address error\n", __func__);
+		dev_err(dev, "ltdc dt register address error\n");
 		return -EINVAL;
 	}
 
 	ret = clk_get_by_index(dev, 0, &pclk);
 	if (ret) {
-		debug("%s: peripheral clock get error %d\n", __func__, ret);
+		dev_err(dev, "peripheral clock get error %d\n", ret);
 		return ret;
 	}
 
 	ret = clk_enable(&pclk);
 	if (ret) {
-		debug("%s: peripheral clock enable error %d\n",
-		      __func__, ret);
+		dev_err(dev, "peripheral clock enable error %d\n", ret);
 		return ret;
 	}
 
+	ret = uclass_first_device_err(UCLASS_PANEL, &panel);
+	if (ret) {
+		if (ret != -ENODEV)
+			dev_err(dev, "panel device error %d\n", ret);
+		return ret;
+	}
+
+	ret = panel_get_display_timing(panel, &timings);
+	if (ret) {
+		ret = fdtdec_decode_display_timing(gd->fdt_blob,
+						   dev_of_offset(panel),
+						   0, &timings);
+		if (ret) {
+			dev_err(dev, "decode display timing error %d\n", ret);
+			return ret;
+		}
+	}
+
+	ret = clk_set_rate(&pclk, timings.pixelclock.typ);
+	if (ret)
+		dev_warn(dev, "fail to set pixel clock %d hz\n",
+			 timings.pixelclock.typ);
+
+	debug("%s: Set pixel clock req %d hz get %ld hz\n", __func__,
+	      timings.pixelclock.typ, clk_get_rate(&pclk));
+
 	ret = reset_get_by_index(dev, 0, &rst);
 	if (ret) {
-		debug("%s: missing ltdc hardware reset\n", __func__);
-		return -ENODEV;
+		dev_err(dev, "missing ltdc hardware reset\n");
+		return ret;
 	}
 
 	/* Reset */
 	reset_deassert(&rst);
 
-	ret = uclass_first_device(UCLASS_PANEL, &panel);
-	if (ret) {
-		debug("%s: panel device error %d\n", __func__, ret);
-		return ret;
-	}
+	if (IS_ENABLED(CONFIG_VIDEO_BRIDGE)) {
+		ret = uclass_get_device(UCLASS_VIDEO_BRIDGE, 0, &bridge);
+		if (ret)
+			debug("No video bridge, or no backlight on bridge\n");
 
-	ret = panel_enable_backlight(panel);
-	if (ret) {
-		debug("%s: panel %s enable backlight error %d\n",
-		      __func__, panel->name, ret);
-		return ret;
+		if (bridge) {
+			ret = video_bridge_attach(bridge);
+			if (ret) {
+				dev_err(dev, "fail to attach bridge\n");
+				return ret;
+			}
+		}
 	}
-
-	ret = fdtdec_decode_display_timing(gd->fdt_blob,
-					   dev_of_offset(dev), 0,
-					   &priv->timing);
-	if (ret) {
-		debug("%s: decode display timing error %d\n",
-		      __func__, ret);
-		return -EINVAL;
-	}
-
-	rate = clk_set_rate(&pclk, priv->timing.pixelclock.typ);
-	if (rate < 0) {
-		debug("%s: fail to set pixel clock %d hz %d hz\n",
-		      __func__, priv->timing.pixelclock.typ, rate);
-		return rate;
-	}
-
-	debug("%s: Set pixel clock req %d hz get %d hz\n", __func__,
-	      priv->timing.pixelclock.typ, rate);
 
 	/* TODO Below parameters are hard-coded for the moment... */
 	priv->l2bpp = VIDEO_BPP16;
 	priv->bg_col_argb = 0xFFFFFFFF; /* white no transparency */
 	priv->crop_x = 0;
 	priv->crop_y = 0;
-	priv->crop_w = priv->timing.hactive.typ;
-	priv->crop_h = priv->timing.vactive.typ;
+	priv->crop_w = timings.hactive.typ;
+	priv->crop_h = timings.vactive.typ;
 	priv->alpha = 0xFF;
 
 	debug("%s: %dx%d %dbpp frame buffer at 0x%lx\n", __func__,
-	      priv->timing.hactive.typ, priv->timing.vactive.typ,
+	      timings.hactive.typ, timings.vactive.typ,
 	      VNBITS(priv->l2bpp), uc_plat->base);
 	debug("%s: crop %d,%d %dx%d bg 0x%08x alpha %d\n", __func__,
 	      priv->crop_x, priv->crop_y, priv->crop_w, priv->crop_h,
 	      priv->bg_col_argb, priv->alpha);
 
 	/* Configure & start LTDC */
-	stm32_ltdc_set_mode(priv);
+	stm32_ltdc_set_mode(priv, &timings);
 	stm32_ltdc_set_layer1(priv, uc_plat->base);
 	stm32_ltdc_enable(priv);
 
-	uc_priv->xsize = priv->timing.hactive.typ;
-	uc_priv->ysize = priv->timing.vactive.typ;
+	uc_priv->xsize = timings.hactive.typ;
+	uc_priv->ysize = timings.vactive.typ;
 	uc_priv->bpix = priv->l2bpp;
+
+	if (!bridge) {
+		ret = panel_enable_backlight(panel);
+		if (ret) {
+			dev_err(dev, "panel %s enable backlight error %d\n",
+				panel->name, ret);
+			return ret;
+		}
+	} else if (IS_ENABLED(CONFIG_VIDEO_BRIDGE)) {
+		ret = video_bridge_set_backlight(bridge, 80);
+		if (ret) {
+			dev_err(dev, "fail to set backlight\n");
+			return ret;
+		}
+	}
 
 	video_set_flush_dcache(dev, true);
 

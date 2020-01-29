@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <config.h>
+#include <time.h>
 #include <asm/fsl_law.h>
 #include <asm/fsl_serdes.h>
 #include <asm/fsl_srio.h>

@@ -19,7 +19,6 @@
 
 #include "bcmstb.h"
 
-#define BCMSTB_SDHCI_BASE	0xf0200300
 #define BCMSTB_TIMER_LOW	0xf0412008
 #define BCMSTB_TIMER_HIGH	0xf041200c
 #define BCMSTB_TIMER_FREQUENCY	0xf0412020
@@ -31,7 +30,6 @@
 /*
  * Environment configuration for eMMC.
  */
-#define CONFIG_ENV_OFFSET	(0x000040a4 * 512)
 #define CONFIG_SYS_MMC_ENV_DEV	0
 #define CONFIG_SYS_MMC_ENV_PART	0
 

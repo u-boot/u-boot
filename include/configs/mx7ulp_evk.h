@@ -11,25 +11,12 @@
 #include <linux/sizes.h>
 #include <asm/arch/imx-regs.h>
 
-/*Uncomment it to use secure boot*/
-/*#define CONFIG_SECURE_BOOT*/
-
-#ifdef CONFIG_SECURE_BOOT
-#ifndef CONFIG_CSF_SIZE
-#define CONFIG_CSF_SIZE			0x4000
-#endif
-#endif
-
 #define CONFIG_BOARD_POSTCLK_INIT
 #define CONFIG_SYS_BOOTM_LEN		0x1000000
 
 #define SRC_BASE_ADDR			CMC1_RBASE
 #define IRAM_BASE_ADDR			OCRAM_0_BASE
 #define IOMUXC_BASE_ADDR		IOMUXC1_RBASE
-
-#define CONFIG_BOUNCE_BUFFER
-#define CONFIG_FSL_USDHC
-#define CONFIG_SUPPORT_EMMC_BOOT /* eMMC specific */
 
 #define CONFIG_SYS_FSL_USDHC_NUM        1
 
@@ -38,9 +25,6 @@
 #define CONFIG_SYS_MMC_ENV_PART         0	/* user area */
 #define CONFIG_MMCROOT                  "/dev/mmcblk0p2"  /* USDHC1 */
 #define CONFIG_SYS_MMC_IMG_LOAD_PART    1
-
-#define CONFIG_ENV_OFFSET		(12 * SZ_64K)
-#define CONFIG_ENV_SIZE			SZ_8K
 
 /* Using ULP WDOG for reset */
 #define WDOG_BASE_ADDR			WDG1_RBASE
@@ -169,7 +153,7 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
-#ifndef CONFIG_SYS_DCACHE_OFF
+#if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 #define CONFIG_CMD_CACHE
 #endif
 

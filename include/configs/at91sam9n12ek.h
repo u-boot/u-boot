@@ -45,9 +45,6 @@
 	(0x00300000 + 16 * 1024 - GENERATED_GBL_DATA_SIZE)
 
 /* DataFlash */
-#ifdef CONFIG_CMD_SF
-#define CONFIG_SF_DEFAULT_SPEED		30000000
-#endif
 
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND
@@ -58,12 +55,6 @@
 #define CONFIG_SYS_NAND_ENABLE_PIN	GPIO_PIN_PD(4)
 #define CONFIG_SYS_NAND_READY_PIN	GPIO_PIN_PD(5)
 #endif
-
-/* PMECC & PMERRLOC */
-#define CONFIG_ATMEL_NAND_HWECC
-#define CONFIG_ATMEL_NAND_HW_PMECC
-#define CONFIG_PMECC_CAP		2
-#define CONFIG_PMECC_SECTOR_SIZE	512
 
 #define CONFIG_EXTRA_ENV_SETTINGS                                       \
 	"console=console=ttyS0,115200\0"                                \
@@ -94,9 +85,6 @@
 #ifdef CONFIG_SPI_BOOT
 
 /* bootstrap + u-boot + env + linux in dataflash on CS0 */
-#define CONFIG_ENV_OFFSET		0x5000
-#define CONFIG_ENV_SIZE			0x3000
-#define CONFIG_ENV_SECT_SIZE		0x1000
 #define CONFIG_BOOTCOMMAND						\
 	"setenv bootargs ${console} ${mtdparts} ${bootargs_nand};"	\
 	"sf probe 0; sf read 0x22000000 0x100000 0x300000; "		\
@@ -105,9 +93,6 @@
 #elif defined(CONFIG_NAND_BOOT)
 
 /* bootstrap + u-boot + env + linux in nandflash */
-#define CONFIG_ENV_OFFSET		0x140000
-#define CONFIG_ENV_OFFSET_REDUND	0x100000
-#define CONFIG_ENV_SIZE			0x20000		/* 1 sector = 128 kB */
 #define CONFIG_BOOTCOMMAND						\
 	"setenv bootargs ${console} ${mtdparts} ${bootargs_nand};"	\
 	"nand read 0x21000000 0x180000 0x080000;"			\
@@ -120,12 +105,9 @@
 
 #ifdef CONFIG_ENV_IS_IN_MMC
 /* Use raw reserved sectors to save environment */
-#define CONFIG_ENV_OFFSET		0x2000
-#define CONFIG_ENV_SIZE			0x1000
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #else
 /* Use file in FAT file to save environment */
-#define CONFIG_ENV_SIZE			0x4000
 #endif
 
 #define CONFIG_BOOTCOMMAND						\
@@ -142,7 +124,6 @@
 #define CONFIG_SYS_MALLOC_LEN	(4 * 1024 * 1024)
 
 /* SPL */
-#define CONFIG_SPL_TEXT_BASE		0x300000
 #define CONFIG_SPL_MAX_SIZE		0x6000
 #define CONFIG_SPL_STACK		0x308000
 
@@ -161,11 +142,6 @@
 #ifdef CONFIG_SD_BOOT
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.img"
-
-#elif CONFIG_SYS_USE_NANDFLASH
-#elif CONFIG_SPI_BOOT
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x8400
-
 #elif CONFIG_NAND_BOOT
 #define CONFIG_SPL_NAND_DRIVERS
 #define CONFIG_SPL_NAND_BASE
@@ -177,6 +153,5 @@
 #define CONFIG_SYS_NAND_OOBSIZE		64
 #define CONFIG_SYS_NAND_BLOCK_SIZE	0x20000
 #define CONFIG_SYS_NAND_BAD_BLOCK_POS	0x0
-#define CONFIG_SPL_GENERATE_ATMEL_PMECC_HEADER
 
 #endif

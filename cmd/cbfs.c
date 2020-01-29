@@ -8,6 +8,7 @@
  */
 #include <common.h>
 #include <command.h>
+#include <env.h>
 #include <cbfs.h>
 
 static int do_cbfs_init(cmd_tbl_t *cmdtp, int flag, int argc,
@@ -28,7 +29,7 @@ static int do_cbfs_init(cmd_tbl_t *cmdtp, int flag, int argc,
 		}
 	}
 	file_cbfs_init(end_of_rom);
-	if (file_cbfs_result != CBFS_SUCCESS) {
+	if (cbfs_get_result() != CBFS_SUCCESS) {
 		printf("%s.\n", file_cbfs_error());
 		return 1;
 	}
@@ -66,7 +67,7 @@ static int do_cbfs_fsload(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	file = file_cbfs_find(argv[2]);
 	if (!file) {
-		if (file_cbfs_result == CBFS_FILE_NOT_FOUND)
+		if (cbfs_get_result() == CBFS_FILE_NOT_FOUND)
 			printf("%s: %s\n", file_cbfs_error(), argv[2]);
 		else
 			printf("%s.\n", file_cbfs_error());

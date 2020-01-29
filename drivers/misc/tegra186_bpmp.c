@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <time.h>
 #include <dm/lists.h>
 #include <dm/root.h>
 #include <mailbox.h>

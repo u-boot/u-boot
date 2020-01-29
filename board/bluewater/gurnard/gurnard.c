@@ -12,6 +12,8 @@
 #include <atmel_lcdc.h>
 #include <atmel_mci.h>
 #include <dm.h>
+#include <env.h>
+#include <init.h>
 #include <lcd.h>
 #include <net.h>
 #ifndef CONFIG_DM_ETH

@@ -6,6 +6,8 @@
 
 #include <common.h>
 #include <console.h>
+#include <cpu_func.h>
+#include <irq_func.h>
 
 #define PHYS_FLASH_1 CONFIG_SYS_FLASH_BASE
 #define FLASH_BANK_SIZE 0x200000
@@ -164,9 +166,9 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	 * chip is in programming mode.
 	 */
 
-	cflag = icache_status ();
-	icache_disable ();
-	iflag = disable_interrupts ();
+	cflag = icache_status();
+	icache_disable();
+	iflag = disable_interrupts();
 
 	printf ("\n");
 
@@ -234,10 +236,10 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	udelay (10000);
 
 	if (iflag)
-		enable_interrupts ();
+		enable_interrupts();
 
 	if (cflag)
-		icache_enable ();
+		icache_enable();
 
 	return rc;
 }
@@ -267,9 +269,9 @@ static int write_word (flash_info_t * info, ulong dest, ulong data)
 	 * chip is in programming mode.
 	 */
 
-	cflag = icache_status ();
-	icache_disable ();
-	iflag = disable_interrupts ();
+	cflag = icache_status();
+	icache_disable();
+	iflag = disable_interrupts();
 
 	MEM_FLASH_ADDR1 = CMD_UNLOCK1;
 	MEM_FLASH_ADDR2 = CMD_UNLOCK2;
@@ -300,10 +302,10 @@ static int write_word (flash_info_t * info, ulong dest, ulong data)
 		rc = ERR_PROG_ERROR;
 
 	if (iflag)
-		enable_interrupts ();
+		enable_interrupts();
 
 	if (cflag)
-		icache_enable ();
+		icache_enable();
 
 	return rc;
 }

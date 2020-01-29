@@ -149,6 +149,12 @@
 #define gadget_is_dwc3(g)        0
 #endif
 
+#ifdef CONFIG_USB_CDNS3_GADGET
+#define gadget_is_cdns3(g)        (!strcmp("cdns3-gadget", (g)->name))
+#else
+#define gadget_is_cdns3(g)        0
+#endif
+
 /**
  * usb_gadget_controller_number - support bcdDevice id convention
  * @gadget: the controller being driven
@@ -208,5 +214,7 @@ static inline int usb_gadget_controller_number(struct usb_gadget *gadget)
 		return 0x22;
 	else if (gadget_is_dwc3(gadget))
 		return 0x23;
+	else if (gadget_is_cdns3(gadget))
+		return 0x24;
 	return -ENOENT;
 }

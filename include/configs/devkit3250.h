@@ -14,8 +14,6 @@
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_DEVKIT3250
 
-#define CONFIG_SYS_ICACHE_OFF
-#define CONFIG_SYS_DCACHE_OFF
 #if !defined(CONFIG_SPL_BUILD)
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #endif
@@ -100,7 +98,6 @@
 
 #define CONFIG_SYS_NAND_BLOCK_SIZE		0x20000
 #define CONFIG_SYS_NAND_PAGE_SIZE		NAND_LARGE_BLOCK_PAGE_SIZE
-#define CONFIG_SYS_NAND_USE_FLASH_BBT
 
 /*
  * USB
@@ -121,8 +118,6 @@
 /*
  * Environment
  */
-#define CONFIG_ENV_SIZE			SZ_128K
-#define CONFIG_ENV_OFFSET		0x000A0000
 
 #define CONFIG_BOOTCOMMAND			\
 	"dhcp; "				\
@@ -157,7 +152,6 @@
  * SPL specific defines
  */
 /* SPL will be executed at offset 0 */
-#define CONFIG_SPL_TEXT_BASE		0x00000000
 
 /* SPL will use SRAM as stack */
 #define CONFIG_SPL_STACK		0x0000FFF8

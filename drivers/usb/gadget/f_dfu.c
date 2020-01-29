@@ -14,6 +14,7 @@
  * (C) Copyright 2006 by Harald Welte <hwelte at hmw-consulting.de>
  */
 
+#include <env.h>
 #include <errno.h>
 #include <common.h>
 #include <malloc.h>
@@ -748,6 +749,7 @@ static void dfu_unbind(struct usb_configuration *c, struct usb_function *f)
 
 	if (f_dfu->function) {
 		i = alt_num;
+		i++; /* free DFU Functional Descriptor */
 		while (i) {
 			free(f_dfu->function[--i]);
 			f_dfu->function[i] = NULL;

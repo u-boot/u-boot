@@ -9,6 +9,7 @@
  * Copyright (C) 2010 Freescale Semiconductor, Inc. All Rights Reserved.
  */
 
+#include <cpu_func.h>
 #include <linux/list.h>
 
 #include <common.h>
@@ -81,7 +82,7 @@ static int mxs_dma_read_semaphore(int channel)
 	return tmp;
 }
 
-#ifndef	CONFIG_SYS_DCACHE_OFF
+#if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 void mxs_dma_flush_desc(struct mxs_dma_desc *desc)
 {
 	uint32_t addr;

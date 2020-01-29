@@ -8,9 +8,9 @@
 #include <errno.h>
 #include <sysreset.h>
 #include <asm/io.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/cru_rk3328.h>
-#include <asm/arch/hardware.h>
+#include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/cru_rk3328.h>
+#include <asm/arch-rockchip/hardware.h>
 #include <linux/err.h>
 
 int rockchip_sysreset_request(struct udevice *dev, enum sysreset_t type)

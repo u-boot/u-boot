@@ -62,7 +62,7 @@ int exynos_adc_stop(struct udevice *dev)
 
 	/* Stop conversion */
 	cfg = readl(&regs->con1);
-	cfg |= ~ADC_V2_CON1_STC_EN;
+	cfg &= ~ADC_V2_CON1_STC_EN;
 
 	writel(cfg, &regs->con1);
 

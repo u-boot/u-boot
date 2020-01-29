@@ -7,6 +7,23 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#ifdef CONFIG_SPL
+#define CONFIG_SPL_MAX_SIZE		0x00100000
+#define CONFIG_SPL_BSS_START_ADDR	0x04000000
+#define CONFIG_SPL_BSS_MAX_SIZE		0x00100000
+
+#ifndef CONFIG_XIP
+#define CONFIG_SPL_LOAD_FIT_ADDRESS	0x00200000
+#else
+#define CONFIG_SPL_LOAD_FIT_ADDRESS	0x80010000
+#endif
+
+#ifdef CONFIG_SPL_MMC_SUPPORT
+#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
+#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.itb"
+#endif
+#endif
+
 /*
  * CPU and Board Configuration Options
  */
@@ -40,7 +57,7 @@
 #define CONFIG_SYS_MALLOC_LEN   (512 << 10)
 
 /* DT blob (fdt) address */
-#define CONFIG_SYS_FDT_BASE		0x000f0000
+#define CONFIG_SYS_FDT_BASE		0x800f0000
 
 /*
  * Physical Memory Map
@@ -113,18 +130,9 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	512
 
 /* environments */
-#define CONFIG_ENV_SPI_BUS		0
-#define CONFIG_ENV_SPI_CS		0
-#define CONFIG_ENV_SPI_MAX_HZ		50000000
-#define CONFIG_ENV_SPI_MODE		0
-#define CONFIG_ENV_SECT_SIZE		0x1000
 #define CONFIG_ENV_OVERWRITE
 
 /* SPI FLASH */
-#define CONFIG_SF_DEFAULT_BUS		0
-#define CONFIG_SF_DEFAULT_CS		0
-#define CONFIG_SF_DEFAULT_SPEED		1000000
-#define CONFIG_SF_DEFAULT_MODE		0
 
 /*
  * For booting Linux, the board info and command line data
@@ -138,7 +146,6 @@
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)
 
 /* When we use RAM as ENV */
-#define CONFIG_ENV_SIZE 0x2000
 
 /* Enable distro boot */
 #define BOOT_TARGET_DEVICES(func) \

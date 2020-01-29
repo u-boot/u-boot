@@ -118,7 +118,7 @@ void clock_set_pll1(unsigned int clk)
 	if (clk > 1152000000) {
 		k = 2;
 	} else if (clk > 768000000) {
-		k = 3;
+		k = 4;
 		m = 2;
 	}
 

@@ -23,6 +23,8 @@ Required properties:
 - compatible: must be "st,stm32mp1-usbphyc"
 - reg: address and length of the usb phy control register set
 - clocks: phandle + clock specifier for the PLL phy clock
+- vdda1v1-supply: phandle to the regulator providing 1V1 power to the PHY
+- vdda1v8-supply: phandle to the regulator providing 1V8 power to the PHY
 - #address-cells: number of address cells for phys sub-nodes, must be <1>
 - #size-cells: number of size cells for phys sub-nodes, must be <0>
 
@@ -40,8 +42,6 @@ Required properties:
 - reg: phy port index
 - phy-supply: phandle to the regulator providing 3V3 power to the PHY,
 	      see phy-bindings.txt in the same directory.
-- vdda1v1-supply: phandle to the regulator providing 1V1 power to the PHY
-- vdda1v8-supply: phandle to the regulator providing 1V8 power to the PHY
 - #phy-cells: see phy-bindings.txt in the same directory, must be <0> for PHY
   port#1 and must be <1> for PHY port#2, to select USB controller
 

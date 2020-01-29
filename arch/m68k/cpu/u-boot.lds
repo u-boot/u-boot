@@ -68,12 +68,14 @@ SECTIONS
 	__ex_table : { *(__ex_table) }
 	__stop___ex_table = .;
 
-	. = ALIGN(256);
+	. = ALIGN(4);
 	__init_begin = .;
 	.text.init : { *(.text.init) }
 	.data.init : { *(.data.init) }
-	. = ALIGN(256);
+	. = ALIGN(4);
 	__init_end = .;
+
+	_end = .;
 
 	__bss_start = .;
 	.bss (NOLOAD)       :

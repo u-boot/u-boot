@@ -40,6 +40,7 @@
  * Modified to use le32_to_cpu and cpu_to_le32 properly
  */
 #include <common.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>
 #include <malloc.h>
@@ -252,11 +253,13 @@ static struct {
 	{"RTL-8169sc/8110sc",	0x18, 0xff7e1880,},
 	{"RTL-8168b/8111sb",	0x30, 0xff7e1880,},
 	{"RTL-8168b/8111sb",	0x38, 0xff7e1880,},
+	{"RTL-8168c/8111c",	0x3c, 0xff7e1880,},
 	{"RTL-8168d/8111d",	0x28, 0xff7e1880,},
 	{"RTL-8168evl/8111evl",	0x2e, 0xff7e1880,},
 	{"RTL-8168/8111g",	0x4c, 0xff7e1880,},
 	{"RTL-8101e",		0x34, 0xff7e1880,},
 	{"RTL-8100e",		0x32, 0xff7e1880,},
+	{"RTL-8168h/8111h",	0x54, 0xff7e1880,},
 };
 
 enum _DescStatusBit {
@@ -301,7 +304,7 @@ static unsigned char rxdata[RX_BUF_LEN];
  */
 #if RTL8169_DESC_SIZE < ARCH_DMA_MINALIGN
 #if !defined(CONFIG_SYS_NONCACHED_MEMORY) && \
-	!defined(CONFIG_SYS_DCACHE_OFF) && !defined(CONFIG_X86)
+	!CONFIG_IS_ENABLED(SYS_DCACHE_OFF) && !defined(CONFIG_X86)
 #warning cache-line size is larger than descriptor size
 #endif
 #endif
@@ -941,6 +944,23 @@ static void rtl_halt(struct eth_device *dev)
 }
 #endif
 
+#ifdef CONFIG_DM_ETH
+static int rtl8169_write_hwaddr(struct udevice *dev)
+{
+	struct eth_pdata *plat = dev_get_platdata(dev);
+	unsigned int i;
+
+	RTL_W8(Cfg9346, Cfg9346_Unlock);
+
+	for (i = 0; i < MAC_ADDR_LEN; i++)
+		RTL_W8(MAC0 + i, plat->enetaddr[i]);
+
+	RTL_W8(Cfg9346, Cfg9346_Lock);
+
+	return 0;
+}
+#endif
+
 /**************************************************************************
 INIT - Look for an adapter, this routine's visible to the outside
 ***************************************************************************/
@@ -1195,6 +1215,7 @@ static const struct eth_ops rtl8169_eth_ops = {
 	.send	= rtl8169_eth_send,
 	.recv	= rtl8169_eth_recv,
 	.stop	= rtl8169_eth_stop,
+	.write_hwaddr = rtl8169_write_hwaddr,
 };
 
 static const struct udevice_id rtl8169_eth_ids[] = {

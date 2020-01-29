@@ -71,6 +71,15 @@ int riscv_clear_ipi(int hart)
 	return 0;
 }
 
+int riscv_get_ipi(int hart, int *pending)
+{
+	CLINT_BASE_GET();
+
+	*pending = readl((void __iomem *)MSIP_REG(gd->arch.clint, hart));
+
+	return 0;
+}
+
 static const struct udevice_id sifive_clint_ids[] = {
 	{ .compatible = "riscv,clint0", .data = RISCV_SYSCON_CLINT },
 	{ }

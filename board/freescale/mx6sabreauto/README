@@ -9,15 +9,15 @@ $ make mx6sabreauto_defconfig
 
 $ make
 
-This will generate the SPL and u-boot.img binaries.
+This will generate the SPL and u-boot-dtb.img binaries.
 
 - Flash the SPL binary into the SD card:
 
 $ sudo dd if=SPL of=/dev/sdX bs=1K seek=1 && sync
 
-- Flash the u-boot.img binary into the SD card:
+- Flash the u-boot-dtb.img binary into the SD card:
 
-$ sudo dd if=u-boot.img of=/dev/sdX bs=1K seek=69 && sync
+$ sudo dd if=u-boot-dtb.img of=/dev/sdX bs=1K seek=69 && sync
 
 Booting via Falcon mode
 -----------------------
@@ -32,15 +32,15 @@ $ make mx6sabreauto_defconfig
 
 $ make
 
-This will generate the SPL image called SPL and the u-boot.img.
+This will generate the SPL image called SPL and the u-boot-dtb.img.
 
 - Flash the SPL image into the SD card:
 
 $ sudo dd if=SPL of=/dev/sdb bs=1K seek=1 && sync
 
-- Flash the u-boot.img image into the SD card:
+- Flash the u-boot-dtb.img image into the SD card:
 
-$ sudo dd if=u-boot.img of=/dev/sdb bs=1K seek=69 && sync
+$ sudo dd if=u-boot-dtb.img of=/dev/sdb bs=1K seek=69 && sync
 
 Create a FAT16 boot partition to store uImage and the dtb file, then copy the files there:
 

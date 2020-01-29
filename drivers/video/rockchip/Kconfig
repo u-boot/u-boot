@@ -65,6 +65,6 @@ config DISPLAY_ROCKCHIP_MIPI
 	help
 	  This enables Mobile Industry Processor Interface(MIPI) display
 	  support. The mipi controller and dphy on rk3288& rk3399 support
-	  16,18, 24 bits per pixel with upto 2k resolution ratio.
+	  16,18, 24 bits per pixel with up to 2k resolution ratio.
 
 endif

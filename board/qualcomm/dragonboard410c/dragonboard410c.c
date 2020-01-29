@@ -7,10 +7,11 @@
 
 #include <common.h>
 #include <dm.h>
+#include <env.h>
+#include <init.h>
 #include <usb.h>
 #include <asm/gpio.h>
 #include <fdt_support.h>
-#include <environment.h>
 #include <asm/arch/dram.h>
 #include <asm/arch/misc.h>
 

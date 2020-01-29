@@ -60,7 +60,8 @@ static int stm32h7_adc_clk_sel(struct udevice *dev,
 {
 	u32 ckmode, presc;
 	unsigned long rate;
-	int i, div;
+	unsigned int i;
+	int div;
 
 	/* stm32h7 bus clock is common for all ADC instances (mandatory) */
 	if (!clk_valid(&common->bclk)) {

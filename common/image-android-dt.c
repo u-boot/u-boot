@@ -53,8 +53,8 @@ bool android_dt_get_fdt_by_index(ulong hdr_addr, u32 index, ulong *addr,
 	entry_size = fdt32_to_cpu(hdr->dt_entry_size);
 	unmap_sysmem(hdr);
 
-	if (index > entry_count) {
-		printf("Error: index > dt_entry_count (%u > %u)\n", index,
+	if (index >= entry_count) {
+		printf("Error: index >= dt_entry_count (%u >= %u)\n", index,
 		       entry_count);
 		return false;
 	}
@@ -78,16 +78,17 @@ static void android_dt_print_fdt_info(const struct fdt_header *fdt)
 {
 	u32 fdt_size;
 	int root_node_off;
-	const char *compatible = NULL;
+	const char *compatible;
 
-	fdt_size = fdt_totalsize(fdt);
 	root_node_off = fdt_path_offset(fdt, "/");
 	if (root_node_off < 0) {
 		printf("Error: Root node not found\n");
-	} else {
-		compatible = fdt_getprop(fdt, root_node_off, "compatible",
-					 NULL);
+		return;
 	}
+
+	fdt_size = fdt_totalsize(fdt);
+	compatible = fdt_getprop(fdt, root_node_off, "compatible",
+				 NULL);
 
 	printf("           (FDT)size = %d\n", fdt_size);
 	printf("     (FDT)compatible = %s\n",

@@ -23,10 +23,10 @@
  */
 #include <common.h>
 #include <command.h>
+#include <cpu_func.h>
 #include <net.h>
 #include <miiphy.h>
 #include <malloc.h>
-#include <netdev.h>
 #include <linux/compiler.h>
 #include <asm/arch/emac_defs.h>
 #include <asm/io.h>
@@ -107,8 +107,9 @@ static u_int8_t	num_phy;
 
 phy_t				phy[CONFIG_SYS_DAVINCI_EMAC_PHY_COUNT];
 
-static int davinci_eth_set_mac_addr(struct eth_device *dev)
+static int davinci_emac_write_hwaddr(struct udevice *dev)
 {
+	struct eth_pdata *pdata = dev_get_platdata(dev);
 	unsigned long		mac_hi;
 	unsigned long		mac_lo;
 
@@ -118,12 +119,12 @@ static int davinci_eth_set_mac_addr(struct eth_device *dev)
 	 *  Using channel 0 only - other channels are disabled
 	 *  */
 	writel(0, &adap_emac->MACINDEX);
-	mac_hi = (dev->enetaddr[3] << 24) |
-		 (dev->enetaddr[2] << 16) |
-		 (dev->enetaddr[1] << 8)  |
-		 (dev->enetaddr[0]);
-	mac_lo = (dev->enetaddr[5] << 8) |
-		 (dev->enetaddr[4]);
+	mac_hi = (pdata->enetaddr[3] << 24) |
+		 (pdata->enetaddr[2] << 16) |
+		 (pdata->enetaddr[1] << 8)  |
+		 (pdata->enetaddr[0]);
+	mac_lo = (pdata->enetaddr[5] << 8) |
+		 (pdata->enetaddr[4]);
 
 	writel(mac_hi, &adap_emac->MACADDRHI);
 #if defined(DAVINCI_EMAC_VERSION2)
@@ -411,7 +412,7 @@ static void  __attribute__((unused)) davinci_eth_gigabit_enable(int phy_addr)
 }
 
 /* Eth device open */
-static int davinci_eth_open(struct eth_device *dev, bd_t *bis)
+static int davinci_emac_start(struct udevice *dev)
 {
 	dv_reg_p		addr;
 	u_int32_t		clkdiv, cnt, mac_control;
@@ -447,7 +448,7 @@ static int davinci_eth_open(struct eth_device *dev, bd_t *bis)
 	writel(1, &adap_emac->TXCONTROL);
 	writel(1, &adap_emac->RXCONTROL);
 
-	davinci_eth_set_mac_addr(dev);
+	davinci_emac_write_hwaddr(dev);
 
 	/* Set DMA 8 TX / 8 RX Head pointers to 0 */
 	addr = &adap_emac->TX0HDP;
@@ -588,7 +589,7 @@ static void davinci_eth_ch_teardown(int ch)
 }
 
 /* Eth device close */
-static void davinci_eth_close(struct eth_device *dev)
+static void davinci_emac_stop(struct udevice *dev)
 {
 	debug_emac("+ emac_close\n");
 
@@ -619,8 +620,8 @@ static int tx_send_loop = 0;
  * This function sends a single packet on the network and returns
  * positive number (number of bytes transmitted) or negative for error
  */
-static int davinci_eth_send_packet (struct eth_device *dev,
-					void *packet, int length)
+static int davinci_emac_send(struct udevice *dev,
+			     void *packet, int length)
 {
 	int ret_status = -1;
 	int index;
@@ -672,7 +673,7 @@ static int davinci_eth_send_packet (struct eth_device *dev,
 /*
  * This function handles receipt of a packet from the network
  */
-static int davinci_eth_rcv_packet (struct eth_device *dev)
+static int davinci_emac_recv(struct udevice *dev, int flags, uchar **packetp)
 {
 	volatile emac_desc *rx_curr_desc;
 	volatile emac_desc *curr_desc;
@@ -682,6 +683,7 @@ static int davinci_eth_rcv_packet (struct eth_device *dev)
 	rx_curr_desc = emac_rx_active_head;
 	if (!rx_curr_desc)
 		return 0;
+	*packetp = rx_curr_desc->buffer;
 	status = rx_curr_desc->pkt_flag_len;
 	if ((status & EMAC_CPPI_OWNERSHIP_BIT) == 0) {
 		if (status & EMAC_CPPI_RX_ERROR_FRAME) {
@@ -693,7 +695,6 @@ static int davinci_eth_rcv_packet (struct eth_device *dev)
 				rx_curr_desc->buff_off_len & 0xffff;
 
 			invalidate_dcache_range(tmp, tmp + ALIGN(len, PKTALIGN));
-			net_process_received_packet(rx_curr_desc->buffer, len);
 			ret = len;
 		}
 
@@ -742,6 +743,7 @@ static int davinci_eth_rcv_packet (struct eth_device *dev)
 		}
 		return (ret);
 	}
+
 	return (0);
 }
 
@@ -750,30 +752,12 @@ static int davinci_eth_rcv_packet (struct eth_device *dev)
  * EMAC modules power or pin multiplexors, that is done by board_init()
  * much earlier in bootup process. Returns 1 on success, 0 otherwise.
  */
-int davinci_emac_initialize(void)
+static int davinci_emac_probe(struct udevice *dev)
 {
 	u_int32_t	phy_id;
 	u_int16_t	tmp;
 	int		i;
 	int		ret;
-	struct eth_device *dev;
-
-	dev = malloc(sizeof *dev);
-
-	if (dev == NULL)
-		return -1;
-
-	memset(dev, 0, sizeof *dev);
-	strcpy(dev->name, "DaVinci-EMAC");
-
-	dev->iobase = 0;
-	dev->init = davinci_eth_open;
-	dev->halt = davinci_eth_close;
-	dev->send = davinci_eth_send_packet;
-	dev->recv = davinci_eth_rcv_packet;
-	dev->write_hwaddr = davinci_eth_set_mac_addr;
-
-	eth_register(dev);
 
 	davinci_eth_mdio_enable();
 
@@ -816,55 +800,12 @@ int davinci_emac_initialize(void)
 
 		phy_id |= tmp & 0x0000ffff;
 
-		switch (phy_id) {
-#ifdef PHY_KSZ8873
-		case PHY_KSZ8873:
-			sprintf(phy[i].name, "KSZ8873 @ 0x%02x",
-						active_phy_addr[i]);
-			phy[i].init = ksz8873_init_phy;
-			phy[i].is_phy_connected = ksz8873_is_phy_connected;
-			phy[i].get_link_speed = ksz8873_get_link_speed;
-			phy[i].auto_negotiate = ksz8873_auto_negotiate;
-			break;
-#endif
-#ifdef PHY_LXT972
-		case PHY_LXT972:
-			sprintf(phy[i].name, "LXT972 @ 0x%02x",
-						active_phy_addr[i]);
-			phy[i].init = lxt972_init_phy;
-			phy[i].is_phy_connected = lxt972_is_phy_connected;
-			phy[i].get_link_speed = lxt972_get_link_speed;
-			phy[i].auto_negotiate = lxt972_auto_negotiate;
-			break;
-#endif
-#ifdef PHY_DP83848
-		case PHY_DP83848:
-			sprintf(phy[i].name, "DP83848 @ 0x%02x",
-						active_phy_addr[i]);
-			phy[i].init = dp83848_init_phy;
-			phy[i].is_phy_connected = dp83848_is_phy_connected;
-			phy[i].get_link_speed = dp83848_get_link_speed;
-			phy[i].auto_negotiate = dp83848_auto_negotiate;
-			break;
-#endif
-#ifdef PHY_ET1011C
-		case PHY_ET1011C:
-			sprintf(phy[i].name, "ET1011C @ 0x%02x",
-						active_phy_addr[i]);
-			phy[i].init = gen_init_phy;
-			phy[i].is_phy_connected = gen_is_phy_connected;
-			phy[i].get_link_speed = et1011c_get_link_speed;
-			phy[i].auto_negotiate = gen_auto_negotiate;
-			break;
-#endif
-		default:
-			sprintf(phy[i].name, "GENERIC @ 0x%02x",
-						active_phy_addr[i]);
-			phy[i].init = gen_init_phy;
-			phy[i].is_phy_connected = gen_is_phy_connected;
-			phy[i].get_link_speed = gen_get_link_speed;
-			phy[i].auto_negotiate = gen_auto_negotiate;
-		}
+		sprintf(phy[i].name, "GENERIC @ 0x%02x",
+			active_phy_addr[i]);
+		phy[i].init = gen_init_phy;
+		phy[i].is_phy_connected = gen_is_phy_connected;
+		phy[i].get_link_speed = gen_get_link_speed;
+		phy[i].auto_negotiate = gen_auto_negotiate;
 
 		debug("Ethernet PHY: %s\n", phy[i].name);
 
@@ -897,5 +838,29 @@ int davinci_emac_initialize(void)
 			phy[i].auto_negotiate(i);
 	}
 #endif
-	return(1);
+	return 0;
 }
+
+static const struct eth_ops davinci_emac_ops = {
+	.start		= davinci_emac_start,
+	.send		= davinci_emac_send,
+	.recv		= davinci_emac_recv,
+	.stop		= davinci_emac_stop,
+	.write_hwaddr	= davinci_emac_write_hwaddr,
+};
+
+static const struct udevice_id davinci_emac_ids[] = {
+	{ .compatible = "ti,davinci-dm6467-emac" },
+	{ .compatible = "ti,am3517-emac", },
+	{ .compatible = "ti,dm816-emac", },
+	{ }
+};
+
+U_BOOT_DRIVER(davinci_emac) = {
+	.name		= "davinci_emac",
+	.id		= UCLASS_ETH,
+	.of_match	= davinci_emac_ids,
+	.probe		= davinci_emac_probe,
+	.ops		= &davinci_emac_ops,
+	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+};

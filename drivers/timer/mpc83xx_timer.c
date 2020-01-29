@@ -8,6 +8,9 @@
 #include <board.h>
 #include <clk.h>
 #include <dm.h>
+#include <irq_func.h>
+#include <status_led.h>
+#include <time.h>
 #include <timer.h>
 #include <watchdog.h>
 
@@ -171,10 +174,6 @@ void timer_interrupt(struct pt_regs *regs)
 #ifdef CONFIG_LED_STATUS
 	status_led_tick(priv->timestamp);
 #endif /* CONFIG_LED_STATUS */
-
-#ifdef CONFIG_SHOW_ACTIVITY
-	board_show_activity(priv->timestamp);
-#endif /* CONFIG_SHOW_ACTIVITY */
 }
 
 void wait_ticks(ulong ticks)

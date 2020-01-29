@@ -12,6 +12,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <irq_func.h>
 #include <asm/string.h>
 #include <asm/regs.h>
 

@@ -43,6 +43,9 @@
 /* 4 KB per PCIe device */
 #define DEFAULT_PCIEXBAR	CONFIG_PCIE_ECAM_BASE
 
+#define IOMMU_BASE1		0xfed90000ULL
+#define IOMMU_BASE2		0xfed91000ULL
+
 /* Device 0:0.0 PCI configuration space (Host Bridge) */
 #define EPBAR		0x40
 #define MCHBAR		0x48

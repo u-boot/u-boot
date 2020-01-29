@@ -7,7 +7,7 @@
 #define __FSL_SECURE_BOOT_H
 #include <asm/config_mpc85xx.h>
 
-#ifdef CONFIG_SECURE_BOOT
+#ifdef CONFIG_NXP_ESBC
 #if defined(CONFIG_FSL_CORENET)
 #define CONFIG_SYS_PBI_FLASH_BASE		0xc0000000
 #elif defined(CONFIG_TARGET_BSC9132QDS)
@@ -74,7 +74,7 @@
  */
 #define CONFIG_FSL_ISBC_KEY_EXT
 #endif
-#endif /* #ifdef CONFIG_SECURE_BOOT */
+#endif /* #ifdef CONFIG_NXP_ESBC */
 
 #ifdef CONFIG_CHAIN_OF_TRUST
 #ifdef CONFIG_SPL_BUILD

@@ -64,6 +64,4 @@ static inline int s5p_mmc_init(int index, int bus_width)
 	return s5p_sdhci_init(base, index, bus_width);
 }
 
-int exynos_mmc_init(const void *blob);
-
 #endif

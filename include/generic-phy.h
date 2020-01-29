@@ -270,7 +270,7 @@ static inline int generic_phy_get_by_name(struct udevice *user, const char *phy_
  */
 static inline bool generic_phy_valid(struct phy *phy)
 {
-	return phy->dev != NULL;
+	return phy && phy->dev;
 }
 
 #endif /*__GENERIC_PHY_H */

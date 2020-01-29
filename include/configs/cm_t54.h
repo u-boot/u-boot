@@ -29,19 +29,12 @@
 #define CONFIG_SYS_NS16550_COM4		UART4_BASE
 
 /* MMC ENV related defines */
-#undef CONFIG_ENV_OFFSET
-#undef CONFIG_ENV_SIZE
 
 #define CONFIG_SYS_MMC_ENV_DEV		1		/* SLOT2: eMMC(1) */
 #define CONFIG_SYS_MMC_ENV_PART		0
-#define CONFIG_ENV_OFFSET		0xc0000		/* (in bytes) 768 KB */
-#define CONFIG_ENV_SIZE			(16 << 10)	/* 16 KB */
-#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
-#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 
 /* Enhance our eMMC support / experience. */
 #define CONFIG_HSMMC2_8BIT
-#define CONFIG_SUPPORT_EMMC_BOOT
 
 /* SATA Boot related defines */
 #define CONFIG_SPL_SATA_BOOT_DEVICE		0

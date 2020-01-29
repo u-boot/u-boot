@@ -10,15 +10,23 @@
 #ifndef UNIPHIER_SG_REGS_H
 #define UNIPHIER_SG_REGS_H
 
+#ifndef __ASSEMBLY__
+#include <linux/compiler.h>
+#ifdef CONFIG_ARCH_UNIPHIER_V8_MULTI
+extern void __iomem *sg_base;
+#else
+#define sg_base			((void __iomem *)SG_BASE)
+#endif
+#endif /* __ASSEMBLY__ */
+
 /* Base Address */
-#define SG_CTRL_BASE			0x5f800000
-#define SG_DBG_BASE			0x5f900000
+#define SG_BASE			0x5f800000
 
 /* Revision */
-#define SG_REVISION			(SG_CTRL_BASE | 0x0000)
+#define SG_REVISION		0x0000
 
 /* Memory Configuration */
-#define SG_MEMCONF			(SG_CTRL_BASE | 0x0400)
+#define SG_MEMCONF		0x0400
 
 #define SG_MEMCONF_CH0_SZ_MASK		((0x1 << 10) | (0x03 << 0))
 #define SG_MEMCONF_CH0_SZ_64M		((0x0 << 10) | (0x01 << 0))
@@ -54,22 +62,22 @@
 
 #define SG_MEMCONF_SPARSEMEM		(0x1 << 4)
 
-#define SG_USBPHYCTRL			(SG_CTRL_BASE | 0x500)
-#define SG_ETPHYPSHUT			(SG_CTRL_BASE | 0x554)
-#define SG_ETPHYCNT			(SG_CTRL_BASE | 0x550)
+#define SG_USBPHYCTRL		0x0500
+#define SG_ETPHYPSHUT		0x0554
+#define SG_ETPHYCNT		0x0550
 
 /* Pin Control */
-#define SG_PINCTRL_BASE			(SG_CTRL_BASE | 0x1000)
+#define SG_PINCTRL_BASE		0x1000
 
 /* PH1-Pro4, PH1-Pro5 */
-#define SG_LOADPINCTRL			(SG_CTRL_BASE | 0x1700)
+#define SG_LOADPINCTRL		0x1700
 
 /* Input Enable */
-#define SG_IECTRL			(SG_CTRL_BASE | 0x1d00)
+#define SG_IECTRL		0x1d00
 
 /* Pin Monitor */
-#define SG_PINMON0			(SG_DBG_BASE | 0x0100)
-#define SG_PINMON2			(SG_DBG_BASE | 0x0108)
+#define SG_PINMON0		0x00100100
+#define SG_PINMON2		0x00100108
 
 #define SG_PINMON0_CLK_MODE_UPLLSRC_MASK	(0x3 << 19)
 #define SG_PINMON0_CLK_MODE_UPLLSRC_DEFAULT	(0x0 << 19)
@@ -86,55 +94,5 @@
 #define SG_PINMON0_CLK_MODE_AXOSEL_25000KHZ_U	(0x1 << 16)
 #define SG_PINMON0_CLK_MODE_AXOSEL_20480KHZ	(0x2 << 16)
 #define SG_PINMON0_CLK_MODE_AXOSEL_25000KHZ_A	(0x3 << 16)
-
-#ifdef __ASSEMBLY__
-
-	.macro	sg_set_pinsel, pin, muxval, mux_bits, reg_stride, ra, rd
-	ldr	\ra, =(SG_PINCTRL_BASE + \pin * \mux_bits / 32 * \reg_stride)
-	ldr	\rd, [\ra]
-	and	\rd, \rd, #~(((1 << \mux_bits) - 1) << (\pin * \mux_bits % 32))
-	orr	\rd, \rd, #(\muxval << (\pin * \mux_bits % 32))
-	str	\rd, [\ra]
-	.endm
-
-#else
-
-#include <linux/types.h>
-#include <linux/io.h>
-
-static inline void sg_set_pinsel(unsigned pin, unsigned muxval,
-				 unsigned mux_bits, unsigned reg_stride)
-{
-	unsigned shift = pin * mux_bits % 32;
-	unsigned long reg = SG_PINCTRL_BASE + pin * mux_bits / 32 * reg_stride;
-	u32 mask = (1U << mux_bits) - 1;
-	u32 tmp;
-
-	tmp = readl(reg);
-	tmp &= ~(mask << shift);
-	tmp |= (mask & muxval) << shift;
-	writel(tmp, reg);
-}
-
-static inline void sg_set_iectrl(unsigned pin)
-{
-	unsigned bit = pin % 32;
-	unsigned long reg = SG_IECTRL + pin / 32 * 4;
-	u32 tmp;
-
-	tmp = readl(reg);
-	tmp |= 1 << bit;
-	writel(tmp, reg);
-}
-
-static inline void sg_set_iectrl_range(unsigned min, unsigned max)
-{
-	int i;
-
-	for (i = min; i <= max; i++)
-		sg_set_iectrl(i);
-}
-
-#endif /* __ASSEMBLY__ */
 
 #endif /* UNIPHIER_SG_REGS_H */

@@ -15,16 +15,7 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(32 * SZ_1M)
 
-/* MMC Configs */
-#define CONFIG_FSL_ESDHC
-#define CONFIG_SYS_FSL_ESDHC_ADDR	0
-#define CONFIG_SYS_FSL_ESDHC_NUM	1
-
-/* Eth Configs */
-
 /* USB Configs */
-#define CONFIG_USB_EHCI_MX5
-#define CONFIG_MXC_USB_PORT	1
 #define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS	0
 
@@ -50,8 +41,10 @@
 	"addinitrd=setenv bootargs ${bootargs} rdinit=${rdinit} ${debug} \0" \
 	"upd_image=st.4k\0" \
 	"uboot_file=u-boot.imx\0" \
-	"updargs=setenv bootargs console=${console} ${smp}"\
-	       "rdinit=${rdinit} ${debug} ${displayargs}\0" \
+	"updargs=setenv bootargs console=${console} ${smp} ${displayargs}\0" \
+	"initrd_ram_dev=/dev/ram\0" \
+	"addswupdate=setenv bootargs ${bootargs} root=${initrd_ram_dev} rw\0" \
+	"addkeys=setenv bootargs ${bootargs} di=${dig_in} key1=${key1}\0" \
 	"loadusb=usb start; " \
 	       "fatload usb 0 ${loadaddr} ${upd_image}\0" \
 	"up=if tftp ${loadaddr} ${uboot_file}; then " \
@@ -59,7 +52,7 @@
 	       "setexpr blkc ${blkc} + 1; " \
 	       "mmc write ${loadaddr} 0x2 ${blkc}" \
 	"; fi\0"	  \
-	"upwic=setenv wic_file kp-image-kp${boardsoc}${boardtype}.wic; "\
+	"upwic=setenv wic_file kp-image-kp${boardsoc}.wic; "\
 	       "if tftp ${loadaddr} ${wic_file}; then " \
 	       "setexpr blkc ${filesize} / 0x200; " \
 	       "setexpr blkc ${blkc} + 1; " \
@@ -68,6 +61,9 @@
 	"usbupd=echo Booting update from usb ...; " \
 	       "setenv bootargs; " \
 	       "run updargs; " \
+	       "run addinitrd; " \
+	       "run addswupdate; " \
+	       "run addkeys; " \
 	       "run loadusb; " \
 	       "bootm ${loadaddr}#${fit_config}\0" \
 	BOOTENV
@@ -101,11 +97,6 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* environment organization */
-#define CONFIG_ENV_OFFSET      (SZ_1M)
-#define CONFIG_ENV_SIZE        (SZ_8K)
-#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
-#define CONFIG_ENV_SIZE_REDUND CONFIG_ENV_SIZE
-#define CONFIG_ENV_OFFSET_REDUND        (CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
 #define CONFIG_SYS_MMC_ENV_DEV 0
 
 #endif				/* __CONFIG_H_ */

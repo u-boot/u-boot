@@ -3,6 +3,7 @@ menu "SPI Flash Support"
 config DM_SPI_FLASH
 	bool "Enable Driver Model for SPI flash"
 	depends on DM && DM_SPI
+	imply SPI_FLASH
 	help
 	  Enable driver model for SPI flash. This SPI flash interface
 	  (spi_flash_probe(), spi_flash_write(), etc.) is then
@@ -26,17 +27,69 @@ config SPI_FLASH_SANDBOX
 	  stored in a file on the host filesystem.
 
 config SPI_FLASH
-	bool "Legacy SPI Flash Interface support"
+	bool "SPI Flash Core Interface support"
+	select SPI_MEM
 	help
-	  Enable the legacy SPI flash support. This will include basic
+	  Enable the SPI flash Core support. This will include basic
 	  standard support for things like probing, read / write, and
 	  erasing through cmd_sf interface.
 
 	  If unsure, say N
 
+config SF_DEFAULT_BUS
+	int "SPI Flash default bus identifier"
+	depends on SPI_FLASH || DM_SPI_FLASH
+	default 0
+	help
+	  The default bus may be provided by the platform
+	  to handle the common case when only a single serial
+	  flash is present on the system.
+
+config SF_DEFAULT_CS
+	int "SPI Flash default Chip-select"
+	depends on SPI_FLASH || DM_SPI_FLASH
+	default 0
+	help
+	  The default chip select may be provided by the platform
+	  to handle the common case when only a single serial
+	  flash is present on the system.
+
+config SF_DEFAULT_MODE
+	hex "SPI Flash default mode (see include/spi.h)"
+	depends on SPI_FLASH || DM_SPI_FLASH
+	default 3
+	help
+	  The default mode may be provided by the platform
+	  to handle the common case when only a single serial
+	  flash is present on the system.
+	  Not used for boot with device tree; the SPI driver reads
+	  speed and mode from platdata values computed from
+	  available node.
+
+config SF_DEFAULT_SPEED
+	int "SPI Flash default speed in Hz"
+	depends on SPI_FLASH || DM_SPI_FLASH
+	default 1000000
+	help
+	  The default speed may be provided by the platform
+	  to handle the common case when only a single serial
+	  flash is present on the system.
+	  Not used for boot with device tree; the SPI driver reads
+	  speed and mode from platdata values computed from
+	  available node.
+
+if SPI_FLASH
+
+config SPI_FLASH_SFDP_SUPPORT
+	bool "SFDP table parsing support for SPI NOR flashes"
+	depends on !SPI_FLASH_BAR
+	help
+	 Enable support for parsing and auto discovery of parameters for
+	 SPI NOR flashes using Serial Flash Discoverable Parameters (SFDP)
+	 tables as per JESD216 standard.
+
 config SPI_FLASH_BAR
 	bool "SPI flash Bank/Extended address register support"
-	depends on SPI_FLASH
 	help
 	  Enable the SPI flash Bank/Extended address register support.
 	  Bank/Extended address registers are used to access the flash
@@ -44,18 +97,9 @@ config SPI_FLASH_BAR
 
 config SF_DUAL_FLASH
 	bool "SPI DUAL flash memory support"
-	depends on SPI_FLASH
 	help
 	  Enable this option to support two flash memories connected to a single
 	  controller. Currently Xilinx Zynq qspi supports this.
-
-config SPI_GENERIC
-	bool "SPI flash support"
-	depends on ARCH_ZYNQMP || ARCH_VERSAL
-	help
-	  Enable the generic SPI flash controller support.
-
-if SPI_FLASH
 
 config SPI_FLASH_ATMEL
 	bool "Atmel SPI flash support"
@@ -110,15 +154,6 @@ config SPI_FLASH_XMC
 
 endif
 
-config SPI_FLASH_SPLIT_READ
-	bool "Enable split read transfers"
-	help
-	  Some flash devices have multiple dies stacked together in it and in
-	  such cases a single read that spans across mutiple dies will not work
-	  So, enabling this config option splits a read that was requested across
-	  multiple banks into one read per bank so that it fixes the issue with
-	  a read across multple banks.
-
 config SPI_FLASH_USE_4K_SECTORS
 	bool "Use small 4096 B erase sectors"
 	depends on SPI_FLASH
@@ -151,13 +186,21 @@ config SPI_FLASH_DATAFLASH
 
 config SPI_FLASH_MTD
 	bool "SPI Flash MTD support"
-	depends on SPI_FLASH
+	depends on SPI_FLASH && MTD
 	help
           Enable the MTD support for spi flash layer, this adapter is for
 	  translating mtd_read/mtd_write commands into spi_flash_read/write
 	  commands. It is not intended to use it within sf_cmd or the SPI
 	  flash subsystem. Such an adapter is needed for subsystems like
 	  UBI which can only operate on top of the MTD layer.
+
+	  If unsure, say N
+
+config SPL_SPI_FLASH_MTD
+	bool "SPI flash MTD support for SPL"
+	depends on SPI_FLASH
+	help
+          Enable the MTD support for the SPI flash layer in SPL.
 
 	  If unsure, say N
 

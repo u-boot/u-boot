@@ -13,7 +13,6 @@
 #include <configs/ti_am335x_common.h>
 
 /* Using 32K of volatile storage for environment */
-#define CONFIG_ENV_SIZE		0x4000
 
 #define MACH_TYPE_PDU001	5075
 #define CONFIG_MACH_TYPE	MACH_TYPE_PDU001

@@ -131,7 +131,20 @@ static int denali_dt_probe(struct udevice *dev)
 		denali->clk_x_rate = 200000000;
 	}
 
+	ret = reset_get_bulk(dev, &denali->resets);
+	if (ret)
+		dev_warn(dev, "Can't get reset: %d\n", ret);
+	else
+		reset_deassert_bulk(&denali->resets);
+
 	return denali_init(denali);
+}
+
+static int denali_dt_remove(struct udevice *dev)
+{
+	struct denali_nand_info *denali = dev_get_priv(dev);
+
+	return reset_release_bulk(&denali->resets);
 }
 
 U_BOOT_DRIVER(denali_nand_dt) = {
@@ -140,6 +153,8 @@ U_BOOT_DRIVER(denali_nand_dt) = {
 	.of_match = denali_nand_dt_ids,
 	.probe = denali_dt_probe,
 	.priv_auto_alloc_size = sizeof(struct denali_nand_info),
+	.remove = denali_dt_remove,
+	.flags = DM_FLAG_OS_PREPARE,
 };
 
 void board_nand_init(void)

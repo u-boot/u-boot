@@ -4,13 +4,20 @@
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 
-obj-$(CONFIG_$(SPL_TPL_)CLK) += clk-uclass.o clk_fixed_rate.o
+obj-$(CONFIG_$(SPL_TPL_)CLK) += clk-uclass.o
+obj-$(CONFIG_$(SPL_TPL_)CLK) += clk_fixed_rate.o
+obj-$(CONFIG_$(SPL_TPL_)CLK) += clk_fixed_factor.o
+obj-$(CONFIG_$(SPL_TPL_)CLK_CCF) += clk.o clk-divider.o clk-mux.o clk-gate.o
+obj-$(CONFIG_$(SPL_TPL_)CLK_CCF) += clk-fixed-factor.o
+obj-$(CONFIG_$(SPL_TPL_)CLK_COMPOSITE_CCF) += clk-composite.o
 
+obj-y += analogbits/
 obj-y += imx/
 obj-y += tegra/
 obj-$(CONFIG_ARCH_ASPEED) += aspeed/
 obj-$(CONFIG_ARCH_MEDIATEK) += mediatek/
-obj-$(CONFIG_ARCH_MESON) += clk_meson.o clk_meson_axg.o
+obj-$(CONFIG_ARCH_MTMIPS) += mtmips/
+obj-$(CONFIG_ARCH_MESON) += meson/
 obj-$(CONFIG_ARCH_ROCKCHIP) += rockchip/
 obj-$(CONFIG_ARCH_SOCFPGA) += altera/
 obj-$(CONFIG_CLK_AT91) += at91/
@@ -22,6 +29,8 @@ obj-$(CONFIG_CLK_HSDK) += clk-hsdk-cgu.o
 obj-$(CONFIG_CLK_MPC83XX) += mpc83xx_clk.o
 obj-$(CONFIG_CLK_OWL) += owl/
 obj-$(CONFIG_CLK_RENESAS) += renesas/
+obj-$(CONFIG_CLK_SIFIVE) += sifive/
+obj-$(CONFIG_ARCH_SUNXI) += sunxi/
 obj-$(CONFIG_CLK_STM32F) += clk_stm32f.o
 obj-$(CONFIG_CLK_STM32MP1) += clk_stm32mp1.o
 obj-$(CONFIG_CLK_UNIPHIER) += uniphier/
@@ -32,6 +41,8 @@ obj-$(CONFIG_ICS8N3QV01) += ics8n3qv01.o
 obj-$(CONFIG_MACH_PIC32) += clk_pic32.o
 obj-$(CONFIG_SANDBOX) += clk_sandbox.o
 obj-$(CONFIG_SANDBOX) += clk_sandbox_test.o
+obj-$(CONFIG_SANDBOX_CLK_CCF) += clk_sandbox_ccf.o
 obj-$(CONFIG_STM32H7) += clk_stm32h7.o
 obj-$(CONFIG_CLK_TI_SCI) += clk-ti-sci.o
 obj-$(CONFIG_CLK_VERSAL) += clk_versal.o
+obj-$(CONFIG_CLK_CDCE9XX) += clk-cdce9xx.o

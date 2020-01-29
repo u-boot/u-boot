@@ -21,6 +21,7 @@
  */
 
 #include <common.h>
+#include <irq_func.h>
 
 __weak void reset_misc(void)
 {

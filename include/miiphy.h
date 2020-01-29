@@ -118,4 +118,85 @@ int bb_miiphy_write(struct mii_dev *miidev, int addr, int devad, int reg,
 #define ESTATUS_1000XF		0x8000
 #define ESTATUS_1000XH		0x4000
 
+#ifdef CONFIG_DM_MDIO
+
+/**
+ * struct mdio_perdev_priv - Per-device class data for MDIO DM
+ *
+ * @mii_bus: Supporting MII legacy bus
+ */
+struct mdio_perdev_priv {
+	struct mii_dev *mii_bus;
+};
+
+/**
+ * struct mdio_ops - MDIO bus operations
+ *
+ * @read: Read from a PHY register
+ * @write: Write to a PHY register
+ * @reset: Reset the MDIO bus, NULL if not supported
+ */
+struct mdio_ops {
+	int (*read)(struct udevice *mdio_dev, int addr, int devad, int reg);
+	int (*write)(struct udevice *mdio_dev, int addr, int devad, int reg,
+		     u16 val);
+	int (*reset)(struct udevice *mdio_dev);
+};
+
+#define mdio_get_ops(dev) ((struct mdio_ops *)(dev)->driver->ops)
+
+/**
+ * dm_mdio_probe_devices - Call probe on all MII devices, currently used for
+ * MDIO console commands.
+ */
+void dm_mdio_probe_devices(void);
+
+/**
+ * dm_mdio_phy_connect - Wrapper over phy_connect for DM MDIO
+ *
+ * @mdiodev: mdio device the PHY is accesible on
+ * @phyaddr: PHY address on MDIO bus
+ * @ethdev: ethernet device to connect to the PHY
+ * @interface: MAC-PHY protocol
+ *
+ * @return pointer to phy_device, or 0 on error
+ */
+struct phy_device *dm_mdio_phy_connect(struct udevice *mdiodev, int phyaddr,
+				       struct udevice *ethdev,
+				       phy_interface_t interface);
+
+/**
+ * dm_eth_phy_connect - Connect an Eth device to a PHY based on device tree
+ *
+ * Picks up the DT phy-handle and phy-mode from ethernet device node and
+ * connects the ethernet device to the linked PHY.
+ *
+ * @ethdev: ethernet device
+ *
+ * @return pointer to phy_device, or 0 on error
+ */
+struct phy_device *dm_eth_phy_connect(struct udevice *ethdev);
+
+#endif
+
+#ifdef CONFIG_DM_MDIO_MUX
+
+/* indicates none of the child buses is selected */
+#define MDIO_MUX_SELECT_NONE	-1
+
+/**
+ * struct mdio_mux_ops - MDIO MUX operations
+ *
+ * @select: Selects a child bus
+ * @deselect: Clean up selection.  Optional, can be NULL
+ */
+struct mdio_mux_ops {
+	int (*select)(struct udevice *mux, int cur, int sel);
+	int (*deselect)(struct udevice *mux, int sel);
+};
+
+#define mdio_mux_get_ops(dev) ((struct mdio_mux_ops *)(dev)->driver->ops)
+
+#endif
+
 #endif

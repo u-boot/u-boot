@@ -9,10 +9,13 @@
  */
 
 #include <common.h>
+#include <env.h>
+#include <init.h>
 #include <miiphy.h>
 #include <input.h>
 #include <mmc.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
+#include <serial.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <linux/sizes.h>
@@ -41,81 +44,6 @@ int dram_init(void)
 	return 0;
 }
 
-static iomux_v3_cfg_t const uart1_pads[] = {
-	MX6_PAD_SD3_DAT7__UART1_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_SD3_DAT6__UART1_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
-};
-
-static iomux_v3_cfg_t const uart2_pads[] = {
-	MX6_PAD_SD4_DAT4__UART2_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_SD4_DAT5__UART2_RTS_B | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_SD4_DAT6__UART2_CTS_B | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_SD4_DAT7__UART2_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
-};
-
-static iomux_v3_cfg_t const uart3_pads[] = {
-	MX6_PAD_EIM_D23__UART3_CTS_B | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_EIM_D24__UART3_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_EIM_D25__UART3_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_EIM_EB3__UART3_RTS_B | MUX_PAD_CTRL(UART_PAD_CTRL),
-};
-
-static void fixup_enet_clock(void)
-{
-	struct iomuxc *iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
-	struct gpio_desc nint;
-	struct gpio_desc reset;
-	int ret;
-
-	/* Set Ref Clock to 50 MHz */
-	enable_fec_anatop_clock(0, ENET_50MHZ);
-
-	/* Set GPIO_16 as ENET_REF_CLK_OUT */
-	setbits_le32(&iomuxc_regs->gpr[1], IOMUXC_GPR1_ENET_CLK_SEL_MASK);
-
-	/* Request GPIO Pins to reset Ethernet with new clock */
-	ret = dm_gpio_lookup_name("GPIO4_7", &nint);
-	if (ret) {
-		printf("Unable to lookup GPIO4_7\n");
-		return;
-	}
-
-	ret = dm_gpio_request(&nint, "eth0_nInt");
-	if (ret) {
-		printf("Unable to request eth0_nInt\n");
-		return;
-	}
-
-	/* Ensure nINT is input or PHY won't startup */
-	dm_gpio_set_dir_flags(&nint, GPIOD_IS_IN);
-
-	ret = dm_gpio_lookup_name("GPIO4_9", &reset);
-	if (ret) {
-		printf("Unable to lookup GPIO4_9\n");
-		return;
-	}
-
-	ret = dm_gpio_request(&reset, "eth0_reset");
-	if (ret) {
-		printf("Unable to request eth0_reset\n");
-		return;
-	}
-
-	/* Reset LAN8710A PHY */
-	dm_gpio_set_dir_flags(&reset, GPIOD_IS_OUT);
-	dm_gpio_set_value(&reset, 0);
-	udelay(150);
-	dm_gpio_set_value(&reset, 1);
-	mdelay(50);
-}
-
-static void setup_iomux_uart(void)
-{
-	imx_iomux_v3_setup_multiple_pads(uart1_pads, ARRAY_SIZE(uart1_pads));
-	imx_iomux_v3_setup_multiple_pads(uart2_pads, ARRAY_SIZE(uart2_pads));
-	imx_iomux_v3_setup_multiple_pads(uart3_pads, ARRAY_SIZE(uart3_pads));
-}
-
 static iomux_v3_cfg_t const nand_pads[] = {
 	MX6_PAD_NANDF_CS0__NAND_CE0_B | MUX_PAD_CTRL(NAND_PAD_CTRL),
 	MX6_PAD_NANDF_ALE__NAND_ALE  | MUX_PAD_CTRL(NAND_PAD_CTRL),
@@ -139,8 +67,33 @@ static void setup_nand_pins(void)
 	imx_iomux_v3_setup_multiple_pads(nand_pads, ARRAY_SIZE(nand_pads));
 }
 
+static int ar8031_phy_fixup(struct phy_device *phydev)
+{
+	unsigned short val;
+
+	/* To enable AR8031 output a 125MHz clk from CLK_25M */
+	phy_write(phydev, MDIO_DEVAD_NONE, 0xd, 0x7);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0xe, 0x8016);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0xd, 0x4007);
+
+	val = phy_read(phydev, MDIO_DEVAD_NONE, 0xe);
+	val &= 0xffe3;
+	val |= 0x18;
+	phy_write(phydev, MDIO_DEVAD_NONE, 0xe, val);
+
+	/* introduce tx clock delay */
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x5);
+	val = phy_read(phydev, MDIO_DEVAD_NONE, 0x1e);
+	val |= 0x0100;
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, val);
+
+	return 0;
+}
+
 int board_phy_config(struct phy_device *phydev)
 {
+	ar8031_phy_fixup(phydev);
+
 	if (phydev->drv->config)
 		phydev->drv->config(phydev);
 
@@ -158,8 +111,6 @@ int overwrite_console(void)
 
 int board_early_init_f(void)
 {
-	fixup_enet_clock();
-	setup_iomux_uart();
 	setup_nand_pins();
 	return 0;
 }
@@ -177,7 +128,8 @@ int board_late_init(void)
 
 	if (is_mx6dq()) {
 		env_set("board_rev", "MX6DQ");
-		env_set("fdt_file", "imx6q-logicpd.dtb");
+		if (!env_get("fdt_file"))
+			env_set("fdt_file", "imx6q-logicpd.dtb");
 	}
 
 	return 0;
@@ -199,6 +151,55 @@ int spl_start_uboot(void)
 	return 0;
 }
 #endif
+
+void board_boot_order(u32 *spl_boot_list)
+{
+	struct src *psrc = (struct src *)SRC_BASE_ADDR;
+	unsigned int reg = readl(&psrc->sbmr1) >> 11;
+	u32 boot_mode = imx6_src_get_boot_mode() & IMX6_BMODE_MASK;
+	unsigned int bmode = readl(&src_base->sbmr2);
+
+	/* If bmode is serial or USB phy is active, return serial */
+	if (((bmode >> 24) & 0x03) == 0x01 || is_usbotg_phy_active()) {
+		spl_boot_list[0] = BOOT_DEVICE_BOARD;
+		return;
+	}
+
+	switch (boot_mode >> IMX6_BMODE_SHIFT) {
+	case IMX6_BMODE_NAND_MIN ... IMX6_BMODE_NAND_MAX:
+		spl_boot_list[0] = BOOT_DEVICE_NAND;
+		break;
+	case IMX6_BMODE_SD:
+	case IMX6_BMODE_ESD:
+	case IMX6_BMODE_MMC:
+	case IMX6_BMODE_EMMC:
+		/*
+		 * Upon reading BOOT_CFG register the following map is done:
+		 * Bit 11 and 12 of BOOT_CFG register can determine the current
+		 * mmc port
+		 * 0x1                  SD1-SOM
+		 * 0x2                  SD2-Baseboard
+		 */
+
+		reg &= 0x3; /* Only care about bottom 2 bits */
+		switch (reg) {
+		case 0:
+			spl_boot_list[0] = BOOT_DEVICE_MMC1;
+			break;
+		case 1:
+			spl_boot_list[0] = BOOT_DEVICE_MMC2;
+			break;
+		}
+		break;
+	default:
+		/* By default use USB downloader */
+		spl_boot_list[0] = BOOT_DEVICE_BOARD;
+		break;
+	}
+
+	/* As a last resort, use serial downloader */
+	spl_boot_list[1] = BOOT_DEVICE_BOARD;
+}
 
 static void ccgr_init(void)
 {
@@ -313,13 +314,10 @@ void board_init_f(ulong dummy)
 	/* setup GP timer */
 	timer_init();
 
+	/* Enable device tree and early DM support*/
+	spl_early_init();
+
 	/* UART clocks enabled and gd valid - init serial console */
 	preloader_console_init();
-
-	/* Clear the BSS. */
-	memset(__bss_start, 0, __bss_end - __bss_start);
-
-	/* load/boot image from boot device */
-	board_init_r(NULL, 0);
 }
 #endif

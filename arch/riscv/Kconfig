@@ -11,18 +11,52 @@ choice
 config TARGET_AX25_AE350
 	bool "Support ax25-ae350"
 
+config TARGET_MICROCHIP_ICICLE
+	bool "Support Microchip PolarFire-SoC Icicle Board"
+
 config TARGET_QEMU_VIRT
 	bool "Support QEMU Virt Board"
 
+config TARGET_SIFIVE_FU540
+	bool "Support SiFive FU540 Board"
+
 endchoice
+
+config SYS_ICACHE_OFF
+	bool "Do not enable icache"
+	default n
+	help
+	  Do not enable instruction cache in U-Boot.
+
+config SPL_SYS_ICACHE_OFF
+	bool "Do not enable icache in SPL"
+	depends on SPL
+	default SYS_ICACHE_OFF
+	help
+	  Do not enable instruction cache in SPL.
+
+config SYS_DCACHE_OFF
+	bool "Do not enable dcache"
+	default n
+	help
+	  Do not enable data cache in U-Boot.
+
+config SPL_SYS_DCACHE_OFF
+	bool "Do not enable dcache in SPL"
+	depends on SPL
+	default SYS_DCACHE_OFF
+	help
+	  Do not enable data cache in SPL.
 
 # board-specific options below
 source "board/AndesTech/ax25-ae350/Kconfig"
 source "board/emulation/qemu-riscv/Kconfig"
+source "board/microchip/mpfs_icicle/Kconfig"
+source "board/sifive/fu540/Kconfig"
 
 # platform-specific options below
 source "arch/riscv/cpu/ax25/Kconfig"
-source "arch/riscv/cpu/qemu/Kconfig"
+source "arch/riscv/cpu/generic/Kconfig"
 
 # architecture-specific options below
 
@@ -79,6 +113,23 @@ config RISCV_SMODE
 
 endchoice
 
+choice
+	prompt "SPL Run Mode"
+	default SPL_RISCV_MMODE
+	depends on SPL
+
+config SPL_RISCV_MMODE
+	bool "Machine"
+	help
+	  Choose this option to build U-Boot SPL for RISC-V M-Mode.
+
+config SPL_RISCV_SMODE
+	bool "Supervisor"
+	help
+	  Choose this option to build U-Boot SPL for RISC-V S-Mode.
+
+endchoice
+
 config RISCV_ISA_C
 	bool "Emit compressed instructions"
 	default y
@@ -98,16 +149,40 @@ config 64BIT
 
 config SIFIVE_CLINT
 	bool
-	depends on RISCV_MMODE
+	depends on RISCV_MMODE || SPL_RISCV_MMODE
 	select REGMAP
 	select SYSCON
+	select SPL_REGMAP if SPL
+	select SPL_SYSCON if SPL
 	help
 	  The SiFive CLINT block holds memory-mapped control and status registers
 	  associated with software and timer interrupts.
 
+config ANDES_PLIC
+	bool
+	depends on RISCV_MMODE || SPL_RISCV_MMODE
+	select REGMAP
+	select SYSCON
+	select SPL_REGMAP if SPL
+	select SPL_SYSCON if SPL
+	help
+	  The Andes PLIC block holds memory-mapped claim and pending registers
+	  associated with software interrupt.
+
+config ANDES_PLMT
+	bool
+	depends on RISCV_MMODE || SPL_RISCV_MMODE
+	select REGMAP
+	select SYSCON
+	select SPL_REGMAP if SPL
+	select SPL_SYSCON if SPL
+	help
+	  The Andes PLMT block holds memory-mapped mtime register
+	  associated with timer tick.
+
 config RISCV_RDTIME
 	bool
-	default y if RISCV_SMODE
+	default y if RISCV_SMODE || SPL_RISCV_SMODE
 	help
 	  The provides the riscv_get_time() API that is implemented using the
 	  standard rdtime instruction. This is the case for S-mode U-Boot, and
@@ -115,5 +190,43 @@ config RISCV_RDTIME
 
 config SYS_MALLOC_F_LEN
 	default 0x1000
+
+config SMP
+	bool "Symmetric Multi-Processing"
+	help
+	  This enables support for systems with more than one CPU. If
+	  you say N here, U-Boot will run on single and multiprocessor
+	  machines, but will use only one CPU of a multiprocessor
+	  machine. If you say Y here, U-Boot will run on many, but not
+	  all, single processor machines.
+
+config NR_CPUS
+	int "Maximum number of CPUs (2-32)"
+	range 2 32
+	depends on SMP
+	default 8
+	help
+	  On multiprocessor machines, U-Boot sets up a stack for each CPU.
+	  Stack memory is pre-allocated. U-Boot must therefore know the
+	  maximum number of CPUs that may be present.
+
+config SBI_IPI
+	bool
+	default y if RISCV_SMODE || SPL_RISCV_SMODE
+	depends on SMP
+
+config XIP
+	bool "XIP mode"
+	help
+	  XIP (eXecute In Place) is a method for executing code directly
+	  from a NOR flash memory without copying the code to ram.
+	  Say yes here if U-Boot boots from flash directly.
+
+config STACK_SIZE_SHIFT
+	int
+	default 14
+
+config SPL_LDSCRIPT
+	default "arch/riscv/cpu/u-boot-spl.lds"
 
 endmenu

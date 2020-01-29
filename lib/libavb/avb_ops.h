@@ -18,6 +18,7 @@ extern "C" {
 
 /* Well-known names of named persistent values. */
 #define AVB_NPV_PERSISTENT_DIGEST_PREFIX "avb.persistent_digest."
+#define AVB_NPV_MANAGED_VERITY_MODE "avb.managed_verity_mode"
 
 /* Return codes used for I/O operations.
  *
@@ -171,6 +172,10 @@ struct AvbOps {
    *
    * If AVB_IO_RESULT_OK is returned then |out_is_trusted| is set -
    * true if trusted or false if untrusted.
+   *
+   * NOTE: If AVB_SLOT_VERIFY_FLAGS_NO_VBMETA_PARTITION is passed to
+   * avb_slot_verify() then this operation is never used. Instead, the
+   * validate_public_key_for_partition() operation is used
    */
   AvbIOResult (*validate_vbmeta_public_key)(AvbOps* ops,
                                             const uint8_t* public_key_data,
@@ -231,6 +236,9 @@ struct AvbOps {
    * (NUL-terminated UTF-8 string). Returns the value in
    * |out_size_num_bytes|.
    *
+   * If the partition doesn't exist the AVB_IO_RESULT_ERROR_NO_SUCH_PARTITION
+   * error code should be returned.
+   *
    * Returns AVB_IO_RESULT_OK on success, otherwise an error code.
    */
   AvbIOResult (*get_size_of_partition)(AvbOps* ops,
@@ -253,9 +261,10 @@ struct AvbOps {
    * AVB_IO_RESULT_ERROR_NO_SUCH_VALUE. If |buffer_size| is smaller than the
    * size of the stored value, returns AVB_IO_RESULT_ERROR_INSUFFICIENT_SPACE.
    *
-   * This operation is currently only used to support persistent digests. If a
-   * device does not use persistent digests this function pointer can be set to
-   * NULL.
+   * This operation is currently only used to support persistent digests or the
+   * AVB_HASHTREE_ERROR_MODE_MANAGED_RESTART_AND_EIO hashtree error mode. If a
+   * device does not use one of these features this function pointer can be set
+   * to NULL.
    */
   AvbIOResult (*read_persistent_value)(AvbOps* ops,
                                        const char* name,
@@ -275,14 +284,34 @@ struct AvbOps {
    * AVB_IO_RESULT_ERROR_NO_SUCH_VALUE. If the |value_size| is not supported,
    * returns AVB_IO_RESULT_ERROR_INVALID_VALUE_SIZE.
    *
-   * This operation is currently only used to support persistent digests. If a
-   * device does not use persistent digests this function pointer can be set to
-   * NULL.
+   * This operation is currently only used to support persistent digests or the
+   * AVB_HASHTREE_ERROR_MODE_MANAGED_RESTART_AND_EIO hashtree error mode. If a
+   * device does not use one of these features this function pointer can be set
+   * to NULL.
    */
   AvbIOResult (*write_persistent_value)(AvbOps* ops,
                                         const char* name,
                                         size_t value_size,
                                         const uint8_t* value);
+
+  /* Like validate_vbmeta_public_key() but for when the flag
+   * AVB_SLOT_VERIFY_FLAGS_NO_VBMETA_PARTITION is being used. The name of the
+   * partition to get the public key for is passed in |partition_name|.
+   *
+   * Also returns the rollback index location to use for the partition, in
+   * |out_rollback_index_location|.
+   *
+   * Returns AVB_IO_RESULT_OK on success, otherwise an error code.
+   */
+  AvbIOResult (*validate_public_key_for_partition)(
+      AvbOps* ops,
+      const char* partition,
+      const uint8_t* public_key_data,
+      size_t public_key_length,
+      const uint8_t* public_key_metadata,
+      size_t public_key_metadata_length,
+      bool* out_is_trusted,
+      uint32_t* out_rollback_index_location);
 };
 
 #ifdef __cplusplus

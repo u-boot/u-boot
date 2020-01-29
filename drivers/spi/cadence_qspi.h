@@ -7,6 +7,8 @@
 #ifndef __CADENCE_QSPI_H__
 #define __CADENCE_QSPI_H__
 
+#include <reset.h>
+
 #define CQSPI_IS_ADDR(cmd_len)		(cmd_len > 1 ? 1 : 0)
 
 #define CQSPI_NO_DECODER_MAX_CS		4
@@ -61,6 +63,7 @@
 
 #define CQSPI_REG_WR_INSTR                      0x08
 #define CQSPI_REG_WR_INSTR_OPCODE_LSB           0
+#define CQSPI_REG_WR_INSTR_TYPE_DATA_LSB	16
 
 #define CQSPI_REG_DELAY                         0x0C
 #define CQSPI_REG_DELAY_TSLCH_LSB               0
@@ -181,6 +184,7 @@
 	CQSPI_REG_SDRAMLEVEL_WR_LSB) & CQSPI_REG_SDRAMLEVEL_WR_MASK)
 
 struct cadence_spi_platdata {
+	unsigned int	ref_clk_hz;
 	unsigned int	max_hz;
 	void		*regbase;
 	void		*ahbbase;
@@ -211,6 +215,8 @@ struct cadence_spi_priv {
 	unsigned int	qspi_calibrated_hz;
 	unsigned int	qspi_calibrated_cs;
 	unsigned int	previous_hz;
+
+	struct reset_ctl_bulk resets;
 };
 
 /* Functions call declaration */
@@ -229,7 +235,7 @@ int cadence_qspi_apb_indirect_read_setup(struct cadence_spi_platdata *plat,
 int cadence_qspi_apb_indirect_read_execute(struct cadence_spi_platdata *plat,
 	unsigned int rxlen, u8 *rxbuf);
 int cadence_qspi_apb_indirect_write_setup(struct cadence_spi_platdata *plat,
-	unsigned int cmdlen, const u8 *cmdbuf);
+	unsigned int cmdlen, unsigned int tx_width, const u8 *cmdbuf);
 int cadence_qspi_apb_indirect_write_execute(struct cadence_spi_platdata *plat,
 	unsigned int txlen, const u8 *txbuf);
 

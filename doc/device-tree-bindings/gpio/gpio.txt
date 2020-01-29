@@ -210,3 +210,63 @@ Example 2:
 Here, three GPIO ranges are defined wrt. two pin controllers. pinctrl1 GPIO
 ranges are defined using pin numbers whereas the GPIO ranges wrt. pinctrl2
 are named "foo" and "bar".
+
+3) GPIO hog definitions
+-----------------------
+
+The GPIO chip may contain GPIO hog definitions. GPIO hogging is a mechanism
+providing automatic GPIO request and configuration as part of the
+gpio-controller's driver probe function.
+
+Each GPIO hog definition is represented as a child node of the GPIO controller.
+Required properties:
+- gpio-hog:   A property specifying that this child node represents a GPIO hog.
+- gpios:      Store the GPIO information (id, flags) for the GPIO to
+	      affect.
+
+              ! Not yet support more than one gpio !
+
+Only one of the following properties scanned in the order shown below.
+- input:      A property specifying to set the GPIO direction as input.
+- output-low  A property specifying to set the GPIO direction as output with
+	      the value low.
+- output-high A property specifying to set the GPIO direction as output with
+	      the value high.
+
+Optional properties:
+- line-name:  The GPIO label name. If not present the node name is used.
+
+Example:
+
+        tca6416@20 {
+                compatible = "ti,tca6416";
+                reg = <0x20>;
+                #gpio-cells = <2>;
+                gpio-controller;
+
+                env_reset {
+                        gpio-hog;
+                        input;
+                        gpios = <6 GPIO_ACTIVE_LOW>;
+                };
+                boot_rescue {
+                        gpio-hog;
+                        input;
+                        line-name = "foo-bar-gpio";
+                        gpios = <7 GPIO_ACTIVE_LOW>;
+                };
+        };
+
+For the above Example you can than access the gpio in your boardcode
+with:
+
+	struct gpio_desc *desc;
+	int ret;
+
+	ret = gpio_hog_lookup_name("boot_rescue", &desc);
+	if (ret)
+		return;
+	if (dm_gpio_get_value(desc) == 1)
+		printf("\nBooting into Rescue System\n");
+	else if (dm_gpio_get_value(desc) == 0)
+		printf("\nBoot normal\n");

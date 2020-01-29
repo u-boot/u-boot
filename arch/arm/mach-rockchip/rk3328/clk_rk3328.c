@@ -5,8 +5,8 @@
 
 #include <common.h>
 #include <dm.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/cru_rk3328.h>
+#include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/cru_rk3328.h>
 
 int rockchip_get_clk(struct udevice **devp)
 {

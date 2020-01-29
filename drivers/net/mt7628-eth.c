@@ -14,26 +14,16 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <malloc.h>
 #include <miiphy.h>
 #include <net.h>
-#include <regmap.h>
-#include <syscon.h>
+#include <reset.h>
 #include <wait_bit.h>
 #include <asm/io.h>
 #include <linux/bitfield.h>
 #include <linux/err.h>
-
-/* System controller register */
-#define MT7628_RSTCTRL_REG	0x34
-#define RSTCTRL_EPHY_RST	BIT(24)
-
-#define MT7628_AGPIO_CFG_REG	0x3c
-#define MT7628_EPHY_GPIO_AIO_EN	GENMASK(20, 17)
-#define MT7628_EPHY_P0_DIS	BIT(16)
-
-#define MT7628_GPIO2_MODE_REG	0x64
 
 /* Ethernet frame engine register */
 #define PDMA_RELATED		0x0800
@@ -68,6 +58,11 @@
 /* Ethernet switch register */
 #define MT7628_SWITCH_FCT0	0x0008
 #define MT7628_SWITCH_PFC1	0x0014
+#define MT7628_SWITCH_PVIDC0	0x0040
+#define MT7628_SWITCH_PVIDC1	0x0044
+#define MT7628_SWITCH_PVIDC2	0x0048
+#define MT7628_SWITCH_PVIDC3	0x004c
+#define MT7628_SWITCH_VMSC0	0x0070
 #define MT7628_SWITCH_FPA	0x0084
 #define MT7628_SWITCH_SOCPC	0x008c
 #define MT7628_SWITCH_POC0	0x0090
@@ -122,6 +117,7 @@ struct fe_tx_dma {
 
 #define NUM_RX_DESC		256
 #define NUM_TX_DESC		4
+#define NUM_PHYS		5
 
 #define PADDING_LENGTH		60
 
@@ -131,13 +127,9 @@ struct fe_tx_dma {
 #define CONFIG_DMA_STOP_TIMEOUT	100
 #define CONFIG_TX_DMA_TIMEOUT	100
 
-#define LINK_DELAY_TIME		500		/* 500 ms */
-#define LINK_TIMEOUT		10000		/* 10 seconds */
-
 struct mt7628_eth_dev {
 	void __iomem *base;		/* frame engine base address */
 	void __iomem *eth_sw_base;	/* switch base address */
-	struct regmap *sysctrl_regmap;	/* system-controller reg-map */
 
 	struct mii_dev *bus;
 
@@ -150,7 +142,15 @@ struct mt7628_eth_dev {
 	int rx_dma_idx;
 	/* Point to the next TXD in TXD Ring0 CPU wants to use */
 	int tx_dma_idx;
+
+	struct reset_ctl	rst_ephy;
+
+	struct phy_device *phy;
+
+	int wan_port;
 };
+
+static int mt7628_eth_free_pkt(struct udevice *dev, uchar *packet, int length);
 
 static int mdio_wait_read(struct mt7628_eth_dev *priv, u32 mask, bool mask_set)
 {
@@ -280,6 +280,9 @@ static void mt7628_ephy_init(struct mt7628_eth_dev *priv)
 static void rt305x_esw_init(struct mt7628_eth_dev *priv)
 {
 	void __iomem *base = priv->eth_sw_base;
+	void __iomem *reg;
+	u32 val = 0, pvid;
+	int i;
 
 	/*
 	 * FC_RLS_TH=200, FC_SET_TH=160
@@ -301,20 +304,28 @@ static void rt305x_esw_init(struct mt7628_eth_dev *priv)
 	/* 1us cycle number=125 (FE's clock=125Mhz) */
 	writel(0x7d000000, base + MT7628_SWITCH_BMU_CTRL);
 
-	/* Configure analog GPIO setup */
-	regmap_update_bits(priv->sysctrl_regmap, MT7628_AGPIO_CFG_REG,
-			   MT7628_EPHY_P0_DIS, MT7628_EPHY_GPIO_AIO_EN);
+	/* LAN/WAN partition, WAN port will be unusable in u-boot network */
+	if (priv->wan_port >= 0 && priv->wan_port < 6) {
+		for (i = 0; i < 8; i++) {
+			pvid = i == priv->wan_port ? 2 : 1;
+			reg = base + MT7628_SWITCH_PVIDC0 + (i / 2) * 4;
+			if (i % 2 == 0) {
+				val = pvid;
+			} else {
+				val |= (pvid << 12);
+				writel(val, reg);
+			}
+		}
+
+		val = 0xffff407f;
+		val |= 1 << (8 + priv->wan_port);
+		val &= ~(1 << priv->wan_port);
+		writel(val, base + MT7628_SWITCH_VMSC0);
+	}
 
 	/* Reset PHY */
-	regmap_update_bits(priv->sysctrl_regmap, MT7628_RSTCTRL_REG,
-			   0, RSTCTRL_EPHY_RST);
-	regmap_update_bits(priv->sysctrl_regmap, MT7628_RSTCTRL_REG,
-			   RSTCTRL_EPHY_RST, 0);
-	mdelay(10);
-
-	/* Set P0 EPHY LED mode */
-	regmap_update_bits(priv->sysctrl_regmap, MT7628_GPIO2_MODE_REG,
-			   0x0ffc0ffc, 0x05540554);
+	reset_assert(&priv->rst_ephy);
+	reset_deassert(&priv->rst_ephy);
 	mdelay(10);
 
 	mt7628_ephy_init(priv);
@@ -424,6 +435,7 @@ static int mt7628_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 	length = FIELD_GET(RX_DMA_PLEN0, priv->rx_ring[idx].rxd2);
 	if (length == 0 || length > MTK_QDMA_PAGE_SIZE) {
 		printf("%s: invalid length (%d bytes)\n", __func__, length);
+		mt7628_eth_free_pkt(dev, NULL, 0);
 		return -EIO;
 	}
 
@@ -458,20 +470,13 @@ static int mt7628_eth_free_pkt(struct udevice *dev, uchar *packet, int length)
 	return 0;
 }
 
-static int phy_link_up(struct mt7628_eth_dev *priv)
-{
-	u32 val;
-
-	mii_mgr_read(priv, 0x00, MII_BMSR, &val);
-	return !!(val & BMSR_LSTATUS);
-}
-
 static int mt7628_eth_start(struct udevice *dev)
 {
 	struct mt7628_eth_dev *priv = dev_get_priv(dev);
 	void __iomem *base = priv->base;
 	uchar packet[MTK_QDMA_PAGE_SIZE];
 	uchar *packetp;
+	int ret;
 	int i;
 
 	for (i = 0; i < NUM_RX_DESC; i++) {
@@ -514,25 +519,13 @@ static int mt7628_eth_start(struct udevice *dev)
 	wmb();
 	eth_dma_start(priv);
 
-	/* Check if link is not up yet */
-	if (!phy_link_up(priv)) {
-		/* Wait for link to come up */
+	if (priv->phy) {
+		ret = phy_startup(priv->phy);
+		if (ret)
+			return ret;
 
-		printf("Waiting for link to come up .");
-		for (i = 0; i < (LINK_TIMEOUT / LINK_DELAY_TIME); i++) {
-			mdelay(LINK_DELAY_TIME);
-			if (phy_link_up(priv)) {
-				mdelay(100);	/* Ensure all is ready */
-				break;
-			}
-
-			printf(".");
-		}
-
-		if (phy_link_up(priv))
-			printf(" done\n");
-		else
-			printf(" timeout! Trying anyways\n");
+		if (!priv->phy->link)
+			return -EAGAIN;
 	}
 
 	/*
@@ -558,8 +551,8 @@ static void mt7628_eth_stop(struct udevice *dev)
 static int mt7628_eth_probe(struct udevice *dev)
 {
 	struct mt7628_eth_dev *priv = dev_get_priv(dev);
-	struct udevice *syscon;
 	struct mii_dev *bus;
+	int poll_link_phy;
 	int ret;
 	int i;
 
@@ -573,19 +566,15 @@ static int mt7628_eth_probe(struct udevice *dev)
 	if (IS_ERR(priv->eth_sw_base))
 		return PTR_ERR(priv->eth_sw_base);
 
-	/* Get system controller regmap */
-	ret = uclass_get_device_by_phandle(UCLASS_SYSCON, dev,
-					   "syscon", &syscon);
+	/* Reset controller */
+	ret = reset_get_by_name(dev, "ephy", &priv->rst_ephy);
 	if (ret) {
-		pr_err("unable to find syscon device\n");
+		pr_err("unable to find reset controller for ethernet PHYs\n");
 		return ret;
 	}
 
-	priv->sysctrl_regmap = syscon_get_regmap(syscon);
-	if (!priv->sysctrl_regmap) {
-		pr_err("unable to find regmap\n");
-		return -ENODEV;
-	}
+	/* WAN port will be isolated from LAN ports */
+	priv->wan_port = dev_read_u32_default(dev, "mediatek,wan-port", -1);
 
 	/* Put rx and tx rings into KSEG1 area (uncached) */
 	priv->tx_ring = (struct fe_tx_dma *)
@@ -612,6 +601,25 @@ static int mt7628_eth_probe(struct udevice *dev)
 	ret = mdio_register(bus);
 	if (ret)
 		return ret;
+
+	poll_link_phy = dev_read_u32_default(dev, "mediatek,poll-link-phy", -1);
+	if (poll_link_phy >= 0) {
+		if (poll_link_phy >= NUM_PHYS) {
+			pr_err("invalid phy %d for poll-link-phy\n",
+			       poll_link_phy);
+			return ret;
+		}
+
+		priv->phy = phy_connect(bus, poll_link_phy, dev,
+					PHY_INTERFACE_MODE_MII);
+		if (!priv->phy) {
+			pr_err("failed to probe phy %d\n", poll_link_phy);
+			return -ENODEV;
+		}
+
+		priv->phy->advertising = priv->phy->supported;
+		phy_config(priv->phy);
+	}
 
 	/* Switch configuration */
 	rt305x_esw_init(priv);

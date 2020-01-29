@@ -75,9 +75,10 @@
 
 #define __U_BOOT__
 #ifdef __U_BOOT__
+#include <common.h>         /* readline */
+#include <env.h>
 #include <malloc.h>         /* malloc, free, realloc*/
 #include <linux/ctype.h>    /* isalpha, isdigit */
-#include <common.h>        /* readline */
 #include <console.h>
 #include <bootretry.h>
 #include <cli.h>

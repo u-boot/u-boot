@@ -7,6 +7,7 @@
 #define _BCM2835_MBOX_H
 
 #include <linux/compiler.h>
+#include <asm/arch/base.h>
 
 /*
  * The BCM2835 SoC contains (at least) two CPUs; the VideoCore (a/k/a "GPU")
@@ -37,18 +38,18 @@
 
 /* Raw mailbox HW */
 
-#ifndef CONFIG_BCM2835
-#define BCM2835_MBOX_PHYSADDR	0x3f00b880
-#else
-#define BCM2835_MBOX_PHYSADDR	0x2000b880
-#endif
+#define BCM2835_MBOX_PHYSADDR ({ BUG_ON(!rpi_bcm283x_base); \
+				 rpi_bcm283x_base + 0x0000b880; })
 
 struct bcm2835_mbox_regs {
 	u32 read;
 	u32 rsvd0[5];
-	u32 status;
-	u32 config;
+	u32 mail0_status;
+	u32 mail0_config;
 	u32 write;
+	u32 rsvd1[5];
+	u32 mail1_status;
+	u32 mail1_config;
 };
 
 #define BCM2835_MBOX_STATUS_WR_FULL	0x80000000
@@ -234,6 +235,7 @@ struct bcm2835_mbox_tag_set_power_state {
 #define BCM2835_MBOX_CLOCK_ID_SDRAM	8
 #define BCM2835_MBOX_CLOCK_ID_PIXEL	9
 #define BCM2835_MBOX_CLOCK_ID_PWM	10
+#define BCM2835_MBOX_CLOCK_ID_EMMC2	12
 
 struct bcm2835_mbox_tag_get_clock_rate {
 	struct bcm2835_mbox_tag_hdr tag_hdr;
@@ -348,7 +350,7 @@ struct bcm2835_mbox_tag_depth {
 };
 
 #define BCM2835_MBOX_TAG_GET_PIXEL_ORDER	0x00040006
-#define BCM2835_MBOX_TAG_TEST_PIXEL_ORDER	0x00044005
+#define BCM2835_MBOX_TAG_TEST_PIXEL_ORDER	0x00044006
 #define BCM2835_MBOX_TAG_SET_PIXEL_ORDER	0x00048006
 
 #define BCM2835_MBOX_PIXEL_ORDER_BGR		0

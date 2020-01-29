@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <netdev.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/clk.h>

@@ -6,7 +6,9 @@
 
 #include <common.h>
 #include <fdtdec.h>
+#include <init.h>
 #include <malloc.h>
+#include <time.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>

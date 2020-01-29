@@ -17,6 +17,7 @@ config OPTEE_LOAD_ADDR
 config OPTEE_TZDRAM_SIZE
 	hex "Amount of Trust-Zone RAM for the OPTEE image"
 	default 0x0000000
+	depends on OPTEE
 	help
 	  The size of pre-allocated Trust Zone DRAM to allocate for the OPTEE
 	  runtime.
@@ -24,6 +25,7 @@ config OPTEE_TZDRAM_SIZE
 config OPTEE_TZDRAM_BASE
 	hex "Base address of Trust-Zone RAM for the OPTEE image"
 	default 0x00000000
+	depends on OPTEE
 	help
 	  The base address of pre-allocated Trust Zone DRAM for
 	  the OPTEE runtime.

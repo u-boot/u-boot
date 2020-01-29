@@ -2,7 +2,6 @@
 /*
  * (C) Copyright 2019 Xilinx, Inc.
  * Siva Durga Prasad Paladugu <siva.durga.paladugu@xilinx.com>
- *
  */
 
 #ifndef __FRU_H

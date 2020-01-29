@@ -12,6 +12,7 @@ import checkpatch
 import gitutil
 import patchstream
 import series
+import commit
 
 
 class TestPatch(unittest.TestCase):
@@ -48,7 +49,8 @@ Signed-off-by: Simon Glass <sjg@chromium.org>
  arch/arm/cpu/armv7/tegra2/ap20.c           |   57 ++----
  arch/arm/cpu/armv7/tegra2/clock.c          |  163 +++++++++++++++++
 '''
-        expected='''
+        expected='''Message-Id: <19991231235959.0.I80fe1d0c0b7dd10aa58ce5bb1d9290b6664d5413@changeid>
+
 
 From 656c9a8c31fa65859d924cd21da920d6ba537fad Mon Sep 17 00:00:00 2001
 From: Simon Glass <sjg@chromium.org>
@@ -70,16 +72,25 @@ Signed-off-by: Simon Glass <sjg@chromium.org>
 '''
         out = ''
         inhandle, inname = tempfile.mkstemp()
-        infd = os.fdopen(inhandle, 'w')
+        infd = os.fdopen(inhandle, 'w', encoding='utf-8')
         infd.write(data)
         infd.close()
 
         exphandle, expname = tempfile.mkstemp()
-        expfd = os.fdopen(exphandle, 'w')
+        expfd = os.fdopen(exphandle, 'w', encoding='utf-8')
         expfd.write(expected)
         expfd.close()
 
-        patchstream.FixPatch(None, inname, series.Series(), None)
+        # Normally by the time we call FixPatch we've already collected
+        # metadata.  Here, we haven't, but at least fake up something.
+        # Set the "count" to -1 which tells FixPatch to use a bogus/fixed
+        # time for generating the Message-Id.
+        com = commit.Commit('')
+        com.change_id = 'I80fe1d0c0b7dd10aa58ce5bb1d9290b6664d5413'
+        com.count = -1
+
+        patchstream.FixPatch(None, inname, series.Series(), com)
+
         rc = os.system('diff -u %s %s' % (inname, expname))
         self.assertEqual(rc, 0)
 

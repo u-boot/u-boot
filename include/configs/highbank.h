@@ -6,8 +6,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_SYS_DCACHE_OFF
-
 #define CONFIG_SYS_BOOTMAPSZ		(16 << 20)
 
 #define CONFIG_SYS_TIMER_RATE		(150000000/256)
@@ -60,8 +58,6 @@
 */
 #define CONFIG_SYS_NVRAM_BASE_ADDR	0xfff88000	/* NVRAM base address */
 #define CONFIG_SYS_NVRAM_SIZE		0x8000		/* NVRAM size */
-#define CONFIG_ENV_SIZE			0x2000		/* Size of Environ */
-#define CONFIG_ENV_ADDR			CONFIG_SYS_NVRAM_BASE_ADDR
 
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
 #define CONFIG_SYS_INIT_SP_ADDR		0x01000000

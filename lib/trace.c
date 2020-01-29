@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <mapmem.h>
+#include <time.h>
 #include <trace.h>
 #include <asm/io.h>
 #include <asm/sections.h>
@@ -56,6 +57,49 @@ static inline uintptr_t __attribute__((no_instrument_function))
 	return offset / FUNC_SITE_SIZE;
 }
 
+#ifdef CONFIG_EFI_LOADER
+
+/**
+ * trace_gd - the value of the gd register
+ */
+static volatile void *trace_gd;
+
+/**
+ * trace_save_gd() - save the value of the gd register
+ */
+static void __attribute__((no_instrument_function)) trace_save_gd(void)
+{
+	trace_gd = gd;
+}
+
+/**
+ * trace_swap_gd() - swap between U-Boot and application gd register value
+ *
+ * An UEFI application may change the value of the register that gd lives in.
+ * But some of our functions like get_ticks() access this register. So we
+ * have to set the gd register to the U-Boot value when entering a trace
+ * point and set it back to the application value when exiting the trace point.
+ */
+static void __attribute__((no_instrument_function)) trace_swap_gd(void)
+{
+	volatile void *temp_gd = trace_gd;
+
+	trace_gd = gd;
+	gd = temp_gd;
+}
+
+#else
+
+static void __attribute__((no_instrument_function)) trace_save_gd(void)
+{
+}
+
+static void __attribute__((no_instrument_function)) trace_swap_gd(void)
+{
+}
+
+#endif
+
 static void __attribute__((no_instrument_function)) add_ftrace(void *func_ptr,
 				void *caller, ulong flags)
 {
@@ -100,6 +144,7 @@ void __attribute__((no_instrument_function)) __cyg_profile_func_enter(
 	if (trace_enabled) {
 		int func;
 
+		trace_swap_gd();
 		add_ftrace(func_ptr, caller, FUNCF_ENTRY);
 		func = func_ptr_to_num(func_ptr);
 		if (func < hdr->func_count) {
@@ -111,6 +156,7 @@ void __attribute__((no_instrument_function)) __cyg_profile_func_enter(
 		hdr->depth++;
 		if (hdr->depth > hdr->depth_limit)
 			hdr->max_depth = hdr->depth;
+		trace_swap_gd();
 	}
 }
 
@@ -126,8 +172,10 @@ void __attribute__((no_instrument_function)) __cyg_profile_func_exit(
 		void *func_ptr, void *caller)
 {
 	if (trace_enabled) {
+		trace_swap_gd();
 		add_ftrace(func_ptr, caller, FUNCF_EXIT);
 		hdr->depth--;
+		trace_swap_gd();
 	}
 }
 
@@ -143,12 +191,12 @@ void __attribute__((no_instrument_function)) __cyg_profile_func_exit(
  *			greater than buff_size if we ran out of space.
  * @return 0 if ok, -1 if space was exhausted
  */
-int trace_list_functions(void *buff, int buff_size, unsigned int *needed)
+int trace_list_functions(void *buff, size_t buff_size, size_t *needed)
 {
 	struct trace_output_hdr *output_hdr = NULL;
 	void *end, *ptr = buff;
-	int func;
-	int upto;
+	size_t func;
+	size_t upto;
 
 	end = buff ? buff + buff_size : NULL;
 
@@ -159,7 +207,7 @@ int trace_list_functions(void *buff, int buff_size, unsigned int *needed)
 
 	/* Add information about each function */
 	for (func = upto = 0; func < hdr->func_count; func++) {
-		int calls = hdr->call_accum[func];
+		size_t calls = hdr->call_accum[func];
 
 		if (!calls)
 			continue;
@@ -183,16 +231,17 @@ int trace_list_functions(void *buff, int buff_size, unsigned int *needed)
 	/* Work out how must of the buffer we used */
 	*needed = ptr - buff;
 	if (ptr > end)
-		return -1;
+		return -ENOSPC;
+
 	return 0;
 }
 
-int trace_list_calls(void *buff, int buff_size, unsigned *needed)
+int trace_list_calls(void *buff, size_t buff_size, size_t *needed)
 {
 	struct trace_output_hdr *output_hdr = NULL;
 	void *end, *ptr = buff;
-	int rec, upto;
-	int count;
+	size_t rec, upto;
+	size_t count;
 
 	end = buff ? buff + buff_size : NULL;
 
@@ -227,7 +276,8 @@ int trace_list_calls(void *buff, int buff_size, unsigned *needed)
 	/* Work out how must of the buffer we used */
 	*needed = ptr - buff;
 	if (ptr > end)
-		return -1;
+		return -ENOSPC;
+
 	return 0;
 }
 
@@ -282,6 +332,8 @@ int __attribute__((no_instrument_function)) trace_init(void *buff,
 	size_t needed;
 	int was_disabled = !trace_enabled;
 
+	trace_save_gd();
+
 	if (!was_disabled) {
 #ifdef CONFIG_TRACE_EARLY
 		char *end;
@@ -294,7 +346,8 @@ int __attribute__((no_instrument_function)) trace_init(void *buff,
 		trace_enabled = 0;
 		hdr = map_sysmem(CONFIG_TRACE_EARLY_ADDR,
 				 CONFIG_TRACE_EARLY_SIZE);
-		end = (char *)&hdr->ftrace[hdr->ftrace_count];
+		end = (char *)&hdr->ftrace[min(hdr->ftrace_count,
+					       hdr->ftrace_size)];
 		used = end - (char *)hdr;
 		printf("trace: copying %08lx bytes of early data from %x to %08lx\n",
 		       used, CONFIG_TRACE_EARLY_ADDR,
@@ -302,7 +355,7 @@ int __attribute__((no_instrument_function)) trace_init(void *buff,
 		memcpy(buff, hdr, used);
 #else
 		puts("trace: already enabled\n");
-		return -1;
+		return -EALREADY;
 #endif
 	}
 	hdr = (struct trace_hdr *)buff;
@@ -310,7 +363,7 @@ int __attribute__((no_instrument_function)) trace_init(void *buff,
 	if (needed > buff_size) {
 		printf("trace: buffer size %zd bytes: at least %zd needed\n",
 		       buff_size, needed);
-		return -1;
+		return -ENOSPC;
 	}
 
 	if (was_disabled)
@@ -324,9 +377,10 @@ int __attribute__((no_instrument_function)) trace_init(void *buff,
 	add_textbase();
 
 	puts("trace: enabled\n");
-	hdr->depth_limit = 15;
+	hdr->depth_limit = CONFIG_TRACE_CALL_DEPTH_LIMIT;
 	trace_enabled = 1;
 	trace_inited = 1;
+
 	return 0;
 }
 
@@ -346,7 +400,7 @@ int __attribute__((no_instrument_function)) trace_early_init(void)
 	if (needed > buff_size) {
 		printf("trace: buffer size is %zd bytes, at least %zd needed\n",
 		       buff_size, needed);
-		return -1;
+		return -ENOSPC;
 	}
 
 	memset(hdr, '\0', needed);
@@ -357,10 +411,11 @@ int __attribute__((no_instrument_function)) trace_early_init(void)
 	hdr->ftrace = (struct trace_call *)((char *)hdr + needed);
 	hdr->ftrace_size = (buff_size - needed) / sizeof(*hdr->ftrace);
 	add_textbase();
-	hdr->depth_limit = 200;
+	hdr->depth_limit = CONFIG_TRACE_EARLY_CALL_DEPTH_LIMIT;
 	printf("trace: early enable at %08x\n", CONFIG_TRACE_EARLY_ADDR);
 
 	trace_enabled = 1;
+
 	return 0;
 }
 #endif

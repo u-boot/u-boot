@@ -17,7 +17,7 @@
 #include <asm/arch/soc.h>
 
 #if defined(CONFIG_ARMADA_XP) || defined(CONFIG_ARMADA_375) \
-	|| defined(CONFIG_ARMADA_38X)
+	|| defined(CONFIG_ARMADA_38X) || defined(CONFIG_ARMADA_MSYS)
 /*
  * Set this for the common xor register definitions needed in dram.c
  * for A38x as well here.
@@ -40,30 +40,10 @@
 #define	CONFIG_SYS_KWD_CONFIG	arch/arm/mach-mvebu/kwbimage.cfg
 #endif /* CONFIG_SYS_KWD_CONFIG */
 
-/* Add target to build it automatically upon "make" */
-#ifdef CONFIG_SPL
-#define CONFIG_BUILD_TARGET	"u-boot-spl.kwb"
-#endif
-
 /* end of 16M scrubbed by training in bootrom */
 #define CONFIG_SYS_INIT_SP_ADDR		0x00FF0000
 
 #define MV_UART_CONSOLE_BASE		MVEBU_UART0_BASE
-
-/*
- * SPI Flash configuration
- */
-#ifdef CONFIG_CMD_SF
-#ifndef CONFIG_ENV_SPI_BUS
-# define CONFIG_ENV_SPI_BUS		0
-#endif
-#ifndef CONFIG_ENV_SPI_CS
-# define CONFIG_ENV_SPI_CS		0
-#endif
-#ifndef CONFIG_ENV_SPI_MAX_HZ
-# define CONFIG_ENV_SPI_MAX_HZ		50000000
-#endif
-#endif
 
 /* Needed for SPI NOR booting in SPL */
 #define CONFIG_DM_SEQ_ALIAS		1

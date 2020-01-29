@@ -10,6 +10,7 @@
 #include <config.h>
 #include <common.h>
 #include <command.h>
+#include <cpu_func.h>
 #include <env_callback.h>
 #include <linux/types.h>
 #include <stdio_dev.h>
@@ -61,7 +62,7 @@ void lcd_sync(void)
 	 * architectures do not actually implement it. Is there a way to find
 	 * out whether it exists? For now, ARM is safe.
 	 */
-#if defined(CONFIG_ARM) && !defined(CONFIG_SYS_DCACHE_OFF)
+#if defined(CONFIG_ARM) && !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 	int line_length;
 
 	if (lcd_flush_dcache)
@@ -171,8 +172,7 @@ int drv_lcd_init(void)
 void lcd_clear(void)
 {
 	int bg_color;
-	char *s;
-	ulong addr;
+	__maybe_unused ulong addr;
 	static int do_splash = 1;
 #if LCD_BPP == LCD_COLOR8
 	/* Setting the palette */
@@ -222,14 +222,10 @@ void lcd_clear(void)
 	/* Paint the logo and retrieve LCD base address */
 	debug("[LCD] Drawing the logo...\n");
 	if (do_splash) {
-		s = env_get("splashimage");
-		if (s) {
+		if (splash_display() == 0) {
 			do_splash = 0;
-			addr = simple_strtoul(s, NULL, 16);
-			if (lcd_splash(addr) == 0) {
-				lcd_sync();
-				return;
-			}
+			lcd_sync();
+			return;
 		}
 	}
 

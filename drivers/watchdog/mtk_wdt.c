@@ -70,25 +70,46 @@ static int mtk_wdt_expire_now(struct udevice *dev, ulong flags)
 	return 0;
 }
 
-static void mtk_wdt_set_timeout(struct udevice *dev, unsigned int timeout)
+static void mtk_wdt_set_timeout(struct udevice *dev, u64 timeout_ms)
 {
 	struct mtk_wdt_priv *priv = dev_get_priv(dev);
+	u64 timeout_us;
+	u32 timeout_cc;
+	u32 length;
 
 	/*
-	 * One bit is the value of 512 ticks
-	 * The clock has 32 KHz
+	 * One WDT_LENGTH count is 512 ticks of the wdt clock
+	 * Clock runs at 32768 Hz
+	 * e.g. 15.625 ms per count (nominal)
+	 * We want the ceiling after dividing timeout_ms by 15.625 ms
+	 * We add 15624 prior to the divide to implement the ceiling
+	 * We prevent over-flow by clamping the timeout_ms value here
+	 *  as the maximum WDT_LENGTH counts is 1023 -> 15.984375 sec
+	 * We also enforce a minimum of 1 count
+	 * Many watchdog peripherals have a self-imposed count of 1
+	 *  that is added to the register counts.
+	 *  The MediaTek docs lack details to know if this is the case here.
+	 *  So we enforce a minimum of 1 to guarantee operation.
 	 */
-	timeout = WDT_LENGTH_TIMEOUT(timeout << 6) | WDT_LENGTH_KEY;
-	writel(timeout, priv->base + MTK_WDT_LENGTH);
+	if (timeout_ms > 15984)
+		timeout_ms = 15984;
 
-	mtk_wdt_reset(dev);
+	timeout_us = timeout_ms * 1000;
+	timeout_cc = (15624 + timeout_us) / 15625;
+	if (timeout_cc == 0)
+		timeout_cc = 1;
+
+	length = WDT_LENGTH_TIMEOUT(timeout_cc) | WDT_LENGTH_KEY;
+	writel(length, priv->base + MTK_WDT_LENGTH);
 }
 
-static int mtk_wdt_start(struct udevice *dev, u64 timeout, ulong flags)
+static int mtk_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 {
 	struct mtk_wdt_priv *priv = dev_get_priv(dev);
 
-	mtk_wdt_set_timeout(dev, timeout);
+	mtk_wdt_set_timeout(dev, timeout_ms);
+
+	mtk_wdt_reset(dev);
 
 	/* Enable watchdog reset signal */
 	setbits_le32(priv->base + MTK_WDT_MODE,

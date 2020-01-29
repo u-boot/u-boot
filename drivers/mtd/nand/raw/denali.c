@@ -5,6 +5,7 @@
  * Copyright (C) 2009-2010, Intel Corporation and its suppliers.
  */
 
+#include <cpu_func.h>
 #include <dm.h>
 #include <nand.h>
 #include <linux/bitfield.h>

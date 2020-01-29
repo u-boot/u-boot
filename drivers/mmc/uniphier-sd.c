@@ -47,6 +47,7 @@ static int uniphier_sd_probe(struct udevice *dev)
 	struct tmio_sd_priv *priv = dev_get_priv(dev);
 
 	priv->clk_get_rate = uniphier_sd_clk_get_rate;
+	priv->read_poll_flag = TMIO_SD_DMA_INFO1_END_RD2;
 
 #ifndef CONFIG_SPL_BUILD
 	int ret;

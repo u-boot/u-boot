@@ -10,6 +10,7 @@
 
 #ifndef _NETDEV_H_
 #define _NETDEV_H_
+#include <phy_interface.h>
 
 /*
  * Board and CPU-specific initialization functions
@@ -21,6 +22,8 @@
  */
 
 int board_eth_init(bd_t *bis);
+int board_interface_eth_init(struct udevice *dev,
+			     phy_interface_t interface_type);
 int cpu_eth_init(bd_t *bis);
 
 /* Driver initialization prototypes */
@@ -30,7 +33,6 @@ int bcm_sf2_eth_register(bd_t *bis, u8 dev_num);
 int bfin_EMAC_initialize(bd_t *bis);
 int calxedaxgmac_initialize(u32 id, ulong base_addr);
 int cs8900_initialize(u8 dev_num, int base_addr);
-int davinci_emac_initialize(void);
 int dc21x4x_initialize(bd_t *bis);
 int designware_initialize(ulong base_addr, u32 interface);
 int dm9000_initialize(bd_t *bis);

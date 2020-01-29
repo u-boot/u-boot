@@ -119,9 +119,6 @@
 /* U-Boot autoboot configuration */
 /*==============================*/
 
-#define CONFIG_MX_CYCLIC
-#define CONFIG_SHOW_BOOT_PROGRESS
-
 
 /*=========================================*/
 /* FPGA Registers (board info and control) */
@@ -223,8 +220,6 @@
  * Put environment in top block (64kB)
  * Another option would be to put env. in 2nd param block offs 8KB, size 8KB
  */
-#define CONFIG_ENV_OFFSET    (CONFIG_SYS_FLASH_SIZE - CONFIG_SYS_FLASH_SECT_SZ)
-#define CONFIG_ENV_SIZE	     CONFIG_SYS_FLASH_SECT_SZ
 
 /* print 'E' for empty sector on flinfo */
 #define CONFIG_SYS_FLASH_EMPTY_INFO

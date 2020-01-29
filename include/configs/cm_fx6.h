@@ -38,25 +38,7 @@
 #define CONFIG_MXC_UART_BASE		UART4_BASE
 #define CONFIG_SYS_BAUDRATE_TABLE	{9600, 19200, 38400, 57600, 115200}
 
-/* SPI flash */
-#define CONFIG_SF_DEFAULT_BUS		0
-#define CONFIG_SF_DEFAULT_CS		0
-#define CONFIG_SF_DEFAULT_SPEED		25000000
-#define CONFIG_SF_DEFAULT_MODE		(SPI_MODE_0)
-
-/* MTD support */
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_SPI_FLASH_MTD
-#endif
-
 /* Environment */
-#define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED
-#define CONFIG_ENV_SPI_MODE		CONFIG_SF_DEFAULT_MODE
-#define CONFIG_ENV_SPI_BUS		CONFIG_SF_DEFAULT_BUS
-#define CONFIG_ENV_SPI_CS		CONFIG_SF_DEFAULT_CS
-#define CONFIG_ENV_SECT_SIZE		(64 * 1024)
-#define CONFIG_ENV_SIZE			(8 * 1024)
-#define CONFIG_ENV_OFFSET		(768 * 1024)
 
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -152,8 +134,6 @@
 			"echo WARNING: Could not determine dtb to use; fi; \0" \
 	BOOTENV
 
-#define CONFIG_PREBOOT		"usb start;sf probe"
-
 #define BOOT_TARGET_DEVICES(func) \
 	func(USB, usb, 0) \
 	func(MMC, mmc, 2) \
@@ -217,10 +197,8 @@
 
 /* SPL */
 #include "imx6_spl.h"
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	(64 * 1024)
 
 /* Display */
-#define CONFIG_VIDEO_IPUV3
 #define CONFIG_IMX_HDMI
 
 #define CONFIG_SPLASH_SCREEN

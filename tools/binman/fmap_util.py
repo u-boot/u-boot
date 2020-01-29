@@ -8,9 +8,12 @@
 
 import collections
 import struct
+import sys
+
+import tools
 
 # constants imported from lib/fmap.h
-FMAP_SIGNATURE = '__FMAP__'
+FMAP_SIGNATURE = b'__FMAP__'
 FMAP_VER_MAJOR = 1
 FMAP_VER_MINOR = 0
 FMAP_STRLEN = 32
@@ -50,6 +53,8 @@ FmapArea = collections.namedtuple('FmapArea', FMAP_AREA_NAMES)
 
 
 def NameToFmap(name):
+    if type(name) == bytes and sys.version_info[0] >= 3:
+        name = name.decode('utf-8')  # pragma: no cover (for Python 2)
     return name.replace('\0', '').replace('-', '_').upper()
 
 def ConvertName(field_names, fields):
@@ -65,7 +70,7 @@ def ConvertName(field_names, fields):
             value: value of that field (string for the ones we support)
     """
     name_index = field_names.index('name')
-    fields[name_index] = NameToFmap(fields[name_index])
+    fields[name_index] = tools.ToBytes(NameToFmap(fields[name_index]))
 
 def DecodeFmap(data):
     """Decode a flashmap into a header and list of areas
@@ -106,7 +111,8 @@ def EncodeFmap(image_size, name, areas):
         ConvertName(names, params)
         return struct.pack(fmt, *params)
 
-    values = FmapHeader(FMAP_SIGNATURE, 1, 0, 0, image_size, name, len(areas))
+    values = FmapHeader(FMAP_SIGNATURE, 1, 0, 0, image_size,
+                        tools.FromUnicode(name), len(areas))
     blob = _FormatBlob(FMAP_HEADER_FORMAT, FMAP_HEADER_NAMES, values)
     for area in areas:
         blob += _FormatBlob(FMAP_AREA_FORMAT, FMAP_AREA_NAMES, area)

@@ -9,7 +9,6 @@
 #ifndef  __FSL_ESDHC_H__
 #define	__FSL_ESDHC_H__
 
-#include <linux/bitops.h>
 #include <linux/errno.h>
 #include <asm/byteorder.h>
 
@@ -25,21 +24,13 @@
 #define SYSCTL_INITA		0x08000000
 #define SYSCTL_TIMEOUT_MASK	0x000f0000
 #define SYSCTL_CLOCK_MASK	0x0000fff0
-#if !defined(CONFIG_FSL_USDHC)
 #define SYSCTL_CKEN		0x00000008
 #define SYSCTL_PEREN		0x00000004
 #define SYSCTL_HCKEN		0x00000002
 #define SYSCTL_IPGEN		0x00000001
-#endif
 #define SYSCTL_RSTA		0x01000000
 #define SYSCTL_RSTC		0x02000000
 #define SYSCTL_RSTD		0x04000000
-
-#define VENDORSPEC_CKEN		0x00004000
-#define VENDORSPEC_PEREN	0x00002000
-#define VENDORSPEC_HCKEN	0x00001000
-#define VENDORSPEC_IPGEN	0x00000800
-#define VENDORSPEC_INIT		0x20007809
 
 #define IRQSTAT			0x0002e030
 #define IRQSTAT_DMAE		(0x10000000)
@@ -106,6 +97,7 @@
 #define PROCTL_INIT		0x00000020
 #define PROCTL_DTW_4		0x00000002
 #define PROCTL_DTW_8		0x00000004
+#define PROCTL_D3CD		0x00000008
 
 #define CMDARG			0x0002e008
 
@@ -164,66 +156,18 @@
 #define BLKATTR_SIZE(x)	(x & 0x1fff)
 #define MAX_BLK_CNT	0x7fff	/* so malloc will have enough room with 32M */
 
-#define ESDHC_HOSTCAPBLT_VS18	0x04000000
-#define ESDHC_HOSTCAPBLT_VS30	0x02000000
-#define ESDHC_HOSTCAPBLT_VS33	0x01000000
-#define ESDHC_HOSTCAPBLT_SRS	0x00800000
-#define ESDHC_HOSTCAPBLT_DMAS	0x00400000
-#define ESDHC_HOSTCAPBLT_HSS	0x00200000
-
-#define ESDHC_VENDORSPEC_VSELECT 0x00000002 /* Use 1.8V */
-
-/* Imported from Linux Kernel drivers/mmc/host/sdhci-esdhc-imx.c */
-#define	MIX_CTRL_DDREN		BIT(3)
-#define MIX_CTRL_DTDSEL_READ	BIT(4)
-#define	MIX_CTRL_AC23EN		BIT(7)
-#define	MIX_CTRL_EXE_TUNE	BIT(22)
-#define	MIX_CTRL_SMPCLK_SEL	BIT(23)
-#define	MIX_CTRL_AUTO_TUNE_EN	BIT(24)
-#define	MIX_CTRL_FBCLK_SEL	BIT(25)
-#define	MIX_CTRL_HS400_EN	BIT(26)
-#define	MIX_CTRL_HS400_ES	BIT(27)
-/* Bits 3 and 6 are not SDHCI standard definitions */
-#define	MIX_CTRL_SDHCI_MASK	0xb7
-/* Tuning bits */
-#define	MIX_CTRL_TUNING_MASK	0x03c00000
-
-/* strobe dll register */
-#define ESDHC_STROBE_DLL_CTRL		0x70
-#define ESDHC_STROBE_DLL_CTRL_ENABLE	BIT(0)
-#define ESDHC_STROBE_DLL_CTRL_RESET	BIT(1)
-#define ESDHC_STROBE_DLL_CTRL_SLV_DLY_TARGET_DEFAULT	0x7
-#define ESDHC_STROBE_DLL_CTRL_SLV_DLY_TARGET_SHIFT	3
-
-#define ESDHC_STROBE_DLL_STATUS		0x74
-#define ESDHC_STROBE_DLL_STS_REF_LOCK	BIT(1)
-#define ESDHC_STROBE_DLL_STS_SLV_LOCK	0x1
-#define ESDHC_STROBE_DLL_CLK_FREQ	100000000
-
-#define ESDHC_STD_TUNING_EN             BIT(24)
-/* NOTE: the minimum valid tuning start tap for mx6sl is 1 */
-#define ESDHC_TUNING_START_TAP_DEFAULT	0x1
-#define ESDHC_TUNING_START_TAP_MASK	0xff
-#define ESDHC_TUNING_STEP_MASK		0x00070000
-#define ESDHC_TUNING_STEP_SHIFT		16
-
-#define	ESDHC_FLAG_MULTIBLK_NO_INT	BIT(1)
-#define	ESDHC_FLAG_ENGCM07207		BIT(2)
-#define	ESDHC_FLAG_USDHC		BIT(3)
-#define	ESDHC_FLAG_MAN_TUNING		BIT(4)
-#define	ESDHC_FLAG_STD_TUNING		BIT(5)
-#define	ESDHC_FLAG_HAVE_CAP1		BIT(6)
-#define	ESDHC_FLAG_ERR004536		BIT(7)
-#define	ESDHC_FLAG_HS200		BIT(8)
-#define	ESDHC_FLAG_HS400		BIT(9)
-#define	ESDHC_FLAG_ERR010450		BIT(10)
-#define	ESDHC_FLAG_HS400_ES		BIT(11)
+/* Host controller capabilities register */
+#define HOSTCAPBLT_VS18		0x04000000
+#define HOSTCAPBLT_VS30		0x02000000
+#define HOSTCAPBLT_VS33		0x01000000
+#define HOSTCAPBLT_SRS		0x00800000
+#define HOSTCAPBLT_DMAS		0x00400000
+#define HOSTCAPBLT_HSS		0x00200000
 
 struct fsl_esdhc_cfg {
 	phys_addr_t esdhc_base;
 	u32	sdhc_clk;
 	u8	max_bus_width;
-	int	wp_enable;
 	int	vs18_enable; /* Use 1.8V if set to 1 */
 	struct mmc_config cfg;
 };
@@ -261,6 +205,10 @@ struct fsl_esdhc_cfg {
 int fsl_esdhc_mmc_init(bd_t *bis);
 int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg);
 void fdt_fixup_esdhc(void *blob, bd_t *bd);
+#ifdef MMC_SUPPORTS_TUNING
+static inline int fsl_esdhc_execute_tuning(struct udevice *dev,
+					   uint32_t opcode) {return 0; }
+#endif
 #else
 static inline int fsl_esdhc_mmc_init(bd_t *bis) { return -ENOSYS; }
 static inline void fdt_fixup_esdhc(void *blob, bd_t *bd) {}

@@ -10,8 +10,8 @@ Device (PCI0)
     Name (_HID, EISAID("PNP0A08"))    /* PCIe */
     Name (_CID, EISAID("PNP0A03"))    /* PCI */
 
-    Name (_ADR, 0)
-    Name (_BBN, 0)
+    Name (_ADR, Zero)
+    Name (_BBN, Zero)
 
     Name (MCRS, ResourceTemplate()
     {
@@ -64,6 +64,23 @@ Device (PCI0)
     Method (_CRS, 0, Serialized)
     {
         Return (MCRS)
+    }
+
+    /* Device Resource Consumption */
+    Device (PDRC)
+    {
+        Name (_HID, EISAID("PNP0C02"))
+        Name (_UID, One)
+
+        Name (PDRS, ResourceTemplate()
+        {
+            Memory32Fixed(ReadWrite, MCFG_BASE_ADDRESS, MCFG_BASE_SIZE)
+        })
+
+        Method (_CRS, 0, Serialized)
+        {
+            Return (PDRS)
+        }
     }
 
     Method (_OSC, 4)
@@ -179,6 +196,9 @@ Device (PCI0)
                 "\\_SB.PCI0.GPIO", 0, ResourceConsumer, , ) { 112 }
             GpioIo(Exclusive, PullUp, 0, 0, IoRestrictionOutputOnly,
                 "\\_SB.PCI0.GPIO", 0, ResourceConsumer, , ) { 113 }
+
+            FixedDMA(0x000d, 0x0002, Width32bit, )
+            FixedDMA(0x000c, 0x0003, Width32bit, )
         })
 
         Method (_CRS, 0, NotSerialized)
@@ -218,6 +238,17 @@ Device (PCI0)
         Method (_STA, 0, NotSerialized)
         {
             Return (STA_VISIBLE)
+        }
+
+        Name (RBUF, ResourceTemplate()
+        {
+            FixedDMA(0x0009, 0x0000, Width32bit, )
+            FixedDMA(0x0008, 0x0001, Width32bit, )
+        })
+
+        Method (_CRS, 0, NotSerialized)
+        {
+            Return (RBUF)
         }
     }
 
@@ -318,6 +349,115 @@ Device (PCI0)
                     Package () { "shutdown-gpios", Package () { ^BTH0, 2, 0, 0 } },
                 }
             })
+        }
+    }
+
+    Device (IPC1)
+    {
+        Name (_ADR, 0x00130000)
+
+        Method (_STA, 0, NotSerialized)
+        {
+            Return (STA_VISIBLE)
+        }
+
+        Device (PMIC)
+        {
+            Name (_ADR, Zero)
+            Name (_HID, "INTC100E")
+            Name (_CID, "INTC100E")
+            Name (_DDN, "Basin Cove PMIC")
+            Name (_DEP, Package ()
+            {
+                IPC1
+            })
+
+            Method (_STA, 0, NotSerialized)
+            {
+                Return (STA_VISIBLE)
+            }
+
+            Method (_CRS, 0, Serialized)
+            {
+                Name (RBUF, ResourceTemplate()
+                {
+                    /*
+                     * Shadow registers in SRAM for PMIC:
+                     *   SRAM    PMIC register
+                     *   --------------------
+                     *   0x00-    Unknown
+                     *   0x03    THRMIRQ (0x04)
+                     *   0x04    BCUIRQ (0x05)
+                     *   0x05    ADCIRQ (0x06)
+                     *   0x06    CHGRIRQ0 (0x07)
+                     *   0x07    CHGRIRQ1 (0x08)
+                     *   0x08-    Unknown
+                     *   0x0a    PBSTATUS (0x27)
+                     *   0x0b-    Unknown
+                     */
+                    Memory32Fixed(ReadWrite, 0xFFFFF610, 0x00000010)
+                    Interrupt(ResourceConsumer, Level, ActiveHigh, Shared, ,, ) { 30 }
+                    Interrupt(ResourceConsumer, Level, ActiveHigh, Shared, ,, ) { 23 }
+                    Interrupt(ResourceConsumer, Level, ActiveHigh, Shared, ,, ) { 52 }
+                    Interrupt(ResourceConsumer, Level, ActiveHigh, Shared, ,, ) { 51 }
+                    Interrupt(ResourceConsumer, Level, ActiveHigh, Shared, ,, ) { 50 }
+                    Interrupt(ResourceConsumer, Level, ActiveHigh, Shared, ,, ) { 27 }
+                    Interrupt(ResourceConsumer, Level, ActiveHigh, Shared, ,, ) { 49 }
+                })
+                Return (RBUF)
+            }
+
+            OperationRegion (PMOP, 0x8D, Zero, 0x0100)
+            Field (PMOP, DWordAcc, NoLock, Preserve)
+            {
+                SEL1,   32,
+                SEL2,   32,
+                VCCL,   32,
+                VNNL,   32,
+                AONL,   32,
+                CNTC,   32,
+                CNTN,   32,
+                AONN,   32,
+                CNT1,   32,
+                CNT2,   32,
+                CNT3,   32,
+                FLEX,   32,
+                PRG1,   32,
+                PRG2,   32,
+                PRG3,   32,
+                VLDO,   32,
+            }
+
+            Name (AVBL, Zero)
+            Method (_REG, 2, NotSerialized)
+            {
+                If ((Arg0 == 0x8D))
+                {
+                    AVBL = Arg1
+                }
+            }
+        }
+    }
+
+    Device (GDMA)
+    {
+        Name (_ADR, 0x00150000)
+        Name (_HID, "808611A2")
+        Name (_UID, Zero)
+
+        Method (_STA, 0, NotSerialized)
+        {
+            Return (STA_VISIBLE)
+        }
+
+        Method (_CRS, 0, Serialized)
+        {
+            Name (RBUF, ResourceTemplate ()
+            {
+                    Memory32Fixed(ReadWrite, 0xFF192000, 0x00001000)
+                    Interrupt(ResourceConsumer, Level, ActiveHigh, Shared, ,, ) { 32 }
+            })
+            Return (RBUF)
         }
     }
 }

@@ -56,4 +56,9 @@ struct wd_timer {
 	unsigned int wdt_unfr;	/* offset 0x100 */
 };
 
+struct omap3_wdt_priv {
+	struct wd_timer *regs;
+	unsigned int wdt_trgr_pattern;
+};
+
 #endif /* __OMAP_WDT_H__ */

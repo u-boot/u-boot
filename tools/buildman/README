@@ -137,7 +137,7 @@ the '&' operator to limit the selection:
 
 You can also use -x to specifically exclude some boards. For example:
 
- buildmand arm -x nvidia,freescale,.*ball$
+  buildman arm -x nvidia,freescale,.*ball$
 
 means to build all arm boards except nvidia, freescale and anything ending
 with 'ball'.
@@ -146,7 +146,7 @@ For building specific boards you can use the --boards option, which takes a
 comma-separated list of board target names and be used multiple times on
 the command line:
 
-   buidman --boards sandbox,snow --boards
+  buildman --boards sandbox,snow --boards
 
 It is convenient to use the -n option to see what will be built based on
 the subset given. Use -v as well to get an actual list of boards.
@@ -1046,6 +1046,16 @@ value for 'altbootcmd', but lost one for ' altbootcmd'.
 
 The -U option uses the u-boot.env files which are produced by a build.
 
+
+Building with clang
+===================
+
+To build with clang (sandbox only), use the -O option to override the
+toolchain. For example:
+
+   buildman -O clang-7 --board sandbox
+
+
 Other options
 =============
 
@@ -1169,8 +1179,6 @@ access to log files. Also it would be nice if buildman could 'hunt' for
 problems, perhaps by building a few boards for each arch, or checking
 commits for changed files and building only boards which use those files.
 
-A specific problem to fix is that Ctrl-C does not exit buildman cleanly when
-multiple builder threads are active.
 
 Credits
 =======

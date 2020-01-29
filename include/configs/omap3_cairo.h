@@ -160,12 +160,7 @@
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_ONENAND_BASE		ONENAND_MAP
 
-#define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
-#define ONENAND_ENV_OFFSET		0x260000 /* environment starts here */
-
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
-#define CONFIG_ENV_OFFSET		0x260000
-#define CONFIG_ENV_ADDR			0x260000
 
 /* Defines for SPL */
 
@@ -189,16 +184,6 @@
 
 /* env defaults */
 #define CONFIG_BOOTFILE			"uImage"
-
-/* Override OMAP3 common serial console configuration from UART3
- * to UART2.
- *
- * Attention: for UART2, special MUX settings (MUX_DEFAULT(), MCBSP3)
- * are needed and peripheral clocks for UART2 must be enabled in
- * function per_clocks_enable().
- */
-#ifdef CONFIG_SPL_BUILD
-#endif
 
 /* Provide the MACH_TYPE value the vendor kernel requires */
 #define CONFIG_MACH_TYPE	3063

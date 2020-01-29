@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <image.h>
 #include <fdt_support.h>
 #include <asm/addrspace.h>
@@ -215,23 +216,6 @@ static void linux_env_legacy(bootm_headers_t *images)
 	}
 }
 
-static int boot_reloc_ramdisk(bootm_headers_t *images)
-{
-	ulong rd_len = images->rd_end - images->rd_start;
-
-	/*
-	 * In case of legacy uImage's, relocation of ramdisk is already done
-	 * by do_bootm_states() and should not repeated in 'bootm prep'.
-	 */
-	if (images->state & BOOTM_STATE_RAMDISK) {
-		debug("## Ramdisk already relocated\n");
-		return 0;
-	}
-
-	return boot_ramdisk_high(&images->lmb, images->rd_start,
-		rd_len, &images->initrd_start, &images->initrd_end);
-}
-
 static int boot_reloc_fdt(bootm_headers_t *images)
 {
 	/*
@@ -264,14 +248,14 @@ int arch_fixup_fdt(void *blob)
 
 static int boot_setup_fdt(bootm_headers_t *images)
 {
+	images->initrd_start = virt_to_phys((void *)images->initrd_start);
+	images->initrd_end = virt_to_phys((void *)images->initrd_end);
 	return image_setup_libfdt(images, images->ft_addr, images->ft_len,
 		&images->lmb);
 }
 
 static void boot_prep_linux(bootm_headers_t *images)
 {
-	boot_reloc_ramdisk(images);
-
 	if (CONFIG_IS_ENABLED(MIPS_BOOT_FDT) && images->ft_len) {
 		boot_reloc_fdt(images);
 		boot_setup_fdt(images);

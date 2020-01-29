@@ -3,10 +3,11 @@
  * (C) Copyright 2016 Vasily Khoruzhick <anarsoul@gmail.com>
  */
 
+#include <cpu_func.h>
 #include <linux/types.h>
 #include <common.h>
 
-#ifndef CONFIG_SYS_DCACHE_OFF
+#if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 void invalidate_dcache_all(void)
 {
 	/* Flush/Invalidate I cache */
@@ -35,7 +36,7 @@ void flush_dcache_range(unsigned long start, unsigned long stop)
 {
 	return invalidate_dcache_range(start, stop);
 }
-#else /* #ifndef CONFIG_SYS_DCACHE_OFF */
+#else /* #if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF) */
 void invalidate_dcache_all(void)
 {
 }
@@ -43,7 +44,7 @@ void invalidate_dcache_all(void)
 void flush_dcache_all(void)
 {
 }
-#endif /* #ifndef CONFIG_SYS_DCACHE_OFF */
+#endif /* #if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF) */
 
 /*
  * Stub implementations for l2 cache operations

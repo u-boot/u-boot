@@ -13,7 +13,7 @@
 static unsigned int __uniphier_get_revision_field(unsigned int mask,
 						  unsigned int shift)
 {
-	u32 revision = readl(SG_REVISION);
+	u32 revision = readl(sg_base + SG_REVISION);
 
 	return (revision >> shift) & mask;
 }

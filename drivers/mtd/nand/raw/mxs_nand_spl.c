@@ -6,7 +6,7 @@
 #include <common.h>
 #include <nand.h>
 #include <malloc.h>
-#include "mxs_nand.h"
+#include <mxs_nand.h>
 
 static struct mtd_info *mtd;
 static struct nand_chip nand_chip;
@@ -174,23 +174,25 @@ static int is_badblock(struct mtd_info *mtd, loff_t offs, int allowbbt)
 }
 
 /* setup mtd and nand structs and init mxs_nand driver */
-static int mxs_nand_init(void)
+void nand_init(void)
 {
 	/* return if already initalized */
 	if (nand_chip.numchips)
-		return 0;
+		return;
 
 	/* init mxs nand driver */
 	mxs_nand_init_spl(&nand_chip);
 	mtd = nand_to_mtd(&nand_chip);
 	/* set mtd functions */
 	nand_chip.cmdfunc = mxs_nand_command;
+	nand_chip.scan_bbt = nand_default_bbt;
 	nand_chip.numchips = 1;
 
 	/* identify flash device */
 	if (mxs_flash_ident(mtd)) {
 		printf("Failed to identify\n");
-		return -1;
+		nand_chip.numchips = 0; /* If fail, don't use nand */
+		return;
 	}
 
 	/* allocate and initialize buffers */
@@ -200,8 +202,7 @@ static int mxs_nand_init(void)
 	/* setup flash layout (does not scan as we override that) */
 	mtd->size = nand_chip.chipsize;
 	nand_chip.scan_bbt(mtd);
-
-	return 0;
+	mxs_nand_setup_ecc(mtd);
 }
 
 int nand_spl_load_image(uint32_t offs, unsigned int size, void *buf)
@@ -211,9 +212,9 @@ int nand_spl_load_image(uint32_t offs, unsigned int size, void *buf)
 	unsigned int nand_page_per_block;
 	unsigned int sz = 0;
 
-	if (mxs_nand_init())
-		return -ENODEV;
 	chip = mtd_to_nand(mtd);
+	if (!chip->numchips)
+		return -ENODEV;
 	page = offs >> chip->page_shift;
 	nand_page_per_block = mtd->erasesize / mtd->writesize;
 
@@ -252,10 +253,6 @@ int nand_spl_load_image(uint32_t offs, unsigned int size, void *buf)
 int nand_default_bbt(struct mtd_info *mtd)
 {
 	return 0;
-}
-
-void nand_init(void)
-{
 }
 
 void nand_deselect(void)

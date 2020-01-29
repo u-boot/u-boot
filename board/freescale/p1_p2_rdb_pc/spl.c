@@ -5,7 +5,8 @@
 
 #include <common.h>
 #include <console.h>
-#include <environment.h>
+#include <env.h>
+#include <env_internal.h>
 #include <ns16550.h>
 #include <malloc.h>
 #include <mmc.h>
@@ -90,8 +91,8 @@ void board_init_r(gd_t *gd, ulong dest_addr)
 	/* relocate environment function pointers etc. */
 #ifdef CONFIG_SPL_NAND_BOOT
 	nand_spl_load_image(CONFIG_ENV_OFFSET, CONFIG_ENV_SIZE,
-			    (uchar *)CONFIG_ENV_ADDR);
-	gd->env_addr  = (ulong)(CONFIG_ENV_ADDR);
+			    (uchar *)SPL_ENV_ADDR);
+	gd->env_addr  = (ulong)(SPL_ENV_ADDR);
 	gd->env_valid = ENV_VALID;
 #else
 	env_relocate();

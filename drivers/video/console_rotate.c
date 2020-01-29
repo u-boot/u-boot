@@ -22,33 +22,30 @@ static int console_set_row_1(struct udevice *dev, uint row, int clr)
 		(row + 1) * VIDEO_FONT_HEIGHT * pbytes;
 	for (j = 0; j < vid_priv->ysize; j++) {
 		switch (vid_priv->bpix) {
-#ifdef CONFIG_VIDEO_BPP8
-		case VIDEO_BPP8: {
-			uint8_t *dst = line;
+		case VIDEO_BPP8:
+			if (IS_ENABLED(CONFIG_VIDEO_BPP8)) {
+				uint8_t *dst = line;
 
-			for (i = 0; i < VIDEO_FONT_HEIGHT; i++)
-				*dst++ = clr;
-			break;
-		}
-#endif
-#ifdef CONFIG_VIDEO_BPP16
-		case VIDEO_BPP16: {
-			uint16_t *dst = line;
+				for (i = 0; i < VIDEO_FONT_HEIGHT; i++)
+					*dst++ = clr;
+				break;
+			}
+		case VIDEO_BPP16:
+			if (IS_ENABLED(CONFIG_VIDEO_BPP16)) {
+				uint16_t *dst = line;
 
-			for (i = 0; i < VIDEO_FONT_HEIGHT; i++)
-				*dst++ = clr;
-			break;
-		}
-#endif
-#ifdef CONFIG_VIDEO_BPP32
-		case VIDEO_BPP32: {
-			uint32_t *dst = line;
+				for (i = 0; i < VIDEO_FONT_HEIGHT; i++)
+					*dst++ = clr;
+				break;
+			}
+		case VIDEO_BPP32:
+			if (IS_ENABLED(CONFIG_VIDEO_BPP32)) {
+				uint32_t *dst = line;
 
-			for (i = 0; i < VIDEO_FONT_HEIGHT; i++)
-				*dst++ = clr;
-			break;
-		}
-#endif
+				for (i = 0; i < VIDEO_FONT_HEIGHT; i++)
+					*dst++ = clr;
+				break;
+			}
 		default:
 			return -ENOSYS;
 		}
@@ -90,7 +87,7 @@ static int console_putc_xy_1(struct udevice *dev, uint x_frac, uint y, char ch)
 	int i, col;
 	int mask = 0x80;
 	void *line;
-	uchar *pfont = video_fontdata + ch * VIDEO_FONT_HEIGHT;
+	uchar *pfont = video_fontdata + (u8)ch * VIDEO_FONT_HEIGHT;
 
 	line = vid_priv->fb + (VID_TO_PIXEL(x_frac) + 1) *
 			vid_priv->line_length - (y + 1) * pbytes;
@@ -99,39 +96,39 @@ static int console_putc_xy_1(struct udevice *dev, uint x_frac, uint y, char ch)
 
 	for (col = 0; col < VIDEO_FONT_HEIGHT; col++) {
 		switch (vid_priv->bpix) {
-#ifdef CONFIG_VIDEO_BPP8
-		case VIDEO_BPP8: {
-			uint8_t *dst = line;
+		case VIDEO_BPP8:
+			if (IS_ENABLED(CONFIG_VIDEO_BPP8)) {
+				uint8_t *dst = line;
 
-			for (i = 0; i < VIDEO_FONT_HEIGHT; i++) {
-				*dst-- = (pfont[i] & mask) ? vid_priv->colour_fg
-					: vid_priv->colour_bg;
+				for (i = 0; i < VIDEO_FONT_HEIGHT; i++) {
+					*dst-- = (pfont[i] & mask) ?
+						vid_priv->colour_fg :
+						vid_priv->colour_bg;
+				}
+				break;
 			}
-			break;
-		}
-#endif
-#ifdef CONFIG_VIDEO_BPP16
-		case VIDEO_BPP16: {
-			uint16_t *dst = line;
+		case VIDEO_BPP16:
+			if (IS_ENABLED(CONFIG_VIDEO_BPP16)) {
+				uint16_t *dst = line;
 
-			for (i = 0; i < VIDEO_FONT_HEIGHT; i++) {
-				*dst-- = (pfont[i] & mask) ? vid_priv->colour_fg
-					: vid_priv->colour_bg;
+				for (i = 0; i < VIDEO_FONT_HEIGHT; i++) {
+					*dst-- = (pfont[i] & mask) ?
+						vid_priv->colour_fg :
+						vid_priv->colour_bg;
+				}
+				break;
 			}
-			break;
-		}
-#endif
-#ifdef CONFIG_VIDEO_BPP32
-		case VIDEO_BPP32: {
-			uint32_t *dst = line;
+		case VIDEO_BPP32:
+			if (IS_ENABLED(CONFIG_VIDEO_BPP32)) {
+				uint32_t *dst = line;
 
-			for (i = 0; i < VIDEO_FONT_HEIGHT; i++) {
-				*dst-- = (pfont[i] & mask) ? vid_priv->colour_fg
-					: vid_priv->colour_bg;
+				for (i = 0; i < VIDEO_FONT_HEIGHT; i++) {
+					*dst-- = (pfont[i] & mask) ?
+						vid_priv->colour_fg :
+						vid_priv->colour_bg;
+				}
+				break;
 			}
-			break;
-		}
-#endif
 		default:
 			return -ENOSYS;
 		}
@@ -153,33 +150,30 @@ static int console_set_row_2(struct udevice *dev, uint row, int clr)
 	line = vid_priv->fb + vid_priv->ysize * vid_priv->line_length -
 		(row + 1) * VIDEO_FONT_HEIGHT * vid_priv->line_length;
 	switch (vid_priv->bpix) {
-#ifdef CONFIG_VIDEO_BPP8
-	case VIDEO_BPP8: {
-		uint8_t *dst = line;
+	case VIDEO_BPP8:
+		if (IS_ENABLED(CONFIG_VIDEO_BPP8)) {
+			uint8_t *dst = line;
 
-		for (i = 0; i < pixels; i++)
-			*dst++ = clr;
-		break;
-	}
-#endif
-#ifdef CONFIG_VIDEO_BPP16
-	case VIDEO_BPP16: {
-		uint16_t *dst = line;
+			for (i = 0; i < pixels; i++)
+				*dst++ = clr;
+			break;
+		}
+	case VIDEO_BPP16:
+		if (IS_ENABLED(CONFIG_VIDEO_BPP16)) {
+			uint16_t *dst = line;
 
-		for (i = 0; i < pixels; i++)
-			*dst++ = clr;
-		break;
-	}
-#endif
-#ifdef CONFIG_VIDEO_BPP32
-	case VIDEO_BPP32: {
-		uint32_t *dst = line;
+			for (i = 0; i < pixels; i++)
+				*dst++ = clr;
+			break;
+		}
+	case VIDEO_BPP32:
+		if (IS_ENABLED(CONFIG_VIDEO_BPP32)) {
+			uint32_t *dst = line;
 
-		for (i = 0; i < pixels; i++)
-			*dst++ = clr;
-		break;
-	}
-#endif
+			for (i = 0; i < pixels; i++)
+				*dst++ = clr;
+			break;
+		}
 	default:
 		return -ENOSYS;
 	}
@@ -222,45 +216,46 @@ static int console_putc_xy_2(struct udevice *dev, uint x_frac, uint y, char ch)
 			VIDEO_FONT_WIDTH - 1) * VNBYTES(vid_priv->bpix);
 
 	for (row = 0; row < VIDEO_FONT_HEIGHT; row++) {
-		uchar bits = video_fontdata[ch * VIDEO_FONT_HEIGHT + row];
+		unsigned int idx = (u8)ch * VIDEO_FONT_HEIGHT + row;
+		uchar bits = video_fontdata[idx];
 
 		switch (vid_priv->bpix) {
-#ifdef CONFIG_VIDEO_BPP8
-		case VIDEO_BPP8: {
-			uint8_t *dst = line;
+		case VIDEO_BPP8:
+			if (IS_ENABLED(CONFIG_VIDEO_BPP8)) {
+				uint8_t *dst = line;
 
-			for (i = 0; i < VIDEO_FONT_WIDTH; i++) {
-				*dst-- = (bits & 0x80) ? vid_priv->colour_fg
-					: vid_priv->colour_bg;
-				bits <<= 1;
+				for (i = 0; i < VIDEO_FONT_WIDTH; i++) {
+					*dst-- = (bits & 0x80) ?
+						vid_priv->colour_fg :
+						vid_priv->colour_bg;
+					bits <<= 1;
+				}
+				break;
 			}
-			break;
-		}
-#endif
-#ifdef CONFIG_VIDEO_BPP16
-		case VIDEO_BPP16: {
-			uint16_t *dst = line;
+		case VIDEO_BPP16:
+			if (IS_ENABLED(CONFIG_VIDEO_BPP16)) {
+				uint16_t *dst = line;
 
-			for (i = 0; i < VIDEO_FONT_WIDTH; i++) {
-				*dst-- = (bits & 0x80) ? vid_priv->colour_fg
-					: vid_priv->colour_bg;
-				bits <<= 1;
+				for (i = 0; i < VIDEO_FONT_WIDTH; i++) {
+					*dst-- = (bits & 0x80) ?
+						vid_priv->colour_fg :
+						vid_priv->colour_bg;
+					bits <<= 1;
+				}
+				break;
 			}
-			break;
-		}
-#endif
-#ifdef CONFIG_VIDEO_BPP32
-		case VIDEO_BPP32: {
-			uint32_t *dst = line;
+		case VIDEO_BPP32:
+			if (IS_ENABLED(CONFIG_VIDEO_BPP32)) {
+				uint32_t *dst = line;
 
-			for (i = 0; i < VIDEO_FONT_WIDTH; i++) {
-				*dst-- = (bits & 0x80) ? vid_priv->colour_fg
-					: vid_priv->colour_bg;
-				bits <<= 1;
+				for (i = 0; i < VIDEO_FONT_WIDTH; i++) {
+					*dst-- = (bits & 0x80) ?
+						vid_priv->colour_fg :
+						vid_priv->colour_bg;
+					bits <<= 1;
+				}
+				break;
 			}
-			break;
-		}
-#endif
 		default:
 			return -ENOSYS;
 		}
@@ -280,33 +275,30 @@ static int console_set_row_3(struct udevice *dev, uint row, int clr)
 	line = vid_priv->fb + row * VIDEO_FONT_HEIGHT * pbytes;
 	for (j = 0; j < vid_priv->ysize; j++) {
 		switch (vid_priv->bpix) {
-#ifdef CONFIG_VIDEO_BPP8
-		case VIDEO_BPP8: {
-			uint8_t *dst = line;
+		case VIDEO_BPP8:
+			if (IS_ENABLED(CONFIG_VIDEO_BPP8)) {
+				uint8_t *dst = line;
 
-			for (i = 0; i < VIDEO_FONT_HEIGHT; i++)
-				*dst++ = clr;
-			break;
-		}
-#endif
-#ifdef CONFIG_VIDEO_BPP16
-		case VIDEO_BPP16: {
-			uint16_t *dst = line;
+				for (i = 0; i < VIDEO_FONT_HEIGHT; i++)
+					*dst++ = clr;
+				break;
+			}
+		case VIDEO_BPP16:
+			if (IS_ENABLED(CONFIG_VIDEO_BPP16)) {
+				uint16_t *dst = line;
 
-			for (i = 0; i < VIDEO_FONT_HEIGHT; i++)
-				*dst++ = clr;
-			break;
-		}
-#endif
-#ifdef CONFIG_VIDEO_BPP32
-		case VIDEO_BPP32: {
-			uint32_t *dst = line;
+				for (i = 0; i < VIDEO_FONT_HEIGHT; i++)
+					*dst++ = clr;
+				break;
+			}
+		case VIDEO_BPP32:
+			if (IS_ENABLED(CONFIG_VIDEO_BPP32)) {
+				uint32_t *dst = line;
 
-			for (i = 0; i < VIDEO_FONT_HEIGHT; i++)
-				*dst++ = clr;
-			break;
-		}
-#endif
+				for (i = 0; i < VIDEO_FONT_HEIGHT; i++)
+					*dst++ = clr;
+				break;
+			}
 		default:
 			return -ENOSYS;
 		}
@@ -348,46 +340,46 @@ static int console_putc_xy_3(struct udevice *dev, uint x_frac, uint y, char ch)
 	void *line = vid_priv->fb +
 		(vid_priv->ysize - VID_TO_PIXEL(x_frac) - 1) *
 		vid_priv->line_length + y * pbytes;
-	uchar *pfont = video_fontdata + ch * VIDEO_FONT_HEIGHT;
+	uchar *pfont = video_fontdata + (u8)ch * VIDEO_FONT_HEIGHT;
 
 	if (x_frac + VID_TO_POS(vc_priv->x_charsize) > vc_priv->xsize_frac)
 		return -EAGAIN;
 
 	for (col = 0; col < VIDEO_FONT_HEIGHT; col++) {
 		switch (vid_priv->bpix) {
-#ifdef CONFIG_VIDEO_BPP8
-		case VIDEO_BPP8: {
-			uint8_t *dst = line;
+		case VIDEO_BPP8:
+			if (IS_ENABLED(CONFIG_VIDEO_BPP8)) {
+				uint8_t *dst = line;
 
-			for (i = 0; i < VIDEO_FONT_HEIGHT; i++) {
-				*dst++ = (pfont[i] & mask) ? vid_priv->colour_fg
-					: vid_priv->colour_bg;
+				for (i = 0; i < VIDEO_FONT_HEIGHT; i++) {
+					*dst++ = (pfont[i] & mask) ?
+						vid_priv->colour_fg :
+						vid_priv->colour_bg;
+				}
+				break;
 			}
-			break;
-		}
-#endif
-#ifdef CONFIG_VIDEO_BPP16
-		case VIDEO_BPP16: {
-			uint16_t *dst = line;
+		case VIDEO_BPP16:
+			if (IS_ENABLED(CONFIG_VIDEO_BPP16)) {
+				uint16_t *dst = line;
 
-			for (i = 0; i < VIDEO_FONT_HEIGHT; i++) {
-				*dst++ = (pfont[i] & mask) ? vid_priv->colour_fg
-					: vid_priv->colour_bg;
+				for (i = 0; i < VIDEO_FONT_HEIGHT; i++) {
+					*dst++ = (pfont[i] & mask) ?
+						vid_priv->colour_fg :
+						vid_priv->colour_bg;
+				}
+				break;
 			}
-			break;
-		}
-#endif
-#ifdef CONFIG_VIDEO_BPP32
-		case VIDEO_BPP32: {
-			uint32_t *dst = line;
+		case VIDEO_BPP32:
+			if (IS_ENABLED(CONFIG_VIDEO_BPP32)) {
+				uint32_t *dst = line;
 
-			for (i = 0; i < VIDEO_FONT_HEIGHT; i++) {
-				*dst++ = (pfont[i] & mask) ? vid_priv->colour_fg
-					: vid_priv->colour_bg;
+				for (i = 0; i < VIDEO_FONT_HEIGHT; i++) {
+					*dst++ = (pfont[i] & mask) ?
+						vid_priv->colour_fg :
+						vid_priv->colour_bg;
+				}
+				break;
 			}
-			break;
-		}
-#endif
 		default:
 			return -ENOSYS;
 		}

@@ -21,6 +21,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <malloc.h>
 #include <asm/processor.h>
 #include <asm/mach-types.h>

@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <init.h>
 #include <miiphy.h>
 #include <tpm-v1.h>
 #include <asm/io.h>
@@ -21,10 +22,6 @@
 #include "ihs_phys.h"
 
 DECLARE_GLOBAL_DATA_PTR;
-
-#define ETH_PHY_CTRL_REG		0
-#define ETH_PHY_CTRL_POWER_DOWN_BIT	11
-#define ETH_PHY_CTRL_POWER_DOWN_MASK	(1 << ETH_PHY_CTRL_POWER_DOWN_BIT)
 
 #define DB_GP_88F68XX_GPP_OUT_ENA_LOW	0x7fffffff
 #define DB_GP_88F68XX_GPP_OUT_ENA_MID	0xffffefff

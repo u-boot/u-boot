@@ -102,10 +102,10 @@ create_multi_image()
 extract_multi_image()
 {
 	echo -e "\nExtracting multi-file image contents..."
-	do_cmd ${DUMPIMAGE} -T multi -i ${IMAGE_MULTI} -p 0 ${DATAFILE0}
-	do_cmd ${DUMPIMAGE} -T multi -i ${IMAGE_MULTI} -p 1 ${DATAFILE1}
-	do_cmd ${DUMPIMAGE} -T multi -i ${IMAGE_MULTI} -p 2 ${DATAFILE2}
-	do_cmd ${DUMPIMAGE} -T multi -i ${IMAGE_MULTI} -p 2 ${DATAFILE2} -o ${TEST_OUT}
+	do_cmd ${DUMPIMAGE} -T multi -p 0 -o ${DATAFILE0} ${IMAGE_MULTI}
+	do_cmd ${DUMPIMAGE} -T multi -p 1 -o ${DATAFILE1} ${IMAGE_MULTI}
+	do_cmd ${DUMPIMAGE} -T multi -p 2 -o ${DATAFILE2} ${IMAGE_MULTI}
+	do_cmd ${DUMPIMAGE} -T multi -p 2 -o ${TEST_OUT} ${IMAGE_MULTI}
 	echo "done."
 }
 
@@ -166,10 +166,10 @@ create_fit_image()
 extract_fit_image()
 {
 	echo -e "\nExtracting FIT image contents..."
-	do_cmd ${DUMPIMAGE} -T flat_dt -i ${IMAGE_FIT_ITB} -p 0 ${DATAFILE0}
-	do_cmd ${DUMPIMAGE} -T flat_dt -i ${IMAGE_FIT_ITB} -p 1 ${DATAFILE1}
-	do_cmd ${DUMPIMAGE} -T flat_dt -i ${IMAGE_FIT_ITB} -p 2 ${DATAFILE2}
-	do_cmd ${DUMPIMAGE} -T flat_dt -i ${IMAGE_FIT_ITB} -p 2 ${DATAFILE2} -o ${TEST_OUT}
+	do_cmd ${DUMPIMAGE} -T flat_dt -p 0 -o ${DATAFILE0} ${IMAGE_FIT_ITB}
+	do_cmd ${DUMPIMAGE} -T flat_dt -p 1 -o ${DATAFILE1} ${IMAGE_FIT_ITB}
+	do_cmd ${DUMPIMAGE} -T flat_dt -p 2 -o ${DATAFILE2} ${IMAGE_FIT_ITB}
+	do_cmd ${DUMPIMAGE} -T flat_dt -p 2 -o ${TEST_OUT} ${IMAGE_FIT_ITB}
 	echo "done."
 }
 

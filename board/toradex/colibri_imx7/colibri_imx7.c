@@ -15,7 +15,7 @@
 #include <dm.h>
 #include <dm/platform_data/serial_mxc.h>
 #include <fdt_support.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
 #include <jffs2/load_kernel.h>
 #include <linux/sizes.h>
 #include <mmc.h>
@@ -32,9 +32,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define UART_PAD_CTRL  (PAD_CTL_DSE_3P3V_49OHM | \
 	PAD_CTL_PUS_PU100KOHM | PAD_CTL_HYS)
-
-#define USDHC_PAD_CTRL (PAD_CTL_DSE_3P3V_32OHM | PAD_CTL_SRE_SLOW | \
-	PAD_CTL_HYS | PAD_CTL_PUE | PAD_CTL_PUS_PU47KOHM)
 
 #define ENET_PAD_CTRL  (PAD_CTL_PUS_PU100KOHM | PAD_CTL_DSE_3P3V_49OHM)
 #define ENET_PAD_CTRL_MII  (PAD_CTL_DSE_3P3V_32OHM)
@@ -62,17 +59,6 @@ static iomux_v3_cfg_t const uart1_pads[] = {
 	MX7D_PAD_UART1_TX_DATA__UART1_DTE_RX | MUX_PAD_CTRL(UART_PAD_CTRL),
 	MX7D_PAD_SAI2_TX_BCLK__UART1_DTE_CTS | MUX_PAD_CTRL(UART_PAD_CTRL),
 	MX7D_PAD_SAI2_TX_SYNC__UART1_DTE_RTS | MUX_PAD_CTRL(UART_PAD_CTRL),
-};
-
-static iomux_v3_cfg_t const usdhc1_pads[] = {
-	MX7D_PAD_SD1_CLK__SD1_CLK | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD1_CMD__SD1_CMD | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD1_DATA0__SD1_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD1_DATA1__SD1_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD1_DATA2__SD1_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD1_DATA3__SD1_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-
-	MX7D_PAD_GPIO1_IO00__GPIO1_IO0 | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
 #ifdef CONFIG_USB_EHCI_MX7
@@ -107,24 +93,6 @@ static void setup_gpmi_nand(void)
 	/* NAND_USDHC_BUS_CLK is set in rom */
 	set_clk_nand();
 }
-#endif
-
-#ifdef CONFIG_TARGET_COLIBRI_IMX7_EMMC
-static iomux_v3_cfg_t const usdhc3_emmc_pads[] = {
-	MX7D_PAD_SD3_CLK__SD3_CLK | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_CMD__SD3_CMD | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_DATA0__SD3_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_DATA1__SD3_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_DATA2__SD3_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_DATA3__SD3_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_DATA4__SD3_DATA4 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_DATA5__SD3_DATA5 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_DATA6__SD3_DATA6 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_DATA7__SD3_DATA7 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_STROBE__SD3_STROBE	 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-
-	MX7D_PAD_SD3_RESET_B__GPIO6_IO11 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-};
 #endif
 
 #ifdef CONFIG_VIDEO_MXS
@@ -182,6 +150,15 @@ static int setup_lcd(void)
 }
 #endif
 
+/*
+ * Backlight off before OS handover
+ */
+void board_preboot_os(void)
+{
+	gpio_direction_output(GPIO_PWM_A, 1);
+	gpio_direction_output(GPIO_BL_ON, 0);
+}
+
 #ifdef CONFIG_FEC_MXC
 static iomux_v3_cfg_t const fec1_pads[] = {
 #ifndef CONFIG_COLIBRI_IMX7_EXT_PHYCLK
@@ -210,71 +187,6 @@ static void setup_iomux_uart(void)
 {
 	imx_iomux_v3_setup_multiple_pads(uart1_pads, ARRAY_SIZE(uart1_pads));
 }
-
-#ifdef CONFIG_FSL_ESDHC
-
-#define USDHC1_CD_GPIO	IMX_GPIO_NR(1, 0)
-
-static struct fsl_esdhc_cfg usdhc_cfg[] = {
-#ifdef CONFIG_TARGET_COLIBRI_IMX7_EMMC
-	{USDHC3_BASE_ADDR},
-#endif
-	{USDHC1_BASE_ADDR, 0, 4},
-};
-
-int board_mmc_getcd(struct mmc *mmc)
-{
-	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
-	int ret = 0;
-
-	switch (cfg->esdhc_base) {
-	case USDHC1_BASE_ADDR:
-		ret = !gpio_get_value(USDHC1_CD_GPIO);
-		break;
-#ifdef CONFIG_TARGET_COLIBRI_IMX7_EMMC
-	case USDHC3_BASE_ADDR:
-		ret = 1;
-		break;
-#endif
-	}
-
-	return ret;
-}
-
-int board_mmc_init(bd_t *bis)
-{
-	int i, ret;
-	/* USDHC1 is mmc0, USDHC3 is mmc1 */
-	for (i = 0; i < CONFIG_SYS_FSL_USDHC_NUM; i++) {
-		switch (i) {
-		case 0:
-			imx_iomux_v3_setup_multiple_pads(
-				usdhc1_pads, ARRAY_SIZE(usdhc1_pads));
-			gpio_request(USDHC1_CD_GPIO, "usdhc1_cd");
-			gpio_direction_input(USDHC1_CD_GPIO);
-			usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
-			break;
-#ifdef CONFIG_TARGET_COLIBRI_IMX7_EMMC
-		case 1:
-			imx_iomux_v3_setup_multiple_pads(usdhc3_emmc_pads,
-				ARRAY_SIZE(usdhc3_emmc_pads));
-			usdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
-			break;
-#endif
-		default:
-			printf("Warning: you configured more USDHC controllers"
-				"(%d) than supported by the board\n", i + 1);
-			return -EINVAL;
-		}
-
-		ret = fsl_esdhc_initialize(bis, &usdhc_cfg[i]);
-		if (ret)
-			return ret;
-	}
-
-	return 0;
-}
-#endif
 
 #ifdef CONFIG_FEC_MXC
 int board_eth_init(bd_t *bis)
@@ -362,7 +274,7 @@ int power_init_board(void)
 	int ret;
 
 
-	ret = pmic_get("rn5t567", &dev);
+	ret = pmic_get("rn5t567@33", &dev);
 	if (ret)
 		return ret;
 	ver = pmic_reg_read(dev, RN5T567_LSIVER);
@@ -396,7 +308,7 @@ void reset_cpu(ulong addr)
 {
 	struct udevice *dev;
 
-	pmic_get("rn5t567", &dev);
+	pmic_get("rn5t567@33", &dev);
 
 	/* Use PMIC to reset, set REPWRTIM to 0 and REPWRON to 1 */
 	pmic_reg_write(dev, RN5T567_REPCNT, 0x1);
@@ -421,6 +333,43 @@ int checkboard(void)
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, bd_t *bd)
 {
+#if defined(CONFIG_IMX_BOOTAUX) && defined(CONFIG_ARCH_FIXUP_FDT_MEMORY)
+	int up;
+
+	up = arch_auxiliary_core_check_up(0);
+	if (up) {
+		int ret;
+		int areas = 1;
+		u64 start[2], size[2];
+
+		/*
+		 * Reserve 1MB of memory for M4 (1MiB is also the minimum
+		 * alignment for Linux due to MMU section size restrictions).
+		 */
+		start[0] = gd->bd->bi_dram[0].start;
+		size[0] = SZ_256M - SZ_1M;
+
+		/* If needed, create a second entry for memory beyond 256M */
+		if (gd->bd->bi_dram[0].size > SZ_256M) {
+			start[1] = gd->bd->bi_dram[0].start + SZ_256M;
+			size[1] = gd->bd->bi_dram[0].size - SZ_256M;
+			areas = 2;
+		}
+
+		ret = fdt_set_usable_memory(blob, start, size, areas);
+		if (ret) {
+			eprintf("Cannot set usable memory\n");
+			return ret;
+		}
+	} else {
+		int off;
+
+		off = fdt_node_offset_by_compatible(blob, -1,
+						    "fsl,imx7d-rpmsg");
+		if (off > 0)
+			fdt_status_disabled(blob, off);
+	}
+#endif
 #if defined(CONFIG_FDT_FIXUP_PARTITIONS)
 	static const struct node_info nodes[] = {
 		{ "fsl,imx7d-gpmi-nand", MTD_DEV_TYPE_NAND, }, /* NAND flash */

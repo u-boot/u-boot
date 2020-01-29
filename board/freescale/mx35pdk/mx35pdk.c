@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/io.h>
 #include <linux/errno.h>
 #include <asm/arch/imx-regs.h>
@@ -16,7 +17,7 @@
 #include <power/pmic.h>
 #include <fsl_pmic.h>
 #include <mmc.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
 #include <mc9sdz60.h>
 #include <mc13892.h>
 #include <linux/types.h>
@@ -261,7 +262,7 @@ int board_eth_init(bd_t *bis)
 	return cpu_eth_init(bis);
 }
 
-#if defined(CONFIG_FSL_ESDHC)
+#if defined(CONFIG_FSL_ESDHC_IMX)
 
 struct fsl_esdhc_cfg esdhc_cfg = {MMC_SDHC1_BASE_ADDR};
 

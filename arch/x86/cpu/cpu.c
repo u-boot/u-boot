@@ -19,13 +19,14 @@
  */
 
 #include <common.h>
+#include <acpi_s3.h>
 #include <command.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>
 #include <malloc.h>
 #include <syscon.h>
 #include <asm/acpi.h>
-#include <asm/acpi_s3.h>
 #include <asm/acpi_table.h>
 #include <asm/control_regs.h>
 #include <asm/coreboot_tables.h>

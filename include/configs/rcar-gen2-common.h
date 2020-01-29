@@ -18,10 +18,6 @@
 #define CONFIG_SPL_TARGET	"spl/u-boot-spl.srec"
 #endif
 
-#undef	CONFIG_SHOW_BOOT_PROGRESS
-
-#define CONFIG_ARCH_CPU_INIT
-
 #ifndef CONFIG_PINCTRL_PFC
 #define CONFIG_SH_GPIO_PFC
 #endif
@@ -38,22 +34,16 @@
 #define CONFIG_SYS_MONITOR_BASE		0x00000000
 #define CONFIG_SYS_MONITOR_LEN		(256 * 1024)
 #define CONFIG_SYS_MALLOC_LEN		(1 * 1024 * 1024)
-#define CONFIG_SYS_BOOTMAPSZ		(8 * 1024 * 1024)
 
 /* ENV setting */
-#define CONFIG_ENV_ADDR	0xC0000
 
 /* Common ENV setting */
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_ENV_SECT_SIZE	(256 * 1024)
-#define CONFIG_ENV_OFFSET	(CONFIG_ENV_ADDR)
-#define CONFIG_ENV_SIZE		(CONFIG_ENV_SECT_SIZE)
-#define CONFIG_ENV_SIZE_REDUND	(CONFIG_SYS_MONITOR_LEN)
 
 /* SF MTD */
-#if defined(CONFIG_SPI_FLASH_MTD) && !defined(CONFIG_SPL_BUILD)
-#else
-#undef CONFIG_SPI_FLASH_MTD
+#ifdef CONFIG_SPL_BUILD
+#undef CONFIG_DM_SPI
+#undef CONFIG_DM_SPI_FLASH
 #endif
 
 /* Timer */

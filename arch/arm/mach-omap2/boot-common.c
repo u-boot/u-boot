@@ -9,7 +9,6 @@
 
 #include <common.h>
 #include <ahci.h>
-#include <environment.h>
 #include <spl.h>
 #include <asm/omap_common.h>
 #include <asm/arch/omap.h>
@@ -93,7 +92,7 @@ void save_omap_boot_params(void)
 			sys_boot_device = 1;
 			break;
 #endif
-#if defined(BOOT_DEVICE_USB) && !defined(CONFIG_SPL_USB_SUPPORT)
+#if defined(BOOT_DEVICE_USB) && !defined(CONFIG_SPL_USB_STORAGE)
 		case BOOT_DEVICE_USB:
 			sys_boot_device = 1;
 			break;
@@ -108,7 +107,7 @@ void save_omap_boot_params(void)
 			sys_boot_device = 1;
 			break;
 #endif
-#if defined(BOOT_DEVICE_DFU) && !defined(CONFIG_SPL_DFU_SUPPORT)
+#if defined(BOOT_DEVICE_DFU) && !defined(CONFIG_SPL_DFU)
 		case BOOT_DEVICE_DFU:
 			sys_boot_device = 1;
 			break;
@@ -208,7 +207,7 @@ void spl_board_init(void)
 #if defined(CONFIG_AM33XX) && defined(CONFIG_SPL_MUSB_NEW_SUPPORT)
 	arch_misc_init();
 #endif
-#if defined(CONFIG_HW_WATCHDOG)
+#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
 	hw_watchdog_init();
 #endif
 #ifdef CONFIG_AM33XX

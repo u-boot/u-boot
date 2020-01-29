@@ -8,6 +8,7 @@
 #include <debug_uart.h>
 #include <dm.h>
 #include <i2c.h>
+#include <init.h>
 #include <nand.h>
 #include <version.h>
 #include <asm/io.h>

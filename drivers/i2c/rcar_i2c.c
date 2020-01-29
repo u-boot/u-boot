@@ -18,39 +18,52 @@
 #include <asm/io.h>
 #include <wait_bit.h>
 
-#define RCAR_I2C_ICSCR			0x00
-#define RCAR_I2C_ICMCR			0x04
-#define RCAR_I2C_ICMCR_MDBS		BIT(7)
-#define RCAR_I2C_ICMCR_FSCL		BIT(6)
-#define RCAR_I2C_ICMCR_FSDA		BIT(5)
-#define RCAR_I2C_ICMCR_OBPC		BIT(4)
-#define RCAR_I2C_ICMCR_MIE		BIT(3)
+#define RCAR_I2C_ICSCR			0x00 /* slave ctrl */
+#define RCAR_I2C_ICMCR			0x04 /* master ctrl */
+#define RCAR_I2C_ICMCR_MDBS		BIT(7) /* non-fifo mode switch */
+#define RCAR_I2C_ICMCR_FSCL		BIT(6) /* override SCL pin */
+#define RCAR_I2C_ICMCR_FSDA		BIT(5) /* override SDA pin */
+#define RCAR_I2C_ICMCR_OBPC		BIT(4) /* override pins */
+#define RCAR_I2C_ICMCR_MIE		BIT(3) /* master if enable */
 #define RCAR_I2C_ICMCR_TSBE		BIT(2)
-#define RCAR_I2C_ICMCR_FSB		BIT(1)
-#define RCAR_I2C_ICMCR_ESG		BIT(0)
-#define RCAR_I2C_ICSSR			0x08
-#define RCAR_I2C_ICMSR			0x0c
+#define RCAR_I2C_ICMCR_FSB		BIT(1) /* force stop bit */
+#define RCAR_I2C_ICMCR_ESG		BIT(0) /* enable start bit gen */
+#define RCAR_I2C_ICSSR			0x08 /* slave status */
+#define RCAR_I2C_ICMSR			0x0c /* master status */
 #define RCAR_I2C_ICMSR_MASK		0x7f
-#define RCAR_I2C_ICMSR_MNR		BIT(6)
-#define RCAR_I2C_ICMSR_MAL		BIT(5)
-#define RCAR_I2C_ICMSR_MST		BIT(4)
+#define RCAR_I2C_ICMSR_MNR		BIT(6) /* Nack */
+#define RCAR_I2C_ICMSR_MAL		BIT(5) /* Arbitration lost */
+#define RCAR_I2C_ICMSR_MST		BIT(4) /* Stop */
 #define RCAR_I2C_ICMSR_MDE		BIT(3)
 #define RCAR_I2C_ICMSR_MDT		BIT(2)
 #define RCAR_I2C_ICMSR_MDR		BIT(1)
 #define RCAR_I2C_ICMSR_MAT		BIT(0)
-#define RCAR_I2C_ICSIER			0x10
-#define RCAR_I2C_ICMIER			0x14
-#define RCAR_I2C_ICCCR			0x18
+#define RCAR_I2C_ICSIER			0x10 /* slave irq enable */
+#define RCAR_I2C_ICMIER			0x14 /* master irq enable */
+#define RCAR_I2C_ICCCR			0x18 /* clock dividers */
 #define RCAR_I2C_ICCCR_SCGD_OFF		3
-#define RCAR_I2C_ICSAR			0x1c
-#define RCAR_I2C_ICMAR			0x20
-#define RCAR_I2C_ICRXD_ICTXD		0x24
+#define RCAR_I2C_ICSAR			0x1c /* slave address */
+#define RCAR_I2C_ICMAR			0x20 /* master address */
+#define RCAR_I2C_ICRXD_ICTXD		0x24 /* data port */
+/*
+ * First Bit Setup Cycle (Gen3).
+ * Defines 1st bit delay between SDA and SCL.
+ */
+#define RCAR_I2C_ICFBSCR		0x38
+#define RCAR_I2C_ICFBSCR_TCYC17		0x0f /* 17*Tcyc */
+
+
+enum rcar_i2c_type {
+	RCAR_I2C_TYPE_GEN2,
+	RCAR_I2C_TYPE_GEN3,
+};
 
 struct rcar_i2c_priv {
 	void __iomem		*base;
 	struct clk		clk;
 	u32			intdelay;
 	u32			icccr;
+	enum rcar_i2c_type	type;
 };
 
 static int rcar_i2c_finish(struct udevice *dev)
@@ -68,12 +81,13 @@ static int rcar_i2c_finish(struct udevice *dev)
 	return ret;
 }
 
-static void rcar_i2c_recover(struct udevice *dev)
+static int rcar_i2c_recover(struct udevice *dev)
 {
 	struct rcar_i2c_priv *priv = dev_get_priv(dev);
 	u32 mcr = RCAR_I2C_ICMCR_MDBS | RCAR_I2C_ICMCR_OBPC;
 	u32 mcra = mcr | RCAR_I2C_ICMCR_FSDA;
 	int i;
+	u32 mstat;
 
 	/* Send 9 SCL pulses */
 	for (i = 0; i < 9; i++) {
@@ -93,6 +107,9 @@ static void rcar_i2c_recover(struct udevice *dev)
 	udelay(5);
 	writel(mcra | RCAR_I2C_ICMCR_FSCL, priv->base + RCAR_I2C_ICMCR);
 	udelay(5);
+
+	mstat = readl(priv->base + RCAR_I2C_ICMSR);
+	return mstat & RCAR_I2C_ICMCR_FSDA ? -EBUSY : 0;
 }
 
 static int rcar_i2c_set_addr(struct udevice *dev, u8 chip, u8 read)
@@ -100,7 +117,6 @@ static int rcar_i2c_set_addr(struct udevice *dev, u8 chip, u8 read)
 	struct rcar_i2c_priv *priv = dev_get_priv(dev);
 	u32 mask = RCAR_I2C_ICMSR_MAT |
 		   (read ? RCAR_I2C_ICMSR_MDR : RCAR_I2C_ICMSR_MDE);
-	u32 val;
 	int ret;
 
 	writel(0, priv->base + RCAR_I2C_ICMIER);
@@ -108,21 +124,22 @@ static int rcar_i2c_set_addr(struct udevice *dev, u8 chip, u8 read)
 	writel(0, priv->base + RCAR_I2C_ICMSR);
 	writel(priv->icccr, priv->base + RCAR_I2C_ICCCR);
 
+	/* Wait for the bus */
 	ret = wait_for_bit_le32(priv->base + RCAR_I2C_ICMCR,
 				RCAR_I2C_ICMCR_FSDA, false, 2, true);
 	if (ret) {
-		rcar_i2c_recover(dev);
-		val = readl(priv->base + RCAR_I2C_ICMSR);
-		if (val & RCAR_I2C_ICMCR_FSDA) {
+		if (rcar_i2c_recover(dev)) {
 			dev_err(dev, "Bus busy, aborting\n");
 			return ret;
 		}
 	}
 
 	writel((chip << 1) | read, priv->base + RCAR_I2C_ICMAR);
-	writel(0, priv->base + RCAR_I2C_ICMSR);
+	/* Reset */
 	writel(RCAR_I2C_ICMCR_MDBS | RCAR_I2C_ICMCR_MIE | RCAR_I2C_ICMCR_ESG,
 	       priv->base + RCAR_I2C_ICMCR);
+	/* Clear Status */
+	writel(0, priv->base + RCAR_I2C_ICMSR);
 
 	ret = wait_for_bit_le32(priv->base + RCAR_I2C_ICMSR, mask,
 				true, 100, true);
@@ -142,16 +159,12 @@ static int rcar_i2c_read_common(struct udevice *dev, struct i2c_msg *msg)
 	u32 icmcr = RCAR_I2C_ICMCR_MDBS | RCAR_I2C_ICMCR_MIE;
 	int i, ret = -EREMOTEIO;
 
-	ret = rcar_i2c_set_addr(dev, msg->addr, 1);
-	if (ret)
-		return ret;
-
 	for (i = 0; i < msg->len; i++) {
 		if (msg->len - 1 == i)
 			icmcr |= RCAR_I2C_ICMCR_FSB;
 
 		writel(icmcr, priv->base + RCAR_I2C_ICMCR);
-		writel(~RCAR_I2C_ICMSR_MDR, priv->base + RCAR_I2C_ICMSR);
+		writel((u32)~RCAR_I2C_ICMSR_MDR, priv->base + RCAR_I2C_ICMSR);
 
 		ret = wait_for_bit_le32(priv->base + RCAR_I2C_ICMSR,
 					RCAR_I2C_ICMSR_MDR, true, 100, true);
@@ -161,7 +174,7 @@ static int rcar_i2c_read_common(struct udevice *dev, struct i2c_msg *msg)
 		msg->buf[i] = readl(priv->base + RCAR_I2C_ICRXD_ICTXD) & 0xff;
 	}
 
-	writel(~RCAR_I2C_ICMSR_MDR, priv->base + RCAR_I2C_ICMSR);
+	writel((u32)~RCAR_I2C_ICMSR_MDR, priv->base + RCAR_I2C_ICMSR);
 
 	return rcar_i2c_finish(dev);
 }
@@ -172,14 +185,10 @@ static int rcar_i2c_write_common(struct udevice *dev, struct i2c_msg *msg)
 	u32 icmcr = RCAR_I2C_ICMCR_MDBS | RCAR_I2C_ICMCR_MIE;
 	int i, ret = -EREMOTEIO;
 
-	ret = rcar_i2c_set_addr(dev, msg->addr, 0);
-	if (ret)
-		return ret;
-
 	for (i = 0; i < msg->len; i++) {
 		writel(msg->buf[i], priv->base + RCAR_I2C_ICRXD_ICTXD);
 		writel(icmcr, priv->base + RCAR_I2C_ICMCR);
-		writel(~RCAR_I2C_ICMSR_MDE, priv->base + RCAR_I2C_ICMSR);
+		writel((u32)~RCAR_I2C_ICMSR_MDE, priv->base + RCAR_I2C_ICMSR);
 
 		ret = wait_for_bit_le32(priv->base + RCAR_I2C_ICMSR,
 					RCAR_I2C_ICMSR_MDE, true, 100, true);
@@ -187,7 +196,7 @@ static int rcar_i2c_write_common(struct udevice *dev, struct i2c_msg *msg)
 			return ret;
 	}
 
-	writel(~RCAR_I2C_ICMSR_MDE, priv->base + RCAR_I2C_ICMSR);
+	writel((u32)~RCAR_I2C_ICMSR_MDE, priv->base + RCAR_I2C_ICMSR);
 	icmcr |= RCAR_I2C_ICMCR_FSB;
 	writel(icmcr, priv->base + RCAR_I2C_ICMCR);
 
@@ -199,16 +208,20 @@ static int rcar_i2c_xfer(struct udevice *dev, struct i2c_msg *msg, int nmsgs)
 	int ret;
 
 	for (; nmsgs > 0; nmsgs--, msg++) {
+		ret = rcar_i2c_set_addr(dev, msg->addr, 1);
+		if (ret)
+			return ret;
+
 		if (msg->flags & I2C_M_RD)
 			ret = rcar_i2c_read_common(dev, msg);
 		else
 			ret = rcar_i2c_write_common(dev, msg);
 
 		if (ret)
-			return -EREMOTEIO;
+			return ret;
 	}
 
-	return ret;
+	return 0;
 }
 
 static int rcar_i2c_probe_chip(struct udevice *dev, uint addr, uint flags)
@@ -293,6 +306,11 @@ scgd_find:
 	priv->icccr = (scgd << RCAR_I2C_ICCCR_SCGD_OFF) | cdf;
 	writel(priv->icccr, priv->base + RCAR_I2C_ICCCR);
 
+	if (priv->type == RCAR_I2C_TYPE_GEN3) {
+		/* Set SCL/SDA delay */
+		writel(RCAR_I2C_ICFBSCR_TCYC17, priv->base + RCAR_I2C_ICFBSCR);
+	}
+
 	return 0;
 }
 
@@ -304,6 +322,7 @@ static int rcar_i2c_probe(struct udevice *dev)
 	priv->base = dev_read_addr_ptr(dev);
 	priv->intdelay = dev_read_u32_default(dev,
 					      "i2c-scl-internal-delay-ns", 5);
+	priv->type = dev_get_driver_data(dev);
 
 	ret = clk_get_by_index(dev, 0, &priv->clk);
 	if (ret)
@@ -339,7 +358,8 @@ static const struct dm_i2c_ops rcar_i2c_ops = {
 };
 
 static const struct udevice_id rcar_i2c_ids[] = {
-	{ .compatible = "renesas,rcar-gen2-i2c" },
+	{ .compatible = "renesas,rcar-gen2-i2c", .data = RCAR_I2C_TYPE_GEN2 },
+	{ .compatible = "renesas,rcar-gen3-i2c", .data = RCAR_I2C_TYPE_GEN3 },
 	{ }
 };
 

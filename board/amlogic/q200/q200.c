@@ -6,7 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
-#include <environment.h>
+#include <env.h>
 #include <asm/io.h>
 #include <asm/arch/gx.h>
 #include <asm/arch/mem.h>
@@ -26,17 +26,13 @@ int misc_init_r(void)
 
 	meson_eth_init(PHY_INTERFACE_MODE_RGMII, 0);
 
-	/* Reset PHY on GPIOZ_14 */
-	clrbits_le32(GX_GPIO_EN(3), BIT(14));
-	clrbits_le32(GX_GPIO_OUT(3), BIT(14));
-	mdelay(10);
-	setbits_le32(GX_GPIO_OUT(3), BIT(14));
-
 	if (!eth_env_get_enetaddr("ethaddr", mac_addr)) {
 		len = meson_sm_read_efuse(EFUSE_MAC_OFFSET,
 					  mac_addr, EFUSE_MAC_SIZE);
 		if (len == EFUSE_MAC_SIZE && is_valid_ethaddr(mac_addr))
 			eth_env_set_enetaddr("ethaddr", mac_addr);
+		else
+			meson_generate_serial_ethaddr();
 	}
 
 	if (!env_get("serial#")) {

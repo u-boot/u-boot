@@ -338,32 +338,8 @@ static void arasan_sdhci_set_control_reg(struct sdhci_host *host)
 	}
 
 	if (mmc->selected_mode > SD_HS &&
-	    mmc->selected_mode <= MMC_HS_200) {
-		reg = sdhci_readw(host, SDHCI_HOST_CONTROL2);
-		reg &= ~SDHCI_CTRL_UHS_MASK;
-		switch (mmc->selected_mode) {
-		case UHS_SDR12:
-			reg |= UHS_SDR12_BUS_SPEED;
-			break;
-		case UHS_SDR25:
-			reg |= UHS_SDR25_BUS_SPEED;
-			break;
-		case UHS_SDR50:
-			reg |= UHS_SDR50_BUS_SPEED;
-			break;
-		case UHS_SDR104:
-		case MMC_HS_200:
-			reg |= UHS_SDR104_BUS_SPEED;
-			break;
-		case UHS_DDR50:
-		case MMC_DDR_52:
-			reg |= UHS_DDR50_BUS_SPEED;
-			break;
-		default:
-			break;
-		}
-		sdhci_writew(host, reg, SDHCI_HOST_CONTROL2);
-	}
+	    mmc->selected_mode <= MMC_HS_200)
+		sdhci_set_uhs_timing(host);
 }
 
 const struct sdhci_ops arasan_ops = {
@@ -453,6 +429,7 @@ static int arasan_sdhci_ofdata_to_platdata(struct udevice *dev)
 	priv->deviceid = dev_read_u32_default(dev, "xlnx,device_id", -1);
 	priv->bank = dev_read_u32_default(dev, "xlnx,mio_bank", -1);
 	priv->no_1p8 = dev_read_bool(dev, "no-1-8-v");
+
 	plat->f_max = dev_read_u32_default(dev, "max-frequency",
 					   CONFIG_ZYNQ_SDHCI_MAX_FREQ);
 	return 0;

@@ -24,6 +24,7 @@ config USB_XHCI_DWC3
 config USB_XHCI_DWC3_OF_SIMPLE
 	bool "DesignWare USB3 DRD Generic OF Simple Glue Layer"
 	depends on DM_USB
+	default y if ARCH_ROCKCHIP
 	default y if DRA7XX
 	help
 	  Support USB2/3 functionality in simple SoC integrations with
@@ -71,13 +72,6 @@ config USB_XHCI_STI
 	  Enables support for the on-chip xHCI controller on STMicroelectronics
 	  STiH407 family SoCs. This is a driver for the dwc3 to provide the glue logic
 	  to configure the controller.
-
-config USB_XHCI_ZYNQMP
-	bool "Support for Xilinx ZynqMP on-chip xHCI USB controller"
-	depends on ARCH_ZYNQMP
-	depends on DM_USB
-	help
-	  Enables support for the on-chip xHCI controller on Xilinx ZynqMP SoCs.
 
 config USB_XHCI_DRA7XX_INDEX
 	int "DRA7XX xHCI USB index"
@@ -132,9 +126,16 @@ config USB_EHCI_MARVELL
 	---help---
 	  Enables support for the on-chip EHCI controller on MVEBU SoCs.
 
+config USB_EHCI_MX5
+	bool "Support for i.MX5 on-chip EHCI USB controller"
+	depends on ARCH_MX5
+	default n
+	help
+	  Enables support for the on-chip EHCI controller on i.MX5 SoCs.
+
 config USB_EHCI_MX6
-	bool "Support for i.MX6 on-chip EHCI USB controller"
-	depends on ARCH_MX6
+	bool "Support for i.MX6/i.MX7ULP on-chip EHCI USB controller"
+	depends on ARCH_MX6 || ARCH_MX7ULP
 	default y
 	---help---
 	  Enables support for the on-chip EHCI controller on i.MX6 SoCs.
@@ -154,7 +155,14 @@ config USB_EHCI_OMAP
 	  Enables support for the on-chip EHCI controller on OMAP3 and later
 	  SoCs.
 
-if USB_EHCI_MX7
+config USB_EHCI_VF
+	bool "Support for Vybrid on-chip EHCI USB controller"
+	depends on ARCH_VF610
+	default y
+	help
+	  Enables support for the on-chip EHCI controller on Vybrid SoCs.
+
+if USB_EHCI_MX6 || USB_EHCI_MX7
 
 config MXC_USB_OTG_HACTIVE
 	bool "USB Power pin high active"
@@ -179,6 +187,12 @@ config USB_EHCI_PCI
 	help
 	  Enables support for the PCI-based EHCI controller.
 
+config USB_EHCI_TEGRA
+	bool "Support for NVIDIA Tegra on-chip EHCI USB controller"
+	depends on TEGRA
+	---help---
+	  Enable support for Tegra on-chip EHCI USB controller
+
 config USB_EHCI_ZYNQ
 	bool "Support for Xilinx Zynq on-chip EHCI USB controller"
 	depends on ARCH_ZYNQ
@@ -190,6 +204,7 @@ config USB_EHCI_GENERIC
 	bool "Support for generic EHCI USB controller"
 	depends on OF_CONTROL
 	depends on DM_USB
+	default ARCH_SUNXI
 	default n
 	---help---
 	  Enables support for generic EHCI controller.
@@ -214,15 +229,28 @@ config USB_OHCI_HCD
 	  based system where you're not sure, the "lspci -v" entry will list the
 	  right "prog-if" for your USB controller(s):  EHCI, OHCI, or UHCI.
 
+config USB_OHCI_PCI
+	bool "Support for PCI-based OHCI USB controller"
+	depends on DM_USB
+	default n
+	help
+	  Enables support for the PCI-based OHCI controller.
+
 if USB_OHCI_HCD
 
 config USB_OHCI_GENERIC
 	bool "Support for generic OHCI USB controller"
 	depends on OF_CONTROL
 	depends on DM_USB
+	default ARCH_SUNXI
 	select USB_HOST
 	---help---
 	  Enables support for generic OHCI controller.
+
+config USB_OHCI_DA8XX
+	bool "Support for da850 OHCI USB controller"
+	help
+	  Enable support for the da850 USB controller.
 
 endif # USB_OHCI_HCD
 
@@ -265,3 +293,12 @@ config USB_DWC2_BUFFER_SIZE
 	  because larger transactions could be split in smaller ones.
 
 endif # USB_DWC2
+
+config USB_R8A66597_HCD
+	bool "Renesas R8A66597 USB Core support"
+	depends on OF_CONTROL
+	depends on DM_USB
+	select USB_HOST
+	---help---
+	  This enables support for the on-chip Renesas R8A66597 USB 2.0
+	  controller, present in various RZ and SH SoCs.

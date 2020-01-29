@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <div64.h>
+#include <env.h>
 #include <spi.h>
 #include <spi_flash.h>
 #include <linux/mtd/mtd.h>

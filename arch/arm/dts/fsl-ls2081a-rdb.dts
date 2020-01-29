@@ -28,7 +28,7 @@
 	dflash0: n25q512a {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <3000000>;
 		spi-cpol;
 		spi-cpha;
@@ -43,7 +43,7 @@
 	qflash0: s25fs512s@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <50000000>;
 		reg = <0>;
 	};
@@ -51,7 +51,7 @@
 	qflash1: s25fs512s@1 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <50000000>;
 		reg = <1>;
 	};

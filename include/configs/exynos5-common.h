@@ -44,7 +44,6 @@
 
 /* MMC SPL */
 #define COPY_BL2_FNPTR_ADDR	0x02020030
-#define CONFIG_SUPPORT_EMMC_BOOT
 
 /* specific .lds file */
 
@@ -90,7 +89,6 @@
 #define CONFIG_RES_BLOCK_SIZE	(512)
 #define CONFIG_BL1_SIZE	(16 << 10) /*16 K reserved for BL1*/
 #define CONFIG_BL2_SIZE	(512UL << 10UL) /* 512 KB */
-#define CONFIG_ENV_SIZE	(16 << 10) /* 16 KB */
 
 #define CONFIG_BL1_OFFSET	(CONFIG_RES_BLOCK_SIZE + CONFIG_SEC_FW_SIZE)
 #define CONFIG_BL2_OFFSET	(CONFIG_BL1_OFFSET + CONFIG_BL1_SIZE)
@@ -108,17 +106,6 @@
 #define CONFIG_SYS_I2C_S3C24X0_SLAVE    0x0
 
 /* SPI */
-#ifdef CONFIG_SPI_FLASH
-#define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
-#define CONFIG_SF_DEFAULT_SPEED		50000000
-#endif
-
-#ifdef CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_ENV_SPI_MODE	SPI_MODE_0
-#define CONFIG_ENV_SECT_SIZE	CONFIG_ENV_SIZE
-#define CONFIG_ENV_SPI_BUS	1
-#define CONFIG_ENV_SPI_MAX_HZ	50000000
-#endif
 
 /* Ethernet Controllor Driver */
 #ifdef CONFIG_CMD_NET
@@ -136,9 +123,9 @@
 #define EXYNOS_IRAM_SECONDARY_BASE	0x02020018
 
 #define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 2) \
 	func(MMC, mmc, 1) \
 	func(MMC, mmc, 0) \
-	func(MMC, mmc, 2) \
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
 

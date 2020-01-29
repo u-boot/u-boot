@@ -110,7 +110,7 @@
 	status = "okay";
 
 	spi-flash@0 {
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		reg = <0>;
 		#address-cells = <1>;
 		#size-cells = <1>;

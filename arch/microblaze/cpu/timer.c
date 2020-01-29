@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <fdtdec.h>
+#include <time.h>
 #include <asm/microblaze_timer.h>
 #include <asm/microblaze_intc.h>
 

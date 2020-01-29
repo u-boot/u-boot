@@ -18,12 +18,14 @@
 #include <common.h>
 #include <config.h>
 #include <command.h>
+#include <env.h>
 #include <part.h>
 #include <vsprintf.h>
 
 enum cmd_part_info {
 	CMD_PART_INFO_START = 0,
 	CMD_PART_INFO_SIZE,
+	CMD_PART_INFO_NUMBER
 };
 
 static int do_part_uuid(int argc, char * const argv[])
@@ -149,6 +151,9 @@ static int do_part_info(int argc, char * const argv[], enum cmd_part_info param)
 	case CMD_PART_INFO_SIZE:
 		snprintf(buf, sizeof(buf), LBAF, info.size);
 		break;
+	case CMD_PART_INFO_NUMBER:
+		snprintf(buf, sizeof(buf), "0x%x", part);
+		break;
 	default:
 		printf("** Unknown cmd_part_info value: %d\n", param);
 		return 1;
@@ -172,6 +177,11 @@ static int do_part_size(int argc, char * const argv[])
 	return do_part_info(argc, argv, CMD_PART_INFO_SIZE);
 }
 
+static int do_part_number(int argc, char * const argv[])
+{
+	return do_part_info(argc, argv, CMD_PART_INFO_NUMBER);
+}
+
 static int do_part(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	if (argc < 2)
@@ -185,6 +195,8 @@ static int do_part(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return do_part_start(argc - 2, argv + 2);
 	else if (!strcmp(argv[1], "size"))
 		return do_part_size(argc - 2, argv + 2);
+	else if (!strcmp(argv[1], "number"))
+		return do_part_number(argc - 2, argv + 2);
 
 	return CMD_RET_USAGE;
 }
@@ -206,5 +218,8 @@ U_BOOT_CMD(
 	"      part can be either partition number or partition name\n"
 	"part size <interface> <dev> <part> <varname>\n"
 	"    - set environment variable to the size of the partition (in blocks)\n"
-	"      part can be either partition number or partition name"
+	"      part can be either partition number or partition name\n"
+	"part number <interface> <dev> <part> <varname>\n"
+	"    - set environment variable to the partition number using the partition name\n"
+	"      part must be specified as partition name"
 );

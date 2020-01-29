@@ -6,7 +6,10 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <errno.h>
+#include <init.h>
+#include <serial.h>
 #include <spl.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/hardware.h>
@@ -25,7 +28,6 @@
 #include <fdt_support.h>
 #include <mtd_node.h>
 #include <jffs2/load_kernel.h>
-#include <environment.h>
 #include "board.h"
 
 DECLARE_GLOBAL_DATA_PTR;

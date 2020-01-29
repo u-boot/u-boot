@@ -97,7 +97,7 @@ ENTRY(c_runtime_cpu_setup)
 /*
  * If I-cache is enabled invalidate it
  */
-#ifndef CONFIG_SYS_ICACHE_OFF
+#if !CONFIG_IS_ENABLED(SYS_ICACHE_OFF)
 	mcr	p15, 0, r0, c7, c5, 0	@ invalidate icache
 	mcr     p15, 0, r0, c7, c10, 4	@ DSB
 	mcr     p15, 0, r0, c7, c5, 4	@ ISB
@@ -155,7 +155,7 @@ ENTRY(cpu_init_cp15)
 	bic	r0, r0, #0x00000007	@ clear bits 2:0 (-CAM)
 	orr	r0, r0, #0x00000002	@ set bit 1 (--A-) Align
 	orr	r0, r0, #0x00000800	@ set bit 11 (Z---) BTB
-#ifdef CONFIG_SYS_ICACHE_OFF
+#if CONFIG_IS_ENABLED(SYS_ICACHE_OFF)
 	bic	r0, r0, #0x00001000	@ clear bit 12 (I) I-cache
 #else
 	orr	r0, r0, #0x00001000	@ set bit 12 (I) I-cache

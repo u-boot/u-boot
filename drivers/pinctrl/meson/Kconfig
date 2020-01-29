@@ -2,6 +2,7 @@ if ARCH_MESON
 
 config PINCTRL_MESON
 	select PINCTRL_GENERIC
+	select PINCONF
 	bool
 
 config PINCTRL_MESON_GX_PMX
@@ -22,6 +23,10 @@ config PINCTRL_MESON_GXL
 
 config PINCTRL_MESON_AXG
 	bool "Amlogic Meson AXG SoC pinctrl driver"
+	select PINCTRL_MESON_AXG_PMX
+
+config PINCTRL_MESON_G12A
+	bool "Amlogic Meson G12a SoC pinctrl driver"
 	select PINCTRL_MESON_AXG_PMX
 
 endif

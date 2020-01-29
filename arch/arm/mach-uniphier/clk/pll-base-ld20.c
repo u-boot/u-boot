@@ -12,6 +12,7 @@
 #include <linux/io.h>
 #include <linux/sizes.h>
 
+#include "../sc64-regs.h"
 #include "pll.h"
 
 /* PLL type: SSC */
@@ -31,12 +32,8 @@
 int uniphier_ld20_sscpll_init(unsigned long reg_base, unsigned int freq,
 			      unsigned int ssc_rate, unsigned int divn)
 {
-	void __iomem *base;
+	void __iomem *base = sc_base + reg_base;
 	u32 tmp;
-
-	base = ioremap(reg_base, SZ_16);
-	if (!base)
-		return -ENOMEM;
 
 	if (freq != UNIPHIER_PLL_FREQ_DEFAULT) {
 		tmp = readl(base);	/* SSCPLLCTRL */
@@ -60,56 +57,38 @@ int uniphier_ld20_sscpll_init(unsigned long reg_base, unsigned int freq,
 	tmp |= SC_PLLCTRL2_NRSTDS;
 	writel(tmp, base + 4);
 
-	iounmap(base);
-
 	return 0;
 }
 
 int uniphier_ld20_sscpll_ssc_en(unsigned long reg_base)
 {
-	void __iomem *base;
+	void __iomem *base = sc_base + reg_base;
 	u32 tmp;
-
-	base = ioremap(reg_base, SZ_16);
-	if (!base)
-		return -ENOMEM;
 
 	tmp = readl(base);	/* SSCPLLCTRL */
 	tmp |= SC_PLLCTRL_SSC_EN;
 	writel(tmp, base);
-
-	iounmap(base);
 
 	return 0;
 }
 
 int uniphier_ld20_sscpll_set_regi(unsigned long reg_base, unsigned regi)
 {
-	void __iomem *base;
+	void __iomem *base = sc_base + reg_base;
 	u32 tmp;
-
-	base = ioremap(reg_base, SZ_16);
-	if (!base)
-		return -ENOMEM;
 
 	tmp = readl(base + 8);	/* SSCPLLCTRL3 */
 	tmp &= ~SC_PLLCTRL3_REGI_MASK;
 	tmp |= FIELD_PREP(SC_PLLCTRL3_REGI_MASK, regi);
 	writel(tmp, base + 8);
 
-	iounmap(base);
-
 	return 0;
 }
 
 int uniphier_ld20_vpll27_init(unsigned long reg_base)
 {
-	void __iomem *base;
+	void __iomem *base = sc_base + reg_base;
 	u32 tmp;
-
-	base = ioremap(reg_base, SZ_16);
-	if (!base)
-		return -ENOMEM;
 
 	tmp = readl(base);		/* VPLL27CTRL */
 	tmp |= SC_VPLL27CTRL_WP;	/* write protect off */
@@ -123,25 +102,17 @@ int uniphier_ld20_vpll27_init(unsigned long reg_base)
 	tmp &= ~SC_VPLL27CTRL_WP;	/* write protect on */
 	writel(tmp, base);
 
-	iounmap(base);
-
 	return 0;
 }
 
 int uniphier_ld20_dspll_init(unsigned long reg_base)
 {
-	void __iomem *base;
+	void __iomem *base = sc_base + reg_base;
 	u32 tmp;
-
-	base = ioremap(reg_base, SZ_16);
-	if (!base)
-		return -ENOMEM;
 
 	tmp = readl(base + 4);		/* DSPLLCTRL2 */
 	tmp |= SC_DSPLLCTRL2_K_LD;
 	writel(tmp, base + 4);
-
-	iounmap(base);
 
 	return 0;
 }

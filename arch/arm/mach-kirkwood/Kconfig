@@ -32,11 +32,8 @@ config TARGET_ICONNECT
 	bool "iconnect Board"
 
 config TARGET_KM_KIRKWOOD
-	bool "KM_KIRKWOOD Board"
-	select BOARD_LATE_INIT
-	imply CMD_CRAMFS
-	imply CMD_DIAG
-	imply FS_CRAMFS
+	bool "KM Kirkwood Board"
+	select VENDOR_KM
 
 config TARGET_NET2BIG_V2
 	bool "LaCie 2Big Network v2 NAS Board"
@@ -65,6 +62,9 @@ config TARGET_SBx81LIFKW
 config TARGET_SBx81LIFXCAT
 	bool "Allied Telesis SBx81GP24/SBx81GT24"
 
+config TARGET_DB_88F6281_BP
+	bool "Marvell DB-88F6281-BP"
+
 endchoice
 
 config SYS_SOC
@@ -79,7 +79,7 @@ source "board/buffalo/lsxl/Kconfig"
 source "board/cloudengines/pogo_e02/Kconfig"
 source "board/d-link/dns325/Kconfig"
 source "board/iomega/iconnect/Kconfig"
-source "board/keymile/km_arm/Kconfig"
+source "board/keymile/Kconfig"
 source "board/LaCie/net2big_v2/Kconfig"
 source "board/LaCie/netspace_v2/Kconfig"
 source "board/raidsonic/ib62x0/Kconfig"
@@ -89,5 +89,6 @@ source "board/Seagate/nas220/Kconfig"
 source "board/zyxel/nsa310s/Kconfig"
 source "board/alliedtelesis/SBx81LIFKW/Kconfig"
 source "board/alliedtelesis/SBx81LIFXCAT/Kconfig"
+source "board/Marvell/db-88f6281-bp/Kconfig"
 
 endif

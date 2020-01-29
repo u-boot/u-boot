@@ -26,7 +26,6 @@ LIB	= $(obj)/libstubs.o
 LIBOBJS-$(CONFIG_PPC) += ppc_longjmp.o ppc_setjmp.o
 LIBOBJS-y += stubs.o
 
-.SECONDARY: $(call objectify,$(COBJS))
 targets += $(patsubst $(obj)/%,%,$(LIB)) $(COBJS) $(LIBOBJS-y)
 
 LIBOBJS	:= $(addprefix $(obj)/,$(LIBOBJS-y))

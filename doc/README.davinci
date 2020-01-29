@@ -1,108 +1,47 @@
 Summary
 =======
 
-This README is about U-Boot support for TI's ARM 926EJS based family of SoCs.
-These SOCs are used for cameras, video security and surveillance, DVR's, etc.
-DaVinci SOC's comprise of DM644x, DM646x, DM35x and DM36x series of SOC's
-Additionally there are some SOCs meant for the audio market which though have
-an OMAP part number are very similar to the DaVinci series of SOC's
-Additionally, some family members contain a TI DSP and/or graphics
-co processors along with a host of other peripherals.
+Note: this document used to be about the entire family of DaVinci SOCs but the
+support for the DM* family and DA830 has since been dropped.
+
+This README is about U-Boot support for TI's DA850 SoC. This SOC has an OMAP
+part number but is very similar to the DaVinci series.
 
 Currently the following boards are supported:
 
-* TI DaVinci DM644x EVM
-
-* TI DaVinci DM646x EVM
-
-* TI DaVinci DM355 EVM
-
-* TI DaVinci DM365 EVM
-
-* TI DA830 EVM
-
 * TI DA850 EVM
 
-* DM355 based Leopard board
+* TI OMAP-L138 LCDK
 
-* DM644x based schmoogie board
-
-* DM644x based sffsdr board
-
-* DM644x based sonata board
+* Lego EV3
 
 Build
 =====
-
-* TI DaVinci DM644x EVM:
-
-make davinci_dvevm_config
-make
-
-* TI DaVinci DM646x EVM:
-
-make davinci_dm6467evm_config
-make
-
-* TI DaVinci DM355 EVM:
-
-make davinci_dm355evm_config
-make
-
-* TI DaVinci DM365 EVM:
-
-make davinci_dm365evm_config
-make
-
-* TI DA830 EVM:
-
-make da830evm_config
-make
 
 * TI DA850 EVM:
 
 make da850evm_config
 make
 
-* DM355 based Leopard board:
+* TI OMAP-L138 LCDK
 
-make davinci_dm355leopard_config
+make omapl138_lcdk_defconfig
 make
 
-* DM644x based schmoogie board:
+* Lego EV3
 
-make davinci_schmoogie_config
-make
-
-* DM644x based sffsdr board:
-
-make davinci_sffsdr_config
-make
-
-* DM644x based sonata board:
-
-make davinci_sonata_config
+make legoev3_defconfig
 make
 
 Bootloaders
 ===============
 
-The DaVinci SOC's use 2 bootloaders. The low level initialization
-is done by a UBL(user boot loader). The UBL is written to a NAND/NOR/SPI flash
-by a programmer. During initial bootup, the ROM Bootloader reads the UBL
-from a storage device and loads it into the IRAM. The UBL then loads the U-Boot
-into the RAM.
-The programmers and UBL are always released as part of any standard TI
-software release associated with an SOC.
+For DA850 an SPL (secondary program loader, see doc/README.SPL) is provided
+to load U-Boot directly from SPI flash. The SPL takes care of the low level
+initialization.
 
-Alternative boot method (DA850 EVM only):
-For the DA850 EVM an SPL (secondary program loader, see doc/README.SPL)
-is provided to load U-Boot directly from SPI flash. In this case, the
-SPL does the low level initialization that is otherwise done by the SPL.
-To build U-Boot with this SPL, do
-make da850evm_config
-make u-boot.ais
-and program the resulting u-boot.ais file to the SPI flash of the DA850 EVM.
+The SPL is built as u-boot.ais for all DA850 defconfigs. The resulting
+image file can be programmed to the SPI flash of the DA850 EVM/LCDK.
 
 Environment Variables
 =====================
@@ -121,33 +60,13 @@ is used to obtain this information.
 Links
 =====
 
-1) TI DaVinci DM355 EVM:
-http://focus.ti.com/docs/prod/folders/print/tms320dm355.html
-http://www.spectrumdigital.com/product_info.php?cPath=103&products_id=203&osCsid=c499af6087317f11b3da19b4e8f1af32
-
-2) TI DaVinci DM365 EVM:
-http://focus.ti.com/docs/prod/folders/print/tms320dm365.html?247SEM=
-http://support.spectrumdigital.com/boards/evmdm365/revc/
-
-3) DaVinci DM355 based leopard board
-http://designsomething.org/leopardboard/default.aspx
-http://www.spectrumdigital.com/product_info.php?cPath=103&products_id=192&osCsid=67c20335668ffc57cb35727106eb24b1
-
-4) TI DaVinci DM6467 EVM:
-http://focus.ti.com/docs/prod/folders/print/tms320dm6467.html
-http://support.spectrumdigital.com/boards/evmdm6467/revf/
-
-5) TI DaVinci DM6446 EVM:
-http://focus.ti.com/docs/prod/folders/print/tms320dm6446.html
-http://www.spectrumdigital.com/product_info.php?cPath=103&products_id=222
-
-6) TI DA830 EVM
-http://focus.ti.com/apps/docs/gencontent.tsp?appId=1&contentId=52385
-http://www.spectrumdigital.com/product_info.php?cPath=37&products_id=214
-
-7) TI DA850 EVM
+1) TI DA850 EVM
 http://focus.ti.com/docs/prod/folders/print/omap-l138.html
 http://www.logicpd.com/products/development-kits/zoom-omap-l138-evm-development-kit
+
+2) TI OMAP-L138 LCDK
+http://focus.ti.com/docs/prod/folders/print/omap-l138.html
+http://www.ti.com/tool/TMDXLCDK138
 
 Davinci special defines
 =======================

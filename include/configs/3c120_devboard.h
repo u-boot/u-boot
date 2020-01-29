@@ -62,9 +62,7 @@
  * (which is common practice).
  */
 
-#define CONFIG_ENV_SIZE			0x20000	/* 128k, 1 sector */
 #define CONFIG_ENV_OVERWRITE		/* Serial change Ok	*/
-#define CONFIG_ENV_ADDR			(0xe2800000 + CONFIG_SYS_MONITOR_LEN)
 
 /*
  * MISC

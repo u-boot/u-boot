@@ -70,7 +70,7 @@
 	};
 
 	mmc0: mmc@f0e00000 {
-		compatible = "andestech,atsdc010";
+		compatible = "andestech,atfsdc010";
 		max-frequency = <100000000>;
 		fifo-depth = <0x10>;
 		reg = <0xf0e00000 0x1000>;
@@ -93,7 +93,7 @@
 		clocks = <&spiclk>;
 		interrupts = <3 4>;
 			flash@0 {
-			compatible = "spi-flash";
+			compatible = "jedec,spi-nor";
 			spi-max-frequency = <50000000>;
 			reg = <0>;
 			spi-cpol;

@@ -22,7 +22,6 @@ Commands to erase/write u-boot/mlo to flash device
 --------------------------------------------------
 U-Boot# sf probe 0
 SF: Detected S25FL256S_64K with page size 256 Bytes, erase size 64 KiB, total 32 MiB, mapped at 5c000000
-SF: Warning - Only lower 16MiB accessible, Full access #define CONFIG_SPI_FLASH_BAR
 U-Boot# sf erase 0 0x10000
 SF: 65536 bytes @ 0x0 Erased: OK
 U-Boot# sf erase 0x20000 0x10000

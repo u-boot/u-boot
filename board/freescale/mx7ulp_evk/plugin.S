@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2016 Freescale Semiconductor, Inc.
+ * Copyright 2019 NXP
  */
 
 #include <config.h>
@@ -15,13 +16,14 @@
 	str r3, [r2, #0x40]
 	ldr r3, =0x01000000
 	str r3, [r2, #0x500]
+
 	ldr r3, =0x80808080
 	str r3, [r2, #0x50c]
-	ldr r3, =0x00140000
+	ldr r3, =0x00160002
 	str r3, [r2, #0x508]
-	ldr r3, =0x00000004
+	ldr r3, =0x00000001
 	str r3, [r2, #0x510]
-	ldr r3, =0x00000002
+	ldr r3, =0x00000014
 	str r3, [r2, #0x514]
 	ldr r3, =0x00000001
 	str r3, [r2, #0x500]
@@ -33,7 +35,7 @@ wait1:
 	cmp r4, r3
 	bne wait1
 
-	ldr r3, =0x8080801E
+	ldr r3, =0x8080801B
 	str r3, [r2, #0x50c]
 
 	ldr r3, =0x00000040
@@ -132,15 +134,6 @@ wait2:
 	ldr r1, =0x33333333
 	str r1, [r0, #0x828]
 
-	ldr r1, =0xf3333333
-	str r1, [r0, #0x82c]
-	ldr r1, =0xf3333333
-	str r1, [r0, #0x830]
-	ldr r1, =0xf3333333
-	str r1, [r0, #0x834]
-	ldr r1, =0xf3333333
-	str r1, [r0, #0x838]
-
 	ldr r1, =0x24922492
 	str r1, [r0, #0x8c0]
 	ldr r1, =0x00000800
@@ -168,9 +161,9 @@ wait2:
 	ldr r1, =0xC3190000
 	str r1, [r0, #0x0]
 
-	ldr r1, =0x00008050
+	ldr r1, =0x00008010
 	str r1, [r0, #0x1c]
-	ldr r1, =0x00008058
+	ldr r1, =0x00008018
 	str r1, [r0, #0x1c]
 	ldr r1, =0x003F8030
 	str r1, [r0, #0x1c]

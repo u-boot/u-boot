@@ -5,3 +5,65 @@ F:      board/rockchip/evb_rk3399
 F:      include/configs/evb_rk3399.h
 F:      configs/evb-rk3399_defconfig
 F:      configs/firefly-rk3399_defconfig
+
+KHADAS-EDGE
+M:	Nick Xie <nick@khadas.com>
+S:	Maintained
+F:	configs/khadas-edge-rk3399_defconfig
+F:	arch/arm/dts/rk3399-khadas-edge-u-boot.dtsi
+
+KHADAS-EDGE-CAPTAIN
+M:	Nick Xie <nick@khadas.com>
+S:	Maintained
+F:	configs/khadas-edge-captain-rk3399_defconfig
+F:	arch/arm/dts/rk3399-khadas-edge-captain-u-boot.dtsi
+
+KHADAS-EDGE-V
+M:	Nick Xie <nick@khadas.com>
+S:	Maintained
+F:	configs/khadas-edge-v-rk3399_defconfig
+F:	arch/arm/dts/rk3399-khadas-edge-v-u-boot.dtsi
+
+LEEZ-P710
+M:	Andy Yan <andy.yan@rock-chips.com>
+S:      Maintained
+F:	arch/arm/dts/rk3399-leez-p710-u-boot.dtsi
+F:	configs/leez-rk3399_defconfig
+
+NANOPC-T4
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/nanopc-t4-rk3399_defconfig
+F:	arch/arm/dts/rk3399-nanopc-t4-u-boot.dtsi
+
+NANOPI-M4
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/nanopi-m4-rk3399_defconfig
+F:	arch/arm/dts/rk3399-nanopi-m4-u-boot.dtsi
+
+NANOPI-NEO4
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/nanopi-neo4-rk3399_defconfig
+F:	arch/arm/dts/rk3399-nanopi-neo4-u-boot.dtsi
+
+ORANGEPI-RK3399
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/orangepi-rk3399_defconfig
+F:	arch/arm/dts/rk3399-u-boot.dtsi
+F:	arch/arm/dts/rk3399-orangepi-u-boot.dtsi
+
+ROC-RK3399-PC
+M:	Levin Du <djw@t-chip.com.cn>
+S:	Maintained
+F:	configs/roc-pc-rk3399_defconfig
+F:	arch/arm/dts/rk3399-roc-pc-u-boot.dtsi
+
+ROCK-PI-4
+M:	Akash Gajjar <akash@openedev.com>
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/rock-pi-4-rk3399_defconfig
+F:	arch/arm/dts/rk3399-rock-pi-4-u-boot.dtsi

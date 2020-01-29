@@ -409,20 +409,22 @@ static int rpc_spi_probe(struct udevice *dev)
 
 	priv->regs = plat->regs;
 	priv->extr = plat->extr;
-
+#if CONFIG_IS_ENABLED(CLK)
 	clk_enable(&priv->clk);
-
+#endif
 	return 0;
 }
 
 static int rpc_spi_ofdata_to_platdata(struct udevice *bus)
 {
 	struct rpc_spi_platdata *plat = dev_get_platdata(bus);
-	struct rpc_spi_priv *priv = dev_get_priv(bus);
-	int ret;
 
 	plat->regs = dev_read_addr_index(bus, 0);
 	plat->extr = dev_read_addr_index(bus, 1);
+
+#if CONFIG_IS_ENABLED(CLK)
+	struct rpc_spi_priv *priv = dev_get_priv(bus);
+	int ret;
 
 	ret = clk_get_by_index(bus, 0, &priv->clk);
 	if (ret < 0) {
@@ -430,6 +432,7 @@ static int rpc_spi_ofdata_to_platdata(struct udevice *bus)
 		       __func__, bus->name, ret);
 		return ret;
 	}
+#endif
 
 	plat->freq = dev_read_u32_default(bus, "spi-max-freq", 50000000);
 
@@ -448,6 +451,7 @@ static const struct udevice_id rpc_spi_ids[] = {
 	{ .compatible = "renesas,rpc-r8a77965" },
 	{ .compatible = "renesas,rpc-r8a77970" },
 	{ .compatible = "renesas,rpc-r8a77995" },
+	{ .compatible = "renesas,rpc-r7s72100" },
 	{ }
 };
 

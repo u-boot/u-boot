@@ -4,7 +4,7 @@
 
 #include <common.h>
 #include <console.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <malloc.h>
 #include <ns16550.h>
 #include <nand.h>
@@ -106,20 +106,23 @@ void board_init_r(gd_t *gd, ulong dest_addr)
 #endif
 
 	/* relocate environment function pointers etc. */
+#if defined(CONFIG_ENV_IS_IN_NAND) || defined(CONFIG_ENV_IS_IN_MMC) || \
+	defined(CONFIG_ENV_IS_IN_SPI_FLASH)
 #ifdef CONFIG_SPL_NAND_BOOT
 	nand_spl_load_image(CONFIG_ENV_OFFSET, CONFIG_ENV_SIZE,
-			    (uchar *)CONFIG_ENV_ADDR);
+			    (uchar *)SPL_ENV_ADDR);
 #endif
 #ifdef CONFIG_SPL_MMC_BOOT
 	mmc_spl_load_image(CONFIG_ENV_OFFSET, CONFIG_ENV_SIZE,
-			   (uchar *)CONFIG_ENV_ADDR);
+			   (uchar *)SPL_ENV_ADDR);
 #endif
 #ifdef CONFIG_SPL_SPI_BOOT
 	fsl_spi_spl_load_image(CONFIG_ENV_OFFSET, CONFIG_ENV_SIZE,
-			       (uchar *)CONFIG_ENV_ADDR);
+			       (uchar *)SPL_ENV_ADDR);
 #endif
-	gd->env_addr  = (ulong)(CONFIG_ENV_ADDR);
+	gd->env_addr  = (ulong)(SPL_ENV_ADDR);
 	gd->env_valid = ENV_VALID;
+#endif
 
 	i2c_init_all();
 

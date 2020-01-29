@@ -4,10 +4,12 @@
  */
 
 #include <common.h>
+#include <fdt_support.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mx7ulp-pins.h>
 #include <asm/arch/iomux.h>
+#include <asm/mach-imx/boot_mode.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -15,7 +17,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int dram_init(void)
 {
-	gd->ram_size = PHYS_SDRAM_SIZE;
+	gd->ram_size = imx_ddr_size();
 
 	return 0;
 }
@@ -45,3 +47,48 @@ int board_init(void)
 
 	return 0;
 }
+
+#if IS_ENABLED(CONFIG_OF_BOARD_SETUP)
+int ft_board_setup(void *blob, bd_t *bd)
+{
+	const char *path;
+	int rc, nodeoff;
+
+	if (get_boot_device() == USB_BOOT) {
+		path = fdt_get_alias(blob, "mmc0");
+		if (!path) {
+			puts("Not found mmc0\n");
+			return 0;
+		}
+
+		nodeoff = fdt_path_offset(blob, path);
+		if (nodeoff < 0)
+			return 0;
+
+		printf("Found usdhc0 node\n");
+		if (fdt_get_property(blob, nodeoff, "vqmmc-supply",
+		    NULL) != NULL) {
+			rc = fdt_delprop(blob, nodeoff, "vqmmc-supply");
+			if (!rc) {
+				puts("Removed vqmmc-supply property\n");
+add:
+				rc = fdt_setprop(blob, nodeoff,
+						 "no-1-8-v", NULL, 0);
+				if (rc == -FDT_ERR_NOSPACE) {
+					rc = fdt_increase_size(blob, 32);
+					if (!rc)
+						goto add;
+				} else if (rc) {
+					printf("Failed to add no-1-8-v property, %d\n", rc);
+				} else {
+					puts("Added no-1-8-v property\n");
+				}
+			} else {
+				printf("Failed to remove vqmmc-supply property, %d\n", rc);
+			}
+		}
+	}
+
+	return 0;
+}
+#endif

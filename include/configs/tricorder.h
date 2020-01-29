@@ -78,9 +78,6 @@
 
 /* environment placement (for NAND), is different for FLASHCARD but does not
  * harm there */
-#define CONFIG_ENV_OFFSET		0x120000    /* env start */
-#define CONFIG_ENV_OFFSET_REDUND	0x2A0000    /* redundant env start */
-#define CONFIG_ENV_SIZE			(16 << 10)  /* use 16KiB for env */
 #define CONFIG_ENV_RANGE		(384 << 10) /* allow badblocks in env */
 
 /* the loadaddr is the same as CONFIG_SYS_LOAD_ADDR, unfortunately the defiend
@@ -219,7 +216,6 @@
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME        "u-boot.img"
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION     1
 
-#define CONFIG_SPL_TEXT_BASE		0x40200000 /*CONFIG_SYS_SRAM_START*/
 #define CONFIG_SPL_MAX_SIZE		(SRAM_SCRATCH_SPACE_ADDR - \
 					 CONFIG_SPL_TEXT_BASE)
 

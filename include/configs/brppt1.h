@@ -31,11 +31,6 @@
 /*#define CONFIG_MACH_TYPE		3589*/
 #define CONFIG_MACH_TYPE		0xFFFFFFFF /* TODO: check with kernel*/
 
-/* MMC/SD IP block */
-#if defined(CONFIG_EMMC_BOOT)
- #define CONFIG_SUPPORT_EMMC_BOOT
-#endif /* CONFIG_EMMC_BOOT */
-
 /*
  * When we have NAND flash we expect to be making use of mtdparts,
  * both for ease of use in U-Boot and for passing information on to
@@ -51,27 +46,25 @@
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	0x80	/* 64KiB */
 
 /* NAND */
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 #define CONFIG_SYS_NAND_SPL_KERNEL_OFFS		0x140000
-#endif /* CONFIG_NAND */
+#endif /* CONFIG_MTD_RAW_NAND */
 #endif /* CONFIG_SPL_OS_BOOT */
 
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 #define CONFIG_SPL_NAND_BASE
 #define CONFIG_SPL_NAND_DRIVERS
 #define CONFIG_SPL_NAND_ECC
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
-#endif /* CONFIG_NAND */
+#endif /* CONFIG_MTD_RAW_NAND */
 
-/* Always 64 KiB env size */
-#define CONFIG_ENV_SIZE			(64 << 10)
-
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 #define NANDTGTS \
 "mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
 "mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
-"cfgscr=nand read ${cfgaddr} cfgscr && source ${cfgaddr}\0" \
+"cfgscr=mw ${dtbaddr} 0; nand read ${cfgaddr} cfgscr && source ${cfgaddr};" \
+" fdt addr ${dtbaddr} || cp ${fdtcontroladdr} ${dtbaddr} 4000\0" \
 "nandargs=setenv bootargs console=${console} ${optargs} ${optargs_rot} " \
 	"root=mtd6 rootfstype=jffs2 b_mode=${b_mode}\0" \
 "b_nand=nand read ${loadaddr} kernel; nand read ${dtbaddr} dtb; " \
@@ -81,7 +74,7 @@
 "b_tgts_pme=usb0 nand net\0"
 #else
 #define NANDTGTS ""
-#endif /* CONFIG_NAND */
+#endif /* CONFIG_MTD_RAW_NAND */
 
 #define MMCSPI_TGTS \
 "t30args#0=setenv bootargs ${optargs_rot} ${optargs} console=${console} " \
@@ -109,7 +102,9 @@
 #ifdef CONFIG_ENV_IS_IN_MMC
 #define MMCTGTS \
 MMCSPI_TGTS \
-"cfgscr=mmc dev 1; mmc read ${cfgaddr} 200 80; source ${cfgaddr}\0"
+"cfgscr=mw ${dtbaddr} 0;" \
+" mmc dev 1; mmc read ${cfgaddr} 200 80; source ${cfgaddr};" \
+" fdt addr ${dtbaddr} || cp ${fdtcontroladdr} ${dtbaddr} 4000\0"
 #else
 #define MMCTGTS ""
 #endif /* CONFIG_MMC */
@@ -117,7 +112,9 @@ MMCSPI_TGTS \
 #ifdef CONFIG_SPI
 #define SPITGTS \
 MMCSPI_TGTS \
-"cfgscr=sf probe; sf read ${cfgaddr} 0xC0000 10000; source ${cfgaddr}\0"
+"cfgscr=mw ${dtbaddr} 0;" \
+" sf probe; sf read ${cfgaddr} 0xC0000 10000; source ${cfgaddr};" \
+" fdt addr ${dtbaddr} || cp ${fdtcontroladdr} ${dtbaddr} 4000\0"
 #else
 #define SPITGTS ""
 #endif /* CONFIG_SPI */
@@ -150,7 +147,7 @@ NANDTGTS \
 " if test ${b_break} = 1; then; exit; fi; done\0"
 #endif /* !CONFIG_SPL_BUILD*/
 
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 /*
  * GPMC  block.  We support 1 device and the physical address to
  * access CS0 at is 0x8000000.
@@ -180,32 +177,17 @@ NANDTGTS \
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
 
 #define CONFIG_NAND_OMAP_GPMC_WSCFG	1
-#endif /* CONFIG_NAND */
-
-/* USB configuration */
-#define CONFIG_USB_MUSB_DISABLE_BULK_COMBINE_SPLIT
+#endif /* CONFIG_MTD_RAW_NAND */
 
 #if defined(CONFIG_SPI)
 /* SPI Flash */
-#define CONFIG_SF_DEFAULT_SPEED			24000000
-#define CONFIG_SYS_SPI_U_BOOT_OFFS		0x40000
 /* Environment */
-#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
-#define CONFIG_ENV_SPI_MAX_HZ			CONFIG_SF_DEFAULT_SPEED
-#define CONFIG_ENV_SECT_SIZE			CONFIG_ENV_SIZE
-#define CONFIG_ENV_OFFSET			0x20000
-#define CONFIG_ENV_OFFSET_REDUND		(CONFIG_ENV_OFFSET + \
-						 CONFIG_ENV_SECT_SIZE)
 #elif defined(CONFIG_ENV_IS_IN_MMC)
 #define CONFIG_SYS_MMC_ENV_DEV		1
 #define CONFIG_SYS_MMC_ENV_PART		2
-#define CONFIG_ENV_OFFSET		0x40000	/* TODO: Adresse definieren */
-#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
-#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 
 #elif defined(CONFIG_ENV_IS_IN_NAND)
 /* No NAND env support in SPL */
-#define CONFIG_ENV_OFFSET		0x60000
 #define CONFIG_SYS_ENV_SECT_SIZE	CONFIG_ENV_SIZE
 #else
 #error "no storage for Environment defined!"

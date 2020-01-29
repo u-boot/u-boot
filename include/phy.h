@@ -106,7 +106,18 @@ struct phy_driver {
 	int (*readext)(struct phy_device *phydev, int addr, int devad, int reg);
 	int (*writeext)(struct phy_device *phydev, int addr, int devad, int reg,
 			u16 val);
+
+	/* Phy specific driver override for reading a MMD register */
+	int (*read_mmd)(struct phy_device *phydev, int devad, int reg);
+
+	/* Phy specific driver override for writing a MMD register */
+	int (*write_mmd)(struct phy_device *phydev, int devad, int reg,
+			 u16 val);
+
 	struct list_head list;
+
+	/* driver private data */
+	ulong data;
 };
 
 struct phy_device {
@@ -143,6 +154,7 @@ struct phy_device {
 	int pause;
 	int asym_pause;
 	u32 phy_id;
+	bool is_c45;
 	u32 flags;
 };
 
@@ -169,6 +181,68 @@ static inline int phy_write(struct phy_device *phydev, int devad, int regnum,
 	return bus->write(bus, phydev->addr, devad, regnum, val);
 }
 
+static inline void phy_mmd_start_indirect(struct phy_device *phydev, int devad,
+					  int regnum)
+{
+	/* Write the desired MMD Devad */
+	phy_write(phydev, MDIO_DEVAD_NONE, MII_MMD_CTRL, devad);
+
+	/* Write the desired MMD register address */
+	phy_write(phydev, MDIO_DEVAD_NONE, MII_MMD_DATA, regnum);
+
+	/* Select the Function : DATA with no post increment */
+	phy_write(phydev, MDIO_DEVAD_NONE, MII_MMD_CTRL,
+		  (devad | MII_MMD_CTRL_NOINCR));
+}
+
+static inline int phy_read_mmd(struct phy_device *phydev, int devad,
+			       int regnum)
+{
+	struct phy_driver *drv = phydev->drv;
+
+	if (regnum > (u16)~0 || devad > 32)
+		return -EINVAL;
+
+	/* driver-specific access */
+	if (drv->read_mmd)
+		return drv->read_mmd(phydev, devad, regnum);
+
+	/* direct C45 / C22 access */
+	if ((drv->features & PHY_10G_FEATURES) == PHY_10G_FEATURES ||
+	    devad == MDIO_DEVAD_NONE || !devad)
+		return phy_read(phydev, devad, regnum);
+
+	/* indirect C22 access */
+	phy_mmd_start_indirect(phydev, devad, regnum);
+
+	/* Read the content of the MMD's selected register */
+	return phy_read(phydev, MDIO_DEVAD_NONE, MII_MMD_DATA);
+}
+
+static inline int phy_write_mmd(struct phy_device *phydev, int devad,
+				int regnum, u16 val)
+{
+	struct phy_driver *drv = phydev->drv;
+
+	if (regnum > (u16)~0 || devad > 32)
+		return -EINVAL;
+
+	/* driver-specific access */
+	if (drv->write_mmd)
+		return drv->write_mmd(phydev, devad, regnum, val);
+
+	/* direct C45 / C22 access */
+	if ((drv->features & PHY_10G_FEATURES) == PHY_10G_FEATURES ||
+	    devad == MDIO_DEVAD_NONE || !devad)
+		return phy_write(phydev, devad, regnum, val);
+
+	/* indirect C22 access */
+	phy_mmd_start_indirect(phydev, devad, regnum);
+
+	/* Write the data into MMD's selected register */
+	return phy_write(phydev, MDIO_DEVAD_NONE, MII_MMD_DATA, val);
+}
+
 #ifdef CONFIG_PHYLIB_10G
 extern struct phy_driver gen10g_driver;
 
@@ -180,15 +254,71 @@ static inline int is_10g_interface(phy_interface_t interface)
 
 #endif
 
+/**
+ * phy_init() - Initializes the PHY drivers
+ *
+ * This function registers all available PHY drivers
+ *
+ * @return 0 if OK, -ve on error
+ */
 int phy_init(void);
+
+/**
+ * phy_reset() - Resets the specified PHY
+ *
+ * Issues a reset of the PHY and waits for it to complete
+ *
+ * @phydev:	PHY to reset
+ * @return 0 if OK, -ve on error
+ */
 int phy_reset(struct phy_device *phydev);
+
+/**
+ * phy_find_by_mask() - Searches for a PHY on the specified MDIO bus
+ *
+ * The function checks the PHY addresses flagged in phy_mask and returns a
+ * phy_device pointer if it detects a PHY.
+ * This function should only be called if just one PHY is expected to be present
+ * in the set of addresses flagged in phy_mask.  If multiple PHYs are present,
+ * it is undefined which of these PHYs is returned.
+ *
+ * @bus:	MII/MDIO bus to scan
+ * @phy_mask:	bitmap of PYH addresses to scan
+ * @interface:	type of MAC-PHY interface
+ * @return pointer to phy_device if a PHY is found, or NULL otherwise
+ */
 struct phy_device *phy_find_by_mask(struct mii_dev *bus, unsigned phy_mask,
 		phy_interface_t interface);
+
 #ifdef CONFIG_DM_ETH
+
+/**
+ * phy_connect_dev() - Associates the given pair of PHY and Ethernet devices
+ * @phydev:	PHY device
+ * @dev:	Ethernet device
+ */
 void phy_connect_dev(struct phy_device *phydev, struct udevice *dev);
+
+/**
+ * phy_connect() - Creates a PHY device for the Ethernet interface
+ *
+ * Creates a PHY device for the PHY at the given address, if one doesn't exist
+ * already, and associates it with the Ethernet device.
+ * The function may be called with addr <= 0, in this case addr value is ignored
+ * and the bus is scanned to detect a PHY.  Scanning should only be used if only
+ * one PHY is expected to be present on the MDIO bus, otherwise it is undefined
+ * which PHY is returned.
+ *
+ * @bus:	MII/MDIO bus that hosts the PHY
+ * @addr:	PHY address on MDIO bus
+ * @dev:	Ethernet device to associate to the PHY
+ * @interface:	type of MAC-PHY interface
+ * @return pointer to phy_device if a PHY is found, or NULL otherwise
+ */
 struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 				struct udevice *dev,
 				phy_interface_t interface);
+
 static inline ofnode phy_get_ofnode(struct phy_device *phydev)
 {
 	if (ofnode_valid(phydev->node))
@@ -197,10 +327,34 @@ static inline ofnode phy_get_ofnode(struct phy_device *phydev)
 		return dev_ofnode(phydev->dev);
 }
 #else
+
+/**
+ * phy_connect_dev() - Associates the given pair of PHY and Ethernet devices
+ * @phydev:	PHY device
+ * @dev:	Ethernet device
+ */
 void phy_connect_dev(struct phy_device *phydev, struct eth_device *dev);
+
+/**
+ * phy_connect() - Creates a PHY device for the Ethernet interface
+ *
+ * Creates a PHY device for the PHY at the given address, if one doesn't exist
+ * already, and associates it with the Ethernet device.
+ * The function may be called with addr <= 0, in this case addr value is ignored
+ * and the bus is scanned to detect a PHY.  Scanning should only be used if only
+ * one PHY is expected to be present on the MDIO bus, otherwise it is undefined
+ * which PHY is returned.
+ *
+ * @bus:	MII/MDIO bus that hosts the PHY
+ * @addr:	PHY address on MDIO bus
+ * @dev:	Ethernet device to associate to the PHY
+ * @interface:	type of MAC-PHY interface
+ * @return pointer to phy_device if a PHY is found, or NULL otherwise
+ */
 struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 				struct eth_device *dev,
 				phy_interface_t interface);
+
 static inline ofnode phy_get_ofnode(struct phy_device *phydev)
 {
 	return ofnode_null();

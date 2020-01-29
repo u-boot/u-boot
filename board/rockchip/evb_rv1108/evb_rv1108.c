@@ -7,8 +7,8 @@
 #include <common.h>
 #include <asm/io.h>
 #include <fdtdec.h>
-#include <asm/arch/grf_rv1108.h>
-#include <asm/arch/hardware.h>
+#include <asm/arch-rockchip/grf_rv1108.h>
+#include <asm/arch-rockchip/hardware.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -47,23 +47,9 @@ int mach_cpu_init(void)
 	return 0;
 }
 
-
-int board_init(void)
-{
-	return 0;
-}
-
 int dram_init(void)
 {
 	gd->ram_size = 0x8000000;
-
-	return 0;
-}
-
-int dram_init_banksize(void)
-{
-	gd->bd->bi_dram[0].start = 0x60000000;
-	gd->bd->bi_dram[0].size = 0x8000000;
 
 	return 0;
 }

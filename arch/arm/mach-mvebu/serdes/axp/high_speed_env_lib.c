@@ -35,7 +35,7 @@ int pex_local_dev_num_set(u32 pex_if, u32 dev_num);
 #define	ETM_MODULE_DETECT               2
 
 #define PEX_MODE_GET(satr)		((satr & 0x6) >> 1)
-#define PEX_CAPABILITY_GET(satr)	(satr & 1)
+#define PEX_CAPABILITY_GET(satr, port)	((satr >> port) & 1)
 #define MV_PEX_UNIT_TO_IF(pex_unit)	((pex_unit < 3) ? (pex_unit * 4) : 9)
 
 /* Static parametes */
@@ -176,7 +176,7 @@ u8 board_cpu_freq_get(void)
 	return ((sar_msb & 0x100000) >> 17) | ((sar & 0xe00000) >> 21);
 }
 
-__weak MV_BIN_SERDES_CFG *board_serdes_cfg_get(u8 pex_mode)
+__weak MV_BIN_SERDES_CFG *board_serdes_cfg_get(void)
 {
 	u32 board_id;
 	u32 serdes_cfg_val = 0;	/* default */
@@ -352,7 +352,7 @@ int serdes_phy_config(void)
 		DEBUG_WR_REG(CPU_AVS_CONTROL2_REG, cpu_avs);
 	}
 
-	info = board_serdes_cfg_get(PEX_MODE_GET(satr11));
+	info = board_serdes_cfg_get();
 
 	if (info == NULL) {
 		DEBUG_INIT_S("Hight speed PHY Error #1\n");
@@ -675,7 +675,7 @@ int serdes_phy_config(void)
 				tmp |= (0x1 << 4);
 			if (info->pex_mode[pex_unit] == PEX_BUS_MODE_X4)
 				tmp |= (0x4 << 4);
-			if (0 == PEX_CAPABILITY_GET(satr11))
+			if (0 == PEX_CAPABILITY_GET(satr11, pex_unit))
 				tmp |= 0x1;
 			else
 				tmp |= 0x2;

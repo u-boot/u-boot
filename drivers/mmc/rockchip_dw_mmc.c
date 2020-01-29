@@ -13,8 +13,8 @@
 #include <pwrseq.h>
 #include <syscon.h>
 #include <asm/gpio.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/periph.h>
+#include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/periph.h>
 #include <linux/err.h>
 
 struct rockchip_mmc_plat {
@@ -71,6 +71,11 @@ static int rockchip_dwmmc_ofdata_to_platdata(struct udevice *dev)
 	if (priv->fifo_depth < 0)
 		return -EINVAL;
 	priv->fifo_mode = dev_read_bool(dev, "fifo-mode");
+
+#ifdef CONFIG_SPL_BUILD
+	if (!priv->fifo_mode)
+		priv->fifo_mode = dev_read_bool(dev, "u-boot,spl-fifo-mode");
+#endif
 
 	/*
 	 * 'clock-freq-min-max' is deprecated

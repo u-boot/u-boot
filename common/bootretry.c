@@ -7,7 +7,9 @@
 #include <common.h>
 #include <bootretry.h>
 #include <cli.h>
+#include <env.h>
 #include <errno.h>
+#include <time.h>
 #include <watchdog.h>
 
 #ifndef CONFIG_BOOT_RETRY_MIN

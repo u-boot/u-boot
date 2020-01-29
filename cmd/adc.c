@@ -146,37 +146,14 @@ static int do_adc_scan(cmd_tbl_t *cmdtp, int flag, int argc,
 	return CMD_RET_SUCCESS;
 }
 
-static cmd_tbl_t cmd_adc_sub[] = {
-	U_BOOT_CMD_MKENT(list, 1, 1, do_adc_list, "", ""),
-	U_BOOT_CMD_MKENT(info, 2, 1, do_adc_info, "", ""),
-	U_BOOT_CMD_MKENT(single, 3, 1, do_adc_single, "", ""),
-	U_BOOT_CMD_MKENT(scan, 3, 1, do_adc_scan, "", ""),
-};
-
-static int do_adc(cmd_tbl_t *cmdtp, int flag, int argc,
-		  char *const argv[])
-{
-	cmd_tbl_t *c;
-
-	if (argc < 2)
-		return CMD_RET_USAGE;
-
-	/* Strip off leading 'adc' command argument */
-	argc--;
-	argv++;
-
-	c = find_cmd_tbl(argv[0], &cmd_adc_sub[0], ARRAY_SIZE(cmd_adc_sub));
-
-	if (c)
-		return c->cmd(cmdtp, flag, argc, argv);
-	else
-		return CMD_RET_USAGE;
-}
-
 static char adc_help_text[] =
 	"list - list ADC devices\n"
 	"adc info <name> - Get ADC device info\n"
 	"adc single <name> <channel> - Get Single data of ADC device channel\n"
 	"adc scan <name> [channel mask] - Scan all [or masked] ADC channels";
 
-U_BOOT_CMD(adc, 4, 1, do_adc, "ADC sub-system", adc_help_text);
+U_BOOT_CMD_WITH_SUBCMDS(adc, "ADC sub-system", adc_help_text,
+	U_BOOT_SUBCMD_MKENT(list, 1, 1, do_adc_list),
+	U_BOOT_SUBCMD_MKENT(info, 2, 1, do_adc_info),
+	U_BOOT_SUBCMD_MKENT(single, 3, 1, do_adc_single),
+	U_BOOT_SUBCMD_MKENT(scan, 3, 1, do_adc_scan));

@@ -9,21 +9,6 @@
 #include <dm.h>
 
 /**
- * struct firmware - A place for storing firmware and its attribute data.
- *
- * This holds information about a firmware and its content.
- *
- * @size: Size of a file
- * @data: Buffer for file
- * @priv: Firmware loader private fields
- */
-struct firmware {
-	size_t size;
-	const u8 *data;
-	void *priv;
-};
-
-/**
  * struct phandle_part - A place for storing phandle of node and its partition
  *
  * This holds information about a phandle of the block device, and its
@@ -53,27 +38,18 @@ struct device_platdata {
 };
 
 /**
- * release_firmware - Release the resource associated with a firmware image
- * @firmware: Firmware resource to release
- */
-void release_firmware(struct firmware *firmware);
-
-/**
  * request_firmware_into_buf - Load firmware into a previously allocated buffer.
- * @plat: Platform data such as storage and partition firmware loading from.
+ * @dev: An instance of a driver.
  * @name: Name of firmware file.
  * @buf: Address of buffer to load firmware into.
  * @size: Size of buffer.
  * @offset: Offset of a file for start reading into buffer.
- * @firmwarep: Pointer to firmware image.
  *
- * The firmware is loaded directly into the buffer pointed to by @buf and
- * the @firmwarep data member is pointed at @buf.
+ * The firmware is loaded directly into the buffer pointed to by @buf.
  *
  * Return: Size of total read, negative value when error.
  */
-int request_firmware_into_buf(struct device_platdata *plat,
+int request_firmware_into_buf(struct udevice *dev,
 			      const char *name,
-			      void *buf, size_t size, u32 offset,
-			      struct firmware **firmwarep);
+			      void *buf, size_t size, u32 offset);
 #endif

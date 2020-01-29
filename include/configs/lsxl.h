@@ -29,7 +29,6 @@
 #define CONFIG_KW88F6281		/* SOC Name */
 
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
-#define CONFIG_SHOW_BOOT_PROGRESS
 
 #define CONFIG_KIRKWOOD_GPIO
 
@@ -45,23 +44,13 @@
 
 /* loading initramfs images without uimage header */
 
-/* ST M25P40 */
-#undef CONFIG_ENV_SPI_MAX_HZ
-#define CONFIG_ENV_SPI_MAX_HZ		25000000
-#undef CONFIG_SF_DEFAULT_SPEED
-#define CONFIG_SF_DEFAULT_SPEED		25000000
-
 /*
  *  Environment variables configurations
  */
 #ifdef CONFIG_SPI_FLASH
 #define CONFIG_SYS_MAX_FLASH_BANKS	1
 #define CONFIG_SYS_MAX_FLASH_SECT	8
-#define CONFIG_ENV_SECT_SIZE		0x10000 /* 64K */
 #endif
-
-#define CONFIG_ENV_SIZE			0x10000 /* 64k */
-#define CONFIG_ENV_OFFSET		0x70000 /* env starts here */
 
 /*
  * Default environment variables
@@ -82,9 +71,9 @@
 	"kernel_addr=0x00800000\0"					\
 	"ramdisk_addr=0x01000000\0"					\
 	"fdt_addr=0x00ff0000\0"						\
-	"bootcmd_legacy=ide reset "					\
-		"&& load ide ${hdpart} ${kernel_addr} /uImage.buffalo "	\
-		"&& load ide ${hdpart} ${ramdisk_addr} /initrd.buffalo "\
+	"bootcmd_legacy=sata init "					\
+		"&& load sata ${hdpart} ${kernel_addr} /uImage.buffalo "\
+		"&& load sata ${hdpart} ${ramdisk_addr} /initrd.buffalo "\
 		"&& bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"bootcmd_net=bootp ${kernel_addr} vmlinuz "			\
 		"&& tftpboot ${ramdisk_addr} initrd.img "		\
@@ -92,11 +81,11 @@
 		"&& tftpboot ${fdt_addr} " CONFIG_FDTFILE " "		\
 		"&& bootz ${kernel_addr} "				\
 			"${ramdisk_addr}:${ramdisk_len} ${fdt_addr}\0"	\
-	"bootcmd_hdd=ide reset "					\
-		"&& load ide ${hdpart} ${kernel_addr} /vmlinuz "	\
-		"&& load ide ${hdpart} ${ramdisk_addr} /initrd.img "	\
+	"bootcmd_hdd=sata init "					\
+		"&& load sata ${hdpart} ${kernel_addr} /vmlinuz "	\
+		"&& load sata ${hdpart} ${ramdisk_addr} /initrd.img "	\
 		"&& setenv ramdisk_len ${filesize} "			\
-		"&& load ide ${hdpart} ${fdt_addr} /dtb "		\
+		"&& load sata ${hdpart} ${fdt_addr} /dtb "		\
 		"&& bootz ${kernel_addr} "				\
 			"${ramdisk_addr}:${ramdisk_len} ${fdt_addr}\0"	\
 	"bootcmd_usb=usb start "					\
@@ -137,13 +126,10 @@
 #undef CONFIG_RESET_PHY_R
 #endif /* CONFIG_CMD_NET */
 
-#ifdef CONFIG_IDE
-#undef CONFIG_SYS_IDE_MAXBUS
-#define CONFIG_SYS_IDE_MAXBUS		1
-#undef CONFIG_SYS_IDE_MAXDEVICE
-#define CONFIG_SYS_IDE_MAXDEVICE	1
-#define CONFIG_SYS_ATA_IDE0_OFFSET	MV_SATA_PORT0_OFFSET
+#ifdef CONFIG_SATA
+#define CONFIG_SYS_SATA_MAX_DEVICE 1
 #define CONFIG_SYS_64BIT_LBA
+#define CONFIG_LBA48
 #endif
 
 #endif /* _CONFIG_LSXL_H */

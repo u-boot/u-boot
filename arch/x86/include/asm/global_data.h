@@ -76,6 +76,7 @@ struct arch_global_data {
 	uint8_t x86_mask;
 	uint32_t x86_device;
 	uint64_t tsc_base;		/* Initial value returned by rdtsc() */
+	bool tsc_inited;		/* true if tsc is ready for use */
 	unsigned long clock_rate;	/* Clock rate of timer in Hz */
 	void *new_fdt;			/* Relocated FDT */
 	uint32_t bist;			/* Built-in self test value */
@@ -83,7 +84,7 @@ struct arch_global_data {
 	const struct pch_gpio_map *gpio_map;	/* board GPIO map */
 	struct memory_info meminfo;	/* Memory information */
 	struct pei_memory_info pei_meminfo;	/* PEI memory information */
-#ifdef CONFIG_HAVE_FSP
+#ifdef CONFIG_USE_HOB
 	void *hob_list;			/* FSP HOB list */
 #endif
 	struct mtrr_request mtrr_req[MAX_MTRR_REQUESTS];
@@ -136,11 +137,5 @@ static inline __attribute__((no_instrument_function)) gd_t *get_fs_gd_ptr(void)
 # endif
 
 #endif
-
-/*
- * Our private Global Data Flags
- */
-#define GD_FLG_COLD_BOOT	0x10000	/* Cold Boot */
-#define GD_FLG_WARM_BOOT	0x20000	/* Warm Boot */
 
 #endif /* __ASM_GBL_DATA_H */

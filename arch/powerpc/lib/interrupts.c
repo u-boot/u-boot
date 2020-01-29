@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <irq_func.h>
 #include <asm/processor.h>
 #include <watchdog.h>
 #ifdef CONFIG_LED_STATUS
@@ -15,15 +16,6 @@
 #endif
 
 #ifndef CONFIG_MPC83XX_TIMER
-#ifdef CONFIG_SHOW_ACTIVITY
-void board_show_activity (ulong) __attribute__((weak, alias("__board_show_activity")));
-
-void __board_show_activity (ulong dummy)
-{
-	return;
-}
-#endif /* CONFIG_SHOW_ACTIVITY */
-
 #ifndef CONFIG_SYS_WATCHDOG_FREQ
 #define CONFIG_SYS_WATCHDOG_FREQ (CONFIG_SYS_HZ / 2)
 #endif
@@ -47,13 +39,13 @@ static __inline__ void set_dec (unsigned long val)
 }
 #endif /* !CONFIG_MPC83XX_TIMER */
 
-void enable_interrupts (void)
+void enable_interrupts(void)
 {
 	set_msr (get_msr () | MSR_EE);
 }
 
 /* returns flag if MSR_EE was set before */
-int disable_interrupts (void)
+int disable_interrupts(void)
 {
 	ulong msr = get_msr ();
 
@@ -62,7 +54,7 @@ int disable_interrupts (void)
 }
 
 #ifndef CONFIG_MPC83XX_TIMER
-int interrupt_init (void)
+int interrupt_init(void)
 {
 	/* call cpu specific function from $(CPU)/interrupts.c */
 	interrupt_init_cpu (&decrementer_count);
@@ -76,7 +68,7 @@ int interrupt_init (void)
 
 static volatile ulong timestamp = 0;
 
-void timer_interrupt (struct pt_regs *regs)
+void timer_interrupt(struct pt_regs *regs)
 {
 	/* call cpu specific function from $(CPU)/interrupts.c */
 	timer_interrupt_cpu (regs);
@@ -92,12 +84,8 @@ void timer_interrupt (struct pt_regs *regs)
 #endif    /* CONFIG_WATCHDOG || CONFIG_HW_WATCHDOG */
 
 #ifdef CONFIG_LED_STATUS
-	status_led_tick (timestamp);
+	status_led_tick(timestamp);
 #endif /* CONFIG_LED_STATUS */
-
-#ifdef CONFIG_SHOW_ACTIVITY
-	board_show_activity (timestamp);
-#endif /* CONFIG_SHOW_ACTIVITY */
 }
 
 ulong get_timer (ulong base)

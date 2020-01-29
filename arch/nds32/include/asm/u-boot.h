@@ -21,7 +21,6 @@
 
 #include <asm/u-boot-nds32.h>
 
-#include <environment.h>
 
 typedef struct bd_info {
 	unsigned long	bi_arch_number;	/* unique id for this board */

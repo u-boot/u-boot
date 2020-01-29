@@ -12,7 +12,7 @@
 #include <power/regulator.h>
 #include <asm/gpio.h>
 
-#include "xhci.h"
+#include <usb/xhci.h>
 
 struct mvebu_xhci_platdata {
 	fdt_addr_t hcd_base;

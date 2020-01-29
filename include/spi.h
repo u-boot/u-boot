@@ -27,6 +27,10 @@
 #define SPI_TX_BYTE	BIT(8)			/* transmit with 1 wire byte */
 #define SPI_TX_DUAL	BIT(9)			/* transmit with 2 wires */
 #define SPI_TX_QUAD	BIT(10)			/* transmit with 4 wires */
+#define SPI_RX_SLOW	BIT(11)			/* receive with 1 wire slow */
+#define SPI_RX_DUAL	BIT(12)			/* receive with 2 wires */
+#define SPI_RX_QUAD	BIT(13)			/* receive with 4 wires */
+#define SPI_RX_OCTAL	BIT(14)
 
 #define SPI_3BYTE_MODE	0x0
 #define SPI_4BYTE_MODE	0x1
@@ -36,28 +40,6 @@
 #define SPI_XFER_MASK	(3 << 8)
 #define SPI_XFER_LOWER	(1 << 8)
 #define SPI_XFER_UPPER	(2 << 8)
-
-/* SPI TX operation modes */
-#define SPI_OPM_TX_QPP		(1 << 0)
-#define SPI_OPM_TX_BP		(1 << 1)
-
-/* SPI RX operation modes */
-#define SPI_OPM_RX_AS		(1 << 0)
-#define SPI_OPM_RX_AF		(1 << 1)
-#define SPI_OPM_RX_DOUT		(1 << 2)
-#define SPI_OPM_RX_DIO		(1 << 3)
-#define SPI_OPM_RX_QOF		(1 << 4)
-#define SPI_OPM_RX_QIOF		(1 << 5)
-#define SPI_OPM_RX_EXTN	(SPI_OPM_RX_AS | SPI_OPM_RX_AF | SPI_OPM_RX_DOUT | \
-				SPI_OPM_RX_DIO | SPI_OPM_RX_QOF | \
-				SPI_OPM_RX_QIOF)
-
-/* SPI mode_rx flags */
-#define SPI_RX_SLOW	BIT(0)			/* receive with 1 wire slow */
-#define SPI_RX_FAST	BIT(1)			/* receive with 1 wire fast */
-#define SPI_RX_DUAL	BIT(2)			/* receive with 2 wires */
-#define SPI_RX_QUAD	BIT(3)			/* receive with 4 wires */
-#define SPI_RX_OCTAL	BIT(4)
 
 /* Header byte that marks the start of the message */
 #define SPI_PREAMBLE_END_BYTE	0xec
@@ -136,17 +118,20 @@ struct spi_slave {
 	unsigned int max_read_size;
 	unsigned int max_write_size;
 	void *memory_map;
-	u8 option;
-	u8 dio;
-	u32 bytemode;
+
 	u32 flags;
-	u8 dummy_bytes;
 #define SPI_XFER_BEGIN		BIT(0)	/* Assert CS before transfer */
 #define SPI_XFER_END		BIT(1)	/* Deassert CS after transfer */
 #define SPI_XFER_ONCE		(SPI_XFER_BEGIN | SPI_XFER_END)
 #define SPI_XFER_MMAP		BIT(2)	/* Memory Mapped start */
 #define SPI_XFER_MMAP_END	BIT(3)	/* Memory Mapped End */
 #define SPI_XFER_U_PAGE		BIT(4)
+
+	u8 option;
+	u8 dio;
+	u32 bytemode;
+	u8 dummy_bytes;
+	bool multi_die;			/* flash with multiple dies */
 };
 
 /**
@@ -279,6 +264,26 @@ int spi_set_wordlen(struct spi_slave *slave, unsigned int wordlen);
  */
 int  spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		void *din, unsigned long flags);
+
+/**
+ * spi_write_then_read - SPI synchronous write followed by read
+ *
+ * This performs a half duplex transaction in which the first transaction
+ * is to send the opcode and if the length of buf is non-zero then it start
+ * the second transaction as tx or rx based on the need from respective slave.
+ *
+ * @slave:	The SPI slave device with which opcode/data will be exchanged
+ * @opcode:	opcode used for specific transfer
+ * @n_opcode:	size of opcode, in bytes
+ * @txbuf:	buffer into which data to be written
+ * @rxbuf:	buffer into which data will be read
+ * @n_buf:	size of buf (whether it's [tx|rx]buf), in bytes
+ *
+ * Returns: 0 on success, not 0 on failure
+ */
+int spi_write_then_read(struct spi_slave *slave, const u8 *opcode,
+			size_t n_opcode, const u8 *txbuf, u8 *rxbuf,
+			size_t n_buf);
 
 /* Copy memory mapped data */
 void spi_flash_copy_mmap(void *data, void *offset, size_t len);
@@ -470,10 +475,23 @@ struct dm_spi_ops {
 	 * @cs:		The chip select (0..n-1)
 	 * @info:	Returns information about the chip select, if valid.
 	 *		On entry info->dev is NULL
-	 * @return 0 if OK (and @info is set up), -ENODEV if the chip select
+	 * @return 0 if OK (and @info is set up), -EINVAL if the chip select
 	 *	   is invalid, other -ve value on error
 	 */
 	int (*cs_info)(struct udevice *bus, uint cs, struct spi_cs_info *info);
+
+	/**
+	 * get_mmap() - Get memory-mapped SPI
+	 *
+	 * @dev:	The SPI flash slave device
+	 * @map_basep:	Returns base memory address for mapped SPI
+	 * @map_sizep:	Returns size of mapped SPI
+	 * @offsetp:	Returns start offset of SPI flash where the map works
+	 *	correctly (offsets before this are not visible)
+	 * @return 0 if OK, -EFAULT if memory mapping is not available
+	 */
+	int (*get_mmap)(struct udevice *dev, ulong *map_basep,
+			uint *map_sizep, uint *offsetp);
 };
 
 struct dm_spi_emul_ops {
@@ -528,14 +546,15 @@ int spi_find_bus_and_cs(int busnum, int cs, struct udevice **busp,
  * device and slave device.
  *
  * If no such slave exists, and drv_name is not NULL, then a new slave device
- * is automatically bound on this chip select.
+ * is automatically bound on this chip select with requested speed and mode.
  *
- * Ths new slave device is probed ready for use with the given speed and mode.
+ * Ths new slave device is probed ready for use with the speed and mode
+ * from platdata when available or the requested values.
  *
  * @busnum:	SPI bus number
  * @cs:		Chip select to look for
- * @speed:	SPI speed to use for this slave
- * @mode:	SPI mode to use for this slave
+ * @speed:	SPI speed to use for this slave when not available in platdata
+ * @mode:	SPI mode to use for this slave when not available in platdata
  * @drv_name:	Name of driver to attach to this chip select
  * @dev_name:	Name of the new device thus created
  * @busp:	Returns bus device
@@ -660,6 +679,20 @@ void dm_spi_release_bus(struct udevice *dev);
  */
 int dm_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		const void *dout, void *din, unsigned long flags);
+
+/**
+ * spi_get_mmap() - Get memory-mapped SPI
+ *
+ * @dev:	SPI slave device to check
+ * @map_basep:	Returns base memory address for mapped SPI
+ * @map_sizep:	Returns size of mapped SPI
+ * @offsetp:	Returns start offset of SPI flash where the map works
+ *	correctly (offsets before this are not visible)
+ * @return 0 if OK, -ENOSYS if no operation, -EFAULT if memory mapping is not
+ *	available
+ */
+int dm_spi_get_mmap(struct udevice *dev, ulong *map_basep, uint *map_sizep,
+		    uint *offsetp);
 
 /* Access the operations for a SPI device */
 #define spi_get_ops(dev)	((struct dm_spi_ops *)(dev)->driver->ops)

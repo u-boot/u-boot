@@ -34,8 +34,6 @@
 #define CONFIG_BOOTCOMMAND		\
 	"dhcp 192.168.1.1:wdr4300.fit && bootm $loadaddr"
 
-#define CONFIG_ENV_SIZE			0x10000
-
 /*
  * Command
  */

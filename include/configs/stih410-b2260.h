@@ -39,9 +39,6 @@
 			"ramdisk_addr_r=0x48000000\0"		\
 			BOOTENV
 
-
-#define CONFIG_ENV_SIZE 0x4000
-
 /* Extra Commands */
 #define CONFIG_CMD_ASKENV
 

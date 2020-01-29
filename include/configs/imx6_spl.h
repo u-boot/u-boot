@@ -7,10 +7,32 @@
 #define __IMX6_SPL_CONFIG_H
 
 #ifdef CONFIG_SPL
+
+#ifdef CONFIG_MX6_OCRAM_256KB
 /*
- * see Figure 8-3 in IMX6DQ/IMX6SDL Reference manuals:
+ * see Figure 8.4.1 in IMX6DQ Reference manuals:
+ *  - IMX6DQ OCRAM (IRAM) is from 0x00907000 to 0x0093FFFF
+ *  - BOOT ROM stack is at 0x0093FFB8
+ *  - if icache/dcache is enabled (eFuse/strapping controlled) then the
+ *    IMX BOOT ROM will setup MMU table at 0x00938000, therefore we need to
+ *    fit between 0x00907000 and 0x00938000.
+ *  - Additionally the BOOT ROM loads what they consider the firmware image
+ *    which consists of a 4K header in front of us that contains the IVT, DCD
+ *    and some padding thus 'our' max size is really 0x00908000 - 0x00938000
+ *    or 192KB
+ */
+#define CONFIG_SPL_MAX_SIZE		0x30000
+#define CONFIG_SPL_STACK		0x0093FFB8
+/*
+ * Pad SPL to 196KB (4KB header + 192KB max size). This allows to write the
+ * SPL/U-Boot combination generated with u-boot-with-spl.imx directly to a
+ * boot media (given that boot media specific offset is configured properly).
+ */
+#define CONFIG_SPL_PAD_TO		0x31000
+#else
+/*
+ * see Figure 8-3 in IMX6SDL Reference manuals:
  *  - IMX6SDL OCRAM (IRAM) is from 0x00907000 to 0x0091FFFF
- *  - IMX6DQ has 2x IRAM of IMX6SDL but we intend to support IMX6SDL as well
  *  - BOOT ROM stack is at 0x0091FFB8
  *  - if icache/dcache is enabled (eFuse/strapping controlled) then the
  *    IMX BOOT ROM will setup MMU table at 0x00918000, therefore we need to
@@ -20,7 +42,6 @@
  *    and some padding thus 'our' max size is really 0x00908000 - 0x00918000
  *    or 64KB
  */
-#define CONFIG_SPL_TEXT_BASE		0x00908000
 #define CONFIG_SPL_MAX_SIZE		0x10000
 #define CONFIG_SPL_STACK		0x0091FFB8
 /*
@@ -29,6 +50,8 @@
  * boot media (given that boot media specific offset is configured properly).
  */
 #define CONFIG_SPL_PAD_TO		0x11000
+
+#endif
 
 /* MMC support */
 #if defined(CONFIG_SPL_MMC_SUPPORT)
@@ -43,7 +66,7 @@
 #endif
 
 /* Define the payload for FAT/EXT support */
-#if defined(CONFIG_SPL_FAT_SUPPORT) || defined(CONFIG_SPL_EXT_SUPPORT)
+#if defined(CONFIG_SPL_FS_FAT) || defined(CONFIG_SPL_FS_EXT4)
 # ifdef CONFIG_OF_CONTROL
 #  define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot-dtb.img"
 # else

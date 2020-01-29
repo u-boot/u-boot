@@ -22,6 +22,7 @@
  */
 
 #include <common.h>
+#include <time.h>
 #include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;

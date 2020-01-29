@@ -61,7 +61,7 @@ void socfpga_bridges_reset(int enable)
 		/* clear idle request to all bridges */
 		setbits_le32(&system_manager_base->noc_idlereq_clr, ~0);
 
-		/* Release bridges from reset state per handoff value */
+		/* Release all bridges from reset state */
 		clrbits_le32(&reset_manager_base->brgmodrst, ~0);
 
 		/* Poll until all idleack to 0 */
@@ -84,9 +84,10 @@ void socfpga_bridges_reset(int enable)
 			(SYSMGR_NOC_H2F_MSK | SYSMGR_NOC_LWH2F_MSK)))
 			;
 
-		/* Put all bridges (except NOR DDR scheduler) into reset */
+		/* Reset all bridges (except NOR DDR scheduler & F2S) */
 		setbits_le32(&reset_manager_base->brgmodrst,
-			     ~RSTMGR_BRGMODRST_DDRSCH_MASK);
+			     ~(RSTMGR_BRGMODRST_DDRSCH_MASK |
+			     RSTMGR_BRGMODRST_FPGA2SOC_MASK));
 
 		/* Disable NOC timeout */
 		writel(0, &system_manager_base->noc_timeout);
@@ -94,12 +95,10 @@ void socfpga_bridges_reset(int enable)
 }
 
 /*
- * Release peripherals from reset based on handoff
+ * Return non-zero if the CPU has been warm reset
  */
-void reset_deassert_peripherals_handoff(void)
+int cpu_has_been_warmreset(void)
 {
-	writel(0, &reset_manager_base->per1modrst);
-	/* Enable OCP first */
-	writel(~RSTMGR_PER0MODRST_OCP_MASK, &reset_manager_base->per0modrst);
-	writel(0, &reset_manager_base->per0modrst);
+	return readl(&reset_manager_base->status) &
+		RSTMGR_L4WD_MPU_WARMRESET_MASK;
 }

@@ -7,13 +7,6 @@
 
 #include <common.h>
 
-enum {
-	DDR3		= 3,
-	LPDDR2		= 5,
-	LPDDR3		= 6,
-	UNUSED		= 0xFF,
-};
-
 struct rk322x_sdram_channel {
 	/*
 	 * bit width in address, eg:

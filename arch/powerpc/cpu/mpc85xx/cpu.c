@@ -10,6 +10,9 @@
 
 #include <config.h>
 #include <common.h>
+#include <cpu_func.h>
+#include <irq_func.h>
+#include <vsprintf.h>
 #include <watchdog.h>
 #include <command.h>
 #include <fsl_esdhc.h>

@@ -42,4 +42,26 @@
 		compatible = "nop-phy";
 		#phy-cells = <0>;
 	};
+
+	mmcclk_biu: mmcclk-biu {
+		compatible = "fixed-clock";
+		clock-frequency = <50000000>;
+		#clock-cells = <0>;
+	};
+
+	mmcclk_ciu: mmcclk-ciu {
+		compatible = "fixed-clock";
+		clock-frequency = <50000000>;
+		#clock-cells = <0>;
+	};
+
+	mmc: mmc0@f000b000 {
+		compatible = "snps,dw-mshc";
+		reg = <0xf000b000 0x400>;
+		bus-width = <4>;
+		fifo-depth = <128>;
+		clocks = <&mmcclk_biu>, <&mmcclk_ciu>;
+		clock-names = "biu", "ciu";
+		max-frequency = <25000000>;
+	};
 };

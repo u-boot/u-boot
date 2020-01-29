@@ -19,6 +19,7 @@
 #include <errno.h>
 #include <common.h>
 #include <console.h>
+#include <env.h>
 #include <malloc.h>
 
 #include <linux/usb/ch9.h>
@@ -638,7 +639,20 @@ static u32 sdp_jump_imxheader(void *address)
 	return 0;
 }
 
-static void sdp_handle_in_ep(void)
+#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_SPL_LOAD_FIT
+static ulong sdp_fit_read(struct spl_load_info *load, ulong sector,
+			  ulong count, void *buf)
+{
+	debug("%s: sector %lx, count %lx, buf %lx\n",
+	      __func__, sector, count, (ulong)buf);
+	memcpy(buf, (void *)(load->dev + sector), count);
+	return count;
+}
+#endif
+#endif
+
+static void sdp_handle_in_ep(struct spl_image_info *spl_image)
 {
 	u8 *data = sdp_func->in_req->buf;
 	u32 status;
@@ -690,10 +704,25 @@ static void sdp_handle_in_ep(void)
 		/* If imx header fails, try some U-Boot specific headers */
 		if (status) {
 #ifdef CONFIG_SPL_BUILD
+			image_header_t *header =
+				sdp_ptr(sdp_func->jmp_address);
+#ifdef CONFIG_SPL_LOAD_FIT
+			if (image_get_magic(header) == FDT_MAGIC) {
+				struct spl_load_info load;
+
+				debug("Found FIT\n");
+				load.dev = header;
+				load.bl_len = 1;
+				load.read = sdp_fit_read;
+				spl_load_simple_fit(spl_image, &load, 0,
+						    header);
+
+				return;
+			}
+#endif
 			/* In SPL, allow jumps to U-Boot images */
 			struct spl_image_info spl_image = {};
-			spl_parse_image_header(&spl_image,
-				(struct image_header *)sdp_func->jmp_address);
+			spl_parse_image_header(&spl_image, header);
 			jump_to_image_no_args(&spl_image);
 #else
 			/* In U-Boot, allow jumps to scripts */
@@ -715,19 +744,32 @@ static void sdp_handle_in_ep(void)
 	};
 }
 
-void sdp_handle(int controller_index)
+#ifndef CONFIG_SPL_BUILD
+int sdp_handle(int controller_index)
+#else
+int spl_sdp_handle(int controller_index, struct spl_image_info *spl_image)
+#endif
 {
 	printf("SDP: handle requests...\n");
 	while (1) {
 		if (ctrlc()) {
 			puts("\rCTRL+C - Operation aborted.\n");
-			return;
+			return -EINVAL;
 		}
+
+#ifdef CONFIG_SPL_BUILD
+		if (spl_image->flags & SPL_FIT_FOUND)
+			return 0;
+#endif
 
 		WATCHDOG_RESET();
 		usb_gadget_handle_interrupts(controller_index);
 
-		sdp_handle_in_ep();
+#ifdef CONFIG_SPL_BUILD
+		sdp_handle_in_ep(spl_image);
+#else
+		sdp_handle_in_ep(NULL);
+#endif
 	}
 }
 

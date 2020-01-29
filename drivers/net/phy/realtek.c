@@ -12,6 +12,7 @@
 
 #define PHY_RTL8211x_FORCE_MASTER BIT(1)
 #define PHY_RTL8211E_PINE64_GIGABIT_FIX BIT(2)
+#define PHY_RTL8211F_FORCE_EEE_RXC_ON BIT(3)
 
 #define PHY_AUTONEGOTIATE_TIMEOUT 5000
 
@@ -57,6 +58,33 @@
 #define MIIM_RTL8211F_TX_DELAY		0x100
 #define MIIM_RTL8211F_LCR		0x10
 
+static int rtl8211f_phy_extread(struct phy_device *phydev, int addr,
+				int devaddr, int regnum)
+{
+	int oldpage = phy_read(phydev, MDIO_DEVAD_NONE,
+			       MIIM_RTL8211F_PAGE_SELECT);
+	int val;
+
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_RTL8211F_PAGE_SELECT, devaddr);
+	val = phy_read(phydev, MDIO_DEVAD_NONE, regnum);
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_RTL8211F_PAGE_SELECT, oldpage);
+
+	return val;
+}
+
+static int rtl8211f_phy_extwrite(struct phy_device *phydev, int addr,
+				 int devaddr, int regnum, u16 val)
+{
+	int oldpage = phy_read(phydev, MDIO_DEVAD_NONE,
+			       MIIM_RTL8211F_PAGE_SELECT);
+
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_RTL8211F_PAGE_SELECT, devaddr);
+	phy_write(phydev, MDIO_DEVAD_NONE, regnum, val);
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_RTL8211F_PAGE_SELECT, oldpage);
+
+	return 0;
+}
+
 static int rtl8211b_probe(struct phy_device *phydev)
 {
 #ifdef CONFIG_RTL8211X_PHY_FORCE_MASTER
@@ -70,6 +98,15 @@ static int rtl8211e_probe(struct phy_device *phydev)
 {
 #ifdef CONFIG_RTL8211E_PINE64_GIGABIT_FIX
 	phydev->flags |= PHY_RTL8211E_PINE64_GIGABIT_FIX;
+#endif
+
+	return 0;
+}
+
+static int rtl8211f_probe(struct phy_device *phydev)
+{
+#ifdef CONFIG_RTL8211F_PHY_FORCE_EEE_RXC_ON
+	phydev->flags |= PHY_RTL8211F_FORCE_EEE_RXC_ON;
 #endif
 
 	return 0;
@@ -123,6 +160,14 @@ static int rtl8211x_config(struct phy_device *phydev)
 static int rtl8211f_config(struct phy_device *phydev)
 {
 	u16 reg;
+
+	if (phydev->flags & PHY_RTL8211F_FORCE_EEE_RXC_ON) {
+		unsigned int reg;
+
+		reg = phy_read_mmd(phydev, MDIO_MMD_PCS, MDIO_CTRL1);
+		reg &= ~MDIO_PCS_CTRL1_CLKSTOP_EN;
+		phy_write_mmd(phydev, MDIO_MMD_PCS, MDIO_CTRL1, reg);
+	}
 
 	phy_write(phydev, MDIO_DEVAD_NONE, MII_BMCR, BMCR_RESET);
 
@@ -333,9 +378,12 @@ static struct phy_driver RTL8211F_driver = {
 	.uid = 0x1cc916,
 	.mask = 0xffffff,
 	.features = PHY_GBIT_FEATURES,
+	.probe = &rtl8211f_probe,
 	.config = &rtl8211f_config,
 	.startup = &rtl8211f_startup,
 	.shutdown = &genphy_shutdown,
+	.readext = &rtl8211f_phy_extread,
+	.writeext = &rtl8211f_phy_extwrite,
 };
 
 int phy_realtek_init(void)

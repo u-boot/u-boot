@@ -151,7 +151,7 @@ static int execute(void)
 		return EFI_ST_FAILURE;
 	}
 	ret = boottime->set_timer(event_notify, EFI_TIMER_STOP, 0);
-	if (index != 0) {
+	if (ret != EFI_SUCCESS) {
 		efi_st_error("Could not cancel timer\n");
 		return EFI_ST_FAILURE;
 	}
@@ -164,7 +164,7 @@ static int execute(void)
 	/* Set 10 ms timer */
 	notification_count = 0;
 	ret = boottime->set_timer(event_notify, EFI_TIMER_PERIODIC, 100000);
-	if (index != 0) {
+	if (ret != EFI_SUCCESS) {
 		efi_st_error("Could not set timer\n");
 		return EFI_ST_FAILURE;
 	}

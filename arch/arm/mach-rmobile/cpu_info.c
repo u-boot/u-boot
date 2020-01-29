@@ -4,7 +4,9 @@
  * (C) Copyright 2012 Renesas Solutions Corp.
  */
 #include <common.h>
+#include <cpu_func.h>
 #include <asm/io.h>
+#include <env.h>
 #include <linux/ctype.h>
 
 #ifdef CONFIG_ARCH_CPU_INIT
@@ -17,7 +19,7 @@ int arch_cpu_init(void)
 
 /* R-Car Gen3 D-cache is enabled in memmap-gen3.c */
 #ifndef CONFIG_RCAR_GEN3
-#ifndef CONFIG_SYS_DCACHE_OFF
+#if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 void enable_caches(void)
 {
 	dcache_enable();
@@ -26,6 +28,7 @@ void enable_caches(void)
 #endif
 
 #ifdef CONFIG_DISPLAY_CPUINFO
+#ifndef CONFIG_RZA1
 static u32 __rmobile_get_cpu_type(void)
 {
 	return 0x0;
@@ -63,6 +66,7 @@ static const struct {
 	{ RMOBILE_CPU_TYPE_R8A7796, "R8A7796" },
 	{ RMOBILE_CPU_TYPE_R8A77965, "R8A77965" },
 	{ RMOBILE_CPU_TYPE_R8A77970, "R8A77970" },
+	{ RMOBILE_CPU_TYPE_R8A77980, "R8A77980" },
 	{ RMOBILE_CPU_TYPE_R8A77990, "R8A77990" },
 	{ RMOBILE_CPU_TYPE_R8A77995, "R8A77995" },
 	{ 0x0, "CPU" },
@@ -105,4 +109,11 @@ int print_cpuinfo(void)
 
 	return 0;
 }
+#else
+int print_cpuinfo(void)
+{
+	printf("CPU: Renesas Electronics RZ/A1\n");
+	return 0;
+}
+#endif
 #endif /* CONFIG_DISPLAY_CPUINFO */

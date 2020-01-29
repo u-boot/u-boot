@@ -32,3 +32,24 @@ static int dm_test_sound(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_sound, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test of the 'start beep' operations */
+static int dm_test_sound_beep(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+
+	/* check probe success */
+	ut_assertok(uclass_first_device_err(UCLASS_SOUND, &dev));
+	ut_asserteq(-ENOSYS, sound_start_beep(dev, 100));
+	ut_asserteq(0, sandbox_get_beep_frequency(dev));
+
+	sandbox_set_allow_beep(dev, true);
+	ut_asserteq(0, sound_start_beep(dev, 100));
+	ut_asserteq(100, sandbox_get_beep_frequency(dev));
+
+	ut_asserteq(0, sound_stop_beep(dev));
+	ut_asserteq(0, sandbox_get_beep_frequency(dev));
+
+	return 0;
+}
+DM_TEST(dm_test_sound_beep, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

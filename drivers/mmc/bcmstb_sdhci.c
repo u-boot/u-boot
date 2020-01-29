@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2018  Cisco Systems, Inc.
+ * (C) Copyright 2019  Synamedia
  *
  * Author: Thomas Fitzsimmons <fitzsim@fitzsim.org>
  */
 
 #include <common.h>
+#include <dm.h>
 #include <mach/sdhci.h>
 #include <malloc.h>
 #include <sdhci.h>
@@ -36,32 +38,68 @@
  */
 #define BCMSTB_SDHCI_MINIMUM_CLOCK_FREQUENCY	400000
 
-static char *BCMSTB_SDHCI_NAME = "bcmstb-sdhci";
-
 /*
  * This driver has only been tested with eMMC devices; SD devices may
  * not work.
  */
-int bcmstb_sdhci_init(phys_addr_t regbase)
+struct sdhci_bcmstb_plat {
+	struct mmc_config cfg;
+	struct mmc mmc;
+};
+
+static int sdhci_bcmstb_bind(struct udevice *dev)
 {
-	struct sdhci_host *host = NULL;
+	struct sdhci_bcmstb_plat *plat = dev_get_platdata(dev);
 
-	host = (struct sdhci_host *)malloc(sizeof(struct sdhci_host));
-	if (!host) {
-		printf("%s: Failed to allocate memory\n", __func__);
-		return 1;
-	}
-	memset(host, 0, sizeof(*host));
-
-	host->name = BCMSTB_SDHCI_NAME;
-	host->ioaddr = (void *)regbase;
-	host->quirks = 0;
-
-	host->cfg.part_type = PART_TYPE_DOS;
-
-	host->version = sdhci_readw(host, SDHCI_HOST_VERSION);
-
-	return add_sdhci(host,
-			 BCMSTB_SDHCI_MAXIMUM_CLOCK_FREQUENCY,
-			 BCMSTB_SDHCI_MINIMUM_CLOCK_FREQUENCY);
+	return sdhci_bind(dev, &plat->mmc, &plat->cfg);
 }
+
+static int sdhci_bcmstb_probe(struct udevice *dev)
+{
+	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
+	struct sdhci_bcmstb_plat *plat = dev_get_platdata(dev);
+	struct sdhci_host *host = dev_get_priv(dev);
+	fdt_addr_t base;
+	int ret;
+
+	base = devfdt_get_addr(dev);
+	if (base == FDT_ADDR_T_NONE)
+		return -EINVAL;
+
+	host->name = dev->name;
+	host->ioaddr = (void *)base;
+
+	ret = mmc_of_parse(dev, &plat->cfg);
+	if (ret)
+		return ret;
+
+	host->mmc = &plat->mmc;
+	host->mmc->dev = dev;
+	ret = sdhci_setup_cfg(&plat->cfg, host,
+			      BCMSTB_SDHCI_MAXIMUM_CLOCK_FREQUENCY,
+			      BCMSTB_SDHCI_MINIMUM_CLOCK_FREQUENCY);
+	if (ret)
+		return ret;
+
+	upriv->mmc = &plat->mmc;
+	host->mmc->priv = host;
+
+	return sdhci_probe(dev);
+}
+
+static const struct udevice_id sdhci_bcmstb_match[] = {
+	{ .compatible = "brcm,bcm7425-sdhci" },
+	{ .compatible = "brcm,sdhci-brcmstb" },
+	{ }
+};
+
+U_BOOT_DRIVER(sdhci_bcmstb) = {
+	.name = "sdhci-bcmstb",
+	.id = UCLASS_MMC,
+	.of_match = sdhci_bcmstb_match,
+	.ops = &sdhci_ops,
+	.bind = sdhci_bcmstb_bind,
+	.probe = sdhci_bcmstb_probe,
+	.priv_auto_alloc_size = sizeof(struct sdhci_host),
+	.platdata_auto_alloc_size = sizeof(struct sdhci_bcmstb_plat),
+};

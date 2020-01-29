@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <micrel.h>
 #include <nand.h>
 #include <netdev.h>

@@ -33,12 +33,12 @@ static int pci_mmc_probe(struct udevice *dev)
 	host->ioaddr = (void *)dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
 					      PCI_REGION_MEM);
 	host->name = dev->name;
+	host->mmc = &plat->mmc;
+	host->mmc->dev = dev;
 	ret = sdhci_setup_cfg(&plat->cfg, host, 0, 0);
 	if (ret)
 		return ret;
-	host->mmc = &plat->mmc;
 	host->mmc->priv = &priv->host;
-	host->mmc->dev = dev;
 	upriv->mmc = host->mmc;
 
 	return sdhci_probe(dev);

@@ -22,7 +22,7 @@ static int bcm6345_gpio_get_value(struct udevice *dev, unsigned offset)
 {
 	struct bcm6345_gpio_priv *priv = dev_get_priv(dev);
 
-	return !!(readl_be(priv->reg_data) & BIT(offset));
+	return !!(readl(priv->reg_data) & BIT(offset));
 }
 
 static int bcm6345_gpio_set_value(struct udevice *dev, unsigned offset,
@@ -31,9 +31,9 @@ static int bcm6345_gpio_set_value(struct udevice *dev, unsigned offset,
 	struct bcm6345_gpio_priv *priv = dev_get_priv(dev);
 
 	if (value)
-		setbits_be32(priv->reg_data, BIT(offset));
+		setbits_32(priv->reg_data, BIT(offset));
 	else
-		clrbits_be32(priv->reg_data, BIT(offset));
+		clrbits_32(priv->reg_data, BIT(offset));
 
 	return 0;
 }
@@ -42,9 +42,9 @@ static int bcm6345_gpio_set_direction(void __iomem *dirout, unsigned offset,
 				      bool input)
 {
 	if (input)
-		clrbits_be32(dirout, BIT(offset));
+		clrbits_32(dirout, BIT(offset));
 	else
-		setbits_be32(dirout, BIT(offset));
+		setbits_32(dirout, BIT(offset));
 
 	return 0;
 }
@@ -70,7 +70,7 @@ static int bcm6345_gpio_get_function(struct udevice *dev, unsigned offset)
 {
 	struct bcm6345_gpio_priv *priv = dev_get_priv(dev);
 
-	if (readl_be(priv->reg_dirout) & BIT(offset))
+	if (readl(priv->reg_dirout) & BIT(offset))
 		return GPIOF_OUTPUT;
 	else
 		return GPIOF_INPUT;

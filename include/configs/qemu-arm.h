@@ -21,17 +21,15 @@
 #define CONFIG_SYS_HZ                       1000
 
 /* Environment options */
-#define CONFIG_ENV_ADDR			0x4000000
-#define CONFIG_ENV_SIZE			SZ_256K
 
 #define BOOT_TARGET_DEVICES(func) \
+	func(USB, usb, 0) \
 	func(SCSI, scsi, 0) \
 	func(VIRTIO, virtio, 0) \
 	func(DHCP, dhcp, na)
 
 #include <config_distro_bootcmd.h>
 
-#define CONFIG_PREBOOT "pci enum"
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
@@ -45,8 +43,13 @@
 #define CONFIG_SYS_CBSIZE 512
 
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
+#ifdef CONFIG_TFABOOT
+#define CONFIG_SYS_FLASH_BASE		0x4000000
+#define CONFIG_SYS_MAX_FLASH_BANKS	1
+#else
 #define CONFIG_SYS_FLASH_BASE		0x0
 #define CONFIG_SYS_MAX_FLASH_BANKS	2
+#endif
 #define CONFIG_SYS_MAX_FLASH_SECT	256 /* Sector: 256K, Bank: 64M */
 
 #endif /* __CONFIG_H */

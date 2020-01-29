@@ -7,6 +7,7 @@ menu "Real Time Clock"
 config DM_RTC
 	bool "Enable Driver Model for RTC drivers"
 	depends on DM
+	select LIB_DATE
 	help
 	  Enable drver model for real-time-clock drivers. The RTC uclass
 	  then provides the rtc_get()/rtc_set() interface, delegating to
@@ -30,6 +31,12 @@ config TPL_DM_RTC
 	  then provides the rtc_get()/rtc_set() interface, delegating to
 	  drivers to perform the actual functions. See rtc.h for a
 	  description of the API.
+
+config RTC_ENABLE_32KHZ_OUTPUT
+	bool "Enable RTC 32Khz output"
+	help
+	   Some real-time clocks support the output of 32kHz square waves (such as ds3231),
+	   the config symbol choose Real Time Clock device 32Khz output feature.
 
 config RTC_PCF2127
 	bool "Enable PCF2127 driver"
@@ -70,11 +77,26 @@ config RTC_RV3029
 	  This driver supports reading and writing the RTC/calendar and the
 	  battery-baced SRAM section.
 
+config RTC_RV8803
+	bool "Enable RV8803 driver"
+	depends on DM_RTC
+	help
+	  The Micro Crystal RV8803 is a high accuracy, ultra-low power I2C
+	  Real Time Clock (RTC) with temperature compensation.
+
+	  This driver supports reading and writing the RTC/calendar and
+	  detects total power failures.
+
 config RTC_RX8010SJ
 	bool "Enable RX8010SJ driver"
 	depends on DM_RTC
 	help
 	  Support for Epson RX8010SJ Real Time Clock devices.
+
+config RTC_RX8025
+	bool "Enable RX8025 driver"
+	help
+	  Support for Epson RX8025 Real Time Clock devices.
 
 config RTC_PL031
 	bool "Enable ARM AMBA PL031 RTC driver"
@@ -110,4 +132,10 @@ config RTC_M41T62
 	  Enable driver for ST's M41T62 compatible RTC devices (like RV-4162).
 	  It is a serial (I2C) real-time clock (RTC) with alarm.
 
+config RTC_STM32
+	bool "Enable STM32 RTC driver"
+	depends on DM_RTC
+	help
+	  Enable STM32 RTC driver. This driver supports the rtc that is present
+	  on some STM32 SoCs.
 endmenu

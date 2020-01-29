@@ -26,7 +26,10 @@
 int fit_verify_header(unsigned char *ptr, int image_size,
 			struct image_tool_params *params)
 {
-	return fdt_check_header(ptr);
+	if (fdt_check_header(ptr) != EXIT_SUCCESS || !fit_check_format(ptr))
+		return EXIT_FAILURE;
+
+	return EXIT_SUCCESS;
 }
 
 int fit_check_image_types(uint8_t type)
@@ -38,13 +41,14 @@ int fit_check_image_types(uint8_t type)
 }
 
 int mmap_fdt(const char *cmdname, const char *fname, size_t size_inc,
-	     void **blobp, struct stat *sbuf, bool delete_on_error)
+	     void **blobp, struct stat *sbuf, bool delete_on_error,
+	     bool read_only)
 {
 	void *ptr;
 	int fd;
 
 	/* Load FIT blob into memory (we need to write hashes/signatures) */
-	fd = open(fname, O_RDWR | O_BINARY);
+	fd = open(fname, (read_only ? O_RDONLY : O_RDWR) | O_BINARY);
 
 	if (fd < 0) {
 		fprintf(stderr, "%s: Can't open %s: %s\n",
@@ -68,7 +72,9 @@ int mmap_fdt(const char *cmdname, const char *fname, size_t size_inc,
 	}
 
 	errno = 0;
-	ptr = mmap(0, sbuf->st_size, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+	ptr = mmap(0, sbuf->st_size,
+		   (read_only ? PROT_READ : PROT_READ | PROT_WRITE), MAP_SHARED,
+		   fd, 0);
 	if ((ptr == MAP_FAILED) || (errno != 0)) {
 		fprintf(stderr, "%s: Can't read %s: %s\n",
 			cmdname, fname, strerror(errno));

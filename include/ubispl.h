@@ -5,6 +5,8 @@
 #ifndef __UBOOT_UBISPL_H
 #define __UBOOT_UBISPL_H
 
+#define UBI_VOL_NAME_MAX	127
+
 /*
  * The following CONFIG options are relevant for UBISPL
  *
@@ -74,6 +76,10 @@ struct ubispl_info {
  */
 struct ubispl_load {
 	int		vol_id;
+#ifdef CONFIG_SPL_UBI_LOAD_BY_VOLNAME
+	u32		name_len;
+	char		name[UBI_VOL_NAME_MAX + 1];
+#endif
 	void		*load_addr;
 };
 

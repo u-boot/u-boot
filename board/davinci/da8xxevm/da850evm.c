@@ -10,10 +10,9 @@
 
 #include <common.h>
 #include <dm.h>
-#include <environment.h>
+#include <env.h>
 #include <i2c.h>
 #include <net.h>
-#include <netdev.h>
 #include <spi.h>
 #include <spi_flash.h>
 #include <asm/arch/hardware.h>
@@ -49,33 +48,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define CFG_MAC_ADDR_OFFSET	(flash->size - SZ_64K)
 
-#ifdef CONFIG_SPL_BUILD
-#include <ns16550.h>
-#include <dm/platform_data/spi_davinci.h>
-
-static const struct ns16550_platdata da850evm_serial = {
-	.base = DAVINCI_UART2_BASE,
-	.reg_shift = 2,
-	.clock = 150000000,
-	.fcr = UART_FCR_DEFVAL,
-};
-
-U_BOOT_DEVICE(da850evm_uart) = {
-	.name = "ns16550_serial",
-	.platdata = &da850evm_serial,
-};
-
-static const struct davinci_spi_platdata davinci_spi_data = {
-        .regs = (struct davinci_spi_regs *)0x01f0e000,
-        .num_cs = 4,
-};
-
-U_BOOT_DEVICE(davinci_spi) = {
-        .name = "davinci_spi",
-        .platdata = &davinci_spi_data,
-};
-#endif
-
 #ifdef CONFIG_MAC_ADDR_IN_SPIFLASH
 static int get_mac_addr(u8 *addr)
 {
@@ -89,7 +61,7 @@ static int get_mac_addr(u8 *addr)
 		return -1;
 	}
 
-	ret = spi_flash_read(flash, (CFG_MAC_ADDR_OFFSET) + 1, 7, addr);
+	ret = spi_flash_read(flash, (CFG_MAC_ADDR_OFFSET), 6, addr);
 	if (ret) {
 		printf("Error - unable to read MAC address from SPI flash.\n");
 		return -1;
@@ -231,25 +203,6 @@ int misc_init_r(void)
 	return 0;
 }
 
-#ifndef CONFIG_DM_MMC
-#ifdef CONFIG_MMC_DAVINCI
-static struct davinci_mmc mmc_sd0 = {
-	.reg_base = (struct davinci_mmc_regs *)DAVINCI_MMC_SD0_BASE,
-	.host_caps = MMC_MODE_4BIT,     /* DA850 supports only 4-bit SD/MMC */
-	.voltages = MMC_VDD_32_33 | MMC_VDD_33_34,
-	.version = MMC_CTLR_VERSION_2,
-};
-
-int board_mmc_init(bd_t *bis)
-{
-	mmc_sd0.input_clk = clk_get(DAVINCI_MMCSD_CLKID);
-
-	/* Add slot-0 to mmc subsystem */
-	return davinci_mmc_init(bis, &mmc_sd0);
-}
-#endif
-#endif
-
 static const struct pinmux_config gpio_pins[] = {
 #ifdef CONFIG_USE_NOR
 	/* GP0[11] is required for NOR to work on Rev 3 EVMs */
@@ -337,9 +290,6 @@ u32 get_board_rev(void)
 		rev = 2;
 	else if (maxcpuclk >= 372000000)
 		rev = 1;
-#ifdef CONFIG_DA850_AM18X_EVM
-	rev |= REV_AM18X_EVM;
-#endif
 	return rev;
 }
 
@@ -390,10 +340,6 @@ int board_init(void)
 		 DAVINCI_SYSCFG_SUSPSRC_UART2),
 	       &davinci_syscfg_regs->suspsrc);
 
-	/* configure pinmux settings */
-	if (davinci_configure_pin_mux_items(pinmuxes, ARRAY_SIZE(pinmuxes)))
-		return 1;
-
 #ifdef CONFIG_USE_NOR
 	/* Set the GPIO direction as output */
 	clrbits_le32((u32 *)GPIO_BANK0_REG_DIR_ADDR, (0x01 << 11));
@@ -413,11 +359,6 @@ int board_init(void)
 #ifdef CONFIG_DRIVER_TI_EMAC
 	davinci_emac_mii_mode_sel(HAS_RMII);
 #endif /* CONFIG_DRIVER_TI_EMAC */
-
-	/* enable the console UART */
-	writel((DAVINCI_UART_PWREMU_MGMT_FREE | DAVINCI_UART_PWREMU_MGMT_URRST |
-		DAVINCI_UART_PWREMU_MGMT_UTRST),
-	       &davinci_uart2_ctrl_regs->pwremu_mgmt);
 
 	return 0;
 }
@@ -518,11 +459,6 @@ int board_eth_init(bd_t *bis)
 	if (rmii_hw_init())
 		printf("RMII hardware init failed!!!\n");
 #endif
-	if (!davinci_emac_initialize()) {
-		printf("Error: Ethernet init failed!\n");
-		return -1;
-	}
-
 	return 0;
 }
 #endif /* CONFIG_DRIVER_TI_EMAC */

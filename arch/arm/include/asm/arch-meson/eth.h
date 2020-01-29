@@ -19,4 +19,7 @@ enum {
  */
 void meson_eth_init(phy_interface_t mode, unsigned int flags);
 
+/* Generate an unique MAC address based on the HW serial */
+int meson_generate_serial_ethaddr(void);
+
 #endif /* __MESON_ETH_H__ */

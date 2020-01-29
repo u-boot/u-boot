@@ -69,21 +69,6 @@ int board_init(void)
 	return 0;
 }
 
-int dram_init(void)
-{
-	if (fdtdec_setup_mem_size_base() != 0)
-		return -EINVAL;
-
-	return 0;
-}
-
-int dram_init_banksize(void)
-{
-	fdtdec_setup_memory_banksize();
-
-	return 0;
-}
-
 #define RST_BASE	0xE6160000
 #define RST_CA57RESCNT	(RST_BASE + 0x40)
 #define RST_CA53RESCNT	(RST_BASE + 0x44)

@@ -1,12 +1,15 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (c) 2016 Toradex, Inc.
+ * Copyright (c) 2016-2019 Toradex, Inc.
  */
 
 #include <common.h>
 #include "tdx-cfg-block.h"
 
-#if defined(CONFIG_TARGET_APALIS_IMX6) || defined(CONFIG_TARGET_COLIBRI_IMX6)
+#if defined(CONFIG_TARGET_APALIS_IMX6) || \
+	defined(CONFIG_TARGET_APALIS_IMX8) || \
+	defined(CONFIG_TARGET_COLIBRI_IMX6) || \
+	defined(CONFIG_TARGET_COLIBRI_IMX8X)
 #include <asm/arch/sys_proto.h>
 #else
 #define is_cpu_type(cpu) (0)
@@ -18,6 +21,7 @@
 #endif
 #include <cli.h>
 #include <console.h>
+#include <env.h>
 #include <flash.h>
 #include <malloc.h>
 #include <mmc.h>
@@ -92,12 +96,22 @@ const char * const toradex_modules[] = {
 	[34] = "Apalis TK1 2GB",
 	[35] = "Apalis iMX6 Dual 1GB IT",
 	[36] = "Colibri iMX6ULL 256MB",
-	[37] = "Apalis iMX8 QuadMax 4GB Wi-Fi / Bluetooth",
-	[38] = "Colibri iMX8X",
+	[37] = "Apalis iMX8 QuadMax 4GB Wi-Fi / BT IT",
+	[38] = "Colibri iMX8 QuadXPlus 2GB Wi-Fi / BT IT",
 	[39] = "Colibri iMX7 Dual 1GB (eMMC)",
-	[40] = "Colibri iMX6ULL 512MB Wi-Fi / Bluetooth IT",
+	[40] = "Colibri iMX6ULL 512MB Wi-Fi / BT IT",
 	[41] = "Colibri iMX7 Dual 512MB EPDC",
 	[42] = "Apalis TK1 4GB",
+	[43] = "Colibri T20 512MB IT SETEK",
+	[44] = "Colibri iMX6ULL 512MB IT",
+	[45] = "Colibri iMX6ULL 512MB Wi-Fi / Bluetooth",
+	[46] = "Apalis iMX8 QuadXPlus 2GB Wi-Fi / BT IT",
+	[47] = "Apalis iMX8 QuadMax 4GB IT",
+	[48] = "Apalis iMX8 QuadPlus 2GB Wi-Fi / BT",
+	[49] = "Apalis iMX8 QuadPlus 2GB",
+	[50] = "Colibri iMX8 QuadXPlus 2GB IT",
+	[51] = "Colibri iMX8 DualX 1GB Wi-Fi / Bluetooth",
+	[52] = "Colibri iMX8 DualX 1GB",
 };
 
 #ifdef CONFIG_TDX_CFG_BLOCK_IS_IN_MMC
@@ -116,6 +130,10 @@ static int tdx_cfg_block_mmc_storage(u8 *config_block, int write)
 		puts("No MMC card found\n");
 		ret = -ENODEV;
 		goto out;
+	}
+	if (mmc_init(mmc)) {
+		puts("MMC init failed\n");
+		return -EINVAL;
 	}
 	if (part != mmc_get_blk_desc(mmc)->hwpart) {
 		if (blk_select_hwpart_devnum(IF_TYPE_MMC, dev, part)) {
@@ -261,7 +279,7 @@ int read_tdx_cfg_block(void)
 	}
 
 	/* Cap product id to avoid issues with a yet unknown one */
-	if (tdx_hw_tag.prodid > (sizeof(toradex_modules) /
+	if (tdx_hw_tag.prodid >= (sizeof(toradex_modules) /
 				  sizeof(toradex_modules[0])))
 		tdx_hw_tag.prodid = 0;
 
@@ -275,45 +293,94 @@ static int get_cfgblock_interactive(void)
 	char message[CONFIG_SYS_CBSIZE];
 	char *soc;
 	char it = 'n';
+	char wb = 'n';
 	int len;
+
+	/* Unknown module by default */
+	tdx_hw_tag.prodid = 0;
 
 	if (cpu_is_pxa27x())
 		sprintf(message, "Is the module the 312 MHz version? [y/N] ");
 	else
 		sprintf(message, "Is the module an IT version? [y/N] ");
-
 	len = cli_readline(message);
 	it = console_buffer[0];
 
+#if defined(CONFIG_TARGET_APALIS_IMX8) || \
+		defined(CONFIG_TARGET_COLIBRI_IMX6ULL) || \
+		defined(CONFIG_TARGET_COLIBRI_IMX8X)
+	sprintf(message, "Does the module have Wi-Fi / Bluetooth? [y/N] ");
+	len = cli_readline(message);
+	wb = console_buffer[0];
+#endif
+
 	soc = env_get("soc");
 	if (!strcmp("mx6", soc)) {
-#ifdef CONFIG_MACH_TYPE
-		if (it == 'y' || it == 'Y')
+#ifdef CONFIG_TARGET_APALIS_IMX6
+		if (it == 'y' || it == 'Y') {
 			if (is_cpu_type(MXC_CPU_MX6Q))
 				tdx_hw_tag.prodid = APALIS_IMX6Q_IT;
 			else
 				tdx_hw_tag.prodid = APALIS_IMX6D_IT;
-		else
+		} else {
 			if (is_cpu_type(MXC_CPU_MX6Q))
 				tdx_hw_tag.prodid = APALIS_IMX6Q;
 			else
 				tdx_hw_tag.prodid = APALIS_IMX6D;
-#else
-		if (it == 'y' || it == 'Y')
+		}
+#elif CONFIG_TARGET_COLIBRI_IMX6
+		if (it == 'y' || it == 'Y') {
 			if (is_cpu_type(MXC_CPU_MX6DL))
 				tdx_hw_tag.prodid = COLIBRI_IMX6DL_IT;
-			else
+			else if (is_cpu_type(MXC_CPU_MX6SOLO))
 				tdx_hw_tag.prodid = COLIBRI_IMX6S_IT;
-		else
+		} else {
 			if (is_cpu_type(MXC_CPU_MX6DL))
 				tdx_hw_tag.prodid = COLIBRI_IMX6DL;
-			else
+			else if (is_cpu_type(MXC_CPU_MX6SOLO))
 				tdx_hw_tag.prodid = COLIBRI_IMX6S;
-#endif /* CONFIG_MACH_TYPE */
-	} else if (!strcmp("imx7d", soc)) {
+		}
+#elif CONFIG_TARGET_COLIBRI_IMX6ULL
+		if (it == 'y' || it == 'Y') {
+			if (wb == 'y' || wb == 'Y')
+				tdx_hw_tag.prodid = COLIBRI_IMX6ULL_WIFI_BT_IT;
+			else
+				tdx_hw_tag.prodid = COLIBRI_IMX6ULL_IT;
+		} else {
+			if (wb == 'y' || wb == 'Y')
+				tdx_hw_tag.prodid = COLIBRI_IMX6ULL_WIFI_BT;
+			else
+				tdx_hw_tag.prodid = COLIBRI_IMX6ULL;
+		}
+#endif
+	} else if (!strcmp("imx7d", soc))
 		tdx_hw_tag.prodid = COLIBRI_IMX7D;
-	} else if (!strcmp("imx7s", soc)) {
+	else if (!strcmp("imx7s", soc))
 		tdx_hw_tag.prodid = COLIBRI_IMX7S;
+	else if (is_cpu_type(MXC_CPU_IMX8QM)) {
+		if (it == 'y' || it == 'Y') {
+			if (wb == 'y' || wb == 'Y')
+				tdx_hw_tag.prodid = APALIS_IMX8QM_WIFI_BT_IT;
+			else
+				tdx_hw_tag.prodid = APALIS_IMX8QM_IT;
+		} else {
+			if (wb == 'y' || wb == 'Y')
+				tdx_hw_tag.prodid = APALIS_IMX8QP_WIFI_BT;
+			else
+				tdx_hw_tag.prodid = APALIS_IMX8QP;
+		}
+	} else if (is_cpu_type(MXC_CPU_IMX8QXP)) {
+		if (it == 'y' || it == 'Y') {
+			if (wb == 'y' || wb == 'Y')
+				tdx_hw_tag.prodid = COLIBRI_IMX8QXP_WIFI_BT_IT;
+			else
+				tdx_hw_tag.prodid = COLIBRI_IMX8QXP_IT;
+		} else {
+			if (wb == 'y' || wb == 'Y')
+				tdx_hw_tag.prodid = COLIBRI_IMX8DX_WIFI_BT;
+			else
+				tdx_hw_tag.prodid = COLIBRI_IMX8DX;
+		}
 	} else if (!strcmp("tegra20", soc)) {
 		if (it == 'y' || it == 'Y')
 			if (gd->ram_size == 0x10000000)
@@ -330,8 +397,9 @@ static int get_cfgblock_interactive(void)
 			tdx_hw_tag.prodid = COLIBRI_PXA270_312MHZ;
 		else
 			tdx_hw_tag.prodid = COLIBRI_PXA270_520MHZ;
+	}
 #ifdef CONFIG_MACH_TYPE
-	} else if (!strcmp("tegra30", soc)) {
+	else if (!strcmp("tegra30", soc)) {
 		if (CONFIG_MACH_TYPE == MACH_TYPE_APALIS_T30) {
 			if (it == 'y' || it == 'Y')
 				tdx_hw_tag.prodid = APALIS_T30_IT;
@@ -346,8 +414,9 @@ static int get_cfgblock_interactive(void)
 			else
 				tdx_hw_tag.prodid = COLIBRI_T30;
 		}
+	}
 #endif /* CONFIG_MACH_TYPE */
-	} else if (!strcmp("tegra124", soc)) {
+	else if (!strcmp("tegra124", soc)) {
 		tdx_hw_tag.prodid = APALIS_TK1_2GB;
 	} else if (!strcmp("vf500", soc)) {
 		if (it == 'y' || it == 'Y')
@@ -359,7 +428,9 @@ static int get_cfgblock_interactive(void)
 			tdx_hw_tag.prodid = COLIBRI_VF61_IT;
 		else
 			tdx_hw_tag.prodid = COLIBRI_VF61;
-	} else {
+	}
+
+	if (!tdx_hw_tag.prodid) {
 		printf("Module type not detectable due to unknown SoC\n");
 		return -1;
 	}
@@ -373,7 +444,7 @@ static int get_cfgblock_interactive(void)
 	tdx_hw_tag.ver_minor = console_buffer[2] - '0';
 	tdx_hw_tag.ver_assembly = console_buffer[3] - 'A';
 
-	if (cpu_is_pxa27x() && (tdx_hw_tag.ver_major == 1))
+	if (cpu_is_pxa27x() && tdx_hw_tag.ver_major == 1)
 		tdx_hw_tag.prodid -= (COLIBRI_PXA270_312MHZ -
 				       COLIBRI_PXA270_V1_312MHZ);
 
@@ -418,6 +489,7 @@ static int do_cfgblock_create(cmd_tbl_t *cmdtp, int flag, int argc,
 	int offset = 0;
 	int ret = CMD_RET_SUCCESS;
 	int err;
+	int force_overwrite = 0;
 
 	/* Allocate RAM area for config block */
 	config_block = memalign(ARCH_DMA_MINALIGN, size);
@@ -427,6 +499,11 @@ static int do_cfgblock_create(cmd_tbl_t *cmdtp, int flag, int argc,
 	}
 
 	memset(config_block, 0xff, size);
+
+	if (argc >= 3) {
+		if (argv[2][0] == '-' && argv[2][1] == 'y')
+			force_overwrite = 1;
+	}
 
 	read_tdx_cfg_block();
 	if (valid_cfgblock) {
@@ -448,24 +525,31 @@ static int do_cfgblock_create(cmd_tbl_t *cmdtp, int flag, int argc,
 		       CONFIG_TDX_CFG_BLOCK_OFFSET);
 		goto out;
 #else
-		char message[CONFIG_SYS_CBSIZE];
-		sprintf(message,
-			"A valid Toradex config block is present, still recreate? [y/N] ");
+		if (!force_overwrite) {
+			char message[CONFIG_SYS_CBSIZE];
 
-		if (!cli_readline(message))
-			goto out;
+			sprintf(message,
+				"A valid Toradex config block is present, still recreate? [y/N] ");
 
-		if (console_buffer[0] != 'y' && console_buffer[0] != 'Y')
-			goto out;
+			if (!cli_readline(message))
+				goto out;
+
+			if (console_buffer[0] != 'y' &&
+			    console_buffer[0] != 'Y')
+				goto out;
+		}
 #endif
 	}
 
 	/* Parse new Toradex config block data... */
-	if (argc < 3)
+	if (argc < 3 || (force_overwrite && argc < 4)) {
 		err = get_cfgblock_interactive();
-	else
-		err = get_cfgblock_barcode(argv[2]);
-
+	} else {
+		if (force_overwrite)
+			err = get_cfgblock_barcode(argv[3]);
+		else
+			err = get_cfgblock_barcode(argv[2]);
+	}
 	if (err) {
 		ret = CMD_RET_FAILURE;
 		goto out;
@@ -548,9 +632,8 @@ static int do_cfgblock(cmd_tbl_t *cmdtp, int flag, int argc,
 	return CMD_RET_USAGE;
 }
 
-U_BOOT_CMD(
-	cfgblock, 3, 0, do_cfgblock,
-	"Toradex config block handling commands",
-	"create [barcode] - (Re-)create Toradex config block\n"
-	"cfgblock reload - Reload Toradex config block from flash"
+U_BOOT_CMD(cfgblock, 4, 0, do_cfgblock,
+	   "Toradex config block handling commands",
+	   "create [-y] [barcode] - (Re-)create Toradex config block\n"
+	   "cfgblock reload - Reload Toradex config block from flash"
 );

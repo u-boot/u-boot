@@ -11,7 +11,7 @@
 		power-gpios = <&gpio_main TEGRA_MAIN_GPIO(P, 6) GPIO_ACTIVE_HIGH>;
 	};
 
-	pcie-controller@10003000 {
+	pcie@10003000 {
 		status = "okay";
 
 		pci@1,0 {

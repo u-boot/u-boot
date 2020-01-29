@@ -13,6 +13,7 @@
 #include <asm/io.h>
 
 #include <phy.h>
+#include <linux/mii.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

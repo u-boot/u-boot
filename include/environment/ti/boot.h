@@ -10,7 +10,7 @@
 #define __TI_BOOT_H
 
 #ifndef CONSOLEDEV
-#define CONSOLEDEV "ttyO2"
+#define CONSOLEDEV "ttyS2"
 #endif
 
 #define VBMETA_PART_SIZE		(64 * 1024)
@@ -21,6 +21,18 @@
 	",uuid=${uuid_gpt_vbmeta};"
 #else
 #define VBMETA_PART			""
+#endif
+
+#if defined(CONFIG_CMD_AB_SELECT)
+#define COMMON_PARTS \
+	"name=boot_a,size=20M,uuid=${uuid_gpt_boot_a};" \
+	"name=boot_b,size=20M,uuid=${uuid_gpt_boot_b};" \
+	"name=system_a,size=1024M,uuid=${uuid_gpt_system_a};" \
+	"name=system_b,size=1024M,uuid=${uuid_gpt_system_b};"
+#else
+#define COMMON_PARTS \
+	"name=boot,size=20M,uuid=${uuid_gpt_boot};" \
+	"name=system,size=1024M,uuid=${uuid_gpt_system};"
 #endif
 
 #ifndef PARTS_DEFAULT
@@ -38,8 +50,7 @@
 	"name=uboot-env,start=2432K,size=256K,uuid=${uuid_gpt_reserved};" \
 	"name=misc,size=128K,uuid=${uuid_gpt_misc};" \
 	"name=recovery,size=40M,uuid=${uuid_gpt_recovery};" \
-	"name=boot,size=10M,uuid=${uuid_gpt_boot};" \
-	"name=system,size=1024M,uuid=${uuid_gpt_system};" \
+	COMMON_PARTS \
 	"name=vendor,size=256M,uuid=${uuid_gpt_vendor};" \
 	VBMETA_PART \
 	"name=userdata,size=-,uuid=${uuid_gpt_userdata}"
@@ -57,6 +68,39 @@
 #define AVB_VERIFY_CHECK ""
 #define AVB_VERIFY_CMD ""
 #endif
+
+#define CONTROL_PARTITION "misc"
+
+#if defined(CONFIG_CMD_AB_SELECT)
+#define AB_SELECT \
+	"if part number mmc 1 " CONTROL_PARTITION " control_part_number; " \
+	"then " \
+		"echo " CONTROL_PARTITION \
+			" partition number:${control_part_number};" \
+		"ab_select slot_name mmc ${mmcdev}:${control_part_number};" \
+	"else " \
+		"echo " CONTROL_PARTITION " partition not found;" \
+		"exit;" \
+	"fi;" \
+	"setenv slot_suffix _${slot_name};" \
+	"if part number mmc ${mmcdev} system${slot_suffix} " \
+	"system_part_number; then " \
+		"setenv bootargs_ab " \
+		"ro root=/dev/mmcblk${mmcdev}p${system_part_number} " \
+		"rootwait init=/init skip_initramfs " \
+		"androidboot.slot_suffix=${slot_suffix};" \
+		"echo A/B cmdline addition: ${bootargs_ab};" \
+		"setenv bootargs ${bootargs} ${bootargs_ab};" \
+	"else " \
+		"echo system${slot_suffix} partition not found;" \
+	"fi;"
+#else
+#define AB_SELECT ""
+#endif
+
+#define FASTBOOT_CMD \
+	"echo Booting into fastboot ...; " \
+	"fastboot " __stringify(CONFIG_FASTBOOT_USB_DEV) "; "
 
 #define DEFAULT_COMMON_BOOT_TI_ARGS \
 	"console=" CONSOLEDEV ",115200n8\0" \
@@ -77,6 +121,28 @@
 		"setenv mmcroot /dev/mmcblk0p2 rw; " \
 		"run mmcboot;\0" \
 	"emmc_android_boot=" \
+		"if bcb load " __stringify(CONFIG_FASTBOOT_FLASH_MMC_DEV) " " \
+		CONTROL_PARTITION "; then " \
+			"if bcb test command = bootonce-bootloader; then " \
+				"echo BCB: Bootloader boot...; " \
+				"bcb clear command; bcb store; " \
+				FASTBOOT_CMD \
+			"elif bcb test command = boot-recovery; then " \
+				"echo BCB: Recovery boot...; " \
+				"echo Warning: recovery is not implemented; " \
+				"echo Performing normal boot for now...; " \
+				"bcb clear command; bcb store; " \
+				"run emmc_android_normal_boot; " \
+			"else " \
+				"echo BCB: Normal boot requested...; " \
+				"run emmc_android_normal_boot; " \
+			"fi; " \
+		"else " \
+			"echo Warning: BCB is corrupted or does not exist; " \
+			"echo Performing normal boot...; " \
+			"run emmc_android_normal_boot; " \
+		"fi;\0" \
+	"emmc_android_normal_boot=" \
 		"echo Trying to boot Android from eMMC ...; " \
 		"run update_to_fit; " \
 		"setenv eval_bootargs setenv bootargs $bootargs; " \
@@ -86,10 +152,16 @@
 		"mmc dev $mmcdev; " \
 		"mmc rescan; " \
 		AVB_VERIFY_CHECK \
-		"part start mmc ${mmcdev} boot boot_start; " \
-		"part size mmc ${mmcdev} boot boot_size; " \
-		"mmc read ${loadaddr} ${boot_start} ${boot_size}; " \
-		"bootm ${loadaddr}#${fdtfile};\0 "
+		AB_SELECT \
+		"if part start mmc ${mmcdev} boot${slot_suffix} boot_start; " \
+		"then " \
+			"part size mmc ${mmcdev} boot${slot_suffix} " \
+				"boot_size; " \
+			"mmc read ${loadaddr} ${boot_start} ${boot_size}; " \
+			"bootm ${loadaddr}#${fdtfile}; " \
+		"else " \
+			"echo boot${slot_suffix} partition not found; " \
+		"fi;\0"
 
 #ifdef CONFIG_OMAP54XX
 
@@ -130,8 +202,7 @@
 	"if test ${dofastboot} -eq 1; then " \
 		"echo Boot fastboot requested, resetting dofastboot ...;" \
 		"setenv dofastboot 0; saveenv;" \
-		"echo Booting into fastboot ...; " \
-		"fastboot " __stringify(CONFIG_FASTBOOT_USB_DEV) "; " \
+		FASTBOOT_CMD \
 	"fi;" \
 	"if test ${boot_fit} -eq 1; then "	\
 		"run update_to_fit;"	\

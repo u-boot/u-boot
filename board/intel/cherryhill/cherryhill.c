@@ -5,7 +5,7 @@
 
 #include <common.h>
 #include <asm/arch/gpio.h>
-#include <asm/fsp/fsp_support.h>
+#include <asm/fsp1/fsp_support.h>
 
 static const struct gpio_family gpio_family[] = {
 	GPIO_FAMILY_CONF("SOUTHEAST_2_hshvfamily_2x3_rcomp_7_0", NA, 0,

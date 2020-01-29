@@ -9,7 +9,7 @@
 
 #include <common.h>
 #include <command.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <linux/stddef.h>
 #include <malloc.h>
 #include <search.h>

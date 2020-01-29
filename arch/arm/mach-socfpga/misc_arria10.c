@@ -115,7 +115,7 @@ int print_cpuinfo(void)
 }
 #endif
 
-void do_bridge_reset(int enable)
+void do_bridge_reset(int enable, unsigned int mask)
 {
 	if (enable)
 		socfpga_reset_deassert_bridges_handoff();

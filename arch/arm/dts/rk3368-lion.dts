@@ -185,7 +185,7 @@
 	#size-cells = <0>;
 
 	spiflash: w25q32dw@0 {
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		reg = <0>;
 		spi-max-frequency = <49500000>;
 		spi-cpol;

@@ -8,8 +8,11 @@
  */
 
 #include <common.h>
+#include <env.h>
+#include <init.h>
 #include <palmas.h>
 #include <sata.h>
+#include <serial.h>
 #include <usb.h>
 #include <asm/omap_common.h>
 #include <asm/omap_sec_common.h>
@@ -23,13 +26,13 @@
 #include <asm/arch/sata.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/omap.h>
-#include <environment.h>
 #include <usb.h>
 #include <linux/usb/gadget.h>
 #include <dwc3-uboot.h>
 #include <dwc3-omap-uboot.h>
 #include <ti-usb-phy-uboot.h>
 #include <mmc.h>
+#include <dm/uclass.h>
 
 #include "../common/board_detect.h"
 #include "mux_data.h"
@@ -689,6 +692,7 @@ int board_late_init(void)
 {
 	setup_board_eeprom_env();
 	u8 val;
+	struct udevice *dev;
 
 	/*
 	 * DEV_CTRL.DEV_ON = 1 please - else palmas switches off in 8 seconds
@@ -719,6 +723,9 @@ int board_late_init(void)
 	omap_set_fastboot_vars();
 
 	am57x_idk_lcd_detect();
+
+	/* Just probe the potentially supported cdce913 device */
+	uclass_get_device(UCLASS_CLK, 0, &dev);
 
 #if !defined(CONFIG_SPL_BUILD)
 	board_ti_set_ethaddr(2);
@@ -1096,6 +1103,16 @@ int board_fit_config_name_match(const char *name)
 }
 #endif
 
+#if CONFIG_IS_ENABLED(FASTBOOT) && !CONFIG_IS_ENABLED(ENV_IS_NOWHERE)
+int fastboot_set_reboot_flag(void)
+{
+	printf("Setting reboot to fastboot flag ...\n");
+	env_set("dofastboot", "1");
+	env_save();
+	return 0;
+}
+#endif
+
 #ifdef CONFIG_TI_SECURE_DEVICE
 void board_fit_image_post_process(void **p_image, size_t *p_size)
 {
@@ -1106,16 +1123,6 @@ void board_tee_image_process(ulong tee_image, size_t tee_size)
 {
 	secure_tee_install((u32)tee_image);
 }
-
-#if CONFIG_IS_ENABLED(FASTBOOT) && !CONFIG_IS_ENABLED(ENV_IS_NOWHERE)
-int fastboot_set_reboot_flag(void)
-{
-	printf("Setting reboot to fastboot flag ...\n");
-	env_set("dofastboot", "1");
-	env_save();
-	return 0;
-}
-#endif
 
 U_BOOT_FIT_LOADABLE_HANDLER(IH_TYPE_TEE, board_tee_image_process);
 #endif

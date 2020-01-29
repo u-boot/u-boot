@@ -26,8 +26,6 @@ struct mu_type {
 
 struct imx8_scu {
 	struct mu_type *base;
-	struct udevice *clk;
-	struct udevice *pinclk;
 };
 
 #define MU_CR_GIE_MASK		0xF0000000u
@@ -191,15 +189,16 @@ static int imx8_scu_probe(struct udevice *dev)
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
+#ifdef CONFIG_SPL_BUILD
+	plat->base = (struct mu_type *)CONFIG_MU_BASE_SPL;
+#else
 	plat->base = (struct mu_type *)addr;
+#endif
 
 	/* U-Boot not enable interrupts, so need to enable RX interrupts */
 	mu_hal_init(plat->base);
 
 	gd->arch.scu_dev = dev;
-
-	device_probe(plat->clk);
-	device_probe(plat->pinclk);
 
 	return 0;
 }
@@ -211,34 +210,17 @@ static int imx8_scu_remove(struct udevice *dev)
 
 static int imx8_scu_bind(struct udevice *dev)
 {
-	struct imx8_scu *plat = dev_get_platdata(dev);
 	int ret;
 	struct udevice *child;
-	int node;
+	ofnode node;
 
 	debug("%s(dev=%p)\n", __func__, dev);
-
-	node = fdt_node_offset_by_compatible(gd->fdt_blob, -1,
-					     "fsl,imx8qxp-clk");
-	if (node < 0)
-		panic("No clk node found\n");
-
-	ret = lists_bind_fdt(dev, offset_to_ofnode(node), &child, true);
-	if (ret)
-		return ret;
-
-	plat->clk = child;
-
-	node = fdt_node_offset_by_compatible(gd->fdt_blob, -1,
-					     "fsl,imx8qxp-iomuxc");
-	if (node < 0)
-		panic("No iomuxc node found\n");
-
-	ret = lists_bind_fdt(dev, offset_to_ofnode(node), &child, true);
-	if (ret)
-		return ret;
-
-	plat->pinclk = child;
+	ofnode_for_each_subnode(node, dev_ofnode(dev)) {
+		ret = lists_bind_fdt(dev, node, &child, true);
+		if (ret)
+			return ret;
+		debug("bind child dev %s\n", child->name);
+	}
 
 	return 0;
 }

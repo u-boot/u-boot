@@ -214,7 +214,6 @@ endef
 quiet_cmd_flex = LEX     $@
       cmd_flex = $(LEX) -o$@ -L $<
 
-.PRECIOUS: $(obj)/%.lex.c
 $(obj)/%.lex.c: $(src)/%.l FORCE
 	$(call if_changed,flex)
 
@@ -223,14 +222,12 @@ $(obj)/%.lex.c: $(src)/%.l FORCE
 quiet_cmd_bison = YACC    $@
       cmd_bison = $(YACC) -o$@ -t -l $<
 
-.PRECIOUS: $(obj)/%.tab.c
 $(obj)/%.tab.c: $(src)/%.y FORCE
 	$(call if_changed,bison)
 
 quiet_cmd_bison_h = YACC    $@
       cmd_bison_h = $(YACC) -o/dev/null --defines=$@ -t -l $<
 
-.PRECIOUS: $(obj)/%.tab.h
 $(obj)/%.tab.h: $(src)/%.y FORCE
 	$(call if_changed,bison_h)
 
@@ -295,7 +292,7 @@ cmd_dt_S_dtb=						\
 $(obj)/%.dtb.S: $(obj)/%.dtb
 	$(call cmd,dt_S_dtb)
 
-ifeq ($(CONFIG_OF_LIBFDT_OVERLAY),y)
+ifeq ($(CONFIG_SPL_LOAD_FIT_APPLY_OVERLAY),y)
 DTC_FLAGS += -@
 endif
 
@@ -308,7 +305,8 @@ cmd_dtc = mkdir -p $(dir ${dtc-tmp}) ; \
 	$(DTC) -O dtb -o $@ -b 0 \
 		-i $(dir $<) $(DTC_FLAGS) \
 		-d $(depfile).dtc.tmp $(dtc-tmp) ; \
-	cat $(depfile).pre.tmp $(depfile).dtc.tmp > $(depfile)
+	cat $(depfile).pre.tmp $(depfile).dtc.tmp > $(depfile) ; \
+	sed -i "s:$(pre-tmp):$(<):" $(depfile)
 
 $(obj)/%.dtb: $(src)/%.dts FORCE
 	$(call if_changed_dep,dtc)
@@ -396,16 +394,27 @@ $(obj)/efi_reloc.o: $(srctree)/arch/$(ARCH)/lib/$(EFI_RELOC:.o=.c) $(recordmcoun
 	$(call cmd,force_checksrc)
 	$(call if_changed_rule,cc_o_c)
 
-$(obj)/%_efi.so: $(obj)/%.o $(obj)/efi_crt0.o $(obj)/efi_reloc.o
+$(obj)/%_efi.so: $(obj)/%.o $(obj)/efi_crt0.o $(obj)/efi_reloc.o $(obj)/efi_freestanding.o
 	$(call cmd,efi_ld)
 
 # ACPI
 # ---------------------------------------------------------------------------
+#
+# This first sends the file (typically dsdt.asl) through the preprocessor
+# resolve includes and any CONFIG options used. This produces dsdt.asl.tmp
+# which is pure ASL code. The Intel ASL (ACPI (Advanced Configuration and Power
+# Interface) Source Language compiler (iasl) then converts this ASL code into a
+# C file containing the hex data to build into U-Boot. This file is called
+# dsdt.hex (despite us setting the prefix to .../dsdt.asl.tmp) so must be
+# renamed to dsdt.c for consumption by the build system.
+ASL_TMP = $(patsubst %.c,%.asl.tmp,$@)
+
 quiet_cmd_acpi_c_asl= ASL     $<
 cmd_acpi_c_asl=         \
-	$(CPP) -x assembler-with-cpp -D__ASSEMBLY__ -P $(UBOOTINCLUDE) -o $<.tmp $<; \
-	iasl -p $< -tc $<.tmp $(if $(KBUILD_VERBOSE:1=), >/dev/null) && \
-	mv $(patsubst %.asl,%.hex,$<) $@
+	$(CPP) -x assembler-with-cpp -D__ASSEMBLY__ -P $(UBOOTINCLUDE) \
+		-o $(ASL_TMP) $< && \
+	iasl -p $@ -tc $(ASL_TMP) $(if $(KBUILD_VERBOSE:1=), >/dev/null) && \
+	mv $(patsubst %.c,%.hex,$@) $@
 
 $(obj)/dsdt.c:    $(src)/dsdt.asl
 	$(call cmd,acpi_c_asl)
@@ -531,4 +540,5 @@ quiet_cmd_fdtgrep = FDTGREP $@
       cmd_fdtgrep = $(objtree)/tools/fdtgrep $(fdtgrep_props) -RT $< \
 		-n /chosen -n /config -O dtb | \
 	$(objtree)/tools/fdtgrep -r -O dtb - -o $@ \
+		-P u-boot,dm-pre-reloc -P u-boot,dm-spl -P u-boot,dm-tpl \
 		$(addprefix -P ,$(subst $\",,$(CONFIG_OF_SPL_REMOVE_PROPS)))

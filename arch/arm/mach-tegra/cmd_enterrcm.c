@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2012-2019, NVIDIA CORPORATION. All rights reserved.
  *
  * Derived from code (arch/arm/lib/reset.c) that is:
  *
@@ -25,18 +25,17 @@
  */
 
 #include <common.h>
+#include <irq_func.h>
 #include <asm/arch/tegra.h>
 #include <asm/arch-tegra/pmc.h>
 
 static int do_enterrcm(cmd_tbl_t *cmdtp, int flag, int argc,
 		       char * const argv[])
 {
-	struct pmc_ctlr *pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
-
 	puts("Entering RCM...\n");
 	udelay(50000);
 
-	pmc->pmc_scratch0 = 2;
+	tegra_pmc_writel(2, PMC_SCRATCH0);
 	disable_interrupts();
 	reset_cpu(0);
 

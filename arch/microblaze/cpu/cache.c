@@ -6,9 +6,10 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <asm/asm.h>
 
-int dcache_status (void)
+int dcache_status(void)
 {
 	int i = 0;
 	int mask = 0x80;
@@ -18,7 +19,7 @@ int dcache_status (void)
 	return i;
 }
 
-int icache_status (void)
+int icache_status(void)
 {
 	int i = 0;
 	int mask = 0x20;
@@ -28,28 +29,32 @@ int icache_status (void)
 	return i;
 }
 
-void	icache_enable (void) {
+void icache_enable(void)
+{
 	MSRSET(0x20);
 }
 
-void	icache_disable(void) {
+void icache_disable(void)
+{
 	/* we are not generate ICACHE size -> flush whole cache */
 	flush_cache(0, 32768);
 	MSRCLR(0x20);
 }
 
-void	dcache_enable (void) {
+void dcache_enable(void)
+{
 	MSRSET(0x80);
 }
 
-void	dcache_disable(void) {
+void dcache_disable(void)
+{
 #ifdef XILINX_USE_DCACHE
 	flush_cache(0, XILINX_DCACHE_BYTE_SIZE);
 #endif
 	MSRCLR(0x80);
 }
 
-void flush_cache (ulong addr, ulong size)
+void flush_cache(ulong addr, ulong size)
 {
 	int i;
 	for (i = 0; i < size; i += 4)

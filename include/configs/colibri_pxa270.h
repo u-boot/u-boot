@@ -16,15 +16,11 @@
 /* Avoid overwriting factory configuration block */
 #define CONFIG_BOARD_SIZE_LIMIT		0x40000
 
-/* We will never enable dcache because we have to setup MMU first */
-#define CONFIG_SYS_DCACHE_OFF
-
 /*
  * Environment settings
  */
 #define	CONFIG_ENV_OVERWRITE
 #define	CONFIG_SYS_MALLOC_LEN		(128 * 1024)
-#define	CONFIG_ARCH_CPU_INIT
 #define	CONFIG_BOOTCOMMAND						\
 	"if fatload mmc 0 0xa0000000 uImage; then "			\
 		"bootm 0xa0000000; "					\
@@ -120,10 +116,6 @@
 #define	CONFIG_SYS_MONITOR_LEN		0x40000
 
 /* Skip factory configuration block */
-#define	CONFIG_ENV_ADDR			\
-			(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN + 0x40000)
-#define	CONFIG_ENV_SIZE			0x40000
-#define	CONFIG_ENV_SECT_SIZE		0x40000
 
 /*
  * GPIO settings

@@ -580,7 +580,7 @@
 		reset-names = "fuse";
 	};
 
-	pcie-controller@80003000 {
+	pcie@80003000 {
 		compatible = "nvidia,tegra20-pcie";
 		device_type = "pci";
 		reg = <0x80003000 0x00000800   /* PADS registers */

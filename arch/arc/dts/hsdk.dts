@@ -71,7 +71,7 @@
 
 	ethernet@f0008000 {
 		#interrupt-cells = <1>;
-		compatible = "altr,socfpga-stmmac";
+		compatible = "snps,arc-dwmac-3.70a";
 		reg = <0xf0008000 0x2000>;
 		phy-mode = "gmii";
 	};
@@ -86,6 +86,32 @@
 		reg = <0xf0060000 0x100>;
 	};
 
+	mmcclk_ciu: mmcclk-ciu {
+		compatible = "fixed-clock";
+		/*
+		 * DW sdio controller has external ciu clock divider
+		 * controlled via register in SDIO IP. Due to its
+		 * unexpected default value (it should divide by 1
+		 * but it divides by 8) SDIO IP uses wrong clock and
+		 * works unstable (see STAR 9001204800)
+		 * We switched to the minimum possible value of the
+		 * divisor (div-by-2) in HSDK platform code.
+		 * So default mmcclk ciu clock is 50000000 Hz.
+		 */
+		clock-frequency = <50000000>;
+		#clock-cells = <0>;
+	};
+
+	mmc: mmc0@f000a000 {
+		compatible = "snps,dw-mshc";
+		reg = <0xf000a000 0x400>;
+		bus-width = <4>;
+		fifo-depth = <256>;
+		clocks = <&cgu_clk CLK_SYS_SDIO>, <&mmcclk_ciu>;
+		clock-names = "biu", "ciu";
+		max-frequency = <25000000>;
+	};
+
 	spi0: spi@f0020000 {
 		compatible = "snps,dw-apb-ssi";
 		reg = <0xf0020000 0x1000>;
@@ -96,7 +122,7 @@
 		clock-names = "spi_clk";
 		cs-gpio = <&cs_gpio 0>;
 		spi_flash@0 {
-			compatible = "spi-flash";
+			compatible = "jedec,spi-nor";
 			reg = <0>;
 			spi-max-frequency = <4000000>;
 		};

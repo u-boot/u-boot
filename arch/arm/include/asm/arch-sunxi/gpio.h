@@ -73,6 +73,9 @@ struct sunxi_gpio_reg {
 	struct sunxi_gpio_int gpio_int;
 };
 
+#define SUN50I_H6_GPIO_POW_MOD_SEL	0x340
+#define SUN50I_H6_GPIO_POW_MOD_VAL	0x348
+
 #define BANK_TO_GPIO(bank)	(((bank) < SUNXI_GPIO_L) ? \
 	&((struct sunxi_gpio_reg *)SUNXI_PIO_BASE)->gpio_bank[bank] : \
 	&((struct sunxi_gpio_reg *)SUNXI_R_PIO_BASE)->gpio_bank[(bank) - SUNXI_GPIO_L])
@@ -176,6 +179,7 @@ enum sunxi_gpio_number {
 
 #define SUN5I_GPE_SDC2		3
 #define SUN8I_GPE_TWI2		3
+#define SUN50I_GPE_TWI2		3
 
 #define SUNXI_GPF_SDC0		2
 #define SUNXI_GPF_UART0		4
@@ -193,8 +197,10 @@ enum sunxi_gpio_number {
 #define SUN4I_GPH_SDC1		5
 #define SUN6I_GPH_TWI0		2
 #define SUN8I_GPH_TWI0		2
+#define SUN50I_GPH_TWI0		2
 #define SUN6I_GPH_TWI1		2
 #define SUN8I_GPH_TWI1		2
+#define SUN50I_GPH_TWI1		2
 #define SUN6I_GPH_TWI2		2
 #define SUN6I_GPH_UART0		2
 #define SUN9I_GPH_UART0		2

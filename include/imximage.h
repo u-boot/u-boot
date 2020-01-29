@@ -79,6 +79,7 @@ enum imximage_cmd {
 	CMD_LOADER,
 	CMD_SECOND_LOADER,
 	CMD_DDR_FW,
+	CMD_ROM_VERSION,
 };
 
 enum imximage_fld_types {

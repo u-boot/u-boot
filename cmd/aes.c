@@ -7,11 +7,11 @@
 
 #include <common.h>
 #include <command.h>
-#include <environment.h>
 #include <uboot_aes.h>
 #include <malloc.h>
 #include <asm/byteorder.h>
 #include <linux/compiler.h>
+#include <mapmem.h>
 
 /**
  * do_aes() - Handle the "aes" command-line command
@@ -47,10 +47,10 @@ static int do_aes(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	dst_addr = simple_strtoul(argv[5], NULL, 16);
 	len = simple_strtoul(argv[6], NULL, 16);
 
-	key_ptr = (uint8_t *)key_addr;
-	iv_ptr = (uint8_t *)iv_addr;
-	src_ptr = (uint8_t *)src_addr;
-	dst_ptr = (uint8_t *)dst_addr;
+	key_ptr = (uint8_t *)map_sysmem(key_addr, 128 / 8);
+	iv_ptr = (uint8_t *)map_sysmem(iv_addr, 128 / 8);
+	src_ptr = (uint8_t *)map_sysmem(src_addr, len);
+	dst_ptr = (uint8_t *)map_sysmem(dst_addr, len);
 
 	/* First we expand the key. */
 	aes_expand_key(key_ptr, key_exp);
@@ -64,6 +64,11 @@ static int do_aes(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	else
 		aes_cbc_decrypt_blocks(key_exp, iv_ptr, src_ptr, dst_ptr,
 				       aes_blocks);
+
+	unmap_sysmem(key_ptr);
+	unmap_sysmem(iv_ptr);
+	unmap_sysmem(src_ptr);
+	unmap_sysmem(dst_ptr);
 
 	return 0;
 }

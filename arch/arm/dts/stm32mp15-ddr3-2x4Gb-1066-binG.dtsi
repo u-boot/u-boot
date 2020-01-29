@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
 /*
  * Copyright (C) 2018, STMicroelectronics - All Rights Reserved
- */
-
-/* STM32MP157C ED1 and ED2 BOARD configuration
+ *
+ * STM32MP157C ED1 BOARD configuration
  * 2x DDR3L 4Gb each, 16-bit, 533MHz, Single Die Package in flyby topology.
  * Reference used NT5CC256M16DP-DI from NANYA
  *
@@ -15,10 +14,10 @@
  * timing mode	optimized
  * Scheduling/QoS options : type = 2
  * address mapping : RBC
+ * Tc > + 85C : N
  */
-
-#define DDR_MEM_NAME "DDR3-1066 bin G 2x4Gb 533MHz v1.36"
-#define DDR_MEM_SPEED 533
+#define DDR_MEM_NAME "DDR3-1066/888 bin G 2x4Gb 533MHz v1.45"
+#define DDR_MEM_SPEED 533000
 #define DDR_MEM_SIZE 0x40000000
 
 #define DDR_MSTR 0x00040401
@@ -62,7 +61,7 @@
 #define DDR_ADDRMAP11 0x00000000
 #define DDR_ODTCFG 0x06000600
 #define DDR_ODTMAP 0x00000001
-#define DDR_SCHED 0x00001201
+#define DDR_SCHED 0x00000C01
 #define DDR_SCHED1 0x00000000
 #define DDR_PERFHPR1 0x01000001
 #define DDR_PERFLPR1 0x08000200
@@ -74,15 +73,15 @@
 #define DDR_PCCFG 0x00000010
 #define DDR_PCFGR_0 0x00010000
 #define DDR_PCFGW_0 0x00000000
-#define DDR_PCFGQOS0_0 0x02100B03
+#define DDR_PCFGQOS0_0 0x02100C03
 #define DDR_PCFGQOS1_0 0x00800100
-#define DDR_PCFGWQOS0_0 0x01100B03
+#define DDR_PCFGWQOS0_0 0x01100C03
 #define DDR_PCFGWQOS1_0 0x01000200
 #define DDR_PCFGR_1 0x00010000
 #define DDR_PCFGW_1 0x00000000
-#define DDR_PCFGQOS0_1 0x02100B03
-#define DDR_PCFGQOS1_1 0x00800100
-#define DDR_PCFGWQOS0_1 0x01100B03
+#define DDR_PCFGQOS0_1 0x02100C03
+#define DDR_PCFGQOS1_1 0x00800040
+#define DDR_PCFGWQOS0_1 0x01100C03
 #define DDR_PCFGWQOS1_1 0x01000200
 #define DDR_PGCR 0x01442E02
 #define DDR_PTR0 0x0022AA5B
@@ -90,7 +89,7 @@
 #define DDR_PTR2 0x042DA068
 #define DDR_ACIOCR 0x10400812
 #define DDR_DXCCR 0x00000C40
-#define DDR_DSGCR 0xF200001F
+#define DDR_DSGCR 0xF200011F
 #define DDR_DCR 0x0000000B
 #define DDR_DTPR0 0x38D488D0
 #define DDR_DTPR1 0x098B00D8
@@ -100,7 +99,7 @@
 #define DDR_MR2 0x00000208
 #define DDR_MR3 0x00000000
 #define DDR_ODTCR 0x00010000
-#define DDR_ZQ0CR1 0x0000005B
+#define DDR_ZQ0CR1 0x00000038
 #define DDR_DX0GCR 0x0000CE81
 #define DDR_DX0DLLCR 0x40000000
 #define DDR_DX0DQTR 0xFFFFFFFF

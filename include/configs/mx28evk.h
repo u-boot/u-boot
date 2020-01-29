@@ -19,40 +19,19 @@
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 
 /* Environment */
-#ifndef CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_ENV_SIZE			(16 * 1024)
-#else
-#define CONFIG_ENV_SIZE			(4 * 1024)
-#endif
 #define CONFIG_ENV_OVERWRITE
 
 /* Environment is in MMC */
 #if defined(CONFIG_CMD_MMC) && defined(CONFIG_ENV_IS_IN_MMC)
-#define CONFIG_ENV_OFFSET		(256 * 1024)
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #endif
 
 /* Environment is in NAND */
 #if defined(CONFIG_CMD_NAND) && defined(CONFIG_ENV_IS_IN_NAND)
-#define CONFIG_ENV_SIZE_REDUND		CONFIG_ENV_SIZE
-#define CONFIG_ENV_SECT_SIZE		(128 * 1024)
 #define CONFIG_ENV_RANGE		(512 * 1024)
-#define CONFIG_ENV_OFFSET		0x300000
-#define CONFIG_ENV_OFFSET_REDUND	\
-		(CONFIG_ENV_OFFSET + CONFIG_ENV_RANGE)
 #endif
 
 /* Environment is in SPI flash */
-#if defined(CONFIG_CMD_SF) && defined(CONFIG_ENV_IS_IN_SPI_FLASH)
-#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
-#define CONFIG_ENV_OFFSET		0x40000		/* 256K */
-#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
-#define CONFIG_ENV_SECT_SIZE		0x1000
-#define CONFIG_ENV_SPI_CS		0
-#define CONFIG_ENV_SPI_BUS		2
-#define CONFIG_ENV_SPI_MAX_HZ		24000000
-#define CONFIG_ENV_SPI_MODE		SPI_MODE_0
-#endif
 
 /* UBI and NAND partitioning */
 
@@ -72,22 +51,6 @@
 #ifdef	CONFIG_CMD_USB
 #define CONFIG_EHCI_MXS_PORT1
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	1
-#endif
-
-/* SPI */
-#ifdef CONFIG_CMD_SPI
-#define CONFIG_DEFAULT_SPI_BUS		2
-#define CONFIG_DEFAULT_SPI_MODE		SPI_MODE_0
-
-/* SPI Flash */
-#ifdef CONFIG_CMD_SF
-#define CONFIG_SF_DEFAULT_BUS		2
-#define CONFIG_SF_DEFAULT_CS		0
-/* this may vary and depends on the installed chip */
-#define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
-#define CONFIG_SF_DEFAULT_SPEED		24000000
-#endif
-
 #endif
 
 /* Framebuffer support */

@@ -15,7 +15,7 @@
 #include <linux/ioport.h>
 #include <linux/printk.h>
 
-#include "mxs_nand.h"
+#include <mxs_nand.h>
 
 struct mxs_nand_dt_data {
 	unsigned int max_ecc_strength_supported;

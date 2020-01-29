@@ -16,6 +16,7 @@
  * Philippe Robin, <philippe.robin@arm.com>
  */
 #include <common.h>
+#include <cpu_func.h>
 #include <malloc.h>
 #include <errno.h>
 #include <netdev.h>

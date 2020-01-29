@@ -355,7 +355,7 @@ void state_reset_for_test(struct sandbox_state *state)
 {
 	/* No reset yet, so mark it as such. Always allow power reset */
 	state->last_sysreset = SYSRESET_COUNT;
-	state->sysreset_allowed[SYSRESET_POWER] = true;
+	state->sysreset_allowed[SYSRESET_POWER_OFF] = true;
 
 	memset(&state->wdt, '\0', sizeof(state->wdt));
 	memset(state->spi, '\0', sizeof(state->spi));

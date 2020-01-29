@@ -18,7 +18,6 @@
 #define V_SCLK				V_OSCK
 
 /* set env size */
-#define CONFIG_ENV_SIZE			0x4000
 
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -144,7 +143,6 @@
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x200000
 
 /* Size must be a multiple of Nand erase size (524288 b) */
-#define CONFIG_ENV_OFFSET		0x260000 /* environment starts here */
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
 /* NAND: SPL falcon mode configs */
 #ifdef CONFIG_SPL_OS_BOOT
@@ -157,7 +155,6 @@
  * board schematic and physical port wired to each.  Then for host we
  * add mass storage support.
  */
-#define CONFIG_USB_MUSB_DISABLE_BULK_COMBINE_SPLIT
 #define CONFIG_AM335X_USB0
 #define CONFIG_AM335X_USB0_MODE	MUSB_PERIPHERAL
 #define CONFIG_AM335X_USB1

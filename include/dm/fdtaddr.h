@@ -121,24 +121,29 @@ fdt_addr_t devfdt_get_addr_size_index(struct udevice *dev, int index,
 fdt_addr_t devfdt_get_addr_name(struct udevice *dev, const char *name);
 
 /**
- * dm_set_translation_offset() - Set translation offset
- * @offs: Translation offset
+ * devfdt_get_addr_size_name() - Get the reg property and its size for a device,
+ *				 indexed by name
  *
- * Some platforms need a special address translation. Those
- * platforms (e.g. mvebu in SPL) can configure a translation
- * offset in the DM by calling this function. It will be
- * added to all addresses returned in devfdt_get_addr().
+ * Returns the address and size specified in the 'reg' property of a device.
+ *
+ * @dev: Pointer to a device
+ * @name: the 'reg' property can hold a list of <addr, size> pairs, with the
+ *	  'reg-names' property providing named-based identification. @index
+ *	  indicates the value to search for in 'reg-names'.
+ * @size: Pointer to size variable - this function returns the size
+ *        specified in the 'reg' property here
+ *
+ * @return addr
  */
-void dm_set_translation_offset(fdt_addr_t offs);
+fdt_addr_t devfdt_get_addr_size_name(struct udevice *dev, const char *name,
+				     fdt_size_t *size);
 
 /**
- * dm_get_translation_offset() - Get translation offset
+ * devfdt_get_addr_pci() - Read an address and handle PCI address translation
  *
- * This function returns the translation offset that can
- * be configured by calling dm_set_translation_offset().
- *
- * @return translation offset for the device address (0 as default).
+ * @dev: Device to read from
+ * @return address or FDT_ADDR_T_NONE if not found
  */
-fdt_addr_t dm_get_translation_offset(void);
+fdt_addr_t devfdt_get_addr_pci(struct udevice *dev);
 
 #endif

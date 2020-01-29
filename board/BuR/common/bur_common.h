@@ -15,10 +15,12 @@
 
 int load_lcdtiming(struct am335x_lcdpanel *panel);
 void br_summaryscreen(void);
-void pmicsetup(u32 mpupll);
+void pmicsetup(u32 mpupll, unsigned int bus);
 void enable_uart0_pin_mux(void);
 void enable_i2c_pin_mux(void);
 void enable_board_pin_mux(void);
 int board_eth_init(bd_t *bis);
+
+int brdefaultip_setup(int bus, int chip);
 
 #endif

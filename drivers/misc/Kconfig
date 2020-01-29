@@ -13,6 +13,24 @@ config MISC
 	  set of generic read, write and ioctl methods may be used to
 	  access the device.
 
+config SPL_MISC
+	bool "Enable Driver Model for Misc drivers in SPL"
+	depends on SPL_DM
+	help
+	  Enable driver model for miscellaneous devices. This class is
+	  used only for those do not fit other more general classes. A
+	  set of generic read, write and ioctl methods may be used to
+	  access the device.
+
+config TPL_MISC
+	bool "Enable Driver Model for Misc drivers in TPL"
+	depends on TPL_DM
+	help
+	  Enable driver model for miscellaneous devices. This class is
+	  used only for those do not fit other more general classes. A
+	  set of generic read, write and ioctl methods may be used to
+	  access the device.
+
 config ALTERA_SYSID
 	bool "Altera Sysid support"
 	depends on MISC
@@ -41,6 +59,15 @@ config ROCKCHIP_EFUSE
 	  extended (by porting the read function from the Linux kernel sources)
 	  to support other recent Rockchip devices.
 
+config ROCKCHIP_OTP
+	bool "Rockchip OTP Support"
+	depends on MISC
+	help
+	  Enable (read-only) access for the one-time-programmable memory block
+	  found in Rockchip SoCs: accesses can either be made using byte
+	  addressing and a length or through child-nodes that are generated
+	  based on the e-fuse map retrieved from the DTS.
+
 config VEXPRESS_CONFIG
 	bool "Enable support for Arm Versatile Express config bus"
 	depends on MISC
@@ -68,6 +95,26 @@ config CROS_EC
 	  control access to the battery and main PMIC depending on the
 	  device. You can use the 'crosec' command to access it.
 
+config SPL_CROS_EC
+	bool "Enable Chrome OS EC in SPL"
+	depends on SPL
+	help
+	  Enable access to the Chrome OS EC in SPL. This is a separate
+	  microcontroller typically available on a SPI bus on Chromebooks. It
+	  provides access to the keyboard, some internal storage and may
+	  control access to the battery and main PMIC depending on the
+	  device. You can use the 'crosec' command to access it.
+
+config TPL_CROS_EC
+	bool "Enable Chrome OS EC in TPL"
+	depends on TPL
+	help
+	  Enable access to the Chrome OS EC in TPL. This is a separate
+	  microcontroller typically available on a SPI bus on Chromebooks. It
+	  provides access to the keyboard, some internal storage and may
+	  control access to the battery and main PMIC depending on the
+	  device. You can use the 'crosec' command to access it.
+
 config CROS_EC_I2C
 	bool "Enable Chrome OS EC I2C driver"
 	depends on CROS_EC
@@ -86,11 +133,47 @@ config CROS_EC_LPC
 	  through a legacy port interface, so on x86 machines the main
 	  function of the EC is power and thermal management.
 
+config SPL_CROS_EC_LPC
+	bool "Enable Chrome OS EC LPC driver in SPL"
+	depends on CROS_EC
+	help
+	  Enable I2C access to the Chrome OS EC. This is used on x86
+	  Chromebooks such as link and falco. The keyboard is provided
+	  through a legacy port interface, so on x86 machines the main
+	  function of the EC is power and thermal management.
+
+config TPL_CROS_EC_LPC
+	bool "Enable Chrome OS EC LPC driver in TPL"
+	depends on CROS_EC
+	help
+	  Enable I2C access to the Chrome OS EC. This is used on x86
+	  Chromebooks such as link and falco. The keyboard is provided
+	  through a legacy port interface, so on x86 machines the main
+	  function of the EC is power and thermal management.
+
 config CROS_EC_SANDBOX
 	bool "Enable Chrome OS EC sandbox driver"
 	depends on CROS_EC && SANDBOX
 	help
 	  Enable a sandbox emulation of the Chrome OS EC. This supports
+	  keyboard (use the -l flag to enable the LCD), verified boot context,
+	  EC flash read/write/erase support and a few other things. It is
+	  enough to perform a Chrome OS verified boot on sandbox.
+
+config SPL_CROS_EC_SANDBOX
+	bool "Enable Chrome OS EC sandbox driver in SPL"
+	depends on SPL_CROS_EC && SANDBOX
+	help
+	  Enable a sandbox emulation of the Chrome OS EC in SPL. This supports
+	  keyboard (use the -l flag to enable the LCD), verified boot context,
+	  EC flash read/write/erase support and a few other things. It is
+	  enough to perform a Chrome OS verified boot on sandbox.
+
+config TPL_CROS_EC_SANDBOX
+	bool "Enable Chrome OS EC sandbox driver in TPL"
+	depends on TPL_CROS_EC && SANDBOX
+	help
+	  Enable a sandbox emulation of the Chrome OS EC in TPL. This supports
 	  keyboard (use the -l flag to enable the LCD), verified boot context,
 	  EC flash read/write/erase support and a few other things. It is
 	  enough to perform a Chrome OS verified boot on sandbox.
@@ -128,6 +211,8 @@ config JZ4780_EFUSE
 
 config MXC_OCOTP
 	bool "Enable MXC OCOTP Driver"
+	depends on ARCH_IMX8M || ARCH_MX6 || ARCH_MX7 || ARCH_MX7ULP || ARCH_VF610
+	default y
 	help
 	  If you say Y here, you will get support for the One Time
 	  Programmable memory pages that are stored on the some
@@ -335,5 +420,23 @@ config IHS_FPGA
 	  gdsys devices, which supply the majority of the functionality offered
 	  by the devices. This driver supports both CON and CPU variants of the
 	  devices, depending on the device tree entry.
+
+config MICROCHIP_FLEXCOM
+	bool "Enable Microchip Flexcom driver"
+	depends on MISC
+	help
+	  The Atmel Flexcom is just a wrapper which embeds a SPI controller,
+	  an I2C controller and an USART.
+	  Only one function can be used at a time and is chosen at boot time
+	  according to the device tree.
+
+config K3_AVS0
+	depends on ARCH_K3 && SPL_DM_REGULATOR
+	bool "AVS class 0 support for K3 devices"
+	help
+	  K3 devices have the optimized voltage values for the main voltage
+	  domains stored in efuse within the VTM IP. This driver reads the
+	  optimized voltage from the efuse, so that it can be programmed
+	  to the PMIC on board.
 
 endmenu

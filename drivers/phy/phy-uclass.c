@@ -108,35 +108,55 @@ int generic_phy_get_by_name(struct udevice *dev, const char *phy_name,
 
 int generic_phy_init(struct phy *phy)
 {
-	struct phy_ops const *ops = phy_dev_ops(phy->dev);
+	struct phy_ops const *ops;
+
+	if (!phy)
+		return 0;
+	ops = phy_dev_ops(phy->dev);
 
 	return ops->init ? ops->init(phy) : 0;
 }
 
 int generic_phy_reset(struct phy *phy)
 {
-	struct phy_ops const *ops = phy_dev_ops(phy->dev);
+	struct phy_ops const *ops;
+
+	if (!phy)
+		return 0;
+	ops = phy_dev_ops(phy->dev);
 
 	return ops->reset ? ops->reset(phy) : 0;
 }
 
 int generic_phy_exit(struct phy *phy)
 {
-	struct phy_ops const *ops = phy_dev_ops(phy->dev);
+	struct phy_ops const *ops;
+
+	if (!phy)
+		return 0;
+	ops = phy_dev_ops(phy->dev);
 
 	return ops->exit ? ops->exit(phy) : 0;
 }
 
 int generic_phy_power_on(struct phy *phy)
 {
-	struct phy_ops const *ops = phy_dev_ops(phy->dev);
+	struct phy_ops const *ops;
+
+	if (!phy)
+		return 0;
+	ops = phy_dev_ops(phy->dev);
 
 	return ops->power_on ? ops->power_on(phy) : 0;
 }
 
 int generic_phy_power_off(struct phy *phy)
 {
-	struct phy_ops const *ops = phy_dev_ops(phy->dev);
+	struct phy_ops const *ops;
+
+	if (!phy)
+		return 0;
+	ops = phy_dev_ops(phy->dev);
 
 	return ops->power_off ? ops->power_off(phy) : 0;
 }

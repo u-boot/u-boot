@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
@@ -13,14 +14,11 @@
 #include <asm/arch/iomux-mx53.h>
 #include <asm/arch/clock.h>
 #include <asm/gpio.h>
-#include <mmc.h>
-#include <fsl_esdhc.h>
+#include <env.h>
 #include <power/pmic.h>
 #include <fsl_pmic.h>
 #include "kp_id_rev.h"
 
-#define VBUS_PWR_EN IMX_GPIO_NR(7, 8)
-#define PHY_nRST IMX_GPIO_NR(7, 6)
 #define BOOSTER_OFF IMX_GPIO_NR(2, 23)
 #define LCD_BACKLIGHT IMX_GPIO_NR(1, 1)
 #define KEY1 IMX_GPIO_NR(2, 26)
@@ -44,59 +42,6 @@ int dram_init_banksize(void)
 
 	return 0;
 }
-
-#ifdef CONFIG_USB_EHCI_MX5
-int board_ehci_hcd_init(int port)
-{
-	gpio_request(VBUS_PWR_EN, "VBUS_PWR_EN");
-	gpio_direction_output(VBUS_PWR_EN, 1);
-	return 0;
-}
-#endif
-
-#ifdef CONFIG_FSL_ESDHC
-struct fsl_esdhc_cfg esdhc_cfg[] = {
-	{MMC_SDHC3_BASE_ADDR},
-};
-
-int board_mmc_getcd(struct mmc *mmc)
-{
-	return 1; /* eMMC is always present */
-}
-
-#define SD_CMD_PAD_CTRL		(PAD_CTL_HYS | PAD_CTL_DSE_HIGH | \
-				 PAD_CTL_PUS_100K_UP)
-#define SD_PAD_CTRL		(PAD_CTL_HYS | PAD_CTL_PUS_47K_UP | \
-				 PAD_CTL_DSE_HIGH)
-
-int board_mmc_init(bd_t *bis)
-{
-	int ret;
-
-	static const iomux_v3_cfg_t sd3_pads[] = {
-		NEW_PAD_CTRL(MX53_PAD_PATA_RESET_B__ESDHC3_CMD,
-			     SD_CMD_PAD_CTRL),
-		NEW_PAD_CTRL(MX53_PAD_PATA_IORDY__ESDHC3_CLK, SD_PAD_CTRL),
-		NEW_PAD_CTRL(MX53_PAD_PATA_DATA8__ESDHC3_DAT0, SD_PAD_CTRL),
-		NEW_PAD_CTRL(MX53_PAD_PATA_DATA9__ESDHC3_DAT1, SD_PAD_CTRL),
-		NEW_PAD_CTRL(MX53_PAD_PATA_DATA10__ESDHC3_DAT2, SD_PAD_CTRL),
-		NEW_PAD_CTRL(MX53_PAD_PATA_DATA11__ESDHC3_DAT3, SD_PAD_CTRL),
-		NEW_PAD_CTRL(MX53_PAD_PATA_DATA0__ESDHC3_DAT4, SD_PAD_CTRL),
-		NEW_PAD_CTRL(MX53_PAD_PATA_DATA1__ESDHC3_DAT5, SD_PAD_CTRL),
-		NEW_PAD_CTRL(MX53_PAD_PATA_DATA2__ESDHC3_DAT6, SD_PAD_CTRL),
-		NEW_PAD_CTRL(MX53_PAD_PATA_DATA3__ESDHC3_DAT7, SD_PAD_CTRL),
-	};
-
-	esdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
-	imx_iomux_v3_setup_multiple_pads(sd3_pads, ARRAY_SIZE(sd3_pads));
-
-	ret = fsl_esdhc_initialize(bis, &esdhc_cfg[0]);
-	if (ret)
-		return ret;
-
-	return 0;
-}
-#endif
 
 static int power_init(void)
 {
@@ -168,17 +113,6 @@ int board_init(void)
 	return 0;
 }
 
-void eth_phy_reset(void)
-{
-	gpio_request(PHY_nRST, "PHY_nRST");
-	gpio_direction_output(PHY_nRST, 1);
-	udelay(50);
-	gpio_set_value(PHY_nRST, 0);
-	udelay(400);
-	gpio_set_value(PHY_nRST, 1);
-	udelay(50);
-}
-
 void board_disable_display(void)
 {
 	gpio_request(LCD_BACKLIGHT, "LCD_BACKLIGHT");
@@ -209,8 +143,6 @@ int board_late_init(void)
 	ret = read_eeprom();
 	if (ret)
 		printf("Error %d reading EEPROM content!\n", ret);
-
-	eth_phy_reset();
 
 	show_eeprom();
 	read_board_id();

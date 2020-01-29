@@ -9,9 +9,9 @@
 #include <errno.h>
 #include <syscon.h>
 #include <asm/io.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/cru_rk322x.h>
-#include <asm/arch/hardware.h>
+#include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/cru_rk322x.h>
+#include <asm/arch-rockchip/hardware.h>
 #include <dm/lists.h>
 #include <dt-bindings/clock/rk3228-cru.h>
 #include <linux/log2.h>
@@ -121,10 +121,10 @@ static void rkclk_init(struct rk322x_cru *cru)
 	assert((aclk_div + 1) * BUS_ACLK_HZ == GPLL_HZ && aclk_div <= 0x1f);
 
 	pclk_div = BUS_ACLK_HZ / BUS_PCLK_HZ - 1;
-	assert((pclk_div + 1) * BUS_PCLK_HZ == GPLL_HZ && pclk_div <= 0x7);
+	assert((pclk_div + 1) * BUS_PCLK_HZ == BUS_ACLK_HZ && pclk_div <= 0x7);
 
 	hclk_div = BUS_ACLK_HZ / BUS_HCLK_HZ - 1;
-	assert((hclk_div + 1) * BUS_HCLK_HZ == GPLL_HZ && hclk_div <= 0x3);
+	assert((hclk_div + 1) * BUS_HCLK_HZ == BUS_ACLK_HZ && hclk_div <= 0x3);
 
 	rk_clrsetreg(&cru->cru_clksel_con[0],
 		     BUS_ACLK_PLL_SEL_MASK | BUS_ACLK_DIV_MASK,
@@ -217,6 +217,7 @@ static ulong rockchip_mmc_get_clk(struct rk322x_cru *cru, uint clk_general_rate,
 	switch (periph) {
 	case HCLK_EMMC:
 	case SCLK_EMMC:
+	case SCLK_EMMC_SAMPLE:
 		con = readl(&cru->cru_clksel_con[11]);
 		mux = (con & EMMC_PLL_MASK) >> EMMC_PLL_SHIFT;
 		con = readl(&cru->cru_clksel_con[12]);
@@ -293,6 +294,7 @@ static ulong rockchip_mmc_set_clk(struct rk322x_cru *cru, uint clk_general_rate,
 	switch (periph) {
 	case HCLK_EMMC:
 	case SCLK_EMMC:
+	case SCLK_EMMC_SAMPLE:
 		rk_clrsetreg(&cru->cru_clksel_con[11],
 			     EMMC_PLL_MASK,
 			     mux << EMMC_PLL_SHIFT);
@@ -506,7 +508,7 @@ static int rk322x_clk_bind(struct udevice *dev)
 		sys_child->priv = priv;
 	}
 
-#if CONFIG_IS_ENABLED(CONFIG_RESET_ROCKCHIP)
+#if CONFIG_IS_ENABLED(RESET_ROCKCHIP)
 	ret = offsetof(struct rk322x_cru, cru_softrst_con[0]);
 	ret = rockchip_reset_bind(dev, ret, 9);
 	if (ret)

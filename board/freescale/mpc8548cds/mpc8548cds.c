@@ -6,7 +6,9 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <pci.h>
+#include <vsprintf.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
 #include <asm/immap_85xx.h>
@@ -164,7 +166,7 @@ void lbc_sdram_init(void)
 #endif	/* enable SDRAM init */
 }
 
-#if defined(CONFIG_PCI) || defined(CONFIG_PCI1)
+#if (defined(CONFIG_PCI) || defined(CONFIG_PCI1)) && !defined(CONFIG_DM_PCI)
 /* For some reason the Tundra PCI bridge shows up on itself as a
  * different device.  Work around that by refusing to configure it.
  */
@@ -189,6 +191,7 @@ static struct pci_config_table pci_mpc85xxcds_config_table[] = {
 static struct pci_controller pci1_hose;
 #endif	/* CONFIG_PCI */
 
+#if !defined(CONFIG_DM_PCI)
 void pci_init_board(void)
 {
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
@@ -268,6 +271,7 @@ void pci_init_board(void)
 
 	fsl_pcie_init_board(first_free_busno);
 }
+#endif
 
 void configure_rgmii(void)
 {
@@ -349,7 +353,7 @@ int board_eth_init(bd_t *bis)
 	return pci_eth_init(bis);
 }
 
-#if defined(CONFIG_OF_BOARD_SETUP)
+#if defined(CONFIG_OF_BOARD_SETUP) && !defined(CONFIG_DM_PCI)
 void ft_pci_setup(void *blob, bd_t *bd)
 {
 	FT_FSL_PCI_SETUP;

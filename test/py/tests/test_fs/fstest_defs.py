@@ -6,6 +6,9 @@ MIN_FILE='testfile'
 # $SMALL_FILE is the name of the 1MB file in the file system image
 SMALL_FILE='1MB.file'
 
+# $MEDIUM_FILE is the name of the 10MB file in the file system image
+MEDIUM_FILE='10MB.file'
+
 # $BIG_FILE is the name of the 2.5GB file in the file system image
 BIG_FILE='2.5GB.file'
 

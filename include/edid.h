@@ -307,6 +307,28 @@ int edid_get_ranges(struct edid1_info *edid, unsigned int *hmin,
 struct display_timing;
 
 /**
+ * edid_get_timing_validate() - Get basic digital display parameters with
+ * mode selection callback
+ *
+ * @param buf		Buffer containing EDID data
+ * @param buf_size	Size of buffer in bytes
+ * @param timing	Place to put preferring timing information
+ * @param panel_bits_per_colourp	Place to put the number of bits per
+ *			colour supported by the panel. This will be set to
+ *			-1 if not available
+ * @param mode_valid	Callback validating mode, returning true is mode is
+ *			supported, false otherwise.
+ * @parem valid_priv	Pointer to private data for mode_valid callback
+ * @return 0 if timings are OK, -ve on error
+ */
+int edid_get_timing_validate(u8 *buf, int buf_size,
+			     struct display_timing *timing,
+			     int *panel_bits_per_colourp,
+			     bool (*mode_valid)(void *priv,
+					const struct display_timing *timing),
+			     void *mode_valid_priv);
+
+/**
  * edid_get_timing() - Get basic digital display parameters
  *
  * @param buf		Buffer containing EDID data

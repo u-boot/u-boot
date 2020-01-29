@@ -7,6 +7,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <time.h>
 #include <timer.h>
 #include <watchdog.h>
 #include <div64.h>
@@ -56,7 +57,7 @@ ulong timer_get_boot_us(void)
 extern unsigned long __weak timer_read_counter(void);
 #endif
 
-#ifdef CONFIG_TIMER
+#if CONFIG_IS_ENABLED(TIMER)
 ulong notrace get_tbclk(void)
 {
 	if (!gd->timer) {
@@ -134,12 +135,26 @@ ulong __weak get_timer(ulong base)
 	return tick_to_time(get_ticks()) - base;
 }
 
+static uint64_t notrace tick_to_time_us(uint64_t tick)
+{
+	ulong div = get_tbclk() / 1000;
+
+	tick *= CONFIG_SYS_HZ;
+	do_div(tick, div);
+	return tick;
+}
+
+uint64_t __weak get_timer_us(uint64_t base)
+{
+	return tick_to_time_us(get_ticks()) - base;
+}
+
 unsigned long __weak notrace timer_get_us(void)
 {
 	return tick_to_time(get_ticks() * 1000);
 }
 
-static uint64_t usec_to_tick(unsigned long usec)
+uint64_t usec_to_tick(unsigned long usec)
 {
 	uint64_t tick = usec;
 	tick *= get_tbclk();

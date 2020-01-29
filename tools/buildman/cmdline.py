@@ -74,6 +74,8 @@ def ParseArgs():
     parser.add_option('-o', '--output-dir', type='string',
           dest='output_dir', default='..',
           help='Directory where all builds happen and buildman has its workspace (default is ../)')
+    parser.add_option('-O', '--override-toolchain', type='string',
+          help="Override host toochain to use for sandbox (e.g. 'clang-7')")
     parser.add_option('-Q', '--quick', action='store_true',
           default=False, help='Do a rough build, with limited warning resolution')
     parser.add_option('-p', '--full-path', action='store_true',

@@ -1,0 +1,84 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * (C) Copyright 2017 Rockchip Electronics Co., Ltd
+ */
+
+/ {
+	aliases {
+		mmc0 = &emmc;
+		mmc1 = &sdmmc;
+	};
+
+	chosen {
+		u-boot,spl-boot-order = &emmc, &sdmmc;
+	};
+};
+
+&dmc {
+	u-boot,dm-pre-reloc;
+};
+
+&uart2 {
+	clock-frequency = <24000000>;
+	u-boot,dm-pre-reloc;
+};
+
+&uart5 {
+	clock-frequency = <24000000>;
+	u-boot,dm-pre-reloc;
+};
+
+&sdmmc {
+	u-boot,dm-pre-reloc;
+
+	/* mmc to sram can't do dma, prevent aborts transfering TF-A parts */
+	u-boot,spl-fifo-mode;
+};
+
+&emmc {
+	u-boot,dm-pre-reloc;
+
+	/* mmc to sram can't do dma, prevent aborts transfering TF-A parts */
+	u-boot,spl-fifo-mode;
+};
+
+&grf {
+	u-boot,dm-pre-reloc;
+};
+
+&pmugrf {
+	u-boot,dm-pre-reloc;
+};
+
+&xin24m {
+	u-boot,dm-pre-reloc;
+};
+
+&cru {
+	u-boot,dm-pre-reloc;
+};
+
+&pmucru {
+	u-boot,dm-pre-reloc;
+};
+
+&saradc {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};
+
+&gpio0 {
+	u-boot,dm-pre-reloc;
+};
+
+&gpio1 {
+	u-boot,dm-pre-reloc;
+};
+
+&gpio2 {
+	u-boot,dm-pre-reloc;
+};
+
+&gpio3 {
+	u-boot,dm-pre-reloc;
+};

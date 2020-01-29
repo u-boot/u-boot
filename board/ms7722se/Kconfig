@@ -1,9 +1,0 @@
-if TARGET_MS7722SE
-
-config SYS_BOARD
-	default "ms7722se"
-
-config SYS_CONFIG_NAME
-	default "ms7722se"
-
-endif

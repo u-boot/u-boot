@@ -46,9 +46,9 @@ int utf8_put(s32 code, char **dst);
  *
  * @src:		utf-8 string
  * @count:		maximum number of code points to convert
- * Return:		length in bytes after conversion to utf-16 without the
+ * Return:		length in u16 after conversion to utf-16 without the
  *			trailing \0. If an invalid UTF-8 sequence is hit one
- *			word will be reserved for a replacement character.
+ *			u16 will be reserved for a replacement character.
  */
 size_t utf8_utf16_strnlen(const char *src, size_t count);
 
@@ -56,8 +56,9 @@ size_t utf8_utf16_strnlen(const char *src, size_t count);
  * utf8_utf16_strlen() - length of a utf-8 string after conversion to utf-16
  *
  * @src:		utf-8 string
- * Return:		length in bytes after conversion to utf-16 without the
- *			trailing \0. -1 if the utf-8 string is not valid.
+ * Return:		length in u16 after conversion to utf-16 without the
+ *			trailing \0. If an invalid UTF-8 sequence is hit one
+ *			u16 will be reserved for a replacement character.
  */
 #define utf8_utf16_strlen(a) utf8_utf16_strnlen((a), SIZE_MAX)
 
@@ -127,7 +128,8 @@ size_t utf16_utf8_strnlen(const u16 *src, size_t count);
  *
  * @src:		utf-16 string
  * Return:		length in bytes after conversion to utf-8 without the
- *			trailing \0. -1 if the utf-16 string is not valid.
+ *			trailing \0. If an invalid UTF-16 sequence is hit one
+ *			byte will be reserved for a replacement character.
  */
 #define utf16_utf8_strlen(a) utf16_utf8_strnlen((a), SIZE_MAX)
 
@@ -166,6 +168,21 @@ s32 utf_to_lower(const s32 code);
  */
 s32 utf_to_upper(const s32 code);
 
+/*
+ * u16_strncmp() - compare two u16 string
+ *
+ * @s1:		first string to compare
+ * @s2:		second string to compare
+ * @n:		maximum number of u16 to compare
+ * Return:	0  if the first n u16 are the same in s1 and s2
+ *		< 0 if the first different u16 in s1 is less than the
+ *		corresponding u16 in s2
+ *		> 0 if the first different u16 in s1 is greater than the
+ *		corresponding u16 in s2
+ */
+int u16_strncmp(const u16 *s1, const u16 *s2, size_t n);
+#define u16_strcmp(s1, s2)	u16_strncmp((s1), (s2), SIZE_MAX)
+
 /**
  * u16_strlen - count non-zero words
  *
@@ -176,7 +193,7 @@ s32 utf_to_upper(const s32 code);
  * ReturnValue:		number of non-zero words.
  *			This is not the number of utf-16 letters!
  */
-size_t u16_strlen(const u16 *in);
+size_t u16_strlen(const void *in);
 
 /**
  * u16_strlen - count non-zero words
@@ -190,6 +207,29 @@ size_t u16_strlen(const u16 *in);
  *			This is not the number of utf-16 letters!
  */
 size_t u16_strnlen(const u16 *in, size_t count);
+
+/**
+ * u16_strcpy() - copy u16 string
+ *
+ * Copy u16 string pointed to by src, including terminating null word, to
+ * the buffer pointed to by dest.
+ *
+ * @dest:		destination buffer
+ * @src:		source buffer (null terminated)
+ * Return:		'dest' address
+ */
+u16 *u16_strcpy(u16 *dest, const u16 *src);
+
+/**
+ * u16_strdup() - duplicate u16 string
+ *
+ * Copy u16 string pointed to by src, including terminating null word, to a
+ * newly allocated buffer.
+ *
+ * @src:		source buffer (null terminated)
+ * Return:		allocated new buffer on success, NULL on failure
+ */
+u16 *u16_strdup(const void *src);
 
 /**
  * utf16_to_utf8() - Convert an utf16 string to utf8

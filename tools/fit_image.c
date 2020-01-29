@@ -33,7 +33,8 @@ static int fit_add_file_data(struct image_tool_params *params, size_t size_inc,
 	void *ptr;
 	int ret = 0;
 
-	tfd = mmap_fdt(params->cmdname, tmpfile, size_inc, &ptr, &sbuf, true);
+	tfd = mmap_fdt(params->cmdname, tmpfile, size_inc, &ptr, &sbuf, true,
+		       false);
 	if (tfd < 0)
 		return -EIO;
 
@@ -41,7 +42,8 @@ static int fit_add_file_data(struct image_tool_params *params, size_t size_inc,
 		struct stat dest_sbuf;
 
 		destfd = mmap_fdt(params->cmdname, params->keydest, size_inc,
-				  &dest_blob, &dest_sbuf, false);
+				  &dest_blob, &dest_sbuf, false,
+				  false);
 		if (destfd < 0) {
 			ret = -EIO;
 			goto err_keydest;
@@ -227,6 +229,7 @@ static int fit_write_images(struct image_tool_params *params, char *fdt)
 	for (cont = params->content_head; cont; cont = cont->next) {
 		if (cont->type != IH_TYPE_FLATDT)
 			continue;
+		typename = genimg_get_type_short_name(cont->type);
 		snprintf(str, sizeof(str), "%s-%d", FIT_FDT_PROP, ++upto);
 		fdt_begin_node(fdt, str);
 
@@ -251,6 +254,8 @@ static int fit_write_images(struct image_tool_params *params, char *fdt)
 		fdt_property_string(fdt, FIT_TYPE_PROP, FIT_RAMDISK_PROP);
 		fdt_property_string(fdt, FIT_OS_PROP,
 				    genimg_get_os_short_name(params->os));
+		fdt_property_string(fdt, FIT_ARCH_PROP,
+				    genimg_get_arch_short_name(params->arch));
 
 		ret = fdt_property_file(params, fdt, FIT_DATA_PROP,
 					params->fit_ramdisk);
@@ -298,6 +303,7 @@ static void fit_write_configs(struct image_tool_params *params, char *fdt)
 		typename = genimg_get_type_short_name(params->fit_image_type);
 		snprintf(str, sizeof(str), "%s-1", typename);
 		fdt_property_string(fdt, typename, str);
+		fdt_property_string(fdt, FIT_LOADABLE_PROP, str);
 
 		if (params->fit_ramdisk)
 			fdt_property_string(fdt, FIT_RAMDISK_PROP,
@@ -419,7 +425,7 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 	int images;
 	int node;
 
-	fd = mmap_fdt(params->cmdname, fname, 0, &fdt, &sbuf, false);
+	fd = mmap_fdt(params->cmdname, fname, 0, &fdt, &sbuf, false, false);
 	if (fd < 0)
 		return -EIO;
 	fit_size = fdt_totalsize(fdt);
@@ -530,7 +536,7 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 	int images;
 	int node;
 
-	fd = mmap_fdt(params->cmdname, fname, 0, &old_fdt, &sbuf, false);
+	fd = mmap_fdt(params->cmdname, fname, 0, &old_fdt, &sbuf, false, false);
 	if (fd < 0)
 		return -EIO;
 	fit_size = fdt_totalsize(old_fdt);

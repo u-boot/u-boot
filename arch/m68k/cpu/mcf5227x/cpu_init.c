@@ -9,12 +9,22 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <watchdog.h>
 
 #include <asm/immap.h>
 #include <asm/io.h>
 #include <asm/rtc.h>
 #include <linux/compiler.h>
+
+void cfspi_port_conf(void)
+{
+	gpio_t *gpio = (gpio_t *)MMAP_GPIO;
+
+	out_8(&gpio->par_dspi,
+	      GPIO_PAR_DSPI_SIN_SIN | GPIO_PAR_DSPI_SOUT_SOUT |
+	      GPIO_PAR_DSPI_SCK_SCK);
+}
 
 /*
  * Breath some life into the CPU...
@@ -93,6 +103,8 @@ void cpu_init_f(void)
 #endif
 
 	icache_enable();
+
+	cfspi_port_conf();
 }
 
 /*
@@ -137,57 +149,3 @@ void uart_port_conf(int port)
 		break;
 	}
 }
-
-#ifdef CONFIG_CF_DSPI
-void cfspi_port_conf(void)
-{
-	gpio_t *gpio = (gpio_t *) MMAP_GPIO;
-
-	out_8(&gpio->par_dspi,
-		GPIO_PAR_DSPI_SIN_SIN | GPIO_PAR_DSPI_SOUT_SOUT |
-		GPIO_PAR_DSPI_SCK_SCK);
-}
-
-int cfspi_claim_bus(uint bus, uint cs)
-{
-	dspi_t *dspi = (dspi_t *) MMAP_DSPI;
-	gpio_t *gpio = (gpio_t *) MMAP_GPIO;
-
-	if ((in_be32(&dspi->sr) & DSPI_SR_TXRXS) != DSPI_SR_TXRXS)
-		return -1;
-
-	/* Clear FIFO and resume transfer */
-	clrbits_be32(&dspi->mcr, DSPI_MCR_CTXF | DSPI_MCR_CRXF);
-
-	switch (cs) {
-	case 0:
-		clrbits_8(&gpio->par_dspi, GPIO_PAR_DSPI_PCS0_UNMASK);
-		setbits_8(&gpio->par_dspi, GPIO_PAR_DSPI_PCS0_PCS0);
-		break;
-	case 2:
-		clrbits_8(&gpio->par_timer, ~GPIO_PAR_TIMER_T2IN_UNMASK);
-		setbits_8(&gpio->par_timer, GPIO_PAR_TIMER_T2IN_DSPIPCS2);
-		break;
-	}
-
-	return 0;
-}
-
-void cfspi_release_bus(uint bus, uint cs)
-{
-	dspi_t *dspi = (dspi_t *) MMAP_DSPI;
-	gpio_t *gpio = (gpio_t *) MMAP_GPIO;
-
-	/* Clear FIFO */
-	clrbits_be32(&dspi->mcr, DSPI_MCR_CTXF | DSPI_MCR_CRXF);
-
-	switch (cs) {
-	case 0:
-		clrbits_8(&gpio->par_dspi, GPIO_PAR_DSPI_PCS0_PCS0);
-		break;
-	case 2:
-		clrbits_8(&gpio->par_timer, ~GPIO_PAR_TIMER_T2IN_UNMASK);
-		break;
-	}
-}
-#endif

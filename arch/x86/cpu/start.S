@@ -2,6 +2,18 @@
 /*
  *  U-Boot - x86 Startup Code
  *
+ * This is always the first code to run from the U-Boot source. To spell it out:
+ *
+ * 1. When TPL (Tertiary Program Loader) is enabled, the boot flow is
+ * TPL->SPL->U-Boot and this file is used for TPL. Then start_from_tpl.S is used
+ * for SPL and start_from_spl.S is used for U-Boot proper.
+ *
+ * 2. When SPL (Secondary Program Loader) is enabled, but not TPL, the boot
+ * flow is SPL->U-Boot and this file is used for SPL. Then start_from_spl.S is
+ * used for U-Boot proper.
+ *
+ * 3. When neither TPL nor SPL is used, this file is used for U-Boot proper.
+ *
  * (C) Copyright 2008-2011
  * Graeme Russ, <graeme.russ@gmail.com>
  *
@@ -40,9 +52,6 @@ _x86boot_start:
 	movl	%eax, %cr0
 	wbinvd
 
-	/* Tell 32-bit code it is being entered from an in-RAM copy */
-	movl	$GD_FLG_WARM_BOOT, %ebx
-
 	/*
 	 * Zero the BIST (Built-In Self Test) value since we don't have it.
 	 * It must be 0 or the previous loader would have reported an error.
@@ -55,11 +64,7 @@ _x86boot_start:
 	.align	4
 	.long	0x12345678
 _start:
-	/*
-	 * This is the 32-bit cold-reset entry point, coming from start16.
-	 * Set %ebx to GD_FLG_COLD_BOOT to indicate this.
-	 */
-	movl	$GD_FLG_COLD_BOOT, %ebx
+	/* This is the 32-bit cold-reset entry point, coming from start16 */
 
 	/* Save BIST */
 	movl	%eax, %ebp
@@ -97,7 +102,7 @@ early_board_init_ret:
 	jmp	car_init
 .globl car_init_ret
 car_init_ret:
-#ifndef CONFIG_HAVE_FSP
+#ifdef CONFIG_USE_CAR
 	/*
 	 * We now have CONFIG_SYS_CAR_SIZE bytes of Cache-As-RAM (or SRAM,
 	 * or fully initialised SDRAM - we really don't care which)
@@ -137,12 +142,13 @@ car_init_ret:
 
 	/* Get address of global_data */
 	mov	%fs:0, %edx
-#ifdef CONFIG_HAVE_FSP
+#if defined(CONFIG_USE_HOB) && !defined(CONFIG_USE_CAR)
 	/* Store the HOB list if we have one */
 	test	%esi, %esi
 	jz	skip_hob
 	movl	%esi, GD_HOB_LIST(%edx)
 
+#ifdef CONFIG_HAVE_FSP
 	/*
 	 * After fsp_init() returns, the stack has already been switched to a
 	 * place within system memory as defined by CONFIG_FSP_TEMP_RAM_ADDR.
@@ -151,6 +157,7 @@ car_init_ret:
 	 */
 	subl	$CONFIG_FSP_SYS_MALLOC_F_LEN, %esp
 	movl	%esp, GD_MALLOC_BASE(%edx)
+#endif
 skip_hob:
 #else
 	/* Store table pointer */
@@ -189,6 +196,19 @@ board_init_f_r_trampoline:
 
 	/* Re-enter U-Boot by calling board_init_f_r() */
 	call	board_init_f_r
+
+#ifdef CONFIG_TPL
+.globl jump_to_spl
+.type jump_to_spl, @function
+jump_to_spl:
+	/* Reset stack to the top of CAR space */
+	movl	$(CONFIG_SYS_CAR_ADDR + CONFIG_SYS_CAR_SIZE - 4), %esp
+#ifdef CONFIG_DCACHE_RAM_MRC_VAR_SIZE
+	subl	$CONFIG_DCACHE_RAM_MRC_VAR_SIZE, %esp
+#endif
+
+	jmp	*%eax
+#endif
 
 die:
 	hlt

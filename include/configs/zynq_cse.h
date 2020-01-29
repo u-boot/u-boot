@@ -10,8 +10,6 @@
 #define __CONFIG_ZYNQ_CSE_H
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
-#define CONFIG_SYS_DCACHE_OFF
-#define CONFIG_SYS_ICACHE_OFF
 
 #include <configs/zynq-common.h>
 
@@ -21,8 +19,6 @@
 #undef CONFIG_GZIP
 
 #undef CONFIG_SYS_CBSIZE
-#undef CONFIG_BOOTM_VXWORKS
-#undef CONFIG_BOOTM_LINUX
 
 #define CONFIG_SYS_CBSIZE	1024
 

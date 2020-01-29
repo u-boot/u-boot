@@ -46,7 +46,7 @@ config B53_PHY_PORTS
 endif # B53_SWITCH
 
 config MV88E61XX_SWITCH
-	bool "Marvel MV88E61xx Ethernet switch PHY support."
+	bool "Marvell MV88E61xx Ethernet switch PHY support."
 
 if MV88E61XX_SWITCH
 
@@ -100,6 +100,28 @@ config PHY_BROADCOM
 config PHY_CORTINA
 	bool "Cortina Ethernet PHYs support"
 
+choice
+	prompt "Location of the Cortina firmware"
+	default SYS_CORTINA_FW_IN_NOR
+	depends on PHY_CORTINA
+
+config SYS_CORTINA_FW_IN_MMC
+	bool "Cortina firmware in MMC"
+
+config SYS_CORTINA_FW_IN_NAND
+	bool "Cortina firmware in NAND flash"
+
+config SYS_CORTINA_FW_IN_NOR
+	bool "Cortina firmware in NOR flash"
+
+config SYS_CORTINA_FW_IN_REMOTE
+	bool "Cortina firmware in remote device"
+
+config SYS_CORTINA_FW_IN_SPIFLASH
+	bool "Cortina firmware in SPI flash"
+
+endchoice
+
 config PHY_DAVICOM
 	bool "Davicom Ethernet PHYs support"
 
@@ -119,21 +141,19 @@ config PHY_MICREL
 	bool "Micrel Ethernet PHYs support"
 	help
 	  Enable support for the GbE PHYs manufactured by Micrel (now
-	  a part of Microchip). This includes drivers for the KSZ804,
-	  KSZ8031, KSZ8051, KSZ8081, KSZ8895, KSZ886x, KSZ8721
-	  either/or KSZ9021 (see the "Micrel KSZ9021 family support"
-	  config option for details), and KSZ9031 (if configured).
+	  a part of Microchip). This includes drivers for the KSZ804, KSZ8031,
+	  KSZ8051, KSZ8081, KSZ8895, KSZ886x and KSZ8721 (if "Micrel KSZ8xxx
+	  family support" is selected) and the KSZ9021 and KSZ9031 (if "Micrel
+	  KSZ90x1 family support" is selected).
 
 if PHY_MICREL
 
 config PHY_MICREL_KSZ9021
 	bool
-	select PHY_GIGE
 	select PHY_MICREL_KSZ90X1
 
 config PHY_MICREL_KSZ9031
 	bool
-	select PHY_GIGE
 	select PHY_MICREL_KSZ90X1
 
 config PHY_MICREL_KSZ90X1
@@ -146,19 +166,12 @@ config PHY_MICREL_KSZ90X1
 	  delays configured in the device tree will be applied to the
 	  PHY during initialization.
 
-	  This should not be enabled at the same time with PHY_MICREL_KSZ8XXX
-	  as the KSZ9021 and KS8721 share the same ID.
-
 config PHY_MICREL_KSZ8XXX
 	bool "Micrel KSZ8xxx family support"
-	default y if !PHY_MICREL_KSZ90X1
 	help
-	  Enable support for the 8000 series GbE PHYs manufactured by Micrel
+	  Enable support for the 8000 series 10/100 PHYs manufactured by Micrel
 	  (now a part of Microchip). This includes drivers for the KSZ804,
 	  KSZ8031, KSZ8051, KSZ8081, KSZ8895, KSZ886x, and KSZ8721.
-
-	  This should not be enabled at the same time with PHY_MICREL_KSZ90X1
-	  as the KSZ9021 and KS8721 share the same ID.
 
 endif # PHY_MICREL
 
@@ -201,6 +214,26 @@ config RTL8211X_PHY_FORCE_MASTER
 	  the link speed to 100MBit/s.
 
 	  If unsure, say N.
+
+config RTL8211F_PHY_FORCE_EEE_RXC_ON
+	bool "Ethernet PHY RTL8211F: do not stop receiving the xMII clock during LPI"
+	depends on PHY_REALTEK
+	default n
+	help
+	  The IEEE 802.3az-2010 (EEE) standard provides a protocol to coordinate
+	  transitions to/from a lower power consumption level (Low Power Idle
+	  mode) based on link utilization. When no packets are being
+	  transmitted, the system goes to Low Power Idle mode to save power.
+
+	  Under particular circumstances this setting can cause issues where
+	  the PHY is unable to transmit or receive any packet when in LPI mode.
+	  The problem is caused when the PHY is configured to stop receiving
+	  the xMII clock while it is signaling LPI. For some PHYs the bit
+	  configuring this behavior is set by the Linux kernel, causing the
+	  issue in U-Boot on reboot if the PHY retains the register value.
+
+	  Default n, which means that the PHY state is not changed. To work
+	  around the issues, change this setting to y.
 
 config PHY_SMSC
 	bool  "Microchip(SMSC) Ethernet PHYs support"

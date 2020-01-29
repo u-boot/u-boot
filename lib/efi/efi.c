@@ -53,7 +53,7 @@ void efi_puts(struct efi_priv *priv, const char *str)
 int efi_init(struct efi_priv *priv, const char *banner, efi_handle_t image,
 	     struct efi_system_table *sys_table)
 {
-	efi_guid_t loaded_image_guid = LOADED_IMAGE_PROTOCOL_GUID;
+	efi_guid_t loaded_image_guid = EFI_LOADED_IMAGE_PROTOCOL_GUID;
 	struct efi_boot_services *boot = sys_table->boottime;
 	struct efi_loaded_image *loaded_image;
 	int ret;

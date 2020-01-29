@@ -45,7 +45,7 @@
 
 /* SPL */
 #ifndef CONFIG_SPL_FRAMEWORK
-#define CONFIG_SPL_NO_CPU_SUPPORT_CODE
+#define CONFIG_SPL_NO_CPU_SUPPORT
 #define CONFIG_SPL_START_S_PATH	"arch/arm/cpu/arm926ejs/mxs"
 #endif
 
@@ -80,7 +80,6 @@
  * As for the SPL, we must avoid the first 4 KiB as well, but we load the
  * IVT and CST to 0x8000, so we don't need to waste the subsequent 4 KiB.
  */
-#define CONFIG_SPL_TEXT_BASE		0x00001000
 
 /* U-Boot general configuration */
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O buffer size */
@@ -95,12 +94,6 @@
 /*
  * Drivers
  */
-
-/* APBH DMA */
-
-/* GPIO */
-#define CONFIG_MXS_GPIO
-
 /*
  * DUART Serial Driver.
  * Conflicts with AUART driver which can be set by board.
@@ -122,11 +115,6 @@
 /* LCD */
 #ifdef CONFIG_VIDEO
 #define CONFIG_VIDEO_MXS
-#endif
-
-/* MMC */
-#ifdef CONFIG_CMD_MMC
-#define CONFIG_BOUNCE_BUFFER
 #endif
 
 /* NAND */

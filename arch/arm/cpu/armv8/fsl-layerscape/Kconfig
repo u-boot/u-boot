@@ -2,6 +2,7 @@ config ARCH_LS1012A
 	bool
 	select ARMV8_SET_SMPEN
 	select ARM_ERRATA_855873 if !TFABOOT
+	select FSL_LAYERSCAPE
 	select FSL_LSCH2
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
@@ -19,10 +20,39 @@ config ARCH_LS1012A
 	select SYS_I2C_MXC_I2C2
 	imply PANIC_HANG
 
+config ARCH_LS1028A
+	bool
+	select ARMV8_SET_SMPEN
+	select FSL_LSCH3
+	select NXP_LSCH3_2
+	select SYS_FSL_HAS_CCI400
+	select SYS_FSL_SRDS_1
+	select SYS_HAS_SERDES
+	select SYS_FSL_DDR
+	select SYS_FSL_DDR_LE
+	select SYS_FSL_DDR_VER_50
+	select SYS_FSL_HAS_DDR3
+	select SYS_FSL_HAS_DDR4
+	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_COMPAT_5
+	select SYS_FSL_SEC_LE
+	select FSL_TZASC_1
+	select ARCH_EARLY_INIT_R
+	select BOARD_EARLY_INIT_F
+	select SYS_I2C_MXC
+	select SYS_FSL_ERRATUM_A008997
+	select SYS_FSL_ERRATUM_A009007
+	select SYS_FSL_ERRATUM_A008514 if !TFABOOT
+	select SYS_FSL_ERRATUM_A009663 if !TFABOOT
+	select SYS_FSL_ERRATUM_A009942 if !TFABOOT
+	select SYS_FSL_ERRATUM_A050382
+	imply PANIC_HANG
+
 config ARCH_LS1043A
 	bool
 	select ARMV8_SET_SMPEN
 	select ARM_ERRATA_855873 if !TFABOOT
+	select FSL_LAYERSCAPE
 	select FSL_LSCH2
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
@@ -49,13 +79,12 @@ config ARCH_LS1043A
 	select SYS_I2C_MXC_I2C2
 	select SYS_I2C_MXC_I2C3
 	select SYS_I2C_MXC_I2C4
-	imply SCSI
-	imply SCSI_AHCI
 	imply CMD_PCI
 
 config ARCH_LS1046A
 	bool
 	select ARMV8_SET_SMPEN
+	select FSL_LAYERSCAPE
 	select FSL_LSCH2
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
@@ -89,7 +118,8 @@ config ARCH_LS1046A
 config ARCH_LS1088A
 	bool
 	select ARMV8_SET_SMPEN
-	select ARM_ERRATA_855873
+	select ARM_ERRATA_855873 if !TFABOOT
+	select FSL_LAYERSCAPE
 	select FSL_LSCH3
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
@@ -98,11 +128,11 @@ config ARCH_LS1088A
 	select SYS_FSL_DDR_VER_50
 	select SYS_FSL_EC1
 	select SYS_FSL_EC2
-	select SYS_FSL_ERRATUM_A009803
-	select SYS_FSL_ERRATUM_A009942
-	select SYS_FSL_ERRATUM_A010165
-	select SYS_FSL_ERRATUM_A008511
-	select SYS_FSL_ERRATUM_A008850
+	select SYS_FSL_ERRATUM_A009803 if !TFABOOT
+	select SYS_FSL_ERRATUM_A009942 if !TFABOOT
+	select SYS_FSL_ERRATUM_A010165 if !TFABOOT
+	select SYS_FSL_ERRATUM_A008511 if !TFABOOT
+	select SYS_FSL_ERRATUM_A008850 if !TFABOOT
 	select SYS_FSL_ERRATUM_A009007
 	select SYS_FSL_HAS_CCI400
 	select SYS_FSL_HAS_DDR4
@@ -113,13 +143,15 @@ config ARCH_LS1088A
 	select SYS_FSL_SRDS_1
 	select SYS_FSL_SRDS_2
 	select FSL_TZASC_1
+	select FSL_TZASC_400
+	select FSL_TZPC_BP147
 	select ARCH_EARLY_INIT_R
 	select BOARD_EARLY_INIT_F
 	select SYS_I2C_MXC
-	select SYS_I2C_MXC_I2C1
-	select SYS_I2C_MXC_I2C2
-	select SYS_I2C_MXC_I2C3
-	select SYS_I2C_MXC_I2C4
+	select SYS_I2C_MXC_I2C1 if !TFABOOT
+	select SYS_I2C_MXC_I2C2 if !TFABOOT
+	select SYS_I2C_MXC_I2C3 if !TFABOOT
+	select SYS_I2C_MXC_I2C4 if !TFABOOT
 	imply SCSI
 	imply PANIC_HANG
 
@@ -130,6 +162,7 @@ config ARCH_LS2080A
 	select ARM_ERRATA_828024
 	select ARM_ERRATA_829520
 	select ARM_ERRATA_833471
+	select FSL_LAYERSCAPE
 	select FSL_LSCH3
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
@@ -145,28 +178,30 @@ config ARCH_LS2080A
 	select SYS_FSL_SRDS_2
 	select FSL_TZASC_1
 	select FSL_TZASC_2
-	select SYS_FSL_ERRATUM_A008336
-	select SYS_FSL_ERRATUM_A008511
-	select SYS_FSL_ERRATUM_A008514
+	select FSL_TZASC_400
+	select FSL_TZPC_BP147
+	select SYS_FSL_ERRATUM_A008336 if !TFABOOT
+	select SYS_FSL_ERRATUM_A008511 if !TFABOOT
+	select SYS_FSL_ERRATUM_A008514 if !TFABOOT
 	select SYS_FSL_ERRATUM_A008585
 	select SYS_FSL_ERRATUM_A008997
 	select SYS_FSL_ERRATUM_A009007
 	select SYS_FSL_ERRATUM_A009008
 	select SYS_FSL_ERRATUM_A009635
-	select SYS_FSL_ERRATUM_A009663
+	select SYS_FSL_ERRATUM_A009663 if !TFABOOT
 	select SYS_FSL_ERRATUM_A009798
 	select SYS_FSL_ERRATUM_A009801
-	select SYS_FSL_ERRATUM_A009803
-	select SYS_FSL_ERRATUM_A009942
-	select SYS_FSL_ERRATUM_A010165
+	select SYS_FSL_ERRATUM_A009803 if !TFABOOT
+	select SYS_FSL_ERRATUM_A009942 if !TFABOOT
+	select SYS_FSL_ERRATUM_A010165 if !TFABOOT
 	select SYS_FSL_ERRATUM_A009203
 	select ARCH_EARLY_INIT_R
 	select BOARD_EARLY_INIT_F
 	select SYS_I2C_MXC
-	select SYS_I2C_MXC_I2C1
-	select SYS_I2C_MXC_I2C2
-	select SYS_I2C_MXC_I2C3
-	select SYS_I2C_MXC_I2C4
+	select SYS_I2C_MXC_I2C1 if !TFABOOT
+	select SYS_I2C_MXC_I2C2 if !TFABOOT
+	select SYS_I2C_MXC_I2C3 if !TFABOOT
+	select SYS_I2C_MXC_I2C4 if !TFABOOT
 	imply DISTRO_DEFAULTS
 	imply PANIC_HANG
 
@@ -193,14 +228,6 @@ config ARCH_LX2160A
 	select ARCH_EARLY_INIT_R
 	select BOARD_EARLY_INIT_F
 	select SYS_I2C_MXC
-	select SYS_I2C_MXC_I2C1
-	select SYS_I2C_MXC_I2C2
-	select SYS_I2C_MXC_I2C3
-	select SYS_I2C_MXC_I2C4
-	select SYS_I2C_MXC_I2C5
-	select SYS_I2C_MXC_I2C6
-	select SYS_I2C_MXC_I2C7
-	select SYS_I2C_MXC_I2C8
 	imply DISTRO_DEFAULTS
 	imply PANIC_HANG
 	imply SCSI
@@ -219,21 +246,17 @@ config FSL_LSCH3
 config NXP_LSCH3_2
 	bool
 
-config FSL_MC_ENET
-	bool "Management Complex network"
-	depends on ARCH_LS2080A || ARCH_LS1088A || ARCH_LX2160A
-	default y
-	select RESV_RAM
-	help
-	  Enable Management Complex (MC) network
-
 menu "Layerscape architecture"
 	depends on FSL_LSCH2 || FSL_LSCH3
 
+config FSL_LAYERSCAPE
+	bool
+
 config FSL_PCIE_COMPAT
 	string "PCIe compatible of Kernel DT"
-	depends on PCIE_LAYERSCAPE
+	depends on PCIE_LAYERSCAPE || PCIE_LAYERSCAPE_GEN4
 	default "fsl,ls1012a-pcie" if ARCH_LS1012A
+	default "fsl,ls1028a-pcie" if ARCH_LS1028A
 	default "fsl,ls1043a-pcie" if ARCH_LS1043A
 	default "fsl,ls1046a-pcie" if ARCH_LS1046A
 	default "fsl,ls2080a-pcie" if ARCH_LS2080A
@@ -333,6 +356,7 @@ config SYS_FSL_ERRATUM_A010539
 
 config MAX_CPUS
 	int "Maximum number of CPUs permitted for Layerscape"
+	default 2 if ARCH_LS1028A
 	default 4 if ARCH_LS1043A
 	default 4 if ARCH_LS1046A
 	default 16 if ARCH_LS2080A
@@ -346,8 +370,14 @@ config MAX_CPUS
 	  cores, count the reserved ports. This will allocate enough memory
 	  in spin table to properly handle all cores.
 
-config SECURE_BOOT
-	bool "Secure Boot"
+config EMC2305
+	bool "Fan controller"
+	help
+	 Enable the EMC2305 fan controller for configuration of fan
+	 speed.
+
+config NXP_ESBC
+	bool "NXP_ESBC"
 	help
 		Enable Freescale Secure Boot feature
 
@@ -361,7 +391,7 @@ config QSPI_AHB_INIT
 config SYS_CCI400_OFFSET
 	hex "Offset for CCI400 base"
 	depends on SYS_FSL_HAS_CCI400
-	default 0x3090000 if ARCH_LS1088A
+	default 0x3090000 if ARCH_LS1088A || ARCH_LS1028A
 	default 0x180000 if FSL_LSCH2
 	help
 	  Offset for CCI400 base
@@ -404,6 +434,11 @@ config FSL_TZASC_1
 config FSL_TZASC_2
 	bool
 
+config FSL_TZASC_400
+	bool
+
+config FSL_TZPC_BP147
+	bool
 endmenu
 
 menu "Layerscape clock tree configuration"
@@ -425,6 +460,7 @@ config CLUSTER_CLK_FREQ
 
 config SYS_FSL_PCLK_DIV
 	int "Platform clock divider"
+	default 1 if ARCH_LS1028A
 	default 1 if ARCH_LS1043A
 	default 1 if ARCH_LS1046A
 	default 1 if ARCH_LS1088A
@@ -454,6 +490,10 @@ config SYS_FSL_DUART_CLK_DIV
 config SYS_FSL_I2C_CLK_DIV
 	int "I2C clock divider"
 	default 1 if ARCH_LS1043A
+	default 4 if ARCH_LS1012A
+	default 4 if ARCH_LS1028A
+	default 8 if ARCH_LX2160A
+	default 8 if ARCH_LS1088A
 	default 2
 	help
 	  This is the divider that is used to derive I2C clock from Platform
@@ -462,6 +502,10 @@ config SYS_FSL_I2C_CLK_DIV
 config SYS_FSL_IFC_CLK_DIV
 	int "IFC clock divider"
 	default 1 if ARCH_LS1043A
+	default 4 if ARCH_LS1012A
+	default 4 if ARCH_LS1028A
+	default 8 if ARCH_LX2160A
+	default 8 if ARCH_LS1088A
 	default 2
 	help
 	  This is the divider that is used to derive IFC clock from Platform
@@ -541,19 +585,12 @@ config SYS_FSL_ERRATUM_A009660
 config SYS_FSL_ERRATUM_A009929
 	bool
 
+config SYS_FSL_ERRATUM_A050382
+	bool
 
 config SYS_FSL_HAS_RGMII
 	bool
 	depends on SYS_FSL_EC1 || SYS_FSL_EC2
-
-
-config SYS_MC_RSV_MEM_ALIGN
-	hex "Management Complex reserved memory alignment"
-	depends on RESV_RAM
-	default 0x20000000 if ARCH_LS2080A || ARCH_LS1088A || ARCH_LX2160A
-	help
-	  Reserved memory needs to be aligned for MC to use. Default value
-	  is 512MB.
 
 config SPL_LDSCRIPT
 	default "arch/arm/cpu/armv8/u-boot-spl.lds" if ARCH_LS1043A || ARCH_LS1046A || ARCH_LS2080A
@@ -564,10 +601,3 @@ config HAS_FSL_XHCI_USB
 	help
 	  For some SoC(such as LS1043A and LS1046A), USB and QE-HDLC multiplex use
 	  pins, select it when the pins are assigned to USB.
-
-config TFABOOT
-       bool "Support for booting from TFA"
-       default n
-       help
-         Enabling this will make a U-Boot binary that is capable of being
-         booted via TFA.

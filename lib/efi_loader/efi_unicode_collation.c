@@ -11,8 +11,8 @@
 #include <cp437.h>
 #include <efi_loader.h>
 
-/* Characters that may not be used in file names */
-static const char illegal[] = "<>:\"/\\|?*";
+/* Characters that may not be used in FAT 8.3 file names */
+static const char illegal[] = "+,<=>:;\"/\\|?*[]\x7f";
 
 /*
  * EDK2 assumes codepage 1250 when creating FAT 8.3 file names.
@@ -26,8 +26,8 @@ static const u16 codepage[] = CP1250;
 static const u16 codepage[] = CP437;
 #endif
 
-/* GUID of the EFI_UNICODE_COLLATION_PROTOCOL */
-const efi_guid_t efi_guid_unicode_collation_protocol =
+/* GUID of the EFI_UNICODE_COLLATION_PROTOCOL2 */
+const efi_guid_t efi_guid_unicode_collation_protocol2 =
 	EFI_UNICODE_COLLATION_PROTOCOL2_GUID;
 
 /**
@@ -42,11 +42,6 @@ const efi_guid_t efi_guid_unicode_collation_protocol =
  *
  * See the Unified Extensible Firmware Interface (UEFI) specification for
  * details.
- *
- * TODO:
- * The implementation does not follow the Unicode collation algorithm.
- * For ASCII characters it results in the same sort order as EDK2.
- * We could use table UNICODE_CAPITALIZATION_TABLE for better results.
  *
  * Return:	0: s1 == s2, > 0: s1 > s2, < 0: s1 < s2
  */
@@ -74,10 +69,21 @@ out:
 }
 
 /**
+ * next_lower() - get next codepoint converted to lower case
+ *
+ * @string:	pointer to u16 string, on return advanced by one codepoint
+ * Return:	first codepoint of string converted to lower case
+ */
+static s32 next_lower(const u16 **string)
+{
+	return utf_to_lower(utf16_get(string));
+}
+
+/**
  * metai_match() - compare utf-16 string with a pattern string case-insenitively
  *
- * @s:		string to compare
- * @p:		pattern string
+ * @string:	string to compare
+ * @pattern:	pattern string
  *
  * The pattern string may use these:
  *	- * matches >= 0 characters
@@ -93,61 +99,67 @@ out:
  *
  * Return:	true if the string is matched.
  */
-static bool metai_match(const u16 *s, const u16 *p)
+static bool metai_match(const u16 *string, const u16 *pattern)
 {
-	u16 first;
+	s32 first, s, p;
 
-	for (; *s && *p; ++s, ++p) {
-		switch (*p) {
+	for (; *string && *pattern;) {
+		const u16 *string_old = string;
+
+		s = next_lower(&string);
+		p = next_lower(&pattern);
+
+		switch (p) {
 		case '*':
 			/* Match 0 or more characters */
-			++p;
-			for (;; ++s) {
-				if (metai_match(s, p))
+			for (;; s = next_lower(&string)) {
+				if (metai_match(string_old, pattern))
 					return true;
-				if (!*s)
+				if (!s)
 					return false;
+				string_old = string;
 			}
 		case '?':
 			/* Match any one character */
 			break;
 		case '[':
 			/* Match any character in the set */
-			++p;
-			first = *p;
+			p = next_lower(&pattern);
+			first = p;
 			if (first == ']')
 				/* Empty set */
 				return false;
-			++p;
-			if (*p == '-') {
+			p = next_lower(&pattern);
+			if (p == '-') {
 				/* Range */
-				++p;
-				if (*s < first || *s > *p)
+				p = next_lower(&pattern);
+				if (s < first || s > p)
 					return false;
-				++p;
-				if (*p != ']')
+				p = next_lower(&pattern);
+				if (p != ']')
 					return false;
 			} else {
 				/* Set */
 				bool hit = false;
 
-				if (*s == first)
+				if (s == first)
 					hit = true;
-				for (; *p && *p != ']'; ++p) {
-					if (*p == *s)
+				for (; p && p != ']';
+				     p = next_lower(&pattern)) {
+					if (p == s)
 						hit = true;
 				}
-				if (!hit || *p != ']')
+				if (!hit || p != ']')
 					return false;
 			}
 			break;
 		default:
 			/* Match one character */
-			if (*p != *s)
+			if (p != s)
 				return false;
 		}
 	}
-	if (!*p && !*s)
+	if (!*pattern && !*string)
 		return true;
 	return false;
 }
@@ -318,7 +330,7 @@ static bool EFIAPI efi_str_to_fat(struct efi_unicode_collation_protocol *this,
 	return ret;
 }
 
-const struct efi_unicode_collation_protocol efi_unicode_collation_protocol = {
+const struct efi_unicode_collation_protocol efi_unicode_collation_protocol2 = {
 	.stri_coll = efi_stri_coll,
 	.metai_match = efi_metai_match,
 	.str_lwr = efi_str_lwr,
@@ -327,3 +339,30 @@ const struct efi_unicode_collation_protocol efi_unicode_collation_protocol = {
 	.str_to_fat = efi_str_to_fat,
 	.supported_languages = "en",
 };
+
+/*
+ * In EFI 1.10 a version of the Unicode collation protocol using ISO 639-2
+ * language codes existed. This protocol is not part of the UEFI specification
+ * any longer. Unfortunately it is required to run the UEFI Self Certification
+ * Test (SCT) II, version 2.6, 2017. So we implement it here for the sole
+ * purpose of running the SCT. It can be removed when a compliant SCT is
+ * available.
+ */
+#if CONFIG_IS_ENABLED(EFI_UNICODE_COLLATION_PROTOCOL)
+
+/* GUID of the EFI_UNICODE_COLLATION_PROTOCOL */
+const efi_guid_t efi_guid_unicode_collation_protocol =
+	EFI_UNICODE_COLLATION_PROTOCOL_GUID;
+
+const struct efi_unicode_collation_protocol efi_unicode_collation_protocol = {
+	.stri_coll = efi_stri_coll,
+	.metai_match = efi_metai_match,
+	.str_lwr = efi_str_lwr,
+	.str_upr = efi_str_upr,
+	.fat_to_str = efi_fat_to_str,
+	.str_to_fat = efi_str_to_fat,
+	/* ISO 639-2 language code */
+	.supported_languages = "eng",
+};
+
+#endif

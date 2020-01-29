@@ -1,0 +1,56 @@
+// SPDX-License-Identifier: GPL-2.0+ OR X11
+
+/*
+ * UltraZed-EV SoM v1
+ * http://ultrazed.org/product/ultrazed-ev
+ */
+
+/dts-v1/;
+
+#include "zynqmp.dtsi"
+#include "zynqmp-clk-ccf.dtsi"
+
+/ {
+	model = "Avnet UltraZed EV SoM v1.0";
+	compatible = "avnet,ultrazedev-som-v1.0", "xlnx,zynqmp";
+	memory {
+		device_type = "memory";
+		reg = <0x0 0x0 0x0 0x80000000>, /* 2 GB @ offset 0 */
+		      <0x8 0x0 0x0 0x80000000>; /* 2 GB @ offset 32GB */
+	};
+};
+
+&i2c1 {
+	clock-frequency = <400000>;
+	status = "okay";
+
+	i2cswitch@70 {
+		compatible = "nxp,pca9543";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x70>;
+
+		/* I2C connected to Carrier Card via JX3A1/JX3C1 */
+		i2c_cc: i2c@0 {
+			reg = <0>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+	};
+};
+
+/* Marvell 88E1512-A0-NNP2I000 Ethernet PHY */
+&gem3 {
+	phy-mode = "rgmii-id";
+	phy-handle = <&gem3phy>;
+	gem3phy: ethernet-phy@0 {
+		reg = <0>;
+	};
+};
+
+/* Micron MTFC8GAKAJCN-4M 8 GB eMMC */
+&sdhci0 {
+	status = "okay";
+	xlnx,mio_bank = <0>;
+	clock-frequency = <199998000>;
+};

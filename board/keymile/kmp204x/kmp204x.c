@@ -8,6 +8,8 @@
 
 #include <common.h>
 #include <command.h>
+#include <env.h>
+#include <init.h>
 #include <netdev.h>
 #include <linux/compiler.h>
 #include <asm/mmu.h>

@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2016 Freescale Semiconductor
+ * Copyright 2019 NXP
  */
 
 #ifndef __LS1046A_COMMON_H
@@ -26,7 +27,6 @@
 #endif
 
 #define CONFIG_REMAKE_ELF
-#define CONFIG_FSL_LAYERSCAPE
 #define CONFIG_GICV2
 
 #include <asm/arch/config.h>
@@ -64,7 +64,6 @@
 
 /* SD boot SPL */
 #ifdef CONFIG_SD_BOOT
-#define CONFIG_SPL_TEXT_BASE		0x10000000
 #define CONFIG_SPL_MAX_SIZE		0x1f000		/* 124 KiB */
 #define CONFIG_SPL_STACK		0x10020000
 #define CONFIG_SPL_PAD_TO		0x21000		/* 132 KiB */
@@ -74,7 +73,7 @@
 					CONFIG_SPL_BSS_MAX_SIZE)
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000
 
-#ifdef CONFIG_SECURE_BOOT
+#ifdef CONFIG_NXP_ESBC
 #define CONFIG_U_BOOT_HDR_SIZE				(16 << 10)
 /*
  * HDR would be appended at end of image and copied to DDR along
@@ -85,12 +84,11 @@
 #define CONFIG_SYS_MONITOR_LEN		(0x100000 + CONFIG_U_BOOT_HDR_SIZE)
 #else
 #define CONFIG_SYS_MONITOR_LEN		0x100000
-#endif /* ifdef CONFIG_SECURE_BOOT */
+#endif /* ifdef CONFIG_NXP_ESBC */
 #endif
 
 #if defined(CONFIG_QSPI_BOOT) && defined(CONFIG_SPL)
 #define CONFIG_SPL_TARGET		"spl/u-boot-spl.pbl"
-#define CONFIG_SPL_TEXT_BASE		0x10000000
 #define CONFIG_SPL_MAX_SIZE		0x1f000
 #define CONFIG_SPL_STACK		0x10020000
 #define CONFIG_SPL_PAD_TO		0x20000
@@ -115,7 +113,6 @@
 
 #define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SPL_DRIVERS_MISC_SUPPORT
-#define CONFIG_SPL_TEXT_BASE		0x10000000
 #define CONFIG_SPL_MAX_SIZE		0x17000		/* 90 KiB */
 #define CONFIG_SPL_STACK		0x1001f000
 #define CONFIG_SYS_NAND_U_BOOT_DST	CONFIG_SYS_TEXT_BASE
@@ -171,10 +168,6 @@
 
 #ifdef CONFIG_TFABOOT
 #define CONFIG_SYS_FMAN_FW_ADDR		0x900000
-#define CONFIG_ENV_SPI_BUS		0
-#define CONFIG_ENV_SPI_CS		0
-#define CONFIG_ENV_SPI_MAX_HZ		1000000
-#define CONFIG_ENV_SPI_MODE		0x03
 #else
 #ifdef CONFIG_SD_BOOT
 /*
@@ -182,20 +175,12 @@
  * about 1MB (2048 blocks), Env is stored after the image, and the env size is
  * 0x2000 (16 blocks), 8 + 2048 + 16 = 2072, enlarge it to 18432(0x4800).
  */
-#define CONFIG_SYS_QE_FMAN_FW_IN_MMC
 #define CONFIG_SYS_FMAN_FW_ADDR		(512 * 0x4800)
 #elif defined(CONFIG_QSPI_BOOT)
-#define CONFIG_SYS_QE_FW_IN_SPIFLASH
 #define CONFIG_SYS_FMAN_FW_ADDR		0x40900000
-#define CONFIG_ENV_SPI_BUS		0
-#define CONFIG_ENV_SPI_CS		0
-#define CONFIG_ENV_SPI_MAX_HZ		1000000
-#define CONFIG_ENV_SPI_MODE		0x03
 #elif defined(CONFIG_NAND_BOOT)
-#define CONFIG_SYS_QE_FMAN_FW_IN_NAND
 #define CONFIG_SYS_FMAN_FW_ADDR		(36 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #else
-#define CONFIG_SYS_QE_FMAN_FW_IN_NOR
 #define CONFIG_SYS_FMAN_FW_ADDR		0x60900000
 #endif
 #endif
@@ -213,10 +198,20 @@
 #define BOOT_TARGET_DEVICES(func) \
 	func(SCSI, scsi, 0) \
 	func(MMC, mmc, 0) \
-	func(USB, usb, 0)
+	func(USB, usb, 0) \
+	func(DHCP, dhcp, na)
 #include <config_distro_bootcmd.h>
 #endif
 
+#if defined(CONFIG_TARGET_LS1046AFRWY)
+#define LS1046A_BOOT_SRC_AND_HDR\
+	"boot_scripts=ls1046afrwy_boot.scr\0"	\
+	"boot_script_hdr=hdr_ls1046afrwy_bs.out\0"
+#else
+#define LS1046A_BOOT_SRC_AND_HDR\
+	"boot_scripts=ls1046ardb_boot.scr\0"	\
+	"boot_script_hdr=hdr_ls1046ardb_bs.out\0"
+#endif
 #ifndef SPL_NO_MISC
 /* Initial environment variables */
 #define CONFIG_EXTRA_ENV_SETTINGS		\
@@ -247,8 +242,7 @@
 	"console=ttyS0,115200\0"                \
 	 CONFIG_MTDPARTS_DEFAULT "\0"		\
 	BOOTENV					\
-	"boot_scripts=ls1046ardb_boot.scr\0"    \
-	"boot_script_hdr=hdr_ls1046ardb_bs.out\0"	\
+	LS1046A_BOOT_SRC_AND_HDR		\
 	"scan_dev_for_boot_part="               \
 		"part list ${devtype} ${devnum} devplist; "   \
 		"env exists devplist || setenv devplist 1; "  \
@@ -259,20 +253,14 @@
 			"run scan_dev_for_boot; "            \
 		  "fi; "                                   \
 		"done\0"                                   \
-	"scan_dev_for_boot="				  \
-		"echo Scanning ${devtype} "		  \
-				"${devnum}:${distro_bootpart}...; "  \
-		"for prefix in ${boot_prefixes}; do "	  \
-			"run scan_dev_for_scripts; "	  \
-		"done;"					  \
-		"\0"					  \
 	"boot_a_script="				  \
 		"load ${devtype} ${devnum}:${distro_bootpart} "  \
 			"${scriptaddr} ${prefix}${script}; "    \
 		"env exists secureboot && load ${devtype} "     \
 			"${devnum}:${distro_bootpart} "		\
-			"${scripthdraddr} ${prefix}${boot_script_hdr} " \
-			"&& esbc_validate ${scripthdraddr};"    \
+			"${scripthdraddr} ${prefix}${boot_script_hdr}; " \
+			"env exists secureboot "	\
+			"&& esbc_validate ${scripthdraddr};"	\
 		"source ${scriptaddr}\0"	  \
 	"qspi_bootcmd=echo Trying load from qspi..;"      \
 		"sf probe && sf read $load_addr "         \

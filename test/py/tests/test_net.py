@@ -33,28 +33,28 @@ env__net_dhcp_server = True
 # static IP. If solely relying on DHCP, this variable may be omitted or set to
 # an empty list.
 env__net_static_env_vars = [
-    ("ipaddr", "10.0.0.100"),
-    ("netmask", "255.255.255.0"),
-    ("serverip", "10.0.0.1"),
+    ('ipaddr', '10.0.0.100'),
+    ('netmask', '255.255.255.0'),
+    ('serverip', '10.0.0.1'),
 ]
 
 # Details regarding a file that may be read from a TFTP server. This variable
 # may be omitted or set to None if TFTP testing is not possible or desired.
 env__net_tftp_readable_file = {
-    "fn": "ubtest-readable.bin",
-    "addr": 0x10000000,
-    "size": 5058624,
-    "crc32": "c2244b26",
-    "timeout": 50000,
+    'fn': 'ubtest-readable.bin',
+    'addr': 0x10000000,
+    'size': 5058624,
+    'crc32': 'c2244b26',
+    'timeout": 50000,
 }
 
 # Details regarding a file that may be read from a NFS server. This variable
 # may be omitted or set to None if NFS testing is not possible or desired.
 env__net_nfs_readable_file = {
-    "fn": "ubtest-readable.bin",
-    "addr": 0x10000000,
-    "size": 5058624,
-    "crc32": "c2244b26",
+    'fn': 'ubtest-readable.bin',
+    'addr': 0x10000000,
+    'size': 5058624,
+    'crc32': 'c2244b26',
 }
 """
 
@@ -148,14 +148,15 @@ def test_net_tftpboot(u_boot_console):
         pytest.skip('No TFTP readable file to read')
 
     addr = f.get('addr', None)
-    if not addr:
-        addr = u_boot_utils.find_ram_base(u_boot_console)
 
     timeout = f.get('timeout', u_boot_console.p.timeout)
 
     fn = f['fn']
     with u_boot_console.temporary_timeout(timeout):
-        output = u_boot_console.run_command('tftpboot %x %s' % (addr, fn))
+        if not addr:
+            output = u_boot_console.run_command('tftpboot %s' % (fn))
+        else:
+            output = u_boot_console.run_command('tftpboot %x %s' % (addr, fn))
 
     expected_text = 'Bytes transferred = '
     sz = f.get('size', None)
@@ -171,7 +172,7 @@ def test_net_tftpboot(u_boot_console):
     if u_boot_console.config.buildconfig.get('config_cmd_crc32', 'n') != 'y':
         return
 
-    output = u_boot_console.run_command('crc32 %x $filesize' % addr)
+    output = u_boot_console.run_command('crc32 $fileaddr $filesize')
     assert expected_crc in output
 
 @pytest.mark.buildconfigspec('cmd_nfs')

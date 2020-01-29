@@ -41,26 +41,109 @@
 #define SATA_PLL_SOFT_RESET (1<<18)
 
 /* PHY POWER CONTROL Register */
-#define OMAP_CTRL_PIPE3_PHY_PWRCTL_CLK_CMD_MASK         0x003FC000
-#define OMAP_CTRL_PIPE3_PHY_PWRCTL_CLK_CMD_SHIFT        0xE
+#define PIPE3_PHY_PWRCTL_CLK_CMD_MASK	GENMASK(21, 14)
+#define PIPE3_PHY_PWRCTL_CLK_CMD_SHIFT	14
 
-#define OMAP_CTRL_PIPE3_PHY_PWRCTL_CLK_FREQ_MASK        0xFFC00000
-#define OMAP_CTRL_PIPE3_PHY_PWRCTL_CLK_FREQ_SHIFT       0x16
+#define PIPE3_PHY_PWRCTL_CLK_FREQ_MASK	GENMASK(31, 22)
+#define PIPE3_PHY_PWRCTL_CLK_FREQ_SHIFT	22
 
-#define OMAP_CTRL_PIPE3_PHY_TX_RX_POWERON       0x3
-#define OMAP_CTRL_PIPE3_PHY_TX_RX_POWEROFF      0x0
+#define PIPE3_PHY_RX_POWERON       (0x1 << PIPE3_PHY_PWRCTL_CLK_CMD_SHIFT)
+#define PIPE3_PHY_TX_POWERON       (0x2 << PIPE3_PHY_PWRCTL_CLK_CMD_SHIFT)
 
+/* PHY RX Registers */
+#define PIPE3_PHY_RX_ANA_PROGRAMMABILITY	0x0000000C
+#define INTERFACE_MASK			GENMASK(31, 27)
+#define INTERFACE_SHIFT			27
+#define INTERFACE_MODE_USBSS		BIT(4)
+#define INTERFACE_MODE_SATA_1P5		BIT(3)
+#define INTERFACE_MODE_SATA_3P0		BIT(2)
+#define INTERFACE_MODE_PCIE		BIT(0)
+
+#define LOSD_MASK			GENMASK(17, 14)
+#define LOSD_SHIFT			14
+#define MEM_PLLDIV			GENMASK(6, 5)
+
+#define PIPE3_PHY_RX_TRIM		0x0000001C
+#define MEM_DLL_TRIM_SEL_MASK		GENMASK(31, 30)
+#define MEM_DLL_TRIM_SHIFT		30
+
+#define PIPE3_PHY_RX_DLL		0x00000024
+#define MEM_DLL_PHINT_RATE_MASK		GENMASK(31, 30)
+#define MEM_DLL_PHINT_RATE_SHIFT	30
+
+#define PIPE3_PHY_RX_DIGITAL_MODES		0x00000028
+#define MEM_HS_RATE_MASK		GENMASK(28, 27)
+#define MEM_HS_RATE_SHIFT		27
+#define MEM_OVRD_HS_RATE		BIT(26)
+#define MEM_OVRD_HS_RATE_SHIFT		26
+#define MEM_CDR_FASTLOCK		BIT(23)
+#define MEM_CDR_FASTLOCK_SHIFT		23
+#define MEM_CDR_LBW_MASK		GENMASK(22, 21)
+#define MEM_CDR_LBW_SHIFT		21
+#define MEM_CDR_STEPCNT_MASK		GENMASK(20, 19)
+#define MEM_CDR_STEPCNT_SHIFT		19
+#define MEM_CDR_STL_MASK		GENMASK(18, 16)
+#define MEM_CDR_STL_SHIFT		16
+#define MEM_CDR_THR_MASK		GENMASK(15, 13)
+#define MEM_CDR_THR_SHIFT		13
+#define MEM_CDR_THR_MODE		BIT(12)
+#define MEM_CDR_THR_MODE_SHIFT		12
+#define MEM_CDR_2NDO_SDM_MODE		BIT(11)
+#define MEM_CDR_2NDO_SDM_MODE_SHIFT	11
+
+#define PIPE3_PHY_RX_EQUALIZER		0x00000038
+#define MEM_EQLEV_MASK			GENMASK(31, 16)
+#define MEM_EQLEV_SHIFT			16
+#define MEM_EQFTC_MASK			GENMASK(15, 11)
+#define MEM_EQFTC_SHIFT			11
+#define MEM_EQCTL_MASK			GENMASK(10, 7)
+#define MEM_EQCTL_SHIFT			7
+#define MEM_OVRD_EQLEV			BIT(2)
+#define MEM_OVRD_EQLEV_SHIFT		2
+#define MEM_OVRD_EQFTC			BIT(1)
+#define MEM_OVRD_EQFTC_SHIFT		1
+
+#define SATA_PHY_RX_IO_AND_A2D_OVERRIDES	0x44
+#define MEM_CDR_LOS_SOURCE_MASK		GENMASK(10, 9)
+#define MEM_CDR_LOS_SOURCE_SHIFT	9
 
 #define PLL_IDLE_TIME   100     /* in milliseconds */
 #define PLL_LOCK_TIME   100     /* in milliseconds */
 
+enum pipe3_mode { PIPE3_MODE_PCIE = 1,
+		  PIPE3_MODE_SATA,
+		  PIPE3_MODE_USBSS };
+
+struct pipe3_settings {
+	u8 ana_interface;
+	u8 ana_losd;
+	u8 dig_fastlock;
+	u8 dig_lbw;
+	u8 dig_stepcnt;
+	u8 dig_stl;
+	u8 dig_thr;
+	u8 dig_thr_mode;
+	u8 dig_2ndo_sdm_mode;
+	u8 dig_hs_rate;
+	u8 dig_ovrd_hs_rate;
+	u8 dll_trim_sel;
+	u8 dll_phint_rate;
+	u8 eq_lev;
+	u8 eq_ftc;
+	u8 eq_ctl;
+	u8 eq_ovrd_lev;
+	u8 eq_ovrd_ftc;
+};
+
 struct omap_pipe3 {
 	void __iomem		*pll_ctrl_base;
+	void __iomem		*phy_rx;
 	void __iomem		*power_reg;
 	void __iomem		*pll_reset_reg;
 	struct pipe3_dpll_map	*dpll_map;
+	enum pipe3_mode		mode;
+	struct pipe3_settings	settings;
 };
-
 
 struct pipe3_dpll_params {
 	u16     m;
@@ -73,6 +156,12 @@ struct pipe3_dpll_params {
 struct pipe3_dpll_map {
 	unsigned long rate;
 	struct pipe3_dpll_params params;
+};
+
+struct pipe3_data {
+	enum pipe3_mode mode;
+	struct pipe3_dpll_map *dpll_map;
+	struct pipe3_settings settings;
 };
 
 static inline u32 omap_pipe3_readl(void __iomem *addr, unsigned offset)
@@ -175,19 +264,75 @@ static void omap_control_pipe3_power(struct omap_pipe3 *pipe3, int on)
 	rate = rate/1000000;
 
 	if (on) {
-		val &= ~(OMAP_CTRL_PIPE3_PHY_PWRCTL_CLK_CMD_MASK |
-				OMAP_CTRL_PIPE3_PHY_PWRCTL_CLK_FREQ_MASK);
-		val |= OMAP_CTRL_PIPE3_PHY_TX_RX_POWERON <<
-			OMAP_CTRL_PIPE3_PHY_PWRCTL_CLK_CMD_SHIFT;
-		val |= rate <<
-			OMAP_CTRL_PIPE3_PHY_PWRCTL_CLK_FREQ_SHIFT;
-	} else {
-		val &= ~OMAP_CTRL_PIPE3_PHY_PWRCTL_CLK_CMD_MASK;
-		val |= OMAP_CTRL_PIPE3_PHY_TX_RX_POWEROFF <<
-			OMAP_CTRL_PIPE3_PHY_PWRCTL_CLK_CMD_SHIFT;
-	}
+		val &= ~(PIPE3_PHY_PWRCTL_CLK_CMD_MASK |
+			 PIPE3_PHY_PWRCTL_CLK_FREQ_MASK);
+		val |= rate << PIPE3_PHY_PWRCTL_CLK_FREQ_SHIFT;
+		writel(val, pipe3->power_reg);
 
-	writel(val, pipe3->power_reg);
+		/* Power up TX before RX for SATA & USB */
+		val |= PIPE3_PHY_TX_POWERON;
+		writel(val, pipe3->power_reg);
+
+		val |= PIPE3_PHY_RX_POWERON;
+		writel(val, pipe3->power_reg);
+	} else {
+		val &= ~PIPE3_PHY_PWRCTL_CLK_CMD_MASK;
+		writel(val, pipe3->power_reg);
+	}
+}
+
+static void ti_pipe3_calibrate(struct omap_pipe3 *phy)
+{
+	u32 val;
+	struct pipe3_settings *s = &phy->settings;
+
+	val = omap_pipe3_readl(phy->phy_rx, PIPE3_PHY_RX_ANA_PROGRAMMABILITY);
+	val &= ~(INTERFACE_MASK | LOSD_MASK | MEM_PLLDIV);
+	val = (s->ana_interface << INTERFACE_SHIFT | s->ana_losd << LOSD_SHIFT);
+	omap_pipe3_writel(phy->phy_rx, PIPE3_PHY_RX_ANA_PROGRAMMABILITY, val);
+
+	val = omap_pipe3_readl(phy->phy_rx, PIPE3_PHY_RX_DIGITAL_MODES);
+	val &= ~(MEM_HS_RATE_MASK | MEM_OVRD_HS_RATE | MEM_CDR_FASTLOCK |
+		 MEM_CDR_LBW_MASK | MEM_CDR_STEPCNT_MASK | MEM_CDR_STL_MASK |
+		 MEM_CDR_THR_MASK | MEM_CDR_THR_MODE | MEM_CDR_2NDO_SDM_MODE);
+	val |= s->dig_hs_rate << MEM_HS_RATE_SHIFT |
+		s->dig_ovrd_hs_rate << MEM_OVRD_HS_RATE_SHIFT |
+		s->dig_fastlock << MEM_CDR_FASTLOCK_SHIFT |
+		s->dig_lbw << MEM_CDR_LBW_SHIFT |
+		s->dig_stepcnt << MEM_CDR_STEPCNT_SHIFT |
+		s->dig_stl << MEM_CDR_STL_SHIFT |
+		s->dig_thr << MEM_CDR_THR_SHIFT |
+		s->dig_thr_mode << MEM_CDR_THR_MODE_SHIFT |
+		s->dig_2ndo_sdm_mode << MEM_CDR_2NDO_SDM_MODE_SHIFT;
+	omap_pipe3_writel(phy->phy_rx, PIPE3_PHY_RX_DIGITAL_MODES, val);
+
+	val = omap_pipe3_readl(phy->phy_rx, PIPE3_PHY_RX_TRIM);
+	val &= ~MEM_DLL_TRIM_SEL_MASK;
+	val |= s->dll_trim_sel << MEM_DLL_TRIM_SHIFT;
+	omap_pipe3_writel(phy->phy_rx, PIPE3_PHY_RX_TRIM, val);
+
+	val = omap_pipe3_readl(phy->phy_rx, PIPE3_PHY_RX_DLL);
+	val &= ~MEM_DLL_PHINT_RATE_MASK;
+	val |= s->dll_phint_rate << MEM_DLL_PHINT_RATE_SHIFT;
+	omap_pipe3_writel(phy->phy_rx, PIPE3_PHY_RX_DLL, val);
+
+	val = omap_pipe3_readl(phy->phy_rx, PIPE3_PHY_RX_EQUALIZER);
+	val &= ~(MEM_EQLEV_MASK | MEM_EQFTC_MASK | MEM_EQCTL_MASK |
+		 MEM_OVRD_EQLEV | MEM_OVRD_EQFTC);
+	val |= s->eq_lev << MEM_EQLEV_SHIFT |
+		s->eq_ftc << MEM_EQFTC_SHIFT |
+		s->eq_ctl << MEM_EQCTL_SHIFT |
+		s->eq_ovrd_lev << MEM_OVRD_EQLEV_SHIFT |
+		s->eq_ovrd_ftc << MEM_OVRD_EQFTC_SHIFT;
+	omap_pipe3_writel(phy->phy_rx, PIPE3_PHY_RX_EQUALIZER, val);
+
+	if (phy->mode == PIPE3_MODE_SATA) {
+		val = omap_pipe3_readl(phy->phy_rx,
+				       SATA_PHY_RX_IO_AND_A2D_OVERRIDES);
+		val &= ~MEM_CDR_LOS_SOURCE_MASK;
+		omap_pipe3_writel(phy->phy_rx, SATA_PHY_RX_IO_AND_A2D_OVERRIDES,
+				  val);
+	}
 }
 
 static int pipe3_init(struct phy *phy)
@@ -202,6 +347,8 @@ static int pipe3_init(struct phy *phy)
 		ret = omap_pipe3_dpll_program(pipe3);
 		if (ret)
 			return ret;
+
+		ti_pipe3_calibrate(pipe3);
 	} else {
 		/* else just bring it out of IDLE mode */
 		val = omap_pipe3_readl(pipe3->pll_ctrl_base,
@@ -317,7 +464,22 @@ static int pipe3_phy_probe(struct udevice *dev)
 	fdt_addr_t addr;
 	fdt_size_t sz;
 	struct omap_pipe3 *pipe3 = dev_get_priv(dev);
+	struct pipe3_data *data;
 
+	/* PHY_RX */
+	addr = devfdt_get_addr_size_index(dev, 0, &sz);
+	if (addr == FDT_ADDR_T_NONE) {
+		pr_err("missing phy_rx address\n");
+		return -EINVAL;
+	}
+
+	pipe3->phy_rx = map_physmem(addr, sz, MAP_NOCACHE);
+	if (!pipe3->phy_rx) {
+		pr_err("unable to remap phy_rx\n");
+		return -EINVAL;
+	}
+
+	/* PLLCTRL */
 	addr = devfdt_get_addr_size_index(dev, 2, &sz);
 	if (addr == FDT_ADDR_T_NONE) {
 		pr_err("missing pll ctrl address\n");
@@ -334,25 +496,28 @@ static int pipe3_phy_probe(struct udevice *dev)
 	if (!pipe3->power_reg)
 		return -EINVAL;
 
-	if (device_is_compatible(dev, "ti,phy-pipe3-sata")) {
+	data = (struct pipe3_data *)dev_get_driver_data(dev);
+	pipe3->mode = data->mode;
+	pipe3->dpll_map = data->dpll_map;
+	pipe3->settings = data->settings;
+
+	if (pipe3->mode == PIPE3_MODE_SATA) {
 		pipe3->pll_reset_reg = get_reg(dev, "syscon-pllreset");
 		if (!pipe3->pll_reset_reg)
 			return -EINVAL;
 	}
 
-	pipe3->dpll_map = (struct pipe3_dpll_map *)dev_get_driver_data(dev);
-
 	return 0;
 }
 
 static struct pipe3_dpll_map dpll_map_sata[] = {
-	{12000000, {1000, 7, 4, 6, 0} },        /* 12 MHz */
-	{16800000, {714, 7, 4, 6, 0} },         /* 16.8 MHz */
-	{19200000, {625, 7, 4, 6, 0} },         /* 19.2 MHz */
-	{20000000, {600, 7, 4, 6, 0} },         /* 20 MHz */
-	{26000000, {461, 7, 4, 6, 0} },         /* 26 MHz */
-	{38400000, {312, 7, 4, 6, 0} },         /* 38.4 MHz */
-	{ },                                    /* Terminator */
+	{12000000, {625, 4, 4, 6, 0} },	/* 12 MHz */
+	{16800000, {625, 6, 4, 7, 0} },		/* 16.8 MHz */
+	{19200000, {625, 7, 4, 6, 0} },		/* 19.2 MHz */
+	{20000000, {750, 9, 4, 6, 0} },		/* 20 MHz */
+	{26000000, {750, 12, 4, 6, 0} },	/* 26 MHz */
+	{38400000, {625, 15, 4, 6, 0} },	/* 38.4 MHz */
+	{ },					/* Terminator */
 };
 
 static struct pipe3_dpll_map dpll_map_usb[] = {
@@ -365,9 +530,61 @@ static struct pipe3_dpll_map dpll_map_usb[] = {
 	{ },					/* Terminator */
 };
 
+static struct pipe3_data data_usb = {
+	.mode = PIPE3_MODE_USBSS,
+	.dpll_map = dpll_map_usb,
+	.settings = {
+	/* DRA75x TRM Table 26-17. Preferred USB3_PHY_RX SCP Register Settings */
+		.ana_interface = INTERFACE_MODE_USBSS,
+		.ana_losd = 0xa,
+		.dig_fastlock = 1,
+		.dig_lbw = 3,
+		.dig_stepcnt = 0,
+		.dig_stl = 0x3,
+		.dig_thr = 1,
+		.dig_thr_mode = 1,
+		.dig_2ndo_sdm_mode = 0,
+		.dig_hs_rate = 0,
+		.dig_ovrd_hs_rate = 1,
+		.dll_trim_sel = 0x2,
+		.dll_phint_rate = 0x3,
+		.eq_lev = 0,
+		.eq_ftc = 0,
+		.eq_ctl = 0x9,
+		.eq_ovrd_lev = 0,
+		.eq_ovrd_ftc = 0,
+	},
+};
+
+static struct pipe3_data data_sata = {
+	.mode = PIPE3_MODE_SATA,
+	.dpll_map = dpll_map_sata,
+	.settings = {
+	/* DRA75x TRM Table 26-9. Preferred SATA_PHY_RX SCP Register Settings */
+		.ana_interface = INTERFACE_MODE_SATA_3P0,
+		.ana_losd = 0x5,
+		.dig_fastlock = 1,
+		.dig_lbw = 3,
+		.dig_stepcnt = 0,
+		.dig_stl = 0x3,
+		.dig_thr = 1,
+		.dig_thr_mode = 1,
+		.dig_2ndo_sdm_mode = 0,
+		.dig_hs_rate = 0,	/* Not in TRM preferred settings */
+		.dig_ovrd_hs_rate = 0,	/* Not in TRM preferred settings */
+		.dll_trim_sel = 0x1,
+		.dll_phint_rate = 0x2,	/* for 1.5 GHz DPLL clock */
+		.eq_lev = 0,
+		.eq_ftc = 0x1f,
+		.eq_ctl = 0,
+		.eq_ovrd_lev = 1,
+		.eq_ovrd_ftc = 1,
+	},
+};
+
 static const struct udevice_id pipe3_phy_ids[] = {
-	{ .compatible = "ti,phy-pipe3-sata", .data = (ulong)&dpll_map_sata },
-	{ .compatible = "ti,omap-usb3", .data = (ulong)&dpll_map_usb},
+	{ .compatible = "ti,phy-pipe3-sata", .data = (ulong)&data_sata },
+	{ .compatible = "ti,omap-usb3", .data = (ulong)&data_usb},
 	{ }
 };
 

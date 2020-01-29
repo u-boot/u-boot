@@ -118,24 +118,13 @@
 				status = "okay";
 			};
 
-			spi1: spi@10680 {
-				/*
-				 * CS0: W25Q32
-				 * CS1:
-				 * CS2: mikrobus
-				 */
-				pinctrl-0 = <&spi1_pins &clearfog_spi1_cs_pins &mikro_spi_pins>;
-				pinctrl-names = "default";
-				status = "okay";
-			};
-
-			usb0: usb3@f8000 {
+			usb3@f8000 {
 				/* CON7, USB-A port on back of device */
 				status = "okay";
 			};
 		};
 
-		pcie-controller {
+		pcie {
 			status = "okay";
 			/*
 			 * The two PCIe units are accessible through
@@ -320,6 +309,18 @@
 		marvell,pins = "mpp34";
 		marvell,function = "gpio";
 	};
+};
+
+&spi1 {
+	/*
+	 * Add SPI CS pins for clearfog:
+	 * CS0: W25Q32
+	 * CS1:
+	 * CS2: mikrobus
+	 */
+	pinctrl-0 = <&spi1_pins &mikro_spi_pins>;
+	pinctrl-names = "default";
+	status = "okay";
 };
 
 /*

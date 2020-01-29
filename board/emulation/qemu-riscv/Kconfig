@@ -7,22 +7,33 @@ config SYS_VENDOR
 	default "emulation"
 
 config SYS_CPU
-	default "qemu"
+	default "generic"
 
 config SYS_CONFIG_NAME
 	default "qemu-riscv"
 
 config SYS_TEXT_BASE
+	default 0x81200000 if SPL
 	default 0x80000000 if !RISCV_SMODE
-	default 0x80200000 if RISCV_SMODE
+	default 0x80200000 if RISCV_SMODE && ARCH_RV64I
+	default 0x80400000 if RISCV_SMODE && ARCH_RV32I
+
+config SPL_TEXT_BASE
+	default 0x80000000
+
+config SPL_OPENSBI_LOAD_ADDR
+	hex
+	default 0x81000000
 
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
-	select QEMU_RISCV
+	select GENERIC_RISCV
+	select SUPPORT_SPL
 	imply SYS_NS16550
 	imply VIRTIO_MMIO
 	imply VIRTIO_NET
 	imply VIRTIO_BLK
+	imply VIRTIO_PCI
 	imply CMD_PING
 	imply CMD_FS_GENERIC
 	imply DOS_PARTITION
@@ -34,5 +45,14 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply BOARD_LATE_INIT
 	imply OF_BOARD_SETUP
 	imply SIFIVE_SERIAL
+	imply SMP
+	imply PCI
+	imply DM_PCI
+	imply PCIE_ECAM_GENERIC
+	imply CMD_PCI
+	imply E1000
+	imply NVME
+	imply SPL_RAM_SUPPORT
+	imply SPL_RAM_DEVICE
 
 endif

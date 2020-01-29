@@ -26,7 +26,6 @@
 #endif
 
 #define CONFIG_REMAKE_ELF
-#define CONFIG_FSL_LAYERSCAPE
 #define CONFIG_GICV2
 
 #include <asm/arch/stream_id_lsch2.h>
@@ -65,7 +64,6 @@
 /* SD boot SPL */
 #ifdef CONFIG_SD_BOOT
 
-#define CONFIG_SPL_TEXT_BASE		0x10000000
 #define CONFIG_SPL_MAX_SIZE		0x17000
 #define CONFIG_SPL_STACK		0x1001e000
 #define CONFIG_SPL_PAD_TO		0x1d000
@@ -76,7 +74,7 @@
 #define CONFIG_SPL_BSS_START_ADDR	0x8f000000
 #define CONFIG_SPL_BSS_MAX_SIZE		0x80000
 
-#ifdef CONFIG_SECURE_BOOT
+#ifdef CONFIG_NXP_ESBC
 #define CONFIG_U_BOOT_HDR_SIZE				(16 << 10)
 /*
  * HDR would be appended at end of image and copied to DDR along
@@ -87,13 +85,12 @@
 #define CONFIG_SYS_MONITOR_LEN		(0x100000 + CONFIG_U_BOOT_HDR_SIZE)
 #else
 #define CONFIG_SYS_MONITOR_LEN		0x100000
-#endif /* ifdef CONFIG_SECURE_BOOT */
+#endif /* ifdef CONFIG_NXP_ESBC */
 #endif
 
 /* NAND SPL */
 #ifdef CONFIG_NAND_BOOT
 #define CONFIG_SPL_PBL_PAD
-#define CONFIG_SPL_TEXT_BASE		0x10000000
 #define CONFIG_SPL_MAX_SIZE		0x1a000
 #define CONFIG_SPL_STACK		0x1001d000
 #define CONFIG_SYS_NAND_U_BOOT_DST	CONFIG_SYS_TEXT_BASE
@@ -103,9 +100,9 @@
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000
 #define CONFIG_SPL_BSS_MAX_SIZE		0x80000
 
-#ifdef CONFIG_SECURE_BOOT
+#ifdef CONFIG_NXP_ESBC
 #define CONFIG_U_BOOT_HDR_SIZE				(16 << 10)
-#endif /* ifdef CONFIG_SECURE_BOOT */
+#endif /* ifdef CONFIG_NXP_ESBC */
 
 #ifdef CONFIG_U_BOOT_HDR_SIZE
 /*
@@ -174,10 +171,6 @@
 #define CONFIG_SPI_FLASH_STMICRO	/* cs0 */
 #define CONFIG_SPI_FLASH_SST		/* cs1 */
 #define CONFIG_SPI_FLASH_EON		/* cs2 */
-#if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
-#define CONFIG_SF_DEFAULT_BUS		1
-#define CONFIG_SF_DEFAULT_CS		0
-#endif
 #endif
 #endif
 
@@ -191,15 +184,10 @@
 #define CONFIG_SYS_FMAN_FW_ADDR		0x900000
 #define CONFIG_SYS_QE_FW_ADDR		0x940000
 
-#define CONFIG_ENV_SPI_BUS		0
-#define CONFIG_ENV_SPI_CS		0
-#define CONFIG_ENV_SPI_MAX_HZ		1000000
-#define CONFIG_ENV_SPI_MODE		0x03
 
 #else
 #ifdef CONFIG_NAND_BOOT
 /* Store Fman ucode at offeset 0x900000(72 blocks). */
-#define CONFIG_SYS_QE_FMAN_FW_IN_NAND
 #define CONFIG_SYS_FMAN_FW_ADDR		(72 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #elif defined(CONFIG_SD_BOOT)
 /*
@@ -207,18 +195,11 @@
  * about 1MB (2040 blocks), Env is stored after the image, and the env size is
  * 0x2000 (16 blocks), 8 + 2040 + 16 = 2064, enlarge it to 18432(0x4800).
  */
-#define CONFIG_SYS_QE_FMAN_FW_IN_MMC
 #define CONFIG_SYS_FMAN_FW_ADDR		(512 * 0x4800)
-#define CONFIG_SYS_QE_FW_ADDR		(512 * 0x4a08)
+#define CONFIG_SYS_QE_FW_ADDR		(512 * 0x4A00)
 #elif defined(CONFIG_QSPI_BOOT)
-#define CONFIG_SYS_QE_FW_IN_SPIFLASH
 #define CONFIG_SYS_FMAN_FW_ADDR		0x40900000
-#define CONFIG_ENV_SPI_BUS		0
-#define CONFIG_ENV_SPI_CS		0
-#define CONFIG_ENV_SPI_MAX_HZ		1000000
-#define CONFIG_ENV_SPI_MODE		0x03
 #else
-#define CONFIG_SYS_QE_FMAN_FW_IN_NOR
 /* FMan fireware Pre-load address */
 #define CONFIG_SYS_FMAN_FW_ADDR		0x60900000
 #define CONFIG_SYS_QE_FW_ADDR		0x60940000
@@ -239,7 +220,8 @@
 #ifndef CONFIG_SPL_BUILD
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
-	func(USB, usb, 0)
+	func(USB, usb, 0) \
+	func(DHCP, dhcp, na)
 #include <config_distro_bootcmd.h>
 #endif
 
@@ -255,6 +237,8 @@
 	"fdtheader_addr_r=0x80100000\0"		\
 	"kernelheader_addr_r=0x80200000\0"	\
 	"kernel_addr_r=0x81000000\0"		\
+	"kernel_start=0x1000000\0"		\
+	"kernelheader_start=0x800000\0"		\
 	"fdt_addr_r=0x90000000\0"		\
 	"load_addr=0xa0000000\0"		\
 	"kernelheader_addr=0x60800000\0"	\
@@ -280,24 +264,19 @@
 				"run scan_dev_for_boot; "	\
 			"fi; "					\
 		"done\0"			\
-	"scan_dev_for_boot="					\
-		"echo Scanning ${devtype} "			\
-			"${devnum}:${distro_bootpart}...; "	\
-		"for prefix in ${boot_prefixes}; do "		\
-			"run scan_dev_for_scripts; "		\
-		"done;\0"					\
 	"boot_a_script="					\
 		"load ${devtype} ${devnum}:${distro_bootpart} "	\
 			"${scriptaddr} ${prefix}${script}; "	\
 		"env exists secureboot && load ${devtype} "	\
 			"${devnum}:${distro_bootpart} "		\
-			"${scripthdraddr} ${prefix}${boot_script_hdr} "	\
+			"${scripthdraddr} ${prefix}${boot_script_hdr}; " \
+			"env exists secureboot "	\
 			"&& esbc_validate ${scripthdraddr};"	\
 		"source ${scriptaddr}\0"			\
 	"qspi_bootcmd=echo Trying load from qspi..;"	\
 		"sf probe && sf read $load_addr "	\
-		"$kernel_addr $kernel_size; env exists secureboot "	\
-		"&& sf read $kernelheader_addr_r $kernelheader_addr "	\
+		"$kernel_start $kernel_size; env exists secureboot "	\
+		"&& sf read $kernelheader_addr_r $kernelheader_start "	\
 		"$kernelheader_size && esbc_validate ${kernelheader_addr_r}; " \
 		"bootm $load_addr#$board\0"	\
 	"nor_bootcmd=echo Trying load from nor..;"	\
@@ -306,6 +285,12 @@
 		"&& cp.b $kernelheader_addr $kernelheader_addr_r "	\
 		"$kernelheader_size && esbc_validate ${kernelheader_addr_r}; " \
 		"bootm $load_addr#$board\0"	    \
+	"nand_bootcmd=echo Trying load from NAND..;"	\
+		"nand info; nand read $load_addr "	\
+		"$kernel_start $kernel_size; env exists secureboot "	\
+		"&& nand read $kernelheader_addr_r $kernelheader_start "	\
+		"$kernelheader_size && esbc_validate ${kernelheader_addr_r}; " \
+		"bootm $load_addr#$board\0"	\
 	"sd_bootcmd=echo Trying load from SD ..;"       \
 		"mmcinfo; mmc read $load_addr "         \
 		"$kernel_addr_sd $kernel_size_sd && "     \
@@ -322,6 +307,8 @@
 #define SD_BOOTCOMMAND "run distro_bootcmd; run sd_bootcmd; "  \
 			   "env exists secureboot && esbc_halt;"
 #define IFC_NOR_BOOTCOMMAND "run distro_bootcmd; run nor_bootcmd; "	\
+			   "env exists secureboot && esbc_halt;"
+#define IFC_NAND_BOOTCOMMAND "run distro_bootcmd; run nand_bootcmd; "	\
 			   "env exists secureboot && esbc_halt;"
 #else
 #if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)

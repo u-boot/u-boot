@@ -64,7 +64,7 @@ class Entry_gbb(Entry):
         self.gbb_flags = 0
         flags_node = node.FindNode('flags')
         if flags_node:
-            for flag, value in gbb_flag_properties.iteritems():
+            for flag, value in gbb_flag_properties.items():
                 if fdt_util.GetBool(flags_node, flag):
                     self.gbb_flags |= value
 

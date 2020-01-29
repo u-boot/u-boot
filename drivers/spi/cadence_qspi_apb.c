@@ -379,6 +379,9 @@ int cadence_qspi_apb_command_write(struct udevice *dev,
 {
 	struct udevice *bus = (struct udevice *) dev->parent;
 	struct cadence_spi_platdata *plat = bus->platdata;
+#ifdef CONFIG_SPI_FLASH
+	struct spi_nor *nor = dev_get_uclass_priv(dev);
+#endif
 	void *reg_base = plat->regbase;
 	unsigned int reg = 0;
 	unsigned int addr_value = 0;
@@ -387,9 +390,6 @@ int cadence_qspi_apb_command_write(struct udevice *dev,
 	bool pageprgm = false;
 	unsigned int pgmlen = 0;
 	int ret;
-#ifdef CONFIG_SPI_FLASH
-	struct spi_flash *flash = dev_get_uclass_priv(dev);
-#endif
 	u8 cmdbuf[32];
 
 	memcpy(cmdbuf, cmd, cmdlen);
@@ -457,7 +457,7 @@ int cadence_qspi_apb_command_write(struct udevice *dev,
 		return ret;
 
 #ifdef CONFIG_SPI_FLASH
-	ret = spi_flash_wait_till_ready(flash, 20000);
+	ret = spi_nor_wait_till_ready(nor);
 	if (ret < 0) {
 		printf("%s: Program timeout\n", __func__);
 		return ret;
@@ -502,13 +502,12 @@ int cadence_qspi_apb_command_write(struct udevice *dev,
 			return ret;
 
 #ifdef CONFIG_SPI_FLASH
-		ret = spi_flash_wait_till_ready(flash, 20000);
+		ret = spi_nor_wait_till_ready(nor);
 		if (ret < 0) {
 			printf("%s: Program timeout\n", __func__);
 			return ret;
 		}
 #endif
-
 	}
 
 	return 0;
@@ -678,7 +677,7 @@ failrd:
 
 /* Opcode + Address (3/4 bytes) */
 int cadence_qspi_apb_indirect_write_setup(struct cadence_spi_platdata *plat,
-	unsigned int cmdlen, const u8 *cmdbuf)
+	unsigned int cmdlen, unsigned int tx_width, const u8 *cmdbuf)
 {
 	unsigned int reg;
 	unsigned int addr_bytes = cmdlen > 4 ? 4 : 3;
@@ -694,6 +693,10 @@ int cadence_qspi_apb_indirect_write_setup(struct cadence_spi_platdata *plat,
 
 	/* Configure the opcode */
 	reg = cmdbuf[0] << CQSPI_REG_WR_INSTR_OPCODE_LSB;
+
+	if (tx_width & SPI_TX_QUAD)
+		reg |= CQSPI_INST_TYPE_QUAD << CQSPI_REG_WR_INSTR_TYPE_DATA_LSB;
+
 	writel(reg, plat->regbase + CQSPI_REG_WR_INSTR);
 
 	/* Setup write address. */

@@ -3,59 +3,19 @@
  * Copyright (C) 2018 Armadeus Systems
  */
 
+#include <init.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/imx-regs.h>
-#include <asm/arch/iomux.h>
-#include <asm/arch/mx6-pins.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/gpio.h>
-#include <asm/mach-imx/iomux-v3.h>
 #include <asm/io.h>
 #include <common.h>
-#include <environment.h>
+#include <env.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_FEC_MXC
 #include <miiphy.h>
-
-#define MDIO_PAD_CTRL ( \
-	PAD_CTL_HYS | PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED | \
-	PAD_CTL_DSE_40ohm \
-)
-
-#define ENET_PAD_CTRL_PU ( \
-	PAD_CTL_HYS | PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED | \
-	PAD_CTL_DSE_40ohm \
-)
-
-#define ENET_PAD_CTRL_PD ( \
-	PAD_CTL_HYS | PAD_CTL_PUS_100K_DOWN | PAD_CTL_SPEED_MED | \
-	PAD_CTL_DSE_40ohm \
-)
-
-#define ENET_CLK_PAD_CTRL ( \
-	PAD_CTL_HYS | PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_LOW | \
-	PAD_CTL_DSE_40ohm | PAD_CTL_SRE_FAST \
-)
-
-static iomux_v3_cfg_t const fec1_pads[] = {
-	MX6_PAD_GPIO1_IO06__ENET1_MDIO        | MUX_PAD_CTRL(MDIO_PAD_CTRL),
-	MX6_PAD_GPIO1_IO07__ENET1_MDC         | MUX_PAD_CTRL(MDIO_PAD_CTRL),
-	MX6_PAD_ENET1_RX_ER__ENET1_RX_ER      | MUX_PAD_CTRL(ENET_PAD_CTRL_PD),
-	MX6_PAD_ENET1_RX_EN__ENET1_RX_EN      | MUX_PAD_CTRL(ENET_PAD_CTRL_PD),
-	MX6_PAD_ENET1_RX_DATA1__ENET1_RDATA01 | MUX_PAD_CTRL(ENET_PAD_CTRL_PD),
-	MX6_PAD_ENET1_RX_DATA0__ENET1_RDATA00 | MUX_PAD_CTRL(ENET_PAD_CTRL_PD),
-	MX6_PAD_ENET1_TX_DATA0__ENET1_TDATA00 | MUX_PAD_CTRL(ENET_PAD_CTRL_PU),
-	MX6_PAD_ENET1_TX_DATA1__ENET1_TDATA01 | MUX_PAD_CTRL(ENET_PAD_CTRL_PU),
-	MX6_PAD_ENET1_TX_EN__ENET1_TX_EN      | MUX_PAD_CTRL(ENET_PAD_CTRL_PU),
-	/* PHY Int */
-	MX6_PAD_NAND_DQS__GPIO4_IO16          | MUX_PAD_CTRL(ENET_PAD_CTRL_PU),
-	/* PHY Reset */
-	MX6_PAD_NAND_DATA00__GPIO4_IO02       | MUX_PAD_CTRL(ENET_PAD_CTRL_PD),
-	MX6_PAD_ENET1_TX_CLK__ENET1_REF_CLK1  | MUX_PAD_CTRL(ENET_CLK_PAD_CTRL),
-};
 
 int board_phy_config(struct phy_device *phydev)
 {
@@ -67,43 +27,16 @@ int board_phy_config(struct phy_device *phydev)
 	return 0;
 }
 
-int board_eth_init(bd_t *bis)
+static int setup_fec(void)
 {
 	struct iomuxc *const iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
-	struct gpio_desc rst;
-	int ret;
 
 	/* Use 50M anatop loopback REF_CLK1 for ENET1,
 	 * clear gpr1[13], set gpr1[17] */
 	clrsetbits_le32(&iomuxc_regs->gpr[1], IOMUX_GPR1_FEC1_MASK,
 			IOMUX_GPR1_FEC1_CLOCK_MUX1_SEL_MASK);
 
-	ret = enable_fec_anatop_clock(0, ENET_50MHZ);
-	if (ret)
-		return ret;
-
-	enable_enet_clk(1);
-
-	imx_iomux_v3_setup_multiple_pads(fec1_pads, ARRAY_SIZE(fec1_pads));
-
-	ret = dm_gpio_lookup_name("GPIO4_2", &rst);
-	if (ret) {
-		printf("Cannot get GPIO4_2\n");
-		return ret;
-	}
-
-	ret = dm_gpio_request(&rst, "phy-rst");
-	if (ret) {
-		printf("Cannot request GPIO4_2\n");
-		return ret;
-	}
-
-	dm_gpio_set_dir_flags(&rst, GPIOD_IS_OUT);
-	dm_gpio_set_value(&rst, 0);
-	udelay(1000);
-	dm_gpio_set_value(&rst, 1);
-
-	return fecmxc_initialize(bis);
+	return enable_fec_anatop_clock(0, ENET_50MHZ);
 }
 #endif /* CONFIG_FEC_MXC */
 
@@ -111,6 +44,10 @@ int board_init(void)
 {
 	/* Address of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
+
+#ifdef CONFIG_FEC_MXC
+	setup_fec();
+#endif
 
 	return 0;
 }
@@ -127,7 +64,7 @@ int board_late_init(void)
 
 	/* In bootstrap don't use the env vars */
 	if (((reg & 0x3000000) >> 24) == 0x1) {
-		set_default_env(NULL, 0);
+		env_set_default(NULL, 0);
 		env_set("preboot", "");
 	}
 
@@ -192,6 +129,8 @@ struct mx6_ddr_sysinfo ddr_sysinfo = {
 	.sde_to_rst = 0x10,	/* 14 cycles, 200us (JEDEC default) */
 	.rst_to_cke = 0x23,	/* 33 cycles, 500us (JEDEC default) */
 	.ddr_type = DDR_TYPE_DDR3,
+	.refsel = 1,		/* Refresh cycles at 32KHz */
+	.refr = 7,		/* 8 refreshes commands per refresh cycle */
 };
 
 static struct mx6_ddr3_cfg mem_ddr = {

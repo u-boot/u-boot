@@ -7,6 +7,7 @@
  * Based on MPC8349 PCI support but w/o PIB related code.
  */
 
+#include <init.h>
 #include <asm/mmu.h>
 #include <asm/io.h>
 #include <common.h>

@@ -335,11 +335,41 @@ s32 utf_to_upper(const s32 code)
 	return ret;
 }
 
-size_t u16_strlen(const u16 *in)
+/*
+ * u16_strncmp() - compare two u16 string
+ *
+ * @s1:		first string to compare
+ * @s2:		second string to compare
+ * @n:		maximum number of u16 to compare
+ * Return:	0  if the first n u16 are the same in s1 and s2
+ *		< 0 if the first different u16 in s1 is less than the
+ *		corresponding u16 in s2
+ *		> 0 if the first different u16 in s1 is greater than the
+ *		corresponding u16 in s2
+ */
+int u16_strncmp(const u16 *s1, const u16 *s2, size_t n)
 {
-	size_t i;
-	for (i = 0; in[i]; i++);
-	return i;
+	int ret = 0;
+
+	for (; n; --n, ++s1, ++s2) {
+		ret = *s1 - *s2;
+		if (ret || !*s1)
+			break;
+	}
+
+	return ret;
+}
+
+size_t u16_strlen(const void *in)
+{
+	const char *pos = in;
+	size_t ret;
+
+	for (; pos[0] || pos[1]; pos += 2)
+		;
+	ret = pos - (char *)in;
+	ret >>= 1;
+	return ret;
 }
 
 size_t u16_strnlen(const u16 *in, size_t count)
@@ -347,6 +377,35 @@ size_t u16_strnlen(const u16 *in, size_t count)
 	size_t i;
 	for (i = 0; count-- && in[i]; i++);
 	return i;
+}
+
+u16 *u16_strcpy(u16 *dest, const u16 *src)
+{
+	u16 *tmp = dest;
+
+	for (;; dest++, src++) {
+		*dest = *src;
+		if (!*src)
+			break;
+	}
+
+	return tmp;
+}
+
+u16 *u16_strdup(const void *src)
+{
+	u16 *new;
+	size_t len;
+
+	if (!src)
+		return NULL;
+	len = (u16_strlen(src) + 1) * sizeof(u16);
+	new = malloc(len);
+	if (!new)
+		return NULL;
+	memcpy(new, src, len);
+
+	return new;
 }
 
 /* Convert UTF-16 to UTF-8.  */

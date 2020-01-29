@@ -6,13 +6,11 @@
  * Copyright (c) 2018 Simon Goldschmidt
  */
 
+#include "socfpga-common-u-boot.dtsi"
+
 /{
 	aliases {
 		udc0 = &usb1;
-	};
-
-	soc {
-		u-boot,dm-pre-reloc;
 	};
 };
 

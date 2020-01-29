@@ -3,9 +3,11 @@
  * Copyright (C) 2006-2009 Freescale Semiconductor, Inc.
  */
 
+#include <init.h>
 #include <asm/mmu.h>
 #include <asm/io.h>
 #include <common.h>
+#include <env.h>
 #include <mpc83xx.h>
 #include <pci.h>
 #include <i2c.h>

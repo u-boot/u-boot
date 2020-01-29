@@ -51,8 +51,20 @@ int pch_get_io_base(struct udevice *dev, u32 *iobasep)
 	return ops->get_io_base(dev, iobasep);
 }
 
+int pch_ioctl(struct udevice *dev, ulong req, void *data, int size)
+{
+	struct pch_ops *ops = pch_get_ops(dev);
+
+	if (!ops->ioctl)
+		return -ENOSYS;
+
+	return ops->ioctl(dev, req, data, size);
+}
+
 UCLASS_DRIVER(pch) = {
 	.id		= UCLASS_PCH,
 	.name		= "pch",
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.post_bind	= dm_scan_fdt_dev,
+#endif
 };

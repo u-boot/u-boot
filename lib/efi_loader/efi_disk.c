@@ -9,10 +9,11 @@
 #include <blk.h>
 #include <dm.h>
 #include <efi_loader.h>
+#include <fs.h>
 #include <part.h>
 #include <malloc.h>
 
-const efi_guid_t efi_block_io_guid = BLOCK_IO_GUID;
+const efi_guid_t efi_block_io_guid = EFI_BLOCK_IO_PROTOCOL_GUID;
 
 /**
  * struct efi_disk_obj - EFI disk object
@@ -41,11 +42,26 @@ struct efi_disk_obj {
 	struct blk_desc *desc;
 };
 
+/**
+ * efi_disk_reset() - reset block device
+ *
+ * This function implements the Reset service of the EFI_BLOCK_IO_PROTOCOL.
+ *
+ * As U-Boot's block devices do not have a reset function simply return
+ * EFI_SUCCESS.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * @this:			pointer to the BLOCK_IO_PROTOCOL
+ * @extended_verification:	extended verification
+ * Return:			status code
+ */
 static efi_status_t EFIAPI efi_disk_reset(struct efi_block_io *this,
 			char extended_verification)
 {
 	EFI_ENTRY("%p, %x", this, extended_verification);
-	return EFI_EXIT(EFI_DEVICE_ERROR);
+	return EFI_EXIT(EFI_SUCCESS);
 }
 
 enum efi_disk_direction {
@@ -69,12 +85,12 @@ static efi_status_t efi_disk_rw_blocks(struct efi_block_io *this,
 	blocks = buffer_size / blksz;
 	lba += diskobj->offset;
 
-	debug("EFI: %s:%d blocks=%x lba=%llx blksz=%x dir=%d\n", __func__,
-	      __LINE__, blocks, lba, blksz, direction);
+	EFI_PRINT("blocks=%x lba=%llx blksz=%x dir=%d\n",
+		  blocks, lba, blksz, direction);
 
 	/* We only support full block access */
 	if (buffer_size & (blksz - 1))
-		return EFI_DEVICE_ERROR;
+		return EFI_BAD_BUFFER_SIZE;
 
 	if (direction == EFI_DISK_READ)
 		n = blk_dread(desc, lba, blocks, buffer);
@@ -84,7 +100,7 @@ static efi_status_t efi_disk_rw_blocks(struct efi_block_io *this,
 	/* We don't do interrupts, so check for timers cooperatively */
 	efi_timer_check();
 
-	debug("EFI: %s:%d n=%lx blocks=%x\n", __func__, __LINE__, n, blocks);
+	EFI_PRINT("n=%lx blocks=%x\n", n, blocks);
 
 	if (n != blocks)
 		return EFI_DEVICE_ERROR;
@@ -98,6 +114,20 @@ static efi_status_t EFIAPI efi_disk_read_blocks(struct efi_block_io *this,
 {
 	void *real_buffer = buffer;
 	efi_status_t r;
+
+	if (!this)
+		return EFI_INVALID_PARAMETER;
+	/* TODO: check for media changes */
+	if (media_id != this->media->media_id)
+		return EFI_MEDIA_CHANGED;
+	if (!this->media->media_present)
+		return EFI_NO_MEDIA;
+	/* media->io_align is a power of 2 */
+	if ((uintptr_t)buffer & (this->media->io_align - 1))
+		return EFI_INVALID_PARAMETER;
+	if (lba * this->media->block_size + buffer_size >
+	    this->media->last_block * this->media->block_size)
+		return EFI_INVALID_PARAMETER;
 
 #ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
 	if (buffer_size > EFI_LOADER_BOUNCE_BUFFER_SIZE) {
@@ -133,6 +163,22 @@ static efi_status_t EFIAPI efi_disk_write_blocks(struct efi_block_io *this,
 {
 	void *real_buffer = buffer;
 	efi_status_t r;
+
+	if (!this)
+		return EFI_INVALID_PARAMETER;
+	if (this->media->read_only)
+		return EFI_WRITE_PROTECTED;
+	/* TODO: check for media changes */
+	if (media_id != this->media->media_id)
+		return EFI_MEDIA_CHANGED;
+	if (!this->media->media_present)
+		return EFI_NO_MEDIA;
+	/* media->io_align is a power of 2 */
+	if ((uintptr_t)buffer & (this->media->io_align - 1))
+		return EFI_INVALID_PARAMETER;
+	if (lba * this->media->block_size + buffer_size >
+	    this->media->last_block * this->media->block_size)
+		return EFI_INVALID_PARAMETER;
 
 #ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
 	if (buffer_size > EFI_LOADER_BOUNCE_BUFFER_SIZE) {
@@ -217,6 +263,27 @@ efi_fs_from_path(struct efi_device_path *full_path)
 	return handler->protocol_interface;
 }
 
+/**
+ * efi_fs_exists() - check if a partition bears a file system
+ *
+ * @desc:	block device descriptor
+ * @part:	partition number
+ * Return:	1 if a file system exists on the partition
+ *		0 otherwise
+ */
+static int efi_fs_exists(struct blk_desc *desc, int part)
+{
+	if (fs_set_blk_dev_with_part(desc, part))
+		return 0;
+
+	if (fs_get_type() == FS_TYPE_ANY)
+		return 0;
+
+	fs_close();
+
+	return 1;
+}
+
 /*
  * Create a handle for a partition or disk
  *
@@ -270,7 +337,9 @@ static efi_status_t efi_disk_add_dev(
 			       diskobj->dp);
 	if (ret != EFI_SUCCESS)
 		return ret;
-	if (part >= 1) {
+	/* partitions or whole disk without partitions */
+	if ((part || desc->part_type == PART_TYPE_UNKNOWN) &&
+	    efi_fs_exists(desc, part)) {
 		diskobj->volume = efi_simple_file_system(desc, part,
 							 diskobj->dp);
 		ret = efi_add_protocol(&diskobj->header,
@@ -288,6 +357,11 @@ static efi_status_t efi_disk_add_dev(
 	/* Fill in EFI IO Media info (for read/write callbacks) */
 	diskobj->media.removable_media = desc->removable;
 	diskobj->media.media_present = 1;
+	/*
+	 * MediaID is just an arbitrary counter.
+	 * We have to change it if the medium is removed or changed.
+	 */
+	diskobj->media.media_id = 1;
 	diskobj->media.block_size = desc->blksz;
 	diskobj->media.io_align = desc->blksz;
 	diskobj->media.last_block = desc->lba - offset;

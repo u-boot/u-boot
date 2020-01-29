@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <env.h>
 #include <errno.h>
 #include <fdtdec.h>
 #include <linux/libfdt.h>
@@ -54,48 +55,6 @@ static Altera_desc altera_fpga[] = {
 	},
 };
 
-/*
- * DesignWare Ethernet initialization
- */
-#ifdef CONFIG_ETH_DESIGNWARE
-static void gen5_dwmac_reset(const u8 of_reset_id, const u8 phymode)
-{
-	u32 physhift, reset;
-
-	if (of_reset_id == EMAC0_RESET) {
-		physhift = SYSMGR_EMACGRP_CTRL_PHYSEL0_LSB;
-		reset = SOCFPGA_RESET(EMAC0);
-	} else if (of_reset_id == EMAC1_RESET) {
-		physhift = SYSMGR_EMACGRP_CTRL_PHYSEL1_LSB;
-		reset = SOCFPGA_RESET(EMAC1);
-	} else {
-		printf("GMAC: Invalid reset ID (%i)!\n", of_reset_id);
-		return;
-	}
-
-	/* configure to PHY interface select choosed */
-	clrsetbits_le32(&sysmgr_regs->emacgrp_ctrl,
-			SYSMGR_EMACGRP_CTRL_PHYSEL_MASK << physhift,
-			phymode << physhift);
-
-	/* Release the EMAC controller from reset */
-	socfpga_per_reset(reset, 0);
-}
-
-static int socfpga_eth_reset(void)
-{
-	/* Put all GMACs into RESET state. */
-	socfpga_per_reset(SOCFPGA_RESET(EMAC0), 1);
-	socfpga_per_reset(SOCFPGA_RESET(EMAC1), 1);
-	return socfpga_eth_reset_common(gen5_dwmac_reset);
-};
-#else
-static int socfpga_eth_reset(void)
-{
-	return 0;
-};
-#endif
-
 static const struct {
 	const u16	pn;
 	const char	*name;
@@ -120,6 +79,8 @@ static const struct {
 	{ 0x2d02, "Cyclone V, SE/A6 or SX/C6 or ST/D6", "cv_se_a6" },
 	/* Arria V */
 	{ 0x2d03, "Arria V, D5", "av_d5" },
+	/* Arria V ST/SX */
+	{ 0x2d13, "Arria V, ST/D3 or SX/B3", "av_st_d3" },
 };
 
 static int socfpga_fpga_id(const bool print_id)
@@ -178,7 +139,7 @@ int arch_misc_init(void)
 	env_set("bootmode", bsel_str[bsel].mode);
 	if (fpga_id >= 0)
 		env_set("fpgatype", socfpga_fpga_model[fpga_id].var);
-	return socfpga_eth_reset();
+	return 0;
 }
 #endif
 
@@ -243,16 +204,6 @@ int arch_early_init_r(void)
 	/* Add device descriptor to FPGA device table */
 	socfpga_fpga_add(&altera_fpga[0]);
 
-#ifdef CONFIG_DESIGNWARE_SPI
-	/* Get Designware SPI controller out of reset */
-	socfpga_per_reset(SOCFPGA_RESET(SPIM0), 0);
-	socfpga_per_reset(SOCFPGA_RESET(SPIM1), 0);
-#endif
-
-#ifdef CONFIG_NAND_DENALI
-	socfpga_per_reset(SOCFPGA_RESET(NAND), 0);
-#endif
-
 	return 0;
 }
 
@@ -262,48 +213,30 @@ static struct socfpga_reset_manager *reset_manager_base =
 static struct socfpga_sdr_ctrl *sdr_ctrl =
 	(struct socfpga_sdr_ctrl *)SDR_CTRLGRP_ADDRESS;
 
-static void socfpga_sdram_apply_static_cfg(void)
+void do_bridge_reset(int enable, unsigned int mask)
 {
-	const u32 applymask = 0x8;
-	u32 val = readl(&sdr_ctrl->static_cfg) | applymask;
+	int i;
 
-	/*
-	 * SDRAM staticcfg register specific:
-	 * When applying the register setting, the CPU must not access
-	 * SDRAM. Luckily for us, we can abuse i-cache here to help us
-	 * circumvent the SDRAM access issue. The idea is to make sure
-	 * that the code is in one full i-cache line by branching past
-	 * it and back. Once it is in the i-cache, we execute the core
-	 * of the code and apply the register settings.
-	 *
-	 * The code below uses 7 instructions, while the Cortex-A9 has
-	 * 32-byte cachelines, thus the limit is 8 instructions total.
-	 */
-	asm volatile(
-		".align	5			\n"
-		"	b	2f		\n"
-		"1:	str	%0,	[%1]	\n"
-		"	dsb			\n"
-		"	isb			\n"
-		"	b	3f		\n"
-		"2:	b	1b		\n"
-		"3:	nop			\n"
-	: : "r"(val), "r"(&sdr_ctrl->static_cfg) : "memory", "cc");
-}
-
-void do_bridge_reset(int enable)
-{
 	if (enable) {
+		socfpga_bridges_set_handoff_regs(!(mask & BIT(0)),
+						 !(mask & BIT(1)),
+						 !(mask & BIT(2)));
+		for (i = 0; i < 2; i++) {	/* Reload SW setting cache */
+			iswgrp_handoff[i] =
+				readl(&sysmgr_regs->iswgrp_handoff[i]);
+		}
+
 		writel(iswgrp_handoff[2], &sysmgr_regs->fpgaintfgrp_module);
-		socfpga_sdram_apply_static_cfg();
 		writel(iswgrp_handoff[3], &sdr_ctrl->fpgaport_rst);
 		writel(iswgrp_handoff[0], &reset_manager_base->brg_mod_reset);
 		writel(iswgrp_handoff[1], &nic301_regs->remap);
+
+		writel(0x7, &reset_manager_base->brg_mod_reset);
+		writel(iswgrp_handoff[0], &reset_manager_base->brg_mod_reset);
 	} else {
 		writel(0, &sysmgr_regs->fpgaintfgrp_module);
 		writel(0, &sdr_ctrl->fpgaport_rst);
-		socfpga_sdram_apply_static_cfg();
-		writel(0, &reset_manager_base->brg_mod_reset);
+		writel(0x7, &reset_manager_base->brg_mod_reset);
 		writel(1, &nic301_regs->remap);
 	}
 }

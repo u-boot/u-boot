@@ -69,5 +69,5 @@ def test_i2c_probe_zcu102(u_boot_console):
     u_boot_console.run_command("i2c mw 54 0 " + val + " 5")
     response = u_boot_console.run_command("i2c md 54 0 5")
     expected_response = "0000: " + val + " " + val + " " + val + " " + val + " " + val + " "
-    print expected_response
+    print (expected_response)
     assert(expected_response in response)

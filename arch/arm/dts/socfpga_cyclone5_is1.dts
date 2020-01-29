@@ -4,6 +4,7 @@
  */
 
 #include "socfpga_cyclone5.dtsi"
+#include "socfpga-common-u-boot.dtsi"
 
 / {
 	model = "SoCFPGA Cyclone V IS1";
@@ -31,10 +32,6 @@
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 	};
-
-	soc {
-		u-boot,dm-pre-reloc;
-	};
 };
 
 &gmac1 {
@@ -46,9 +43,9 @@
 	rxd2-skew-ps = <0>;
 	rxd3-skew-ps = <0>;
 	txen-skew-ps = <0>;
-	txc-skew-ps = <2600>;
+	txc-skew-ps = <1560>;
 	rxdv-skew-ps = <0>;
-	rxc-skew-ps = <2000>;
+	rxc-skew-ps = <1200>;
 };
 
 &gpio1 {
@@ -91,7 +88,7 @@
 		u-boot,dm-pre-reloc;
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "n25q00", "spi-flash";
+		compatible = "n25q00", "jedec,spi-nor";
 		reg = <0>;      /* chip select */
 		spi-max-frequency = <100000000>;
 		m25p,fast-read;

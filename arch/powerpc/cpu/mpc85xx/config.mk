@@ -4,6 +4,7 @@
 # Xianghua Xiao, X.Xiao@motorola.com
 
 PLATFORM_CPPFLAGS += -Wa,-me500 -msoft-float -mno-string
+PLATFORM_RELFLAGS += -msingle-pic-base -fno-jump-tables
 
 # -mspe=yes is needed to have -mno-spe accepted by a buggy GCC;
 # see "[PATCH,rs6000] make -mno-spe work as expected" on

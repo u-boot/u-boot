@@ -79,6 +79,10 @@ lret_target:
 	mov	%eax, %eax		/* Clear bits 63:32 */
 	jmp	*%eax			/* Jump to the 64-bit target */
 
+.globl call64_stub_size
+call64_stub_size:
+	.long	. - cpu_call64
+
 	.data
 	.align	16
 	.globl	gdt64

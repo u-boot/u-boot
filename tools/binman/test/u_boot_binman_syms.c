@@ -11,3 +11,4 @@
 binman_sym_declare(unsigned long, u_boot_spl, offset);
 binman_sym_declare(unsigned long long, u_boot_spl2, offset);
 binman_sym_declare(unsigned long, u_boot_any, image_pos);
+binman_sym_declare(unsigned long, u_boot_any, size);

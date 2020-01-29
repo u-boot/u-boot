@@ -21,8 +21,6 @@
 /* select serial console configuration */
 #define CONFIG_DEFAULT_CONSOLE	"console=ttySAC1,115200n8\0"
 
-#define CONFIG_DEFAULT_CONSOLE	"console=ttySAC1,115200n8\0"
-
 /* DRAM Memory Banks */
 #define SDRAM_BANK_SIZE		(256UL << 20UL)	/* 256 MB */
 

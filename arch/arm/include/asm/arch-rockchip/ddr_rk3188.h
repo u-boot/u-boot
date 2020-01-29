@@ -6,7 +6,7 @@
 #ifndef _ASM_ARCH_DDR_RK3188_H
 #define _ASM_ARCH_DDR_RK3188_H
 
-#include <asm/arch/ddr_rk3288.h>
+#include <asm/arch-rockchip/ddr_rk3288.h>
 
 /*
  * RK3188 Memory scheduler register map.

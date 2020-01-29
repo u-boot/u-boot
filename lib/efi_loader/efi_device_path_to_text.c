@@ -29,15 +29,15 @@ const efi_guid_t efi_guid_device_path_to_text_protocol =
 static u16 *efi_str_to_u16(char *str)
 {
 	efi_uintn_t len;
-	u16 *out;
+	u16 *out, *dst;
 	efi_status_t ret;
 
-	len = strlen(str) + 1;
-	ret = efi_allocate_pool(EFI_ALLOCATE_ANY_PAGES, len * sizeof(u16),
-				(void **)&out);
+	len = sizeof(u16) * (utf8_utf16_strlen(str) + 1);
+	ret = efi_allocate_pool(EFI_ALLOCATE_ANY_PAGES, len, (void **)&out);
 	if (ret != EFI_SUCCESS)
 		return NULL;
-	ascii2unicode(out, str);
+	dst = out;
+	utf8_utf16_strcpy(&dst, str);
 	return out;
 }
 
@@ -60,9 +60,18 @@ static char *dp_hardware(char *s, struct efi_device_path *dp)
 		break;
 	}
 	case DEVICE_PATH_SUB_TYPE_VENDOR: {
+		int i, n;
 		struct efi_device_path_vendor *vdp =
 			(struct efi_device_path_vendor *)dp;
-		s += sprintf(s, "VenHw(%pUl)", &vdp->guid);
+
+		s += sprintf(s, "VenHw(%pUl", &vdp->guid);
+		n = (int)vdp->dp.length - sizeof(struct efi_device_path_vendor);
+		if (n > 0) {
+			s += sprintf(s, ",");
+			for (i = 0; i < n; ++i)
+				s += sprintf(s, "%02x", vdp->vendor_data[i]);
+		}
+		s += sprintf(s, ")");
 		break;
 	}
 	default:
@@ -78,10 +87,9 @@ static char *dp_acpi(char *s, struct efi_device_path *dp)
 	case DEVICE_PATH_SUB_TYPE_ACPI_DEVICE: {
 		struct efi_device_path_acpi_path *adp =
 			(struct efi_device_path_acpi_path *)dp;
-		s += sprintf(s, "Acpi(PNP%04x", EISA_PNP_NUM(adp->hid));
-		if (adp->uid)
-			s += sprintf(s, ",%d", adp->uid);
-		s += sprintf(s, ")");
+
+		s += sprintf(s, "Acpi(PNP%04X,%d)", EISA_PNP_NUM(adp->hid),
+			     adp->uid);
 		break;
 	}
 	default:
@@ -116,17 +124,16 @@ static char *dp_msging(char *s, struct efi_device_path *dp)
 		break;
 	}
 	case DEVICE_PATH_SUB_TYPE_MSG_MAC_ADDR: {
+		int i, n = sizeof(struct efi_mac_addr);
 		struct efi_device_path_mac_addr *mdp =
 			(struct efi_device_path_mac_addr *)dp;
 
-		if (mdp->if_type != 0 && mdp->if_type != 1)
-			break;
-
-		s += sprintf(s, "MAC(%02x%02x%02x%02x%02x%02x,0x%1x)",
-			mdp->mac.addr[0], mdp->mac.addr[1],
-			mdp->mac.addr[2], mdp->mac.addr[3],
-			mdp->mac.addr[4], mdp->mac.addr[5],
-			mdp->if_type);
+		if (mdp->if_type <= 1)
+			n = 6;
+		s += sprintf(s, "MAC(");
+		for (i = 0; i < n; ++i)
+			s += sprintf(s, "%02x", mdp->mac.addr[i]);
+		s += sprintf(s, ",%u)", mdp->if_type);
 
 		break;
 	}
@@ -134,10 +141,25 @@ static char *dp_msging(char *s, struct efi_device_path *dp)
 		struct efi_device_path_usb_class *ucdp =
 			(struct efi_device_path_usb_class *)dp;
 
-		s += sprintf(s, "USBClass(%x,%x,%x,%x,%x)",
+		s += sprintf(s, "UsbClass(0x%x,0x%x,0x%x,0x%x,0x%x)",
 			ucdp->vendor_id, ucdp->product_id,
 			ucdp->device_class, ucdp->device_subclass,
 			ucdp->device_protocol);
+
+		break;
+	}
+	case DEVICE_PATH_SUB_TYPE_MSG_NVME: {
+		struct efi_device_path_nvme *ndp =
+			(struct efi_device_path_nvme *)dp;
+		u32 ns_id;
+		int i;
+
+		memcpy(&ns_id, &ndp->ns_id, sizeof(ns_id));
+		s += sprintf(s, "NVMe(0x%x,", ns_id);
+		for (i = 0; i < sizeof(ndp->eui64); ++i)
+			s += sprintf(s, "%s%02x", i ? "-" : "",
+				     ndp->eui64[i]);
+		s += sprintf(s, ")");
 
 		break;
 	}
@@ -207,7 +229,8 @@ static char *dp_media(char *s, struct efi_device_path *dp)
 	case DEVICE_PATH_SUB_TYPE_CDROM_PATH: {
 		struct efi_device_path_cdrom_path *cddp =
 			(struct efi_device_path_cdrom_path *)dp;
-		s += sprintf(s, "CDROM(0x%x)", cddp->boot_entry);
+		s += sprintf(s, "CDROM(%u,0x%llx,0x%llx)", cddp->boot_entry,
+			     cddp->partition_start, cddp->partition_size);
 		break;
 	}
 	case DEVICE_PATH_SUB_TYPE_FILE_PATH: {

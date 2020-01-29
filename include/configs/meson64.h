@@ -16,9 +16,27 @@
 #define GICC_BASE			0xc4302000
 #endif
 
+/* For splashscreen */
+#ifdef CONFIG_DM_VIDEO
+#define CONFIG_VIDEO_BMP_RLE8
+#define CONFIG_BMP_16BPP
+#define CONFIG_BMP_24BPP
+#define CONFIG_BMP_32BPP
+#define CONFIG_SPLASH_SCREEN
+#define CONFIG_SPLASH_SCREEN_ALIGN
+#define STDOUT_CFG "vidconsole,serial"
+#else
+#define STDOUT_CFG "serial"
+#endif
+
+#ifdef CONFIG_USB_KEYBOARD
+#define STDIN_CFG "usbkbd,serial"
+#else
+#define STDIN_CFG "serial"
+#endif
+
 #define CONFIG_CPU_ARMV8
 #define CONFIG_REMAKE_ELF
-#define CONFIG_ENV_SIZE			0x2000
 #define CONFIG_SYS_MAXARGS		32
 #define CONFIG_SYS_MALLOC_LEN		(32 << 20)
 #define CONFIG_SYS_CBSIZE		1024
@@ -59,6 +77,9 @@
 
 #ifndef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	"stdin=" STDIN_CFG "\0" \
+	"stdout=" STDOUT_CFG "\0" \
+	"stderr=" STDOUT_CFG "\0" \
 	"fdt_addr_r=0x08008000\0" \
 	"scriptaddr=0x08000000\0" \
 	"kernel_addr_r=0x08080000\0" \

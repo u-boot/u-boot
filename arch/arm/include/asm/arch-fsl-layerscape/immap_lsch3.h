@@ -2,7 +2,7 @@
 /*
  * LayerScape Internal Memory Map
  *
- * Copyright 2017-2018 NXP
+ * Copyright 2017-2019 NXP
  * Copyright 2014 Freescale Semiconductor, Inc.
  */
 
@@ -25,6 +25,8 @@
 #define CONFIG_SYS_FSL_CH3_CLK_CTRL_ADDR	(CONFIG_SYS_IMMR + 0x00370000)
 #define SYS_FSL_QSPI_ADDR			(CONFIG_SYS_IMMR + 0x010c0000)
 #define CONFIG_SYS_FSL_ESDHC_ADDR		(CONFIG_SYS_IMMR + 0x01140000)
+#define FSL_ESDHC1_BASE_ADDR			CONFIG_SYS_FSL_ESDHC_ADDR
+#define FSL_ESDHC2_BASE_ADDR			(CONFIG_SYS_IMMR + 0x01150000)
 #ifndef CONFIG_NXP_LSCH3_2
 #define CONFIG_SYS_IFC_ADDR			(CONFIG_SYS_IMMR + 0x01240000)
 #endif
@@ -79,9 +81,24 @@
 #define TZASC_REGION_ATTRIBUTES_0(x)	((TZASC1_BASE + (x * 0x10000)) + 0x110)
 #define TZASC_REGION_ID_ACCESS_0(x)	((TZASC1_BASE + (x * 0x10000)) + 0x114)
 
+/* EDMA */
+#define EDMA_BASE_ADDR				(CONFIG_SYS_IMMR + 0x012c0000)
+
 /* SATA */
 #define AHCI_BASE_ADDR1				(CONFIG_SYS_IMMR + 0x02200000)
 #define AHCI_BASE_ADDR2				(CONFIG_SYS_IMMR + 0x02210000)
+#define AHCI_BASE_ADDR3				(CONFIG_SYS_IMMR + 0x02220000)
+#define AHCI_BASE_ADDR4				(CONFIG_SYS_IMMR + 0x02230000)
+
+/* QDMA */
+#define QDMA_BASE_ADDR				(CONFIG_SYS_IMMR + 0x07380000)
+#define QMAN_CQSIDR_REG				0x20a80
+
+/* DISPLAY */
+#define DISPLAY_BASE_ADDR			(CONFIG_SYS_IMMR + 0x0e080000)
+
+/* GPU */
+#define GPU_BASE_ADDR				(CONFIG_SYS_IMMR + 0x0e0c0000)
 
 /* SFP */
 #define CONFIG_SYS_SFP_ADDR		(CONFIG_SYS_IMMR + 0x00e80200)
@@ -89,10 +106,18 @@
 /* SEC */
 #define CONFIG_SYS_FSL_SEC_OFFSET		0x07000000ull
 #define CONFIG_SYS_FSL_JR0_OFFSET		0x07010000ull
+#define FSL_SEC_JR0_OFFSET			CONFIG_SYS_FSL_JR0_OFFSET
+#define FSL_SEC_JR1_OFFSET			0x07020000ull
+#define FSL_SEC_JR2_OFFSET			0x07030000ull
+#define FSL_SEC_JR3_OFFSET			0x07040000ull
 #define CONFIG_SYS_FSL_SEC_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_SEC_OFFSET)
 #define CONFIG_SYS_FSL_JR0_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_JR0_OFFSET)
+#define FSL_SEC_JR0_BASE_ADDR (CONFIG_SYS_IMMR + FSL_SEC_JR0_OFFSET)
+#define FSL_SEC_JR1_BASE_ADDR (CONFIG_SYS_IMMR + FSL_SEC_JR1_OFFSET)
+#define FSL_SEC_JR2_BASE_ADDR (CONFIG_SYS_IMMR + FSL_SEC_JR2_OFFSET)
+#define FSL_SEC_JR3_BASE_ADDR (CONFIG_SYS_IMMR + FSL_SEC_JR3_OFFSET)
 
 #ifdef CONFIG_TFABOOT
 #ifdef CONFIG_NXP_LSCH3_2
@@ -167,10 +192,28 @@
 #define CONFIG_SYS_PCIE2_ADDR			(CONFIG_SYS_IMMR + 0x2500000)
 #define CONFIG_SYS_PCIE3_ADDR			(CONFIG_SYS_IMMR + 0x2600000)
 #define CONFIG_SYS_PCIE4_ADDR			(CONFIG_SYS_IMMR + 0x2700000)
-#ifdef CONFIG_ARCH_LS1088A
+#ifdef CONFIG_ARCH_LX2160A
+#define SYS_PCIE5_ADDR				(CONFIG_SYS_IMMR + 0x2800000)
+#define SYS_PCIE6_ADDR				(CONFIG_SYS_IMMR + 0x2900000)
+#endif
+
+#ifdef CONFIG_ARCH_LX2160A
+#define CONFIG_SYS_PCIE1_PHYS_ADDR		0x8000000000ULL
+#define CONFIG_SYS_PCIE2_PHYS_ADDR		0x8800000000ULL
+#define CONFIG_SYS_PCIE3_PHYS_ADDR		0x9000000000ULL
+#define CONFIG_SYS_PCIE4_PHYS_ADDR		0x9800000000ULL
+#define SYS_PCIE5_PHYS_ADDR			0xa000000000ULL
+#define SYS_PCIE6_PHYS_ADDR			0xa800000000ULL
+#elif CONFIG_ARCH_LS1088A
 #define CONFIG_SYS_PCIE1_PHYS_ADDR		0x2000000000ULL
 #define CONFIG_SYS_PCIE2_PHYS_ADDR		0x2800000000ULL
 #define CONFIG_SYS_PCIE3_PHYS_ADDR		0x3000000000ULL
+#elif CONFIG_ARCH_LS1028A
+#define CONFIG_SYS_PCIE1_PHYS_ADDR		0x8000000000ULL
+#define CONFIG_SYS_PCIE2_PHYS_ADDR		0x8800000000ULL
+#define CONFIG_SYS_PCIE3_PHYS_ADDR		0x01f0000000ULL
+/* this is used by integrated PCI on LS1028, includes ECAM and register space */
+#define CONFIG_SYS_PCIE3_PHYS_SIZE		0x0010000000ULL
 #else
 #define CONFIG_SYS_PCIE1_PHYS_ADDR		0x1000000000ULL
 #define CONFIG_SYS_PCIE2_PHYS_ADDR		0x1200000000ULL
@@ -211,6 +254,8 @@
 #define USB_PHY_RX_EQ_VAL_2		0x0080
 #define USB_PHY_RX_EQ_VAL_3		0x0380
 #define USB_PHY_RX_EQ_VAL_4		0x0b80
+#define DCSR_USB_IOCR1			0x108004
+#define DCSR_USB_PCSTXSWINGFULL	0x71
 
 #define TP_ITYP_AV		0x00000001	/* Initiator available */
 #define TP_ITYP_TYPE(x)	(((x) & 0x6) >> 1)	/* Initiator Type */
@@ -235,6 +280,7 @@ struct sys_info {
 	/* frequency of platform PLL */
 	unsigned long freq_systembus;
 	unsigned long freq_ddrbus;
+	unsigned long freq_cga_m2;
 #ifdef CONFIG_SYS_FSL_HAS_DP_DDR
 	unsigned long freq_ddrbus2;
 #endif
@@ -350,6 +396,14 @@ struct ccsr_gur {
 #define FSL_CHASSIS3_SRDS1_REGSR	29
 #define FSL_CHASSIS3_SRDS2_REGSR	29
 #define FSL_CHASSIS3_SRDS3_REGSR	29
+#define FSL_CHASSIS3_RCWSR12_REGSR         12
+#define FSL_CHASSIS3_RCWSR13_REGSR         13
+#define FSL_CHASSIS3_SDHC1_BASE_PMUX_MASK  0x07000000
+#define FSL_CHASSIS3_SDHC1_BASE_PMUX_SHIFT 24
+#define FSL_CHASSIS3_SDHC2_BASE_PMUX_MASK  0x00000038
+#define FSL_CHASSIS3_SDHC2_BASE_PMUX_SHIFT 3
+#define FSL_CHASSIS3_IIC5_PMUX_MASK        0x00000E00
+#define FSL_CHASSIS3_IIC5_PMUX_SHIFT       9
 #elif defined(CONFIG_ARCH_LS1088A)
 #define FSL_CHASSIS3_EC1_REGSR  26
 #define FSL_CHASSIS3_EC2_REGSR  26
@@ -367,6 +421,12 @@ struct ccsr_gur {
 #define FSL_CHASSIS3_SRDS2_PRTCL_SHIFT	FSL_CHASSIS3_RCWSR30_SRDS2_PRTCL_SHIFT
 #define FSL_CHASSIS3_SRDS1_REGSR	29
 #define FSL_CHASSIS3_SRDS2_REGSR	30
+#elif defined(CONFIG_ARCH_LS1028A)
+#define	FSL_CHASSIS3_RCWSR29_SRDS1_PRTCL_MASK	0xFFFF0000
+#define	FSL_CHASSIS3_RCWSR29_SRDS1_PRTCL_SHIFT	16
+#define FSL_CHASSIS3_SRDS1_PRTCL_MASK	FSL_CHASSIS3_RCWSR29_SRDS1_PRTCL_MASK
+#define FSL_CHASSIS3_SRDS1_PRTCL_SHIFT	FSL_CHASSIS3_RCWSR29_SRDS1_PRTCL_SHIFT
+#define FSL_CHASSIS3_SRDS1_REGSR	29
 #endif
 #define RCW_SB_EN_REG_INDEX	9
 #define RCW_SB_EN_MASK		0x00000400
@@ -383,15 +443,19 @@ struct ccsr_gur {
 	u32	usb2_amqr;
 	u8	res_528[0x530-0x528];	/* add more registers when needed */
 	u32	sdmm1_amqr;
-	u8	res_534[0x550-0x534];	/* add more registers when needed */
+	u32	sdmm2_amqr;
+	u8	res_538[0x550 - 0x538];	/* add more registers when needed */
 	u32	sata1_amqr;
 	u32	sata2_amqr;
-	u8	res_558[0x570-0x558];	/* add more registers when needed */
+	u32	sata3_amqr;
+	u32	sata4_amqr;
+	u8	res_560[0x570 - 0x560];	/* add more registers when needed */
 	u32	misc1_amqr;
 	u8	res_574[0x590-0x574];	/* add more registers when needed */
 	u32	spare1_amqr;
 	u32	spare2_amqr;
-	u8	res_598[0x620-0x598];	/* add more registers when needed */
+	u32	spare3_amqr;
+	u8	res_59c[0x620 - 0x59c];	/* add more registers when needed */
 	u32	gencr[7];	/* General Control Registers */
 	u8	res_63c[0x640-0x63c];	/* add more registers when needed */
 	u32	cgensr1;	/* Core General Status Register */

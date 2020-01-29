@@ -1,7 +1,8 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2007-2008 Freescale Semiconductor, Inc.
- *		Dave Liu <daveliu@freescale.com>
+ * Copyright 2019 NXP
+ * Author: Dave Liu <daveliu@freescale.com>
  */
 
 #ifndef __FSL_SATA_H__
@@ -312,9 +313,20 @@ typedef struct fsl_sata {
 	int		wcache;
 	int		flush;
 	int		flush_ext;
+	u32		dma_flag;
 } fsl_sata_t;
 
 #define READ_CMD	0
 #define WRITE_CMD	1
+
+#if CONFIG_IS_ENABLED(BLK)
+struct fsl_ata_priv {
+	u32 base;
+	u32 flag;
+	u32 number;
+	u32 offset;
+	fsl_sata_t *fsl_sata;
+};
+#endif
 
 #endif /* __FSL_SATA_H__ */

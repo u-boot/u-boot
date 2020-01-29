@@ -21,7 +21,6 @@
 
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
-#define CONFIG_SUPPORT_EMMC_BOOT	/* eMMC specific */
 
 /* I2C configs */
 #define CONFIG_SYS_I2C
@@ -52,8 +51,6 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* Environment is in stored in the eMMC boot partition */
-#define CONFIG_ENV_SIZE			(16 << 10)
-#define CONFIG_ENV_OFFSET		(512 << 10)
 #define CONFIG_SYS_MMC_ENV_DEV		0	/* USDHC2 */
 #define CONFIG_SYS_MMC_ENV_PART		1	/* boot parition */
 #define CONFIG_MMCROOT			"/dev/mmcblk0p2"  /* USDHC2 */

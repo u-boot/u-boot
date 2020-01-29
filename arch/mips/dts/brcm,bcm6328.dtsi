@@ -124,6 +124,22 @@
 			status = "disabled";
 		};
 
+		nand: nand-controller@10000200 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "brcm,nand-bcm6368",
+				     "brcm,brcmnand-v2.2",
+				     "brcm,brcmnand";
+			reg-names = "nand",
+				    "nand-cache",
+				    "nand-int-base";
+			reg = <0x10000200 0x180>,
+			      <0x10000400 0x200>,
+			      <0x100000b0 0x10>;
+
+			status = "disabled";
+		};
+
 		leds: led-controller@10000800 {
 			compatible = "brcm,bcm6328-leds";
 			reg = <0x10000800 0x24>;

@@ -5,7 +5,7 @@
  */
 
 #include <common.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <serial.h>
 #include <stdio_dev.h>
 #include <post.h>
@@ -124,6 +124,7 @@ serial_initfunc(ns16550_serial_initialize);
 serial_initfunc(pl01x_serial_initialize);
 serial_initfunc(pxa_serial_initialize);
 serial_initfunc(sh_serial_initialize);
+serial_initfunc(mtk_serial_initialize);
 
 /**
  * serial_register() - Register serial driver with serial driver core
@@ -177,6 +178,7 @@ void serial_initialize(void)
 	pl01x_serial_initialize();
 	pxa_serial_initialize();
 	sh_serial_initialize();
+	mtk_serial_initialize();
 
 	serial_assign(default_serial_console()->name);
 }

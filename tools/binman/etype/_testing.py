@@ -31,8 +31,8 @@ class Entry__testing(Entry):
         return-invalid-entry: Return an invalid entry from GetOffsets()
         return-unknown-contents: Refuse to provide any contents (to cause a
             failure)
-        bad-update-contents: Implement ProcessContents() incorrectly so as to
-            cause a failure
+        bad-update-contents: Return a larger size in ProcessContents
+        bad-shrink-contents: Return a larger size in ProcessContents
         never-complete-process-fdt: Refund to process the FDT (to cause a
             failure)
         require-args: Require that all used args are present (generating an
@@ -42,14 +42,21 @@ class Entry__testing(Entry):
     """
     def __init__(self, section, etype, node):
         Entry.__init__(self, section, etype, node)
+
+    def ReadNode(self):
+        Entry.ReadNode(self)
         self.return_invalid_entry = fdt_util.GetBool(self._node,
                                                      'return-invalid-entry')
         self.return_unknown_contents = fdt_util.GetBool(self._node,
                                                      'return-unknown-contents')
         self.bad_update_contents = fdt_util.GetBool(self._node,
                                                     'bad-update-contents')
+        self.bad_shrink_contents = fdt_util.GetBool(self._node,
+                                                    'bad-shrink-contents')
         self.return_contents_once = fdt_util.GetBool(self._node,
                                                      'return-contents-once')
+        self.bad_update_contents_twice = fdt_util.GetBool(self._node,
+                                                    'bad-update-contents-twice')
 
         # Set to True when the entry is ready to process the FDT.
         self.process_fdt_ready = False
@@ -71,11 +78,12 @@ class Entry__testing(Entry):
         if self.force_bad_datatype:
             self.GetEntryArgsOrProps([EntryArg('test-bad-datatype-arg', bool)])
         self.return_contents = True
+        self.contents = b'aa'
 
     def ObtainContents(self):
         if self.return_unknown_contents or not self.return_contents:
             return False
-        self.data = 'a'
+        self.data = self.contents
         self.contents_size = len(self.data)
         if self.return_contents_once:
             self.return_contents = False
@@ -87,10 +95,26 @@ class Entry__testing(Entry):
         return {}
 
     def ProcessContents(self):
+        data = self.contents
         if self.bad_update_contents:
-            # Request to update the conents with something larger, to cause a
+            # Request to update the contents with something larger, to cause a
             # failure.
-            self.ProcessContentsUpdate('aa')
+            if self.bad_update_contents_twice:
+                data = self.data + b'a'
+            else:
+                data = b'aaa'
+            return self.ProcessContentsUpdate(data)
+        if self.bad_shrink_contents:
+            # Request to update the contents with something smaller, to cause a
+            # failure.
+            data = b'a'
+            return self.ProcessContentsUpdate(data)
+        if self.bad_shrink_contents:
+            # Request to update the contents with something smaller, to cause a
+            # failure.
+            data = b'a'
+            return self.ProcessContentsUpdate(data)
+        return True
 
     def ProcessFdt(self, fdt):
         """Force reprocessing the first time"""

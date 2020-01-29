@@ -2,6 +2,8 @@
  *  linux/lib/vsprintf.c
  *
  *  Copyright (C) 1991, 1992  Linus Torvalds
+ * (C) Copyright 2000-2009
+ * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
 /* vsprintf.c -- Lars Wirzenius & Linus Torvalds. */
@@ -16,8 +18,8 @@
 #include <efi_loader.h>
 #include <div64.h>
 #include <hexdump.h>
-#include <uuid.h>
 #include <stdarg.h>
+#include <vsprintf.h>
 #include <linux/ctype.h>
 #include <linux/err.h>
 #include <linux/types.h>
@@ -279,18 +281,25 @@ static char *string(char *buf, char *end, char *s, int field_width,
 static char *string16(char *buf, char *end, u16 *s, int field_width,
 		int precision, int flags)
 {
-	u16 *str = s ? s : L"<NULL>";
-	ssize_t len = utf16_strnlen(str, precision);
+	const u16 *str = s ? s : L"<NULL>";
+	ssize_t i, len = utf16_strnlen(str, precision);
 
 	if (!(flags & LEFT))
 		for (; len < field_width; --field_width)
 			ADDCH(buf, ' ');
-	utf16_utf8_strncpy(&buf, str, len);
+	for (i = 0; i < len && buf + utf16_utf8_strnlen(str, 1) <= end; ++i) {
+		s32 s = utf16_get(&str);
+
+		if (s < 0)
+			s = '?';
+		utf8_put(s, &buf);
+	}
 	for (; len < field_width; --field_width)
 		ADDCH(buf, ' ');
 	return buf;
 }
 
+#if CONFIG_IS_ENABLED(EFI_DEVICE_PATH_TO_TEXT)
 static char *device_path_string(char *buf, char *end, void *dp, int field_width,
 				int precision, int flags)
 {
@@ -309,8 +318,8 @@ static char *device_path_string(char *buf, char *end, void *dp, int field_width,
 	return buf;
 }
 #endif
+#endif
 
-#ifdef CONFIG_CMD_NET
 static char *mac_address_string(char *buf, char *end, u8 *addr, int field_width,
 				int precision, int flags)
 {
@@ -372,33 +381,34 @@ static char *ip4_addr_string(char *buf, char *end, u8 *addr, int field_width,
 	return string(buf, end, ip4_addr, field_width, precision,
 		      flags & ~SPECIAL);
 }
-#endif
 
 #ifdef CONFIG_LIB_UUID
 /*
- * This works (roughly) the same way as linux's, but we currently always
- * print lower-case (ie. we just keep %pUB and %pUL for compat with linux),
- * mostly just because that is what uuid_bin_to_str() supports.
+ * This works (roughly) the same way as Linux's.
  *
  *   %pUb:   01020304-0506-0708-090a-0b0c0d0e0f10
+ *   %pUB:   01020304-0506-0708-090A-0B0C0D0E0F10
  *   %pUl:   04030201-0605-0807-090a-0b0c0d0e0f10
+ *   %pUL:   04030201-0605-0807-090A-0B0C0D0E0F10
  */
 static char *uuid_string(char *buf, char *end, u8 *addr, int field_width,
 			 int precision, int flags, const char *fmt)
 {
 	char uuid[UUID_STR_LEN + 1];
-	int str_format = UUID_STR_FORMAT_STD;
+	int str_format;
 
 	switch (*(++fmt)) {
 	case 'L':
+		str_format = UUID_STR_FORMAT_GUID | UUID_STR_UPPER_CASE;
+		break;
 	case 'l':
 		str_format = UUID_STR_FORMAT_GUID;
 		break;
 	case 'B':
-	case 'b':
-		/* this is the default */
+		str_format = UUID_STR_FORMAT_STD | UUID_STR_UPPER_CASE;
 		break;
 	default:
+		str_format = UUID_STR_FORMAT_STD;
 		break;
 	}
 
@@ -446,12 +456,11 @@ static char *pointer(const char *fmt, char *buf, char *end, void *ptr,
 
 	switch (*fmt) {
 /* Device paths only exist in the EFI context. */
-#if CONFIG_IS_ENABLED(EFI_LOADER) && !defined(API_BUILD)
+#if CONFIG_IS_ENABLED(EFI_DEVICE_PATH_TO_TEXT) && !defined(API_BUILD)
 	case 'D':
 		return device_path_string(buf, end, ptr, field_width,
 					  precision, flags);
 #endif
-#ifdef CONFIG_CMD_NET
 	case 'a':
 		flags |= SPECIAL | ZEROPAD;
 
@@ -481,7 +490,6 @@ static char *pointer(const char *fmt, char *buf, char *end, void *ptr,
 					       precision, flags);
 		flags &= ~SPECIAL;
 		break;
-#endif
 #ifdef CONFIG_LIB_UUID
 	case 'U':
 		return uuid_string(buf, end, ptr, field_width, precision,
@@ -863,4 +871,20 @@ bool str2long(const char *p, ulong *num)
 
 	*num = simple_strtoul(p, &endptr, 16);
 	return *p != '\0' && *endptr == '\0';
+}
+
+char *strmhz(char *buf, unsigned long hz)
+{
+	long l, n;
+	long m;
+
+	n = DIV_ROUND_CLOSEST(hz, 1000) / 1000L;
+	l = sprintf(buf, "%ld", n);
+
+	hz -= n * 1000000L;
+	m = DIV_ROUND_CLOSEST(hz, 1000L);
+	if (m != 0)
+		sprintf(buf + l, ".%03ld", m);
+
+	return buf;
 }

@@ -11,14 +11,19 @@ config TARGET_AM654_A53_EVM
 	bool "TI K3 based AM654 EVM running on A53"
 	select ARM64
 	select SOC_K3_AM6
+	select SYS_DISABLE_DCACHE_OPS
+	select BOARD_LATE_INIT
+	imply TI_I2C_BOARD_DETECT
 
 config TARGET_AM654_R5_EVM
 	bool "TI K3 based AM654 EVM running on R5"
 	select CPU_V7R
 	select SYS_THUMB_BUILD
 	select SOC_K3_AM6
+	select K3_LOAD_SYSFW
 	select K3_AM654_DDRSS
 	imply SYS_K3_SPL_ATF
+	imply TI_I2C_BOARD_DETECT
 
 endchoice
 
@@ -32,6 +37,8 @@ config SYS_VENDOR
 
 config SYS_CONFIG_NAME
        default "am65x_evm"
+
+source "board/ti/common/Kconfig"
 
 endif
 
@@ -48,5 +55,7 @@ config SYS_CONFIG_NAME
 
 config SPL_LDSCRIPT
 	default "arch/arm/mach-omap2/u-boot-spl.lds"
+
+source "board/ti/common/Kconfig"
 
 endif

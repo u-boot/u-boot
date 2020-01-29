@@ -134,6 +134,60 @@ static int jz_mmc_clock_rate(void)
 	return 24000000;
 }
 
+#if CONFIG_IS_ENABLED(MMC_WRITE)
+static inline void jz_mmc_write_data(struct jz_mmc_priv *priv, struct mmc_data *data)
+{
+	int sz = DIV_ROUND_UP(data->blocks * data->blocksize, 4);
+	const void *buf = data->src;
+
+	while (sz--) {
+		u32 val = get_unaligned_le32(buf);
+
+		wait_for_bit_le32(priv->regs + MSC_IREG,
+				  MSC_IREG_TXFIFO_WR_REQ,
+				  true, 10000, false);
+		writel(val, priv->regs + MSC_TXFIFO);
+		buf += 4;
+	}
+}
+#else
+static void jz_mmc_write_data(struct jz_mmc_priv *priv, struct mmc_data *data)
+{}
+#endif
+
+static inline int jz_mmc_read_data(struct jz_mmc_priv *priv, struct mmc_data *data)
+{
+	int sz = data->blocks * data->blocksize;
+	void *buf = data->dest;
+	u32 stat, val;
+
+	do {
+		stat = readl(priv->regs + MSC_STAT);
+
+		if (stat & MSC_STAT_TIME_OUT_READ)
+			return -ETIMEDOUT;
+		if (stat & MSC_STAT_CRC_READ_ERROR)
+			return -EINVAL;
+		if (stat & MSC_STAT_DATA_FIFO_EMPTY) {
+			udelay(10);
+			continue;
+		}
+		do {
+			val = readl(priv->regs + MSC_RXFIFO);
+			if (sz == 1)
+				*(u8 *)buf = (u8)val;
+			else if (sz == 2)
+				put_unaligned_le16(val, buf);
+			else if (sz >= 4)
+				put_unaligned_le32(val, buf);
+			buf += 4;
+			sz -= 4;
+			stat = readl(priv->regs + MSC_STAT);
+		} while (!(stat & MSC_STAT_DATA_FIFO_EMPTY));
+	} while (!(stat & MSC_STAT_DATA_TRAN_DONE));
+	return 0;
+}
+
 static int jz_mmc_send_cmd(struct mmc *mmc, struct jz_mmc_priv *priv,
 			   struct mmc_cmd *cmd, struct mmc_data *data)
 {
@@ -249,51 +303,14 @@ static int jz_mmc_send_cmd(struct mmc *mmc, struct jz_mmc_priv *priv,
 			cmd->response[0] |= readw(priv->regs + MSC_RES) & 0xff;
 		}
 	}
-
-	if (data && (data->flags & MMC_DATA_WRITE)) {
-		/* write the data */
-		int sz = DIV_ROUND_UP(data->blocks * data->blocksize, 4);
-		const void *buf = data->src;
-
-		while (sz--) {
-			u32 val = get_unaligned_le32(buf);
-
-			wait_for_bit_le32(priv->regs + MSC_IREG,
-					  MSC_IREG_TXFIFO_WR_REQ,
-					  true, 10000, false);
-			writel(val, priv->regs + MSC_TXFIFO);
-			buf += 4;
+	if (data) {
+		if (data->flags & MMC_DATA_WRITE)
+			jz_mmc_write_data(priv, data);
+		else if (data->flags & MMC_DATA_READ) {
+			ret = jz_mmc_read_data(priv, data);
+			if (ret)
+				return ret;
 		}
-	} else if (data && (data->flags & MMC_DATA_READ)) {
-		/* read the data */
-		int sz = data->blocks * data->blocksize;
-		void *buf = data->dest;
-
-		do {
-			stat = readl(priv->regs + MSC_STAT);
-
-			if (stat & MSC_STAT_TIME_OUT_READ)
-				return -ETIMEDOUT;
-			if (stat & MSC_STAT_CRC_READ_ERROR)
-				return -EINVAL;
-			if (stat & MSC_STAT_DATA_FIFO_EMPTY) {
-				udelay(10);
-				continue;
-			}
-			do {
-				u32 val = readl(priv->regs + MSC_RXFIFO);
-
-				if (sz == 1)
-					*(u8 *)buf = (u8)val;
-				else if (sz == 2)
-					put_unaligned_le16(val, buf);
-				else if (sz >= 4)
-					put_unaligned_le32(val, buf);
-				buf += 4;
-				sz -= 4;
-				stat = readl(priv->regs + MSC_STAT);
-			} while (!(stat & MSC_STAT_DATA_FIFO_EMPTY));
-		} while (!(stat & MSC_STAT_DATA_TRAN_DONE));
 	}
 
 	return 0;

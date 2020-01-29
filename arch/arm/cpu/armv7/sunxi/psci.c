@@ -75,7 +75,7 @@ static void __secure __mdelay(u32 ms)
 	isb();
 }
 
-static void __secure clamp_release(u32 __maybe_unused *clamp)
+static void __secure clamp_release(void __maybe_unused *clamp)
 {
 #if defined(CONFIG_MACH_SUN6I) || defined(CONFIG_MACH_SUN7I) || \
 	defined(CONFIG_MACH_SUN8I_H3) || \
@@ -90,7 +90,7 @@ static void __secure clamp_release(u32 __maybe_unused *clamp)
 #endif
 }
 
-static void __secure clamp_set(u32 __maybe_unused *clamp)
+static void __secure clamp_set(void __maybe_unused *clamp)
 {
 #if defined(CONFIG_MACH_SUN6I) || defined(CONFIG_MACH_SUN7I) || \
 	defined(CONFIG_MACH_SUN8I_H3) || \
@@ -99,22 +99,28 @@ static void __secure clamp_set(u32 __maybe_unused *clamp)
 #endif
 }
 
-static void __secure sunxi_power_switch(u32 *clamp, u32 *pwroff, bool on,
+static void __secure sunxi_power_switch(void *clamp, void *pwroff_ptr, bool on,
 					int cpu)
 {
+	u32 pwroff;
+
+	memcpy(&pwroff, pwroff_ptr, sizeof(u32));
+
 	if (on) {
 		/* Release power clamp */
 		clamp_release(clamp);
 
 		/* Clear power gating */
-		clrbits_le32(pwroff, BIT(cpu));
+		clrbits_le32(&pwroff, BIT(cpu));
 	} else {
 		/* Set power gating */
-		setbits_le32(pwroff, BIT(cpu));
+		setbits_le32(&pwroff, BIT(cpu));
 
 		/* Activate power clamp */
 		clamp_set(clamp);
 	}
+
+	memcpy(pwroff_ptr, &pwroff, sizeof(u32));
 }
 
 #ifdef CONFIG_MACH_SUN8I_R40
@@ -276,7 +282,7 @@ int __secure psci_cpu_on(u32 __always_unused unused, u32 mpidr, u32 pc,
 	return ARM_PSCI_RET_SUCCESS;
 }
 
-void __secure psci_cpu_off(void)
+s32 __secure psci_cpu_off(void)
 {
 	psci_cpu_off_common();
 

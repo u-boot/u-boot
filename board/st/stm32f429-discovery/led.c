@@ -5,11 +5,14 @@
  */
 
 #include <common.h>
+#include <status_led.h>
 #include <asm-generic/gpio.h>
 
 void coloured_LED_init(void)
 {
+	gpio_request(CONFIG_RED_LED, "red led");
 	gpio_direction_output(CONFIG_RED_LED, 0);
+	gpio_request(CONFIG_GREEN_LED, "green led");
 	gpio_direction_output(CONFIG_GREEN_LED, 0);
 }
 

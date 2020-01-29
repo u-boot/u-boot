@@ -2,6 +2,9 @@
 /*
  * (C) Copyright 2006
  * Markus Klotzbuecher, mk@denx.de
+ *
+ * (C) Copyright 2019 NXP
+ * Chuanhua Han <chuanhua.han@nxp.com>
  */
 
 /*
@@ -13,6 +16,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <dm.h>
 #include <rtc.h>
 #include <i2c.h>
 
@@ -50,6 +54,7 @@
 #define RTC_STAT_BIT_EN32KHZ	0x8	/* Enable 32KHz Output  */
 
 
+#if !CONFIG_IS_ENABLED(DM_RTC)
 static uchar rtc_read (uchar reg);
 static void rtc_write (uchar reg, uchar val);
 
@@ -143,11 +148,13 @@ void rtc_reset (void)
 /*
  * Enable 32KHz output
  */
+#ifdef CONFIG_RTC_ENABLE_32KHZ_OUTPUT
 void rtc_enable_32khz_output(void)
 {
 	rtc_write(RTC_STAT_REG_ADDR,
 		  RTC_STAT_BIT_BB32KHZ | RTC_STAT_BIT_EN32KHZ);
 }
+#endif
 
 /*
  * Helper functions
@@ -164,3 +171,121 @@ static void rtc_write (uchar reg, uchar val)
 {
 	i2c_reg_write (CONFIG_SYS_I2C_RTC_ADDR, reg, val);
 }
+#else
+static int ds3231_rtc_get(struct udevice *dev, struct rtc_time *tmp)
+{
+	uchar sec, min, hour, mday, wday, mon_cent, year, status;
+
+	status = dm_i2c_reg_read(dev, RTC_STAT_REG_ADDR);
+	sec = dm_i2c_reg_read(dev, RTC_SEC_REG_ADDR);
+	min = dm_i2c_reg_read(dev, RTC_MIN_REG_ADDR);
+	hour = dm_i2c_reg_read(dev, RTC_HR_REG_ADDR);
+	wday = dm_i2c_reg_read(dev, RTC_DAY_REG_ADDR);
+	mday = dm_i2c_reg_read(dev, RTC_DATE_REG_ADDR);
+	mon_cent = dm_i2c_reg_read(dev, RTC_MON_REG_ADDR);
+	year = dm_i2c_reg_read(dev, RTC_YR_REG_ADDR);
+
+	if (status & RTC_STAT_BIT_OSF) {
+		printf("### Warning: RTC oscillator has stopped\n");
+		/* clear the OSF flag */
+		dm_i2c_reg_write(dev, RTC_STAT_REG_ADDR,
+				 dm_i2c_reg_read(dev, RTC_STAT_REG_ADDR)
+						& ~RTC_STAT_BIT_OSF);
+		return -EINVAL;
+	}
+
+	tmp->tm_sec  = bcd2bin(sec & 0x7F);
+	tmp->tm_min  = bcd2bin(min & 0x7F);
+	tmp->tm_hour = bcd2bin(hour & 0x3F);
+	tmp->tm_mday = bcd2bin(mday & 0x3F);
+	tmp->tm_mon  = bcd2bin(mon_cent & 0x1F);
+	tmp->tm_year = bcd2bin(year) + ((mon_cent & 0x80) ? 2000 : 1900);
+	tmp->tm_wday = bcd2bin((wday - 1) & 0x07);
+	tmp->tm_yday = 0;
+	tmp->tm_isdst = 0;
+
+	debug("Get DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
+	      tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
+	      tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+
+	return 0;
+}
+
+static int ds3231_rtc_set(struct udevice *dev, const struct rtc_time *tmp)
+{
+	uchar century;
+
+	debug("Set DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
+	      tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
+	      tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+
+	dm_i2c_reg_write(dev, RTC_YR_REG_ADDR, bin2bcd(tmp->tm_year % 100));
+
+	century = (tmp->tm_year >= 2000) ? 0x80 : 0;
+	dm_i2c_reg_write(dev, RTC_MON_REG_ADDR, bin2bcd(tmp->tm_mon) | century);
+
+	dm_i2c_reg_write(dev, RTC_DAY_REG_ADDR, bin2bcd(tmp->tm_wday + 1));
+	dm_i2c_reg_write(dev, RTC_DATE_REG_ADDR, bin2bcd(tmp->tm_mday));
+	dm_i2c_reg_write(dev, RTC_HR_REG_ADDR, bin2bcd(tmp->tm_hour));
+	dm_i2c_reg_write(dev, RTC_MIN_REG_ADDR, bin2bcd(tmp->tm_min));
+	dm_i2c_reg_write(dev, RTC_SEC_REG_ADDR, bin2bcd(tmp->tm_sec));
+
+	return 0;
+}
+
+static int ds3231_rtc_reset(struct udevice *dev)
+{
+	int ret;
+
+	ret = dm_i2c_reg_write(dev, RTC_CTL_REG_ADDR,
+			       RTC_CTL_BIT_RS1 | RTC_CTL_BIT_RS2);
+	if (ret < 0)
+		return ret;
+
+	return 0;
+}
+
+static int ds3231_probe(struct udevice *dev)
+{
+	i2c_set_chip_flags(dev, DM_I2C_CHIP_RD_ADDRESS |
+			DM_I2C_CHIP_WR_ADDRESS);
+
+	return 0;
+}
+
+#ifdef CONFIG_RTC_ENABLE_32KHZ_OUTPUT
+int rtc_enable_32khz_output(int busnum, int chip_addr)
+{
+	int ret;
+	struct udevice *dev;
+
+	ret = i2c_get_chip_for_busnum(busnum, chip_addr, 1, &dev);
+	if (!ret) {
+		ret = dm_i2c_reg_write(dev, RTC_STAT_REG_ADDR,
+				       RTC_STAT_BIT_BB32KHZ |
+				       RTC_STAT_BIT_EN32KHZ);
+	}
+	return ret;
+}
+#endif
+
+static const struct rtc_ops ds3231_rtc_ops = {
+	.get = ds3231_rtc_get,
+	.set = ds3231_rtc_set,
+	.reset = ds3231_rtc_reset,
+};
+
+static const struct udevice_id ds3231_rtc_ids[] = {
+	{ .compatible = "dallas,ds3231" },
+	{ .compatible = "dallas,ds3232" },
+	{ }
+};
+
+U_BOOT_DRIVER(rtc_ds3231) = {
+	.name   = "rtc-ds3231",
+	.id     = UCLASS_RTC,
+	.probe  = ds3231_probe,
+	.of_match = ds3231_rtc_ids,
+	.ops    = &ds3231_rtc_ops,
+};
+#endif

@@ -60,7 +60,7 @@ Creating a SPL image for SD-Card/eMMC
 Creating a SPL image for SPI-NOR
   > tools/mkimage -n rk3399 -T rkspi -d spl/u-boot-spl.bin spl_nor.img
 Create the FIT image containing U-Boot proper, ATF, M0 Firmware, devicetree
-  > make CROSS_COMPILE=aarch64-linux-gnu- u-boot.itb
+  > make CROSS_COMPILE=aarch64-linux-gnu-
 
 Flash the image
 ===============

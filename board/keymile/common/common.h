@@ -120,10 +120,6 @@ struct bfticu_iomap {
 	u8	pb_dbug;
 };
 
-#if !defined(CONFIG_PIGGY_MAC_ADRESS_OFFSET)
-#define CONFIG_PIGGY_MAC_ADRESS_OFFSET	0
-#endif
-
 int ethernet_present(void);
 int ivm_read_eeprom(unsigned char *buf, int len);
 int ivm_analyze_eeprom(unsigned char *buf, int len);

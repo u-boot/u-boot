@@ -40,6 +40,17 @@
 	};
 };
 
+&mmc0 {
+	status = "okay";
+	non-removable;
+	bus-width = <8>;
+};
+
+&mmc1 {
+	status = "okay";
+	bus-width = <4>;
+};
+
 &uart2 {
 	label = "LS-UART0";
 };

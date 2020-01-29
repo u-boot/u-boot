@@ -53,8 +53,8 @@ CONFIG_SPL_MMC_SUPPORT (drivers/mmc/libmmc.o)
 CONFIG_SPL_SERIAL_SUPPORT (drivers/serial/libserial.o)
 CONFIG_SPL_SPI_FLASH_SUPPORT (drivers/mtd/spi/libspi_flash.o)
 CONFIG_SPL_SPI_SUPPORT (drivers/spi/libspi.o)
-CONFIG_SPL_FAT_SUPPORT (fs/fat/libfat.o)
-CONFIG_SPL_EXT_SUPPORT
+CONFIG_SPL_FS_FAT (fs/fat/libfat.o)
+CONFIG_SPL_FS_EXT4
 CONFIG_SPL_LIBGENERIC_SUPPORT (lib/libgeneric.o)
 CONFIG_SPL_POWER_SUPPORT (drivers/power/libpower.o)
 CONFIG_SPL_NAND_SUPPORT (drivers/mtd/nand/raw/libnand.o)
@@ -66,6 +66,22 @@ CONFIG_SPL_SPI_LOAD (drivers/mtd/spi/spi_spl_load.o)
 CONFIG_SPL_RAM_DEVICE (common/spl/spl.c)
 CONFIG_SPL_WATCHDOG_SUPPORT (drivers/watchdog/libwatchdog.o)
 
+Device tree
+-----------
+The U-Boot device tree is filtered by the fdtgrep tools during the build
+process to generate a much smaller device tree used in SPL (spl/u-boot-spl.dtb)
+with:
+- the mandatory nodes (/alias, /chosen, /config)
+- the nodes with one pre-relocation property:
+  'u-boot,dm-pre-reloc' or 'u-boot,dm-spl'
+
+fdtgrep is also used to remove:
+- the properties defined in CONFIG_OF_SPL_REMOVE_PROPS
+- all the pre-relocation properties
+  ('u-boot,dm-pre-reloc', 'u-boot,dm-spl' and 'u-boot,dm-tpl')
+
+All the nodes remaining in the SPL devicetree are bound
+(see driver-model/README.txt).
 
 Debugging
 ---------

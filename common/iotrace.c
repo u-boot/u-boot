@@ -7,7 +7,9 @@
 
 #include <common.h>
 #include <mapmem.h>
+#include <time.h>
 #include <asm/io.h>
+#include <u-boot/crc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -86,7 +88,7 @@ u32 iotrace_readl(const void *ptr)
 	return v;
 }
 
-void iotrace_writel(ulong value, const void *ptr)
+void iotrace_writel(ulong value, void *ptr)
 {
 	add_record(IOT_32 | IOT_WRITE, ptr, value);
 	writel(value, ptr);
@@ -102,7 +104,7 @@ u16 iotrace_readw(const void *ptr)
 	return v;
 }
 
-void iotrace_writew(ulong value, const void *ptr)
+void iotrace_writew(ulong value, void *ptr)
 {
 	add_record(IOT_16 | IOT_WRITE, ptr, value);
 	writew(value, ptr);
@@ -118,7 +120,7 @@ u8 iotrace_readb(const void *ptr)
 	return v;
 }
 
-void iotrace_writeb(ulong value, const void *ptr)
+void iotrace_writeb(ulong value, void *ptr)
 {
 	add_record(IOT_8 | IOT_WRITE, ptr, value);
 	writeb(value, ptr);

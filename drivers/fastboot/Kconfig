@@ -64,8 +64,8 @@ config FASTBOOT_USB_DEV
 
 config FASTBOOT_FLASH
 	bool "Enable FASTBOOT FLASH command"
-	default y if ARCH_SUNXI
-	depends on MMC || (NAND && CMD_MTDPARTS)
+	default y if ARCH_SUNXI || ARCH_ROCKCHIP
+	depends on MMC || (MTD_RAW_NAND && CMD_MTDPARTS)
 	select IMAGE_SPARSE
 	help
 	  The fastboot protocol includes a "flash" command for writing
@@ -82,13 +82,14 @@ config FASTBOOT_FLASH_MMC
 
 config FASTBOOT_FLASH_NAND
 	bool "FASTBOOT on NAND"
-	depends on NAND && CMD_MTDPARTS
+	depends on MTD_RAW_NAND && CMD_MTDPARTS
 
 endchoice
 
 config FASTBOOT_FLASH_MMC_DEV
 	int "Define FASTBOOT MMC FLASH default device"
 	depends on FASTBOOT_FLASH_MMC
+	default 0 if ARCH_ROCKCHIP
 	default 0 if ARCH_SUNXI && MMC_SUNXI_SLOT_EXTRA = -1
 	default 1 if ARCH_SUNXI && MMC_SUNXI_SLOT_EXTRA != -1
 	help

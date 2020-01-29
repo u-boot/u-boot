@@ -6,10 +6,10 @@
 
 #include <common.h>
 #include <ide.h>
+#include <init.h>
 #include <netdev.h>
 #include <asm/processor.h>
 #include <asm/io.h>
-#include <asm/pci.h>
 
 int checkboard(void)
 {
@@ -43,12 +43,6 @@ void ide_set_reset(int idereset)
 		outw(inw(FPGA_CFPOW)|CFPOW_ON, FPGA_CFPOW); /* Power OM */
 		outw(CFCDINTCLR_EN, FPGA_CFCDINTCLR); /* Int clear */
 	}
-}
-
-static struct pci_controller hose;
-void pci_init_board(void)
-{
-	pci_sh7751_init(&hose);
 }
 
 int board_eth_init(bd_t *bis)

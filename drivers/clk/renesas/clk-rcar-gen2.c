@@ -44,13 +44,17 @@ static const struct clk_div_table cpg_sd01_div_table[] = {
 	{  0,  0 },
 };
 
-static u8 gen2_clk_get_sdh_div(const struct clk_div_table *table, u8 div)
+static u8 gen2_clk_get_sdh_div(const struct clk_div_table *table, u8 val)
 {
-	while ((*table++).val) {
-		if ((*table).div == div)
-			return div;
+	for (;;) {
+		if (!(*table).div)
+			return 0xff;
+
+		if ((*table).val == val)
+			return (*table).div;
+
+		table++;
 	}
-	return 0xff;
 }
 
 static int gen2_clk_enable(struct clk *clk)
@@ -117,7 +121,7 @@ static ulong gen2_clk_get_rate(struct clk *clk)
 
 	case CLK_TYPE_FF:
 		rate = (gen2_clk_get_rate(&parent) * core->mult) / core->div;
-		debug("%s[%i] FIXED clk: parent=%i div=%i mul=%i => rate=%u\n",
+		debug("%s[%i] FIXED clk: parent=%i mul=%i div=%i => rate=%u\n",
 		      __func__, __LINE__,
 		      core->parent, core->mult, core->div, rate);
 		return rate;
@@ -202,8 +206,50 @@ static ulong gen2_clk_get_rate(struct clk *clk)
 	return -ENOENT;
 }
 
+static int gen2_clk_setup_mmcif_div(struct clk *clk, ulong rate)
+{
+	struct gen2_clk_priv *priv = dev_get_priv(clk->dev);
+	struct cpg_mssr_info *info = priv->info;
+	const struct cpg_core_clk *core;
+	struct clk parent, pparent;
+	u32 val;
+	int ret;
+
+	ret = renesas_clk_get_parent(clk, info, &parent);
+	if (ret) {
+		debug("%s[%i] parent fail, ret=%i\n", __func__, __LINE__, ret);
+		return ret;
+	}
+
+	if (renesas_clk_is_mod(&parent))
+		return 0;
+
+	ret = renesas_clk_get_core(&parent, info, &core);
+	if (ret)
+		return ret;
+
+	if (strcmp(core->name, "mmc0") && strcmp(core->name, "mmc1"))
+		return 0;
+
+	ret = renesas_clk_get_parent(&parent, info, &pparent);
+	if (ret) {
+		debug("%s[%i] parent fail, ret=%i\n", __func__, __LINE__, ret);
+		return ret;
+	}
+
+	val = (gen2_clk_get_rate(&pparent) / rate) - 1;
+
+	debug("%s[%i] MMCIF offset=%x\n", __func__, __LINE__, core->offset);
+
+	writel(val, priv->base + core->offset);
+
+	return 0;
+}
+
 static ulong gen2_clk_set_rate(struct clk *clk, ulong rate)
 {
+	/* Force correct MMC-IF divider configuration if applicable */
+	gen2_clk_setup_mmcif_div(clk, rate);
 	return gen2_clk_get_rate(clk);
 }
 

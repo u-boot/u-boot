@@ -1,0 +1,423 @@
+variables:
+  windows_vm: vs2015-win2012r2
+  ubuntu_vm: ubuntu-18.04
+  ci_runner_image: trini/u-boot-gitlab-ci-runner:bionic-20191010-20Oct2019
+  # Add '-u 0' options for Azure pipelines, otherwise we get "permission
+  # denied" error when it tries to "useradd -m -u 1001 vsts_azpcontainer",
+  # since our $(ci_runner_image) user is not root.
+  container_option: -u 0
+  work_dir: /u
+
+jobs:
+  - job: tools_only_windows
+    displayName: 'Ensure host tools build for Windows'
+    pool:
+      vmImage: $(windows_vm)
+    strategy:
+      matrix:
+        i686:
+          MSYS_DIR: msys32
+          BASE_REPO: msys2-ci-base-i686
+        x86_64:
+          MSYS_DIR: msys64
+          BASE_REPO: msys2-ci-base
+    steps:
+      - script: |
+          git clone https://github.com/msys2/$(BASE_REPO).git %CD:~0,2%\$(MSYS_DIR)
+        displayName: 'Install MSYS2'
+      - script: |
+          set PATH=%CD:~0,2%\$(MSYS_DIR)\usr\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem
+          %CD:~0,2%\$(MSYS_DIR)\usr\bin\pacman --noconfirm -Syyuu
+        displayName: 'Update MSYS2'
+      - script: |
+          set PATH=%CD:~0,2%\$(MSYS_DIR)\usr\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem
+          %CD:~0,2%\$(MSYS_DIR)\usr\bin\pacman --noconfirm --needed -S make gcc bison diffutils openssl-devel
+        displayName: 'Install Toolchain'
+      - script: |
+          set PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem
+          echo make tools-only_defconfig tools-only NO_SDL=1 > build-tools.sh
+          %CD:~0,2%\$(MSYS_DIR)\usr\bin\bash -lc "bash build-tools.sh"
+        displayName: 'Build Host Tools'
+        env:
+          # Tell MSYS2 we need a POSIX emulation layer
+          MSYSTEM: MSYS
+          # Tell MSYS2 not to ‘cd’ our startup directory to HOME
+          CHERE_INVOKING: yes
+
+  - job: cppcheck
+    displayName: 'Static code analysis with cppcheck'
+    pool:
+      vmImage: $(ubuntu_vm)
+    container:
+      image: $(ci_runner_image)
+      options: $(container_option)
+    steps:
+      - script: cppcheck --force --quiet --inline-suppr .
+
+  - job: todo
+    displayName: 'Search for TODO within source tree'
+    pool:
+      vmImage: $(ubuntu_vm)
+    container:
+      image: $(ci_runner_image)
+      options: $(container_option)
+    steps:
+      - script: grep -r TODO .
+      - script: grep -r FIXME .
+      - script: grep -r HACK . | grep -v HACKKIT
+
+  - job: sloccount
+    displayName: 'Some statistics about the code base'
+    pool:
+      vmImage: $(ubuntu_vm)
+    container:
+      image: $(ci_runner_image)
+      options: $(container_option)
+    steps:
+      - script: sloccount .
+
+  - job: maintainers
+    displayName: 'Ensure all configs have MAINTAINERS entries'
+    pool:
+      vmImage: $(ubuntu_vm)
+    container:
+      image: $(ci_runner_image)
+      options: $(container_option)
+    steps:
+      - script: |
+          if [ `./tools/genboardscfg.py -f 2>&1 | wc -l` -ne 0 ]; then exit 1; fi
+
+  - job: tools_only
+    displayName: 'Ensure host tools build'
+    pool:
+      vmImage: $(ubuntu_vm)
+    container:
+      image: $(ci_runner_image)
+      options: $(container_option)
+    steps:
+      - script: |
+          make tools-only_config tools-only -j$(nproc)
+
+  - job: envtools
+    displayName: 'Ensure env tools build'
+    pool:
+      vmImage: $(ubuntu_vm)
+    container:
+      image: $(ci_runner_image)
+      options: $(container_option)
+    steps:
+      - script: |
+          make tools-only_config envtools -j$(nproc)
+
+  - job: utils
+    displayName: 'Run binman, buildman, dtoc and patman testsuites'
+    pool:
+      vmImage: $(ubuntu_vm)
+    steps:
+      - script: |
+          cat << EOF > build.sh
+          set -ex
+          cd ${WORK_DIR}
+          EOF
+          cat << "EOF" >> build.sh
+          git config --global user.name "Azure Pipelines"
+          git config --global user.email bmeng.cn@gmail.com
+          export USER=azure
+          virtualenv /tmp/venv
+          . /tmp/venv/bin/activate
+          pip install pyelftools
+          export UBOOT_TRAVIS_BUILD_DIR=/tmp/.bm-work/sandbox_spl
+          export PYTHONPATH=${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt
+          export PATH=${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc:${PATH}
+          ./tools/buildman/buildman -o /tmp -P sandbox_spl
+          ./tools/binman/binman --toolpath ${UBOOT_TRAVIS_BUILD_DIR}/tools test
+          ./tools/buildman/buildman -t
+          ./tools/dtoc/dtoc -t
+          ./tools/patman/patman --test
+          EOF
+          cat build.sh
+          # We cannot use "container" like other jobs above, as buildman
+          # seems to hang forever with pre-configured "container" environment
+          docker run -v $PWD:$(work_dir) $(ci_runner_image) /bin/bash $(work_dir)/build.sh
+
+  - job: test_py
+    displayName: 'test.py'
+    pool:
+      vmImage: $(ubuntu_vm)
+    strategy:
+      matrix:
+        sandbox:
+          TEST_PY_BD: "sandbox"
+          BUILDMAN: "^sandbox$"
+        sandbox_clang:
+          TEST_PY_BD: "sandbox"
+          BUILDMAN: "^sandbox$"
+          OVERRIDE: "-O clang-7"
+        sandbox_spl:
+          TEST_PY_BD: "sandbox_spl"
+          TEST_PY_TEST_SPEC: "test_ofplatdata"
+          BUILDMAN: "^sandbox_spl$"
+        sandbox_flattree:
+          TEST_PY_BD: "sandbox_flattree"
+          BUILDMAN: "^sandbox_flattree$"
+        evb_ast2500:
+          TEST_PY_BD: "evb-ast2500"
+          TEST_PY_ID: "--id qemu"
+          BUILDMAN: "^evb-ast2500$"
+        vexpress_ca15_tc2:
+          TEST_PY_BD: "vexpress_ca15_tc2"
+          TEST_PY_ID: "--id qemu"
+          BUILDMAN: "^vexpress_ca15_tc2$"
+        vexpress_ca9x4:
+          TEST_PY_BD: "vexpress_ca9x4"
+          TEST_PY_ID: "--id qemu"
+          BUILDMAN: "^vexpress_ca9x4$"
+        integratorcp_cm926ejs:
+          TEST_PY_BD: "integratorcp_cm926ejs"
+          TEST_PY_ID: "--id qemu"
+          TEST_PY_TEST_SPEC: "not sleep"
+          BUILDMAN: "^integratorcp_cm926ejs$"
+        qemu_arm:
+          TEST_PY_BD: "qemu_arm"
+          TEST_PY_TEST_SPEC: "not sleep"
+          BUILDMAN: "^qemu_arm$"
+        qemu_arm64:
+          TEST_PY_BD: "qemu_arm64"
+          TEST_PY_TEST_SPEC: "not sleep"
+          BUILDMAN: "^qemu_arm64$"
+        qemu_mips:
+          TEST_PY_BD: "qemu_mips"
+          TEST_PY_TEST_SPEC: "not sleep"
+          BUILDMAN: "^qemu_mips$"
+        qemu_mipsel:
+          TEST_PY_BD: "qemu_mipsel"
+          TEST_PY_TEST_SPEC: "not sleep"
+          BUILDMAN: "^qemu_mipsel$"
+        qemu_mips64:
+          TEST_PY_BD: "qemu_mips64"
+          TEST_PY_TEST_SPEC: "not sleep"
+          BUILDMAN: "^qemu_mips64$"
+        qemu_mips64el:
+          TEST_PY_BD: "qemu_mips64el"
+          TEST_PY_TEST_SPEC: "not sleep"
+          BUILDMAN: "^qemu_mips64el$"
+        qemu_ppce500:
+          TEST_PY_BD: "qemu-ppce500"
+          TEST_PY_TEST_SPEC: "not sleep"
+          BUILDMAN: "^qemu-ppce500$"
+        qemu_riscv64:
+          TEST_PY_BD: "qemu-riscv64"
+          TEST_PY_TEST_SPEC: "not sleep"
+          BUILDMAN: "^qemu-riscv64$"
+        qemu_x86:
+          TEST_PY_BD: "qemu-x86"
+          TEST_PY_TEST_SPEC: "not sleep"
+          BUILDMAN: "^qemu-x86$"
+        qemu_x86_64:
+          TEST_PY_BD: "qemu-x86_64"
+          TEST_PY_TEST_SPEC: "not sleep"
+          BUILDMAN: "^qemu-x86_64$"
+        zynq_zc702:
+          TEST_PY_BD: "zynq_zc702"
+          TEST_PY_ID: "--id qemu"
+          TEST_PY_TEST_SPEC: "not sleep"
+          BUILDMAN: "^zynq_zc702$"
+        xilinx_versal_virt:
+          TEST_PY_BD: "xilinx_versal_virt"
+          TEST_PY_ID: "--id qemu"
+          TEST_PY_TEST_SPEC: "not sleep"
+          BUILDMAN: "^xilinx_versal_virt$"
+        xtfpga:
+          TEST_PY_BD: "xtfpga"
+          TEST_PY_ID: "--id qemu"
+          TEST_PY_TEST_SPEC: "not sleep"
+          BUILDMAN: "^xtfpga$"
+    steps:
+      - script: |
+          cat << EOF > test.sh
+          set -ex
+          # make environment variables available as tests are running inside a container
+          export WORK_DIR="${WORK_DIR}"
+          export TEST_PY_BD="${TEST_PY_BD}"
+          export TEST_PY_ID="${TEST_PY_ID}"
+          export TEST_PY_TEST_SPEC="${TEST_PY_TEST_SPEC}"
+          export BUILDMAN="${BUILDMAN}"
+          export OVERRIDE="${OVERRIDE}"
+          EOF
+          cat << "EOF" >> test.sh
+          # the below corresponds to .gitlab-ci.yml "before_script"
+          cd ${WORK_DIR}
+          git clone --depth=1 git://github.com/swarren/uboot-test-hooks.git /tmp/uboot-test-hooks
+          ln -s travis-ci /tmp/uboot-test-hooks/bin/`hostname`
+          ln -s travis-ci /tmp/uboot-test-hooks/py/`hostname`
+          grub-mkimage --prefix=\"\" -o ~/grub_x86.efi -O i386-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
+          grub-mkimage --prefix=\"\" -o ~/grub_x64.efi -O x86_64-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
+          mkdir ~/grub2-arm
+          cd ~/grub2-arm; wget -O - http://download.opensuse.org/ports/armv7hl/distribution/leap/42.2/repo/oss/suse/armv7hl/grub2-arm-efi-2.02~beta2-87.1.armv7hl.rpm | rpm2cpio | cpio -di
+          mkdir ~/grub2-arm64
+          cd ~/grub2-arm64; wget -O - http://download.opensuse.org/ports/aarch64/distribution/leap/42.2/repo/oss/suse/aarch64/grub2-arm64-efi-2.02~beta2-87.1.aarch64.rpm | rpm2cpio | cpio -di
+          # the below corresponds to .gitlab-ci.yml "script"
+          cd ${WORK_DIR}
+          if [[ "${BUILDMAN}" != "" ]]; then
+              ret=0;
+              tools/buildman/buildman -o /tmp -P -E ${BUILDMAN} ${OVERRIDE} || ret=$?;
+              if [[ $ret -ne 0 && $ret -ne 129 ]]; then
+                  tools/buildman/buildman -o /tmp -sdeP ${BUILDMAN};
+                  exit $ret;
+              fi;
+          fi
+          virtualenv -p /usr/bin/python3 /tmp/venv
+          . /tmp/venv/bin/activate
+          pip install -r test/py/requirements.txt
+          export UBOOT_TRAVIS_BUILD_DIR=/tmp/.bm-work/${TEST_PY_BD};
+          export PATH=/opt/qemu/bin:/tmp/uboot-test-hooks/bin:${PATH};
+          export PYTHONPATH=/tmp/uboot-test-hooks/py/travis-ci;
+          if [[ "${TEST_PY_BD}" != "" ]]; then
+              ./test/py/test.py --bd ${TEST_PY_BD} ${TEST_PY_ID} -k "${TEST_PY_TEST_SPEC:-not a_test_which_does_not_exist}" --build-dir "$UBOOT_TRAVIS_BUILD_DIR";
+              ret=$?;
+              if [[ $ret -ne 0 ]]; then
+                  exit $ret;
+              fi;
+          fi
+          # the below corresponds to .gitlab-ci.yml "after_script"
+          rm -rf ~/grub2* /tmp/uboot-test-hooks /tmp/venv
+          EOF
+          cat test.sh
+          # make current directory writeable to uboot user inside the container
+          # as sandbox testing need create files like spi flash images, etc.
+          # (TODO: clean up this in the future)
+          chmod 777 .
+          docker run -v $PWD:$(work_dir) $(ci_runner_image) /bin/bash $(work_dir)/test.sh
+
+  - job: build_the_world
+    displayName: 'Build the World'
+    pool:
+      vmImage: $(ubuntu_vm)
+    strategy:
+      # Use almost the same target division in .travis.yml, only merged
+      # 4 small build jobs (arc/microblaze/nds32/xtensa) into one.
+      matrix:
+        arc_microblaze_nds32_xtensa:
+          BUILDMAN: "arc microblaze nds32 xtensa"
+        arm11_arm7_arm920t_arm946es:
+          BUILDMAN: "arm11 arm7 arm920t arm946es"
+        arm926ejs:
+          BUILDMAN: "arm926ejs -x freescale,siemens,at91,kirkwood,spear,omap"
+        at91_non_armv7:
+          BUILDMAN: "at91 -x armv7"
+        at91_non_arm926ejs:
+          BUILDMAN: "at91 -x arm926ejs"
+        boundary_engicam_toradex:
+          BUILDMAN: "boundary engicam toradex"
+        arm_bcm:
+          BUILDMAN: "bcm -x mips"
+        nxp_arm32:
+          BUILDMAN: "freescale -x powerpc,m68k,aarch64,ls101,ls102,ls104,ls108,ls20,lx216"
+        nxp_ls101x:
+          BUILDMAN: "freescale&ls101"
+        nxp_ls102x:
+          BUILDMAN: "freescale&ls102"
+        nxp_ls104x:
+          BUILDMAN: "freescale&ls104"
+        nxp_ls108x:
+          BUILDMAN: "freescale&ls108"
+        nxp_ls20xx:
+          BUILDMAN: "freescale&ls20"
+        nxp_lx216x:
+          BUILDMAN: "freescale&lx216"
+        imx6:
+          BUILDMAN: "mx6 -x boundary,engicam,freescale,technexion,toradex"
+        imx:
+          BUILDMAN: "mx -x mx6,freescale,technexion,toradex"
+        keystone2_keystone3:
+          BUILDMAN: "k2 k3"
+        samsung_socfpga:
+          BUILDMAN: "samsung socfpga"
+        spear:
+          BUILDMAN: "spear"
+        sun4i:
+          BUILDMAN: "sun4i"
+        sun5i:
+          BUILDMAN: "sun5i"
+        sun6i:
+          BUILDMAN: "sun6i"
+        sun7i:
+          BUILDMAN: "sun7i"
+        sun8i_32bit:
+          BUILDMAN: "sun8i&armv7"
+        sun8i_64bit:
+          BUILDMAN: "sun8i&aarch64"
+        sun9i:
+          BUILDMAN: "sun9i"
+        sun50i:
+          BUILDMAN: "sun50i"
+        arm_catch_all:
+          BUILDMAN: "arm -x arm11,arm7,arm9,aarch64,at91,bcm,freescale,kirkwood,mvebu,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap,rockchip,toradex,socfpga,k2,k3,zynq"
+        sandbox_x86:
+          BUILDMAN: "sandbox x86"
+        technexion:
+          BUILDMAN: "technexion"
+        kirkwood:
+          BUILDMAN: "kirkwood"
+        mvebu:
+          BUILDMAN: "mvebu"
+        m68k:
+          BUILDMAN: "m68k"
+        mips:
+          BUILDMAN: "mips"
+        non_fsl_ppc:
+          BUILDMAN: "powerpc -x freescale"
+        mpc85xx_freescale:
+          BUILDMAN: "mpc85xx&freescale -x t208xrdb -x t4qds -x t102* -x p1_p2_rdb_pc -x p1010rdb -x corenet_ds -x b4860qds -x bsc91*"
+        t208xrdb_corenet_ds:
+          BUILDMAN: "t208xrdb corenet_ds"
+        fsl_ppc:
+          BUILDMAN: "t4qds b4860qds mpc83xx&freescale mpc86xx&freescale"
+        t102x:
+          BUILDMAN: "t102*"
+        p1_p2_rdb_pc:
+          BUILDMAN: "p1_p2_rdb_pc"
+        p1010rdb_bsc91:
+          BUILDMAN: "p1010rdb bsc91"
+        siemens:
+          BUILDMAN: "siemens"
+        tegra:
+          BUILDMAN: "tegra -x toradex"
+        am33xx_no_siemens:
+          BUILDMAN: "am33xx -x siemens"
+        omap:
+          BUILDMAN: "omap"
+        uniphier:
+          BUILDMAN: "uniphier"
+        aarch64_catch_all:
+          BUILDMAN: "aarch64 -x bcm,k3,tegra,ls1,ls2,mvebu,uniphier,sunxi,samsung,rockchip,versal,zynq"
+        rockchip:
+          BUILDMAN: "rockchip"
+        sh:
+          BUILDMAN: "sh -x arm"
+        zynq:
+          BUILDMAN: "zynq&armv7"
+        zynqmp_versal:
+          BUILDMAN: "versal|zynqmp&aarch64"
+        riscv:
+          BUILDMAN: "riscv"
+    steps:
+      - script: |
+          cat << EOF > build.sh
+          set -ex
+          cd ${WORK_DIR}
+          # make environment variables available as tests are running inside a container
+          export BUILDMAN="${BUILDMAN}"
+          EOF
+          cat << "EOF" >> build.sh
+          if [[ "${BUILDMAN}" != "" ]]; then
+              ret=0;
+              tools/buildman/buildman -o /tmp -P -E ${BUILDMAN} ${OVERRIDE} || ret=$?;
+              if [[ $ret -ne 0 && $ret -ne 129 ]]; then
+                  tools/buildman/buildman -o /tmp -sdeP ${BUILDMAN};
+                  exit $ret;
+              fi;
+          fi
+          EOF
+          cat build.sh
+          docker run -v $PWD:$(work_dir) $(ci_runner_image) /bin/bash $(work_dir)/build.sh

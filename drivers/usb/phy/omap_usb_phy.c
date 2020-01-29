@@ -19,7 +19,7 @@
 #include <linux/usb/dwc3.h>
 #include <linux/usb/xhci-omap.h>
 
-#include "../host/xhci.h"
+#include <usb/xhci.h>
 
 #ifdef CONFIG_OMAP_USB3PHY1_HOST
 struct usb3_dpll_params {

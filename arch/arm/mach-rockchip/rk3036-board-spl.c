@@ -1,39 +1,44 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * (C) Copyright 2015 Rockchip Electronics Co., Ltd
+ * (C) Copyright 2015-2019 Rockchip Electronics Co., Ltd
  */
 
 #include <common.h>
 #include <debug_uart.h>
 #include <asm/io.h>
-#include <asm/arch/bootrom.h>
-#include <asm/arch/grf_rk3036.h>
-#include <asm/arch/hardware.h>
-#include <asm/arch/sdram_rk3036.h>
-#include <asm/arch/timer.h>
-#include <asm/arch/uart.h>
+#include <asm/arch-rockchip/bootrom.h>
+#include <asm/arch-rockchip/sdram_rk3036.h>
 
-#define GRF_BASE	0x20008000
+#define TIMER_LOAD_COUNT_L	0x00
+#define TIMER_LOAD_COUNT_H	0x04
+#define TIMER_CONTROL_REG	0x10
+#define TIMER_EN	0x1
+#define	TIMER_FMODE	(0 << 1)
+#define	TIMER_RMODE	(1 << 1)
 
-#define DEBUG_UART_BASE	0x20068000
+void rockchip_stimer_init(void)
+{
+	asm volatile("mcr p15, 0, %0, c14, c0, 0"
+		     : : "r"(COUNTER_FREQUENCY));
+
+	writel(0, CONFIG_ROCKCHIP_STIMER_BASE + TIMER_CONTROL_REG);
+	writel(0xffffffff, CONFIG_ROCKCHIP_STIMER_BASE);
+	writel(0xffffffff, CONFIG_ROCKCHIP_STIMER_BASE + 4);
+	writel(TIMER_EN | TIMER_FMODE, CONFIG_ROCKCHIP_STIMER_BASE +
+	       TIMER_CONTROL_REG);
+}
 
 void board_init_f(ulong dummy)
 {
-#ifdef EARLY_DEBUG
-	struct rk3036_grf * const grf = (void *)GRF_BASE;
-	/*
-	 * NOTE: sd card and debug uart use same iomux in rk3036,
-	 * so if you enable uart,
-	 * you can not boot from sdcard
-	 */
-	rk_clrsetreg(&grf->gpio1c_iomux,
-		     GPIO1C3_MASK << GPIO1C3_SHIFT |
-		     GPIO1C2_MASK << GPIO1C2_SHIFT,
-		     GPIO1C3_UART2_SOUT << GPIO1C3_SHIFT |
-		     GPIO1C2_UART2_SIN << GPIO1C2_SHIFT);
+#ifdef CONFIG_DEBUG_UART
 	debug_uart_init();
 #endif
-	rockchip_timer_init();
+
+	/* Init secure timer */
+	rockchip_stimer_init();
+	/* Init ARM arch timer in arch/arm/cpu/armv7/arch_timer.c */
+	timer_init();
+
 	sdram_init();
 
 	/* return to maskrom */

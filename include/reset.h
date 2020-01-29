@@ -6,6 +6,7 @@
 #ifndef _RESET_H
 #define _RESET_H
 
+#include <dm/ofnode.h>
 #include <linux/errno.h>
 
 /**
@@ -43,6 +44,8 @@ struct udevice;
  * @data: An optional data field for scenarios where a single integer ID is not
  *	  sufficient. If used, it can be populated through an .of_xlate op and
  *	  processed during the various reset ops.
+ * @polarity: An optional polarity field for drivers that support
+ *	  different reset polarities.
  *
  * Should additional information to identify and configure any reset signal
  * for any provider be required in the future, the struct could be expanded to
@@ -59,6 +62,7 @@ struct reset_ctl {
 	 */
 	unsigned long id;
 	unsigned long data;
+	unsigned long polarity;
 };
 
 /**
@@ -98,6 +102,21 @@ struct reset_ctl_bulk {
  */
 int reset_get_by_index(struct udevice *dev, int index,
 		       struct reset_ctl *reset_ctl);
+
+/**
+ * reset_get_by_index_nodev - Get/request a reset signal by integer index
+ * without a device.
+ *
+ * This is a version of reset_get_by_index() that does not use a device.
+ *
+ * @node:	The client ofnode.
+ * @index:	The index of the reset signal to request, within the client's
+ *		list of reset signals.
+ * @reset_ctl	A pointer to a reset control struct to initialize.
+ * @return 0 if OK, or a negative error code.
+ */
+int reset_get_by_index_nodev(ofnode node, int index,
+			     struct reset_ctl *reset_ctl);
 
 /**
  * reset_get_bulk - Get/request all reset signals of a device.
@@ -305,5 +324,16 @@ static inline int reset_release_bulk(struct reset_ctl_bulk *bulk)
 	return 0;
 }
 #endif
+
+/**
+ * reset_valid() - check if reset is valid
+ *
+ * @reset_ctl:		the reset to check
+ * @return TRUE if valid, or FALSE
+ */
+static inline bool reset_valid(struct reset_ctl *reset_ctl)
+{
+	return !!reset_ctl->dev;
+}
 
 #endif

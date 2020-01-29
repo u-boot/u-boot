@@ -33,8 +33,6 @@
 #define CONFIG_SYS_NS16550_COM4			0x66130000
 #define CONFIG_BAUDRATE				115200
 
-#define CONFIG_ENV_SIZE				SZ_8K
-
 /* console configuration */
 #define CONFIG_SYS_CBSIZE			SZ_1K
 #define CONFIG_SYS_MAXARGS			64

@@ -162,6 +162,9 @@ int ubi_create_volume(struct ubi_device *ubi, struct ubi_mkvol_req *req)
 	if (!vol)
 		return -ENOMEM;
 
+	if (req->flags & UBI_VOL_SKIP_CRC_CHECK_FLG)
+		vol->skip_check = 1;
+
 	spin_lock(&ubi->volumes_lock);
 	if (vol_id == UBI_VOL_NUM_AUTO) {
 		/* Find unused volume ID */
@@ -295,6 +298,10 @@ int ubi_create_volume(struct ubi_device *ubi, struct ubi_mkvol_req *req)
 		vtbl_rec.vol_type = UBI_VID_DYNAMIC;
 	else
 		vtbl_rec.vol_type = UBI_VID_STATIC;
+
+	if (vol->skip_check)
+		vtbl_rec.flags |= UBI_VTBL_SKIP_CRC_CHECK_FLG;
+
 	memcpy(vtbl_rec.name, vol->name, vol->name_len);
 
 	err = ubi_change_vtbl_record(ubi, vol_id, &vtbl_rec);
@@ -736,6 +743,11 @@ static int self_check_volume(struct ubi_device *ubi, int vol_id)
 		}
 		if (vol->used_bytes != n) {
 			ubi_err(ubi, "bad used_bytes");
+			goto fail;
+		}
+
+		if (vol->skip_check) {
+			ubi_err(ubi, "bad skip_check");
 			goto fail;
 		}
 	} else {

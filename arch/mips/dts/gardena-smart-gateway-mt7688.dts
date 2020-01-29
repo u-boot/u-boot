@@ -10,7 +10,7 @@
 
 / {
 	compatible = "gardena,smart-gateway-mt7688", "ralink,mt7628a-soc";
-	model = "Gardena smart-Gateway-MT7688";
+	model = "GARDENA smart Gateway (MT7688)";
 
 	aliases {
 		serial0 = &uart0;
@@ -34,7 +34,7 @@
 		power_green {
 			label = "smartgw:power:green";
 			gpios = <&gpio0 19 GPIO_ACTIVE_HIGH>;
-			default-state = "off";
+			default-state = "on";
 		};
 
 		power_red {
@@ -85,19 +85,30 @@
 	};
 };
 
+&pinctrl {
+	state_default: pin_state {
+		p0led {
+			groups = "p0led_a";
+			function = "led";
+		};
+	};
+};
+
 &uart0 {
 	status = "okay";
-	clock-frequency = <40000000>;
 };
 
 &spi0 {
 	status = "okay";
 	num-cs = <2>;
 
+	pinctrl-names = "default";
+	pinctrl-0 = <&spi_dual_pins>;
+
 	spi-flash@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash", "jedec,spi-nor";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <40000000>;
 		reg = <0>;
 	};
@@ -109,4 +120,10 @@
 		spi-max-frequency = <40000000>;
 		reg = <1>;
 	};
+};
+
+&eth {
+	pinctrl-names = "default";
+	pinctrl-0 = <&ephy_iot_mode>;
+	mediatek,poll-link-phy = <0>;
 };

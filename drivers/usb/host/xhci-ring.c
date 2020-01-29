@@ -14,12 +14,13 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <asm/byteorder.h>
 #include <usb.h>
 #include <asm/unaligned.h>
 #include <linux/errno.h>
 
-#include "xhci.h"
+#include <usb/xhci.h>
 
 /**
  * Is this TRB a link TRB or was the last TRB the last TRB in this event ring
@@ -827,7 +828,7 @@ int xhci_ctrl_tx(struct usb_device *udev, unsigned long pipe,
 		field |= 0x1;
 
 	/* xHCI 1.0 6.4.1.2.1: Transfer Type field */
-	if (HC_VERSION(xhci_readl(&ctrl->hccr->cr_capbase)) == 0x100) {
+	if (HC_VERSION(xhci_readl(&ctrl->hccr->cr_capbase)) >= 0x100) {
 		if (length > 0) {
 			if (req->requesttype & USB_DIR_IN)
 				field |= (TRB_DATA_IN << TRB_TX_TYPE_SHIFT);

@@ -5,7 +5,10 @@
 
 #include <common.h>
 #include <dm.h>
+#include <env.h>
 #include <fdtdec.h>
+#include <spl.h>
+#include <init.h>
 #include <virtio_types.h>
 #include <virtio.h>
 
@@ -87,3 +90,19 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	return 0;
 }
+
+#ifdef CONFIG_SPL
+u32 spl_boot_device(void)
+{
+	/* RISC-V QEMU only supports RAM as SPL boot device */
+	return BOOT_DEVICE_RAM;
+}
+#endif
+
+#ifdef CONFIG_SPL_LOAD_FIT
+int board_fit_config_name_match(const char *name)
+{
+	/* boot using first FIT config */
+	return 0;
+}
+#endif

@@ -1,0 +1,86 @@
+MediaTek T-PHY binding
+--------------------------
+
+T-phy controller supports physical layer functionality for a number of
+controllers on MediaTek SoCs, such as, USB2.0, USB3.0, PCIe, and SATA.
+
+Required properties (controller (parent) node):
+ - compatible	: should be one of
+		  "mediatek,generic-tphy-v1"
+ - clocks	: (deprecated, use port's clocks instead) a list of phandle +
+		  clock-specifier pairs, one for each entry in clock-names
+ - clock-names	: (deprecated, use port's one instead) must contain
+		  "u3phya_ref": for reference clock of usb3.0 analog phy.
+
+Required nodes	: a sub-node is required for each port the controller
+		  provides. Address range information including the usual
+		  'reg' property is used inside these nodes to describe
+		  the controller's topology.
+
+Optional properties (controller (parent) node):
+ - reg		: offset and length of register shared by multiple ports,
+		  exclude port's private register.
+ - mediatek,src-ref-clk-mhz	: frequency of reference clock for slew rate
+		  calibrate
+ - mediatek,src-coef	: coefficient for slew rate calibrate, depends on
+		  SoC process
+
+Required properties (port (child) node):
+- reg		: address and length of the register set for the port.
+- clocks	: a list of phandle + clock-specifier pairs, one for each
+		  entry in clock-names
+- clock-names	: must contain
+		  "ref": 48M reference clock for HighSpeed analog phy; and 26M
+			reference clock for SuperSpeed analog phy, sometimes is
+			24M, 25M or 27M, depended on platform.
+- #phy-cells	: should be 1 (See second example)
+		  cell after port phandle is phy type from:
+			- PHY_TYPE_USB2
+			- PHY_TYPE_USB3
+			- PHY_TYPE_PCIE
+			- PHY_TYPE_SATA
+
+Example:
+
+	u3phy2: usb-phy@1a244000 {
+		compatible = "mediatek,generic-tphy-v1";
+		reg = <0x1a244000 0x0700>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+		status = "disabled";
+
+		u2port1: usb-phy@1a244800 {
+			reg = <0x1a244800 0x0100>;
+			clocks = <&topckgen CLK_TOP_USB_PHY48M>;
+			clock-names = "ref";
+			#phy-cells = <1>;
+			status = "okay";
+		};
+
+		u3port1: usb-phy@1a244900 {
+			reg = <0x1a244900 0x0700>;
+			clocks = <&clk26m>;
+			clock-names = "ref";
+			#phy-cells = <1>;
+			status = "okay";
+		};
+	};
+
+Specifying phy control of devices
+---------------------------------
+
+Device nodes should specify the configuration required in their "phys"
+property, containing a phandle to the phy port node and a device type;
+phy-names for each port are optional.
+
+Example:
+
+#include <dt-bindings/phy/phy.h>
+
+usb30: usb@11270000 {
+	...
+	phys = <&u2port0 PHY_TYPE_USB2>, <&u3port0 PHY_TYPE_USB3>;
+	phy-names = "usb2-0", "usb3-0";
+	...
+};

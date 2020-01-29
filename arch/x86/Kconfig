@@ -32,7 +32,6 @@ config X86_RUN_32BIT
 config X86_RUN_64BIT
 	bool "64-bit"
 	select X86_64
-	select SUPPORT_SPL
 	select SPL
 	select SPL_SEPARATE_BSS
 	help
@@ -116,6 +115,7 @@ source "arch/x86/cpu/efi/Kconfig"
 source "arch/x86/cpu/qemu/Kconfig"
 source "arch/x86/cpu/quark/Kconfig"
 source "arch/x86/cpu/queensbay/Kconfig"
+source "arch/x86/cpu/slimbootloader/Kconfig"
 source "arch/x86/cpu/tangier/Kconfig"
 
 # architecture-specific options below
@@ -177,9 +177,16 @@ config X86_16BIT_INIT
 config SPL_X86_16BIT_INIT
 	bool
 	depends on X86_RESET_VECTOR
-	default y if X86_RESET_VECTOR && SPL
+	default y if X86_RESET_VECTOR && SPL && !TPL
 	help
 	  This is enabled when 16-bit init is in SPL
+
+config TPL_X86_16BIT_INIT
+	bool
+	depends on X86_RESET_VECTOR
+	default y if X86_RESET_VECTOR && TPL
+	help
+	  This is enabled when 16-bit init is in TPL
 
 config X86_32BIT_INIT
 	bool
@@ -199,11 +206,6 @@ config RESET_SEG_START
 	hex
 	depends on X86_RESET_VECTOR
 	default 0xffff0000
-
-config RESET_SEG_SIZE
-	hex
-	depends on X86_RESET_VECTOR
-	default 0x10000
 
 config RESET_VEC_LOC
 	hex
@@ -338,9 +340,17 @@ config INTEL_ME_FILE
 	  The filename of the file to use as Intel Management Engine in the
 	  board directory.
 
+config USE_HOB
+	bool "Use HOB (Hand-Off Block)"
+	help
+	  Select this option to access HOB (Hand-Off Block) data structures
+	  and parse HOBs. This HOB infra structure can be reused with
+	  different solutions across different platforms.
+
 config HAVE_FSP
 	bool "Add an Firmware Support Package binary"
 	depends on !EFI
+	select USE_HOB
 	help
 	  Select this option to add an Firmware Support Package binary to
 	  the resulting U-Boot image. It is a binary blob which U-Boot uses
@@ -349,9 +359,40 @@ config HAVE_FSP
 	  Note: Without this binary U-Boot will not be able to set up its
 	  SDRAM so will not boot.
 
+config USE_CAR
+	bool "Use Cache-As-RAM (CAR) to get temporary RAM at start-up"
+	default y if !HAVE_FSP
+	help
+	  Select this option if your board uses CAR init code, typically in a
+	  car.S file, to get some initial memory for code execution. This is
+	  common with Intel CPUs which don't use FSP.
+
+choice
+	prompt "FSP version"
+	depends on HAVE_FSP
+	default FSP_VERSION1
+	help
+	  Selects the FSP version to use. Intel has published several versions
+	  of the FSP External Architecture Specification and this allows
+	  selection of the version number used by a particular SoC.
+
+config FSP_VERSION1
+	bool "FSP version 1.x"
+	help
+	  This covers versions 1.0 and 1.1a. See here for details:
+	  https://github.com/IntelFsp/fsp/wiki
+
+config FSP_VERSION2
+	bool "FSP version 2.x"
+	help
+	  This covers versions 2.0 and 2.1. See here for details:
+	  https://github.com/IntelFsp/fsp/wiki
+
+endchoice
+
 config FSP_FILE
 	string "Firmware Support Package binary filename"
-	depends on HAVE_FSP
+	depends on FSP_VERSION1
 	default "fsp.bin"
 	help
 	  The filename of the file to use as Firmware Support Package binary
@@ -359,7 +400,7 @@ config FSP_FILE
 
 config FSP_ADDR
 	hex "Firmware Support Package binary location"
-	depends on HAVE_FSP
+	depends on FSP_VERSION1
 	default 0xfffc0000
 	help
 	  FSP is not Position Independent Code (PIC) and the whole FSP has to
@@ -372,7 +413,7 @@ config FSP_ADDR
 
 config FSP_TEMP_RAM_ADDR
 	hex
-	depends on HAVE_FSP
+	depends on FSP_VERSION1
 	default 0x2000000
 	help
 	  Stack top address which is used in fsp_init() after DRAM is ready and
@@ -380,14 +421,14 @@ config FSP_TEMP_RAM_ADDR
 
 config FSP_SYS_MALLOC_F_LEN
 	hex
-	depends on HAVE_FSP
+	depends on FSP_VERSION1
 	default 0x100000
 	help
 	  Additional size of malloc() pool before relocation.
 
 config FSP_USE_UPD
 	bool
-	depends on HAVE_FSP
+	depends on FSP_VERSION1
 	default y
 	help
 	  Most FSPs use UPD data region for some FSP customization. But there
@@ -396,7 +437,7 @@ config FSP_USE_UPD
 
 config FSP_BROKEN_HOB
 	bool
-	depends on HAVE_FSP
+	depends on FSP_VERSION1
 	help
 	  Indicate some buggy FSPs that does not report memory used by FSP
 	  itself as reserved in the resource descriptor HOB. Select this to
@@ -414,8 +455,8 @@ config ENABLE_MRC_CACHE
 
 	  For platforms that use Intel FSP for the memory initialization,
 	  please check FSP output HOB via U-Boot command 'fsp hob' to see
-	  if there is FSP_NON_VOLATILE_STORAGE_HOB_GUID (asm/fsp/fsp_hob.h).
-	  If such GUID does not exist, MRC cache is not avaiable on such
+	  if there is FSP_NON_VOLATILE_STORAGE_HOB_GUID (asm/fsp1/fsp_hob.h).
+	  If such GUID does not exist, MRC cache is not available on such
 	  platform (eg: Intel Queensbay), which means selecting this option
 	  here does not make any difference.
 
@@ -554,7 +595,7 @@ config VGA_BIOS_ADDR
 
 config HAVE_VBT
 	bool "Add a Video BIOS Table (VBT) image"
-	depends on HAVE_FSP
+	depends on FSP_VERSION1
 	help
 	  Select this option if you have a Video BIOS Table (VBT) image that
 	  you would like to add to your ROM. This is normally required if you

@@ -6,11 +6,13 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <malloc.h>
 #include "fsl_sec.h"
 #include "jr.h"
 #include "jobdesc.h"
 #include "desc_constr.h"
+#include <time.h>
 #ifdef CONFIG_FSL_CORENET
 #include <asm/fsl_pamu.h>
 #endif
@@ -578,8 +580,6 @@ int sec_init_idx(uint8_t sec_idx)
 {
 	ccsr_sec_t *sec = (void *)SEC_ADDR(sec_idx);
 	uint32_t mcr = sec_in32(&sec->mcfgr);
-	uint32_t jrown_ns;
-	int i;
 	int ret = 0;
 
 #ifdef CONFIG_FSL_CORENET
@@ -634,13 +634,6 @@ int sec_init_idx(uint8_t sec_idx)
 	liodn_s = (liodnr & JRSLIODN_MASK) >> JRSLIODN_SHIFT;
 #endif
 #endif
-
-	/* Set ownership of job rings to non-TrustZone mode by default */
-	for (i = 0; i < ARRAY_SIZE(sec->jrliodnr); i++) {
-		jrown_ns = sec_in32(&sec->jrliodnr[i].ms);
-		jrown_ns |= JROWN_NS | JRMID_NS;
-		sec_out32(&sec->jrliodnr[i].ms, jrown_ns);
-	}
 
 	ret = jr_init(sec_idx);
 	if (ret < 0) {

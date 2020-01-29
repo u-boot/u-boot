@@ -37,6 +37,7 @@ config TARGET_B4860QDS
 	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select PHYS_64BIT
+	select FSL_DDR_INTERACTIVE if !SPL_BUILD
 	imply PANIC_HANG
 
 config TARGET_BSC9131RDB
@@ -51,6 +52,7 @@ config TARGET_BSC9132QDS
 	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select BOARD_EARLY_INIT_F
+	select FSL_DDR_INTERACTIVE
 
 config TARGET_C29XPCIE
 	bool "Support C29XPCIE"
@@ -165,6 +167,7 @@ config TARGET_P1022DS
 config TARGET_P1023RDB
 	bool "Support P1023RDB"
 	select ARCH_P1023
+	select FSL_DDR_INTERACTIVE
 	imply CMD_EEPROM
 	imply PANIC_HANG
 
@@ -273,6 +276,7 @@ config TARGET_T1023RDB
 	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select PHYS_64BIT
+	select FSL_DDR_INTERACTIVE
 	imply CMD_EEPROM
 	imply PANIC_HANG
 
@@ -282,6 +286,7 @@ config TARGET_T1024RDB
 	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select PHYS_64BIT
+	select FSL_DDR_INTERACTIVE
 	imply CMD_EEPROM
 	imply PANIC_HANG
 
@@ -290,6 +295,7 @@ config TARGET_T1040QDS
 	select ARCH_T1040
 	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select PHYS_64BIT
+	select FSL_DDR_INTERACTIVE
 	imply CMD_EEPROM
 	imply CMD_SATA
 	imply PANIC_HANG
@@ -344,7 +350,8 @@ config TARGET_T2080QDS
 	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select PHYS_64BIT
-	imply CMD_SATA
+	select FSL_DDR_FIRST_SLOT_QUAD_CAPABLE
+	select FSL_DDR_INTERACTIVE
 
 config TARGET_T2080RDB
 	bool "Support T2080RDB"
@@ -353,6 +360,7 @@ config TARGET_T2080RDB
 	select SUPPORT_SPL
 	select PHYS_64BIT
 	imply CMD_SATA
+	imply FSL_SATA
 	imply PANIC_HANG
 
 config TARGET_T2081QDS
@@ -360,6 +368,8 @@ config TARGET_T2081QDS
 	select ARCH_T2081
 	select SUPPORT_SPL
 	select PHYS_64BIT
+	select FSL_DDR_FIRST_SLOT_QUAD_CAPABLE
+	select FSL_DDR_INTERACTIVE
 
 config TARGET_T4160QDS
 	bool "Support T4160QDS"
@@ -383,6 +393,7 @@ config TARGET_T4240QDS
 	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select PHYS_64BIT
+	select FSL_DDR_FIRST_SLOT_QUAD_CAPABLE
 	imply CMD_SATA
 	imply PANIC_HANG
 
@@ -391,6 +402,7 @@ config TARGET_T4240RDB
 	select ARCH_T4240
 	select SUPPORT_SPL
 	select PHYS_64BIT
+	select FSL_DDR_FIRST_SLOT_QUAD_CAPABLE
 	imply CMD_SATA
 	imply PANIC_HANG
 
@@ -400,10 +412,7 @@ config TARGET_CONTROLCENTERD
 
 config TARGET_KMP204X
 	bool "Support kmp204x"
-	select ARCH_P2041
-	select PHYS_64BIT
-	imply CMD_CRAMFS
-	imply FS_CRAMFS
+	select VENDOR_KM
 
 config TARGET_XPEDITE520X
 	bool "Support xpedite520x"
@@ -520,6 +529,7 @@ config ARCH_BSC9132
 	select SYS_FSL_ERRATUM_ESDHC111
 	select SYS_FSL_ERRATUM_I2C_A004447
 	select SYS_FSL_ERRATUM_IFC_A002769
+	select FSL_PCIE_RESET
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
@@ -538,6 +548,7 @@ config ARCH_C29X
 	select SYS_FSL_DDR_VER_46
 	select SYS_FSL_ERRATUM_A005125
 	select SYS_FSL_ERRATUM_ESDHC111
+	select FSL_PCIE_RESET
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
@@ -553,6 +564,7 @@ config ARCH_MPC8536
 	select FSL_LAW
 	select SYS_FSL_ERRATUM_A004508
 	select SYS_FSL_ERRATUM_A005125
+	select FSL_PCIE_RESET
 	select SYS_FSL_HAS_DDR2
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
@@ -581,6 +593,7 @@ config ARCH_MPC8544
 	bool
 	select FSL_LAW
 	select SYS_FSL_ERRATUM_A005125
+	select FSL_PCIE_RESET
 	select SYS_FSL_HAS_DDR2
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
@@ -596,6 +609,7 @@ config ARCH_MPC8548
 	select SYS_FSL_ERRATUM_NMG_LBC103
 	select SYS_FSL_ERRATUM_NMG_ETSEC129
 	select SYS_FSL_ERRATUM_I2C_A004447
+	select FSL_PCIE_RESET
 	select SYS_FSL_HAS_DDR2
 	select SYS_FSL_HAS_DDR1
 	select SYS_FSL_HAS_SEC
@@ -620,6 +634,7 @@ config ARCH_MPC8560
 config ARCH_MPC8568
 	bool
 	select FSL_LAW
+	select FSL_PCIE_RESET
 	select SYS_FSL_HAS_DDR2
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
@@ -630,6 +645,7 @@ config ARCH_MPC8569
 	select FSL_LAW
 	select SYS_FSL_ERRATUM_A004508
 	select SYS_FSL_ERRATUM_A005125
+	select FSL_PCIE_RESET
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
@@ -644,6 +660,7 @@ config ARCH_MPC8572
 	select SYS_FSL_ERRATUM_A005125
 	select SYS_FSL_ERRATUM_DDR_115
 	select SYS_FSL_ERRATUM_DDR111_DDR134
+	select FSL_PCIE_RESET
 	select SYS_FSL_HAS_DDR2
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
@@ -668,6 +685,7 @@ config ARCH_P1010
 	select SYS_FSL_ERRATUM_P1010_A003549
 	select SYS_FSL_ERRATUM_SEC_A003571
 	select SYS_FSL_ERRATUM_IFC_A003399
+	select FSL_PCIE_RESET
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
@@ -689,6 +707,7 @@ config ARCH_P1011
 	select SYS_FSL_ERRATUM_A005125
 	select SYS_FSL_ERRATUM_ELBC_A001
 	select SYS_FSL_ERRATUM_ESDHC111
+	select FSL_PCIE_DISABLE_ASPM
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
@@ -703,6 +722,8 @@ config ARCH_P1020
 	select SYS_FSL_ERRATUM_A005125
 	select SYS_FSL_ERRATUM_ELBC_A001
 	select SYS_FSL_ERRATUM_ESDHC111
+	select FSL_PCIE_DISABLE_ASPM
+	select FSL_PCIE_RESET
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
@@ -722,6 +743,8 @@ config ARCH_P1021
 	select SYS_FSL_ERRATUM_A005125
 	select SYS_FSL_ERRATUM_ELBC_A001
 	select SYS_FSL_ERRATUM_ESDHC111
+	select FSL_PCIE_DISABLE_ASPM
+	select FSL_PCIE_RESET
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
@@ -743,6 +766,7 @@ config ARCH_P1022
 	select SYS_FSL_ERRATUM_ELBC_A001
 	select SYS_FSL_ERRATUM_ESDHC111
 	select SYS_FSL_ERRATUM_SATA_A001
+	select FSL_PCIE_RESET
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
@@ -756,6 +780,7 @@ config ARCH_P1023
 	select SYS_FSL_ERRATUM_A004508
 	select SYS_FSL_ERRATUM_A005125
 	select SYS_FSL_ERRATUM_I2C_A004447
+	select FSL_PCIE_RESET
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
@@ -769,6 +794,8 @@ config ARCH_P1024
 	select SYS_FSL_ERRATUM_A005125
 	select SYS_FSL_ERRATUM_ELBC_A001
 	select SYS_FSL_ERRATUM_ESDHC111
+	select FSL_PCIE_DISABLE_ASPM
+	select FSL_PCIE_RESET
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
@@ -789,6 +816,8 @@ config ARCH_P1025
 	select SYS_FSL_ERRATUM_A005125
 	select SYS_FSL_ERRATUM_ELBC_A001
 	select SYS_FSL_ERRATUM_ESDHC111
+	select FSL_PCIE_DISABLE_ASPM
+	select FSL_PCIE_RESET
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
@@ -806,6 +835,7 @@ config ARCH_P2020
 	select SYS_FSL_ERRATUM_A005125
 	select SYS_FSL_ERRATUM_ESDHC111
 	select SYS_FSL_ERRATUM_ESDHC_A001
+	select FSL_PCIE_RESET
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_BE
@@ -1061,6 +1091,7 @@ config ARCH_T2080
 	select SYS_FSL_ERRATUM_A007907
 	select SYS_FSL_ERRATUM_A009942
 	select SYS_FSL_ERRATUM_ESDHC111
+	select FSL_PCIE_RESET
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_QORIQ_CHASSIS2
@@ -1068,10 +1099,8 @@ config ARCH_T2080
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
 	select FSL_IFC
-	imply CMD_SATA
 	imply CMD_NAND
 	imply CMD_REGINFO
-	imply FSL_SATA
 
 config ARCH_T2081
 	bool
@@ -1085,6 +1114,7 @@ config ARCH_T2081
 	select SYS_FSL_ERRATUM_A007212
 	select SYS_FSL_ERRATUM_A009942
 	select SYS_FSL_ERRATUM_ESDHC111
+	select FSL_PCIE_RESET
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_QORIQ_CHASSIS2
@@ -1178,8 +1208,8 @@ config FSL_LAW
 	help
 		Use Freescale common code for Local Access Window
 
-config SECURE_BOOT
-	bool	"Secure Boot"
+config NXP_ESBC
+	bool	"NXP_ESBC"
 	help
 		Enable Freescale Secure Boot feature. Normally selected
 		by defconfig. If unsure, do not change.
@@ -1418,6 +1448,12 @@ config SYS_P4080_ERRATUM_SERDES_A001
 config SYS_P4080_ERRATUM_SERDES_A005
 	bool
 
+config FSL_PCIE_DISABLE_ASPM
+	bool
+
+config FSL_PCIE_RESET
+	bool
+
 config SYS_FSL_QORIQ_CHASSIS1
 	bool
 
@@ -1580,7 +1616,7 @@ source "board/freescale/t208xrdb/Kconfig"
 source "board/freescale/t4qds/Kconfig"
 source "board/freescale/t4rdb/Kconfig"
 source "board/gdsys/p1022/Kconfig"
-source "board/keymile/kmp204x/Kconfig"
+source "board/keymile/Kconfig"
 source "board/sbc8548/Kconfig"
 source "board/socrates/Kconfig"
 source "board/varisys/cyrus/Kconfig"

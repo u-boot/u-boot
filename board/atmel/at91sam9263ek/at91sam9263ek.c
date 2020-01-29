@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <debug_uart.h>
+#include <vsprintf.h>
 #include <linux/sizes.h>
 #include <asm/arch/at91sam9263.h>
 #include <asm/arch/at91sam9_smc.h>

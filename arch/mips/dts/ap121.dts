@@ -34,7 +34,7 @@
 	spi-flash@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		memory-map = <0x9f000000 0x00800000>;
 		spi-max-frequency = <25000000>;
 		reg = <0>;

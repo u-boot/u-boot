@@ -12,6 +12,8 @@
 
 #include <common.h>
 #include <dm.h>
+#include <efi_loader.h>
+#include <irq_func.h>
 #include <asm/control_regs.h>
 #include <asm/i8259.h>
 #include <asm/interrupt.h>
@@ -37,7 +39,7 @@ static char *exceptions[] = {
 	"Overflow",
 	"BOUND Range Exceeded",
 	"Invalid Opcode (Undefined Opcode)",
-	"Device Not Avaiable (No Math Coprocessor)",
+	"Device Not Available (No Math Coprocessor)",
 	"Double Fault",
 	"Coprocessor Segment Overrun",
 	"Invalid TSS",
@@ -63,6 +65,18 @@ static char *exceptions[] = {
 	"Reserved",
 	"Reserved"
 };
+
+/**
+ * show_efi_loaded_images() - show loaded UEFI images
+ *
+ * List all loaded UEFI images.
+ *
+ * @eip:	instruction pointer
+ */
+static void show_efi_loaded_images(uintptr_t eip)
+{
+	efi_print_image_infos((void *)eip);
+}
 
 static void dump_regs(struct irq_regs *regs)
 {
@@ -144,6 +158,7 @@ static void dump_regs(struct irq_regs *regs)
 		printf("0x%8.8lx : 0x%8.8lx\n", sp, (ulong)readl(sp));
 		sp -= 4;
 	}
+	show_efi_loaded_images(eip);
 }
 
 static void do_exception(struct irq_regs *regs)

@@ -19,9 +19,6 @@
 #define CONFIG_MXC_UART_BASE	UART3_BASE
 #define CONSOLE_DEV	"ttymxc2"
 
-#define CONFIG_SUPPORT_EMMC_BOOT
-
-
 #include "mx6_common.h"
 #include <linux/sizes.h>
 
@@ -31,11 +28,7 @@
 #define CONFIG_REVISION_TAG
 #define CONFIG_SYS_MALLOC_LEN		(10 * SZ_1M)
 
-#define CONFIG_WATCHDOG_TIMEOUT_MSECS 6000
-
 #define CONFIG_MXC_UART
-
-#define CONFIG_MXC_OCOTP
 
 /* SATA Configs */
 #ifdef CONFIG_CMD_SATA
@@ -44,10 +37,6 @@
 #define CONFIG_DWC_AHSATA_BASE_ADDR	SATA_ARB_BASE_ADDR
 #define CONFIG_LBA48
 #endif
-
-/* MMC Configs */
-#define CONFIG_FSL_USDHC
-#define CONFIG_SYS_FSL_ESDHC_ADDR      0
 
 /* USB Configs */
 #ifdef CONFIG_USB
@@ -71,24 +60,43 @@
 #endif
 
 /* Serial Flash */
-#ifdef CONFIG_CMD_SF
-#define CONFIG_SF_DEFAULT_BUS		0
-#define CONFIG_SF_DEFAULT_CS		0
-#define CONFIG_SF_DEFAULT_SPEED	20000000
-#define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
-#endif
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_LOADADDR	0x12000000
 
+#ifdef CONFIG_NFS_CMD
+#define NETWORKBOOT \
+        "setnetworkboot=" \
+                "setenv ipaddr 172.16.2.10; setenv serverip 172.16.2.20; " \
+                "setenv gatewayip 172.16.2.20; setenv nfsserver 172.16.2.20; " \
+                "setenv netmask 255.255.255.0; setenv ethaddr ca:fe:de:ca:f0:11; " \
+                "setenv bootargs root=/dev/nfs nfsroot=${nfsserver}:/srv/nfs/,v3,tcp rw rootwait" \
+                "setenv bootargs $bootargs ip=${ipaddr}:${nfsserver}:${gatewayip}:${netmask}::eth0:off " \
+                "setenv bootargs $bootargs cma=128M bootcause=POR console=${console} ${videoargs} " \
+                "setenv bootargs $bootargs systemd.mask=helix-network-defaults.service " \
+                "setenv bootargs $bootargs watchdog.handle_boot_enabled=1\0" \
+        "networkboot=" \
+                "run setnetworkboot; " \
+                "nfs ${loadaddr} /srv/nfs/fitImage; " \
+                "bootm ${loadaddr}#conf@${confidx}\0" \
+
+#define CONFIG_NETWORKBOOTCOMMAND \
+	"run networkboot; " \
+
+#else
+#define NETWORKBOOT \
+
+#endif
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	NETWORKBOOT \
 	"bootcause=POR\0" \
 	"image=/boot/fitImage\0" \
 	"fdt_high=0xffffffff\0" \
 	"dev=mmc\0" \
-	"devnum=1\0" \
+	"devnum=2\0" \
 	"rootdev=mmcblk0p\0" \
 	"quiet=quiet loglevel=0\0" \
 	"console=" CONSOLE_DEV "\0" \
@@ -146,13 +154,14 @@
 #define CONFIG_USBBOOTCOMMAND \
 	"echo Unsupported; " \
 
-#ifdef CONFIG_CMD_USB
+#ifdef CONFIG_NFS_CMD
+#define CONFIG_BOOTCOMMAND CONFIG_NETWORKBOOTCOMMAND
+#elif CONFIG_CMD_USB
 #define CONFIG_BOOTCOMMAND CONFIG_USBBOOTCOMMAND
 #else
 #define CONFIG_BOOTCOMMAND CONFIG_MMCBOOTCOMMAND
 #endif
 
-#define CONFIG_ARP_TIMEOUT     200UL
 
 /* Miscellaneous configurable options */
 
@@ -175,31 +184,15 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* environment organization */
-#define CONFIG_ENV_SIZE		(8 * 1024)
-#define CONFIG_ENV_OFFSET		(768 * 1024)
-#define CONFIG_ENV_SECT_SIZE		(64 * 1024)
-#define CONFIG_ENV_SPI_BUS		CONFIG_SF_DEFAULT_BUS
-#define CONFIG_ENV_SPI_CS		CONFIG_SF_DEFAULT_CS
-#define CONFIG_ENV_SPI_MODE		CONFIG_SF_DEFAULT_MODE
-#define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED
 
 #define CONFIG_SYS_FSL_USDHC_NUM	3
 
 /* Framebuffer */
-#define CONFIG_VIDEO
-#ifdef CONFIG_VIDEO
-#define CONFIG_VIDEO_IPUV3
-#define CONFIG_CFB_CONSOLE
-#define CONFIG_VGA_AS_SINGLE_DEVICE
-#define CONFIG_SYS_CONSOLE_FG_COL 0xFF
-#define CONFIG_SYS_CONSOLE_BG_COL 0x00
 #define CONFIG_HIDE_LOGO_VERSION
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
 #define CONFIG_CMD_BMP
-#endif
 
-#define CONFIG_PWM_IMX
 #define CONFIG_IMX6_PWM_PER_CLK	66000000
 
 #define CONFIG_PCI

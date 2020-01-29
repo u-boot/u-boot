@@ -52,10 +52,16 @@
 
 #define DEFAULT_FIT_TI_ARGS \
 	"boot_fit=0\0" \
-	"fit_loadaddr=0x87000000\0" \
-	"fit_bootfile=fitImage\0" \
-	"update_to_fit=setenv loadaddr ${fit_loadaddr}; setenv bootfile ${fit_bootfile}\0" \
-	"loadfit=run args_mmc; bootm ${loadaddr}#${fdtfile};\0" \
+	"addr_fit=0x90000000\0" \
+	"name_fit=fitImage\0" \
+	"update_to_fit=setenv loadaddr ${addr_fit}; setenv bootfile ${name_fit}\0" \
+	"get_overlaystring=" \
+		"for overlay in $overlay_files;" \
+		"do;" \
+		"setenv overlaystring ${overlaystring}'#'${overlay};" \
+		"done;\0" \
+	"run_fit=bootm ${addr_fit}#${fdtfile}${overlaystring}\0" \
+	"loadfit=run args_mmc; run run_fit;\0" \
 
 /*
  * DDR information.  If the CONFIG_NR_DRAM_BANKS is not defined,
@@ -168,7 +174,7 @@
 
 /* General parts of the framework, required. */
 
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 #define CONFIG_SPL_NAND_BASE
 #define CONFIG_SPL_NAND_DRIVERS
 #define CONFIG_SPL_NAND_ECC

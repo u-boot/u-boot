@@ -42,7 +42,9 @@ void lynxkdi_boot(image_header_t *hdr);
 
 boot_os_fn *bootm_os_get_boot_func(int os);
 
+#if defined(CONFIG_FIT_SIGNATURE)
 int bootm_host_load_images(const void *fit, int cfg_noffset);
+#endif
 
 int boot_selected_os(int argc, char * const argv[], int state,
 		     bootm_headers_t *images, boot_os_fn *boot_fn);
@@ -57,23 +59,6 @@ int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 
 void arch_preboot_os(void);
 
-/**
- * bootm_decomp_image() - decompress the operating system
- *
- * @comp:	Compression algorithm that is used (IH_COMP_...)
- * @load:	Destination load address in U-Boot memory
- * @image_start Image start address (where we are decompressing from)
- * @type:	OS type (IH_OS_...)
- * @load_bug:	Place to decompress to
- * @image_buf:	Address to decompress from
- * @image_len:	Number of bytes in @image_buf to decompress
- * @unc_len:	Available space for decompression
- * @return 0 if OK, -ve on error (BOOTM_ERR_...)
- */
-int bootm_decomp_image(int comp, ulong load, ulong image_start, int type,
-		       void *load_buf, void *image_buf, ulong image_len,
-		       uint unc_len, ulong *load_end);
-
 /*
  * boards should define this to disable devices when EFI exits from boot
  * services.
@@ -81,5 +66,10 @@ int bootm_decomp_image(int comp, ulong load, ulong image_start, int type,
  * TODO(sjg@chromium.org>): Update this to use driver model's device_remove().
  */
 void board_quiesce_devices(void);
+
+/**
+ * switch_to_non_secure_mode() - switch to non-secure mode
+ */
+void switch_to_non_secure_mode(void);
 
 #endif

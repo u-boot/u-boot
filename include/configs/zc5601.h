@@ -13,8 +13,6 @@
 #define CONSOLE_DEV		"ttymxc1"
 #define CONFIG_MMCROOT			"/dev/mmcblk0p1"
 
-#define CONFIG_SUPPORT_EMMC_BOOT /* eMMC specific */
-
 #include "el6x_common.h"
 
 /* Ethernet */

@@ -28,11 +28,11 @@ Major Config Switches during various boot Modes
 NOR boot
 		!defined(CONFIG_SYS_RAMBOOT) && !defined(CONFIG_SPL)
 NOR boot Secure
-		!defined(CONFIG_SYS_RAMBOOT) && defined(CONFIG_SECURE_BOOT)
+		!defined(CONFIG_SYS_RAMBOOT) && defined(CONFIG_NXP_ESBC)
 RAMBOOT(SD, SPI & NAND boot)
 		 defined(CONFIG_SYS_RAMBOOT)
 RAMBOOT Secure (SD, SPI & NAND)
-		 defined(CONFIG_SYS_RAMBOOT) && defined(CONFIG_SECURE_BOOT)
+		 defined(CONFIG_SYS_RAMBOOT) && defined(CONFIG_NXP_ESBC)
 NAND SPL BOOT
 		 defined(CONFIG_SYS_RAMBOOT) && defined(CONFIG_NAND_SPL)
 
@@ -93,7 +93,7 @@ B) !defined(CONFIG_SYS_RAMBOOT) i.e. NOR boot
    1) TLB entry to overcome e500 v1/v2 debug restriction
        Location	  : Label "_start_e500"
        TLB Entry  : CONFIG_SYS_PPC_E500_DEBUG_TLB
-#if defined(CONFIG_SECURE_BOOT)
+#if defined(CONFIG_NXP_ESBC)
        EPN -->RPN : CONFIG_SYS_MONITOR_BASE --> CONFIG_SYS_PBI_FLASH_WINDOW
        Properties : 1M, AS1, I, G, IPROT
 #else
@@ -104,7 +104,7 @@ B) !defined(CONFIG_SYS_RAMBOOT) i.e. NOR boot
    2) TLB entry for working in AS1
        Location	  : Label "create_init_ram_area"
        TLB Entry  : 15
-#if defined(CONFIG_SECURE_BOOT)
+#if defined(CONFIG_NXP_ESBC)
        EPN -->RPN : CONFIG_SYS_MONITOR_BASE --> CONFIG_SYS_PBI_FLASH_WINDOW
        Properties : 1M, AS1, I, G, IPROT
 #else

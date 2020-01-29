@@ -46,6 +46,24 @@ config SPL_DM_MMC
 
 if MMC
 
+config MMC_SPI
+	bool "Support for SPI-based MMC controller"
+	depends on DM_MMC && DM_SPI
+	help
+	  This selects SPI-based MMC controllers.
+	  If you have an MMC controller on a SPI bus, say Y here.
+
+	  If unsure, say N.
+
+config MMC_SPI_CRC_ON
+	bool "Support CRC for SPI-based MMC controller"
+	depends on MMC_SPI
+	default y
+	help
+	  This enables CRC for SPI-based MMC controllers.
+
+	  If unsure, say N.
+
 config ARM_PL180_MMCI
 	bool "ARM AMBA Multimedia Card Interface and compatible support"
 	depends on DM_MMC && OF_CONTROL
@@ -77,6 +95,12 @@ config SUPPORT_EMMC_RPMB
 	help
 	  Enable support for reading, writing and programming the
 	  key for the Replay Protection Memory Block partition in eMMC.
+
+config SUPPORT_EMMC_BOOT
+	bool "Support some additional features of the eMMC boot partitions"
+	help
+	  Enable support for eMMC boot partitions. This also enables
+	  extensions within the mmc command.
 
 config MMC_IO_VOLTAGE
 	bool "Support IO voltage configuration"
@@ -111,6 +135,18 @@ config SPL_MMC_UHS_SUPPORT
 	  cards. The IO voltage must be switchable from 3.3v to 1.8v. The bus
 	  frequency can go up to 208MHz (SDR104)
 
+config MMC_HS400_ES_SUPPORT
+	bool "enable HS400 Enhanced Strobe support"
+	help
+	  The HS400 Enhanced Strobe mode is support by some eMMC. The bus
+	  frequency is up to 200MHz. This mode does not tune the IO.
+
+config SPL_MMC_HS400_ES_SUPPORT
+	bool "enable HS400 Enhanced Strobe support in SPL"
+	help
+	  The HS400 Enhanced Strobe mode is support by some eMMC. The bus
+	  frequency is up to 200MHz. This mode does not tune the IO.
+
 config MMC_HS400_SUPPORT
 	bool "enable HS400 support"
 	select MMC_HS200_SUPPORT
@@ -120,6 +156,7 @@ config MMC_HS400_SUPPORT
 
 config SPL_MMC_HS400_SUPPORT
 	bool "enable HS400 support in SPL"
+	select SPL_MMC_HS200_SUPPORT
 	help
 	  The HS400 mode is support by some eMMC. The bus frequency is up to
 	  200MHz. This mode requires tuning the IO.
@@ -129,7 +166,6 @@ config MMC_HS200_SUPPORT
 	help
 	  The HS200 mode is support by some eMMC. The bus frequency is up to
 	  200MHz. This mode requires tuning the IO.
-
 
 config SPL_MMC_HS200_SUPPORT
 	bool "enable HS200 support in SPL"
@@ -152,21 +188,6 @@ config MMC_TRACE
 
 	  If you need to see the MMC core message, say Y.
 
-config SPL_MMC_TINY
-	bool "Tiny MMC framework in SPL"
-	help
-	  Enable MMC framework tinification support. This option is useful if
-	  if your SPL is extremely size constrained. Heed the warning, enable
-	  this option if and only if you know exactly what you are doing, if
-	  you are reading this help text, you most likely have no idea :-)
-
-	  The MMC framework is reduced to bare minimum to be useful. No malloc
-	  support is needed for the MMC framework operation with this option
-	  enabled. The framework supports exactly one MMC device and exactly
-	  one MMC driver. The MMC driver can be adjusted to avoid any malloc
-	  operations too, which can remove the need for malloc support in SPL
-	  and thus further reduce footprint.
-
 config MMC_DAVINCI
 	bool "TI DAVINCI Multimedia Card Interface support"
 	depends on ARCH_DAVINCI
@@ -178,6 +199,7 @@ config MMC_DAVINCI
 
 config MMC_DW
 	bool "Synopsys DesignWare Memory Card Interface"
+	select BOUNCE_BUFFER
 	help
 	  This selects support for the Synopsys DesignWare Mobile Storage IP
 	  block, this provides host support for SD and MMC interfaces, in both
@@ -221,6 +243,16 @@ config MMC_DW_SOCFPGA
 	  Synopsys DesignWare Memory Card Interface driver. Select this option
 	  for platforms based on Altera SOCFPGA.
 
+config MMC_DW_SNPS
+	bool "Extensions for DW Memory Card Interface used in Synopsys ARC devboards"
+	depends on MMC_DW
+	depends on DM_MMC
+	depends on OF_CONTROL
+	depends on CLK
+	help
+	  This selects support for Synopsys DesignWare Memory Card Interface driver
+	  extensions used in various Synopsys ARC devboards.
+
 config MMC_MESON_GX
 	bool "Meson GX EMMC controller support"
 	depends on DM_MMC && BLK && ARCH_MESON
@@ -239,6 +271,7 @@ config MMC_MXC
 config MMC_MXS
 	bool "Freescale MXS Multimedia Card Interface support"
 	depends on MX23 || MX28 || MX6 || MX7
+	select BOUNCE_BUFFER
 	select APBH_DMA
 	select APBH_DMA_BURST if ARCH_MX6 || ARCH_MX7
 	select APBH_DMA_BURST8 if ARCH_MX6 || ARCH_MX7
@@ -373,6 +406,31 @@ config MMC_SDHCI_SDMA
 	  This enables support for the SDMA (Single Operation DMA) defined
 	  in the SD Host Controller Standard Specification Version 1.00 .
 
+config MMC_SDHCI_ADMA
+	bool "Support SDHCI ADMA2"
+	depends on MMC_SDHCI
+	help
+	  This enables support for the ADMA (Advanced DMA) defined
+	  in the SD Host Controller Standard Specification Version 3.00
+
+config SPL_MMC_SDHCI_ADMA
+	bool "Support SDHCI ADMA2 in SPL"
+	depends on MMC_SDHCI
+	help
+	  This enables support for the ADMA (Advanced DMA) defined
+	  in the SD Host Controller Standard Specification Version 3.00 in SPL.
+
+config MMC_SDHCI_ASPEED
+	bool "Aspeed SDHCI controller"
+	depends on ARCH_ASPEED
+	depends on DM_MMC
+	depends on MMC_SDHCI
+	help
+	  Enables support for the Aspeed SDHCI 2.0 controller present on Aspeed
+	  SoCs. This device is compatible with SD 3.0 and/or MMC 4.3
+	  specifications. On the AST2600, the device is also compatible with
+	  MMC 5.1 and eMMC 3.0.
+
 config MMC_SDHCI_ATMEL
 	bool "Atmel SDHCI controller support"
 	depends on ARCH_AT91
@@ -421,14 +479,26 @@ config MMC_SDHCI_CADENCE
 
 	  If unsure, say N.
 
-config MMC_SDHCI_K3_ARASAN
-	bool "Arasan SDHCI controller for TI's K3 based SoCs"
+config MMC_SDHCI_AM654
+	bool "SDHCI Controller on TI's Am654 devices"
 	depends on ARCH_K3
 	depends on MMC_SDHCI
 	depends on DM_MMC && OF_CONTROL && BLK
+	depends on REGMAP
 	help
-	  Support for Arasan SDHCI host controller on Texas Instruments'
-	  K3 family based SoC platforms
+	  Support for Secure Digital Host Controller Interface (SDHCI)
+	  controllers present on TI's AM654 SOCs.
+
+config MMC_SDHCI_IPROC
+	bool "SDHCI support for the iProc SD/MMC Controller"
+	depends on MMC_SDHCI
+	help
+	  This selects the iProc SD/MMC controller.
+
+	  If you have a Broadcom IPROC platform with SD or MMC devices,
+	  say Y or M here.
+
+	  If unsure, say N.
 
 config MMC_SDHCI_KONA
 	bool "SDHCI support on Broadcom KONA platform"
@@ -535,12 +605,24 @@ config MMC_SDHCI_TANGIER
 config MMC_SDHCI_TEGRA
 	bool "SDHCI platform support for the Tegra SD/MMC Controller"
 	depends on TEGRA
+	select BOUNCE_BUFFER
 	default y
 	help
 	  This selects the Tegra SD/MMC controller. If you have a Tegra
 	  platform with SD or MMC devices, say Y here.
 
 	  If unsure, say N.
+
+config TEGRA124_MMC_DISABLE_EXT_LOOPBACK
+	bool "Disable external clock loopback"
+	depends on MMC_SDHCI_TEGRA && TEGRA124
+	help
+	  Disable the external clock loopback and use the internal one on SDMMC3
+	  as per the SDMMC_VENDOR_MISC_CNTRL_0 register's SDMMC_SPARE1 bits
+	  being set to 0xfffd according to the TRM.
+
+	  TODO(marcel.ziswiler@toradex.com): Move to device tree controlled
+	  approach once proper kernel integration made it mainline.
 
 config MMC_SDHCI_ZYNQ
 	bool "Arasan SDHCI controller support"
@@ -616,7 +698,7 @@ config FTSDC010_SDIO
 
 config MMC_MTK
 	bool "MediaTek SD/MMC Card Interface support"
-	depends on ARCH_MEDIATEK
+	depends on ARCH_MEDIATEK || ARCH_MTMIPS
 	depends on BLK && DM_MMC
 	depends on OF_CONTROL
 	help
@@ -627,22 +709,33 @@ config MMC_MTK
 
 endif
 
-config TEGRA124_MMC_DISABLE_EXT_LOOPBACK
-	bool "Disable external clock loopback"
-	depends on MMC_SDHCI_TEGRA && TEGRA124
-	help
-	  Disable the external clock loopback and use the internal one on SDMMC3
-	  as per the SDMMC_VENDOR_MISC_CNTRL_0 register's SDMMC_SPARE1 bits
-	  being set to 0xfffd according to the TRM.
-
-	  TODO(marcel.ziswiler@toradex.com): Move to device tree controlled
-	  approach once proper kernel integration made it mainline.
-
 config FSL_ESDHC
 	bool "Freescale/NXP eSDHC controller support"
+	select FSL_ESDHC_USE_PERIPHERAL_CLK if MMC_HS200_SUPPORT || MMC_UHS_SUPPORT
 	help
-	  This selects support for the eSDHC (enhanced secure digital host
-	  controller) found on numerous Freescale/NXP SoCs.
+	  This selects support for the eSDHC (Enhanced Secure Digital Host
+	  Controller) found on numerous Freescale/NXP SoCs.
+
+config FSL_ESDHC_USE_PERIPHERAL_CLK
+	bool "enable ESDHC peripheral clock support"
+	depends on FSL_ESDHC
+	help
+	  eSDHC supports two reference clocks (platform clock and peripheral clock).
+	  Peripheral clock which could provide higher clock frequency is required to
+	  be used for tuning of SD UHS mode and eMMC HS200/HS400 modes.
+
+config FSL_ESDHC_IMX
+	bool "Freescale/NXP i.MX eSDHC controller support"
+	help
+	  This selects support for the i.MX eSDHC (Enhanced Secure Digital Host
+	  Controller) found on numerous Freescale/NXP SoCs.
+
+config FSL_USDHC
+	bool "Freescale/NXP i.MX uSDHC controller support"
+	depends on MX6 || MX7 ||ARCH_MX7ULP || IMX8 || IMX8M || TARGET_S32V234EVB
+	select FSL_ESDHC_IMX
+	help
+	  This enables the Ultra Secured Digital Host Controller enhancements
 
 endmenu
 

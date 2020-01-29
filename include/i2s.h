@@ -78,7 +78,7 @@ struct i2s_reg {
 /* This structure stores the i2s related information */
 struct i2s_uc_priv {
 	unsigned int rfs;		/* LR clock frame size */
-	unsigned int bfs;		/* Bit slock frame size */
+	unsigned int bfs;		/* Bit clock frame size */
 	unsigned int audio_pll_clk;	/* Audio pll frequency in Hz */
 	unsigned int samplingrate;	/* sampling rate */
 	unsigned int bitspersample;	/* bits per sample */
@@ -122,14 +122,5 @@ int i2s_tx_data(struct udevice *dev, void *data, uint data_size);
  */
 int i2s_transfer_tx_data(struct i2s_uc_priv *pi2s_tx, void *data,
 			 uint data_size);
-
-/*
- * Initialise i2s transmiter
- *
- * @param pi2s_tx	pointer of i2s transmitter parameter structure.
- *
- * @return		int value 0 for success, -1 in case of error
- */
-int i2s_tx_init(struct i2s_uc_priv *pi2s_tx);
 
 #endif /* __I2S_H__ */

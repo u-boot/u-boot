@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <clk.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <linux/libfdt.h>
@@ -14,6 +15,7 @@
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <linux/iopoll.h>
+#include <watchdog.h>
 
 struct stm32_sdmmc2_plat {
 	struct mmc_config cfg;
@@ -190,6 +192,7 @@ struct stm32_sdmmc2_ctx {
 #define SDMMC_IDMACTRL_IDMAEN		BIT(0)
 
 #define SDMMC_CMD_TIMEOUT		0xFFFFFFFF
+#define SDMMC_BUSYD0END_TIMEOUT_US	2000000
 
 static void stm32_sdmmc2_start_data(struct stm32_sdmmc2_priv *priv,
 				    struct mmc_data *data,
@@ -208,9 +211,6 @@ static void stm32_sdmmc2_start_data(struct stm32_sdmmc2_priv *priv,
 	} else {
 		idmabase0 = (u32)data->src;
 	}
-
-	/* Set the SDMMC Data TimeOut value */
-	writel(SDMMC_CMD_TIMEOUT, priv->base + SDMMC_DTIMER);
 
 	/* Set the SDMMC DataLength value */
 	writel(ctx->data_length, priv->base + SDMMC_DLEN);
@@ -236,8 +236,11 @@ static void stm32_sdmmc2_start_data(struct stm32_sdmmc2_priv *priv,
 }
 
 static void stm32_sdmmc2_start_cmd(struct stm32_sdmmc2_priv *priv,
-				   struct mmc_cmd *cmd, u32 cmd_param)
+				   struct mmc_cmd *cmd, u32 cmd_param,
+				   struct stm32_sdmmc2_ctx *ctx)
 {
+	u32 timeout = 0;
+
 	if (readl(priv->base + SDMMC_CMD) & SDMMC_CMD_CPSMEN)
 		writel(0, priv->base + SDMMC_CMD);
 
@@ -250,6 +253,26 @@ static void stm32_sdmmc2_start_cmd(struct stm32_sdmmc2_priv *priv,
 		else
 			cmd_param |= SDMMC_CMD_WAITRESP_1;
 	}
+
+	/*
+	 * SDMMC_DTIME must be set in two case:
+	 * - on data transfert.
+	 * - on busy request.
+	 * If not done or too short, the dtimeout flag occurs and DPSM stays
+	 * enabled/busy and waits for abort (stop transmission cmd).
+	 * Next data command is not possible whereas DPSM is activated.
+	 */
+	if (ctx->data_length) {
+		timeout = SDMMC_CMD_TIMEOUT;
+	} else {
+		writel(0, priv->base + SDMMC_DCTRL);
+
+		if (cmd->resp_type & MMC_RSP_BUSY)
+			timeout = SDMMC_CMD_TIMEOUT;
+	}
+
+	/* Set the SDMMC Data TimeOut value */
+	writel(timeout, priv->base + SDMMC_DTIMER);
 
 	/* Clear flags */
 	writel(SDMMC_ICR_STATIC_FLAGS, priv->base + SDMMC_ICR);
@@ -308,6 +331,31 @@ static int stm32_sdmmc2_end_cmd(struct stm32_sdmmc2_priv *priv,
 			cmd->response[1] = readl(priv->base + SDMMC_RESP2);
 			cmd->response[2] = readl(priv->base + SDMMC_RESP3);
 			cmd->response[3] = readl(priv->base + SDMMC_RESP4);
+		}
+
+		/* Wait for BUSYD0END flag if busy status is detected */
+		if (cmd->resp_type & MMC_RSP_BUSY &&
+		    status & SDMMC_STA_BUSYD0) {
+			mask = SDMMC_STA_DTIMEOUT | SDMMC_STA_BUSYD0END;
+
+			/* Polling status register */
+			ret = readl_poll_timeout(priv->base + SDMMC_STA,
+						 status, status & mask,
+						 SDMMC_BUSYD0END_TIMEOUT_US);
+
+			if (ret < 0) {
+				debug("%s: timeout reading SDMMC_STA\n",
+				      __func__);
+				ctx->dpsm_abort = true;
+				return ret;
+			}
+
+			if (status & SDMMC_STA_DTIMEOUT) {
+				debug("%s: error SDMMC_STA_DTIMEOUT (0x%x)\n",
+				      __func__, status);
+				ctx->dpsm_abort = true;
+				return -ETIMEDOUT;
+			}
 		}
 	}
 
@@ -386,6 +434,8 @@ static int stm32_sdmmc2_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 	u32 cmdat = data ? SDMMC_CMD_CMDTRANS : 0;
 	int ret, retry = 3;
 
+	WATCHDOG_RESET();
+
 retry_cmd:
 	ctx.data_length = 0;
 	ctx.dpsm_abort = false;
@@ -395,7 +445,7 @@ retry_cmd:
 		stm32_sdmmc2_start_data(priv, data, &ctx);
 	}
 
-	stm32_sdmmc2_start_cmd(priv, cmd, cmdat);
+	stm32_sdmmc2_start_cmd(priv, cmd, cmdat, &ctx);
 
 	debug("%s: send cmd %d data: 0x%x @ 0x%x\n",
 	      __func__, cmd->cmdidx,
@@ -425,7 +475,10 @@ retry_cmd:
 		debug("%s: send STOP command to abort dpsm treatments\n",
 		      __func__);
 
-		stm32_sdmmc2_start_cmd(priv, &stop_cmd, SDMMC_CMD_CMDSTOP);
+		ctx.data_length = 0;
+
+		stm32_sdmmc2_start_cmd(priv, &stop_cmd,
+				       SDMMC_CMD_CMDSTOP, &ctx);
 		stm32_sdmmc2_end_cmd(priv, &stop_cmd, &ctx);
 
 		writel(SDMMC_ICR_STATIC_FLAGS, priv->base + SDMMC_ICR);
@@ -472,8 +525,6 @@ static void stm32_sdmmc2_pwrcycle(struct stm32_sdmmc2_priv *priv)
 		return;
 
 	stm32_sdmmc2_reset(priv);
-	writel(SDMMC_POWER_PWRCTRL_CYCLE | priv->pwr_reg_msk,
-	       priv->base + SDMMC_POWER);
 }
 
 /*
@@ -567,10 +618,21 @@ static int stm32_sdmmc2_getcd(struct udevice *dev)
 	return 1;
 }
 
+static int stm32_sdmmc2_host_power_cycle(struct udevice *dev)
+{
+	struct stm32_sdmmc2_priv *priv = dev_get_priv(dev);
+
+	writel(SDMMC_POWER_PWRCTRL_CYCLE | priv->pwr_reg_msk,
+	       priv->base + SDMMC_POWER);
+
+	return 0;
+}
+
 static const struct dm_mmc_ops stm32_sdmmc2_ops = {
 	.send_cmd = stm32_sdmmc2_send_cmd,
 	.set_ios = stm32_sdmmc2_set_ios,
 	.get_cd = stm32_sdmmc2_getcd,
+	.host_power_cycle = stm32_sdmmc2_host_power_cycle,
 };
 
 static int stm32_sdmmc2_probe(struct udevice *dev)
@@ -585,11 +647,11 @@ static int stm32_sdmmc2_probe(struct udevice *dev)
 	if (priv->base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
-	if (dev_read_bool(dev, "st,negedge"))
+	if (dev_read_bool(dev, "st,neg-edge"))
 		priv->clk_reg_msk |= SDMMC_CLKCR_NEGEDGE;
-	if (dev_read_bool(dev, "st,dirpol"))
+	if (dev_read_bool(dev, "st,sig-dir"))
 		priv->pwr_reg_msk |= SDMMC_POWER_DIRPOL;
-	if (dev_read_bool(dev, "st,pin-ckin"))
+	if (dev_read_bool(dev, "st,use-ckin"))
 		priv->clk_reg_msk |= SDMMC_CLKCR_SELCLKRX_CKIN;
 
 	ret = clk_get_by_index(dev, 0, &priv->clk);
@@ -620,6 +682,7 @@ static int stm32_sdmmc2_probe(struct udevice *dev)
 	switch (dev_read_u32_default(dev, "bus-width", 1)) {
 	case 8:
 		cfg->host_caps |= MMC_MODE_8BIT;
+		/* fall through */
 	case 4:
 		cfg->host_caps |= MMC_MODE_4BIT;
 		break;
@@ -643,7 +706,7 @@ clk_free:
 	return ret;
 }
 
-int stm32_sdmmc_bind(struct udevice *dev)
+static int stm32_sdmmc_bind(struct udevice *dev)
 {
 	struct stm32_sdmmc2_plat *plat = dev_get_platdata(dev);
 

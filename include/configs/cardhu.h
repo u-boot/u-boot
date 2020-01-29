@@ -26,28 +26,13 @@
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_CARDHU
 
-/* I2C */
-#define CONFIG_SYS_I2C_TEGRA
-
 /* Environment in eMMC, at the end of 2nd "boot sector" */
-#define CONFIG_ENV_OFFSET		(-CONFIG_ENV_SIZE)
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_SYS_MMC_ENV_PART		2
 
 /* SPI */
 #define CONFIG_TEGRA_SLINK_CTRLS       6
-#define CONFIG_SF_DEFAULT_MODE         SPI_MODE_0
-#define CONFIG_SF_DEFAULT_SPEED        24000000
 #define CONFIG_SPI_FLASH_SIZE          (4 << 20)
-
-/* USB Host support */
-#define CONFIG_USB_EHCI_TEGRA
-
-/* USB networking support */
-
-/* PCI host support */
-
-/* General networking support */
 
 #include "tegra-common-post.h"
 

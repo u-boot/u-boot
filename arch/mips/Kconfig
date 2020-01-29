@@ -74,17 +74,23 @@ config ARCH_BMIPS
 	select SYSRESET
 	imply CMD_DM
 
-config ARCH_MT7620
-	bool "Support MT7620/7688 SoCs"
+config ARCH_MTMIPS
+	bool "Support MediaTek MIPS platforms"
+	select CLK
 	imply CMD_DM
 	select DISPLAY_CPUINFO
 	select DM
 	imply DM_ETH
 	imply DM_GPIO
+	select DM_RESET
 	select DM_SERIAL
+	select PINCTRL
+	select PINMUX
+	select PINCONF
+	select RESET_MTMIPS
 	imply DM_SPI
 	imply DM_SPI_FLASH
-	select ARCH_MISC_INIT
+	select LAST_STAGE_INIT
 	select MIPS_TUNE_24KC
 	select OF_CONTROL
 	select ROM_EXCEPTION_VECTORS
@@ -146,14 +152,13 @@ endchoice
 source "board/imgtec/boston/Kconfig"
 source "board/imgtec/malta/Kconfig"
 source "board/imgtec/xilfpga/Kconfig"
-source "board/micronas/vct/Kconfig"
 source "board/qemu-mips/Kconfig"
 source "arch/mips/mach-ath79/Kconfig"
 source "arch/mips/mach-mscc/Kconfig"
 source "arch/mips/mach-bmips/Kconfig"
 source "arch/mips/mach-jz47xx/Kconfig"
 source "arch/mips/mach-pic32/Kconfig"
-source "arch/mips/mach-mt7620/Kconfig"
+source "arch/mips/mach-mtmips/Kconfig"
 
 if MIPS
 
@@ -408,9 +413,17 @@ config SYS_ICACHE_LINE_SIZE
 	help
 	  The size of L1 Icache lines, if known at compile time.
 
+config SYS_SCACHE_LINE_SIZE
+	int
+	default 0
+	help
+	  The size of L2 cache lines, if known at compile time.
+
+
 config SYS_CACHE_SIZE_AUTO
 	def_bool y if SYS_DCACHE_SIZE = 0 && SYS_ICACHE_SIZE = 0 && \
-		SYS_DCACHE_LINE_SIZE = 0 && SYS_ICACHE_LINE_SIZE = 0
+		SYS_DCACHE_LINE_SIZE = 0 && SYS_ICACHE_LINE_SIZE = 0 && \
+		SYS_SCACHE_LINE_SIZE = 0
 	help
 	  Select this (or let it be auto-selected by not defining any cache
 	  sizes) in order to allow U-Boot to automatically detect the sizes

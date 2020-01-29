@@ -20,7 +20,7 @@ configuration for This board:
 
 You can select the configuration as follows:
 
- - make sh7785lcr_config
+ - make sh7757lcr_config
 
 
 This board specific command:

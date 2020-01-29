@@ -24,10 +24,12 @@ endif
 
 ifneq ($(CONFIG_ARCH_LX2160A),)
 obj-$(CONFIG_SYS_HAS_SERDES) += lx2160a_serdes.o
+obj-y += icid.o lx2160_ids.o
 endif
 
 ifneq ($(CONFIG_ARCH_LS2080A),)
 obj-$(CONFIG_SYS_HAS_SERDES) += ls2080a_serdes.o
+obj-y += icid.o ls2088_ids.o
 endif
 
 ifneq ($(CONFIG_ARCH_LS1043A),)
@@ -47,4 +49,10 @@ endif
 
 ifneq ($(CONFIG_ARCH_LS1088A),)
 obj-$(CONFIG_SYS_HAS_SERDES) += ls1088a_serdes.o
+obj-y += icid.o ls1088_ids.o
+endif
+
+ifneq ($(CONFIG_ARCH_LS1028A),)
+obj-$(CONFIG_SYS_HAS_SERDES) += ls1028a_serdes.o
+obj-y += icid.o ls1028_ids.o
 endif

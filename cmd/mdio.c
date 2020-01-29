@@ -39,21 +39,27 @@ static int extract_range(char *input, int *plo, int *phi)
 	return 0;
 }
 
-static int mdio_write_ranges(struct phy_device *phydev, struct mii_dev *bus,
+static int mdio_write_ranges(struct mii_dev *bus,
 			     int addrlo,
 			     int addrhi, int devadlo, int devadhi,
 			     int reglo, int reghi, unsigned short data,
 			     int extended)
 {
+	struct phy_device *phydev;
 	int addr, devad, reg;
 	int err = 0;
 
 	for (addr = addrlo; addr <= addrhi; addr++) {
+		phydev = bus->phymap[addr];
+
 		for (devad = devadlo; devad <= devadhi; devad++) {
 			for (reg = reglo; reg <= reghi; reg++) {
-				if (!extended)
+				if (!phydev)
 					err = bus->write(bus, addr, devad,
 							 reg, data);
+				else if (!extended)
+					err = phy_write_mmd(phydev, devad,
+							    reg, data);
 				else
 					err = phydev->drv->writeext(phydev,
 							addr, devad, reg, data);
@@ -68,23 +74,27 @@ err_out:
 	return err;
 }
 
-static int mdio_read_ranges(struct phy_device *phydev, struct mii_dev *bus,
+static int mdio_read_ranges(struct mii_dev *bus,
 			    int addrlo,
 			    int addrhi, int devadlo, int devadhi,
 			    int reglo, int reghi, int extended)
 {
 	int addr, devad, reg;
+	struct phy_device *phydev;
 
 	printf("Reading from bus %s\n", bus->name);
 	for (addr = addrlo; addr <= addrhi; addr++) {
+		phydev = bus->phymap[addr];
 		printf("PHY at address %x:\n", addr);
 
 		for (devad = devadlo; devad <= devadhi; devad++) {
 			for (reg = reglo; reg <= reghi; reg++) {
 				int val;
 
-				if (!extended)
+				if (!phydev)
 					val = bus->read(bus, addr, devad, reg);
+				else if (!extended)
+					val = phy_read_mmd(phydev, devad, reg);
 				else
 					val = phydev->drv->readext(phydev, addr,
 						devad, reg);
@@ -193,6 +203,11 @@ static int do_mdio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
+#ifdef CONFIG_DM_MDIO
+	/* probe DM MII device before any operation so they are all accesible */
+	dm_mdio_probe_devices();
+#endif
+
 	/*
 	 * We use the last specified parameters, unless new ones are
 	 * entered.
@@ -222,14 +237,14 @@ static int do_mdio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				bus = phydev->bus;
 				extended = 1;
 			} else {
-				return -1;
+				return CMD_RET_FAILURE;
 			}
 
 			if (!phydev->drv ||
 			    (!phydev->drv->writeext && (op[0] == 'w')) ||
 			    (!phydev->drv->readext && (op[0] == 'r'))) {
 				puts("PHY does not have extended functions\n");
-				return -1;
+				return CMD_RET_FAILURE;
 			}
 		}
 	}
@@ -238,19 +253,25 @@ static int do_mdio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	case 'w':
 		if (pos > 1)
 			data = simple_strtoul(argv[pos--], NULL, 16);
+		/* Intentional fall-through - Get reg for read and write */
 	case 'r':
 		if (pos > 1)
 			if (extract_reg_range(argv[pos--], &devadlo, &devadhi,
 					      &reglo, &reghi))
-				return -1;
-
+				return CMD_RET_FAILURE;
+		/* Intentional fall-through - Get phy for all commands */
 	default:
 		if (pos > 1)
 			if (extract_phy_range(&argv[2], pos - 1, &bus,
 					      &phydev, &addrlo, &addrhi))
-				return -1;
+				return CMD_RET_FAILURE;
 
 		break;
+	}
+
+	if (!bus) {
+		puts("No MDIO bus found\n");
+		return CMD_RET_FAILURE;
 	}
 
 	if (op[0] == 'l') {
@@ -264,12 +285,12 @@ static int do_mdio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	switch (op[0]) {
 	case 'w':
-		mdio_write_ranges(phydev, bus, addrlo, addrhi, devadlo, devadhi,
+		mdio_write_ranges(bus, addrlo, addrhi, devadlo, devadhi,
 				  reglo, reghi, data, extended);
 		break;
 
 	case 'r':
-		mdio_read_ranges(phydev, bus, addrlo, addrhi, devadlo, devadhi,
+		mdio_read_ranges(bus, addrlo, addrhi, devadlo, devadhi,
 				 reglo, reghi, extended);
 		break;
 	}

@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <clk.h>
+#include <cpu_func.h>
 #include <fdtdec.h>
 #include <mmc.h>
 #include <dm.h>
@@ -347,12 +348,10 @@ static int tmio_sd_dma_xfer(struct udevice *dev, struct mmc_data *data)
 		/*
 		 * The DMA READ completion flag position differs on Socionext
 		 * and Renesas SoCs. It is bit 20 on Socionext SoCs and using
-		 * bit 17 is a hardware bug and forbidden. It is bit 17 on
-		 * Renesas SoCs and bit 20 does not work on them.
+		 * bit 17 is a hardware bug and forbidden. It is either bit 17
+		 * or bit 20 on Renesas SoCs, depending on SoC.
 		 */
-		poll_flag = (priv->caps & TMIO_SD_CAP_RCAR) ?
-			    TMIO_SD_DMA_INFO1_END_RD :
-			    TMIO_SD_DMA_INFO1_END_RD2;
+		poll_flag = priv->read_poll_flag;
 		tmp |= TMIO_SD_DMA_MODE_DIR_RD;
 	} else {
 		buf = (void *)data->src;
@@ -368,6 +367,9 @@ static int tmio_sd_dma_xfer(struct udevice *dev, struct mmc_data *data)
 	tmio_sd_dma_start(priv, dma_addr);
 
 	ret = tmio_sd_dma_wait_for_irq(dev, poll_flag, data->blocks);
+
+	if (poll_flag == TMIO_SD_DMA_INFO1_END_RD)
+		udelay(1);
 
 	__dma_unmap_single(dma_addr, len, dir);
 
@@ -704,10 +706,14 @@ static void tmio_sd_host_init(struct tmio_sd_priv *priv)
 	 * This register dropped backward compatibility at version 0x10.
 	 * Write an appropriate value depending on the IP version.
 	 */
-	if (priv->version >= 0x10)
-		tmio_sd_writel(priv, 0x101, TMIO_SD_HOST_MODE);
-	else
+	if (priv->version >= 0x10) {
+		if (priv->caps & TMIO_SD_CAP_64BIT)
+			tmio_sd_writel(priv, 0x000, TMIO_SD_HOST_MODE);
+		else
+			tmio_sd_writel(priv, 0x101, TMIO_SD_HOST_MODE);
+	} else {
 		tmio_sd_writel(priv, 0x0, TMIO_SD_HOST_MODE);
+	}
 
 	if (priv->caps & TMIO_SD_CAP_DMA_INTERNAL) {
 		tmp = tmio_sd_readl(priv, TMIO_SD_DMA_MODE);
@@ -778,7 +784,10 @@ int tmio_sd_probe(struct udevice *dev, u32 quirks)
 	plat->cfg.f_min = mclk /
 			(priv->caps & TMIO_SD_CAP_DIV1024 ? 1024 : 512);
 	plat->cfg.f_max = mclk;
-	plat->cfg.b_max = U32_MAX; /* max value of TMIO_SD_SECCNT */
+	if (quirks & TMIO_SD_CAP_16BIT)
+		plat->cfg.b_max = U16_MAX; /* max value of TMIO_SD_SECCNT */
+	else
+		plat->cfg.b_max = U32_MAX; /* max value of TMIO_SD_SECCNT */
 
 	upriv->mmc = &plat->mmc;
 

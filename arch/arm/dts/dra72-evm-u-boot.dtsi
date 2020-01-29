@@ -1,0 +1,23 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2017 Texas Instruments Incorporated - http://www.ti.com/
+ */
+
+#include "omap5-u-boot.dtsi"
+
+&omap_dwc3_1 {
+	u-boot,dm-spl;
+};
+
+&usb1 {
+	u-boot,dm-spl;
+	dr_mode = "peripheral";
+};
+
+&usb2_phy1 {
+	u-boot,dm-spl;
+};
+
+&usb3_phy1 {
+	u-boot,dm-spl;
+};

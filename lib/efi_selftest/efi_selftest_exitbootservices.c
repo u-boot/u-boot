@@ -56,28 +56,6 @@ static int setup(const efi_handle_t handle,
 }
 
 /*
- * Tear down unit test.
- *
- * Close the event created in setup.
- *
- * @return:	EFI_ST_SUCCESS for success
- */
-static int teardown(void)
-{
-	efi_status_t ret;
-
-	if (event_notify) {
-		ret = boottime->close_event(event_notify);
-		event_notify = NULL;
-		if (ret != EFI_SUCCESS) {
-			efi_st_error("could not close event\n");
-			return EFI_ST_FAILURE;
-		}
-	}
-	return EFI_ST_SUCCESS;
-}
-
-/*
  * Execute unit test.
  *
  * Check that the notification function of the EVT_SIGNAL_EXIT_BOOT_SERVICES
@@ -107,5 +85,4 @@ EFI_UNIT_TEST(exitbootservices) = {
 	.phase = EFI_SETUP_BEFORE_BOOTTIME_EXIT,
 	.setup = setup,
 	.execute = execute,
-	.teardown = teardown,
 };

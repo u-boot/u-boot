@@ -9,14 +9,14 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <i2c.h>
 #include <net.h>
-#include <netdev.h>
-#include <spi.h>
-#include <spi_flash.h>
 #include <asm/arch/hardware.h>
 #include <asm/ti-common/davinci_nand.h>
 #include <asm/io.h>
+#include <ns16550.h>
+#include <dm/platdata.h>
 #include <linux/errno.h>
 #include <asm/mach-types.h>
 #include <asm/arch/davinci_misc.h>
@@ -227,23 +227,6 @@ int board_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_DRIVER_TI_EMAC
-
-/*
- * Initializes on-board ethernet controllers.
- */
-int board_eth_init(bd_t *bis)
-{
-	if (!davinci_emac_initialize()) {
-		printf("Error: Ethernet init failed!\n");
-		return -1;
-	}
-
-	return 0;
-}
-
-#endif /* CONFIG_DRIVER_TI_EMAC */
-
 #define CFG_MAC_ADDR_SPI_BUS	0
 #define CFG_MAC_ADDR_SPI_CS	0
 #define CFG_MAC_ADDR_SPI_MAX_HZ	CONFIG_SF_DEFAULT_SPEED
@@ -353,13 +336,12 @@ int misc_init_r(void)
 	return 0;
 }
 
-#ifndef CONFIG_DM_MMC
+#if !CONFIG_IS_ENABLED(DM_MMC)
 #ifdef CONFIG_MMC_DAVINCI
 static struct davinci_mmc mmc_sd0 = {
 	.reg_base = (struct davinci_mmc_regs *)DAVINCI_MMC_SD0_BASE,
 	.host_caps = MMC_MODE_4BIT,     /* DA850 supports only 4-bit SD/MMC */
 	.voltages = MMC_VDD_32_33 | MMC_VDD_33_34,
-	.version = MMC_CTLR_VERSION_2,
 };
 
 int board_mmc_init(bd_t *bis)
@@ -370,4 +352,27 @@ int board_mmc_init(bd_t *bis)
 	return davinci_mmc_init(bis, &mmc_sd0);
 }
 #endif
+#endif
+
+#ifdef CONFIG_SPL_BUILD
+static const struct ns16550_platdata serial_pdata = {
+	.base = DAVINCI_UART2_BASE,
+	.reg_shift = 2,
+	.clock = 228000000,
+	.fcr = UART_FCR_DEFVAL,
+};
+
+U_BOOT_DEVICE(omapl138_uart) = {
+	.name = "ns16550_serial",
+	.platdata = &serial_pdata,
+};
+
+U_BOOT_DEVICE(omapl138_mmc) = {
+	.name = "davinci_mmc",
+};
+
+void spl_board_init(void)
+{
+	davinci_configure_pin_mux(mmc0_pins, ARRAY_SIZE(mmc0_pins));
+}
 #endif

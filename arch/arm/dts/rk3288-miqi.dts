@@ -25,21 +25,3 @@
 		0xa60 0x40 0x10 0x0>;
 	rockchip,sdram-params = <0x30B25564 0x627 3 666000000 3 9 1>;
 };
-
-
-&pinctrl {
-	u-boot,dm-pre-reloc;
-};
-
-&uart2 {
-	u-boot,dm-pre-reloc;
-	reg-shift = <2>;
-};
-
-&sdmmc {
-	u-boot,dm-pre-reloc;
-};
-
-&emmc {
-	u-boot,dm-pre-reloc;
-};

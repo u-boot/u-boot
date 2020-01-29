@@ -223,3 +223,36 @@ For example:
 
 => ubifsumount
 Unmounting UBIFS volume recovery!
+
+
+Usage of the UBI CRC skip-check flag of static volumes:
+-------------------------------------------------------
+Some users of static UBI volumes implement their own integrity check,
+thus making the volume CRC check done at open time useless. For
+instance, this is the case when one use the ubiblock + dm-verity +
+squashfs combination, where dm-verity already checks integrity of the
+block device but this time at the block granularity instead of verifying
+the whole volume.
+
+Skipping this test drastically improves the boot-time.
+
+U-Boot now supports the "skip_check" flag to optionally skip the CRC
+check at open time.
+
+Usage: Case A - Upon UBI volume creation:
+You can optionally add "--skipcheck" to the "ubi create" command:
+
+ubi create[vol] volume [size] [type] [id] [--skipcheck]
+ - create volume name with size ('-' for maximum available size)
+
+Usage: Case B - With an already existing UBI volume:
+Use the "ubi skipcheck" command:
+
+ubi skipcheck volume on/off - Set or clear skip_check flag in volume header
+
+Example:
+=> ubi skipcheck rootfs0 on
+Setting skip_check on volume rootfs0
+
+BTW: This saves approx. 10 seconds Linux bootup time on a MT7688 based
+target with 128MiB of SPI NAND.

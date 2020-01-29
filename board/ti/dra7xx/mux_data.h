@@ -220,22 +220,6 @@ const struct pad_conf_entry dra72x_rgmii_padconf_array_revc[] = {
 };
 
 const struct pad_conf_entry dra71x_core_padconf_array[] = {
-	{GPMC_AD0, (M3 | PIN_INPUT)},	/* gpmc_ad0.vout3_d0 */
-	{GPMC_AD1, (M3 | PIN_INPUT)},	/* gpmc_ad1.vout3_d1 */
-	{GPMC_AD2, (M3 | PIN_INPUT)},	/* gpmc_ad2.vout3_d2 */
-	{GPMC_AD3, (M3 | PIN_INPUT)},	/* gpmc_ad3.vout3_d3 */
-	{GPMC_AD4, (M3 | PIN_INPUT)},	/* gpmc_ad4.vout3_d4 */
-	{GPMC_AD5, (M3 | PIN_INPUT)},	/* gpmc_ad5.vout3_d5 */
-	{GPMC_AD6, (M3 | PIN_INPUT)},	/* gpmc_ad6.vout3_d6 */
-	{GPMC_AD7, (M3 | PIN_INPUT)},	/* gpmc_ad7.vout3_d7 */
-	{GPMC_AD8, (M3 | PIN_INPUT)},	/* gpmc_ad8.vout3_d8 */
-	{GPMC_AD9, (M3 | PIN_INPUT)},	/* gpmc_ad9.vout3_d9 */
-	{GPMC_AD10, (M3 | PIN_INPUT)},	/* gpmc_ad10.vout3_d10 */
-	{GPMC_AD11, (M3 | PIN_INPUT)},	/* gpmc_ad11.vout3_d11 */
-	{GPMC_AD12, (M3 | PIN_INPUT)},	/* gpmc_ad12.vout3_d12 */
-	{GPMC_AD13, (M3 | PIN_INPUT)},	/* gpmc_ad13.vout3_d13 */
-	{GPMC_AD14, (M3 | PIN_INPUT)},	/* gpmc_ad14.vout3_d14 */
-	{GPMC_AD15, (M3 | PIN_INPUT)},	/* gpmc_ad15.vout3_d15 */
 	{GPMC_A0, (M3 | PIN_INPUT_PULLDOWN)},	/* gpmc_a0.vout3_d16 */
 	{GPMC_A1, (M3 | PIN_INPUT_PULLDOWN)},	/* gpmc_a1.vout3_d17 */
 	{GPMC_A2, (M3 | PIN_INPUT_PULLDOWN)},	/* gpmc_a2.vout3_d18 */
@@ -368,6 +352,50 @@ const struct pad_conf_entry dra71x_core_padconf_array[] = {
 	{I2C2_SCL, (M1 | PIN_INPUT_PULLUP)},	/* i2c2_scl.hdmi1_ddc_sda */
 	{WAKEUP0, (M15 | PULL_UP)},	/* Wakeup0.safe for dcan1_rx */
 	{WAKEUP3, (M1 | PULL_ENA | PULL_UP)},	/* Wakeup3.sys_nirq1 */
+};
+
+const struct pad_conf_entry dra71x_vout3_padconf_array[] = {
+	{GPMC_AD0, (M3 | PIN_INPUT)},	/* gpmc_ad0.vout3_d0 */
+	{GPMC_AD1, (M3 | PIN_INPUT)},	/* gpmc_ad1.vout3_d1 */
+	{GPMC_AD2, (M3 | PIN_INPUT)},	/* gpmc_ad2.vout3_d2 */
+	{GPMC_AD3, (M3 | PIN_INPUT)},	/* gpmc_ad3.vout3_d3 */
+	{GPMC_AD4, (M3 | PIN_INPUT)},	/* gpmc_ad4.vout3_d4 */
+	{GPMC_AD5, (M3 | PIN_INPUT)},	/* gpmc_ad5.vout3_d5 */
+	{GPMC_AD6, (M3 | PIN_INPUT)},	/* gpmc_ad6.vout3_d6 */
+	{GPMC_AD7, (M3 | PIN_INPUT)},	/* gpmc_ad7.vout3_d7 */
+	{GPMC_AD8, (M3 | PIN_INPUT)},	/* gpmc_ad8.vout3_d8 */
+	{GPMC_AD9, (M3 | PIN_INPUT)},	/* gpmc_ad9.vout3_d9 */
+	{GPMC_AD10, (M3 | PIN_INPUT)},	/* gpmc_ad10.vout3_d10 */
+	{GPMC_AD11, (M3 | PIN_INPUT)},	/* gpmc_ad11.vout3_d11 */
+	{GPMC_AD12, (M3 | PIN_INPUT)},	/* gpmc_ad12.vout3_d12 */
+	{GPMC_AD13, (M3 | PIN_INPUT)},	/* gpmc_ad13.vout3_d13 */
+	{GPMC_AD14, (M3 | PIN_INPUT)},	/* gpmc_ad14.vout3_d14 */
+	{GPMC_AD15, (M3 | PIN_INPUT)},	/* gpmc_ad15.vout3_d15 */
+};
+
+const struct pad_conf_entry dra71x_nand_padconf_array[] = {
+	{GPMC_AD0, (M0 | PIN_INPUT)},	/* gpmc_ad0.gpmc_ad0 */
+	{GPMC_AD1, (M0 | PIN_INPUT)},	/* gpmc_ad1.gpmc_ad1 */
+	{GPMC_AD2, (M0 | PIN_INPUT)},	/* gpmc_ad2.gpmc_ad2 */
+	{GPMC_AD3, (M0 | PIN_INPUT)},	/* gpmc_ad3.gpmc_ad3 */
+	{GPMC_AD4, (M0 | PIN_INPUT)},	/* gpmc_ad4.gpmc_ad4 */
+	{GPMC_AD5, (M0 | PIN_INPUT)},	/* gpmc_ad5.gpmc_ad5 */
+	{GPMC_AD6, (M0 | PIN_INPUT)},	/* gpmc_ad6.gpmc_ad6 */
+	{GPMC_AD7, (M0 | PIN_INPUT)},	/* gpmc_ad7.gpmc_ad7 */
+	{GPMC_AD8, (M0 | PIN_INPUT)},	/* gpmc_ad8.gpmc_ad8 */
+	{GPMC_AD9, (M0 | PIN_INPUT)},	/* gpmc_ad9.gpmc_ad9 */
+	{GPMC_AD10, (M0 | PIN_INPUT)},	/* gpmc_ad10.gpmc_ad10 */
+	{GPMC_AD11, (M0 | PIN_INPUT)},	/* gpmc_ad11.gpmc_ad11 */
+	{GPMC_AD12, (M0 | PIN_INPUT)},	/* gpmc_ad12.gpmc_ad12 */
+	{GPMC_AD13, (M0 | PIN_INPUT)},	/* gpmc_ad13.gpmc_ad13 */
+	{GPMC_AD14, (M0 | PIN_INPUT)},	/* gpmc_ad14.gpmc_ad14 */
+	{GPMC_AD15, (M0 | PIN_INPUT)},	/* gpmc_ad15.gpmc_ad15 */
+	{GPMC_CS0, (M0 | PIN_INPUT_PULLUP)},	/* gpmc_cs0.gpmc_cs0 */
+	{GPMC_ADVN_ALE, (M0 | PIN_INPUT_PULLDOWN)},	/* gpmc_advn_ale.gpmc_advn_ale */
+	{GPMC_OEN_REN, (M0 | PIN_INPUT_PULLUP)},	/* gpmc_oen_ren.gpmc_oen_ren */
+	{GPMC_WEN, (M0 | PIN_INPUT_PULLUP)},	/* gpmc_wen.gpmc_wen */
+	{GPMC_BEN0, (M0 | PIN_INPUT_PULLDOWN)},	/* gpmc_ben0.gpmc_ben0 */
+	{GPMC_WAIT0, (M0 | PIN_INPUT_PULLUP | SLEWCONTROL)},	/* gpmc_wait0.gpmc_wait0 */
 };
 
 const struct pad_conf_entry early_padconf[] = {

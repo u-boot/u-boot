@@ -13,8 +13,6 @@
 
 #define CONFIG_SYS_MONITOR_LEN		(1 << 20)
 
-#define CONFIG_PREBOOT
-
 #define CONFIG_STD_DEVICES_SETTINGS     "stdin=serial\0" \
 					"stdout=serial\0" \
 					"stderr=serial\0"
@@ -25,13 +23,6 @@
 #define CONFIG_BMP_16BPP
 
 /* Environment settings */
-#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
-#undef CONFIG_ENV_SIZE
-#define CONFIG_ENV_SIZE			0x2000
-#define CONFIG_ENV_SECT_SIZE		0x1000
-#define CONFIG_ENV_OFFSET		0x006ec000
-#define CONFIG_ENV_OFFSET_REDUND	\
-	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
 
 #undef CONFIG_BOOTCOMMAND
 #undef CONFIG_EXTRA_ENV_SETTINGS

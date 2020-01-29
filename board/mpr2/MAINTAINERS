@@ -1,6 +1,0 @@
-MPR2 BOARD
-M:	Mark Jonas <mark.jonas@de.bosch.com>
-S:	Maintained
-F:	board/mpr2/
-F:	include/configs/mpr2.h
-F:	configs/mpr2_defconfig

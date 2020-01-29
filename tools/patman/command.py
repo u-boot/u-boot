@@ -4,6 +4,7 @@
 
 import os
 import cros_subprocess
+import tools
 
 """Shell command ease-ups for Python."""
 
@@ -31,6 +32,13 @@ class CommandResult:
         self.return_code = return_code
         self.exception = exception
 
+    def ToOutput(self, binary):
+        if not binary:
+            self.stdout = tools.ToString(self.stdout)
+            self.stderr = tools.ToString(self.stderr)
+            self.combined = tools.ToString(self.combined)
+        return self
+
 
 # This permits interception of RunPipe for test purposes. If it is set to
 # a function, then that function is called with the pipe list being
@@ -41,7 +49,7 @@ test_result = None
 
 def RunPipe(pipe_list, infile=None, outfile=None,
             capture=False, capture_stderr=False, oneline=False,
-            raise_on_error=True, cwd=None, **kwargs):
+            raise_on_error=True, cwd=None, binary=False, **kwargs):
     """
     Perform a command pipeline, with optional input/output filenames.
 
@@ -67,7 +75,7 @@ def RunPipe(pipe_list, infile=None, outfile=None,
         else:
             return test_result
         # No result: fall through to normal processing
-    result = CommandResult()
+    result = CommandResult(b'', b'', b'')
     last_pipe = None
     pipeline = list(pipe_list)
     user_pipestr =  '|'.join([' '.join(pipe) for pipe in pipe_list])
@@ -93,29 +101,36 @@ def RunPipe(pipe_list, infile=None, outfile=None,
             if raise_on_error:
                 raise Exception("Error running '%s': %s" % (user_pipestr, str))
             result.return_code = 255
-            return result
+            return result.ToOutput(binary)
 
     if capture:
         result.stdout, result.stderr, result.combined = (
                 last_pipe.CommunicateFilter(None))
         if result.stdout and oneline:
-            result.output = result.stdout.rstrip('\r\n')
+            result.output = result.stdout.rstrip(b'\r\n')
         result.return_code = last_pipe.wait()
     else:
         result.return_code = os.waitpid(last_pipe.pid, 0)[1]
     if raise_on_error and result.return_code:
         raise Exception("Error running '%s'" % user_pipestr)
-    return result
+    return result.ToOutput(binary)
 
 def Output(*cmd, **kwargs):
-    raise_on_error = kwargs.get('raise_on_error', True)
-    return RunPipe([cmd], capture=True, raise_on_error=raise_on_error).stdout
+    kwargs['raise_on_error'] = kwargs.get('raise_on_error', True)
+    return RunPipe([cmd], capture=True, **kwargs).stdout
 
 def OutputOneLine(*cmd, **kwargs):
+    """Run a command and output it as a single-line string
+
+    The command us expected to produce a single line of output
+
+    Returns:
+        String containing output of command
+    """
     raise_on_error = kwargs.pop('raise_on_error', True)
-    return (RunPipe([cmd], capture=True, oneline=True,
-            raise_on_error=raise_on_error,
-            **kwargs).stdout.strip())
+    result = RunPipe([cmd], capture=True, oneline=True,
+                     raise_on_error=raise_on_error, **kwargs).stdout.strip()
+    return result
 
 def Run(*cmd, **kwargs):
     return RunPipe([cmd], **kwargs).stdout

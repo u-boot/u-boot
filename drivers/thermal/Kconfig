@@ -17,6 +17,15 @@ config IMX_THERMAL
           cpufreq is used as the cooling device to throttle CPUs when the
           passive trip is crossed.
 
+config IMX_SCU_THERMAL
+	bool "Temperature sensor driver for NXP i.MX8"
+	depends on ARCH_IMX8
+	help
+	  Support for Temperature sensors on NXP i.MX8.
+	  It supports one critical trip point and one passive trip point. The
+	  boot is hold to the cool device to throttle CPUs when the passive
+	  trip is crossed
+
 config TI_DRA7_THERMAL
         bool "Temperature sensor driver for TI dra7xx SOCs"
         help

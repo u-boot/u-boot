@@ -6,9 +6,11 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <fdt_support.h>
 #include <flash.h>
+#include <irq_func.h>
 #include <mach/pic32.h>
 #include <wait_bit.h>
 

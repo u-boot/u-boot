@@ -31,6 +31,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <nand.h>
+#include <dm/uclass.h>
 #include <asm/ti-common/davinci_nand.h>
 
 /* Definitions for 4-bit hardware ECC */
@@ -730,44 +731,7 @@ static int nand_davinci_dev_ready(struct mtd_info *mtd)
 	return __raw_readl(&davinci_emif_regs->nandfsr) & 0x1;
 }
 
-static void nand_flash_init(void)
-{
-	/* This is for DM6446 EVM and *very* similar.  DO NOT GROW THIS!
-	 * Instead, have your board_init() set EMIF timings, based on its
-	 * knowledge of the clocks and what devices are hooked up ... and
-	 * don't even do that unless no UBL handled it.
-	 */
-#ifdef CONFIG_SOC_DM644X
-	u_int32_t	acfg1 = 0x3ffffffc;
-
-	/*------------------------------------------------------------------*
-	 *  NAND FLASH CHIP TIMEOUT @ 459 MHz                               *
-	 *                                                                  *
-	 *  AEMIF.CLK freq   = PLL1/6 = 459/6 = 76.5 MHz                    *
-	 *  AEMIF.CLK period = 1/76.5 MHz = 13.1 ns                         *
-	 *                                                                  *
-	 *------------------------------------------------------------------*/
-	 acfg1 = 0
-		| (0 << 31)	/* selectStrobe */
-		| (0 << 30)	/* extWait */
-		| (1 << 26)	/* writeSetup	10 ns */
-		| (3 << 20)	/* writeStrobe	40 ns */
-		| (1 << 17)	/* writeHold	10 ns */
-		| (1 << 13)	/* readSetup	10 ns */
-		| (5 << 7)	/* readStrobe	60 ns */
-		| (1 << 4)	/* readHold	10 ns */
-		| (3 << 2)	/* turnAround	?? ns */
-		| (0 << 0)	/* asyncSize	8-bit bus */
-		;
-
-	__raw_writel(acfg1, &davinci_emif_regs->ab1cr); /* CS2 */
-
-	/* NAND flash on CS2 */
-	__raw_writel(0x00000101, &davinci_emif_regs->nandfcr);
-#endif
-}
-
-void davinci_nand_init(struct nand_chip *nand)
+static void davinci_nand_init(struct nand_chip *nand)
 {
 #if defined CONFIG_KEYSTONE_RBL_NAND
 	int i;
@@ -775,8 +739,8 @@ void davinci_nand_init(struct nand_chip *nand)
 
 	layout = &nand_keystone_rbl_4bit_layout_oobfirst;
 	layout->oobavail = 0;
-	for (i = 0; layout->oobfree[i].length &&
-	     i < ARRAY_SIZE(layout->oobfree); i++)
+	for (i = 0; i < ARRAY_SIZE(layout->oobfree) &&
+	     layout->oobfree[i].length; i++)
 		layout->oobavail += layout->oobfree[i].length;
 
 	nand->write_page = nand_davinci_write_page;
@@ -820,14 +784,55 @@ void davinci_nand_init(struct nand_chip *nand)
 	nand->write_buf = nand_davinci_write_buf;
 
 	nand->dev_ready = nand_davinci_dev_ready;
-
-	nand_flash_init();
 }
 
-int board_nand_init(struct nand_chip *chip) __attribute__((weak));
+#ifdef CONFIG_SYS_NAND_SELF_INIT
+static int davinci_nand_probe(struct udevice *dev)
+{
+	struct nand_chip *nand = dev_get_priv(dev);
+	struct mtd_info *mtd = nand_to_mtd(nand);
+	int ret;
 
+	nand->IO_ADDR_R = (void __iomem *)CONFIG_SYS_NAND_BASE;
+	nand->IO_ADDR_W = (void __iomem *)CONFIG_SYS_NAND_BASE;
+
+	davinci_nand_init(nand);
+
+	ret = nand_scan(mtd, CONFIG_SYS_NAND_MAX_CHIPS);
+	if (ret)
+		return ret;
+
+	return nand_register(0, mtd);
+}
+
+static const struct udevice_id davinci_nand_ids[] = {
+	{ .compatible = "ti,davinci-nand" },
+	{ }
+};
+
+U_BOOT_DRIVER(davinci_nand) = {
+	.name		= "davinci-nand",
+	.id		= UCLASS_MTD,
+	.of_match	= davinci_nand_ids,
+	.probe		= davinci_nand_probe,
+	.priv_auto_alloc_size = sizeof(struct nand_chip),
+};
+
+void board_nand_init(void)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = uclass_get_device_by_driver(UCLASS_MTD,
+					  DM_GET_DRIVER(davinci_nand), &dev);
+	if (ret && ret != -ENODEV)
+		pr_err("Failed to initialize %s: %d\n", dev->name, ret);
+}
+#else
+int board_nand_init(struct nand_chip *chip) __attribute__((weak));
 int board_nand_init(struct nand_chip *chip)
 {
 	davinci_nand_init(chip);
 	return 0;
 }
+#endif /* CONFIG_SYS_NAND_SELF_INIT */

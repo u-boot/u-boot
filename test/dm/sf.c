@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <mapmem.h>
@@ -23,6 +24,9 @@ static int dm_test_spi_flash(struct unit_test_state *uts)
 	int full_size = 0x200000;
 	int size = 0x10000;
 	u8 *src, *dst;
+	uint map_size;
+	ulong map_base;
+	uint offset;
 	int i;
 
 	src = map_sysmem(0x20000, full_size);
@@ -53,6 +57,12 @@ static int dm_test_spi_flash(struct unit_test_state *uts)
 	ut_asserteq(1, spl_flash_get_sw_write_prot(dev));
 	sandbox_sf_set_block_protect(emul, 0);
 	ut_asserteq(0, spl_flash_get_sw_write_prot(dev));
+
+	/* Check mapping */
+	ut_assertok(dm_spi_get_mmap(dev, &map_base, &map_size, &offset));
+	ut_asserteq(0x1000, map_base);
+	ut_asserteq(0x2000, map_size);
+	ut_asserteq(0x100, offset);
 
 	/*
 	 * Since we are about to destroy all devices, we must tell sandbox

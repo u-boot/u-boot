@@ -8,6 +8,7 @@
 #include <config.h>
 #include <linux/linkage.h>
 #include <asm/psci.h>
+#include <asm/secure.h>
 
 /* Default PSCI function, return -1, Not Implemented */
 #define PSCI_DEFAULT(__fn) \
@@ -19,8 +20,8 @@
 
 /* PSCI function and ID table definition*/
 #define PSCI_TABLE(__id, __fn) \
-	.word __id; \
-	.word __fn
+	.quad __id; \
+	.quad __fn
 
 .pushsection ._secure.text, "ax"
 
@@ -132,33 +133,52 @@ PSCI_TABLE(0, 0)
 /* Caller must put PSCI function-ID table base in x9 */
 handle_psci:
 	psci_enter
-1:	ldr x10, [x9]			/* Load PSCI function table */
-	ubfx x11, x10, #32, #32
-	ubfx x10, x10, #0, #32
+1:	ldr	x10, [x9]		/* Load PSCI function table */
 	cbz	x10, 3f			/* If reach the end, bail out */
 	cmp	x10, x0
 	b.eq	2f			/* PSCI function found */
-	add x9, x9, #8			/* If not match, try next entry */
+	add x9, x9, #16			/* If not match, try next entry */
 	b	1b
 
-2:	blr	x11			/* Call PSCI function */
+2:	ldr	x11, [x9, #8]		/* Load PSCI function */
+	blr	x11			/* Call PSCI function */
 	psci_return
 
 3:	mov	x0, #ARM_PSCI_RET_NI
 	psci_return
 
-unknown_smc_id:
-	ldr	x0, =0xFFFFFFFF
+/*
+ * Handle SiP service functions defined in SiP service function table.
+ * Use DECLARE_SECURE_SVC(_name, _id, _fn) to add platform specific SiP
+ * service function into the SiP service function table.
+ * SiP service function table is located in '._secure_svc_tbl_entries' section,
+ * which is next to '._secure.text' section.
+ */
+handle_svc:
+	adr	x9, __secure_svc_tbl_start
+	adr	x10, __secure_svc_tbl_end
+	subs	x12, x10, x9	/* Get number of entries in table */
+	b.eq	2f		/* Make sure SiP function table is not empty */
+	psci_enter
+1:	ldr x10, [x9]		/* Load SiP function table */
+	ldr x11, [x9, #8]
+	cmp	w10, w0
+	b.eq	2b		/* SiP service function found */
+	add x9, x9, #SECURE_SVC_TBL_OFFSET	/* Move to next entry */
+	subs	x12, x12, #SECURE_SVC_TBL_OFFSET
+	b.eq	3b		/* If reach the end, bail out */
+	b	1b
+2:	ldr	x0, =0xFFFFFFFF
 	eret
 
 handle_smc32:
 	/* SMC function ID  0x84000000-0x8400001F: 32 bits PSCI */
 	ldr	w9, =0x8400001F
 	cmp	w0, w9
-	b.gt	unknown_smc_id
+	b.gt	handle_svc
 	ldr	w9, =0x84000000
 	cmp	w0, w9
-	b.lt	unknown_smc_id
+	b.lt	handle_svc
 
 	adr	x9, _psci_32_table
 	b	handle_psci
@@ -171,10 +191,10 @@ handle_smc64:
 	/* SMC function ID 0xC4000000-0xC400001F: 64 bits PSCI */
 	ldr	x9, =0xC400001F
 	cmp	x0, x9
-	b.gt	unknown_smc_id
+	b.gt	handle_svc
 	ldr	x9, =0xC4000000
 	cmp	x0, x9
-	b.lt	unknown_smc_id
+	b.lt	handle_svc
 
 	adr	x9, _psci_64_table
 	b	handle_psci

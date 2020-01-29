@@ -23,6 +23,7 @@ config TARGET_BK4R1
 	bool "BK4r1"
 	select SYS_FSL_ERRATUM_ESDHC135
 	select SYS_FSL_ERRATUM_ESDHC_A001
+	select BOARD_LATE_INIT
 
 endchoice
 

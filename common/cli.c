@@ -11,7 +11,9 @@
 #include <common.h>
 #include <cli.h>
 #include <cli_hush.h>
+#include <command.h>
 #include <console.h>
+#include <env.h>
 #include <fdtdec.h>
 #include <malloc.h>
 
@@ -27,7 +29,7 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 int run_command(const char *cmd, int flag)
 {
-#ifndef CONFIG_HUSH_PARSER
+#if !CONFIG_IS_ENABLED(HUSH_PARSER)
 	/*
 	 * cli_run_command can return 0 or 1 for success, so clean up
 	 * its result.
@@ -213,6 +215,7 @@ err:
 
 void cli_loop(void)
 {
+	bootstage_mark(BOOTSTAGE_ID_ENTER_CLI_LOOP);
 #ifdef CONFIG_HUSH_PARSER
 	parse_file_outer();
 	/* This point is never reached */

@@ -349,6 +349,23 @@ const char *gpio_get_bank_info(struct udevice *dev, int *offset_count);
 int dm_gpio_lookup_name(const char *name, struct gpio_desc *desc);
 
 /**
+ * gpio_hog_lookup_name() - Look up a named GPIO and return the gpio descr.
+ *
+ * @name:	Name to look up
+ * @desc:	Returns GPIO description, on success, else NULL
+ * @return:	Returns 0 if OK, else -ENODEV
+ */
+int gpio_hog_lookup_name(const char *name, struct gpio_desc **desc);
+
+/**
+ * gpio_hog_probe_all() - probe all gpio devices with
+ * gpio-hog subnodes.
+ *
+ * @return:	Returns return value from device_probe()
+ */
+int gpio_hog_probe_all(void);
+
+/**
  * gpio_lookup_name - Look up a GPIO name and return its details
  *
  * This is used to convert a named GPIO into a device, offset and GPIO
@@ -502,6 +519,23 @@ int gpio_request_by_name_nodev(ofnode node, const char *list_name, int index,
 int gpio_request_list_by_name_nodev(ofnode node, const char *list_name,
 				    struct gpio_desc *desc_list, int max_count,
 				    int flags);
+
+/**
+ * gpio_dev_request_index() - request single GPIO from gpio device
+ *
+ * @dev:	GPIO device
+ * @nodename:	Name of node for which gpio gets requested, used
+ *		for the gpio label name
+ * @list_name:	Name of GPIO list (e.g. "board-id-gpios")
+ * @index:	Index number of the GPIO in that list use request (0=first)
+ * @flags:	GPIOD_* flags
+ * @dtflags:	GPIO flags read from DT defined see GPIOD_*
+ * @desc:	returns GPIO descriptor filled from this function
+ * @return:	return value from gpio_request_tail()
+ */
+int gpio_dev_request_index(struct udevice *dev, const char *nodename,
+			   char *list_name, int index, int flags,
+			   int dtflags, struct gpio_desc *desc);
 
 /**
  * dm_gpio_free() - Free a single GPIO

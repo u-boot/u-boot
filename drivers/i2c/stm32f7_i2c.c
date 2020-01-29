@@ -500,7 +500,7 @@ static int stm32_i2c_compute_solutions(struct stm32_i2c_setup *setup,
 	af_delay_max = setup->analog_filter ?
 		       STM32_I2C_ANALOG_FILTER_DELAY_MAX : 0;
 
-	sdadel_min = setup->fall_time - i2c_specs[setup->speed].hddat_min -
+	sdadel_min = i2c_specs[setup->speed].hddat_min + setup->fall_time -
 		     af_delay_min - (setup->dnf + 3) * i2cclk;
 
 	sdadel_max = i2c_specs[setup->speed].vddat_max - setup->rise_time -
@@ -519,13 +519,13 @@ static int stm32_i2c_compute_solutions(struct stm32_i2c_setup *setup,
 	/* Compute possible values for PRESC, SCLDEL and SDADEL */
 	for (p = 0; p < STM32_PRESC_MAX; p++) {
 		for (l = 0; l < STM32_SCLDEL_MAX; l++) {
-			u32 scldel = (l + 1) * (p + 1) * i2cclk;
+			int scldel = (l + 1) * (p + 1) * i2cclk;
 
 			if (scldel < scldel_min)
 				continue;
 
 			for (a = 0; a < STM32_SDADEL_MAX; a++) {
-				u32 sdadel = (a * (p + 1) + 1) * i2cclk;
+				int sdadel = (a * (p + 1) + 1) * i2cclk;
 
 				if (((sdadel >= sdadel_min) &&
 				     (sdadel <= sdadel_max)) &&
@@ -540,8 +540,12 @@ static int stm32_i2c_compute_solutions(struct stm32_i2c_setup *setup,
 					p_prev = p;
 
 					list_add_tail(&v->node, solutions);
+					break;
 				}
 			}
+
+			if (p_prev == p)
+				break;
 		}
 	}
 
@@ -609,10 +613,12 @@ static int stm32_i2c_choose_solution(struct stm32_i2c_setup *setup,
 				if ((tscl >= clk_min) && (tscl <= clk_max) &&
 				    (tscl_h >= i2c_specs[setup->speed].h_min) &&
 				    (i2cclk < tscl_h)) {
-					int clk_error = tscl - i2cbus;
+					u32 clk_error;
 
-					if (clk_error < 0)
-						clk_error = -clk_error;
+					if (tscl > i2cbus)
+						clk_error = tscl - i2cbus;
+					else
+						clk_error = i2cbus - tscl;
 
 					if (clk_error < clk_error_prev) {
 						clk_error_prev = clk_error;

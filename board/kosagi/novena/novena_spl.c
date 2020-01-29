@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/iomux.h>
@@ -19,7 +20,7 @@
 #include <asm/arch/crm_regs.h>
 #include <i2c.h>
 #include <mmc.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
 #include <spl.h>
 
 #include <asm/arch/mx6-ddr.h>
@@ -404,7 +405,7 @@ static inline void novena_spl_setup_iomux_video(void) {}
 /*
  * SPL boots from uSDHC card
  */
-#ifdef CONFIG_FSL_ESDHC
+#ifdef CONFIG_FSL_ESDHC_IMX
 static struct fsl_esdhc_cfg usdhc_cfg = {
 	USDHC3_BASE_ADDR, 0, 4
 };
@@ -566,7 +567,7 @@ void board_init_f(ulong dummy)
 #ifdef CONFIG_BOARD_POSTCLK_INIT
 	board_postclk_init();
 #endif
-#ifdef CONFIG_FSL_ESDHC
+#ifdef CONFIG_FSL_ESDHC_IMX
 	get_clocks();
 #endif
 

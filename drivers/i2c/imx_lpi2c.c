@@ -471,6 +471,17 @@ static int imx_lpi2c_probe(struct udevice *bus)
 			dev_err(bus, "Failed to enable per clk\n");
 			return ret;
 		}
+
+		ret = clk_get_by_name(bus, "ipg", &i2c_bus->ipg_clk);
+		if (ret) {
+			dev_err(bus, "Failed to get ipg clk\n");
+			return ret;
+		}
+		ret = clk_enable(&i2c_bus->ipg_clk);
+		if (ret) {
+			dev_err(bus, "Failed to enable ipg clk\n");
+			return ret;
+		}
 	} else {
 		/* To i.MX7ULP, only i2c4-7 can be handled by A7 core */
 		ret = enable_i2c_clk(1, bus->seq);

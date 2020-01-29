@@ -2,7 +2,14 @@ XILINX_ZYNQMP BOARDS
 M:	Michal Simek <michal.simek@xilinx.com>
 S:	Maintained
 F:	arch/arm/dts/zynqmp-*
+F:	arch/arm/dts/avnet-ultra96*
 F:	board/xilinx/zynqmp/
 F:	include/configs/xilinx_zynqmp*
 F:	configs/xilinx_zynqmp*
 F:	configs/avnet_ultra96_rev1_defconfig
+
+ARM ZYNQMP AVNET ULTRAZED EV BOARD
+M:	Luca Ceresoli <luca@lucaceresoli.net>
+S:	Maintained
+F:	arch/arm/dts/avnet-ultrazedev-*
+F:	configs/avnet_ultrazedev_cc_v1_0_ultrazedev_som_v1_0_defconfig

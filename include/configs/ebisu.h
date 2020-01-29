@@ -22,7 +22,6 @@
 #define COUNTER_FREQUENCY	0xFE502A	/* 16.66MHz from CPclk */
 
 /* Environment in eMMC, at the end of 2nd "boot sector" */
-#define CONFIG_ENV_OFFSET		(-CONFIG_ENV_SIZE)
 #define CONFIG_SYS_MMC_ENV_DEV		2
 #define CONFIG_SYS_MMC_ENV_PART		2
 

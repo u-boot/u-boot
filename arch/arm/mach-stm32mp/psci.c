@@ -30,7 +30,7 @@ u8 psci_state[STM32MP1_PSCI_NR_CPUS] __secure_data = {
 	 PSCI_AFFINITY_LEVEL_ON,
 	 PSCI_AFFINITY_LEVEL_OFF};
 
-void __secure psci_set_state(int cpu, u8 state)
+static inline void psci_set_state(int cpu, u8 state)
 {
 	psci_state[cpu] = state;
 	dsb();
@@ -47,14 +47,14 @@ static u32 __secure stm32mp_get_gicd_base_address(void)
 	return (periphbase & CBAR_MASK) + GIC_DIST_OFFSET;
 }
 
-static void __secure stm32mp_smp_kick_all_cpus(void)
+static void __secure stm32mp_raise_sgi0(int cpu)
 {
 	u32 gic_dist_addr;
 
 	gic_dist_addr = stm32mp_get_gicd_base_address();
 
-	/* kick all CPUs (except this one) by writing to GICD_SGIR */
-	writel(1U << 24, gic_dist_addr + GICD_SGIR);
+	/* ask cpu with SGI0 */
+	writel((BIT(cpu) << 16), gic_dist_addr + GICD_SGIR);
 }
 
 void __secure psci_arch_cpu_entry(void)
@@ -62,9 +62,12 @@ void __secure psci_arch_cpu_entry(void)
 	u32 cpu = psci_get_cpu_id();
 
 	psci_set_state(cpu, PSCI_AFFINITY_LEVEL_ON);
+
+	/* reset magic in TAMP register */
+	writel(0xFFFFFFFF, TAMP_BACKUP_MAGIC_NUMBER);
 }
 
-int __secure psci_features(u32 function_id, u32 psci_fid)
+s32 __secure psci_features(u32 function_id, u32 psci_fid)
 {
 	switch (psci_fid) {
 	case ARM_PSCI_0_2_FN_PSCI_VERSION:
@@ -79,12 +82,12 @@ int __secure psci_features(u32 function_id, u32 psci_fid)
 	return ARM_PSCI_RET_NI;
 }
 
-unsigned int __secure psci_version(u32 function_id)
+u32 __secure psci_version(void)
 {
 	return ARM_PSCI_VER_1_0;
 }
 
-int __secure psci_affinity_info(u32 function_id, u32 target_affinity,
+s32 __secure psci_affinity_info(u32 function_id, u32 target_affinity,
 				u32  lowest_affinity_level)
 {
 	u32 cpu = target_affinity & MPIDR_AFF0;
@@ -101,13 +104,19 @@ int __secure psci_affinity_info(u32 function_id, u32 target_affinity,
 	return psci_state[cpu];
 }
 
-int __secure psci_migrate_info_type(u32 function_id)
+u32 __secure psci_migrate_info_type(void)
 {
-	/* Trusted OS is either not present or does not require migration */
+	/*
+	 * in Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
+	 * return 2 = Trusted OS is either not present or does not require
+	 * migration, system of this type does not require the caller
+	 * to use the MIGRATE function.
+	 * MIGRATE function calls return NOT_SUPPORTED.
+	 */
 	return 2;
 }
 
-int __secure psci_cpu_on(u32 function_id, u32 target_cpu, u32 pc,
+s32 __secure psci_cpu_on(u32 function_id, u32 target_cpu, u32 pc,
 			 u32 context_id)
 {
 	u32 cpu = target_cpu & MPIDR_AFF0;
@@ -120,6 +129,16 @@ int __secure psci_cpu_on(u32 function_id, u32 target_cpu, u32 pc,
 
 	if (psci_state[cpu] == PSCI_AFFINITY_LEVEL_ON)
 		return ARM_PSCI_RET_ALREADY_ON;
+
+	/* reset magic in TAMP register */
+	if (readl(TAMP_BACKUP_MAGIC_NUMBER))
+		writel(0xFFFFFFFF, TAMP_BACKUP_MAGIC_NUMBER);
+	/*
+	 * ROM code need a first SGI0 after core reset
+	 * core is ready when magic is set to 0 in ROM code
+	 */
+	while (readl(TAMP_BACKUP_MAGIC_NUMBER))
+		stm32mp_raise_sgi0(cpu);
 
 	/* store target PC and context id*/
 	psci_save(cpu, pc, context_id);
@@ -136,12 +155,13 @@ int __secure psci_cpu_on(u32 function_id, u32 target_cpu, u32 pc,
 		writel(BOOT_API_A7_CORE0_MAGIC_NUMBER,
 		       TAMP_BACKUP_MAGIC_NUMBER);
 
-	stm32mp_smp_kick_all_cpus();
+	/* Generate an IT to start the core */
+	stm32mp_raise_sgi0(cpu);
 
 	return ARM_PSCI_RET_SUCCESS;
 }
 
-int __secure psci_cpu_off(u32 function_id)
+s32 __secure psci_cpu_off(void)
 {
 	u32 cpu;
 
@@ -161,7 +181,7 @@ int __secure psci_cpu_off(u32 function_id)
 		wfi();
 }
 
-void __secure psci_system_reset(u32 function_id)
+void __secure psci_system_reset(void)
 {
 	/* System reset */
 	writel(RCC_MP_GRSTCSETR_MPSYSRST, RCC_MP_GRSTCSETR);
@@ -170,7 +190,7 @@ void __secure psci_system_reset(u32 function_id)
 		wfi();
 }
 
-void __secure psci_system_off(u32 function_id)
+void __secure psci_system_off(void)
 {
 	/* System Off is not managed, waiting user power off
 	 * TODO: handle I2C write in PMIC Main Control register bit 0 = SWOFF

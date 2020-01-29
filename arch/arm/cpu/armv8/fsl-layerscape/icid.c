@@ -17,7 +17,10 @@ static void set_icid(struct icid_id_table *tbl, int size)
 	int i;
 
 	for (i = 0; i < size; i++)
-		out_be32((u32 *)(tbl[i].reg_addr), tbl[i].reg);
+		if (tbl[i].le)
+			out_le32((u32 *)(tbl[i].reg_addr), tbl[i].reg);
+		else
+			out_be32((u32 *)(tbl[i].reg_addr), tbl[i].reg);
 }
 
 #ifdef CONFIG_SYS_DPAA_FMAN

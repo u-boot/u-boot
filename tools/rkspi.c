@@ -21,22 +21,20 @@ static void rkspi_set_header(void *buf, struct stat *sbuf, int ifd,
 {
 	int sector;
 	unsigned int size;
-	int ret;
 
 	size = params->orig_file_size;
-	ret = rkcommon_set_header(buf, size, params);
-	debug("size %x\n", size);
-	if (ret) {
-		/* TODO(sjg@chromium.org): This method should return an error */
-		printf("Warning: SPL image is too large (size %#x) and will "
-		       "not boot\n", size);
-	}
+
+	rkcommon_set_header(buf, sbuf, ifd, params);
 
 	/*
 	 * Spread the image out so we only use the first 2KB of each 4KB
 	 * region. This is a feature of the SPI format required by the Rockchip
 	 * boot ROM. Its rationale is unknown.
 	 */
+	if (params->vflag)
+		fprintf(stderr, "Spreading spi image from %u to %u\n",
+			size, params->file_size);
+
 	for (sector = size / RKSPI_SECT_LEN - 1; sector >= 0; sector--) {
 		debug("sector %u\n", sector);
 		memmove(buf + sector * RKSPI_SECT_LEN * 2,
@@ -56,35 +54,23 @@ static int rkspi_check_image_type(uint8_t type)
 }
 
 /*
- * The SPI payload needs to be padded out to make space for odd half-sector
- * layout used in flash (i.e. only the first 2K of each 4K sector is used).
+ * The SPI payload needs to make space for odd half-sector layout used in flash
+ * (i.e. only the first 2K of each 4K sector is used).
  */
 static int rkspi_vrec_header(struct image_tool_params *params,
 			     struct image_type_params *tparams)
 {
-	int padding = rkcommon_vrec_header(params, tparams, RK_INIT_SIZE_ALIGN);
-	/*
-	 * The file size has not been adjusted at this point (our caller will
-	 * eventually add the header/padding to the file_size), so we need to
-	 * add up the header_size, file_size and padding ourselves.
-	 */
-	int padded_size = tparams->header_size + params->file_size + padding;
-
-	/*
-	 * We need to store the original file-size (i.e. before padding), as
-	 * imagetool does not set this during its adjustment of file_size.
-	 */
-	params->orig_file_size = padded_size;
+	rkcommon_vrec_header(params, tparams);
 
 	/*
 	 * Converting to the SPI format (i.e. splitting each 4K page into two
 	 * 2K subpages and then padding these 2K pages up to take a complete
-	 * 4K sector again) will will double the image size.
-	 *
-	 * Thus we return the padded_size as an additional padding requirement
-	 * (be sure to add this to the padding returned from the common code).
+	 * 4K sector again) which will double the image size.
 	 */
-	return padded_size + padding;
+	params->file_size = ROUND(params->file_size, RKSPI_SECT_LEN) << 1;
+
+	/* Ignoring pad len, since we are using our own copy_image() */
+	return 0;
 }
 
 /*

@@ -25,36 +25,9 @@
 #define CONFIG_SYS_MALLOC_LEN		(4 * SZ_1M)
 
 /* FEC ethernet */
-#define IMX_FEC_BASE			ENET_BASE_ADDR
-#define CONFIG_FEC_XCV_TYPE		RGMII
-#define CONFIG_ETHPRIME			"FEC"
-#define CONFIG_FEC_MXC_PHYADDR		0
 #define CONFIG_ARP_TIMEOUT		200UL
 
-/* Fuses */
-#ifdef CONFIG_CMD_FUSE
-#define CONFIG_MXC_OCOTP
-#endif
-
-/* I2C Configs */
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
-#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
-#define CONFIG_SYS_I2C_SPEED		100000
-
-/* MMC Configs */
-#define CONFIG_FSL_ESDHC
-#define CONFIG_FSL_USDHC
-#define CONFIG_SYS_FSL_ESDHC_ADDR	0
-#define CONFIG_SYS_FSL_USDHC_NUM	2
 #define CONFIG_SYS_MMC_ENV_DEV		1 /* 0 = SDHC2, 1 = SDHC4 (eMMC) */
-
-/* UART */
-#define CONFIG_MXC_UART
-#define CONFIG_MXC_UART_BASE		UART1_BASE
-#define CONFIG_CONS_INDEX		1
-#define CONFIG_BAUDRATE			115200
 
 /* USB Configs */
 #ifdef CONFIG_CMD_USB
@@ -67,7 +40,6 @@
 #endif
 
 /* Watchdog */
-#define CONFIG_WATCHDOG_TIMEOUT_MSECS	60000
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
@@ -89,14 +61,42 @@
 	"rdinit=/sbin/init\0" \
 	"addinitrd=setenv bootargs ${bootargs} rdinit=${rdinit} ${debug} \0" \
 	"fit_config=mx6q_tpc70_conf\0" \
+	"uboot_file=u-boot.img\0" \
+	"SPL_file=SPL\0" \
+	"wic_file=kp-image-kpimx6qtpc.wic\0" \
 	"upd_image=st.4k\0" \
-	"updargs=setenv bootargs console=${console} ${smp}"\
-	       "rdinit=${rdinit} ${debug} ${displayargs}\0" \
+	"updargs=setenv bootargs console=${console} ${smp} ${displayargs}\0" \
+	"initrd_ram_dev=/dev/ram\0" \
+	"addswupdate=setenv bootargs ${bootargs} root=${initrd_ram_dev} rw\0" \
 	"loadusb=usb start; " \
 	       "fatload usb 0 ${loadaddr} ${upd_image}\0" \
+	"upd_uboot_sd=" \
+	    "if tftp ${loadaddr} ${uboot_file}; then " \
+	       "setexpr blkc ${filesize} / 0x200;" \
+	       "setexpr blkc ${blkc} + 1;" \
+	       "mmc write ${loadaddr} 0x8A ${blkc};" \
+	    "fi;\0" \
+	"upd_SPL_sd=" \
+	    "if tftp ${loadaddr} ${SPL_file}; then " \
+	       "setexpr blkc ${filesize} / 0x200;" \
+	       "setexpr blkc ${blkc} + 1;" \
+	       "mmc write ${loadaddr} 0x2 ${blkc};" \
+	    "fi;\0" \
+	"upd_SPL_mmc=mmc dev 1; mmc partconf 1 0 1 1; run upd_SPL_sd\0" \
+	"upd_uboot_mmc=mmc dev 1; mmc partconf 1 0 1 1; run upd_uboot_sd\0" \
+	"up_mmc=run upd_SPL_mmc; run upd_uboot_mmc\0" \
+	"up_sd=run upd_SPL_sd; run upd_uboot_sd\0" \
+	"upd_wic=" \
+	    "if tftp ${loadaddr} ${wic_file}; then " \
+	       "setexpr blkc ${filesize} / 0x200;" \
+	       "setexpr blkc ${blkc} + 1;" \
+	       "mmc write ${loadaddr} 0x0 ${blkc};" \
+	    "fi;\0" \
 	"usbupd=echo Booting update from usb ...; " \
 	       "setenv bootargs; " \
 	       "run updargs; " \
+	       "run addinitrd; " \
+	       "run addswupdate; " \
 	       "run loadusb; " \
 	       "bootm ${loadaddr}#${fit_config}\0" \
 	BOOTENV
@@ -126,9 +126,5 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* Environment */
-#define CONFIG_ENV_SIZE	(SZ_8K)
-#define CONFIG_ENV_OFFSET       0x100000
-#define CONFIG_ENV_OFFSET_REDUND (CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
-#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 
 #endif	/* __KP_IMX6Q_TPC_IMX6_CONFIG_H_ */

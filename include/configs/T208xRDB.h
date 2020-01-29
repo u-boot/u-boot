@@ -30,7 +30,6 @@
 #define CONFIG_SYS_FSL_PBL_PBI board/freescale/t208xrdb/t2080_pbi.cfg
 
 #define CONFIG_SPL_FLUSH_IMAGE
-#define CONFIG_SPL_TEXT_BASE		0xFFFD8000
 #define CONFIG_SPL_PAD_TO		0x40000
 #define CONFIG_SPL_MAX_SIZE		0x28000
 #define RESET_VECTOR_OFFSET		0x27FFC
@@ -41,14 +40,12 @@
 #define CONFIG_SYS_CCSR_DO_NOT_RELOCATE
 #endif
 
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	(768 << 10)
 #define CONFIG_SYS_NAND_U_BOOT_DST	0x00200000
 #define CONFIG_SYS_NAND_U_BOOT_START	0x00200000
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	(256 << 10)
-#define CONFIG_SYS_LDSCRIPT  "arch/powerpc/cpu/mpc85xx/u-boot-nand.lds"
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xrdb/t2080_nand_rcw.cfg
-#define CONFIG_SPL_NAND_BOOT
 #endif
 
 #ifdef CONFIG_SPIFLASH
@@ -58,12 +55,10 @@
 #define CONFIG_SYS_SPI_FLASH_U_BOOT_DST                (0x00200000)
 #define CONFIG_SYS_SPI_FLASH_U_BOOT_START      (0x00200000)
 #define CONFIG_SYS_SPI_FLASH_U_BOOT_OFFS       (256 << 10)
-#define CONFIG_SYS_LDSCRIPT    "arch/powerpc/cpu/mpc85xx/u-boot.lds"
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_SYS_MPC85XX_NO_RESETVEC
 #endif
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xrdb/t2080_spi_rcw.cfg
-#define CONFIG_SPL_SPI_BOOT
 #endif
 
 #ifdef CONFIG_SDCARD
@@ -72,12 +67,10 @@
 #define CONFIG_SYS_MMC_U_BOOT_DST      (0x00200000)
 #define CONFIG_SYS_MMC_U_BOOT_START    (0x00200000)
 #define CONFIG_SYS_MMC_U_BOOT_OFFS     (260 << 10)
-#define CONFIG_SYS_LDSCRIPT    "arch/powerpc/cpu/mpc85xx/u-boot.lds"
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_SYS_MPC85XX_NO_RESETVEC
 #endif
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xrdb/t2080_sd_rcw.cfg
-#define CONFIG_SPL_MMC_BOOT
 #endif
 
 #endif /* CONFIG_RAMBOOT_PBL */
@@ -110,29 +103,8 @@
 #define CONFIG_SYS_MEMTEST_END		0x00400000
 
 #if defined(CONFIG_SPIFLASH)
-#define CONFIG_ENV_SPI_BUS	0
-#define CONFIG_ENV_SPI_CS	0
-#define CONFIG_ENV_SPI_MAX_HZ	10000000
-#define CONFIG_ENV_SPI_MODE	0
-#define CONFIG_ENV_SIZE		0x2000	   /* 8KB */
-#define CONFIG_ENV_OFFSET	0x100000   /* 1MB */
-#define CONFIG_ENV_SECT_SIZE	0x10000
 #elif defined(CONFIG_SDCARD)
 #define CONFIG_SYS_MMC_ENV_DEV	0
-#define CONFIG_ENV_SIZE		0x2000
-#define CONFIG_ENV_OFFSET	(512 * 0x800)
-#elif defined(CONFIG_NAND)
-#define CONFIG_ENV_SIZE		0x2000
-#define CONFIG_ENV_OFFSET	(2 * CONFIG_SYS_NAND_BLOCK_SIZE)
-#elif defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
-#define CONFIG_ENV_ADDR		0xffe20000
-#define CONFIG_ENV_SIZE		0x2000
-#elif defined(CONFIG_ENV_IS_NOWHERE)
-#define CONFIG_ENV_SIZE		0x2000
-#else
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SECT_SIZE)
-#define CONFIG_ENV_SIZE		0x2000
-#define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K (one sector) */
 #endif
 
 #ifndef __ASSEMBLY__
@@ -149,9 +121,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_INIT_L3_ADDR		0xFFFC0000
 #define CONFIG_SYS_L3_SIZE		(512 << 10)
 #define CONFIG_SPL_GD_ADDR		(CONFIG_SYS_INIT_L3_ADDR + 32 * 1024)
-#ifdef CONFIG_RAMBOOT_PBL
-#define CONFIG_ENV_ADDR			(CONFIG_SPL_GD_ADDR + 4 * 1024)
-#endif
+#define SPL_ENV_ADDR			(CONFIG_SPL_GD_ADDR + 4 * 1024)
 #define CONFIG_SPL_RELOC_MALLOC_ADDR	(CONFIG_SPL_GD_ADDR + 12 * 1024)
 #define CONFIG_SPL_RELOC_MALLOC_SIZE	(50 << 10)
 #define CONFIG_SPL_RELOC_STACK		(CONFIG_SPL_GD_ADDR + 64 * 1024)
@@ -175,7 +145,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
 #define CONFIG_CHIP_SELECTS_PER_CTRL	(4 * CONFIG_DIMM_SLOTS_PER_CTLR)
 #define CONFIG_DDR_SPD
-#undef CONFIG_FSL_DDR_INTERACTIVE
 #define CONFIG_SYS_SPD_BUS_NUM	0
 #define CONFIG_SYS_SDRAM_SIZE	2048	/* for fixed parameter use */
 #define SPD_EEPROM_ADDRESS1	0x51
@@ -283,7 +252,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(512 * 1024)
 
-#if defined(CONFIG_NAND)
+#if defined(CONFIG_MTD_RAW_NAND)
 #define CONFIG_SYS_CSPR0_EXT		CONFIG_SYS_NAND_CSPR_EXT
 #define CONFIG_SYS_CSPR0		CONFIG_SYS_NAND_CSPR
 #define CONFIG_SYS_AMASK0		CONFIG_SYS_NAND_AMASK
@@ -436,11 +405,6 @@ unsigned long get_board_ddr_clk(void);
 /*
  * eSPI - Enhanced SPI
  */
-#ifdef CONFIG_SPI_FLASH
-#define CONFIG_SPI_FLASH_BAR
-#define CONFIG_SF_DEFAULT_SPEED	 10000000
-#define CONFIG_SF_DEFAULT_MODE	  0
-#endif
 
 /*
  * General PCI
@@ -450,50 +414,51 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_PCIE2		/* PCIE controller 2 */
 #define CONFIG_PCIE3		/* PCIE controller 3 */
 #define CONFIG_PCIE4		/* PCIE controller 4 */
-#define CONFIG_FSL_PCI_INIT	/* Use common FSL init code */
 #define CONFIG_SYS_PCI_64BIT	/* enable 64-bit PCI resources */
 /* controller 1, direct to uli, tgtid 3, Base address 20000 */
 #define CONFIG_SYS_PCIE1_MEM_VIRT	0x80000000
-#define CONFIG_SYS_PCIE1_MEM_BUS	0xe0000000
 #define CONFIG_SYS_PCIE1_MEM_PHYS	0xc00000000ull
-#define CONFIG_SYS_PCIE1_MEM_SIZE	0x20000000      /* 512M */
 #define CONFIG_SYS_PCIE1_IO_VIRT	0xf8000000
-#define CONFIG_SYS_PCIE1_IO_BUS		0x00000000
 #define CONFIG_SYS_PCIE1_IO_PHYS	0xff8000000ull
-#define CONFIG_SYS_PCIE1_IO_SIZE	0x00010000	/* 64k */
 
 /* controller 2, Slot 2, tgtid 2, Base address 201000 */
 #define CONFIG_SYS_PCIE2_MEM_VIRT	0xa0000000
-#define CONFIG_SYS_PCIE2_MEM_BUS	0xe0000000
 #define CONFIG_SYS_PCIE2_MEM_PHYS	0xc20000000ull
-#define CONFIG_SYS_PCIE2_MEM_SIZE	0x10000000 /* 256M */
 #define CONFIG_SYS_PCIE2_IO_VIRT	0xf8010000
-#define CONFIG_SYS_PCIE2_IO_BUS		0x00000000
 #define CONFIG_SYS_PCIE2_IO_PHYS	0xff8010000ull
-#define CONFIG_SYS_PCIE2_IO_SIZE	0x00010000	/* 64k */
 
 /* controller 3, Slot 1, tgtid 1, Base address 202000 */
 #define CONFIG_SYS_PCIE3_MEM_VIRT	0xb0000000
-#define CONFIG_SYS_PCIE3_MEM_BUS	0xe0000000
 #define CONFIG_SYS_PCIE3_MEM_PHYS	0xc30000000ull
-#define CONFIG_SYS_PCIE3_MEM_SIZE	0x10000000	/* 256M */
 #define CONFIG_SYS_PCIE3_IO_VIRT	0xf8020000
-#define CONFIG_SYS_PCIE3_IO_BUS		0x00000000
 #define CONFIG_SYS_PCIE3_IO_PHYS	0xff8020000ull
-#define CONFIG_SYS_PCIE3_IO_SIZE	0x00010000	/* 64k */
 
 /* controller 4, Base address 203000 */
 #define CONFIG_SYS_PCIE4_MEM_VIRT       0xc0000000
-#define CONFIG_SYS_PCIE4_MEM_BUS	0xe0000000
 #define CONFIG_SYS_PCIE4_MEM_PHYS	0xc40000000ull
-#define CONFIG_SYS_PCIE4_MEM_SIZE	0x10000000	/* 256M */
-#define CONFIG_SYS_PCIE4_IO_BUS		0x00000000
 #define CONFIG_SYS_PCIE4_IO_PHYS	0xff8030000ull
-#define CONFIG_SYS_PCIE4_IO_SIZE	0x00010000	/* 64k */
 
 #ifdef CONFIG_PCI
+#if !defined(CONFIG_DM_PCI)
+#define CONFIG_FSL_PCI_INIT	/* Use common FSL init code */
+#define CONFIG_SYS_PCIE1_MEM_BUS	0xe0000000
+#define CONFIG_SYS_PCIE1_MEM_SIZE	0x20000000      /* 512M */
+#define CONFIG_SYS_PCIE1_IO_BUS		0x00000000
+#define CONFIG_SYS_PCIE1_IO_SIZE	0x00010000	/* 64k */
+#define CONFIG_SYS_PCIE2_MEM_BUS	0xe0000000
+#define CONFIG_SYS_PCIE2_MEM_SIZE	0x10000000 /* 256M */
+#define CONFIG_SYS_PCIE2_IO_BUS		0x00000000
+#define CONFIG_SYS_PCIE2_IO_SIZE	0x00010000	/* 64k */
+#define CONFIG_SYS_PCIE3_MEM_BUS	0xe0000000
+#define CONFIG_SYS_PCIE3_MEM_SIZE	0x10000000	/* 256M */
+#define CONFIG_SYS_PCIE3_IO_BUS		0x00000000
+#define CONFIG_SYS_PCIE3_IO_SIZE	0x00010000	/* 64k */
+#define CONFIG_SYS_PCIE4_MEM_BUS	0xe0000000
+#define CONFIG_SYS_PCIE4_MEM_SIZE	0x10000000	/* 256M */
+#define CONFIG_SYS_PCIE4_IO_BUS		0x00000000
+#define CONFIG_SYS_PCIE4_IO_SIZE	0x00010000	/* 64k */
 #define CONFIG_PCI_INDIRECT_BRIDGE
-#define CONFIG_FSL_PCIE_RESET           /* need PCIe reset errata LSZ ADD */
+#endif
 #define CONFIG_PCI_SCAN_SHOW	/* show pci devices on startup */
 #endif
 
@@ -537,8 +502,6 @@ unsigned long get_board_ddr_clk(void);
  * env is stored at 0x100000, sector size is 0x10000, ucode is stored after
  * env, so we got 0x110000.
  */
-#define CONFIG_SYS_QE_FW_IN_SPIFLASH
-#define CONFIG_SYS_CORTINA_FW_IN_SPIFLASH
 #define CONFIG_SYS_FMAN_FW_ADDR		0x110000
 #define CONFIG_CORTINA_FW_ADDR		0x120000
 
@@ -548,14 +511,10 @@ unsigned long get_board_ddr_clk(void);
  * about 1MB (2048 blocks), Env is stored after the image, and the env size is
  * 0x2000 (16 blocks), 8 + 2048 + 16 = 2072, enlarge it to 2080.
  */
-#define CONFIG_SYS_QE_FMAN_FW_IN_MMC
-#define CONFIG_SYS_CORTINA_FW_IN_MMC
 #define CONFIG_SYS_FMAN_FW_ADDR		(512 * 0x820)
 #define CONFIG_CORTINA_FW_ADDR		(512 * 0x8a0)
 
-#elif defined(CONFIG_NAND)
-#define CONFIG_SYS_QE_FMAN_FW_IN_NAND
-#define CONFIG_SYS_CORTINA_FW_IN_NAND
+#elif defined(CONFIG_MTD_RAW_NAND)
 #define CONFIG_SYS_FMAN_FW_ADDR		(3 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #define CONFIG_CORTINA_FW_ADDR		(4 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #elif defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
@@ -566,13 +525,9 @@ unsigned long get_board_ddr_clk(void);
  * slave SRIO or PCIE outbound window->master inbound window->
  * master LAW->the ucode address in master's memory space.
  */
-#define CONFIG_SYS_QE_FMAN_FW_IN_REMOTE
-#define CONFIG_SYS_CORTINA_FW_IN_REMOTE
 #define CONFIG_SYS_FMAN_FW_ADDR		0xFFE00000
 #define CONFIG_CORTINA_FW_ADDR		0xFFE10000
 #else
-#define CONFIG_SYS_QE_FMAN_FW_IN_NOR
-#define CONFIG_SYS_CORTINA_FW_IN_NOR
 #define CONFIG_SYS_FMAN_FW_ADDR		0xEFF00000
 #define CONFIG_CORTINA_FW_ADDR		0xEFE00000
 #endif
@@ -581,8 +536,6 @@ unsigned long get_board_ddr_clk(void);
 #endif /* CONFIG_NOBQFMAN */
 
 #ifdef CONFIG_SYS_DPAA_FMAN
-#define CONFIG_FMAN_ENET
-#define CONFIG_PHY_CORTINA
 #define CONFIG_PHY_REALTEK
 #define CONFIG_CORTINA_FW_LENGTH	0x40000
 #define RGMII_PHY1_ADDR		0x01  /* RealTek RTL8211E */

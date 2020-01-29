@@ -11,11 +11,15 @@
 		      <0x0 0x02988000 0x0 0x2000>;
 		reg-names = "ss", "ctl", "phy";
 		clocks = <&k3_clks 20 0>;
-		power-domains = <&k3_pds 20>,
-				<&k3_pds 244>;
+		power-domains = <&k3_pds 20 TI_SCI_PD_SHARED>,
+				<&k3_pds 244 TI_SCI_PD_SHARED>;
 		assigned-clocks = <&k3_clks 20 1>;
 		assigned-clock-rates = <DDR_PLL_FREQUENCY>;
 		u-boot,dm-spl;
+
+		ti,ss-reg = <
+			DDRSS_V2H_CTL_REG
+		>;
 
 		ti,ctl-reg = <
 			DDRCTL_DFIMISC
@@ -132,12 +136,15 @@
 			DDRPHY_DX8SL0DXCTL2
 			DDRPHY_DX8SL0IOCR
 			DDRPHY_DX8SL0PLLCR0
+			DDRPHY_DX8SL0DQSCTL
 			DDRPHY_DX8SL1DXCTL2
 			DDRPHY_DX8SL1IOCR
 			DDRPHY_DX8SL1PLLCR0
+			DDRPHY_DX8SL1DQSCTL
 			DDRPHY_DX8SL2DXCTL2
 			DDRPHY_DX8SL2IOCR
 			DDRPHY_DX8SL2PLLCR0
+			DDRPHY_DX8SL2DQSCTL
 			DDRPHY_DXCCR
 			DDRPHY_ODTCR
 			DDRPHY_PGCR0
@@ -168,6 +175,8 @@
 		>;
 
 		ti,phy-ioctl = <
+			DDRPHY_ACIOCR0
+			DDRPHY_ACIOCR3
 			DDRPHY_ACIOCR5
 			DDRPHY_IOVCR0
 		>;

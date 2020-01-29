@@ -4,7 +4,7 @@
  *
  * Copyright (c) 2018 Heinrich Schuchardt <xypron.glpk@gmx.de>
  *
- * This unit test checks the following runtime services:
+ * This unit test checks the following boottime services:
  * AllocatePages, FreePages, GetMemoryMap
  *
  * The memory type used for the device tree is checked.
@@ -33,8 +33,8 @@ static int setup(const efi_handle_t handle,
 	boottime = systable->boottime;
 
 	for (i = 0; i < systable->nr_tables; ++i) {
-		if (!efi_st_memcmp(&systable->tables[i].guid, &fdt_guid,
-				   sizeof(efi_guid_t))) {
+		if (!memcmp(&systable->tables[i].guid, &fdt_guid,
+			    sizeof(efi_guid_t))) {
 			if (fdt_addr) {
 				efi_st_error("Duplicate device tree\n");
 				return EFI_ST_FAILURE;
@@ -64,6 +64,11 @@ static int find_in_memory_map(efi_uintn_t map_size,
 
 	for (i = 0; map_size; ++i, map_size -= desc_size) {
 		struct efi_mem_desc *entry = &memory_map[i];
+
+		if (entry->physical_start != entry->virtual_start) {
+			efi_st_error("Physical and virtual addresses do not match\n");
+			return EFI_ST_FAILURE;
+		}
 
 		if (addr >= entry->physical_start &&
 		    addr < entry->physical_start +
@@ -171,9 +176,9 @@ static int execute(void)
 	/* Check memory reservation for the device tree */
 	if (fdt_addr &&
 	    find_in_memory_map(map_size, memory_map, desc_size, fdt_addr,
-			       EFI_RUNTIME_SERVICES_DATA) != EFI_ST_SUCCESS) {
+			       EFI_BOOT_SERVICES_DATA) != EFI_ST_SUCCESS) {
 		efi_st_error
-			("Device tree not marked as runtime services data\n");
+			("Device tree not marked as boot services data\n");
 		return EFI_ST_FAILURE;
 	}
 	return EFI_ST_SUCCESS;

@@ -46,29 +46,51 @@
 #define CONFIG_DFU_ENV_SETTINGS \
 	"dfu_alt_info=" \
 		"spl raw 0x2 0x400;" \
-		"u-boot raw 0x8a 0x400;" \
+		"u-boot raw 0x8a 0x1000;" \
 		"/boot/zImage ext4 0 1;" \
 		"/boot/imx7d-pico-hobbit.dtb ext4 0 1;" \
 		"/boot/imx7d-pico-pi.dtb ext4 0 1;" \
 		"rootfs part 0 1\0" \
 
-#define BOOTMENU_ENV \
+/* When booting with FIT specify the node entry containing boot.scr */
+#if defined(CONFIG_FIT)
+#define PICO_BOOT_ENV \
+	BOOTENV								\
+	"fdtovaddr=0x83100000\0"					\
+	"scriptaddr=0x83200000\0"					\
+	"mmcargs=setenv bootargs console=${console},${baudrate} "	\
+		"rootwait rw\0"						\
+	"boot_a_script="						\
+		"load ${devtype} ${devnum}:${distro_bootpart} "		\
+			"${scriptaddr} ${prefix}${script}; "		\
+		"iminfo ${scriptaddr};"					\
+		"if test $? -eq 1; then hab_failsafe; fi;"		\
+		"source ${scriptaddr}:bootscr\0"
+#else
+#define PICO_BOOT_ENV \
 	"bootmenu_0=Boot using PICO-Hobbit baseboard=" \
 		"setenv fdtfile imx7d-pico-hobbit.dtb\0" \
-	"bootmenu_1=Boot using PICO-Pi baseboard=" \
+	"bootmenu_1=Boot using PICO-Dwarf baseboard=" \
+		"setenv fdtfile imx7d-pico-dwarf.dtb\0" \
+	"bootmenu_2=Boot using PICO-Nymph baseboard=" \
+		"setenv fdtfile imx7d-pico-nymph.dtb\0" \
+	"bootmenu_3=Boot using PICO-Pi baseboard=" \
 		"setenv fdtfile imx7d-pico-pi.dtb\0" \
+	BOOTENV
+#endif
 
-#define CONFIG_SUPPORT_EMMC_BOOT /* eMMC specific */
+
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"script=boot.scr\0" \
 	"image=zImage\0" \
+	"splashpos=m,m\0" \
+	"splashimage=" __stringify(CONFIG_LOADADDR) "\0" \
 	"console=ttymxc4\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
-	BOOTMENU_ENV \
+	"videomode=video=ctfb:x:800,y:480,depth:24,mode:0,pclk:30000,le:46,ri:210,up:22,lo:23,hs:20,vs:10,sync:0,vmode:0\0" \
 	"fdt_addr=0x83000000\0" \
 	"fdt_addr_r=0x83000000\0" \
 	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
@@ -88,7 +110,7 @@
 		"name=rootfs,size=0,uuid=${uuid_gpt_rootfs}\0" \
 	"fastboot_partition_alias_system=rootfs\0" \
 	"setup_emmc=mmc dev 0; gpt write mmc 0 $partitions; reset;\0" \
-	BOOTENV
+	PICO_BOOT_ENV
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
@@ -131,11 +153,19 @@
 #define CONFIG_POWER_PFUZE3000
 #define CONFIG_POWER_PFUZE3000_I2C_ADDR	0x08
 
+#ifdef CONFIG_DM_VIDEO
+#define CONFIG_VIDEO_MXS
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_SPLASH_SCREEN
+#define CONFIG_SPLASH_SCREEN_ALIGN
+#define CONFIG_BMP_16BPP
+#define CONFIG_VIDEO_BMP_RLE8
+#define CONFIG_VIDEO_BMP_LOGO
+#endif
+
 /* FLASH and environment organization */
-#define CONFIG_ENV_SIZE			SZ_8K
 
 /* Environment starts at 768k = 768 * 1024 = 786432 */
-#define CONFIG_ENV_OFFSET		786432
 /*
  * Detect overlap between U-Boot image and environment area in build-time
  *
