@@ -23,6 +23,8 @@
 #include <wait_bit.h>
 #include <linux/bitops.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
  * [0]: http://www.xilinx.com/support/documentation
  *
@@ -80,6 +82,8 @@
 
 #define XILINX_SPISR_TIMEOUT	10000 /* in milliseconds */
 
+#define XILINX_SPI_QUAD_MODE	2
+
 /* xilinx spi register set */
 struct xilinx_spi_regs {
 	u32 __space0__[7];
@@ -107,6 +111,21 @@ struct xilinx_spi_priv {
 	unsigned int fifo_depth;
 	u8 startup;
 };
+
+static int xilinx_spi_child_pre_probe(struct udevice *bus)
+{
+	struct spi_slave *slave = dev_get_parent_priv(bus);
+	struct udevice *dev = dev_get_parent(bus);
+	int spimode;
+
+	spimode = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev), "xlnx,spi-mode",
+				 -1);
+
+	if (spimode == XILINX_SPI_QUAD_MODE)
+		slave->mode = SPI_RX_QUAD;
+
+	return 0;
+}
 
 static int xilinx_spi_probe(struct udevice *bus)
 {
@@ -366,4 +385,5 @@ U_BOOT_DRIVER(xilinx_spi) = {
 	.ops	= &xilinx_spi_ops,
 	.priv_auto_alloc_size = sizeof(struct xilinx_spi_priv),
 	.probe	= xilinx_spi_probe,
+	.child_pre_probe = xilinx_spi_child_pre_probe,
 };
