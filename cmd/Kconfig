@@ -702,7 +702,7 @@ config CMD_MEMORY
 	    base - print or set address offset
 	    loop - initialize loop on address range
 
-config MX_CYCLIC
+config CMD_MX_CYCLIC
 	bool "Enable cyclic md/mw commands"
 	depends on CMD_MEMORY
 	help
@@ -736,12 +736,6 @@ config SYS_ALT_MEMTEST
 	  Use a more complete alternative memory test.
 
 endif
-
-config CMD_MX_CYCLIC
-	bool "mdc, mwc"
-	help
-	  mdc - memory display cyclic
-	  mwc - memory write cyclic
 
 config CMD_SHA1SUM
 	bool "sha1sum"

@@ -165,7 +165,7 @@ static int do_mem_mw(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-#ifdef CONFIG_MX_CYCLIC
+#ifdef CONFIG_CMD_MX_CYCLIC
 static int do_mem_mdc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int i;
@@ -219,7 +219,7 @@ static int do_mem_mwc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	return 0;
 }
-#endif /* CONFIG_MX_CYCLIC */
+#endif /* CONFIG_CMD_MX_CYCLIC */
 
 static int do_mem_cmp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
@@ -1270,7 +1270,7 @@ U_BOOT_CMD(
 );
 #endif	/* CONFIG_CMD_MEMTEST */
 
-#ifdef CONFIG_MX_CYCLIC
+#ifdef CONFIG_CMD_MX_CYCLIC
 U_BOOT_CMD(
 	mdc,	4,	1,	do_mem_mdc,
 	"memory display cyclic",
@@ -1290,7 +1290,7 @@ U_BOOT_CMD(
 	"[.b, .w, .l] address value delay(ms)"
 #endif
 );
-#endif /* CONFIG_MX_CYCLIC */
+#endif /* CONFIG_CMD_MX_CYCLIC */
 
 #ifdef CONFIG_CMD_MEMINFO
 U_BOOT_CMD(
