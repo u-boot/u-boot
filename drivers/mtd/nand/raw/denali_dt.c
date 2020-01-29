@@ -136,10 +136,18 @@ static int denali_dt_probe(struct udevice *dev)
 	}
 
 	ret = reset_get_bulk(dev, &resets);
-	if (ret)
+	if (ret) {
 		dev_warn(dev, "Can't get reset: %d\n", ret);
-	else
+	} else {
 		reset_deassert_bulk(&resets);
+
+		/*
+		 * When the reset is deasserted, the initialization sequence is
+		 * kicked (bootstrap process). The driver must wait until it is
+		 * finished. Otherwise, it will result in unpredictable behavior.
+		 */
+		udelay(200);
+	}
 
 	return denali_init(denali);
 }
