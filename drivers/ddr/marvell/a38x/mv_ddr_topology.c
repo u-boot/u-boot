@@ -229,6 +229,16 @@ int mv_ddr_is_ecc_ena(void)
 		return 0;
 }
 
+int mv_ddr_ck_delay_get(void)
+{
+	struct mv_ddr_topology_map *tm = mv_ddr_topology_map_get();
+
+	if (tm->ck_delay)
+		return tm->ck_delay;
+
+	return -1;
+}
+
 /* translate topology map definition to real memory size in bits */
 static unsigned int mem_size[] = {
 	ADDR_SIZE_512MB,
