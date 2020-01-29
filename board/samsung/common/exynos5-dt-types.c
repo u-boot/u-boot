@@ -67,7 +67,7 @@ static int odroid_get_adc_val(unsigned int *adcval)
 	unsigned int adcval_prev = 0;
 	int ret, retries = 20;
 
-	ret = adc_channel_single_shot("adc", CONFIG_ODROID_REV_AIN,
+	ret = adc_channel_single_shot("adc@12D10000", CONFIG_ODROID_REV_AIN,
 				      &adcval_prev);
 	if (ret)
 		return ret;
@@ -75,8 +75,8 @@ static int odroid_get_adc_val(unsigned int *adcval)
 	while (retries--) {
 		mdelay(5);
 
-		ret = adc_channel_single_shot("adc", CONFIG_ODROID_REV_AIN,
-					      adcval);
+		ret = adc_channel_single_shot("adc@12D10000",
+					      CONFIG_ODROID_REV_AIN, adcval);
 		if (ret)
 			return ret;
 
@@ -129,7 +129,7 @@ static const char *odroid_get_type_str(void)
 	if (gd->board_type != EXYNOS5_BOARD_ODROID_XU3_REV02)
 		goto exit;
 
-	ret = pmic_get("s2mps11", &dev);
+	ret = pmic_get("s2mps11_pmic@66", &dev);
 	if (ret)
 		goto exit;
 

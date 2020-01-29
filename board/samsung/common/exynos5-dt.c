@@ -65,9 +65,9 @@ int exynos_power_init(void)
 	int ret;
 
 #ifdef CONFIG_PMIC_S2MPS11
-	ret = pmic_get("s2mps11_pmic", &dev);
+	ret = pmic_get("s2mps11_pmic@66", &dev);
 #else
-	ret = pmic_get("max77686", &dev);
+	ret = pmic_get("max77686_pmic@09", &dev);
 	if (!ret) {
 		/* TODO(sjg@chromium.org): Move into the clock/pmic API */
 		ret = pmic_clrsetbits(dev, MAX77686_REG_PMIC_32KHZ, 0,
@@ -79,7 +79,7 @@ int exynos_power_init(void)
 		if (ret)
 			return ret;
 	} else {
-		ret = pmic_get("s5m8767-pmic", &dev);
+		ret = pmic_get("s5m8767_pmic@66", &dev);
 		/* TODO(sjg@chromium.org): Use driver model to access clock */
 #ifdef CONFIG_PMIC_S5M8767
 		if (!ret)
