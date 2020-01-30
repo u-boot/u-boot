@@ -578,6 +578,18 @@ static int esdhc_set_ios_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 	return 0;
 }
 
+static void esdhc_enable_cache_snooping(struct fsl_esdhc *regs)
+{
+#ifdef CONFIG_ARCH_MPC830X
+	immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
+	sysconf83xx_t *sysconf = &immr->sysconf;
+
+	setbits_be32(&sysconf->sdhccr, 0x02000000);
+#else
+	esdhc_write32(&regs->esdhcctl, 0x00000040);
+#endif
+}
+
 static int esdhc_init_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 {
 	struct fsl_esdhc *regs = priv->esdhc_regs;
@@ -593,8 +605,7 @@ static int esdhc_init_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 			return -ETIMEDOUT;
 	}
 
-	/* Enable cache snooping */
-	esdhc_write32(&regs->esdhcctl, 0x00000040);
+	esdhc_enable_cache_snooping(regs);
 
 	esdhc_setbits32(&regs->sysctl, SYSCTL_HCKEN | SYSCTL_IPGEN);
 
