@@ -60,6 +60,14 @@ config BCM6345_GPIO
 	help
 	  This driver supports the GPIO banks on BCM6345 SoCs.
 
+config CORTINA_GPIO
+	bool "Cortina-Access GPIO driver"
+	depends on DM_GPIO && CORTINA_PLATFORM
+	help
+	  Enable support for the GPIO controller in Cortina CAxxxx SoCs.
+	  This driver supports all CPU ISA variants supported by Cortina
+	  Access CAxxxx SoCs.
+
 config DWAPB_GPIO
 	bool "DWAPB GPIO driver"
 	depends on DM && DM_GPIO
