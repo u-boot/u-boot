@@ -1675,6 +1675,10 @@ config TARGET_DURIAN
 	  Support for durian platform.
 	  It has 2GB Sdram, uart and pcie.
 
+config TARGET_PRESIDIO_ASIC
+	bool "Support Cortina Presidio ASIC Platform"
+	select ARM64
+
 endchoice
 
 config ARCH_SUPPORT_TFABOOT
@@ -1823,6 +1827,7 @@ source "board/Marvell/gplugd/Kconfig"
 source "board/armadeus/apf27/Kconfig"
 source "board/armltd/vexpress/Kconfig"
 source "board/armltd/vexpress64/Kconfig"
+source "board/cortina/presidio-asic/Kconfig"
 source "board/broadcom/bcm23550_w1d/Kconfig"
 source "board/broadcom/bcm28155_ap/Kconfig"
 source "board/broadcom/bcm963158/Kconfig"
