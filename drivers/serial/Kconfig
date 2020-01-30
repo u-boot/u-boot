@@ -553,6 +553,13 @@ config COREBOOT_SERIAL
 	  a serial console on any platform without needing to change the
 	  device tree, etc.
 
+config CORTINA_UART
+	bool "Cortina UART support"
+	depends on DM_SERIAL
+	help
+	  Select this to enable UART support for Cortina-Access UART devices
+	  found on CAxxxx SoCs.
+
 config FSL_LINFLEXUART
 	bool "Freescale Linflex UART support"
 	depends on DM_SERIAL
