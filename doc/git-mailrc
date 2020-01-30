@@ -15,6 +15,7 @@ alias abrodkin       Alexey Brodkin <alexey.brodkin@synopsys.com>
 alias afleming       Andy Fleming <afleming@gmail.com>
 alias ag             Anatolij Gustschin <agust@denx.de>
 alias agraf          Alexander Graf <agraf@csgraf.de>
+alias alexnemirovsky Alex Nemirovsky <alex.nemirovsky@cortina-access.com>
 alias alisonwang     Alison Wang <alison.wang@nxp.com>
 alias angelo_ts      Angelo Dureghello <angelo@sysam.it>
 alias bmeng          Bin Meng <bmeng.cn@gmail.com>
@@ -57,6 +58,7 @@ alias arc            uboot, abrodkin
 
 alias arm            uboot, trini
 alias at91           uboot, abiessmann
+alias cortina        uboot, alexnemirovsky
 alias davinci        ti
 alias imx            uboot, sbabic
 alias kirkwood       uboot, stroese

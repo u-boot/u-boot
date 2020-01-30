@@ -173,6 +173,14 @@ F:	doc/README.bcm7xxx
 F:	drivers/mmc/bcmstb_sdhci.c
 F:	drivers/spi/bcmstb_spi.c
 
+ARM CORTINA ACCESS CAxxxx
+M:	Alex Nemirovsky <alex.nemirovsky@cortina-access.com>
+S:	Supported
+F:	board/cortina/common/
+F:	drivers/gpio/cortina_gpio.c
+F:	drivers/watchdog/cortina_wdt.c
+F:	drivers/serial/serial_cortina.c
+
 ARM/CZ.NIC TURRIS MOX SUPPORT
 M:	Marek Behun <marek.behun@nic.cz>
 S:	Maintained
@@ -654,6 +662,14 @@ M:	Daniel Schwierzeck <daniel.schwierzeck@gmail.com>
 S:	Maintained
 T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-mips.git
 F:	arch/mips/
+
+MIPS CORTINA ACCESS CAxxxx
+M:	Alex Nemirovsky <alex.nemirovsky@cortina-access.com>
+S:	Supported
+F:	board/cortina/common/
+F:	drivers/gpio/cortina_gpio.c
+F:	drivers/watchdog/cortina_wdt.c
+F:	drivers/serial/serial_cortina.c
 
 MIPS MSCC
 M:	Gregory CLEMENT <gregory.clement@bootlin.com>
