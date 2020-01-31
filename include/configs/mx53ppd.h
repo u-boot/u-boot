@@ -28,12 +28,6 @@
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 
-/* Eth Configs */
-
-#define CONFIG_FEC_MXC
-#define IMX_FEC_BASE	FEC_BASE_ADDR
-#define CONFIG_FEC_MXC_PHYADDR	0x1F
-
 /* USB Configs */
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_ASIX
@@ -48,8 +42,6 @@
 #define CONFIG_BAUDRATE			115200
 
 /* Command definition */
-
-#define CONFIG_ETHPRIME		"FEC0"
 
 #define CONFIG_LOADADDR		0x72000000	/* loadaddr env var */
 

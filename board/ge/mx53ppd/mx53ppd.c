@@ -98,31 +98,6 @@ int board_ehci_hcd_init(int port)
 }
 #endif
 
-static void setup_iomux_fec(void)
-{
-	static const iomux_v3_cfg_t fec_pads[] = {
-		NEW_PAD_CTRL(MX53_PAD_FEC_MDIO__FEC_MDIO, PAD_CTL_HYS |
-			     PAD_CTL_DSE_HIGH | PAD_CTL_PUS_22K_UP |
-			     PAD_CTL_ODE),
-		NEW_PAD_CTRL(MX53_PAD_FEC_MDC__FEC_MDC, PAD_CTL_DSE_HIGH),
-		NEW_PAD_CTRL(MX53_PAD_FEC_RXD1__FEC_RDATA_1,
-			     PAD_CTL_HYS | PAD_CTL_PKE),
-		NEW_PAD_CTRL(MX53_PAD_FEC_RXD0__FEC_RDATA_0,
-			     PAD_CTL_HYS | PAD_CTL_PKE),
-		NEW_PAD_CTRL(MX53_PAD_FEC_TXD1__FEC_TDATA_1, PAD_CTL_DSE_HIGH),
-		NEW_PAD_CTRL(MX53_PAD_FEC_TXD0__FEC_TDATA_0, PAD_CTL_DSE_HIGH),
-		NEW_PAD_CTRL(MX53_PAD_FEC_TX_EN__FEC_TX_EN, PAD_CTL_DSE_HIGH),
-		NEW_PAD_CTRL(MX53_PAD_FEC_REF_CLK__FEC_TX_CLK,
-			     PAD_CTL_HYS | PAD_CTL_PKE),
-		NEW_PAD_CTRL(MX53_PAD_FEC_RX_ER__FEC_RX_ER,
-			     PAD_CTL_HYS | PAD_CTL_PKE),
-		NEW_PAD_CTRL(MX53_PAD_FEC_CRS_DV__FEC_RX_DV,
-			     PAD_CTL_HYS | PAD_CTL_PKE),
-	};
-
-	imx_iomux_v3_setup_multiple_pads(fec_pads, ARRAY_SIZE(fec_pads));
-}
-
 static int clock_1GHz(void)
 {
 	int ret;
@@ -160,7 +135,6 @@ void ppd_gpio_init(void)
 
 int board_early_init_f(void)
 {
-	setup_iomux_fec();
 	ppd_gpio_init();
 
 	return 0;
