@@ -85,9 +85,6 @@ u32 get_board_rev(void)
 	return get_cpu_rev() & ~(0xF << 8);
 }
 
-#define UART_PAD_CTRL	(PAD_CTL_HYS | PAD_CTL_DSE_HIGH | \
-			 PAD_CTL_PUS_100K_UP | PAD_CTL_ODE)
-
 #ifdef CONFIG_USB_EHCI_MX5
 int board_ehci_hcd_init(int port)
 {

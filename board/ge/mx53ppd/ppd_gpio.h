@@ -9,15 +9,9 @@
 #include <asm/arch/iomux-mx53.h>
 #include <asm/gpio.h>
 
-#define PPD_UART_PAD_CTRL (PAD_CTL_HYS | PAD_CTL_DSE_HIGH |	\
-			   PAD_CTL_PUS_100K_UP)
-
 static const iomux_v3_cfg_t ppd_pads[] = {
 	/* FEC */
 	MX53_PAD_EIM_A22__GPIO2_16,
-	/* UART */
-	NEW_PAD_CTRL(MX53_PAD_PATA_DMACK__UART1_RXD_MUX, PPD_UART_PAD_CTRL),
-	NEW_PAD_CTRL(MX53_PAD_PATA_DIOW__UART1_TXD_MUX, PPD_UART_PAD_CTRL),
 	/* Video */
 	MX53_PAD_CSI0_DATA_EN__GPIO5_20, /* LR_SCAN_CTRL */
 	MX53_PAD_CSI0_VSYNC__GPIO5_21,	 /* UD_SCAN_CTRL */

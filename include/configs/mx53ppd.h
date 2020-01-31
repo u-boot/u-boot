@@ -11,8 +11,6 @@
 
 #include <asm/arch/imx-regs.h>
 
-#define CONSOLE_DEV	"ttymxc0"
-
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
@@ -24,9 +22,6 @@
 
 #define CONFIG_BOARD_LATE_INIT
 #define CONFIG_REVISION_TAG
-
-#define CONFIG_MXC_UART
-#define CONFIG_MXC_UART_BASE	UART1_BASE
 
 /* USB Configs */
 #define CONFIG_USB_HOST_ETHER
@@ -70,11 +65,9 @@
 	"devnum=2\0" \
 	"rootdev=mmcblk0p\0" \
 	"quiet=quiet loglevel=0\0" \
-	"console=" CONSOLE_DEV "\0" \
 	"lvds=ldb\0" \
 	"setargs=setenv bootargs ${lvds} jtag=on mem=2G " \
-		"vt.global_cursor_default=0 bootcause=${bootcause} ${quiet} " \
-		"console=${console}\0" \
+		"vt.global_cursor_default=0 bootcause=${bootcause} ${quiet}\0" \
 	"bootargs_emmc=setenv bootargs root=/dev/${rootdev}${partnum} ro " \
 		"rootwait ${bootargs}\0" \
 	"doquiet=if ext2load ${dev} ${devnum}:5 0x7000A000 /boot/console; " \
