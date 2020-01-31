@@ -60,7 +60,6 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	PPD_CONFIG_NFS \
 	"image=/boot/fitImage\0" \
-	"fdt_high=0xffffffff\0" \
 	"dev=mmc\0" \
 	"devnum=2\0" \
 	"rootdev=mmcblk0p\0" \
@@ -126,6 +125,8 @@
 #define CONFIG_SYS_MEMTEST_END         0x70010000
 
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
+
+#define CONFIG_SYS_BOOTMAPSZ (256 << 20)     /* 256M */
 
 /* Physical Memory Map */
 #define PHYS_SDRAM_1			CSD0_BASE_ADDR

@@ -79,7 +79,6 @@
 	NETWORKBOOT \
 	"bootcause=POR\0" \
 	"image=/boot/fitImage\0" \
-	"fdt_high=0xffffffff\0" \
 	"dev=mmc\0" \
 	"devnum=2\0" \
 	"rootdev=mmcblk0p\0" \
@@ -153,6 +152,8 @@
 
 /* Physical Memory Map */
 #define PHYS_SDRAM                     MMDC0_ARB_BASE_ADDR
+
+#define CONFIG_SYS_BOOTMAPSZ (256 << 20)     /* 256M */
 
 #define CONFIG_SYS_SDRAM_BASE          PHYS_SDRAM
 #define CONFIG_SYS_INIT_RAM_ADDR       IRAM_BASE_ADDR
