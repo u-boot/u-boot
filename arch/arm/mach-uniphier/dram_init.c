@@ -248,12 +248,7 @@ int dram_init(void)
 
 		max_size = (1ULL << 32) - dram_map[i].base;
 
-		if (dram_map[i].size > max_size) {
-			gd->ram_size += max_size;
-			break;
-		}
-
-		gd->ram_size += dram_map[i].size;
+		gd->ram_size = min(dram_map[i].size, max_size);
 
 		if (!valid_bank_found)
 			gd->ram_base = dram_map[i].base;

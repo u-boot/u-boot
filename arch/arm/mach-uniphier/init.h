@@ -90,7 +90,6 @@ void uniphier_ld11_pll_init(void);
 void uniphier_ld20_pll_init(void);
 void uniphier_pxs3_pll_init(void);
 
-void uniphier_ld4_clk_init(void);
 void uniphier_pro4_clk_init(void);
 void uniphier_pro5_clk_init(void);
 void uniphier_pxs2_clk_init(void);

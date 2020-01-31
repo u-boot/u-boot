@@ -40,7 +40,6 @@ static const struct uniphier_initdata uniphier_initdata[] = {
 		.soc_id = UNIPHIER_LD4_ID,
 		.sbc_init = uniphier_ld4_sbc_init,
 		.pll_init = uniphier_ld4_pll_init,
-		.clk_init = uniphier_ld4_clk_init,
 	},
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_PRO4)
@@ -56,7 +55,6 @@ static const struct uniphier_initdata uniphier_initdata[] = {
 		.soc_id = UNIPHIER_SLD8_ID,
 		.sbc_init = uniphier_ld4_sbc_init,
 		.pll_init = uniphier_ld4_pll_init,
-		.clk_init = uniphier_ld4_clk_init,
 	},
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_PRO5)

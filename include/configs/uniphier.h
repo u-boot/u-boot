@@ -169,17 +169,17 @@
 		"ubi part UBI && " \
 		"ubifsmount ubi0:boot && " \
 		"ubifsload ${loadaddr} ${script} && " \
-		"source\0" \
+		"source $loadaddr\0" \
 	"norscript=echo Running ${script} from tftp ... && " \
 		"tftpboot ${script} &&" \
-		"source\0" \
+		"source $loadaddr\0" \
 	"usbscript=usb start && " \
 		"setenv devtype usb && " \
 		"setenv devnum 0 && " \
 		"run loadscript_fat\0" \
 	"loadscript_fat=echo Running ${script} from ${devtype}${devnum} ... && " \
 		"load ${devtype} ${devnum}:1 ${loadaddr} ${script} && " \
-		"source\0" \
+		"source $loadaddr\0" \
 	"sramupdate=setexpr tmp_addr $nor_base + 0x50000 &&"	\
 		"tftpboot $tmp_addr $second_image && " \
 		"setexpr tmp_addr $nor_base + 0x70000 && " \
