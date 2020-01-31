@@ -10,3 +10,19 @@
 		wdt = <&wdog1>;
 	};
 };
+
+&eeprom {
+	partitions {
+		compatible = "fixed-partitions";
+
+		vpd {
+			offset = <0>;
+			size = <1022>;
+		};
+
+		bootcount {
+			offset = <1022>;
+			size = <2>;
+		};
+	};
+};
