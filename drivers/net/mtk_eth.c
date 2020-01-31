@@ -853,7 +853,8 @@ static void mtk_eth_fifo_init(struct mtk_eth_priv *priv)
 	memset(priv->rx_ring_noc, 0, NUM_RX_DESC * sizeof(struct pdma_rxdesc));
 	memset(priv->pkt_pool, 0, TOTAL_PKT_BUF_SIZE);
 
-	flush_dcache_range((u32)pkt_base, (u32)(pkt_base + TOTAL_PKT_BUF_SIZE));
+	flush_dcache_range((ulong)pkt_base,
+			   (ulong)(pkt_base + TOTAL_PKT_BUF_SIZE));
 
 	priv->rx_dma_owner_idx0 = 0;
 	priv->tx_cpu_owner_idx0 = 0;
@@ -965,7 +966,7 @@ static int mtk_eth_send(struct udevice *dev, void *packet, int length)
 
 	pkt_base = (void *)phys_to_virt(priv->tx_ring_noc[idx].txd_info1.SDP0);
 	memcpy(pkt_base, packet, length);
-	flush_dcache_range((u32)pkt_base, (u32)pkt_base +
+	flush_dcache_range((ulong)pkt_base, (ulong)pkt_base +
 			   roundup(length, ARCH_DMA_MINALIGN));
 
 	priv->tx_ring_noc[idx].txd_info2.SDL0 = length;
@@ -991,7 +992,7 @@ static int mtk_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 
 	length = priv->rx_ring_noc[idx].rxd_info2.PLEN0;
 	pkt_base = (void *)phys_to_virt(priv->rx_ring_noc[idx].rxd_info1.PDP0);
-	invalidate_dcache_range((u32)pkt_base, (u32)pkt_base +
+	invalidate_dcache_range((ulong)pkt_base, (ulong)pkt_base +
 				roundup(length, ARCH_DMA_MINALIGN));
 
 	if (packetp)
@@ -1019,7 +1020,7 @@ static int mtk_eth_probe(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct mtk_eth_priv *priv = dev_get_priv(dev);
-	u32 iobase = pdata->iobase;
+	ulong iobase = pdata->iobase;
 	int ret;
 
 	/* Frame Engine Register Base */
