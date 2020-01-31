@@ -499,7 +499,7 @@ static int lpuart_serial_probe(struct udevice *dev)
 			return ret;
 		}
 	} else {
-		dev_warn(dev, "Failed to get per clk: %d\n",  ret);
+		debug("%s: Failed to get per clk: %d\n", __func__, ret);
 	}
 #endif
 
