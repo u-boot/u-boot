@@ -300,3 +300,5 @@
 		phy-handle = <&switchphy4>;
 	};
 };
+
+#include "imx6q-bx50v3-uboot.dtsi"

@@ -14,6 +14,10 @@
 		compatible = "wdt-reboot";
 		wdt = <&wdog1>;
 	};
+
+	panel-lvds0 {
+		compatible = "simple-panel";
+	};
 };
 
 &eeprom {
