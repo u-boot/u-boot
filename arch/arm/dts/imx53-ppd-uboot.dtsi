@@ -14,6 +14,11 @@
 		compatible = "u-boot,bootcount-i2c-eeprom";
 		i2c-eeprom = <&bootcount>;
 	};
+
+	panel-lvds0 {
+		compatible = "simple-panel";
+		backlight = <&pwm_bl>;
+	};
 };
 
 &eeprom {

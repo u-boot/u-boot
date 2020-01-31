@@ -91,13 +91,10 @@
 		"/boot/bootcause/firstboot\0" \
 	"swappartitions=setexpr partnum 3 - ${partnum}\0" \
 	"failbootcmd=" \
-		"ppd_lcd_enable; " \
-		"msg=\"Monitor failed to start.  " \
-			"Try again, or contact GE Service for support.\"; " \
-		"echo $msg; " \
-		"setenv stdout vga; " \
-		"echo \"\n\n\n\n    \" $msg; " \
-		"setenv stdout serial; " \
+		"cls; " \
+		"setcurs 5 4; " \
+		"lcdputs \"Monitor failed to start. " \
+		"Try again, or contact GE Service for support.\"; " \
 		"bootcount reset; \0" \
 	"altbootcmd=" \
 		"run doquiet; " \
@@ -171,5 +168,7 @@
 
 /* Backlight Control */
 #define CONFIG_IMX6_PWM_PER_CLK 66666000
+
+#define CONFIG_IMX_VIDEO_SKIP
 
 #endif				/* __CONFIG_H */

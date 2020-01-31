@@ -39,8 +39,6 @@
 #include "../../ge/common/ge_common.h"
 #include "../../ge/common/vpd_reader.h"
 
-#define MX53PPD_LCD_POWER		IMX_GPIO_NR(3, 24)
-
 DECLARE_GLOBAL_DATA_PTR;
 
 static u32 mx53_dram_size[2];
@@ -163,7 +161,6 @@ void ppd_gpio_init(void)
 int board_early_init_f(void)
 {
 	setup_iomux_fec();
-	setup_iomux_lcd();
 	ppd_gpio_init();
 
 	return 0;
