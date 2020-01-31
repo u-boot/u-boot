@@ -72,8 +72,8 @@
 		"rootwait ${bootargs}\0" \
 	"doquiet=if ext2load ${dev} ${devnum}:5 0x7000A000 /boot/console; " \
 		"then setenv quiet; fi\0" \
-	"hasfirstboot=ext2load ${dev} ${devnum}:${partnum} 0x7000A000 " \
-		"/boot/bootcause/firstboot\0" \
+	"hasfirstboot=" \
+		"test -e ${dev} ${devnum}:${partnum} /boot/bootcause/firstboot\0" \
 	"swappartitions=setexpr partnum 3 - ${partnum}\0" \
 	"failbootcmd=" \
 		"cls; " \
