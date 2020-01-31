@@ -16,9 +16,6 @@
 
 #define CONFIG_BOARD_NAME	"General Electric Bx50v3"
 
-#define CONFIG_MXC_UART_BASE	UART3_BASE
-#define CONSOLE_DEV	"ttymxc2"
-
 #include "mx6_common.h"
 #include <linux/sizes.h>
 
@@ -27,8 +24,6 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
 #define CONFIG_SYS_MALLOC_LEN		(10 * SZ_1M)
-
-#define CONFIG_MXC_UART
 
 /* SATA Configs */
 #ifdef CONFIG_CMD_SATA
@@ -64,7 +59,7 @@
                 "setenv netmask 255.255.255.0; setenv ethaddr ca:fe:de:ca:f0:11; " \
                 "setenv bootargs root=/dev/nfs nfsroot=${nfsserver}:/srv/nfs/,v3,tcp rw rootwait" \
                 "setenv bootargs $bootargs ip=${ipaddr}:${nfsserver}:${gatewayip}:${netmask}::eth0:off " \
-                "setenv bootargs $bootargs cma=128M bootcause=POR console=${console} ${videoargs} " \
+                "setenv bootargs $bootargs cma=128M bootcause=POR ${videoargs} " \
                 "setenv bootargs $bootargs systemd.mask=helix-network-defaults.service " \
                 "setenv bootargs $bootargs watchdog.handle_boot_enabled=1\0" \
         "networkboot=" \
@@ -89,11 +84,10 @@
 	"devnum=2\0" \
 	"rootdev=mmcblk0p\0" \
 	"quiet=quiet loglevel=0\0" \
-	"console=" CONSOLE_DEV "\0" \
 	"setargs=setenv bootargs root=/dev/${rootdev}${partnum} " \
 		"ro rootwait cma=128M " \
 		"bootcause=${bootcause} " \
-		"${quiet} console=${console} " \
+		"${quiet} " \
 		"${videoargs}" "\0" \
 	"doquiet=" \
 		"if ext2load ${dev} ${devnum}:5 0x7000A000 /boot/console; " \
