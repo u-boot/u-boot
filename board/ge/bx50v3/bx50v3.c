@@ -37,6 +37,7 @@
 #include "../common/vpd_reader.h"
 #include "../../../drivers/net/e1000.h"
 #include <pci.h>
+#include <panel.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -124,16 +125,20 @@ int board_phy_config(struct phy_device *phydev)
 }
 
 #if defined(CONFIG_VIDEO_IPUV3)
-static iomux_v3_cfg_t const backlight_pads[] = {
-	/* Power for LVDS Display */
-	MX6_PAD_EIM_D22__GPIO3_IO22 | MUX_PAD_CTRL(NO_PAD_CTRL),
-#define LVDS_POWER_GP IMX_GPIO_NR(3, 22)
-	/* Backlight enable for LVDS display */
-	MX6_PAD_GPIO_0__GPIO1_IO00 | MUX_PAD_CTRL(NO_PAD_CTRL),
-#define LVDS_BACKLIGHT_GP IMX_GPIO_NR(1, 0)
-	/* backlight PWM brightness control */
-	MX6_PAD_SD1_DAT3__PWM1_OUT | MUX_PAD_CTRL(NO_PAD_CTRL),
-};
+static void do_enable_backlight(struct display_info_t const *dev)
+{
+	struct udevice *panel;
+	int ret;
+
+	ret = uclass_get_device(UCLASS_PANEL, 0, &panel);
+	if (ret) {
+		printf("Could not find panel: %d\n", ret);
+		return;
+	}
+
+	panel_set_backlight(panel, 100);
+	panel_enable_backlight(panel);
+}
 
 static void do_enable_hdmi(struct display_info_t const *dev)
 {
@@ -155,7 +160,7 @@ struct display_info_t const displays[] = {{
 	.addr	= -1,
 	.pixfmt	= IPU_PIX_FMT_RGB24,
 	.detect	= detect_lcd,
-	.enable	= NULL,
+	.enable	= do_enable_backlight,
 	.mode	= {
 		.name           = "G121X1-L03",
 		.refresh        = 60,
@@ -314,12 +319,6 @@ static void setup_display_bx50v3(void)
 			IOMUXC_GPR3_LVDS0_MUX_CTL_MASK,
 		       (IOMUXC_GPR3_MUX_SRC_IPU1_DI0 <<
 			IOMUXC_GPR3_LVDS0_MUX_CTL_OFFSET));
-
-	/* backlights off until needed */
-	imx_iomux_v3_setup_multiple_pads(backlight_pads,
-					 ARRAY_SIZE(backlight_pads));
-	gpio_request(LVDS_POWER_GP, "lvds_power");
-	gpio_direction_input(LVDS_POWER_GP);
 }
 #endif /* CONFIG_VIDEO_IPUV3 */
 
@@ -476,9 +475,6 @@ int board_init(void)
 		setup_display_b850v3();
 	else
 		setup_display_bx50v3();
-
-	gpio_request(LVDS_BACKLIGHT_GP, "lvds_backlight");
-	gpio_direction_input(LVDS_BACKLIGHT_GP);
 #endif
 
 	/* address of boot parameters */
@@ -589,51 +585,6 @@ int ft_board_setup(void *blob, bd_t *bd)
 	return 0;
 }
 #endif
-
-static int do_backlight_enable(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-{
-#if CONFIG_IS_ENABLED(DM_VIDEO)
-	int ret;
-	struct udevice *dev;
-
-#ifdef CONFIG_VIDEO_IPUV3
-	if (!is_b850v3()) {
-		gpio_direction_output(LVDS_POWER_GP, 1);
-
-		/* We need at least 200ms between power on and backlight on
-		 * as per specifications from CHI MEI
-		 */
-		mdelay(250);
-
-		/* enable backlight PWM 1 */
-		pwm_init(0, 0, 0);
-
-		/* duty cycle 5000000ns, period: 5000000ns */
-		pwm_config(0, 5000000, 5000000);
-
-		/* Backlight Power */
-		gpio_direction_output(LVDS_BACKLIGHT_GP, 1);
-
-		pwm_enable(0);
-	}
-#endif
-
-	/* Probe, to find a video device to be used to show a message on
-	 * the vidconsole.
-	 */
-	ret = uclass_get_device(UCLASS_VIDEO, 0, &dev);
-	if (ret)
-		return ret;
-#endif
-
-	return 0;
-}
-
-U_BOOT_CMD(
-       bx50_backlight_enable, 1,      1,      do_backlight_enable,
-       "enable Bx50 backlight",
-       ""
-);
 
 int board_fit_config_name_match(const char *name)
 {

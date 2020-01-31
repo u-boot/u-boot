@@ -105,7 +105,7 @@
 		"setexpr partnum 3 - ${partnum}\0" \
 	"failbootcmd=" \
 		"echo reached failbootcmd; " \
-		"bx50_backlight_enable; " \
+		"cls; " \
 		"setcurs 5 4; " \
 		"lcdputs \"Monitor failed to start. " \
 		"Try again, or contact GE Service for support.\"; " \
