@@ -104,6 +104,7 @@ static void lcd_enable(void)
 	pwm_config(1, 5000000, 5000000);
 
 	/* Backlight Power */
+	gpio_request(BACKLIGHT_ENABLE, "BACKLIGHT_ENABLE");
 	gpio_direction_output(BACKLIGHT_ENABLE, 1);
 
 	pwm_enable(1);

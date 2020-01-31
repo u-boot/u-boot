@@ -189,33 +189,6 @@
 #define CONFIG_PCIE_IMX_PERST_GPIO	IMX_GPIO_NR(7, 12)
 #define CONFIG_PCIE_IMX_POWER_GPIO	IMX_GPIO_NR(1, 5)
 
-#define CONFIG_RTC_RX8010SJ
-#define CONFIG_SYS_RTC_BUS_NUM 2
-#define CONFIG_SYS_I2C_RTC_ADDR	0x32
-
-/* I2C Configs */
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_SPEED		  100000
-#define CONFIG_SYS_I2C_MXC_I2C1
-#define CONFIG_SYS_I2C_MXC_I2C2
-#define CONFIG_SYS_I2C_MXC_I2C3
-
-#define CONFIG_SYS_NUM_I2C_BUSES        11
-#define CONFIG_SYS_I2C_MAX_HOPS         1
-#define CONFIG_SYS_I2C_BUSES	{	{0, {I2C_NULL_HOP} }, \
-					{1, {I2C_NULL_HOP} }, \
-					{2, {I2C_NULL_HOP} }, \
-					{0, {{I2C_MUX_PCA9547, 0x70, 0} } }, \
-					{0, {{I2C_MUX_PCA9547, 0x70, 1} } }, \
-					{0, {{I2C_MUX_PCA9547, 0x70, 2} } }, \
-					{0, {{I2C_MUX_PCA9547, 0x70, 3} } }, \
-					{0, {{I2C_MUX_PCA9547, 0x70, 4} } }, \
-					{0, {{I2C_MUX_PCA9547, 0x70, 5} } }, \
-					{0, {{I2C_MUX_PCA9547, 0x70, 6} } }, \
-					{0, {{I2C_MUX_PCA9547, 0x70, 7} } }, \
-				}
-
 #define CONFIG_BCH
 
 #endif	/* __GE_BX50V3_CONFIG_H */

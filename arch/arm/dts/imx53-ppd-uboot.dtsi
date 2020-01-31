@@ -26,3 +26,23 @@
 		};
 	};
 };
+
+&gpio1 {
+	u-boot,dm-pre-reloc;
+};
+
+&gpio2 {
+	u-boot,dm-pre-reloc;
+};
+
+&gpio3 {
+	u-boot,dm-pre-reloc;
+};
+
+&gpio4 {
+	u-boot,dm-pre-reloc;
+};
+
+&gpio5 {
+	u-boot,dm-pre-reloc;
+};

@@ -489,7 +489,7 @@
 			reg = <1>;
 
 			rtc@30 {
-			       compatible = "sii,s35390a";
+			       compatible = "sii,s35392a-rtc";
 			       reg = <0x30>;
 			};
 

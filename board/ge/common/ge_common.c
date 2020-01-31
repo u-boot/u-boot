@@ -5,27 +5,24 @@
 
 #include <common.h>
 #include <env.h>
-#include <i2c.h>
+#include <dm/uclass.h>
 #include <rtc.h>
 
 void check_time(void)
 {
+	struct udevice *dev;
 	int ret, i;
 	struct rtc_time tm;
 	u8 retry = 3;
 
-	unsigned int current_i2c_bus = i2c_get_bus_num();
-
-	ret = i2c_set_bus_num(CONFIG_SYS_RTC_BUS_NUM);
-	if (ret < 0) {
+	ret = uclass_get_device(UCLASS_RTC, 0, &dev);
+	if (ret) {
 		env_set("rtc_status", "FAIL");
 		return;
 	}
 
-	rtc_init();
-
 	for (i = 0; i < retry; i++) {
-		ret = rtc_get(&tm);
+		ret = dm_rtc_get(dev, &tm);
 		if (!ret || ret == -EINVAL)
 			break;
 	}
@@ -40,7 +37,7 @@ void check_time(void)
 		tm.tm_year = 2036;
 
 		for (i = 0; i < retry; i++) {
-			ret = rtc_set(&tm);
+			ret = dm_rtc_set(dev, &tm);
 			if (!ret)
 				break;
 		}
@@ -55,7 +52,5 @@ void check_time(void)
 		env_set("rtc_status", "2038");
 	else
 		env_set("rtc_status", "OK");
-
-	i2c_set_bus_num(current_i2c_bus);
 }
 

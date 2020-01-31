@@ -125,34 +125,6 @@ static void setup_iomux_fec(void)
 	imx_iomux_v3_setup_multiple_pads(fec_pads, ARRAY_SIZE(fec_pads));
 }
 
-#define I2C_PAD_CTRL	(PAD_CTL_SRE_FAST | PAD_CTL_DSE_HIGH | \
-			 PAD_CTL_PUS_100K_UP | PAD_CTL_ODE)
-
-static void setup_iomux_i2c(void)
-{
-	static const iomux_v3_cfg_t i2c1_pads[] = {
-		NEW_PAD_CTRL(MX53_PAD_CSI0_DAT8__I2C1_SDA, I2C_PAD_CTRL),
-		NEW_PAD_CTRL(MX53_PAD_CSI0_DAT9__I2C1_SCL, I2C_PAD_CTRL),
-	};
-
-	imx_iomux_v3_setup_multiple_pads(i2c1_pads, ARRAY_SIZE(i2c1_pads));
-}
-
-#define I2C_PAD MUX_PAD_CTRL(I2C_PAD_CTRL)
-
-static struct i2c_pads_info i2c_pad_info1 = {
-	.scl = {
-		.i2c_mode = MX53_PAD_EIM_D21__I2C1_SCL | I2C_PAD,
-		.gpio_mode = MX53_PAD_EIM_D28__GPIO3_28 | I2C_PAD,
-		.gp = IMX_GPIO_NR(3, 28)
-	},
-	.sda = {
-		.i2c_mode = MX53_PAD_EIM_D28__I2C1_SDA | I2C_PAD,
-		.gpio_mode = MX53_PAD_EIM_D21__GPIO3_21 | I2C_PAD,
-		.gp = IMX_GPIO_NR(3, 21)
-	}
-};
-
 static int clock_1GHz(void)
 {
 	int ret;
@@ -182,8 +154,10 @@ void ppd_gpio_init(void)
 	int i;
 
 	imx_iomux_v3_setup_multiple_pads(ppd_pads, ARRAY_SIZE(ppd_pads));
-	for (i = 0; i < ARRAY_SIZE(ppd_gpios); ++i)
+	for (i = 0; i < ARRAY_SIZE(ppd_gpios); ++i) {
+		gpio_request(ppd_gpios[i].gpio, "request");
 		gpio_direction_output(ppd_gpios[i].gpio, ppd_gpios[i].value);
+	}
 }
 
 int board_early_init_f(void)
@@ -256,9 +230,6 @@ int board_init(void)
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 
 	mxc_set_sata_internal_clock();
-	setup_iomux_i2c();
-
-	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
 
 	return 0;
 }

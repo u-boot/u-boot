@@ -14,7 +14,6 @@
 #include <linux/errno.h>
 #include <linux/libfdt.h>
 #include <asm/gpio.h>
-#include <asm/mach-imx/mxc_i2c.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/video.h>
@@ -27,7 +26,8 @@
 #include <asm/arch/crm_regs.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
-#include <i2c.h>
+#include <power/regulator.h>
+#include <power/da9063_pmic.h>
 #include <input.h>
 #include <pwm.h>
 #include <version.h>
@@ -83,45 +83,6 @@ static iomux_v3_cfg_t const uart3_pads[] = {
 static iomux_v3_cfg_t const uart4_pads[] = {
 	MX6_PAD_KEY_COL0__UART4_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
 	MX6_PAD_KEY_ROW0__UART4_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
-};
-
-static struct i2c_pads_info i2c_pad_info1 = {
-	.scl = {
-		.i2c_mode = MX6_PAD_CSI0_DAT9__I2C1_SCL | I2C_PAD,
-		.gpio_mode = MX6_PAD_CSI0_DAT9__GPIO5_IO27 | I2C_PAD,
-		.gp = IMX_GPIO_NR(5, 27)
-	},
-	.sda = {
-		.i2c_mode = MX6_PAD_CSI0_DAT8__I2C1_SDA | I2C_PAD,
-		.gpio_mode = MX6_PAD_CSI0_DAT8__GPIO5_IO26 | I2C_PAD,
-		.gp = IMX_GPIO_NR(5, 26)
-	}
-};
-
-static struct i2c_pads_info i2c_pad_info2 = {
-	.scl = {
-		.i2c_mode = MX6_PAD_KEY_COL3__I2C2_SCL | I2C_PAD,
-		.gpio_mode = MX6_PAD_KEY_COL3__GPIO4_IO12 | I2C_PAD,
-		.gp = IMX_GPIO_NR(4, 12)
-	},
-	.sda = {
-		.i2c_mode = MX6_PAD_KEY_ROW3__I2C2_SDA | I2C_PAD,
-		.gpio_mode = MX6_PAD_KEY_ROW3__GPIO4_IO13 | I2C_PAD,
-		.gp = IMX_GPIO_NR(4, 13)
-	}
-};
-
-static struct i2c_pads_info i2c_pad_info3 = {
-	.scl = {
-		.i2c_mode = MX6_PAD_GPIO_3__I2C3_SCL | I2C_PAD,
-		.gpio_mode = MX6_PAD_GPIO_3__GPIO1_IO03 | I2C_PAD,
-		.gp = IMX_GPIO_NR(1, 3)
-	},
-	.sda = {
-		.i2c_mode = MX6_PAD_GPIO_6__I2C3_SDA | I2C_PAD,
-		.gpio_mode = MX6_PAD_GPIO_6__GPIO1_IO06 | I2C_PAD,
-		.gp = IMX_GPIO_NR(1, 6)
-	}
 };
 
 static void setup_iomux_uart(void)
@@ -491,10 +452,6 @@ static void set_confidx(const struct vpd_cache* vpd)
 
 int board_init(void)
 {
-	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
-	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
-	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info3);
-
 	if (!read_vpd(&vpd, vpd_callback)) {
 		int ret, rescan;
 
@@ -541,53 +498,26 @@ static const struct boot_mode board_boot_modes[] = {
 
 void pmic_init(void)
 {
-#define I2C_PMIC                0x2
-#define DA9063_I2C_ADDR         0x58
-#define DA9063_REG_BCORE2_CFG   0x9D
-#define DA9063_REG_BCORE1_CFG   0x9E
-#define DA9063_REG_BPRO_CFG     0x9F
-#define DA9063_REG_BIO_CFG      0xA0
-#define DA9063_REG_BMEM_CFG     0xA1
-#define DA9063_REG_BPERI_CFG    0xA2
-#define DA9063_BUCK_MODE_MASK   0xC0
-#define DA9063_BUCK_MODE_MANUAL 0x00
-#define DA9063_BUCK_MODE_SLEEP  0x40
-#define DA9063_BUCK_MODE_SYNC   0x80
-#define DA9063_BUCK_MODE_AUTO   0xC0
+	struct udevice *reg;
+	int ret, i;
+	static const char * const bucks[] = {
+		"bcore1",
+		"bcore2",
+		"bpro",
+		"bmem",
+		"bio",
+		"bperi",
+	};
 
-	uchar val;
-
-	i2c_set_bus_num(I2C_PMIC);
-
-	i2c_read(DA9063_I2C_ADDR, DA9063_REG_BCORE2_CFG, 1, &val, 1);
-	val &= ~DA9063_BUCK_MODE_MASK;
-	val |= DA9063_BUCK_MODE_SYNC;
-	i2c_write(DA9063_I2C_ADDR, DA9063_REG_BCORE2_CFG, 1, &val, 1);
-
-	i2c_read(DA9063_I2C_ADDR, DA9063_REG_BCORE1_CFG, 1, &val, 1);
-	val &= ~DA9063_BUCK_MODE_MASK;
-	val |= DA9063_BUCK_MODE_SYNC;
-	i2c_write(DA9063_I2C_ADDR, DA9063_REG_BCORE1_CFG, 1, &val, 1);
-
-	i2c_read(DA9063_I2C_ADDR, DA9063_REG_BPRO_CFG, 1, &val, 1);
-	val &= ~DA9063_BUCK_MODE_MASK;
-	val |= DA9063_BUCK_MODE_SYNC;
-	i2c_write(DA9063_I2C_ADDR, DA9063_REG_BPRO_CFG, 1, &val, 1);
-
-	i2c_read(DA9063_I2C_ADDR, DA9063_REG_BIO_CFG, 1, &val, 1);
-	val &= ~DA9063_BUCK_MODE_MASK;
-	val |= DA9063_BUCK_MODE_SYNC;
-	i2c_write(DA9063_I2C_ADDR, DA9063_REG_BIO_CFG, 1, &val, 1);
-
-	i2c_read(DA9063_I2C_ADDR, DA9063_REG_BMEM_CFG, 1, &val, 1);
-	val &= ~DA9063_BUCK_MODE_MASK;
-	val |= DA9063_BUCK_MODE_SYNC;
-	i2c_write(DA9063_I2C_ADDR, DA9063_REG_BMEM_CFG, 1, &val, 1);
-
-	i2c_read(DA9063_I2C_ADDR, DA9063_REG_BPERI_CFG, 1, &val, 1);
-	val &= ~DA9063_BUCK_MODE_MASK;
-	val |= DA9063_BUCK_MODE_SYNC;
-	i2c_write(DA9063_I2C_ADDR, DA9063_REG_BPERI_CFG, 1, &val, 1);
+	for (i = 0; i < ARRAY_SIZE(bucks); i++) {
+		ret = regulator_get_by_devname(bucks[i], &reg);
+		if (reg < 0) {
+			printf("%s(): Unable to get regulator %s: %d\n",
+			       __func__, bucks[i], ret);
+			continue;
+		}
+		regulator_set_mode(reg, DA9063_BUCKMODE_SYNC);
+	}
 }
 
 int board_late_init(void)
