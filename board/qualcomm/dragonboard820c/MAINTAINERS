@@ -1,5 +1,5 @@
 DRAGONBOARD820C BOARD
-M:	Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
+M:	Jorge Ramirez-Ortiz <jorge.ramirez.ortiz@gmail.com>
 S:	Maintained
 F:	board/qualcomm/dragonboard820c/
 F:	include/configs/dragonboard820c.h

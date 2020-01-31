@@ -862,6 +862,11 @@ __weak int arch_cpu_init_dm(void)
 	return 0;
 }
 
+__weak int checkcpu(void)
+{
+	return 0;
+}
+
 static const init_fnc_t init_sequence_f[] = {
 	setup_mon_len,
 #ifdef CONFIG_OF_CONTROL
@@ -904,9 +909,7 @@ static const init_fnc_t init_sequence_f[] = {
 	console_init_f,		/* stage 1 init of console */
 	display_options,	/* say that we are here */
 	display_text_info,	/* show debugging info if required */
-#if defined(CONFIG_PPC) || defined(CONFIG_SH) || defined(CONFIG_X86)
 	checkcpu,
-#endif
 #if defined(CONFIG_SYSRESET)
 	print_resetinfo,
 #endif

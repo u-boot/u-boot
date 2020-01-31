@@ -16,8 +16,8 @@ pip install concurrencytest
 
 Requires:
 
- * [testtools](https://pypi.python.org/pypi/testtools) : `pip install testtools`
- * [python-subunit](https://pypi.python.org/pypi/python-subunit) : `pip install python-subunit`
+* [testtools](https://pypi.python.org/pypi/testtools) : `pip install testtools`
+* [python-subunit](https://pypi.python.org/pypi/python-subunit) : `pip install python-subunit`
 
 ----
 

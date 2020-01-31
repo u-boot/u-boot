@@ -92,7 +92,7 @@ static int optee_copy_firmware_node(const void *old_blob, void *fdt_blob)
 
 	offs = fdt_add_subnode(fdt_blob, offs, "optee");
 	if (offs < 0)
-		return ret;
+		return offs;
 
 	/* copy the compatible property */
 	prop = fdt_getprop(old_blob, old_offs, "compatible", &len);
