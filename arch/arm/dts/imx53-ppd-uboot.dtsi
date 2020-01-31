@@ -9,6 +9,11 @@
 		compatible = "wdt-reboot";
 		wdt = <&wdog1>;
 	};
+
+	bootcount {
+		compatible = "u-boot,bootcount-i2c-eeprom";
+		i2c-eeprom = <&bootcount>;
+	};
 };
 
 &eeprom {
@@ -20,7 +25,7 @@
 			size = <1022>;
 		};
 
-		bootcount {
+		bootcount: bootcount {
 			offset = <1022>;
 			size = <2>;
 		};
