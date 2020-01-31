@@ -109,9 +109,7 @@
 		"setcurs 5 4; " \
 		"lcdputs \"Monitor failed to start. " \
 		"Try again, or contact GE Service for support.\"; " \
-		"mw.b 0x7000A000 0xbc; " \
-		"mw.b 0x7000A001 0x00; " \
-		"ext4write ${dev} ${devnum}:5 0x7000A000 /boot/failures 2\0" \
+		"bootcount reset; \0" \
 	"altbootcmd=" \
 		"run doquiet; " \
 		"setenv partnum 1; run hasfirstboot || setenv partnum 2; " \
