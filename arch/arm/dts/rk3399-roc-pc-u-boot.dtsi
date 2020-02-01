@@ -7,6 +7,10 @@
 #include "rk3399-sdram-lpddr4-100.dtsi"
 
 / {
+	aliases {
+		spi0 = &spi1;
+	};
+
 	chosen {
 		u-boot,spl-boot-order = "same-as-spl", &sdhci, &sdmmc;
 	};

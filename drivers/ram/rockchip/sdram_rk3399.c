@@ -14,7 +14,7 @@
 #include <syscon.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/clock.h>
-#include <asm/arch-rockchip/cru_rk3399.h>
+#include <asm/arch-rockchip/cru.h>
 #include <asm/arch-rockchip/grf_rk3399.h>
 #include <asm/arch-rockchip/pmu_rk3399.h>
 #include <asm/arch-rockchip/hardware.h>
@@ -66,7 +66,7 @@ struct dram_info {
 	u32 pwrup_srefresh_exit[2];
 	struct chan_info chan[2];
 	struct clk ddr_clk;
-	struct rk3399_cru *cru;
+	struct rockchip_cru *cru;
 	struct rk3399_grf_regs *grf;
 	struct rk3399_pmu_regs *pmu;
 	struct rk3399_pmucru *pmucru;
@@ -228,7 +228,7 @@ static void *get_ddrc0_con(struct dram_info *dram, u8 channel)
 	return (channel == 0) ? &dram->grf->ddrc0_con0 : &dram->grf->ddrc1_con0;
 }
 
-static void rkclk_ddr_reset(struct rk3399_cru *cru, u32 channel, u32 ctl,
+static void rkclk_ddr_reset(struct rockchip_cru *cru, u32 channel, u32 ctl,
 			    u32 phy)
 {
 	channel &= 0x1;
@@ -239,7 +239,7 @@ static void rkclk_ddr_reset(struct rk3399_cru *cru, u32 channel, u32 ctl,
 				   &cru->softrst_con[4]);
 }
 
-static void phy_pctrl_reset(struct rk3399_cru *cru,  u32 channel)
+static void phy_pctrl_reset(struct rockchip_cru *cru,  u32 channel)
 {
 	rkclk_ddr_reset(cru, channel, 1, 1);
 	udelay(10);
@@ -337,11 +337,9 @@ static void set_memory_map(const struct chan_info *chan, u32 channel,
 		writel(0x2EC7FFFF, &denali_pi[34]);
 }
 
-static int phy_io_config(const struct chan_info *chan,
+static int phy_io_config(u32 *denali_phy, u32 *denali_ctl,
 			 const struct rk3399_sdram_params *params, u32 mr5)
 {
-	u32 *denali_phy = chan->publ->denali_phy;
-	u32 *denali_ctl = chan->pctl->denali_ctl;
 	u32 vref_mode_dq, vref_value_dq, vref_mode_ac, vref_value_ac;
 	u32 mode_sel;
 	u32 speed;
@@ -780,7 +778,7 @@ static void set_ds_odt(const struct chan_info *chan,
 	/* phy_pad_fdbk_term 1bit DENALI_PHY_930 offset_17 */
 	clrsetbits_le32(&denali_phy[930], 0x1 << 17, reg_value);
 
-	phy_io_config(chan, params, mr5);
+	phy_io_config(denali_phy, denali_ctl, params, mr5);
 }
 
 static void pctl_start(struct dram_info *dram,
@@ -2945,7 +2943,7 @@ static int sdram_init(struct dram_info *dram,
 			for (channel = 0; channel < 2; channel++) {
 				const struct chan_info *chan =
 					&dram->chan[channel];
-				struct rk3399_cru *cru = dram->cru;
+				struct rockchip_cru *cru = dram->cru;
 				struct rk3399_ddr_publ_regs *publ = chan->publ;
 
 				phy_pctrl_reset(cru, channel);

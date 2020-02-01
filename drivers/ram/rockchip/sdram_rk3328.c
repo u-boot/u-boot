@@ -377,16 +377,12 @@ static int sdram_init(struct dram_info *dram,
 		printf("data training error\n");
 		return -1;
 	}
-	if (data_training(dram, 1, sdram_params->base.dramtype) != 0) {
-		printf("data training error\n");
-		return -1;
-	}
 
 	if (sdram_params->base.dramtype == DDR4)
 		pctl_write_vrefdq(dram->pctl, 0x3, 5670,
 				  sdram_params->base.dramtype);
 
-	if (pre_init == 0) {
+	if (pre_init != 0) {
 		rx_deskew_switch_adjust(dram);
 		tx_deskew_switch_adjust(dram);
 	}
@@ -482,7 +478,7 @@ static int sdram_init_detect(struct dram_info *dram,
 	memcpy(&sdram_ch, &sdram_params->ch,
 	       sizeof(struct rk3328_sdram_channel));
 
-	sdram_init(dram, sdram_params, 1);
+	sdram_init(dram, sdram_params, 0);
 	dram_detect_cap(dram, sdram_params, 0);
 
 	/* modify bw, cs related timing */
@@ -495,7 +491,7 @@ static int sdram_init_detect(struct dram_info *dram,
 		sdram_ch.noc_timings.ddrtiming.b.bwratio = 1;
 
 	/* reinit sdram by real dram cap */
-	sdram_init(dram, sdram_params, 0);
+	sdram_init(dram, sdram_params, 1);
 
 	/* redetect cs1 row */
 	sdram_detect_cs1_row(cap_info, sdram_params->base.dramtype);
