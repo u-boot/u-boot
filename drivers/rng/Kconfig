@@ -8,6 +8,14 @@ config DM_RNG
 
 if DM_RNG
 
+config RNG_MESON
+	bool "Amlogic Meson Random Number Generator support"
+	depends on ARCH_MESON
+	default y
+	help
+	  Enable support for hardware random number generator
+	  of Amlogic Meson SoCs.
+
 config RNG_SANDBOX
 	bool "Sandbox random number generator"
 	depends on SANDBOX
