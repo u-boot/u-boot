@@ -162,6 +162,7 @@ int serial_init(void)
 #if CONFIG_IS_ENABLED(SERIAL_PRESENT)
 	serial_find_console_or_panic();
 	gd->flags |= GD_FLG_SERIAL_READY;
+	serial_setbrg();
 #endif
 
 	return 0;
