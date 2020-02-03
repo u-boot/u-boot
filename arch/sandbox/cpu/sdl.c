@@ -5,6 +5,7 @@
 
 #include <errno.h>
 #include <unistd.h>
+#include <stdbool.h>
 #include <linux/input.h>
 #include <SDL.h>
 #include <asm/state.h>
@@ -39,6 +40,7 @@ struct buf_info {
  * @buf: The two available audio buffers. SDL can be reading from one while we
  *	are setting up the next
  * @running: true if audio is running
+ * @stopping: true if audio will stop once it runs out of data
  */
 static struct sdl_info {
 	SDL_Surface *screen;
@@ -52,6 +54,7 @@ static struct sdl_info {
 	int cur_buf;
 	struct buf_info buf[2];
 	bool running;
+	bool stopping;
 } sdl;
 
 static void sandbox_sdl_poll_events(void)
@@ -271,6 +274,7 @@ void sandbox_sdl_fill_audio(void *udata, Uint8 *stream, int len)
 {
 	struct buf_info *buf;
 	int avail;
+	bool have_data = false;
 	int i;
 
 	for (i = 0; i < 2; i++) {
@@ -282,6 +286,7 @@ void sandbox_sdl_fill_audio(void *udata, Uint8 *stream, int len)
 		}
 		if (avail > len)
 			avail = len;
+		have_data = true;
 
 		SDL_MixAudio(stream, buf->data + buf->pos, avail,
 			     SDL_MIX_MAXVOLUME);
@@ -294,6 +299,7 @@ void sandbox_sdl_fill_audio(void *udata, Uint8 *stream, int len)
 		else
 			break;
 	}
+	sdl.stopping = !have_data;
 }
 
 int sandbox_sdl_sound_init(int rate, int channels)
@@ -347,7 +353,7 @@ int sandbox_sdl_sound_init(int rate, int channels)
 	sdl.audio_active = true;
 	sdl.sample_rate = wanted.freq;
 	sdl.cur_buf = 0;
-	sdl.running = 0;
+	sdl.running = false;
 
 	return 0;
 
@@ -378,7 +384,8 @@ int sandbox_sdl_sound_play(const void *data, uint size)
 	buf->pos = 0;
 	if (!sdl.running) {
 		SDL_PauseAudio(0);
-		sdl.running = 1;
+		sdl.running = true;
+		sdl.stopping = false;
 	}
 
 	return 0;
@@ -387,8 +394,12 @@ int sandbox_sdl_sound_play(const void *data, uint size)
 int sandbox_sdl_sound_stop(void)
 {
 	if (sdl.running) {
+		while (!sdl.stopping)
+			SDL_Delay(100);
+
 		SDL_PauseAudio(1);
 		sdl.running = 0;
+		sdl.stopping = false;
 	}
 
 	return 0;
