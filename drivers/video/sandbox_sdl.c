@@ -8,6 +8,7 @@
 #include <fdtdec.h>
 #include <video.h>
 #include <asm/sdl.h>
+#include <asm/state.h>
 #include <asm/u-boot-sandbox.h>
 #include <dm/test.h>
 
@@ -23,9 +24,11 @@ static int sandbox_sdl_probe(struct udevice *dev)
 {
 	struct sandbox_sdl_plat *plat = dev_get_platdata(dev);
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
+	struct sandbox_state *state = state_get_current();
 	int ret;
 
-	ret = sandbox_sdl_init_display(plat->xres, plat->yres, plat->bpix);
+	ret = sandbox_sdl_init_display(plat->xres, plat->yres, plat->bpix,
+				       state->double_lcd);
 	if (ret) {
 		puts("LCD init failed\n");
 		return ret;

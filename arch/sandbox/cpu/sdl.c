@@ -30,6 +30,8 @@ struct buf_info {
  *
  * @width: Width of simulated LCD display
  * @height: Height of simulated LCD display
+ * @vis_width: Visible width (may be larger to allow for scaling up)
+ * @vis_height: Visible height (may be larger to allow for scaling up)
  * @depth: Depth of the display in bits per pixel (16 or 32)
  * @pitch: Number of bytes per line of the display
  * @sample_rate: Current sample rate for audio
@@ -46,6 +48,8 @@ struct buf_info {
 static struct sdl_info {
 	int width;
 	int height;
+	int vis_width;
+	int vis_height;
 	int depth;
 	int pitch;
 	uint sample_rate;
@@ -94,7 +98,8 @@ static int sandbox_sdl_ensure_init(void)
 	return 0;
 }
 
-int sandbox_sdl_init_display(int width, int height, int log2_bpp)
+int sandbox_sdl_init_display(int width, int height, int log2_bpp,
+			     bool double_size)
 {
 	struct sandbox_state *state = state_get_current();
 	int err;
@@ -110,11 +115,19 @@ int sandbox_sdl_init_display(int width, int height, int log2_bpp)
 	}
 	sdl.width = width;
 	sdl.height = height;
+	if (double_size) {
+		sdl.vis_width = sdl.width * 2;
+		sdl.vis_height = sdl.height * 2;
+	} else {
+		sdl.vis_width = sdl.width;
+		sdl.vis_height = sdl.height;
+	}
+
 	sdl.depth = 1 << log2_bpp;
 	sdl.pitch = sdl.width * sdl.depth / 8;
 	SDL_Window *screen = SDL_CreateWindow("U-Boot", SDL_WINDOWPOS_UNDEFINED,
 					      SDL_WINDOWPOS_UNDEFINED,
-					      sdl.width, sdl.height, 0);
+					      sdl.vis_width, sdl.vis_height, 0);
 	if (!screen) {
 		printf("Unable to initialise SDL screen: %s\n",
 		       SDL_GetError());
