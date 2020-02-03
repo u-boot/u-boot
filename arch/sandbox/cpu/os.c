@@ -137,7 +137,7 @@ int os_read_file(const char *fname, void **bufp, int *sizep)
 		printf("Cannot seek to start of file '%s'\n", fname);
 		goto err;
 	}
-	*bufp = os_malloc(size);
+	*bufp = malloc(size);
 	if (!*bufp) {
 		printf("Not enough memory to read file '%s'\n", fname);
 		ret = -ENOMEM;
@@ -306,8 +306,8 @@ int os_parse_args(struct sandbox_state *state, int argc, char *argv[])
 	state->argv = argv;
 
 	/* dynamically construct the arguments to the system getopt_long */
-	short_opts = os_malloc(sizeof(*short_opts) * num_options * 2 + 1);
-	long_opts = os_malloc(sizeof(*long_opts) * num_options);
+	short_opts = malloc(sizeof(*short_opts) * num_options * 2 + 1);
+	long_opts = malloc(sizeof(*long_opts) * num_options);
 	if (!short_opts || !long_opts)
 		return 1;
 
@@ -385,7 +385,7 @@ void os_dirent_free(struct os_dirent_node *node)
 
 	while (node) {
 		next = node->next;
-		os_free(node);
+		free(node);
 		node = next;
 	}
 }
@@ -410,7 +410,7 @@ int os_dirent_ls(const char *dirname, struct os_dirent_node **headp)
 	/* Create a buffer upfront, with typically sufficient size */
 	dirlen = strlen(dirname) + 2;
 	len = dirlen + 256;
-	fname = os_malloc(len);
+	fname = malloc(len);
 	if (!fname) {
 		ret = -ENOMEM;
 		goto done;
@@ -423,7 +423,7 @@ int os_dirent_ls(const char *dirname, struct os_dirent_node **headp)
 			ret = errno;
 			break;
 		}
-		next = os_malloc(sizeof(*node) + strlen(entry->d_name) + 1);
+		next = malloc(sizeof(*node) + strlen(entry->d_name) + 1);
 		if (!next) {
 			os_dirent_free(head);
 			ret = -ENOMEM;
@@ -432,10 +432,10 @@ int os_dirent_ls(const char *dirname, struct os_dirent_node **headp)
 		if (dirlen + strlen(entry->d_name) > len) {
 			len = dirlen + strlen(entry->d_name);
 			old_fname = fname;
-			fname = os_realloc(fname, len);
+			fname = realloc(fname, len);
 			if (!fname) {
-				os_free(old_fname);
-				os_free(next);
+				free(old_fname);
+				free(next);
 				os_dirent_free(head);
 				ret = -ENOMEM;
 				goto done;
@@ -469,7 +469,7 @@ int os_dirent_ls(const char *dirname, struct os_dirent_node **headp)
 
 done:
 	closedir(dir);
-	os_free(fname);
+	free(fname);
 	return ret;
 }
 
@@ -586,7 +586,7 @@ static int add_args(char ***argvp, char *add_args[], int count)
 	for (argc = 0; (*argvp)[argc]; argc++)
 		;
 
-	argv = os_malloc((argc + count + 1) * sizeof(char *));
+	argv = malloc((argc + count + 1) * sizeof(char *));
 	if (!argv) {
 		printf("Out of memory for %d argv\n", count);
 		return -ENOMEM;
@@ -669,7 +669,7 @@ static int os_jump_to_file(const char *fname)
 		os_exit(2);
 
 	err = execv(fname, argv);
-	os_free(argv);
+	free(argv);
 	if (err) {
 		perror("Unable to run image");
 		printf("Image filename '%s'\n", fname);
