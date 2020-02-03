@@ -287,6 +287,27 @@ static int console_truetype_putc_xy(struct udevice *dev, uint x, uint y,
 			break;
 		}
 #endif
+#ifdef CONFIG_VIDEO_BPP32
+		case VIDEO_BPP32: {
+			u32 *dst = (u32 *)line + xoff;
+			int i;
+
+			for (i = 0; i < width; i++) {
+				int val = *bits;
+				int out;
+
+				if (vid_priv->colour_bg)
+					val = 255 - val;
+				out = val | val << 8 | val << 16;
+				if (vid_priv->colour_fg)
+					*dst++ |= out;
+				else
+					*dst++ &= out;
+				bits++;
+			}
+			break;
+		}
+#endif
 		default:
 			free(data);
 			return -ENOSYS;
