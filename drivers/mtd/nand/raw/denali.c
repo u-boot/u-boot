@@ -1156,7 +1156,7 @@ static int denali_ooblayout_free(struct mtd_info *mtd, int section,
 
 static const struct mtd_ooblayout_ops denali_ooblayout_ops = {
 	.ecc = denali_ooblayout_ecc,
-	.free = denali_ooblayout_free,
+	.rfree = denali_ooblayout_free,
 };
 
 static int denali_multidev_fixup(struct denali_nand_info *denali)

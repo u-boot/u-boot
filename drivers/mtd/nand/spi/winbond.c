@@ -59,7 +59,7 @@ static int w25m02gv_ooblayout_free(struct mtd_info *mtd, int section,
 
 static const struct mtd_ooblayout_ops w25m02gv_ooblayout = {
 	.ecc = w25m02gv_ooblayout_ecc,
-	.free = w25m02gv_ooblayout_free,
+	.rfree = w25m02gv_ooblayout_free,
 };
 
 static int w25m02gv_select_target(struct spinand_device *spinand,
