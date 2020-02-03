@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <linux/input.h>
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <asm/state.h>
 
 /**
@@ -28,7 +28,6 @@ struct buf_info {
 /**
  * struct sdl_info - Information about our use of the SDL library
  *
- * @screen: Surface used to draw on the screen
  * @width: Width of simulated LCD display
  * @height: Height of simulated LCD display
  * @depth: Depth of the display in bits per pixel (16 or 32)
@@ -41,9 +40,10 @@ struct buf_info {
  *	are setting up the next
  * @running: true if audio is running
  * @stopping: true if audio will stop once it runs out of data
+ * @texture: SDL texture to use for U-Boot display contents
+ * @renderer: SDL renderer to use
  */
 static struct sdl_info {
-	SDL_Surface *screen;
 	int width;
 	int height;
 	int depth;
@@ -55,6 +55,8 @@ static struct sdl_info {
 	struct buf_info buf[2];
 	bool running;
 	bool stopping;
+	SDL_Texture *texture;
+	SDL_Renderer *renderer;
 } sdl;
 
 static void sandbox_sdl_poll_events(void)
@@ -106,13 +108,41 @@ int sandbox_sdl_init_display(int width, int height, int log2_bpp)
 		printf("Unable to initialise SDL LCD: %s\n", SDL_GetError());
 		return -EPERM;
 	}
-	SDL_WM_SetCaption("U-Boot", "U-Boot");
-
 	sdl.width = width;
 	sdl.height = height;
 	sdl.depth = 1 << log2_bpp;
 	sdl.pitch = sdl.width * sdl.depth / 8;
-	sdl.screen = SDL_SetVideoMode(width, height, 0, 0);
+	SDL_Window *screen = SDL_CreateWindow("U-Boot", SDL_WINDOWPOS_UNDEFINED,
+					      SDL_WINDOWPOS_UNDEFINED,
+					      sdl.width, sdl.height, 0);
+	if (!screen) {
+		printf("Unable to initialise SDL screen: %s\n",
+		       SDL_GetError());
+		return -EIO;
+	}
+	if (log2_bpp != 4 && log2_bpp != 5) {
+		printf("U-Boot SDL does not support depth %d\n", log2_bpp);
+		return -EINVAL;
+	}
+	sdl.renderer = SDL_CreateRenderer(screen, -1,
+					  SDL_RENDERER_ACCELERATED |
+					  SDL_RENDERER_PRESENTVSYNC);
+	if (!sdl.renderer) {
+		printf("Unable to initialise SDL renderer: %s\n",
+		       SDL_GetError());
+		return -EIO;
+	}
+
+	sdl.texture = SDL_CreateTexture(sdl.renderer, log2_bpp == 4 ?
+					SDL_PIXELFORMAT_RGB565 :
+					SDL_PIXELFORMAT_RGB888,
+					SDL_TEXTUREACCESS_STREAMING,
+					width, height);
+	if (!sdl.texture) {
+		printf("Unable to initialise SDL texture: %s\n",
+		       SDL_GetError());
+		return -EBADF;
+	}
 	sandbox_sdl_poll_events();
 
 	return 0;
@@ -120,136 +150,137 @@ int sandbox_sdl_init_display(int width, int height, int log2_bpp)
 
 int sandbox_sdl_sync(void *lcd_base)
 {
-	SDL_Surface *frame;
-
-	frame = SDL_CreateRGBSurfaceFrom(lcd_base, sdl.width, sdl.height,
-			sdl.depth, sdl.pitch,
-			0x1f << 11, 0x3f << 5, 0x1f << 0, 0);
-	SDL_BlitSurface(frame, NULL, sdl.screen, NULL);
-	SDL_FreeSurface(frame);
-	SDL_UpdateRect(sdl.screen, 0, 0, 0, 0);
+	SDL_UpdateTexture(sdl.texture, NULL, lcd_base, sdl.pitch);
+	SDL_RenderCopy(sdl.renderer, sdl.texture, NULL, NULL);
+	SDL_RenderPresent(sdl.renderer);
 	sandbox_sdl_poll_events();
 
 	return 0;
 }
 
-#define NONE (-1)
-#define NUM_SDL_CODES	(SDLK_UNDO + 1)
+static const unsigned short sdl_to_keycode[SDL_NUM_SCANCODES] = {
+	[SDL_SCANCODE_A]	= KEY_A,
+	[SDL_SCANCODE_B]	= KEY_B,
+	[SDL_SCANCODE_C]	= KEY_C,
+	[SDL_SCANCODE_D]	= KEY_D,
+	[SDL_SCANCODE_E]	= KEY_E,
+	[SDL_SCANCODE_F]	= KEY_F,
+	[SDL_SCANCODE_G]	= KEY_G,
+	[SDL_SCANCODE_H]	= KEY_H,
+	[SDL_SCANCODE_I]	= KEY_I,
+	[SDL_SCANCODE_J]	= KEY_J,
+	[SDL_SCANCODE_K]	= KEY_K,
+	[SDL_SCANCODE_L]	= KEY_L,
+	[SDL_SCANCODE_M]	= KEY_M,
+	[SDL_SCANCODE_N]	= KEY_N,
+	[SDL_SCANCODE_O]	= KEY_O,
+	[SDL_SCANCODE_P]	= KEY_P,
+	[SDL_SCANCODE_Q]	= KEY_Q,
+	[SDL_SCANCODE_R]	= KEY_R,
+	[SDL_SCANCODE_S]	= KEY_S,
+	[SDL_SCANCODE_T]	= KEY_T,
+	[SDL_SCANCODE_U]	= KEY_U,
+	[SDL_SCANCODE_V]	= KEY_V,
+	[SDL_SCANCODE_W]	= KEY_W,
+	[SDL_SCANCODE_X]	= KEY_X,
+	[SDL_SCANCODE_Y]	= KEY_Y,
+	[SDL_SCANCODE_Z]	= KEY_Z,
 
-static int16_t sdl_to_keycode[NUM_SDL_CODES] = {
-	/* 0 */
-	NONE, NONE, NONE, NONE, NONE,
-	NONE, NONE, NONE, KEY_BACKSPACE, KEY_TAB,
-	NONE, NONE, NONE, KEY_ENTER, NONE,
-	NONE, NONE, NONE, NONE, KEY_POWER,	/* use PAUSE as POWER */
+	[SDL_SCANCODE_1]	= KEY_1,
+	[SDL_SCANCODE_2]	= KEY_2,
+	[SDL_SCANCODE_3]	= KEY_3,
+	[SDL_SCANCODE_4]	= KEY_4,
+	[SDL_SCANCODE_5]	= KEY_5,
+	[SDL_SCANCODE_6]	= KEY_6,
+	[SDL_SCANCODE_7]	= KEY_7,
+	[SDL_SCANCODE_8]	= KEY_8,
+	[SDL_SCANCODE_9]	= KEY_9,
+	[SDL_SCANCODE_0]	= KEY_0,
 
-	/* 20 */
-	NONE, NONE, NONE, NONE, NONE,
-	NONE, NONE, KEY_ESC, NONE, NONE,
-	NONE, NONE, KEY_SPACE, NONE, NONE,
-	NONE, NONE, NONE, NONE, NONE,
+	[SDL_SCANCODE_RETURN]	= KEY_ENTER,
+	[SDL_SCANCODE_ESCAPE]	= KEY_ESC,
+	[SDL_SCANCODE_BACKSPACE]	= KEY_BACKSPACE,
+	[SDL_SCANCODE_TAB]	= KEY_TAB,
+	[SDL_SCANCODE_SPACE]	= KEY_SPACE,
 
-	/* 40 */
-	NONE, NONE, NONE, NONE, KEY_COMMA,
-	KEY_MINUS, KEY_DOT, KEY_SLASH, KEY_0, KEY_1,
-	KEY_2, KEY_3, KEY_4, KEY_5, KEY_6,
-	KEY_7, KEY_8, KEY_9, NONE, KEY_SEMICOLON,
+	[SDL_SCANCODE_MINUS]	= KEY_MINUS,
+	[SDL_SCANCODE_EQUALS]	= KEY_EQUAL,
+	[SDL_SCANCODE_BACKSLASH]	= KEY_BACKSLASH,
+	[SDL_SCANCODE_SEMICOLON]	= KEY_SEMICOLON,
+	[SDL_SCANCODE_APOSTROPHE]	= KEY_APOSTROPHE,
+	[SDL_SCANCODE_GRAVE]	= KEY_GRAVE,
+	[SDL_SCANCODE_COMMA]	= KEY_COMMA,
+	[SDL_SCANCODE_PERIOD]	= KEY_DOT,
+	[SDL_SCANCODE_SLASH]	= KEY_SLASH,
 
-	/* 60 */
-	NONE, KEY_EQUAL, NONE, NONE, NONE,
-	NONE, NONE, NONE, NONE, NONE,
-	NONE, NONE, NONE, NONE, NONE,
-	NONE, NONE, NONE, NONE, NONE,
+	[SDL_SCANCODE_CAPSLOCK]	= KEY_CAPSLOCK,
 
-	/* 80 */
-	NONE, NONE, NONE, NONE, NONE,
-	NONE, NONE, NONE, NONE, NONE,
-	NONE, NONE, KEY_BACKSLASH, NONE, NONE,
-	NONE, KEY_GRAVE, KEY_A, KEY_B, KEY_C,
+	[SDL_SCANCODE_F1]	= KEY_F1,
+	[SDL_SCANCODE_F2]	= KEY_F2,
+	[SDL_SCANCODE_F3]	= KEY_F3,
+	[SDL_SCANCODE_F4]	= KEY_F4,
+	[SDL_SCANCODE_F5]	= KEY_F5,
+	[SDL_SCANCODE_F6]	= KEY_F6,
+	[SDL_SCANCODE_F7]	= KEY_F7,
+	[SDL_SCANCODE_F8]	= KEY_F8,
+	[SDL_SCANCODE_F9]	= KEY_F9,
+	[SDL_SCANCODE_F10]	= KEY_F10,
+	[SDL_SCANCODE_F11]	= KEY_F11,
+	[SDL_SCANCODE_F12]	= KEY_F12,
 
-	/* 100 */
-	KEY_D, KEY_E, KEY_F, KEY_G, KEY_H,
-	KEY_I, KEY_J, KEY_K, KEY_L, KEY_M,
-	KEY_N, KEY_O, KEY_P, KEY_Q, KEY_R,
-	KEY_S, KEY_T, KEY_U, KEY_V, KEY_W,
+	[SDL_SCANCODE_PRINTSCREEN]	= KEY_PRINT,
+	[SDL_SCANCODE_SCROLLLOCK]	= KEY_SCROLLLOCK,
+	[SDL_SCANCODE_PAUSE]	= KEY_PAUSE,
+	[SDL_SCANCODE_INSERT]	= KEY_INSERT,
+	[SDL_SCANCODE_HOME]	= KEY_HOME,
+	[SDL_SCANCODE_PAGEUP]	= KEY_PAGEUP,
+	[SDL_SCANCODE_DELETE]	= KEY_DELETE,
+	[SDL_SCANCODE_END]	= KEY_END,
+	[SDL_SCANCODE_PAGEDOWN]	= KEY_PAGEDOWN,
+	[SDL_SCANCODE_RIGHT]	= KEY_RIGHT,
+	[SDL_SCANCODE_LEFT]	= KEY_LEFT,
+	[SDL_SCANCODE_DOWN]	= KEY_DOWN,
+	[SDL_SCANCODE_UP]	= KEY_UP,
 
-	/* 120 */
-	KEY_X, KEY_Y, KEY_Z, NONE, NONE,
-	NONE, NONE, KEY_DELETE, NONE, NONE,
-	NONE, NONE, NONE, NONE, NONE,
-	NONE, NONE, NONE, NONE, NONE,
+	[SDL_SCANCODE_NUMLOCKCLEAR]	= KEY_NUMLOCK,
+	[SDL_SCANCODE_KP_DIVIDE]	= KEY_KPSLASH,
+	[SDL_SCANCODE_KP_MULTIPLY]	= KEY_KPASTERISK,
+	[SDL_SCANCODE_KP_MINUS]	= KEY_KPMINUS,
+	[SDL_SCANCODE_KP_PLUS]	= KEY_KPPLUS,
+	[SDL_SCANCODE_KP_ENTER]	= KEY_KPENTER,
+	[SDL_SCANCODE_KP_1]	= KEY_KP1,
+	[SDL_SCANCODE_KP_2]	= KEY_KP2,
+	[SDL_SCANCODE_KP_3]	= KEY_KP3,
+	[SDL_SCANCODE_KP_4]	= KEY_KP4,
+	[SDL_SCANCODE_KP_5]	= KEY_KP5,
+	[SDL_SCANCODE_KP_6]	= KEY_KP6,
+	[SDL_SCANCODE_KP_7]	= KEY_KP7,
+	[SDL_SCANCODE_KP_8]	= KEY_KP8,
+	[SDL_SCANCODE_KP_9]	= KEY_KP9,
+	[SDL_SCANCODE_KP_0]	= KEY_KP0,
+	[SDL_SCANCODE_KP_PERIOD]	= KEY_KPDOT,
 
-	/* 140 */
-	NONE, NONE, NONE, NONE, NONE,
-	NONE, NONE, NONE, NONE, NONE,
-	NONE, NONE, NONE, NONE, NONE,
-	NONE, NONE, NONE, NONE, NONE,
+	[SDL_SCANCODE_KP_EQUALS]	= KEY_KPEQUAL,
+	[SDL_SCANCODE_KP_COMMA]	= KEY_KPCOMMA,
 
-	/* 160 */
-	NONE, NONE, NONE, NONE, NONE,
-	NONE, NONE, NONE, NONE, NONE,
-	NONE, NONE, NONE, NONE, NONE,
-	NONE, NONE, NONE, NONE, NONE,
-
-	/* 180 */
-	NONE, NONE, NONE, NONE, NONE,
-	NONE, NONE, NONE, NONE, NONE,
-	NONE, NONE, NONE, NONE, NONE,
-	NONE, NONE, NONE, NONE, NONE,
-
-	/* 200 */
-	NONE, NONE, NONE, NONE, NONE,
-	NONE, NONE, NONE, NONE, NONE,
-	NONE, NONE, NONE, NONE, NONE,
-	NONE, NONE, NONE, NONE, NONE,
-
-	/* 220 */
-	NONE, NONE, NONE, NONE, NONE,
-	NONE, NONE, NONE, NONE, NONE,
-	NONE, NONE, NONE, NONE, NONE,
-	NONE, NONE, NONE, NONE, NONE,
-
-	/* 240 */
-	NONE, NONE, NONE, NONE, NONE,
-	NONE, NONE, NONE, NONE, NONE,
-	NONE, NONE, NONE, NONE, NONE,
-	NONE, KEY_KP0, KEY_KP1, KEY_KP2, KEY_KP3,
-
-	/* 260 */
-	KEY_KP4, KEY_KP5, KEY_KP6, KEY_KP7, KEY_KP8,
-	KEY_KP9, KEY_KPDOT, KEY_KPSLASH, KEY_KPASTERISK, KEY_KPMINUS,
-	KEY_KPPLUS, KEY_KPENTER, KEY_KPEQUAL, KEY_UP, KEY_DOWN,
-	KEY_RIGHT, KEY_LEFT, KEY_INSERT, KEY_HOME, KEY_END,
-
-	/* 280 */
-	KEY_PAGEUP, KEY_PAGEDOWN, KEY_F1, KEY_F2, KEY_F3,
-	KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8,
-	KEY_F9, KEY_F10, KEY_F11, KEY_F12, NONE,
-	NONE, NONE, NONE, NONE, NONE,
-
-	/* 300 */
-	KEY_NUMLOCK, KEY_CAPSLOCK, KEY_SCROLLLOCK, KEY_RIGHTSHIFT,
-		KEY_LEFTSHIFT,
-	KEY_RIGHTCTRL, KEY_LEFTCTRL, KEY_RIGHTALT, KEY_LEFTALT, KEY_RIGHTMETA,
-	KEY_LEFTMETA, NONE, KEY_FN, NONE, KEY_COMPOSE,
-	NONE, KEY_PRINT, KEY_SYSRQ, KEY_PAUSE, NONE,
-
-	/* 320 */
-	NONE, NONE, NONE,
+	[SDL_SCANCODE_SYSREQ]	= KEY_SYSRQ,
 };
 
 int sandbox_sdl_scan_keys(int key[], int max_keys)
 {
-	Uint8 *keystate;
+	const Uint8 *keystate;
+	int num_keys;
 	int i, count;
 
 	sandbox_sdl_poll_events();
-	keystate = SDL_GetKeyState(NULL);
-	for (i = count = 0; i < NUM_SDL_CODES; i++) {
-		if (count >= max_keys)
-			break;
-		else if (keystate[i])
-			key[count++] = sdl_to_keycode[i];
+	keystate = SDL_GetKeyboardState(&num_keys);
+	for (i = count = 0; i < num_keys; i++) {
+		if (count < max_keys && keystate[i]) {
+			int keycode = sdl_to_keycode[i];
+
+			if (keycode)
+				key[count++] = keycode;
+		}
 	}
 
 	return count;

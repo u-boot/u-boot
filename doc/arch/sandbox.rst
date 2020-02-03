@@ -43,7 +43,7 @@ To run sandbox U-Boot use something like::
    ./u-boot
 
 Note: If you get errors about 'sdl-config: Command not found' you may need to
-install libsdl1.2-dev or similar to get SDL support. Alternatively you can
+install libsdl2.0-dev or similar to get SDL support. Alternatively you can
 build sandbox without SDL (i.e. no display/keyboard support) by removing
 the CONFIG_SANDBOX_SDL line in include/configs/sandbox.h or using::
 

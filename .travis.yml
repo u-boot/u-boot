@@ -19,7 +19,7 @@ addons:
     - sparse
     - bc
     - build-essential
-    - libsdl1.2-dev
+    - libsdl2-dev
     - python
     - python-pyelftools
     - python3-virtualenv
