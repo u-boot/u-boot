@@ -44,6 +44,7 @@
 #include <linux/sizes.h>
 #include <linux/iopoll.h>
 #include <linux/bug.h>
+#include <linux/err.h>
 
 /*
  * The driver only uses one single LUT entry, that is updated on

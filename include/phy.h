@@ -10,6 +10,7 @@
 #define _PHY_H
 
 #include <dm.h>
+#include <linux/errno.h>
 #include <linux/list.h>
 #include <linux/mii.h>
 #include <linux/ethtool.h>

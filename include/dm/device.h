@@ -14,7 +14,6 @@
 #include <dm/uclass-id.h>
 #include <fdtdec.h>
 #include <linker_lists.h>
-#include <linux/compat.h>
 #include <linux/kernel.h>
 #include <linux/list.h>
 #include <linux/printk.h>
