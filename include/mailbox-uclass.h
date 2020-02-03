@@ -49,14 +49,14 @@ struct mbox_ops {
 	 */
 	int (*request)(struct mbox_chan *chan);
 	/**
-	 * free - Free a previously requested channel.
+	 * rfree - Free a previously requested channel.
 	 *
 	 * This is the implementation of the client mbox_free() API.
 	 *
 	 * @chan:	The channel to free.
 	 * @return 0 if OK, or a negative error code.
 	 */
-	int (*free)(struct mbox_chan *chan);
+	int (*rfree)(struct mbox_chan *chan);
 	/**
 	* send - Send a message over a mailbox channel
 	*

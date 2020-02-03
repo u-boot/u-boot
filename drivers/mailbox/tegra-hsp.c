@@ -175,7 +175,7 @@ static const struct udevice_id tegra_hsp_ids[] = {
 struct mbox_ops tegra_hsp_mbox_ops = {
 	.of_xlate = tegra_hsp_of_xlate,
 	.request = tegra_hsp_request,
-	.free = tegra_hsp_free,
+	.rfree = tegra_hsp_free,
 	.send = tegra_hsp_send,
 	.recv = tegra_hsp_recv,
 };
