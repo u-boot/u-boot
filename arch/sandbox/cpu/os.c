@@ -284,7 +284,7 @@ int os_parse_args(struct sandbox_state *state, int argc, char *argv[])
 
 	/* dynamically construct the arguments to the system getopt_long */
 	short_opts = malloc(sizeof(*short_opts) * num_options * 2 + 1);
-	long_opts = malloc(sizeof(*long_opts) * num_options);
+	long_opts = malloc(sizeof(*long_opts) * (num_options + 1));
 	if (!short_opts || !long_opts)
 		return 1;
 
@@ -314,6 +314,7 @@ int os_parse_args(struct sandbox_state *state, int argc, char *argv[])
 	/* we need to handle output ourselves since u-boot provides printf */
 	opterr = 0;
 
+	memset(&long_opts[num_options], '\0', sizeof(*long_opts));
 	/*
 	 * walk all of the options the user gave us on the command line,
 	 * figure out what u-boot option structure they belong to (via
