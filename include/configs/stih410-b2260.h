@@ -19,6 +19,12 @@
 
 /* Environment */
 
+/*
+ * For booting Linux, use the first 256 MB of memory, since this is
+ * the maximum mapped by the Linux kernel during initialization.
+ */
+#define CONFIG_SYS_BOOTMAPSZ		SZ_256M
+
 #define CONFIG_LOADADDR			CONFIG_SYS_LOAD_ADDR
 #define CONFIG_SYS_BOOTM_LEN		SZ_16M
 
@@ -34,8 +40,6 @@
 			"fdt_addr_r=0x47000000\0"		\
 			"scriptaddr=0x50000000\0"		\
 			"pxefile_addr_r=0x50100000\0"		\
-			"fdt_high=0xffffffffffffffff\0"		\
-			"initrd_high=0xffffffffffffffff\0"	\
 			"ramdisk_addr_r=0x48000000\0"		\
 			BOOTENV
 
