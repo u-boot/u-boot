@@ -83,6 +83,7 @@
 		compatible = "sandbox,lcd-sdl";
 		xres = <1366>;
 		yres = <768>;
+		log2-depth = <5>;
 	};
 
 	leds {

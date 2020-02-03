@@ -47,13 +47,11 @@ static int sandbox_sdl_bind(struct udevice *dev)
 {
 	struct video_uc_platdata *uc_plat = dev_get_uclass_platdata(dev);
 	struct sandbox_sdl_plat *plat = dev_get_platdata(dev);
-	const void *blob = gd->fdt_blob;
-	int node = dev_of_offset(dev);
 	int ret = 0;
 
-	plat->xres = fdtdec_get_int(blob, node, "xres", LCD_MAX_WIDTH);
-	plat->yres = fdtdec_get_int(blob, node, "yres", LCD_MAX_HEIGHT);
-	plat->bpix = VIDEO_BPP16;
+	plat->xres = dev_read_u32_default(dev, "xres", LCD_MAX_WIDTH);
+	plat->yres = dev_read_u32_default(dev, "yres", LCD_MAX_HEIGHT);
+	plat->bpix = dev_read_u32_default(dev, "log2-depth", VIDEO_BPP16);
 	uc_plat->size = plat->xres * plat->yres * (1 << plat->bpix) / 8;
 	debug("%s: Frame buffer size %x\n", __func__, uc_plat->size);
 
