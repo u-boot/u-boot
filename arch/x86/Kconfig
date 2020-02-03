@@ -709,6 +709,12 @@ config ROM_TABLE_SIZE
 	hex
 	default 0x10000
 
+config HAVE_ITSS
+	bool "Enable ITSS"
+	help
+	  Select this to include the driver for the Interrupt Timer
+	  Subsystem (ITSS) which is found on several Intel devices.
+
 menu "System tables"
 	depends on !EFI && !SYS_COREBOOT
 
