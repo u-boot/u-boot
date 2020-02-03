@@ -118,11 +118,25 @@ void init_wdog(void)
 	disable_wdog(WDG2_RBASE);
 }
 
+static bool ldo_mode_is_enabled(void)
+{
+	unsigned int reg;
+
+	reg = readl(PMC0_BASE_ADDR + PMC0_CTRL);
+	if (reg & PMC0_CTRL_LDOEN)
+		return true;
+	else
+		return false;
+}
+
 #if !defined(CONFIG_SPL) || (defined(CONFIG_SPL) && defined(CONFIG_SPL_BUILD))
 #if defined(CONFIG_LDO_ENABLED_MODE)
 static void init_ldo_mode(void)
 {
 	unsigned int reg;
+
+	if (ldo_mode_is_enabled())
+		return;
 
 	/* Set LDOOKDIS */
 	setbits_le32(PMC0_BASE_ADDR + PMC0_CTRL, PMC0_CTRL_LDOOKDIS);
@@ -191,17 +205,6 @@ void reset_cpu(ulong addr)
 const char *get_imx_type(u32 imxtype)
 {
 	return "7ULP";
-}
-
-static bool ldo_mode_is_enabled(void)
-{
-	unsigned int reg;
-
-	reg = readl(PMC0_BASE_ADDR + PMC0_CTRL);
-	if (reg & PMC0_CTRL_LDOEN)
-		return true;
-	else
-		return false;
 }
 
 int print_cpuinfo(void)
