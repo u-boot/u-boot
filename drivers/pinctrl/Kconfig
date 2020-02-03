@@ -205,6 +205,13 @@ config PINCTRL_QCA953X
 	  the GPIO definitions and pin control functions for each available
 	  multiplex function.
 
+config PINCTRL_QE
+	bool "QE based pinctrl driver, like on mpc83xx"
+	depends on DM
+	help
+	  This option is to enable the QE pinctrl driver for QE based io
+	  controller.
+
 config PINCTRL_ROCKCHIP_RV1108
 	bool "Rockchip rv1108 pin control driver"
 	depends on DM
