@@ -77,7 +77,7 @@ static int sandbox_sdl_ensure_init(void)
 {
 	if (!sdl.inited) {
 		if (SDL_Init(0) < 0) {
-			printf("Unable to initialize SDL: %s\n",
+			printf("Unable to initialise SDL: %s\n",
 			       SDL_GetError());
 			return -EIO;
 		}
@@ -100,7 +100,7 @@ int sandbox_sdl_init_display(int width, int height, int log2_bpp)
 	if (err)
 		return err;
 	if (SDL_InitSubSystem(SDL_INIT_VIDEO) < 0) {
-		printf("Unable to initialize SDL LCD: %s\n", SDL_GetError());
+		printf("Unable to initialise SDL LCD: %s\n", SDL_GetError());
 		return -EPERM;
 	}
 	SDL_WM_SetCaption("U-Boot", "U-Boot");
@@ -298,7 +298,7 @@ void sandbox_sdl_fill_audio(void *udata, Uint8 *stream, int len)
 
 int sandbox_sdl_sound_init(int rate, int channels)
 {
-	SDL_AudioSpec wanted;
+	SDL_AudioSpec wanted, have;
 	int i;
 
 	if (sandbox_sdl_ensure_init())
@@ -331,13 +331,17 @@ int sandbox_sdl_sound_init(int rate, int channels)
 	}
 
 	if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0) {
-		printf("Unable to initialize SDL audio: %s\n", SDL_GetError());
+		printf("Unable to initialise SDL audio: %s\n", SDL_GetError());
 		goto err;
 	}
 
 	/* Open the audio device, forcing the desired format */
-	if (SDL_OpenAudio(&wanted, NULL) < 0) {
+	if (SDL_OpenAudio(&wanted, &have) < 0) {
 		printf("Couldn't open audio: %s\n", SDL_GetError());
+		goto err;
+	}
+	if (have.format != wanted.format) {
+		printf("Couldn't select required audio format\n");
 		goto err;
 	}
 	sdl.audio_active = true;
