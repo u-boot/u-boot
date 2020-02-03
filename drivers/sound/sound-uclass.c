@@ -31,6 +31,16 @@ int sound_play(struct udevice *dev, void *data, uint data_size)
 	return ops->play(dev, data, data_size);
 }
 
+int sound_stop_play(struct udevice *dev)
+{
+	struct sound_ops *ops = sound_get_ops(dev);
+
+	if (!ops->play)
+		return -ENOSYS;
+
+	return ops->stop_play(dev);
+}
+
 int sound_start_beep(struct udevice *dev, int frequency_hz)
 {
 	struct sound_ops *ops = sound_get_ops(dev);
@@ -97,6 +107,7 @@ int sound_beep(struct udevice *dev, int msecs, int frequency_hz)
 
 		ret = sound_play(dev, data, size);
 	}
+	sound_stop_play(dev);
 
 	free(data);
 

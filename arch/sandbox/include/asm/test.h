@@ -166,6 +166,13 @@ int sandbox_get_i2s_sum(struct udevice *dev);
 int sandbox_get_setup_called(struct udevice *dev);
 
 /**
+ * sandbox_get_sound_active() - Returns whether sound play is in progress
+ *
+ * @return true if active, false if not
+ */
+int sandbox_get_sound_active(struct udevice *dev);
+
+/**
  * sandbox_get_sound_sum() - Read back the sum of the sound data so far
  *
  * This data is provided to the sandbox driver by the sound play() method.

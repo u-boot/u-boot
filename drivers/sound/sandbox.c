@@ -26,7 +26,8 @@ struct sandbox_i2s_priv {
 };
 
 struct sandbox_sound_priv {
-	int setup_called;
+	int setup_called;	/* Incremented when setup() method is called */
+	bool active;		/* TX data is being sent */
 	int sum;		/* Use to sum the provided audio data */
 	bool allow_beep;	/* true to allow the start_beep() interface */
 	int frequency_hz;	/* Beep frequency if active, else 0 */
@@ -57,6 +58,13 @@ int sandbox_get_setup_called(struct udevice *dev)
 	struct sandbox_sound_priv *priv = dev_get_priv(dev);
 
 	return priv->setup_called;
+}
+
+int sandbox_get_sound_active(struct udevice *dev)
+{
+	struct sandbox_sound_priv *priv = dev_get_priv(dev);
+
+	return priv->active;
 }
 
 int sandbox_get_sound_sum(struct udevice *dev)
@@ -163,6 +171,16 @@ static int sandbox_sound_play(struct udevice *dev, void *data, uint data_size)
 	return i2s_tx_data(uc_priv->i2s, data, data_size);
 }
 
+static int sandbox_sound_stop_play(struct udevice *dev)
+{
+	struct sandbox_sound_priv *priv = dev_get_priv(dev);
+
+	sandbox_sdl_sound_stop();
+	priv->active = false;
+
+	return 0;
+}
+
 int sandbox_sound_start_beep(struct udevice *dev, int frequency_hz)
 {
 	struct sandbox_sound_priv *priv = dev_get_priv(dev);
@@ -228,6 +246,7 @@ U_BOOT_DRIVER(sandbox_i2s) = {
 static const struct sound_ops sandbox_sound_ops = {
 	.setup		= sandbox_sound_setup,
 	.play		= sandbox_sound_play,
+	.stop_play	= sandbox_sound_stop_play,
 	.start_beep	= sandbox_sound_start_beep,
 	.stop_beep	= sandbox_sound_stop_beep,
 };
