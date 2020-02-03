@@ -8,10 +8,10 @@
 #include <errno.h>
 #include <os.h>
 #include <cli.h>
-#include <malloc.h>
 #include <sort.h>
 #include <asm/getopt.h>
 #include <asm/io.h>
+#include <asm/malloc.h>
 #include <asm/sections.h>
 #include <asm/state.h>
 #include <linux/ctype.h>
@@ -181,7 +181,7 @@ static int sandbox_cmdline_cb_default_fdt(struct sandbox_state *state,
 	int len;
 
 	len = strlen(state->argv[0]) + strlen(fmt) + 1;
-	fname = os_malloc(len);
+	fname = malloc(len);
 	if (!fname)
 		return -ENOMEM;
 	snprintf(fname, len, fmt, state->argv[0]);
@@ -201,7 +201,7 @@ static int sandbox_cmdline_cb_test_fdt(struct sandbox_state *state,
 	int len;
 
 	len = strlen(state->argv[0]) + strlen(fmt) + 1;
-	fname = os_malloc(len);
+	fname = malloc(len);
 	if (!fname)
 		return -ENOMEM;
 	strcpy(fname, state->argv[0]);
