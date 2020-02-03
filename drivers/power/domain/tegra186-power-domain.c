@@ -71,7 +71,7 @@ static int tegra186_power_domain_off(struct power_domain *power_domain)
 
 struct power_domain_ops tegra186_power_domain_ops = {
 	.request = tegra186_power_domain_request,
-	.free = tegra186_power_domain_free,
+	.rfree = tegra186_power_domain_free,
 	.on = tegra186_power_domain_on,
 	.off = tegra186_power_domain_off,
 };

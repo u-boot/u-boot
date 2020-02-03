@@ -87,7 +87,7 @@ int power_domain_free(struct power_domain *power_domain)
 
 	debug("%s(power_domain=%p)\n", __func__, power_domain);
 
-	return ops->free(power_domain);
+	return ops->rfree(power_domain);
 }
 
 int power_domain_on(struct power_domain *power_domain)

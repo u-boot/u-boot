@@ -396,7 +396,7 @@ static const struct udevice_id mtk_power_domain_ids[] = {
 };
 
 struct power_domain_ops mtk_power_domain_ops = {
-	.free = scpsys_power_free,
+	.rfree = scpsys_power_free,
 	.off = scpsys_power_off,
 	.on = scpsys_power_on,
 	.request = scpsys_power_request,

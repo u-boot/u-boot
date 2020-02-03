@@ -269,7 +269,7 @@ static int meson_pwrc_vpu_of_xlate(struct power_domain *power_domain,
 }
 
 struct power_domain_ops meson_gx_pwrc_vpu_ops = {
-	.free = meson_pwrc_vpu_free,
+	.rfree = meson_pwrc_vpu_free,
 	.off = meson_pwrc_vpu_off,
 	.on = meson_pwrc_vpu_on,
 	.request = meson_pwrc_vpu_request,
