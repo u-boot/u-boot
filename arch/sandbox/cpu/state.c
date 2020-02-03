@@ -16,14 +16,14 @@ static struct sandbox_state *state;	/* Pointer to current state record */
 static int state_ensure_space(int extra_size)
 {
 	void *blob = state->state_fdt;
-	int used, size, free;
+	int used, size, free_bytes;
 	void *buf;
 	int ret;
 
 	used = fdt_off_dt_strings(blob) + fdt_size_dt_strings(blob);
 	size = fdt_totalsize(blob);
-	free = size - used;
-	if (free > extra_size)
+	free_bytes = size - used;
+	if (free_bytes > extra_size)
 		return 0;
 
 	size = used + extra_size;
