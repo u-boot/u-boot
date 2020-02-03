@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <elf.h>
 #include <remoteproc.h>
+#include <linux/err.h>
 
 /**
  * struct resource_table - firmware resource table header

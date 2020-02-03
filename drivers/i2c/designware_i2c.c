@@ -12,6 +12,7 @@
 #include <reset.h>
 #include <asm/io.h>
 #include "designware_i2c.h"
+#include <linux/err.h>
 
 #ifdef CONFIG_SYS_I2C_DW_ENABLE_STATUS_UNSUPPORTED
 static int  dw_i2c_enable(struct i2c_regs *i2c_base, bool enable)

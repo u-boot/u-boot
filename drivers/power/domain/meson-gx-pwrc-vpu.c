@@ -13,6 +13,7 @@
 #include <syscon.h>
 #include <reset.h>
 #include <clk.h>
+#include <linux/err.h>
 
 enum {
 	VPU_PWRC_COMPATIBLE_GX		= 0,

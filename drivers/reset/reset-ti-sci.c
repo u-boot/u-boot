@@ -12,6 +12,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <reset-uclass.h>
+#include <linux/err.h>
 #include <linux/soc/ti/ti_sci_protocol.h>
 
 /**

@@ -7,6 +7,7 @@
  */
 
 #ifndef __UBOOT__
+#include <dm/devres.h>
 #include <linux/dmaengine.h>
 #include <linux/pm_runtime.h>
 #include "internals.h"

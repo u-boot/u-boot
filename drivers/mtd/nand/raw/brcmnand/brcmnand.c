@@ -17,6 +17,8 @@
 #include <memalign.h>
 #include <nand.h>
 #include <clk.h>
+#include <dm/devres.h>
+#include <linux/err.h>
 #include <linux/ioport.h>
 #include <linux/completion.h>
 #include <linux/errno.h>

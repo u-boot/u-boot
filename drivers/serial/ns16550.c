@@ -13,6 +13,7 @@
 #include <reset.h>
 #include <serial.h>
 #include <watchdog.h>
+#include <linux/err.h>
 #include <linux/types.h>
 #include <asm/io.h>
 

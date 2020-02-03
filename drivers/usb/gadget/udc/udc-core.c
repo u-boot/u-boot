@@ -13,6 +13,7 @@
  *		       usb_
  */
 
+#include <dm/devres.h>
 #include <linux/compat.h>
 #include <malloc.h>
 #include <asm/cache.h>

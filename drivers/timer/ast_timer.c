@@ -9,6 +9,7 @@
 #include <timer.h>
 #include <asm/io.h>
 #include <asm/arch/timer.h>
+#include <linux/err.h>
 
 #define AST_TICK_TIMER  1
 #define AST_TMC_RELOAD_VAL  0xffffffff

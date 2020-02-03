@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <regmap.h>
 #include <syscon.h>
+#include <linux/err.h>
 #include <power/pmic.h>
 #include <power/regulator.h>
 

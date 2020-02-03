@@ -8,6 +8,7 @@
 #include <log.h>
 #include <tee.h>
 #include <linux/arm-smccc.h>
+#include <linux/err.h>
 #include <linux/io.h>
 
 #include "optee_smc.h"

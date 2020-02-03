@@ -17,6 +17,7 @@
 #include <asm/io.h>
 #include <asm/syscon.h>
 #include <cpu.h>
+#include <linux/err.h>
 
 /* pending register */
 #define PENDING_REG(base, hart)	((ulong)(base) + 0x1000 + ((hart) / 4) * 4)

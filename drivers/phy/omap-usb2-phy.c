@@ -13,6 +13,7 @@
 #include <generic-phy.h>
 #include <regmap.h>
 #include <syscon.h>
+#include <linux/err.h>
 
 #define OMAP_USB2_CALIBRATE_FALSE_DISCONNECT	BIT(0)
 

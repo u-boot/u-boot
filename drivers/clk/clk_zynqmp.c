@@ -11,6 +11,7 @@
 #include <clk.h>
 #include <asm/arch/sys_proto.h>
 #include <dm.h>
+#include <linux/err.h>
 
 static const resource_size_t zynqmp_crf_apb_clkc_base = 0xfd1a0020;
 static const resource_size_t zynqmp_crl_apb_clkc_base = 0xff5e0020;

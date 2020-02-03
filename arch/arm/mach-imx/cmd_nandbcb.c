@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <nand.h>
+#include <dm/devres.h>
 
 #include <asm/io.h>
 #include <jffs2/jffs2.h>

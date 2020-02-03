@@ -9,6 +9,7 @@
  */
 
 #ifndef __UBOOT__
+#include <dm/devres.h>
 #include <linux/kernel.h>
 #include <linux/list.h>
 #include <linux/timer.h>

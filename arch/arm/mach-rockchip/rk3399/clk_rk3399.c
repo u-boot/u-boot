@@ -9,6 +9,7 @@
 #include <syscon.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/cru.h>
+#include <linux/err.h>
 
 static int rockchip_get_cruclk(struct udevice **devp)
 {

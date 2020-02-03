@@ -21,6 +21,7 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/cpu.h>
+#include <linux/err.h>
 
 #define REG_ISCR			0x00
 #define REG_PHYCTL_A10			0x04

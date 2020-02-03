@@ -1,6 +1,7 @@
 #include <common.h>
 #include <console.h>
 #include <watchdog.h>
+#include <linux/err.h>
 #include <linux/errno.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>

@@ -11,6 +11,7 @@
  */
 
 #ifndef __UBOOT__
+#include <dm/devres.h>
 #include <linux/err.h>
 #include <linux/slab.h>
 #include <linux/export.h>

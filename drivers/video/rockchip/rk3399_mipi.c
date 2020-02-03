@@ -16,6 +16,7 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <dm/uclass-internal.h>
+#include <linux/err.h>
 #include <linux/kernel.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/cru.h>

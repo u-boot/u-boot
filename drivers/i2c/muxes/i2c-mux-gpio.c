@@ -11,6 +11,7 @@
 #include <asm-generic/gpio.h>
 #include <common.h>
 #include <dm.h>
+#include <dm/devres.h>
 #include <dm/pinctrl.h>
 #include <fdtdec.h>
 #include <i2c.h>

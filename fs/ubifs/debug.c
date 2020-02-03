@@ -16,6 +16,7 @@
  */
 
 #include <hexdump.h>
+#include <dm/devres.h>
 
 #ifndef __UBOOT__
 #include <linux/module.h>

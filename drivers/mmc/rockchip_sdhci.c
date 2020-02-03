@@ -8,6 +8,7 @@
 #include <common.h>
 #include <dm.h>
 #include <dt-structs.h>
+#include <linux/err.h>
 #include <linux/libfdt.h>
 #include <malloc.h>
 #include <mapmem.h>

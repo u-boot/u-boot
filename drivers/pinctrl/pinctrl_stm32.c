@@ -6,6 +6,7 @@
 #include <asm/io.h>
 #include <dm/lists.h>
 #include <dm/pinctrl.h>
+#include <linux/err.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

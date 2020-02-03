@@ -14,10 +14,12 @@
 #include <malloc.h>
 #include <clk-uclass.h>
 #include <dm/device.h>
+#include <dm/devres.h>
 #include <dm/uclass.h>
 #include <dm/lists.h>
 #include <dm/device-internal.h>
 #include <linux/clk-provider.h>
+#include <linux/err.h>
 #include <linux/log2.h>
 #include <div64.h>
 #include <clk.h>

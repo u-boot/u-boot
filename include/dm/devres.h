@@ -11,6 +11,10 @@
 #ifndef _DM_DEVRES_H
 #define _DM_DEVRES_H
 
+#include <linux/compat.h>
+
+struct udevice;
+
 /* device resource management */
 typedef void (*dr_release_t)(struct udevice *dev, void *res);
 typedef int (*dr_match_t)(struct udevice *dev, void *res, void *match_data);

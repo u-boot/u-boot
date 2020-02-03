@@ -16,6 +16,7 @@
 #include <spi.h>
 #include <ubi_uboot.h>
 #include <wait_bit.h>
+#include <linux/err.h>
 
 #define GQSPI_GFIFO_STRT_MODE_MASK	BIT(29)
 #define GQSPI_CONFIG_MODE_EN_MASK	(3 << 30)

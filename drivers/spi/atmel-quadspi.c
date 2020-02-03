@@ -15,6 +15,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <linux/err.h>
 #include <linux/io.h>
 #include <linux/iopoll.h>
 #include <linux/ioport.h>

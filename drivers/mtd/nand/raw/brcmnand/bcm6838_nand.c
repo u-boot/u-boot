@@ -4,6 +4,7 @@
 #include <asm/io.h>
 #include <memalign.h>
 #include <nand.h>
+#include <linux/err.h>
 #include <linux/errno.h>
 #include <linux/io.h>
 #include <linux/ioport.h>

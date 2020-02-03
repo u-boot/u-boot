@@ -12,7 +12,7 @@
 #include <malloc.h>
 #include <asm/dma-mapping.h>
 #include <dm.h>
-#include <dm/device.h>
+#include <dm/devres.h>
 #include <dm/read.h>
 #include <dm/of_access.h>
 #include <dma.h>
@@ -20,6 +20,7 @@
 #include <linux/delay.h>
 #include <dt-bindings/dma/k3-udma.h>
 #include <linux/bitmap.h>
+#include <linux/err.h>
 #include <linux/soc/ti/k3-navss-ringacc.h>
 #include <linux/soc/ti/cppi5.h>
 #include <linux/soc/ti/ti-udma.h>

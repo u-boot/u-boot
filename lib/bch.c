@@ -56,6 +56,7 @@
 #ifndef USE_HOSTCC
 #include <common.h>
 #include <ubi_uboot.h>
+#include <dm/devres.h>
 
 #include <linux/bitops.h>
 #else

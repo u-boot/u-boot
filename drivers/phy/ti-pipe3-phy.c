@@ -12,6 +12,7 @@
 #include <asm/arch/sys_proto.h>
 #include <syscon.h>
 #include <regmap.h>
+#include <linux/err.h>
 
 /* PLLCTRL Registers */
 #define PLL_STATUS              0x00000004

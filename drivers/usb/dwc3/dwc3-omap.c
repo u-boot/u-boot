@@ -18,6 +18,7 @@
 #include <asm/io.h>
 #include <dm.h>
 #include <dwc3-omap-uboot.h>
+#include <dm/devres.h>
 #include <linux/usb/dwc3-omap.h>
 #include <linux/ioport.h>
 

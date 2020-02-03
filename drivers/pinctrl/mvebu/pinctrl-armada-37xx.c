@@ -20,6 +20,7 @@
 #include <config.h>
 #include <dm.h>
 #include <dm/device-internal.h>
+#include <dm/devres.h>
 #include <dm/lists.h>
 #include <dm/pinctrl.h>
 #include <dm/root.h>

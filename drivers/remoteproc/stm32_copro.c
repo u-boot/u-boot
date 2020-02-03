@@ -12,6 +12,7 @@
 #include <reset.h>
 #include <syscon.h>
 #include <asm/io.h>
+#include <linux/err.h>
 
 #define RCC_GCR_HOLD_BOOT	0
 #define RCC_GCR_RELEASE_BOOT	1

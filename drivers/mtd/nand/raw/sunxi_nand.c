@@ -28,6 +28,8 @@
 #include <fdtdec.h>
 #include <memalign.h>
 #include <nand.h>
+#include <dm/devres.h>
+#include <linux/err.h>
 
 #include <linux/kernel.h>
 #include <linux/mtd/mtd.h>

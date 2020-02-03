@@ -17,6 +17,7 @@
 #include <asm/arch-rockchip/pmu_rk3288.h>
 #include <asm/arch-rockchip/qos_rk3288.h>
 #include <asm/arch-rockchip/sdram.h>
+#include <linux/err.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

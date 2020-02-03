@@ -12,6 +12,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <power-domain-uclass.h>
+#include <linux/err.h>
 #include <linux/soc/ti/ti_sci_protocol.h>
 #include <dt-bindings/soc/ti,sci_pm_domain.h>
 

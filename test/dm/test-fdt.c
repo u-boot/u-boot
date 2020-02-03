@@ -12,6 +12,7 @@
 #include <dm/test.h>
 #include <dm/root.h>
 #include <dm/device-internal.h>
+#include <dm/devres.h>
 #include <dm/uclass-internal.h>
 #include <dm/util.h>
 #include <dm/lists.h>

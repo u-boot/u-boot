@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <clk.h>
+#include <dm/devres.h>
 #include <dm/ofnode.h>
 #include <generic-phy.h>
 #include <reset.h>

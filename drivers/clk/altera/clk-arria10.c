@@ -7,6 +7,7 @@
 #include <asm/io.h>
 #include <clk-uclass.h>
 #include <dm.h>
+#include <dm/devres.h>
 #include <dm/lists.h>
 #include <dm/util.h>
 

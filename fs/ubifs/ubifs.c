@@ -16,6 +16,7 @@
 #include <gzip.h>
 #include <memalign.h>
 #include "ubifs.h"
+#include <dm/devres.h>
 #include <u-boot/zlib.h>
 
 #include <linux/compat.h>

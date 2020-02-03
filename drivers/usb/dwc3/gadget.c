@@ -17,6 +17,7 @@
 #include <cpu_func.h>
 #include <malloc.h>
 #include <asm/dma-mapping.h>
+#include <dm/devres.h>
 #include <linux/bug.h>
 #include <linux/list.h>
 

@@ -2,6 +2,7 @@
 
 #include <common.h>
 #include "brcmnand_compat.h"
+#include <dm/devres.h>
 
 static char *devm_kvasprintf(struct udevice *dev, gfp_t gfp, const char *fmt,
 			     va_list ap)

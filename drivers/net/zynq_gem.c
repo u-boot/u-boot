@@ -25,6 +25,7 @@
 #include <asm/system.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
+#include <linux/err.h>
 #include <linux/errno.h>
 
 /* Bit/mask specification */

@@ -12,6 +12,7 @@
 #include <syscon.h>
 #include <asm/io.h>
 #include <asm/processor.h>
+#include <linux/err.h>
 #include <linux/iopoll.h>
 
 #include <dt-bindings/power/mt7623-power.h>

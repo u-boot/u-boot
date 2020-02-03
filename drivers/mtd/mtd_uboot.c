@@ -7,6 +7,7 @@
 #include <env.h>
 #include <dm/device.h>
 #include <dm/uclass-internal.h>
+#include <linux/err.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/partitions.h>
 #include <mtd.h>

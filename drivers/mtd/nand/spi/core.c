@@ -24,6 +24,7 @@
 #include <errno.h>
 #include <spi.h>
 #include <spi-mem.h>
+#include <dm/devres.h>
 #include <linux/mtd/spinand.h>
 #endif
 

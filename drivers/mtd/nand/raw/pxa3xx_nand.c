@@ -10,6 +10,8 @@
 #include <malloc.h>
 #include <fdtdec.h>
 #include <nand.h>
+#include <dm/devres.h>
+#include <linux/err.h>
 #include <linux/errno.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>

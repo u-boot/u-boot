@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <timer.h>
 #include <asm/io.h>
+#include <linux/err.h>
 
 #define CNT_CNTRL_RESET		BIT(4)
 

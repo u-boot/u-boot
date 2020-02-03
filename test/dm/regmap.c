@@ -10,6 +10,7 @@
 #include <syscon.h>
 #include <asm/test.h>
 #include <dm/test.h>
+#include <linux/err.h>
 #include <test/ut.h>
 
 /* Base test of register maps */

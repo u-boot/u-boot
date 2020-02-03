@@ -10,10 +10,12 @@
 #include <clk.h>
 #include <clk-uclass.h>
 #include <dm.h>
-#include <dm/read.h>
 #include <dt-structs.h>
 #include <errno.h>
+#include <dm/devres.h>
+#include <dm/read.h>
 #include <linux/clk-provider.h>
+#include <linux/err.h>
 
 static inline const struct clk_ops *clk_dev_ops(struct udevice *dev)
 {

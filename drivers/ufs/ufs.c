@@ -11,6 +11,7 @@
 #include <charset.h>
 #include <common.h>
 #include <dm.h>
+#include <dm/devres.h>
 #include <dm/lists.h>
 #include <dm/device-internal.h>
 #include <malloc.h>

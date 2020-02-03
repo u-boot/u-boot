@@ -9,6 +9,7 @@
 #include <common.h>
 #include <dm.h>
 #include <ufs.h>
+#include <linux/err.h>
 
 #include "ufs.h"
 

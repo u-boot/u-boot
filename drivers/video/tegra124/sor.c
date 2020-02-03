@@ -15,6 +15,7 @@
 #include <asm/arch-tegra/dc.h>
 #include "displayport.h"
 #include "sor.h"
+#include <linux/err.h>
 
 #define DEBUG_SOR 0
 

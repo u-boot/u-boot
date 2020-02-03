@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <asm/io.h>
 #include <asm/arch/scu_ast2500.h>
+#include <linux/err.h>
 
 int ast_get_clk(struct udevice **devp)
 {

@@ -46,6 +46,7 @@
  */
 
 #ifndef __UBOOT__
+#include <dm/devres.h>
 #include <linux/crc32.h>
 #include <linux/err.h>
 #include <linux/slab.h>

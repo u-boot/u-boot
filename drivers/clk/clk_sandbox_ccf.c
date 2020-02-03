@@ -11,8 +11,10 @@
 #include <clk.h>
 #include <asm/clk.h>
 #include <clk-uclass.h>
+#include <dm/devres.h>
 #include <linux/clk-provider.h>
 #include <sandbox-clk.h>
+#include <linux/err.h>
 
 /*
  * Sandbox implementation of CCF primitives necessary for clk-uclass testing

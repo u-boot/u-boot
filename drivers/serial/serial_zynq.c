@@ -14,6 +14,7 @@
 #include <asm/io.h>
 #include <linux/compiler.h>
 #include <serial.h>
+#include <linux/err.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

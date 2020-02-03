@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <mailbox.h>
 #include <dm/device.h>
+#include <dm/devres.h>
 #include <linux/compat.h>
 #include <linux/err.h>
 #include <linux/soc/ti/k3-sec-proxy.h>

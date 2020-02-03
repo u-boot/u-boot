@@ -13,6 +13,7 @@
 #include <common.h>
 #include <asm/gpio.h>
 #include <asm/arch/gpio.h>
+#include <dm/devres.h>
 
 #include <malloc.h>
 #include <nand.h>

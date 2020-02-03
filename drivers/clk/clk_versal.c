@@ -13,6 +13,7 @@
 #include <dm.h>
 #include <asm/arch/sys_proto.h>
 #include <zynqmp_firmware.h>
+#include <linux/err.h>
 
 #define MAX_PARENT			100
 #define MAX_NODES			6

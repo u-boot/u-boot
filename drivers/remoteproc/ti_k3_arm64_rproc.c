@@ -15,6 +15,7 @@
 #include <reset.h>
 #include <asm/io.h>
 #include <power-domain.h>
+#include <linux/err.h>
 #include <linux/soc/ti/ti_sci_protocol.h>
 #include "ti_sci_proc.h"
 

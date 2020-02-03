@@ -15,6 +15,7 @@
 #include <syscon.h>
 #include <dt-bindings/clock/gxbb-clkc.h>
 #include "clk_meson.h"
+#include <linux/err.h>
 
 /* This driver support only basic clock tree operations :
  * - Can calculate clock frequency on a limited tree

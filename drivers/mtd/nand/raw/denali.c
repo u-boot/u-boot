@@ -8,8 +8,10 @@
 #include <asm/dma-mapping.h>
 #include <dm.h>
 #include <nand.h>
+#include <dm/devres.h>
 #include <linux/bitfield.h>
 #include <linux/dma-direction.h>
+#include <linux/err.h>
 #include <linux/errno.h>
 #include <linux/io.h>
 #include <linux/mtd/mtd.h>

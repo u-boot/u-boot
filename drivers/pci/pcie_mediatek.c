@@ -14,6 +14,7 @@
 #include <pci.h>
 #include <reset.h>
 #include <asm/io.h>
+#include <dm/devres.h>
 #include <linux/iopoll.h>
 #include <linux/list.h>
 

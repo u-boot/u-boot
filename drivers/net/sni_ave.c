@@ -8,6 +8,7 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <fdt_support.h>
+#include <linux/err.h>
 #include <linux/io.h>
 #include <linux/iopoll.h>
 #include <miiphy.h>

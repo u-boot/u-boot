@@ -803,8 +803,6 @@ static inline bool device_is_on_pci_bus(const struct udevice *dev)
  */
 int dm_scan_fdt_dev(struct udevice *dev);
 
-#include <dm/devres.h>
-
 /*
  * REVISIT:
  * remove the following after resolving conflicts with <linux/compat.h>

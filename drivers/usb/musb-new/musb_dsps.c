@@ -15,6 +15,7 @@
  */
 
 #ifndef __UBOOT__
+#include <dm/devres.h>
 #include <linux/init.h>
 #include <linux/io.h>
 #include <linux/err.h>

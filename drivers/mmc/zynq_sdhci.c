@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <fdtdec.h>
 #include "mmc_private.h"
+#include <linux/err.h>
 #include <linux/libfdt.h>
 #include <malloc.h>
 #include <sdhci.h>

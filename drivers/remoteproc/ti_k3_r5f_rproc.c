@@ -13,6 +13,7 @@
 #include <clk.h>
 #include <reset.h>
 #include <asm/io.h>
+#include <linux/err.h>
 #include <linux/kernel.h>
 #include <linux/soc/ti/ti_sci_protocol.h>
 #include "ti_sci_proc.h"

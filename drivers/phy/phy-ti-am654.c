@@ -18,6 +18,7 @@
 #include <power-domain.h>
 #include <regmap.h>
 #include <syscon.h>
+#include <linux/err.h>
 
 #define CMU_R07C		0x7c
 #define CMU_MASTER_CDN_O	BIT(24)
