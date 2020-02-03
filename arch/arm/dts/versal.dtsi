@@ -423,7 +423,7 @@
 		};
 
 		ospi: spi@f1010000 {
-			compatible = "cdns,qspi-nor";
+			compatible = "xlnx,versal-ospi-1.0", "cadence,qspi", "cdns,qspi-nor";
 			status = "disabled";
 			reg = <0 0xf1010000 0 0x10000 0 0xc0000000 0 0x20000000>;
 			interrupts = <0 124 4>, <0 124 4>;

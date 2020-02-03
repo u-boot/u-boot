@@ -35,7 +35,6 @@
 
 &ospi {
 	status = "okay";
-	compatible = "xlnx,versal-ospi-1.0", "cadence,qspi", "cdns,qspi-nor";
 	bus-num = <2>;
 	num-cs = <1>;
 	#stream-id-cells = <1>;
