@@ -81,6 +81,25 @@ config TARGET_ROCKPRO64_RK3399
 	   * GPIO expansion ports
 	   * DC 12V/2A
 
+config TARGET_ROC_PC_RK3399
+	bool "Firefly ROC-RK3399-PC board"
+	help
+	  ROC-RK3399-PC is SBC produced by Firefly. Key features:
+
+	   * Rockchip RK3399
+	   * 4GB Dual-Channel LPDDR4 64-bit
+	   * SD card slot
+	   * eMMC socket
+	   * 16MB SPI Flash
+	   * Gigabit ethernet
+	   * PCIe
+	   * HDMI In/Out, DP, MIPI DSI/CSI, eDP
+	   * USB 3.0, 2.0
+	   * USB Type C power and data
+	   * GPIO expansion ports
+	   * wide voltage input(5V-15V), dual cell battery
+	   * Wifi/BT accessible via expansion board M.2
+
 endchoice
 
 config ROCKCHIP_BOOT_MODE_REG
@@ -128,5 +147,6 @@ source "board/theobroma-systems/puma_rk3399/Kconfig"
 source "board/vamrs/rock960_rk3399/Kconfig"
 source "board/google/gru/Kconfig"
 source "board/pine64/rockpro64_rk3399/Kconfig"
+source "board/firefly/roc-pc-rk3399/Kconfig"
 
 endif
