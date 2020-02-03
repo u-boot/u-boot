@@ -62,7 +62,7 @@ static int meson_reset_deassert(struct reset_ctl *reset_ctl)
 
 struct reset_ops meson_reset_ops = {
 	.request = meson_reset_request,
-	.free = meson_reset_free,
+	.rfree = meson_reset_free,
 	.rst_assert = meson_reset_assert,
 	.rst_deassert = meson_reset_deassert,
 };

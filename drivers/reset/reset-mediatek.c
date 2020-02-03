@@ -55,7 +55,7 @@ static int mediatek_reset_deassert(struct reset_ctl *reset_ctl)
 
 struct reset_ops mediatek_reset_ops = {
 	.request = mediatek_reset_request,
-	.free = mediatek_reset_free,
+	.rfree = mediatek_reset_free,
 	.rst_assert = mediatek_reset_assert,
 	.rst_deassert = mediatek_reset_deassert,
 };

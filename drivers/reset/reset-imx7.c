@@ -272,7 +272,7 @@ static int imx7_reset_request(struct reset_ctl *rst)
 
 static const struct reset_ops imx7_reset_reset_ops = {
 	.request = imx7_reset_request,
-	.free = imx7_reset_free,
+	.rfree = imx7_reset_free,
 	.rst_assert = imx7_reset_assert,
 	.rst_deassert = imx7_reset_deassert,
 };

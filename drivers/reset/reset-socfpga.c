@@ -101,7 +101,7 @@ static int socfpga_reset_free(struct reset_ctl *reset_ctl)
 
 static const struct reset_ops socfpga_reset_ops = {
 	.request = socfpga_reset_request,
-	.free = socfpga_reset_free,
+	.rfree = socfpga_reset_free,
 	.rst_assert = socfpga_reset_assert,
 	.rst_deassert = socfpga_reset_deassert,
 };

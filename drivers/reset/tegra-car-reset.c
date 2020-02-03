@@ -51,7 +51,7 @@ static int tegra_car_reset_deassert(struct reset_ctl *reset_ctl)
 
 struct reset_ops tegra_car_reset_ops = {
 	.request = tegra_car_reset_request,
-	.free = tegra_car_reset_free,
+	.rfree = tegra_car_reset_free,
 	.rst_assert = tegra_car_reset_assert,
 	.rst_deassert = tegra_car_reset_deassert,
 };
