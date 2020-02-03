@@ -1,5 +1,11 @@
 # SPDX-License-Identifier: GPL-2.0+
 
+dtb-$(CONFIG_TARGET_KMCOGE5NE) += kmcoge5ne.dtb
+dtb-$(CONFIG_TARGET_KMETER1) += kmeter1.dtb
+dtb-$(CONFIG_TARGET_KMOPTI2) += kmopti2.dtb
+dtb-$(CONFIG_TARGET_KMSUPX5) += kmsupc5.dtb kmsupm5.dtb
+dtb-$(CONFIG_TARGET_KMTEGR1) += kmtegr1.dtb
+dtb-$(CONFIG_TARGET_KMTEPR2) += kmtepr2.dtb
 dtb-$(CONFIG_TARGET_MPC8548CDS) += mpc8548cds.dtb mpc8548cds_36b.dtb
 dtb-$(CONFIG_TARGET_P1010RDB_PA) += p1010rdb-pa.dtb p1010rdb-pa_36b.dtb
 dtb-$(CONFIG_TARGET_P1010RDB_PB) += p1010rdb-pb.dtb p1010rdb-pb_36b.dtb
@@ -16,6 +22,8 @@ dtb-$(CONFIG_TARGET_T1042D4RDB) += t1042d4rdb.dtb
 dtb-$(CONFIG_TARGET_T2080QDS) += t2080qds.dtb
 dtb-$(CONFIG_TARGET_T2080RDB) += t2080rdb.dtb
 dtb-$(CONFIG_TARGET_T4240RDB) += t4240rdb.dtb
+dtb-$(CONFIG_TARGET_TUGE1) += kmtuge1.dtb
+dtb-$(CONFIG_TARGET_TUXX1) += kmtuxa1.dtb
 dtb-$(CONFIG_TARGET_MCR3000) += mcr3000.dtb
 dtb-$(CONFIG_TARGET_GAZERBEAM) += gazerbeam.dtb
 

@@ -1,3 +1,20 @@
+menu "KM 83xx Options"
+	depends on MPC83xx
+
+config KM_ENABLE_FULL_DM_DTS_SUPPORT
+	bool "enable full DM/DTS support for KM 83xx boards"
+	default y
+	select CMD_DM
+	select DM
+	select DM_ETH
+	select DM_MDIO
+	select DM_SERIAL
+	select OF_CONTROL
+	select PINCTRL
+	select PINCTRL_QE
+	select PHYLIB
+endmenu
+
 if TARGET_KMETER1
 
 config SYS_BOARD
