@@ -9,12 +9,44 @@
 #include <os.h>
 #include <cli.h>
 #include <malloc.h>
+#include <sort.h>
 #include <asm/getopt.h>
 #include <asm/io.h>
 #include <asm/sections.h>
 #include <asm/state.h>
+#include <linux/ctype.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+/* Compare two options so that they can be sorted into alphabetical order */
+static int h_compare_opt(const void *p1, const void *p2)
+{
+	const struct sandbox_cmdline_option *opt1 = p1;
+	const struct sandbox_cmdline_option *opt2 = p2;
+	const char *str1, *str2;
+	char flag1[2], flag2[2];
+
+	opt1 = *(struct sandbox_cmdline_option **)p1;
+	opt2 = *(struct sandbox_cmdline_option **)p2;
+	flag1[1] = '\0';
+	flag2[1] = '\0';
+
+	*flag1 = opt1->flag_short < 0x100 ? opt1->flag_short : '\0';
+	*flag2 = opt2->flag_short < 0x100 ? opt2->flag_short : '\0';
+
+	str1 = *flag1 ? flag1 : opt1->flag;
+	str2 = *flag2 ? flag2 : opt2->flag;
+
+	/*
+	 * Force lower-case flags to come before upper-case ones. We only
+	 * support upper-case for short flags.
+	 */
+	if (isalpha(*str1) && isalpha(*str2) &&
+	    tolower(*str1) == tolower(*str2))
+		return isupper(*str1) - isupper(*str2);
+
+	return strcasecmp(str1, str2);
+}
 
 int sandbox_early_getopt_check(void)
 {
@@ -23,6 +55,8 @@ int sandbox_early_getopt_check(void)
 	size_t num_options = __u_boot_sandbox_option_count();
 	size_t i;
 	int max_arg_len, max_noarg_len;
+	struct sandbox_cmdline_option **sorted_opt;
+	int size;
 
 	/* parse_err will be a string of the faulting option */
 	if (!state->parse_err)
@@ -45,8 +79,18 @@ int sandbox_early_getopt_check(void)
 		max_arg_len = max((int)strlen(sb_opt[i]->flag), max_arg_len);
 	max_noarg_len = max_arg_len + 7;
 
+	/* Sort the options */
+	size = sizeof(*sorted_opt) * num_options;
+	sorted_opt = malloc(size);
+	if (!sorted_opt) {
+		printf("No memory to sort options\n");
+		os_exit(1);
+	}
+	memcpy(sorted_opt, sb_opt, size);
+	qsort(sorted_opt, num_options, sizeof(*sorted_opt), h_compare_opt);
+
 	for (i = 0; i < num_options; ++i) {
-		struct sandbox_cmdline_option *opt = sb_opt[i];
+		struct sandbox_cmdline_option *opt = sorted_opt[i];
 
 		/* first output the short flag if it has one */
 		if (opt->flag_short >= 0x100)
