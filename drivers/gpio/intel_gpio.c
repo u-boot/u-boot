@@ -41,7 +41,7 @@ static int intel_gpio_direction_output(struct udevice *dev, uint offset,
 
 	pcr_clrsetbits32(pinctrl, config_offset,
 			 PAD_CFG0_MODE_MASK | PAD_CFG0_RX_STATE |
-				  PAD_CFG0_TX_DISABLE,
+				  PAD_CFG0_TX_DISABLE | PAD_CFG0_TX_STATE,
 			 PAD_CFG0_MODE_GPIO | PAD_CFG0_RX_DISABLE |
 				  (value ? PAD_CFG0_TX_STATE : 0));
 
