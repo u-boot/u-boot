@@ -59,9 +59,9 @@ static int intel_gpio_get_value(struct udevice *dev, uint offset)
 	if (!mode) {
 		rx_tx = reg & (PAD_CFG0_TX_DISABLE | PAD_CFG0_RX_DISABLE);
 		if (rx_tx == PAD_CFG0_TX_DISABLE)
-			return mode & PAD_CFG0_RX_STATE_BIT ? 1 : 0;
+			return reg & PAD_CFG0_RX_STATE ? 1 : 0;
 		else if (rx_tx == PAD_CFG0_RX_DISABLE)
-			return mode & PAD_CFG0_TX_STATE_BIT ? 1 : 0;
+			return reg & PAD_CFG0_TX_STATE ? 1 : 0;
 	}
 
 	return 0;
