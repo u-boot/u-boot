@@ -238,29 +238,6 @@ void os_free(void *ptr)
 	}
 }
 
-void *os_realloc(void *ptr, size_t length)
-{
-	int page_size = getpagesize();
-	struct os_mem_hdr *hdr;
-	void *buf = NULL;
-
-	if (length) {
-		buf = os_malloc(length);
-		if (!buf)
-			return buf;
-		if (ptr) {
-			hdr = ptr - page_size;
-			if (length > hdr->length)
-				length = hdr->length;
-			memcpy(buf, ptr, length);
-		}
-	}
-	if (ptr)
-		os_free(ptr);
-
-	return buf;
-}
-
 void os_usleep(unsigned long usec)
 {
 	usleep(usec);
