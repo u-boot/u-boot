@@ -107,7 +107,7 @@ static struct clk_ops sandbox_clk_ops = {
 	.enable		= sandbox_clk_enable,
 	.disable	= sandbox_clk_disable,
 	.request	= sandbox_clk_request,
-	.free		= sandbox_clk_free,
+	.rfree		= sandbox_clk_free,
 };
 
 static int sandbox_clk_probe(struct udevice *dev)
