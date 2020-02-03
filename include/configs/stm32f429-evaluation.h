@@ -40,12 +40,12 @@
 #define CONFIG_EXTRA_ENV_SETTINGS				\
 			"kernel_addr_r=0x00008000\0"		\
 			"fdtfile=stm32429i-eval.dtb\0"	\
-			"fdt_addr_r=0x00700000\0"		\
-			"scriptaddr=0x00800000\0"		\
-			"pxefile_addr_r=0x00800000\0" \
+			"fdt_addr_r=0x00408000\0"		\
+			"scriptaddr=0x00418000\0"		\
+			"pxefile_addr_r=0x00428000\0" \
+			"ramdisk_addr_r=0x00438000\0"		\
 			"fdt_high=0xffffffffffffffff\0"		\
 			"initrd_high=0xffffffffffffffff\0"	\
-			"ramdisk_addr_r=0x00900000\0"		\
 			BOOTENV
 
 /*
