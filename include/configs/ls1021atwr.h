@@ -299,7 +299,6 @@
 #define CONFIG_EXTRA_ENV_SETTINGS       \
 	"bootargs=root=/dev/ram0 rw console=ttyLP0,115200\0" \
 	"initrd_high=0xffffffff\0"      \
-	"fdt_high=0xffffffff\0"		\
 	"fdt_addr=0x64f00000\0"		\
 	"kernel_addr=0x65000000\0"	\
 	"scriptaddr=0x80000000\0"	\
@@ -357,7 +356,6 @@
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"bootargs=root=/dev/ram0 rw console=ttyS0,115200\0" \
 	"initrd_high=0xffffffff\0"      \
-	"fdt_high=0xffffffff\0"		\
 	"fdt_addr=0x64f00000\0"		\
 	"kernel_addr=0x61000000\0"	\
 	"kernelheader_addr=0x60800000\0"	\
@@ -441,6 +439,7 @@
 /*
  * Miscellaneous configurable options
  */
+#define CONFIG_SYS_BOOTMAPSZ		(256 << 20)
 
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		0x9fffffff
