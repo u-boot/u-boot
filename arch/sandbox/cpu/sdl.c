@@ -24,13 +24,28 @@ struct buf_info {
 	uint8_t *data;
 };
 
+/**
+ * struct sdl_info - Information about our use of the SDL library
+ *
+ * @screen: Surface used to draw on the screen
+ * @width: Width of simulated LCD display
+ * @height: Height of simulated LCD display
+ * @depth: Depth of the display in bits per pixel (16 or 32)
+ * @pitch: Number of bytes per line of the display
+ * @sample_rate: Current sample rate for audio
+ * @audio_active: true if audio can be used
+ * @inited: true if this module is initialised
+ * @cur_buf: Current audio buffer being used by sandbox_sdl_fill_audio (0 or 1)
+ * @buf: The two available audio buffers. SDL can be reading from one while we
+ *	are setting up the next
+ * @running: true if audio is running
+ */
 static struct sdl_info {
 	SDL_Surface *screen;
 	int width;
 	int height;
 	int depth;
 	int pitch;
-	uint frequency;
 	uint sample_rate;
 	bool audio_active;
 	bool inited;
