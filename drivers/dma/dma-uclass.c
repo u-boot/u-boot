@@ -122,10 +122,10 @@ int dma_free(struct dma *dma)
 
 	debug("%s(dma=%p)\n", __func__, dma);
 
-	if (!ops->free)
+	if (!ops->rfree)
 		return 0;
 
-	return ops->free(dma);
+	return ops->rfree(dma);
 }
 
 int dma_enable(struct dma *dma)
