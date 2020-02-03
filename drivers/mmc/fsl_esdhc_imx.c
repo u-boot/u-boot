@@ -19,6 +19,7 @@
 #include <hwconfig.h>
 #include <mmc.h>
 #include <part.h>
+#include <dm/device_compat.h>
 #include <linux/err.h>
 #include <power/regulator.h>
 #include <malloc.h>

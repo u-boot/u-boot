@@ -19,6 +19,7 @@
 #include <common.h>
 #include <dm.h>
 #include <irq.h>
+#include <malloc.h>
 #include <p2sb.h>
 #include <spl.h>
 #include <asm-generic/gpio.h>

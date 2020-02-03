@@ -10,6 +10,7 @@
 #include <command.h>
 #include <errno.h>
 #include <dm.h>
+#include <malloc.h>
 #include <asm/gpio.h>
 #include <linux/err.h>
 

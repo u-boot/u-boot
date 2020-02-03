@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <dt-structs.h>
 #include <errno.h>
+#include <malloc.h>
 #include <mapmem.h>
 #include <syscon.h>
 #include <bitfield.h>

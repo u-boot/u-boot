@@ -13,6 +13,7 @@
 #include <asm/io.h>
 #include <errno.h>
 #include <clk.h>
+#include <dm/device_compat.h>
 #include <linux/err.h>
 
 #define MSCC_SGPIOS_PER_BANK	32

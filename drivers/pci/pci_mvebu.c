@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <malloc.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dm/of_access.h>

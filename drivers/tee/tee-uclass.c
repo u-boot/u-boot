@@ -5,9 +5,10 @@
 
 #include <common.h>
 #include <dm.h>
+#include <malloc.h>
+#include <tee.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
-#include <tee.h>
 
 /**
  * struct tee_uclass_priv - information of a TEE, stored by the uclass

@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <malloc.h>
 #include <net.h>
 #include <spi.h>
 #include <spi_flash.h>

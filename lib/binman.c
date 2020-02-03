@@ -9,6 +9,7 @@
 #include <common.h>
 #include <binman.h>
 #include <dm.h>
+#include <malloc.h>
 
 struct binman_info {
 	ofnode image;

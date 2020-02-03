@@ -55,6 +55,7 @@
 
 #ifndef USE_HOSTCC
 #include <common.h>
+#include <malloc.h>
 #include <ubi_uboot.h>
 #include <dm/devres.h>
 

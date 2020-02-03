@@ -25,6 +25,7 @@
 #include <ext4fs.h>
 #include "ext4_common.h"
 #include <div64.h>
+#include <malloc.h>
 
 int ext4fs_symlinknest;
 struct ext_filesystem ext_fs;

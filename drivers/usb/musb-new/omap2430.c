@@ -12,6 +12,7 @@
 #include <dm.h>
 #include <serial.h>
 #include <dm/device-internal.h>
+#include <dm/device_compat.h>
 #include <dm/lists.h>
 #include <linux/err.h>
 #include <linux/usb/otg.h>

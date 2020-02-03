@@ -13,6 +13,7 @@
 #include <eeprom.h>
 #include <i2c.h>
 #include <rtc.h>
+#include <dm/device_compat.h>
 
 #define RTC_RV3029_PAGE_LEN             7
 

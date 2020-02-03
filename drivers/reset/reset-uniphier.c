@@ -6,7 +6,9 @@
 
 #include <common.h>
 #include <dm.h>
+#include <malloc.h>
 #include <reset-uclass.h>
+#include <dm/device_compat.h>
 #include <linux/bitops.h>
 #include <linux/io.h>
 #include <linux/sizes.h>

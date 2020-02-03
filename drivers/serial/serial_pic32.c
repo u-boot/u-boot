@@ -6,6 +6,7 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <malloc.h>
 #include <serial.h>
 #include <wait_bit.h>
 #include <mach/pic32.h>

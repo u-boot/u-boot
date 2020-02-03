@@ -6,6 +6,7 @@
  */
 #define DEBUG
 #include <common.h>
+#include <malloc.h>
 #include <video.h>
 #include <dm.h>
 #ifdef CONFIG_DISPLAY
@@ -16,6 +17,7 @@
 #include <os.h>
 #include <fdt_support.h>
 #include <clk.h>
+#include <dm/device_compat.h>
 #include <linux/sizes.h>
 
 #define MALIDP_CORE_ID		0x0018

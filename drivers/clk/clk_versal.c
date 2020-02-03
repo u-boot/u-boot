@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <dm/device_compat.h>
 #include <linux/bitops.h>
 #include <linux/bitfield.h>
 #include <malloc.h>

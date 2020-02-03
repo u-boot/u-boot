@@ -10,6 +10,7 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <malloc.h>
 #include <sdhci.h>
 #include <wait_bit.h>
 #include <asm/io.h>

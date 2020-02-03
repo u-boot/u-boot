@@ -15,6 +15,7 @@
 #include <asm/arch/sdram.h>
 #include <asm/arch/system_manager.h>
 #include <asm/io.h>
+#include <dm/device_compat.h>
 
 #include "sequencer.h"
 

@@ -9,6 +9,7 @@
 #include <common.h>
 #include <dm.h>
 #include <clk.h>
+#include <malloc.h>
 #include <asm/clk.h>
 #include <clk-uclass.h>
 #include <dm/devres.h>

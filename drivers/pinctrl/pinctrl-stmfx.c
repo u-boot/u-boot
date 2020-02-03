@@ -11,6 +11,7 @@
 #include <asm/gpio.h>
 #include <dm/device.h>
 #include <dm/device-internal.h>
+#include <dm/device_compat.h>
 #include <dm/lists.h>
 #include <dm/pinctrl.h>
 #include <linux/bitfield.h>

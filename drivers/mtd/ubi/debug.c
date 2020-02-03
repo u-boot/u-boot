@@ -6,6 +6,7 @@
  */
 
 #include <hexdump.h>
+#include <malloc.h>
 #include <ubi_uboot.h>
 #include "ubi.h"
 #ifndef __UBOOT__

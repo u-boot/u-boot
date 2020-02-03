@@ -14,6 +14,7 @@
 #include <common.h>
 #include <env.h>
 #include <gzip.h>
+#include <malloc.h>
 #include <memalign.h>
 #include "ubifs.h"
 #include <dm/devres.h>

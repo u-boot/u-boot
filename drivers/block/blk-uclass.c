@@ -7,6 +7,7 @@
 #include <common.h>
 #include <blk.h>
 #include <dm.h>
+#include <malloc.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dm/uclass-internal.h>

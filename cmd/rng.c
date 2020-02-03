@@ -8,6 +8,7 @@
 #include <command.h>
 #include <dm.h>
 #include <hexdump.h>
+#include <malloc.h>
 #include <rng.h>
 
 static int do_rng(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])

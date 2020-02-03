@@ -21,6 +21,7 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/cpu.h>
+#include <dm/device_compat.h>
 #include <linux/err.h>
 
 #define REG_ISCR			0x00

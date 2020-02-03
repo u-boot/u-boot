@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <malloc.h>
 
 #include <asm/gpio.h>
 #include <errno.h>

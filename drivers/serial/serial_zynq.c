@@ -12,6 +12,7 @@
 #include <fdtdec.h>
 #include <watchdog.h>
 #include <asm/io.h>
+#include <dm/device_compat.h>
 #include <linux/compiler.h>
 #include <serial.h>
 #include <linux/err.h>

@@ -8,6 +8,7 @@
 #include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <dm/device_compat.h>
 #include <linux/err.h>
 #include <linux/errno.h>
 #include <asm/io.h>

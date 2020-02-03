@@ -19,7 +19,9 @@
 #include <common.h>
 #include <config.h>
 #include <dm.h>
+#include <malloc.h>
 #include <dm/device-internal.h>
+#include <dm/device_compat.h>
 #include <dm/devres.h>
 #include <dm/lists.h>
 #include <dm/pinctrl.h>

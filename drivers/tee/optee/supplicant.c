@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <log.h>
+#include <malloc.h>
 #include <tee.h>
 #include <linux/types.h>
 

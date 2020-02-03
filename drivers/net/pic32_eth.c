@@ -7,6 +7,7 @@
 #include <cpu_func.h>
 #include <errno.h>
 #include <dm.h>
+#include <malloc.h>
 #include <net.h>
 #include <miiphy.h>
 #include <console.h>

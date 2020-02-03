@@ -8,10 +8,12 @@
 #include <clk.h>
 #include <dm.h>
 #include <i2c.h>
+#include <malloc.h>
 #include <pci.h>
 #include <reset.h>
 #include <asm/io.h>
 #include "designware_i2c.h"
+#include <dm/device_compat.h>
 #include <linux/err.h>
 
 #ifdef CONFIG_SYS_I2C_DW_ENABLE_STATUS_UNSUPPORTED

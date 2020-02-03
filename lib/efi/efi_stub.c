@@ -14,6 +14,7 @@
 #include <efi.h>
 #include <efi_api.h>
 #include <errno.h>
+#include <malloc.h>
 #include <ns16550.h>
 #include <asm/cpu.h>
 #include <asm/io.h>

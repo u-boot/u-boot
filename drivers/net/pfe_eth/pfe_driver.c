@@ -4,6 +4,7 @@
  * Copyright 2017 NXP
  */
 
+#include <malloc.h>
 #include <net/pfe_eth/pfe_eth.h>
 #include <net/pfe_eth/pfe_firmware.h>
 

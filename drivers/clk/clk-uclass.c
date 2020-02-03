@@ -12,6 +12,7 @@
 #include <dm.h>
 #include <dt-structs.h>
 #include <errno.h>
+#include <malloc.h>
 #include <dm/devres.h>
 #include <dm/read.h>
 #include <linux/clk-provider.h>

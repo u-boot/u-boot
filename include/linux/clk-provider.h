@@ -13,6 +13,7 @@
 #include <linux/bitops.h>
 #include <linux/err.h>
 #include <clk-uclass.h>
+#include <linux/err.h>
 
 static inline void clk_dm(ulong id, struct clk *clk)
 {

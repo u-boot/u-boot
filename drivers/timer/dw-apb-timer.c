@@ -8,8 +8,10 @@
 #include <common.h>
 #include <dm.h>
 #include <clk.h>
+#include <malloc.h>
 #include <reset.h>
 #include <timer.h>
+#include <dm/device_compat.h>
 
 #include <asm/io.h>
 #include <asm/arch/timer.h>

@@ -10,6 +10,7 @@
 #include <clk-uclass.h>
 #include <dm.h>
 #include <dm/device.h>
+#include <dm/device_compat.h>
 #include <dm/lists.h>
 #include <dt-bindings/phy/phy.h>
 #include <generic-phy.h>

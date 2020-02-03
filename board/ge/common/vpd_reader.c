@@ -4,6 +4,7 @@
  */
 
 #include "vpd_reader.h"
+#include <malloc.h>
 
 #include <i2c.h>
 #include <linux/bch.h>

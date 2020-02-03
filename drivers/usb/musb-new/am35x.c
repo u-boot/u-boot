@@ -12,6 +12,7 @@
  */
 
 #ifndef __UBOOT__
+#include <dm/device_compat.h>
 #include <dm/devres.h>
 #include <linux/init.h>
 #include <linux/module.h>

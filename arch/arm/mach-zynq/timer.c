@@ -32,6 +32,7 @@
 #include <div64.h>
 #include <dm.h>
 #include <time.h>
+#include <malloc.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/clk.h>

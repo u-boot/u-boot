@@ -10,6 +10,7 @@
  */
 
 #include <common.h>
+#include <malloc.h>
 #include <nand.h>
 #include <dm/devres.h>
 

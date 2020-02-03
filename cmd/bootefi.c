@@ -13,6 +13,7 @@
 #include <efi_selftest.h>
 #include <env.h>
 #include <errno.h>
+#include <malloc.h>
 #include <linux/libfdt.h>
 #include <linux/libfdt_env.h>
 #include <mapmem.h>

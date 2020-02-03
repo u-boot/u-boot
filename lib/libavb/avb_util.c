@@ -4,6 +4,7 @@
  */
 
 #include "avb_util.h"
+#include <malloc.h>
 
 #include <stdarg.h>
 

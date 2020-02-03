@@ -21,6 +21,7 @@
 
 #include <common.h>
 #include <div64.h>
+#include <malloc.h>
 
 #include <config.h>
 #include "nand.h"

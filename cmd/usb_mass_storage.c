@@ -11,6 +11,7 @@
 #include <command.h>
 #include <console.h>
 #include <g_dnl.h>
+#include <malloc.h>
 #include <part.h>
 #include <usb.h>
 #include <usb_mass_storage.h>

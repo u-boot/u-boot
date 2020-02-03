@@ -14,6 +14,7 @@
 #include <env.h>
 #include <errno.h>
 #include <image.h>
+#include <malloc.h>
 #include <linux/libfdt.h>
 #include <mapmem.h>
 #include <asm/io.h>

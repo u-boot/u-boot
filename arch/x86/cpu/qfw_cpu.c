@@ -6,6 +6,7 @@
 #include <common.h>
 #include <cpu.h>
 #include <dm.h>
+#include <malloc.h>
 #include <qfw.h>
 #include <dm/lists.h>
 #include <dm/uclass-internal.h>

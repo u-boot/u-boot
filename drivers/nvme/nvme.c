@@ -8,10 +8,12 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>
+#include <malloc.h>
 #include <memalign.h>
 #include <pci.h>
 #include <time.h>
 #include <dm/device-internal.h>
+#include <linux/compat.h>
 #include "nvme.h"
 
 #define NVME_Q_DEPTH		2

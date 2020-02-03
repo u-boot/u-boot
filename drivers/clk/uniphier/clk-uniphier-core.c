@@ -7,6 +7,7 @@
 #include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <linux/bitops.h>
 #include <linux/io.h>
 #include <linux/sizes.h>

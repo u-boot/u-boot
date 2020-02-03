@@ -15,6 +15,7 @@
 #include <asm/fsl_serdes.h>
 #include <asm/io.h>
 #include "pcie_fsl.h"
+#include <dm/device_compat.h>
 
 LIST_HEAD(fsl_pcie_list);
 

@@ -9,6 +9,7 @@
 #include <asm/io.h>
 #include <dm.h>
 #include <mailbox-uclass.h>
+#include <dm/device_compat.h>
 #include <mach/sys_proto.h>
 #include <linux/ioport.h>
 #include <linux/io.h>

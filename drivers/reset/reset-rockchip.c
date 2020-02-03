@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <malloc.h>
 #include <reset-uclass.h>
 #include <linux/io.h>
 #include <asm/arch-rockchip/hardware.h>

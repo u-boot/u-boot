@@ -7,6 +7,7 @@
  */
 
 #ifndef __UBOOT__
+#include <malloc.h>
 #include <linux/device.h>
 #include <linux/kernel.h>
 #endif

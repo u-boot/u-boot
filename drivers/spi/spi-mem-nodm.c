@@ -3,6 +3,7 @@
  * Copyright (C) 2018 Texas Instruments Incorporated - http://www.ti.com/
  */
 
+#include <malloc.h>
 #include <spi.h>
 #include <spi-mem.h>
 

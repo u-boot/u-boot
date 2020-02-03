@@ -18,6 +18,7 @@
 #include <spi.h>
 #include <fdtdec.h>
 #include <reset.h>
+#include <dm/device_compat.h>
 #include <linux/compat.h>
 #include <linux/iopoll.h>
 #include <asm/io.h>

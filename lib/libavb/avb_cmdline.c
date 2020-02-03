@@ -7,6 +7,7 @@
 #include "avb_sha.h"
 #include "avb_util.h"
 #include "avb_version.h"
+#include <malloc.h>
 
 #define NUM_GUIDS 3
 

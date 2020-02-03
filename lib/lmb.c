@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <lmb.h>
+#include <malloc.h>
 
 #define LMB_ALLOC_ANYWHERE	0
 

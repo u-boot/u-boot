@@ -13,6 +13,7 @@
 #include <errno.h>
 #include <clk-uclass.h>
 #include <i2c.h>
+#include <dm/device_compat.h>
 
 #define MAX_NUMBER_OF_PLLS		4
 #define MAX_NUMER_OF_OUTPUTS		9

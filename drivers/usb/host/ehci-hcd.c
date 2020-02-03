@@ -17,6 +17,7 @@
 #include <malloc.h>
 #include <memalign.h>
 #include <watchdog.h>
+#include <dm/device_compat.h>
 #include <linux/compiler.h>
 
 #include "ehci.h"

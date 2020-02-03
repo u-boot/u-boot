@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <linux/io.h>
 #include <linux/err.h>
 #include <linux/kernel.h>

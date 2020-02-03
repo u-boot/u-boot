@@ -6,8 +6,10 @@
 #include <common.h>
 #include <clk.h>
 #include <fdtdec.h>
+#include <malloc.h>
 #include <mmc.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <linux/compat.h>
 #include <linux/dma-direction.h>
 #include <linux/io.h>

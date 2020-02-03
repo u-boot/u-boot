@@ -7,6 +7,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <malloc.h>
 #include <reset-uclass.h>
 #include <asm/io.h>
 #include <dm/lists.h>

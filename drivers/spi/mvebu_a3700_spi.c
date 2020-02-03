@@ -12,6 +12,7 @@
 #include <clk.h>
 #include <wait_bit.h>
 #include <asm/io.h>
+#include <dm/device_compat.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

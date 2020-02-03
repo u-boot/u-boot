@@ -19,12 +19,14 @@
 #include <clk.h>
 #include <dm.h>
 #include <generic-phy.h>
+#include <malloc.h>
 #include <phy-sun4i-usb.h>
 #include <reset.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/gpio.h>
 #include <asm-generic/gpio.h>
+#include <dm/device_compat.h>
 #include <dm/lists.h>
 #include <dm/root.h>
 #include <linux/usb/musb.h>

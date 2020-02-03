@@ -15,6 +15,7 @@
 #include <i2c.h>
 #include <wait_bit.h>
 #include <asm/io.h>
+#include <dm/device_compat.h>
 
 struct xilinx_xiic_priv {
 	void __iomem		*base;

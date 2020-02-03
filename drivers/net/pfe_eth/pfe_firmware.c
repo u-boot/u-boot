@@ -10,6 +10,7 @@
  * files.
  */
 
+#include <malloc.h>
 #include <net/pfe_eth/pfe_eth.h>
 #include <net/pfe_eth/pfe_firmware.h>
 #ifdef CONFIG_CHAIN_OF_TRUST

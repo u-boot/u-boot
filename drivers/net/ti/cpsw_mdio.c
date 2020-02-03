@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <malloc.h>
 #include <asm/io.h>
 #include <miiphy.h>
 #include <wait_bit.h>

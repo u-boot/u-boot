@@ -14,6 +14,7 @@
 #include <reset.h>
 #include <syscon.h>
 #include "designware.h"
+#include <dm/device_compat.h>
 #include <linux/err.h>
 
 #include <asm/arch/system_manager.h>

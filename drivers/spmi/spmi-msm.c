@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <fdtdec.h>
 #include <asm/io.h>
+#include <dm/device_compat.h>
 #include <spmi/spmi.h>
 
 DECLARE_GLOBAL_DATA_PTR;

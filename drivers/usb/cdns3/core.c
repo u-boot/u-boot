@@ -14,6 +14,7 @@
 #include <common.h>
 #include <dm.h>
 #include <dm/device-internal.h>
+#include <dm/device_compat.h>
 #include <dm/devres.h>
 #include <dm/lists.h>
 #include <linux/kernel.h>

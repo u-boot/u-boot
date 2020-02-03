@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <lmb.h>
+#include <malloc.h>
 #include <dm/test.h>
 #include <test/ut.h>
 

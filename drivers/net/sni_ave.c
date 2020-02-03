@@ -8,14 +8,16 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <fdt_support.h>
-#include <linux/err.h>
-#include <linux/io.h>
-#include <linux/iopoll.h>
+#include <malloc.h>
 #include <miiphy.h>
 #include <net.h>
 #include <regmap.h>
 #include <reset.h>
 #include <syscon.h>
+#include <dm/device_compat.h>
+#include <linux/err.h>
+#include <linux/io.h>
+#include <linux/iopoll.h>
 
 #define AVE_GRST_DELAY_MSEC	40
 #define AVE_MIN_XMITSIZE	60

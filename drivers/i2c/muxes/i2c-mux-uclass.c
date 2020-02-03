@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <i2c.h>
+#include <malloc.h>
 #include <dm/lists.h>
 #include <dm/root.h>
 

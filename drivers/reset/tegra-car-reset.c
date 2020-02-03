@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <malloc.h>
 #include <reset-uclass.h>
 #include <asm/arch/clock.h>
 #include <asm/arch-tegra/clk_rst.h>

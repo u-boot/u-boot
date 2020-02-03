@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <malloc.h>
 #include <linux/errno.h>
 #include <asm/io.h>
 #include <asm/arch/iomux.h>

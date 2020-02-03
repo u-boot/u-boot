@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <regmap.h>
 #include <dm/device-internal.h>
+#include <dm/device_compat.h>
 #include <dm/lists.h>
 #include <dm/root.h>
 #include <linux/err.h>

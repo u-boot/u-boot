@@ -6,6 +6,7 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <malloc.h>
 #include <asm/clk.h>
 #include <dm/test.h>
 #include <dm/device-internal.h>

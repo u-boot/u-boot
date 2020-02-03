@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <errno.h>
+#include <malloc.h>
 #include <asm/io.h>
 #include <mmc.h>
 #include <spi_flash.h>

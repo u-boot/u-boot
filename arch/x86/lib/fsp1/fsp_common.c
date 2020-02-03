@@ -7,6 +7,7 @@
 #include <acpi_s3.h>
 #include <dm.h>
 #include <errno.h>
+#include <malloc.h>
 #include <rtc.h>
 #include <asm/cmos_layout.h>
 #include <asm/early_cmos.h>

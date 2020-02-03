@@ -17,6 +17,7 @@
 #include <env.h>
 #include <gzip.h>
 #include <image.h>
+#include <malloc.h>
 #include <mapmem.h>
 #include <watchdog.h>
 #if defined(CONFIG_BZIP2)

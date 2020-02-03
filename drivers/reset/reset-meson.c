@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <malloc.h>
 #include <reset-uclass.h>
 #include <regmap.h>
 

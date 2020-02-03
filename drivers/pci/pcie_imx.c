@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <init.h>
+#include <malloc.h>
 #include <pci.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/iomux.h>

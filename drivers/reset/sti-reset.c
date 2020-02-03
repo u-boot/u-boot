@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <errno.h>
+#include <malloc.h>
 #include <wait_bit.h>
 #include <dm.h>
 #include <reset-uclass.h>

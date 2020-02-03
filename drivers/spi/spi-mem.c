@@ -12,6 +12,7 @@
 #include <linux/pm_runtime.h>
 #include "internals.h"
 #else
+#include <dm/device_compat.h>
 #include <spi.h>
 #include <spi-mem.h>
 #endif

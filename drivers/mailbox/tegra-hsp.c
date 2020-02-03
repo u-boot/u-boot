@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <malloc.h>
 #include <asm/io.h>
 #include <dm.h>
 #include <mailbox-uclass.h>

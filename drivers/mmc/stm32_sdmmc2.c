@@ -9,6 +9,7 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <malloc.h>
 #include <linux/libfdt.h>
 #include <mmc.h>
 #include <reset.h>

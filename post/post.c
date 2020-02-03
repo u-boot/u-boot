@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <env.h>
+#include <malloc.h>
 #include <stdio_dev.h>
 #include <time.h>
 #include <watchdog.h>

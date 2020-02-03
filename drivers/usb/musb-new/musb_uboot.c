@@ -1,5 +1,6 @@
 #include <common.h>
 #include <console.h>
+#include <malloc.h>
 #include <watchdog.h>
 #include <linux/err.h>
 #include <linux/errno.h>

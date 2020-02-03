@@ -11,7 +11,9 @@
 #include <dm.h>
 #include <errno.h>
 #include <mailbox.h>
+#include <malloc.h>
 #include <dm/device.h>
+#include <dm/device_compat.h>
 #include <dm/devres.h>
 #include <linux/compat.h>
 #include <linux/err.h>

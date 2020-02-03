@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <fdtdec.h>
 #include <timer.h>
+#include <dm/device_compat.h>
 
 #include <asm/io.h>
 

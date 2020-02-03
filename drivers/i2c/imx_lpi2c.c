@@ -13,6 +13,7 @@
 #include <dm.h>
 #include <fdtdec.h>
 #include <i2c.h>
+#include <dm/device_compat.h>
 
 #define LPI2C_FIFO_SIZE 4
 #define LPI2C_NACK_TOUT_MS 1

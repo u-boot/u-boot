@@ -12,6 +12,8 @@
 #include <dm.h>
 #include <errno.h>
 #include <clk-uclass.h>
+#include <malloc.h>
+#include <dm/device_compat.h>
 #include <linux/err.h>
 #include <linux/soc/ti/ti_sci_protocol.h>
 #include <k3-avs.h>

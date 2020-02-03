@@ -1,9 +1,11 @@
 #include <common.h>
 #include <dm.h>
 #include <hwspinlock.h>
+#include <malloc.h>
 #include <asm/arch/gpio.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <dm/device_compat.h>
 #include <dm/lists.h>
 #include <dm/pinctrl.h>
 #include <linux/err.h>

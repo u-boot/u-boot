@@ -29,6 +29,7 @@
 #include <pci.h>
 #include <asm/io.h>
 #include <asm-generic/gpio.h>
+#include <dm/device_compat.h>
 #include <linux/ioport.h>
 
 /* PCIe core registers */

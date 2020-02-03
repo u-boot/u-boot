@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <malloc.h>
 #include <spi.h>
 #include <spi_flash.h>
 #include <dm/device-internal.h>

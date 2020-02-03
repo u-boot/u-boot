@@ -9,6 +9,7 @@
 #include <asm-generic/io.h>
 #include <clk.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <linux/io.h>
 #include <linux/usb/otg.h>
 #include <malloc.h>

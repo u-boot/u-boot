@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <malloc.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
 

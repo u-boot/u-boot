@@ -23,6 +23,7 @@
 
 #include <common.h>
 #include <malloc.h>
+#include <dm/device_compat.h>
 
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/rawnand.h>

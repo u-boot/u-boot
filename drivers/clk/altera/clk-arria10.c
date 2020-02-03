@@ -4,9 +4,11 @@
  */
 
 #include <common.h>
+#include <malloc.h>
 #include <asm/io.h>
 #include <clk-uclass.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <dm/devres.h>
 #include <dm/lists.h>
 #include <dm/util.h>

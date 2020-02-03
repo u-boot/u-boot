@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <malloc.h>
 #include <dm/read.h>
 #include <dma-uclass.h>
 #include <dt-structs.h>

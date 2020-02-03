@@ -8,11 +8,13 @@
 
 #include <common.h>
 #include <dm.h>
+#include <malloc.h>
 #include <remoteproc.h>
 #include <errno.h>
 #include <clk.h>
 #include <reset.h>
 #include <asm/io.h>
+#include <dm/device_compat.h>
 #include <linux/err.h>
 #include <linux/kernel.h>
 #include <linux/soc/ti/ti_sci_protocol.h>

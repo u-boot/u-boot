@@ -18,6 +18,7 @@
 #include <malloc.h>
 #include <dwc3-uboot.h>
 #include <asm/dma-mapping.h>
+#include <dm/device_compat.h>
 #include <dm/devres.h>
 #include <linux/err.h>
 #include <linux/ioport.h>

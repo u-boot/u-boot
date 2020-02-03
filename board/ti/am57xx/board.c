@@ -11,6 +11,7 @@
 #include <env.h>
 #include <fdt_support.h>
 #include <init.h>
+#include <malloc.h>
 #include <palmas.h>
 #include <sata.h>
 #include <serial.h>

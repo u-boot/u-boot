@@ -8,6 +8,7 @@
 #include <env_internal.h>
 #include <init.h>
 #include <led.h>
+#include <malloc.h>
 #include <net.h>
 #include <spi.h>
 #include <spi_flash.h>

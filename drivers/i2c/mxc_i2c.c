@@ -16,6 +16,7 @@
 #include <common.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
+#include <dm/device_compat.h>
 #include <linux/errno.h>
 #include <asm/mach-imx/mxc_i2c.h>
 #include <asm/io.h>

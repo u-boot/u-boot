@@ -8,6 +8,7 @@
 #include <fs.h>
 #include <part.h>
 #include <sandboxblockdev.h>
+#include <dm/device_compat.h>
 #include <linux/errno.h>
 
 static int host_curr_device = -1;

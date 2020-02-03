@@ -9,8 +9,10 @@
 #include <clk.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <malloc.h>
 #include <usb.h>
 #include <wait_bit.h>
+#include <dm/device_compat.h>
 
 #include <usb/xhci.h>
 #include "xhci-rcar-r8a779x_usb3_v3.h"

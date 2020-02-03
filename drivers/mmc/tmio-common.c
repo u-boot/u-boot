@@ -11,6 +11,7 @@
 #include <fdtdec.h>
 #include <mmc.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <dm/pinctrl.h>
 #include <linux/compat.h>
 #include <linux/dma-direction.h>

@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <malloc.h>
 #include <misc.h>
 #include <power-domain-uclass.h>
 #include <asm/arch-tegra/bpmp_abi.h>

@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <malloc.h>
 #include <power-domain-uclass.h>
 #include <regmap.h>
 #include <syscon.h>

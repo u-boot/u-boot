@@ -6,6 +6,8 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <malloc.h>
+#include <dm/device_compat.h>
 #include <dm/pinctrl.h>
 #include <errno.h>
 #include <asm/gpio.h>

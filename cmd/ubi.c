@@ -15,6 +15,7 @@
 #include <command.h>
 #include <env.h>
 #include <exports.h>
+#include <malloc.h>
 #include <memalign.h>
 #include <mtd.h>
 #include <nand.h>

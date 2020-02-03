@@ -9,6 +9,7 @@
 #include <clk-uclass.h>
 #include <dm.h>
 #include <errno.h>
+#include <malloc.h>
 #include <syscon.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/clock.h>

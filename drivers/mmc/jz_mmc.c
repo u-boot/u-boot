@@ -12,6 +12,7 @@
 #include <asm/io.h>
 #include <asm/unaligned.h>
 #include <errno.h>
+#include <dm/device_compat.h>
 #include <mach/jz4780.h>
 #include <wait_bit.h>
 

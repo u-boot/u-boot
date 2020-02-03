@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <dm.h>
 #include <i2c.h>
+#include <malloc.h>
 #include <power/pmic.h>
 #include <power/sandbox_pmic.h>
 

@@ -7,6 +7,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <hwspinlock.h>
+#include <malloc.h>
 #include <asm/io.h>
 
 #define STM32_MUTEX_COREID	BIT(8)

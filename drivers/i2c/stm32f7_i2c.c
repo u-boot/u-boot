@@ -7,6 +7,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <i2c.h>
+#include <malloc.h>
 #include <reset.h>
 
 #include <dm/device.h>

@@ -6,6 +6,8 @@
  */
 
 #include <common.h>
+#include <malloc.h>
+#include <dm/device_compat.h>
 #include <linux/bitops.h>
 #include <clk-uclass.h>
 #include <clk.h>
