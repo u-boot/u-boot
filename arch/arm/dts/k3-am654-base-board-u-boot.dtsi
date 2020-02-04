@@ -43,6 +43,7 @@
 		#address-cells = <2>;
 		#size-cells = <2>;
 		ranges;
+		u-boot,dm-spl;
 
 		ti,sci-dev-id = <119>;
 
@@ -59,6 +60,7 @@
 			ti,dma-ring-reset-quirk;
 			ti,sci = <&dmsc>;
 			ti,sci-dev-id = <195>;
+			u-boot,dm-spl;
 		};
 
 		mcu_udmap: udmap@285c0000 {
@@ -81,6 +83,7 @@
 						<0x4>; /* RX_CHAN */
 			ti,sci-rm-range-rflow = <0x5>; /* GP RFLOW */
 			dma-coherent;
+			u-boot,dm-spl;
 		};
 	};
 
@@ -305,6 +308,10 @@
 			AM65X_WKUP_IOPAD(0x0088, PIN_INPUT, 0) /* (L4) MCU_MDIO0_MDIO */
 		>;
 	};
+
+	mcu-fss0-ospi0-pins-default {
+		u-boot,dm-spl;
+	};
 };
 
 &main_uart0 {
@@ -364,4 +371,16 @@
 
 &usb1 {
 	dr_mode = "peripheral";
+};
+
+&fss {
+	u-boot,dm-spl;
+};
+
+&ospi0 {
+	u-boot,dm-spl;
+
+	 flash@0{
+		u-boot,dm-spl;
+	};
 };
