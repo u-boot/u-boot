@@ -11,6 +11,7 @@
 #include <malloc.h>
 #include <spi.h>
 #include <time.h>
+#include <clk.h>
 #include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -78,17 +79,10 @@ static int zynq_spi_ofdata_to_platdata(struct udevice *bus)
 
 	plat->regs = (struct zynq_spi_regs *)devfdt_get_addr(bus);
 
-	/* FIXME: Use 250MHz as a suitable default */
-	plat->frequency = fdtdec_get_int(blob, node, "spi-max-frequency",
-					250000000);
 	plat->deactivate_delay_us = fdtdec_get_int(blob, node,
 					"spi-deactivate-delay", 0);
 	plat->activate_delay_us = fdtdec_get_int(blob, node,
 						 "spi-activate-delay", 0);
-	plat->speed_hz = plat->frequency / 2;
-
-	debug("%s: regs=%p max-frequency=%d\n", __func__,
-	      plat->regs, plat->frequency);
 
 	return 0;
 }
@@ -127,12 +121,38 @@ static int zynq_spi_probe(struct udevice *bus)
 {
 	struct zynq_spi_platdata *plat = dev_get_platdata(bus);
 	struct zynq_spi_priv *priv = dev_get_priv(bus);
+	struct clk clk;
+	unsigned long clock;
+	int ret;
 
 	priv->regs = plat->regs;
 	priv->fifo_depth = ZYNQ_SPI_FIFO_DEPTH;
 
+	ret = clk_get_by_name(bus, "ref_clk", &clk);
+	if (ret < 0) {
+		dev_err(dev, "failed to get clock\n");
+		return ret;
+	}
+
+	clock = clk_get_rate(&clk);
+	if (IS_ERR_VALUE(clock)) {
+		dev_err(dev, "failed to get rate\n");
+		return clock;
+	}
+
+	ret = clk_enable(&clk);
+	if (ret && ret != -ENOSYS) {
+		dev_err(dev, "failed to enable clock\n");
+		return ret;
+	}
+
 	/* init the zynq spi hw */
 	zynq_spi_init_hw(priv);
+
+	plat->frequency = clock;
+	plat->speed_hz = plat->frequency / 2;
+
+	debug("%s: max-frequency=%d\n", __func__, plat->speed_hz);
 
 	return 0;
 }
