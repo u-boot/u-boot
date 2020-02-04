@@ -126,6 +126,14 @@ config K3_SYSFW_IMAGE_SIZE_MAX
 	  tree blob. Keep it as tight as possible, as this directly affects the
 	  overall SPL memory footprint.
 
+config K3_SYSFW_IMAGE_SPI_OFFS
+	hex "SPI offset of SYSFW firmware and configuration blob"
+	depends on K3_LOAD_SYSFW
+	default	0x6C0000
+	help
+	  Offset of the combined System Firmware and configuration image tree
+	  blob to be loaded when booting from a SPI flash memory.
+
 config SYS_K3_SPL_ATF
 	bool "Start Cortex-A from SPL"
 	depends on SPL && CPU_V7R

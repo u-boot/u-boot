@@ -14,6 +14,8 @@
 #include <g_dnl.h>
 #include <usb.h>
 #include <dfu.h>
+#include <dm/uclass-internal.h>
+#include <spi_flash.h>
 
 #include <asm/arch/sys_proto.h>
 #include "common.h"
@@ -197,12 +199,32 @@ exit:
 }
 #endif
 
+#if CONFIG_IS_ENABLED(SPI_LOAD)
+static void *k3_sysfw_get_spi_addr(void)
+{
+	struct udevice *dev;
+	fdt_addr_t addr;
+	int ret;
+
+	ret = uclass_find_device_by_seq(UCLASS_SPI, CONFIG_SF_DEFAULT_BUS,
+					true, &dev);
+	if (ret)
+		return NULL;
+
+	addr = dev_read_addr_index(dev, 1);
+	if (addr == FDT_ADDR_T_NONE)
+		return NULL;
+
+	return (void *)(addr + CONFIG_K3_SYSFW_IMAGE_SPI_OFFS);
+}
+#endif
+
 void k3_sysfw_loader(void (*config_pm_done_callback)(void))
 {
 	struct spl_image_info spl_image = { 0 };
 	struct spl_boot_device bootdev = { 0 };
 	struct ti_sci_handle *ti_sci;
-	int ret;
+	int ret = 0;
 
 	/* Reserve a block of aligned memory for loading the SYSFW image */
 	sysfw_load_address = memalign(ARCH_DMA_MINALIGN,
@@ -241,6 +263,13 @@ void k3_sysfw_loader(void (*config_pm_done_callback)(void))
 #else
 				   0);
 #endif
+		break;
+#endif
+#if CONFIG_IS_ENABLED(SPI_LOAD)
+	case BOOT_DEVICE_SPI:
+		sysfw_load_address = k3_sysfw_get_spi_addr();
+		if (!sysfw_load_address)
+			ret = -ENODEV;
 		break;
 #endif
 #if CONFIG_IS_ENABLED(YMODEM_SUPPORT)
