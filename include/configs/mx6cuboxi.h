@@ -66,7 +66,6 @@
 	"ramdisk_addr_r=0x13000000\0" \
 	"ramdiskaddr=0x13000000\0" \
 	"initrd_high=0xffffffff\0" \
-	"fdt_high=0xffffffff\0" \
 	"ip_dyn=yes\0" \
 	"console=" CONSOLE_DEV ",115200\0" \
 	"bootm_size=0x10000000\0" \
