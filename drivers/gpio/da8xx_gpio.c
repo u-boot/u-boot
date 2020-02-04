@@ -434,7 +434,7 @@ int gpio_set_value(unsigned int gpio, int value)
 static struct davinci_gpio *davinci_get_gpio_bank(struct udevice *dev, unsigned int offset)
 {
 	struct davinci_gpio_bank *bank = dev_get_priv(dev);
-	unsigned int addr;
+	unsigned long addr;
 
 	/*
 	 * The device tree is not broken into banks but the infrastructure is
@@ -535,6 +535,7 @@ static int davinci_gpio_probe(struct udevice *dev)
 static const struct udevice_id davinci_gpio_ids[] = {
 	{ .compatible = "ti,dm6441-gpio" },
 	{ .compatible = "ti,k2g-gpio" },
+	{ .compatible = "ti,keystone-gpio" },
 	{ }
 };
 

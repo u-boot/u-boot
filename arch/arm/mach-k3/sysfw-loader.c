@@ -11,6 +11,10 @@
 #include <malloc.h>
 #include <remoteproc.h>
 #include <linux/soc/ti/ti_sci_protocol.h>
+#include <g_dnl.h>
+#include <usb.h>
+#include <dfu.h>
+
 #include <asm/arch/sys_proto.h>
 #include "common.h"
 
@@ -172,6 +176,27 @@ static void k3_sysfw_configure_using_fit(void *fit,
 		      ret);
 }
 
+#if CONFIG_IS_ENABLED(DFU)
+static int k3_sysfw_dfu_download(void *addr)
+{
+	char dfu_str[50];
+	int ret;
+
+	sprintf(dfu_str, "sysfw.itb ram 0x%p 0x%x", addr,
+		CONFIG_K3_SYSFW_IMAGE_SIZE_MAX);
+	ret = dfu_config_entities(dfu_str, "ram", "0");
+	if (ret) {
+		dfu_free_entities();
+		goto exit;
+	}
+
+	run_usb_dnl_gadget(0, "usb_dnl_dfu");
+exit:
+	dfu_free_entities();
+	return ret;
+}
+#endif
+
 void k3_sysfw_loader(void (*config_pm_done_callback)(void))
 {
 	struct spl_image_info spl_image = { 0 };
@@ -234,6 +259,11 @@ void k3_sysfw_loader(void (*config_pm_done_callback)(void))
 			early_console_init();
 #endif
 		ret = spl_ymodem_load_image(&spl_image, &bootdev);
+		break;
+#endif
+#if CONFIG_IS_ENABLED(DFU)
+	case BOOT_DEVICE_DFU:
+		ret = k3_sysfw_dfu_download(sysfw_load_address);
 		break;
 #endif
 	default:

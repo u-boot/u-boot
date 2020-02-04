@@ -108,7 +108,7 @@ endif
 
 obj-y += image.o
 obj-$(CONFIG_ANDROID_AB) += android_ab.o
-obj-$(CONFIG_ANDROID_BOOT_IMAGE) += image-android.o
+obj-$(CONFIG_ANDROID_BOOT_IMAGE) += image-android.o image-android-dt.o
 obj-$(CONFIG_$(SPL_TPL_)OF_LIBFDT) += image-fdt.o
 obj-$(CONFIG_$(SPL_TPL_)FIT) += image-fit.o
 obj-$(CONFIG_$(SPL_)MULTI_DTB_FIT) += boot_fit.o common_fit.o

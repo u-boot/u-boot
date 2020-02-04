@@ -1,11 +1,12 @@
-FastBoot  Version  0.4
-----------------------
+.. SPDX-License-Identifier: GPL-2.0+
+
+FastBoot Version 0.4
+====================
 
 The fastboot protocol is a mechanism for communicating with bootloaders
 over USB.  It is designed to be very straightforward to implement, to
 allow it to be used across a wide range of devices and from hosts running
 Linux, Windows, or OSX.
-
 
 Basic Requirements
 ------------------
@@ -66,31 +67,33 @@ Transport and Framing
 Example Session
 ---------------
 
-Host:    "getvar:version"        request version variable
+.. code-block:: none
 
-Client:  "OKAY0.4"               return version "0.4"
+    Host:    "getvar:version"        request version variable
 
-Host:    "getvar:nonexistant"    request some undefined variable
+    Client:  "OKAY0.4"               return version "0.4"
 
-Client:  "OKAY"                  return value ""
+    Host:    "getvar:nonexistant"    request some undefined variable
 
-Host:    "download:00001234"     request to send 0x1234 bytes of data
+    Client:  "OKAY"                  return value ""
 
-Client:  "DATA00001234"          ready to accept data
+    Host:    "download:00001234"     request to send 0x1234 bytes of data
 
-Host:    < 0x1234 bytes >        send data
+    Client:  "DATA00001234"          ready to accept data
 
-Client:  "OKAY"                  success
+    Host:    < 0x1234 bytes >        send data
 
-Host:    "flash:bootloader"      request to flash the data to the bootloader
+    Client:  "OKAY"                  success
 
-Client:  "INFOerasing flash"     indicate status / progress
-         "INFOwriting flash"
-         "OKAY"                  indicate success
+    Host:    "flash:bootloader"      request to flash the data to the bootloader
 
-Host:    "powerdown"             send a command
+    Client:  "INFOerasing flash"     indicate status / progress
+             "INFOwriting flash"
+             "OKAY"                  indicate success
 
-Client:  "FAILunknown command"   indicate failure
+    Host:    "powerdown"             send a command
+
+    Client:  "FAILunknown command"   indicate failure
 
 
 Command Reference
@@ -104,6 +107,8 @@ Command Reference
 * Commands that begin with a lowercase letter are reserved for this
   specification.  OEM-specific commands should not begin with a
   lowercase letter, to prevent incompatibilities with future specs.
+
+.. code-block:: none
 
  "getvar:%s"           Read a config/version variable from the bootloader.
                        The variable contents will be returned after the
@@ -139,16 +144,14 @@ Command Reference
 
   "powerdown"          Power off the device.
 
-
-
 Client Variables
 ----------------
 
-The "getvar:%s" command is used to read client variables which
+The ``getvar:%s`` command is used to read client variables which
 represent various information about the device and the software
 on it.
 
-The various currently defined names are:
+The various currently defined names are::
 
   version             Version of FastBoot protocol supported.
                       It should be "0.3" for this document.

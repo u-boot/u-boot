@@ -30,6 +30,16 @@
 		serial9 = &main_uart7;
 		serial10 = &main_uart8;
 		serial11 = &main_uart9;
+		i2c0 = &wkup_i2c0;
+		i2c1 = &mcu_i2c0;
+		i2c2 = &mcu_i2c1;
+		i2c3 = &main_i2c0;
+		i2c4 = &main_i2c1;
+		i2c5 = &main_i2c2;
+		i2c6 = &main_i2c3;
+		i2c7 = &main_i2c4;
+		i2c8 = &main_i2c5;
+		i2c9 = &main_i2c6;
 	};
 
 	chosen { };

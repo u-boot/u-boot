@@ -386,6 +386,16 @@ config CMD_ADTIMG
 	  files should be merged in one dtb further, which needs to be passed to
 	  the kernel, as part of a boot process.
 
+config CMD_ABOOTIMG
+	bool "abootimg"
+	depends on ANDROID_BOOT_IMAGE
+	help
+	  Android Boot Image manipulation commands. Allows one to extract
+	  images contained in boot.img, like kernel, ramdisk, dtb, etc, and
+	  obtain corresponding meta-information from boot.img.
+
+	  See doc/android/boot-image.rst for details.
+
 config CMD_ELF
 	bool "bootelf, bootvx"
 	default y
@@ -870,7 +880,7 @@ config CMD_FASTBOOT
 	  Android devices. Fastboot requires either the network stack
 	  enabled or support for acting as a USB device.
 
-	  See doc/android/fastboot.txt for more information.
+	  See doc/android/fastboot.rst for more information.
 
 config CMD_FLASH
 	bool "flinfo, erase, protect"
