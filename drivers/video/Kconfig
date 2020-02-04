@@ -38,6 +38,7 @@ config BACKLIGHT_GPIO
 config VIDEO_BPP8
 	bool "Support 8-bit-per-pixel displays"
 	depends on DM_VIDEO
+	default y
 	help
 	  Support drawing text and bitmaps onto a 8-bit-per-pixel display.
 	  Enabling this will include code to support this display. Without
@@ -47,6 +48,7 @@ config VIDEO_BPP8
 config VIDEO_BPP16
 	bool "Support 16-bit-per-pixel displays"
 	depends on DM_VIDEO
+	default y
 	help
 	  Support drawing text and bitmaps onto a 16-bit-per-pixel display.
 	  Enabling this will include code to support this display. Without
@@ -56,7 +58,7 @@ config VIDEO_BPP16
 config VIDEO_BPP32
 	bool "Support 32-bit-per-pixel displays"
 	depends on DM_VIDEO
-	default y if X86
+	default y
 	help
 	  Support drawing text and bitmaps onto a 32-bit-per-pixel display.
 	  Enabling this will include code to support this display. Without
@@ -66,6 +68,7 @@ config VIDEO_BPP32
 config VIDEO_ANSI
 	bool "Support ANSI escape sequences in video console"
 	depends on DM_VIDEO
+	default y
 	help
 	  Enable ANSI escape sequence decoding for a more fully functional
 	  console.
