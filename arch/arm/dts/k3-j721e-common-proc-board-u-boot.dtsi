@@ -349,3 +349,19 @@
 &exp2 {
 	u-boot,dm-spl;
 };
+
+&mcu_fss0_ospi0_pins_default {
+	u-boot,dm-spl;
+};
+
+&fss {
+	u-boot,dm-spl;
+};
+
+&ospi0 {
+	u-boot,dm-spl;
+
+	flash@0 {
+		u-boot,dm-spl;
+	};
+};
