@@ -6,8 +6,10 @@
  * Xilinx Zynq Quad-SPI(QSPI) controller driver (master mode only)
  */
 
+#include <clk.h>
 #include <common.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <log.h>
 #include <malloc.h>
 #include <spi.h>
@@ -105,14 +107,6 @@ static int zynq_qspi_ofdata_to_platdata(struct udevice *bus)
 	plat->regs = (struct zynq_qspi_regs *)fdtdec_get_addr(blob,
 							      node, "reg");
 
-	/* FIXME: Use 166MHz as a suitable default */
-	plat->frequency = fdtdec_get_int(blob, node, "spi-max-frequency",
-					166666666);
-	plat->speed_hz = plat->frequency / 2;
-
-	debug("%s: regs=%p max-frequency=%d\n", __func__,
-	      plat->regs, plat->frequency);
-
 	return 0;
 }
 
@@ -159,12 +153,38 @@ static int zynq_qspi_probe(struct udevice *bus)
 {
 	struct zynq_qspi_platdata *plat = dev_get_platdata(bus);
 	struct zynq_qspi_priv *priv = dev_get_priv(bus);
+	struct clk clk;
+	unsigned long clock;
+	int ret;
 
 	priv->regs = plat->regs;
 	priv->fifo_depth = ZYNQ_QSPI_FIFO_DEPTH;
 
+	ret = clk_get_by_name(bus, "ref_clk", &clk);
+	if (ret < 0) {
+		dev_err(bus, "failed to get clock\n");
+		return ret;
+	}
+
+	clock = clk_get_rate(&clk);
+	if (IS_ERR_VALUE(clock)) {
+		dev_err(bus, "failed to get rate\n");
+		return clock;
+	}
+
+	ret = clk_enable(&clk);
+	if (ret && ret != -ENOSYS) {
+		dev_err(bus, "failed to enable clock\n");
+		return ret;
+	}
+
 	/* init the zynq spi hw */
 	zynq_qspi_init_hw(priv);
+
+	plat->frequency = clock;
+	plat->speed_hz = plat->frequency / 2;
+
+	debug("%s: max-frequency=%d\n", __func__, plat->speed_hz);
 
 	return 0;
 }
