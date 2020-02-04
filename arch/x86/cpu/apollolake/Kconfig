@@ -39,6 +39,7 @@ config INTEL_APOLLOLAKE
 	imply HAVE_X86_FIT
 	imply INTEL_GPIO
 	imply SMP
+	imply HAVE_ITSS
 
 if INTEL_APOLLOLAKE
 

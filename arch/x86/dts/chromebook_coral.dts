@@ -171,7 +171,7 @@
 
 			itss {
 				u-boot,dm-pre-reloc;
-				compatible = "intel,apl-itss";
+				compatible = "intel,itss";
 				intel,p2sb-port-id = <PID_ITSS>;
 				intel,pmc-routes = <
 					PMC_GPE_SW_31_0 GPIO_GPE_SW_31_0

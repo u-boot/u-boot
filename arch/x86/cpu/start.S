@@ -50,7 +50,7 @@ _x86boot_start:
 	movl	%cr0, %eax
 	orl	$(X86_CR0_NW | X86_CR0_CD), %eax
 	movl	%eax, %cr0
-	wbinvd
+	invd
 
 	/*
 	 * Zero the BIST (Built-In Self Test) value since we don't have it.

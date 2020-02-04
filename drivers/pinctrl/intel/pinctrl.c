@@ -25,7 +25,7 @@
 #include <asm/intel_pinctrl.h>
 #include <asm/intel_pinctrl_defs.h>
 #include <asm/arch/gpio.h>
-#include <asm/arch/itss.h>
+#include <asm/itss.h>
 #include <dm/device-internal.h>
 #include <dt-bindings/gpio/gpio.h>
 

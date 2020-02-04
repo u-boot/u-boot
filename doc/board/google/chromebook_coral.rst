@@ -112,7 +112,7 @@ U-Boot then shuts down CAR and jumps to its relocated version.
 
 
 Boot flow - U-Boot post-relocation
----------------------------------
+----------------------------------
 
 U-Boot starts up normally, running near the top of RAM. After driver model is
 running, arch_fsp_init_r() is called which loads and runs the FSP-S binary.
@@ -142,54 +142,56 @@ Performance
 -----------
 
 Bootstage is used through all phases of U-Boot to keep accurate timimgs for
-boot. Use 'bootstage report' in U-Boot to see the report, e.g.:
+boot. Use 'bootstage report' in U-Boot to see the report, e.g.::
 
-Timer summary in microseconds (16 records):
-       Mark    Elapsed  Stage
-          0          0  reset
-    155,325    155,325  TPL
-    204,014     48,689  end TPL
-    204,385        371  SPL
-    738,633    534,248  end SPL
-    739,161        528  board_init_f
-    842,764    103,603  board_init_r
-  1,166,233    323,469  main_loop
-  1,166,283         50  id=175
+    Timer summary in microseconds (16 records):
+           Mark    Elapsed  Stage
+              0          0  reset
+        155,325    155,325  TPL
+        204,014     48,689  end TPL
+        204,385        371  SPL
+        738,633    534,248  end SPL
+        739,161        528  board_init_f
+        842,764    103,603  board_init_r
+      1,166,233    323,469  main_loop
+      1,166,283         50  id=175
 
-Accumulated time:
-                    62  fast_spi
-                   202  dm_r
-                 7,779  dm_spl
-                15,555  dm_f
-               208,357  fsp-m
-               239,847  fsp-s
-               292,143  mmap_spi
+    Accumulated time:
+                        62  fast_spi
+                       202  dm_r
+                     7,779  dm_spl
+                    15,555  dm_f
+                   208,357  fsp-m
+                   239,847  fsp-s
+                   292,143  mmap_spi
 
-CPU performance is about 3500 DMIPS:
+CPU performance is about 3500 DMIPS::
 
-=> dhry
-1000000 iterations in 161 ms: 6211180/s, 3535 DMIPS
+    => dhry
+    1000000 iterations in 161 ms: 6211180/s, 3535 DMIPS
 
 
 Partial memory map
 ------------------
 
-ffffffff	Top of ROM (and last byte of 32-bit address space)
-ffff8000	TPL loaded here (from IFWI)
-ff000000	Bottom of ROM
-fefc000		 Top of CAR region
-fef96000	Stack for FSP-M
-fef40000 59000	FSP-M
-fef11000	SPL loaded here
-fef10000	CONFIG_BLOBLIST_ADDR
-fef10000	Stack top in TPL, SPL and U-Boot before relocation
-fef00000  1000	CONFIG_BOOTSTAGE_STASH_ADDR
-fef00000	Base of CAR region
+::
 
-   f0000	CONFIG_ROM_TABLE_ADDR
-  120000	BSS (defined in u-boot-spl.lds)
-  200000	FSP-S (which is run after U-Boot is relocated)
- 1110000	CONFIG_SYS_TEXT_BASE
+    ffffffff       Top of ROM (and last byte of 32-bit address space)
+    ffff8000       TPL loaded here (from IFWI)
+    ff000000       Bottom of ROM
+     fefc000       Top of CAR region
+    fef96000       Stack for FSP-M
+    fef40000 59000 FSP-M
+    fef11000       SPL loaded here
+    fef10000       CONFIG_BLOBLIST_ADDR
+    fef10000       Stack top in TPL, SPL and U-Boot before relocation
+    fef00000  1000 CONFIG_BOOTSTAGE_STASH_ADDR
+    fef00000       Base of CAR region
+
+       f0000       CONFIG_ROM_TABLE_ADDR
+      120000       BSS (defined in u-boot-spl.lds)
+      200000       FSP-S (which is run after U-Boot is relocated)
+     1110000       CONFIG_SYS_TEXT_BASE
 
 
 Supported peripherals

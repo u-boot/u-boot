@@ -562,16 +562,8 @@ static int ich_spi_exec_op_hwseq(struct spi_slave *slave,
 		return 0;  /* ignore */
 	case SPINOR_OP_BE_4K:
 		cycle = HSFSTS_CYCLE_4K_ERASE;
-		while (len) {
-			uint xfer_len = 0x1000;
-
-			ret = exec_sync_hwseq_xfer(regs, cycle, offset, 0);
-			if (ret)
-				return ret;
-			offset += xfer_len;
-			len -= xfer_len;
-		}
-		return 0;
+		ret = exec_sync_hwseq_xfer(regs, cycle, offset, 0);
+		return ret;
 	default:
 		debug("Unknown cycle %x\n", op->cmd.opcode);
 		return -EINVAL;

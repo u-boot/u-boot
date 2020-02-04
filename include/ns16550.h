@@ -31,6 +31,9 @@
 #define CONFIG_SYS_NS16550_REG_SIZE (-1)
 #endif
 
+#ifdef CONFIG_NS16550_DYNAMIC
+#define UART_REG(x)	unsigned char x
+#else
 #if !defined(CONFIG_SYS_NS16550_REG_SIZE) || (CONFIG_SYS_NS16550_REG_SIZE == 0)
 #error "Please define NS16550 registers size."
 #elif defined(CONFIG_SYS_NS16550_MEM32) && !defined(CONFIG_DM_SERIAL)
@@ -44,14 +47,24 @@
 	unsigned char x;						\
 	unsigned char postpad_##x[-CONFIG_SYS_NS16550_REG_SIZE - 1];
 #endif
+#endif /* CONFIG_NS16550_DYNAMIC */
+
+enum ns16550_flags {
+	NS16550_FLAG_IO		= 1 << 0, /* Use I/O access (else mem-mapped) */
+	NS16550_FLAG_ENDIAN	= 1 << 1, /* Use out_le/be_32() */
+	NS16550_FLAG_BE		= 1 << 2, /* Big-endian access (else little) */
+};
 
 /**
  * struct ns16550_platdata - information about a NS16550 port
  *
  * @base:		Base register address
- * @reg_width:		IO accesses size of registers (in bytes)
+ * @reg_width:		IO accesses size of registers (in bytes, 1 or 4)
  * @reg_shift:		Shift size of registers (0=byte, 1=16bit, 2=32bit...)
+ * @reg_offset:		Offset to start of registers (normally 0)
  * @clock:		UART base clock speed in Hz
+ * @fcr:		Offset of FCR register (normally UART_FCR_DEFVAL)
+ * @flags:		A few flags (enum ns16550_flags)
  * @bdf:		PCI slot/function (pci_dev_t)
  */
 struct ns16550_platdata {
@@ -61,6 +74,7 @@ struct ns16550_platdata {
 	int reg_offset;
 	int clock;
 	u32 fcr;
+	int flags;
 #if defined(CONFIG_PCI) && defined(CONFIG_SPL)
 	int bdf;
 #endif

@@ -28,7 +28,7 @@ start16:
 	movl	%cr0, %eax
 	orl	$(X86_CR0_NW | X86_CR0_CD), %eax
 	movl	%eax, %cr0
-	wbinvd
+	invd
 
 	/* load the temporary Global Descriptor Table */
 data32 cs	lidt	idt_ptr

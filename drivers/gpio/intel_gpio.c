@@ -39,9 +39,9 @@ static int intel_gpio_direction_output(struct udevice *dev, uint offset,
 	struct udevice *pinctrl = dev_get_parent(dev);
 	uint config_offset = intel_pinctrl_get_config_reg_addr(pinctrl, offset);
 
-	pcr_clrsetbits32(dev, config_offset,
+	pcr_clrsetbits32(pinctrl, config_offset,
 			 PAD_CFG0_MODE_MASK | PAD_CFG0_RX_STATE |
-				  PAD_CFG0_TX_DISABLE,
+				  PAD_CFG0_TX_DISABLE | PAD_CFG0_TX_STATE,
 			 PAD_CFG0_MODE_GPIO | PAD_CFG0_RX_DISABLE |
 				  (value ? PAD_CFG0_TX_STATE : 0));
 
@@ -59,9 +59,9 @@ static int intel_gpio_get_value(struct udevice *dev, uint offset)
 	if (!mode) {
 		rx_tx = reg & (PAD_CFG0_TX_DISABLE | PAD_CFG0_RX_DISABLE);
 		if (rx_tx == PAD_CFG0_TX_DISABLE)
-			return mode & PAD_CFG0_RX_STATE_BIT ? 1 : 0;
+			return reg & PAD_CFG0_RX_STATE ? 1 : 0;
 		else if (rx_tx == PAD_CFG0_RX_DISABLE)
-			return mode & PAD_CFG0_TX_STATE_BIT ? 1 : 0;
+			return reg & PAD_CFG0_TX_STATE ? 1 : 0;
 	}
 
 	return 0;
@@ -72,7 +72,7 @@ static int intel_gpio_set_value(struct udevice *dev, unsigned offset, int value)
 	struct udevice *pinctrl = dev_get_parent(dev);
 	uint config_offset = intel_pinctrl_get_config_reg_addr(pinctrl, offset);
 
-	pcr_clrsetbits32(dev, config_offset, PAD_CFG0_TX_STATE,
+	pcr_clrsetbits32(pinctrl, config_offset, PAD_CFG0_TX_STATE,
 			 value ? PAD_CFG0_TX_STATE : 0);
 
 	return 0;

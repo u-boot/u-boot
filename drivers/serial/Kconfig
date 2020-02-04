@@ -542,6 +542,17 @@ config BCM6345_SERIAL
 	help
 	  Select this to enable UART on BCM6345 SoCs.
 
+config COREBOOT_SERIAL
+	bool "Coreboot UART support"
+	depends on DM_SERIAL
+	default y if SYS_COREBOOT
+	select SYS_NS16550
+	help
+	  Select this to enable a ns16550-style UART where the platform data
+	  comes from the coreboot 'sysinfo' tables. This allows U-Boot to have
+	  a serial console on any platform without needing to change the
+	  device tree, etc.
+
 config FSL_LINFLEXUART
 	bool "Freescale Linflex UART support"
 	depends on DM_SERIAL
@@ -600,6 +611,27 @@ config SYS_NS16550
 	  CONFIG_SYS_NS16550_CLK defined in a legacy board header file will
 	  be used. It can be a constant or a function to get clock, eg,
 	  get_serial_clock().
+
+config NS16550_DYNAMIC
+	bool "Allow NS16550 to be configured at runtime"
+	default y if SYS_COREBOOT || SYS_SLIMBOOTLOADER
+	help
+	  Enable this option to allow device-tree control of the driver.
+
+	  Normally this driver is controlled by the following options:
+
+	  CONFIG_SYS_NS16550_PORT_MAPPED - indicates that port I/O is used for
+	     access. If not enabled, then the UART is memory-mapped.
+	  CONFIG_SYS_NS16550_MEM32 - if memory-mapped, indicates that 32-bit
+	     access should be used (instead of 8-bit)
+	  CONFIG_SYS_NS16550_REG_SIZE - indicates register width and also
+	     endianness. If positive, big-endian access is used. If negative,
+	     little-endian is used.
+
+	  It is not a good practice for a driver to be statically configured,
+	  since it prevents the same driver being used for different types of
+	  UARTs in a system. This option avoids this problem at the cost of a
+	  slightly increased code size.
 
 config INTEL_MID_SERIAL
 	bool "Intel MID platform UART support"
