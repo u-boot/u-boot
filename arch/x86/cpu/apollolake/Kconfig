@@ -40,6 +40,7 @@ config INTEL_APOLLOLAKE
 	imply INTEL_GPIO
 	imply SMP
 	imply HAVE_ITSS
+	imply HAVE_P2SB
 
 if INTEL_APOLLOLAKE
 

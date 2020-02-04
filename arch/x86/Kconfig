@@ -715,6 +715,13 @@ config HAVE_ITSS
 	  Select this to include the driver for the Interrupt Timer
 	  Subsystem (ITSS) which is found on several Intel devices.
 
+config HAVE_P2SB
+	bool "Enable P2SB"
+	help
+	  Select this to include the driver for the Primary to
+	  Sideband Bridge (P2SB) which is found on several Intel
+	  devices.
+
 menu "System tables"
 	depends on !EFI && !SYS_COREBOOT
 
