@@ -16,7 +16,7 @@
 #define is_soc_rev(rev) (soc_rev() == rev)
 
 /* returns MXC_CPU_ value */
-#define cpu_type(rev) (((rev) >> 12) & 0xff)
+#define cpu_type(rev) (((rev) >> 12) & 0x1ff)
 #define soc_type(rev) (((rev) >> 12) & 0xf0)
 /* both macros return/take MXC_CPU_ constants */
 #define get_cpu_type() (cpu_type(get_cpu_rev()))
