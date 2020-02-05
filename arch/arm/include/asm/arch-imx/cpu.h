@@ -26,6 +26,8 @@
 #define MXC_CPU_MX7S		0x71 /* dummy ID */
 #define MXC_CPU_MX7D		0x72
 #define MXC_CPU_IMX8MQ		0x82
+#define MXC_CPU_IMX8MD		0x83 /* dummy ID */
+#define MXC_CPU_IMX8MQL     0x84 /* dummy ID */
 #define MXC_CPU_IMX8MM		0x85 /* dummy ID */
 #define MXC_CPU_IMX8MML		0x86 /* dummy ID */
 #define MXC_CPU_IMX8MMD		0x87 /* dummy ID */

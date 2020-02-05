@@ -109,7 +109,11 @@ const char *get_imx_type(u32 imxtype)
 	case MXC_CPU_IMX8MMSL:
 		return "8MMSL";	/* Single-core Lite version of the imx8mm */
 	case MXC_CPU_IMX8MQ:
-		return "8MQ";	/* Quad-core version of the imx8m */
+		return "8MQ";	/* Quad-core version of the imx8mq */
+	case MXC_CPU_IMX8MQL:
+		return "8MQLite";	/* Quad-core Lite version of the imx8mq */
+	case MXC_CPU_IMX8MD:
+		return "8MD";	/* Dual-core version of the imx8mq */
 	case MXC_CPU_MX7S:
 		return "7S";	/* Single-core version of the mx7 */
 	case MXC_CPU_MX7D:

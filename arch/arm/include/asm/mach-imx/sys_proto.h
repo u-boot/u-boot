@@ -43,7 +43,9 @@
 
 #define is_mx7ulp() (is_cpu_type(MXC_CPU_MX7ULP))
 
-#define is_imx8mq() (is_cpu_type(MXC_CPU_IMX8MQ))
+#define is_imx8mq() (is_cpu_type(MXC_CPU_IMX8MQ) || is_cpu_type(MXC_CPU_IMX8MD) || is_cpu_type(MXC_CPU_IMX8MQL))
+#define is_imx8md() (is_cpu_type(MXC_CPU_IMX8MD))
+#define is_imx8mql() (is_cpu_type(MXC_CPU_IMX8MQL))
 #define is_imx8qm() (is_cpu_type(MXC_CPU_IMX8QM))
 #define is_imx8mm() (is_cpu_type(MXC_CPU_IMX8MM) || is_cpu_type(MXC_CPU_IMX8MML) ||\
 	is_cpu_type(MXC_CPU_IMX8MMD) || is_cpu_type(MXC_CPU_IMX8MMDL) || \

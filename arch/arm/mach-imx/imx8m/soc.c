@@ -165,7 +165,13 @@ static u32 get_cpu_variant_type(u32 type)
 
 	u32 value = readl(&fuse->tester4);
 
-	if (type == MXC_CPU_IMX8MM) {
+	if (type == MXC_CPU_IMX8MQ) {
+		if ((value & 0x3) == 0x2)
+			return MXC_CPU_IMX8MD;
+		else if (value & 0x200000)
+			return MXC_CPU_IMX8MQL;
+
+	} else if (type == MXC_CPU_IMX8MM) {
 		switch (value & 0x3) {
 		case 2:
 			if (value & 0x1c0000)
@@ -226,6 +232,8 @@ u32 get_cpu_rev(void)
 				}
 			}
 		}
+
+		type = get_cpu_variant_type(type);
 	}
 
 	return (type << 12) | reg;
