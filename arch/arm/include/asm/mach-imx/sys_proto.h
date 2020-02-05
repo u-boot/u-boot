@@ -37,7 +37,7 @@
 #define is_mx6sl() (is_cpu_type(MXC_CPU_MX6SL))
 #define is_mx6solo() (is_cpu_type(MXC_CPU_MX6SOLO))
 #define is_mx6ul() (is_cpu_type(MXC_CPU_MX6UL))
-#define is_mx6ull() (is_cpu_type(MXC_CPU_MX6ULL))
+#define is_mx6ull() (is_cpu_type(MXC_CPU_MX6ULL) || is_cpu_type(MXC_CPU_MX6ULZ))
 #define is_mx6ulz() (is_cpu_type(MXC_CPU_MX6ULZ))
 #define is_mx6sll() (is_cpu_type(MXC_CPU_MX6SLL))
 
