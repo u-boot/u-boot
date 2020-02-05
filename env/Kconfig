@@ -500,6 +500,7 @@ config ENV_OFFSET
 	default 0 if ARC
 	default 0x140000 if ARCH_AT91
 	default 0x260000 if ARCH_OMAP2PLUS
+	default 0x1080000 if MICROBLAZE && ENV_IS_IN_SPI_FLASH
 	help
 	  Offset from the start of the device (or partition)
 
@@ -529,6 +530,7 @@ config ENV_SECT_SIZE
 	default 0x2000 if ARCH_ROCKCHIP
 	default 0x40000 if ARCH_ZYNQMP || ARCH_VERSAL
 	default 0x20000 if ARCH_ZYNQ || ARCH_OMAP2PLUS || ARCH_AT91
+	default 0x20000 if MICROBLAZE && ENV_IS_IN_SPI_FLASH
 	help
 	  Size of the sector containing the environment.
 
