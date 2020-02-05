@@ -248,7 +248,7 @@ int gpio_xlate_offs_flags(struct udevice *dev, struct gpio_desc *desc,
  */
 struct dm_gpio_ops {
 	int (*request)(struct udevice *dev, unsigned offset, const char *label);
-	int (*free)(struct udevice *dev, unsigned offset);
+	int (*rfree)(struct udevice *dev, unsigned int offset);
 	int (*direction_input)(struct udevice *dev, unsigned offset);
 	int (*direction_output)(struct udevice *dev, unsigned offset,
 				int value);
