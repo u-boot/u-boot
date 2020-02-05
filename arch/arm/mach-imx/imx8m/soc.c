@@ -188,6 +188,23 @@ static u32 get_cpu_variant_type(u32 type)
 				return MXC_CPU_IMX8MML;
 			break;
 		}
+	} else if (type == MXC_CPU_IMX8MN) {
+		switch (value & 0x3) {
+		case 2:
+			if (value & 0x1000000)
+				return MXC_CPU_IMX8MNDL;
+			else
+				return MXC_CPU_IMX8MND;
+		case 3:
+			if (value & 0x1000000)
+				return MXC_CPU_IMX8MNSL;
+			else
+				return MXC_CPU_IMX8MNS;
+		default:
+			if (value & 0x1000000)
+				return MXC_CPU_IMX8MNL;
+			break;
+		}
 	}
 
 	return type;
@@ -208,7 +225,7 @@ u32 get_cpu_rev(void)
 		return (MXC_CPU_IMX8MP << 12) | reg;
 	} else if (major_low == 0x42) {
 		/* iMX8MN */
-		return (MXC_CPU_IMX8MN << 12) | reg;
+		type = get_cpu_variant_type(MXC_CPU_IMX8MN);
 	} else if (major_low == 0x41) {
 		type = get_cpu_variant_type(MXC_CPU_IMX8MM);
 	} else {

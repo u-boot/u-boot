@@ -95,7 +95,17 @@ const char *get_imx_type(u32 imxtype)
 	case MXC_CPU_IMX8MP:
 		return "8MP";	/* Quad-core version of the imx8mp */
 	case MXC_CPU_IMX8MN:
-		return "8MNano";/* Quad-core version of the imx8mn */
+		return "8MNano Quad"; /* Quad-core version */
+	case MXC_CPU_IMX8MND:
+		return "8MNano Dual"; /* Dual-core version */
+	case MXC_CPU_IMX8MNS:
+		return "8MNano Solo"; /* Single-core version */
+	case MXC_CPU_IMX8MNL:
+		return "8MNano QuadLite"; /* Quad-core Lite version */
+	case MXC_CPU_IMX8MNDL:
+		return "8MNano DualLite"; /* Dual-core Lite version */
+	case MXC_CPU_IMX8MNSL:
+		return "8MNano SoloLite"; /* Single-core Lite version */
 	case MXC_CPU_IMX8MM:
 		return "8MMQ";	/* Quad-core version of the imx8mm */
 	case MXC_CPU_IMX8MML:
