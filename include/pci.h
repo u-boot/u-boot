@@ -488,8 +488,8 @@
 typedef u64 pci_addr_t;
 typedef u64 pci_size_t;
 #else
-typedef u32 pci_addr_t;
-typedef u32 pci_size_t;
+typedef unsigned long pci_addr_t;
+typedef unsigned long pci_size_t;
 #endif
 
 struct pci_region {
