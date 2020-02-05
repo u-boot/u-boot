@@ -6,6 +6,8 @@
  *
  */
 
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+
 / {
 	compatible = "fsl,lx2160a";
 	interrupt-parent = <&gic>;
@@ -47,6 +49,19 @@
 			     <1 14 0x8>, /* Physical NS PPI, active-low */
 			     <1 11 0x8>, /* Virtual PPI, active-low */
 			     <1 10 0x8>; /* Hypervisor PPI, active-low */
+	};
+
+	fspi: flexspi@20c0000 {
+		compatible = "nxp,lx2160a-fspi";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x0 0x20c0000 0x0 0x10000>,
+			<0x0 0x20000000 0x0 0x10000000>;
+		reg-names = "fspi_base", "fspi_mmap";
+		clocks = <&clockgen 4 3>, <&clockgen 4 3>;
+		clock-names = "fspi_en", "fspi";
+		interrupts = <GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>;
+		status = "disabled";
 	};
 
 	i2c0: i2c@2000000 {

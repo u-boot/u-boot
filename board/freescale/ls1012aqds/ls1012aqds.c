@@ -107,10 +107,26 @@ int board_early_init_f(void)
 int misc_init_r(void)
 {
 	u8 mux_sdhc_cd = 0x80;
+	int bus_num = 0;
 
-	i2c_set_bus_num(0);
+#ifdef CONFIG_DM_I2C
+	struct udevice *dev;
+	int ret;
+
+	ret = i2c_get_chip_for_busnum(bus_num, CONFIG_SYS_I2C_FPGA_ADDR,
+				      1, &dev);
+	if (ret) {
+		printf("%s: Cannot find udev for a bus %d\n", __func__,
+		       bus_num);
+		return ret;
+	}
+	dm_i2c_write(dev, 0x5a, &mux_sdhc_cd, 1);
+#else
+	i2c_set_bus_num(bus_num);
 
 	i2c_write(CONFIG_SYS_I2C_FPGA_ADDR, 0x5a, 1, &mux_sdhc_cd, 1);
+#endif
+
 	return 0;
 }
 #endif

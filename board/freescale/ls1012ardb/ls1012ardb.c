@@ -34,13 +34,27 @@ int checkboard(void)
 {
 #ifdef CONFIG_TARGET_LS1012ARDB
 	u8 in1;
+	int ret, bus_num = 0;
 
 	puts("Board: LS1012ARDB ");
 
 	/* Initialize i2c early for Serial flash bank information */
-	i2c_set_bus_num(0);
+#if defined(CONFIG_DM_I2C)
+	struct udevice *dev;
 
-	if (i2c_read(I2C_MUX_IO_ADDR, I2C_MUX_IO_1, 1, &in1, 1) < 0) {
+	ret = i2c_get_chip_for_busnum(bus_num, I2C_MUX_IO_ADDR,
+				      1, &dev);
+	if (ret) {
+		printf("%s: Cannot find udev for a bus %d\n", __func__,
+		       bus_num);
+		return -ENXIO;
+	}
+	ret = dm_i2c_read(dev, I2C_MUX_IO_1, &in1, 1);
+#else /* Non DM I2C support - will be removed */
+	i2c_set_bus_num(bus_num);
+	ret = i2c_read(I2C_MUX_IO_ADDR, I2C_MUX_IO_1, 1, &in1, 1);
+#endif
+	if (ret < 0) {
 		printf("Error reading i2c boot information!\n");
 		return 0; /* Don't want to hang() on this error */
 	}
@@ -175,11 +189,25 @@ int esdhc_status_fixup(void *blob, const char *compat)
 	bool sdhc2_en = false;
 	u8 mux_sdhc2;
 	u8 io = 0;
+	int ret, bus_num = 0;
 
-	i2c_set_bus_num(0);
+#if defined(CONFIG_DM_I2C)
+	struct udevice *dev;
 
+	ret = i2c_get_chip_for_busnum(bus_num, I2C_MUX_IO_ADDR,
+				      1, &dev);
+	if (ret) {
+		printf("%s: Cannot find udev for a bus %d\n", __func__,
+		       bus_num);
+		return -ENXIO;
+	}
+	ret = dm_i2c_read(dev, I2C_MUX_IO_1, &io, 1);
+#else
+	i2c_set_bus_num(bus_num);
 	/* IO1[7:3] is the field of board revision info. */
-	if (i2c_read(I2C_MUX_IO_ADDR, I2C_MUX_IO_1, 1, &io, 1) < 0) {
+	ret = i2c_read(I2C_MUX_IO_ADDR, I2C_MUX_IO_1, 1, &io, 1);
+#endif
+	if (ret < 0) {
 		printf("Error reading i2c boot information!\n");
 		return 0;
 	}
@@ -202,7 +230,12 @@ int esdhc_status_fixup(void *blob, const char *compat)
 		 *	10 - eMMC Memory
 		 *	11 - SPI
 		 */
-		if (i2c_read(I2C_MUX_IO_ADDR, I2C_MUX_IO_0, 1, &io, 1) < 0) {
+#if defined(CONFIG_DM_I2C)
+		ret = dm_i2c_read(dev, I2C_MUX_IO_0, &io, 1);
+#else
+		ret = i2c_read(I2C_MUX_IO_ADDR, I2C_MUX_IO_0, 1, &io, 1);
+#endif
+		if (ret < 0) {
 			printf("Error reading i2c boot information!\n");
 			return 0;
 		}
@@ -233,16 +266,63 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 static int switch_to_bank1(void)
 {
-	u8 data;
-	int ret;
+	u8 data = 0xf4, chip_addr = 0x24, offset_addr = 0x03;
+	int ret, bus_num = 0;
 
-	i2c_set_bus_num(0);
+#if defined(CONFIG_DM_I2C)
+	struct udevice *dev;
 
-	data = 0xf4;
-	ret = i2c_write(0x24, 0x3, 1, &data, 1);
+	ret = i2c_get_chip_for_busnum(bus_num, chip_addr,
+				      1, &dev);
+	if (ret) {
+		printf("%s: Cannot find udev for a bus %d\n", __func__,
+		       bus_num);
+		return -ENXIO;
+	}
+	/*
+	 * --------------------------------------------------------------------
+	 * |bus |I2C address|       Device     |          Notes               |
+	 * --------------------------------------------------------------------
+	 * |I2C1|0x24, 0x25,| IO expander (CFG,| Provides 16bits of General   |
+	 * |    |0x26	    | RESET, and INT/  | Purpose parallel Input/Output|
+	 * |    |           | KW41GPIO) - NXP  | (GPIO) expansion for the     |
+	 * |    |           | PCAL9555AHF      | I2C bus                      |
+	 * ----- --------------------------------------------------------------
+	 * - mount three IO expander(PCAL9555AHF) on I2C1
+	 *
+	 * PCAL9555A device address
+	 *           slave address
+	 *  --------------------------------------
+	 *  | 0 | 1 | 0 | 0 | A2 | A1 | A0 | R/W |
+	 *  --------------------------------------
+	 *  |     fixed     | hardware selectable|
+	 *
+	 * Output port 1(Pinter register bits = 0x03)
+	 *
+	 * P1_[7~0] = 0xf4
+	 * P1_0 <---> CFG_MUX_QSPI_S0
+	 * P1_1 <---> CFG_MUX_QSPI_S1
+	 * CFG_MUX_QSPI_S[1:0] = 0b00
+	 *
+	 * QSPI chip-select demultiplexer select
+	 * ---------------------------------------------------------------------
+	 * CFG_MUX_QSPI_S1|CFG_MUX_QSPI_S0|              Values
+	 * ---------------------------------------------------------------------
+	 *    0           | 0            |CS routed to SPI memory bank1(default)
+	 * ---------------------------------------------------------------------
+	 *    0           | 1             |CS routed to SPI memory bank2
+	 * ---------------------------------------------------------------------
+	 *
+	 */
+	ret = dm_i2c_write(dev, offset_addr, &data, 1);
+#else /* Non DM I2C support - will be removed */
+	i2c_set_bus_num(bus_num);
+	ret = i2c_write(chip_addr, offset_addr, 1, &data, 1);
+#endif
+
 	if (ret) {
 		printf("i2c write error to chip : %u, addr : %u, data : %u\n",
-		       0x24, 0x3, data);
+		       chip_addr, offset_addr, data);
 	}
 
 	return ret;
@@ -250,25 +330,45 @@ static int switch_to_bank1(void)
 
 static int switch_to_bank2(void)
 {
-	u8 data;
-	int ret;
+	u8 data[2] = {0xfc, 0xf5}, offset_addr[2] = {0x7, 0x3};
+	u8 chip_addr = 0x24;
+	int ret, i, bus_num = 0;
 
-	i2c_set_bus_num(0);
+#if defined(CONFIG_DM_I2C)
+	struct udevice *dev;
 
-	data = 0xfc;
-	ret = i2c_write(0x24, 0x7, 1, &data, 1);
+	ret = i2c_get_chip_for_busnum(bus_num, chip_addr,
+				      1, &dev);
 	if (ret) {
-		printf("i2c write error to chip : %u, addr : %u, data : %u\n",
-		       0x24, 0x7, data);
-		goto err;
+		printf("%s: Cannot find udev for a bus %d\n", __func__,
+		       bus_num);
+		return -ENXIO;
+	}
+#else /* Non DM I2C support - will be removed */
+	i2c_set_bus_num(bus_num);
+#endif
+
+	/*
+	 * 1th step: config port 1
+	 *	- the port 1 pin is enabled as an output
+	 * 2th step: output port 1
+	 *	- P1_[7:0] output 0xf5,
+	 *	  then CFG_MUX_QSPI_S[1:0] equal to 0b01,
+	 *	  CS routed to SPI memory bank2
+	 */
+	for (i = 0; i < sizeof(data); i++) {
+#if defined(CONFIG_DM_I2C)
+		ret = dm_i2c_write(dev, offset_addr[i], &data[i], 1);
+#else /* Non DM I2C support - will be removed */
+		ret = i2c_write(chip_addr, offset_addr[i], 1, &data[i], 1);
+#endif
+		if (ret) {
+			printf("i2c write error to chip : %u, addr : %u, data : %u\n",
+			       chip_addr, offset_addr[i], data[i]);
+			goto err;
+		}
 	}
 
-	data = 0xf5;
-	ret = i2c_write(0x24, 0x3, 1, &data, 1);
-	if (ret) {
-		printf("i2c write error to chip : %u, addr : %u, data : %u\n",
-		       0x24, 0x3, data);
-	}
 err:
 	return ret;
 }

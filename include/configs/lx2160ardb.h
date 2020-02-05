@@ -22,7 +22,9 @@
 #define QIXIS_RCFG_CTL_WATCHDOG_ENBLE	0x08
 #define QIXIS_LBMAP_MASK		0x0f
 #define QIXIS_LBMAP_SD
+#define QIXIS_LBMAP_EMMC
 #define QIXIS_RCW_SRC_SD           0x08
+#define QIXIS_RCW_SRC_EMMC         0x09
 #define NON_EXTENDED_DUTCFG
 
 /* VID */

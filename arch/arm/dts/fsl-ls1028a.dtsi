@@ -6,6 +6,8 @@
  *
  */
 
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+
 / {
 	compatible = "fsl,ls1028a";
 	interrupt-parent = <&gic>;
@@ -38,25 +40,32 @@
 			  <0x0 0x06040000 0 0x40000>;
 		#interrupt-cells = <3>;
 		interrupt-controller;
-		interrupts = <1 9 0x4>;
+		interrupts = <GIC_PPI 9 (GIC_CPU_MASK_RAW(0xf) |
+					 IRQ_TYPE_LEVEL_LOW)>;
 	};
 
 	timer {
 		compatible = "arm,armv8-timer";
-		interrupts = <1 13 0x8>, /* Physical Secure PPI, active-low */
-			     <1 14 0x8>, /* Physical Non-Secure PPI, active-low */
-			     <1 11 0x8>, /* Virtual PPI, active-low */
-			     <1 10 0x8>; /* Hypervisor PPI, active-low */
+		interrupts = <GIC_PPI 13 (GIC_CPU_MASK_SIMPLE(2) |
+					  IRQ_TYPE_LEVEL_LOW)>,
+			     <GIC_PPI 14 (GIC_CPU_MASK_SIMPLE(2) |
+					  IRQ_TYPE_LEVEL_LOW)>,
+			     <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(2) |
+					  IRQ_TYPE_LEVEL_LOW)>,
+			     <GIC_PPI 10 (GIC_CPU_MASK_SIMPLE(2) |
+					  IRQ_TYPE_LEVEL_LOW)>;
 	};
 
-	fspi: flexspi@20C0000 {
-		compatible = "nxp,dn-fspi";
+	fspi: flexspi@20c0000 {
+		compatible = "nxp,lx2160a-fspi";
 		#address-cells = <1>;
 		#size-cells = <0>;
-		reg = <0x0 0x20C0000 0x0 0x10000>,
-			<0x0 0x20000000 0x0 0x10000000>; /*64MB flash*/
-		reg-names = "FSPI", "FSPI-memory";
-		num-cs = <1>;
+		reg = <0x0 0x20c0000 0x0 0x10000>,
+		      <0x0 0x20000000 0x0 0x10000000>;
+		reg-names = "fspi_base", "fspi_mmap";
+		clocks = <&clockgen 4 3>, <&clockgen 4 3>;
+		clock-names = "fspi_en", "fspi";
+		interrupts = <GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>;
 		status = "disabled";
 	};
 
@@ -64,7 +73,7 @@
 		device_type = "serial";
 		compatible = "fsl,ns16550", "ns16550a";
 		reg = <0x0 0x21c0500 0x0 0x100>;
-		interrupts = <0 32 0x1>; /* edge triggered */
+		interrupts = <GIC_SPI 32 IRQ_TYPE_LEVEL_HIGH>;
 		status = "disabled";
 	};
 
@@ -72,7 +81,7 @@
 		device_type = "serial";
 		compatible = "fsl,ns16550", "ns16550a";
 		reg = <0x0 0x21c0600 0x0 0x100>;
-		interrupts = <0 32 0x1>; /* edge triggered */
+		interrupts = <GIC_SPI 32 IRQ_TYPE_LEVEL_HIGH>;
 		status = "disabled";
 	};
 
@@ -148,7 +157,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0x0 0x2000000 0x0 0x10000>;
-		interrupts = <0 34 0x4>;
+		interrupts = <GIC_SPI 34 IRQ_TYPE_LEVEL_HIGH>;
 		clock-names = "i2c";
 		clocks = <&clockgen 4 0>;
 		status = "disabled";
@@ -159,7 +168,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0x0 0x2010000 0x0 0x10000>;
-		interrupts = <0 34 0x4>;
+		interrupts = <GIC_SPI 34 IRQ_TYPE_LEVEL_HIGH>;
 		clock-names = "i2c";
 		clocks = <&clockgen 4 0>;
 		status = "disabled";
@@ -170,7 +179,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0x0 0x2020000 0x0 0x10000>;
-		interrupts = <0 35 0x4>;
+		interrupts = <GIC_SPI 35 IRQ_TYPE_LEVEL_HIGH>;
 		clock-names = "i2c";
 		clocks = <&clockgen 4 0>;
 		status = "disabled";
@@ -181,7 +190,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0x0 0x2030000 0x0 0x10000>;
-		interrupts = <0 35 0x4>;
+		interrupts = <GIC_SPI 35 IRQ_TYPE_LEVEL_HIGH>;
 		clock-names = "i2c";
 		clocks = <&clockgen 4 0>;
 		status = "disabled";
@@ -192,7 +201,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0x0 0x2040000 0x0 0x10000>;
-		interrupts = <0 74 0x4>;
+		interrupts = <GIC_SPI 74 IRQ_TYPE_LEVEL_HIGH>;
 		clock-names = "i2c";
 		clocks = <&clockgen 4 0>;
 		status = "disabled";
@@ -203,7 +212,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0x0 0x2050000 0x0 0x10000>;
-		interrupts = <0 74 0x4>;
+		interrupts = <GIC_SPI 74 IRQ_TYPE_LEVEL_HIGH>;
 		clock-names = "i2c";
 		clocks = <&clockgen 4 0>;
 		status = "disabled";
@@ -214,7 +223,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0x0 0x2060000 0x0 0x10000>;
-		interrupts = <0 75 0x4>;
+		interrupts = <GIC_SPI 75 IRQ_TYPE_LEVEL_HIGH>;
 		clock-names = "i2c";
 		clocks = <&clockgen 4 0>;
 		status = "disabled";
@@ -225,7 +234,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0x0 0x2070000 0x0 0x10000>;
-		interrupts = <0 75 0x4>;
+		interrupts = <GIC_SPI 75 IRQ_TYPE_LEVEL_HIGH>;
 		clock-names = "i2c";
 		clocks = <&clockgen 4 0>;
 		status = "disabled";
@@ -234,7 +243,7 @@
 	usb1: usb3@3100000 {
 		compatible = "fsl,layerscape-dwc3";
 		reg = <0x0 0x3100000 0x0 0x10000>;
-		interrupts = <0 80 0x4>;
+		interrupts = <GIC_SPI 80 IRQ_TYPE_LEVEL_HIGH>;
 		dr_mode = "host";
 		status = "disabled";
 	};
@@ -242,7 +251,7 @@
 	usb2: usb3@3110000 {
 		compatible = "fsl,layerscape-dwc3";
 		reg = <0x0 0x3110000 0x0 0x10000>;
-		interrupts = <0 81 0x4>;
+		interrupts = <GIC_SPI 81 IRQ_TYPE_LEVEL_HIGH>;
 		dr_mode = "host";
 		status = "disabled";
 	};
@@ -252,7 +261,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0x0 0x2100000 0x0 0x10000>;
-		interrupts = <0 26 0x4>;
+		interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
 		clock-names = "dspi";
 		clocks = <&clockgen 4 0>;
 		num-cs = <5>;
@@ -265,7 +274,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0x0 0x2110000 0x0 0x10000>;
-		interrupts = <0 26 0x4>;
+		interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
 		clock-names = "dspi";
 		clocks = <&clockgen 4 0>;
 		num-cs = <5>;
@@ -278,7 +287,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0x0 0x2120000 0x0 0x10000>;
-		interrupts = <0 26 0x4>;
+		interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
 		clock-names = "dspi";
 		clocks = <&clockgen 4 0>;
 		num-cs = <5>;
@@ -289,7 +298,7 @@
 	esdhc0: esdhc@2140000 {
 		compatible = "fsl,esdhc";
 		reg = <0x0 0x2140000 0x0 0x10000>;
-		interrupts = <0 28 0x4>;
+		interrupts = <GIC_SPI 28 IRQ_TYPE_LEVEL_HIGH>;
 		big-endian;
 		bus-width = <4>;
 		status = "disabled";
@@ -298,7 +307,7 @@
 	esdhc1: esdhc@2150000 {
 		compatible = "fsl,esdhc";
 		reg = <0x0 0x2150000 0x0 0x10000>;
-		interrupts = <0 63 0x4>;
+		interrupts = <GIC_SPI 63 IRQ_TYPE_LEVEL_HIGH>;
 		big-endian;
 		non-removable;
 		bus-width = <4>;
@@ -310,7 +319,7 @@
 		reg = <0x0 0x3200000 0x0 0x10000	/* ccsr sata base */
 		       0x7 0x100520  0x0 0x4>;		/* ecc sata addr*/
 		reg-names = "sata-base", "ecc-addr";
-		interrupts = <0 133 4>;
+		interrupts = <GIC_SPI 133 IRQ_TYPE_LEVEL_HIGH>;
 		status = "disabled";
 	};
 

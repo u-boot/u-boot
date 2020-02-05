@@ -28,12 +28,47 @@ static inline void ls1012ardb_reset_phy(void)
 {
 #ifdef CONFIG_TARGET_LS1012ARDB
 	/* Through reset IO expander reset both RGMII and SGMII PHYs */
+#ifdef CONFIG_DM_I2C
+	struct udevice *dev;
+	int ret;
+
+	/*
+	 * The I2C IO-expander PCAL9555A is mouted on I2C1 bus(bus number is 0).
+	 */
+	ret = i2c_get_chip_for_busnum(0, I2C_MUX_IO2_ADDR,
+				      1, &dev);
+	if (ret) {
+		printf("%s: Cannot find udev for a bus %d\n", __func__,
+		       0);
+		return;
+	}
+	/* Config port 0
+	 * - config pin IOXP_RST_ETH1_B and IOXP_RST_ETH2_B
+	 *   are enabled as an output.
+	 */
+	dm_i2c_reg_write(dev, 6, __PHY_MASK);
+
+	/*
+	 * Set port 0 output a value to reset ETH2 interface
+	 * - pin IOXP_RST_ETH2_B output 0b0
+	 */
+	dm_i2c_reg_write(dev, 2, __PHY_ETH2_MASK);
+	mdelay(10);
+	dm_i2c_reg_write(dev, 2, __PHY_ETH1_MASK);
+	/*
+	 * Set port 0 output a value to reset ETH1 interface
+	 * - pin IOXP_RST_ETH1_B output 0b0
+	 */
+	mdelay(10);
+	dm_i2c_reg_write(dev, 2, 0xFF);
+#else
 	i2c_reg_write(I2C_MUX_IO2_ADDR, 6, __PHY_MASK);
 	i2c_reg_write(I2C_MUX_IO2_ADDR, 2, __PHY_ETH2_MASK);
 	mdelay(10);
 	i2c_reg_write(I2C_MUX_IO2_ADDR, 2, __PHY_ETH1_MASK);
 	mdelay(10);
 	i2c_reg_write(I2C_MUX_IO2_ADDR, 2, 0xFF);
+#endif
 	mdelay(50);
 #endif
 }

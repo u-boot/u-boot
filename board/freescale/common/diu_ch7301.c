@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
+ * Copyright 2019 NXP
  * Authors: Priyanka Jain <Priyanka.Jain@freescale.com>
  *	    Wang Dongsheng <dongsheng.wang@freescale.com>
  *
@@ -51,6 +52,85 @@ int diu_set_dvi_encoder(unsigned int pixclock)
 	u8 temp;
 
 	temp = I2C_DVI_TEST_PATTERN_VAL;
+#ifdef CONFIG_DM_I2C
+	struct udevice *dev;
+
+	ret = i2c_get_chip_for_busnum(CONFIG_SYS_I2C_DVI_BUS_NUM,
+				      CONFIG_SYS_I2C_DVI_ADDR,
+				      1, &dev);
+	if (ret) {
+		printf("%s: Cannot find udev for a bus %d\n", __func__,
+		       CONFIG_SYS_I2C_DVI_BUS_NUM);
+		return ret;
+	}
+	ret = dm_i2c_write(dev, I2C_DVI_TEST_PATTERN_REG, &temp, 1);
+	if (ret) {
+		puts("I2C: failed to select proper dvi test pattern\n");
+		return ret;
+	}
+	temp = I2C_DVI_INPUT_DATA_FORMAT_VAL;
+	ret = dm_i2c_write(dev, I2C_DVI_INPUT_DATA_FORMAT_REG, &temp, 1);
+	if (ret) {
+		puts("I2C: failed to select dvi input data format\n");
+		return ret;
+	}
+
+	/* Set Sync polarity register */
+	temp = I2C_DVI_SYNC_POLARITY_VAL;
+	ret = dm_i2c_write(dev, I2C_DVI_SYNC_POLARITY_REG, &temp, 1);
+	if (ret) {
+		puts("I2C: failed to select dvi syc polarity\n");
+		return ret;
+	}
+
+	/* Set PLL registers based on pixel clock rate*/
+	if (pixclock > 65000000) {
+		temp = I2C_DVI_PLL_CHARGE_CNTL_HIGH_SPEED_VAL;
+		ret = dm_i2c_write(dev, I2C_DVI_PLL_CHARGE_CNTL_REG, &temp, 1);
+		if (ret) {
+			puts("I2C: failed to select dvi pll charge_cntl\n");
+			return ret;
+		}
+		temp = I2C_DVI_PLL_DIVIDER_HIGH_SPEED_VAL;
+		ret = dm_i2c_write(dev, I2C_DVI_PLL_DIVIDER_REG, &temp, 1);
+		if (ret) {
+			puts("I2C: failed to select dvi pll divider\n");
+			return ret;
+		}
+		temp = I2C_DVI_PLL_FILTER_HIGH_SPEED_VAL;
+		ret = dm_i2c_write(dev, I2C_DVI_PLL_FILTER_REG, &temp, 1);
+		if (ret) {
+			puts("I2C: failed to select dvi pll filter\n");
+			return ret;
+		}
+	} else {
+		temp = I2C_DVI_PLL_CHARGE_CNTL_LOW_SPEED_VAL;
+		ret = dm_i2c_write(dev, I2C_DVI_PLL_CHARGE_CNTL_REG, &temp, 1);
+		if (ret) {
+			puts("I2C: failed to select dvi pll charge_cntl\n");
+			return ret;
+		}
+		temp = I2C_DVI_PLL_DIVIDER_LOW_SPEED_VAL;
+		ret = dm_i2c_write(dev, I2C_DVI_PLL_DIVIDER_REG, &temp, 1);
+		if (ret) {
+			puts("I2C: failed to select dvi pll divider\n");
+			return ret;
+		}
+		temp = I2C_DVI_PLL_FILTER_LOW_SPEED_VAL;
+		ret = dm_i2c_write(dev, I2C_DVI_PLL_FILTER_REG, &temp, 1);
+		if (ret) {
+			puts("I2C: failed to select dvi pll filter\n");
+			return ret;
+		}
+	}
+
+	temp = I2C_DVI_POWER_MGMT_VAL;
+	ret = dm_i2c_write(dev, I2C_DVI_POWER_MGMT_REG, &temp, 1);
+	if (ret) {
+		puts("I2C: failed to select dvi power mgmt\n");
+		return ret;
+	}
+#else
 	ret = i2c_write(CONFIG_SYS_I2C_DVI_ADDR, I2C_DVI_TEST_PATTERN_REG, 1,
 			&temp, 1);
 	if (ret) {
@@ -128,6 +208,7 @@ int diu_set_dvi_encoder(unsigned int pixclock)
 		puts("I2C: failed to select dvi power mgmt\n");
 		return ret;
 	}
+#endif
 
 	udelay(500);
 

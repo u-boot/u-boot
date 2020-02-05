@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2011 Freescale Semiconductor
+ * Copyright 2020 NXP
  * Author: Shengzhou Liu <Shengzhou.Liu@freescale.com>
  *
  * This file provides support for the QIXIS of some Freescale reference boards.
@@ -287,7 +288,9 @@ static int qixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
 #ifdef QIXIS_LBMAP_EMMC
 		QIXIS_WRITE(rst_ctl, 0x30);
 		QIXIS_WRITE(rcfg_ctl, 0);
+#ifndef NON_EXTENDED_DUTCFG
 		set_lbmap(QIXIS_LBMAP_EMMC);
+#endif
 		set_rcw_src(QIXIS_RCW_SRC_EMMC);
 		QIXIS_WRITE(rcfg_ctl, QIXIS_RCFG_CTL_RECONFIG_IDLE);
 		QIXIS_WRITE(rcfg_ctl, QIXIS_RCFG_CTL_RECONFIG_START);
@@ -365,6 +368,7 @@ U_BOOT_CMD(
 	"qixis watchdog <watchdog_period> - set the watchdog period\n"
 	"	period: 1s 2s 4s 8s 16s 32s 1min 2min 4min 8min\n"
 	"qixis_reset dump - display the QIXIS registers\n"
+	"qixis_reset emmc - reset to emmc\n"
 	"qixis_reset switch - display switch\n"
 	);
 #endif

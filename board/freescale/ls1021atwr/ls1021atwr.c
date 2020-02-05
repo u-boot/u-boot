@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
+ * Copyright 2019 NXP
  */
 
 #include <common.h>
@@ -447,14 +448,37 @@ void board_init_f(ulong dummy)
 /* program the regulator (MC34VR500) to support deep sleep */
 void ls1twr_program_regulator(void)
 {
-	unsigned int i2c_bus;
 	u8 i2c_device_id;
 
 #define LS1TWR_I2C_BUS_MC34VR500	1
 #define MC34VR500_ADDR			0x8
 #define MC34VR500_DEVICEID		0x4
 #define MC34VR500_DEVICEID_MASK		0x0f
+#ifdef CONFIG_DM_I2C
+	struct udevice *dev;
+	int ret;
 
+	ret = i2c_get_chip_for_busnum(LS1TWR_I2C_BUS_MC34VR500, MC34VR500_ADDR,
+				      1, &dev);
+	if (ret) {
+		printf("%s: Cannot find udev for a bus %d\n", __func__,
+		       LS1TWR_I2C_BUS_MC34VR500);
+		return;
+	}
+	i2c_device_id = dm_i2c_reg_read(dev, 0x0) &
+					MC34VR500_DEVICEID_MASK;
+	if (i2c_device_id != MC34VR500_DEVICEID) {
+		printf("The regulator (MC34VR500) does not exist. The device does not support deep sleep.\n");
+		return;
+	}
+
+	dm_i2c_reg_write(dev, 0x31, 0x4);
+	dm_i2c_reg_write(dev, 0x4d, 0x4);
+	dm_i2c_reg_write(dev, 0x6d, 0x38);
+	dm_i2c_reg_write(dev, 0x6f, 0x37);
+	dm_i2c_reg_write(dev, 0x71, 0x30);
+#else
+	unsigned int i2c_bus;
 	i2c_bus = i2c_get_bus_num();
 	i2c_set_bus_num(LS1TWR_I2C_BUS_MC34VR500);
 	i2c_device_id = i2c_reg_read(MC34VR500_ADDR, 0x0) &
@@ -471,6 +495,7 @@ void ls1twr_program_regulator(void)
 	i2c_reg_write(MC34VR500_ADDR, 0x71, 0x30);
 
 	i2c_set_bus_num(i2c_bus);
+#endif
 }
 #endif
 
