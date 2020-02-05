@@ -31,6 +31,7 @@
 #include <linux/usb/otg.h>
 #include <linux/usb/gadget.h>
 
+#include <phys2bus.h>
 #include <asm/byteorder.h>
 #include <asm/unaligned.h>
 #include <asm/io.h>
@@ -1213,6 +1214,7 @@ static int dwc2_udc_otg_remove(struct udevice *dev)
 
 static const struct udevice_id dwc2_udc_otg_ids[] = {
 	{ .compatible = "snps,dwc2" },
+	{ .compatible = "brcm,bcm2835-usb" },
 	{ .compatible = "st,stm32mp1-hsotg",
 	  .data = (ulong)dwc2_set_stm32mp1_hsotg_params },
 	{},
