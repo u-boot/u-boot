@@ -93,6 +93,7 @@
 			<&gpio_b 9 0xc 3 2 1>;
 		int-value = <1234>;
 		uint-value = <(-1234)>;
+		interrupts-extended = <&irq 3 0>;
 	};
 
 	junk {
@@ -357,8 +358,10 @@
 		vss-microvolts = <0>;
 	};
 
-	irq {
+	irq: irq {
 		compatible = "sandbox,irq";
+		interrupt-controller;
+		#interrupt-cells = <2>;
 	};
 
 	lcd {
