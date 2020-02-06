@@ -45,6 +45,10 @@
 #define PCI_EA_BAR2_MAGIC		0x72727272
 #define PCI_EA_BAR4_MAGIC		0x74747474
 
+enum {
+	SANDBOX_IRQN_PEND = 1,	/* Interrupt number for 'pending' test */
+};
+
 /* System controller driver data */
 enum {
 	SYSCON0		= 32,

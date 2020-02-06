@@ -8,6 +8,7 @@
 #include <common.h>
 #include <dm.h>
 #include <irq.h>
+#include <asm/test.h>
 #include <dm/test.h>
 #include <test/ut.h>
 
@@ -30,3 +31,15 @@ static int dm_test_irq_base(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_irq_base, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test of irq_first_device_type() */
+static int dm_test_irq_type(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+
+	ut_assertok(irq_first_device_type(SANDBOX_IRQT_BASE, &dev));
+	ut_asserteq(-ENODEV, irq_first_device_type(X86_IRQT_BASE, &dev));
+
+	return 0;
+}
+DM_TEST(dm_test_irq_type, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

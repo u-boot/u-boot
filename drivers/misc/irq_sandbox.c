@@ -43,7 +43,7 @@ static const struct irq_ops sandbox_irq_ops = {
 };
 
 static const struct udevice_id sandbox_irq_ids[] = {
-	{ .compatible = "sandbox,irq"},
+	{ .compatible = "sandbox,irq", SANDBOX_IRQT_BASE },
 	{ }
 };
 

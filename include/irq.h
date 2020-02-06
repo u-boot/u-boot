@@ -8,6 +8,17 @@
 #ifndef __irq_H
 #define __irq_H
 
+/*
+ * Interrupt controller types available. You can find a particular one with
+ * irq_first_device_type()
+ */
+enum irq_dev_t {
+	X86_IRQT_BASE,		/* Base controller */
+	X86_IRQT_ITSS,		/* ITSS controller, e.g. on APL */
+	X86_IRQT_ACPI_GPE,	/* ACPI General-Purpose Events controller */
+	SANDBOX_IRQT_BASE,	/* Sandbox testing */
+};
+
 /**
  * struct irq_ops - Operations for the IRQ
  */
@@ -84,5 +95,17 @@ int irq_snapshot_polarities(struct udevice *dev);
  * @return 0
  */
 int irq_restore_polarities(struct udevice *dev);
+
+/**
+ * irq_first_device_type() - Get a particular interrupt controller
+ *
+ * On success this returns an activated interrupt device.
+ *
+ * @type: Type to find
+ * @devp: Returns the device, if found
+ * @return 0 if OK, -ENODEV if not found, other -ve error if uclass failed to
+ *	probe
+ */
+int irq_first_device_type(enum irq_dev_t type, struct udevice **devp);
 
 #endif
