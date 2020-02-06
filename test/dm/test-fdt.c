@@ -448,6 +448,27 @@ static int dm_test_first_next_device(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_first_next_device, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
+/* Test iteration through devices in a uclass */
+static int dm_test_uclass_foreach(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	struct uclass *uc;
+	int count;
+
+	count = 0;
+	uclass_id_foreach_dev(UCLASS_TEST_FDT, dev, uc)
+		count++;
+	ut_asserteq(8, count);
+
+	count = 0;
+	uclass_foreach_dev(dev, uc)
+		count++;
+	ut_asserteq(8, count);
+
+	return 0;
+}
+DM_TEST(dm_test_uclass_foreach, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
 /**
  * check_devices() - Check return values and pointers
  *

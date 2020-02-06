@@ -366,6 +366,23 @@ int uclass_next_device_check(struct udevice **devp);
 int uclass_resolve_seq(struct udevice *dev);
 
 /**
+ * uclass_id_foreach_dev() - Helper function to iteration through devices
+ *
+ * This creates a for() loop which works through the available devices in
+ * a uclass ID in order from start to end.
+ *
+ * If for some reason the uclass cannot be found, this does nothing.
+ *
+ * @id: enum uclass_id ID to use
+ * @pos: struct udevice * to hold the current device. Set to NULL when there
+ * are no more devices.
+ * @uc: temporary uclass variable (struct udevice *)
+ */
+#define uclass_id_foreach_dev(id, pos, uc) \
+	if (!uclass_get(id, &uc)) \
+		list_for_each_entry(pos, &uc->dev_head, uclass_node)
+
+/**
  * uclass_foreach_dev() - Helper function to iteration through devices
  *
  * This creates a for() loop which works through the available devices in
