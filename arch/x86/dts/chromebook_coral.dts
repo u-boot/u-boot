@@ -20,6 +20,7 @@
 #include <asm/arch-apollolake/gpio.h>
 #include <asm/arch-apollolake/iomap.h>
 #include <asm/arch-apollolake/pm.h>
+#include <dt-bindings/clock/intel-clock.h>
 
 / {
 	model = "Google Coral";
@@ -29,6 +30,14 @@
 		cros-ec0 = &cros_ec;
 		fsp = &fsp_s;
 		spi0 = &spi;
+		i2c0 = &i2c_0;
+		i2c1 = &i2c_1;
+		i2c2 = &i2c_2;
+		i2c3 = &i2c_3;
+		i2c4 = &i2c_4;
+		i2c5 = &i2c_5;
+		i2c6 = &i2c_6;
+		i2c7 = &i2c_7;
 	};
 
 	config {
@@ -78,6 +87,13 @@
 			intel,apic-id = <6>;
 		};
 
+	};
+
+	acpi_gpe: general-purpose-events {
+		reg = <IOMAP_ACPI_BASE IOMAP_ACPI_SIZE>;
+		compatible = "intel,acpi-gpe";
+		interrupt-controller;
+		#interrupt-cells = <2>;
 	};
 
 	keyboard {
@@ -246,6 +262,78 @@
 					u-boot,dm-pre-reloc;
 				};
 			};
+		};
+
+		i2c_0: i2c2@16,0 {
+			compatible = "intel,apl-i2c";
+			reg = <0x0200b010 0 0 0 0>;
+			clocks = <&clk CLK_I2C>;
+			i2c-scl-rising-time-ns = <104>;
+			i2c-scl-falling-time-ns = <52>;
+		};
+
+		i2c_1: i2c2@16,1 {
+			compatible = "intel,apl-i2c";
+			reg = <0x0200b110 0 0 0 0>;
+			clocks = <&clk CLK_I2C>;
+			status = "disabled";
+		};
+
+		i2c_2: i2c2@16,2 {
+			compatible = "intel,apl-i2c";
+			reg = <0x0200b210 0 0 0 0>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			clock-frequency = <400000>;
+			clocks = <&clk CLK_I2C>;
+			i2c-scl-rising-time-ns = <57>;
+			i2c-scl-falling-time-ns = <28>;
+			tpm@50 {
+				reg = <0x50>;
+				compatible = "google,cr50";
+				u-boot,i2c-offset-len = <0>;
+				ready-gpio = <&gpio_n 28 GPIO_ACTIVE_LOW>;
+				interrupts-extended = <&acpi_gpe 0x3c 0>;
+			};
+		};
+
+		i2c_3: i2c2@16,3 {
+			compatible = "intel,apl-i2c";
+			reg = <0x0200b110 0 0 0 0>;
+			clocks = <&clk CLK_I2C>;
+			i2c-scl-rising-time-ns = <76>;
+			i2c-scl-falling-time-ns = <164>;
+		};
+
+		i2c_4: i2c2@17,0 {
+			compatible = "intel,apl-i2c";
+			reg = <0x0200b110 0 0 0 0>;
+			clocks = <&clk CLK_I2C>;
+			i2c-sda-hold-time-ns = <350>;
+			i2c-scl-rising-time-ns = <114>;
+			i2c-scl-falling-time-ns = <164>;
+		};
+
+		i2c_5: i2c2@17,1 {
+			compatible = "intel,apl-i2c";
+			reg = <0x0200b110 0 0 0 0>;
+			clocks = <&clk CLK_I2C>;
+			i2c-scl-rising-time-ns = <76>;
+			i2c-scl-falling-time-ns = <164>;
+		};
+
+		i2c_6: i2c2@17,2 {
+			compatible = "intel,apl-i2c";
+			reg = <0x0200b110 0 0 0 0>;
+			clocks = <&clk CLK_I2C>;
+			status = "disabled";
+		};
+
+		i2c_7: i2c2@17,3 {
+			compatible = "intel,apl-i2c";
+			reg = <0x0200b110 0 0 0 0>;
+			clocks = <&clk CLK_I2C>;
+			status = "disabled";
 		};
 
 		serial: serial@18,2 {
