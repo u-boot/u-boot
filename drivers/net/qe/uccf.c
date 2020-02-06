@@ -14,7 +14,6 @@
 #include "uccf.h"
 #include <fsl_qe.h>
 
-#if !defined(CONFIG_DM_ETH)
 void ucc_fast_transmit_on_demand(struct ucc_fast_priv *uccf)
 {
 	out_be16(&uccf->uf_regs->utodr, UCC_FAST_TOD);
@@ -506,4 +505,3 @@ int ucc_fast_init(struct ucc_fast_inf *uf_info,
 	*uccf_ret = uccf;
 	return 0;
 }
-#endif

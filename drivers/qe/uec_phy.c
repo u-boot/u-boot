@@ -23,6 +23,8 @@
 #include <fsl_qe.h>
 #include <phy.h>
 
+#if !defined(CONFIG_DM_ETH)
+
 #define ugphy_printk(format, arg...)  \
 	printf(format "\n", ## arg)
 
@@ -925,3 +927,4 @@ void change_phy_interface_mode(struct eth_device *dev,
 	marvell_phy_interface_mode(dev, type, speed);
 #endif
 }
+#endif
