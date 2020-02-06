@@ -351,6 +351,20 @@ int uclass_first_device_check(enum uclass_id id, struct udevice **devp);
 int uclass_next_device_check(struct udevice **devp);
 
 /**
+ * uclass_first_device_drvdata() - Find the first device with given driver data
+ *
+ * This searches through the devices for a particular uclass looking for one
+ * that has the given driver data.
+ *
+ * @id: Uclass ID to check
+ * @driver_data: Driver data to search for
+ * @devp: Returns pointer to the first matching device in that uclass, if found
+ * @return 0 if found, -ENODEV if not found, other -ve on error
+ */
+int uclass_first_device_drvdata(enum uclass_id id, ulong driver_data,
+				struct udevice **devp);
+
+/**
  * uclass_resolve_seq() - Resolve a device's sequence number
  *
  * On entry dev->seq is -1, and dev->req_seq may be -1 (to allocate a

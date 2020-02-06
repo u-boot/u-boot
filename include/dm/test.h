@@ -56,6 +56,8 @@ enum {
 enum {
 	DM_TEST_TYPE_FIRST = 0,
 	DM_TEST_TYPE_SECOND,
+
+	DM_TEST_TYPE_COUNT,
 };
 
 /* The number added to the ping total on each probe */

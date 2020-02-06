@@ -629,6 +629,23 @@ int uclass_next_device_check(struct udevice **devp)
 	return device_probe(*devp);
 }
 
+int uclass_first_device_drvdata(enum uclass_id id, ulong driver_data,
+				struct udevice **devp)
+{
+	struct udevice *dev;
+	struct uclass *uc;
+
+	uclass_id_foreach_dev(id, dev, uc) {
+		if (dev_get_driver_data(dev) == driver_data) {
+			*devp = dev;
+
+			return device_probe(dev);
+		}
+	}
+
+	return -ENODEV;
+}
+
 int uclass_bind_device(struct udevice *dev)
 {
 	struct uclass *uc;
