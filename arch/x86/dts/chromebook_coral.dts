@@ -39,6 +39,11 @@
 		stdout-path = &serial;
 	};
 
+	clk: clock {
+		compatible = "intel,apl-clk";
+		#clock-cells = <1>;
+	};
+
 	cpus {
 		u-boot,dm-pre-reloc;
 		#address-cells = <1>;

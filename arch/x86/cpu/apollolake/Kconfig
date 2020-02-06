@@ -41,6 +41,9 @@ config INTEL_APOLLOLAKE
 	imply SMP
 	imply HAVE_ITSS
 	imply HAVE_P2SB
+	imply CLK
+	imply CMD_CLK
+	imply CLK_INTEL
 
 if INTEL_APOLLOLAKE
 
