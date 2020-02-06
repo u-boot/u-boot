@@ -128,22 +128,15 @@ struct regmap *syscon_regmap_lookup_by_phandle(struct udevice *dev,
 
 int syscon_get_by_driver_data(ulong driver_data, struct udevice **devp)
 {
-	struct udevice *dev;
-	struct uclass *uc;
 	int ret;
 
 	*devp = NULL;
-	ret = uclass_get(UCLASS_SYSCON, &uc);
-	if (ret)
-		return ret;
-	uclass_foreach_dev(dev, uc) {
-		if (dev->driver_data == driver_data) {
-			*devp = dev;
-			return device_probe(dev);
-		}
-	}
 
-	return -ENODEV;
+	ret = uclass_first_device_drvdata(UCLASS_SYSCON, driver_data, devp);
+	if (ret)
+		return log_msg_ret("find", ret);
+
+	return 0;
 }
 
 struct regmap *syscon_get_regmap_by_driver_data(ulong driver_data)
