@@ -213,9 +213,7 @@ To do
    - left-side USB
    - USB-C
    - Cr50 (security chip: a basic driver is running but not included here)
-   - I2C (driver exists but not enabled in device tree)
    - Sound (Intel I2S support exists, but need da7219 driver)
-   - RTC (driver exists but not enabled in device tree)
    - Various minor features supported by LPC, etc.
 - Booting Chrome OS, e.g. with verified boot
 - Integrate with Chrome OS vboot
