@@ -535,7 +535,7 @@ int arch_fsps_preinit(void)
 	struct udevice *itss;
 	int ret;
 
-	ret = uclass_first_device_err(UCLASS_IRQ, &itss);
+	ret = irq_first_device_type(X86_IRQT_ITSS, &itss);
 	if (ret)
 		return log_msg_ret("no itss", ret);
 	/*
@@ -576,7 +576,7 @@ int arch_fsp_init_r(void)
 	if (ret)
 		return ret;
 
-	ret = uclass_first_device_err(UCLASS_IRQ, &itss);
+	ret = irq_first_device_type(X86_IRQT_ITSS, &itss);
 	if (ret)
 		return log_msg_ret("no itss", ret);
 	/* Restore GPIO IRQ polarities back to previous settings */

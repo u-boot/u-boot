@@ -613,7 +613,7 @@ int intel_pinctrl_ofdata_to_platdata(struct udevice *dev,
 		log_err("Cannot find community for pid %d\n", pplat->pid);
 		return -EDOM;
 	}
-	ret = uclass_first_device_err(UCLASS_IRQ, &priv->itss);
+	ret = irq_first_device_type(X86_IRQT_ITSS, &priv->itss);
 	if (ret)
 		return log_msg_ret("Cannot find ITSS", ret);
 	priv->comm = comm;

@@ -199,7 +199,7 @@ static const struct irq_ops itss_ops = {
 };
 
 static const struct udevice_id itss_ids[] = {
-	{ .compatible = "intel,itss"},
+	{ .compatible = "intel,itss", .data = X86_IRQT_ITSS },
 	{ }
 };
 
