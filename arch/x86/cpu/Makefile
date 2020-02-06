@@ -55,6 +55,7 @@ obj-$(CONFIG_INTEL_QUEENSBAY) += queensbay/
 obj-$(CONFIG_INTEL_TANGIER) += tangier/
 obj-$(CONFIG_APIC) += lapic.o ioapic.o
 obj-$(CONFIG_$(SPL_TPL_)X86_32BIT_INIT) += irq.o
+obj-$(CONFIG_$(SPL_TPL_)ACPI_GPE) += acpi_gpe.o
 obj-$(CONFIG_QFW) += qfw_cpu.o
 ifndef CONFIG_$(SPL_)X86_64
 obj-$(CONFIG_SMP) += mp_init.o

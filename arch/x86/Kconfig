@@ -923,4 +923,37 @@ config X86_OFFSET_SPL
 	depends on SPL && X86
 	default SPL_TEXT_BASE
 
+config ACPI_GPE
+	bool "Support ACPI general-purpose events"
+	help
+	  Enable a driver for ACPI GPEs to allow peripherals to send interrupts
+	  via ACPI to the OS. In U-Boot this is only used when U-Boot itself
+	  needs access to these interrupts. This can happen when it uses a
+	  peripheral that is set up to use GPEs and so cannot use the normal
+	  GPIO mechanism for polling an input.
+
+	  See https://queue.acm.org/blogposting.cfm?id=18977 for more info
+
+config SPL_ACPI_GPE
+	bool "Support ACPI general-purpose events in SPL"
+	help
+	  Enable a driver for ACPI GPEs to allow peripherals to send interrupts
+	  via ACPI to the OS. In U-Boot this is only used when U-Boot itself
+	  needs access to these interrupts. This can happen when it uses a
+	  peripheral that is set up to use GPEs and so cannot use the normal
+	  GPIO mechanism for polling an input.
+
+	  See https://queue.acm.org/blogposting.cfm?id=18977 for more info
+
+config TPL_ACPI_GPE
+	bool "Support ACPI general-purpose events in TPL"
+	help
+	  Enable a driver for ACPI GPEs to allow peripherals to send interrupts
+	  via ACPI to the OS. In U-Boot this is only used when U-Boot itself
+	  needs access to these interrupts. This can happen when it uses a
+	  peripheral that is set up to use GPEs and so cannot use the normal
+	  GPIO mechanism for polling an input.
+
+	  See https://queue.acm.org/blogposting.cfm?id=18977 for more info
+
 endmenu
