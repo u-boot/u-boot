@@ -25,6 +25,7 @@ obj-$(CONFIG_CLK_MVEBU) += mvebu/
 obj-$(CONFIG_CLK_BCM6345) += clk_bcm6345.o
 obj-$(CONFIG_CLK_BOSTON) += clk_boston.o
 obj-$(CONFIG_CLK_EXYNOS) += exynos/
+obj-$(CONFIG_$(SPL_TPL_)CLK_INTEL) += intel/
 obj-$(CONFIG_CLK_HSDK) += clk-hsdk-cgu.o
 obj-$(CONFIG_CLK_MPC83XX) += mpc83xx_clk.o
 obj-$(CONFIG_CLK_OWL) += owl/
