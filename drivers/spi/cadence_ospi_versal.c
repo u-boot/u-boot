@@ -158,4 +158,46 @@ int cadence_spi_versal_flash_reset(struct udevice *dev)
 
 	return 0;
 }
+#else
+#define FLASH_RESET_GPIO	0xC
+int cadence_spi_versal_flash_reset(struct udevice *dev)
+{
+	/* CRP WPROT */
+	writel(0, 0xf126001c);
+	/* GPIO Reset */
+	writel(0, 0xf1260318);
+
+	/* disable IOU write protection */
+	writel(0, 0xff080728);
+
+	/* set direction as output */
+	writel((readl(0xf1020204) | BIT(FLASH_RESET_GPIO)), 0xf1020204);
+
+	/* Data output enable */
+	writel((readl(0xf1020208) | BIT(FLASH_RESET_GPIO)), 0xf1020208);
+
+	/* IOU SLCR write enable */
+	writel(0, 0xf1060828);
+
+	/* set MIO as GPIO */
+	writel(0x60, 0xf1060030);
+
+	/* Set value 1 to pin */
+	writel((readl(0xf1020040) | BIT(FLASH_RESET_GPIO)), 0xf1020040);
+	udelay(10);
+
+	/* Disable Tri-state */
+	writel((readl(0xf1060200) & ~BIT(FLASH_RESET_GPIO)), 0xf1060200);
+	udelay(1);
+
+	/* Set value 0 to pin */
+	writel((readl(0xf1020040) & ~BIT(FLASH_RESET_GPIO)), 0xf1020040);
+	udelay(10);
+
+	/* Set value 1 to pin */
+	writel((readl(0xf1020040) | BIT(FLASH_RESET_GPIO)), 0xf1020040);
+	udelay(10);
+
+	return 0;
+}
 #endif
