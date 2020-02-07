@@ -283,6 +283,7 @@ dtb-$(CONFIG_ARCH_ZYNQMP) += \
 	zynqmp-mini-nand.dtb			\
 	zynqmp-mini-qspi.dtb			\
 	zynqmp-mini-qspi-parallel.dtb		\
+	zynqmp-mini-qspi-single.dtb		\
 	zynqmp-mini-qspi-stacked.dtb		\
 	zynqmp-mini-qspi-x1-single.dtb		\
 	zynqmp-mini-qspi-x1-stacked.dtb		\
