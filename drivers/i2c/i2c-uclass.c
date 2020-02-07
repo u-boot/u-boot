@@ -501,10 +501,10 @@ static int i2c_gpio_get_pin(struct gpio_desc *pin)
 	return dm_gpio_get_value(pin);
 }
 
-static int i2c_deblock_gpio_loop(struct gpio_desc *sda_pin,
-				 struct gpio_desc *scl_pin,
-				 unsigned int scl_count,
-				 unsigned int delay)
+int i2c_deblock_gpio_loop(struct gpio_desc *sda_pin,
+			  struct gpio_desc *scl_pin,
+			  unsigned int scl_count,
+			  unsigned int delay)
 {
 	int ret = 0;
 

@@ -331,6 +331,22 @@ uint i2c_get_chip_addr_offset_mask(struct udevice *dev);
 int i2c_deblock(struct udevice *bus);
 
 /**
+ * i2c_deblock_gpio_loop() - recover a bus from an unknown state by toggling SDA/SCL
+ *
+ * This is the inner logic used for toggling I2C SDA/SCL lines as GPIOs
+ * for deblocking the I2C bus.
+ *
+ * @sda_pin:	SDA GPIO
+ * @scl_pin:	SCL GPIO
+ * @scl_count:	Number of SCL clock cycles generated to deblock SDA
+ * @delay:	Delay between SCL clock line changes
+ * @return 0 if OK, -ve on error
+ */
+struct gpio_desc;
+int i2c_deblock_gpio_loop(struct gpio_desc *sda_pin, struct gpio_desc *scl_pin,
+			  unsigned int scl_count, unsigned int delay);
+
+/**
  * struct dm_i2c_ops - driver operations for I2C uclass
  *
  * Drivers should support these operations unless otherwise noted. These
