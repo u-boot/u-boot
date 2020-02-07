@@ -317,11 +317,15 @@ unsigned long get_board_sys_clk(void);
 #include <config_distro_bootcmd.h>
 
 #ifdef CONFIG_TFABOOT
-#define QSPI_MC_INIT_CMD			\
-	"env exists secureboot && "		\
-	"esbc_validate 0x20640000 && "		\
-	"esbc_validate 0x20680000;"		\
-	"fsl_mc start mc 0x20a00000 0x20e00000 \0"
+#define QSPI_MC_INIT_CMD				\
+	"sf probe 0:0; "				\
+	"sf read 0x80640000 0x640000 0x80000; "		\
+	"env exists secureboot && "			\
+	"esbc_validate 0x80640000 && "			\
+	"esbc_validate 0x80680000; "			\
+	"sf read 0x80a00000 0xa00000 0x300000; "	\
+	"sf read 0x80e00000 0xe00000 0x100000; "	\
+	"fsl_mc start mc 0x80a00000 0x80e00000 \0"
 #define SD_MC_INIT_CMD				\
 	"mmcinfo;mmc read 0x80a00000 0x5000 0x1200;" \
 	"mmc read 0x80e00000 0x7000 0x800;"	\
@@ -338,11 +342,15 @@ unsigned long get_board_sys_clk(void);
 	"fsl_mc start mc 0x580a00000 0x580e00000 \0"
 #else
 #ifdef CONFIG_QSPI_BOOT
-#define MC_INIT_CMD				\
-	"mcinitcmd=env exists secureboot && "	\
-	"esbc_validate 0x20640000 && "		\
-	"esbc_validate 0x20680000;"		\
-	"fsl_mc start mc 0x20a00000 0x20e00000 \0"
+#define MC_INIT_CMD					\
+	"mcinitcmd=sf probe 0:0; "			\
+	"sf read 0x80640000 0x640000 0x80000; "		\
+	"env exists secureboot && "			\
+	"esbc_validate 0x80640000 && "			\
+	"esbc_validate 0x80680000; "			\
+	"sf read 0x80a00000 0xa00000 0x300000; "	\
+	"sf read 0x80e00000 0xe00000 0x100000; "	\
+	"fsl_mc start mc 0x80a00000 0x80e00000 \0"
 #elif defined(CONFIG_SD_BOOT)
 #define MC_INIT_CMD                             \
 	"mcinitcmd=mmcinfo;mmc read 0x80000000 0x5000 0x800;" \
