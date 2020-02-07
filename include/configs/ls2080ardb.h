@@ -504,10 +504,13 @@ unsigned long get_board_sys_clk(void);
 
 #ifdef CONFIG_TFABOOT
 #define QSPI_NOR_BOOTCOMMAND						\
+			"sf probe 0:0; "				\
+			"sf read 0x806c0000 0x6c0000 0x40000; "		\
 			"env exists mcinitcmd && env exists secureboot "\
-			"&& esbc_validate 0x206C0000; "			\
+			"&& esbc_validate 0x806c0000; "			\
+			"sf read 0x80d00000 0xd00000 0x100000; "	\
 			"env exists mcinitcmd && "			\
-			"fsl_mc lazyapply dpl 0x20d00000; "		\
+			"fsl_mc lazyapply dpl 0x80d00000; "		\
 			"run distro_bootcmd;run qspi_bootcmd; "		\
 			"env exists secureboot && esbc_halt;"
 
@@ -534,10 +537,13 @@ unsigned long get_board_sys_clk(void);
 #ifdef CONFIG_QSPI_BOOT
 /* Try to boot an on-QSPI kernel first, then do normal distro boot */
 #define CONFIG_BOOTCOMMAND						\
+			"sf probe 0:0; "				\
+			"sf read 0x806c0000 0x6c0000 0x40000; "		\
 			"env exists mcinitcmd && env exists secureboot "\
-			"&& esbc_validate 0x206C0000; "			\
+			"&& esbc_validate 0x806C0000; "			\
+			"sf read 0x80d00000 0xd00000 0x100000; "	\
 			"env exists mcinitcmd && "			\
-			"fsl_mc lazyapply dpl 0x20d00000; "		\
+			"fsl_mc lazyapply dpl 0x80d00000; "		\
 			"run distro_bootcmd;run qspi_bootcmd; "		\
 			"env exists secureboot && esbc_halt;"
 #elif defined(CONFIG_SD_BOOT)
