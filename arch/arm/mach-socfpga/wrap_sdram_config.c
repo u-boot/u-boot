@@ -80,13 +80,15 @@ static const struct socfpga_sdram_config sdram_config = {
 			SDR_CTRLGRP_DRAMODT_READ_LSB)			|
 		(CONFIG_HPS_SDR_CTRLCFG_DRAMODT_WRITE <<
 			SDR_CTRLGRP_DRAMODT_WRITE_LSB),
+#if (CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_MEMTYPE == 2)	/* DDR3 */
 	.extratime1 =
-	(CONFIG_HPS_SDR_CTRLCFG_EXTRATIME1_CFG_EXTRA_CTL_CLK_RD_TO_WR <<
-			SDR_CTRLGRP_EXTRATIME1_RD_TO_WR_LSB)		|
-	(CONFIG_HPS_SDR_CTRLCFG_EXTRATIME1_CFG_EXTRA_CTL_CLK_RD_TO_WR_BC <<
-			SDR_CTRLGRP_EXTRATIME1_RD_TO_WR_BC_LSB)		|
-(CONFIG_HPS_SDR_CTRLCFG_EXTRATIME1_CFG_EXTRA_CTL_CLK_RD_TO_WR_DIFF_CHIP <<
-			SDR_CTRLGRP_EXTRATIME1_RD_TO_WR_DIFF_LSB),
+		(CONFIG_HPS_SDR_CTRLCFG_EXTRATIME1_CFG_EXTRA_CTL_CLK_RD_TO_WR <<
+				SDR_CTRLGRP_EXTRATIME1_RD_TO_WR_LSB)		|
+		(CONFIG_HPS_SDR_CTRLCFG_EXTRATIME1_CFG_EXTRA_CTL_CLK_RD_TO_WR_BC <<
+				SDR_CTRLGRP_EXTRATIME1_RD_TO_WR_BC_LSB)		|
+		(CONFIG_HPS_SDR_CTRLCFG_EXTRATIME1_CFG_EXTRA_CTL_CLK_RD_TO_WR_DIFF_CHIP <<
+				SDR_CTRLGRP_EXTRATIME1_RD_TO_WR_DIFF_LSB),
+#endif
 	.dram_addrw =
 		(CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_COLBITS <<
 			SDR_CTRLGRP_DRAMADDRW_COLBITS_LSB)		|
@@ -190,7 +192,6 @@ static const struct socfpga_sdram_rw_mgr_config rw_mgr_config = {
 	.activate_0_and_1		= RW_MGR_ACTIVATE_0_AND_1,
 	.activate_0_and_1_wait1		= RW_MGR_ACTIVATE_0_AND_1_WAIT1,
 	.activate_0_and_1_wait2		= RW_MGR_ACTIVATE_0_AND_1_WAIT2,
-	.activate_1			= RW_MGR_ACTIVATE_1,
 	.clear_dqs_enable		= RW_MGR_CLEAR_DQS_ENABLE,
 	.guaranteed_read		= RW_MGR_GUARANTEED_READ,
 	.guaranteed_read_cont		= RW_MGR_GUARANTEED_READ_CONT,
@@ -199,11 +200,41 @@ static const struct socfpga_sdram_rw_mgr_config rw_mgr_config = {
 	.guaranteed_write_wait1		= RW_MGR_GUARANTEED_WRITE_WAIT1,
 	.guaranteed_write_wait2		= RW_MGR_GUARANTEED_WRITE_WAIT2,
 	.guaranteed_write_wait3		= RW_MGR_GUARANTEED_WRITE_WAIT3,
-	.idle				= RW_MGR_IDLE,
 	.idle_loop1			= RW_MGR_IDLE_LOOP1,
 	.idle_loop2			= RW_MGR_IDLE_LOOP2,
+#if (CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_MEMTYPE == 1)	/* DDR2 */
+	.emr				= RW_MGR_EMR,
+	.emr2				= RW_MGR_EMR2,
+	.emr3				= RW_MGR_EMR3,
+	.init_reset_0_cke_0		= RW_MGR_INIT_CKE_0,
+	.nop				= RW_MGR_NOP,
+	.refresh			= RW_MGR_REFRESH,
+	.mr_calib			= RW_MGR_MR_CALIB,
+	.mr_user			= RW_MGR_MR_USER,
+	.mr_dll_reset			= RW_MGR_MR_DLL_RESET,
+	.emr_ocd_enable			= RW_MGR_EMR_OCD_ENABLE,
+#elif (CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_MEMTYPE == 2)	/* DDR3 */
+	.activate_1			= RW_MGR_ACTIVATE_1,
+	.idle				= RW_MGR_IDLE,
 	.init_reset_0_cke_0		= RW_MGR_INIT_RESET_0_CKE_0,
 	.init_reset_1_cke_0		= RW_MGR_INIT_RESET_1_CKE_0,
+	.mrs1				= RW_MGR_MRS1,
+	.mrs1_mirr			= RW_MGR_MRS1_MIRR,
+	.mrs2				= RW_MGR_MRS2,
+	.mrs2_mirr			= RW_MGR_MRS2_MIRR,
+	.mrs3				= RW_MGR_MRS3,
+	.mrs3_mirr			= RW_MGR_MRS3_MIRR,
+	.refresh_all			= RW_MGR_REFRESH_ALL,
+	.rreturn			= RW_MGR_RETURN,
+	.sgle_read			= RW_MGR_SGLE_READ,
+	.zqcl				= RW_MGR_ZQCL,
+	.mrs0_dll_reset			= RW_MGR_MRS0_DLL_RESET,
+	.mrs0_dll_reset_mirr		= RW_MGR_MRS0_DLL_RESET_MIRR,
+	.mrs0_user			= RW_MGR_MRS0_USER,
+	.mrs0_user_mirr			= RW_MGR_MRS0_USER_MIRR,
+#else
+#error LPDDR2 and other DRAM types are not yet supported
+#endif
 	.lfsr_wr_rd_bank_0		= RW_MGR_LFSR_WR_RD_BANK_0,
 	.lfsr_wr_rd_bank_0_data		= RW_MGR_LFSR_WR_RD_BANK_0_DATA,
 	.lfsr_wr_rd_bank_0_dqs		= RW_MGR_LFSR_WR_RD_BANK_0_DQS,
@@ -216,24 +247,10 @@ static const struct socfpga_sdram_rw_mgr_config rw_mgr_config = {
 	.lfsr_wr_rd_dm_bank_0_nop	= RW_MGR_LFSR_WR_RD_DM_BANK_0_NOP,
 	.lfsr_wr_rd_dm_bank_0_wait	= RW_MGR_LFSR_WR_RD_DM_BANK_0_WAIT,
 	.lfsr_wr_rd_dm_bank_0_wl_1	= RW_MGR_LFSR_WR_RD_DM_BANK_0_WL_1,
-	.mrs0_dll_reset			= RW_MGR_MRS0_DLL_RESET,
-	.mrs0_dll_reset_mirr		= RW_MGR_MRS0_DLL_RESET_MIRR,
-	.mrs0_user			= RW_MGR_MRS0_USER,
-	.mrs0_user_mirr			= RW_MGR_MRS0_USER_MIRR,
-	.mrs1				= RW_MGR_MRS1,
-	.mrs1_mirr			= RW_MGR_MRS1_MIRR,
-	.mrs2				= RW_MGR_MRS2,
-	.mrs2_mirr			= RW_MGR_MRS2_MIRR,
-	.mrs3				= RW_MGR_MRS3,
-	.mrs3_mirr			= RW_MGR_MRS3_MIRR,
 	.precharge_all			= RW_MGR_PRECHARGE_ALL,
 	.read_b2b			= RW_MGR_READ_B2B,
 	.read_b2b_wait1			= RW_MGR_READ_B2B_WAIT1,
 	.read_b2b_wait2			= RW_MGR_READ_B2B_WAIT2,
-	.refresh_all			= RW_MGR_REFRESH_ALL,
-	.rreturn			= RW_MGR_RETURN,
-	.sgle_read			= RW_MGR_SGLE_READ,
-	.zqcl				= RW_MGR_ZQCL,
 
 	.true_mem_data_mask_width	= RW_MGR_TRUE_MEM_DATA_MASK_WIDTH,
 	.mem_address_mirroring		= RW_MGR_MEM_ADDRESS_MIRRORING,
@@ -270,6 +287,9 @@ static const struct socfpga_sdram_io_config io_config = {
 };
 
 static const struct socfpga_sdram_misc_config misc_config = {
+#if (CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_MEMTYPE == 1)	/* DDR2 */
+	.afi_clk_freq			= AFI_CLK_FREQ,
+#endif
 	.afi_rate_ratio			= AFI_RATE_RATIO,
 	.calib_lfifo_offset		= CALIB_LFIFO_OFFSET,
 	.calib_vfifo_offset		= CALIB_VFIFO_OFFSET,
