@@ -339,12 +339,14 @@ int i2c_deblock(struct udevice *bus);
  * @sda_pin:	SDA GPIO
  * @scl_pin:	SCL GPIO
  * @scl_count:	Number of SCL clock cycles generated to deblock SDA
+ * @start_count:Number of I2C start conditions sent after deblocking SDA
  * @delay:	Delay between SCL clock line changes
  * @return 0 if OK, -ve on error
  */
 struct gpio_desc;
 int i2c_deblock_gpio_loop(struct gpio_desc *sda_pin, struct gpio_desc *scl_pin,
-			  unsigned int scl_count, unsigned int delay);
+			  unsigned int scl_count, unsigned int start_count,
+			  unsigned int delay);
 
 /**
  * struct dm_i2c_ops - driver operations for I2C uclass
