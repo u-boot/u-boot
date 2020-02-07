@@ -9,10 +9,6 @@
 #
 # Test launching UEFI binaries from FIT images.
 
-import os.path
-import pytest
-import u_boot_utils as util
-
 """
 Note: This test relies on boardenv_* containing configuration values to define
 which network environment is available for testing. Without this, the parts
@@ -57,8 +53,12 @@ env__efi_fit_tftp_file = {
 }
 """
 
+import os.path
+import pytest
+import u_boot_utils as util
+
 # Define the parametrized ITS data to be used for FIT images generation.
-its_data = '''
+ITS_DATA = '''
 /dts-v1/;
 
 / {
@@ -101,7 +101,7 @@ its_data = '''
 '''
 
 # Define the parametrized FDT data to be used for DTB images generation.
-fdt_data = '''
+FDT_DATA = '''
 /dts-v1/;
 
 / {
@@ -199,16 +199,16 @@ def test_efi_fit_launch(u_boot_console):
             cons.run_command('setenv %s %s' % (var, val))
         return True
 
-    def make_fpath(fname):
+    def make_fpath(file_name):
         """Compute the path of a given (temporary) file.
 
         Args:
-            fname: The name of a file within U-Boot build dir.
+            file_name: The name of a file within U-Boot build dir.
         Return:
             The computed file path.
         """
 
-        return os.path.join(cons.config.build_dir, fname)
+        return os.path.join(cons.config.build_dir, file_name)
 
     def make_efi(fname, comp):
         """Create an UEFI binary.
@@ -225,7 +225,8 @@ def test_efi_fit_launch(u_boot_console):
 
         bin_path = make_fpath(fname)
         util.run_and_log(cons,
-                ['cp', make_fpath('lib/efi_loader/helloworld.efi'), bin_path])
+                         ['cp', make_fpath('lib/efi_loader/helloworld.efi'),
+                          bin_path])
         if comp:
             util.run_and_log(cons, ['gzip', '-f', bin_path])
             bin_path += '.gz'
@@ -251,8 +252,8 @@ def test_efi_fit_launch(u_boot_console):
 
         # Generate a test FDT file.
         dts = make_fpath('test-efi-fit-%s.dts' % fdt_type)
-        with open(dts, 'w') as fd:
-            fd.write(fdt_data % fdt_params)
+        with open(dts, 'w') as file:
+            file.write(FDT_DATA % fdt_params)
 
         # Build the test FDT.
         dtb = make_fpath('test-efi-fit-%s.dtb' % fdt_type)
@@ -284,65 +285,65 @@ def test_efi_fit_launch(u_boot_console):
 
         # Generate a test ITS file.
         its_path = make_fpath('test-efi-fit-helloworld.its')
-        with open(its_path, 'w') as fd:
-            fd.write(its_data % its_params)
+        with open(its_path, 'w') as file:
+            file.write(ITS_DATA % its_params)
 
         # Build the test ITS.
         fit_path = make_fpath('test-efi-fit-helloworld.fit')
         util.run_and_log(
-                cons, [make_fpath('tools/mkimage'), '-f', its_path, fit_path])
+            cons, [make_fpath('tools/mkimage'), '-f', its_path, fit_path])
         return fit_path
 
-    def load_fit_from_host(f):
+    def load_fit_from_host(fit):
         """Load the FIT image using the 'host load' command and return its address.
 
         Args:
-            f: Dictionary describing the FIT image to load, see env__efi_fit_test_file
-                in the comment at the beginning of this file.
+            fit: Dictionary describing the FIT image to load, see env__efi_fit_test_file
+                 in the comment at the beginning of this file.
         Return:
             The address where the file has been loaded.
         """
 
-        addr = f.get('addr', None)
+        addr = fit.get('addr', None)
         if not addr:
             addr = util.find_ram_base(cons)
 
         output = cons.run_command(
-                    'host load hostfs - %x %s/%s' % (addr, f['dn'], f['fn']))
+            'host load hostfs - %x %s/%s' % (addr, fit['dn'], fit['fn']))
         expected_text = ' bytes read'
-        sz = f.get('size', None)
-        if sz:
-            expected_text = '%d' % sz + expected_text
-        assert(expected_text in output)
+        size = fit.get('size', None)
+        if size:
+            expected_text = '%d' % size + expected_text
+        assert expected_text in output
 
         return addr
 
-    def load_fit_from_tftp(f):
+    def load_fit_from_tftp(fit):
         """Load the FIT image using the tftpboot command and return its address.
 
         The file is downloaded from the TFTP server, its size and optionally its
         CRC32 are validated.
 
         Args:
-            f: Dictionary describing the FIT image to load, see env__efi_fit_tftp_file
-                in the comment at the beginning of this file.
+            fit: Dictionary describing the FIT image to load, see env__efi_fit_tftp_file
+                 in the comment at the beginning of this file.
         Return:
             The address where the file has been loaded.
         """
 
-        addr = f.get('addr', None)
+        addr = fit.get('addr', None)
         if not addr:
             addr = util.find_ram_base(cons)
 
-        fn = f['fn']
-        output = cons.run_command('tftpboot %x %s' % (addr, fn))
+        file_name = fit['fn']
+        output = cons.run_command('tftpboot %x %s' % (addr, file_name))
         expected_text = 'Bytes transferred = '
-        sz = f.get('size', None)
-        if sz:
-            expected_text += '%d' % sz
+        size = fit.get('size', None)
+        if size:
+            expected_text += '%d' % size
         assert expected_text in output
 
-        expected_crc = f.get('crc32', None)
+        expected_crc = fit.get('crc32', None)
         if not expected_crc:
             return addr
 
@@ -398,8 +399,8 @@ def test_efi_fit_launch(u_boot_console):
                 if not fit:
                     pytest.skip('No env__efi_fit_tftp_file binary specified in environment')
 
-            sz = fit.get('size', None)
-            if not sz:
+            size = fit.get('size', None)
+            if not size:
                 if not fit.get('dn', None):
                     pytest.skip('Neither "size", nor "dn" info provided in env__efi_fit_tftp_file')
 
@@ -420,12 +421,12 @@ def test_efi_fit_launch(u_boot_console):
 
             # Try booting.
             cons.run_command(
-                    'bootm %x#%s' % (addr, fit_config), wait_for_prompt=False)
+                'bootm %x#%s' % (addr, fit_config), wait_for_prompt=False)
             if enable_fdt:
                 cons.wait_for('Booting using the fdt blob')
             cons.wait_for('Hello, world')
             cons.wait_for('## Application terminated, r = 0')
-            cons.restart_uboot();
+            cons.restart_uboot()
 
     cons = u_boot_console
     # Array slice removes leading/trailing quotes.
