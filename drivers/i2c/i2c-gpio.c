@@ -305,6 +305,21 @@ static int i2c_gpio_set_bus_speed(struct udevice *dev, unsigned int speed_hz)
 	return 0;
 }
 
+static int i2c_gpio_drv_probe(struct udevice *dev)
+{
+	if (dev_read_bool(dev, "i2c-gpio,deblock")) {
+		/* @200kHz 9 clocks = 44us, 62us is ok */
+		const unsigned int DELAY_ABORT_SEQ = 62;
+		struct i2c_gpio_bus *bus = dev_get_priv(dev);
+
+		return i2c_deblock_gpio_loop(&bus->gpios[PIN_SDA],
+					     &bus->gpios[PIN_SCL],
+					     16, 5, DELAY_ABORT_SEQ);
+	}
+
+	return 0;
+}
+
 static int i2c_gpio_ofdata_to_platdata(struct udevice *dev)
 {
 	struct i2c_gpio_bus *bus = dev_get_priv(dev);
@@ -341,6 +356,7 @@ U_BOOT_DRIVER(i2c_gpio) = {
 	.name	= "i2c-gpio",
 	.id	= UCLASS_I2C,
 	.of_match = i2c_gpio_ids,
+	.probe	= i2c_gpio_drv_probe,
 	.ofdata_to_platdata = i2c_gpio_ofdata_to_platdata,
 	.priv_auto_alloc_size = sizeof(struct i2c_gpio_bus),
 	.ops	= &i2c_gpio_ops,
