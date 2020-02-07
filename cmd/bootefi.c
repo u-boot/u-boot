@@ -203,15 +203,15 @@ static void *get_config_table(const efi_guid_t *guid)
 /**
  * efi_install_fdt() - install device tree
  *
- * If fdt_addr is available, the device tree located at that memory address will
- * will be installed as configuration table, otherwise the device tree located
- * at the address indicated by environment variable fdt_addr or as fallback
- * fdtcontroladdr will be used.
+ * If fdt is not EFI_FDT_USE_INTERNAL, the device tree located at that memory
+ * address will will be installed as configuration table, otherwise the device
+ * tree located at the address indicated by environment variable fdt_addr or as
+ * fallback fdtcontroladdr will be used.
  *
  * On architectures using ACPI tables device trees shall not be installed as
  * configuration table.
  *
- * @fdt_addr:	address of device tree or EFI_FDT_USE_INTERNAL to use the
+ * @fdt:	address of device tree or EFI_FDT_USE_INTERNAL to use the
  *		the hardware device tree as indicated by environment variable
  *		fdt_addr or as fallback the internal device tree as indicated by
  *		the environment variable fdtcontroladdr
