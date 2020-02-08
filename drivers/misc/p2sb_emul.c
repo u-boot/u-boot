@@ -215,7 +215,7 @@ static int sandbox_p2sb_emul_map_physmem(struct udevice *dev,
 					 void **ptrp)
 {
 	struct p2sb_emul_priv *priv = dev_get_priv(dev);
-	struct udevice *child;
+	struct udevice *child = NULL;  /* Silence compiler warning */
 	unsigned int offset;
 	int barnum;
 	int ret;
