@@ -107,6 +107,14 @@ config WDT_CDNS
 	   Select this to enable Cadence watchdog timer, which can be found on some
 	   Xilinx Microzed Platform.
 
+config WDT_CORTINA
+	bool "Cortina Access CAxxxx watchdog timer support"
+	depends on WDT
+	help
+	  Cortina Access CAxxxx watchdog timer support.
+	  This driver support all CPU ISAs supported by Cortina
+          Access CAxxxx SoCs.
+
 config WDT_MPC8xx
 	bool "MPC8xx watchdog timer support"
 	depends on WDT && MPC8xx

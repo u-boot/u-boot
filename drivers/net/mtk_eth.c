@@ -136,7 +136,8 @@ enum mtk_switch {
 
 enum mtk_soc {
 	SOC_MT7623,
-	SOC_MT7629
+	SOC_MT7629,
+	SOC_MT7622
 };
 
 struct mtk_eth_priv {
@@ -151,6 +152,7 @@ struct mtk_eth_priv {
 	void __iomem *fe_base;
 	void __iomem *gmac_base;
 	void __iomem *ethsys_base;
+	void __iomem *sgmii_base;
 
 	struct mii_dev *mdio_bus;
 	int (*mii_read)(struct mtk_eth_priv *priv, u8 phy, u8 reg);
@@ -750,6 +752,24 @@ static int mtk_phy_probe(struct udevice *dev)
 	return 0;
 }
 
+static void mtk_sgmii_init(struct mtk_eth_priv *priv)
+{
+	/* Set SGMII GEN2 speed(2.5G) */
+	clrsetbits_le32(priv->sgmii_base + SGMSYS_GEN2_SPEED,
+			SGMSYS_SPEED_2500, SGMSYS_SPEED_2500);
+
+	/* Disable SGMII AN */
+	clrsetbits_le32(priv->sgmii_base + SGMSYS_PCS_CONTROL_1,
+			SGMII_AN_ENABLE, 0);
+
+	/* SGMII force mode setting */
+	writel(SGMII_FORCE_MODE, priv->sgmii_base + SGMSYS_SGMII_MODE);
+
+	/* Release PHYA power down state */
+	clrsetbits_le32(priv->sgmii_base + SGMSYS_QPHY_PWR_STATE_CTRL,
+			SGMII_PHYA_PWD, 0);
+}
+
 static void mtk_mac_init(struct mtk_eth_priv *priv)
 {
 	int i, ge_mode = 0;
@@ -758,8 +778,13 @@ static void mtk_mac_init(struct mtk_eth_priv *priv)
 	switch (priv->phy_interface) {
 	case PHY_INTERFACE_MODE_RGMII_RXID:
 	case PHY_INTERFACE_MODE_RGMII:
+		ge_mode = GE_MODE_RGMII;
+		break;
 	case PHY_INTERFACE_MODE_SGMII:
 		ge_mode = GE_MODE_RGMII;
+		mtk_ethsys_rmw(priv, ETHSYS_SYSCFG0_REG, SYSCFG0_SGMII_SEL_M,
+			       SYSCFG0_SGMII_SEL(priv->gmac_id));
+		mtk_sgmii_init(priv);
 		break;
 	case PHY_INTERFACE_MODE_MII:
 	case PHY_INTERFACE_MODE_GMII:
@@ -828,7 +853,8 @@ static void mtk_eth_fifo_init(struct mtk_eth_priv *priv)
 	memset(priv->rx_ring_noc, 0, NUM_RX_DESC * sizeof(struct pdma_rxdesc));
 	memset(priv->pkt_pool, 0, TOTAL_PKT_BUF_SIZE);
 
-	flush_dcache_range((u32)pkt_base, (u32)(pkt_base + TOTAL_PKT_BUF_SIZE));
+	flush_dcache_range((ulong)pkt_base,
+			   (ulong)(pkt_base + TOTAL_PKT_BUF_SIZE));
 
 	priv->rx_dma_owner_idx0 = 0;
 	priv->tx_cpu_owner_idx0 = 0;
@@ -940,7 +966,7 @@ static int mtk_eth_send(struct udevice *dev, void *packet, int length)
 
 	pkt_base = (void *)phys_to_virt(priv->tx_ring_noc[idx].txd_info1.SDP0);
 	memcpy(pkt_base, packet, length);
-	flush_dcache_range((u32)pkt_base, (u32)pkt_base +
+	flush_dcache_range((ulong)pkt_base, (ulong)pkt_base +
 			   roundup(length, ARCH_DMA_MINALIGN));
 
 	priv->tx_ring_noc[idx].txd_info2.SDL0 = length;
@@ -966,7 +992,7 @@ static int mtk_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 
 	length = priv->rx_ring_noc[idx].rxd_info2.PLEN0;
 	pkt_base = (void *)phys_to_virt(priv->rx_ring_noc[idx].rxd_info1.PDP0);
-	invalidate_dcache_range((u32)pkt_base, (u32)pkt_base +
+	invalidate_dcache_range((ulong)pkt_base, (ulong)pkt_base +
 				roundup(length, ARCH_DMA_MINALIGN));
 
 	if (packetp)
@@ -994,7 +1020,7 @@ static int mtk_eth_probe(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct mtk_eth_priv *priv = dev_get_priv(dev);
-	u32 iobase = pdata->iobase;
+	ulong iobase = pdata->iobase;
 	int ret;
 
 	/* Frame Engine Register Base */
@@ -1104,6 +1130,26 @@ static int mtk_eth_ofdata_to_platdata(struct udevice *dev)
 		}
 	}
 
+	if (priv->phy_interface == PHY_INTERFACE_MODE_SGMII) {
+		/* get corresponding sgmii phandle */
+		ret = dev_read_phandle_with_args(dev, "mediatek,sgmiisys",
+						 NULL, 0, 0, &args);
+		if (ret)
+			return ret;
+
+		regmap = syscon_node_to_regmap(args.node);
+
+		if (IS_ERR(regmap))
+			return PTR_ERR(regmap);
+
+		priv->sgmii_base = regmap_get_range(regmap, 0);
+
+		if (!priv->sgmii_base) {
+			dev_err(dev, "Unable to find sgmii\n");
+			return -ENODEV;
+		}
+	}
+
 	/* check for switch first, otherwise phy will be used */
 	priv->sw = SW_NONE;
 	priv->switch_init = NULL;
@@ -1151,6 +1197,7 @@ static int mtk_eth_ofdata_to_platdata(struct udevice *dev)
 static const struct udevice_id mtk_eth_ids[] = {
 	{ .compatible = "mediatek,mt7629-eth", .data = SOC_MT7629 },
 	{ .compatible = "mediatek,mt7623-eth", .data = SOC_MT7623 },
+	{ .compatible = "mediatek,mt7622-eth", .data = SOC_MT7622 },
 	{}
 };
 

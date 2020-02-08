@@ -20,6 +20,8 @@
 #define ETHSYS_SYSCFG0_REG		0x14
 #define SYSCFG0_GE_MODE_S(n)		(12 + ((n) * 2))
 #define SYSCFG0_GE_MODE_M		0x3
+#define SYSCFG0_SGMII_SEL_M		(0x3 << 8)
+#define SYSCFG0_SGMII_SEL(gmac)		((!(gmac)) ? BIT(9) : BIT(8))
 
 #define ETHSYS_CLKCFG0_REG		0x2c
 #define ETHSYS_TRGMII_CLK_SEL362_5	BIT(11)
@@ -29,6 +31,19 @@
 #define GE_MODE_MII			1
 #define GE_MODE_MII_PHY			2
 #define GE_MODE_RMII			3
+
+/* SGMII subsystem config registers */
+#define SGMSYS_PCS_CONTROL_1		0x0
+#define SGMII_AN_ENABLE			BIT(12)
+
+#define SGMSYS_SGMII_MODE		0x20
+#define SGMII_FORCE_MODE		0x31120019
+
+#define SGMSYS_QPHY_PWR_STATE_CTRL	0xe8
+#define SGMII_PHYA_PWD			BIT(4)
+
+#define SGMSYS_GEN2_SPEED		0x2028
+#define SGMSYS_SPEED_2500		BIT(2)
 
 /* Frame Engine Registers */
 

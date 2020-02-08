@@ -178,3 +178,16 @@
 	pinctrl-0 = <&watchdog_pins>;
 	status = "okay";
 };
+
+&eth {
+	status = "okay";
+	mediatek,gmac-id = <0>;
+	phy-mode = "sgmii";
+	mediatek,switch = "mt7531";
+	reset-gpios = <&gpio 54 GPIO_ACTIVE_HIGH>;
+
+	fixed-link {
+		speed = <1000>;
+		full-duplex;
+	};
+};
