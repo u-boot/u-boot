@@ -231,7 +231,7 @@ You should see something like this::
 What is going on?
 -----------------
 
-Let's start at the top. The demo command is in common/cmd_demo.c. It does
+Let's start at the top. The demo command is in cmd/demo.c. It does
 the usual command processing and then:
 
 .. code-block:: c
@@ -402,7 +402,7 @@ in the board file.
 
 .. code-block:: c
 
-	static const struct dm_demo_cdata red_square = {
+	static const struct dm_demo_pdata red_square = {
 		.colour = "red",
 		.sides = 4.
 	};
@@ -489,12 +489,12 @@ The demo uclass is declared like this:
 
 .. code-block:: c
 
-	U_BOOT_CLASS(demo) = {
+	UCLASS_DRIVER(demo) = {
 		.id		= UCLASS_DEMO,
 	};
 
 It is also possible to specify special methods for probe, etc. The uclass
-numbering comes from include/dm/uclass.h. To add a new uclass, add to the
+numbering comes from include/dm/uclass-id.h. To add a new uclass, add to the
 end of the enum there, then declare your uclass as above.
 
 
