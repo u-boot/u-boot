@@ -44,11 +44,6 @@
 #define CONFIG_SYS_I2C_SPEED		100000
 #endif
 
-/* Note: This is incorrect and should move to Kconfig / defconfig */
-#ifdef CONFIG_DM_GPIO
-#define CONFIG_DM_74X164
-#endif
-
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
 #define CONFIG_EXTRA_ENV_SETTINGS \

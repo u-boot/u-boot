@@ -259,7 +259,16 @@ config TARGET_GW_VENTANA
 config TARGET_KOSAGI_NOVENA
 	bool "Kosagi Novena"
 	select BOARD_LATE_INIT
+	select DM_ETH
+	select DM_GPIO
+	select DM_MMC
+	select DM_PCI
+	select DM_SCSI
+	select DM_USB
+	select DM_VIDEO
+	select OF_CONTROL
 	select SUPPORT_SPL
+	imply CMD_DM
 
 config TARGET_MCCMON6
 	bool "mccmon6"

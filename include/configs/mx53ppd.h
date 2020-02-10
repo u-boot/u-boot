@@ -11,8 +11,6 @@
 
 #include <asm/arch/imx-regs.h>
 
-#define CONSOLE_DEV	"ttymxc0"
-
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
@@ -25,15 +23,6 @@
 #define CONFIG_BOARD_LATE_INIT
 #define CONFIG_REVISION_TAG
 
-#define CONFIG_MXC_UART
-#define CONFIG_MXC_UART_BASE	UART1_BASE
-
-/* Eth Configs */
-
-#define CONFIG_FEC_MXC
-#define IMX_FEC_BASE	FEC_BASE_ADDR
-#define CONFIG_FEC_MXC_PHYADDR	0x1F
-
 /* USB Configs */
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_ASIX
@@ -43,32 +32,11 @@
 #define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS	0
 
-#define CONFIG_SYS_RTC_BUS_NUM		2
-#define CONFIG_SYS_I2C_RTC_ADDR	0x30
-
-/* I2C Configs */
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
-#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
-#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
-
-/* PMIC Controller */
-#define CONFIG_POWER
-#define CONFIG_POWER_I2C
-#define CONFIG_DIALOG_POWER
-#define CONFIG_POWER_FSL
-#define CONFIG_POWER_FSL_MC13892
-#define CONFIG_SYS_DIALOG_PMIC_I2C_ADDR	0x48
-#define CONFIG_SYS_FSL_PMIC_I2C_ADDR	0x8
-
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_BAUDRATE			115200
 
 /* Command definition */
-
-#define CONFIG_ETHPRIME		"FEC0"
 
 #define CONFIG_LOADADDR		0x72000000	/* loadaddr env var */
 
@@ -92,34 +60,26 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	PPD_CONFIG_NFS \
 	"image=/boot/fitImage\0" \
-	"fdt_high=0xffffffff\0" \
 	"dev=mmc\0" \
 	"devnum=2\0" \
 	"rootdev=mmcblk0p\0" \
 	"quiet=quiet loglevel=0\0" \
-	"console=" CONSOLE_DEV "\0" \
 	"lvds=ldb\0" \
 	"setargs=setenv bootargs ${lvds} jtag=on mem=2G " \
-		"vt.global_cursor_default=0 bootcause=${bootcause} ${quiet} " \
-		"console=${console}\0" \
+		"vt.global_cursor_default=0 bootcause=${bootcause} ${quiet}\0" \
 	"bootargs_emmc=setenv bootargs root=/dev/${rootdev}${partnum} ro " \
 		"rootwait ${bootargs}\0" \
 	"doquiet=if ext2load ${dev} ${devnum}:5 0x7000A000 /boot/console; " \
 		"then setenv quiet; fi\0" \
-	"hasfirstboot=ext2load ${dev} ${devnum}:${partnum} 0x7000A000 " \
-		"/boot/bootcause/firstboot\0" \
+	"hasfirstboot=" \
+		"test -e ${dev} ${devnum}:${partnum} /boot/bootcause/firstboot\0" \
 	"swappartitions=setexpr partnum 3 - ${partnum}\0" \
 	"failbootcmd=" \
-		"ppd_lcd_enable; " \
-		"msg=\"Monitor failed to start.  " \
-			"Try again, or contact GE Service for support.\"; " \
-		"echo $msg; " \
-		"setenv stdout vga; " \
-		"echo \"\n\n\n\n    \" $msg; " \
-		"setenv stdout serial; " \
-		"mw.b 0x7000A000 0xbc; " \
-		"mw.b 0x7000A001 0x00; " \
-		"ext4write ${dev} ${devnum}:5 0x7000A000 /boot/failures 2\0" \
+		"cls; " \
+		"setcurs 5 4; " \
+		"lcdputs \"Monitor failed to start. " \
+		"Try again, or contact GE Service for support.\"; " \
+		"bootcount reset; \0" \
 	"altbootcmd=" \
 		"run doquiet; " \
 		"setenv partnum 1; run hasfirstboot || setenv partnum 2; " \
@@ -166,6 +126,8 @@
 
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
+#define CONFIG_SYS_BOOTMAPSZ (256 << 20)     /* 256M */
+
 /* Physical Memory Map */
 #define PHYS_SDRAM_1			CSD0_BASE_ADDR
 #define PHYS_SDRAM_1_SIZE		(gd->bd->bi_dram[0].size)
@@ -188,25 +150,11 @@
 #define CONFIG_CMD_FUSE
 #define CONFIG_FSL_IIM
 
-#define CONFIG_SYS_I2C_SPEED	100000
-
-/* I2C1 */
-#define CONFIG_SYS_NUM_I2C_BUSES	9
-#define CONFIG_SYS_I2C_MAX_HOPS		1
-#define CONFIG_SYS_I2C_BUSES	{	{0, {I2C_NULL_HOP} }, \
-					{0, {{I2C_MUX_PCA9547, 0x70, 0} } }, \
-					{0, {{I2C_MUX_PCA9547, 0x70, 1} } }, \
-					{0, {{I2C_MUX_PCA9547, 0x70, 2} } }, \
-					{0, {{I2C_MUX_PCA9547, 0x70, 3} } }, \
-					{0, {{I2C_MUX_PCA9547, 0x70, 4} } }, \
-					{0, {{I2C_MUX_PCA9547, 0x70, 5} } }, \
-					{0, {{I2C_MUX_PCA9547, 0x70, 6} } }, \
-					{0, {{I2C_MUX_PCA9547, 0x70, 7} } }, \
-				}
-
 #define CONFIG_BCH
 
 /* Backlight Control */
 #define CONFIG_IMX6_PWM_PER_CLK 66666000
+
+#define CONFIG_IMX_VIDEO_SKIP
 
 #endif				/* __CONFIG_H */

@@ -53,13 +53,8 @@
 #include "imx6_spl.h"			/* common IMX6 SPL configuration */
 
 /* Ethernet Configuration */
-#ifdef CONFIG_CMD_NET
-#define CONFIG_FEC_MXC
-#define IMX_FEC_BASE			ENET_BASE_ADDR
-#define CONFIG_FEC_XCV_TYPE		RGMII
-#define CONFIG_ETHPRIME			"FEC"
-#define CONFIG_FEC_MXC_PHYADDR		0x7
-#define CONFIG_ARP_TIMEOUT		200UL
+#ifdef CONFIG_SPL_BUILD
+#undef CONFIG_DM_ETH
 #endif
 
 /* I2C */

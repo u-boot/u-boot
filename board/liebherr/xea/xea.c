@@ -64,8 +64,23 @@ static int boot_tiva0, boot_tiva1;
 /* Check if TIVAs request booting via U-Boot proper */
 void spl_board_init(void)
 {
-	struct gpio_desc btiva0, btiva1;
+	struct gpio_desc btiva0, btiva1, en_3_3v;
 	int ret;
+
+	/*
+	 * Setup GPIO0_0 (TIVA power enable pin) to be output high
+	 * to allow TIVA startup.
+	 */
+	ret = dm_gpio_lookup_name("GPIO0_0", &en_3_3v);
+	if (ret)
+		printf("Cannot get GPIO0_0\n");
+
+	ret = dm_gpio_request(&en_3_3v, "pwr_3_3v");
+	if (ret)
+		printf("Cannot request GPIO0_0\n");
+
+	/* Set GPIO0_0 to HIGH */
+	dm_gpio_set_dir_flags(&en_3_3v, GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
 
 	ret = dm_gpio_lookup_name("GPIO0_23", &btiva0);
 	if (ret)
@@ -149,5 +164,37 @@ int dram_init(void)
 {
 	return mxs_dram_init();
 }
+
+#ifdef CONFIG_OF_BOARD_SETUP
+static int fdt_fixup_l2switch(void *blob)
+{
+	u8 ethaddr[6];
+	int ret;
+
+	if (eth_env_get_enetaddr("ethaddr", ethaddr)) {
+		ret = fdt_find_and_setprop(blob,
+					   "/ahb@80080000/switch@800f0000",
+					   "local-mac-address", ethaddr, 6, 1);
+		if (ret < 0)
+			printf("%s: can't find usbether@1 node: %d\n",
+			       __func__, ret);
+	}
+
+	return 0;
+}
+
+int ft_board_setup(void *blob, bd_t *bd)
+{
+	/*
+	 * i.MX28 L2 switch needs manual update (fixup) of eth MAC address
+	 * (in 'local-mac-address' property) as it uses "switch@800f0000"
+	 * node, not set by default FIT image handling code in
+	 * "ethernet@800f0000"
+	 */
+	fdt_fixup_l2switch(blob);
+
+	return 0;
+}
+#endif
 
 #endif	/* CONFIG_SPL_BUILD */

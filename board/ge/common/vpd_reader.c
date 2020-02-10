@@ -8,6 +8,9 @@
 #include <i2c.h>
 #include <linux/bch.h>
 #include <stdlib.h>
+#include <dm/uclass.h>
+#include <i2c_eeprom.h>
+#include <hexdump.h>
 
 /* BCH configuration */
 
@@ -200,28 +203,34 @@ int read_vpd(struct vpd_cache *cache,
 	     int (*process_block)(struct vpd_cache *, u8 id, u8 version,
 				  u8 type, size_t size, u8 const *data))
 {
-	static const size_t size = CONFIG_SYS_VPD_EEPROM_SIZE;
-
-	int res;
+	struct udevice *dev;
+	int ret;
 	u8 *data;
-	unsigned int current_i2c_bus = i2c_get_bus_num();
+	int size;
 
-	res = i2c_set_bus_num(CONFIG_SYS_VPD_EEPROM_I2C_BUS);
-	if (res < 0)
-		return res;
+	ret = uclass_get_device_by_name(UCLASS_I2C_EEPROM, "vpd", &dev);
+	if (ret)
+		return ret;
+
+	size = i2c_eeprom_size(dev);
+	if (size < 0) {
+		printf("Unable to get size of eeprom: %d\n", ret);
+		return ret;
+	}
 
 	data = malloc(size);
 	if (!data)
 		return -ENOMEM;
 
-	res = i2c_read(CONFIG_SYS_VPD_EEPROM_I2C_ADDR, 0,
-		       CONFIG_SYS_VPD_EEPROM_I2C_ADDR_LEN,
-		       data, size);
-	if (res == 0)
-		res = vpd_reader(size, data, cache, process_block);
+	ret = i2c_eeprom_read(dev, 0, data, size);
+	if (ret) {
+		free(data);
+		return ret;
+	}
+
+	ret = vpd_reader(size, data, cache, process_block);
 
 	free(data);
 
-	i2c_set_bus_num(current_i2c_bus);
-	return res;
+	return ret;
 }

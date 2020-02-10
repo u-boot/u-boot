@@ -5,8 +5,33 @@
  */
 
 / {
+	bootcount {
+		compatible = "u-boot,bootcount-i2c-eeprom";
+		i2c-eeprom = <&bootcount>;
+	};
+
 	wdt-reboot {
 		compatible = "wdt-reboot";
 		wdt = <&wdog1>;
+	};
+
+	panel-lvds0 {
+		compatible = "simple-panel";
+	};
+};
+
+&eeprom {
+	partitions {
+		compatible = "fixed-partitions";
+
+		vpd {
+			offset = <0>;
+			size = <1022>;
+		};
+
+		bootcount: bootcount {
+			offset = <1022>;
+			size = <2>;
+		};
 	};
 };

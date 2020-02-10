@@ -14,10 +14,6 @@
 #define CONFIG_BOARD_POSTCLK_INIT
 #define CONFIG_SYS_BOOTM_LEN		0x1000000
 
-#define SRC_BASE_ADDR			CMC1_RBASE
-#define IRAM_BASE_ADDR			OCRAM_0_BASE
-#define IOMUXC_BASE_ADDR		IOMUXC1_RBASE
-
 /*
  * Detect overlap between U-Boot image and environment area in build-time
  *

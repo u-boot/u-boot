@@ -16,9 +16,6 @@
 
 #define CONFIG_BOARD_NAME	"General Electric Bx50v3"
 
-#define CONFIG_MXC_UART_BASE	UART3_BASE
-#define CONSOLE_DEV	"ttymxc2"
-
 #include "mx6_common.h"
 #include <linux/sizes.h>
 
@@ -27,8 +24,6 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
 #define CONFIG_SYS_MALLOC_LEN		(10 * SZ_1M)
-
-#define CONFIG_MXC_UART
 
 /* SATA Configs */
 #ifdef CONFIG_CMD_SATA
@@ -64,7 +59,7 @@
                 "setenv netmask 255.255.255.0; setenv ethaddr ca:fe:de:ca:f0:11; " \
                 "setenv bootargs root=/dev/nfs nfsroot=${nfsserver}:/srv/nfs/,v3,tcp rw rootwait" \
                 "setenv bootargs $bootargs ip=${ipaddr}:${nfsserver}:${gatewayip}:${netmask}::eth0:off " \
-                "setenv bootargs $bootargs cma=128M bootcause=POR console=${console} ${videoargs} " \
+                "setenv bootargs $bootargs cma=128M bootcause=POR ${videoargs} " \
                 "setenv bootargs $bootargs systemd.mask=helix-network-defaults.service " \
                 "setenv bootargs $bootargs watchdog.handle_boot_enabled=1\0" \
         "networkboot=" \
@@ -84,34 +79,29 @@
 	NETWORKBOOT \
 	"bootcause=POR\0" \
 	"image=/boot/fitImage\0" \
-	"fdt_high=0xffffffff\0" \
 	"dev=mmc\0" \
 	"devnum=2\0" \
 	"rootdev=mmcblk0p\0" \
 	"quiet=quiet loglevel=0\0" \
-	"console=" CONSOLE_DEV "\0" \
 	"setargs=setenv bootargs root=/dev/${rootdev}${partnum} " \
 		"ro rootwait cma=128M " \
 		"bootcause=${bootcause} " \
-		"${quiet} console=${console} " \
+		"${quiet} " \
 		"${videoargs}" "\0" \
 	"doquiet=" \
 		"if ext2load ${dev} ${devnum}:5 0x7000A000 /boot/console; " \
 			"then setenv quiet; fi\0" \
 	"hasfirstboot=" \
-		"ext2load ${dev} ${devnum}:${partnum} 0x7000A000 " \
-		"/boot/bootcause/firstboot\0" \
+		"test -e ${dev} ${devnum}:${partnum} /boot/bootcause/firstboot\0" \
 	"swappartitions=" \
 		"setexpr partnum 3 - ${partnum}\0" \
 	"failbootcmd=" \
 		"echo reached failbootcmd; " \
-		"bx50_backlight_enable; " \
+		"cls; " \
 		"setcurs 5 4; " \
 		"lcdputs \"Monitor failed to start. " \
 		"Try again, or contact GE Service for support.\"; " \
-		"mw.b 0x7000A000 0xbc; " \
-		"mw.b 0x7000A001 0x00; " \
-		"ext4write ${dev} ${devnum}:5 0x7000A000 /boot/failures 2\0" \
+		"bootcount reset; \0" \
 	"altbootcmd=" \
 		"run doquiet; " \
 		"setenv partnum 1; run hasfirstboot || setenv partnum 2; " \
@@ -163,6 +153,8 @@
 /* Physical Memory Map */
 #define PHYS_SDRAM                     MMDC0_ARB_BASE_ADDR
 
+#define CONFIG_SYS_BOOTMAPSZ (256 << 20)     /* 256M */
+
 #define CONFIG_SYS_SDRAM_BASE          PHYS_SDRAM
 #define CONFIG_SYS_INIT_RAM_ADDR       IRAM_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_SIZE       IRAM_SIZE
@@ -188,33 +180,6 @@
 #define CONFIG_PCIE_IMX
 #define CONFIG_PCIE_IMX_PERST_GPIO	IMX_GPIO_NR(7, 12)
 #define CONFIG_PCIE_IMX_POWER_GPIO	IMX_GPIO_NR(1, 5)
-
-#define CONFIG_RTC_RX8010SJ
-#define CONFIG_SYS_RTC_BUS_NUM 2
-#define CONFIG_SYS_I2C_RTC_ADDR	0x32
-
-/* I2C Configs */
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_SPEED		  100000
-#define CONFIG_SYS_I2C_MXC_I2C1
-#define CONFIG_SYS_I2C_MXC_I2C2
-#define CONFIG_SYS_I2C_MXC_I2C3
-
-#define CONFIG_SYS_NUM_I2C_BUSES        11
-#define CONFIG_SYS_I2C_MAX_HOPS         1
-#define CONFIG_SYS_I2C_BUSES	{	{0, {I2C_NULL_HOP} }, \
-					{1, {I2C_NULL_HOP} }, \
-					{2, {I2C_NULL_HOP} }, \
-					{0, {{I2C_MUX_PCA9547, 0x70, 0} } }, \
-					{0, {{I2C_MUX_PCA9547, 0x70, 1} } }, \
-					{0, {{I2C_MUX_PCA9547, 0x70, 2} } }, \
-					{0, {{I2C_MUX_PCA9547, 0x70, 3} } }, \
-					{0, {{I2C_MUX_PCA9547, 0x70, 4} } }, \
-					{0, {{I2C_MUX_PCA9547, 0x70, 5} } }, \
-					{0, {{I2C_MUX_PCA9547, 0x70, 6} } }, \
-					{0, {{I2C_MUX_PCA9547, 0x70, 7} } }, \
-				}
 
 #define CONFIG_BCH
 

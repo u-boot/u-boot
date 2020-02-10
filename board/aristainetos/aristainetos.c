@@ -521,7 +521,7 @@ struct display_info_t const displays[] = {
 };
 size_t display_count = ARRAY_SIZE(displays);
 
-#if defined(CONFIG_NAND)
+#if defined(CONFIG_MTD_RAW_NAND)
 iomux_v3_cfg_t nfc_pads[] = {
 	MX6_PAD_NANDF_CLE__NAND_CLE		| MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX6_PAD_NANDF_ALE__NAND_ALE		| MUX_PAD_CTRL(NO_PAD_CTRL),

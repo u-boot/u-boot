@@ -3,7 +3,7 @@ U-Boot for the NXP i.MX8MM EVK board
 Quick Start
 ===========
 - Build the ARM Trusted firmware binary
-- Get ddr fimware
+- Get ddr firmware
 - Build U-Boot
 - Boot
 

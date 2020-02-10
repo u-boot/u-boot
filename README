@@ -3025,7 +3025,7 @@ Low Level (hardware related) configuration options:
 		Add the "loopw" memory command. This only takes effect if
 		the memory commands are activated globally (CONFIG_CMD_MEMORY).
 
-- CONFIG_MX_CYCLIC
+- CONFIG_CMD_MX_CYCLIC
 		Add the "mdc" and "mwc" memory commands. These are cyclic
 		"md/mw" commands.
 		Examples:

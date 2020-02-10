@@ -231,16 +231,6 @@ static void setup_spi(void)
 	SETUP_IOMUX_PADS(ecspi1_pads);
 }
 
-iomux_v3_cfg_t const pcie_pads[] = {
-	IOMUX_PADS(PAD_EIM_D19__GPIO3_IO19 | MUX_PAD_CTRL(NO_PAD_CTRL)),	/* POWER */
-	IOMUX_PADS(PAD_GPIO_17__GPIO7_IO12 | MUX_PAD_CTRL(NO_PAD_CTRL)),	/* RESET */
-};
-
-static void setup_pcie(void)
-{
-	SETUP_IOMUX_PADS(pcie_pads);
-}
-
 iomux_v3_cfg_t const di0_pads[] = {
 	IOMUX_PADS(PAD_DI0_DISP_CLK__IPU1_DI0_DISP_CLK),	/* DISP0_CLK */
 	IOMUX_PADS(PAD_DI0_PIN2__IPU1_DI0_PIN02),		/* DISP0_HSYNC */
@@ -508,7 +498,6 @@ int overwrite_console(void)
 int board_eth_init(bd_t *bis)
 {
 	setup_iomux_enet();
-	setup_pcie();
 
 	return cpu_eth_init(bis);
 }

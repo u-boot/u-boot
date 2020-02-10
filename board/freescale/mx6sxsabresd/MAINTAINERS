@@ -4,4 +4,3 @@ S:	Maintained
 F:	board/freescale/mx6sxsabresd/
 F:	include/configs/mx6sxsabresd.h
 F:	configs/mx6sxsabresd_defconfig
-F:	configs/mx6sxsabresd_spl_defconfig

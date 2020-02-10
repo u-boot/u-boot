@@ -43,7 +43,6 @@
 /dts-v1/;
 
 #include "imx53.dtsi"
-#include "imx53-ppd-uboot.dtsi"
 #include <dt-bindings/input/input.h>
 
 / {
@@ -490,7 +489,7 @@
 			reg = <1>;
 
 			rtc@30 {
-			       compatible = "sii,s35390a";
+			       compatible = "sii,s35392a-rtc";
 			       reg = <0x30>;
 			};
 
@@ -1084,3 +1083,5 @@
 		>;
 	};
 };
+
+#include "imx53-ppd-uboot.dtsi"

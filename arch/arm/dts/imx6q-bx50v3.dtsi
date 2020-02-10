@@ -42,7 +42,6 @@
  */
 
 #include "imx6q-ba16.dtsi"
-#include "imx6q-bx50v3-uboot.dtsi"
 
 / {
 	mclk: clock-mclk {
@@ -379,3 +378,5 @@
 		#interrupt-cells = <1>;
 	};
 };
+
+#include "imx6q-bx50v3-uboot.dtsi"
