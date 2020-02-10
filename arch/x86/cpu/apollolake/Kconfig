@@ -40,6 +40,11 @@ config INTEL_APOLLOLAKE
 	imply INTEL_GPIO
 	imply SMP
 	imply HAVE_ITSS
+	imply HAVE_P2SB
+	imply CLK
+	imply CMD_CLK
+	imply CLK_INTEL
+	imply ACPI_GPE
 
 if INTEL_APOLLOLAKE
 

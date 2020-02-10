@@ -73,6 +73,16 @@ config CLK_COMPOSITE_CCF
 	  Enable this option if you want to (re-)use the Linux kernel's Common
 	  Clock Framework [CCF] composite code in U-Boot's clock driver.
 
+config CLK_INTEL
+	bool "Enable clock driver for Intel x86"
+	depends on CLK && X86
+	help
+	  This provides very basic support for clocks on Intel SoCs. The driver
+	  is barely used at present but could be expanded as needs arise.
+	  Much clock configuration in U-Boot is either set up by the FSP, or
+	  set up by U-Boot itself but only statically. Thus the driver does not
+	  support changing clock rates, only querying them.
+
 config CLK_STM32F
 	bool "Enable clock driver support for STM32F family"
 	depends on CLK && (STM32F7 || STM32F4)

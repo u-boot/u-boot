@@ -715,6 +715,13 @@ config HAVE_ITSS
 	  Select this to include the driver for the Interrupt Timer
 	  Subsystem (ITSS) which is found on several Intel devices.
 
+config HAVE_P2SB
+	bool "Enable P2SB"
+	help
+	  Select this to include the driver for the Primary to
+	  Sideband Bridge (P2SB) which is found on several Intel
+	  devices.
+
 menu "System tables"
 	depends on !EFI && !SYS_COREBOOT
 
@@ -915,5 +922,38 @@ config X86_OFFSET_SPL
 	hex "Offset of SPL in ROM image"
 	depends on SPL && X86
 	default SPL_TEXT_BASE
+
+config ACPI_GPE
+	bool "Support ACPI general-purpose events"
+	help
+	  Enable a driver for ACPI GPEs to allow peripherals to send interrupts
+	  via ACPI to the OS. In U-Boot this is only used when U-Boot itself
+	  needs access to these interrupts. This can happen when it uses a
+	  peripheral that is set up to use GPEs and so cannot use the normal
+	  GPIO mechanism for polling an input.
+
+	  See https://queue.acm.org/blogposting.cfm?id=18977 for more info
+
+config SPL_ACPI_GPE
+	bool "Support ACPI general-purpose events in SPL"
+	help
+	  Enable a driver for ACPI GPEs to allow peripherals to send interrupts
+	  via ACPI to the OS. In U-Boot this is only used when U-Boot itself
+	  needs access to these interrupts. This can happen when it uses a
+	  peripheral that is set up to use GPEs and so cannot use the normal
+	  GPIO mechanism for polling an input.
+
+	  See https://queue.acm.org/blogposting.cfm?id=18977 for more info
+
+config TPL_ACPI_GPE
+	bool "Support ACPI general-purpose events in TPL"
+	help
+	  Enable a driver for ACPI GPEs to allow peripherals to send interrupts
+	  via ACPI to the OS. In U-Boot this is only used when U-Boot itself
+	  needs access to these interrupts. This can happen when it uses a
+	  peripheral that is set up to use GPEs and so cannot use the normal
+	  GPIO mechanism for polling an input.
+
+	  See https://queue.acm.org/blogposting.cfm?id=18977 for more info
 
 endmenu

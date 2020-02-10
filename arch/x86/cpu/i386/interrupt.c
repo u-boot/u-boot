@@ -15,6 +15,7 @@
 #include <efi_loader.h>
 #include <hang.h>
 #include <init.h>
+#include <irq.h>
 #include <irq_func.h>
 #include <asm/control_regs.h>
 #include <asm/i8259.h>
@@ -264,7 +265,7 @@ int interrupt_init(void)
 	int ret;
 
 	/* Try to set up the interrupt router, but don't require one */
-	ret = uclass_first_device_err(UCLASS_IRQ, &dev);
+	ret = irq_first_device_type(X86_IRQT_BASE, &dev);
 	if (ret && ret != -ENODEV)
 		return ret;
 

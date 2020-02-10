@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <irq.h>
 #include <malloc.h>
 #include <asm/io.h>
 #include <asm/irq.h>
@@ -351,7 +352,7 @@ int irq_router_probe(struct udevice *dev)
 }
 
 static const struct udevice_id irq_router_ids[] = {
-	{ .compatible = "intel,irq-router" },
+	{ .compatible = "intel,irq-router", .data = X86_IRQT_BASE },
 	{ }
 };
 

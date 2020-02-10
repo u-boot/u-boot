@@ -20,7 +20,6 @@ endif
 
 obj-y += hostbridge.o
 obj-y += lpc.o
-obj-y += p2sb.o
 obj-y += pch.o
 obj-y += pmc.o
 obj-y += uart.o

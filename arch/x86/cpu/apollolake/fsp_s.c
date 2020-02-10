@@ -24,7 +24,6 @@
 #define HIDE_BIT		BIT(0)
 
 #define INTEL_GSPI_MAX		3
-#define INTEL_I2C_DEV_MAX	8
 #define MAX_USB2_PORTS		8
 
 enum {
@@ -32,67 +31,11 @@ enum {
 	CHIPSET_LOCKDOWN_COREBOOT, /* coreboot handles locking */
 };
 
-enum i2c_speed {
-	I2C_SPEED_STANDARD	= 100000,
-	I2C_SPEED_FAST		= 400000,
-	I2C_SPEED_FAST_PLUS	= 1000000,
-	I2C_SPEED_HIGH		= 3400000,
-	I2C_SPEED_FAST_ULTRA	= 5000000,
-};
-
-/*
- * Timing values are in units of clock period, with the clock speed
- * provided by the SOC
- *
- * TODO(sjg@chromium.org): Connect this up to the I2C driver
- */
-struct dw_i2c_speed_config {
-	enum i2c_speed speed;
-	/* SCL high and low period count */
-	u16 scl_lcnt;
-	u16 scl_hcnt;
-	/*
-	 * SDA hold time should be 300ns in standard and fast modes
-	 * and long enough for deterministic logic level change in
-	 * fast-plus and high speed modes.
-	 *
-	 *  [15:0] SDA TX Hold Time
-	 * [23:16] SDA RX Hold Time
-	 */
-	u32 sda_hold;
-};
-
 /* Serial IRQ control. SERIRQ_QUIET is the default (0) */
 enum serirq_mode {
 	SERIRQ_QUIET,
 	SERIRQ_CONTINUOUS,
 	SERIRQ_OFF,
-};
-
-/*
- * This I2C controller has support for 3 independent speed configs but can
- * support both FAST_PLUS and HIGH speeds through the same set of speed
- * config registers.  These are treated separately so the speed config values
- * can be provided via ACPI to the OS.
- */
-#define DW_I2C_SPEED_CONFIG_COUNT	4
-
-struct dw_i2c_bus_config {
-	/* Bus should be enabled in TPL with temporary base */
-	int early_init;
-	/* Bus speed in Hz, default is I2C_SPEED_FAST (400 KHz) */
-	enum i2c_speed speed;
-	/*
-	 * If rise_time_ns is non-zero the calculations for lcnt and hcnt
-	 * registers take into account the times of the bus. However, if
-	 * there is a match in speed_config those register values take
-	 * precedence
-	 */
-	int rise_time_ns;
-	int fall_time_ns;
-	int data_hold_time_ns;
-	/* Specific bus speed configuration */
-	struct dw_i2c_speed_config speed_config[DW_I2C_SPEED_CONFIG_COUNT];
 };
 
 struct gspi_cfg {
@@ -110,7 +53,6 @@ struct gspi_cfg {
 struct soc_intel_common_config {
 	int chipset_lockdown;
 	struct gspi_cfg gspi[INTEL_GSPI_MAX];
-	struct dw_i2c_bus_config i2c[INTEL_I2C_DEV_MAX];
 };
 
 enum pnp_settings {
@@ -593,7 +535,7 @@ int arch_fsps_preinit(void)
 	struct udevice *itss;
 	int ret;
 
-	ret = uclass_first_device_err(UCLASS_IRQ, &itss);
+	ret = irq_first_device_type(X86_IRQT_ITSS, &itss);
 	if (ret)
 		return log_msg_ret("no itss", ret);
 	/*
@@ -634,7 +576,7 @@ int arch_fsp_init_r(void)
 	if (ret)
 		return ret;
 
-	ret = uclass_first_device_err(UCLASS_IRQ, &itss);
+	ret = irq_first_device_type(X86_IRQT_ITSS, &itss);
 	if (ret)
 		return log_msg_ret("no itss", ret);
 	/* Restore GPIO IRQ polarities back to previous settings */
