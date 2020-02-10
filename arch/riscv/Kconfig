@@ -222,6 +222,9 @@ config XIP
 	  from a NOR flash memory without copying the code to ram.
 	  Say yes here if U-Boot boots from flash directly.
 
+config SHOW_REGS
+	bool "Show registers on unhandled exception"
+
 config STACK_SIZE_SHIFT
 	int
 	default 14

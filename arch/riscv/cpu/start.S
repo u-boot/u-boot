@@ -359,9 +359,8 @@ relocate_secondary_harts:
 call_board_init_r:
 	jal	invalidate_icache_all
 	jal	flush_dcache_all
-	la	t0, board_init_r
-	mv	t4, t0			/* offset of board_init_r() */
-	add	t4, t4, t6		/* real address of board_init_r() */
+	la	t0, board_init_r        /* offset of board_init_r() */
+	add	t4, t0, t6		/* real address of board_init_r() */
 /*
  * setup parameters for board_init_r
  */
