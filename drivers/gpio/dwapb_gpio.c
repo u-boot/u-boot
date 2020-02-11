@@ -12,6 +12,8 @@
 #include <asm/io.h>
 #include <dm.h>
 #include <dm/device-internal.h>
+#include <dm/device_compat.h>
+#include <dm/devres.h>
 #include <dm/lists.h>
 #include <dm/root.h>
 #include <errno.h>

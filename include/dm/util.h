@@ -39,6 +39,9 @@ static inline void dm_dump_devres(void)
 }
 #endif
 
+/* Dump out a list of drivers */
+void dm_dump_drivers(void);
+
 /**
  * Check if an of node should be or was bound before relocation.
  *

@@ -10,9 +10,11 @@
 #include <malloc.h>
 #include <clk-uclass.h>
 #include <dm/device.h>
+#include <dm/devres.h>
 #include <dm/uclass.h>
 #include <clk.h>
 #include "clk.h"
+#include <linux/err.h>
 
 #define UBOOT_DM_CLK_IMX_PLLV3_GENERIC	"imx_clk_pllv3_generic"
 #define UBOOT_DM_CLK_IMX_PLLV3_SYS	"imx_clk_pllv3_sys"

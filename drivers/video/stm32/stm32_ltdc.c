@@ -16,6 +16,7 @@
 #include <asm/io.h>
 #include <asm/arch/gpio.h>
 #include <dm/device-internal.h>
+#include <dm/device_compat.h>
 
 struct stm32_ltdc_priv {
 	void __iomem *regs;

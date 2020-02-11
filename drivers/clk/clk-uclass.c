@@ -10,10 +10,13 @@
 #include <clk.h>
 #include <clk-uclass.h>
 #include <dm.h>
-#include <dm/read.h>
 #include <dt-structs.h>
 #include <errno.h>
+#include <malloc.h>
+#include <dm/devres.h>
+#include <dm/read.h>
 #include <linux/clk-provider.h>
+#include <linux/err.h>
 
 static inline const struct clk_ops *clk_dev_ops(struct udevice *dev)
 {
@@ -423,10 +426,10 @@ int clk_free(struct clk *clk)
 		return 0;
 	ops = clk_dev_ops(clk->dev);
 
-	if (!ops->free)
+	if (!ops->rfree)
 		return 0;
 
-	return ops->free(clk);
+	return ops->rfree(clk);
 }
 
 ulong clk_get_rate(struct clk *clk)

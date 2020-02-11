@@ -7,6 +7,7 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <malloc.h>
 #include <mach/pic32.h>
 #include <mach/ddr.h>
 #include <dt-bindings/clock/microchip,clock.h>

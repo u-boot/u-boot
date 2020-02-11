@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <led.h>
+#include <malloc.h>
 #include <asm/gpio.h>
 #include <dm/lists.h>
 

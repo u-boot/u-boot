@@ -10,6 +10,7 @@
 #include <common.h>
 #include <dm.h>
 #include <generic-phy.h>
+#include <malloc.h>
 #include <reset.h>
 #include <asm/io.h>
 #include <dm/device.h>

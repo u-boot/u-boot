@@ -8,6 +8,7 @@
 #include <common.h>
 #include <dm.h>
 #include <video.h>
+#include <dm/device_compat.h>
 #include <linux/mbus.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>

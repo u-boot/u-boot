@@ -42,7 +42,7 @@ struct pmc_emul_priv {
 	u8 regs[MEMMAP_SIZE];
 };
 
-static int sandbox_pmc_emul_read_config(struct udevice *emul, uint offset,
+static int sandbox_pmc_emul_read_config(const struct udevice *emul, uint offset,
 					ulong *valuep, enum pci_size_t size)
 {
 	struct pmc_emul_platdata *plat = dev_get_platdata(emul);

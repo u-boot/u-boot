@@ -40,10 +40,19 @@ static int do_dm_dump_devres(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
+static int do_dm_dump_drivers(cmd_tbl_t *cmdtp, int flag, int argc,
+			       char * const argv[])
+{
+	dm_dump_drivers();
+
+	return 0;
+}
+
 static cmd_tbl_t test_commands[] = {
 	U_BOOT_CMD_MKENT(tree, 0, 1, do_dm_dump_all, "", ""),
 	U_BOOT_CMD_MKENT(uclass, 1, 1, do_dm_dump_uclass, "", ""),
 	U_BOOT_CMD_MKENT(devres, 1, 1, do_dm_dump_devres, "", ""),
+	U_BOOT_CMD_MKENT(drivers, 1, 1, do_dm_dump_drivers, "", ""),
 };
 
 static __maybe_unused void dm_reloc(void)
@@ -84,5 +93,6 @@ U_BOOT_CMD(
 	"Driver model low level access",
 	"tree          Dump driver model tree ('*' = activated)\n"
 	"dm uclass        Dump list of instances for each uclass\n"
-	"dm devres        Dump list of device resources for each device"
+	"dm devres        Dump list of device resources for each device\n"
+	"dm drivers       Dump list of drivers and their compatible strings\n"
 );

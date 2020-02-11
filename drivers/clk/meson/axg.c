@@ -15,6 +15,7 @@
 #include <div64.h>
 #include <dt-bindings/clock/axg-clkc.h>
 #include "clk_meson.h"
+#include <linux/err.h>
 
 #define XTAL_RATE 24000000
 

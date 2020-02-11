@@ -257,9 +257,20 @@ int ofnode_read_u64(ofnode node, const char *propname, u64 *outp);
 u64 ofnode_read_u64_default(ofnode node, const char *propname, u64 def);
 
 /**
+ * ofnode_read_prop() - Read a property from a node
+ *
+ * @node:	valid node reference to read property from
+ * @propname:	name of the property to read
+ * @sizep:	if non-NULL, returns the size of the property, or an error code
+		if not found
+ * @return property value, or NULL if there is no such property
+ */
+const void *ofnode_read_prop(ofnode node, const char *propname, int *sizep);
+
+/**
  * ofnode_read_string() - Read a string from a property
  *
- * @ref:	valid node reference to read property from
+ * @node:	valid node reference to read property from
  * @propname:	name of the property to read
  * @return string from property value, or NULL if there is no such property
  */
@@ -510,21 +521,37 @@ int ofnode_count_phandle_with_args(ofnode node, const char *list_name,
 ofnode ofnode_path(const char *path);
 
 /**
- * ofnode_get_chosen_prop() - get the value of a chosen property
+ * ofnode_read_chosen_prop() - get the value of a chosen property
  *
  * This looks for a property within the /chosen node and returns its value
  *
  * @propname: Property name to look for
+ * @sizep: Returns size of property, or FDT_ERR_... error code if function
+ *	returns NULL
  * @return property value if found, else NULL
  */
-const char *ofnode_get_chosen_prop(const char *propname);
+const void *ofnode_read_chosen_prop(const char *propname, int *sizep);
 
 /**
- * ofnode_get_chosen_node() - get the chosen node
+ * ofnode_read_chosen_string() - get the string value of a chosen property
  *
- * @return the chosen node if present, else ofnode_null()
+ * This looks for a property within the /chosen node and returns its value,
+ * checking that it is a valid nul-terminated string
+ *
+ * @propname: Property name to look for
+ * @return string value if found, else NULL
  */
-ofnode ofnode_get_chosen_node(const char *name);
+const char *ofnode_read_chosen_string(const char *propname);
+
+/**
+ * ofnode_get_chosen_node() - get a referenced node from the chosen node
+ *
+ * This looks up a named property in the chosen node and uses that as a path to
+ * look up a code.
+ *
+ * @return the referenced node if present, else ofnode_null()
+ */
+ofnode ofnode_get_chosen_node(const char *propname);
 
 struct display_timing;
 /**

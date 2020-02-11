@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <malloc.h>
 #include <time.h>
 #include <dm/lists.h>
 #include <dm/root.h>
@@ -12,6 +13,7 @@
 #include <misc.h>
 #include <asm/arch-tegra/bpmp_abi.h>
 #include <asm/arch-tegra/ivc.h>
+#include <linux/err.h>
 
 #define BPMP_IVC_FRAME_COUNT 1
 #define BPMP_IVC_FRAME_SIZE 128

@@ -6,6 +6,7 @@
 #include <common.h>
 #include <binman_sym.h>
 #include <dm.h>
+#include <malloc.h>
 #include <spi.h>
 #include <spl.h>
 #include <spi_flash.h>

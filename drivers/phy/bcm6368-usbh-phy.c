@@ -11,6 +11,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <generic-phy.h>
+#include <malloc.h>
 #include <power-domain.h>
 #include <reset.h>
 #include <asm/io.h>

@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <env_internal.h>
 #include <errno.h>
+#include <malloc.h>
 #include <os.h>
 #include <serial.h>
 #include <stdio_dev.h>

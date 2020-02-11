@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <asm/arch/sm.h>
+#include <linux/err.h>
 #include <linux/kernel.h>
 #include <dm.h>
 #include <linux/bitfield.h>

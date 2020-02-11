@@ -8,9 +8,12 @@
 #include <common.h>
 #include <errno.h>
 #include <dm.h>
+#include <dm/device_compat.h>
+#include <dm/devres.h>
 #include <dm/of_access.h>
 #include <dm/of_addr.h>
 #include <asm/io.h>
+#include <linux/err.h>
 #include <linux/ioport.h>
 #include <linux/io.h>
 #include <smem.h>

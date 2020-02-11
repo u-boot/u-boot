@@ -8,10 +8,12 @@
 
 #include <common.h>
 #include <dm.h>
+#include <malloc.h>
 #include <dm/lists.h>
 #include <regmap.h>
 #include <reset-uclass.h>
 #include <syscon.h>
+#include <linux/err.h>
 
 struct mediatek_reset_priv {
 	struct regmap *regmap;
@@ -55,7 +57,7 @@ static int mediatek_reset_deassert(struct reset_ctl *reset_ctl)
 
 struct reset_ops mediatek_reset_ops = {
 	.request = mediatek_reset_request,
-	.free = mediatek_reset_free,
+	.rfree = mediatek_reset_free,
 	.rst_assert = mediatek_reset_assert,
 	.rst_deassert = mediatek_reset_deassert,
 };

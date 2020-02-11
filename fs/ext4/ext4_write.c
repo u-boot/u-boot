@@ -22,6 +22,7 @@
 
 
 #include <common.h>
+#include <malloc.h>
 #include <memalign.h>
 #include <linux/stat.h>
 #include <div64.h>

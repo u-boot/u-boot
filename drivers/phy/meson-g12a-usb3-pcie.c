@@ -10,6 +10,7 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <malloc.h>
 #include <regmap.h>
 #include <errno.h>
 #include <asm/io.h>

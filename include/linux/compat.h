@@ -123,7 +123,10 @@ static inline void kmem_cache_destroy(struct kmem_cache *cachep)
 
 #define KERNEL_VERSION(a,b,c)	(((a) << 16) + ((b) << 8) + (c))
 
+/* This is also defined in ARMv8's mmu.h */
+#ifndef PAGE_SIZE
 #define PAGE_SIZE	4096
+#endif
 
 /* drivers/char/random.c */
 #define get_random_bytes(...)

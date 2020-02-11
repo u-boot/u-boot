@@ -19,6 +19,7 @@
 #include <asm/arch-rockchip/vop_rk3288.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
+#include <linux/err.h>
 #include <power/regulator.h>
 #include "rk_vop.h"
 

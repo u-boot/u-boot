@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <usb.h>
+#include <dm/device_compat.h>
 #include <linux/errno.h>
 #include <asm/omap_common.h>
 #include <asm/arch/cpu.h>

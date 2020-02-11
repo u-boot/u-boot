@@ -8,6 +8,7 @@
 #include <cpu_func.h>
 #include <env.h>
 #include <errno.h>
+#include <malloc.h>
 #include <linux/bug.h>
 #include <asm/io.h>
 #include <linux/libfdt.h>

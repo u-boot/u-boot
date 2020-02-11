@@ -13,6 +13,7 @@
 #include <virtio_ring.h>
 #include <dm/device.h>
 #include <linux/compat.h>
+#include <linux/err.h>
 #include <linux/io.h>
 #include "virtio_pci.h"
 

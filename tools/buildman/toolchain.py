@@ -487,6 +487,8 @@ class Toolchains:
                 URL containing this toolchain, if avaialble, else None
         """
         arch = command.OutputOneLine('uname', '-m')
+        if arch == 'aarch64':
+            arch = 'arm64'
         base = 'https://www.kernel.org/pub/tools/crosstool/files/bin'
         versions = ['7.3.0', '6.4.0', '4.9.4']
         links = []

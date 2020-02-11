@@ -22,6 +22,7 @@
 #include <asm/system.h>
 #include <asm/mach-types.h>
 #include <asm/unaligned.h>
+#include <dm/devres.h>
 #include <linux/compat.h>
 #include <malloc.h>
 #include <asm/io.h>

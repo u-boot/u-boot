@@ -11,6 +11,7 @@
 #include <common.h>
 #include <dm.h>
 #include <wdt.h>
+#include <linux/err.h>
 #include <linux/io.h>
 
 #define XWT_CSR0_WRS_MASK	0x00000008 /* Reset status Mask */

@@ -14,6 +14,8 @@
 #include <malloc.h>
 #include <mapmem.h>
 #include <mtd.h>
+#include <dm/devres.h>
+#include <linux/err.h>
 
 #include <linux/ctype.h>
 

@@ -51,14 +51,14 @@ struct reset_ops {
 	 */
 	int (*request)(struct reset_ctl *reset_ctl);
 	/**
-	 * free - Free a previously requested reset control.
+	 * rfree - Free a previously requested reset control.
 	 *
 	 * This is the implementation of the client reset_free() API.
 	 *
 	 * @reset_ctl:	The reset control to free.
 	 * @return 0 if OK, or a negative error code.
 	 */
-	int (*free)(struct reset_ctl *reset_ctl);
+	int (*rfree)(struct reset_ctl *reset_ctl);
 	/**
 	 * rst_assert - Assert a reset signal.
 	 *

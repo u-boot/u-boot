@@ -24,6 +24,7 @@ enum {
 
 	TEST_SIZE		= 10,
 	TEST_SIZE2		= 20,
+	TEST_SIZE_LARGE		= 0xe0,
 
 	TEST_ADDR		= CONFIG_BLOBLIST_ADDR,
 	TEST_BLOBLIST_SIZE	= 0x100,
@@ -33,11 +34,29 @@ static struct bloblist_hdr *clear_bloblist(void)
 {
 	struct bloblist_hdr *hdr;
 
-	/* Clear out any existing bloblist so we have a clean slate */
+	/*
+	 * Clear out any existing bloblist so we have a clean slate. Zero the
+	 * header so that existing records are removed, but set everything else
+	 * to 0xff for testing purposes.
+	 */
 	hdr = map_sysmem(CONFIG_BLOBLIST_ADDR, TEST_BLOBLIST_SIZE);
-	memset(hdr, '\0', TEST_BLOBLIST_SIZE);
+	memset(hdr, '\xff', TEST_BLOBLIST_SIZE);
+	memset(hdr, '\0', sizeof(*hdr));
 
 	return hdr;
+}
+
+static int check_zero(void *data, int size)
+{
+	u8 *ptr;
+	int i;
+
+	for (ptr = data, i = 0; i < size; i++, ptr++) {
+		if (*ptr)
+			return -EINVAL;
+	}
+
+	return 0;
 }
 
 static int bloblist_test_init(struct unit_test_state *uts)
@@ -83,10 +102,14 @@ static int bloblist_test_blob(struct unit_test_state *uts)
 	data = bloblist_find(TEST_TAG, TEST_SIZE);
 	ut_asserteq_ptr(rec + 1, data);
 
+	/* Check the data is zeroed */
+	ut_assertok(check_zero(data, TEST_SIZE));
+
 	/* Check the 'ensure' method */
 	ut_asserteq_ptr(data, bloblist_ensure(TEST_TAG, TEST_SIZE));
 	ut_assertnull(bloblist_ensure(TEST_TAG, TEST_SIZE2));
 	rec2 = (struct bloblist_rec *)(data + ALIGN(TEST_SIZE, BLOBLIST_ALIGN));
+	ut_assertok(check_zero(data, TEST_SIZE));
 
 	/* Check for a non-existent record */
 	ut_asserteq_ptr(data, bloblist_ensure(TEST_TAG, TEST_SIZE));
@@ -96,6 +119,40 @@ static int bloblist_test_blob(struct unit_test_state *uts)
 	return 0;
 }
 BLOBLIST_TEST(bloblist_test_blob, 0);
+
+/* Check bloblist_ensure_size_ret() */
+static int bloblist_test_blob_ensure(struct unit_test_state *uts)
+{
+	void *data, *data2;
+	int size;
+
+	/* At the start there should be no records */
+	clear_bloblist();
+	ut_assertok(bloblist_new(TEST_ADDR, TEST_BLOBLIST_SIZE, 0));
+
+	/* Test with an empty bloblist */
+	size = TEST_SIZE;
+	ut_assertok(bloblist_ensure_size_ret(TEST_TAG, &size, &data));
+	ut_asserteq(TEST_SIZE, size);
+	ut_assertok(check_zero(data, TEST_SIZE));
+
+	/* Check that we get the same thing again */
+	ut_assertok(bloblist_ensure_size_ret(TEST_TAG, &size, &data2));
+	ut_asserteq(TEST_SIZE, size);
+	ut_asserteq_ptr(data, data2);
+
+	/* Check that the size remains the same */
+	size = TEST_SIZE2;
+	ut_assertok(bloblist_ensure_size_ret(TEST_TAG, &size, &data));
+	ut_asserteq(TEST_SIZE, size);
+
+	/* Check running out of space */
+	size = TEST_SIZE_LARGE;
+	ut_asserteq(-ENOSPC, bloblist_ensure_size_ret(TEST_TAG2, &size, &data));
+
+	return 0;
+}
+BLOBLIST_TEST(bloblist_test_blob_ensure, 0);
 
 static int bloblist_test_bad_blob(struct unit_test_state *uts)
 {

@@ -10,7 +10,9 @@
 #include <malloc.h>
 #include <clk-uclass.h>
 #include <dm/device.h>
+#include <dm/devres.h>
 #include <linux/clk-provider.h>
+#include <linux/err.h>
 #include <linux/iopoll.h>
 #include <clk.h>
 #include <div64.h>

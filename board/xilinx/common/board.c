@@ -22,7 +22,7 @@ int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
 		return -ENODEV;
 
 	debug("%s: Path to EEPROM %s\n", __func__,
-	      ofnode_get_chosen_prop("xlnx,eeprom"));
+	      ofnode_read_chosen_string("xlnx,eeprom"));
 
 	ret = uclass_get_device_by_ofnode(UCLASS_I2C_EEPROM, eeprom, &dev);
 	if (ret)

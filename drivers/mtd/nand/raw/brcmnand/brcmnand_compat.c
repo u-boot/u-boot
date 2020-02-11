@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0+
 
 #include <common.h>
+#include <malloc.h>
+#include <dm/devres.h>
 #include "brcmnand_compat.h"
 
 static char *devm_kvasprintf(struct udevice *dev, gfp_t gfp, const char *fmt,

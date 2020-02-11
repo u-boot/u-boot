@@ -12,6 +12,7 @@
 
 #include "ubifs.h"
 #ifdef __UBOOT__
+#include <dm/devres.h>
 #include <linux/compat.h>
 #include <linux/err.h>
 #include <ubi_uboot.h>

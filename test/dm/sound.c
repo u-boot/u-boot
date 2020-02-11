@@ -28,6 +28,7 @@ static int dm_test_sound(struct unit_test_state *uts)
 	ut_asserteq(4560, sandbox_get_sound_sum(dev));
 	ut_assertok(sound_beep(dev, 1, 100));
 	ut_asserteq(9120, sandbox_get_sound_sum(dev));
+	ut_asserteq(false, sandbox_get_sound_active(dev));
 
 	return 0;
 }

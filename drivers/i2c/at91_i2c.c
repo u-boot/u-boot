@@ -5,6 +5,7 @@
  * (C) Copyright 2016 Songjun Wu <songjun.wu@atmel.com>
  */
 
+#include <malloc.h>
 #include <asm/io.h>
 #include <common.h>
 #include <clk.h>

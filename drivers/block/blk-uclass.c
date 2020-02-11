@@ -7,9 +7,11 @@
 #include <common.h>
 #include <blk.h>
 #include <dm.h>
+#include <malloc.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dm/uclass-internal.h>
+#include <linux/err.h>
 
 static const char *if_typename_str[IF_TYPE_COUNT] = {
 	[IF_TYPE_IDE]		= "ide",

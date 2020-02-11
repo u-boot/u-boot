@@ -12,6 +12,9 @@
 #include <dm.h>
 #include <errno.h>
 #include <clk-uclass.h>
+#include <malloc.h>
+#include <dm/device_compat.h>
+#include <linux/err.h>
 #include <linux/soc/ti/ti_sci_protocol.h>
 #include <k3-avs.h>
 
@@ -203,7 +206,7 @@ static const struct udevice_id ti_sci_clk_of_match[] = {
 static struct clk_ops ti_sci_clk_ops = {
 	.of_xlate = ti_sci_clk_of_xlate,
 	.request = ti_sci_clk_request,
-	.free = ti_sci_clk_free,
+	.rfree = ti_sci_clk_free,
 	.get_rate = ti_sci_clk_get_rate,
 	.set_rate = ti_sci_clk_set_rate,
 	.set_parent = ti_sci_clk_set_parent,

@@ -15,7 +15,7 @@ struct mpc85xx_pci_priv {
 	void __iomem		*cfg_data;
 };
 
-static int mpc85xx_pci_dm_read_config(struct udevice *dev, pci_dev_t bdf,
+static int mpc85xx_pci_dm_read_config(const struct udevice *dev, pci_dev_t bdf,
 				      uint offset, ulong *value,
 				      enum pci_size_t size)
 {

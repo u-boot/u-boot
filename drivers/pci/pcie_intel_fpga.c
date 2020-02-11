@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <pci.h>
 #include <asm/io.h>
+#include <dm/device_compat.h>
 
 #define RP_TX_REG0			0x2000
 #define RP_TX_CNTRL			0x2004
@@ -226,7 +227,7 @@ static int tlp_cfg_dword_write(struct intel_fpga_pcie *pcie, pci_dev_t bdf,
 	return tlp_read_packet(pcie, NULL);
 }
 
-int intel_fpga_rp_conf_addr(struct udevice *bus, pci_dev_t bdf,
+int intel_fpga_rp_conf_addr(const struct udevice *bus, pci_dev_t bdf,
 			    uint offset, void **paddress)
 {
 	struct intel_fpga_pcie *pcie = dev_get_priv(bus);
@@ -326,7 +327,7 @@ static int _pcie_intel_fpga_write_config(struct intel_fpga_pcie *pcie,
 				   byte_en, data);
 }
 
-static int pcie_intel_fpga_read_config(struct udevice *bus, pci_dev_t bdf,
+static int pcie_intel_fpga_read_config(const struct udevice *bus, pci_dev_t bdf,
 				       uint offset, ulong *valuep,
 				       enum pci_size_t size)
 {

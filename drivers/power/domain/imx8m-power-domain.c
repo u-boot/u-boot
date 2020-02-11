@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <malloc.h>
 #include <power-domain-uclass.h>
 #include <asm/io.h>
 #include <asm/arch/power-domain.h>
@@ -121,7 +122,7 @@ static const struct udevice_id imx8m_power_domain_ids[] = {
 
 struct power_domain_ops imx8m_power_domain_ops = {
 	.request = imx8m_power_domain_request,
-	.free = imx8m_power_domain_free,
+	.rfree = imx8m_power_domain_free,
 	.on = imx8m_power_domain_on,
 	.off = imx8m_power_domain_off,
 	.of_xlate = imx8m_power_domain_of_xlate,

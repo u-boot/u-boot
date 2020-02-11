@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <malloc.h>
 #include <reset.h>
 #include <asm/io.h>
 #include <asm/reset.h>

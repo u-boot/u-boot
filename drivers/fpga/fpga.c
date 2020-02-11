@@ -9,6 +9,7 @@
 #include <xilinx.h>             /* xilinx specific definitions */
 #include <altera.h>             /* altera specific definitions */
 #include <lattice.h>
+#include <dm/device_compat.h>
 
 /* Local definitions */
 #ifndef CONFIG_MAX_FPGA_DEVICES

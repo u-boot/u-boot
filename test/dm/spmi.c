@@ -6,6 +6,7 @@
 #include <common.h>
 #include <fdtdec.h>
 #include <dm.h>
+#include <malloc.h>
 #include <dm/device.h>
 #include <dm/root.h>
 #include <dm/test.h>

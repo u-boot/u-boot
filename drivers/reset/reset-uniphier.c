@@ -6,7 +6,9 @@
 
 #include <common.h>
 #include <dm.h>
+#include <malloc.h>
 #include <reset-uclass.h>
+#include <dm/device_compat.h>
 #include <linux/bitops.h>
 #include <linux/io.h>
 #include <linux/sizes.h>
@@ -234,7 +236,7 @@ static int uniphier_reset_deassert(struct reset_ctl *reset_ctl)
 
 static const struct reset_ops uniphier_reset_ops = {
 	.request = uniphier_reset_request,
-	.free = uniphier_reset_free,
+	.rfree = uniphier_reset_free,
 	.rst_assert = uniphier_reset_assert,
 	.rst_deassert = uniphier_reset_deassert,
 };

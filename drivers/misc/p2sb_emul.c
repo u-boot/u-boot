@@ -48,8 +48,9 @@ struct p2sb_emul_priv {
 	u8 regs[16];
 };
 
-static int sandbox_p2sb_emul_read_config(struct udevice *emul, uint offset,
-					 ulong *valuep, enum pci_size_t size)
+static int sandbox_p2sb_emul_read_config(const struct udevice *emul,
+					 uint offset, ulong *valuep,
+					 enum pci_size_t size)
 {
 	struct p2sb_emul_platdata *plat = dev_get_platdata(emul);
 

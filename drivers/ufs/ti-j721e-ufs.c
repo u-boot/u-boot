@@ -7,6 +7,8 @@
 #include <clk.h>
 #include <common.h>
 #include <dm.h>
+#include <dm/device_compat.h>
+#include <linux/err.h>
 
 #define UFS_SS_CTRL             0x4
 #define UFS_SS_RST_N_PCS        BIT(0)

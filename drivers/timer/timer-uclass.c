@@ -11,6 +11,7 @@
 #include <clk.h>
 #include <errno.h>
 #include <timer.h>
+#include <linux/err.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

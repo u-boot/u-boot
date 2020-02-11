@@ -14,6 +14,8 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <dm/device_compat.h>
+#include <dm/devres.h>
 #include <dm/pinctrl.h>
 #include <linux/io.h>
 #include <linux/sizes.h>

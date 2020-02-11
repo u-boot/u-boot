@@ -5,7 +5,9 @@
 
 #include <common.h>
 #include <dm.h>
+#include <malloc.h>
 #include <dm/device-internal.h>
+#include <dm/device_compat.h>
 #include <dm/lists.h>
 #include <dm/pinctrl.h>
 #include <fdt_support.h>

@@ -14,6 +14,7 @@
  */
 
 #ifndef __UBOOT__
+#include <dm/devres.h>
 #include <linux/crc16.h>
 #include <linux/slab.h>
 #include <linux/random.h>

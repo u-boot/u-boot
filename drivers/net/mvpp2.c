@@ -17,12 +17,15 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <dm/device-internal.h>
+#include <dm/device_compat.h>
+#include <dm/devres.h>
 #include <dm/lists.h>
 #include <net.h>
 #include <netdev.h>
 #include <config.h>
 #include <malloc.h>
 #include <asm/io.h>
+#include <linux/err.h>
 #include <linux/errno.h>
 #include <phy.h>
 #include <miiphy.h>

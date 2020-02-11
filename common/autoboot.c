@@ -13,6 +13,7 @@
 #include <env.h>
 #include <fdtdec.h>
 #include <hash.h>
+#include <malloc.h>
 #include <memalign.h>
 #include <menu.h>
 #include <post.h>

@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <malloc.h>
 #include <power-domain-uclass.h>
 #include <regmap.h>
 #include <syscon.h>
@@ -13,6 +14,7 @@
 #include <clk.h>
 #include <dt-bindings/power/meson-g12a-power.h>
 #include <dt-bindings/power/meson-sm1-power.h>
+#include <linux/err.h>
 
 /* AO Offsets */
 
@@ -352,7 +354,7 @@ static int meson_ee_pwrc_of_xlate(struct power_domain *power_domain,
 }
 
 struct power_domain_ops meson_ee_pwrc_ops = {
-	.free = meson_ee_pwrc_free,
+	.rfree = meson_ee_pwrc_free,
 	.off = meson_ee_pwrc_off,
 	.on = meson_ee_pwrc_on,
 	.request = meson_ee_pwrc_request,

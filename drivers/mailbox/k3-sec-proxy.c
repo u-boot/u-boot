@@ -7,7 +7,9 @@
  */
 
 #include <common.h>
+#include <malloc.h>
 #include <asm/io.h>
+#include <dm/device_compat.h>
 #include <linux/types.h>
 #include <linux/bitops.h>
 #include <linux/soc/ti/k3-sec-proxy.h>
@@ -291,7 +293,7 @@ static int k3_sec_proxy_recv(struct mbox_chan *chan, void *data)
 struct mbox_ops k3_sec_proxy_mbox_ops = {
 	.of_xlate = k3_sec_proxy_of_xlate,
 	.request = k3_sec_proxy_request,
-	.free = k3_sec_proxy_free,
+	.rfree = k3_sec_proxy_free,
 	.send = k3_sec_proxy_send,
 	.recv = k3_sec_proxy_recv,
 };

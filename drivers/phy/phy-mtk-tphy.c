@@ -9,8 +9,11 @@
 #include <clk.h>
 #include <dm.h>
 #include <generic-phy.h>
+#include <malloc.h>
 #include <mapmem.h>
 #include <asm/io.h>
+#include <dm/device_compat.h>
+#include <dm/devres.h>
 
 #include <dt-bindings/phy/phy.h>
 

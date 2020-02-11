@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <malloc.h>
 #include <spi.h>
+#include <dm/device_compat.h>
 #include <linux/errno.h>
 #include <asm/io.h>
 #include <asm/gpio.h>

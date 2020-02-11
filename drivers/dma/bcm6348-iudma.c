@@ -20,6 +20,7 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <dma-uclass.h>
+#include <malloc.h>
 #include <memalign.h>
 #include <reset.h>
 #include <asm/io.h>

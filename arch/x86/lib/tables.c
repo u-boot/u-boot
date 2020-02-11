@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <malloc.h>
 #include <smbios.h>
 #include <asm/sfi.h>
 #include <asm/mpspec.h>

@@ -26,6 +26,7 @@
 #include <fdt_support.h>
 #include <reset.h>
 #include <wait_bit.h>
+#include <dm/device_compat.h>
 
 #include <asm/bitops.h>
 #include <asm/gpio.h>

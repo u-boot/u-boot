@@ -13,6 +13,7 @@
 #include <dm.h>
 #include <dt-structs.h>
 #include <irq.h>
+#include <malloc.h>
 #include <p2sb.h>
 #include <spl.h>
 #include <asm/itss.h>

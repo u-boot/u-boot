@@ -9,6 +9,7 @@
 #include <env.h>
 #include <errno.h>
 #include <init.h>
+#include <malloc.h>
 #include <serial.h>
 #include <spl.h>
 #include <asm/arch/cpu.h>

@@ -7,6 +7,7 @@
  * Written by David Howells (dhowells@redhat.com)
  */
 #ifndef __UBOOT__
+#include <dm/devres.h>
 #include <keys/asymmetric-subtype.h>
 #include <keys/asymmetric-parser.h>
 #endif
@@ -14,6 +15,7 @@
 #ifdef __UBOOT__
 #include <linux/compat.h>
 #include <linux/ctype.h>
+#include <linux/err.h>
 #include <linux/string.h>
 #else
 #include <linux/seq_file.h>

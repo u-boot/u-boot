@@ -245,6 +245,7 @@
 #include <common.h>
 #include <console.h>
 #include <g_dnl.h>
+#include <dm/devres.h>
 
 #include <linux/err.h>
 #include <linux/usb/ch9.h>

@@ -6,8 +6,10 @@
 #include <common.h>
 #include <dm.h>
 #include <log.h>
+#include <malloc.h>
 #include <tee.h>
 #include <linux/arm-smccc.h>
+#include <linux/err.h>
 #include <linux/io.h>
 
 #include "optee_smc.h"

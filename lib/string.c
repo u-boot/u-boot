@@ -324,7 +324,6 @@ char * strdup(const char *s)
 	strcpy (new, s);
 	return new;
 }
-#endif
 
 char * strndup(const char *s, size_t n)
 {
@@ -348,6 +347,7 @@ char * strndup(const char *s, size_t n)
 
 	return new;
 }
+#endif
 
 #ifndef __HAVE_ARCH_STRSPN
 /**

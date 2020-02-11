@@ -11,6 +11,8 @@
 #include <wdt.h>
 #include <clk.h>
 #include <div64.h>
+#include <dm/device_compat.h>
+#include <linux/err.h>
 #include <linux/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;

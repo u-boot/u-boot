@@ -11,10 +11,12 @@
 #include <dm.h>
 #include <fdtdec.h>
 #include <generic-phy.h>
+#include <malloc.h>
 #include <reset.h>
 #include <syscon.h>
 #include <usb.h>
 #include <asm/io.h>
+#include <dm/device_compat.h>
 #include <linux/bitops.h>
 #include <power/regulator.h>
 

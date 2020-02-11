@@ -899,8 +899,8 @@ struct dm_pci_ops {
 	 * @size:	Access size
 	 * @return 0 if OK, -ve on error
 	 */
-	int (*read_config)(struct udevice *bus, pci_dev_t bdf, uint offset,
-			   ulong *valuep, enum pci_size_t size);
+	int (*read_config)(const struct udevice *bus, pci_dev_t bdf,
+			   uint offset, ulong *valuep, enum pci_size_t size);
 	/**
 	 * write_config() - Write a PCI configuration value
 	 *
@@ -924,7 +924,7 @@ struct dm_pci_ops {
  * @dev:	Device to check
  * @return bus/device/function value (see PCI_BDF())
  */
-pci_dev_t dm_pci_get_bdf(struct udevice *dev);
+pci_dev_t dm_pci_get_bdf(const struct udevice *dev);
 
 /**
  * pci_bind_bus_devices() - scan a PCI bus and bind devices
@@ -974,7 +974,7 @@ int dm_pci_bus_find_bdf(pci_dev_t bdf, struct udevice **devp);
  * @devp:	Returns the device for this address, if found
  * @return 0 if OK, -ENODEV if not found
  */
-int pci_bus_find_devfn(struct udevice *bus, pci_dev_t find_devfn,
+int pci_bus_find_devfn(const struct udevice *bus, pci_dev_t find_devfn,
 		       struct udevice **devp);
 
 /**
@@ -1067,7 +1067,7 @@ int dm_pci_hose_probe_bus(struct udevice *bus);
  * @size:	Access size
  * @return 0 if OK, -ve on error
  */
-int pci_bus_read_config(struct udevice *bus, pci_dev_t bdf, int offset,
+int pci_bus_read_config(const struct udevice *bus, pci_dev_t bdf, int offset,
 			unsigned long *valuep, enum pci_size_t size);
 
 /**
@@ -1102,12 +1102,12 @@ int pci_bus_clrset_config32(struct udevice *bus, pci_dev_t bdf, int offset,
  * Driver model PCI config access functions. Use these in preference to others
  * when you have a valid device
  */
-int dm_pci_read_config(struct udevice *dev, int offset, unsigned long *valuep,
-		       enum pci_size_t size);
+int dm_pci_read_config(const struct udevice *dev, int offset,
+		       unsigned long *valuep, enum pci_size_t size);
 
-int dm_pci_read_config8(struct udevice *dev, int offset, u8 *valuep);
-int dm_pci_read_config16(struct udevice *dev, int offset, u16 *valuep);
-int dm_pci_read_config32(struct udevice *dev, int offset, u32 *valuep);
+int dm_pci_read_config8(const struct udevice *dev, int offset, u8 *valuep);
+int dm_pci_read_config16(const struct udevice *dev, int offset, u16 *valuep);
+int dm_pci_read_config32(const struct udevice *dev, int offset, u32 *valuep);
 
 int dm_pci_write_config(struct udevice *dev, int offset, unsigned long value,
 			enum pci_size_t size);
@@ -1155,8 +1155,9 @@ int pci_read_config8(pci_dev_t pcidev, int offset, u8 *valuep);
  * Return: 0 on success, else -EINVAL
  */
 int pci_generic_mmap_write_config(
-	struct udevice *bus,
-	int (*addr_f)(struct udevice *bus, pci_dev_t bdf, uint offset, void **addrp),
+	const struct udevice *bus,
+	int (*addr_f)(const struct udevice *bus, pci_dev_t bdf, uint offset,
+		      void **addrp),
 	pci_dev_t bdf,
 	uint offset,
 	ulong value,
@@ -1180,8 +1181,9 @@ int pci_generic_mmap_write_config(
  * Return: 0 on success, else -EINVAL
  */
 int pci_generic_mmap_read_config(
-	struct udevice *bus,
-	int (*addr_f)(struct udevice *bus, pci_dev_t bdf, uint offset, void **addrp),
+	const struct udevice *bus,
+	int (*addr_f)(const struct udevice *bus, pci_dev_t bdf, uint offset,
+		      void **addrp),
 	pci_dev_t bdf,
 	uint offset,
 	ulong *valuep,
@@ -1311,7 +1313,7 @@ void dm_pci_write_bar32(struct udevice *dev, int barnum, u32 addr);
  * @barnum:	Bar number to read (numbered from 0)
  * @return: value of BAR
  */
-u32 dm_pci_read_bar32(struct udevice *dev, int barnum);
+u32 dm_pci_read_bar32(const struct udevice *dev, int barnum);
 
 /**
  * dm_pci_bus_to_phys() - convert a PCI bus address to a physical address
@@ -1523,8 +1525,8 @@ struct dm_pci_emul_ops {
 	 * @size:	Access size
 	 * @return 0 if OK, -ve on error
 	 */
-	int (*read_config)(struct udevice *dev, uint offset, ulong *valuep,
-			   enum pci_size_t size);
+	int (*read_config)(const struct udevice *dev, uint offset,
+			   ulong *valuep, enum pci_size_t size);
 	/**
 	 * write_config() - Write a PCI configuration value
 	 *
@@ -1609,7 +1611,7 @@ struct dm_pci_emul_ops {
  * @emulp:	Returns emulated device if found
  * @return 0 if found, -ENODEV if not found
  */
-int sandbox_pci_get_emul(struct udevice *bus, pci_dev_t find_devfn,
+int sandbox_pci_get_emul(const struct udevice *bus, pci_dev_t find_devfn,
 			 struct udevice **containerp, struct udevice **emulp);
 
 /**

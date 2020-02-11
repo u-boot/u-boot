@@ -10,6 +10,7 @@
 #include <linux/libfdt.h>
 #include <os.h>
 #include <asm/io.h>
+#include <asm/malloc.h>
 #include <asm/setjmp.h>
 #include <asm/state.h>
 #include <dm/root.h>

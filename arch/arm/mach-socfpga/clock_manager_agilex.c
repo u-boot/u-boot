@@ -7,6 +7,7 @@
 #include <clk.h>
 #include <common.h>
 #include <dm.h>
+#include <malloc.h>
 #include <asm/arch/clock_manager.h>
 #include <asm/arch/system_manager.h>
 #include <asm/io.h>

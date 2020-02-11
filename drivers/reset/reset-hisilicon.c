@@ -3,6 +3,7 @@
  * Copyright (c) 2019, Linaro Limited
  */
 
+#include <malloc.h>
 #include <asm/io.h>
 #include <common.h>
 #include <dm.h>
@@ -72,7 +73,7 @@ static int hisi_reset_of_xlate(struct reset_ctl *rst,
 static const struct reset_ops hisi_reset_reset_ops = {
 	.of_xlate = hisi_reset_of_xlate,
 	.request = hisi_reset_request,
-	.free = hisi_reset_free,
+	.rfree = hisi_reset_free,
 	.rst_assert = hisi_reset_assert,
 	.rst_deassert = hisi_reset_deassert,
 };

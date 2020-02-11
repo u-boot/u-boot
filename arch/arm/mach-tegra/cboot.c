@@ -8,6 +8,7 @@
 #include <fdt_support.h>
 #include <fdtdec.h>
 #include <hang.h>
+#include <malloc.h>
 #include <stdlib.h>
 #include <string.h>
 

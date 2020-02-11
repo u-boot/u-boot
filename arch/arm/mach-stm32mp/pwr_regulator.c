@@ -8,6 +8,8 @@
 #include <errno.h>
 #include <regmap.h>
 #include <syscon.h>
+#include <dm/device_compat.h>
+#include <linux/err.h>
 #include <power/pmic.h>
 #include <power/regulator.h>
 

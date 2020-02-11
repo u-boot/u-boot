@@ -15,6 +15,7 @@
 #include <asm/fsl_serdes.h>
 #include <asm/io.h>
 #include "pcie_fsl.h"
+#include <dm/device_compat.h>
 
 LIST_HEAD(fsl_pcie_list);
 
@@ -42,7 +43,7 @@ static int fsl_pcie_addr_valid(struct fsl_pcie *pcie, pci_dev_t bdf)
 	return 0;
 }
 
-static int fsl_pcie_read_config(struct udevice *bus, pci_dev_t bdf,
+static int fsl_pcie_read_config(const struct udevice *bus, pci_dev_t bdf,
 				uint offset, ulong *valuep,
 				enum pci_size_t size)
 {

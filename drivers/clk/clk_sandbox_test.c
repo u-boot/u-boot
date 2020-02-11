@@ -6,7 +6,10 @@
 #include <common.h>
 #include <dm.h>
 #include <clk.h>
+#include <malloc.h>
 #include <asm/clk.h>
+#include <dm/device_compat.h>
+#include <linux/err.h>
 
 struct sandbox_clk_test {
 	struct clk clks[SANDBOX_CLK_TEST_NON_DEVM_COUNT];

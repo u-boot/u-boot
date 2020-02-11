@@ -364,8 +364,8 @@ int _dm_gpio_free(struct udevice *dev, uint offset)
 	uc_priv = dev_get_uclass_priv(dev);
 	if (!uc_priv->name[offset])
 		return -ENXIO;
-	if (gpio_get_ops(dev)->free) {
-		ret = gpio_get_ops(dev)->free(dev, offset);
+	if (gpio_get_ops(dev)->rfree) {
+		ret = gpio_get_ops(dev)->rfree(dev, offset);
 		if (ret)
 			return ret;
 	}
@@ -1043,8 +1043,8 @@ static int gpio_post_bind(struct udevice *dev)
 	if (!reloc_done) {
 		if (ops->request)
 			ops->request += gd->reloc_off;
-		if (ops->free)
-			ops->free += gd->reloc_off;
+		if (ops->rfree)
+			ops->rfree += gd->reloc_off;
 		if (ops->direction_input)
 			ops->direction_input += gd->reloc_off;
 		if (ops->direction_output)

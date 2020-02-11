@@ -31,6 +31,7 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>
+#include <malloc.h>
 #include <memalign.h>
 #include <miiphy.h>
 #include <net.h>

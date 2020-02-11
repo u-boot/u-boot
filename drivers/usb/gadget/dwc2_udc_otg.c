@@ -23,6 +23,8 @@
 #include <generic-phy.h>
 #include <malloc.h>
 #include <reset.h>
+#include <dm/device_compat.h>
+#include <dm/devres.h>
 
 #include <linux/errno.h>
 #include <linux/list.h>

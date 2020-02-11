@@ -9,6 +9,7 @@
 #include <command.h>
 #include <config.h>
 #include <fat.h>
+#include <malloc.h>
 #include <asm/byteorder.h>
 #include <part.h>
 #include <linux/ctype.h>

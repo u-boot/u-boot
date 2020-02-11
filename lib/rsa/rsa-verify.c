@@ -6,6 +6,7 @@
 #ifndef USE_HOSTCC
 #include <common.h>
 #include <fdtdec.h>
+#include <malloc.h>
 #include <asm/types.h>
 #include <asm/byteorder.h>
 #include <linux/errno.h>

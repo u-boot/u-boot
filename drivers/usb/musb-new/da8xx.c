@@ -16,6 +16,7 @@
 #include <common.h>
 #include <dm.h>
 #include <dm/device-internal.h>
+#include <dm/device_compat.h>
 #include <dm/lists.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/da8xx-usb.h>

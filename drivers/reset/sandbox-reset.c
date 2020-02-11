@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <malloc.h>
 #include <reset-uclass.h>
 #include <asm/io.h>
 #include <asm/reset.h>
@@ -79,7 +80,7 @@ static const struct udevice_id sandbox_reset_ids[] = {
 
 struct reset_ops sandbox_reset_reset_ops = {
 	.request = sandbox_reset_request,
-	.free = sandbox_reset_free,
+	.rfree = sandbox_reset_free,
 	.rst_assert = sandbox_reset_assert,
 	.rst_deassert = sandbox_reset_deassert,
 };

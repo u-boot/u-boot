@@ -9,6 +9,7 @@
 #include <charset.h>
 #include <command.h>
 #include <errno.h>
+#include <malloc.h>
 #include <test/test.h>
 #include <test/suites.h>
 #include <test/ut.h>

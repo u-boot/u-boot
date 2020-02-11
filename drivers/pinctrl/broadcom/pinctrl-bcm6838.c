@@ -4,6 +4,7 @@
 #include <dm.h>
 #include <regmap.h>
 #include <syscon.h>
+#include <dm/device_compat.h>
 #include <dm/pinctrl.h>
 
 #define BCM6838_CMD_LOAD_MUX            0x21

@@ -9,12 +9,15 @@
  * Author: Piotr Bugalski <bugalski.piotr@gmail.com>
  */
 
+#include <malloc.h>
 #include <asm/io.h>
 #include <clk.h>
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <dm/device_compat.h>
+#include <linux/err.h>
 #include <linux/io.h>
 #include <linux/iopoll.h>
 #include <linux/ioport.h>

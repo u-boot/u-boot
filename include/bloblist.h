@@ -152,6 +152,19 @@ int bloblist_ensure_size(uint tag, int size, void **blobp);
 void *bloblist_ensure(uint tag, int size);
 
 /**
+ * bloblist_ensure_size_ret() - Find or add a blob
+ *
+ * Find an existing blob, or add a new one if not found
+ *
+ * @tag:	Tag to add (enum bloblist_tag_t)
+ * @sizep:	Size of the blob to create; returns size of actual blob
+ * @blobp:	Returns a pointer to blob on success
+ * @return 0 if OK, -ENOSPC if it is missing and could not be added due to lack
+ *	of space
+ */
+int bloblist_ensure_size_ret(uint tag, int *sizep, void **blobp);
+
+/**
  * bloblist_new() - Create a new, empty bloblist of a given size
  *
  * @addr: Address of bloblist
@@ -170,7 +183,8 @@ int bloblist_new(ulong addr, uint size, uint flags);
  * @return 0 if OK, -ENOENT if the magic number doesn't match (indicating that
  *	there problem is no bloblist at the given address), -EPROTONOSUPPORT
  *	if the version does not match, -EIO if the checksum does not match,
- *	-EFBIG if the expected size does not match the detected size
+ *	-EFBIG if the expected size does not match the detected size, -ENOSPC
+ *	if the size is not large enough to hold the headers
  */
 int bloblist_check(ulong addr, uint size);
 

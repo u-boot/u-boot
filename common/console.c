@@ -621,6 +621,17 @@ void console_record_reset_enable(void)
 	console_record_reset();
 	gd->flags |= GD_FLG_RECORD;
 }
+
+int console_record_readline(char *str, int maxlen)
+{
+	return membuff_readline(&gd->console_out, str, maxlen, ' ');
+}
+
+int console_record_avail(void)
+{
+	return membuff_avail(&gd->console_out);
+}
+
 #endif
 
 /* test if ctrl-c was pressed */

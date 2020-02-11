@@ -14,6 +14,7 @@
 #include <net.h>
 #include <netdev.h>
 #include <cpsw.h>
+#include <dm/device_compat.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
 #include <asm/io.h>

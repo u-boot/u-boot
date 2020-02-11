@@ -13,6 +13,7 @@
 #include <syscon.h>
 #include <asm/io.h>
 #include <asm/syscon.h>
+#include <linux/err.h>
 
 /* MSIP registers */
 #define MSIP_REG(base, hart)		((ulong)(base) + (hart) * 4)

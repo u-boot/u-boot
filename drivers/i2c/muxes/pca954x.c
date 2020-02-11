@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <i2c.h>
+#include <malloc.h>
 
 #include <asm-generic/gpio.h>
 

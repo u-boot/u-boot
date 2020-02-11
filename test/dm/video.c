@@ -7,6 +7,7 @@
 #include <common.h>
 #include <bzlib.h>
 #include <dm.h>
+#include <malloc.h>
 #include <mapmem.h>
 #include <os.h>
 #include <video.h>

@@ -17,6 +17,7 @@ int type_string_pack(const char *type_str, char * const values[], u8 *data);
 int type_string_write_vars(const char *type_str, u8 *data, char * const vars[]);
 int get_tpm(struct udevice **devp);
 
+int do_tpm_device(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[]);
 int do_tpm_init(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[]);
 int do_tpm_info(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[]);
 int do_tpm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);

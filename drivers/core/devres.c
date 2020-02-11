@@ -10,10 +10,12 @@
 #define LOG_CATEGORY LOGC_DEVRES
 
 #include <common.h>
+#include <malloc.h>
 #include <linux/compat.h>
 #include <linux/kernel.h>
 #include <linux/list.h>
 #include <dm/device.h>
+#include <dm/devres.h>
 #include <dm/root.h>
 #include <dm/util.h>
 

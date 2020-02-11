@@ -12,7 +12,8 @@
 #include <malloc.h>
 #include <asm/dma-mapping.h>
 #include <dm.h>
-#include <dm/device.h>
+#include <dm/device_compat.h>
+#include <dm/devres.h>
 #include <dm/read.h>
 #include <dm/of_access.h>
 #include <dma.h>
@@ -20,6 +21,7 @@
 #include <linux/delay.h>
 #include <dt-bindings/dma/k3-udma.h>
 #include <linux/bitmap.h>
+#include <linux/err.h>
 #include <linux/soc/ti/k3-navss-ringacc.h>
 #include <linux/soc/ti/cppi5.h>
 #include <linux/soc/ti/ti-udma.h>
@@ -1551,7 +1553,7 @@ static int udma_request(struct dma *dma)
 	return 0;
 }
 
-static int udma_free(struct dma *dma)
+static int udma_rfree(struct dma *dma)
 {
 	struct udma_dev *ud = dev_get_priv(dma->dev);
 	struct udma_chan *uc;
@@ -1846,7 +1848,7 @@ static const struct dma_ops udma_ops = {
 	.transfer	= udma_transfer,
 	.of_xlate	= udma_of_xlate,
 	.request	= udma_request,
-	.free		= udma_free,
+	.rfree		= udma_rfree,
 	.enable		= udma_enable,
 	.disable	= udma_disable,
 	.send		= udma_send,

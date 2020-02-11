@@ -8,6 +8,7 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <malloc.h>
 #include <usb.h>
 #include <asm/io.h>
 #include <asm/arch/clk.h>

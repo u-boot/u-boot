@@ -15,6 +15,7 @@
 #include <mapmem.h>
 #include <stdbool.h>
 #include <asm/gpio.h>
+#include <dm/device_compat.h>
 #include <dm/pinctrl.h>
 #include <linux/bitops.h>
 #include <linux/io.h>

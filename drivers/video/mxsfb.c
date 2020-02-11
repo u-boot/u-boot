@@ -7,6 +7,7 @@
 #include <common.h>
 #include <dm.h>
 #include <env.h>
+#include <dm/device_compat.h>
 #include <linux/errno.h>
 #include <malloc.h>
 #include <video.h>

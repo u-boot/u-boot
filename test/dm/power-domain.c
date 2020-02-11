@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <malloc.h>
 #include <dm/test.h>
 #include <asm/power-domain.h>
 #include <test/ut.h>

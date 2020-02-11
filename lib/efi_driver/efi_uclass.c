@@ -18,6 +18,7 @@
  */
 
 #include <efi_driver.h>
+#include <malloc.h>
 
 /**
  * check_node_type() - check node type

@@ -7,6 +7,7 @@
 #include <common.h>
 #include <dm.h>
 #include <i2s.h>
+#include <malloc.h>
 #include <sound.h>
 
 #define SOUND_BITS_IN_BYTE 8
@@ -29,6 +30,16 @@ int sound_play(struct udevice *dev, void *data, uint data_size)
 		return -ENOSYS;
 
 	return ops->play(dev, data, data_size);
+}
+
+int sound_stop_play(struct udevice *dev)
+{
+	struct sound_ops *ops = sound_get_ops(dev);
+
+	if (!ops->play)
+		return -ENOSYS;
+
+	return ops->stop_play(dev);
 }
 
 int sound_start_beep(struct udevice *dev, int frequency_hz)
@@ -87,16 +98,20 @@ int sound_beep(struct udevice *dev, int msecs, int frequency_hz)
 	sound_create_square_wave(i2s_uc_priv->samplingrate, data, data_size,
 				 frequency_hz, i2s_uc_priv->channels);
 
+	ret = 0;
 	while (msecs >= 1000) {
 		ret = sound_play(dev, data, data_size);
+		if (ret)
+			break;
 		msecs -= 1000;
 	}
-	if (msecs) {
+	if (!ret && msecs) {
 		unsigned long size =
 			(data_size * msecs) / (sizeof(int) * 1000);
 
 		ret = sound_play(dev, data, size);
 	}
+	sound_stop_play(dev);
 
 	free(data);
 

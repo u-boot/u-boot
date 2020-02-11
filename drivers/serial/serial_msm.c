@@ -12,6 +12,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <errno.h>
+#include <malloc.h>
 #include <serial.h>
 #include <watchdog.h>
 #include <asm/io.h>

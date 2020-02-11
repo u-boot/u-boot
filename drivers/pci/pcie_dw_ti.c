@@ -12,6 +12,8 @@
 #include <syscon.h>
 #include <asm/io.h>
 #include <asm-generic/gpio.h>
+#include <dm/device_compat.h>
+#include <linux/err.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -289,7 +291,7 @@ static int pcie_dw_addr_valid(pci_dev_t d, int first_busno)
  *
  * Return: 0 on success
  */
-static int pcie_dw_ti_read_config(struct udevice *bus, pci_dev_t bdf,
+static int pcie_dw_ti_read_config(const struct udevice *bus, pci_dev_t bdf,
 				  uint offset, ulong *valuep,
 				  enum pci_size_t size)
 {

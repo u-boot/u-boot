@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <malloc.h>
 #include <power-domain-uclass.h>
 #include <asm/io.h>
 
@@ -62,7 +63,7 @@ static const struct udevice_id bcm6328_power_domain_ids[] = {
 };
 
 struct power_domain_ops bcm6328_power_domain_ops = {
-	.free = bcm6328_power_domain_free,
+	.rfree = bcm6328_power_domain_free,
 	.off = bcm6328_power_domain_off,
 	.on = bcm6328_power_domain_on,
 	.request = bcm6328_power_domain_request,

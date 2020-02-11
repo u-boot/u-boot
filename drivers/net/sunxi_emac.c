@@ -8,6 +8,7 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <linux/err.h>
 #include <malloc.h>
 #include <miiphy.h>

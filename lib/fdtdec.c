@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <hang.h>
 #include <init.h>
+#include <malloc.h>
 #include <dm/of_extra.h>
 #include <env.h>
 #include <errno.h>
@@ -224,7 +225,7 @@ int fdtdec_get_pci_vendev(const void *blob, int node, u16 *vendor, u16 *device)
 	return -ENOENT;
 }
 
-int fdtdec_get_pci_bar32(struct udevice *dev, struct fdt_pci_addr *addr,
+int fdtdec_get_pci_bar32(const struct udevice *dev, struct fdt_pci_addr *addr,
 			 u32 *bar)
 {
 	int barnum;

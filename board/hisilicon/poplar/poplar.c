@@ -4,9 +4,9 @@
  * Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
  */
 
+#include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
-#include <common.h>
 #include <init.h>
 #include <asm/io.h>
 #include <dm/platform_data/serial_pl01x.h>

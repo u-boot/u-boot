@@ -16,6 +16,7 @@
 #include <i2c.h>
 #include <init.h>
 #include <led.h>
+#include <malloc.h>
 #include <memalign.h>
 #include <misc.h>
 #include <mtd.h>
@@ -32,6 +33,7 @@
 #include <asm/arch/stm32.h>
 #include <asm/arch/sys_proto.h>
 #include <jffs2/load_kernel.h>
+#include <linux/err.h>
 #include <power/regulator.h>
 #include <usb/dwc2_udc.h>
 

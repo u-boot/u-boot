@@ -4,6 +4,8 @@
  */
 
 #include <common.h>
+#include <malloc.h>
+#include <dm/device_compat.h>
 #include <linux/libfdt.h>
 #include <linux/err.h>
 #include <linux/list.h>

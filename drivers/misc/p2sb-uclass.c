@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <malloc.h>
 #include <mapmem.h>
 #include <p2sb.h>
 #include <spl.h>

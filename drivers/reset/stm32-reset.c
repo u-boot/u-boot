@@ -7,6 +7,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <malloc.h>
 #include <reset-uclass.h>
 #include <stm32_rcc.h>
 #include <asm/io.h>
@@ -64,7 +65,7 @@ static int stm32_reset_deassert(struct reset_ctl *reset_ctl)
 
 static const struct reset_ops stm32_reset_ops = {
 	.request	= stm32_reset_request,
-	.free		= stm32_reset_free,
+	.rfree		= stm32_reset_free,
 	.rst_assert	= stm32_reset_assert,
 	.rst_deassert	= stm32_reset_deassert,
 };

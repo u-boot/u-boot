@@ -14,7 +14,6 @@
 #include <dm/uclass-id.h>
 #include <fdtdec.h>
 #include <linker_lists.h>
-#include <linux/compat.h>
 #include <linux/kernel.h>
 #include <linux/list.h>
 #include <linux/printk.h>
@@ -409,7 +408,8 @@ const char *dev_get_uclass_name(const struct udevice *dev);
  * @return 0 if OK, -ENODEV if no such device, other error if the device fails
  *	   to probe
  */
-int device_get_child(struct udevice *parent, int index, struct udevice **devp);
+int device_get_child(const struct udevice *parent, int index,
+		     struct udevice **devp);
 
 /**
  * device_get_child_count() - Get the available child count of a device
@@ -418,7 +418,7 @@ int device_get_child(struct udevice *parent, int index, struct udevice **devp);
  *
  * @parent:	Parent device to check
  */
-int device_get_child_count(struct udevice *parent);
+int device_get_child_count(const struct udevice *parent);
 
 /**
  * device_find_child_by_seq() - Find a child device based on a sequence
@@ -439,7 +439,7 @@ int device_get_child_count(struct udevice *parent);
  * Set to NULL if none is found
  * @return 0 if OK, -ve on error
  */
-int device_find_child_by_seq(struct udevice *parent, int seq_or_req_seq,
+int device_find_child_by_seq(const struct udevice *parent, int seq_or_req_seq,
 			     bool find_req_seq, struct udevice **devp);
 
 /**
@@ -457,7 +457,7 @@ int device_find_child_by_seq(struct udevice *parent, int seq_or_req_seq,
  * Set to NULL if none is found
  * @return 0 if OK, -ve on error
  */
-int device_get_child_by_seq(struct udevice *parent, int seq,
+int device_get_child_by_seq(const struct udevice *parent, int seq,
 			    struct udevice **devp);
 
 /**
@@ -470,7 +470,7 @@ int device_get_child_by_seq(struct udevice *parent, int seq,
  * @devp: Returns pointer to device if found, otherwise this is set to NULL
  * @return 0 if OK, -ve on error
  */
-int device_find_child_by_of_offset(struct udevice *parent, int of_offset,
+int device_find_child_by_of_offset(const struct udevice *parent, int of_offset,
 				   struct udevice **devp);
 
 /**
@@ -485,7 +485,7 @@ int device_find_child_by_of_offset(struct udevice *parent, int of_offset,
  * @devp: Returns pointer to device if found, otherwise this is set to NULL
  * @return 0 if OK, -ve on error
  */
-int device_get_child_by_of_offset(struct udevice *parent, int of_offset,
+int device_get_child_by_of_offset(const struct udevice *parent, int of_offset,
 				  struct udevice **devp);
 
 /**
@@ -524,7 +524,8 @@ int device_get_global_by_ofnode(ofnode node, struct udevice **devp);
  * @devp: Returns first child device, or NULL if none
  * @return 0
  */
-int device_find_first_child(struct udevice *parent, struct udevice **devp);
+int device_find_first_child(const struct udevice *parent,
+			    struct udevice **devp);
 
 /**
  * device_find_next_child() - Find the next child of a device
@@ -548,7 +549,7 @@ int device_find_next_child(struct udevice **devp);
  * @devp:	Returns device found, if any
  * @return 0 if found, else -ENODEV
  */
-int device_find_first_inactive_child(struct udevice *parent,
+int device_find_first_inactive_child(const struct udevice *parent,
 				     enum uclass_id uclass_id,
 				     struct udevice **devp);
 
@@ -560,7 +561,7 @@ int device_find_first_inactive_child(struct udevice *parent,
  * @devp: Returns first child device in that uclass, if any
  * @return 0 if found, else -ENODEV
  */
-int device_find_first_child_by_uclass(struct udevice *parent,
+int device_find_first_child_by_uclass(const struct udevice *parent,
 				      enum uclass_id uclass_id,
 				      struct udevice **devp);
 
@@ -572,8 +573,55 @@ int device_find_first_child_by_uclass(struct udevice *parent,
  * @devp:	Returns device found, if any
  * @return 0 if found, else -ENODEV
  */
-int device_find_child_by_name(struct udevice *parent, const char *name,
+int device_find_child_by_name(const struct udevice *parent, const char *name,
 			      struct udevice **devp);
+
+/**
+ * device_first_child_ofdata_err() - Find the first child and reads its platdata
+ *
+ * The ofdata_to_platdata() method is called on the child before it is returned,
+ * but the child is not probed.
+ *
+ * @parent: Parent to check
+ * @devp: Returns child that was found, if any
+ * @return 0 on success, -ENODEV if no children, other -ve on error
+ */
+int device_first_child_ofdata_err(struct udevice *parent,
+				  struct udevice **devp);
+
+/*
+ * device_next_child_ofdata_err() - Find the next child and read its platdata
+ *
+ * The ofdata_to_platdata() method is called on the child before it is returned,
+ * but the child is not probed.
+ *
+ * @devp: On entry, points to the previous child; on exit returns the child that
+ *	was found, if any
+ * @return 0 on success, -ENODEV if no children, other -ve on error
+ */
+int device_next_child_ofdata_err(struct udevice **devp);
+
+/**
+ * device_first_child_err() - Get the first child of a device
+ *
+ * The device returned is probed if necessary, and ready for use
+ *
+ * @parent:	Parent device to search
+ * @devp:	Returns device found, if any
+ * @return 0 if found, -ENODEV if not, -ve error if device failed to probe
+ */
+int device_first_child_err(struct udevice *parent, struct udevice **devp);
+
+/**
+ * device_next_child_err() - Get the next child of a parent device
+ *
+ * The device returned is probed if necessary, and ready for use
+ *
+ * @devp: On entry, pointer to device to lookup. On exit, returns pointer
+ * to the next sibling if no error occurred
+ * @return 0 if found, -ENODEV if not, -ve error if device failed to probe
+ */
+int device_next_child_err(struct udevice **devp);
 
 /**
  * device_has_children() - check if a device has any children
@@ -590,7 +638,7 @@ bool device_has_children(const struct udevice *dev);
  * @return true if the device has one or more children and at least one of
  * them is active (probed).
  */
-bool device_has_active_children(struct udevice *dev);
+bool device_has_active_children(const struct udevice *dev);
 
 /**
  * device_is_last_sibling() - check if a device is the last sibling
@@ -603,7 +651,7 @@ bool device_has_active_children(struct udevice *dev);
  * @return true if there are no more siblings after this one - i.e. is it
  * last in the list.
  */
-bool device_is_last_sibling(struct udevice *dev);
+bool device_is_last_sibling(const struct udevice *dev);
 
 /**
  * device_set_name() - set the name of a device
@@ -643,7 +691,7 @@ void device_set_name_alloced(struct udevice *dev);
  *		device
  * @return true if OK, false if the compatible is not found
  */
-bool device_is_compatible(struct udevice *dev, const char *compat);
+bool device_is_compatible(const struct udevice *dev, const char *compat);
 
 /**
  * of_machine_is_compatible() - check if the machine is compatible with
@@ -678,7 +726,7 @@ int dev_enable_by_path(const char *path);
  * @dev:	device to test
  * @return:	true if it is on a PCI bus, false otherwise
  */
-static inline bool device_is_on_pci_bus(struct udevice *dev)
+static inline bool device_is_on_pci_bus(const struct udevice *dev)
 {
 	return device_get_uclass_id(dev->parent) == UCLASS_PCI;
 }
@@ -705,6 +753,40 @@ static inline bool device_is_on_pci_bus(struct udevice *dev)
 	list_for_each_entry(pos, &parent->child_head, sibling_node)
 
 /**
+ * device_foreach_child_ofdata_to_platdata() - iterate through children
+ *
+ * This stops when it gets an error, with @pos set to the device that failed to
+ * read ofdata.
+
+ * This creates a for() loop which works through the available children of
+ * a device in order from start to end. Device ofdata is read by calling
+ * device_ofdata_to_platdata() on each one. The devices are not probed.
+ *
+ * @pos: struct udevice * for the current device
+ * @parent: parent device to scan
+ */
+#define device_foreach_child_ofdata_to_platdata(pos, parent)	\
+	for (int _ret = device_first_child_ofdata_err(parent, &dev); !_ret; \
+	     _ret = device_next_child_ofdata_err(&dev))
+
+/**
+ * device_foreach_child_probe() - iterate through children, probing them
+ *
+ * This creates a for() loop which works through the available children of
+ * a device in order from start to end. Devices are probed if necessary,
+ * and ready for use.
+ *
+ * This stops when it gets an error, with @pos set to the device that failed to
+ * probe
+ *
+ * @pos: struct udevice * for the current device
+ * @parent: parent device to scan
+ */
+#define device_foreach_child_probe(pos, parent)	\
+	for (int _ret = device_first_child_err(parent, &dev); !_ret; \
+	     _ret = device_next_child_err(&dev))
+
+/**
  * dm_scan_fdt_dev() - Bind child device in a the device tree
  *
  * This handles device which have sub-nodes in the device tree. It scans all
@@ -719,78 +801,5 @@ static inline bool device_is_on_pci_bus(struct udevice *dev)
  * @return 0 if OK, -ve on error
  */
 int dm_scan_fdt_dev(struct udevice *dev);
-
-#include <dm/devres.h>
-
-/*
- * REVISIT:
- * remove the following after resolving conflicts with <linux/compat.h>
- */
-#ifdef dev_dbg
-#undef dev_dbg
-#endif
-#ifdef dev_vdbg
-#undef dev_vdbg
-#endif
-#ifdef dev_info
-#undef dev_info
-#endif
-#ifdef dev_err
-#undef dev_err
-#endif
-#ifdef dev_warn
-#undef dev_warn
-#endif
-
-/*
- * REVISIT:
- * print device name like Linux
- */
-#define dev_printk(dev, fmt, ...)				\
-({								\
-	printk(fmt, ##__VA_ARGS__);				\
-})
-
-#define __dev_printk(level, dev, fmt, ...)			\
-({								\
-	if (level < CONFIG_VAL(LOGLEVEL))			\
-		dev_printk(dev, fmt, ##__VA_ARGS__);		\
-})
-
-#define dev_emerg(dev, fmt, ...) \
-	__dev_printk(0, dev, fmt, ##__VA_ARGS__)
-#define dev_alert(dev, fmt, ...) \
-	__dev_printk(1, dev, fmt, ##__VA_ARGS__)
-#define dev_crit(dev, fmt, ...) \
-	__dev_printk(2, dev, fmt, ##__VA_ARGS__)
-#define dev_err(dev, fmt, ...) \
-	__dev_printk(3, dev, fmt, ##__VA_ARGS__)
-#define dev_warn(dev, fmt, ...) \
-	__dev_printk(4, dev, fmt, ##__VA_ARGS__)
-#define dev_notice(dev, fmt, ...) \
-	__dev_printk(5, dev, fmt, ##__VA_ARGS__)
-#define dev_info(dev, fmt, ...) \
-	__dev_printk(6, dev, fmt, ##__VA_ARGS__)
-
-#ifdef DEBUG
-#define dev_dbg(dev, fmt, ...) \
-	__dev_printk(7, dev, fmt, ##__VA_ARGS__)
-#else
-#define dev_dbg(dev, fmt, ...)					\
-({								\
-	if (0)							\
-		__dev_printk(7, dev, fmt, ##__VA_ARGS__);	\
-})
-#endif
-
-#ifdef VERBOSE_DEBUG
-#define dev_vdbg	dev_dbg
-#else
-#define dev_vdbg(dev, fmt, ...)					\
-({								\
-	if (0)							\
-		__dev_printk(7, dev, fmt, ##__VA_ARGS__);	\
-})
-#endif
 
 #endif

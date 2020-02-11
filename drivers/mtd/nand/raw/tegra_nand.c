@@ -13,6 +13,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/funcmux.h>
 #include <asm/arch-tegra/clk_rst.h>
+#include <dm/device_compat.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
 #include <fdtdec.h>

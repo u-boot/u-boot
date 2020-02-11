@@ -20,6 +20,8 @@
 #include <config.h>
 #include <malloc.h>
 #include <asm/io.h>
+#include <dm/device_compat.h>
+#include <dm/devres.h>
 #include <linux/errno.h>
 #include <phy.h>
 #include <miiphy.h>

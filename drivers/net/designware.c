@@ -17,6 +17,8 @@
 #include <malloc.h>
 #include <pci.h>
 #include <reset.h>
+#include <dm/device_compat.h>
+#include <dm/devres.h>
 #include <linux/compiler.h>
 #include <linux/err.h>
 #include <linux/kernel.h>

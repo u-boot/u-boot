@@ -10,6 +10,7 @@
  */
 
 #include <common.h>
+#include <malloc.h>
 #include <asm/bitops.h>
 #include <asm/io.h>
 #include <sh_pfc.h>

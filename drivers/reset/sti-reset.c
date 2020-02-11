@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <errno.h>
+#include <malloc.h>
 #include <wait_bit.h>
 #include <dm.h>
 #include <reset-uclass.h>
@@ -298,7 +299,7 @@ static int sti_reset_deassert(struct reset_ctl *reset_ctl)
 
 struct reset_ops sti_reset_ops = {
 	.request = sti_reset_request,
-	.free = sti_reset_free,
+	.rfree = sti_reset_free,
 	.rst_assert = sti_reset_assert,
 	.rst_deassert = sti_reset_deassert,
 };

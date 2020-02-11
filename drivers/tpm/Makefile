@@ -13,3 +13,4 @@ obj-$(CONFIG_TPM_ST33ZP24_SPI) += tpm_tis_st33zp24_spi.o
 obj-$(CONFIG_TPM2_CR50_I2C) += cr50_i2c.o
 obj-$(CONFIG_TPM2_TIS_SANDBOX) += tpm2_tis_sandbox.o
 obj-$(CONFIG_TPM2_TIS_SPI) += tpm2_tis_spi.o
+obj-$(CONFIG_TPM2_FTPM_TEE) += tpm2_ftpm_tee.o

@@ -15,6 +15,7 @@
 #include <watchdog.h>
 #include <asm/io.h>
 #include <asm/types.h>
+#include <linux/err.h>
 
 struct mtk_serial_regs {
 	u32 rbr;

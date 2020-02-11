@@ -8,6 +8,7 @@
 /* This file mostly implements UBI kernel API functions */
 
 #ifndef __UBOOT__
+#include <dm/devres.h>
 #include <linux/module.h>
 #include <linux/slab.h>
 #include <linux/namei.h>

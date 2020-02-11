@@ -6,8 +6,10 @@
 #include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <malloc.h>
 #include <reset.h>
 #include <reset-uclass.h>
+#include <dm/devres.h>
 
 static inline struct reset_ops *reset_dev_ops(struct udevice *dev)
 {
@@ -164,7 +166,7 @@ int reset_free(struct reset_ctl *reset_ctl)
 
 	debug("%s(reset_ctl=%p)\n", __func__, reset_ctl);
 
-	return ops->free(reset_ctl);
+	return ops->rfree(reset_ctl);
 }
 
 int reset_assert(struct reset_ctl *reset_ctl)

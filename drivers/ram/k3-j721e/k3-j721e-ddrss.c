@@ -13,6 +13,7 @@
 #include <asm/io.h>
 #include <power-domain.h>
 #include <wait_bit.h>
+#include <dm/device_compat.h>
 
 #include "lpddr4_obj_if.h"
 #include "lpddr4_if.h"

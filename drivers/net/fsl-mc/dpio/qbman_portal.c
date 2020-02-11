@@ -3,6 +3,7 @@
  * Copyright (C) 2014 Freescale Semiconductor
  */
 
+#include <malloc.h>
 #include <asm/arch/clock.h>
 #include "qbman_portal.h"
 

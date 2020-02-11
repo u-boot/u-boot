@@ -10,6 +10,7 @@
 #include <clk-uclass.h>
 #include <dm.h>
 #include <dm/device.h>
+#include <dm/device_compat.h>
 #include <dm/lists.h>
 #include <dt-bindings/phy/phy.h>
 #include <generic-phy.h>
@@ -18,6 +19,7 @@
 #include <power-domain.h>
 #include <regmap.h>
 #include <syscon.h>
+#include <linux/err.h>
 
 #define CMU_R07C		0x7c
 #define CMU_MASTER_CDN_O	BIT(24)

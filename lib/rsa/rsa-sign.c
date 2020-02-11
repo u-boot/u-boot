@@ -4,6 +4,7 @@
  */
 
 #include "mkimage.h"
+#include <malloc.h>
 #include <stdio.h>
 #include <string.h>
 #include <image.h>

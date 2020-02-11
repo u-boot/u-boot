@@ -26,9 +26,11 @@
 #include <malloc.h>
 #include <clk-uclass.h>
 #include <dm/device.h>
+#include <dm/devres.h>
 #include <linux/clk-provider.h>
 #include <clk.h>
 #include "clk.h"
+#include <linux/err.h>
 
 #define UBOOT_DM_CLK_CCF_MUX "ccf_clk_mux"
 

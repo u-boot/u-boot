@@ -7,6 +7,7 @@
 #include <env.h>
 #include <clk.h>
 #include <init.h>
+#include <malloc.h>
 #include <asm/armv7.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/bootrom.h>
@@ -17,6 +18,7 @@
 #include <asm/arch-rockchip/pmu_rk3288.h>
 #include <asm/arch-rockchip/qos_rk3288.h>
 #include <asm/arch-rockchip/sdram.h>
+#include <linux/err.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

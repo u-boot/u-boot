@@ -6,9 +6,12 @@
 
 #include <common.h>
 #include <dm.h>
+#include <malloc.h>
 #include <miiphy.h>
 #include <dm/device-internal.h>
+#include <dm/device_compat.h>
 #include <dm/uclass-internal.h>
+#include <linux/compat.h>
 
 /* DT node properties for MAC-PHY interface */
 #define PHY_MODE_STR_CNT	2

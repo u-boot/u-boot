@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <fdtdec.h>
 #include <os.h>
+#include <asm/malloc.h>
 #include <asm/state.h>
 
 /* Main state record for the sandbox */
@@ -16,28 +17,28 @@ static struct sandbox_state *state;	/* Pointer to current state record */
 static int state_ensure_space(int extra_size)
 {
 	void *blob = state->state_fdt;
-	int used, size, free;
+	int used, size, free_bytes;
 	void *buf;
 	int ret;
 
 	used = fdt_off_dt_strings(blob) + fdt_size_dt_strings(blob);
 	size = fdt_totalsize(blob);
-	free = size - used;
-	if (free > extra_size)
+	free_bytes = size - used;
+	if (free_bytes > extra_size)
 		return 0;
 
 	size = used + extra_size;
-	buf = os_malloc(size);
+	buf = malloc(size);
 	if (!buf)
 		return -ENOMEM;
 
 	ret = fdt_open_into(blob, buf, size);
 	if (ret) {
-		os_free(buf);
+		free(buf);
 		return -EIO;
 	}
 
-	os_free(blob);
+	free(blob);
 	state->state_fdt = buf;
 	return 0;
 }
@@ -53,7 +54,7 @@ static int state_read_file(struct sandbox_state *state, const char *fname)
 		printf("Cannot find sandbox state file '%s'\n", fname);
 		return -ENOENT;
 	}
-	state->state_fdt = os_malloc(size);
+	state->state_fdt = malloc(size);
 	if (!state->state_fdt) {
 		puts("No memory to read sandbox state\n");
 		return -ENOMEM;
@@ -75,7 +76,7 @@ static int state_read_file(struct sandbox_state *state, const char *fname)
 err_read:
 	os_close(fd);
 err_open:
-	os_free(state->state_fdt);
+	free(state->state_fdt);
 	state->state_fdt = NULL;
 
 	return ret;
@@ -242,7 +243,7 @@ int sandbox_write_state(struct sandbox_state *state, const char *fname)
 	/* Create a state FDT if we don't have one */
 	if (!state->state_fdt) {
 		size = 0x4000;
-		state->state_fdt = os_malloc(size);
+		state->state_fdt = malloc(size);
 		if (!state->state_fdt) {
 			puts("No memory to create FDT\n");
 			return -ENOMEM;
@@ -300,7 +301,7 @@ int sandbox_write_state(struct sandbox_state *state, const char *fname)
 err_write:
 	os_close(fd);
 err_create:
-	os_free(state->state_fdt);
+	free(state->state_fdt);
 
 	return ret;
 }
@@ -418,7 +419,7 @@ int state_uninit(void)
 		os_unlink(state->jumped_fname);
 
 	if (state->state_fdt)
-		os_free(state->state_fdt);
+		free(state->state_fdt);
 	memset(state, '\0', sizeof(*state));
 
 	return 0;

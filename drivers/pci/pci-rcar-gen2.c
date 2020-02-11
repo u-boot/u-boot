@@ -107,7 +107,7 @@ static int rcar_gen2_pci_addr_valid(pci_dev_t d, uint offset)
 	return 0;
 }
 
-static u32 get_bus_address(struct udevice *dev, pci_dev_t bdf, u32 offset)
+static u32 get_bus_address(const struct udevice *dev, pci_dev_t bdf, u32 offset)
 {
 	struct rcar_gen2_pci_priv *priv = dev_get_priv(dev);
 
@@ -126,7 +126,7 @@ static u32 setup_bus_address(struct udevice *dev, pci_dev_t bdf, u32 offset)
 	return get_bus_address(dev, bdf, offset);
 }
 
-static int rcar_gen2_pci_read_config(struct udevice *dev, pci_dev_t bdf,
+static int rcar_gen2_pci_read_config(const struct udevice *dev, pci_dev_t bdf,
 				     uint offset, ulong *value,
 				     enum pci_size_t size)
 {

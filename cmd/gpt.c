@@ -20,6 +20,7 @@
 #include <div64.h>
 #include <memalign.h>
 #include <linux/compat.h>
+#include <linux/err.h>
 #include <linux/sizes.h>
 #include <stdlib.h>
 

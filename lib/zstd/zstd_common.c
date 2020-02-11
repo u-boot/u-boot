@@ -9,6 +9,7 @@
 ***************************************/
 #include "error_private.h"
 #include "zstd_internal.h" /* declaration of ZSTD_isError, ZSTD_getErrorName, ZSTD_getErrorCode, ZSTD_getErrorString, ZSTD_versionNumber */
+#include <malloc.h>
 #include <linux/kernel.h>
 
 /*=**************************************************************

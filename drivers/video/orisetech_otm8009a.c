@@ -13,6 +13,7 @@
 #include <mipi_dsi.h>
 #include <panel.h>
 #include <asm/gpio.h>
+#include <dm/device_compat.h>
 #include <power/regulator.h>
 
 #define OTM8009A_BACKLIGHT_DEFAULT	240

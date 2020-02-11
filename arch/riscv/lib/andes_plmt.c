@@ -13,6 +13,7 @@
 #include <syscon.h>
 #include <asm/io.h>
 #include <asm/syscon.h>
+#include <linux/err.h>
 
 /* mtime register */
 #define MTIME_REG(base)			((ulong)(base))

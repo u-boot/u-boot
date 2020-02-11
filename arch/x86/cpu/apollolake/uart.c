@@ -10,6 +10,7 @@
 #include <common.h>
 #include <dm.h>
 #include <dt-structs.h>
+#include <malloc.h>
 #include <ns16550.h>
 #include <spl.h>
 #include <asm/io.h>

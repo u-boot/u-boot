@@ -22,6 +22,7 @@
 #include <fdt_support.h>
 #include <asm/io.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

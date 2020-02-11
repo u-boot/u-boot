@@ -8,7 +8,9 @@
 #include <mmc.h>
 #include <dm.h>
 #include <dm/device-internal.h>
+#include <dm/device_compat.h>
 #include <dm/lists.h>
+#include <linux/compat.h>
 #include "mmc_private.h"
 
 int dm_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,

@@ -8,8 +8,10 @@
 #include <clk.h>
 #include <dm.h>
 #include <errno.h>
+#include <malloc.h>
 #include <reset.h>
 #include <spi.h>
+#include <dm/device_compat.h>
 
 #include <asm/io.h>
 #include <asm/gpio.h>

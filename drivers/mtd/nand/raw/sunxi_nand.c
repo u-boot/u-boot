@@ -26,8 +26,12 @@
 
 #include <common.h>
 #include <fdtdec.h>
+#include <malloc.h>
 #include <memalign.h>
 #include <nand.h>
+#include <dm/device_compat.h>
+#include <dm/devres.h>
+#include <linux/err.h>
 
 #include <linux/kernel.h>
 #include <linux/mtd/mtd.h>

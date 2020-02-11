@@ -7,9 +7,13 @@
 
 #include <asm/dma-mapping.h>
 #include <dm.h>
+#include <malloc.h>
 #include <nand.h>
+#include <dm/device_compat.h>
+#include <dm/devres.h>
 #include <linux/bitfield.h>
 #include <linux/dma-direction.h>
+#include <linux/err.h>
 #include <linux/errno.h>
 #include <linux/io.h>
 #include <linux/mtd/mtd.h>
@@ -1156,7 +1160,7 @@ static int denali_ooblayout_free(struct mtd_info *mtd, int section,
 
 static const struct mtd_ooblayout_ops denali_ooblayout_ops = {
 	.ecc = denali_ooblayout_ecc,
-	.free = denali_ooblayout_free,
+	.rfree = denali_ooblayout_free,
 };
 
 static int denali_multidev_fixup(struct denali_nand_info *denali)

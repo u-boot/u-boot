@@ -308,7 +308,7 @@ static int tegra_pcie_conf_address(struct tegra_pcie *pcie, pci_dev_t bdf,
 	}
 }
 
-static int pci_tegra_read_config(struct udevice *bus, pci_dev_t bdf,
+static int pci_tegra_read_config(const struct udevice *bus, pci_dev_t bdf,
 				 uint offset, ulong *valuep,
 				 enum pci_size_t size)
 {

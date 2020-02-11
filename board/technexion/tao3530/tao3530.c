@@ -4,6 +4,7 @@
  *      Tapani Utriainen <linuxfae@technexion.com>
  */
 #include <common.h>
+#include <malloc.h>
 #include <netdev.h>
 #include <twl4030.h>
 #include <asm/io.h>

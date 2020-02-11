@@ -13,6 +13,7 @@
 #include <linux/bitops.h>
 #include <watchdog.h>
 #include <wdt.h>
+#include <linux/err.h>
 
 #define WDTLOAD			0x000
 #define WDTCONTROL		0x008
