@@ -35,7 +35,7 @@ enum {
 struct mpc8xxx_priv {
 	spi8xxx_t *spi;
 	struct gpio_desc gpios[16];
-	int max_cs;
+	int cs_count;
 };
 
 static inline u32 to_prescale_mod(u32 val)
@@ -74,7 +74,7 @@ static int mpc8xxx_spi_ofdata_to_platdata(struct udevice *dev)
 	if (ret < 0)
 		return -EINVAL;
 
-	priv->max_cs = ret;
+	priv->cs_count = ret;
 
 	return 0;
 }
@@ -131,6 +131,11 @@ static int mpc8xxx_spi_xfer(struct udevice *dev, uint bitlen,
 
 	debug("%s: slave %s:%u dout %08X din %08X bitlen %u\n", __func__,
 	      bus->name, platdata->cs, *(uint *)dout, *(uint *)din, bitlen);
+	if (platdata->cs >= priv->cs_count) {
+		dev_err(dev, "chip select index %d too large (cs_count=%d)\n",
+			platdata->cs, priv->cs_count);
+		return -EINVAL;
+	}
 
 	if (flags & SPI_XFER_BEGIN)
 		mpc8xxx_spi_cs_activate(dev);
