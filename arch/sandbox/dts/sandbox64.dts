@@ -10,7 +10,7 @@
 
 	aliases {
 		i2c0 = &i2c_0;
-		pci0 = &pci;
+		pci0 = &pcic;
 		rtc0 = &rtc_0;
 		axi0 = &axi;
 		spi0 = &spi;
@@ -47,9 +47,10 @@
 		pinctrl-0 = <&pinctrl_i2c0>;
 	};
 
-	pci: pci-controller {
+	pcic: pci@0 {
 		compatible = "sandbox,pci";
 		device_type = "pci";
+		bus-range = <0x00 0xff>;
 		#address-cells = <3>;
 		#size-cells = <2>;
 		ranges = <0x02000000 0 0x10000000 0 0x10000000 0 0x2000

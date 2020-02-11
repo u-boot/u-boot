@@ -12,10 +12,10 @@ Bus number 0 will need to be requested first, and the alias in the device
 tree file will point to the correct device::
 
 	aliases {
-		pci0 = &pci;
+		pci0 = &pcic;
 	};
 
-	pci: pci-controller {
+	pcic: pci@0 {
 		compatible = "sandbox,pci";
 		...
 	};
@@ -138,7 +138,7 @@ be scanned as a PCI device, causing confusion.
 
 When this bus is scanned we will end up with something like this::
 
-   `- * pci-controller @ 05c660c8, 0
+   `- * pci@0 @ 05c660c8, 0
     `-   pci@1f,0 @ 05c661c8, 63488
    `-   emul@1f,0 @ 05c662c8
 
@@ -152,7 +152,7 @@ host controller node for this functionality to work.
 
 .. code-block:: none
 
-	pci1: pci-controller1 {
+	pci1: pci@1 {
 		compatible = "sandbox,pci";
 		...
 		sandbox,dev-info = <0x08 0x00 0x1234 0x5678
@@ -166,6 +166,6 @@ fourth cells are PCI vendor ID and device ID respectively.
 
 When this bus is scanned we will end up with something like this::
 
- pci        [ + ]   pci_sandbo  |-- pci-controller1
+ pci        [ + ]   pci_sandbo  |-- pci1
  pci_emul   [   ]   sandbox_sw  |   |-- sandbox_swap_case_emul
  pci_emul   [   ]   sandbox_sw  |   `-- sandbox_swap_case_emul
