@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <clk.h>
 #include <dm.h>
 #include <errno.h>
 #include <malloc.h>
@@ -28,6 +29,7 @@ enum {
 
 	SPI_MODE_LEN_MASK = 0xf00000,
 	SPI_MODE_LEN_SHIFT = 20,
+	SPI_MODE_PM_SHIFT = 16,
 	SPI_MODE_PM_MASK = 0xf0000,
 
 	SPI_COM_LST = BIT(31 - 9),
@@ -37,23 +39,18 @@ struct mpc8xxx_priv {
 	spi8xxx_t *spi;
 	struct gpio_desc gpios[16];
 	int cs_count;
+	ulong clk_rate;
 };
-
-static inline u32 to_prescale_mod(u32 val)
-{
-	return (min(val, (u32)15) << 16);
-}
 
 #define SPI_TIMEOUT	1000
 
 static int mpc8xxx_spi_ofdata_to_platdata(struct udevice *dev)
 {
 	struct mpc8xxx_priv *priv = dev_get_priv(dev);
+	struct clk clk;
 	int ret;
 
 	priv->spi = (spi8xxx_t *)dev_read_addr(dev);
-
-	/* TODO(mario.six@gdsys.cc): Read clock and save the value */
 
 	ret = gpio_request_list_by_name(dev, "gpios", priv->gpios,
 					ARRAY_SIZE(priv->gpios), GPIOD_IS_OUT | GPIOD_ACTIVE_LOW);
@@ -61,6 +58,18 @@ static int mpc8xxx_spi_ofdata_to_platdata(struct udevice *dev)
 		return -EINVAL;
 
 	priv->cs_count = ret;
+
+	ret = clk_get_by_index(dev, 0, &clk);
+	if (ret) {
+		dev_err(dev, "%s: clock not defined\n", __func__);
+		return ret;
+	}
+
+	priv->clk_rate = clk_get_rate(&clk);
+	if (!priv->clk_rate) {
+		dev_err(dev, "%s: failed to get clock rate\n", __func__);
+		return -EINVAL;
+	}
 
 	return 0;
 }
@@ -78,10 +87,6 @@ static int mpc8xxx_spi_probe(struct udevice *dev)
 
 	/* set len to 8 bits */
 	setbits_be32(&spi->mode, (8 - 1) << SPI_MODE_LEN_SHIFT);
-
-	/* TODO(mario.six@gdsys.cc): This only ever sets one fixed speed */
-	/* Use SYSCLK / 8 (16.67MHz typ.) */
-	clrsetbits_be32(&spi->mode, SPI_MODE_PM_MASK, to_prescale_mod(1));
 
 	setbits_be32(&spi->mode, SPI_MODE_EN);
 
@@ -204,6 +209,43 @@ static int mpc8xxx_spi_xfer(struct udevice *dev, uint bitlen,
 
 static int mpc8xxx_spi_set_speed(struct udevice *dev, uint speed)
 {
+	struct mpc8xxx_priv *priv = dev_get_priv(dev);
+	spi8xxx_t *spi = priv->spi;
+	u32 bits, mask, div16, pm;
+	u32 mode;
+	ulong clk;
+
+	clk = priv->clk_rate;
+	if (clk / 64 > speed) {
+		div16 = SPI_MODE_DIV16;
+		clk /= 16;
+	} else {
+		div16 = 0;
+	}
+	pm = (clk - 1)/(4*speed) + 1;
+	if (pm > 16) {
+		dev_err(dev, "requested speed %u too small\n", speed);
+		return -EINVAL;
+	}
+	pm--;
+
+	bits = div16 | (pm << SPI_MODE_PM_SHIFT);
+	mask = SPI_MODE_DIV16 | SPI_MODE_PM_MASK;
+	mode = in_be32(&spi->mode);
+	if ((mode & mask) != bits) {
+		/* Must clear mode[EN] while changing speed. */
+		mode &= ~(mask | SPI_MODE_EN);
+		out_be32(&spi->mode, mode);
+		mode |= bits;
+		out_be32(&spi->mode, mode);
+		mode |= SPI_MODE_EN;
+		out_be32(&spi->mode, mode);
+	}
+
+	debug("requested speed %u, set speed to %lu/(%s4*%u) == %lu\n",
+	      speed, priv->clk_rate, div16 ? "16*" : "", pm + 1,
+	      clk/(4*(pm + 1)));
+
 	return 0;
 }
 
