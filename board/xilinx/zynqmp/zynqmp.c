@@ -328,6 +328,17 @@ int board_early_init_f(void)
 	return ret;
 }
 
+static int multi_boot(void)
+{
+	u32 multiboot;
+
+	multiboot = readl(&csu_base->multi_boot);
+
+	printf("Multiboot:\t%x\n", multiboot);
+
+	return 0;
+}
+
 int board_init(void)
 {
 	struct udevice *dev;
@@ -355,6 +366,9 @@ int board_init(void)
 		fpga_add(fpga_xilinx, &zynqmppl);
 	}
 #endif
+
+	if (current_el() == 3)
+		multi_boot();
 
 	return 0;
 }
