@@ -29,6 +29,10 @@ u32 get_cpu_package(void);
 #define PKG_AC_TFBGA361	2
 #define PKG_AD_TFBGA257	1
 
+/* Get SOC name */
+#define SOC_NAME_SIZE 20
+void get_soc_name(char name[SOC_NAME_SIZE]);
+
 /* return boot mode */
 u32 get_bootmode(void);
 
