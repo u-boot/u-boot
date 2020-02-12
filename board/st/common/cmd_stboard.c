@@ -125,7 +125,7 @@ static int do_stboard(cmd_tbl_t *cmdtp, int flag, int argc,
 	ret = misc_write(dev, STM32_BSEC_OTP(BSEC_OTP_BOARD),
 			 &otp, sizeof(otp));
 
-	if (ret) {
+	if (ret < 0) {
 		puts("BOARD programming error\n");
 		return CMD_RET_FAILURE;
 	}
