@@ -132,8 +132,10 @@ __weak void start_non_linux_remote_cores(void)
 
 void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 {
+	typedef void __noreturn (*image_entry_noargs_t)(void);
 	struct ti_sci_handle *ti_sci = get_ti_sci_handle();
-	int ret;
+	u32 loadaddr = 0;
+	int ret, size;
 
 	/* Release all the exclusive devices held by SPL before starting ATF */
 	ti_sci->ops.dev_ops.release_exclusive_devices(ti_sci);
@@ -144,6 +146,9 @@ void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 
 	init_env();
 	start_non_linux_remote_cores();
+	size = load_firmware("name_mcur5f0_0fw", "addr_mcur5f0_0load",
+			     &loadaddr);
+
 
 	/*
 	 * It is assumed that remoteproc device 1 is the corresponding
@@ -159,13 +164,18 @@ void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 	ret = rproc_start(1);
 	if (ret)
 		panic("%s: ATF failed to start on rproc (%d)\n", __func__, ret);
+	if (!(size > 0 && valid_elf_image(loadaddr))) {
+		debug("Shutting down...\n");
+		release_resources_for_core_shutdown();
 
-	debug("Releasing resources...\n");
-	release_resources_for_core_shutdown();
+		while (1)
+			asm volatile("wfe");
+	}
 
-	debug("Finalizing core shutdown...\n");
-	while (1)
-		asm volatile("wfe");
+	image_entry_noargs_t image_entry =
+		(image_entry_noargs_t)load_elf_image_phdr(loadaddr);
+
+	image_entry();
 }
 #endif
 
