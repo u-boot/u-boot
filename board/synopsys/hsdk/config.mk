@@ -2,6 +2,10 @@
 #
 # Copyright (C) 2018 Synopsys, Inc. All rights reserved.
 
+PLATFORM_CPPFLAGS += -mcpu=hs38_linux -mlittle-endian -matomic -mll64 \
+                     -mdiv-rem -mswap -mnorm -mmpy-option=9 -mbarrel-shifter \
+                     -mfpu=fpud_all
+
 bsp-generate: u-boot u-boot.bin
 	$(Q)python3 $(srctree)/board/$(BOARDDIR)/headerize-hsdk.py \
 		--arc-id 0x52 --image $(srctree)/u-boot.bin \

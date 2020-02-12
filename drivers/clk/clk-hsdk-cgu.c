@@ -46,17 +46,21 @@
  *            |        |-->|CGU_TUN_IDIV_ROM|----------->
  *            |        |-->|CGU_TUN_IDIV_PWM|----------->
  *            |
- *            |   ------------
- *            |-->| HDMI PLL |
- *            |   ------------
- *            |        |
- *            |        |-->|CGU_HDMI_IDIV_APB|------>
- *            |
  *            |   -----------
  *            |-->| DDR PLL |
  *                -----------
  *                     |
  *                     |---------------------------->
+ *
+ *   ------------------
+ *   | 27.00 MHz xtal |
+ *   ------------------
+ *            |
+ *            |   ------------
+ *            |-->| HDMI PLL |
+ *                ------------
+ *                     |
+ *                     |-->|CGU_HDMI_IDIV_APB|------>
  */
 
 #define CGU_ARC_IDIV		0x080
@@ -117,7 +121,8 @@
 #define CREG_CORE_IF_CLK_DIV_2		0x1
 
 #define MIN_PLL_RATE			100000000 /* 100 MHz */
-#define PARENT_RATE			33333333 /* fixed clock - xtal */
+#define PARENT_RATE_33			33333333 /* fixed clock - xtal */
+#define PARENT_RATE_27			27000000 /* fixed clock - xtal */
 #define CGU_MAX_CLOCKS			26
 
 #define CGU_SYS_CLOCKS			16
@@ -237,6 +242,7 @@ struct hsdk_cgu_clk {
 };
 
 struct hsdk_pll_devdata {
+	const u32 parent_rate;
 	const struct hsdk_pll_cfg *pll_cfg;
 	int (*update_rate)(struct hsdk_cgu_clk *clk, unsigned long rate,
 			   const struct hsdk_pll_cfg *cfg);
@@ -248,16 +254,19 @@ static int hsdk_pll_comm_update_rate(struct hsdk_cgu_clk *, unsigned long,
 				     const struct hsdk_pll_cfg *);
 
 static const struct hsdk_pll_devdata core_pll_dat = {
+	.parent_rate = PARENT_RATE_33,
 	.pll_cfg = asdt_pll_cfg,
 	.update_rate = hsdk_pll_core_update_rate,
 };
 
 static const struct hsdk_pll_devdata sdt_pll_dat = {
+	.parent_rate = PARENT_RATE_33,
 	.pll_cfg = asdt_pll_cfg,
 	.update_rate = hsdk_pll_comm_update_rate,
 };
 
 static const struct hsdk_pll_devdata hdmi_pll_dat = {
+	.parent_rate = PARENT_RATE_27,
 	.pll_cfg = hdmi_pll_cfg,
 	.update_rate = hsdk_pll_comm_update_rate,
 };
@@ -372,18 +381,19 @@ static ulong pll_get(struct clk *sclk)
 	u64 rate;
 	u32 idiv, fbdiv, odiv;
 	struct hsdk_cgu_clk *clk = dev_get_priv(sclk->dev);
+	u32 parent_rate = clk->pll_devdata->parent_rate;
 
 	val = hsdk_pll_read(clk, CGU_PLL_CTRL);
 
 	pr_debug("current configurarion: %#x\n", val);
 
+	/* Check if PLL is bypassed */
+	if (val & CGU_PLL_CTRL_BYPASS)
+		return parent_rate;
+
 	/* Check if PLL is disabled */
 	if (val & CGU_PLL_CTRL_PD)
 		return 0;
-
-	/* Check if PLL is bypassed */
-	if (val & CGU_PLL_CTRL_BYPASS)
-		return PARENT_RATE;
 
 	/* input divider = reg.idiv + 1 */
 	idiv = 1 + ((val & CGU_PLL_CTRL_IDIV_MASK) >> CGU_PLL_CTRL_IDIV_SHIFT);
@@ -392,7 +402,7 @@ static ulong pll_get(struct clk *sclk)
 	/* output divider = 2^(reg.odiv) */
 	odiv = 1 << ((val & CGU_PLL_CTRL_ODIV_MASK) >> CGU_PLL_CTRL_ODIV_SHIFT);
 
-	rate = (u64)PARENT_RATE * fbdiv;
+	rate = (u64)parent_rate * fbdiv;
 	do_div(rate, idiv * odiv);
 
 	return rate;
@@ -490,7 +500,8 @@ static ulong pll_set(struct clk *sclk, ulong rate)
 		}
 	}
 
-	pr_err("invalid rate=%ld Hz, parent_rate=%d Hz\n", best_rate, PARENT_RATE);
+	pr_err("invalid rate=%ld Hz, parent_rate=%d Hz\n", best_rate,
+	       clk->pll_devdata->parent_rate);
 
 	return -EINVAL;
 }
