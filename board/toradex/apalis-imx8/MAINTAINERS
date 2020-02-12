@@ -6,4 +6,5 @@ F:	arch/arm/dts/fsl-imx8-apalis.dts
 F:	arch/arm/dts/fsl-imx8-apalis-u-boot.dtsi
 F:	board/toradex/apalis-imx8/
 F:	configs/apalis-imx8qm_defconfig
+F:	doc/board/toradex/apalix-imx8.rst
 F:	include/configs/apalis-imx8.h
