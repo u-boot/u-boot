@@ -31,8 +31,7 @@ stages:
     # use clang only do one configuration.
     - if [[ "${BUILDMAN}" != "" ]]; then
         ret=0;
-        NO_SDL=1 tools/buildman/buildman -o /tmp -P -E ${BUILDMAN}
-          ${OVERRIDE}|| ret=$?;
+        tools/buildman/buildman -o /tmp -P -E ${BUILDMAN} ${OVERRIDE}|| ret=$?;
         if [[ $ret -ne 0 && $ret -ne 129 ]]; then
           tools/buildman/buildman -o /tmp -sdeP ${BUILDMAN};
           exit $ret;
@@ -164,7 +163,7 @@ Run binman, buildman, dtoc and patman testsuites:
       export UBOOT_TRAVIS_BUILD_DIR=/tmp/.bm-work/sandbox_spl;
       export PYTHONPATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt";
       export PATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc:${PATH}";
-      NO_SDL=1 ./tools/buildman/buildman -o /tmp -P sandbox_spl;
+      ./tools/buildman/buildman -o /tmp -P sandbox_spl;
       ./tools/binman/binman --toolpath ${UBOOT_TRAVIS_BUILD_DIR}/tools test;
       ./tools/buildman/buildman -t;
       ./tools/dtoc/dtoc -t;
