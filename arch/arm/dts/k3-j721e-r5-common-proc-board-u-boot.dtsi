@@ -13,3 +13,15 @@
 		compatible = "u-boot,fs-loader";
 	};
 };
+
+&main_r5fss0 {
+	u-boot,dm-spl;
+};
+
+&main_r5fss0_core0 {
+	u-boot,dm-spl;
+};
+
+&main_r5fss0_core1 {
+	u-boot,dm-spl;
+};
