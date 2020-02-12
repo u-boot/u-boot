@@ -7,3 +7,4 @@ Toradex
    :maxdepth: 2
 
    colibri_imx7
+   verdin-imx8mm
