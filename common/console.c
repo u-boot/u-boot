@@ -401,7 +401,7 @@ int getc(void)
 	if (gd->console_in.start) {
 		int ch;
 
-		ch = membuff_getbyte(&gd->console_in);
+		ch = membuff_getbyte((struct membuff *)&gd->console_in);
 		if (ch != -1)
 			return 1;
 	}
@@ -426,7 +426,7 @@ int tstc(void)
 		return 0;
 #ifdef CONFIG_CONSOLE_RECORD
 	if (gd->console_in.start) {
-		if (membuff_peekbyte(&gd->console_in) != -1)
+		if (membuff_peekbyte((struct membuff *)&gd->console_in) != -1)
 			return 1;
 	}
 #endif
@@ -518,7 +518,7 @@ void putc(const char c)
 		return;
 #ifdef CONFIG_CONSOLE_RECORD
 	if ((gd->flags & GD_FLG_RECORD) && gd->console_out.start)
-		membuff_putbyte(&gd->console_out, c);
+		membuff_putbyte((struct membuff *)&gd->console_out, c);
 #endif
 #ifdef CONFIG_SILENT_CONSOLE
 	if (gd->flags & GD_FLG_SILENT) {
@@ -569,7 +569,7 @@ void puts(const char *s)
 		return;
 #ifdef CONFIG_CONSOLE_RECORD
 	if ((gd->flags & GD_FLG_RECORD) && gd->console_out.start)
-		membuff_put(&gd->console_out, s, strlen(s));
+		membuff_put((struct membuff *)&gd->console_out, s, strlen(s));
 #endif
 #ifdef CONFIG_SILENT_CONSOLE
 	if (gd->flags & GD_FLG_SILENT) {
@@ -602,18 +602,20 @@ int console_record_init(void)
 {
 	int ret;
 
-	ret = membuff_new(&gd->console_out, CONFIG_CONSOLE_RECORD_OUT_SIZE);
+	ret = membuff_new((struct membuff *)&gd->console_out,
+			  CONFIG_CONSOLE_RECORD_OUT_SIZE);
 	if (ret)
 		return ret;
-	ret = membuff_new(&gd->console_in, CONFIG_CONSOLE_RECORD_IN_SIZE);
+	ret = membuff_new((struct membuff *)&gd->console_in,
+			  CONFIG_CONSOLE_RECORD_IN_SIZE);
 
 	return ret;
 }
 
 void console_record_reset(void)
 {
-	membuff_purge(&gd->console_out);
-	membuff_purge(&gd->console_in);
+	membuff_purge((struct membuff *)&gd->console_out);
+	membuff_purge((struct membuff *)&gd->console_in);
 }
 
 void console_record_reset_enable(void)
@@ -624,12 +626,13 @@ void console_record_reset_enable(void)
 
 int console_record_readline(char *str, int maxlen)
 {
-	return membuff_readline(&gd->console_out, str, maxlen, ' ');
+	return membuff_readline((struct membuff *)&gd->console_out, str,
+				maxlen, ' ');
 }
 
 int console_record_avail(void)
 {
-	return membuff_avail(&gd->console_out);
+	return membuff_avail((struct membuff *)&gd->console_out);
 }
 
 #endif
