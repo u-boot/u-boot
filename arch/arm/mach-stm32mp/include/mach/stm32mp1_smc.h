@@ -46,8 +46,8 @@ static inline u32 stm32_smc(u32 svc, u8 op, u32 data1, u32 data2, u32 *result)
 	arm_smccc_smc(svc, op, data1, data2, 0, 0, 0, 0, &res);
 
 	if (res.a0) {
-		pr_err("%s: Failed to exec in secure mode (err = %ld)\n",
-		       __func__, res.a0);
+		pr_err("%s: Failed to exec svc=%x op=%x in secure mode (err = %ld)\n",
+		       __func__, svc, op, res.a0);
 		return -EINVAL;
 	}
 	if (result)
