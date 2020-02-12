@@ -42,7 +42,7 @@ static int do_stboard(cmd_tbl_t *cmdtp, int flag, int argc,
 		      char * const argv[])
 {
 	int ret;
-	u32 otp;
+	u32 otp, lock;
 	u8 revision;
 	unsigned long board, variant, bom;
 	struct udevice *dev;
@@ -66,11 +66,20 @@ static int do_stboard(cmd_tbl_t *cmdtp, int flag, int argc,
 		return CMD_RET_FAILURE;
 	}
 
+	ret = misc_read(dev, STM32_BSEC_LOCK(BSEC_OTP_BOARD),
+			&lock, sizeof(lock));
+	if (ret < 0) {
+		puts("LOCK read error");
+		return CMD_RET_FAILURE;
+	}
+
 	if (argc == 0) {
 		if (!otp)
 			puts("Board : OTP board FREE\n");
 		else
 			display_stboard(otp);
+		printf("      OTP %d %s locked !\n", BSEC_OTP_BOARD,
+		       lock == 1 ? "" : "NOT");
 		return CMD_RET_SUCCESS;
 	}
 
@@ -129,6 +138,16 @@ static int do_stboard(cmd_tbl_t *cmdtp, int flag, int argc,
 		puts("BOARD programming error\n");
 		return CMD_RET_FAILURE;
 	}
+
+	/* write persistent lock */
+	otp = 1;
+	ret = misc_write(dev, STM32_BSEC_LOCK(BSEC_OTP_BOARD),
+			 &otp, sizeof(otp));
+	if (ret < 0) {
+		puts("BOARD lock error\n");
+		return CMD_RET_FAILURE;
+	}
+
 	puts("BOARD programming done\n");
 
 	return CMD_RET_SUCCESS;
