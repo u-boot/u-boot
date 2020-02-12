@@ -61,12 +61,6 @@
 #define BOOTROM_INSTANCE_MASK	 GENMASK(31, 16)
 #define BOOTROM_INSTANCE_SHIFT	16
 
-/* BSEC OTP index */
-#define BSEC_OTP_RPN	1
-#define BSEC_OTP_SERIAL	13
-#define BSEC_OTP_PKG	16
-#define BSEC_OTP_MAC	57
-
 /* Device Part Number (RPN) = OTP_DATA1 lower 8 bits */
 #define RPN_SHIFT	0
 #define RPN_MASK	GENMASK(7, 0)
