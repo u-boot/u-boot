@@ -58,7 +58,7 @@ static int do_stboard(cmd_tbl_t *cmdtp, int flag, int argc,
 					  DM_GET_DRIVER(stm32mp_bsec),
 					  &dev);
 
-	ret = misc_read(dev, STM32_BSEC_SHADOW(BSEC_OTP_BOARD),
+	ret = misc_read(dev, STM32_BSEC_OTP(BSEC_OTP_BOARD),
 			&otp, sizeof(otp));
 
 	if (ret < 0) {
