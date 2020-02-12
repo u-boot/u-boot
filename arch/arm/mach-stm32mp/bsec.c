@@ -365,7 +365,7 @@ static int stm32mp_bsec_read(struct udevice *dev, int offset,
 		shadow = false;
 	}
 
-	if (offs < 0 || (offs % 4) || (size % 4))
+	if ((offs % 4) || (size % 4))
 		return -EINVAL;
 
 	otp = offs / sizeof(u32);
@@ -402,7 +402,7 @@ static int stm32mp_bsec_write(struct udevice *dev, int offset,
 		shadow = false;
 	}
 
-	if (offs < 0 || (offs % 4) || (size % 4))
+	if ((offs % 4) || (size % 4))
 		return -EINVAL;
 
 	otp = offs / sizeof(u32);
