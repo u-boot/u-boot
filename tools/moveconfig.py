@@ -295,6 +295,7 @@ To see the complete list of supported options, run
 
 """
 
+import asteval
 import collections
 import copy
 import difflib
@@ -808,10 +809,11 @@ def try_expand(line):
         return line
 
     try:
+        aeval = asteval.Interpreter( usersyms=SIZES, minimal=True )
         cfg, val = re.split("=", line)
         val= val.strip('\"')
         if re.search("[*+-/]|<<|SZ_+|\(([^\)]+)\)", val):
-            newval = hex(eval(val, SIZES))
+            newval = hex(aeval(val))
             print("\tExpanded expression %s to %s" % (val, newval))
             return cfg+'='+newval
     except:
