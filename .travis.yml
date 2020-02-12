@@ -10,9 +10,10 @@ language: c
 
 addons:
   apt:
+    update: true
     sources:
-    - ubuntu-toolchain-r-test
-    - llvm-toolchain-bionic-7
+    - sourceline: 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main'
+      key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
     packages:
     - autopoint
     - cppcheck
@@ -38,7 +39,7 @@ addons:
     - liblz4-tool
     - lzma-alone
     - libisl15
-    - clang-7
+    - clang-10
     - srecord
     - graphviz
     - coreutils
@@ -499,7 +500,7 @@ matrix:
     - name: "test/py sandbox with clang"
       env:
         - TEST_PY_BD="sandbox"
-          OVERRIDE="-O clang-7"
+          OVERRIDE="-O clang-10"
     - name: "test/py sandbox_spl"
       env:
         - TEST_PY_BD="sandbox_spl"
