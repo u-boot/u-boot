@@ -1217,7 +1217,7 @@ class Slot:
                                "Failed to process.\n")
         if self.options.verbose:
             self.log += color_text(self.options.color, COLOR_LIGHT_CYAN,
-                                   self.ps.stderr.read())
+                                   self.ps.stderr.read().decode())
         self.finish(False)
 
     def do_defconfig(self):
