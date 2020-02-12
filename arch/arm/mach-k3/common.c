@@ -17,6 +17,10 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/hardware.h>
 #include <asm/io.h>
+#include <fs_loader.h>
+#include <fs.h>
+#include <env.h>
+#include <elf.h>
 
 struct ti_sci_handle *get_ti_sci_handle(void)
 {
@@ -58,6 +62,74 @@ int early_console_init(void)
 #endif
 
 #ifdef CONFIG_SYS_K3_SPL_ATF
+
+void init_env(void)
+{
+#ifdef CONFIG_SPL_ENV_SUPPORT
+	char *part;
+
+	env_init();
+	env_relocate();
+	switch (spl_boot_device()) {
+	case BOOT_DEVICE_MMC2:
+		part = env_get("bootpart");
+		env_set("storage_interface", "mmc");
+		env_set("fw_dev_part", part);
+		break;
+	case BOOT_DEVICE_SPI:
+		env_set("storage_interface", "ubi");
+		env_set("fw_ubi_mtdpart", "UBI");
+		env_set("fw_ubi_volume", "UBI0");
+		break;
+	default:
+		printf("%s from device %u not supported!\n",
+		       __func__, spl_boot_device());
+		return;
+	}
+#endif
+}
+
+#ifdef CONFIG_FS_LOADER
+int load_firmware(char *name_fw, char *name_loadaddr, u32 *loadaddr)
+{
+	struct udevice *fsdev;
+	char *name = NULL;
+	int size = 0;
+
+	*loadaddr = 0;
+#ifdef CONFIG_SPL_ENV_SUPPORT
+	switch (spl_boot_device()) {
+	case BOOT_DEVICE_MMC2:
+		name = env_get(name_fw);
+		*loadaddr = env_get_hex(name_loadaddr, *loadaddr);
+		break;
+	default:
+		printf("Loading rproc fw image from device %u not supported!\n",
+		       spl_boot_device());
+		return 0;
+	}
+#endif
+	if (!*loadaddr)
+		return 0;
+
+	if (!uclass_get_device(UCLASS_FS_FIRMWARE_LOADER, 0, &fsdev)) {
+		size = request_firmware_into_buf(fsdev, name, (void *)*loadaddr,
+						 0, 0);
+	}
+
+	return size;
+}
+#else
+int load_firmware(char *name_fw, char *name_loadaddr, u32 *loadaddr)
+{
+	return 0;
+}
+#endif
+
+__weak void start_non_linux_remote_cores(void)
+{
+}
+
 void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 {
 	struct ti_sci_handle *ti_sci = get_ti_sci_handle();
@@ -66,15 +138,17 @@ void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 	/* Release all the exclusive devices held by SPL before starting ATF */
 	ti_sci->ops.dev_ops.release_exclusive_devices(ti_sci);
 
+	ret = rproc_init();
+	if (ret)
+		panic("rproc failed to be initialized (%d)\n", ret);
+
+	init_env();
+	start_non_linux_remote_cores();
+
 	/*
 	 * It is assumed that remoteproc device 1 is the corresponding
 	 * Cortex-A core which runs ATF. Make sure DT reflects the same.
 	 */
-	ret = rproc_dev_init(1);
-	if (ret)
-		panic("%s: ATF failed to initialize on rproc (%d)\n", __func__,
-		      ret);
-
 	ret = rproc_load(1, spl_image->entry_point, 0x200);
 	if (ret)
 		panic("%s: ATF failed to load on rproc (%d)\n", __func__, ret);
