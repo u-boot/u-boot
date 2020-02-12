@@ -149,6 +149,7 @@ int board_fix_fdt(void *fdt)
 
 		reg_name = reg_names;
 		remaining_names_len = names_len - (reg_name - reg_names);
+		i = 0;
 		while ((i < ARRAY_SIZE(reg_names_map)) && remaining_names_len) {
 			old_name_len = strlen(reg_names_map[i].old_str);
 			new_name_len = strlen(reg_names_map[i].new_str);
