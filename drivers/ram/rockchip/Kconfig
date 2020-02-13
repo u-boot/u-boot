@@ -13,6 +13,7 @@ config ROCKCHIP_SDRAM_COMMON
 
 config RAM_ROCKCHIP_DEBUG
 	bool "Rockchip ram drivers debugging"
+	depends on RAM_ROCKCHIP
 	default y
 	help
 	  This enables debugging ram driver API's for the platforms

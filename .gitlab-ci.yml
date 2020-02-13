@@ -72,7 +72,7 @@ build all 64bit ARM platforms:
   tags: [ 'all' ]
   stage: world build
   script:
-    - virtualenv /tmp/venv
+    - virtualenv -p /usr/bin/python3 /tmp/venv
     - . /tmp/venv/bin/activate
     - pip install pyelftools
     - ret=0;
@@ -157,7 +157,7 @@ Run binman, buildman, dtoc and patman testsuites:
     - git config --global user.name "GitLab CI Runner";
       git config --global user.email trini@konsulko.com;
       export USER=gitlab;
-      virtualenv /tmp/venv;
+      virtualenv -p /usr/bin/python3 /tmp/venv;
       . /tmp/venv/bin/activate;
       pip install pyelftools;
       export UBOOT_TRAVIS_BUILD_DIR=/tmp/.bm-work/sandbox_spl;

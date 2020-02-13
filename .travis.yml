@@ -133,16 +133,6 @@ script:
    cp ~/grub_x64.efi $UBOOT_TRAVIS_BUILD_DIR/;
    cp ~/grub2-arm/usr/lib/grub2/arm-efi/grub.efi $UBOOT_TRAVIS_BUILD_DIR/grub_arm.efi;
    cp ~/grub2-arm64/usr/lib/grub2/arm64-efi/grub.efi $UBOOT_TRAVIS_BUILD_DIR/grub_arm64.efi;
-   if [[ -n "${TEST_PY_TOOLS}" ]]; then
-     PYTHONPATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt"
-     PATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc:${PATH}"
-     ./tools/binman/binman --toolpath ${UBOOT_TRAVIS_BUILD_DIR}/tools test &&
-     ./tools/patman/patman --test &&
-     ./tools/buildman/buildman -t &&
-     PYTHONPATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt"
-     PATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc:${PATH}"
-     ./tools/dtoc/dtoc -t;
-   fi;
    if [[ "${TEST_PY_BD}" != "" ]]; then
      virtualenv -p /usr/bin/python3 /tmp/venv;
      . /tmp/venv/bin/activate;
@@ -153,6 +143,14 @@ script:
      ret=$?;
      if [[ $ret -ne 0 ]]; then
        exit $ret;
+     fi;
+     if [[ -n "${TEST_PY_TOOLS}" ]]; then
+       export PYTHONPATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt";
+       export PATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc:${PATH}";
+       ./tools/binman/binman --toolpath ${UBOOT_TRAVIS_BUILD_DIR}/tools test &&
+       ./tools/patman/patman --test &&
+       ./tools/buildman/buildman -t &&
+       ./tools/dtoc/dtoc -t;
      fi;
    fi
 

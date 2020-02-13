@@ -88,17 +88,17 @@ static int _lib_test_aes_run(struct unit_test_state *uts, int key_len,
 
 	/* Allocate all the buffer */
 	key = malloc(key_len);
-	ut_assertnonnull(key);
 	key_exp = malloc(key_exp_len);
-	ut_assertnonnull(key_exp);
 	iv = malloc(AES_BLOCK_LENGTH);
-	ut_assertnonnull(iv);
 	nocipher = malloc(num_block * AES_BLOCK_LENGTH);
-	ut_assertnonnull(nocipher);
 	ciphered = malloc((num_block + 1) * AES_BLOCK_LENGTH);
-	ut_assertnonnull(ciphered);
 	uncipher = malloc((num_block + 1) * AES_BLOCK_LENGTH);
-	ut_assertnonnull(uncipher);
+
+	if (!key || !key_exp || !iv || !nocipher || !ciphered || !uncipher) {
+		printf("%s: can't allocate memory\n", __func__);
+		ret = -1;
+		goto out;
+	}
 
 	/* Initialize all buffer */
 	rand_buf(key, key_len);
@@ -127,6 +127,7 @@ static int _lib_test_aes_run(struct unit_test_state *uts, int key_len,
 		ret = -1;
 	};
 
+ out:
 	/* Free all the data */
 	free(key);
 	free(key_exp);

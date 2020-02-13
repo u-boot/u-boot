@@ -867,6 +867,11 @@ __weak int checkcpu(void)
 	return 0;
 }
 
+__weak int clear_bss(void)
+{
+	return 0;
+}
+
 static const init_fnc_t init_sequence_f[] = {
 	setup_mon_len,
 #ifdef CONFIG_OF_CONTROL
@@ -1002,11 +1007,8 @@ static const init_fnc_t init_sequence_f[] = {
 #if defined(CONFIG_X86) || defined(CONFIG_ARC)
 	copy_uboot_to_ram,
 	do_elf_reloc_fixups,
-	clear_bss,
 #endif
-#if defined(CONFIG_XTENSA)
 	clear_bss,
-#endif
 #if !defined(CONFIG_ARM) && !defined(CONFIG_SANDBOX) && \
 		!CONFIG_IS_ENABLED(X86_64)
 	jump_to_copy,
