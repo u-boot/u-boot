@@ -5,3 +5,4 @@ F:	arch/arm/dts/zynq-*
 F:	board/xilinx/zynq/
 F:	include/configs/zynq*.h
 F:	configs/zynq_*_defconfig
+F:	configs/xilinx_zynq_*
