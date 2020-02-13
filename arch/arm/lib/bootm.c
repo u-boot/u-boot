@@ -75,6 +75,9 @@ void arch_lmb_reserve(struct lmb *lmb)
 			gd->bd->bi_dram[bank].size - 1;
 		if (sp > bank_end)
 			continue;
+		if (bank_end > gd->ram_top)
+			bank_end = gd->ram_top - 1;
+
 		lmb_reserve(lmb, sp, bank_end - sp + 1);
 		break;
 	}
