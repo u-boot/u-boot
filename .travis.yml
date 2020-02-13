@@ -500,13 +500,13 @@ matrix:
           BUILDMAN="^qemu-x86_64$"
           TOOLCHAIN="i386"
           BUILD_ROM="yes"
-    - name: "test/py zynq_zc702"
+    - name: "test/py xilinx_zynq_virt"
       env:
-        - TEST_PY_BD="zynq_zc702"
+        - TEST_PY_BD="xilinx_zynq_virt"
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="arm-softmmu"
           TEST_PY_ID="--id qemu"
-          BUILDMAN="^zynq_zc702$"
+          BUILDMAN="^xilinx_zynq_virt$"
     - name: "test/py xilinx_versal_virt"
       env:
         - TEST_PY_BD="xilinx_versal_virt"

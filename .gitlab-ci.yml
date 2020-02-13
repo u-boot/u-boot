@@ -314,13 +314,13 @@ qemu-x86_64 test.py:
     BUILDMAN: "^qemu-x86_64$"
   <<: *buildman_and_testpy_dfn
 
-zynq_zc702 test.py:
+xilinx_zynq_virt test.py:
   tags: [ 'all' ]
   variables:
-    TEST_PY_BD: "zynq_zc702"
+    TEST_PY_BD: "xilinx_zynq_virt"
     TEST_PY_TEST_SPEC: "not sleep"
     TEST_PY_ID: "--id qemu"
-    BUILDMAN: "^zynq_zc702$"
+    BUILDMAN: "^xilinx_zynq_virt$"
   <<: *buildman_and_testpy_dfn
 
 xilinx_versal_virt test.py:

@@ -217,11 +217,11 @@ jobs:
           TEST_PY_BD: "qemu-x86_64"
           TEST_PY_TEST_SPEC: "not sleep"
           BUILDMAN: "^qemu-x86_64$"
-        zynq_zc702:
-          TEST_PY_BD: "zynq_zc702"
+        xilinx_zynq_virt:
+          TEST_PY_BD: "xilinx_zynq_virt"
           TEST_PY_ID: "--id qemu"
           TEST_PY_TEST_SPEC: "not sleep"
-          BUILDMAN: "^zynq_zc702$"
+          BUILDMAN: "^xilinx_zynq_virt$"
         xilinx_versal_virt:
           TEST_PY_BD: "xilinx_versal_virt"
           TEST_PY_ID: "--id qemu"
