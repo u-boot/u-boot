@@ -522,7 +522,7 @@ static void sdhci_set_power(struct sdhci_host *host, unsigned short power)
 
 void sdhci_set_uhs_timing(struct sdhci_host *host)
 {
-	struct mmc *mmc = (struct mmc *)host->mmc;
+	struct mmc *mmc = host->mmc;
 	u32 reg;
 
 	reg = sdhci_readw(host, SDHCI_HOST_CONTROL2);
@@ -735,8 +735,7 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 		       __func__);
 		return -EINVAL;
 	}
-	host->adma_desc_table = (struct sdhci_adma_desc *)
-				memalign(ARCH_DMA_MINALIGN, ADMA_TABLE_SZ);
+	host->adma_desc_table = memalign(ARCH_DMA_MINALIGN, ADMA_TABLE_SZ);
 
 	host->adma_addr = (dma_addr_t)host->adma_desc_table;
 #ifdef CONFIG_DMA_ADDR_T_64BIT
