@@ -140,27 +140,16 @@ static void sdhci_prepare_dma(struct sdhci_host *host, struct mmc_data *data,
 	sdhci_writeb(host, ctrl, SDHCI_HOST_CONTROL);
 
 	if (host->flags & USE_SDMA) {
-		if ((host->quirks & SDHCI_QUIRK_32BIT_DMA_ADDR) &&
-		    (host->start_addr & 0x7) != 0x0) {
+		if (host->force_align_buffer ||
+		    (host->quirks & SDHCI_QUIRK_32BIT_DMA_ADDR &&
+		     (host->start_addr & 0x7) != 0x0)) {
 			*is_aligned = 0;
 			host->start_addr = (unsigned long)host->align_buffer;
 			if (data->flags != MMC_DATA_READ)
 				memcpy(host->align_buffer, data->src,
 				       trans_bytes);
 		}
-
-#if defined(CONFIG_FIXED_SDHCI_ALIGNED_BUFFER)
-		/*
-		 * Always use this bounce-buffer when
-		 * CONFIG_FIXED_SDHCI_ALIGNED_BUFFER is defined
-		 */
-		*is_aligned = 0;
-		host->start_addr = (unsigned long)host->align_buffer;
-		if (data->flags != MMC_DATA_READ)
-			memcpy(host->align_buffer, data->src, trans_bytes);
-#endif
 		sdhci_writel(host, host->start_addr, SDHCI_DMA_ADDRESS);
-
 	} else if (host->flags & (USE_ADMA | USE_ADMA64)) {
 		sdhci_prepare_adma_table(host, data);
 
@@ -627,6 +616,11 @@ static int sdhci_init(struct mmc *mmc)
 
 #if defined(CONFIG_FIXED_SDHCI_ALIGNED_BUFFER)
 	host->align_buffer = (void *)CONFIG_FIXED_SDHCI_ALIGNED_BUFFER;
+	/*
+	 * Always use this bounce-buffer when CONFIG_FIXED_SDHCI_ALIGNED_BUFFER
+	 * is defined.
+	 */
+	host->force_align_buffer = true;
 #else
 	if (host->quirks & SDHCI_QUIRK_32BIT_DMA_ADDR) {
 		host->align_buffer = memalign(8, 512 * 1024);
