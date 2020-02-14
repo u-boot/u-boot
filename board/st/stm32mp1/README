@@ -3,8 +3,8 @@ SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
 # Copyright (C) 2018 STMicroelectronics - All Rights Reserved
 #
 
-U-Boot on STMicroelectronics STM32MP1
-======================================
+U-Boot on STMicroelectronics STM32MP15x
+=======================================
 
 1. Summary
 ==========
@@ -12,12 +12,12 @@ This is a quick instruction for setup stm32mp1 boards.
 
 2. Supported devices
 ====================
-U-Boot supports one STMP32MP1 SoCs: STM32MP157
+U-Boot supports STMP32MP15x SoCs: STM32MP157, STM32MP153 and STM32MP151
 
-The STM32MP157 is a Cortex-A MPU aimed at various applications.
+The STM32MP15x is a Cortex-A MPU aimed at various applications.
 It features:
-- Dual core Cortex-A7 application core
-- 2D/3D image composition with GPU
+- Dual core Cortex-A7 application core (Single on STM32MP151)
+- 2D/3D image composition with GPU (only on STM32MP157)
 - Standard memories interface support
 - Standard connectivity, widely inherited from the STM32 MCU family
 - Comprehensive security support
@@ -37,11 +37,11 @@ And the necessary drivers
 4. Fuse
 
 Currently the following boards are supported:
-+ stm32mp157c-ev1
-+ stm32mp157c-ed1
-+ stm32mp157a-dk1
-+ stm32mp157c-dk2
-+ stm32mp157a-avenger96
++ stm32mp157a-avenger96.dts
++ stm32mp157a-dk1.dts
++ stm32mp157c-dk2.dts
++ stm32mp157c-ed1.dts
++ stm32mp157c-ev1.dts
 
 3. Boot Sequences
 =================
@@ -74,7 +74,7 @@ with FSBL = First Stage Bootloader
    U-Boot is running in secure mode and provide a secure monitor to the kernel
    with only PSCI support (Power State Coordination Interface defined by ARM).
 
-All the STM32MP1 boards supported by U-Boot use the same generic board
+All the STM32MP15x boards supported by U-Boot use the same generic board
 stm32mp1 which support all the bootable devices.
 
 Each board is configurated only with the associated device tree.
@@ -108,7 +108,7 @@ the supported device trees for stm32mp157 are:
    + install package needed in U-Boot makefile
      (libssl-dev, swig, libpython-dev...)
    + install ARMv7 toolchain for 32bit Cortex-A (from Linaro,
-     from SDK for STM32MP1, or any crosstoolchains from your distribution)
+     from SDK for STM32MP15x, or any crosstoolchains from your distribution)
 
 2. Set the cross compiler:
 
@@ -323,8 +323,7 @@ c) copy U-Boot in first GPT partition of eMMC
 	# ext4load mmc 0:4 0xC0000000 u-boot.img
 	# mmc dev 1
 	# part start mmc 1 1 partstart
-	# part size mmc 1 1 partsize
-	# mmc write ${fileaddr} ${partstart} ${partsize}
+	# mmc write ${fileaddr} ${partstart} ${filesize}
 
 To boot from eMMC, select BootPinMode = 0 1 0 and reset.
 
@@ -334,14 +333,27 @@ To boot from eMMC, select BootPinMode = 0 1 0 and reset.
 Please read doc/README.enetaddr for the implementation guidelines for mac id
 usage. Basically, environment has precedence over board specific storage.
 
-Mac id storage and retrieval in stm32mp otp :
+For STMicroelectonics board, it is retrieved in STM32MP15x otp :
 - OTP_57[31:0] = MAC_ADDR[31:0]
 - OTP_58[15:0] = MAC_ADDR[47:32]
 
 To program a MAC address on virgin OTP words above, you can use the fuse command
 on bank 0 to access to internal OTP:
 
-    example to set mac address "12:34:56:78:9a:bc"
+    Prerequisite: check if a MAC address isn't yet programmed in OTP
+
+    1- check OTP: their value must be equal to 0
+
+       STM32MP> fuse sense 0 57 2
+       Sensing bank 0:
+       Word 0x00000039: 00000000 00000000
+
+    2- check environment variable
+
+       STM32MP> env print ethaddr
+       ## Error: "ethaddr" not defined
+
+    Example to set mac address "12:34:56:78:9a:bc"
 
     1- Write OTP
        STM32MP> fuse prog -y 0 57 0x78563412 0x0000bc9a
@@ -355,8 +367,12 @@ on bank 0 to access to internal OTP:
        ### Setting environment from OTP MAC address = "12:34:56:78:9a:bc"
 
     4 check env update
-       STM32MP> print ethaddr
+       STM32MP> env print ethaddr
        ethaddr=12:34:56:78:9a:bc
+
+warning:: This MAC address provisioning can't be executed twice on the same
+          board as the OTP are protected. It is already done for the board
+          provided by STMicroelectronics.
 
 10. Coprocessor firmware
 ========================

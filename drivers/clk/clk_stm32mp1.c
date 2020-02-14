@@ -1218,7 +1218,7 @@ static int stm32mp1_osc_wait(int enable, fdt_addr_t rcc, u32 offset,
 }
 
 static void stm32mp1_lse_enable(fdt_addr_t rcc, int bypass, int digbyp,
-				int lsedrv)
+				u32 lsedrv)
 {
 	u32 value;
 
@@ -1651,8 +1651,8 @@ static int stm32mp1_clktree(struct udevice *dev)
 	unsigned int clkdiv[CLKDIV_NB];
 	unsigned int pllcfg[_PLL_NB][PLLCFG_NB];
 	ofnode plloff[_PLL_NB];
-	int ret;
-	int i, len;
+	int ret, len;
+	uint i;
 	int lse_css = 0;
 	const u32 *pkcs_cell;
 
@@ -1698,7 +1698,8 @@ static int stm32mp1_clktree(struct udevice *dev)
 		stm32mp1_lsi_set(rcc, 1);
 
 	if (priv->osc[_LSE]) {
-		int bypass, digbyp, lsedrv;
+		int bypass, digbyp;
+		u32 lsedrv;
 		struct udevice *dev = priv->osc_dev[_LSE];
 
 		bypass = dev_read_bool(dev, "st,bypass");

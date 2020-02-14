@@ -43,8 +43,14 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
 
+/*
+ * For booting Linux, use the first 256 MB of memory, since this is
+ * the maximum mapped by the Linux kernel during initialization.
+ */
+#define CONFIG_SYS_BOOTMAPSZ		SZ_256M
+
 /* Extend size of kernel image for uncompression */
-#define CONFIG_SYS_BOOTM_LEN			SZ_32M
+#define CONFIG_SYS_BOOTM_LEN		SZ_32M
 
 /* SPL support */
 #ifdef CONFIG_SPL
@@ -215,8 +221,6 @@
 	"pxefile_addr_r=0xc4200000\0" \
 	"splashimage=0xc4300000\0"  \
 	"ramdisk_addr_r=0xc4400000\0" \
-	"fdt_high=0xffffffff\0" \
-	"initrd_high=0xffffffff\0" \
 	"altbootcmd=run bootcmd\0" \
 	"env_default=1\0" \
 	"env_check=if test $env_default -eq 1;"\

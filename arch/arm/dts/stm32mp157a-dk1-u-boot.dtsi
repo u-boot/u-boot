@@ -35,24 +35,7 @@
 };
 
 &adc {
-	pinctrl-names = "default";
-	pinctrl-0 = <&adc12_usb_pwr_pins_a>;
-	vdd-supply = <&vdd>;
-	vdda-supply = <&vdd>;
-	vref-supply = <&vrefbuf>;
 	status = "okay";
-	adc1: adc@0 {
-		/*
-		 * Type-C USB_PWR_CC1 & USB_PWR_CC2 on in18 & in19.
-		 * Use at least 5 * RC time, e.g. 5 * (Rp + Rd) * C:
-		 * 5 * (56 + 47kOhms) * 5pF => 2.5us.
-		 * Use arbitrary margin here (e.g. 5µs).
-		 */
-		st,min-sample-time-nsecs = <5000>;
-		/* ANA0, ANA1, USB Type-C CC1 & CC2 */
-		st,adc-channels = <0 1 18 19>;
-		status = "okay";
-	};
 };
 
 &clk_hse {
@@ -127,7 +110,7 @@
 		CLK_UART6_HSI
 		CLK_UART78_HSI
 		CLK_SPDIF_PLL4P
-		CLK_FDCAN_PLL4Q
+		CLK_FDCAN_PLL4R
 		CLK_SAI1_PLL3Q
 		CLK_SAI2_PLL3Q
 		CLK_SAI3_PLL3Q
@@ -141,6 +124,8 @@
 
 	/* VCO = 1300.0 MHz => P = 650 (CPU) */
 	pll1: st,pll@0 {
+		compatible = "st,stm32mp1-pll";
+		reg = <0>;
 		cfg = < 2 80 0 0 0 PQR(1,0,0) >;
 		frac = < 0x800 >;
 		u-boot,dm-pre-reloc;
@@ -148,6 +133,8 @@
 
 	/* VCO = 1066.0 MHz => P = 266 (AXI), Q = 533 (GPU), R = 533 (DDR) */
 	pll2: st,pll@1 {
+		compatible = "st,stm32mp1-pll";
+		reg = <1>;
 		cfg = < 2 65 1 0 0 PQR(1,1,1) >;
 		frac = < 0x1400 >;
 		u-boot,dm-pre-reloc;
@@ -155,6 +142,8 @@
 
 	/* VCO = 417.8 MHz => P = 209, Q = 24, R = 11 */
 	pll3: st,pll@2 {
+		compatible = "st,stm32mp1-pll";
+		reg = <2>;
 		cfg = < 1 33 1 16 36 PQR(1,1,1) >;
 		frac = < 0x1a04 >;
 		u-boot,dm-pre-reloc;
@@ -162,6 +151,8 @@
 
 	/* VCO = 594.0 MHz => P = 99, Q = 74, R = 74 */
 	pll4: st,pll@3 {
+		compatible = "st,stm32mp1-pll";
+		reg = <3>;
 		cfg = < 3 98 5 7 7 PQR(1,1,1) >;
 		u-boot,dm-pre-reloc;
 	};

@@ -939,7 +939,7 @@
 			interrupt-names = "int0", "int1";
 			clocks = <&rcc CK_HSE>, <&rcc FDCAN_K>;
 			clock-names = "hclk", "cclk";
-			bosch,mram-cfg = <0x1400 0 0 32 0 0 2 2>;
+			bosch,mram-cfg = <0x0 0 0 32 0 0 2 2>;
 			status = "disabled";
 		};
 
@@ -952,7 +952,7 @@
 			interrupt-names = "int0", "int1";
 			clocks = <&rcc CK_HSE>, <&rcc FDCAN_K>;
 			clock-names = "hclk", "cclk";
-			bosch,mram-cfg = <0x0 0 0 32 0 0 2 2>;
+			bosch,mram-cfg = <0x1400 0 0 32 0 0 2 2>;
 			status = "disabled";
 		};
 
@@ -1110,36 +1110,26 @@
 			#reset-cells = <1>;
 		};
 
-		pwr: pwr@50001000 {
-			compatible = "st,stm32mp1-pwr", "st,stm32-pwr", "syscon", "simple-mfd";
-			reg = <0x50001000 0x400>;
-			system-power-controller;
-			interrupts = <GIC_SPI 149 IRQ_TYPE_LEVEL_HIGH>;
-			st,sysrcc = <&rcc>;
-			clocks = <&rcc PLL2_R>;
-			clock-names = "phyclk";
+		pwr_regulators: pwr@50001000 {
+			compatible = "st,stm32mp1,pwr-reg";
+			reg = <0x50001000 0x10>;
 
-			pwr-regulators {
-				compatible = "st,stm32mp1,pwr-reg";
-				st,tzcr = <&rcc 0x0 0x1>;
+			reg11: reg11 {
+				regulator-name = "reg11";
+				regulator-min-microvolt = <1100000>;
+				regulator-max-microvolt = <1100000>;
+			};
 
-				reg11: reg11 {
-					regulator-name = "reg11";
-					regulator-min-microvolt = <1100000>;
-					regulator-max-microvolt = <1100000>;
-				};
+			reg18: reg18 {
+				regulator-name = "reg18";
+				regulator-min-microvolt = <1800000>;
+				regulator-max-microvolt = <1800000>;
+			};
 
-				reg18: reg18 {
-					regulator-name = "reg18";
-					regulator-min-microvolt = <1800000>;
-					regulator-max-microvolt = <1800000>;
-				};
-
-				usb33: usb33 {
-					regulator-name = "usb33";
-					regulator-min-microvolt = <3300000>;
-					regulator-max-microvolt = <3300000>;
-				};
+			usb33: usb33 {
+				regulator-name = "usb33";
+				regulator-min-microvolt = <3300000>;
+				regulator-max-microvolt = <3300000>;
 			};
 		};
 

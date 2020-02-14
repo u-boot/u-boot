@@ -7,6 +7,11 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <linux/sizes.h>
+
+/* For booting Linux, use the first 16MB of memory */
+#define CONFIG_SYS_BOOTMAPSZ		SZ_16M
+
 #define CONFIG_SYS_FLASH_BASE		0x08000000
 
 #define CONFIG_SYS_INIT_SP_ADDR		0x10010000
@@ -40,12 +45,10 @@
 #define CONFIG_EXTRA_ENV_SETTINGS				\
 			"kernel_addr_r=0x00008000\0"		\
 			"fdtfile=stm32429i-eval.dtb\0"	\
-			"fdt_addr_r=0x00700000\0"		\
-			"scriptaddr=0x00800000\0"		\
-			"pxefile_addr_r=0x00800000\0" \
-			"fdt_high=0xffffffffffffffff\0"		\
-			"initrd_high=0xffffffffffffffff\0"	\
-			"ramdisk_addr_r=0x00900000\0"		\
+			"fdt_addr_r=0x00408000\0"		\
+			"scriptaddr=0x00418000\0"		\
+			"pxefile_addr_r=0x00428000\0" \
+			"ramdisk_addr_r=0x00438000\0"		\
 			BOOTENV
 
 /*

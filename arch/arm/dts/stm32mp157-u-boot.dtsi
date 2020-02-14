@@ -128,12 +128,14 @@
 	u-boot,dm-pre-reloc;
 };
 
-&pwr {
+&pwr_regulators {
 	u-boot,dm-pre-reloc;
 };
 
 &rcc {
 	u-boot,dm-pre-reloc;
+	#address-cells = <1>;
+	#size-cells = <0>;
 };
 
 &sdmmc1 {
