@@ -486,4 +486,11 @@ config K3_AVS0
 	  optimized voltage from the efuse, so that it can be programmed
 	  to the PMIC on board.
 
+config ESM_PMIC
+	bool "Enable PMIC ESM driver"
+	depends on DM_PMIC
+	help
+	  Support ESM (Error Signal Monitor) on PMIC devices. ESM is used
+	  typically to reboot the board in error condition.
+
 endmenu
