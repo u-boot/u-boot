@@ -38,7 +38,7 @@
 
 #include <linux/mii.h>
 #include <asm/io.h>
-#include <asm/dma-mapping.h>
+#include <linux/dma-mapping.h>
 #include <asm/arch/clk.h>
 #include <linux/errno.h>
 

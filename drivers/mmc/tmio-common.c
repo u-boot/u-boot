@@ -4,7 +4,6 @@
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  */
 
-#include <asm/dma-mapping.h>
 #include <common.h>
 #include <clk.h>
 #include <cpu_func.h>
@@ -14,7 +13,7 @@
 #include <dm/device_compat.h>
 #include <dm/pinctrl.h>
 #include <linux/compat.h>
-#include <linux/dma-direction.h>
+#include <linux/dma-mapping.h>
 #include <linux/io.h>
 #include <linux/sizes.h>
 #include <power/regulator.h>

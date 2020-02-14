@@ -16,10 +16,10 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <malloc.h>
-#include <asm/dma-mapping.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>
 #include <linux/bug.h>
+#include <linux/dma-mapping.h>
 #include <linux/list.h>
 
 #include <linux/usb/ch9.h>

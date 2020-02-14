@@ -9,7 +9,6 @@
 #include <cpu_func.h>
 #include <asm/io.h>
 #include <malloc.h>
-#include <asm/dma-mapping.h>
 #include <asm/bitops.h>
 #include <dm.h>
 #include <dm/device_compat.h>
@@ -17,6 +16,7 @@
 #include <dm/read.h>
 #include <dm/uclass.h>
 #include <linux/compat.h>
+#include <linux/dma-mapping.h>
 #include <linux/err.h>
 #include <linux/soc/ti/k3-navss-ringacc.h>
 #include <linux/soc/ti/ti_sci_protocol.h>

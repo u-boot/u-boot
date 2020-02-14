@@ -18,7 +18,7 @@
 #include <linux/compat.h>
 #include <malloc.h>
 #include <asm/cache.h>
-#include <asm/dma-mapping.h>
+#include <linux/dma-mapping.h>
 #include <common.h>
 #include <dm.h>
 #include <dm/device-internal.h>
