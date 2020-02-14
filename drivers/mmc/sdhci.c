@@ -16,12 +16,6 @@
 #include <sdhci.h>
 #include <dm.h>
 
-#if defined(CONFIG_FIXED_SDHCI_ALIGNED_BUFFER)
-void *aligned_buffer = (void *)CONFIG_FIXED_SDHCI_ALIGNED_BUFFER;
-#else
-void *aligned_buffer;
-#endif
-
 static void sdhci_reset(struct sdhci_host *host, u8 mask)
 {
 	unsigned long timeout;
@@ -149,9 +143,10 @@ static void sdhci_prepare_dma(struct sdhci_host *host, struct mmc_data *data,
 		if ((host->quirks & SDHCI_QUIRK_32BIT_DMA_ADDR) &&
 		    (host->start_addr & 0x7) != 0x0) {
 			*is_aligned = 0;
-			host->start_addr = (unsigned long)aligned_buffer;
+			host->start_addr = (unsigned long)host->align_buffer;
 			if (data->flags != MMC_DATA_READ)
-				memcpy(aligned_buffer, data->src, trans_bytes);
+				memcpy(host->align_buffer, data->src,
+				       trans_bytes);
 		}
 
 #if defined(CONFIG_FIXED_SDHCI_ALIGNED_BUFFER)
@@ -160,9 +155,9 @@ static void sdhci_prepare_dma(struct sdhci_host *host, struct mmc_data *data,
 		 * CONFIG_FIXED_SDHCI_ALIGNED_BUFFER is defined
 		 */
 		*is_aligned = 0;
-		host->start_addr = (unsigned long)aligned_buffer;
+		host->start_addr = (unsigned long)host->align_buffer;
 		if (data->flags != MMC_DATA_READ)
-			memcpy(aligned_buffer, data->src, trans_bytes);
+			memcpy(host->align_buffer, data->src, trans_bytes);
 #endif
 		sdhci_writel(host, host->start_addr, SDHCI_DMA_ADDRESS);
 
@@ -381,7 +376,7 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 	if (!ret) {
 		if ((host->quirks & SDHCI_QUIRK_32BIT_DMA_ADDR) &&
 				!is_aligned && (data->flags == MMC_DATA_READ))
-			memcpy(data->dest, aligned_buffer, trans_bytes);
+			memcpy(data->dest, host->align_buffer, trans_bytes);
 		return 0;
 	}
 
@@ -630,14 +625,18 @@ static int sdhci_init(struct mmc *mmc)
 
 	sdhci_reset(host, SDHCI_RESET_ALL);
 
-	if ((host->quirks & SDHCI_QUIRK_32BIT_DMA_ADDR) && !aligned_buffer) {
-		aligned_buffer = memalign(8, 512*1024);
-		if (!aligned_buffer) {
+#if defined(CONFIG_FIXED_SDHCI_ALIGNED_BUFFER)
+	host->align_buffer = (void *)CONFIG_FIXED_SDHCI_ALIGNED_BUFFER;
+#else
+	if (host->quirks & SDHCI_QUIRK_32BIT_DMA_ADDR) {
+		host->align_buffer = memalign(8, 512 * 1024);
+		if (!host->align_buffer) {
 			printf("%s: Aligned buffer alloc failed!!!\n",
 			       __func__);
 			return -ENOMEM;
 		}
 	}
+#endif
 
 	sdhci_set_power(host, fls(mmc->cfg->voltages) - 1);
 

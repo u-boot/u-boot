@@ -321,6 +321,7 @@ struct sdhci_host {
 	uint	voltages;
 
 	struct mmc_config cfg;
+	void *align_buffer;
 	dma_addr_t start_addr;
 	int flags;
 #define USE_SDMA	(0x1 << 0)
