@@ -25,3 +25,10 @@
 &main_r5fss0_core1 {
 	u-boot,dm-spl;
 };
+
+&tps659413a {
+	esm: esm {
+		compatible = "ti,tps659413-esm";
+		u-boot,dm-spl;
+	};
+};
