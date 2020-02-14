@@ -342,7 +342,7 @@ static int _macb_send(struct macb_device *macb, const char *name, void *packet,
 		udelay(1);
 	}
 
-	dma_unmap_single(packet, length, DMA_TO_DEVICE);
+	dma_unmap_single(paddr, length, DMA_TO_DEVICE);
 
 	if (i <= MACB_TX_TIMEOUT) {
 		if (ctrl & MACB_BIT(TX_UNDERRUN))

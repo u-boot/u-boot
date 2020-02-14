@@ -581,7 +581,7 @@ static int denali_dma_xfer(struct denali_nand_info *denali, void *buf,
 
 	iowrite32(0, denali->reg + DMA_ENABLE);
 
-	dma_unmap_single(buf, size, dir);
+	dma_unmap_single(dma_addr, size, dir);
 
 	if (irq_status & INTR__ERASED_PAGE)
 		memset(buf, 0xff, size);

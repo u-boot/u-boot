@@ -353,7 +353,7 @@ static int tmio_sd_dma_xfer(struct udevice *dev, struct mmc_data *data)
 	if (poll_flag == TMIO_SD_DMA_INFO1_END_RD)
 		udelay(1);
 
-	dma_unmap_single(buf, len, dir);
+	dma_unmap_single(dma_addr, len, dir);
 
 	return ret;
 }
