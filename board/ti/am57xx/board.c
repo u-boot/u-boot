@@ -36,6 +36,7 @@
 #include <ti-usb-phy-uboot.h>
 #include <mmc.h>
 #include <dm/uclass.h>
+#include <hang.h>
 
 #include "../common/board_detect.h"
 #include "mux_data.h"
@@ -707,6 +708,18 @@ void am57x_idk_lcd_detect(void)
 	}
 out:
 	env_set("idk_lcd", idk_lcd);
+
+	/*
+	 * On AM571x_IDK, no Display with J51 set to LCD is considered as an
+	 * invalid configuration and we prevent boot to get user attention.
+	 */
+	if (board_is_am571x_idk() && am571x_idk_needs_lcd() &&
+	    !strncmp(idk_lcd, "no", 2)) {
+		printf("%s: Invalid HW configuration: display not detected/supported but J51 is set. Remove J51 to boot without display.\n",
+		       __func__);
+		hang();
+	}
+
 	return;
 }
 

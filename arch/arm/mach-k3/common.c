@@ -218,7 +218,7 @@ int print_cpuinfo(void)
 		name = "Unknown Silicon";
 	};
 
-	printf("%s PG ", name);
+	printf("%s SR ", name);
 	switch (rev) {
 	case REV_PG1_0:
 		name = "1.0";
