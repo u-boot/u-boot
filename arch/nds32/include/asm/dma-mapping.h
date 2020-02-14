@@ -10,6 +10,7 @@
 #include <asm/cache.h>
 #include <cpu_func.h>
 #include <linux/dma-direction.h>
+#include <linux/types.h>
 #include <malloc.h>
 
 static void *dma_alloc_coherent(size_t len, unsigned long *handle)
@@ -18,8 +19,8 @@ static void *dma_alloc_coherent(size_t len, unsigned long *handle)
 	return (void *)*handle;
 }
 
-static inline unsigned long dma_map_single(volatile void *vaddr, size_t len,
-					   enum dma_data_direction dir)
+static inline dma_addr_t dma_map_single(void *vaddr, size_t len,
+					enum dma_data_direction dir)
 {
 	unsigned long addr = (unsigned long)vaddr;
 

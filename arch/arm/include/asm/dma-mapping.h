@@ -11,6 +11,7 @@
 #include <asm/cache.h>
 #include <cpu_func.h>
 #include <linux/dma-direction.h>
+#include <linux/types.h>
 #include <malloc.h>
 
 #define	dma_mapping_error(x, y)	0
@@ -26,8 +27,8 @@ static inline void dma_free_coherent(void *addr)
 	free(addr);
 }
 
-static inline unsigned long dma_map_single(volatile void *vaddr, size_t len,
-					   enum dma_data_direction dir)
+static inline dma_addr_t dma_map_single(void *vaddr, size_t len,
+					enum dma_data_direction dir)
 {
 	unsigned long addr = (unsigned long)vaddr;
 
