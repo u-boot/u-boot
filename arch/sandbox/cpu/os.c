@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <getopt.h>
 #include <setjmp.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -175,6 +176,13 @@ void os_fd_restore(void)
 	}
 }
 
+static void os_sigint_handler(int sig)
+{
+	os_fd_restore();
+	signal(SIGINT, SIG_DFL);
+	raise(SIGINT);
+}
+
 /* Put tty into raw mode so <tab> and <ctrl+c> work */
 void os_tty_raw(int fd, bool allow_sigs)
 {
@@ -205,6 +213,7 @@ void os_tty_raw(int fd, bool allow_sigs)
 
 	term_setup = true;
 	atexit(os_fd_restore);
+	signal(SIGINT, os_sigint_handler);
 }
 
 void *os_malloc(size_t length)
