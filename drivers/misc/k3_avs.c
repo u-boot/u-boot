@@ -312,15 +312,15 @@ static struct vd_data am654_vd_data[] = {
 		.opp = AM6_OPP_NOM,
 		.opps = {
 			[AM6_OPP_NOM] = {
-				.volt = 1000000,
+				.volt = 1100000,
 				.freq = 800000000,
 			},
 			[AM6_OPP_OD] = {
-				.volt = 1100000,
+				.volt = 1200000,
 				.freq = 1000000000,
 			},
 			[AM6_OPP_TURBO] = {
-				.volt = 1220000,
+				.volt = 1240000,
 				.freq = 1100000000,
 			},
 		},
@@ -332,15 +332,15 @@ static struct vd_data am654_vd_data[] = {
 		.clk_id = 0, /* ARM clock */
 		.opps = {
 			[AM6_OPP_NOM] = {
-				.volt = 1000000,
+				.volt = 1100000,
 				.freq = 800000000,
 			},
 			[AM6_OPP_OD] = {
-				.volt = 1100000,
+				.volt = 1200000,
 				.freq = 1000000000,
 			},
 			[AM6_OPP_TURBO] = {
-				.volt = 1220000,
+				.volt = 1240000,
 				.freq = 1100000000,
 			},
 		},
