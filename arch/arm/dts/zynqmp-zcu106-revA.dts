@@ -653,6 +653,10 @@
 /* SD1 with level shifter */
 &sdhci1 {
 	status = "okay";
+	/*
+	 * This property should be removed for supporting UHS mode
+	 */
+	no-1-8-v;
 	xlnx,mio_bank = <1>;
 };
 
