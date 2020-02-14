@@ -462,6 +462,11 @@ config IHS_FPGA
 	  gdsys devices, which supply the majority of the functionality offered
 	  by the devices. This driver supports both CON and CPU variants of the
 	  devices, depending on the device tree entry.
+config ESM_K3
+	bool "Enable K3 ESM driver"
+	depends on ARCH_K3
+	help
+	  Support ESM (Error Signaling Module) on TI K3 SoCs.
 
 config MICROCHIP_FLEXCOM
 	bool "Enable Microchip Flexcom driver"
