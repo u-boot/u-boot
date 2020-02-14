@@ -14,24 +14,8 @@
 #include <stdio.h>
 #include <linux/io.h>
 #include <linux/printk.h>
-#include <../drivers/mtd/nand/raw/denali.h>
 
 #include "init.h"
-
-static void nand_denali_wp_disable(void)
-{
-#ifdef CONFIG_NAND_DENALI
-	/*
-	 * Since the boot rom enables the write protection for NAND boot mode,
-	 * it must be disabled somewhere for "nand write", "nand erase", etc.
-	 * The workaround is here to not disturb the Denali NAND controller
-	 * driver just for a really SoC-specific thing.
-	 */
-	void __iomem *denali_reg = (void __iomem *)CONFIG_SYS_NAND_REGS_BASE;
-
-	writel(WRITE_PROTECT__FLAG, denali_reg + WRITE_PROTECT);
-#endif
-}
 
 static void uniphier_set_env_fdt_file(void)
 {
@@ -114,7 +98,6 @@ int board_late_init(void)
 	case BOOT_DEVICE_NAND:
 		printf("NAND Boot");
 		env_set("bootdev", "nand");
-		nand_denali_wp_disable();
 		break;
 	case BOOT_DEVICE_NOR:
 		printf("NOR Boot");
