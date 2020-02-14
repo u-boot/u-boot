@@ -153,9 +153,10 @@ static void sdhci_prepare_dma(struct sdhci_host *host, struct mmc_data *data,
 	} else if (host->flags & (USE_ADMA | USE_ADMA64)) {
 		sdhci_prepare_adma_table(host, data);
 
-		sdhci_writel(host, (u32)host->adma_addr, SDHCI_ADMA_ADDRESS);
+		sdhci_writel(host, lower_32_bits(host->adma_addr),
+			     SDHCI_ADMA_ADDRESS);
 		if (host->flags & USE_ADMA64)
-			sdhci_writel(host, (u64)host->adma_addr >> 32,
+			sdhci_writel(host, upper_32_bits(host->adma_addr),
 				     SDHCI_ADMA_ADDRESS_HI);
 	}
 
