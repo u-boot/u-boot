@@ -935,7 +935,11 @@
 /* SD1 with level shifter */
 &sdhci1 {
 	status = "okay";
-	no-1-8-v;	/* for 1.0 silicon */
+	/*
+	 * 1.0 revision has level shifter and this property should be
+	 * removed for supporting UHS mode
+	 */
+	no-1-8-v;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_sdhci1_default>;
 	xlnx,mio_bank = <1>;
