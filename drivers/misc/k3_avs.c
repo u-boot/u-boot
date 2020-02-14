@@ -191,6 +191,10 @@ int k3_avs_notify_freq(int dev_id, int clk_id, u32 freq)
 	struct k3_avs_privdata *priv = k3_avs_priv;
 	struct vd_data *vd;
 
+	/* Driver may not be probed yet */
+	if (!priv)
+		return -EINVAL;
+
 	for (vd = priv->vd_config->vds; vd->id >= 0; vd++) {
 		if (vd->dev_id != dev_id || vd->clk_id != clk_id)
 			continue;
