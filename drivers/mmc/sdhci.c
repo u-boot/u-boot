@@ -15,6 +15,7 @@
 #include <mmc.h>
 #include <sdhci.h>
 #include <dm.h>
+#include <linux/dma-mapping.h>
 
 static void sdhci_reset(struct sdhci_host *host, u8 mask)
 {
@@ -65,8 +66,8 @@ static void sdhci_transfer_pio(struct sdhci_host *host, struct mmc_data *data)
 }
 
 #if CONFIG_IS_ENABLED(MMC_SDHCI_ADMA)
-static void sdhci_adma_desc(struct sdhci_host *host, char *buf, u16 len,
-			    bool end)
+static void sdhci_adma_desc(struct sdhci_host *host, dma_addr_t dma_addr,
+			    u16 len, bool end)
 {
 	struct sdhci_adma_desc *desc;
 	u8 attr;
@@ -82,9 +83,9 @@ static void sdhci_adma_desc(struct sdhci_host *host, char *buf, u16 len,
 	desc->attr = attr;
 	desc->len = len;
 	desc->reserved = 0;
-	desc->addr_lo = (dma_addr_t)buf;
+	desc->addr_lo = lower_32_bits(dma_addr);
 #ifdef CONFIG_DMA_ADDR_T_64BIT
-	desc->addr_hi = (u64)buf >> 32;
+	desc->addr_hi = upper_32_bits(dma_addr);
 #endif
 }
 
@@ -94,22 +95,17 @@ static void sdhci_prepare_adma_table(struct sdhci_host *host,
 	uint trans_bytes = data->blocksize * data->blocks;
 	uint desc_count = DIV_ROUND_UP(trans_bytes, ADMA_MAX_LEN);
 	int i = desc_count;
-	char *buf;
+	dma_addr_t dma_addr = host->start_addr;
 
 	host->desc_slot = 0;
 
-	if (data->flags & MMC_DATA_READ)
-		buf = data->dest;
-	else
-		buf = (char *)data->src;
-
 	while (--i) {
-		sdhci_adma_desc(host, buf, ADMA_MAX_LEN, false);
-		buf += ADMA_MAX_LEN;
+		sdhci_adma_desc(host, dma_addr, ADMA_MAX_LEN, false);
+		dma_addr += ADMA_MAX_LEN;
 		trans_bytes -= ADMA_MAX_LEN;
 	}
 
-	sdhci_adma_desc(host, buf, trans_bytes, true);
+	sdhci_adma_desc(host, dma_addr, trans_bytes, true);
 
 	flush_cache((dma_addr_t)host->adma_desc_table,
 		    ROUND(desc_count * sizeof(struct sdhci_adma_desc),
@@ -125,11 +121,12 @@ static void sdhci_prepare_dma(struct sdhci_host *host, struct mmc_data *data,
 			      int *is_aligned, int trans_bytes)
 {
 	unsigned char ctrl;
+	void *buf;
 
 	if (data->flags == MMC_DATA_READ)
-		host->start_addr = (dma_addr_t)data->dest;
+		buf = data->dest;
 	else
-		host->start_addr = (dma_addr_t)data->src;
+		buf = (void *)data->src;
 
 	ctrl = sdhci_readb(host, SDHCI_HOST_CONTROL);
 	ctrl &= ~SDHCI_CTRL_DMA_MASK;
@@ -139,16 +136,20 @@ static void sdhci_prepare_dma(struct sdhci_host *host, struct mmc_data *data,
 		ctrl |= SDHCI_CTRL_ADMA32;
 	sdhci_writeb(host, ctrl, SDHCI_HOST_CONTROL);
 
+	if (host->flags & USE_SDMA &&
+	    (host->force_align_buffer ||
+	     (host->quirks & SDHCI_QUIRK_32BIT_DMA_ADDR &&
+	      ((unsigned long)buf & 0x7) != 0x0))) {
+		*is_aligned = 0;
+		if (data->flags != MMC_DATA_READ)
+			memcpy(host->align_buffer, buf, trans_bytes);
+		buf = host->align_buffer;
+	}
+
+	host->start_addr = dma_map_single(buf, trans_bytes,
+					  mmc_get_dma_dir(data));
+
 	if (host->flags & USE_SDMA) {
-		if (host->force_align_buffer ||
-		    (host->quirks & SDHCI_QUIRK_32BIT_DMA_ADDR &&
-		     (host->start_addr & 0x7) != 0x0)) {
-			*is_aligned = 0;
-			host->start_addr = (unsigned long)host->align_buffer;
-			if (data->flags != MMC_DATA_READ)
-				memcpy(host->align_buffer, data->src,
-				       trans_bytes);
-		}
 		sdhci_writel(host, host->start_addr, SDHCI_DMA_ADDRESS);
 	} else if (host->flags & (USE_ADMA | USE_ADMA64)) {
 		sdhci_prepare_adma_table(host, data);
@@ -159,8 +160,6 @@ static void sdhci_prepare_dma(struct sdhci_host *host, struct mmc_data *data,
 			sdhci_writel(host, upper_32_bits(host->adma_addr),
 				     SDHCI_ADMA_ADDRESS_HI);
 	}
-
-	flush_cache(host->start_addr, ROUND(trans_bytes, ARCH_DMA_MINALIGN));
 }
 #else
 static void sdhci_prepare_dma(struct sdhci_host *host, struct mmc_data *data,
