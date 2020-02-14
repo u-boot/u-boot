@@ -215,6 +215,10 @@ static int sdhci_transfer_data(struct sdhci_host *host, struct mmc_data *data)
 			return -ETIMEDOUT;
 		}
 	} while (!(stat & SDHCI_INT_DATA_END));
+
+	dma_unmap_single(host->start_addr, data->blocks * data->blocksize,
+			 mmc_get_dma_dir(data));
+
 	return 0;
 }
 
