@@ -577,7 +577,7 @@ static int __of_parse_phandle_with_args(const struct device_node *np,
 {
 	const __be32 *list, *list_end;
 	int rc = 0, cur_index = 0;
-	uint32_t count = 0;
+	uint32_t count;
 	struct device_node *node = NULL;
 	phandle phandle;
 	int size;
