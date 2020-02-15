@@ -11,8 +11,6 @@
 
 static ulong intel_clk_get_rate(struct clk *clk)
 {
-	ulong rate;
-
 	switch (clk->id) {
 	case CLK_I2C:
 		/* Hard-coded to 133MHz on current platforms */
@@ -20,8 +18,6 @@ static ulong intel_clk_get_rate(struct clk *clk)
 	default:
 		return -ENODEV;
 	}
-
-	return rate;
 }
 
 static struct clk_ops intel_clk_ops = {
