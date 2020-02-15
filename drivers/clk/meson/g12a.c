@@ -804,6 +804,7 @@ static ulong meson_clk_get_rate_by_id(struct clk *clk, unsigned long id)
 		break;
 	case CLKID_PCIE_PLL:
 		rate = meson_pcie_pll_get_rate(clk);
+		break;
 	case CLKID_VPU_0:
 		rate = meson_div_get_rate(clk, CLKID_VPU_0_DIV);
 		break;
