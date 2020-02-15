@@ -143,11 +143,9 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 				goto fail_alloc3;
 			}
 		}
-	}
-
-	/* put dev into parent's successor list */
-	if (parent)
+		/* put dev into parent's successor list */
 		list_add_tail(&dev->sibling_node, &parent->child_head);
+	}
 
 	ret = uclass_bind_device(dev);
 	if (ret)
