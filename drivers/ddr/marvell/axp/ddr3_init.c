@@ -435,10 +435,6 @@ static u32 ddr3_init_main(void)
 #endif
 
 #if defined(ECC_SUPPORT) && defined(AUTO_DETECTION_SUPPORT)
-	ecc = DRAM_ECC;
-#endif
-
-#if defined(ECC_SUPPORT) && defined(AUTO_DETECTION_SUPPORT)
 	ecc = 0;
 	if (ddr3_check_config(BUS_WIDTH_ECC_TWSI_ADDR, CONFIG_ECC))
 		ecc = 1;
