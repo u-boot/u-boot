@@ -82,7 +82,6 @@ static int ics8n3qv01_calc_parameters(uint fout, uint *_mint, uint *_mfrac,
 	uint n, foutiic, fvcoiic, mint;
 	u64 mfrac;
 
-	n = (2215000000U + fout / 2) / fout;
 	if (fout < 417000000U)
 		n = 2 * ((2215000000U / 2 + fout / 2) / fout);
 	else
