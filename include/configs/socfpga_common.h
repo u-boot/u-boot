@@ -94,11 +94,12 @@
  * L4 OSC1 Timer 0
  */
 #ifndef CONFIG_TIMER
-/* This timer uses eosc1, whose clock frequency is fixed at any condition. */
 #define CONFIG_SYS_TIMERBASE		SOCFPGA_OSC1TIMER0_ADDRESS
 #define CONFIG_SYS_TIMER_COUNTS_DOWN
 #define CONFIG_SYS_TIMER_COUNTER	(CONFIG_SYS_TIMERBASE + 0x4)
+#ifndef CONFIG_SYS_TIMER_RATE
 #define CONFIG_SYS_TIMER_RATE		25000000
+#endif
 #endif
 
 /*
