@@ -118,6 +118,10 @@ const struct flash_info spi_nor_ids[] = {
 			SECT_4K | SPI_NOR_DUAL_READ |
 			SPI_NOR_HAS_LOCK | SPI_NOR_HAS_TB)
 	},
+	{
+		INFO("gd25lx256e", 0xc86819, 0, 64 * 1024, 512,
+		     SECT_4K | SPI_NOR_OCTAL_READ | SPI_NOR_4B_OPCODES)
+	},
 #endif
 #ifdef CONFIG_SPI_FLASH_ISSI		/* ISSI */
 	/* ISSI */
