@@ -128,6 +128,17 @@ static int dev_power_domain_ctrl(struct udevice *dev, bool on)
 	}
 
 	/*
+	 * For platforms with parent and child power-domain devices
+	 * we may not run device_remove() on the power-domain parent
+	 * because it will result in removing its children and switching
+	 * off their power-domain parent. So we will get here again and
+	 * again and will be stuck in an endless loop.
+	 */
+	if (!on && dev_get_parent(dev) == pd.dev &&
+	    device_get_uclass_id(dev) == UCLASS_POWER_DOMAIN)
+		return ret;
+
+	/*
 	 * power_domain_get() bound the device, thus
 	 * we must remove it again to prevent unbinding
 	 * active devices (which would result in unbind
