@@ -201,11 +201,6 @@
 		};
 	};
 
-	rst: reset-controller {
-		compatible = "xlnx,zynqmp-reset";
-		#reset-cells = <1>;
-	};
-
 	xlnx_dp_snd_card: dp_snd_card {
 		compatible = "xlnx,dp-snd-card";
 		status = "disabled";
