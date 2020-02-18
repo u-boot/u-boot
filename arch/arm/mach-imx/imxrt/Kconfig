@@ -3,6 +3,10 @@ if ARCH_IMXRT
 config IMXRT
 	bool
 
+config IMXRT1020
+	bool
+	select IMXRT
+
 config IMXRT1050
 	bool
 	select IMXRT
