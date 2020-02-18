@@ -705,33 +705,23 @@
 	status = "okay";
 };
 
-&xilinx_drm {
-	status = "okay";
-	clocks = <&si570_1>;
-};
-
-&xlnx_dp {
+&zynqmp_dpsub {
 	status = "okay";
 };
 
-&xlnx_dp_sub {
-	status = "okay";
-	xlnx,vid-clk-pl;
-};
-
-&xlnx_dp_snd_pcm0 {
+&zynqmp_dp_snd_codec0 {
 	status = "okay";
 };
 
-&xlnx_dp_snd_pcm1 {
+&zynqmp_dp_snd_pcm0 {
 	status = "okay";
 };
 
-&xlnx_dp_snd_card {
+&zynqmp_dp_snd_pcm1 {
 	status = "okay";
 };
 
-&xlnx_dp_snd_codec0 {
+&zynqmp_dp_snd_card0 {
 	status = "okay";
 };
 

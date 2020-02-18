@@ -284,11 +284,15 @@
 	clocks = <&zynqmp_clk AMS_REF>;
 };
 
+&zynqmp_dpsub {
+	clocks = <&dp_aclk>, <&zynqmp_clk DP_AUDIO_REF>, <&zynqmp_clk DP_VIDEO_REF>;
+};
+
 &xlnx_dpdma {
 	clocks = <&zynqmp_clk DPDMA_REF>;
 };
 
-&xlnx_dp_snd_codec0 {
+&zynqmp_dp_snd_codec0 {
 	clocks = <&zynqmp_clk DP_AUDIO_REF>;
 };
 
