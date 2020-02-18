@@ -18,12 +18,17 @@ choice
 	prompt "NXP i.MXRT board select"
 	optional
 
+config TARGET_IMXRT1020_EVK
+	bool "Support imxrt1020 EVK board"
+	select IMXRT1020
+
 config TARGET_IMXRT1050_EVK
 	bool "Support imxrt1050 EVK board"
 	select IMXRT1050
 
 endchoice
 
+source "board/freescale/imxrt1020-evk/Kconfig"
 source "board/freescale/imxrt1050-evk/Kconfig"
 
 endif
