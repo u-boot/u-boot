@@ -12,9 +12,9 @@
 #include <u-boot/crc.h>
 
 #ifdef ENV_IS_EMBEDDED
-env_t *env_ptr = &environment;
+static env_t *env_ptr = &environment;
 #else /* ! ENV_IS_EMBEDDED */
-env_t *env_ptr = (env_t *)CONFIG_ENV_ADDR;
+static env_t *env_ptr = (env_t *)CONFIG_ENV_ADDR;
 #endif /* ENV_IS_EMBEDDED */
 
 DECLARE_GLOBAL_DATA_PTR;
