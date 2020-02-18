@@ -23,7 +23,7 @@ Example:
 {
 	p2sb: p2sb@d,0 {
 		reg = <0x02006810 0 0 0 0>;
-		compatible = "intel,apl-p2sb";
+		compatible = "intel,p2sb";
 		early-regs = <IOMAP_P2SB_BAR 0x100000>;
 
 		n {
