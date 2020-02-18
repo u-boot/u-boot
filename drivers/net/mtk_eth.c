@@ -31,10 +31,12 @@
 #define RX_TOTAL_BUF_SIZE	(NUM_RX_DESC * PKTSIZE_ALIGN)
 #define TOTAL_PKT_BUF_SIZE	(TX_TOTAL_BUF_SIZE + RX_TOTAL_BUF_SIZE)
 
-#define MT7530_NUM_PHYS		5
-#define MT7530_DFL_SMI_ADDR	31
+#define MT753X_NUM_PHYS		5
+#define MT753X_NUM_PORTS	7
+#define MT753X_DFL_SMI_ADDR	31
+#define MT753X_SMI_ADDR_MASK	0x1f
 
-#define MT7530_PHY_ADDR(base, addr) \
+#define MT753X_PHY_ADDR(base, addr) \
 	(((base) + (addr)) & 0x1f)
 
 #define GDMA_FWD_TO_CPU \
@@ -132,7 +134,8 @@ struct pdma_txdesc {
 
 enum mtk_switch {
 	SW_NONE,
-	SW_MT7530
+	SW_MT7530,
+	SW_MT7531
 };
 
 enum mtk_soc {
@@ -174,8 +177,8 @@ struct mtk_eth_priv {
 
 	enum mtk_switch sw;
 	int (*switch_init)(struct mtk_eth_priv *priv);
-	u32 mt7530_smi_addr;
-	u32 mt7530_phy_base;
+	u32 mt753x_smi_addr;
+	u32 mt753x_phy_base;
 
 	struct gpio_desc rst_gpio;
 	int mcm;
@@ -350,6 +353,174 @@ static int mtk_mmd_ind_write(struct mtk_eth_priv *priv, u8 addr, u8 devad,
 	return priv->mii_write(priv, addr, MII_MMD_ADDR_DATA_REG, val);
 }
 
+/*
+ * MT7530 Internal Register Address Bits
+ * -------------------------------------------------------------------
+ * | 15  14  13  12  11  10   9   8   7   6 | 5   4   3   2 | 1   0  |
+ * |----------------------------------------|---------------|--------|
+ * |              Page Address              |  Reg Address  | Unused |
+ * -------------------------------------------------------------------
+ */
+
+static int mt753x_reg_read(struct mtk_eth_priv *priv, u32 reg, u32 *data)
+{
+	int ret, low_word, high_word;
+
+	/* Write page address */
+	ret = mtk_mii_write(priv, priv->mt753x_smi_addr, 0x1f, reg >> 6);
+	if (ret)
+		return ret;
+
+	/* Read low word */
+	low_word = mtk_mii_read(priv, priv->mt753x_smi_addr, (reg >> 2) & 0xf);
+	if (low_word < 0)
+		return low_word;
+
+	/* Read high word */
+	high_word = mtk_mii_read(priv, priv->mt753x_smi_addr, 0x10);
+	if (high_word < 0)
+		return high_word;
+
+	if (data)
+		*data = ((u32)high_word << 16) | (low_word & 0xffff);
+
+	return 0;
+}
+
+static int mt753x_reg_write(struct mtk_eth_priv *priv, u32 reg, u32 data)
+{
+	int ret;
+
+	/* Write page address */
+	ret = mtk_mii_write(priv, priv->mt753x_smi_addr, 0x1f, reg >> 6);
+	if (ret)
+		return ret;
+
+	/* Write low word */
+	ret = mtk_mii_write(priv, priv->mt753x_smi_addr, (reg >> 2) & 0xf,
+			    data & 0xffff);
+	if (ret)
+		return ret;
+
+	/* Write high word */
+	return mtk_mii_write(priv, priv->mt753x_smi_addr, 0x10, data >> 16);
+}
+
+static void mt753x_reg_rmw(struct mtk_eth_priv *priv, u32 reg, u32 clr,
+			   u32 set)
+{
+	u32 val;
+
+	mt753x_reg_read(priv, reg, &val);
+	val &= ~clr;
+	val |= set;
+	mt753x_reg_write(priv, reg, val);
+}
+
+/* Indirect MDIO clause 22/45 access */
+static int mt7531_mii_rw(struct mtk_eth_priv *priv, int phy, int reg, u16 data,
+			 u32 cmd, u32 st)
+{
+	ulong timeout;
+	u32 val, timeout_ms;
+	int ret = 0;
+
+	val = (st << MDIO_ST_S) |
+	      ((cmd << MDIO_CMD_S) & MDIO_CMD_M) |
+	      ((phy << MDIO_PHY_ADDR_S) & MDIO_PHY_ADDR_M) |
+	      ((reg << MDIO_REG_ADDR_S) & MDIO_REG_ADDR_M);
+
+	if (cmd == MDIO_CMD_WRITE || cmd == MDIO_CMD_ADDR)
+		val |= data & MDIO_RW_DATA_M;
+
+	mt753x_reg_write(priv, MT7531_PHY_IAC, val | PHY_ACS_ST);
+
+	timeout_ms = 100;
+	timeout = get_timer(0);
+	while (1) {
+		mt753x_reg_read(priv, MT7531_PHY_IAC, &val);
+
+		if ((val & PHY_ACS_ST) == 0)
+			break;
+
+		if (get_timer(timeout) > timeout_ms)
+			return -ETIMEDOUT;
+	}
+
+	if (cmd == MDIO_CMD_READ || cmd == MDIO_CMD_READ_C45) {
+		mt753x_reg_read(priv, MT7531_PHY_IAC, &val);
+		ret = val & MDIO_RW_DATA_M;
+	}
+
+	return ret;
+}
+
+static int mt7531_mii_ind_read(struct mtk_eth_priv *priv, u8 phy, u8 reg)
+{
+	u8 phy_addr;
+
+	if (phy >= MT753X_NUM_PHYS)
+		return -EINVAL;
+
+	phy_addr = MT753X_PHY_ADDR(priv->mt753x_phy_base, phy);
+
+	return mt7531_mii_rw(priv, phy_addr, reg, 0, MDIO_CMD_READ,
+			     MDIO_ST_C22);
+}
+
+static int mt7531_mii_ind_write(struct mtk_eth_priv *priv, u8 phy, u8 reg,
+				u16 val)
+{
+	u8 phy_addr;
+
+	if (phy >= MT753X_NUM_PHYS)
+		return -EINVAL;
+
+	phy_addr = MT753X_PHY_ADDR(priv->mt753x_phy_base, phy);
+
+	return mt7531_mii_rw(priv, phy_addr, reg, val, MDIO_CMD_WRITE,
+			     MDIO_ST_C22);
+}
+
+int mt7531_mmd_ind_read(struct mtk_eth_priv *priv, u8 addr, u8 devad, u16 reg)
+{
+	u8 phy_addr;
+	int ret;
+
+	if (addr >= MT753X_NUM_PHYS)
+		return -EINVAL;
+
+	phy_addr = MT753X_PHY_ADDR(priv->mt753x_phy_base, addr);
+
+	ret = mt7531_mii_rw(priv, phy_addr, devad, reg, MDIO_CMD_ADDR,
+			    MDIO_ST_C45);
+	if (ret)
+		return ret;
+
+	return mt7531_mii_rw(priv, phy_addr, devad, 0, MDIO_CMD_READ_C45,
+			     MDIO_ST_C45);
+}
+
+static int mt7531_mmd_ind_write(struct mtk_eth_priv *priv, u8 addr, u8 devad,
+				u16 reg, u16 val)
+{
+	u8 phy_addr;
+	int ret;
+
+	if (addr >= MT753X_NUM_PHYS)
+		return 0;
+
+	phy_addr = MT753X_PHY_ADDR(priv->mt753x_phy_base, addr);
+
+	ret = mt7531_mii_rw(priv, phy_addr, devad, reg, MDIO_CMD_ADDR,
+			    MDIO_ST_C45);
+	if (ret)
+		return ret;
+
+	return mt7531_mii_rw(priv, phy_addr, devad, val, MDIO_CMD_WRITE,
+			     MDIO_ST_C45);
+}
+
 static int mtk_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
 {
 	struct mtk_eth_priv *priv = bus->priv;
@@ -388,6 +559,12 @@ static int mtk_mdio_register(struct udevice *dev)
 		priv->mmd_read = mtk_mmd_ind_read;
 		priv->mmd_write = mtk_mmd_ind_write;
 		break;
+	case SW_MT7531:
+		priv->mii_read = mt7531_mii_ind_read;
+		priv->mii_write = mt7531_mii_ind_write;
+		priv->mmd_read = mt7531_mmd_ind_read;
+		priv->mmd_write = mt7531_mmd_ind_write;
+		break;
 	default:
 		priv->mii_read = mtk_mii_read;
 		priv->mii_write = mtk_mii_write;
@@ -411,75 +588,18 @@ static int mtk_mdio_register(struct udevice *dev)
 	return 0;
 }
 
-/*
- * MT7530 Internal Register Address Bits
- * -------------------------------------------------------------------
- * | 15  14  13  12  11  10   9   8   7   6 | 5   4   3   2 | 1   0  |
- * |----------------------------------------|---------------|--------|
- * |              Page Address              |  Reg Address  | Unused |
- * -------------------------------------------------------------------
- */
-
-static int mt7530_reg_read(struct mtk_eth_priv *priv, u32 reg, u32 *data)
+static int mt753x_core_reg_read(struct mtk_eth_priv *priv, u32 reg)
 {
-	int ret, low_word, high_word;
+	u8 phy_addr = MT753X_PHY_ADDR(priv->mt753x_phy_base, 0);
 
-	/* Write page address */
-	ret = mtk_mii_write(priv, priv->mt7530_smi_addr, 0x1f, reg >> 6);
-	if (ret)
-		return ret;
-
-	/* Read low word */
-	low_word = mtk_mii_read(priv, priv->mt7530_smi_addr, (reg >> 2) & 0xf);
-	if (low_word < 0)
-		return low_word;
-
-	/* Read high word */
-	high_word = mtk_mii_read(priv, priv->mt7530_smi_addr, 0x10);
-	if (high_word < 0)
-		return high_word;
-
-	if (data)
-		*data = ((u32)high_word << 16) | (low_word & 0xffff);
-
-	return 0;
+	return priv->mmd_read(priv, phy_addr, 0x1f, reg);
 }
 
-static int mt7530_reg_write(struct mtk_eth_priv *priv, u32 reg, u32 data)
+static void mt753x_core_reg_write(struct mtk_eth_priv *priv, u32 reg, u32 val)
 {
-	int ret;
+	u8 phy_addr = MT753X_PHY_ADDR(priv->mt753x_phy_base, 0);
 
-	/* Write page address */
-	ret = mtk_mii_write(priv, priv->mt7530_smi_addr, 0x1f, reg >> 6);
-	if (ret)
-		return ret;
-
-	/* Write low word */
-	ret = mtk_mii_write(priv, priv->mt7530_smi_addr, (reg >> 2) & 0xf,
-			    data & 0xffff);
-	if (ret)
-		return ret;
-
-	/* Write high word */
-	return mtk_mii_write(priv, priv->mt7530_smi_addr, 0x10, data >> 16);
-}
-
-static void mt7530_reg_rmw(struct mtk_eth_priv *priv, u32 reg, u32 clr,
-			   u32 set)
-{
-	u32 val;
-
-	mt7530_reg_read(priv, reg, &val);
-	val &= ~clr;
-	val |= set;
-	mt7530_reg_write(priv, reg, val);
-}
-
-static void mt7530_core_reg_write(struct mtk_eth_priv *priv, u32 reg, u32 val)
-{
-	u8 phy_addr = MT7530_PHY_ADDR(priv->mt7530_phy_base, 0);
-
-	mtk_mmd_ind_write(priv, phy_addr, 0x1f, reg, val);
+	priv->mmd_write(priv, phy_addr, 0x1f, reg, val);
 }
 
 static int mt7530_pad_clk_setup(struct mtk_eth_priv *priv, int mode)
@@ -497,46 +617,46 @@ static int mt7530_pad_clk_setup(struct mtk_eth_priv *priv, int mode)
 	}
 
 	/* Disable MT7530 core clock */
-	mt7530_core_reg_write(priv, CORE_TRGMII_GSW_CLK_CG, 0);
+	mt753x_core_reg_write(priv, CORE_TRGMII_GSW_CLK_CG, 0);
 
 	/* Disable MT7530 PLL */
-	mt7530_core_reg_write(priv, CORE_GSWPLL_GRP1,
+	mt753x_core_reg_write(priv, CORE_GSWPLL_GRP1,
 			      (2 << RG_GSWPLL_POSDIV_200M_S) |
 			      (32 << RG_GSWPLL_FBKDIV_200M_S));
 
 	/* For MT7530 core clock = 500Mhz */
-	mt7530_core_reg_write(priv, CORE_GSWPLL_GRP2,
+	mt753x_core_reg_write(priv, CORE_GSWPLL_GRP2,
 			      (1 << RG_GSWPLL_POSDIV_500M_S) |
 			      (25 << RG_GSWPLL_FBKDIV_500M_S));
 
 	/* Enable MT7530 PLL */
-	mt7530_core_reg_write(priv, CORE_GSWPLL_GRP1,
+	mt753x_core_reg_write(priv, CORE_GSWPLL_GRP1,
 			      (2 << RG_GSWPLL_POSDIV_200M_S) |
 			      (32 << RG_GSWPLL_FBKDIV_200M_S) |
 			      RG_GSWPLL_EN_PRE);
 
 	udelay(20);
 
-	mt7530_core_reg_write(priv, CORE_TRGMII_GSW_CLK_CG, REG_GSWCK_EN);
+	mt753x_core_reg_write(priv, CORE_TRGMII_GSW_CLK_CG, REG_GSWCK_EN);
 
 	/* Setup the MT7530 TRGMII Tx Clock */
-	mt7530_core_reg_write(priv, CORE_PLL_GROUP5, ncpo1);
-	mt7530_core_reg_write(priv, CORE_PLL_GROUP6, 0);
-	mt7530_core_reg_write(priv, CORE_PLL_GROUP10, ssc_delta);
-	mt7530_core_reg_write(priv, CORE_PLL_GROUP11, ssc_delta);
-	mt7530_core_reg_write(priv, CORE_PLL_GROUP4, RG_SYSPLL_DDSFBK_EN |
+	mt753x_core_reg_write(priv, CORE_PLL_GROUP5, ncpo1);
+	mt753x_core_reg_write(priv, CORE_PLL_GROUP6, 0);
+	mt753x_core_reg_write(priv, CORE_PLL_GROUP10, ssc_delta);
+	mt753x_core_reg_write(priv, CORE_PLL_GROUP11, ssc_delta);
+	mt753x_core_reg_write(priv, CORE_PLL_GROUP4, RG_SYSPLL_DDSFBK_EN |
 			      RG_SYSPLL_BIAS_EN | RG_SYSPLL_BIAS_LPF_EN);
 
-	mt7530_core_reg_write(priv, CORE_PLL_GROUP2,
+	mt753x_core_reg_write(priv, CORE_PLL_GROUP2,
 			      RG_SYSPLL_EN_NORMAL | RG_SYSPLL_VODEN |
 			      (1 << RG_SYSPLL_POSDIV_S));
 
-	mt7530_core_reg_write(priv, CORE_PLL_GROUP7,
+	mt753x_core_reg_write(priv, CORE_PLL_GROUP7,
 			      RG_LCDDS_PCW_NCPO_CHG | (3 << RG_LCCDS_C_S) |
 			      RG_LCDDS_PWDB | RG_LCDDS_ISO_EN);
 
 	/* Enable MT7530 core clock */
-	mt7530_core_reg_write(priv, CORE_TRGMII_GSW_CLK_CG,
+	mt753x_core_reg_write(priv, CORE_TRGMII_GSW_CLK_CG,
 			      REG_GSWCK_EN | REG_TRGMIICK_EN);
 
 	return 0;
@@ -552,6 +672,285 @@ static int mt7530_setup(struct mtk_eth_priv *priv)
 	mtk_ethsys_rmw(priv, ETHSYS_CLKCFG0_REG,
 		       ETHSYS_TRGMII_CLK_SEL362_5, 0);
 
+	/* Modify HWTRAP first to allow direct access to internal PHYs */
+	mt753x_reg_read(priv, HWTRAP_REG, &val);
+	val |= CHG_TRAP;
+	val &= ~C_MDIO_BPS;
+	mt753x_reg_write(priv, MHWTRAP_REG, val);
+
+	/* Calculate the phy base address */
+	val = ((val & SMI_ADDR_M) >> SMI_ADDR_S) << 3;
+	priv->mt753x_phy_base = (val | 0x7) + 1;
+
+	/* Turn off PHYs */
+	for (i = 0; i < MT753X_NUM_PHYS; i++) {
+		phy_addr = MT753X_PHY_ADDR(priv->mt753x_phy_base, i);
+		phy_val = priv->mii_read(priv, phy_addr, MII_BMCR);
+		phy_val |= BMCR_PDOWN;
+		priv->mii_write(priv, phy_addr, MII_BMCR, phy_val);
+	}
+
+	/* Force MAC link down before reset */
+	mt753x_reg_write(priv, PMCR_REG(5), FORCE_MODE);
+	mt753x_reg_write(priv, PMCR_REG(6), FORCE_MODE);
+
+	/* MT7530 reset */
+	mt753x_reg_write(priv, SYS_CTRL_REG, SW_SYS_RST | SW_REG_RST);
+	udelay(100);
+
+	val = (IPG_96BIT_WITH_SHORT_IPG << IPG_CFG_S) |
+	      MAC_MODE | FORCE_MODE |
+	      MAC_TX_EN | MAC_RX_EN |
+	      BKOFF_EN | BACKPR_EN |
+	      (SPEED_1000M << FORCE_SPD_S) |
+	      FORCE_DPX | FORCE_LINK;
+
+	/* MT7530 Port6: Forced 1000M/FD, FC disabled */
+	mt753x_reg_write(priv, PMCR_REG(6), val);
+
+	/* MT7530 Port5: Forced link down */
+	mt753x_reg_write(priv, PMCR_REG(5), FORCE_MODE);
+
+	/* MT7530 Port6: Set to RGMII */
+	mt753x_reg_rmw(priv, MT7530_P6ECR, P6_INTF_MODE_M, P6_INTF_MODE_RGMII);
+
+	/* Hardware Trap: Enable Port6, Disable Port5 */
+	mt753x_reg_read(priv, HWTRAP_REG, &val);
+	val |= CHG_TRAP | LOOPDET_DIS | P5_INTF_DIS |
+	       (P5_INTF_SEL_GMAC5 << P5_INTF_SEL_S) |
+	       (P5_INTF_MODE_RGMII << P5_INTF_MODE_S);
+	val &= ~(C_MDIO_BPS | P6_INTF_DIS);
+	mt753x_reg_write(priv, MHWTRAP_REG, val);
+
+	/* Setup switch core pll */
+	mt7530_pad_clk_setup(priv, priv->phy_interface);
+
+	/* Lower Tx Driving for TRGMII path */
+	for (i = 0 ; i < NUM_TRGMII_CTRL ; i++)
+		mt753x_reg_write(priv, MT7530_TRGMII_TD_ODT(i),
+				 (8 << TD_DM_DRVP_S) | (8 << TD_DM_DRVN_S));
+
+	for (i = 0 ; i < NUM_TRGMII_CTRL; i++)
+		mt753x_reg_rmw(priv, MT7530_TRGMII_RD(i), RD_TAP_M, 16);
+
+	/* Turn on PHYs */
+	for (i = 0; i < MT753X_NUM_PHYS; i++) {
+		phy_addr = MT753X_PHY_ADDR(priv->mt753x_phy_base, i);
+		phy_val = priv->mii_read(priv, phy_addr, MII_BMCR);
+		phy_val &= ~BMCR_PDOWN;
+		priv->mii_write(priv, phy_addr, MII_BMCR, phy_val);
+	}
+
+	return 0;
+}
+
+static void mt7531_core_pll_setup(struct mtk_eth_priv *priv, int mcm)
+{
+	/* Step 1 : Disable MT7531 COREPLL */
+	mt753x_reg_rmw(priv, MT7531_PLLGP_EN, EN_COREPLL, 0);
+
+	/* Step 2: switch to XTAL output */
+	mt753x_reg_rmw(priv, MT7531_PLLGP_EN, SW_CLKSW, SW_CLKSW);
+
+	mt753x_reg_rmw(priv, MT7531_PLLGP_CR0, RG_COREPLL_EN, 0);
+
+	/* Step 3: disable PLLGP and enable program PLLGP */
+	mt753x_reg_rmw(priv, MT7531_PLLGP_EN, SW_PLLGP, SW_PLLGP);
+
+	/* Step 4: program COREPLL output frequency to 500MHz */
+	mt753x_reg_rmw(priv, MT7531_PLLGP_CR0, RG_COREPLL_POSDIV_M,
+		       2 << RG_COREPLL_POSDIV_S);
+	udelay(25);
+
+	/* Currently, support XTAL 25Mhz only */
+	mt753x_reg_rmw(priv, MT7531_PLLGP_CR0, RG_COREPLL_SDM_PCW_M,
+		       0x140000 << RG_COREPLL_SDM_PCW_S);
+
+	/* Set feedback divide ratio update signal to high */
+	mt753x_reg_rmw(priv, MT7531_PLLGP_CR0, RG_COREPLL_SDM_PCW_CHG,
+		       RG_COREPLL_SDM_PCW_CHG);
+
+	/* Wait for at least 16 XTAL clocks */
+	udelay(10);
+
+	/* Step 5: set feedback divide ratio update signal to low */
+	mt753x_reg_rmw(priv, MT7531_PLLGP_CR0, RG_COREPLL_SDM_PCW_CHG, 0);
+
+	/* add enable 325M clock for SGMII */
+	mt753x_reg_write(priv, MT7531_ANA_PLLGP_CR5, 0xad0000);
+
+	/* add enable 250SSC clock for RGMII */
+	mt753x_reg_write(priv, MT7531_ANA_PLLGP_CR2, 0x4f40000);
+
+	/*Step 6: Enable MT7531 PLL */
+	mt753x_reg_rmw(priv, MT7531_PLLGP_CR0, RG_COREPLL_EN, RG_COREPLL_EN);
+
+	mt753x_reg_rmw(priv, MT7531_PLLGP_EN, EN_COREPLL, EN_COREPLL);
+
+	udelay(25);
+}
+
+static int mt7531_port_sgmii_init(struct mtk_eth_priv *priv,
+				  u32 port)
+{
+	if (port != 5 && port != 6) {
+		printf("mt7531: port %d is not a SGMII port\n", port);
+		return -EINVAL;
+	}
+
+	/* Set SGMII GEN2 speed(2.5G) */
+	mt753x_reg_rmw(priv, MT7531_PHYA_CTRL_SIGNAL3(port),
+		       SGMSYS_SPEED_2500, SGMSYS_SPEED_2500);
+
+	/* Disable SGMII AN */
+	mt753x_reg_rmw(priv, MT7531_PCS_CONTROL_1(port),
+		       SGMII_AN_ENABLE, 0);
+
+	/* SGMII force mode setting */
+	mt753x_reg_write(priv, MT7531_SGMII_MODE(port), SGMII_FORCE_MODE);
+
+	/* Release PHYA power down state */
+	mt753x_reg_rmw(priv, MT7531_QPHY_PWR_STATE_CTRL(port),
+		       SGMII_PHYA_PWD, 0);
+
+	return 0;
+}
+
+static int mt7531_port_rgmii_init(struct mtk_eth_priv *priv, u32 port)
+{
+	u32 val;
+
+	if (port != 5) {
+		printf("error: RGMII mode is not available for port %d\n",
+		       port);
+		return -EINVAL;
+	}
+
+	mt753x_reg_read(priv, MT7531_CLKGEN_CTRL, &val);
+	val |= GP_CLK_EN;
+	val &= ~GP_MODE_M;
+	val |= GP_MODE_RGMII << GP_MODE_S;
+	val |= TXCLK_NO_REVERSE;
+	val |= RXCLK_NO_DELAY;
+	val &= ~CLK_SKEW_IN_M;
+	val |= CLK_SKEW_IN_NO_CHANGE << CLK_SKEW_IN_S;
+	val &= ~CLK_SKEW_OUT_M;
+	val |= CLK_SKEW_OUT_NO_CHANGE << CLK_SKEW_OUT_S;
+	mt753x_reg_write(priv, MT7531_CLKGEN_CTRL, val);
+
+	return 0;
+}
+
+static void mt7531_phy_setting(struct mtk_eth_priv *priv)
+{
+	int i;
+	u32 val;
+
+	for (i = 0; i < MT753X_NUM_PHYS; i++) {
+		/* Enable HW auto downshift */
+		priv->mii_write(priv, i, 0x1f, 0x1);
+		val = priv->mii_read(priv, i, PHY_EXT_REG_14);
+		val |= PHY_EN_DOWN_SHFIT;
+		priv->mii_write(priv, i, PHY_EXT_REG_14, val);
+
+		/* PHY link down power saving enable */
+		val = priv->mii_read(priv, i, PHY_EXT_REG_17);
+		val |= PHY_LINKDOWN_POWER_SAVING_EN;
+		priv->mii_write(priv, i, PHY_EXT_REG_17, val);
+
+		val = priv->mmd_read(priv, i, 0x1e, PHY_DEV1E_REG_0C6);
+		val &= ~PHY_POWER_SAVING_M;
+		val |= PHY_POWER_SAVING_TX << PHY_POWER_SAVING_S;
+		priv->mmd_write(priv, i, 0x1e, PHY_DEV1E_REG_0C6, val);
+	}
+}
+
+static int mt7531_setup(struct mtk_eth_priv *priv)
+{
+	u16 phy_addr, phy_val;
+	u32 val;
+	u32 pmcr;
+	u32 port5_sgmii;
+	int i;
+
+	priv->mt753x_phy_base = (priv->mt753x_smi_addr + 1) &
+				MT753X_SMI_ADDR_MASK;
+
+	/* Turn off PHYs */
+	for (i = 0; i < MT753X_NUM_PHYS; i++) {
+		phy_addr = MT753X_PHY_ADDR(priv->mt753x_phy_base, i);
+		phy_val = priv->mii_read(priv, phy_addr, MII_BMCR);
+		phy_val |= BMCR_PDOWN;
+		priv->mii_write(priv, phy_addr, MII_BMCR, phy_val);
+	}
+
+	/* Force MAC link down before reset */
+	mt753x_reg_write(priv, PMCR_REG(5), FORCE_MODE_LNK);
+	mt753x_reg_write(priv, PMCR_REG(6), FORCE_MODE_LNK);
+
+	/* Switch soft reset */
+	mt753x_reg_write(priv, SYS_CTRL_REG, SW_SYS_RST | SW_REG_RST);
+	udelay(100);
+
+	/* Enable MDC input Schmitt Trigger */
+	mt753x_reg_rmw(priv, MT7531_SMT0_IOLB, SMT_IOLB_5_SMI_MDC_EN,
+		       SMT_IOLB_5_SMI_MDC_EN);
+
+	mt7531_core_pll_setup(priv, priv->mcm);
+
+	mt753x_reg_read(priv, MT7531_TOP_SIG_SR, &val);
+	port5_sgmii = !!(val & PAD_DUAL_SGMII_EN);
+
+	/* port5 support either RGMII or SGMII, port6 only support SGMII. */
+	switch (priv->phy_interface) {
+	case PHY_INTERFACE_MODE_RGMII:
+		if (!port5_sgmii)
+			mt7531_port_rgmii_init(priv, 5);
+		break;
+	case PHY_INTERFACE_MODE_SGMII:
+		mt7531_port_sgmii_init(priv, 6);
+		if (port5_sgmii)
+			mt7531_port_sgmii_init(priv, 5);
+		break;
+	default:
+		break;
+	}
+
+	pmcr = MT7531_FORCE_MODE |
+	       (IPG_96BIT_WITH_SHORT_IPG << IPG_CFG_S) |
+	       MAC_MODE | MAC_TX_EN | MAC_RX_EN |
+	       BKOFF_EN | BACKPR_EN |
+	       FORCE_RX_FC | FORCE_TX_FC |
+	       (SPEED_1000M << FORCE_SPD_S) | FORCE_DPX |
+	       FORCE_LINK;
+
+	mt753x_reg_write(priv, PMCR_REG(5), pmcr);
+	mt753x_reg_write(priv, PMCR_REG(6), pmcr);
+
+	/* Turn on PHYs */
+	for (i = 0; i < MT753X_NUM_PHYS; i++) {
+		phy_addr = MT753X_PHY_ADDR(priv->mt753x_phy_base, i);
+		phy_val = priv->mii_read(priv, phy_addr, MII_BMCR);
+		phy_val &= ~BMCR_PDOWN;
+		priv->mii_write(priv, phy_addr, MII_BMCR, phy_val);
+	}
+
+	mt7531_phy_setting(priv);
+
+	/* Enable Internal PHYs */
+	val = mt753x_core_reg_read(priv, CORE_PLL_GROUP4);
+	val |= MT7531_BYPASS_MODE;
+	val &= ~MT7531_POWER_ON_OFF;
+	mt753x_core_reg_write(priv, CORE_PLL_GROUP4, val);
+
+	return 0;
+}
+
+int mt753x_switch_init(struct mtk_eth_priv *priv)
+{
+	int ret;
+	int i;
+
 	/* Global reset switch */
 	if (priv->mcm) {
 		reset_assert(&priv->rst_mcm);
@@ -565,87 +964,22 @@ static int mt7530_setup(struct mtk_eth_priv *priv)
 		mdelay(1000);
 	}
 
-	/* Modify HWTRAP first to allow direct access to internal PHYs */
-	mt7530_reg_read(priv, HWTRAP_REG, &val);
-	val |= CHG_TRAP;
-	val &= ~C_MDIO_BPS;
-	mt7530_reg_write(priv, MHWTRAP_REG, val);
-
-	/* Calculate the phy base address */
-	val = ((val & SMI_ADDR_M) >> SMI_ADDR_S) << 3;
-	priv->mt7530_phy_base = (val | 0x7) + 1;
-
-	/* Turn off PHYs */
-	for (i = 0; i < MT7530_NUM_PHYS; i++) {
-		phy_addr = MT7530_PHY_ADDR(priv->mt7530_phy_base, i);
-		phy_val = priv->mii_read(priv, phy_addr, MII_BMCR);
-		phy_val |= BMCR_PDOWN;
-		priv->mii_write(priv, phy_addr, MII_BMCR, phy_val);
-	}
-
-	/* Force MAC link down before reset */
-	mt7530_reg_write(priv, PCMR_REG(5), FORCE_MODE);
-	mt7530_reg_write(priv, PCMR_REG(6), FORCE_MODE);
-
-	/* MT7530 reset */
-	mt7530_reg_write(priv, SYS_CTRL_REG, SW_SYS_RST | SW_REG_RST);
-	udelay(100);
-
-	val = (1 << IPG_CFG_S) |
-	      MAC_MODE | FORCE_MODE |
-	      MAC_TX_EN | MAC_RX_EN |
-	      BKOFF_EN | BACKPR_EN |
-	      (SPEED_1000M << FORCE_SPD_S) |
-	      FORCE_DPX | FORCE_LINK;
-
-	/* MT7530 Port6: Forced 1000M/FD, FC disabled */
-	mt7530_reg_write(priv, PCMR_REG(6), val);
-
-	/* MT7530 Port5: Forced link down */
-	mt7530_reg_write(priv, PCMR_REG(5), FORCE_MODE);
-
-	/* MT7530 Port6: Set to RGMII */
-	mt7530_reg_rmw(priv, MT7530_P6ECR, P6_INTF_MODE_M, P6_INTF_MODE_RGMII);
-
-	/* Hardware Trap: Enable Port6, Disable Port5 */
-	mt7530_reg_read(priv, HWTRAP_REG, &val);
-	val |= CHG_TRAP | LOOPDET_DIS | P5_INTF_DIS |
-	       (P5_INTF_SEL_GMAC5 << P5_INTF_SEL_S) |
-	       (P5_INTF_MODE_RGMII << P5_INTF_MODE_S);
-	val &= ~(C_MDIO_BPS | P6_INTF_DIS);
-	mt7530_reg_write(priv, MHWTRAP_REG, val);
-
-	/* Setup switch core pll */
-	mt7530_pad_clk_setup(priv, priv->phy_interface);
-
-	/* Lower Tx Driving for TRGMII path */
-	for (i = 0 ; i < NUM_TRGMII_CTRL ; i++)
-		mt7530_reg_write(priv, MT7530_TRGMII_TD_ODT(i),
-				 (8 << TD_DM_DRVP_S) | (8 << TD_DM_DRVN_S));
-
-	for (i = 0 ; i < NUM_TRGMII_CTRL; i++)
-		mt7530_reg_rmw(priv, MT7530_TRGMII_RD(i), RD_TAP_M, 16);
-
-	/* Turn on PHYs */
-	for (i = 0; i < MT7530_NUM_PHYS; i++) {
-		phy_addr = MT7530_PHY_ADDR(priv->mt7530_phy_base, i);
-		phy_val = priv->mii_read(priv, phy_addr, MII_BMCR);
-		phy_val &= ~BMCR_PDOWN;
-		priv->mii_write(priv, phy_addr, MII_BMCR, phy_val);
-	}
+	ret = priv->switch_init(priv);
+	if (ret)
+		return ret;
 
 	/* Set port isolation */
-	for (i = 0; i < 8; i++) {
+	for (i = 0; i < MT753X_NUM_PORTS; i++) {
 		/* Set port matrix mode */
 		if (i != 6)
-			mt7530_reg_write(priv, PCR_REG(i),
+			mt753x_reg_write(priv, PCR_REG(i),
 					 (0x40 << PORT_MATRIX_S));
 		else
-			mt7530_reg_write(priv, PCR_REG(i),
+			mt753x_reg_write(priv, PCR_REG(i),
 					 (0x3f << PORT_MATRIX_S));
 
 		/* Set port mode to user port */
-		mt7530_reg_write(priv, PVC_REG(i),
+		mt753x_reg_write(priv, PVC_REG(i),
 				 (0x8100 << STAG_VPID_S) |
 				 (VLAN_ATTR_USER << VLAN_ATTR_S));
 	}
@@ -659,7 +993,7 @@ static void mtk_phy_link_adjust(struct mtk_eth_priv *priv)
 	u8 flowctrl;
 	u32 mcr;
 
-	mcr = (1 << IPG_CFG_S) |
+	mcr = (IPG_96BIT_WITH_SHORT_IPG << IPG_CFG_S) |
 	      (MAC_RX_PKT_LEN_1536 << MAC_RX_PKT_LEN_S) |
 	      MAC_MODE | FORCE_MODE |
 	      MAC_TX_EN | MAC_RX_EN |
@@ -804,7 +1138,7 @@ static void mtk_mac_init(struct mtk_eth_priv *priv)
 		       ge_mode << SYSCFG0_GE_MODE_S(priv->gmac_id));
 
 	if (priv->force_mode) {
-		mcr = (1 << IPG_CFG_S) |
+		mcr = (IPG_96BIT_WITH_SHORT_IPG << IPG_CFG_S) |
 		      (MAC_RX_PKT_LEN_1536 << MAC_RX_PKT_LEN_S) |
 		      MAC_MODE | FORCE_MODE |
 		      MAC_TX_EN | MAC_RX_EN |
@@ -1051,7 +1385,7 @@ static int mtk_eth_probe(struct udevice *dev)
 		return mtk_phy_probe(dev);
 
 	/* Initialize switch */
-	return priv->switch_init(priv);
+	return mt753x_switch_init(priv);
 }
 
 static int mtk_eth_remove(struct udevice *dev)
@@ -1160,7 +1494,11 @@ static int mtk_eth_ofdata_to_platdata(struct udevice *dev)
 		if (!strcmp(str, "mt7530")) {
 			priv->sw = SW_MT7530;
 			priv->switch_init = mt7530_setup;
-			priv->mt7530_smi_addr = MT7530_DFL_SMI_ADDR;
+			priv->mt753x_smi_addr = MT753X_DFL_SMI_ADDR;
+		} else if (!strcmp(str, "mt7531")) {
+			priv->sw = SW_MT7531;
+			priv->switch_init = mt7531_setup;
+			priv->mt753x_smi_addr = MT753X_DFL_SMI_ADDR;
 		} else {
 			printf("error: unsupported switch\n");
 			return -EINVAL;
