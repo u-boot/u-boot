@@ -791,6 +791,8 @@
 			power-domains = <&zynqmp_firmware PD_SD_0>;
 			nvmem-cells = <&soc_revision>;
 			nvmem-cell-names = "soc_revision";
+			#clock-cells = <1>;
+			clock-output-names = "clk_out_sd0", "clk_in_sd0";
 		};
 
 		sdhci1: mmc@ff170000 {
@@ -807,6 +809,8 @@
 			power-domains = <&zynqmp_firmware PD_SD_1>;
 			nvmem-cells = <&soc_revision>;
 			nvmem-cell-names = "soc_revision";
+			#clock-cells = <1>;
+			clock-output-names = "clk_out_sd1", "clk_in_sd1";
 		};
 
 		pinctrl0: pinctrl@ff180000 {
