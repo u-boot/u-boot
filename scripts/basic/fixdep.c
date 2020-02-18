@@ -262,7 +262,7 @@ static void parse_config_file(const char *map, size_t len)
 		    (q - p == 3 && !memcmp(p, "VAL(", 4))) {
 			p = q + 1;
 			for (q = p; q < map + len; q++)
-				if (*q == ')')
+				if (!(isalnum(*q) || *q == '_'))
 					goto found2;
 			continue;
 
