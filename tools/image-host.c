@@ -12,7 +12,6 @@
 #include <bootm.h>
 #include <image.h>
 #include <version.h>
-#include <uboot_aes.h>
 
 /**
  * fit_set_hash_value - set hash value in requested has node
