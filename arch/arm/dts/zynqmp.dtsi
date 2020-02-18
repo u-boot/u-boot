@@ -167,6 +167,11 @@
 				compatible = "xlnx,zynqmp-reset";
 				#reset-cells = <1>;
 			};
+
+			pinctrl0: pinctrl {
+				compatible = "xlnx,zynqmp-pinctrl";
+				status = "disabled";
+			};
 		};
 	};
 
@@ -763,12 +768,6 @@
 			nvmem-cell-names = "soc_revision";
 			#clock-cells = <1>;
 			clock-output-names = "clk_out_sd1", "clk_in_sd1";
-		};
-
-		pinctrl0: pinctrl@ff180000 {
-			compatible = "xlnx,pinctrl-zynqmp";
-			status = "disabled";
-			reg = <0x0 0xff180000 0x0 0x1000>;
 		};
 
 		smmu: smmu@fd800000 {
