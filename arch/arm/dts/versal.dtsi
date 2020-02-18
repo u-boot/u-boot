@@ -368,6 +368,8 @@
 			clock-names = "clk_xin", "clk_ahb";
 			xlnx,device_id = <0>;
 			#stream-id-cells = <1>;
+			#clock-cells = <1>;
+			clock-output-names = "clk_out_sd0", "clk_in_sd0";
 			/* iommus = <&smmu 0x242>; */
 			/* dma-coherent; */
 		};
@@ -380,6 +382,8 @@
 			clock-names = "clk_xin", "clk_ahb";
 			xlnx,device_id = <1>;
 			#stream-id-cells = <1>;
+			#clock-cells = <1>;
+			clock-output-names = "clk_out_sd1", "clk_in_sd1";
 			/* iommus = <&smmu 0x243>; */
 			/* dma-coherent; */
 		};
