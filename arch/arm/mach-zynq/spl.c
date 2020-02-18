@@ -6,6 +6,7 @@
 #include <debug_uart.h>
 #include <hang.h>
 #include <spl.h>
+#include <generated/dt.h>
 
 #include <asm/io.h>
 #include <asm/spl.h>
@@ -89,8 +90,11 @@ void spl_board_prepare_for_boot(void)
 int board_fit_config_name_match(const char *name)
 {
 	/* Just empty function now - can't decide what to choose */
-	debug("%s: %s\n", __func__, name);
+	debug("%s: Check %s, default %s\n", __func__, name, DEVICE_TREE);
 
-	return 0;
+	if (!strcmp(name, DEVICE_TREE))
+		return 0;
+
+	return -1;
 }
 #endif
