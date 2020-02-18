@@ -16,6 +16,8 @@ Optional:
    The resulting transfer speed can be adjusted by setting the delay[us]
    between gpio-toggle operations. Speed [Hz] = 1000000 / 4 * udelay[us],
    It not defined, then default is 5us (~50KHz).
+* i2c-gpio,deblock
+   Run deblocking sequence when the driver gets probed.
 
 Example:
 
