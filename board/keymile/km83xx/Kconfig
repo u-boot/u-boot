@@ -57,25 +57,6 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 
 endif
 
-if TARGET_SUVD3
-
-config SYS_BOARD
-	default "km83xx"
-
-config SYS_VENDOR
-	default "keymile"
-
-config SYS_CONFIG_NAME
-	default "suvd3"
-
-config BOARD_SPECIFIC_OPTIONS # dummy
-	def_bool y
-	select ARCH_MPC832X
-	imply CMD_CRAMFS
-	imply FS_CRAMFS
-
-endif
-
 if TARGET_TUXX1
 
 config SYS_BOARD
