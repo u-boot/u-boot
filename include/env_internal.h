@@ -207,6 +207,8 @@ struct env_driver {
 #define env_save_ptr(x) NULL
 #endif
 
+#define ENV_SAVE_PTR(x) (CONFIG_IS_ENABLED(SAVEENV) ? (x) : NULL)
+
 extern struct hsearch_data env_htab;
 
 #endif /* DO_DEPS_ONLY */
