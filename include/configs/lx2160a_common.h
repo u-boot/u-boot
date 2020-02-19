@@ -266,9 +266,20 @@ unsigned long get_board_ddr_clk(void);
 		"run distro_bootcmd;run sd_bootcmd;"		\
 		"env exists secureboot && esbc_halt;"
 
+#define SD2_BOOTCOMMAND						\
+		"env exists mcinitcmd && mmcinfo; "		\
+		"mmc read 0x80d00000 0x6800 0x800; "		\
+		"env exists mcinitcmd && env exists secureboot "	\
+		" && mmc read 0x80780000 0x3C00 0x20 "		\
+		"&& esbc_validate 0x80780000;env exists mcinitcmd "	\
+		"&& fsl_mc lazyapply dpl 0x80d00000;"		\
+		"run distro_bootcmd;run sd2_bootcmd;"		\
+		"env exists secureboot && esbc_halt;"
+
 #define BOOT_TARGET_DEVICES(func) \
 	func(USB, usb, 0) \
 	func(MMC, mmc, 0) \
+	func(MMC, mmc, 1) \
 	func(SCSI, scsi, 0)
 #include <config_distro_bootcmd.h>
 
