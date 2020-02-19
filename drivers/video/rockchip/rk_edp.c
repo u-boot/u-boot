@@ -997,7 +997,7 @@ static int rk_edp_ofdata_to_platdata(struct udevice *dev)
 {
 	struct rk_edp_priv *priv = dev_get_priv(dev);
 
-	priv->regs = (struct rk3288_edp *)devfdt_get_addr(dev);
+	priv->regs = dev_read_addr_ptr(dev);
 	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
 
 	return 0;

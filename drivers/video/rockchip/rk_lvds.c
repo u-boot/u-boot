@@ -172,13 +172,11 @@ int rk_lvds_read_timing(struct udevice *dev, struct display_timing *timing)
 static int rk_lvds_ofdata_to_platdata(struct udevice *dev)
 {
 	struct rk_lvds_priv *priv = dev_get_priv(dev);
-	const void *blob = gd->fdt_blob;
-	int node = dev_of_offset(dev);
 	int ret;
-	priv->regs = (void *)devfdt_get_addr(dev);
+	priv->regs = dev_read_addr_ptr(dev);
 	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
 
-	ret = fdtdec_get_int(blob, node, "rockchip,output", -1);
+	ret = dev_read_s32_default(dev, "rockchip,output", -1);
 	if (ret != -1) {
 		priv->output = ret;
 		debug("LVDS output : %d\n", ret);
@@ -187,7 +185,7 @@ static int rk_lvds_ofdata_to_platdata(struct udevice *dev)
 		priv->output = LVDS_OUTPUT_RGB;
 	}
 
-	ret = fdtdec_get_int(blob, node, "rockchip,data-mapping", -1);
+	ret = dev_read_s32_default(dev, "rockchip,data-mapping", -1);
 	if (ret != -1) {
 		priv->format = ret;
 		debug("LVDS data-mapping : %d\n", ret);
@@ -196,7 +194,7 @@ static int rk_lvds_ofdata_to_platdata(struct udevice *dev)
 		priv->format = LVDS_FORMAT_JEIDA;
 	}
 
-	ret = fdtdec_get_int(blob, node, "rockchip,data-width", -1);
+	ret = dev_read_s32_default(dev, "rockchip,data-width", -1);
 	if (ret != -1) {
 		debug("LVDS data-width : %d\n", ret);
 		if (ret == 24) {
