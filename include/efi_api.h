@@ -228,6 +228,18 @@ struct efi_capsule_header {
 #define EFI_RT_SUPPORTED_QUERY_CAPSULE_CAPABILITIES	0x1000
 #define EFI_RT_SUPPORTED_QUERY_VARIABLE_INFO		0x2000
 
+#define EFI_RT_PROPERTIES_TABLE_GUID \
+	EFI_GUID(0xeb66918a, 0x7eef, 0x402a, 0x84, 0x2e, \
+		 0x93, 0x1d, 0x21, 0xc3, 0x8a, 0xe9)
+
+#define EFI_RT_PROPERTIES_TABLE_VERSION	0x1
+
+struct efi_rt_properties_table {
+	u16 version;
+	u16 length;
+	u32 runtime_services_supported;
+};
+
 struct efi_runtime_services {
 	struct efi_table_hdr hdr;
 	efi_status_t (EFIAPI *get_time)(struct efi_time *time,

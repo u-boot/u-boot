@@ -264,6 +264,10 @@ static const struct {
 		"SMBIOS table",
 		SMBIOS_TABLE_GUID,
 	},
+	{
+		"Runtime properties",
+		EFI_RT_PROPERTIES_TABLE_GUID,
+	},
 };
 
 /**
