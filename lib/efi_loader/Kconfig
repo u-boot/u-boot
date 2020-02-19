@@ -127,7 +127,7 @@ config EFI_RNG_PROTOCOL
 	bool "EFI_RNG_PROTOCOL support"
 	depends on DM_RNG
 	help
-	  "Support for EFI_RNG_PROTOCOL implementation. Uses the rng
-	   device on the platform"
+	  Provide a EFI_RNG_PROTOCOL implementation using the hardware random
+	  number generator of the platform.
 
 endif
