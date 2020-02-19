@@ -30,10 +30,11 @@ static const char *_parse_integer_fixup_radix(const char *s, unsigned int *base)
 			for (i = 0; ; i++) {
 				char var = s[i];
 
-				if (var == '\n')
+				if (var == '\0')
 					break;
 
-				if (var >= 'a') {
+				if ((var >= 'a' && var <= 'f') ||
+				    (var >= 'A' && var <= 'F')) {
 					*base = 16;
 					break;
 				}
