@@ -217,8 +217,7 @@
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
 	"ramdisk_addr=0x800000\0"		\
 	"ramdisk_size=0x2000000\0"		\
-	"fdt_high=0xffffffffffffffff\0"		\
-	"initrd_high=0xffffffffffffffff\0"	\
+	"bootm_size=0x10000000\0"		\
 	"fdt_addr=0x64f00000\0"                 \
 	"kernel_addr=0x65000000\0"              \
 	"scriptaddr=0x80000000\0"               \
