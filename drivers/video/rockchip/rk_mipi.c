@@ -29,8 +29,7 @@ int rk_mipi_read_timing(struct udevice *dev,
 {
 	int ret;
 
-	ret = fdtdec_decode_display_timing(gd->fdt_blob, dev_of_offset(dev),
-					 0, timing);
+	ret = ofnode_decode_display_timing(dev_ofnode(dev), 0, timing);
 	if (ret) {
 		debug("%s: Failed to decode display timing (ret=%d)\n",
 		      __func__, ret);

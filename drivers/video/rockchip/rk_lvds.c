@@ -161,8 +161,7 @@ int rk_lvds_enable(struct udevice *dev, int panel_bpp,
 
 int rk_lvds_read_timing(struct udevice *dev, struct display_timing *timing)
 {
-	if (fdtdec_decode_display_timing
-	    (gd->fdt_blob, dev_of_offset(dev), 0, timing)) {
+	if (ofnode_decode_display_timing(dev_ofnode(dev), 0, timing)) {
 		debug("%s: Failed to decode display timing\n", __func__);
 		return -EINVAL;
 	}
