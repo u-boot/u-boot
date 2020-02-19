@@ -63,23 +63,23 @@
 	xlnx,sram-cycle-t4 = <0x3>;
 	xlnx,sram-cycle-t5 = <0x3>;
 	xlnx,sram-cycle-t6 = <0x2>;
-	partition@nor-fsbl-uboot {
+	partition@0 {
 		label = "nor-fsbl-uboot";
 		reg = <0x0 0x100000>;
 	};
-	partition@nor-linux {
+	partition@100000 {
 		label = "nor-linux";
 		reg = <0x100000 0x500000>;
 	};
-	partition@nor-device-tree {
+	partition@600000 {
 		label = "nor-device-tree";
 		reg = <0x600000 0x20000>;
 	};
-	partition@nor-rootfs {
+	partition@620000 {
 		label = "nor-rootfs";
 		reg = <0x620000 0x5E0000>;
 	};
-	partition@nor-bitstream {
+	partition@c00000 {
 		label = "nor-bitstream";
 		reg = <0xC00000 0x400000>;
 	};

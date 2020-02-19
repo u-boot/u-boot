@@ -57,23 +57,23 @@
 	arm,nand-cycle-t5 = <0x2>;
 	arm,nand-cycle-t6 = <0x4>;
 
-	partition@nand-fsbl-uboot {
+	partition@0 {
 		label = "nand-fsbl-uboot";
 		reg = <0x0 0x100000>;
 	};
-	partition@nand-linux {
+	partition@100000 {
 		label = "nand-linux";
 		reg = <0x100000 0x500000>;
 	};
-	partition@nand-device-tree {
+	partition@600000 {
 		label = "nand-device-tree";
 		reg = <0x600000 0x20000>;
 	};
-	partition@nand-rootfs {
+	partition@620000 {
 		label = "nand-rootfs";
 		reg = <0x620000 0x5E0000>;
 	};
-	partition@nand-bitstream {
+	partition@c00000 {
 		label = "nand-bitstream";
 		reg = <0xC00000 0x400000>;
 	};
