@@ -5,8 +5,9 @@
  */
 
 #include <common.h>
+#include <syscon.h>
 #include <asm/io.h>
-#include <fdtdec.h>
+#include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/grf_rv1108.h>
 #include <asm/arch-rockchip/hardware.h>
 #include <asm/gpio.h>
@@ -15,7 +16,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int mach_cpu_init(void)
 {
-	int node;
 	struct rv1108_grf *grf;
 	enum {
 		GPIO3C3_SHIFT           = 6,
@@ -35,8 +35,7 @@ int mach_cpu_init(void)
 		GPIO2D1_UART2_SIN_M0,
 	};
 
-	node = fdt_node_offset_by_compatible(gd->fdt_blob, -1, "rockchip,rv1108-grf");
-	grf = (struct rv1108_grf *)fdtdec_get_addr(gd->fdt_blob, node, "reg");
+	grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
 
 	/* Elgin board use UART2 m0 for debug*/
 	rk_clrsetreg(&grf->gpio2d_iomux,
