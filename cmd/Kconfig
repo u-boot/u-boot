@@ -770,6 +770,13 @@ config CMD_LZMADEC
 	  Support decompressing an LZMA (Lempel-Ziv-Markov chain algorithm)
 	  image from memory.
 
+config CMD_UNLZ4
+	bool "unlz4"
+	default y if CMD_BOOTI
+	select LZ4
+	help
+	  Support decompressing an LZ4 image from memory region.
+
 config CMD_UNZIP
 	bool "unzip"
 	default y if CMD_BOOTI
