@@ -63,7 +63,7 @@
 #include <linux/usb/gadget.h>
 #include <linux/compat.h>
 #include <linux/iopoll.h>
-#include <asm/dma-mapping.h>
+#include <linux/dma-mapping.h>
 #include <linux/bitmap.h>
 #include <linux/bug.h>
 

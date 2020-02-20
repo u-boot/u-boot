@@ -17,9 +17,9 @@
 #include <cpu_func.h>
 #include <malloc.h>
 #include <dwc3-uboot.h>
-#include <asm/dma-mapping.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>
+#include <linux/dma-mapping.h>
 #include <linux/err.h>
 #include <linux/ioport.h>
 #include <dm.h>
@@ -288,8 +288,8 @@ static int dwc3_setup_scratch_buffers(struct dwc3 *dwc)
 	return 0;
 
 err1:
-	dma_unmap_single((void *)(uintptr_t)dwc->scratch_addr, dwc->nr_scratch *
-			 DWC3_SCRATCHBUF_SIZE, DMA_BIDIRECTIONAL);
+	dma_unmap_single(scratch_addr, dwc->nr_scratch * DWC3_SCRATCHBUF_SIZE,
+			 DMA_BIDIRECTIONAL);
 
 err0:
 	return ret;
@@ -303,7 +303,7 @@ static void dwc3_free_scratch_buffers(struct dwc3 *dwc)
 	if (!dwc->nr_scratch)
 		return;
 
-	dma_unmap_single((void *)(uintptr_t)dwc->scratch_addr, dwc->nr_scratch *
+	dma_unmap_single(dwc->scratch_addr, dwc->nr_scratch *
 			 DWC3_SCRATCHBUF_SIZE, DMA_BIDIRECTIONAL);
 	kfree(dwc->scratchbuf);
 }

@@ -38,7 +38,7 @@
 
 #include <linux/mii.h>
 #include <asm/io.h>
-#include <asm/dma-mapping.h>
+#include <linux/dma-mapping.h>
 #include <asm/arch/clk.h>
 #include <linux/errno.h>
 
@@ -342,7 +342,7 @@ static int _macb_send(struct macb_device *macb, const char *name, void *packet,
 		udelay(1);
 	}
 
-	dma_unmap_single(packet, length, DMA_TO_DEVICE);
+	dma_unmap_single(paddr, length, DMA_TO_DEVICE);
 
 	if (i <= MACB_TX_TIMEOUT) {
 		if (ctrl & MACB_BIT(TX_UNDERRUN))

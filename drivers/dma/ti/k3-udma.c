@@ -10,7 +10,7 @@
 #include <asm/io.h>
 #include <asm/bitops.h>
 #include <malloc.h>
-#include <asm/dma-mapping.h>
+#include <linux/dma-mapping.h>
 #include <dm.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>

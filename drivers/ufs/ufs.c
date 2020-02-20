@@ -19,7 +19,7 @@
 #include <hexdump.h>
 #include <scsi.h>
 
-#include <asm/dma-mapping.h>
+#include <linux/dma-mapping.h>
 
 #include "ufs.h"
 

@@ -17,7 +17,7 @@
 #include <miiphy.h>
 #include <net.h>
 #include <asm/cache.h>
-#include <asm/dma-mapping.h>
+#include <linux/dma-mapping.h>
 #include <asm/io.h>
 #include "altera_tse.h"
 

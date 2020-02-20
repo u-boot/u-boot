@@ -11,6 +11,7 @@
 #include <common.h>
 #include <memalign.h>
 #include <mmc.h>
+#include <sdhci.h>
 #include <u-boot/sha256.h>
 #include "mmc_private.h"
 
@@ -91,6 +92,7 @@ static int mmc_rpmb_request(struct mmc *mmc, const struct s_rpmb *s,
 {
 	struct mmc_cmd cmd = {0};
 	struct mmc_data data;
+	struct sdhci_host *host = mmc->priv;
 	int ret;
 
 	ret = mmc_set_blockcount(mmc, count, is_rel_write);
@@ -104,6 +106,9 @@ static int mmc_rpmb_request(struct mmc *mmc, const struct s_rpmb *s,
 	cmd.cmdidx = MMC_CMD_WRITE_MULTIPLE_BLOCK;
 	cmd.cmdarg = 0;
 	cmd.resp_type = MMC_RSP_R1;
+
+	if (host->quirks & SDHCI_QUIRK_BROKEN_R1B)
+		cmd.resp_type = MMC_RSP_R1;
 
 	data.src = (const char *)s;
 	data.blocks = 1;

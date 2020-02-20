@@ -171,6 +171,7 @@ static int sdhci_cdns_set_tune_val(struct sdhci_cdns_plat *plat,
 {
 	void __iomem *reg = plat->hrs_addr + SDHCI_CDNS_HRS06;
 	u32 tmp;
+	int i, ret;
 
 	if (WARN_ON(!FIELD_FIT(SDHCI_CDNS_HRS06_TUNE, val)))
 		return -EINVAL;
@@ -178,11 +179,23 @@ static int sdhci_cdns_set_tune_val(struct sdhci_cdns_plat *plat,
 	tmp = readl(reg);
 	tmp &= ~SDHCI_CDNS_HRS06_TUNE;
 	tmp |= FIELD_PREP(SDHCI_CDNS_HRS06_TUNE, val);
-	tmp |= SDHCI_CDNS_HRS06_TUNE_UP;
-	writel(tmp, reg);
 
-	return readl_poll_timeout(reg, tmp, !(tmp & SDHCI_CDNS_HRS06_TUNE_UP),
-				  1);
+	/*
+	 * Workaround for IP errata:
+	 * The IP6116 SD/eMMC PHY design has a timing issue on receive data
+	 * path. Send tune request twice.
+	 */
+	for (i = 0; i < 2; i++) {
+		tmp |= SDHCI_CDNS_HRS06_TUNE_UP;
+		writel(tmp, reg);
+
+		ret = readl_poll_timeout(reg, tmp,
+					 !(tmp & SDHCI_CDNS_HRS06_TUNE_UP), 1);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
 }
 
 static int __maybe_unused sdhci_cdns_execute_tuning(struct udevice *dev,

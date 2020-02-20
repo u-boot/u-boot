@@ -4,7 +4,6 @@
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  */
 
-#include <asm/dma-mapping.h>
 #include <common.h>
 #include <clk.h>
 #include <cpu_func.h>
@@ -14,7 +13,7 @@
 #include <dm/device_compat.h>
 #include <dm/pinctrl.h>
 #include <linux/compat.h>
-#include <linux/dma-direction.h>
+#include <linux/dma-mapping.h>
 #include <linux/io.h>
 #include <linux/sizes.h>
 #include <power/regulator.h>
@@ -353,7 +352,7 @@ static int tmio_sd_dma_xfer(struct udevice *dev, struct mmc_data *data)
 	if (poll_flag == TMIO_SD_DMA_INFO1_END_RD)
 		udelay(1);
 
-	dma_unmap_single(buf, len, dir);
+	dma_unmap_single(dma_addr, len, dir);
 
 	return ret;
 }

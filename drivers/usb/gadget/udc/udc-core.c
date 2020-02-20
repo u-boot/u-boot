@@ -18,7 +18,7 @@
 #include <linux/compat.h>
 #include <malloc.h>
 #include <asm/cache.h>
-#include <asm/dma-mapping.h>
+#include <linux/dma-mapping.h>
 #include <common.h>
 #include <dm.h>
 #include <dm/device-internal.h>
@@ -67,7 +67,7 @@ void usb_gadget_unmap_request(struct usb_gadget *gadget,
 	if (req->length == 0)
 		return;
 
-	dma_unmap_single((void *)(uintptr_t)req->dma, req->length,
+	dma_unmap_single(req->dma, req->length,
 			 is_in ? DMA_TO_DEVICE : DMA_FROM_DEVICE);
 }
 EXPORT_SYMBOL_GPL(usb_gadget_unmap_request);
