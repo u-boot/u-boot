@@ -126,6 +126,14 @@ config EFI_CAPSULE_ON_DISK_EARLY
 	  executed as part of U-Boot initialisation so that they will
 	  surely take place whatever is set to distro_bootcmd.
 
+config EFI_CAPSULE_FIRMWARE_MANAGEMENT
+	bool "Capsule: Firmware Management Protocol"
+	depends on EFI_HAVE_CAPSULE_SUPPORT
+	default y
+	help
+	  Select this option if you want to enable capsule-based
+	  firmware update using Firmware Management Protocol.
+
 config EFI_DEVICE_PATH_TO_TEXT
 	bool "Device path to text protocol"
 	default y

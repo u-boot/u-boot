@@ -217,6 +217,9 @@ enum efi_reset_type {
 #define CAPSULE_FLAGS_POPULATE_SYSTEM_TABLE	0x00020000
 #define CAPSULE_FLAGS_INITIATE_RESET		0x00040000
 
+#define CAPSULE_SUPPORT_AUTHENTICATION		0x0000000000000001
+#define CAPSULE_SUPPORT_DEPENDENCY		0x0000000000000002
+
 #define EFI_CAPSULE_REPORT_GUID \
 	EFI_GUID(0x39b68c46, 0xf7fb, 0x441b, 0xb6, 0xec, \
 		 0x16, 0xb0, 0xf6, 0x98, 0x21, 0xf3)
@@ -224,6 +227,10 @@ enum efi_reset_type {
 #define EFI_MEMORY_RANGE_CAPSULE_GUID \
 	EFI_GUID(0xde9f0ec, 0x88b6, 0x428f, 0x97, 0x7a, \
 		 0x25, 0x8f, 0x1d, 0xe, 0x5e, 0x72)
+
+#define EFI_FIRMWARE_MANAGEMENT_CAPSULE_ID_GUID \
+	EFI_GUID(0x6dcbd5ed, 0xe82d, 0x4c44, 0xbd, 0xa1, \
+		 0x71, 0x94, 0x19, 0x9a, 0xd9, 0x2a)
 
 struct efi_capsule_header {
 	efi_guid_t capsule_guid;
@@ -251,6 +258,33 @@ struct efi_memory_range_capsule {
 	enum efi_mem_type os_requested_memory_type;
 	u64 number_of_memory_ranges;
 	struct efi_memory_range memory_ranges[];
+} __packed;
+
+struct efi_firmware_management_capsule_header {
+	u32 version;
+	u16 embedded_driver_count;
+	u16 payload_item_count;
+	u64 item_offset_list[];
+} __packed;
+
+struct efi_firmware_management_capsule_image_header {
+	u32 version;
+	efi_guid_t update_image_type_id;
+	u8 update_image_index;
+	u8 reserved[3];
+	u32 update_image_size;
+	u32 update_vendor_code_size;
+	u64 update_hardware_instance;
+	u64 image_capsule_support;
+} __packed;
+
+struct efi_capsule_result_variable_fmp {
+	u16 version;
+	u8 payload_index;
+	u8 update_image_index;
+	efi_guid_t update_image_type_id;
+	// u16 capsule_file_name[];
+	// u16 capsule_target[];
 } __packed;
 
 #define EFI_RT_SUPPORTED_GET_TIME			0x0001
@@ -1807,5 +1841,100 @@ struct efi_signature_list {
 /*	u8		signature_header[signature_header_size]; */
 /*	struct efi_signature_data signatures[...][signature_size]; */
 } __attribute__((__packed__));
+
+/*
+ * Firmware management protocol
+ */
+#define EFI_FIRMWARE_MANAGEMENT_PROTOCOL_GUID \
+	EFI_GUID(0x86c77a67, 0x0b97, 0x4633, 0xa1, 0x87, \
+		 0x49, 0x10, 0x4d, 0x06, 0x85, 0xc7)
+
+#define IMAGE_ATTRIBUTE_IMAGE_UPDATABLE		0x0000000000000001
+#define IMAGE_ATTRIBUTE_RESET_REQUIRED		0x0000000000000002
+#define IMAGE_ATTRIBUTE_AUTHENTICATION_REQUIRED	0x0000000000000004
+#define IMAGE_ATTRIBUTE_IN_USE			0x0000000000000008
+#define IMAGE_ATTRIBUTE_UEFI_IMAGE		0x0000000000000010
+#define IMAGE_ATTRIBUTE_DEPENDENCY		0x0000000000000020
+
+#define IMAGE_COMPATIBILITY_CHECK_SUPPORTED	0x0000000000000001
+
+#define IMAGE_UPDATABLE_VALID			0x0000000000000001
+#define IMAGE_UPDATABLE_INVALID			0x0000000000000002
+#define IMAGE_UPDATABLE_INVALID_TYPE		0x0000000000000004
+#define IMAGE_UPDATABLE_INVALID_OLLD		0x0000000000000008
+#define IMAGE_UPDATABLE_VALID_WITH_VENDOR_CODE	0x0000000000000010
+
+#define PACKAGE_ATTRIBUTE_VERSION_UPDATABLE		0x0000000000000001
+#define PACKAGE_ATTRIBUTE_RESET_REQUIRED		0x0000000000000002
+#define PACKAGE_ATTRIBUTE_AUTHENTICATION_REQUIRED	0x0000000000000004
+
+#define EFI_FIRMWARE_IMAGE_DESCRIPTOR_VERSION	4
+
+typedef struct efi_firmware_image_dependencies {
+	u8 dependencies[0];
+} efi_firmware_image_dep_t;
+
+struct efi_firmware_image_descriptor {
+	u8 image_index;
+	efi_guid_t image_type_id;
+	u64 image_id;
+	u16 *image_id_name;
+	u32 version;
+	u16 *version_name;
+	efi_uintn_t size;
+	u64 attributes_supported;
+	u64 attributes_setting;
+	u64 compatibilities;
+	u32 lowest_supported_image_version;
+	u32 last_attempt_version;
+	u32 last_attempt_status;
+	u64 hardware_instance;
+	efi_firmware_image_dep_t *dependencies;
+};
+
+struct efi_firmware_management_protocol {
+	efi_status_t (EFIAPI *get_image_info)(
+			struct efi_firmware_management_protocol *this,
+			efi_uintn_t *image_info_size,
+			struct efi_firmware_image_descriptor *image_info,
+			u32 *descriptor_version,
+			u8 *descriptor_count,
+			efi_uintn_t *descriptor_size,
+			u32 *package_version,
+			u16 **package_version_name);
+	efi_status_t (EFIAPI *get_image)(
+			struct efi_firmware_management_protocol *this,
+			u8 image_index,
+			void *image,
+			efi_uintn_t *image_size);
+	efi_status_t (EFIAPI *set_image)(
+			struct efi_firmware_management_protocol *this,
+			u8 image_index,
+			const void *image,
+			efi_uintn_t image_size,
+			const void *vendor_code,
+			efi_status_t (*progress)(efi_uintn_t completion),
+			u16 **abort_reason);
+	efi_status_t (EFIAPI *check_image)(
+			struct efi_firmware_management_protocol *this,
+			u8 image_index,
+			const void *image,
+			efi_uintn_t *image_size,
+			u32 *image_updatable);
+	efi_status_t (EFIAPI *get_package_info)(
+			struct efi_firmware_management_protocol *this,
+			u32 *package_version,
+			u16 **package_version_name,
+			u32 *package_version_name_maxlen,
+			u64 *attributes_supported,
+			u64 *attributes_setting);
+	efi_status_t (EFIAPI *set_package_info)(
+			struct efi_firmware_management_protocol *this,
+			const void *image,
+			efi_uintn_t *image_size,
+			const void *vendor_code,
+			u32 package_version,
+			const u16 *package_version_name);
+};
 
 #endif

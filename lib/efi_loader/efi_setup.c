@@ -159,6 +159,10 @@ static efi_status_t efi_init_os_indications(void)
 		os_indications_supported |=
 			EFI_OS_INDICATIONS_FILE_CAPSULE_DELIVERY_SUPPORTED;
 
+	if (IS_ENABLED(CONFIG_EFI_CAPSULE_FIRMWARE_MANAGEMENT))
+		os_indications_supported |=
+			EFI_OS_INDICATIONS_FMP_CAPSULE_SUPPORTED;
+
 	return efi_set_variable_int(L"OsIndicationsSupported",
 				    &efi_global_variable_guid,
 				    EFI_VARIABLE_BOOTSERVICE_ACCESS |
