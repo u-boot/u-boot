@@ -1170,6 +1170,13 @@ struct image_sign_info {
 	int required_keynode;		/* Node offset of key to use: -1=any */
 	const char *require_keys;	/* Value for 'required' property */
 	const char *engine_id;		/* Engine to use for signing */
+	/*
+	 * Note: the following two fields are always valid even w/o
+	 * RSA_VERIFY_WITH_PKEY in order to make sure this structure is
+	 * the same on target and host. Otherwise, vboot test may fail.
+	 */
+	const void *key;		/* Pointer to public key in DER */
+	int keylen;			/* Length of public key */
 };
 
 /* A part of an image, used for hashing */
