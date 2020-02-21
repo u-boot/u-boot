@@ -18,6 +18,16 @@ if RSA
 config SPL_RSA
 	bool "Use RSA Library within SPL"
 
+config SPL_RSA_VERIFY
+	bool
+	help
+	  Add RSA signature verification support in SPL.
+
+config RSA_VERIFY
+	bool
+	help
+	  Add RSA signature verification support.
+
 config RSA_SOFTWARE_EXP
 	bool "Enable driver for RSA Modular Exponentiation in software"
 	depends on DM
