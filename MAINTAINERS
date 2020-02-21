@@ -180,6 +180,7 @@ F:	board/cortina/common/
 F:	drivers/gpio/cortina_gpio.c
 F:	drivers/watchdog/cortina_wdt.c
 F:	drivers/serial/serial_cortina.c
+F:	drivers/mmc/ca_dw_mmc.c
 
 ARM/CZ.NIC TURRIS MOX SUPPORT
 M:	Marek Behun <marek.behun@nic.cz>
@@ -672,6 +673,7 @@ F:	board/cortina/common/
 F:	drivers/gpio/cortina_gpio.c
 F:	drivers/watchdog/cortina_wdt.c
 F:	drivers/serial/serial_cortina.c
+F:	drivers/mmc/ca_dw_mmc.c
 
 MIPS MSCC
 M:	Gregory CLEMENT <gregory.clement@bootlin.com>
