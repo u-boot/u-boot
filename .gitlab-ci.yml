@@ -122,6 +122,13 @@ grep TODO/FIXME/HACK:
     # search for HACK within source tree and ignore HACKKIT board
     - grep -r HACK . | grep -v HACKKIT
 
+# build HTML documentation
+htmldocs:
+  tags: [ 'all' ]
+  stage: testsuites
+  script:
+    - make htmldocs
+
 # some statistics about the code base
 sloccount:
   tags: [ 'all' ]
