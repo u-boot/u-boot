@@ -18,8 +18,21 @@
 #include "mkimage.h"
 #include <fdt_support.h>
 #endif
+#include <linux/kconfig.h>
 #include <u-boot/rsa-mod-exp.h>
 #include <u-boot/rsa.h>
+
+#ifndef __UBOOT__
+/*
+ * NOTE:
+ * Since host tools, like mkimage, make use of openssl library for
+ * RSA encryption, rsa_verify_with_pkey()/rsa_gen_key_prop() are
+ * of no use and should not be compiled in.
+ * So just turn off CONFIG_RSA_VERIFY_WITH_PKEY.
+ */
+
+#undef CONFIG_RSA_VERIFY_WITH_PKEY
+#endif
 
 /* Default public exponent for backward compatibility */
 #define RSA_DEFAULT_PUBEXP	65537
@@ -271,7 +284,7 @@ out:
 }
 #endif
 
-#if CONFIG_IS_ENABLED(FIT_SIGNATURE)
+#if CONFIG_IS_ENABLED(FIT_SIGNATURE) || IS_ENABLED(CONFIG_RSA_VERIFY_WITH_PKEY)
 /**
  * rsa_verify_key() - Verify a signature against some data using RSA Key
  *
@@ -342,6 +355,49 @@ static int rsa_verify_key(struct image_sign_info *info,
 	}
 
 	return 0;
+}
+#endif
+
+#ifdef CONFIG_RSA_VERIFY_WITH_PKEY
+/**
+ * rsa_verify_with_pkey() - Verify a signature against some data using
+ * only modulus and exponent as RSA key properties.
+ * @info:	Specifies key information
+ * @hash:	Pointer to the expected hash
+ * @sig:	Signature
+ * @sig_len:	Number of bytes in signature
+ *
+ * Parse a RSA public key blob in DER format pointed to in @info and fill
+ * a key_prop structure with properties of the key. Then verify a RSA PKCS1.5
+ * signature against an expected hash using the calculated properties.
+ *
+ * Return	0 if verified, -ve on error
+ */
+static int rsa_verify_with_pkey(struct image_sign_info *info,
+				const void *hash, uint8_t *sig, uint sig_len)
+{
+	struct key_prop *prop;
+	int ret;
+
+	/* Public key is self-described to fill key_prop */
+	ret = rsa_gen_key_prop(info->key, info->keylen, &prop);
+	if (ret) {
+		debug("Generating necessary parameter for decoding failed\n");
+		return ret;
+	}
+
+	ret = rsa_verify_key(info, prop, sig, sig_len, hash,
+			     info->crypto->key_len);
+
+	rsa_free_key_prop(prop);
+
+	return ret;
+}
+#else
+static int rsa_verify_with_pkey(struct image_sign_info *info,
+				const void *hash, uint8_t *sig, uint sig_len)
+{
+	return -EACCES;
 }
 #endif
 
@@ -433,6 +489,13 @@ int rsa_verify(struct image_sign_info *info,
 	if (ret < 0) {
 		debug("%s: Error in checksum calculation\n", __func__);
 		return -EINVAL;
+	}
+
+	if (IS_ENABLED(CONFIG_RSA_VERIFY_WITH_PKEY) && !info->fdt_blob) {
+		/* don't rely on fdt properties */
+		ret = rsa_verify_with_pkey(info, hash, sig, sig_len);
+
+		return ret;
 	}
 
 	if (CONFIG_IS_ENABLED(FIT_SIGNATURE)) {
