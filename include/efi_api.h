@@ -331,6 +331,14 @@ struct efi_runtime_services {
 	EFI_GUID(0xeb9d2d31, 0x2d88, 0x11d3,  \
 		 0x9a, 0x16, 0x00, 0x90, 0x27, 0x3f, 0xc1, 0x4d)
 
+#define EFI_LOAD_FILE_PROTOCOL_GUID \
+	EFI_GUID(0x56ec3091, 0x954c, 0x11d2, \
+		 0x8e, 0x3f, 0x00, 0xa0, 0xc9, 0x69, 0x72, 0x3b)
+
+#define EFI_LOAD_FILE2_PROTOCOL_GUID \
+	EFI_GUID(0x4006c0c1, 0xfcb3, 0x403e, \
+		 0x99, 0x6d, 0x4a, 0x6c, 0x87, 0x24, 0xe0, 0x6d)
+
 struct efi_configuration_table {
 	efi_guid_t guid;
 	void *table;
@@ -486,6 +494,7 @@ struct efi_device_path_nvme {
 #define DEVICE_PATH_TYPE_MEDIA_DEVICE		0x04
 #  define DEVICE_PATH_SUB_TYPE_HARD_DRIVE_PATH	0x01
 #  define DEVICE_PATH_SUB_TYPE_CDROM_PATH	0x02
+#  define DEVICE_PATH_SUB_TYPE_VENDOR_PATH	0x03
 #  define DEVICE_PATH_SUB_TYPE_FILE_PATH	0x04
 
 struct efi_device_path_hard_drive_path {
@@ -1617,6 +1626,14 @@ struct efi_unicode_collation_protocol {
 				  const u16 *string, efi_uintn_t fat_size,
 				  char *fat);
 	char *supported_languages;
+};
+
+struct efi_load_file_protocol {
+	efi_status_t (EFIAPI *load_file)(struct efi_load_file_protocol *this,
+					 struct efi_device_path *file_path,
+					 bool boot_policy,
+					 efi_uintn_t *buffer_size,
+					 void *buffer);
 };
 
 /* Boot manager load options */
