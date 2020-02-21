@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2019 NXP
+ * Copyright 2019-2020 NXP
  */
 
 #ifndef __L1028A_COMMON_H
@@ -91,14 +91,14 @@
 	"fdt_addr_r=0x90000000\0"               \
 	"ramdisk_addr_r=0xa0000000\0"           \
 	"kernel_start=0x1000000\0"		\
-	"kernelheader_start=0x800000\0"		\
+	"kernelheader_start=0x600000\0"		\
 	"kernel_load=0xa0000000\0"		\
 	"kernel_size=0x2800000\0"		\
 	"kernelheader_size=0x40000\0"		\
 	"kernel_addr_sd=0x8000\0"		\
 	"kernel_size_sd=0x14000\0"		\
-	"kernelhdr_addr_sd=0x4000\0"		\
-	"kernelhdr_size_sd=0x10\0"		\
+	"kernelhdr_addr_sd=0x3000\0"		\
+	"kernelhdr_size_sd=0x20\0"		\
 	"console=ttyS0,115200\0"                \
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"	\
 	BOOTENV					\
