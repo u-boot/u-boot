@@ -281,4 +281,20 @@
 		reg = <0x1b130000 0x1000>;
 		#clock-cells = <1>;
 	};
+
+	pwm: pwm@11006000 {
+		compatible = "mediatek,mt7629-pwm";
+		reg = <0x11006000 0x1000>;
+		#clock-cells = <1>;
+		#pwm-cells = <2>;
+		interrupts = <GIC_SPI 77 IRQ_TYPE_LEVEL_LOW>;
+		clocks = <&topckgen CLK_TOP_PWM_SEL>,
+			 <&pericfg CLK_PERI_PWM_PD>,
+			 <&pericfg CLK_PERI_PWM1_PD>;
+		clock-names = "top", "main", "pwm1";
+		assigned-clocks = <&topckgen CLK_TOP_PWM_SEL>;
+		assigned-clock-parents = <&topckgen CLK_TOP_UNIVPLL2_D4>;
+		status = "disabled";
+	};
+
 };
