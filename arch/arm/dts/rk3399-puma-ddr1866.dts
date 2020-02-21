@@ -6,5 +6,3 @@
 /dts-v1/;
 
 #include "rk3399-puma.dtsi"
-#include "rk3399-sdram-ddr3-1866.dtsi"
-

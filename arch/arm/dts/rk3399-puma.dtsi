@@ -10,25 +10,6 @@
 	model = "Theobroma Systems RK3399-Q7 SoM";
 	compatible = "tsd,rk3399-q7", "tsd,puma", "rockchip,rk3399";
 
-	config {
-		u-boot,spl-payload-offset = <0x40000>; /* @ 256KB */
-		u-boot,mmc-env-offset = <0x4000>;      /* @  16KB */
-		u-boot,efi-partition-entries-offset = <0x200000>; /* 2MB */
-		u-boot,boot-led = "module_led";
-		sysreset-gpio = <&gpio1 RK_PA6 GPIO_ACTIVE_HIGH>;
-	};
-
-	chosen {
-		stdout-path = "serial0:115200n8";
-		u-boot,spl-boot-order = \
-			"same-as-spl", &spiflash, &sdhci, &sdmmc;
-	};
-
-	aliases {
-		spi0 = &spi1;
-		spi1 = &spi5;
-	};
-
 	leds {
 		compatible = "gpio-leds";
 		pinctrl-names = "default";
@@ -518,7 +499,7 @@
 	status = "disabled";
 };
 
-&dwc3_typec0 {
+&usbdrd3_0 {
 	status = "okay";
 };
 
@@ -530,7 +511,7 @@
 	status = "disabled";
 };
 
-&dwc3_typec1 {
+&usbdrd3_1 {
 	status = "okay";
 	tsd,usb-port-power = "usbhub_enable";
 };

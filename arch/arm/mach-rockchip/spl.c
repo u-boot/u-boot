@@ -147,7 +147,7 @@ void board_init_f(ulong dummy)
 }
 
 #ifdef CONFIG_SPL_LOAD_FIT
-int board_fit_config_name_match(const char *name)
+int __weak board_fit_config_name_match(const char *name)
 {
 	/* Just empty function now - can't decide what to choose */
 	debug("%s: %s\n", __func__, name);

@@ -7,5 +7,3 @@
 
 #include "rk3399-puma.dtsi"
 #include "rk3399-u-boot.dtsi"
-#include "rk3399-sdram-ddr3-1600.dtsi"
-

@@ -1,0 +1,6 @@
+ROC-RK3399-PC
+M:	Levin Du <djw@t-chip.com.cn>
+S:	Maintained
+F:	board/firefly/roc-pc-rk3399
+F:	include/configs/roc-pc-rk3399.h
+F:	configs/roc-pc-rk3399_defconfig

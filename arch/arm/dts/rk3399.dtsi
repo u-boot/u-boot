@@ -10,7 +10,6 @@
 #include <dt-bindings/pinctrl/rockchip.h>
 #include <dt-bindings/power/rk3399-power.h>
 #include <dt-bindings/thermal/thermal.h>
-#define USB_CLASS_HUB			9
 
 / {
 	compatible = "rockchip,rk3399";
@@ -34,8 +33,6 @@
 		serial2 = &uart2;
 		serial3 = &uart3;
 		serial4 = &uart4;
-		mmc0 = &sdhci;
-		mmc1 = &sdmmc;
 	};
 
 	cpus {
@@ -1080,11 +1077,6 @@
 		};
 	};
 
-	pmusgrf: syscon@ff330000 {
-		compatible = "rockchip,rk3399-pmusgrf", "syscon";
-		reg = <0x0 0xff330000 0x0 0xe3d4>;
-	};
-
 	spi3: spi@ff350000 {
 		compatible = "rockchip,rk3399-spi", "rockchip,rk3066-spi";
 		reg = <0x0 0xff350000 0x0 0x1000>;
@@ -1198,36 +1190,6 @@
 		clocks = <&pmucru PCLK_RKPWM_PMU>;
 		clock-names = "pwm";
 		status = "disabled";
-	};
-
-	cic: syscon@ff620000 {
-		compatible = "rockchip,rk3399-cic", "syscon";
-		reg = <0x0 0xff620000 0x0 0x100>;
-	};
-
-	dfi: dfi@ff630000 {
-		reg = <0x00 0xff630000 0x00 0x4000>;
-		compatible = "rockchip,rk3399-dfi";
-		rockchip,pmu = <&pmugrf>;
-		clocks = <&cru PCLK_DDR_MON>;
-		clock-names = "pclk_ddr_mon";
-		status = "disabled";
-	};
-
-	dmc: dmc {
-		compatible = "rockchip,rk3399-dmc";
-		devfreq-events = <&dfi>;
-		interrupts = <GIC_SPI 1 IRQ_TYPE_LEVEL_HIGH 0>;
-		clocks = <&cru SCLK_DDRCLK>;
-		clock-names = "dmc_clk";
-		reg = <0x0 0xffa80000 0x0 0x0800
-		       0x0 0xffa80800 0x0 0x1800
-		       0x0 0xffa82000 0x0 0x2000
-		       0x0 0xffa84000 0x0 0x1000
-		       0x0 0xffa88000 0x0 0x0800
-		       0x0 0xffa88800 0x0 0x1800
-		       0x0 0xffa8a000 0x0 0x2000
-		       0x0 0xffa8c000 0x0 0x1000>;
 	};
 
 	efuse0: efuse@ff690000 {
