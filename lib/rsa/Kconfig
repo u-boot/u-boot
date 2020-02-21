@@ -28,6 +28,20 @@ config RSA_VERIFY
 	help
 	  Add RSA signature verification support.
 
+config RSA_VERIFY_WITH_PKEY
+	bool "Execute RSA verification without key parameters from FDT"
+	select RSA_VERIFY
+	help
+	  The standard RSA-signature verification code (FIT_SIGNATURE) uses
+	  pre-calculated key properties, that are stored in fdt blob, in
+	  decrypting a signature.
+	  This does not suit the use case where there is no way defined to
+	  provide such additional key properties in standardized form,
+	  particularly UEFI secure boot.
+	  This options enables RSA signature verification with a public key
+	  directly specified in image_sign_info, where all the necessary
+	  key properties will be calculated on the fly in verification code.
+
 config RSA_SOFTWARE_EXP
 	bool "Enable driver for RSA Modular Exponentiation in software"
 	depends on DM
