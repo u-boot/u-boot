@@ -43,7 +43,7 @@
 #define LCDC_DMA_CTRL_BURST_16			0x4
 #define LCDC_DMA_CTRL_FIFO_TH(x)		(((x) & GENMASK(2, 0)) << 8)
 /* LCD Timing_0 Register */
-#define LCDC_RASTER_TIMING_0_HORMSB(x)		(((((x) >> 4) - 1) & 0x40) >> 4)
+#define LCDC_RASTER_TIMING_0_HORMSB(x)	((((x) - 1) & BIT(10)) >> 7)
 #define LCDC_RASTER_TIMING_0_HORLSB(x) (((((x) >> 4) - 1) & GENMASK(5, 0)) << 4)
 #define LCDC_RASTER_TIMING_0_HSWLSB(x)	((((x) - 1) & GENMASK(5, 0)) << 10)
 #define LCDC_RASTER_TIMING_0_HFPLSB(x)	((((x) - 1) & GENMASK(7, 0)) << 16)
