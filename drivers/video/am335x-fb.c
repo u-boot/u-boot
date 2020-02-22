@@ -179,7 +179,7 @@ int am335xfb_init(struct am335x_lcdpanel *panel)
 			}
 		}
 	}
-	debug("%s: PLL: best error %d Hz (M %d, N %d, DISP %d)\n",
+	debug("%s: PLL: best error %d Hz (M %d, N %d, DIV %d)\n",
 	      __func__, err_r, dpll_disp.m, dpll_disp.n, best_d);
 	do_setup_dpll(&dpll_disp_regs, &dpll_disp);
 
