@@ -26,42 +26,42 @@
 #define LCDC_FMAX				200000000
 
 /* LCD Control Register */
-#define LCD_RASTER_MODE				BIT(0)
-#define LCD_CLK_DIVISOR(x)			(((x) & GENMASK(7, 0)) << 8)
+#define LCDC_CTRL_RASTER_MODE			BIT(0)
+#define LCDC_CTRL_CLK_DIVISOR(x)		(((x) & GENMASK(7, 0)) << 8)
 /* LCD Clock Enable Register */
-#define LCD_CORECLKEN				BIT(0)
-#define LCD_LIDDCLKEN				BIT(1)
-#define LCD_DMACLKEN				BIT(2)
+#define LCDC_CLKC_ENABLE_CORECLKEN		BIT(0)
+#define LCDC_CLKC_ENABLE_LIDDCLKEN		BIT(1)
+#define LCDC_CLKC_ENABLE_DMACLKEN		BIT(2)
 /* LCD DMA Control Register */
-#define LCD_DMA_BURST_SIZE(x)			(((x) & GENMASK(2, 0)) << 4)
-#define LCD_DMA_BURST_1				0x0
-#define LCD_DMA_BURST_2				0x1
-#define LCD_DMA_BURST_4				0x2
-#define LCD_DMA_BURST_8				0x3
-#define LCD_DMA_BURST_16			0x4
+#define LCDC_DMA_CTRL_BURST_SIZE(x)		(((x) & GENMASK(2, 0)) << 4)
+#define LCDC_DMA_CTRL_BURST_1			0x0
+#define LCDC_DMA_CTRL_BURST_2			0x1
+#define LCDC_DMA_CTRL_BURST_4			0x2
+#define LCDC_DMA_CTRL_BURST_8			0x3
+#define LCDC_DMA_CTRL_BURST_16			0x4
 /* LCD Timing_0 Register */
-#define LCD_HORMSB(x)				(((((x) >> 4) - 1) & 0x40) >> 4)
-#define LCD_HORLSB(x)		(((((x) >> 4) - 1) & GENMASK(5, 0)) << 4)
-#define LCD_HSWLSB(x)			((((x) - 1) & GENMASK(5, 0)) << 10)
-#define LCD_HFPLSB(x)			((((x) - 1) & GENMASK(7, 0)) << 16)
-#define LCD_HBPLSB(x)			((((x) - 1) & GENMASK(7, 0)) << 24)
+#define LCDC_RASTER_TIMING_0_HORMSB(x)		(((((x) >> 4) - 1) & 0x40) >> 4)
+#define LCDC_RASTER_TIMING_0_HORLSB(x) (((((x) >> 4) - 1) & GENMASK(5, 0)) << 4)
+#define LCDC_RASTER_TIMING_0_HSWLSB(x)	((((x) - 1) & GENMASK(5, 0)) << 10)
+#define LCDC_RASTER_TIMING_0_HFPLSB(x)	((((x) - 1) & GENMASK(7, 0)) << 16)
+#define LCDC_RASTER_TIMING_0_HBPLSB(x)	((((x) - 1) & GENMASK(7, 0)) << 24)
 /* LCD Timing_1 Register */
-#define LCD_VERLSB(x)				(((x) - 1) & GENMASK(9, 0))
-#define LCD_VSW(x)			((((x) - 1) & GENMASK(5, 0)) << 10)
-#define LCD_VFP(x)				(((x) & GENMASK(7, 0)) << 16)
-#define LCD_VBP(x)				(((x) & GENMASK(7, 0)) << 24)
+#define LCDC_RASTER_TIMING_1_VERLSB(x)		(((x) - 1) & GENMASK(9, 0))
+#define LCDC_RASTER_TIMING_1_VSW(x)	((((x) - 1) & GENMASK(5, 0)) << 10)
+#define LCDC_RASTER_TIMING_1_VFP(x)		(((x) & GENMASK(7, 0)) << 16)
+#define LCDC_RASTER_TIMING_1_VBP(x)		(((x) & GENMASK(7, 0)) << 24)
 /* LCD Timing_2 Register */
-#define LCD_HFPMSB(x)			((((x) - 1) & GENMASK(9, 8)) >> 8)
-#define LCD_HBPMSB(x)			((((x) - 1) & GENMASK(9, 8)) >> 4)
-#define LCD_INVMASK(x)				((x) & GENMASK(25, 20))
-#define LCD_VERMSB(x)				((((x) - 1) & BIT(10)) << 16)
-#define LCD_HSWMSB(x)			((((x) - 1) & GENMASK(9, 6)) << 21)
+#define LCDC_RASTER_TIMING_2_HFPMSB(x)	((((x) - 1) & GENMASK(9, 8)) >> 8)
+#define LCDC_RASTER_TIMING_2_HBPMSB(x)	((((x) - 1) & GENMASK(9, 8)) >> 4)
+#define LCDC_RASTER_TIMING_2_INVMASK(x)		((x) & GENMASK(25, 20))
+#define LCDC_RASTER_TIMING_2_VERMSB(x)		((((x) - 1) & BIT(10)) << 16)
+#define LCDC_RASTER_TIMING_2_HSWMSB(x)	((((x) - 1) & GENMASK(9, 6)) << 21)
 /* LCD Raster Ctrl Register */
-#define LCD_RASTER_ENABLE			BIT(0)
-#define LCD_TFT_MODE				BIT(7)
-#define LCD_PALMODE_RAWDATA			(0x02 << 20)
-#define LCD_TFT_24BPP_MODE			BIT(25)
-#define LCD_TFT_24BPP_UNPACK			BIT(26)
+#define LCDC_RASTER_CTRL_ENABLE			BIT(0)
+#define LCDC_RASTER_CTRL_TFT_MODE		BIT(7)
+#define LCDC_RASTER_CTRL_PALMODE_RAWDATA	(0x02 << 20)
+#define LCDC_RASTER_CTRL_TFT_24BPP_MODE		BIT(25)
+#define LCDC_RASTER_CTRL_TFT_24BPP_UNPACK	BIT(26)
 
 /* Macro definitions */
 #define FBSIZE(x)	((x->hactive * x->vactive * x->bpp) >> 3)
@@ -131,10 +131,10 @@ int am335xfb_init(struct am335x_lcdpanel *panel)
 	case 16:
 		break;
 	case 32:
-		raster_ctrl |= LCD_TFT_24BPP_UNPACK;
+		raster_ctrl |= LCDC_RASTER_CTRL_TFT_24BPP_UNPACK;
 		/* fallthrough */
 	case 24:
-		raster_ctrl |= LCD_TFT_24BPP_MODE;
+		raster_ctrl |= LCDC_RASTER_CTRL_TFT_24BPP_MODE;
 		break;
 	default:
 		pr_err("am335x-fb: invalid bpp value: %d\n", panel->bpp);
@@ -198,34 +198,35 @@ int am335xfb_init(struct am335x_lcdpanel *panel)
 
 	debug("am335x-fb: wait for stable power ...\n");
 	mdelay(panel->pup_delay);
-	lcdhw->clkc_enable = LCD_CORECLKEN | LCD_LIDDCLKEN | LCD_DMACLKEN;
+	lcdhw->clkc_enable = LCDC_CLKC_ENABLE_CORECLKEN |
+		LCDC_CLKC_ENABLE_LIDDCLKEN | LCDC_CLKC_ENABLE_DMACLKEN;
 	lcdhw->raster_ctrl = 0;
-	lcdhw->ctrl = LCD_CLK_DIVISOR(best_d) | LCD_RASTER_MODE;
+	lcdhw->ctrl = LCDC_CTRL_CLK_DIVISOR(best_d) | LCDC_CTRL_RASTER_MODE;
 	lcdhw->lcddma_fb0_base = gd->fb_base;
 	lcdhw->lcddma_fb0_ceiling = gd->fb_base + FBSIZE(panel);
 	lcdhw->lcddma_fb1_base = gd->fb_base;
 	lcdhw->lcddma_fb1_ceiling = gd->fb_base + FBSIZE(panel);
-	lcdhw->lcddma_ctrl = LCD_DMA_BURST_SIZE(LCD_DMA_BURST_16);
+	lcdhw->lcddma_ctrl = LCDC_DMA_CTRL_BURST_SIZE(LCDC_DMA_CTRL_BURST_16);
 
-	lcdhw->raster_timing0 = LCD_HORLSB(panel->hactive) |
-				LCD_HORMSB(panel->hactive) |
-				LCD_HFPLSB(panel->hfp) |
-				LCD_HBPLSB(panel->hbp) |
-				LCD_HSWLSB(panel->hsw);
-	lcdhw->raster_timing1 = LCD_VBP(panel->vbp) |
-				LCD_VFP(panel->vfp) |
-				LCD_VSW(panel->vsw) |
-				LCD_VERLSB(panel->vactive);
-	lcdhw->raster_timing2 = LCD_HSWMSB(panel->hsw) |
-				LCD_VERMSB(panel->vactive) |
-				LCD_INVMASK(panel->pol) |
-				LCD_HBPMSB(panel->hbp) |
-				LCD_HFPMSB(panel->hfp) |
+	lcdhw->raster_timing0 = LCDC_RASTER_TIMING_0_HORLSB(panel->hactive) |
+				LCDC_RASTER_TIMING_0_HORMSB(panel->hactive) |
+				LCDC_RASTER_TIMING_0_HFPLSB(panel->hfp) |
+				LCDC_RASTER_TIMING_0_HBPLSB(panel->hbp) |
+				LCDC_RASTER_TIMING_0_HSWLSB(panel->hsw);
+	lcdhw->raster_timing1 = LCDC_RASTER_TIMING_1_VBP(panel->vbp) |
+				LCDC_RASTER_TIMING_1_VFP(panel->vfp) |
+				LCDC_RASTER_TIMING_1_VSW(panel->vsw) |
+				LCDC_RASTER_TIMING_1_VERLSB(panel->vactive);
+	lcdhw->raster_timing2 = LCDC_RASTER_TIMING_2_HSWMSB(panel->hsw) |
+				LCDC_RASTER_TIMING_2_VERMSB(panel->vactive) |
+				LCDC_RASTER_TIMING_2_INVMASK(panel->pol) |
+				LCDC_RASTER_TIMING_2_HBPMSB(panel->hbp) |
+				LCDC_RASTER_TIMING_2_HFPMSB(panel->hfp) |
 				0x0000FF00;	/* clk cycles for ac-bias */
 	lcdhw->raster_ctrl =	raster_ctrl |
-				LCD_PALMODE_RAWDATA |
-				LCD_TFT_MODE |
-				LCD_RASTER_ENABLE;
+				LCDC_RASTER_CTRL_PALMODE_RAWDATA |
+				LCDC_RASTER_CTRL_TFT_MODE |
+				LCDC_RASTER_CTRL_ENABLE;
 
 	debug("am335x-fb: waiting picture to be stable.\n.");
 	mdelay(panel->pon_delay);
