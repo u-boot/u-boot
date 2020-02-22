@@ -16,6 +16,7 @@
 #include <asm/arch/omap.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
+#include <linux/err.h>
 #include <lcd.h>
 #include "am335x-fb.h"
 
@@ -26,6 +27,7 @@
 #define LCDC_FMAX				200000000
 
 /* LCD Control Register */
+#define LCDC_CTRL_CLK_DIVISOR_MASK		GENMASK(15, 8)
 #define LCDC_CTRL_RASTER_MODE			BIT(0)
 #define LCDC_CTRL_CLK_DIVISOR(x)		(((x) & GENMASK(7, 0)) << 8)
 /* LCD Clock Enable Register */
@@ -98,9 +100,94 @@ struct am335x_lcdhw {
 	unsigned int		clkc_reset;		/* 0x70 */
 };
 
+struct dpll_data {
+	unsigned long rounded_rate;
+	u16 rounded_m;
+	u8 rounded_n;
+	u8 rounded_div;
+};
+
 static struct am335x_lcdhw *lcdhw = (void *)LCD_CNTL_BASE;
 
 DECLARE_GLOBAL_DATA_PTR;
+
+/**
+ * am335x_dpll_round_rate() - Round a target rate for an OMAP DPLL
+ *
+ * @dpll_data: struct dpll_data pointer for the DPLL
+ * @rate:      New DPLL clock rate
+ * @return rounded rate and the computed m, n and div values in the dpll_data
+ *         structure, or -ve error code.
+ */
+static ulong am335x_dpll_round_rate(struct dpll_data *dd, ulong rate)
+{
+	unsigned int m, n, d;
+	unsigned long rounded_rate;
+	int err, err_r;
+
+	dd->rounded_rate = -EFAULT;
+	err = rate;
+	err_r = err;
+
+	for (d = 2; err && d < 255; d++) {
+		for (m = 2; m < 2047; m++) {
+			if ((V_OSCK * m) < (rate * d))
+				continue;
+
+			n = (V_OSCK * m) / (rate * d);
+			if (n > 127)
+				break;
+
+			if (((V_OSCK * m) / n) > LCDC_FMAX)
+				break;
+
+			rounded_rate = (V_OSCK * m) / n / d;
+			err = abs(rounded_rate - rate);
+			if (err < err_r) {
+				err_r = err;
+				dd->rounded_rate = rounded_rate;
+				dd->rounded_m = m;
+				dd->rounded_n = n;
+				dd->rounded_div = d;
+				if (err == 0)
+					break;
+			}
+		}
+	}
+
+	debug("DPLL display: best error %d Hz (M %d, N %d, DIV %d)\n",
+	      err_r, dd->rounded_m, dd->rounded_n, dd->rounded_div);
+
+	return dd->rounded_rate;
+}
+
+/**
+ * am335x_fb_set_pixel_clk_rate() - Set pixel clock rate.
+ *
+ * @am335x_lcdhw: Base address of the LCD controller registers.
+ * @rate:         New clock rate in Hz.
+ * @return new rate, or -ve error code.
+ */
+static ulong am335x_fb_set_pixel_clk_rate(struct am335x_lcdhw *regs, ulong rate)
+{
+	struct dpll_params dpll_disp = { 1, 0, 1, -1, -1, -1, -1 };
+	struct dpll_data dd;
+	ulong round_rate;
+	u32 reg;
+
+	round_rate = am335x_dpll_round_rate(&dd, rate);
+	if (IS_ERR_VALUE(round_rate))
+		return round_rate;
+
+	dpll_disp.m = dd.rounded_m;
+	dpll_disp.n = dd.rounded_n;
+	do_setup_dpll(&dpll_disp_regs, &dpll_disp);
+
+	reg = readl(&regs->ctrl) & ~LCDC_CTRL_CLK_DIVISOR_MASK;
+	reg |= LCDC_CTRL_CLK_DIVISOR(dd.rounded_div);
+	writel(reg, &regs->ctrl);
+	return round_rate;
+}
 
 int lcd_get_size(int *line_length)
 {
@@ -111,11 +198,9 @@ int lcd_get_size(int *line_length)
 int am335xfb_init(struct am335x_lcdpanel *panel)
 {
 	u32 raster_ctrl = 0;
-
 	struct cm_dpll *const cmdpll = (struct cm_dpll *)CM_DPLL;
-	struct dpll_params dpll_disp = { 1, 0, 1, -1, -1, -1, -1 };
-	unsigned int m, n, d, best_d = 2;
-	int err = 0, err_r = 0;
+	ulong rate;
+	u32 reg;
 
 	if (gd->fb_base == 0) {
 		printf("ERROR: no valid fb_base stored in GLOBAL_DATA_PTR!\n");
@@ -156,34 +241,9 @@ int am335xfb_init(struct am335x_lcdpanel *panel)
 	debug("using frambuffer at 0x%08x with size %d.\n",
 	      (unsigned int)gd->fb_base, FBSIZE(panel));
 
-	/* setup display pll for requested clock frequency */
-	err = panel->pxl_clk;
-	err_r = err;
-
-	for (d = 2; err_r && d < 255; d++) {
-		for (m = 2; m < 2047; m++) {
-			if ((V_OSCK * m) < (panel->pxl_clk * d))
-				continue;
-			n = (V_OSCK * m) / (panel->pxl_clk * d);
-			if (n > 127)
-				break;
-			if (((V_OSCK * m) / n) > LCDC_FMAX)
-				break;
-
-			err = abs((V_OSCK * m) / n / d - panel->pxl_clk);
-			if (err < err_r) {
-				err_r = err;
-				dpll_disp.m = m;
-				dpll_disp.n = n;
-				best_d = d;
-				if (err_r == 0)
-					break;
-			}
-		}
-	}
-	debug("%s: PLL: best error %d Hz (M %d, N %d, DIV %d)\n",
-	      __func__, err_r, dpll_disp.m, dpll_disp.n, best_d);
-	do_setup_dpll(&dpll_disp_regs, &dpll_disp);
+	rate = am335x_fb_set_pixel_clk_rate(lcdhw, panel->pxl_clk);
+	if (IS_ERR_VALUE(rate))
+		return rate;
 
 	/* clock source for LCDC from dispPLL M2 */
 	writel(0x0, &cmdpll->clklcdcpixelclk);
@@ -203,7 +263,11 @@ int am335xfb_init(struct am335x_lcdpanel *panel)
 	lcdhw->clkc_enable = LCDC_CLKC_ENABLE_CORECLKEN |
 		LCDC_CLKC_ENABLE_LIDDCLKEN | LCDC_CLKC_ENABLE_DMACLKEN;
 	lcdhw->raster_ctrl = 0;
-	lcdhw->ctrl = LCDC_CTRL_CLK_DIVISOR(best_d) | LCDC_CTRL_RASTER_MODE;
+
+	reg = lcdhw->ctrl & LCDC_CTRL_CLK_DIVISOR_MASK;
+	reg |= LCDC_CTRL_RASTER_MODE;
+	lcdhw->ctrl = reg;
+
 	lcdhw->lcddma_fb0_base = gd->fb_base;
 	lcdhw->lcddma_fb0_ceiling = gd->fb_base + FBSIZE(panel);
 	lcdhw->lcddma_fb1_base = gd->fb_base;
