@@ -473,6 +473,12 @@ config ATMEL_HLCD
 	help
 	   HLCDC supports video output to an attached LCD panel.
 
+config AM335X_LCD
+	bool "Enable AM335x video support"
+	depends on DM_VIDEO
+	help
+	   Supports video output to an attached LCD panel.
+
 config LOGICORE_DP_TX
 	bool "Enable Logicore DP TX driver"
 	depends on DISPLAY

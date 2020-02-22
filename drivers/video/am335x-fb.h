@@ -7,6 +7,8 @@
 #ifndef AM335X_FB_H
 #define AM335X_FB_H
 
+#if !CONFIG_IS_ENABLED(DM_VIDEO)
+
 #define HSVS_CONTROL		BIT(25)	/*
 					 * 0 = lcd_lp and lcd_fp are driven on
 					 * opposite edges of pixel clock than
@@ -67,5 +69,7 @@ struct am335x_lcdpanel {
 };
 
 int am335xfb_init(struct am335x_lcdpanel *panel);
+
+#endif  /* CONFIG_DM_VIDEO */
 
 #endif  /* AM335X_FB_H */
