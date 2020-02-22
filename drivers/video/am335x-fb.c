@@ -26,8 +26,8 @@
 #define LCDC_FMAX				200000000
 
 /* LCD Control Register */
-#define LCD_CLK_DIVISOR(x)			(((x) & GENMASK(7, 0)) << 8)
 #define LCD_RASTER_MODE				BIT(0)
+#define LCD_CLK_DIVISOR(x)			(((x) & GENMASK(7, 0)) << 8)
 /* LCD Clock Enable Register */
 #define LCD_CORECLKEN				BIT(0)
 #define LCD_LIDDCLKEN				BIT(1)
@@ -40,29 +40,28 @@
 #define LCD_DMA_BURST_8				0x3
 #define LCD_DMA_BURST_16			0x4
 /* LCD Timing_0 Register */
-#define LCD_HBPLSB(x)			((((x) - 1) & GENMASK(7, 0)) << 24)
-#define LCD_HFPLSB(x)			((((x) - 1) & GENMASK(7, 0)) << 16)
-#define LCD_HSWLSB(x)			((((x) - 1) & GENMASK(5, 0)) << 10)
-#define LCD_HORLSB(x)		(((((x) >> 4) - 1) & GENMASK(5, 0)) << 4)
 #define LCD_HORMSB(x)				(((((x) >> 4) - 1) & 0x40) >> 4)
+#define LCD_HORLSB(x)		(((((x) >> 4) - 1) & GENMASK(5, 0)) << 4)
+#define LCD_HSWLSB(x)			((((x) - 1) & GENMASK(5, 0)) << 10)
+#define LCD_HFPLSB(x)			((((x) - 1) & GENMASK(7, 0)) << 16)
+#define LCD_HBPLSB(x)			((((x) - 1) & GENMASK(7, 0)) << 24)
 /* LCD Timing_1 Register */
-#define LCD_VBP(x)				(((x) & GENMASK(7, 0)) << 24)
-#define LCD_VFP(x)				(((x) & GENMASK(7, 0)) << 16)
-#define LCD_VSW(x)			((((x) - 1) & GENMASK(5, 0)) << 10)
 #define LCD_VERLSB(x)				(((x) - 1) & GENMASK(9, 0))
+#define LCD_VSW(x)			((((x) - 1) & GENMASK(5, 0)) << 10)
+#define LCD_VFP(x)				(((x) & GENMASK(7, 0)) << 16)
+#define LCD_VBP(x)				(((x) & GENMASK(7, 0)) << 24)
 /* LCD Timing_2 Register */
-#define LCD_HSWMSB(x)			((((x) - 1) & GENMASK(9, 6)) << 21)
-#define LCD_VERMSB(x)				((((x) - 1) & BIT(10)) << 16)
-#define LCD_HBPMSB(x)			((((x) - 1) & GENMASK(9, 8)) >> 4)
 #define LCD_HFPMSB(x)			((((x) - 1) & GENMASK(9, 8)) >> 8)
+#define LCD_HBPMSB(x)			((((x) - 1) & GENMASK(9, 8)) >> 4)
 #define LCD_INVMASK(x)				((x) & GENMASK(25, 20))
+#define LCD_VERMSB(x)				((((x) - 1) & BIT(10)) << 16)
+#define LCD_HSWMSB(x)			((((x) - 1) & GENMASK(9, 6)) << 21)
 /* LCD Raster Ctrl Register */
+#define LCD_RASTER_ENABLE			BIT(0)
+#define LCD_TFT_MODE				BIT(7)
+#define LCD_PALMODE_RAWDATA			(0x02 << 20)
 #define LCD_TFT_24BPP_MODE			BIT(25)
 #define LCD_TFT_24BPP_UNPACK			BIT(26)
-#define LCD_PALMODE_RAWDATA			(0x02 << 20)
-#define LCD_TFT_MODE				BIT(7)
-#define LCD_RASTER_ENABLE			BIT(0)
-
 
 /* Macro definitions */
 #define FBSIZE(x)	((x->hactive * x->vactive * x->bpp) >> 3)
