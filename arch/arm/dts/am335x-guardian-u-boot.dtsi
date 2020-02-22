@@ -8,6 +8,10 @@
 	ocp {
 		u-boot,dm-pre-reloc;
 	};
+
+	panel {
+		u-boot,dm-pre-reloc;
+	};
 };
 
 &l4_wkup {

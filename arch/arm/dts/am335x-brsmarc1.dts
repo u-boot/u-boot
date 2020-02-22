@@ -59,6 +59,7 @@
 		/*backlight = <&tps_bl>; */
 		compatible = "ti,tilcdc,panel";
 		status = "okay";
+		u-boot,dm-pre-reloc;
 
 		panel-info {
 			ac-bias		= <255>;

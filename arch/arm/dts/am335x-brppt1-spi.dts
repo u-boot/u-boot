@@ -54,6 +54,8 @@
 		bkl-pwm = <&pwmbacklight>;
 		bkl-tps = <&tps_bl>;
 
+		u-boot,dm-pre-reloc;
+
 		panel-info {
 			ac-bias		= <255>;
 			ac-bias-intrpt	= <0>;

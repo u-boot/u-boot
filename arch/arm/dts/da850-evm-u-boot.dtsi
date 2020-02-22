@@ -14,6 +14,10 @@
 	nand {
 		compatible = "ti,davinci-nand";
 	};
+
+	panel {
+		u-boot,dm-pre-reloc;
+	};
 };
 
 &eth0 {
