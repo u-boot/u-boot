@@ -26,14 +26,14 @@
 #define LCDC_FMAX				200000000
 
 /* LCD Control Register */
-#define LCD_CLK_DIVISOR(x)			((x) << 8)
+#define LCD_CLK_DIVISOR(x)			(((x) & GENMASK(7, 0)) << 8)
 #define LCD_RASTER_MODE				BIT(0)
 /* LCD Clock Enable Register */
 #define LCD_CORECLKEN				BIT(0)
 #define LCD_LIDDCLKEN				BIT(1)
 #define LCD_DMACLKEN				BIT(2)
 /* LCD DMA Control Register */
-#define LCD_DMA_BURST_SIZE(x)			((x) << 4)
+#define LCD_DMA_BURST_SIZE(x)			(((x) & GENMASK(2, 0)) << 4)
 #define LCD_DMA_BURST_1				0x0
 #define LCD_DMA_BURST_2				0x1
 #define LCD_DMA_BURST_4				0x2
@@ -46,9 +46,9 @@
 #define LCD_HORLSB(x)		(((((x) >> 4) - 1) & GENMASK(5, 0)) << 4)
 #define LCD_HORMSB(x)				(((((x) >> 4)-1) & 0x40) >> 4)
 /* LCD Timing_1 Register */
-#define LCD_VBP(x)				((x) << 24)
-#define LCD_VFP(x)				((x) << 16)
-#define LCD_VSW(x)				(((x)-1) << 10)
+#define LCD_VBP(x)				(((x) & GENMASK(7, 0)) << 24)
+#define LCD_VFP(x)				(((x) & GENMASK(7, 0)) << 16)
+#define LCD_VSW(x)			((((x) - 1) & GENMASK(5, 0)) << 10)
 #define LCD_VERLSB(x)				(((x) - 1) & GENMASK(9, 0))
 /* LCD Timing_2 Register */
 #define LCD_HSWMSB(x)			((((x) - 1) & GENMASK(9, 6)) << 21)
