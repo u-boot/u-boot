@@ -44,7 +44,7 @@
 #define LCD_HFPLSB(x)			((((x) - 1) & GENMASK(7, 0)) << 16)
 #define LCD_HSWLSB(x)			((((x) - 1) & GENMASK(5, 0)) << 10)
 #define LCD_HORLSB(x)		(((((x) >> 4) - 1) & GENMASK(5, 0)) << 4)
-#define LCD_HORMSB(x)				(((((x) >> 4)-1) & 0x40) >> 4)
+#define LCD_HORMSB(x)				(((((x) >> 4) - 1) & 0x40) >> 4)
 /* LCD Timing_1 Register */
 #define LCD_VBP(x)				(((x) & GENMASK(7, 0)) << 24)
 #define LCD_VFP(x)				(((x) & GENMASK(7, 0)) << 16)
