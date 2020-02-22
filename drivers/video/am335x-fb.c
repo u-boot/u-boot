@@ -160,7 +160,7 @@ int am335xfb_init(struct am335x_lcdpanel *panel)
 	err = panel->pxl_clk;
 	err_r = err;
 
-	for (d = 2; d < 255; d++) {
+	for (d = 2; err_r && d < 255; d++) {
 		for (m = 2; m < 2047; m++) {
 			if ((V_OSCK * m) < (panel->pxl_clk * d))
 				continue;
@@ -176,6 +176,8 @@ int am335xfb_init(struct am335x_lcdpanel *panel)
 				dpll_disp.m = m;
 				dpll_disp.n = n;
 				best_d = d;
+				if (err_r == 0)
+					break;
 			}
 		}
 	}
