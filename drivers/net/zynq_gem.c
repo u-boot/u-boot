@@ -578,6 +578,7 @@ static int zynq_gem_free_pkt(struct udevice *dev, uchar *packet, int length)
 	struct zynq_gem_priv *priv = dev_get_priv(dev);
 	struct emac_bd *current_bd = &priv->rx_bd[priv->rxbd_current];
 	struct emac_bd *first_bd;
+	dma_addr_t addr;
 
 	if (current_bd->status & ZYNQ_GEM_RXBUF_SOF_MASK) {
 		priv->rx_first_buf = priv->rxbd_current;
@@ -591,6 +592,17 @@ static int zynq_gem_free_pkt(struct udevice *dev, uchar *packet, int length)
 		first_bd->addr &= ~ZYNQ_GEM_RXBUF_NEW_MASK;
 		first_bd->status = 0xF0000000;
 	}
+
+	/* Flush the cache for the packet as well */
+#if defined(CONFIG_PHYS_64BIT)
+	addr = (dma_addr_t)((current_bd->addr & ZYNQ_GEM_RXBUF_ADD_MASK)
+		| ((dma_addr_t)current_bd->addr_hi << 32));
+#else
+	addr = current_bd->addr & ZYNQ_GEM_RXBUF_ADD_MASK;
+#endif
+	flush_dcache_range(addr, addr + roundup(PKTSIZE_ALIGN,
+						ARCH_DMA_MINALIGN));
+	barrier();
 
 	if ((++priv->rxbd_current) >= RX_BUF)
 		priv->rxbd_current = 0;
