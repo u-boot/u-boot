@@ -183,6 +183,7 @@ static int imx6q_clk_probe(struct udevice *dev)
 	clk_dm(IMX6QDL_CLK_I2C2,
 	       imx_clk_gate2("i2c2", "ipg_per", base + 0x70, 8));
 
+	clk_dm(IMX6QDL_CLK_ENET, imx_clk_gate2("enet", "ipg", base + 0x6c, 10));
 	return 0;
 }
 
