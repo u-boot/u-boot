@@ -280,6 +280,7 @@ DTC_FLAGS += -Wno-unit_address_vs_reg \
 	-Wno-unit_address_format \
 	-Wno-avoid_unnecessary_addr_size \
 	-Wno-alias_paths \
+	-Wno-simple_bus_reg \
 	-Wno-pci_device_reg
 
 # U-Boot specific disables
