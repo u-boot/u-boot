@@ -281,6 +281,10 @@ DTC_FLAGS += -Wno-unit_address_vs_reg \
 	-Wno-avoid_unnecessary_addr_size \
 	-Wno-alias_paths \
 	-Wno-pci_device_reg
+
+# U-Boot specific disables
+DTC_FLAGS += -Wno-pci_bridge \
+        -Wno-pci_device_bus_num
 endif
 
 ifneq ($(findstring 2,$(KBUILD_ENABLE_EXTRA_GCC_CHECKS)),)
