@@ -3203,9 +3203,9 @@ is done by typing:
 	make NAME_defconfig
 
 where "NAME_defconfig" is the name of one of the existing configu-
-rations; see boards.cfg for supported names.
+rations; see configs/*_defconfig for supported names.
 
-Note: for some board special configuration names may exist; check if
+Note: for some boards special configuration names may exist; check if
       additional information is available from the board vendor; for
       instance, the TQM823L systems are available without (standard)
       or with LCD support. You can select such additional "features"
