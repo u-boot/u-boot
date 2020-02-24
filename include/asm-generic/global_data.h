@@ -25,7 +25,7 @@
 #include <linux/list.h>
 
 typedef struct global_data {
-	bd_t *bd;
+	struct bd_info *bd;
 	unsigned long flags;
 	unsigned int baudrate;
 	unsigned long cpu_clk;		/* CPU clock in Hz!		*/
