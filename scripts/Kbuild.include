@@ -148,7 +148,6 @@ cc-ifversion = $(shell [ $(cc-version) $(1) $(2) ] && echo $(3) || echo $(4))
 
 # added for U-Boot
 binutils-version = $(shell $(CONFIG_SHELL) $(srctree)/scripts/binutils-version.sh $(AS))
-dtc-version = $(shell $(CONFIG_SHELL) $(srctree)/scripts/dtc-version.sh $(DTC))
 
 # cc-ldoption
 # Usage: ldflags += $(call cc-ldoption, -Wl$(comma)--hash-style=both)
