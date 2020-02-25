@@ -404,8 +404,7 @@ config SYS_REDUNDAND_ENVIRONMENT
 config ENV_FAT_INTERFACE
 	string "Name of the block device for the environment"
 	depends on ENV_IS_IN_FAT
-	default "mmc" if ARCH_SUNXI
-	default "mmc" if TI_COMMON_CMD_OPTIONS || ARCH_ZYNQMP || ARCH_AT91
+	default "mmc"
 	help
 	  Define this to a string that is the name of the block device.
 
