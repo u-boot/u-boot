@@ -6,6 +6,7 @@
 #include <asm/gic.h>
 #include <asm/gic-v3.h>
 #include <asm/io.h>
+#include <linux/sizes.h>
 
 static u32 lpi_id_bits;
 

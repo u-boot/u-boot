@@ -295,6 +295,7 @@ To see the complete list of supported options, run
 
 """
 
+import asteval
 import collections
 import copy
 import difflib
@@ -808,10 +809,11 @@ def try_expand(line):
         return line
 
     try:
+        aeval = asteval.Interpreter( usersyms=SIZES, minimal=True )
         cfg, val = re.split("=", line)
         val= val.strip('\"')
         if re.search("[*+-/]|<<|SZ_+|\(([^\)]+)\)", val):
-            newval = hex(eval(val, SIZES))
+            newval = hex(aeval(val))
             print("\tExpanded expression %s to %s" % (val, newval))
             return cfg+'='+newval
     except:
@@ -1215,7 +1217,7 @@ class Slot:
                                "Failed to process.\n")
         if self.options.verbose:
             self.log += color_text(self.options.color, COLOR_LIGHT_CYAN,
-                                   self.ps.stderr.read())
+                                   self.ps.stderr.read().decode())
         self.finish(False)
 
     def do_defconfig(self):
