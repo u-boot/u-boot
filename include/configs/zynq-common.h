@@ -41,8 +41,6 @@
 # define CONFIG_BOOTP_MAY_FAIL
 #endif
 
-/* QSPI */
-
 /* NOR */
 #ifdef CONFIG_MTD_NOR_FLASH
 # define CONFIG_SYS_FLASH_BASE		0xE2000000
