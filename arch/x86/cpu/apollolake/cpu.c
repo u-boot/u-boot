@@ -14,15 +14,10 @@ static int apl_get_info(struct udevice *dev, struct cpu_info *info)
 	return cpu_intel_get_info(info, INTEL_BCLK_MHZ);
 }
 
-static int apl_get_count(struct udevice *dev)
-{
-	return 4;
-}
-
 static const struct cpu_ops cpu_x86_apl_ops = {
 	.get_desc	= cpu_x86_get_desc,
 	.get_info	= apl_get_info,
-	.get_count	= apl_get_count,
+	.get_count	= cpu_x86_get_count,
 	.get_vendor	= cpu_x86_get_vendor,
 };
 
