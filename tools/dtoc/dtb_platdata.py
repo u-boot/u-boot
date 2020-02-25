@@ -423,7 +423,7 @@ class DtbPlatdata(object):
 
         This writes out the body of a header file consisting of structure
         definitions for node in self._valid_nodes. See the documentation in
-        README.of-plat for more information.
+        doc/driver-model/of-plat.rst for more information.
         """
         self.out_header()
         self.out('#include <stdbool.h>\n')
@@ -527,7 +527,7 @@ class DtbPlatdata(object):
         U_BOOT_DEVICE() declarations for each valid node. Where a node has
         multiple compatible strings, a #define is used to make them equivalent.
 
-        See the documentation in doc/driver-model/of-plat.txt for more
+        See the documentation in doc/driver-model/of-plat.rst for more
         information.
         """
         self.out_header()
