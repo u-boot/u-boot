@@ -2,7 +2,7 @@
 
 # Grab our configured image.  The source for this is found at:
 # https://gitlab.denx.de/u-boot/gitlab-ci-runner
-image: trini/u-boot-gitlab-ci-runner:bionic-20200112-07Feb2020
+image: trini/u-boot-gitlab-ci-runner:bionic-20200112-21Feb2020
 
 # We run some tests in different order, to catch some failures quicker.
 stages:
@@ -121,6 +121,13 @@ grep TODO/FIXME/HACK:
     - grep -r FIXME .
     # search for HACK within source tree and ignore HACKKIT board
     - grep -r HACK . | grep -v HACKKIT
+
+# build HTML documentation
+htmldocs:
+  tags: [ 'all' ]
+  stage: testsuites
+  script:
+    - make htmldocs
 
 # some statistics about the code base
 sloccount:

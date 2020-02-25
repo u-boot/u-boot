@@ -22,6 +22,7 @@ addons:
     - libsdl2-dev
     - python
     - python-pyelftools
+    - python3-sphinx
     - python3-virtualenv
     - python3-pip
     - swig
@@ -38,6 +39,7 @@ addons:
     - libisl15
     - clang-7
     - srecord
+    - graphviz
 
 install:
  # Clone uboot-test-hooks
@@ -352,6 +354,10 @@ matrix:
     - name: "cppcheck"
       script:
         - cppcheck --force --quiet --inline-suppr .
+    # build HTML documentation
+    - name: "htmldocs"
+      script:
+        - make htmldocs
     # search for TODO within source tree
     - name: "grep TODO"
       script:

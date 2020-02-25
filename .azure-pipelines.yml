@@ -1,7 +1,7 @@
 variables:
   windows_vm: vs2017-win2016
   ubuntu_vm: ubuntu-18.04
-  ci_runner_image: trini/u-boot-gitlab-ci-runner:bionic-20200112-07Feb2020
+  ci_runner_image: trini/u-boot-gitlab-ci-runner:bionic-20200112-21Feb2020
   # Add '-u 0' options for Azure pipelines, otherwise we get "permission
   # denied" error when it tries to "useradd -m -u 1001 vsts_azpcontainer",
   # since our $(ci_runner_image) user is not root.
@@ -53,6 +53,16 @@ jobs:
       options: $(container_option)
     steps:
       - script: cppcheck --force --quiet --inline-suppr .
+
+  - job: htmldocs
+    displayName: 'Build HTML documentation'
+    pool:
+      vmImage: $(ubuntu_vm)
+    container:
+      image: $(ci_runner_image)
+      options: $(container_option)
+    steps:
+      - script: make htmldocs
 
   - job: todo
     displayName: 'Search for TODO within source tree'
