@@ -2103,7 +2103,7 @@ config CMD_BEDBUG
 	help
 	  The bedbug (emBEDded deBUGger) command provides debugging features
 	  for some PowerPC processors. For details please see the
-	  docuemntation in doc/README.beddbug
+	  documentation in doc/README.bedbug.
 
 config CMD_DIAG
 	bool "diag - Board diagnostics"
