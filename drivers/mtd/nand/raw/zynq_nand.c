@@ -1090,6 +1090,11 @@ static int zynq_nand_probe(struct udevice *dev)
 		return -ENODEV;
 	}
 
+	if (!ofnode_is_available(of_nand)) {
+		debug("Nand node in dt disabled\n");
+		return dm_scan_fdt_dev(dev);
+	}
+
 	if (ofnode_read_resource(of_nand, 0, &res)) {
 		printf("Failed to get nand resource\n");
 		return -ENODEV;
