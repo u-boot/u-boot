@@ -2,6 +2,7 @@ menu "Watchdog Timer Support"
 
 config WATCHDOG
 	bool "Enable U-Boot watchdog reset"
+	depends on !HW_WATCHDOG
 	help
 	  This option enables U-Boot watchdog support where U-Boot is using
 	  watchdog_reset function to service watchdog device in U-Boot. Enable
