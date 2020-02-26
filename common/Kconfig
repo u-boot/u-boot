@@ -777,7 +777,7 @@ config TPL_LOG_CONSOLE
 
 config LOG_TEST
 	bool "Provide a test for logging"
-	depends on LOG
+	depends on LOG && UNIT_TEST
 	default y if SANDBOX
 	help
 	  This enables a 'log test' command to test logging. It is normally
