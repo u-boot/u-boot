@@ -579,7 +579,7 @@ a USB bus with several devices attached to it, each from a different (made
 up) uclass::
 
    xhci_usb (UCLASS_USB)
-      eth (UCLASS_ETHERNET)
+      eth (UCLASS_ETH)
       camera (UCLASS_CAMERA)
       flash (UCLASS_FLASH_STORAGE)
 
