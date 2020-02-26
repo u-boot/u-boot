@@ -115,11 +115,11 @@ static inline int _log_nop(enum log_category_t cat, enum log_level_t level,
 #define log_io(_fmt...)		log(LOG_CATEGORY, LOGL_DEBUG_IO, ##_fmt)
 #else
 #define _LOG_MAX_LEVEL LOGL_INFO
-#define log_err(_fmt...)	log_nop(LOG_CATEGORY, LOGL_ERR, ##_fmt)
-#define log_warning(_fmt...)	log_nop(LOG_CATEGORY, LOGL_WARNING, ##_fmt)
-#define log_notice(_fmt...)	log_nop(LOG_CATEGORY, LOGL_NOTICE, ##_fmt)
-#define log_info(_fmt...)	log_nop(LOG_CATEGORY, LOGL_INFO, ##_fmt)
-#define log_debug(_fmt...)	log_nop(LOG_CATEGORY, LOGL_DEBUG, ##_fmt)
+#define log_err(_fmt, ...)	printf(_fmt, ##__VA_ARGS__)
+#define log_warning(_fmt, ...)	printf(_fmt, ##__VA_ARGS__)
+#define log_notice(_fmt, ...)	printf(_fmt, ##__VA_ARGS__)
+#define log_info(_fmt, ...)	printf(_fmt, ##__VA_ARGS__)
+#define log_debug(_fmt, ...)	debug(_fmt, ##__VA_ARGS__)
 #define log_content(_fmt...)	log_nop(LOG_CATEGORY, \
 					LOGL_DEBUG_CONTENT, ##_fmt)
 #define log_io(_fmt...)		log_nop(LOG_CATEGORY, LOGL_DEBUG_IO, ##_fmt)
