@@ -64,7 +64,6 @@
 	""PARTS_BOOT" part 0 1;" \
 	""PARTS_ROOT" part 0 2\0" \
 
-#define CONFIG_SET_DFU_ALT_INFO
 #define CONFIG_SET_DFU_ALT_BUF_LEN	(SZ_1K)
 
 #define CONFIG_DFU_ALT_BOOT_EMMC \

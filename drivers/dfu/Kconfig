@@ -81,5 +81,10 @@ config DFU_VIRT
 	  used at board level to manage specific behavior
 	  (OTP update for example).
 
+config SET_DFU_ALT_INFO
+	bool "Dynamic set of DFU alternate information"
+	help
+	  This option allows to call the function set_dfu_alt_info to
+	  dynamically build dfu_alt_info in board.
 endif
 endmenu
