@@ -130,6 +130,9 @@ void board_init_f(ulong dummy)
 	/* Initialize Auto Voltage Scaling */
 	mv_avs_init();
 
+	/* Update read timing control for PCIe */
+	mv_rtc_config();
+
 	/*
 	 * Return to the BootROM to continue the Marvell xmodem
 	 * UART boot protocol. As initiated by the kwboot tool.

@@ -257,6 +257,23 @@ u8 sys_env_device_rev_get(void)
 	return (value & (REVISON_ID_MASK)) >> REVISON_ID_OFFS;
 }
 
+void mv_rtc_config(void)
+{
+	u32 i, val;
+
+	if (!(IS_ENABLED(CONFIG_ARMADA_38X) || IS_ENABLED(CONFIG_ARMADA_39X)))
+		return;
+
+	/* Activate pipe0 for read/write transaction, and set XBAR client number #1 */
+	val = 0x1 << DFX_PIPE_SELECT_PIPE0_ACTIVE_OFFS |
+	      0x1 << DFX_PIPE_SELECT_XBAR_CLIENT_SEL_OFFS;
+	writel(val, MVEBU_DFX_BASE);
+
+	/* Set new RTC value for all memory wrappers */
+	for (i = 0; i < RTC_MEMORY_WRAPPER_COUNT; i++)
+		reg_write(RTC_MEMORY_WRAPPER_REG(i), RTC_MEMORY_WRAPPER_CTRL_VAL);
+}
+
 void mv_avs_init(void)
 {
 	u32 sar_freq;

@@ -150,6 +150,19 @@
 #define MPP_UART1_SET_MASK		(~(0xff000))
 #define MPP_UART1_SET_DATA		(0x66000)
 
+#define DFX_PIPE_SELECT_PIPE0_ACTIVE_OFFS	0
+/* DFX_PIPE_SELECT_XBAR_CLIENT_SEL_OFFS: Since address completion in 14bit
+ * address mode, and given that [14:8] => [19:13], the 2 lower bits [9:8] =>
+ * [14:13] are dismissed. hence field offset is also shifted to 10
+ */
+#define DFX_PIPE_SELECT_XBAR_CLIENT_SEL_OFFS	10
+
+#define RTC_MEMORY_CTRL_REG_BASE	0xE6000
+#define RTC_MEMORY_WRAPPER_COUNT	8
+#define RTC_MEMORY_WRAPPER_REG(i)	(RTC_MEMORY_CTRL_REG_BASE + ((i) * 0x40))
+#define RTC_MEMORY_CTRL_PDLVMC_FIELD_OFFS	6
+#define RTC_MEMORY_WRAPPER_CTRL_VAL	(0x1 << RTC_MEMORY_CTRL_PDLVMC_FIELD_OFFS)
+
 #define AVS_DEBUG_CNTR_REG		0xe4124
 #define AVS_DEBUG_CNTR_DEFAULT_VALUE	0x08008073
 

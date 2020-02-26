@@ -166,8 +166,10 @@ int ddr3_init(void);
 /* Auto Voltage Scaling */
 #if defined(CONFIG_ARMADA_38X) || defined(CONFIG_ARMADA_39X)
 void mv_avs_init(void);
+void mv_rtc_config(void);
 #else
 static inline void mv_avs_init(void) {}
+static inline void mv_rtc_config(void) {}
 #endif
 
 /*
