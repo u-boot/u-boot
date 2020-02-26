@@ -74,7 +74,7 @@ struct am654_sdhci_plat {
 	struct mmc mmc;
 	struct regmap *base;
 	bool non_removable;
-	u32 otap_del_sel;
+	u32 otap_del_sel[11];
 	u32 trm_icp;
 	u32 drv_strength;
 	u32 strb_sel;
@@ -84,6 +84,25 @@ struct am654_sdhci_plat {
 #define FREQSEL_2_BIT	(1 << 2)
 #define STRBSEL_4_BIT	(1 << 3)
 	bool dll_on;
+};
+
+struct timing_data {
+	const char *binding;
+	u32 capability;
+};
+
+static const struct timing_data td[] = {
+	[MMC_LEGACY] = {"ti,otap-del-sel-legacy", 0},
+	[MMC_HS] = {"ti,otap-del-sel-mmc-hs", MMC_CAP(MMC_HS)},
+	[SD_HS]  = {"ti,otap-del-sel-sd-hs", MMC_CAP(SD_HS)},
+	[UHS_SDR12] = {"ti,otap-del-sel-sdr12", MMC_CAP(UHS_SDR12)},
+	[UHS_SDR25] = {"ti,otap-del-sel-sdr25", MMC_CAP(UHS_SDR25)},
+	[UHS_SDR50] = {"ti,otap-del-sel-sdr50", MMC_CAP(UHS_SDR50)},
+	[UHS_SDR104] = {"ti,otap-del-sel-sdr104", MMC_CAP(UHS_SDR104)},
+	[UHS_DDR50] = {"ti,otap-del-sel-ddr50", MMC_CAP(UHS_DDR50)},
+	[MMC_DDR_52] = {"ti,otap-del-sel-ddr52", MMC_CAP(MMC_DDR_52)},
+	[MMC_HS_200] = {"ti,otap-del-sel-hs200", MMC_CAP(MMC_HS_200)},
+	[MMC_HS_400] = {"ti,otap-del-sel-hs400", MMC_CAP(MMC_HS_400)},
 };
 
 struct am654_driver_data {
@@ -112,6 +131,7 @@ static int am654_sdhci_set_ios_post(struct sdhci_host *host)
 	struct am654_sdhci_plat *plat = dev_get_platdata(dev);
 	unsigned int speed = host->mmc->clock;
 	int sel50, sel100, freqsel;
+	u32 otap_del_sel;
 	u32 mask, val;
 	int ret;
 
@@ -132,9 +152,10 @@ static int am654_sdhci_set_ios_post(struct sdhci_host *host)
 
 	/* switch phy back on */
 	if (speed > AM654_SDHCI_MIN_FREQ) {
+		otap_del_sel = plat->otap_del_sel[host->mmc->selected_mode];
 		mask = OTAPDLYENA_MASK | OTAPDLYSEL_MASK;
 		val = (1 << OTAPDLYENA_SHIFT) |
-		      (plat->otap_del_sel << OTAPDLYSEL_SHIFT);
+		      (otap_del_sel << OTAPDLYSEL_SHIFT);
 
 		/* Write to STRBSEL for HS400 speed mode */
 		if (host->mmc->selected_mode == MMC_HS_400) {
@@ -216,11 +237,11 @@ static int j721e_4bit_sdhci_set_ios_post(struct sdhci_host *host)
 {
 	struct udevice *dev = host->mmc->dev;
 	struct am654_sdhci_plat *plat = dev_get_platdata(dev);
-	u32 mask, val;
+	u32 otap_del_sel, mask, val;
 
+	otap_del_sel = plat->otap_del_sel[host->mmc->selected_mode];
 	mask = OTAPDLYENA_MASK | OTAPDLYSEL_MASK;
-	val = (1 << OTAPDLYENA_SHIFT) |
-	      (plat->otap_del_sel << OTAPDLYSEL_SHIFT);
+	val = (1 << OTAPDLYENA_SHIFT) | (otap_del_sel << OTAPDLYSEL_SHIFT);
 	regmap_update_bits(plat->base, PHY_CTRL4, mask, val);
 
 	return 0;
@@ -281,6 +302,37 @@ int am654_sdhci_init(struct am654_sdhci_plat *plat)
 	return 0;
 }
 
+static int sdhci_am654_get_otap_delay(struct udevice *dev,
+				      struct mmc_config *cfg)
+{
+	struct am654_sdhci_plat *plat = dev_get_platdata(dev);
+	int ret;
+	int i;
+
+	/* ti,otap-del-sel-legacy is mandatory */
+	ret = dev_read_u32(dev, "ti,otap-del-sel-legacy",
+			   &plat->otap_del_sel[0]);
+	if (ret)
+		return ret;
+	/*
+	 * Remove the corresponding capability if an otap-del-sel
+	 * value is not found
+	 */
+	for (i = MMC_HS; i <= MMC_HS_400; i++) {
+		ret = dev_read_u32(dev, td[i].binding, &plat->otap_del_sel[i]);
+		if (ret) {
+			dev_dbg(dev, "Couldn't find %s\n", td[i].binding);
+			/*
+			 * Remove the corresponding capability
+			 * if an otap-del-sel value is not found
+			 */
+			cfg->host_caps &= ~td[i].capability;
+		}
+	}
+
+	return 0;
+}
+
 static int am654_sdhci_probe(struct udevice *dev)
 {
 	struct am654_driver_data *drv_data =
@@ -313,6 +365,10 @@ static int am654_sdhci_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
+	ret = sdhci_am654_get_otap_delay(dev, cfg);
+	if (ret)
+		return ret;
+
 	host->ops = drv_data->ops;
 	host->mmc->priv = host;
 	upriv->mmc = host->mmc;
@@ -335,10 +391,6 @@ static int am654_sdhci_ofdata_to_platdata(struct udevice *dev)
 	host->name = dev->name;
 	host->ioaddr = (void *)dev_read_addr(dev);
 	plat->non_removable = dev_read_bool(dev, "non-removable");
-
-	ret = dev_read_u32(dev, "ti,otap-del-sel", &plat->otap_del_sel);
-	if (ret)
-		return ret;
 
 	if (plat->flags & DLL_PRESENT) {
 		ret = dev_read_u32(dev, "ti,trm-icp", &plat->trm_icp);
