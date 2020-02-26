@@ -127,8 +127,6 @@
 #define CONFIG_SYS_MMC_ENV_PART	1
 #endif
 
-#define CONFIG_SUPPORT_EMMC_BOOT
-
 /* Now for the remaining common defines */
 #include <configs/ti_armv7_common.h>
 
