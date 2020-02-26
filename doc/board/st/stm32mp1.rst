@@ -25,6 +25,14 @@ It features:
  - Standard connectivity, widely inherited from the STM32 MCU family
  - Comprehensive security support
 
+Each line comes with a security option (cryptography & secure boot) and
+a Cortex-A frequency option:
+
+ - A : Cortex-A7 @ 650 MHz
+ - C : Secure Boot + HW Crypto + Cortex-A7 @ 650 MHz
+ - D : Cortex-A7 @ 800 MHz
+ - F : Secure Boot + HW Crypto + Cortex-A7 @ 800 MHz
+
 Everything is supported in Linux but U-Boot is limited to:
 
  1. UART

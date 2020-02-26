@@ -285,17 +285,35 @@ void get_soc_name(char name[SOC_NAME_SIZE])
 
 	/* MPUs Part Numbers */
 	switch (get_cpu_type()) {
+	case CPU_STM32MP157Fxx:
+		cpu_s = "157F";
+		break;
+	case CPU_STM32MP157Dxx:
+		cpu_s = "157D";
+		break;
 	case CPU_STM32MP157Cxx:
 		cpu_s = "157C";
 		break;
 	case CPU_STM32MP157Axx:
 		cpu_s = "157A";
 		break;
+	case CPU_STM32MP153Fxx:
+		cpu_s = "153F";
+		break;
+	case CPU_STM32MP153Dxx:
+		cpu_s = "153D";
+		break;
 	case CPU_STM32MP153Cxx:
 		cpu_s = "153C";
 		break;
 	case CPU_STM32MP153Axx:
 		cpu_s = "153A";
+		break;
+	case CPU_STM32MP151Fxx:
+		cpu_s = "151F";
+		break;
+	case CPU_STM32MP151Dxx:
+		cpu_s = "151D";
 		break;
 	case CPU_STM32MP151Cxx:
 		cpu_s = "151C";

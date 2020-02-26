@@ -244,6 +244,8 @@ int ft_system_setup(void *blob, bd_t *bd)
 	get_soc_name(name);
 
 	switch (cpu) {
+	case CPU_STM32MP151Fxx:
+	case CPU_STM32MP151Dxx:
 	case CPU_STM32MP151Cxx:
 	case CPU_STM32MP151Axx:
 		stm32_fdt_fixup_cpu(blob, name);
@@ -251,6 +253,8 @@ int ft_system_setup(void *blob, bd_t *bd)
 		soc = fdt_path_offset(blob, "/soc");
 		stm32_fdt_disable(blob, soc, STM32_FDCAN_BASE, "can", name);
 		/* fall through */
+	case CPU_STM32MP153Fxx:
+	case CPU_STM32MP153Dxx:
 	case CPU_STM32MP153Cxx:
 	case CPU_STM32MP153Axx:
 		stm32_fdt_disable(blob, soc, STM32_GPU_BASE, "gpu", name);
@@ -261,8 +265,11 @@ int ft_system_setup(void *blob, bd_t *bd)
 	}
 
 	switch (cpu) {
+	case CPU_STM32MP157Dxx:
 	case CPU_STM32MP157Axx:
+	case CPU_STM32MP153Dxx:
 	case CPU_STM32MP153Axx:
+	case CPU_STM32MP151Dxx:
 	case CPU_STM32MP151Axx:
 		stm32_fdt_disable(blob, soc, STM32_CRYP1_BASE, "cryp", name);
 		stm32_fdt_disable(blob, soc, STM32_CRYP2_BASE, "cryp", name);
