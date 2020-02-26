@@ -656,7 +656,7 @@ S:	Maintained
 T:	git https://gitlab.denx.de/u-boot/u-boot.git
 F:	common/log*
 F:	cmd/log.c
-F:	test/log/log_test.c
+F:	test/log/
 F:	test/py/tests/test_log.py
 
 MALI DISPLAY PROCESSORS
