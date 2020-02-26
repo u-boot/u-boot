@@ -545,7 +545,6 @@ struct sd_ssr {
 
 enum bus_mode {
 	MMC_LEGACY,
-	SD_LEGACY,
 	MMC_HS,
 	SD_HS,
 	MMC_HS_52,

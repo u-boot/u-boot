@@ -392,7 +392,6 @@ static void omap_hsmmc_set_timing(struct mmc *mmc)
 		break;
 	case MMC_LEGACY:
 	case MMC_HS:
-	case SD_LEGACY:
 	case UHS_SDR12:
 		val |= AC12_UHSMC_SDR12;
 		break;
