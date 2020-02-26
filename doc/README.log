@@ -147,7 +147,10 @@ several possible determinations for logging information, all of which can be
 enabled or disabled independently:
 
    console - goes to stdout
+   syslog - broadcast RFC 3164 messages to syslog servers on UDP port 514
 
+The syslog driver sends the value of environmental variable 'log_hostname' as
+HOSTNAME if available.
 
 Log format
 ----------

@@ -775,6 +775,13 @@ config TPL_LOG_CONSOLE
 	  log message is shown - other details like level, category, file and
 	  line number are omitted.
 
+config LOG_SYSLOG
+	bool "Log output to syslog server"
+	depends on LOG && NET
+	help
+	  Enables a log driver which broadcasts log records via UDP port 514
+	  to syslog servers.
+
 config LOG_TEST
 	bool "Provide a test for logging"
 	depends on LOG && UNIT_TEST

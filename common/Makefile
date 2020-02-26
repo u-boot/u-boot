@@ -132,6 +132,7 @@ obj-$(CONFIG_DFU_OVER_USB) += dfu.o
 obj-y += command.o
 obj-$(CONFIG_$(SPL_TPL_)LOG) += log.o
 obj-$(CONFIG_$(SPL_TPL_)LOG_CONSOLE) += log_console.o
+obj-$(CONFIG_$(SPL_TPL_)LOG_SYSLOG) += log_syslog.o
 obj-y += s_record.o
 obj-$(CONFIG_CMD_LOADB) += xyzModem.o
 obj-$(CONFIG_$(SPL_TPL_)YMODEM_SUPPORT) += xyzModem.o
