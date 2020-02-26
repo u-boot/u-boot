@@ -18,6 +18,10 @@
 /* For manual relocation support */
 DECLARE_GLOBAL_DATA_PTR;
 
+/* GUID of the runtime properties table */
+static const efi_guid_t efi_rt_properties_table_guid =
+				EFI_RT_PROPERTIES_TABLE_GUID;
+
 struct efi_runtime_mmio_list {
 	struct list_head link;
 	void **ptr;
@@ -94,9 +98,28 @@ static __efi_runtime_data efi_uintn_t efi_descriptor_size;
  * handle a good number of runtime callbacks
  */
 
+/**
+ * efi_init_runtime_supported() - create runtime properties table
+ *
+ * Create a configuration table specifying which services are available at
+ * runtime.
+ *
+ * Return:	status code
+ */
 efi_status_t efi_init_runtime_supported(void)
 {
-	u16 efi_runtime_services_supported =
+	efi_status_t ret;
+	struct efi_rt_properties_table *rt_table;
+
+	ret = efi_allocate_pool(EFI_RUNTIME_SERVICES_DATA,
+				sizeof(struct efi_rt_properties_table),
+				(void **)&rt_table);
+	if (ret != EFI_SUCCESS)
+		return ret;
+
+	rt_table->version = EFI_RT_PROPERTIES_TABLE_VERSION;
+	rt_table->length = sizeof(struct efi_rt_properties_table);
+	rt_table->runtime_services_supported =
 				EFI_RT_SUPPORTED_SET_VIRTUAL_ADDRESS_MAP |
 				EFI_RT_SUPPORTED_CONVERT_POINTER;
 
@@ -105,15 +128,12 @@ efi_status_t efi_init_runtime_supported(void)
 	 * as well as efi_runtime_services.
 	 */
 #ifdef CONFIG_EFI_HAVE_RUNTIME_RESET
-	efi_runtime_services_supported |= EFI_RT_SUPPORTED_RESET_SYSTEM;
+	rt_table->runtime_services_supported |= EFI_RT_SUPPORTED_RESET_SYSTEM;
 #endif
 
-	return EFI_CALL(efi_set_variable(L"RuntimeServicesSupported",
-					 &efi_global_variable_guid,
-					 EFI_VARIABLE_BOOTSERVICE_ACCESS |
-					 EFI_VARIABLE_RUNTIME_ACCESS,
-					 sizeof(efi_runtime_services_supported),
-					 &efi_runtime_services_supported));
+	ret = efi_install_configuration_table(&efi_rt_properties_table_guid,
+					      rt_table);
+	return ret;
 }
 
 /**
