@@ -8,6 +8,10 @@ ifdef CONFIG_UT_LOG
 
 obj-y += test-main.o
 
+ifdef CONFIG_SANDBOX
+obj-$(CONFIG_LOG_SYSLOG) += syslog_test.o
+endif
+
 ifndef CONFIG_LOG
 obj-$(CONFIG_CONSOLE_RECORD) += nolog_test.o
 endif
