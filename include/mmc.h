@@ -410,6 +410,14 @@ struct mmc;
 #if CONFIG_IS_ENABLED(DM_MMC)
 struct dm_mmc_ops {
 	/**
+	 * deferred_probe() - Some configurations that need to be deferred
+	 * to just before enumerating the device
+	 *
+	 * @dev:	Device to init
+	 * @return 0 if Ok, -ve if error
+	 */
+	int (*deferred_probe)(struct udevice *dev);
+	/**
 	 * send_cmd() - Send a command to the MMC device
 	 *
 	 * @dev:	Device to receive the command
@@ -492,6 +500,7 @@ int dm_mmc_get_wp(struct udevice *dev);
 int dm_mmc_execute_tuning(struct udevice *dev, uint opcode);
 int dm_mmc_wait_dat0(struct udevice *dev, int state, int timeout_us);
 int dm_mmc_host_power_cycle(struct udevice *dev);
+int dm_mmc_deferred_probe(struct udevice *dev);
 
 /* Transition functions for compatibility */
 int mmc_set_ios(struct mmc *mmc);
@@ -501,6 +510,7 @@ int mmc_execute_tuning(struct mmc *mmc, uint opcode);
 int mmc_wait_dat0(struct mmc *mmc, int state, int timeout_us);
 int mmc_set_enhanced_strobe(struct mmc *mmc);
 int mmc_host_power_cycle(struct mmc *mmc);
+int mmc_deferred_probe(struct mmc *mmc);
 
 #else
 struct mmc_ops {

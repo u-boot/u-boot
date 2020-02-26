@@ -2845,7 +2845,9 @@ int mmc_start_init(struct mmc *mmc)
 	 */
 	mmc->host_caps = mmc->cfg->host_caps | MMC_CAP(SD_LEGACY) |
 			 MMC_CAP(MMC_LEGACY) | MMC_MODE_1BIT;
-
+#if CONFIG_IS_ENABLED(DM_MMC)
+	mmc_deferred_probe(mmc);
+#endif
 #if !defined(CONFIG_MMC_BROKEN_CD)
 	no_card = mmc_getcd(mmc) == 0;
 #else
