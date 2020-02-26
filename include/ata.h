@@ -6,11 +6,8 @@
 
 /*
  * Most of the following information was derived from the document
- * "Information Technology - AT Attachment-3 Interface (ATA-3)"
- * which can be found at:
- * http://www.dt.wdc.com/ata/ata-3/ata3r5v.zip
- * ftp://poctok.iae.nsk.su/pub/asm/Documents/IDE/ATA3R5V.ZIP
- * ftp://ftp.fee.vutbr.cz/pub/doc/io/ata/ata-3/ata3r5v.zip
+ * "Information Technology - AT Attachment-3 Interface (ATA-3)",
+ * ANSI X3.298-1997.
  */
 
 #ifndef	_ATA_H
