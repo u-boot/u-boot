@@ -278,7 +278,14 @@ int i2c_multiplexer_select_vid_channel(u8 channel)
 
 int init_func_vid(void)
 {
-	if (adjust_vdd(0) < 0)
+	int set_vid;
+
+	if (IS_SVR_REV(get_svr(), 1, 0))
+		set_vid = adjust_vdd(800);
+	else
+		set_vid = adjust_vdd(0);
+
+	if (set_vid < 0)
 		printf("core voltage not adjusted\n");
 
 	return 0;
