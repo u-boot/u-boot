@@ -71,42 +71,8 @@
 #define ATA_LBA		0xE0
 
 /*
- * ATA Commands (only mandatory commands listed here)
- */
-#define ATA_CMD_READ	0x20	/* Read Sectors (with retries)	*/
-#define ATA_CMD_READN	0x21	/* Read Sectors ( no  retries)	*/
-#define ATA_CMD_WRITE	0x30	/* Write Sectores (with retries)*/
-#define ATA_CMD_WRITEN	0x31	/* Write Sectors  ( no  retries)*/
-#define ATA_CMD_VRFY	0x40	/* Read Verify  (with retries)	*/
-#define ATA_CMD_VRFYN	0x41	/* Read verify  ( no  retries)	*/
-#define ATA_CMD_SEEK	0x70	/* Seek				*/
-#define ATA_CMD_DIAG	0x90	/* Execute Device Diagnostic	*/
-#define ATA_CMD_INIT	0x91	/* Initialize Device Parameters	*/
-#define ATA_CMD_RD_MULT	0xC4	/* Read Multiple		*/
-#define ATA_CMD_WR_MULT	0xC5	/* Write Multiple		*/
-#define ATA_CMD_SETMULT	0xC6	/* Set Multiple Mode		*/
-#define ATA_CMD_RD_DMA	0xC8	/* Read DMA (with retries)	*/
-#define ATA_CMD_RD_DMAN	0xC9	/* Read DMS ( no  retries)	*/
-#define ATA_CMD_WR_DMA	0xCA	/* Write DMA (with retries)	*/
-#define ATA_CMD_WR_DMAN	0xCB	/* Write DMA ( no  retires)	*/
-#define ATA_CMD_IDENT	0xEC	/* Identify Device		*/
-#define ATA_CMD_SETF	0xEF	/* Set Features			*/
-#define ATA_CMD_CHK_PWR	0xE5	/* Check Power Mode		*/
-
-#define ATA_CMD_READ_EXT 0x24	/* Read Sectors (with retries)	with 48bit addressing */
-#define ATA_CMD_WRITE_EXT	0x34	/* Write Sectores (with retries) with 48bit addressing */
-#define ATA_CMD_VRFY_EXT	0x42	/* Read Verify	(with retries)	with 48bit addressing */
-
-#define ATA_CMD_FLUSH 0xE7 /* Flush drive cache */
-#define ATA_CMD_FLUSH_EXT 0xEA /* Flush drive cache, with 48bit addressing */
-
-/*
  * ATAPI Commands
  */
-#define ATAPI_CMD_IDENT 0xA1 /* Identify AT Atachment Packed Interface Device */
-#define ATAPI_CMD_PACKET 0xA0 /* Packed Command */
-
-
 #define ATAPI_CMD_INQUIRY 0x12
 #define ATAPI_CMD_REQ_SENSE 0x03
 #define ATAPI_CMD_READ_CAP 0x25
