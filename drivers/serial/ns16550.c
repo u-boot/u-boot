@@ -476,6 +476,8 @@ static int ns16550_serial_getinfo(struct udevice *dev,
 	info->reg_width = plat->reg_width;
 	info->reg_shift = plat->reg_shift;
 	info->reg_offset = plat->reg_offset;
+	info->clock = plat->clock;
+
 	return 0;
 }
 
