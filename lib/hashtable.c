@@ -450,7 +450,6 @@ static void _hdelete(const char *key, struct hsearch_data *htab,
 	debug("hdelete: DELETING key \"%s\"\n", key);
 	free((void *)ep->key);
 	free(ep->data);
-	ep->callback = NULL;
 	ep->flags = 0;
 	htab->table[idx].used = USED_DELETED;
 

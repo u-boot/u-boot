@@ -29,8 +29,10 @@ enum env_action {
 struct env_entry {
 	const char *key;
 	char *data;
+#ifndef CONFIG_SPL_BUILD
 	int (*callback)(const char *name, const char *value, enum env_op op,
 		int flags);
+#endif
 	int flags;
 };
 
