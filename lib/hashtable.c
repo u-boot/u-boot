@@ -226,8 +226,10 @@ static int
 do_callback(const struct env_entry *e, const char *name, const char *value,
 	    enum env_op op, int flags)
 {
+#ifndef CONFIG_SPL_BUILD
 	if (e->callback)
 		return e->callback(name, value, op, flags);
+#endif
 	return 0;
 }
 
