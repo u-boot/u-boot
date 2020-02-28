@@ -14,7 +14,7 @@
 
 struct i2c_eeprom_drv_data {
 	u32 size; /* size in bytes */
-	u32 pagewidth; /* pagesize = 2^pagewidth */
+	u32 pagesize; /* page size in bytes */
 	u32 addr_offset_mask; /* bits in addr used for offset overflow */
 	u32 offset_len; /* size in bytes of offset */
 };
@@ -103,7 +103,7 @@ static int i2c_eeprom_std_ofdata_to_platdata(struct udevice *dev)
 		priv->pagesize = pagesize;
 	else
 		/* 6 bit -> page size of up to 2^63 (should be sufficient) */
-		priv->pagesize = 1 << data->pagewidth;
+		priv->pagesize = data->pagesize;
 
 	if (dev_read_u32(dev, "size", &size) == 0)
 		priv->size = size;
@@ -156,98 +156,98 @@ static int i2c_eeprom_std_probe(struct udevice *dev)
 
 static const struct i2c_eeprom_drv_data eeprom_data = {
 	.size = 0,
-	.pagewidth = 0,
+	.pagesize = 1,
 	.addr_offset_mask = 0,
 	.offset_len = 1,
 };
 
 static const struct i2c_eeprom_drv_data mc24aa02e48_data = {
 	.size = 256,
-	.pagewidth = 3,
+	.pagesize = 8,
 	.addr_offset_mask = 0,
 	.offset_len = 1,
 };
 
 static const struct i2c_eeprom_drv_data atmel24c01a_data = {
 	.size = 128,
-	.pagewidth = 3,
+	.pagesize = 8,
 	.addr_offset_mask = 0,
 	.offset_len = 1,
 };
 
 static const struct i2c_eeprom_drv_data atmel24c02_data = {
 	.size = 256,
-	.pagewidth = 3,
+	.pagesize = 8,
 	.addr_offset_mask = 0,
 	.offset_len = 1,
 };
 
 static const struct i2c_eeprom_drv_data atmel24c04_data = {
 	.size = 512,
-	.pagewidth = 4,
+	.pagesize = 16,
 	.addr_offset_mask = 0x1,
 	.offset_len = 1,
 };
 
 static const struct i2c_eeprom_drv_data atmel24c08_data = {
 	.size = 1024,
-	.pagewidth = 4,
+	.pagesize = 16,
 	.addr_offset_mask = 0x3,
 	.offset_len = 1,
 };
 
 static const struct i2c_eeprom_drv_data atmel24c08a_data = {
 	.size = 1024,
-	.pagewidth = 4,
+	.pagesize = 16,
 	.addr_offset_mask = 0x3,
 	.offset_len = 1,
 };
 
 static const struct i2c_eeprom_drv_data atmel24c16a_data = {
 	.size = 2048,
-	.pagewidth = 4,
+	.pagesize = 16,
 	.addr_offset_mask = 0x7,
 	.offset_len = 1,
 };
 
 static const struct i2c_eeprom_drv_data atmel24mac402_data = {
 	.size = 256,
-	.pagewidth = 4,
+	.pagesize = 16,
 	.addr_offset_mask = 0,
 	.offset_len = 1,
 };
 
 static const struct i2c_eeprom_drv_data atmel24c32_data = {
 	.size = 4096,
-	.pagewidth = 5,
+	.pagesize = 32,
 	.addr_offset_mask = 0,
 	.offset_len = 2,
 };
 
 static const struct i2c_eeprom_drv_data atmel24c64_data = {
 	.size = 8192,
-	.pagewidth = 5,
+	.pagesize = 32,
 	.addr_offset_mask = 0,
 	.offset_len = 2,
 };
 
 static const struct i2c_eeprom_drv_data atmel24c128_data = {
 	.size = 16384,
-	.pagewidth = 6,
+	.pagesize = 64,
 	.addr_offset_mask = 0,
 	.offset_len = 2,
 };
 
 static const struct i2c_eeprom_drv_data atmel24c256_data = {
 	.size = 32768,
-	.pagewidth = 6,
+	.pagesize = 64,
 	.addr_offset_mask = 0,
 	.offset_len = 2,
 };
 
 static const struct i2c_eeprom_drv_data atmel24c512_data = {
 	.size = 65536,
-	.pagewidth = 6,
+	.pagesize = 64,
 	.addr_offset_mask = 0,
 	.offset_len = 2,
 };
