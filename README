@@ -4639,7 +4639,7 @@ int main(int argc, char *argv[])
 	while (learning) {
 		Read the README file in the top level directory;
 		Read http://www.denx.de/twiki/bin/view/DULG/Manual;
-		Read applicable doc/*.README;
+		Read applicable doc/README.*;
 		Read the source, Luke;
 		/* find . -name "*.[chS]" | xargs grep -i <keyword> */
 	}
