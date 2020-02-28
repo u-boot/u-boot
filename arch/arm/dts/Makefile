@@ -180,7 +180,8 @@ dtb-$(CONFIG_TEGRA) += tegra20-harmony.dtb \
 	tegra210-e2220-1170.dtb \
 	tegra210-p2371-0000.dtb \
 	tegra210-p2371-2180.dtb \
-	tegra210-p2571.dtb
+	tegra210-p2571.dtb \
+	tegra210-p3450-0000.dtb
 
 dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-3720-db.dtb			\

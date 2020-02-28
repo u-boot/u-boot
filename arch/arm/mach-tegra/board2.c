@@ -217,6 +217,31 @@ int board_early_init_f(void)
 		arch_timer_init();
 #endif
 
+#if defined(CONFIG_DISABLE_SDMMC1_EARLY)
+	/*
+	 * Turn off (reset/disable) SDMMC1 on Nano here, before GPIO INIT.
+	 * We do this because earlier bootloaders have enabled power to
+	 * SDMMC1 on Nano, and toggling power-gpio (PZ3) in pinmux_init()
+	 * results in power being back-driven into the SD-card and SDMMC1
+	 * HW, which is 'bad' as per the HW team.
+	 *
+	 * From the HW team: "LDO2 from the PMIC has already been set to 3.3v in
+	 * nvtboot/CBoot on Nano (for SD-card boot). So when U-Boot's GPIO_INIT
+	 * table sets PZ3 to OUT0 as per the pinmux spreadsheet, it turns off
+	 * the loadswitch. When PZ3 is 0 and not driving, essentially the SDCard
+	 * voltage turns off. Since the SDCard voltage is no longer there, the
+	 * SDMMC CLK/DAT lines are backdriving into what essentially is a
+	 * powered-off SDCard, that's why the voltage drops from 3.3V to ~1.6V"
+	 *
+	 * Note that this can probably be removed when we change over to storing
+	 * all BL components on QSPI on Nano, and U-Boot then becomes the first
+	 * one to turn on SDMMC1 power. Another fix would be to have CBoot
+	 * disable power/gate SDMMC1 off before handing off to U-Boot/kernel.
+	 */
+	reset_set_enable(PERIPH_ID_SDMMC1, 1);
+	clock_set_enable(PERIPH_ID_SDMMC1, 0);
+#endif	/* CONFIG_DISABLE_SDMMC1_EARLY */
+
 	pinmux_init();
 	board_init_uart_f();
 
