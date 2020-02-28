@@ -26,9 +26,9 @@ CONFIG_SPL_LOAD_FIT=y
 CONFIG_SPL_FIT_GENERATOR="arch/arm/mach-imx/mkimage_fit_atf.sh"
 CONFIG_OF_SYSTEM_SETUP=y
 CONFIG_SYS_EXTRA_OPTIONS="IMX_CONFIG=board/toradex/verdin-imx8mm/imximage.cfg"
-CONFIG_DEFAULT_FDT_FILE="fsl-imx8mm-verdin-dev.dtb"
 # CONFIG_USE_BOOTCOMMAND is not set
 CONFIG_LOG=y
+CONFIG_DEFAULT_FDT_FILE="fsl-imx8mm-verdin-dev.dtb"
 CONFIG_VERSION_VARIABLE=y
 CONFIG_BOARD_LATE_INIT=y
 # CONFIG_DISPLAY_BOARDINFO is not set
