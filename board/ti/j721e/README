@@ -120,7 +120,7 @@ requests DMSC to get these services done as shown in the above diagram.
 Sources:
 --------
 1. SYSFW:
-	Tree: git://git.ti.com/processor-firmware/system-firmware-image-gen.git
+	Tree: git://git.ti.com/k3-image-gen/k3-image-gen.git
 	Branch: master
 
 2. ATF:
