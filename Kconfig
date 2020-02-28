@@ -233,7 +233,7 @@ config BUILD_ROM
 	  This option allows to build a ROM version of U-Boot.
 	  The build process generally requires several binary blobs
 	  which are not shipped in the U-Boot source tree.
-	  Please, see doc/README.x86 for details.
+	  Please, see doc/arch/x86.rst for details.
 
 config SPL_IMAGE
 	string "SPL image used in the combined SPL+U-Boot image"
