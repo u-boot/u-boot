@@ -41,7 +41,7 @@ config IMX_HAB
 	imply CMD_DEKBLOB
 	help
 	  This option enables the support for secure boot (HAB).
-	  See doc/README.mxc_hab for more details.
+	  See doc/imx/habv4/* for more details.
 
 config CSF_SIZE
 	hex "Maximum size for Command Sequence File (CSF) binary"
@@ -69,7 +69,7 @@ config CMD_DEKBLOB
 	help
 	  This enables the 'dek_blob' command which is used with the
 	  Freescale secure boot mechanism. This command encapsulates and
-	  creates a blob of data. See also CMD_BLOB and doc/README.mxc_hab for
+	  creates a blob of data. See also CMD_BLOB and doc/imx/habv4/* for
 	  more information.
 
 config CMD_HDMIDETECT
