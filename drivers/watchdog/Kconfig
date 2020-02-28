@@ -2,6 +2,7 @@ menu "Watchdog Timer Support"
 
 config WATCHDOG
 	bool "Enable U-Boot watchdog reset"
+	depends on !HW_WATCHDOG
 	help
 	  This option enables U-Boot watchdog support where U-Boot is using
 	  watchdog_reset function to service watchdog device in U-Boot. Enable
@@ -118,7 +119,7 @@ config WDT_CORTINA
 config WDT_MPC8xx
 	bool "MPC8xx watchdog timer support"
 	depends on WDT && MPC8xx
-	select CONFIG_MPC8xx_WATCHDOG
+	select HW_WATCHDOG
 	help
 	   Select this to enable mpc8xx watchdog timer
 

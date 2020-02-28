@@ -10,7 +10,7 @@
 #include <asm/cpm_8xx.h>
 #include <asm/io.h>
 
-static void hw_watchdog_reset(void)
+void hw_watchdog_reset(void)
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
