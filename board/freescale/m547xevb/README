@@ -24,7 +24,7 @@ Changed files:
 - arch/m68k/cpu/mcf547x_8x/config.mk		config make
 - arch/m68k/cpu/mcf547x_8x/start.S		start up assembly code
 
-- doc/README.m5475evb			This readme file
+- board/freescale/m547xevb/README	This readme file
 
 - drivers/dma/MCD_dmaApi.c		DMA API functions
 - drivers/dma/MCD_tasks.c		DMA Tasks
