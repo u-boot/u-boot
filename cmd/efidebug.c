@@ -649,7 +649,7 @@ static int do_efi_boot_rm(cmd_tbl_t *cmdtp, int flag,
 	int id, i;
 	char *endp;
 	char var_name[9];
-	u16 var_name16[9];
+	u16 var_name16[9], *p;
 	efi_status_t ret;
 
 	if (argc == 1)
@@ -662,7 +662,8 @@ static int do_efi_boot_rm(cmd_tbl_t *cmdtp, int flag,
 			return CMD_RET_FAILURE;
 
 		sprintf(var_name, "Boot%04X", id);
-		utf8_utf16_strncpy((u16 **)&var_name16, var_name, 9);
+		p = var_name16;
+		utf8_utf16_strncpy(&p, var_name, 9);
 
 		ret = EFI_CALL(RT->set_variable(var_name16, &guid, 0, 0, NULL));
 		if (ret) {
