@@ -50,10 +50,9 @@
 	status = "okay";
 
 	eeprom@54 {
-		compatible = "st,24c64", "atmel,24c64", "i2c-eeprom";
+		compatible = "st,24c64", "atmel,24c64";
 		reg = <0x54>;
 		pagesize = <32>;
-		u-boot,i2c-offset-len = <2>;
 	};
 };
 

@@ -7,9 +7,8 @@
 
 &i2c0 {
 	eeprom@50 {
-		compatible = "microchip,24lc128", "i2c-eeprom";
+		compatible = "microchip,24lc128", "atmel,24c128";
 		reg = <0x50>;
 		pagesize = <64>;
-		u-boot,i2c-offset-len = <2>;
 	};
 };
