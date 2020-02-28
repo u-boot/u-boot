@@ -99,13 +99,11 @@ static int i2c_eeprom_std_ofdata_to_platdata(struct udevice *dev)
 	u32 pagesize;
 	u32 size;
 
-	if (dev_read_u32(dev, "pagesize", &pagesize) == 0) {
+	if (dev_read_u32(dev, "pagesize", &pagesize) == 0)
 		priv->pagesize = pagesize;
-	} else {
+	else
 		/* 6 bit -> page size of up to 2^63 (should be sufficient) */
-		priv->pagewidth = data->pagewidth;
-		priv->pagesize = (1 << priv->pagewidth);
-	}
+		priv->pagesize = 1 << data->pagewidth;
 
 	if (dev_read_u32(dev, "size", &size) == 0)
 		priv->size = size;
