@@ -356,6 +356,18 @@ This driver is only available if U-Boot is configured with::
     CONFIG_BLK=y
     CONFIG_PARTITIONS=y
 
+Miscellaneous
+-------------
+
+Load file 2 protocol
+~~~~~~~~~~~~~~~~~~~~
+
+The load file 2 protocol can be used by the Linux kernel to load the initial
+RAM disk. U-Boot can be configured to provide an implementation with::
+
+    EFI_LOAD_FILE2_INITRD=y
+    EFI_INITRD_FILESPEC=interface dev:part path_to_initrd
+
 Links
 -----
 

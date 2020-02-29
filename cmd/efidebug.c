@@ -244,6 +244,10 @@ static const struct {
 		EFI_HII_CONFIG_ROUTING_PROTOCOL_GUID,
 	},
 	{
+		"Load File2",
+		EFI_LOAD_FILE2_PROTOCOL_GUID,
+	},
+	{
 		"Simple Network",
 		EFI_SIMPLE_NETWORK_PROTOCOL_GUID,
 	},
