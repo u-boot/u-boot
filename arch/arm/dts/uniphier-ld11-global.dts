@@ -132,7 +132,7 @@
 	};
 
 	eeprom@50 {
-		compatible = "st,24c64", "atmel,24c64", "i2c-eeprom";
+		compatible = "st,24c64", "atmel,24c64";
 		reg = <0x50>;
 		pagesize = <32>;
 	};
