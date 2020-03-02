@@ -667,7 +667,7 @@ static int do_efi_boot_rm(cmd_tbl_t *cmdtp, int flag,
 
 		ret = EFI_CALL(RT->set_variable(var_name16, &guid, 0, 0, NULL));
 		if (ret) {
-			printf("Cannot remove Boot%04X", id);
+			printf("Cannot remove %ls\n", var_name16);
 			return CMD_RET_FAILURE;
 		}
 	}
