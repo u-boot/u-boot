@@ -33,7 +33,7 @@ struct stm32_rng_platdata {
 
 static int stm32_rng_read(struct udevice *dev, void *data, size_t len)
 {
-	int retval = 0, i;
+	int retval, i;
 	u32 sr, count, reg;
 	size_t increment;
 	struct stm32_rng_platdata *pdata = dev_get_platdata(dev);

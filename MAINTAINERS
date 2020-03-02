@@ -345,6 +345,7 @@ L:	uboot-stm32@st-md-mailman.stormreply.com (moderated for non-subscribers)
 T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-stm.git
 S:	Maintained
 F:	arch/arm/mach-stm32mp/
+F:	doc/board/st/
 F:	drivers/adc/stm32-adc*
 F:	drivers/clk/clk_stm32mp1.c
 F:	drivers/gpio/stm32_gpio.c
