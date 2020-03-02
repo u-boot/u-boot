@@ -13,6 +13,9 @@
 / {
 	model = "NXP Layerscape LX2160AQDS Board";
 	compatible = "fsl,lx2160aqds", "fsl,lx2160a";
+	aliases {
+		spi0 = &fspi;
+	};
 };
 
 &esdhc0 {
@@ -43,6 +46,18 @@
 				reg = <0x51>;
 			};
 		};
+	};
+};
+
+&fspi {
+	status = "okay";
+
+	mt35xu512aba0: flash@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "jedec,spi-nor";
+		spi-max-frequency = <50000000>;
+		reg = <0>;
 	};
 };
 
