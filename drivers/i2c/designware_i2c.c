@@ -274,7 +274,7 @@ static int _dw_i2c_set_bus_speed(struct dw_i2c *priv, struct i2c_regs *i2c_base,
 
 	switch (config.speed_mode) {
 	case IC_SPEED_MODE_HIGH:
-		cntl |= IC_CON_SPD_SS;
+		cntl |= IC_CON_SPD_HS;
 		writel(config.scl_hcnt, &i2c_base->ic_hs_scl_hcnt);
 		writel(config.scl_lcnt, &i2c_base->ic_hs_scl_lcnt);
 		break;
