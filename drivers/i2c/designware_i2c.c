@@ -203,8 +203,11 @@ static int calc_bus_speed(struct dw_i2c *priv, int speed, ulong bus_clk,
 	const struct dw_scl_sda_cfg *scl_sda_cfg = NULL;
 	struct i2c_regs *regs = priv->regs;
 	enum i2c_speed_mode i2c_spd;
+	u32 comp_param1;
 	int spk_cnt;
 	int ret;
+
+	comp_param1 = readl(&regs->comp_param1);
 
 	if (priv)
 		scl_sda_cfg = priv->scl_sda_cfg;
@@ -218,6 +221,13 @@ static int calc_bus_speed(struct dw_i2c *priv, int speed, ulong bus_clk,
 		i2c_spd = IC_SPEED_MODE_FAST;
 	else
 		i2c_spd = IC_SPEED_MODE_STANDARD;
+
+	/* Check is high speed possible and fall back to fast mode if not */
+	if (i2c_spd == IC_SPEED_MODE_HIGH) {
+		if ((comp_param1 & DW_IC_COMP_PARAM_1_SPEED_MODE_MASK)
+				!= DW_IC_COMP_PARAM_1_SPEED_MODE_HIGH)
+			i2c_spd = IC_SPEED_MODE_FAST;
+	}
 
 	/* Get the proper spike-suppression count based on target speed */
 	if (!priv || !priv->has_spk_cnt)
