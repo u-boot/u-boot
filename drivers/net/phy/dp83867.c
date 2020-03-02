@@ -65,6 +65,7 @@
 #define DP83867_PHYCR_FIFO_DEPTH_SHIFT		14
 #define DP83867_PHYCR_FIFO_DEPTH_MASK		GENMASK(15, 14)
 #define DP83867_PHYCR_RESERVED_MASK	BIT(11)
+#define DP83867_PHYCR_FORCE_LINK_GOOD	BIT(10)
 #define DP83867_MDI_CROSSOVER		5
 #define DP83867_MDI_CROSSOVER_MDIX	2
 #define DP83867_PHYCTRL_SGMIIEN			0x0800
@@ -283,6 +284,9 @@ static int dp83867_config(struct phy_device *phydev)
 			goto err_out;
 		val &= ~DP83867_PHYCR_FIFO_DEPTH_MASK;
 		val |= (dp83867->fifo_depth << DP83867_PHYCR_FIFO_DEPTH_SHIFT);
+
+		/* Do not force link good */
+		val &= ~DP83867_PHYCR_FORCE_LINK_GOOD;
 
 		/* The code below checks if "port mirroring" N/A MODE4 has been
 		 * enabled during power on bootstrap.

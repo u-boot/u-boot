@@ -571,6 +571,12 @@ static void versal_get_clock_info(void)
 			continue;
 
 		clock[i].valid = attr & CLK_VALID_MASK;
+
+		/* skip query for Invalid clock */
+		ret = versal_is_valid_clock(i);
+		if (ret != CLK_VALID_MASK)
+			continue;
+
 		clock[i].type = ((attr >> CLK_TYPE_SHIFT) & 0x1) ?
 				CLK_TYPE_EXTERNAL : CLK_TYPE_OUTPUT;
 		nodetype = (attr >> NODE_TYPE_SHIFT) & NODE_CLASS_MASK;
