@@ -30,6 +30,9 @@
 #include <miiphy.h>
 #include <lcd.h>
 #include <led.h>
+#include <power/pmic.h>
+#include <power/regulator.h>
+#include <power/da9063_pmic.h>
 #include <splash.h>
 #include <video_fb.h>
 
@@ -438,6 +441,56 @@ static void aristainetos_bootmode_settings(void)
 	}
 }
 
+#if defined(CONFIG_DM_PMIC_DA9063)
+/*
+ * On the aristainetos2c boards the PMIC needs to be initialized,
+ * because the Ethernet PHY uses a different regulator that is not
+ * setup per hardware default. This does not influence the other versions
+ * as this regulator isn't used there at all.
+ *
+ * Unfortunately we have not yet a interface to setup all
+ * values we need.
+ */
+static int setup_pmic_voltages(void)
+{
+	struct udevice *dev;
+	int off;
+	int ret;
+
+	off = fdt_path_offset(gd->fdt_blob, "pmic0");
+	if (off < 0) {
+		printf("%s: No pmic path offset\n", __func__);
+		return off;
+	}
+
+	ret = uclass_get_device_by_of_offset(UCLASS_PMIC, off, &dev);
+	if (ret) {
+		printf("%s: Could not find PMIC\n", __func__);
+		return ret;
+	}
+
+	pmic_reg_write(dev, DA9063_REG_PAGE_CON, 0x01);
+	pmic_reg_write(dev, DA9063_REG_BPRO_CFG, 0xc1);
+	ret = pmic_reg_read(dev, DA9063_REG_BUCK_ILIM_B);
+	if (ret < 0) {
+		printf("%s: error %d get register\n", __func__, ret);
+		return ret;
+	}
+	ret &= 0xf0;
+	ret |= 0x09;
+	pmic_reg_write(dev, DA9063_REG_BUCK_ILIM_B, ret);
+	pmic_reg_write(dev, DA9063_REG_VBPRO_A, 0x43);
+	pmic_reg_write(dev, DA9063_REG_VBPRO_B, 0xc3);
+
+	return 0;
+}
+#else
+static int setup_pmic_voltages(void)
+{
+	return 0;
+}
+#endif
+
 int board_late_init(void)
 {
 	int x, y;
@@ -456,6 +509,9 @@ int board_late_init(void)
 		env_set("board_type", ARI_BT_4);
 	else
 		env_set("board_type", ARI_BT_7);
+
+	if (setup_pmic_voltages())
+		printf("Error setup PMIC\n");
 
 	return 0;
 }
