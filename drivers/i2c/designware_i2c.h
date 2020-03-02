@@ -144,7 +144,6 @@ struct i2c_regs {
 /**
  * struct dw_scl_sda_cfg - I2C timing configuration
  *
- * @has_high_speed: Support high speed (3.4Mbps)
  * @ss_hcnt: Standard speed high time in ns
  * @fs_hcnt: Fast speed high time in ns
  * @ss_lcnt: Standard speed low time in ns
@@ -152,7 +151,6 @@ struct i2c_regs {
  * @sda_hold: SDA hold time
  */
 struct dw_scl_sda_cfg {
-	bool has_high_speed;
 	u32 ss_hcnt;
 	u32 fs_hcnt;
 	u32 ss_lcnt;

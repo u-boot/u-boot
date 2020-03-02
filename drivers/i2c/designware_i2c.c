@@ -212,8 +212,7 @@ static int calc_bus_speed(struct dw_i2c *priv, int speed, ulong bus_clk,
 	if (priv)
 		scl_sda_cfg = priv->scl_sda_cfg;
 	/* Allow high speed if there is no config, or the config allows it */
-	if (speed >= I2C_SPEED_HIGH_RATE &&
-	    (!scl_sda_cfg || scl_sda_cfg->has_high_speed))
+	if (speed >= I2C_SPEED_HIGH_RATE)
 		i2c_spd = IC_SPEED_MODE_HIGH;
 	else if (speed >= I2C_SPEED_FAST_PLUS_RATE)
 		i2c_spd = IC_SPEED_MODE_FAST_PLUS;
