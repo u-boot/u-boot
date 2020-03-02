@@ -146,15 +146,19 @@ struct i2c_regs {
  *
  * @ss_hcnt: Standard speed high time in ns
  * @fs_hcnt: Fast speed high time in ns
+ * @hs_hcnt: High speed high time in ns
  * @ss_lcnt: Standard speed low time in ns
  * @fs_lcnt: Fast speed low time in ns
+ * @hs_lcnt: High speed low time in ns
  * @sda_hold: SDA hold time
  */
 struct dw_scl_sda_cfg {
 	u32 ss_hcnt;
 	u32 fs_hcnt;
+	u32 hs_hcnt;
 	u32 ss_lcnt;
 	u32 fs_lcnt;
+	u32 hs_lcnt;
 	u32 sda_hold;
 };
 

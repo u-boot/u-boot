@@ -240,6 +240,9 @@ static int calc_bus_speed(struct dw_i2c *priv, int speed, ulong bus_clk,
 		if (i2c_spd == IC_SPEED_MODE_STANDARD) {
 			config->scl_hcnt = scl_sda_cfg->ss_hcnt;
 			config->scl_lcnt = scl_sda_cfg->ss_lcnt;
+		} else if (i2c_spd == IC_SPEED_MODE_HIGH) {
+			config->scl_hcnt = scl_sda_cfg->hs_hcnt;
+			config->scl_lcnt = scl_sda_cfg->hs_lcnt;
 		} else {
 			config->scl_hcnt = scl_sda_cfg->fs_hcnt;
 			config->scl_lcnt = scl_sda_cfg->fs_lcnt;
