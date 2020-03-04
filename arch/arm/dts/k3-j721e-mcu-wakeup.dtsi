@@ -170,6 +170,8 @@
 			cdns,fifo-width = <4>;
 			cdns,trigger-address = <0x0>;
 			clocks = <&k3_clks 104 0>;
+			assigned-clocks = <&k3_clks 104 0>;
+			assigned-clock-rates = <133333333>;
 			power-domains = <&k3_pds 104 TI_SCI_PD_EXCLUSIVE>;
 			#address-cells = <1>;
 			#size-cells = <0>;
