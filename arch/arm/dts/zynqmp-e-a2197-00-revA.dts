@@ -40,6 +40,48 @@
 		reg = <0x0 0x0 0x0 0x80000000>;
 	};
 
+	ref_clk: ref_clk {
+		status = "okay";
+		compatible = "xlnx,fclk";
+		clocks = <&si570_ref_clk>;
+	};
+
+	si570_ddrdimm1_clk: si570_ddrdimm1_clk {
+		status = "okay";
+		compatible = "xlnx,fclk";
+		clocks = <&si570_ddr_dimm1>;
+	};
+
+	si570_lpddr4_clk2: si570_lpddr4_clk2 {
+		status = "okay";
+		compatible = "xlnx,fclk";
+		clocks = <&si570_lpddr4clk2>;
+	};
+
+	si570_lpddr4_clk1: si570_lpddr4_clk1 {
+		status = "okay";
+		compatible = "xlnx,fclk";
+		clocks = <&si570_lpddr4clk1>;
+	};
+
+	si570_hsdp_clk: si570_hsdp_clk {
+		status = "okay";
+		compatible = "xlnx,fclk";
+		clocks = <&si570_hsdp>;
+	};
+
+	si570_zsfp_clk: si570_zsfp_clk {
+		status = "okay";
+		compatible = "xlnx,fclk";
+		clocks = <&si570_zsfp>;
+	};
+
+	si570_user1_clk: si570_user1_clk {
+		status = "okay";
+		compatible = "xlnx,fclk";
+		clocks = <&si570_user1>;
+	};
+
 	ina226-vccint {
 		compatible = "iio-hwmon";
 		io-channels = <&vccint 0>, <&vccint 1>, <&vccint 2>, <&vccint 3>;
