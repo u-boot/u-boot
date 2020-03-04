@@ -410,10 +410,7 @@ int ft_system_setup(void *blob, bd_t *bd)
 #if defined(CONFIG_SPL_BUILD) || !defined(CONFIG_SYSRESET)
 void reset_cpu(ulong addr)
 {
-	struct watchdog_regs *wdog = (struct watchdog_regs *)addr;
-
-	if (!addr)
-		wdog = (struct watchdog_regs *)WDOG1_BASE_ADDR;
+	struct watchdog_regs *wdog = (struct watchdog_regs *)WDOG1_BASE_ADDR;
 
 	/* Clear WDA to trigger WDOG_B immediately */
 	writew((SET_WCR_WT(1) | WCR_WDT | WCR_WDE | WCR_SRS), &wdog->wcr);
