@@ -596,6 +596,11 @@ dfu_handle(struct usb_function *f, const struct usb_ctrlrequest *ctrl)
 	debug("req_type: 0x%x ctrl->bRequest: 0x%x f_dfu->dfu_state: 0x%x\n",
 	       req_type, ctrl->bRequest, f_dfu->dfu_state);
 
+#ifdef CONFIG_DFU_TIMEOUT
+	/* Forbid aborting by timeout. Next dfu command may update this */
+	dfu_set_timeout(0);
+#endif
+
 	if (req_type == USB_TYPE_STANDARD) {
 		if (ctrl->bRequest == USB_REQ_GET_DESCRIPTOR &&
 		    (w_value >> 8) == DFU_DT_FUNC) {
