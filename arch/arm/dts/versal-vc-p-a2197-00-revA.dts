@@ -38,6 +38,14 @@
 	status = "okay";
 };
 
+&sdhci0 {
+	no-1-8-v;
+};
+
+&sdhci1 {
+	no-1-8-v;
+};
+
 &watchdog {
 	status = "okay";
 };
