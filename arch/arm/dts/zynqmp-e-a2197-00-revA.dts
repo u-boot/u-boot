@@ -2,7 +2,7 @@
 /*
  * dts file for Xilinx Versal a2197 RevA System Controller
  *
- * (C) Copyright 2019, Xilinx, Inc.
+ * (C) Copyright 2019 - 2020, Xilinx, Inc.
  *
  * Michal Simek <michal.simek@xilinx.com>
  */
@@ -38,6 +38,48 @@
 	memory@0 {
 		device_type = "memory";
 		reg = <0x0 0x0 0x0 0x80000000>;
+	};
+
+	ref_clk: ref_clk {
+		status = "okay";
+		compatible = "xlnx,fclk";
+		clocks = <&si570_ref_clk>;
+	};
+
+	si570_ddrdimm1_clk: si570_ddrdimm1_clk {
+		status = "okay";
+		compatible = "xlnx,fclk";
+		clocks = <&si570_ddr_dimm1>;
+	};
+
+	si570_lpddr4_clk2: si570_lpddr4_clk2 {
+		status = "okay";
+		compatible = "xlnx,fclk";
+		clocks = <&si570_lpddr4clk2>;
+	};
+
+	si570_lpddr4_clk1: si570_lpddr4_clk1 {
+		status = "okay";
+		compatible = "xlnx,fclk";
+		clocks = <&si570_lpddr4clk1>;
+	};
+
+	si570_hsdp_clk: si570_hsdp_clk {
+		status = "okay";
+		compatible = "xlnx,fclk";
+		clocks = <&si570_hsdp>;
+	};
+
+	si570_zsfp_clk: si570_zsfp_clk {
+		status = "okay";
+		compatible = "xlnx,fclk";
+		clocks = <&si570_zsfp>;
+	};
+
+	si570_user1_clk: si570_user1_clk {
+		status = "okay";
+		compatible = "xlnx,fclk";
+		clocks = <&si570_user1>;
 	};
 
 	ina226-vccint {
@@ -411,14 +453,14 @@
 				temperature-stability = <50>;
 				factory-fout = <156250000>;
 				clock-frequency = <156250000>;
-				clock-output-names = "si570_hsdp_clk";
+				clock-output-names = "si570_zsfp_clk";
 			};
 		};
 		i2c@6 { /* USER_SI570_1 */
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <6>;
-			si570_user1_clk: clock-generator@5d { /* u205 */
+			si570_user1: clock-generator@5d { /* u205 */
 				#clock-cells = <0>;
 				compatible = "silabs,si570";
 				reg = <0x5f>;
@@ -500,7 +542,7 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <4>;
-			si570_ddr_dimm2: clock-generator@60 { /* u3 */
+			si570_lpddr4clk2: clock-generator@60 { /* u3 */
 				#clock-cells = <0>;
 				compatible = "silabs,si570";
 				reg = <0x60>;
@@ -514,7 +556,7 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <5>;
-			si570_lpddr4: clock-generator@60 { /* u4 */
+			si570_lpddr4clk1: clock-generator@60 { /* u4 */
 				#clock-cells = <0>;
 				compatible = "silabs,si570";
 				reg = <0x60>;
