@@ -108,7 +108,7 @@ static int cdns3_core_init_role(struct cdns3 *cdns)
 	enum usb_dr_mode dr_mode;
 	int ret = 0;
 
-	dr_mode = usb_get_dr_mode(dev_of_offset(dev));
+	dr_mode = usb_get_dr_mode(dev->node);
 	cdns->role = USB_ROLE_NONE;
 
 	/*
@@ -384,22 +384,20 @@ static const struct udevice_id cdns3_ids[] = {
 
 int cdns3_bind(struct udevice *parent)
 {
-	int from = dev_of_offset(parent);
-	const void *fdt = gd->fdt_blob;
 	enum usb_dr_mode dr_mode;
 	struct udevice *dev;
 	const char *driver;
 	const char *name;
-	int node;
+	ofnode node;
 	int ret;
 
-	node = fdt_node_offset_by_compatible(fdt, from, "cdns,usb3");
-	if (node < 0) {
+	node = ofnode_by_compatible(parent->node, "cdns,usb3");
+	if (!ofnode_valid(node)) {
 		ret = -ENODEV;
 		goto fail;
 	}
 
-	name = fdt_get_name(fdt, node, NULL);
+	name = ofnode_get_name(node);
 	dr_mode = usb_get_dr_mode(node);
 
 	switch (dr_mode) {
@@ -422,8 +420,7 @@ int cdns3_bind(struct udevice *parent)
 		goto fail;
 	};
 
-	ret = device_bind_driver_to_node(parent, driver, name,
-					 offset_to_ofnode(node), &dev);
+	ret = device_bind_driver_to_node(parent, driver, name, node, &dev);
 	if (ret) {
 		printf("%s: not able to bind usb device mode\n",
 		       __func__);

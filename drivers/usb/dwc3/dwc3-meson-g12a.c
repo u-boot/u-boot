@@ -393,7 +393,7 @@ static int dwc3_meson_g12a_probe(struct udevice *dev)
 	}
 #endif
 
-	priv->otg_mode = usb_get_dr_mode(dev_of_offset(dev));
+	priv->otg_mode = usb_get_dr_mode(dev->node);
 
 	ret = dwc3_meson_g12a_usb_init(priv);
 	if (ret)
