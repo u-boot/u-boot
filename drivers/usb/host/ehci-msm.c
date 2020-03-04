@@ -10,8 +10,6 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
-#include <fdtdec.h>
-#include <linux/libfdt.h>
 #include <usb.h>
 #include <usb/ehci-ci.h>
 #include <usb/ulpi.h>
@@ -108,7 +106,7 @@ static int ehci_usb_ofdata_to_platdata(struct udevice *dev)
 	struct msm_ehci_priv *priv = dev_get_priv(dev);
 
 	priv->ulpi_vp.port_num = 0;
-	priv->ehci = (void *)devfdt_get_addr(dev);
+	priv->ehci = dev_read_addr_ptr(dev);
 
 	if (priv->ehci == (void *)FDT_ADDR_T_NONE)
 		return -EINVAL;
