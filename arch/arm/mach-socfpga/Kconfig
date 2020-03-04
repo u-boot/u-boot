@@ -96,6 +96,11 @@ config TARGET_SOCFPGA_ARRIA10_SOCDK
 	bool "Altera SOCFPGA SoCDK (Arria 10)"
 	select TARGET_SOCFPGA_ARRIA10
 
+config TARGET_SOCFPGA_ARRIA5_SECU1
+	bool "ABB SECU1 (Arria V)"
+	select TARGET_SOCFPGA_ARRIA5
+	select VENDOR_KM
+
 config TARGET_SOCFPGA_ARRIA5_SOCDK
 	bool "Altera SOCFPGA SoCDK (Arria V)"
 	select TARGET_SOCFPGA_ARRIA5
@@ -158,6 +163,7 @@ config SYS_BOARD
 	default "de10-nano" if TARGET_SOCFPGA_TERASIC_DE10_NANO
 	default "is1" if TARGET_SOCFPGA_IS1
 	default "mcvevk" if TARGET_SOCFPGA_ARIES_MCVEVK
+	default "secu1" if TARGET_SOCFPGA_ARRIA5_SECU1
 	default "sockit" if TARGET_SOCFPGA_TERASIC_SOCKIT
 	default "socrates" if TARGET_SOCFPGA_EBV_SOCRATES
 	default "sr1500" if TARGET_SOCFPGA_SR1500
@@ -173,6 +179,7 @@ config SYS_VENDOR
 	default "aries" if TARGET_SOCFPGA_ARIES_MCVEVK
 	default "devboards" if TARGET_SOCFPGA_DEVBOARDS_DBM_SOC1
 	default "ebv" if TARGET_SOCFPGA_EBV_SOCRATES
+	default "keymile" if TARGET_SOCFPGA_ARRIA5_SECU1
 	default "softing" if TARGET_SOCFPGA_SOFTING_VINING_FPGA
 	default "terasic" if TARGET_SOCFPGA_TERASIC_DE0_NANO
 	default "terasic" if TARGET_SOCFPGA_TERASIC_DE1_SOC
@@ -184,6 +191,7 @@ config SYS_SOC
 
 config SYS_CONFIG_NAME
 	default "socfpga_agilex_socdk" if TARGET_SOCFPGA_AGILEX_SOCDK
+	default "socfpga_arria5_secu1" if TARGET_SOCFPGA_ARRIA5_SECU1
 	default "socfpga_arria5_socdk" if TARGET_SOCFPGA_ARRIA5_SOCDK
 	default "socfpga_arria10_socdk" if TARGET_SOCFPGA_ARRIA10_SOCDK
 	default "socfpga_cyclone5_socdk" if TARGET_SOCFPGA_CYCLONE5_SOCDK
@@ -198,5 +206,7 @@ config SYS_CONFIG_NAME
 	default "socfpga_sr1500" if TARGET_SOCFPGA_SR1500
 	default "socfpga_stratix10_socdk" if TARGET_SOCFPGA_STRATIX10_SOCDK
 	default "socfpga_vining_fpga" if TARGET_SOCFPGA_SOFTING_VINING_FPGA
+
+source "board/keymile/Kconfig"
 
 endif

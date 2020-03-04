@@ -14,6 +14,7 @@ menu "KM Board Setup"
 config KM_PNVRAM
 	hex "Pseudo RAM"
 	default 0x80000
+	depends on !ARCH_SOCFPGA
 	help
 	  Start address of the pseudo non-volatile RAM for application.
 
@@ -21,6 +22,7 @@ config KM_PHRAM
 	hex "Physical RAM"
 	default 0x17F000 if ARM
 	default 0x100000 if PPC
+	depends on !ARCH_SOCFPGA
 	help
 	  Start address of the physical RAM, which is the mounted /var folder.
 
@@ -29,6 +31,7 @@ config KM_RESERVED_PRAM
 	default 0x801000 if KIRKWOOD
 	default 0x0 if MPC83xx
 	default 0x1000 if MPC85xx
+	depends on !ARCH_SOCFPGA
 	help
 	  Reserved physical RAM area at the end of memory for special purposes.
 
@@ -37,6 +40,7 @@ config KM_CRAMFS_ADDR
 	default 0x2400000 if KIRKWOOD
 	default 0xC00000 if MPC83xx
 	default 0x2000000 if MPC85xx
+	depends on !ARCH_SOCFPGA
 	help
 	  Start address of the CRAMFS containing the Linux kernel.
 
@@ -44,13 +48,13 @@ config KM_KERNEL_ADDR
 	hex "Kernel Load Address"
 	default 0x2000000 if KIRKWOOD
 	default 0x400000 if MPC83xx
-	default 0x1000000 if MPC85xx
+	default 0x1000000 if MPC85xx || ARCH_SOCFPGA
 	help
 	  Address where to load Linux kernel in RAM.
 
 config KM_FDT_ADDR
 	hex "FDT Load Address"
-	default 0x23E0000 if KIRKWOOD
+	default 0x23E0000 if KIRKWOOD || ARCH_SOCFPGA
 	default 0xB80000 if MPC83xx
 	default 0x1F80000 if MPC85xx
 	help
@@ -71,7 +75,7 @@ config KM_DEF_NETDEV
 config KM_COMMON_ETH_INIT
 	bool "Common Ethernet Initialization"
 	default y if KIRKWOOD || MPC83xx
-	default n if MPC85xx
+	default n if MPC85xx || ARCH_SOCFPGA
 	help
 	  Use the Ethernet initialization implemented in common code, which
 	  detects if a Piggy board is present.
@@ -91,6 +95,7 @@ config KM_MVEXTSW_ADDR
 
 config KM_IVM_BUS
 	int "IVM I2C Bus"
+	default 0 if ARCH_SOCFPGA
 	default 1 if KIRKWOOD || MPC85xx
 	default 2 if MPC83xx
 	help

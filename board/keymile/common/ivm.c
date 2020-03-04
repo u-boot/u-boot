@@ -328,7 +328,24 @@ static int ivm_populate_env(unsigned char *buf, int len, int mac_address_offset)
 int ivm_read_eeprom(unsigned char *buf, int len, int mac_address_offset)
 {
 	int ret;
+#ifdef CONFIG_DM_I2C
+	struct udevice *eedev = NULL;
 
+	ret = i2c_get_chip_for_busnum(CONFIG_KM_IVM_BUS,
+				      CONFIG_SYS_I2C_EEPROM_ADDR, 1, &eedev);
+	if (ret) {
+		printf("failed to get device for EEPROM at address 0x%02x\n",
+		       CONFIG_SYS_I2C_EEPROM_ADDR);
+		return 1;
+	}
+
+	ret = dm_i2c_read(eedev, 0, buf, len);
+	if (ret != 0) {
+		printf("Error: Unable to read from I2C EEPROM at address %02X:%02X\n",
+		       CONFIG_SYS_I2C_EEPROM_ADDR, 0);
+		return 1;
+	}
+#else
 	i2c_set_bus_num(CONFIG_KM_IVM_BUS);
 	/* add deblocking here */
 	i2c_make_abort();
@@ -338,6 +355,6 @@ int ivm_read_eeprom(unsigned char *buf, int len, int mac_address_offset)
 		printf("Error reading EEprom\n");
 		return -2;
 	}
-
+#endif
 	return ivm_populate_env(buf, len, mac_address_offset);
 }
