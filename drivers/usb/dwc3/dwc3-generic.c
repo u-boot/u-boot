@@ -88,9 +88,9 @@ static int dwc3_generic_remove(struct udevice *dev,
 static int dwc3_generic_ofdata_to_platdata(struct udevice *dev)
 {
 	struct dwc3_generic_plat *plat = dev_get_platdata(dev);
-	int node = dev_of_offset(dev);
+	ofnode node = dev->node;
 
-	plat->base = devfdt_get_addr(dev);
+	plat->base = dev_read_addr(dev);
 
 	plat->maximum_speed = usb_get_maximum_speed(node);
 	if (plat->maximum_speed == USB_SPEED_UNKNOWN) {
@@ -284,13 +284,11 @@ struct dwc3_glue_ops ti_ops = {
 
 static int dwc3_glue_bind(struct udevice *parent)
 {
-	const void *fdt = gd->fdt_blob;
-	int node;
+	ofnode node;
 	int ret;
 
-	for (node = fdt_first_subnode(fdt, dev_of_offset(parent)); node > 0;
-	     node = fdt_next_subnode(fdt, node)) {
-		const char *name = fdt_get_name(fdt, node, NULL);
+	ofnode_for_each_subnode(node, parent->node) {
+		const char *name = ofnode_get_name(node);
 		enum usb_dr_mode dr_mode;
 		struct udevice *dev;
 		const char *driver = NULL;
@@ -322,7 +320,7 @@ static int dwc3_glue_bind(struct udevice *parent)
 			continue;
 
 		ret = device_bind_driver_to_node(parent, driver, name,
-						 offset_to_ofnode(node), &dev);
+						 node, &dev);
 		if (ret) {
 			debug("%s: not able to bind usb device mode\n",
 			      __func__);
@@ -400,7 +398,7 @@ static int dwc3_glue_probe(struct udevice *dev)
 	while (child) {
 		enum usb_dr_mode dr_mode;
 
-		dr_mode = usb_get_dr_mode(dev_of_offset(child));
+		dr_mode = usb_get_dr_mode(child->node);
 		device_find_next_child(&child);
 		if (ops && ops->select_dr_mode)
 			ops->select_dr_mode(dev, index, dr_mode);
