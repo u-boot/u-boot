@@ -36,6 +36,7 @@ config TARGET_MT7629
 	bool "MediaTek MT7629 SoC"
 	select CPU_V7A
 	select SPL
+	select BINMAN
 	help
 	  The MediaTek MT7629 is a ARM-based SoC with a dual-core Cortex-A7
 	  including DDR3, crypto engine, 3x3 11n/ac Wi-Fi, Gigabit Ethernet,
