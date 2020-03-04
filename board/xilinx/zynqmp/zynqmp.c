@@ -341,11 +341,13 @@ static int multi_boot(void)
 
 int board_init(void)
 {
+#if defined(CONFIG_ZYNQMP_FIRMWARE)
 	struct udevice *dev;
 
 	uclass_get_device_by_name(UCLASS_FIRMWARE, "zynqmp-power", &dev);
 	if (!dev)
 		panic("PMU Firmware device not found - Enable it");
+#endif
 
 #if defined(CONFIG_SPL_BUILD)
 	/* Check *at build time* if the filename is an non-empty string */
