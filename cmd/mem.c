@@ -871,7 +871,7 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 	ulong start, end;
 	vu_long *buf, *dummy;
 	ulong iteration_limit = 0;
-	int ret;
+	ulong count = 0;
 	ulong errs = 0;	/* number of errors, or -1 if interrupted */
 	ulong pattern = 0;
 	int iteration;
@@ -929,6 +929,7 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 		}
 		if (errs == -1UL)
 			break;
+		count += errs;
 	}
 
 	/*
@@ -947,14 +948,10 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (errs == -1UL) {
 		/* Memory test was aborted - write a newline to finish off */
 		putc('\n');
-		ret = 1;
-	} else {
-		printf("Tested %d iteration(s) with %lu errors.\n",
-			iteration, errs);
-		ret = errs != 0;
 	}
+	printf("Tested %d iteration(s) with %lu errors.\n", iteration, count);
 
-	return ret;
+	return errs != 0;
 }
 #endif	/* CONFIG_CMD_MEMTEST */
 
