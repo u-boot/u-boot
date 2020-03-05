@@ -45,7 +45,6 @@ u32 spl_boot_device(void)
 	switch ((zynq_slcr_get_boot_mode()) & ZYNQ_BM_MASK) {
 #ifdef CONFIG_SPL_SPI_SUPPORT
 	case ZYNQ_BM_QSPI:
-		puts("qspi boot\n");
 		mode = BOOT_DEVICE_SPI;
 		break;
 #endif
@@ -57,7 +56,6 @@ u32 spl_boot_device(void)
 		break;
 #ifdef CONFIG_SPL_MMC_SUPPORT
 	case ZYNQ_BM_SD:
-		puts("mmc boot\n");
 		mode = BOOT_DEVICE_MMC1;
 		break;
 #endif
