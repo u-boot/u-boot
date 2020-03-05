@@ -6,4 +6,5 @@ F:	arch/arm/dts/imx8mm-verdin.dts
 F:	arch/arm/dts/imx8mm-verdin-u-boot.dtsi
 F:	board/toradex/verdin-imx8mm/
 F:	configs/verdin-imx8mm_defconfig
+F:	doc/board/toradex/verdin-imx8mm.rst
 F:	include/configs/verdin-imx8mm.h

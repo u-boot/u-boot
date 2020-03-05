@@ -6,4 +6,5 @@ F:	arch/arm/dts/fsl-imx8x-colibri.dts
 F:	arch/arm/dts/fsl-imx8x-colibri-u-boot.dtsi
 F:	board/toradex/colibri-imx8x/
 F:	configs/colibri-imx8qxp_defconfig
+F:	doc/board/toradex/colibri-imx8x.rst
 F:	include/configs/colibri-imx8x.h

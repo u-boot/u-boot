@@ -31,6 +31,18 @@ int cpu_x86_bind(struct udevice *dev);
 int cpu_x86_get_desc(struct udevice *dev, char *buf, int size);
 
 /**
+ * cpu_x86_get_count() - Get the number of cores for an x86 CPU
+ *
+ * This function is suitable to use as the get_count() method for
+ * the CPU uclass.
+ *
+ * @dev:	Device to check (UCLASS_CPU)
+ * @return:	Number of cores if successful,
+ *		-ENOENT if not "/cpus" entry is found in the device tree
+ */
+int cpu_x86_get_count(struct udevice *dev);
+
+/**
  * cpu_x86_get_vendor() - Get a vendor string for an x86 CPU
  *
  * This uses cpu_vendor_name() and is suitable to use as the get_vendor()

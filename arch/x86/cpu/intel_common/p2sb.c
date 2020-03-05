@@ -16,7 +16,7 @@
 
 struct p2sb_platdata {
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct dtd_intel_apl_p2sb dtplat;
+	struct dtd_intel_p2sb dtplat;
 #endif
 	ulong mmio_base;
 	pci_dev_t bdf;
@@ -43,14 +43,14 @@ struct p2sb_platdata {
 #define P2SB_HPTC_ADDRESS_SELECT_3		(3 << 0)
 
 /*
- * apl_p2sb_early_init() - Enable decoding for HPET range
+ * p2sb_early_init() - Enable decoding for HPET range
  *
  * This is needed by FSP-M which uses the High Precision Event Timer.
  *
  * @dev: P2SB device
  * @return 0 if OK, -ve on error
  */
-static int apl_p2sb_early_init(struct udevice *dev)
+static int p2sb_early_init(struct udevice *dev)
 {
 	struct p2sb_platdata *plat = dev_get_platdata(dev);
 	pci_dev_t pdev = plat->bdf;
@@ -76,7 +76,7 @@ static int apl_p2sb_early_init(struct udevice *dev)
 	return 0;
 }
 
-static int apl_p2sb_spl_init(struct udevice *dev)
+static int p2sb_spl_init(struct udevice *dev)
 {
 	/* Enable decoding for HPET. Needed for FSP global pointer storage */
 	dm_pci_write_config(dev, P2SB_HPTC, P2SB_HPTC_ADDRESS_SELECT_0 |
@@ -85,7 +85,7 @@ static int apl_p2sb_spl_init(struct udevice *dev)
 	return 0;
 }
 
-int apl_p2sb_ofdata_to_platdata(struct udevice *dev)
+int p2sb_ofdata_to_platdata(struct udevice *dev)
 {
 	struct p2sb_uc_priv *upriv = dev_get_uclass_priv(dev);
 	struct p2sb_platdata *plat = dev_get_platdata(dev);
@@ -117,10 +117,10 @@ int apl_p2sb_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
-static int apl_p2sb_probe(struct udevice *dev)
+static int p2sb_probe(struct udevice *dev)
 {
 	if (spl_phase() == PHASE_TPL) {
-		return apl_p2sb_early_init(dev);
+		return p2sb_early_init(dev);
 	} else {
 		struct p2sb_platdata *plat = dev_get_platdata(dev);
 
@@ -130,7 +130,7 @@ static int apl_p2sb_probe(struct udevice *dev)
 			return -EINVAL;
 
 		if (spl_phase() == PHASE_SPL)
-			return apl_p2sb_spl_init(dev);
+			return p2sb_spl_init(dev);
 	}
 
 	return 0;
@@ -152,17 +152,17 @@ static int p2sb_child_post_bind(struct udevice *dev)
 	return 0;
 }
 
-static const struct udevice_id apl_p2sb_ids[] = {
-	{ .compatible = "intel,apl-p2sb" },
+static const struct udevice_id p2sb_ids[] = {
+	{ .compatible = "intel,p2sb" },
 	{ }
 };
 
-U_BOOT_DRIVER(apl_p2sb_drv) = {
-	.name		= "intel_apl_p2sb",
+U_BOOT_DRIVER(p2sb_drv) = {
+	.name		= "intel_p2sb",
 	.id		= UCLASS_P2SB,
-	.of_match	= apl_p2sb_ids,
-	.probe		= apl_p2sb_probe,
-	.ofdata_to_platdata = apl_p2sb_ofdata_to_platdata,
+	.of_match	= p2sb_ids,
+	.probe		= p2sb_probe,
+	.ofdata_to_platdata = p2sb_ofdata_to_platdata,
 	.platdata_auto_alloc_size = sizeof(struct p2sb_platdata),
 	.per_child_platdata_auto_alloc_size =
 		sizeof(struct p2sb_child_platdata),

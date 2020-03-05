@@ -179,7 +179,7 @@ Partial memory map
     ffffffff       Top of ROM (and last byte of 32-bit address space)
     ffff8000       TPL loaded here (from IFWI)
     ff000000       Bottom of ROM
-     fefc000       Top of CAR region
+    fefc0000       Top of CAR region
     fef96000       Stack for FSP-M
     fef40000 59000 FSP-M
     fef11000       SPL loaded here

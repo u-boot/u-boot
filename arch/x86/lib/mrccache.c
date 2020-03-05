@@ -241,6 +241,8 @@ int mrccache_get_region(enum mrc_type_t type, struct udevice **devp,
 	 * memory map cannot be read.
 	 */
 	ret = uclass_find_first_device(UCLASS_SPI_FLASH, &dev);
+	if (!ret && !dev)
+		ret = -ENODEV;
 	if (ret)
 		return log_msg_ret("Cannot find SPI flash\n", ret);
 	ret = dm_spi_get_mmap(dev, &map_base, &map_size, &offset);
