@@ -932,18 +932,8 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 		count += errs;
 	}
 
-	/*
-	 * Work-around for eldk-4.2 which gives this warning if we try to
-	 * case in the unmap_sysmem() call:
-	 * warning: initialization discards qualifiers from pointer target type
-	 */
-	{
-		void *vbuf = (void *)buf;
-		void *vdummy = (void *)dummy;
-
-		unmap_sysmem(vbuf);
-		unmap_sysmem(vdummy);
-	}
+	unmap_sysmem((void *)buf);
+	unmap_sysmem((void *)dummy);
 
 	if (errs == -1UL) {
 		/* Memory test was aborted - write a newline to finish off */
