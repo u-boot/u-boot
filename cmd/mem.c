@@ -875,11 +875,6 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 	ulong errs = 0;	/* number of errors, or -1 if interrupted */
 	ulong pattern = 0;
 	int iteration;
-#if defined(CONFIG_SYS_ALT_MEMTEST)
-	const int alt_test = 1;
-#else
-	const int alt_test = 0;
-#endif
 
 	start = CONFIG_SYS_MEMTEST_START;
 	end = CONFIG_SYS_MEMTEST_END;
@@ -921,7 +916,7 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 
 		printf("Iteration: %6d\r", iteration + 1);
 		debug("\n");
-		if (alt_test) {
+		if (IS_ENABLED(CONFIG_SYS_ALT_MEMTEST)) {
 			errs = mem_test_alt(buf, start, end, dummy);
 		} else {
 			errs = mem_test_quick(buf, start, end, pattern,
