@@ -36,38 +36,26 @@ def test_i2c_probe(u_boot_console):
     response = u_boot_console.run_command("i2c probe")
     assert(expected_response in response)
 
-@pytest.mark.xfail
-@pytest.mark.boardspec("zynq_zc702")
-@pytest.mark.boardspec("zynq_zc706")
 @pytest.mark.buildconfigspec("cmd_i2c")
-def test_i2c_probe_zc70x(u_boot_console):
-    test_skip = u_boot_console.config.env.get('env__i2c_device_test_skip', False)
-    if test_skip:
-        pytest.skip('i2c device test skipped')
+def test_i2c_eeprom(u_boot_console):
+    f = u_boot_console.config.env.get('env__i2c_eeprom_device_test', None)
+    if not f:
+        pytest.skip('No I2C eeprom to test')
+
+    bus = f.get('bus', 0)
+    if bus < 0:
+        pytest.fail('No bus specified via env__i2c_eeprom_device_test')
+
+    addr = f.get('eeprom_addr', -1)
+    if addr < 0:
+        pytest.fail('No eeprom address specified via env__i2c_eeprom_device_test')
 
     # Enable i2c mux bridge
-    u_boot_console.run_command("i2c mw 74 0 4")
+    u_boot_console.run_command("i2c dev %x" % bus)
     u_boot_console.run_command("i2c probe")
-    val = format(random.randint(0,255), '02x')
-    u_boot_console.run_command("i2c mw 54 0 " + val + " 5")
-    response = u_boot_console.run_command("i2c md 54 0 5")
+    value = random.randint(0,255)
+    val = format(value, '02x')
+    u_boot_console.run_command("i2c mw %x 0 %x 5" % (addr, value))
+    response = u_boot_console.run_command("i2c md %x 0 5" % addr)
     expected_response = "0000: " + val + " " + val + " " + val + " " + val + " " + val + " "
-    assert(expected_response in response)
-
-@pytest.mark.boardspec("xilinx_zynqmp_zcu102_rev1_0")
-@pytest.mark.boardspec("xilinx_zynqmp_zcu102_revA")
-@pytest.mark.buildconfigspec("cmd_i2c")
-def test_i2c_probe_zcu102(u_boot_console):
-    test_skip = u_boot_console.config.env.get('env__i2c_device_test_skip', False)
-    if test_skip:
-        pytest.skip('i2c device test skipped')
-
-    # This is using i2c mux wiring from config file
-    u_boot_console.run_command("i2c dev 5")
-    u_boot_console.run_command("i2c probe")
-    val = format(random.randint(0,255), '02x')
-    u_boot_console.run_command("i2c mw 54 0 " + val + " 5")
-    response = u_boot_console.run_command("i2c md 54 0 5")
-    expected_response = "0000: " + val + " " + val + " " + val + " " + val + " " + val + " "
-    print (expected_response)
     assert(expected_response in response)
