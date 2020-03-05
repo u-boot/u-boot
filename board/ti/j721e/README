@@ -154,7 +154,7 @@ $ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- O=/tmp/r5
 
 4.2. A72:
 $ make ARCH=arm CROSS_COMPILE=aarch64-linux-gnu- j721e_evm_a72_defconfig O=/tmp/a72
-$ make ARCH=arm CROSS_COMPILE=aarch64-linux-gnu- ATF=<path to ATF dir>/build/k3/generic/release/bl31.bin TEE=<path to OPTEE OS dir>/out/arm-plat-k3/core/tee-pager.bin O=/tmp/a72
+$ make ARCH=arm CROSS_COMPILE=aarch64-linux-gnu- ATF=<path to ATF dir>/build/k3/generic/release/bl31.bin TEE=<path to OPTEE OS dir>/out/arm-plat-k3/core/tee-pager_v2.bin O=/tmp/a72
 
 Target Images
 --------------
