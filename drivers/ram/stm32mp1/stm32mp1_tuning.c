@@ -402,7 +402,7 @@ run:
 		writel(rand(), &phy->bistlsr);
 
 	/* some delay to reset BIST */
-	mdelay(1);
+	udelay(10);
 
 	/*Perform BIST Run*/
 	clrsetbits_le32(&phy->bistrr,
