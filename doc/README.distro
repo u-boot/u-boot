@@ -246,6 +246,18 @@ kernel_addr_r:
 
   A size of 16MB for the kernel is likely adequate.
 
+kernel_comp_addr_r:
+  Optional. This is only required if user wants to boot Linux from a compressed
+  Image(.gz, .bz2, .lzma, .lzo) using booti command. It represents the location
+  in RAM where the compressed Image will be decompressed temporarily. Once the
+  decompression is complete, decompressed data will be moved kernel_addr_r for
+  booting.
+
+kernel_comp_size:
+  Optional. This is only required if user wants to boot Linux from a compressed
+  Image using booti command. It represents the size of the compressed file. The
+  size has to at least the size of loaded image for decompression to succeed.
+
 pxefile_addr_r:
 
   Mandatory. The location in RAM where extlinux.conf will be loaded to prior
