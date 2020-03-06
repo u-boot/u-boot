@@ -8,6 +8,7 @@
 #include <ram.h>
 #include <reset.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 #include <linux/iopoll.h>
 
 #include "stm32mp1_ddr_regs.h"
@@ -74,6 +75,133 @@ static u8 get_nb_bytes(struct stm32mp1_ddrctl *ctl)
 	}
 
 	return nb_bytes;
+}
+
+static u8 get_nb_bank(struct stm32mp1_ddrctl *ctl)
+{
+	/* Count bank address bits */
+	u8 bits = 0;
+	u32 reg, val;
+
+	reg = readl(&ctl->addrmap1);
+	/* addrmap1.addrmap_bank_b1 */
+	val = (reg & GENMASK(5, 0)) >> 0;
+	if (val <= 31)
+		bits++;
+	/* addrmap1.addrmap_bank_b2 */
+	val = (reg & GENMASK(13, 8)) >> 8;
+	if (val <= 31)
+		bits++;
+	/* addrmap1.addrmap_bank_b3 */
+	val = (reg & GENMASK(21, 16)) >> 16;
+	if (val <= 31)
+		bits++;
+
+	return bits;
+}
+
+static u8 get_nb_col(struct stm32mp1_ddrctl *ctl)
+{
+	u8 bits;
+	u32 reg, val;
+
+	/* Count column address bits, start at 2 for b0 and b1 (fixed) */
+	bits = 2;
+
+	reg = readl(&ctl->addrmap2);
+	/* addrmap2.addrmap_col_b2 */
+	val = (reg & GENMASK(3, 0)) >> 0;
+	if (val <= 7)
+		bits++;
+	/* addrmap2.addrmap_col_b3 */
+	val = (reg & GENMASK(11, 8)) >> 8;
+	if (val <= 7)
+		bits++;
+	/* addrmap2.addrmap_col_b4 */
+	val = (reg & GENMASK(19, 16)) >> 16;
+	if (val <= 7)
+		bits++;
+	/* addrmap2.addrmap_col_b5 */
+	val = (reg & GENMASK(27, 24)) >> 24;
+	if (val <= 7)
+		bits++;
+
+	reg = readl(&ctl->addrmap3);
+	/* addrmap3.addrmap_col_b6 */
+	val = (reg & GENMASK(3, 0)) >> 0;
+	if (val <= 7)
+		bits++;
+	/* addrmap3.addrmap_col_b7 */
+	val = (reg & GENMASK(11, 8)) >> 8;
+	if (val <= 7)
+		bits++;
+	/* addrmap3.addrmap_col_b8 */
+	val = (reg & GENMASK(19, 16)) >> 16;
+	if (val <= 7)
+		bits++;
+	/* addrmap3.addrmap_col_b9 */
+	val = (reg & GENMASK(27, 24)) >> 24;
+	if (val <= 7)
+		bits++;
+
+	reg = readl(&ctl->addrmap4);
+	/* addrmap4.addrmap_col_b10 */
+	val = (reg & GENMASK(3, 0)) >> 0;
+	if (val <= 7)
+		bits++;
+	/* addrmap4.addrmap_col_b11 */
+	val = (reg & GENMASK(11, 8)) >> 8;
+	if (val <= 7)
+		bits++;
+
+	return bits;
+}
+
+static u8 get_nb_row(struct stm32mp1_ddrctl *ctl)
+{
+	/* Count row address bits */
+	u8 bits = 0;
+	u32 reg, val;
+
+	reg = readl(&ctl->addrmap5);
+	/* addrmap5.addrmap_row_b0 */
+	val = (reg & GENMASK(3, 0)) >> 0;
+	if (val <= 11)
+		bits++;
+	/* addrmap5.addrmap_row_b1 */
+	val = (reg & GENMASK(11, 8)) >> 8;
+	if (val <= 11)
+		bits++;
+	/* addrmap5.addrmap_row_b2_10 */
+	val = (reg & GENMASK(19, 16)) >> 16;
+	if (val <= 11)
+		bits += 9;
+	else
+		printf("warning: addrmap5.addrmap_row_b2_10 not supported\n");
+	/* addrmap5.addrmap_row_b11 */
+	val = (reg & GENMASK(27, 24)) >> 24;
+	if (val <= 11)
+		bits++;
+
+	reg = readl(&ctl->addrmap6);
+	/* addrmap6.addrmap_row_b12 */
+	val = (reg & GENMASK(3, 0)) >> 0;
+	if (val <= 7)
+		bits++;
+	/* addrmap6.addrmap_row_b13 */
+	val = (reg & GENMASK(11, 8)) >> 8;
+	if (val <= 7)
+		bits++;
+	/* addrmap6.addrmap_row_b14 */
+	val = (reg & GENMASK(19, 16)) >> 16;
+	if (val <= 7)
+		bits++;
+	/* addrmap6.addrmap_row_b15 */
+	val = (reg & GENMASK(27, 24)) >> 24;
+	if (val <= 7)
+		bits++;
+
+	return bits;
 }
 
 static void itm_soft_reset(struct stm32mp1_ddrphy *phy)
@@ -170,8 +298,13 @@ static void set_r0dgps_delay(struct stm32mp1_ddrphy *phy,
 }
 
 /* Basic BIST configuration for data lane tests. */
-static void config_BIST(struct stm32mp1_ddrphy *phy)
+static void config_BIST(struct stm32mp1_ddrctl *ctl,
+			struct stm32mp1_ddrphy *phy)
 {
+	u8 nb_bank = get_nb_bank(ctl);
+	u8 nb_row = get_nb_row(ctl);
+	u8 nb_col = get_nb_col(ctl);
+
 	/* Selects the SDRAM bank address to be used during BIST. */
 	u32 bbank = 0;
 	/* Selects the SDRAM row address to be used during BIST. */
@@ -191,18 +324,20 @@ static void config_BIST(struct stm32mp1_ddrphy *phy)
 	 * must be 0 with single rank
 	 */
 	u32 brank = 0;
+
 	/* Specifies the maximum SDRAM bank address to be used during
 	 * BIST before the address & increments to the next rank.
 	 */
-	u32 bmbank = 1;
+	u32 bmbank = (1 << nb_bank) - 1;
 	/* Specifies the maximum SDRAM row address to be used during
 	 * BIST before the address & increments to the next bank.
 	 */
-	u32 bmrow = 0x7FFF; /* To check */
+	u32 bmrow = (1 << nb_row) - 1;
 	/* Specifies the maximum SDRAM column address to be used during
 	 * BIST before the address & increments to the next row.
 	 */
-	u32 bmcol = 0x3FF;  /* To check */
+	u32 bmcol = (1 << nb_col) - 1;
+
 	u32 bmode_conf = 0x00000001;  /* DRam mode */
 	u32 bdxen_conf = 0x00000001;  /* BIST on Data byte */
 	u32 bdpat_conf = 0x00000002;  /* Select LFSR pattern */
@@ -224,8 +359,6 @@ static void config_BIST(struct stm32mp1_ddrphy *phy)
 
 	writel(bcol | (brow << 12) | (bbank << 28), &phy->bistar0);
 	writel(brank | (bmrank << 2) | (bainc << 4), &phy->bistar1);
-
-	/* To check this line : */
 	writel(bmcol | (bmrow << 12) | (bmbank << 28), &phy->bistar2);
 }
 
@@ -399,7 +532,7 @@ static enum test_result bit_deskew(struct stm32mp1_ddrctl *ctl,
 	clrbits_le32(&phy->dx3gcr, DDRPHYC_DXNGCR_DXEN);
 
 	/* Config the BIST block */
-	config_BIST(phy);
+	config_BIST(ctl, phy);
 	pr_debug("BIST Config done.\n");
 
 	/* Train each byte */
@@ -812,7 +945,7 @@ static enum test_result eye_training(struct stm32mp1_ddrctl *ctl,
 	clrbits_le32(&phy->dx3gcr, DDRPHYC_DXNGCR_DXEN);
 
 	/* Config the BIST block */
-	config_BIST(phy);
+	config_BIST(ctl, phy);
 
 	for (byte = 0; byte < nb_bytes; byte++) {
 		if (ctrlc()) {
@@ -1234,7 +1367,7 @@ static enum test_result read_dqs_gating(struct stm32mp1_ddrctl *ctl,
 	clrbits_le32(&phy->dx3gcr, DDRPHYC_DXNGCR_DXEN);
 
 	/* config the bist block */
-	config_BIST(phy);
+	config_BIST(ctl, phy);
 
 	for (byte = 0; byte < nb_bytes; byte++) {
 		if (ctrlc()) {
