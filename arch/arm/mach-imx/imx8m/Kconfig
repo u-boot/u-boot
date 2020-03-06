@@ -32,6 +32,11 @@ config TARGET_IMX8MQ_EVK
 	select IMX8MQ
 	select IMX8M_LPDDR4
 
+config TARGET_IMX8MQ_PHANBELL
+        bool "imx8mq_phanbell"
+        select IMX8MQ
+        select IMX8M_LPDDR4
+
 config TARGET_IMX8MM_EVK
 	bool "imx8mm LPDDR4 EVK board"
 	select IMX8MM
@@ -62,6 +67,7 @@ source "board/freescale/imx8mq_evk/Kconfig"
 source "board/freescale/imx8mm_evk/Kconfig"
 source "board/freescale/imx8mn_evk/Kconfig"
 source "board/freescale/imx8mp_evk/Kconfig"
+source "board/google/imx8mq_phanbell/Kconfig"
 source "board/toradex/verdin-imx8mm/Kconfig"
 
 endif
