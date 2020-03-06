@@ -8,6 +8,7 @@
 #include <ram.h>
 #include <reset.h>
 #include <asm/io.h>
+#include <linux/iopoll.h>
 
 #include "stm32mp1_ddr_regs.h"
 #include "stm32mp1_ddr.h"
@@ -246,6 +247,8 @@ static void BIST_test(struct stm32mp1_ddrphy *phy, u8 byte,
 	bool result = true; /* BIST_SUCCESS */
 	u32 cnt = 0;
 	u32 error = 0;
+	u32 val;
+	int ret;
 
 	bist->test_result = true;
 
@@ -274,27 +277,29 @@ run:
 			0x00000001);
 	/* Write BISTRR.BINST = 3?b001; */
 
-	/* Wait for a number of CTL clocks before reading BIST register*/
-	/* Wait 300 ctl_clk cycles;  ... IS it really needed?? */
-	/* Perform BIST Instruction Stop*/
-	/* Write BISTRR.BINST = 3?b010;*/
+	/* poll on BISTGSR.BDONE and wait max 1000 us */
+	ret = readl_poll_timeout(&phy->bistgsr, val,
+				 val & DDRPHYC_BISTGSR_BDDONE, 1000);
 
-	/* poll on BISTGSR.BDONE. If 0, wait.  ++TODO Add timeout */
-	while (!(readl(&phy->bistgsr) & DDRPHYC_BISTGSR_BDDONE))
-		;
-
-	/*Check if received correct number of words*/
-	/* if (Read BISTWCSR.DXWCNT = Read BISTWCR.BWCNT) */
-	if (((readl(&phy->bistwcsr)) >> DDRPHYC_BISTWCSR_DXWCNT_SHIFT) ==
-	    readl(&phy->bistwcr)) {
-		/*Determine if there is a data comparison error*/
-		/* if (Read BISTGSR.BDXERR = 1?b0) */
-		if (readl(&phy->bistgsr) & DDRPHYC_BISTGSR_BDXERR)
-			result = false; /* BIST_FAIL; */
-		else
-			result = true; /* BIST_SUCCESS; */
-	} else {
+	if (ret < 0) {
+		printf("warning: BIST timeout\n");
 		result = false; /* BIST_FAIL; */
+		/*Perform BIST Stop */
+		clrsetbits_le32(&phy->bistrr, 0x00000007, 0x00000002);
+	} else {
+		/*Check if received correct number of words*/
+		/* if (Read BISTWCSR.DXWCNT = Read BISTWCR.BWCNT) */
+		if (((readl(&phy->bistwcsr)) >> DDRPHYC_BISTWCSR_DXWCNT_SHIFT)
+		    == readl(&phy->bistwcr)) {
+			/*Determine if there is a data comparison error*/
+			/* if (Read BISTGSR.BDXERR = 1?b0) */
+			if (readl(&phy->bistgsr) & DDRPHYC_BISTGSR_BDXERR)
+				result = false; /* BIST_FAIL; */
+			else
+				result = true; /* BIST_SUCCESS; */
+		} else {
+			result = false; /* BIST_FAIL; */
+		}
 	}
 
 	/* loop while success */
