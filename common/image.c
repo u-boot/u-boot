@@ -202,6 +202,14 @@ struct table_info {
 	const table_entry_t *table;
 };
 
+static const struct comp_magic_map image_comp[] = {
+	{	IH_COMP_BZIP2,	"bzip2",	{0x42, 0x5a},},
+	{	IH_COMP_GZIP,	"gzip",		{0x1f, 0x8b},},
+	{	IH_COMP_LZMA,	"lzma",		{0x5d, 0x00},},
+	{	IH_COMP_LZO,	"lzo",		{0x89, 0x4c},},
+	{	IH_COMP_NONE,	"none",		{},	},
+};
+
 static const struct table_info table_info[IH_COUNT] = {
 	{ "architecture", IH_ARCH_COUNT, uimage_arch },
 	{ "compression", IH_COMP_COUNT, uimage_comp },
@@ -405,6 +413,21 @@ static void print_decomp_msg(int comp_type, int type, bool is_xip)
 		printf("   %s %s\n", is_xip ? "XIP" : "Loading", name);
 	else
 		printf("   Uncompressing %s\n", name);
+}
+
+int image_decomp_type(const unsigned char *buf, ulong len)
+{
+	const struct comp_magic_map *cmagic = image_comp;
+
+	if (len < 2)
+		return -EINVAL;
+
+	for (; cmagic->comp_id > 0; cmagic++) {
+		if (!memcmp(buf, cmagic->magic, 2))
+			break;
+	}
+
+	return cmagic->comp_id;
 }
 
 int image_decomp(int comp, ulong load, ulong image_start, int type,
