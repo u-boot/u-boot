@@ -367,7 +367,6 @@ bool stm32mp1_ddr_interactive(void *priv,
 			      enum stm32mp1_ddr_interact_step step,
 			      const struct stm32mp1_ddr_config *config)
 {
-	const char *prompt = "DDR>";
 	char buffer[CONFIG_SYS_CBSIZE];
 	char *argv[CONFIG_SYS_MAXARGS + 1];	/* NULL terminated */
 	int argc;
@@ -403,13 +402,12 @@ bool stm32mp1_ddr_interactive(void *priv,
 	}
 
 	printf("%d:%s\n", step, step_str[step]);
-	printf("%s\n", prompt);
 
 	if (next_step > step)
 		return false;
 
 	while (next_step == step) {
-		cli_readline_into_buffer(prompt, buffer, 0);
+		cli_readline_into_buffer("DDR>", buffer, 0);
 		argc = cli_simple_parse_line(buffer, argv);
 		if (!argc)
 			continue;
