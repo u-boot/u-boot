@@ -1182,15 +1182,17 @@ static u8 set_midpoint_read_dqs_gating(struct stm32mp1_ddrphy *phy, u8 byte,
 				 dqs_gate_values[byte][0],
 				 dqs_gate_values[byte][1]);
 			pr_debug("*******the nominal values were system latency: 0  phase: 2*******\n");
-			set_r0dgsl_delay(phy, byte, dqs_gate_values[byte][0]);
-			set_r0dgps_delay(phy, byte, dqs_gate_values[byte][1]);
 		}
 	} else {
 		/* if intermitant, restore defaut values */
 		pr_debug("dqs gating:no regular fail/pass/fail found. defaults values restored.\n");
-		set_r0dgsl_delay(phy, byte, 0);
-		set_r0dgps_delay(phy, byte, 2);
+		dqs_gate_values[byte][0] = 0;
+		dqs_gate_values[byte][1] = 2;
 	}
+	set_r0dgsl_delay(phy, byte, dqs_gate_values[byte][0]);
+	set_r0dgps_delay(phy, byte, dqs_gate_values[byte][1]);
+	printf("Byte %d, R0DGSL = %d, R0DGPS = %d\n",
+	       byte, dqs_gate_values[byte][0], dqs_gate_values[byte][1]);
 
 	/* return 0 if intermittent or if both left_bound
 	 * and right_bound are not found
