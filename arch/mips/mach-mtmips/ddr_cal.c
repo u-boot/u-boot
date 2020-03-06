@@ -74,39 +74,31 @@ static inline bool dqs_test_error(void __iomem *memc, u32 memsize, u32 dqsval,
 static inline int dqs_find_max(void __iomem *memc, u32 memsize, int initval,
 			       int maxval, int shift, u32 regval)
 {
-	int fieldval = initval;
+	int fieldval;
 	u32 dqsval;
 
-	do {
+	for (fieldval = initval; fieldval <= maxval; fieldval++) {
 		dqsval = regval | (fieldval << shift);
-
 		if (dqs_test_error(memc, memsize, dqsval, 3))
-			break;
+			return max(fieldval - 1, initval);
+	}
 
-		fieldval++;
-	} while (fieldval <= maxval);
-
-	return fieldval;
+	return maxval;
 }
 
 static inline int dqs_find_min(void __iomem *memc, u32 memsize, int initval,
 			       int minval, int shift, u32 regval)
 {
-	int fieldval = initval;
+	int fieldval;
 	u32 dqsval;
 
-	while (fieldval > minval) {
+	for (fieldval = initval; fieldval >= minval; fieldval--) {
 		dqsval = regval | (fieldval << shift);
-
-		if (dqs_test_error(memc, memsize, dqsval, 1)) {
-			fieldval++;
-			break;
-		}
-
-		fieldval--;
+		if (dqs_test_error(memc, memsize, dqsval, 1))
+			return min(fieldval + 1, initval);
 	}
 
-	return fieldval;
+	return minval;
 }
 
 void ddr_calibrate(void __iomem *memc, u32 memsize, u32 bw)
