@@ -668,14 +668,34 @@ void stm32mp1_ddr_init(struct ddr_info *priv,
 {
 	u32 pir;
 	int ret = -EINVAL;
+	char bus_width;
+
+	switch (config->c_reg.mstr & DDRCTRL_MSTR_DATA_BUS_WIDTH_MASK) {
+	case DDRCTRL_MSTR_DATA_BUS_WIDTH_QUARTER:
+		bus_width = 8;
+		break;
+	case DDRCTRL_MSTR_DATA_BUS_WIDTH_HALF:
+		bus_width = 16;
+		break;
+	default:
+		bus_width = 32;
+		break;
+	}
+
 
 	if (config->c_reg.mstr & DDRCTRL_MSTR_DDR3)
 		ret = board_ddr_power_init(STM32MP_DDR3);
-	else if (config->c_reg.mstr & DDRCTRL_MSTR_LPDDR2)
-		ret = board_ddr_power_init(STM32MP_LPDDR2);
-	else if (config->c_reg.mstr & DDRCTRL_MSTR_LPDDR3)
-		ret = board_ddr_power_init(STM32MP_LPDDR3);
-
+	else if (config->c_reg.mstr & DDRCTRL_MSTR_LPDDR2) {
+		if (bus_width == 32)
+			ret = board_ddr_power_init(STM32MP_LPDDR2_32);
+		else
+			ret = board_ddr_power_init(STM32MP_LPDDR2_16);
+	} else if (config->c_reg.mstr & DDRCTRL_MSTR_LPDDR3) {
+		if (bus_width == 32)
+			ret = board_ddr_power_init(STM32MP_LPDDR3_32);
+		else
+			ret = board_ddr_power_init(STM32MP_LPDDR3_16);
+	}
 	if (ret)
 		panic("ddr power init failed\n");
 
