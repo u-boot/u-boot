@@ -32,8 +32,8 @@ static inline void pref_op(int op, const volatile void *addr)
 	__asm__ __volatile__("pref %0, 0(%1)" : : "i" (op), "r" (addr));
 }
 
-static inline int dqs_test_valid(void __iomem *memc, u32 memsize, u32 dqsval,
-				 u32 bias)
+static inline bool dqs_test_error(void __iomem *memc, u32 memsize, u32 dqsval,
+				  u32 bias)
 {
 	u32 *nca, *ca;
 	u32 off;
@@ -64,11 +64,11 @@ static inline int dqs_test_valid(void __iomem *memc, u32 memsize, u32 dqsval,
 
 		for (i = 0; i < TEST_PAT_SIZE / sizeof(u32); i++) {
 			if (ca[i] != (u32)nca + i + bias)
-				return -1;
+				return true;
 		}
 	}
 
-	return 0;
+	return false;
 }
 
 static inline u32 dqs_find_max(void __iomem *memc, u32 memsize, u32 initval,
@@ -79,7 +79,7 @@ static inline u32 dqs_find_max(void __iomem *memc, u32 memsize, u32 initval,
 	do {
 		dqsval = regval | (fieldval << shift);
 
-		if (dqs_test_valid(memc, memsize, dqsval, 3))
+		if (dqs_test_error(memc, memsize, dqsval, 3))
 			break;
 
 		fieldval++;
@@ -96,7 +96,7 @@ static inline u32 dqs_find_min(void __iomem *memc, u32 memsize, u32 initval,
 	while (fieldval > minval) {
 		dqsval = regval | (fieldval << shift);
 
-		if (dqs_test_valid(memc, memsize, dqsval, 1)) {
+		if (dqs_test_error(memc, memsize, dqsval, 1)) {
 			fieldval++;
 			break;
 		}
