@@ -1288,11 +1288,16 @@ static enum test_result do_read_dqs_gating(struct stm32mp1_ddrctl *ctl,
 {
 	u32 rfshctl3 = readl(&ctl->rfshctl3);
 	u32 pwrctl = readl(&ctl->pwrctl);
+	u32 derateen = readl(&ctl->derateen);
 	enum test_result res;
 
+	writel(0x0, &ctl->derateen);
 	stm32mp1_refresh_disable(ctl);
+
 	res = read_dqs_gating(ctl, phy, string);
+
 	stm32mp1_refresh_restore(ctl, rfshctl3, pwrctl);
+	writel(derateen, &ctl->derateen);
 
 	return res;
 }
@@ -1303,11 +1308,16 @@ static enum test_result do_bit_deskew(struct stm32mp1_ddrctl *ctl,
 {
 	u32 rfshctl3 = readl(&ctl->rfshctl3);
 	u32 pwrctl = readl(&ctl->pwrctl);
+	u32 derateen = readl(&ctl->derateen);
 	enum test_result res;
 
+	writel(0x0, &ctl->derateen);
 	stm32mp1_refresh_disable(ctl);
+
 	res = bit_deskew(ctl, phy, string);
+
 	stm32mp1_refresh_restore(ctl, rfshctl3, pwrctl);
+	writel(derateen, &ctl->derateen);
 
 	return res;
 }
@@ -1318,11 +1328,16 @@ static enum test_result do_eye_training(struct stm32mp1_ddrctl *ctl,
 {
 	u32 rfshctl3 = readl(&ctl->rfshctl3);
 	u32 pwrctl = readl(&ctl->pwrctl);
+	u32 derateen = readl(&ctl->derateen);
 	enum test_result res;
 
+	writel(0x0, &ctl->derateen);
 	stm32mp1_refresh_disable(ctl);
+
 	res = eye_training(ctl, phy, string);
+
 	stm32mp1_refresh_restore(ctl, rfshctl3, pwrctl);
+	writel(derateen, &ctl->derateen);
 
 	return res;
 }
