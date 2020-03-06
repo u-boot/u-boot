@@ -71,10 +71,11 @@ static inline bool dqs_test_error(void __iomem *memc, u32 memsize, u32 dqsval,
 	return false;
 }
 
-static inline u32 dqs_find_max(void __iomem *memc, u32 memsize, u32 initval,
-			       u32 maxval, u32 shift, u32 regval)
+static inline int dqs_find_max(void __iomem *memc, u32 memsize, int initval,
+			       int maxval, int shift, u32 regval)
 {
-	u32 fieldval = initval, dqsval;
+	int fieldval = initval;
+	u32 dqsval;
 
 	do {
 		dqsval = regval | (fieldval << shift);
@@ -88,10 +89,11 @@ static inline u32 dqs_find_max(void __iomem *memc, u32 memsize, u32 initval,
 	return fieldval;
 }
 
-static inline u32 dqs_find_min(void __iomem *memc, u32 memsize, u32 initval,
-			       u32 minval, u32 shift, u32 regval)
+static inline int dqs_find_min(void __iomem *memc, u32 memsize, int initval,
+			       int minval, int shift, u32 regval)
 {
-	u32 fieldval = initval, dqsval;
+	int fieldval = initval;
+	u32 dqsval;
 
 	while (fieldval > minval) {
 		dqsval = regval | (fieldval << shift);
