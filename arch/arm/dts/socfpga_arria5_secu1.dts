@@ -31,6 +31,12 @@
 		spi0 = &spi1;
 	};
 
+	bootcount@0 {
+		compatible = "u-boot,bootcount-rtc";
+		rtc = <&rtc>;
+		offset = <0x9e>;
+	};
+
 	i2c_gpio: i2c@0 {
 		compatible = "i2c-gpio";
 		#address-cells = <1>;
