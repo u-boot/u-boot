@@ -170,6 +170,7 @@ struct stm32mp1_ddr_config {
 	struct stm32mp1_ddrphy_reg p_reg;
 	struct stm32mp1_ddrphy_timing p_timing;
 	struct stm32mp1_ddrphy_cal p_cal;
+	bool p_cal_present;
 };
 
 int stm32mp1_ddr_clk_enable(struct ddr_info *priv, u32 mem_speed);

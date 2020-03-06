@@ -769,7 +769,8 @@ start:
  */
 	set_reg(priv, REGPHY_REG, &config->p_reg);
 	set_reg(priv, REGPHY_TIMING, &config->p_timing);
-	set_reg(priv, REGPHY_CAL, &config->p_cal);
+	if (config->p_cal_present)
+		set_reg(priv, REGPHY_CAL, &config->p_cal);
 
 	if (INTERACTIVE(STEP_PHY_INIT))
 		goto start;
@@ -804,13 +805,16 @@ start:
 
 	wait_operating_mode(priv, DDRCTRL_STAT_OPERATING_MODE_NORMAL);
 
-	debug("DDR DQS training : ");
+	if (config->p_cal_present) {
+		debug("DDR DQS training skipped.\n");
+	} else {
+		debug("DDR DQS training : ");
 /*  8. Disable Auto refresh and power down by setting
  *    - RFSHCTL3.dis_au_refresh = 1
  *    - PWRCTL.powerdown_en = 0
  *    - DFIMISC.dfiinit_complete_en = 0
  */
-	stm32mp1_refresh_disable(priv->ctl);
+		stm32mp1_refresh_disable(priv->ctl);
 
 /*  9. Program PUBL PGCR to enable refresh during training and rank to train
  *     not done => keep the programed value in PGCR
@@ -818,14 +822,15 @@ start:
 
 /* 10. configure PUBL PIR register to specify which training step to run */
 	/* warning : RVTRN  is not supported by this PUBL */
-	stm32mp1_ddrphy_init(priv->phy, DDRPHYC_PIR_QSTRN);
+		stm32mp1_ddrphy_init(priv->phy, DDRPHYC_PIR_QSTRN);
 
 /* 11. monitor PUB PGSR.IDONE to poll cpmpletion of training sequence */
-	ddrphy_idone_wait(priv->phy);
+		ddrphy_idone_wait(priv->phy);
 
 /* 12. set back registers in step 8 to the orginal values if desidered */
-	stm32mp1_refresh_restore(priv->ctl, config->c_reg.rfshctl3,
-				 config->c_reg.pwrctl);
+		stm32mp1_refresh_restore(priv->ctl, config->c_reg.rfshctl3,
+					 config->c_reg.pwrctl);
+	} /* if (config->p_cal_present) */
 
 	/* enable uMCTL2 AXI port 0 and 1 */
 	setbits_le32(&priv->ctl->pctrl_0, DDRCTRL_PCTRL_N_PORT_EN);
