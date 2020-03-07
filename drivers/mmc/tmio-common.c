@@ -358,14 +358,16 @@ static int tmio_sd_dma_xfer(struct udevice *dev, struct mmc_data *data)
 }
 
 /* check if the address is DMA'able */
-static bool tmio_sd_addr_is_dmaable(const char *src)
+static bool tmio_sd_addr_is_dmaable(struct mmc_data *data)
 {
-	uintptr_t addr = (uintptr_t)src;
+	uintptr_t addr = (uintptr_t)data->src;
 
 	if (!IS_ALIGNED(addr, TMIO_SD_DMA_MINALIGN))
 		return false;
 
 #if defined(CONFIG_RCAR_GEN3)
+	if (!(data->flags & MMC_DATA_READ) && !IS_ALIGNED(addr, 128))
+		return false;
 	/* Gen3 DMA has 32bit limit */
 	if (addr >> 32)
 		return false;
@@ -480,7 +482,7 @@ int tmio_sd_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 	if (data) {
 		/* use DMA if the HW supports it and the buffer is aligned */
 		if (priv->caps & TMIO_SD_CAP_DMA_INTERNAL &&
-		    tmio_sd_addr_is_dmaable(data->src))
+		    tmio_sd_addr_is_dmaable(data))
 			ret = tmio_sd_dma_xfer(dev, data);
 		else
 			ret = tmio_sd_pio_xfer(dev, cmd, data);
