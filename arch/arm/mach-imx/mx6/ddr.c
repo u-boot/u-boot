@@ -945,6 +945,27 @@ void mx6sdl_dram_iocfg(unsigned width,
 		mmdc1->entry = value;					  \
 	} while (0)
 
+/* see BOOT_CFG3 description Table 5-4. EIM Boot Fusemap */
+#define BOOT_CFG3_DDR_MASK	0x30
+#define BOOT_CFG3_EXT_DDR_MASK	0x33
+
+#define DDR_MMAP_NOC_SINGLE	0
+#define DDR_MMAP_NOC_DUAL	0x31
+
+/* NoC ACTIVATE shifts */
+#define NOC_RD_SHIFT		0
+#define NOC_FAW_PERIOD_SHIFT	4
+#define NOC_FAW_BANKS_SHIFT	10
+
+/* NoC DdrTiming shifts */
+#define NOC_ACT_TO_ACT_SHIFT	0
+#define NOC_RD_TO_MISS_SHIFT	6
+#define NOC_WR_TO_MISS_SHIFT	12
+#define NOC_BURST_LEN_SHIFT	18
+#define NOC_RD_TO_WR_SHIFT	21
+#define NOC_WR_TO_RD_SHIFT	26
+#define NOC_BW_RATIO_SHIFT	31
+
 /*
  * According JESD209-2B-LPDDR2: Table 103
  * WL: write latency
@@ -1234,6 +1255,8 @@ void mx6_ddr3_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 {
 	volatile struct mmdc_p_regs *mmdc0;
 	volatile struct mmdc_p_regs *mmdc1;
+	struct src *src_regs = (struct src *)SRC_BASE_ADDR;
+	u8 soc_boot_cfg3 = (readl(&src_regs->sbmr1) >> 16) & 0xff;
 	u32 val;
 	u8 tcke, tcksrx, tcksre, txpdll, taofpd, taonpd, trrd;
 	u8 todtlon, taxpd, tanpd, tcwl, txp, tfaw, tcl;
@@ -1525,6 +1548,79 @@ void mx6_ddr3_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 
 	/* Step 12: Configure and activate periodic refresh */
 	mmdc0->mdref = (sysinfo->refsel << 14) | (sysinfo->refr << 11);
+
+	/*
+	 * Step 13: i.MX6DQP only: If the NoC scheduler is enabled,
+	 * configure it and disable MMDC arbitration/reordering (see EB828)
+	 */
+	if (is_mx6dqp() &&
+	    ((soc_boot_cfg3 & BOOT_CFG3_DDR_MASK) == DDR_MMAP_NOC_SINGLE ||
+	    (soc_boot_cfg3 & BOOT_CFG3_EXT_DDR_MASK) == DDR_MMAP_NOC_DUAL)) {
+		struct mx6dqp_noc_sched_regs *noc_sched =
+			(struct mx6dqp_noc_sched_regs *)MX6DQP_NOC_SCHED_BASE;
+
+		/*
+		 * These values are fixed based on integration parameters and
+		 * should not be modified
+		 */
+		noc_sched->rlat = 0x00000040;
+		noc_sched->ipu1 = 0x00000020;
+		noc_sched->ipu2 = 0x00000020;
+
+		noc_sched->activate = (1 << NOC_FAW_BANKS_SHIFT) |
+				      (tfaw << NOC_FAW_PERIOD_SHIFT) |
+				      (trrd << NOC_RD_SHIFT);
+		noc_sched->ddrtiming = (((sysinfo->dsize == 1) ? 1 : 0)
+					 << NOC_BW_RATIO_SHIFT) |
+				       ((tcwl + twtr) << NOC_WR_TO_RD_SHIFT) |
+				       ((tcl - tcwl + 2) << NOC_RD_TO_WR_SHIFT) |
+				       (4 << NOC_BURST_LEN_SHIFT) | /* BL8 */
+				       ((tcwl + twr + trp + trcd)
+					 << NOC_WR_TO_MISS_SHIFT) |
+				       ((trtp + trp + trcd - 4)
+					 << NOC_RD_TO_MISS_SHIFT) |
+				       (trc << NOC_ACT_TO_ACT_SHIFT);
+
+		if (sysinfo->dsize == 2) {
+			if (ddr3_cfg->coladdr == 10) {
+				if (ddr3_cfg->rowaddr == 15 &&
+				    sysinfo->ncs == 2)
+					noc_sched->ddrconf = 4;
+				else
+					noc_sched->ddrconf = 0;
+			} else if (ddr3_cfg->coladdr == 11) {
+				noc_sched->ddrconf = 1;
+			}
+		} else {
+			if (ddr3_cfg->coladdr == 9) {
+				if (ddr3_cfg->rowaddr == 13)
+					noc_sched->ddrconf = 2;
+				else if (ddr3_cfg->rowaddr == 14)
+					noc_sched->ddrconf = 15;
+			} else if (ddr3_cfg->coladdr == 10) {
+				if (ddr3_cfg->rowaddr == 14 &&
+				    sysinfo->ncs == 2)
+					noc_sched->ddrconf = 14;
+				else if (ddr3_cfg->rowaddr == 15 &&
+					 sysinfo->ncs == 2)
+					noc_sched->ddrconf = 9;
+				else
+					noc_sched->ddrconf = 3;
+			} else if (ddr3_cfg->coladdr == 11) {
+				if (ddr3_cfg->rowaddr == 15 &&
+				    sysinfo->ncs == 2)
+					noc_sched->ddrconf = 4;
+				else
+					noc_sched->ddrconf = 0;
+			} else if (ddr3_cfg->coladdr == 12) {
+				if (ddr3_cfg->rowaddr == 14)
+					noc_sched->ddrconf = 1;
+			}
+		}
+
+		/* Disable MMDC arbitration/reordering */
+		mmdc0->maarcr = 0x14420000;
+	}
 
 	/* Step 13: Deassert config request - init complete */
 	mmdc0->mdscr = 0x00000000;
