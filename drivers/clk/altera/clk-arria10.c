@@ -274,12 +274,29 @@ static int socfpga_a10_clk_bind(struct udevice *dev)
 static int socfpga_a10_clk_probe(struct udevice *dev)
 {
 	struct socfpga_a10_clk_platdata *plat = dev_get_platdata(dev);
+	struct socfpga_a10_clk_platdata *pplat;
+	struct udevice *pdev;
 	const void *fdt = gd->fdt_blob;
 	int offset = dev_of_offset(dev);
 
 	clk_get_bulk(dev, &plat->clks);
 
 	socfpga_a10_handoff_workaround(dev);
+
+	if (!fdt_node_check_compatible(fdt, offset, "altr,clk-mgr")) {
+		plat->regs = devfdt_get_addr(dev);
+	} else {
+		pdev = dev_get_parent(dev);
+		if (!pdev)
+			return -ENODEV;
+
+		pplat = dev_get_platdata(pdev);
+		if (!pplat)
+			return -EINVAL;
+
+		plat->ctl_reg = dev_read_u32_default(dev, "reg", 0x0);
+		plat->regs = pplat->regs;
+	}
 
 	if (!fdt_node_check_compatible(fdt, offset,
 				       "altr,socfpga-a10-pll-clock")) {
@@ -304,29 +321,8 @@ static int socfpga_a10_clk_probe(struct udevice *dev)
 static int socfpga_a10_ofdata_to_platdata(struct udevice *dev)
 {
 	struct socfpga_a10_clk_platdata *plat = dev_get_platdata(dev);
-	struct socfpga_a10_clk_platdata *pplat;
-	struct udevice *pdev;
-	const void *fdt = gd->fdt_blob;
 	unsigned int divreg[3], gatereg[2];
-	int ret, offset = dev_of_offset(dev);
-	u32 regs;
-
-	regs = dev_read_u32_default(dev, "reg", 0x0);
-
-	if (!fdt_node_check_compatible(fdt, offset, "altr,clk-mgr")) {
-		plat->regs = devfdt_get_addr(dev);
-	} else {
-		pdev = dev_get_parent(dev);
-		if (!pdev)
-			return -ENODEV;
-
-		pplat = dev_get_platdata(pdev);
-		if (!pplat)
-			return -EINVAL;
-
-		plat->ctl_reg = regs;
-		plat->regs = pplat->regs;
-	}
+	int ret;
 
 	plat->type = SOCFPGA_A10_CLK_UNKNOWN_CLK;
 
