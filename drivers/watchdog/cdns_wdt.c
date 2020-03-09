@@ -15,8 +15,6 @@
 #include <linux/err.h>
 #include <linux/io.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct cdns_regs {
 	u32 zmr;	/* WD Zero mode register, offset - 0x0 */
 	u32 ccr;	/* Counter Control Register offset - 0x4 */
