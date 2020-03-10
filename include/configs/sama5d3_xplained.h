@@ -9,6 +9,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <linux/sizes.h>
 #include "at91-sama5_common.h"
 
 /*
@@ -64,7 +65,8 @@
 #define CONFIG_SYS_SPL_MALLOC_START	0x20080000
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x80000
 
-#define CONFIG_SYS_MONITOR_LEN		(512 << 10)
+/* size of u-boot.bin to load */
+#define CONFIG_SYS_MONITOR_LEN		(2 * SZ_512K)
 
 #ifdef CONFIG_SD_BOOT
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
