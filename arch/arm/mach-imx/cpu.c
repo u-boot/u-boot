@@ -385,6 +385,9 @@ u32 get_cpu_speed_grade_hz(void)
  */
 #define OCOTP_TESTER3_TEMP_SHIFT	6
 
+/* iMX8MP uses OCOTP_TESTER3[6:5] for Market segment */
+#define IMX8MP_OCOTP_TESTER3_TEMP_SHIFT	5
+
 u32 get_cpu_temp_grade(int *minc, int *maxc)
 {
 	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
@@ -394,7 +397,10 @@ u32 get_cpu_temp_grade(int *minc, int *maxc)
 	uint32_t val;
 
 	val = readl(&fuse->tester3);
-	val >>= OCOTP_TESTER3_TEMP_SHIFT;
+	if (is_imx8mp())
+		val >>= IMX8MP_OCOTP_TESTER3_TEMP_SHIFT;
+	else
+		val >>= OCOTP_TESTER3_TEMP_SHIFT;
 	val &= 0x3;
 
 	if (minc && maxc) {
