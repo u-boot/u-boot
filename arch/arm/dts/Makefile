@@ -889,6 +889,9 @@ dtb-$(CONFIG_TARGET_OMAP4_SDP4430) += \
 dtb-$(CONFIG_TARGET_OMAP5_UEVM) += \
 	omap5-uevm.dtb
 
+dtb-$(CONFIG_TARGET_SAMA7G5EK) += \
+	sama7g5ek.dtb
+
 dtb-$(CONFIG_TARGET_SAMA5D2_PTC_EK) += \
 	at91-sama5d2_ptc_ek.dtb
 

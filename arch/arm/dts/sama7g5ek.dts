@@ -1,0 +1,39 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * sama7g5ek.dts - Device Tree file for SAMA7G5 EK
+ *		   SAMA7G5 Evaluation Kit
+ *
+ *  Copyright (c) 2020, Microchip Technology Inc.
+ *                2020, Eugen Hristev <eugen.hristev@microchip.com>
+ *		  2020, Claudiu Beznea <claudiu.beznea@microchip.com>
+ */
+/dts-v1/;
+#include "sama7g5.dtsi"
+#include "sama7g5-pinfunc.h"
+
+/ {
+	model = "Microchip SAMA7G5 Evaluation Kit";
+	compatible = "microchip,sama7g5ek", "microchip,sama7g54", "microchip,sama7g5", "microchip,sama7";
+
+	aliases {
+		serial0 = &uart0;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	ahb {
+
+		apb {
+			sdmmc1: sdio-host@e1208000 {
+				bus-width = <4>;
+				status = "okay";
+			};
+
+			uart0: serial@e1824200 {
+				status = "okay";
+			};
+		};
+	};
+};

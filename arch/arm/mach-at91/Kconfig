@@ -265,6 +265,13 @@ config TARGET_CORVUS
 	select SUPPORT_SPL
 	imply CMD_DM
 
+config TARGET_SAMA7G5EK
+       bool "SAMA7G5 EK board"
+       select SAMA7G5
+       select BOARD_EARLY_INIT_F
+       select BOARD_LATE_INIT
+
+
 config TARGET_TAURUS
 	bool "Support taurus"
 	select AT91SAM9G20
@@ -327,6 +334,7 @@ source "board/atmel/at91sam9n12ek/Kconfig"
 source "board/atmel/at91sam9rlek/Kconfig"
 source "board/atmel/at91sam9x5ek/Kconfig"
 source "board/atmel/sam9x60ek/Kconfig"
+source "board/atmel/sama7g5ek/Kconfig"
 source "board/atmel/sama5d2_ptc_ek/Kconfig"
 source "board/atmel/sama5d2_xplained/Kconfig"
 source "board/atmel/sama5d27_som1_ek/Kconfig"
