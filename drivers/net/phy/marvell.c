@@ -303,9 +303,9 @@ static int m88e1111s_config(struct phy_device *phydev)
 }
 
 /**
- * m88e1518_phy_writebits - write bits to a register
+ * m88e151x_phy_writebits - write bits to a register
  */
-void m88e1518_phy_writebits(struct phy_device *phydev,
+void m88e151x_phy_writebits(struct phy_device *phydev,
 			    u8 reg_num, u16 offset, u16 len, u16 data)
 {
 	u16 reg, mask;
@@ -323,7 +323,7 @@ void m88e1518_phy_writebits(struct phy_device *phydev,
 	phy_write(phydev, MDIO_DEVAD_NONE, reg_num, reg);
 }
 
-static int m88e1518_config(struct phy_device *phydev)
+static int m88e151x_config(struct phy_device *phydev)
 {
 	u16 reg;
 
@@ -350,11 +350,11 @@ static int m88e1518_config(struct phy_device *phydev)
 		phy_write(phydev, MDIO_DEVAD_NONE, MIIM_88E1118_PHY_PAGE, 18);
 
 		/* In reg 20, write MODE[2:0] = 0x1 (SGMII to Copper) */
-		m88e1518_phy_writebits(phydev, MIIM_88E151x_GENERAL_CTRL,
+		m88e151x_phy_writebits(phydev, MIIM_88E151x_GENERAL_CTRL,
 				       0, 3, MIIM_88E151x_MODE_SGMII);
 
 		/* PHY reset is necessary after changing MODE[2:0] */
-		m88e1518_phy_writebits(phydev, MIIM_88E151x_GENERAL_CTRL,
+		m88e151x_phy_writebits(phydev, MIIM_88E151x_GENERAL_CTRL,
 				       MIIM_88E151x_RESET_OFFS, 1, 1);
 
 		/* Reset page selection */
@@ -399,33 +399,6 @@ static int m88e1518_config(struct phy_device *phydev)
 	genphy_restart_aneg(phydev);
 
 	return 0;
-}
-
-/* Marvell 88E1510 */
-static int m88e1510_config(struct phy_device *phydev)
-{
-	/* Select page 3 */
-	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_88E1118_PHY_PAGE,
-		  MIIM_88E1118_PHY_LED_PAGE);
-
-	/* Enable INTn output on LED[2] */
-	m88e1518_phy_writebits(phydev, MIIM_88E151x_LED_TIMER_CTRL,
-			       MIIM_88E151x_INT_EN_OFFS, 1, 1);
-
-	/* Configure LEDs */
-	/* LED[0]:0011 (ACT) */
-	m88e1518_phy_writebits(phydev, MIIM_88E151x_LED_FUNC_CTRL,
-			       MIIM_88E151x_LED0_OFFS, MIIM_88E151x_LED_FLD_SZ,
-			       MIIM_88E151x_LED0_ACT);
-	/* LED[1]:0110 (LINK 100/1000 Mbps) */
-	m88e1518_phy_writebits(phydev, MIIM_88E151x_LED_FUNC_CTRL,
-			       MIIM_88E151x_LED1_OFFS, MIIM_88E151x_LED_FLD_SZ,
-			       MIIM_88E151x_LED1_100_1000_LINK);
-
-	/* Reset page selection */
-	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_88E1118_PHY_PAGE, 0);
-
-	return m88e1518_config(phydev);
 }
 
 /* Marvell 88E1118 */
@@ -685,29 +658,12 @@ static struct phy_driver M88E1149S_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
-static struct phy_driver M88E1510_driver = {
-	.name = "Marvell 88E1510",
+static struct phy_driver M88E151x_driver = {
+	.name = "Marvell 88E151x",
 	.uid = 0x1410dd0,
-	.mask = 0xfffffff,
+	.mask = 0xffffff0,
 	.features = PHY_GBIT_FEATURES,
-	.config = &m88e1510_config,
-	.startup = &m88e1011s_startup,
-	.shutdown = &genphy_shutdown,
-	.readext = &m88e1xxx_phy_extread,
-	.writeext = &m88e1xxx_phy_extwrite,
-};
-
-/*
- * This supports:
- *  88E1518, uid 0x1410dd1
- *  88E1512, uid 0x1410dd4
- */
-static struct phy_driver M88E1518_driver = {
-	.name = "Marvell 88E1518",
-	.uid = 0x1410dd0,
-	.mask = 0xffffffa,
-	.features = PHY_GBIT_FEATURES,
-	.config = &m88e1518_config,
+	.config = &m88e151x_config,
 	.startup = &m88e1011s_startup,
 	.shutdown = &genphy_shutdown,
 	.readext = &m88e1xxx_phy_extread,
@@ -744,8 +700,7 @@ int phy_marvell_init(void)
 	phy_register(&M88E1118R_driver);
 	phy_register(&M88E1111S_driver);
 	phy_register(&M88E1011S_driver);
-	phy_register(&M88E1510_driver);
-	phy_register(&M88E1518_driver);
+	phy_register(&M88E151x_driver);
 	phy_register(&M88E1680_driver);
 
 	return 0;

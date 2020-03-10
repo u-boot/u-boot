@@ -223,7 +223,7 @@ static int load_block(unsigned block, uchar *dst, unsigned len)
 
 	tosend = min(net_boot_file_size - offset, tosend);
 	(void)memcpy(dst, (void *)(image_save_addr + offset), tosend);
-	debug("%s: block=%d, offset=%ld, len=%d, tosend=%ld\n", __func__,
+	debug("%s: block=%u, offset=%lu, len=%u, tosend=%lu\n", __func__,
 	      block, offset, len, tosend);
 	return tosend;
 }

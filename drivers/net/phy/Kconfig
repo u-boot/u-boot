@@ -267,4 +267,8 @@ config PHY_FIXED
 	  on, the link is always up with fixed speed and fixed duplex-setting.
 	  More information: doc/device-tree-bindings/net/fixed-link.txt
 
+config PHY_NCSI
+	bool "NC-SI based PHY"
+	depends on DM_ETH
+
 endif #PHYLIB
