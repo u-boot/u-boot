@@ -102,16 +102,14 @@ static int k3_dsp_start(struct udevice *dev)
 	ret = ti_sci_proc_request(&dsp->tsp);
 	if (ret)
 		return ret;
-	/*
-	 * Setting the right clock frequency would have taken care by
-	 * assigned-clock-rates during the device probe. So no need to
-	 * set the frequency again here.
-	 */
+
 	ret = ti_sci_proc_power_domain_on(&dsp->tsp);
 	if (ret)
 		goto proc_release;
 
 	ret = reset_deassert(&dsp->dsp_rst);
+	if (ret)
+		ti_sci_proc_power_domain_off(&dsp->tsp);
 
 proc_release:
 	ti_sci_proc_release(&dsp->tsp);
