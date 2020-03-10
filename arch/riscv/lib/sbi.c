@@ -39,6 +39,8 @@ struct sbiret sbi_ecall(int ext, int fid, unsigned long arg0,
 	return ret;
 }
 
+#ifdef CONFIG_SBI_V01
+
 /**
  * sbi_console_putchar() - Writes given character to the console device.
  * @ch: The data to be written to the console.
@@ -83,6 +85,8 @@ void sbi_shutdown(void)
 {
 	sbi_ecall(SBI_EXT_0_1_SHUTDOWN, 0, 0, 0, 0, 0, 0, 0);
 }
+
+#endif /* CONFIG_SBI_V01 */
 
 /**
  * sbi_set_timer() - Program the timer for next timer event.
