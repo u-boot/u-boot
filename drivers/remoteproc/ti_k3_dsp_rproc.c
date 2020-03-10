@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2018-2020 Texas Instruments Incorporated - http://www.ti.com/
  *	Lokesh Vutla <lokeshvutla@ti.com>
- *
+ *	Suman Anna <s-anna@ti.com>
  */
 
 #include <common.h>
@@ -41,9 +41,11 @@ struct k3_dsp_mem {
 /**
  * struct k3_dsp_boot_data - internal data structure used for boot
  * @boot_align_addr: Boot vector address alignment granularity
+ * @uses_lreset: Flag to denote the need for local reset management
  */
 struct k3_dsp_boot_data {
 	u32 boot_align_addr;
+	bool uses_lreset;
 };
 
 /**
@@ -61,6 +63,54 @@ struct k3_dsp_privdata {
 	struct k3_dsp_mem *mem;
 	int num_mems;
 };
+
+/*
+ * The C66x DSP cores have a local reset that affects only the CPU, and a
+ * generic module reset that powers on the device and allows the DSP internal
+ * memories to be accessed while the local reset is asserted. This function is
+ * used to release the global reset on C66x DSPs to allow loading into the DSP
+ * internal RAMs. This helper function is invoked in k3_dsp_load() before any
+ * actual firmware loading and is undone only in k3_dsp_stop(). The local reset
+ * on C71x cores is a no-op and the global reset cannot be released on C71x
+ * cores until after the firmware images are loaded, so this function does
+ * nothing for C71x cores.
+ */
+static int k3_dsp_prepare(struct udevice *dev)
+{
+	struct k3_dsp_privdata *dsp = dev_get_priv(dev);
+	struct k3_dsp_boot_data *data = dsp->data;
+	int ret;
+
+	/* local reset is no-op on C71x processors */
+	if (!data->uses_lreset)
+		return 0;
+
+	ret = ti_sci_proc_power_domain_on(&dsp->tsp);
+	if (ret)
+		dev_err(dev, "cannot enable internal RAM loading, ret = %d\n",
+			ret);
+
+	return ret;
+}
+
+/*
+ * This function is the counterpart to k3_dsp_prepare() and is used to assert
+ * the global reset on C66x DSP cores (no-op for C71x DSP cores). This completes
+ * the second step of powering down the C66x DSP cores. The cores themselves
+ * are halted through the local reset in first step. This function is invoked
+ * in k3_dsp_stop() after the local reset is asserted.
+ */
+static int k3_dsp_unprepare(struct udevice *dev)
+{
+	struct k3_dsp_privdata *dsp = dev_get_priv(dev);
+	struct k3_dsp_boot_data *data = dsp->data;
+
+	/* local reset is no-op on C71x processors */
+	if (!data->uses_lreset)
+		return 0;
+
+	return ti_sci_proc_power_domain_off(&dsp->tsp);
+}
 
 /**
  * k3_dsp_load() - Load up the Remote processor image
@@ -82,10 +132,17 @@ static int k3_dsp_load(struct udevice *dev, ulong addr, ulong size)
 	if (ret)
 		return ret;
 
+	ret = k3_dsp_prepare(dev);
+	if (ret) {
+		dev_err(dev, "DSP prepare failed for core %d\n",
+			dsp->tsp.proc_id);
+		goto proc_release;
+	}
+
 	ret = rproc_elf_load_image(dev, addr, size);
 	if (ret < 0) {
 		dev_err(dev, "Loading elf failed %d\n", ret);
-		goto proc_release;
+		goto unprepare;
 	}
 
 	boot_vector = rproc_elf_get_boot_addr(dev, addr);
@@ -99,6 +156,9 @@ static int k3_dsp_load(struct udevice *dev, ulong addr, ulong size)
 	dev_dbg(dev, "%s: Boot vector = 0x%x\n", __func__, boot_vector);
 
 	ret = ti_sci_proc_set_config(&dsp->tsp, boot_vector, 0, 0);
+unprepare:
+	if (ret)
+		k3_dsp_unprepare(dev);
 proc_release:
 	ti_sci_proc_release(&dsp->tsp);
 	return ret;
@@ -113,6 +173,7 @@ proc_release:
 static int k3_dsp_start(struct udevice *dev)
 {
 	struct k3_dsp_privdata *dsp = dev_get_priv(dev);
+	struct k3_dsp_boot_data *data = dsp->data;
 	int ret;
 
 	dev_dbg(dev, "%s\n", __func__);
@@ -121,13 +182,17 @@ static int k3_dsp_start(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	ret = ti_sci_proc_power_domain_on(&dsp->tsp);
-	if (ret)
-		goto proc_release;
+	if (!data->uses_lreset) {
+		ret = ti_sci_proc_power_domain_on(&dsp->tsp);
+		if (ret)
+			goto proc_release;
+	}
 
 	ret = reset_deassert(&dsp->dsp_rst);
-	if (ret)
-		ti_sci_proc_power_domain_off(&dsp->tsp);
+	if (ret) {
+		if (!data->uses_lreset)
+			ti_sci_proc_power_domain_off(&dsp->tsp);
+	}
 
 proc_release:
 	ti_sci_proc_release(&dsp->tsp);
@@ -344,6 +409,15 @@ static int k3_dsp_probe(struct udevice *dev)
 		return ret;
 	}
 
+	/*
+	 * The DSP local resets are deasserted by default on Power-On-Reset.
+	 * Assert the local resets to ensure the DSPs don't execute bogus code
+	 * in .load() callback when the module reset is released to support
+	 * internal memory loading. This is needed for C66x DSPs, and is a
+	 * no-op on C71x DSPs.
+	 */
+	reset_assert(&dsp->dsp_rst);
+
 	dev_dbg(dev, "Remoteproc successfully probed\n");
 
 	return 0;
@@ -360,10 +434,12 @@ static int k3_dsp_remove(struct udevice *dev)
 
 static const struct k3_dsp_boot_data c66_data = {
 	.boot_align_addr = SZ_1K,
+	.uses_lreset = true,
 };
 
 static const struct k3_dsp_boot_data c71_data = {
 	.boot_align_addr = SZ_2M,
+	.uses_lreset = false,
 };
 
 static const struct udevice_id k3_dsp_ids[] = {
