@@ -67,7 +67,7 @@ struct mm_region *mem_map = am654_mem_map;
 
 #ifdef CONFIG_SOC_K3_J721E
 /* NR_DRAM_BANKS + 32bit IO + 64bit IO + terminator */
-#define NR_MMU_REGIONS	(CONFIG_NR_DRAM_BANKS + 5)
+#define NR_MMU_REGIONS	(CONFIG_NR_DRAM_BANKS + 6)
 
 /* ToDo: Add 64bit IO */
 struct mm_region j721e_mem_map[NR_MMU_REGIONS] = {
@@ -109,6 +109,12 @@ struct mm_region j721e_mem_map[NR_MMU_REGIONS] = {
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	}, {
+		.virt = 0x4d80000000UL,
+		.phys = 0x4d80000000UL,
+		.size = 0x0002000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL_NC) |
+			 PTE_BLOCK_INNER_SHARE
 	}, {
 		/* List terminator */
 		0,
