@@ -35,6 +35,28 @@ struct ti_sci_handle *get_ti_sci_handle(void)
 	return (struct ti_sci_handle *)ti_sci_get_handle_from_sysfw(dev);
 }
 
+void k3_sysfw_print_ver(void)
+{
+	struct ti_sci_handle *ti_sci = get_ti_sci_handle();
+	char fw_desc[sizeof(ti_sci->version.firmware_description) + 1];
+
+	/*
+	 * Output System Firmware version info. Note that since the
+	 * 'firmware_description' field is not guaranteed to be zero-
+	 * terminated we manually add a \0 terminator if needed. Further
+	 * note that we intentionally no longer rely on the extended
+	 * printf() formatter '%.*s' to not having to require a more
+	 * full-featured printf() implementation.
+	 */
+	strncpy(fw_desc, ti_sci->version.firmware_description,
+		sizeof(ti_sci->version.firmware_description));
+	fw_desc[sizeof(fw_desc) - 1] = '\0';
+
+	printf("SYSFW ABI: %d.%d (firmware rev 0x%04x '%s')\n",
+	       ti_sci->version.abi_major, ti_sci->version.abi_minor,
+	       ti_sci->version.firmware_revision, fw_desc);
+}
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_K3_EARLY_CONS
