@@ -97,10 +97,11 @@ void sbi_shutdown(void)
 void sbi_set_timer(uint64_t stime_value)
 {
 #if __riscv_xlen == 32
-	sbi_ecall(SBI_EXT_0_1_SET_TIMER, 0, stime_value,
+	sbi_ecall(SBI_EXT_SET_TIMER, SBI_FID_SET_TIMER, stime_value,
 		  stime_value >> 32, 0, 0, 0, 0);
 #else
-	sbi_ecall(SBI_EXT_0_1_SET_TIMER, 0, stime_value, 0, 0, 0, 0, 0);
+	sbi_ecall(SBI_EXT_SET_TIMER, SBI_FID_SET_TIMER, stime_value,
+		  0, 0, 0, 0, 0);
 #endif
 }
 
@@ -112,7 +113,7 @@ void sbi_set_timer(uint64_t stime_value)
  */
 void sbi_send_ipi(const unsigned long *hart_mask)
 {
-	sbi_ecall(SBI_EXT_0_1_SEND_IPI, 0, (unsigned long)hart_mask,
+	sbi_ecall(SBI_EXT_SEND_IPI, SBI_FID_SEND_IPI, (unsigned long)hart_mask,
 		  0, 0, 0, 0, 0);
 }
 
@@ -124,8 +125,8 @@ void sbi_send_ipi(const unsigned long *hart_mask)
  */
 void sbi_remote_fence_i(const unsigned long *hart_mask)
 {
-	sbi_ecall(SBI_EXT_0_1_REMOTE_FENCE_I, 0, (unsigned long)hart_mask,
-		  0, 0, 0, 0, 0);
+	sbi_ecall(SBI_EXT_REMOTE_FENCE_I, SBI_FID_REMOTE_FENCE_I,
+		  (unsigned long)hart_mask, 0, 0, 0, 0, 0);
 }
 
 /**
@@ -141,7 +142,7 @@ void sbi_remote_sfence_vma(const unsigned long *hart_mask,
 			   unsigned long start,
 			   unsigned long size)
 {
-	sbi_ecall(SBI_EXT_0_1_REMOTE_SFENCE_VMA, 0,
+	sbi_ecall(SBI_EXT_REMOTE_SFENCE_VMA, SBI_FID_REMOTE_SFENCE_VMA,
 		  (unsigned long)hart_mask, start, size, 0, 0, 0);
 }
 
@@ -161,7 +162,8 @@ void sbi_remote_sfence_vma_asid(const unsigned long *hart_mask,
 				unsigned long size,
 				unsigned long asid)
 {
-	sbi_ecall(SBI_EXT_0_1_REMOTE_SFENCE_VMA_ASID, 0,
+	sbi_ecall(SBI_EXT_REMOTE_SFENCE_VMA_ASID,
+		  SBI_FID_REMOTE_SFENCE_VMA_ASID,
 		  (unsigned long)hart_mask, start, size, asid, 0, 0);
 }
 
