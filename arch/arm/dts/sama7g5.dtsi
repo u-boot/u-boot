@@ -1,0 +1,65 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * sama7g5.dtsi - Device Tree Include file for SAMA7G5 SoC.
+ *
+ * Copyright (C) 2020 Microchip Technology Inc. and its subsidiaries
+ *
+ * Author: Eugen Hristev <eugen.hristev@microchip.com>
+ * Author: Claudiu Beznea <claudiu.beznea@microchip.com>
+ *
+ */
+
+#include "skeleton.dtsi"
+
+/ {
+	model = "Microchip SAMA7G5 family SoC";
+	compatible = "microchip,sama7g5";
+
+	clocks {
+		slow_xtal: slow_xtal {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <0>;
+		};
+
+		main_xtal: main_xtal {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <0>;
+		};
+
+		mck: mck {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <200000000>;
+		};
+	};
+
+	ahb {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		apb {
+			compatible = "simple-bus";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			sdmmc1: sdio-host@e1208000 {
+				compatible = "microchip,sama7g5-sdhci";
+				reg = <0xe1208000 0x300>;
+				clocks = <&mck>, <&mck>, <&mck>;
+				clock-names = "hclock", "multclk", "baseclk";
+				status = "disabled";
+			};
+
+			uart0: serial@e1824200 {
+				compatible = "atmel,at91sam9260-usart";
+				reg = <0xe1824200 0x200>;
+				clocks = <&mck>;
+				clock-names = "usart";
+				status = "disabled";
+			};
+		};
+	};
+};
