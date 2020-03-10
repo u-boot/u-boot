@@ -127,8 +127,7 @@ ENTRY(_main)
 	ldr	r0, [r9, #GD_START_ADDR_SP]	/* sp = gd->start_addr_sp */
 	bic	r0, r0, #7	/* 8-byte alignment for ABI compliance */
 	mov	sp, r0
-	ldr	r9, [r9, #GD_BD]		/* r9 = gd->bd */
-	sub	r9, r9, #GD_SIZE		/* new GD is below bd */
+	ldr	r9, [r9, #GD_NEW_GD]		/* r9 <- gd->new_gd */
 
 	adr	lr, here
 	ldr	r0, [r9, #GD_RELOC_OFF]		/* r0 = gd->reloc_off */
