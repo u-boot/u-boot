@@ -816,4 +816,5 @@ U_BOOT_DRIVER(k3_r5fss) = {
 	.id = UCLASS_MISC,
 	.probe = k3_r5f_cluster_probe,
 	.priv_auto_alloc_size = sizeof(struct k3_r5f_cluster),
+	.flags = DM_FLAG_DEFAULT_PD_CTRL_OFF,
 };
