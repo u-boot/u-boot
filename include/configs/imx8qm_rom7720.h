@@ -17,7 +17,12 @@
 #undef CONFIG_BOOTM_NETBSD
 
 #define CONFIG_FSL_USDHC
+#define CONFIG_SYS_BOOTMAPSZ		(256 << 20)
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
+#define USDHC1_BASE_ADDR		0x5B010000
+#define USDHC2_BASE_ADDR		0x5B020000
+#define USDHC3_BASE_ADDR		0x5B030000
+
 #define CONFIG_SUPPORT_EMMC_BOOT	/* eMMC specific */
 
 #define CONFIG_ENV_OVERWRITE
@@ -63,11 +68,9 @@
 	"panel=NULL\0" \
 	"console=ttyLP0\0" \
 	"fdt_addr=0x83000000\0"			\
-	"fdt_high=0xffffffffffffffff\0"		\
 	"boot_fdt=try\0" \
 	"fdt_file=imx8qm-rom7720-a1.dtb\0" \
 	"initrd_addr=0x83800000\0"		\
-	"initrd_high=0xffffffffffffffff\0" \
 	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
 	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
 	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \

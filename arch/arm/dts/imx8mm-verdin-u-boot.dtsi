@@ -69,6 +69,10 @@
 	u-boot,dm-spl;
 };
 
+&pinctrl_usdhc1 {
+	u-boot,dm-spl;
+};
+
 &pinctrl_usdhc2 {
 	u-boot,dm-spl;
 };
