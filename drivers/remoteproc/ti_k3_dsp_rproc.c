@@ -2,7 +2,7 @@
 /*
  * Texas Instruments' K3 DSP Remoteproc driver
  *
- * Copyright (C) 2018-2019 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2018-2020 Texas Instruments Incorporated - http://www.ti.com/
  *	Lokesh Vutla <lokeshvutla@ti.com>
  *
  */
@@ -18,6 +18,7 @@
 #include <power-domain.h>
 #include <dm/device_compat.h>
 #include <linux/err.h>
+#include <linux/sizes.h>
 #include <linux/soc/ti/ti_sci_protocol.h>
 #include "ti_sci_proc.h"
 
@@ -38,15 +39,25 @@ struct k3_dsp_mem {
 };
 
 /**
+ * struct k3_dsp_boot_data - internal data structure used for boot
+ * @boot_align_addr: Boot vector address alignment granularity
+ */
+struct k3_dsp_boot_data {
+	u32 boot_align_addr;
+};
+
+/**
  * struct k3_dsp_privdata - Structure representing Remote processor data.
  * @rproc_rst:		rproc reset control data
  * @tsp:		Pointer to TISCI proc contrl handle
+ * @data:		Pointer to DSP specific boot data structure
  * @mem:		Array of available memories
  * @num_mem:		Number of available memories
  */
 struct k3_dsp_privdata {
 	struct reset_ctl dsp_rst;
 	struct ti_sci_proc tsp;
+	struct k3_dsp_boot_data *data;
 	struct k3_dsp_mem *mem;
 	int num_mems;
 };
@@ -62,6 +73,7 @@ struct k3_dsp_privdata {
 static int k3_dsp_load(struct udevice *dev, ulong addr, ulong size)
 {
 	struct k3_dsp_privdata *dsp = dev_get_priv(dev);
+	struct k3_dsp_boot_data *data = dsp->data;
 	u32 boot_vector;
 	int ret;
 
@@ -77,6 +89,12 @@ static int k3_dsp_load(struct udevice *dev, ulong addr, ulong size)
 	}
 
 	boot_vector = rproc_elf_get_boot_addr(dev, addr);
+	if (boot_vector & (data->boot_align_addr - 1)) {
+		ret = -EINVAL;
+		dev_err(dev, "Boot vector 0x%x not aligned on 0x%x boundary\n",
+			boot_vector, data->boot_align_addr);
+		goto proc_release;
+	}
 
 	dev_dbg(dev, "%s: Boot vector = 0x%x\n", __func__, boot_vector);
 
@@ -300,6 +318,8 @@ static int k3_dsp_of_to_priv(struct udevice *dev, struct k3_dsp_privdata *dsp)
 	if (ret)
 		return ret;
 
+	dsp->data = (struct k3_dsp_boot_data *)dev_get_driver_data(dev);
+
 	return 0;
 }
 
@@ -338,9 +358,17 @@ static int k3_dsp_remove(struct udevice *dev)
 	return 0;
 }
 
+static const struct k3_dsp_boot_data c66_data = {
+	.boot_align_addr = SZ_1K,
+};
+
+static const struct k3_dsp_boot_data c71_data = {
+	.boot_align_addr = SZ_2M,
+};
+
 static const struct udevice_id k3_dsp_ids[] = {
-	{ .compatible = "ti,j721e-c66-dsp"},
-	{ .compatible = "ti,j721e-c71-dsp"},
+	{ .compatible = "ti,j721e-c66-dsp", .data = (ulong)&c66_data, },
+	{ .compatible = "ti,j721e-c71-dsp", .data = (ulong)&c71_data, },
 	{}
 };
 
