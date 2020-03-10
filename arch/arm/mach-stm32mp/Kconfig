@@ -119,7 +119,7 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION_MMC2
 
 config STM32_ETZPC
 	bool "STM32 Extended TrustZone Protection"
-	depends on TARGET_STM32MP1
+	depends on STM32MP15x
 	default y
 	help
 	  Say y to enable STM32 Extended TrustZone Protection
