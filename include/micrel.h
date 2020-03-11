@@ -23,6 +23,11 @@
 #define MII_KSZ9031_FLP_BURST_TX_LO		0x3
 #define MII_KSZ9031_FLP_BURST_TX_HI		0x4
 
+#define MII_KSZ9x31_SILICON_REV_MASK		0xfffff0
+
+#define PHY_ID_KSZ9031				0x00221620
+
+
 /* Registers */
 #define MMD_ACCESS_CONTROL	0xd
 #define MMD_ACCESS_REG_DATA	0xe

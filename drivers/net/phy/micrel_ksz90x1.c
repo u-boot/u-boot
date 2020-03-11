@@ -383,8 +383,8 @@ static int ksz9031_config(struct phy_device *phydev)
 
 static struct phy_driver ksz9031_driver = {
 	.name = "Micrel ksz9031",
-	.uid  = 0x221620,
-	.mask = 0xfffff0,
+	.uid  = PHY_ID_KSZ9031,
+	.mask = MII_KSZ9x31_SILICON_REV_MASK,
 	.features = PHY_GBIT_FEATURES,
 	.config   = &ksz9031_config,
 	.startup  = &ksz90xx_startup,
