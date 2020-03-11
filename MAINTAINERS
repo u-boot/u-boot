@@ -419,6 +419,7 @@ F:	arch/arm/mach-versal/
 F:	cmd/fru.c
 F:	common/fru_ops.c
 F:	drivers/spi/cadence_ospi_versal.c
+F:	drivers/watchdog/xilinx_wwdt.c
 F:	include/fru.h
 N:	(?<!uni)versal
 
