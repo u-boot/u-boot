@@ -6,6 +6,7 @@
 
 #include "skeleton.dtsi"
 #include "dt-bindings/clock/snps,hsdk-cgu.h"
+#include "dt-bindings/reset/snps,hsdk-reset.h"
 
 / {
 	model = "snps,hsdk";
@@ -60,6 +61,12 @@
 		compatible = "snps,hsdk-cgu-clock";
 		reg = <0xf0000000 0x10>, <0xf00014B8 0x4>;
 		#clock-cells = <1>;
+	};
+
+	cgu_rst: reset-controller@f00008a0 {
+		compatible = "snps,hsdk-reset";
+		#reset-cells = <1>;
+		reg = <0xf00008a0 0x4>, <0xf0000ff0 0x4>;
 	};
 
 	uart0: serial0@f0005000 {
