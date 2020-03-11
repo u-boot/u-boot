@@ -1011,8 +1011,10 @@ int fit_image_get_data_and_size(const void *fit, int noffset,
 	if (external_data) {
 		debug("External Data\n");
 		ret = fit_image_get_data_size(fit, noffset, &len);
-		*data = fit + offset;
-		*size = len;
+		if (!ret) {
+			*data = fit + offset;
+			*size = len;
+		}
 	} else {
 		ret = fit_image_get_data(fit, noffset, data, size);
 	}
