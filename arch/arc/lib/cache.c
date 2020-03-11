@@ -89,8 +89,7 @@
  *
  * [ NOTE 2 ]:
  * As of today we only support the following cache configurations on ARC.
- * Other configurations may exist in HW (for example, since version 3.0 HS
- * supports SL$ (L2 system level cache) disable) but we don't support it in SW.
+ * Other configurations may exist in HW but we don't support it in SW.
  * Configuration 1:
  *        ______________________
  *       |                      |
@@ -120,7 +119,8 @@
  *       |                      |
  *       |   L2 (SL$)           |
  *       |______________________|
- *          always must be on
+ *          always on (ARCv2, HS <  3.0)
+ *          on/off    (ARCv2, HS >= 3.0)
  *        ___|______________|____
  *       |                      |
  *       |   main memory        |
@@ -178,6 +178,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static inlined_cachefunc void __ic_entire_invalidate(void);
 static inlined_cachefunc void __dc_entire_op(const int cacheop);
+static inlined_cachefunc void __slc_entire_op(const int op);
+static inline bool ioc_enabled(void);
 
 static inline bool pae_exists(void)
 {
@@ -238,6 +240,70 @@ static inlined_cachefunc bool slc_exists(void)
 	return false;
 }
 
+enum slc_dis_status {
+	ST_SLC_MISSING = 0,
+	ST_SLC_NO_DISABLE_CTRL,
+	ST_SLC_DISABLE_CTRL
+};
+
+/*
+ * ARCv1                                     -> ST_SLC_MISSING
+ * ARCv2 && SLC absent                       -> ST_SLC_MISSING
+ * ARCv2 && SLC exists && SLC version <= 2   -> ST_SLC_NO_DISABLE_CTRL
+ * ARCv2 && SLC exists && SLC version > 2    -> ST_SLC_DISABLE_CTRL
+ */
+static inlined_cachefunc enum slc_dis_status slc_disable_supported(void)
+{
+	if (is_isa_arcv2()) {
+		union bcr_generic sbcr;
+
+		sbcr.word = read_aux_reg(ARC_BCR_SLC);
+		if (sbcr.fields.ver == 0)
+			return ST_SLC_MISSING;
+		else if (sbcr.fields.ver <= 2)
+			return ST_SLC_NO_DISABLE_CTRL;
+		else
+			return ST_SLC_DISABLE_CTRL;
+	}
+
+	return ST_SLC_MISSING;
+}
+
+static inlined_cachefunc bool __slc_enabled(void)
+{
+	return !(read_aux_reg(ARC_AUX_SLC_CTRL) & SLC_CTRL_DIS);
+}
+
+static inlined_cachefunc void __slc_enable(void)
+{
+	unsigned int ctrl;
+
+	ctrl = read_aux_reg(ARC_AUX_SLC_CTRL);
+	ctrl &= ~SLC_CTRL_DIS;
+	write_aux_reg(ARC_AUX_SLC_CTRL, ctrl);
+}
+
+static inlined_cachefunc void __slc_disable(void)
+{
+	unsigned int ctrl;
+
+	ctrl = read_aux_reg(ARC_AUX_SLC_CTRL);
+	ctrl |= SLC_CTRL_DIS;
+	write_aux_reg(ARC_AUX_SLC_CTRL, ctrl);
+}
+
+static inlined_cachefunc bool slc_enabled(void)
+{
+	enum slc_dis_status slc_status = slc_disable_supported();
+
+	if (slc_status == ST_SLC_MISSING)
+		return false;
+	else if (slc_status == ST_SLC_NO_DISABLE_CTRL)
+		return true;
+	else
+		return __slc_enabled();
+}
+
 static inlined_cachefunc bool slc_data_bypass(void)
 {
 	/*
@@ -245,6 +311,39 @@ static inlined_cachefunc bool slc_data_bypass(void)
 	 * requests are sent directly to main memory.
 	 */
 	return !dcache_enabled();
+}
+
+void slc_enable(void)
+{
+	if (slc_disable_supported() != ST_SLC_DISABLE_CTRL)
+		return;
+
+	if (__slc_enabled())
+		return;
+
+	__slc_enable();
+}
+
+/* TODO: warn if we are not able to disable SLC */
+void slc_disable(void)
+{
+	if (slc_disable_supported() != ST_SLC_DISABLE_CTRL)
+		return;
+
+	/* we don't support SLC disabling if we use IOC */
+	if (ioc_enabled())
+		return;
+
+	if (!__slc_enabled())
+		return;
+
+	/*
+	 * We need to flush L1D$ to guarantee that we won't have any
+	 * writeback operations during SLC disabling.
+	 */
+	__dc_entire_op(OP_FLUSH);
+	__slc_entire_op(OP_FLUSH_N_INV);
+	__slc_disable();
 }
 
 static inline bool ioc_exists(void)
@@ -275,7 +374,7 @@ static inlined_cachefunc void __slc_entire_op(const int op)
 {
 	unsigned int ctrl;
 
-	if (!slc_exists())
+	if (!slc_enabled())
 		return;
 
 	ctrl = read_aux_reg(ARC_AUX_SLC_CTRL);
@@ -324,7 +423,7 @@ static void __slc_rgn_op(unsigned long paddr, unsigned long sz, const int op)
 	unsigned int ctrl;
 	unsigned long end;
 
-	if (!slc_exists())
+	if (!slc_enabled())
 		return;
 
 	/*
@@ -381,6 +480,9 @@ static void arc_ioc_setup(void)
 	/* Unsupported configuration. See [ NOTE 2 ] for more details. */
 	if (!slc_exists())
 		panic("Try to enable IOC but SLC is not present");
+
+	if (!slc_enabled())
+		panic("Try to enable IOC but SLC is disabled");
 
 	/* Unsupported configuration. See [ NOTE 2 ] for more details. */
 	if (!dcache_enabled())
@@ -517,8 +619,6 @@ void invalidate_icache_all(void)
 	/*
 	 * If SL$ is bypassed for data it is used only for instructions,
 	 * so we need to invalidate it too.
-	 * TODO: HS 3.0 supports SLC disable so we need to check slc
-	 * enable/disable status here.
 	 */
 	if (is_isa_arcv2() && slc_data_bypass())
 		__slc_entire_op(OP_INV);
