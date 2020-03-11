@@ -179,7 +179,7 @@ DECLARE_GLOBAL_DATA_PTR;
 static inlined_cachefunc void __ic_entire_invalidate(void);
 static inlined_cachefunc void __dc_entire_op(const int cacheop);
 static inlined_cachefunc void __slc_entire_op(const int op);
-static inline bool ioc_enabled(void);
+static inlined_cachefunc bool ioc_enabled(void);
 
 static inline bool pae_exists(void)
 {
@@ -346,7 +346,7 @@ void slc_disable(void)
 	__slc_disable();
 }
 
-static inline bool ioc_exists(void)
+static inlined_cachefunc bool ioc_exists(void)
 {
 	if (is_isa_arcv2()) {
 		union bcr_clust_cfg cbcr;
@@ -358,7 +358,7 @@ static inline bool ioc_exists(void)
 	return false;
 }
 
-static inline bool ioc_enabled(void)
+static inlined_cachefunc bool ioc_enabled(void)
 {
 	/*
 	 * We check only CONFIG option instead of IOC HW state check as IOC
