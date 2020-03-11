@@ -26,6 +26,7 @@
 #define MII_KSZ9x31_SILICON_REV_MASK		0xfffff0
 
 #define PHY_ID_KSZ9031				0x00221620
+#define PHY_ID_KSZ9131				0x00221640
 
 
 /* Registers */
@@ -40,5 +41,6 @@ int ksz9031_phy_extended_write(struct phy_device *phydev, int devaddr,
 			       int regnum, u16 mode, u16 val);
 int ksz9031_phy_extended_read(struct phy_device *phydev, int devaddr,
 			      int regnum, u16 mode);
+int ksz9xx1_phy_get_id(struct phy_device *phydev);
 
 #endif
