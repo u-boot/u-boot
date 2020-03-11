@@ -9,6 +9,7 @@
 #include <asm/io.h>
 #include <miiphy.h>
 #include <netdev.h>
+#include <micrel.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -37,14 +38,29 @@ static int setup_fec(void)
 
 int board_phy_config(struct phy_device *phydev)
 {
-	/* enable rgmii rxc skew and phy mode select to RGMII copper */
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x1f);
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x8);
-
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x00);
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x82ee);
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x05);
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x100);
+	/*
+	 * The PHY adds 1.2ns for the RXC and 0ns for TXC clock by
+	 * default. The MAC and the layout don't add a skew between
+	 * clock and data.
+	 * Add 0.3ns for the RXC path and 0.96 + 0.42 ns (1.38 ns) for
+	 * the TXC path to get the required clock skews.
+	 */
+	/* control data pad skew - devaddr = 0x02, register = 0x04 */
+	ksz9031_phy_extended_write(phydev, 0x02,
+				MII_KSZ9031_EXT_RGMII_CTRL_SIG_SKEW,
+				MII_KSZ9031_MOD_DATA_NO_POST_INC, 0x0070);
+	/* rx data pad skew - devaddr = 0x02, register = 0x05 */
+	ksz9031_phy_extended_write(phydev, 0x02,
+				MII_KSZ9031_EXT_RGMII_RX_DATA_SKEW,
+				MII_KSZ9031_MOD_DATA_NO_POST_INC, 0x7777);
+	/* tx data pad skew - devaddr = 0x02, register = 0x06 */
+	ksz9031_phy_extended_write(phydev, 0x02,
+				MII_KSZ9031_EXT_RGMII_TX_DATA_SKEW,
+				MII_KSZ9031_MOD_DATA_NO_POST_INC, 0x0000);
+	/* gtx and rx clock pad skew - devaddr = 0x02, register = 0x08 */
+	ksz9031_phy_extended_write(phydev, 0x02,
+				MII_KSZ9031_EXT_RGMII_CLOCK_SKEW,
+				MII_KSZ9031_MOD_DATA_NO_POST_INC, 0x03f4);
 
 	if (phydev->drv->config)
 		phydev->drv->config(phydev);
