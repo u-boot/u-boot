@@ -120,7 +120,7 @@ jobs:
           make tools-only_config envtools -j$(nproc)
 
   - job: utils
-    displayName: 'Run binman, buildman, dtoc and patman testsuites'
+    displayName: 'Run binman, buildman, dtoc, Kconfig and patman testsuites'
     pool:
       vmImage: $(ubuntu_vm)
     steps:
@@ -135,7 +135,7 @@ jobs:
           export USER=azure
           virtualenv -p /usr/bin/python3 /tmp/venv
           . /tmp/venv/bin/activate
-          pip install pyelftools
+          pip install pyelftools pytest
           export UBOOT_TRAVIS_BUILD_DIR=/tmp/.bm-work/sandbox_spl
           export PYTHONPATH=${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt
           export PATH=${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc:${PATH}
@@ -144,6 +144,7 @@ jobs:
           ./tools/buildman/buildman -t
           ./tools/dtoc/dtoc -t
           ./tools/patman/patman --test
+          make O=${UBOOT_TRAVIS_BUILD_DIR} testconfig
           EOF
           cat build.sh
           # We cannot use "container" like other jobs above, as buildman

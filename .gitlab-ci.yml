@@ -157,7 +157,7 @@ Build envtools:
   script:
     - make tools-only_config envtools -j$(nproc)
 
-Run binman, buildman, dtoc and patman testsuites:
+Run binman, buildman, dtoc, Kconfig and patman testsuites:
   tags: [ 'all' ]
   stage: testsuites
   script:
@@ -166,7 +166,7 @@ Run binman, buildman, dtoc and patman testsuites:
       export USER=gitlab;
       virtualenv -p /usr/bin/python3 /tmp/venv;
       . /tmp/venv/bin/activate;
-      pip install pyelftools;
+      pip install pyelftools pytest;
       export UBOOT_TRAVIS_BUILD_DIR=/tmp/.bm-work/sandbox_spl;
       export PYTHONPATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt";
       export PATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc:${PATH}";
@@ -174,7 +174,8 @@ Run binman, buildman, dtoc and patman testsuites:
       ./tools/binman/binman --toolpath ${UBOOT_TRAVIS_BUILD_DIR}/tools test;
       ./tools/buildman/buildman -t;
       ./tools/dtoc/dtoc -t;
-      ./tools/patman/patman --test
+      ./tools/patman/patman --test;
+      make testconfig
 
 # Test sandbox with test.py
 sandbox test.py:

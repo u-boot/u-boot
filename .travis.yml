@@ -152,7 +152,8 @@ script:
        ./tools/binman/binman --toolpath ${UBOOT_TRAVIS_BUILD_DIR}/tools test &&
        ./tools/patman/patman --test &&
        ./tools/buildman/buildman -t &&
-       ./tools/dtoc/dtoc -t;
+       ./tools/dtoc/dtoc -t &&
+       make testconfig;
      fi;
    fi
 
