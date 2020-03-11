@@ -144,9 +144,10 @@ else
 # $(call addtree,-I$(obj)) locates .h files in srctree, from generated .c files
 #   and locates generated .h files
 # FIXME: Replace both with specific CFLAGS* statements in the makefiles
-__c_flags	= $(call addtree,-I$(obj)) $(call flags,_c_flags)
-__a_flags	=                          $(call flags,_a_flags)
-__cpp_flags     =                          $(call flags,_cpp_flags)
+__c_flags	= $(if $(obj),$(call addtree,-I$(src)) -I$(obj)) \
+		  $(call flags,_c_flags)
+__a_flags	= $(call flags,_a_flags)
+__cpp_flags     = $(call flags,_cpp_flags)
 endif
 
 # Modified for U-Boot: LINUXINCLUDE -> UBOOTINCLUDE
@@ -280,6 +281,9 @@ DTC_FLAGS += -Wno-unit_address_vs_reg \
 	-Wno-unit_address_format \
 	-Wno-avoid_unnecessary_addr_size \
 	-Wno-alias_paths \
+	-Wno-graph_child_address \
+	-Wno-graph_port \
+	-Wno-unique_unit_address \
 	-Wno-simple_bus_reg \
 	-Wno-pci_device_reg
 

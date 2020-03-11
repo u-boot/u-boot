@@ -436,6 +436,8 @@ export HOSTCXX HOSTCXXFLAGS CHECK CHECKFLAGS DTC DTC_FLAGS
 export KBUILD_CPPFLAGS NOSTDINC_FLAGS UBOOTINCLUDE OBJCOPYFLAGS LDFLAGS
 export KBUILD_CFLAGS KBUILD_AFLAGS
 
+export CC_VERSION_TEXT := $(shell $(CC) --version | head -n 1)
+
 # When compiling out-of-tree modules, put MODVERDIR in the module
 # tree rather than in the kernel tree. The kernel tree might
 # even be read-only.
@@ -710,7 +712,6 @@ UBOOTINCLUDE    := \
 		-include $(srctree)/include/linux/kconfig.h
 
 NOSTDINC_FLAGS += -nostdinc -isystem $(shell $(CC) -print-file-name=include)
-CHECKFLAGS     += $(NOSTDINC_FLAGS)
 
 # FIX ME
 cpp_flags := $(KBUILD_CPPFLAGS) $(PLATFORM_CPPFLAGS) $(UBOOTINCLUDE) \
@@ -923,6 +924,12 @@ LDFLAGS_u-boot += $(call ld-option, --no-dynamic-linker)
 ifeq ($(CONFIG_ARC)$(CONFIG_NIOS2)$(CONFIG_X86)$(CONFIG_XTENSA),)
 LDFLAGS_u-boot += -Ttext $(CONFIG_SYS_TEXT_BASE)
 endif
+
+# insure the checker run with the right endianness
+CHECKFLAGS += $(if $(CONFIG_CPU_BIG_ENDIAN),-mbig-endian,-mlittle-endian)
+
+# the checker needs the correct machine size
+CHECKFLAGS += $(if $(CONFIG_64BIT),-m64,-m32)
 
 # Normally we fill empty space with 0xff
 quiet_cmd_objcopy = OBJCOPY $@
@@ -2196,6 +2203,6 @@ endif	# skip-makefile
 PHONY += FORCE
 FORCE:
 
-# Declare the contents of the .PHONY variable as phony.  We keep that
+# Declare the contents of the PHONY variable as phony.  We keep that
 # information in a variable so we can use it in if_changed and friends.
 .PHONY: $(PHONY)

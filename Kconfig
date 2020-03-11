@@ -3,11 +3,7 @@
 # see the file Documentation/kbuild/kconfig-language.txt in the
 # Linux kernel source tree.
 #
-mainmenu "U-Boot $UBOOTVERSION Configuration"
-
-config UBOOTVERSION
-	string
-	option env="UBOOTVERSION"
+mainmenu "U-Boot $(UBOOTVERSION) Configuration"
 
 # Allow defaults in arch-specific code to override any given here
 source "arch/Kconfig"

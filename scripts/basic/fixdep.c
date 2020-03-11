@@ -117,7 +117,7 @@ static void usage(void)
  */
 static void print_dep(const char *m, int slen, const char *dir)
 {
-	int c, i;
+	int c, prev_c = '/', i;
 
 	printf("    $(wildcard %s/", dir);
 	for (i = 0; i < slen; i++) {
@@ -126,7 +126,9 @@ static void print_dep(const char *m, int slen, const char *dir)
 			c = '/';
 		else
 			c = tolower(c);
-		putchar(c);
+		if (c != '/' || prev_c != '/')
+			putchar(c);
+		prev_c = c;
 	}
 	printf(".h) \\\n");
 }
