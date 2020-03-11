@@ -24,6 +24,7 @@
 
 /* Networking */
 #define FEC_QUIRK_ENET_MAC
+#define FEC_ENET_ENABLE_TXC_DELAY
 
 #define CONFIG_TFTP_TSIZE
 
