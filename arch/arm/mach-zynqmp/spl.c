@@ -66,6 +66,8 @@ void board_boot_order(u32 *spl_boot_list)
 		spl_boot_list[1] = BOOT_DEVICE_MMC2;
 	if (spl_boot_list[0] == BOOT_DEVICE_MMC2)
 		spl_boot_list[1] = BOOT_DEVICE_MMC1;
+
+	spl_boot_list[2] = BOOT_DEVICE_RAM;
 }
 
 u32 spl_boot_device(void)
