@@ -7,6 +7,6 @@
 #ifndef _SYSFW_LOADER_H_
 #define _SYSFW_LOADER_H_
 
-void k3_sysfw_loader(void (*config_pm_done_callback)(void));
+void k3_sysfw_loader(void (*config_pm_pre_callback)(void), void (*config_pm_done_callback)(void));
 
 #endif

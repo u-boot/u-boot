@@ -138,6 +138,21 @@ int mmc_host_power_cycle(struct mmc *mmc)
 	return dm_mmc_host_power_cycle(mmc->dev);
 }
 
+int dm_mmc_deferred_probe(struct udevice *dev)
+{
+	struct dm_mmc_ops *ops = mmc_get_ops(dev);
+
+	if (ops->deferred_probe)
+		return ops->deferred_probe(dev);
+
+	return 0;
+}
+
+int mmc_deferred_probe(struct mmc *mmc)
+{
+	return dm_mmc_deferred_probe(mmc->dev);
+}
+
 int mmc_of_parse(struct udevice *dev, struct mmc_config *cfg)
 {
 	int val;

@@ -743,7 +743,6 @@ static int esdhc_set_timing(struct mmc *mmc)
 
 	switch (mmc->selected_mode) {
 	case MMC_LEGACY:
-	case SD_LEGACY:
 		esdhc_reset_tuning(mmc);
 		writel(mixctrl, &regs->mixctrl);
 		break;

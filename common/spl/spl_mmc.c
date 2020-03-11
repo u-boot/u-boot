@@ -317,13 +317,10 @@ int spl_boot_partition(const u32 boot_device)
 }
 #endif
 
-unsigned long __weak spl_mmc_get_uboot_raw_sector(struct mmc *mmc)
+unsigned long __weak spl_mmc_get_uboot_raw_sector(struct mmc *mmc,
+						  unsigned long raw_sect)
 {
-#ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
-	return CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR;
-#else
-	return 0;
-#endif
+	return raw_sect;
 }
 
 int spl_mmc_load(struct spl_image_info *spl_image,
@@ -392,7 +389,7 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 				return err;
 		}
 
-		raw_sect = spl_mmc_get_uboot_raw_sector(mmc);
+		raw_sect = spl_mmc_get_uboot_raw_sector(mmc, raw_sect);
 
 #ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
 		err = mmc_load_image_raw_partition(spl_image, mmc, raw_part,

@@ -34,14 +34,14 @@
 		u-boot,dm-spl;
 	};
 
-	clk_200mhz: dummy_clock {
+	clk_200mhz: dummy_clock_200mhz {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
 		clock-frequency = <200000000>;
 		u-boot,dm-spl;
 	};
 
-	clk_19_2mhz: dummy_clock {
+	clk_19_2mhz: dummy_clock_19_2mhz {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
 		clock-frequency = <19200000>;

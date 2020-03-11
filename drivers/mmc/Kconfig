@@ -205,6 +205,17 @@ config MMC_DW
 	  block, this provides host support for SD and MMC interfaces, in both
 	  PIO, internal DMA mode and external DMA mode.
 
+config MMC_DW_CORTINA
+	bool "Cortina specific extensions for Synopsys DW Memory Card Interface"
+	depends on DM_MMC
+	depends on MMC_DW
+	depends on BLK
+	default n
+	help
+	  This selects support for Cortina SoC specific extensions to the
+	  Synopsys DesignWare Memory Card Interface driver. Select this option
+	  for platforms based on Cortina CAxxxx Soc's.
+
 config MMC_DW_EXYNOS
 	bool "Exynos specific extensions for Synopsys DW Memory Card Interface"
 	depends on ARCH_EXYNOS

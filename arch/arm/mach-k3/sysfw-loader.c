@@ -197,7 +197,8 @@ exit:
 }
 #endif
 
-void k3_sysfw_loader(void (*config_pm_done_callback)(void))
+void k3_sysfw_loader(void (*config_pm_pre_callback) (void),
+		     void (*config_pm_done_callback)(void))
 {
 	struct spl_image_info spl_image = { 0 };
 	struct spl_boot_device bootdev = { 0 };
@@ -290,6 +291,9 @@ void k3_sysfw_loader(void (*config_pm_done_callback)(void))
 
 	/* Get handle for accessing SYSFW services */
 	ti_sci = get_ti_sci_handle();
+
+	if (config_pm_pre_callback)
+		config_pm_pre_callback();
 
 	/* Parse and apply the different SYSFW configuration fragments */
 	k3_sysfw_configure_using_fit(sysfw_load_address, ti_sci);
