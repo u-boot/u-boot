@@ -627,17 +627,17 @@ efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
 
 	*memory_map_size = map_size;
 
-	if (provided_map_size < map_size)
-		return EFI_BUFFER_TOO_SMALL;
-
-	if (!memory_map)
-		return EFI_INVALID_PARAMETER;
-
 	if (descriptor_size)
 		*descriptor_size = sizeof(struct efi_mem_desc);
 
 	if (descriptor_version)
 		*descriptor_version = EFI_MEMORY_DESCRIPTOR_VERSION;
+
+	if (provided_map_size < map_size)
+		return EFI_BUFFER_TOO_SMALL;
+
+	if (!memory_map)
+		return EFI_INVALID_PARAMETER;
 
 	/* Copy list into array */
 	/* Return the list in ascending order */

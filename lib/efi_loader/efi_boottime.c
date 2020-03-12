@@ -208,7 +208,7 @@ static void efi_process_event_queue(void)
  */
 static void efi_queue_event(struct efi_event *event)
 {
-	struct efi_event *item = NULL;
+	struct efi_event *item;
 
 	if (!event->notify_function)
 		return;
