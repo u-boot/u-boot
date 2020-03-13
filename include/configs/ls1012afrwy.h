@@ -65,7 +65,7 @@
 	"kernelheader_size=0x40000\0"		\
 	"kernel_addr_r=0x96000000\0"		\
 	"fdt_addr_r=0x90000000\0"		\
-	"load_addr=0x96000000\0"		\
+	"load_addr=0x92000000\0"		\
 	"kernel_size=0x2800000\0"		\
 	"kernelheader_size=0x40000\0"		\
 	"console=ttyS0,115200\0"		\
