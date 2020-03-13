@@ -107,9 +107,6 @@ struct wdt_ops {
 };
 
 #if CONFIG_IS_ENABLED(WDT)
-#ifndef CONFIG_WATCHDOG_TIMEOUT_MSECS
-#define CONFIG_WATCHDOG_TIMEOUT_MSECS	(60 * 1000)
-#endif
 #define WATCHDOG_TIMEOUT_SECS	(CONFIG_WATCHDOG_TIMEOUT_MSECS / 1000)
 
 static inline int initr_watchdog(void)
