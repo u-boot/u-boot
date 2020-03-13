@@ -6,13 +6,10 @@
 
 #include <common.h>
 #include <dm.h>
-#include <fdtdec.h>
 #include <timer.h>
 
 #include <asm/io.h>
 #include <asm/arch-armv7/globaltimer.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct sti_timer_priv {
 	struct globaltimer *global_timer;
@@ -44,13 +41,13 @@ static int sti_timer_probe(struct udevice *dev)
 {
 	struct timer_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct sti_timer_priv *priv = dev_get_priv(dev);
-	fdt_addr_t addr;
 
 	uc_priv->clock_rate = CONFIG_SYS_HZ_CLOCK;
 
 	/* get arm global timer base address */
-	addr = fdtdec_get_addr(gd->fdt_blob, dev_of_offset(dev), "reg");
-	priv->global_timer = (struct globaltimer *)addr;
+	priv->global_timer = (struct globaltimer *)dev_read_addr_ptr(dev);
+	if (!priv->global_timer)
+		return -ENOENT;
 
 	/* init timer */
 	writel(0x01, &priv->global_timer->ctl);
