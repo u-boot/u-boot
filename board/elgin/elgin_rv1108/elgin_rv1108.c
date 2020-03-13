@@ -49,7 +49,7 @@ int mach_cpu_init(void)
 
 #define MODEM_ENABLE_GPIO 111
 
-int board_early_init_f(void)
+int rk_board_late_init(void)
 {
 	gpio_request(MODEM_ENABLE_GPIO, "modem_enable");
 	gpio_direction_output(MODEM_ENABLE_GPIO, 0);
