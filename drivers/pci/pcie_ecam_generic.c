@@ -19,6 +19,8 @@
  */
 struct generic_ecam_pcie {
 	void *cfg_base;
+	pci_size_t size;
+	int first_busno;
 };
 
 /**
@@ -43,13 +45,23 @@ static int pci_generic_ecam_conf_address(const struct udevice *bus,
 	void *addr;
 
 	addr = pcie->cfg_base;
-	addr += PCI_BUS(bdf) << 20;
+	addr += (PCI_BUS(bdf) - pcie->first_busno) << 20;
 	addr += PCI_DEV(bdf) << 15;
 	addr += PCI_FUNC(bdf) << 12;
 	addr += offset;
 	*paddress = addr;
 
 	return 0;
+}
+
+static bool pci_generic_ecam_addr_valid(const struct udevice *bus,
+					pci_dev_t bdf)
+{
+	struct generic_ecam_pcie *pcie = dev_get_priv(bus);
+	int num_buses = DIV_ROUND_UP(pcie->size, 1 << 16);
+
+	return (PCI_BUS(bdf) >= pcie->first_busno &&
+		PCI_BUS(bdf) < pcie->first_busno + num_buses);
 }
 
 /**
@@ -68,6 +80,11 @@ static int pci_generic_ecam_read_config(const struct udevice *bus,
 					pci_dev_t bdf, uint offset,
 					ulong *valuep, enum pci_size_t size)
 {
+	if (!pci_generic_ecam_addr_valid(bus, bdf)) {
+		*valuep = pci_get_ff(size);
+		return 0;
+	}
+
 	return pci_generic_mmap_read_config(bus, pci_generic_ecam_conf_address,
 					    bdf, offset, valuep, size);
 }
@@ -88,6 +105,9 @@ static int pci_generic_ecam_write_config(struct udevice *bus, pci_dev_t bdf,
 				    uint offset, ulong value,
 				    enum pci_size_t size)
 {
+	if (!pci_generic_ecam_addr_valid(bus, bdf))
+		return 0;
+
 	return pci_generic_mmap_write_config(bus, pci_generic_ecam_conf_address,
 					     bdf, offset, value, size);
 }
@@ -116,9 +136,17 @@ static int pci_generic_ecam_ofdata_to_platdata(struct udevice *dev)
 		return err;
 	}
 
-	pcie->cfg_base = map_physmem(reg_res.start,
-				     fdt_resource_size(&reg_res),
-				     MAP_NOCACHE);
+	pcie->size = fdt_resource_size(&reg_res);
+	pcie->cfg_base = map_physmem(reg_res.start, pcie->size, MAP_NOCACHE);
+
+	return 0;
+}
+
+static int pci_generic_ecam_probe(struct udevice *dev)
+{
+	struct generic_ecam_pcie *pcie = dev_get_priv(dev);
+
+	pcie->first_busno = dev->seq;
 
 	return 0;
 }
@@ -138,6 +166,7 @@ U_BOOT_DRIVER(pci_generic_ecam) = {
 	.id			= UCLASS_PCI,
 	.of_match		= pci_generic_ecam_ids,
 	.ops			= &pci_generic_ecam_ops,
+	.probe			= pci_generic_ecam_probe,
 	.ofdata_to_platdata	= pci_generic_ecam_ofdata_to_platdata,
 	.priv_auto_alloc_size	= sizeof(struct generic_ecam_pcie),
 };
