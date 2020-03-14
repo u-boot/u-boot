@@ -263,9 +263,6 @@ efi_status_t efi_install_fdt(void *fdt)
 		return EFI_LOAD_ERROR;
 	}
 
-	/* Create memory reservations as indicated by the device tree */
-	efi_carve_out_dt_rsv(fdt);
-
 	/* Prepare device tree for payload */
 	ret = copy_fdt(&fdt);
 	if (ret) {
@@ -277,6 +274,9 @@ efi_status_t efi_install_fdt(void *fdt)
 		printf("ERROR: failed to process device tree\n");
 		return EFI_LOAD_ERROR;
 	}
+
+	/* Create memory reservations as indicated by the device tree */
+	efi_carve_out_dt_rsv(fdt);
 
 	/* Install device tree as UEFI table */
 	ret = efi_install_configuration_table(&efi_guid_fdt, fdt);
