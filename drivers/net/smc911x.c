@@ -13,11 +13,6 @@
 
 #include "smc911x.h"
 
-u32 pkt_data_pull(struct eth_device *dev, u32 addr) \
-	__attribute__ ((weak, alias ("smc911x_reg_read")));
-void pkt_data_push(struct eth_device *dev, u32 addr, u32 val) \
-	__attribute__ ((weak, alias ("smc911x_reg_write")));
-
 static void smc911x_handle_mac_address(struct eth_device *dev)
 {
 	unsigned long addrh, addrl;
@@ -157,7 +152,7 @@ static int smc911x_send(struct eth_device *dev, void *packet, int length)
 	tmplen = (length + 3) / 4;
 
 	while (tmplen--)
-		pkt_data_push(dev, TX_DATA_FIFO, *data++);
+		smc911x_reg_write(dev, TX_DATA_FIFO, *data++);
 
 	/* wait for transmission */
 	while (!((smc911x_reg_read(dev, TX_FIFO_INF) &
@@ -203,7 +198,7 @@ static int smc911x_rx(struct eth_device *dev)
 
 		tmplen = (pktlen + 3) / 4;
 		while (tmplen--)
-			*data++ = pkt_data_pull(dev, RX_DATA_FIFO);
+			*data++ = smc911x_reg_read(dev, RX_DATA_FIFO);
 
 		if (status & RX_STS_ES)
 			printf(DRIVERNAME
