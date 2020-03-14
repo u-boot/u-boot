@@ -20,6 +20,26 @@
 		reg = /bits/ 64 <0 CONFIG_SYS_SDRAM_SIZE>;
 	};
 
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		reservation_test_size {
+			size = <0 0x4000>;
+			alignment = <0 0x2000>;
+		};
+
+		reservation_test@a000 {
+			reg = <0 0x00d0a000 0 0x2000>;
+		};
+
+		reservation_test@7000 {
+			reg = <0 0x00d07000 0 0x1000>;
+		};
+	};
+
+	/* ... */
 	cros_ec: cros-ec {
 		reg = <0 0 0 0>;
 		u-boot,dm-pre-reloc;
