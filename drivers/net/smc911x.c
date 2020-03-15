@@ -277,9 +277,8 @@ static void smc911x_enable(struct smc911x_priv *priv)
 				MAC_CR_HBDIS);
 }
 
-static int smc911x_init(struct eth_device *dev, bd_t * bd)
+static int smc911x_init_common(struct smc911x_priv *priv)
 {
-	struct smc911x_priv *priv = container_of(dev, struct smc911x_priv, dev);
 	const struct chip_id *id = priv->chipid;
 
 	printf(DRIVERNAME ": detected %s controller\n", id->name);
@@ -297,9 +296,9 @@ static int smc911x_init(struct eth_device *dev, bd_t * bd)
 	return 0;
 }
 
-static int smc911x_send(struct eth_device *dev, void *packet, int length)
+static int smc911x_send_common(struct smc911x_priv *priv,
+			       void *packet, int length)
 {
-	struct smc911x_priv *priv = container_of(dev, struct smc911x_priv, dev);
 	u32 *data = (u32*)packet;
 	u32 tmplen;
 	u32 status;
@@ -337,18 +336,14 @@ static int smc911x_send(struct eth_device *dev, void *packet, int length)
 	return -1;
 }
 
-static void smc911x_halt(struct eth_device *dev)
+static void smc911x_halt_common(struct smc911x_priv *priv)
 {
-	struct smc911x_priv *priv = container_of(dev, struct smc911x_priv, dev);
-
 	smc911x_reset(priv);
 	smc911x_handle_mac_address(priv);
 }
 
-static int smc911x_recv(struct eth_device *dev)
+static int smc911x_recv_common(struct smc911x_priv *priv, u32 *data)
 {
-	struct smc911x_priv *priv = container_of(dev, struct smc911x_priv, dev);
-	u32 *data = (u32 *)net_rx_packets[0];
 	u32 pktlen, tmplen;
 	u32 status;
 
@@ -365,14 +360,14 @@ static int smc911x_recv(struct eth_device *dev)
 	while (tmplen--)
 		*data++ = smc911x_reg_read(priv, RX_DATA_FIFO);
 
-	if (status & RX_STS_ES)
+	if (status & RX_STS_ES) {
 		printf(DRIVERNAME
 			": dropped bad packet. Status: 0x%08x\n",
 			status);
-	else
-		net_process_received_packet(net_rx_packets[0], pktlen);
+		return 0;
+	}
 
-	return 0;
+	return pktlen;
 }
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
@@ -434,6 +429,40 @@ static int smc911x_initialize_mii(struct smc911x_priv *priv)
 	return 0;
 }
 #endif
+
+static int smc911x_init(struct eth_device *dev, bd_t *bd)
+{
+	struct smc911x_priv *priv = container_of(dev, struct smc911x_priv, dev);
+
+	return smc911x_init_common(priv);
+}
+
+static void smc911x_halt(struct eth_device *dev)
+{
+	struct smc911x_priv *priv = container_of(dev, struct smc911x_priv, dev);
+
+	smc911x_halt_common(priv);
+}
+
+static int smc911x_send(struct eth_device *dev, void *packet, int length)
+{
+	struct smc911x_priv *priv = container_of(dev, struct smc911x_priv, dev);
+
+	return smc911x_send_common(priv, packet, length);
+}
+
+static int smc911x_recv(struct eth_device *dev)
+{
+	struct smc911x_priv *priv = container_of(dev, struct smc911x_priv, dev);
+	u32 *data = (u32 *)net_rx_packets[0];
+	int ret;
+
+	ret = smc911x_recv_common(priv, data);
+	if (ret)
+		net_process_received_packet(net_rx_packets[0], ret);
+
+	return ret;
+}
 
 int smc911x_initialize(u8 dev_num, int base_addr)
 {
