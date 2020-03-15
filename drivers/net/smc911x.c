@@ -242,11 +242,9 @@ int smc911x_initialize(u8 dev_num, int base_addr)
 	unsigned long addrl, addrh;
 	struct eth_device *dev;
 
-	dev = malloc(sizeof(*dev));
-	if (!dev) {
-		return -1;
-	}
-	memset(dev, 0, sizeof(*dev));
+	dev = calloc(1, sizeof(*dev));
+	if (!dev)
+		return -ENOMEM;
 
 	dev->iobase = base_addr;
 
