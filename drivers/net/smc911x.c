@@ -352,23 +352,25 @@ static int smc911x_recv(struct eth_device *dev)
 	u32 pktlen, tmplen;
 	u32 status;
 
-	if ((smc911x_reg_read(priv, RX_FIFO_INF) & RX_FIFO_INF_RXSUSED) >> 16) {
-		status = smc911x_reg_read(priv, RX_STATUS_FIFO);
-		pktlen = (status & RX_STS_PKT_LEN) >> 16;
+	status = smc911x_reg_read(priv, RX_FIFO_INF);
+	if (!(status & RX_FIFO_INF_RXSUSED))
+		return 0;
 
-		smc911x_reg_write(priv, RX_CFG, 0);
+	status = smc911x_reg_read(priv, RX_STATUS_FIFO);
+	pktlen = (status & RX_STS_PKT_LEN) >> 16;
 
-		tmplen = (pktlen + 3) / 4;
-		while (tmplen--)
-			*data++ = smc911x_reg_read(priv, RX_DATA_FIFO);
+	smc911x_reg_write(priv, RX_CFG, 0);
 
-		if (status & RX_STS_ES)
-			printf(DRIVERNAME
-				": dropped bad packet. Status: 0x%08x\n",
-				status);
-		else
-			net_process_received_packet(net_rx_packets[0], pktlen);
-	}
+	tmplen = (pktlen + 3) / 4;
+	while (tmplen--)
+		*data++ = smc911x_reg_read(priv, RX_DATA_FIFO);
+
+	if (status & RX_STS_ES)
+		printf(DRIVERNAME
+			": dropped bad packet. Status: 0x%08x\n",
+			status);
+	else
+		net_process_received_packet(net_rx_packets[0], pktlen);
 
 	return 0;
 }
