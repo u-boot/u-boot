@@ -216,24 +216,29 @@ static int smc911x_recv(struct eth_device *dev)
 static int smc911x_miiphy_read(struct mii_dev *bus, int phy, int devad,
 			       int reg)
 {
-	u16 val = 0;
 	struct eth_device *dev = eth_get_dev_by_name(bus->name);
-	if (dev) {
-		int retval = smc911x_eth_phy_read(dev, phy, reg, &val);
-		if (retval < 0)
-			return retval;
-		return val;
-	}
-	return -ENODEV;
+	u16 val = 0;
+	int ret;
+
+	if (!dev)
+		return -ENODEV;
+
+	ret = smc911x_eth_phy_read(dev, phy, reg, &val);
+	if (ret < 0)
+		return ret;
+
+	return val;
 }
 /* wrapper for smc911x_eth_phy_write */
 static int smc911x_miiphy_write(struct mii_dev *bus, int phy, int devad,
 				int reg, u16 val)
 {
 	struct eth_device *dev = eth_get_dev_by_name(bus->name);
-	if (dev)
-		return smc911x_eth_phy_write(dev, phy, reg, val);
-	return -ENODEV;
+
+	if (!dev)
+		return -ENODEV;
+
+	return smc911x_eth_phy_write(dev, phy, reg, val);
 }
 #endif
 
