@@ -282,15 +282,23 @@ int smc911x_initialize(u8 dev_num, int base_addr)
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 	int retval;
 	struct mii_dev *mdiodev = mdio_alloc();
-	if (!mdiodev)
+	if (!mdiodev) {
+		eth_unregister(dev);
+		free(dev);
 		return -ENOMEM;
+	}
+
 	strncpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
 	mdiodev->read = smc911x_miiphy_read;
 	mdiodev->write = smc911x_miiphy_write;
 
 	retval = mdio_register(mdiodev);
-	if (retval < 0)
+	if (retval < 0) {
+		mdio_free(mdiodev);
+		eth_unregister(dev);
+		free(dev);
 		return retval;
+	}
 #endif
 
 	return 1;
