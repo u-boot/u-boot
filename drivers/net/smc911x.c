@@ -44,28 +44,22 @@ static const struct chip_id chip_ids[] =  {
 #endif
 
 #if defined (CONFIG_SMC911X_32_BIT)
-static inline u32 __smc911x_reg_read(struct eth_device *dev, u32 offset)
+static u32 smc911x_reg_read(struct eth_device *dev, u32 offset)
 {
 	return *(volatile u32*)(dev->iobase + offset);
 }
-u32 smc911x_reg_read(struct eth_device *dev, u32 offset)
-	__attribute__((weak, alias("__smc911x_reg_read")));
 
-static inline void __smc911x_reg_write(struct eth_device *dev,
-					u32 offset, u32 val)
+static void smc911x_reg_write(struct eth_device *dev, u32 offset, u32 val)
 {
 	*(volatile u32*)(dev->iobase + offset) = val;
 }
-void smc911x_reg_write(struct eth_device *dev, u32 offset, u32 val)
-	__attribute__((weak, alias("__smc911x_reg_write")));
 #elif defined (CONFIG_SMC911X_16_BIT)
-static inline u32 smc911x_reg_read(struct eth_device *dev, u32 offset)
+static u32 smc911x_reg_read(struct eth_device *dev, u32 offset)
 {
 	volatile u16 *addr_16 = (u16 *)(dev->iobase + offset);
 	return ((*addr_16 & 0x0000ffff) | (*(addr_16 + 1) << 16));
 }
-static inline void smc911x_reg_write(struct eth_device *dev,
-					u32 offset, u32 val)
+static void smc911x_reg_write(struct eth_device *dev, u32 offset, u32 val)
 {
 	*(volatile u16 *)(dev->iobase + offset) = (u16)val;
 	*(volatile u16 *)(dev->iobase + offset + 2) = (u16)(val >> 16);
