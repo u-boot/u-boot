@@ -10,6 +10,7 @@
 #include <malloc.h>
 #include <net.h>
 #include <miiphy.h>
+#include <linux/io.h>
 #include <linux/types.h>
 
 #include "smc911x.h"
@@ -46,23 +47,23 @@ static const struct chip_id chip_ids[] =  {
 #if defined (CONFIG_SMC911X_32_BIT)
 static u32 smc911x_reg_read(struct eth_device *dev, u32 offset)
 {
-	return *(volatile u32*)(dev->iobase + offset);
+	return readl(dev->iobase + offset);
 }
 
 static void smc911x_reg_write(struct eth_device *dev, u32 offset, u32 val)
 {
-	*(volatile u32*)(dev->iobase + offset) = val;
+	writel(val, dev->iobase + offset);
 }
 #elif defined (CONFIG_SMC911X_16_BIT)
 static u32 smc911x_reg_read(struct eth_device *dev, u32 offset)
 {
-	volatile u16 *addr_16 = (u16 *)(dev->iobase + offset);
-	return ((*addr_16 & 0x0000ffff) | (*(addr_16 + 1) << 16));
+	return (readw(dev->iobase + offset) & 0xffff) |
+	       (readw(dev->iobase + offset + 2) << 16);
 }
 static void smc911x_reg_write(struct eth_device *dev, u32 offset, u32 val)
 {
-	*(volatile u16 *)(dev->iobase + offset) = (u16)val;
-	*(volatile u16 *)(dev->iobase + offset + 2) = (u16)(val >> 16);
+	writew(val & 0xffff, dev->iobase + offset);
+	writew(val >> 16, dev->iobase + offset + 2);
 }
 #else
 #error "SMC911X: undefined bus width"
