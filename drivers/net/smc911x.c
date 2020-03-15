@@ -21,7 +21,9 @@ struct chip_id {
 };
 
 struct smc911x_priv {
+#ifndef CONFIG_DM_ETH
 	struct eth_device	dev;
+#endif
 	phys_addr_t		iobase;
 	const struct chip_id	*chipid;
 	unsigned char		enetaddr[6];
@@ -370,6 +372,8 @@ static int smc911x_recv_common(struct smc911x_priv *priv, u32 *data)
 	return pktlen;
 }
 
+#ifndef CONFIG_DM_ETH
+
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 /* wrapper for smc911x_eth_phy_read */
 static int smc911x_miiphy_read(struct mii_dev *bus, int phy, int devad,
@@ -494,6 +498,7 @@ int smc911x_initialize(u8 dev_num, int base_addr)
 		priv->enetaddr[3] = addrl >> 24;
 		priv->enetaddr[4] = addrh;
 		priv->enetaddr[5] = addrh >> 8;
+		memcpy(priv->dev.enetaddr, priv->enetaddr, 6);
 	}
 
 	priv->dev.init = smc911x_init;
@@ -516,3 +521,113 @@ err_detect:
 	free(priv);
 	return ret;
 }
+
+#else	/* ifdef CONFIG_DM_ETH */
+
+static int smc911x_start(struct udevice *dev)
+{
+	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct smc911x_priv *priv = dev_get_priv(dev);
+
+	memcpy(priv->enetaddr, plat->enetaddr, sizeof(plat->enetaddr));
+
+	return smc911x_init_common(priv);
+}
+
+static void smc911x_stop(struct udevice *dev)
+{
+	struct smc911x_priv *priv = dev_get_priv(dev);
+
+	smc911x_halt_common(priv);
+}
+
+static int smc911x_send(struct udevice *dev, void *packet, int length)
+{
+	struct smc911x_priv *priv = dev_get_priv(dev);
+	int ret;
+
+	ret = smc911x_send_common(priv, packet, length);
+
+	return ret ? 0 : -ETIMEDOUT;
+}
+
+static int smc911x_recv(struct udevice *dev, int flags, uchar **packetp)
+{
+	struct smc911x_priv *priv = dev_get_priv(dev);
+	u32 *data = (u32 *)net_rx_packets[0];
+	int ret;
+
+	ret = smc911x_recv_common(priv, data);
+	if (ret)
+		*packetp = (void *)data;
+
+	return ret ? ret : -EAGAIN;
+}
+
+static int smc911x_bind(struct udevice *dev)
+{
+	return device_set_name(dev, dev->name);
+}
+
+static int smc911x_probe(struct udevice *dev)
+{
+	struct smc911x_priv *priv = dev_get_priv(dev);
+	unsigned long addrh, addrl;
+	int ret;
+
+	/* Try to detect chip. Will fail if not present. */
+	ret = smc911x_detect_chip(priv);
+	if (ret)
+		return ret;
+
+	addrh = smc911x_get_mac_csr(priv, ADDRH);
+	addrl = smc911x_get_mac_csr(priv, ADDRL);
+	if (!(addrl == 0xffffffff && addrh == 0x0000ffff)) {
+		/* address is obtained from optional eeprom */
+		priv->enetaddr[0] = addrl;
+		priv->enetaddr[1] = addrl >>  8;
+		priv->enetaddr[2] = addrl >> 16;
+		priv->enetaddr[3] = addrl >> 24;
+		priv->enetaddr[4] = addrh;
+		priv->enetaddr[5] = addrh >> 8;
+	}
+
+	return 0;
+}
+
+static int smc911x_ofdata_to_platdata(struct udevice *dev)
+{
+	struct smc911x_priv *priv = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+
+	pdata->iobase = devfdt_get_addr(dev);
+	priv->iobase = pdata->iobase;
+
+	return 0;
+}
+
+static const struct eth_ops smc911x_ops = {
+	.start	= smc911x_start,
+	.send	= smc911x_send,
+	.recv	= smc911x_recv,
+	.stop	= smc911x_stop,
+};
+
+static const struct udevice_id smc911x_ids[] = {
+	{ .compatible = "smsc,lan9115" },
+	{ }
+};
+
+U_BOOT_DRIVER(smc911x) = {
+	.name		= "eth_smc911x",
+	.id		= UCLASS_ETH,
+	.of_match	= smc911x_ids,
+	.bind		= smc911x_bind,
+	.ofdata_to_platdata = smc911x_ofdata_to_platdata,
+	.probe		= smc911x_probe,
+	.ops		= &smc911x_ops,
+	.priv_auto_alloc_size = sizeof(struct smc911x_priv),
+	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.flags		= DM_FLAG_ALLOC_PRIV_DMA,
+};
+#endif
