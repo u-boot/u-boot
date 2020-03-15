@@ -184,7 +184,7 @@ static void smc911x_halt(struct eth_device *dev)
 	smc911x_handle_mac_address(dev);
 }
 
-static int smc911x_rx(struct eth_device *dev)
+static int smc911x_recv(struct eth_device *dev)
 {
 	u32 *data = (u32 *)net_rx_packets[0];
 	u32 pktlen, tmplen;
@@ -269,7 +269,7 @@ int smc911x_initialize(u8 dev_num, int base_addr)
 	dev->init = smc911x_init;
 	dev->halt = smc911x_halt;
 	dev->send = smc911x_send;
-	dev->recv = smc911x_rx;
+	dev->recv = smc911x_recv;
 	sprintf(dev->name, "%s-%hu", DRIVERNAME, dev_num);
 
 	eth_register(dev);
