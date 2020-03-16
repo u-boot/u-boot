@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2016 Freescale Semiconductor, Inc.
- * Copyright 2018-2019 NXP
+ * Copyright 2018-2020 NXP
  */
 
 #include <common.h>
@@ -154,9 +154,7 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 			      enum fm_port port, int offset)
 {
 	struct fixed_link f_link;
-	const u32 *handle;
-	const char *prop = NULL;
-	int off;
+	const char *phyconn;
 
 	if (fm_info_get_enet_if(port) == PHY_INTERFACE_MODE_SGMII) {
 		switch (port) {
@@ -212,14 +210,11 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 				   "qsgmii");
 	} else if (fm_info_get_enet_if(port) == PHY_INTERFACE_MODE_XGMII &&
 		   (port == FM1_10GEC1 || port == FM1_10GEC2)) {
-		handle = fdt_getprop(fdt, offset, "phy-handle", NULL);
-		prop = NULL;
-		if (handle) {
-			off = fdt_node_offset_by_phandle(fdt,
-							 fdt32_to_cpu(*handle));
-			prop = fdt_getprop(fdt, off, "backplane-mode", NULL);
-		}
-		if (!prop || strcmp(prop, "10gbase-kr")) {
+		phyconn = fdt_getprop(fdt, offset, "phy-connection-type", NULL);
+		if (is_backplane_mode(phyconn)) {
+			/* Backplane KR mode: skip fixups */
+			printf("Interface %d in backplane KR mode\n", port);
+		} else {
 			/* XFI interface */
 			f_link.phy_id = cpu_to_fdt32(port);
 			f_link.duplex = cpu_to_fdt32(1);
