@@ -18,6 +18,8 @@ Optional:
    It not defined, then default is 5us (~50KHz).
 * i2c-gpio,deblock
    Run deblocking sequence when the driver gets probed.
+* i2c-gpio,scl-output-only;
+   Set if SCL is an output only
 
 Example:
 

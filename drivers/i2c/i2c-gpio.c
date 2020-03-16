@@ -58,6 +58,24 @@ static void i2c_gpio_sda_set(struct i2c_gpio_bus *bus, int bit)
 static void i2c_gpio_scl_set(struct i2c_gpio_bus *bus, int bit)
 {
 	struct gpio_desc *scl = &bus->gpios[PIN_SCL];
+	int count = 0;
+
+	if (bit) {
+		dm_gpio_set_dir_flags(scl, GPIOD_IS_IN);
+		while (!dm_gpio_get_value(scl) && count++ < 100000)
+			udelay(1);
+
+		if (!dm_gpio_get_value(scl))
+			pr_err("timeout waiting on slave to release scl\n");
+	} else {
+		dm_gpio_set_dir_flags(scl, GPIOD_IS_OUT);
+	}
+}
+
+/* variant for output only gpios which cannot support clock stretching */
+static void i2c_gpio_scl_set_output_only(struct i2c_gpio_bus *bus, int bit)
+{
+	struct gpio_desc *scl = &bus->gpios[PIN_SCL];
 	ulong flags = GPIOD_IS_OUT;
 
 	if (bit)
@@ -328,7 +346,10 @@ static int i2c_gpio_ofdata_to_platdata(struct udevice *dev)
 
 	bus->get_sda = i2c_gpio_sda_get;
 	bus->set_sda = i2c_gpio_sda_set;
-	bus->set_scl = i2c_gpio_scl_set;
+	if (fdtdec_get_bool(blob, node, "i2c-gpio,scl-output-only"))
+		bus->set_scl = i2c_gpio_scl_set_output_only;
+	else
+		bus->set_scl = i2c_gpio_scl_set;
 
 	return 0;
 error:
