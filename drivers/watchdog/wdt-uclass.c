@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <hang.h>
+#include <time.h>
 #include <wdt.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
@@ -83,7 +84,7 @@ void watchdog_reset(void)
 
 	/* Do not reset the watchdog too often */
 	now = get_timer(0);
-	if (now > next_reset) {
+	if (time_after(now, next_reset)) {
 		next_reset = now + 1000;	/* reset every 1000ms */
 		wdt_reset(gd->watchdog_dev);
 	}
