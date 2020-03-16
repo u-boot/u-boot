@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2018-2019 NXP
+ * Copyright 2018-2020 NXP
  *
  */
 
@@ -614,6 +614,13 @@ int fdt_fixup_dpmac_phy_handle(void *fdt, int dpmac_id, int node_phandle)
 	if (offset < 0) {
 		printf("%s node not found in device tree\n", dpmac_str);
 		return offset;
+	}
+
+	phy_string = fdt_getprop(fdt, offset, "phy-connection-type", NULL);
+	if (is_backplane_mode(phy_string)) {
+		/* Backplane KR mode: skip fixups */
+		printf("Interface %d in backplane KR mode\n", dpmac_id);
+		return 0;
 	}
 
 	ret = fdt_appendprop_cell(fdt, offset, "phy-handle", node_phandle);
