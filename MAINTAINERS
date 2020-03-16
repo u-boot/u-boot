@@ -423,8 +423,33 @@ T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-ti.git
 F:	arch/arm/mach-davinci/
 F:	arch/arm/mach-k3/
 F:	arch/arm/mach-keystone/
+F:	arch/arm/mach-omap2/
 F:	arch/arm/include/asm/arch-omap*/
 F:	arch/arm/include/asm/ti-common/
+F:	board/ti/
+F:	drivers/dma/ti*
+F:	drivers/firmware/ti_sci.*
+F:	drivers/gpio/omap_gpio.c
+F:	drivers/memory/ti-aemif.c
+F:	drivers/misc/k3_avs.c
+F:	drivers/mailbox/k3-sec-procy.c
+F:	drivers/pci/pcie_dw_ti.c
+F:	drivers/phy/keystone-usb-phy.c
+F:	drivers/phy/omap-usb2-phy.c
+F:	drivers/phy/phy-ti-am654.c
+F:	drivers/phy/ti-pipe3-phy.c
+F:	drivers/ram/k3*
+F:	drivers/remoteproc/k3_system_controller.c
+F:	drivers/remoteproc/ti*
+F:	drivers/reset/reset-ti-sci.c
+F:	drivers/rtc/davinci.c
+F:	drivers/serial/serial_omap.c
+F:	drivers/soc/ti/
+F:	drivers/sysreset/sysreset-ti-sci.c
+F:	drivers/thermal/ti-bandgap.c
+F:	drivers/timer/omap-timer.c
+F:	drivers/watchdog/omap_wdt.c
+F:	include/linux/soc/ti/
 
 ARM U8500
 M:	Stephan Gerhold <stephan@gerhold.net>
