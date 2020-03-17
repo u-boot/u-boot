@@ -30,7 +30,4 @@ config STACK_SIZE
 
 source "board/xilinx/microblaze-generic/Kconfig"
 
-config SPL_LDSCRIPT
-	default "arch/microblaze/cpu/u-boot-spl.lds"
-
 endmenu

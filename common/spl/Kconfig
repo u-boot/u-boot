@@ -139,7 +139,7 @@ config SPL_HANDOFF
 
 config SPL_LDSCRIPT
 	string "Linker script for the SPL stage"
-	default "arch/$(ARCH)/cpu/u-boot-spl.lds"
+	default "arch/\$(ARCH)/cpu/u-boot-spl.lds"
 	help
 	  The SPL stage will usually require a different linker-script
 	  (as it runs from a different memory region) than the regular
@@ -1306,7 +1306,7 @@ config TPL_LDSCRIPT
         string "Linker script for the TPL stage"
 	depends on TPL
 	default "arch/arm/cpu/armv8/u-boot-spl.lds" if ARM64
-	default "arch/$(ARCH)/cpu/u-boot-spl.lds"
+	default "arch/\$(ARCH)/cpu/u-boot-spl.lds"
 	help
 	  The TPL stage will usually require a different linker-script
 	  (as it runs from a different memory region) than the regular
