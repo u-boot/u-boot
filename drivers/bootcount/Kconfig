@@ -106,6 +106,13 @@ config DM_BOOTCOUNT_I2C_EEPROM
 	  pointing to the underlying i2c eeprom device) and an optional 'offset'
 	  property are supported.
 
+config BOOTCOUNT_MEM
+	bool "Support memory based bootcounter"
+	help
+	  Enabling Memory based bootcount, typically in a SoC register which
+	  is not cleared on softreset.
+	  compatible = "u-boot,bootcount";
+
 endmenu
 
 endif
