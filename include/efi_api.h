@@ -217,11 +217,11 @@ enum efi_reset_type {
 #define CAPSULE_FLAGS_INITIATE_RESET		0x00040000
 
 struct efi_capsule_header {
-	efi_guid_t *capsule_guid;
+	efi_guid_t capsule_guid;
 	u32 header_size;
 	u32 flags;
 	u32 capsule_image_size;
-};
+} __packed;
 
 #define EFI_RT_SUPPORTED_GET_TIME			0x0001
 #define EFI_RT_SUPPORTED_SET_TIME			0x0002
