@@ -11,9 +11,12 @@
 #ifndef _BUR_COMMON_H_
 #define _BUR_COMMON_H_
 
+#if !CONFIG_IS_ENABLED(DM_VIDEO)
 #include <../../../drivers/video/am335x-fb.h>
 
 int load_lcdtiming(struct am335x_lcdpanel *panel);
+#endif
+
 void br_summaryscreen(void);
 void pmicsetup(u32 mpupll, unsigned int bus);
 void enable_uart0_pin_mux(void);

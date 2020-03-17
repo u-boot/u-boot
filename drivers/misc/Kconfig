@@ -462,6 +462,11 @@ config IHS_FPGA
 	  gdsys devices, which supply the majority of the functionality offered
 	  by the devices. This driver supports both CON and CPU variants of the
 	  devices, depending on the device tree entry.
+config ESM_K3
+	bool "Enable K3 ESM driver"
+	depends on ARCH_K3
+	help
+	  Support ESM (Error Signaling Module) on TI K3 SoCs.
 
 config MICROCHIP_FLEXCOM
 	bool "Enable Microchip Flexcom driver"
@@ -480,5 +485,12 @@ config K3_AVS0
 	  domains stored in efuse within the VTM IP. This driver reads the
 	  optimized voltage from the efuse, so that it can be programmed
 	  to the PMIC on board.
+
+config ESM_PMIC
+	bool "Enable PMIC ESM driver"
+	depends on DM_PMIC
+	help
+	  Support ESM (Error Signal Monitor) on PMIC devices. ESM is used
+	  typically to reboot the board in error condition.
 
 endmenu

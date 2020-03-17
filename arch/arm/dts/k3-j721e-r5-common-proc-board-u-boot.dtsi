@@ -1,0 +1,34 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2020 Texas Instruments Incorporated - http://www.ti.com/
+ */
+
+/ {
+	chosen {
+		firmware-loader = &fs_loader0;
+	};
+
+	fs_loader0: fs_loader@0 {
+		u-boot,dm-pre-reloc;
+		compatible = "u-boot,fs-loader";
+	};
+};
+
+&main_r5fss0 {
+	u-boot,dm-spl;
+};
+
+&main_r5fss0_core0 {
+	u-boot,dm-spl;
+};
+
+&main_r5fss0_core1 {
+	u-boot,dm-spl;
+};
+
+&tps659413a {
+	esm: esm {
+		compatible = "ti,tps659413-esm";
+		u-boot,dm-spl;
+	};
+};

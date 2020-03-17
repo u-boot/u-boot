@@ -14,6 +14,8 @@
 #include <g_dnl.h>
 #include <usb.h>
 #include <dfu.h>
+#include <dm/uclass-internal.h>
+#include <spi_flash.h>
 
 #include <asm/arch/sys_proto.h>
 #include "common.h"
@@ -197,13 +199,33 @@ exit:
 }
 #endif
 
+#if CONFIG_IS_ENABLED(SPI_LOAD)
+static void *k3_sysfw_get_spi_addr(void)
+{
+	struct udevice *dev;
+	fdt_addr_t addr;
+	int ret;
+
+	ret = uclass_find_device_by_seq(UCLASS_SPI, CONFIG_SF_DEFAULT_BUS,
+					true, &dev);
+	if (ret)
+		return NULL;
+
+	addr = dev_read_addr_index(dev, 1);
+	if (addr == FDT_ADDR_T_NONE)
+		return NULL;
+
+	return (void *)(addr + CONFIG_K3_SYSFW_IMAGE_SPI_OFFS);
+}
+#endif
+
 void k3_sysfw_loader(void (*config_pm_pre_callback) (void),
 		     void (*config_pm_done_callback)(void))
 {
 	struct spl_image_info spl_image = { 0 };
 	struct spl_boot_device bootdev = { 0 };
 	struct ti_sci_handle *ti_sci;
-	int ret;
+	int ret = 0;
 
 	/* Reserve a block of aligned memory for loading the SYSFW image */
 	sysfw_load_address = memalign(ARCH_DMA_MINALIGN,
@@ -242,6 +264,13 @@ void k3_sysfw_loader(void (*config_pm_pre_callback) (void),
 #else
 				   0);
 #endif
+		break;
+#endif
+#if CONFIG_IS_ENABLED(SPI_LOAD)
+	case BOOT_DEVICE_SPI:
+		sysfw_load_address = k3_sysfw_get_spi_addr();
+		if (!sysfw_load_address)
+			ret = -ENODEV;
 		break;
 #endif
 #if CONFIG_IS_ENABLED(YMODEM_SUPPORT)
@@ -305,22 +334,4 @@ void k3_sysfw_loader(void (*config_pm_pre_callback) (void),
 	 */
 	if (config_pm_done_callback)
 		config_pm_done_callback();
-
-	/*
-	 * Output System Firmware version info. Note that since the
-	 * 'firmware_description' field is not guaranteed to be zero-
-	 * terminated we manually add a \0 terminator if needed. Further
-	 * note that we intentionally no longer rely on the extended
-	 * printf() formatter '%.*s' to not having to require a more
-	 * full-featured printf() implementation.
-	 */
-	char fw_desc[sizeof(ti_sci->version.firmware_description) + 1];
-
-	strncpy(fw_desc, ti_sci->version.firmware_description,
-		sizeof(ti_sci->version.firmware_description));
-	fw_desc[sizeof(fw_desc) - 1] = '\0';
-
-	printf("SYSFW ABI: %d.%d (firmware rev 0x%04x '%s')\n",
-	       ti_sci->version.abi_major, ti_sci->version.abi_minor,
-	       ti_sci->version.firmware_revision, fw_desc);
 }

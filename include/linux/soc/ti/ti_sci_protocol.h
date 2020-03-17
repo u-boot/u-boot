@@ -327,8 +327,6 @@ struct ti_sci_proc_ops {
 /**
  * struct ti_sci_rm_ringacc_ops - Ring Accelerator Management operations
  * @config: configure the SoC Navigator Subsystem Ring Accelerator ring
- * @get_config: get the SoC Navigator Subsystem Ring Accelerator ring
- *		configuration
  */
 struct ti_sci_rm_ringacc_ops {
 	int (*config)(const struct ti_sci_handle *handle,
@@ -336,10 +334,6 @@ struct ti_sci_rm_ringacc_ops {
 		      u32 addr_lo, u32 addr_hi, u32 count, u8 mode,
 		      u8 size, u8 order_id
 	);
-	int (*get_config)(const struct ti_sci_handle *handle,
-			  u32 nav_id, u32 index, u8 *mode,
-			  u32 *addr_lo, u32 *addr_hi, u32 *count,
-			  u8 *size, u8 *order_id);
 };
 
 /**

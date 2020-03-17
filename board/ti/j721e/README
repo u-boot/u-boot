@@ -120,7 +120,7 @@ requests DMSC to get these services done as shown in the above diagram.
 Sources:
 --------
 1. SYSFW:
-	Tree: git://git.ti.com/processor-firmware/system-firmware-image-gen.git
+	Tree: git://git.ti.com/k3-image-gen/k3-image-gen.git
 	Branch: master
 
 2. ATF:
@@ -154,7 +154,7 @@ $ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- O=/tmp/r5
 
 4.2. A72:
 $ make ARCH=arm CROSS_COMPILE=aarch64-linux-gnu- j721e_evm_a72_defconfig O=/tmp/a72
-$ make ARCH=arm CROSS_COMPILE=aarch64-linux-gnu- ATF=<path to ATF dir>/build/k3/generic/release/bl31.bin TEE=<path to OPTEE OS dir>/out/arm-plat-k3/core/tee-pager.bin O=/tmp/a72
+$ make ARCH=arm CROSS_COMPILE=aarch64-linux-gnu- ATF=<path to ATF dir>/build/k3/generic/release/bl31.bin TEE=<path to OPTEE OS dir>/out/arm-plat-k3/core/tee-pager_v2.bin O=/tmp/a72
 
 Target Images
 --------------
@@ -225,3 +225,50 @@ Image formats:
                 | |    Secure config  | |
                 | +-------------------+ |
                 +-----------------------+
+
+OSPI:
+-----
+ROM supports booting from OSPI from offset 0x0.
+
+Flashing images to OSPI:
+
+Below commands can be used to download tiboot3.bin, tispl.bin, u-boot.img,
+and sysfw.itb over tftp and then flash those to OSPI at their respective
+addresses.
+
+=> sf probe
+=> tftp ${loadaddr} tiboot3.bin
+=> sf update $loadaddr 0x0 $filesize
+=> tftp ${loadaddr} tispl.bin
+=> sf update $loadaddr 0x80000 $filesize
+=> tftp ${loadaddr} u-boot.img
+=> sf update $loadaddr 0x280000 $filesize
+=> tftp ${loadaddr} sysfw.itb
+=> sf update $loadaddr 0x6C0000 $filesize
+
+Flash layout for OSPI:
+
+         0x0 +----------------------------+
+             |     ospi.tiboot3(512K)     |
+             |                            |
+     0x80000 +----------------------------+
+             |     ospi.tispl(2M)         |
+             |                            |
+    0x280000 +----------------------------+
+             |     ospi.u-boot(4M)        |
+             |                            |
+    0x680000 +----------------------------+
+             |     ospi.env(128K)         |
+             |                            |
+    0x6A0000 +----------------------------+
+	     |	 ospi.env.backup (128K)   |
+	     |                            |
+    0x6C0000 +----------------------------+
+             |      ospi.sysfw(1M)        |
+             |                            |
+    0x7C0000 +----------------------------+
+	     |      padding (256k)        |
+    0x800000 +----------------------------+
+             |     ospi.rootfs(UBIFS)     |
+             |                            |
+             +----------------------------+

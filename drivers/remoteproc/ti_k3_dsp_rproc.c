@@ -2,9 +2,9 @@
 /*
  * Texas Instruments' K3 DSP Remoteproc driver
  *
- * Copyright (C) 2018-2019 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2018-2020 Texas Instruments Incorporated - http://www.ti.com/
  *	Lokesh Vutla <lokeshvutla@ti.com>
- *
+ *	Suman Anna <s-anna@ti.com>
  */
 
 #include <common.h>
@@ -18,6 +18,7 @@
 #include <power-domain.h>
 #include <dm/device_compat.h>
 #include <linux/err.h>
+#include <linux/sizes.h>
 #include <linux/soc/ti/ti_sci_protocol.h>
 #include "ti_sci_proc.h"
 
@@ -38,18 +39,78 @@ struct k3_dsp_mem {
 };
 
 /**
+ * struct k3_dsp_boot_data - internal data structure used for boot
+ * @boot_align_addr: Boot vector address alignment granularity
+ * @uses_lreset: Flag to denote the need for local reset management
+ */
+struct k3_dsp_boot_data {
+	u32 boot_align_addr;
+	bool uses_lreset;
+};
+
+/**
  * struct k3_dsp_privdata - Structure representing Remote processor data.
  * @rproc_rst:		rproc reset control data
  * @tsp:		Pointer to TISCI proc contrl handle
+ * @data:		Pointer to DSP specific boot data structure
  * @mem:		Array of available memories
  * @num_mem:		Number of available memories
  */
 struct k3_dsp_privdata {
 	struct reset_ctl dsp_rst;
 	struct ti_sci_proc tsp;
+	struct k3_dsp_boot_data *data;
 	struct k3_dsp_mem *mem;
 	int num_mems;
 };
+
+/*
+ * The C66x DSP cores have a local reset that affects only the CPU, and a
+ * generic module reset that powers on the device and allows the DSP internal
+ * memories to be accessed while the local reset is asserted. This function is
+ * used to release the global reset on C66x DSPs to allow loading into the DSP
+ * internal RAMs. This helper function is invoked in k3_dsp_load() before any
+ * actual firmware loading and is undone only in k3_dsp_stop(). The local reset
+ * on C71x cores is a no-op and the global reset cannot be released on C71x
+ * cores until after the firmware images are loaded, so this function does
+ * nothing for C71x cores.
+ */
+static int k3_dsp_prepare(struct udevice *dev)
+{
+	struct k3_dsp_privdata *dsp = dev_get_priv(dev);
+	struct k3_dsp_boot_data *data = dsp->data;
+	int ret;
+
+	/* local reset is no-op on C71x processors */
+	if (!data->uses_lreset)
+		return 0;
+
+	ret = ti_sci_proc_power_domain_on(&dsp->tsp);
+	if (ret)
+		dev_err(dev, "cannot enable internal RAM loading, ret = %d\n",
+			ret);
+
+	return ret;
+}
+
+/*
+ * This function is the counterpart to k3_dsp_prepare() and is used to assert
+ * the global reset on C66x DSP cores (no-op for C71x DSP cores). This completes
+ * the second step of powering down the C66x DSP cores. The cores themselves
+ * are halted through the local reset in first step. This function is invoked
+ * in k3_dsp_stop() after the local reset is asserted.
+ */
+static int k3_dsp_unprepare(struct udevice *dev)
+{
+	struct k3_dsp_privdata *dsp = dev_get_priv(dev);
+	struct k3_dsp_boot_data *data = dsp->data;
+
+	/* local reset is no-op on C71x processors */
+	if (!data->uses_lreset)
+		return 0;
+
+	return ti_sci_proc_power_domain_off(&dsp->tsp);
+}
 
 /**
  * k3_dsp_load() - Load up the Remote processor image
@@ -62,6 +123,7 @@ struct k3_dsp_privdata {
 static int k3_dsp_load(struct udevice *dev, ulong addr, ulong size)
 {
 	struct k3_dsp_privdata *dsp = dev_get_priv(dev);
+	struct k3_dsp_boot_data *data = dsp->data;
 	u32 boot_vector;
 	int ret;
 
@@ -70,17 +132,33 @@ static int k3_dsp_load(struct udevice *dev, ulong addr, ulong size)
 	if (ret)
 		return ret;
 
-	ret = rproc_elf_load_image(dev, addr, size);
-	if (ret < 0) {
-		dev_err(dev, "Loading elf failed %d\n", ret);
+	ret = k3_dsp_prepare(dev);
+	if (ret) {
+		dev_err(dev, "DSP prepare failed for core %d\n",
+			dsp->tsp.proc_id);
 		goto proc_release;
 	}
 
+	ret = rproc_elf_load_image(dev, addr, size);
+	if (ret < 0) {
+		dev_err(dev, "Loading elf failed %d\n", ret);
+		goto unprepare;
+	}
+
 	boot_vector = rproc_elf_get_boot_addr(dev, addr);
+	if (boot_vector & (data->boot_align_addr - 1)) {
+		ret = -EINVAL;
+		dev_err(dev, "Boot vector 0x%x not aligned on 0x%x boundary\n",
+			boot_vector, data->boot_align_addr);
+		goto proc_release;
+	}
 
 	dev_dbg(dev, "%s: Boot vector = 0x%x\n", __func__, boot_vector);
 
 	ret = ti_sci_proc_set_config(&dsp->tsp, boot_vector, 0, 0);
+unprepare:
+	if (ret)
+		k3_dsp_unprepare(dev);
 proc_release:
 	ti_sci_proc_release(&dsp->tsp);
 	return ret;
@@ -95,6 +173,7 @@ proc_release:
 static int k3_dsp_start(struct udevice *dev)
 {
 	struct k3_dsp_privdata *dsp = dev_get_priv(dev);
+	struct k3_dsp_boot_data *data = dsp->data;
 	int ret;
 
 	dev_dbg(dev, "%s\n", __func__);
@@ -102,16 +181,18 @@ static int k3_dsp_start(struct udevice *dev)
 	ret = ti_sci_proc_request(&dsp->tsp);
 	if (ret)
 		return ret;
-	/*
-	 * Setting the right clock frequency would have taken care by
-	 * assigned-clock-rates during the device probe. So no need to
-	 * set the frequency again here.
-	 */
-	ret = ti_sci_proc_power_domain_on(&dsp->tsp);
-	if (ret)
-		goto proc_release;
+
+	if (!data->uses_lreset) {
+		ret = ti_sci_proc_power_domain_on(&dsp->tsp);
+		if (ret)
+			goto proc_release;
+	}
 
 	ret = reset_deassert(&dsp->dsp_rst);
+	if (ret) {
+		if (!data->uses_lreset)
+			ti_sci_proc_power_domain_off(&dsp->tsp);
+	}
 
 proc_release:
 	ti_sci_proc_release(&dsp->tsp);
@@ -302,6 +383,8 @@ static int k3_dsp_of_to_priv(struct udevice *dev, struct k3_dsp_privdata *dsp)
 	if (ret)
 		return ret;
 
+	dsp->data = (struct k3_dsp_boot_data *)dev_get_driver_data(dev);
+
 	return 0;
 }
 
@@ -326,6 +409,15 @@ static int k3_dsp_probe(struct udevice *dev)
 		return ret;
 	}
 
+	/*
+	 * The DSP local resets are deasserted by default on Power-On-Reset.
+	 * Assert the local resets to ensure the DSPs don't execute bogus code
+	 * in .load() callback when the module reset is released to support
+	 * internal memory loading. This is needed for C66x DSPs, and is a
+	 * no-op on C71x DSPs.
+	 */
+	reset_assert(&dsp->dsp_rst);
+
 	dev_dbg(dev, "Remoteproc successfully probed\n");
 
 	return 0;
@@ -340,9 +432,19 @@ static int k3_dsp_remove(struct udevice *dev)
 	return 0;
 }
 
+static const struct k3_dsp_boot_data c66_data = {
+	.boot_align_addr = SZ_1K,
+	.uses_lreset = true,
+};
+
+static const struct k3_dsp_boot_data c71_data = {
+	.boot_align_addr = SZ_2M,
+	.uses_lreset = false,
+};
+
 static const struct udevice_id k3_dsp_ids[] = {
-	{ .compatible = "ti,j721e-c66-dsp"},
-	{ .compatible = "ti,j721e-c71-dsp"},
+	{ .compatible = "ti,j721e-c66-dsp", .data = (ulong)&c66_data, },
+	{ .compatible = "ti,j721e-c71-dsp", .data = (ulong)&c71_data, },
 	{}
 };
 

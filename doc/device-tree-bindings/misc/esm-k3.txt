@@ -1,0 +1,25 @@
+Texas Instruments K3 ESM Binding
+======================
+
+ESM (Error Signaling Module) is an IP block on TI K3 devices that allows
+handling of safety events somewhat similar to what interrupt controller
+would do. The safety signals have their separate paths within the SoC,
+and they are handled by the ESM, which routes them to the proper
+destination, which can be system reset, interrupt controller, etc. In
+the simplest configuration the signals are just routed to reset the
+SoC.
+
+Required properties :
+- compatible	: "ti,j721e-esm"
+- ti,esm-pins	: integer array of esm events IDs to route to external event
+		  pin which can be used to reset the SoC. The array can
+		  have arbitrary amount of event IDs listed on it.
+
+Example
+=======
+
+	main_esm: esm@700000 {
+		compatible = "ti,j721e-esm";
+		reg = <0x0 0x700000 0x0 0x1000>;
+		ti,esm-pins = <344>, <345>;
+	};

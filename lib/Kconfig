@@ -602,4 +602,10 @@ config TEST_FDTDEC
 config LIB_DATE
 	bool
 
+config LIB_ELF
+	bool
+	help
+	  Supoort basic elf loading/validating functions.
+	  This supports fir 32 bit and 64 bit versions.
+
 endmenu

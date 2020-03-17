@@ -15,6 +15,8 @@
 #include <asm/io.h>
 #include <spl.h>
 #include <asm/arch/sys_proto.h>
+#include <dm.h>
+#include <dm/uclass-internal.h>
 
 #include "../common/board_detect.h"
 
@@ -343,5 +345,29 @@ int board_late_init(void)
 
 void spl_board_init(void)
 {
+#if defined(CONFIG_ESM_K3) || defined(CONFIG_ESM_PMIC)
+	struct udevice *dev;
+	int ret;
+#endif
+
 	probe_daughtercards();
+
+#ifdef CONFIG_ESM_K3
+	if (board_ti_k3_is("J721EX-PM2-SOM")) {
+		ret = uclass_get_device_by_driver(UCLASS_MISC,
+						  DM_GET_DRIVER(k3_esm), &dev);
+		if (ret)
+			printf("ESM init failed: %d\n", ret);
+	}
+#endif
+
+#ifdef CONFIG_ESM_PMIC
+	if (board_ti_k3_is("J721EX-PM2-SOM")) {
+		ret = uclass_get_device_by_driver(UCLASS_MISC,
+						  DM_GET_DRIVER(pmic_esm),
+						  &dev);
+		if (ret)
+			printf("ESM PMIC init failed: %d\n", ret);
+	}
+#endif
 }

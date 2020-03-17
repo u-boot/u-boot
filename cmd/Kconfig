@@ -399,6 +399,7 @@ config CMD_ABOOTIMG
 config CMD_ELF
 	bool "bootelf, bootvx"
 	default y
+	select LIB_ELF
 	help
 	  Boot an ELF/vxWorks image from the memory.
 

@@ -20,7 +20,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 /* --------------------------------------------------------------------------*/
 #if defined(CONFIG_LCD) && defined(CONFIG_AM335X_LCD) && \
-	!defined(CONFIG_SPL_BUILD)
+	!defined(CONFIG_DM_VIDEO) && !defined(CONFIG_SPL_BUILD)
 #include <asm/arch/hardware.h>
 #include <asm/arch/cpu.h>
 #include <asm/gpio.h>
