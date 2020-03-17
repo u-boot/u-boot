@@ -1,0 +1,51 @@
+.. SPDX-License-Identifier: GPL-2.0+
+
+Boot Count Limit
+================
+
+This allows to detect multiple failed attempts to boot Linux.
+
+After a power-on reset, "bootcount" variable will be initialized with 1, and
+each reboot will increment the value by 1.
+
+If, after a reboot, the new value of "bootcount" exceeds the value of
+"bootlimit", then instead of the standard boot action (executing the contents of
+"bootcmd") an alternate boot action will be performed, and the contents of
+"altbootcmd" will be executed.
+
+If the variable "bootlimit" is not defined in the environment, the Boot Count
+Limit feature is disabled. If it is enabled, but "altbootcmd" is not defined,
+then U-Boot will drop into interactive mode and remain there.
+
+It is the responsibility of some application code (typically a Linux
+application) to reset the variable "bootcount", thus allowing for more boot
+cycles.
+
+BOOTCOUNT_EXT
+-------------
+
+This adds support for maintaining boot count in a file on an EXT filesystem.
+The file to use is define by:
+
+SYS_BOOTCOUNT_EXT_INTERFACE
+SYS_BOOTCOUNT_EXT_DEVPART
+SYS_BOOTCOUNT_EXT_NAME
+
+The format of the file is:
+
+==== =================
+type entry
+==== =================
+u8   magic
+u8   version
+u8   bootcount
+u8   upgrade_available
+==== =================
+
+To prevent unattended usage of "altbootcmd" the "upgrade_available" variable is
+used.
+If "upgrade_available" is 0, "bootcount" is not saved, if "upgrade_available" is
+1 "bootcount" is save.
+So the Userspace Application must set the "upgrade_available" and "bootcount"
+variables to 0, if a boot was successfully.
+This also prevents writes on all reboots.
