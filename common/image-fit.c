@@ -168,7 +168,7 @@ static void fit_image_print_data(const void *fit, int noffset, const char *p,
 	int value_len;
 	char *algo;
 	const char *padding;
-	int required;
+	bool required;
 	int ret, i;
 
 	debug("%s  %s node:    '%s'\n", p, type,
@@ -179,8 +179,8 @@ static void fit_image_print_data(const void *fit, int noffset, const char *p,
 		return;
 	}
 	printf("%s", algo);
-	keyname = fdt_getprop(fit, noffset, "key-name-hint", NULL);
-	required = fdt_getprop(fit, noffset, "required", NULL) != NULL;
+	keyname = fdt_getprop(fit, noffset, FIT_KEY_HINT, NULL);
+	required = fdt_getprop(fit, noffset, FIT_KEY_REQUIRED, NULL) != NULL;
 	if (keyname)
 		printf(":%s", keyname);
 	if (required)
