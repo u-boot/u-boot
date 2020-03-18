@@ -522,7 +522,9 @@
 
 /* MAC/PHY configuration */
 #ifdef CONFIG_FSL_MC_ENET
+#ifndef CONFIG_TARGET_LS1088ARDB
 #define CONFIG_PHYLIB
+#endif
 
 #define CONFIG_PHY_VITESSE
 #define AQ_PHY_ADDR1			0x00
