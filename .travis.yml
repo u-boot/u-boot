@@ -245,11 +245,7 @@ script:
      pip install -r test/py/requirements.txt;
      ./test/py/test.py --bd ${TEST_PY_BD} ${TEST_PY_ID}
        ${TEST_PY_TEST_SPEC:+"-k ${TEST_PY_TEST_SPEC}"}
-       --build-dir "$UBOOT_TRAVIS_BUILD_DIR";
-     ret=$?;
-     if [[ $ret -ne 0 ]]; then
-       exit $ret;
-     fi;
+       --build-dir "$UBOOT_TRAVIS_BUILD_DIR" || exit;
      if [[ -n "${TEST_PY_TOOLS}" ]]; then
        export PYTHONPATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt";
        export PATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc:${PATH}";
