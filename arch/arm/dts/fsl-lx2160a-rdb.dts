@@ -21,6 +21,58 @@
 	};
 };
 
+&dpmac3 {
+	status = "okay";
+	phy-handle = <&aquantia_phy1>;
+	phy-connection-type = "usxgmii";
+};
+
+&dpmac4 {
+	status = "okay";
+	phy-handle = <&aquantia_phy2>;
+	phy-connection-type = "usxgmii";
+};
+
+&dpmac17 {
+	status = "okay";
+	phy-handle = <&rgmii_phy1>;
+	phy-connection-type = "rgmii-id";
+};
+
+&dpmac18 {
+	status = "okay";
+	phy-handle = <&rgmii_phy2>;
+	phy-connection-type = "rgmii-id";
+};
+
+&emdio1 {
+	status = "okay";
+	rgmii_phy1: ethernet-phy@1 {
+		/* AR8035 PHY - "compatible" property not strictly needed */
+		compatible = "ethernet-phy-id004d.d072";
+		reg = <0x1>;
+		/* Poll mode - no "interrupts" property defined */
+	};
+	rgmii_phy2: ethernet-phy@2 {
+		/* AR8035 PHY - "compatible" property not strictly needed */
+		compatible = "ethernet-phy-id004d.d072";
+		reg = <0x2>;
+		/* Poll mode - no "interrupts" property defined */
+	};
+	aquantia_phy1: ethernet-phy@4 {
+		/* AQR107 PHY - "compatible" property not strictly needed */
+		compatible = "ethernet-phy-ieee802.3-c45";
+		interrupts = <GIC_SPI 2 IRQ_TYPE_LEVEL_HIGH>;
+		reg = <0x4>;
+	};
+	aquantia_phy2: ethernet-phy@5 {
+		/* AQR107 PHY - "compatible" property not strictly needed */
+		compatible = "ethernet-phy-ieee802.3-c45";
+		interrupts = <GIC_SPI 3 IRQ_TYPE_LEVEL_HIGH>;
+		reg = <0x5>;
+	};
+};
+
 &esdhc0 {
 	status = "okay";
 };
