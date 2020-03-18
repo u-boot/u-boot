@@ -38,11 +38,13 @@ stages:
   script:
     # From buildman, exit code 129 means warnings only.  If we've been asked to
     # use clang only do one configuration.
+    - export UBOOT_TRAVIS_BUILD_DIR=/tmp/${TEST_PY_BD}
     - ret=0;
-      tools/buildman/buildman -o /tmp -P -E --board ${TEST_PY_BD} ${OVERRIDE}
-        || ret=$?;
+      tools/buildman/buildman -o ${UBOOT_TRAVIS_BUILD_DIR} -w -E
+        --board ${TEST_PY_BD} ${OVERRIDE} || ret=$?;
       if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-        tools/buildman/buildman -o /tmp -seP --board ${TEST_PY_BD};
+        tools/buildman/buildman -o ${UBOOT_TRAVIS_BUILD_DIR} -w -se
+           --board ${TEST_PY_BD};
         exit $ret;
       fi
     # "not a_test_which_does_not_exist" is a dummy -k parameter which will
@@ -52,8 +54,7 @@ stages:
     - virtualenv -p /usr/bin/python3 /tmp/venv
     - . /tmp/venv/bin/activate
     - pip install -r test/py/requirements.txt
-    - export UBOOT_TRAVIS_BUILD_DIR=/tmp/.bm-work/${TEST_PY_BD};
-      export PATH=/opt/qemu/bin:/tmp/uboot-test-hooks/bin:${PATH};
+    - export PATH=/opt/qemu/bin:/tmp/uboot-test-hooks/bin:${PATH};
       export PYTHONPATH=/tmp/uboot-test-hooks/py/travis-ci;
       ./test/py/test.py --bd ${TEST_PY_BD} ${TEST_PY_ID}
         -k "${TEST_PY_TEST_SPEC:-not a_test_which_does_not_exist}"
