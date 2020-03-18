@@ -8,9 +8,12 @@
 #include <dfu.h>
 #include <malloc.h>
 #include <mmc.h>
+#include <part.h>
 #include <dm/uclass.h>
+#include <jffs2/load_kernel.h>
 #include <linux/list.h>
 #include <linux/list_sort.h>
+#include <linux/mtd/mtd.h>
 #include <linux/sizes.h>
 
 #include "stm32prog.h"
@@ -64,6 +67,11 @@ enum stm32prog_col_t {
 	COL_OFFSET,
 	COL_NB_STM32
 };
+
+/* partition handling routines : CONFIG_CMD_MTDPARTS */
+int mtdparts_init(void);
+int find_dev_and_part(const char *id, struct mtd_device **dev,
+		      u8 *part_num, struct part_info **part);
 
 char *stm32prog_get_error(struct stm32prog_data *data)
 {
@@ -233,6 +241,15 @@ static int parse_ip(struct stm32prog_data *data,
 	} else if (!strncmp(p, "mmc", 3)) {
 		part->target = STM32PROG_MMC;
 		len = 3;
+	} else if (!strncmp(p, "nor", 3)) {
+		part->target = STM32PROG_NOR;
+		len = 3;
+	} else if (!strncmp(p, "nand", 4)) {
+		part->target = STM32PROG_NAND;
+		len = 4;
+	} else if (!strncmp(p, "spi-nand", 8)) {
+		part->target = STM32PROG_SPI_NAND;
+		len = 8;
 	} else {
 		result = -EINVAL;
 	}
@@ -475,11 +492,37 @@ static int __init part_cmp(void *priv, struct list_head *a, struct list_head *b)
 		return parta->addr > partb->addr ? 1 : -1;
 }
 
+static void get_mtd_by_target(char *string, enum stm32prog_target target,
+			      int dev_id)
+{
+	const char *dev_str;
+
+	switch (target) {
+	case STM32PROG_NOR:
+		dev_str = "nor";
+		break;
+	case STM32PROG_NAND:
+		dev_str = "nand";
+		break;
+	case STM32PROG_SPI_NAND:
+		dev_str = "spi-nand";
+		break;
+	default:
+		dev_str = "invalid";
+		break;
+	}
+	sprintf(string, "%s%d", dev_str, dev_id);
+}
+
 static int init_device(struct stm32prog_data *data,
 		       struct stm32prog_dev_t *dev)
 {
 	struct mmc *mmc = NULL;
 	struct blk_desc *block_dev = NULL;
+#ifdef CONFIG_MTD
+	struct mtd_info *mtd = NULL;
+	char mtd_id[16];
+#endif
 	int part_id;
 	int ret;
 	u64 first_addr = 0, last_addr = 0;
@@ -520,6 +563,29 @@ static int init_device(struct stm32prog_data *data,
 		pr_debug(" available address = 0x%llx..0x%llx\n",
 			 first_addr, last_addr);
 		pr_debug(" full_update = %d\n", dev->full_update);
+		break;
+#endif
+#ifdef CONFIG_MTD
+	case STM32PROG_NOR:
+	case STM32PROG_NAND:
+	case STM32PROG_SPI_NAND:
+		get_mtd_by_target(mtd_id, dev->target, dev->dev_id);
+		pr_debug("%s\n", mtd_id);
+
+		mtdparts_init();
+		mtd = get_mtd_device_nm(mtd_id);
+		if (IS_ERR(mtd)) {
+			stm32prog_err("MTD device %s not found", mtd_id);
+			return -ENODEV;
+		}
+		first_addr = 0;
+		last_addr = mtd->size;
+		dev->erase_size = mtd->erasesize;
+		pr_debug("MTD device %s: size=%lld erasesize=%d\n",
+			 mtd_id, mtd->size, mtd->erasesize);
+		pr_debug(" available address = 0x%llx..0x%llx\n",
+			 first_addr, last_addr);
+		dev->mtd = mtd;
 		break;
 #endif
 	default:
@@ -637,6 +703,29 @@ static int init_device(struct stm32prog_data *data,
 			part_found = true;
 		}
 
+#ifdef CONFIG_MTD
+		if (mtd) {
+			char mtd_part_id[32];
+			struct part_info *mtd_part;
+			struct mtd_device *mtd_dev;
+			u8 part_num;
+
+			sprintf(mtd_part_id, "%s,%d", mtd_id,
+				part->part_id - 1);
+			ret = find_dev_and_part(mtd_part_id, &mtd_dev,
+						&part_num, &mtd_part);
+			if (ret != 0) {
+				stm32prog_err("%s (0x%x): Invalid MTD partition %s",
+					      part->name, part->id,
+					      mtd_part_id);
+				return -ENODEV;
+			}
+			part_addr = mtd_part->offset;
+			part_size = mtd_part->size;
+			part_name = mtd_part->name;
+			part_found = true;
+		}
+#endif
 		if (!part_found) {
 			stm32prog_err("%s (0x%x): Invalid partition",
 				      part->name, part->id);
@@ -840,6 +929,9 @@ static int create_partitions(struct stm32prog_data *data)
 	}
 	puts("done\n");
 
+#ifdef DEBUG
+	run_command("mtd list", 0);
+#endif
 	free(buf);
 #endif
 
@@ -898,9 +990,17 @@ static int stm32prog_alt_add(struct stm32prog_data *data,
 		offset += snprintf(buf + offset, ALT_BUF_LEN - offset,
 				   " mmcpart %d;", -(part->part_id));
 	} else {
-		offset += snprintf(buf + offset,
-				   ALT_BUF_LEN - offset,
-				   "part");
+		if (part->part_type == PART_SYSTEM &&
+		    (part->target == STM32PROG_NAND ||
+		     part->target == STM32PROG_NOR ||
+		     part->target == STM32PROG_SPI_NAND))
+			offset += snprintf(buf + offset,
+					   ALT_BUF_LEN - offset,
+					   "partubi");
+		else
+			offset += snprintf(buf + offset,
+					   ALT_BUF_LEN - offset,
+					   "part");
 		/* dev_id requested by DFU MMC */
 		if (part->target == STM32PROG_MMC)
 			offset += snprintf(buf + offset, ALT_BUF_LEN - offset,
@@ -913,6 +1013,14 @@ static int stm32prog_alt_add(struct stm32prog_data *data,
 	case STM32PROG_MMC:
 		sprintf(dfustr, "mmc");
 		sprintf(devstr, "%d", part->dev_id);
+		break;
+#endif
+#ifdef CONFIG_MTD
+	case STM32PROG_NAND:
+	case STM32PROG_NOR:
+	case STM32PROG_SPI_NAND:
+		sprintf(dfustr, "mtd");
+		get_mtd_by_target(devstr, part->target, part->dev_id);
 		break;
 #endif
 	default:
