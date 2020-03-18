@@ -762,6 +762,8 @@ static int treat_partition_list(struct stm32prog_data *data)
 		INIT_LIST_HEAD(&data->dev[j].part_list);
 	}
 
+	data->tee_detected = false;
+	data->fsbl_nor_detected = false;
 	for (i = 0; i < data->part_nb; i++) {
 		part = &data->part_array[i];
 		part->alt_id = -1;
@@ -805,6 +807,21 @@ static int treat_partition_list(struct stm32prog_data *data)
 		if (j == STM32PROG_MAX_DEV) {
 			stm32prog_err("Layout: too many device");
 			return -EINVAL;
+		}
+		switch (part->target)  {
+		case STM32PROG_NOR:
+			if (!data->fsbl_nor_detected &&
+			    !strncmp(part->name, "fsbl", 4))
+				data->fsbl_nor_detected = true;
+			/* fallthrough */
+		case STM32PROG_NAND:
+		case STM32PROG_SPI_NAND:
+			if (!data->tee_detected &&
+			    !strncmp(part->name, "tee", 3))
+				data->tee_detected = true;
+			break;
+		default:
+			break;
 		}
 		part->dev = &data->dev[j];
 		if (!IS_SELECT(part))

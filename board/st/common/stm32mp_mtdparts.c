@@ -4,12 +4,14 @@
  */
 
 #include <common.h>
+#include <dfu.h>
 #include <dm.h>
 #include <env.h>
 #include <env_internal.h>
 #include <mtd.h>
 #include <mtd_node.h>
 #include <tee.h>
+#include <asm/arch/stm32prog.h>
 #include <asm/arch/sys_proto.h>
 
 #define MTDPARTS_LEN		256
@@ -66,7 +68,7 @@ void board_mtdparts_default(const char **mtdids, const char **mtdparts)
 	static char parts[3 * MTDPARTS_LEN + 1];
 	static char ids[MTDIDS_LEN + 1];
 	static bool mtd_initialized;
-	bool tee, nor, nand, spinand;
+	bool tee, nor, nand, spinand, serial;
 
 	if (mtd_initialized) {
 		*mtdids = ids;
@@ -78,10 +80,18 @@ void board_mtdparts_default(const char **mtdids, const char **mtdparts)
 	nor = false;
 	nand = false;
 	spinand = false;
+	serial = false;
 
 	switch (get_bootmode() & TAMP_BOOT_DEVICE_MASK) {
 	case BOOT_SERIAL_UART:
 	case BOOT_SERIAL_USB:
+		serial = true;
+		if (CONFIG_IS_ENABLED(CMD_STM32PROG)) {
+			tee = stm32prog_get_tee_partitions();
+			nor = stm32prog_get_fsbl_nor();
+		}
+		nand = true;
+		spinand = true;
 		break;
 	case BOOT_FLASH_NAND:
 		nand = true;
@@ -96,7 +106,7 @@ void board_mtdparts_default(const char **mtdids, const char **mtdparts)
 		break;
 	}
 
-	if (CONFIG_IS_ENABLED(OPTEE) &&
+	if (!serial && CONFIG_IS_ENABLED(OPTEE) &&
 	    tee_find_device(NULL, NULL, NULL, NULL))
 		tee = true;
 
