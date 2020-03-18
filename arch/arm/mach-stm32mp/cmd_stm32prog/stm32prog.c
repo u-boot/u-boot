@@ -272,6 +272,9 @@ static int parse_ip(struct stm32prog_data *data,
 	} else if (!strncmp(p, "spi-nand", 8)) {
 		part->target = STM32PROG_SPI_NAND;
 		len = 8;
+	} else if (!strncmp(p, "ram", 3)) {
+		part->target = STM32PROG_RAM;
+		len = 0;
 	} else {
 		result = -EINVAL;
 	}
@@ -610,6 +613,11 @@ static int init_device(struct stm32prog_data *data,
 		dev->mtd = mtd;
 		break;
 #endif
+	case STM32PROG_RAM:
+		first_addr = gd->bd->bi_dram[0].start;
+		last_addr = first_addr + gd->bd->bi_dram[0].size;
+		dev->erase_size = 1;
+		break;
 	default:
 		stm32prog_err("unknown device type = %d", dev->target);
 		return -ENODEV;
@@ -1022,7 +1030,11 @@ static int stm32prog_alt_add(struct stm32prog_data *data,
 			  part->name, part->id,
 			  size, multiplier, type);
 
-	if (part->part_type == RAW_IMAGE) {
+	if (part->target == STM32PROG_RAM) {
+		offset += snprintf(buf + offset, ALT_BUF_LEN - offset,
+				   "ram 0x%llx 0x%llx",
+				   part->addr, part->size);
+	} else if (part->part_type == RAW_IMAGE) {
 		u64 dfu_size;
 
 		if (part->dev->target == STM32PROG_MMC)
@@ -1073,6 +1085,10 @@ static int stm32prog_alt_add(struct stm32prog_data *data,
 		get_mtd_by_target(devstr, part->target, part->dev_id);
 		break;
 #endif
+	case STM32PROG_RAM:
+		sprintf(dfustr, "ram");
+		sprintf(devstr, "0");
+		break;
 	default:
 		stm32prog_err("invalid target: %d", part->target);
 		return -ENODEV;
@@ -1440,6 +1456,13 @@ static void stm32prog_end_phase(struct stm32prog_data *data)
 	if (!data->cur_part)
 		return;
 
+	if (data->cur_part->target == STM32PROG_RAM) {
+		if (data->cur_part->part_type == PART_SYSTEM)
+			data->uimage = data->cur_part->addr;
+		if (data->cur_part->part_type == PART_FILESYSTEM)
+			data->dtb = data->cur_part->addr;
+	}
+
 	if (CONFIG_IS_ENABLED(MMC) &&
 	    data->cur_part->part_id < 0) {
 		char cmdbuf[60];
@@ -1569,6 +1592,10 @@ static int part_delete(struct stm32prog_data *data,
 		}
 		break;
 #endif
+	case STM32PROG_RAM:
+		printf("on ram: ");
+		memset((void *)(uintptr_t)part->addr, 0, (size_t)part->size);
+		break;
 	default:
 		ret = -1;
 		stm32prog_err("%s (0x%x): erase invalid", part->name, part->id);

@@ -27,7 +27,8 @@ enum stm32prog_target {
 	STM32PROG_MMC,
 	STM32PROG_NAND,
 	STM32PROG_NOR,
-	STM32PROG_SPI_NAND
+	STM32PROG_SPI_NAND,
+	STM32PROG_RAM
 };
 
 enum stm32prog_link_t {
@@ -136,6 +137,10 @@ struct stm32prog_data {
 	u8	*buffer; /* size = USART_RAM_BUFFER_SIZE*/
 	int	dfu_seq;
 	u8	read_phase;
+
+	/* bootm information */
+	u32	uimage;
+	u32	dtb;
 };
 
 extern struct stm32prog_data *stm32prog_data;
