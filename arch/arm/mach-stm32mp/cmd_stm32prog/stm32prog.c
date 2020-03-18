@@ -210,9 +210,24 @@ static int parse_type(struct stm32prog_data *data,
 		      int i, char *p, struct stm32prog_part_t *part)
 {
 	int result = 0;
+	int len = 0;
 
-	if (!strcmp(p, "Binary")) {
+	part->bin_nb = 0;
+	if (!strncmp(p, "Binary", 6)) {
 		part->part_type = PART_BINARY;
+
+		/* search for Binary(X) case */
+		len = strlen(p);
+		part->bin_nb = 1;
+		if (len > 6) {
+			if (len < 8 ||
+			    (p[6] != '(') ||
+			    (p[len - 1] != ')'))
+				result = -EINVAL;
+			else
+				part->bin_nb =
+					simple_strtoul(&p[7], NULL, 10);
+		}
 	} else if (!strcmp(p, "System")) {
 		part->part_type = PART_SYSTEM;
 	} else if (!strcmp(p, "FileSystem")) {
@@ -600,6 +615,17 @@ static int init_device(struct stm32prog_data *data,
 	part_id = 1;
 	pr_debug("id : Opt Phase     Name target.n dev.n addr     size     part_off part_size\n");
 	list_for_each_entry(part, &dev->part_list, list) {
+		if (part->bin_nb > 1) {
+			if ((dev->target != STM32PROG_NAND &&
+			     dev->target != STM32PROG_SPI_NAND) ||
+			    part->id >= PHASE_FIRST_USER ||
+			    strncmp(part->name, "fsbl", 4)) {
+				stm32prog_err("%s (0x%x): multiple binary %d not supported",
+					      part->name, part->id,
+					      part->bin_nb);
+				return -EINVAL;
+			}
+		}
 		if (part->part_type == RAW_IMAGE) {
 			part->part_id = 0x0;
 			part->addr = 0x0;
@@ -607,9 +633,9 @@ static int init_device(struct stm32prog_data *data,
 				part->size = block_dev->lba * block_dev->blksz;
 			else
 				part->size = last_addr;
-			pr_debug("-- : %1d %02x %14s %02d %02d.%02d %08llx %08llx\n",
+			pr_debug("-- : %1d %02x %14s %02d.%d %02d.%02d %08llx %08llx\n",
 				 part->option, part->id, part->name,
-				 part->part_type, part->target,
+				 part->part_type, part->bin_nb, part->target,
 				 part->dev_id, part->addr, part->size);
 			continue;
 		}
@@ -666,9 +692,9 @@ static int init_device(struct stm32prog_data *data,
 				      part->dev->erase_size);
 			return -EINVAL;
 		}
-		pr_debug("%02d : %1d %02x %14s %02d %02d.%02d %08llx %08llx",
+		pr_debug("%02d : %1d %02x %14s %02d.%d %02d.%02d %08llx %08llx",
 			 part->part_id, part->option, part->id, part->name,
-			 part->part_type, part->target,
+			 part->part_type, part->bin_nb, part->target,
 			 part->dev_id, part->addr, part->size);
 
 		part_addr = 0;
@@ -1133,6 +1159,59 @@ static int dfu_init_entities(struct stm32prog_data *data)
 	return ret;
 }
 
+/* copy FSBL on NAND to improve reliability on NAND */
+static int stm32prog_copy_fsbl(struct stm32prog_part_t *part)
+{
+	int ret, i;
+	void *fsbl;
+	struct image_header_s header;
+	struct raw_header_s raw_header;
+	struct dfu_entity *dfu;
+	long size, offset;
+
+	if (part->target != STM32PROG_NAND &&
+	    part->target != STM32PROG_SPI_NAND)
+		return -1;
+
+	dfu = dfu_get_entity(part->alt_id);
+
+	/* read header */
+	dfu_transaction_cleanup(dfu);
+	size = BL_HEADER_SIZE;
+	ret = dfu->read_medium(dfu, 0, (void *)&raw_header, &size);
+	if (ret)
+		return ret;
+	if (stm32prog_header_check(&raw_header, &header))
+		return -1;
+
+	/* read header + payload */
+	size = header.image_length + BL_HEADER_SIZE;
+	size = round_up(size, part->dev->mtd->erasesize);
+	fsbl = calloc(1, size);
+	if (!fsbl)
+		return -ENOMEM;
+	ret = dfu->read_medium(dfu, 0, fsbl, &size);
+	pr_debug("%s read size=%lx ret=%d\n", __func__, size, ret);
+	if (ret)
+		goto error;
+
+	dfu_transaction_cleanup(dfu);
+	offset = 0;
+	for (i = part->bin_nb - 1; i > 0; i--) {
+		offset += size;
+		/* write to the next erase block */
+		ret = dfu->write_medium(dfu, offset, fsbl, &size);
+		pr_debug("%s copy at ofset=%lx size=%lx ret=%d",
+			 __func__, offset, size, ret);
+		if (ret)
+			goto error;
+	}
+
+error:
+	free(fsbl);
+	return ret;
+}
+
 static void stm32prog_end_phase(struct stm32prog_data *data)
 {
 	if (data->phase == PHASE_FLASHLAYOUT) {
@@ -1153,6 +1232,15 @@ static void stm32prog_end_phase(struct stm32prog_data *data)
 			-(data->cur_part->part_id));
 		if (run_command(cmdbuf, 0)) {
 			stm32prog_err("commands '%s' failed", cmdbuf);
+			return;
+		}
+	}
+
+	if (CONFIG_IS_ENABLED(MTD) &&
+	    data->cur_part->bin_nb > 1) {
+		if (stm32prog_copy_fsbl(data->cur_part)) {
+			stm32prog_err("%s (0x%x): copy of fsbl failed",
+				      data->cur_part->name, data->cur_part->id);
 			return;
 		}
 	}
