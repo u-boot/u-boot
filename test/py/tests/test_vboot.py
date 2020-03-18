@@ -180,8 +180,7 @@ def test_vboot(u_boot_console):
 
         cons.log.action('%s: Check signed config on the host' % sha_algo)
 
-        util.run_and_log(cons, [fit_check_sign, '-f', fit, '-k', tmpdir,
-                                '-k', dtb])
+        util.run_and_log(cons, [fit_check_sign, '-f', fit, '-k', dtb])
 
         # Replace header bytes
         bcfg = u_boot_console.config.buildconfig
