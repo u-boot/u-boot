@@ -7,12 +7,16 @@
 #include <console.h>
 #include <dfu.h>
 #include <malloc.h>
+#include <mmc.h>
 #include <dm/uclass.h>
 #include <linux/list.h>
 #include <linux/list_sort.h>
 #include <linux/sizes.h>
 
 #include "stm32prog.h"
+
+/* Primary GPT header size for 128 entries : 17kB = 34 LBA of 512B */
+#define GPT_HEADER_SZ	34
 
 #define OPT_SELECT	BIT(0)
 #define OPT_EMPTY	BIT(1)
@@ -21,6 +25,32 @@
 #define IS_EMPTY(part)	((part)->option & OPT_EMPTY)
 
 #define ALT_BUF_LEN			SZ_1K
+
+#define ROOTFS_MMC0_UUID \
+	EFI_GUID(0xE91C4E10, 0x16E6, 0x4C0E, \
+		 0xBD, 0x0E, 0x77, 0xBE, 0xCF, 0x4A, 0x35, 0x82)
+
+#define ROOTFS_MMC1_UUID \
+	EFI_GUID(0x491F6117, 0x415D, 0x4F53, \
+		 0x88, 0xC9, 0x6E, 0x0D, 0xE5, 0x4D, 0xEA, 0xC6)
+
+#define ROOTFS_MMC2_UUID \
+	EFI_GUID(0xFD58F1C7, 0xBE0D, 0x4338, \
+		 0x88, 0xE9, 0xAD, 0x8F, 0x05, 0x0A, 0xEB, 0x18)
+
+/* RAW parttion (binary / bootloader) used Linux - reserved UUID */
+#define LINUX_RESERVED_UUID "8DA63339-0007-60C0-C436-083AC8230908"
+
+/*
+ * unique partition guid (uuid) for partition named "rootfs"
+ * on each MMC instance = SD Card or eMMC
+ * allow fixed kernel bootcmd: "rootf=PARTUID=e91c4e10-..."
+ */
+static const efi_guid_t uuid_mmc[3] = {
+	ROOTFS_MMC0_UUID,
+	ROOTFS_MMC1_UUID,
+	ROOTFS_MMC2_UUID
+};
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -200,6 +230,9 @@ static int parse_ip(struct stm32prog_data *data,
 	part->dev_id = 0;
 	if (!strcmp(p, "none")) {
 		part->target = STM32PROG_NONE;
+	} else if (!strncmp(p, "mmc", 3)) {
+		part->target = STM32PROG_MMC;
+		len = 3;
 	} else {
 		result = -EINVAL;
 	}
@@ -424,16 +457,50 @@ static int __init part_cmp(void *priv, struct list_head *a, struct list_head *b)
 static int init_device(struct stm32prog_data *data,
 		       struct stm32prog_dev_t *dev)
 {
+	struct mmc *mmc = NULL;
 	struct blk_desc *block_dev = NULL;
 	int part_id;
 	u64 first_addr = 0, last_addr = 0;
 	struct stm32prog_part_t *part, *next_part;
 
 	switch (dev->target) {
+#ifdef CONFIG_MMC
+	case STM32PROG_MMC:
+		mmc = find_mmc_device(dev->dev_id);
+		if (mmc_init(mmc)) {
+			stm32prog_err("mmc device %d not found", dev->dev_id);
+			return -ENODEV;
+		}
+		block_dev = mmc_get_blk_desc(mmc);
+		if (!block_dev) {
+			stm32prog_err("mmc device %d not probed", dev->dev_id);
+			return -ENODEV;
+		}
+		dev->erase_size = mmc->erase_grp_size * block_dev->blksz;
+		dev->mmc = mmc;
+
+		/* reserve a full erase group for each GTP headers */
+		if (mmc->erase_grp_size > GPT_HEADER_SZ) {
+			first_addr = dev->erase_size;
+			last_addr = (u64)(block_dev->lba -
+					  mmc->erase_grp_size) *
+				    block_dev->blksz;
+		} else {
+			first_addr = (u64)GPT_HEADER_SZ * block_dev->blksz;
+			last_addr = (u64)(block_dev->lba - GPT_HEADER_SZ - 1) *
+				    block_dev->blksz;
+		}
+		pr_debug("MMC %d: lba=%ld blksz=%ld\n", dev->dev_id,
+			 block_dev->lba, block_dev->blksz);
+		pr_debug(" available address = 0x%llx..0x%llx\n",
+			 first_addr, last_addr);
+		break;
+#endif
 	default:
 		stm32prog_err("unknown device type = %d", dev->target);
 		return -ENODEV;
 	}
+	pr_debug(" erase size = 0x%x\n", dev->erase_size);
 
 	/* order partition list in offset order */
 	list_sort(NULL, &dev->part_list, &part_cmp);
@@ -491,6 +558,12 @@ static int init_device(struct stm32prog_data *data,
 			return -EINVAL;
 		}
 
+		if ((part->addr & ((u64)part->dev->erase_size - 1)) != 0) {
+			stm32prog_err("%s (0x%x): not aligned address : 0x%llx on erase size 0x%x",
+				      part->name, part->id, part->addr,
+				      part->dev->erase_size);
+			return -EINVAL;
+		}
 		pr_debug("%02d : %1d %02x %14s %02d %02d.%02d %08llx %08llx",
 			 part->part_id, part->option, part->id, part->name,
 			 part->part_type, part->target,
@@ -559,6 +632,118 @@ static int treat_partition_list(struct stm32prog_data *data)
 	return 0;
 }
 
+static int create_partitions(struct stm32prog_data *data)
+{
+#ifdef CONFIG_MMC
+	int offset = 0;
+	const int buflen = SZ_8K;
+	char *buf;
+	char uuid[UUID_STR_LEN + 1];
+	unsigned char *uuid_bin;
+	unsigned int mmc_id;
+	int i;
+	bool rootfs_found;
+	struct stm32prog_part_t *part;
+
+	buf = malloc(buflen);
+	if (!buf)
+		return -ENOMEM;
+
+	puts("partitions : ");
+	/* initialize the selected device */
+	for (i = 0; i < data->dev_nb; i++) {
+		offset = 0;
+		rootfs_found = false;
+		memset(buf, 0, buflen);
+
+		list_for_each_entry(part, &data->dev[i].part_list, list) {
+			/* skip Raw Image */
+			if (part->part_type == RAW_IMAGE)
+				continue;
+
+			if (offset + 100 > buflen) {
+				pr_debug("\n%s: buffer too small, %s skippped",
+					 __func__, part->name);
+				continue;
+			}
+
+			if (!offset)
+				offset += sprintf(buf, "gpt write mmc %d \"",
+						  data->dev[i].dev_id);
+
+			offset += snprintf(buf + offset, buflen - offset,
+					   "name=%s,start=0x%llx,size=0x%llx",
+					   part->name,
+					   part->addr,
+					   part->size);
+
+			if (part->part_type == PART_BINARY)
+				offset += snprintf(buf + offset,
+						   buflen - offset,
+						   ",type="
+						   LINUX_RESERVED_UUID);
+			else
+				offset += snprintf(buf + offset,
+						   buflen - offset,
+						   ",type=linux");
+
+			if (part->part_type == PART_SYSTEM)
+				offset += snprintf(buf + offset,
+						   buflen - offset,
+						   ",bootable");
+
+			if (!rootfs_found && !strcmp(part->name, "rootfs")) {
+				mmc_id = part->dev_id;
+				rootfs_found = true;
+				if (mmc_id < ARRAY_SIZE(uuid_mmc)) {
+					uuid_bin =
+					  (unsigned char *)uuid_mmc[mmc_id].b;
+					uuid_bin_to_str(uuid_bin, uuid,
+							UUID_STR_FORMAT_GUID);
+					offset += snprintf(buf + offset,
+							   buflen - offset,
+							   ",uuid=%s", uuid);
+				}
+			}
+
+			offset += snprintf(buf + offset, buflen - offset, ";");
+		}
+
+		if (offset) {
+			offset += snprintf(buf + offset, buflen - offset, "\"");
+			pr_debug("\ncmd: %s\n", buf);
+			if (run_command(buf, 0)) {
+				stm32prog_err("GPT partitionning fail: %s",
+					      buf);
+				free(buf);
+
+				return -1;
+			}
+		}
+
+		if (data->dev[i].mmc)
+			part_init(mmc_get_blk_desc(data->dev[i].mmc));
+
+#ifdef DEBUG
+		sprintf(buf, "gpt verify mmc %d", data->dev[i].dev_id);
+		pr_debug("\ncmd: %s", buf);
+		if (run_command(buf, 0))
+			printf("fail !\n");
+		else
+			printf("OK\n");
+
+		sprintf(buf, "part list mmc %d", data->dev[i].dev_id);
+		run_command(buf, 0);
+#endif
+	}
+	puts("done\n");
+
+	free(buf);
+#endif
+
+	return 0;
+}
+
 static int stm32prog_alt_add(struct stm32prog_data *data,
 			     struct dfu_entity *dfu,
 			     struct stm32prog_part_t *part)
@@ -596,17 +781,30 @@ static int stm32prog_alt_add(struct stm32prog_data *data,
 	if (part->part_type == RAW_IMAGE) {
 		u64 dfu_size;
 
-		dfu_size = part->size;
+		if (part->dev->target == STM32PROG_MMC)
+			dfu_size = part->size / part->dev->mmc->read_bl_len;
+		else
+			dfu_size = part->size;
 		offset += snprintf(buf + offset, ALT_BUF_LEN - offset,
 				   "raw 0x0 0x%llx", dfu_size);
 	} else {
 		offset += snprintf(buf + offset,
 				   ALT_BUF_LEN - offset,
 				   "part");
+		/* dev_id requested by DFU MMC */
+		if (part->target == STM32PROG_MMC)
+			offset += snprintf(buf + offset, ALT_BUF_LEN - offset,
+					   " %d", part->dev_id);
 		offset += snprintf(buf + offset, ALT_BUF_LEN - offset,
 				   " %d;", part->part_id);
 	}
 	switch (part->target) {
+#ifdef CONFIG_MMC
+	case STM32PROG_MMC:
+		sprintf(dfustr, "mmc");
+		sprintf(devstr, "%d", part->dev_id);
+		break;
+#endif
 	default:
 		stm32prog_err("invalid target: %d", part->target);
 		return -ENODEV;
@@ -774,6 +972,10 @@ static void stm32prog_devices_init(struct stm32prog_data *data)
 		if (ret)
 			goto error;
 	}
+
+	ret = create_partitions(data);
+	if (ret)
+		goto error;
 
 	return;
 

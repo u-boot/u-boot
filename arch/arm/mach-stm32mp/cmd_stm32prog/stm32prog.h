@@ -19,6 +19,7 @@
 
 enum stm32prog_target {
 	STM32PROG_NONE,
+	STM32PROG_MMC,
 };
 
 enum stm32prog_link_t {
@@ -64,6 +65,8 @@ enum stm32prog_part_type {
 struct stm32prog_dev_t {
 	enum stm32prog_target	target;
 	char			dev_id;
+	u32			erase_size;
+	struct mmc		*mmc;
 	/* list of partition for this device / ordered in offset */
 	struct list_head	part_list;
 };

@@ -112,6 +112,9 @@ config CMD_STM32PROG
 	select DFU
 	select DFU_RAM
 	select DFU_VIRT
+	select PARTITION_TYPE_GUID
+	imply CMD_GPT if MMC
+	imply DFU_MMC if MMC
 	help
 		activate a specific command stm32prog for STM32MP soc family
 		witch update the device with the tools STM32CubeProgrammer,
