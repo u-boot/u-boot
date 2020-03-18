@@ -11,6 +11,7 @@
 #include <misc.h>
 #include <mtd.h>
 #include <mtd_node.h>
+#include <asm/arch/stm32prog.h>
 
 #define DFU_ALT_BUF_LEN SZ_1K
 
@@ -211,12 +212,31 @@ int dfu_read_medium_virt(struct dfu_entity *dfu, u64 offset,
 	case 0x1:
 		return dfu_pmic_read(offset, buf, len);
 	}
+
+	if (CONFIG_IS_ENABLED(CMD_STM32PROG) &&
+	    dfu->data.virt.dev_num >= STM32PROG_VIRT_FIRST_DEV_NUM)
+		return stm32prog_read_medium_virt(dfu, offset, buf, len);
+
 	*len = 0;
 	return 0;
 }
 
+int dfu_write_medium_virt(struct dfu_entity *dfu, u64 offset,
+			  void *buf, long *len)
+{
+	if (CONFIG_IS_ENABLED(CMD_STM32PROG) &&
+	    dfu->data.virt.dev_num >= STM32PROG_VIRT_FIRST_DEV_NUM)
+		return stm32prog_write_medium_virt(dfu, offset, buf, len);
+
+	return -EOPNOTSUPP;
+}
+
 int __weak dfu_get_medium_size_virt(struct dfu_entity *dfu, u64 *size)
 {
+	if (CONFIG_IS_ENABLED(CMD_STM32PROG) &&
+	    dfu->data.virt.dev_num >= STM32PROG_VIRT_FIRST_DEV_NUM)
+		return stm32prog_get_medium_size_virt(dfu, size);
+
 	*size = SZ_1K;
 
 	return 0;

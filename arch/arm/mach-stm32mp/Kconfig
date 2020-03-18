@@ -107,6 +107,18 @@ config STM32_ETZPC
 	help
 	  Say y to enable STM32 Extended TrustZone Protection
 
+config CMD_STM32PROG
+	bool "command stm32prog for STM32CudeProgrammer"
+	select DFU
+	select DFU_RAM
+	select DFU_VIRT
+	help
+		activate a specific command stm32prog for STM32MP soc family
+		witch update the device with the tools STM32CubeProgrammer,
+		using UART with STM32 protocol or USB with DFU protocol
+		NB: access to not volatile memory (NOR/NAND/SD/eMMC) is based
+		    on U-Boot DFU framework
+
 config CMD_STM32KEY
 	bool "command stm32key to fuse public key hash"
 	default y

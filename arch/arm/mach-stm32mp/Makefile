@@ -10,6 +10,7 @@ obj-y += syscon.o
 ifdef CONFIG_SPL_BUILD
 obj-y += spl.o
 else
+obj-$(CONFIG_CMD_STM32PROG) += cmd_stm32prog/
 obj-y += bsec.o
 obj-$(CONFIG_CMD_STM32KEY) += cmd_stm32key.o
 obj-$(CONFIG_ARMV7_PSCI) += psci.o
