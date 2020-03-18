@@ -236,6 +236,11 @@ static u32 read_idc(void)
 	return readl(DBGMCU_IDC);
 }
 
+u32 get_cpu_dev(void)
+{
+	return (read_idc() & DBGMCU_IDC_DEV_ID_MASK) >> DBGMCU_IDC_DEV_ID_SHIFT;
+}
+
 u32 get_cpu_rev(void)
 {
 	return (read_idc() & DBGMCU_IDC_REV_ID_MASK) >> DBGMCU_IDC_REV_ID_SHIFT;
@@ -266,11 +271,7 @@ static u32 get_cpu_rpn(void)
 
 u32 get_cpu_type(void)
 {
-	u32 id;
-
-	id = (read_idc() & DBGMCU_IDC_DEV_ID_MASK) >> DBGMCU_IDC_DEV_ID_SHIFT;
-
-	return (id << 16) | get_cpu_rpn();
+	return (get_cpu_dev() << 16) | get_cpu_rpn();
 }
 
 /* Get Package options from OTP */
