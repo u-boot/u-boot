@@ -289,7 +289,7 @@ def test_vboot(u_boot_console, sha_algo, padding, required):
 
     # Create a number kernel image with zeroes
     with open('%stest-kernel.bin' % tmpdir, 'w') as fd:
-        fd.write(5000 * chr(0))
+        fd.write(500 * chr(0))
 
     try:
         # We need to use our own device tree file. Remember to restore it
