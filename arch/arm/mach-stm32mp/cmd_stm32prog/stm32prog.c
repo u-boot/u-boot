@@ -9,6 +9,7 @@
 #include <malloc.h>
 #include <mmc.h>
 #include <part.h>
+#include <asm/arch/stm32mp1_smc.h>
 #include <dm/uclass.h>
 #include <jffs2/load_kernel.h>
 #include <linux/list.h>
@@ -1106,7 +1107,7 @@ static int dfu_init_entities(struct stm32prog_data *data)
 	struct dfu_entity *dfu;
 	int alt_nb;
 
-	alt_nb = 1; /* number of virtual = CMD */
+	alt_nb = 2; /* number of virtual = CMD, OTP*/
 	if (data->part_nb == 0)
 		alt_nb++;  /* +1 for FlashLayout */
 	else
@@ -1154,6 +1155,9 @@ static int dfu_init_entities(struct stm32prog_data *data)
 	if (!ret)
 		ret = stm32prog_alt_add_virt(dfu, "virtual", PHASE_CMD, 512);
 
+	if (!ret)
+		ret = stm32prog_alt_add_virt(dfu, "OTP", PHASE_OTP, 512);
+
 	if (ret)
 		stm32prog_err("dfu init failed: %d", ret);
 	puts("done\n");
@@ -1162,6 +1166,123 @@ static int dfu_init_entities(struct stm32prog_data *data)
 	dfu_show_entities();
 #endif
 	return ret;
+}
+
+int stm32prog_otp_write(struct stm32prog_data *data, u32 offset, u8 *buffer,
+			long *size)
+{
+	pr_debug("%s: %x %lx\n", __func__, offset, *size);
+
+	if (!data->otp_part) {
+		data->otp_part = memalign(CONFIG_SYS_CACHELINE_SIZE, OTP_SIZE);
+		if (!data->otp_part)
+			return -ENOMEM;
+	}
+
+	if (!offset)
+		memset(data->otp_part, 0, OTP_SIZE);
+
+	if (offset + *size > OTP_SIZE)
+		*size = OTP_SIZE - offset;
+
+	memcpy((void *)((u32)data->otp_part + offset), buffer, *size);
+
+	return 0;
+}
+
+int stm32prog_otp_read(struct stm32prog_data *data, u32 offset, u8 *buffer,
+		       long *size)
+{
+#ifndef CONFIG_ARM_SMCCC
+	stm32prog_err("OTP update not supported");
+
+	return -1;
+#else
+	int result = 0;
+
+	pr_debug("%s: %x %lx\n", __func__, offset, *size);
+	/* alway read for first packet */
+	if (!offset) {
+		if (!data->otp_part)
+			data->otp_part =
+				memalign(CONFIG_SYS_CACHELINE_SIZE, OTP_SIZE);
+
+		if (!data->otp_part) {
+			result = -ENOMEM;
+			goto end_otp_read;
+		}
+
+		/* init struct with 0 */
+		memset(data->otp_part, 0, OTP_SIZE);
+
+		/* call the service */
+		result = stm32_smc_exec(STM32_SMC_BSEC, STM32_SMC_READ_ALL,
+					(u32)data->otp_part, 0);
+		if (result)
+			goto end_otp_read;
+	}
+
+	if (!data->otp_part) {
+		result = -ENOMEM;
+		goto end_otp_read;
+	}
+
+	if (offset + *size > OTP_SIZE)
+		*size = OTP_SIZE - offset;
+	memcpy(buffer, (void *)((u32)data->otp_part + offset), *size);
+
+end_otp_read:
+	pr_debug("%s: result %i\n", __func__, result);
+
+	return result;
+#endif
+}
+
+int stm32prog_otp_start(struct stm32prog_data *data)
+{
+#ifndef CONFIG_ARM_SMCCC
+	stm32prog_err("OTP update not supported");
+
+	return -1;
+#else
+	int result = 0;
+	struct arm_smccc_res res;
+
+	if (!data->otp_part) {
+		stm32prog_err("start OTP without data");
+		return -1;
+	}
+
+	arm_smccc_smc(STM32_SMC_BSEC, STM32_SMC_WRITE_ALL,
+		      (u32)data->otp_part, 0, 0, 0, 0, 0, &res);
+
+	if (!res.a0) {
+		switch (res.a1) {
+		case 0:
+			result = 0;
+			break;
+		case 1:
+			stm32prog_err("Provisioning");
+			result = 0;
+			break;
+		default:
+			pr_err("%s: OTP incorrect value (err = %ld)\n",
+			       __func__, res.a1);
+			result = -EINVAL;
+			break;
+		}
+	} else {
+		pr_err("%s: Failed to exec svc=%x op=%x in secure mode (err = %ld)\n",
+		       __func__, STM32_SMC_BSEC, STM32_SMC_WRITE_ALL, res.a0);
+		result = -EINVAL;
+	}
+
+	free(data->otp_part);
+	data->otp_part = NULL;
+	pr_debug("%s: result %i\n", __func__, result);
+
+	return result;
+#endif
 }
 
 /* copy FSBL on NAND to improve reliability on NAND */
@@ -1451,6 +1572,7 @@ void stm32prog_clean(struct stm32prog_data *data)
 	/* clean */
 	dfu_free_entities();
 	free(data->part_array);
+	free(data->otp_part);
 	free(data->header_data);
 }
 
@@ -1459,6 +1581,12 @@ void dfu_flush_callback(struct dfu_entity *dfu)
 {
 	if (!stm32prog_data)
 		return;
+
+	if (dfu->dev_type == DFU_DEV_VIRT) {
+		if (dfu->data.virt.dev_num == PHASE_OTP)
+			stm32prog_otp_start(stm32prog_data);
+		return;
+	}
 
 	if (dfu->dev_type == DFU_DEV_RAM) {
 		if (dfu->alt == 0 &&
