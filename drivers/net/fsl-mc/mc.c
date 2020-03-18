@@ -174,9 +174,21 @@ enum mc_fixup_type {
 };
 
 static int mc_fixup_mac_addr(void *blob, int nodeoffset,
+#ifdef CONFIG_DM_ETH
+			     const char *propname, struct udevice *eth_dev,
+#else
 			     const char *propname, struct eth_device *eth_dev,
+#endif
 			     enum mc_fixup_type type)
 {
+#ifdef CONFIG_DM_ETH
+	struct eth_pdata *plat = dev_get_platdata(eth_dev);
+	unsigned char *enetaddr = plat->enetaddr;
+	int eth_index = eth_dev->seq;
+#else
+	unsigned char *enetaddr = eth_dev->enetaddr;
+	int eth_index = eth_dev->index;
+#endif
 	int err = 0, len = 0, size, i;
 	unsigned char env_enetaddr[ARP_HLEN];
 	unsigned int enetaddr_32[ARP_HLEN];
@@ -184,23 +196,22 @@ static int mc_fixup_mac_addr(void *blob, int nodeoffset,
 
 	switch (type) {
 	case MC_FIXUP_DPL:
-	/* DPL likes its addresses on 32 * ARP_HLEN bits */
-	for (i = 0; i < ARP_HLEN; i++)
-		enetaddr_32[i] = cpu_to_fdt32(eth_dev->enetaddr[i]);
-	val = enetaddr_32;
-	len = sizeof(enetaddr_32);
-	break;
-
+		/* DPL likes its addresses on 32 * ARP_HLEN bits */
+		for (i = 0; i < ARP_HLEN; i++)
+			enetaddr_32[i] = cpu_to_fdt32(enetaddr[i]);
+		val = enetaddr_32;
+		len = sizeof(enetaddr_32);
+		break;
 	case MC_FIXUP_DPC:
-	val = eth_dev->enetaddr;
-	len = ARP_HLEN;
-	break;
+		val = enetaddr;
+		len = ARP_HLEN;
+		break;
 	}
 
 	/* MAC address property present */
 	if (fdt_get_property(blob, nodeoffset, propname, NULL)) {
 		/* u-boot MAC addr randomly assigned - leave the present one */
-		if (!eth_env_get_enetaddr_by_index("eth", eth_dev->index,
+		if (!eth_env_get_enetaddr_by_index("eth", eth_index,
 						   env_enetaddr))
 			return err;
 	} else {
@@ -250,7 +261,11 @@ const char *dpl_get_connection_endpoint(void *blob, char *endpoint)
 }
 
 static int mc_fixup_dpl_mac_addr(void *blob, int dpmac_id,
+#ifdef CONFIG_DM_ETH
+				 struct udevice *eth_dev)
+#else
 				 struct eth_device *eth_dev)
+#endif
 {
 	int objoff = fdt_path_offset(blob, "/objects");
 	int dpmacoff = -1, dpnioff = -1;
@@ -334,7 +349,11 @@ void fdt_fsl_mc_fixup_iommu_map_entry(void *blob)
 }
 
 static int mc_fixup_dpc_mac_addr(void *blob, int dpmac_id,
+#ifdef CONFIG_DM_ETH
+				 struct udevice *eth_dev)
+#else
 				 struct eth_device *eth_dev)
+#endif
 {
 	int nodeoffset = fdt_path_offset(blob, "/board_info/ports"), noff;
 	int err = 0;
@@ -377,8 +396,13 @@ static int mc_fixup_dpc_mac_addr(void *blob, int dpmac_id,
 static int mc_fixup_mac_addrs(void *blob, enum mc_fixup_type type)
 {
 	int i, err = 0, ret = 0;
-	char ethname[ETH_NAME_LEN];
+#ifdef CONFIG_DM_ETH
+#define ETH_NAME_LEN 20
+	struct udevice *eth_dev;
+#else
 	struct eth_device *eth_dev;
+#endif
+	char ethname[ETH_NAME_LEN];
 
 	for (i = WRIOP1_DPMAC1; i < NUM_WRIOP_PORTS; i++) {
 		/* port not enabled */
