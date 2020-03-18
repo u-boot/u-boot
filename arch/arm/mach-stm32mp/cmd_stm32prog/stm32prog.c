@@ -23,9 +23,11 @@
 
 #define OPT_SELECT	BIT(0)
 #define OPT_EMPTY	BIT(1)
+#define OPT_DELETE	BIT(2)
 
 #define IS_SELECT(part)	((part)->option & OPT_SELECT)
 #define IS_EMPTY(part)	((part)->option & OPT_EMPTY)
+#define IS_DELETE(part)	((part)->option & OPT_DELETE)
 
 #define ALT_BUF_LEN			SZ_1K
 
@@ -157,6 +159,9 @@ static int parse_option(struct stm32prog_data *data,
 			break;
 		case 'E':
 			part->option |= OPT_EMPTY;
+			break;
+		case 'D':
+			part->option |= OPT_DELETE;
 			break;
 		default:
 			result = -EINVAL;
@@ -1293,10 +1298,80 @@ void stm32prog_next_phase(struct stm32prog_data *data)
 		puts("Phase=END\n");
 }
 
+static int part_delete(struct stm32prog_data *data,
+		       struct stm32prog_part_t *part)
+{
+	int ret = 0;
+#ifdef CONFIG_MMC
+	unsigned long blks, blks_offset, blks_size;
+	struct blk_desc *block_dev = NULL;
+ #endif
+#ifdef CONFIG_MTD
+	char cmdbuf[40];
+	char devstr[10];
+#endif
+
+	printf("Erasing %s ", part->name);
+	switch (part->target) {
+#ifdef CONFIG_MMC
+	case STM32PROG_MMC:
+		printf("on mmc %d: ", part->dev->dev_id);
+		block_dev = mmc_get_blk_desc(part->dev->mmc);
+		blks_offset = lldiv(part->addr, part->dev->mmc->read_bl_len);
+		blks_size = lldiv(part->size, part->dev->mmc->read_bl_len);
+		/* -1 or -2 : delete boot partition of MMC
+		 * need to switch to associated hwpart 1 or 2
+		 */
+		if (part->part_id < 0)
+			if (blk_select_hwpart_devnum(IF_TYPE_MMC,
+						     part->dev->dev_id,
+						     -part->part_id))
+				return -1;
+
+		blks = blk_derase(block_dev, blks_offset, blks_size);
+
+		/* return to user partition */
+		if (part->part_id < 0)
+			blk_select_hwpart_devnum(IF_TYPE_MMC,
+						 part->dev->dev_id, 0);
+		if (blks != blks_size) {
+			ret = -1;
+			stm32prog_err("%s (0x%x): MMC erase failed",
+				      part->name, part->id);
+		}
+		break;
+#endif
+#ifdef CONFIG_MTD
+	case STM32PROG_NOR:
+	case STM32PROG_NAND:
+	case STM32PROG_SPI_NAND:
+		get_mtd_by_target(devstr, part->target, part->dev->dev_id);
+		printf("on %s: ", devstr);
+		sprintf(cmdbuf, "mtd erase %s 0x%llx 0x%llx",
+			devstr, part->addr, part->size);
+		if (run_command(cmdbuf, 0)) {
+			ret = -1;
+			stm32prog_err("%s (0x%x): MTD erase commands failed (%s)",
+				      part->name, part->id, cmdbuf);
+		}
+		break;
+#endif
+	default:
+		ret = -1;
+		stm32prog_err("%s (0x%x): erase invalid", part->name, part->id);
+		break;
+	}
+	if (!ret)
+		printf("done\n");
+
+	return ret;
+}
+
 static void stm32prog_devices_init(struct stm32prog_data *data)
 {
 	int i;
 	int ret;
+	struct stm32prog_part_t *part;
 
 	ret = treat_partition_list(data);
 	if (ret)
@@ -1309,9 +1384,39 @@ static void stm32prog_devices_init(struct stm32prog_data *data)
 			goto error;
 	}
 
+	/* delete RAW partition before create partition */
+	for (i = 0; i < data->part_nb; i++) {
+		part = &data->part_array[i];
+
+		if (part->part_type != RAW_IMAGE)
+			continue;
+
+		if (!IS_SELECT(part) || !IS_DELETE(part))
+			continue;
+
+		ret = part_delete(data, part);
+		if (ret)
+			goto error;
+	}
+
 	ret = create_partitions(data);
 	if (ret)
 		goto error;
+
+	/* delete partition GPT or MTD */
+	for (i = 0; i < data->part_nb; i++) {
+		part = &data->part_array[i];
+
+		if (part->part_type == RAW_IMAGE)
+			continue;
+
+		if (!IS_SELECT(part) || !IS_DELETE(part))
+			continue;
+
+		ret = part_delete(data, part);
+		if (ret)
+			goto error;
+	}
 
 	return;
 
