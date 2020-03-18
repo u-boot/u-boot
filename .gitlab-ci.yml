@@ -38,14 +38,12 @@ stages:
   script:
     # From buildman, exit code 129 means warnings only.  If we've been asked to
     # use clang only do one configuration.
-    - if [[ "${TEST_PY_BD}" != "" ]]; then
-        ret=0;
-        tools/buildman/buildman -o /tmp -P -E --board ${TEST_PY_BD} ${OVERRIDE}
-          || ret=$?;
-        if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-          tools/buildman/buildman -o /tmp -seP --board ${TEST_PY_BD};
-          exit $ret;
-        fi;
+    - ret=0;
+      tools/buildman/buildman -o /tmp -P -E --board ${TEST_PY_BD} ${OVERRIDE}
+        || ret=$?;
+      if [[ $ret -ne 0 && $ret -ne 129 ]]; then
+        tools/buildman/buildman -o /tmp -seP --board ${TEST_PY_BD};
+        exit $ret;
       fi
     # "not a_test_which_does_not_exist" is a dummy -k parameter which will
     # never prevent any test from running. That way, we can always pass
@@ -57,15 +55,13 @@ stages:
     - export UBOOT_TRAVIS_BUILD_DIR=/tmp/.bm-work/${TEST_PY_BD};
       export PATH=/opt/qemu/bin:/tmp/uboot-test-hooks/bin:${PATH};
       export PYTHONPATH=/tmp/uboot-test-hooks/py/travis-ci;
-      if [[ "${TEST_PY_BD}" != "" ]]; then
-        ./test/py/test.py --bd ${TEST_PY_BD} ${TEST_PY_ID}
-          -k "${TEST_PY_TEST_SPEC:-not a_test_which_does_not_exist}"
-          --build-dir "$UBOOT_TRAVIS_BUILD_DIR";
-        ret=$?;
-        if [[ $ret -ne 0 ]]; then
-          exit $ret;
-        fi;
-      fi;
+      ./test/py/test.py --bd ${TEST_PY_BD} ${TEST_PY_ID}
+        -k "${TEST_PY_TEST_SPEC:-not a_test_which_does_not_exist}"
+        --build-dir "$UBOOT_TRAVIS_BUILD_DIR";
+      ret=$?;
+      if [[ $ret -ne 0 ]]; then
+        exit $ret;
+      fi
 
 build all 32bit ARM platforms:
   tags: [ 'all' ]
