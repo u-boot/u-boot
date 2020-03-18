@@ -38,14 +38,8 @@ stages:
   script:
     # If we've been asked to use clang only do one configuration.
     - export UBOOT_TRAVIS_BUILD_DIR=/tmp/${TEST_PY_BD}
-    - ret=0;
-      tools/buildman/buildman -o ${UBOOT_TRAVIS_BUILD_DIR} -w -E -W
-        --board ${TEST_PY_BD} ${OVERRIDE} || ret=$?;
-      if [[ $ret -ne 0 ]]; then
-        tools/buildman/buildman -o ${UBOOT_TRAVIS_BUILD_DIR} -w -se
-           --board ${TEST_PY_BD};
-        exit $ret;
-      fi
+    - tools/buildman/buildman -o ${UBOOT_TRAVIS_BUILD_DIR} -w -E -W -e
+        --board ${TEST_PY_BD} ${OVERRIDE}
     - virtualenv -p /usr/bin/python3 /tmp/venv
     - . /tmp/venv/bin/activate
     - pip install -r test/py/requirements.txt

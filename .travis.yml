@@ -232,14 +232,8 @@ script:
      if [[ -e ~/grub_riscv64.efi ]]; then
        cp ~/grub_riscv64.efi $UBOOT_TRAVIS_BUILD_DIR/;
      fi;
-     ret=0;
-     tools/buildman/buildman -o ${UBOOT_TRAVIS_BUILD_DIR} -w -E -W
-       --board ${TEST_PY_BD} ${OVERRIDE}|| ret=$?;
-     if [[ $ret -ne 0 ]]; then
-       tools/buildman/buildman -se -o ${UBOOT_TRAVIS_BUILD_DIR} -w
-         --board ${TEST_PY_BD};
-       exit $ret;
-     fi;
+     tools/buildman/buildman -o ${UBOOT_TRAVIS_BUILD_DIR} -w -E -W -e
+       --board ${TEST_PY_BD} ${OVERRIDE} || exit;
      virtualenv -p /usr/bin/python3 /tmp/venv;
      . /tmp/venv/bin/activate;
      pip install -r test/py/requirements.txt;
