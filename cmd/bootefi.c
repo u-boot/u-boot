@@ -149,6 +149,20 @@ done:
 	return ret;
 }
 
+static void efi_reserve_memory(u64 addr, u64 size)
+{
+	u64 pages;
+
+	/* Convert from sandbox address space. */
+	addr = (uintptr_t)map_sysmem(addr, 0);
+	pages = efi_size_in_pages(size + (addr & EFI_PAGE_MASK));
+	addr &= ~EFI_PAGE_MASK;
+	if (efi_add_memory_map(addr, pages, EFI_RESERVED_MEMORY_TYPE,
+			       false) != EFI_SUCCESS)
+		printf("Reserved memory mapping failed addr %llx size %llx\n",
+		       addr, size);
+}
+
 /**
  * efi_carve_out_dt_rsv() - Carve out DT reserved memory ranges
  *
@@ -161,7 +175,8 @@ done:
 static void efi_carve_out_dt_rsv(void *fdt)
 {
 	int nr_rsv, i;
-	uint64_t addr, size, pages;
+	u64 addr, size;
+	int nodeoffset, subnode;
 
 	nr_rsv = fdt_num_mem_rsv(fdt);
 
@@ -169,15 +184,25 @@ static void efi_carve_out_dt_rsv(void *fdt)
 	for (i = 0; i < nr_rsv; i++) {
 		if (fdt_get_mem_rsv(fdt, i, &addr, &size) != 0)
 			continue;
+		efi_reserve_memory(addr, size);
+	}
 
-		/* Convert from sandbox address space. */
-		addr = (uintptr_t)map_sysmem(addr, 0);
-
-		pages = efi_size_in_pages(size + (addr & EFI_PAGE_MASK));
-		addr &= ~EFI_PAGE_MASK;
-		if (efi_add_memory_map(addr, pages, EFI_RESERVED_MEMORY_TYPE,
-				       false) != EFI_SUCCESS)
-			printf("FDT memrsv map %d: Failed to add to map\n", i);
+	/* process reserved-memory */
+	nodeoffset = fdt_subnode_offset(fdt, 0, "reserved-memory");
+	if (nodeoffset >= 0) {
+		subnode = fdt_first_subnode(fdt, nodeoffset);
+		while (subnode >= 0) {
+			/* check if this subnode has a reg property */
+			addr = fdtdec_get_addr_size(fdt, subnode, "reg",
+						    (fdt_size_t *)&size);
+			/*
+			 * The /reserved-memory node may have children with
+			 * a size instead of a reg property.
+			 */
+			if (addr != FDT_ADDR_T_NONE)
+				efi_reserve_memory(addr, size);
+			subnode = fdt_next_subnode(fdt, subnode);
+		}
 	}
 }
 
@@ -263,9 +288,6 @@ efi_status_t efi_install_fdt(void *fdt)
 		return EFI_LOAD_ERROR;
 	}
 
-	/* Create memory reservations as indicated by the device tree */
-	efi_carve_out_dt_rsv(fdt);
-
 	/* Prepare device tree for payload */
 	ret = copy_fdt(&fdt);
 	if (ret) {
@@ -277,6 +299,9 @@ efi_status_t efi_install_fdt(void *fdt)
 		printf("ERROR: failed to process device tree\n");
 		return EFI_LOAD_ERROR;
 	}
+
+	/* Create memory reservations as indicated by the device tree */
+	efi_carve_out_dt_rsv(fdt);
 
 	/* Install device tree as UEFI table */
 	ret = efi_install_configuration_table(&efi_guid_fdt, fdt);
