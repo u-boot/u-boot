@@ -819,7 +819,8 @@ void __weak switch_to_non_secure_mode(void)
 #else /* USE_HOSTCC */
 
 #if defined(CONFIG_FIT_SIGNATURE)
-static int bootm_host_load_image(const void *fit, int req_image_type)
+static int bootm_host_load_image(const void *fit, int req_image_type,
+				 int cfg_noffset)
 {
 	const char *fit_uname_config = NULL;
 	ulong data, len;
@@ -831,6 +832,7 @@ static int bootm_host_load_image(const void *fit, int req_image_type)
 	void *load_buf;
 	int ret;
 
+	fit_uname_config = fdt_get_name(fit, cfg_noffset, NULL);
 	memset(&images, '\0', sizeof(images));
 	images.verify = 1;
 	noffset = fit_image_load(&images, (ulong)fit,
@@ -878,7 +880,7 @@ int bootm_host_load_images(const void *fit, int cfg_noffset)
 	for (i = 0; i < ARRAY_SIZE(image_types); i++) {
 		int ret;
 
-		ret = bootm_host_load_image(fit, image_types[i]);
+		ret = bootm_host_load_image(fit, image_types[i], cfg_noffset);
 		if (!err && ret && ret != -ENOENT)
 			err = ret;
 	}
