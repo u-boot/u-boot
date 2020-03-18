@@ -144,27 +144,6 @@
 
 #include <config_distro_bootcmd.h>
 
-#ifdef CONFIG_STM32MP1_OPTEE
-/* with OPTEE: define specific MTD partitions = teeh, teed, teex */
-#define STM32MP_MTDPARTS \
-	"mtdparts_nor0=256k(fsbl1),256k(fsbl2),2m(ssbl),256k(u-boot-env),256k(teeh),256k(teed),256k(teex),-(nor_user)\0" \
-	"mtdparts_nand0=2m(fsbl),2m(ssbl1),2m(ssbl2),512k(teeh),512k(teed),512k(teex),-(UBI)\0" \
-	"mtdparts_spi-nand0=2m(fsbl),2m(ssbl1),2m(ssbl2),"\
-		"512k(teeh),512k(teed),512k(teex),-(UBI)\0"
-
-#else /* CONFIG_STM32MP1_OPTEE */
-#define STM32MP_MTDPARTS \
-	"mtdparts_nor0=256k(fsbl1),256k(fsbl2),2m(ssbl),256k(u-boot-env),-(nor_user)\0" \
-	"mtdparts_nand0=2m(fsbl),2m(ssbl1),2m(ssbl2),-(UBI)\0" \
-	"mtdparts_spi-nand0=2m(fsbl),2m(ssbl1),2m(ssbl2),-(UBI)\0"
-
-#endif /* CONFIG_STM32MP1_OPTEE */
-
-#ifndef CONFIG_SYS_MTDPARTS_RUNTIME
-#undef STM32MP_MTDPARTS
-#define STM32MP_MTDPARTS
-#endif
-
 /*
  * memory layout for 32M uncompressed/compressed kernel,
  * 1M fdt, 1M script, 1M pxe and 1M for splashimage
@@ -183,7 +162,6 @@
 	"env_check=if test $env_default -eq 1;"\
 		" then env set env_default 0;env save;fi\0" \
 	STM32MP_BOOTCMD \
-	STM32MP_MTDPARTS \
 	BOOTENV \
 	"boot_net_usb_start=true\0"
 

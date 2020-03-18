@@ -19,54 +19,42 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /**
- * The mtdparts_nand0 and mtdparts_nor0 variable tends to be long.
- * If we need to access it before the env is relocated, then we need
- * to use our own stack buffer. gd->env_buf will be too small.
- *
- * @param buf temporary buffer pointer MTDPARTS_LEN long
- * @return mtdparts variable string, NULL if not found
- */
-static const char *env_get_mtdparts(const char *str, char *buf)
-{
-	if (gd->flags & GD_FLG_ENV_READY)
-		return env_get(str);
-	if (env_get_f(str, buf, MTDPARTS_LEN) != -1)
-		return buf;
-
-	return NULL;
-}
-
-/**
- * update the variables "mtdids" and "mtdparts" with content of mtdparts_<dev>
+ * update the variables "mtdids" and "mtdparts" with boot, tee and user strings
  */
 static void board_get_mtdparts(const char *dev,
 			       char *mtdids,
-			       char *mtdparts)
+			       char *mtdparts,
+			       const char *boot,
+			       const char *tee,
+			       const char *user)
 {
-	char env_name[32] = "mtdparts_";
-	char tmp_mtdparts[MTDPARTS_LEN];
-	const char *tmp;
+	/* mtdids: "<dev>=<dev>, ...." */
+	if (mtdids[0] != '\0')
+		strcat(mtdids, ",");
+	strcat(mtdids, dev);
+	strcat(mtdids, "=");
+	strcat(mtdids, dev);
 
-	/* name of env variable to read = mtdparts_<dev> */
-	strcat(env_name, dev);
-	tmp = env_get_mtdparts(env_name, tmp_mtdparts);
-	if (tmp) {
-		/* mtdids: "<dev>=<dev>, ...." */
-		if (mtdids[0] != '\0')
-			strcat(mtdids, ",");
-		strcat(mtdids, dev);
-		strcat(mtdids, "=");
-		strcat(mtdids, dev);
+	/* mtdparts: "mtdparts=<dev>:<mtdparts_<dev>>;..." */
+	if (mtdparts[0] != '\0')
+		strncat(mtdparts, ";", MTDPARTS_LEN);
+	else
+		strcat(mtdparts, "mtdparts=");
 
-		/* mtdparts: "mtdparts=<dev>:<mtdparts_<dev>>;..." */
-		if (mtdparts[0] != '\0')
-			strncat(mtdparts, ";", MTDPARTS_LEN);
-		else
-			strcat(mtdparts, "mtdparts=");
-		strncat(mtdparts, dev, MTDPARTS_LEN);
-		strncat(mtdparts, ":", MTDPARTS_LEN);
-		strncat(mtdparts, tmp, MTDPARTS_LEN);
+	strncat(mtdparts, dev, MTDPARTS_LEN);
+	strncat(mtdparts, ":", MTDPARTS_LEN);
+
+	if (boot) {
+		strncat(mtdparts, boot, MTDPARTS_LEN);
+		strncat(mtdparts, ",", MTDPARTS_LEN);
 	}
+
+	if (CONFIG_IS_ENABLED(STM32MP1_OPTEE) && tee) {
+		strncat(mtdparts, tee, MTDPARTS_LEN);
+		strncat(mtdparts, ",", MTDPARTS_LEN);
+	}
+
+	strncat(mtdparts, user, MTDPARTS_LEN);
 }
 
 void board_mtdparts_default(const char **mtdids, const char **mtdparts)
@@ -76,12 +64,16 @@ void board_mtdparts_default(const char **mtdids, const char **mtdparts)
 	static char parts[3 * MTDPARTS_LEN + 1];
 	static char ids[MTDIDS_LEN + 1];
 	static bool mtd_initialized;
+	bool tee = false;
 
 	if (mtd_initialized) {
 		*mtdids = ids;
 		*mtdparts = parts;
 		return;
 	}
+
+	if (CONFIG_IS_ENABLED(STM32MP1_OPTEE))
+		tee = true;
 
 	memset(parts, 0, sizeof(parts));
 	memset(ids, 0, sizeof(ids));
@@ -95,18 +87,27 @@ void board_mtdparts_default(const char **mtdids, const char **mtdparts)
 
 	mtd = get_mtd_device_nm("nand0");
 	if (!IS_ERR_OR_NULL(mtd)) {
-		board_get_mtdparts("nand0", ids, parts);
+		board_get_mtdparts("nand0", ids, parts,
+				   CONFIG_MTDPARTS_NAND0_BOOT,
+				   tee ? CONFIG_MTDPARTS_NAND0_TEE : NULL,
+				   "-(UBI)");
 		put_mtd_device(mtd);
 	}
 
 	mtd = get_mtd_device_nm("spi-nand0");
 	if (!IS_ERR_OR_NULL(mtd)) {
-		board_get_mtdparts("spi-nand0", ids, parts);
+		board_get_mtdparts("spi-nand0", ids, parts,
+				   CONFIG_MTDPARTS_SPINAND0_BOOT,
+				   tee ? CONFIG_MTDPARTS_SPINAND0_TEE : NULL,
+				   "-(UBI)");
 		put_mtd_device(mtd);
 	}
 
 	if (!uclass_get_device(UCLASS_SPI_FLASH, 0, &dev))
-		board_get_mtdparts("nor0", ids, parts);
+		board_get_mtdparts("nor0", ids, parts,
+				   CONFIG_MTDPARTS_NOR0_BOOT,
+				   tee ? CONFIG_MTDPARTS_NOR0_TEE : NULL,
+				   "-(nor_user)");
 
 	mtd_initialized = true;
 	*mtdids = ids;
