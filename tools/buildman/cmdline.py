@@ -31,7 +31,7 @@ def ParseArgs():
           help='Reconfigure for every commit (disable incremental build)')
     parser.add_option('-d', '--detail', dest='show_detail',
           action='store_true', default=False,
-          help='Show detailed information for each board in summary')
+          help='Show detailed size delta for each board in the -S summary')
     parser.add_option('-D', '--config-only', action='store_true', default=False,
           help="Don't build, just configure each commit")
     parser.add_option('-e', '--show_errors', action='store_true',

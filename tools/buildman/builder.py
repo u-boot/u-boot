@@ -337,7 +337,7 @@ class Builder:
 
         show_errors: True to show summarised error/warning info
         show_sizes: Show size deltas
-        show_detail: Show detail for each board
+        show_detail: Show size delta detail for each board if show_sizes
         show_bloat: Show detail for each function
         list_error_boards: Show the boards which caused each error/warning
         show_config: Show config deltas
@@ -1000,7 +1000,7 @@ class Builder:
                 board.target
             board_dict: Dict containing boards for which we built this
                 commit, keyed by board.target. The value is an Outcome object.
-            show_detail: Show detail for each board
+            show_detail: Show size delta detail for each board
             show_bloat: Show detail for each function
         """
         arch_list = {}
@@ -1117,7 +1117,7 @@ class Builder:
             environment: Dictionary keyed by environment variable, Each
                      value is the value of environment variable.
             show_sizes: Show image size deltas
-            show_detail: Show detail for each board
+            show_detail: Show size delta detail for each board if show_sizes
             show_bloat: Show detail for each function
             show_config: Show config changes
             show_environment: Show environment changes
