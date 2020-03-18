@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <blk.h>
 #include <dfu.h>
 #include <env.h>
 #include <memalign.h>
@@ -13,20 +14,86 @@
 
 #define DFU_ALT_BUF_LEN SZ_1K
 
-static void board_get_alt_info(const char *dev, char *buff)
+static void board_get_alt_info_mmc(struct udevice *dev, char *buf)
 {
-	char var_name[32] = "dfu_alt_info_";
-	int ret;
+	disk_partition_t info;
+	int p, len, devnum;
+	bool first = true;
+	const char *name;
+	struct mmc *mmc;
+	struct blk_desc *desc;
 
-	ALLOC_CACHE_ALIGN_BUFFER(char, tmp_alt, DFU_ALT_BUF_LEN);
+	mmc = mmc_get_mmc_dev(dev);
+	if (!mmc)
+		return;
 
-	/* name of env variable to read = dfu_alt_info_<dev> */
-	strcat(var_name, dev);
-	ret = env_get_f(var_name, tmp_alt, DFU_ALT_BUF_LEN);
-	if (ret) {
-		if (buff[0] != '\0')
-			strcat(buff, "&");
-		strncat(buff, tmp_alt, DFU_ALT_BUF_LEN);
+	if (mmc_init(mmc))
+		return;
+
+	desc = mmc_get_blk_desc(mmc);
+	if (!desc)
+		return;
+
+	name = blk_get_if_type_name(desc->if_type);
+	devnum = desc->devnum;
+	len = strlen(buf);
+
+	if (buf[0] != '\0')
+		len += snprintf(buf + len,
+				DFU_ALT_BUF_LEN - len, "&");
+	len += snprintf(buf + len, DFU_ALT_BUF_LEN - len,
+			 "%s %d=", name, devnum);
+
+	if (IS_MMC(mmc) && mmc->capacity_boot) {
+		len += snprintf(buf + len, DFU_ALT_BUF_LEN - len,
+				"%s%d_boot1 raw 0x0 0x%llx mmcpart 1;",
+				name, devnum, mmc->capacity_boot);
+		len += snprintf(buf + len, DFU_ALT_BUF_LEN - len,
+				"%s%d_boot2 raw 0x0 0x%llx mmcpart 2",
+				name, devnum, mmc->capacity_boot);
+		first = false;
+	}
+
+	for (p = 1; p < MAX_SEARCH_PARTITIONS; p++) {
+		if (part_get_info(desc, p, &info))
+			continue;
+		if (!first)
+			len += snprintf(buf + len, DFU_ALT_BUF_LEN - len, ";");
+		first = false;
+		len += snprintf(buf + len, DFU_ALT_BUF_LEN - len,
+				"%s%d_%s part %d %d",
+				name, devnum, info.name, devnum, p);
+	}
+}
+
+static void board_get_alt_info_mtd(struct mtd_info *mtd, char *buf)
+{
+	struct mtd_info *part;
+	bool first = true;
+	const char *name;
+	int len, partnum = 0;
+
+	name = mtd->name;
+	len = strlen(buf);
+
+	if (buf[0] != '\0')
+		len += snprintf(buf + len, DFU_ALT_BUF_LEN - len, "&");
+	len += snprintf(buf + len, DFU_ALT_BUF_LEN - len,
+			"mtd %s=", name);
+
+	len += snprintf(buf + len, DFU_ALT_BUF_LEN - len,
+			"%s raw 0x0 0x%llx ",
+			name, mtd->size);
+
+	list_for_each_entry(part, &mtd->partitions, node) {
+		partnum++;
+		if (!first)
+			len += snprintf(buf + len, DFU_ALT_BUF_LEN - len, ";");
+		first = false;
+
+		len += snprintf(buf + len, DFU_ALT_BUF_LEN - len,
+				"%s_%s part %d",
+				name, part->name, partnum);
 	}
 }
 
@@ -42,27 +109,34 @@ void set_dfu_alt_info(char *interface, char *devstr)
 
 	memset(buf, 0, sizeof(buf));
 
-	/* probe all MTD devices */
-	mtd_probe_devices();
-
-	board_get_alt_info("ram", buf);
+	snprintf(buf, DFU_ALT_BUF_LEN,
+		 "ram 0=%s", CONFIG_DFU_ALT_RAM0);
 
 	if (!uclass_get_device(UCLASS_MMC, 0, &dev))
-		board_get_alt_info("mmc0", buf);
+		board_get_alt_info_mmc(dev, buf);
 
 	if (!uclass_get_device(UCLASS_MMC, 1, &dev))
-		board_get_alt_info("mmc1", buf);
+		board_get_alt_info_mmc(dev, buf);
 
-	if (!uclass_get_device(UCLASS_SPI_FLASH, 0, &dev))
-		board_get_alt_info("nor0", buf);
+	if (CONFIG_IS_ENABLED(MTD)) {
+		/* probe all MTD devices */
+		mtd_probe_devices();
 
-	mtd = get_mtd_device_nm("nand0");
-	if (!IS_ERR_OR_NULL(mtd))
-		board_get_alt_info("nand0", buf);
+		/* probe SPI flash device on a bus */
+		if (!uclass_get_device(UCLASS_SPI_FLASH, 0, &dev)) {
+			mtd = get_mtd_device_nm("nor0");
+			if (!IS_ERR_OR_NULL(mtd))
+				board_get_alt_info_mtd(mtd, buf);
+		}
 
-	mtd = get_mtd_device_nm("spi-nand0");
-	if (!IS_ERR_OR_NULL(mtd))
-		board_get_alt_info("spi-nand0", buf);
+		mtd = get_mtd_device_nm("nand0");
+		if (!IS_ERR_OR_NULL(mtd))
+			board_get_alt_info_mtd(mtd, buf);
+
+		mtd = get_mtd_device_nm("spi-nand0");
+		if (!IS_ERR_OR_NULL(mtd))
+			board_get_alt_info_mtd(mtd, buf);
+	}
 
 #ifdef CONFIG_DFU_VIRT
 	strncat(buf, "&virt 0=OTP", DFU_ALT_BUF_LEN);

@@ -5,3 +5,10 @@ config CMD_STBOARD
 	help
 	  This compile the stboard command to
 	  read and write the board in the OTP.
+
+config DFU_ALT_RAM0
+	string "dfu for ram0"
+	default "uImage ram 0xc2000000 0x2000000;devicetree.dtb ram 0xc4000000 0x100000;uramdisk.image.gz ram 0xc4400000 0x10000000"
+	depends on ARCH_STM32MP && SET_DFU_ALT_INFO
+	help
+	  This defines the partitions of ram used to build dfu dynamically.
