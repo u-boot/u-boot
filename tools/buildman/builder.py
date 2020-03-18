@@ -485,6 +485,7 @@ class Builder:
         if self.commits:
             commit = self.commits[commit_upto]
             subject = commit.subject.translate(trans_valid_chars)
+            # See _GetOutputSpaceRemovals() which parses this name
             commit_dir = ('%02d_of_%02d_g%s_%s' % (commit_upto + 1,
                     self.commit_count, commit.hash, subject[:20]))
         elif not self.no_subdirs:
@@ -1525,12 +1526,15 @@ class Builder:
         for thread in range(max_threads):
             self._PrepareThread(thread, setup_git)
 
-    def _PrepareOutputSpace(self):
+    def _GetOutputSpaceRemovals(self):
         """Get the output directories ready to receive files.
 
-        We delete any output directories which look like ones we need to
-        create. Having left over directories is confusing when the user wants
-        to check the output manually.
+        Figure out what needs to be deleted in the output directory before it
+        can be used. We only delete old buildman directories which have the
+        expected name pattern. See _GetOutputDir().
+
+        Returns:
+            List of full paths of directories to remove
         """
         if not self.commits:
             return
@@ -1541,7 +1545,20 @@ class Builder:
         to_remove = []
         for dirname in glob.glob(os.path.join(self.base_dir, '*')):
             if dirname not in dir_list:
-                to_remove.append(dirname)
+                leaf = dirname[len(self.base_dir) + 1:]
+                m =  re.match('[0-9]+_of_[0-9]+_g[0-9a-f]+_.*', leaf)
+                if m:
+                    to_remove.append(dirname)
+        return to_remove
+
+    def _PrepareOutputSpace(self):
+        """Get the output directories ready to receive files.
+
+        We delete any output directories which look like ones we need to
+        create. Having left over directories is confusing when the user wants
+        to check the output manually.
+        """
+        to_remove = self._GetOutputSpaceRemovals()
         if to_remove:
             Print('Removing %d old build directories' % len(to_remove),
                   newline=False)
