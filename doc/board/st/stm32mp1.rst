@@ -80,32 +80,16 @@ defconfig_file : stm32mp15_trusted_defconfig
     +             +-------------------------+------------+-------+
     |             |Trusted Firmware-A (TF-A)| U-Boot     | Linux |
     +-------------+-------------------------+------------+-------+
-    | TrustZone   |TF-A secure monitor                           |
+    | TrustZone   |secure monitor                                |
     +-------------+-------------------------+------------+-------+
 
 TF-A performs a full initialization of Secure peripherals and installs a
-secure monitor (BL32=SPMin).
+secure monitor, BL32:
 
-U-Boot is running in normal world and uses TF-A monitor to access
-to secure resources.
+  * SPMin provided by TF-A or
+  * OP-TEE from specific partitions (teeh, teed, teex).
 
-The **Trusted** boot chain with **OP-TEE**
-``````````````````````````````````````````
-
-defconfig_file : stm32mp15_optee_defconfig
-
-    +-------------+-------------------------+------------+-------+
-    |  ROM code   | FSBL                    | SSBL       | OS    |
-    +             +-------------------------+------------+-------+
-    |             |Trusted Firmware-A (TF-A)| U-Boot     | Linux |
-    +-------------+-------------------------+------------+-------+
-    | TrustZone   |OP-TEE                                        |
-    +-------------+-------------------------+------------+-------+
-
-TF-A performs a full initialization of Secure peripherals and installs OP-TEE
-from specific partitions (teeh, teed, teex).
-
-U-Boot is running in normal world and uses OP-TEE monitor to access
+U-Boot is running in normal world and uses the secure monitor to access
 to secure resources.
 
 The **Basic** boot chain
@@ -180,7 +164,6 @@ Build Procedure
    for example: use one output directory for each configuration::
 
    # export KBUILD_OUTPUT=stm32mp15_trusted
-   # export KBUILD_OUTPUT=stm32mp15_optee
    # export KBUILD_OUTPUT=stm32mp15_basic
 
    you can build outside of code directory::
@@ -194,7 +177,6 @@ Build Procedure
    with <defconfig_file>:
 
    - For **trusted** boot mode : **stm32mp15_trusted_defconfig**
-   - For **trusted** with OP-TEE boot mode : **stm32mp15_optee_defconfig**
    - For basic boot mode: stm32mp15_basic_defconfig
 
 5. Configure the device-tree and build the U-Boot image::
@@ -211,8 +193,8 @@ Build Procedure
 
   b) trusted with OP-TEE boot on dk2::
 
-      # export KBUILD_OUTPUT=stm32mp15_optee
-      # make stm32mp15_optee_defconfig
+      # export KBUILD_OUTPUT=stm32mp15_trusted
+      # make stm32mp15_trusted_defconfig
       # make DEVICE_TREE=stm32mp157c-dk2 all
 
   c) basic boot on ev1::
