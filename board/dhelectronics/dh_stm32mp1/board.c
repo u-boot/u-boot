@@ -116,9 +116,7 @@ int checkboard(void)
 	const char *fdt_compat;
 	int fdt_compat_len;
 
-	if (IS_ENABLED(CONFIG_STM32MP1_OPTEE))
-		mode = "trusted with OP-TEE";
-	else if (IS_ENABLED(CONFIG_TFABOOT))
+	if (IS_ENABLED(CONFIG_TFABOOT))
 		mode = "trusted";
 	else
 		mode = "basic";

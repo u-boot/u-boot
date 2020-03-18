@@ -9,6 +9,7 @@
 #include <env_internal.h>
 #include <mtd.h>
 #include <mtd_node.h>
+#include <tee.h>
 
 #define MTDPARTS_LEN		256
 #define MTDIDS_LEN		128
@@ -49,7 +50,7 @@ static void board_get_mtdparts(const char *dev,
 		strncat(mtdparts, ",", MTDPARTS_LEN);
 	}
 
-	if (CONFIG_IS_ENABLED(STM32MP1_OPTEE) && tee) {
+	if (tee) {
 		strncat(mtdparts, tee, MTDPARTS_LEN);
 		strncat(mtdparts, ",", MTDPARTS_LEN);
 	}
@@ -72,7 +73,8 @@ void board_mtdparts_default(const char **mtdids, const char **mtdparts)
 		return;
 	}
 
-	if (CONFIG_IS_ENABLED(STM32MP1_OPTEE))
+	if (CONFIG_IS_ENABLED(OPTEE) &&
+	    tee_find_device(NULL, NULL, NULL, NULL))
 		tee = true;
 
 	memset(parts, 0, sizeof(parts));

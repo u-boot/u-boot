@@ -86,16 +86,6 @@ config TARGET_DH_STM32MP1_PDK2
 
 endchoice
 
-config STM32MP1_OPTEE
-	bool "Support trusted boot with TF-A and OP-TEE"
-	depends on TFABOOT
-	default n
-	help
-		Say Y here to enable boot with TF-A and OP-TEE
-		Trusted boot chain is :
-		BootRom => TF-A.stm32 (clock & DDR) => OP-TEE => U-Boot.stm32
-		OP-TEE monitor provides ST SMC to access to secure resources
-
 config SYS_TEXT_BASE
 	default 0xC0100000
 

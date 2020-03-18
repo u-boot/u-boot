@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <fdt_support.h>
+#include <tee.h>
 #include <asm/arch/sys_proto.h>
 #include <dt-bindings/pinctrl/stm32-pinfunc.h>
 #include <linux/io.h>
@@ -322,7 +323,8 @@ int ft_system_setup(void *blob, bd_t *bd)
 				       "st,package", pkg, false);
 	}
 
-	if (!CONFIG_IS_ENABLED(STM32MP1_OPTEE))
+	if (!CONFIG_IS_ENABLED(OPTEE) ||
+	    !tee_find_device(NULL, NULL, NULL, NULL))
 		stm32_fdt_disable_optee(blob);
 
 	return ret;
