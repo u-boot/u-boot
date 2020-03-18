@@ -694,6 +694,29 @@ static int eqos_start_resets_tegra186(struct udevice *dev)
 
 static int eqos_start_resets_stm32(struct udevice *dev)
 {
+	struct eqos_priv *eqos = dev_get_priv(dev);
+	int ret;
+
+	debug("%s(dev=%p):\n", __func__, dev);
+	if (dm_gpio_is_valid(&eqos->phy_reset_gpio)) {
+		ret = dm_gpio_set_value(&eqos->phy_reset_gpio, 1);
+		if (ret < 0) {
+			pr_err("dm_gpio_set_value(phy_reset, assert) failed: %d",
+			       ret);
+			return ret;
+		}
+
+		udelay(2);
+
+		ret = dm_gpio_set_value(&eqos->phy_reset_gpio, 0);
+		if (ret < 0) {
+			pr_err("dm_gpio_set_value(phy_reset, deassert) failed: %d",
+			       ret);
+			return ret;
+		}
+	}
+	debug("%s: OK\n", __func__);
+
 	return 0;
 }
 
@@ -709,6 +732,18 @@ static int eqos_stop_resets_tegra186(struct udevice *dev)
 
 static int eqos_stop_resets_stm32(struct udevice *dev)
 {
+	struct eqos_priv *eqos = dev_get_priv(dev);
+	int ret;
+
+	if (dm_gpio_is_valid(&eqos->phy_reset_gpio)) {
+		ret = dm_gpio_set_value(&eqos->phy_reset_gpio, 1);
+		if (ret < 0) {
+			pr_err("dm_gpio_set_value(phy_reset, assert) failed: %d",
+			       ret);
+			return ret;
+		}
+	}
+
 	return 0;
 }
 
@@ -1604,6 +1639,7 @@ static int eqos_probe_resources_stm32(struct udevice *dev)
 	struct eqos_priv *eqos = dev_get_priv(dev);
 	int ret;
 	phy_interface_t interface;
+	struct ofnode_phandle_args phandle_args;
 
 	debug("%s(dev=%p):\n", __func__, dev);
 
@@ -1640,6 +1676,20 @@ static int eqos_probe_resources_stm32(struct udevice *dev)
 	ret = clk_get_by_name(dev, "eth-ck", &eqos->clk_ck);
 	if (ret)
 		pr_warn("No phy clock provided %d", ret);
+
+	ret = dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0,
+					 &phandle_args);
+	if (!ret) {
+		/* search "reset-gpios" in phy node */
+		ret = gpio_request_by_name_nodev(phandle_args.node,
+						 "reset-gpios", 0,
+						 &eqos->phy_reset_gpio,
+						 GPIOD_IS_OUT |
+						 GPIOD_IS_OUT_ACTIVE);
+		if (ret)
+			pr_warn("gpio_request_by_name(phy reset) not provided %d",
+				ret);
+	}
 
 	debug("%s: OK\n", __func__);
 	return 0;
@@ -1703,6 +1753,9 @@ static int eqos_remove_resources_stm32(struct udevice *dev)
 	clk_free(&eqos->clk_master_bus);
 	if (clk_valid(&eqos->clk_ck))
 		clk_free(&eqos->clk_ck);
+
+	if (dm_gpio_is_valid(&eqos->phy_reset_gpio))
+		dm_gpio_free(dev, &eqos->phy_reset_gpio);
 
 	debug("%s: OK\n", __func__);
 	return 0;
