@@ -218,22 +218,22 @@ script:
  # never prevent any test from running. That way, we can always pass
  # "-k something" even when $TEST_PY_TEST_SPEC doesnt need a custom
  # value.
- - export UBOOT_TRAVIS_BUILD_DIR=`cd .. && pwd`/.bm-work/${TEST_PY_BD};
-   cp ~/grub_x86.efi $UBOOT_TRAVIS_BUILD_DIR/;
-   cp ~/grub_x64.efi $UBOOT_TRAVIS_BUILD_DIR/;
-   if [[ -e ~/grub_arm.efi ]]; then
-     cp ~/grub_arm.efi $UBOOT_TRAVIS_BUILD_DIR/;
-   fi;
-   if [[ -e ~/grub_arm64.efi ]]; then
-     cp ~/grub_arm64.efi $UBOOT_TRAVIS_BUILD_DIR/;
-   fi;
-   if [[ -e ~/grub_riscv32.efi ]]; then
-     cp ~/grub_riscv32.efi $UBOOT_TRAVIS_BUILD_DIR/;
-   fi;
-   if [[ -e ~/grub_riscv64.efi ]]; then
-     cp ~/grub_riscv64.efi $UBOOT_TRAVIS_BUILD_DIR/;
-   fi;
-   if [[ "${TEST_PY_BD}" != "" ]]; then
+ - if [[ "${TEST_PY_BD}" != "" ]]; then
+     export UBOOT_TRAVIS_BUILD_DIR=`cd .. && pwd`/.bm-work/${TEST_PY_BD};
+     cp ~/grub_x86.efi $UBOOT_TRAVIS_BUILD_DIR/;
+     cp ~/grub_x64.efi $UBOOT_TRAVIS_BUILD_DIR/;
+     if [[ -e ~/grub_arm.efi ]]; then
+       cp ~/grub_arm.efi $UBOOT_TRAVIS_BUILD_DIR/;
+     fi;
+     if [[ -e ~/grub_arm64.efi ]]; then
+       cp ~/grub_arm64.efi $UBOOT_TRAVIS_BUILD_DIR/;
+     fi;
+     if [[ -e ~/grub_riscv32.efi ]]; then
+       cp ~/grub_riscv32.efi $UBOOT_TRAVIS_BUILD_DIR/;
+     fi;
+     if [[ -e ~/grub_riscv64.efi ]]; then
+       cp ~/grub_riscv64.efi $UBOOT_TRAVIS_BUILD_DIR/;
+     fi;
      virtualenv -p /usr/bin/python3 /tmp/venv;
      . /tmp/venv/bin/activate;
      pip install -r test/py/requirements.txt;
