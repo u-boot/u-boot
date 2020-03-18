@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <asm/encoding.h>
 #include <asm/sbi.h>
 
 int riscv_send_ipi(int hart)
@@ -19,7 +20,7 @@ int riscv_send_ipi(int hart)
 
 int riscv_clear_ipi(int hart)
 {
-	sbi_clear_ipi();
+	csr_clear(CSR_SIP, SIP_SSIP);
 
 	return 0;
 }
