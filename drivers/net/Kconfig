@@ -640,4 +640,11 @@ config MVMDIO
 
 	  This driver is used by the MVPP2 and MVNETA drivers.
 
+config FSL_LS_MDIO
+	bool "NXP Layerscape MDIO interface support"
+	depends on DM_MDIO
+	help
+	  This driver supports the MDIO bus found on the Fman 10G Ethernet MACs and
+	  on the mEMAC (which supports both Clauses 22 and 45).
+
 endif # NETDEVICES
