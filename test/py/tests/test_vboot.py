@@ -24,9 +24,8 @@ For configuration verification:
 Tests run with both SHA1 and SHA256 hashing.
 """
 
-import pytest
-import sys
 import struct
+import pytest
 import u_boot_utils as util
 import vboot_forge
 
@@ -85,11 +84,11 @@ def test_vboot(u_boot_console, sha_algo, padding, required):
         with cons.log.section('Verified boot %s %s' % (sha_algo, test_type)):
             output = cons.run_command_list(
                 ['host load hostfs - 100 %stest.fit' % tmpdir,
-                'fdt addr 100',
-                'bootm 100'])
-        assert(expect_string in ''.join(output))
+                 'fdt addr 100',
+                 'bootm 100'])
+        assert expect_string in ''.join(output)
         if boots:
-            assert('sandbox: continuing, as we cannot run' in ''.join(output))
+            assert 'sandbox: continuing, as we cannot run' in ''.join(output)
         else:
             assert('sandbox: continuing, as we cannot run'
                    not in ''.join(output))
@@ -118,20 +117,6 @@ def test_vboot(u_boot_console, sha_algo, padding, required):
         cons.log.action('%s: Sign images' % sha_algo)
         util.run_and_log(cons, [mkimage, '-F', '-k', tmpdir, '-K', dtb,
                                 '-r', fit])
-
-    def sign_fit_norequire(sha_algo):
-        """Sign the FIT
-
-        Signs the FIT and writes the signature into it. It also writes the
-        public key into the dtb.
-
-        Args:
-            sha_algo: Either 'sha1' or 'sha256', to select the algorithm to
-                    use.
-        """
-        cons.log.action('%s: Sign images' % sha_algo)
-        util.run_and_log(cons, [mkimage, '-F', '-k', tmpdir, '-K', dtb,
-                                fit])
 
     def replace_fit_totalsize(size):
         """Replace FIT header's totalsize with something greater.
@@ -171,7 +156,7 @@ def test_vboot(u_boot_console, sha_algo, padding, required):
 
         # Build the FIT, but don't sign anything yet
         cons.log.action('%s: Test FIT with signed images' % sha_algo)
-        make_fit('sign-images-%s%s.its' % (sha_algo , padding))
+        make_fit('sign-images-%s%s.its' % (sha_algo, padding))
         run_bootm(sha_algo, 'unsigned images', 'dev-', True)
 
         # Sign images with our dev keys
@@ -182,7 +167,7 @@ def test_vboot(u_boot_console, sha_algo, padding, required):
         dtc('sandbox-u-boot.dts')
 
         cons.log.action('%s: Test FIT with signed configuration' % sha_algo)
-        make_fit('sign-configs-%s%s.its' % (sha_algo , padding))
+        make_fit('sign-configs-%s%s.its' % (sha_algo, padding))
         run_bootm(sha_algo, 'unsigned config', '%s+ OK' % sha_algo, True)
 
         # Sign images with our dev keys
@@ -195,14 +180,14 @@ def test_vboot(u_boot_console, sha_algo, padding, required):
 
         # Make sure that U-Boot checks that the config is in the list of hashed
         # nodes. If it isn't, a security bypass is possible.
-        with open(fit, 'rb') as fp:
-            root, strblock = vboot_forge.read_fdt(fp)
+        with open(fit, 'rb') as fd:
+            root, strblock = vboot_forge.read_fdt(fd)
         root, strblock = vboot_forge.manipulate(root, strblock)
-        with open(fit, 'w+b') as fp:
-            vboot_forge.write_fdt(root, strblock, fp)
-        util.run_and_log_expect_exception(cons,
-                [fit_check_sign, '-f', fit, '-k', dtb],
-                1, 'Failed to verify required signature')
+        with open(fit, 'w+b') as fd:
+            vboot_forge.write_fdt(root, strblock, fd)
+        util.run_and_log_expect_exception(
+            cons, [fit_check_sign, '-f', fit, '-k', dtb],
+            1, 'Failed to verify required signature')
 
         run_bootm(sha_algo, 'forged config', 'Bad Data Hash', False)
 
@@ -235,8 +220,9 @@ def test_vboot(u_boot_console, sha_algo, padding, required):
                   False)
 
         cons.log.action('%s: Check bad config on the host' % sha_algo)
-        util.run_and_log_expect_exception(cons, [fit_check_sign, '-f', fit,
-                '-k', dtb], 1, 'Failed to verify required signature')
+        util.run_and_log_expect_exception(
+            cons, [fit_check_sign, '-f', fit, '-k', dtb],
+            1, 'Failed to verify required signature')
 
     def test_required_key(sha_algo, padding):
         """Test verified boot with the given hash algorithm.
@@ -257,12 +243,12 @@ def test_vboot(u_boot_console, sha_algo, padding, required):
 
         # Build the FIT with prod key (keys required) and sign it. This puts the
         # signature into sandbox-u-boot.dtb, marked 'required'
-        make_fit('sign-configs-%s%s-prod.its' % (sha_algo , padding))
+        make_fit('sign-configs-%s%s-prod.its' % (sha_algo, padding))
         sign_fit(sha_algo)
 
         # Build the FIT with dev key (keys NOT required). This adds the
         # signature into sandbox-u-boot.dtb, NOT marked 'required'.
-        make_fit('sign-configs-%s%s.its' % (sha_algo , padding))
+        make_fit('sign-configs-%s%s.its' % (sha_algo, padding))
         sign_fit(sha_algo)
 
         # So now sandbox-u-boot.dtb two signatures, for the prod and dev keys.
@@ -274,7 +260,6 @@ def test_vboot(u_boot_console, sha_algo, padding, required):
 
     cons = u_boot_console
     tmpdir = cons.config.result_dir + '/'
-    tmp = tmpdir + 'vboot.tmp'
     datadir = cons.config.source_dir + '/test/py/tests/vboot/'
     fit = '%stest.fit' % tmpdir
     mkimage = cons.config.build_dir + '/tools/mkimage'
