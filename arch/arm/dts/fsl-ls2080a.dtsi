@@ -200,4 +200,19 @@
 			status = "disabled";
 	};
 
+	emdio1: mdio@8B96000 {
+		compatible = "fsl,ls-mdio";
+		reg = <0x0 0x8B96000 0x0 0x1000>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "disabled";
+	};
+
+	emdio2: mdio@8B97000 {
+		compatible = "fsl,ls-mdio";
+		reg = <0x0 0x8B97000 0x0 0x1000>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "disabled";
+	};
 };
