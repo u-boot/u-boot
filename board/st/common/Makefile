@@ -4,3 +4,7 @@
 #
 
 obj-$(CONFIG_CMD_STBOARD) += cmd_stboard.o
+
+ifeq ($(CONFIG_ARCH_STM32MP),y)
+obj-$(CONFIG_SYS_MTDPARTS_RUNTIME) += stm32mp_mtdparts.o
+endif
