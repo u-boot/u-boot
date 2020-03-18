@@ -6,6 +6,7 @@
 #include <common.h>
 #include <command.h>
 #include <dfu.h>
+#include <image.h>
 #include <asm/arch/stm32prog.h>
 #include "stm32prog.h"
 
@@ -44,6 +45,7 @@ static int do_stm32prog(cmd_tbl_t *cmdtp, int flag, int argc,
 	int dev, ret;
 	enum stm32prog_link_t link = LINK_UNDEFINED;
 	bool reset = false;
+	struct image_header_s header;
 	struct stm32prog_data *data;
 
 	if (argc < 3 ||  argc > 5)
@@ -70,6 +72,18 @@ static int do_stm32prog(cmd_tbl_t *cmdtp, int flag, int argc,
 	}
 	if (argc > 4)
 		size = simple_strtoul(argv[4], NULL, 16);
+
+	/* check STM32IMAGE presence */
+	if (size == 0 &&
+	    !stm32prog_header_check((struct raw_header_s *)addr, &header)) {
+		size = header.image_length + BL_HEADER_SIZE;
+
+		/* uImage detected in STM32IMAGE, execute the script */
+		if (IMAGE_FORMAT_LEGACY ==
+		    genimg_get_format((void *)(addr + BL_HEADER_SIZE)))
+			return image_source_script(addr + BL_HEADER_SIZE,
+						   "script@1");
+	}
 
 	enable_vidconsole();
 
