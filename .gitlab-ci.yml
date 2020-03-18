@@ -198,7 +198,7 @@ sandbox_spl test.py:
   tags: [ 'all' ]
   variables:
     TEST_PY_BD: "sandbox_spl"
-    TEST_PY_TEST_SPEC: "test_ofplatdata"
+    TEST_PY_TEST_SPEC: "test_ofplatdata or test_handoff"
   <<: *buildman_and_testpy_dfn
 
 evb-ast2500 test.py:

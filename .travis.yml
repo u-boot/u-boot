@@ -503,7 +503,7 @@ matrix:
     - name: "test/py sandbox_spl"
       env:
         - TEST_PY_BD="sandbox_spl"
-          TEST_PY_TEST_SPEC="test_ofplatdata"
+          TEST_PY_TEST_SPEC="test_ofplatdata or test_handoff"
           TOOLCHAIN="i386"
           TEST_PY_TOOLS="yes"
     - name: "test/py sandbox_flattree"
