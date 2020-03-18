@@ -263,6 +263,13 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
         str = ("No commits found to process in branch '%s': "
                "set branch's upstream or use -c flag" % options.branch)
         sys.exit(col.Color(col.RED, str))
+    if options.work_in_output:
+        if len(selected) != 1:
+            sys.exit(col.Color(col.RED,
+                               '-w can only be used with a single board'))
+        if count != 1:
+            sys.exit(col.Color(col.RED,
+                               '-w can only be used with a single commit'))
 
     # Read the metadata from the commits. First look at the upstream commit,
     # then the ones in the branch. We would like to do something like
@@ -334,7 +341,8 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
             per_board_out_dir=options.per_board_out_dir,
             config_only=options.config_only,
             squash_config_y=not options.preserve_config_y,
-            warnings_as_errors=options.warnings_as_errors)
+            warnings_as_errors=options.warnings_as_errors,
+            work_in_output=options.work_in_output)
     builder.force_config_on_failure = not options.quick
     if make_func:
         builder.do_make = make_func

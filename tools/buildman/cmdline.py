@@ -106,6 +106,8 @@ def ParseArgs():
           default=False, help='Show build results while the build progresses')
     parser.add_option('-V', '--verbose-build', action='store_true',
           default=False, help='Run make with V=1, logging all output')
+    parser.add_option('-w', '--work-in-output', action='store_true',
+          default=False, help='Use the output directory as the work directory')
     parser.add_option('-x', '--exclude', dest='exclude',
           type='string', action='append',
           help='Specify a list of boards to exclude, separated by comma')

@@ -42,12 +42,15 @@ class BuilderJob:
         commits: List of Commit objects to build
         keep_outputs: True to save build output files
         step: 1 to process every commit, n to process every nth commit
+        work_in_output: Use the output directory as the work directory and
+            don't write to a separate output directory.
     """
     def __init__(self):
         self.board = None
         self.commits = []
         self.keep_outputs = False
         self.step = 1
+        self.work_in_output = False
 
 
 class ResultThread(threading.Thread):
@@ -118,7 +121,7 @@ class BuilderThread(threading.Thread):
                 **kwargs)
 
     def RunCommit(self, commit_upto, brd, work_dir, do_config, config_only,
-                  force_build, force_build_failures):
+                  force_build, force_build_failures, work_in_output):
         """Build a particular commit.
 
         If the build is already done, and we are not forcing a build, we skip
@@ -133,6 +136,8 @@ class BuilderThread(threading.Thread):
             force_build: Force a build even if one was previously done
             force_build_failures: Force a bulid if the previous result showed
                 failure
+            work_in_output: Use the output directory as the work directory and
+                don't write to a separate output directory.
 
         Returns:
             tuple containing:
@@ -143,7 +148,7 @@ class BuilderThread(threading.Thread):
         # self.Make() below, in the event that we do a build.
         result = command.CommandResult()
         result.return_code = 0
-        if self.builder.in_tree:
+        if work_in_output or self.builder.in_tree:
             out_dir = work_dir
         else:
             if self.per_board_out_dir:
@@ -265,14 +270,18 @@ class BuilderThread(threading.Thread):
         result.out_dir = out_dir
         return result, do_config
 
-    def _WriteResult(self, result, keep_outputs):
+    def _WriteResult(self, result, keep_outputs, work_in_output):
         """Write a built result to the output directory.
 
         Args:
             result: CommandResult object containing result to write
             keep_outputs: True to store the output binaries, False
                 to delete them
+            work_in_output: Use the output directory as the work directory and
+                don't write to a separate output directory.
         """
+        if work_in_output:
+            return
         # Fatal error
         if result.return_code < 0:
             return
@@ -434,7 +443,8 @@ class BuilderThread(threading.Thread):
                 result, request_config = self.RunCommit(commit_upto, brd,
                         work_dir, do_config, self.builder.config_only,
                         force_build or self.builder.force_build,
-                        self.builder.force_build_failures)
+                        self.builder.force_build_failures,
+                        work_in_output=job.work_in_output)
                 failed = result.return_code or result.stderr
                 did_config = do_config
                 if failed and not do_config:
@@ -442,7 +452,8 @@ class BuilderThread(threading.Thread):
                     # with a reconfig.
                     if self.builder.force_config_on_failure:
                         result, request_config = self.RunCommit(commit_upto,
-                            brd, work_dir, True, False, True, False)
+                            brd, work_dir, True, False, True, False,
+                            work_in_output=job.work_in_output)
                         did_config = True
                 if not self.builder.force_reconfig:
                     do_config = request_config
@@ -481,15 +492,16 @@ class BuilderThread(threading.Thread):
                         raise ValueError('Interrupt')
 
                 # We have the build results, so output the result
-                self._WriteResult(result, job.keep_outputs)
+                self._WriteResult(result, job.keep_outputs, job.work_in_output)
                 self.builder.out_queue.put(result)
         else:
             # Just build the currently checked-out build
             result, request_config = self.RunCommit(None, brd, work_dir, True,
                         self.builder.config_only, True,
-                        self.builder.force_build_failures)
+                        self.builder.force_build_failures,
+                        work_in_output=job.work_in_output)
             result.commit_upto = 0
-            self._WriteResult(result, job.keep_outputs)
+            self._WriteResult(result, job.keep_outputs, job.work_in_output)
             self.builder.out_queue.put(result)
 
     def run(self):

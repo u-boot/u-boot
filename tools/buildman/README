@@ -1056,6 +1056,17 @@ toolchain. For example:
    buildman -O clang-7 --board sandbox
 
 
+Doing a simple build
+====================
+
+In some cases you just want to build a single board and get the full output, use
+the -w option, for example:
+
+   buildman -o /tmp/build --board sandbox -w
+
+This will write the full build into /tmp/build including object files.
+
+
 Other options
 =============
 

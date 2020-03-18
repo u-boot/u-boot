@@ -174,6 +174,8 @@ class Builder:
         in_tree: Build U-Boot in-tree instead of specifying an output
             directory separate from the source code. This option is really
             only useful for testing in-tree builds.
+        work_in_output: Use the output directory as the work directory and
+            don't write to a separate output directory.
 
     Private members:
         _base_board_dict: Last-summarised Dict of boards
@@ -224,7 +226,7 @@ class Builder:
                  no_subdirs=False, full_path=False, verbose_build=False,
                  incremental=False, per_board_out_dir=False,
                  config_only=False, squash_config_y=False,
-                 warnings_as_errors=False):
+                 warnings_as_errors=False, work_in_output=False):
         """Create a new Builder object
 
         Args:
@@ -250,10 +252,15 @@ class Builder:
             config_only: Only configure each build, don't build it
             squash_config_y: Convert CONFIG options with the value 'y' to '1'
             warnings_as_errors: Treat all compiler warnings as errors
+            work_in_output: Use the output directory as the work directory and
+                don't write to a separate output directory.
         """
         self.toolchains = toolchains
         self.base_dir = base_dir
-        self._working_dir = os.path.join(base_dir, '.bm-work')
+        if work_in_output:
+            self._working_dir = base_dir
+        else:
+            self._working_dir = os.path.join(base_dir, '.bm-work')
         self.threads = []
         self.do_make = self.Make
         self.gnu_make = gnu_make
@@ -280,6 +287,7 @@ class Builder:
         self.config_only = config_only
         self.squash_config_y = squash_config_y
         self.config_filenames = BASE_CONFIG_FILENAMES
+        self.work_in_output = work_in_output
         if not self.squash_config_y:
             self.config_filenames += EXTRA_CONFIG_FILENAMES
 
@@ -1474,6 +1482,8 @@ class Builder:
         Args:
             thread_num: Number of thread to check.
         """
+        if self.work_in_output:
+            return self._working_dir
         return os.path.join(self._working_dir, '%02d' % thread_num)
 
     def _PrepareThread(self, thread_num, setup_git):
@@ -1571,6 +1581,7 @@ class Builder:
             job.board = brd
             job.commits = commits
             job.keep_outputs = keep_outputs
+            job.work_in_output = self.work_in_output
             job.step = self._step
             self.queue.put(job)
 
