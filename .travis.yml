@@ -215,11 +215,8 @@ script:
        exit $ret;
      fi;
    fi
- # "not a_test_which_does_not_exist" is a dummy -k parameter which will
- # never prevent any test from running. That way, we can always pass
- # "-k something" even when $TEST_PY_TEST_SPEC doesnt need a custom
- # value.
  # Build just the one board needed for testing, if TEST_PY_BD is non-empty
+ # Note: "${var:+"-k $var"}" expands to "" if $var is empty, "-k $var" if not
  - if [[ "${TEST_PY_BD}" != "" ]]; then
      export UBOOT_TRAVIS_BUILD_DIR=`cd .. && pwd`/${TEST_PY_BD};
      cp ~/grub_x86.efi $UBOOT_TRAVIS_BUILD_DIR/;
@@ -248,7 +245,7 @@ script:
      . /tmp/venv/bin/activate;
      pip install -r test/py/requirements.txt;
      ./test/py/test.py --bd ${TEST_PY_BD} ${TEST_PY_ID}
-       -k "${TEST_PY_TEST_SPEC:-not a_test_which_does_not_exist}"
+       ${TEST_PY_TEST_SPEC:+"-k ${TEST_PY_TEST_SPEC}"}
        --build-dir "$UBOOT_TRAVIS_BUILD_DIR";
      ret=$?;
      if [[ $ret -ne 0 ]]; then
