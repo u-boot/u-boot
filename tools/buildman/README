@@ -1070,16 +1070,32 @@ This will write the full build into /tmp/build including object files.
 Other options
 =============
 
-Buildman has various other command line options. Try --help to see them.
+Buildman has various other command-line options. Try --help to see them.
 
 To find out what architecture or toolchain prefix buildman will use for a build,
 see the -a and -A options.
+
+To request that compiler warnings be promoted to errors, use -E. This passes the
+-Werror flag to the compiler. Note that the build can still produce warnings
+with -E, e.g. the migration warnings:
+
+        ===================== WARNING ======================
+        This board does not use CONFIG_DM_MMC. Please update
+        ...
+        ====================================================
 
 When doing builds, Buildman's return code will reflect the overall result:
 
     0 (success)     No errors or warnings found
     128             Errors found
-    129             Warnings found
+    129             Warnings found (only if no -W)
+
+You can use -W to tell Buildman to return 0 (success) instead of 129 when
+warnings are found. Note that it can be useful to combine -E and -W. This means
+that all compiler warnings will produce failures (code 128) and all other
+warnings will produce success (since 129 is changed to 0).
+
+If there are both warnings and errors, errors win, so buildman returns 128.
 
 
 How to change from MAKEALL
