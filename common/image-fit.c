@@ -2007,7 +2007,8 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 		fit_image_check_os(fit, noffset, IH_OS_LINUX) ||
 		fit_image_check_os(fit, noffset, IH_OS_U_BOOT) ||
 		fit_image_check_os(fit, noffset, IH_OS_OPENRTOS) ||
-		fit_image_check_os(fit, noffset, IH_OS_EFI);
+		fit_image_check_os(fit, noffset, IH_OS_EFI) ||
+		fit_image_check_os(fit, noffset, IH_OS_VXWORKS);
 
 	/*
 	 * If either of the checks fail, we should report an error, but
