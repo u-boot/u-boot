@@ -80,6 +80,9 @@ enum boot_device {
 
 	BOOT_SERIAL_USB = 0x60,
 	BOOT_SERIAL_USB_OTG = 0x62,
+
+	BOOT_FLASH_SPINAND = 0x70,
+	BOOT_FLASH_SPINAND_1 = 0x71,
 };
 
 /* TAMP registers */

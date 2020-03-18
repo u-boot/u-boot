@@ -789,6 +789,7 @@ enum env_location env_get_location(enum env_operation op, int prio)
 #endif
 #ifdef CONFIG_ENV_IS_IN_UBI
 	case BOOT_FLASH_NAND:
+	case BOOT_FLASH_SPINAND:
 		return ENVL_UBI;
 #endif
 #ifdef CONFIG_ENV_IS_IN_SPI_FLASH
@@ -829,6 +830,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 #ifdef CONFIG_FDT_FIXUP_PARTITIONS
 	struct node_info nodes[] = {
 		{ "st,stm32f469-qspi",		MTD_DEV_TYPE_NOR,  },
+		{ "st,stm32f469-qspi",		MTD_DEV_TYPE_SPINAND},
 		{ "st,stm32mp15-fmc2",		MTD_DEV_TYPE_NAND, },
 	};
 	fdt_fixup_mtdparts(blob, nodes, ARRAY_SIZE(nodes));
