@@ -1560,10 +1560,11 @@ class Builder:
         """
         to_remove = self._GetOutputSpaceRemovals()
         if to_remove:
-            Print('Removing %d old build directories' % len(to_remove),
+            Print('Removing %d old build directories...' % len(to_remove),
                   newline=False)
             for dirname in to_remove:
                 shutil.rmtree(dirname)
+            Print('done')
 
     def BuildBoards(self, commits, board_selected, keep_outputs, verbose):
         """Build all commits for a list of boards

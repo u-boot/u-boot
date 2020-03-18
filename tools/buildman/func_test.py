@@ -534,15 +534,6 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(self._builder.count, self._total_builds)
         self.assertEqual(self._builder.fail, 0)
 
-    def testBadOutputDir(self):
-        """Test building with an output dir the same as out current dir"""
-        self._test_branch = '/__dev/__testbranch'
-        with self.assertRaises(SystemExit):
-            self._RunControl('-b', self._test_branch, '-o', os.getcwd())
-        with self.assertRaises(SystemExit):
-            self._RunControl('-b', self._test_branch, '-o',
-                             os.path.join(os.getcwd(), 'test'))
-
     def testWorkInOutput(self):
         """Test the -w option which should write directly to the output dir"""
         board_list = board.Boards()
