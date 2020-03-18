@@ -218,6 +218,26 @@ static void stm32_fdt_disable(void *fdt, int offset, u32 addr,
 		       string, addr, name);
 }
 
+static void stm32_fdt_disable_optee(void *blob)
+{
+	int off, node;
+
+	off = fdt_node_offset_by_compatible(blob, -1, "linaro,optee-tz");
+	if (off >= 0 && fdtdec_get_is_enabled(blob, off))
+		fdt_status_disabled(blob, off);
+
+	/* Disabled "optee@..." reserved-memory node */
+	off = fdt_path_offset(blob, "/reserved-memory/");
+	if (off < 0)
+		return;
+	for (node = fdt_first_subnode(blob, off);
+	     node >= 0;
+	     node = fdt_next_subnode(blob, node)) {
+		if (!strncmp(fdt_get_name(blob, node, NULL), "optee@", 6))
+			fdt_status_disabled(blob, node);
+	}
+}
+
 /*
  * This function is called right before the kernel is booted. "blob" is the
  * device tree that will be passed to the kernel.
@@ -301,6 +321,9 @@ int ft_system_setup(void *blob, bd_t *bd)
 		do_fixup_by_compat_u32(blob, "st,stm32mp157-z-pinctrl",
 				       "st,package", pkg, false);
 	}
+
+	if (!CONFIG_IS_ENABLED(STM32MP1_OPTEE))
+		stm32_fdt_disable_optee(blob);
 
 	return ret;
 }
