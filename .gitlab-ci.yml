@@ -40,9 +40,10 @@ stages:
     # use clang only do one configuration.
     - if [[ "${BUILDMAN}" != "" ]]; then
         ret=0;
-        tools/buildman/buildman -o /tmp -P -E ${BUILDMAN} ${OVERRIDE}|| ret=$?;
+        tools/buildman/buildman -o /tmp -P -E --board ${BUILDMAN} ${OVERRIDE}
+          || ret=$?;
         if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-          tools/buildman/buildman -o /tmp -sdeP ${BUILDMAN};
+          tools/buildman/buildman -o /tmp -sdeP --board ${BUILDMAN};
           exit $ret;
         fi;
       fi
@@ -191,14 +192,14 @@ sandbox test.py:
   tags: [ 'all' ]
   variables:
     TEST_PY_BD: "sandbox"
-    BUILDMAN: "^sandbox$"
+    BUILDMAN: "sandbox"
   <<: *buildman_and_testpy_dfn
 
 sandbox with clang test.py:
   tags: [ 'all' ]
   variables:
     TEST_PY_BD: "sandbox"
-    BUILDMAN: "^sandbox$"
+    BUILDMAN: "sandbox"
     OVERRIDE: "-O clang-7"
   <<: *buildman_and_testpy_dfn
 
@@ -206,7 +207,7 @@ sandbox_spl test.py:
   tags: [ 'all' ]
   variables:
     TEST_PY_BD: "sandbox_spl"
-    BUILDMAN: "^sandbox_spl$"
+    BUILDMAN: "sandbox_spl"
     TEST_PY_TEST_SPEC: "test_ofplatdata"
   <<: *buildman_and_testpy_dfn
 
@@ -215,14 +216,14 @@ evb-ast2500 test.py:
   variables:
     TEST_PY_BD: "evb-ast2500"
     TEST_PY_ID: "--id qemu"
-    BUILDMAN: "^evb-ast2500$"
+    BUILDMAN: "evb-ast2500"
   <<: *buildman_and_testpy_dfn
 
 sandbox_flattree test.py:
   tags: [ 'all' ]
   variables:
     TEST_PY_BD: "sandbox_flattree"
-    BUILDMAN: "^sandbox_flattree$"
+    BUILDMAN: "sandbox_flattree"
   <<: *buildman_and_testpy_dfn
 
 vexpress_ca15_tc2 test.py:
@@ -230,7 +231,7 @@ vexpress_ca15_tc2 test.py:
   variables:
     TEST_PY_BD: "vexpress_ca15_tc2"
     TEST_PY_ID: "--id qemu"
-    BUILDMAN: "^vexpress_ca15_tc2$"
+    BUILDMAN: "vexpress_ca15_tc2"
   <<: *buildman_and_testpy_dfn
 
 vexpress_ca9x4 test.py:
@@ -238,7 +239,7 @@ vexpress_ca9x4 test.py:
   variables:
     TEST_PY_BD: "vexpress_ca9x4"
     TEST_PY_ID: "--id qemu"
-    BUILDMAN: "^vexpress_ca9x4$"
+    BUILDMAN: "vexpress_ca9x4"
   <<: *buildman_and_testpy_dfn
 
 integratorcp_cm926ejs test.py:
@@ -247,7 +248,7 @@ integratorcp_cm926ejs test.py:
     TEST_PY_BD: "integratorcp_cm926ejs"
     TEST_PY_TEST_SPEC: "not sleep"
     TEST_PY_ID: "--id qemu"
-    BUILDMAN: "^integratorcp_cm926ejs$"
+    BUILDMAN: "integratorcp_cm926ejs"
   <<: *buildman_and_testpy_dfn
 
 qemu_arm test.py:
@@ -255,7 +256,7 @@ qemu_arm test.py:
   variables:
     TEST_PY_BD: "qemu_arm"
     TEST_PY_TEST_SPEC: "not sleep"
-    BUILDMAN: "^qemu_arm$"
+    BUILDMAN: "qemu_arm"
   <<: *buildman_and_testpy_dfn
 
 qemu_arm64 test.py:
@@ -263,7 +264,7 @@ qemu_arm64 test.py:
   variables:
     TEST_PY_BD: "qemu_arm64"
     TEST_PY_TEST_SPEC: "not sleep"
-    BUILDMAN: "^qemu_arm64$"
+    BUILDMAN: "qemu_arm64"
   <<: *buildman_and_testpy_dfn
 
 qemu_mips test.py:
@@ -271,7 +272,7 @@ qemu_mips test.py:
   variables:
     TEST_PY_BD: "qemu_mips"
     TEST_PY_TEST_SPEC: "not sleep"
-    BUILDMAN: "^qemu_mips$"
+    BUILDMAN: "qemu_mips"
   <<: *buildman_and_testpy_dfn
 
 qemu_mipsel test.py:
@@ -279,7 +280,7 @@ qemu_mipsel test.py:
   variables:
     TEST_PY_BD: "qemu_mipsel"
     TEST_PY_TEST_SPEC: "not sleep"
-    BUILDMAN: "^qemu_mipsel$"
+    BUILDMAN: "qemu_mipsel"
   <<: *buildman_and_testpy_dfn
 
 qemu_mips64 test.py:
@@ -287,7 +288,7 @@ qemu_mips64 test.py:
   variables:
     TEST_PY_BD: "qemu_mips64"
     TEST_PY_TEST_SPEC: "not sleep"
-    BUILDMAN: "^qemu_mips64$"
+    BUILDMAN: "qemu_mips64"
   <<: *buildman_and_testpy_dfn
 
 qemu_mips64el test.py:
@@ -295,7 +296,7 @@ qemu_mips64el test.py:
   variables:
     TEST_PY_BD: "qemu_mips64el"
     TEST_PY_TEST_SPEC: "not sleep"
-    BUILDMAN: "^qemu_mips64el$"
+    BUILDMAN: "qemu_mips64el"
   <<: *buildman_and_testpy_dfn
 
 qemu-ppce500 test.py:
@@ -303,7 +304,7 @@ qemu-ppce500 test.py:
   variables:
     TEST_PY_BD: "qemu-ppce500"
     TEST_PY_TEST_SPEC: "not sleep"
-    BUILDMAN: "^qemu-ppce500$"
+    BUILDMAN: "qemu-ppce500"
   <<: *buildman_and_testpy_dfn
 
 qemu-riscv32 test.py:
@@ -311,7 +312,7 @@ qemu-riscv32 test.py:
   variables:
     TEST_PY_BD: "qemu-riscv32"
     TEST_PY_TEST_SPEC: "not sleep"
-    BUILDMAN: "^qemu-riscv32$"
+    BUILDMAN: "qemu-riscv32"
   <<: *buildman_and_testpy_dfn
 
 qemu-riscv64 test.py:
@@ -319,7 +320,7 @@ qemu-riscv64 test.py:
   variables:
     TEST_PY_BD: "qemu-riscv64"
     TEST_PY_TEST_SPEC: "not sleep"
-    BUILDMAN: "^qemu-riscv64$"
+    BUILDMAN: "qemu-riscv64"
   <<: *buildman_and_testpy_dfn
 
 qemu-riscv32_spl test.py:
@@ -327,7 +328,7 @@ qemu-riscv32_spl test.py:
   variables:
     TEST_PY_BD: "qemu-riscv32_spl"
     TEST_PY_TEST_SPEC: "not sleep"
-    BUILDMAN: "^qemu-riscv32_spl$"
+    BUILDMAN: "qemu-riscv32_spl"
   <<: *buildman_and_testpy_dfn
 
 qemu-riscv64_spl test.py:
@@ -335,7 +336,7 @@ qemu-riscv64_spl test.py:
   variables:
     TEST_PY_BD: "qemu-riscv64_spl"
     TEST_PY_TEST_SPEC: "not sleep"
-    BUILDMAN: "^qemu-riscv64_spl$"
+    BUILDMAN: "qemu-riscv64_spl"
   <<: *buildman_and_testpy_dfn
 
 qemu-x86 test.py:
@@ -343,7 +344,7 @@ qemu-x86 test.py:
   variables:
     TEST_PY_BD: "qemu-x86"
     TEST_PY_TEST_SPEC: "not sleep"
-    BUILDMAN: "^qemu-x86$"
+    BUILDMAN: "qemu-x86"
   <<: *buildman_and_testpy_dfn
 
 qemu-x86_64 test.py:
@@ -351,7 +352,7 @@ qemu-x86_64 test.py:
   variables:
     TEST_PY_BD: "qemu-x86_64"
     TEST_PY_TEST_SPEC: "not sleep"
-    BUILDMAN: "^qemu-x86_64$"
+    BUILDMAN: "qemu-x86_64"
   <<: *buildman_and_testpy_dfn
 
 xilinx_zynq_virt test.py:
@@ -360,7 +361,7 @@ xilinx_zynq_virt test.py:
     TEST_PY_BD: "xilinx_zynq_virt"
     TEST_PY_TEST_SPEC: "not sleep"
     TEST_PY_ID: "--id qemu"
-    BUILDMAN: "^xilinx_zynq_virt$"
+    BUILDMAN: "xilinx_zynq_virt"
   <<: *buildman_and_testpy_dfn
 
 xilinx_versal_virt test.py:
@@ -369,7 +370,7 @@ xilinx_versal_virt test.py:
     TEST_PY_BD: "xilinx_versal_virt"
     TEST_PY_TEST_SPEC: "not sleep"
     TEST_PY_ID: "--id qemu"
-    BUILDMAN: "^xilinx_versal_virt$"
+    BUILDMAN: "xilinx_versal_virt"
   <<: *buildman_and_testpy_dfn
 
 xtfpga test.py:
@@ -378,5 +379,5 @@ xtfpga test.py:
     TEST_PY_BD: "xtfpga"
     TEST_PY_TEST_SPEC: "not sleep"
     TEST_PY_ID: "--id qemu"
-    BUILDMAN: "^xtfpga$"
+    BUILDMAN: "xtfpga"
   <<: *buildman_and_testpy_dfn

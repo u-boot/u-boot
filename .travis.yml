@@ -237,10 +237,11 @@ script:
        cp ~/grub_riscv64.efi $UBOOT_TRAVIS_BUILD_DIR/;
      fi;
      ret=0;
-     tools/buildman/buildman -o ${UBOOT_TRAVIS_BUILD_DIR} -w -E ${BUILDMAN}
-       ${OVERRIDE}|| ret=$?;
+     tools/buildman/buildman -o ${UBOOT_TRAVIS_BUILD_DIR} -w -E
+       --board ${BUILDMAN} ${OVERRIDE}|| ret=$?;
      if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-       tools/buildman/buildman -sde -o ${UBOOT_TRAVIS_BUILD_DIR} -w ${BUILDMAN};
+       tools/buildman/buildman -sde -o ${UBOOT_TRAVIS_BUILD_DIR} -w
+         --board ${BUILDMAN};
        exit $ret;
      fi;
      virtualenv -p /usr/bin/python3 /tmp/venv;
@@ -498,131 +499,131 @@ matrix:
     - name: "test/py sandbox"
       env:
         - TEST_PY_BD="sandbox"
-          BUILDMAN="^sandbox$"
+          BUILDMAN="sandbox"
           TOOLCHAIN="i386"
     - name: "test/py sandbox with clang"
       env:
         - TEST_PY_BD="sandbox"
-          BUILDMAN="^sandbox$"
+          BUILDMAN="sandbox"
           OVERRIDE="-O clang-7"
     - name: "test/py sandbox_spl"
       env:
         - TEST_PY_BD="sandbox_spl"
           TEST_PY_TEST_SPEC="test_ofplatdata"
-          BUILDMAN="^sandbox$"
+          BUILDMAN="sandbox"
           TOOLCHAIN="i386"
           TEST_PY_TOOLS="yes"
     - name: "test/py sandbox_flattree"
       env:
         - TEST_PY_BD="sandbox_flattree"
-          BUILDMAN="^sandbox_flattree$"
+          BUILDMAN="sandbox_flattree"
           TOOLCHAIN="i386"
     - name: "test/py evb-ast2500"
       env:
         - TEST_PY_BD="evb-ast2500"
           TEST_PY_ID="--id qemu"
           QEMU_TARGET="arm-softmmu"
-          BUILDMAN="^evb-ast2500$"
+          BUILDMAN="evb-ast2500"
     - name: "test/py vexpress_ca15_tc2"
       env:
         - TEST_PY_BD="vexpress_ca15_tc2"
           TEST_PY_ID="--id qemu"
           QEMU_TARGET="arm-softmmu"
-          BUILDMAN="^vexpress_ca15_tc2$"
+          BUILDMAN="vexpress_ca15_tc2"
     - name: "test/py vexpress_ca9x4"
       env:
         - TEST_PY_BD="vexpress_ca9x4"
           TEST_PY_ID="--id qemu"
           QEMU_TARGET="arm-softmmu"
-          BUILDMAN="^vexpress_ca9x4$"
+          BUILDMAN="vexpress_ca9x4"
     - name: "test/py integratorcp_cm926ejs"
       env:
         - TEST_PY_BD="integratorcp_cm926ejs"
           TEST_PY_TEST_SPEC="not sleep"
           TEST_PY_ID="--id qemu"
           QEMU_TARGET="arm-softmmu"
-          BUILDMAN="^integratorcp_cm926ejs$"
+          BUILDMAN="integratorcp_cm926ejs"
     - name: "test/py qemu_arm"
       env:
         - TEST_PY_BD="qemu_arm"
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="arm-softmmu"
-          BUILDMAN="^qemu_arm$"
+          BUILDMAN="qemu_arm"
     - name: "test/py qemu_arm64"
       env:
         - TEST_PY_BD="qemu_arm64"
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="aarch64-softmmu"
-          BUILDMAN="^qemu_arm64$"
+          BUILDMAN="qemu_arm64"
     - name: "test/py qemu_mips"
       env:
         - TEST_PY_BD="qemu_mips"
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="mips-softmmu"
-          BUILDMAN="^qemu_mips$"
+          BUILDMAN="qemu_mips"
           TOOLCHAIN="mips"
     - name: "test/py qemu_mipsel"
       env:
         - TEST_PY_BD="qemu_mipsel"
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="mipsel-softmmu"
-          BUILDMAN="^qemu_mipsel$"
+          BUILDMAN="qemu_mipsel"
           TOOLCHAIN="mips"
     - name: "test/py qemu_mips64"
       env:
         - TEST_PY_BD="qemu_mips64"
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="mips64-softmmu"
-          BUILDMAN="^qemu_mips64$"
+          BUILDMAN="qemu_mips64"
           TOOLCHAIN="mips"
     - name: "test/py qemu_mips64el"
       env:
         - TEST_PY_BD="qemu_mips64el"
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="mips64el-softmmu"
-          BUILDMAN="^qemu_mips64el$"
+          BUILDMAN="qemu_mips64el"
           TOOLCHAIN="mips"
     - name: "test/py qemu-ppce500"
       env:
         - TEST_PY_BD="qemu-ppce500"
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="ppc-softmmu"
-          BUILDMAN="^qemu-ppce500$"
+          BUILDMAN="qemu-ppce500"
           TOOLCHAIN="powerpc"
     - name: "test/py qemu-riscv32"
       env:
         - TEST_PY_BD="qemu-riscv32"
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="riscv32-softmmu"
-          BUILDMAN="^qemu-riscv32$"
+          BUILDMAN="qemu-riscv32"
           TOOLCHAIN="riscv"
     - name: "test/py qemu-riscv64"
       env:
         - TEST_PY_BD="qemu-riscv64"
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="riscv64-softmmu"
-          BUILDMAN="^qemu-riscv64$"
+          BUILDMAN="qemu-riscv64"
           TOOLCHAIN="riscv"
     - name: "test/py qemu-riscv32_spl"
       env:
         - TEST_PY_BD="qemu-riscv32_spl"
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="riscv32-softmmu"
-          BUILDMAN="^qemu-riscv32_spl$"
+          BUILDMAN="qemu-riscv32_spl"
           TOOLCHAIN="riscv"
     - name: "test/py qemu-riscv64_spl"
       env:
         - TEST_PY_BD="qemu-riscv64_spl"
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="riscv64-softmmu"
-          BUILDMAN="^qemu-riscv64_spl$"
+          BUILDMAN="qemu-riscv64_spl"
           TOOLCHAIN="riscv"
     - name: "test/py qemu-x86"
       env:
         - TEST_PY_BD="qemu-x86"
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="i386-softmmu"
-          BUILDMAN="^qemu-x86$"
+          BUILDMAN="qemu-x86"
           TOOLCHAIN="i386"
           BUILD_ROM="yes"
     - name: "test/py qemu-x86_64"
@@ -630,7 +631,7 @@ matrix:
         - TEST_PY_BD="qemu-x86_64"
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="x86_64-softmmu"
-          BUILDMAN="^qemu-x86_64$"
+          BUILDMAN="qemu-x86_64"
           TOOLCHAIN="i386"
           BUILD_ROM="yes"
     - name: "test/py xilinx_zynq_virt"
@@ -639,21 +640,21 @@ matrix:
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="arm-softmmu"
           TEST_PY_ID="--id qemu"
-          BUILDMAN="^xilinx_zynq_virt$"
+          BUILDMAN="xilinx_zynq_virt"
     - name: "test/py xilinx_versal_virt"
       env:
         - TEST_PY_BD="xilinx_versal_virt"
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="aarch64-softmmu"
           TEST_PY_ID="--id qemu"
-          BUILDMAN="^xilinx_versal_virt$"
+          BUILDMAN="xilinx_versal_virt"
     - name: "test/py xtfpga"
       env:
         - TEST_PY_BD="xtfpga"
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="xtensa-softmmu"
           TEST_PY_ID="--id qemu"
-          BUILDMAN="^xtfpga$"
+          BUILDMAN="xtfpga"
           TOOLCHAIN="xtensa-dc233c-elf"
 
 # TODO make it perfect ;-r
