@@ -206,7 +206,8 @@ script:
  #
  # From buildman, exit code 129 means warnings only.  If we've been asked to
  # use clang only do one configuration.
- - if [[ "${BUILDMAN}" != "" ]]; then
+ # Build a selection of boards if TEST_PY_BD is empty
+ - if [[ "${BUILDMAN}" != "" ]] && [[ "${TEST_PY_BD}" == "" ]]; then
      ret=0;
      tools/buildman/buildman -P -E ${BUILDMAN} ${OVERRIDE}|| ret=$?;
      if [[ $ret -ne 0 && $ret -ne 129 ]]; then
@@ -218,8 +219,9 @@ script:
  # never prevent any test from running. That way, we can always pass
  # "-k something" even when $TEST_PY_TEST_SPEC doesnt need a custom
  # value.
+ # Build just the one board needed for testing, if TEST_PY_BD is non-empty
  - if [[ "${TEST_PY_BD}" != "" ]]; then
-     export UBOOT_TRAVIS_BUILD_DIR=`cd .. && pwd`/.bm-work/${TEST_PY_BD};
+     export UBOOT_TRAVIS_BUILD_DIR=`cd .. && pwd`/${TEST_PY_BD};
      cp ~/grub_x86.efi $UBOOT_TRAVIS_BUILD_DIR/;
      cp ~/grub_x64.efi $UBOOT_TRAVIS_BUILD_DIR/;
      if [[ -e ~/grub_arm.efi ]]; then
@@ -233,6 +235,13 @@ script:
      fi;
      if [[ -e ~/grub_riscv64.efi ]]; then
        cp ~/grub_riscv64.efi $UBOOT_TRAVIS_BUILD_DIR/;
+     fi;
+     ret=0;
+     tools/buildman/buildman -o ${UBOOT_TRAVIS_BUILD_DIR} -w -E ${BUILDMAN}
+       ${OVERRIDE}|| ret=$?;
+     if [[ $ret -ne 0 && $ret -ne 129 ]]; then
+       tools/buildman/buildman -sde -o ${UBOOT_TRAVIS_BUILD_DIR} -w ${BUILDMAN};
+       exit $ret;
      fi;
      virtualenv -p /usr/bin/python3 /tmp/venv;
      . /tmp/venv/bin/activate;
