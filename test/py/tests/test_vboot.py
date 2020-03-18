@@ -30,13 +30,22 @@ import struct
 import u_boot_utils as util
 import vboot_forge
 
+TESTDATA = [
+    ['sha1', '', False],
+    ['sha1', '-pss', False],
+    ['sha256', '', False],
+    ['sha256', '-pss', False],
+    ['sha256', '-pss', True],
+]
+
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('fit_signature')
 @pytest.mark.requiredtool('dtc')
 @pytest.mark.requiredtool('fdtget')
 @pytest.mark.requiredtool('fdtput')
 @pytest.mark.requiredtool('openssl')
-def test_vboot(u_boot_console):
+@pytest.mark.parametrize("sha_algo,padding,required", TESTDATA)
+def test_vboot(u_boot_console, sha_algo, padding, required):
     """Test verified boot signing with mkimage and verification with 'bootm'.
 
     This works using sandbox only as it needs to update the device tree used
@@ -297,11 +306,10 @@ def test_vboot(u_boot_console):
         # afterwards.
         old_dtb = cons.config.dtb
         cons.config.dtb = dtb
-        test_with_algo('sha1','')
-        test_with_algo('sha1','-pss')
-        test_with_algo('sha256','')
-        test_with_algo('sha256','-pss')
-        test_required_key('sha256','-pss')
+        if required:
+            test_required_key(sha_algo, padding)
+        else:
+            test_with_algo(sha_algo, padding)
     finally:
         # Go back to the original U-Boot with the correct dtb.
         cons.config.dtb = old_dtb
