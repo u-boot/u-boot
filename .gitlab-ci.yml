@@ -176,10 +176,10 @@ Run binman, buildman, dtoc, Kconfig and patman testsuites:
       virtualenv -p /usr/bin/python3 /tmp/venv;
       . /tmp/venv/bin/activate;
       pip install pyelftools pytest;
-      export UBOOT_TRAVIS_BUILD_DIR=/tmp/.bm-work/sandbox_spl;
+      export UBOOT_TRAVIS_BUILD_DIR=/tmp/sandbox_spl;
       export PYTHONPATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt";
       export PATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc:${PATH}";
-      ./tools/buildman/buildman -o /tmp -P sandbox_spl;
+      ./tools/buildman/buildman -o ${UBOOT_TRAVIS_BUILD_DIR} -w sandbox_spl;
       ./tools/binman/binman --toolpath ${UBOOT_TRAVIS_BUILD_DIR}/tools test;
       ./tools/buildman/buildman -t;
       ./tools/dtoc/dtoc -t;
