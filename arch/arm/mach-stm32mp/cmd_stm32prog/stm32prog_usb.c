@@ -134,6 +134,10 @@ int stm32prog_write_medium_virt(struct dfu_entity *dfu, u64 offset,
 	case PHASE_OTP:
 		return stm32prog_otp_write(stm32prog_data, (u32)offset,
 					   buf, len);
+
+	case PHASE_PMIC:
+		return stm32prog_pmic_write(stm32prog_data, (u32)offset,
+					    buf, len);
 	}
 	*len = 0;
 	return 0;
@@ -152,6 +156,10 @@ int stm32prog_read_medium_virt(struct dfu_entity *dfu, u64 offset,
 	case PHASE_OTP:
 		return stm32prog_otp_read(stm32prog_data, (u32)offset,
 					  buf, len);
+
+	case PHASE_PMIC:
+		return stm32prog_pmic_read(stm32prog_data, (u32)offset,
+					   buf, len);
 	}
 	*len = 0;
 	return 0;
@@ -172,6 +180,9 @@ int stm32prog_get_medium_size_virt(struct dfu_entity *dfu, u64 *size)
 		break;
 	case PHASE_OTP:
 		*size = OTP_SIZE;
+		break;
+	case PHASE_PMIC:
+		*size = PMIC_SIZE;
 		break;
 	}
 

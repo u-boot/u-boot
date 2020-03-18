@@ -12,6 +12,7 @@
 #define PHASE_LAST_USER		0xF0
 #define PHASE_CMD		0xF1
 #define PHASE_OTP		0xF2
+#define PHASE_PMIC		0xF4
 #define PHASE_END		0xFE
 #define PHASE_RESET		0xFF
 #define PHASE_DO_RESET		0x1FF
@@ -19,6 +20,7 @@
 #define DEFAULT_ADDRESS		0xFFFFFFFF
 
 #define OTP_SIZE		1024
+#define PMIC_SIZE		8
 
 enum stm32prog_target {
 	STM32PROG_NONE,
@@ -120,6 +122,7 @@ struct stm32prog_data {
 	char			error[255];
 	struct stm32prog_part_t	*cur_part;
 	u32			*otp_part;
+	u8			pmic_part[PMIC_SIZE];
 
 	/* STM32 header information */
 	struct raw_header_s	*header_data;
@@ -134,6 +137,13 @@ int stm32prog_otp_write(struct stm32prog_data *data, u32 offset,
 int stm32prog_otp_read(struct stm32prog_data *data, u32 offset,
 		       u8 *buffer, long *size);
 int stm32prog_otp_start(struct stm32prog_data *data);
+
+/* PMIC access */
+int stm32prog_pmic_write(struct stm32prog_data *data, u32 offset,
+			 u8 *buffer, long *size);
+int stm32prog_pmic_read(struct stm32prog_data *data, u32 offset,
+			u8 *buffer, long *size);
+int stm32prog_pmic_start(struct stm32prog_data *data);
 
 /* generic part*/
 u8 stm32prog_header_check(struct raw_header_s *raw_header,

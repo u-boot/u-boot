@@ -7,6 +7,7 @@
 #include <console.h>
 #include <dfu.h>
 #include <malloc.h>
+#include <misc.h>
 #include <mmc.h>
 #include <part.h>
 #include <asm/arch/stm32mp1_smc.h>
@@ -1107,7 +1108,7 @@ static int dfu_init_entities(struct stm32prog_data *data)
 	struct dfu_entity *dfu;
 	int alt_nb;
 
-	alt_nb = 2; /* number of virtual = CMD, OTP*/
+	alt_nb = 3; /* number of virtual = CMD, OTP, PMIC*/
 	if (data->part_nb == 0)
 		alt_nb++;  /* +1 for FlashLayout */
 	else
@@ -1157,6 +1158,9 @@ static int dfu_init_entities(struct stm32prog_data *data)
 
 	if (!ret)
 		ret = stm32prog_alt_add_virt(dfu, "OTP", PHASE_OTP, 512);
+
+	if (!ret && CONFIG_IS_ENABLED(DM_PMIC))
+		ret = stm32prog_alt_add_virt(dfu, "PMIC", PHASE_PMIC, 8);
 
 	if (ret)
 		stm32prog_err("dfu init failed: %d", ret);
@@ -1283,6 +1287,93 @@ int stm32prog_otp_start(struct stm32prog_data *data)
 
 	return result;
 #endif
+}
+
+int stm32prog_pmic_write(struct stm32prog_data *data, u32 offset, u8 *buffer,
+			 long *size)
+{
+	pr_debug("%s: %x %lx\n", __func__, offset, *size);
+
+	if (!offset)
+		memset(data->pmic_part, 0, PMIC_SIZE);
+
+	if (offset + *size > PMIC_SIZE)
+		*size = PMIC_SIZE - offset;
+
+	memcpy(&data->pmic_part[offset], buffer, *size);
+
+	return 0;
+}
+
+int stm32prog_pmic_read(struct stm32prog_data *data, u32 offset, u8 *buffer,
+			long *size)
+{
+	int result = 0, ret;
+	struct udevice *dev;
+
+	if (!CONFIG_IS_ENABLED(PMIC_STPMIC1)) {
+		stm32prog_err("PMIC update not supported");
+
+		return -EOPNOTSUPP;
+	}
+
+	pr_debug("%s: %x %lx\n", __func__, offset, *size);
+	ret = uclass_get_device_by_driver(UCLASS_MISC,
+					  DM_GET_DRIVER(stpmic1_nvm),
+					  &dev);
+	if (ret)
+		return ret;
+
+	/* alway request PMIC for first packet */
+	if (!offset) {
+		/* init struct with 0 */
+		memset(data->pmic_part, 0, PMIC_SIZE);
+
+		ret = uclass_get_device_by_driver(UCLASS_MISC,
+						  DM_GET_DRIVER(stpmic1_nvm),
+						  &dev);
+		if (ret)
+			return ret;
+
+		ret = misc_read(dev, 0xF8, data->pmic_part, PMIC_SIZE);
+		if (ret < 0) {
+			result = ret;
+			goto end_pmic_read;
+		}
+		if (ret != PMIC_SIZE) {
+			result = -EACCES;
+			goto end_pmic_read;
+		}
+	}
+
+	if (offset + *size > PMIC_SIZE)
+		*size = PMIC_SIZE - offset;
+
+	memcpy(buffer, &data->pmic_part[offset], *size);
+
+end_pmic_read:
+	pr_debug("%s: result %i\n", __func__, result);
+	return result;
+}
+
+int stm32prog_pmic_start(struct stm32prog_data *data)
+{
+	int ret;
+	struct udevice *dev;
+
+	if (!CONFIG_IS_ENABLED(PMIC_STPMIC1)) {
+		stm32prog_err("PMIC update not supported");
+
+		return -EOPNOTSUPP;
+	}
+
+	ret = uclass_get_device_by_driver(UCLASS_MISC,
+					  DM_GET_DRIVER(stpmic1_nvm),
+					  &dev);
+	if (ret)
+		return ret;
+
+	return misc_write(dev, 0xF8, data->pmic_part, PMIC_SIZE);
 }
 
 /* copy FSBL on NAND to improve reliability on NAND */
@@ -1585,6 +1676,8 @@ void dfu_flush_callback(struct dfu_entity *dfu)
 	if (dfu->dev_type == DFU_DEV_VIRT) {
 		if (dfu->data.virt.dev_num == PHASE_OTP)
 			stm32prog_otp_start(stm32prog_data);
+		else if (dfu->data.virt.dev_num == PHASE_PMIC)
+			stm32prog_pmic_start(stm32prog_data);
 		return;
 	}
 
