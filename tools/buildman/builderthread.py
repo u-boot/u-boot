@@ -39,11 +39,15 @@ class BuilderJob:
 
     Members:
         board: Board object to build
-        commits: List of commit options to build.
+        commits: List of Commit objects to build
+        keep_outputs: True to save build output files
+        step: 1 to process every commit, n to process every nth commit
     """
     def __init__(self):
         self.board = None
         self.commits = []
+        self.keep_outputs = False
+        self.step = 1
 
 
 class ResultThread(threading.Thread):
