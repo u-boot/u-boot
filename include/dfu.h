@@ -209,6 +209,9 @@ void dfu_initiated_callback(struct dfu_entity *dfu);
  */
 void dfu_flush_callback(struct dfu_entity *dfu);
 
+int dfu_transaction_initiate(struct dfu_entity *dfu, bool read);
+void dfu_transaction_cleanup(struct dfu_entity *dfu);
+
 /*
  * dfu_defer_flush - pointer to store dfu_entity for deferred flashing.
  *		     It should be NULL when not used.
