@@ -69,6 +69,7 @@ struct stm32prog_dev_t {
 	struct mmc		*mmc;
 	/* list of partition for this device / ordered in offset */
 	struct list_head	part_list;
+	bool			full_update;
 };
 
 /* partition information build from FlashLayout and device */

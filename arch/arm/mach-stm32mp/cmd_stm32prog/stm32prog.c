@@ -481,8 +481,12 @@ static int init_device(struct stm32prog_data *data,
 	struct mmc *mmc = NULL;
 	struct blk_desc *block_dev = NULL;
 	int part_id;
+	int ret;
 	u64 first_addr = 0, last_addr = 0;
 	struct stm32prog_part_t *part, *next_part;
+	u64 part_addr, part_size;
+	bool part_found;
+	const char *part_name;
 
 	switch (dev->target) {
 #ifdef CONFIG_MMC
@@ -515,6 +519,7 @@ static int init_device(struct stm32prog_data *data,
 			 block_dev->lba, block_dev->blksz);
 		pr_debug(" available address = 0x%llx..0x%llx\n",
 			 first_addr, last_addr);
+		pr_debug(" full_update = %d\n", dev->full_update);
 		break;
 #endif
 	default:
@@ -522,6 +527,7 @@ static int init_device(struct stm32prog_data *data,
 		return -ENODEV;
 	}
 	pr_debug(" erase size = 0x%x\n", dev->erase_size);
+	pr_debug(" full_update = %d\n", dev->full_update);
 
 	/* order partition list in offset order */
 	list_sort(NULL, &dev->part_list, &part_cmp);
@@ -598,6 +604,61 @@ static int init_device(struct stm32prog_data *data,
 			 part->part_id, part->option, part->id, part->name,
 			 part->part_type, part->target,
 			 part->dev_id, part->addr, part->size);
+
+		part_addr = 0;
+		part_size = 0;
+		part_found = false;
+
+		/* check coherency with existing partition */
+		if (block_dev) {
+			/*
+			 * block devices with GPT: check user partition size
+			 * only for partial update, the GPT partions are be
+			 * created for full update
+			 */
+			if (dev->full_update || part->part_id < 0) {
+				pr_debug("\n");
+				continue;
+			}
+			disk_partition_t partinfo;
+
+			ret = part_get_info(block_dev, part->part_id,
+					    &partinfo);
+
+			if (ret) {
+				stm32prog_err("%s (0x%x):Couldn't find part %d on device mmc %d",
+					      part->name, part->id,
+					      part_id, part->dev_id);
+				return -ENODEV;
+			}
+			part_addr = (u64)partinfo.start * partinfo.blksz;
+			part_size = (u64)partinfo.size * partinfo.blksz;
+			part_name = (char *)partinfo.name;
+			part_found = true;
+		}
+
+		if (!part_found) {
+			stm32prog_err("%s (0x%x): Invalid partition",
+				      part->name, part->id);
+			pr_debug("\n");
+			continue;
+		}
+
+		pr_debug(" %08llx %08llx\n", part_addr, part_size);
+
+		if (part->addr != part_addr) {
+			stm32prog_err("%s (0x%x): Bad address for partition %d (%s) = 0x%llx <> 0x%llx expected",
+				      part->name, part->id, part->part_id,
+				      part_name, part->addr, part_addr);
+			return -ENODEV;
+		}
+		if (part->size != part_size) {
+			stm32prog_err("%s (0x%x): Bad size for partition %d (%s) at 0x%llx = 0x%llx <> 0x%llx expected",
+				      part->name, part->id, part->part_id,
+				      part_name, part->addr, part->size,
+				      part_size);
+			return -ENODEV;
+		}
 	}
 	return 0;
 }
@@ -644,6 +705,7 @@ static int treat_partition_list(struct stm32prog_data *data)
 				/* new device found */
 				data->dev[j].target = part->target;
 				data->dev[j].dev_id = part->dev_id;
+				data->dev[j].full_update = true;
 				data->dev_nb++;
 				break;
 			} else if ((part->target == data->dev[j].target) &&
@@ -656,6 +718,8 @@ static int treat_partition_list(struct stm32prog_data *data)
 			return -EINVAL;
 		}
 		part->dev = &data->dev[j];
+		if (!IS_SELECT(part))
+			part->dev->full_update = false;
 		list_add_tail(&part->list, &data->dev[j].part_list);
 	}
 
@@ -682,6 +746,11 @@ static int create_partitions(struct stm32prog_data *data)
 	puts("partitions : ");
 	/* initialize the selected device */
 	for (i = 0; i < data->dev_nb; i++) {
+		/* create gpt partition support only for full update on MMC */
+		if (data->dev[i].target != STM32PROG_MMC ||
+		    !data->dev[i].full_update)
+			continue;
+
 		offset = 0;
 		rootfs_found = false;
 		memset(buf, 0, buflen);
