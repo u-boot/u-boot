@@ -43,7 +43,7 @@ stages:
         tools/buildman/buildman -o /tmp -P -E --board ${TEST_PY_BD} ${OVERRIDE}
           || ret=$?;
         if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-          tools/buildman/buildman -o /tmp -sdeP --board ${TEST_PY_BD};
+          tools/buildman/buildman -o /tmp -seP --board ${TEST_PY_BD};
           exit $ret;
         fi;
       fi
@@ -74,7 +74,7 @@ build all 32bit ARM platforms:
     - ret=0;
       ./tools/buildman/buildman -o /tmp -P -E arm -x aarch64 || ret=$?;
       if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-        ./tools/buildman/buildman -o /tmp -sdeP;
+        ./tools/buildman/buildman -o /tmp -seP;
         exit $ret;
       fi;
 
@@ -88,7 +88,7 @@ build all 64bit ARM platforms:
     - ret=0;
       ./tools/buildman/buildman -o /tmp -P -E aarch64 || ret=$?;
       if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-        ./tools/buildman/buildman -o /tmp -sdeP;
+        ./tools/buildman/buildman -o /tmp -seP;
         exit $ret;
       fi;
 
@@ -99,7 +99,7 @@ build all PowerPC platforms:
     - ret=0;
       ./tools/buildman/buildman -o /tmp -P -E powerpc || ret=$?;
       if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-        ./tools/buildman/buildman -o /tmp -sdeP;
+        ./tools/buildman/buildman -o /tmp -seP;
         exit $ret;
       fi;
 
@@ -110,7 +110,7 @@ build all other platforms:
     - ret=0;
       ./tools/buildman/buildman -o /tmp -P -E -x arm,powerpc || ret=$?;
       if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-        ./tools/buildman/buildman -o /tmp -sdeP;
+        ./tools/buildman/buildman -o /tmp -seP;
         exit $ret;
       fi;
 

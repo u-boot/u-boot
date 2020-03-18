@@ -211,7 +211,7 @@ script:
      ret=0;
      tools/buildman/buildman -P -E ${BUILDMAN} ${OVERRIDE}|| ret=$?;
      if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-       tools/buildman/buildman -sdeP ${BUILDMAN};
+       tools/buildman/buildman -seP ${BUILDMAN};
        exit $ret;
      fi;
    fi
@@ -240,7 +240,7 @@ script:
      tools/buildman/buildman -o ${UBOOT_TRAVIS_BUILD_DIR} -w -E
        --board ${TEST_PY_BD} ${OVERRIDE}|| ret=$?;
      if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-       tools/buildman/buildman -sde -o ${UBOOT_TRAVIS_BUILD_DIR} -w
+       tools/buildman/buildman -se -o ${UBOOT_TRAVIS_BUILD_DIR} -w
          --board ${TEST_PY_BD};
        exit $ret;
      fi;

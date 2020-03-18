@@ -268,7 +268,7 @@ jobs:
               ret=0;
               tools/buildman/buildman -o /tmp -P -E --board ${TEST_PY_BD} ${OVERRIDE} || ret=$?;
               if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-                  tools/buildman/buildman -o /tmp -sdeP --board ${TEST_PY_BD};
+                  tools/buildman/buildman -o /tmp -seP --board ${TEST_PY_BD};
                   exit $ret;
               fi;
           fi
@@ -420,7 +420,7 @@ jobs:
               ret=0;
               tools/buildman/buildman -o /tmp -P -E ${BUILDMAN} ${OVERRIDE} || ret=$?;
               if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-                  tools/buildman/buildman -o /tmp -sdeP ${BUILDMAN};
+                  tools/buildman/buildman -o /tmp -seP ${BUILDMAN};
                   exit $ret;
               fi;
           fi
