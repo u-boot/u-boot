@@ -138,6 +138,22 @@ def test_vboot(u_boot_console, sha_algo, padding, required):
             handle.write(struct.pack(">I", size))
         return struct.unpack(">I", total_size)[0]
 
+    def create_rsa_pair(name):
+        """Generate a new RSA key paid and certificate
+
+        Args:
+            name: Name of of the key (e.g. 'dev')
+        """
+        public_exponent = 65537
+        util.run_and_log(cons, 'openssl genpkey -algorithm RSA -out %s%s.key '
+                     '-pkeyopt rsa_keygen_bits:2048 '
+                     '-pkeyopt rsa_keygen_pubexp:%d' %
+                     (tmpdir, name, public_exponent))
+
+        # Create a certificate containing the public key
+        util.run_and_log(cons, 'openssl req -batch -new -x509 -key %s%s.key '
+                         '-out %s%s.crt' % (tmpdir, name, tmpdir, name))
+
     def test_with_algo(sha_algo, padding):
         """Test verified boot with the given hash algorithm.
 
@@ -268,27 +284,8 @@ def test_vboot(u_boot_console, sha_algo, padding, required):
     dtb = '%ssandbox-u-boot.dtb' % tmpdir
     sig_node = '/configurations/conf-1/signature'
 
-    # Create an RSA key pair
-    public_exponent = 65537
-    util.run_and_log(cons, 'openssl genpkey -algorithm RSA -out %sdev.key '
-                     '-pkeyopt rsa_keygen_bits:2048 '
-                     '-pkeyopt rsa_keygen_pubexp:%d' %
-                     (tmpdir, public_exponent))
-
-    # Create a certificate containing the public key
-    util.run_and_log(cons, 'openssl req -batch -new -x509 -key %sdev.key -out '
-                     '%sdev.crt' % (tmpdir, tmpdir))
-
-    # Create an RSA key pair (prod)
-    public_exponent = 65537
-    util.run_and_log(cons, 'openssl genpkey -algorithm RSA -out %sprod.key '
-                     '-pkeyopt rsa_keygen_bits:2048 '
-                     '-pkeyopt rsa_keygen_pubexp:%d' %
-                     (tmpdir, public_exponent))
-
-    # Create a certificate containing the public key (prod)
-    util.run_and_log(cons, 'openssl req -batch -new -x509 -key %sprod.key -out '
-                     '%sprod.crt' % (tmpdir, tmpdir))
+    create_rsa_pair('dev')
+    create_rsa_pair('prod')
 
     # Create a number kernel image with zeroes
     with open('%stest-kernel.bin' % tmpdir, 'w') as fd:
