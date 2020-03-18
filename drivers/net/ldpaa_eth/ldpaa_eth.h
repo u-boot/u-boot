@@ -116,7 +116,13 @@ struct ldpaa_fas {
 					 LDPAA_ETH_FAS_TIDE)
 
 struct ldpaa_eth_priv {
+#ifdef CONFIG_DM_ETH
+	struct phy_device *phy;
+	int phy_mode;
+	bool started;
+#else
 	struct eth_device *net_dev;
+#endif
 	uint32_t dpmac_id;
 	uint16_t dpmac_handle;
 
