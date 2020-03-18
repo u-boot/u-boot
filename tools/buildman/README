@@ -1072,8 +1072,8 @@ Other options
 
 Buildman has various other command-line options. Try --help to see them.
 
-To find out what architecture or toolchain prefix buildman will use for a build,
-see the -a and -A options.
+To find out what toolchain prefix buildman will use for a build, use the -A
+option.
 
 To request that compiler warnings be promoted to errors, use -E. This passes the
 -Werror flag to the compiler. Note that the build can still produce warnings

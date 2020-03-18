@@ -85,16 +85,15 @@ def ShowActions(series, why_selected, boards_selected, builder, options,
         for warning in board_warnings:
             print(col.Color(col.YELLOW, warning))
 
-def ShowToolchainInfo(boards, toolchains, print_arch, print_prefix):
+def ShowToolchainPrefix(boards, toolchains):
     """Show information about a the tool chain used by one or more boards
 
-    The function checks that all boards use the same toolchain.
+    The function checks that all boards use the same toolchain, then prints
+    the correct value for CROSS_COMPILE.
 
     Args:
         boards: Boards object containing selected boards
         toolchains: Toolchains object containing available toolchains
-        print_arch: True to print ARCH value
-        print_prefix: True to print CROSS_COMPILE value
 
     Return:
         None on success, string error message otherwise
@@ -107,10 +106,7 @@ def ShowToolchainInfo(boards, toolchains, print_arch, print_prefix):
         return 'Supplied boards must share one toolchain'
         return False
     tc = tc_set.pop()
-    if print_arch:
-        print(tc.GetEnvArgs(toolchain.VAR_ARCH))
-    if print_prefix:
-        print(tc.GetEnvArgs(toolchain.VAR_CROSS_COMPILE))
+    print(tc.GetEnvArgs(toolchain.VAR_CROSS_COMPILE))
     return None
 
 def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
@@ -206,9 +202,8 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
     if not len(selected):
         sys.exit(col.Color(col.RED, 'No matching boards found'))
 
-    if options.print_arch or options.print_prefix:
-        err = ShowToolchainInfo(boards, toolchains, options.print_arch,
-                                options.print_prefix)
+    if options.print_prefix:
+        err = ShowToolchainInfo(boards, toolchains)
         if err:
             sys.exit(col.Color(col.RED, err))
         return 0

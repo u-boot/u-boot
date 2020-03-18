@@ -13,8 +13,6 @@ def ParseArgs():
             args: command lin arguments
     """
     parser = OptionParser()
-    parser.add_option('-a', '--print-arch', action='store_true',
-          help='Print the architecture for a board (ARCH=)')
     parser.add_option('-A', '--print-prefix', action='store_true',
           help='Print the tool-chain prefix for a board (CROSS_COMPILE=)')
     parser.add_option('-b', '--branch', type='string',
