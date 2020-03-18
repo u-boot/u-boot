@@ -11,6 +11,32 @@
 
 struct stm32prog_data *stm32prog_data;
 
+static void enable_vidconsole(void)
+{
+#ifdef CONFIG_DM_VIDEO
+	char *stdname;
+	char buf[64];
+
+	stdname = env_get("stdout");
+	if (!stdname || !strstr(stdname, "vidconsole")) {
+		if (!stdname)
+			snprintf(buf, sizeof(buf), "serial,vidconsole");
+		else
+			snprintf(buf, sizeof(buf), "%s,vidconsole", stdname);
+		env_set("stdout", buf);
+	}
+
+	stdname = env_get("stderr");
+	if (!stdname || !strstr(stdname, "vidconsole")) {
+		if (!stdname)
+			snprintf(buf, sizeof(buf), "serial,vidconsole");
+		else
+			snprintf(buf, sizeof(buf), "%s,vidconsole", stdname);
+		env_set("stderr", buf);
+	}
+#endif
+}
+
 static int do_stm32prog(cmd_tbl_t *cmdtp, int flag, int argc,
 			char * const argv[])
 {
@@ -44,6 +70,8 @@ static int do_stm32prog(cmd_tbl_t *cmdtp, int flag, int argc,
 	}
 	if (argc > 4)
 		size = simple_strtoul(argv[4], NULL, 16);
+
+	enable_vidconsole();
 
 	data = (struct stm32prog_data *)malloc(sizeof(*data));
 
