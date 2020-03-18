@@ -1092,7 +1092,27 @@ int fit_image_check_comp(const void *fit, int noffset, uint8_t comp);
 int fit_check_format(const void *fit);
 
 int fit_conf_find_compat(const void *fit, const void *fdt);
+
+/**
+ * fit_conf_get_node - get node offset for configuration of a given unit name
+ * @fit: pointer to the FIT format image header
+ * @conf_uname: configuration node unit name (NULL to use default)
+ *
+ * fit_conf_get_node() finds a configuration (within the '/configurations'
+ * parent node) of a provided unit name. If configuration is found its node
+ * offset is returned to the caller.
+ *
+ * When NULL is provided in second argument fit_conf_get_node() will search
+ * for a default configuration node instead. Default configuration node unit
+ * name is retrieved from FIT_DEFAULT_PROP property of the '/configurations'
+ * node.
+ *
+ * returns:
+ *     configuration node offset when found (>=0)
+ *     negative number on failure (FDT_ERR_* code)
+ */
 int fit_conf_get_node(const void *fit, const char *conf_uname);
+
 int fit_conf_get_prop_node_count(const void *fit, int noffset,
 		const char *prop_name);
 int fit_conf_get_prop_node_index(const void *fit, int noffset,
