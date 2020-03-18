@@ -363,4 +363,24 @@
 		bus-range = <0x0 0xff>;
 		ranges = <0x82000000 0x0 0x40000000 0xa8 0x40000000 0x0 0x40000000>;
 	};
+
+	/* WRIOP0: 0x8b8_0000, E-MDIO1: 0x1_6000 */
+	emdio1: mdio@8b96000 {
+		compatible = "fsl,ls-mdio";
+		reg = <0x0 0x8b96000 0x0 0x1000>;
+		interrupts = <GIC_SPI 90 IRQ_TYPE_LEVEL_HIGH>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "disabled";
+	};
+
+	/* WRIOP0: 0x8b8_0000, E-MDIO2: 0x1_7000 */
+	emdio2: mdio@8b97000 {
+		compatible = "fsl,ls-mdio";
+		reg = <0x0 0x8b97000 0x0 0x1000>;
+		interrupts = <GIC_SPI 91 IRQ_TYPE_LEVEL_HIGH>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "disabled";
+	};
 };
