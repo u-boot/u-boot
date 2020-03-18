@@ -204,13 +204,12 @@ script:
  # Comments must be outside the command strings below, or the Travis parser
  # will get confused.
  #
- # From buildman, exit code 129 means warnings only.  If we've been asked to
- # use clang only do one configuration.
+ # If we've been asked to use clang only do one configuration.
+ #
  # Build a selection of boards if TEST_PY_BD is empty
  - if [[ "${BUILDMAN}" != "" ]]; then
-     ret=0;
-     tools/buildman/buildman -P -E ${BUILDMAN} ${OVERRIDE}|| ret=$?;
-     if [[ $ret -ne 0 && $ret -ne 129 ]]; then
+     tools/buildman/buildman -P -E -W ${BUILDMAN} ${OVERRIDE};
+     if [[ $ret -ne 0 ]]; then
        tools/buildman/buildman -seP ${BUILDMAN};
        exit $ret;
      fi;
@@ -234,9 +233,9 @@ script:
        cp ~/grub_riscv64.efi $UBOOT_TRAVIS_BUILD_DIR/;
      fi;
      ret=0;
-     tools/buildman/buildman -o ${UBOOT_TRAVIS_BUILD_DIR} -w -E
+     tools/buildman/buildman -o ${UBOOT_TRAVIS_BUILD_DIR} -w -E -W
        --board ${TEST_PY_BD} ${OVERRIDE}|| ret=$?;
-     if [[ $ret -ne 0 && $ret -ne 129 ]]; then
+     if [[ $ret -ne 0 ]]; then
        tools/buildman/buildman -se -o ${UBOOT_TRAVIS_BUILD_DIR} -w
          --board ${TEST_PY_BD};
        exit $ret;

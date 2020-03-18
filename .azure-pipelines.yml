@@ -266,8 +266,8 @@ jobs:
           cd ${WORK_DIR}
           export UBOOT_TRAVIS_BUILD_DIR=/tmp/${TEST_PY_BD};
           ret=0;
-          tools/buildman/buildman -o ${UBOOT_TRAVIS_BUILD_DIR} -w -E --board ${TEST_PY_BD} ${OVERRIDE} || ret=$?;
-          if [[ $ret -ne 0 && $ret -ne 129 ]]; then
+          tools/buildman/buildman -o ${UBOOT_TRAVIS_BUILD_DIR} -w -E -W --board ${TEST_PY_BD} ${OVERRIDE} || ret=$?;
+          if [[ $ret -ne 0 ]]; then
               tools/buildman/buildman -o ${UBOOT_TRAVIS_BUILD_DIR} -w -se --board ${TEST_PY_BD};
               exit $ret;
           fi
@@ -415,8 +415,8 @@ jobs:
           cat << "EOF" >> build.sh
           if [[ "${BUILDMAN}" != "" ]]; then
               ret=0;
-              tools/buildman/buildman -o /tmp -P -E ${BUILDMAN} ${OVERRIDE} || ret=$?;
-              if [[ $ret -ne 0 && $ret -ne 129 ]]; then
+              tools/buildman/buildman -o /tmp -P -W ${BUILDMAN} ${OVERRIDE} || ret=$?;
+              if [[ $ret -ne 0 ]]; then
                   tools/buildman/buildman -o /tmp -seP ${BUILDMAN};
                   exit $ret;
               fi;

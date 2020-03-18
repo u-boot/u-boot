@@ -36,13 +36,12 @@ stages:
   after_script:
     - rm -rf /tmp/uboot-test-hooks /tmp/venv
   script:
-    # From buildman, exit code 129 means warnings only.  If we've been asked to
-    # use clang only do one configuration.
+    # If we've been asked to use clang only do one configuration.
     - export UBOOT_TRAVIS_BUILD_DIR=/tmp/${TEST_PY_BD}
     - ret=0;
-      tools/buildman/buildman -o ${UBOOT_TRAVIS_BUILD_DIR} -w -E
+      tools/buildman/buildman -o ${UBOOT_TRAVIS_BUILD_DIR} -w -E -W
         --board ${TEST_PY_BD} ${OVERRIDE} || ret=$?;
-      if [[ $ret -ne 0 && $ret -ne 129 ]]; then
+      if [[ $ret -ne 0 ]]; then
         tools/buildman/buildman -o ${UBOOT_TRAVIS_BUILD_DIR} -w -se
            --board ${TEST_PY_BD};
         exit $ret;
@@ -66,8 +65,8 @@ build all 32bit ARM platforms:
   stage: world build
   script:
     - ret=0;
-      ./tools/buildman/buildman -o /tmp -P -E arm -x aarch64 || ret=$?;
-      if [[ $ret -ne 0 && $ret -ne 129 ]]; then
+      ./tools/buildman/buildman -o /tmp -P -E -W arm -x aarch64 || ret=$?;
+      if [[ $ret -ne 0 ]]; then
         ./tools/buildman/buildman -o /tmp -seP;
         exit $ret;
       fi;
@@ -80,8 +79,8 @@ build all 64bit ARM platforms:
     - . /tmp/venv/bin/activate
     - pip install pyelftools
     - ret=0;
-      ./tools/buildman/buildman -o /tmp -P -E aarch64 || ret=$?;
-      if [[ $ret -ne 0 && $ret -ne 129 ]]; then
+      ./tools/buildman/buildman -o /tmp -P -E -W aarch64 || ret=$?;
+      if [[ $ret -ne 0 ]]; then
         ./tools/buildman/buildman -o /tmp -seP;
         exit $ret;
       fi;
@@ -91,8 +90,8 @@ build all PowerPC platforms:
   stage: world build
   script:
     - ret=0;
-      ./tools/buildman/buildman -o /tmp -P -E powerpc || ret=$?;
-      if [[ $ret -ne 0 && $ret -ne 129 ]]; then
+      ./tools/buildman/buildman -o /tmp -P -E -W powerpc || ret=$?;
+      if [[ $ret -ne 0 ]]; then
         ./tools/buildman/buildman -o /tmp -seP;
         exit $ret;
       fi;
@@ -102,8 +101,8 @@ build all other platforms:
   stage: world build
   script:
     - ret=0;
-      ./tools/buildman/buildman -o /tmp -P -E -x arm,powerpc || ret=$?;
-      if [[ $ret -ne 0 && $ret -ne 129 ]]; then
+      ./tools/buildman/buildman -o /tmp -P -E -W -x arm,powerpc || ret=$?;
+      if [[ $ret -ne 0 ]]; then
         ./tools/buildman/buildman -o /tmp -seP;
         exit $ret;
       fi;
