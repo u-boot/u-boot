@@ -82,12 +82,6 @@
 		interrupts = <0 32 0x1>; /* edge triggered */
 	};
 
-	fsl_mc: fsl-mc@80c000000 {
-		compatible = "fsl,qoriq-mc";
-		reg = <0x00000008 0x0c000000 0 0x40>,	 /* MC portal base */
-		      <0x00000000 0x08340000 0 0x40000>; /* MC control reg */
-	};
-
 	dspi: dspi@2100000 {
 		compatible = "fsl,vf610-dspi";
 		#address-cells = <1>;
@@ -195,6 +189,87 @@
 	psci {
 		compatible = "arm,psci-0.2";
 		method = "smc";
+	};
+
+	fsl_mc: fsl-mc@80c000000 {
+		compatible = "fsl,qoriq-mc", "simple-mfd";
+		reg = <0x00000008 0x0c000000 0 0x40>,    /* MC portal base */
+		      <0x00000000 0x08340000 0 0x40000>; /* MC control reg */
+		#address-cells = <3>;
+		#size-cells = <1>;
+
+		/*
+		 * Region type 0x0 - MC portals
+		 * Region type 0x1 - QBMAN portals
+		 */
+		ranges = <0x0 0x0 0x0 0x8 0x0c000000 0x4000000
+			  0x1 0x0 0x0 0x8 0x18000000 0x8000000>;
+
+		dpmacs {
+			compatible = "simple-mfd";
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			dpmac1: dpmac@1 {
+				compatible = "fsl,qoriq-mc-dpmac";
+				reg = <0x1>;
+				status = "disabled";
+			};
+
+			dpmac2: dpmac@2 {
+				compatible = "fsl,qoriq-mc-dpmac";
+				reg = <0x2>;
+				status = "disabled";
+			};
+
+			dpmac3: dpmac@3 {
+				compatible = "fsl,qoriq-mc-dpmac";
+				reg = <0x3>;
+				status = "disabled";
+			};
+
+			dpmac4: dpmac@4 {
+				compatible = "fsl,qoriq-mc-dpmac";
+				reg = <0x4>;
+				status = "disabled";
+			};
+
+			dpmac5: dpmac@5 {
+				compatible = "fsl,qoriq-mc-dpmac";
+				reg = <0x5>;
+				status = "disabled";
+			};
+
+			dpmac6: dpmac@6 {
+				compatible = "fsl,qoriq-mc-dpmac";
+				reg = <0x6>;
+				status = "disabled";
+			};
+
+			dpmac7: dpmac@7 {
+				compatible = "fsl,qoriq-mc-dpmac";
+				reg = <0x7>;
+				status = "disabled";
+			};
+
+			dpmac8: dpmac@8 {
+				compatible = "fsl,qoriq-mc-dpmac";
+				reg = <0x8>;
+				status = "disabled";
+			};
+
+			dpmac9: dpmac@9 {
+				compatible = "fsl,qoriq-mc-dpmac";
+				reg = <0x9>;
+				status = "disabled";
+			};
+
+			dpmac10: dpmac@a {
+				compatible = "fsl,qoriq-mc-dpmac";
+				reg = <0xa>;
+				status = "disabled";
+			};
+		};
 	};
 
 	emdio1: mdio@8B96000 {
