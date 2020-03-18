@@ -259,12 +259,30 @@ static int parse_offset(struct stm32prog_data *data,
 	char *tail;
 
 	part->part_id = 0;
+	part->addr = 0;
 	part->size = 0;
-	part->addr = simple_strtoull(p, &tail, 0);
-	if (tail == p || *tail != '\0') {
-		stm32prog_err("Layout line %d: invalid offset '%s'",
-			      i, p);
-		result = -EINVAL;
+	/* eMMC boot parttion */
+	if (!strncmp(p, "boot", 4)) {
+		if (strlen(p) != 5) {
+			result = -EINVAL;
+		} else {
+			if (p[4] == '1')
+				part->part_id = -1;
+			else if (p[4] == '2')
+				part->part_id = -2;
+			else
+				result = -EINVAL;
+		}
+		if (result)
+			stm32prog_err("Layout line %d: invalid part '%s'",
+				      i, p);
+	} else {
+		part->addr = simple_strtoull(p, &tail, 0);
+		if (tail == p || *tail != '\0') {
+			stm32prog_err("Layout line %d: invalid offset '%s'",
+				      i, p);
+			result = -EINVAL;
+		}
 	}
 
 	return result;
@@ -451,7 +469,10 @@ static int __init part_cmp(void *priv, struct list_head *a, struct list_head *b)
 	parta = container_of(a, struct stm32prog_part_t, list);
 	partb = container_of(b, struct stm32prog_part_t, list);
 
-	return parta->addr > partb->addr ? 1 : -1;
+	if (parta->part_id != partb->part_id)
+		return parta->part_id - partb->part_id;
+	else
+		return parta->addr > partb->addr ? 1 : -1;
 }
 
 static int init_device(struct stm32prog_data *data,
@@ -520,44 +541,53 @@ static int init_device(struct stm32prog_data *data,
 				 part->dev_id, part->addr, part->size);
 			continue;
 		}
-
-		part->part_id = part_id++;
-
-		/* last partition : size to the end of the device */
-		if (part->list.next != &dev->part_list) {
-			next_part =
-				container_of(part->list.next,
-					     struct stm32prog_part_t,
-					     list);
-			if (part->addr < next_part->addr) {
-				part->size = next_part->addr -
-					     part->addr;
+		if (part->part_id < 0) { /* boot hw partition for eMMC */
+			if (mmc) {
+				part->size = mmc->capacity_boot;
 			} else {
-				stm32prog_err("%s (0x%x): same address : 0x%llx == %s (0x%x): 0x%llx",
+				stm32prog_err("%s (0x%x): hw partition not expected : %d",
 					      part->name, part->id,
-					      part->addr,
-					      next_part->name,
-					      next_part->id,
-					      next_part->addr);
-				return -EINVAL;
+					      part->part_id);
+				return -ENODEV;
 			}
 		} else {
-			if (part->addr <= last_addr) {
-				part->size = last_addr - part->addr;
+			part->part_id = part_id++;
+
+			/* last partition : size to the end of the device */
+			if (part->list.next != &dev->part_list) {
+				next_part =
+					container_of(part->list.next,
+						     struct stm32prog_part_t,
+						     list);
+				if (part->addr < next_part->addr) {
+					part->size = next_part->addr -
+						     part->addr;
+				} else {
+					stm32prog_err("%s (0x%x): same address : 0x%llx == %s (0x%x): 0x%llx",
+						      part->name, part->id,
+						      part->addr,
+						      next_part->name,
+						      next_part->id,
+						      next_part->addr);
+					return -EINVAL;
+				}
 			} else {
-				stm32prog_err("%s (0x%x): invalid address 0x%llx (max=0x%llx)",
+				if (part->addr <= last_addr) {
+					part->size = last_addr - part->addr;
+				} else {
+					stm32prog_err("%s (0x%x): invalid address 0x%llx (max=0x%llx)",
+						      part->name, part->id,
+						      part->addr, last_addr);
+					return -EINVAL;
+				}
+			}
+			if (part->addr < first_addr) {
+				stm32prog_err("%s (0x%x): invalid address 0x%llx (min=0x%llx)",
 					      part->name, part->id,
-					      part->addr, last_addr);
+					      part->addr, first_addr);
 				return -EINVAL;
 			}
 		}
-		if (part->addr < first_addr) {
-			stm32prog_err("%s (0x%x): invalid address 0x%llx (min=0x%llx)",
-				      part->name, part->id,
-				      part->addr, first_addr);
-			return -EINVAL;
-		}
-
 		if ((part->addr & ((u64)part->dev->erase_size - 1)) != 0) {
 			stm32prog_err("%s (0x%x): not aligned address : 0x%llx on erase size 0x%x",
 				      part->name, part->id, part->addr,
@@ -657,6 +687,9 @@ static int create_partitions(struct stm32prog_data *data)
 		memset(buf, 0, buflen);
 
 		list_for_each_entry(part, &data->dev[i].part_list, list) {
+			/* skip eMMC boot partitions */
+			if (part->part_id < 0)
+				continue;
 			/* skip Raw Image */
 			if (part->part_type == RAW_IMAGE)
 				continue;
@@ -787,6 +820,14 @@ static int stm32prog_alt_add(struct stm32prog_data *data,
 			dfu_size = part->size;
 		offset += snprintf(buf + offset, ALT_BUF_LEN - offset,
 				   "raw 0x0 0x%llx", dfu_size);
+	} else if (part->part_id < 0) {
+		u64 nb_blk = part->size / part->dev->mmc->read_bl_len;
+
+		offset += snprintf(buf + offset, ALT_BUF_LEN - offset,
+				   "raw 0x%llx 0x%llx",
+				   part->addr, nb_blk);
+		offset += snprintf(buf + offset, ALT_BUF_LEN - offset,
+				   " mmcpart %d;", -(part->part_id));
 	} else {
 		offset += snprintf(buf + offset,
 				   ALT_BUF_LEN - offset,
@@ -908,6 +949,19 @@ static void stm32prog_end_phase(struct stm32prog_data *data)
 
 	if (!data->cur_part)
 		return;
+
+	if (CONFIG_IS_ENABLED(MMC) &&
+	    data->cur_part->part_id < 0) {
+		char cmdbuf[60];
+
+		sprintf(cmdbuf, "mmc bootbus %d 0 0 0; mmc partconf %d 1 %d 0",
+			data->cur_part->dev_id, data->cur_part->dev_id,
+			-(data->cur_part->part_id));
+		if (run_command(cmdbuf, 0)) {
+			stm32prog_err("commands '%s' failed", cmdbuf);
+			return;
+		}
+	}
 }
 
 void stm32prog_do_reset(struct stm32prog_data *data)

@@ -89,7 +89,7 @@ struct stm32prog_part_t {
 
 	/* information on associated device */
 	struct stm32prog_dev_t	*dev;		/* pointer to device */
-	u16			part_id;	/* partition id in device */
+	s16			part_id;	/* partition id in device */
 	int			alt_id;		/* alt id in usb/dfu */
 
 	struct list_head	list;
