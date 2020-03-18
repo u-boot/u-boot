@@ -31,6 +31,7 @@ enum stm32prog_target {
 };
 
 enum stm32prog_link_t {
+	LINK_SERIAL,
 	LINK_USB,
 	LINK_UNDEFINED,
 };
@@ -127,6 +128,14 @@ struct stm32prog_data {
 	/* STM32 header information */
 	struct raw_header_s	*header_data;
 	struct image_header_s	header;
+
+	/* SERIAL information */
+	u32	cursor;
+	u32	packet_number;
+	u32	checksum;
+	u8	*buffer; /* size = USART_RAM_BUFFER_SIZE*/
+	int	dfu_seq;
+	u8	read_phase;
 };
 
 extern struct stm32prog_data *stm32prog_data;
@@ -163,6 +172,8 @@ char *stm32prog_get_error(struct stm32prog_data *data);
 
 /* Main function */
 int stm32prog_init(struct stm32prog_data *data, ulong addr, ulong size);
+int stm32prog_serial_init(struct stm32prog_data *data, int link_dev);
+bool stm32prog_serial_loop(struct stm32prog_data *data);
 bool stm32prog_usb_loop(struct stm32prog_data *data, int dev);
 void stm32prog_clean(struct stm32prog_data *data);
 

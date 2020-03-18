@@ -1486,6 +1486,7 @@ void stm32prog_next_phase(struct stm32prog_data *data)
 	}
 
 	/* found next selected partition */
+	data->dfu_seq = 0;
 	data->cur_part = NULL;
 	data->phase = PHASE_END;
 	found = false;
@@ -1653,6 +1654,7 @@ int stm32prog_dfu_init(struct stm32prog_data *data)
 int stm32prog_init(struct stm32prog_data *data, ulong addr, ulong size)
 {
 	memset(data, 0x0, sizeof(*data));
+	data->read_phase = PHASE_RESET;
 	data->phase = PHASE_FLASHLAYOUT;
 
 	return parse_flash_layout(data, addr, size);
@@ -1664,6 +1666,7 @@ void stm32prog_clean(struct stm32prog_data *data)
 	dfu_free_entities();
 	free(data->part_array);
 	free(data->otp_part);
+	free(data->buffer);
 	free(data->header_data);
 }
 
@@ -1709,6 +1712,7 @@ void dfu_initiated_callback(struct dfu_entity *dfu)
 	/* force the saved offset for the current partition */
 	if (dfu->alt == stm32prog_data->cur_part->alt_id) {
 		dfu->offset = stm32prog_data->offset;
+		stm32prog_data->dfu_seq = 0;
 		pr_debug("dfu offset = 0x%llx\n", dfu->offset);
 	}
 }

@@ -19,6 +19,7 @@ static int stm32prog_set_phase(struct stm32prog_data *data, u8 phase,
 
 	if (phase == data->phase) {
 		data->offset = offset;
+		data->dfu_seq = 0;
 		return 0;
 	}
 
@@ -29,6 +30,7 @@ static int stm32prog_set_phase(struct stm32prog_data *data, u8 phase,
 			data->cur_part = part;
 			data->phase = phase;
 			data->offset = offset;
+			data->dfu_seq = 0;
 			return 0;
 		}
 	}

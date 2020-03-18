@@ -5,4 +5,5 @@
 
 obj-y += cmd_stm32prog.o
 obj-y += stm32prog.o
+obj-y += stm32prog_serial.o
 obj-y += stm32prog_usb.o

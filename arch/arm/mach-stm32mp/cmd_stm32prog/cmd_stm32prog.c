@@ -25,11 +25,14 @@ static int do_stm32prog(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	if (!strcmp(argv[1], "usb"))
 		link = LINK_USB;
+	else if (!strcmp(argv[1], "serial"))
+		link = LINK_SERIAL;
 
 	if (link == LINK_UNDEFINED) {
 		pr_err("not supported link=%s\n", argv[1]);
 		return CMD_RET_USAGE;
 	}
+
 	dev = (int)simple_strtoul(argv[2], NULL, 10);
 
 	addr = STM32_DDR_BASE;
@@ -60,6 +63,12 @@ static int do_stm32prog(cmd_tbl_t *cmdtp, int flag, int argc,
 		goto cleanup;
 
 	switch (link) {
+	case LINK_SERIAL:
+		ret = stm32prog_serial_init(data, dev);
+		if (ret)
+			goto cleanup;
+		reset = stm32prog_serial_loop(data);
+		break;
 	case LINK_USB:
 		reset = stm32prog_usb_loop(data, dev);
 		break;
@@ -90,7 +99,7 @@ cleanup:
 U_BOOT_CMD(stm32prog, 5, 0, do_stm32prog,
 	   "<link> <dev> [<addr>] [<size>]\n"
 	   "start communication with tools STM32Cubeprogrammer on <link> with Flashlayout at <addr>",
-	   "<link> = usb\n"
+	   "<link> = serial|usb\n"
 	   "<dev>  = device instance\n"
 	   "<addr> = address of flashlayout\n"
 	   "<size> = size of flashlayout\n"
