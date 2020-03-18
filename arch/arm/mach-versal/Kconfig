@@ -56,4 +56,10 @@ config DEFINE_TCM_OCM_MMAP
 	  This option if enabled defines the TCM and OCM memory and its
 	  memory attributes in MMU table entry.
 
+config VERSAL_NO_DDR
+	bool "Disable DDR MMU mapping"
+	help
+	  This option configures MMU with no DDR to avoid speculative
+	  access to DDR memory where DDR is not present.
+
 endif
