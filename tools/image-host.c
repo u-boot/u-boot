@@ -1034,7 +1034,8 @@ int fit_check_sign(const void *fit, const void *key)
 	if (!cfg_noffset)
 		return -1;
 
-	printf("Verifying Hash Integrity ... ");
+	printf("Verifying Hash Integrity for node '%s'... ",
+	       fdt_get_name(fit, cfg_noffset, NULL));
 	ret = fit_config_verify(fit, cfg_noffset);
 	if (ret)
 		return ret;
