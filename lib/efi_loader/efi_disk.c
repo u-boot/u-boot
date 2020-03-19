@@ -222,15 +222,17 @@ static const struct efi_block_io block_io_disk_template = {
 	.flush_blocks = &efi_disk_flush_blocks,
 };
 
-/*
- * Get the simple file system protocol for a file device path.
+/**
+ * efi_fs_from_path() - retrieve simple file system protocol
+ *
+ * Gets the simple file system protocol for a file device path.
  *
  * The full path provided is split into device part and into a file
  * part. The device part is used to find the handle on which the
  * simple file system protocol is installed.
  *
- * @full_path	device path including device and file
- * @return	simple file system protocol
+ * @full_path:	device path including device and file
+ * Return:	simple file system protocol
  */
 struct efi_simple_file_system_protocol *
 efi_fs_from_path(struct efi_device_path *full_path)
@@ -285,15 +287,15 @@ static int efi_fs_exists(struct blk_desc *desc, int part)
 }
 
 /*
- * Create a handle for a partition or disk
+ * efi_disk_add_dev() - create a handle for a partition or disk
  *
- * @parent	parent handle
- * @dp_parent	parent device path
- * @if_typename interface name for block device
- * @desc	internal block device
- * @dev_index   device index for block device
- * @offset	offset into disk for simple partitions
- * @return	disk object
+ * @parent:		parent handle
+ * @dp_parent:		parent device path
+ * @if_typename:	interface name for block device
+ * @desc:		internal block device
+ * @dev_index:		device index for block device
+ * @offset:		offset into disk for simple partitions
+ * Return:		disk object
  */
 static efi_status_t efi_disk_add_dev(
 				efi_handle_t parent,
@@ -373,15 +375,17 @@ static efi_status_t efi_disk_add_dev(
 	return EFI_SUCCESS;
 }
 
-/*
- * Create handles and protocols for the partitions of a block device
+/**
+ * efi_disk_create_partitions() - create handles and protocols for partitions
  *
- * @parent		handle of the parent disk
- * @blk_desc		block device
- * @if_typename		interface type
- * @diskid		device number
- * @pdevname		device name
- * @return		number of partitions created
+ * Create handles and protocols for the partitions of a block device.
+ *
+ * @parent:		handle of the parent disk
+ * @blk_desc:		block device
+ * @if_typename:	interface type
+ * @diskid:		device number
+ * @pdevname:		device name
+ * Return:		number of partitions created
  */
 int efi_disk_create_partitions(efi_handle_t parent, struct blk_desc *desc,
 			       const char *if_typename, int diskid,
@@ -418,16 +422,20 @@ int efi_disk_create_partitions(efi_handle_t parent, struct blk_desc *desc,
 	return disks;
 }
 
-/*
+/**
+ * efi_disk_register() - register block devices
+ *
  * U-Boot doesn't have a list of all online disk devices. So when running our
  * EFI payload, we scan through all of the potentially available ones and
  * store them in our object pool.
+ *
+ * This function is called in efi_init_obj_list().
  *
  * TODO(sjg@chromium.org): Actually with CONFIG_BLK, U-Boot does have this.
  * Consider converting the code to look up devices as needed. The EFI device
  * could be a child of the UCLASS_BLK block device, perhaps.
  *
- * This gets called from do_bootefi_exec().
+ * Return:	status code
  */
 efi_status_t efi_disk_register(void)
 {
