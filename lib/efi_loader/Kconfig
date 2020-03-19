@@ -27,6 +27,14 @@ config EFI_LOADER
 
 if EFI_LOADER
 
+config EFI_VARIABLE_FILE_STORE
+	bool "Store non-volatile UEFI variables as file"
+	depends on FAT_WRITE
+	default y
+	help
+	  Select tis option if you want non-volatile UEFI variables to be stored
+	  as file /ubootefi.var on the EFI system partition.
+
 config EFI_GET_TIME
 	bool "GetTime() runtime service"
 	depends on DM_RTC

@@ -79,4 +79,66 @@ efi_status_t efi_query_variable_info_int(u32 attributes,
 					 u64 *remaining_variable_storage_size,
 					 u64 *maximum_variable_size);
 
+#define EFI_VAR_FILE_NAME "ubootefi.var"
+
+#define EFI_VAR_BUF_SIZE 0x4000
+
+#define EFI_VAR_FILE_MAGIC 0x0161566966456255 /* UbEfiVa, version 1 */
+
+/**
+ * struct efi_var_entry - UEFI variable file entry
+ *
+ * @length:	length of enty, multiple of 8
+ * @attr:	variable attributes
+ * @time:	authentication time (seconds since start of epoch)
+ * @guid:	vendor GUID
+ * @name:	UTF16 variable name
+ */
+struct efi_var_entry {
+	u32 length;
+	u32 attr;
+	u64 time;
+	efi_guid_t guid;
+	u16 name[];
+};
+
+/**
+ * struct efi_var_file - file for storing UEFI variables
+ *
+ * @reserved:	unused, may be overwritten by memory probing
+ * @magic:	identifies file format
+ * @length:	length including header
+ * @crc32:	CRC32 without header
+ * @var:	variables
+ */
+struct efi_var_file {
+	u64 reserved;
+	u64 magic;
+	u32 length;
+	u32 crc32;
+	struct efi_var_entry var[];
+};
+
+/**
+ * efi_var_to_file() - save non-volatile variables as file
+ *
+ * File ubootefi.var is created on the EFI system partion.
+ *
+ * Return:	status code
+ */
+efi_status_t efi_var_to_file(void);
+
+/**
+ * efi_var_from_file() - read variables from file
+ *
+ * File ubootefi.var is read from the EFI system partitions and the variables
+ * stored in the file are created.
+ *
+ * In case the file does not exist yet or a variable cannot be set EFI_SUCCESS
+ * is returned.
+ *
+ * Return:	status code
+ */
+efi_status_t efi_var_from_file(void);
+
 #endif
