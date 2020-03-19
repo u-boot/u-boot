@@ -41,12 +41,16 @@ int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
 #if defined(CONFIG_OF_BOARD) || defined(CONFIG_OF_SEPARATE)
 void *board_fdt_blob_setup(void)
 {
-	static void *fdt_blob = (void *)CONFIG_XILINX_OF_BOARD_DTB_ADDR;
+	static void *fdt_blob;
+
+#if !defined(CONFIG_VERSAL_NO_DDR) && !defined(CONFIG_ZYNQMP_NO_DDR)
+	fdt_blob = (void *)CONFIG_XILINX_OF_BOARD_DTB_ADDR;
 
 	if (fdt_magic(fdt_blob) == FDT_MAGIC)
 		return fdt_blob;
 
 	debug("DTB is not passed via %p\n", fdt_blob);
+#endif
 
 #ifdef CONFIG_SPL_BUILD
 	/* FDT is at end of BSS unless it is in a different memory region */
