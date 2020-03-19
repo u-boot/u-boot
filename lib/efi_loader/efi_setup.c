@@ -11,7 +11,7 @@
 
 #define OBJ_LIST_NOT_INITIALIZED 1
 
-static efi_status_t efi_obj_list_initialized = OBJ_LIST_NOT_INITIALIZED;
+efi_status_t efi_obj_list_initialized = OBJ_LIST_NOT_INITIALIZED;
 
 /*
  * Allow unaligned memory access.
