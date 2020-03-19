@@ -480,10 +480,16 @@ int config_board_mux(void)
 		reg11 = SET_CFG_MUX3_SDHC1_SPI(reg11, 0x01);
 		QIXIS_WRITE(brdcfg[11], reg11);
 	} else {
-		/*  Routes {SDHC1_DAT4} to SDHC1 adapter slot */
+		/*
+		 * If {SDHC1_DAT4} has been configured to route to SDHC1_VS,
+		 * do not change it.
+		 * Otherwise route {SDHC1_DAT4} to SDHC1 adapter slot.
+		 */
 		reg11 = QIXIS_READ(brdcfg[11]);
-		reg11 = SET_CFG_MUX2_SDHC1_SPI(reg11, 0x00);
-		QIXIS_WRITE(brdcfg[11], reg11);
+		if ((reg11 & 0x30) != 0x30) {
+			reg11 = SET_CFG_MUX2_SDHC1_SPI(reg11, 0x00);
+			QIXIS_WRITE(brdcfg[11], reg11);
+		}
 
 		/* - Routes {SDHC1_DAT5, SDHC1_DAT6} to SDHC1 adapter slot.
 		 * {SDHC1_DAT7, SDHC1_DS } to SDHC1 adapter slot.
