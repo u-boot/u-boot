@@ -367,7 +367,7 @@ static efi_status_t efi_disk_add_dev(
 	diskobj->media.block_size = desc->blksz;
 	diskobj->media.io_align = desc->blksz;
 	diskobj->media.last_block = desc->lba - offset;
-	if (part != 0)
+	if (part)
 		diskobj->media.logical_partition = 1;
 	diskobj->ops.media = &diskobj->media;
 	if (disk)
