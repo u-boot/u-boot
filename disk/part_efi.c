@@ -71,11 +71,15 @@ static char *print_efiname(gpt_entry *pte)
 
 static const efi_guid_t system_guid = PARTITION_SYSTEM_GUID;
 
-static inline int is_bootable(gpt_entry *p)
+static int get_bootable(gpt_entry *p)
 {
-	return p->attributes.fields.legacy_bios_bootable ||
-		!memcmp(&(p->partition_type_guid), &system_guid,
-			sizeof(efi_guid_t));
+	int ret = 0;
+
+	if (!memcmp(&p->partition_type_guid, &system_guid, sizeof(efi_guid_t)))
+		ret |=  PART_EFI_SYSTEM_PARTITION;
+	if (p->attributes.fields.legacy_bios_bootable)
+		ret |=  PART_BOOTABLE;
+	return ret;
 }
 
 static int validate_gpt_header(gpt_header *gpt_h, lbaint_t lba,
@@ -286,7 +290,7 @@ int part_get_info_efi(struct blk_desc *dev_desc, int part,
 	snprintf((char *)info->name, sizeof(info->name), "%s",
 		 print_efiname(&gpt_pte[part - 1]));
 	strcpy((char *)info->type, "U-Boot");
-	info->bootable = is_bootable(&gpt_pte[part - 1]);
+	info->bootable = get_bootable(&gpt_pte[part - 1]);
 #if CONFIG_IS_ENABLED(PARTITION_UUIDS)
 	uuid_bin_to_str(gpt_pte[part - 1].unique_partition_guid.b, info->uuid,
 			UUID_STR_FORMAT_GUID);
@@ -501,7 +505,7 @@ int gpt_fill_pte(struct blk_desc *dev_desc,
 		memset(&gpt_e[i].attributes, 0,
 		       sizeof(gpt_entry_attributes));
 
-		if (partitions[i].bootable)
+		if (partitions[i].bootable & PART_BOOTABLE)
 			gpt_e[i].attributes.fields.legacy_bios_bootable = 1;
 
 		/* partition name */

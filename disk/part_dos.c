@@ -45,9 +45,15 @@ static inline int is_extended(int part_type)
 	    part_type == 0x85);
 }
 
-static inline int is_bootable(dos_partition_t *p)
+static int get_bootable(dos_partition_t *p)
 {
-	return (p->sys_ind == 0xef) || (p->boot_ind == 0x80);
+	int ret = 0;
+
+	if (p->sys_ind == 0xef)
+		ret |= PART_EFI_SYSTEM_PARTITION;
+	if (p->boot_ind == 0x80)
+		ret |= PART_BOOTABLE;
+	return ret;
 }
 
 static void print_one_part(dos_partition_t *p, lbaint_t ext_part_sector,
@@ -60,7 +66,7 @@ static void print_one_part(dos_partition_t *p, lbaint_t ext_part_sector,
 		"u\t%08x-%02x\t%02x%s%s\n",
 		part_num, lba_start, lba_size, disksig, part_num, p->sys_ind,
 		(is_extended(p->sys_ind) ? " Extd" : ""),
-		(is_bootable(p) ? " Boot" : ""));
+		(get_bootable(p) ? " Boot" : ""));
 }
 
 static int test_block_type(unsigned char *buffer)
@@ -258,7 +264,7 @@ static int part_get_info_extended(struct blk_desc *dev_desc,
 					      (char *)info->name);
 			/* sprintf(info->type, "%d, pt->sys_ind); */
 			strcpy((char *)info->type, "U-Boot");
-			info->bootable = is_bootable(pt);
+			info->bootable = get_bootable(pt);
 #if CONFIG_IS_ENABLED(PARTITION_UUIDS)
 			sprintf(info->uuid, "%08x-%02x", disksig, part_num);
 #endif
