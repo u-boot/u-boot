@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- *  EFI utils
+ * UEFI runtime variable services
  *
- *  Copyright (c) 2017 Rob Clark
+ * Copyright (c) 2017 Rob Clark
  */
 
 #include <common.h>
