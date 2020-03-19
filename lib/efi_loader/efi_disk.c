@@ -13,6 +13,8 @@
 #include <part.h>
 #include <malloc.h>
 
+struct efi_system_partition efi_system_partition;
+
 const efi_guid_t efi_block_io_guid = EFI_BLOCK_IO_PROTOCOL_GUID;
 
 /**
@@ -418,6 +420,24 @@ static efi_status_t efi_disk_add_dev(
 	diskobj->ops.media = &diskobj->media;
 	if (disk)
 		*disk = diskobj;
+
+	/* Store first EFI system partition */
+	if (part && !efi_system_partition.if_type) {
+		int r;
+		disk_partition_t info;
+
+		r = part_get_info(desc, part, &info);
+		if (r)
+			return EFI_DEVICE_ERROR;
+		if (info.bootable & PART_EFI_SYSTEM_PARTITION) {
+			efi_system_partition.if_type = desc->if_type;
+			efi_system_partition.devnum = desc->devnum;
+			efi_system_partition.part = part;
+			EFI_PRINT("EFI system partition: %s %d:%d\n",
+				  blk_get_if_type_name(desc->if_type),
+				  desc->devnum, part);
+		}
+	}
 	return EFI_SUCCESS;
 }
 

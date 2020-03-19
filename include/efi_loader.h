@@ -47,6 +47,13 @@ static inline void *guidcpy(void *dst, const void *src)
 /* Root node */
 extern efi_handle_t efi_root;
 
+/* EFI system partition */
+extern struct efi_system_partition {
+	enum if_type if_type;
+	int devnum;
+	u8 part;
+} efi_system_partition;
+
 int __efi_entry_check(void);
 int __efi_exit_check(void);
 const char *__efi_nesting(void);
