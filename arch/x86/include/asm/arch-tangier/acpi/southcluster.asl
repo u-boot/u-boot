@@ -240,6 +240,21 @@ Device (PCI0)
             Return (STA_VISIBLE)
         }
 
+        Name (SSCN, Package ()
+        {
+            0x02F8, 0x037B, Zero,
+        })
+
+        Name (FMCN, Package ()
+        {
+            0x0087, 0x010A, Zero,
+        })
+
+        Name (HSCN, Package ()
+        {
+            0x0008, 0x0020, Zero,
+        })
+
         Name (RBUF, ResourceTemplate()
         {
             FixedDMA(0x0009, 0x0000, Width32bit, )
@@ -260,6 +275,21 @@ Device (PCI0)
         {
             Return (STA_VISIBLE)
         }
+
+        Name (SSCN, Package ()
+        {
+            0x02F8, 0x037B, Zero,
+        })
+
+        Name (FMCN, Package ()
+        {
+            0x0087, 0x010A, Zero,
+        })
+
+        Name (HSCN, Package ()
+        {
+            0x0008, 0x0020, Zero,
+        })
     }
 
     Device (GPIO)
