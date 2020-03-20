@@ -480,6 +480,44 @@ static int do_pstore(struct cmd_tbl *cmdtp, int flag, int argc, char * const arg
 	return c->cmd(cmdtp, flag, argc, argv);
 }
 
+void fdt_fixup_pstore(void *blob)
+{
+	char node[32];
+	int  nodeoffset;	/* node offset from libfdt */
+
+	nodeoffset = fdt_path_offset(blob, "/");
+	if (nodeoffset < 0) {
+		/* Not found or something else bad happened. */
+		log_err("fdt_path_offset() returned %s\n", fdt_strerror(nodeoffset));
+		return;
+	}
+
+	nodeoffset = fdt_add_subnode(blob, nodeoffset, "reserved-memory");
+	if (nodeoffset < 0) {
+		log_err("Add 'reserved-memory' node failed: %s\n",
+				fdt_strerror(nodeoffset));
+		return;
+	}
+	fdt_setprop_u32(blob, nodeoffset, "#address-cells", 2);
+	fdt_setprop_u32(blob, nodeoffset, "#size-cells", 2);
+	fdt_setprop_empty(blob, nodeoffset, "ranges");
+
+	sprintf(node, "ramoops@%llx", (unsigned long long)pstore_addr);
+	nodeoffset = fdt_add_subnode(blob, nodeoffset, node);
+	if (nodeoffset < 0) {
+		log_err("Add '%s' node failed: %s\n", node, fdt_strerror(nodeoffset));
+		return;
+	}
+	fdt_setprop_string(blob, nodeoffset, "compatible", "ramoops");
+	fdt_setprop_u64(blob, nodeoffset, "reg", pstore_addr);
+	fdt_appendprop_u64(blob, nodeoffset, "reg", pstore_length);
+	fdt_setprop_u32(blob, nodeoffset, "record-size", pstore_record_size);
+	fdt_setprop_u32(blob, nodeoffset, "console-size", pstore_console_size);
+	fdt_setprop_u32(blob, nodeoffset, "ftrace-size", pstore_ftrace_size);
+	fdt_setprop_u32(blob, nodeoffset, "pmsg-size", pstore_pmsg_size);
+	fdt_setprop_u32(blob, nodeoffset, "ecc-size", pstore_ecc_size);
+}
+
 U_BOOT_CMD(pstore, 10, 0, do_pstore,
 	   "Manage Linux Persistent Storage",
 	   "set <addr> <len> [record-size] [console-size] [ftrace-size] [pmsg_size] [ecc-size]\n"

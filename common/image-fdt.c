@@ -567,6 +567,10 @@ int image_setup_libfdt(bootm_headers_t *images, void *blob,
 
 	/* Update ethernet nodes */
 	fdt_fixup_ethernet(blob);
+#if CONFIG_IS_ENABLED(CMD_PSTORE)
+	/* Append PStore configuration */
+	fdt_fixup_pstore(blob);
+#endif
 	if (IMAGE_OF_BOARD_SETUP) {
 		fdt_ret = ft_board_setup(blob, gd->bd);
 		if (fdt_ret) {

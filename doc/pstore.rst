@@ -25,6 +25,8 @@ i.e.::
 
 The same values should be set in U-Boot to be able to retrieve the records.
 This values can be set at build time in U-Boot configuration file, or at runtime.
+U-Boot automatically patches the Device Tree to pass the Ramoops parameters to
+the kernel.
 
 The PStore configuration parameters are:
 

@@ -359,4 +359,7 @@ int fdt_update_ethernet_dt(void *blob);
 #ifdef CONFIG_FSL_MC_ENET
 void fdt_fixup_board_enet(void *blob);
 #endif
+#ifdef CONFIG_CMD_PSTORE
+void fdt_fixup_pstore(void *blob);
+#endif
 #endif /* ifndef __FDT_SUPPORT_H */
