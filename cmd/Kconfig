@@ -1751,6 +1751,77 @@ config CMD_QFW
 	  feature is to allow easy loading of files passed to qemu-system
 	  via -kernel / -initrd
 
+config CMD_PSTORE
+	bool "pstore"
+	help
+	  This provides access to Linux PStore with Rammoops backend. The main
+	  feature is to allow to display or save PStore records.
+
+	  See doc/pstore.rst for more information.
+
+if CMD_PSTORE
+
+config CMD_PSTORE_MEM_ADDR
+	hex "Memory Address"
+	depends on CMD_PSTORE
+	help
+	  Base addr used for PStore ramoops memory, should be identical to
+	  ramoops.mem_address parameter used by kernel
+
+config CMD_PSTORE_MEM_SIZE
+	hex "Memory size"
+	depends on CMD_PSTORE
+	default "0x10000"
+	help
+	  Size of PStore ramoops memory, should be identical to ramoops.mem_size
+	  parameter used by kernel, a power of 2 and larger than the sum of the
+	  record sizes
+
+config CMD_PSTORE_RECORD_SIZE
+	hex "Dump record size"
+	depends on CMD_PSTORE
+	default "0x1000"
+	help
+	  Size of each dump done on oops/panic, should be identical to
+	  ramoops.record_size parameter used by kernel and a power of 2
+	  Must be non-zero
+
+config CMD_PSTORE_CONSOLE_SIZE
+	hex "Kernel console log size"
+	depends on CMD_PSTORE
+	default "0x1000"
+	help
+	  Size of kernel console log, should be identical to
+	  ramoops.console_size parameter used by kernel and a power of 2
+	  Must be non-zero
+
+config CMD_PSTORE_FTRACE_SIZE
+	hex "FTrace log size"
+	depends on CMD_PSTORE
+	default "0x1000"
+	help
+	  Size of ftrace log, should be identical to ramoops.ftrace_size
+	  parameter used by kernel and a power of 2
+
+config CMD_PSTORE_PMSG_SIZE
+	hex "User space message log size"
+	depends on CMD_PSTORE
+	default "0x1000"
+	help
+	  Size of user space message log, should be identical to
+	  ramoops.pmsg_size parameter used by kernel and a power of 2
+
+config CMD_PSTORE_ECC_SIZE
+	int "ECC size"
+	depends on CMD_PSTORE
+	default "0"
+	help
+	if non-zero, the option enables ECC support and specifies ECC buffer
+	size in bytes (1 is a special value, means 16 bytes ECC), should be
+	identical to ramoops.ramoops_ecc parameter used by kernel
+
+endif
+
 source "cmd/mvebu/Kconfig"
 
 config CMD_TERMINAL

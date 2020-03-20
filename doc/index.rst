@@ -109,6 +109,13 @@ Android-specific features available in U-Boot.
 
    android/index
 
+Command line
+------------
+.. toctree::
+   :maxdepth: 2
+
+   pstore.rst
+
 Indices and tables
 ==================
 
