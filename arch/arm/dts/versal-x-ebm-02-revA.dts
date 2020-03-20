@@ -14,7 +14,7 @@
 	compatible = "xlnx,versal-x-ebm-02-revA", "xlnx,versal-x-ebm-02";
 
 	fragment {
-		target = <&sdhci0>;
+		target = <&sdhci1>;
 
 		__overlay__ {
 #include "versal-x-ebm-02-revA.dtsi"

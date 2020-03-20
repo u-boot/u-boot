@@ -15,6 +15,6 @@
 	model = "Xilinx Versal vmk180 Eval board revA (EMMC)";
 };
 
-&sdhci0 {
+&sdhci1 {
 #include "versal-x-ebm-02-revA.dtsi"
 };
