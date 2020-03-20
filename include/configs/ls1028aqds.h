@@ -99,6 +99,7 @@
 	"load_addr=0xa0000000\0" \
 	"kernel_addr_r=0x81000000\0" \
 	"fdt_addr_r=0x90000000\0" \
+	"fdt2_addr_r=0x90010000\0" \
 	"ramdisk_addr_r=0xa0000000\0" \
 	"kernel_start=0x1000000\0" \
 	"kernelheader_start=0x600000\0" \
@@ -139,19 +140,35 @@
 			"${scripthdraddr} ${prefix}${boot_script_hdr} " \
 			"&& esbc_validate ${scripthdraddr};" \
 		"source ${scriptaddr}\0" \
-	"sd_bootcmd=echo Trying load from SD ..;" \
-		"mmcinfo; mmc read $load_addr " \
-		"$kernel_addr_sd $kernel_size_sd && " \
+	"xspi_bootcmd=echo Trying load from FlexSPI flash ...;" \
+		"sf probe 0:0 && sf read $load_addr " \
+		"$kernel_start $kernel_size ; env exists secureboot &&" \
+		"sf read $kernelheader_addr_r $kernelheader_start " \
+		"$kernelheader_size && esbc_validate ${kernelheader_addr_r}; "\
+		" bootm $load_addr#$board\0" \
+	"xspi_hdploadcmd=echo Trying load HDP firmware from FlexSPI...;" \
+		"sf probe 0:0 && sf read $load_addr 0x940000 0x30000 " \
+		"&& hdp load $load_addr 0x2000\0"			\
+	"sd_bootcmd=echo Trying load from SD ...;" \
+		"mmc dev 0; mmcinfo; mmc read $load_addr "		\
+		"$kernel_addr_sd $kernel_size_sd && "	\
 		"env exists secureboot && mmc read $kernelheader_addr_r " \
-		"$kernelhdr_addr_sd $kernelhdr_size_sd " \
-		" && esbc_validate ${kernelheader_addr_r};" \
-		"bootm $load_addr#$board\0" \
-	"emmc_bootcmd=echo Trying load from EMMC ..;" \
-		"mmcinfo; mmc dev 1; mmc read $load_addr " \
-		"$kernel_addr_sd $kernel_size_sd && " \
-		"env exists secureboot && mmc read $kernelheader_addr_r " \
-		"$kernelhdr_addr_sd $kernelhdr_size_sd " \
+		"$kernelhdr_addr_sd $kernelhdr_size_sd "		\
 		" && esbc_validate ${kernelheader_addr_r};"	\
-		"bootm $load_addr#$board\0"
+		"bootm $load_addr#$board\0"		\
+	"sd_hdploadcmd=echo Trying load HDP firmware from SD..;"        \
+		"mmc dev 0;mmcinfo; mmc read $load_addr 0x4a00 0x200 "	\
+		"&& hdp load $load_addr 0x2000\0"	\
+	"emmc_bootcmd=echo Trying load from EMMC ..;"	\
+		"mmc dev 1; mmcinfo; mmc read $load_addr "		\
+		"$kernel_addr_sd $kernel_size_sd && "	\
+		"env exists secureboot && mmc read $kernelheader_addr_r " \
+		"$kernelhdr_addr_sd $kernelhdr_size_sd "		\
+		" && esbc_validate ${kernelheader_addr_r};"	\
+		"bootm $load_addr#$board\0"			\
+	"emmc_hdploadcmd=echo Trying load HDP firmware from EMMC..;"      \
+		"mmc dev 1;mmcinfo;mmc read $load_addr 0x4a00 0x200 "	\
+		"&& hdp load $load_addr 0x2000\0"
+
 #endif
 #endif /* __LS1028A_QDS_H */
