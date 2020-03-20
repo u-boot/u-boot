@@ -148,6 +148,7 @@ struct atmel_qspi {
 	void __iomem *mem;
 	resource_size_t mmap_size;
 	const struct atmel_qspi_caps *caps;
+	struct udevice *dev;
 	ulong bus_clk_rate;
 	u32 mr;
 };
@@ -168,6 +169,81 @@ static const struct atmel_qspi_mode atmel_qspi_modes[] = {
 	{ 2, 2, 2, QSPI_IFR_WIDTH_DUAL_CMD },
 	{ 4, 4, 4, QSPI_IFR_WIDTH_QUAD_CMD },
 };
+
+#ifdef VERBOSE_DEBUG
+static const char *atmel_qspi_reg_name(u32 offset, char *tmp, size_t sz)
+{
+	switch (offset) {
+	case QSPI_CR:
+		return "CR";
+	case QSPI_MR:
+		return "MR";
+	case QSPI_RD:
+		return "MR";
+	case QSPI_TD:
+		return "TD";
+	case QSPI_SR:
+		return "SR";
+	case QSPI_IER:
+		return "IER";
+	case QSPI_IDR:
+		return "IDR";
+	case QSPI_IMR:
+		return "IMR";
+	case QSPI_SCR:
+		return "SCR";
+	case QSPI_IAR:
+		return "IAR";
+	case QSPI_ICR:
+		return "ICR/WICR";
+	case QSPI_IFR:
+		return "IFR";
+	case QSPI_RICR:
+		return "RICR";
+	case QSPI_SMR:
+		return "SMR";
+	case QSPI_SKR:
+		return "SKR";
+	case QSPI_WPMR:
+		return "WPMR";
+	case QSPI_WPSR:
+		return "WPSR";
+	case QSPI_VERSION:
+		return "VERSION";
+	default:
+		snprintf(tmp, sz, "0x%02x", offset);
+		break;
+	}
+
+	return tmp;
+}
+#endif /* VERBOSE_DEBUG */
+
+static u32 atmel_qspi_read(struct atmel_qspi *aq, u32 offset)
+{
+	u32 value = readl(aq->regs + offset);
+
+#ifdef VERBOSE_DEBUG
+	char tmp[16];
+
+	dev_vdbg(aq->dev, "read 0x%08x from %s\n", value,
+		 atmel_qspi_reg_name(offset, tmp, sizeof(tmp)));
+#endif /* VERBOSE_DEBUG */
+
+	return value;
+}
+
+static void atmel_qspi_write(u32 value, struct atmel_qspi *aq, u32 offset)
+{
+#ifdef VERBOSE_DEBUG
+	char tmp[16];
+
+	dev_vdbg(aq->dev, "write 0x%08x into %s\n", value,
+		 atmel_qspi_reg_name(offset, tmp, sizeof(tmp)));
+#endif /* VERBOSE_DEBUG */
+
+	writel(value, aq->regs + offset);
+}
 
 static inline bool atmel_qspi_is_compatible(const struct spi_mem_op *op,
 					    const struct atmel_qspi_mode *mode)
@@ -289,32 +365,32 @@ static int atmel_qspi_set_cfg(struct atmel_qspi *aq,
 	 * Serial Memory Mode (SMM).
 	 */
 	if (aq->mr != QSPI_MR_SMM) {
-		writel(QSPI_MR_SMM, aq->regs + QSPI_MR);
+		atmel_qspi_write(QSPI_MR_SMM, aq, QSPI_MR);
 		aq->mr = QSPI_MR_SMM;
 	}
 
 	/* Clear pending interrupts */
-	(void)readl(aq->regs + QSPI_SR);
+	(void)atmel_qspi_read(aq, QSPI_SR);
 
 	if (aq->caps->has_ricr) {
 		if (!op->addr.nbytes && op->data.dir == SPI_MEM_DATA_IN)
 			ifr |= QSPI_IFR_APBTFRTYP_READ;
 
 		/* Set QSPI Instruction Frame registers */
-		writel(iar, aq->regs + QSPI_IAR);
+		atmel_qspi_write(iar, aq, QSPI_IAR);
 		if (op->data.dir == SPI_MEM_DATA_IN)
-			writel(icr, aq->regs + QSPI_RICR);
+			atmel_qspi_write(icr, aq, QSPI_RICR);
 		else
-			writel(icr, aq->regs + QSPI_WICR);
-		writel(ifr, aq->regs + QSPI_IFR);
+			atmel_qspi_write(icr, aq, QSPI_WICR);
+		atmel_qspi_write(ifr, aq, QSPI_IFR);
 	} else {
 		if (op->data.dir == SPI_MEM_DATA_OUT)
 			ifr |= QSPI_IFR_SAMA5D2_WRITE_TRSFR;
 
 		/* Set QSPI Instruction Frame registers */
-		writel(iar, aq->regs + QSPI_IAR);
-		writel(icr, aq->regs + QSPI_ICR);
-		writel(ifr, aq->regs + QSPI_IFR);
+		atmel_qspi_write(iar, aq, QSPI_IAR);
+		atmel_qspi_write(icr, aq, QSPI_ICR);
+		atmel_qspi_write(ifr, aq, QSPI_IFR);
 	}
 
 	return 0;
@@ -342,7 +418,7 @@ static int atmel_qspi_exec_op(struct spi_slave *slave,
 	/* Skip to the final steps if there is no data */
 	if (op->data.nbytes) {
 		/* Dummy read of QSPI_IFR to synchronize APB and AHB accesses */
-		(void)readl(aq->regs + QSPI_IFR);
+		(void)atmel_qspi_read(aq, QSPI_IFR);
 
 		/* Send/Receive data */
 		if (op->data.dir == SPI_MEM_DATA_IN)
@@ -353,7 +429,7 @@ static int atmel_qspi_exec_op(struct spi_slave *slave,
 				    op->data.nbytes);
 
 		/* Release the chip-select */
-		writel(QSPI_CR_LASTXFER, aq->regs + QSPI_CR);
+		atmel_qspi_write(QSPI_CR_LASTXFER, aq, QSPI_CR);
 	}
 
 	/* Poll INSTruction End and Chip Select Rise flags. */
@@ -375,12 +451,12 @@ static int atmel_qspi_set_speed(struct udevice *bus, uint hz)
 	new_value = QSPI_SCR_SCBR(scbr);
 	mask = QSPI_SCR_SCBR_MASK;
 
-	scr = readl(aq->regs + QSPI_SCR);
+	scr = atmel_qspi_read(aq, QSPI_SCR);
 	if ((scr & mask) == new_value)
 		return 0;
 
 	scr = (scr & ~mask) | new_value;
-	writel(scr, aq->regs + QSPI_SCR);
+	atmel_qspi_write(scr, aq, QSPI_SCR);
 
 	return 0;
 }
@@ -397,12 +473,12 @@ static int atmel_qspi_set_mode(struct udevice *bus, uint mode)
 
 	mask = QSPI_SCR_CPOL | QSPI_SCR_CPHA;
 
-	scr = readl(aq->regs + QSPI_SCR);
+	scr = atmel_qspi_read(aq, QSPI_SCR);
 	if ((scr & mask) == new_value)
 		return 0;
 
 	scr = (scr & ~mask) | new_value;
-	writel(scr, aq->regs + QSPI_SCR);
+	atmel_qspi_write(scr, aq, QSPI_SCR);
 
 	return 0;
 }
@@ -455,14 +531,14 @@ free_pclk:
 static void atmel_qspi_init(struct atmel_qspi *aq)
 {
 	/* Reset the QSPI controller */
-	writel(QSPI_CR_SWRST, aq->regs + QSPI_CR);
+	atmel_qspi_write(QSPI_CR_SWRST, aq, QSPI_CR);
 
 	/* Set the QSPI controller by default in Serial Memory Mode */
-	writel(QSPI_MR_SMM, aq->regs + QSPI_MR);
+	atmel_qspi_write(QSPI_MR_SMM, aq, QSPI_MR);
 	aq->mr = QSPI_MR_SMM;
 
 	/* Enable the QSPI controller */
-	writel(QSPI_CR_QSPIEN, aq->regs + QSPI_CR);
+	atmel_qspi_write(QSPI_CR_QSPIEN, aq, QSPI_CR);
 }
 
 static int atmel_qspi_probe(struct udevice *dev)
@@ -504,6 +580,8 @@ static int atmel_qspi_probe(struct udevice *dev)
 	ret = atmel_qspi_enable_clk(dev);
 	if (ret)
 		return ret;
+
+	aq->dev = dev;
 
 	atmel_qspi_init(aq);
 
