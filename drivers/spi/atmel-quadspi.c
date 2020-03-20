@@ -146,6 +146,7 @@ struct atmel_qspi_caps {
 struct atmel_qspi {
 	void __iomem *regs;
 	void __iomem *mem;
+	resource_size_t mmap_size;
 	const struct atmel_qspi_caps *caps;
 	ulong bus_clk_rate;
 	u32 mr;
@@ -326,6 +327,14 @@ static int atmel_qspi_exec_op(struct spi_slave *slave,
 	u32 sr, imr, offset;
 	int err;
 
+	/*
+	 * Check if the address exceeds the MMIO window size. An improvement
+	 * would be to add support for regular SPI mode and fall back to it
+	 * when the flash memories overrun the controller's memory space.
+	 */
+	if (op->addr.val + op->data.nbytes > aq->mmap_size)
+		return -ENOTSUPP;
+
 	err = atmel_qspi_set_cfg(aq, op, &offset);
 	if (err)
 		return err;
@@ -489,6 +498,8 @@ static int atmel_qspi_probe(struct udevice *dev)
 	aq->mem = devm_ioremap(dev, res.start, resource_size(&res));
 	if (IS_ERR(aq->mem))
 		return PTR_ERR(aq->mem);
+
+	aq->mmap_size = resource_size(&res);
 
 	ret = atmel_qspi_enable_clk(dev);
 	if (ret)
