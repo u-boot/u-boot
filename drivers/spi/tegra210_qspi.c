@@ -2,7 +2,7 @@
 /*
  * NVIDIA Tegra210 QSPI controller driver
  *
- * (C) Copyright 2015-2019 NVIDIA Corporation <www.nvidia.com>
+ * (C) Copyright 2015-2020 NVIDIA Corporation <www.nvidia.com>
  *
  */
 
@@ -97,10 +97,8 @@ struct tegra210_qspi_priv {
 static int tegra210_qspi_ofdata_to_platdata(struct udevice *bus)
 {
 	struct tegra_spi_platdata *plat = bus->platdata;
-	const void *blob = gd->fdt_blob;
-	int node = dev_of_offset(bus);
 
-	plat->base = devfdt_get_addr(bus);
+	plat->base = dev_read_addr(bus);
 	plat->periph_id = clock_decode_periph_id(bus);
 
 	if (plat->periph_id == PERIPH_ID_NONE) {
@@ -110,10 +108,11 @@ static int tegra210_qspi_ofdata_to_platdata(struct udevice *bus)
 	}
 
 	/* Use 500KHz as a suitable default */
-	plat->frequency = fdtdec_get_int(blob, node, "spi-max-frequency",
-					 500000);
-	plat->deactivate_delay_us = fdtdec_get_int(blob, node,
-						   "spi-deactivate-delay", 0);
+	plat->frequency = dev_read_u32_default(bus, "spi-max-frequency",
+					       500000);
+	plat->deactivate_delay_us = dev_read_u32_default(bus,
+							 "spi-deactivate-delay",
+							 0);
 	debug("%s: base=%#08lx, periph_id=%d, max-frequency=%d, deactivate_delay=%d\n",
 	      __func__, plat->base, plat->periph_id, plat->frequency,
 	      plat->deactivate_delay_us);
