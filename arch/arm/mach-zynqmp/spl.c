@@ -19,9 +19,6 @@ void board_init_f(ulong dummy)
 {
 	board_early_init_f();
 	board_early_init_r();
-
-	/* Delay is required for clocks to be propagated */
-	udelay(1000000);
 }
 
 static void ps_mode_reset(ulong mode)

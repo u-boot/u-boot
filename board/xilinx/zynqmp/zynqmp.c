@@ -326,6 +326,9 @@ int board_early_init_f(void)
 	ret = psu_init();
 	if (ret)
 		return ret;
+
+	/* Delay is required for clocks to be propagated */
+	udelay(1000000);
 #endif
 
 #ifdef CONFIG_DEBUG_UART
