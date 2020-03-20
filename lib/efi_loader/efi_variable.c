@@ -273,7 +273,8 @@ static efi_status_t parse_uboot_variable(char *variable,
 					 u32 *attributes)
 {
 	char *guid, *name, *end, c;
-	unsigned long name_len;
+	size_t name_len;
+	efi_uintn_t old_variable_name_size;
 	u16 *p;
 
 	guid = strchr(variable, '_');
@@ -289,17 +290,17 @@ static efi_status_t parse_uboot_variable(char *variable,
 		return EFI_INVALID_PARAMETER;
 
 	name_len = end - name;
-	if (*variable_name_size < (name_len + 1)) {
-		*variable_name_size = name_len + 1;
+	old_variable_name_size = *variable_name_size;
+	*variable_name_size = sizeof(u16) * (name_len + 1);
+	if (old_variable_name_size < *variable_name_size)
 		return EFI_BUFFER_TOO_SMALL;
-	}
+
 	end++; /* point to value */
 
 	/* variable name */
 	p = variable_name;
 	utf8_utf16_strncpy(&p, name, name_len);
 	variable_name[name_len] = 0;
-	*variable_name_size = name_len + 1;
 
 	/* guid */
 	c = *(name - 1);
