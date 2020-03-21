@@ -240,12 +240,39 @@ static int smc911x_miiphy_write(struct mii_dev *bus, int phy, int devad,
 
 	return smc911x_eth_phy_write(dev, phy, reg, val);
 }
+
+static int smc911x_initialize_mii(struct eth_device *dev)
+{
+	struct mii_dev *mdiodev = mdio_alloc();
+	int ret;
+
+	if (!mdiodev)
+		return -ENOMEM;
+
+	strncpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
+	mdiodev->read = smc911x_miiphy_read;
+	mdiodev->write = smc911x_miiphy_write;
+
+	ret = mdio_register(mdiodev);
+	if (ret < 0) {
+		mdio_free(mdiodev);
+		return ret;
+	}
+
+	return 0;
+}
+#else
+static int smc911x_initialize_mii(struct eth_device *dev)
+{
+	return 0;
+}
 #endif
 
 int smc911x_initialize(u8 dev_num, int base_addr)
 {
 	unsigned long addrl, addrh;
 	struct eth_device *dev;
+	int ret;
 
 	dev = calloc(1, sizeof(*dev));
 	if (!dev)
@@ -254,9 +281,10 @@ int smc911x_initialize(u8 dev_num, int base_addr)
 	dev->iobase = base_addr;
 
 	/* Try to detect chip. Will fail if not present. */
-	if (smc911x_detect_chip(dev)) {
-		free(dev);
-		return 0;
+	ret = smc911x_detect_chip(dev);
+	if (ret) {
+		ret = 0;	/* Card not detected is not an error */
+		goto err_detect;
 	}
 
 	addrh = smc911x_get_mac_csr(dev, ADDRH);
@@ -279,27 +307,15 @@ int smc911x_initialize(u8 dev_num, int base_addr)
 
 	eth_register(dev);
 
-#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
-	int retval;
-	struct mii_dev *mdiodev = mdio_alloc();
-	if (!mdiodev) {
-		eth_unregister(dev);
-		free(dev);
-		return -ENOMEM;
-	}
-
-	strncpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
-	mdiodev->read = smc911x_miiphy_read;
-	mdiodev->write = smc911x_miiphy_write;
-
-	retval = mdio_register(mdiodev);
-	if (retval < 0) {
-		mdio_free(mdiodev);
-		eth_unregister(dev);
-		free(dev);
-		return retval;
-	}
-#endif
+	ret = smc911x_initialize_mii(dev);
+	if (ret)
+		goto err_mii;
 
 	return 1;
+
+err_mii:
+	eth_unregister(dev);
+err_detect:
+	free(dev);
+	return ret;
 }
