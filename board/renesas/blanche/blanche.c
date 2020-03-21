@@ -314,6 +314,7 @@ int board_init(void)
 }
 
 /* Added for BLANCHE(R-CarV2H board) */
+#ifndef CONFIG_DM_ETH
 int board_eth_init(bd_t *bis)
 {
 	int rc = 0;
@@ -338,6 +339,7 @@ int board_eth_init(bd_t *bis)
 
 	return rc;
 }
+#endif
 
 int dram_init(void)
 {
