@@ -291,7 +291,8 @@ int gen2_clk_probe(struct udevice *dev)
 	if (ret < 0)
 		return ret;
 
-	rst_base = fdtdec_get_addr(gd->fdt_blob, ret, "reg");
+	rst_base = fdtdec_get_addr_size_auto_noparent(gd->fdt_blob, ret, "reg",
+						      0, NULL, false);
 	if (rst_base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
