@@ -8,6 +8,10 @@
 #include "r8a7792-blanche.dts"
 #include "r8a7792-u-boot.dtsi"
 
+&iic3 {
+	status = "okay";
+};
+
 &scif0 {
 	u-boot,dm-pre-reloc;
 };
