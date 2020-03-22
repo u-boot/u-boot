@@ -330,7 +330,7 @@ static efi_status_t parse_uboot_variable(char *variable,
  */
 efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
 					       u16 *variable_name,
-					       const efi_guid_t *vendor)
+					       efi_guid_t *vendor)
 {
 	char *native_name, *variable;
 	ssize_t name_len, list_len;
@@ -598,7 +598,7 @@ efi_get_variable_runtime(u16 *variable_name, const efi_guid_t *vendor,
  */
 static efi_status_t __efi_runtime EFIAPI
 efi_get_next_variable_name_runtime(efi_uintn_t *variable_name_size,
-				   u16 *variable_name, const efi_guid_t *vendor)
+				   u16 *variable_name, efi_guid_t *vendor)
 {
 	return EFI_UNSUPPORTED;
 }
