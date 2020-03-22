@@ -141,4 +141,58 @@ efi_status_t efi_var_to_file(void);
  */
 efi_status_t efi_var_from_file(void);
 
+/**
+ * efi_var_mem_init() - set-up variable list
+ *
+ * Return:	status code
+ */
+efi_status_t efi_var_mem_init(void);
+
+/**
+ * efi_var_mem_find() - find a variable in the list
+ *
+ * @guid:	GUID of the variable
+ * @name:	name of the variable
+ * @next:	on exit pointer to the next variable after the found one
+ * Return:	found variable
+ */
+struct efi_var_entry *efi_var_mem_find(const efi_guid_t *guid, const u16 *name,
+				       struct efi_var_entry **next);
+
+/**
+ * efi_var_mem_del() - delete a variable from the list of variables
+ *
+ * @var:	variable to delete
+ */
+void efi_var_mem_del(struct efi_var_entry *var);
+
+/**
+ * efi_var_mem_ins() - append a variable to the list of variables
+ *
+ * The variable is appended without checking if a variable of the same name
+ * already exists. The two data buffers are concatenated.
+ *
+ * @variable_name:	variable name
+ * @vendor:		GUID
+ * @attributes:		variable attributes
+ * @size1:		size of the first data buffer
+ * @data1:		first data buffer
+ * @size2:		size of the second data field
+ * @data2:		second data buffer
+ * @time:		time of authentication (as seconds since start of epoch)
+ * Result:		status code
+ */
+efi_status_t efi_var_mem_ins(u16 *variable_name,
+			     const efi_guid_t *vendor, u32 attributes,
+			     const efi_uintn_t size1, const void *data1,
+			     const efi_uintn_t size2, const void *data2,
+			     const u64 time);
+
+/**
+ * efi_var_mem_free() - determine free memory for variables
+ *
+ * Return:	maximum data size plus variable name size
+ */
+u64 efi_var_mem_free(void);
+
 #endif
