@@ -1477,8 +1477,10 @@ static int eqos_free_pkt(struct udevice *dev, uchar *packet, int length)
 
 	rx_desc = &(eqos->rx_descs[eqos->rx_desc_idx]);
 
+	rx_desc->des0 = 0;
+	mb();
+	eqos->config->ops->eqos_flush_desc(rx_desc);
 	eqos->config->ops->eqos_inval_buffer(packet, length);
-
 	rx_desc->des0 = (u32)(ulong)packet;
 	rx_desc->des1 = 0;
 	rx_desc->des2 = 0;
