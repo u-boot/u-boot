@@ -245,6 +245,8 @@ int board_late_init(void)
 		env_set("fdtfile", "armada-385-clearfog-gtr-l8.dtb");
 	else if (IS_ENABLED(CONFIG_TARGET_CLEARFOG_BASE))
 		env_set("fdtfile", "armada-388-clearfog-base.dtb");
+	else
+		env_set("fdtfile", "armada-388-clearfog.dtb");
 
 	return 0;
 }
