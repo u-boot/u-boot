@@ -1366,16 +1366,16 @@ static void print_topology_details(const struct serdes_map *serdes_map,
 
 	DEBUG_INIT_S("board SerDes lanes topology details:\n");
 
-	DEBUG_INIT_S(" | Lane #  | Speed |  Type       |\n");
+	DEBUG_INIT_S(" | Lane # | Speed |  Type       |\n");
 	DEBUG_INIT_S(" --------------------------------\n");
 	for (lane_num = 0; lane_num < count; lane_num++) {
 		if (serdes_map[lane_num].serdes_type == DEFAULT_SERDES)
 			continue;
 		DEBUG_INIT_S(" |   ");
 		DEBUG_INIT_D(hws_get_physical_serdes_num(lane_num), 1);
-		DEBUG_INIT_S("    |  ");
+		DEBUG_INIT_S("    |   ");
 		DEBUG_INIT_D(serdes_map[lane_num].serdes_speed, 2);
-		DEBUG_INIT_S("   |  ");
+		DEBUG_INIT_S("   | ");
 		DEBUG_INIT_S((char *)
 			     serdes_type_to_string[serdes_map[lane_num].
 						   serdes_type]);
