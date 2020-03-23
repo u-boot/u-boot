@@ -170,7 +170,7 @@ int board_init(void)
 
 int checkboard(void)
 {
-	char *board = "ClearFog";
+	char *board = "Clearfog Pro";
 
 	cf_read_tlv_data();
 	if (strlen(cf_tlv_data.tlv_product_name[0]) > 0)
