@@ -1,0 +1,18 @@
+menu "ClearFog configuration"
+	depends on TARGET_CLEARFOG
+
+config TARGET_CLEARFOG_BASE
+	bool "Use ClearFog Base static configuration"
+	help
+	  Use the ClearFog Base as the static configuration instead of the
+	  default which uses the ClearFog Pro.
+
+	  Runtime board detection is always attempted and used if available. The
+	  static configuration is used as a fallback in cases where runtime
+	  detection is disabled, is not available in hardware, or otherwise fails.
+
+	  Only newer revisions of the ClearFog product line support runtime
+	  detection via additional EEPROM hardware. This option enables selecting
+	  the Base variant for older hardware revisions.
+
+endmenu

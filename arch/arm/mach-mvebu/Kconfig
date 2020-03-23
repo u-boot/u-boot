@@ -280,4 +280,6 @@ config SECURED_MODE_CSK_INDEX
 	default 0
 	depends on SECURED_MODE_IMAGE
 
+source "board/solidrun/clearfog/Kconfig"
+
 endif
