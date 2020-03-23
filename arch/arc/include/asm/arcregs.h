@@ -51,6 +51,9 @@
 #define ARC_AUX_DCCM_BASE	0x18	/* DCCM Base Addr ARCv2 */
 #define ARC_AUX_ICCM_BASE	0x208	/* ICCM Base Addr ARCv2 */
 
+/* CSM auxiliary registers */
+#define ARC_AUX_CSM_ENABLE	0x9A0
+
 /* Timer related auxiliary registers */
 #define ARC_AUX_TIMER0_CNT	0x21	/* Timer 0 count */
 #define ARC_AUX_TIMER0_CTRL	0x22	/* Timer 0 control */

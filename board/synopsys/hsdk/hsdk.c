@@ -80,6 +80,7 @@ struct hsdk_env_common_ctl {
 	u32_env nvlim;
 	u32_env icache;
 	u32_env dcache;
+	u32_env csm_location;
 	u32_env l2_cache;
 };
 
@@ -132,6 +133,7 @@ static const struct env_map_common env_map_common[] = {
 	{ "dcache_ena",	ENV_HEX, true,	0, 1,		&env_common.dcache },
 #if defined(CONFIG_BOARD_HSDK_4XD)
 	{ "l2_cache_ena",	ENV_HEX, true,	0, 1,		&env_common.l2_cache },
+	{ "csm_location",	ENV_HEX, true,	0, NO_CCM,	&env_common.csm_location },
 #endif /* CONFIG_BOARD_HSDK_4XD */
 	{}
 };
@@ -297,6 +299,30 @@ static void init_cluster_slc(void)
 		slc_enable();
 	else
 		slc_disable();
+}
+
+#define CREG_CSM_BASE		(CREG_BASE + 0x210)
+
+static void init_cluster_csm(void)
+{
+	/* ARC HS38 in HSDK SoC doesn't include CSM */
+	if (!is_board_match_config(T_BOARD_HSDK_4XD))
+		return;
+
+	if (env_common.csm_location.val == NO_CCM) {
+		write_aux_reg(ARC_AUX_CSM_ENABLE, 0);
+	} else {
+		/*
+		 * CSM base address is 256kByte aligned but we allow to map
+		 * CSM only to aperture start (256MByte aligned)
+		 * The field in CREG_CSM_BASE is in 17:2 bits itself so we need
+		 * to shift it.
+		 */
+		u32 csm_base = (env_common.csm_location.val * SZ_1K) << 2;
+
+		write_aux_reg(ARC_AUX_CSM_ENABLE, 1);
+		writel(csm_base, (void __iomem *)CREG_CSM_BASE);
+	}
 }
 
 static void init_master_icache(void)
@@ -678,6 +704,7 @@ static void do_init_cluster(void)
 	 * cores.
 	 */
 	init_cluster_nvlim();
+	init_cluster_csm();
 	init_cluster_slc();
 }
 
