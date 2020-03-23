@@ -515,7 +515,7 @@ static int reset_reason(void)
 
 	env_set("reset_reason", reason);
 
-	ret = zynqmp_mmio_write(~0, ~0, (ulong)&crlapb_base->reset_reason);
+	ret = zynqmp_mmio_write((ulong)&crlapb_base->reset_reason, ~0, ~0);
 	if (ret)
 		return -EINVAL;
 
