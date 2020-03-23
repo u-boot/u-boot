@@ -2173,6 +2173,14 @@ config CMD_UBI
 	  It is also strongly encouraged to also enable CONFIG_MTD to get full
 	  partition support.
 
+config CMD_UBI_RENAME
+       bool "Enable rename"
+       depends on CMD_UBI
+       default n
+       help
+         Enable a "ubi" command to rename ubi volume:
+	   ubi rename <oldname> <newname>
+
 config CMD_UBIFS
 	tristate "Enable UBIFS - Unsorted block images filesystem commands"
 	depends on CMD_UBI
