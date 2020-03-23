@@ -51,7 +51,7 @@ static int ipi_req(const u32 *req, size_t req_len, u32 *res, size_t res_maxlen)
 
 static int send_req(const u32 *req, size_t req_len, u32 *res, size_t res_maxlen)
 {
-	if (IS_ENABLED(CONFIG_SPL_BUILD))
+	if (IS_ENABLED(CONFIG_SPL_BUILD) || current_el() == 3)
 		return ipi_req(req, req_len, res, res_maxlen);
 
 	return xilinx_pm_request(req[0], 0, 0, 0, 0, res);
