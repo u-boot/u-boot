@@ -1288,7 +1288,7 @@ static int eqos_start(struct udevice *dev)
 		struct eqos_desc *rx_desc = &(eqos->rx_descs[i]);
 		rx_desc->des0 = (u32)(ulong)(eqos->rx_dma_buf +
 					     (i * EQOS_MAX_PACKET_SIZE));
-		rx_desc->des3 |= EQOS_DESC3_OWN | EQOS_DESC3_BUF1V;
+		rx_desc->des3 = EQOS_DESC3_OWN | EQOS_DESC3_BUF1V;
 	}
 	eqos->config->ops->eqos_flush_desc(eqos->descs);
 
@@ -1482,7 +1482,7 @@ static int eqos_free_pkt(struct udevice *dev, uchar *packet, int length)
 	 * writes to the rest of the descriptor too.
 	 */
 	mb();
-	rx_desc->des3 |= EQOS_DESC3_OWN | EQOS_DESC3_BUF1V;
+	rx_desc->des3 = EQOS_DESC3_OWN | EQOS_DESC3_BUF1V;
 	eqos->config->ops->eqos_flush_desc(rx_desc);
 
 	writel((ulong)rx_desc, &eqos->dma_regs->ch0_rxdesc_tail_pointer);
