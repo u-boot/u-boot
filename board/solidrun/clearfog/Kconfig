@@ -39,4 +39,16 @@ config CLEARFOG_SFP_25GB
 	  SGMII connection (requires a supporting SFP). By default, transfer speed
 	  of 1.25 Gbps is used, suitable for a more common 1 Gbps SFP module.
 
+config ENV_SECT_SIZE
+	hex "Environment Sector-Size"
+	# Use SPI flash erase block size of 4 KiB
+	default 0x1000 if MVEBU_SPL_BOOT_DEVICE_SPI
+	# Use optimistic 64 KiB erase block, will vary between actual media
+	default 0x10000 if MVEBU_SPL_BOOT_DEVICE_MMC
+
+config SYS_SPI_U_BOOT_OFFS
+	hex "address of u-boot payload in SPI flash"
+	default 0x20000
+	depends on MVEBU_SPL_BOOT_DEVICE_SPI
+
 endmenu
