@@ -451,7 +451,7 @@ static int compress_using_none(struct unit_test_state *uts,
 }
 
 /**
- * run_bootm_test() - Run tests on the bootm decopmression function
+ * run_bootm_test() - Run tests on the bootm decompression function
  *
  * @comp_type:	Compression type to test
  * @compress:	Our function to compress data
