@@ -15,4 +15,11 @@ config TARGET_CLEARFOG_BASE
 	  detection via additional EEPROM hardware. This option enables selecting
 	  the Base variant for older hardware revisions.
 
+config CLEARFOG_SFP_25GB
+	bool "Enable 2.5 Gbps mode for SFP"
+	help
+	  Set the SFP module connection to support 2.5 Gbps transfer speed for the
+	  SGMII connection (requires a supporting SFP). By default, transfer speed
+	  of 1.25 Gbps is used, suitable for a more common 1 Gbps SFP module.
+
 endmenu

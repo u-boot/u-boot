@@ -63,6 +63,11 @@ int hws_board_topology_load(struct serdes_map **serdes_map_array, u8 *count)
 {
 	cf_read_tlv_data();
 
+	/* Apply build configuration options before runtime configuration */
+	if (IS_ENABLED(CONFIG_CLEARFOG_SFP_25GB))
+		board_serdes_map[5].serdes_speed = SERDES_SPEED_3_125_GBPS;
+
+	/* Apply runtime detection changes */
 	if (sr_product_is(&cf_tlv_data, "Clearfog GTR")) {
 		board_serdes_map[0].serdes_type = PEX0;
 		board_serdes_map[0].serdes_speed = SERDES_SPEED_5_GBPS;
