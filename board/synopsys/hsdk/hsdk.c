@@ -80,6 +80,7 @@ struct hsdk_env_common_ctl {
 	u32_env nvlim;
 	u32_env icache;
 	u32_env dcache;
+	u32_env l2_cache;
 };
 
 /*
@@ -129,6 +130,9 @@ static const struct env_map_common env_map_common[] = {
 	{ "non_volatile_limit", ENV_HEX, true, 0, 0xF,	&env_common.nvlim },
 	{ "icache_ena",	ENV_HEX, true,	0, 1,		&env_common.icache },
 	{ "dcache_ena",	ENV_HEX, true,	0, 1,		&env_common.dcache },
+#if defined(CONFIG_BOARD_HSDK_4XD)
+	{ "l2_cache_ena",	ENV_HEX, true,	0, 1,		&env_common.l2_cache },
+#endif /* CONFIG_BOARD_HSDK_4XD */
 	{}
 };
 
@@ -186,6 +190,11 @@ static inline enum board_type get_board_type_config(void)
 static bool is_board_match_runtime(enum board_type type_req)
 {
 	return get_board_type_runtime() == type_req;
+}
+
+static bool is_board_match_config(enum board_type type_req)
+{
+	return get_board_type_config() == type_req;
 }
 
 static const char * board_name(enum board_type type)
@@ -276,6 +285,18 @@ static void init_cluster_nvlim(void)
 	if (is_board_match_runtime(T_BOARD_HSDK))
 		write_aux_reg(AUX_AUX_CACHE_LIMIT, val);
 	flush_n_invalidate_dcache_all();
+}
+
+static void init_cluster_slc(void)
+{
+	/* ARC HS38 doesn't support SLC disabling */
+	if (!is_board_match_config(T_BOARD_HSDK_4XD))
+		return;
+
+	if (env_common.l2_cache.val)
+		slc_enable();
+	else
+		slc_disable();
 }
 
 static void init_master_icache(void)
@@ -657,6 +678,7 @@ static void do_init_cluster(void)
 	 * cores.
 	 */
 	init_cluster_nvlim();
+	init_cluster_slc();
 }
 
 static int check_master_cpu_id(void)
