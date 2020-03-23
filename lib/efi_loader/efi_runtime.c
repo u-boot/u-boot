@@ -483,7 +483,7 @@ static __efi_runtime efi_status_t EFIAPI efi_convert_pointer_runtime(
 }
 
 /**
- * efi_convert_pointer_runtime() - convert from physical to virtual pointer
+ * efi_convert_pointer() - convert from physical to virtual pointer
  *
  * This function implements the ConvertPointer() runtime service until
  * the first call to SetVirtualAddressMap().
@@ -493,7 +493,7 @@ static __efi_runtime efi_status_t EFIAPI efi_convert_pointer_runtime(
  *
  * @debug_disposition:	indicates if pointer may be converted to NULL
  * @address:		pointer to be converted
- * Return:		status code EFI_UNSUPPORTED
+ * Return:		status code
  */
 static __efi_runtime efi_status_t EFIAPI efi_convert_pointer(
 			efi_uintn_t debug_disposition, void **address)
