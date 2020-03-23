@@ -29,11 +29,8 @@ else
 fi
 
 if [ ! -f $BL31 ]; then
-	echo "WARNING: BL31 file $BL31 NOT found, resulting binary is non-functional" >&2
+	echo "WARNING: BL31 file $BL31 NOT found, U-Boot will run in EL3" >&2
 	BL31=/dev/null
-	# But U-Boot proper could be loaded in EL3 by specifying
-	# firmware = "uboot";
-	# instead of "atf" in config node
 fi
 
 cat << __HEADER_EOF
@@ -58,6 +55,10 @@ cat << __HEADER_EOF
 				algo = "md5";
 			};
 		};
+__HEADER_EOF
+
+if [ -f $BL31 ]; then
+cat << __ATF
 		atf {
 			description = "ARM Trusted Firmware";
 			data = /incbin/("$BL31");
@@ -71,7 +72,8 @@ cat << __HEADER_EOF
 				algo = "md5";
 			};
 		};
-__HEADER_EOF
+__ATF
+fi
 
 DEFAULT=1
 cnt=1
@@ -106,6 +108,15 @@ __CONF_HEADER_EOF
 cnt=1
 for dtname in $DT
 do
+if [ ! -f $BL31 ]; then
+cat << __CONF_SECTION1_EOF
+		config_$cnt {
+			description = "$(basename $dtname .dtb)";
+			firmware = "uboot";
+			fdt = "fdt_$cnt";
+		};
+__CONF_SECTION1_EOF
+else
 cat << __CONF_SECTION1_EOF
 		config_$cnt {
 			description = "$(basename $dtname .dtb)";
@@ -114,6 +125,8 @@ cat << __CONF_SECTION1_EOF
 			fdt = "fdt_$cnt";
 		};
 __CONF_SECTION1_EOF
+fi
+
 cnt=$((cnt+1))
 done
 
