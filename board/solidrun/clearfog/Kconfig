@@ -15,6 +15,23 @@ config TARGET_CLEARFOG_BASE
 	  detection via additional EEPROM hardware. This option enables selecting
 	  the Base variant for older hardware revisions.
 
+config CLEARFOG_CON3_SATA
+	bool "Use CON3 slot in SATA mode"
+	help
+	  Use the CON3 port with SATA protocol instead of the default PCIe.
+	  The ClearFog port allows usage of either mSATA or miniPCIe
+	  modules, but the desired protocol must be configured at build
+	  time since it affects the SerDes topology layout.
+
+config CLEARFOG_CON2_SATA
+	bool "Use CON2 slot in SATA mode"
+	depends on !TARGET_CLEARFOG_BASE
+	help
+	  Use the CON2 port with SATA protocol instead of the default PCIe.
+	  The ClearFog port allows usage of either mSATA or miniPCIe
+	  modules, but the desired protocol must be configured at build
+	  time since it affects the SerDes topology layout.
+
 config CLEARFOG_SFP_25GB
 	bool "Enable 2.5 Gbps mode for SFP"
 	help

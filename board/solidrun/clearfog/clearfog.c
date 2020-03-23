@@ -67,6 +67,20 @@ int hws_board_topology_load(struct serdes_map **serdes_map_array, u8 *count)
 	if (IS_ENABLED(CONFIG_CLEARFOG_SFP_25GB))
 		board_serdes_map[5].serdes_speed = SERDES_SPEED_3_125_GBPS;
 
+	if (IS_ENABLED(CONFIG_CLEARFOG_CON2_SATA)) {
+		board_serdes_map[4].serdes_type = SATA2;
+		board_serdes_map[4].serdes_speed = SERDES_SPEED_3_GBPS;
+		board_serdes_map[4].serdes_mode = SERDES_DEFAULT_MODE;
+		board_serdes_map[4].swap_rx = 1;
+	}
+
+	if (IS_ENABLED(CONFIG_CLEARFOG_CON3_SATA)) {
+		board_serdes_map[2].serdes_type = SATA1;
+		board_serdes_map[2].serdes_speed = SERDES_SPEED_3_GBPS;
+		board_serdes_map[2].serdes_mode = SERDES_DEFAULT_MODE;
+		board_serdes_map[2].swap_rx = 1;
+	}
+
 	/* Apply runtime detection changes */
 	if (sr_product_is(&cf_tlv_data, "Clearfog GTR")) {
 		board_serdes_map[0].serdes_type = PEX0;
