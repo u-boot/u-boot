@@ -1289,8 +1289,8 @@ static int eqos_start(struct udevice *dev)
 		rx_desc->des0 = (u32)(ulong)(eqos->rx_dma_buf +
 					     (i * EQOS_MAX_PACKET_SIZE));
 		rx_desc->des3 = EQOS_DESC3_OWN | EQOS_DESC3_BUF1V;
+		eqos->config->ops->eqos_flush_desc(rx_desc);
 	}
-	eqos->config->ops->eqos_flush_desc(eqos->descs);
 
 	writel(0, &eqos->dma_regs->ch0_txdesc_list_haddress);
 	writel((ulong)eqos->tx_descs, &eqos->dma_regs->ch0_txdesc_list_address);
