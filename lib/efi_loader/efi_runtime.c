@@ -512,6 +512,12 @@ efi_convert_pointer(efi_uintn_t debug_disposition, void **address)
 		ret = EFI_INVALID_PARAMETER;
 		goto out;
 	}
+	if (!*address) {
+		if (debug_disposition & EFI_OPTIONAL_PTR)
+			return EFI_SUCCESS;
+		else
+			return EFI_INVALID_PARAMETER;
+	}
 
 	addr = (uintptr_t)*address;
 	for (i = 0; i < efi_descriptor_count; i++) {
