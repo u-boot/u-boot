@@ -35,6 +35,11 @@
 #include "cadence_qspi.h"
 #include <dm.h>
 
+__weak int spi_nor_wait_till_ready(struct spi_nor *nor)
+{
+	return 0;
+}
+
 __weak int cadence_qspi_apb_dma_read(struct cadence_spi_platdata *plat,
 				     unsigned int n_rx, u8 *rxbuf)
 {
