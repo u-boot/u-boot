@@ -397,6 +397,9 @@ efi_status_t efi_root_node_register(void);
 efi_status_t efi_initialize_system_table(void);
 /* efi_runtime_detach() - detach unimplemented runtime functions */
 void efi_runtime_detach(void);
+/* efi_convert_pointer() - convert pointer to virtual address */
+efi_status_t EFIAPI efi_convert_pointer(efi_uintn_t debug_disposition,
+					void **address);
 /* Called by bootefi to make console interface available */
 efi_status_t efi_console_register(void);
 /* Called by bootefi to make all disk storage accessible as EFI objects */

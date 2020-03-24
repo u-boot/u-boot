@@ -496,14 +496,12 @@ static __efi_runtime efi_status_t EFIAPI efi_convert_pointer_runtime(
  * @address:		pointer to be converted
  * Return:		status code
  */
-static __efi_runtime efi_status_t EFIAPI efi_convert_pointer(
-			efi_uintn_t debug_disposition, void **address)
+__efi_runtime efi_status_t EFIAPI
+efi_convert_pointer(efi_uintn_t debug_disposition, void **address)
 {
 	efi_physical_addr_t addr;
 	efi_uintn_t i;
 	efi_status_t ret = EFI_NOT_FOUND;
-
-	EFI_ENTRY("%zu %p", debug_disposition, address);
 
 	if (!efi_virtmap) {
 		ret = EFI_UNSUPPORTED;
@@ -533,7 +531,7 @@ static __efi_runtime efi_status_t EFIAPI efi_convert_pointer(
 	}
 
 out:
-	return EFI_EXIT(ret);
+	return ret;
 }
 
 static __efi_runtime void efi_relocate_runtime_table(ulong offset)
