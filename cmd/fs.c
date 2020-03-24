@@ -100,3 +100,14 @@ U_BOOT_CMD(
 	"fstype <interface> <dev>:<part> <varname>\n"
 	"- set environment variable to filesystem type\n"
 );
+
+static int do_fstypes_wrapper(struct cmd_tbl *cmdtp, int flag, int argc,
+			      char * const argv[])
+{
+	return do_fs_types(cmdtp, flag, argc, argv);
+}
+
+U_BOOT_CMD(
+	fstypes, 1, 1, do_fstypes_wrapper,
+	"List supported filesystem types", ""
+);
