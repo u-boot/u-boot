@@ -38,6 +38,11 @@
 #include <malloc.h>
 #include "cadence_qspi.h"
 
+__weak int spi_nor_wait_till_ready(struct spi_nor *nor)
+{
+	return 0;
+}
+
 __weak void cadence_qspi_apb_dma_read(struct cadence_spi_platdata *plat,
 				      unsigned int n_rx, u8 *rxbuf)
 {
