@@ -668,7 +668,16 @@ static efi_status_t __efi_runtime EFIAPI
 efi_get_variable_runtime(u16 *variable_name, const efi_guid_t *vendor,
 			 u32 *attributes, efi_uintn_t *data_size, void *data)
 {
-	return EFI_UNSUPPORTED;
+	efi_status_t ret;
+
+	ret = efi_get_variable_int(variable_name, vendor, attributes,
+				   data_size, data, NULL);
+
+	/* Remove EFI_VARIABLE_READ_ONLY flag */
+	if (attributes)
+		*attributes &= EFI_VARIABLE_MASK;
+
+	return ret;
 }
 
 /**
@@ -684,7 +693,8 @@ static efi_status_t __efi_runtime EFIAPI
 efi_get_next_variable_name_runtime(efi_uintn_t *variable_name_size,
 				   u16 *variable_name, efi_guid_t *vendor)
 {
-	return EFI_UNSUPPORTED;
+	return efi_get_next_variable_name_int(variable_name_size, variable_name,
+					      vendor);
 }
 
 /**

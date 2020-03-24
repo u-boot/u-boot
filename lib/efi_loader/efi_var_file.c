@@ -183,9 +183,9 @@ static efi_status_t __maybe_unused efi_var_restore(struct efi_var_file *buf)
 		u16 *data = var->name + u16_strlen(var->name) + 1;
 
 		if (var->attr & EFI_VARIABLE_NON_VOLATILE && var->length) {
-			ret = efi_set_variable_int(var->name, &var->guid,
-						   var->attr, var->length,
-						   data, true);
+			ret = efi_var_mem_ins(var->name, &var->guid, var->attr,
+					      var->length, data, 0, NULL,
+					      var->time);
 			if (ret != EFI_SUCCESS)
 				log_err("Failed to set EFI variable %ls\n",
 					var->name);

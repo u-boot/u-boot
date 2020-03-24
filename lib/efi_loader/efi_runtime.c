@@ -121,6 +121,8 @@ efi_status_t efi_init_runtime_supported(void)
 	rt_table->version = EFI_RT_PROPERTIES_TABLE_VERSION;
 	rt_table->length = sizeof(struct efi_rt_properties_table);
 	rt_table->runtime_services_supported =
+				EFI_RT_SUPPORTED_GET_VARIABLE |
+				EFI_RT_SUPPORTED_GET_NEXT_VARIABLE_NAME |
 				EFI_RT_SUPPORTED_SET_VIRTUAL_ADDRESS_MAP |
 				EFI_RT_SUPPORTED_CONVERT_POINTER;
 
