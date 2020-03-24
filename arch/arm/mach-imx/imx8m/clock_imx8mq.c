@@ -762,6 +762,8 @@ static int do_imx8m_showclocks(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	freq = decode_frac_pll(ARM_PLL_CLK);
 	printf("ARM_PLL    %8d MHz\n", freq / 1000000);
+	freq = decode_sscg_pll(DRAM_PLL1_CLK);
+	printf("DRAM_PLL    %8d MHz\n", freq / 1000000);
 	freq = decode_sscg_pll(SYSTEM_PLL1_800M_CLK);
 	printf("SYS_PLL1_800    %8d MHz\n", freq / 1000000);
 	freq = decode_sscg_pll(SYSTEM_PLL1_400M_CLK);
