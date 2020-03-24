@@ -48,11 +48,29 @@ static int do_dm_dump_drivers(struct cmd_tbl *cmdtp, int flag, int argc,
 	return 0;
 }
 
+static int do_dm_dump_driver_compat(struct cmd_tbl *cmdtp, int flag, int argc,
+				    char * const argv[])
+{
+	dm_dump_driver_compat();
+
+	return 0;
+}
+
+static int do_dm_dump_static_driver_info(struct cmd_tbl *cmdtp, int flag, int argc,
+					 char * const argv[])
+{
+	dm_dump_static_driver_info();
+
+	return 0;
+}
+
 static struct cmd_tbl test_commands[] = {
 	U_BOOT_CMD_MKENT(tree, 0, 1, do_dm_dump_all, "", ""),
 	U_BOOT_CMD_MKENT(uclass, 1, 1, do_dm_dump_uclass, "", ""),
 	U_BOOT_CMD_MKENT(devres, 1, 1, do_dm_dump_devres, "", ""),
 	U_BOOT_CMD_MKENT(drivers, 1, 1, do_dm_dump_drivers, "", ""),
+	U_BOOT_CMD_MKENT(compat, 1, 1, do_dm_dump_driver_compat, "", ""),
+	U_BOOT_CMD_MKENT(static, 1, 1, do_dm_dump_static_driver_info, "", ""),
 };
 
 static __maybe_unused void dm_reloc(void)
@@ -94,5 +112,7 @@ U_BOOT_CMD(
 	"tree          Dump driver model tree ('*' = activated)\n"
 	"dm uclass        Dump list of instances for each uclass\n"
 	"dm devres        Dump list of device resources for each device\n"
-	"dm drivers       Dump list of drivers and their compatible strings"
+	"dm drivers       Dump list of drivers with uclass and instances\n"
+	"dm compat        Dump list of drivers with compatibility strings\n"
+	"dm static        Dump list of drivers with static platform data"
 );
