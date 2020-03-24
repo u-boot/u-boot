@@ -19,7 +19,7 @@
 
 #define LOCK_STATUS	BIT(31)
 #define LOCK_SEL_MASK	BIT(29)
-#define CLKE_MASK	BIT(11)
+#define CLKE_MASK	BIT(13)
 #define RST_MASK	BIT(9)
 #define BYPASS_MASK	BIT(4)
 #define	MDIV_SHIFT	12
