@@ -34,9 +34,7 @@
 	"ramdisk_addr_r=0x88080000\0" \
 
 #define BOOT_TARGET_DEVICES(func) \
-	func(UBIFS, ubifs, 0) \
-	func(PXE, pxe, na) \
-	func(DHCP, dhcp, na)
+	func(UBIFS, ubifs, 0)
 
 #define AM335XX_BOARD_FDTFILE "fdtfile=" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0"
 
@@ -60,9 +58,25 @@
 	BOOTENV \
 	GUARDIAN_DEFAULT_PROD_ENV \
 	"bootubivol=rootfs\0" \
+	"distro_bootcmd=" \
+		"setenv autoload no; " \
+		"setenv rootflags \"bulk_read,chk_data_crc\"; " \
+		"setenv ethact usb_ether; " \
+		"if test \"${swi_status}\" -eq 1; then " \
+		  "setenv extrabootargs \"swi_attached\"; " \
+		  "if dhcp; then " \
+		    "sleep 1; " \
+		    "if tftp \"${tftp_load_addr}\" \"bootscript.scr\"; then " \
+		      "source \"${tftp_load_addr}\"; " \
+		    "fi; " \
+		  "fi; " \
+		"fi;" \
+		"run bootcmd_ubifs0;\0" \
 	"altbootcmd=" \
-		"setenv boot_config \"extlinux-rollback.conf\"; " \
-		"run distro_bootcmd\0"
+		"setenv boot_syslinux_conf \"extlinux/extlinux-rollback.conf\"; " \
+		"run distro_bootcmd; " \
+		"setenv boot_syslinux_conf \"extlinux/extlinux.conf\"; " \
+		"run bootcmd_ubifs0;\0"
 
 #endif /* ! CONFIG_SPL_BUILD */
 
