@@ -19,11 +19,6 @@
 
 #define RX_BUF_SIZE			2000
 
-static const struct chip_id chip_ids[] =  {
-	{CIDER_ID, "KSZ8851"},
-	{0, NULL},
-};
-
 /*
  * struct ks_net - KS8851 driver private data
  * @bus_width	: i/o bus width.
@@ -333,7 +328,7 @@ static void ks_setup_int(struct eth_device *dev)
 
 static int ks8851_mll_detect_chip(struct eth_device *dev)
 {
-	unsigned short val, i;
+	unsigned short val;
 
 	ks_read_config(dev);
 
@@ -350,18 +345,10 @@ static int ks8851_mll_detect_chip(struct eth_device *dev)
 
 	debug("Read back KS8851 id 0x%x\n", val);
 
-	/* only one entry in the table */
-	val &= 0xfff0;
-	for (i = 0; chip_ids[i].id != 0; i++) {
-		if (chip_ids[i].id == val)
-			break;
-	}
-	if (!chip_ids[i].id) {
+	if ((val & 0xfff0) != CIDER_ID) {
 		printf(DRIVERNAME ": Unknown chip ID %04x\n", val);
 		return -1;
 	}
-
-	dev->priv = (void *)&chip_ids[i];
 
 	return 0;
 }
@@ -406,10 +393,6 @@ static void ks8851_mll_enable(struct eth_device *dev)
 
 static int ks8851_mll_init(struct eth_device *dev, bd_t *bd)
 {
-	struct chip_id *id = dev->priv;
-
-	debug(DRIVERNAME ": detected %s controller\n", id->name);
-
 	if (ks_read_selftest(dev)) {
 		printf(DRIVERNAME ": Selftest failed\n");
 		return -1;
