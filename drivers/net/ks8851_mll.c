@@ -604,12 +604,9 @@ int ks8851_mll_initialize(u8 dev_num, int base_addr)
 {
 	struct eth_device *dev;
 
-	dev = malloc(sizeof(*dev));
-	if (!dev) {
-		printf("Error: Failed to allocate memory\n");
-		return -1;
-	}
-	memset(dev, 0, sizeof(*dev));
+	dev = calloc(1, sizeof(*dev));
+	if (!dev)
+		return -ENOMEM;
 
 	dev->iobase = base_addr;
 
