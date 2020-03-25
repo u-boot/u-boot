@@ -58,7 +58,7 @@
 			label = "guardian:life-led";
 			gpios = <&gpio1 26 GPIO_ACTIVE_HIGH>;
 			linux,default-trigger = "heartbeat";
-			default-state = "off";
+			default-state = "on";
 		};
 	};
 
