@@ -14,6 +14,16 @@
 	chosen {
 		u-boot,spl-boot-order = "same-as-spl", &sdhci, &sdmmc;
 	};
+
+	vcc_hub_en: vcc_hub_en-regulator {
+		compatible = "regulator-fixed";
+		enable-active-high;
+		gpio = <&gpio2 RK_PA4 GPIO_ACTIVE_HIGH>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&hub_rst>;
+		regulator-name = "vcc_hub_en";
+		regulator-always-on;
+	};
 };
 
 &vdd_log {
