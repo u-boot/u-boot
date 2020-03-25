@@ -395,10 +395,8 @@ static void ks8851_mll_enable(struct ks_net *ks)
 	ks_enable_qmu(ks);
 }
 
-static int ks8851_mll_init(struct eth_device *dev, bd_t *bd)
+static int ks8851_mll_init_common(struct ks_net *ks)
 {
-	struct ks_net *ks = container_of(dev, struct ks_net, dev);
-
 	if (ks_read_selftest(ks)) {
 		printf(DRIVERNAME ": Selftest failed\n");
 		return -1;
@@ -437,9 +435,8 @@ static void ks_write_qmu(struct ks_net *ks, u8 *pdata, u16 len)
 	do { } while (ks_rdreg16(ks, KS_TXQCR) & TXQCR_METFE);
 }
 
-static int ks8851_mll_send(struct eth_device *dev, void *packet, int length)
+static int ks8851_mll_send_common(struct ks_net *ks, void *packet, int length)
 {
-	struct ks_net *ks = container_of(dev, struct ks_net, dev);
 	u8 *data = (u8 *)packet;
 	u16 tmplen = (u16)length;
 	u16 retv;
@@ -458,10 +455,8 @@ static int ks8851_mll_send(struct eth_device *dev, void *packet, int length)
 	return -1;
 }
 
-static void ks8851_mll_halt(struct eth_device *dev)
+static void ks8851_mll_halt_common(struct ks_net *ks)
 {
-	struct ks_net *ks = container_of(dev, struct ks_net, dev);
-
 	ks8851_mll_reset(ks);
 }
 
@@ -471,9 +466,8 @@ static void ks8851_mll_halt(struct eth_device *dev)
  * needs to be enough to prevent a packet being discarded while
  * we are processing the previous one.
  */
-static int ks8851_mll_recv(struct eth_device *dev)
+static int ks8851_mll_recv_common(struct ks_net *ks, uchar **data)
 {
-	struct ks_net *ks = container_of(dev, struct ks_net, dev);
 	u16 status;
 
 	status = ks_rdreg16(ks, KS_ISR);
@@ -481,7 +475,7 @@ static int ks8851_mll_recv(struct eth_device *dev)
 	ks_wrreg16(ks, KS_ISR, status);
 
 	if (status & IRQ_RXI)
-		ks_rcv(ks, (uchar **)net_rx_packets);
+		ks_rcv(ks, data);
 
 	if (status & IRQ_LDI) {
 		u16 pmecr = ks_rdreg16(ks, KS_PMECR);
@@ -493,18 +487,52 @@ static int ks8851_mll_recv(struct eth_device *dev)
 	return 0;
 }
 
-static int ks8851_mll_write_hwaddr(struct eth_device *dev)
+static void ks8851_mll_write_hwaddr_common(struct ks_net *ks, u8 enetaddr[6])
 {
-	struct ks_net *ks = container_of(dev, struct ks_net, dev);
 	u16 addrl, addrm, addrh;
 
-	addrh = (ks->dev.enetaddr[0] << 8) | ks->dev.enetaddr[1];
-	addrm = (ks->dev.enetaddr[2] << 8) | ks->dev.enetaddr[3];
-	addrl = (ks->dev.enetaddr[4] << 8) | ks->dev.enetaddr[5];
+	addrh = (enetaddr[0] << 8) | enetaddr[1];
+	addrm = (enetaddr[2] << 8) | enetaddr[3];
+	addrl = (enetaddr[4] << 8) | enetaddr[5];
 
 	ks_wrreg16(ks, KS_MARH, addrh);
 	ks_wrreg16(ks, KS_MARM, addrm);
 	ks_wrreg16(ks, KS_MARL, addrl);
+}
+
+static int ks8851_mll_init(struct eth_device *dev, bd_t *bd)
+{
+	struct ks_net *ks = container_of(dev, struct ks_net, dev);
+
+	return ks8851_mll_init_common(ks);
+}
+
+static void ks8851_mll_halt(struct eth_device *dev)
+{
+	struct ks_net *ks = container_of(dev, struct ks_net, dev);
+
+	ks8851_mll_halt_common(ks);
+}
+
+static int ks8851_mll_send(struct eth_device *dev, void *packet, int length)
+{
+	struct ks_net *ks = container_of(dev, struct ks_net, dev);
+
+	return ks8851_mll_send_common(ks, packet, length);
+}
+
+static int ks8851_mll_recv(struct eth_device *dev)
+{
+	struct ks_net *ks = container_of(dev, struct ks_net, dev);
+
+	return ks8851_mll_recv_common(ks, (uchar **)net_rx_packets);
+}
+
+static int ks8851_mll_write_hwaddr(struct eth_device *dev)
+{
+	struct ks_net *ks = container_of(dev, struct ks_net, dev);
+
+	ks8851_mll_write_hwaddr_common(ks, ks->dev.enetaddr);
 
 	return 0;
 }
