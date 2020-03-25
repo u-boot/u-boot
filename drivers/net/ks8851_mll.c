@@ -51,7 +51,6 @@ union ks_tx_hdr {
  * @frame_cnt	: number of frames received.
  * @bus_width	: i/o bus width.
  * @irq		: irq number assigned to this device.
- * @rc_rxqcr	: Cached copy of KS_RXQCR.
  * @rc_txcr	: Cached copy of KS_TXCR.
  * @rc_ier	: Cached copy of KS_IER.
  * @sharedbus	: Multipex(addr and data bus) mode indicator.
@@ -82,7 +81,6 @@ struct ks_net {
 	u32			frame_cnt;
 	int			bus_width;
 	int			irq;
-	u16			rc_rxqcr;
 	u16			rc_txcr;
 	u16			rc_ier;
 	u16			sharedbus;
@@ -277,7 +275,7 @@ static inline void ks_read_qmu(struct eth_device *dev, u16 *buf, u32 len)
 
 	/* 1. set sudo DMA mode */
 	ks_wrreg16(dev, KS_RXFDPR, RXFDPR_RXFPAI);
-	ks_wrreg8(dev, KS_RXQCR, (ks->rc_rxqcr | RXQCR_SDA) & 0xff);
+	ks_wrreg8(dev, KS_RXQCR, RXQCR_CMD_CNTL | RXQCR_SDA);
 
 	/*
 	 * 2. read prepend data
@@ -295,7 +293,7 @@ static inline void ks_read_qmu(struct eth_device *dev, u16 *buf, u32 len)
 	ks_inblk(dev, buf, ALIGN(len, 4));
 
 	/* 4. reset sudo DMA Mode */
-	ks_wrreg8(dev, KS_RXQCR, (ks->rc_rxqcr & ~RXQCR_SDA) & 0xff);
+	ks_wrreg8(dev, KS_RXQCR, RXQCR_CMD_CNTL);
 }
 
 static void ks_rcv(struct eth_device *dev, uchar **pv_data)
@@ -326,7 +324,7 @@ static void ks_rcv(struct eth_device *dev, uchar **pv_data)
 			net_process_received_packet(*pv_data, frame_hdr->len);
 			pv_data++;
 		} else {
-			ks_wrreg16(dev, KS_RXQCR, (ks->rc_rxqcr | RXQCR_RRXEF));
+			ks_wrreg16(dev, KS_RXQCR, RXQCR_CMD_CNTL | RXQCR_RRXEF);
 			printf(DRIVERNAME ": bad packet\n");
 		}
 		frame_hdr++;
@@ -381,8 +379,7 @@ static void ks_setup(struct eth_device *dev)
 	ks_wrreg16(dev, KS_RXFCTR, 1 & RXFCTR_THRESHOLD_MASK);
 
 	/* Setup RxQ Command Control (RXQCR) */
-	ks->rc_rxqcr = RXQCR_CMD_CNTL;
-	ks_wrreg16(dev, KS_RXQCR, ks->rc_rxqcr);
+	ks_wrreg16(dev, KS_RXQCR, RXQCR_CMD_CNTL);
 
 	/*
 	 * set the force mode to half duplex, default is full duplex
@@ -521,13 +518,13 @@ static void ks_write_qmu(struct eth_device *dev, u8 *pdata, u16 len)
 
 	/* 1. set sudo-DMA mode */
 	ks_wrreg16(dev, KS_TXFDPR, TXFDPR_TXFPAI);
-	ks_wrreg8(dev, KS_RXQCR, (ks->rc_rxqcr | RXQCR_SDA) & 0xff);
+	ks_wrreg8(dev, KS_RXQCR, RXQCR_CMD_CNTL | RXQCR_SDA);
 	/* 2. write status/lenth info */
 	ks_outblk(dev, ks->txh.txw, 4);
 	/* 3. write pkt data */
 	ks_outblk(dev, (u16 *)pdata, ALIGN(len, 4));
 	/* 4. reset sudo-DMA mode */
-	ks_wrreg8(dev, KS_RXQCR, (ks->rc_rxqcr & ~RXQCR_SDA) & 0xff);
+	ks_wrreg8(dev, KS_RXQCR, RXQCR_CMD_CNTL);
 	/* 5. Enqueue Tx(move the pkt from TX buffer into TXQ) */
 	ks_wrreg16(dev, KS_TXQCR, TXQCR_METFE);
 	/* 6. wait until TXQCR_METFE is auto-cleared */
