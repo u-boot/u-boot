@@ -82,6 +82,7 @@ struct hsdk_env_common_ctl {
 	u32_env dcache;
 	u32_env csm_location;
 	u32_env l2_cache;
+	u32_env haps_apb;
 };
 
 /*
@@ -134,6 +135,7 @@ static const struct env_map_common env_map_common[] = {
 #if defined(CONFIG_BOARD_HSDK_4XD)
 	{ "l2_cache_ena",	ENV_HEX, true,	0, 1,		&env_common.l2_cache },
 	{ "csm_location",	ENV_HEX, true,	0, NO_CCM,	&env_common.csm_location },
+	{ "haps_apb_location",	ENV_HEX, true,	0, 1,		&env_common.haps_apb },
 #endif /* CONFIG_BOARD_HSDK_4XD */
 	{}
 };
@@ -671,6 +673,61 @@ void init_memory_bridge(void)
 	writel(UPDATE_VAL, CREG_PAE_UPDT);
 }
 
+/*
+ * For HSDK-4xD we do additional AXI bridge tweaking in hsdk_init command:
+ * - we shrink IOC region.
+ * - we configure HS CORE SLV1 aperture depending on haps_apb_location
+ *   environment variable.
+ *
+ * As we've already configured AXI bridge in init_memory_bridge we don't
+ * do full configuration here but reconfigure changed part.
+ *
+ * m	master		AXI_M_m_SLV0	AXI_M_m_SLV1	AXI_M_m_OFFSET0	AXI_M_m_OFFSET1
+ * 0	HS (CBU)	0x11111111	0x63111111	0xFEDCBA98	0x0E543210	[haps_apb_location = 0]
+ * 0	HS (CBU)	0x11111111	0x61111111	0xFEDCBA98	0x06543210	[haps_apb_location = 1]
+ * 1	HS (RTT)	0x77777777	0x77777777	0xFEDCBA98	0x76543210
+ * 2	AXI Tunnel	0x88888888	0x88888888	0xFEDCBA98	0x76543210
+ * 3	HDMI-VIDEO	0x77777777	0x77777777	0xFEDCBA98	0x76543210
+ * 4	HDMI-ADUIO	0x77777777	0x77777777	0xFEDCBA98	0x76543210
+ * 5	USB-HOST	0x77777777	0x77779999	0xFEDCBA98	0x7654BA98
+ * 6	ETHERNET	0x77777777	0x77779999	0xFEDCBA98	0x7654BA98
+ * 7	SDIO		0x77777777	0x77779999	0xFEDCBA98	0x7654BA98
+ * 8	GPU		0x77777777	0x77777777	0xFEDCBA98	0x76543210
+ * 9	DMAC (port #1)	0x77777777	0x77777777	0xFEDCBA98	0x76543210
+ * 10	DMAC (port #2)	0x77777777	0x77777777	0xFEDCBA98	0x76543210
+ * 11	DVFS		0x00000000	0x60000000	0x00000000	0x00000000
+ */
+void tweak_memory_bridge_cfg(void)
+{
+	/*
+	 * Only HSDK-4xD requre additional AXI bridge tweaking depending on
+	 * haps_apb_location environment variable
+	 */
+	if (!is_board_match_config(T_BOARD_HSDK_4XD))
+		return;
+
+	if (env_common.haps_apb.val) {
+		writel(0x61111111, CREG_AXI_M_SLV1(M_HS_CORE));
+		writel(0x06543210, CREG_AXI_M_OFT1(M_HS_CORE));
+	} else {
+		writel(0x63111111, CREG_AXI_M_SLV1(M_HS_CORE));
+		writel(0x0E543210, CREG_AXI_M_OFT1(M_HS_CORE));
+	}
+	writel(UPDATE_VAL, CREG_AXI_M_UPDT(M_HS_CORE));
+
+	writel(0x77779999, CREG_AXI_M_SLV1(M_USB_HOST));
+	writel(0x7654BA98, CREG_AXI_M_OFT1(M_USB_HOST));
+	writel(UPDATE_VAL, CREG_AXI_M_UPDT(M_USB_HOST));
+
+	writel(0x77779999, CREG_AXI_M_SLV1(M_ETHERNET));;
+	writel(0x7654BA98, CREG_AXI_M_OFT1(M_ETHERNET));
+	writel(UPDATE_VAL, CREG_AXI_M_UPDT(M_ETHERNET));
+
+	writel(0x77779999, CREG_AXI_M_SLV1(M_SDIO));
+	writel(0x7654BA98, CREG_AXI_M_OFT1(M_SDIO));
+	writel(UPDATE_VAL, CREG_AXI_M_UPDT(M_SDIO));
+}
+
 static void setup_clocks(void)
 {
 	ulong rate;
@@ -706,6 +763,7 @@ static void do_init_cluster(void)
 	init_cluster_nvlim();
 	init_cluster_csm();
 	init_cluster_slc();
+	tweak_memory_bridge_cfg();
 }
 
 static int check_master_cpu_id(void)
