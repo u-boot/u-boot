@@ -46,7 +46,6 @@
 	AM335XX_BOARD_FDTFILE \
 	MEM_LAYOUT_ENV_SETTINGS \
 	BOOTENV \
-	"bootlimit=3\0" \
 	"bootubivol=rootfs\0" \
 	"altbootcmd=" \
 		"setenv boot_config \"extlinux-rollback.conf\"; " \
