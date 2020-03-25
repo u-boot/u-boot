@@ -21,42 +21,46 @@
 
 /*
  * struct ks_net - KS8851 driver private data
+ * @dev		: legacy non-DM ethernet device structure
+ * @iobase	: register base
  * @bus_width	: i/o bus width.
  * @sharedbus	: Multipex(addr and data bus) mode indicator.
  * @extra_byte	: number of extra byte prepended rx pkt.
  */
 struct ks_net {
+	struct eth_device	dev;
+	phys_addr_t		iobase;
 	int			bus_width;
 	u16			sharedbus;
 	u8			extra_byte;
-} ks_str, *ks;
+};
 
 #define BE3             0x8000      /* Byte Enable 3 */
 #define BE2             0x4000      /* Byte Enable 2 */
 #define BE1             0x2000      /* Byte Enable 1 */
 #define BE0             0x1000      /* Byte Enable 0 */
 
-static u8 ks_rdreg8(struct eth_device *dev, u16 offset)
+static u8 ks_rdreg8(struct ks_net *ks, u16 offset)
 {
 	u8 shift_bit = offset & 0x03;
 	u8 shift_data = (offset & 1) << 3;
 
-	writew(offset | (BE0 << shift_bit), dev->iobase + 2);
+	writew(offset | (BE0 << shift_bit), ks->iobase + 2);
 
-	return (u8)(readw(dev->iobase) >> shift_data);
+	return (u8)(readw(ks->iobase) >> shift_data);
 }
 
-static u16 ks_rdreg16(struct eth_device *dev, u16 offset)
+static u16 ks_rdreg16(struct ks_net *ks, u16 offset)
 {
-	writew(offset | ((BE1 | BE0) << (offset & 0x02)), dev->iobase + 2);
+	writew(offset | ((BE1 | BE0) << (offset & 0x02)), ks->iobase + 2);
 
-	return readw(dev->iobase);
+	return readw(ks->iobase);
 }
 
-static void ks_wrreg16(struct eth_device *dev, u16 offset, u16 val)
+static void ks_wrreg16(struct ks_net *ks, u16 offset, u16 val)
 {
-	writew(offset | ((BE1 | BE0) << (offset & 0x02)), dev->iobase + 2);
-	writew(val, dev->iobase);
+	writew(offset | ((BE1 | BE0) << (offset & 0x02)), ks->iobase + 2);
+	writew(val, ks->iobase);
 }
 
 /*
@@ -66,12 +70,12 @@ static void ks_wrreg16(struct eth_device *dev, u16 offset, u16 val)
  * @wptr: buffer address to save data
  * @len: length in byte to read
  */
-static inline void ks_inblk(struct eth_device *dev, u16 *wptr, u32 len)
+static inline void ks_inblk(struct ks_net *ks, u16 *wptr, u32 len)
 {
 	len >>= 1;
 
 	while (len--)
-		*wptr++ = readw(dev->iobase);
+		*wptr++ = readw(ks->iobase);
 }
 
 /*
@@ -80,42 +84,42 @@ static inline void ks_inblk(struct eth_device *dev, u16 *wptr, u32 len)
  * @wptr: buffer address
  * @len: length in byte to write
  */
-static inline void ks_outblk(struct eth_device *dev, u16 *wptr, u32 len)
+static inline void ks_outblk(struct ks_net *ks, u16 *wptr, u32 len)
 {
 	len >>= 1;
 
 	while (len--)
-		writew(*wptr++, dev->iobase);
+		writew(*wptr++, ks->iobase);
 }
 
-static void ks_enable_int(struct eth_device *dev)
+static void ks_enable_int(struct ks_net *ks)
 {
-	ks_wrreg16(dev, KS_IER, IRQ_LCI | IRQ_TXI | IRQ_RXI);
+	ks_wrreg16(ks, KS_IER, IRQ_LCI | IRQ_TXI | IRQ_RXI);
 }
 
-static void ks_set_powermode(struct eth_device *dev, unsigned int pwrmode)
+static void ks_set_powermode(struct ks_net *ks, unsigned int pwrmode)
 {
 	unsigned int pmecr;
 
-	ks_rdreg16(dev, KS_GRR);
-	pmecr = ks_rdreg16(dev, KS_PMECR);
+	ks_rdreg16(ks, KS_GRR);
+	pmecr = ks_rdreg16(ks, KS_PMECR);
 	pmecr &= ~PMECR_PM_MASK;
 	pmecr |= pwrmode;
 
-	ks_wrreg16(dev, KS_PMECR, pmecr);
+	ks_wrreg16(ks, KS_PMECR, pmecr);
 }
 
 /*
  * ks_read_config - read chip configuration of bus width.
  * @ks: The chip information
  */
-static void ks_read_config(struct eth_device *dev)
+static void ks_read_config(struct ks_net *ks)
 {
 	u16 reg_data = 0;
 
 	/* Regardless of bus width, 8 bit read should always work. */
-	reg_data = ks_rdreg8(dev, KS_CCR) & 0x00FF;
-	reg_data |= ks_rdreg8(dev, KS_CCR + 1) << 8;
+	reg_data = ks_rdreg8(ks, KS_CCR) & 0x00FF;
+	reg_data |= ks_rdreg8(ks, KS_CCR + 1) << 8;
 
 	/* addr/data bus are multiplexed */
 	ks->sharedbus = (reg_data & CCR_SHARED) == CCR_SHARED;
@@ -149,58 +153,58 @@ static void ks_read_config(struct eth_device *dev)
  * not currently specify the exact sequence, we have chosen something
  * that seems to work with our device.
  */
-static void ks_soft_reset(struct eth_device *dev, unsigned int op)
+static void ks_soft_reset(struct ks_net *ks, unsigned int op)
 {
 	/* Disable interrupt first */
-	ks_wrreg16(dev, KS_IER, 0x0000);
-	ks_wrreg16(dev, KS_GRR, op);
+	ks_wrreg16(ks, KS_IER, 0x0000);
+	ks_wrreg16(ks, KS_GRR, op);
 	mdelay(10);	/* wait a short time to effect reset */
-	ks_wrreg16(dev, KS_GRR, 0);
+	ks_wrreg16(ks, KS_GRR, 0);
 	mdelay(1);	/* wait for condition to clear */
 }
 
-void ks_enable_qmu(struct eth_device *dev)
+void ks_enable_qmu(struct ks_net *ks)
 {
 	u16 w;
 
-	w = ks_rdreg16(dev, KS_TXCR);
+	w = ks_rdreg16(ks, KS_TXCR);
 
 	/* Enables QMU Transmit (TXCR). */
-	ks_wrreg16(dev, KS_TXCR, w | TXCR_TXE);
+	ks_wrreg16(ks, KS_TXCR, w | TXCR_TXE);
 
 	/* Enable RX Frame Count Threshold and Auto-Dequeue RXQ Frame */
-	w = ks_rdreg16(dev, KS_RXQCR);
-	ks_wrreg16(dev, KS_RXQCR, w | RXQCR_RXFCTE);
+	w = ks_rdreg16(ks, KS_RXQCR);
+	ks_wrreg16(ks, KS_RXQCR, w | RXQCR_RXFCTE);
 
 	/* Enables QMU Receive (RXCR1). */
-	w = ks_rdreg16(dev, KS_RXCR1);
-	ks_wrreg16(dev, KS_RXCR1, w | RXCR1_RXE);
+	w = ks_rdreg16(ks, KS_RXCR1);
+	ks_wrreg16(ks, KS_RXCR1, w | RXCR1_RXE);
 }
 
-static void ks_disable_qmu(struct eth_device *dev)
+static void ks_disable_qmu(struct ks_net *ks)
 {
 	u16 w;
 
-	w = ks_rdreg16(dev, KS_TXCR);
+	w = ks_rdreg16(ks, KS_TXCR);
 
 	/* Disables QMU Transmit (TXCR). */
 	w &= ~TXCR_TXE;
-	ks_wrreg16(dev, KS_TXCR, w);
+	ks_wrreg16(ks, KS_TXCR, w);
 
 	/* Disables QMU Receive (RXCR1). */
-	w = ks_rdreg16(dev, KS_RXCR1);
+	w = ks_rdreg16(ks, KS_RXCR1);
 	w &= ~RXCR1_RXE;
-	ks_wrreg16(dev, KS_RXCR1, w);
+	ks_wrreg16(ks, KS_RXCR1, w);
 }
 
-static inline void ks_read_qmu(struct eth_device *dev, u16 *buf, u32 len)
+static inline void ks_read_qmu(struct ks_net *ks, u16 *buf, u32 len)
 {
 	u32 r = ks->extra_byte & 0x1;
 	u32 w = ks->extra_byte - r;
 
 	/* 1. set sudo DMA mode */
-	ks_wrreg16(dev, KS_RXFDPR, RXFDPR_RXFPAI);
-	ks_wrreg16(dev, KS_RXQCR, RXQCR_CMD_CNTL | RXQCR_SDA);
+	ks_wrreg16(ks, KS_RXFDPR, RXFDPR_RXFPAI);
+	ks_wrreg16(ks, KS_RXQCR, RXQCR_CMD_CNTL | RXQCR_SDA);
 
 	/*
 	 * 2. read prepend data
@@ -210,41 +214,41 @@ static inline void ks_read_qmu(struct eth_device *dev, u16 *buf, u32 len)
 	 */
 
 	if (r)
-		ks_rdreg8(dev, 0);
+		ks_rdreg8(ks, 0);
 
-	ks_inblk(dev, buf, w + 2 + 2);
+	ks_inblk(ks, buf, w + 2 + 2);
 
 	/* 3. read pkt data */
-	ks_inblk(dev, buf, ALIGN(len, 4));
+	ks_inblk(ks, buf, ALIGN(len, 4));
 
 	/* 4. reset sudo DMA Mode */
-	ks_wrreg16(dev, KS_RXQCR, RXQCR_CMD_CNTL);
+	ks_wrreg16(ks, KS_RXQCR, RXQCR_CMD_CNTL);
 }
 
-static void ks_rcv(struct eth_device *dev, uchar **pv_data)
+static void ks_rcv(struct ks_net *ks, uchar **pv_data)
 {
 	unsigned int frame_cnt;
 	u16 sts, len;
 	int i;
 
-	frame_cnt = ks_rdreg16(dev, KS_RXFCTR) >> 8;
+	frame_cnt = ks_rdreg16(ks, KS_RXFCTR) >> 8;
 
 	/* read all header information */
 	for (i = 0; i < frame_cnt; i++) {
 		/* Checking Received packet status */
-		sts = ks_rdreg16(dev, KS_RXFHSR);
+		sts = ks_rdreg16(ks, KS_RXFHSR);
 		/* Get packet len from hardware */
-		len = ks_rdreg16(dev, KS_RXFHBCR);
+		len = ks_rdreg16(ks, KS_RXFHBCR);
 
 		if ((sts & RXFSHR_RXFV) && len && (len < RX_BUF_SIZE)) {
 			/* read data block including CRC 4 bytes */
-			ks_read_qmu(dev, (u16 *)(*pv_data), len);
+			ks_read_qmu(ks, (u16 *)(*pv_data), len);
 
 			/* net_rx_packets buffer size is ok (*pv_data) */
 			net_process_received_packet(*pv_data, len);
 			pv_data++;
 		} else {
-			ks_wrreg16(dev, KS_RXQCR, RXQCR_CMD_CNTL | RXQCR_RRXEF);
+			ks_wrreg16(ks, KS_RXQCR, RXQCR_CMD_CNTL | RXQCR_RRXEF);
 			printf(DRIVERNAME ": bad packet\n");
 		}
 	}
@@ -256,13 +260,13 @@ static void ks_rcv(struct eth_device *dev, uchar **pv_data)
  *
  * Read and check the TX/RX memory selftest information.
  */
-static int ks_read_selftest(struct eth_device *dev)
+static int ks_read_selftest(struct ks_net *ks)
 {
 	u16 both_done = MBIR_TXMBF | MBIR_RXMBF;
 	u16 mbir;
 	int ret = 0;
 
-	mbir = ks_rdreg16(dev, KS_MBIR);
+	mbir = ks_rdreg16(ks, KS_MBIR);
 
 	if ((mbir & both_done) != both_done) {
 		printf(DRIVERNAME ": Memory selftest not finished\n");
@@ -284,55 +288,55 @@ static int ks_read_selftest(struct eth_device *dev)
 	return ret;
 }
 
-static void ks_setup(struct eth_device *dev)
+static void ks_setup(struct ks_net *ks)
 {
 	u16 w;
 
 	/* Setup Transmit Frame Data Pointer Auto-Increment (TXFDPR) */
-	ks_wrreg16(dev, KS_TXFDPR, TXFDPR_TXFPAI);
+	ks_wrreg16(ks, KS_TXFDPR, TXFDPR_TXFPAI);
 
 	/* Setup Receive Frame Data Pointer Auto-Increment */
-	ks_wrreg16(dev, KS_RXFDPR, RXFDPR_RXFPAI);
+	ks_wrreg16(ks, KS_RXFDPR, RXFDPR_RXFPAI);
 
 	/* Setup Receive Frame Threshold - 1 frame (RXFCTFC) */
-	ks_wrreg16(dev, KS_RXFCTR, 1 & RXFCTR_THRESHOLD_MASK);
+	ks_wrreg16(ks, KS_RXFCTR, 1 & RXFCTR_THRESHOLD_MASK);
 
 	/* Setup RxQ Command Control (RXQCR) */
-	ks_wrreg16(dev, KS_RXQCR, RXQCR_CMD_CNTL);
+	ks_wrreg16(ks, KS_RXQCR, RXQCR_CMD_CNTL);
 
 	/*
 	 * set the force mode to half duplex, default is full duplex
 	 * because if the auto-negotiation fails, most switch uses
 	 * half-duplex.
 	 */
-	w = ks_rdreg16(dev, KS_P1MBCR);
+	w = ks_rdreg16(ks, KS_P1MBCR);
 	w &= ~P1MBCR_FORCE_FDX;
-	ks_wrreg16(dev, KS_P1MBCR, w);
+	ks_wrreg16(ks, KS_P1MBCR, w);
 
 	w = TXCR_TXFCE | TXCR_TXPE | TXCR_TXCRC | TXCR_TCGIP;
-	ks_wrreg16(dev, KS_TXCR, w);
+	ks_wrreg16(ks, KS_TXCR, w);
 
 	w = RXCR1_RXFCE | RXCR1_RXBE | RXCR1_RXUE | RXCR1_RXME | RXCR1_RXIPFCC;
 
 	/* Normal mode */
 	w |= RXCR1_RXPAFMA;
 
-	ks_wrreg16(dev, KS_RXCR1, w);
+	ks_wrreg16(ks, KS_RXCR1, w);
 }
 
-static void ks_setup_int(struct eth_device *dev)
+static void ks_setup_int(struct ks_net *ks)
 {
 	/* Clear the interrupts status of the hardware. */
-	ks_wrreg16(dev, KS_ISR, 0xffff);
+	ks_wrreg16(ks, KS_ISR, 0xffff);
 }
 
-static int ks8851_mll_detect_chip(struct eth_device *dev)
+static int ks8851_mll_detect_chip(struct ks_net *ks)
 {
 	unsigned short val;
 
-	ks_read_config(dev);
+	ks_read_config(ks);
 
-	val = ks_rdreg16(dev, KS_CIDER);
+	val = ks_rdreg16(ks, KS_CIDER);
 
 	if (val == 0xffff) {
 		/* Special case -- no chip present */
@@ -353,63 +357,65 @@ static int ks8851_mll_detect_chip(struct eth_device *dev)
 	return 0;
 }
 
-static void ks8851_mll_reset(struct eth_device *dev)
+static void ks8851_mll_reset(struct ks_net *ks)
 {
 	/* wake up powermode to normal mode */
-	ks_set_powermode(dev, PMECR_PM_NORMAL);
+	ks_set_powermode(ks, PMECR_PM_NORMAL);
 	mdelay(1);	/* wait for normal mode to take effect */
 
 	/* Disable interrupt and reset */
-	ks_soft_reset(dev, GRR_GSR);
+	ks_soft_reset(ks, GRR_GSR);
 
 	/* turn off the IRQs and ack any outstanding */
-	ks_wrreg16(dev, KS_IER, 0x0000);
-	ks_wrreg16(dev, KS_ISR, 0xffff);
+	ks_wrreg16(ks, KS_IER, 0x0000);
+	ks_wrreg16(ks, KS_ISR, 0xffff);
 
 	/* shutdown RX/TX QMU */
-	ks_disable_qmu(dev);
+	ks_disable_qmu(ks);
 }
 
-static void ks8851_mll_phy_configure(struct eth_device *dev)
+static void ks8851_mll_phy_configure(struct ks_net *ks)
 {
 	u16 data;
 
-	ks_setup(dev);
-	ks_setup_int(dev);
+	ks_setup(ks);
+	ks_setup_int(ks);
 
 	/* Probing the phy */
-	data = ks_rdreg16(dev, KS_OBCR);
-	ks_wrreg16(dev, KS_OBCR, data | OBCR_ODS_16MA);
+	data = ks_rdreg16(ks, KS_OBCR);
+	ks_wrreg16(ks, KS_OBCR, data | OBCR_ODS_16MA);
 
 	debug(DRIVERNAME ": phy initialized\n");
 }
 
-static void ks8851_mll_enable(struct eth_device *dev)
+static void ks8851_mll_enable(struct ks_net *ks)
 {
-	ks_wrreg16(dev, KS_ISR, 0xffff);
-	ks_enable_int(dev);
-	ks_enable_qmu(dev);
+	ks_wrreg16(ks, KS_ISR, 0xffff);
+	ks_enable_int(ks);
+	ks_enable_qmu(ks);
 }
 
 static int ks8851_mll_init(struct eth_device *dev, bd_t *bd)
 {
-	if (ks_read_selftest(dev)) {
+	struct ks_net *ks = container_of(dev, struct ks_net, dev);
+
+	if (ks_read_selftest(ks)) {
 		printf(DRIVERNAME ": Selftest failed\n");
 		return -1;
 	}
 
-	ks8851_mll_reset(dev);
+	ks8851_mll_reset(ks);
 
 	/* Configure the PHY, initialize the link state */
-	ks8851_mll_phy_configure(dev);
+	ks8851_mll_phy_configure(ks);
 
 	/* Turn on Tx + Rx */
-	ks8851_mll_enable(dev);
+	ks8851_mll_enable(ks);
 
 	return 0;
 }
 
-static void ks_write_qmu(struct eth_device *dev, u8 *pdata, u16 len)
+static void ks_write_qmu(struct ks_net *ks, u8 *pdata, u16 len)
 {
 	__le16 txw[2];
 	/* start header at txb[0] to align txw entries */
@@ -417,22 +423,23 @@ static void ks_write_qmu(struct eth_device *dev, u8 *pdata, u16 len)
 	txw[1] = cpu_to_le16(len);
 
 	/* 1. set sudo-DMA mode */
-	ks_wrreg16(dev, KS_TXFDPR, TXFDPR_TXFPAI);
-	ks_wrreg16(dev, KS_RXQCR, RXQCR_CMD_CNTL | RXQCR_SDA);
+	ks_wrreg16(ks, KS_TXFDPR, TXFDPR_TXFPAI);
+	ks_wrreg16(ks, KS_RXQCR, RXQCR_CMD_CNTL | RXQCR_SDA);
 	/* 2. write status/length info */
-	ks_outblk(dev, txw, 4);
+	ks_outblk(ks, txw, 4);
 	/* 3. write pkt data */
-	ks_outblk(dev, (u16 *)pdata, ALIGN(len, 4));
+	ks_outblk(ks, (u16 *)pdata, ALIGN(len, 4));
 	/* 4. reset sudo-DMA mode */
-	ks_wrreg16(dev, KS_RXQCR, RXQCR_CMD_CNTL);
+	ks_wrreg16(ks, KS_RXQCR, RXQCR_CMD_CNTL);
 	/* 5. Enqueue Tx(move the pkt from TX buffer into TXQ) */
-	ks_wrreg16(dev, KS_TXQCR, TXQCR_METFE);
+	ks_wrreg16(ks, KS_TXQCR, TXQCR_METFE);
 	/* 6. wait until TXQCR_METFE is auto-cleared */
-	do { } while (ks_rdreg16(dev, KS_TXQCR) & TXQCR_METFE);
+	do { } while (ks_rdreg16(ks, KS_TXQCR) & TXQCR_METFE);
 }
 
 static int ks8851_mll_send(struct eth_device *dev, void *packet, int length)
 {
+	struct ks_net *ks = container_of(dev, struct ks_net, dev);
 	u8 *data = (u8 *)packet;
 	u16 tmplen = (u16)length;
 	u16 retv;
@@ -441,9 +448,9 @@ static int ks8851_mll_send(struct eth_device *dev, void *packet, int length)
 	 * Extra space are required:
 	 * 4 byte for alignment, 4 for status/length, 4 for CRC
 	 */
-	retv = ks_rdreg16(dev, KS_TXMIR) & 0x1fff;
+	retv = ks_rdreg16(ks, KS_TXMIR) & 0x1fff;
 	if (retv >= tmplen + 12) {
-		ks_write_qmu(dev, data, tmplen);
+		ks_write_qmu(ks, data, tmplen);
 		return 0;
 	}
 
@@ -453,7 +460,9 @@ static int ks8851_mll_send(struct eth_device *dev, void *packet, int length)
 
 static void ks8851_mll_halt(struct eth_device *dev)
 {
-	ks8851_mll_reset(dev);
+	struct ks_net *ks = container_of(dev, struct ks_net, dev);
+
+	ks8851_mll_reset(ks);
 }
 
 /*
@@ -464,20 +473,21 @@ static void ks8851_mll_halt(struct eth_device *dev)
  */
 static int ks8851_mll_recv(struct eth_device *dev)
 {
+	struct ks_net *ks = container_of(dev, struct ks_net, dev);
 	u16 status;
 
-	status = ks_rdreg16(dev, KS_ISR);
+	status = ks_rdreg16(ks, KS_ISR);
 
-	ks_wrreg16(dev, KS_ISR, status);
+	ks_wrreg16(ks, KS_ISR, status);
 
 	if (status & IRQ_RXI)
-		ks_rcv(dev, (uchar **)net_rx_packets);
+		ks_rcv(ks, (uchar **)net_rx_packets);
 
 	if (status & IRQ_LDI) {
-		u16 pmecr = ks_rdreg16(dev, KS_PMECR);
+		u16 pmecr = ks_rdreg16(ks, KS_PMECR);
 
 		pmecr &= ~PMECR_WKEVT_MASK;
-		ks_wrreg16(dev, KS_PMECR, pmecr | PMECR_WKEVT_LINK);
+		ks_wrreg16(ks, KS_PMECR, pmecr | PMECR_WKEVT_LINK);
 	}
 
 	return 0;
@@ -485,45 +495,44 @@ static int ks8851_mll_recv(struct eth_device *dev)
 
 static int ks8851_mll_write_hwaddr(struct eth_device *dev)
 {
+	struct ks_net *ks = container_of(dev, struct ks_net, dev);
 	u16 addrl, addrm, addrh;
 
-	addrh = (dev->enetaddr[0] << 8) | dev->enetaddr[1];
-	addrm = (dev->enetaddr[2] << 8) | dev->enetaddr[3];
-	addrl = (dev->enetaddr[4] << 8) | dev->enetaddr[5];
+	addrh = (ks->dev.enetaddr[0] << 8) | ks->dev.enetaddr[1];
+	addrm = (ks->dev.enetaddr[2] << 8) | ks->dev.enetaddr[3];
+	addrl = (ks->dev.enetaddr[4] << 8) | ks->dev.enetaddr[5];
 
-	ks_wrreg16(dev, KS_MARH, addrh);
-	ks_wrreg16(dev, KS_MARM, addrm);
-	ks_wrreg16(dev, KS_MARL, addrl);
+	ks_wrreg16(ks, KS_MARH, addrh);
+	ks_wrreg16(ks, KS_MARM, addrm);
+	ks_wrreg16(ks, KS_MARL, addrl);
 
 	return 0;
 }
 
 int ks8851_mll_initialize(u8 dev_num, int base_addr)
 {
-	struct eth_device *dev;
+	struct ks_net *ks;
 
-	dev = calloc(1, sizeof(*dev));
-	if (!dev)
+	ks = calloc(1, sizeof(*ks));
+	if (!ks)
 		return -ENOMEM;
 
-	dev->iobase = base_addr;
-
-	ks = &ks_str;
+	ks->iobase = base_addr;
 
 	/* Try to detect chip. Will fail if not present. */
-	if (ks8851_mll_detect_chip(dev)) {
-		free(dev);
+	if (ks8851_mll_detect_chip(ks)) {
+		free(ks);
 		return -1;
 	}
 
-	dev->init = ks8851_mll_init;
-	dev->halt = ks8851_mll_halt;
-	dev->send = ks8851_mll_send;
-	dev->recv = ks8851_mll_recv;
-	dev->write_hwaddr = ks8851_mll_write_hwaddr;
-	sprintf(dev->name, "%s-%hu", DRIVERNAME, dev_num);
+	ks->dev.init = ks8851_mll_init;
+	ks->dev.halt = ks8851_mll_halt;
+	ks->dev.send = ks8851_mll_send;
+	ks->dev.recv = ks8851_mll_recv;
+	ks->dev.write_hwaddr = ks8851_mll_write_hwaddr;
+	sprintf(ks->dev.name, "%s-%hu", DRIVERNAME, dev_num);
 
-	eth_register(dev);
+	eth_register(&ks->dev);
 
 	return 0;
 }
