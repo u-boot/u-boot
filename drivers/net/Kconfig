@@ -307,6 +307,20 @@ config FSLDMAFEC
 	  This driver supports the network interface units in the
 	  ColdFire family.
 
+config KS8851_MLL
+	bool "Microchip KS8851-MLL controller driver"
+	help
+	  The Microchip KS8851 parallel bus external ethernet interface chip.
+
+if KS8851_MLL
+if !DM_ETH
+config KS8851_MLL_BASEADDR
+	hex "Microchip KS8851-MLL Base Address"
+	help
+	  Define this to hold the physical address of the device (I/O space)
+endif #DM_ETH
+endif #KS8851_MLL
+
 config MVGBE
 	bool "Marvell Orion5x/Kirkwood network interface support"
 	depends on ARCH_KIRKWOOD || ARCH_ORION5X
