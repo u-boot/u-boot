@@ -17,9 +17,6 @@
 
 #define DRIVERNAME			"ks8851_mll"
 
-#define MAX_RECV_FRAMES			32
-#define MAX_BUF_SIZE			2048
-#define TX_BUF_SIZE			2000
 #define RX_BUF_SIZE			2000
 
 static const struct chip_id chip_ids[] =  {
@@ -29,20 +26,11 @@ static const struct chip_id chip_ids[] =  {
 
 /*
  * struct ks_net - KS8851 driver private data
- * @frame_head_info	: frame header information for multi-pkt rx.
  * @bus_width	: i/o bus width.
  * @sharedbus	: Multipex(addr and data bus) mode indicator.
- * @extra_byte		: number of extra byte prepended rx pkt.
+ * @extra_byte	: number of extra byte prepended rx pkt.
  */
-
-/* Receive multiplex framer header info */
-struct type_frame_head {
-	u16	sts;         /* Frame status */
-	u16	len;         /* Byte count */
-} fr_h_i[MAX_RECV_FRAMES];
-
 struct ks_net {
-	struct type_frame_head	*frame_head_info;
 	int			bus_width;
 	u16			sharedbus;
 	u8			extra_byte;
@@ -240,8 +228,8 @@ static inline void ks_read_qmu(struct eth_device *dev, u16 *buf, u32 len)
 
 static void ks_rcv(struct eth_device *dev, uchar **pv_data)
 {
-	struct type_frame_head *frame_hdr = ks->frame_head_info;
 	unsigned int frame_cnt;
+	u16 sts, len;
 	int i;
 
 	frame_cnt = ks_rdreg16(dev, KS_RXFCTR) >> 8;
@@ -249,28 +237,21 @@ static void ks_rcv(struct eth_device *dev, uchar **pv_data)
 	/* read all header information */
 	for (i = 0; i < frame_cnt; i++) {
 		/* Checking Received packet status */
-		frame_hdr->sts = ks_rdreg16(dev, KS_RXFHSR);
+		sts = ks_rdreg16(dev, KS_RXFHSR);
 		/* Get packet len from hardware */
-		frame_hdr->len = ks_rdreg16(dev, KS_RXFHBCR);
-		frame_hdr++;
-	}
+		len = ks_rdreg16(dev, KS_RXFHBCR);
 
-	frame_hdr = ks->frame_head_info;
-	while (frame_cnt--) {
-		if ((frame_hdr->sts & RXFSHR_RXFV) &&
-		    (frame_hdr->len < RX_BUF_SIZE) &&
-		    frame_hdr->len) {
+		if ((sts & RXFSHR_RXFV) && len && (len < RX_BUF_SIZE)) {
 			/* read data block including CRC 4 bytes */
-			ks_read_qmu(dev, (u16 *)(*pv_data), frame_hdr->len);
+			ks_read_qmu(dev, (u16 *)(*pv_data), len);
 
 			/* net_rx_packets buffer size is ok (*pv_data) */
-			net_process_received_packet(*pv_data, frame_hdr->len);
+			net_process_received_packet(*pv_data, len);
 			pv_data++;
 		} else {
 			ks_wrreg16(dev, KS_RXQCR, RXQCR_CMD_CNTL | RXQCR_RRXEF);
 			printf(DRIVERNAME ": bad packet\n");
 		}
-		frame_hdr++;
 	}
 }
 
@@ -438,9 +419,6 @@ static int ks8851_mll_init(struct eth_device *dev, bd_t *bd)
 
 	/* Configure the PHY, initialize the link state */
 	ks8851_mll_phy_configure(dev);
-
-	/* static allocation of private informations */
-	ks->frame_head_info = fr_h_i;
 
 	/* Turn on Tx + Rx */
 	ks8851_mll_enable(dev);
