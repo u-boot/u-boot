@@ -93,9 +93,9 @@ static void ks_enable_int(struct eth_device *dev)
 	ks_wrreg16(dev, KS_IER, IRQ_LCI | IRQ_TXI | IRQ_RXI);
 }
 
-static void ks_set_powermode(struct eth_device *dev, unsigned pwrmode)
+static void ks_set_powermode(struct eth_device *dev, unsigned int pwrmode)
 {
-	unsigned pmecr;
+	unsigned int pmecr;
 
 	ks_rdreg16(dev, KS_GRR);
 	pmecr = ks_rdreg16(dev, KS_PMECR);
@@ -149,7 +149,7 @@ static void ks_read_config(struct eth_device *dev)
  * not currently specify the exact sequence, we have chosen something
  * that seems to work with our device.
  */
-static void ks_soft_reset(struct eth_device *dev, unsigned op)
+static void ks_soft_reset(struct eth_device *dev, unsigned int op)
 {
 	/* Disable interrupt first */
 	ks_wrreg16(dev, KS_IER, 0x0000);
@@ -419,7 +419,7 @@ static void ks_write_qmu(struct eth_device *dev, u8 *pdata, u16 len)
 	/* 1. set sudo-DMA mode */
 	ks_wrreg16(dev, KS_TXFDPR, TXFDPR_TXFPAI);
 	ks_wrreg16(dev, KS_RXQCR, RXQCR_CMD_CNTL | RXQCR_SDA);
-	/* 2. write status/lenth info */
+	/* 2. write status/length info */
 	ks_outblk(dev, txw, 4);
 	/* 3. write pkt data */
 	ks_outblk(dev, (u16 *)pdata, ALIGN(len, 4));
@@ -445,10 +445,10 @@ static int ks8851_mll_send(struct eth_device *dev, void *packet, int length)
 	if (retv >= tmplen + 12) {
 		ks_write_qmu(dev, data, tmplen);
 		return 0;
-	} else {
-		printf(DRIVERNAME ": failed to send packet: No buffer\n");
-		return -1;
 	}
+
+	printf(DRIVERNAME ": failed to send packet: No buffer\n");
+	return -1;
 }
 
 static void ks8851_mll_halt(struct eth_device *dev)
@@ -470,11 +470,12 @@ static int ks8851_mll_recv(struct eth_device *dev)
 
 	ks_wrreg16(dev, KS_ISR, status);
 
-	if ((status & IRQ_RXI))
+	if (status & IRQ_RXI)
 		ks_rcv(dev, (uchar **)net_rx_packets);
 
-	if ((status & IRQ_LDI)) {
+	if (status & IRQ_LDI) {
 		u16 pmecr = ks_rdreg16(dev, KS_PMECR);
+
 		pmecr &= ~PMECR_WKEVT_MASK;
 		ks_wrreg16(dev, KS_PMECR, pmecr | PMECR_WKEVT_LINK);
 	}
