@@ -28,43 +28,11 @@ static const struct chip_id chip_ids[] =  {
 };
 
 /*
- * union ks_tx_hdr - tx header data
- * @txb: The header as bytes
- * @txw: The header as 16bit, little-endian words
- *
- * A dual representation of the tx header data to allow
- * access to individual bytes, and to allow 16bit accesses
- * with 16bit alignment.
- */
-union ks_tx_hdr {
-	u8      txb[4];
-	__le16  txw[2];
-};
-
-/*
  * struct ks_net - KS8851 driver private data
- * @net_device	: The network device we're bound to
- * @txh		: temporaly buffer to save status/length.
  * @frame_head_info	: frame header information for multi-pkt rx.
- * @statelock	: Lock on this structure for tx list.
- * @msg_enable	: The message flags controlling driver output (see ethtool).
- * @frame_cnt	: number of frames received.
  * @bus_width	: i/o bus width.
- * @irq		: irq number assigned to this device.
- * @rc_txcr	: Cached copy of KS_TXCR.
- * @rc_ier	: Cached copy of KS_IER.
  * @sharedbus	: Multipex(addr and data bus) mode indicator.
- * @cmd_reg_cache	: command register cached.
- * @cmd_reg_cache_int	: command register cached. Used in the irq handler.
- * @promiscuous	: promiscuous mode indicator.
- * @all_mcast	: mutlicast indicator.
- * @mcast_lst_size	: size of multicast list.
- * @mcast_lst		: multicast list.
- * @mcast_bits		: multicast enabed.
- * @mac_addr		: MAC address assigned to this device.
- * @fid			: frame id.
  * @extra_byte		: number of extra byte prepended rx pkt.
- * @enabled		: indicator this device works.
  */
 
 /* Receive multiplex framer header info */
@@ -74,27 +42,10 @@ struct type_frame_head {
 } fr_h_i[MAX_RECV_FRAMES];
 
 struct ks_net {
-	struct net_device	*netdev;
-	union ks_tx_hdr		txh;
 	struct type_frame_head	*frame_head_info;
-	u32			msg_enable;
-	u32			frame_cnt;
 	int			bus_width;
-	int			irq;
-	u16			rc_txcr;
-	u16			rc_ier;
 	u16			sharedbus;
-	u16			cmd_reg_cache;
-	u16			cmd_reg_cache_int;
-	u16			promiscuous;
-	u16			all_mcast;
-	u16			mcast_lst_size;
-	u8			mcast_lst[MAX_MCAST_LST][MAC_ADDR_LEN];
-	u8			mcast_bits[HW_MCAST_SIZE];
-	u8			mac_addr[6];
-	u8                      fid;
 	u8			extra_byte;
-	u8			enabled;
 } ks_str, *ks;
 
 #define BE3             0x8000      /* Byte Enable 3 */
@@ -156,7 +107,7 @@ static inline void ks_outblk(struct eth_device *dev, u16 *wptr, u32 len)
 
 static void ks_enable_int(struct eth_device *dev)
 {
-	ks_wrreg16(dev, KS_IER, ks->rc_ier);
+	ks_wrreg16(dev, KS_IER, IRQ_LCI | IRQ_TXI | IRQ_RXI);
 }
 
 static void ks_set_powermode(struct eth_device *dev, unsigned pwrmode)
@@ -290,12 +241,13 @@ static inline void ks_read_qmu(struct eth_device *dev, u16 *buf, u32 len)
 static void ks_rcv(struct eth_device *dev, uchar **pv_data)
 {
 	struct type_frame_head *frame_hdr = ks->frame_head_info;
+	unsigned int frame_cnt;
 	int i;
 
-	ks->frame_cnt = ks_rdreg16(dev, KS_RXFCTR) >> 8;
+	frame_cnt = ks_rdreg16(dev, KS_RXFCTR) >> 8;
 
 	/* read all header information */
-	for (i = 0; i < ks->frame_cnt; i++) {
+	for (i = 0; i < frame_cnt; i++) {
 		/* Checking Received packet status */
 		frame_hdr->sts = ks_rdreg16(dev, KS_RXFHSR);
 		/* Get packet len from hardware */
@@ -304,7 +256,7 @@ static void ks_rcv(struct eth_device *dev, uchar **pv_data)
 	}
 
 	frame_hdr = ks->frame_head_info;
-	while (ks->frame_cnt--) {
+	while (frame_cnt--) {
 		if ((frame_hdr->sts & RXFSHR_RXFV) &&
 		    (frame_hdr->len < RX_BUF_SIZE) &&
 		    frame_hdr->len) {
@@ -394,13 +346,8 @@ static void ks_setup(struct eth_device *dev)
 
 static void ks_setup_int(struct eth_device *dev)
 {
-	ks->rc_ier = 0x00;
-
 	/* Clear the interrupts status of the hardware. */
 	ks_wrreg16(dev, KS_ISR, 0xffff);
-
-	/* Enables the interrupts of the hardware. */
-	ks->rc_ier = (IRQ_LCI | IRQ_TXI | IRQ_RXI);
 }
 
 static int ks8851_mll_detect_chip(struct eth_device *dev)
@@ -503,15 +450,16 @@ static int ks8851_mll_init(struct eth_device *dev, bd_t *bd)
 
 static void ks_write_qmu(struct eth_device *dev, u8 *pdata, u16 len)
 {
+	__le16 txw[2];
 	/* start header at txb[0] to align txw entries */
-	ks->txh.txw[0] = 0;
-	ks->txh.txw[1] = cpu_to_le16(len);
+	txw[0] = 0;
+	txw[1] = cpu_to_le16(len);
 
 	/* 1. set sudo-DMA mode */
 	ks_wrreg16(dev, KS_TXFDPR, TXFDPR_TXFPAI);
 	ks_wrreg16(dev, KS_RXQCR, RXQCR_CMD_CNTL | RXQCR_SDA);
 	/* 2. write status/lenth info */
-	ks_outblk(dev, ks->txh.txw, 4);
+	ks_outblk(dev, txw, 4);
 	/* 3. write pkt data */
 	ks_outblk(dev, (u16 *)pdata, ALIGN(len, 4));
 	/* 4. reset sudo-DMA mode */
