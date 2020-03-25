@@ -32,6 +32,7 @@ struct ks_net {
 	phys_addr_t		iobase;
 	int			bus_width;
 	u16			sharedbus;
+	u16			rxfc;
 	u8			extra_byte;
 };
 
@@ -225,33 +226,31 @@ static inline void ks_read_qmu(struct ks_net *ks, u16 *buf, u32 len)
 	ks_wrreg16(ks, KS_RXQCR, RXQCR_CMD_CNTL);
 }
 
-static void ks_rcv(struct ks_net *ks, uchar **pv_data)
+static int ks_rcv(struct ks_net *ks, uchar *data)
 {
-	unsigned int frame_cnt;
 	u16 sts, len;
-	int i;
 
-	frame_cnt = ks_rdreg16(ks, KS_RXFCTR) >> 8;
+	if (!ks->rxfc)
+		ks->rxfc = ks_rdreg16(ks, KS_RXFCTR) >> 8;
 
-	/* read all header information */
-	for (i = 0; i < frame_cnt; i++) {
-		/* Checking Received packet status */
-		sts = ks_rdreg16(ks, KS_RXFHSR);
-		/* Get packet len from hardware */
-		len = ks_rdreg16(ks, KS_RXFHBCR);
+	if (!ks->rxfc)
+		return 0;
 
-		if ((sts & RXFSHR_RXFV) && len && (len < RX_BUF_SIZE)) {
-			/* read data block including CRC 4 bytes */
-			ks_read_qmu(ks, (u16 *)(*pv_data), len);
+	/* Checking Received packet status */
+	sts = ks_rdreg16(ks, KS_RXFHSR);
+	/* Get packet len from hardware */
+	len = ks_rdreg16(ks, KS_RXFHBCR);
 
-			/* net_rx_packets buffer size is ok (*pv_data) */
-			net_process_received_packet(*pv_data, len);
-			pv_data++;
-		} else {
-			ks_wrreg16(ks, KS_RXQCR, RXQCR_CMD_CNTL | RXQCR_RRXEF);
-			printf(DRIVERNAME ": bad packet\n");
-		}
+	if ((sts & RXFSHR_RXFV) && len && (len < RX_BUF_SIZE)) {
+		/* read data block including CRC 4 bytes */
+		ks_read_qmu(ks, (u16 *)data, len);
+		ks->rxfc--;
+		return len - 4;
 	}
+
+	ks_wrreg16(ks, KS_RXQCR, RXQCR_CMD_CNTL | RXQCR_RRXEF);
+	printf(DRIVERNAME ": bad packet\n");
+	return 0;
 }
 
 /*
@@ -407,6 +406,8 @@ static int ks8851_mll_init_common(struct ks_net *ks)
 	/* Configure the PHY, initialize the link state */
 	ks8851_mll_phy_configure(ks);
 
+	ks->rxfc = 0;
+
 	/* Turn on Tx + Rx */
 	ks8851_mll_enable(ks);
 
@@ -466,16 +467,17 @@ static void ks8851_mll_halt_common(struct ks_net *ks)
  * needs to be enough to prevent a packet being discarded while
  * we are processing the previous one.
  */
-static int ks8851_mll_recv_common(struct ks_net *ks, uchar **data)
+static int ks8851_mll_recv_common(struct ks_net *ks, uchar *data)
 {
 	u16 status;
+	int ret = 0;
 
 	status = ks_rdreg16(ks, KS_ISR);
 
 	ks_wrreg16(ks, KS_ISR, status);
 
-	if (status & IRQ_RXI)
-		ks_rcv(ks, data);
+	if (ks->rxfc || (status & IRQ_RXI))
+		ret = ks_rcv(ks, data);
 
 	if (status & IRQ_LDI) {
 		u16 pmecr = ks_rdreg16(ks, KS_PMECR);
@@ -484,7 +486,7 @@ static int ks8851_mll_recv_common(struct ks_net *ks, uchar **data)
 		ks_wrreg16(ks, KS_PMECR, pmecr | PMECR_WKEVT_LINK);
 	}
 
-	return 0;
+	return ret;
 }
 
 static void ks8851_mll_write_hwaddr_common(struct ks_net *ks, u8 enetaddr[6])
@@ -524,8 +526,13 @@ static int ks8851_mll_send(struct eth_device *dev, void *packet, int length)
 static int ks8851_mll_recv(struct eth_device *dev)
 {
 	struct ks_net *ks = container_of(dev, struct ks_net, dev);
+	int ret;
 
-	return ks8851_mll_recv_common(ks, (uchar **)net_rx_packets);
+	ret = ks8851_mll_recv_common(ks, net_rx_packets[0]);
+	if (ret)
+		net_process_received_packet(net_rx_packets[0], ret);
+
+	return ret;
 }
 
 static int ks8851_mll_write_hwaddr(struct eth_device *dev)
