@@ -119,15 +119,6 @@ static u16 ks_rdreg16(struct eth_device *dev, u16 offset)
 	return readw(dev->iobase);
 }
 
-static void ks_wrreg8(struct eth_device *dev, u16 offset, u8 val)
-{
-	u8 shift_bit = (offset & 0x03);
-	u16 value_write = (u16)(val << ((offset & 1) << 3));
-
-	writew(offset | (BE0 << shift_bit), dev->iobase + 2);
-	writew(value_write, dev->iobase);
-}
-
 static void ks_wrreg16(struct eth_device *dev, u16 offset, u16 val)
 {
 	writew(offset | ((BE1 | BE0) << (offset & 0x02)), dev->iobase + 2);
@@ -275,7 +266,7 @@ static inline void ks_read_qmu(struct eth_device *dev, u16 *buf, u32 len)
 
 	/* 1. set sudo DMA mode */
 	ks_wrreg16(dev, KS_RXFDPR, RXFDPR_RXFPAI);
-	ks_wrreg8(dev, KS_RXQCR, RXQCR_CMD_CNTL | RXQCR_SDA);
+	ks_wrreg16(dev, KS_RXQCR, RXQCR_CMD_CNTL | RXQCR_SDA);
 
 	/*
 	 * 2. read prepend data
@@ -293,7 +284,7 @@ static inline void ks_read_qmu(struct eth_device *dev, u16 *buf, u32 len)
 	ks_inblk(dev, buf, ALIGN(len, 4));
 
 	/* 4. reset sudo DMA Mode */
-	ks_wrreg8(dev, KS_RXQCR, RXQCR_CMD_CNTL);
+	ks_wrreg16(dev, KS_RXQCR, RXQCR_CMD_CNTL);
 }
 
 static void ks_rcv(struct eth_device *dev, uchar **pv_data)
@@ -518,13 +509,13 @@ static void ks_write_qmu(struct eth_device *dev, u8 *pdata, u16 len)
 
 	/* 1. set sudo-DMA mode */
 	ks_wrreg16(dev, KS_TXFDPR, TXFDPR_TXFPAI);
-	ks_wrreg8(dev, KS_RXQCR, RXQCR_CMD_CNTL | RXQCR_SDA);
+	ks_wrreg16(dev, KS_RXQCR, RXQCR_CMD_CNTL | RXQCR_SDA);
 	/* 2. write status/lenth info */
 	ks_outblk(dev, ks->txh.txw, 4);
 	/* 3. write pkt data */
 	ks_outblk(dev, (u16 *)pdata, ALIGN(len, 4));
 	/* 4. reset sudo-DMA mode */
-	ks_wrreg8(dev, KS_RXQCR, RXQCR_CMD_CNTL);
+	ks_wrreg16(dev, KS_RXQCR, RXQCR_CMD_CNTL);
 	/* 5. Enqueue Tx(move the pkt from TX buffer into TXQ) */
 	ks_wrreg16(dev, KS_TXQCR, TXQCR_METFE);
 	/* 6. wait until TXQCR_METFE is auto-cleared */
