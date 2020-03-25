@@ -28,7 +28,9 @@
  * @extra_byte	: number of extra byte prepended rx pkt.
  */
 struct ks_net {
+#ifndef CONFIG_DM_ETH
 	struct eth_device	dev;
+#endif
 	phys_addr_t		iobase;
 	int			bus_width;
 	u16			sharedbus;
@@ -502,6 +504,7 @@ static void ks8851_mll_write_hwaddr_common(struct ks_net *ks, u8 enetaddr[6])
 	ks_wrreg16(ks, KS_MARL, addrl);
 }
 
+#ifndef CONFIG_DM_ETH
 static int ks8851_mll_init(struct eth_device *dev, bd_t *bd)
 {
 	struct ks_net *ks = container_of(dev, struct ks_net, dev);
@@ -571,3 +574,103 @@ int ks8851_mll_initialize(u8 dev_num, int base_addr)
 
 	return 0;
 }
+#else	/* ifdef CONFIG_DM_ETH */
+static int ks8851_start(struct udevice *dev)
+{
+	struct ks_net *ks = dev_get_priv(dev);
+
+	return ks8851_mll_init_common(ks);
+}
+
+static void ks8851_stop(struct udevice *dev)
+{
+	struct ks_net *ks = dev_get_priv(dev);
+
+	ks8851_mll_halt_common(ks);
+}
+
+static int ks8851_send(struct udevice *dev, void *packet, int length)
+{
+	struct ks_net *ks = dev_get_priv(dev);
+	int ret;
+
+	ret = ks8851_mll_send_common(ks, packet, length);
+
+	return ret ? 0 : -ETIMEDOUT;
+}
+
+static int ks8851_recv(struct udevice *dev, int flags, uchar **packetp)
+{
+	struct ks_net *ks = dev_get_priv(dev);
+	uchar *data = net_rx_packets[0];
+	int ret;
+
+	ret = ks8851_mll_recv_common(ks, data);
+	if (ret)
+		*packetp = (void *)data;
+
+	return ret ? ret : -EAGAIN;
+}
+
+static int ks8851_write_hwaddr(struct udevice *dev)
+{
+	struct ks_net *ks = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+
+	ks8851_mll_write_hwaddr_common(ks, pdata->enetaddr);
+
+	return 0;
+}
+
+static int ks8851_bind(struct udevice *dev)
+{
+	return device_set_name(dev, dev->name);
+}
+
+static int ks8851_probe(struct udevice *dev)
+{
+	struct ks_net *ks = dev_get_priv(dev);
+
+	/* Try to detect chip. Will fail if not present. */
+	ks8851_mll_detect_chip(ks);
+
+	return 0;
+}
+
+static int ks8851_ofdata_to_platdata(struct udevice *dev)
+{
+	struct ks_net *ks = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+
+	pdata->iobase = devfdt_get_addr(dev);
+	ks->iobase = pdata->iobase;
+
+	return 0;
+}
+
+static const struct eth_ops ks8851_ops = {
+	.start		= ks8851_start,
+	.stop		= ks8851_stop,
+	.send		= ks8851_send,
+	.recv		= ks8851_recv,
+	.write_hwaddr	= ks8851_write_hwaddr,
+};
+
+static const struct udevice_id ks8851_ids[] = {
+	{ .compatible = "micrel,ks8851-mll" },
+	{ }
+};
+
+U_BOOT_DRIVER(ks8851) = {
+	.name		= "eth_ks8851",
+	.id		= UCLASS_ETH,
+	.of_match	= ks8851_ids,
+	.bind		= ks8851_bind,
+	.ofdata_to_platdata = ks8851_ofdata_to_platdata,
+	.probe		= ks8851_probe,
+	.ops		= &ks8851_ops,
+	.priv_auto_alloc_size = sizeof(struct ks_net),
+	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.flags		= DM_FLAG_ALLOC_PRIV_DMA,
+};
+#endif
