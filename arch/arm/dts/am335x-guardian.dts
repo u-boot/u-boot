@@ -202,8 +202,33 @@
 		};
 
 		partition@6 {
+			label = "u-boot-2";
+			reg = <0x300000 0x100000>;
+		};
+
+		partition@7 {
+			label = "u-boot-2.backup1";
+			reg = <0x400000 0x100000>;
+		};
+
+		partition@8 {
+			label = "u-boot-env";
+			reg = <0x500000 0x40000>;
+		};
+
+		partition@9 {
+			label = "u-boot-env.backup1";
+			reg = <0x540000 0x40000>;
+		};
+
+		partition@10 {
+			label = "splash-screen";
+			reg = <0x580000 0x40000>;
+		};
+
+		partition@11 {
 			label = "UBI";
-			reg = <0x300000 0x1fd00000>;
+			reg = <0x5c0000 0x1fa40000>;
 		};
 	};
 };

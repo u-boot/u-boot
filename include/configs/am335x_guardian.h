@@ -42,10 +42,23 @@
 
 #include <config_distro_bootcmd.h>
 
+#define GUARDIAN_DEFAULT_PROD_ENV \
+	"factory_assembly_status=0\0" \
+	"main_pcba_part_number=0\0" \
+	"main_pcba_supplier=0\0" \
+	"main_pcba_timestamp=0\0" \
+	"main_pcba_hardware_version=0\0" \
+	"main_pcba_id=0\0" \
+	"main_pcba_aux_1=0\0" \
+	"main_pcba_aux_2=0\0" \
+	"main_pcba_aux_3=0\0" \
+	"main_pcba_aux_4=0\0" \
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	AM335XX_BOARD_FDTFILE \
 	MEM_LAYOUT_ENV_SETTINGS \
 	BOOTENV \
+	GUARDIAN_DEFAULT_PROD_ENV \
 	"bootubivol=rootfs\0" \
 	"altbootcmd=" \
 		"setenv boot_config \"extlinux-rollback.conf\"; " \
