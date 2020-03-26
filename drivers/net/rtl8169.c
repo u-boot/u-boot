@@ -240,6 +240,9 @@ enum RTL8169_register_content {
 
 	/*_TBICSRBit*/
 	TBILinkOK = 0x02000000,
+
+	/* FuncEvent/Misc */
+	RxDv_Gated_En = 0x80000,
 };
 
 static struct {
@@ -1209,6 +1212,19 @@ static int rtl8169_eth_probe(struct udevice *dev)
 		printf(pr_fmt("failed to initialize card: %d\n"), ret);
 		return ret;
 	}
+
+	/*
+	 * WAR for DHCP failure after rebooting from kernel.
+	 * Clear RxDv_Gated_En bit which was set by kernel driver.
+	 * Without this, U-Boot can't get an IP via DHCP.
+	 * Register (FuncEvent, aka MISC) and RXDV_GATED_EN bit are from
+	 * the r8169.c kernel driver.
+	 */
+
+	u32 val = RTL_R32(FuncEvent);
+	debug("%s: FuncEvent/Misc (0xF0) = 0x%08X\n", __func__, val);
+	val &= ~RxDv_Gated_En;
+	RTL_W32(FuncEvent, val);
 
 	return 0;
 }
