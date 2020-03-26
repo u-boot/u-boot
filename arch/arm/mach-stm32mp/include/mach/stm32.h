@@ -119,7 +119,14 @@ enum forced_boot_mode {
 #define STM32_BSEC_SHADOW(id)		(STM32_BSEC_SHADOW_OFFSET + (id) * 4)
 #define STM32_BSEC_OTP_OFFSET		0x80000000
 #define STM32_BSEC_OTP(id)		(STM32_BSEC_OTP_OFFSET + (id) * 4)
+#define STM32_BSEC_LOCK_OFFSET		0xC0000000
+#define STM32_BSEC_LOCK(id)		(STM32_BSEC_LOCK_OFFSET + (id) * 4)
 
+/* BSEC OTP index */
+#define BSEC_OTP_RPN	1
+#define BSEC_OTP_SERIAL	13
+#define BSEC_OTP_PKG	16
+#define BSEC_OTP_MAC	57
 #define BSEC_OTP_BOARD	59
 
 #endif /* __ASSEMBLY__*/

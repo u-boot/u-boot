@@ -43,6 +43,7 @@ int board_ddr_power_init(enum ddr_type ddr_type)
 	struct udevice *dev;
 	bool buck3_at_1800000v = false;
 	int ret;
+	u32 buck2;
 
 	ret = uclass_get_device_by_driver(UCLASS_PMIC,
 					  DM_GET_DRIVER(pmic_stpmic1), &dev);
@@ -102,8 +103,10 @@ int board_ddr_power_init(enum ddr_type ddr_type)
 
 		break;
 
-	case STM32MP_LPDDR2:
-	case STM32MP_LPDDR3:
+	case STM32MP_LPDDR2_16:
+	case STM32MP_LPDDR2_32:
+	case STM32MP_LPDDR3_16:
+	case STM32MP_LPDDR3_32:
 		/*
 		 * configure VDD_DDR1 = LDO3
 		 * Set LDO3 to 1.8V
@@ -133,11 +136,23 @@ int board_ddr_power_init(enum ddr_type ddr_type)
 		if (ret < 0)
 			return ret;
 
-		/* VDD_DDR2 : Set BUCK2 to 1.2V */
+		/* VDD_DDR2 : Set BUCK2 to 1.2V (16bits) or 1.25V (32 bits)*/
+		switch (ddr_type) {
+		case STM32MP_LPDDR2_32:
+		case STM32MP_LPDDR3_32:
+			buck2 = STPMIC1_BUCK2_1250000V;
+			break;
+		default:
+		case STM32MP_LPDDR2_16:
+		case STM32MP_LPDDR3_16:
+			buck2 = STPMIC1_BUCK2_1200000V;
+			break;
+		}
+
 		ret = pmic_clrsetbits(dev,
 				      STPMIC1_BUCKX_MAIN_CR(STPMIC1_BUCK2),
 				      STPMIC1_BUCK_VOUT_MASK,
-				      STPMIC1_BUCK2_1200000V);
+				      buck2);
 		if (ret < 0)
 			return ret;
 

@@ -4,7 +4,7 @@
  */
 
 #include <dt-bindings/clock/stm32mp1-clksrc.h>
-#include "stm32mp157-u-boot.dtsi"
+#include "stm32mp15-u-boot.dtsi"
 #include "stm32mp15-ddr3-2x4Gb-1066-binG.dtsi"
 
 / {
@@ -196,7 +196,10 @@
 
 &sdmmc1_b4_pins_a {
 	u-boot,dm-spl;
-	pins {
+	pins1 {
+		u-boot,dm-spl;
+	};
+	pins2 {
 		u-boot,dm-spl;
 	};
 };

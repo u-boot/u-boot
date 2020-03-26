@@ -61,12 +61,6 @@
 #define BOOTROM_INSTANCE_MASK	 GENMASK(31, 16)
 #define BOOTROM_INSTANCE_SHIFT	16
 
-/* BSEC OTP index */
-#define BSEC_OTP_RPN	1
-#define BSEC_OTP_SERIAL	13
-#define BSEC_OTP_PKG	16
-#define BSEC_OTP_MAC	57
-
 /* Device Part Number (RPN) = OTP_DATA1 lower 8 bits */
 #define RPN_SHIFT	0
 #define RPN_MASK	GENMASK(7, 0)
@@ -285,24 +279,41 @@ u32 get_cpu_package(void)
 	return get_otp(BSEC_OTP_PKG, PKG_SHIFT, PKG_MASK);
 }
 
-#if defined(CONFIG_DISPLAY_CPUINFO)
-int print_cpuinfo(void)
+void get_soc_name(char name[SOC_NAME_SIZE])
 {
 	char *cpu_s, *cpu_r, *pkg;
 
 	/* MPUs Part Numbers */
 	switch (get_cpu_type()) {
+	case CPU_STM32MP157Fxx:
+		cpu_s = "157F";
+		break;
+	case CPU_STM32MP157Dxx:
+		cpu_s = "157D";
+		break;
 	case CPU_STM32MP157Cxx:
 		cpu_s = "157C";
 		break;
 	case CPU_STM32MP157Axx:
 		cpu_s = "157A";
 		break;
+	case CPU_STM32MP153Fxx:
+		cpu_s = "153F";
+		break;
+	case CPU_STM32MP153Dxx:
+		cpu_s = "153D";
+		break;
 	case CPU_STM32MP153Cxx:
 		cpu_s = "153C";
 		break;
 	case CPU_STM32MP153Axx:
 		cpu_s = "153A";
+		break;
+	case CPU_STM32MP151Fxx:
+		cpu_s = "151F";
+		break;
+	case CPU_STM32MP151Dxx:
+		cpu_s = "151D";
 		break;
 	case CPU_STM32MP151Cxx:
 		cpu_s = "151C";
@@ -350,7 +361,16 @@ int print_cpuinfo(void)
 		break;
 	}
 
-	printf("CPU: STM32MP%s%s Rev.%s\n", cpu_s, pkg, cpu_r);
+	snprintf(name, SOC_NAME_SIZE, "STM32MP%s%s Rev.%s", cpu_s, pkg, cpu_r);
+}
+
+#if defined(CONFIG_DISPLAY_CPUINFO)
+int print_cpuinfo(void)
+{
+	char name[SOC_NAME_SIZE];
+
+	get_soc_name(name);
+	printf("CPU: %s\n", name);
 
 	return 0;
 }

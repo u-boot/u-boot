@@ -30,6 +30,22 @@ u8 psci_state[STM32MP1_PSCI_NR_CPUS] __secure_data = {
 	 PSCI_AFFINITY_LEVEL_ON,
 	 PSCI_AFFINITY_LEVEL_OFF};
 
+static u32 __secure_data cntfrq;
+
+static u32 __secure cp15_read_cntfrq(void)
+{
+	u32 frq;
+
+	asm volatile("mrc p15, 0, %0, c14, c0, 0" : "=r" (frq));
+
+	return frq;
+}
+
+static void __secure cp15_write_cntfrq(u32 frq)
+{
+	asm volatile ("mcr p15, 0, %0, c14, c0, 0" : : "r" (frq));
+}
+
 static inline void psci_set_state(int cpu, u8 state)
 {
 	psci_state[cpu] = state;
@@ -62,6 +78,9 @@ void __secure psci_arch_cpu_entry(void)
 	u32 cpu = psci_get_cpu_id();
 
 	psci_set_state(cpu, PSCI_AFFINITY_LEVEL_ON);
+
+	/* write the saved cntfrq */
+	cp15_write_cntfrq(cntfrq);
 
 	/* reset magic in TAMP register */
 	writel(0xFFFFFFFF, TAMP_BACKUP_MAGIC_NUMBER);
@@ -129,6 +148,9 @@ s32 __secure psci_cpu_on(u32 function_id, u32 target_cpu, u32 pc,
 
 	if (psci_state[cpu] == PSCI_AFFINITY_LEVEL_ON)
 		return ARM_PSCI_RET_ALREADY_ON;
+
+	/* read and save cntfrq of current cpu to write on target cpu  */
+	cntfrq = cp15_read_cntfrq();
 
 	/* reset magic in TAMP register */
 	if (readl(TAMP_BACKUP_MAGIC_NUMBER))

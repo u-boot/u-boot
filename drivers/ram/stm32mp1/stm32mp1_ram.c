@@ -65,18 +65,22 @@ static __maybe_unused int stm32mp1_ddr_setup(struct udevice *dev)
 	struct clk axidcg;
 	struct stm32mp1_ddr_config config;
 
-#define PARAM(x, y) \
-	{ x,\
-	  offsetof(struct stm32mp1_ddr_config, y),\
-	  sizeof(config.y) / sizeof(u32)}
+#define PARAM(x, y, z)							\
+	{	.name = x,						\
+		.offset = offsetof(struct stm32mp1_ddr_config, y),	\
+		.size = sizeof(config.y) / sizeof(u32),			\
+		.present = z,						\
+	}
 
-#define CTL_PARAM(x) PARAM("st,ctl-"#x, c_##x)
-#define PHY_PARAM(x) PARAM("st,phy-"#x, p_##x)
+#define CTL_PARAM(x) PARAM("st,ctl-"#x, c_##x, NULL)
+#define PHY_PARAM(x) PARAM("st,phy-"#x, p_##x, NULL)
+#define PHY_PARAM_OPT(x) PARAM("st,phy-"#x, p_##x, &config.p_##x##_present)
 
 	const struct {
 		const char *name; /* name in DT */
 		const u32 offset; /* offset in config struct */
 		const u32 size;   /* size of parameters */
+		bool * const present;  /* presence indication for opt */
 	} param[] = {
 		CTL_PARAM(reg),
 		CTL_PARAM(timing),
@@ -84,7 +88,7 @@ static __maybe_unused int stm32mp1_ddr_setup(struct udevice *dev)
 		CTL_PARAM(perf),
 		PHY_PARAM(reg),
 		PHY_PARAM(timing),
-		PHY_PARAM(cal)
+		PHY_PARAM_OPT(cal)
 	};
 
 	config.info.speed = dev_read_u32_default(dev, "st,mem-speed", 0);
@@ -103,10 +107,24 @@ static __maybe_unused int stm32mp1_ddr_setup(struct udevice *dev)
 					 param[idx].size);
 		debug("%s: %s[0x%x] = %d\n", __func__,
 		      param[idx].name, param[idx].size, ret);
-		if (ret) {
+		if (ret &&
+		    (ret != -FDT_ERR_NOTFOUND || !param[idx].present)) {
 			pr_err("%s: Cannot read %s, error=%d\n",
 			       __func__, param[idx].name, ret);
 			return -EINVAL;
+		}
+		if (param[idx].present) {
+			/* save presence of optional parameters */
+			*param[idx].present = true;
+			if (ret == -FDT_ERR_NOTFOUND) {
+				*param[idx].present = false;
+#ifdef CONFIG_STM32MP1_DDR_INTERACTIVE
+				/* reset values if used later */
+				memset((void *)((u32)&config +
+						param[idx].offset),
+					0, param[idx].size * sizeof(u32));
+#endif
+			}
 		}
 	}
 
