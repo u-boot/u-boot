@@ -181,6 +181,12 @@ int board_init(void)
 	return nvidia_board_init();
 }
 
+void board_cleanup_before_linux(void)
+{
+	/* power down UPHY PLL */
+	tegra_xusb_padctl_exit();
+}
+
 #ifdef CONFIG_BOARD_EARLY_INIT_F
 static void __gpio_early_init(void)
 {

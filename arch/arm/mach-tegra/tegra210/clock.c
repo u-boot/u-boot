@@ -1235,25 +1235,6 @@ int tegra_plle_enable(void)
 	value &= ~PLLE_SS_CNTL_INTERP_RESET;
 	writel(value, NV_PA_CLK_RST_BASE + PLLE_SS_CNTL);
 
-	/* 7. Enable HW power sequencer for PLLE */
-
-	value = readl(NV_PA_CLK_RST_BASE + PLLE_MISC);
-	value &= ~PLLE_MISC_IDDQ_SWCTL;
-	writel(value, NV_PA_CLK_RST_BASE + PLLE_MISC);
-
-	value = readl(NV_PA_CLK_RST_BASE + PLLE_AUX);
-	value &= ~PLLE_AUX_SS_SWCTL;
-	value &= ~PLLE_AUX_ENABLE_SWCTL;
-	value |= PLLE_AUX_SS_SEQ_INCLUDE;
-	value |= PLLE_AUX_USE_LOCKDET;
-	writel(value, NV_PA_CLK_RST_BASE + PLLE_AUX);
-
-	/* 8. Wait 1 us */
-
-	udelay(1);
-	value |= PLLE_AUX_SEQ_ENABLE;
-	writel(value, NV_PA_CLK_RST_BASE + PLLE_AUX);
-
 	return 0;
 }
 
