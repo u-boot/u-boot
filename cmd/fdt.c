@@ -286,7 +286,7 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	/*
 	 * Set the value of a property in the working_fdt.
 	 */
-	} else if (argv[1][0] == 's') {
+	} else if (strncmp(argv[1], "se", 2) == 0) {
 		char *pathp;		/* path */
 		char *prop;		/* property */
 		int  nodeoffset;	/* node offset from libfdt */
