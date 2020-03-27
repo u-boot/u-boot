@@ -16,6 +16,7 @@
 #include <sdhci.h>
 #include <dm.h>
 #include <linux/dma-mapping.h>
+#include <phys2bus.h>
 
 static void sdhci_reset(struct sdhci_host *host, u8 mask)
 {
@@ -150,7 +151,8 @@ static void sdhci_prepare_dma(struct sdhci_host *host, struct mmc_data *data,
 					  mmc_get_dma_dir(data));
 
 	if (host->flags & USE_SDMA) {
-		sdhci_writel(host, host->start_addr, SDHCI_DMA_ADDRESS);
+		sdhci_writel(host, phys_to_bus((ulong)host->start_addr),
+				SDHCI_DMA_ADDRESS);
 	} else if (host->flags & (USE_ADMA | USE_ADMA64)) {
 		sdhci_prepare_adma_table(host, data);
 
@@ -204,7 +206,7 @@ static int sdhci_transfer_data(struct sdhci_host *host, struct mmc_data *data)
 				start_addr &=
 				~(SDHCI_DEFAULT_BOUNDARY_SIZE - 1);
 				start_addr += SDHCI_DEFAULT_BOUNDARY_SIZE;
-				sdhci_writel(host, start_addr,
+				sdhci_writel(host, phys_to_bus((ulong)start_addr),
 					     SDHCI_DMA_ADDRESS);
 			}
 		}
