@@ -407,7 +407,7 @@ $(obj)/u-boot-spl-mtk.bin: $(obj)/u-boot-spl.bin FORCE
 # Rule to link u-boot-spl
 # May be overridden by arch/$(ARCH)/config.mk
 quiet_cmd_u-boot-spl ?= LD      $@
-      cmd_u-boot-spl ?= (cd $(obj) && $(LD) $(LDFLAGS) $(LDFLAGS_$(@F)) \
+      cmd_u-boot-spl ?= (cd $(obj) && $(LD) $(KBUILD_LDFLAGS) $(LDFLAGS_$(@F)) \
 		       $(patsubst $(obj)/%,%,$(u-boot-spl-init)) --start-group \
 		       $(patsubst $(obj)/%,%,$(u-boot-spl-main))  \
 		       $(patsubst $(obj)/%,%,$(u-boot-spl-platdata)) \
