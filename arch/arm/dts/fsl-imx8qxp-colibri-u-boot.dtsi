@@ -56,6 +56,18 @@
 	u-boot,dm-pre-proper;
 };
 
+&pd_dma {
+	u-boot,dm-pre-proper;
+};
+
+&pd_dma_lpuart0 {
+	u-boot,dm-pre-proper;
+};
+
+&pd_dma_lpuart3 {
+	u-boot,dm-pre-proper;
+};
+
 &pd_conn {
 	u-boot,dm-pre-proper;
 };
