@@ -66,6 +66,12 @@
 	"initrd_addr=0x43800000\0" \
 	"initrd_high=0xffffffffffffffff\0" \
 	"kernel_image=Image\0" \
+	"netargs=setenv bootargs console=${console},${baudrate} " \
+		"root=/dev/nfs ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp" \
+		"\0" \
+	"nfsboot=run netargs; dhcp ${loadaddr} ${kernel_image}; " \
+		"tftp ${fdt_addr} verdin/${fdtfile}; " \
+		"booti ${loadaddr} - ${fdt_addr}\0" \
 	"setup=setenv setupargs console=${console},${baudrate} " \
 		"console=tty1 consoleblank=0 earlycon\0" \
 	"update_uboot=askenv confirm Did you load flash.bin (y/N)?; " \
