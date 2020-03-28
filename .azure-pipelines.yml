@@ -224,6 +224,14 @@ jobs:
           TEST_PY_BD: "qemu-riscv64"
           TEST_PY_TEST_SPEC: "not sleep"
           BUILDMAN: "^qemu-riscv64$"
+        qemu_riscv32_spl:
+          TEST_PY_BD: "qemu-riscv32_spl"
+          TEST_PY_TEST_SPEC: "not sleep"
+          BUILDMAN: "^qemu-riscv32_spl$"
+        qemu_riscv64_spl:
+          TEST_PY_BD: "qemu-riscv64_spl"
+          TEST_PY_TEST_SPEC: "not sleep"
+          BUILDMAN: "^qemu-riscv64_spl$"
         qemu_x86:
           TEST_PY_BD: "qemu-x86"
           TEST_PY_TEST_SPEC: "not sleep"
@@ -271,6 +279,14 @@ jobs:
           cp /opt/grub/grubriscv32.efi ~/grub_riscv32.efi
           cp /opt/grub/grubaa64.efi ~/grub_arm64.efi
           cp /opt/grub/grubarm.efi ~/grub_arm.efi
+          if [[ "${TEST_PY_BD}" == "qemu-riscv32_spl" ]]; then
+              wget -O - https://github.com/riscv/opensbi/releases/download/v0.6/opensbi-0.6-rv32-bin.tar.xz | tar -C /tmp -xJ;
+              export OPENSBI=/tmp/opensbi-0.6-rv32-bin/platform/qemu/virt/firmware/fw_dynamic.bin;
+          fi
+          if [[ "${TEST_PY_BD}" == "qemu-riscv64_spl" ]]; then
+              wget -O - https://github.com/riscv/opensbi/releases/download/v0.6/opensbi-0.6-rv64-bin.tar.xz | tar -C /tmp -xJ;
+              export OPENSBI=/tmp/opensbi-0.6-rv64-bin/platform/qemu/virt/firmware/fw_dynamic.bin;
+          fi
           # the below corresponds to .gitlab-ci.yml "script"
           cd ${WORK_DIR}
           if [[ "${BUILDMAN}" != "" ]]; then

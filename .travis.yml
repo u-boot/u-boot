@@ -191,6 +191,14 @@ before_script:
        true &&
        popd;
     fi
+  - if [[ "${TEST_PY_BD}" == "qemu-riscv32_spl" ]]; then
+       wget -O - https://github.com/riscv/opensbi/releases/download/v0.6/opensbi-0.6-rv32-bin.tar.xz | tar -C /tmp -xJ;
+       export OPENSBI=/tmp/opensbi-0.6-rv32-bin/platform/qemu/virt/firmware/fw_dynamic.bin;
+    fi
+  - if [[ "${TEST_PY_BD}" == "qemu-riscv64_spl" ]]; then
+       wget -O - https://github.com/riscv/opensbi/releases/download/v0.6/opensbi-0.6-rv64-bin.tar.xz | tar -C /tmp -xJ;
+       export OPENSBI=/tmp/opensbi-0.6-rv64-bin/platform/qemu/virt/firmware/fw_dynamic.bin;
+    fi
 
 script:
  # Comments must be outside the command strings below, or the Travis parser
@@ -585,6 +593,20 @@ matrix:
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="riscv64-softmmu"
           BUILDMAN="^qemu-riscv64$"
+          TOOLCHAIN="riscv"
+    - name: "test/py qemu-riscv32_spl"
+      env:
+        - TEST_PY_BD="qemu-riscv32_spl"
+          TEST_PY_TEST_SPEC="not sleep"
+          QEMU_TARGET="riscv32-softmmu"
+          BUILDMAN="^qemu-riscv32_spl$"
+          TOOLCHAIN="riscv"
+    - name: "test/py qemu-riscv64_spl"
+      env:
+        - TEST_PY_BD="qemu-riscv64_spl"
+          TEST_PY_TEST_SPEC="not sleep"
+          QEMU_TARGET="riscv64-softmmu"
+          BUILDMAN="^qemu-riscv64_spl$"
           TOOLCHAIN="riscv"
     - name: "test/py qemu-x86"
       env:
