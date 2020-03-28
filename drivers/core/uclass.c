@@ -120,10 +120,10 @@ int uclass_destroy(struct uclass *uc)
 				       uclass_node);
 		ret = device_remove(dev, DM_REMOVE_NORMAL);
 		if (ret)
-			return ret;
+			return log_msg_ret("remove", ret);
 		ret = device_unbind(dev);
 		if (ret)
-			return ret;
+			return log_msg_ret("unbind", ret);
 	}
 
 	uc_drv = uc->uc_drv;

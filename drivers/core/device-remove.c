@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <dm/device.h>
 #include <dm/device-internal.h>
@@ -30,11 +31,14 @@ int device_chld_unbind(struct udevice *dev, struct driver *drv)
 			continue;
 
 		ret = device_unbind(pos);
-		if (ret && !saved_ret)
+		if (ret && !saved_ret) {
+			log_warning("device '%s' failed to unbind\n",
+				    pos->name);
 			saved_ret = ret;
+		}
 	}
 
-	return saved_ret;
+	return log_ret(saved_ret);
 }
 
 int device_chld_remove(struct udevice *dev, struct driver *drv,
@@ -63,13 +67,13 @@ int device_unbind(struct udevice *dev)
 	int ret;
 
 	if (!dev)
-		return -EINVAL;
+		return log_msg_ret("dev", -EINVAL);
 
 	if (dev->flags & DM_FLAG_ACTIVATED)
-		return -EINVAL;
+		return log_msg_ret("active", -EINVAL);
 
 	if (!(dev->flags & DM_FLAG_BOUND))
-		return -EINVAL;
+		return log_msg_ret("not-bound", -EINVAL);
 
 	drv = dev->driver;
 	assert(drv);
@@ -77,12 +81,12 @@ int device_unbind(struct udevice *dev)
 	if (drv->unbind) {
 		ret = drv->unbind(dev);
 		if (ret)
-			return ret;
+			return log_msg_ret("unbind", ret);
 	}
 
 	ret = device_chld_unbind(dev, NULL);
 	if (ret)
-		return ret;
+		return log_msg_ret("child unbind", ret);
 
 	if (dev->flags & DM_FLAG_ALLOC_PDATA) {
 		free(dev->platdata);
@@ -98,7 +102,7 @@ int device_unbind(struct udevice *dev)
 	}
 	ret = uclass_unbind_device(dev);
 	if (ret)
-		return ret;
+		return log_msg_ret("uc", ret);
 
 	if (dev->parent)
 		list_del(&dev->sibling_node);
