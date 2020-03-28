@@ -141,12 +141,13 @@ def fetch_tftp_file(u_boot_console, env_conf):
 
     return addr
 
+@pytest.mark.buildconfigspec('of_control')
 @pytest.mark.buildconfigspec('cmd_bootefi_hello_compile')
 def test_efi_helloworld_net(u_boot_console):
     """Run the helloworld.efi binary via TFTP.
 
-    The helloworld.efi file is downloaded from the TFTP server and gets
-    executed.
+    The helloworld.efi file is downloaded from the TFTP server and is executed
+    using the fallback device tree at $fdtcontroladdr.
     """
 
     addr = fetch_tftp_file(u_boot_console, 'env__efi_loader_helloworld_file')
