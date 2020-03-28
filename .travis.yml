@@ -97,6 +97,7 @@ before_script:
     fi
   - if [[ "${TOOLCHAIN}" == "powerpc" ]]; then ./tools/buildman/buildman --fetch-arch powerpc; fi
   - if [[ "${TOOLCHAIN}" == "riscv" ]]; then
+       ./tools/buildman/buildman --fetch-arch riscv32 &&
        ./tools/buildman/buildman --fetch-arch riscv64;
     fi
   - if [[ "${QEMU_TARGET}" != "" ]]; then
@@ -150,6 +151,46 @@ before_script:
        true &&
        popd;
     fi
+  - if [[ "${QEMU_TARGET}" == "riscv32-softmmu" ]]; then
+       git clone git://git.savannah.gnu.org/grub.git /tmp/grub &&
+       pushd /tmp/grub &&
+       git checkout grub-2.04 &&
+       ./bootstrap &&
+       ./configure --target=riscv32 --with-platform=efi
+       CC=gcc
+       TARGET_CC=~/.buildman-toolchains/gcc-7.3.0-nolibc/riscv32-linux/bin/riscv32-linux-gcc
+       TARGET_OBJCOPY=~/.buildman-toolchains/gcc-7.3.0-nolibc/riscv32-linux/bin/riscv32-linux-objcopy
+       TARGET_STRIP=~/.buildman-toolchains/gcc-7.3.0-nolibc/riscv32-linux/bin/riscv32-linux-strip
+       TARGET_NM=~/.buildman-toolchains/gcc-7.3.0-nolibc/riscv32-linux/bin/riscv32-linux-nm
+       TARGET_RANLIB=~/.buildman-toolchains/gcc-7.3.0-nolibc/riscv32-linux/bin/riscv32-linux-ranlib &&
+       make -j4 &&
+       ./grub-mkimage -O riscv32-efi -o ~/grub_riscv32.efi --prefix= -d
+       grub-core cat chain configfile echo efinet ext2 fat halt help linux
+       lsefisystab loadenv lvm minicmd normal part_msdos part_gpt reboot
+       search search_fs_file search_fs_uuid search_label serial sleep test
+       true &&
+       popd;
+    fi
+  - if [[ "${QEMU_TARGET}" == "riscv64-softmmu" ]]; then
+       git clone git://git.savannah.gnu.org/grub.git /tmp/grub &&
+       pushd /tmp/grub &&
+       git checkout grub-2.04 &&
+       ./bootstrap &&
+       ./configure --target=riscv64 --with-platform=efi
+       CC=gcc
+       TARGET_CC=~/.buildman-toolchains/gcc-7.3.0-nolibc/riscv64-linux/bin/riscv64-linux-gcc
+       TARGET_OBJCOPY=~/.buildman-toolchains/gcc-7.3.0-nolibc/riscv64-linux/bin/riscv64-linux-objcopy
+       TARGET_STRIP=~/.buildman-toolchains/gcc-7.3.0-nolibc/riscv64-linux/bin/riscv64-linux-strip
+       TARGET_NM=~/.buildman-toolchains/gcc-7.3.0-nolibc/riscv64-linux/bin/riscv64-linux-nm
+       TARGET_RANLIB=~/.buildman-toolchains/gcc-7.3.0-nolibc/riscv64-linux/bin/riscv64-linux-ranlib &&
+       make -j4 &&
+       ./grub-mkimage -O riscv64-efi -o ~/grub_riscv64.efi --prefix= -d
+       grub-core cat chain configfile echo efinet ext2 fat halt help linux
+       lsefisystab loadenv lvm minicmd normal part_msdos part_gpt reboot
+       search search_fs_file search_fs_uuid search_label serial sleep test
+       true &&
+       popd;
+    fi
 
 script:
  # Comments must be outside the command strings below, or the Travis parser
@@ -177,6 +218,12 @@ script:
    fi;
    if [[ -e ~/grub_arm64.efi ]]; then
      cp ~/grub_arm64.efi $UBOOT_TRAVIS_BUILD_DIR/;
+   fi;
+   if [[ -e ~/grub_riscv32.efi ]]; then
+     cp ~/grub_riscv32.efi $UBOOT_TRAVIS_BUILD_DIR/;
+   fi;
+   if [[ -e ~/grub_riscv64.efi ]]; then
+     cp ~/grub_riscv64.efi $UBOOT_TRAVIS_BUILD_DIR/;
    fi;
    if [[ "${TEST_PY_BD}" != "" ]]; then
      virtualenv -p /usr/bin/python3 /tmp/venv;
