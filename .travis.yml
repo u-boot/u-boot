@@ -572,6 +572,13 @@ matrix:
           QEMU_TARGET="ppc-softmmu"
           BUILDMAN="^qemu-ppce500$"
           TOOLCHAIN="powerpc"
+    - name: "test/py qemu-riscv32"
+      env:
+        - TEST_PY_BD="qemu-riscv32"
+          TEST_PY_TEST_SPEC="not sleep"
+          QEMU_TARGET="riscv32-softmmu"
+          BUILDMAN="^qemu-riscv32$"
+          TOOLCHAIN="riscv"
     - name: "test/py qemu-riscv64"
       env:
         - TEST_PY_BD="qemu-riscv64"

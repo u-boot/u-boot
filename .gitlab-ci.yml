@@ -21,6 +21,7 @@ stages:
     - grub-mkimage --prefix="" -o ~/grub_x86.efi -O i386-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
     - grub-mkimage --prefix="" -o ~/grub_x64.efi -O x86_64-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
     - cp /opt/grub/grubriscv64.efi ~/grub_riscv64.efi
+    - cp /opt/grub/grubriscv32.efi ~/grub_riscv32.efi
     - cp /opt/grub/grubaa64.efi ~/grub_arm64.efi
     - cp /opt/grub/grubarm.efi ~/grub_arm.efi
 
@@ -295,6 +296,14 @@ qemu-ppce500 test.py:
     TEST_PY_BD: "qemu-ppce500"
     TEST_PY_TEST_SPEC: "not sleep"
     BUILDMAN: "^qemu-ppce500$"
+  <<: *buildman_and_testpy_dfn
+
+qemu-riscv32 test.py:
+  tags: [ 'all' ]
+  variables:
+    TEST_PY_BD: "qemu-riscv32"
+    TEST_PY_TEST_SPEC: "not sleep"
+    BUILDMAN: "^qemu-riscv32$"
   <<: *buildman_and_testpy_dfn
 
 qemu-riscv64 test.py:
