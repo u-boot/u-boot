@@ -198,7 +198,8 @@ int device_remove(struct udevice *dev, uint flags)
 		}
 	}
 
-	if (!(drv->flags &
+	if (!(flags & DM_REMOVE_NO_PD) &&
+	    !(drv->flags &
 	      (DM_FLAG_DEFAULT_PD_CTRL_OFF | DM_FLAG_REMOVE_WITH_PD_ON)) &&
 	    dev != gd->cur_serial_dev)
 		dev_power_domain_off(dev);
