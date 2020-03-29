@@ -123,6 +123,11 @@ void invalidate_l2_cache(void)
 
 __weak int reserve_mmu(void)
 {
+	return arm_reserve_mmu();
+}
+
+__weak int arm_reserve_mmu(void)
+{
 #if !(CONFIG_IS_ENABLED(SYS_ICACHE_OFF) && CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
 	/* reserve TLB table */
 	gd->arch.tlb_size = PGTABLE_SIZE;

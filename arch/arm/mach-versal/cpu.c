@@ -9,6 +9,7 @@
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/cache.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -107,7 +108,7 @@ u64 get_page_table_size(void)
 }
 
 #if defined(CONFIG_SYS_MEM_RSVD_FOR_MMU)
-int reserve_mmu(void)
+int arm_reserve_mmu(void)
 {
 	tcm_init(TCM_LOCK);
 	gd->arch.tlb_size = PGTABLE_SIZE;
