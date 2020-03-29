@@ -867,6 +867,7 @@ static int dm_test_read_int(struct unit_test_state *uts)
 	u32 val32;
 	s32 sval;
 	uint val;
+	u64 val64;
 
 	ut_assertok(uclass_first_device_err(UCLASS_TEST_FDT, &dev));
 	ut_asserteq_str("a-test", dev->name);
@@ -890,6 +891,15 @@ static int dm_test_read_int(struct unit_test_state *uts)
 	ut_asserteq(-EINVAL, dev_read_u32u(dev, "missing", &val));
 	ut_assertok(dev_read_u32u(dev, "uint-value", &val));
 	ut_asserteq(-1234, val);
+
+	ut_assertok(dev_read_u64(dev, "int64-value", &val64));
+	ut_asserteq_64(0x1111222233334444, val64);
+
+	ut_asserteq_64(-EINVAL, dev_read_u64(dev, "missing", &val64));
+	ut_asserteq_64(6, dev_read_u64_default(dev, "missing", 6));
+
+	ut_asserteq_64(0x1111222233334444,
+		       dev_read_u64_default(dev, "int64-value", 6));
 
 	return 0;
 }

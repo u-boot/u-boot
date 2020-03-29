@@ -93,6 +93,7 @@
 			<&gpio_b 9 0xc 3 2 1>;
 		int-value = <1234>;
 		uint-value = <(-1234)>;
+		int64-value = /bits/ 64 <0x1111222233334444>;
 		interrupts-extended = <&irq 3 0>;
 	};
 
