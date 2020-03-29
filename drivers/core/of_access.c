@@ -449,21 +449,7 @@ static void *of_find_property_value_of_size(const struct device_node *np,
 
 int of_read_u32(const struct device_node *np, const char *propname, u32 *outp)
 {
-	const __be32 *val;
-
-	debug("%s: %s: ", __func__, propname);
-	if (!np)
-		return -EINVAL;
-	val = of_find_property_value_of_size(np, propname, sizeof(*outp));
-	if (IS_ERR(val)) {
-		debug("(not found)\n");
-		return PTR_ERR(val);
-	}
-
-	*outp = be32_to_cpup(val);
-	debug("%#x (%d)\n", *outp, *outp);
-
-	return 0;
+	return of_read_u32_index(np, propname, 0, outp);
 }
 
 int of_read_u32_array(const struct device_node *np, const char *propname,
