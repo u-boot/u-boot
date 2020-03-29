@@ -905,6 +905,35 @@ static int dm_test_read_int(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_read_int, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
+static int dm_test_read_int_index(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	u32 val32;
+
+	ut_assertok(uclass_first_device_err(UCLASS_TEST_FDT, &dev));
+	ut_asserteq_str("a-test", dev->name);
+
+	ut_asserteq(-EINVAL, dev_read_u32_index(dev, "missing", 0, &val32));
+	ut_asserteq(19, dev_read_u32_index_default(dev, "missing", 0, 19));
+
+	ut_assertok(dev_read_u32_index(dev, "int-array", 0, &val32));
+	ut_asserteq(5678, val32);
+	ut_assertok(dev_read_u32_index(dev, "int-array", 1, &val32));
+	ut_asserteq(9123, val32);
+	ut_assertok(dev_read_u32_index(dev, "int-array", 2, &val32));
+	ut_asserteq(4567, val32);
+	ut_asserteq(-EOVERFLOW, dev_read_u32_index(dev, "int-array", 3,
+						   &val32));
+
+	ut_asserteq(5678, dev_read_u32_index_default(dev, "int-array", 0, 2));
+	ut_asserteq(9123, dev_read_u32_index_default(dev, "int-array", 1, 2));
+	ut_asserteq(4567, dev_read_u32_index_default(dev, "int-array", 2, 2));
+	ut_asserteq(2, dev_read_u32_index_default(dev, "int-array", 3, 2));
+
+	return 0;
+}
+DM_TEST(dm_test_read_int_index, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
 /* Test iteration through devices by drvdata */
 static int dm_test_uclass_drvdata(struct unit_test_state *uts)
 {

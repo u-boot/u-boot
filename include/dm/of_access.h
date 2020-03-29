@@ -235,6 +235,25 @@ struct device_node *of_find_node_by_phandle(phandle handle);
 int of_read_u32(const struct device_node *np, const char *propname, u32 *outp);
 
 /**
+ * of_read_u32_index() - Find and read a 32-bit value from a multi-value
+ *                       property
+ *
+ * Search for a property in a device node and read a 32-bit value from
+ * it.
+ *
+ * @np:		device node from which the property value is to be read.
+ * @propname:	name of the property to be searched.
+ * @index:	index of the u32 in the list of values
+ * @outp:	pointer to return value, modified only if return value is 0.
+ *
+ * @return 0 on success, -EINVAL if the property does not exist,
+ * -ENODATA if property does not have a value, and -EOVERFLOW if the
+ * property data isn't large enough.
+ */
+int of_read_u32_index(const struct device_node *np, const char *propname,
+		      int index, u32 *outp);
+
+/**
  * of_read_u64() - Find and read a 64-bit integer from a property
  *
  * Search for a property in a device node and read a 64-bit value from
