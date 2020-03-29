@@ -121,7 +121,7 @@ void invalidate_l2_cache(void)
 }
 #endif
 
-__weak int reserve_mmu(void)
+int arch_reserve_mmu(void)
 {
 	return arm_reserve_mmu();
 }

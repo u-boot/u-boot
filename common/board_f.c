@@ -385,6 +385,11 @@ static int reserve_round_4k(void)
 	return 0;
 }
 
+__weak int arch_reserve_mmu(void)
+{
+	return 0;
+}
+
 static int reserve_video(void)
 {
 #ifdef CONFIG_DM_VIDEO
@@ -951,9 +956,7 @@ static const init_fnc_t init_sequence_f[] = {
 	reserve_pram,
 #endif
 	reserve_round_4k,
-#ifdef CONFIG_ARM
-	reserve_mmu,
-#endif
+	arch_reserve_mmu,
 	reserve_video,
 	reserve_trace,
 	reserve_uboot,

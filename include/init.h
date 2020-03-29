@@ -130,6 +130,18 @@ int testdram(void);
 int arch_reserve_stacks(void);
 
 /**
+ * arch_reserve_mmu() - Reserve memory for MMU TLB table
+ *
+ * Architecture-specific routine for reserving memory for the MMU TLB table.
+ * This is used in generic board init sequence in common/board_f.c.
+ *
+ * If an implementation is not provided, it will just be a nop stub.
+ *
+ * Return: 0 if OK
+ */
+int arch_reserve_mmu(void);
+
+/**
  * init_cache_f_r() - Turn on the cache in preparation for relocation
  *
  * Return: 0 if OK, -ve on error
@@ -145,7 +157,6 @@ int init_cache_f_r(void);
 int print_cpuinfo(void);
 #endif
 int timer_init(void);
-int reserve_mmu(void);
 int misc_init_f(void);
 
 #if defined(CONFIG_DTB_RESELECT)
