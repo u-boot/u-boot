@@ -31,20 +31,20 @@ static int generic_phy_xlate_offs_flags(struct phy *phy,
 	return 0;
 }
 
-int generic_phy_get_by_index(struct udevice *dev, int index,
-			     struct phy *phy)
+int generic_phy_get_by_node(ofnode node, int index, struct phy *phy)
 {
 	struct ofnode_phandle_args args;
 	struct phy_ops *ops;
 	struct udevice *phydev;
 	int i, ret;
 
-	debug("%s(dev=%p, index=%d, phy=%p)\n", __func__, dev, index, phy);
+	debug("%s(node=%s, index=%d, phy=%p)\n",
+	      __func__, ofnode_get_name(node), index, phy);
 
 	assert(phy);
 	phy->dev = NULL;
-	ret = dev_read_phandle_with_args(dev, "phys", "#phy-cells", 0, index,
-					 &args);
+	ret = ofnode_parse_phandle_with_args(node, "phys", "#phy-cells", 0,
+					     index, &args);
 	if (ret) {
 		debug("%s: dev_read_phandle_with_args failed: err=%d\n",
 		      __func__, ret);
@@ -88,6 +88,12 @@ int generic_phy_get_by_index(struct udevice *dev, int index,
 
 err:
 	return ret;
+}
+
+int generic_phy_get_by_index(struct udevice *dev, int index,
+			     struct phy *phy)
+{
+	return generic_phy_get_by_node(dev_ofnode(dev), index, phy);
 }
 
 int generic_phy_get_by_name(struct udevice *dev, const char *phy_name,
