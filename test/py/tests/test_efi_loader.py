@@ -170,6 +170,7 @@ def test_efi_helloworld_builtin(u_boot_console):
     expected_text = 'Hello, world'
     assert expected_text in output
 
+@pytest.mark.buildconfigspec('of_control')
 @pytest.mark.buildconfigspec('cmd_bootefi')
 def test_efi_grub_net(u_boot_console):
     """Run the grub.efi binary via TFTP.
