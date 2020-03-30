@@ -198,9 +198,6 @@
 			#size-cells = <0>;
 			reg = <0>;
 			/* u152 IR35215 0x16/0x46 vcc_soc */
-			/* u160 IRPS5401 0x17/0x47 */
-			/* u167 IRPS5401 0x1c/0x4c */
-			/* u175 IRPS5401 0x1d/0x4d */
 			/* u179 ir38164 0x19/0x49 vcco_500 */
 			/* u181 ir38164 0x1a/0x4a vcco_501 */
 			/* u183 ir38164 0x1b/0x4b vcco_502 */
@@ -209,6 +206,19 @@
 			/* u189 ir38164 0x20/0x50 mgtyavtt */
 			/* u194 ir38164 0x13/0x43 vdd1_1v8_lp4 */
 			/* u195 ir38164 0x14/0x44 vdd2_1v8_lp4 */
+
+			irps5401_47: irps5401@47 { /* IRPS5401 - u160 */
+				compatible = "infineon,irps5401";
+				reg = <0x47>; /* pmbus / i2c 0x17 */
+			};
+			irps5401_4c: irps5401@4c { /* IRPS5401 - u167 */
+				compatible = "infineon,irps5401";
+				reg = <0x4c>; /* pmbus / i2c 0x1c */
+			};
+			irps5401_4d: irps5401@4d { /* IRPS5401 - u175 */
+				compatible = "infineon,irps5401";
+				reg = <0x4d>; /* pmbus / i2c 0x1d */
+			};
 		};
 		i2c@1 { /* PMBUS1_INA226 */
 			#address-cells = <1>;
