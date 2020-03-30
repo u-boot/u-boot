@@ -74,11 +74,11 @@ config ARCH_LS1043A
 	select SYS_FSL_HAS_DDR4
 	select ARCH_EARLY_INIT_R
 	select BOARD_EARLY_INIT_F
-	select SYS_I2C_MXC
-	select SYS_I2C_MXC_I2C1
-	select SYS_I2C_MXC_I2C2
-	select SYS_I2C_MXC_I2C3
-	select SYS_I2C_MXC_I2C4
+	select SYS_I2C_MXC if !DM_I2C
+	select SYS_I2C_MXC_I2C1 if !DM_I2C
+	select SYS_I2C_MXC_I2C2 if !DM_I2C
+	select SYS_I2C_MXC_I2C3 if !DM_I2C
+	select SYS_I2C_MXC_I2C4 if !DM_I2C
 	imply CMD_PCI
 
 config ARCH_LS1046A
@@ -107,11 +107,11 @@ config ARCH_LS1046A
 	select SYS_FSL_SRDS_2
 	select ARCH_EARLY_INIT_R
 	select BOARD_EARLY_INIT_F
-	select SYS_I2C_MXC
-	select SYS_I2C_MXC_I2C1
-	select SYS_I2C_MXC_I2C2
-	select SYS_I2C_MXC_I2C3
-	select SYS_I2C_MXC_I2C4
+	select SYS_I2C_MXC if !DM_I2C
+	select SYS_I2C_MXC_I2C1 if !DM_I2C
+	select SYS_I2C_MXC_I2C2 if !DM_I2C
+	select SYS_I2C_MXC_I2C3 if !DM_I2C
+	select SYS_I2C_MXC_I2C4 if !DM_I2C
 	imply SCSI
 	imply SCSI_AHCI
 

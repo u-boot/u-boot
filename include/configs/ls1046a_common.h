@@ -16,6 +16,7 @@
 #define SPL_NO_QSPI
 #define SPL_NO_USB
 #define SPL_NO_SATA
+#undef CONFIG_DM_I2C
 #endif
 #if defined(CONFIG_SPL_BUILD) && \
 	(defined(CONFIG_NAND_BOOT) || defined(CONFIG_QSPI_BOOT))
@@ -126,7 +127,17 @@
 #endif
 
 /* I2C */
+#ifndef CONFIG_DM_I2C
 #define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
+#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
+#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
+#define CONFIG_SYS_I2C_MXC_I2C4		/* enable I2C bus 4 */
+#else
+#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
+#define CONFIG_I2C_DEFAULT_BUS_NUMBER 0
+#endif
 
 /* PCIe */
 #define CONFIG_PCIE1		/* PCIE controller 1 */
@@ -217,8 +228,7 @@
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
 	"ramdisk_addr=0x800000\0"		\
 	"ramdisk_size=0x2000000\0"		\
-	"fdt_high=0xffffffffffffffff\0"		\
-	"initrd_high=0xffffffffffffffff\0"	\
+	"bootm_size=0x10000000\0"		\
 	"fdt_addr=0x64f00000\0"                 \
 	"kernel_addr=0x65000000\0"              \
 	"scriptaddr=0x80000000\0"               \

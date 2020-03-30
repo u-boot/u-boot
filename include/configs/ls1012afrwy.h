@@ -8,6 +8,9 @@
 
 #include "ls1012a_common.h"
 
+#undef CONFIG_SYS_BOARD
+#define CONFIG_SYS_BOARD "ls1012afrwy"
+
 /* Board Rev*/
 #define BOARD_REV_A_B			0x0
 #define BOARD_REV_C			0x00080000
@@ -63,9 +66,9 @@
 	"fdtheader_addr_r=0x80100000\0"		\
 	"kernelheader_addr_r=0x80200000\0"	\
 	"kernelheader_size=0x40000\0"		\
-	"kernel_addr_r=0x96000000\0"		\
+	"kernel_addr_r=0x92000000\0"		\
 	"fdt_addr_r=0x90000000\0"		\
-	"load_addr=0x96000000\0"		\
+	"load_addr=0x92000000\0"		\
 	"kernel_size=0x2800000\0"		\
 	"kernelheader_size=0x40000\0"		\
 	"console=ttyS0,115200\0"		\
