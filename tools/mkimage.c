@@ -7,6 +7,7 @@
  * Wolfgang Denk, wd@denx.de
  */
 
+#include "imagetool.h"
 #include "mkimage.h"
 #include "imximage.h"
 #include <image.h>
@@ -557,8 +558,8 @@ int main(int argc, char **argv)
 		}
 		if (params.type == IH_TYPE_FIRMWARE_IVT) {
 			/* Add alignment and IVT */
-			uint32_t aligned_filesize = (params.file_size + 0x1000
-					- 1) & ~(0x1000 - 1);
+			uint32_t aligned_filesize = ALIGN(params.file_size,
+							  0x1000);
 			flash_header_v2_t ivt_header = { { 0xd1, 0x2000, 0x40 },
 					params.addr, 0, 0, 0, params.addr
 							+ aligned_filesize
