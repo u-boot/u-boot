@@ -78,20 +78,28 @@ static inline void sync(void)
 #define __arch_putq(v, a)	({ __comp_b(); *(volatile u64 *)(a) = (v); __comp_b(); })
 
 
-#define __raw_writeb(v, a)	__arch_putb(v, a)
-#define __raw_writew(v, a)	__arch_putw(v, a)
-#define __raw_writel(v, a)	__arch_putl(v, a)
-#define __raw_writeq(v, a)	__arch_putq(v, a)
+/*
+ * We add memory barriers for __raw_readX / __raw_writeX accessors same way as
+ * it is done for readX and writeX accessors as lots of U-boot driver uses
+ * __raw_readX / __raw_writeX instead of proper accessor with barrier.
+ */
+#define __raw_writeb(v, c)	({ __iowmb(); __arch_putb(v, c); })
+#define __raw_writew(v, c)	({ __iowmb(); __arch_putw(v, c); })
+#define __raw_writel(v, c)	({ __iowmb(); __arch_putl(v, c); })
+#define __raw_writeq(v, c)	({ __iowmb(); __arch_putq(v, c); })
 
-#define __raw_readb(a)		__arch_getb(a)
-#define __raw_readw(a)		__arch_getw(a)
-#define __raw_readl(a)		__arch_getl(a)
-#define __raw_readq(a)		__arch_getq(a)
+#define __raw_readb(c)		({ u8  __v = __arch_getb(c); __iormb(); __v; })
+#define __raw_readw(c)		({ u16 __v = __arch_getw(c); __iormb(); __v; })
+#define __raw_readl(c)		({ u32 __v = __arch_getl(c); __iormb(); __v; })
+#define __raw_readq(c)		({ u64 __v = __arch_getq(c); __iormb(); __v; })
+
 
 static inline void __raw_writesb(unsigned long addr, const void *data,
 				 int bytelen)
 {
 	u8 *buf = (uint8_t *)data;
+
+	__iowmb();
 
 	while (bytelen--)
 		__arch_putb(*buf++, addr);
@@ -102,6 +110,8 @@ static inline void __raw_writesw(unsigned long addr, const void *data,
 {
 	u16 *buf = (uint16_t *)data;
 
+	__iowmb();
+
 	while (wordlen--)
 		__arch_putw(*buf++, addr);
 }
@@ -110,6 +120,8 @@ static inline void __raw_writesl(unsigned long addr, const void *data,
 				 int longlen)
 {
 	u32 *buf = (uint32_t *)data;
+
+	__iowmb();
 
 	while (longlen--)
 		__arch_putl(*buf++, addr);
@@ -121,6 +133,8 @@ static inline void __raw_readsb(unsigned long addr, void *data, int bytelen)
 
 	while (bytelen--)
 		*buf++ = __arch_getb(addr);
+
+	__iormb();
 }
 
 static inline void __raw_readsw(unsigned long addr, void *data, int wordlen)
@@ -129,6 +143,8 @@ static inline void __raw_readsw(unsigned long addr, void *data, int wordlen)
 
 	while (wordlen--)
 		*buf++ = __arch_getw(addr);
+
+	__iormb();
 }
 
 static inline void __raw_readsl(unsigned long addr, void *data, int longlen)
@@ -137,6 +153,8 @@ static inline void __raw_readsl(unsigned long addr, void *data, int longlen)
 
 	while (longlen--)
 		*buf++ = __arch_getl(addr);
+
+	__iormb();
 }
 
 /*
@@ -144,21 +162,15 @@ static inline void __raw_readsl(unsigned long addr, void *data, int longlen)
  * ordering rules but do not guarantee any ordering relative to Normal memory
  * accesses.
  */
-#define readb_relaxed(c)	({ u8  __r = __raw_readb(c); __r; })
-#define readw_relaxed(c)	({ u16 __r = le16_to_cpu((__force __le16) \
-						__raw_readw(c)); __r; })
-#define readl_relaxed(c)	({ u32 __r = le32_to_cpu((__force __le32) \
-						__raw_readl(c)); __r; })
-#define readq_relaxed(c)	({ u64 __r = le64_to_cpu((__force __le64) \
-						__raw_readq(c)); __r; })
+#define readb_relaxed(c)	({ u8  __r = __arch_getb(c); __r; })
+#define readw_relaxed(c)	({ u16 __r = le16_to_cpu((__force __le16)__arch_getw(c)); __r; })
+#define readl_relaxed(c)	({ u32 __r = le32_to_cpu((__force __le32)__arch_getl(c)); __r; })
+#define readq_relaxed(c)	({ u64 __r = le64_to_cpu((__force __le64)__arch_getq(c)); __r; })
 
-#define writeb_relaxed(v, c)	((void)__raw_writeb((v), (c)))
-#define writew_relaxed(v, c)	((void)__raw_writew((__force u16) \
-						    cpu_to_le16(v), (c)))
-#define writel_relaxed(v, c)	((void)__raw_writel((__force u32) \
-						    cpu_to_le32(v), (c)))
-#define writeq_relaxed(v, c)	((void)__raw_writeq((__force u64) \
-						    cpu_to_le64(v), (c)))
+#define writeb_relaxed(v, c)	((void)__arch_putb((v), (c)))
+#define writew_relaxed(v, c)	((void)__arch_putw((__force u16)cpu_to_le16(v), (c)))
+#define writel_relaxed(v, c)	((void)__arch_putl((__force u32)cpu_to_le32(v), (c)))
+#define writeq_relaxed(v, c)	((void)__arch_putq((__force u64)cpu_to_le64(v), (c)))
 
 /*
  * MMIO can also get buffered/optimized in micro-arch, so barriers needed
