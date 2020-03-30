@@ -54,6 +54,8 @@ static void print_mmcinfo(struct mmc *mmc)
 	if (!IS_SD(mmc) && mmc->version >= MMC_VERSION_4_41) {
 		bool has_enh = (mmc->part_support & ENHNCD_SUPPORT) != 0;
 		bool usr_enh = has_enh && (mmc->part_attr & EXT_CSD_ENH_USR);
+		u8 wp, ext_csd[MMC_MAX_BLOCK_LEN];
+		int ret;
 
 #if CONFIG_IS_ENABLED(MMC_HW_PARTITIONING)
 		puts("HC WP Group Size: ");
@@ -89,6 +91,28 @@ static void print_mmcinfo(struct mmc *mmc)
 				else
 					putc('\n');
 			}
+		}
+		ret = mmc_send_ext_csd(mmc, ext_csd);
+		if (ret)
+			return;
+		wp = ext_csd[EXT_CSD_BOOT_WP_STATUS];
+		for (i = 0; i < 2; ++i) {
+			printf("Boot area %d is ", i);
+			switch (wp & 3) {
+			case 0:
+				printf("not write protected\n");
+				break;
+			case 1:
+				printf("power on protected\n");
+				break;
+			case 2:
+				printf("permanently protected\n");
+				break;
+			default:
+				printf("in reserved protection state\n");
+				break;
+			}
+			wp >>= 2;
 		}
 	}
 }
