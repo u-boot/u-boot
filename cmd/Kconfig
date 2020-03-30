@@ -1088,6 +1088,13 @@ config CMD_LOADS
 	help
 	  Load an S-Record file over serial line
 
+config CMD_LSBLK
+	depends on BLK
+	bool "lsblk - list block drivers and devices"
+	help
+	  Print list of available block device drivers, and for each, the list
+	  of known block devices.
+
 config CMD_MMC
 	bool "mmc"
 	help
