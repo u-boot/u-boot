@@ -9,6 +9,12 @@
 #include <linux/types.h>
 #include <asm/byteorder.h>
 
+/*
+ * Compiler barrier. It prevents compiler from reordering instructions before
+ * and after it. It doesn't prevent HW (CPU) from any reordering though.
+ */
+#define __comp_b()		asm volatile("" : : : "memory")
+
 #ifdef __ARCHS__
 
 /*
@@ -45,8 +51,8 @@
 #define __iormb()		rmb()
 #define __iowmb()		wmb()
 #else
-#define __iormb()		asm volatile("" : : : "memory")
-#define __iowmb()		asm volatile("" : : : "memory")
+#define __iormb()		__comp_b()
+#define __iowmb()		__comp_b()
 #endif
 
 static inline void sync(void)
@@ -58,16 +64,18 @@ static inline void sync(void)
  * We must use 'volatile' in C-version read/write IO accessors implementation
  * to avoid merging several reads (writes) into one read (write), or optimizing
  * them out by compiler.
+ * We must use compiler barriers before and after operation (read or write) so
+ * it won't be reordered by compiler.
  */
-#define __arch_getb(a)		(*(volatile u8 *)(a))
-#define __arch_getw(a)		(*(volatile u16 *)(a))
-#define __arch_getl(a)		(*(volatile u32 *)(a))
-#define __arch_getq(a)		(*(volatile u64 *)(a))
+#define __arch_getb(a)		({ u8  __v; __comp_b(); __v = *(volatile u8  *)(a); __comp_b(); __v; })
+#define __arch_getw(a)		({ u16 __v; __comp_b(); __v = *(volatile u16 *)(a); __comp_b(); __v; })
+#define __arch_getl(a)		({ u32 __v; __comp_b(); __v = *(volatile u32 *)(a); __comp_b(); __v; })
+#define __arch_getq(a)		({ u64 __v; __comp_b(); __v = *(volatile u64 *)(a); __comp_b(); __v; })
 
-#define __arch_putb(v, a)	(*(volatile u8 *)(a) = (v))
-#define __arch_putw(v, a)	(*(volatile u16 *)(a) = (v))
-#define __arch_putl(v, a)	(*(volatile u32 *)(a) = (v))
-#define __arch_putq(v, a)	(*(volatile u64 *)(a) = (v))
+#define __arch_putb(v, a)	({ __comp_b(); *(volatile u8  *)(a) = (v); __comp_b(); })
+#define __arch_putw(v, a)	({ __comp_b(); *(volatile u16 *)(a) = (v); __comp_b(); })
+#define __arch_putl(v, a)	({ __comp_b(); *(volatile u32 *)(a) = (v); __comp_b(); })
+#define __arch_putq(v, a)	({ __comp_b(); *(volatile u64 *)(a) = (v); __comp_b(); })
 
 
 #define __raw_writeb(v, a)	__arch_putb(v, a)
