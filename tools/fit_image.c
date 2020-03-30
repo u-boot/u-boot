@@ -547,7 +547,7 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 	if (fd < 0)
 		return -EIO;
 	fit_size = fdt_totalsize(old_fdt);
-	data_base = (fit_size + 3) & ~3;
+	data_base = ALIGN(fit_size, 4);
 
 	/* Allocate space to hold the new FIT */
 	size = sbuf.st_size + 16384;
