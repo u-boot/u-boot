@@ -341,7 +341,6 @@ static int generate_ivt_for_fit(int fd, int fit_offset, uint32_t ep,
 	}
 
 	fit_size = fdt_totalsize(&image_header);
-	fit_size = (fit_size + 3) & ~3;
 
 	fit_size = ALIGN(fit_size, ALIGN_SIZE);
 
