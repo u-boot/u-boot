@@ -11,7 +11,6 @@
 #include <image.h>
 #include <inttypes.h>
 #include "imagetool.h"
-#include "linux/kernel.h"
 
 #define __packed   __attribute__((packed))
 

@@ -8,15 +8,13 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <getopt.h>
+#include "imagetool.h"
 #include "os_support.h"
 
 #ifndef __packed
 #define __packed		__attribute__((packed))
 #endif
 #define KiB			1024
-#define ALIGN(x, a)		__ALIGN_MASK((x), (typeof(x))(a) - 1)
-#define __ALIGN_MASK(x, mask)	(((x) + (mask)) & ~(mask))
-#define ARRAY_SIZE(x)		(sizeof(x) / sizeof((x)[0]))
 
 /*
  * min()/max()/clamp() macros that also do
