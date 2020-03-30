@@ -299,6 +299,11 @@ config ERR_PTR_OFFSET
 	  pointer values - up to 'MAX_ERRNO' bytes below this value must be
 	  unused/invalid addresses.
 
+config PLATFORM_ELFENTRY
+	string
+	default "__start" if MIPS
+	default "_start"
+
 endmenu		# General setup
 
 menu "Boot images"
