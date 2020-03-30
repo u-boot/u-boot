@@ -54,15 +54,21 @@ static inline void sync(void)
 	/* Not yet implemented */
 }
 
-#define __arch_getb(a)		(*(unsigned char *)(a))
-#define __arch_getw(a)		(*(unsigned short *)(a))
-#define __arch_getl(a)		(*(unsigned int *)(a))
-#define __arch_getq(a)		(*(unsigned long long *)(a))
+/*
+ * We must use 'volatile' in C-version read/write IO accessors implementation
+ * to avoid merging several reads (writes) into one read (write), or optimizing
+ * them out by compiler.
+ */
+#define __arch_getb(a)		(*(volatile u8 *)(a))
+#define __arch_getw(a)		(*(volatile u16 *)(a))
+#define __arch_getl(a)		(*(volatile u32 *)(a))
+#define __arch_getq(a)		(*(volatile u64 *)(a))
 
-#define __arch_putb(v, a)	(*(unsigned char *)(a) = (v))
-#define __arch_putw(v, a)	(*(unsigned short *)(a) = (v))
-#define __arch_putl(v, a)	(*(unsigned int *)(a) = (v))
-#define __arch_putq(v, a)	(*(unsigned long long *)(a) = (v))
+#define __arch_putb(v, a)	(*(volatile u8 *)(a) = (v))
+#define __arch_putw(v, a)	(*(volatile u16 *)(a) = (v))
+#define __arch_putl(v, a)	(*(volatile u32 *)(a) = (v))
+#define __arch_putq(v, a)	(*(volatile u64 *)(a) = (v))
+
 
 #define __raw_writeb(v, a)	__arch_putb(v, a)
 #define __raw_writew(v, a)	__arch_putw(v, a)
