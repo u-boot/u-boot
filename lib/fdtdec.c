@@ -810,17 +810,6 @@ int fdtdec_parse_phandle_with_args(const void *blob, int src_node,
 	return rc;
 }
 
-int fdtdec_get_child_count(const void *blob, int node)
-{
-	int subnode;
-	int num = 0;
-
-	fdt_for_each_subnode(subnode, blob, node)
-		num++;
-
-	return num;
-}
-
 int fdtdec_get_byte_array(const void *blob, int node, const char *prop_name,
 			  u8 *array, int count)
 {
