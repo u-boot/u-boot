@@ -98,8 +98,9 @@ static void usage(const char *msg)
 		"          -i => input filename for ramdisk file\n");
 #ifdef CONFIG_FIT_SIGNATURE
 	fprintf(stderr,
-		"Signing / verified boot options: [-E] [-k keydir] [-K dtb] [ -c <comment>] [-p addr] [-r] [-N engine]\n"
+		"Signing / verified boot options: [-E] [-B size] [-k keydir] [-K dtb] [ -c <comment>] [-p addr] [-r] [-N engine]\n"
 		"          -E => place data outside of the FIT structure\n"
+		"          -B => align size in hex for FIT structure and header\n"
 		"          -k => set directory containing private keys\n"
 		"          -K => write public keys to this .dtb file\n"
 		"          -c => add comment in signature node\n"
@@ -144,7 +145,7 @@ static void process_args(int argc, char **argv)
 	int opt;
 
 	while ((opt = getopt(argc, argv,
-			     "a:A:b:c:C:d:D:e:Ef:Fk:i:K:ln:N:p:O:rR:qsT:vVx")) != -1) {
+			     "a:A:b:B:c:C:d:D:e:Ef:Fk:i:K:ln:N:p:O:rR:qsT:vVx")) != -1) {
 		switch (opt) {
 		case 'a':
 			params.addr = strtoull(optarg, &ptr, 16);
@@ -168,6 +169,15 @@ static void process_args(int argc, char **argv)
 					params.cmdname, optarg);
 				exit(EXIT_FAILURE);
 			}
+			break;
+		case 'B':
+			params.bl_len = strtoull(optarg, &ptr, 16);
+			if (*ptr) {
+				fprintf(stderr, "%s: invalid block length %s\n",
+					params.cmdname, optarg);
+				exit(EXIT_FAILURE);
+			}
+
 			break;
 		case 'c':
 			params.comment = optarg;
