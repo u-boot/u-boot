@@ -896,9 +896,30 @@ static int do_mmc_bkops_enable(cmd_tbl_t *cmdtp, int flag,
 }
 #endif
 
+static int do_mmc_boot_wp(cmd_tbl_t *cmdtp, int flag,
+			  int argc, char * const argv[])
+{
+	int err;
+	struct mmc *mmc;
+
+	mmc = init_mmc_device(curr_device, false);
+	if (!mmc)
+		return CMD_RET_FAILURE;
+	if (IS_SD(mmc)) {
+		printf("It is not an eMMC device\n");
+		return CMD_RET_FAILURE;
+	}
+	err = mmc_boot_wp(mmc);
+	if (err)
+		return CMD_RET_FAILURE;
+	printf("boot areas protected\n");
+	return CMD_RET_SUCCESS;
+}
+
 static cmd_tbl_t cmd_mmc[] = {
 	U_BOOT_CMD_MKENT(info, 1, 0, do_mmcinfo, "", ""),
 	U_BOOT_CMD_MKENT(read, 4, 1, do_mmc_read, "", ""),
+	U_BOOT_CMD_MKENT(wp, 1, 0, do_mmc_boot_wp, "", ""),
 #if CONFIG_IS_ENABLED(MMC_WRITE)
 	U_BOOT_CMD_MKENT(write, 4, 0, do_mmc_write, "", ""),
 	U_BOOT_CMD_MKENT(erase, 3, 0, do_mmc_erase, "", ""),
@@ -968,6 +989,7 @@ U_BOOT_CMD(
 	"mmc part - lists available partition on current mmc device\n"
 	"mmc dev [dev] [part] - show or set current mmc device [partition]\n"
 	"mmc list - lists available devices\n"
+	"mmc wp - power on write protect booot partitions\n"
 #if CONFIG_IS_ENABLED(MMC_HW_PARTITIONING)
 	"mmc hwpartition [args...] - does hardware partitioning\n"
 	"  arguments (sizes in 512-byte blocks):\n"

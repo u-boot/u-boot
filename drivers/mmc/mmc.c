@@ -810,6 +810,11 @@ int mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value)
 	return __mmc_switch(mmc, set, index, value, true);
 }
 
+int mmc_boot_wp(struct mmc *mmc)
+{
+	return mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_BOOT_WP, 1);
+}
+
 #if !CONFIG_IS_ENABLED(MMC_TINY)
 static int mmc_set_card_speed(struct mmc *mmc, enum bus_mode mode,
 			      bool hsdowngrade)

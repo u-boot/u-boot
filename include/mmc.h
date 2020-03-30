@@ -907,6 +907,15 @@ struct blk_desc *mmc_get_blk_desc(struct mmc *mmc);
  */
 int mmc_send_ext_csd(struct mmc *mmc, u8 *ext_csd);
 
+/**
+ * mmc_boot_wp() - power on write protect boot partitions
+ *
+ * The boot partitions are write protected until the next power cycle.
+ *
+ * Return:	0 for success
+ */
+int mmc_boot_wp(struct mmc *mmc);
+
 static inline enum dma_data_direction mmc_get_dma_dir(struct mmc_data *data)
 {
 	return data->flags & MMC_DATA_WRITE ? DMA_TO_DEVICE : DMA_FROM_DEVICE;
