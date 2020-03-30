@@ -46,6 +46,7 @@ config DOS_PARTITION
 config SPL_DOS_PARTITION
 	bool "Enable MS Dos partition table for SPL"
 	depends on SPL && PARTITIONS
+	default n if ARCH_SUNXI
 	default y if DOS_PARTITION
 
 config ISO_PARTITION
@@ -112,6 +113,7 @@ config EFI_PARTITION_ENTRIES_OFF
 config SPL_EFI_PARTITION
 	bool "Enable EFI GPT partition table for SPL"
 	depends on  SPL && PARTITIONS
+	default n if ARCH_SUNXI
 	default y if EFI_PARTITION
 
 config PARTITION_UUIDS
