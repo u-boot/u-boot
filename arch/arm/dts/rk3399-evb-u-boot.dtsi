@@ -11,3 +11,7 @@
 		u-boot,spl-boot-order = &sdhci, &sdmmc;
 	};
 };
+
+&rng {
+	status = "okay";
+};
