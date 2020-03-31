@@ -239,6 +239,28 @@ int rx51_kp_getc(struct stdio_dev *sdev);
 		"fi\0" \
 	"emmcboot=setenv mmcnum 1; run trymmcboot\0" \
 	"sdboot=setenv mmcnum 0; run trymmcboot\0" \
+	"preboot=setenv mmcnum 1; setenv mmcpart 1;" \
+		"setenv mmcscriptfile bootmenu.scr;" \
+		"if run switchmmc; then " \
+			"setenv mmcdone true;" \
+			"setenv mmctype fat;" \
+			"if run scriptload; then true; else " \
+				"setenv mmctype ext2;" \
+				"if run scriptload; then true; else " \
+					"setenv mmctype ext4;" \
+					"if run scriptload; then true; else " \
+						"setenv mmcdone false;" \
+					"fi;" \
+				"fi;" \
+			"fi;" \
+			"if ${mmcdone}; then " \
+				"run scriptboot;" \
+			"fi;" \
+		"fi;" \
+		"if run slide; then true; else " \
+			"setenv bootmenu_delay 0;" \
+			"setenv bootdelay 0;" \
+		"fi\0" \
 	"menucmd=bootmenu\0" \
 	"bootmenu_0=Attached kernel=run attachboot\0" \
 	"bootmenu_1=Internal eMMC=run emmcboot\0" \
