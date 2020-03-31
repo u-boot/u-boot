@@ -8,6 +8,7 @@
 #include <asm/sections.h>
 #include <dm/uclass.h>
 #include <i2c.h>
+#include "board.h"
 
 int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
 {
@@ -71,3 +72,10 @@ void *board_fdt_blob_setup(void)
 	return NULL;
 }
 #endif
+
+int board_late_init_xilinx(void)
+{
+	env_set_hex("script_offset_f", CONFIG_BOOT_SCRIPT_OFFSET);
+
+	return 0;
+}
