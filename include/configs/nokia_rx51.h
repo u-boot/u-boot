@@ -119,9 +119,9 @@ int rx51_kp_getc(struct stdio_dev *sdev);
 /* Environment information */
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"usbtty=cdc_acm\0" \
-	"stdin=vga\0" \
-	"stdout=vga\0" \
-	"stderr=vga\0" \
+	"stdin=serial,vga\0" \
+	"stdout=serial,vga\0" \
+	"stderr=serial,vga\0" \
 	"setcon=setenv stdin ${con};" \
 		"setenv stdout ${con};" \
 		"setenv stderr ${con}\0" \
