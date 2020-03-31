@@ -133,11 +133,7 @@
 #define PART6_OFFS			0x004c0000
 #define PART6_MASK			0x00000000
 
-#ifdef ONENAND_SUPPORT
-
 #define CONFIG_SYS_ONENAND_BASE		ONENAND_MAP
-
-#endif
 
 /* Watchdog support */
 #define CONFIG_HW_WATCHDOG
@@ -163,13 +159,7 @@ int rx51_kp_getc(struct stdio_dev *sdev);
 #endif
 
 /* Environment information */
-#ifdef CONFIG_MTDPARTS_DEFAULT
-#define MTDPARTS "mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"
-#else
-#define MTDPARTS
-#endif
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	MTDPARTS \
 	"usbtty=cdc_acm\0" \
 	"stdin=vga\0" \
 	"stdout=vga\0" \
