@@ -25,12 +25,6 @@
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_NOKIA_RX51
 
-/*
- * Nokia X-Loader loading secondary image to address 0x80400000
- * NOLO loading boot image to random place, so it doesn't really
- * matter what we set this to. We have to copy u-boot to this address
- */
-
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <asm/arch/omap.h>
 #include <asm/arch/mem.h>
