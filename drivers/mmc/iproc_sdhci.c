@@ -188,7 +188,7 @@ static int iproc_sdhci_probe(struct udevice *dev)
 	host->ioaddr = (void *)devfdt_get_addr(dev);
 	host->voltages = MMC_VDD_165_195 |
 			 MMC_VDD_32_33 | MMC_VDD_33_34;
-	host->quirks = SDHCI_QUIRK_BROKEN_VOLTAGE;
+	host->quirks = SDHCI_QUIRK_BROKEN_VOLTAGE | SDHCI_QUIRK_BROKEN_R1B;
 	host->host_caps = MMC_MODE_DDR_52MHz;
 	host->index = fdtdec_get_uint(gd->fdt_blob, node, "index", 0);
 	host->ops = &sdhci_platform_ops;
