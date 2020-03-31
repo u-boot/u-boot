@@ -91,48 +91,6 @@
  * Board ONENAND Info.
  */
 
-#define PART1_NAME			"bootloader"
-#define PART1_SIZE			128
-#define PART1_MULL			1024
-#define PART1_SUFF			"k"
-#define PART1_OFFS			0x00000000
-#define PART1_MASK			0x00000003
-
-#define PART2_NAME			"config"
-#define PART2_SIZE			384
-#define PART2_MULL			1024
-#define PART2_SUFF			"k"
-#define PART2_OFFS			0x00020000
-#define PART2_MASK			0x00000000
-
-#define PART3_NAME			"log"
-#define PART3_SIZE			256
-#define PART3_MULL			1024
-#define PART3_SUFF			"k"
-#define PART3_OFFS			0x00080000
-#define PART3_MASK			0x00000000
-
-#define PART4_NAME			"kernel"
-#define PART4_SIZE			2
-#define PART4_MULL			1024*1024
-#define PART4_SUFF			"m"
-#define PART4_OFFS			0x000c0000
-#define PART4_MASK			0x00000000
-
-#define PART5_NAME			"initfs"
-#define PART5_SIZE			2
-#define PART5_MULL			1024*1024
-#define PART5_SUFF			"m"
-#define PART5_OFFS			0x002c0000
-#define PART5_MASK			0x00000000
-
-#define PART6_NAME			"rootfs"
-#define PART6_SIZE			257280
-#define PART6_MULL			1024
-#define PART6_SUFF			"k"
-#define PART6_OFFS			0x004c0000
-#define PART6_MASK			0x00000000
-
 #define CONFIG_SYS_ONENAND_BASE		ONENAND_MAP
 
 /* Watchdog support */
