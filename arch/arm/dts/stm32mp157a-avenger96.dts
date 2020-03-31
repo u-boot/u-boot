@@ -327,7 +327,7 @@
 
 &sdmmc2 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&sdmmc2_b4_pins_a &sdmmc2_d47_pins_a>;
+	pinctrl-0 = <&sdmmc2_b4_pins_a &sdmmc2_d47_pins_b>;
 	non-removable;
 	no-sd;
 	no-sdio;
