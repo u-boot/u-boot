@@ -87,6 +87,7 @@ static char *boot_reason_ptr;
 static char *hw_build_ptr;
 static char *nolo_version_ptr;
 static char *boot_mode_ptr;
+static int serial_was_console_enabled;
 
 /*
  * Routine: init_omap_tags
@@ -142,6 +143,13 @@ static void reuse_omap_atags(struct tag_omap *t)
 				memset(boot_mode_ptr, 0, 12);
 				strcpy(boot_mode_ptr, version);
 			}
+			break;
+		case OMAP_TAG_UART:
+			if (!t->u.uart.enabled_uarts)
+				serial_was_console_enabled = 1;
+			break;
+		case OMAP_TAG_SERIAL_CONSOLE:
+			serial_was_console_enabled = 1;
 			break;
 		default:
 			break;
@@ -233,10 +241,17 @@ void setup_board_tags(struct tag **in_params)
 		return;
 
 	str = env_get("setup_console_atag");
-	if (str && str[0] == '1')
-		setup_console_atag = 1;
-	else
-		setup_console_atag = 0;
+	if (str && str[0]) {
+		if (str[0] == '1')
+			setup_console_atag = 1;
+		else
+			setup_console_atag = 0;
+	} else {
+		if (serial_was_console_enabled)
+			setup_console_atag = 1;
+		else
+			setup_console_atag = 0;
+	}
 
 	setup_boot_reason_atag = env_get("setup_boot_reason_atag");
 	setup_boot_mode_atag = env_get("setup_boot_mode_atag");
