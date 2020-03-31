@@ -931,6 +931,27 @@
 				};
 			};
 
+			sdmmc2_d47_pins_b: sdmmc2-d47-1 {
+				pins {
+					pinmux = <STM32_PINMUX('A', 8, AF9)>, /* SDMMC2_D4 */
+						 <STM32_PINMUX('A', 15, AF9)>, /* SDMMC2_D5 */
+						 <STM32_PINMUX('C', 6, AF10)>, /* SDMMC2_D6 */
+						 <STM32_PINMUX('C', 7, AF10)>; /* SDMMC2_D7 */
+					slew-rate = <1>;
+					drive-push-pull;
+					bias-pull-up;
+				};
+			};
+
+			sdmmc2_d47_sleep_pins_b: sdmmc2-d47-sleep-1 {
+				pins {
+					pinmux = <STM32_PINMUX('A', 8, ANALOG)>, /* SDMMC2_D4 */
+						 <STM32_PINMUX('A', 15, ANALOG)>, /* SDMMC2_D5 */
+						 <STM32_PINMUX('C', 6, ANALOG)>, /* SDMMC2_D6 */
+						 <STM32_PINMUX('C', 7, ANALOG)>; /* SDMMC2_D7 */
+				};
+			};
+
 			spdifrx_pins_a: spdifrx-0 {
 				pins {
 					pinmux = <STM32_PINMUX('G', 12, AF8)>; /* SPDIF_IN1 */
