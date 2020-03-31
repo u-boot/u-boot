@@ -212,17 +212,17 @@ static int iproc_sdhci_probe(struct udevice *dev)
 
 	memcpy(&iproc_host->host, host, sizeof(struct sdhci_host));
 
+	iproc_host->host.mmc = &plat->mmc;
+	iproc_host->host.mmc->dev = dev;
+	iproc_host->host.mmc->priv = &iproc_host->host;
+	upriv->mmc = iproc_host->host.mmc;
+
 	ret = sdhci_setup_cfg(&plat->cfg, &iproc_host->host,
 			      f_min_max[1], f_min_max[0]);
 	if (ret) {
 		free(iproc_host);
 		return ret;
 	}
-
-	iproc_host->host.mmc = &plat->mmc;
-	iproc_host->host.mmc->dev = dev;
-	iproc_host->host.mmc->priv = &iproc_host->host;
-	upriv->mmc = iproc_host->host.mmc;
 
 	return sdhci_probe(dev);
 }
