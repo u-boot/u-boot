@@ -92,6 +92,17 @@
 		states = <1800000 0x1>,
 			 <2900000 0x0>;
 	};
+
+	/* Enpirion EP3A8LQI U2 on the DHCOR */
+	vdd_io: regulator-buck-io {
+		compatible = "regulator-fixed";
+		regulator-name = "buck-io";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		regulator-always-on;
+		regulator-boot-on;
+		vin-supply = <&vdd>;
+	};
 };
 
 &ethernet0 {
@@ -168,7 +179,7 @@
 
 			vddcore: buck1 {
 				regulator-name = "vddcore";
-				regulator-min-microvolt = <1200000>;
+				regulator-min-microvolt = <800000>;
 				regulator-max-microvolt = <1350000>;
 				regulator-always-on;
 				regulator-initial-mode = <0>;
@@ -186,8 +197,8 @@
 
 			vdd: buck3 {
 				regulator-name = "vdd";
-				regulator-min-microvolt = <3300000>;
-				regulator-max-microvolt = <3300000>;
+				regulator-min-microvolt = <2900000>;
+				regulator-max-microvolt = <2900000>;
 				regulator-always-on;
 				st,mask_reset;
 				regulator-initial-mode = <0>;
@@ -269,6 +280,7 @@
 				regulator-name = "vbus_otg";
 				interrupts = <IT_OCP_OTG 0>;
 				interrupt-parent = <&pmic>;
+				regulator-active-discharge = <1>;
 			};
 
 			vbus_sw: pwr_sw2 {
@@ -305,7 +317,7 @@
 };
 
 &pwr_regulators {
-	vdd-supply = <&vdd>;
+	vdd-supply = <&vdd_io>;
 	vdd_3v3_usbfs-supply = <&vdd_usb>;
 };
 
