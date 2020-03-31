@@ -102,6 +102,7 @@
 	phy-mode = "rgmii";
 	max-speed = <1000>;
 	phy-handle = <&phy0>;
+	phy-reset-gpios = <&gpioz 2 GPIO_ACTIVE_LOW>;
 
 	mdio0 {
 		#address-cells = <1>;
