@@ -33,6 +33,38 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define BOOTROM_SHARED_MEM_SIZE		0x800	/* 2KB */
+#define BOOTROM_SHARED_MEM_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + \
+					 SOCFPGA_PHYS_OCRAM_SIZE - \
+					 BOOTROM_SHARED_MEM_SIZE)
+#define RST_STATUS_SHARED_ADDR		(BOOTROM_SHARED_MEM_ADDR + 0x438)
+static u32 rst_mgr_status __section(.data);
+
+/*
+ * Bootrom will clear the status register in reset manager and stores the
+ * reset status value in shared memory. Bootrom stores shared data at last
+ * 2KB of onchip RAM.
+ * This function save reset status provided by BootROM to rst_mgr_status.
+ * More information about reset status register value can be found in reset
+ * manager register description.
+ * When running in debugger without Bootrom, r0 to r3 are random values.
+ * So, skip save the value when r0 is not BootROM shared data address.
+ *
+ * r0 - Contains the pointer to the shared memory block. The shared
+ *	memory block is located in the top 2 KB of on-chip RAM.
+ * r1 - contains the length of the shared memory.
+ * r2 - unused and set to 0x0.
+ * r3 - points to the version block.
+ */
+void save_boot_params(unsigned long r0, unsigned long r1, unsigned long r2,
+		      unsigned long r3)
+{
+	if (r0 == BOOTROM_SHARED_MEM_ADDR)
+		rst_mgr_status = readl(RST_STATUS_SHARED_ADDR);
+
+	save_boot_params_ret();
+}
+
 u32 spl_boot_device(void)
 {
 	const u32 bsel = readl(socfpga_get_sysmgr_addr() + SYSMGR_A10_BOOTINFO);
