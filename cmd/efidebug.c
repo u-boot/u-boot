@@ -489,10 +489,12 @@ static int do_efi_show_memmap(cmd_tbl_t *cmdtp, int flag,
 
 		printf("%-16s %.*llx-%.*llx", type,
 		       EFI_PHYS_ADDR_WIDTH,
-		       (u64)map_to_sysmem((void *)map->physical_start),
+		       (u64)map_to_sysmem((void *)(uintptr_t)
+					  map->physical_start),
 		       EFI_PHYS_ADDR_WIDTH,
-		       (u64)map_to_sysmem((void *)map->physical_start +
-					  map->num_pages * EFI_PAGE_SIZE));
+		       (u64)map_to_sysmem((void *)(uintptr_t)
+					  (map->physical_start +
+					   map->num_pages * EFI_PAGE_SIZE)));
 
 		print_memory_attributes(map->attribute);
 		putc('\n');
