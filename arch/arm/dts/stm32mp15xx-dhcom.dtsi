@@ -10,6 +10,10 @@
 #include <dt-bindings/mfd/st,stpmic1.h>
 
 / {
+	aliases {
+		eeprom0 = &eeprom0;
+	};
+
 	memory@c0000000 {
 		device_type = "memory";
 		reg = <0xC0000000 0x40000000>;
@@ -187,7 +191,7 @@
 		};
 	};
 
-	eeprom@50 {
+	eeprom0: eeprom@50 {
 		compatible = "atmel,24c02";
 		reg = <0x50>;
 		pagesize = <16>;

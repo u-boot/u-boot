@@ -78,22 +78,21 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int setup_mac_address(void)
 {
-	struct udevice *dev;
-	ofnode eeprom;
 	unsigned char enetaddr[6];
-	int ret;
+	struct udevice *dev;
+	int off, ret;
 
 	ret = eth_env_get_enetaddr("ethaddr", enetaddr);
 	if (ret)	/* ethaddr is already set */
 		return 0;
 
-	eeprom = ofnode_path("/soc/i2c@5c002000/eeprom@50");
-	if (!ofnode_valid(eeprom)) {
-		printf("Invalid hardware path to EEPROM!\n");
-		return -ENODEV;
+	off = fdt_path_offset(gd->fdt_blob, "eeprom0");
+	if (off < 0) {
+		printf("%s: No eeprom0 path offset\n", __func__);
+		return off;
 	}
 
-	ret = uclass_get_device_by_ofnode(UCLASS_I2C_EEPROM, eeprom, &dev);
+	ret = uclass_get_device_by_of_offset(UCLASS_I2C_EEPROM, off, &dev);
 	if (ret) {
 		printf("Cannot find EEPROM!\n");
 		return ret;
