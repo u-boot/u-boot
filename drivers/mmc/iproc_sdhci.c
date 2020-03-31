@@ -176,8 +176,7 @@ static int iproc_sdhci_probe(struct udevice *dev)
 	u32 f_min_max[2];
 	int ret;
 
-	iproc_host = (struct sdhci_iproc_host *)
-			malloc(sizeof(struct sdhci_iproc_host));
+	iproc_host = malloc(sizeof(struct sdhci_iproc_host));
 	if (!iproc_host) {
 		printf("%s: sdhci host malloc fail!\n", __func__);
 		return -ENOMEM;
@@ -198,6 +197,7 @@ static int iproc_sdhci_probe(struct udevice *dev)
 				   "clock-freq-min-max", f_min_max, 2);
 	if (ret) {
 		printf("sdhci: clock-freq-min-max not found\n");
+		free(iproc_host);
 		return ret;
 	}
 	host->max_clk = f_min_max[1];
@@ -212,8 +212,10 @@ static int iproc_sdhci_probe(struct udevice *dev)
 
 	ret = sdhci_setup_cfg(&plat->cfg, &iproc_host->host,
 			      f_min_max[1], f_min_max[0]);
-	if (ret)
+	if (ret) {
+		free(iproc_host);
 		return ret;
+	}
 
 	iproc_host->host.mmc = &plat->mmc;
 	iproc_host->host.mmc->dev = dev;
