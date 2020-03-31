@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <clk.h>
 #include <dm.h>
 #include <errno.h>
 #include <malloc.h>
@@ -27,6 +28,8 @@ enum {
 	SPI_MODE_EN    = BIT(31 - 7),	/* Enable interface */
 
 	SPI_MODE_LEN_MASK = 0xf00000,
+	SPI_MODE_LEN_SHIFT = 20,
+	SPI_MODE_PM_SHIFT = 16,
 	SPI_MODE_PM_MASK = 0xf0000,
 
 	SPI_COM_LST = BIT(31 - 9),
@@ -35,46 +38,38 @@ enum {
 struct mpc8xxx_priv {
 	spi8xxx_t *spi;
 	struct gpio_desc gpios[16];
-	int max_cs;
+	int cs_count;
+	ulong clk_rate;
 };
 
-static inline u32 to_prescale_mod(u32 val)
-{
-	return (min(val, (u32)15) << 16);
-}
-
-static void set_char_len(spi8xxx_t *spi, u32 val)
-{
-	clrsetbits_be32(&spi->mode, SPI_MODE_LEN_MASK, (val << 20));
-}
-
 #define SPI_TIMEOUT	1000
-
-static int __spi_set_speed(spi8xxx_t *spi, uint speed)
-{
-	/* TODO(mario.six@gdsys.cc): This only ever sets one fixed speed */
-
-	/* Use SYSCLK / 8 (16.67MHz typ.) */
-	clrsetbits_be32(&spi->mode, SPI_MODE_PM_MASK, to_prescale_mod(1));
-
-	return 0;
-}
 
 static int mpc8xxx_spi_ofdata_to_platdata(struct udevice *dev)
 {
 	struct mpc8xxx_priv *priv = dev_get_priv(dev);
+	struct clk clk;
 	int ret;
 
 	priv->spi = (spi8xxx_t *)dev_read_addr(dev);
-
-	/* TODO(mario.six@gdsys.cc): Read clock and save the value */
 
 	ret = gpio_request_list_by_name(dev, "gpios", priv->gpios,
 					ARRAY_SIZE(priv->gpios), GPIOD_IS_OUT | GPIOD_ACTIVE_LOW);
 	if (ret < 0)
 		return -EINVAL;
 
-	priv->max_cs = ret;
+	priv->cs_count = ret;
+
+	ret = clk_get_by_index(dev, 0, &clk);
+	if (ret) {
+		dev_err(dev, "%s: clock not defined\n", __func__);
+		return ret;
+	}
+
+	priv->clk_rate = clk_get_rate(&clk);
+	if (!priv->clk_rate) {
+		dev_err(dev, "%s: failed to get clock rate\n", __func__);
+		return -EINVAL;
+	}
 
 	return 0;
 }
@@ -82,14 +77,18 @@ static int mpc8xxx_spi_ofdata_to_platdata(struct udevice *dev)
 static int mpc8xxx_spi_probe(struct udevice *dev)
 {
 	struct mpc8xxx_priv *priv = dev_get_priv(dev);
+	spi8xxx_t *spi = priv->spi;
 
 	/*
 	 * SPI pins on the MPC83xx are not muxed, so all we do is initialize
 	 * some registers
 	 */
-	out_be32(&priv->spi->mode, SPI_MODE_REV | SPI_MODE_MS | SPI_MODE_EN);
+	out_be32(&priv->spi->mode, SPI_MODE_REV | SPI_MODE_MS);
 
-	__spi_set_speed(priv->spi, 16666667);
+	/* set len to 8 bits */
+	setbits_be32(&spi->mode, (8 - 1) << SPI_MODE_LEN_SHIFT);
+
+	setbits_be32(&spi->mode, SPI_MODE_EN);
 
 	/* Clear all SPI events */
 	setbits_be32(&priv->spi->event, 0xffffffff);
@@ -126,45 +125,35 @@ static int mpc8xxx_spi_xfer(struct udevice *dev, uint bitlen,
 	struct mpc8xxx_priv *priv = dev_get_priv(bus);
 	spi8xxx_t *spi = priv->spi;
 	struct dm_spi_slave_platdata *platdata = dev_get_parent_platdata(dev);
-	u32 tmpdin = 0;
-	int num_blks = DIV_ROUND_UP(bitlen, 32);
+	u32 tmpdin = 0, tmpdout = 0, n;
+	const u8 *cout = dout;
+	u8 *cin = din;
 
 	debug("%s: slave %s:%u dout %08X din %08X bitlen %u\n", __func__,
-	      bus->name, platdata->cs, *(uint *)dout, *(uint *)din, bitlen);
+	      bus->name, platdata->cs, (uint)dout, (uint)din, bitlen);
+	if (platdata->cs >= priv->cs_count) {
+		dev_err(dev, "chip select index %d too large (cs_count=%d)\n",
+			platdata->cs, priv->cs_count);
+		return -EINVAL;
+	}
+	if (bitlen % 8) {
+		printf("*** spi_xfer: bitlen must be multiple of 8\n");
+		return -ENOTSUPP;
+	}
 
 	if (flags & SPI_XFER_BEGIN)
 		mpc8xxx_spi_cs_activate(dev);
 
 	/* Clear all SPI events */
 	setbits_be32(&spi->event, 0xffffffff);
+	n = bitlen / 8;
 
-	/* Handle data in 32-bit chunks */
-	while (num_blks--) {
-		u32 tmpdout = 0;
-		uchar xfer_bitlen = (bitlen >= 32 ? 32 : bitlen);
+	/* Handle data in 8-bit chunks */
+	while (n--) {
 		ulong start;
 
-		clrbits_be32(&spi->mode, SPI_MODE_EN);
-
-		/* Set up length for this transfer */
-
-		if (bitlen <= 4) /* 4 bits or less */
-			set_char_len(spi, 3);
-		else if (bitlen <= 16) /* at most 16 bits */
-			set_char_len(spi, bitlen - 1);
-		else /* more than 16 bits -> full 32 bit transfer */
-			set_char_len(spi, 0);
-
-		setbits_be32(&spi->mode, SPI_MODE_EN);
-
-		/* Shift data so it's msb-justified */
-		tmpdout = *(u32 *)dout >> (32 - xfer_bitlen);
-
-		if (bitlen > 32) {
-			/* Set up the next iteration if sending > 32 bits */
-			bitlen -= 32;
-			dout += 4;
-		}
+		if (cout)
+			tmpdout = *cout++;
 
 		/* Write the data out */
 		out_be32(&spi->tx, tmpdout);
@@ -188,11 +177,8 @@ static int mpc8xxx_spi_xfer(struct udevice *dev, uint bitlen,
 			tmpdin = in_be32(&spi->rx);
 			setbits_be32(&spi->event, SPI_EV_NE);
 
-			*(u32 *)din = (tmpdin << (32 - xfer_bitlen));
-			if (xfer_bitlen == 32) {
-				/* Advance output buffer by 32 bits */
-				din += 4;
-			}
+			if (cin)
+				*cin++ = tmpdin;
 
 			/*
 			 * Only bail when we've had both NE and NF events.
@@ -224,8 +210,43 @@ static int mpc8xxx_spi_xfer(struct udevice *dev, uint bitlen,
 static int mpc8xxx_spi_set_speed(struct udevice *dev, uint speed)
 {
 	struct mpc8xxx_priv *priv = dev_get_priv(dev);
+	spi8xxx_t *spi = priv->spi;
+	u32 bits, mask, div16, pm;
+	u32 mode;
+	ulong clk;
 
-	return __spi_set_speed(priv->spi, speed);
+	clk = priv->clk_rate;
+	if (clk / 64 > speed) {
+		div16 = SPI_MODE_DIV16;
+		clk /= 16;
+	} else {
+		div16 = 0;
+	}
+	pm = (clk - 1)/(4*speed) + 1;
+	if (pm > 16) {
+		dev_err(dev, "requested speed %u too small\n", speed);
+		return -EINVAL;
+	}
+	pm--;
+
+	bits = div16 | (pm << SPI_MODE_PM_SHIFT);
+	mask = SPI_MODE_DIV16 | SPI_MODE_PM_MASK;
+	mode = in_be32(&spi->mode);
+	if ((mode & mask) != bits) {
+		/* Must clear mode[EN] while changing speed. */
+		mode &= ~(mask | SPI_MODE_EN);
+		out_be32(&spi->mode, mode);
+		mode |= bits;
+		out_be32(&spi->mode, mode);
+		mode |= SPI_MODE_EN;
+		out_be32(&spi->mode, mode);
+	}
+
+	debug("requested speed %u, set speed to %lu/(%s4*%u) == %lu\n",
+	      speed, priv->clk_rate, div16 ? "16*" : "", pm + 1,
+	      clk/(4*(pm + 1)));
+
+	return 0;
 }
 
 static int mpc8xxx_spi_set_mode(struct udevice *dev, uint mode)

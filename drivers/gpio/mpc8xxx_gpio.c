@@ -57,27 +57,6 @@ static inline u32 mpc8xxx_gpio_get_dir(struct ccsr_gpio *base, u32 mask)
 	return in_be32(&base->gpdir) & mask;
 }
 
-static inline void mpc8xxx_gpio_set_in(struct ccsr_gpio *base, u32 gpios)
-{
-	clrbits_be32(&base->gpdat, gpios);
-	/* GPDIR register 0 -> input */
-	clrbits_be32(&base->gpdir, gpios);
-}
-
-static inline void mpc8xxx_gpio_set_low(struct ccsr_gpio *base, u32 gpios)
-{
-	clrbits_be32(&base->gpdat, gpios);
-	/* GPDIR register 1 -> output */
-	setbits_be32(&base->gpdir, gpios);
-}
-
-static inline void mpc8xxx_gpio_set_high(struct ccsr_gpio *base, u32 gpios)
-{
-	setbits_be32(&base->gpdat, gpios);
-	/* GPDIR register 1 -> output */
-	setbits_be32(&base->gpdir, gpios);
-}
-
 static inline int mpc8xxx_gpio_open_drain_val(struct ccsr_gpio *base, u32 mask)
 {
 	return in_be32(&base->gpodr) & mask;
@@ -100,22 +79,32 @@ static inline void mpc8xxx_gpio_open_drain_off(struct ccsr_gpio *base,
 static int mpc8xxx_gpio_direction_input(struct udevice *dev, uint gpio)
 {
 	struct mpc8xxx_gpio_data *data = dev_get_priv(dev);
+	u32 mask = gpio_mask(gpio);
 
-	mpc8xxx_gpio_set_in(data->base, gpio_mask(gpio));
+	/* GPDIR register 0 -> input */
+	clrbits_be32(&data->base->gpdir, mask);
+
 	return 0;
 }
 
 static int mpc8xxx_gpio_set_value(struct udevice *dev, uint gpio, int value)
 {
 	struct mpc8xxx_gpio_data *data = dev_get_priv(dev);
+	struct ccsr_gpio *base = data->base;
+	u32 mask = gpio_mask(gpio);
+	u32 gpdir;
 
 	if (value) {
-		data->dat_shadow |= gpio_mask(gpio);
-		mpc8xxx_gpio_set_high(data->base, gpio_mask(gpio));
+		data->dat_shadow |= mask;
 	} else {
-		data->dat_shadow &= ~gpio_mask(gpio);
-		mpc8xxx_gpio_set_low(data->base, gpio_mask(gpio));
+		data->dat_shadow &= ~mask;
 	}
+
+	gpdir = in_be32(&base->gpdir);
+	gpdir |= gpio_mask(gpio);
+	out_be32(&base->gpdat, gpdir & data->dat_shadow);
+	out_be32(&base->gpdir, gpdir);
+
 	return 0;
 }
 
