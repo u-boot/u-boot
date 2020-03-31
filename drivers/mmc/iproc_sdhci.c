@@ -136,7 +136,7 @@ static void sdhci_iproc_writeb(struct sdhci_host *host, u8 val, int reg)
 }
 #endif
 
-static void sdhci_iproc_set_ios_post(struct sdhci_host *host)
+static int sdhci_iproc_set_ios_post(struct sdhci_host *host)
 {
 	u32 ctrl = sdhci_readw(host, SDHCI_HOST_CONTROL2);
 
@@ -147,6 +147,8 @@ static void sdhci_iproc_set_ios_post(struct sdhci_host *host)
 		ctrl |= UHS_DDR50_BUS_SPEED;
 
 	sdhci_writew(host, ctrl, SDHCI_HOST_CONTROL2);
+
+	return 0;
 }
 
 static struct sdhci_ops sdhci_platform_ops = {
