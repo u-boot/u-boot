@@ -329,8 +329,21 @@ F:	drivers/usb/host/ehci-msm.c
 ARM STI
 M:	Patrice Chotard <patrice.chotard@st.com>
 S:	Maintained
+T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-stm.git
 F:	arch/arm/mach-sti/
 F:	arch/arm/include/asm/arch-sti*/
+F:	drivers/phy/sti_usb_phy.c
+F:	drivers/pinctrl/pinctrl-sti.c
+F:	drivers/mmc/sti_sdhci.c
+F:	drivers/reset/sti-reset.c
+F:	drivers/serial/serial_sti_asc.c
+F:	drivers/sysreset/sysreset_sti.c
+F:	drivers/timer/sti-timer.c
+F:	drivers/usb/host/dwc3-sti-glue.c
+F:	include/dwc3-sti-glue.h
+F:	include/dt-bindings/clock/stih407-clks.h
+F:	include/dt-bindings/clock/stih410-clks.h
+F:	include/dt-bindings/reset/stih407-resets.h
 
 ARM STM SPEAR
 #M:	Vipin Kumar <vipin.kumar@st.com>
@@ -513,6 +526,13 @@ BINMAN
 M:	Simon Glass <sjg@chromium.org>
 S:	Maintained
 F:	tools/binman/
+
+BTRFS
+M:	Marek Behun <marek.behun@nic.cz>
+S:	Maintained
+F:	cmd/btrfs.c
+F:	fs/btrfs/
+F:	include/btrfs.h
 
 BUILDMAN
 M:	Simon Glass <sjg@chromium.org>
@@ -924,6 +944,7 @@ T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-usb.git
 F:	drivers/usb/
 F:	common/usb.c
 F:	common/usb_kbd.c
+F:	include/usb.h
 
 USB xHCI
 M:	Bin Meng <bmeng.cn@gmail.com>

@@ -9,7 +9,6 @@
 
 #include <common.h>
 #include <dm.h>
-#include <fdtdec.h>
 #include <generic-phy.h>
 #include <usb.h>
 #include <dwc3-uboot.h>
@@ -155,7 +154,7 @@ static int xhci_dwc3_probe(struct udevice *dev)
 
 	writel(reg, &dwc3_reg->g_usb2phycfg[0]);
 
-	dr_mode = usb_get_dr_mode(dev_of_offset(dev));
+	dr_mode = usb_get_dr_mode(dev->node);
 	if (dr_mode == USB_DR_MODE_UNKNOWN)
 		/* by default set dual role mode to HOST */
 		dr_mode = USB_DR_MODE_HOST;

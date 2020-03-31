@@ -47,7 +47,7 @@ void *memmove(void *dest, const void *src, size_t n)
 	u8 *d = dest;
 	const u8 *s = src;
 
-	if (d >= s) {
+	if (d <= s) {
 		for (; n; --n)
 			*d++ = *s++;
 	} else {

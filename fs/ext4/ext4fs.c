@@ -288,7 +288,7 @@ int ext_cache_read(struct ext_block_cache *cache, lbaint_t block, int size)
 	if (cache->buf && cache->block == block && cache->size == size)
 		return 1;
 	ext_cache_fini(cache);
-	cache->buf = malloc(size);
+	cache->buf = memalign(ARCH_DMA_MINALIGN, size);
 	if (!cache->buf)
 		return 0;
 	if (!ext4fs_devread(block, 0, size, cache->buf)) {

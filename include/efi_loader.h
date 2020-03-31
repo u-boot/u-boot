@@ -457,6 +457,20 @@ efi_status_t efi_remove_all_protocols(const efi_handle_t handle);
 /* Install multiple protocol interfaces */
 efi_status_t EFIAPI efi_install_multiple_protocol_interfaces
 				(efi_handle_t *handle, ...);
+/* Get handles that support a given protocol */
+efi_status_t EFIAPI efi_locate_handle_buffer(
+			enum efi_locate_search_type search_type,
+			const efi_guid_t *protocol, void *search_key,
+			efi_uintn_t *no_handles, efi_handle_t **buffer);
+/* Close an previously opened protocol interface */
+efi_status_t EFIAPI efi_close_protocol(efi_handle_t handle,
+				       const efi_guid_t *protocol,
+				       efi_handle_t agent_handle,
+				       efi_handle_t controller_handle);
+/* Open a protocol interface */
+efi_status_t EFIAPI efi_handle_protocol(efi_handle_t handle,
+					const efi_guid_t *protocol,
+					void **protocol_interface);
 /* Call this to create an event */
 efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
 			      void (EFIAPI *notify_function) (
@@ -631,7 +645,7 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
 				     efi_uintn_t *data_size, void *data);
 efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
 					       u16 *variable_name,
-					       const efi_guid_t *vendor);
+					       efi_guid_t *vendor);
 efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
 				     const efi_guid_t *vendor, u32 attributes,
 				     efi_uintn_t data_size, const void *data);

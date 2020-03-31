@@ -85,6 +85,8 @@ static int coldfire_serial_probe(struct udevice *dev)
 {
 	struct coldfire_serial_platdata *plat = dev->platdata;
 
+	plat->port = dev->seq;
+
 	return mcf_serial_init_common((uart_t *)plat->base,
 						plat->port, plat->baudrate);
 }
@@ -148,8 +150,6 @@ static int coldfire_ofdata_to_platdata(struct udevice *dev)
 		return -ENODEV;
 
 	plat->base = (uint32_t)addr_base;
-
-	plat->port = dev->seq;
 	plat->baudrate = gd->baudrate;
 
 	return 0;

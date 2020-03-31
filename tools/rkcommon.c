@@ -307,11 +307,13 @@ static int rkcommon_parse_header(const void *buf, struct header0_info *header0,
 					   rkcommon_offset_to_spi(hdr1_offset));
 
 	for (i = 0; i < ARRAY_SIZE(spl_infos); i++) {
-		if (!memcmp(&hdr1_sdmmc->magic, spl_infos[i].spl_hdr, 4)) {
+		if (!memcmp(&hdr1_sdmmc->magic, spl_infos[i].spl_hdr,
+			    RK_SPL_HDR_SIZE)) {
 			if (spl_info)
 				*spl_info = &spl_infos[i];
 			return IH_TYPE_RKSD;
-		} else if (!memcmp(&hdr1_spi->magic, spl_infos[i].spl_hdr, 4)) {
+		} else if (!memcmp(&hdr1_spi->magic, spl_infos[i].spl_hdr,
+				   RK_SPL_HDR_SIZE)) {
 			if (spl_info)
 				*spl_info = &spl_infos[i];
 			return IH_TYPE_RKSPI;

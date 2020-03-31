@@ -210,8 +210,21 @@ config NR_CPUS
 	  Stack memory is pre-allocated. U-Boot must therefore know the
 	  maximum number of CPUs that may be present.
 
+config SBI
+	bool
+	default y if RISCV_SMODE || SPL_RISCV_SMODE
+
+config SBI_V01
+	bool "SBI v0.1 support"
+	default y
+	depends on SBI
+	help
+	  This config allows kernel to use SBI v0.1 APIs. This will be
+	  deprecated in future once legacy M-mode software are no longer in use.
+
 config SBI_IPI
 	bool
+	depends on SBI
 	default y if RISCV_SMODE || SPL_RISCV_SMODE
 	depends on SMP
 

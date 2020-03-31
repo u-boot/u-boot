@@ -1039,13 +1039,12 @@ void dwc2_phy_shutdown(struct udevice *dev, struct phy *usb_phys, int num_phys)
 static int dwc2_udc_otg_ofdata_to_platdata(struct udevice *dev)
 {
 	struct dwc2_plat_otg_data *platdata = dev_get_platdata(dev);
-	int node = dev_of_offset(dev);
 	ulong drvdata;
 	void (*set_params)(struct dwc2_plat_otg_data *data);
 	int ret;
 
-	if (usb_get_dr_mode(node) != USB_DR_MODE_PERIPHERAL &&
-	    usb_get_dr_mode(node) != USB_DR_MODE_OTG) {
+	if (usb_get_dr_mode(dev->node) != USB_DR_MODE_PERIPHERAL &&
+	    usb_get_dr_mode(dev->node) != USB_DR_MODE_OTG) {
 		dev_dbg(dev, "Invalid mode\n");
 		return -ENODEV;
 	}
