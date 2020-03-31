@@ -16,6 +16,7 @@
 	compatible = "arrow,stm32mp157a-avenger96", "st,stm32mp157";
 
 	aliases {
+		eeprom0 = &eeprom0;
 		ethernet0 = &ethernet0;
 		mmc0 = &sdmmc1;
 		serial0 = &uart4;
@@ -288,6 +289,12 @@
 			compatible = "st,stpmic1-wdt";
 			status = "disabled";
 		};
+	};
+
+	eeprom0: eeprom@53 {
+		compatible = "atmel,24c02";
+		reg = <0x53>;
+		pagesize = <16>;
 	};
 };
 
