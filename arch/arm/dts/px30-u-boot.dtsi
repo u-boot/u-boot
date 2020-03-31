@@ -12,6 +12,12 @@
 	chosen {
 		u-boot,spl-boot-order = &emmc, &sdmmc;
 	};
+
+	rng: rng@ff0b0000 {
+		compatible = "rockchip,cryptov2-rng";
+		reg = <0x0 0xff0b0000 0x0 0x4000>;
+		status = "disabled";
+	};
 };
 
 &dmc {

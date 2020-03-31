@@ -4,3 +4,7 @@
  */
 
 #include "px30-u-boot.dtsi"
+
+&rng {
+	status = "okay";
+};
