@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2011-2012
- * Pali Rohár <pali.rohar@gmail.com>
+ * Pali Rohár <pali@kernel.org>
  *
  * (C) Copyright 2010
  * Alistair Buxton <a.j.buxton@gmail.com>
