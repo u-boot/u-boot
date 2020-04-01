@@ -371,6 +371,15 @@ int board_late_init_xilinx(void)
 	int i, id, macid = 0;
 	struct xilinx_board_description *desc;
 	phys_size_t bootm_size = gd->ram_size;
+	struct bd_info *bd = gd->bd;
+
+	if (bd->bi_dram[0].start) {
+		ulong scriptaddr;
+
+		scriptaddr = env_get_hex("scriptaddr", 0);
+		ret |= env_set_hex("scriptaddr",
+				   bd->bi_dram[0].start + scriptaddr);
+	}
 
 	if (CONFIG_IS_ENABLED(ARCH_ZYNQ))
 		bootm_size = min(bootm_size, (phys_size_t)(SZ_512M + SZ_256M));
