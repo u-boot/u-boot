@@ -150,9 +150,12 @@
 	};
 };
 
-&sdmmc1_dir_pins_a {
+&sdmmc1_dir_pins_b {
 	u-boot,dm-spl;
-	pins {
+	pins1 {
+		u-boot,dm-spl;
+	};
+	pins2 {
 		u-boot,dm-spl;
 	};
 };
@@ -171,7 +174,7 @@
 	};
 };
 
-&sdmmc2_d47_pins_a {
+&sdmmc2_d47_pins_b {
 	u-boot,dm-spl;
 	pins {
 		u-boot,dm-spl;
