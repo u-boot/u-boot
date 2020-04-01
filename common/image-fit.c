@@ -168,7 +168,7 @@ static void fit_image_print_data(const void *fit, int noffset, const char *p,
 	int value_len;
 	char *algo;
 	const char *padding;
-	int required;
+	bool required;
 	int ret, i;
 
 	debug("%s  %s node:    '%s'\n", p, type,
@@ -179,8 +179,8 @@ static void fit_image_print_data(const void *fit, int noffset, const char *p,
 		return;
 	}
 	printf("%s", algo);
-	keyname = fdt_getprop(fit, noffset, "key-name-hint", NULL);
-	required = fdt_getprop(fit, noffset, "required", NULL) != NULL;
+	keyname = fdt_getprop(fit, noffset, FIT_KEY_HINT, NULL);
+	required = fdt_getprop(fit, noffset, FIT_KEY_REQUIRED, NULL) != NULL;
 	if (keyname)
 		printf(":%s", keyname);
 	if (required)
@@ -1712,24 +1712,6 @@ int fit_conf_find_compat(const void *fit, const void *fdt)
 	return best_match_offset;
 }
 
-/**
- * fit_conf_get_node - get node offset for configuration of a given unit name
- * @fit: pointer to the FIT format image header
- * @conf_uname: configuration node unit name
- *
- * fit_conf_get_node() finds a configuration (within the '/configurations'
- * parent node) of a provided unit name. If configuration is found its node
- * offset is returned to the caller.
- *
- * When NULL is provided in second argument fit_conf_get_node() will search
- * for a default configuration node instead. Default configuration node unit
- * name is retrieved from FIT_DEFAULT_PROP property of the '/configurations'
- * node.
- *
- * returns:
- *     configuration node offset when found (>=0)
- *     negative number on failure (FDT_ERR_* code)
- */
 int fit_conf_get_node(const void *fit, const char *conf_uname)
 {
 	int noffset, confs_noffset;
@@ -1969,7 +1951,7 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 		fit_uname = fit_get_name(fit, noffset, NULL);
 	}
 	if (noffset < 0) {
-		puts("Could not find subimage node\n");
+		printf("Could not find subimage node type '%s'\n", prop_name);
 		bootstage_error(bootstage_id + BOOTSTAGE_SUB_SUBNODE);
 		return -ENOENT;
 	}
