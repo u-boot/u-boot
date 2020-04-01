@@ -118,7 +118,7 @@ int checkboard(void)
 
 	if (IS_ENABLED(CONFIG_STM32MP1_OPTEE))
 		mode = "trusted with OP-TEE";
-	else if (IS_ENABLED(CONFIG_STM32MP1_TRUSTED))
+	else if (IS_ENABLED(CONFIG_TFABOOT))
 		mode = "trusted";
 	else
 		mode = "basic";
@@ -283,7 +283,7 @@ static void __maybe_unused led_error_blink(u32 nb_blink)
 
 static void sysconf_init(void)
 {
-#ifndef CONFIG_STM32MP1_TRUSTED
+#ifndef CONFIG_TFABOOT
 	u8 *syscfg;
 #ifdef CONFIG_DM_REGULATOR
 	struct udevice *pwr_dev;
