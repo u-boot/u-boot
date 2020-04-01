@@ -126,6 +126,7 @@ config EFI_GRUB_ARM32_WORKAROUND
 config EFI_RNG_PROTOCOL
 	bool "EFI_RNG_PROTOCOL support"
 	depends on DM_RNG
+	default y
 	help
 	  Provide a EFI_RNG_PROTOCOL implementation using the hardware random
 	  number generator of the platform.
