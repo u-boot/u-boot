@@ -20,6 +20,12 @@
 /* Generic Interrupt Controller */
 #define CONFIG_GICV2
 
+#undef FDTFILE
+#define BOOTENV_EFI_SET_FDTFILE_FALLBACK                                  \
+        "if test -z \"${fdtfile}\" -a -n \"${soc}\"; then "               \
+          "setenv efi_fdtfile ${vendor}/${soc}-${board}${boardver}.dtb; "           \
+        "fi; "
+
 /*
  * Memory layout for where various images get loaded by boot scripts:
  *
@@ -49,7 +55,6 @@
 	"scriptaddr=0x90000000\0" \
 	"pxefile_addr_r=0x90100000\0" \
 	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
-	"fdtfile=" FDTFILE "\0" \
 	"fdt_addr_r=0x82000000\0" \
 	"ramdisk_addr_r=0x82100000\0"
 

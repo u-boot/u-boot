@@ -118,7 +118,9 @@
 	  "setenv efi_fdtfile ${soc}-${board}${boardver}.dtb; "           \
 	"fi; "
 #else
+#ifndef BOOTENV_EFI_SET_FDTFILE_FALLBACK
 #define BOOTENV_EFI_SET_FDTFILE_FALLBACK
+#endif
 #endif
 
 
