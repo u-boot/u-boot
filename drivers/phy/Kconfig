@@ -84,6 +84,13 @@ config BCM6368_USBH_PHY
 	help
 	  Support for the Broadcom MIPS BCM6368 USBH PHY.
 
+config BCM_SR_PCIE_PHY
+	bool "Broadcom Stingray PCIe PHY driver"
+	depends on PHY
+	help
+	  Enable this to support the Broadcom Stingray PCIe PHY
+	  If unsure, say N.
+
 config PHY_DA8XX_USB
 	tristate "TI DA8xx USB PHY Driver"
 	depends on PHY && ARCH_DAVINCI
