@@ -353,7 +353,6 @@
 	pinctrl-0 = <&sdmmc1_b4_pins_a &sdmmc1_dir_pins_b>;
 	pinctrl-1 = <&sdmmc1_b4_od_pins_a &sdmmc1_dir_pins_b>;
 	pinctrl-2 = <&sdmmc1_b4_sleep_pins_a &sdmmc1_dir_sleep_pins_b>;
-	cd-gpios = <&gpioi 8 GPIO_ACTIVE_LOW>;
 	disable-wp;
 	st,sig-dir;
 	st,neg-edge;
