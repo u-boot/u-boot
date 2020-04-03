@@ -33,34 +33,6 @@ int list_count_items(struct list_head *head)
 	return count;
 }
 
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
-bool dm_ofnode_pre_reloc(ofnode node)
-{
-#if defined(CONFIG_SPL_BUILD) || defined(CONFIG_TPL_BUILD)
-	/* for SPL and TPL the remaining nodes after the fdtgrep 1st pass
-	 * had property dm-pre-reloc or u-boot,dm-spl/tpl.
-	 * They are removed in final dtb (fdtgrep 2nd pass)
-	 */
-	return true;
-#else
-	if (ofnode_read_bool(node, "u-boot,dm-pre-reloc"))
-		return true;
-	if (ofnode_read_bool(node, "u-boot,dm-pre-proper"))
-		return true;
-
-	/*
-	 * In regular builds individual spl and tpl handling both
-	 * count as handled pre-relocation for later second init.
-	 */
-	if (ofnode_read_bool(node, "u-boot,dm-spl") ||
-	    ofnode_read_bool(node, "u-boot,dm-tpl"))
-		return true;
-
-	return false;
-#endif
-}
-#endif
-
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 int pci_get_devfn(struct udevice *dev)
 {
