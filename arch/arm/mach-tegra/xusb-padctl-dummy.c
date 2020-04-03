@@ -36,3 +36,7 @@ int __weak tegra_xusb_phy_unprepare(struct tegra_xusb_phy *phy)
 void __weak tegra_xusb_padctl_init(void)
 {
 }
+
+void __weak tegra_xusb_padctl_exit(void)
+{
+}

@@ -1,17 +1,18 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * (C) Copyright 2013-2019
+ * (C) Copyright 2018-2019
  * NVIDIA Corporation <www.nvidia.com>
+ *
  */
 
 #include <common.h>
-#include <env.h>
 #include <fdtdec.h>
 #include <i2c.h>
 #include <linux/libfdt.h>
+#include <pca953x.h>
+#include <asm/arch-tegra/cboot.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/pinmux.h>
-#include <asm/arch-tegra/cboot.h>
 #include "../p2571/max77620_init.h"
 
 void pin_mux_mmc(void)
@@ -155,11 +156,14 @@ static void ft_carveout_setup(void *fdt)
 	int err;
 
 	for (i = 0; i < ARRAY_SIZE(nodes); i++) {
+		printf("copying carveout for %s...\n", nodes[i]);
+
 		err = ft_copy_carveout(fdt, cboot_fdt, nodes[i]);
 		if (err < 0) {
 			if (err != -FDT_ERR_NOTFOUND)
 				printf("failed to copy carveout for %s: %d\n",
 				       nodes[i], err);
+
 			continue;
 		}
 	}

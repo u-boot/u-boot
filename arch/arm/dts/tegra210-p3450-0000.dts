@@ -1,21 +1,28 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ *  (C) Copyright 2019-2020 NVIDIA Corporation <www.nvidia.com>
+ */
 /dts-v1/;
 
 #include "tegra210.dtsi"
 
 / {
-	model = "NVIDIA P2371-2180";
-	compatible = "nvidia,p2371-2180", "nvidia,tegra210";
+	model = "NVIDIA Jetson Nano Developer Kit";
+	compatible = "nvidia,p3450-0000", "nvidia,tegra210";
 
 	chosen {
 		stdout-path = &uarta;
 	};
 
 	aliases {
+		ethernet = "/pcie@1003000/pci@2,0/ethernet@0,0";
 		i2c0 = "/i2c@7000d000";
 		i2c2 = "/i2c@7000c400";
 		i2c3 = "/i2c@7000c500";
+		i2c4 = "/i2c@7000c700";
 		mmc0 = "/sdhci@700b0600";
 		mmc1 = "/sdhci@700b0000";
+		spi0 = "/spi@70410000";
 		usb0 = "/usb@7d000000";
 	};
 
@@ -32,7 +39,16 @@
 
 		pci@2,0 {
 			status = "okay";
+
+			ethernet@0,0 {
+				reg = <0x000000 0 0 0 0>;
+				local-mac-address = [ 00 00 00 00 00 00 ];
+			};
 		};
+	};
+
+	serial@70006000 {
+		status = "okay";
 	};
 
 	padctl@7009f000 {
@@ -77,7 +93,6 @@
 		status = "okay";
 		cd-gpios = <&gpio TEGRA_GPIO(Z, 1) GPIO_ACTIVE_LOW>;
 		power-gpios = <&gpio TEGRA_GPIO(Z, 3) GPIO_ACTIVE_HIGH>;
-		wp-gpios = <&gpio TEGRA_GPIO(Z, 4) GPIO_ACTIVE_LOW>;
 		bus-width = <4>;
 	};
 
@@ -97,15 +112,24 @@
 		clock-frequency = <400000>;
 	};
 
+	i2c@7000c700 {
+		status = "okay";
+		clock-frequency = <400000>;
+	};
+
 	i2c@7000d000 {
 		status = "okay";
 		clock-frequency = <400000>;
 	};
 
+	spi@70410000 {
+		status = "okay";
+		spi-max-frequency = <80000000>;
+	};
+
 	usb@7d000000 {
 		status = "okay";
-		dr_mode = "otg";
-		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(CC, 4) GPIO_ACTIVE_HIGH>;
+		dr_mode = "peripheral";
 	};
 
 	clocks {
@@ -120,8 +144,4 @@
 			clock-frequency = <32768>;
 		};
 	};
-};
-
-&uarta {
-	status = "okay";
 };

@@ -170,6 +170,17 @@ static int phy_unprepare(struct tegra_xusb_phy *phy)
 	return tegra_xusb_padctl_disable(phy->padctl);
 }
 
+#define XUSB_PADCTL_USB3_PAD_MUX 0x28
+#define  XUSB_PADCTL_USB3_PAD_MUX_FORCE_PCIE_PAD_IDDQ_DISABLE (1 << 0)
+#define  XUSB_PADCTL_USB3_PAD_MUX_FORCE_PCIE_PAD_IDDQ_DISABLE_MASK0 (1 << 1)
+#define  XUSB_PADCTL_USB3_PAD_MUX_FORCE_PCIE_PAD_IDDQ_DISABLE_MASK1 (1 << 2)
+#define  XUSB_PADCTL_USB3_PAD_MUX_FORCE_PCIE_PAD_IDDQ_DISABLE_MASK2 (1 << 3)
+#define  XUSB_PADCTL_USB3_PAD_MUX_FORCE_PCIE_PAD_IDDQ_DISABLE_MASK3 (1 << 4)
+#define  XUSB_PADCTL_USB3_PAD_MUX_FORCE_PCIE_PAD_IDDQ_DISABLE_MASK4 (1 << 5)
+#define  XUSB_PADCTL_USB3_PAD_MUX_FORCE_PCIE_PAD_IDDQ_DISABLE_MASK5 (1 << 6)
+#define  XUSB_PADCTL_USB3_PAD_MUX_FORCE_PCIE_PAD_IDDQ_DISABLE_MASK6 (1 << 7)
+#define  XUSB_PADCTL_USB3_PAD_MUX_FORCE_SATA_PAD_IDDQ_DISABLE_MASK0 (1 << 8)
+
 #define XUSB_PADCTL_UPHY_PLL_P0_CTL1 0x360
 #define  XUSB_PADCTL_UPHY_PLL_P0_CTL1_FREQ_NDIV_MASK (0xff << 20)
 #define  XUSB_PADCTL_UPHY_PLL_P0_CTL1_FREQ_NDIV(x) (((x) & 0xff) << 20)
@@ -366,31 +377,6 @@ static int pcie_phy_enable(struct tegra_xusb_phy *phy)
 	value &= ~XUSB_PADCTL_UPHY_PLL_P0_CTL8_RCAL_CLK_EN;
 	padctl_writel(padctl, value, XUSB_PADCTL_UPHY_PLL_P0_CTL8);
 
-	value = readl(NV_PA_CLK_RST_BASE + CLK_RST_XUSBIO_PLL_CFG0);
-	value &= ~CLK_RST_XUSBIO_PLL_CFG0_PADPLL_RESET_SWCTL;
-	value &= ~CLK_RST_XUSBIO_PLL_CFG0_CLK_ENABLE_SWCTL;
-	value |= CLK_RST_XUSBIO_PLL_CFG0_PADPLL_USE_LOCKDET;
-	value |= CLK_RST_XUSBIO_PLL_CFG0_PADPLL_SLEEP_IDDQ;
-	writel(value, NV_PA_CLK_RST_BASE + CLK_RST_XUSBIO_PLL_CFG0);
-
-	value = padctl_readl(padctl, XUSB_PADCTL_UPHY_PLL_P0_CTL1);
-	value &= ~XUSB_PADCTL_UPHY_PLL_P0_CTL1_PWR_OVRD;
-	padctl_writel(padctl, value, XUSB_PADCTL_UPHY_PLL_P0_CTL1);
-
-	value = padctl_readl(padctl, XUSB_PADCTL_UPHY_PLL_P0_CTL2);
-	value &= ~XUSB_PADCTL_UPHY_PLL_P0_CTL2_CAL_OVRD;
-	padctl_writel(padctl, value, XUSB_PADCTL_UPHY_PLL_P0_CTL2);
-
-	value = padctl_readl(padctl, XUSB_PADCTL_UPHY_PLL_P0_CTL8);
-	value &= ~XUSB_PADCTL_UPHY_PLL_P0_CTL8_RCAL_OVRD;
-	padctl_writel(padctl, value, XUSB_PADCTL_UPHY_PLL_P0_CTL8);
-
-	udelay(1);
-
-	value = readl(NV_PA_CLK_RST_BASE + CLK_RST_XUSBIO_PLL_CFG0);
-	value |= CLK_RST_XUSBIO_PLL_CFG0_SEQ_ENABLE;
-	writel(value, NV_PA_CLK_RST_BASE + CLK_RST_XUSBIO_PLL_CFG0);
-
 	debug("< %s()\n", __func__);
 	return 0;
 }
@@ -453,4 +439,36 @@ void tegra_xusb_padctl_init(void)
 
 	ret = tegra_xusb_process_nodes(nodes, count, &tegra210_socdata);
 	debug("%s: done, ret=%d\n", __func__, ret);
+}
+
+void tegra_xusb_padctl_exit(void)
+{
+	u32 value;
+
+	debug("> %s\n", __func__);
+
+	value = padctl_readl(&padctl, XUSB_PADCTL_USB3_PAD_MUX);
+	value &= ~XUSB_PADCTL_USB3_PAD_MUX_FORCE_PCIE_PAD_IDDQ_DISABLE;
+	value &= ~XUSB_PADCTL_USB3_PAD_MUX_FORCE_PCIE_PAD_IDDQ_DISABLE_MASK0;
+	value &= ~XUSB_PADCTL_USB3_PAD_MUX_FORCE_PCIE_PAD_IDDQ_DISABLE_MASK1;
+	value &= ~XUSB_PADCTL_USB3_PAD_MUX_FORCE_PCIE_PAD_IDDQ_DISABLE_MASK2;
+	value &= ~XUSB_PADCTL_USB3_PAD_MUX_FORCE_PCIE_PAD_IDDQ_DISABLE_MASK3;
+	value &= ~XUSB_PADCTL_USB3_PAD_MUX_FORCE_PCIE_PAD_IDDQ_DISABLE_MASK4;
+	value &= ~XUSB_PADCTL_USB3_PAD_MUX_FORCE_PCIE_PAD_IDDQ_DISABLE_MASK5;
+	value &= ~XUSB_PADCTL_USB3_PAD_MUX_FORCE_PCIE_PAD_IDDQ_DISABLE_MASK6;
+	value &= ~XUSB_PADCTL_USB3_PAD_MUX_FORCE_SATA_PAD_IDDQ_DISABLE_MASK0;
+	padctl_writel(&padctl, value, XUSB_PADCTL_USB3_PAD_MUX);
+
+	value = padctl_readl(&padctl, XUSB_PADCTL_UPHY_PLL_P0_CTL1);
+	value &= ~XUSB_PADCTL_UPHY_PLL_P0_CTL1_IDDQ;
+	value &= ~XUSB_PADCTL_UPHY_PLL_P0_CTL1_SLEEP_MASK;
+	value |= XUSB_PADCTL_UPHY_PLL_P0_CTL1_SLEEP(3);
+	value &= ~XUSB_PADCTL_UPHY_PLL_P0_CTL1_ENABLE;
+	padctl_writel(&padctl, value, XUSB_PADCTL_UPHY_PLL_P0_CTL1);
+
+	reset_set_enable(PERIPH_ID_PEX_USB_UPHY, 1);
+	while (padctl.enable)
+		tegra_xusb_padctl_disable(&padctl);
+
+	debug("< %s()\n", __func__);
 }
