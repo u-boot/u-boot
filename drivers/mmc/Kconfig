@@ -358,6 +358,7 @@ config RENESAS_SDHI
 	depends on ARCH_RMOBILE
 	depends on BLK && DM_MMC
 	depends on OF_CONTROL
+	select BOUNCE_BUFFER
 	help
 	  This selects support for the Matsushita SD/MMC Host Controller on
 	  Renesas R-Car SoCs.
