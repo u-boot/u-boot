@@ -18,31 +18,22 @@ Get and Build the ARM Trusted Firmware (Trusted Firmware A)
 .. code-block:: bash
 
     $ echo "Downloading and building TF-A..."
-    $ git clone -b imx_4.14.98_2.3.0 \
-      https://source.codeaurora.org/external/imx/imx-atf
-    $ cd imx-atf
-
-Please edit ``plat/imx/imx8mm/include/platform_def.h`` so it contains proper
-values for UART configuration and BL31 base address (correct values listed
-below):
-
-.. code-block:: bash
-
-    #define BL31_BASE                   0x910000
-    #define IMX_BOOT_UART_BASE          0x30860000
-    #define DEBUG_CONSOLE               1
+    $ git clone https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git
+    $ cd trusted-firmware-a
 
 Then build ATF (TF-A):
 
 .. code-block:: bash
 
-    $ make PLAT=imx8mm bl31
+    $ make PLAT=imx8mm IMX_BOOT_UART_BASE=0x30860000 bl31
+    $ cp build/imx8mm/release/bl31.bin ../
 
 Get the DDR Firmware
 --------------------
 
 .. code-block:: bash
 
+    $ cd ..
     $ wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-8.4.1.bin
     $ chmod +x firmware-imx-8.4.1.bin
     $ ./firmware-imx-8.4.1.bin
@@ -53,6 +44,7 @@ Build U-Boot
 .. code-block:: bash
 
     $ export CROSS_COMPILE=aarch64-linux-gnu-
+    $ export ATF_LOAD_ADDR=0x920000
     $ make verdin-imx8mm_defconfig
     $ make flash.bin
 
@@ -89,12 +81,6 @@ Output:
     U-Boot SPL 2020.01-00187-gd411d164e5 (Jan 26 2020 - 04:47:26 +0100)
     Normal Boot
     Trying to boot from MMC1
-    NOTICE:  Configuring TZASC380
-    NOTICE:  RDC off
-    NOTICE:  BL31: v2.0(release):rel_imx_4.14.98_2.3.0-0-g09c5cc994-dirty
-    NOTICE:  BL31: Built : 01:11:41, Jan 25 2020
-    NOTICE:  sip svc init
-
 
     U-Boot 2020.01-00187-gd411d164e5 (Jan 26 2020 - 04:47:26 +0100)
 
