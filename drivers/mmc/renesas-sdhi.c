@@ -692,34 +692,40 @@ static int renesas_sdhi_wait_dat0(struct udevice *dev, int state,
 
 #define RENESAS_SDHI_DMA_ALIGNMENT	128
 
-static int renesas_sdhi_addr_aligned(struct bounce_buffer *state)
+static int renesas_sdhi_addr_aligned_gen(uintptr_t ubuf,
+					 size_t len, size_t len_aligned)
 {
-	uintptr_t ubuf = (uintptr_t)state->user_buffer;
-
 	/* Check if start is aligned */
 	if (!IS_ALIGNED(ubuf, RENESAS_SDHI_DMA_ALIGNMENT)) {
-		debug("Unaligned buffer address %p\n", state->user_buffer);
+		debug("Unaligned buffer address %lx\n", ubuf);
 		return 0;
 	}
 
 	/* Check if length is aligned */
-	if (state->len != state->len_aligned) {
-		debug("Unaligned buffer length %zu\n", state->len);
+	if (len != len_aligned) {
+		debug("Unaligned buffer length %zu\n", len);
 		return 0;
 	}
 
 #ifdef CONFIG_PHYS_64BIT
 	/* Check if below 32bit boundary */
-	if ((ubuf >> 32) || (ubuf + state->len_aligned) >> 32) {
-		debug("Buffer above 32bit boundary %p-%p\n",
-			state->user_buffer,
-			state->user_buffer + state->len_aligned);
+	if ((ubuf >> 32) || (ubuf + len_aligned) >> 32) {
+		debug("Buffer above 32bit boundary %lx-%lx\n",
+			ubuf, ubuf + len_aligned);
 		return 0;
 	}
 #endif
 
 	/* Aligned */
 	return 1;
+}
+
+static int renesas_sdhi_addr_aligned(struct bounce_buffer *state)
+{
+	uintptr_t ubuf = (uintptr_t)state->user_buffer;
+
+	return renesas_sdhi_addr_aligned_gen(ubuf, state->len,
+					     state->len_aligned);
 }
 
 static int renesas_sdhi_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
@@ -789,6 +795,24 @@ static int renesas_sdhi_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 	return 0;
 }
 
+int renesas_sdhi_get_b_max(struct udevice *dev, void *dst, lbaint_t blkcnt)
+{
+	struct tmio_sd_priv *priv = dev_get_priv(dev);
+	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
+	struct mmc *mmc = upriv->mmc;
+	size_t len = blkcnt * mmc->read_bl_len;
+	size_t len_align = roundup(len, RENESAS_SDHI_DMA_ALIGNMENT);
+
+	if (renesas_sdhi_addr_aligned_gen((uintptr_t)dst, len, len_align)) {
+		if (priv->quirks & TMIO_SD_CAP_16BIT)
+			return U16_MAX;
+		else
+			return U32_MAX;
+	} else {
+		return (CONFIG_SYS_MALLOC_LEN / 4) / mmc->read_bl_len;
+	}
+}
+
 static const struct dm_mmc_ops renesas_sdhi_ops = {
 	.send_cmd = renesas_sdhi_send_cmd,
 	.set_ios = renesas_sdhi_set_ios,
@@ -801,6 +825,7 @@ static const struct dm_mmc_ops renesas_sdhi_ops = {
 #if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT)
 	.wait_dat0 = renesas_sdhi_wait_dat0,
 #endif
+	.get_b_max = renesas_sdhi_get_b_max,
 };
 
 #define RENESAS_GEN2_QUIRKS	TMIO_SD_CAP_RCAR_GEN2
@@ -966,6 +991,7 @@ static int renesas_sdhi_probe(struct udevice *dev)
 		return ret;
 	}
 
+	priv->quirks = quirks;
 	ret = tmio_sd_probe(dev, quirks);
 
 	renesas_sdhi_filter_caps(dev);

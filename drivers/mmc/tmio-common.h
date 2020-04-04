@@ -147,6 +147,7 @@ struct tmio_sd_priv {
 	u8				adjust_hs400_calibrate;
 	u8				hs400_bad_tap;
 	const u8			*adjust_hs400_calib_table;
+	u32			quirks;
 #endif
 	ulong (*clk_get_rate)(struct tmio_sd_priv *);
 };
