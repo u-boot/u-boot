@@ -5,8 +5,8 @@
  * Copyright (C) 2018 Marek Vasut <marek.vasut@gmail.com>
  */
 
-#include "r8a7796-m3ulcb.dts"
-#include "r8a7796-u-boot.dtsi"
+#include "r8a77960-ulcb.dts"
+#include "r8a77960-u-boot.dtsi"
 
 / {
 	cpld {

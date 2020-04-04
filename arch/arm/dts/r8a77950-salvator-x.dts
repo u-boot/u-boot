@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Device Tree Source for the Salvator-X board with R-Car H3 ES2.0
+ * Device Tree Source for the Salvator-X board with R-Car H3 ES1.x
  *
  * Copyright (C) 2015 Renesas Electronics Corp.
  */
 
 /dts-v1/;
-#include "r8a7795.dtsi"
+#include "r8a77950.dtsi"
 #include "salvator-x.dtsi"
 
 / {
-	model = "Renesas Salvator-X board based on r8a7795 ES2.0+";
+	model = "Renesas Salvator-X board based on r8a77950";
 	compatible = "renesas,salvator-x", "renesas,r8a7795";
 
 	memory@48000000 {
@@ -50,12 +50,6 @@
 
 &ehci2 {
 	status = "okay";
-};
-
-&sound_card {
-	dais = <&rsnd_port0	/* ak4613 */
-		&rsnd_port1	/* HDMI0  */
-		&rsnd_port2>;	/* HDMI1  */
 };
 
 &hdmi0 {
@@ -108,6 +102,13 @@
 	status = "okay";
 };
 
+&pfc {
+	usb2_pins: usb2 {
+		groups = "usb2";
+		function = "usb2";
+	};
+};
+
 &rcar_sound {
 	ports {
 		/* rsnd_port0 is on salvator-common */
@@ -138,15 +139,14 @@
 	};
 };
 
-&pfc {
-	usb2_pins: usb2 {
-		groups = "usb2";
-		function = "usb2";
-	};
-};
-
 &sata {
 	status = "okay";
+};
+
+&sound_card {
+	dais = <&rsnd_port0	/* ak4613 */
+		&rsnd_port1	/* HDMI0  */
+		&rsnd_port2>;	/* HDMI1  */
 };
 
 &usb2_phy2 {

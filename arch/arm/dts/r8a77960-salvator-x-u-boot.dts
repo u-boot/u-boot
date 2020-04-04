@@ -5,8 +5,8 @@
  * Copyright (C) 2018 Marek Vasut <marek.vasut@gmail.com>
  */
 
-#include "r8a7795-salvator-x.dts"
-#include "r8a7795-u-boot.dtsi"
+#include "r8a77960-salvator-x.dts"
+#include "r8a77960-u-boot.dtsi"
 
 &sdhi0 {
 	sd-uhs-sdr12;
