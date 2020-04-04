@@ -859,6 +859,10 @@ static int sh_ether_probe(struct udevice *udev)
 		goto err_mdio_register;
 #endif
 
+	ret = sh_eth_init_common(eth, pdata->enetaddr);
+	if (ret)
+		goto err_phy_config;
+
 	ret = sh_eth_phy_config(udev);
 	if (ret) {
 		printf(SHETHER_NAME ": phy config timeout\n");
