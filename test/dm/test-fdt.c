@@ -992,3 +992,28 @@ static int dm_test_first_child_probe(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_first_child_probe, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test that ofdata is read for parents before children */
+static int dm_test_ofdata_order(struct unit_test_state *uts)
+{
+	struct udevice *bus, *dev;
+
+	ut_assertok(uclass_find_first_device(UCLASS_I2C, &bus));
+	ut_assertnonnull(bus);
+	ut_assert(!(bus->flags & DM_FLAG_PLATDATA_VALID));
+
+	ut_assertok(device_find_first_child(bus, &dev));
+	ut_assertnonnull(dev);
+	ut_assert(!(dev->flags & DM_FLAG_PLATDATA_VALID));
+
+	/* read the child's ofdata which should cause the parent's to be read */
+	ut_assertok(device_ofdata_to_platdata(dev));
+	ut_assert(dev->flags & DM_FLAG_PLATDATA_VALID);
+	ut_assert(bus->flags & DM_FLAG_PLATDATA_VALID);
+
+	ut_assert(!(dev->flags & DM_FLAG_ACTIVATED));
+	ut_assert(!(bus->flags & DM_FLAG_ACTIVATED));
+
+	return 0;
+}
+DM_TEST(dm_test_ofdata_order, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

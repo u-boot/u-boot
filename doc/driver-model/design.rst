@@ -683,11 +683,17 @@ probe/remove which is independent of bind/unbind. This is partly because in
 U-Boot it may be expensive to probe devices and we don't want to do it until
 they are needed, or perhaps until after relocation.
 
-Activation/probe
-^^^^^^^^^^^^^^^^
+Reading ofdata
+^^^^^^^^^^^^^^
 
-When a device needs to be used, U-Boot activates it, by following these
-steps (see device_probe()):
+Most devices have data in the device tree which they can read to find out the
+base address of hardware registers and parameters relating to driver
+operation. This is called 'ofdata' (Open-Firmware data).
+
+The device's_ofdata_to_platdata() implemnents allocation and reading of
+platdata. A parent's ofdata is always read before a child.
+
+The steps are:
 
    1. If priv_auto_alloc_size is non-zero, then the device-private space
    is allocated for the device and zeroed. It will be accessible as
@@ -713,32 +719,72 @@ steps (see device_probe()):
    space. The controller can hold information about the USB state of each
    of its children.
 
-   5. All parent devices are probed. It is not possible to activate a device
+   5. If the driver provides an ofdata_to_platdata() method, then this is
+   called to convert the device tree data into platform data. This should
+   do various calls like dev_read_u32(dev, ...) to access the node and store
+   the resulting information into dev->platdata. After this point, the device
+   works the same way whether it was bound using a device tree node or
+   U_BOOT_DEVICE() structure. In either case, the platform data is now stored
+   in the platdata structure. Typically you will use the
+   platdata_auto_alloc_size feature to specify the size of the platform data
+   structure, and U-Boot will automatically allocate and zero it for you before
+   entry to ofdata_to_platdata(). But if not, you can allocate it yourself in
+   ofdata_to_platdata(). Note that it is preferable to do all the device tree
+   decoding in ofdata_to_platdata() rather than in probe(). (Apart from the
+   ugliness of mixing configuration and run-time data, one day it is possible
+   that U-Boot will cache platform data for devices which are regularly
+   de/activated).
+
+   5. The device is marked 'platdata valid'.
+
+Note that ofdata reading is always done (for a child and all its parents)
+before probing starts. Thus devices go through two distinct states when
+probing: reading platform data and actually touching the hardware to bring
+the device up.
+
+Having probing separate from ofdata-reading helps deal with of-platdata, where
+the probe() method is common to both DT/of-platdata operation, but the
+ofdata_to_platdata() method is implemented differently.
+
+Another case has come up where this separate is useful. Generation of ACPI
+tables uses the of-platdata but does not want to probe the device. Probing
+would cause U-Boot to violate one of its design principles, viz that it
+should only probe devices that are used. For ACPI we want to generate a
+table for each device, even if U-Boot does not use it. In fact it may not
+even be possible to probe the device - e.g. an SD card which is not
+present will cause an error on probe, yet we still must tell Linux about
+the SD card connector in case it is used while Linux is running.
+
+It is important that the ofdata_to_platdata() method does not actually probe
+the device itself. However there are cases where other devices must be probed
+in the ofdata_to_platdata() method. An example is where a device requires a
+GPIO for it to operate. To select a GPIO obviously requires that the GPIO
+device is probed. This is OK when used by common, core devices such as GPIO,
+clock, interrupts, reset and the like.
+
+If your device relies on its parent setting up a suitable address space, so
+that dev_read_addr() works correctly, then make sure that the parent device
+has its setup code in ofdata_to_platdata(). If it has it in the probe method,
+then you cannot call dev_read_addr() from the child device's
+ofdata_to_platdata() method. Move it to probe() instead. Buses like PCI can
+fall afoul of this rule.
+
+Activation/probe
+^^^^^^^^^^^^^^^^
+
+When a device needs to be used, U-Boot activates it, by first reading ofdata
+as above and then following these steps (see device_probe()):
+
+   1. All parent devices are probed. It is not possible to activate a device
    unless its predecessors (all the way up to the root device) are activated.
    This means (for example) that an I2C driver will require that its bus
    be activated.
 
-   6. The device's sequence number is assigned, either the requested one
+   2. The device's sequence number is assigned, either the requested one
    (assuming no conflicts) or the next available one if there is a conflict
    or nothing particular is requested.
 
-   7. If the driver provides an ofdata_to_platdata() method, then this is
-   called to convert the device tree data into platform data. This should
-   do various calls like fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev), ...)
-   to access the node and store the resulting information into dev->platdata.
-   After this point, the device works the same way whether it was bound
-   using a device tree node or U_BOOT_DEVICE() structure. In either case,
-   the platform data is now stored in the platdata structure. Typically you
-   will use the platdata_auto_alloc_size feature to specify the size of the
-   platform data structure, and U-Boot will automatically allocate and zero
-   it for you before entry to ofdata_to_platdata(). But if not, you can
-   allocate it yourself in ofdata_to_platdata(). Note that it is preferable
-   to do all the device tree decoding in ofdata_to_platdata() rather than
-   in probe(). (Apart from the ugliness of mixing configuration and run-time
-   data, one day it is possible that U-Boot will cache platform data for
-   devices which are regularly de/activated).
-
-   8. The device's probe() method is called. This should do anything that
+   4. The device's probe() method is called. This should do anything that
    is required by the device to get it going. This could include checking
    that the hardware is actually present, setting up clocks for the
    hardware and setting up hardware registers to initial values. The code
@@ -753,7 +799,7 @@ steps (see device_probe()):
    allocate the priv space here yourself. The same applies also to
    platdata_auto_alloc_size. Remember to free them in the remove() method.
 
-   9. The device is marked 'activated'
+   5. The device is marked 'activated'
 
    10. The uclass's post_probe() method is called, if one exists. This may
    cause the uclass to do some housekeeping to record the device as
