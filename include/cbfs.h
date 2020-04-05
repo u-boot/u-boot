@@ -135,7 +135,7 @@ void file_cbfs_get_next(const struct cbfs_cachenode **file);
  */
 const struct cbfs_cachenode *file_cbfs_find(const char *name);
 
-struct cbfs_priv *priv;
+struct cbfs_priv;
 
 /**
  * cbfs_find_file() - Find a file in a given CBFS
