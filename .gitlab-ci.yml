@@ -103,7 +103,7 @@ cppcheck:
   tags: [ 'all' ]
   stage: testsuites
   script:
-    - cppcheck --force --quiet --inline-suppr .
+    - cppcheck -j$(nproc) --force --quiet --inline-suppr .
 
 # search for TODO within source tree
 grep TODO/FIXME/HACK:

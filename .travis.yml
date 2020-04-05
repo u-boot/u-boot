@@ -448,7 +448,7 @@ matrix:
     # static code analysis with cppcheck (we can add --enable=all later)
     - name: "cppcheck"
       script:
-        - cppcheck --force --quiet --inline-suppr .
+        - cppcheck -j$(nproc) --force --quiet --inline-suppr .
     # build HTML documentation
     - name: "htmldocs"
       script:

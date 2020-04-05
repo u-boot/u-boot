@@ -52,7 +52,7 @@ jobs:
       image: $(ci_runner_image)
       options: $(container_option)
     steps:
-      - script: cppcheck --force --quiet --inline-suppr .
+      - script: cppcheck -j$(nproc) --force --quiet --inline-suppr .
 
   - job: htmldocs
     displayName: 'Build HTML documentation'
