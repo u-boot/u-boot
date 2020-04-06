@@ -118,11 +118,11 @@ before_script:
        ./bootstrap &&
        ./configure --target=arm --with-platform=efi
        CC=gcc
-       TARGET_CC=~/.buildman-toolchains/gcc-7.3.0-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi-gcc
-       TARGET_OBJCOPY=~/.buildman-toolchains/gcc-7.3.0-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi-objcopy
-       TARGET_STRIP=~/.buildman-toolchains/gcc-7.3.0-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi-strip
-       TARGET_NM=~/.buildman-toolchains/gcc-7.3.0-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi-nm
-       TARGET_RANLIB=~/.buildman-toolchains/gcc-7.3.0-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi-ranlib &&
+       TARGET_CC=~/.buildman-toolchains/gcc-9.2.0-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi-gcc
+       TARGET_OBJCOPY=~/.buildman-toolchains/gcc-9.2.0-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi-objcopy
+       TARGET_STRIP=~/.buildman-toolchains/gcc-9.2.0-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi-strip
+       TARGET_NM=~/.buildman-toolchains/gcc-9.2.0-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi-nm
+       TARGET_RANLIB=~/.buildman-toolchains/gcc-9.2.0-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi-ranlib &&
        make -j4 &&
        ./grub-mkimage -O arm-efi -o ~/grub_arm.efi --prefix= -d
        grub-core cat chain configfile echo efinet ext2 fat halt help linux
@@ -138,11 +138,11 @@ before_script:
        ./bootstrap &&
        ./configure --target=aarch64 --with-platform=efi
        CC=gcc
-       TARGET_CC=~/.buildman-toolchains/gcc-7.3.0-nolibc/aarch64-linux/bin/aarch64-linux-gcc
-       TARGET_OBJCOPY=~/.buildman-toolchains/gcc-7.3.0-nolibc/aarch64-linux/bin/aarch64-linux-objcopy
-       TARGET_STRIP=~/.buildman-toolchains/gcc-7.3.0-nolibc/aarch64-linux/bin/aarch64-linux-strip
-       TARGET_NM=~/.buildman-toolchains/gcc-7.3.0-nolibc/aarch64-linux/bin/aarch64-linux-nm
-       TARGET_RANLIB=~/.buildman-toolchains/gcc-7.3.0-nolibc/aarch64-linux/bin/aarch64-linux-ranlib &&
+       TARGET_CC=~/.buildman-toolchains/gcc-9.2.0-nolibc/aarch64-linux/bin/aarch64-linux-gcc
+       TARGET_OBJCOPY=~/.buildman-toolchains/gcc-9.2.0-nolibc/aarch64-linux/bin/aarch64-linux-objcopy
+       TARGET_STRIP=~/.buildman-toolchains/gcc-9.2.0-nolibc/aarch64-linux/bin/aarch64-linux-strip
+       TARGET_NM=~/.buildman-toolchains/gcc-9.2.0-nolibc/aarch64-linux/bin/aarch64-linux-nm
+       TARGET_RANLIB=~/.buildman-toolchains/gcc-9.2.0-nolibc/aarch64-linux/bin/aarch64-linux-ranlib &&
        make -j4 &&
        ./grub-mkimage -O arm64-efi -o ~/grub_arm64.efi --prefix= -d
        grub-core cat chain configfile echo efinet ext2 fat halt help linux
@@ -158,11 +158,11 @@ before_script:
        ./bootstrap &&
        ./configure --target=riscv32 --with-platform=efi
        CC=gcc
-       TARGET_CC=~/.buildman-toolchains/gcc-7.3.0-nolibc/riscv32-linux/bin/riscv32-linux-gcc
-       TARGET_OBJCOPY=~/.buildman-toolchains/gcc-7.3.0-nolibc/riscv32-linux/bin/riscv32-linux-objcopy
-       TARGET_STRIP=~/.buildman-toolchains/gcc-7.3.0-nolibc/riscv32-linux/bin/riscv32-linux-strip
-       TARGET_NM=~/.buildman-toolchains/gcc-7.3.0-nolibc/riscv32-linux/bin/riscv32-linux-nm
-       TARGET_RANLIB=~/.buildman-toolchains/gcc-7.3.0-nolibc/riscv32-linux/bin/riscv32-linux-ranlib &&
+       TARGET_CC=~/.buildman-toolchains/gcc-9.2.0-nolibc/riscv32-linux/bin/riscv32-linux-gcc
+       TARGET_OBJCOPY=~/.buildman-toolchains/gcc-9.2.0-nolibc/riscv32-linux/bin/riscv32-linux-objcopy
+       TARGET_STRIP=~/.buildman-toolchains/gcc-9.2.0-nolibc/riscv32-linux/bin/riscv32-linux-strip
+       TARGET_NM=~/.buildman-toolchains/gcc-9.2.0-nolibc/riscv32-linux/bin/riscv32-linux-nm
+       TARGET_RANLIB=~/.buildman-toolchains/gcc-9.2.0-nolibc/riscv32-linux/bin/riscv32-linux-ranlib &&
        make -j4 &&
        ./grub-mkimage -O riscv32-efi -o ~/grub_riscv32.efi --prefix= -d
        grub-core cat chain configfile echo efinet ext2 fat halt help linux
@@ -178,11 +178,11 @@ before_script:
        ./bootstrap &&
        ./configure --target=riscv64 --with-platform=efi
        CC=gcc
-       TARGET_CC=~/.buildman-toolchains/gcc-7.3.0-nolibc/riscv64-linux/bin/riscv64-linux-gcc
-       TARGET_OBJCOPY=~/.buildman-toolchains/gcc-7.3.0-nolibc/riscv64-linux/bin/riscv64-linux-objcopy
-       TARGET_STRIP=~/.buildman-toolchains/gcc-7.3.0-nolibc/riscv64-linux/bin/riscv64-linux-strip
-       TARGET_NM=~/.buildman-toolchains/gcc-7.3.0-nolibc/riscv64-linux/bin/riscv64-linux-nm
-       TARGET_RANLIB=~/.buildman-toolchains/gcc-7.3.0-nolibc/riscv64-linux/bin/riscv64-linux-ranlib &&
+       TARGET_CC=~/.buildman-toolchains/gcc-9.2.0-nolibc/riscv64-linux/bin/riscv64-linux-gcc
+       TARGET_OBJCOPY=~/.buildman-toolchains/gcc-9.2.0-nolibc/riscv64-linux/bin/riscv64-linux-objcopy
+       TARGET_STRIP=~/.buildman-toolchains/gcc-9.2.0-nolibc/riscv64-linux/bin/riscv64-linux-strip
+       TARGET_NM=~/.buildman-toolchains/gcc-9.2.0-nolibc/riscv64-linux/bin/riscv64-linux-nm
+       TARGET_RANLIB=~/.buildman-toolchains/gcc-9.2.0-nolibc/riscv64-linux/bin/riscv64-linux-ranlib &&
        make -j4 &&
        ./grub-mkimage -O riscv64-efi -o ~/grub_riscv64.efi --prefix= -d
        grub-core cat chain configfile echo efinet ext2 fat halt help linux
