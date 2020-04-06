@@ -13,6 +13,6 @@
 #include <configs/xilinx_zynqmp_mini.h>
 
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_TEXT_BASE + 0x20000)
-#define CONFIG_SYS_MALLOC_LEN	0x2000
+#define CONFIG_SYS_MALLOC_LEN	0x1a00
 
 #endif /* __CONFIG_ZYNQMP_MINI_QSPI_H */
