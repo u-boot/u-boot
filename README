@@ -4734,8 +4734,6 @@ it:
 * For new features: a description of the feature and your
   implementation.
 
-* A CHANGELOG entry as plaintext (separate from the patch)
-
 * For major contributions, add a MAINTAINERS file with your
   information and associated file and directory references.
 
