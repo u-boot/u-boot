@@ -255,6 +255,7 @@ struct ehci_ctrl {
 	int periodic_schedules;
 	int ntds;
 	bool has_fsl_erratum_a005275;	/* Freescale HS silicon quirk */
+	bool async_locked;
 	struct ehci_ops ops;
 	void *priv;	/* client's private data */
 };
