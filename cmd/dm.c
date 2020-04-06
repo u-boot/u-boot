@@ -41,7 +41,7 @@ static int do_dm_dump_devres(cmd_tbl_t *cmdtp, int flag, int argc,
 }
 
 static int do_dm_dump_drivers(cmd_tbl_t *cmdtp, int flag, int argc,
-			       char * const argv[])
+			      char * const argv[])
 {
 	dm_dump_drivers();
 
@@ -94,5 +94,5 @@ U_BOOT_CMD(
 	"tree          Dump driver model tree ('*' = activated)\n"
 	"dm uclass        Dump list of instances for each uclass\n"
 	"dm devres        Dump list of device resources for each device\n"
-	"dm drivers       Dump list of drivers and their compatible strings\n"
+	"dm drivers       Dump list of drivers and their compatible strings"
 );
