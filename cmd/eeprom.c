@@ -61,7 +61,7 @@
 #endif
 
 #if defined(CONFIG_DM_I2C)
-int eeprom_i2c_bus;
+static int eeprom_i2c_bus;
 #endif
 
 __weak int eeprom_write_enable(unsigned dev_addr, int state)
