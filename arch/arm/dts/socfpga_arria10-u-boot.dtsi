@@ -38,6 +38,21 @@
 	u-boot,dm-pre-reloc;
 };
 
+&gmac0 {
+	compatible = "altr,socfpga-stmmac", "snps,dwmac-3.72a", "snps,dwmac";
+	altr,sysmgr-syscon = <&sysmgr 0x44 0>;
+};
+
+&gmac1 {
+	compatible = "altr,socfpga-stmmac", "snps,dwmac-3.72a", "snps,dwmac";
+	altr,sysmgr-syscon = <&sysmgr 0x48 0>;
+};
+
+&gmac2 {
+	compatible = "altr,socfpga-stmmac", "snps,dwmac-3.72a", "snps,dwmac";
+	altr,sysmgr-syscon = <&sysmgr 0x4C 0>;
+};
+
 &i2c0 {
 	reset-names = "i2c";
 };
