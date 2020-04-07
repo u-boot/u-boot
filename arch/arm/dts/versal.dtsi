@@ -143,6 +143,15 @@
 		interrupt-parent = <&gic>;
 		u-boot,dm-pre-reloc;
 
+		apm: performance-monitor@f0920000 {
+			compatible = "xlnx,flexnoc-pm-2.7";
+			status = "disabled";
+			reg-names = "funnel", "baselpd", "basefpd";
+			reg = <0x0 0xf0920000 0x0 0x1000>,
+			      <0x0 0xf0980000 0x0 0x9000>,
+			      <0x0 0xf0b80000 0x0 0x9000>;
+		};
+
 		can0: can@ff060000 {
 			compatible = "xlnx,canfd-2.0";
 			status = "disabled";
