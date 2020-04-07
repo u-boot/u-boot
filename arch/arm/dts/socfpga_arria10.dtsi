@@ -21,11 +21,6 @@
 	#address-cells = <1>;
 	#size-cells = <1>;
 
-	chosen {
-		tick-timer = &timer2;
-		u-boot,dm-pre-reloc;
-	};
-
 	cpus {
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -60,7 +55,6 @@
 		device_type = "soc";
 		interrupt-parent = <&intc>;
 		ranges;
-		u-boot,dm-pre-reloc;
 
 		amba {
 			compatible = "simple-bus";
@@ -99,35 +93,29 @@
 		clkmgr: clkmgr@ffd04000 {
 				compatible = "altr,clk-mgr";
 				reg = <0xffd04000 0x1000>;
-				u-boot,dm-pre-reloc;
 
 				clocks {
 					#address-cells = <1>;
 					#size-cells = <0>;
-					u-boot,dm-pre-reloc;
 
 					cb_intosc_hs_div2_clk: cb_intosc_hs_div2_clk {
 						#clock-cells = <0>;
 						compatible = "fixed-clock";
-						u-boot,dm-pre-reloc;
 					};
 
 					cb_intosc_ls_clk: cb_intosc_ls_clk {
 						#clock-cells = <0>;
 						compatible = "fixed-clock";
-						u-boot,dm-pre-reloc;
 					};
 
 					f2s_free_clk: f2s_free_clk {
 						#clock-cells = <0>;
 						compatible = "fixed-clock";
-						u-boot,dm-pre-reloc;
 					};
 
 					osc1: osc1 {
 						#clock-cells = <0>;
 						compatible = "fixed-clock";
-						u-boot,dm-pre-reloc;
 					};
 
 					main_pll: main_pll@40 {
@@ -138,7 +126,6 @@
 						clocks = <&osc1>, <&cb_intosc_ls_clk>,
 							 <&f2s_free_clk>;
 						reg = <0x40>;
-						u-boot,dm-pre-reloc;
 
 						main_mpu_base_clk: main_mpu_base_clk {
 							#clock-cells = <0>;
@@ -152,7 +139,6 @@
 							compatible = "altr,socfpga-a10-perip-clk";
 							clocks = <&main_pll>;
 							div-reg = <0x144 0 11>;
-							u-boot,dm-pre-reloc;
 						};
 
 						main_emaca_clk: main_emaca_clk@68 {
@@ -228,7 +214,6 @@
 						clocks = <&osc1>, <&cb_intosc_ls_clk>,
 							 <&f2s_free_clk>, <&main_periph_ref_clk>;
 						reg = <0xC0>;
-						u-boot,dm-pre-reloc;
 
 						peri_mpu_base_clk: peri_mpu_base_clk {
 							#clock-cells = <0>;
@@ -242,7 +227,6 @@
 							compatible = "altr,socfpga-a10-perip-clk";
 							clocks = <&periph_pll>;
 							div-reg = <0x144 16 11>;
-							u-boot,dm-pre-reloc;
 						};
 
 						peri_emaca_clk: peri_emaca_clk@e8 {
@@ -318,7 +302,6 @@
 							 <&osc1>, <&cb_intosc_hs_div2_clk>,
 							 <&f2s_free_clk>;
 						reg = <0x64>;
-						u-boot,dm-pre-reloc;
 					};
 
 					s2f_user1_free_clk: s2f_user1_free_clk@104 {
@@ -345,7 +328,6 @@
 						compatible = "altr,socfpga-a10-perip-clk";
 						clocks = <&noc_free_clk>;
 						fixed-divider = <4>;
-						u-boot,dm-pre-reloc;
 					};
 
 					l4_main_clk: l4_main_clk {
@@ -500,7 +482,6 @@
 
 			porta: gpio-controller@0 {
 				compatible = "snps,dw-apb-gpio-port";
-				bank-name = "porta";
 				gpio-controller;
 				#gpio-cells = <2>;
 				snps,nr-gpios = <29>;
@@ -520,7 +501,6 @@
 
 			portb: gpio-controller@0 {
 				compatible = "snps,dw-apb-gpio-port";
-				bank-name = "portb";
 				gpio-controller;
 				#gpio-cells = <2>;
 				snps,nr-gpios = <29>;
@@ -540,7 +520,6 @@
 
 			portc: gpio-controller@0 {
 				compatible = "snps,dw-apb-gpio-port";
-				bank-name = "portc";
 				gpio-controller;
 				#gpio-cells = <2>;
 				snps,nr-gpios = <27>;
@@ -568,7 +547,6 @@
 			interrupts = <0 105 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&l4_sp_clk>;
 			resets = <&rst I2C0_RESET>;
-			reset-names = "i2c";
 			status = "disabled";
 		};
 
@@ -580,7 +558,6 @@
 			interrupts = <0 106 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&l4_sp_clk>;
 			resets = <&rst I2C1_RESET>;
-			reset-names = "i2c";
 			status = "disabled";
 		};
 
@@ -592,7 +569,6 @@
 			interrupts = <0 107 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&l4_sp_clk>;
 			resets = <&rst I2C2_RESET>;
-			reset-names = "i2c";
 			status = "disabled";
 		};
 
@@ -604,7 +580,6 @@
 			interrupts = <0 108 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&l4_sp_clk>;
 			resets = <&rst I2C3_RESET>;
-			reset-names = "i2c";
 			status = "disabled";
 		};
 
@@ -616,7 +591,6 @@
 			interrupts = <0 109 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&l4_sp_clk>;
 			resets = <&rst I2C4_RESET>;
-			reset-names = "i2c";
 			status = "disabled";
 		};
 
@@ -767,7 +741,6 @@
 			compatible = "altr,rst-mgr";
 			reg = <0xffd05000 0x100>;
 			altr,modrst-offset = <0x20>;
-			u-boot,dm-pre-reloc;
 		};
 
 		scu: snoop-control-unit@ffffc000 {
@@ -811,7 +784,6 @@
 			reg = <0xffd00000 0x100>;
 			clocks = <&l4_sys_free_clk>;
 			clock-names = "timer";
-			u-boot,dm-pre-reloc;
 		};
 
 		timer3: timer3@ffd00100 {

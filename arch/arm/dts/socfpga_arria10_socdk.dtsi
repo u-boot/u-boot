@@ -24,7 +24,6 @@
 	aliases {
 		ethernet0 = &gmac0;
 		serial0 = &uart1;
-		i2c0 = &i2c1;
 	};
 
 	chosen {
@@ -36,7 +35,6 @@
 		name = "memory";
 		device_type = "memory";
 		reg = <0x0 0x40000000>; /* 1GB */
-		u-boot,dm-pre-reloc;
 	};
 
 	a10leds {
@@ -63,9 +61,6 @@
 		};
 	};
 
-	soc {
-		u-boot,dm-pre-reloc;
-	};
 };
 
 &gmac0 {
@@ -155,7 +150,6 @@
 };
 
 &uart1 {
-	u-boot,dm-pre-reloc;
 	status = "okay";
 };
 
@@ -166,25 +160,4 @@
 
 &watchdog1 {
 	status = "okay";
-};
-
-/* Clock available early */
-&main_periph_ref_clk {
-	u-boot,dm-pre-reloc;
-};
-
-&l4_mp_clk {
-	u-boot,dm-pre-reloc;
-};
-
-&l4_sp_clk {
-	u-boot,dm-pre-reloc;
-};
-
-&clkmgr {
-	u-boot,dm-pre-reloc;
-};
-
-&sysmgr {
-	u-boot,dm-pre-reloc;
 };
