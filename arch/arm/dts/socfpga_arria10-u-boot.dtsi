@@ -73,6 +73,10 @@
 	reset-names = "i2c";
 };
 
+&L2 {
+	u-boot,dm-pre-reloc;
+};
+
 &l4_mp_clk {
 	u-boot,dm-pre-reloc;
 };
