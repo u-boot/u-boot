@@ -2,7 +2,7 @@
 /*
  * dts file for Xilinx ZynqMP ZCU1285 RevA
  *
- * (C) Copyright 2018 - 2019, Xilinx, Inc.
+ * (C) Copyright 2018 - 2020, Xilinx, Inc.
  *
  * Michal Simek <michal.simek@xilinx.com>
  * Siva Durga Prasad Paladugu <sivadur@xilinx.com>
@@ -241,5 +241,9 @@
 
 &sdhci1 {
 	status = "okay";
+	/*
+	 * This property should be removed for supporting UHS mode
+	 */
+	no-1-8-v;
 	xlnx,mio_bank = <1>;
 };

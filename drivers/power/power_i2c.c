@@ -7,6 +7,7 @@
  * Stefano Babic, DENX Software Engineering, sbabic@denx.de
  *
  * (C) Copyright 2008-2009 Freescale Semiconductor, Inc.
+ * (C) Copyright 2019 NXP
  */
 
 #include <common.h>
@@ -21,8 +22,20 @@ int pmic_reg_write(struct pmic *p, u32 reg, u32 val)
 
 	if (check_reg(p, reg))
 		return -EINVAL;
+#if defined(CONFIG_DM_I2C)
+	struct udevice *dev;
+	int ret;
 
+	ret = i2c_get_chip_for_busnum(p->bus, pmic_i2c_addr,
+				      1, &dev);
+	if (ret) {
+		printf("%s: Cannot find udev for a bus %d\n", __func__,
+		       p->bus);
+		return -ENXIO;
+	}
+#else /* Non DM I2C support - will be removed */
 	I2C_SET_BUS(p->bus);
+#endif
 
 	switch (pmic_i2c_tx_num) {
 	case 3:
@@ -53,7 +66,11 @@ int pmic_reg_write(struct pmic *p, u32 reg, u32 val)
 		return -EINVAL;
 	}
 
+#if defined(CONFIG_DM_I2C)
+	return dm_i2c_write(dev, reg, buf, pmic_i2c_tx_num);
+#else
 	return i2c_write(pmic_i2c_addr, reg, 1, buf, pmic_i2c_tx_num);
+#endif
 }
 
 int pmic_reg_read(struct pmic *p, u32 reg, u32 *val)
@@ -65,9 +82,21 @@ int pmic_reg_read(struct pmic *p, u32 reg, u32 *val)
 	if (check_reg(p, reg))
 		return -EINVAL;
 
-	I2C_SET_BUS(p->bus);
+#if defined(CONFIG_DM_I2C)
+	struct udevice *dev;
 
+	ret = i2c_get_chip_for_busnum(p->bus, pmic_i2c_addr,
+				      1, &dev);
+	if (ret) {
+		printf("%s: Cannot find udev for a bus %d\n", __func__,
+		       p->bus);
+		return -ENXIO;
+	}
+	ret = dm_i2c_read(dev, reg, buf, pmic_i2c_tx_num);
+#else /* Non DM I2C support - will be removed */
+	I2C_SET_BUS(p->bus);
 	ret = i2c_read(pmic_i2c_addr, reg, 1, buf, pmic_i2c_tx_num);
+#endif
 	if (ret)
 		return ret;
 
@@ -100,12 +129,25 @@ int pmic_reg_read(struct pmic *p, u32 reg, u32 *val)
 
 int pmic_probe(struct pmic *p)
 {
-	i2c_set_bus_num(p->bus);
 	debug("Bus: %d PMIC:%s probed!\n", p->bus, p->name);
+#if defined(CONFIG_DM_I2C)
+	struct udevice *dev;
+	int ret;
+
+	ret = i2c_get_chip_for_busnum(p->bus, pmic_i2c_addr,
+				      1, &dev);
+	if (ret) {
+		printf("%s: Cannot find udev for a bus %d\n", __func__,
+		       p->bus);
+		return -ENXIO;
+	}
+#else /* Non DM I2C support - will be removed */
+	i2c_set_bus_num(p->bus);
 	if (i2c_probe(pmic_i2c_addr)) {
 		printf("Can't find PMIC:%s\n", p->name);
 		return -ENODEV;
 	}
+#endif
 
 	return 0;
 }

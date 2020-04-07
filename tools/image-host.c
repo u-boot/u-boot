@@ -170,7 +170,7 @@ static int fit_image_setup_sig(struct image_sign_info *info,
 
 	memset(info, '\0', sizeof(*info));
 	info->keydir = keydir;
-	info->keyname = fdt_getprop(fit, noffset, "key-name-hint", NULL);
+	info->keyname = fdt_getprop(fit, noffset, FIT_KEY_HINT, NULL);
 	info->fit = fit;
 	info->node_offset = noffset;
 	info->name = strdup(algo_name);
@@ -249,7 +249,7 @@ static int fit_image_process_sig(const char *keydir, void *keydest,
 	free(value);
 
 	/* Get keyname again, as FDT has changed and invalidated our pointer */
-	info.keyname = fdt_getprop(fit, noffset, "key-name-hint", NULL);
+	info.keyname = fdt_getprop(fit, noffset, FIT_KEY_HINT, NULL);
 
 	/*
 	 * Write the public key into the supplied FDT file; this might fail
@@ -337,7 +337,7 @@ static int fit_image_setup_cipher(struct image_cipher_info *info,
 	info->keydir = keydir;
 
 	/* Read the key name */
-	info->keyname = fdt_getprop(fit, noffset, "key-name-hint", NULL);
+	info->keyname = fdt_getprop(fit, noffset, FIT_KEY_HINT, NULL);
 	if (!info->keyname) {
 		printf("Can't get key name for cipher '%s' in image '%s'\n",
 		       node_name, image_name);
@@ -886,7 +886,7 @@ static int fit_config_process_sig(const char *keydir, void *keydest,
 	free(region_prop);
 
 	/* Get keyname again, as FDT has changed and invalidated our pointer */
-	info.keyname = fdt_getprop(fit, noffset, "key-name-hint", NULL);
+	info.keyname = fdt_getprop(fit, noffset, FIT_KEY_HINT, NULL);
 
 	/* Write the public key into the supplied FDT file */
 	if (keydest) {
@@ -1025,19 +1025,22 @@ int fit_add_verification_data(const char *keydir, void *keydest, void *fit,
 }
 
 #ifdef CONFIG_FIT_SIGNATURE
-int fit_check_sign(const void *fit, const void *key)
+int fit_check_sign(const void *fit, const void *key,
+		   const char *fit_uname_config)
 {
 	int cfg_noffset;
 	int ret;
 
-	cfg_noffset = fit_conf_get_node(fit, NULL);
+	cfg_noffset = fit_conf_get_node(fit, fit_uname_config);
 	if (!cfg_noffset)
 		return -1;
 
-	printf("Verifying Hash Integrity ... ");
+	printf("Verifying Hash Integrity for node '%s'... ",
+	       fdt_get_name(fit, cfg_noffset, NULL));
 	ret = fit_config_verify(fit, cfg_noffset);
 	if (ret)
 		return ret;
+	printf("Verified OK, loading images\n");
 	ret = bootm_host_load_images(fit, cfg_noffset);
 
 	return ret;

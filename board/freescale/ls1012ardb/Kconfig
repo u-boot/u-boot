@@ -35,7 +35,7 @@ config SYS_LS_PFE_FW_ADDR
 
 config SYS_LS_PFE_ESBC_ADDR
 	hex "PFE Firmware HDR Addr"
-	default 0x40700000
+	default 0x40640000
 
 config DDR_PFE_PHYS_BASEADDR
 	hex "PFE DDR physical base address"

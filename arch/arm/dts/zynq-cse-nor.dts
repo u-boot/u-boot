@@ -5,7 +5,6 @@
  * Copyright (C) 2018 Xilinx, Inc.
  */
 /dts-v1/;
-#include "zynq-7000.dtsi"
 
 / {
 	#address-cells = <1>;
@@ -33,27 +32,21 @@
 	};
 
 	amba: amba {
+		u-boot,dm-pre-reloc;
 		compatible = "simple-bus";
 		#address-cells = <1>;
 		#size-cells = <1>;
-		interrupt-parent = <&intc>;
 		ranges;
 
-		intc: interrupt-controller@f8f01000 {
-			compatible = "arm,cortex-a9-gic";
-			#interrupt-cells = <3>;
-			interrupt-controller;
-			reg = <0xF8F01000 0x1000>,
-			      <0xF8F00100 0x100>;
-		};
-
 		slcr: slcr@f8000000 {
+			u-boot,dm-pre-reloc;
 			#address-cells = <1>;
 			#size-cells = <1>;
 			compatible = "xlnx,zynq-slcr", "syscon", "simple-bus";
 			reg = <0xF8000000 0x1000>;
 			ranges;
 			clkc: clkc@100 {
+				u-boot,dm-pre-reloc;
 				#clock-cells = <1>;
 				compatible = "xlnx,ps7-clkc";
 				clock-output-names = "armpll", "ddrpll",
@@ -77,6 +70,20 @@
 						"swdt", "dbg_trc", "dbg_apb";
 				reg = <0x100 0x100>;
 			};
+		};
+
+		/*
+		 * This is partially hack because it is normally subnode of smcc
+		 * but for mini U-Boot there is no reason to enable SMCC driver
+		 * which does almost nothing in NOR flash configuration that's
+		 * why place cfi-flash directly here.
+		 */
+		flash@e2000000 {
+			u-boot,dm-pre-reloc;
+			compatible = "cfi-flash";
+			reg = <0xe2000000 0x2000000>;
+			#address-cells = <1>;
+			#size-cells = <1>;
 		};
 	};
 };

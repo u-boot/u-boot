@@ -264,7 +264,7 @@ static int do_mmcrpmb(cmd_tbl_t *cmdtp, int flag,
 		return CMD_RET_FAILURE;
 
 	if (!(mmc->version & MMC_VERSION_MMC)) {
-		printf("It is not a EMMC device\n");
+		printf("It is not an eMMC device\n");
 		return CMD_RET_FAILURE;
 	}
 	if (mmc->version < MMC_VERSION_4_41) {
@@ -718,7 +718,7 @@ static int do_mmc_boot_resize(cmd_tbl_t *cmdtp, int flag,
 		return CMD_RET_FAILURE;
 
 	if (IS_SD(mmc)) {
-		printf("It is not a EMMC device\n");
+		printf("It is not an eMMC device\n");
 		return CMD_RET_FAILURE;
 	}
 

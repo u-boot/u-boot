@@ -46,6 +46,14 @@
 				"zImage fat 0 1 mmcpart 0; " \
 				"tegra124-apalis-eval.dtb fat 0 1 mmcpart 0"
 
+#define UBOOT_UPDATE \
+	"uboot_hwpart=1\0" \
+	"uboot_blk=0\0" \
+	"set_blkcnt=setexpr blkcnt ${filesize} + 0x1ff && " \
+		"setexpr blkcnt ${blkcnt} / 0x200\0" \
+	"update_uboot=run set_blkcnt && mmc dev 0 ${uboot_hwpart} && " \
+		"mmc write ${loadaddr} ${uboot_blk} ${blkcnt}\0" \
+
 #define EMMC_BOOTCMD \
 	"set_emmcargs=setenv emmcargs ip=off root=PARTUUID=${uuid} " \
 		"ro rootfstype=ext4 rootwait\0" \
@@ -104,6 +112,7 @@
 	"fdt_module=" FDT_MODULE "\0" \
 	NFS_BOOTCMD \
 	SD_BOOTCMD \
+	UBOOT_UPDATE \
 	"setethupdate=if env exists ethaddr; then; else setenv ethaddr " \
 		"00:14:2d:00:00:00; fi; pci enum && tftpboot ${loadaddr} " \
 		"flash_eth.img && source ${loadaddr}\0" \

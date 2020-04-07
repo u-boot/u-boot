@@ -109,13 +109,10 @@ static void acpi_add_table(struct acpi_rsdp *rsdp, void *table)
 {
 	int i, entries_num;
 	struct acpi_rsdt *rsdt;
-	struct acpi_xsdt *xsdt = NULL;
+	struct acpi_xsdt *xsdt;
 
 	/* The RSDT is mandatory while the XSDT is not */
 	rsdt = (struct acpi_rsdt *)rsdp->rsdt_address;
-
-	if (rsdp->xsdt_address)
-		xsdt = (struct acpi_xsdt *)((u32)rsdp->xsdt_address);
 
 	/* This should always be MAX_ACPI_TABLES */
 	entries_num = ARRAY_SIZE(rsdt->entry);
@@ -135,30 +132,34 @@ static void acpi_add_table(struct acpi_rsdp *rsdp, void *table)
 
 	/* Fix RSDT length or the kernel will assume invalid entries */
 	rsdt->header.length = sizeof(struct acpi_table_header) +
-				(sizeof(u32) * (i + 1));
+				sizeof(u32) * (i + 1);
 
 	/* Re-calculate checksum */
 	rsdt->header.checksum = 0;
 	rsdt->header.checksum = table_compute_checksum((u8 *)rsdt,
 			rsdt->header.length);
 
+	/* The RSDT is mandatory while the XSDT is not */
+	if (!rsdp->xsdt_address)
+		return;
+
 	/*
 	 * And now the same thing for the XSDT. We use the same index as for
 	 * now we want the XSDT and RSDT to always be in sync in U-Boot
 	 */
-	if (xsdt) {
-		/* Add table to the XSDT */
-		xsdt->entry[i] = (u64)(u32)table;
+	xsdt = (struct acpi_xsdt *)((u32)rsdp->xsdt_address);
 
-		/* Fix XSDT length */
-		xsdt->header.length = sizeof(struct acpi_table_header) +
-			(sizeof(u64) * (i + 1));
+	/* Add table to the XSDT */
+	xsdt->entry[i] = (u64)(u32)table;
 
-		/* Re-calculate checksum */
-		xsdt->header.checksum = 0;
-		xsdt->header.checksum = table_compute_checksum((u8 *)xsdt,
-				xsdt->header.length);
-	}
+	/* Fix XSDT length */
+	xsdt->header.length = sizeof(struct acpi_table_header) +
+				sizeof(u64) * (i + 1);
+
+	/* Re-calculate checksum */
+	xsdt->header.checksum = 0;
+	xsdt->header.checksum = table_compute_checksum((u8 *)xsdt,
+			xsdt->header.length);
 }
 
 static void acpi_create_facs(struct acpi_facs *facs)

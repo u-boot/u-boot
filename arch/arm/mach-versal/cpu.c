@@ -81,6 +81,15 @@ void mem_map_fill(void)
 		if (!gd->bd->bi_dram[i].size)
 			break;
 
+#if defined(CONFIG_VERSAL_NO_DDR)
+		if (gd->bd->bi_dram[i].start < 0x80000000UL ||
+		    gd->bd->bi_dram[i].start > 0x100000000UL) {
+			printf("Ignore caches over %llx/%llx\n",
+			       gd->bd->bi_dram[i].start,
+			       gd->bd->bi_dram[i].size);
+			continue;
+		}
+#endif
 		versal_mem_map[banks].virt = gd->bd->bi_dram[i].start;
 		versal_mem_map[banks].phys = gd->bd->bi_dram[i].start;
 		versal_mem_map[banks].size = gd->bd->bi_dram[i].size;

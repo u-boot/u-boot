@@ -83,6 +83,8 @@ static void memac_set_interface_mode(struct fsl_enet_mac *mac,
 		if_mode |= IF_MODE_GMII;
 		break;
 	case PHY_INTERFACE_MODE_RGMII:
+	case PHY_INTERFACE_MODE_RGMII_ID:
+	case PHY_INTERFACE_MODE_RGMII_RXID:
 	case PHY_INTERFACE_MODE_RGMII_TXID:
 		if_mode |= (IF_MODE_GMII | IF_MODE_RG);
 		break;
@@ -107,6 +109,8 @@ static void memac_set_interface_mode(struct fsl_enet_mac *mac,
 		if_mode |= IF_MODE_EN_AUTO;
 
 	if (type == PHY_INTERFACE_MODE_RGMII ||
+	    type == PHY_INTERFACE_MODE_RGMII_ID ||
+	    type == PHY_INTERFACE_MODE_RGMII_RXID ||
 	    type == PHY_INTERFACE_MODE_RGMII_TXID) {
 		if_mode &= ~IF_MODE_EN_AUTO;
 		if_mode &= ~IF_MODE_SETSP_MASK;

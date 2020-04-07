@@ -93,7 +93,6 @@
 	EXTRA_ENV_SETTINGS			\
 	"boot_scripts=lx2160ardb_boot.scr\0"	\
 	"boot_script_hdr=hdr_lx2160ardb_bs.out\0"	\
-	"lx2160ardb_vdd_mv=800\0"		\
 	"BOARD=lx2160ardb\0"			\
 	"xspi_bootcmd=echo Trying load from flexspi..;"		\
 		"sf probe 0:0 && sf read $load_addr "		\
@@ -103,6 +102,13 @@
 		" bootm $load_addr#$BOARD\0"			\
 	"sd_bootcmd=echo Trying load from sd card..;"		\
 		"mmcinfo; mmc read $load_addr "			\
+		"$kernel_addr_sd $kernel_size_sd ;"		\
+		"env exists secureboot && mmc read $kernelheader_addr_r "\
+		"$kernelhdr_addr_sd $kernelhdr_size_sd "	\
+		" && esbc_validate ${kernelheader_addr_r};"	\
+		"bootm $load_addr#$BOARD\0"			\
+	"sd2_bootcmd=echo Trying load from emmc card..;"	\
+		"mmc dev 1; mmcinfo; mmc read $load_addr "	\
 		"$kernel_addr_sd $kernel_size_sd ;"		\
 		"env exists secureboot && mmc read $kernelheader_addr_r "\
 		"$kernelhdr_addr_sd $kernelhdr_size_sd "	\

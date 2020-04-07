@@ -240,6 +240,21 @@ Device (PCI0)
             Return (STA_VISIBLE)
         }
 
+        Name (SSCN, Package ()
+        {
+            0x02F8, 0x037B, Zero,
+        })
+
+        Name (FMCN, Package ()
+        {
+            0x0087, 0x010A, Zero,
+        })
+
+        Name (HSCN, Package ()
+        {
+            0x0008, 0x0020, Zero,
+        })
+
         Name (RBUF, ResourceTemplate()
         {
             FixedDMA(0x0009, 0x0000, Width32bit, )
@@ -260,6 +275,21 @@ Device (PCI0)
         {
             Return (STA_VISIBLE)
         }
+
+        Name (SSCN, Package ()
+        {
+            0x02F8, 0x037B, Zero,
+        })
+
+        Name (FMCN, Package ()
+        {
+            0x0087, 0x010A, Zero,
+        })
+
+        Name (HSCN, Package ()
+        {
+            0x0008, 0x0020, Zero,
+        })
     }
 
     Device (GPIO)
@@ -288,6 +318,53 @@ Device (PCI0)
                     "\\_SB.PCI0.GPIO", 0, ResourceConsumer, , ) { 96 }
             ),
             WFD3, 1,
+        }
+    }
+
+    Device (DWC3)
+    {
+        Name (_ADR, 0x00110000)
+        Name (_DEP, Package ()
+        {
+            ^IPC1.PMIC
+        })
+
+        Method (_STA, 0, NotSerialized)
+        {
+            Return (STA_VISIBLE)
+        }
+
+        Device (RHUB)
+        {
+            Name (_ADR, Zero)
+
+            /* GPLD: Generate Port Location Data (PLD) */
+            Method (GPLD, 1, Serialized) {
+                Name (PCKG, Package () {
+                    Buffer (0x14) {}
+                })
+
+                /* REV: Revision 0x02 for ACPI 5.0 */
+                CreateField (DerefOf (Index (PCKG, Zero)), Zero, 0x07, REV)
+                Store (0x0002, REV)
+
+                /* VISI: Port visibility to user per port */
+                CreateField (DerefOf (Index (PCKG, Zero)), 0x40, One, VISI)
+                Store (Arg0, VISI)
+
+                /* VOFF: Vertical offset is not supplied */
+                CreateField (DerefOf (Index (PCKG, Zero)), 0x80, 0x10, VOFF)
+                Store (0xFFFF, VOFF)
+
+                /* HOFF: Horizontal offset is not supplied */
+                CreateField (DerefOf (Index (PCKG, Zero)), 0x90, 0x10, HOFF)
+                Store (0xFFFF, HOFF)
+
+                Return (PCKG)
+            }
+
+            Device (HS01) { Name (_ADR, 1) }
+            Device (SS01) { Name (_ADR, 2) }
         }
     }
 

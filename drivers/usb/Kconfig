@@ -108,6 +108,7 @@ config USB_KEYBOARD_FN_KEYS
 
 choice
 	prompt "USB keyboard polling"
+	default SYS_USB_EVENT_POLL_VIA_INT_QUEUE if ARCH_SUNXI
 	default SYS_USB_EVENT_POLL
 	---help---
 	  Enable a polling mechanism for USB keyboard.

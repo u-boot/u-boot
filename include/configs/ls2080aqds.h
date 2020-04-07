@@ -383,7 +383,30 @@ unsigned long get_board_ddr_clk(void);
 	"kernelheader_size=0x40000\0"		\
 	"BOARD=ls2088aqds\0" \
 	"mcmemsize=0x70000000 \0" \
+	"scriptaddr=0x80000000\0"		\
+	"scripthdraddr=0x80080000\0"		\
 	IFC_MC_INIT_CMD				\
+	BOOTENV					\
+	"boot_scripts=ls2088aqds_boot.scr\0"	\
+	"boot_script_hdr=hdr_ls2088aqds_bs.out\0"	\
+	"scan_dev_for_boot_part="		\
+		"part list ${devtype} ${devnum} devplist; "	\
+		"env exists devplist || setenv devplist 1; "	\
+		"for distro_bootpart in ${devplist}; do "	\
+			"if fstype ${devtype} "			\
+				"${devnum}:${distro_bootpart} "	\
+				"bootfstype; then "		\
+				"run scan_dev_for_boot; "	\
+			"fi; "					\
+		"done\0"					\
+	"boot_a_script="					\
+		"load ${devtype} ${devnum}:${distro_bootpart} "	\
+			"${scriptaddr} ${prefix}${script}; "	\
+		"env exists secureboot && load ${devtype} "	\
+			"${devnum}:${distro_bootpart} "		\
+			"${scripthdraddr} ${prefix}${boot_script_hdr} "	\
+			"&& esbc_validate ${scripthdraddr};"	\
+		"source ${scriptaddr}\0"			\
 	"nor_bootcmd=echo Trying load from nor..;"		\
 		"cp.b $kernel_addr $load_addr "			\
 		"$kernel_size ; env exists secureboot && "	\
@@ -429,6 +452,13 @@ unsigned long get_board_ddr_clk(void);
 #endif /* CONFIG_NXP_ESBC */
 
 #ifdef CONFIG_TFABOOT
+#define BOOT_TARGET_DEVICES(func) \
+	func(USB, usb, 0) \
+	func(MMC, mmc, 0) \
+	func(SCSI, scsi, 0) \
+	func(DHCP, dhcp, na)
+#include <config_distro_bootcmd.h>
+
 #define SD_BOOTCOMMAND						\
 			"env exists mcinitcmd && env exists secureboot "\
 			"&& mmcinfo && mmc read $load_addr 0x3600 0x800 " \
@@ -436,14 +466,14 @@ unsigned long get_board_ddr_clk(void);
 			"env exists mcinitcmd && run mcinitcmd "	\
 			"&& mmc read 0x80d00000 0x6800 0x800 "		\
 			"&& fsl_mc lazyapply dpl 0x80d00000; "		\
-			"run sd_bootcmd; "		\
+			"run distro_bootcmd;run sd_bootcmd; "		\
 			"env exists secureboot && esbc_halt;"
 
 #define IFC_NOR_BOOTCOMMAND						\
 			"env exists mcinitcmd && env exists secureboot "\
 			"&& esbc_validate 0x5806C0000; env exists mcinitcmd "\
 			"&& fsl_mc lazyapply dpl 0x580d00000;"		\
-			"run nor_bootcmd; "		\
+			"run distro_bootcmd;run nor_bootcmd; "		\
 			"env exists secureboot && esbc_halt;"
 #endif
 

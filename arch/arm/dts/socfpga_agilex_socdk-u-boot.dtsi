@@ -37,3 +37,6 @@
 	u-boot,dm-pre-reloc;
 };
 
+&qspi {
+	status = "okay";
+};

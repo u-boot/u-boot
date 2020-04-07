@@ -187,11 +187,15 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_BOOTM_LEN   (64 << 20)      /* Increase max gunzip size */
 
 /* Initial environment variables */
-#define XSPI_MC_INIT_CMD			\
-	"env exists secureboot && "		\
-	"esbc_validate 0x20640000 && "		\
-	"esbc_validate 0x20680000 ;"		\
-	"fsl_mc start mc 0x20a00000 0x20e00000\0"
+#define XSPI_MC_INIT_CMD				\
+	"sf probe 0:0 && "				\
+	"sf read 0x80640000 0x640000 0x80000 && "	\
+	"env exists secureboot && "			\
+	"esbc_validate 0x80640000 && "			\
+	"esbc_validate 0x80680000; "			\
+	"sf read 0x80a00000 0xa00000 0x300000 && "	\
+	"sf read 0x80e00000 0xe00000 0x100000; "	\
+	"fsl_mc start mc 0x80a00000 0x80e00000\0"
 
 #define SD_MC_INIT_CMD				\
 	"mmc read 0x80a00000 0x5000 0x1200;"	\
@@ -249,10 +253,13 @@ unsigned long get_board_ddr_clk(void);
 		"source ${scriptaddr}\0"
 
 #define XSPI_NOR_BOOTCOMMAND						\
-			"env exists mcinitcmd && env exists secureboot "\
-			"&& esbc_validate 0x206C0000; "			\
+			"sf probe 0:0; "				\
+			"sf read 0x806c0000 0x6c0000 0x40000; "		\
+			"env exists mcinitcmd && env exists secureboot"	\
+			" && esbc_validate 0x806c0000; "		\
+			"sf read 0x80d00000 0xd00000 0x100000; "	\
 			"env exists mcinitcmd && "			\
-			"fsl_mc lazyapply dpl 0x20d00000; "		\
+			"fsl_mc lazyapply dpl 0x80d00000; "		\
 			"run distro_bootcmd;run xspi_bootcmd; "		\
 			"env exists secureboot && esbc_halt;"
 
@@ -266,10 +273,22 @@ unsigned long get_board_ddr_clk(void);
 		"run distro_bootcmd;run sd_bootcmd;"		\
 		"env exists secureboot && esbc_halt;"
 
+#define SD2_BOOTCOMMAND						\
+		"env exists mcinitcmd && mmcinfo; "		\
+		"mmc read 0x80d00000 0x6800 0x800; "		\
+		"env exists mcinitcmd && env exists secureboot "	\
+		" && mmc read 0x80780000 0x3C00 0x20 "		\
+		"&& esbc_validate 0x80780000;env exists mcinitcmd "	\
+		"&& fsl_mc lazyapply dpl 0x80d00000;"		\
+		"run distro_bootcmd;run sd2_bootcmd;"		\
+		"env exists secureboot && esbc_halt;"
+
 #define BOOT_TARGET_DEVICES(func) \
 	func(USB, usb, 0) \
 	func(MMC, mmc, 0) \
-	func(SCSI, scsi, 0)
+	func(MMC, mmc, 1) \
+	func(SCSI, scsi, 0) \
+	func(DHCP, dhcp, na)
 #include <config_distro_bootcmd.h>
 
 #endif /* __LX2_COMMON_H */

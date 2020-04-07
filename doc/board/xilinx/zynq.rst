@@ -32,7 +32,8 @@ Building
 
 configure and build for zc702 board::
 
-   $ make zynq_zc702_config
+   $ export DEVICE_TREE=zynq-zc702
+   $ make xilinx_zynq_virt_defconfig
    $ make
 
 Bootmode

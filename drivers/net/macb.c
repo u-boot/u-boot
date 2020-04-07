@@ -807,7 +807,7 @@ static int _macb_init(struct macb_device *macb, const char *name)
 	macb->next_rx_tail = 0;
 
 #ifdef CONFIG_MACB_ZYNQ
-	macb_writel(macb, DMACFG, MACB_ZYNQ_GEM_DMACR_INIT);
+	gem_writel(macb, DMACFG, MACB_ZYNQ_GEM_DMACR_INIT);
 #endif
 
 	macb_writel(macb, RBQP, macb->rx_ring_dma);

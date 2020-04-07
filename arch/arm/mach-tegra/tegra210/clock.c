@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * (C) Copyright 2013-2015
+ * (C) Copyright 2013-2020
  * NVIDIA Corporation <www.nvidia.com>
  */
 
@@ -333,7 +333,7 @@ static enum clock_type_id clock_periph_type[PERIPHC_COUNT] = {
 	TYPE(PERIPHC_DMIC3,	CLOCK_TYPE_NONE),
 	TYPE(PERIPHC_APE,	CLOCK_TYPE_NONE),
 	TYPE(PERIPHC_QSPI,	CLOCK_TYPE_PC01C00_C42C41TC40),
-	TYPE(PERIPHC_VI_I2C,	CLOCK_TYPE_NONE),
+	TYPE(PERIPHC_VI_I2C,	CLOCK_TYPE_PC2CC3M_T16),
 	TYPE(PERIPHC_USB2_HSIC_TRK, CLOCK_TYPE_NONE),
 	TYPE(PERIPHC_PEX_SATA_USB_RX_BYP, CLOCK_TYPE_NONE),
 
@@ -739,7 +739,7 @@ int get_periph_clock_info(enum periph_id periph_id, int *mux_bits,
 	if (!clock_periph_id_isvalid(periph_id))
 		return -1;
 
-	internal_id = periph_id_to_internal_id[periph_id];
+	internal_id = INTERNAL_ID(periph_id_to_internal_id[periph_id]);
 	if (!periphc_internal_id_isvalid(internal_id))
 		return -1;
 
@@ -765,7 +765,7 @@ enum clock_id get_periph_clock_id(enum periph_id periph_id, int source)
 	if (!clock_periph_id_isvalid(periph_id))
 		return CLOCK_ID_NONE;
 
-	internal_id = periph_id_to_internal_id[periph_id];
+	internal_id = INTERNAL_ID(periph_id_to_internal_id[periph_id]);
 	if (!periphc_internal_id_isvalid(internal_id))
 		return CLOCK_ID_NONE;
 
@@ -1234,25 +1234,6 @@ int tegra_plle_enable(void)
 	udelay(1);
 	value &= ~PLLE_SS_CNTL_INTERP_RESET;
 	writel(value, NV_PA_CLK_RST_BASE + PLLE_SS_CNTL);
-
-	/* 7. Enable HW power sequencer for PLLE */
-
-	value = readl(NV_PA_CLK_RST_BASE + PLLE_MISC);
-	value &= ~PLLE_MISC_IDDQ_SWCTL;
-	writel(value, NV_PA_CLK_RST_BASE + PLLE_MISC);
-
-	value = readl(NV_PA_CLK_RST_BASE + PLLE_AUX);
-	value &= ~PLLE_AUX_SS_SWCTL;
-	value &= ~PLLE_AUX_ENABLE_SWCTL;
-	value |= PLLE_AUX_SS_SEQ_INCLUDE;
-	value |= PLLE_AUX_USE_LOCKDET;
-	writel(value, NV_PA_CLK_RST_BASE + PLLE_AUX);
-
-	/* 8. Wait 1 us */
-
-	udelay(1);
-	value |= PLLE_AUX_SEQ_ENABLE;
-	writel(value, NV_PA_CLK_RST_BASE + PLLE_AUX);
 
 	return 0;
 }
