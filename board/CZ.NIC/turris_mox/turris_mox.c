@@ -4,19 +4,19 @@
  */
 
 #include <common.h>
-#include <init.h>
 #include <asm/arch/soc.h>
-#include <asm/gpio.h>
 #include <asm/io.h>
-#include <dm.h>
+#include <asm/gpio.h>
 #include <clk.h>
+#include <dm.h>
 #include <env.h>
-#include <spi.h>
-#include <mvebu/comphy.h>
-#include <miiphy.h>
-#include <linux/string.h>
-#include <linux/libfdt.h>
 #include <fdt_support.h>
+#include <init.h>
+#include <linux/libfdt.h>
+#include <linux/string.h>
+#include <miiphy.h>
+#include <mvebu/comphy.h>
+#include <spi.h>
 
 #include "mox_sp.h"
 
