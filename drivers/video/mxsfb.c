@@ -440,6 +440,7 @@ static const struct udevice_id mxs_video_ids[] = {
 	{ .compatible = "fsl,imx23-lcdif" },
 	{ .compatible = "fsl,imx28-lcdif" },
 	{ .compatible = "fsl,imx7ulp-lcdif" },
+	{ .compatible = "fsl,imxrt-lcdif" },
 	{ /* sentinel */ }
 };
 

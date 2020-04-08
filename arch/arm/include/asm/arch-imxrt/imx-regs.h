@@ -17,4 +17,10 @@
 
 #define ANATOP_BASE_ADDR	0x400d8000
 
+#define MXS_LCDIF_BASE		0x402b8000
+
+#if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
+#include <asm/mach-imx/regs-lcdif.h>
+#endif
+
 #endif /* __ASM_ARCH_IMX_REGS_H__ */
