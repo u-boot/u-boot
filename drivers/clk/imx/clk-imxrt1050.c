@@ -71,11 +71,30 @@ static int imxrt1050_clk_enable(struct clk *clk)
 	return __imxrt1050_clk_enable(clk, 1);
 }
 
+static int imxrt1050_clk_set_parent(struct clk *clk, struct clk *parent)
+{
+	struct clk *c, *cp;
+	int ret;
+
+	debug("%s(#%lu), parent: %lu\n", __func__, clk->id, parent->id);
+
+	ret = clk_get_by_id(clk->id, &c);
+	if (ret)
+		return ret;
+
+	ret = clk_get_by_id(parent->id, &cp);
+	if (ret)
+		return ret;
+
+	return clk_set_parent(c, cp);
+}
+
 static struct clk_ops imxrt1050_clk_ops = {
 	.set_rate = imxrt1050_clk_set_rate,
 	.get_rate = imxrt1050_clk_get_rate,
 	.enable = imxrt1050_clk_enable,
 	.disable = imxrt1050_clk_disable,
+	.set_parent = imxrt1050_clk_set_parent,
 };
 
 static const char * const pll_ref_sels[] = {"osc", "dummy", };
