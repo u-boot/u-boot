@@ -172,6 +172,10 @@ static inline void mv_avs_init(void) {}
 static inline void mv_rtc_config(void) {}
 #endif
 
+/* A8K dram functions */
+u64 a8k_dram_scan_ap_sz(void);
+int a8k_dram_init_banksize(void);
+
 /*
  * get_ref_clk
  *
