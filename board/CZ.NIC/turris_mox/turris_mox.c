@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <init.h>
+#include <asm/arch/soc.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <dm.h>
@@ -28,11 +29,11 @@
 #define MOX_MODULE_USB3		0x5
 #define MOX_MODULE_PASSPCI	0x6
 
-#define ARMADA_37XX_NB_GPIO_SEL	0xd0013830
-#define ARMADA_37XX_SPI_CTRL	0xd0010600
-#define ARMADA_37XX_SPI_CFG	0xd0010604
-#define ARMADA_37XX_SPI_DOUT	0xd0010608
-#define ARMADA_37XX_SPI_DIN	0xd001060c
+#define ARMADA_37XX_NB_GPIO_SEL	(MVEBU_REGISTER(0x13830))
+#define ARMADA_37XX_SPI_CTRL	(MVEBU_REGISTER(0x10600))
+#define ARMADA_37XX_SPI_CFG	(MVEBU_REGISTER(0x10604))
+#define ARMADA_37XX_SPI_DOUT	(MVEBU_REGISTER(0x10608))
+#define ARMADA_37XX_SPI_DIN	(MVEBU_REGISTER(0x1060c))
 
 #define ETH1_PATH	"/soc/internal-regs@d0000000/ethernet@40000"
 #define MDIO_PATH	"/soc/internal-regs@d0000000/mdio@32004"
