@@ -607,7 +607,7 @@ static int cr50_i2c_ofdata_to_platdata(struct udevice *dev)
 		priv->irq = irq;
 		priv->use_irq = true;
 	} else {
-		ret = gpio_request_by_name(dev, "ready-gpio", 0,
+		ret = gpio_request_by_name(dev, "ready-gpios", 0,
 					   &priv->ready_gpio, GPIOD_IS_IN);
 		if (ret) {
 			log_warning("Cr50 does not have an ready GPIO/interrupt (err=%d)\n",

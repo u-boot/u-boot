@@ -25,6 +25,6 @@ Example:
 	tpm@50 {
 		reg = <0x50>;
 		compatible = "google,cr50";
-		ready-gpio = <&gpio_n 0x1c GPIO_ACTIVE_LOW>;
+		ready-gpios = <&gpio_n 0x1c GPIO_ACTIVE_LOW>;
 		interrupts-extended = <&acpi_gpe 0x3c 0>;
 	};

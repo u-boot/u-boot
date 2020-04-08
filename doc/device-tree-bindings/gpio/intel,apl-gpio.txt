@@ -47,7 +47,7 @@ Example:
 			reg = <0x50>;
 			compatible = "google,cr50";
 			u-boot,i2c-offset-len = <0>;
-			ready-gpio = <&gpio_n GPIO_28 GPIO_ACTIVE_LOW>;
+			ready-gpios = <&gpio_n GPIO_28 GPIO_ACTIVE_LOW>;
 		};
 	};
 
