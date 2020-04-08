@@ -536,6 +536,8 @@ int pci_auto_config_devices(struct udevice *bus)
 		int ret;
 
 		debug("%s: device %s\n", __func__, dev->name);
+		if (dev_read_bool(dev, "pci,no-autoconfig"))
+			continue;
 		ret = dm_pciauto_config_device(dev);
 		if (ret < 0)
 			return ret;

@@ -10,6 +10,17 @@ Optional properties:
 	configuration in TPL/SPL to reduce code size and boot time, since these
 	phases only know about a small subset of PCI devices.
 
+For PCI devices the following optional property is available:
+
+- pci,no-autoconfig : Don't automatically configure this PCI device at all.
+	This is used when the device is statically configured and must maintain
+	this same config throughout the boot process. An example is a serial
+	UART being used to debug PCI configuration, since reconfiguring it stops
+	the UART from working until the driver is re-probed, and this can cause
+	output to be lost. This should not generally be used in production code,
+	although it is often harmless.
+
+
 Example:
 
 pci {
@@ -21,4 +32,16 @@ pci {
 		0x42000000 0x0 0xb0000000 0xb0000000 0 0x10000000
 		0x01000000 0x0 0x1000 0x1000 0 0xefff>;
 	u-boot,skip-auto-config-until-reloc;
+
+
+	serial: serial@18,2 {
+		reg = <0x0200c210 0 0 0 0>;
+		u-boot,dm-pre-reloc;
+		compatible = "intel,apl-ns16550";
+		early-regs = <0xde000000 0x20>;
+		reg-shift = <2>;
+		clock-frequency = <1843200>;
+		current-speed = <115200>;
+		pci,no-autoconfig;
+	};
 };
