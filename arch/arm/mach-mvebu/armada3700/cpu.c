@@ -50,6 +50,8 @@
 #define A3700_PTE_BLOCK_DEVICE \
 	(PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) | PTE_BLOCK_NON_SHARE)
 
+#define PCIE_PATH			"/soc/pcie@d0070000"
+
 DECLARE_GLOBAL_DATA_PTR;
 
 static struct mm_region mvebu_mem_map[MAX_MEM_MAP_REGIONS] = {
@@ -257,6 +259,56 @@ int a3700_dram_init_banksize(void)
 	}
 
 	return 0;
+}
+
+static u32 find_pcie_window_base(void)
+{
+	int win;
+
+	for (win = 0; win < MVEBU_CPU_DEC_WINS; ++win) {
+		u32 base, tgt;
+
+		/* skip disabled windows */
+		if (get_cpu_dec_win(win, &tgt, &base, NULL))
+			continue;
+
+		if (tgt == MVEBU_CPU_DEC_WIN_CTRL_TGT_PCIE)
+			return base;
+	}
+
+	return -1;
+}
+
+int a3700_fdt_fix_pcie_regions(void *blob)
+{
+	u32 new_ranges[14], base;
+	const u32 *ranges;
+	int node, len;
+
+	node = fdt_path_offset(blob, PCIE_PATH);
+	if (node < 0)
+		return node;
+
+	ranges = fdt_getprop(blob, node, "ranges", &len);
+	if (!ranges)
+		return -ENOENT;
+
+	if (len != sizeof(new_ranges))
+		return -EINVAL;
+
+	memcpy(new_ranges, ranges, len);
+
+	base = find_pcie_window_base();
+	if (base == -1)
+		return -ENOENT;
+
+	new_ranges[2] = cpu_to_fdt32(base);
+	new_ranges[4] = new_ranges[2];
+
+	new_ranges[9] = cpu_to_fdt32(base + 0x1000000);
+	new_ranges[11] = new_ranges[9];
+
+	return fdt_setprop_inplace(blob, node, "ranges", new_ranges, len);
 }
 
 void reset_cpu(ulong ignored)

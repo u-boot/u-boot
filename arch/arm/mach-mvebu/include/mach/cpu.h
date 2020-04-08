@@ -180,6 +180,9 @@ int a8k_dram_init_banksize(void);
 int a3700_dram_init(void);
 int a3700_dram_init_banksize(void);
 
+/* A3700 PCIe regions fixer for device tree */
+int a3700_fdt_fix_pcie_regions(void *blob);
+
 /*
  * get_ref_clk
  *
