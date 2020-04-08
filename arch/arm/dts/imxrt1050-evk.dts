@@ -185,6 +185,33 @@
 					0x17061
 			>;
 		};
+
+		pinctrl_lcdif: lcdifgrp {
+			u-boot,dm-spl;
+			fsl,pins = <
+				MXRT1050_IOMUXC_GPIO_B0_00_LCD_CLK		0x1b0b1
+				MXRT1050_IOMUXC_GPIO_B0_01_LCD_ENABLE		0x1b0b1
+				MXRT1050_IOMUXC_GPIO_B0_02_LCD_HSYNC		0x1b0b1
+				MXRT1050_IOMUXC_GPIO_B0_03_LCD_VSYNC		0x1b0b1
+				MXRT1050_IOMUXC_GPIO_B0_04_LCD_DATA00		0x1b0b1
+				MXRT1050_IOMUXC_GPIO_B0_05_LCD_DATA01		0x1b0b1
+				MXRT1050_IOMUXC_GPIO_B0_06_LCD_DATA02		0x1b0b1
+				MXRT1050_IOMUXC_GPIO_B0_07_LCD_DATA03		0x1b0b1
+				MXRT1050_IOMUXC_GPIO_B0_08_LCD_DATA04		0x1b0b1
+				MXRT1050_IOMUXC_GPIO_B0_09_LCD_DATA05		0x1b0b1
+				MXRT1050_IOMUXC_GPIO_B0_10_LCD_DATA06		0x1b0b1
+				MXRT1050_IOMUXC_GPIO_B0_11_LCD_DATA07		0x1b0b1
+				MXRT1050_IOMUXC_GPIO_B0_12_LCD_DATA08		0x1b0b1
+				MXRT1050_IOMUXC_GPIO_B0_13_LCD_DATA09		0x1b0b1
+				MXRT1050_IOMUXC_GPIO_B0_14_LCD_DATA10		0x1b0b1
+				MXRT1050_IOMUXC_GPIO_B0_15_LCD_DATA11		0x1b0b1
+				MXRT1050_IOMUXC_GPIO_B1_01_LCD_DATA13		0x1b0b1
+				MXRT1050_IOMUXC_GPIO_B1_02_LCD_DATA14		0x1b0b1
+				MXRT1050_IOMUXC_GPIO_B1_03_LCD_DATA15		0x1b0b1
+				MXRT1050_IOMUXC_GPIO_B1_15_GPIO2_IO31		0x0b069
+				MXRT1050_IOMUXC_GPIO_AD_B0_02_GPIO1_IO02	0x0b069
+			>;
+		};
 	};
 };
 
@@ -197,4 +224,37 @@
 	status = "okay";
 
 	cd-gpios = <&gpio2 28 GPIO_ACTIVE_LOW>;
+};
+
+&lcdif {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_lcdif>;
+	display = <&display0>;
+	status = "okay";
+
+	assigned-clocks = <&clks IMXRT1050_CLK_LCDIF_SEL>;
+	assigned-clock-parents = <&clks IMXRT1050_CLK_PLL5_VIDEO>;
+
+	display0: display0 {
+		bits-per-pixel = <16>;
+		bus-width = <16>;
+
+		display-timings {
+			timing0: timing0 {
+				clock-frequency = <9300000>;
+				hactive = <480>;
+				vactive = <272>;
+				hback-porch = <4>;
+				hfront-porch = <8>;
+				vback-porch = <4>;
+				vfront-porch = <8>;
+				hsync-len = <41>;
+				vsync-len = <10>;
+				de-active = <1>;
+				pixelclk-active = <0>;
+				hsync-active = <0>;
+				vsync-active = <0>;
+			};
+		};
+	};
 };
