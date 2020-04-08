@@ -176,6 +176,10 @@ static inline void mv_rtc_config(void) {}
 u64 a8k_dram_scan_ap_sz(void);
 int a8k_dram_init_banksize(void);
 
+/* A3700 dram functions */
+int a3700_dram_init(void);
+int a3700_dram_init_banksize(void);
+
 /*
  * get_ref_clk
  *
