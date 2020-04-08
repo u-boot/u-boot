@@ -34,7 +34,11 @@
 #define ARMADA_37XX_SPI_DOUT	0xd0010608
 #define ARMADA_37XX_SPI_DIN	0xd001060c
 
+#define ETH1_PATH	"/soc/internal-regs@d0000000/ethernet@40000"
+#define MDIO_PATH	"/soc/internal-regs@d0000000/mdio@32004"
+#define SFP_GPIO_PATH	"/soc/internal-regs@d0000000/spi@10600/moxtet@1/gpio@0"
 #define PCIE_PATH	"/soc/pcie@d0070000"
+#define SFP_PATH	"/sfp"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -459,24 +463,22 @@ int last_stage_init(void)
 			}
 			break;
 		case MOX_MODULE_PCI:
-			if (pci) {
+			if (pci)
 				printf("Error: Only one Mini-PCIe module is supported!\n");
-			} else if (usb) {
+			else if (usb)
 				printf("Error: Mini-PCIe module cannot come after USB 3.0 module!\n");
-			} else if (i && (i != 1 || !passpci)) {
+			else if (i && (i != 1 || !passpci))
 				printf("Error: Mini-PCIe module should be the first connected module or come right after Passthrough Mini-PCIe module!\n");
-			} else {
+			else
 				++pci;
-			}
 			break;
 		case MOX_MODULE_TOPAZ:
-			if (topaz) {
+			if (topaz)
 				printf("Error: Only one Topaz module is supported!\n");
-			} else if (peridot >= 3) {
+			else if (peridot >= 3)
 				printf("Error: At most two Peridot modules can come before Topaz module!\n");
-			} else {
+			else
 				++topaz;
-			}
 			break;
 		case MOX_MODULE_PERIDOT:
 			if (sfp || topaz) {
@@ -489,24 +491,22 @@ int last_stage_init(void)
 			}
 			break;
 		case MOX_MODULE_USB3:
-			if (pci) {
+			if (pci)
 				printf("Error: USB 3.0 module cannot come after Mini-PCIe module!\n");
-			} else if (usb) {
+			else if (usb)
 				printf("Error: Only one USB 3.0 module is supported!\n");
-			} else if (i && (i != 1 || !passpci)) {
+			else if (i && (i != 1 || !passpci))
 				printf("Error: USB 3.0 module should be the first connected module or come right after Passthrough Mini-PCIe module!\n");
-			} else {
+			else
 				++usb;
-			}
 			break;
 		case MOX_MODULE_PASSPCI:
-			if (passpci) {
+			if (passpci)
 				printf("Error: Only one Passthrough Mini-PCIe module is supported!\n");
-			} else if (i != 0) {
+			else if (i != 0)
 				printf("Error: Passthrough Mini-PCIe module should be the first connected module!\n");
-			} else {
+			else
 				++passpci;
-			}
 		}
 	}
 
@@ -551,3 +551,262 @@ int last_stage_init(void)
 
 	return 0;
 }
+
+#if defined(CONFIG_OF_BOARD_SETUP)
+
+static int vnode_by_path(void *blob, const char *fmt, va_list ap)
+{
+	char path[128];
+
+	vsnprintf(path, 128, fmt, ap);
+	return fdt_path_offset(blob, path);
+}
+
+static int node_by_path(void *blob, const char *fmt, ...)
+{
+	va_list ap;
+	int res;
+
+	va_start(ap, fmt);
+	res = vnode_by_path(blob, fmt, ap);
+	va_end(ap);
+
+	return res;
+}
+
+static int phandle_by_path(void *blob, const char *fmt, ...)
+{
+	va_list ap;
+	int node, phandle, res;
+
+	va_start(ap, fmt);
+	node = vnode_by_path(blob, fmt, ap);
+	va_end(ap);
+
+	if (node < 0)
+		return node;
+
+	phandle = fdt_get_phandle(blob, node);
+	if (phandle > 0)
+		return phandle;
+
+	phandle = fdt_get_max_phandle(blob);
+	if (phandle < 0)
+		return phandle;
+
+	phandle += 1;
+
+	res = fdt_setprop_u32(blob, node, "linux,phandle", phandle);
+	if (res < 0)
+		return res;
+
+	res = fdt_setprop_u32(blob, node, "phandle", phandle);
+	if (res < 0)
+		return res;
+
+	return phandle;
+}
+
+static int enable_by_path(void *blob, const char *fmt, ...)
+{
+	va_list ap;
+	int node;
+
+	va_start(ap, fmt);
+	node = vnode_by_path(blob, fmt, ap);
+	va_end(ap);
+
+	if (node < 0)
+		return node;
+
+	return fdt_setprop_string(blob, node, "status", "okay");
+}
+
+static bool is_topaz(int id)
+{
+	return topaz && id == peridot + topaz - 1;
+}
+
+static int switch_addr(int id)
+{
+	return is_topaz(id) ? 0x2 : 0x10 + id;
+}
+
+static int setup_switch(void *blob, int id)
+{
+	int res, addr, i, node, phandle;
+
+	addr = switch_addr(id);
+
+	/* first enable the switch by setting status = "okay" */
+	res = enable_by_path(blob, MDIO_PATH "/switch%i@%x", id, addr);
+	if (res < 0)
+		return res;
+
+	/*
+	 * now if there are more switches or a SFP module coming after,
+	 * enable corresponding ports
+	 */
+	if (id < peridot + topaz - 1) {
+		res = enable_by_path(blob,
+				     MDIO_PATH "/switch%i@%x/ports/port@a",
+				     id, addr);
+	} else if (id == peridot - 1 && !topaz && sfp) {
+		res = enable_by_path(blob,
+				     MDIO_PATH "/switch%i@%x/ports/port-sfp@a",
+				     id, addr);
+	} else {
+		res = 0;
+	}
+	if (res < 0)
+		return res;
+
+	if (id >= peridot + topaz - 1)
+		return 0;
+
+	/* finally change link property if needed */
+	node = node_by_path(blob, MDIO_PATH "/switch%i@%x/ports/port@a", id,
+			    addr);
+	if (node < 0)
+		return node;
+
+	for (i = id + 1; i < peridot + topaz; ++i) {
+		phandle = phandle_by_path(blob,
+					  MDIO_PATH "/switch%i@%x/ports/port@%x",
+					  i, switch_addr(i),
+					  is_topaz(i) ? 5 : 9);
+		if (phandle < 0)
+			return phandle;
+
+		if (i == id + 1)
+			res = fdt_setprop_u32(blob, node, "link", phandle);
+		else
+			res = fdt_appendprop_u32(blob, node, "link", phandle);
+		if (res < 0)
+			return res;
+	}
+
+	return 0;
+}
+
+static int remove_disabled_nodes(void *blob)
+{
+	while (1) {
+		int res, offset;
+
+		offset = fdt_node_offset_by_prop_value(blob, -1, "status",
+						       "disabled", 9);
+		if (offset < 0)
+			break;
+
+		res = fdt_del_node(blob, offset);
+		if (res < 0)
+			return res;
+	}
+
+	return 0;
+}
+
+int ft_board_setup(void *blob, bd_t *bd)
+{
+	int node, phandle, res;
+
+	/*
+	 * If MOX B (PCI), MOX F (USB) or MOX G (Passthrough PCI) modules are
+	 * connected, enable the PCIe node.
+	 */
+	if (pci || usb || passpci) {
+		node = fdt_path_offset(blob, PCIE_PATH);
+		if (node < 0)
+			return node;
+
+		res = fdt_setprop_string(blob, node, "status", "okay");
+		if (res < 0)
+			return res;
+	}
+
+	/*
+	 * If MOX C (Topaz switch) and/or MOX E (Peridot switch) are connected,
+	 * enable the eth1 node and setup the switches.
+	 */
+	if (peridot || topaz) {
+		int i;
+
+		res = enable_by_path(blob, ETH1_PATH);
+		if (res < 0)
+			return res;
+
+		for (i = 0; i < peridot + topaz; ++i) {
+			res = setup_switch(blob, i);
+			if (res < 0)
+				return res;
+		}
+	}
+
+	/*
+	 * If MOX D (SFP cage module) is connected, enable the SFP node and eth1
+	 * node. If there is no Peridot switch between MOX A and MOX D, add link
+	 * to the SFP node to eth1 node.
+	 * Also enable and configure SFP GPIO controller node.
+	 */
+	if (sfp) {
+		res = enable_by_path(blob, SFP_PATH);
+		if (res < 0)
+			return res;
+
+		res = enable_by_path(blob, ETH1_PATH);
+		if (res < 0)
+			return res;
+
+		if (!peridot) {
+			phandle = phandle_by_path(blob, SFP_PATH);
+			if (phandle < 0)
+				return res;
+
+			node = node_by_path(blob, ETH1_PATH);
+			if (node < 0)
+				return node;
+
+			res = fdt_setprop_u32(blob, node, "sfp", phandle);
+			if (res < 0)
+				return res;
+
+			res = fdt_setprop_string(blob, node, "phy-mode",
+						 "sgmii");
+			if (res < 0)
+				return res;
+		}
+
+		res = enable_by_path(blob, SFP_GPIO_PATH);
+		if (res < 0)
+			return res;
+
+		if (sfp_pos) {
+			char newname[16];
+
+			/* moxtet-sfp is on non-zero position, change default */
+			node = node_by_path(blob, SFP_GPIO_PATH);
+			if (node < 0)
+				return node;
+
+			res = fdt_setprop_u32(blob, node, "reg", sfp_pos);
+			if (res < 0)
+				return res;
+
+			sprintf(newname, "gpio@%x", sfp_pos);
+
+			res = fdt_set_name(blob, node, newname);
+			if (res < 0)
+				return res;
+		}
+	}
+
+	fdt_fixup_ethernet(blob);
+
+	/* Finally remove disabled nodes, as per Rob Herring's request. */
+	remove_disabled_nodes(blob);
+
+	return 0;
+}
+
+#endif
