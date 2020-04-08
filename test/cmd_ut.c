@@ -74,6 +74,8 @@ static cmd_tbl_t cmd_ut_sub[] = {
 			 "", ""),
 	U_BOOT_CMD_MKENT(bloblist, CONFIG_SYS_MAXARGS, 1, do_ut_bloblist,
 			 "", ""),
+	U_BOOT_CMD_MKENT(str, CONFIG_SYS_MAXARGS, 1, do_ut_str,
+			 "", ""),
 #endif
 };
 
@@ -136,6 +138,9 @@ static char ut_help_text[] =
 #endif
 #ifdef CONFIG_UT_OVERLAY
 	"ut overlay [test-name]\n"
+#endif
+#ifdef CONFIG_SANDBOX
+	"ut str - Basic test of string functions\n"
 #endif
 #ifdef CONFIG_UT_TIME
 	"ut time - Very basic test of time functions\n"
