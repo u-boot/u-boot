@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
@@ -101,6 +102,11 @@ int board_fix_fdt(void *blob)
 			       enable ? "okay" : "disabled") < 0) {
 		printf("Cannot %s PCIe in U-Boot's device tree!\n",
 		       enable ? "enable" : "disable");
+		return 0;
+	}
+
+	if (a3700_fdt_fix_pcie_regions(blob) < 0) {
+		printf("Cannot fix PCIe regions in U-Boot's device tree!\n");
 		return 0;
 	}
 
@@ -706,6 +712,11 @@ int ft_board_setup(void *blob, bd_t *bd)
 			return node;
 
 		res = fdt_setprop_string(blob, node, "status", "okay");
+		if (res < 0)
+			return res;
+
+		/* Fix PCIe regions for devices with 4 GB RAM */
+		res = a3700_fdt_fix_pcie_regions(blob);
 		if (res < 0)
 			return res;
 	}
