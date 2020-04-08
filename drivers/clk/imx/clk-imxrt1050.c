@@ -238,9 +238,9 @@ static int imxrt1050_clk_probe(struct udevice *dev)
 	clk_dm(IMXRT1050_CLK_LCDIF,
 	       imx_clk_gate2("lcdif", "lcdif_podf", base + 0x70, 28));
 
-#ifdef CONFIG_SPL_BUILD
 	struct clk *clk, *clk1;
 
+#ifdef CONFIG_SPL_BUILD
 	/* bypass pll1 before setting its rate */
 	clk_get_by_id(IMXRT1050_CLK_PLL1_REF_SEL, &clk);
 	clk_get_by_id(IMXRT1050_CLK_PLL1_BYPASS, &clk1);
@@ -271,7 +271,14 @@ static int imxrt1050_clk_probe(struct udevice *dev)
 
 	clk_get_by_id(IMXRT1050_CLK_PLL3_BYPASS, &clk1);
 	clk_set_parent(clk1, clk);
+#else
+	/* Set PLL5 for LCDIF to its default 650Mhz */
+	clk_get_by_id(IMXRT1050_CLK_PLL5_VIDEO, &clk);
+	clk_enable(clk);
+	clk_set_rate(clk, 650000000UL);
 
+	clk_get_by_id(IMXRT1050_CLK_PLL5_BYPASS, &clk1);
+	clk_set_parent(clk1, clk);
 #endif
 
 	return 0;
