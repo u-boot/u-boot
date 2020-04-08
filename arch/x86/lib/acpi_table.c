@@ -12,8 +12,8 @@
 #include <dm/uclass-internal.h>
 #include <serial.h>
 #include <version.h>
+#include <acpi/acpi_table.h>
 #include <asm/acpi/global_nvs.h>
-#include <asm/acpi_table.h>
 #include <asm/ioapic.h>
 #include <asm/lapic.h>
 #include <asm/mpspec.h>
