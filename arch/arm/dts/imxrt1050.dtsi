@@ -13,6 +13,7 @@
 
 / {
 	aliases {
+		display0 = &lcdif;
 		gpio0 = &gpio1;
 		gpio1 = &gpio2;
 		gpio2 = &gpio3;
@@ -141,6 +142,15 @@
 			#gpio-cells = <2>;
 			interrupt-controller;
 			#interrupt-cells = <2>;
+		};
+
+		lcdif: lcdif@402b8000 {
+		    compatible = "fsl,imxrt-lcdif";
+		    reg = <0x402b8000 0x10000>;
+		    interrupts = <GIC_SPI 42 IRQ_TYPE_LEVEL_HIGH>;
+		    clocks = <&clks IMXRT1050_CLK_LCDIF>;
+		    clock-names = "per";
+		    status = "disabled";
 		};
 	};
 };
