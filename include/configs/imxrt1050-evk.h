@@ -30,6 +30,21 @@
 
 #define CONFIG_SYS_MMC_ENV_DEV		0   /* USDHC1 */
 
+#ifdef CONFIG_DM_VIDEO
+#define CONFIG_VIDEO_MXS
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_SPLASH_SCREEN
+#define CONFIG_SPLASH_SCREEN_ALIGN
+#define CONFIG_BMP_16BPP
+#define CONFIG_VIDEO_BMP_RLE8
+#define CONFIG_VIDEO_BMP_LOGO
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
+		"stdin=serial\0" \
+		"stdout=serial,vidconsole\0" \
+		"stderr=serial,vidconsole\0"
+#endif
+
 /*
  * Configuration of the external SDRAM memory
  */
