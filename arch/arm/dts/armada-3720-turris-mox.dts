@@ -45,6 +45,20 @@
 		regulator-boot-on;
 	};
 
+	vsdc_reg: vsdc-reg {
+		compatible = "regulator-gpio";
+		regulator-name = "vsdc";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-boot-on;
+
+		gpios = <&gpiosb 23 GPIO_ACTIVE_HIGH>;
+		gpios-states = <0>;
+		states = <1800000 0x1
+			  3300000 0x0>;
+		enable-active-high;
+	};
+
 	mdio {
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -93,7 +107,11 @@
 };
 
 &sdhci1 {
+	wp-inverted;
 	bus-width = <4>;
+	cd-gpios = <&gpionb 10 GPIO_ACTIVE_HIGH>;
+	vqmmc-supply = <&vsdc_reg>;
+	marvell,pad-type = "sd";
 	status = "okay";
 };
 
