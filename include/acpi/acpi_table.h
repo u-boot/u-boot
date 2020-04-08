@@ -360,6 +360,51 @@ struct acpi_csrt_shared_info {
 	u32 max_block_size;
 };
 
+enum dmar_type {
+	DMAR_DRHD = 0,
+	DMAR_RMRR = 1,
+	DMAR_ATSR = 2,
+	DMAR_RHSA = 3,
+	DMAR_ANDD = 4
+};
+
+enum {
+	DRHD_INCLUDE_PCI_ALL = BIT(0)
+};
+
+enum dmar_flags {
+	DMAR_INTR_REMAP			= BIT(0),
+	DMAR_X2APIC_OPT_OUT		= BIT(1),
+	DMAR_CTRL_PLATFORM_OPT_IN_FLAG	= BIT(2),
+};
+
+struct dmar_entry {
+	u16 type;
+	u16 length;
+	u8 flags;
+	u8 reserved;
+	u16 segment;
+	u64 bar;
+};
+
+struct dmar_rmrr_entry {
+	u16 type;
+	u16 length;
+	u16 reserved;
+	u16 segment;
+	u64 bar;
+	u64 limit;
+};
+
+/* DMAR (DMA Remapping Reporting Structure) */
+struct __packed acpi_dmar {
+	struct acpi_table_header header;
+	u8 host_address_width;
+	u8 flags;
+	u8 reserved[10];
+	struct dmar_entry structure[0];
+};
+
 /* DBG2 definitions are partially used for SPCR interface_type */
 
 /* Types for port_type field */
@@ -450,6 +495,15 @@ enum acpi_tables {
  * @return version number that U-Boot generates
  */
 int acpi_get_table_revision(enum acpi_tables table);
+
+/**
+ * acpi_create_dmar() - Create a DMA Remapping Reporting (DMAR) table
+ *
+ * @dmar: Place to put the table
+ * @flags: DMAR flags to use
+ * @return 0 if OK, -ve on error
+ */
+int acpi_create_dmar(struct acpi_dmar *dmar, enum dmar_flags flags);
 
 #endif /* !__ACPI__*/
 

@@ -7,6 +7,37 @@
 
 #include <common.h>
 #include <acpi/acpi_table.h>
+#include <dm.h>
+#include <cpu.h>
+
+/* Temporary change to ensure bisectability */
+#ifndef CONFIG_SANDBOX
+int acpi_create_dmar(struct acpi_dmar *dmar, enum dmar_flags flags)
+{
+	struct acpi_table_header *header = &dmar->header;
+	struct cpu_info info;
+	struct udevice *cpu;
+	int ret;
+
+	ret = uclass_first_device(UCLASS_CPU, &cpu);
+	if (ret)
+		return log_msg_ret("cpu", ret);
+	ret = cpu_get_info(cpu, &info);
+	if (ret)
+		return log_msg_ret("info", ret);
+	memset((void *)dmar, 0, sizeof(struct acpi_dmar));
+
+	/* Fill out header fields. */
+	acpi_fill_header(&dmar->header, "DMAR");
+	header->length = sizeof(struct acpi_dmar);
+	header->revision = acpi_get_table_revision(ACPITAB_DMAR);
+
+	dmar->host_address_width = info.address_width - 1;
+	dmar->flags = flags;
+
+	return 0;
+}
+#endif
 
 int acpi_get_table_revision(enum acpi_tables table)
 {

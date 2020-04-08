@@ -67,3 +67,19 @@ static int dm_test_acpi_get_table_revision(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_acpi_get_table_revision,
 	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Temporary change to ensure bisectability */
+#ifndef CONFIG_SANDBOX
+/* Test acpi_create_dmar() */
+static int dm_test_acpi_create_dmar(struct unit_test_state *uts)
+{
+	struct acpi_dmar dmar;
+
+	ut_assertok(acpi_create_dmar(&dmar, DMAR_INTR_REMAP));
+	ut_asserteq(DMAR_INTR_REMAP, dmar.flags);
+	ut_asserteq(32 - 1, dmar.host_address_width);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_create_dmar, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+#endif
