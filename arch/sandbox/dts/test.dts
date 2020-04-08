@@ -206,6 +206,10 @@
 		compatible = "denx,u-boot-devres-test";
 	};
 
+	acpi-test {
+		compatible = "denx,u-boot-acpi-test";
+	};
+
 	clocks {
 		clk_fixed: clk-fixed {
 			compatible = "fixed-clock";
