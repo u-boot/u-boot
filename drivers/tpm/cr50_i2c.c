@@ -34,6 +34,15 @@ enum {
 	CR50_MAX_BUF_SIZE = 63,
 };
 
+/**
+ * struct cr50_priv - Private driver data
+ *
+ * @ready_gpio: GPIO to use to check if the TPM is ready
+ * @irq: IRQ to use check if the TPM is ready (has priority over @ready_gpio)
+ * @locality: Currenttly claimed locality (-1 if none)
+ * @vendor: vendor: Vendor ID for TPM
+ * @use_irq: true to use @irq, false to use @ready if available
+ */
 struct cr50_priv {
 	struct gpio_desc ready_gpio;
 	struct irq irq;
