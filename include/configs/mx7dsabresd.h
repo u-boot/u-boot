@@ -81,8 +81,8 @@
 	"fdt_addr_r=0x83000000\0" \
 	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
 	"pxefile_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
-	"ramdisk_addr_r=0x83000000\0" \
-	"ramdiskaddr=0x83000000\0" \
+	"ramdisk_addr_r=0x83100000\0" \
+	"ramdiskaddr=0x83100000\0" \
 	"scriptaddr=" __stringify(CONFIG_LOADADDR) "\0" \
 	"videomode=video=ctfb:x:480,y:272,depth:24,pclk:108695,le:8,ri:4,up:2,lo:4,hs:41,vs:10,sync:0,vmode:0\0" \
 	BOOTENV
