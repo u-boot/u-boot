@@ -21,6 +21,8 @@
 #define ACPI_RSDP_REV_ACPI_1_0	0
 #define ACPI_RSDP_REV_ACPI_2_0	2
 
+#if !defined(__ACPI__)
+
 /*
  * RSDP (Root System Description Pointer)
  * Note: ACPI 1.0 didn't have length, xsdt_address, and ext_checksum
@@ -388,6 +390,8 @@ struct __packed acpi_spcr {
 	u8 pci_segment;
 	u32 reserved2;
 };
+
+#endif /* !__ACPI__*/
 
 #include <asm/acpi_table.h>
 
