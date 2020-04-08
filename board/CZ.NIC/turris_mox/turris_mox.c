@@ -43,22 +43,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int dram_init(void)
-{
-	gd->ram_base = 0;
-	gd->ram_size = (phys_size_t)get_ram_size(0, 0x40000000);
-
-	return 0;
-}
-
-int dram_init_banksize(void)
-{
-	gd->bd->bi_dram[0].start = (phys_addr_t)0;
-	gd->bd->bi_dram[0].size = gd->ram_size;
-
-	return 0;
-}
-
 #if defined(CONFIG_OF_BOARD_FIXUP)
 int board_fix_fdt(void *blob)
 {
