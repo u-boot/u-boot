@@ -44,10 +44,12 @@ enum {
  *
  * @cpu_freq:	Current CPU frequency in Hz
  * @features:	Flags for supported CPU features
+ * @address_width:	Width of the CPU address space in bits (e.g. 32)
  */
 struct cpu_info {
 	ulong cpu_freq;
 	ulong features;
+	uint address_width;
 };
 
 struct cpu_ops {

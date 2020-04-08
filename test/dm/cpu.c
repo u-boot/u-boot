@@ -33,6 +33,7 @@ static int dm_test_cpu(struct unit_test_state *uts)
 	ut_assertok(cpu_get_info(dev, &info));
 	ut_asserteq(info.cpu_freq, 42 * 42 * 42 * 42 * 42);
 	ut_asserteq(info.features, 0x42424242);
+	ut_asserteq(info.address_width, 32);
 
 	ut_asserteq(cpu_get_count(dev), 42);
 
