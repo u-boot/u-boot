@@ -4,7 +4,6 @@
  * Author(s): Giulio Benetti <giulio.benetti@benettiengineering.com>
  */
 
-#include "skeleton.dtsi"
 #include "armv7-m.dtsi"
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/clock/imxrt1050-clock.h>
@@ -12,6 +11,9 @@
 #include <dt-bindings/memory/imxrt-sdram.h>
 
 / {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
 	aliases {
 		display0 = &lcdif;
 		gpio0 = &gpio1;
