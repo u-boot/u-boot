@@ -82,9 +82,23 @@ int board_early_init_r(void)
 	return 0;
 }
 
+static u8 versal_get_bootmode(void)
+{
+	u8 bootmode;
+	u32 reg = 0;
+
+	reg = readl(&crp_base->boot_mode_usr);
+
+	if (reg >> BOOT_MODE_ALT_SHIFT)
+		reg >>= BOOT_MODE_ALT_SHIFT;
+
+	bootmode = reg & BOOT_MODES_MASK;
+
+	return bootmode;
+}
+
 int board_late_init(void)
 {
-	u32 reg = 0;
 	u8 bootmode;
 	struct udevice *dev;
 	int bootseq = -1;
@@ -99,12 +113,7 @@ int board_late_init(void)
 		return 0;
 	}
 
-	reg = readl(&crp_base->boot_mode_usr);
-
-	if (reg >> BOOT_MODE_ALT_SHIFT)
-		reg >>= BOOT_MODE_ALT_SHIFT;
-
-	bootmode = reg & BOOT_MODES_MASK;
+	bootmode = versal_get_bootmode();
 
 	puts("Bootmode: ");
 	switch (bootmode) {

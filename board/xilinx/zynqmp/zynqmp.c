@@ -552,9 +552,26 @@ static int set_fdtfile(void)
 	return 0;
 }
 
+static u8 zynqmp_get_bootmode(void)
+{
+	u8 bootmode;
+	u32 reg = 0;
+	int ret;
+
+	ret = zynqmp_mmio_read((ulong)&crlapb_base->boot_mode, &reg);
+	if (ret)
+		return -EINVAL;
+
+	if (reg >> BOOT_MODE_ALT_SHIFT)
+		reg >>= BOOT_MODE_ALT_SHIFT;
+
+	bootmode = reg & BOOT_MODES_MASK;
+
+	return bootmode;
+}
+
 int board_late_init(void)
 {
-	u32 reg = 0;
 	u8 bootmode;
 	struct udevice *dev;
 	int bootseq = -1;
@@ -578,14 +595,7 @@ int board_late_init(void)
 	if (ret)
 		return ret;
 
-	ret = zynqmp_mmio_read((ulong)&crlapb_base->boot_mode, &reg);
-	if (ret)
-		return -EINVAL;
-
-	if (reg >> BOOT_MODE_ALT_SHIFT)
-		reg >>= BOOT_MODE_ALT_SHIFT;
-
-	bootmode = reg & BOOT_MODES_MASK;
+	bootmode = zynqmp_get_bootmode();
 
 	puts("Bootmode: ");
 	switch (bootmode) {
