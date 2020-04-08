@@ -23,22 +23,21 @@ static const char *_parse_integer_fixup_radix(const char *s, unsigned int *base)
 			else
 				*base = 8;
 		} else {
-			int i;
+			int i = 0;
+			char var;
 
 			*base = 10;
 
-			for (i = 0; ; i++) {
-				char var = s[i];
-
-				if (var == '\0')
-					break;
-
-				if ((var >= 'a' && var <= 'f') ||
-				    (var >= 'A' && var <= 'F')) {
+			do {
+				var = tolower(s[i++]);
+				if (var >= 'a' && var <= 'f') {
 					*base = 16;
 					break;
 				}
-			}
+
+				if (!(var >= '0' && var <= '9'))
+					break;
+			} while (var);
 		}
 	}
 
