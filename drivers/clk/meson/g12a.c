@@ -804,6 +804,7 @@ static ulong meson_clk_get_rate_by_id(struct clk *clk, unsigned long id)
 		break;
 	case CLKID_PCIE_PLL:
 		rate = meson_pcie_pll_get_rate(clk);
+		break;
 	case CLKID_VPU_0:
 		rate = meson_div_get_rate(clk, CLKID_VPU_0_DIV);
 		break;
@@ -976,6 +977,13 @@ static int meson_clk_probe(struct udevice *dev)
 	priv->map = syscon_node_to_regmap(dev_get_parent(dev)->node);
 	if (IS_ERR(priv->map))
 		return PTR_ERR(priv->map);
+
+	/*
+	 * Depending on the boot src, the state of the MMC clock might
+	 * be different. Reset it to make sure we won't get stuck
+	 */
+	regmap_write(priv->map, HHI_NAND_CLK_CNTL, 0);
+	regmap_write(priv->map, HHI_SD_EMMC_CLK_CNTL, 0);
 
 	debug("meson-clk-g12a: probed\n");
 

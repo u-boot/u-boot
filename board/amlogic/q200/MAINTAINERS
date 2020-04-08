@@ -5,3 +5,5 @@ L:	u-boot-amlogic@groups.io
 F:	board/amlogic/q200/
 F:	include/configs/q200.h
 F:	configs/khadas-vim2_defconfig
+F:	configs/libretech-s905d-pc_defconfig
+F:	configs/libretech-s912-pc_defconfig
