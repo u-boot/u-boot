@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <acpi/acpi_table.h>
 #include <dm/acpi.h>
 #include <dm/test.h>
 #include <test/ut.h>
@@ -53,3 +54,16 @@ static int dm_test_acpi_get_name(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_acpi_get_name, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test acpi_get_table_revision() */
+static int dm_test_acpi_get_table_revision(struct unit_test_state *uts)
+{
+	ut_asserteq(1, acpi_get_table_revision(ACPITAB_MCFG));
+	ut_asserteq(2, acpi_get_table_revision(ACPITAB_RSDP));
+	ut_asserteq(4, acpi_get_table_revision(ACPITAB_TPM2));
+	ut_asserteq(-EINVAL, acpi_get_table_revision(ACPITAB_COUNT));
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_get_table_revision,
+	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

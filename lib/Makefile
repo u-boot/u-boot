@@ -58,6 +58,7 @@ obj-$(CONFIG_TPM_V1) += tpm-v1.o
 obj-$(CONFIG_TPM_V2) += tpm-v2.o
 endif
 
+obj-$(CONFIG_$(SPL_)ACPIGEN) += acpi/
 obj-$(CONFIG_$(SPL_)RSA) += rsa/
 obj-$(CONFIG_SHA1) += sha1.o
 obj-$(CONFIG_SHA256) += sha256.o
