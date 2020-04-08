@@ -34,6 +34,9 @@ static const char *_parse_integer_fixup_radix(const char *s, unsigned int *base)
 					*base = 16;
 					break;
 				}
+
+				if (!(var >= '0' && var <= '9'))
+					break;
 			} while (var);
 		}
 	}
