@@ -129,6 +129,8 @@ static void mxs_lcd_init(struct udevice *dev, u32 fb_addr,
 		vdctrl0 |= LCDIF_VDCTRL0_HSYNC_POL;
 	if(flags & DISPLAY_FLAGS_VSYNC_HIGH)
 		vdctrl0 |= LCDIF_VDCTRL0_VSYNC_POL;
+	if(flags & DISPLAY_FLAGS_PIXDATA_NEGEDGE)
+		vdctrl0 |= LCDIF_VDCTRL0_DOTCLK_POL;
 	writel(vdctrl0, &regs->hw_lcdif_vdctrl0);
 	writel(timings->vback_porch.typ + timings->vfront_porch.typ +
 		timings->vsync_len.typ + timings->vactive.typ,
