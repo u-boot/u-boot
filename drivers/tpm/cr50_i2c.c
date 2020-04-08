@@ -206,7 +206,7 @@ static int release_locality(struct udevice *dev, int force)
 		cr50_i2c_write(dev, addr, &buf, 1);
 	}
 
-	priv->locality = 0;
+	priv->locality = -1;
 
 	return 0;
 }
@@ -499,6 +499,7 @@ static int process_reset(struct udevice *dev)
 static int claim_locality(struct udevice *dev, int loc)
 {
 	const u8 mask = TPM_ACCESS_VALID | TPM_ACCESS_ACTIVE_LOCALITY;
+	struct cr50_priv *priv = dev_get_priv(dev);
 	u8 access;
 	int ret;
 
@@ -525,6 +526,7 @@ static int claim_locality(struct udevice *dev, int loc)
 		return -EPERM;
 	}
 	log_info("Claimed locality %d\n", loc);
+	priv->locality = loc;
 
 	return 0;
 }
@@ -559,7 +561,11 @@ static int cr50_i2c_open(struct udevice *dev)
 
 static int cr50_i2c_cleanup(struct udevice *dev)
 {
-	release_locality(dev, 1);
+	struct cr50_priv *priv = dev_get_priv(dev);
+
+	printf("%s: cleanup %d\n", __func__, priv->locality);
+	if (priv->locality != -1)
+		release_locality(dev, 1);
 
 	return 0;
 }
@@ -631,6 +637,7 @@ static int cr50_i2c_probe(struct udevice *dev)
 		return log_msg_ret("vendor-id", -EXDEV);
 	}
 	priv->vendor = vendor;
+	priv->locality = -1;
 
 	return 0;
 }
@@ -655,5 +662,7 @@ U_BOOT_DRIVER(cr50_i2c) = {
 	.ops    = &cr50_i2c_ops,
 	.ofdata_to_platdata	= cr50_i2c_ofdata_to_platdata,
 	.probe	= cr50_i2c_probe,
+	.remove	= cr50_i2c_cleanup,
 	.priv_auto_alloc_size = sizeof(struct cr50_priv),
+	.flags		= DM_FLAG_OS_PREPARE,
 };
