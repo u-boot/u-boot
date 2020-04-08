@@ -179,3 +179,11 @@ long trailing_strtol(const char *str)
 {
 	return trailing_strtoln(str, NULL);
 }
+
+void str_to_upper(const char *in, char *out, size_t len)
+{
+	for (; len > 0 && *in; len--)
+		*out++ = toupper(*in++);
+	if (len)
+		*out = '\0';
+}
