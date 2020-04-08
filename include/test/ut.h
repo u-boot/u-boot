@@ -8,6 +8,7 @@
 #ifndef __TEST_UT_H
 #define __TEST_UT_H
 
+#include <hexdump.h>
 #include <linux/err.h>
 
 struct unit_test_state;
