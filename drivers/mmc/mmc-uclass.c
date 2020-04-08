@@ -239,7 +239,7 @@ int mmc_of_parse(struct udevice *dev, struct mmc_config *cfg)
 	return 0;
 }
 
-struct mmc *mmc_get_mmc_dev(struct udevice *dev)
+struct mmc *mmc_get_mmc_dev(const struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv;
 
