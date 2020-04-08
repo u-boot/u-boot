@@ -4,9 +4,9 @@
  */
 
 #include <common.h>
-#include <acpi_s3.h>
 #include <malloc.h>
 #include <vbe.h>
+#include <acpi/acpi_s3.h>
 #include <asm/coreboot_tables.h>
 #include <asm/e820.h>
 

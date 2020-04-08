@@ -6,9 +6,9 @@
 #define LOG_CATEGORY UCLASS_ACPI_PMC
 
 #include <common.h>
-#include <acpi_s3.h>
 #include <dm.h>
 #include <log.h>
+#include <acpi/acpi_s3.h>
 #ifdef CONFIG_X86
 #include <asm/intel_pinctrl.h>
 #endif

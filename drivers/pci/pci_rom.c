@@ -33,12 +33,10 @@
 #include <vbe.h>
 #include <video.h>
 #include <video_fb.h>
+#include <acpi/acpi_s3.h>
 #include <linux/screen_info.h>
 
-#ifdef CONFIG_X86
-#include <acpi_s3.h>
 DECLARE_GLOBAL_DATA_PTR;
-#endif
 
 __weak bool board_should_run_oprom(struct udevice *dev)
 {
