@@ -1114,15 +1114,15 @@ with -E, e.g. the migration warnings:
 When doing builds, Buildman's return code will reflect the overall result:
 
     0 (success)     No errors or warnings found
-    128             Errors found
-    129             Warnings found (only if no -W)
+    100             Errors found
+    101             Warnings found (only if no -W)
 
-You can use -W to tell Buildman to return 0 (success) instead of 129 when
+You can use -W to tell Buildman to return 0 (success) instead of 101 when
 warnings are found. Note that it can be useful to combine -E and -W. This means
-that all compiler warnings will produce failures (code 128) and all other
-warnings will produce success (since 129 is changed to 0).
+that all compiler warnings will produce failures (code 100) and all other
+warnings will produce success (since 101 is changed to 0).
 
-If there are both warnings and errors, errors win, so buildman returns 128.
+If there are both warnings and errors, errors win, so buildman returns 100.
 
 The -y option is provided (for use with -s) to ignore the bountiful device-tree
 warnings. Similarly, -Y tells buildman to ignore the migration warnings.

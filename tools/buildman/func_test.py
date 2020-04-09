@@ -454,7 +454,7 @@ class TestFunctional(unittest.TestCase):
         # Only sandbox should succeed, the others don't have toolchains
         self.assertEqual(self._builder.fail,
                          self._total_builds - self._commits)
-        self.assertEqual(ret_code, 128)
+        self.assertEqual(ret_code, 100)
 
         for commit in range(self._commits):
             for board in self._boards.GetList():

@@ -361,7 +361,7 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
             fail, warned = builder.BuildBoards(commits, board_selected,
                                 options.keep_outputs, options.verbose)
             if fail:
-                return 128
+                return 100
             elif warned and not options.ignore_warnings:
-                return 129
+                return 101
     return 0
