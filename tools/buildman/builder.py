@@ -1533,7 +1533,10 @@ class Builder:
         if setup_git and self.git_dir:
             src_dir = os.path.abspath(self.git_dir)
             if os.path.exists(git_dir):
+                Print('\rFetching repo for thread %d' % thread_num,
+                      newline=False)
                 gitutil.Fetch(git_dir, thread_dir)
+                terminal.PrintClear()
             else:
                 Print('\rCloning repo for thread %d' % thread_num,
                       newline=False)
@@ -1591,7 +1594,7 @@ class Builder:
                   newline=False)
             for dirname in to_remove:
                 shutil.rmtree(dirname)
-            Print('done')
+            terminal.PrintClear()
 
     def BuildBoards(self, commits, board_selected, keep_outputs, verbose):
         """Build all commits for a list of boards
