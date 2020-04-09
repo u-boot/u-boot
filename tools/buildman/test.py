@@ -178,10 +178,17 @@ class TestBuild(unittest.TestCase):
             expect += col.Color(expected_colour, ' %s' % board)
         self.assertEqual(text, expect)
 
-    def testOutput(self):
-        """Test basic builder operation and output
+    def _SetupTest(self, echo_lines=False, **kwdisplay_args):
+        """Set up the test by running a build and summary
 
-        This does a line-by-line verification of the summary output.
+        Args:
+            echo_lines: True to echo lines to the terminal to aid test
+                development
+            kwdisplay_args: Dict of arguemnts to pass to
+                Builder.SetDisplayOptions()
+
+        Returns:
+            Iterator containing the output lines, each a PrintLine() object
         """
         build = builder.Builder(self.toolchains, self.base_dir, None, 1, 2,
                                 checkout=False, show_unknown=False)
@@ -201,11 +208,18 @@ class TestBuild(unittest.TestCase):
         # We should get two starting messages, then an update for every commit
         # built.
         self.assertEqual(count, len(commits) * len(boards) + 2)
-        build.SetDisplayOptions(show_errors=True);
+        build.SetDisplayOptions(**kwdisplay_args);
         build.ShowSummary(self.commits, board_selected)
-        #terminal.EchoPrintTestLines()
-        lines = iter(terminal.GetPrintTestLines())
+        if echo_lines:
+            terminal.EchoPrintTestLines()
+        return iter(terminal.GetPrintTestLines())
 
+    def _CheckOutput(self, lines):
+        """Check for expected output from the build summary
+
+        Args:
+            lines: Iterator containing the lines returned from the summary
+        """
         # Upstream commit: no errors
         self.assertEqual(next(lines).text, '01: %s' % commits[0][1])
 
@@ -319,6 +333,14 @@ class TestBuild(unittest.TestCase):
         self.assertEqual(line.text, 'w+%s' %
                 '\n'.join(expect).replace('\n', '\nw+'))
         self.assertEqual(line.colour, col.MAGENTA)
+
+    def testOutput(self):
+        """Test basic builder operation and output
+
+        This does a line-by-line verification of the summary output.
+        """
+        lines = self._SetupTest(show_errors=True)
+        self._CheckOutput(lines)
 
     def _testGit(self):
         """Test basic builder operation by building a branch"""
