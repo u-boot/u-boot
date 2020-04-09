@@ -116,8 +116,8 @@ if [ -f $BL32 ]; then
 cat << __CONF_SECTION_EOF
 		config@$cnt {
 			description = "$(basename $dtname .dtb)";
-			firmware = "atf@1";
-			loadables = "uboot@1", "tee@1";
+			firmware = "uboot@1";
+			loadables = "atf@1", "tee@1";
 			fdt = "fdt@$cnt";
 		};
 __CONF_SECTION_EOF
@@ -125,8 +125,8 @@ else
 cat << __CONF_SECTION1_EOF
 		config@$cnt {
 			description = "$(basename $dtname .dtb)";
-			firmware = "atf@1";
-			loadables = "uboot@1";
+			firmware = "uboot@1";
+			loadables = "atf@1";
 			fdt = "fdt@$cnt";
 		};
 __CONF_SECTION1_EOF
