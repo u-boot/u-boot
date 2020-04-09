@@ -222,7 +222,7 @@ class TestBuild(unittest.TestCase):
             list_error_boards: Adjust the check for output produced with the
                --list-error-boards flag
         """
-        def add_line_prefix(prefix, boards, error_str):
+        def add_line_prefix(prefix, boards, error_str, colour):
             """Add a prefix to each line of a string
 
             The training \n in error_str is removed before processing
@@ -230,14 +230,23 @@ class TestBuild(unittest.TestCase):
             Args:
                 prefix: String prefix to add
                 error_str: Error string containing the lines
+                colour: Expected colour for the line. Note that the board list,
+                    if present, always appears in magenta
 
             Returns:
                 New string where each line has the prefix added
             """
-            if boards:
-                boards = '(%s) ' % boards
             lines = error_str.strip().splitlines()
-            new_lines = [prefix + boards + line for line in lines]
+            new_lines = []
+            for line in lines:
+                if boards:
+                    expect = self._col.Color(colour, prefix + '(')
+                    expect += self._col.Color(self._col.MAGENTA, boards,
+                                              bright=False)
+                    expect += self._col.Color(colour, ') %s' % line)
+                else:
+                    expect = self._col.Color(colour, prefix + line)
+                new_lines.append(expect)
             return '\n'.join(new_lines)
 
         boards1234 = 'board1,board2,board3,board4' if list_error_boards else ''
@@ -260,11 +269,8 @@ class TestBuild(unittest.TestCase):
                            outcome=OUTCOME_WARN)
 
         # Second commit: The warnings should be listed
-        line = next(lines)
-
-        self.assertEqual(line.text,
-                         add_line_prefix('w+', boards1234, errors[0]))
-        self.assertEqual(line.colour, col.YELLOW)
+        self.assertEqual(next(lines).text,
+            add_line_prefix('w+', boards1234, errors[0], col.YELLOW))
 
         # Third commit: Still fails
         self.assertEqual(next(lines).text, '03: %s' % commits[2][1])
@@ -275,9 +281,8 @@ class TestBuild(unittest.TestCase):
         self.assertSummary(next(lines).text, 'sandbox', '+', ['board4'])
 
         # Expect a compiler error
-        line = next(lines)
-        self.assertEqual(line.text, add_line_prefix('+', boards234, errors[1]))
-        self.assertEqual(line.colour, col.RED)
+        self.assertEqual(next(lines).text,
+                         add_line_prefix('+', boards234, errors[1], col.RED))
 
         # Fourth commit: Compile errors are fixed, just have warning for board3
         self.assertEqual(next(lines).text, '04: %s' % commits[3][1])
@@ -293,13 +298,11 @@ class TestBuild(unittest.TestCase):
                            outcome=OUTCOME_WARN)
 
         # Compile error fixed
-        line = next(lines)
-        self.assertEqual(line.text, add_line_prefix('-', boards234, errors[1]))
-        self.assertEqual(line.colour, col.GREEN)
+        self.assertEqual(next(lines).text,
+                         add_line_prefix('-', boards234, errors[1], col.GREEN))
 
-        line = next(lines)
-        self.assertEqual(line.text, add_line_prefix('w+', boards34, errors[2]))
-        self.assertEqual(line.colour, col.YELLOW)
+        self.assertEqual(next(lines).text,
+                         add_line_prefix('w+', boards34, errors[2], col.YELLOW))
 
         # Fifth commit
         self.assertEqual(next(lines).text, '05: %s' % commits[4][1])
@@ -311,13 +314,11 @@ class TestBuild(unittest.TestCase):
         expect = errors[3].rstrip().split('\n')
         expect = [expect[0]] + expect[2:]
         expect = '\n'.join(expect)
-        line = next(lines)
-        self.assertEqual(line.text, add_line_prefix('+', boards4, expect))
-        self.assertEqual(line.colour, col.RED)
+        self.assertEqual(next(lines).text,
+                         add_line_prefix('+', boards4, expect, col.RED))
 
-        line = next(lines)
-        self.assertEqual(line.text, add_line_prefix('w-', boards34, errors[2]))
-        self.assertEqual(line.colour, col.CYAN)
+        self.assertEqual(next(lines).text,
+                         add_line_prefix('w-', boards34, errors[2], col.CYAN))
 
         # Sixth commit
         self.assertEqual(next(lines).text, '06: %s' % commits[5][1])
@@ -328,13 +329,10 @@ class TestBuild(unittest.TestCase):
         expect = errors[3].rstrip().split('\n')
         expect = [expect[0]] + expect[2:]
         expect = '\n'.join(expect)
-        line = next(lines)
-        self.assertEqual(line.text, add_line_prefix('-', boards4, expect))
-        self.assertEqual(line.colour, col.GREEN)
-
-        line = next(lines)
-        self.assertEqual(line.text, add_line_prefix('w-', boards4, errors[0]))
-        self.assertEqual(line.colour, col.CYAN)
+        self.assertEqual(next(lines).text,
+                         add_line_prefix('-', boards4, expect, col.GREEN))
+        self.assertEqual(next(lines).text,
+                         add_line_prefix('w-', boards4, errors[0], col.CYAN))
 
         # Seventh commit
         self.assertEqual(next(lines).text, '07: %s' % commits[6][1])
@@ -344,16 +342,14 @@ class TestBuild(unittest.TestCase):
         expect_str = errors[4].rstrip().replace('%(basedir)s', '').split('\n')
         expect = expect_str[3:8] + [expect_str[-1]]
         expect = '\n'.join(expect)
-        line = next(lines)
-        self.assertEqual(line.text, add_line_prefix('+', boards4, expect))
-        self.assertEqual(line.colour, col.RED)
+        self.assertEqual(next(lines).text,
+                         add_line_prefix('+', boards4, expect, col.RED))
 
         # Now the warnings lines
         expect = [expect_str[0]] + expect_str[10:12] + [expect_str[9]]
         expect = '\n'.join(expect)
-        line = next(lines)
-        self.assertEqual(line.text, add_line_prefix('w+', boards4, expect))
-        self.assertEqual(line.colour, col.YELLOW)
+        self.assertEqual(next(lines).text,
+                         add_line_prefix('w+', boards4, expect, col.YELLOW))
 
     def testOutput(self):
         """Test basic builder operation and output

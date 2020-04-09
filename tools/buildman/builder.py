@@ -1249,13 +1249,20 @@ class Builder:
                 colour: Colour to use for output
             """
             if err_lines:
-                out = []
+                out_list = []
                 for line in err_lines:
                     boards = ''
                     names = [board.target for board in line.boards]
-                    boards = '(%s) ' % ','.join(names) if names else ''
-                    out.append('%s%s%s' % (line.char, boards, line.errline))
-                Print('\n'.join(out), colour=colour)
+                    board_str = ','.join(names) if names else ''
+                    if board_str:
+                        out = self.col.Color(colour, line.char + '(')
+                        out += self.col.Color(self.col.MAGENTA, board_str,
+                                              bright=False)
+                        out += self.col.Color(colour, ') %s' % line.errline)
+                    else:
+                        out = self.col.Color(colour, line.char + line.errline)
+                    out_list.append(out)
+                Print('\n'.join(out_list))
                 self._error_lines += 1
 
 
