@@ -204,41 +204,44 @@ class TestBuild(unittest.TestCase):
         build.SetDisplayOptions(show_errors=True);
         build.ShowSummary(self.commits, board_selected)
         #terminal.EchoPrintTestLines()
-        lines = terminal.GetPrintTestLines()
+        lines = iter(terminal.GetPrintTestLines())
 
         # Upstream commit: no errors
-        self.assertEqual(lines[0].text, '01: %s' % commits[0][1])
+        self.assertEqual(next(lines).text, '01: %s' % commits[0][1])
 
         # Second commit: all archs should fail with warnings
-        self.assertEqual(lines[1].text, '02: %s' % commits[1][1])
+        self.assertEqual(next(lines).text, '02: %s' % commits[1][1])
 
         col = terminal.Color()
-        self.assertSummary(lines[2].text, 'arm', 'w+', ['board1'],
+        self.assertSummary(next(lines).text, 'arm', 'w+', ['board1'],
                            outcome=OUTCOME_WARN)
-        self.assertSummary(lines[3].text, 'powerpc', 'w+', ['board2', 'board3'],
-                           outcome=OUTCOME_WARN)
-        self.assertSummary(lines[4].text, 'sandbox', 'w+', ['board4'],
+        self.assertSummary(next(lines).text, 'powerpc', 'w+',
+                           ['board2', 'board3'], outcome=OUTCOME_WARN)
+        self.assertSummary(next(lines).text, 'sandbox', 'w+', ['board4'],
                            outcome=OUTCOME_WARN)
 
         # Second commit: The warnings should be listed
-        self.assertEqual(lines[5].text, 'w+%s' %
+        line = next(lines)
+        self.assertEqual(line.text, 'w+%s' %
                 errors[0].rstrip().replace('\n', '\nw+'))
-        self.assertEqual(lines[5].colour, col.MAGENTA)
+        self.assertEqual(line.colour, col.MAGENTA)
 
         # Third commit: Still fails
-        self.assertEqual(lines[6].text, '03: %s' % commits[2][1])
-        self.assertSummary(lines[7].text, 'arm', '', ['board1'],
+        self.assertEqual(next(lines).text, '03: %s' % commits[2][1])
+        self.assertSummary(next(lines).text, 'arm', '', ['board1'],
                            outcome=OUTCOME_OK)
-        self.assertSummary(lines[8].text, 'powerpc', '+', ['board2', 'board3'])
-        self.assertSummary(lines[9].text, 'sandbox', '+', ['board4'])
+        self.assertSummary(next(lines).text, 'powerpc', '+',
+                           ['board2', 'board3'])
+        self.assertSummary(next(lines).text, 'sandbox', '+', ['board4'])
 
         # Expect a compiler error
-        self.assertEqual(lines[10].text, '+%s' %
+        line = next(lines)
+        self.assertEqual(line.text, '+%s' %
                 errors[1].rstrip().replace('\n', '\n+'))
-        self.assertEqual(lines[10].colour, col.RED)
+        self.assertEqual(line.colour, col.RED)
 
         # Fourth commit: Compile errors are fixed, just have warning for board3
-        self.assertEqual(lines[11].text, '04: %s' % commits[3][1])
+        self.assertEqual(next(lines).text, '04: %s' % commits[3][1])
         expect = '%10s: ' % 'powerpc'
         expect += ' ' + col.Color(col.GREEN, '')
         expect += '  '
@@ -246,70 +249,77 @@ class TestBuild(unittest.TestCase):
         expect += ' ' + col.Color(col.YELLOW, 'w+')
         expect += '  '
         expect += col.Color(col.YELLOW, ' %s' % 'board3')
-        self.assertEqual(lines[12].text, expect)
-        self.assertSummary(lines[13].text, 'sandbox', 'w+', ['board4'],
+        self.assertEqual(next(lines).text, expect)
+        self.assertSummary(next(lines).text, 'sandbox', 'w+', ['board4'],
                            outcome=OUTCOME_WARN)
 
         # Compile error fixed
-        self.assertEqual(lines[14].text, '-%s' %
+        line = next(lines)
+        self.assertEqual(line.text, '-%s' %
                 errors[1].rstrip().replace('\n', '\n-'))
-        self.assertEqual(lines[14].colour, col.GREEN)
+        self.assertEqual(line.colour, col.GREEN)
 
-        self.assertEqual(lines[15].text, 'w+%s' %
+        line = next(lines)
+        self.assertEqual(line.text, 'w+%s' %
                 errors[2].rstrip().replace('\n', '\nw+'))
-        self.assertEqual(lines[15].colour, col.MAGENTA)
+        self.assertEqual(line.colour, col.MAGENTA)
 
         # Fifth commit
-        self.assertEqual(lines[16].text, '05: %s' % commits[4][1])
-        self.assertSummary(lines[17].text, 'powerpc', '', ['board3'],
+        self.assertEqual(next(lines).text, '05: %s' % commits[4][1])
+        self.assertSummary(next(lines).text, 'powerpc', '', ['board3'],
                            outcome=OUTCOME_OK)
-        self.assertSummary(lines[18].text, 'sandbox', '+', ['board4'])
+        self.assertSummary(next(lines).text, 'sandbox', '+', ['board4'])
 
         # The second line of errors[3] is a duplicate, so buildman will drop it
         expect = errors[3].rstrip().split('\n')
         expect = [expect[0]] + expect[2:]
-        self.assertEqual(lines[19].text, '+%s' %
+        line = next(lines)
+        self.assertEqual(line.text, '+%s' %
                 '\n'.join(expect).replace('\n', '\n+'))
-        self.assertEqual(lines[19].colour, col.RED)
+        self.assertEqual(line.colour, col.RED)
 
-        self.assertEqual(lines[20].text, 'w-%s' %
+        line = next(lines)
+        self.assertEqual(line.text, 'w-%s' %
                 errors[2].rstrip().replace('\n', '\nw-'))
-        self.assertEqual(lines[20].colour, col.CYAN)
+        self.assertEqual(line.colour, col.CYAN)
 
         # Sixth commit
-        self.assertEqual(lines[21].text, '06: %s' % commits[5][1])
-        self.assertSummary(lines[22].text, 'sandbox', '', ['board4'],
+        self.assertEqual(next(lines).text, '06: %s' % commits[5][1])
+        self.assertSummary(next(lines).text, 'sandbox', '', ['board4'],
                            outcome=OUTCOME_OK)
 
         # The second line of errors[3] is a duplicate, so buildman will drop it
         expect = errors[3].rstrip().split('\n')
         expect = [expect[0]] + expect[2:]
-        self.assertEqual(lines[23].text, '-%s' %
+        line = next(lines)
+        self.assertEqual(line.text, '-%s' %
                 '\n'.join(expect).replace('\n', '\n-'))
-        self.assertEqual(lines[23].colour, col.GREEN)
+        self.assertEqual(line.colour, col.GREEN)
 
-        self.assertEqual(lines[24].text, 'w-%s' %
+        line = next(lines)
+        self.assertEqual(line.text, 'w-%s' %
                 errors[0].rstrip().replace('\n', '\nw-'))
-        self.assertEqual(lines[24].colour, col.CYAN)
+        self.assertEqual(line.colour, col.CYAN)
 
         # Seventh commit
-        self.assertEqual(lines[25].text, '07: %s' % commits[6][1])
-        self.assertSummary(lines[26].text, 'sandbox', '+', ['board4'])
+        self.assertEqual(next(lines).text, '07: %s' % commits[6][1])
+        self.assertSummary(next(lines).text, 'sandbox', '+', ['board4'])
 
         # Pick out the correct error lines
         expect_str = errors[4].rstrip().replace('%(basedir)s', '').split('\n')
         expect = expect_str[3:8] + [expect_str[-1]]
-        self.assertEqual(lines[27].text, '+%s' %
+        line = next(lines)
+        self.assertEqual(line.text, '+%s' %
                 '\n'.join(expect).replace('\n', '\n+'))
-        self.assertEqual(lines[27].colour, col.RED)
+        self.assertEqual(line.colour, col.RED)
 
         # Now the warnings lines
         expect = [expect_str[0]] + expect_str[10:12] + [expect_str[9]]
-        self.assertEqual(lines[28].text, 'w+%s' %
+        line = next(lines)
+        self.assertEqual(line.text, 'w+%s' %
                 '\n'.join(expect).replace('\n', '\nw+'))
-        self.assertEqual(lines[28].colour, col.MAGENTA)
+        self.assertEqual(line.colour, col.MAGENTA)
 
-        self.assertEqual(len(lines), 29)
         shutil.rmtree(base_dir)
 
     def _testGit(self):
