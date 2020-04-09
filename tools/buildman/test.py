@@ -143,9 +143,14 @@ class TestBuild(unittest.TestCase):
         terminal.SetPrintTestMode()
         self._col = terminal.Color()
 
-    def Make(self, commit, brd, stage, *args, **kwargs):
-        global base_dir
+        self.base_dir = tempfile.mkdtemp()
+        if not os.path.isdir(self.base_dir):
+            os.mkdir(self.base_dir)
 
+    def tearDown(self):
+        shutil.rmtree(self.base_dir)
+
+    def Make(self, commit, brd, stage, *args, **kwargs):
         result = command.CommandResult()
         boardnum = int(brd.target[-1])
         result.return_code = 0
@@ -156,7 +161,7 @@ class TestBuild(unittest.TestCase):
                 boardnum == 4 and commit.sequence == 6):
             result.return_code = commit.return_code
             result.stderr = (''.join(commit.error_list)
-                % {'basedir' : base_dir + '/.bm-work/00/'})
+                % {'basedir' : self.base_dir + '/.bm-work/00/'})
 
         result.combined = result.stdout + result.stderr
         return result
@@ -178,12 +183,7 @@ class TestBuild(unittest.TestCase):
 
         This does a line-by-line verification of the summary output.
         """
-        global base_dir
-
-        base_dir = tempfile.mkdtemp()
-        if not os.path.isdir(base_dir):
-            os.mkdir(base_dir)
-        build = builder.Builder(self.toolchains, base_dir, None, 1, 2,
+        build = builder.Builder(self.toolchains, self.base_dir, None, 1, 2,
                                 checkout=False, show_unknown=False)
         build.do_make = self.Make
         board_selected = self.boards.GetSelectedDict()
@@ -320,19 +320,14 @@ class TestBuild(unittest.TestCase):
                 '\n'.join(expect).replace('\n', '\nw+'))
         self.assertEqual(line.colour, col.MAGENTA)
 
-        shutil.rmtree(base_dir)
-
     def _testGit(self):
         """Test basic builder operation by building a branch"""
-        base_dir = tempfile.mkdtemp()
-        if not os.path.isdir(base_dir):
-            os.mkdir(base_dir)
         options = Options()
         options.git = os.getcwd()
         options.summary = False
         options.jobs = None
         options.dry_run = False
-        #options.git = os.path.join(base_dir, 'repo')
+        #options.git = os.path.join(self.base_dir, 'repo')
         options.branch = 'test-buildman'
         options.force_build = False
         options.list_tool_chains = False
@@ -345,7 +340,6 @@ class TestBuild(unittest.TestCase):
         options.keep_outputs = False
         args = ['tegra20']
         control.DoBuildman(options, args)
-        shutil.rmtree(base_dir)
 
     def testBoardSingle(self):
         """Test single board selection"""
