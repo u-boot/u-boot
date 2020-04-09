@@ -214,13 +214,15 @@ class TestBuild(unittest.TestCase):
             terminal.EchoPrintTestLines()
         return iter(terminal.GetPrintTestLines())
 
-    def _CheckOutput(self, lines, list_error_boards):
+    def _CheckOutput(self, lines, list_error_boards, filter_dtb_warnings):
         """Check for expected output from the build summary
 
         Args:
             lines: Iterator containing the lines returned from the summary
             list_error_boards: Adjust the check for output produced with the
                --list-error-boards flag
+            filter_dtb_warnings: Adjust the check for output produced with the
+               --filter-dtb-warnings flag
         """
         def add_line_prefix(prefix, boards, error_str, colour):
             """Add a prefix to each line of a string
@@ -301,8 +303,10 @@ class TestBuild(unittest.TestCase):
         self.assertEqual(next(lines).text,
                          add_line_prefix('-', boards234, errors[1], col.GREEN))
 
-        self.assertEqual(next(lines).text,
-                         add_line_prefix('w+', boards34, errors[2], col.YELLOW))
+        if not filter_dtb_warnings:
+            self.assertEqual(
+                next(lines).text,
+                add_line_prefix('w+', boards34, errors[2], col.YELLOW))
 
         # Fifth commit
         self.assertEqual(next(lines).text, '05: %s' % commits[4][1])
@@ -317,8 +321,10 @@ class TestBuild(unittest.TestCase):
         self.assertEqual(next(lines).text,
                          add_line_prefix('+', boards4, expect, col.RED))
 
-        self.assertEqual(next(lines).text,
-                         add_line_prefix('w-', boards34, errors[2], col.CYAN))
+        if not filter_dtb_warnings:
+            self.assertEqual(
+                next(lines).text,
+                add_line_prefix('w-', boards34, errors[2], col.CYAN))
 
         # Sixth commit
         self.assertEqual(next(lines).text, '06: %s' % commits[5][1])
@@ -357,7 +363,8 @@ class TestBuild(unittest.TestCase):
         This does a line-by-line verification of the summary output.
         """
         lines = self._SetupTest(show_errors=True)
-        self._CheckOutput(lines, list_error_boards=False)
+        self._CheckOutput(lines, list_error_boards=False,
+                          filter_dtb_warnings=False)
 
     def testErrorBoards(self):
         """Test output with --list-error-boards
@@ -365,7 +372,17 @@ class TestBuild(unittest.TestCase):
         This does a line-by-line verification of the summary output.
         """
         lines = self._SetupTest(show_errors=True, list_error_boards=True)
-        self._CheckOutput(lines, list_error_boards=True)
+        self._CheckOutput(lines, list_error_boards=True,
+                          filter_dtb_warnings=False)
+
+    def testFilterDtb(self):
+        """Test output with --filter-dtb-warnings
+
+        This does a line-by-line verification of the summary output.
+        """
+        lines = self._SetupTest(show_errors=True, filter_dtb_warnings=True)
+        self._CheckOutput(lines, list_error_boards=False,
+                          filter_dtb_warnings=True)
 
     def _testGit(self):
         """Test basic builder operation by building a branch"""

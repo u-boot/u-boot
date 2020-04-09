@@ -345,16 +345,15 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
             commits = None
 
         Print(GetActionSummary(options.summary, commits, board_selected,
-                                options))
+                               options))
 
         # We can't show function sizes without board details at present
         if options.show_bloat:
             options.show_detail = True
-        builder.SetDisplayOptions(options.show_errors, options.show_sizes,
-                                  options.show_detail, options.show_bloat,
-                                  options.list_error_boards,
-                                  options.show_config,
-                                  options.show_environment)
+        builder.SetDisplayOptions(
+            options.show_errors, options.show_sizes, options.show_detail,
+            options.show_bloat, options.list_error_boards, options.show_config,
+            options.show_environment, options.filter_dtb_warnings)
         if options.summary:
             builder.ShowSummary(commits, board_selected)
         else:

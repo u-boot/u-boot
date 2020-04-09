@@ -1124,6 +1124,9 @@ warnings will produce success (since 129 is changed to 0).
 
 If there are both warnings and errors, errors win, so buildman returns 128.
 
+The -y option is provided (for use with -s) to ignore the bountiful device-tree
+warnings.
+
 
 How to change from MAKEALL
 ==========================

@@ -338,16 +338,19 @@ class Builder:
     def SetDisplayOptions(self, show_errors=False, show_sizes=False,
                           show_detail=False, show_bloat=False,
                           list_error_boards=False, show_config=False,
-                          show_environment=False):
+                          show_environment=False, filter_dtb_warnings=False):
         """Setup display options for the builder.
 
-        show_errors: True to show summarised error/warning info
-        show_sizes: Show size deltas
-        show_detail: Show size delta detail for each board if show_sizes
-        show_bloat: Show detail for each function
-        list_error_boards: Show the boards which caused each error/warning
-        show_config: Show config deltas
-        show_environment: Show environment deltas
+        Args:
+            show_errors: True to show summarised error/warning info
+            show_sizes: Show size deltas
+            show_detail: Show size delta detail for each board if show_sizes
+            show_bloat: Show detail for each function
+            list_error_boards: Show the boards which caused each error/warning
+            show_config: Show config deltas
+            show_environment: Show environment deltas
+            filter_dtb_warnings: Filter out any warnings from the device-tree
+                compiler
         """
         self._show_errors = show_errors
         self._show_sizes = show_sizes
@@ -356,6 +359,7 @@ class Builder:
         self._list_error_boards = list_error_boards
         self._show_config = show_config
         self._show_environment = show_environment
+        self._filter_dtb_warnings = filter_dtb_warnings
 
     def _AddTimestamp(self):
         """Add a new timestamp to the list and record the build period.
@@ -556,8 +560,11 @@ class Builder:
         """
         out_lines = []
         for line in lines:
-            if not self.re_make_err.search(line):
-                out_lines.append(line)
+            if self.re_make_err.search(line):
+                continue
+            if self._filter_dtb_warnings and self._re_dtb_warning.search(line):
+                continue
+            out_lines.append(line)
         return out_lines
 
     def ReadFuncSizes(self, fname, fd):
