@@ -1213,7 +1213,14 @@ u32 dm_pci_read_bar32(const struct udevice *dev, int barnum)
 
 	bar = PCI_BASE_ADDRESS_0 + barnum * 4;
 	dm_pci_read_config32(dev, bar, &addr);
-	if (addr & PCI_BASE_ADDRESS_SPACE_IO)
+
+	/*
+	 * If we get an invalid address, return this so that comparisons with
+	 * FDT_ADDR_T_NONE work correctly
+	 */
+	if (addr == 0xffffffff)
+		return addr;
+	else if (addr & PCI_BASE_ADDRESS_SPACE_IO)
 		return addr & PCI_BASE_ADDRESS_IO_MASK;
 	else
 		return addr & PCI_BASE_ADDRESS_MEM_MASK;
