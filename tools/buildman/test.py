@@ -36,6 +36,14 @@ main: /usr/sbin
 x86: i386 x86_64
 '''
 
+migration = '''===================== WARNING ======================
+This board does not use CONFIG_DM. CONFIG_DM will be
+compulsory starting with the v2020.01 release.
+Failure to update may result in board removal.
+See doc/driver-model/migration.rst for more info.
+====================================================
+'''
+
 errors = [
     '''main.c: In function 'main_loop':
 main.c:260:6: warning: unused variable 'joe' [-Wunused-variable]
@@ -79,13 +87,14 @@ make: *** [sub-make] Error 2
 
 # hash, subject, return code, list of errors/warnings
 commits = [
-    ['1234', 'upstream/master, ok', 0, []],
+    ['1234', 'upstream/master, migration warning', 0, []],
     ['5678', 'Second commit, a warning', 0, errors[0:1]],
     ['9012', 'Third commit, error', 1, errors[0:2]],
     ['3456', 'Fourth commit, warning', 0, [errors[0], errors[2]]],
     ['7890', 'Fifth commit, link errors', 1, [errors[0], errors[3]]],
     ['abcd', 'Sixth commit, fixes all errors', 0, []],
-    ['ef01', 'Seventh commit, check directory suppression', 1, [errors[4]]],
+    ['ef01', 'Seventh commit, fix migration, check directory suppression', 1,
+     [errors[4]]],
 ]
 
 boards = [
@@ -118,6 +127,8 @@ class TestBuild(unittest.TestCase):
             comm.subject = commit_info[1]
             comm.return_code = commit_info[2]
             comm.error_list = commit_info[3]
+            if sequence < 6:
+                 comm.error_list += [migration]
             comm.sequence = sequence
             sequence += 1
             self.commits.append(comm)
@@ -162,6 +173,8 @@ class TestBuild(unittest.TestCase):
             result.return_code = commit.return_code
             result.stderr = (''.join(commit.error_list)
                 % {'basedir' : self.base_dir + '/.bm-work/00/'})
+        elif commit.sequence < 6:
+            result.stderr = migration
 
         result.combined = result.stdout + result.stderr
         return result
@@ -214,7 +227,9 @@ class TestBuild(unittest.TestCase):
             terminal.EchoPrintTestLines()
         return iter(terminal.GetPrintTestLines())
 
-    def _CheckOutput(self, lines, list_error_boards, filter_dtb_warnings):
+    def _CheckOutput(self, lines, list_error_boards=False,
+                     filter_dtb_warnings=False,
+                     filter_migration_warnings=False):
         """Check for expected output from the build summary
 
         Args:
@@ -251,24 +266,38 @@ class TestBuild(unittest.TestCase):
                 new_lines.append(expect)
             return '\n'.join(new_lines)
 
+        col = terminal.Color()
+        boards01234 = ('board0 board1 board2 board3 board4'
+                       if list_error_boards else '')
         boards1234 = 'board1 board2 board3 board4' if list_error_boards else ''
         boards234 = 'board2 board3 board4' if list_error_boards else ''
         boards34 = 'board3 board4' if list_error_boards else ''
         boards4 = 'board4' if list_error_boards else ''
 
-        # Upstream commit: no errors
+        # Upstream commit: migration warnings only
         self.assertEqual(next(lines).text, '01: %s' % commits[0][1])
+
+        if not filter_migration_warnings:
+            self.assertSummary(next(lines).text, 'arm', 'w+',
+                               ['board0', 'board1'], outcome=OUTCOME_WARN)
+            self.assertSummary(next(lines).text, 'powerpc', 'w+',
+                               ['board2', 'board3'], outcome=OUTCOME_WARN)
+            self.assertSummary(next(lines).text, 'sandbox', 'w+', ['board4'],
+                               outcome=OUTCOME_WARN)
+
+            self.assertEqual(next(lines).text,
+                add_line_prefix('+', boards01234, migration, col.RED))
 
         # Second commit: all archs should fail with warnings
         self.assertEqual(next(lines).text, '02: %s' % commits[1][1])
 
-        col = terminal.Color()
-        self.assertSummary(next(lines).text, 'arm', 'w+', ['board1'],
-                           outcome=OUTCOME_WARN)
-        self.assertSummary(next(lines).text, 'powerpc', 'w+',
-                           ['board2', 'board3'], outcome=OUTCOME_WARN)
-        self.assertSummary(next(lines).text, 'sandbox', 'w+', ['board4'],
-                           outcome=OUTCOME_WARN)
+        if filter_migration_warnings:
+            self.assertSummary(next(lines).text, 'arm', 'w+',
+                               ['board1'], outcome=OUTCOME_WARN)
+            self.assertSummary(next(lines).text, 'powerpc', 'w+',
+                               ['board2', 'board3'], outcome=OUTCOME_WARN)
+            self.assertSummary(next(lines).text, 'sandbox', 'w+', ['board4'],
+                               outcome=OUTCOME_WARN)
 
         # Second commit: The warnings should be listed
         self.assertEqual(next(lines).text,
@@ -276,8 +305,9 @@ class TestBuild(unittest.TestCase):
 
         # Third commit: Still fails
         self.assertEqual(next(lines).text, '03: %s' % commits[2][1])
-        self.assertSummary(next(lines).text, 'arm', '', ['board1'],
-                           outcome=OUTCOME_OK)
+        if filter_migration_warnings:
+            self.assertSummary(next(lines).text, 'arm', '',
+                               ['board1'], outcome=OUTCOME_OK)
         self.assertSummary(next(lines).text, 'powerpc', '+',
                            ['board2', 'board3'])
         self.assertSummary(next(lines).text, 'sandbox', '+', ['board4'])
@@ -288,16 +318,20 @@ class TestBuild(unittest.TestCase):
 
         # Fourth commit: Compile errors are fixed, just have warning for board3
         self.assertEqual(next(lines).text, '04: %s' % commits[3][1])
-        expect = '%10s: ' % 'powerpc'
-        expect += ' ' + col.Color(col.GREEN, '')
-        expect += '  '
-        expect += col.Color(col.GREEN, ' %s' % 'board2')
-        expect += ' ' + col.Color(col.YELLOW, 'w+')
-        expect += '  '
-        expect += col.Color(col.YELLOW, ' %s' % 'board3')
-        self.assertEqual(next(lines).text, expect)
+        if filter_migration_warnings:
+            expect = '%10s: ' % 'powerpc'
+            expect += ' ' + col.Color(col.GREEN, '')
+            expect += '  '
+            expect += col.Color(col.GREEN, ' %s' % 'board2')
+            expect += ' ' + col.Color(col.YELLOW, 'w+')
+            expect += '  '
+            expect += col.Color(col.YELLOW, ' %s' % 'board3')
+            self.assertEqual(next(lines).text, expect)
+        else:
+            self.assertSummary(next(lines).text, 'powerpc', 'w+',
+                               ['board2', 'board3'], outcome=OUTCOME_WARN)
         self.assertSummary(next(lines).text, 'sandbox', 'w+', ['board4'],
-                           outcome=OUTCOME_WARN)
+                               outcome=OUTCOME_WARN)
 
         # Compile error fixed
         self.assertEqual(next(lines).text,
@@ -310,8 +344,9 @@ class TestBuild(unittest.TestCase):
 
         # Fifth commit
         self.assertEqual(next(lines).text, '05: %s' % commits[4][1])
-        self.assertSummary(next(lines).text, 'powerpc', '', ['board3'],
-                           outcome=OUTCOME_OK)
+        if filter_migration_warnings:
+            self.assertSummary(next(lines).text, 'powerpc', '', ['board3'],
+                               outcome=OUTCOME_OK)
         self.assertSummary(next(lines).text, 'sandbox', '+', ['board4'])
 
         # The second line of errors[3] is a duplicate, so buildman will drop it
@@ -328,8 +363,12 @@ class TestBuild(unittest.TestCase):
 
         # Sixth commit
         self.assertEqual(next(lines).text, '06: %s' % commits[5][1])
-        self.assertSummary(next(lines).text, 'sandbox', '', ['board4'],
-                           outcome=OUTCOME_OK)
+        if filter_migration_warnings:
+            self.assertSummary(next(lines).text, 'sandbox', '', ['board4'],
+                               outcome=OUTCOME_OK)
+        else:
+            self.assertSummary(next(lines).text, 'sandbox', 'w+', ['board4'],
+                               outcome=OUTCOME_WARN)
 
         # The second line of errors[3] is a duplicate, so buildman will drop it
         expect = errors[3].rstrip().split('\n')
@@ -342,12 +381,24 @@ class TestBuild(unittest.TestCase):
 
         # Seventh commit
         self.assertEqual(next(lines).text, '07: %s' % commits[6][1])
-        self.assertSummary(next(lines).text, 'sandbox', '+', ['board4'])
+        if filter_migration_warnings:
+            self.assertSummary(next(lines).text, 'sandbox', '+', ['board4'])
+        else:
+            self.assertSummary(next(lines).text, 'arm', '', ['board0', 'board1'],
+                               outcome=OUTCOME_OK)
+            self.assertSummary(next(lines).text, 'powerpc', '',
+                               ['board2', 'board3'], outcome=OUTCOME_OK)
+            self.assertSummary(next(lines).text, 'sandbox', '+', ['board4'])
 
         # Pick out the correct error lines
         expect_str = errors[4].rstrip().replace('%(basedir)s', '').split('\n')
         expect = expect_str[3:8] + [expect_str[-1]]
         expect = '\n'.join(expect)
+        if not filter_migration_warnings:
+            self.assertEqual(
+                next(lines).text,
+                add_line_prefix('-', boards01234, migration, col.GREEN))
+
         self.assertEqual(next(lines).text,
                          add_line_prefix('+', boards4, expect, col.RED))
 
@@ -372,8 +423,7 @@ class TestBuild(unittest.TestCase):
         This does a line-by-line verification of the summary output.
         """
         lines = self._SetupTest(show_errors=True, list_error_boards=True)
-        self._CheckOutput(lines, list_error_boards=True,
-                          filter_dtb_warnings=False)
+        self._CheckOutput(lines, list_error_boards=True)
 
     def testFilterDtb(self):
         """Test output with --filter-dtb-warnings
@@ -381,8 +431,16 @@ class TestBuild(unittest.TestCase):
         This does a line-by-line verification of the summary output.
         """
         lines = self._SetupTest(show_errors=True, filter_dtb_warnings=True)
-        self._CheckOutput(lines, list_error_boards=False,
-                          filter_dtb_warnings=True)
+        self._CheckOutput(lines, filter_dtb_warnings=True)
+
+    def testFilterMigration(self):
+        """Test output with --filter-migration-warnings
+
+        This does a line-by-line verification of the summary output.
+        """
+        lines = self._SetupTest(show_errors=True,
+                                filter_migration_warnings=True)
+        self._CheckOutput(lines, filter_migration_warnings=True)
 
     def _testGit(self):
         """Test basic builder operation by building a branch"""

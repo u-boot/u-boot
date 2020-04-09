@@ -306,6 +306,8 @@ class Builder:
         self._re_warning = re.compile('(.*):(\d*):(\d*): warning: .*')
         self._re_dtb_warning = re.compile('(.*): Warning .*')
         self._re_note = re.compile('(.*):(\d*):(\d*): note: this is the location of the previous.*')
+        self._re_migration_warning = re.compile(r'^={21} WARNING ={22}\n.*\n=+\n',
+                                                re.MULTILINE | re.DOTALL)
 
         self.queue = queue.Queue()
         self.out_queue = queue.Queue()
@@ -338,7 +340,8 @@ class Builder:
     def SetDisplayOptions(self, show_errors=False, show_sizes=False,
                           show_detail=False, show_bloat=False,
                           list_error_boards=False, show_config=False,
-                          show_environment=False, filter_dtb_warnings=False):
+                          show_environment=False, filter_dtb_warnings=False,
+                          filter_migration_warnings=False):
         """Setup display options for the builder.
 
         Args:
@@ -351,6 +354,8 @@ class Builder:
             show_environment: Show environment deltas
             filter_dtb_warnings: Filter out any warnings from the device-tree
                 compiler
+            filter_migration_warnings: Filter out any warnings about migrating
+                a board to driver model
         """
         self._show_errors = show_errors
         self._show_sizes = show_sizes
@@ -360,6 +365,7 @@ class Builder:
         self._show_config = show_config
         self._show_environment = show_environment
         self._filter_dtb_warnings = filter_dtb_warnings
+        self._filter_migration_warnings = filter_migration_warnings
 
     def _AddTimestamp(self):
         """Add a new timestamp to the list and record the build period.
@@ -559,6 +565,10 @@ class Builder:
             New list with only interesting lines included
         """
         out_lines = []
+        if self._filter_migration_warnings:
+            text = '\n'.join(lines)
+            text = self._re_migration_warning.sub('', text)
+            lines = text.splitlines()
         for line in lines:
             if self.re_make_err.search(line):
                 continue

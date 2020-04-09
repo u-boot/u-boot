@@ -116,7 +116,10 @@ def ParseArgs():
           help='Specify a list of boards to exclude, separated by comma')
     parser.add_option('-y', '--filter-dtb-warnings', action='store_true',
           default=False,
-           help='Filter out device-tree-compiler warnings from output')
+          help='Filter out device-tree-compiler warnings from output')
+    parser.add_option('-Y', '--filter-migration-warnings', action='store_true',
+          default=False,
+          help='Filter out migration warnings from output')
 
     parser.usage += """ [list of target/arch/cpu/board/vendor/soc to build]
 
