@@ -1209,6 +1209,20 @@ class Builder:
                     col = self.col.YELLOW
                 Print('   ' + line, newline=True, colour=col)
 
+        def _OutputErrLines(err_lines, colour):
+            """Output the line of error/warning lines, if not empty
+
+            Also increments self._error_lines if err_lines not empty
+
+            Args:
+                err_lines: List of strings, each an error or warning line,
+                    possibly including a list of boards with that error/warning
+                colour: Colour to use for output
+            """
+            if err_lines:
+                Print('\n'.join(err_lines), colour=colour)
+                self._error_lines += 1
+
 
         ok_boards = []      # List of boards fixed since last commit
         warn_boards = []    # List of boards with warnings since last commit
@@ -1239,7 +1253,7 @@ class Builder:
             else:
                 new_boards.append(target)
 
-        # Get a list of errors that have appeared, and disappeared
+        # Get a list of errors and warnings that have appeared, and disappeared
         better_err, worse_err = _CalcErrorDelta(self._base_err_lines,
                 self._base_err_line_boards, err_lines, err_line_boards, '')
         better_warn, worse_warn = _CalcErrorDelta(self._base_warn_lines,
@@ -1262,18 +1276,10 @@ class Builder:
             for arch, target_list in arch_list.items():
                 Print('%10s: %s' % (arch, target_list))
                 self._error_lines += 1
-            if better_err:
-                Print('\n'.join(better_err), colour=self.col.GREEN)
-                self._error_lines += 1
-            if worse_err:
-                Print('\n'.join(worse_err), colour=self.col.RED)
-                self._error_lines += 1
-            if better_warn:
-                Print('\n'.join(better_warn), colour=self.col.CYAN)
-                self._error_lines += 1
-            if worse_warn:
-                Print('\n'.join(worse_warn), colour=self.col.MAGENTA)
-                self._error_lines += 1
+            _OutputErrLines(better_err, colour=self.col.GREEN)
+            _OutputErrLines(worse_err, colour=self.col.RED)
+            _OutputErrLines(better_warn, colour=self.col.CYAN)
+            _OutputErrLines(worse_warn, colour=self.col.MAGENTA)
 
         if show_sizes:
             self.PrintSizeSummary(board_selected, board_dict, show_detail,
