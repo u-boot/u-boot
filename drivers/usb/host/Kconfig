@@ -88,6 +88,14 @@ config USB_XHCI_FSL
 	depends on !SPL_NO_USB
 	help
 	  Enables support for the on-chip xHCI controller on NXP Layerscape SoCs.
+
+config USB_XHCI_BRCM
+	bool "Broadcom USB3 Host XHCI controller"
+	depends on DM_USB
+	help
+	  USB controller based on the Broadcom USB3 IP Core.
+	  Supports USB2/3 functionality.
+
 endif # USB_XHCI_HCD
 
 config USB_EHCI_HCD
