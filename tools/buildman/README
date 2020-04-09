@@ -151,9 +151,9 @@ You can also use -x to specifically exclude some boards. For example:
 means to build all arm boards except nvidia, freescale and anything ending
 with 'ball'.
 
-For building specific boards you can use the --boards option, which takes a
-comma-separated list of board target names and be used multiple times on
-the command line:
+For building specific boards you can use the --boards (or --bo) option, which
+takes a comma-separated list of board target names and be used multiple times
+on the command line:
 
   buildman --boards sandbox,snow --boards
 
