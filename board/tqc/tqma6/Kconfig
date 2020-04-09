@@ -74,6 +74,10 @@ config WRU4
 
 endchoice
 
+config SYS_TEXT_BASE
+	default 0x2fc00000 if TQMA6S
+	default 0x4fc00000 if TQMA6Q || TQMA6DL
+
 config IMX_CONFIG
 	default "board/tqc/tqma6/tqma6q.cfg" if TQMA6Q
 	default "board/tqc/tqma6/tqma6dl.cfg" if TQMA6DL
