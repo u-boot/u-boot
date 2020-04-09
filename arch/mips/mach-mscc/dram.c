@@ -31,7 +31,7 @@ static inline int vcoreiii_train_bytelane(void)
 
 int vcoreiii_ddr_init(void)
 {
-	int res;
+	register int res;
 
 	if (!(readl(BASE_CFG + ICPU_MEMCTRL_STAT)
 	      & ICPU_MEMCTRL_STAT_INIT_DONE)) {
@@ -40,20 +40,19 @@ int vcoreiii_ddr_init(void)
 		if (hal_vcoreiii_init_dqs() || vcoreiii_train_bytelane())
 			hal_vcoreiii_ddr_failed();
 	}
-#if (CONFIG_SYS_TEXT_BASE != 0x20000000)
+
 	res = dram_check();
 	if (res == 0)
 		hal_vcoreiii_ddr_verified();
 	else
 		hal_vcoreiii_ddr_failed();
 
-	/* Clear boot-mode and read-back to activate/verify */
+	/*  Remap DDR to kuseg: Clear boot-mode */
 	clrbits_le32(BASE_CFG + ICPU_GENERAL_CTRL,
 		     ICPU_GENERAL_CTRL_BOOT_MODE_ENA);
+	/* - and read-back to activate/verify */
 	readl(BASE_CFG + ICPU_GENERAL_CTRL);
-#else
-	res = 0;
-#endif
+
 	return res;
 }
 
@@ -66,9 +65,6 @@ int print_cpuinfo(void)
 
 int dram_init(void)
 {
-	while (vcoreiii_ddr_init())
-		;
-
 	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
 	return 0;
 }

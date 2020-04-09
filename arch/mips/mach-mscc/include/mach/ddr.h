@@ -435,16 +435,12 @@ static inline void hal_vcoreiii_ddr_failed(void)
 	reset = KSEG0ADDR(_machine_restart);
 	icache_lock((void *)reset, 128);
 	asm volatile ("jr %0"::"r" (reset));
-
-	panic("DDR init failed\n");
 }
 #else				/* JR2 || ServalT */
 static inline void hal_vcoreiii_ddr_failed(void)
 {
 	writel(0, BASE_CFG + ICPU_RESET);
 	writel(PERF_SOFT_RST_SOFT_CHIP_RST, BASE_CFG + PERF_SOFT_RST);
-
-	panic("DDR init failed\n");
 }
 #endif
 

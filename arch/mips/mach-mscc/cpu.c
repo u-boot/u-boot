@@ -7,6 +7,7 @@
 
 #include <asm/io.h>
 #include <asm/types.h>
+#include <asm/mipsregs.h>
 
 #include <mach/tlb.h>
 #include <mach/ddr.h>
@@ -53,7 +54,6 @@ void vcoreiii_tlb_init(void)
 		   MMU_REGIO_RW);
 #endif
 
-#if  CONFIG_SYS_TEXT_BASE == MSCC_FLASH_TO
 	/*
 	 * If U-Boot is located in NOR then we want to be able to use
 	 * the data cache in order to boot in a decent duration
@@ -71,9 +71,10 @@ void vcoreiii_tlb_init(void)
 	create_tlb(tlbix++, MSCC_DDR_TO, MSCC_RAM_TLB_SIZE, MMU_REGIO_RW,
 		   MSCC_ATTRIB2);
 
-	/* Enable caches by clearing the bit ERL, which is set on reset */
-	write_c0_status(read_c0_status() & ~BIT(2));
-#endif /* CONFIG_SYS_TEXT_BASE */
+	/* Enable mapping (using TLB) kuseg by clearing the bit ERL,
+	 * which is set on reset.
+	 */
+	write_c0_status(read_c0_status() & ~ST0_ERL);
 }
 
 int mach_cpu_init(void)

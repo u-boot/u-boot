@@ -25,37 +25,45 @@ Example usage
 
 Using u-boot.bin as ROM (replaces Qemu monitor):
 
-32 bit, big endian::
+32 bit, big endian
 
-   # make qemu_mips
-   # qemu-system-mips -M mips -bios u-boot.bin -nographic
+.. code-block:: bash
 
-32 bit, little endian::
+   make qemu_mips
+   qemu-system-mips -M mips -bios u-boot.bin -nographic
 
-   # make qemu_mipsel
-   # qemu-system-mipsel -M mips -bios u-boot.bin -nographic
+32 bit, little endian
 
-64 bit, big endian::
+.. code-block:: bash
 
-   # make qemu_mips64
-   # qemu-system-mips64 -cpu MIPS64R2-generic -M mips -bios u-boot.bin -nographic
+   make qemu_mipsel
+   qemu-system-mipsel -M mips -bios u-boot.bin -nographic
 
-64 bit, little endian::
+64 bit, big endian
 
-   # make qemu_mips64el
-   # qemu-system-mips64el -cpu MIPS64R2-generic -M mips -bios u-boot.bin -nographic
+.. code-block:: bash
+
+   make qemu_mips64
+   qemu-system-mips64 -cpu MIPS64R2-generic -M mips -bios u-boot.bin -nographic
+
+64 bit, little endian
+
+.. code-block:: bash
+
+   make qemu_mips64el
+   qemu-system-mips64el -cpu MIPS64R2-generic -M mips -bios u-boot.bin -nographic
 
 or using u-boot.bin from emulated flash:
 
-if you use a qemu version after commit 4224
+if you use a QEMU version after commit 4224
 
-.. code-block:: none
+.. code-block:: bash
 
-   create image:
-   # dd of=flash bs=1k count=4k if=/dev/zero
-   # dd of=flash bs=1k conv=notrunc if=u-boot.bin
-   start it (see above):
-   # qemu-system-mips[64][el] [-cpu MIPS64R2-generic] -M mips -pflash flash -nographic
+   # create image:
+   dd of=flash bs=1k count=4k if=/dev/zero
+   dd of=flash bs=1k conv=notrunc if=u-boot.bin
+   # start it (see above):
+   qemu-system-mips[64][el] [-cpu MIPS64R2-generic] -M mips -pflash flash -nographic
 
 Download kernel + initrd
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -75,61 +83,63 @@ you can downland::
 Generate uImage
 ^^^^^^^^^^^^^^^
 
-.. code-block:: none
+.. code-block:: bash
 
-   # tools/mkimage -A mips -O linux -T kernel -C gzip -a 0x80010000 -e 0x80245650 -n "Linux 2.6.24.y" -d vmlinux.bin.gz uImage
+   tools/mkimage -A mips -O linux -T kernel -C gzip -a 0x80010000 -e 0x80245650 -n "Linux 2.6.24.y" -d vmlinux.bin.gz uImage
 
 Copy uImage to Flash
 ^^^^^^^^^^^^^^^^^^^^
 
-.. code-block:: none
+.. code-block:: bash
 
-   # dd if=uImage bs=1k conv=notrunc seek=224 of=flash
+   dd if=uImage bs=1k conv=notrunc seek=224 of=flash
 
 Generate Ide Disk
 ^^^^^^^^^^^^^^^^^
 
-.. code-block:: none
+.. code-block:: bash
 
-   # dd of=ide bs=1k cout=100k if=/dev/zero
+   dd of=ide bs=1k count=100k if=/dev/zero
 
-   # sfdisk -C 261 -d ide
-   # partition table of ide
+   # Create partion table
+   sudo sfdisk ide << EOF
+   label: dos
+   label-id: 0x6fe3a999
+   device: image
    unit: sectors
-
-        ide1 : start=       63, size=    32067, Id=83
-        ide2 : start=    32130, size=    32130, Id=83
-        ide3 : start=    64260, size=  4128705, Id=83
-        ide4 : start=        0, size=        0, Id= 0
+   image1 : start=       63, size=    32067, Id=83
+   image2 : start=    32130, size=    32130, Id=83
+   image3 : start=    64260, size=  4128705, Id=83
+   EOF
 
 Copy to ide
 ^^^^^^^^^^^
 
-.. code-block:: none
+.. code-block:: bash
 
-   # dd if=uImage bs=512 conv=notrunc seek=63 of=ide
+   dd if=uImage bs=512 conv=notrunc seek=63 of=ide
 
 Generate ext2 on part 2 on Copy uImage and initrd.gz
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. code-block:: none
+.. code-block:: bash
 
    # Attached as loop device ide offset = 32130 * 512
-   # losetup -o 16450560 -f ide
+   sudo losetup -o 16450560 /dev/loop0 ide
    # Format as ext2 ( arg2 : nb blocks)
-   # mke2fs /dev/loop0 16065
-   # losetup -d /dev/loop0
+   sudo mkfs.ext2 /dev/loop0 16065
+   sudo losetup -d /dev/loop0
    # Mount and copy uImage and initrd.gz to it
-   # mount -o loop,offset=16450560 -t ext2 ide /mnt
-   # mkdir /mnt/boot
-   # cp {initrd.gz,uImage} /mnt/boot/
+   sudo mount -o loop,offset=16450560 -t ext2 ide /mnt
+   sudo mkdir /mnt/boot
+   cp {initrd.gz,uImage} /mnt/boot/
    # Umount it
-   # umount /mnt
+   sudo umount /mnt
 
 Set Environment
 ^^^^^^^^^^^^^^^
 
-.. code-block:: none
+.. code-block:: bash
 
    setenv rd_start 0x80800000
    setenv rd_size 2663940
@@ -157,9 +167,11 @@ Set Environment
    setenv addmisc 'setenv bootargs ${bootargs} console=ttyS0,${baudrate} rd_start=${rd_start} rd_size=${rd_size} ethaddr=${ethaddr}'
    setenv bootcmd 'run boot_tftp_flash'
 
-Now you can boot from flash, ide, ide+ext2 and tfp::
+Now you can boot from flash, ide, ide+ext2 and tfp
 
-   # qemu-system-mips -M mips -pflash flash -monitor null -nographic -net nic -net user -tftp `pwd` -hda ide
+.. code-block:: bash
+
+   qemu-system-mips -M mips -pflash flash -monitor null -nographic -net nic -net user -tftp `pwd` -hda ide
 
 
 How to debug U-Boot
@@ -168,9 +180,9 @@ How to debug U-Boot
 In order to debug U-Boot you need to start qemu with gdb server support (-s)
 and waiting the connection to start the CPU (-S)
 
-.. code-block:: none
+.. code-block:: bash
 
-   # qemu-system-mips -S -s -M mips -pflash flash -monitor null -nographic -net nic -net user -tftp `pwd` -hda ide
+   qemu-system-mips -S -s -M mips -pflash flash -monitor null -nographic -net nic -net user -tftp `pwd` -hda ide
 
 in an other console you start gdb
 
@@ -182,7 +194,7 @@ by connecting to the gdb server localhost:1234
 
 .. code-block:: none
 
-   # mipsel-unknown-linux-gnu-gdb u-boot
+   $ mipsel-unknown-linux-gnu-gdb u-boot
    GNU gdb 6.6
    Copyright (C) 2006 Free Software Foundation, Inc.
    GDB is free software, covered by the GNU General Public License, and you are
