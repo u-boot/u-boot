@@ -590,7 +590,18 @@ config TARGET_KP_IMX6Q_TPC
 
 config TARGET_TQMA6
 	bool "TQ Systems TQMa6 board"
+	select BOARD_EARLY_INIT_F
 	select BOARD_LATE_INIT
+	select MXC_SPI
+	select SPI
+	imply DM
+	imply DM_GPIO
+	imply DM_MMC
+	imply DM_SPI
+	imply DM_SPI_FLASH
+	imply DM_I2C
+	imply CMD_SF
+	imply CMD_DM
 
 config TARGET_UDOO
 	bool "udoo"
