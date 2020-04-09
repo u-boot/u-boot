@@ -11,6 +11,7 @@ from __future__ import print_function
 
 import os
 import re
+import shutil
 import sys
 
 # Selection of when we want our output to be colored
@@ -47,6 +48,9 @@ class PrintLine:
 def CalcAsciiLen(text):
     """Calculate the length of a string, ignoring any ANSI sequences
 
+    When displayed on a terminal, ANSI sequences don't take any space, so we
+    need to ignore them when calculating the length of a string.
+
     Args:
         text: Text to check
 
@@ -70,8 +74,57 @@ def CalcAsciiLen(text):
     result = ansi_escape.sub('', text)
     return len(result)
 
+def TrimAsciiLen(text, size):
+    """Trim a string containing ANSI sequences to the given ASCII length
 
-def Print(text='', newline=True, colour=None):
+    The string is trimmed with ANSI sequences being ignored for the length
+    calculation.
+
+    >>> col = Color(COLOR_ALWAYS)
+    >>> text = col.Color(Color.RED, 'abc')
+    >>> len(text)
+    14
+    >>> CalcAsciiLen(TrimAsciiLen(text, 4))
+    3
+    >>> CalcAsciiLen(TrimAsciiLen(text, 2))
+    2
+    >>> text += 'def'
+    >>> CalcAsciiLen(TrimAsciiLen(text, 4))
+    4
+    >>> text += col.Color(Color.RED, 'ghi')
+    >>> CalcAsciiLen(TrimAsciiLen(text, 7))
+    7
+    """
+    if CalcAsciiLen(text) < size:
+        return text
+    pos = 0
+    out = ''
+    left = size
+
+    # Work through each ANSI sequence in turn
+    for m in ansi_escape.finditer(text):
+        # Find the text before the sequence and add it to our string, making
+        # sure it doesn't overflow
+        before = text[pos:m.start()]
+        toadd = before[:left]
+        out += toadd
+
+        # Figure out how much non-ANSI space we have left
+        left -= len(toadd)
+
+        # Add the ANSI sequence and move to the position immediately after it
+        out += m.group()
+        pos = m.start() + len(m.group())
+
+    # Deal with text after the last ANSI sequence
+    after = text[pos:]
+    toadd = after[:left]
+    out += toadd
+
+    return out
+
+
+def Print(text='', newline=True, colour=None, limit_to_line=False):
     """Handle a line of output to the terminal.
 
     In test mode this is recorded in a list. Otherwise it is output to the
@@ -94,6 +147,9 @@ def Print(text='', newline=True, colour=None):
             print(text)
             last_print_len = None
         else:
+            if limit_to_line:
+                cols = shutil.get_terminal_size().columns
+                text = TrimAsciiLen(text, cols)
             print(text, end='', flush=True)
             last_print_len = CalcAsciiLen(text)
 
