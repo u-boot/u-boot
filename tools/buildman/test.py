@@ -205,9 +205,9 @@ class TestBuild(unittest.TestCase):
             if line.text.strip():
                 count += 1
 
-        # We should get two starting messages, then an update for every commit
-        # built.
-        self.assertEqual(count, len(commits) * len(boards) + 2)
+        # We should get two starting messages, an update for every commit built
+        # and a summary message
+        self.assertEqual(count, len(commits) * len(boards) + 3)
         build.SetDisplayOptions(**kwdisplay_args);
         build.ShowSummary(self.commits, board_selected)
         if echo_lines:

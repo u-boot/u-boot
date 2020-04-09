@@ -192,6 +192,7 @@ class Builder:
         _next_delay_update: Next time we plan to display a progress update
                 (datatime)
         _show_unknown: Show unknown boards (those not built) in summary
+        _start_time: Start time for the build
         _timestamps: List of timestamps for the completion of the last
             last _timestamp_count builds. Each is a datetime object.
         _timestamp_count: Number of timestamps to keep in our list.
@@ -281,6 +282,7 @@ class Builder:
         self._build_period_us = None
         self._complete_delay = None
         self._next_delay_update = datetime.now()
+        self._start_time = datetime.now()
         self.force_config_on_failure = True
         self.force_build_failures = False
         self.force_reconfig = False
@@ -1642,4 +1644,19 @@ class Builder:
         # Wait until we have processed all output
         self.out_queue.join()
         Print()
+
+        msg = 'Completed: %d total built' % self.count
+        if self.already_done:
+           msg += ' (%d previously' % self.already_done
+           if self.already_done != self.count:
+               msg += ', %d newly' % (self.count - self.already_done)
+           msg += ')'
+        duration = datetime.now() - self._start_time
+        if duration > timedelta(microseconds=1000000):
+            if duration.microseconds >= 500000:
+                duration = duration + timedelta(seconds=1)
+            duration = duration - timedelta(microseconds=duration.microseconds)
+            msg += ', duration %s' % duration
+        Print(msg)
+
         return (self.fail, self.warned)
