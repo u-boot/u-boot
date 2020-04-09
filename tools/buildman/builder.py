@@ -450,11 +450,6 @@ class Builder:
         self._AddTimestamp()
         if self._complete_delay:
             name += '%s  : ' % self._complete_delay
-        # When building all boards for a commit, we can print a commit
-        # progress message.
-        if result and result.commit_upto is None:
-            name += 'commit %2d/%-3d' % (self.commit_upto + 1,
-                    self.commit_count)
 
         name += target
         terminal.PrintClear()
