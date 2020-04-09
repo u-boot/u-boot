@@ -958,12 +958,11 @@ will build commits in us-buildman that are not in upstream/master.
 Building Faster
 ===============
 
-By default, buildman executes 'make mrproper' prior to building the first
-commit for each board. This causes everything to be built from scratch. If you
-trust the build system's incremental build capabilities, you can pass the -I
-flag to skip the 'make mproper' invocation, which will reduce the amount of
-work 'make' does, and hence speed up the build. This flag will speed up any
-buildman invocation, since it reduces the amount of work done on any build.
+By default, buildman doesn't execute 'make mrproper' prior to building the
+first commit for each board. This reduces the amount of work 'make' does, and
+hence speeds up the build. To force use of 'make mrproper', use -the -m flag.
+This flag will slow down any buildman invocation, since it increases the amount
+of work done on any build.
 
 One possible application of buildman is as part of a continual edit, build,
 edit, build, ... cycle; repeatedly applying buildman to the same change or
@@ -994,7 +993,7 @@ Combining all of these options together yields the command-line shown below.
 This will provide the quickest possible feedback regarding the current content
 of the source tree, thus allowing rapid tested evolution of the code.
 
-    SOURCE_DATE_EPOCH=0 ./tools/buildman/buildman -I -P tegra
+    SOURCE_DATE_EPOCH=0 ./tools/buildman/buildman -P tegra
 
 
 Checking configuration

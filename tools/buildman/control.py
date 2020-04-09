@@ -172,6 +172,10 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
         print()
         return 0
 
+    if options.incremental:
+        print(col.Color(col.RED,
+                        'Warning: -I has been removed. See documentation'))
+
     # Work out what subset of the boards we are building
     if not boards:
         if not os.path.exists(options.output_dir):
@@ -309,7 +313,7 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
             show_unknown=options.show_unknown, step=options.step,
             no_subdirs=options.no_subdirs, full_path=options.full_path,
             verbose_build=options.verbose_build,
-            incremental=options.incremental,
+            mrproper=options.mrproper,
             per_board_out_dir=options.per_board_out_dir,
             config_only=options.config_only,
             squash_config_y=not options.preserve_config_y,
