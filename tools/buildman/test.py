@@ -220,6 +220,22 @@ class TestBuild(unittest.TestCase):
         Args:
             lines: Iterator containing the lines returned from the summary
         """
+        def add_line_prefix(prefix, error_str):
+            """Add a prefix to each line of a string
+
+            The training \n in error_str is removed before processing
+
+            Args:
+                prefix: String prefix to add
+                error_str: Error string containing the lines
+
+            Returns:
+                New string where each line has the prefix added
+            """
+            lines = error_str.strip().splitlines()
+            new_lines = [prefix + line for line in lines]
+            return '\n'.join(new_lines)
+
         # Upstream commit: no errors
         self.assertEqual(next(lines).text, '01: %s' % commits[0][1])
 
@@ -236,8 +252,8 @@ class TestBuild(unittest.TestCase):
 
         # Second commit: The warnings should be listed
         line = next(lines)
-        self.assertEqual(line.text, 'w+%s' %
-                errors[0].rstrip().replace('\n', '\nw+'))
+
+        self.assertEqual(line.text, add_line_prefix('w+', errors[0]))
         self.assertEqual(line.colour, col.MAGENTA)
 
         # Third commit: Still fails
@@ -250,8 +266,7 @@ class TestBuild(unittest.TestCase):
 
         # Expect a compiler error
         line = next(lines)
-        self.assertEqual(line.text, '+%s' %
-                errors[1].rstrip().replace('\n', '\n+'))
+        self.assertEqual(line.text, add_line_prefix('+', errors[1]))
         self.assertEqual(line.colour, col.RED)
 
         # Fourth commit: Compile errors are fixed, just have warning for board3
@@ -269,13 +284,11 @@ class TestBuild(unittest.TestCase):
 
         # Compile error fixed
         line = next(lines)
-        self.assertEqual(line.text, '-%s' %
-                errors[1].rstrip().replace('\n', '\n-'))
+        self.assertEqual(line.text, add_line_prefix('-', errors[1]))
         self.assertEqual(line.colour, col.GREEN)
 
         line = next(lines)
-        self.assertEqual(line.text, 'w+%s' %
-                errors[2].rstrip().replace('\n', '\nw+'))
+        self.assertEqual(line.text, add_line_prefix('w+', errors[2]))
         self.assertEqual(line.colour, col.MAGENTA)
 
         # Fifth commit
@@ -287,14 +300,13 @@ class TestBuild(unittest.TestCase):
         # The second line of errors[3] is a duplicate, so buildman will drop it
         expect = errors[3].rstrip().split('\n')
         expect = [expect[0]] + expect[2:]
+        expect = '\n'.join(expect)
         line = next(lines)
-        self.assertEqual(line.text, '+%s' %
-                '\n'.join(expect).replace('\n', '\n+'))
+        self.assertEqual(line.text, add_line_prefix('+', expect))
         self.assertEqual(line.colour, col.RED)
 
         line = next(lines)
-        self.assertEqual(line.text, 'w-%s' %
-                errors[2].rstrip().replace('\n', '\nw-'))
+        self.assertEqual(line.text, add_line_prefix('w-', errors[2]))
         self.assertEqual(line.colour, col.CYAN)
 
         # Sixth commit
@@ -305,14 +317,13 @@ class TestBuild(unittest.TestCase):
         # The second line of errors[3] is a duplicate, so buildman will drop it
         expect = errors[3].rstrip().split('\n')
         expect = [expect[0]] + expect[2:]
+        expect = '\n'.join(expect)
         line = next(lines)
-        self.assertEqual(line.text, '-%s' %
-                '\n'.join(expect).replace('\n', '\n-'))
+        self.assertEqual(line.text, add_line_prefix('-', expect))
         self.assertEqual(line.colour, col.GREEN)
 
         line = next(lines)
-        self.assertEqual(line.text, 'w-%s' %
-                errors[0].rstrip().replace('\n', '\nw-'))
+        self.assertEqual(line.text, add_line_prefix('w-', errors[0]))
         self.assertEqual(line.colour, col.CYAN)
 
         # Seventh commit
@@ -322,16 +333,16 @@ class TestBuild(unittest.TestCase):
         # Pick out the correct error lines
         expect_str = errors[4].rstrip().replace('%(basedir)s', '').split('\n')
         expect = expect_str[3:8] + [expect_str[-1]]
+        expect = '\n'.join(expect)
         line = next(lines)
-        self.assertEqual(line.text, '+%s' %
-                '\n'.join(expect).replace('\n', '\n+'))
+        self.assertEqual(line.text, add_line_prefix('+', expect))
         self.assertEqual(line.colour, col.RED)
 
         # Now the warnings lines
         expect = [expect_str[0]] + expect_str[10:12] + [expect_str[9]]
+        expect = '\n'.join(expect)
         line = next(lines)
-        self.assertEqual(line.text, 'w+%s' %
-                '\n'.join(expect).replace('\n', '\nw+'))
+        self.assertEqual(line.text, add_line_prefix('w+', expect))
         self.assertEqual(line.colour, col.MAGENTA)
 
     def testOutput(self):
