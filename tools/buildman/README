@@ -501,6 +501,8 @@ If it can't detect the upstream branch, try checking out the branch, and
 doing something like 'git branch --set-upstream-to upstream/master'
 or something similar. Buildman will try to guess a suitable upstream branch
 if it can't find one (you will see a message like" Guessing upstream as ...).
+You can also use the -c option to manually specify the number of commits to
+build.
 
 As an example:
 
@@ -551,12 +553,13 @@ Buildman will set up some working directories, and get started. After a
 minute or so it will settle down to a steady pace, with a display like this:
 
 Building 18 commits for 1059 boards (4 threads, 1 job per thread)
-  528   36  124 /19062  1:13:30  : SIMPC8313_SP
+  528   36  124 /19062    -18374  1:13:30  : SIMPC8313_SP
 
 This means that it is building 19062 board/commit combinations. So far it
 has managed to successfully build 528. Another 36 have built with warnings,
-and 124 more didn't build at all. Buildman expects to complete the process
-in around an hour and a quarter. Use this time to buy a faster computer.
+and 124 more didn't build at all. It has 18374 builds left to complete.
+Buildman expects to complete the process in around an hour and a quarter.
+Use this time to buy a faster computer.
 
 
 To find out how the build went, ask for a summary with -s. You can do this
@@ -588,38 +591,53 @@ $ ./tools/buildman/buildman -b lcd9b -s
 
 This shows which commits have succeeded and which have failed. In this case
 the build is still in progress so many boards are not built yet (use -u to
-see which ones). But still we can see a few failures. The galaxy5200_LOWBOOT
+see which ones). But already we can see a few failures. The galaxy5200_LOWBOOT
 never builds correctly. This could be a problem with our toolchain, or it
 could be a bug in the upstream. The good news is that we probably don't need
 to blame our commits. The bad news is that our commits are not tested on that
 board.
 
-Commit 12 broke lubbock. That's what the '+ lubbock' means. The failure
-is never fixed by a later commit, or you would see lubbock again, in green,
-without the +.
+Commit 12 broke lubbock. That's what the '+ lubbock', in red, means. The
+failure is never fixed by a later commit, or you would see lubbock again, in
+green, without the +.
 
 To see the actual error:
 
-$ ./tools/buildman/buildman -b <branch> -se lubbock
+$ ./tools/buildman/buildman -b <branch> -se
 ...
 12: lcd: Add support for flushing LCD fb from dcache after update
        arm:   + lubbock
 +common/libcommon.o: In function `lcd_sync':
-+/u-boot/lcd9b/.bm-work/00/common/lcd.c:120: undefined reference to `flush_dcache_range'
++common/lcd.c:120: undefined reference to `flush_dcache_range'
 +arm-none-linux-gnueabi-ld: BFD (Sourcery G++ Lite 2010q1-202) 2.19.51.20090709 assertion fail /scratch/julian/2010q1-release-linux-lite/obj/binutils-src-2010q1-202-arm-none-linux-gnueabi-i686-pc-linux-gnu/bfd/elf32-arm.c:12572
-+make: *** [/u-boot/lcd9b/.bm-work/00/build/u-boot] Error 139
++make: *** [build/u-boot] Error 139
 13: tegra: Align LCD frame buffer to section boundary
 14: tegra: Support control of cache settings for LCD
 15: tegra: fdt: Add LCD definitions for Seaboard
 16: lcd: Add CONFIG_CONSOLE_SCROLL_LINES option to speed console
--/u-boot/lcd9b/.bm-work/00/common/lcd.c:120: undefined reference to `flush_dcache_range'
-+/u-boot/lcd9b/.bm-work/00/common/lcd.c:125: undefined reference to `flush_dcache_range'
+-common/lcd.c:120: undefined reference to `flush_dcache_range'
++common/lcd.c:125: undefined reference to `flush_dcache_range'
 17: tegra: Enable display/lcd support on Seaboard
 18: wip
 
 So the problem is in lcd.c, due to missing cache operations. This information
 should be enough to work out what that commit is doing to break these
 boards. (In this case pxa did not have cache operations defined).
+
+Note that if there were other boards with errors, the above command would
+show their errors also. Each line is shown only once. So if lubbock and snow
+produce the same error, we just see:
+
+12: lcd: Add support for flushing LCD fb from dcache after update
+       arm:   + lubbock snow
++common/libcommon.o: In function `lcd_sync':
++common/lcd.c:120: undefined reference to `flush_dcache_range'
++arm-none-linux-gnueabi-ld: BFD (Sourcery G++ Lite 2010q1-202) 2.19.51.20090709 assertion fail /scratch/julian/2010q1-release-linux-lite/obj/binutils-src-2010q1-202-arm-none-linux-gnueabi-i686-pc-linux-gnu/bfd/elf32-arm.c:12572
++make: *** [build/u-boot] Error 139
+
+But if you did want to see just the errors for lubbock, use:
+
+$ ./tools/buildman/buildman -b <branch> -se lubbock
 
 If you see error lines marked with '-', that means that the errors were fixed
 by that commit. Sometimes commits can be in the wrong order, so that a
@@ -631,13 +649,14 @@ At commit 16, the error moves: you can see that the old error at line 120
 is fixed, but there is a new one at line 126. This is probably only because
 we added some code and moved the broken line further down the file.
 
-If many boards have the same error, then -e will display the error only
-once. This makes the output as concise as possible. To see which boards have
-each error, use -l. So it is safe to omit the board name - you will not get
-lots of repeated output for every board.
+As mentioned, if many boards have the same error, then -e will display the
+error only once. This makes the output as concise as possible. To see which
+boards have each error, use -l. So it is safe to omit the board name - you
+will not get lots of repeated output for every board.
 
 Buildman tries to distinguish warnings from errors, and shows warning lines
-separately with a 'w' prefix.
+separately with a 'w' prefix. Warnings introduced show as yellow. Warnings
+fixed show as cyan.
 
 The full build output in this case is available in:
 
