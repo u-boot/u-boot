@@ -444,16 +444,21 @@ class Builder:
         line += self.col.Color(self.col.YELLOW, '%5d' % self.warned)
         line += self.col.Color(self.col.RED, '%5d' % self.fail)
 
-        name = ' /%-5d  ' % self.count
+        line += ' /%-5d  ' % self.count
+        remaining = self.count - self.upto
+        if remaining:
+            line += self.col.Color(self.col.MAGENTA, ' -%-5d  ' % remaining)
+        else:
+            line += ' ' * 8
 
         # Add our current completion time estimate
         self._AddTimestamp()
         if self._complete_delay:
-            name += '%s  : ' % self._complete_delay
+            line += '%s  : ' % self._complete_delay
 
-        name += target
+        line += target
         terminal.PrintClear()
-        Print(line + name, newline=False)
+        Print(line, newline=False)
 
     def _GetOutputDir(self, commit_upto):
         """Get the name of the output directory for a commit number
