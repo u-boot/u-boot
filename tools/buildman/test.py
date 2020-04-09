@@ -235,6 +235,7 @@ class TestBuild(unittest.TestCase):
         # Expect a compiler error
         self.assertEqual(lines[10].text, '+%s' %
                 errors[1].rstrip().replace('\n', '\n+'))
+        self.assertEqual(lines[10].colour, col.RED)
 
         # Fourth commit: Compile errors are fixed, just have warning for board3
         self.assertEqual(lines[11].text, '04: %s' % commits[3][1])
@@ -269,9 +270,11 @@ class TestBuild(unittest.TestCase):
         expect = [expect[0]] + expect[2:]
         self.assertEqual(lines[19].text, '+%s' %
                 '\n'.join(expect).replace('\n', '\n+'))
+        self.assertEqual(lines[19].colour, col.RED)
 
         self.assertEqual(lines[20].text, 'w-%s' %
                 errors[2].rstrip().replace('\n', '\nw-'))
+        self.assertEqual(lines[20].colour, col.CYAN)
 
         # Sixth commit
         self.assertEqual(lines[21].text, '06: %s' % commits[5][1])
@@ -283,9 +286,11 @@ class TestBuild(unittest.TestCase):
         expect = [expect[0]] + expect[2:]
         self.assertEqual(lines[23].text, '-%s' %
                 '\n'.join(expect).replace('\n', '\n-'))
+        self.assertEqual(lines[23].colour, col.GREEN)
 
         self.assertEqual(lines[24].text, 'w-%s' %
                 errors[0].rstrip().replace('\n', '\nw-'))
+        self.assertEqual(lines[24].colour, col.CYAN)
 
         # Seventh commit
         self.assertEqual(lines[25].text, '07: %s' % commits[6][1])
@@ -296,11 +301,13 @@ class TestBuild(unittest.TestCase):
         expect = expect_str[3:8] + [expect_str[-1]]
         self.assertEqual(lines[27].text, '+%s' %
                 '\n'.join(expect).replace('\n', '\n+'))
+        self.assertEqual(lines[27].colour, col.RED)
 
         # Now the warnings lines
         expect = [expect_str[0]] + expect_str[10:12] + [expect_str[9]]
         self.assertEqual(lines[28].text, 'w+%s' %
                 '\n'.join(expect).replace('\n', '\nw+'))
+        self.assertEqual(lines[28].colour, col.MAGENTA)
 
         self.assertEqual(len(lines), 29)
         shutil.rmtree(base_dir)
