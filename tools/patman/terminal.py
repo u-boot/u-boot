@@ -53,11 +53,10 @@ def Print(text='', newline=True, colour=None):
         if colour:
             col = Color()
             text = col.Color(colour, text)
-        print(text, end='')
         if newline:
-            print()
+            print(text)
         else:
-            sys.stdout.flush()
+            print(text, end='', flush=True)
 
 def SetPrintTestMode():
     """Go into test mode, where all printing is recorded"""
