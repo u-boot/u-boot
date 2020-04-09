@@ -24,7 +24,6 @@ import terminal
 from terminal import Print
 import toolchain
 
-
 """
 Theory of Operation
 
@@ -90,6 +89,15 @@ us-net/             base directory
 u-boot/             source directory
     .git/           repository
 """
+
+"""Holds information about a particular error line we are outputing
+
+   char: Character representation: '+': error, '-': fixed error, 'w+': warning,
+       'w-' = fixed warning
+   boards: List of Board objects which have line in the error/warning output
+   errline: The text of the error line
+"""
+ErrLine = collections.namedtuple('ErrLine', 'char,boards,errline')
 
 # Possible build outcomes
 OUTCOME_OK, OUTCOME_WARNING, OUTCOME_ERROR, OUTCOME_UNKNOWN = list(range(4))
@@ -1128,32 +1136,52 @@ class Builder:
 
             Args:
                 line: Error line to search for
+                line_boards: boards to search, each a Board
             Return:
-                String containing a list of boards with that error line, or
-                '' if the user has not requested such a list
+                List of boards with that error line, or [] if the user has not
+                    requested such a list
             """
+            boards = []
+            board_set = set()
             if self._list_error_boards:
-                names = []
                 for board in line_boards[line]:
-                    if not board.target in names:
-                        names.append(board.target)
-                names_str = '(%s) ' % ','.join(names)
-            else:
-                names_str = ''
-            return names_str
+                    if not board in board_set:
+                        boards.append(board)
+                        board_set.add(board)
+            return boards
 
         def _CalcErrorDelta(base_lines, base_line_boards, lines, line_boards,
                             char):
+            """Calculate the required output based on changes in errors
+
+            Args:
+                base_lines: List of errors/warnings for previous commit
+                base_line_boards: Dict keyed by error line, containing a list
+                    of the Board objects with that error in the previous commit
+                lines: List of errors/warning for this commit, each a str
+                line_boards: Dict keyed by error line, containing a list
+                    of the Board objects with that error in this commit
+                char: Character representing error ('') or warning ('w'). The
+                    broken ('+') or fixed ('-') characters are added in this
+                    function
+
+            Returns:
+                Tuple
+                    List of ErrLine objects for 'better' lines
+                    List of ErrLine objects for 'worse' lines
+            """
             better_lines = []
             worse_lines = []
             for line in lines:
                 if line not in base_lines:
-                    worse_lines.append(char + '+' +
-                            _BoardList(line, line_boards) + line)
+                    errline = ErrLine(char + '+', _BoardList(line, line_boards),
+                                      line)
+                    worse_lines.append(errline)
             for line in base_lines:
                 if line not in lines:
-                    better_lines.append(char + '-' +
-                            _BoardList(line, base_line_boards) + line)
+                    errline = ErrLine(char + '-',
+                                      _BoardList(line, base_line_boards), line)
+                    better_lines.append(errline)
             return better_lines, worse_lines
 
         def _CalcConfig(delta, name, config):
@@ -1215,12 +1243,19 @@ class Builder:
             Also increments self._error_lines if err_lines not empty
 
             Args:
-                err_lines: List of strings, each an error or warning line,
-                    possibly including a list of boards with that error/warning
+                err_lines: List of ErrLine objects, each an error or warning
+                    line, possibly including a list of boards with that
+                    error/warning
                 colour: Colour to use for output
             """
             if err_lines:
-                Print('\n'.join(err_lines), colour=colour)
+                out = []
+                for line in err_lines:
+                    boards = ''
+                    names = [board.target for board in line.boards]
+                    boards = '(%s) ' % ','.join(names) if names else ''
+                    out.append('%s%s%s' % (line.char, boards, line.errline))
+                Print('\n'.join(out), colour=colour)
                 self._error_lines += 1
 
 
