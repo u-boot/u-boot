@@ -620,6 +620,8 @@ dtb-y += \
 	imx6dl-icore.dtb \
 	imx6dl-icore-mipi.dtb \
 	imx6dl-icore-rqs.dtb \
+	imx6dl-mba6a.dtb \
+	imx6dl-mba6b.dtb \
 	imx6dl-mamoj.dtb \
 	imx6dl-nitrogen6x.dtb \
 	imx6dl-pico.dtb \
@@ -649,6 +651,8 @@ dtb-y += \
 	imx6q-icore-rqs.dtb \
 	imx6q-kp.dtb \
 	imx6q-logicpd.dtb \
+	imx6q-mba6a.dtb \
+	imx6q-mba6b.dtb \
 	imx6q-mccmon6.dtb\
 	imx6q-nitrogen6x.dtb \
 	imx6q-novena.dtb \

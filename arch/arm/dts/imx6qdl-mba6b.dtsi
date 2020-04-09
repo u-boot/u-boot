@@ -1,0 +1,45 @@
+// SPDX-License-Identifier: GPL-2.0+
+//
+// Copyright (C) 2020 TQ-Systems GmbH
+
+&fec {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_enet>;
+};
+
+&i2c1 {
+	clock-frequency = <100000>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_i2c1>;
+	status = "okay";
+};
+
+&i2c3 {
+	sensor1: lm75@49 {
+		compatible = "lm75";
+		reg = <0x49>;
+	};
+
+	eeprom1: m24c64@57 {
+		compatible = "st,24c64", "at24";
+		reg = <0x57>;
+		pagesize = <32>;
+	};
+
+	rtc1: ds1339@68 {
+		compatible = "ds1339";
+		reg = <0x68>;
+	};
+};
+
+&iomuxc {
+	mba6 {
+		pinctrl_i2c1: i2c1grp {
+			fsl,pins = <
+				MX6QDL_PAD_CSI0_DAT8__I2C1_SDA 0x4001b899
+				MX6QDL_PAD_CSI0_DAT9__I2C1_SCL 0x4001b899
+			>;
+		};
+	};
+
+};
