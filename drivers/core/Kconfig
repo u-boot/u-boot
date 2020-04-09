@@ -261,4 +261,13 @@ config DM_DEV_READ_INLINE
 	bool
 	default y if !OF_LIVE
 
+config ACPIGEN
+	bool "Support ACPI table generation in driver model"
+	default y if SANDBOX || GENERATE_ACPI_TABLE
+	help
+	  This option enables generation of ACPI tables using driver-model
+	  devices. It adds a new operation struct to each driver, to support
+	  things like generating device-specific tables and returning the ACPI
+	  name of a device.
+
 endmenu
