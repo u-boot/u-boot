@@ -10,6 +10,7 @@ This module handles terminal interaction including ANSI color codes.
 from __future__ import print_function
 
 import os
+import re
 import sys
 
 # Selection of when we want our output to be colored
@@ -18,6 +19,13 @@ COLOR_IF_TERMINAL, COLOR_ALWAYS, COLOR_NEVER = range(3)
 # Initially, we are set up to print to the terminal
 print_test_mode = False
 print_test_list = []
+
+# The length of the last line printed without a newline
+last_print_len = None
+
+# credit:
+# stackoverflow.com/questions/14693701/how-can-i-remove-the-ansi-escape-sequences-from-a-string-in-python
+ansi_escape = re.compile(r'\x1b(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
 
 class PrintLine:
     """A line of text output
@@ -36,6 +44,33 @@ class PrintLine:
         return 'newline=%s, colour=%s, text=%s' % (self.newline, self.colour,
                 self.text)
 
+def CalcAsciiLen(text):
+    """Calculate the length of a string, ignoring any ANSI sequences
+
+    Args:
+        text: Text to check
+
+    Returns:
+        Length of text, after skipping ANSI sequences
+
+    >>> col = Color(COLOR_ALWAYS)
+    >>> text = col.Color(Color.RED, 'abc')
+    >>> len(text)
+    14
+    >>> CalcAsciiLen(text)
+    3
+    >>>
+    >>> text += 'def'
+    >>> CalcAsciiLen(text)
+    6
+    >>> text += col.Color(Color.RED, 'abc')
+    >>> CalcAsciiLen(text)
+    9
+    """
+    result = ansi_escape.sub('', text)
+    return len(result)
+
+
 def Print(text='', newline=True, colour=None):
     """Handle a line of output to the terminal.
 
@@ -47,6 +82,8 @@ def Print(text='', newline=True, colour=None):
         newline: True to add a new line at the end of the text
         colour: Colour to use for the text
     """
+    global last_print_len
+
     if print_test_mode:
         print_test_list.append(PrintLine(text, newline, colour))
     else:
@@ -55,8 +92,18 @@ def Print(text='', newline=True, colour=None):
             text = col.Color(colour, text)
         if newline:
             print(text)
+            last_print_len = None
         else:
             print(text, end='', flush=True)
+            last_print_len = CalcAsciiLen(text)
+
+def PrintClear():
+    """Clear a previously line that was printed with no newline"""
+    global last_print_len
+
+    if last_print_len:
+        print('\r%s\r' % (' '* last_print_len), end='', flush=True)
+        last_print_len = None
 
 def SetPrintTestMode():
     """Go into test mode, where all printing is recorded"""
