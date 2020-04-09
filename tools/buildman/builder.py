@@ -1279,7 +1279,7 @@ class Builder:
             _OutputErrLines(better_err, colour=self.col.GREEN)
             _OutputErrLines(worse_err, colour=self.col.RED)
             _OutputErrLines(better_warn, colour=self.col.CYAN)
-            _OutputErrLines(worse_warn, colour=self.col.MAGENTA)
+            _OutputErrLines(worse_warn, colour=self.col.YELLOW)
 
         if show_sizes:
             self.PrintSizeSummary(board_selected, board_dict, show_detail,

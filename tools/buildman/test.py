@@ -264,7 +264,7 @@ class TestBuild(unittest.TestCase):
 
         self.assertEqual(line.text,
                          add_line_prefix('w+', boards1234, errors[0]))
-        self.assertEqual(line.colour, col.MAGENTA)
+        self.assertEqual(line.colour, col.YELLOW)
 
         # Third commit: Still fails
         self.assertEqual(next(lines).text, '03: %s' % commits[2][1])
@@ -299,7 +299,7 @@ class TestBuild(unittest.TestCase):
 
         line = next(lines)
         self.assertEqual(line.text, add_line_prefix('w+', boards34, errors[2]))
-        self.assertEqual(line.colour, col.MAGENTA)
+        self.assertEqual(line.colour, col.YELLOW)
 
         # Fifth commit
         self.assertEqual(next(lines).text, '05: %s' % commits[4][1])
@@ -353,7 +353,7 @@ class TestBuild(unittest.TestCase):
         expect = '\n'.join(expect)
         line = next(lines)
         self.assertEqual(line.text, add_line_prefix('w+', boards4, expect))
-        self.assertEqual(line.colour, col.MAGENTA)
+        self.assertEqual(line.colour, col.YELLOW)
 
     def testOutput(self):
         """Test basic builder operation and output
