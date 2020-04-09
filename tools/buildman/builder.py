@@ -458,7 +458,7 @@ class Builder:
 
         line += target
         terminal.PrintClear()
-        Print(line, newline=False)
+        Print(line, newline=False, limit_to_line=True)
 
     def _GetOutputDir(self, commit_upto):
         """Get the name of the output directory for a commit number
