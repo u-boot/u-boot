@@ -63,6 +63,17 @@ choice
 
 config MBA6
 	bool "TQMa6 on MBa6 Starterkit"
+	select DM_ETH
+	select USB
+	select DM_USB
+	select CMD_USB
+	select USB_STORAGE
+	select USB_HOST_ETHER
+	select USB_ETHER_SMSC95XX
+	select PHYLIB
+	select PHY_MICREL
+	select PHY_MICREL_KSZ90X1
+	select MXC_UART
 	help
 	  Select the MBa6 starterkit. This features a GigE Phy, USB, SD-Card
 	  etc.
