@@ -1253,7 +1253,7 @@ class Builder:
                 for line in err_lines:
                     boards = ''
                     names = [board.target for board in line.boards]
-                    board_str = ','.join(names) if names else ''
+                    board_str = ' '.join(names) if names else ''
                     if board_str:
                         out = self.col.Color(colour, line.char + '(')
                         out += self.col.Color(self.col.MAGENTA, board_str,

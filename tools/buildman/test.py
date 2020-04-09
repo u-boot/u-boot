@@ -249,9 +249,9 @@ class TestBuild(unittest.TestCase):
                 new_lines.append(expect)
             return '\n'.join(new_lines)
 
-        boards1234 = 'board1,board2,board3,board4' if list_error_boards else ''
-        boards234 = 'board2,board3,board4' if list_error_boards else ''
-        boards34 = 'board3,board4' if list_error_boards else ''
+        boards1234 = 'board1 board2 board3 board4' if list_error_boards else ''
+        boards234 = 'board2 board3 board4' if list_error_boards else ''
+        boards34 = 'board3 board4' if list_error_boards else ''
         boards4 = 'board4' if list_error_boards else ''
 
         # Upstream commit: no errors
