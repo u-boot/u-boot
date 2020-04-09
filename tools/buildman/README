@@ -1232,12 +1232,16 @@ Some options you might like are:
 TODO
 ====
 
-This has mostly be written in my spare time as a response to my difficulties
-in testing large series of patches. Apart from tidying up there is quite a
-bit of scope for improvement. Things like better error diffs and easier
-access to log files. Also it would be nice if buildman could 'hunt' for
-problems, perhaps by building a few boards for each arch, or checking
-commits for changed files and building only boards which use those files.
+Many improvements have been made over the years. There is still quite a bit of
+scope for more though, e.g.:
+
+- easier access to log files
+- 'hunting' for problems, perhaps by building a few boards for each arch, or
+  checking commits for changed files and building only boards which use those
+  files
+- using the same git repo for all threads instead of cloning it. Currently
+  it uses about 500MB per thread, so on a 64-thread machine this is 32GB for
+  the build.
 
 
 Credits
@@ -1253,3 +1257,4 @@ sjg@chromium.org
 Halloween 2012
 Updated 12-12-12
 Updated 23-02-13
+Updated 09-04-20
