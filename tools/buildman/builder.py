@@ -162,8 +162,6 @@ class Builder:
         force_build_failures: If a previously-built build (i.e. built on
             a previous run of buildman) is marked as failed, rebuild it.
         git_dir: Git directory containing source repository
-        last_line_len: Length of the last line we printed (used for erasing
-            it with new progress information)
         num_jobs: Number of jobs to run at once (passed to make as -j)
         num_threads: Number of builder threads to run
         out_queue: Queue of results to process
@@ -317,7 +315,6 @@ class Builder:
             t.start()
             self.threads.append(t)
 
-        self.last_line_len = 0
         t = builderthread.ResultThread(self)
         t.setDaemon(True)
         t.start()
@@ -388,22 +385,6 @@ class Builder:
             self._timestamps.popleft()
             count -= 1
 
-    def ClearLine(self, length):
-        """Clear any characters on the current line
-
-        Make way for a new line of length 'length', by outputting enough
-        spaces to clear out the old line. Then remember the new length for
-        next time.
-
-        Args:
-            length: Length of new line, in characters
-        """
-        if length < self.last_line_len:
-            Print(' ' * (self.last_line_len - length), newline=False)
-            Print('\r', newline=False)
-        self.last_line_len = length
-        sys.stdout.flush()
-
     def SelectCommit(self, commit, checkout=True):
         """Checkout the selected commit for this build
         """
@@ -449,8 +430,7 @@ class Builder:
             if result.already_done:
                 self.already_done += 1
             if self._verbose:
-                Print('\r', newline=False)
-                self.ClearLine(0)
+                terminal.PrintClear()
                 boards_selected = {target : result.brd}
                 self.ResetResultSummary(boards_selected)
                 self.ProduceResultSummary(result.commit_upto, self.commits,
@@ -477,9 +457,8 @@ class Builder:
                     self.commit_count)
 
         name += target
+        terminal.PrintClear()
         Print(line + name, newline=False)
-        length = 16 + len(name)
-        self.ClearLine(length)
 
     def _GetOutputDir(self, commit_upto):
         """Get the name of the output directory for a commit number
@@ -1559,7 +1538,7 @@ class Builder:
                 Print('\rCloning repo for thread %d' % thread_num,
                       newline=False)
                 gitutil.Clone(src_dir, thread_dir)
-                Print('\r%s\r' % (' ' * 30), newline=False)
+                terminal.PrintClear()
 
     def _PrepareWorkingSpace(self, max_threads, setup_git):
         """Prepare the working directory for use.
@@ -1660,5 +1639,4 @@ class Builder:
         # Wait until we have processed all output
         self.out_queue.join()
         Print()
-        self.ClearLine(0)
         return (self.fail, self.warned)
