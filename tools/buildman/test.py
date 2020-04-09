@@ -214,13 +214,15 @@ class TestBuild(unittest.TestCase):
             terminal.EchoPrintTestLines()
         return iter(terminal.GetPrintTestLines())
 
-    def _CheckOutput(self, lines):
+    def _CheckOutput(self, lines, list_error_boards):
         """Check for expected output from the build summary
 
         Args:
             lines: Iterator containing the lines returned from the summary
+            list_error_boards: Adjust the check for output produced with the
+               --list-error-boards flag
         """
-        def add_line_prefix(prefix, error_str):
+        def add_line_prefix(prefix, boards, error_str):
             """Add a prefix to each line of a string
 
             The training \n in error_str is removed before processing
@@ -232,9 +234,16 @@ class TestBuild(unittest.TestCase):
             Returns:
                 New string where each line has the prefix added
             """
+            if boards:
+                boards = '(%s) ' % boards
             lines = error_str.strip().splitlines()
-            new_lines = [prefix + line for line in lines]
+            new_lines = [prefix + boards + line for line in lines]
             return '\n'.join(new_lines)
+
+        boards1234 = 'board1,board2,board3,board4' if list_error_boards else ''
+        boards234 = 'board2,board3,board4' if list_error_boards else ''
+        boards34 = 'board3,board4' if list_error_boards else ''
+        boards4 = 'board4' if list_error_boards else ''
 
         # Upstream commit: no errors
         self.assertEqual(next(lines).text, '01: %s' % commits[0][1])
@@ -253,7 +262,8 @@ class TestBuild(unittest.TestCase):
         # Second commit: The warnings should be listed
         line = next(lines)
 
-        self.assertEqual(line.text, add_line_prefix('w+', errors[0]))
+        self.assertEqual(line.text,
+                         add_line_prefix('w+', boards1234, errors[0]))
         self.assertEqual(line.colour, col.MAGENTA)
 
         # Third commit: Still fails
@@ -266,7 +276,7 @@ class TestBuild(unittest.TestCase):
 
         # Expect a compiler error
         line = next(lines)
-        self.assertEqual(line.text, add_line_prefix('+', errors[1]))
+        self.assertEqual(line.text, add_line_prefix('+', boards234, errors[1]))
         self.assertEqual(line.colour, col.RED)
 
         # Fourth commit: Compile errors are fixed, just have warning for board3
@@ -284,11 +294,11 @@ class TestBuild(unittest.TestCase):
 
         # Compile error fixed
         line = next(lines)
-        self.assertEqual(line.text, add_line_prefix('-', errors[1]))
+        self.assertEqual(line.text, add_line_prefix('-', boards234, errors[1]))
         self.assertEqual(line.colour, col.GREEN)
 
         line = next(lines)
-        self.assertEqual(line.text, add_line_prefix('w+', errors[2]))
+        self.assertEqual(line.text, add_line_prefix('w+', boards34, errors[2]))
         self.assertEqual(line.colour, col.MAGENTA)
 
         # Fifth commit
@@ -302,11 +312,11 @@ class TestBuild(unittest.TestCase):
         expect = [expect[0]] + expect[2:]
         expect = '\n'.join(expect)
         line = next(lines)
-        self.assertEqual(line.text, add_line_prefix('+', expect))
+        self.assertEqual(line.text, add_line_prefix('+', boards4, expect))
         self.assertEqual(line.colour, col.RED)
 
         line = next(lines)
-        self.assertEqual(line.text, add_line_prefix('w-', errors[2]))
+        self.assertEqual(line.text, add_line_prefix('w-', boards34, errors[2]))
         self.assertEqual(line.colour, col.CYAN)
 
         # Sixth commit
@@ -319,11 +329,11 @@ class TestBuild(unittest.TestCase):
         expect = [expect[0]] + expect[2:]
         expect = '\n'.join(expect)
         line = next(lines)
-        self.assertEqual(line.text, add_line_prefix('-', expect))
+        self.assertEqual(line.text, add_line_prefix('-', boards4, expect))
         self.assertEqual(line.colour, col.GREEN)
 
         line = next(lines)
-        self.assertEqual(line.text, add_line_prefix('w-', errors[0]))
+        self.assertEqual(line.text, add_line_prefix('w-', boards4, errors[0]))
         self.assertEqual(line.colour, col.CYAN)
 
         # Seventh commit
@@ -335,14 +345,14 @@ class TestBuild(unittest.TestCase):
         expect = expect_str[3:8] + [expect_str[-1]]
         expect = '\n'.join(expect)
         line = next(lines)
-        self.assertEqual(line.text, add_line_prefix('+', expect))
+        self.assertEqual(line.text, add_line_prefix('+', boards4, expect))
         self.assertEqual(line.colour, col.RED)
 
         # Now the warnings lines
         expect = [expect_str[0]] + expect_str[10:12] + [expect_str[9]]
         expect = '\n'.join(expect)
         line = next(lines)
-        self.assertEqual(line.text, add_line_prefix('w+', expect))
+        self.assertEqual(line.text, add_line_prefix('w+', boards4, expect))
         self.assertEqual(line.colour, col.MAGENTA)
 
     def testOutput(self):
@@ -351,7 +361,15 @@ class TestBuild(unittest.TestCase):
         This does a line-by-line verification of the summary output.
         """
         lines = self._SetupTest(show_errors=True)
-        self._CheckOutput(lines)
+        self._CheckOutput(lines, list_error_boards=False)
+
+    def testErrorBoards(self):
+        """Test output with --list-error-boards
+
+        This does a line-by-line verification of the summary output.
+        """
+        lines = self._SetupTest(show_errors=True, list_error_boards=True)
+        self._CheckOutput(lines, list_error_boards=True)
 
     def _testGit(self):
         """Test basic builder operation by building a branch"""
