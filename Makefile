@@ -742,13 +742,15 @@ KBUILD_CFLAGS += $(KCFLAGS)
 # Use UBOOTINCLUDE when you must reference the include/ directory.
 # Needed to be compatible with the O= option
 UBOOTINCLUDE    := \
-		-Iinclude \
-		$(if $(KBUILD_SRC), -I$(srctree)/include) \
-		$(if $(CONFIG_$(SPL_)SYS_THUMB_BUILD), \
-			$(if $(CONFIG_HAS_THUMB2),, \
-				-I$(srctree)/arch/$(ARCH)/thumb1/include),) \
-		-I$(srctree)/arch/$(ARCH)/include \
-		-include $(srctree)/include/linux/kconfig.h
+	-Iinclude \
+	$(if $(KBUILD_SRC), -I$(srctree)/include) \
+	$(if $(CONFIG_$(SPL_)SYS_THUMB_BUILD), \
+		$(if $(CONFIG_HAS_THUMB2), \
+			$(if $(CONFIG_CPU_V7M), \
+				-I$(srctree)/arch/arm/thumb1/include), \
+			-I$(srctree)/arch/arm/thumb1/include)) \
+	-I$(srctree)/arch/$(ARCH)/include \
+	-include $(srctree)/include/linux/kconfig.h
 
 NOSTDINC_FLAGS += -nostdinc -isystem $(shell $(CC) -print-file-name=include)
 
