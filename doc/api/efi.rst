@@ -78,6 +78,12 @@ Memory services
 .. kernel-doc:: lib/efi_loader/efi_memory.c
    :internal:
 
+SetWatchdogTimer service
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. kernel-doc:: lib/efi_loader/efi_watchdog.c
+   :internal:
+
 Runtime services
 ----------------
 
