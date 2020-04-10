@@ -151,3 +151,9 @@ Text IO protocols
 
 .. kernel-doc:: lib/efi_loader/efi_console.c
    :internal:
+
+Unicode Collation protocol
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. kernel-doc:: lib/efi_loader/efi_unicode_collation.c
+   :internal:
