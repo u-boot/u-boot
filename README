@@ -1640,7 +1640,7 @@ The following options need to be configured:
 		  - CONFIG_SYS_RCAR_I2C2_SPEED for for the speed channel 2
 		  - CONFIG_SYS_RCAR_I2C3_BASE for setting the register channel 3
 		  - CONFIG_SYS_RCAR_I2C3_SPEED for for the speed channel 3
-		  - CONFIF_SYS_RCAR_I2C_NUM_CONTROLLERS for number of i2c buses
+		  - CONFIG_SYS_RCAR_I2C_NUM_CONTROLLERS for number of i2c buses
 
 		- drivers/i2c/sh_i2c.c:
 		  - activate this driver with CONFIG_SYS_I2C_SH
