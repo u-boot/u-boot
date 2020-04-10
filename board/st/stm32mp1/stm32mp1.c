@@ -647,7 +647,7 @@ int board_init(void)
 
 	sysconf_init();
 
-	if (CONFIG_IS_ENABLED(CONFIG_LED))
+	if (CONFIG_IS_ENABLED(LED))
 		led_default_state();
 
 	return 0;
