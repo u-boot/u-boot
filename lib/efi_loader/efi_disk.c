@@ -108,6 +108,21 @@ static efi_status_t efi_disk_rw_blocks(struct efi_block_io *this,
 	return EFI_SUCCESS;
 }
 
+/**
+ * efi_disk_read_blocks() - reads blocks from device
+ *
+ * This function implements the ReadBlocks service of the EFI_BLOCK_IO_PROTOCOL.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * @this:			pointer to the BLOCK_IO_PROTOCOL
+ * @media_id:			id of the medium to be read from
+ * @lba:			starting logical block for reading
+ * @buffer_size:		size of the read buffer
+ * @buffer:			pointer to the destination buffer
+ * Return:			status code
+ */
 static efi_status_t EFIAPI efi_disk_read_blocks(struct efi_block_io *this,
 			u32 media_id, u64 lba, efi_uintn_t buffer_size,
 			void *buffer)
@@ -157,6 +172,22 @@ static efi_status_t EFIAPI efi_disk_read_blocks(struct efi_block_io *this,
 	return EFI_EXIT(r);
 }
 
+/**
+ * efi_disk_write_blocks() - writes blocks to device
+ *
+ * This function implements the WriteBlocks service of the
+ * EFI_BLOCK_IO_PROTOCOL.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * @this:			pointer to the BLOCK_IO_PROTOCOL
+ * @media_id:			id of the medium to be written to
+ * @lba:			starting logical block for writing
+ * @buffer_size:		size of the write buffer
+ * @buffer:			pointer to the source buffer
+ * Return:			status code
+ */
 static efi_status_t EFIAPI efi_disk_write_blocks(struct efi_block_io *this,
 			u32 media_id, u64 lba, efi_uintn_t buffer_size,
 			void *buffer)
@@ -208,9 +239,22 @@ static efi_status_t EFIAPI efi_disk_write_blocks(struct efi_block_io *this,
 	return EFI_EXIT(r);
 }
 
+/**
+ * efi_disk_flush_blocks() - flushes modified data to the device
+ *
+ * This function implements the FlushBlocks service of the
+ * EFI_BLOCK_IO_PROTOCOL.
+ *
+ * As we always write synchronously nothing is done here.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * @this:			pointer to the BLOCK_IO_PROTOCOL
+ * Return:			status code
+ */
 static efi_status_t EFIAPI efi_disk_flush_blocks(struct efi_block_io *this)
 {
-	/* We always write synchronously */
 	EFI_ENTRY("%p", this);
 	return EFI_EXIT(EFI_SUCCESS);
 }
@@ -286,7 +330,7 @@ static int efi_fs_exists(struct blk_desc *desc, int part)
 	return 1;
 }
 
-/*
+/**
  * efi_disk_add_dev() - create a handle for a partition or disk
  *
  * @parent:		parent handle
@@ -295,6 +339,8 @@ static int efi_fs_exists(struct blk_desc *desc, int part)
  * @desc:		internal block device
  * @dev_index:		device index for block device
  * @offset:		offset into disk for simple partitions
+ * @part:		partition
+ * @disk:		pointer to receive the created handle
  * Return:		disk object
  */
 static efi_status_t efi_disk_add_dev(
@@ -381,7 +427,7 @@ static efi_status_t efi_disk_add_dev(
  * Create handles and protocols for the partitions of a block device.
  *
  * @parent:		handle of the parent disk
- * @blk_desc:		block device
+ * @desc:		block device
  * @if_typename:	interface type
  * @diskid:		device number
  * @pdevname:		device name
