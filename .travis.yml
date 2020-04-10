@@ -14,6 +14,7 @@ addons:
     - ubuntu-toolchain-r-test
     - llvm-toolchain-bionic-7
     packages:
+    - autopoint
     - cppcheck
     - sloccount
     - sparse
@@ -55,10 +56,6 @@ install:
  - cat ~/.buildman
  - grub-mkimage --prefix="" -o ~/grub_x86.efi -O i386-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
  - grub-mkimage --prefix="" -o ~/grub_x64.efi -O x86_64-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
- - mkdir ~/grub2-arm
- - ( cd ~/grub2-arm; wget -O - http://download.opensuse.org/ports/armv7hl/distribution/leap/42.2/repo/oss/suse/armv7hl/grub2-arm-efi-2.02~beta2-87.1.armv7hl.rpm | rpm2cpio | cpio -di )
- - mkdir ~/grub2-arm64
- - ( cd ~/grub2-arm64; wget -O - http://download.opensuse.org/ports/aarch64/distribution/leap/42.2/repo/oss/suse/aarch64/grub2-arm64-efi-2.02~beta2-87.1.aarch64.rpm | rpm2cpio | cpio -di )
  - wget http://mirrors.kernel.org/ubuntu/pool/main/m/mpfr4/libmpfr4_3.1.4-1_amd64.deb && sudo dpkg -i libmpfr4_3.1.4-1_amd64.deb && rm libmpfr4_3.1.4-1_amd64.deb
 
 env:
@@ -100,6 +97,7 @@ before_script:
     fi
   - if [[ "${TOOLCHAIN}" == "powerpc" ]]; then ./tools/buildman/buildman --fetch-arch powerpc; fi
   - if [[ "${TOOLCHAIN}" == "riscv" ]]; then
+       ./tools/buildman/buildman --fetch-arch riscv32 &&
        ./tools/buildman/buildman --fetch-arch riscv64;
     fi
   - if [[ "${QEMU_TARGET}" != "" ]]; then
@@ -110,6 +108,96 @@ before_script:
        ./configure --prefix=/tmp/qemu-install --target-list=${QEMU_TARGET} &&
        make -j4 all install;
        popd;
+    fi
+
+  # Build GRUB UEFI targets
+  - if [[ "${QEMU_TARGET}" == "arm-softmmu" ]]; then
+       git clone git://git.savannah.gnu.org/grub.git /tmp/grub &&
+       pushd /tmp/grub &&
+       git checkout grub-2.04 &&
+       ./bootstrap &&
+       ./configure --target=arm --with-platform=efi
+       CC=gcc
+       TARGET_CC=~/.buildman-toolchains/gcc-9.2.0-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi-gcc
+       TARGET_OBJCOPY=~/.buildman-toolchains/gcc-9.2.0-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi-objcopy
+       TARGET_STRIP=~/.buildman-toolchains/gcc-9.2.0-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi-strip
+       TARGET_NM=~/.buildman-toolchains/gcc-9.2.0-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi-nm
+       TARGET_RANLIB=~/.buildman-toolchains/gcc-9.2.0-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi-ranlib &&
+       make -j4 &&
+       ./grub-mkimage -O arm-efi -o ~/grub_arm.efi --prefix= -d
+       grub-core cat chain configfile echo efinet ext2 fat halt help linux
+       lsefisystab loadenv lvm minicmd normal part_msdos part_gpt reboot
+       search search_fs_file search_fs_uuid search_label serial sleep test
+       true &&
+       popd;
+    fi
+  - if [[ "${QEMU_TARGET}" == "aarch64-softmmu" ]]; then
+       git clone git://git.savannah.gnu.org/grub.git /tmp/grub &&
+       pushd /tmp/grub &&
+       git checkout grub-2.04 &&
+       ./bootstrap &&
+       ./configure --target=aarch64 --with-platform=efi
+       CC=gcc
+       TARGET_CC=~/.buildman-toolchains/gcc-9.2.0-nolibc/aarch64-linux/bin/aarch64-linux-gcc
+       TARGET_OBJCOPY=~/.buildman-toolchains/gcc-9.2.0-nolibc/aarch64-linux/bin/aarch64-linux-objcopy
+       TARGET_STRIP=~/.buildman-toolchains/gcc-9.2.0-nolibc/aarch64-linux/bin/aarch64-linux-strip
+       TARGET_NM=~/.buildman-toolchains/gcc-9.2.0-nolibc/aarch64-linux/bin/aarch64-linux-nm
+       TARGET_RANLIB=~/.buildman-toolchains/gcc-9.2.0-nolibc/aarch64-linux/bin/aarch64-linux-ranlib &&
+       make -j4 &&
+       ./grub-mkimage -O arm64-efi -o ~/grub_arm64.efi --prefix= -d
+       grub-core cat chain configfile echo efinet ext2 fat halt help linux
+       lsefisystab loadenv lvm minicmd normal part_msdos part_gpt reboot
+       search search_fs_file search_fs_uuid search_label serial sleep test
+       true &&
+       popd;
+    fi
+  - if [[ "${QEMU_TARGET}" == "riscv32-softmmu" ]]; then
+       git clone git://git.savannah.gnu.org/grub.git /tmp/grub &&
+       pushd /tmp/grub &&
+       git checkout grub-2.04 &&
+       ./bootstrap &&
+       ./configure --target=riscv32 --with-platform=efi
+       CC=gcc
+       TARGET_CC=~/.buildman-toolchains/gcc-9.2.0-nolibc/riscv32-linux/bin/riscv32-linux-gcc
+       TARGET_OBJCOPY=~/.buildman-toolchains/gcc-9.2.0-nolibc/riscv32-linux/bin/riscv32-linux-objcopy
+       TARGET_STRIP=~/.buildman-toolchains/gcc-9.2.0-nolibc/riscv32-linux/bin/riscv32-linux-strip
+       TARGET_NM=~/.buildman-toolchains/gcc-9.2.0-nolibc/riscv32-linux/bin/riscv32-linux-nm
+       TARGET_RANLIB=~/.buildman-toolchains/gcc-9.2.0-nolibc/riscv32-linux/bin/riscv32-linux-ranlib &&
+       make -j4 &&
+       ./grub-mkimage -O riscv32-efi -o ~/grub_riscv32.efi --prefix= -d
+       grub-core cat chain configfile echo efinet ext2 fat halt help linux
+       lsefisystab loadenv lvm minicmd normal part_msdos part_gpt reboot
+       search search_fs_file search_fs_uuid search_label serial sleep test
+       true &&
+       popd;
+    fi
+  - if [[ "${QEMU_TARGET}" == "riscv64-softmmu" ]]; then
+       git clone git://git.savannah.gnu.org/grub.git /tmp/grub &&
+       pushd /tmp/grub &&
+       git checkout grub-2.04 &&
+       ./bootstrap &&
+       ./configure --target=riscv64 --with-platform=efi
+       CC=gcc
+       TARGET_CC=~/.buildman-toolchains/gcc-9.2.0-nolibc/riscv64-linux/bin/riscv64-linux-gcc
+       TARGET_OBJCOPY=~/.buildman-toolchains/gcc-9.2.0-nolibc/riscv64-linux/bin/riscv64-linux-objcopy
+       TARGET_STRIP=~/.buildman-toolchains/gcc-9.2.0-nolibc/riscv64-linux/bin/riscv64-linux-strip
+       TARGET_NM=~/.buildman-toolchains/gcc-9.2.0-nolibc/riscv64-linux/bin/riscv64-linux-nm
+       TARGET_RANLIB=~/.buildman-toolchains/gcc-9.2.0-nolibc/riscv64-linux/bin/riscv64-linux-ranlib &&
+       make -j4 &&
+       ./grub-mkimage -O riscv64-efi -o ~/grub_riscv64.efi --prefix= -d
+       grub-core cat chain configfile echo efinet ext2 fat halt help linux
+       lsefisystab loadenv lvm minicmd normal part_msdos part_gpt reboot
+       search search_fs_file search_fs_uuid search_label serial sleep test
+       true &&
+       popd;
+    fi
+  - if [[ "${TEST_PY_BD}" == "qemu-riscv32_spl" ]]; then
+       wget -O - https://github.com/riscv/opensbi/releases/download/v0.6/opensbi-0.6-rv32-bin.tar.xz | tar -C /tmp -xJ;
+       export OPENSBI=/tmp/opensbi-0.6-rv32-bin/platform/qemu/virt/firmware/fw_dynamic.bin;
+    fi
+  - if [[ "${TEST_PY_BD}" == "qemu-riscv64_spl" ]]; then
+       wget -O - https://github.com/riscv/opensbi/releases/download/v0.6/opensbi-0.6-rv64-bin.tar.xz | tar -C /tmp -xJ;
+       export OPENSBI=/tmp/opensbi-0.6-rv64-bin/platform/qemu/virt/firmware/fw_dynamic.bin;
     fi
 
 script:
@@ -133,8 +221,18 @@ script:
  - export UBOOT_TRAVIS_BUILD_DIR=`cd .. && pwd`/.bm-work/${TEST_PY_BD};
    cp ~/grub_x86.efi $UBOOT_TRAVIS_BUILD_DIR/;
    cp ~/grub_x64.efi $UBOOT_TRAVIS_BUILD_DIR/;
-   cp ~/grub2-arm/usr/lib/grub2/arm-efi/grub.efi $UBOOT_TRAVIS_BUILD_DIR/grub_arm.efi;
-   cp ~/grub2-arm64/usr/lib/grub2/arm64-efi/grub.efi $UBOOT_TRAVIS_BUILD_DIR/grub_arm64.efi;
+   if [[ -e ~/grub_arm.efi ]]; then
+     cp ~/grub_arm.efi $UBOOT_TRAVIS_BUILD_DIR/;
+   fi;
+   if [[ -e ~/grub_arm64.efi ]]; then
+     cp ~/grub_arm64.efi $UBOOT_TRAVIS_BUILD_DIR/;
+   fi;
+   if [[ -e ~/grub_riscv32.efi ]]; then
+     cp ~/grub_riscv32.efi $UBOOT_TRAVIS_BUILD_DIR/;
+   fi;
+   if [[ -e ~/grub_riscv64.efi ]]; then
+     cp ~/grub_riscv64.efi $UBOOT_TRAVIS_BUILD_DIR/;
+   fi;
    if [[ "${TEST_PY_BD}" != "" ]]; then
      virtualenv -p /usr/bin/python3 /tmp/venv;
      . /tmp/venv/bin/activate;
@@ -482,12 +580,33 @@ matrix:
           QEMU_TARGET="ppc-softmmu"
           BUILDMAN="^qemu-ppce500$"
           TOOLCHAIN="powerpc"
+    - name: "test/py qemu-riscv32"
+      env:
+        - TEST_PY_BD="qemu-riscv32"
+          TEST_PY_TEST_SPEC="not sleep"
+          QEMU_TARGET="riscv32-softmmu"
+          BUILDMAN="^qemu-riscv32$"
+          TOOLCHAIN="riscv"
     - name: "test/py qemu-riscv64"
       env:
         - TEST_PY_BD="qemu-riscv64"
           TEST_PY_TEST_SPEC="not sleep"
           QEMU_TARGET="riscv64-softmmu"
           BUILDMAN="^qemu-riscv64$"
+          TOOLCHAIN="riscv"
+    - name: "test/py qemu-riscv32_spl"
+      env:
+        - TEST_PY_BD="qemu-riscv32_spl"
+          TEST_PY_TEST_SPEC="not sleep"
+          QEMU_TARGET="riscv32-softmmu"
+          BUILDMAN="^qemu-riscv32_spl$"
+          TOOLCHAIN="riscv"
+    - name: "test/py qemu-riscv64_spl"
+      env:
+        - TEST_PY_BD="qemu-riscv64_spl"
+          TEST_PY_TEST_SPEC="not sleep"
+          QEMU_TARGET="riscv64-softmmu"
+          BUILDMAN="^qemu-riscv64_spl$"
           TOOLCHAIN="riscv"
     - name: "test/py qemu-x86"
       env:

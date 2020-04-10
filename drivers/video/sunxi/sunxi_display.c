@@ -1014,7 +1014,6 @@ static void sunxi_mode_set(const struct ctfb_res_modes *mode,
 static const char *sunxi_get_mon_desc(enum sunxi_monitor monitor)
 {
 	switch (monitor) {
-	case sunxi_monitor_none:		return "none";
 	case sunxi_monitor_dvi:			return "dvi";
 	case sunxi_monitor_hdmi:		return "hdmi";
 	case sunxi_monitor_lcd:			return "lcd";
@@ -1023,8 +1022,9 @@ static const char *sunxi_get_mon_desc(enum sunxi_monitor monitor)
 	case sunxi_monitor_composite_ntsc:	return "composite-ntsc";
 	case sunxi_monitor_composite_pal_m:	return "composite-pal-m";
 	case sunxi_monitor_composite_pal_nc:	return "composite-pal-nc";
+	case sunxi_monitor_none:		/* fall through */
+	default:				return "none";
 	}
-	return NULL; /* never reached */
 }
 
 ulong board_get_usable_ram_top(ulong total_size)

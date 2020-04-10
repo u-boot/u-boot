@@ -2,7 +2,7 @@
 
 # Grab our configured image.  The source for this is found at:
 # https://gitlab.denx.de/u-boot/gitlab-ci-runner
-image: trini/u-boot-gitlab-ci-runner:bionic-20200112-21Feb2020
+image: trini/u-boot-gitlab-ci-runner:bionic-20200311-10Apr2020
 
 # We run some tests in different order, to catch some failures quicker.
 stages:
@@ -21,8 +21,17 @@ stages:
     - grub-mkimage --prefix="" -o ~/grub_x86.efi -O i386-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
     - grub-mkimage --prefix="" -o ~/grub_x64.efi -O x86_64-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
     - cp /opt/grub/grubriscv64.efi ~/grub_riscv64.efi
+    - cp /opt/grub/grubriscv32.efi ~/grub_riscv32.efi
     - cp /opt/grub/grubaa64.efi ~/grub_arm64.efi
     - cp /opt/grub/grubarm.efi ~/grub_arm.efi
+    - if [[ "${TEST_PY_BD}" == "qemu-riscv32_spl" ]]; then
+        wget -O - https://github.com/riscv/opensbi/releases/download/v0.6/opensbi-0.6-rv32-bin.tar.xz | tar -C /tmp -xJ;
+        export OPENSBI=/tmp/opensbi-0.6-rv32-bin/platform/qemu/virt/firmware/fw_dynamic.bin;
+      fi
+    - if [[ "${TEST_PY_BD}" == "qemu-riscv64_spl" ]]; then
+        wget -O - https://github.com/riscv/opensbi/releases/download/v0.6/opensbi-0.6-rv64-bin.tar.xz | tar -C /tmp -xJ;
+        export OPENSBI=/tmp/opensbi-0.6-rv64-bin/platform/qemu/virt/firmware/fw_dynamic.bin;
+      fi
 
   after_script:
     - rm -rf /tmp/uboot-test-hooks /tmp/venv
@@ -297,12 +306,36 @@ qemu-ppce500 test.py:
     BUILDMAN: "^qemu-ppce500$"
   <<: *buildman_and_testpy_dfn
 
+qemu-riscv32 test.py:
+  tags: [ 'all' ]
+  variables:
+    TEST_PY_BD: "qemu-riscv32"
+    TEST_PY_TEST_SPEC: "not sleep"
+    BUILDMAN: "^qemu-riscv32$"
+  <<: *buildman_and_testpy_dfn
+
 qemu-riscv64 test.py:
   tags: [ 'all' ]
   variables:
     TEST_PY_BD: "qemu-riscv64"
     TEST_PY_TEST_SPEC: "not sleep"
     BUILDMAN: "^qemu-riscv64$"
+  <<: *buildman_and_testpy_dfn
+
+qemu-riscv32_spl test.py:
+  tags: [ 'all' ]
+  variables:
+    TEST_PY_BD: "qemu-riscv32_spl"
+    TEST_PY_TEST_SPEC: "not sleep"
+    BUILDMAN: "^qemu-riscv32_spl$"
+  <<: *buildman_and_testpy_dfn
+
+qemu-riscv64_spl test.py:
+  tags: [ 'all' ]
+  variables:
+    TEST_PY_BD: "qemu-riscv64_spl"
+    TEST_PY_TEST_SPEC: "not sleep"
+    BUILDMAN: "^qemu-riscv64_spl$"
   <<: *buildman_and_testpy_dfn
 
 qemu-x86 test.py:
