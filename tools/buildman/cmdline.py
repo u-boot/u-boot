@@ -13,8 +13,6 @@ def ParseArgs():
             args: command lin arguments
     """
     parser = OptionParser()
-    parser.add_option('-a', '--print-arch', action='store_true',
-          help='Print the architecture for a board (ARCH=)')
     parser.add_option('-A', '--print-prefix', action='store_true',
           help='Print the tool-chain prefix for a board (CROSS_COMPILE=)')
     parser.add_option('-b', '--branch', type='string',
@@ -31,7 +29,7 @@ def ParseArgs():
           help='Reconfigure for every commit (disable incremental build)')
     parser.add_option('-d', '--detail', dest='show_detail',
           action='store_true', default=False,
-          help='Show detailed information for each board in summary')
+          help='Show detailed size delta for each board in the -S summary')
     parser.add_option('-D', '--config-only', action='store_true', default=False,
           help="Don't build, just configure each commit")
     parser.add_option('-e', '--show_errors', action='store_true',
@@ -106,6 +104,10 @@ def ParseArgs():
           default=False, help='Show build results while the build progresses')
     parser.add_option('-V', '--verbose-build', action='store_true',
           default=False, help='Run make with V=1, logging all output')
+    parser.add_option('-w', '--work-in-output', action='store_true',
+          default=False, help='Use the output directory as the work directory')
+    parser.add_option('-W', '--ignore-warnings', action='store_true',
+          default=False, help='Return success even if there are warnings')
     parser.add_option('-x', '--exclude', dest='exclude',
           type='string', action='append',
           help='Specify a list of boards to exclude, separated by comma')

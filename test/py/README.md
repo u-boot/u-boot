@@ -138,6 +138,9 @@ command-line option; see the next section.
   before running the tests. If using this option, make sure that any
   environment variables required by the build process are already set, such as
   `$CROSS_COMPILE`.
+- `--buildman` indicates that `--build` should use buildman to build U-Boot.
+  There is no need to set $CROSS_COMPILE` in this case since buildman handles
+  it.
 - `--build-dir` sets the directory containing the compiled U-Boot binaries.
   If omitted, this is `${source_dir}/build-${board_type}`.
 - `--result-dir` sets the directory to write results, such as log files,
@@ -333,13 +336,21 @@ PATH=$HOME/ubtest/bin:$PATH \
 
 If you want the test script to compile U-Boot for you too, then you likely
 need to set `$CROSS_COMPILE` to allow this, and invoke the test script as
-follow:
+follows:
 
 ```bash
 CROSS_COMPILE=arm-none-eabi- \
     PATH=$HOME/ubtest/bin:$PATH \
     PYTHONPATH=${HOME}/ubtest/py/${HOSTNAME}:${PYTHONPATH} \
     ./test/py/test.py --bd seaboard --build
+```
+
+or, using buildman to handle it:
+
+```bash
+    PATH=$HOME/ubtest/bin:$PATH \
+    PYTHONPATH=${HOME}/ubtest/py/${HOSTNAME}:${PYTHONPATH} \
+    ./test/py/test.py --bd seaboard --build --buildman
 ```
 
 ## Writing tests
