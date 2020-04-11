@@ -670,7 +670,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 	u64 mc_memory_base = 0;
 	u64 mc_memory_size = 0;
 	u16 total_memory_banks;
-	u64 gic_lpi_base;
+	u64 __maybe_unused gic_lpi_base;
 
 	ft_cpu_setup(blob, bd);
 
