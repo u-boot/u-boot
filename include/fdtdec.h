@@ -1155,6 +1155,11 @@ int fdtdec_set_carveout(void *blob, const char *node, const char *prop_name,
  */
 int fdtdec_setup(void);
 
+/**
+ * Perform board-specific early DT adjustments
+ */
+int fdtdec_board_setup(const void *fdt_blob);
+
 #if CONFIG_IS_ENABLED(MULTI_DTB_FIT)
 /**
  * fdtdec_resetup()  - Set up the device tree again

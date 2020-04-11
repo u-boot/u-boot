@@ -1474,8 +1474,14 @@ int fdtdec_set_carveout(void *blob, const char *node, const char *prop_name,
 	return 0;
 }
 
+__weak int fdtdec_board_setup(const void *fdt_blob)
+{
+	return 0;
+}
+
 int fdtdec_setup(void)
 {
+	int ret;
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 # if CONFIG_IS_ENABLED(MULTI_DTB_FIT)
 	void *fdt_blob;
@@ -1528,7 +1534,10 @@ int fdtdec_setup(void)
 # endif
 #endif
 
-	return fdtdec_prepare_fdt();
+	ret = fdtdec_prepare_fdt();
+	if (!ret)
+		ret = fdtdec_board_setup(gd->fdt_blob);
+	return ret;
 }
 
 #if CONFIG_IS_ENABLED(MULTI_DTB_FIT)
