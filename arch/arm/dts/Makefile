@@ -766,6 +766,10 @@ dtb-$(CONFIG_RCAR_GEN3) += \
 	r8a77990-ebisu-u-boot.dtb \
 	r8a77995-draak-u-boot.dtb
 
+ifdef CONFIG_RCAR_GEN3
+DTC_FLAGS += -R 4 -p 0x1000
+endif
+
 dtb-$(CONFIG_RZA1) += \
 	r7s72100-gr-peach-u-boot.dtb
 
