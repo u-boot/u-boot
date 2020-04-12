@@ -370,15 +370,12 @@ static void rtl8139_set_rx_mode(struct eth_device *dev)
 	outl(0xffffffff, ioaddr + RTL_REG_MAR0 + 4);
 }
 
-static void rtl8139_reset(struct eth_device *dev)
+static void rtl8139_hw_reset(struct eth_device *dev)
 {
 	u8 reg;
 	int i;
 
 	outb(RTL_REG_CHIPCMD_CMDRESET, ioaddr + RTL_REG_CHIPCMD);
-
-	cur_rx = 0;
-	cur_tx = 0;
 
 	/* Give the chip 10ms to finish the reset. */
 	for (i = 0; i < 100; i++) {
@@ -388,7 +385,16 @@ static void rtl8139_reset(struct eth_device *dev)
 
 		udelay(100);
 	}
+}
 
+static void rtl8139_reset(struct eth_device *dev)
+{
+	int i;
+
+	cur_rx = 0;
+	cur_tx = 0;
+
+	rtl8139_hw_reset(dev);
 
 	for (i = 0; i < ETH_ALEN; i++)
 		outb(dev->enetaddr[i], ioaddr + RTL_REG_MAC0 + i);
@@ -570,19 +576,7 @@ static int rtl8139_recv(struct eth_device *dev)
 
 static void rtl8139_stop(struct eth_device *dev)
 {
-	u8 reg;
-	int i;
-
 	ioaddr = dev->iobase;
 
-	/* reset the chip */
-	outb(RTL_REG_CHIPCMD_CMDRESET, ioaddr + RTL_REG_CHIPCMD);
-
-	/* Give the chip 10ms to finish the reset. */
-	for (i = 0; i < 100; i++) {
-		reg = inb(ioaddr + RTL_REG_CHIPCMD);
-		if (!(reg & RTL_REG_CHIPCMD_CMDRESET))
-			break;
-		udelay (100); /* wait 100us */
-	}
+	rtl8139_hw_reset(dev);
 }
