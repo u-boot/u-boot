@@ -190,103 +190,12 @@
 #define RTL_STS_RXBADALIGN			BIT(1)
 #define RTL_STS_RXSTATUSOK			BIT(0)
 
-static int ioaddr;
 static unsigned int cur_rx, cur_tx;
+static int ioaddr;
 
 /* The RTL8139 can only transmit from a contiguous, aligned memory block.  */
 static unsigned char tx_buffer[TX_BUF_SIZE] __aligned(4);
 static unsigned char rx_ring[RX_BUF_LEN + 16] __aligned(4);
-
-static int rtl8139_init(struct eth_device *dev, bd_t *bis);
-static int rtl8139_read_eeprom(unsigned int location, unsigned int addr_len);
-static void rtl8139_reset(struct eth_device *dev);
-static int rtl8139_send(struct eth_device *dev, void *packet, int length);
-static int rtl8139_recv(struct eth_device *dev);
-static void rtl8139_stop(struct eth_device *dev);
-static int rtl_bcast_addr(struct eth_device *dev, const u8 *bcast_mac, int join)
-{
-	return 0;
-}
-
-static struct pci_device_id supported[] = {
-	{ PCI_VENDOR_ID_REALTEK, PCI_DEVICE_ID_REALTEK_8139 },
-	{ PCI_VENDOR_ID_DLINK, PCI_DEVICE_ID_DLINK_8139 },
-	{ }
-};
-
-int rtl8139_initialize(bd_t *bis)
-{
-	struct eth_device *dev;
-	int card_number = 0;
-	pci_dev_t devno;
-	int idx = 0;
-	u32 iobase;
-
-	while (1) {
-		/* Find RTL8139 */
-		devno = pci_find_devices(supported, idx++);
-		if (devno < 0)
-			break;
-
-		pci_read_config_dword(devno, PCI_BASE_ADDRESS_1, &iobase);
-		iobase &= ~0xf;
-
-		debug("rtl8139: REALTEK RTL8139 @0x%x\n", iobase);
-
-		dev = (struct eth_device *)malloc(sizeof(*dev));
-		if (!dev) {
-			printf("Can not allocate memory of rtl8139\n");
-			break;
-		}
-		memset(dev, 0, sizeof(*dev));
-
-		sprintf(dev->name, "RTL8139#%d", card_number);
-
-		dev->priv = (void *)devno;
-		dev->iobase = (int)bus_to_phys(iobase);
-		dev->init = rtl8139_init;
-		dev->halt = rtl8139_stop;
-		dev->send = rtl8139_send;
-		dev->recv = rtl8139_recv;
-		dev->mcast = rtl_bcast_addr;
-
-		eth_register(dev);
-
-		card_number++;
-
-		pci_write_config_byte(devno, PCI_LATENCY_TIMER, 0x20);
-
-		udelay(10 * 1000);
-	}
-
-	return card_number;
-}
-
-static int rtl8139_init(struct eth_device *dev, bd_t *bis)
-{
-	unsigned short *ap = (unsigned short *)dev->enetaddr;
-	int addr_len, i;
-	u8 reg;
-
-	ioaddr = dev->iobase;
-
-	/* Bring the chip out of low-power mode. */
-	outb(0x00, ioaddr + RTL_REG_CONFIG1);
-
-	addr_len = rtl8139_read_eeprom(0, 8) == 0x8129 ? 8 : 6;
-	for (i = 0; i < 3; i++)
-		*ap++ = le16_to_cpu(rtl8139_read_eeprom(i + 7, addr_len));
-
-	rtl8139_reset(dev);
-
-	reg = inb(ioaddr + RTL_REG_MEDIASTATUS);
-	if (reg & RTL_REG_MEDIASTATUS_MSRLINKFAIL) {
-		printf("Cable not connected or other link failure\n");
-		return -1;
-	}
-
-	return 0;
-}
 
 /* Serial EEPROM section. */
 
@@ -575,9 +484,95 @@ static int rtl8139_recv(struct eth_device *dev)
 	return length;
 }
 
+static int rtl8139_init(struct eth_device *dev, bd_t *bis)
+{
+	unsigned short *ap = (unsigned short *)dev->enetaddr;
+	int addr_len, i;
+	u8 reg;
+
+	ioaddr = dev->iobase;
+
+	/* Bring the chip out of low-power mode. */
+	outb(0x00, ioaddr + RTL_REG_CONFIG1);
+
+	addr_len = rtl8139_read_eeprom(0, 8) == 0x8129 ? 8 : 6;
+	for (i = 0; i < 3; i++)
+		*ap++ = le16_to_cpu(rtl8139_read_eeprom(i + 7, addr_len));
+
+	rtl8139_reset(dev);
+
+	reg = inb(ioaddr + RTL_REG_MEDIASTATUS);
+	if (reg & RTL_REG_MEDIASTATUS_MSRLINKFAIL) {
+		printf("Cable not connected or other link failure\n");
+		return -1;
+	}
+
+	return 0;
+}
+
 static void rtl8139_stop(struct eth_device *dev)
 {
 	ioaddr = dev->iobase;
 
 	rtl8139_hw_reset(dev);
+}
+
+static int rtl8139_bcast_addr(struct eth_device *dev, const u8 *bcast_mac,
+			      int join)
+{
+	return 0;
+}
+
+static struct pci_device_id supported[] = {
+	{ PCI_VENDOR_ID_REALTEK, PCI_DEVICE_ID_REALTEK_8139 },
+	{ PCI_VENDOR_ID_DLINK, PCI_DEVICE_ID_DLINK_8139 },
+	{ }
+};
+
+int rtl8139_initialize(bd_t *bis)
+{
+	struct eth_device *dev;
+	int card_number = 0;
+	pci_dev_t devno;
+	int idx = 0;
+	u32 iobase;
+
+	while (1) {
+		/* Find RTL8139 */
+		devno = pci_find_devices(supported, idx++);
+		if (devno < 0)
+			break;
+
+		pci_read_config_dword(devno, PCI_BASE_ADDRESS_1, &iobase);
+		iobase &= ~0xf;
+
+		debug("rtl8139: REALTEK RTL8139 @0x%x\n", iobase);
+
+		dev = (struct eth_device *)malloc(sizeof(*dev));
+		if (!dev) {
+			printf("Can not allocate memory of rtl8139\n");
+			break;
+		}
+		memset(dev, 0, sizeof(*dev));
+
+		sprintf(dev->name, "RTL8139#%d", card_number);
+
+		dev->priv = (void *)devno;
+		dev->iobase = (int)bus_to_phys(iobase);
+		dev->init = rtl8139_init;
+		dev->halt = rtl8139_stop;
+		dev->send = rtl8139_send;
+		dev->recv = rtl8139_recv;
+		dev->mcast = rtl8139_bcast_addr;
+
+		eth_register(dev);
+
+		card_number++;
+
+		pci_write_config_byte(devno, PCI_LATENCY_TIMER, 0x20);
+
+		udelay(10 * 1000);
+	}
+
+	return card_number;
 }
