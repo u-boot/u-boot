@@ -357,19 +357,17 @@ static const unsigned int rtl8139_rx_config =
 	(RX_FIFO_THRESH << 13) |
 	(RX_DMA_BURST << 8);
 
-static void set_rx_mode(struct eth_device *dev) {
-	unsigned int mc_filter[2];
-	int rx_mode;
+static void rtl8139_set_rx_mode(struct eth_device *dev)
+{
 	/* !IFF_PROMISC */
-	rx_mode = RTL_REG_RXCONFIG_ACCEPTBROADCAST |
-		  RTL_REG_RXCONFIG_ACCEPTMULTICAST |
-		  RTL_REG_RXCONFIG_ACCEPTMYPHYS;
-	mc_filter[1] = mc_filter[0] = 0xffffffff;
+	unsigned int rx_mode = RTL_REG_RXCONFIG_ACCEPTBROADCAST |
+			       RTL_REG_RXCONFIG_ACCEPTMULTICAST |
+			       RTL_REG_RXCONFIG_ACCEPTMYPHYS;
 
 	outl(rtl8139_rx_config | rx_mode, ioaddr + RTL_REG_RXCONFIG);
 
-	outl(mc_filter[0], ioaddr + RTL_REG_MAR0 + 0);
-	outl(mc_filter[1], ioaddr + RTL_REG_MAR0 + 4);
+	outl(0xffffffff, ioaddr + RTL_REG_MAR0 + 0);
+	outl(0xffffffff, ioaddr + RTL_REG_MAR0 + 4);
 }
 
 static void rtl_reset(struct eth_device *dev)
@@ -425,8 +423,7 @@ static void rtl_reset(struct eth_device *dev)
 	/* Start the chip's Tx and Rx process. */
 	outl(0, ioaddr + RTL_REG_RXMISSED);
 
-	/* set_rx_mode */
-	set_rx_mode(dev);
+	rtl8139_set_rx_mode(dev);
 
 	/* Disable all known interrupts by setting the interrupt mask. */
 	outw(0, ioaddr + RTL_REG_INTRMASK);
