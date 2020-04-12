@@ -44,7 +44,7 @@
      which reserves the ranges 0x00000-0x10000 and 0x98000-0xA0000.  My
      interpretation of this "reserved" is that Etherboot may do whatever it
      likes, as long as its environment is kept intact (like the BIOS
-     variables).  Hopefully fixed rtl_poll() once and for all.	The symptoms
+     variables).  Hopefully fixed rtl8139_recv() once and for all.	The symptoms
      were that if Etherboot was left at the boot menu for several minutes, the
      first eth_poll failed.  Seems like I am the only person who does this.
      First of all I fixed the debugging code and then set out for a long bug
@@ -65,7 +65,7 @@
      corruption because of exceeding 32K during runtime.
 
   28 Jul 1999	(Matthias Meixner - meixner@rbg.informatik.tu-darmstadt.de)
-     rtl_poll was quite broken: it used the RxOK interrupt flag instead
+     rtl8139_recv was quite broken: it used the RxOK interrupt flag instead
      of the RxBufferEmpty flag which often resulted in very bad
      transmission performace - below 1kBytes/s.
 
@@ -202,7 +202,7 @@ static int rtl8139_probe(struct eth_device *dev, bd_t *bis);
 static int rtl8139_read_eeprom(unsigned int location, unsigned int addr_len);
 static void rtl8139_reset(struct eth_device *dev);
 static int rtl8139_send(struct eth_device *dev, void *packet, int length);
-static int rtl_poll(struct eth_device *dev);
+static int rtl8139_recv(struct eth_device *dev);
 static void rtl_disable(struct eth_device *dev);
 static int rtl_bcast_addr(struct eth_device *dev, const u8 *bcast_mac, int join)
 {
@@ -247,7 +247,7 @@ int rtl8139_initialize(bd_t *bis)
 		dev->init = rtl8139_probe;
 		dev->halt = rtl_disable;
 		dev->send = rtl8139_send;
-		dev->recv = rtl_poll;
+		dev->recv = rtl8139_recv;
 		dev->mcast = rtl_bcast_addr;
 
 		eth_register (dev);
@@ -468,7 +468,7 @@ static int rtl8139_send(struct eth_device *dev, void *packet, int length)
 		 * Only acknlowledge interrupt sources we can properly
 		 * handle here - the RTL_REG_INTRSTATUS_RXOVERFLOW/
 		 * RTL_REG_INTRSTATUS_RXFIFOOVER MUST be handled in the
-		 * rtl_poll() function.
+		 * rtl8139_recv() function.
 		 */
 		status &= RTL_REG_INTRSTATUS_TXOK | RTL_REG_INTRSTATUS_TXERR |
 			  RTL_REG_INTRSTATUS_PCIERR;
@@ -499,27 +499,26 @@ static int rtl8139_send(struct eth_device *dev, void *packet, int length)
 	return length;
 }
 
-static int rtl_poll(struct eth_device *dev)
+static int rtl8139_recv(struct eth_device *dev)
 {
-	unsigned int status;
-	unsigned int ring_offs;
+	const unsigned int rxstat = RTL_REG_INTRSTATUS_RXFIFOOVER |
+				    RTL_REG_INTRSTATUS_RXOVERFLOW |
+				    RTL_REG_INTRSTATUS_RXOK;
 	unsigned int rx_size, rx_status;
-	int length=0;
+	unsigned int ring_offs;
+	unsigned int status;
+	int length = 0;
 
 	ioaddr = dev->iobase;
 
-	if (inb(ioaddr + RTL_REG_CHIPCMD) & RTL_REG_CHIPCMD_RXBUFEMPTY) {
+	if (inb(ioaddr + RTL_REG_CHIPCMD) & RTL_REG_CHIPCMD_RXBUFEMPTY)
 		return 0;
-	}
 
 	status = inw(ioaddr + RTL_REG_INTRSTATUS);
 	/* See below for the rest of the interrupt acknowledges.  */
-	outw(status & ~(RTL_REG_INTRSTATUS_RXFIFOOVER |
-			RTL_REG_INTRSTATUS_RXOVERFLOW |
-			RTL_REG_INTRSTATUS_RXOK),
-		ioaddr + RTL_REG_INTRSTATUS);
+	outw(status & ~rxstat, ioaddr + RTL_REG_INTRSTATUS);
 
-	debug_cond(DEBUG_RX, "rtl_poll: int %hX ", status);
+	debug_cond(DEBUG_RX, "%s: int %hX ", __func__, status);
 
 	ring_offs = cur_rx % RX_BUF_LEN;
 	/* ring_offs is guaranteed being 4-byte aligned */
@@ -530,38 +529,42 @@ static int rtl_poll(struct eth_device *dev)
 	if ((rx_status & (RTL_STS_RXBADSYMBOL | RTL_STS_RXRUNT |
 			  RTL_STS_RXTOOLONG | RTL_STS_RXCRCERR |
 			  RTL_STS_RXBADALIGN)) ||
-	    (rx_size < ETH_ZLEN) || (rx_size > ETH_FRAME_LEN + 4)) {
+	    (rx_size < ETH_ZLEN) ||
+	    (rx_size > ETH_FRAME_LEN + 4)) {
 		printf("rx error %hX\n", rx_status);
-		rtl8139_reset(dev); /* this clears all interrupts still pending */
+		/* this clears all interrupts still pending */
+		rtl8139_reset(dev);
 		return 0;
 	}
 
 	/* Received a good packet */
 	length = rx_size - 4;	/* no one cares about the FCS */
-	if (ring_offs+4+rx_size-4 > RX_BUF_LEN) {
-		int semi_count = RX_BUF_LEN - ring_offs - 4;
+	if (ring_offs + 4 + rx_size - 4 > RX_BUF_LEN) {
 		unsigned char rxdata[RX_BUF_LEN];
+		int semi_count = RX_BUF_LEN - ring_offs - 4;
 
 		memcpy(rxdata, rx_ring + ring_offs + 4, semi_count);
-		memcpy(&(rxdata[semi_count]), rx_ring, rx_size-4-semi_count);
+		memcpy(&rxdata[semi_count], rx_ring,
+		       rx_size - 4 - semi_count);
 
 		net_process_received_packet(rxdata, length);
 		debug_cond(DEBUG_RX, "rx packet %d+%d bytes",
-			semi_count, rx_size-4-semi_count);
+			   semi_count, rx_size - 4 - semi_count);
 	} else {
 		net_process_received_packet(rx_ring + ring_offs + 4, length);
-		debug_cond(DEBUG_RX, "rx packet %d bytes", rx_size-4);
+		debug_cond(DEBUG_RX, "rx packet %d bytes", rx_size - 4);
 	}
 	flush_cache((unsigned long)rx_ring, RX_BUF_LEN);
 
-	cur_rx = (cur_rx + rx_size + 4 + 3) & ~3;
+	cur_rx = ROUND(cur_rx + rx_size + 4, 4);
 	outw(cur_rx - 16, ioaddr + RTL_REG_RXBUFPTR);
-	/* See RTL8139 Programming Guide V0.1 for the official handling of
-	 * Rx overflow situations.  The document itself contains basically no
-	 * usable information, except for a few exception handling rules.  */
-	outw(status & (RTL_REG_INTRSTATUS_RXFIFOOVER |
-		       RTL_REG_INTRSTATUS_RXOVERFLOW |
-		       RTL_REG_INTRSTATUS_RXOK), ioaddr + RTL_REG_INTRSTATUS);
+	/*
+	 * See RTL8139 Programming Guide V0.1 for the official handling of
+	 * Rx overflow situations. The document itself contains basically
+	 * no usable information, except for a few exception handling rules.
+	 */
+	outw(status & rxstat, ioaddr + RTL_REG_INTRSTATUS);
+
 	return length;
 }
 
