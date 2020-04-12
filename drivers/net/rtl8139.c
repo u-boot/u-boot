@@ -203,7 +203,7 @@ static int rtl8139_read_eeprom(unsigned int location, unsigned int addr_len);
 static void rtl8139_reset(struct eth_device *dev);
 static int rtl8139_send(struct eth_device *dev, void *packet, int length);
 static int rtl8139_recv(struct eth_device *dev);
-static void rtl_disable(struct eth_device *dev);
+static void rtl8139_stop(struct eth_device *dev);
 static int rtl_bcast_addr(struct eth_device *dev, const u8 *bcast_mac, int join)
 {
 	return (0);
@@ -245,7 +245,7 @@ int rtl8139_initialize(bd_t *bis)
 		dev->priv = (void *) devno;
 		dev->iobase = (int)bus_to_phys(iobase);
 		dev->init = rtl8139_probe;
-		dev->halt = rtl_disable;
+		dev->halt = rtl8139_stop;
 		dev->send = rtl8139_send;
 		dev->recv = rtl8139_recv;
 		dev->mcast = rtl_bcast_addr;
@@ -568,8 +568,9 @@ static int rtl8139_recv(struct eth_device *dev)
 	return length;
 }
 
-static void rtl_disable(struct eth_device *dev)
+static void rtl8139_stop(struct eth_device *dev)
 {
+	u8 reg;
 	int i;
 
 	ioaddr = dev->iobase;
@@ -578,8 +579,10 @@ static void rtl_disable(struct eth_device *dev)
 	outb(RTL_REG_CHIPCMD_CMDRESET, ioaddr + RTL_REG_CHIPCMD);
 
 	/* Give the chip 10ms to finish the reset. */
-	for (i=0; i<100; ++i){
-		if ((inb(ioaddr + RTL_REG_CHIPCMD) & RTL_REG_CHIPCMD_CMDRESET) == 0) break;
+	for (i = 0; i < 100; i++) {
+		reg = inb(ioaddr + RTL_REG_CHIPCMD);
+		if (!(reg & RTL_REG_CHIPCMD_CMDRESET))
+			break;
 		udelay (100); /* wait 100us */
 	}
 }
