@@ -8,68 +8,67 @@
  */
 
 /* rtl8139.c - etherboot driver for the Realtek 8139 chipset
-
-  ported from the linux driver written by Donald Becker
-  by Rainer Bawidamann (Rainer.Bawidamann@informatik.uni-ulm.de) 1999
-
-  This software may be used and distributed according to the terms
-  of the GNU Public License, incorporated herein by reference.
-
-  changes to the original driver:
-  - removed support for interrupts, switching to polling mode (yuck!)
-  - removed support for the 8129 chip (external MII)
-
-*/
+ *
+ * ported from the linux driver written by Donald Becker
+ * by Rainer Bawidamann (Rainer.Bawidamann@informatik.uni-ulm.de) 1999
+ *
+ * This software may be used and distributed according to the terms
+ * of the GNU Public License, incorporated herein by reference.
+ *
+ * changes to the original driver:
+ * - removed support for interrupts, switching to polling mode (yuck!)
+ * - removed support for the 8129 chip (external MII)
+ */
 
 /*********************************************************************/
 /* Revision History						     */
 /*********************************************************************/
 
 /*
-  28 Dec 2002	ken_yap@users.sourceforge.net (Ken Yap)
-     Put in virt_to_bus calls to allow Etherboot relocation.
-
-  06 Apr 2001	ken_yap@users.sourceforge.net (Ken Yap)
-     Following email from Hyun-Joon Cha, added a disable routine, otherwise
-     NIC remains live and can crash the kernel later.
-
-  4 Feb 2000	espenlaub@informatik.uni-ulm.de (Klaus Espenlaub)
-     Shuffled things around, removed the leftovers from the 8129 support
-     that was in the Linux driver and added a bit more 8139 definitions.
-     Moved the 8K receive buffer to a fixed, available address outside the
-     0x98000-0x9ffff range.  This is a bit of a hack, but currently the only
-     way to make room for the Etherboot features that need substantial amounts
-     of code like the ANSI console support.  Currently the buffer is just below
-     0x10000, so this even conforms to the tagged boot image specification,
-     which reserves the ranges 0x00000-0x10000 and 0x98000-0xA0000.  My
-     interpretation of this "reserved" is that Etherboot may do whatever it
-     likes, as long as its environment is kept intact (like the BIOS
-     variables).  Hopefully fixed rtl8139_recv() once and for all.	The symptoms
-     were that if Etherboot was left at the boot menu for several minutes, the
-     first eth_poll failed.  Seems like I am the only person who does this.
-     First of all I fixed the debugging code and then set out for a long bug
-     hunting session.  It took me about a week full time work - poking around
-     various places in the driver, reading Don Becker's and Jeff Garzik's Linux
-     driver and even the FreeBSD driver (what a piece of crap!) - and
-     eventually spotted the nasty thing: the transmit routine was acknowledging
-     each and every interrupt pending, including the RxOverrun and RxFIFIOver
-     interrupts.  This confused the RTL8139 thoroughly.	 It destroyed the
-     Rx ring contents by dumping the 2K FIFO contents right where we wanted to
-     get the next packet.  Oh well, what fun.
-
-  18 Jan 2000	mdc@thinguin.org (Marty Connor)
-     Drastically simplified error handling.  Basically, if any error
-     in transmission or reception occurs, the card is reset.
-     Also, pointed all transmit descriptors to the same buffer to
-     save buffer space.	 This should decrease driver size and avoid
-     corruption because of exceeding 32K during runtime.
-
-  28 Jul 1999	(Matthias Meixner - meixner@rbg.informatik.tu-darmstadt.de)
-     rtl8139_recv was quite broken: it used the RxOK interrupt flag instead
-     of the RxBufferEmpty flag which often resulted in very bad
-     transmission performace - below 1kBytes/s.
-
-*/
+ * 28 Dec 2002 ken_yap@users.sourceforge.net (Ken Yap)
+ *    Put in virt_to_bus calls to allow Etherboot relocation.
+ *
+ * 06 Apr 2001 ken_yap@users.sourceforge.net (Ken Yap)
+ *    Following email from Hyun-Joon Cha, added a disable routine, otherwise
+ *    NIC remains live and can crash the kernel later.
+ *
+ * 4 Feb 2000 espenlaub@informatik.uni-ulm.de (Klaus Espenlaub)
+ *    Shuffled things around, removed the leftovers from the 8129 support
+ *    that was in the Linux driver and added a bit more 8139 definitions.
+ *    Moved the 8K receive buffer to a fixed, available address outside the
+ *    0x98000-0x9ffff range. This is a bit of a hack, but currently the only
+ *    way to make room for the Etherboot features that need substantial amounts
+ *    of code like the ANSI console support. Currently the buffer is just below
+ *    0x10000, so this even conforms to the tagged boot image specification,
+ *    which reserves the ranges 0x00000-0x10000 and 0x98000-0xA0000. My
+ *    interpretation of this "reserved" is that Etherboot may do whatever it
+ *    likes, as long as its environment is kept intact (like the BIOS
+ *    variables). Hopefully fixed rtl8139_recv() once and for all. The symptoms
+ *    were that if Etherboot was left at the boot menu for several minutes, the
+ *    first eth_poll failed. Seems like I am the only person who does this.
+ *    First of all I fixed the debugging code and then set out for a long bug
+ *    hunting session. It took me about a week full time work - poking around
+ *    various places in the driver, reading Don Becker's and Jeff Garzik's Linux
+ *    driver and even the FreeBSD driver (what a piece of crap!) - and
+ *    eventually spotted the nasty thing: the transmit routine was acknowledging
+ *    each and every interrupt pending, including the RxOverrun and RxFIFIOver
+ *    interrupts. This confused the RTL8139 thoroughly. It destroyed the
+ *    Rx ring contents by dumping the 2K FIFO contents right where we wanted to
+ *    get the next packet. Oh well, what fun.
+ *
+ * 18 Jan 2000 mdc@thinguin.org (Marty Connor)
+ *    Drastically simplified error handling. Basically, if any error
+ *    in transmission or reception occurs, the card is reset.
+ *    Also, pointed all transmit descriptors to the same buffer to
+ *    save buffer space. This should decrease driver size and avoid
+ *    corruption because of exceeding 32K during runtime.
+ *
+ * 28 Jul 1999 (Matthias Meixner - meixner@rbg.informatik.tu-darmstadt.de)
+ *    rtl8139_recv was quite broken: it used the RxOK interrupt flag instead
+ *    of the RxBufferEmpty flag which often resulted in very bad
+ *    transmission performace - below 1kBytes/s.
+ *
+ */
 
 #include <common.h>
 #include <cpu_func.h>
@@ -82,8 +81,8 @@
 
 #define RTL_TIMEOUT	100000
 
-/* PCI Tuning Parameters
-   Threshold is bytes transferred to chip before transmission starts. */
+/* PCI Tuning Parameters */
+/* Threshold is bytes transferred to chip before transmission starts. */
 #define TX_FIFO_THRESH 256	/* In bytes, rounded down to 32 byte units. */
 #define RX_FIFO_THRESH	4	/* Rx buffer level before first PCI xfer.  */
 #define RX_DMA_BURST	4	/* Maximum PCI burst, '4' is 256 bytes */
@@ -192,13 +191,13 @@
 #define RTL_STS_RXSTATUSOK			BIT(0)
 
 static int ioaddr;
-static unsigned int cur_rx,cur_tx;
+static unsigned int cur_rx, cur_tx;
 
 /* The RTL8139 can only transmit from a contiguous, aligned memory block.  */
-static unsigned char tx_buffer[TX_BUF_SIZE] __attribute__((aligned(4)));
-static unsigned char rx_ring[RX_BUF_LEN+16] __attribute__((aligned(4)));
+static unsigned char tx_buffer[TX_BUF_SIZE] __aligned(4);
+static unsigned char rx_ring[RX_BUF_LEN + 16] __aligned(4);
 
-static int rtl8139_probe(struct eth_device *dev, bd_t *bis);
+static int rtl8139_init(struct eth_device *dev, bd_t *bis);
 static int rtl8139_read_eeprom(unsigned int location, unsigned int addr_len);
 static void rtl8139_reset(struct eth_device *dev);
 static int rtl8139_send(struct eth_device *dev, void *packet, int length);
@@ -206,82 +205,84 @@ static int rtl8139_recv(struct eth_device *dev);
 static void rtl8139_stop(struct eth_device *dev);
 static int rtl_bcast_addr(struct eth_device *dev, const u8 *bcast_mac, int join)
 {
-	return (0);
+	return 0;
 }
 
 static struct pci_device_id supported[] = {
-       {PCI_VENDOR_ID_REALTEK, PCI_DEVICE_ID_REALTEK_8139},
-       {PCI_VENDOR_ID_DLINK, PCI_DEVICE_ID_DLINK_8139},
-       {}
+	{ PCI_VENDOR_ID_REALTEK, PCI_DEVICE_ID_REALTEK_8139 },
+	{ PCI_VENDOR_ID_DLINK, PCI_DEVICE_ID_DLINK_8139 },
+	{ }
 };
 
 int rtl8139_initialize(bd_t *bis)
 {
-	pci_dev_t devno;
-	int card_number = 0;
 	struct eth_device *dev;
+	int card_number = 0;
+	pci_dev_t devno;
+	int idx = 0;
 	u32 iobase;
-	int idx=0;
 
-	while(1){
+	while (1) {
 		/* Find RTL8139 */
-		if ((devno = pci_find_devices(supported, idx++)) < 0)
+		devno = pci_find_devices(supported, idx++);
+		if (devno < 0)
 			break;
 
 		pci_read_config_dword(devno, PCI_BASE_ADDRESS_1, &iobase);
 		iobase &= ~0xf;
 
-		debug ("rtl8139: REALTEK RTL8139 @0x%x\n", iobase);
+		debug("rtl8139: REALTEK RTL8139 @0x%x\n", iobase);
 
-		dev = (struct eth_device *)malloc(sizeof *dev);
+		dev = (struct eth_device *)malloc(sizeof(*dev));
 		if (!dev) {
 			printf("Can not allocate memory of rtl8139\n");
 			break;
 		}
 		memset(dev, 0, sizeof(*dev));
 
-		sprintf (dev->name, "RTL8139#%d", card_number);
+		sprintf(dev->name, "RTL8139#%d", card_number);
 
-		dev->priv = (void *) devno;
+		dev->priv = (void *)devno;
 		dev->iobase = (int)bus_to_phys(iobase);
-		dev->init = rtl8139_probe;
+		dev->init = rtl8139_init;
 		dev->halt = rtl8139_stop;
 		dev->send = rtl8139_send;
 		dev->recv = rtl8139_recv;
 		dev->mcast = rtl_bcast_addr;
 
-		eth_register (dev);
+		eth_register(dev);
 
 		card_number++;
 
-		pci_write_config_byte (devno, PCI_LATENCY_TIMER, 0x20);
+		pci_write_config_byte(devno, PCI_LATENCY_TIMER, 0x20);
 
-		udelay (10 * 1000);
+		udelay(10 * 1000);
 	}
 
 	return card_number;
 }
 
-static int rtl8139_probe(struct eth_device *dev, bd_t *bis)
+static int rtl8139_init(struct eth_device *dev, bd_t *bis)
 {
-	int i;
-	int addr_len;
 	unsigned short *ap = (unsigned short *)dev->enetaddr;
+	int addr_len, i;
+	u8 reg;
 
 	ioaddr = dev->iobase;
 
 	/* Bring the chip out of low-power mode. */
 	outb(0x00, ioaddr + RTL_REG_CONFIG1);
 
-	addr_len = rtl8139_read_eeprom(0,8) == 0x8129 ? 8 : 6;
+	addr_len = rtl8139_read_eeprom(0, 8) == 0x8129 ? 8 : 6;
 	for (i = 0; i < 3; i++)
-		*ap++ = le16_to_cpu (rtl8139_read_eeprom(i + 7, addr_len));
+		*ap++ = le16_to_cpu(rtl8139_read_eeprom(i + 7, addr_len));
 
 	rtl8139_reset(dev);
 
-	if (inb(ioaddr + RTL_REG_MEDIASTATUS) & RTL_REG_MEDIASTATUS_MSRLINKFAIL) {
+	reg = inb(ioaddr + RTL_REG_MEDIASTATUS);
+	if (reg & RTL_REG_MEDIASTATUS_MSRLINKFAIL) {
 		printf("Cable not connected or other link failure\n");
-		return -1 ;
+		return -1;
 	}
 
 	return 0;
