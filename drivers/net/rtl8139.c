@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * rtl8139.c : U-Boot driver for the RealTek RTL8139
  *
@@ -11,9 +12,6 @@
  *
  * ported from the linux driver written by Donald Becker
  * by Rainer Bawidamann (Rainer.Bawidamann@informatik.uni-ulm.de) 1999
- *
- * This software may be used and distributed according to the terms
- * of the GNU Public License, incorporated herein by reference.
  *
  * changes to the original driver:
  * - removed support for interrupts, switching to polling mode (yuck!)
