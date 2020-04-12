@@ -73,6 +73,7 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <linux/types.h>
 #include <malloc.h>
 #include <net.h>
 #include <netdev.h>
@@ -297,17 +298,19 @@ static int rtl8139_probe(struct eth_device *dev, bd_t *bis)
 #define EE_DATA_READ	0x01	/* EEPROM chip data out. */
 #define EE_ENB		(0x80 | EE_CS)
 
-/*
-	Delay between EEPROM clock transitions.
-	No extra delay is needed with 33MHz PCI, but 66MHz may change this.
-*/
-
-#define eeprom_delay()	inl(ee_addr)
-
 /* The EEPROM commands include the alway-set leading bit. */
 #define EE_WRITE_CMD	5
 #define EE_READ_CMD	6
 #define EE_ERASE_CMD	7
+
+static void rtl8139_eeprom_delay(uintptr_t regbase)
+{
+	/*
+	 * Delay between EEPROM clock transitions.
+	 * No extra delay is needed with 33MHz PCI, but 66MHz may change this.
+	 */
+	inl(regbase + RTL_REG_CFG9346);
+}
 
 static int read_eeprom(int location, int addr_len)
 {
@@ -318,30 +321,30 @@ static int read_eeprom(int location, int addr_len)
 
 	outb(EE_ENB & ~EE_CS, ee_addr);
 	outb(EE_ENB, ee_addr);
-	eeprom_delay();
+	rtl8139_eeprom_delay(ioaddr);
 
 	/* Shift the read command bits out. */
 	for (i = 4 + addr_len; i >= 0; i--) {
 		int dataval = (read_cmd & (1 << i)) ? EE_DATA_WRITE : 0;
 		outb(EE_ENB | dataval, ee_addr);
-		eeprom_delay();
+		rtl8139_eeprom_delay(ioaddr);
 		outb(EE_ENB | dataval | EE_SHIFT_CLK, ee_addr);
-		eeprom_delay();
+		rtl8139_eeprom_delay(ioaddr);
 	}
 	outb(EE_ENB, ee_addr);
-	eeprom_delay();
+	rtl8139_eeprom_delay(ioaddr);
 
 	for (i = 16; i > 0; i--) {
 		outb(EE_ENB | EE_SHIFT_CLK, ee_addr);
-		eeprom_delay();
+		rtl8139_eeprom_delay(ioaddr);
 		retval = (retval << 1) | ((inb(ee_addr) & EE_DATA_READ) ? 1 : 0);
 		outb(EE_ENB, ee_addr);
-		eeprom_delay();
+		rtl8139_eeprom_delay(ioaddr);
 	}
 
 	/* Terminate the EEPROM access. */
 	outb(~EE_CS, ee_addr);
-	eeprom_delay();
+	rtl8139_eeprom_delay(ioaddr);
 	return retval;
 }
 
