@@ -23,6 +23,8 @@
 		single-cpu-affinity;
 		last-interrupt-source = <255>;
 	};
+/include/ "pq3-i2c-0.dtsi"
+/include/ "pq3-i2c-1.dtsi"
 };
 
 /* controller at 0x9000 */

@@ -15,3 +15,4 @@
 };
 
 /include/ "p1010si-post.dtsi"
+/include/ "p1010rdb.dtsi"
