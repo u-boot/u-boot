@@ -370,8 +370,6 @@ step2:
 	debug("Setting DEBUG_3[21] to 0x%08x\n", in_be32(&ddr->debug[2]));
 
 #endif	/* part 1 of the workaound */
-	/* Always start in self-refresh, clear after MEM_EN */
-	setbits_be32(&ddr->sdram_cfg_2, SDRAM_CFG2_FRC_SR);
 
 	/*
 	 * 500 painful micro-seconds must elapse between
@@ -384,6 +382,8 @@ step2:
 
 #ifdef CONFIG_DEEP_SLEEP
 	if (is_warm_boot()) {
+		/* enter self-refresh */
+		setbits_be32(&ddr->sdram_cfg_2, SDRAM_CFG2_FRC_SR);
 		/* do board specific memory setup */
 		board_mem_sleep_setup();
 		temp_sdram_cfg = (in_be32(&ddr->sdram_cfg) | SDRAM_CFG_BI);
@@ -393,10 +393,6 @@ step2:
 
 	/* Let the controller go */
 	out_be32(&ddr->sdram_cfg, temp_sdram_cfg | SDRAM_CFG_MEM_EN);
-	asm volatile("sync;isync");
-
-	/* Exit self-refresh after DDR conf as some ddr memories can fail. */
-	clrbits_be32(&ddr->sdram_cfg_2, SDRAM_CFG2_FRC_SR);
 	asm volatile("sync;isync");
 
 	total_gb_size_per_controller = 0;
@@ -548,4 +544,9 @@ step2:
 		clrbits_be32(&ddr->sdram_cfg, 0x2);
 	}
 #endif /* CONFIG_SYS_FSL_ERRATUM_DDR111_DDR134 */
+#ifdef CONFIG_DEEP_SLEEP
+	if (is_warm_boot())
+		/* exit self-refresh */
+		clrbits_be32(&ddr->sdram_cfg_2, SDRAM_CFG2_FRC_SR);
+#endif
 }
