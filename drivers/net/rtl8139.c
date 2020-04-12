@@ -200,7 +200,7 @@ static unsigned char rx_ring[RX_BUF_LEN+16] __attribute__((aligned(4)));
 
 static int rtl8139_probe(struct eth_device *dev, bd_t *bis);
 static int rtl8139_read_eeprom(unsigned int location, unsigned int addr_len);
-static void rtl_reset(struct eth_device *dev);
+static void rtl8139_reset(struct eth_device *dev);
 static int rtl_transmit(struct eth_device *dev, void *packet, int length);
 static int rtl_poll(struct eth_device *dev);
 static void rtl_disable(struct eth_device *dev);
@@ -277,7 +277,7 @@ static int rtl8139_probe(struct eth_device *dev, bd_t *bis)
 	for (i = 0; i < 3; i++)
 		*ap++ = le16_to_cpu (rtl8139_read_eeprom(i + 7, addr_len));
 
-	rtl_reset(dev);
+	rtl8139_reset(dev);
 
 	if (inb(ioaddr + RTL_REG_MEDIASTATUS) & RTL_REG_MEDIASTATUS_MSRLINKFAIL) {
 		printf("Cable not connected or other link failure\n");
@@ -370,8 +370,9 @@ static void rtl8139_set_rx_mode(struct eth_device *dev)
 	outl(0xffffffff, ioaddr + RTL_REG_MAR0 + 4);
 }
 
-static void rtl_reset(struct eth_device *dev)
+static void rtl8139_reset(struct eth_device *dev)
 {
+	u8 reg;
 	int i;
 
 	outb(RTL_REG_CHIPCMD_CMDRESET, ioaddr + RTL_REG_CHIPCMD);
@@ -380,11 +381,12 @@ static void rtl_reset(struct eth_device *dev)
 	cur_tx = 0;
 
 	/* Give the chip 10ms to finish the reset. */
-	for (i=0; i<100; ++i){
-		if ((inb(ioaddr + RTL_REG_CHIPCMD) &
-		     RTL_REG_CHIPCMD_CMDRESET) == 0)
+	for (i = 0; i < 100; i++) {
+		reg = inb(ioaddr + RTL_REG_CHIPCMD);
+		if (!(reg & RTL_REG_CHIPCMD_CMDRESET))
 			break;
-		udelay (100); /* wait 100us */
+
+		udelay(100);
 	}
 
 
@@ -393,30 +395,35 @@ static void rtl_reset(struct eth_device *dev)
 
 	/* Must enable Tx/Rx before setting transfer thresholds! */
 	outb(RTL_REG_CHIPCMD_CMDRXENB | RTL_REG_CHIPCMD_CMDTXENB,
-		ioaddr + RTL_REG_CHIPCMD);
+	     ioaddr + RTL_REG_CHIPCMD);
+
 	/* accept no frames yet! */
 	outl(rtl8139_rx_config, ioaddr + RTL_REG_RXCONFIG);
-	outl((TX_DMA_BURST<<8)|0x03000000, ioaddr + RTL_REG_TXCONFIG);
+	outl((TX_DMA_BURST << 8) | 0x03000000, ioaddr + RTL_REG_TXCONFIG);
 
-	/* The Linux driver changes RTL_REG_CONFIG1 here to use a different LED pattern
-	 * for half duplex or full/autodetect duplex (for full/autodetect, the
-	 * outputs are TX/RX, Link10/100, FULL, while for half duplex it uses
-	 * TX/RX, Link100, Link10).  This is messy, because it doesn't match
-	 * the inscription on the mounting bracket.  It should not be changed
-	 * from the configuration EEPROM default, because the card manufacturer
-	 * should have set that to match the card.  */
+	/*
+	 * The Linux driver changes RTL_REG_CONFIG1 here to use a different
+	 * LED pattern for half duplex or full/autodetect duplex (for
+	 * full/autodetect, the outputs are TX/RX, Link10/100, FULL, while
+	 * for half duplex it uses TX/RX, Link100, Link10).  This is messy,
+	 * because it doesn't match the inscription on the mounting bracket.
+	 * It should not be changed from the configuration EEPROM default,
+	 * because the card manufacturer should have set that to match the
+	 * card.
+	 */
+	debug_cond(DEBUG_RX, "rx ring address is %p\n", rx_ring);
 
-	debug_cond(DEBUG_RX,
-		"rx ring address is %lX\n",(unsigned long)rx_ring);
 	flush_cache((unsigned long)rx_ring, RX_BUF_LEN);
 	outl(phys_to_bus((int)rx_ring), ioaddr + RTL_REG_RXBUF);
 
-	/* If we add multicast support, the RTL_REG_MAR0 register would have to be
-	 * initialized to 0xffffffffffffffff (two 32 bit accesses).  Etherboot
-	 * only needs broadcast (for ARP/RARP/BOOTP/DHCP) and unicast.	*/
-
+	/*
+	 * If we add multicast support, the RTL_REG_MAR0 register would have
+	 * to be initialized to 0xffffffffffffffff (two 32 bit accesses).
+	 * Etherboot only needs broadcast (for ARP/RARP/BOOTP/DHCP) and
+	 * unicast.
+	 */
 	outb(RTL_REG_CHIPCMD_CMDRXENB | RTL_REG_CHIPCMD_CMDTXENB,
-		ioaddr + RTL_REG_CHIPCMD);
+	     ioaddr + RTL_REG_CHIPCMD);
 
 	outl(rtl8139_rx_config, ioaddr + RTL_REG_RXCONFIG);
 
@@ -488,7 +495,7 @@ static int rtl_transmit(struct eth_device *dev, void *packet, int length)
 			"tx timeout/error (%d usecs), status %hX txstatus %lX\n",
 			10*i, status, txstatus);
 
-		rtl_reset(dev);
+		rtl8139_reset(dev);
 
 		return 0;
 	}
@@ -527,7 +534,7 @@ static int rtl_poll(struct eth_device *dev)
 			  RTL_STS_RXBADALIGN)) ||
 	    (rx_size < ETH_ZLEN) || (rx_size > ETH_FRAME_LEN + 4)) {
 		printf("rx error %hX\n", rx_status);
-		rtl_reset(dev); /* this clears all interrupts still pending */
+		rtl8139_reset(dev); /* this clears all interrupts still pending */
 		return 0;
 	}
 
