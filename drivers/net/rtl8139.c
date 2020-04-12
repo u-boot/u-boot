@@ -199,7 +199,7 @@ static unsigned char tx_buffer[TX_BUF_SIZE] __attribute__((aligned(4)));
 static unsigned char rx_ring[RX_BUF_LEN+16] __attribute__((aligned(4)));
 
 static int rtl8139_probe(struct eth_device *dev, bd_t *bis);
-static int read_eeprom(int location, int addr_len);
+static int rtl8139_read_eeprom(unsigned int location, unsigned int addr_len);
 static void rtl_reset(struct eth_device *dev);
 static int rtl_transmit(struct eth_device *dev, void *packet, int length);
 static int rtl_poll(struct eth_device *dev);
@@ -273,9 +273,9 @@ static int rtl8139_probe(struct eth_device *dev, bd_t *bis)
 	/* Bring the chip out of low-power mode. */
 	outb(0x00, ioaddr + RTL_REG_CONFIG1);
 
-	addr_len = read_eeprom(0,8) == 0x8129 ? 8 : 6;
+	addr_len = rtl8139_read_eeprom(0,8) == 0x8129 ? 8 : 6;
 	for (i = 0; i < 3; i++)
-		*ap++ = le16_to_cpu (read_eeprom(i + 7, addr_len));
+		*ap++ = le16_to_cpu (rtl8139_read_eeprom(i + 7, addr_len));
 
 	rtl_reset(dev);
 
@@ -312,12 +312,13 @@ static void rtl8139_eeprom_delay(uintptr_t regbase)
 	inl(regbase + RTL_REG_CFG9346);
 }
 
-static int read_eeprom(int location, int addr_len)
+static int rtl8139_read_eeprom(unsigned int location, unsigned int addr_len)
 {
-	int i;
+	unsigned int read_cmd = location | (EE_READ_CMD << addr_len);
+	uintptr_t ee_addr = ioaddr + RTL_REG_CFG9346;
 	unsigned int retval = 0;
-	long ee_addr = ioaddr + RTL_REG_CFG9346;
-	int read_cmd = location | (EE_READ_CMD << addr_len);
+	u8 dataval;
+	int i;
 
 	outb(EE_ENB & ~EE_CS, ee_addr);
 	outb(EE_ENB, ee_addr);
@@ -325,19 +326,21 @@ static int read_eeprom(int location, int addr_len)
 
 	/* Shift the read command bits out. */
 	for (i = 4 + addr_len; i >= 0; i--) {
-		int dataval = (read_cmd & (1 << i)) ? EE_DATA_WRITE : 0;
+		dataval = (read_cmd & BIT(i)) ? EE_DATA_WRITE : 0;
 		outb(EE_ENB | dataval, ee_addr);
 		rtl8139_eeprom_delay(ioaddr);
 		outb(EE_ENB | dataval | EE_SHIFT_CLK, ee_addr);
 		rtl8139_eeprom_delay(ioaddr);
 	}
+
 	outb(EE_ENB, ee_addr);
 	rtl8139_eeprom_delay(ioaddr);
 
 	for (i = 16; i > 0; i--) {
 		outb(EE_ENB | EE_SHIFT_CLK, ee_addr);
 		rtl8139_eeprom_delay(ioaddr);
-		retval = (retval << 1) | ((inb(ee_addr) & EE_DATA_READ) ? 1 : 0);
+		retval <<= 1;
+		retval |= inb(ee_addr) & EE_DATA_READ;
 		outb(EE_ENB, ee_addr);
 		rtl8139_eeprom_delay(ioaddr);
 	}
@@ -345,6 +348,7 @@ static int read_eeprom(int location, int addr_len)
 	/* Terminate the EEPROM access. */
 	outb(~EE_CS, ee_addr);
 	rtl8139_eeprom_delay(ioaddr);
+
 	return retval;
 }
 
