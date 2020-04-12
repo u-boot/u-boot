@@ -396,8 +396,8 @@ static void rtl_reset(struct eth_device *dev)
 	/* Must enable Tx/Rx before setting transfer thresholds! */
 	outb(RTL_REG_CHIPCMD_CMDRXENB | RTL_REG_CHIPCMD_CMDTXENB,
 		ioaddr + RTL_REG_CHIPCMD);
-	outl((RX_FIFO_THRESH<<13) | (RX_BUF_LEN_IDX<<11) | (RX_DMA_BURST<<8),
-		ioaddr + RTL_REG_RXCONFIG);		/* accept no frames yet!  */
+	/* accept no frames yet! */
+	outl(rtl8139_rx_config, ioaddr + RTL_REG_RXCONFIG);
 	outl((TX_DMA_BURST<<8)|0x03000000, ioaddr + RTL_REG_TXCONFIG);
 
 	/* The Linux driver changes RTL_REG_CONFIG1 here to use a different LED pattern
