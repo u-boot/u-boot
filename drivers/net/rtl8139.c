@@ -201,7 +201,7 @@ static unsigned char rx_ring[RX_BUF_LEN+16] __attribute__((aligned(4)));
 static int rtl8139_probe(struct eth_device *dev, bd_t *bis);
 static int rtl8139_read_eeprom(unsigned int location, unsigned int addr_len);
 static void rtl8139_reset(struct eth_device *dev);
-static int rtl_transmit(struct eth_device *dev, void *packet, int length);
+static int rtl8139_send(struct eth_device *dev, void *packet, int length);
 static int rtl_poll(struct eth_device *dev);
 static void rtl_disable(struct eth_device *dev);
 static int rtl_bcast_addr(struct eth_device *dev, const u8 *bcast_mac, int join)
@@ -246,7 +246,7 @@ int rtl8139_initialize(bd_t *bis)
 		dev->iobase = (int)bus_to_phys(iobase);
 		dev->init = rtl8139_probe;
 		dev->halt = rtl_disable;
-		dev->send = rtl_transmit;
+		dev->send = rtl8139_send;
 		dev->recv = rtl_poll;
 		dev->mcast = rtl_bcast_addr;
 
@@ -436,29 +436,31 @@ static void rtl8139_reset(struct eth_device *dev)
 	outw(0, ioaddr + RTL_REG_INTRMASK);
 }
 
-static int rtl_transmit(struct eth_device *dev, void *packet, int length)
+static int rtl8139_send(struct eth_device *dev, void *packet, int length)
 {
-	unsigned int status;
-	unsigned long txstatus;
 	unsigned int len = length;
+	unsigned long txstatus;
+	unsigned int status;
 	int i = 0;
 
 	ioaddr = dev->iobase;
 
-	memcpy((char *)tx_buffer, (char *)packet, (int)length);
+	memcpy(tx_buffer, packet, length);
 
 	debug_cond(DEBUG_TX, "sending %d bytes\n", len);
 
-	/* Note: RTL8139 doesn't auto-pad, send minimum payload (another 4
-	 * bytes are sent automatically for the FCS, totalling to 64 bytes). */
-	while (len < ETH_ZLEN) {
+	/*
+	 * Note: RTL8139 doesn't auto-pad, send minimum payload (another 4
+	 * bytes are sent automatically for the FCS, totalling to 64 bytes).
+	 */
+	while (len < ETH_ZLEN)
 		tx_buffer[len++] = '\0';
-	}
 
 	flush_cache((unsigned long)tx_buffer, length);
-	outl(phys_to_bus((int)tx_buffer), ioaddr + RTL_REG_TXADDR0 + cur_tx*4);
-	outl(((TX_FIFO_THRESH<<11) & 0x003f0000) | len,
-		ioaddr + RTL_REG_TXSTATUS0 + cur_tx*4);
+	outl(phys_to_bus((unsigned long)tx_buffer),
+	     ioaddr + RTL_REG_TXADDR0 + cur_tx * 4);
+	outl(((TX_FIFO_THRESH << 11) & 0x003f0000) | len,
+	     ioaddr + RTL_REG_TXSTATUS0 + cur_tx * 4);
 
 	do {
 		status = inw(ioaddr + RTL_REG_INTRSTATUS);
@@ -468,37 +470,33 @@ static int rtl_transmit(struct eth_device *dev, void *packet, int length)
 		 * RTL_REG_INTRSTATUS_RXFIFOOVER MUST be handled in the
 		 * rtl_poll() function.
 		 */
-		outw(status & (RTL_REG_INTRSTATUS_TXOK |
-			       RTL_REG_INTRSTATUS_TXERR |
-			       RTL_REG_INTRSTATUS_PCIERR),
-			ioaddr + RTL_REG_INTRSTATUS);
-		if ((status & (RTL_REG_INTRSTATUS_TXOK |
-			       RTL_REG_INTRSTATUS_TXERR |
-			       RTL_REG_INTRSTATUS_PCIERR)) != 0)
+		status &= RTL_REG_INTRSTATUS_TXOK | RTL_REG_INTRSTATUS_TXERR |
+			  RTL_REG_INTRSTATUS_PCIERR;
+		outw(status, ioaddr + RTL_REG_INTRSTATUS);
+		if (status)
 			break;
+
 		udelay(10);
 	} while (i++ < RTL_TIMEOUT);
 
-	txstatus = inl(ioaddr + RTL_REG_TXSTATUS0 + cur_tx*4);
+	txstatus = inl(ioaddr + RTL_REG_TXSTATUS0 + cur_tx * 4);
 
-	if (status & RTL_REG_INTRSTATUS_TXOK) {
-		cur_tx = (cur_tx + 1) % NUM_TX_DESC;
-
+	if (!(status & RTL_REG_INTRSTATUS_TXOK)) {
 		debug_cond(DEBUG_TX,
-			"tx done, status %hX txstatus %lX\n",
-			status, txstatus);
-
-		return length;
-	} else {
-
-		debug_cond(DEBUG_TX,
-			"tx timeout/error (%d usecs), status %hX txstatus %lX\n",
-			10*i, status, txstatus);
+			   "tx timeout/error (%d usecs), status %hX txstatus %lX\n",
+			   10 * i, status, txstatus);
 
 		rtl8139_reset(dev);
 
 		return 0;
 	}
+
+	cur_tx = (cur_tx + 1) % NUM_TX_DESC;
+
+	debug_cond(DEBUG_TX, "tx done, status %hX txstatus %lX\n",
+		   status, txstatus);
+
+	return length;
 }
 
 static int rtl_poll(struct eth_device *dev)
