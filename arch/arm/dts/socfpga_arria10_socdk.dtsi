@@ -1,20 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2015 Altera Corporation <www.altera.com>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 #include "socfpga_arria10.dtsi"
 
 / {
@@ -24,7 +11,6 @@
 	aliases {
 		ethernet0 = &gmac0;
 		serial0 = &uart1;
-		i2c0 = &i2c1;
 	};
 
 	chosen {
@@ -36,7 +22,6 @@
 		name = "memory";
 		device_type = "memory";
 		reg = <0x0 0x40000000>; /* 1GB */
-		u-boot,dm-pre-reloc;
 	};
 
 	a10leds {
@@ -63,8 +48,21 @@
 		};
 	};
 
+	ref_033v: 033-v-ref {
+		compatible = "regulator-fixed";
+		regulator-name = "0.33V";
+		regulator-min-microvolt = <330000>;
+		regulator-max-microvolt = <330000>;
+	};
+
 	soc {
-		u-boot,dm-pre-reloc;
+		clkmgr@ffd04000 {
+			clocks {
+				osc1 {
+					clock-frequency = <25000000>;
+				};
+			};
+		};
 	};
 };
 
@@ -137,6 +135,18 @@
 	i2c-sda-falling-time-ns = <6000>;
 	i2c-scl-falling-time-ns = <6000>;
 
+	adc@14 {
+		compatible = "lltc,ltc2497";
+		reg = <0x14>;
+		vref-supply = <&ref_033v>;
+	};
+
+	adc@16 {
+		compatible = "lltc,ltc2497";
+		reg = <0x16>;
+		vref-supply = <&ref_033v>;
+	};
+
 	eeprom@51 {
 		compatible = "atmel,24c32";
 		reg = <0x51>;
@@ -155,7 +165,6 @@
 };
 
 &uart1 {
-	u-boot,dm-pre-reloc;
 	status = "okay";
 };
 
@@ -166,25 +175,4 @@
 
 &watchdog1 {
 	status = "okay";
-};
-
-/* Clock available early */
-&main_periph_ref_clk {
-	u-boot,dm-pre-reloc;
-};
-
-&l4_mp_clk {
-	u-boot,dm-pre-reloc;
-};
-
-&l4_sp_clk {
-	u-boot,dm-pre-reloc;
-};
-
-&clkmgr {
-	u-boot,dm-pre-reloc;
-};
-
-&sysmgr {
-	u-boot,dm-pre-reloc;
 };

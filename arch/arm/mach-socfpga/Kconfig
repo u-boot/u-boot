@@ -46,6 +46,7 @@ config TARGET_SOCFPGA_ARRIA10
 	bool
 	select SPL_ALTERA_SDRAM
 	select SPL_BOARD_INIT if SPL
+	select SPL_CACHE if SPL
 	select CLK
 	select SPL_CLK if SPL
 	select DM_I2C
