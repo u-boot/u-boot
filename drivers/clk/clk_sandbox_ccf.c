@@ -130,6 +130,7 @@ struct clk *sandbox_clk_register_gate2(struct device *dev, const char *name,
 
 	gate->state = 0;
 	clk = &gate->clk;
+	clk->flags = flags;
 
 	ret = clk_register(clk, "sandbox_clk_gate2", name, parent_name);
 	if (ret) {
@@ -272,7 +273,7 @@ static int sandbox_clk_ccf_probe(struct udevice *dev)
 	reg = BIT(28) | BIT(24) | BIT(16);
 	clk_dm(SANDBOX_CLK_I2C,
 	       sandbox_clk_composite("i2c", i2c_sels, ARRAY_SIZE(i2c_sels),
-				     &reg, 0));
+				     &reg, CLK_SET_RATE_UNGATE));
 
 	clk_dm(SANDBOX_CLK_I2C_ROOT,
 	       sandbox_clk_gate2("i2c_root", "i2c", base + 0x7c, 0));

@@ -185,6 +185,7 @@ struct clk *clk_hw_register_mux_table(struct device *dev, const char *name,
 #endif
 
 	clk = &mux->clk;
+	clk->flags = flags;
 
 	/*
 	 * Read the current mux setup - so we assign correct parent.
