@@ -296,15 +296,13 @@ static void zynqmp_qspi_fill_gen_fifo(struct zynqmp_qspi_priv *priv,
 
 	config_reg = readl(&regs->confr);
 	/* Manual start if needed */
-	if (config_reg & GQSPI_GEN_FIFO_STRT_MOD) {
-		config_reg |= GQSPI_STRT_GEN_FIFO;
-		writel(config_reg, &regs->confr);
+	config_reg |= GQSPI_STRT_GEN_FIFO;
+	writel(config_reg, &regs->confr);
 
-		/* Enable interrupts */
-		ier = readl(&regs->ier);
-		ier |= GQSPI_IXR_ALL_MASK;
-		writel(ier, &regs->ier);
-	}
+	/* Enable interrupts */
+	ier = readl(&regs->ier);
+	ier |= GQSPI_IXR_GFNFULL_MASK;
+	writel(ier, &regs->ier);
 
 	/* Wait until the fifo is not full to write the new command */
 	ret = wait_for_bit_le32(&regs->isr, GQSPI_IXR_GFNFULL_MASK, 1,
@@ -335,6 +333,9 @@ static void zynqmp_qspi_chipselect(struct zynqmp_qspi_priv *priv, int is_on)
 	}
 
 	debug("GFIFO_CMD_CS: 0x%x\n", gqspi_fifo_reg);
+
+	/* Dummy generic FIFO entry */
+	zynqmp_qspi_fill_gen_fifo(priv, 0);
 
 	zynqmp_qspi_fill_gen_fifo(priv, gqspi_fifo_reg);
 }
