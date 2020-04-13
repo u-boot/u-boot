@@ -250,6 +250,10 @@ static int sandbox_clk_ccf_probe(struct udevice *dev)
 	clk_dm(SANDBOX_CLK_ECSPI_ROOT,
 	       sandbox_clk_divider("ecspi_root", "pll3_60m", &reg, 19, 6));
 
+	reg = 0;
+	clk_dm(SANDBOX_CLK_ECSPI0,
+	       sandbox_clk_gate("ecspi0", "ecspi_root", &reg, 0, 0));
+
 	clk_dm(SANDBOX_CLK_ECSPI1,
 	       sandbox_clk_gate2("ecspi1", "ecspi_root", base + 0x6c, 0));
 

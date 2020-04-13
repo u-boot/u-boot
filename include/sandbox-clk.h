@@ -50,6 +50,14 @@ static inline struct clk *sandbox_clk_divider(const char *name,
 			reg, shift, width, 0);
 }
 
+static inline struct clk *sandbox_clk_gate(const char *name, const char *parent,
+					   void __iomem *reg, u8 bit_idx,
+					   u8 clk_gate_flags)
+{
+	return clk_register_gate(NULL, name, parent, CLK_SET_RATE_PARENT,
+				 reg, bit_idx, clk_gate_flags, NULL);
+}
+
 struct clk *sandbox_clk_register_gate2(struct device *dev, const char *name,
 				       const char *parent_name,
 				       unsigned long flags,

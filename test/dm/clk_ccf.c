@@ -39,6 +39,14 @@ static int dm_test_clk_ccf(struct unit_test_state *uts)
 	rate = clk_get_parent_rate(clk);
 	ut_asserteq(rate, 20000000);
 
+	/* test the gate of CCF */
+	ret = clk_get_by_id(SANDBOX_CLK_ECSPI0, &clk);
+	ut_assertok(ret);
+	ut_asserteq_str("ecspi0", clk->dev->name);
+
+	rate = clk_get_parent_rate(clk);
+	ut_asserteq(rate, 20000000);
+
 	/* Test the mux of CCF */
 	ret = clk_get_by_id(SANDBOX_CLK_USDHC1_SEL, &clk);
 	ut_assertok(ret);
