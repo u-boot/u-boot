@@ -197,6 +197,7 @@ struct zynq_gem_priv {
 	int phyaddr;
 	int init;
 	struct zynq_gem_regs *iobase;
+	struct zynq_gem_regs *mdiobase;
 	phy_interface_t interface;
 	struct phy_device *phydev;
 	ofnode phy_of_node;
@@ -211,7 +212,7 @@ static int phy_setup_op(struct zynq_gem_priv *priv, u32 phy_addr, u32 regnum,
 			u32 op, u16 *data)
 {
 	u32 mgtcr;
-	struct zynq_gem_regs *regs = priv->iobase;
+	struct zynq_gem_regs *regs = priv->mdiobase;
 	int err;
 
 	err = wait_for_bit_le32(&regs->nwsr, ZYNQ_GEM_NWSR_MDIOIDLE_MASK,
@@ -297,7 +298,7 @@ static int zynq_phy_init(struct udevice *dev)
 {
 	int ret;
 	struct zynq_gem_priv *priv = dev_get_priv(dev);
-	struct zynq_gem_regs *regs = priv->iobase;
+	struct zynq_gem_regs *regs_mdio = priv->mdiobase;
 	const u32 supported = SUPPORTED_10baseT_Half |
 			SUPPORTED_10baseT_Full |
 			SUPPORTED_100baseT_Half |
@@ -306,7 +307,7 @@ static int zynq_phy_init(struct udevice *dev)
 			SUPPORTED_1000baseT_Full;
 
 	/* Enable only MDIO bus */
-	writel(ZYNQ_GEM_NWCTRL_MDEN_MASK, &regs->nwctrl);
+	writel(ZYNQ_GEM_NWCTRL_MDEN_MASK, &regs_mdio->nwctrl);
 
 	priv->phydev = phy_connect(priv->bus, priv->phyaddr, dev,
 				   priv->interface);
@@ -335,6 +336,7 @@ static int zynq_gem_init(struct udevice *dev)
 	unsigned long clk_rate = 0;
 	struct zynq_gem_priv *priv = dev_get_priv(dev);
 	struct zynq_gem_regs *regs = priv->iobase;
+	struct zynq_gem_regs *regs_mdio = priv->mdiobase;
 	struct emac_bd *dummy_tx_bd = &priv->tx_bd[TX_FREE_DESC];
 	struct emac_bd *dummy_rx_bd = &priv->tx_bd[TX_FREE_DESC + 2];
 
@@ -402,7 +404,7 @@ static int zynq_gem_init(struct udevice *dev)
 		writel(ZYNQ_GEM_DMACR_INIT, &regs->dmacr);
 
 		/* Setup for Network Control register, MDIO, Rx and Tx enable */
-		setbits_le32(&regs->nwctrl, ZYNQ_GEM_NWCTRL_MDEN_MASK);
+		setbits_le32(&regs_mdio->nwctrl, ZYNQ_GEM_NWCTRL_MDEN_MASK);
 
 		/* Disable the second priority queue */
 		dummy_tx_bd->addr = 0;
@@ -578,6 +580,7 @@ static int zynq_gem_free_pkt(struct udevice *dev, uchar *packet, int length)
 	struct zynq_gem_priv *priv = dev_get_priv(dev);
 	struct emac_bd *current_bd = &priv->rx_bd[priv->rxbd_current];
 	struct emac_bd *first_bd;
+	dma_addr_t addr;
 
 	if (current_bd->status & ZYNQ_GEM_RXBUF_SOF_MASK) {
 		priv->rx_first_buf = priv->rxbd_current;
@@ -591,6 +594,17 @@ static int zynq_gem_free_pkt(struct udevice *dev, uchar *packet, int length)
 		first_bd->addr &= ~ZYNQ_GEM_RXBUF_NEW_MASK;
 		first_bd->status = 0xF0000000;
 	}
+
+	/* Flush the cache for the packet as well */
+#if defined(CONFIG_PHYS_64BIT)
+	addr = (dma_addr_t)((current_bd->addr & ZYNQ_GEM_RXBUF_ADD_MASK)
+		| ((dma_addr_t)current_bd->addr_hi << 32));
+#else
+	addr = current_bd->addr & ZYNQ_GEM_RXBUF_ADD_MASK;
+#endif
+	flush_dcache_range(addr, addr + roundup(PKTSIZE_ALIGN,
+						ARCH_DMA_MINALIGN));
+	barrier();
 
 	if ((++priv->rxbd_current) >= RX_BUF)
 		priv->rxbd_current = 0;
@@ -731,6 +745,7 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 
 	pdata->iobase = (phys_addr_t)dev_read_addr(dev);
 	priv->iobase = (struct zynq_gem_regs *)pdata->iobase;
+	priv->mdiobase = priv->iobase;
 	/* Hardcode for now */
 	priv->phyaddr = -1;
 
@@ -756,8 +771,9 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 
 	priv->int_pcs = dev_read_bool(dev, "is-internal-pcspma");
 
-	printf("ZYNQ GEM: %lx, phyaddr %x, interface %s\n", (ulong)priv->iobase,
-	       priv->phyaddr, phy_string_for_interface(priv->interface));
+	printf("\nZYNQ GEM: %lx, mdio bus %lx, phyaddr %d, interface %s\n",
+	       (ulong)priv->iobase, (ulong)priv->mdiobase, priv->phyaddr,
+	       phy_string_for_interface(priv->interface));
 
 	return 0;
 }

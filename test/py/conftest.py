@@ -70,6 +70,8 @@ def pytest_addoption(parser):
         help='U-Boot board identity/instance')
     parser.addoption('--build', default=False, action='store_true',
         help='Compile U-Boot before running tests')
+    parser.addoption('--buildman', default=False, action='store_true',
+        help='Use buildman to build U-Boot (assuming --build is given)')
     parser.addoption('--gdbserver', default=None,
         help='Run sandbox under gdbserver. The argument is the channel '+
         'over which gdbserver should communicate, e.g. localhost:1234')
@@ -140,16 +142,26 @@ def pytest_configure(config):
     log = multiplexed_log.Logfile(result_dir + '/test-log.html')
 
     if config.getoption('build'):
-        if build_dir != source_dir:
-            o_opt = 'O=%s' % build_dir
+        if config.getoption('buildman'):
+            if build_dir != source_dir:
+                dest_args = ['-o', build_dir, '-w']
+            else:
+                dest_args = ['-i']
+            cmds = (['buildman', '--board', board_type] + dest_args,)
+            name = 'buildman'
         else:
-            o_opt = ''
-        cmds = (
-            ['make', o_opt, '-s', board_type + '_defconfig'],
-            ['make', o_opt, '-s', '-j8'],
-        )
-        with log.section('make'):
-            runner = log.get_runner('make', sys.stdout)
+            if build_dir != source_dir:
+                o_opt = 'O=%s' % build_dir
+            else:
+                o_opt = ''
+            cmds = (
+                ['make', o_opt, '-s', board_type + '_defconfig'],
+                ['make', o_opt, '-s', '-j8'],
+            )
+            name = 'make'
+
+        with log.section(name):
+            runner = log.get_runner(name, sys.stdout)
             for cmd in cmds:
                 runner.run(cmd, cwd=source_dir)
             runner.close()

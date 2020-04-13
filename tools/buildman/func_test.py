@@ -16,6 +16,7 @@ import control
 import gitutil
 import terminal
 import toolchain
+import tools
 
 settings_data = '''
 # Buildman settings file
@@ -208,7 +209,7 @@ class TestFunctional(unittest.TestCase):
 
     def tearDown(self):
         shutil.rmtree(self._base_dir)
-        shutil.rmtree(self._output_dir)
+        #shutil.rmtree(self._output_dir)
 
     def setupToolchains(self):
         self._toolchains = toolchain.Toolchains()
@@ -218,12 +219,12 @@ class TestFunctional(unittest.TestCase):
         return command.RunPipe([[self._buildman_pathname] + list(args)],
                 capture=True, capture_stderr=True)
 
-    def _RunControl(self, *args, **kwargs):
+    def _RunControl(self, *args, clean_dir=False, boards=None):
         sys.argv = [sys.argv[0]] + list(args)
         options, args = cmdline.ParseArgs()
         result = control.DoBuildman(options, args, toolchains=self._toolchains,
-                make_func=self._HandleMake, boards=self._boards,
-                clean_dir=kwargs.get('clean_dir', True))
+                make_func=self._HandleMake, boards=boards or self._boards,
+                clean_dir=clean_dir)
         self._builder = control.builder
         return result
 
@@ -397,6 +398,12 @@ class TestFunctional(unittest.TestCase):
                     combined='Test configuration complete')
         elif stage == 'build':
             stderr = ''
+            out_dir = ''
+            for arg in args:
+                if arg.startswith('O='):
+                    out_dir = arg[2:]
+            fname = os.path.join(cwd or '', out_dir, 'u-boot')
+            tools.WriteFile(fname, b'U-Boot')
             if type(commit) is not str:
                 stderr = self._error.get((brd.target, commit.sequence))
             if stderr:
@@ -527,11 +534,26 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(self._builder.count, self._total_builds)
         self.assertEqual(self._builder.fail, 0)
 
-    def testBadOutputDir(self):
-        """Test building with an output dir the same as out current dir"""
-        self._test_branch = '/__dev/__testbranch'
-        with self.assertRaises(SystemExit):
-            self._RunControl('-b', self._test_branch, '-o', os.getcwd())
-        with self.assertRaises(SystemExit):
-            self._RunControl('-b', self._test_branch, '-o',
-                             os.path.join(os.getcwd(), 'test'))
+    def testWorkInOutput(self):
+        """Test the -w option which should write directly to the output dir"""
+        board_list = board.Boards()
+        board_list.AddBoard(board.Board(*boards[0]))
+        self._RunControl('-o', self._output_dir, '-w', clean_dir=False,
+                         boards=board_list)
+        self.assertTrue(
+            os.path.exists(os.path.join(self._output_dir, 'u-boot')))
+
+    def testWorkInOutputFail(self):
+        """Test the -w option failures"""
+        with self.assertRaises(SystemExit) as e:
+            self._RunControl('-o', self._output_dir, '-w', clean_dir=False)
+        self.assertIn("single board", str(e.exception))
+        self.assertFalse(
+            os.path.exists(os.path.join(self._output_dir, 'u-boot')))
+
+        board_list = board.Boards()
+        board_list.AddBoard(board.Board(*boards[0]))
+        with self.assertRaises(SystemExit) as e:
+            self._RunControl('-b', self._test_branch, '-o', self._output_dir,
+                             '-w', clean_dir=False, boards=board_list)
+        self.assertIn("single commit", str(e.exception))

@@ -174,6 +174,8 @@ class Builder:
         in_tree: Build U-Boot in-tree instead of specifying an output
             directory separate from the source code. This option is really
             only useful for testing in-tree builds.
+        work_in_output: Use the output directory as the work directory and
+            don't write to a separate output directory.
 
     Private members:
         _base_board_dict: Last-summarised Dict of boards
@@ -224,7 +226,7 @@ class Builder:
                  no_subdirs=False, full_path=False, verbose_build=False,
                  incremental=False, per_board_out_dir=False,
                  config_only=False, squash_config_y=False,
-                 warnings_as_errors=False):
+                 warnings_as_errors=False, work_in_output=False):
         """Create a new Builder object
 
         Args:
@@ -250,10 +252,15 @@ class Builder:
             config_only: Only configure each build, don't build it
             squash_config_y: Convert CONFIG options with the value 'y' to '1'
             warnings_as_errors: Treat all compiler warnings as errors
+            work_in_output: Use the output directory as the work directory and
+                don't write to a separate output directory.
         """
         self.toolchains = toolchains
         self.base_dir = base_dir
-        self._working_dir = os.path.join(base_dir, '.bm-work')
+        if work_in_output:
+            self._working_dir = base_dir
+        else:
+            self._working_dir = os.path.join(base_dir, '.bm-work')
         self.threads = []
         self.do_make = self.Make
         self.gnu_make = gnu_make
@@ -280,6 +287,7 @@ class Builder:
         self.config_only = config_only
         self.squash_config_y = squash_config_y
         self.config_filenames = BASE_CONFIG_FILENAMES
+        self.work_in_output = work_in_output
         if not self.squash_config_y:
             self.config_filenames += EXTRA_CONFIG_FILENAMES
 
@@ -329,7 +337,7 @@ class Builder:
 
         show_errors: True to show summarised error/warning info
         show_sizes: Show size deltas
-        show_detail: Show detail for each board
+        show_detail: Show size delta detail for each board if show_sizes
         show_bloat: Show detail for each function
         list_error_boards: Show the boards which caused each error/warning
         show_config: Show config deltas
@@ -477,6 +485,7 @@ class Builder:
         if self.commits:
             commit = self.commits[commit_upto]
             subject = commit.subject.translate(trans_valid_chars)
+            # See _GetOutputSpaceRemovals() which parses this name
             commit_dir = ('%02d_of_%02d_g%s_%s' % (commit_upto + 1,
                     self.commit_count, commit.hash, subject[:20]))
         elif not self.no_subdirs:
@@ -992,7 +1001,7 @@ class Builder:
                 board.target
             board_dict: Dict containing boards for which we built this
                 commit, keyed by board.target. The value is an Outcome object.
-            show_detail: Show detail for each board
+            show_detail: Show size delta detail for each board
             show_bloat: Show detail for each function
         """
         arch_list = {}
@@ -1109,7 +1118,7 @@ class Builder:
             environment: Dictionary keyed by environment variable, Each
                      value is the value of environment variable.
             show_sizes: Show image size deltas
-            show_detail: Show detail for each board
+            show_detail: Show size delta detail for each board if show_sizes
             show_bloat: Show detail for each function
             show_config: Show config changes
             show_environment: Show environment changes
@@ -1474,6 +1483,8 @@ class Builder:
         Args:
             thread_num: Number of thread to check.
         """
+        if self.work_in_output:
+            return self._working_dir
         return os.path.join(self._working_dir, '%02d' % thread_num)
 
     def _PrepareThread(self, thread_num, setup_git):
@@ -1515,12 +1526,15 @@ class Builder:
         for thread in range(max_threads):
             self._PrepareThread(thread, setup_git)
 
-    def _PrepareOutputSpace(self):
+    def _GetOutputSpaceRemovals(self):
         """Get the output directories ready to receive files.
 
-        We delete any output directories which look like ones we need to
-        create. Having left over directories is confusing when the user wants
-        to check the output manually.
+        Figure out what needs to be deleted in the output directory before it
+        can be used. We only delete old buildman directories which have the
+        expected name pattern. See _GetOutputDir().
+
+        Returns:
+            List of full paths of directories to remove
         """
         if not self.commits:
             return
@@ -1531,12 +1545,26 @@ class Builder:
         to_remove = []
         for dirname in glob.glob(os.path.join(self.base_dir, '*')):
             if dirname not in dir_list:
-                to_remove.append(dirname)
+                leaf = dirname[len(self.base_dir) + 1:]
+                m =  re.match('[0-9]+_of_[0-9]+_g[0-9a-f]+_.*', leaf)
+                if m:
+                    to_remove.append(dirname)
+        return to_remove
+
+    def _PrepareOutputSpace(self):
+        """Get the output directories ready to receive files.
+
+        We delete any output directories which look like ones we need to
+        create. Having left over directories is confusing when the user wants
+        to check the output manually.
+        """
+        to_remove = self._GetOutputSpaceRemovals()
         if to_remove:
-            Print('Removing %d old build directories' % len(to_remove),
+            Print('Removing %d old build directories...' % len(to_remove),
                   newline=False)
             for dirname in to_remove:
                 shutil.rmtree(dirname)
+            Print('done')
 
     def BuildBoards(self, commits, board_selected, keep_outputs, verbose):
         """Build all commits for a list of boards
@@ -1571,6 +1599,7 @@ class Builder:
             job.board = brd
             job.commits = commits
             job.keep_outputs = keep_outputs
+            job.work_in_output = self.work_in_output
             job.step = self._step
             self.queue.put(job)
 

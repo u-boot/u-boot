@@ -1136,6 +1136,7 @@ int fit_conf_get_prop_node(const void *fit, int noffset,
 
 int fit_check_ramdisk(const void *fit, int os_noffset,
 		uint8_t arch, int verify);
+#endif /* IMAGE_ENABLE_FIT */
 
 int calculate_hash(const void *data, int data_len, const char *algo,
 			uint8_t *value, int *value_len);
@@ -1148,16 +1149,20 @@ int calculate_hash(const void *data, int data_len, const char *algo,
 # if defined(CONFIG_FIT_SIGNATURE)
 #  define IMAGE_ENABLE_SIGN	1
 #  define IMAGE_ENABLE_VERIFY	1
+#  define FIT_IMAGE_ENABLE_VERIFY	1
 #  include <openssl/evp.h>
 # else
 #  define IMAGE_ENABLE_SIGN	0
 #  define IMAGE_ENABLE_VERIFY	0
+#  define FIT_IMAGE_ENABLE_VERIFY	0
 # endif
 #else
 # define IMAGE_ENABLE_SIGN	0
-# define IMAGE_ENABLE_VERIFY	CONFIG_IS_ENABLED(FIT_SIGNATURE)
+# define IMAGE_ENABLE_VERIFY		CONFIG_IS_ENABLED(RSA_VERIFY)
+# define FIT_IMAGE_ENABLE_VERIFY	CONFIG_IS_ENABLED(FIT_SIGNATURE)
 #endif
 
+#if IMAGE_ENABLE_FIT
 #ifdef USE_HOSTCC
 void *image_get_host_blob(void);
 void image_set_host_blob(void *host_blob);
@@ -1171,6 +1176,7 @@ void image_set_host_blob(void *host_blob);
 #else
 #define IMAGE_ENABLE_BEST_MATCH	0
 #endif
+#endif /* IMAGE_ENABLE_FIT */
 
 /* Information passed to the signing routines */
 struct image_sign_info {
@@ -1186,17 +1192,20 @@ struct image_sign_info {
 	int required_keynode;		/* Node offset of key to use: -1=any */
 	const char *require_keys;	/* Value for 'required' property */
 	const char *engine_id;		/* Engine to use for signing */
+	/*
+	 * Note: the following two fields are always valid even w/o
+	 * RSA_VERIFY_WITH_PKEY in order to make sure this structure is
+	 * the same on target and host. Otherwise, vboot test may fail.
+	 */
+	const void *key;		/* Pointer to public key in DER */
+	int keylen;			/* Length of public key */
 };
-
-#endif /* Allow struct image_region to always be defined for rsa.h */
 
 /* A part of an image, used for hashing */
 struct image_region {
 	const void *data;
 	int size;
 };
-
-#if IMAGE_ENABLE_FIT
 
 #if IMAGE_ENABLE_VERIFY
 # include <u-boot/rsa-checksum.h>
@@ -1297,6 +1306,8 @@ struct crypto_algo *image_get_crypto_algo(const char *full_name);
  * @return pointer to algorithm information, or NULL if not found
  */
 struct padding_algo *image_get_padding_algo(const char *name);
+
+#if IMAGE_ENABLE_FIT
 
 /**
  * fit_image_verify_required_sigs() - Verify signatures marked as 'required'
@@ -1438,6 +1449,7 @@ struct cipher_algo *image_get_cipher_algo(const char *full_name);
 #endif /* CONFIG_FIT_VERBOSE */
 #endif /* CONFIG_FIT */
 
+#if !defined(USE_HOSTCC)
 #if defined(CONFIG_ANDROID_BOOT_IMAGE)
 struct andr_img_hdr;
 int android_image_check_header(const struct andr_img_hdr *hdr);
@@ -1459,6 +1471,7 @@ bool android_image_print_dtb_contents(ulong hdr_addr);
 #endif
 
 #endif /* CONFIG_ANDROID_BOOT_IMAGE */
+#endif /* !USE_HOSTCC */
 
 /**
  * board_fit_config_name_match() - Check for a matching board name

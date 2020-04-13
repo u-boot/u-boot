@@ -285,14 +285,12 @@ U_BOOT_DRIVER(ti_musb_peripheral) = {
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 static int ti_musb_wrapper_bind(struct udevice *parent)
 {
-	const void *fdt = gd->fdt_blob;
-	int node;
+	ofnode node;
 	int ret;
 
-	for (node = fdt_first_subnode(fdt, dev_of_offset(parent)); node > 0;
-	     node = fdt_next_subnode(fdt, node)) {
+	ofnode_for_each_subnode(node, parent->node) {
 		struct udevice *dev;
-		const char *name = fdt_get_name(fdt, node, NULL);
+		const char *name = ofnode_get_name(node);
 		enum usb_dr_mode dr_mode;
 		struct driver *drv;
 
@@ -306,7 +304,7 @@ static int ti_musb_wrapper_bind(struct udevice *parent)
 			ret = device_bind_driver_to_node(parent,
 							 "ti-musb-peripheral",
 							 name,
-							 offset_to_ofnode(node),
+							 node,
 							 &dev);
 			if (ret)
 				pr_err("musb - not able to bind usb peripheral node\n");
@@ -316,7 +314,7 @@ static int ti_musb_wrapper_bind(struct udevice *parent)
 			ret = device_bind_driver_to_node(parent,
 							 "ti-musb-host",
 							 name,
-							 offset_to_ofnode(node),
+							 node,
 							 &dev);
 			if (ret)
 				pr_err("musb - not able to bind usb host node\n");

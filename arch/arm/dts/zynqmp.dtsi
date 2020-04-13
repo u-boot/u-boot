@@ -2,7 +2,7 @@
 /*
  * dts file for Xilinx ZynqMP
  *
- * (C) Copyright 2014 - 2015, Xilinx, Inc.
+ * (C) Copyright 2014 - 2020, Xilinx, Inc.
  *
  * Michal Simek <michal.simek@xilinx.com>
  *
@@ -149,6 +149,11 @@
 			#power-domain-cells = <0x1>;
 			u-boot,dm-pre-reloc;
 
+			zynqmp_pcap: pcap {
+				compatible = "xlnx,zynqmp-pcap-fpga";
+				clock-names = "ref_clk";
+			};
+
 			zynqmp_power: zynqmp-power {
 				u-boot,dm-pre-reloc;
 				compatible = "xlnx,zynqmp-power";
@@ -161,6 +166,11 @@
 			zynqmp_reset: reset-controller {
 				compatible = "xlnx,zynqmp-reset";
 				#reset-cells = <1>;
+			};
+
+			pinctrl0: pinctrl {
+				compatible = "xlnx,zynqmp-pinctrl";
+				status = "disabled";
 			};
 		};
 	};
@@ -180,9 +190,10 @@
 
 	fpga_full: fpga-full {
 		compatible = "fpga-region";
-		fpga-mgr = <&pcap>;
+		fpga-mgr = <&zynqmp_pcap>;
 		#address-cells = <2>;
 		#size-cells = <2>;
+		ranges;
 	};
 
 	nvmem_firmware {
@@ -195,63 +206,6 @@
 		};
 	};
 
-	pcap: pcap {
-		compatible = "xlnx,zynqmp-pcap-fpga";
-	};
-
-	rst: reset-controller {
-		compatible = "xlnx,zynqmp-reset";
-		#reset-cells = <1>;
-	};
-
-	xlnx_dp_snd_card: dp_snd_card {
-		compatible = "xlnx,dp-snd-card";
-		status = "disabled";
-		xlnx,dp-snd-pcm = <&xlnx_dp_snd_pcm0>, <&xlnx_dp_snd_pcm1>;
-		xlnx,dp-snd-codec = <&xlnx_dp_snd_codec0>;
-	};
-
-	xlnx_dp_snd_codec0: dp_snd_codec0 {
-		compatible = "xlnx,dp-snd-codec";
-		status = "disabled";
-		clock-names = "aud_clk";
-	};
-
-	xlnx_dp_snd_pcm0: dp_snd_pcm0 {
-		compatible = "xlnx,dp-snd-pcm";
-		status = "disabled";
-		dmas = <&xlnx_dpdma 4>;
-		dma-names = "tx";
-	};
-
-	xlnx_dp_snd_pcm1: dp_snd_pcm1 {
-		compatible = "xlnx,dp-snd-pcm";
-		status = "disabled";
-		dmas = <&xlnx_dpdma 5>;
-		dma-names = "tx";
-	};
-
-	xilinx_drm: xilinx_drm {
-		compatible = "xlnx,drm";
-		status = "disabled";
-		xlnx,encoder-slave = <&xlnx_dp>;
-		xlnx,connector-type = "DisplayPort";
-		xlnx,dp-sub = <&xlnx_dp_sub>;
-		planes {
-			xlnx,pixel-format = "rgb565";
-			plane0 {
-				dmas = <&xlnx_dpdma 3>;
-				dma-names = "dma0";
-			};
-			plane1 {
-				dmas = <&xlnx_dpdma 0>,
-					<&xlnx_dpdma 1>,
-					<&xlnx_dpdma 2>;
-				dma-names = "dma0", "dma1", "dma2";
-			};
-		};
-	};
-
 	amba_apu: amba-apu@0 {
 		compatible = "simple-bus";
 		#address-cells = <2>;
@@ -259,7 +213,7 @@
 		ranges = <0 0 0 0 0xffffffff>;
 
 		gic: interrupt-controller@f9010000 {
-			compatible = "arm,gic-400", "arm,cortex-a15-gic";
+			compatible = "arm,gic-400";
 			#interrupt-cells = <3>;
 			reg = <0x0 0xf9010000 0x10000>,
 			      <0x0 0xf9020000 0x20000>,
@@ -794,6 +748,8 @@
 			power-domains = <&zynqmp_firmware PD_SD_0>;
 			nvmem-cells = <&soc_revision>;
 			nvmem-cell-names = "soc_revision";
+			#clock-cells = <1>;
+			clock-output-names = "clk_out_sd0", "clk_in_sd0";
 		};
 
 		sdhci1: mmc@ff170000 {
@@ -810,12 +766,8 @@
 			power-domains = <&zynqmp_firmware PD_SD_1>;
 			nvmem-cells = <&soc_revision>;
 			nvmem-cell-names = "soc_revision";
-		};
-
-		pinctrl0: pinctrl@ff180000 {
-			compatible = "xlnx,pinctrl-zynqmp";
-			status = "disabled";
-			reg = <0x0 0xff180000 0x0 0x1000>;
+			#clock-cells = <1>;
+			clock-output-names = "clk_out_sd1", "clk_in_sd1";
 		};
 
 		smmu: smmu@fd800000 {
@@ -1015,37 +967,6 @@
 			};
 		};
 
-		xlnx_dp: dp@fd4a0000 {
-			compatible = "xlnx,v-dp";
-			status = "disabled";
-			reg = <0x0 0xfd4a0000 0x0 0x1000>;
-			interrupts = <0 119 4>;
-			interrupt-parent = <&gic>;
-			clock-names = "aclk", "aud_clk";
-			xlnx,dp-version = "v1.2";
-			xlnx,max-lanes = <2>;
-			xlnx,max-link-rate = <540000>;
-			xlnx,max-bpc = <16>;
-			xlnx,enable-ycrcb;
-			xlnx,colormetry = "rgb";
-			xlnx,bpc = <8>;
-			xlnx,audio-chan = <2>;
-			xlnx,dp-sub = <&xlnx_dp_sub>;
-			xlnx,max-pclock-frequency = <300000>;
-		};
-
-		xlnx_dp_sub: dp_sub@fd4aa000 {
-			compatible = "xlnx,dp-sub";
-			status = "disabled";
-			reg = <0x0 0xfd4aa000 0x0 0x1000>,
-			      <0x0 0xfd4ab000 0x0 0x1000>,
-			      <0x0 0xfd4ac000 0x0 0x1000>;
-			reg-names = "blend", "av_buf", "aud";
-			xlnx,output-fmt = "rgb";
-			xlnx,vid-fmt = "yuyv";
-			xlnx,gfx-fmt = "rgb565";
-		};
-
 		xlnx_dpdma: dma@fd4c0000 {
 			compatible = "xlnx,dpdma";
 			status = "disabled";
@@ -1073,6 +994,63 @@
 			};
 			dma-audio1channel {
 				compatible = "xlnx,audio1";
+			};
+		};
+
+		zynqmp_dpsub: zynqmp-display@fd4a0000 {
+			compatible = "xlnx,zynqmp-dpsub-1.7";
+			status = "disabled";
+			reg = <0x0 0xfd4a0000 0x0 0x1000>,
+			      <0x0 0xfd4aa000 0x0 0x1000>,
+			      <0x0 0xfd4ab000 0x0 0x1000>,
+			      <0x0 0xfd4ac000 0x0 0x1000>;
+			reg-names = "dp", "blend", "av_buf", "aud";
+			interrupts = <0 119 4>;
+			interrupt-parent = <&gic>;
+
+			clock-names = "dp_apb_clk", "dp_aud_clk",
+				      "dp_vtc_pixel_clk_in";
+
+			power-domains = <&zynqmp_firmware PD_DP>;
+
+			vid-layer {
+				dma-names = "vid0", "vid1", "vid2";
+				dmas = <&xlnx_dpdma 0>,
+				       <&xlnx_dpdma 1>,
+				       <&xlnx_dpdma 2>;
+			};
+
+			gfx-layer {
+				dma-names = "gfx0";
+				dmas = <&xlnx_dpdma 3>;
+			};
+
+			/* dummy node to indicate there's no child i2c device */
+			i2c-bus {
+			};
+
+			zynqmp_dp_snd_codec0: zynqmp_dp_snd_codec0 {
+				compatible = "xlnx,dp-snd-codec";
+				clock-names = "aud_clk";
+			};
+
+			zynqmp_dp_snd_pcm0: zynqmp_dp_snd_pcm0 {
+				compatible = "xlnx,dp-snd-pcm";
+				dmas = <&xlnx_dpdma 4>;
+				dma-names = "tx";
+			};
+
+			zynqmp_dp_snd_pcm1: zynqmp_dp_snd_pcm1 {
+				compatible = "xlnx,dp-snd-pcm";
+				dmas = <&xlnx_dpdma 5>;
+				dma-names = "tx";
+			};
+
+			zynqmp_dp_snd_card0: zynqmp_dp_snd_card {
+				compatible = "xlnx,dp-snd-card";
+				xlnx,dp-snd-pcm = <&zynqmp_dp_snd_pcm0>,
+						  <&zynqmp_dp_snd_pcm1>;
+				xlnx,dp-snd-codec = <&zynqmp_dp_snd_codec0>;
 			};
 		};
 	};

@@ -59,8 +59,8 @@ static int tps65941_bind(struct udevice *dev)
 	if (!children)
 		printf("%s: %s - no child found\n", __func__, dev->name);
 
-	/* Always return success for this device */
-	return 0;
+	/* Probe all the child devices */
+	return dm_scan_fdt_dev(dev);
 }
 
 static struct dm_pmic_ops tps65941_ops = {

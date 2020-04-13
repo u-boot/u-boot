@@ -103,18 +103,18 @@
 		"echo \"  Reading DTB for AM57x EVM RevA3...\"; " \
 		"abootimg get dtb --index=0 dtb_start dtb_size; " \
 		"cp.b $dtb_start $fdtaddr $dtb_size; " \
-		"fdt addr $fdtaddr; " \
+		"fdt addr $fdtaddr 0x80000; " \
 		"echo \"  Applying DTBOs for AM57x EVM RevA3...\"; " \
 		"adtimg addr $dtboaddr; " \
-		"adtimg get dt --index=0 dtbo0_addr; " \
+		"adtimg get dt --index=0 dtbo0_addr dtbo0_size; " \
 		"fdt apply $dtbo0_addr; " \
-		"adtimg get dt --index=1 dtbo1_addr; " \
+		"adtimg get dt --index=1 dtbo1_addr dtbo1_size; " \
 		"fdt apply $dtbo1_addr; " \
 	"elif test $board_name = beagle_x15_revc; then " \
 		"echo \"  Reading DTB for Beagle X15 RevC...\"; " \
 		"abootimg get dtb --index=0 dtb_start dtb_size; " \
 		"cp.b $dtb_start $fdtaddr $dtb_size; " \
-		"fdt addr $fdtaddr; " \
+		"fdt addr $fdtaddr 0x80000; " \
 	"else " \
 		"echo Error: Android boot is not supported for $board_name; " \
 		"exit; " \

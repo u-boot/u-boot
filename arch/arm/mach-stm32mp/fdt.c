@@ -23,6 +23,12 @@
 
 #define ETZPC_RESERVED		0xffffffff
 
+#define STM32_FDCAN_BASE	0x4400e000
+#define STM32_CRYP2_BASE	0x4c005000
+#define STM32_CRYP1_BASE	0x54001000
+#define STM32_GPU_BASE		0x59000000
+#define STM32_DSI_BASE		0x5a000000
+
 static const u32 stm32mp1_ip_addr[] = {
 	0x5c008000,	/* 00 stgenc */
 	0x54000000,	/* 01 bkpsram */
@@ -33,7 +39,7 @@ static const u32 stm32mp1_ip_addr[] = {
 	ETZPC_RESERVED,	/* 06 reserved */
 	0x54003000,	/* 07 rng1 */
 	0x54002000,	/* 08 hash1 */
-	0x54001000,	/* 09 cryp1 */
+	STM32_CRYP1_BASE,	/* 09 cryp1 */
 	0x5a003000,	/* 0A ddrctrl */
 	0x5a004000,	/* 0B ddrphyc */
 	0x5c009000,	/* 0C i2c6 */
@@ -86,7 +92,7 @@ static const u32 stm32mp1_ip_addr[] = {
 	0x4400b000,	/* 3B sai2 */
 	0x4400c000,	/* 3C sai3 */
 	0x4400d000,	/* 3D dfsdm */
-	0x4400e000,	/* 3E tt_fdcan */
+	STM32_FDCAN_BASE,	/* 3E tt_fdcan */
 	ETZPC_RESERVED,	/* 3F reserved */
 	0x50021000,	/* 40 lptim2 */
 	0x50022000,	/* 41 lptim3 */
@@ -99,7 +105,7 @@ static const u32 stm32mp1_ip_addr[] = {
 	0x48003000,	/* 48 adc */
 	0x4c002000,	/* 49 hash2 */
 	0x4c003000,	/* 4A rng2 */
-	0x4c005000,	/* 4B cryp2 */
+	STM32_CRYP2_BASE,	/* 4B cryp2 */
 	ETZPC_RESERVED,	/* 4C reserved */
 	ETZPC_RESERVED,	/* 4D reserved */
 	ETZPC_RESERVED,	/* 4E reserved */
@@ -126,11 +132,13 @@ static const u32 stm32mp1_ip_addr[] = {
 static bool fdt_disable_subnode_by_address(void *fdt, int offset, u32 addr)
 {
 	int node;
+	fdt_addr_t regs;
 
 	for (node = fdt_first_subnode(fdt, offset);
 	     node >= 0;
 	     node = fdt_next_subnode(fdt, node)) {
-		if (addr == (u32)fdt_getprop(fdt, node, "reg", 0)) {
+		regs = fdtdec_get_addr(fdt, node, "reg");
+		if (addr == regs) {
 			if (fdtdec_get_is_enabled(fdt, node)) {
 				fdt_status_disabled(fdt, node);
 
@@ -143,11 +151,11 @@ static bool fdt_disable_subnode_by_address(void *fdt, int offset, u32 addr)
 	return false;
 }
 
-static int stm32_fdt_fixup_etzpc(void *fdt)
+static int stm32_fdt_fixup_etzpc(void *fdt, int soc_node)
 {
 	const u32 *array;
 	int array_size, i;
-	int soc_node, offset, shift;
+	int offset, shift;
 	u32 addr, status, decprot[ETZPC_DECPROT_NB];
 
 	array = stm32mp1_ip_addr;
@@ -155,10 +163,6 @@ static int stm32_fdt_fixup_etzpc(void *fdt)
 
 	for (i = 0; i < ETZPC_DECPROT_NB; i++)
 		decprot[i] = readl(ETZPC_DECPROT(i));
-
-	soc_node = fdt_path_offset(fdt, "/soc");
-	if (soc_node < 0)
-		return soc_node;
 
 	for (i = 0; i < array_size; i++) {
 		offset = i / NB_PROT_PER_REG;
@@ -180,6 +184,40 @@ static int stm32_fdt_fixup_etzpc(void *fdt)
 	return 0;
 }
 
+/* deactivate all the cpu except core 0 */
+static void stm32_fdt_fixup_cpu(void *blob, char *name)
+{
+	int off;
+	u32 reg;
+
+	off = fdt_path_offset(blob, "/cpus");
+	if (off < 0) {
+		printf("%s: couldn't find /cpus node\n", __func__);
+		return;
+	}
+
+	off = fdt_node_offset_by_prop_value(blob, -1, "device_type", "cpu", 4);
+	while (off != -FDT_ERR_NOTFOUND) {
+		reg = fdtdec_get_addr(blob, off, "reg");
+		if (reg != 0) {
+			fdt_del_node(blob, off);
+			printf("FDT: cpu %d node remove for %s\n", reg, name);
+			/* after delete we can't trust the offsets anymore */
+			off = -1;
+		}
+		off = fdt_node_offset_by_prop_value(blob, off,
+						    "device_type", "cpu", 4);
+	}
+}
+
+static void stm32_fdt_disable(void *fdt, int offset, u32 addr,
+			      const char *string, const char *name)
+{
+	if (fdt_disable_subnode_by_address(fdt, offset, addr))
+		printf("FDT: %s@%08x node disabled for %s\n",
+		       string, addr, name);
+}
+
 /*
  * This function is called right before the kernel is booted. "blob" is the
  * device tree that will be passed to the kernel.
@@ -187,12 +225,57 @@ static int stm32_fdt_fixup_etzpc(void *fdt)
 int ft_system_setup(void *blob, bd_t *bd)
 {
 	int ret = 0;
-	u32 pkg;
+	int soc;
+	u32 pkg, cpu;
+	char name[SOC_NAME_SIZE];
+
+	soc = fdt_path_offset(blob, "/soc");
+	if (soc < 0)
+		return soc;
 
 	if (CONFIG_IS_ENABLED(STM32_ETZPC)) {
-		ret = stm32_fdt_fixup_etzpc(blob);
+		ret = stm32_fdt_fixup_etzpc(blob, soc);
 		if (ret)
 			return ret;
+	}
+
+	/* MPUs Part Numbers and name*/
+	cpu = get_cpu_type();
+	get_soc_name(name);
+
+	switch (cpu) {
+	case CPU_STM32MP151Fxx:
+	case CPU_STM32MP151Dxx:
+	case CPU_STM32MP151Cxx:
+	case CPU_STM32MP151Axx:
+		stm32_fdt_fixup_cpu(blob, name);
+		/* after cpu delete we can't trust the soc offsets anymore */
+		soc = fdt_path_offset(blob, "/soc");
+		stm32_fdt_disable(blob, soc, STM32_FDCAN_BASE, "can", name);
+		/* fall through */
+	case CPU_STM32MP153Fxx:
+	case CPU_STM32MP153Dxx:
+	case CPU_STM32MP153Cxx:
+	case CPU_STM32MP153Axx:
+		stm32_fdt_disable(blob, soc, STM32_GPU_BASE, "gpu", name);
+		stm32_fdt_disable(blob, soc, STM32_DSI_BASE, "dsi", name);
+		break;
+	default:
+		break;
+	}
+
+	switch (cpu) {
+	case CPU_STM32MP157Dxx:
+	case CPU_STM32MP157Axx:
+	case CPU_STM32MP153Dxx:
+	case CPU_STM32MP153Axx:
+	case CPU_STM32MP151Dxx:
+	case CPU_STM32MP151Axx:
+		stm32_fdt_disable(blob, soc, STM32_CRYP1_BASE, "cryp", name);
+		stm32_fdt_disable(blob, soc, STM32_CRYP2_BASE, "cryp", name);
+		break;
+	default:
+		break;
 	}
 
 	switch (get_cpu_package()) {

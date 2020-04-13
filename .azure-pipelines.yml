@@ -1,7 +1,7 @@
 variables:
   windows_vm: vs2017-win2016
   ubuntu_vm: ubuntu-18.04
-  ci_runner_image: trini/u-boot-gitlab-ci-runner:bionic-20200112-21Feb2020
+  ci_runner_image: trini/u-boot-gitlab-ci-runner:bionic-20200311-10Apr2020
   # Add '-u 0' options for Azure pipelines, otherwise we get "permission
   # denied" error when it tries to "useradd -m -u 1001 vsts_azpcontainer",
   # since our $(ci_runner_image) user is not root.
@@ -52,7 +52,7 @@ jobs:
       image: $(ci_runner_image)
       options: $(container_option)
     steps:
-      - script: cppcheck --force --quiet --inline-suppr .
+      - script: cppcheck -j$(nproc) --force --quiet --inline-suppr .
 
   - job: htmldocs
     displayName: 'Build HTML documentation'
@@ -120,7 +120,7 @@ jobs:
           make tools-only_config envtools -j$(nproc)
 
   - job: utils
-    displayName: 'Run binman, buildman, dtoc and patman testsuites'
+    displayName: 'Run binman, buildman, dtoc, Kconfig and patman testsuites'
     pool:
       vmImage: $(ubuntu_vm)
     steps:
@@ -135,15 +135,16 @@ jobs:
           export USER=azure
           virtualenv -p /usr/bin/python3 /tmp/venv
           . /tmp/venv/bin/activate
-          pip install pyelftools
-          export UBOOT_TRAVIS_BUILD_DIR=/tmp/.bm-work/sandbox_spl
+          pip install pyelftools pytest
+          export UBOOT_TRAVIS_BUILD_DIR=/tmp/sandbox_spl
           export PYTHONPATH=${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt
           export PATH=${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc:${PATH}
-          ./tools/buildman/buildman -o /tmp -P sandbox_spl
+          ./tools/buildman/buildman -o ${UBOOT_TRAVIS_BUILD_DIR} -w sandbox_spl
           ./tools/binman/binman --toolpath ${UBOOT_TRAVIS_BUILD_DIR}/tools test
           ./tools/buildman/buildman -t
           ./tools/dtoc/dtoc -t
           ./tools/patman/patman --test
+          make O=${UBOOT_TRAVIS_BUILD_DIR} testconfig
           EOF
           cat build.sh
           # We cannot use "container" like other jobs above, as buildman
@@ -158,90 +159,78 @@ jobs:
       matrix:
         sandbox:
           TEST_PY_BD: "sandbox"
-          BUILDMAN: "^sandbox$"
         sandbox_clang:
           TEST_PY_BD: "sandbox"
-          BUILDMAN: "^sandbox$"
           OVERRIDE: "-O clang-7"
         sandbox_spl:
           TEST_PY_BD: "sandbox_spl"
-          TEST_PY_TEST_SPEC: "test_ofplatdata"
-          BUILDMAN: "^sandbox_spl$"
+          TEST_PY_TEST_SPEC: "test_ofplatdata or test_handoff"
         sandbox_flattree:
           TEST_PY_BD: "sandbox_flattree"
-          BUILDMAN: "^sandbox_flattree$"
         evb_ast2500:
           TEST_PY_BD: "evb-ast2500"
           TEST_PY_ID: "--id qemu"
-          BUILDMAN: "^evb-ast2500$"
         vexpress_ca15_tc2:
           TEST_PY_BD: "vexpress_ca15_tc2"
           TEST_PY_ID: "--id qemu"
-          BUILDMAN: "^vexpress_ca15_tc2$"
         vexpress_ca9x4:
           TEST_PY_BD: "vexpress_ca9x4"
           TEST_PY_ID: "--id qemu"
-          BUILDMAN: "^vexpress_ca9x4$"
         integratorcp_cm926ejs:
           TEST_PY_BD: "integratorcp_cm926ejs"
           TEST_PY_ID: "--id qemu"
           TEST_PY_TEST_SPEC: "not sleep"
-          BUILDMAN: "^integratorcp_cm926ejs$"
         qemu_arm:
           TEST_PY_BD: "qemu_arm"
           TEST_PY_TEST_SPEC: "not sleep"
-          BUILDMAN: "^qemu_arm$"
         qemu_arm64:
           TEST_PY_BD: "qemu_arm64"
           TEST_PY_TEST_SPEC: "not sleep"
-          BUILDMAN: "^qemu_arm64$"
         qemu_mips:
           TEST_PY_BD: "qemu_mips"
           TEST_PY_TEST_SPEC: "not sleep"
-          BUILDMAN: "^qemu_mips$"
         qemu_mipsel:
           TEST_PY_BD: "qemu_mipsel"
           TEST_PY_TEST_SPEC: "not sleep"
-          BUILDMAN: "^qemu_mipsel$"
         qemu_mips64:
           TEST_PY_BD: "qemu_mips64"
           TEST_PY_TEST_SPEC: "not sleep"
-          BUILDMAN: "^qemu_mips64$"
         qemu_mips64el:
           TEST_PY_BD: "qemu_mips64el"
           TEST_PY_TEST_SPEC: "not sleep"
-          BUILDMAN: "^qemu_mips64el$"
         qemu_ppce500:
           TEST_PY_BD: "qemu-ppce500"
           TEST_PY_TEST_SPEC: "not sleep"
-          BUILDMAN: "^qemu-ppce500$"
+        qemu_riscv32:
+          TEST_PY_BD: "qemu-riscv32"
+          TEST_PY_TEST_SPEC: "not sleep"
         qemu_riscv64:
           TEST_PY_BD: "qemu-riscv64"
           TEST_PY_TEST_SPEC: "not sleep"
-          BUILDMAN: "^qemu-riscv64$"
+        qemu_riscv32_spl:
+          TEST_PY_BD: "qemu-riscv32_spl"
+          TEST_PY_TEST_SPEC: "not sleep"
+        qemu_riscv64_spl:
+          TEST_PY_BD: "qemu-riscv64_spl"
+          TEST_PY_TEST_SPEC: "not sleep"
         qemu_x86:
           TEST_PY_BD: "qemu-x86"
           TEST_PY_TEST_SPEC: "not sleep"
-          BUILDMAN: "^qemu-x86$"
         qemu_x86_64:
           TEST_PY_BD: "qemu-x86_64"
           TEST_PY_TEST_SPEC: "not sleep"
-          BUILDMAN: "^qemu-x86_64$"
-        zynq_zc702:
-          TEST_PY_BD: "zynq_zc702"
+        xilinx_zynq_virt:
+          TEST_PY_BD: "xilinx_zynq_virt"
           TEST_PY_ID: "--id qemu"
           TEST_PY_TEST_SPEC: "not sleep"
-          BUILDMAN: "^zynq_zc702$"
         xilinx_versal_virt:
           TEST_PY_BD: "xilinx_versal_virt"
           TEST_PY_ID: "--id qemu"
           TEST_PY_TEST_SPEC: "not sleep"
-          BUILDMAN: "^xilinx_versal_virt$"
         xtfpga:
           TEST_PY_BD: "xtfpga"
           TEST_PY_ID: "--id qemu"
           TEST_PY_TEST_SPEC: "not sleep"
-          BUILDMAN: "^xtfpga$"
     steps:
       - script: |
           cat << EOF > test.sh
@@ -251,7 +240,6 @@ jobs:
           export TEST_PY_BD="${TEST_PY_BD}"
           export TEST_PY_ID="${TEST_PY_ID}"
           export TEST_PY_TEST_SPEC="${TEST_PY_TEST_SPEC}"
-          export BUILDMAN="${BUILDMAN}"
           export OVERRIDE="${OVERRIDE}"
           EOF
           cat << "EOF" >> test.sh
@@ -263,31 +251,28 @@ jobs:
           grub-mkimage --prefix=\"\" -o ~/grub_x86.efi -O i386-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
           grub-mkimage --prefix=\"\" -o ~/grub_x64.efi -O x86_64-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
           cp /opt/grub/grubriscv64.efi ~/grub_riscv64.efi
+          cp /opt/grub/grubriscv32.efi ~/grub_riscv32.efi
           cp /opt/grub/grubaa64.efi ~/grub_arm64.efi
           cp /opt/grub/grubarm.efi ~/grub_arm.efi
+          if [[ "${TEST_PY_BD}" == "qemu-riscv32_spl" ]]; then
+              wget -O - https://github.com/riscv/opensbi/releases/download/v0.6/opensbi-0.6-rv32-bin.tar.xz | tar -C /tmp -xJ;
+              export OPENSBI=/tmp/opensbi-0.6-rv32-bin/platform/qemu/virt/firmware/fw_dynamic.bin;
+          fi
+          if [[ "${TEST_PY_BD}" == "qemu-riscv64_spl" ]]; then
+              wget -O - https://github.com/riscv/opensbi/releases/download/v0.6/opensbi-0.6-rv64-bin.tar.xz | tar -C /tmp -xJ;
+              export OPENSBI=/tmp/opensbi-0.6-rv64-bin/platform/qemu/virt/firmware/fw_dynamic.bin;
+          fi
           # the below corresponds to .gitlab-ci.yml "script"
           cd ${WORK_DIR}
-          if [[ "${BUILDMAN}" != "" ]]; then
-              ret=0;
-              tools/buildman/buildman -o /tmp -P -E ${BUILDMAN} ${OVERRIDE} || ret=$?;
-              if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-                  tools/buildman/buildman -o /tmp -sdeP ${BUILDMAN};
-                  exit $ret;
-              fi;
-          fi
+          export UBOOT_TRAVIS_BUILD_DIR=/tmp/${TEST_PY_BD};
+          tools/buildman/buildman -o ${UBOOT_TRAVIS_BUILD_DIR} -w -E -W -e --board ${TEST_PY_BD} ${OVERRIDE}
           virtualenv -p /usr/bin/python3 /tmp/venv
           . /tmp/venv/bin/activate
           pip install -r test/py/requirements.txt
-          export UBOOT_TRAVIS_BUILD_DIR=/tmp/.bm-work/${TEST_PY_BD};
           export PATH=/opt/qemu/bin:/tmp/uboot-test-hooks/bin:${PATH};
           export PYTHONPATH=/tmp/uboot-test-hooks/py/travis-ci;
-          if [[ "${TEST_PY_BD}" != "" ]]; then
-              ./test/py/test.py --bd ${TEST_PY_BD} ${TEST_PY_ID} -k "${TEST_PY_TEST_SPEC:-not a_test_which_does_not_exist}" --build-dir "$UBOOT_TRAVIS_BUILD_DIR";
-              ret=$?;
-              if [[ $ret -ne 0 ]]; then
-                  exit $ret;
-              fi;
-          fi
+          # "${var:+"-k $var"}" expands to "" if $var is empty, "-k $var" if not
+          ./test/py/test.py --bd ${TEST_PY_BD} ${TEST_PY_ID} ${TEST_PY_TEST_SPEC:+"-k ${TEST_PY_TEST_SPEC}"} --build-dir "$UBOOT_TRAVIS_BUILD_DIR";
           # the below corresponds to .gitlab-ci.yml "after_script"
           rm -rf /tmp/uboot-test-hooks /tmp/venv
           EOF
@@ -421,9 +406,9 @@ jobs:
           cat << "EOF" >> build.sh
           if [[ "${BUILDMAN}" != "" ]]; then
               ret=0;
-              tools/buildman/buildman -o /tmp -P -E ${BUILDMAN} ${OVERRIDE} || ret=$?;
-              if [[ $ret -ne 0 && $ret -ne 129 ]]; then
-                  tools/buildman/buildman -o /tmp -sdeP ${BUILDMAN};
+              tools/buildman/buildman -o /tmp -P -W ${BUILDMAN} ${OVERRIDE} || ret=$?;
+              if [[ $ret -ne 0 ]]; then
+                  tools/buildman/buildman -o /tmp -seP ${BUILDMAN};
                   exit $ret;
               fi;
           fi

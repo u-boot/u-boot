@@ -22,6 +22,7 @@ import commit
 import terminal
 import test_util
 import toolchain
+import tools
 
 use_network = True
 
@@ -469,6 +470,25 @@ class TestBuild(unittest.TestCase):
         self.assertEqual('HOSTCC=clang CC=clang',
                          tc.GetEnvArgs(toolchain.VAR_MAKE_ARGS))
 
+    def testPrepareOutputSpace(self):
+        def _Touch(fname):
+            tools.WriteFile(os.path.join(base_dir, fname), b'')
+
+        base_dir = tempfile.mkdtemp()
+
+        # Add various files that we want removed and left alone
+        to_remove = ['01_of_22_g0982734987_title', '102_of_222_g92bf_title',
+                     '01_of_22_g2938abd8_title']
+        to_leave = ['something_else', '01-something.patch', '01_of_22_another']
+        for name in to_remove + to_leave:
+            _Touch(name)
+
+        build = builder.Builder(self.toolchains, base_dir, None, 1, 2)
+        build.commits = self.commits
+        build.commit_count = len(commits)
+        result = set(build._GetOutputSpaceRemovals())
+        expected = set([os.path.join(base_dir, f) for f in to_remove])
+        self.assertEqual(expected, result)
 
 if __name__ == "__main__":
     unittest.main()

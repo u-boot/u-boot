@@ -938,7 +938,9 @@ static int udma_alloc_rchan_sci_req(struct udma_chan *uc)
 
 	req.valid_params = TI_SCI_MSG_VALUE_RM_UDMAP_CH_FETCH_SIZE_VALID |
 			TI_SCI_MSG_VALUE_RM_UDMAP_CH_CQ_QNUM_VALID |
-			TI_SCI_MSG_VALUE_RM_UDMAP_CH_CHAN_TYPE_VALID;
+			TI_SCI_MSG_VALUE_RM_UDMAP_CH_CHAN_TYPE_VALID |
+			TI_SCI_MSG_VALUE_RM_UDMAP_CH_RX_FLOWID_START_VALID |
+			TI_SCI_MSG_VALUE_RM_UDMAP_CH_RX_FLOWID_CNT_VALID;
 	req.nav_id = tisci_rm->tisci_dev_id;
 	req.index = uc->rchan->id;
 	req.rx_chan_type = mode;
@@ -954,9 +956,6 @@ static int udma_alloc_rchan_sci_req(struct udma_chan *uc)
 	if (uc->rflow->id != uc->rchan->id && uc->dir != DMA_MEM_TO_MEM) {
 		req.flowid_start = uc->rflow->id;
 		req.flowid_cnt = 1;
-		req.valid_params |=
-			TI_SCI_MSG_VALUE_RM_UDMAP_CH_RX_FLOWID_START_VALID |
-			TI_SCI_MSG_VALUE_RM_UDMAP_CH_RX_FLOWID_CNT_VALID;
 	}
 
 	ret = tisci_rm->tisci_udmap_ops->rx_ch_cfg(tisci_rm->tisci, &req);

@@ -85,38 +85,15 @@ def ShowActions(series, why_selected, boards_selected, builder, options,
         for warning in board_warnings:
             print(col.Color(col.YELLOW, warning))
 
-def CheckOutputDir(output_dir):
-    """Make sure that the output directory is not within the current directory
-
-    If we try to use an output directory which is within the current directory
-    (which is assumed to hold the U-Boot source) we may end up deleting the
-    U-Boot source code. Detect this and print an error in this case.
-
-    Args:
-        output_dir: Output directory path to check
-    """
-    path = os.path.realpath(output_dir)
-    cwd_path = os.path.realpath('.')
-    while True:
-        if os.path.realpath(path) == cwd_path:
-            Print("Cannot use output directory '%s' since it is within the current directory '%s'" %
-                  (path, cwd_path))
-            sys.exit(1)
-        parent = os.path.dirname(path)
-        if parent == path:
-            break
-        path = parent
-
-def ShowToolchainInfo(boards, toolchains, print_arch, print_prefix):
+def ShowToolchainPrefix(boards, toolchains):
     """Show information about a the tool chain used by one or more boards
 
-    The function checks that all boards use the same toolchain.
+    The function checks that all boards use the same toolchain, then prints
+    the correct value for CROSS_COMPILE.
 
     Args:
         boards: Boards object containing selected boards
         toolchains: Toolchains object containing available toolchains
-        print_arch: True to print ARCH value
-        print_prefix: True to print CROSS_COMPILE value
 
     Return:
         None on success, string error message otherwise
@@ -129,10 +106,7 @@ def ShowToolchainInfo(boards, toolchains, print_arch, print_prefix):
         return 'Supplied boards must share one toolchain'
         return False
     tc = tc_set.pop()
-    if print_arch:
-        print(tc.GetEnvArgs(toolchain.VAR_ARCH))
-    if print_prefix:
-        print(tc.GetEnvArgs(toolchain.VAR_CROSS_COMPILE))
+    print(tc.GetEnvArgs(toolchain.VAR_CROSS_COMPILE))
     return None
 
 def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
@@ -228,9 +202,8 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
     if not len(selected):
         sys.exit(col.Color(col.RED, 'No matching boards found'))
 
-    if options.print_arch or options.print_prefix:
-        err = ShowToolchainInfo(boards, toolchains, options.print_arch,
-                                options.print_prefix)
+    if options.print_prefix:
+        err = ShowToolchainInfo(boards, toolchains)
         if err:
             sys.exit(col.Color(col.RED, err))
         return 0
@@ -263,6 +236,13 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
         str = ("No commits found to process in branch '%s': "
                "set branch's upstream or use -c flag" % options.branch)
         sys.exit(col.Color(col.RED, str))
+    if options.work_in_output:
+        if len(selected) != 1:
+            sys.exit(col.Color(col.RED,
+                               '-w can only be used with a single board'))
+        if count != 1:
+            sys.exit(col.Color(col.RED,
+                               '-w can only be used with a single commit'))
 
     # Read the metadata from the commits. First look at the upstream commit,
     # then the ones in the branch. We would like to do something like
@@ -324,7 +304,6 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
             output_dir = os.path.join(options.output_dir, dirname)
         if clean_dir and os.path.exists(output_dir):
             shutil.rmtree(output_dir)
-    CheckOutputDir(output_dir)
     builder = Builder(toolchains, output_dir, options.git_dir,
             options.threads, options.jobs, gnu_make=gnu_make, checkout=True,
             show_unknown=options.show_unknown, step=options.step,
@@ -334,7 +313,8 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
             per_board_out_dir=options.per_board_out_dir,
             config_only=options.config_only,
             squash_config_y=not options.preserve_config_y,
-            warnings_as_errors=options.warnings_as_errors)
+            warnings_as_errors=options.warnings_as_errors,
+            work_in_output=options.work_in_output)
     builder.force_config_on_failure = not options.quick
     if make_func:
         builder.do_make = make_func
@@ -378,6 +358,6 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
                                 options.keep_outputs, options.verbose)
             if fail:
                 return 128
-            elif warned:
+            elif warned and not options.ignore_warnings:
                 return 129
     return 0

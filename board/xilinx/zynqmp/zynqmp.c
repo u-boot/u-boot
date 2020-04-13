@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <debug_uart.h>
 #include <env.h>
 #include <init.h>
 #include <sata.h>
@@ -319,22 +320,46 @@ static char *zynqmp_get_silicon_idcode_name(void)
 
 int board_early_init_f(void)
 {
-	int ret = 0;
-
 #if defined(CONFIG_ZYNQMP_PSU_INIT_ENABLED)
+	int ret;
+
 	ret = psu_init();
+	if (ret)
+		return ret;
+
+	/* Delay is required for clocks to be propagated */
+	udelay(1000000);
 #endif
 
-	return ret;
+#ifdef CONFIG_DEBUG_UART
+	/* Uart debug for sure */
+	debug_uart_init();
+	puts("Debug uart enabled\n"); /* or printch() */
+#endif
+
+	return 0;
+}
+
+static int multi_boot(void)
+{
+	u32 multiboot;
+
+	multiboot = readl(&csu_base->multi_boot);
+
+	printf("Multiboot:\t%x\n", multiboot);
+
+	return 0;
 }
 
 int board_init(void)
 {
+#if defined(CONFIG_ZYNQMP_FIRMWARE)
 	struct udevice *dev;
 
 	uclass_get_device_by_name(UCLASS_FIRMWARE, "zynqmp-power", &dev);
 	if (!dev)
 		panic("PMU Firmware device not found - Enable it");
+#endif
 
 #if defined(CONFIG_SPL_BUILD)
 	/* Check *at build time* if the filename is an non-empty string */
@@ -355,6 +380,9 @@ int board_init(void)
 		fpga_add(fpga_xilinx, &zynqmppl);
 	}
 #endif
+
+	if (current_el() == 3)
+		multi_boot();
 
 	return 0;
 }
@@ -487,7 +515,7 @@ static int reset_reason(void)
 
 	env_set("reset_reason", reason);
 
-	ret = zynqmp_mmio_write(~0, ~0, (ulong)&crlapb_base->reset_reason);
+	ret = zynqmp_mmio_write((ulong)&crlapb_base->reset_reason, ~0, ~0);
 	if (ret)
 		return -EINVAL;
 

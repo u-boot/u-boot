@@ -58,7 +58,7 @@ hostprogs-$(CONFIG_FIT_SIGNATURE) += fit_info fit_check_sign
 hostprogs-$(CONFIG_CMD_BOOTEFI_SELFTEST) += file2include
 
 FIT_OBJS-$(CONFIG_FIT) := fit_common.o fit_image.o image-host.o common/image-fit.o
-FIT_SIG_OBJS-$(CONFIG_FIT_SIGNATURE) := common/image-sig.o
+FIT_SIG_OBJS-$(CONFIG_FIT_SIGNATURE) := common/image-sig.o common/image-fit-sig.o
 FIT_CIPHER_OBJS-$(CONFIG_FIT_CIPHER) := common/image-cipher.o
 
 # The following files are synced with upstream DTC.
@@ -161,7 +161,7 @@ endif
 ifneq ($(CONFIG_MX23)$(CONFIG_MX28)$(CONFIG_ARMADA_38X)$(CONFIG_ARMADA_39X)$(CONFIG_FIT_SIGNATURE),)
 HOSTCFLAGS_kwbimage.o += \
 	$(shell pkg-config --cflags libssl libcrypto 2> /dev/null || echo "")
-HOSTLOADLIBES_mkimage += \
+HOSTLDLIBS_mkimage += \
 	$(shell pkg-config --libs libssl libcrypto 2> /dev/null || echo "-lssl -lcrypto")
 
 # OS X deprecate openssl in favour of CommonCrypto, supress deprecation
@@ -175,9 +175,9 @@ endif
 
 HOSTCFLAGS_fit_image.o += -DMKIMAGE_DTC=\"$(CONFIG_MKIMAGE_DTC_PATH)\"
 
-HOSTLOADLIBES_dumpimage := $(HOSTLOADLIBES_mkimage)
-HOSTLOADLIBES_fit_info := $(HOSTLOADLIBES_mkimage)
-HOSTLOADLIBES_fit_check_sign := $(HOSTLOADLIBES_mkimage)
+HOSTLDLIBS_dumpimage := $(HOSTLDLIBS_mkimage)
+HOSTLDLIBS_fit_info := $(HOSTLDLIBS_mkimage)
+HOSTLDLIBS_fit_check_sign := $(HOSTLDLIBS_mkimage)
 
 hostprogs-$(CONFIG_EXYNOS5250) += mkexynosspl
 hostprogs-$(CONFIG_EXYNOS5420) += mkexynosspl

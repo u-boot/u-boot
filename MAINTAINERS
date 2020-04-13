@@ -447,6 +447,7 @@ M:	Michal Simek <michal.simek@xilinx.com>
 S:	Maintained
 T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-microblaze.git
 F:	arch/arm/mach-versal/
+F:	drivers/watchdog/xilinx_wwdt.c
 N:	(?<!uni)versal
 
 ARM VERSATILE EXPRESS DRIVERS

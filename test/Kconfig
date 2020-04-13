@@ -28,6 +28,16 @@ config UT_LIB_ASN1
 	  Enables a test which exercises asn1 compiler and decoder function
 	  via various parsers.
 
+config UT_LIB_RSA
+	bool "Unit test for rsa_verify() function"
+	depends on RSA
+	depends on RSA_VERIFY_WITH_PKEY
+	select IMAGE_SIGN_INFO
+	default y
+	help
+	  Enables rsa_verify() test, currently rsa_verify_with_pkey only()
+	  only, at the 'ut lib' command.
+
 endif
 
 config UT_TIME

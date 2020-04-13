@@ -639,7 +639,8 @@ void stm32mp1_refresh_disable(struct stm32mp1_ddrctl *ctl)
 	start_sw_done(ctl);
 	/* quasi-dynamic register update*/
 	setbits_le32(&ctl->rfshctl3, DDRCTRL_RFSHCTL3_DIS_AUTO_REFRESH);
-	clrbits_le32(&ctl->pwrctl, DDRCTRL_PWRCTL_POWERDOWN_EN);
+	clrbits_le32(&ctl->pwrctl, DDRCTRL_PWRCTL_POWERDOWN_EN |
+				   DDRCTRL_PWRCTL_SELFREF_EN);
 	clrbits_le32(&ctl->dfimisc, DDRCTRL_DFIMISC_DFI_INIT_COMPLETE_EN);
 	wait_sw_done_ack(ctl);
 }
@@ -652,6 +653,8 @@ void stm32mp1_refresh_restore(struct stm32mp1_ddrctl *ctl,
 		clrbits_le32(&ctl->rfshctl3, DDRCTRL_RFSHCTL3_DIS_AUTO_REFRESH);
 	if (pwrctl & DDRCTRL_PWRCTL_POWERDOWN_EN)
 		setbits_le32(&ctl->pwrctl, DDRCTRL_PWRCTL_POWERDOWN_EN);
+	if ((pwrctl & DDRCTRL_PWRCTL_SELFREF_EN))
+		setbits_le32(&ctl->pwrctl, DDRCTRL_PWRCTL_SELFREF_EN);
 	setbits_le32(&ctl->dfimisc, DDRCTRL_DFIMISC_DFI_INIT_COMPLETE_EN);
 	wait_sw_done_ack(ctl);
 }
@@ -668,14 +671,34 @@ void stm32mp1_ddr_init(struct ddr_info *priv,
 {
 	u32 pir;
 	int ret = -EINVAL;
+	char bus_width;
+
+	switch (config->c_reg.mstr & DDRCTRL_MSTR_DATA_BUS_WIDTH_MASK) {
+	case DDRCTRL_MSTR_DATA_BUS_WIDTH_QUARTER:
+		bus_width = 8;
+		break;
+	case DDRCTRL_MSTR_DATA_BUS_WIDTH_HALF:
+		bus_width = 16;
+		break;
+	default:
+		bus_width = 32;
+		break;
+	}
+
 
 	if (config->c_reg.mstr & DDRCTRL_MSTR_DDR3)
 		ret = board_ddr_power_init(STM32MP_DDR3);
-	else if (config->c_reg.mstr & DDRCTRL_MSTR_LPDDR2)
-		ret = board_ddr_power_init(STM32MP_LPDDR2);
-	else if (config->c_reg.mstr & DDRCTRL_MSTR_LPDDR3)
-		ret = board_ddr_power_init(STM32MP_LPDDR3);
-
+	else if (config->c_reg.mstr & DDRCTRL_MSTR_LPDDR2) {
+		if (bus_width == 32)
+			ret = board_ddr_power_init(STM32MP_LPDDR2_32);
+		else
+			ret = board_ddr_power_init(STM32MP_LPDDR2_16);
+	} else if (config->c_reg.mstr & DDRCTRL_MSTR_LPDDR3) {
+		if (bus_width == 32)
+			ret = board_ddr_power_init(STM32MP_LPDDR3_32);
+		else
+			ret = board_ddr_power_init(STM32MP_LPDDR3_16);
+	}
 	if (ret)
 		panic("ddr power init failed\n");
 
@@ -746,7 +769,8 @@ start:
  */
 	set_reg(priv, REGPHY_REG, &config->p_reg);
 	set_reg(priv, REGPHY_TIMING, &config->p_timing);
-	set_reg(priv, REGPHY_CAL, &config->p_cal);
+	if (config->p_cal_present)
+		set_reg(priv, REGPHY_CAL, &config->p_cal);
 
 	if (INTERACTIVE(STEP_PHY_INIT))
 		goto start;
@@ -781,13 +805,16 @@ start:
 
 	wait_operating_mode(priv, DDRCTRL_STAT_OPERATING_MODE_NORMAL);
 
-	debug("DDR DQS training : ");
+	if (config->p_cal_present) {
+		debug("DDR DQS training skipped.\n");
+	} else {
+		debug("DDR DQS training : ");
 /*  8. Disable Auto refresh and power down by setting
  *    - RFSHCTL3.dis_au_refresh = 1
  *    - PWRCTL.powerdown_en = 0
  *    - DFIMISC.dfiinit_complete_en = 0
  */
-	stm32mp1_refresh_disable(priv->ctl);
+		stm32mp1_refresh_disable(priv->ctl);
 
 /*  9. Program PUBL PGCR to enable refresh during training and rank to train
  *     not done => keep the programed value in PGCR
@@ -795,14 +822,15 @@ start:
 
 /* 10. configure PUBL PIR register to specify which training step to run */
 	/* warning : RVTRN  is not supported by this PUBL */
-	stm32mp1_ddrphy_init(priv->phy, DDRPHYC_PIR_QSTRN);
+		stm32mp1_ddrphy_init(priv->phy, DDRPHYC_PIR_QSTRN);
 
 /* 11. monitor PUB PGSR.IDONE to poll cpmpletion of training sequence */
-	ddrphy_idone_wait(priv->phy);
+		ddrphy_idone_wait(priv->phy);
 
 /* 12. set back registers in step 8 to the orginal values if desidered */
-	stm32mp1_refresh_restore(priv->ctl, config->c_reg.rfshctl3,
-				 config->c_reg.pwrctl);
+		stm32mp1_refresh_restore(priv->ctl, config->c_reg.rfshctl3,
+					 config->c_reg.pwrctl);
+	} /* if (config->p_cal_present) */
 
 	/* enable uMCTL2 AXI port 0 and 1 */
 	setbits_le32(&priv->ctl->pctrl_0, DDRCTRL_PCTRL_N_PORT_EN);

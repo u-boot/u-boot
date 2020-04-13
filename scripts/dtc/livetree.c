@@ -238,10 +238,16 @@ struct node * add_orphan_node(struct node *dt, struct node *new_node, char *ref)
 	struct data d = empty_data;
 	char *name;
 
-	d = data_add_marker(d, REF_PHANDLE, ref);
-	d = data_append_integer(d, 0xffffffff, 32);
+	if (ref[0] == '/') {
+		d = data_append_data(d, ref, strlen(ref) + 1);
 
-	p = build_property("target", d);
+		p = build_property("target-path", d);
+	} else {
+		d = data_add_marker(d, REF_PHANDLE, ref);
+		d = data_append_integer(d, 0xffffffff, 32);
+
+		p = build_property("target", d);
+	}
 
 	xasprintf(&name, "fragment@%u",
 			next_orphan_fragment++);

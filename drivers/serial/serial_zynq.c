@@ -17,8 +17,6 @@
 #include <serial.h>
 #include <linux/err.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define ZYNQ_UART_SR_TXACTIVE	BIT(11) /* TX active */
 #define ZYNQ_UART_SR_TXFULL	BIT(4) /* TX FIFO full */
 #define ZYNQ_UART_SR_RXEMPTY	BIT(1) /* RX FIFO empty */
@@ -45,7 +43,7 @@ struct zynq_uart_platdata {
 	struct uart_zynq *regs;
 };
 
-/* Set up the baud rate in gd struct */
+/* Set up the baud rate */
 static void _uart_zynq_serial_setbrg(struct uart_zynq *regs,
 				     unsigned long clock, unsigned long baud)
 {
@@ -140,9 +138,12 @@ static int zynq_serial_setbrg(struct udevice *dev, int baudrate)
 static int zynq_serial_probe(struct udevice *dev)
 {
 	struct zynq_uart_platdata *platdata = dev_get_platdata(dev);
+	struct uart_zynq *regs = platdata->regs;
+	u32 val;
 
-	/* No need to reinitialize the UART after relocation */
-	if (gd->flags & GD_FLG_RELOC)
+	/* No need to reinitialize the UART if TX already enabled */
+	val = readl(&regs->control);
+	if (val & ZYNQ_UART_CR_TX_EN)
 		return 0;
 
 	_uart_zynq_serial_init(platdata->regs);

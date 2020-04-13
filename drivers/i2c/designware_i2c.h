@@ -138,22 +138,27 @@ struct i2c_regs {
 #define IC_STATUS_TFNF		0x0002
 #define IC_STATUS_ACT		0x0001
 
+#define DW_IC_COMP_PARAM_1_SPEED_MODE_HIGH      (BIT(2) | BIT(3))
+#define DW_IC_COMP_PARAM_1_SPEED_MODE_MASK      (BIT(2) | BIT(3))
+
 /**
  * struct dw_scl_sda_cfg - I2C timing configuration
  *
- * @has_high_speed: Support high speed (3.4Mbps)
  * @ss_hcnt: Standard speed high time in ns
  * @fs_hcnt: Fast speed high time in ns
+ * @hs_hcnt: High speed high time in ns
  * @ss_lcnt: Standard speed low time in ns
  * @fs_lcnt: Fast speed low time in ns
+ * @hs_lcnt: High speed low time in ns
  * @sda_hold: SDA hold time
  */
 struct dw_scl_sda_cfg {
-	bool has_high_speed;
 	u32 ss_hcnt;
 	u32 fs_hcnt;
+	u32 hs_hcnt;
 	u32 ss_lcnt;
 	u32 fs_lcnt;
+	u32 hs_lcnt;
 	u32 sda_hold;
 };
 

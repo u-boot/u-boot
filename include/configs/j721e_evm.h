@@ -74,7 +74,8 @@
 	"overlayaddr=0x83000000\0"					\
 	"name_kern=Image\0"						\
 	"console=ttyS2,115200n8\0"					\
-	"args_all=setenv optargs earlycon=ns16550a,mmio32,0x02800000\0" \
+	"args_all=setenv optargs earlycon=ns16550a,mmio32,0x02800000 "	\
+		"${mtdparts}\0"						\
 	"run_kern=booti ${loadaddr} ${rd_spec} ${fdtaddr}\0"
 
 #define PARTS_DEFAULT \
@@ -88,6 +89,10 @@
 	"mmcdev=1\0"							\
 	"bootpart=1:2\0"						\
 	"bootdir=/boot\0"						\
+	"addr_mainr5f0_0load=88000000\0"					\
+	"name_mainr5f0_0fw=/lib/firmware/j7-main-r5f0_0-fw\0"		\
+	"addr_mcur5f0_0load=89000000\0"					\
+	"name_mcur5f0_0fw=/lib/firmware/j7-mcu-r5f0_0-fw\0"		\
 	"rd_spec=-\0"							\
 	"init_mmc=run args_all args_mmc\0"				\
 	"get_fdt_mmc=load mmc ${bootpart} ${fdtaddr} ${bootdir}/${name_fdt}\0" \
@@ -124,6 +129,14 @@
 	DFU_ALT_INFO_RAM \
 	DFU_ALT_INFO_OSPI
 
+#ifdef CONFIG_TARGET_J721E_A72_EVM
+#define EXTRA_ENV_J721E_BOARD_SETTINGS_MTD				\
+	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"				\
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"
+#else
+#define EXTRA_ENV_J721E_BOARD_SETTINGS_MTD
+#endif
+
 /* Incorporate settings into the U-Boot environment */
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	DEFAULT_MMC_TI_ARGS						\
@@ -132,7 +145,8 @@
 	EXTRA_ENV_J721E_BOARD_SETTINGS_MMC				\
 	EXTRA_ENV_RPROC_SETTINGS					\
 	EXTRA_ENV_DFUARGS						\
-	DEFAULT_UFS_TI_ARGS
+	DEFAULT_UFS_TI_ARGS						\
+	EXTRA_ENV_J721E_BOARD_SETTINGS_MTD
 
 /* Now for the remaining common defines */
 #include <configs/ti_armv7_common.h>

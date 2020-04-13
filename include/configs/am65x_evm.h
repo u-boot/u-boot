@@ -73,7 +73,8 @@
 	"name_kern=Image\0"						\
 	"console=ttyS2,115200n8\0"					\
 	"stdin=serial,usbkbd\0"						\
-	"args_all=setenv optargs earlycon=ns16550a,mmio32,0x02800000\0" \
+	"args_all=setenv optargs earlycon=ns16550a,mmio32,0x02800000 "  \
+		"${mtdparts}\0"						\
 	"run_kern=booti ${loadaddr} ${rd_spec} ${fdtaddr}\0"		\
 
 /* U-Boot MMC-specific configuration */
@@ -106,6 +107,22 @@
 		"0 /lib/firmware/am65x-mcu-r5f0_0-fw "			\
 		"1 /lib/firmware/am65x-mcu-r5f0_1-fw "
 
+#ifdef CONFIG_TARGET_AM654_A53_EVM
+#define EXTRA_ENV_AM65X_BOARD_SETTINGS_MTD				\
+	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"				\
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"
+#else
+#define EXTRA_ENV_AM65X_BOARD_SETTINGS_MTD
+#endif
+
+#define EXTRA_ENV_AM65X_BOARD_SETTINGS_UBI				\
+	"init_ubi=run args_all args_ubi; sf probe; "			\
+		"ubi part ospi.rootfs; ubifsmount ubi:rootfs;\0"	\
+	"get_kern_ubi=ubifsload ${loadaddr} ${bootdir}/${name_kern}\0"	\
+	"get_fdt_ubi=ubifsload ${fdtaddr} ${bootdir}/${name_fdt}\0"	\
+	"args_ubi=setenv bootargs console=${console} ${optargs} "	\
+		"rootfstype=ubifs root=ubi0:rootfs rw ubi.mtd=ospi.rootfs\0"
+
 #define EXTRA_ENV_DFUARGS						\
 	"dfu_bufsiz=0x20000\0"						\
 	DFU_ALT_INFO_MMC						\
@@ -118,6 +135,8 @@
 	DEFAULT_FIT_TI_ARGS						\
 	EXTRA_ENV_AM65X_BOARD_SETTINGS					\
 	EXTRA_ENV_AM65X_BOARD_SETTINGS_MMC				\
+	EXTRA_ENV_AM65X_BOARD_SETTINGS_MTD				\
+	EXTRA_ENV_AM65X_BOARD_SETTINGS_UBI				\
 	EXTRA_ENV_RPROC_SETTINGS					\
 	EXTRA_ENV_DFUARGS
 

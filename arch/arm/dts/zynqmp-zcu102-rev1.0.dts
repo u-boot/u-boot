@@ -2,7 +2,7 @@
 /*
  * dts file for Xilinx ZynqMP ZCU102 Rev1.0
  *
- * (C) Copyright 2016 - 2018, Xilinx, Inc.
+ * (C) Copyright 2016 - 2020, Xilinx, Inc.
  *
  * Michal Simek <michal.simek@xilinx.com>
  */
@@ -33,8 +33,4 @@
 	board_revision: board-revision@e0 {
 		reg = <0xe0 0x3>;
 	};
-};
-
-&sdhci1 {
-	/delete-property/ no-1-8-v;
 };

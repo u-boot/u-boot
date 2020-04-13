@@ -2,7 +2,7 @@
 /*
  * dts file for Xilinx ZynqMP zc1751-xm015-dc1
  *
- * (C) Copyright 2015 - 2018, Xilinx, Inc.
+ * (C) Copyright 2015 - 2020, Xilinx, Inc.
  *
  * Michal Simek <michal.simek@xilinx.com>
  */
@@ -108,19 +108,19 @@
 		spi-tx-bus-width = <1>;
 		spi-rx-bus-width = <4>;
 		spi-max-frequency = <108000000>; /* Based on DC1 spec */
-		partition@qspi-fsbl-uboot { /* for testing purpose */
+		partition@0 { /* for testing purpose */
 			label = "qspi-fsbl-uboot";
 			reg = <0x0 0x100000>;
 		};
-		partition@qspi-linux { /* for testing purpose */
+		partition@100000 { /* for testing purpose */
 			label = "qspi-linux";
 			reg = <0x100000 0x500000>;
 		};
-		partition@qspi-device-tree { /* for testing purpose */
+		partition@600000 { /* for testing purpose */
 			label = "qspi-device-tree";
 			reg = <0x600000 0x20000>;
 		};
-		partition@qspi-rootfs { /* for testing purpose */
+		partition@620000 { /* for testing purpose */
 			label = "qspi-rootfs";
 			reg = <0x620000 0x5E0000>;
 		};
@@ -154,7 +154,10 @@
 /* SD1 with level shifter */
 &sdhci1 {
 	status = "okay";
-	no-1-8-v;       /* for 1.0 silicon */
+	/*
+	 * This property should be removed for supporting UHS mode
+	 */
+	no-1-8-v;
 	xlnx,mio_bank = <1>;
 };
 
@@ -172,32 +175,23 @@
 	dr_mode = "host";
 };
 
-&xilinx_drm {
+&zynqmp_dpsub {
 	status = "okay";
 };
 
-&xlnx_dp {
+&zynqmp_dp_snd_pcm0 {
 	status = "okay";
 };
 
-&xlnx_dp_sub {
-	status = "okay";
-	xlnx,vid-clk-pl;
-};
-
-&xlnx_dp_snd_pcm0 {
+&zynqmp_dp_snd_pcm1 {
 	status = "okay";
 };
 
-&xlnx_dp_snd_pcm1 {
+&zynqmp_dp_snd_card0 {
 	status = "okay";
 };
 
-&xlnx_dp_snd_card {
-	status = "okay";
-};
-
-&xlnx_dp_snd_codec0 {
+&zynqmp_dp_snd_codec0 {
 	status = "okay";
 };
 
