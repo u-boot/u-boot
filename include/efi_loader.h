@@ -26,6 +26,7 @@ static inline void *guidcpy(void *dst, const void *src)
 #if CONFIG_IS_ENABLED(EFI_LOADER)
 
 #include <linux/list.h>
+#include <linux/oid_registry.h>
 
 /* Maximum number of configuration tables */
 #define EFI_MAX_CONFIGURATION_TABLES 16
@@ -178,6 +179,11 @@ extern const efi_guid_t efi_guid_hii_config_routing_protocol;
 extern const efi_guid_t efi_guid_hii_config_access_protocol;
 extern const efi_guid_t efi_guid_hii_database_protocol;
 extern const efi_guid_t efi_guid_hii_string_protocol;
+/* GUIDs for authentication */
+extern const efi_guid_t efi_guid_image_security_database;
+extern const efi_guid_t efi_guid_sha256;
+extern const efi_guid_t efi_guid_cert_x509;
+extern const efi_guid_t efi_guid_cert_x509_sha256;
 
 /* GUID of RNG protocol */
 extern const efi_guid_t efi_guid_rng_protocol;
@@ -679,6 +685,72 @@ struct efi_load_option {
 void efi_deserialize_load_option(struct efi_load_option *lo, u8 *data);
 unsigned long efi_serialize_load_option(struct efi_load_option *lo, u8 **data);
 efi_status_t efi_bootmgr_load(efi_handle_t *handle);
+
+#ifdef CONFIG_EFI_SECURE_BOOT
+#include <image.h>
+
+/**
+ * efi_image_regions - A list of memory regions
+ *
+ * @max:	Maximum number of regions
+ * @num:	Number of regions
+ * @reg:	array of regions
+ */
+struct efi_image_regions {
+	int			max;
+	int			num;
+	struct image_region	reg[];
+};
+
+/**
+ * efi_sig_data - A decoded data of struct efi_signature_data
+ *
+ * This structure represents an internal form of signature in
+ * signature database. A listed list may represent a signature list.
+ *
+ * @next:	Pointer to next entry
+ * @onwer:	Signature owner
+ * @data:	Pointer to signature data
+ * @size:	Size of signature data
+ */
+struct efi_sig_data {
+	struct efi_sig_data *next;
+	efi_guid_t owner;
+	void *data;
+	size_t size;
+};
+
+/**
+ * efi_signature_store - A decoded data of signature database
+ *
+ * This structure represents an internal form of signature database.
+ *
+ * @next:		Pointer to next entry
+ * @sig_type:		Signature type
+ * @sig_data_list:	Pointer to signature list
+ */
+struct efi_signature_store {
+	struct efi_signature_store *next;
+	efi_guid_t sig_type;
+	struct efi_sig_data *sig_data_list;
+};
+
+struct x509_certificate;
+struct pkcs7_message;
+
+bool efi_signature_verify_cert(struct x509_certificate *cert,
+			       struct efi_signature_store *dbx);
+bool efi_signature_verify_signers(struct pkcs7_message *msg,
+				  struct efi_signature_store *dbx);
+bool efi_signature_verify_with_sigdb(struct efi_image_regions *regs,
+				     struct pkcs7_message *msg,
+				  struct efi_signature_store *db,
+				  struct x509_certificate **cert);
+
+efi_status_t efi_image_region_add(struct efi_image_regions *regs,
+				  const void *start, const void *end,
+				  int nocheck);
+#endif /* CONFIG_EFI_SECURE_BOOT */
 
 #else /* CONFIG_IS_ENABLED(EFI_LOADER) */
 
