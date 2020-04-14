@@ -41,6 +41,11 @@ static const struct {
 } efi_guid_text[] = {
 	/* signature database */
 	{EFI_GLOBAL_VARIABLE_GUID, "EFI_GLOBAL_VARIABLE_GUID"},
+	{EFI_IMAGE_SECURITY_DATABASE_GUID, "EFI_IMAGE_SECURITY_DATABASE_GUID"},
+	/* certificate type */
+	{EFI_CERT_SHA256_GUID, "EFI_CERT_SHA256_GUID"},
+	{EFI_CERT_X509_GUID, "EFI_CERT_X509_GUID"},
+	{EFI_CERT_TYPE_PKCS7_GUID, "EFI_CERT_TYPE_PKCS7_GUID"},
 };
 
 /* "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" */
@@ -525,9 +530,9 @@ int do_env_set_efi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			if (*ep != ',')
 				return CMD_RET_USAGE;
 
+			/* 0 should be allowed for delete */
 			size = simple_strtoul(++ep, NULL, 16);
-			if (!size)
-				return CMD_RET_FAILURE;
+
 			value_on_memory = true;
 		} else if (!strcmp(argv[0], "-v")) {
 			verbose = true;
@@ -539,8 +544,13 @@ int do_env_set_efi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return CMD_RET_USAGE;
 
 	var_name = argv[0];
-	if (default_guid)
-		guid = efi_global_variable_guid;
+	if (default_guid) {
+		if (!strcmp(var_name, "db") || !strcmp(var_name, "dbx") ||
+		    !strcmp(var_name, "dbt"))
+			guid = efi_guid_image_security_database;
+		else
+			guid = efi_global_variable_guid;
+	}
 
 	if (verbose) {
 		printf("GUID: %s\n", efi_guid_to_str((const efi_guid_t *)
