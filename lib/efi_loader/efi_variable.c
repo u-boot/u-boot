@@ -26,6 +26,7 @@ enum efi_secure_mode {
 const efi_guid_t efi_guid_cert_type_pkcs7 = EFI_CERT_TYPE_PKCS7_GUID;
 static bool efi_secure_boot;
 static int efi_secure_mode;
+static u8 efi_vendor_keys;
 
 #define READ_ONLY BIT(31)
 
@@ -344,6 +345,8 @@ static efi_status_t efi_transfer_secure_state(enum efi_secure_mode mode)
 		return EFI_INVALID_PARAMETER;
 	}
 
+	efi_secure_mode = mode;
+
 	return EFI_SUCCESS;
 
 err:
@@ -359,16 +362,46 @@ err:
  */
 static efi_status_t efi_init_secure_state(void)
 {
-	efi_uintn_t size = 0;
+	enum efi_secure_mode mode;
+	efi_uintn_t size;
 	efi_status_t ret;
 
+	/*
+	 * TODO:
+	 * Since there is currently no "platform-specific" installation
+	 * method of Platform Key, we can't say if VendorKeys is 0 or 1
+	 * precisely.
+	 */
+
+	size = 0;
 	ret = EFI_CALL(efi_get_variable(L"PK", &efi_global_variable_guid,
 					NULL, &size, NULL));
-	if (ret == EFI_BUFFER_TOO_SMALL && IS_ENABLED(CONFIG_EFI_SECURE_BOOT))
-		ret = efi_transfer_secure_state(EFI_MODE_USER);
-	else
-		ret = efi_transfer_secure_state(EFI_MODE_SETUP);
+	if (ret == EFI_BUFFER_TOO_SMALL) {
+		if (IS_ENABLED(CONFIG_EFI_SECURE_BOOT))
+			mode = EFI_MODE_USER;
+		else
+			mode = EFI_MODE_SETUP;
 
+		efi_vendor_keys = 0;
+	} else if (ret == EFI_NOT_FOUND) {
+		mode = EFI_MODE_SETUP;
+		efi_vendor_keys = 1;
+	} else {
+		goto err;
+	}
+
+	ret = efi_transfer_secure_state(mode);
+	if (ret == EFI_SUCCESS)
+		ret = efi_set_variable_internal(L"VendorKeys",
+						&efi_global_variable_guid,
+						EFI_VARIABLE_BOOTSERVICE_ACCESS
+						 | EFI_VARIABLE_RUNTIME_ACCESS
+						 | READ_ONLY,
+						sizeof(efi_vendor_keys),
+						&efi_vendor_keys,
+						false);
+
+err:
 	return ret;
 }
 
@@ -1125,6 +1158,8 @@ out:
 	if (env_set(native_name, val)) {
 		ret = EFI_DEVICE_ERROR;
 	} else {
+		bool vendor_keys_modified = false;
+
 		if ((u16_strcmp(variable_name, L"PK") == 0 &&
 		     guidcmp(vendor, &efi_global_variable_guid) == 0)) {
 			ret = efi_transfer_secure_state(
@@ -1132,8 +1167,30 @@ out:
 						  EFI_MODE_USER));
 			if (ret != EFI_SUCCESS)
 				goto err;
+
+			if (efi_secure_mode != EFI_MODE_SETUP)
+				vendor_keys_modified = true;
+		} else if ((u16_strcmp(variable_name, L"KEK") == 0 &&
+		     guidcmp(vendor, &efi_global_variable_guid) == 0)) {
+			if (efi_secure_mode != EFI_MODE_SETUP)
+				vendor_keys_modified = true;
 		}
-		ret = EFI_SUCCESS;
+
+		/* update VendorKeys */
+		if (vendor_keys_modified & efi_vendor_keys) {
+			efi_vendor_keys = 0;
+			ret = efi_set_variable_internal(
+						L"VendorKeys",
+						&efi_global_variable_guid,
+						EFI_VARIABLE_BOOTSERVICE_ACCESS
+						 | EFI_VARIABLE_RUNTIME_ACCESS
+						 | READ_ONLY,
+						sizeof(efi_vendor_keys),
+						&efi_vendor_keys,
+						false);
+		} else {
+			ret = EFI_SUCCESS;
+		}
 	}
 
 err:
