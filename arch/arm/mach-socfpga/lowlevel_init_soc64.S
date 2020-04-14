@@ -9,6 +9,12 @@
 #include <linux/linkage.h>
 #include <asm/macro.h>
 
+#if !defined(CONFIG_XPL_BUILD) && defined(CONFIG_ARMV8_PSCI)
+.align 3
+_el3_exception_vectors:
+	.quad el3_exception_vectors;
+#endif
+
 ENTRY(lowlevel_init)
 	mov	x29, lr			/* Save LR */
 
@@ -52,6 +58,18 @@ slave_wait_atf:
 	bl	gic_wait_for_interrupt
 #endif
 
+#if defined(CONFIG_XPL_BUILD) && !defined(CONFIG_SPL_ATF)
+	/*
+	 * Read the u-boot's PSCI exception handler's vector base
+	 * address from the sysmgr.boot_scratch_cold6 & 7 and update
+	 * their VBAR_EL3 respectively.
+	 */
+wait_vbar_el3:
+	ldr	x4, =VBAR_EL3_BASE_ADDR
+	ldr	x5, [x4]
+	cbz	x5, wait_vbar_el3
+	msr	vbar_el3, x5
+#endif
 	/*
 	 * All slaves will enter EL2 and optionally EL1.
 	 */
@@ -71,6 +89,18 @@ lowlevel_in_el1:
 #endif /* CONFIG_ARMV8_MULTIENTRY */
 
 2:
+#if !defined(CONFIG_XPL_BUILD) && defined(CONFIG_ARMV8_PSCI)
+	/*
+	 * Write the u-boot PSCI exception handler's vector base address
+	 * into a sysmgr.boot_scratch_cold6 & 7 so that other slave cpus
+	 * are able to get the vector base address and update their VBAR_EL3
+	 * respectively.
+	 */
+	adr	x0, _el3_exception_vectors
+	ldr	x5, [x0]
+	ldr	x4, =VBAR_EL3_BASE_ADDR
+	str	x5, [x4]
+#endif
 	mov	lr, x29			/* Restore LR */
 	ret
 ENDPROC(lowlevel_init)
