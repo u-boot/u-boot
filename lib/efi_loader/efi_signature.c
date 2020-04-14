@@ -575,4 +575,230 @@ efi_status_t efi_image_region_add(struct efi_image_regions *regs,
 
 	return EFI_SUCCESS;
 }
+
+/**
+ * efi_sigstore_free - free signature store
+ * @sigstore:	Pointer to signature store structure
+ *
+ * Feee all the memories held in signature store and itself,
+ * which were allocated by efi_sigstore_parse_sigdb().
+ */
+void efi_sigstore_free(struct efi_signature_store *sigstore)
+{
+	struct efi_signature_store *sigstore_next;
+	struct efi_sig_data *sig_data, *sig_data_next;
+
+	while (sigstore) {
+		sigstore_next = sigstore->next;
+
+		sig_data = sigstore->sig_data_list;
+		while (sig_data) {
+			sig_data_next = sig_data->next;
+			free(sig_data->data);
+			free(sig_data);
+			sig_data = sig_data_next;
+		}
+
+		free(sigstore);
+		sigstore = sigstore_next;
+	}
+}
+
+/**
+ * efi_sigstore_parse_siglist - parse a signature list
+ * @name:	Pointer to signature list
+ *
+ * Parse signature list and instantiate a signature store structure.
+ * Signature database is a simple concatenation of one or more
+ * signature list(s).
+ *
+ * Return:	Pointer to signature store on success, NULL on error
+ */
+static struct efi_signature_store *
+efi_sigstore_parse_siglist(struct efi_signature_list *esl)
+{
+	struct efi_signature_store *siglist = NULL;
+	struct efi_sig_data *sig_data, *sig_data_next;
+	struct efi_signature_data *esd;
+	size_t left;
+
+	/*
+	 * UEFI specification defines certificate types:
+	 *   for non-signed images,
+	 *	EFI_CERT_SHA256_GUID
+	 *	EFI_CERT_RSA2048_GUID
+	 *	EFI_CERT_RSA2048_SHA256_GUID
+	 *	EFI_CERT_SHA1_GUID
+	 *	EFI_CERT_RSA2048_SHA_GUID
+	 *	EFI_CERT_SHA224_GUID
+	 *	EFI_CERT_SHA384_GUID
+	 *	EFI_CERT_SHA512_GUID
+	 *
+	 *   for signed images,
+	 *	EFI_CERT_X509_GUID
+	 *	NOTE: Each certificate will normally be in a separate
+	 *	EFI_SIGNATURE_LIST as the size may vary depending on
+	 *	its algo's.
+	 *
+	 *   for timestamp revocation of certificate,
+	 *	EFI_CERT_X509_SHA512_GUID
+	 *	EFI_CERT_X509_SHA256_GUID
+	 *	EFI_CERT_X509_SHA384_GUID
+	 */
+
+	if (esl->signature_list_size
+			<= (sizeof(*esl) + esl->signature_header_size)) {
+		debug("Siglist in wrong format\n");
+		return NULL;
+	}
+
+	/* Create a head */
+	siglist = calloc(sizeof(*siglist), 1);
+	if (!siglist) {
+		debug("Out of memory\n");
+		goto err;
+	}
+	memcpy(&siglist->sig_type, &esl->signature_type, sizeof(efi_guid_t));
+
+	/* Go through the list */
+	sig_data_next = NULL;
+	left = esl->signature_list_size
+			- (sizeof(*esl) + esl->signature_header_size);
+	esd = (struct efi_signature_data *)
+			((u8 *)esl + sizeof(*esl) + esl->signature_header_size);
+
+	while ((left > 0) && left >= esl->signature_size) {
+		/* Signature must exist if there is remaining data. */
+		if (left < esl->signature_size) {
+			debug("Certificate is too small\n");
+			goto err;
+		}
+
+		sig_data = calloc(esl->signature_size
+					- sizeof(esd->signature_owner), 1);
+		if (!sig_data) {
+			debug("Out of memory\n");
+			goto err;
+		}
+
+		/* Append signature data */
+		memcpy(&sig_data->owner, &esd->signature_owner,
+		       sizeof(efi_guid_t));
+		sig_data->size = esl->signature_size
+					- sizeof(esd->signature_owner);
+		sig_data->data = malloc(sig_data->size);
+		if (!sig_data->data) {
+			debug("Out of memory\n");
+			goto err;
+		}
+		memcpy(sig_data->data, esd->signature_data, sig_data->size);
+
+		sig_data->next = sig_data_next;
+		sig_data_next = sig_data;
+
+		/* Next */
+		esd = (struct efi_signature_data *)
+				((u8 *)esd + esl->signature_size);
+		left -= esl->signature_size;
+	}
+	siglist->sig_data_list = sig_data_next;
+
+	return siglist;
+
+err:
+	efi_sigstore_free(siglist);
+
+	return NULL;
+}
+
+/**
+ * efi_sigstore_parse_sigdb - parse a signature database variable
+ * @name:	Variable's name
+ *
+ * Read in a value of signature database variable pointed to by
+ * @name, parse it and instantiate a signature store structure.
+ *
+ * Return:	Pointer to signature store on success, NULL on error
+ */
+struct efi_signature_store *efi_sigstore_parse_sigdb(u16 *name)
+{
+	struct efi_signature_store *sigstore = NULL, *siglist;
+	struct efi_signature_list *esl;
+	const efi_guid_t *vendor;
+	void *db;
+	efi_uintn_t db_size;
+	efi_status_t ret;
+
+	if (!u16_strcmp(name, L"PK") || !u16_strcmp(name, L"KEK")) {
+		vendor = &efi_global_variable_guid;
+	} else if (!u16_strcmp(name, L"db") || !u16_strcmp(name, L"dbx")) {
+		vendor = &efi_guid_image_security_database;
+	} else {
+		debug("unknown signature database, %ls\n", name);
+		return NULL;
+	}
+
+	/* retrieve variable data */
+	db_size = 0;
+	ret = EFI_CALL(efi_get_variable(name, vendor, NULL, &db_size, NULL));
+	if (ret == EFI_NOT_FOUND) {
+		debug("variable, %ls, not found\n", name);
+		sigstore = calloc(sizeof(*sigstore), 1);
+		return sigstore;
+	} else if (ret != EFI_BUFFER_TOO_SMALL) {
+		debug("Getting variable, %ls, failed\n", name);
+		return NULL;
+	}
+
+	db = malloc(db_size);
+	if (!db) {
+		debug("Out of memory\n");
+		return NULL;
+	}
+
+	ret = EFI_CALL(efi_get_variable(name, vendor, NULL, &db_size, db));
+	if (ret != EFI_SUCCESS) {
+		debug("Getting variable, %ls, failed\n", name);
+		goto err;
+	}
+
+	/* Parse siglist list */
+	esl = db;
+	while (db_size > 0) {
+		/* List must exist if there is remaining data. */
+		if (db_size < sizeof(*esl)) {
+			debug("variable, %ls, in wrong format\n", name);
+			goto err;
+		}
+
+		if (db_size < esl->signature_list_size) {
+			debug("variable, %ls, in wrong format\n", name);
+			goto err;
+		}
+
+		/* Parse a single siglist. */
+		siglist = efi_sigstore_parse_siglist(esl);
+		if (!siglist) {
+			debug("Parsing signature list of %ls failed\n", name);
+			goto err;
+		}
+
+		/* Append siglist */
+		siglist->next = sigstore;
+		sigstore = siglist;
+
+		/* Next */
+		db_size -= esl->signature_list_size;
+		esl = (void *)esl + esl->signature_list_size;
+	}
+	free(db);
+
+	return sigstore;
+
+err:
+	efi_sigstore_free(sigstore);
+	free(db);
+
+	return NULL;
+}
 #endif /* CONFIG_EFI_SECURE_BOOT */

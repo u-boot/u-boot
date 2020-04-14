@@ -750,6 +750,9 @@ bool efi_signature_verify_with_sigdb(struct efi_image_regions *regs,
 efi_status_t efi_image_region_add(struct efi_image_regions *regs,
 				  const void *start, const void *end,
 				  int nocheck);
+
+void efi_sigstore_free(struct efi_signature_store *sigstore);
+struct efi_signature_store *efi_sigstore_parse_sigdb(u16 *name);
 #endif /* CONFIG_EFI_SECURE_BOOT */
 
 #else /* CONFIG_IS_ENABLED(EFI_LOADER) */
