@@ -458,7 +458,7 @@ out:
  * Return:	CMD_RET_SUCCESS on success, or CMD_RET_RET_FAILURE
  *
  * This function is for "env set -e" or "setenv -e" command:
- *   => env set -e [-guid guid][-nv][-bs][-rt][-a][-v]
+ *   => env set -e [-guid guid][-nv][-bs][-rt][-at][-a][-v]
  *		   [-i address,size] var, or
  *                 var [value ...]
  * Encode values specified and set given UEFI variable.
@@ -517,6 +517,9 @@ int do_env_set_efi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			attributes |= EFI_VARIABLE_RUNTIME_ACCESS;
 		} else if (!strcmp(argv[0], "-nv")) {
 			attributes |= EFI_VARIABLE_NON_VOLATILE;
+		} else if (!strcmp(argv[0], "-at")) {
+			attributes |=
+			  EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS;
 		} else if (!strcmp(argv[0], "-a")) {
 			attributes |= EFI_VARIABLE_APPEND_WRITE;
 		} else if (!strcmp(argv[0], "-i")) {
