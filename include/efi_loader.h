@@ -11,6 +11,7 @@
 #include <common.h>
 #include <part_efi.h>
 #include <efi_api.h>
+#include <pe.h>
 
 static inline int guidcmp(const void *g1, const void *g2)
 {
@@ -263,6 +264,11 @@ struct efi_object {
 	enum efi_object_type type;
 };
 
+enum efi_image_auth_status {
+	EFI_IMAGE_AUTH_FAILED = 0,
+	EFI_IMAGE_AUTH_PASSED,
+};
+
 /**
  * struct efi_loaded_image_obj - handle of a loaded image
  *
@@ -282,6 +288,7 @@ struct efi_loaded_image_obj {
 	EFIAPI efi_status_t (*entry)(efi_handle_t image_handle,
 				     struct efi_system_table *st);
 	u16 image_type;
+	enum efi_image_auth_status auth_status;
 };
 
 /**
@@ -415,7 +422,8 @@ efi_status_t efi_set_watchdog(unsigned long timeout);
 /* Called from places to check whether a timer expired */
 void efi_timer_check(void);
 /* PE loader implementation */
-efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
+efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
+			 void *efi, size_t efi_size,
 			 struct efi_loaded_image *loaded_image_info);
 /* Called once to store the pristine gd pointer */
 void efi_save_gd(void);
@@ -756,6 +764,9 @@ void efi_sigstore_free(struct efi_signature_store *sigstore);
 struct efi_signature_store *efi_sigstore_parse_sigdb(u16 *name);
 
 bool efi_secure_boot_enabled(void);
+
+bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
+		     WIN_CERTIFICATE **auth, size_t *auth_len);
 #endif /* CONFIG_EFI_SECURE_BOOT */
 
 #else /* CONFIG_IS_ENABLED(EFI_LOADER) */
