@@ -18,6 +18,30 @@ _el3_exception_vectors:
 ENTRY(lowlevel_init)
 	mov	x29, lr			/* Save LR */
 
+#ifdef CONFIG_XPL_BUILD
+	/* Check for L2 reset magic word */
+	ldr	x4, =L2_RESET_DONE_REG
+	ldr	x5, [x4]
+	ldr	x1, =L2_RESET_DONE_STATUS
+	cmp	x1, x5
+	/* No L2 reset, skip warm reset */
+	b.ne	skipwarmreset
+	/* Put all slaves CPUs into WFI mode */
+	branch_if_slave x0, put_cpu_in_wfi
+	/* L2 reset completed */
+	str	xzr, [x4]
+	/* Master CPU (CPU0) request for warm reset */
+	mrs	x1, rmr_el3
+	orr	x1, x1, #0x02
+	msr	rmr_el3, x1
+	isb
+	dsb	sy
+put_cpu_in_wfi:
+	wfi
+	b	put_cpu_in_wfi
+skipwarmreset:
+#endif
+
 #if defined(CONFIG_GICV2) || defined(CONFIG_GICV3)
 #if defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_ATF)
 wait_for_atf:
