@@ -16,8 +16,16 @@
 #include <u-boot/crc.h>
 #include "../lib/crypto/pkcs7_parser.h"
 
+enum efi_secure_mode {
+	EFI_MODE_SETUP,
+	EFI_MODE_USER,
+	EFI_MODE_AUDIT,
+	EFI_MODE_DEPLOYED,
+};
+
 const efi_guid_t efi_guid_cert_type_pkcs7 = EFI_CERT_TYPE_PKCS7_GUID;
 static bool efi_secure_boot;
+static int efi_secure_mode;
 
 #define READ_ONLY BIT(31)
 
@@ -158,6 +166,210 @@ static const char *parse_attr(const char *str, u32 *attrp, u64 *timep)
 	*attrp = attr;
 
 	return str;
+}
+
+static efi_status_t efi_set_variable_internal(u16 *variable_name,
+					      const efi_guid_t *vendor,
+					      u32 attributes,
+					      efi_uintn_t data_size,
+					      const void *data,
+					      bool ro_check);
+
+/**
+ * efi_transfer_secure_state - handle a secure boot state transition
+ * @mode:	new state
+ *
+ * Depending on @mode, secure boot related variables are updated.
+ * Those variables are *read-only* for users, efi_set_variable_internal()
+ * is called here.
+ *
+ * Return:	EFI_SUCCESS on success, status code (negative) on error
+ */
+static efi_status_t efi_transfer_secure_state(enum efi_secure_mode mode)
+{
+	u32 attributes;
+	u8 val;
+	efi_status_t ret;
+
+	debug("Secure state from %d to %d\n", efi_secure_mode, mode);
+
+	attributes = EFI_VARIABLE_BOOTSERVICE_ACCESS |
+		     EFI_VARIABLE_RUNTIME_ACCESS;
+	if (mode == EFI_MODE_DEPLOYED) {
+		val = 1;
+		ret = efi_set_variable_internal(L"SecureBoot",
+						&efi_global_variable_guid,
+						attributes | READ_ONLY,
+						sizeof(val), &val,
+						false);
+		if (ret != EFI_SUCCESS)
+			goto err;
+		val = 0;
+		ret = efi_set_variable_internal(L"SetupMode",
+						&efi_global_variable_guid,
+						attributes | READ_ONLY,
+						sizeof(val), &val,
+						false);
+		if (ret != EFI_SUCCESS)
+			goto err;
+		val = 0;
+		ret = efi_set_variable_internal(L"AuditMode",
+						&efi_global_variable_guid,
+						attributes | READ_ONLY,
+						sizeof(val), &val,
+						false);
+		if (ret != EFI_SUCCESS)
+			goto err;
+		val = 1;
+		ret = efi_set_variable_internal(L"DeployedMode",
+						&efi_global_variable_guid,
+						attributes | READ_ONLY,
+						sizeof(val), &val,
+						false);
+		if (ret != EFI_SUCCESS)
+			goto err;
+
+		efi_secure_boot = true;
+	} else if (mode == EFI_MODE_AUDIT) {
+		ret = efi_set_variable_internal(L"PK",
+						&efi_global_variable_guid,
+						attributes,
+						0, NULL,
+						false);
+		if (ret != EFI_SUCCESS)
+			goto err;
+		val = 0;
+		ret = efi_set_variable_internal(L"SecureBoot",
+						&efi_global_variable_guid,
+						attributes | READ_ONLY,
+						sizeof(val), &val,
+						false);
+		if (ret != EFI_SUCCESS)
+			goto err;
+		val = 1;
+		ret = efi_set_variable_internal(L"SetupMode",
+						&efi_global_variable_guid,
+						attributes | READ_ONLY,
+						sizeof(val), &val,
+						false);
+		if (ret != EFI_SUCCESS)
+			goto err;
+		val = 1;
+		ret = efi_set_variable_internal(L"AuditMode",
+						&efi_global_variable_guid,
+						attributes | READ_ONLY,
+						sizeof(val), &val,
+						false);
+		if (ret != EFI_SUCCESS)
+			goto err;
+		val = 0;
+		ret = efi_set_variable_internal(L"DeployedMode",
+						&efi_global_variable_guid,
+						attributes | READ_ONLY,
+						sizeof(val), &val,
+						false);
+		if (ret != EFI_SUCCESS)
+			goto err;
+
+		efi_secure_boot = true;
+	} else if (mode == EFI_MODE_USER) {
+		val = 1;
+		ret = efi_set_variable_internal(L"SecureBoot",
+						&efi_global_variable_guid,
+						attributes | READ_ONLY,
+						sizeof(val), &val,
+						false);
+		if (ret != EFI_SUCCESS)
+			goto err;
+		val = 0;
+		ret = efi_set_variable_internal(L"SetupMode",
+						&efi_global_variable_guid,
+						attributes | READ_ONLY,
+						sizeof(val), &val,
+						false);
+		if (ret != EFI_SUCCESS)
+			goto err;
+		val = 0;
+		ret = efi_set_variable_internal(L"AuditMode",
+						&efi_global_variable_guid,
+						attributes,
+						sizeof(val), &val,
+						false);
+		if (ret != EFI_SUCCESS)
+			goto err;
+		val = 0;
+		ret = efi_set_variable_internal(L"DeployedMode",
+						&efi_global_variable_guid,
+						attributes,
+						sizeof(val), &val,
+						false);
+		if (ret != EFI_SUCCESS)
+			goto err;
+
+		efi_secure_boot = true;
+	} else if (mode == EFI_MODE_SETUP) {
+		val = 0;
+		ret = efi_set_variable_internal(L"SecureBoot",
+						&efi_global_variable_guid,
+						attributes | READ_ONLY,
+						sizeof(val), &val,
+						false);
+		if (ret != EFI_SUCCESS)
+			goto err;
+		val = 1;
+		ret = efi_set_variable_internal(L"SetupMode",
+						&efi_global_variable_guid,
+						attributes | READ_ONLY,
+						sizeof(val), &val,
+						false);
+		if (ret != EFI_SUCCESS)
+			goto err;
+		val = 0;
+		ret = efi_set_variable_internal(L"AuditMode",
+						&efi_global_variable_guid,
+						attributes,
+						sizeof(val), &val,
+						false);
+		if (ret != EFI_SUCCESS)
+			goto err;
+		val = 0;
+		ret = efi_set_variable_internal(L"DeployedMode",
+						&efi_global_variable_guid,
+						attributes | READ_ONLY,
+						sizeof(val), &val,
+						false);
+		if (ret != EFI_SUCCESS)
+			goto err;
+	} else {
+		return EFI_INVALID_PARAMETER;
+	}
+
+	return EFI_SUCCESS;
+
+err:
+	/* TODO: What action should be taken here? */
+	printf("ERROR: Secure state transition failed\n");
+	return ret;
+}
+
+/**
+ * efi_init_secure_state - initialize secure boot state
+ *
+ * Return:	EFI_SUCCESS on success, status code (negative) on error
+ */
+static efi_status_t efi_init_secure_state(void)
+{
+	efi_uintn_t size = 0;
+	efi_status_t ret;
+
+	ret = EFI_CALL(efi_get_variable(L"PK", &efi_global_variable_guid,
+					NULL, &size, NULL));
+	if (ret == EFI_BUFFER_TOO_SMALL && IS_ENABLED(CONFIG_EFI_SECURE_BOOT))
+		ret = efi_transfer_secure_state(EFI_MODE_USER);
+	else
+		ret = efi_transfer_secure_state(EFI_MODE_SETUP);
+
+	return ret;
 }
 
 /**
@@ -910,10 +1122,19 @@ efi_status_t EFIAPI efi_set_variable_common(u16 *variable_name,
 	EFI_PRINT("setting: %s=%s\n", native_name, val);
 
 out:
-	if (env_set(native_name, val))
+	if (env_set(native_name, val)) {
 		ret = EFI_DEVICE_ERROR;
-	else
+	} else {
+		if ((u16_strcmp(variable_name, L"PK") == 0 &&
+		     guidcmp(vendor, &efi_global_variable_guid) == 0)) {
+			ret = efi_transfer_secure_state(
+					(delete ? EFI_MODE_SETUP :
+						  EFI_MODE_USER));
+			if (ret != EFI_SUCCESS)
+				goto err;
+		}
 		ret = EFI_SUCCESS;
+	}
 
 err:
 	free(native_name);
@@ -1098,5 +1319,9 @@ void efi_variables_boot_exit_notify(void)
  */
 efi_status_t efi_init_variables(void)
 {
-	return EFI_SUCCESS;
+	efi_status_t ret;
+
+	ret = efi_init_secure_state();
+
+	return ret;
 }
