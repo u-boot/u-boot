@@ -82,6 +82,39 @@ out:
 	return ret;
 }
 
+#ifdef CONFIG_EFI_SECURE_BOOT
+/**
+ * efi_init_secure_boot - initialize secure boot state
+ *
+ * Return:	EFI_SUCCESS on success, status code (negative) on error
+ */
+static efi_status_t efi_init_secure_boot(void)
+{
+	efi_guid_t signature_types[] = {
+		EFI_CERT_SHA256_GUID,
+		EFI_CERT_X509_GUID,
+	};
+	efi_status_t ret;
+
+	/* TODO: read-only */
+	ret = EFI_CALL(efi_set_variable(L"SignatureSupport",
+					&efi_global_variable_guid,
+					EFI_VARIABLE_BOOTSERVICE_ACCESS
+					 | EFI_VARIABLE_RUNTIME_ACCESS,
+					sizeof(signature_types),
+					&signature_types));
+	if (ret != EFI_SUCCESS)
+		printf("EFI: cannot initialize SignatureSupport variable\n");
+
+	return ret;
+}
+#else
+static efi_status_t efi_init_secure_boot(void)
+{
+	return EFI_SUCCESS;
+}
+#endif /* CONFIG_EFI_SECURE_BOOT */
+
 /**
  * efi_init_obj_list() - Initialize and populate EFI object list
  *
@@ -124,6 +157,11 @@ efi_status_t efi_init_obj_list(void)
 
 	/* Initialize system table */
 	ret = efi_initialize_system_table();
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	/* Secure boot */
+	ret = efi_init_secure_boot();
 	if (ret != EFI_SUCCESS)
 		goto out;
 
