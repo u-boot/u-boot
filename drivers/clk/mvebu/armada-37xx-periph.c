@@ -89,8 +89,8 @@ static const struct clk_div_table div_table1[] = {
 };
 
 static const struct clk_div_table div_table2[] = {
-	{ 2, 1 },
-	{ 4, 2 },
+	{ 2, 0 },
+	{ 4, 1 },
 	{ 0, 0 },
 };
 
