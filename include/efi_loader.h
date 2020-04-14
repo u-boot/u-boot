@@ -184,6 +184,7 @@ extern const efi_guid_t efi_guid_image_security_database;
 extern const efi_guid_t efi_guid_sha256;
 extern const efi_guid_t efi_guid_cert_x509;
 extern const efi_guid_t efi_guid_cert_x509_sha256;
+extern const efi_guid_t efi_guid_cert_type_pkcs7;
 
 /* GUID of RNG protocol */
 extern const efi_guid_t efi_guid_rng_protocol;
@@ -753,6 +754,8 @@ efi_status_t efi_image_region_add(struct efi_image_regions *regs,
 
 void efi_sigstore_free(struct efi_signature_store *sigstore);
 struct efi_signature_store *efi_sigstore_parse_sigdb(u16 *name);
+
+bool efi_secure_boot_enabled(void);
 #endif /* CONFIG_EFI_SECURE_BOOT */
 
 #else /* CONFIG_IS_ENABLED(EFI_LOADER) */
