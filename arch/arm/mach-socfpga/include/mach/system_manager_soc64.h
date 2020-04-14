@@ -148,6 +148,8 @@ void populate_sysmgr_pinmux(void);
  * Bit[30] reserved for FSBL to update the DDR init progress
  * 1 - means in progress, 0 - haven't started / DDR is up running.
  *
+ * Bit[19] store ATF CPU0 ON OFF value.
+ *
  * Bit[18] reserved for SDM to configure ACF
  * Bit[17:1] - Setting by Linux EDAC.
  * Bit[1](ECC_OCRAM), Bit[16](ECC_DDR0), Bit[17](ECC_DDR1)
