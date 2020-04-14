@@ -127,6 +127,9 @@ struct mv_ddr_topology_map {
 
 	/* Clock enable mask */
 	u32 clk_enable;
+
+	/* Clock delay */
+	int ck_delay;
 };
 
 enum mv_ddr_iface_mode {

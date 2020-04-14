@@ -39,7 +39,6 @@
 
 &eth0 {
 	/* ethernet@70000 */
-	mac-address = [00 50 43 02 02 01];
 	pinctrl-0 = <&ge0_rgmii_pins>;
 	pinctrl-names = "default";
 	phy = <&phy_dedicated>;

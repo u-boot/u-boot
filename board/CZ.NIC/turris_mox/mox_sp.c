@@ -4,15 +4,17 @@
  */
 
 #include <common.h>
+#include <asm/arch/soc.h>
 #include <asm/io.h>
 
-#define RWTM_CMD_PARAM(i)	(size_t)(0xd00b0000 + (i) * 4)
-#define RWTM_CMD		0xd00b0040
-#define RWTM_CMD_RETSTATUS	0xd00b0080
-#define RWTM_CMD_STATUS(i)	(size_t)(0xd00b0084 + (i) * 4)
+#define RWTM_BASE		(MVEBU_REGISTER(0xb0000))
+#define RWTM_CMD_PARAM(i)	(size_t)(RWTM_BASE + (i) * 4)
+#define RWTM_CMD		(RWTM_BASE + 0x40)
+#define RWTM_CMD_RETSTATUS	(RWTM_BASE + 0x80)
+#define RWTM_CMD_STATUS(i)	(size_t)(RWTM_BASE + 0x84 + (i) * 4)
 
-#define RWTM_HOST_INT_RESET	0xd00b00c8
-#define RWTM_HOST_INT_MASK	0xd00b00cc
+#define RWTM_HOST_INT_RESET	(RWTM_BASE + 0xc8)
+#define RWTM_HOST_INT_MASK	(RWTM_BASE + 0xcc)
 #define SP_CMD_COMPLETE		BIT(0)
 
 #define MBOX_STS_SUCCESS		(0x0 << 30)

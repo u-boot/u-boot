@@ -104,15 +104,59 @@
 #define BOOT_TARGET_DEVICES_MMC(func)
 #endif
 
+#ifdef CONFIG_SCSI
+#define BOOT_TARGET_DEVICES_SCSI(func) func(SCSI, scsi, 0)
+#else
+#define BOOT_TARGET_DEVICES_SCSI(func)
+#endif
+
 #ifdef CONFIG_USB_STORAGE
 #define BOOT_TARGET_DEVICES_USB(func) func(USB, usb, 0)
 #else
 #define BOOT_TARGET_DEVICES_USB(func)
 #endif
 
+#ifndef CONFIG_SCSI
+#define BOOT_TARGET_DEVICES_SCSI_BUS0(func)
+#define BOOT_TARGET_DEVICES_SCSI_BUS1(func)
+#define BOOT_TARGET_DEVICES_SCSI_BUS2(func)
+#else
+/*
+ * With SCSI enabled, M.2 SATA is always located on bus 0
+ */
+#define BOOT_TARGET_DEVICES_SCSI_BUS0(func) func(SCSI, scsi, 0)
+
+/*
+ * Either one or both mPCIe slots may be configured as mSATA interfaces. The
+ * SCSI bus ids are assigned based on sequence of hardware present, not always
+ * tied to hardware slot ids. As such, use second SCSI bus if either slot is
+ * set for SATA, and only use third SCSI bus if both slots are SATA enabled.
+ */
+#if defined (CONFIG_CLEARFOG_CON2_SATA) || defined (CONFIG_CLEARFOG_CON3_SATA)
+#define BOOT_TARGET_DEVICES_SCSI_BUS1(func) func(SCSI, scsi, 1)
+#else
+#define BOOT_TARGET_DEVICES_SCSI_BUS1(func)
+#endif
+
+#if defined (CONFIG_CLEARFOG_CON2_SATA) && defined (CONFIG_CLEARFOG_CON3_SATA)
+#define BOOT_TARGET_DEVICES_SCSI_BUS2(func) func(SCSI, scsi, 2)
+#else
+#define BOOT_TARGET_DEVICES_SCSI_BUS2(func)
+#endif
+
+#endif /* CONFIG_SCSI */
+
+/*
+ * The SCSI buses are attempted in increasing bus order, there is no current
+ * mechanism to alter the default bus priority order for booting.
+ */
 #define BOOT_TARGET_DEVICES(func) \
 	BOOT_TARGET_DEVICES_MMC(func) \
+	BOOT_TARGET_DEVICES_SCSI(func) \
 	BOOT_TARGET_DEVICES_USB(func) \
+	BOOT_TARGET_DEVICES_SCSI_BUS0(func) \
+	BOOT_TARGET_DEVICES_SCSI_BUS1(func) \
+	BOOT_TARGET_DEVICES_SCSI_BUS2(func) \
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
 
@@ -134,7 +178,6 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	RELOCATION_LIMITS_ENV_SETTINGS \
 	LOAD_ADDRESS_ENV_SETTINGS \
-	"fdtfile=" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
 	"console=ttyS0,115200\0" \
 	BOOTENV
 
