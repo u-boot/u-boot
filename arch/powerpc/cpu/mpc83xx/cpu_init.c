@@ -9,6 +9,7 @@
 #include <ioports.h>
 #include <asm/io.h>
 #include <asm/processor.h>
+#include <fsl_qe.h>
 #ifdef CONFIG_USB_EHCI_FSL
 #include <usb/ehci-ci.h>
 #endif
@@ -26,8 +27,6 @@ DECLARE_GLOBAL_DATA_PTR;
 extern qe_iop_conf_t qe_iop_conf_tab[];
 extern void qe_config_iopin(u8 port, u8 pin, int dir,
 			 int open_drain, int assign);
-extern void qe_init(uint qe_base);
-extern void qe_reset(void);
 
 static void config_qe_ioports(void)
 {
