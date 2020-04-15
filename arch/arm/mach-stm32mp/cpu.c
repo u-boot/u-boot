@@ -76,7 +76,7 @@
 #define PKG_MASK	GENMASK(2, 0)
 
 #if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
-#ifndef CONFIG_STM32MP1_TRUSTED
+#ifndef CONFIG_TFABOOT
 static void security_init(void)
 {
 	/* Disable the backup domain write protection */
@@ -136,7 +136,7 @@ static void security_init(void)
 	writel(BIT(0), RCC_MP_AHB5ENSETR);
 	writel(0x0, GPIOZ_SECCFGR);
 }
-#endif /* CONFIG_STM32MP1_TRUSTED */
+#endif /* CONFIG_TFABOOT */
 
 /*
  * Debug init
@@ -150,7 +150,7 @@ static void dbgmcu_init(void)
 }
 #endif /* !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD) */
 
-#if !defined(CONFIG_STM32MP1_TRUSTED) && \
+#if !defined(CONFIG_TFABOOT) && \
 	(!defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD))
 /* get bootmode from ROM code boot context: saved in TAMP register */
 static void update_bootmode(void)
@@ -198,7 +198,7 @@ int arch_cpu_init(void)
 
 #if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
 	dbgmcu_init();
-#ifndef CONFIG_STM32MP1_TRUSTED
+#ifndef CONFIG_TFABOOT
 	security_init();
 	update_bootmode();
 #endif
@@ -214,7 +214,7 @@ int arch_cpu_init(void)
 	if ((boot_mode & TAMP_BOOT_DEVICE_MASK) == BOOT_SERIAL_UART)
 		gd->flags |= GD_FLG_SILENT | GD_FLG_DISABLE_CONSOLE;
 #if defined(CONFIG_DEBUG_UART) && \
-	!defined(CONFIG_STM32MP1_TRUSTED) && \
+	!defined(CONFIG_TFABOOT) && \
 	(!defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD))
 	else
 		debug_uart_init();

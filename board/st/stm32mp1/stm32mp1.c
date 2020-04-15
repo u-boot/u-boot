@@ -92,7 +92,7 @@ int checkboard(void)
 
 	if (IS_ENABLED(CONFIG_STM32MP1_OPTEE))
 		mode = "trusted with OP-TEE";
-	else if (IS_ENABLED(CONFIG_STM32MP1_TRUSTED))
+	else if (IS_ENABLED(TFABOOT))
 		mode = "trusted";
 	else
 		mode = "basic";
@@ -462,7 +462,7 @@ static int board_check_usb_power(void)
 
 static void sysconf_init(void)
 {
-#ifndef CONFIG_STM32MP1_TRUSTED
+#ifndef CONFIG_TFABOOT
 	u8 *syscfg;
 #ifdef CONFIG_DM_REGULATOR
 	struct udevice *pwr_dev;
@@ -647,7 +647,7 @@ int board_init(void)
 
 	sysconf_init();
 
-	if (CONFIG_IS_ENABLED(CONFIG_LED))
+	if (CONFIG_IS_ENABLED(LED))
 		led_default_state();
 
 	return 0;

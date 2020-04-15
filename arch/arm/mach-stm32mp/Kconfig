@@ -35,9 +35,10 @@ config ENV_SIZE
 
 config STM32MP15x
 	bool "Support STMicroelectronics STM32MP15x Soc"
-	select ARCH_SUPPORT_PSCI if !STM32MP1_TRUSTED
+	select ARCH_SUPPORT_PSCI if !TFABOOT
+	select ARM_SMCCC if TFABOOT
 	select CPU_V7A
-	select CPU_V7_HAS_NONSEC if !STM32MP1_TRUSTED
+	select CPU_V7_HAS_NONSEC if !TFABOOT
 	select CPU_V7_HAS_VIRT
 	select OF_BOARD_SETUP
 	select PINCTRL_STM32
@@ -45,8 +46,8 @@ config STM32MP15x
 	select STM32_RESET
 	select STM32_SERIAL
 	select SYS_ARCH_TIMER
-	imply SYSRESET_PSCI if STM32MP1_TRUSTED
-	imply SYSRESET_SYSCON if !STM32MP1_TRUSTED
+	imply SYSRESET_PSCI if TFABOOT
+	imply SYSRESET_SYSCON if !TFABOOT
 	help
 		support of STMicroelectronics SOC STM32MP15x family
 		STM32MP157, STM32MP153 or STM32MP151
@@ -83,19 +84,9 @@ config TARGET_DH_STM32MP1_PDK2
 
 endchoice
 
-config STM32MP1_TRUSTED
-	bool "Support trusted boot with TF-A"
-	default y if !SPL
-	select ARM_SMCCC
-	help
-		Say Y here to enable boot with TF-A
-		Trusted boot chain is :
-		BootRom => TF-A.stm32 (clock & DDR) => U-Boot.stm32
-		TF-A monitor provides proprietary SMC to manage secure devices
-
 config STM32MP1_OPTEE
 	bool "Support trusted boot with TF-A and OP-TEE"
-	depends on STM32MP1_TRUSTED
+	depends on TFABOOT
 	default n
 	help
 		Say Y here to enable boot with TF-A and OP-TEE

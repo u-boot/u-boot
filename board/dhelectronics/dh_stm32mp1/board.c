@@ -118,7 +118,7 @@ int checkboard(void)
 
 	if (IS_ENABLED(CONFIG_STM32MP1_OPTEE))
 		mode = "trusted with OP-TEE";
-	else if (IS_ENABLED(CONFIG_STM32MP1_TRUSTED))
+	else if (IS_ENABLED(CONFIG_TFABOOT))
 		mode = "trusted";
 	else
 		mode = "basic";
@@ -283,7 +283,7 @@ static void __maybe_unused led_error_blink(u32 nb_blink)
 
 static void sysconf_init(void)
 {
-#ifndef CONFIG_STM32MP1_TRUSTED
+#ifndef CONFIG_TFABOOT
 	u8 *syscfg;
 #ifdef CONFIG_DM_REGULATOR
 	struct udevice *pwr_dev;
@@ -375,6 +375,56 @@ static void sysconf_init(void)
 #endif
 }
 
+static void board_init_fmc2(void)
+{
+#define STM32_FMC2_BCR1			0x0
+#define STM32_FMC2_BTR1			0x4
+#define STM32_FMC2_BWTR1		0x104
+#define STM32_FMC2_BCR(x)		((x) * 0x8 + STM32_FMC2_BCR1)
+#define STM32_FMC2_BCRx_FMCEN		BIT(31)
+#define STM32_FMC2_BCRx_WREN		BIT(12)
+#define STM32_FMC2_BCRx_RSVD		BIT(7)
+#define STM32_FMC2_BCRx_FACCEN		BIT(6)
+#define STM32_FMC2_BCRx_MWID(n)		((n) << 4)
+#define STM32_FMC2_BCRx_MTYP(n)		((n) << 2)
+#define STM32_FMC2_BCRx_MUXEN		BIT(1)
+#define STM32_FMC2_BCRx_MBKEN		BIT(0)
+#define STM32_FMC2_BTR(x)		((x) * 0x8 + STM32_FMC2_BTR1)
+#define STM32_FMC2_BTRx_DATAHLD(n)	((n) << 30)
+#define STM32_FMC2_BTRx_BUSTURN(n)	((n) << 16)
+#define STM32_FMC2_BTRx_DATAST(n)	((n) << 8)
+#define STM32_FMC2_BTRx_ADDHLD(n)	((n) << 4)
+#define STM32_FMC2_BTRx_ADDSET(n)	((n) << 0)
+
+#define RCC_MP_AHB6RSTCLRR		0x218
+#define RCC_MP_AHB6RSTCLRR_FMCRST	BIT(12)
+#define RCC_MP_AHB6ENSETR		0x19c
+#define RCC_MP_AHB6ENSETR_FMCEN		BIT(12)
+
+	const u32 bcr = STM32_FMC2_BCRx_WREN |STM32_FMC2_BCRx_RSVD |
+			STM32_FMC2_BCRx_FACCEN | STM32_FMC2_BCRx_MWID(1) |
+			STM32_FMC2_BCRx_MTYP(2) | STM32_FMC2_BCRx_MUXEN |
+			STM32_FMC2_BCRx_MBKEN;
+	const u32 btr = STM32_FMC2_BTRx_DATAHLD(3) |
+			STM32_FMC2_BTRx_BUSTURN(2) |
+			STM32_FMC2_BTRx_DATAST(0x22) |
+			STM32_FMC2_BTRx_ADDHLD(2) |
+			STM32_FMC2_BTRx_ADDSET(2);
+
+	/* Set up FMC2 bus for KS8851-16MLL and X11 SRAM */
+	writel(RCC_MP_AHB6RSTCLRR_FMCRST, STM32_RCC_BASE + RCC_MP_AHB6RSTCLRR);
+	writel(RCC_MP_AHB6ENSETR_FMCEN, STM32_RCC_BASE + RCC_MP_AHB6ENSETR);
+
+	/* KS8851-16MLL -- Muxed mode */
+	writel(bcr, STM32_FMC2_BASE + STM32_FMC2_BCR(1));
+	writel(btr, STM32_FMC2_BASE + STM32_FMC2_BTR(1));
+	/* AS7C34098 SRAM on X11 -- Muxed mode */
+	writel(bcr, STM32_FMC2_BASE + STM32_FMC2_BCR(3));
+	writel(btr, STM32_FMC2_BASE + STM32_FMC2_BTR(3));
+
+	setbits_le32(STM32_FMC2_BASE + STM32_FMC2_BCR1, STM32_FMC2_BCRx_FMCEN);
+}
+
 /* board dependent setup after realloc */
 int board_init(void)
 {
@@ -398,7 +448,9 @@ int board_init(void)
 
 	sysconf_init();
 
-	if (CONFIG_IS_ENABLED(CONFIG_LED))
+	board_init_fmc2();
+
+	if (CONFIG_IS_ENABLED(LED))
 		led_default_state();
 
 	return 0;

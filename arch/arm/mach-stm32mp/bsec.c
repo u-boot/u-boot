@@ -68,7 +68,7 @@ static bool bsec_read_lock(u32 address, u32 otp)
 	return !!(readl(address + bank) & bit);
 }
 
-#ifndef CONFIG_STM32MP1_TRUSTED
+#ifndef CONFIG_TFABOOT
 /**
  * bsec_check_error() - Check status of one otp
  * @base: base address of bsec IP
@@ -273,7 +273,7 @@ static int bsec_program_otp(long base, u32 val, u32 otp)
 
 	return ret;
 }
-#endif /* CONFIG_STM32MP1_TRUSTED */
+#endif /* CONFIG_TFABOOT */
 
 /* BSEC MISC driver *******************************************************/
 struct stm32mp_bsec_platdata {
@@ -282,7 +282,7 @@ struct stm32mp_bsec_platdata {
 
 static int stm32mp_bsec_read_otp(struct udevice *dev, u32 *val, u32 otp)
 {
-#ifdef CONFIG_STM32MP1_TRUSTED
+#ifdef CONFIG_TFABOOT
 	return stm32_smc(STM32_SMC_BSEC,
 			 STM32_SMC_READ_OTP,
 			 otp, 0, val);
@@ -313,7 +313,7 @@ static int stm32mp_bsec_read_otp(struct udevice *dev, u32 *val, u32 otp)
 
 static int stm32mp_bsec_read_shadow(struct udevice *dev, u32 *val, u32 otp)
 {
-#ifdef CONFIG_STM32MP1_TRUSTED
+#ifdef CONFIG_TFABOOT
 	return stm32_smc(STM32_SMC_BSEC,
 			 STM32_SMC_READ_SHADOW,
 			 otp, 0, val);
@@ -336,7 +336,7 @@ static int stm32mp_bsec_read_lock(struct udevice *dev, u32 *val, u32 otp)
 
 static int stm32mp_bsec_write_otp(struct udevice *dev, u32 val, u32 otp)
 {
-#ifdef CONFIG_STM32MP1_TRUSTED
+#ifdef CONFIG_TFABOOT
 	return stm32_smc_exec(STM32_SMC_BSEC,
 			      STM32_SMC_PROG_OTP,
 			      otp, val);
@@ -349,7 +349,7 @@ static int stm32mp_bsec_write_otp(struct udevice *dev, u32 val, u32 otp)
 
 static int stm32mp_bsec_write_shadow(struct udevice *dev, u32 val, u32 otp)
 {
-#ifdef CONFIG_STM32MP1_TRUSTED
+#ifdef CONFIG_TFABOOT
 	return stm32_smc_exec(STM32_SMC_BSEC,
 			      STM32_SMC_WRITE_SHADOW,
 			      otp, val);
@@ -362,7 +362,7 @@ static int stm32mp_bsec_write_shadow(struct udevice *dev, u32 val, u32 otp)
 
 static int stm32mp_bsec_write_lock(struct udevice *dev, u32 val, u32 otp)
 {
-#ifdef CONFIG_STM32MP1_TRUSTED
+#ifdef CONFIG_TFABOOT
 	if (val == 1)
 		return stm32_smc_exec(STM32_SMC_BSEC,
 				      STM32_SMC_WRLOCK_OTP,
@@ -473,7 +473,7 @@ static int stm32mp_bsec_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
-#ifndef CONFIG_STM32MP1_TRUSTED
+#ifndef CONFIG_TFABOOT
 static int stm32mp_bsec_probe(struct udevice *dev)
 {
 	int otp;
@@ -500,7 +500,7 @@ U_BOOT_DRIVER(stm32mp_bsec) = {
 	.ofdata_to_platdata = stm32mp_bsec_ofdata_to_platdata,
 	.platdata_auto_alloc_size = sizeof(struct stm32mp_bsec_platdata),
 	.ops = &stm32mp_bsec_ops,
-#ifndef CONFIG_STM32MP1_TRUSTED
+#ifndef CONFIG_TFABOOT
 	.probe = stm32mp_bsec_probe,
 #endif
 };
