@@ -255,7 +255,19 @@ u32 spl_boot_device(void);
  * spl_boot_device() as U-Boot is not always loaded from the same device as SPL.
  */
 u32 spl_mmc_boot_mode(const u32 boot_device);
-int spl_boot_partition(const u32 boot_device);
+
+/**
+ * spl_mmc_boot_partition() - MMC partition to load U-Boot from.
+ * @boot_device:	ID of the device which the MMC driver wants to load
+ *			U-Boot from.
+ *
+ * This function should return the partition number which the SPL
+ * should load U-Boot from (on the given boot_device) when
+ * CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION is set.
+ *
+ * If not overridden, it is weakly defined in common/spl/spl_mmc.c.
+ */
+int spl_mmc_boot_partition(const u32 boot_device);
 void spl_set_bd(void);
 
 /**
