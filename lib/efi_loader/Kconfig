@@ -134,6 +134,17 @@ config EFI_CAPSULE_FIRMWARE_MANAGEMENT
 	  Select this option if you want to enable capsule-based
 	  firmware update using Firmware Management Protocol.
 
+config EFI_CAPSULE_FIRMWARE_FIT
+	bool "FMP driver for FIT image"
+	depends on EFI_CAPSULE_FIRMWARE_MANAGEMENT
+	depends on FIT
+	select UPDATE_FIT
+	select DFU
+	default n
+	help
+	  Select this option if you want to enable firmware management protocol
+	  driver for FIT image
+
 config EFI_DEVICE_PATH_TO_TEXT
 	bool "Device path to text protocol"
 	default y

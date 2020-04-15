@@ -797,7 +797,17 @@ static void efi_capsule_scan_done(void)
  */
 efi_status_t __weak arch_efi_load_capsule_drivers(void)
 {
-	return EFI_SUCCESS;
+	__maybe_unused efi_handle_t handle;
+	efi_status_t ret = EFI_SUCCESS;
+
+	if (IS_ENABLED(CONFIG_EFI_CAPSULE_FIRMWARE_FIT)) {
+		handle = NULL;
+		ret = EFI_CALL(efi_install_multiple_protocol_interfaces(
+				&handle, &efi_guid_firmware_management_protocol,
+				&efi_fmp_fit, NULL));
+	}
+
+	return ret;
 }
 
 /**
