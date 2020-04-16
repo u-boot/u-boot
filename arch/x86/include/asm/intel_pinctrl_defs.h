@@ -1,7 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
- * This file is part of the coreboot project.
- *
  * Copyright (C) 2015-2016 Intel Corp.
  * Copyright 2019 Google LLC
  *

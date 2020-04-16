@@ -26,3 +26,4 @@ CONFIG_SYSRESET=y
 # CONFIG_VIRTIO_PCI is not set
 # CONFIG_VIRTIO_SANDBOX is not set
 # CONFIG_EFI_LOADER is not set
+# CONFIG_ACPIGEN is not set

@@ -4,15 +4,15 @@
  */
 
 #include <common.h>
-#include <acpi_s3.h>
 #include <cpu.h>
 #include <dm.h>
-#include <dm/uclass-internal.h>
-#include <asm/acpi_table.h>
+#include <acpi/acpi_s3.h>
+#include <acpi/acpi_table.h>
 #include <asm/io.h>
 #include <asm/tables.h>
 #include <asm/arch/global_nvs.h>
 #include <asm/arch/iomap.h>
+#include <dm/uclass-internal.h>
 
 void acpi_create_fadt(struct acpi_fadt *fadt, struct acpi_facs *facs,
 		      void *dsdt)

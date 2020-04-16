@@ -12,8 +12,8 @@
 #include <dm/uclass-internal.h>
 #include <serial.h>
 #include <version.h>
+#include <acpi/acpi_table.h>
 #include <asm/acpi/global_nvs.h>
-#include <asm/acpi_table.h>
 #include <asm/ioapic.h>
 #include <asm/lapic.h>
 #include <asm/mpspec.h>
@@ -470,6 +470,15 @@ static void acpi_create_spcr(struct acpi_spcr *spcr)
 	/* No PCI devices for now */
 	spcr->pci_device_id = 0xffff;
 	spcr->pci_vendor_id = 0xffff;
+
+	/*
+	 * SPCR has no clue if the UART base clock speed is different
+	 * to the default one. However, the SPCR 1.04 defines baud rate
+	 * 0 as a preconfigured state of UART and OS is supposed not
+	 * to touch the configuration of the serial device.
+	 */
+	if (serial_info.clock != SERIAL_DEFAULT_CLOCK)
+		spcr->baud_rate = 0;
 
 	/* Fix checksum */
 	header->checksum = table_compute_checksum((void *)spcr, header->length);

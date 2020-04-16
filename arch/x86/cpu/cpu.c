@@ -19,7 +19,6 @@
  */
 
 #include <common.h>
-#include <acpi_s3.h>
 #include <command.h>
 #include <cpu_func.h>
 #include <dm.h>
@@ -27,8 +26,9 @@
 #include <init.h>
 #include <malloc.h>
 #include <syscon.h>
+#include <acpi/acpi_s3.h>
+#include <acpi/acpi_table.h>
 #include <asm/acpi.h>
-#include <asm/acpi_table.h>
 #include <asm/control_regs.h>
 #include <asm/coreboot_tables.h>
 #include <asm/cpu.h>

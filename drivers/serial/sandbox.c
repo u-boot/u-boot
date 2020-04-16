@@ -198,6 +198,7 @@ static int sandbox_serial_getinfo(struct udevice *dev,
 		.reg_width = 1,
 		.reg_offset = 0,
 		.reg_shift = 0,
+		.clock = SERIAL_DEFAULT_CLOCK,
 	};
 
 	if (!serial_info)

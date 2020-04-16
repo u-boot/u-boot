@@ -5,11 +5,11 @@
  */
 
 #include <common.h>
-#include <acpi_s3.h>
 #include <binman.h>
 #include <dm.h>
 #include <irq.h>
 #include <malloc.h>
+#include <acpi/acpi_s3.h>
 #include <asm/intel_pinctrl.h>
 #include <asm/io.h>
 #include <asm/intel_regs.h>

@@ -92,46 +92,35 @@ int p2sb_ofdata_to_platdata(struct udevice *dev)
 
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	int ret;
+	u32 base[2];
 
+	ret = dev_read_u32_array(dev, "early-regs", base, ARRAY_SIZE(base));
+	if (ret)
+		return log_msg_ret("Missing/short early-regs", ret);
+	plat->mmio_base = base[0];
+	/* TPL sets up the initial BAR */
 	if (spl_phase() == PHASE_TPL) {
-		u32 base[2];
-
-		/* TPL sets up the initial BAR */
-		ret = dev_read_u32_array(dev, "early-regs", base,
-					 ARRAY_SIZE(base));
-		if (ret)
-			return log_msg_ret("Missing/short early-regs", ret);
-		plat->mmio_base = base[0];
 		plat->bdf = pci_get_devfn(dev);
 		if (plat->bdf < 0)
 			return log_msg_ret("Cannot get p2sb PCI address",
 					   plat->bdf);
 	}
+	upriv->mmio_base = plat->mmio_base;
 #else
 	plat->mmio_base = plat->dtplat.early_regs[0];
 	plat->bdf = pci_ofplat_get_devfn(plat->dtplat.reg[0]);
-#endif
 	upriv->mmio_base = plat->mmio_base;
-	debug("p2sb: mmio_base=%x\n", (uint)plat->mmio_base);
+#endif
 
 	return 0;
 }
 
 static int p2sb_probe(struct udevice *dev)
 {
-	if (spl_phase() == PHASE_TPL) {
+	if (spl_phase() == PHASE_TPL)
 		return p2sb_early_init(dev);
-	} else {
-		struct p2sb_platdata *plat = dev_get_platdata(dev);
-
-		plat->mmio_base = dev_read_addr_pci(dev);
-		/* Don't set BDF since it should not be used */
-		if (!plat->mmio_base || plat->mmio_base == FDT_ADDR_T_NONE)
-			return -EINVAL;
-
-		if (spl_phase() == PHASE_SPL)
-			return p2sb_spl_init(dev);
-	}
+	else if (spl_phase() == PHASE_SPL)
+		return p2sb_spl_init(dev);
 
 	return 0;
 }

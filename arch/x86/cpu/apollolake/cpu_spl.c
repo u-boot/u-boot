@@ -6,13 +6,13 @@
  */
 
 #include <common.h>
-#include <acpi_s3.h>
 #include <dm.h>
 #include <ec_commands.h>
 #include <log.h>
 #include <spi_flash.h>
 #include <spl.h>
 #include <syscon.h>
+#include <acpi/acpi_s3.h>
 #include <asm/cpu.h>
 #include <asm/cpu_common.h>
 #include <asm/cpu_x86.h>
