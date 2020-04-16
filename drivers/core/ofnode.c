@@ -18,32 +18,53 @@
 
 int ofnode_read_u32(ofnode node, const char *propname, u32 *outp)
 {
-	assert(ofnode_valid(node));
-	debug("%s: %s: ", __func__, propname);
-
-	if (ofnode_is_np(node)) {
-		return of_read_u32(ofnode_to_np(node), propname, outp);
-	} else {
-		const fdt32_t *cell;
-		int len;
-
-		cell = fdt_getprop(gd->fdt_blob, ofnode_to_offset(node),
-				   propname, &len);
-		if (!cell || len < sizeof(int)) {
-			debug("(not found)\n");
-			return -EINVAL;
-		}
-		*outp = fdt32_to_cpu(cell[0]);
-	}
-	debug("%#x (%d)\n", *outp, *outp);
-
-	return 0;
+	return ofnode_read_u32_index(node, propname, 0, outp);
 }
 
 u32 ofnode_read_u32_default(ofnode node, const char *propname, u32 def)
 {
 	assert(ofnode_valid(node));
-	ofnode_read_u32(node, propname, &def);
+	ofnode_read_u32_index(node, propname, 0, &def);
+
+	return def;
+}
+
+int ofnode_read_u32_index(ofnode node, const char *propname, int index,
+			  u32 *outp)
+{
+	const fdt32_t *cell;
+	int len;
+
+	assert(ofnode_valid(node));
+	debug("%s: %s: ", __func__, propname);
+
+	if (ofnode_is_np(node))
+		return of_read_u32_index(ofnode_to_np(node), propname, index,
+					 outp);
+
+	cell = fdt_getprop(gd->fdt_blob, ofnode_to_offset(node), propname,
+			   &len);
+	if (!cell) {
+		debug("(not found)\n");
+		return -EINVAL;
+	}
+
+	if (len < (sizeof(int) * (index + 1))) {
+		debug("(not large enough)\n");
+		return -EOVERFLOW;
+	}
+
+	*outp = fdt32_to_cpu(cell[index]);
+	debug("%#x (%d)\n", *outp, *outp);
+
+	return 0;
+}
+
+u32 ofnode_read_u32_index_default(ofnode node, const char *propname, int index,
+				  u32 def)
+{
+	assert(ofnode_valid(node));
+	ofnode_read_u32_index(node, propname, index, &def);
 
 	return def;
 }

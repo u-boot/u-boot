@@ -143,11 +143,9 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 				goto fail_alloc3;
 			}
 		}
-	}
-
-	/* put dev into parent's successor list */
-	if (parent)
+		/* put dev into parent's successor list */
 		list_add_tail(&dev->sibling_node, &parent->child_head);
+	}
 
 	ret = uclass_bind_device(dev);
 	if (ret)
@@ -322,6 +320,22 @@ int device_ofdata_to_platdata(struct udevice *dev)
 
 	if (dev->flags & DM_FLAG_PLATDATA_VALID)
 		return 0;
+
+	/* Ensure all parents have ofdata */
+	if (dev->parent) {
+		ret = device_ofdata_to_platdata(dev->parent);
+		if (ret)
+			goto fail;
+
+		/*
+		 * The device might have already been probed during
+		 * the call to device_probe() on its parent device
+		 * (e.g. PCI bridge devices). Test the flags again
+		 * so that we don't mess up the device.
+		 */
+		if (dev->flags & DM_FLAG_PLATDATA_VALID)
+			return 0;
+	}
 
 	drv = dev->driver;
 	assert(drv);

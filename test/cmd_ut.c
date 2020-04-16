@@ -60,6 +60,9 @@ static cmd_tbl_t cmd_ut_sub[] = {
 #ifdef CONFIG_UT_LIB
 	U_BOOT_CMD_MKENT(lib, CONFIG_SYS_MAXARGS, 1, do_ut_lib, "", ""),
 #endif
+#ifdef CONFIG_UT_LOG
+	U_BOOT_CMD_MKENT(log, CONFIG_SYS_MAXARGS, 1, do_ut_log, "", ""),
+#endif
 #ifdef CONFIG_UT_TIME
 	U_BOOT_CMD_MKENT(time, CONFIG_SYS_MAXARGS, 1, do_ut_time, "", ""),
 #endif
@@ -124,6 +127,9 @@ static char ut_help_text[] =
 #endif
 #ifdef CONFIG_UT_LIB
 	"ut lib [test-name] - test library functions\n"
+#endif
+#ifdef CONFIG_UT_LOG
+	"ut log [test-name] - test logging functions\n"
 #endif
 #ifdef CONFIG_UT_OPTEE
 	"ut optee [test-name]\n"

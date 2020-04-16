@@ -93,6 +93,8 @@
 			<&gpio_b 9 0xc 3 2 1>;
 		int-value = <1234>;
 		uint-value = <(-1234)>;
+		int64-value = /bits/ 64 <0x1111222233334444>;
+		int-array = <5678 9123 4567>;
 		interrupts-extended = <&irq 3 0>;
 	};
 
@@ -467,9 +469,10 @@
 		compatible = "sandbox,pch";
 	};
 
-	pci0: pci-controller0 {
+	pci0: pci@0 {
 		compatible = "sandbox,pci";
 		device_type = "pci";
+		bus-range = <0x00 0xff>;
 		#address-cells = <3>;
 		#size-cells = <2>;
 		ranges = <0x02000000 0 0x10000000 0x10000000 0 0x2000000
@@ -535,9 +538,10 @@
 		};
 	};
 
-	pci1: pci-controller1 {
+	pci1: pci@1 {
 		compatible = "sandbox,pci";
 		device_type = "pci";
+		bus-range = <0x00 0xff>;
 		#address-cells = <3>;
 		#size-cells = <2>;
 		ranges = <0x02000000 0 0x30000000 0x30000000 0 0x2000
@@ -550,9 +554,10 @@
 		};
 	};
 
-	pci2: pci-controller2 {
+	pci2: pci@2 {
 		compatible = "sandbox,pci";
 		device_type = "pci";
+		bus-range = <0x00 0xff>;
 		#address-cells = <3>;
 		#size-cells = <2>;
 		ranges = <0x02000000 0 0x50000000 0x50000000 0 0x2000

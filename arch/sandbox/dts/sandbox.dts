@@ -10,7 +10,7 @@
 
 	aliases {
 		i2c0 = &i2c_0;
-		pci0 = &pci;
+		pci0 = &pcic;
 		rtc0 = &rtc_0;
 		axi0 = &axi;
 		spi0 = &spi;
@@ -18,6 +18,25 @@
 
 	memory {
 		reg = <0 CONFIG_SYS_SDRAM_SIZE>;
+	};
+
+	reserved-memory {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		reservation_test0 {
+			size = <0x4000>;
+			alignment = <0x2000>;
+		};
+
+		reservation_test1: restest@a000 {
+			reg = <0x00d0a000 0x2000>;
+		};
+
+		reservation_test2: restest@7000 {
+			reg = <0x00d07000 0x1000>;
+		};
 	};
 
 	cros_ec: cros-ec {
@@ -52,9 +71,10 @@
 		pinctrl-0 = <&pinctrl_i2c0>;
 	};
 
-	pci: pci-controller {
+	pcic: pci@0 {
 		compatible = "sandbox,pci";
 		device_type = "pci";
+		bus-range = <0x00 0xff>;
 		#address-cells = <3>;
 		#size-cells = <2>;
 		ranges = <0x02000000 0 0x10000000 0x10000000 0 0x2000

@@ -118,12 +118,12 @@ int uclass_destroy(struct uclass *uc)
 	while (!list_empty(&uc->dev_head)) {
 		dev = list_first_entry(&uc->dev_head, struct udevice,
 				       uclass_node);
-		ret = device_remove(dev, DM_REMOVE_NORMAL);
+		ret = device_remove(dev, DM_REMOVE_NORMAL | DM_REMOVE_NO_PD);
 		if (ret)
-			return ret;
+			return log_msg_ret("remove", ret);
 		ret = device_unbind(dev);
 		if (ret)
-			return ret;
+			return log_msg_ret("unbind", ret);
 	}
 
 	uc_drv = uc->uc_drv;

@@ -105,6 +105,22 @@ int ut_check_console_dump(struct unit_test_state *uts, int total_bytes);
 	}								\
 }
 
+/* Assert that two 64 int expressions are equal */
+#define ut_asserteq_64(expr1, expr2) {					\
+	u64 _val1 = (expr1), _val2 = (expr2);				\
+									\
+	if (_val1 != _val2) {						\
+		ut_failf(uts, __FILE__, __LINE__, __func__,		\
+			 #expr1 " == " #expr2,				\
+			 "Expected %#llx (%lld), got %#llx (%lld)",	\
+			 (unsigned long long)_val1,			\
+			 (unsigned long long)_val1,			\
+			 (unsigned long long)_val2,			\
+			 (unsigned long long)_val2);			\
+		return CMD_RET_FAILURE;					\
+	}								\
+}
+
 /* Assert that two string expressions are equal */
 #define ut_asserteq_str(expr1, expr2) {					\
 	const char *_val1 = (expr1), *_val2 = (expr2);			\

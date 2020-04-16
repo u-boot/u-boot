@@ -100,7 +100,7 @@
 		};
 	};
 
-	pci-controller {
+	pci@0 {
 		pci@1e,0 {
 			compatible = "sandbox,pmc";
 			reg = <0xf000 0 0 0 0>;

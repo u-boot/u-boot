@@ -10,5 +10,5 @@ obj-$(CONFIG_SANDBOX) += compression.o
 obj-$(CONFIG_SANDBOX) += print_ut.o
 obj-$(CONFIG_UT_TIME) += time_ut.o
 obj-$(CONFIG_UT_UNICODE) += unicode_ut.o
-obj-$(CONFIG_$(SPL_)LOG) += log/
+obj-y += log/
 obj-$(CONFIG_UNIT_TEST) += lib/

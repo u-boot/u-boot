@@ -203,6 +203,18 @@ static inline ofnode ofnode_null(void)
 int ofnode_read_u32(ofnode node, const char *propname, u32 *outp);
 
 /**
+ * ofnode_read_u32_index() - Read a 32-bit integer from a multi-value property
+ *
+ * @ref:	valid node reference to read property from
+ * @propname:	name of the property to read from
+ * @index:	index of the integer to return
+ * @outp:	place to put value (if found)
+ * @return 0 if OK, -ve on error
+ */
+int ofnode_read_u32_index(ofnode node, const char *propname, int index,
+			  u32 *outp);
+
+/**
  * ofnode_read_s32() - Read a 32-bit integer from a property
  *
  * @ref:	valid node reference to read property from
@@ -225,6 +237,19 @@ static inline int ofnode_read_s32(ofnode node, const char *propname,
  * @return property value, or @def if not found
  */
 u32 ofnode_read_u32_default(ofnode ref, const char *propname, u32 def);
+
+/**
+ * ofnode_read_u32_index_default() - Read a 32-bit integer from a multi-value
+ *                                   property
+ *
+ * @ref:	valid node reference to read property from
+ * @propname:	name of the property to read from
+ * @index:	index of the integer to return
+ * @def:	default value to return if the property has no value
+ * @return property value, or @def if not found
+ */
+u32 ofnode_read_u32_index_default(ofnode ref, const char *propname, int index,
+				  u32 def);
 
 /**
  * ofnode_read_s32_default() - Read a 32-bit integer from a property

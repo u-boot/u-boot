@@ -449,21 +449,7 @@ static void *of_find_property_value_of_size(const struct device_node *np,
 
 int of_read_u32(const struct device_node *np, const char *propname, u32 *outp)
 {
-	const __be32 *val;
-
-	debug("%s: %s: ", __func__, propname);
-	if (!np)
-		return -EINVAL;
-	val = of_find_property_value_of_size(np, propname, sizeof(*outp));
-	if (IS_ERR(val)) {
-		debug("(not found)\n");
-		return PTR_ERR(val);
-	}
-
-	*outp = be32_to_cpup(val);
-	debug("%#x (%d)\n", *outp, *outp);
-
-	return 0;
+	return of_read_u32_index(np, propname, 0, outp);
 }
 
 int of_read_u32_array(const struct device_node *np, const char *propname,
@@ -481,6 +467,28 @@ int of_read_u32_array(const struct device_node *np, const char *propname,
 	debug("size %zd\n", sz);
 	while (sz--)
 		*out_values++ = be32_to_cpup(val++);
+
+	return 0;
+}
+
+int of_read_u32_index(const struct device_node *np, const char *propname,
+		      int index, u32 *outp)
+{
+	const __be32 *val;
+
+	debug("%s: %s: ", __func__, propname);
+	if (!np)
+		return -EINVAL;
+
+	val = of_find_property_value_of_size(np, propname,
+					     sizeof(*outp) * (index + 1));
+	if (IS_ERR(val)) {
+		debug("(not found)\n");
+		return PTR_ERR(val);
+	}
+
+	*outp = be32_to_cpup(val + index);
+	debug("%#x (%d)\n", *outp, *outp);
 
 	return 0;
 }
@@ -577,7 +585,7 @@ static int __of_parse_phandle_with_args(const struct device_node *np,
 {
 	const __be32 *list, *list_end;
 	int rc = 0, cur_index = 0;
-	uint32_t count = 0;
+	uint32_t count;
 	struct device_node *node = NULL;
 	phandle phandle;
 	int size;

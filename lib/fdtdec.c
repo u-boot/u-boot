@@ -1433,14 +1433,9 @@ int fdtdec_set_carveout(void *blob, const char *node, const char *prop_name,
 			const struct fdt_memory *carveout)
 {
 	uint32_t phandle;
-	int err, offset;
+	int err, offset, len;
 	fdt32_t value;
-
-	/* XXX implement support for multiple phandles */
-	if (index > 0) {
-		debug("invalid index %u\n", index);
-		return -FDT_ERR_BADOFFSET;
-	}
+	void *prop;
 
 	err = fdtdec_add_reserved_memory(blob, name, carveout, &phandle);
 	if (err < 0) {
@@ -1456,10 +1451,31 @@ int fdtdec_set_carveout(void *blob, const char *node, const char *prop_name,
 
 	value = cpu_to_fdt32(phandle);
 
-	err = fdt_setprop(blob, offset, prop_name, &value, sizeof(value));
+	if (!fdt_getprop(blob, offset, prop_name, &len)) {
+		if (len == -FDT_ERR_NOTFOUND)
+			len = 0;
+		else
+			return len;
+	}
+
+	if ((index + 1) * sizeof(value) > len) {
+		err = fdt_setprop_placeholder(blob, offset, prop_name,
+					      (index + 1) * sizeof(value),
+					      &prop);
+		if (err < 0) {
+			debug("failed to resize reserved memory property: %s\n",
+			      fdt_strerror(err));
+			return err;
+		}
+	}
+
+	err = fdt_setprop_inplace_namelen_partial(blob, offset, prop_name,
+						  strlen(prop_name),
+						  index * sizeof(value),
+						  &value, sizeof(value));
 	if (err < 0) {
-		debug("failed to set %s property for node %s: %d\n", prop_name,
-		      node, err);
+		debug("failed to update %s property for node %s: %s\n",
+		      prop_name, node, fdt_strerror(err));
 		return err;
 	}
 
