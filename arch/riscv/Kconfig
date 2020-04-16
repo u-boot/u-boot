@@ -193,6 +193,7 @@ config SYS_MALLOC_F_LEN
 
 config SMP
 	bool "Symmetric Multi-Processing"
+	depends on SBI_V01 || !RISCV_SMODE
 	help
 	  This enables support for systems with more than one CPU. If
 	  you say N here, U-Boot will run on single and multiprocessor
