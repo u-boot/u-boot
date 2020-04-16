@@ -475,7 +475,7 @@ config TPL_USE_ARCH_MEMSET
 
 config SET_STACK_SIZE
 	bool "Enable an option to set max stack size that can be used"
-	default y if ARCH_VERSAL || ARCH_ZYNQMP
+	default y if ARCH_VERSAL || ARCH_ZYNQMP || ARCH_ZYNQ
 	help
 	  This will enable an option to set max stack size that can be
 	  used by U-Boot.
@@ -484,6 +484,7 @@ config STACK_SIZE
 	hex "Define max stack size that can be used by U-Boot"
 	depends on SET_STACK_SIZE
 	default 0x4000000 if ARCH_VERSAL || ARCH_ZYNQMP
+	default 0x1000000 if ARCH_ZYNQ
 	help
 	  Define Max stack size that can be used by U-Boot so that the
 	  initrd_high will be calculated as base stack pointer minus this
