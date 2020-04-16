@@ -17,7 +17,14 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define MMC_BANK2	0x2
+#define SDHCI_ARASAN_ITAPDLY_REGISTER	0xF0F8
+#define SDHCI_ARASAN_OTAPDLY_REGISTER	0xF0FC
+#define SDHCI_ITAPDLY_CHGWIN		0x200
+#define SDHCI_ITAPDLY_ENABLE		0x100
+#define SDHCI_OTAPDLY_ENABLE		0x40
+
+#define SDHCI_TUNING_LOOP_COUNT		40
+#define MMC_BANK2			0x2
 
 struct arasan_sdhci_clk_data {
 	int clk_phase_in[MMC_TIMING_MMC_HS400 + 1];
@@ -61,8 +68,6 @@ static const u8 mode2timing[] = {
 	[UHS_SDR104] = MMC_TIMING_UHS_SDR104,
 	[MMC_HS_200] = MMC_TIMING_MMC_HS200,
 };
-
-#define SDHCI_TUNING_LOOP_COUNT	40
 
 static void arasan_zynqmp_dll_reset(struct sdhci_host *host, u8 deviceid)
 {
@@ -282,13 +287,6 @@ static int sdhci_zynqmp_sampleclk_set_phase(struct sdhci_host *host,
 
 	return ret;
 }
-
-#define SDHCI_ARASAN_ITAPDLY_REGISTER   0xF0F8
-#define SDHCI_ARASAN_OTAPDLY_REGISTER   0xF0FC
-
-#define SDHCI_ITAPDLY_CHGWIN            0x200
-#define SDHCI_ITAPDLY_ENABLE            0x100
-#define SDHCI_OTAPDLY_ENABLE            0x40
 
 /**
  * sdhci_versal_sdcardclk_set_phase - Set the SD Output Clock Tap Delays
