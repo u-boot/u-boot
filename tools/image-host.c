@@ -10,6 +10,7 @@
 
 #include "mkimage.h"
 #include <bootm.h>
+#include <fdt_region.h>
 #include <image.h>
 #include <version.h>
 

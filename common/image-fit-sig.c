@@ -11,6 +11,7 @@
 #include <malloc.h>
 DECLARE_GLOBAL_DATA_PTR;
 #endif /* !USE_HOSTCC*/
+#include <fdt_region.h>
 #include <image.h>
 #include <u-boot/rsa.h>
 #include <u-boot/rsa-checksum.h>
