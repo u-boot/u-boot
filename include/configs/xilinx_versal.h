@@ -117,7 +117,7 @@
 	"source ${scriptaddr}; echo SCRIPT FAILED: continuing...;\0"
 
 #define BOOTENV_DEV_NAME_XSPI(devtypeu, devtypel, instance) \
-	"xspi "
+	"xspi0 "
 
 #define BOOT_TARGET_DEVICES_JTAG(func)	func(JTAG, jtag, na)
 
