@@ -228,7 +228,7 @@ config SBI
 
 choice
 	prompt "SBI support"
-	default SBI_V01
+	default SBI_V02
 
 config SBI_V01
 	bool "SBI v0.1 support"
