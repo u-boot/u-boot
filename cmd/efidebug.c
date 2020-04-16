@@ -1089,6 +1089,78 @@ static int do_efi_boot_opt(cmd_tbl_t *cmdtp, int flag,
 	return cp->cmd(cmdtp, flag, argc, argv);
 }
 
+/**
+ * do_efi_test_bootmgr() - run simple bootmgr for test
+ *
+ * @cmdtp:	Command table
+ * @flag:	Command flag
+ * @argc:	Number of arguments
+ * @argv:	Argument array
+ * Return:	CMD_RET_SUCCESS on success,
+ *		CMD_RET_USAGE or CMD_RET_RET_FAILURE on failure
+ *
+ * Implement efidebug "test bootmgr" sub-command.
+ * Run simple bootmgr for test.
+ *
+ *     efidebug test bootmgr
+ */
+static int do_efi_test_bootmgr(cmd_tbl_t *cmdtp, int flag,
+			       int argc, char * const argv[])
+{
+	efi_handle_t image;
+	efi_uintn_t exit_data_size = 0;
+	u16 *exit_data = NULL;
+	efi_status_t ret;
+
+	ret = efi_bootmgr_load(&image);
+	printf("efi_bootmgr_load() returned: %ld\n", ret & ~EFI_ERROR_MASK);
+
+	/* We call efi_start_image() even if error for test purpose. */
+	ret = EFI_CALL(efi_start_image(image, &exit_data_size, &exit_data));
+	printf("efi_start_image() returned: %ld\n", ret & ~EFI_ERROR_MASK);
+	if (ret && exit_data)
+		efi_free_pool(exit_data);
+
+	efi_restore_gd();
+
+	return CMD_RET_SUCCESS;
+}
+
+static cmd_tbl_t cmd_efidebug_test_sub[] = {
+	U_BOOT_CMD_MKENT(bootmgr, CONFIG_SYS_MAXARGS, 1, do_efi_test_bootmgr,
+			 "", ""),
+};
+
+/**
+ * do_efi_test() - manage UEFI load options
+ *
+ * @cmdtp:	Command table
+ * @flag:	Command flag
+ * @argc:	Number of arguments
+ * @argv:	Argument array
+ * Return:	CMD_RET_SUCCESS on success,
+ *		CMD_RET_USAGE or CMD_RET_RET_FAILURE on failure
+ *
+ * Implement efidebug "test" sub-command.
+ */
+static int do_efi_test(cmd_tbl_t *cmdtp, int flag,
+		       int argc, char * const argv[])
+{
+	cmd_tbl_t *cp;
+
+	if (argc < 2)
+		return CMD_RET_USAGE;
+
+	argc--; argv++;
+
+	cp = find_cmd_tbl(argv[0], cmd_efidebug_test_sub,
+			  ARRAY_SIZE(cmd_efidebug_test_sub));
+	if (!cp)
+		return CMD_RET_USAGE;
+
+	return cp->cmd(cmdtp, flag, argc, argv);
+}
+
 static cmd_tbl_t cmd_efidebug_sub[] = {
 	U_BOOT_CMD_MKENT(boot, CONFIG_SYS_MAXARGS, 1, do_efi_boot_opt, "", ""),
 	U_BOOT_CMD_MKENT(devices, CONFIG_SYS_MAXARGS, 1, do_efi_show_devices,
@@ -1102,6 +1174,8 @@ static cmd_tbl_t cmd_efidebug_sub[] = {
 	U_BOOT_CMD_MKENT(memmap, CONFIG_SYS_MAXARGS, 1, do_efi_show_memmap,
 			 "", ""),
 	U_BOOT_CMD_MKENT(tables, CONFIG_SYS_MAXARGS, 1, do_efi_show_tables,
+			 "", ""),
+	U_BOOT_CMD_MKENT(test, CONFIG_SYS_MAXARGS, 1, do_efi_test,
 			 "", ""),
 };
 
@@ -1172,7 +1246,9 @@ static char efidebug_help_text[] =
 	"efidebug memmap\n"
 	"  - show UEFI memory map\n"
 	"efidebug tables\n"
-	"  - show UEFI configuration tables\n";
+	"  - show UEFI configuration tables\n"
+	"efidebug test bootmgr\n"
+	"  - run simple bootmgr for test\n";
 #endif
 
 U_BOOT_CMD(

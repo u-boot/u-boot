@@ -169,8 +169,8 @@ static bool metai_match(const u16 *string, const u16 *pattern)
  *		       case-insenitively
  *
  * @this:	unicode collation protocol instance
- * @s:		string to compare
- * @p:		pattern string
+ * @string:	string to compare
+ * @pattern:	pattern string
  *
  * The pattern string may use these:
  *	- * matches >= 0 characters
@@ -199,7 +199,6 @@ static bool EFIAPI efi_metai_match(struct efi_unicode_collation_protocol *this,
  *
  * @this:	unicode collation protocol instance
  * @string:	string to convert
- * @p:		pattern string
  *
  * The conversion is done in place. As long as upper and lower letters use the
  * same number of words this does not pose a problem.
@@ -221,7 +220,6 @@ static void EFIAPI efi_str_lwr(struct efi_unicode_collation_protocol *this,
  *
  * @this:	unicode collation protocol instance
  * @string:	string to convert
- * @p:		pattern string
  *
  * The conversion is done in place. As long as upper and lower letters use the
  * same number of words this does not pose a problem.

@@ -41,6 +41,14 @@ addons:
     - clang-7
     - srecord
     - graphviz
+    - coreutils
+    - util-linux
+    - dosfstools
+    - gdisk
+    - mount
+    - mtools
+    - openssl
+    - sbsigntool
 
 install:
  # Clone uboot-test-hooks
@@ -57,10 +65,11 @@ install:
  - grub-mkimage --prefix="" -o ~/grub_x86.efi -O i386-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
  - grub-mkimage --prefix="" -o ~/grub_x64.efi -O x86_64-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
  - wget http://mirrors.kernel.org/ubuntu/pool/main/m/mpfr4/libmpfr4_3.1.4-1_amd64.deb && sudo dpkg -i libmpfr4_3.1.4-1_amd64.deb && rm libmpfr4_3.1.4-1_amd64.deb
+ - wget http://mirrors.kernel.org/ubuntu/pool/universe/e/efitools/efitools_1.8.1-0ubuntu2_amd64.deb && sudo dpkg -i efitools_1.8.1-0ubuntu2_amd64.deb && rm efitools_1.8.1-0ubuntu2_amd64.deb
 
 env:
   global:
-    - PATH=/tmp/qemu-install/bin:/tmp/uboot-test-hooks/bin:/usr/bin:/bin:/usr/local/bin
+    - PATH=/tmp/qemu-install/bin:/tmp/uboot-test-hooks/bin:/sbin:/usr/bin:/bin:/usr/local/bin
     - PYTHONPATH=/tmp/uboot-test-hooks/py/travis-ci
     - BUILD_DIR=build
     - HOSTCC="cc"

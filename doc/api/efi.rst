@@ -78,6 +78,12 @@ Memory services
 .. kernel-doc:: lib/efi_loader/efi_memory.c
    :internal:
 
+SetWatchdogTimer service
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. kernel-doc:: lib/efi_loader/efi_watchdog.c
+   :internal:
+
 Runtime services
 ----------------
 
@@ -150,4 +156,10 @@ Text IO protocols
 ~~~~~~~~~~~~~~~~~
 
 .. kernel-doc:: lib/efi_loader/efi_console.c
+   :internal:
+
+Unicode Collation protocol
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. kernel-doc:: lib/efi_loader/efi_unicode_collation.c
    :internal:

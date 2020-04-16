@@ -37,7 +37,15 @@ will be required.  The following is an incomplete list:
 | openssl        |
 | sudo OR guestmount |
 | e2fsprogs      |
+| util-linux     |
+| coreutils      |
 | dosfstools     |
+| efitools       |
+| mount          |
+| mtools         |
+| sbsigntool     |
+| udisks2        |
+
 
 Please use the apporirate commands for your distribution to match these tools
 up with the package that provides them.
