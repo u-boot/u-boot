@@ -40,7 +40,31 @@ struct checksum_algo checksum_algos[] = {
 		.calculate_sign = EVP_sha256,
 #endif
 		.calculate = hash_calculate,
-	}
+	},
+#ifdef CONFIG_SHA384
+	{
+		.name = "sha384",
+		.checksum_len = SHA384_SUM_LEN,
+		.der_len = SHA384_DER_LEN,
+		.der_prefix = sha384_der_prefix,
+#if IMAGE_ENABLE_SIGN
+		.calculate_sign = EVP_sha384,
+#endif
+		.calculate = hash_calculate,
+	},
+#endif
+#ifdef CONFIG_SHA512
+	{
+		.name = "sha512",
+		.checksum_len = SHA512_SUM_LEN,
+		.der_len = SHA512_DER_LEN,
+		.der_prefix = sha512_der_prefix,
+#if IMAGE_ENABLE_SIGN
+		.calculate_sign = EVP_sha512,
+#endif
+		.calculate = hash_calculate,
+	},
+#endif
 
 };
 

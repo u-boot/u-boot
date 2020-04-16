@@ -32,8 +32,12 @@ struct fdt_region;
 #define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
 #define CONFIG_FIT_ENABLE_RSASSA_PSS_SUPPORT 1
 #define CONFIG_FIT_ENABLE_SHA256_SUPPORT
+#define CONFIG_FIT_ENABLE_SHA384_SUPPORT
+#define CONFIG_FIT_ENABLE_SHA512_SUPPORT
 #define CONFIG_SHA1
 #define CONFIG_SHA256
+#define CONFIG_SHA384
+#define CONFIG_SHA512
 
 #define IMAGE_ENABLE_IGNORE	0
 #define IMAGE_INDENT_STRING	""
@@ -90,6 +94,20 @@ struct fdt_region;
 #define IMAGE_ENABLE_SHA256	1
 #else
 #define IMAGE_ENABLE_SHA256	0
+#endif
+
+#if defined(CONFIG_FIT_ENABLE_SHA384_SUPPORT) || \
+	defined(CONFIG_SPL_SHA384_SUPPORT)
+#define IMAGE_ENABLE_SHA384	1
+#else
+#define IMAGE_ENABLE_SHA384	0
+#endif
+
+#if defined(CONFIG_FIT_ENABLE_SHA512_SUPPORT) || \
+	defined(CONFIG_SPL_SHA512_SUPPORT)
+#define IMAGE_ENABLE_SHA512	1
+#else
+#define IMAGE_ENABLE_SHA512	0
 #endif
 
 #endif /* IMAGE_ENABLE_FIT */

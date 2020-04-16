@@ -412,7 +412,7 @@ config SPL_MD5_SUPPORT
 	  secure as it is possible (with a brute-force attack) to adjust the
 	  image while still retaining the same MD5 hash value. For secure
 	  applications where images may be changed maliciously, you should
-	  consider SHA1 or SHA256.
+	  consider SHA256 or SHA384.
 
 config SPL_SHA1_SUPPORT
 	bool "Support SHA1"
@@ -424,7 +424,7 @@ config SPL_SHA1_SUPPORT
 	  image contents have not been corrupted or maliciously altered.
 	  While SHA1 is fairly secure it is coming to the end of its life
 	  due to the expanding computing power available to brute-force
-	  attacks. For more security, consider SHA256.
+	  attacks. For more security, consider SHA256 or SHA384.
 
 config SPL_SHA256_SUPPORT
 	bool "Support SHA256"
@@ -433,12 +433,28 @@ config SPL_SHA256_SUPPORT
 	help
 	  Enable this to support SHA256 in FIT images within SPL. A SHA256
 	  checksum is a 256-bit (32-byte) hash value used to check that the
-	  image contents have not been corrupted. SHA256 is recommended for
-	  use in secure applications since (as at 2016) there is no known
-	  feasible attack that could produce a 'collision' with differing
-	  input data. Use this for the highest security. Note that only the
-	  SHA256 variant is supported: SHA512 and others are not currently
-	  supported in U-Boot.
+	  image contents have not been corrupted.
+
+config SPL_SHA384_SUPPORT
+	bool "Support SHA384"
+	depends on SPL_FIT
+	select SHA384
+	select SHA512_ALGO
+	help
+	  Enable this to support SHA384 in FIT images within SPL. A SHA384
+	  checksum is a 384-bit (48-byte) hash value used to check that the
+	  image contents have not been corrupted. Use this for the highest
+	  security.
+
+config SPL_SHA512_SUPPORT
+	bool "Support SHA512"
+	depends on SPL_FIT
+	select SHA512
+	select SHA512_ALGO
+	help
+	  Enable this to support SHA512 in FIT images within SPL. A SHA512
+	  checksum is a 512-bit (64-byte) hash value used to check that the
+	  image contents have not been corrupted.
 
 config SPL_FIT_IMAGE_TINY
 	bool "Remove functionality from SPL FIT loading to reduce size"
