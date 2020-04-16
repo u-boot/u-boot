@@ -100,79 +100,93 @@ See doc/uImage.FIT/howto.txt for an introduction to FIT images.
 Configuring UEFI secure boot
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-UEFI specification[1] defines a secure way of executing UEFI images
+The UEFI specification[1] defines a secure way of executing UEFI images
 by verifying a signature (or message digest) of image with certificates.
 This feature on U-Boot is enabled with::
 
     CONFIG_UEFI_SECURE_BOOT=y
 
 To make the boot sequence safe, you need to establish a chain of trust;
-In UEFI secure boot, you can make it with the UEFI variables, "PK"
-(Platform Key), "KEK" (Key Exchange Keys), "db" (white list database)
-and "dbx" (black list database).
+In UEFI secure boot the chain trust is defined by the following UEFI variables
 
-There are many online documents that describe what UEFI secure boot is
-and how it works. Please consult some of them for details.
+* PK - Platform Key
+* KEK - Key Exchange Keys
+* db - white list database
+* dbx - black list database
 
-Here is a simple example that you can follow for your initial attempt
-(Please note that the actual steps would absolutely depend on your system
-and environment.):
+An in depth description of UEFI secure boot is beyond the scope of this
+document. Please, refer to the UEFI specification and available online
+documentation. Here is a simple example that you can follow for your initial
+attempt (Please note that the actual steps will depend on your system and
+environment.):
 
-1. Install utility commands on your host
-    * openssl
-    * efitools
-    * sbsigntool
+Install the required tools on your host
 
-2. Create signing keys and key database files on your host
-    for PK::
+* openssl
+* efitools
+* sbsigntool
 
-        $ openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_PK/ \
-                -keyout PK.key -out PK.crt -nodes -days 365
-        $ cert-to-efi-sig-list -g 11111111-2222-3333-4444-123456789abc \
-                PK.crt PK.esl;
-        $ sign-efi-sig-list -c PK.crt -k PK.key PK PK.esl PK.auth
+Create signing keys and the key database on your host:
 
-    for KEK::
+The platform key
 
-        $ openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_KEK/ \
-                -keyout KEK.key -out KEK.crt -nodes -days 365
-        $ cert-to-efi-sig-list -g 11111111-2222-3333-4444-123456789abc \
-                KEK.crt KEK.esl
-        $ sign-efi-sig-list -c PK.crt -k PK.key KEK KEK.esl KEK.auth
+.. code-block:: bash
 
-    for db::
+    openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_PK/ \
+            -keyout PK.key -out PK.crt -nodes -days 365
+    cert-to-efi-sig-list -g 11111111-2222-3333-4444-123456789abc \
+            PK.crt PK.esl;
+    sign-efi-sig-list -c PK.crt -k PK.key PK PK.esl PK.auth
 
-        $ openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_db/ \
-                -keyout db.key -out db.crt -nodes -days 365
-        $ cert-to-efi-sig-list -g 11111111-2222-3333-4444-123456789abc \
-                db.crt db.esl
-        $ sign-efi-sig-list -c KEK.crt -k KEK.key db db.esl db.auth
+The key exchange keys
 
-    Copy \*.auth to media, say mmc, that is accessible from U-Boot.
+.. code-block:: bash
 
-3. Sign an image with one key in "db" on your host::
+    openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_KEK/ \
+            -keyout KEK.key -out KEK.crt -nodes -days 365
+    cert-to-efi-sig-list -g 11111111-2222-3333-4444-123456789abc \
+            KEK.crt KEK.esl
+    sign-efi-sig-list -c PK.crt -k PK.key KEK KEK.esl KEK.auth
 
-    $ sbsign --key db.key --cert db.crt helloworld.efi
+The whitelist database
 
-4. Install keys on your board::
+.. code-block:: bash
 
-    ==> fatload mmc 0:1 <tmpaddr> PK.auth
-    ==> setenv -e -nv -bs -rt -at -i <tmpaddr>,$filesize PK
-    ==> fatload mmc 0:1 <tmpaddr> KEK.auth
-    ==> setenv -e -nv -bs -rt -at -i <tmpaddr>,$filesize KEK
-    ==> fatload mmc 0:1 <tmpaddr> db.auth
-    ==> setenv -e -nv -bs -rt -at -i <tmpaddr>,$filesize db
+    $ openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_db/ \
+            -keyout db.key -out db.crt -nodes -days 365
+    $ cert-to-efi-sig-list -g 11111111-2222-3333-4444-123456789abc \
+            db.crt db.esl
+    $ sign-efi-sig-list -c KEK.crt -k KEK.key db db.esl db.auth
 
-5. Set up boot parameters on your board::
+Copy the \*.auth files to media, say mmc, that is accessible from U-Boot.
 
-    ==> efidebug boot add 1 HELLO mmc 0:1 /helloworld.efi.signed ""
+Sign an image with one of the keys in "db" on your host
 
-Then your board runs that image from Boot manager (See below).
+.. code-block:: bash
+
+    sbsign --key db.key --cert db.crt helloworld.efi
+
+Now in U-Boot install the keys on your board::
+
+    fatload mmc 0:1 <tmpaddr> PK.auth
+    setenv -e -nv -bs -rt -at -i <tmpaddr>,$filesize PK
+    fatload mmc 0:1 <tmpaddr> KEK.auth
+    setenv -e -nv -bs -rt -at -i <tmpaddr>,$filesize KEK
+    fatload mmc 0:1 <tmpaddr> db.auth
+    setenv -e -nv -bs -rt -at -i <tmpaddr>,$filesize db
+
+Set up boot parameters on your board::
+
+    efidebug boot add 1 HELLO mmc 0:1 /helloworld.efi.signed ""
+
+Now your board can run the signed image via the boot manager (see below).
 You can also try this sequence by running Pytest, test_efi_secboot,
-on sandbox::
+on the sandbox
 
-    $ cd <U-Boot source directory>
-    $ pytest.py test/py/tests/test_efi_secboot/test_signed.py --bd sandbox
+.. code-block:: bash
+
+    cd <U-Boot source directory>
+    pytest.py test/py/tests/test_efi_secboot/test_signed.py --bd sandbox
 
 Executing the boot manager
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
