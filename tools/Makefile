@@ -63,11 +63,10 @@ FIT_CIPHER_OBJS-$(CONFIG_FIT_CIPHER) := common/image-cipher.o
 
 # The following files are synced with upstream DTC.
 # Use synced versions from scripts/dtc/libfdt/.
-LIBFDT_SRCS_SYNCED := fdt.c fdt_wip.c fdt_sw.c fdt_rw.c \
+LIBFDT_SRCS_SYNCED := fdt.c fdt_ro.c fdt_wip.c fdt_sw.c fdt_rw.c \
 		fdt_strerror.c fdt_empty_tree.c fdt_addresses.c fdt_overlay.c
-# The following files are locally modified for U-Boot (unfotunately).
 # Use U-Boot own versions from lib/libfdt/.
-LIBFDT_SRCS_UNSYNCED := fdt_ro.c fdt_region.c
+LIBFDT_SRCS_UNSYNCED := fdt_region.c
 
 LIBFDT_OBJS := $(addprefix libfdt/, $(patsubst %.c, %.o, $(LIBFDT_SRCS_SYNCED))) \
 	       $(addprefix lib/libfdt/, $(patsubst %.c, %.o, $(LIBFDT_SRCS_UNSYNCED)))
