@@ -58,9 +58,7 @@ _start:
 	/* tp: hart id */
 	li	t0, CONFIG_NR_CPUS
 	bge	tp, t0, hart_out_of_bounds_loop
-#endif
 
-#ifdef CONFIG_SMP
 	/* set xSIE bit to receive IPIs */
 #if CONFIG_IS_ENABLED(RISCV_MMODE)
 	li	t0, MIE_MSIE
@@ -377,9 +375,7 @@ hart_out_of_bounds_loop:
 	/* Harts in this loop are out of bounds, increase CONFIG_NR_CPUS. */
 	wfi
 	j	hart_out_of_bounds_loop
-#endif
 
-#ifdef CONFIG_SMP
 /* SMP relocation entry */
 secondary_hart_relocate:
 	/* a1: new sp */
