@@ -103,7 +103,7 @@
 #include <stdio.h>
 #include <ctype.h>
 
-int is_spl_build = 0; /* hack for U-Boot */
+char tmp_buf[256]; /* hack for U-Boot */
 
 static void usage(void)
 {
@@ -230,7 +230,6 @@ static void parse_config_file(const char *p)
 {
 	const char *q, *r;
 	const char *start = p;
-	char tmp_buf[256] = "SPL_"; /* hack for U-Boot */
 
 	while ((p = strstr(p, "CONFIG_"))) {
 		if (p > start && (isalnum(p[-1]) || p[-1] == '_')) {
@@ -260,7 +259,7 @@ static void parse_config_file(const char *p)
 			while (isalnum(*q) || *q == '_')
 				q++;
 			r = q;
-			if (r > p && is_spl_build) {
+			if (r > p && tmp_buf[0]) {
 				memcpy(tmp_buf + 4, p, r - p);
 				r = tmp_buf + 4 + (r - p);
 				p = tmp_buf;
@@ -419,8 +418,11 @@ int main(int argc, char *argv[])
 	cmdline = argv[3];
 
 	/* hack for U-Boot */
-	if (!strncmp(target, "spl/", 4) || !strncmp(target, "tpl/", 4))
-		is_spl_build = 1;
+	if (!strncmp(target, "spl/", 4))
+		strcpy(tmp_buf, "SPL_");
+	else if (!strncmp(target, "tpl/", 4))
+		strcpy(tmp_buf, "TPL_");
+	/* end U-Boot hack */
 
 	printf("cmd_%s := %s\n\n", target, cmdline);
 
