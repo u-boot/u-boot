@@ -230,7 +230,6 @@
 			/* dma-coherent; */
 		};
 
-
 		lpd_dma_chan3: dma@ffab0000 {
 			compatible = "xlnx,zynqmp-dma-1.0";
 			status = "disabled";
@@ -316,7 +315,6 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
-
 
 		gpio0: gpio@ff0b0000 {
 			compatible = "xlnx,versal-gpio-1.0";
@@ -464,7 +462,6 @@
 			#size-cells = <0>;
 		};
 
-
 		spi0: spi@ff040000 {
 			compatible = "cdns,spi-r1p6";
 			status = "disabled";
@@ -577,5 +574,4 @@
 			timeout-sec = <60>;
 		};
 	};
-
 };
