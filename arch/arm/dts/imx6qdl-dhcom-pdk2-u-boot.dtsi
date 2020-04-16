@@ -3,6 +3,8 @@
  * Copyright (C) 2020 Harald Seiler <hws@denx.de>
  */
 
+#include "imx6qdl-dhcom-u-boot.dtsi"
+
 / {
 	fec_vio: regulator-fec {
 		compatible = "regulator-fixed";
