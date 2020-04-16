@@ -24,7 +24,7 @@ struct arch_global_data {
 #ifdef CONFIG_ANDES_PLMT
 	void __iomem *plmt;	/* plmt base address */
 #endif
-#ifdef CONFIG_SMP
+#if CONFIG_IS_ENABLED(SMP)
 	struct ipi_data ipi[CONFIG_NR_CPUS];
 #endif
 #ifndef CONFIG_XIP

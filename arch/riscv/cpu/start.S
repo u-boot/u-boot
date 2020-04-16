@@ -53,7 +53,7 @@ _start:
 	/* mask all interrupts */
 	csrw	MODE_PREFIX(ie), zero
 
-#ifdef CONFIG_SMP
+#if CONFIG_IS_ENABLED(SMP)
 	/* check if hart is within range */
 	/* tp: hart id */
 	li	t0, CONFIG_NR_CPUS
@@ -91,7 +91,7 @@ call_board_init_f_0:
 	mv	gp, a0
 
 	/* setup stack */
-#ifdef CONFIG_SMP
+#if CONFIG_IS_ENABLED(SMP)
 	/* tp: hart id */
 	slli	t0, tp, CONFIG_STACK_SIZE_SHIFT
 	sub	sp, a0, t0
@@ -182,7 +182,7 @@ spl_stack_gd_setup:
 	mv	s0, a0
 
 	/* setup stack on main hart */
-#ifdef CONFIG_SMP
+#if CONFIG_IS_ENABLED(SMP)
 	/* tp: hart id */
 	slli	t0, tp, CONFIG_STACK_SIZE_SHIFT
 	sub	sp, s0, t0
@@ -231,7 +231,7 @@ relocate_code:
  *Set up the stack
  */
 stack_setup:
-#ifdef CONFIG_SMP
+#if CONFIG_IS_ENABLED(SMP)
 	/* tp: hart id */
 	slli	t0, tp, CONFIG_STACK_SIZE_SHIFT
 	sub	sp, s2, t0
@@ -326,7 +326,7 @@ clbss_l:
 	blt	t0, t1, clbss_l
 
 relocate_secondary_harts:
-#ifdef CONFIG_SMP
+#if CONFIG_IS_ENABLED(SMP)
 	/* send relocation IPI */
 	la	t0, secondary_hart_relocate
 	add	a0, t0, t6
@@ -370,7 +370,7 @@ call_board_init_r:
  */
 	jr	t4			/* jump to board_init_r() */
 
-#ifdef CONFIG_SMP
+#if CONFIG_IS_ENABLED(SMP)
 hart_out_of_bounds_loop:
 	/* Harts in this loop are out of bounds, increase CONFIG_NR_CPUS. */
 	wfi
@@ -393,7 +393,7 @@ secondary_hart_relocate:
 secondary_hart_loop:
 	wfi
 
-#ifdef CONFIG_SMP
+#if CONFIG_IS_ENABLED(SMP)
 	csrr	t0, MODE_PREFIX(ip)
 #if CONFIG_IS_ENABLED(RISCV_MMODE)
 	andi	t0, t0, MIE_MSIE

@@ -200,10 +200,21 @@ config SMP
 	  machine. If you say Y here, U-Boot will run on many, but not
 	  all, single processor machines.
 
+config SPL_SMP
+	bool "Symmetric Multi-Processing in SPL"
+	depends on SPL && SPL_RISCV_MMODE
+	default y
+	help
+	  This enables support for systems with more than one CPU in SPL.
+	  If you say N here, U-Boot SPL will run on single and multiprocessor
+	  machines, but will use only one CPU of a multiprocessor
+	  machine. If you say Y here, U-Boot SPL will run on many, but not
+	  all, single processor machines.
+
 config NR_CPUS
 	int "Maximum number of CPUs (2-32)"
 	range 2 32
-	depends on SMP
+	depends on SMP || SPL_SMP
 	default 8
 	help
 	  On multiprocessor machines, U-Boot sets up a stack for each CPU.

@@ -76,7 +76,7 @@ void spl_invoke_opensbi(struct spl_image_info *spl_image)
 	opensbi_entry = (void (*)(ulong, ulong, ulong))spl_image->entry_point;
 	invalidate_icache_all();
 
-#ifdef CONFIG_SMP
+#ifdef CONFIG_SPL_SMP
 	/*
 	 * Start OpenSBI on all secondary harts and wait for acknowledgment.
 	 *

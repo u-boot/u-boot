@@ -22,7 +22,7 @@ endif
 obj-y	+= interrupts.o
 obj-y	+= reset.o
 obj-y   += setjmp.o
-obj-$(CONFIG_SMP) += smp.o
+obj-$(CONFIG_$(SPL_)SMP) += smp.o
 obj-$(CONFIG_SPL_BUILD)	+= spl.o
 
 # For building EFI apps
