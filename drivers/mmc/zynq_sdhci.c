@@ -15,8 +15,6 @@
 #include <sdhci.h>
 #include <zynqmp_tap_delay.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define SDHCI_ARASAN_ITAPDLY_REGISTER	0xF0F8
 #define SDHCI_ARASAN_OTAPDLY_REGISTER	0xF0FC
 #define SDHCI_ITAPDLY_CHGWIN		0x200
