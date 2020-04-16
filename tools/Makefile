@@ -63,13 +63,8 @@ FIT_CIPHER_OBJS-$(CONFIG_FIT_CIPHER) := common/image-cipher.o
 
 # The following files are synced with upstream DTC.
 # Use synced versions from scripts/dtc/libfdt/.
-LIBFDT_SRCS_SYNCED := fdt.c fdt_ro.c fdt_wip.c fdt_sw.c fdt_rw.c \
-		fdt_strerror.c fdt_empty_tree.c fdt_addresses.c fdt_overlay.c
-# Use U-Boot own versions from lib/libfdt/.
-LIBFDT_SRCS_UNSYNCED := fdt_region.c
-
-LIBFDT_OBJS := $(addprefix libfdt/, $(patsubst %.c, %.o, $(LIBFDT_SRCS_SYNCED))) \
-	       $(addprefix lib/libfdt/, $(patsubst %.c, %.o, $(LIBFDT_SRCS_UNSYNCED)))
+LIBFDT_OBJS := $(addprefix libfdt/, fdt.o fdt_ro.o fdt_wip.o fdt_sw.o fdt_rw.o \
+		fdt_strerror.o fdt_empty_tree.o fdt_addresses.o fdt_overlay.o)
 
 RSA_OBJS-$(CONFIG_FIT_SIGNATURE) := $(addprefix lib/rsa/, \
 					rsa-sign.o rsa-verify.o rsa-checksum.o \
@@ -86,6 +81,7 @@ dumpimage-mkimage-objs := aisimage.o \
 			$(FIT_OBJS-y) \
 			$(FIT_SIG_OBJS-y) \
 			$(FIT_CIPHER_OBJS-y) \
+			common/fdt_region.o \
 			common/bootm.o \
 			lib/crc32.o \
 			default_image.o \
@@ -210,7 +206,7 @@ hostprogs-$(CONFIG_STATIC_RELA) += relocate-rela
 hostprogs-$(CONFIG_RISCV) += prelink-riscv
 
 hostprogs-y += fdtgrep
-fdtgrep-objs += $(LIBFDT_OBJS) fdtgrep.o
+fdtgrep-objs += $(LIBFDT_OBJS) common/fdt_region.o fdtgrep.o
 
 ifneq ($(TOOLS_ONLY),y)
 hostprogs-y += spl_size_limit
