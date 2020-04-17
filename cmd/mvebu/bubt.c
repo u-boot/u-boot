@@ -728,7 +728,17 @@ static int bubt_check_boot_mode(const struct bubt_dev *dst)
 		if (a38x_boot_modes[mode].id == hdr->blockid)
 			return 0;
 
-		puts("Error: A38x image not built for destination device!\n");
+		for (int i = 0; i < ARRAY_SIZE(a38x_boot_modes); i++) {
+			if (a38x_boot_modes[i].id == hdr->blockid) {
+				printf("Error: A38x image meant to be "
+				       "booted from \"%s\", not \"%s\"!\n",
+				       a38x_boot_modes[i].name, dst->name);
+				return -ENOEXEC;
+			}
+		}
+
+		printf("Error: unknown boot device in A38x image header: "
+		       "0x%x\n", hdr->blockid);
 		return -ENOEXEC;
 	} else {
 		return 0;
