@@ -404,6 +404,7 @@ static const struct boot_mode board_boot_modes[] = {
 static bool is_revc1(void)
 {
 	SETUP_IOMUX_PADS(rev_detection_pad);
+	gpio_request(REV_DETECTION, "REV_DETECT");
 	gpio_direction_input(REV_DETECTION);
 
 	if (gpio_get_value(REV_DETECTION))
@@ -442,6 +443,14 @@ int board_late_init(void)
 		env_set("board_name", "B1");
 #endif
 	setup_iomux_enet();
+
+	if (is_revd1())
+		puts("Board: Wandboard rev D1\n");
+	else if (is_revc1())
+		puts("Board: Wandboard rev C1\n");
+	else
+		puts("Board: Wandboard rev B1\n");
+
 	return 0;
 }
 
@@ -462,20 +471,6 @@ int board_init(void)
 
 	setup_display();
 #endif
-
-	return 0;
-}
-
-int checkboard(void)
-{
-	gpio_request(REV_DETECTION, "REV_DETECT");
-
-	if (is_revd1())
-		puts("Board: Wandboard rev D1\n");
-	else if (is_revc1())
-		puts("Board: Wandboard rev C1\n");
-	else
-		puts("Board: Wandboard rev B1\n");
 
 	return 0;
 }
