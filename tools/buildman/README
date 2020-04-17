@@ -1091,7 +1091,8 @@ the -w option, for example:
 
    buildman -o /tmp/build --board sandbox -w
 
-This will write the full build into /tmp/build including object files.
+This will write the full build into /tmp/build including object files. You must
+specify the output directory with -o when using -w.
 
 
 Other options

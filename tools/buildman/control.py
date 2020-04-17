@@ -175,6 +175,10 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
     if options.incremental:
         print(col.Color(col.RED,
                         'Warning: -I has been removed. See documentation'))
+    if not options.output_dir:
+        if options.work_in_output:
+            sys.exit(col.Color(col.RED, '-w requires that you specify -o'))
+        options.output_dir = '..'
 
     # Work out what subset of the boards we are building
     if not boards:

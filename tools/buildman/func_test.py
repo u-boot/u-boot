@@ -569,3 +569,9 @@ class TestFunctional(unittest.TestCase):
             self._RunControl('-b', self._test_branch, '-o', self._output_dir,
                              '-w', clean_dir=False, boards=board_list)
         self.assertIn("single commit", str(e.exception))
+
+        board_list = board.Boards()
+        board_list.AddBoard(board.Board(*boards[0]))
+        with self.assertRaises(SystemExit) as e:
+            self._RunControl('-w', clean_dir=False)
+        self.assertIn("specify -o", str(e.exception))
