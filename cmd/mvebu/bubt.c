@@ -346,7 +346,7 @@ static int nand_burn_image(size_t image_size)
 	/* Align U-Boot size to currently used blocksize */
 	image_size = ((image_size + (block_size - 1)) & (~(block_size - 1)));
 
-	/* Erase the U-BOOT image space */
+	/* Erase the U-Boot image space */
 	printf("Erasing 0x%x - 0x%x:...", 0, (int)image_size);
 	ret = nand_erase(mtd, 0, image_size);
 	if (ret) {
@@ -734,7 +734,7 @@ static int bubt_read_file(struct bubt_dev *src)
 static int bubt_is_dev_active(struct bubt_dev *dev)
 {
 	if (!dev->active) {
-		printf("Device \"%s\" not supported by U-BOOT image\n",
+		printf("Device \"%s\" not supported by U-Boot image\n",
 		       dev->name);
 		return 0;
 	}
@@ -822,7 +822,7 @@ int do_bubt_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (!bubt_is_dev_active(src))
 		return -ENODEV;
 
-	printf("Burning U-BOOT image \"%s\" from \"%s\" to \"%s\"\n",
+	printf("Burning U-Boot image \"%s\" from \"%s\" to \"%s\"\n",
 	       net_boot_file_name, src->name, dst->name);
 
 	image_size = bubt_read_file(src);
