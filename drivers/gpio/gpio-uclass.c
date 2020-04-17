@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dm/uclass-internal.h>
@@ -17,6 +18,22 @@
 #include <linux/ctype.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+/**
+ * gpio_desc_init() - Initialize the GPIO descriptor
+ *
+ * @desc:	GPIO descriptor to initialize
+ * @dev:	GPIO device
+ * @offset:	Offset of device GPIO
+ */
+static void gpio_desc_init(struct gpio_desc *desc,
+			   struct udevice *dev,
+			   uint offset)
+{
+	desc->dev = dev;
+	desc->offset = offset;
+	desc->flags = 0;
+}
 
 /**
  * gpio_to_device() - Convert global GPIO number to device, number
@@ -41,9 +58,7 @@ static int gpio_to_device(unsigned int gpio, struct gpio_desc *desc)
 		uc_priv = dev_get_uclass_priv(dev);
 		if (gpio >= uc_priv->gpio_base &&
 		    gpio < uc_priv->gpio_base + uc_priv->gpio_count) {
-			desc->dev = dev;
-			desc->offset = gpio - uc_priv->gpio_base;
-			desc->flags = 0;
+			gpio_desc_init(desc, dev, gpio - uc_priv->gpio_base);
 			return 0;
 		}
 	}
@@ -85,8 +100,7 @@ int dm_gpio_lookup_name(const char *name, struct gpio_desc *desc)
 	if (!dev)
 		return ret ? ret : -EINVAL;
 
-	desc->dev = dev;
-	desc->offset = offset;
+	gpio_desc_init(desc, dev, offset);
 
 	return 0;
 }
@@ -127,8 +141,27 @@ int gpio_xlate_offs_flags(struct udevice *dev, struct gpio_desc *desc,
 	if (args->args_count < 2)
 		return 0;
 
+	desc->flags = 0;
 	if (args->args[1] & GPIO_ACTIVE_LOW)
-		desc->flags = GPIOD_ACTIVE_LOW;
+		desc->flags |= GPIOD_ACTIVE_LOW;
+
+	/*
+	 * need to test 2 bits for gpio output binding:
+	 * OPEN_DRAIN (0x6) = SINGLE_ENDED (0x2) | LINE_OPEN_DRAIN (0x4)
+	 * OPEN_SOURCE (0x2) = SINGLE_ENDED (0x2) | LINE_OPEN_SOURCE (0x0)
+	 */
+	if (args->args[1] & GPIO_SINGLE_ENDED) {
+		if (args->args[1] & GPIO_LINE_OPEN_DRAIN)
+			desc->flags |= GPIOD_OPEN_DRAIN;
+		else
+			desc->flags |= GPIOD_OPEN_SOURCE;
+	}
+
+	if (args->args[1] & GPIO_PULL_UP)
+		desc->flags |= GPIOD_PULL_UP;
+
+	if (args->args[1] & GPIO_PULL_DOWN)
+		desc->flags |= GPIOD_PULL_DOWN;
 
 	return 0;
 }
@@ -463,18 +496,24 @@ int gpio_direction_output(unsigned gpio, int value)
 							desc.offset, value);
 }
 
-int dm_gpio_get_value(const struct gpio_desc *desc)
+static int _gpio_get_value(const struct gpio_desc *desc)
 {
 	int value;
+
+	value = gpio_get_ops(desc->dev)->get_value(desc->dev, desc->offset);
+
+	return desc->flags & GPIOD_ACTIVE_LOW ? !value : value;
+}
+
+int dm_gpio_get_value(const struct gpio_desc *desc)
+{
 	int ret;
 
 	ret = check_reserved(desc, "get_value");
 	if (ret)
 		return ret;
 
-	value = gpio_get_ops(desc->dev)->get_value(desc->dev, desc->offset);
-
-	return desc->flags & GPIOD_ACTIVE_LOW ? !value : value;
+	return _gpio_get_value(desc);
 }
 
 int dm_gpio_set_value(const struct gpio_desc *desc, int value)
@@ -491,71 +530,128 @@ int dm_gpio_set_value(const struct gpio_desc *desc, int value)
 	return 0;
 }
 
-int dm_gpio_get_open_drain(struct gpio_desc *desc)
+/* check dir flags invalid configuration */
+static int check_dir_flags(ulong flags)
 {
-	struct dm_gpio_ops *ops = gpio_get_ops(desc->dev);
-	int ret;
+	if ((flags & GPIOD_IS_OUT) && (flags & GPIOD_IS_IN)) {
+		log_debug("%s: flags 0x%lx has GPIOD_IS_OUT and GPIOD_IS_IN\n",
+			  __func__, flags);
+		return -EINVAL;
+	}
 
-	ret = check_reserved(desc, "get_open_drain");
-	if (ret)
-		return ret;
+	if ((flags & GPIOD_PULL_UP) && (flags & GPIOD_PULL_DOWN)) {
+		log_debug("%s: flags 0x%lx has GPIOD_PULL_UP and GPIOD_PULL_DOWN\n",
+			  __func__, flags);
+		return -EINVAL;
+	}
 
-	if (ops->set_open_drain)
-		return ops->get_open_drain(desc->dev, desc->offset);
-	else
-		return -ENOSYS;
+	if ((flags & GPIOD_OPEN_DRAIN) && (flags & GPIOD_OPEN_SOURCE)) {
+		log_debug("%s: flags 0x%lx has GPIOD_OPEN_DRAIN and GPIOD_OPEN_SOURCE\n",
+			  __func__, flags);
+		return -EINVAL;
+	}
+
+	return 0;
 }
 
-int dm_gpio_set_open_drain(struct gpio_desc *desc, int value)
+static int _dm_gpio_set_dir_flags(struct gpio_desc *desc, ulong flags)
 {
-	struct dm_gpio_ops *ops = gpio_get_ops(desc->dev);
-	int ret;
+	struct udevice *dev = desc->dev;
+	struct dm_gpio_ops *ops = gpio_get_ops(dev);
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+	int ret = 0;
 
-	ret = check_reserved(desc, "set_open_drain");
-	if (ret)
+	ret = check_dir_flags(flags);
+	if (ret) {
+		dev_dbg(dev,
+			"%s error: set_dir_flags for gpio %s%d has invalid dir flags 0x%lx\n",
+			desc->dev->name,
+			uc_priv->bank_name ? uc_priv->bank_name : "",
+			desc->offset, flags);
+
 		return ret;
+	}
 
-	if (ops->set_open_drain)
-		ret = ops->set_open_drain(desc->dev, desc->offset, value);
-	else
-		return 0; /* feature not supported -> ignore setting */
+	/* GPIOD_ are directly managed by driver in set_dir_flags*/
+	if (ops->set_dir_flags) {
+		ret = ops->set_dir_flags(dev, desc->offset, flags);
+	} else {
+		if (flags & GPIOD_IS_OUT) {
+			ret = ops->direction_output(dev, desc->offset,
+						    GPIOD_FLAGS_OUTPUT(flags));
+		} else if (flags & GPIOD_IS_IN) {
+			ret = ops->direction_input(dev, desc->offset);
+		}
+	}
 
 	return ret;
 }
 
 int dm_gpio_set_dir_flags(struct gpio_desc *desc, ulong flags)
 {
-	struct udevice *dev = desc->dev;
-	struct dm_gpio_ops *ops = gpio_get_ops(dev);
+	int ret;
+
+	ret = check_reserved(desc, "set_dir_flags");
+	if (ret)
+		return ret;
+
+	/* combine the requested flags (for IN/OUT) and the descriptor flags */
+	flags |= desc->flags;
+	ret = _dm_gpio_set_dir_flags(desc, flags);
+
+	/* update the descriptor flags */
+	if (ret)
+		desc->flags = flags;
+
+	return ret;
+}
+
+int dm_gpio_set_dir(struct gpio_desc *desc)
+{
 	int ret;
 
 	ret = check_reserved(desc, "set_dir");
 	if (ret)
 		return ret;
 
-	if (flags & GPIOD_IS_OUT) {
-		int value = flags & GPIOD_IS_OUT_ACTIVE ? 1 : 0;
-
-		if (flags & GPIOD_ACTIVE_LOW)
-			value = !value;
-		ret = ops->direction_output(dev, desc->offset, value);
-	} else  if (flags & GPIOD_IS_IN) {
-		ret = ops->direction_input(dev, desc->offset);
-	}
-	if (ret)
-		return ret;
-	/*
-	 * Update desc->flags here, so that GPIO_ACTIVE_LOW is honoured in
-	 * futures
-	 */
-	desc->flags = flags;
-
-	return 0;
+	return _dm_gpio_set_dir_flags(desc, desc->flags);
 }
 
-int dm_gpio_set_dir(struct gpio_desc *desc)
+int dm_gpio_get_dir_flags(struct gpio_desc *desc, ulong *flags)
 {
-	return dm_gpio_set_dir_flags(desc, desc->flags);
+	struct udevice *dev = desc->dev;
+	int ret, value;
+	struct dm_gpio_ops *ops = gpio_get_ops(dev);
+	ulong dir_flags;
+
+	ret = check_reserved(desc, "get_dir_flags");
+	if (ret)
+		return ret;
+
+	/* GPIOD_ are directly provided by driver except GPIOD_ACTIVE_LOW */
+	if (ops->get_dir_flags) {
+		ret = ops->get_dir_flags(dev, desc->offset, &dir_flags);
+		if (ret)
+			return ret;
+
+		/* GPIOD_ACTIVE_LOW is saved in desc->flags */
+		value = dir_flags & GPIOD_IS_OUT_ACTIVE ? 1 : 0;
+		if (desc->flags & GPIOD_ACTIVE_LOW)
+			value = !value;
+		dir_flags &= ~(GPIOD_ACTIVE_LOW | GPIOD_IS_OUT_ACTIVE);
+		dir_flags |= (desc->flags & GPIOD_ACTIVE_LOW);
+		if (value)
+			dir_flags |= GPIOD_IS_OUT_ACTIVE;
+	} else {
+		dir_flags = desc->flags;
+		/* only GPIOD_IS_OUT_ACTIVE is provided by uclass */
+		dir_flags &= ~GPIOD_IS_OUT_ACTIVE;
+		if ((desc->flags & GPIOD_IS_OUT) && _gpio_get_value(desc))
+			dir_flags |= GPIOD_IS_OUT_ACTIVE;
+	}
+	*flags = dir_flags;
+
+	return 0;
 }
 
 /**
@@ -804,9 +900,7 @@ static int gpio_request_tail(int ret, const char *nodename,
 			     struct gpio_desc *desc, int flags,
 			     bool add_index, struct udevice *gpio_dev)
 {
-	desc->dev = gpio_dev;
-	desc->offset = 0;
-	desc->flags = 0;
+	gpio_desc_init(desc, gpio_dev, 0);
 	if (ret)
 		goto err;
 
@@ -830,7 +924,7 @@ static int gpio_request_tail(int ret, const char *nodename,
 		debug("%s: dm_gpio_requestf failed\n", __func__);
 		goto err;
 	}
-	ret = dm_gpio_set_dir_flags(desc, flags | desc->flags);
+	ret = dm_gpio_set_dir_flags(desc, flags);
 	if (ret) {
 		debug("%s: dm_gpio_set_dir failed\n", __func__);
 		goto err;
@@ -1053,14 +1147,14 @@ static int gpio_post_bind(struct udevice *dev)
 			ops->get_value += gd->reloc_off;
 		if (ops->set_value)
 			ops->set_value += gd->reloc_off;
-		if (ops->get_open_drain)
-			ops->get_open_drain += gd->reloc_off;
-		if (ops->set_open_drain)
-			ops->set_open_drain += gd->reloc_off;
 		if (ops->get_function)
 			ops->get_function += gd->reloc_off;
 		if (ops->xlate)
 			ops->xlate += gd->reloc_off;
+		if (ops->set_dir_flags)
+			ops->set_dir_flags += gd->reloc_off;
+		if (ops->get_dir_flags)
+			ops->get_dir_flags += gd->reloc_off;
 
 		reloc_done++;
 	}

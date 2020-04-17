@@ -10,8 +10,6 @@
 #include <linux/libfdt.h>
 #include <asm/io.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct single_pdata {
 	fdt_addr_t base;	/* first configuration register */
 	int offset;		/* index of last configuration register */
@@ -118,13 +116,11 @@ static int single_configure_bits(struct udevice *dev,
 static int single_set_state(struct udevice *dev,
 			    struct udevice *config)
 {
-	const void *fdt = gd->fdt_blob;
 	const struct single_fdt_pin_cfg *prop;
 	const struct single_fdt_bits_cfg *prop_bits;
 	int len;
 
-	prop = fdt_getprop(fdt, dev_of_offset(config), "pinctrl-single,pins",
-			   &len);
+	prop = dev_read_prop(dev, "pinctrl-single,pins", &len);
 
 	if (prop) {
 		dev_dbg(dev, "configuring pins for %s\n", config->name);
@@ -137,9 +133,7 @@ static int single_set_state(struct udevice *dev,
 	}
 
 	/* pinctrl-single,pins not found so check for pinctrl-single,bits */
-	prop_bits = fdt_getprop(fdt, dev_of_offset(config),
-				"pinctrl-single,bits",
-				    &len);
+	prop_bits = dev_read_prop(dev, "pinctrl-single,bits", &len);
 	if (prop_bits) {
 		dev_dbg(dev, "configuring pins for %s\n", config->name);
 		if (len % sizeof(struct single_fdt_bits_cfg)) {
@@ -161,27 +155,24 @@ static int single_ofdata_to_platdata(struct udevice *dev)
 	int res;
 	struct single_pdata *pdata = dev->platdata;
 
-	pdata->width = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-				      "pinctrl-single,register-width", 0);
+	pdata->width =
+		dev_read_u32_default(dev, "pinctrl-single,register-width", 0);
 
-	res = fdtdec_get_int_array(gd->fdt_blob, dev_of_offset(dev),
-				   "reg", of_reg, 2);
+	res = dev_read_u32_array(dev, "reg", of_reg, 2);
 	if (res)
 		return res;
 	pdata->offset = of_reg[1] - pdata->width / 8;
 
-	addr = devfdt_get_addr(dev);
+	addr = dev_read_addr(dev);
 	if (addr == FDT_ADDR_T_NONE) {
 		dev_dbg(dev, "no valid base register address\n");
 		return -EINVAL;
 	}
 	pdata->base = addr;
 
-	pdata->mask = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-				     "pinctrl-single,function-mask",
-				     0xffffffff);
-	pdata->bits_per_mux = fdtdec_get_bool(gd->fdt_blob, dev_of_offset(dev),
-					      "pinctrl-single,bit-per-mux");
+	pdata->mask = dev_read_u32_default(dev, "pinctrl-single,function-mask",
+					   0xffffffff);
+	pdata->bits_per_mux = dev_read_bool(dev, "pinctrl-single,bit-per-mux");
 
 	return 0;
 }

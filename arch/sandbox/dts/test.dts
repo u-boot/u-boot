@@ -1,5 +1,8 @@
 /dts-v1/;
 
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/gpio/sandbox-gpio.h>
+
 / {
 	model = "sandbox";
 	compatible = "sandbox";
@@ -13,6 +16,7 @@
 		eth5 = &eth_5;
 		gpio1 = &gpio_a;
 		gpio2 = &gpio_b;
+		gpio3 = &gpio_c;
 		i2c0 = "/i2c@0";
 		mmc0 = "/mmc0";
 		mmc1 = "/mmc1";
@@ -86,11 +90,21 @@
 		ping-expect = <0>;
 		ping-add = <0>;
 		u-boot,dm-pre-reloc;
-		test-gpios = <&gpio_a 1>, <&gpio_a 4>, <&gpio_b 5 0 3 2 1>,
+		test-gpios = <&gpio_a 1>, <&gpio_a 4>,
+			<&gpio_b 5 GPIO_ACTIVE_HIGH 3 2 1>,
 			<0>, <&gpio_a 12>;
-		test2-gpios = <&gpio_a 1>, <&gpio_a 4>, <&gpio_b 6 1 3 2 1>,
-			<&gpio_b 7 2 3 2 1>, <&gpio_b 8 4 3 2 1>,
-			<&gpio_b 9 0xc 3 2 1>;
+		test2-gpios = <&gpio_a 1>, <&gpio_a 4>,
+			<&gpio_b 6 GPIO_ACTIVE_LOW 3 2 1>,
+			<&gpio_b 7 GPIO_IN 3 2 1>,
+			<&gpio_b 8 GPIO_OUT 3 2 1>,
+			<&gpio_b 9 (GPIO_OUT|GPIO_OUT_ACTIVE) 3 2 1>;
+		test3-gpios =
+			<&gpio_c 0 (GPIO_OUT|GPIO_OPEN_DRAIN)>,
+			<&gpio_c 1 (GPIO_OUT|GPIO_OPEN_SOURCE)>,
+			<&gpio_c 2 GPIO_OUT>,
+			<&gpio_c 3 (GPIO_IN|GPIO_PULL_UP)>,
+			<&gpio_c 4 (GPIO_IN|GPIO_PULL_DOWN)>,
+			<&gpio_c 5 GPIO_IN>;
 		int-value = <1234>;
 		uint-value = <(-1234)>;
 		int64-value = /bits/ 64 <0x1111222233334444>;
@@ -285,20 +299,32 @@
 		};
 	};
 
-	gpio_a: base-gpios {
-		compatible = "sandbox,gpio";
-		gpio-controller;
-		#gpio-cells = <1>;
-		gpio-bank-name = "a";
-		sandbox,gpio-count = <20>;
-	};
+	pinctrl-gpio {
+		compatible = "sandbox,pinctrl-gpio";
 
-	gpio_b: extra-gpios {
-		compatible = "sandbox,gpio";
-		gpio-controller;
-		#gpio-cells = <5>;
-		gpio-bank-name = "b";
-		sandbox,gpio-count = <10>;
+		gpio_a: base-gpios {
+			compatible = "sandbox,gpio";
+			gpio-controller;
+			#gpio-cells = <1>;
+			gpio-bank-name = "a";
+			sandbox,gpio-count = <20>;
+		};
+
+		gpio_b: extra-gpios {
+			compatible = "sandbox,gpio";
+			gpio-controller;
+			#gpio-cells = <5>;
+			gpio-bank-name = "b";
+			sandbox,gpio-count = <10>;
+		};
+
+		gpio_c: pinmux-gpios {
+			compatible = "sandbox,gpio";
+			gpio-controller;
+			#gpio-cells = <2>;
+			gpio-bank-name = "c";
+			sandbox,gpio-count = <10>;
+		};
 	};
 
 	i2c@0 {
@@ -905,6 +931,31 @@
 
 	pinctrl {
 		compatible = "sandbox,pinctrl";
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&gpios>;
+
+		gpios: gpios {
+			gpio0 {
+				pins = "GPIO0";
+				bias-pull-up;
+				input-disable;
+			};
+			gpio1 {
+				pins = "GPIO1";
+				output-high;
+				drive-open-drain;
+			};
+			gpio2 {
+				pins = "GPIO2";
+				bias-pull-down;
+				input-enable;
+			};
+			gpio3 {
+				pins = "GPIO3";
+				bias-disable;
+			};
+		};
 	};
 
 	hwspinlock@0 {

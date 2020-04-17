@@ -14,7 +14,11 @@ static const char * const sandbox_pins[] = {
 	"SDA",
 	"TX",
 	"RX",
-	"W1"
+	"W1",
+	"GPIO0",
+	"GPIO1",
+	"GPIO2",
+	"GPIO3",
 };
 
 static const char * const sandbox_pins_muxing[] = {
@@ -23,6 +27,10 @@ static const char * const sandbox_pins_muxing[] = {
 	"Uart TX",
 	"Uart RX",
 	"1-wire gpio",
+	"gpio",
+	"gpio",
+	"gpio",
+	"gpio",
 };
 
 static const char * const sandbox_groups[] = {
@@ -38,6 +46,10 @@ static const char * const sandbox_functions[] = {
 	"serial",
 	"spi",
 	"w1",
+	"gpio",
+	"gpio",
+	"gpio",
+	"gpio",
 };
 
 static const struct pinconf_param sandbox_conf_params[] = {
@@ -54,6 +66,10 @@ static const struct pinconf_param sandbox_conf_params[] = {
 	{ "input-disable", PIN_CONFIG_INPUT_ENABLE, 0 },
 };
 
+/* bitfield used to save param and value of each pin/selector */
+static unsigned int sandbox_pins_param[ARRAY_SIZE(sandbox_pins)];
+static unsigned int sandbox_pins_value[ARRAY_SIZE(sandbox_pins)];
+
 static int sandbox_get_pins_count(struct udevice *dev)
 {
 	return ARRAY_SIZE(sandbox_pins);
@@ -68,7 +84,24 @@ static int sandbox_get_pin_muxing(struct udevice *dev,
 				  unsigned int selector,
 				  char *buf, int size)
 {
+	const struct pinconf_param *p;
+	int i;
+
 	snprintf(buf, size, "%s", sandbox_pins_muxing[selector]);
+
+	if (sandbox_pins_param[selector]) {
+		for (i = 0, p = sandbox_conf_params;
+		     i < ARRAY_SIZE(sandbox_conf_params);
+		     i++, p++) {
+			if ((sandbox_pins_param[selector] & BIT(p->param)) &&
+			    (!!(sandbox_pins_value[selector] & BIT(p->param)) ==
+			     p->default_value)) {
+				strncat(buf, " ", size);
+				strncat(buf, p->property, size);
+			}
+		}
+	}
+	strncat(buf, ".", size);
 
 	return 0;
 }
@@ -102,6 +135,9 @@ static int sandbox_pinmux_set(struct udevice *dev, unsigned pin_selector,
 	      pin_selector, sandbox_get_pin_name(dev, pin_selector),
 	      func_selector, sandbox_get_function_name(dev, func_selector));
 
+	sandbox_pins_param[pin_selector] = 0;
+	sandbox_pins_value[pin_selector] = 0;
+
 	return 0;
 }
 
@@ -122,6 +158,12 @@ static int sandbox_pinconf_set(struct udevice *dev, unsigned pin_selector,
 	debug("sandbox pinconf: pin = %d (%s), param = %d, arg = %d\n",
 	      pin_selector, sandbox_get_pin_name(dev, pin_selector),
 	      param, argument);
+
+	sandbox_pins_param[pin_selector] |= BIT(param);
+	if (argument)
+		sandbox_pins_value[pin_selector] |= BIT(param);
+	else
+		sandbox_pins_value[pin_selector] &= ~BIT(param);
 
 	return 0;
 }

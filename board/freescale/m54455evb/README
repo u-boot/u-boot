@@ -26,7 +26,7 @@ Changed files:
 - arch/m68k/cpu/mcf5445x/config.mk	config make
 - arch/m68k/cpu/mcf5445x/start.S		start up assembly code
 
-- doc/README.m54455evb	This readme file
+- board/freescale/m54455evb/README	This readme file
 
 - drivers/net/mcffec.c		ColdFire common FEC driver
 - drivers/serial/mcfuart.c	ColdFire common UART driver

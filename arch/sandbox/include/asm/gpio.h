@@ -43,26 +43,6 @@ int sandbox_gpio_get_value(struct udevice *dev, unsigned int offset);
 int sandbox_gpio_set_value(struct udevice *dev, unsigned int offset, int value);
 
 /**
- * Set or reset the simulated open drain mode of a GPIO (used only in sandbox
- * test code)
- *
- * @param gp	GPIO number
- * @param value	value to set (0 for enabled open drain mode, non-zero for
- * 		disabled)
- * @return -1 on error, 0 if ok
- */
-int sandbox_gpio_set_open_drain(struct udevice *dev, unsigned offset, int value);
-
-/**
- * Return the state of the simulated open drain mode of a GPIO (used only in
- * sandbox test code)
- *
- * @param gp	GPIO number
- * @return -1 on error, 0 if GPIO is input, >0 if output
- */
-int sandbox_gpio_get_open_drain(struct udevice *dev, unsigned offset);
-
-/**
  * Return the simulated direction of a GPIO (used only in sandbox test code)
  *
  * @param dev		device to use
@@ -81,5 +61,25 @@ int sandbox_gpio_get_direction(struct udevice *dev, unsigned int offset);
  */
 int sandbox_gpio_set_direction(struct udevice *dev, unsigned int offset,
 			       int output);
+
+/**
+ * Return the simulated flags of a GPIO (used only in sandbox test code)
+ *
+ * @param dev		device to use
+ * @param offset	GPIO offset within bank
+ * @return dir_flags: bitfield accesses by GPIOD_ defines
+ */
+ulong sandbox_gpio_get_dir_flags(struct udevice *dev, unsigned int offset);
+
+/**
+ * Set the simulated flags of a GPIO (used only in sandbox test code)
+ *
+ * @param dev		device to use
+ * @param offset	GPIO offset within bank
+ * @param flags		dir_flags: bitfield accesses by GPIOD_ defines
+ * @return -1 on error, 0 if ok
+ */
+int sandbox_gpio_set_dir_flags(struct udevice *dev, unsigned int offset,
+			       ulong flags);
 
 #endif

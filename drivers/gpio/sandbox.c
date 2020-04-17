@@ -8,43 +8,44 @@
 #include <fdtdec.h>
 #include <malloc.h>
 #include <asm/gpio.h>
+#include <dm/device_compat.h>
+#include <dm/lists.h>
 #include <dm/of.h>
+#include <dm/pinctrl.h>
 #include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/gpio/sandbox-gpio.h>
 
-/* Flags for each GPIO */
-#define GPIOF_OUTPUT	(1 << 0)	/* Currently set as an output */
-#define GPIOF_HIGH	(1 << 1)	/* Currently set high */
-#define GPIOF_ODR	(1 << 2)	/* Currently set to open drain mode */
 
 struct gpio_state {
 	const char *label;	/* label given by requester */
-	u8 flags;		/* flags (GPIOF_...) */
+	ulong dir_flags;	/* dir_flags (GPIOD_...) */
 };
 
-/* Access routines for GPIO state */
-static u8 *get_gpio_flags(struct udevice *dev, unsigned offset)
+/* Access routines for GPIO dir flags */
+static ulong *get_gpio_dir_flags(struct udevice *dev, unsigned int offset)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct gpio_state *state = dev_get_priv(dev);
 
 	if (offset >= uc_priv->gpio_count) {
-		static u8 invalid_flags;
+		static ulong invalid_dir_flags;
 		printf("sandbox_gpio: error: invalid gpio %u\n", offset);
-		return &invalid_flags;
+		return &invalid_dir_flags;
 	}
 
-	return &state[offset].flags;
+	return &state[offset].dir_flags;
+
 }
 
-static int get_gpio_flag(struct udevice *dev, unsigned offset, int flag)
+static int get_gpio_flag(struct udevice *dev, unsigned int offset, ulong flag)
 {
-	return (*get_gpio_flags(dev, offset) & flag) != 0;
+	return (*get_gpio_dir_flags(dev, offset) & flag) != 0;
 }
 
-static int set_gpio_flag(struct udevice *dev, unsigned offset, int flag,
+static int set_gpio_flag(struct udevice *dev, unsigned int offset, ulong flag,
 			 int value)
 {
-	u8 *gpio = get_gpio_flags(dev, offset);
+	ulong *gpio = get_gpio_dir_flags(dev, offset);
 
 	if (value)
 		*gpio |= flag;
@@ -60,34 +61,40 @@ static int set_gpio_flag(struct udevice *dev, unsigned offset, int flag,
 
 int sandbox_gpio_get_value(struct udevice *dev, unsigned offset)
 {
-	if (get_gpio_flag(dev, offset, GPIOF_OUTPUT))
+	if (get_gpio_flag(dev, offset, GPIOD_IS_OUT))
 		debug("sandbox_gpio: get_value on output gpio %u\n", offset);
-	return get_gpio_flag(dev, offset, GPIOF_HIGH);
+	return get_gpio_flag(dev, offset, GPIOD_IS_OUT_ACTIVE);
 }
 
 int sandbox_gpio_set_value(struct udevice *dev, unsigned offset, int value)
 {
-	return set_gpio_flag(dev, offset, GPIOF_HIGH, value);
-}
-
-int sandbox_gpio_get_open_drain(struct udevice *dev, unsigned offset)
-{
-	return get_gpio_flag(dev, offset, GPIOF_ODR);
-}
-
-int sandbox_gpio_set_open_drain(struct udevice *dev, unsigned offset, int value)
-{
-	return set_gpio_flag(dev, offset, GPIOF_ODR, value);
+	return set_gpio_flag(dev, offset, GPIOD_IS_OUT_ACTIVE, value);
 }
 
 int sandbox_gpio_get_direction(struct udevice *dev, unsigned offset)
 {
-	return get_gpio_flag(dev, offset, GPIOF_OUTPUT);
+	return get_gpio_flag(dev, offset, GPIOD_IS_OUT);
 }
 
 int sandbox_gpio_set_direction(struct udevice *dev, unsigned offset, int output)
 {
-	return set_gpio_flag(dev, offset, GPIOF_OUTPUT, output);
+	set_gpio_flag(dev, offset, GPIOD_IS_OUT, output);
+	set_gpio_flag(dev, offset, GPIOD_IS_IN, !(output));
+
+	return 0;
+}
+
+ulong sandbox_gpio_get_dir_flags(struct udevice *dev, unsigned int offset)
+{
+	return *get_gpio_dir_flags(dev, offset);
+}
+
+int sandbox_gpio_set_dir_flags(struct udevice *dev, unsigned int offset,
+			       ulong flags)
+{
+	*get_gpio_dir_flags(dev, offset) = flags;
+
+	return 0;
 }
 
 /*
@@ -134,33 +141,14 @@ static int sb_gpio_set_value(struct udevice *dev, unsigned offset, int value)
 	return sandbox_gpio_set_value(dev, offset, value);
 }
 
-/* read GPIO ODR value of port 'offset' */
-static int sb_gpio_get_open_drain(struct udevice *dev, unsigned offset)
-{
-	debug("%s: offset:%u\n", __func__, offset);
-
-	return sandbox_gpio_get_open_drain(dev, offset);
-}
-
-/* write GPIO ODR value to port 'offset' */
-static int sb_gpio_set_open_drain(struct udevice *dev, unsigned offset, int value)
-{
-	debug("%s: offset:%u, value = %d\n", __func__, offset, value);
-
-	if (!sandbox_gpio_get_direction(dev, offset)) {
-		printf("sandbox_gpio: error: set_open_drain on input gpio %u\n",
-		       offset);
-		return -1;
-	}
-
-	return sandbox_gpio_set_open_drain(dev, offset, value);
-}
-
 static int sb_gpio_get_function(struct udevice *dev, unsigned offset)
 {
-	if (get_gpio_flag(dev, offset, GPIOF_OUTPUT))
+	if (get_gpio_flag(dev, offset, GPIOD_IS_OUT))
 		return GPIOF_OUTPUT;
-	return GPIOF_INPUT;
+	if (get_gpio_flag(dev, offset, GPIOD_IS_IN))
+		return GPIOF_INPUT;
+
+	return GPIOF_INPUT; /*GPIO is not configurated */
 }
 
 static int sb_gpio_xlate(struct udevice *dev, struct gpio_desc *desc,
@@ -169,14 +157,41 @@ static int sb_gpio_xlate(struct udevice *dev, struct gpio_desc *desc,
 	desc->offset = args->args[0];
 	if (args->args_count < 2)
 		return 0;
-	if (args->args[1] & GPIO_ACTIVE_LOW)
-		desc->flags |= GPIOD_ACTIVE_LOW;
-	if (args->args[1] & 2)
+	/* treat generic binding with gpio uclass */
+	gpio_xlate_offs_flags(dev, desc, args);
+
+	/* sandbox test specific, not defined in gpio.h */
+	if (args->args[1] & GPIO_IN)
 		desc->flags |= GPIOD_IS_IN;
-	if (args->args[1] & 4)
+
+	if (args->args[1] & GPIO_OUT)
 		desc->flags |= GPIOD_IS_OUT;
-	if (args->args[1] & 8)
+
+	if (args->args[1] & GPIO_OUT_ACTIVE)
 		desc->flags |= GPIOD_IS_OUT_ACTIVE;
+
+	return 0;
+}
+
+static int sb_gpio_set_dir_flags(struct udevice *dev, unsigned int offset,
+				 ulong flags)
+{
+	ulong *dir_flags;
+
+	debug("%s: offset:%u, dir_flags = %lx\n", __func__, offset, flags);
+
+	dir_flags = get_gpio_dir_flags(dev, offset);
+
+	*dir_flags = flags;
+
+	return 0;
+}
+
+static int sb_gpio_get_dir_flags(struct udevice *dev, unsigned int offset,
+				 ulong *flags)
+{
+	debug("%s: offset:%u\n", __func__, offset);
+	*flags = *get_gpio_dir_flags(dev, offset);
 
 	return 0;
 }
@@ -186,10 +201,10 @@ static const struct dm_gpio_ops gpio_sandbox_ops = {
 	.direction_output	= sb_gpio_direction_output,
 	.get_value		= sb_gpio_get_value,
 	.set_value		= sb_gpio_set_value,
-	.get_open_drain		= sb_gpio_get_open_drain,
-	.set_open_drain		= sb_gpio_set_open_drain,
 	.get_function		= sb_gpio_get_function,
 	.xlate			= sb_gpio_xlate,
+	.set_dir_flags		= sb_gpio_set_dir_flags,
+	.get_dir_flags		= sb_gpio_get_dir_flags,
 };
 
 static int sandbox_gpio_ofdata_to_platdata(struct udevice *dev)
@@ -236,4 +251,199 @@ U_BOOT_DRIVER(gpio_sandbox) = {
 	.probe	= gpio_sandbox_probe,
 	.remove	= gpio_sandbox_remove,
 	.ops	= &gpio_sandbox_ops,
+};
+
+/* pincontrol: used only to check GPIO pin configuration (pinmux command) */
+
+struct sb_pinctrl_priv {
+	int pinctrl_ngpios;
+	struct list_head gpio_dev;
+};
+
+struct sb_gpio_bank {
+	struct udevice *gpio_dev;
+	struct list_head list;
+};
+
+static int sb_populate_gpio_dev_list(struct udevice *dev)
+{
+	struct sb_pinctrl_priv *priv = dev_get_priv(dev);
+	struct udevice *gpio_dev;
+	struct udevice *child;
+	struct sb_gpio_bank *gpio_bank;
+	int ret;
+
+	/*
+	 * parse pin-controller sub-nodes (ie gpio bank nodes) and fill
+	 * a list with all gpio device reference which belongs to the
+	 * current pin-controller. This list is used to find pin_name and
+	 * pin muxing
+	 */
+	list_for_each_entry(child, &dev->child_head, sibling_node) {
+		ret = uclass_get_device_by_name(UCLASS_GPIO, child->name,
+						&gpio_dev);
+		if (ret < 0)
+			continue;
+
+		gpio_bank = malloc(sizeof(*gpio_bank));
+		if (!gpio_bank) {
+			dev_err(dev, "Not enough memory\n");
+			return -ENOMEM;
+		}
+
+		gpio_bank->gpio_dev = gpio_dev;
+		list_add_tail(&gpio_bank->list, &priv->gpio_dev);
+	}
+
+	return 0;
+}
+
+static int sb_pinctrl_get_pins_count(struct udevice *dev)
+{
+	struct sb_pinctrl_priv *priv = dev_get_priv(dev);
+	struct gpio_dev_priv *uc_priv;
+	struct sb_gpio_bank *gpio_bank;
+
+	/*
+	 * if get_pins_count has already been executed once on this
+	 * pin-controller, no need to run it again
+	 */
+	if (priv->pinctrl_ngpios)
+		return priv->pinctrl_ngpios;
+
+	if (list_empty(&priv->gpio_dev))
+		sb_populate_gpio_dev_list(dev);
+	/*
+	 * walk through all banks to retrieve the pin-controller
+	 * pins number
+	 */
+	list_for_each_entry(gpio_bank, &priv->gpio_dev, list) {
+		uc_priv = dev_get_uclass_priv(gpio_bank->gpio_dev);
+
+		priv->pinctrl_ngpios += uc_priv->gpio_count;
+	}
+
+	return priv->pinctrl_ngpios;
+}
+
+static struct udevice *sb_pinctrl_get_gpio_dev(struct udevice *dev,
+					       unsigned int selector,
+					       unsigned int *idx)
+{
+	struct sb_pinctrl_priv *priv = dev_get_priv(dev);
+	struct sb_gpio_bank *gpio_bank;
+	struct gpio_dev_priv *uc_priv;
+	int pin_count = 0;
+
+	if (list_empty(&priv->gpio_dev))
+		sb_populate_gpio_dev_list(dev);
+
+	/* look up for the bank which owns the requested pin */
+	list_for_each_entry(gpio_bank, &priv->gpio_dev, list) {
+		uc_priv = dev_get_uclass_priv(gpio_bank->gpio_dev);
+
+		if (selector < (pin_count + uc_priv->gpio_count)) {
+			/*
+			 * we found the bank, convert pin selector to
+			 * gpio bank index
+			 */
+			*idx = selector - pin_count;
+
+			return gpio_bank->gpio_dev;
+		}
+		pin_count += uc_priv->gpio_count;
+	}
+
+	return NULL;
+}
+
+static const char *sb_pinctrl_get_pin_name(struct udevice *dev,
+					   unsigned int selector)
+{
+	struct gpio_dev_priv *uc_priv;
+	struct udevice *gpio_dev;
+	unsigned int gpio_idx;
+	static char pin_name[PINNAME_SIZE];
+
+	/* look up for the bank which owns the requested pin */
+	gpio_dev = sb_pinctrl_get_gpio_dev(dev, selector, &gpio_idx);
+	if (!gpio_dev) {
+		snprintf(pin_name, PINNAME_SIZE, "Error");
+	} else {
+		uc_priv = dev_get_uclass_priv(gpio_dev);
+
+		snprintf(pin_name, PINNAME_SIZE, "%s%d",
+			 uc_priv->bank_name,
+			 gpio_idx);
+	}
+
+	return pin_name;
+}
+
+static char *get_dir_flags_string(ulong flags)
+{
+	if (flags & GPIOD_OPEN_DRAIN)
+		return "drive-open-drain";
+	if (flags & GPIOD_OPEN_SOURCE)
+		return "drive-open-source";
+	if (flags & GPIOD_PULL_UP)
+		return "bias-pull-up";
+	if (flags & GPIOD_PULL_DOWN)
+		return "bias-pull-down";
+	return ".";
+}
+
+static int sb_pinctrl_get_pin_muxing(struct udevice *dev,
+				     unsigned int selector,
+				     char *buf, int size)
+{
+	struct udevice *gpio_dev;
+	unsigned int gpio_idx;
+	ulong dir_flags;
+	int function;
+
+	/* look up for the bank which owns the requested pin */
+	gpio_dev = sb_pinctrl_get_gpio_dev(dev, selector, &gpio_idx);
+	if (!gpio_dev) {
+		snprintf(buf, size, "Error");
+	} else {
+		function = sb_gpio_get_function(gpio_dev, gpio_idx);
+		dir_flags = *get_gpio_dir_flags(gpio_dev, gpio_idx);
+
+		snprintf(buf, size, "gpio %s %s",
+			 function == GPIOF_OUTPUT ? "output" : "input",
+			 get_dir_flags_string(dir_flags));
+	}
+
+	return 0;
+}
+
+static int sandbox_pinctrl_probe(struct udevice *dev)
+{
+	struct sb_pinctrl_priv *priv = dev_get_priv(dev);
+
+	INIT_LIST_HEAD(&priv->gpio_dev);
+
+	return 0;
+}
+
+static struct pinctrl_ops sandbox_pinctrl_gpio_ops = {
+	.get_pin_name		= sb_pinctrl_get_pin_name,
+	.get_pins_count		= sb_pinctrl_get_pins_count,
+	.get_pin_muxing		= sb_pinctrl_get_pin_muxing,
+};
+
+static const struct udevice_id sandbox_pinctrl_gpio_match[] = {
+	{ .compatible = "sandbox,pinctrl-gpio" },
+	{ /* sentinel */ }
+};
+
+U_BOOT_DRIVER(sandbox_pinctrl_gpio) = {
+	.name = "sandbox_pinctrl_gpio",
+	.id = UCLASS_PINCTRL,
+	.of_match = sandbox_pinctrl_gpio_match,
+	.ops = &sandbox_pinctrl_gpio_ops,
+	.bind = dm_scan_fdt_dev,
+	.probe = sandbox_pinctrl_probe,
+	.priv_auto_alloc_size	= sizeof(struct sb_pinctrl_priv),
 };

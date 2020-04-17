@@ -133,26 +133,6 @@ static int mpc8xxx_gpio_get_value(struct udevice *dev, uint gpio)
 	return !!mpc8xxx_gpio_get_val(data->base, gpio_mask(gpio));
 }
 
-static int mpc8xxx_gpio_get_open_drain(struct udevice *dev, uint gpio)
-{
-	struct mpc8xxx_gpio_data *data = dev_get_priv(dev);
-
-	return !!mpc8xxx_gpio_open_drain_val(data->base, gpio_mask(gpio));
-}
-
-static int mpc8xxx_gpio_set_open_drain(struct udevice *dev, uint gpio,
-				       int value)
-{
-	struct mpc8xxx_gpio_data *data = dev_get_priv(dev);
-
-	if (value)
-		mpc8xxx_gpio_open_drain_on(data->base, gpio_mask(gpio));
-	else
-		mpc8xxx_gpio_open_drain_off(data->base, gpio_mask(gpio));
-
-	return 0;
-}
-
 static int mpc8xxx_gpio_get_function(struct udevice *dev, uint gpio)
 {
 	struct mpc8xxx_gpio_data *data = dev_get_priv(dev);
@@ -229,8 +209,6 @@ static const struct dm_gpio_ops gpio_mpc8xxx_ops = {
 	.direction_output	= mpc8xxx_gpio_direction_output,
 	.get_value		= mpc8xxx_gpio_get_value,
 	.set_value		= mpc8xxx_gpio_set_value,
-	.get_open_drain		= mpc8xxx_gpio_get_open_drain,
-	.set_open_drain		= mpc8xxx_gpio_set_open_drain,
 	.get_function		= mpc8xxx_gpio_get_function,
 };
 

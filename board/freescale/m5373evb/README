@@ -23,7 +23,7 @@ Changed files:
 - arch/m68k/cpu/mcf532x/config.mk		config make
 - arch/m68k/cpu/mcf532x/start.S		start up assembly code
 
-- doc/README.m5373evb		This readme file
+- board/freescale/m5373evb/README	This readme file
 
 - drivers/net/mcffec.c		ColdFire common FEC driver
 - drivers/serial/mcfuart.c	ColdFire common UART driver

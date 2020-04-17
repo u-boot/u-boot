@@ -7,7 +7,7 @@
 
 /*
  * sbc8548 board configuration file
- * Please refer to doc/README.sbc8548 for more info.
+ * Please refer to board/sbc8548/README for more info.
  */
 #ifndef __CONFIG_H
 #define __CONFIG_H

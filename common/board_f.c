@@ -472,6 +472,17 @@ static int reserve_uboot(void)
 	return 0;
 }
 
+/*
+ * reserve after start_addr_sp the requested size and make the stack pointer
+ * 16-byte aligned, this alignment is needed for cast on the reserved memory
+ * ref = x86_64 ABI: https://reviews.llvm.org/D30049: 16 bytes
+ *     = ARMv8 Instruction Set Overview: quad word, 16 bytes
+ */
+static unsigned long reserve_stack_aligned(size_t size)
+{
+	return ALIGN_DOWN(gd->start_addr_sp - size, 16);
+}
+
 #ifdef CONFIG_SYS_NONCACHED_MEMORY
 static int reserve_noncached(void)
 {
@@ -497,7 +508,7 @@ static int reserve_noncached(void)
 /* reserve memory for malloc() area */
 static int reserve_malloc(void)
 {
-	gd->start_addr_sp = gd->start_addr_sp - TOTAL_MALLOC_LEN;
+	gd->start_addr_sp = reserve_stack_aligned(TOTAL_MALLOC_LEN);
 	debug("Reserving %dk for malloc() at: %08lx\n",
 	      TOTAL_MALLOC_LEN >> 10, gd->start_addr_sp);
 #ifdef CONFIG_SYS_NONCACHED_MEMORY
@@ -511,7 +522,7 @@ static int reserve_malloc(void)
 static int reserve_board(void)
 {
 	if (!gd->bd) {
-		gd->start_addr_sp -= sizeof(bd_t);
+		gd->start_addr_sp = reserve_stack_aligned(sizeof(bd_t));
 		gd->bd = (bd_t *)map_sysmem(gd->start_addr_sp, sizeof(bd_t));
 		memset(gd->bd, '\0', sizeof(bd_t));
 		debug("Reserving %zu Bytes for Board Info at: %08lx\n",
@@ -530,7 +541,7 @@ static int setup_machine(void)
 
 static int reserve_global_data(void)
 {
-	gd->start_addr_sp -= sizeof(gd_t);
+	gd->start_addr_sp = reserve_stack_aligned(sizeof(gd_t));
 	gd->new_gd = (gd_t *)map_sysmem(gd->start_addr_sp, sizeof(gd_t));
 	debug("Reserving %zu Bytes for Global Data at: %08lx\n",
 	      sizeof(gd_t), gd->start_addr_sp);
@@ -548,7 +559,7 @@ static int reserve_fdt(void)
 	if (gd->fdt_blob) {
 		gd->fdt_size = ALIGN(fdt_totalsize(gd->fdt_blob) + 0x1000, 32);
 
-		gd->start_addr_sp -= gd->fdt_size;
+		gd->start_addr_sp = reserve_stack_aligned(gd->fdt_size);
 		gd->new_fdt = map_sysmem(gd->start_addr_sp, gd->fdt_size);
 		debug("Reserving %lu Bytes for FDT at: %08lx\n",
 		      gd->fdt_size, gd->start_addr_sp);
@@ -563,7 +574,7 @@ static int reserve_bootstage(void)
 #ifdef CONFIG_BOOTSTAGE
 	int size = bootstage_get_size();
 
-	gd->start_addr_sp -= size;
+	gd->start_addr_sp = reserve_stack_aligned(size);
 	gd->new_bootstage = map_sysmem(gd->start_addr_sp, size);
 	debug("Reserving %#x Bytes for bootstage at: %08lx\n", size,
 	      gd->start_addr_sp);
@@ -580,8 +591,7 @@ __weak int arch_reserve_stacks(void)
 static int reserve_stacks(void)
 {
 	/* make stack pointer 16-byte aligned */
-	gd->start_addr_sp -= 16;
-	gd->start_addr_sp &= ~0xf;
+	gd->start_addr_sp = reserve_stack_aligned(16);
 
 	/*
 	 * let the architecture-specific code tailor gd->start_addr_sp and
@@ -593,8 +603,7 @@ static int reserve_stacks(void)
 static int reserve_bloblist(void)
 {
 #ifdef CONFIG_BLOBLIST
-	gd->start_addr_sp &= ~0xf;
-	gd->start_addr_sp -= CONFIG_BLOBLIST_SIZE;
+	gd->start_addr_sp = reserve_stack_aligned(CONFIG_BLOBLIST_SIZE);
 	gd->new_bloblist = map_sysmem(gd->start_addr_sp, CONFIG_BLOBLIST_SIZE);
 #endif
 

@@ -63,7 +63,9 @@ config TARGET_ST_STM32MP15x
 	bool "STMicroelectronics STM32MP15x boards"
 	select STM32MP15x
 	imply BOOTCOUNT_LIMIT
+	imply BOOTSTAGE
 	imply CMD_BOOTCOUNT
+	imply CMD_BOOTSTAGE
 	imply CMD_CLS if CMD_BMP
 	imply DISABLE_CONSOLE
 	imply PRE_CONSOLE_BUFFER

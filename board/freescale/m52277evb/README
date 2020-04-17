@@ -22,7 +22,7 @@ Changed files:
 - arch/m68k/cpu/mcf5227x/config.mk	config make
 - arch/m68k/cpu/mcf5227x/start.S		start up assembly code
 
-- doc/README.m52277evb		This readme file
+- board/freescale/m52277evb/README	This readme file
 
 - drivers/serial/mcfuart.c	ColdFire common UART driver
 - drivers/rtc/mcfrtc.c		Realtime clock Driver

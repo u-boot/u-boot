@@ -22,7 +22,7 @@ described in the manual. It is a replacement for Freescale's
 MFGTOOLS.
 
 The host side utilities are typically capable to interpret the i.MX
-specific image header (see doc/README.imximage). There are extensions
+specific image header (see doc/imx/mkimage/imximage.txt). There are extensions
 for imx_loader's imx_usb utility which allow to interpret the U-Boot
 specific legacy image format (see mkimage(1)). Also the U-Boot side
 support beside the i.MX specific header the U-Boot legacy header.

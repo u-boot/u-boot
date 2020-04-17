@@ -104,6 +104,46 @@ const void *of_get_property(const struct device_node *np, const char *name,
 			    int *lenp);
 
 /**
+ * of_get_first_property()- get to the pointer of the first property
+ *
+ * Get pointer to the first property of the node, it is used to iterate
+ * and read all the property with of_get_next_property_by_prop().
+ *
+ * @np: Pointer to device node
+ * @return pointer to property or NULL if not found
+ */
+const struct property *of_get_first_property(const struct device_node *np);
+
+/**
+ * of_get_next_property() - get to the pointer of the next property
+ *
+ * Get pointer to the next property of the node, it is used to iterate
+ * and read all the property with of_get_property_by_prop().
+ *
+ * @np: Pointer to device node
+ * @property: pointer of the current property
+ * @return pointer to next property or NULL if not found
+ */
+const struct property *of_get_next_property(const struct device_node *np,
+					    const struct property *property);
+
+/**
+ * of_get_property_by_prop() - get a property value of a node property
+ *
+ * Get value for the property identified by node and property pointer.
+ *
+ * @node: node to read
+ * @property: pointer of the property to read
+ * @propname: place to property name on success
+ * @lenp: place to put length on success
+ * @return pointer to property value or NULL if error
+ */
+const void *of_get_property_by_prop(const struct device_node *np,
+				    const struct property *property,
+				    const char **name,
+				    int *lenp);
+
+/**
  * of_device_is_compatible() - Check if the node matches given constraints
  * @device: pointer to node
  * @compat: required compatible string, NULL or "" for any match
