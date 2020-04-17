@@ -307,15 +307,15 @@ int print_cpuinfo(void)
 	u32 soc, rev;
 	char *name;
 
-	soc = (readl(CTRLMMR_WKUP_JTAG_DEVICE_ID) &
-		DEVICE_ID_FAMILY_MASK) >> DEVICE_ID_FAMILY_SHIFT;
+	soc = (readl(CTRLMMR_WKUP_JTAG_ID) &
+		JTAG_ID_PARTNO_MASK) >> JTAG_ID_PARTNO_SHIFT;
 	rev = (readl(CTRLMMR_WKUP_JTAG_ID) &
 		JTAG_ID_VARIANT_MASK) >> JTAG_ID_VARIANT_SHIFT;
 
 	printf("SoC:   ");
 	switch (soc) {
-	case AM654:
-		name = "AM654";
+	case AM65X:
+		name = "AM65x";
 		break;
 	case J721E:
 		name = "J721E";
