@@ -21,10 +21,6 @@
 #define PCNET_DEBUG2(fmt,args...)	\
 	debug_cond(PCNET_DEBUG_LEVEL > 1, fmt ,##args)
 
-#if !defined(CONF_PCNET_79C973) && defined(CONF_PCNET_79C975)
-#error "Macro for PCnet chip version is not defined!"
-#endif
-
 /*
  * Set the number of Tx and Rx buffers, using Log_2(# buffers).
  * Reasonable default values are 4 Tx buffers, and 16 Rx buffers.
@@ -254,16 +250,12 @@ static int pcnet_probe(struct eth_device *dev, bd_t *bis, int dev_nr)
 	case 0x2621:
 		chipname = "PCnet/PCI II 79C970A";	/* PCI */
 		break;
-#ifdef CONFIG_PCNET_79C973
 	case 0x2625:
 		chipname = "PCnet/FAST III 79C973";	/* PCI */
 		break;
-#endif
-#ifdef CONFIG_PCNET_79C975
 	case 0x2627:
 		chipname = "PCnet/FAST III 79C975";	/* PCI */
 		break;
-#endif
 	default:
 		printf("%s: PCnet version %#x not supported\n",
 		       dev->name, chip_version);
