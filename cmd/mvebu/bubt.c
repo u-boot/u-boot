@@ -85,7 +85,7 @@ struct mvebu_image_info {
 	u32	encrypt_start_offset;
 	u32	encrypt_size;
 };
-#elif defined(CONFIG_ARMADA_38X)	/* A38X */
+#endif
 
 /* Structure of the main header, version 1 (Armada 370/38x/XP) */
 struct a38x_main_hdr_v1 {
@@ -107,7 +107,23 @@ struct a38x_main_hdr_v1 {
 	u8  ext;                   /* 0x1E      */
 	u8  checksum;              /* 0x1F      */
 };
-#endif
+
+struct a38x_boot_mode {
+	unsigned int id;
+	const char *name;
+};
+
+/* The blockid header field values used to indicate boot device of image */
+struct a38x_boot_mode a38x_boot_modes[] = {
+	{ 0x4D, "i2c"  },
+	{ 0x5A, "spi"  },
+	{ 0x69, "uart" },
+	{ 0x78, "sata" },
+	{ 0x8B, "nand" },
+	{ 0x9C, "pex"  },
+	{ 0xAE, "mmc"  },
+	{},
+};
 
 struct bubt_dev {
 	char name[8];
@@ -697,7 +713,29 @@ static int check_image_header(void)
 }
 #endif
 
-static int bubt_verify(size_t image_size)
+static int bubt_check_boot_mode(const struct bubt_dev *dst)
+{
+	if (IS_ENABLED(CONFIG_ARMADA_38X)) {
+		int mode;
+		const struct a38x_main_hdr_v1 *hdr =
+			(struct a38x_main_hdr_v1 *)get_load_addr();
+
+		for (mode = 0; mode < ARRAY_SIZE(a38x_boot_modes); mode++) {
+			if (strcmp(a38x_boot_modes[mode].name, dst->name) == 0)
+				break;
+		}
+
+		if (a38x_boot_modes[mode].id == hdr->blockid)
+			return 0;
+
+		puts("Error: A38x image not built for destination device!\n");
+		return -ENOEXEC;
+	} else {
+		return 0;
+	}
+}
+
+static int bubt_verify(const struct bubt_dev *dst)
 {
 	int err;
 
@@ -705,6 +743,12 @@ static int bubt_verify(size_t image_size)
 	err = check_image_header();
 	if (err) {
 		printf("Error: Image header verification failed\n");
+		return err;
+	}
+
+	err = bubt_check_boot_mode(dst);
+	if (err) {
+		printf("Error: Image boot mode verification failed\n");
 		return err;
 	}
 
@@ -829,7 +873,7 @@ int do_bubt_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (!image_size)
 		return -EIO;
 
-	err = bubt_verify(image_size);
+	err = bubt_verify(dst);
 	if (err)
 		return err;
 
