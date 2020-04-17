@@ -232,13 +232,25 @@ config SYS_SOC
 
 choice
 	prompt "Boot method"
+	depends on SPL
 
 config MVEBU_SPL_BOOT_DEVICE_SPI
 	bool "SPI NOR flash"
+	imply ENV_IS_IN_SPI_FLASH
+	select SPL_DM_SPI
+	select SPL_SPI_FLASH_SUPPORT
+	select SPL_SPI_LOAD
+	select SPL_SPI_SUPPORT
 
 config MVEBU_SPL_BOOT_DEVICE_MMC
 	bool "SDIO/MMC card"
+	imply ENV_IS_IN_MMC
+	# GPIO needed for eMMC/SD card presence detection
+	select SPL_DM_GPIO
+	select SPL_DM_MMC
+	select SPL_GPIO_SUPPORT
 	select SPL_LIBDISK_SUPPORT
+	select SPL_MMC_SUPPORT
 
 config MVEBU_SPL_BOOT_DEVICE_SATA
 	bool "SATA"
