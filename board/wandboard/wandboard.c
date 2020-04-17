@@ -484,13 +484,13 @@ int checkboard(void)
 int board_fit_config_name_match(const char *name)
 {
 	if (is_mx6dq()) {
-		if (!strcmp(name, "imx6q-wandboard-revb1"))
+		if (!strcmp(name, "imx6q-wandboard-revd1"))
 			return 0;
 	} else if (is_mx6dqp()) {
 		if (!strcmp(name, "imx6qp-wandboard-revd1"))
 			return 0;
 	} else if (is_mx6dl() || is_mx6solo()) {
-		if (!strcmp(name, "imx6dl-wandboard-revb1"))
+		if (!strcmp(name, "imx6dl-wandboard-revd1"))
 			return 0;
 	}
 

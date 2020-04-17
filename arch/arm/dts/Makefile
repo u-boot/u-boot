@@ -627,7 +627,7 @@ dtb-y += \
 	imx6dl-pico.dtb \
 	imx6dl-sabreauto.dtb \
 	imx6dl-sabresd.dtb \
-	imx6dl-wandboard-revb1.dtb \
+	imx6dl-wandboard-revd1.dtb \
 
 endif
 
@@ -661,7 +661,7 @@ dtb-y += \
 	imx6q-sabrelite.dtb \
 	imx6q-sabresd.dtb \
 	imx6q-tbs2910.dtb \
-	imx6q-wandboard-revb1.dtb \
+	imx6q-wandboard-revd1.dtb \
 	imx6qp-sabreauto.dtb \
 	imx6qp-sabresd.dtb \
 	imx6qp-wandboard-revd1.dtb \
