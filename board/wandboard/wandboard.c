@@ -369,7 +369,7 @@ int power_init_board(void)
 
 	reg = pmic_reg_read(dev, PFUZE100_DEVICEID);
 	if (reg < 0) {
-		printf("pmic_reg_read() ret %d\n", reg);
+		debug("pmic_reg_read() ret %d\n", reg);
 		return 0;
 	}
 	printf("PMIC:  PFUZE100 ID=0x%02x\n", reg);
