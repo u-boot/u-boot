@@ -583,7 +583,7 @@ class TestBuild(unittest.TestCase):
                 url = self.toolchains.LocateArchUrl('arm')
             self.assertRegexpMatches(url, 'https://www.kernel.org/pub/tools/'
                     'crosstool/files/bin/x86_64/.*/'
-                    'x86_64-gcc-.*-nolibc_arm-.*linux-gnueabi.tar.xz')
+                    'x86_64-gcc-.*-nolibc[-_]arm-.*linux-gnueabi.tar.xz')
 
     def testGetEnvArgs(self):
         """Test the GetEnvArgs() function"""
