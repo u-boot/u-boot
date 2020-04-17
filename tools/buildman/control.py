@@ -207,7 +207,7 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
         sys.exit(col.Color(col.RED, 'No matching boards found'))
 
     if options.print_prefix:
-        err = ShowToolchainInfo(boards, toolchains)
+        err = ShowToolchainPrefix(boards, toolchains)
         if err:
             sys.exit(col.Color(col.RED, err))
         return 0
