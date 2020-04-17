@@ -10,7 +10,7 @@ generic-offsets-file := include/generated/generic-asm-offsets.h
 always  := $(generic-offsets-file)
 targets := lib/asm-offsets.s
 
-$(obj)/$(generic-offsets-file): lib/asm-offsets.s FORCE
+$(obj)/$(generic-offsets-file): $(obj)/lib/asm-offsets.s FORCE
 	$(call filechk,offsets,__GENERIC_ASM_OFFSETS_H__)
 
 #####
@@ -25,5 +25,5 @@ targets += arch/$(ARCH)/lib/asm-offsets.s
 
 CFLAGS_asm-offsets.o := -DDO_DEPS_ONLY
 
-$(obj)/$(offsets-file): arch/$(ARCH)/lib/asm-offsets.s FORCE
+$(obj)/$(offsets-file): $(obj)/arch/$(ARCH)/lib/asm-offsets.s FORCE
 	$(call filechk,offsets,__ASM_OFFSETS_H__)

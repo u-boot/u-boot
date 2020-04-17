@@ -22,6 +22,8 @@ include $(srctree)/scripts/Kbuild.include
 -include include/config/auto.conf
 -include $(obj)/include/autoconf.mk
 
+UBOOTINCLUDE := -I$(obj)/include $(UBOOTINCLUDE)
+
 KBUILD_CPPFLAGS += -DCONFIG_SPL_BUILD
 ifeq ($(CONFIG_TPL_BUILD),y)
 KBUILD_CPPFLAGS += -DCONFIG_TPL_BUILD
@@ -311,7 +313,7 @@ cmd_plat = $(CC) $(c_flags) -c $< -o $(filter-out $(PHONY),$@)
 
 targets += $(obj)/dts/dt-platdata.o
 $(obj)/dts/dt-platdata.o: $(obj)/dts/dt-platdata.c \
-		include/generated/dt-structs-gen.h FORCE
+		include/generated/dt-structs-gen.h prepare FORCE
 	$(call if_changed,plat)
 
 PHONY += dts_dir
@@ -422,8 +424,12 @@ $(obj)/$(SPL_BIN): $(u-boot-spl-platdata) $(u-boot-spl-init) \
 $(sort $(u-boot-spl-init) $(u-boot-spl-main)): $(u-boot-spl-dirs) ;
 
 PHONY += $(u-boot-spl-dirs)
-$(u-boot-spl-dirs): $(u-boot-spl-platdata)
+$(u-boot-spl-dirs): $(u-boot-spl-platdata) prepare
 	$(Q)$(MAKE) $(build)=$@
+
+PHONY += prepare
+prepare:
+	$(Q)$(MAKE) $(build)=$(obj)/.
 
 quiet_cmd_cpp_lds = LDS     $@
 cmd_cpp_lds = $(CPP) -Wp,-MD,$(depfile) $(cpp_flags) $(LDPPFLAGS) -ansi \
