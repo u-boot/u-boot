@@ -561,6 +561,10 @@ class TestFunctional(unittest.TestCase):
                          boards=board_list)
         self.assertTrue(
             os.path.exists(os.path.join(self._output_dir, 'u-boot')))
+        self.assertTrue(
+            os.path.exists(os.path.join(self._output_dir, 'done')))
+        self.assertTrue(
+            os.path.exists(os.path.join(self._output_dir, 'out-env')))
 
     def testWorkInOutputFail(self):
         """Test the -w option failures"""

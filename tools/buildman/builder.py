@@ -479,6 +479,9 @@ class Builder:
         Args:
             commit_upto: Commit number to use (0..self.count-1)
         """
+        if self.work_in_output:
+            return self._working_dir
+
         commit_dir = None
         if self.commits:
             commit = self.commits[commit_upto]
@@ -502,6 +505,8 @@ class Builder:
             target: Target name
         """
         output_dir = self._GetOutputDir(commit_upto)
+        if self.work_in_output:
+            return output_dir
         return os.path.join(output_dir, target)
 
     def GetDoneFile(self, commit_upto, target):
