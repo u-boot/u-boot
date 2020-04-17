@@ -77,15 +77,6 @@
 
 #define POLL_DEMAND	1
 
-#ifdef CONFIG_TULIP_FIX_DAVICOM
-#define RESET_DM9102(dev) {\
-    unsigned long i;\
-    i=INL(dev, 0x0);\
-    udelay(1000);\
-    OUTL(dev, i | BMR_SWR, DE4X5_BMR);\
-    udelay(1000);\
-}
-#else
 #define RESET_DE4X5(dev) {\
     int i;\
     i=INL(dev, DE4X5_BMR);\
@@ -97,7 +88,6 @@
     for (i=0;i<5;i++) {INL(dev, DE4X5_BMR); udelay(10000);}\
     udelay(1000);\
 }
-#endif
 
 #define START_DE4X5(dev) {\
     s32 omr; \
@@ -114,11 +104,7 @@
 }
 
 #define NUM_RX_DESC PKTBUFSRX
-#ifndef CONFIG_TULIP_FIX_DAVICOM
-	#define NUM_TX_DESC 1			/* Number of TX descriptors   */
-#else
-	#define NUM_TX_DESC 4
-#endif
+#define NUM_TX_DESC 1			/* Number of TX descriptors   */
 #define RX_BUFF_SZ  PKTSIZE_ALIGN
 
 #define TOUT_LOOP   1000000
@@ -140,29 +126,22 @@ static int tx_new;                             /* TX descriptor ring pointer */
 static char rxRingSize;
 static char txRingSize;
 
-#if defined(UPDATE_SROM) || !defined(CONFIG_TULIP_FIX_DAVICOM)
 static void  sendto_srom(struct eth_device* dev, u_int command, u_long addr);
 static int   getfrom_srom(struct eth_device* dev, u_long addr);
 static int   do_eeprom_cmd(struct eth_device *dev, u_long ioaddr,int cmd,int cmd_len);
 static int   do_read_eeprom(struct eth_device *dev,u_long ioaddr,int location,int addr_len);
-#endif	/* UPDATE_SROM || !CONFIG_TULIP_FIX_DAVICOM */
 #ifdef UPDATE_SROM
 static int   write_srom(struct eth_device *dev, u_long ioaddr, int index, int new_value);
 static void  update_srom(struct eth_device *dev, bd_t *bis);
 #endif
-#ifndef CONFIG_TULIP_FIX_DAVICOM
 static int   read_srom(struct eth_device *dev, u_long ioaddr, int index);
 static void  read_hw_addr(struct eth_device* dev, bd_t * bis);
-#endif	/* CONFIG_TULIP_FIX_DAVICOM */
 static void  send_setup_frame(struct eth_device* dev, bd_t * bis);
 
 static int   dc21x4x_init(struct eth_device* dev, bd_t* bis);
 static int   dc21x4x_send(struct eth_device *dev, void *packet, int length);
 static int   dc21x4x_recv(struct eth_device* dev);
 static void  dc21x4x_halt(struct eth_device* dev);
-#ifdef CONFIG_TULIP_SELECT_MEDIA
-extern void  dc21x4x_select_media(struct eth_device* dev);
-#endif
 
 #if defined(CONFIG_E500)
 #define phys_to_bus(a) (a)
@@ -183,9 +162,6 @@ static void OUTL(struct eth_device* dev, int command, u_long addr)
 static struct pci_device_id supported[] = {
 	{ PCI_VENDOR_ID_DEC, PCI_DEVICE_ID_DEC_TULIP_FAST },
 	{ PCI_VENDOR_ID_DEC, PCI_DEVICE_ID_DEC_21142 },
-#ifdef CONFIG_TULIP_FIX_DAVICOM
-	{ PCI_VENDOR_ID_DAVICOM, PCI_DEVICE_ID_DAVICOM_DM9102A },
-#endif
 	{ }
 };
 
@@ -209,35 +185,22 @@ int dc21x4x_initialize(bd_t *bis)
 		/* Get the chip configuration revision register. */
 		pci_read_config_dword(devbusfn, PCI_REVISION_ID, &cfrv);
 
-#ifndef CONFIG_TULIP_FIX_DAVICOM
 		if ((cfrv & CFRV_RN) < DC2114x_BRK ) {
 			printf("Error: The chip is not DC21143.\n");
 			continue;
 		}
-#endif
 
 		pci_read_config_word(devbusfn, PCI_COMMAND, &status);
 		status |=
-#ifdef CONFIG_TULIP_USE_IO
-		  PCI_COMMAND_IO |
-#else
 		  PCI_COMMAND_MEMORY |
-#endif
 		  PCI_COMMAND_MASTER;
 		pci_write_config_word(devbusfn, PCI_COMMAND, status);
 
 		pci_read_config_word(devbusfn, PCI_COMMAND, &status);
-#ifdef CONFIG_TULIP_USE_IO
-		if (!(status & PCI_COMMAND_IO)) {
-			printf("Error: Can not enable I/O access.\n");
-			continue;
-		}
-#else
 		if (!(status & PCI_COMMAND_MEMORY)) {
 			printf("Error: Can not enable MEMORY access.\n");
 			continue;
 		}
-#endif
 
 		if (!(status & PCI_COMMAND_MASTER)) {
 			printf("Error: Can not enable Bus Mastering.\n");
@@ -251,15 +214,9 @@ int dc21x4x_initialize(bd_t *bis)
 			pci_write_config_byte(devbusfn, PCI_LATENCY_TIMER, 0x60);
 		}
 
-#ifdef CONFIG_TULIP_USE_IO
-		/* read BAR for memory space access */
-		pci_read_config_dword(devbusfn, PCI_BASE_ADDRESS_0, &iobase);
-		iobase &= PCI_BASE_ADDRESS_IO_MASK;
-#else
 		/* read BAR for memory space access */
 		pci_read_config_dword(devbusfn, PCI_BASE_ADDRESS_1, &iobase);
 		iobase &= PCI_BASE_ADDRESS_MEM_MASK;
-#endif
 		debug ("dc21x4x: DEC 21142 PCI Device @0x%x\n", iobase);
 
 		dev = (struct eth_device*) malloc(sizeof *dev);
@@ -270,17 +227,9 @@ int dc21x4x_initialize(bd_t *bis)
 		}
 		memset(dev, 0, sizeof(*dev));
 
-#ifdef CONFIG_TULIP_FIX_DAVICOM
-		sprintf(dev->name, "Davicom#%d", card_number);
-#else
 		sprintf(dev->name, "dc21x4x#%d", card_number);
-#endif
 
-#ifdef CONFIG_TULIP_USE_IO
-		dev->iobase = pci_io_to_phys(devbusfn, iobase);
-#else
 		dev->iobase = pci_mem_to_phys(devbusfn, iobase);
-#endif
 		dev->priv   = (void*) devbusfn;
 		dev->init   = dc21x4x_init;
 		dev->halt   = dc21x4x_halt;
@@ -292,9 +241,8 @@ int dc21x4x_initialize(bd_t *bis)
 
 		udelay(10 * 1000);
 
-#ifndef CONFIG_TULIP_FIX_DAVICOM
 		read_hw_addr(dev, bis);
-#endif
+
 		eth_register(dev);
 
 		card_number++;
@@ -311,46 +259,28 @@ static int dc21x4x_init(struct eth_device* dev, bd_t* bis)
 	/* Ensure we're not sleeping. */
 	pci_write_config_byte(devbusfn, PCI_CFDA_PSM, WAKEUP);
 
-#ifdef CONFIG_TULIP_FIX_DAVICOM
-	RESET_DM9102(dev);
-#else
 	RESET_DE4X5(dev);
-#endif
 
 	if ((INL(dev, DE4X5_STS) & (STS_TS | STS_RS)) != 0) {
 		printf("Error: Cannot reset ethernet controller.\n");
 		return -1;
 	}
 
-#ifdef CONFIG_TULIP_SELECT_MEDIA
-	dc21x4x_select_media(dev);
-#else
 	OUTL(dev, OMR_SDP | OMR_PS | OMR_PM, DE4X5_OMR);
-#endif
 
 	for (i = 0; i < NUM_RX_DESC; i++) {
 		rx_ring[i].status = cpu_to_le32(R_OWN);
 		rx_ring[i].des1 = cpu_to_le32(RX_BUFF_SZ);
 		rx_ring[i].buf = cpu_to_le32(
 			phys_to_bus((u32)net_rx_packets[i]));
-#ifdef CONFIG_TULIP_FIX_DAVICOM
-		rx_ring[i].next = cpu_to_le32(
-			phys_to_bus((u32)&rx_ring[(i + 1) % NUM_RX_DESC]));
-#else
 		rx_ring[i].next = 0;
-#endif
 	}
 
 	for (i=0; i < NUM_TX_DESC; i++) {
 		tx_ring[i].status = 0;
 		tx_ring[i].des1 = 0;
 		tx_ring[i].buf = 0;
-
-#ifdef CONFIG_TULIP_FIX_DAVICOM
-	tx_ring[i].next = cpu_to_le32(phys_to_bus((u32) &tx_ring[(i+1) % NUM_TX_DESC]));
-#else
 		tx_ring[i].next = 0;
-#endif
 	}
 
 	rxRingSize = NUM_RX_DESC;
@@ -520,9 +450,7 @@ Done:
 	return;
 }
 
-#if defined(UPDATE_SROM) || !defined(CONFIG_TULIP_FIX_DAVICOM)
-/* SROM Read and write routines.
- */
+/* SROM Read and write routines. */
 static void
 sendto_srom(struct eth_device* dev, u_int command, u_long addr)
 {
@@ -594,13 +522,12 @@ static int do_read_eeprom(struct eth_device *dev, u_long ioaddr, int location, i
 
 	return retval;
 }
-#endif	/* UPDATE_SROM || !CONFIG_TULIP_FIX_DAVICOM */
 
-/* This executes a generic EEPROM command, typically a write or write
+/*
+ * This executes a generic EEPROM command, typically a write or write
  * enable. It returns the data output from the EEPROM, and thus may
  * also be used for reads.
  */
-#if defined(UPDATE_SROM) || !defined(CONFIG_TULIP_FIX_DAVICOM)
 static int do_eeprom_cmd(struct eth_device *dev, u_long ioaddr, int cmd, int cmd_len)
 {
 	unsigned retval = 0;
@@ -636,9 +563,7 @@ static int do_eeprom_cmd(struct eth_device *dev, u_long ioaddr, int cmd, int cmd
 
 	return retval;
 }
-#endif	/* UPDATE_SROM || !CONFIG_TULIP_FIX_DAVICOM */
 
-#ifndef CONFIG_TULIP_FIX_DAVICOM
 static int read_srom(struct eth_device *dev, u_long ioaddr, int index)
 {
 	int ee_addr_size = do_read_eeprom(dev, ioaddr, 0xff, 8) & 0x40000 ? 8 : 6;
@@ -647,7 +572,6 @@ static int read_srom(struct eth_device *dev, u_long ioaddr, int index)
 			     (((SROM_READ_CMD << ee_addr_size) | index) << 16)
 			     | 0xffff, 3 + ee_addr_size + 16);
 }
-#endif	/* CONFIG_TULIP_FIX_DAVICOM */
 
 #ifdef UPDATE_SROM
 static int write_srom(struct eth_device *dev, u_long ioaddr, int index, int new_value)
@@ -695,7 +619,6 @@ static int write_srom(struct eth_device *dev, u_long ioaddr, int index, int new_
 }
 #endif
 
-#ifndef CONFIG_TULIP_FIX_DAVICOM
 static void read_hw_addr(struct eth_device *dev, bd_t *bis)
 {
 	u_short tmp, *p = (u_short *)(&dev->enetaddr[0]);
@@ -721,7 +644,6 @@ Done:
 #endif
 	return;
 }
-#endif	/* CONFIG_TULIP_FIX_DAVICOM */
 
 #ifdef UPDATE_SROM
 static void update_srom(struct eth_device *dev, bd_t *bis)
