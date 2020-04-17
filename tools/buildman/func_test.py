@@ -546,6 +546,13 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(self._builder.count, self._total_builds)
         self.assertEqual(self._builder.fail, 0)
 
+    def testEnvironment(self):
+        """Test that the done and environment files are written to out-env"""
+        self._RunControl('-o', self._output_dir)
+        board0_dir = os.path.join(self._output_dir, 'current', 'board0')
+        self.assertTrue(os.path.exists(os.path.join(board0_dir, 'done')))
+        self.assertTrue(os.path.exists(os.path.join(board0_dir, 'out-env')))
+
     def testWorkInOutput(self):
         """Test the -w option which should write directly to the output dir"""
         board_list = board.Boards()
