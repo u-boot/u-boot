@@ -179,14 +179,14 @@ int pcnet_initialize(bd_t *bis)
 		/*
 		 * Setup the PCI device.
 		 */
-		pci_read_config_dword(devbusfn, PCI_BASE_ADDRESS_0, &bar);
-		dev->iobase = pci_io_to_phys(devbusfn, bar);
+		pci_read_config_dword(devbusfn, PCI_BASE_ADDRESS_1, &bar);
+		dev->iobase = pci_mem_to_phys(devbusfn, bar);
 		dev->iobase &= ~0xf;
 
 		PCNET_DEBUG1("%s: devbusfn=0x%x iobase=0x%lx: ",
 			     dev->name, devbusfn, (unsigned long)dev->iobase);
 
-		command = PCI_COMMAND_IO | PCI_COMMAND_MASTER;
+		command = PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER;
 		pci_write_config_word(devbusfn, PCI_COMMAND, command);
 		pci_read_config_word(devbusfn, PCI_COMMAND, &status);
 		if ((status & command) != command) {
