@@ -15,22 +15,29 @@ run_test() {
 
 # SKip slow tests if requested
 [ "$1" == "quick" ] && mark_expr="not slow"
+[ "$1" == "quick" ] && skip=--skip-net-tests
+[ "$1" == "tools" ] && tools_only=y
 
 failures=0
 
-# Run all tests that the standard sandbox build can support
-run_test "sandbox" ./test/py/test.py --bd sandbox --build -m "${mark_expr}"
+if [ -z "$tools_only" ]; then
+	# Run all tests that the standard sandbox build can support
+	run_test "sandbox" ./test/py/test.py --bd sandbox --build \
+		-m "${mark_expr}"
+fi
 
 # Run tests which require sandbox_spl
 run_test "sandbox_spl" ./test/py/test.py --bd sandbox_spl --build \
-	-k 'test_ofplatdata or test_handoff'
+		-k 'test_ofplatdata or test_handoff'
 
-# Run tests for the flat-device-tree version of sandbox. This is a special
-# build which does not enable CONFIG_OF_LIVE for the live device tree, so we can
-# check that functionality is the same. The standard sandbox build (above) uses
-# CONFIG_OF_LIVE.
-run_test "sandbox_flattree" ./test/py/test.py --bd sandbox_flattree --build \
-	-k test_ut
+if [ -z "$tools_only" ]; then
+	# Run tests for the flat-device-tree version of sandbox. This is a special
+	# build which does not enable CONFIG_OF_LIVE for the live device tree, so we can
+	# check that functionality is the same. The standard sandbox build (above) uses
+	# CONFIG_OF_LIVE.
+	run_test "sandbox_flattree" ./test/py/test.py --bd sandbox_flattree \
+		--build -k test_ut
+fi
 
 # Set up a path to dtc (device-tree compiler) and libfdt.py, a library it
 # provides and which is built by the sandbox_spl config. Also set up the path
@@ -43,7 +50,6 @@ TOOLS_DIR=build-sandbox_spl/tools
 run_test "binman" ./tools/binman/binman --toolpath ${TOOLS_DIR} test
 run_test "patman" ./tools/patman/patman --test
 
-[ "$1" == "quick" ] && skip=--skip-net-tests
 run_test "buildman" ./tools/buildman/buildman -t ${skip}
 run_test "fdt" ./tools/dtoc/test_fdt -t
 run_test "dtoc" ./tools/dtoc/dtoc -t
