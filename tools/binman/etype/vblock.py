@@ -9,9 +9,9 @@
 from collections import OrderedDict
 import os
 
-from entry import Entry, EntryArg
+from binman.entry import Entry, EntryArg
 
-import fdt_util
+from dtoc import fdt_util
 import tools
 
 class Entry_vblock(Entry):

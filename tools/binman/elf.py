@@ -6,7 +6,6 @@
 #
 
 from collections import namedtuple, OrderedDict
-import command
 import io
 import os
 import re
@@ -14,6 +13,7 @@ import shutil
 import struct
 import tempfile
 
+import command
 import tools
 import tout
 

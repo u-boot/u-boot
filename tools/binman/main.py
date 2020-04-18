@@ -20,8 +20,8 @@ import unittest
 # Bring in the patman and dtoc libraries (but don't override the first path
 # in PYTHONPATH)
 our_path = os.path.dirname(os.path.realpath(__file__))
-for dirname in ['../patman', '../dtoc', '..', '../concurrencytest']:
-    sys.path.insert(2, os.path.join(our_path, dirname))
+for dirname in ['../patman', '../dtoc', '../concurrencytest', '..']:
+    sys.path.insert(2, os.path.realpath(os.path.join(our_path, dirname)))
 
 # Bring in the libfdt module
 sys.path.insert(2, 'scripts/dtc/pylibfdt')
@@ -34,9 +34,8 @@ sys.path.insert(2, os.path.join(our_path,
 # that is not available in a virtualenv.
 sys.path.append(get_python_lib())
 
-import cmdline
-import command
-import control
+from binman import cmdline
+from binman import control
 import test_util
 
 def RunTests(debug, verbosity, processes, test_preserve_dirs, args, toolpath):
@@ -55,13 +54,13 @@ def RunTests(debug, verbosity, processes, test_preserve_dirs, args, toolpath):
             name to execute (as in 'binman test testSections', for example)
         toolpath: List of paths to use for tools
     """
-    import cbfs_util_test
-    import elf_test
-    import entry_test
-    import fdt_test
-    import ftest
-    import image_test
-    import test
+    from binman import cbfs_util_test
+    from binman import elf_test
+    from binman import entry_test
+    from binman import fdt_test
+    from binman import ftest
+    from binman import image_test
+    from binman import test
     import doctest
 
     result = unittest.TestResult()

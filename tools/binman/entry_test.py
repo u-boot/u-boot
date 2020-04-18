@@ -9,9 +9,9 @@ import os
 import sys
 import unittest
 
-import entry
-import fdt
-import fdt_util
+from binman import entry
+from dtoc import fdt
+from dtoc import fdt_util
 import tools
 
 class TestEntry(unittest.TestCase):
@@ -37,11 +37,11 @@ class TestEntry(unittest.TestCase):
             else:
                 reload(entry)
         else:
-            import entry
+            from binman import entry
 
     def testEntryContents(self):
         """Test the Entry bass class"""
-        import entry
+        from binman import entry
         base_entry = entry.Entry(None, None, None)
         self.assertEqual(True, base_entry.ObtainContents())
 

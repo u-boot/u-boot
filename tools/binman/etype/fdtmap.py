@@ -8,7 +8,7 @@ This handles putting an FDT into the image with just the information about the
 image.
 """
 
-from entry import Entry
+from binman.entry import Entry
 import tools
 import tout
 
@@ -82,8 +82,8 @@ class Entry_fdtmap(Entry):
         global Fdt
 
         import libfdt
-        import state
-        from fdt import Fdt
+        from binman import state
+        from dtoc.fdt import Fdt
 
         Entry.__init__(self, section, etype, node)
 

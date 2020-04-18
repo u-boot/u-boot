@@ -9,8 +9,8 @@
 import glob
 import os
 
-from section import Entry_section
-import fdt_util
+from binman.etype.section import Entry_section
+from dtoc import fdt_util
 import tools
 
 
@@ -30,7 +30,7 @@ class Entry_files(Entry_section):
     def __init__(self, section, etype, node):
         # Put this here to allow entry-docs and help to work without libfdt
         global state
-        import state
+        from binman import state
 
         Entry_section.__init__(self, section, etype, node)
         self._pattern = fdt_util.GetString(self._node, 'pattern')

@@ -20,8 +20,8 @@ import io
 import struct
 import sys
 
+from binman import elf
 import command
-import elf
 import tools
 
 # Set to True to enable printing output while working

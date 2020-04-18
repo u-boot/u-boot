@@ -7,11 +7,7 @@
 
 import struct
 
-import command
-from entry import Entry
-from blob import Entry_blob
-from u_boot_with_ucode_ptr import Entry_u_boot_with_ucode_ptr
-import tools
+from binman.etype.u_boot_with_ucode_ptr import Entry_u_boot_with_ucode_ptr
 
 class Entry_u_boot_spl_with_ucode_ptr(Entry_u_boot_with_ucode_ptr):
     """U-Boot SPL with embedded microcode pointer

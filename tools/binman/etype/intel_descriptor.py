@@ -7,8 +7,8 @@
 
 import struct
 
-from entry import Entry
-from blob import Entry_blob
+from binman.entry import Entry
+from binman.etype.blob import Entry_blob
 
 FD_SIGNATURE   = struct.pack('<L', 0x0ff0a55a)
 MAX_REGIONS    = 5

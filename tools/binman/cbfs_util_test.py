@@ -16,9 +16,9 @@ import struct
 import tempfile
 import unittest
 
-import cbfs_util
-from cbfs_util import CbfsWriter
-import elf
+from binman import cbfs_util
+from binman.cbfs_util import CbfsWriter
+from binman import elf
 import test_util
 import tools
 

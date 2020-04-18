@@ -5,7 +5,7 @@
 # Entry-type module for a Chromium OS EC image (read-write section)
 #
 
-from blob_named_by_arg import Entry_blob_named_by_arg
+from binman.etype.blob_named_by_arg import Entry_blob_named_by_arg
 
 
 class Entry_cros_ec_rw(Entry_blob_named_by_arg):

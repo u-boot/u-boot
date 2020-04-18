@@ -5,8 +5,8 @@
 # Entry-type module for Intel Memory Reference Code binary blob
 #
 
-from entry import Entry
-from blob import Entry_blob
+from binman.entry import Entry
+from binman.etype.blob import Entry_blob
 
 class Entry_intel_refcode(Entry_blob):
     """Entry containing an Intel Reference Code file

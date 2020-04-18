@@ -7,10 +7,10 @@
 # to it will appear to SPL to be at the end of BSS rather than the start.
 #
 
+from binman import elf
+from binman.entry import Entry
 import command
-import elf
-from entry import Entry
-from blob import Entry_blob
+from binman.etype.blob import Entry_blob
 import tools
 
 class Entry_u_boot_spl_bss_pad(Entry_blob):

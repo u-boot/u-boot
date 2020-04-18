@@ -5,8 +5,8 @@
 # Entry-type module for x86 VGA ROM binary blob
 #
 
-from entry import Entry
-from blob import Entry_blob
+from binman.entry import Entry
+from binman.etype.blob import Entry_blob
 
 class Entry_intel_vga(Entry_blob):
     """Entry containing an Intel Video Graphics Adaptor (VGA) file

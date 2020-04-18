@@ -8,9 +8,9 @@
 import struct
 
 import command
-from entry import Entry
-from blob import Entry_blob
-from u_boot_with_ucode_ptr import Entry_u_boot_with_ucode_ptr
+from binman.entry import Entry
+from binman.etype.blob import Entry_blob
+from binman.etype.u_boot_with_ucode_ptr import Entry_u_boot_with_ucode_ptr
 import tools
 
 class Entry_u_boot_tpl_with_ucode_ptr(Entry_u_boot_with_ucode_ptr):

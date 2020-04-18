@@ -10,8 +10,8 @@ import sys
 import tempfile
 import unittest
 
+from binman import elf
 import command
-import elf
 import test_util
 import tools
 import tout

@@ -9,9 +9,9 @@
 from collections import OrderedDict
 
 import command
-from entry import Entry, EntryArg
+from binman.entry import Entry, EntryArg
 
-import fdt_util
+from dtoc import fdt_util
 import tools
 
 # Build GBB flags.

@@ -5,8 +5,8 @@
 # Entry-type module for blobs, which are binary objects read from files
 #
 
-from entry import Entry
-import fdt_util
+from binman.entry import Entry
+from dtoc import fdt_util
 import tools
 import tout
 

@@ -6,6 +6,7 @@
 #
 #    python -m unittest func_test.TestFunctional.testHelp
 
+import gzip
 import hashlib
 from optparse import OptionParser
 import os
@@ -15,22 +16,21 @@ import sys
 import tempfile
 import unittest
 
-import main
-import cbfs_util
-import cmdline
-import command
-import control
-import elf
-import elf_test
-import fdt
-from etype import fdtmap
-from etype import image_header
-import fdt_util
-import fmap_util
-import test_util
-import gzip
+from binman import cbfs_util
+from binman import cmdline
+from binman import control
+from binman import elf
+from binman import elf_test
+from binman import fmap_util
+from binman import main
+from binman import state
+from dtoc import fdt
+from dtoc import fdt_util
+from binman.etype import fdtmap
+from binman.etype import image_header
 from image import Image
-import state
+import command
+import test_util
 import tools
 import tout
 
@@ -101,7 +101,7 @@ class TestFunctional(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         global entry
-        import entry
+        from binman import entry
 
         # Handle the case where argv[0] is 'python'
         cls._binman_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
@@ -1288,8 +1288,8 @@ class TestFunctional(unittest.TestCase):
         with self.assertRaises(ValueError) as e:
             self._DoReadFile('057_unknown_contents.dts', True)
         self.assertIn("Image '/binman': Internal error: Could not complete "
-                "processing of contents: remaining [<_testing.Entry__testing ",
-                str(e.exception))
+                "processing of contents: remaining ["
+                "<binman.etype._testing.Entry__testing ", str(e.exception))
 
     def testBadChangeSize(self):
         """Test that trying to change the size of an entry fails"""
@@ -1336,7 +1336,8 @@ class TestFunctional(unittest.TestCase):
         with self.assertRaises(ValueError) as e:
             self._DoReadFileDtb('061_fdt_update_bad.dts', update_dtb=True)
         self.assertIn('Could not complete processing of Fdt: remaining '
-                      '[<_testing.Entry__testing', str(e.exception))
+                      '[<binman.etype._testing.Entry__testing',
+                        str(e.exception))
 
     def testEntryArgs(self):
         """Test passing arguments to entries from the command line"""

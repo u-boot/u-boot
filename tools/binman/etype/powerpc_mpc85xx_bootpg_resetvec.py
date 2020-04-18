@@ -4,8 +4,8 @@
 # Entry-type module for the PowerPC mpc85xx bootpg and resetvec code for U-Boot
 #
 
-from entry import Entry
-from blob import Entry_blob
+from binman.entry import Entry
+from binman.etype.blob import Entry_blob
 
 class Entry_powerpc_mpc85xx_bootpg_resetvec(Entry_blob):
     """PowerPC mpc85xx bootpg + resetvec code for U-Boot

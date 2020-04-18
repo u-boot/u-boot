@@ -5,8 +5,8 @@
 # Entry-type module for U-Boot device tree in SPL (Secondary Program Loader)
 #
 
-from entry import Entry
-from blob_dtb import Entry_blob_dtb
+from binman.entry import Entry
+from binman.etype.blob_dtb import Entry_blob_dtb
 
 class Entry_u_boot_spl_dtb(Entry_blob_dtb):
     """U-Boot SPL device tree

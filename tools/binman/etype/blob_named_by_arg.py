@@ -8,8 +8,8 @@
 
 from collections import OrderedDict
 
-from blob import Entry_blob
-from entry import EntryArg
+from binman.etype.blob import Entry_blob
+from binman.entry import EntryArg
 
 
 class Entry_blob_named_by_arg(Entry_blob):

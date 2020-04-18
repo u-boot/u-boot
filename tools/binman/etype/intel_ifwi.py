@@ -7,9 +7,9 @@
 
 from collections import OrderedDict
 
-from entry import Entry
-from blob import Entry_blob
-import fdt_util
+from binman.entry import Entry
+from binman.etype.blob import Entry_blob
+from dtoc import fdt_util
 import tools
 
 class Entry_intel_ifwi(Entry_blob):

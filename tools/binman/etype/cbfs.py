@@ -7,10 +7,10 @@
 
 from collections import OrderedDict
 
-import cbfs_util
-from cbfs_util import CbfsWriter
-from entry import Entry
-import fdt_util
+from binman import cbfs_util
+from binman.cbfs_util import CbfsWriter
+from binman.entry import Entry
+from dtoc import fdt_util
 
 class Entry_cbfs(Entry):
     """Entry containing a Coreboot Filesystem (CBFS)
@@ -165,7 +165,7 @@ class Entry_cbfs(Entry):
     def __init__(self, section, etype, node):
         # Put this here to allow entry-docs and help to work without libfdt
         global state
-        import state
+        from binman import state
 
         Entry.__init__(self, section, etype, node)
         self._cbfs_arg = fdt_util.GetString(node, 'cbfs-arch', 'x86')

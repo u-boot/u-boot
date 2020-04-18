@@ -12,12 +12,12 @@ import os
 import re
 import sys
 
-from entry import Entry
-from etype import fdtmap
-from etype import image_header
-from etype import section
-import fdt
-import fdt_util
+from binman.entry import Entry
+from binman.etype import fdtmap
+from binman.etype import image_header
+from binman.etype import section
+from dtoc import fdt
+from dtoc import fdt_util
 import tools
 import tout
 

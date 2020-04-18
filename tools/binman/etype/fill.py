@@ -3,8 +3,8 @@
 # Written by Simon Glass <sjg@chromium.org>
 #
 
-from entry import Entry
-import fdt_util
+from binman.entry import Entry
+from dtoc import fdt_util
 import tools
 
 class Entry_fill(Entry):
