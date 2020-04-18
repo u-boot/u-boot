@@ -332,7 +332,9 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 		addr = (unsigned long)memalign(ARCH_DMA_MINALIGN,
 					       sizeof(*lp->uc));
 		flush_dcache_range(addr, addr + sizeof(*lp->uc));
-		addr = UNCACHED_SDRAM(addr);
+		addr = (unsigned long)map_physmem(addr,
+				roundup(sizeof(*lp->uc), ARCH_DMA_MINALIGN),
+				MAP_NOCACHE);
 		lp->uc = (struct pcnet_uncached_priv *)addr;
 
 		addr = (unsigned long)memalign(ARCH_DMA_MINALIGN,
