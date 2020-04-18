@@ -11,7 +11,6 @@
 
 from distutils.sysconfig import get_python_lib
 import glob
-import multiprocessing
 import os
 import site
 import sys
@@ -37,11 +36,6 @@ sys.path.append(get_python_lib())
 
 import cmdline
 import command
-use_concurrent = True
-try:
-    from concurrencytest import ConcurrentTestSuite, fork_for_tests
-except:
-    use_concurrent = False
 import control
 import test_util
 
@@ -71,73 +65,17 @@ def RunTests(debug, verbosity, processes, test_preserve_dirs, args, toolpath):
     import doctest
 
     result = unittest.TestResult()
-    for module in []:
-        suite = doctest.DocTestSuite(module)
-        suite.run(result)
-
-    sys.argv = [sys.argv[0]]
-    if debug:
-        sys.argv.append('-D')
-    if verbosity:
-        sys.argv.append('-v%d' % verbosity)
-    if toolpath:
-        for path in toolpath:
-            sys.argv += ['--toolpath', path]
+    test_name = args and args[0] or None
 
     # Run the entry tests first ,since these need to be the first to import the
     # 'entry' module.
-    test_name = args and args[0] or None
-    suite = unittest.TestSuite()
-    loader = unittest.TestLoader()
-    for module in (entry_test.TestEntry, ftest.TestFunctional, fdt_test.TestFdt,
-                   elf_test.TestElf, image_test.TestImage,
-                   cbfs_util_test.TestCbfs):
-        # Test the test module about our arguments, if it is interested
-        if hasattr(module, 'setup_test_args'):
-            setup_test_args = getattr(module, 'setup_test_args')
-            setup_test_args(preserve_indir=test_preserve_dirs,
-                preserve_outdirs=test_preserve_dirs and test_name is not None,
-                toolpath=toolpath, verbosity=verbosity)
-        if test_name:
-            try:
-                suite.addTests(loader.loadTestsFromName(test_name, module))
-            except AttributeError:
-                continue
-        else:
-            suite.addTests(loader.loadTestsFromTestCase(module))
-    if use_concurrent and processes != 1:
-        concurrent_suite = ConcurrentTestSuite(suite,
-                fork_for_tests(processes or multiprocessing.cpu_count()))
-        concurrent_suite.run(result)
-    else:
-        suite.run(result)
+    test_util.RunTestSuites(
+        result, debug, verbosity, test_preserve_dirs, processes, test_name,
+        toolpath,
+        [entry_test.TestEntry, ftest.TestFunctional, fdt_test.TestFdt,
+         elf_test.TestElf, image_test.TestImage, cbfs_util_test.TestCbfs])
 
-    # Remove errors which just indicate a missing test. Since Python v3.5 If an
-    # ImportError or AttributeError occurs while traversing name then a
-    # synthetic test that raises that error when run will be returned. These
-    # errors are included in the errors accumulated by result.errors.
-    if test_name:
-        errors = []
-        for test, err in result.errors:
-            if ("has no attribute '%s'" % test_name) not in err:
-                errors.append((test, err))
-            result.testsRun -= 1
-        result.errors = errors
-
-    print(result)
-    for test, err in result.errors:
-        print(test.id(), err)
-    for test, err in result.failures:
-        print(err, result.failures)
-    if result.skipped:
-        print('%d binman test%s SKIPPED:' %
-              (len(result.skipped), 's' if len(result.skipped) > 1 else ''))
-        for skip_info in result.skipped:
-            print('%s: %s' % (skip_info[0], skip_info[1]))
-    if result.errors or result.failures:
-        print('binman tests FAILED')
-        return 1
-    return 0
+    return test_util.ReportResult('binman', test_name, result)
 
 def GetEntryModules(include_testing=True):
     """Get a set of entry class implementations
