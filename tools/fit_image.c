@@ -534,8 +534,7 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 err_munmap:
 	munmap(fdt, sbuf.st_size);
 err:
-	if (buf)
-		free(buf);
+	free(buf);
 	close(fd);
 	return ret;
 }
