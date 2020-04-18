@@ -77,7 +77,7 @@ def run_tests(args):
 def RunTestCoverage():
     """Run the tests and check that we get 100% coverage"""
     sys.argv = [sys.argv[0]]
-    test_util.RunTestCoverage('tools/dtoc/dtoc.py', '/dtoc.py',
+    test_util.RunTestCoverage('tools/dtoc/dtoc', '/main.py',
             ['tools/patman/*.py', '*/fdt*', '*test*'], options.build_dir)
 
 
