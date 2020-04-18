@@ -155,8 +155,8 @@ def RunTestCoverage():
     glob_list = GetEntryModules(False)
     all_set = set([os.path.splitext(os.path.basename(item))[0]
                    for item in glob_list if '_testing' not in item])
-    test_util.RunTestCoverage('tools/binman/binman.py', None,
-            ['*test*', '*binman.py', 'tools/patman/*', 'tools/dtoc/*'],
+    test_util.RunTestCoverage('tools/binman/binman', None,
+            ['*test*', '*main.py', 'tools/patman/*', 'tools/dtoc/*'],
             args.build_dir, all_set)
 
 def RunBinman(args):

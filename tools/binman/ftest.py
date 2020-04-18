@@ -15,7 +15,7 @@ import sys
 import tempfile
 import unittest
 
-import binman
+import main
 import cbfs_util
 import cmdline
 import command
@@ -1428,14 +1428,14 @@ class TestFunctional(unittest.TestCase):
     def testEntryDocs(self):
         """Test for creation of entry documentation"""
         with test_util.capture_sys_output() as (stdout, stderr):
-            control.WriteEntryDocs(binman.GetEntryModules())
+            control.WriteEntryDocs(main.GetEntryModules())
         self.assertTrue(len(stdout.getvalue()) > 0)
 
     def testEntryDocsMissing(self):
         """Test handling of missing entry documentation"""
         with self.assertRaises(ValueError) as e:
             with test_util.capture_sys_output() as (stdout, stderr):
-                control.WriteEntryDocs(binman.GetEntryModules(), 'u_boot')
+                control.WriteEntryDocs(main.GetEntryModules(), 'u_boot')
         self.assertIn('Documentation is missing for modules: u_boot',
                       str(e.exception))
 
