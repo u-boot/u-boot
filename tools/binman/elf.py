@@ -13,9 +13,9 @@ import shutil
 import struct
 import tempfile
 
-import command
-import tools
-import tout
+from patman import command
+from patman import tools
+from patman import tout
 
 ELF_TOOLS = True
 try:

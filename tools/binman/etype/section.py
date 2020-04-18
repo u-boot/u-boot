@@ -14,8 +14,8 @@ import sys
 
 from binman.entry import Entry
 from dtoc import fdt_util
-import tools
-import tout
+from patman import tools
+from patman import tout
 
 
 class Entry_section(Entry):

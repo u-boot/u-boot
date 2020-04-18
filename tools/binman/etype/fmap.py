@@ -7,9 +7,9 @@
 
 from binman.entry import Entry
 from binman import fmap_util
-import tools
+from patman import tools
 from patman.tools import ToHexSize
-import tout
+from patman import tout
 
 
 class Entry_fmap(Entry):

@@ -12,11 +12,11 @@ from buildman import board
 from buildman import bsettings
 from buildman import toolchain
 from buildman.builder import Builder
-import command
-import gitutil
-import patchstream
-import terminal
-from terminal import Print
+from patman import command
+from patman import gitutil
+from patman import patchstream
+from patman import terminal
+from patman.terminal import Print
 
 def GetPlural(count):
     """Returns a plural 's' if count is not 1"""

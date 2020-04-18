@@ -12,7 +12,7 @@ import unittest
 from binman import entry
 from dtoc import fdt
 from dtoc import fdt_util
-import tools
+from patman import tools
 
 class TestEntry(unittest.TestCase):
     def setUp(self):

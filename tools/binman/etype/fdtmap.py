@@ -9,8 +9,8 @@ image.
 """
 
 from binman.entry import Entry
-import tools
-import tout
+from patman import tools
+from patman import tout
 
 FDTMAP_MAGIC   = b'_FDTMAP_'
 FDTMAP_HDR_LEN = 16

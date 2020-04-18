@@ -7,7 +7,7 @@
 
 from binman.entry import Entry
 from binman.etype.blob import Entry_blob
-import tools
+from patman import tools
 
 class Entry_u_boot_ucode(Entry_blob):
     """U-Boot microcode block

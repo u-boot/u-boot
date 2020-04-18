@@ -25,9 +25,9 @@ from buildman import builder
 from buildman import cmdline
 from buildman import control
 from buildman import toolchain
-import patchstream
-import gitutil
-import terminal
+from patman import patchstream
+from patman import gitutil
+from patman import terminal
 
 def RunTests(skip_net_tests):
     import func_test

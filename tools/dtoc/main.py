@@ -33,14 +33,15 @@ import unittest
 # Bring in the patman libraries
 our_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(our_path, '../patman'))
+sys.path.append(os.path.join(our_path, '..'))
 
 # Bring in the libfdt module
 sys.path.insert(0, 'scripts/dtc/pylibfdt')
 sys.path.insert(0, os.path.join(our_path,
                 '../../build-sandbox_spl/scripts/dtc/pylibfdt'))
 
-import dtb_platdata
-import test_util
+from dtoc import dtb_platdata
+from patman import test_util
 
 def run_tests(args):
     """Run all the test we have for dtoc

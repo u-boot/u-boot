@@ -8,12 +8,12 @@
 from collections import OrderedDict
 import os
 import sys
-import tools
+from patman import tools
 
 from binman import cbfs_util
 from binman import elf
-import command
-import tout
+from patman import command
+from patman import tout
 
 # List of images we plan to create
 # Make this global so that it can be referenced from tests

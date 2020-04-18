@@ -11,7 +11,7 @@ import os
 
 from binman.etype.section import Entry_section
 from dtoc import fdt_util
-import tools
+from patman import tools
 
 
 class Entry_files(Entry_section):

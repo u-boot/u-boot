@@ -11,8 +11,8 @@ from binman import elf
 from binman.entry import Entry
 from binman.etype.blob import Entry_blob
 from dtoc import fdt_util
-import tools
-import command
+from patman import tools
+from patman import command
 
 class Entry_u_boot_with_ucode_ptr(Entry_blob):
     """U-Boot with embedded microcode pointer

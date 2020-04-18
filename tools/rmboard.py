@@ -32,7 +32,7 @@ import sys
 our_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(our_path, '../tools/patman'))
 
-import command
+from patman import command
 
 def rm_kconfig_include(path):
     """Remove a path from Kconfig files

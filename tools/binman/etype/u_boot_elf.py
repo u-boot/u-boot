@@ -9,7 +9,7 @@ from binman.entry import Entry
 from binman.etype.blob import Entry_blob
 
 from dtoc import fdt_util
-import tools
+from patman import tools
 
 class Entry_u_boot_elf(Entry_blob):
     """U-Boot ELF image

@@ -4,7 +4,7 @@
 
 import os.path
 
-import gitutil
+from patman import gitutil
 
 def DetectProject():
     """Autodetect the name of the current project.

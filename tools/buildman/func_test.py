@@ -13,11 +13,10 @@ from buildman import bsettings
 from buildman import cmdline
 from buildman import control
 from buildman import toolchain
-import command
-import gitutil
-import terminal
-import toolchain
-import tools
+from patman import command
+from patman import gitutil
+from patman import terminal
+from patman import tools
 
 settings_data = '''
 # Buildman settings file

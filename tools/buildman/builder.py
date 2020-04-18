@@ -19,10 +19,10 @@ import time
 
 from buildman import builderthread
 from buildman import toolchain
-import command
-import gitutil
-import terminal
-from terminal import Print
+from patman import command
+from patman import gitutil
+from patman import terminal
+from patman.terminal import Print
 
 """
 Theory of Operation

@@ -19,8 +19,8 @@ import unittest
 from binman import cbfs_util
 from binman.cbfs_util import CbfsWriter
 from binman import elf
-import test_util
-import tools
+from patman import test_util
+from patman import tools
 
 U_BOOT_DATA           = b'1234'
 U_BOOT_DTB_DATA       = b'udtb'

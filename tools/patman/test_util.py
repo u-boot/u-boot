@@ -10,7 +10,8 @@ import os
 import sys
 import unittest
 
-import command
+from patman import command
+from patman import test_util
 
 from io import StringIO
 

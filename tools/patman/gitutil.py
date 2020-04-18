@@ -2,17 +2,17 @@
 # Copyright (c) 2011 The Chromium OS Authors.
 #
 
-import command
 import re
 import os
-import series
 import subprocess
 import sys
-import terminal
 
-import checkpatch
-import settings
-import tools
+from patman import checkpatch
+from patman import command
+from patman import series
+from patman import settings
+from patman import terminal
+from patman import tools
 
 # True to use --no-decorate - we check this in Setup()
 use_no_decorate = True

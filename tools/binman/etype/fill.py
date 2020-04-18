@@ -5,7 +5,7 @@
 
 from binman.entry import Entry
 from dtoc import fdt_util
-import tools
+from patman import tools
 
 class Entry_fill(Entry):
     """An entry which is filled to a particular byte value

@@ -10,8 +10,8 @@ import re
 
 from dtoc import fdt
 import os
-import tools
-import tout
+from patman import tools
+from patman import tout
 
 # Records the device-tree files known to binman, keyed by entry type (e.g.
 # 'u-boot-spl-dtb'). These are the output FDT files, which can be updated by

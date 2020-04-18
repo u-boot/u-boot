@@ -18,11 +18,11 @@ from buildman import bsettings
 from buildman import builder
 from buildman import control
 from buildman import toolchain
-import commit
-import command
-import terminal
-import test_util
-import tools
+from patman import commit
+from patman import command
+from patman import terminal
+from patman import test_util
+from patman import tools
 
 use_network = True
 

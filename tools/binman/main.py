@@ -36,7 +36,7 @@ sys.path.append(get_python_lib())
 
 from binman import cmdline
 from binman import control
-import test_util
+from patman import test_util
 
 def RunTests(debug, verbosity, processes, test_preserve_dirs, args, toolpath):
     """Run the functional tests and any embedded doctests

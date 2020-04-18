@@ -9,9 +9,9 @@
 
 from binman import elf
 from binman.entry import Entry
-import command
+from patman import command
 from binman.etype.blob import Entry_blob
-import tools
+from patman import tools
 
 class Entry_u_boot_spl_bss_pad(Entry_blob):
     """U-Boot SPL binary padded with a BSS region

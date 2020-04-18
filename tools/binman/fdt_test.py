@@ -12,7 +12,7 @@ import unittest
 from dtoc import fdt
 from dtoc import fdt_util
 from dtoc.fdt import FdtScan
-import tools
+from patman import tools
 
 class TestFdt(unittest.TestCase):
     @classmethod

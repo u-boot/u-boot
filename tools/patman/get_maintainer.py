@@ -2,9 +2,10 @@
 # Copyright (c) 2012 The Chromium OS Authors.
 #
 
-import command
-import gitutil
 import os
+
+from patman import command
+from patman import gitutil
 
 def FindGetMaintainer():
     """Look for the get_maintainer.pl script.

@@ -21,8 +21,8 @@ import struct
 import sys
 
 from binman import elf
-import command
-import tools
+from patman import command
+from patman import tools
 
 # Set to True to enable printing output while working
 DEBUG = False

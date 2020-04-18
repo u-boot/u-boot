@@ -5,11 +5,11 @@
 import itertools
 import os
 
-import get_maintainer
-import gitutil
-import settings
-import terminal
-import tools
+from patman import get_maintainer
+from patman import gitutil
+from patman import settings
+from patman import terminal
+from patman import tools
 
 # Series-xxx tags that we understand
 valid_series = ['to', 'cc', 'version', 'changes', 'prefix', 'notes', 'name',

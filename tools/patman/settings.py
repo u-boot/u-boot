@@ -10,9 +10,9 @@ except:
 import os
 import re
 
-import command
-import gitutil
-import tools
+from patman import command
+from patman import gitutil
+from patman import tools
 
 """Default settings per-project.
 

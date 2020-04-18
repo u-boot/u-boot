@@ -11,10 +11,10 @@ import tempfile
 import unittest
 
 from binman import elf
-import command
-import test_util
-import tools
-import tout
+from patman import command
+from patman import test_util
+from patman import tools
+from patman import tout
 
 binman_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
 
