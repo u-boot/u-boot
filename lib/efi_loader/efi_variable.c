@@ -600,8 +600,7 @@ static
 efi_status_t EFIAPI efi_get_variable_common(u16 *variable_name,
 					    const efi_guid_t *vendor,
 					    u32 *attributes,
-					    efi_uintn_t *data_size, void *data,
-					    bool is_non_volatile)
+					    efi_uintn_t *data_size, void *data)
 {
 	char *native_name;
 	efi_status_t ret;
@@ -684,27 +683,6 @@ out:
 	return ret;
 }
 
-static
-efi_status_t EFIAPI efi_get_volatile_variable(u16 *variable_name,
-					      const efi_guid_t *vendor,
-					      u32 *attributes,
-					      efi_uintn_t *data_size,
-					      void *data)
-{
-	return efi_get_variable_common(variable_name, vendor, attributes,
-				       data_size, data, false);
-}
-
-efi_status_t EFIAPI efi_get_nonvolatile_variable(u16 *variable_name,
-						 const efi_guid_t *vendor,
-						 u32 *attributes,
-						 efi_uintn_t *data_size,
-						 void *data)
-{
-	return efi_get_variable_common(variable_name, vendor, attributes,
-				       data_size, data, true);
-}
-
 /**
  * efi_efi_get_variable() - retrieve value of a UEFI variable
  *
@@ -729,12 +707,8 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
 	EFI_ENTRY("\"%ls\" %pUl %p %p %p", variable_name, vendor, attributes,
 		  data_size, data);
 
-	ret = efi_get_volatile_variable(variable_name, vendor, attributes,
-					data_size, data);
-	if (ret == EFI_NOT_FOUND)
-		ret = efi_get_nonvolatile_variable(variable_name, vendor,
-						   attributes, data_size, data);
-
+	ret = efi_get_variable_common(variable_name, vendor, attributes,
+				      data_size, data);
 	return EFI_EXIT(ret);
 }
 
