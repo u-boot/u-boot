@@ -12,10 +12,7 @@ import sys
 import tempfile
 import unittest
 
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
+from io import StringIO
 
 import gitutil
 import patchstream

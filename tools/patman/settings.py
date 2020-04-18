@@ -34,10 +34,7 @@ class _ProjectConfigParser(ConfigParser.SafeConfigParser):
     - Merge general default settings/aliases with project-specific ones.
 
     # Sample config used for tests below...
-    >>> try:
-    ...     from StringIO import StringIO
-    ... except ImportError:
-    ...     from io import StringIO
+    >>> from io import StringIO
     >>> sample_config = '''
     ... [alias]
     ... me: Peter P. <likesspiders@example.com>

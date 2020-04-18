@@ -10,10 +10,7 @@ import sys
 
 import command
 
-try:
-  from StringIO import StringIO
-except ImportError:
-  from io import StringIO
+from io import StringIO
 
 PYTHON = 'python%d' % sys.version_info[0]
 
