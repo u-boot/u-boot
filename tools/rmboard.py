@@ -30,7 +30,6 @@ import sys
 
 # Bring in the patman libraries
 our_path = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(our_path, '../tools/patman'))
 
 from patman import command
 

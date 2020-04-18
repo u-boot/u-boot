@@ -314,8 +314,6 @@ import tempfile
 import threading
 import time
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.append(os.path.join(os.path.dirname(__file__), 'patman'))
 from buildman import bsettings
 from buildman import kconfiglib
 from buildman import toolchain

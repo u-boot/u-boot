@@ -14,8 +14,7 @@ import unittest
 
 # Bring in the patman libraries
 our_path = os.path.dirname(os.path.realpath(__file__))
-for dirname in ['../patman', '..']:
-    sys.path.insert(0, os.path.join(our_path, dirname))
+sys.path.insert(1, os.path.join(our_path, '..'))
 
 from dtoc import fdt
 from dtoc import fdt_util

@@ -22,8 +22,7 @@ import sys
 import tempfile
 import time
 
-sys.path.insert(1, os.path.join(os.path.dirname(__file__), 'buildman'))
-import kconfiglib
+from buildman import kconfiglib
 
 ### constant variables ###
 OUTPUT_FILE = 'boards.cfg'

@@ -13,7 +13,7 @@ import sys
 import unittest
 
 if __name__ == "__main__":
-    # Allow 'import xxx to work'
+    # Allow 'from patman import xxx to work'
     our_path = os.path.dirname(os.path.realpath(__file__))
     sys.path.append(os.path.join(our_path, '..'))
 

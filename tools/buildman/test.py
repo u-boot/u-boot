@@ -11,7 +11,6 @@ import unittest
 
 # Bring in the patman libraries
 our_path = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(our_path, '../patman'))
 
 from buildman import board
 from buildman import bsettings

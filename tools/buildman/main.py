@@ -16,7 +16,6 @@ import unittest
 # Bring in the patman libraries
 our_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(1, os.path.join(our_path, '..'))
-sys.path.insert(2, os.path.join(our_path, '../patman'))
 
 # Our modules
 from buildman import board
@@ -35,7 +34,7 @@ def RunTests(skip_net_tests):
     import doctest
 
     result = unittest.TestResult()
-    for module in ['toolchain', 'gitutil']:
+    for module in ['buildman.toolchain', 'patman.gitutil']:
         suite = doctest.DocTestSuite(module)
         suite.run(result)
 

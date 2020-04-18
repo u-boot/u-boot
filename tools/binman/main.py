@@ -20,8 +20,9 @@ import unittest
 # Bring in the patman and dtoc libraries (but don't override the first path
 # in PYTHONPATH)
 our_path = os.path.dirname(os.path.realpath(__file__))
-for dirname in ['../patman', '../dtoc', '../concurrencytest', '..']:
-    sys.path.insert(2, os.path.realpath(os.path.join(our_path, dirname)))
+sys.path.insert(2, os.path.join(our_path, '..'))
+
+from patman import test_util
 
 # Bring in the libfdt module
 sys.path.insert(2, 'scripts/dtc/pylibfdt')
