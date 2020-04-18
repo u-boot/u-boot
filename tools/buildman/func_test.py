@@ -8,11 +8,12 @@ import sys
 import tempfile
 import unittest
 
-import board
-import bsettings
-import cmdline
+from buildman import board
+from buildman import bsettings
+from buildman import cmdline
+from buildman import control
+from buildman import toolchain
 import command
-import control
 import gitutil
 import terminal
 import toolchain

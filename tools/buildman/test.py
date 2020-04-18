@@ -13,15 +13,15 @@ import unittest
 our_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(our_path, '../patman'))
 
-import board
-import bsettings
-import builder
-import control
-import command
+from buildman import board
+from buildman import bsettings
+from buildman import builder
+from buildman import control
+from buildman import toolchain
 import commit
+import command
 import terminal
 import test_util
-import toolchain
 import tools
 
 use_network = True

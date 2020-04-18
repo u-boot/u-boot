@@ -10,7 +10,7 @@ import sys
 import tempfile
 import urllib.request, urllib.error, urllib.parse
 
-import bsettings
+from buildman import bsettings
 import command
 import terminal
 import tools

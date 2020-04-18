@@ -17,12 +17,12 @@ import sys
 import threading
 import time
 
-import builderthread
+from buildman import builderthread
+from buildman import toolchain
 import command
 import gitutil
 import terminal
 from terminal import Print
-import toolchain
 
 """
 Theory of Operation

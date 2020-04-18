@@ -5,18 +5,18 @@
 import multiprocessing
 import os
 import shutil
+import subprocess
 import sys
 
-import board
-import bsettings
-from builder import Builder
+from buildman import board
+from buildman import bsettings
+from buildman import toolchain
+from buildman.builder import Builder
+import command
 import gitutil
 import patchstream
 import terminal
 from terminal import Print
-import toolchain
-import command
-import subprocess
 
 def GetPlural(count):
     """Returns a plural 's' if count is not 1"""

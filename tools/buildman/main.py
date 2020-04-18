@@ -6,6 +6,7 @@
 
 """See README for more information"""
 
+import doctest
 import multiprocessing
 import os
 import re
@@ -14,20 +15,19 @@ import unittest
 
 # Bring in the patman libraries
 our_path = os.path.dirname(os.path.realpath(__file__))
-sys.path.insert(1, os.path.join(our_path, '../patman'))
+sys.path.insert(1, os.path.join(our_path, '..'))
+sys.path.insert(2, os.path.join(our_path, '../patman'))
 
 # Our modules
-import board
-import bsettings
-import builder
-import checkpatch
-import cmdline
-import control
-import doctest
-import gitutil
+from buildman import board
+from buildman import bsettings
+from buildman import builder
+from buildman import cmdline
+from buildman import control
+from buildman import toolchain
 import patchstream
+import gitutil
 import terminal
-import toolchain
 
 def RunTests(skip_net_tests):
     import func_test
