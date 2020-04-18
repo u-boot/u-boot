@@ -9,8 +9,6 @@
 
 """See README for more information"""
 
-from __future__ import print_function
-
 from distutils.sysconfig import get_python_lib
 import glob
 import multiprocessing

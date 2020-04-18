@@ -4,8 +4,6 @@
 # Written by Simon Glass <sjg@chromium.org>
 #
 
-from __future__ import print_function
-
 from optparse import OptionParser
 import glob
 import os

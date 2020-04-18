@@ -3,8 +3,6 @@
 # Copyright (c) 2016 Google, Inc
 #
 
-from __future__ import print_function
-
 from contextlib import contextmanager
 import glob
 import os

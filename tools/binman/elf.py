@@ -5,8 +5,6 @@
 # Handle various things related to ELF images
 #
 
-from __future__ import print_function
-
 from collections import namedtuple, OrderedDict
 import command
 import io

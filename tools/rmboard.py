@@ -23,8 +23,6 @@ This script works by:
 Search for ## to update the commit message manually.
 """
 
-from __future__ import print_function
-
 import glob
 import os
 import re

@@ -9,8 +9,6 @@ This includes unit tests for some functions and functional tests for the dtoc
 tool.
 """
 
-from __future__ import print_function
-
 import collections
 import os
 import struct

@@ -4,8 +4,6 @@
 # Base class for all entries
 #
 
-from __future__ import print_function
-
 from collections import namedtuple
 import importlib
 import os

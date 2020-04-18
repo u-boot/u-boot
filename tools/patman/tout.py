@@ -4,8 +4,6 @@
 # Terminal output logging.
 #
 
-from __future__ import print_function
-
 import sys
 
 import terminal

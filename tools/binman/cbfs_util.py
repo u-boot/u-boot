@@ -15,8 +15,6 @@ Currently supported: raw and stage types with compression, padding empty areas
     with empty files, fixed-offset files
 """
 
-from __future__ import print_function
-
 from collections import OrderedDict
 import io
 import struct

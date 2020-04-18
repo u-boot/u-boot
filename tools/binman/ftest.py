@@ -6,8 +6,6 @@
 #
 #    python -m unittest func_test.TestFunctional.testHelp
 
-from __future__ import print_function
-
 import hashlib
 from optparse import OptionParser
 import os

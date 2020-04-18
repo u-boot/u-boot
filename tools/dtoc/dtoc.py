@@ -25,8 +25,6 @@ options. For more information about the use of this options and tool please
 see doc/driver-model/of-plat.rst
 """
 
-from __future__ import print_function
-
 from optparse import OptionParser
 import os
 import sys

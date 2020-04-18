@@ -6,8 +6,6 @@
 
 """See README for more information"""
 
-from __future__ import print_function
-
 import multiprocessing
 import os
 import re

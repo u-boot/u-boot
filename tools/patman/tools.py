@@ -3,8 +3,6 @@
 # Copyright (c) 2016 Google, Inc
 #
 
-from __future__ import print_function
-
 import command
 import glob
 import os

@@ -9,8 +9,6 @@ These create and read various CBFSs and compare the results with expected
 values and with cbfstool
 """
 
-from __future__ import print_function
-
 import io
 import os
 import shutil
