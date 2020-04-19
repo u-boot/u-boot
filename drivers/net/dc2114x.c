@@ -79,29 +79,29 @@
 #define phys_to_bus(a)	pci_phys_to_mem((pci_dev_t)dev->priv, a)
 #endif
 
-static int INL(struct eth_device *dev, u_long addr)
+static u32 dc2114x_inl(struct eth_device *dev, u32 addr)
 {
-	return le32_to_cpu(*(volatile u_long *)(addr + dev->iobase));
+	return le32_to_cpu(*(volatile u32 *)(addr + dev->iobase));
 }
 
-static void OUTL(struct eth_device *dev, int command, u_long addr)
+static void dc2114x_outl(struct eth_device *dev, u32 command, u32 addr)
 {
-	*(volatile u_long *)(addr + dev->iobase) = cpu_to_le32(command);
+	*(volatile u32 *)(addr + dev->iobase) = cpu_to_le32(command);
 }
 
 static void reset_de4x5(struct eth_device *dev)
 {
-	int i;
+	u32 i;
 
-	i = INL(dev, DE4X5_BMR);
+	i = dc2114x_inl(dev, DE4X5_BMR);
 	mdelay(1);
-	OUTL(dev, i | BMR_SWR, DE4X5_BMR);
+	dc2114x_outl(dev, i | BMR_SWR, DE4X5_BMR);
 	mdelay(1);
-	OUTL(dev, i, DE4X5_BMR);
+	dc2114x_outl(dev, i, DE4X5_BMR);
 	mdelay(1);
 
 	for (i = 0; i < 5; i++) {
-		INL(dev, DE4X5_BMR);
+		dc2114x_inl(dev, DE4X5_BMR);
 		mdelay(10);
 	}
 
@@ -110,20 +110,20 @@ static void reset_de4x5(struct eth_device *dev)
 
 static void start_de4x5(struct eth_device *dev)
 {
-	s32 omr;
+	u32 omr;
 
-	omr = INL(dev, DE4X5_OMR);
+	omr = dc2114x_inl(dev, DE4X5_OMR);
 	omr |= OMR_ST | OMR_SR;
-	OUTL(dev, omr, DE4X5_OMR);	/* Enable the TX and/or RX */
+	dc2114x_outl(dev, omr, DE4X5_OMR);	/* Enable the TX and/or RX */
 }
 
 static void stop_de4x5(struct eth_device *dev)
 {
-	s32 omr;
+	u32 omr;
 
-	omr = INL(dev, DE4X5_OMR);
+	omr = dc2114x_inl(dev, DE4X5_OMR);
 	omr &= ~(OMR_ST | OMR_SR);
-	OUTL(dev, omr, DE4X5_OMR);	/* Disable the TX and/or RX */
+	dc2114x_outl(dev, omr, DE4X5_OMR);	/* Disable the TX and/or RX */
 }
 
 #define NUM_RX_DESC PKTBUFSRX
@@ -270,12 +270,12 @@ static int dc21x4x_init(struct eth_device *dev, bd_t *bis)
 
 	reset_de4x5(dev);
 
-	if ((INL(dev, DE4X5_STS) & (STS_TS | STS_RS)) != 0) {
+	if (dc2114x_inl(dev, DE4X5_STS) & (STS_TS | STS_RS)) {
 		printf("Error: Cannot reset ethernet controller.\n");
 		return -1;
 	}
 
-	OUTL(dev, OMR_SDP | OMR_PS | OMR_PM, DE4X5_OMR);
+	dc2114x_outl(dev, OMR_SDP | OMR_PS | OMR_PM, DE4X5_OMR);
 
 	for (i = 0; i < NUM_RX_DESC; i++) {
 		rx_ring[i].status = cpu_to_le32(R_OWN);
@@ -300,8 +300,8 @@ static int dc21x4x_init(struct eth_device *dev, bd_t *bis)
 	tx_ring[tx_ring_size - 1].des1 |= cpu_to_le32(TD_TER);
 
 	/* Tell the adapter where the TX/RX rings are located. */
-	OUTL(dev, phys_to_bus((u32)&rx_ring), DE4X5_RRBA);
-	OUTL(dev, phys_to_bus((u32)&tx_ring), DE4X5_TRBA);
+	dc2114x_outl(dev, phys_to_bus((u32)&rx_ring), DE4X5_RRBA);
+	dc2114x_outl(dev, phys_to_bus((u32)&tx_ring), DE4X5_TRBA);
 
 	start_de4x5(dev);
 
@@ -335,7 +335,7 @@ static int dc21x4x_send(struct eth_device *dev, void *packet, int length)
 	tx_ring[tx_new].des1 = cpu_to_le32(TD_TER | TD_LS | TD_FS | length);
 	tx_ring[tx_new].status = cpu_to_le32(T_OWN);
 
-	OUTL(dev, POLL_DEMAND, DE4X5_TPD);
+	dc2114x_outl(dev, POLL_DEMAND, DE4X5_TPD);
 
 	for (i = 0; tx_ring[tx_new].status & cpu_to_le32(T_OWN); i++) {
 		if (i < TOUT_LOOP)
@@ -402,7 +402,7 @@ static void dc21x4x_halt(struct eth_device *dev)
 	int devbusfn = (int)dev->priv;
 
 	stop_de4x5(dev);
-	OUTL(dev, 0, DE4X5_SICR);
+	dc2114x_outl(dev, 0, DE4X5_SICR);
 
 	pci_write_config_byte(devbusfn, PCI_CFDA_PSM, SLEEP);
 }
@@ -433,7 +433,7 @@ static void send_setup_frame(struct eth_device *dev, bd_t *bis)
 	tx_ring[tx_new].des1 = cpu_to_le32(TD_TER | TD_SET | SETUP_FRAME_LEN);
 	tx_ring[tx_new].status = cpu_to_le32(T_OWN);
 
-	OUTL(dev, POLL_DEMAND, DE4X5_TPD);
+	dc2114x_outl(dev, POLL_DEMAND, DE4X5_TPD);
 
 	for (i = 0; tx_ring[tx_new].status & cpu_to_le32(T_OWN); i++) {
 		if (i < TOUT_LOOP)
@@ -454,13 +454,13 @@ static void send_setup_frame(struct eth_device *dev, bd_t *bis)
 /* SROM Read and write routines. */
 static void sendto_srom(struct eth_device *dev, u_int command, u_long addr)
 {
-	OUTL(dev, command, addr);
+	dc2114x_outl(dev, command, addr);
 	udelay(1);
 }
 
 static int getfrom_srom(struct eth_device *dev, u_long addr)
 {
-	s32 tmp = INL(dev, addr);
+	u32 tmp = dc2114x_inl(dev, addr);
 
 	udelay(1);
 	return tmp;
