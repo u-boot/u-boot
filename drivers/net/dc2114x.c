@@ -346,46 +346,40 @@ done:
 	return status;
 }
 
-static int dc21x4x_recv(struct eth_device* dev)
+static int dc21x4x_recv(struct eth_device *dev)
 {
-	s32		status;
-	int		length    = 0;
+	int length = 0;
+	u32 status;
 
-	for ( ; ; ) {
-		status = (s32)le32_to_cpu(rx_ring[rx_new].status);
+	while (true) {
+		status = le32_to_cpu(rx_ring[rx_new].status);
 
-		if (status & R_OWN) {
+		if (status & R_OWN)
 			break;
-		}
 
 		if (status & RD_LS) {
-			/* Valid frame status.
-			 */
+			/* Valid frame status. */
 			if (status & RD_ES) {
-
-				/* There was an error.
-				 */
+				/* There was an error. */
 				printf("RX error status = 0x%08X\n", status);
 			} else {
-				/* A valid frame received.
-				 */
-				length = (le32_to_cpu(rx_ring[rx_new].status) >> 16);
+				/* A valid frame received. */
+				length = (le32_to_cpu(rx_ring[rx_new].status)
+					  >> 16);
 
-				/* Pass the packet up to the protocol
-				 * layers.
-				 */
-				net_process_received_packet(
-					net_rx_packets[rx_new], length - 4);
+				/* Pass the packet up to the protocol layers */
+				net_process_received_packet
+					(net_rx_packets[rx_new], length - 4);
 			}
 
-			/* Change buffer ownership for this frame, back
-			 * to the adapter.
+			/*
+			 * Change buffer ownership for this frame,
+			 * back to the adapter.
 			 */
 			rx_ring[rx_new].status = cpu_to_le32(R_OWN);
 		}
 
-		/* Update entry information.
-		 */
+		/* Update entry information. */
 		rx_new = (rx_new + 1) % rxRingSize;
 	}
 
