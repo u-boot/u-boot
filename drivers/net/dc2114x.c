@@ -12,19 +12,17 @@
 
 #undef UPDATE_SROM
 
-/* PCI Registers.
- */
-#define PCI_CFDA_PSM		0x43
+/* PCI Registers. */
+#define PCI_CFDA_PSM	0x43
 
 #define CFRV_RN		0x000000f0	/* Revision Number */
 
 #define WAKEUP		0x00		/* Power Saving Wakeup */
 #define SLEEP		0x80		/* Power Saving Sleep Mode */
 
-#define DC2114x_BRK	0x0020		/* CFRV break between DC21142 & DC21143 */
+#define DC2114x_BRK	0x0020	/* CFRV break between DC21142 & DC21143 */
 
-/* Ethernet chip registers.
- */
+/* Ethernet chip registers. */
 #define DE4X5_BMR	0x000		/* Bus Mode Register */
 #define DE4X5_TPD	0x008		/* Transmit Poll Demand Reg */
 #define DE4X5_RRBA	0x018		/* RX Ring Base Address Reg */
@@ -34,8 +32,7 @@
 #define DE4X5_SICR	0x068		/* SIA Connectivity Register */
 #define DE4X5_APROM	0x048		/* Ethernet Address PROM */
 
-/* Register bits.
- */
+/* Register bits. */
 #define BMR_SWR		0x00000001	/* Software Reset */
 #define STS_TS		0x00700000	/* Transmit Process State */
 #define STS_RS		0x000e0000	/* Receive Process State */
@@ -45,8 +42,7 @@
 #define OMR_SDP		0x02000000	/* SD Polarity - MUST BE ASSERTED */
 #define OMR_PM		0x00000080	/* Pass All Multicast */
 
-/* Descriptor bits.
- */
+/* Descriptor bits. */
 #define R_OWN		0x80000000	/* Own Bit */
 #define RD_RER		0x02000000	/* Receive End Of Ring */
 #define RD_LS		0x00000100	/* Last Descriptor */
@@ -63,12 +59,12 @@
 #define SROM_READ_CMD	6
 #define SROM_ERASE_CMD	7
 
-#define SROM_HWADD	    0x0014	/* Hardware Address offset in SROM */
+#define SROM_HWADD	0x0014		/* Hardware Address offset in SROM */
 #define SROM_RD		0x00004000	/* Read from Boot ROM */
-#define EE_DATA_WRITE	      0x04	/* EEPROM chip data in. */
-#define EE_WRITE_0	    0x4801
-#define EE_WRITE_1	    0x4805
-#define EE_DATA_READ	      0x08	/* EEPROM chip data out. */
+#define EE_DATA_WRITE	0x04		/* EEPROM chip data in. */
+#define EE_WRITE_0	0x4801
+#define EE_WRITE_1	0x4805
+#define EE_DATA_READ	0x08		/* EEPROM chip data out. */
 #define SROM_SR		0x00000800	/* Select Serial ROM when set */
 
 #define DT_IN		0x00000004	/* Serial Data In */
@@ -79,13 +75,13 @@
 
 #define RESET_DE4X5(dev) {\
     int i;\
-    i=INL(dev, DE4X5_BMR);\
+    i = INL(dev, DE4X5_BMR);\
     udelay(1000);\
     OUTL(dev, i | BMR_SWR, DE4X5_BMR);\
     udelay(1000);\
     OUTL(dev, i, DE4X5_BMR);\
     udelay(1000);\
-    for (i=0;i<5;i++) {INL(dev, DE4X5_BMR); udelay(10000);}\
+    for (i = 0; i < 5; i++) {INL(dev, DE4X5_BMR); udelay(10000); } \
     udelay(1000);\
 }
 
@@ -99,7 +95,7 @@
 #define STOP_DE4X5(dev) {\
     s32 omr; \
     omr = INL(dev, DE4X5_OMR);\
-    omr &= ~(OMR_ST|OMR_SR);\
+    omr &= ~(OMR_ST | OMR_SR);\
     OUTL(dev, omr, DE4X5_OMR);		/* Disable the TX and/or RX */ \
 }
 
@@ -118,30 +114,34 @@ struct de4x5_desc {
 	u32 next;
 };
 
-static struct de4x5_desc rx_ring[NUM_RX_DESC] __attribute__ ((aligned(32))); /* RX descriptor ring         */
-static struct de4x5_desc tx_ring[NUM_TX_DESC] __attribute__ ((aligned(32))); /* TX descriptor ring         */
-static int rx_new;                             /* RX descriptor ring pointer */
-static int tx_new;                             /* TX descriptor ring pointer */
+/* RX and TX descriptor ring */
+static struct de4x5_desc rx_ring[NUM_RX_DESC] __aligned(32);
+static struct de4x5_desc tx_ring[NUM_TX_DESC] __aligned(32);
+static int rx_new;	/* RX descriptor ring pointer */
+static int tx_new;	/* TX descriptor ring pointer */
 
-static char rxRingSize;
-static char txRingSize;
+static char rx_ring_size;
+static char tx_ring_size;
 
-static void  sendto_srom(struct eth_device* dev, u_int command, u_long addr);
-static int   getfrom_srom(struct eth_device* dev, u_long addr);
-static int   do_eeprom_cmd(struct eth_device *dev, u_long ioaddr,int cmd,int cmd_len);
-static int   do_read_eeprom(struct eth_device *dev,u_long ioaddr,int location,int addr_len);
+static void  sendto_srom(struct eth_device *dev, u_int command, u_long addr);
+static int   getfrom_srom(struct eth_device *dev, u_long addr);
+static int   do_eeprom_cmd(struct eth_device *dev, u_long ioaddr,
+			   int cmd, int cmd_len);
+static int   do_read_eeprom(struct eth_device *dev, u_long ioaddr,
+			    int location, int addr_len);
 #ifdef UPDATE_SROM
-static int   write_srom(struct eth_device *dev, u_long ioaddr, int index, int new_value);
+static int   write_srom(struct eth_device *dev, u_long ioaddr,
+			int index, int new_value);
 static void  update_srom(struct eth_device *dev, bd_t *bis);
 #endif
 static int   read_srom(struct eth_device *dev, u_long ioaddr, int index);
-static void  read_hw_addr(struct eth_device* dev, bd_t * bis);
-static void  send_setup_frame(struct eth_device* dev, bd_t * bis);
+static void  read_hw_addr(struct eth_device *dev, bd_t *bis);
+static void  send_setup_frame(struct eth_device *dev, bd_t *bis);
 
-static int   dc21x4x_init(struct eth_device* dev, bd_t* bis);
+static int   dc21x4x_init(struct eth_device *dev, bd_t *bis);
 static int   dc21x4x_send(struct eth_device *dev, void *packet, int length);
-static int   dc21x4x_recv(struct eth_device* dev);
-static void  dc21x4x_halt(struct eth_device* dev);
+static int   dc21x4x_recv(struct eth_device *dev);
+static void  dc21x4x_halt(struct eth_device *dev);
 
 #if defined(CONFIG_E500)
 #define phys_to_bus(a) (a)
@@ -149,12 +149,12 @@ static void  dc21x4x_halt(struct eth_device* dev);
 #define phys_to_bus(a)	pci_phys_to_mem((pci_dev_t)dev->priv, a)
 #endif
 
-static int INL(struct eth_device* dev, u_long addr)
+static int INL(struct eth_device *dev, u_long addr)
 {
 	return le32_to_cpu(*(volatile u_long *)(addr + dev->iobase));
 }
 
-static void OUTL(struct eth_device* dev, int command, u_long addr)
+static void OUTL(struct eth_device *dev, int command, u_long addr)
 {
 	*(volatile u_long *)(addr + dev->iobase) = cpu_to_le32(command);
 }
@@ -281,12 +281,12 @@ static int dc21x4x_init(struct eth_device *dev, bd_t *bis)
 		tx_ring[i].next = 0;
 	}
 
-	rxRingSize = NUM_RX_DESC;
-	txRingSize = NUM_TX_DESC;
+	rx_ring_size = NUM_RX_DESC;
+	tx_ring_size = NUM_TX_DESC;
 
 	/* Write the end of list marker to the descriptor lists. */
-	rx_ring[rxRingSize - 1].des1 |= cpu_to_le32(RD_RER);
-	tx_ring[txRingSize - 1].des1 |= cpu_to_le32(TD_TER);
+	rx_ring[rx_ring_size - 1].des1 |= cpu_to_le32(RD_RER);
+	tx_ring[tx_ring_size - 1].des1 |= cpu_to_le32(TD_TER);
 
 	/* Tell the adapter where the TX/RX rings are located. */
 	OUTL(dev, phys_to_bus((u32)&rx_ring), DE4X5_RRBA);
@@ -380,7 +380,7 @@ static int dc21x4x_recv(struct eth_device *dev)
 		}
 
 		/* Update entry information. */
-		rx_new = (rx_new + 1) % rxRingSize;
+		rx_new = (rx_new + 1) % rx_ring_size;
 	}
 
 	return length;
