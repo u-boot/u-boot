@@ -167,33 +167,30 @@ static struct pci_device_id supported[] = {
 
 int dc21x4x_initialize(bd_t *bis)
 {
-	int			idx=0;
-	int			card_number = 0;
-	unsigned int		cfrv;
-	unsigned char		timer;
-	pci_dev_t		devbusfn;
-	unsigned int		iobase;
-	unsigned short		status;
-	struct eth_device*	dev;
+	struct eth_device *dev;
+	unsigned short status;
+	unsigned char timer;
+	unsigned int iobase;
+	int card_number = 0;
+	pci_dev_t devbusfn;
+	unsigned int cfrv;
+	int idx = 0;
 
-	while(1) {
-		devbusfn =  pci_find_devices(supported, idx++);
-		if (devbusfn == -1) {
+	while (1) {
+		devbusfn = pci_find_devices(supported, idx++);
+		if (devbusfn == -1)
 			break;
-		}
 
 		/* Get the chip configuration revision register. */
 		pci_read_config_dword(devbusfn, PCI_REVISION_ID, &cfrv);
 
-		if ((cfrv & CFRV_RN) < DC2114x_BRK ) {
+		if ((cfrv & CFRV_RN) < DC2114x_BRK) {
 			printf("Error: The chip is not DC21143.\n");
 			continue;
 		}
 
 		pci_read_config_word(devbusfn, PCI_COMMAND, &status);
-		status |=
-		  PCI_COMMAND_MEMORY |
-		  PCI_COMMAND_MASTER;
+		status |= PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER;
 		pci_write_config_word(devbusfn, PCI_COMMAND, status);
 
 		pci_read_config_word(devbusfn, PCI_COMMAND, &status);
@@ -211,30 +208,31 @@ int dc21x4x_initialize(bd_t *bis)
 		pci_read_config_byte(devbusfn, PCI_LATENCY_TIMER, &timer);
 
 		if (timer < 0x60) {
-			pci_write_config_byte(devbusfn, PCI_LATENCY_TIMER, 0x60);
+			pci_write_config_byte(devbusfn, PCI_LATENCY_TIMER,
+					      0x60);
 		}
 
 		/* read BAR for memory space access */
 		pci_read_config_dword(devbusfn, PCI_BASE_ADDRESS_1, &iobase);
 		iobase &= PCI_BASE_ADDRESS_MEM_MASK;
-		debug ("dc21x4x: DEC 21142 PCI Device @0x%x\n", iobase);
+		debug("dc21x4x: DEC 21142 PCI Device @0x%x\n", iobase);
 
-		dev = (struct eth_device*) malloc(sizeof *dev);
-
+		dev = (struct eth_device *)malloc(sizeof(*dev));
 		if (!dev) {
 			printf("Can not allocalte memory of dc21x4x\n");
 			break;
 		}
+
 		memset(dev, 0, sizeof(*dev));
 
 		sprintf(dev->name, "dc21x4x#%d", card_number);
 
 		dev->iobase = pci_mem_to_phys(devbusfn, iobase);
-		dev->priv   = (void*) devbusfn;
-		dev->init   = dc21x4x_init;
-		dev->halt   = dc21x4x_halt;
-		dev->send   = dc21x4x_send;
-		dev->recv   = dc21x4x_recv;
+		dev->priv = (void *)devbusfn;
+		dev->init = dc21x4x_init;
+		dev->halt = dc21x4x_halt;
+		dev->send = dc21x4x_send;
+		dev->recv = dc21x4x_recv;
 
 		/* Ensure we're not sleeping. */
 		pci_write_config_byte(devbusfn, PCI_CFDA_PSM, WAKEUP);
@@ -251,10 +249,10 @@ int dc21x4x_initialize(bd_t *bis)
 	return card_number;
 }
 
-static int dc21x4x_init(struct eth_device* dev, bd_t* bis)
+static int dc21x4x_init(struct eth_device *dev, bd_t *bis)
 {
-	int		i;
-	int		devbusfn = (int) dev->priv;
+	int i;
+	int devbusfn = (int)dev->priv;
 
 	/* Ensure we're not sleeping. */
 	pci_write_config_byte(devbusfn, PCI_CFDA_PSM, WAKEUP);
@@ -271,12 +269,12 @@ static int dc21x4x_init(struct eth_device* dev, bd_t* bis)
 	for (i = 0; i < NUM_RX_DESC; i++) {
 		rx_ring[i].status = cpu_to_le32(R_OWN);
 		rx_ring[i].des1 = cpu_to_le32(RX_BUFF_SZ);
-		rx_ring[i].buf = cpu_to_le32(
-			phys_to_bus((u32)net_rx_packets[i]));
+		rx_ring[i].buf =
+			cpu_to_le32(phys_to_bus((u32)net_rx_packets[i]));
 		rx_ring[i].next = 0;
 	}
 
-	for (i=0; i < NUM_TX_DESC; i++) {
+	for (i = 0; i < NUM_TX_DESC; i++) {
 		tx_ring[i].status = 0;
 		tx_ring[i].des1 = 0;
 		tx_ring[i].buf = 0;
@@ -291,8 +289,8 @@ static int dc21x4x_init(struct eth_device* dev, bd_t* bis)
 	tx_ring[txRingSize - 1].des1 |= cpu_to_le32(TD_TER);
 
 	/* Tell the adapter where the TX/RX rings are located. */
-	OUTL(dev, phys_to_bus((u32) &rx_ring), DE4X5_RRBA);
-	OUTL(dev, phys_to_bus((u32) &tx_ring), DE4X5_TRBA);
+	OUTL(dev, phys_to_bus((u32)&rx_ring), DE4X5_RRBA);
+	OUTL(dev, phys_to_bus((u32)&tx_ring), DE4X5_TRBA);
 
 	START_DE4X5(dev);
 
