@@ -304,47 +304,45 @@ static int dc21x4x_init(struct eth_device *dev, bd_t *bis)
 
 static int dc21x4x_send(struct eth_device *dev, void *packet, int length)
 {
-	int		status = -1;
-	int		i;
+	int status = -1;
+	int i;
 
 	if (length <= 0) {
 		printf("%s: bad packet size: %d\n", dev->name, length);
-		goto Done;
+		goto done;
 	}
 
-	for(i = 0; tx_ring[tx_new].status & cpu_to_le32(T_OWN); i++) {
-		if (i >= TOUT_LOOP) {
-			printf("%s: tx error buffer not ready\n", dev->name);
-			goto Done;
-		}
+	for (i = 0; tx_ring[tx_new].status & cpu_to_le32(T_OWN); i++) {
+		if (i < TOUT_LOOP)
+			continue;
+
+		printf("%s: tx error buffer not ready\n", dev->name);
+		goto done;
 	}
 
-	tx_ring[tx_new].buf    = cpu_to_le32(phys_to_bus((u32) packet));
-	tx_ring[tx_new].des1   = cpu_to_le32(TD_TER | TD_LS | TD_FS | length);
+	tx_ring[tx_new].buf = cpu_to_le32(phys_to_bus((u32)packet));
+	tx_ring[tx_new].des1 = cpu_to_le32(TD_TER | TD_LS | TD_FS | length);
 	tx_ring[tx_new].status = cpu_to_le32(T_OWN);
 
 	OUTL(dev, POLL_DEMAND, DE4X5_TPD);
 
-	for(i = 0; tx_ring[tx_new].status & cpu_to_le32(T_OWN); i++) {
-		if (i >= TOUT_LOOP) {
-			printf(".%s: tx buffer not ready\n", dev->name);
-			goto Done;
-		}
+	for (i = 0; tx_ring[tx_new].status & cpu_to_le32(T_OWN); i++) {
+		if (i < TOUT_LOOP)
+			continue;
+
+		printf(".%s: tx buffer not ready\n", dev->name);
+		goto done;
 	}
 
 	if (le32_to_cpu(tx_ring[tx_new].status) & TD_ES) {
-#if 0 /* test-only */
-		printf("TX error status = 0x%08X\n",
-			le32_to_cpu(tx_ring[tx_new].status));
-#endif
 		tx_ring[tx_new].status = 0x0;
-		goto Done;
+		goto done;
 	}
 
 	status = length;
 
- Done:
-    tx_new = (tx_new+1) % NUM_TX_DESC;
+done:
+	tx_new = (tx_new + 1) % NUM_TX_DESC;
 	return status;
 }
 
