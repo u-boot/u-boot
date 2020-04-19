@@ -396,48 +396,48 @@ static void dc21x4x_halt(struct eth_device *dev)
 	pci_write_config_byte(devbusfn, PCI_CFDA_PSM, SLEEP);
 }
 
-static void send_setup_frame(struct eth_device* dev, bd_t *bis)
+static void send_setup_frame(struct eth_device *dev, bd_t *bis)
 {
-	int		i;
-	char	setup_frame[SETUP_FRAME_LEN];
-	char	*pa = &setup_frame[0];
+	char setup_frame[SETUP_FRAME_LEN];
+	char *pa = &setup_frame[0];
+	int i;
 
 	memset(pa, 0xff, SETUP_FRAME_LEN);
 
 	for (i = 0; i < ETH_ALEN; i++) {
 		*(pa + (i & 1)) = dev->enetaddr[i];
-		if (i & 0x01) {
+		if (i & 0x01)
 			pa += 4;
-		}
 	}
 
-	for(i = 0; tx_ring[tx_new].status & cpu_to_le32(T_OWN); i++) {
-		if (i >= TOUT_LOOP) {
-			printf("%s: tx error buffer not ready\n", dev->name);
-			goto Done;
-		}
+	for (i = 0; tx_ring[tx_new].status & cpu_to_le32(T_OWN); i++) {
+		if (i < TOUT_LOOP)
+			continue;
+
+		printf("%s: tx error buffer not ready\n", dev->name);
+		return;
 	}
 
-	tx_ring[tx_new].buf = cpu_to_le32(phys_to_bus((u32) &setup_frame[0]));
-	tx_ring[tx_new].des1 = cpu_to_le32(TD_TER | TD_SET| SETUP_FRAME_LEN);
+	tx_ring[tx_new].buf = cpu_to_le32(phys_to_bus((u32)&setup_frame[0]));
+	tx_ring[tx_new].des1 = cpu_to_le32(TD_TER | TD_SET | SETUP_FRAME_LEN);
 	tx_ring[tx_new].status = cpu_to_le32(T_OWN);
 
 	OUTL(dev, POLL_DEMAND, DE4X5_TPD);
 
-	for(i = 0; tx_ring[tx_new].status & cpu_to_le32(T_OWN); i++) {
-		if (i >= TOUT_LOOP) {
-			printf("%s: tx buffer not ready\n", dev->name);
-			goto Done;
-		}
+	for (i = 0; tx_ring[tx_new].status & cpu_to_le32(T_OWN); i++) {
+		if (i < TOUT_LOOP)
+			continue;
+
+		printf("%s: tx buffer not ready\n", dev->name);
+		return;
 	}
 
 	if (le32_to_cpu(tx_ring[tx_new].status) != 0x7FFFFFFF) {
-		printf("TX error status2 = 0x%08X\n", le32_to_cpu(tx_ring[tx_new].status));
+		printf("TX error status2 = 0x%08X\n",
+		       le32_to_cpu(tx_ring[tx_new].status));
 	}
-	tx_new = (tx_new+1) % NUM_TX_DESC;
 
-Done:
-	return;
+	tx_new = (tx_new + 1) % NUM_TX_DESC;
 }
 
 /* SROM Read and write routines. */
