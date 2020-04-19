@@ -12,7 +12,7 @@
 #include <asm/arch-owl/regs_s900.h>
 #include <asm/io.h>
 
-#include <dt-bindings/clock/s900_cmu.h>
+#include <dt-bindings/clock/actions,s900-cmu.h>
 
 void owl_clk_init(struct owl_clk_priv *priv)
 {
@@ -78,7 +78,7 @@ int owl_clk_enable(struct clk *clk)
 	struct owl_clk_priv *priv = dev_get_priv(clk->dev);
 
 	switch (clk->id) {
-	case CLOCK_UART5:
+	case CLK_UART5:
 		owl_uart_clk_enable(priv);
 		break;
 	default:
@@ -93,7 +93,7 @@ int owl_clk_disable(struct clk *clk)
 	struct owl_clk_priv *priv = dev_get_priv(clk->dev);
 
 	switch (clk->id) {
-	case CLOCK_UART5:
+	case CLK_UART5:
 		owl_uart_clk_disable(priv);
 		break;
 	default:
