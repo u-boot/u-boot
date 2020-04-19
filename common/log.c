@@ -233,7 +233,7 @@ int log_add_filter(const char *drv_name, enum log_category_t cat_list[],
 	ldev = log_device_find_by_name(drv_name);
 	if (!ldev)
 		return -ENOENT;
-	filt = (struct log_filter *)calloc(1, sizeof(*filt));
+	filt = calloc(1, sizeof(*filt));
 	if (!filt)
 		return -ENOMEM;
 
