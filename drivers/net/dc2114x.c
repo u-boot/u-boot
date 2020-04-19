@@ -73,30 +73,57 @@
 
 #define POLL_DEMAND	1
 
-#define RESET_DE4X5(dev) {\
-    int i;\
-    i = INL(dev, DE4X5_BMR);\
-    udelay(1000);\
-    OUTL(dev, i | BMR_SWR, DE4X5_BMR);\
-    udelay(1000);\
-    OUTL(dev, i, DE4X5_BMR);\
-    udelay(1000);\
-    for (i = 0; i < 5; i++) {INL(dev, DE4X5_BMR); udelay(10000); } \
-    udelay(1000);\
+#if defined(CONFIG_E500)
+#define phys_to_bus(a) (a)
+#else
+#define phys_to_bus(a)	pci_phys_to_mem((pci_dev_t)dev->priv, a)
+#endif
+
+static int INL(struct eth_device *dev, u_long addr)
+{
+	return le32_to_cpu(*(volatile u_long *)(addr + dev->iobase));
 }
 
-#define START_DE4X5(dev) {\
-    s32 omr; \
-    omr = INL(dev, DE4X5_OMR);\
-    omr |= OMR_ST | OMR_SR;\
-    OUTL(dev, omr, DE4X5_OMR);		/* Enable the TX and/or RX */\
+static void OUTL(struct eth_device *dev, int command, u_long addr)
+{
+	*(volatile u_long *)(addr + dev->iobase) = cpu_to_le32(command);
 }
 
-#define STOP_DE4X5(dev) {\
-    s32 omr; \
-    omr = INL(dev, DE4X5_OMR);\
-    omr &= ~(OMR_ST | OMR_SR);\
-    OUTL(dev, omr, DE4X5_OMR);		/* Disable the TX and/or RX */ \
+static void reset_de4x5(struct eth_device *dev)
+{
+	int i;
+
+	i = INL(dev, DE4X5_BMR);
+	mdelay(1);
+	OUTL(dev, i | BMR_SWR, DE4X5_BMR);
+	mdelay(1);
+	OUTL(dev, i, DE4X5_BMR);
+	mdelay(1);
+
+	for (i = 0; i < 5; i++) {
+		INL(dev, DE4X5_BMR);
+		mdelay(10);
+	}
+
+	mdelay(1);
+}
+
+static void start_de4x5(struct eth_device *dev)
+{
+	s32 omr;
+
+	omr = INL(dev, DE4X5_OMR);
+	omr |= OMR_ST | OMR_SR;
+	OUTL(dev, omr, DE4X5_OMR);	/* Enable the TX and/or RX */
+}
+
+static void stop_de4x5(struct eth_device *dev)
+{
+	s32 omr;
+
+	omr = INL(dev, DE4X5_OMR);
+	omr &= ~(OMR_ST | OMR_SR);
+	OUTL(dev, omr, DE4X5_OMR);	/* Disable the TX and/or RX */
 }
 
 #define NUM_RX_DESC PKTBUFSRX
@@ -142,22 +169,6 @@ static int   dc21x4x_init(struct eth_device *dev, bd_t *bis);
 static int   dc21x4x_send(struct eth_device *dev, void *packet, int length);
 static int   dc21x4x_recv(struct eth_device *dev);
 static void  dc21x4x_halt(struct eth_device *dev);
-
-#if defined(CONFIG_E500)
-#define phys_to_bus(a) (a)
-#else
-#define phys_to_bus(a)	pci_phys_to_mem((pci_dev_t)dev->priv, a)
-#endif
-
-static int INL(struct eth_device *dev, u_long addr)
-{
-	return le32_to_cpu(*(volatile u_long *)(addr + dev->iobase));
-}
-
-static void OUTL(struct eth_device *dev, int command, u_long addr)
-{
-	*(volatile u_long *)(addr + dev->iobase) = cpu_to_le32(command);
-}
 
 static struct pci_device_id supported[] = {
 	{ PCI_VENDOR_ID_DEC, PCI_DEVICE_ID_DEC_TULIP_FAST },
@@ -257,7 +268,7 @@ static int dc21x4x_init(struct eth_device *dev, bd_t *bis)
 	/* Ensure we're not sleeping. */
 	pci_write_config_byte(devbusfn, PCI_CFDA_PSM, WAKEUP);
 
-	RESET_DE4X5(dev);
+	reset_de4x5(dev);
 
 	if ((INL(dev, DE4X5_STS) & (STS_TS | STS_RS)) != 0) {
 		printf("Error: Cannot reset ethernet controller.\n");
@@ -292,7 +303,7 @@ static int dc21x4x_init(struct eth_device *dev, bd_t *bis)
 	OUTL(dev, phys_to_bus((u32)&rx_ring), DE4X5_RRBA);
 	OUTL(dev, phys_to_bus((u32)&tx_ring), DE4X5_TRBA);
 
-	START_DE4X5(dev);
+	start_de4x5(dev);
 
 	tx_new = 0;
 	rx_new = 0;
@@ -390,7 +401,7 @@ static void dc21x4x_halt(struct eth_device *dev)
 {
 	int devbusfn = (int)dev->priv;
 
-	STOP_DE4X5(dev);
+	stop_de4x5(dev);
 	OUTL(dev, 0, DE4X5_SICR);
 
 	pci_write_config_byte(devbusfn, PCI_CFDA_PSM, SLEEP);
