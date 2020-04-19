@@ -441,30 +441,27 @@ static void send_setup_frame(struct eth_device *dev, bd_t *bis)
 }
 
 /* SROM Read and write routines. */
-static void
-sendto_srom(struct eth_device* dev, u_int command, u_long addr)
+static void sendto_srom(struct eth_device *dev, u_int command, u_long addr)
 {
 	OUTL(dev, command, addr);
 	udelay(1);
 }
 
-static int
-getfrom_srom(struct eth_device* dev, u_long addr)
+static int getfrom_srom(struct eth_device *dev, u_long addr)
 {
-	s32 tmp;
+	s32 tmp = INL(dev, addr);
 
-	tmp = INL(dev, addr);
 	udelay(1);
-
 	return tmp;
 }
 
 /* Note: this routine returns extra data bits for size detection. */
-static int do_read_eeprom(struct eth_device *dev, u_long ioaddr, int location, int addr_len)
+static int do_read_eeprom(struct eth_device *dev, u_long ioaddr, int location,
+			  int addr_len)
 {
-	int i;
-	unsigned retval = 0;
 	int read_cmd = location | (SROM_READ_CMD << addr_len);
+	unsigned int retval = 0;
+	int i;
 
 	sendto_srom(dev, SROM_RD | SROM_SR, ioaddr);
 	sendto_srom(dev, SROM_RD | SROM_SR | DT_CS, ioaddr);
@@ -476,14 +473,18 @@ static int do_read_eeprom(struct eth_device *dev, u_long ioaddr, int location, i
 	/* Shift the read command bits out. */
 	for (i = 4 + addr_len; i >= 0; i--) {
 		short dataval = (read_cmd & (1 << i)) ? EE_DATA_WRITE : 0;
-		sendto_srom(dev, SROM_RD | SROM_SR | DT_CS | dataval, ioaddr);
+
+		sendto_srom(dev, SROM_RD | SROM_SR | DT_CS | dataval,
+			    ioaddr);
 		udelay(10);
-		sendto_srom(dev, SROM_RD | SROM_SR | DT_CS | dataval | DT_CLK, ioaddr);
+		sendto_srom(dev, SROM_RD | SROM_SR | DT_CS | dataval | DT_CLK,
+			    ioaddr);
 		udelay(10);
 #ifdef DEBUG_SROM2
 		printf("%X", getfrom_srom(dev, ioaddr) & 15);
 #endif
-		retval = (retval << 1) | ((getfrom_srom(dev, ioaddr) & EE_DATA_READ) ? 1 : 0);
+		retval = (retval << 1) |
+			 !!(getfrom_srom(dev, ioaddr) & EE_DATA_READ);
 	}
 
 	sendto_srom(dev, SROM_RD | SROM_SR | DT_CS, ioaddr);
@@ -498,7 +499,8 @@ static int do_read_eeprom(struct eth_device *dev, u_long ioaddr, int location, i
 #ifdef DEBUG_SROM2
 		printf("%X", getfrom_srom(dev, ioaddr) & 15);
 #endif
-		retval = (retval << 1) | ((getfrom_srom(dev, ioaddr) & EE_DATA_READ) ? 1 : 0);
+		retval = (retval << 1) |
+			 !!(getfrom_srom(dev, ioaddr) & EE_DATA_READ);
 		sendto_srom(dev, SROM_RD | SROM_SR | DT_CS, ioaddr);
 		udelay(10);
 	}
@@ -518,34 +520,38 @@ static int do_read_eeprom(struct eth_device *dev, u_long ioaddr, int location, i
  * enable. It returns the data output from the EEPROM, and thus may
  * also be used for reads.
  */
-static int do_eeprom_cmd(struct eth_device *dev, u_long ioaddr, int cmd, int cmd_len)
+static int do_eeprom_cmd(struct eth_device *dev, u_long ioaddr, int cmd,
+			 int cmd_len)
 {
-	unsigned retval = 0;
+	unsigned int retval = 0;
 
 #ifdef DEBUG_SROM
 	printf(" EEPROM op 0x%x: ", cmd);
 #endif
 
-	sendto_srom(dev,SROM_RD | SROM_SR | DT_CS | DT_CLK, ioaddr);
+	sendto_srom(dev, SROM_RD | SROM_SR | DT_CS | DT_CLK, ioaddr);
 
 	/* Shift the command bits out. */
 	do {
-		short dataval = (cmd & (1 << cmd_len)) ? EE_WRITE_1 : EE_WRITE_0;
-		sendto_srom(dev,dataval, ioaddr);
+		short dataval = (cmd & BIT(cmd_len)) ? EE_WRITE_1 : EE_WRITE_0;
+
+		sendto_srom(dev, dataval, ioaddr);
 		udelay(10);
 
 #ifdef DEBUG_SROM2
-		printf("%X", getfrom_srom(dev,ioaddr) & 15);
+		printf("%X", getfrom_srom(dev, ioaddr) & 15);
 #endif
 
-		sendto_srom(dev,dataval | DT_CLK, ioaddr);
+		sendto_srom(dev, dataval | DT_CLK, ioaddr);
 		udelay(10);
-		retval = (retval << 1) | ((getfrom_srom(dev,ioaddr) & EE_DATA_READ) ? 1 : 0);
+		retval = (retval << 1) |
+			 !!(getfrom_srom(dev, ioaddr) & EE_DATA_READ);
 	} while (--cmd_len >= 0);
-	sendto_srom(dev,SROM_RD | SROM_SR | DT_CS, ioaddr);
+
+	sendto_srom(dev, SROM_RD | SROM_SR | DT_CS, ioaddr);
 
 	/* Terminate the EEPROM access. */
-	sendto_srom(dev,SROM_RD | SROM_SR, ioaddr);
+	sendto_srom(dev, SROM_RD | SROM_SR, ioaddr);
 
 #ifdef DEBUG_SROM
 	printf(" EEPROM result is 0x%5.5x.\n", retval);
@@ -556,21 +562,26 @@ static int do_eeprom_cmd(struct eth_device *dev, u_long ioaddr, int cmd, int cmd
 
 static int read_srom(struct eth_device *dev, u_long ioaddr, int index)
 {
-	int ee_addr_size = do_read_eeprom(dev, ioaddr, 0xff, 8) & 0x40000 ? 8 : 6;
+	int ee_addr_size;
 
-	return do_eeprom_cmd(dev, ioaddr,
-			     (((SROM_READ_CMD << ee_addr_size) | index) << 16)
-			     | 0xffff, 3 + ee_addr_size + 16);
+	ee_addr_size = (do_read_eeprom(dev, ioaddr, 0xff, 8) & BIT(18)) ? 8 : 6;
+
+	return do_eeprom_cmd(dev, ioaddr, 0xffff |
+			     (((SROM_READ_CMD << ee_addr_size) | index) << 16),
+			     3 + ee_addr_size + 16);
 }
 
 #ifdef UPDATE_SROM
-static int write_srom(struct eth_device *dev, u_long ioaddr, int index, int new_value)
+static int write_srom(struct eth_device *dev, u_long ioaddr, int index,
+		      int new_value)
 {
-	int ee_addr_size = do_read_eeprom(dev, ioaddr, 0xff, 8) & 0x40000 ? 8 : 6;
-	int i;
 	unsigned short newval;
+	int ee_addr_size;
+	int i;
 
-	udelay(10*1000); /* test-only */
+	ee_addr_size = (do_read_eeprom(dev, ioaddr, 0xff, 8) & BIT(18)) ? 8 : 6;
+
+	udelay(10 * 1000); /* test-only */
 
 #ifdef DEBUG_SROM
 	printf("ee_addr_size=%d.\n", ee_addr_size);
@@ -578,33 +589,37 @@ static int write_srom(struct eth_device *dev, u_long ioaddr, int index, int new_
 #endif
 
 	/* Enable programming modes. */
-	do_eeprom_cmd(dev, ioaddr, (0x4f << (ee_addr_size-4)), 3+ee_addr_size);
+	do_eeprom_cmd(dev, ioaddr, 0x4f << (ee_addr_size - 4),
+		      3 + ee_addr_size);
 
 	/* Do the actual write. */
-	do_eeprom_cmd(dev, ioaddr,
-		      (((SROM_WRITE_CMD<<ee_addr_size)|index) << 16) | new_value,
+	do_eeprom_cmd(dev, ioaddr, new_value |
+		      (((SROM_WRITE_CMD << ee_addr_size) | index) << 16),
 		      3 + ee_addr_size + 16);
 
 	/* Poll for write finished. */
 	sendto_srom(dev, SROM_RD | SROM_SR | DT_CS, ioaddr);
-	for (i = 0; i < 10000; i++)			/* Typical 2000 ticks */
+	for (i = 0; i < 10000; i++) {	/* Typical 2000 ticks */
 		if (getfrom_srom(dev, ioaddr) & EE_DATA_READ)
 			break;
+	}
 
 #ifdef DEBUG_SROM
 	printf(" Write finished after %d ticks.\n", i);
 #endif
 
 	/* Disable programming. */
-	do_eeprom_cmd(dev, ioaddr, (0x40 << (ee_addr_size-4)), 3 + ee_addr_size);
+	do_eeprom_cmd(dev, ioaddr, (0x40 << (ee_addr_size - 4)),
+		      3 + ee_addr_size);
 
 	/* And read the result. */
 	newval = do_eeprom_cmd(dev, ioaddr,
-			       (((SROM_READ_CMD<<ee_addr_size)|index) << 16)
+			       (((SROM_READ_CMD << ee_addr_size) | index) << 16)
 			       | 0xffff, 3 + ee_addr_size + 16);
 #ifdef DEBUG_SROM
 	printf("  New value at offset %d is %4.4x.\n", index, newval);
 #endif
+
 	return 1;
 }
 #endif
@@ -615,30 +630,23 @@ static void read_hw_addr(struct eth_device *dev, bd_t *bis)
 	int i, j = 0;
 
 	for (i = 0; i < (ETH_ALEN >> 1); i++) {
-		tmp = read_srom(dev, DE4X5_APROM, ((SROM_HWADD >> 1) + i));
+		tmp = read_srom(dev, DE4X5_APROM, (SROM_HWADD >> 1) + i);
 		*p = le16_to_cpu(tmp);
 		j += *p++;
 	}
 
-	if ((j == 0) || (j == 0x2fffd)) {
-		memset (dev->enetaddr, 0, ETH_ALEN);
-		debug ("Warning: can't read HW address from SROM.\n");
-		goto Done;
-	}
-
-	return;
-
-Done:
+	if (!j || j == 0x2fffd) {
+		memset(dev->enetaddr, 0, ETH_ALEN);
+		debug("Warning: can't read HW address from SROM.\n");
 #ifdef UPDATE_SROM
-	update_srom(dev, bis);
+		update_srom(dev, bis);
 #endif
-	return;
+	}
 }
 
 #ifdef UPDATE_SROM
 static void update_srom(struct eth_device *dev, bd_t *bis)
 {
-	int i;
 	static unsigned short eeprom[0x40] = {
 		0x140b, 0x6610, 0x0000, 0x0000,	/* 00 */
 		0x0000, 0x0000, 0x0000, 0x0000,	/* 04 */
@@ -658,16 +666,17 @@ static void update_srom(struct eth_device *dev, bd_t *bis)
 		0x0000, 0x0000, 0x0000, 0x4e07,	/* 3c */
 	};
 	uchar enetaddr[6];
+	int i;
 
 	/* Ethernet Addr... */
 	if (!eth_env_get_enetaddr("ethaddr", enetaddr))
 		return;
+
 	eeprom[0x0a] = (enetaddr[1] << 8) | enetaddr[0];
 	eeprom[0x0b] = (enetaddr[3] << 8) | enetaddr[2];
 	eeprom[0x0c] = (enetaddr[5] << 8) | enetaddr[4];
 
-	for (i=0; i<0x40; i++) {
+	for (i = 0; i < 0x40; i++)
 		write_srom(dev, DE4X5_APROM, i, eeprom[i]);
-	}
 }
-#endif	/* UPDATE_SROM */
+#endif /* UPDATE_SROM */
