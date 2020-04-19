@@ -7,8 +7,7 @@
 #include <netdev.h>
 #include <pci.h>
 
-#undef DEBUG_SROM
-#undef DEBUG_SROM2
+#define SROM_DLEVEL	0
 
 #undef UPDATE_SROM
 
@@ -176,9 +175,7 @@ static int do_read_eeprom(struct eth_device *dev, u_long ioaddr, int location,
 	sendto_srom(dev, SROM_RD | SROM_SR, ioaddr);
 	sendto_srom(dev, SROM_RD | SROM_SR | DT_CS, ioaddr);
 
-#ifdef DEBUG_SROM
-	printf(" EEPROM read at %d ", location);
-#endif
+	debug_cond(SROM_DLEVEL >= 1, " EEPROM read at %d ", location);
 
 	/* Shift the read command bits out. */
 	for (i = 4 + addr_len; i >= 0; i--) {
@@ -190,25 +187,21 @@ static int do_read_eeprom(struct eth_device *dev, u_long ioaddr, int location,
 		sendto_srom(dev, SROM_RD | SROM_SR | DT_CS | dataval | DT_CLK,
 			    ioaddr);
 		udelay(10);
-#ifdef DEBUG_SROM2
-		printf("%X", getfrom_srom(dev, ioaddr) & 15);
-#endif
+		debug_cond(SROM_DLEVEL >= 2, "%X",
+			   getfrom_srom(dev, ioaddr) & 15);
 		retval = (retval << 1) |
 			 !!(getfrom_srom(dev, ioaddr) & EE_DATA_READ);
 	}
 
 	sendto_srom(dev, SROM_RD | SROM_SR | DT_CS, ioaddr);
 
-#ifdef DEBUG_SROM2
-	printf(" :%X:", getfrom_srom(dev, ioaddr) & 15);
-#endif
+	debug_cond(SROM_DLEVEL >= 2, " :%X:", getfrom_srom(dev, ioaddr) & 15);
 
 	for (i = 16; i > 0; i--) {
 		sendto_srom(dev, SROM_RD | SROM_SR | DT_CS | DT_CLK, ioaddr);
 		udelay(10);
-#ifdef DEBUG_SROM2
-		printf("%X", getfrom_srom(dev, ioaddr) & 15);
-#endif
+		debug_cond(SROM_DLEVEL >= 2, "%X",
+			   getfrom_srom(dev, ioaddr) & 15);
 		retval = (retval << 1) |
 			 !!(getfrom_srom(dev, ioaddr) & EE_DATA_READ);
 		sendto_srom(dev, SROM_RD | SROM_SR | DT_CS, ioaddr);
@@ -218,9 +211,8 @@ static int do_read_eeprom(struct eth_device *dev, u_long ioaddr, int location,
 	/* Terminate the EEPROM access. */
 	sendto_srom(dev, SROM_RD | SROM_SR, ioaddr);
 
-#ifdef DEBUG_SROM2
-	printf(" EEPROM value at %d is %5.5x.\n", location, retval);
-#endif
+	debug_cond(SROM_DLEVEL >= 2, " EEPROM value at %d is %5.5x.\n",
+		   location, retval);
 
 	return retval;
 }
@@ -235,9 +227,7 @@ static int do_eeprom_cmd(struct eth_device *dev, u_long ioaddr, int cmd,
 {
 	unsigned int retval = 0;
 
-#ifdef DEBUG_SROM
-	printf(" EEPROM op 0x%x: ", cmd);
-#endif
+	debug_cond(SROM_DLEVEL >= 1, " EEPROM op 0x%x: ", cmd);
 
 	sendto_srom(dev, SROM_RD | SROM_SR | DT_CS | DT_CLK, ioaddr);
 
@@ -248,9 +238,8 @@ static int do_eeprom_cmd(struct eth_device *dev, u_long ioaddr, int cmd,
 		sendto_srom(dev, dataval, ioaddr);
 		udelay(10);
 
-#ifdef DEBUG_SROM2
-		printf("%X", getfrom_srom(dev, ioaddr) & 15);
-#endif
+		debug_cond(SROM_DLEVEL >= 2, "%X",
+			   getfrom_srom(dev, ioaddr) & 15);
 
 		sendto_srom(dev, dataval | DT_CLK, ioaddr);
 		udelay(10);
@@ -263,9 +252,7 @@ static int do_eeprom_cmd(struct eth_device *dev, u_long ioaddr, int cmd,
 	/* Terminate the EEPROM access. */
 	sendto_srom(dev, SROM_RD | SROM_SR, ioaddr);
 
-#ifdef DEBUG_SROM
-	printf(" EEPROM result is 0x%5.5x.\n", retval);
-#endif
+	debug_cond(SROM_DLEVEL >= 1, " EEPROM result is 0x%5.5x.\n", retval);
 
 	return retval;
 }
@@ -293,10 +280,10 @@ static int write_srom(struct eth_device *dev, u_long ioaddr, int index,
 
 	udelay(10 * 1000); /* test-only */
 
-#ifdef DEBUG_SROM
-	printf("ee_addr_size=%d.\n", ee_addr_size);
-	printf("Writing new entry 0x%4.4x to offset %d.\n", new_value, index);
-#endif
+	debug_cond(SROM_DLEVEL >= 1, "ee_addr_size=%d.\n", ee_addr_size);
+	debug_cond(SROM_DLEVEL >= 1,
+		   "Writing new entry 0x%4.4x to offset %d.\n",
+		   new_value, index);
 
 	/* Enable programming modes. */
 	do_eeprom_cmd(dev, ioaddr, 0x4f << (ee_addr_size - 4),
@@ -314,9 +301,7 @@ static int write_srom(struct eth_device *dev, u_long ioaddr, int index,
 			break;
 	}
 
-#ifdef DEBUG_SROM
-	printf(" Write finished after %d ticks.\n", i);
-#endif
+	debug_cond(SROM_DLEVEL >= 1, " Write finished after %d ticks.\n", i);
 
 	/* Disable programming. */
 	do_eeprom_cmd(dev, ioaddr, (0x40 << (ee_addr_size - 4)),
@@ -326,9 +311,9 @@ static int write_srom(struct eth_device *dev, u_long ioaddr, int index,
 	newval = do_eeprom_cmd(dev, ioaddr,
 			       (((SROM_READ_CMD << ee_addr_size) | index) << 16)
 			       | 0xffff, 3 + ee_addr_size + 16);
-#ifdef DEBUG_SROM
-	printf("  New value at offset %d is %4.4x.\n", index, newval);
-#endif
+
+	debug_cond(SROM_DLEVEL >= 1, "  New value at offset %d is %4.4x.\n",
+		   index, newval);
 
 	return 1;
 }
