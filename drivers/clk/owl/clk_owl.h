@@ -1,16 +1,21 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Actions Semi S900 Clock Definitions
+ * Actions Semi SoCs Clock Definitions
  *
  * Copyright (C) 2015 Actions Semi Co., Ltd.
  * Copyright (C) 2018 Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
  *
  */
 
-#ifndef _OWL_CLK_S900_H_
-#define _OWL_CLK_S900_H_
+#ifndef _OWL_CLK_H_
+#define _OWL_CLK_H_
 
 #include <clk-uclass.h>
+
+enum owl_soc {
+	S700,
+	S900,
+};
 
 struct owl_clk_priv {
 	phys_addr_t base;
@@ -49,9 +54,11 @@ struct owl_clk_priv {
 /* UARTCLK register definitions */
 #define CMU_UARTCLK_SRC_DEVPLL	BIT(16)
 
-/* DEVCLKEN1 register definitions */
-#define CMU_DEVCLKEN1_UART5	BIT(21)
-
 #define PLL_STABILITY_WAIT_US	50
+
+#define CMU_DEVCLKEN1_UART5	BIT(21)
+#define CMU_DEVCLKEN1_UART3	BIT(11)
+
+#define CMU_DEVCLKEN1_ETH_S700	BIT(23)
 
 #endif

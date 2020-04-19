@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Actions Semi S900 clock driver
+ * Common clock driver for Actions Semi SoCs.
  *
  * Copyright (C) 2015 Actions Semi Co., Ltd.
  * Copyright (C) 2018 Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
@@ -8,20 +8,25 @@
 
 #include <common.h>
 #include <dm.h>
-#include <asm/arch-owl/clk_s900.h>
-#include <asm/arch-owl/regs_s900.h>
+#include "clk_owl.h"
 #include <asm/io.h>
-
+#if defined(CONFIG_MACH_S900)
+#include <asm/arch-owl/regs_s900.h>
 #include <dt-bindings/clock/actions,s900-cmu.h>
+#elif defined(CONFIG_MACH_S700)
+#include <asm/arch-owl/regs_s700.h>
+#include <dt-bindings/clock/actions,s700-cmu.h>
+#endif
 
 void owl_clk_init(struct owl_clk_priv *priv)
 {
 	u32 bus_clk = 0, core_pll, dev_pll;
 
+#if defined(CONFIG_MACH_S900)
 	/* Enable ASSIST_PLL */
 	setbits_le32(priv->base + CMU_ASSISTPLL, BIT(0));
-
 	udelay(PLL_STABILITY_WAIT_US);
+#endif
 
 	/* Source HOSC to DEV_CLK */
 	clrbits_le32(priv->base + CMU_DEVPLL, CMU_DEVPLL_CLK);
@@ -58,31 +63,30 @@ void owl_clk_init(struct owl_clk_priv *priv)
 	udelay(PLL_STABILITY_WAIT_US);
 }
 
-void owl_uart_clk_enable(struct owl_clk_priv *priv)
-{
-	/* Source HOSC for UART5 interface */
-	clrbits_le32(priv->base + CMU_UART5CLK, CMU_UARTCLK_SRC_DEVPLL);
-
-	/* Enable UART5 interface clock */
-	setbits_le32(priv->base + CMU_DEVCLKEN1, CMU_DEVCLKEN1_UART5);
-}
-
-void owl_uart_clk_disable(struct owl_clk_priv *priv)
-{
-	/* Disable UART5 interface clock */
-	clrbits_le32(priv->base + CMU_DEVCLKEN1, CMU_DEVCLKEN1_UART5);
-}
-
 int owl_clk_enable(struct clk *clk)
 {
 	struct owl_clk_priv *priv = dev_get_priv(clk->dev);
+	enum owl_soc model = dev_get_driver_data(clk->dev);
 
 	switch (clk->id) {
 	case CLK_UART5:
-		owl_uart_clk_enable(priv);
+		if (model != S900)
+			return -EINVAL;
+		/* Source HOSC for UART5 interface */
+		clrbits_le32(priv->base + CMU_UART5CLK, CMU_UARTCLK_SRC_DEVPLL);
+		/* Enable UART5 interface clock */
+		setbits_le32(priv->base + CMU_DEVCLKEN1, CMU_DEVCLKEN1_UART5);
+		break;
+	case CLK_UART3:
+		if (model != S700)
+			return -EINVAL;
+		/* Source HOSC for UART3 interface */
+		clrbits_le32(priv->base + CMU_UART3CLK, CMU_UARTCLK_SRC_DEVPLL);
+		/* Enable UART3 interface clock */
+		setbits_le32(priv->base + CMU_DEVCLKEN1, CMU_DEVCLKEN1_UART3);
 		break;
 	default:
-		return 0;
+		return -EINVAL;
 	}
 
 	return 0;
@@ -91,13 +95,23 @@ int owl_clk_enable(struct clk *clk)
 int owl_clk_disable(struct clk *clk)
 {
 	struct owl_clk_priv *priv = dev_get_priv(clk->dev);
+	enum owl_soc model = dev_get_driver_data(clk->dev);
 
 	switch (clk->id) {
 	case CLK_UART5:
-		owl_uart_clk_disable(priv);
+		if (model != S900)
+			return -EINVAL;
+		/* Disable UART5 interface clock */
+		clrbits_le32(priv->base + CMU_DEVCLKEN1, CMU_DEVCLKEN1_UART5);
+		break;
+	case CLK_UART3:
+		if (model != S700)
+			return -EINVAL;
+		/* Disable UART3 interface clock */
+		clrbits_le32(priv->base + CMU_DEVCLKEN1, CMU_DEVCLKEN1_UART3);
 		break;
 	default:
-		return 0;
+		return -EINVAL;
 	}
 
 	return 0;
@@ -117,18 +131,22 @@ static int owl_clk_probe(struct udevice *dev)
 	return 0;
 }
 
-static struct clk_ops owl_clk_ops = {
+static const struct clk_ops owl_clk_ops = {
 	.enable = owl_clk_enable,
 	.disable = owl_clk_disable,
 };
 
 static const struct udevice_id owl_clk_ids[] = {
-	{ .compatible = "actions,s900-cmu" },
+#if defined(CONFIG_MACH_S900)
+	{ .compatible = "actions,s900-cmu", .data = S900 },
+#elif defined(CONFIG_MACH_S700)
+	{ .compatible = "actions,s700-cmu", .data = S700 },
+#endif
 	{ }
 };
 
 U_BOOT_DRIVER(clk_owl) = {
-	.name		= "clk_s900",
+	.name		= "clk_owl",
 	.id		= UCLASS_CLK,
 	.of_match	= owl_clk_ids,
 	.ops		= &owl_clk_ops,

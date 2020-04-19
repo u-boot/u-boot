@@ -877,6 +877,8 @@ config ARCH_OWL
 	select DM
 	select DM_SERIAL
 	select OWL_SERIAL
+	select CLK
+	select CLK_OWL
 	select OF_CONTROL
 	imply CMD_DM
 
