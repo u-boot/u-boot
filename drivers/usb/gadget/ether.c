@@ -2472,8 +2472,7 @@ static int _usb_eth_send(struct ether_priv *priv, void *packet, int length)
 		}
 		usb_gadget_handle_interrupts(0);
 	}
-	if (rndis_pkt)
-		free(rndis_pkt);
+	free(rndis_pkt);
 
 	return 0;
 drop:
