@@ -272,9 +272,10 @@ M:	Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 S:	Maintained
 F:	arch/arm/include/asm/arch-owl/
 F:	arch/arm/mach-owl/
-F:	board/ucRobotics/
 F:	drivers/clk/owl/
 F:	drivers/serial/serial_owl.c
+F:	include/configs/owl-common.h
+F:	configs/bubblegum_96_defconfig
 
 ARM RENESAS RMOBILE/R-CAR
 M:	Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
