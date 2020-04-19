@@ -386,9 +386,9 @@ static int dc21x4x_recv(struct eth_device *dev)
 	return length;
 }
 
-static void dc21x4x_halt(struct eth_device* dev)
+static void dc21x4x_halt(struct eth_device *dev)
 {
-	int		devbusfn = (int) dev->priv;
+	int devbusfn = (int)dev->priv;
 
 	STOP_DE4X5(dev);
 	OUTL(dev, 0, DE4X5_SICR);
