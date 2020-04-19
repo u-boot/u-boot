@@ -79,6 +79,30 @@
 #define phys_to_bus(a)	pci_phys_to_mem((pci_dev_t)dev->priv, a)
 #endif
 
+#define NUM_RX_DESC PKTBUFSRX
+#define NUM_TX_DESC 1			/* Number of TX descriptors   */
+#define RX_BUFF_SZ  PKTSIZE_ALIGN
+
+#define TOUT_LOOP   1000000
+
+#define SETUP_FRAME_LEN 192
+
+struct de4x5_desc {
+	volatile s32 status;
+	u32 des1;
+	u32 buf;
+	u32 next;
+};
+
+/* RX and TX descriptor ring */
+static struct de4x5_desc rx_ring[NUM_RX_DESC] __aligned(32);
+static struct de4x5_desc tx_ring[NUM_TX_DESC] __aligned(32);
+static int rx_new;	/* RX descriptor ring pointer */
+static int tx_new;	/* TX descriptor ring pointer */
+
+static char rx_ring_size;
+static char tx_ring_size;
+
 static u32 dc2114x_inl(struct eth_device *dev, u32 addr)
 {
 	return le32_to_cpu(*(volatile u32 *)(addr + dev->iobase));
@@ -124,331 +148,6 @@ static void stop_de4x5(struct eth_device *dev)
 	omr = dc2114x_inl(dev, DE4X5_OMR);
 	omr &= ~(OMR_ST | OMR_SR);
 	dc2114x_outl(dev, omr, DE4X5_OMR);	/* Disable the TX and/or RX */
-}
-
-#define NUM_RX_DESC PKTBUFSRX
-#define NUM_TX_DESC 1			/* Number of TX descriptors   */
-#define RX_BUFF_SZ  PKTSIZE_ALIGN
-
-#define TOUT_LOOP   1000000
-
-#define SETUP_FRAME_LEN 192
-
-struct de4x5_desc {
-	volatile s32 status;
-	u32 des1;
-	u32 buf;
-	u32 next;
-};
-
-/* RX and TX descriptor ring */
-static struct de4x5_desc rx_ring[NUM_RX_DESC] __aligned(32);
-static struct de4x5_desc tx_ring[NUM_TX_DESC] __aligned(32);
-static int rx_new;	/* RX descriptor ring pointer */
-static int tx_new;	/* TX descriptor ring pointer */
-
-static char rx_ring_size;
-static char tx_ring_size;
-
-static void  sendto_srom(struct eth_device *dev, u_int command, u_long addr);
-static int   getfrom_srom(struct eth_device *dev, u_long addr);
-static int   do_eeprom_cmd(struct eth_device *dev, u_long ioaddr,
-			   int cmd, int cmd_len);
-static int   do_read_eeprom(struct eth_device *dev, u_long ioaddr,
-			    int location, int addr_len);
-#ifdef UPDATE_SROM
-static int   write_srom(struct eth_device *dev, u_long ioaddr,
-			int index, int new_value);
-static void  update_srom(struct eth_device *dev, bd_t *bis);
-#endif
-static int   read_srom(struct eth_device *dev, u_long ioaddr, int index);
-static void  read_hw_addr(struct eth_device *dev, bd_t *bis);
-static void  send_setup_frame(struct eth_device *dev, bd_t *bis);
-
-static int   dc21x4x_init(struct eth_device *dev, bd_t *bis);
-static int   dc21x4x_send(struct eth_device *dev, void *packet, int length);
-static int   dc21x4x_recv(struct eth_device *dev);
-static void  dc21x4x_halt(struct eth_device *dev);
-
-static struct pci_device_id supported[] = {
-	{ PCI_VENDOR_ID_DEC, PCI_DEVICE_ID_DEC_TULIP_FAST },
-	{ PCI_VENDOR_ID_DEC, PCI_DEVICE_ID_DEC_21142 },
-	{ }
-};
-
-int dc21x4x_initialize(bd_t *bis)
-{
-	struct eth_device *dev;
-	unsigned short status;
-	unsigned char timer;
-	unsigned int iobase;
-	int card_number = 0;
-	pci_dev_t devbusfn;
-	unsigned int cfrv;
-	int idx = 0;
-
-	while (1) {
-		devbusfn = pci_find_devices(supported, idx++);
-		if (devbusfn == -1)
-			break;
-
-		/* Get the chip configuration revision register. */
-		pci_read_config_dword(devbusfn, PCI_REVISION_ID, &cfrv);
-
-		if ((cfrv & CFRV_RN) < DC2114x_BRK) {
-			printf("Error: The chip is not DC21143.\n");
-			continue;
-		}
-
-		pci_read_config_word(devbusfn, PCI_COMMAND, &status);
-		status |= PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER;
-		pci_write_config_word(devbusfn, PCI_COMMAND, status);
-
-		pci_read_config_word(devbusfn, PCI_COMMAND, &status);
-		if (!(status & PCI_COMMAND_MEMORY)) {
-			printf("Error: Can not enable MEMORY access.\n");
-			continue;
-		}
-
-		if (!(status & PCI_COMMAND_MASTER)) {
-			printf("Error: Can not enable Bus Mastering.\n");
-			continue;
-		}
-
-		/* Check the latency timer for values >= 0x60. */
-		pci_read_config_byte(devbusfn, PCI_LATENCY_TIMER, &timer);
-
-		if (timer < 0x60) {
-			pci_write_config_byte(devbusfn, PCI_LATENCY_TIMER,
-					      0x60);
-		}
-
-		/* read BAR for memory space access */
-		pci_read_config_dword(devbusfn, PCI_BASE_ADDRESS_1, &iobase);
-		iobase &= PCI_BASE_ADDRESS_MEM_MASK;
-		debug("dc21x4x: DEC 21142 PCI Device @0x%x\n", iobase);
-
-		dev = (struct eth_device *)malloc(sizeof(*dev));
-		if (!dev) {
-			printf("Can not allocalte memory of dc21x4x\n");
-			break;
-		}
-
-		memset(dev, 0, sizeof(*dev));
-
-		sprintf(dev->name, "dc21x4x#%d", card_number);
-
-		dev->iobase = pci_mem_to_phys(devbusfn, iobase);
-		dev->priv = (void *)devbusfn;
-		dev->init = dc21x4x_init;
-		dev->halt = dc21x4x_halt;
-		dev->send = dc21x4x_send;
-		dev->recv = dc21x4x_recv;
-
-		/* Ensure we're not sleeping. */
-		pci_write_config_byte(devbusfn, PCI_CFDA_PSM, WAKEUP);
-
-		udelay(10 * 1000);
-
-		read_hw_addr(dev, bis);
-
-		eth_register(dev);
-
-		card_number++;
-	}
-
-	return card_number;
-}
-
-static int dc21x4x_init(struct eth_device *dev, bd_t *bis)
-{
-	int i;
-	int devbusfn = (int)dev->priv;
-
-	/* Ensure we're not sleeping. */
-	pci_write_config_byte(devbusfn, PCI_CFDA_PSM, WAKEUP);
-
-	reset_de4x5(dev);
-
-	if (dc2114x_inl(dev, DE4X5_STS) & (STS_TS | STS_RS)) {
-		printf("Error: Cannot reset ethernet controller.\n");
-		return -1;
-	}
-
-	dc2114x_outl(dev, OMR_SDP | OMR_PS | OMR_PM, DE4X5_OMR);
-
-	for (i = 0; i < NUM_RX_DESC; i++) {
-		rx_ring[i].status = cpu_to_le32(R_OWN);
-		rx_ring[i].des1 = cpu_to_le32(RX_BUFF_SZ);
-		rx_ring[i].buf =
-			cpu_to_le32(phys_to_bus((u32)net_rx_packets[i]));
-		rx_ring[i].next = 0;
-	}
-
-	for (i = 0; i < NUM_TX_DESC; i++) {
-		tx_ring[i].status = 0;
-		tx_ring[i].des1 = 0;
-		tx_ring[i].buf = 0;
-		tx_ring[i].next = 0;
-	}
-
-	rx_ring_size = NUM_RX_DESC;
-	tx_ring_size = NUM_TX_DESC;
-
-	/* Write the end of list marker to the descriptor lists. */
-	rx_ring[rx_ring_size - 1].des1 |= cpu_to_le32(RD_RER);
-	tx_ring[tx_ring_size - 1].des1 |= cpu_to_le32(TD_TER);
-
-	/* Tell the adapter where the TX/RX rings are located. */
-	dc2114x_outl(dev, phys_to_bus((u32)&rx_ring), DE4X5_RRBA);
-	dc2114x_outl(dev, phys_to_bus((u32)&tx_ring), DE4X5_TRBA);
-
-	start_de4x5(dev);
-
-	tx_new = 0;
-	rx_new = 0;
-
-	send_setup_frame(dev, bis);
-
-	return 0;
-}
-
-static int dc21x4x_send(struct eth_device *dev, void *packet, int length)
-{
-	int status = -1;
-	int i;
-
-	if (length <= 0) {
-		printf("%s: bad packet size: %d\n", dev->name, length);
-		goto done;
-	}
-
-	for (i = 0; tx_ring[tx_new].status & cpu_to_le32(T_OWN); i++) {
-		if (i < TOUT_LOOP)
-			continue;
-
-		printf("%s: tx error buffer not ready\n", dev->name);
-		goto done;
-	}
-
-	tx_ring[tx_new].buf = cpu_to_le32(phys_to_bus((u32)packet));
-	tx_ring[tx_new].des1 = cpu_to_le32(TD_TER | TD_LS | TD_FS | length);
-	tx_ring[tx_new].status = cpu_to_le32(T_OWN);
-
-	dc2114x_outl(dev, POLL_DEMAND, DE4X5_TPD);
-
-	for (i = 0; tx_ring[tx_new].status & cpu_to_le32(T_OWN); i++) {
-		if (i < TOUT_LOOP)
-			continue;
-
-		printf(".%s: tx buffer not ready\n", dev->name);
-		goto done;
-	}
-
-	if (le32_to_cpu(tx_ring[tx_new].status) & TD_ES) {
-		tx_ring[tx_new].status = 0x0;
-		goto done;
-	}
-
-	status = length;
-
-done:
-	tx_new = (tx_new + 1) % NUM_TX_DESC;
-	return status;
-}
-
-static int dc21x4x_recv(struct eth_device *dev)
-{
-	int length = 0;
-	u32 status;
-
-	while (true) {
-		status = le32_to_cpu(rx_ring[rx_new].status);
-
-		if (status & R_OWN)
-			break;
-
-		if (status & RD_LS) {
-			/* Valid frame status. */
-			if (status & RD_ES) {
-				/* There was an error. */
-				printf("RX error status = 0x%08X\n", status);
-			} else {
-				/* A valid frame received. */
-				length = (le32_to_cpu(rx_ring[rx_new].status)
-					  >> 16);
-
-				/* Pass the packet up to the protocol layers */
-				net_process_received_packet
-					(net_rx_packets[rx_new], length - 4);
-			}
-
-			/*
-			 * Change buffer ownership for this frame,
-			 * back to the adapter.
-			 */
-			rx_ring[rx_new].status = cpu_to_le32(R_OWN);
-		}
-
-		/* Update entry information. */
-		rx_new = (rx_new + 1) % rx_ring_size;
-	}
-
-	return length;
-}
-
-static void dc21x4x_halt(struct eth_device *dev)
-{
-	int devbusfn = (int)dev->priv;
-
-	stop_de4x5(dev);
-	dc2114x_outl(dev, 0, DE4X5_SICR);
-
-	pci_write_config_byte(devbusfn, PCI_CFDA_PSM, SLEEP);
-}
-
-static void send_setup_frame(struct eth_device *dev, bd_t *bis)
-{
-	char setup_frame[SETUP_FRAME_LEN];
-	char *pa = &setup_frame[0];
-	int i;
-
-	memset(pa, 0xff, SETUP_FRAME_LEN);
-
-	for (i = 0; i < ETH_ALEN; i++) {
-		*(pa + (i & 1)) = dev->enetaddr[i];
-		if (i & 0x01)
-			pa += 4;
-	}
-
-	for (i = 0; tx_ring[tx_new].status & cpu_to_le32(T_OWN); i++) {
-		if (i < TOUT_LOOP)
-			continue;
-
-		printf("%s: tx error buffer not ready\n", dev->name);
-		return;
-	}
-
-	tx_ring[tx_new].buf = cpu_to_le32(phys_to_bus((u32)&setup_frame[0]));
-	tx_ring[tx_new].des1 = cpu_to_le32(TD_TER | TD_SET | SETUP_FRAME_LEN);
-	tx_ring[tx_new].status = cpu_to_le32(T_OWN);
-
-	dc2114x_outl(dev, POLL_DEMAND, DE4X5_TPD);
-
-	for (i = 0; tx_ring[tx_new].status & cpu_to_le32(T_OWN); i++) {
-		if (i < TOUT_LOOP)
-			continue;
-
-		printf("%s: tx buffer not ready\n", dev->name);
-		return;
-	}
-
-	if (le32_to_cpu(tx_ring[tx_new].status) != 0x7FFFFFFF) {
-		printf("TX error status2 = 0x%08X\n",
-		       le32_to_cpu(tx_ring[tx_new].status));
-	}
-
-	tx_new = (tx_new + 1) % NUM_TX_DESC;
 }
 
 /* SROM Read and write routines. */
@@ -633,29 +332,7 @@ static int write_srom(struct eth_device *dev, u_long ioaddr, int index,
 
 	return 1;
 }
-#endif
 
-static void read_hw_addr(struct eth_device *dev, bd_t *bis)
-{
-	u_short tmp, *p = (u_short *)(&dev->enetaddr[0]);
-	int i, j = 0;
-
-	for (i = 0; i < (ETH_ALEN >> 1); i++) {
-		tmp = read_srom(dev, DE4X5_APROM, (SROM_HWADD >> 1) + i);
-		*p = le16_to_cpu(tmp);
-		j += *p++;
-	}
-
-	if (!j || j == 0x2fffd) {
-		memset(dev->enetaddr, 0, ETH_ALEN);
-		debug("Warning: can't read HW address from SROM.\n");
-#ifdef UPDATE_SROM
-		update_srom(dev, bis);
-#endif
-	}
-}
-
-#ifdef UPDATE_SROM
 static void update_srom(struct eth_device *dev, bd_t *bis)
 {
 	static unsigned short eeprom[0x40] = {
@@ -691,3 +368,304 @@ static void update_srom(struct eth_device *dev, bd_t *bis)
 		write_srom(dev, DE4X5_APROM, i, eeprom[i]);
 }
 #endif /* UPDATE_SROM */
+
+static void send_setup_frame(struct eth_device *dev, bd_t *bis)
+{
+	char setup_frame[SETUP_FRAME_LEN];
+	char *pa = &setup_frame[0];
+	int i;
+
+	memset(pa, 0xff, SETUP_FRAME_LEN);
+
+	for (i = 0; i < ETH_ALEN; i++) {
+		*(pa + (i & 1)) = dev->enetaddr[i];
+		if (i & 0x01)
+			pa += 4;
+	}
+
+	for (i = 0; tx_ring[tx_new].status & cpu_to_le32(T_OWN); i++) {
+		if (i < TOUT_LOOP)
+			continue;
+
+		printf("%s: tx error buffer not ready\n", dev->name);
+		return;
+	}
+
+	tx_ring[tx_new].buf = cpu_to_le32(phys_to_bus((u32)&setup_frame[0]));
+	tx_ring[tx_new].des1 = cpu_to_le32(TD_TER | TD_SET | SETUP_FRAME_LEN);
+	tx_ring[tx_new].status = cpu_to_le32(T_OWN);
+
+	dc2114x_outl(dev, POLL_DEMAND, DE4X5_TPD);
+
+	for (i = 0; tx_ring[tx_new].status & cpu_to_le32(T_OWN); i++) {
+		if (i < TOUT_LOOP)
+			continue;
+
+		printf("%s: tx buffer not ready\n", dev->name);
+		return;
+	}
+
+	if (le32_to_cpu(tx_ring[tx_new].status) != 0x7FFFFFFF) {
+		printf("TX error status2 = 0x%08X\n",
+		       le32_to_cpu(tx_ring[tx_new].status));
+	}
+
+	tx_new = (tx_new + 1) % NUM_TX_DESC;
+}
+
+static int dc21x4x_send(struct eth_device *dev, void *packet, int length)
+{
+	int status = -1;
+	int i;
+
+	if (length <= 0) {
+		printf("%s: bad packet size: %d\n", dev->name, length);
+		goto done;
+	}
+
+	for (i = 0; tx_ring[tx_new].status & cpu_to_le32(T_OWN); i++) {
+		if (i < TOUT_LOOP)
+			continue;
+
+		printf("%s: tx error buffer not ready\n", dev->name);
+		goto done;
+	}
+
+	tx_ring[tx_new].buf = cpu_to_le32(phys_to_bus((u32)packet));
+	tx_ring[tx_new].des1 = cpu_to_le32(TD_TER | TD_LS | TD_FS | length);
+	tx_ring[tx_new].status = cpu_to_le32(T_OWN);
+
+	dc2114x_outl(dev, POLL_DEMAND, DE4X5_TPD);
+
+	for (i = 0; tx_ring[tx_new].status & cpu_to_le32(T_OWN); i++) {
+		if (i < TOUT_LOOP)
+			continue;
+
+		printf(".%s: tx buffer not ready\n", dev->name);
+		goto done;
+	}
+
+	if (le32_to_cpu(tx_ring[tx_new].status) & TD_ES) {
+		tx_ring[tx_new].status = 0x0;
+		goto done;
+	}
+
+	status = length;
+
+done:
+	tx_new = (tx_new + 1) % NUM_TX_DESC;
+	return status;
+}
+
+static int dc21x4x_recv(struct eth_device *dev)
+{
+	int length = 0;
+	u32 status;
+
+	while (true) {
+		status = le32_to_cpu(rx_ring[rx_new].status);
+
+		if (status & R_OWN)
+			break;
+
+		if (status & RD_LS) {
+			/* Valid frame status. */
+			if (status & RD_ES) {
+				/* There was an error. */
+				printf("RX error status = 0x%08X\n", status);
+			} else {
+				/* A valid frame received. */
+				length = (le32_to_cpu(rx_ring[rx_new].status)
+					  >> 16);
+
+				/* Pass the packet up to the protocol layers */
+				net_process_received_packet
+					(net_rx_packets[rx_new], length - 4);
+			}
+
+			/*
+			 * Change buffer ownership for this frame,
+			 * back to the adapter.
+			 */
+			rx_ring[rx_new].status = cpu_to_le32(R_OWN);
+		}
+
+		/* Update entry information. */
+		rx_new = (rx_new + 1) % rx_ring_size;
+	}
+
+	return length;
+}
+
+static int dc21x4x_init(struct eth_device *dev, bd_t *bis)
+{
+	int i;
+	int devbusfn = (int)dev->priv;
+
+	/* Ensure we're not sleeping. */
+	pci_write_config_byte(devbusfn, PCI_CFDA_PSM, WAKEUP);
+
+	reset_de4x5(dev);
+
+	if (dc2114x_inl(dev, DE4X5_STS) & (STS_TS | STS_RS)) {
+		printf("Error: Cannot reset ethernet controller.\n");
+		return -1;
+	}
+
+	dc2114x_outl(dev, OMR_SDP | OMR_PS | OMR_PM, DE4X5_OMR);
+
+	for (i = 0; i < NUM_RX_DESC; i++) {
+		rx_ring[i].status = cpu_to_le32(R_OWN);
+		rx_ring[i].des1 = cpu_to_le32(RX_BUFF_SZ);
+		rx_ring[i].buf =
+			cpu_to_le32(phys_to_bus((u32)net_rx_packets[i]));
+		rx_ring[i].next = 0;
+	}
+
+	for (i = 0; i < NUM_TX_DESC; i++) {
+		tx_ring[i].status = 0;
+		tx_ring[i].des1 = 0;
+		tx_ring[i].buf = 0;
+		tx_ring[i].next = 0;
+	}
+
+	rx_ring_size = NUM_RX_DESC;
+	tx_ring_size = NUM_TX_DESC;
+
+	/* Write the end of list marker to the descriptor lists. */
+	rx_ring[rx_ring_size - 1].des1 |= cpu_to_le32(RD_RER);
+	tx_ring[tx_ring_size - 1].des1 |= cpu_to_le32(TD_TER);
+
+	/* Tell the adapter where the TX/RX rings are located. */
+	dc2114x_outl(dev, phys_to_bus((u32)&rx_ring), DE4X5_RRBA);
+	dc2114x_outl(dev, phys_to_bus((u32)&tx_ring), DE4X5_TRBA);
+
+	start_de4x5(dev);
+
+	tx_new = 0;
+	rx_new = 0;
+
+	send_setup_frame(dev, bis);
+
+	return 0;
+}
+
+static void dc21x4x_halt(struct eth_device *dev)
+{
+	int devbusfn = (int)dev->priv;
+
+	stop_de4x5(dev);
+	dc2114x_outl(dev, 0, DE4X5_SICR);
+
+	pci_write_config_byte(devbusfn, PCI_CFDA_PSM, SLEEP);
+}
+
+static void read_hw_addr(struct eth_device *dev, bd_t *bis)
+{
+	u_short tmp, *p = (u_short *)(&dev->enetaddr[0]);
+	int i, j = 0;
+
+	for (i = 0; i < (ETH_ALEN >> 1); i++) {
+		tmp = read_srom(dev, DE4X5_APROM, (SROM_HWADD >> 1) + i);
+		*p = le16_to_cpu(tmp);
+		j += *p++;
+	}
+
+	if (!j || j == 0x2fffd) {
+		memset(dev->enetaddr, 0, ETH_ALEN);
+		debug("Warning: can't read HW address from SROM.\n");
+#ifdef UPDATE_SROM
+		update_srom(dev, bis);
+#endif
+	}
+}
+
+static struct pci_device_id supported[] = {
+	{ PCI_VENDOR_ID_DEC, PCI_DEVICE_ID_DEC_TULIP_FAST },
+	{ PCI_VENDOR_ID_DEC, PCI_DEVICE_ID_DEC_21142 },
+	{ }
+};
+
+int dc21x4x_initialize(bd_t *bis)
+{
+	struct eth_device *dev;
+	unsigned short status;
+	unsigned char timer;
+	unsigned int iobase;
+	int card_number = 0;
+	pci_dev_t devbusfn;
+	unsigned int cfrv;
+	int idx = 0;
+
+	while (1) {
+		devbusfn = pci_find_devices(supported, idx++);
+		if (devbusfn == -1)
+			break;
+
+		/* Get the chip configuration revision register. */
+		pci_read_config_dword(devbusfn, PCI_REVISION_ID, &cfrv);
+
+		if ((cfrv & CFRV_RN) < DC2114x_BRK) {
+			printf("Error: The chip is not DC21143.\n");
+			continue;
+		}
+
+		pci_read_config_word(devbusfn, PCI_COMMAND, &status);
+		status |= PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER;
+		pci_write_config_word(devbusfn, PCI_COMMAND, status);
+
+		pci_read_config_word(devbusfn, PCI_COMMAND, &status);
+		if (!(status & PCI_COMMAND_MEMORY)) {
+			printf("Error: Can not enable MEMORY access.\n");
+			continue;
+		}
+
+		if (!(status & PCI_COMMAND_MASTER)) {
+			printf("Error: Can not enable Bus Mastering.\n");
+			continue;
+		}
+
+		/* Check the latency timer for values >= 0x60. */
+		pci_read_config_byte(devbusfn, PCI_LATENCY_TIMER, &timer);
+
+		if (timer < 0x60) {
+			pci_write_config_byte(devbusfn, PCI_LATENCY_TIMER,
+					      0x60);
+		}
+
+		/* read BAR for memory space access */
+		pci_read_config_dword(devbusfn, PCI_BASE_ADDRESS_1, &iobase);
+		iobase &= PCI_BASE_ADDRESS_MEM_MASK;
+		debug("dc21x4x: DEC 21142 PCI Device @0x%x\n", iobase);
+
+		dev = (struct eth_device *)malloc(sizeof(*dev));
+		if (!dev) {
+			printf("Can not allocalte memory of dc21x4x\n");
+			break;
+		}
+
+		memset(dev, 0, sizeof(*dev));
+
+		sprintf(dev->name, "dc21x4x#%d", card_number);
+
+		dev->iobase = pci_mem_to_phys(devbusfn, iobase);
+		dev->priv = (void *)devbusfn;
+		dev->init = dc21x4x_init;
+		dev->halt = dc21x4x_halt;
+		dev->send = dc21x4x_send;
+		dev->recv = dc21x4x_recv;
+
+		/* Ensure we're not sleeping. */
+		pci_write_config_byte(devbusfn, PCI_CFDA_PSM, WAKEUP);
+
+		udelay(10 * 1000);
+
+		read_hw_addr(dev, bis);
+
+		eth_register(dev);
+
+		card_number++;
+	}
+
+	return card_number;
+}
