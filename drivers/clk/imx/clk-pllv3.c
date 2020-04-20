@@ -25,6 +25,7 @@
 #define PLL_DENOM_OFFSET	0x20
 
 #define BM_PLL_POWER		(0x1 << 12)
+#define BM_PLL_ENABLE		(0x1 << 13)
 #define BM_PLL_LOCK		(0x1 << 31)
 
 struct clk_pllv3 {
@@ -32,6 +33,7 @@ struct clk_pllv3 {
 	void __iomem	*base;
 	u32		power_bit;
 	bool		powerup_set;
+	u32		enable_bit;
 	u32		div_mask;
 	u32		div_shift;
 };
@@ -83,6 +85,9 @@ static int clk_pllv3_generic_enable(struct clk *clk)
 		val |= pll->power_bit;
 	else
 		val &= ~pll->power_bit;
+
+	val |= pll->enable_bit;
+
 	writel(val, pll->base);
 
 	return 0;
@@ -98,6 +103,9 @@ static int clk_pllv3_generic_disable(struct clk *clk)
 		val &= ~pll->power_bit;
 	else
 		val |= pll->power_bit;
+
+	val &= ~pll->enable_bit;
+
 	writel(val, pll->base);
 
 	return 0;
@@ -238,6 +246,7 @@ struct clk *imx_clk_pllv3(enum imx_pllv3_type type, const char *name,
 		return ERR_PTR(-ENOMEM);
 
 	pll->power_bit = BM_PLL_POWER;
+	pll->enable_bit = BM_PLL_ENABLE;
 
 	switch (type) {
 	case IMX_PLLV3_GENERIC:

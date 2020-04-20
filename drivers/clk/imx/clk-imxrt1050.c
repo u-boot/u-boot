@@ -71,11 +71,30 @@ static int imxrt1050_clk_enable(struct clk *clk)
 	return __imxrt1050_clk_enable(clk, 1);
 }
 
+static int imxrt1050_clk_set_parent(struct clk *clk, struct clk *parent)
+{
+	struct clk *c, *cp;
+	int ret;
+
+	debug("%s(#%lu), parent: %lu\n", __func__, clk->id, parent->id);
+
+	ret = clk_get_by_id(clk->id, &c);
+	if (ret)
+		return ret;
+
+	ret = clk_get_by_id(parent->id, &cp);
+	if (ret)
+		return ret;
+
+	return clk_set_parent(c, cp);
+}
+
 static struct clk_ops imxrt1050_clk_ops = {
 	.set_rate = imxrt1050_clk_set_rate,
 	.get_rate = imxrt1050_clk_get_rate,
 	.enable = imxrt1050_clk_enable,
 	.disable = imxrt1050_clk_disable,
+	.set_parent = imxrt1050_clk_set_parent,
 };
 
 static const char * const pll_ref_sels[] = {"osc", "dummy", };
@@ -90,7 +109,7 @@ static const char *const usdhc_sels[] = { "pll2_pfd2_396m", "pll2_pfd0_352m", };
 static const char *const lpuart_sels[] = { "pll3_80m", "osc", };
 static const char *const semc_alt_sels[] = { "pll2_pfd2_396m", "pll3_pfd1_664_62m", };
 static const char *const semc_sels[] = { "periph_sel", "semc_alt_sel", };
-static const char *const lcdif_sels[] = { "pll2_sys", "pll3_pfd3_454_74m", "pll5_video:", "pll2_pfd0_352m", "pll2_pfd1_594m", "pll3_pfd1_664_62m"};
+static const char *const lcdif_sels[] = { "pll2_sys", "pll3_pfd3_454_74m", "pll5_video", "pll2_pfd0_352m", "pll2_pfd1_594m", "pll3_pfd1_664_62m"};
 
 static int imxrt1050_clk_probe(struct udevice *dev)
 {
@@ -238,9 +257,9 @@ static int imxrt1050_clk_probe(struct udevice *dev)
 	clk_dm(IMXRT1050_CLK_LCDIF,
 	       imx_clk_gate2("lcdif", "lcdif_podf", base + 0x70, 28));
 
-#ifdef CONFIG_SPL_BUILD
 	struct clk *clk, *clk1;
 
+#ifdef CONFIG_SPL_BUILD
 	/* bypass pll1 before setting its rate */
 	clk_get_by_id(IMXRT1050_CLK_PLL1_REF_SEL, &clk);
 	clk_get_by_id(IMXRT1050_CLK_PLL1_BYPASS, &clk1);
@@ -271,7 +290,14 @@ static int imxrt1050_clk_probe(struct udevice *dev)
 
 	clk_get_by_id(IMXRT1050_CLK_PLL3_BYPASS, &clk1);
 	clk_set_parent(clk1, clk);
+#else
+	/* Set PLL5 for LCDIF to its default 650Mhz */
+	clk_get_by_id(IMXRT1050_CLK_PLL5_VIDEO, &clk);
+	clk_enable(clk);
+	clk_set_rate(clk, 650000000UL);
 
+	clk_get_by_id(IMXRT1050_CLK_PLL5_BYPASS, &clk1);
+	clk_set_parent(clk1, clk);
 #endif
 
 	return 0;

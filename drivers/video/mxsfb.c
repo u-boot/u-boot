@@ -5,6 +5,7 @@
  * Copyright (C) 2011-2013 Marek Vasut <marex@denx.de>
  */
 #include <common.h>
+#include <clk.h>
 #include <dm.h>
 #include <env.h>
 #include <dm/device_compat.h>
@@ -52,14 +53,34 @@ __weak void mxsfb_system_setup(void)
  * 	 le:89,ri:164,up:23,lo:10,hs:10,vs:10,sync:0,vmode:0
  */
 
-static void mxs_lcd_init(u32 fb_addr, struct ctfb_res_modes *mode, int bpp)
+static void mxs_lcd_init(struct udevice *dev, u32 fb_addr,
+			 struct display_timing *timings, int bpp)
 {
 	struct mxs_lcdif_regs *regs = (struct mxs_lcdif_regs *)MXS_LCDIF_BASE;
+	const enum display_flags flags = timings->flags;
 	uint32_t word_len = 0, bus_width = 0;
 	uint8_t valid_data = 0;
+	uint32_t vdctrl0;
 
+#if CONFIG_IS_ENABLED(CLK)
+	struct clk per_clk;
+	int ret;
+
+	ret = clk_get_by_name(dev, "per", &per_clk);
+	if (ret) {
+		dev_err(dev, "Failed to get mxs clk: %d\n", ret);
+		return;
+	}
+
+	ret = clk_set_rate(&per_clk, timings->pixelclock.typ);
+	if (ret < 0) {
+		dev_err(dev, "Failed to set mxs clk: %d\n", ret);
+		return;
+	}
+#else
 	/* Kick in the LCDIF clock */
-	mxs_set_lcdclk(MXS_LCDIF_BASE, PS2KHZ(mode->pixclock));
+	mxs_set_lcdclk(MXS_LCDIF_BASE, timings->pixelclock.typ / 1000);
+#endif
 
 	/* Restart the LCDIF block */
 	mxs_reset_block(&regs->hw_lcdif_ctrl_reg);
@@ -96,25 +117,36 @@ static void mxs_lcd_init(u32 fb_addr, struct ctfb_res_modes *mode, int bpp)
 
 	mxsfb_system_setup();
 
-	writel((mode->yres << LCDIF_TRANSFER_COUNT_V_COUNT_OFFSET) | mode->xres,
-		&regs->hw_lcdif_transfer_count);
+	writel((timings->vactive.typ << LCDIF_TRANSFER_COUNT_V_COUNT_OFFSET) |
+		timings->hactive.typ, &regs->hw_lcdif_transfer_count);
 
-	writel(LCDIF_VDCTRL0_ENABLE_PRESENT | LCDIF_VDCTRL0_ENABLE_POL |
-		LCDIF_VDCTRL0_VSYNC_PERIOD_UNIT |
-		LCDIF_VDCTRL0_VSYNC_PULSE_WIDTH_UNIT |
-		mode->vsync_len, &regs->hw_lcdif_vdctrl0);
-	writel(mode->upper_margin + mode->lower_margin +
-		mode->vsync_len + mode->yres,
+	vdctrl0 = LCDIF_VDCTRL0_ENABLE_PRESENT | LCDIF_VDCTRL0_ENABLE_POL |
+		  LCDIF_VDCTRL0_VSYNC_PERIOD_UNIT |
+		  LCDIF_VDCTRL0_VSYNC_PULSE_WIDTH_UNIT |
+		  timings->vsync_len.typ;
+
+	if(flags & DISPLAY_FLAGS_HSYNC_HIGH)
+		vdctrl0 |= LCDIF_VDCTRL0_HSYNC_POL;
+	if(flags & DISPLAY_FLAGS_VSYNC_HIGH)
+		vdctrl0 |= LCDIF_VDCTRL0_VSYNC_POL;
+	if(flags & DISPLAY_FLAGS_PIXDATA_NEGEDGE)
+		vdctrl0 |= LCDIF_VDCTRL0_DOTCLK_POL;
+	if(flags & DISPLAY_FLAGS_DE_HIGH)
+		vdctrl0 |= LCDIF_VDCTRL0_ENABLE_POL;
+
+	writel(vdctrl0, &regs->hw_lcdif_vdctrl0);
+	writel(timings->vback_porch.typ + timings->vfront_porch.typ +
+		timings->vsync_len.typ + timings->vactive.typ,
 		&regs->hw_lcdif_vdctrl1);
-	writel((mode->hsync_len << LCDIF_VDCTRL2_HSYNC_PULSE_WIDTH_OFFSET) |
-		(mode->left_margin + mode->right_margin +
-		mode->hsync_len + mode->xres),
+	writel((timings->hsync_len.typ << LCDIF_VDCTRL2_HSYNC_PULSE_WIDTH_OFFSET) |
+		(timings->hback_porch.typ + timings->hfront_porch.typ +
+		timings->hsync_len.typ + timings->hactive.typ),
 		&regs->hw_lcdif_vdctrl2);
-	writel(((mode->left_margin + mode->hsync_len) <<
+	writel(((timings->hback_porch.typ + timings->hsync_len.typ) <<
 		LCDIF_VDCTRL3_HORIZONTAL_WAIT_CNT_OFFSET) |
-		(mode->upper_margin + mode->vsync_len),
+		(timings->vback_porch.typ + timings->vsync_len.typ),
 		&regs->hw_lcdif_vdctrl3);
-	writel((0 << LCDIF_VDCTRL4_DOTCLK_DLY_SEL_OFFSET) | mode->xres,
+	writel((0 << LCDIF_VDCTRL4_DOTCLK_DLY_SEL_OFFSET) | timings->hactive.typ,
 		&regs->hw_lcdif_vdctrl4);
 
 	writel(fb_addr, &regs->hw_lcdif_cur_buf);
@@ -135,10 +167,11 @@ static void mxs_lcd_init(u32 fb_addr, struct ctfb_res_modes *mode, int bpp)
 	writel(LCDIF_CTRL_RUN, &regs->hw_lcdif_ctrl_set);
 }
 
-static int mxs_probe_common(struct ctfb_res_modes *mode, int bpp, u32 fb)
+static int mxs_probe_common(struct udevice *dev, struct display_timing *timings,
+			    int bpp, u32 fb)
 {
 	/* Start framebuffer */
-	mxs_lcd_init(fb, mode, bpp);
+	mxs_lcd_init(dev, fb, timings, bpp);
 
 #ifdef CONFIG_VIDEO_MXS_MODE_SYSTEM
 	/*
@@ -204,6 +237,7 @@ void *video_hw_init(void)
 	char *penv;
 	void *fb = NULL;
 	struct ctfb_res_modes mode;
+	struct display_timing timings;
 
 	puts("Video: ");
 
@@ -260,7 +294,9 @@ void *video_hw_init(void)
 
 	printf("%s\n", panel.modeIdent);
 
-	ret = mxs_probe_common(&mode, bpp, (u32)fb);
+	video_ctfb_mode_to_display_timing(&mode, &timings);
+
+	ret = mxs_probe_common(NULL, &timings, bpp, (u32)fb);
 	if (ret)
 		goto dealloc_fb;
 
@@ -314,7 +350,6 @@ static int mxs_video_probe(struct udevice *dev)
 	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 
-	struct ctfb_res_modes mode;
 	struct display_timing timings;
 	u32 bpp = 0;
 	u32 fb_start, fb_end;
@@ -327,17 +362,7 @@ static int mxs_video_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	mode.xres = timings.hactive.typ;
-	mode.yres = timings.vactive.typ;
-	mode.left_margin = timings.hback_porch.typ;
-	mode.right_margin = timings.hfront_porch.typ;
-	mode.upper_margin = timings.vback_porch.typ;
-	mode.lower_margin = timings.vfront_porch.typ;
-	mode.hsync_len = timings.hsync_len.typ;
-	mode.vsync_len = timings.vsync_len.typ;
-	mode.pixclock = HZ2PS(timings.pixelclock.typ);
-
-	ret = mxs_probe_common(&mode, bpp, plat->base);
+	ret = mxs_probe_common(dev, &timings, bpp, plat->base);
 	if (ret)
 		return ret;
 
@@ -358,8 +383,8 @@ static int mxs_video_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	uc_priv->xsize = mode.xres;
-	uc_priv->ysize = mode.yres;
+	uc_priv->xsize = timings.hactive.typ;
+	uc_priv->ysize = timings.vactive.typ;
 
 	/* Enable dcache for the frame buffer */
 	fb_start = plat->base & ~(MMU_SECTION_SIZE - 1);
@@ -420,6 +445,7 @@ static const struct udevice_id mxs_video_ids[] = {
 	{ .compatible = "fsl,imx23-lcdif" },
 	{ .compatible = "fsl,imx28-lcdif" },
 	{ .compatible = "fsl,imx7ulp-lcdif" },
+	{ .compatible = "fsl,imxrt-lcdif" },
 	{ /* sentinel */ }
 };
 
