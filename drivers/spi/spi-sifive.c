@@ -95,25 +95,25 @@ struct sifive_spi {
 };
 
 static void sifive_spi_prep_device(struct sifive_spi *spi,
-				   struct dm_spi_slave_platdata *slave)
+				   struct dm_spi_slave_platdata *slave_plat)
 {
 	/* Update the chip select polarity */
-	if (slave->mode & SPI_CS_HIGH)
-		spi->cs_inactive &= ~BIT(slave->cs);
+	if (slave_plat->mode & SPI_CS_HIGH)
+		spi->cs_inactive &= ~BIT(slave_plat->cs);
 	else
-		spi->cs_inactive |= BIT(slave->cs);
+		spi->cs_inactive |= BIT(slave_plat->cs);
 	writel(spi->cs_inactive, spi->regs + SIFIVE_SPI_REG_CSDEF);
 
 	/* Select the correct device */
-	writel(slave->cs, spi->regs + SIFIVE_SPI_REG_CSID);
+	writel(slave_plat->cs, spi->regs + SIFIVE_SPI_REG_CSID);
 }
 
 static int sifive_spi_set_cs(struct sifive_spi *spi,
-			     struct dm_spi_slave_platdata *slave)
+			     struct dm_spi_slave_platdata *slave_plat)
 {
 	u32 cs_mode = SIFIVE_SPI_CSMODE_MODE_HOLD;
 
-	if (slave->mode & SPI_CS_HIGH)
+	if (slave_plat->mode & SPI_CS_HIGH)
 		cs_mode = SIFIVE_SPI_CSMODE_MODE_AUTO;
 
 	writel(cs_mode, spi->regs + SIFIVE_SPI_REG_CSMODE);
@@ -128,7 +128,7 @@ static void sifive_spi_clear_cs(struct sifive_spi *spi)
 
 static void sifive_spi_prep_transfer(struct sifive_spi *spi,
 				     bool is_rx_xfer,
-				     struct dm_spi_slave_platdata *slave)
+				     struct dm_spi_slave_platdata *slave_plat)
 {
 	u32 cr;
 
@@ -141,14 +141,14 @@ static void sifive_spi_prep_transfer(struct sifive_spi *spi,
 
 	/* LSB first? */
 	cr &= ~SIFIVE_SPI_FMT_ENDIAN;
-	if (slave->mode & SPI_LSB_FIRST)
+	if (slave_plat->mode & SPI_LSB_FIRST)
 		cr |= SIFIVE_SPI_FMT_ENDIAN;
 
 	/* Number of wires ? */
 	cr &= ~SIFIVE_SPI_FMT_PROTO_MASK;
-	if ((slave->mode & SPI_TX_QUAD) || (slave->mode & SPI_RX_QUAD))
+	if ((slave_plat->mode & SPI_TX_QUAD) || (slave_plat->mode & SPI_RX_QUAD))
 		cr |= SIFIVE_SPI_FMT_PROTO_QUAD;
-	else if ((slave->mode & SPI_TX_DUAL) || (slave->mode & SPI_RX_DUAL))
+	else if ((slave_plat->mode & SPI_TX_DUAL) || (slave_plat->mode & SPI_RX_DUAL))
 		cr |= SIFIVE_SPI_FMT_PROTO_DUAL;
 	else
 		cr |= SIFIVE_SPI_FMT_PROTO_SINGLE;
@@ -191,21 +191,21 @@ static int sifive_spi_xfer(struct udevice *dev, unsigned int bitlen,
 {
 	struct udevice *bus = dev->parent;
 	struct sifive_spi *spi = dev_get_priv(bus);
-	struct dm_spi_slave_platdata *slave = dev_get_parent_platdata(dev);
+	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
 	const unsigned char *tx_ptr = dout;
 	u8 *rx_ptr = din;
 	u32 remaining_len;
 	int ret;
 
 	if (flags & SPI_XFER_BEGIN) {
-		sifive_spi_prep_device(spi, slave);
+		sifive_spi_prep_device(spi, slave_plat);
 
-		ret = sifive_spi_set_cs(spi, slave);
+		ret = sifive_spi_set_cs(spi, slave_plat);
 		if (ret)
 			return ret;
 	}
 
-	sifive_spi_prep_transfer(spi, true, slave);
+	sifive_spi_prep_transfer(spi, true, slave_plat);
 
 	remaining_len = bitlen / 8;
 
