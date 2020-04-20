@@ -5,3 +5,18 @@
  */
 
 #include "meson-gx-u-boot.dtsi"
+
+/ {
+	aliases {
+		spi0 = &spifc;
+	};
+};
+
+&sd_emmc_c {
+	status = "okay";
+	pinctrl-0 = <&emmc_pins>;
+};
+
+&spifc {
+	status = "okay";
+};
