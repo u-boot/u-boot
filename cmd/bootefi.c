@@ -481,10 +481,8 @@ efi_status_t efi_run_image(void *source_buffer, efi_uintn_t source_size)
 	ret = do_bootefi_exec(handle);
 
 out:
-	if (mem_handle)
-		efi_delete_handle(mem_handle);
-	if (file_path)
-		efi_free_pool(file_path);
+	efi_delete_handle(mem_handle);
+	efi_free_pool(file_path);
 	return ret;
 }
 
