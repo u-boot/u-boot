@@ -34,6 +34,8 @@ int interrupt_init(void)
 	 */
 	IRQ_STACK_START_IN = gd->irq_sp + 8;
 
+	enable_interrupts();
+
 	return 0;
 }
 

@@ -31,6 +31,8 @@ struct autosave_regs {
 
 int interrupt_init(void)
 {
+	enable_interrupts();
+
 	return 0;
 }
 

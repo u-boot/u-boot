@@ -518,15 +518,6 @@ static int initr_api(void)
 }
 #endif
 
-/* enable exceptions */
-#ifdef CONFIG_ARM
-static int initr_enable_interrupts(void)
-{
-	enable_interrupts();
-	return 0;
-}
-#endif
-
 #ifdef CONFIG_CMD_NET
 static int initr_ethaddr(void)
 {
@@ -813,9 +804,6 @@ static init_fnc_t init_sequence_r[] = {
 	initr_kgdb,
 #endif
 	interrupt_init,
-#ifdef CONFIG_ARM
-	initr_enable_interrupts,
-#endif
 #if defined(CONFIG_MICROBLAZE) || defined(CONFIG_M68K)
 	timer_init,		/* initialize timer */
 #endif
