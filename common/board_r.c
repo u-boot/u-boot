@@ -637,15 +637,6 @@ int initr_mem(void)
 }
 #endif
 
-#ifdef CONFIG_CMD_BEDBUG
-static int initr_bedbug(void)
-{
-	bedbug_init();
-
-	return 0;
-}
-#endif
-
 static int run_main_loop(void)
 {
 #ifdef CONFIG_SANDBOX
@@ -848,7 +839,7 @@ static init_fnc_t init_sequence_r[] = {
 #endif
 #ifdef CONFIG_CMD_BEDBUG
 	INIT_FUNC_WATCHDOG_RESET
-	initr_bedbug,
+	bedbug_init,
 #endif
 #if defined(CONFIG_PRAM)
 	initr_mem,
