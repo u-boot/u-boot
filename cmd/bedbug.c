@@ -44,10 +44,10 @@ int bedbug_puts (const char *str)
  * settings.
  * ====================================================================== */
 
-void bedbug_init (void)
+int bedbug_init(void)
 {
 	/* -------------------------------------------------- */
-	return;
+	return 0;
 }				/* bedbug_init */
 
 
