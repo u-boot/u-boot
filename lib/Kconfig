@@ -409,6 +409,11 @@ config GZIP
 	help
 	  This enables support for GZIP compression algorithm.
 
+config BZIP2
+	bool "Enable bzip2 decompression support"
+	help
+	  This enables support for BZIP2 compression algorithm.
+
 config ZLIB
 	bool
 	default y

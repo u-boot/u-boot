@@ -453,6 +453,15 @@ typedef struct table_entry {
 } table_entry_t;
 
 /*
+ * Compression type and magic number mapping table.
+ */
+struct comp_magic_map {
+	int		comp_id;
+	const char	*name;
+	unsigned char	magic[2];
+};
+
+/*
  * get_table_entry_id() scans the translation table trying to find an
  * entry that matches the given short name. If a matching entry is
  * found, it's id is returned to the caller.
@@ -867,6 +876,18 @@ static inline int image_check_target_arch(const image_header_t *hdr)
 	return image_check_arch(hdr, IH_ARCH_DEFAULT);
 }
 #endif /* USE_HOSTCC */
+
+/**
+ * image_decomp_type() - Find out compression type of an image
+ *
+ * @buf:	Address in U-Boot memory where image is loaded.
+ * @len:	Length of the compressed image.
+ * @return	compression type or IH_COMP_NONE if not compressed.
+ *
+ * Note: Only following compression types are supported now.
+ * lzo, lzma, gzip, bzip2
+ */
+int image_decomp_type(const unsigned char *buf, ulong len);
 
 /**
  * image_decomp() - decompress an image

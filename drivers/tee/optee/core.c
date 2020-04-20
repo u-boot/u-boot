@@ -512,7 +512,7 @@ static bool is_optee_api(optee_invoke_fn *invoke_fn)
 	       res.a2 == OPTEE_MSG_UID_2 && res.a3 == OPTEE_MSG_UID_3;
 }
 
-static void print_os_revision(optee_invoke_fn *invoke_fn)
+static void print_os_revision(struct udevice *dev, optee_invoke_fn *invoke_fn)
 {
 	union {
 		struct arm_smccc_res smccc;
@@ -527,11 +527,12 @@ static void print_os_revision(optee_invoke_fn *invoke_fn)
 		  &res.smccc);
 
 	if (res.result.build_id)
-		debug("OP-TEE revision %lu.%lu (%08lx)\n", res.result.major,
-		      res.result.minor, res.result.build_id);
+		dev_info(dev, "OP-TEE: revision %lu.%lu (%08lx)\n",
+			 res.result.major, res.result.minor,
+			 res.result.build_id);
 	else
-		debug("OP-TEE revision %lu.%lu\n", res.result.major,
-		      res.result.minor);
+		dev_info(dev, "OP-TEE: revision %lu.%lu\n",
+			 res.result.major, res.result.minor);
 }
 
 static bool api_revision_is_compatible(optee_invoke_fn *invoke_fn)
@@ -626,7 +627,7 @@ static int optee_probe(struct udevice *dev)
 		return -ENOENT;
 	}
 
-	print_os_revision(pdata->invoke_fn);
+	print_os_revision(dev, pdata->invoke_fn);
 
 	if (!api_revision_is_compatible(pdata->invoke_fn)) {
 		debug("%s: OP-TEE api revision mismatch\n", __func__);

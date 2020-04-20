@@ -81,7 +81,7 @@ fdtgrep is also used to remove:
   ('u-boot,dm-pre-reloc', 'u-boot,dm-spl' and 'u-boot,dm-tpl')
 
 All the nodes remaining in the SPL devicetree are bound
-(see driver-model/README.txt).
+(see doc/driver-model/design.rst).
 
 Debugging
 ---------

@@ -78,6 +78,12 @@ u64 btrfs_read_extent_reg(struct btrfs_path *path,
 	if (size > dlen - offset)
 		size = dlen - offset;
 
+	/* sparse extent */
+	if (extent->disk_bytenr == 0) {
+		memset(out, 0, size);
+		return size;
+	}
+
 	physical = btrfs_map_logical_to_physical(extent->disk_bytenr);
 	if (physical == -1ULL)
 		return -1ULL;

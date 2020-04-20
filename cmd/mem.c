@@ -801,6 +801,59 @@ static ulong mem_test_alt(vu_long *buf, ulong start_addr, ulong end_addr,
 	return errs;
 }
 
+static int compare_regions(volatile unsigned long *bufa,
+			   volatile unsigned long *bufb, size_t count)
+{
+	volatile unsigned long  *p1 = bufa;
+	volatile unsigned long  *p2 = bufb;
+	int errs = 0;
+	size_t i;
+
+	for (i = 0; i < count; i++, p1++, p2++) {
+		if (*p1 != *p2) {
+			printf("FAILURE: 0x%08lx != 0x%08lx (delta=0x%08lx -> bit %ld) at offset 0x%08lx\n",
+			       (unsigned long)*p1, (unsigned long)*p2,
+			       *p1 ^ *p2, __ffs(*p1 ^ *p2),
+				(unsigned long)(i * sizeof(unsigned long)));
+			errs++;
+		}
+	}
+
+	return errs;
+}
+
+static ulong test_bitflip_comparison(volatile unsigned long *bufa,
+				     volatile unsigned long *bufb, size_t count)
+{
+	volatile unsigned long *p1 = bufa;
+	volatile unsigned long *p2 = bufb;
+	unsigned int j, k;
+	unsigned long q;
+	size_t i;
+	int max;
+	int errs = 0;
+
+	max = sizeof(unsigned long) * 8;
+	for (k = 0; k < max; k++) {
+		q = 0x00000001L << k;
+		for (j = 0; j < 8; j++) {
+			WATCHDOG_RESET();
+			q = ~q;
+			p1 = (volatile unsigned long *)bufa;
+			p2 = (volatile unsigned long *)bufb;
+			for (i = 0; i < count; i++)
+				*p1++ = *p2++ = (i % 2) == 0 ? q : ~q;
+
+			errs += compare_regions(bufa, bufb, count);
+		}
+
+		if (ctrlc())
+			return -1UL;
+	}
+
+	return errs;
+}
+
 static ulong mem_test_quick(vu_long *buf, ulong start_addr, ulong end_addr,
 			    vu_long pattern, int iteration)
 {
@@ -871,15 +924,10 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 	ulong start, end;
 	vu_long *buf, *dummy;
 	ulong iteration_limit = 0;
-	int ret;
+	ulong count = 0;
 	ulong errs = 0;	/* number of errors, or -1 if interrupted */
 	ulong pattern = 0;
 	int iteration;
-#if defined(CONFIG_SYS_ALT_MEMTEST)
-	const int alt_test = 1;
-#else
-	const int alt_test = 0;
-#endif
 
 	start = CONFIG_SYS_MEMTEST_START;
 	end = CONFIG_SYS_MEMTEST_END;
@@ -921,40 +969,34 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 
 		printf("Iteration: %6d\r", iteration + 1);
 		debug("\n");
-		if (alt_test) {
+		if (IS_ENABLED(CONFIG_SYS_ALT_MEMTEST)) {
 			errs = mem_test_alt(buf, start, end, dummy);
+			if (errs == -1UL)
+				break;
+			count += errs;
+			errs = test_bitflip_comparison(buf,
+						       buf + (end - start) / 2,
+						       (end - start) /
+						       sizeof(unsigned long));
 		} else {
 			errs = mem_test_quick(buf, start, end, pattern,
 					      iteration);
 		}
 		if (errs == -1UL)
 			break;
+		count += errs;
 	}
 
-	/*
-	 * Work-around for eldk-4.2 which gives this warning if we try to
-	 * case in the unmap_sysmem() call:
-	 * warning: initialization discards qualifiers from pointer target type
-	 */
-	{
-		void *vbuf = (void *)buf;
-		void *vdummy = (void *)dummy;
-
-		unmap_sysmem(vbuf);
-		unmap_sysmem(vdummy);
-	}
+	unmap_sysmem((void *)buf);
+	unmap_sysmem((void *)dummy);
 
 	if (errs == -1UL) {
 		/* Memory test was aborted - write a newline to finish off */
 		putc('\n');
-		ret = 1;
-	} else {
-		printf("Tested %d iteration(s) with %lu errors.\n",
-			iteration, errs);
-		ret = errs != 0;
 	}
+	printf("Tested %d iteration(s) with %lu errors.\n", iteration, count);
 
-	return ret;
+	return errs != 0;
 }
 #endif	/* CONFIG_CMD_MEMTEST */
 

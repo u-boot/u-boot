@@ -22,7 +22,7 @@ Dtoc produces two output files:
 This tool is used in U-Boot to provide device tree data to SPL without
 increasing the code size of SPL. This supports the CONFIG_SPL_OF_PLATDATA
 options. For more information about the use of this options and tool please
-see doc/driver-model/of-plat.txt
+see doc/driver-model/of-plat.rst
 """
 
 from __future__ import print_function

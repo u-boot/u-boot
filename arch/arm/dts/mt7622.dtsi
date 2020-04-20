@@ -227,4 +227,23 @@
 		#clock-cells = <1>;
 	};
 
+	pwm: pwm@11006000 {
+		compatible = "mediatek,mt7622-pwm";
+		reg = <0x11006000 0x1000>;
+		#clock-cells = <1>;
+		#pwm-cells = <2>;
+		interrupts = <GIC_SPI 77 IRQ_TYPE_LEVEL_LOW>;
+		clocks = <&topckgen CLK_TOP_PWM_SEL>,
+			 <&pericfg CLK_PERI_PWM_PD>,
+			 <&pericfg CLK_PERI_PWM1_PD>,
+			 <&pericfg CLK_PERI_PWM2_PD>,
+			 <&pericfg CLK_PERI_PWM3_PD>,
+			 <&pericfg CLK_PERI_PWM4_PD>,
+			 <&pericfg CLK_PERI_PWM5_PD>,
+			 <&pericfg CLK_PERI_PWM6_PD>;
+		clock-names = "top", "main", "pwm1", "pwm2", "pwm3", "pwm4",
+			      "pwm5", "pwm6";
+		status = "disabled";
+	};
+
 };
