@@ -344,7 +344,7 @@ enums and defines and create cross-references to a Sphinx book.
 
 B<parse_headers.pl> [<options>] <C_FILE> <OUT_FILE> [<EXCEPTIONS_FILE>]
 
-Where <options> can be: --debug, --help or --man.
+Where <options> can be: --debug, --help or --usage.
 
 =head1 OPTIONS
 
@@ -382,7 +382,7 @@ ioctl.
 The EXCEPTIONS_FILE contain two rules to allow ignoring a symbol or
 to replace the default references by a custom one.
 
-Please read doc/doc-guide/parse-headers.rst at the Kernel's
+Please read Documentation/doc-guide/parse-headers.rst at the Kernel's
 tree for more details.
 
 =head1 BUGS
