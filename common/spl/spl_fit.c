@@ -425,8 +425,7 @@ static int spl_fit_append_fdt(struct spl_image_info *spl_image,
 			debug("%s: DT overlay %s applied\n", __func__,
 			      fit_get_name(fit, node, NULL));
 		}
-		if (tmpbuffer)
-			free(tmpbuffer);
+		free(tmpbuffer);
 		if (ret)
 			return ret;
 	}
