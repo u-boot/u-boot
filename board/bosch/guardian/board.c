@@ -14,6 +14,7 @@
 #include <env_internal.h>
 #include <errno.h>
 #include <i2c.h>
+#include <led.h>
 #include <miiphy.h>
 #include <panel.h>
 #include <power/tps65217.h>
@@ -232,6 +233,9 @@ err:
 
 int board_late_init(void)
 {
+#ifdef CONFIG_LED_GPIO
+	led_default_state();
+#endif
 	set_bootmode_env();
 	return 0;
 }

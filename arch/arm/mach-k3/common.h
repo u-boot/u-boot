@@ -8,8 +8,8 @@
 
 #include <asm/armv7_mpu.h>
 
-#define AM654	2
-#define J721E	4
+#define AM65X	0xbb5a
+#define J721E	0xbb64
 
 #define REV_PG1_0	0
 #define REV_PG2_0	1

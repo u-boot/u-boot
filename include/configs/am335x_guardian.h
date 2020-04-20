@@ -34,23 +34,49 @@
 	"ramdisk_addr_r=0x88080000\0" \
 
 #define BOOT_TARGET_DEVICES(func) \
-	func(UBIFS, ubifs, 0) \
-	func(PXE, pxe, na) \
-	func(DHCP, dhcp, na)
+	func(UBIFS, ubifs, 0)
 
 #define AM335XX_BOARD_FDTFILE "fdtfile=" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0"
 
 #include <config_distro_bootcmd.h>
 
+#define GUARDIAN_DEFAULT_PROD_ENV \
+	"factory_assembly_status=0\0" \
+	"main_pcba_part_number=0\0" \
+	"main_pcba_supplier=0\0" \
+	"main_pcba_timestamp=0\0" \
+	"main_pcba_hardware_version=0\0" \
+	"main_pcba_id=0\0" \
+	"main_pcba_aux_1=0\0" \
+	"main_pcba_aux_2=0\0" \
+	"main_pcba_aux_3=0\0" \
+	"main_pcba_aux_4=0\0" \
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	AM335XX_BOARD_FDTFILE \
 	MEM_LAYOUT_ENV_SETTINGS \
 	BOOTENV \
-	"bootlimit=3\0" \
+	GUARDIAN_DEFAULT_PROD_ENV \
 	"bootubivol=rootfs\0" \
+	"distro_bootcmd=" \
+		"setenv autoload no; " \
+		"setenv rootflags \"bulk_read,chk_data_crc\"; " \
+		"setenv ethact usb_ether; " \
+		"if test \"${swi_status}\" -eq 1; then " \
+		  "setenv extrabootargs \"swi_attached\"; " \
+		  "if dhcp; then " \
+		    "sleep 1; " \
+		    "if tftp \"${tftp_load_addr}\" \"bootscript.scr\"; then " \
+		      "source \"${tftp_load_addr}\"; " \
+		    "fi; " \
+		  "fi; " \
+		"fi;" \
+		"run bootcmd_ubifs0;\0" \
 	"altbootcmd=" \
-		"setenv boot_config \"extlinux-rollback.conf\"; " \
-		"run distro_bootcmd\0"
+		"setenv boot_syslinux_conf \"extlinux/extlinux-rollback.conf\"; " \
+		"run distro_bootcmd; " \
+		"setenv boot_syslinux_conf \"extlinux/extlinux.conf\"; " \
+		"run bootcmd_ubifs0;\0"
 
 #endif /* ! CONFIG_SPL_BUILD */
 
@@ -108,5 +134,10 @@
 #define CONFIG_SYS_NAND_BAD_BLOCK_POS   NAND_LARGE_BADBLOCK_POS
 
 #endif /* CONFIG_MTD_RAW_NAND */
+
+#define CONFIG_AM335X_USB0
+#define CONFIG_AM335X_USB0_MODE MUSB_PERIPHERAL
+#define CONFIG_AM335X_USB1
+#define CONFIG_AM335X_USB1_MODE MUSB_HOST
 
 #endif	/* ! __CONFIG_AM335X_GUARDIAN_H */
