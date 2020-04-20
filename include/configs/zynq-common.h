@@ -152,7 +152,8 @@
 #define BOOTENV_DEV_QSPI(devtypeu, devtypel, instance) \
 	"bootcmd_qspi=sf probe 0 0 0 && " \
 		      "sf read ${scriptaddr} ${script_offset_f} ${script_size_f} && " \
-		      "source ${scriptaddr}; echo SCRIPT FAILED: continuing...;\0"
+		      "echo QSPI: Trying to boot script at ${scriptaddr} && " \
+		      "source ${scriptaddr}; echo QSPI: SCRIPT FAILED: continuing...;\0"
 
 #define BOOTENV_DEV_NAME_QSPI(devtypeu, devtypel, instance) \
 	"qspi "
@@ -160,7 +161,8 @@
 #define BOOTENV_DEV_NAND(devtypeu, devtypel, instance) \
 	"bootcmd_nand=nand info && " \
 		      "nand read ${scriptaddr} ${script_offset_f} ${script_size_f} && " \
-		      "source ${scriptaddr}; echo SCRIPT FAILED: continuing...;\0"
+		      "echo NAND: Trying to boot script at ${scriptaddr} && " \
+		      "source ${scriptaddr}; echo NAND: SCRIPT FAILED: continuing...;\0"
 
 #define BOOTENV_DEV_NAME_NAND(devtypeu, devtypel, instance) \
 	"nand "
@@ -168,7 +170,8 @@
 #define BOOTENV_DEV_NOR(devtypeu, devtypel, instance) \
 	"script_offset_nor=0xE2FC0000\0"        \
 	"bootcmd_nor=cp.b ${script_offset_nor} ${scriptaddr} ${script_size_f} && " \
-		     "source ${scriptaddr}; echo SCRIPT FAILED: continuing...;\0"
+		     "echo NOR: Trying to boot script at ${scriptaddr} && " \
+		     "source ${scriptaddr}; echo NOR: SCRIPT FAILED: continuing...;\0"
 
 #define BOOTENV_DEV_NAME_NOR(devtypeu, devtypel, instance) \
 	"nor "
@@ -176,7 +179,8 @@
 #define BOOT_TARGET_DEVICES_JTAG(func)  func(JTAG, jtag, na)
 
 #define BOOTENV_DEV_JTAG(devtypeu, devtypel, instance) \
-	"bootcmd_jtag=source $scriptaddr; echo SCRIPT FAILED: continuing...;\0"
+	"bootcmd_jtag=echo JTAG: Trying to boot script at ${scriptaddr} && " \
+		"source ${scriptaddr}; echo JTAG: SCRIPT FAILED: continuing...;\0"
 
 #define BOOTENV_DEV_NAME_JTAG(devtypeu, devtypel, instance) \
 	"jtag "
