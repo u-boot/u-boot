@@ -7,6 +7,8 @@
 #ifndef __GENERIC_PHY_H
 #define __GENERIC_PHY_H
 
+#include <dm/ofnode.h>
+
 struct ofnode_phandle_args;
 
 /**
@@ -192,6 +194,33 @@ int generic_phy_power_off(struct phy *phy);
  */
 int generic_phy_get_by_index(struct udevice *user, int index,
 			     struct phy *phy);
+
+/**
+ * generic_phy_get_by_node() - Get a PHY device by integer index on ofnode
+ *
+ * @node:	the device node
+ * @index:	The index in the list of available PHYs
+ * @phy:	A pointer to the PHY port
+ *
+ * This looks up a PHY device for a client device based on its ofnode and on
+ * its position in the list of the possible PHYs.
+ *
+ * example:
+ * usb1: usb_otg_ss@xxx {
+ *       compatible = "xxx";
+ *       reg = <xxx>;
+ *   .
+ *   .
+ *   phys = <&usb2_phy>, <&usb3_phy>;
+ *   .
+ *   .
+ * };
+ * the USB2 phy can be accessed by passing index '0' and the USB3 phy can
+ * be accessed by passing index '1'
+ *
+ * @return 0 if OK, or a negative error code
+ */
+int generic_phy_get_by_node(ofnode node, int index, struct phy *phy);
 
 /**
  * generic_phy_get_by_name() - Get a PHY device by its name.

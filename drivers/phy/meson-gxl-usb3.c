@@ -16,6 +16,9 @@
 #include <generic-phy.h>
 #include <regmap.h>
 #include <clk.h>
+#include <linux/usb/otg.h>
+
+#include <asm/arch/usb-gx.h>
 
 #include <linux/bitops.h>
 #include <linux/compat.h>
@@ -93,20 +96,35 @@ struct phy_meson_gxl_usb3_priv {
 #endif
 };
 
-static int
-phy_meson_gxl_usb3_set_host_mode(struct phy_meson_gxl_usb3_priv *priv)
+void phy_meson_gxl_usb3_set_mode(struct phy *phy, enum usb_dr_mode mode)
 {
+	struct udevice *dev = phy->dev;
+	struct phy_meson_gxl_usb3_priv *priv = dev_get_priv(dev);
 	uint val;
 
-	regmap_read(priv->regmap, USB_R0, &val);
-	val &= ~USB_R0_U2D_ACT;
-	regmap_write(priv->regmap, USB_R0, val);
+	switch (mode) {
+	case USB_DR_MODE_UNKNOWN:
+	case USB_DR_MODE_HOST:
+	case USB_DR_MODE_OTG:
+		regmap_read(priv->regmap, USB_R0, &val);
+		val &= ~USB_R0_U2D_ACT;
+		regmap_write(priv->regmap, USB_R0, val);
 
-	regmap_read(priv->regmap, USB_R4, &val);
-	val &= ~USB_R4_P21_SLEEP_M0;
-	regmap_write(priv->regmap, USB_R4, val);
+		regmap_read(priv->regmap, USB_R4, &val);
+		val &= ~USB_R4_P21_SLEEP_M0;
+		regmap_write(priv->regmap, USB_R4, val);
+		break;
 
-	return 0;
+	case USB_DR_MODE_PERIPHERAL:
+		regmap_read(priv->regmap, USB_R0, &val);
+		val |= USB_R0_U2D_ACT;
+		regmap_write(priv->regmap, USB_R0, val);
+
+		regmap_read(priv->regmap, USB_R4, &val);
+		val |= USB_R4_P21_SLEEP_M0;
+		regmap_write(priv->regmap, USB_R4, val);
+		break;
+	}
 }
 
 static int phy_meson_gxl_usb3_power_on(struct phy *phy)
@@ -122,7 +140,9 @@ static int phy_meson_gxl_usb3_power_on(struct phy *phy)
 	val |= FIELD_PREP(USB_R5_ID_DIG_TH_MASK, 0xff);
 	regmap_write(priv->regmap, USB_R5, val);
 
-	return phy_meson_gxl_usb3_set_host_mode(priv);
+	phy_meson_gxl_usb3_set_mode(phy, USB_DR_MODE_HOST);
+
+	return 0;
 }
 
 static int phy_meson_gxl_usb3_power_off(struct phy *phy)

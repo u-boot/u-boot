@@ -1,0 +1,23 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2019 BayLibre, SAS.
+ * Author: Neil Armstrong <narmstrong@baylibre.com>
+ */
+
+#include "meson-gx-u-boot.dtsi"
+
+&usb0 {
+	dwc2: usb@c9100000 {
+		compatible = "snps,dwc2";
+		reg = <0x0 0xc9100000 0x0 0x40000>;
+		interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&clkc CLKID_USB1_DDR_BRIDGE>;
+		clock-names = "ddr";
+		phys = <&usb3_phy>, <&usb2_phy1>;
+		dr_mode = "peripheral";
+		g-rx-fifo-size = <192>;
+		g-np-tx-fifo-size = <128>;
+		g-tx-fifo-size = <128 128 16 16 16>;
+		status = "disabled";
+	};
+};

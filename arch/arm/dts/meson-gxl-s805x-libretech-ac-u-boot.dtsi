@@ -4,4 +4,4 @@
  * Author: Neil Armstrong <narmstrong@baylibre.com>
  */
 
-#include "meson-gxl-u-boot.dtsi"
+#include "meson-gx-u-boot.dtsi"

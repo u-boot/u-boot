@@ -17,6 +17,9 @@
 #include <regmap.h>
 #include <power/regulator.h>
 #include <clk.h>
+#include <linux/usb/otg.h>
+
+#include <asm/arch/usb-gx.h>
 
 #include <linux/bitops.h>
 #include <linux/compat.h>
@@ -121,15 +124,30 @@ static void phy_meson_gxl_usb2_reset(struct phy_meson_gxl_usb2_priv *priv)
 	udelay(RESET_COMPLETE_TIME);
 }
 
-static void
-phy_meson_gxl_usb2_set_host_mode(struct phy_meson_gxl_usb2_priv *priv)
+void phy_meson_gxl_usb2_set_mode(struct phy *phy, enum usb_dr_mode mode)
 {
+	struct udevice *dev = phy->dev;
+	struct phy_meson_gxl_usb2_priv *priv = dev_get_priv(dev);
 	uint val;
 
 	regmap_read(priv->regmap, U2P_R0, &val);
-	val |= U2P_R0_DM_PULLDOWN;
-	val |= U2P_R0_DP_PULLDOWN;
-	val &= ~U2P_R0_ID_PULLUP;
+
+	switch (mode) {
+	case USB_DR_MODE_UNKNOWN:
+	case USB_DR_MODE_HOST:
+	case USB_DR_MODE_OTG:
+		val |= U2P_R0_DM_PULLDOWN;
+		val |= U2P_R0_DP_PULLDOWN;
+		val &= ~U2P_R0_ID_PULLUP;
+		break;
+
+	case USB_DR_MODE_PERIPHERAL:
+		val &= ~U2P_R0_DM_PULLDOWN;
+		val &= ~U2P_R0_DP_PULLDOWN;
+		val |= U2P_R0_ID_PULLUP;
+		break;
+	}
+
 	regmap_write(priv->regmap, U2P_R0, val);
 
 	phy_meson_gxl_usb2_reset(priv);
@@ -146,7 +164,7 @@ static int phy_meson_gxl_usb2_power_on(struct phy *phy)
 	val &= ~U2P_R0_POWER_ON_RESET;
 	regmap_write(priv->regmap, U2P_R0, val);
 
-	phy_meson_gxl_usb2_set_host_mode(priv);
+	phy_meson_gxl_usb2_set_mode(phy, USB_DR_MODE_HOST);
 
 #if CONFIG_IS_ENABLED(DM_REGULATOR)
 	if (priv->phy_supply) {
