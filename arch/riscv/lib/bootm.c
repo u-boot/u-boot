@@ -28,6 +28,28 @@ __weak void board_quiesce_devices(void)
 
 int arch_fixup_fdt(void *blob)
 {
+#ifdef CONFIG_EFI_LOADER
+	int err;
+	u32 size;
+	int chosen_offset;
+
+	size = fdt_totalsize(blob);
+	err  = fdt_open_into(blob, blob, size + 32);
+	if (err < 0) {
+		printf("Device Tree can't be expanded to accommodate new node");
+		return err;
+	}
+	chosen_offset = fdt_path_offset(blob, "/chosen");
+	if (chosen_offset < 0) {
+		err = fdt_add_subnode(blob, 0, "chosen");
+		if (err < 0) {
+			printf("chosen node can not be added\n");
+			return err;
+		}
+	}
+	/* Overwrite the boot-hartid as U-Boot is the last stage BL */
+	fdt_setprop_u32(blob, chosen_offset, "boot-hartid", gd->arch.boot_hart);
+#endif
 	return 0;
 }
 
