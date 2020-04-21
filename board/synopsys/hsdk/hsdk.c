@@ -985,7 +985,8 @@ static int do_hsdk_clock_print_all(cmd_tbl_t *cmdtp, int flag, int argc,
 	soc_clk_ctl("eth-clk", NULL, CLK_PRINT | CLK_MHZ);
 	soc_clk_ctl("usb-clk", NULL, CLK_PRINT | CLK_MHZ);
 	soc_clk_ctl("sdio-clk", NULL, CLK_PRINT | CLK_MHZ);
-/*	soc_clk_ctl("hdmi-sys-clk", NULL, CLK_PRINT | CLK_MHZ); */
+	if (is_board_match_runtime(T_BOARD_HSDK_4XD))
+		soc_clk_ctl("hdmi-sys-clk", NULL, CLK_PRINT | CLK_MHZ);
 	soc_clk_ctl("gfx-core-clk", NULL, CLK_PRINT | CLK_MHZ);
 	soc_clk_ctl("gfx-dma-clk", NULL, CLK_PRINT | CLK_MHZ);
 	soc_clk_ctl("gfx-cfg-clk", NULL, CLK_PRINT | CLK_MHZ);
@@ -1003,9 +1004,11 @@ static int do_hsdk_clock_print_all(cmd_tbl_t *cmdtp, int flag, int argc,
 	printf("\n");
 
 	/* HDMI clock domain */
-/*	soc_clk_ctl("hdmi-pll", NULL, CLK_PRINT | CLK_MHZ); */
-/*	soc_clk_ctl("hdmi-clk", NULL, CLK_PRINT | CLK_MHZ); */
-/*	printf("\n"); */
+	if (is_board_match_runtime(T_BOARD_HSDK_4XD)) {
+		soc_clk_ctl("hdmi-pll", NULL, CLK_PRINT | CLK_MHZ);
+		soc_clk_ctl("hdmi-clk", NULL, CLK_PRINT | CLK_MHZ);
+		printf("\n");
+	}
 
 	/* TUN clock domain */
 	soc_clk_ctl("tun-pll", NULL, CLK_PRINT | CLK_MHZ);
