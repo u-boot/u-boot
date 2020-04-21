@@ -98,6 +98,7 @@ config ARCH_MTMIPS
 	select SUPPORTS_CPU_MIPS32_R2
 	select SUPPORTS_LITTLE_ENDIAN
 	select SYSRESET
+	select SUPPORT_SPL
 
 config ARCH_JZ47XX
 	bool "Support Ingenic JZ47xx"

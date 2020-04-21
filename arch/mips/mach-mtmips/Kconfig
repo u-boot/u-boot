@@ -20,7 +20,17 @@ config SYS_ICACHE_LINE_SIZE
 	default 32
 
 config SYS_TEXT_BASE
+	default 0x9c000000 if !SPL
+	default 0x80200000 if SPL
+
+config SPL_TEXT_BASE
 	default 0x9c000000
+
+config SPL_PAYLOAD
+	default "u-boot-lzma.img" if SPL_LZMA
+
+config BUILD_TARGET
+	default "u-boot-with-spl.bin" if SPL
 
 choice
 	prompt "MediaTek MIPS SoC select"
@@ -34,6 +44,15 @@ config SOC_MT7628
 	select PINCTRL_MT7628
 	select MTK_SERIAL
 	select SYSRESET_RESETCTL
+	select SPL_SEPARATE_BSS if SPL
+	select SPL_INIT_STACK_WITHOUT_MALLOC_F if SPL
+	select SPL_LOADER_SUPPORT if SPL
+	select SPL_OF_CONTROL if SPL_DM
+	select SPL_SIMPLE_BUS if SPL_DM
+	select SPL_DM_SERIAL if SPL_DM
+	select SPL_CLK if SPL_DM && SPL_SERIAL_SUPPORT
+	select SPL_SYSRESET if SPL_DM
+	select SPL_OF_LIBFDT if SPL_OF_CONTROL
 	help
 	  This supports MediaTek MT7628/MT7688.
 
@@ -87,6 +106,14 @@ endchoice
 
 config SUPPORTS_BOOT_RAM
 	bool
+
+config SPL_UART2_SPIS_PINMUX
+	bool "Use alternative pinmux for UART2 in SPL stage"
+	depends on SPL_SERIAL_SUPPORT
+	default n
+	help
+	  Select this if the UART2 of your board is connected to GPIO 16/17
+	  (shared with SPIS) rather than the usual GPIO 20/21.
 
 source "board/gardena/smart-gateway-mt7688/Kconfig"
 source "board/seeed/linkit-smart-7688/Kconfig"
