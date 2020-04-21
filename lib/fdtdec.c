@@ -1311,7 +1311,8 @@ int fdtdec_add_reserved_memory(void *blob, const char *basename,
 			continue;
 		}
 
-		if (addr == carveout->start && (addr + size) == carveout->end) {
+		if (addr == carveout->start && (addr + size - 1) ==
+						carveout->end) {
 			if (phandlep)
 				*phandlep = fdt_get_phandle(blob, node);
 			return 0;
