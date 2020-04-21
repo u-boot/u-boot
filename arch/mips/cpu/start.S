@@ -71,8 +71,9 @@
 	move	t0, k0
 1:
 	PTR_S	zero, 0(t0)
+	PTR_ADDIU t0, PTRSIZE
 	blt	t0, t1, 1b
-	 PTR_ADDIU t0, PTRSIZE
+	 nop
 
 #if CONFIG_VAL(SYS_MALLOC_F_LEN)
 	PTR_S	sp, GD_MALLOC_BASE(k0)	# gd->malloc_base offset
