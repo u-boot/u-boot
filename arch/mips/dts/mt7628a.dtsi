@@ -46,11 +46,11 @@
 			reg = <0x0 0x100>;
 		};
 
-		syscon-reboot {
-			compatible = "syscon-reboot";
-			regmap = <&sysc>;
-			offset = <0x34>;
-			mask = <0x1>;
+		reboot: resetctl-reboot {
+			compatible = "resetctl-reboot";
+
+			resets = <&rstctrl MT7628_SYS_RST>;
+			reset-names = "sysreset";
 		};
 
 		clkctrl: clkctrl@0x2c {

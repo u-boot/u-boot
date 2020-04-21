@@ -27,6 +27,7 @@ config SOC_MT7628
 	select MIPS_L1_CACHE_SHIFT_5
 	select PINCTRL_MT7628
 	select MTK_SERIAL
+	select SYSRESET_RESETCTL
 	help
 	  This supports MediaTek MT7628/MT7688.
 
