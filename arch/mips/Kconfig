@@ -317,6 +317,24 @@ config NEW_EXCEPTION_VECTOR_BASE
 	help
 	  The exception vector base to be restored before booting linux kernel
 
+config INIT_STACK_WITHOUT_MALLOC_F
+	bool "Do not reserve malloc space on initial stack"
+	default n
+	help
+	  Enable this option if you don't want to reserve malloc space on
+	  initial stack. This is useful if the initial stack can't hold large
+	  malloc space. Platform should set the malloc_base later when DRAM is
+	  ready to use.
+
+config SPL_INIT_STACK_WITHOUT_MALLOC_F
+	bool "Do not reserve malloc space on initial stack in SPL"
+	default n
+	help
+	  Enable this option if you don't want to reserve malloc space on
+	  initial stack. This is useful if the initial stack can't hold large
+	  malloc space. Platform should set the malloc_base later when DRAM is
+	  ready to use.
+
 config SPL_LOADER_SUPPORT
 	bool
 	default n
