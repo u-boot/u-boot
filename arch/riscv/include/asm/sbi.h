@@ -106,8 +106,6 @@ void sbi_console_putchar(int ch);
 int sbi_console_getchar(void);
 void sbi_clear_ipi(void);
 void sbi_shutdown(void);
-#endif
-void sbi_set_timer(uint64_t stime_value);
 void sbi_send_ipi(const unsigned long *hart_mask);
 void sbi_remote_fence_i(const unsigned long *hart_mask);
 void sbi_remote_sfence_vma(const unsigned long *hart_mask,
@@ -117,7 +115,8 @@ void sbi_remote_sfence_vma_asid(const unsigned long *hart_mask,
 				unsigned long start,
 				unsigned long size,
 				unsigned long asid);
-
+#endif
+void sbi_set_timer(uint64_t stime_value);
 int sbi_probe_extension(int ext);
 
 #endif

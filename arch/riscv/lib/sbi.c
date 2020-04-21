@@ -39,6 +39,23 @@ struct sbiret sbi_ecall(int ext, int fid, unsigned long arg0,
 	return ret;
 }
 
+/**
+ * sbi_set_timer() - Program the timer for next timer event.
+ * @stime_value: The value after which next timer event should fire.
+ *
+ * Return: None
+ */
+void sbi_set_timer(uint64_t stime_value)
+{
+#if __riscv_xlen == 32
+	sbi_ecall(SBI_EXT_SET_TIMER, SBI_FID_SET_TIMER, stime_value,
+		  stime_value >> 32, 0, 0, 0, 0);
+#else
+	sbi_ecall(SBI_EXT_SET_TIMER, SBI_FID_SET_TIMER, stime_value,
+		  0, 0, 0, 0, 0);
+#endif
+}
+
 #ifdef CONFIG_SBI_V01
 
 /**
@@ -84,25 +101,6 @@ void sbi_clear_ipi(void)
 void sbi_shutdown(void)
 {
 	sbi_ecall(SBI_EXT_0_1_SHUTDOWN, 0, 0, 0, 0, 0, 0, 0);
-}
-
-#endif /* CONFIG_SBI_V01 */
-
-/**
- * sbi_set_timer() - Program the timer for next timer event.
- * @stime_value: The value after which next timer event should fire.
- *
- * Return: None
- */
-void sbi_set_timer(uint64_t stime_value)
-{
-#if __riscv_xlen == 32
-	sbi_ecall(SBI_EXT_SET_TIMER, SBI_FID_SET_TIMER, stime_value,
-		  stime_value >> 32, 0, 0, 0, 0);
-#else
-	sbi_ecall(SBI_EXT_SET_TIMER, SBI_FID_SET_TIMER, stime_value,
-		  0, 0, 0, 0, 0);
-#endif
 }
 
 /**
@@ -185,3 +183,4 @@ int sbi_probe_extension(int extid)
 
 	return -ENOTSUPP;
 }
+#endif /* CONFIG_SBI_V01 */
