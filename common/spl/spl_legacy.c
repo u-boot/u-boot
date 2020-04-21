@@ -11,13 +11,12 @@ int spl_parse_legacy_header(struct spl_image_info *spl_image,
 {
 	u32 header_size = sizeof(struct image_header);
 
-#ifdef CONFIG_SPL_LEGACY_IMAGE_CRC_CHECK
 	/* check uImage header CRC */
-	if (!image_check_hcrc(header)) {
+	if (IS_ENABLED(CONFIG_SPL_LEGACY_IMAGE_CRC_CHECK) &&
+	    !image_check_hcrc(header)) {
 		puts("SPL: Image header CRC check failed!\n");
 		return -EINVAL;
 	}
-#endif
 
 	if (spl_image->flags & SPL_COPY_PAYLOAD_ONLY) {
 		/*
