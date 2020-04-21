@@ -27,7 +27,7 @@ SECTIONS
 		*(SORT_BY_ALIGNMENT(.sdata*))
 	} > .spl_mem
 
-#ifdef CONFIG_SPL_DM
+#if defined(CONFIG_SPL_DM) || defined(CONFIG_SPL_LOADER_SUPPORT)
 	. = ALIGN(4);
 	.u_boot_list : {
 		KEEP(*(SORT(.u_boot_list*)));

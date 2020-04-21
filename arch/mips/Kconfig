@@ -317,6 +317,12 @@ config NEW_EXCEPTION_VECTOR_BASE
 	help
 	  The exception vector base to be restored before booting linux kernel
 
+config SPL_LOADER_SUPPORT
+	bool
+	default n
+	help
+	  Enable this option if you want to use SPL loaders without DM enabled.
+
 endmenu
 
 menu "OS boot interface"
