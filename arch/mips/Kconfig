@@ -425,6 +425,15 @@ config MIPS_INIT_STACK_IN_SRAM
 	  lowlevel_init. Thus lowlevel_init does not need to be implemented
 	  in assembler.
 
+config MIPS_SRAM_INIT
+	bool
+	default n
+	depends on MIPS_INIT_STACK_IN_SRAM
+	help
+	  Select this if the SRAM for initial stack needs to be initialized
+	  before it can be used. If enabled, a function mips_sram_init() will
+	  be called just before setup_stack_gd.
+
 config SYS_DCACHE_SIZE
 	int
 	default 0

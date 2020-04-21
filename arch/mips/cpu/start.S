@@ -217,6 +217,13 @@ wr_done:
 #endif
 
 #ifdef CONFIG_MIPS_INIT_STACK_IN_SRAM
+#ifdef CONFIG_MIPS_SRAM_INIT
+	/* Initialize the SRAM first */
+	PTR_LA	t9, mips_sram_init
+	jalr	t9
+	 nop
+#endif
+
 	/* Set up initial stack and global data */
 	setup_stack_gd
 
