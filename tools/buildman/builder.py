@@ -24,7 +24,6 @@ import terminal
 from terminal import Print
 import toolchain
 
-
 """
 Theory of Operation
 
@@ -91,6 +90,15 @@ u-boot/             source directory
     .git/           repository
 """
 
+"""Holds information about a particular error line we are outputing
+
+   char: Character representation: '+': error, '-': fixed error, 'w+': warning,
+       'w-' = fixed warning
+   boards: List of Board objects which have line in the error/warning output
+   errline: The text of the error line
+"""
+ErrLine = collections.namedtuple('ErrLine', 'char,boards,errline')
+
 # Possible build outcomes
 OUTCOME_OK, OUTCOME_WARNING, OUTCOME_ERROR, OUTCOME_UNKNOWN = list(range(4))
 
@@ -154,8 +162,6 @@ class Builder:
         force_build_failures: If a previously-built build (i.e. built on
             a previous run of buildman) is marked as failed, rebuild it.
         git_dir: Git directory containing source repository
-        last_line_len: Length of the last line we printed (used for erasing
-            it with new progress information)
         num_jobs: Number of jobs to run at once (passed to make as -j)
         num_threads: Number of builder threads to run
         out_queue: Queue of results to process
@@ -186,6 +192,7 @@ class Builder:
         _next_delay_update: Next time we plan to display a progress update
                 (datatime)
         _show_unknown: Show unknown boards (those not built) in summary
+        _start_time: Start time for the build
         _timestamps: List of timestamps for the completion of the last
             last _timestamp_count builds. Each is a datetime object.
         _timestamp_count: Number of timestamps to keep in our list.
@@ -224,7 +231,7 @@ class Builder:
     def __init__(self, toolchains, base_dir, git_dir, num_threads, num_jobs,
                  gnu_make='make', checkout=True, show_unknown=True, step=1,
                  no_subdirs=False, full_path=False, verbose_build=False,
-                 incremental=False, per_board_out_dir=False,
+                 mrproper=False, per_board_out_dir=False,
                  config_only=False, squash_config_y=False,
                  warnings_as_errors=False, work_in_output=False):
         """Create a new Builder object
@@ -245,8 +252,7 @@ class Builder:
             full_path: Return the full path in CROSS_COMPILE and don't set
                 PATH
             verbose_build: Run build with V=1 and don't use 'make -s'
-            incremental: Always perform incremental builds; don't run make
-                mrproper when configuring
+            mrproper: Always run 'make mrproper' when configuring
             per_board_out_dir: Build in a separate persistent directory per
                 board rather than a thread-specific directory
             config_only: Only configure each build, don't build it
@@ -275,6 +281,7 @@ class Builder:
         self._build_period_us = None
         self._complete_delay = None
         self._next_delay_update = datetime.now()
+        self._start_time = datetime.now()
         self.force_config_on_failure = True
         self.force_build_failures = False
         self.force_reconfig = False
@@ -299,17 +306,18 @@ class Builder:
         self._re_warning = re.compile('(.*):(\d*):(\d*): warning: .*')
         self._re_dtb_warning = re.compile('(.*): Warning .*')
         self._re_note = re.compile('(.*):(\d*):(\d*): note: this is the location of the previous.*')
+        self._re_migration_warning = re.compile(r'^={21} WARNING ={22}\n.*\n=+\n',
+                                                re.MULTILINE | re.DOTALL)
 
         self.queue = queue.Queue()
         self.out_queue = queue.Queue()
         for i in range(self.num_threads):
-            t = builderthread.BuilderThread(self, i, incremental,
+            t = builderthread.BuilderThread(self, i, mrproper,
                     per_board_out_dir)
             t.setDaemon(True)
             t.start()
             self.threads.append(t)
 
-        self.last_line_len = 0
         t = builderthread.ResultThread(self)
         t.setDaemon(True)
         t.start()
@@ -332,16 +340,22 @@ class Builder:
     def SetDisplayOptions(self, show_errors=False, show_sizes=False,
                           show_detail=False, show_bloat=False,
                           list_error_boards=False, show_config=False,
-                          show_environment=False):
+                          show_environment=False, filter_dtb_warnings=False,
+                          filter_migration_warnings=False):
         """Setup display options for the builder.
 
-        show_errors: True to show summarised error/warning info
-        show_sizes: Show size deltas
-        show_detail: Show size delta detail for each board if show_sizes
-        show_bloat: Show detail for each function
-        list_error_boards: Show the boards which caused each error/warning
-        show_config: Show config deltas
-        show_environment: Show environment deltas
+        Args:
+            show_errors: True to show summarised error/warning info
+            show_sizes: Show size deltas
+            show_detail: Show size delta detail for each board if show_sizes
+            show_bloat: Show detail for each function
+            list_error_boards: Show the boards which caused each error/warning
+            show_config: Show config deltas
+            show_environment: Show environment deltas
+            filter_dtb_warnings: Filter out any warnings from the device-tree
+                compiler
+            filter_migration_warnings: Filter out any warnings about migrating
+                a board to driver model
         """
         self._show_errors = show_errors
         self._show_sizes = show_sizes
@@ -350,6 +364,8 @@ class Builder:
         self._list_error_boards = list_error_boards
         self._show_config = show_config
         self._show_environment = show_environment
+        self._filter_dtb_warnings = filter_dtb_warnings
+        self._filter_migration_warnings = filter_migration_warnings
 
     def _AddTimestamp(self):
         """Add a new timestamp to the list and record the build period.
@@ -379,22 +395,6 @@ class Builder:
         if seconds > 60:
             self._timestamps.popleft()
             count -= 1
-
-    def ClearLine(self, length):
-        """Clear any characters on the current line
-
-        Make way for a new line of length 'length', by outputting enough
-        spaces to clear out the old line. Then remember the new length for
-        next time.
-
-        Args:
-            length: Length of new line, in characters
-        """
-        if length < self.last_line_len:
-            Print(' ' * (self.last_line_len - length), newline=False)
-            Print('\r', newline=False)
-        self.last_line_len = length
-        sys.stdout.flush()
 
     def SelectCommit(self, commit, checkout=True):
         """Checkout the selected commit for this build
@@ -441,8 +441,7 @@ class Builder:
             if result.already_done:
                 self.already_done += 1
             if self._verbose:
-                Print('\r', newline=False)
-                self.ClearLine(0)
+                terminal.PrintClear()
                 boards_selected = {target : result.brd}
                 self.ResetResultSummary(boards_selected)
                 self.ProduceResultSummary(result.commit_upto, self.commits,
@@ -456,22 +455,21 @@ class Builder:
         line += self.col.Color(self.col.YELLOW, '%5d' % self.warned)
         line += self.col.Color(self.col.RED, '%5d' % self.fail)
 
-        name = ' /%-5d  ' % self.count
+        line += ' /%-5d  ' % self.count
+        remaining = self.count - self.upto
+        if remaining:
+            line += self.col.Color(self.col.MAGENTA, ' -%-5d  ' % remaining)
+        else:
+            line += ' ' * 8
 
         # Add our current completion time estimate
         self._AddTimestamp()
         if self._complete_delay:
-            name += '%s  : ' % self._complete_delay
-        # When building all boards for a commit, we can print a commit
-        # progress message.
-        if result and result.commit_upto is None:
-            name += 'commit %2d/%-3d' % (self.commit_upto + 1,
-                    self.commit_count)
+            line += '%s  : ' % self._complete_delay
 
-        name += target
-        Print(line + name, newline=False)
-        length = 16 + len(name)
-        self.ClearLine(length)
+        line += target
+        terminal.PrintClear()
+        Print(line, newline=False, limit_to_line=True)
 
     def _GetOutputDir(self, commit_upto):
         """Get the name of the output directory for a commit number
@@ -567,9 +565,16 @@ class Builder:
             New list with only interesting lines included
         """
         out_lines = []
+        if self._filter_migration_warnings:
+            text = '\n'.join(lines)
+            text = self._re_migration_warning.sub('', text)
+            lines = text.splitlines()
         for line in lines:
-            if not self.re_make_err.search(line):
-                out_lines.append(line)
+            if self.re_make_err.search(line):
+                continue
+            if self._filter_dtb_warnings and self._re_dtb_warning.search(line):
+                continue
+            out_lines.append(line)
         return out_lines
 
     def ReadFuncSizes(self, fname, fd):
@@ -1128,32 +1133,52 @@ class Builder:
 
             Args:
                 line: Error line to search for
+                line_boards: boards to search, each a Board
             Return:
-                String containing a list of boards with that error line, or
-                '' if the user has not requested such a list
+                List of boards with that error line, or [] if the user has not
+                    requested such a list
             """
+            boards = []
+            board_set = set()
             if self._list_error_boards:
-                names = []
                 for board in line_boards[line]:
-                    if not board.target in names:
-                        names.append(board.target)
-                names_str = '(%s) ' % ','.join(names)
-            else:
-                names_str = ''
-            return names_str
+                    if not board in board_set:
+                        boards.append(board)
+                        board_set.add(board)
+            return boards
 
         def _CalcErrorDelta(base_lines, base_line_boards, lines, line_boards,
                             char):
+            """Calculate the required output based on changes in errors
+
+            Args:
+                base_lines: List of errors/warnings for previous commit
+                base_line_boards: Dict keyed by error line, containing a list
+                    of the Board objects with that error in the previous commit
+                lines: List of errors/warning for this commit, each a str
+                line_boards: Dict keyed by error line, containing a list
+                    of the Board objects with that error in this commit
+                char: Character representing error ('') or warning ('w'). The
+                    broken ('+') or fixed ('-') characters are added in this
+                    function
+
+            Returns:
+                Tuple
+                    List of ErrLine objects for 'better' lines
+                    List of ErrLine objects for 'worse' lines
+            """
             better_lines = []
             worse_lines = []
             for line in lines:
                 if line not in base_lines:
-                    worse_lines.append(char + '+' +
-                            _BoardList(line, line_boards) + line)
+                    errline = ErrLine(char + '+', _BoardList(line, line_boards),
+                                      line)
+                    worse_lines.append(errline)
             for line in base_lines:
                 if line not in lines:
-                    better_lines.append(char + '-' +
-                            _BoardList(line, base_line_boards) + line)
+                    errline = ErrLine(char + '-',
+                                      _BoardList(line, base_line_boards), line)
+                    better_lines.append(errline)
             return better_lines, worse_lines
 
         def _CalcConfig(delta, name, config):
@@ -1209,6 +1234,34 @@ class Builder:
                     col = self.col.YELLOW
                 Print('   ' + line, newline=True, colour=col)
 
+        def _OutputErrLines(err_lines, colour):
+            """Output the line of error/warning lines, if not empty
+
+            Also increments self._error_lines if err_lines not empty
+
+            Args:
+                err_lines: List of ErrLine objects, each an error or warning
+                    line, possibly including a list of boards with that
+                    error/warning
+                colour: Colour to use for output
+            """
+            if err_lines:
+                out_list = []
+                for line in err_lines:
+                    boards = ''
+                    names = [board.target for board in line.boards]
+                    board_str = ' '.join(names) if names else ''
+                    if board_str:
+                        out = self.col.Color(colour, line.char + '(')
+                        out += self.col.Color(self.col.MAGENTA, board_str,
+                                              bright=False)
+                        out += self.col.Color(colour, ') %s' % line.errline)
+                    else:
+                        out = self.col.Color(colour, line.char + line.errline)
+                    out_list.append(out)
+                Print('\n'.join(out_list))
+                self._error_lines += 1
+
 
         ok_boards = []      # List of boards fixed since last commit
         warn_boards = []    # List of boards with warnings since last commit
@@ -1239,7 +1292,7 @@ class Builder:
             else:
                 new_boards.append(target)
 
-        # Get a list of errors that have appeared, and disappeared
+        # Get a list of errors and warnings that have appeared, and disappeared
         better_err, worse_err = _CalcErrorDelta(self._base_err_lines,
                 self._base_err_line_boards, err_lines, err_line_boards, '')
         better_warn, worse_warn = _CalcErrorDelta(self._base_warn_lines,
@@ -1262,18 +1315,10 @@ class Builder:
             for arch, target_list in arch_list.items():
                 Print('%10s: %s' % (arch, target_list))
                 self._error_lines += 1
-            if better_err:
-                Print('\n'.join(better_err), colour=self.col.GREEN)
-                self._error_lines += 1
-            if worse_err:
-                Print('\n'.join(worse_err), colour=self.col.RED)
-                self._error_lines += 1
-            if better_warn:
-                Print('\n'.join(better_warn), colour=self.col.CYAN)
-                self._error_lines += 1
-            if worse_warn:
-                Print('\n'.join(worse_warn), colour=self.col.MAGENTA)
-                self._error_lines += 1
+            _OutputErrLines(better_err, colour=self.col.GREEN)
+            _OutputErrLines(worse_err, colour=self.col.RED)
+            _OutputErrLines(better_warn, colour=self.col.CYAN)
+            _OutputErrLines(worse_warn, colour=self.col.YELLOW)
 
         if show_sizes:
             self.PrintSizeSummary(board_selected, board_dict, show_detail,
@@ -1506,12 +1551,15 @@ class Builder:
         if setup_git and self.git_dir:
             src_dir = os.path.abspath(self.git_dir)
             if os.path.exists(git_dir):
+                Print('\rFetching repo for thread %d' % thread_num,
+                      newline=False)
                 gitutil.Fetch(git_dir, thread_dir)
+                terminal.PrintClear()
             else:
                 Print('\rCloning repo for thread %d' % thread_num,
                       newline=False)
                 gitutil.Clone(src_dir, thread_dir)
-                Print('\r%s\r' % (' ' * 30), newline=False)
+                terminal.PrintClear()
 
     def _PrepareWorkingSpace(self, max_threads, setup_git):
         """Prepare the working directory for use.
@@ -1564,7 +1612,7 @@ class Builder:
                   newline=False)
             for dirname in to_remove:
                 shutil.rmtree(dirname)
-            Print('done')
+            terminal.PrintClear()
 
     def BuildBoards(self, commits, board_selected, keep_outputs, verbose):
         """Build all commits for a list of boards
@@ -1612,5 +1660,19 @@ class Builder:
         # Wait until we have processed all output
         self.out_queue.join()
         Print()
-        self.ClearLine(0)
+
+        msg = 'Completed: %d total built' % self.count
+        if self.already_done:
+           msg += ' (%d previously' % self.already_done
+           if self.already_done != self.count:
+               msg += ', %d newly' % (self.count - self.already_done)
+           msg += ')'
+        duration = datetime.now() - self._start_time
+        if duration > timedelta(microseconds=1000000):
+            if duration.microseconds >= 500000:
+                duration = duration + timedelta(seconds=1)
+            duration = duration - timedelta(microseconds=duration.microseconds)
+            msg += ', duration %s' % duration
+        Print(msg)
+
         return (self.fail, self.warned)

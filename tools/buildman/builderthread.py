@@ -90,12 +90,12 @@ class BuilderThread(threading.Thread):
         thread_num: Our thread number (0-n-1), used to decide on a
                 temporary directory
     """
-    def __init__(self, builder, thread_num, incremental, per_board_out_dir):
+    def __init__(self, builder, thread_num, mrproper, per_board_out_dir):
         """Set up a new builder thread"""
         threading.Thread.__init__(self)
         self.builder = builder
         self.thread_num = thread_num
-        self.incremental = incremental
+        self.mrproper = mrproper
         self.per_board_out_dir = per_board_out_dir
 
     def Make(self, commit, brd, stage, cwd, *args, **kwargs):
@@ -243,7 +243,7 @@ class BuilderThread(threading.Thread):
                 # If we need to reconfigure, do that now
                 if do_config:
                     config_out = ''
-                    if not self.incremental:
+                    if self.mrproper:
                         result = self.Make(commit, brd, 'mrproper', cwd,
                                 'mrproper', *args, env=env)
                         config_out += result.combined

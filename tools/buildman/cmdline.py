@@ -55,8 +55,9 @@ def ParseArgs():
     parser.add_option('-i', '--in-tree', dest='in_tree',
           action='store_true', default=False,
           help='Build in the source tree instead of a separate directory')
+    # -I will be removed after April 2021
     parser.add_option('-I', '--incremental', action='store_true',
-          default=False, help='Do not run make mrproper (when reconfiguring)')
+          default=False, help='Deprecated, does nothing. See -m')
     parser.add_option('-j', '--jobs', dest='jobs', type='int',
           default=None, help='Number of jobs to run at once (passed to make)')
     parser.add_option('-k', '--keep-outputs', action='store_true',
@@ -69,6 +70,8 @@ def ParseArgs():
           default=False, help='Show a list of boards next to each error/warning')
     parser.add_option('--list-tool-chains', action='store_true', default=False,
           help='List available tool chains (use -v to see probing detail)')
+    parser.add_option('-m', '--mrproper', action='store_true',
+          default=False, help="Run 'make mrproper before reconfiguring")
     parser.add_option('-n', '--dry-run', action='store_true', dest='dry_run',
           default=False, help="Do a dry run (describe actions, but do nothing)")
     parser.add_option('-N', '--no-subdirs', action='store_true', dest='no_subdirs',
@@ -111,6 +114,12 @@ def ParseArgs():
     parser.add_option('-x', '--exclude', dest='exclude',
           type='string', action='append',
           help='Specify a list of boards to exclude, separated by comma')
+    parser.add_option('-y', '--filter-dtb-warnings', action='store_true',
+          default=False,
+          help='Filter out device-tree-compiler warnings from output')
+    parser.add_option('-Y', '--filter-migration-warnings', action='store_true',
+          default=False,
+          help='Filter out migration warnings from output')
 
     parser.usage += """ [list of target/arch/cpu/board/vendor/soc to build]
 

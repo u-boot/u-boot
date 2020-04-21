@@ -454,7 +454,7 @@ class TestFunctional(unittest.TestCase):
         # Only sandbox should succeed, the others don't have toolchains
         self.assertEqual(self._builder.fail,
                          self._total_builds - self._commits)
-        self.assertEqual(ret_code, 128)
+        self.assertEqual(ret_code, 100)
 
         for commit in range(self._commits):
             for board in self._boards.GetList():
@@ -476,15 +476,15 @@ class TestFunctional(unittest.TestCase):
         self._RunControl('-b', TEST_BRANCH, '-c2', '-o', self._output_dir)
         self.assertEqual(self._builder.count, 2 * len(boards))
         self.assertEqual(self._builder.fail, 0)
-        # Each board has a mrproper, config, and then one make per commit
-        self.assertEqual(self._make_calls, len(boards) * (2 + 2))
+        # Each board has a config, and then one make per commit
+        self.assertEqual(self._make_calls, len(boards) * (1 + 2))
 
     def testIncremental(self):
         """Test building a branch twice - the second time should do nothing"""
         self._RunControl('-b', TEST_BRANCH, '-o', self._output_dir)
 
         # Each board has a mrproper, config, and then one make per commit
-        self.assertEqual(self._make_calls, len(boards) * (self._commits + 2))
+        self.assertEqual(self._make_calls, len(boards) * (self._commits + 1))
         self._make_calls = 0
         self._RunControl('-b', TEST_BRANCH, '-o', self._output_dir, clean_dir=False)
         self.assertEqual(self._make_calls, 0)
@@ -496,14 +496,26 @@ class TestFunctional(unittest.TestCase):
         self._RunControl('-b', TEST_BRANCH, '-o', self._output_dir)
         self._make_calls = 0
         self._RunControl('-b', TEST_BRANCH, '-f', '-o', self._output_dir, clean_dir=False)
-        # Each board has a mrproper, config, and then one make per commit
-        self.assertEqual(self._make_calls, len(boards) * (self._commits + 2))
+        # Each board has a config and one make per commit
+        self.assertEqual(self._make_calls, len(boards) * (self._commits + 1))
 
     def testForceReconfigure(self):
         """The -f flag should force a rebuild"""
         self._RunControl('-b', TEST_BRANCH, '-C', '-o', self._output_dir)
-        # Each commit has a mrproper, config and make
-        self.assertEqual(self._make_calls, len(boards) * self._commits * 3)
+        # Each commit has a config and make
+        self.assertEqual(self._make_calls, len(boards) * self._commits * 2)
+
+    def testForceReconfigure(self):
+        """The -f flag should force a rebuild"""
+        self._RunControl('-b', TEST_BRANCH, '-C', '-o', self._output_dir)
+        # Each commit has a config and make
+        self.assertEqual(self._make_calls, len(boards) * self._commits * 2)
+
+    def testMrproper(self):
+        """The -f flag should force a rebuild"""
+        self._RunControl('-b', TEST_BRANCH, '-m', '-o', self._output_dir)
+        # Each board has a mkproper, config and then one make per commit
+        self.assertEqual(self._make_calls, len(boards) * (self._commits + 2))
 
     def testErrors(self):
         """Test handling of build errors"""
@@ -525,7 +537,7 @@ class TestFunctional(unittest.TestCase):
         self._RunControl('-b', TEST_BRANCH, '-o', self._output_dir, '-F', clean_dir=False)
         self.assertEqual(self._builder.count, self._total_builds)
         self.assertEqual(self._builder.fail, 0)
-        self.assertEqual(self._make_calls, 3)
+        self.assertEqual(self._make_calls, 2)
 
     def testBranchWithSlash(self):
         """Test building a branch with a '/' in the name"""

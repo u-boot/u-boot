@@ -172,6 +172,10 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
         print()
         return 0
 
+    if options.incremental:
+        print(col.Color(col.RED,
+                        'Warning: -I has been removed. See documentation'))
+
     # Work out what subset of the boards we are building
     if not boards:
         if not os.path.exists(options.output_dir):
@@ -309,7 +313,7 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
             show_unknown=options.show_unknown, step=options.step,
             no_subdirs=options.no_subdirs, full_path=options.full_path,
             verbose_build=options.verbose_build,
-            incremental=options.incremental,
+            mrproper=options.mrproper,
             per_board_out_dir=options.per_board_out_dir,
             config_only=options.config_only,
             squash_config_y=not options.preserve_config_y,
@@ -341,23 +345,23 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
             commits = None
 
         Print(GetActionSummary(options.summary, commits, board_selected,
-                                options))
+                               options))
 
         # We can't show function sizes without board details at present
         if options.show_bloat:
             options.show_detail = True
-        builder.SetDisplayOptions(options.show_errors, options.show_sizes,
-                                  options.show_detail, options.show_bloat,
-                                  options.list_error_boards,
-                                  options.show_config,
-                                  options.show_environment)
+        builder.SetDisplayOptions(
+            options.show_errors, options.show_sizes, options.show_detail,
+            options.show_bloat, options.list_error_boards, options.show_config,
+            options.show_environment, options.filter_dtb_warnings,
+            options.filter_migration_warnings)
         if options.summary:
             builder.ShowSummary(commits, board_selected)
         else:
             fail, warned = builder.BuildBoards(commits, board_selected,
                                 options.keep_outputs, options.verbose)
             if fail:
-                return 128
+                return 100
             elif warned and not options.ignore_warnings:
-                return 129
+                return 101
     return 0

@@ -93,7 +93,7 @@ elif options.test:
         suite = unittest.TestLoader().loadTestsFromTestCase(module)
         suite.run(result)
 
-    for module in ['gitutil', 'settings']:
+    for module in ['gitutil', 'settings', 'terminal']:
         suite = doctest.DocTestSuite(module)
         suite.run(result)
 
