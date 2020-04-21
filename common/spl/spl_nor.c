@@ -107,14 +107,13 @@ static int spl_nor_load_image(struct spl_image_info *spl_image,
 					      spl_nor_get_uboot_base());
 	}
 
-	ret = spl_parse_image_header(spl_image,
-			(const struct image_header *)spl_nor_get_uboot_base());
-	if (ret)
-		return ret;
-
-	memcpy((void *)(unsigned long)spl_image->load_addr,
-	       (void *)(spl_nor_get_uboot_base() + sizeof(struct image_header)),
-	       spl_image->size);
+	/* Legacy image handling */
+	if (IS_ENABLED(CONFIG_SPL_LEGACY_IMAGE_SUPPORT)) {
+		load.bl_len = 1;
+		load.read = spl_nor_load_read;
+		return spl_load_legacy_img(spl_image, &load,
+					   spl_nor_get_uboot_base());
+	}
 
 	return 0;
 }

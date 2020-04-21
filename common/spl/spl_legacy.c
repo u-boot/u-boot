@@ -51,3 +51,23 @@ int spl_parse_legacy_header(struct spl_image_info *spl_image,
 
 	return 0;
 }
+
+int spl_load_legacy_img(struct spl_image_info *spl_image,
+			struct spl_load_info *load, ulong header)
+{
+	struct image_header hdr;
+	int ret;
+
+	/* Read header into local struct */
+	load->read(load, header, sizeof(hdr), &hdr);
+
+	ret = spl_parse_image_header(spl_image, &hdr);
+	if (ret)
+		return ret;
+
+	/* Read image */
+	load->read(load, header + sizeof(hdr), spl_image->size,
+		   (void *)(unsigned long)spl_image->load_addr);
+
+	return 0;
+}
