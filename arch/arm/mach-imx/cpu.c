@@ -96,7 +96,17 @@ const char *get_imx_type(u32 imxtype)
 {
 	switch (imxtype) {
 	case MXC_CPU_IMX8MP:
-		return "8MP";	/* Quad-core version of the imx8mp */
+		return "8MP[8]";	/* Quad-core version of the imx8mp */
+	case MXC_CPU_IMX8MPD:
+		return "8MP Dual[3]";	/* Dual-core version of the imx8mp */
+	case MXC_CPU_IMX8MPL:
+		return "8MP Lite[4]";	/* Quad-core Lite version of the imx8mp */
+	case MXC_CPU_IMX8MP7:
+		return "8MP[7]";	/* Quad-core version of the imx8mp, VPU fused */
+	case MXC_CPU_IMX8MP6:
+		return "8MP[6]";	/* Quad-core version of the imx8mp, NPU fused */
+	case MXC_CPU_IMX8MP5:
+		return "8MP[5]";	/* Quad-core version of the imx8mp, ISP fused */
 	case MXC_CPU_IMX8MN:
 		return "8MNano Quad"; /* Quad-core version */
 	case MXC_CPU_IMX8MND:
