@@ -4,7 +4,14 @@
  */
 
 #include <common.h>
+#include <malloc.h>
 #include <spl.h>
+
+#include <lzma/LzmaTypes.h>
+#include <lzma/LzmaDec.h>
+#include <lzma/LzmaTools.h>
+
+#define LZMA_LEN	(1 << 20)
 
 int spl_parse_legacy_header(struct spl_image_info *spl_image,
 			    const struct image_header *header)
@@ -52,10 +59,27 @@ int spl_parse_legacy_header(struct spl_image_info *spl_image,
 	return 0;
 }
 
+/*
+ * This function is added explicitly to avoid code size increase, when
+ * no compression method is enabled. The compiler will optimize the
+ * following switch/case statement in spl_load_legacy_img() away due to
+ * Dead Code Elimination.
+ */
+static inline int spl_image_get_comp(const struct image_header *hdr)
+{
+	if (IS_ENABLED(CONFIG_SPL_LZMA))
+		return image_get_comp(hdr);
+
+	return IH_COMP_NONE;
+}
+
 int spl_load_legacy_img(struct spl_image_info *spl_image,
 			struct spl_load_info *load, ulong header)
 {
+	__maybe_unused SizeT lzma_len;
+	__maybe_unused void *src;
 	struct image_header hdr;
+	ulong dataptr;
 	int ret;
 
 	/* Read header into local struct */
@@ -65,9 +89,43 @@ int spl_load_legacy_img(struct spl_image_info *spl_image,
 	if (ret)
 		return ret;
 
+	dataptr = header + sizeof(hdr);
+
 	/* Read image */
-	load->read(load, header + sizeof(hdr), spl_image->size,
-		   (void *)(unsigned long)spl_image->load_addr);
+	switch (spl_image_get_comp(&hdr)) {
+	case IH_COMP_NONE:
+		load->read(load, dataptr, spl_image->size,
+			   (void *)(unsigned long)spl_image->load_addr);
+		break;
+
+	case IH_COMP_LZMA:
+		lzma_len = LZMA_LEN;
+
+		debug("LZMA: Decompressing %08lx to %08lx\n",
+		      dataptr, spl_image->load_addr);
+		src = malloc(spl_image->size);
+		if (!src) {
+			printf("Unable to allocate %d bytes for LZMA\n",
+			       spl_image->size);
+			return -ENOMEM;
+		}
+
+		load->read(load, dataptr, spl_image->size, src);
+		ret = lzmaBuffToBuffDecompress((void *)spl_image->load_addr,
+					       &lzma_len, src, spl_image->size);
+		if (ret) {
+			printf("LZMA decompression error: %d\n", ret);
+			return ret;
+		}
+
+		spl_image->size = lzma_len;
+		break;
+
+	default:
+		debug("Compression method %s is not supported\n",
+		      genimg_get_comp_short_name(image_get_comp(&hdr)));
+		return -EINVAL;
+	}
 
 	return 0;
 }
