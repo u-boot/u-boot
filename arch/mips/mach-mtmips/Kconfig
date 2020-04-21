@@ -65,7 +65,6 @@ config BOARD_GARDENA_SMART_GATEWAY_MT7688
 	bool "GARDENA smart Gateway"
 	depends on SOC_MT7628
 	select BOARD_LATE_INIT
-	select SUPPORTS_BOOT_RAM
 	help
 	  GARDENA smart Gateway boards have a MT7688 SoC with 128 MiB of RAM
 	  and 8 MiB of flash (SPI NOR) and additional SPI NAND storage.
@@ -73,7 +72,6 @@ config BOARD_GARDENA_SMART_GATEWAY_MT7688
 config BOARD_LINKIT_SMART_7688
 	bool "LinkIt Smart 7688"
 	depends on SOC_MT7628
-	select SUPPORTS_BOOT_RAM
 	help
 	  Seeed LinkIt Smart 7688 boards have a MT7688 SoC with 128 MiB of RAM
 	  and 32 MiB of flash (SPI).
@@ -82,30 +80,6 @@ config BOARD_LINKIT_SMART_7688
 	  a MT7688 (PCIe).
 
 endchoice
-
-choice
-	prompt "Boot mode"
-
-config BOOT_RAM
-	bool "RAM boot"
-	depends on SUPPORTS_BOOT_RAM
-	help
-	  This builds an image that is linked to a RAM address. It can be used
-	  for booting from CFE via TFTP using an ELF image, but it can also be
-	  booted from RAM by other bootloaders using a BIN image.
-
-config BOOT_ROM
-	bool "ROM boot"
-	depends on SUPPORTS_BOOT_RAM
-	help
-	  This builds an image that is linked to a ROM address. It can be
-	  used as main bootloader image which is programmed onto the onboard
-	  flash storage (SPI NOR).
-
-endchoice
-
-config SUPPORTS_BOOT_RAM
-	bool
 
 config SPL_UART2_SPIS_PINMUX
 	bool "Use alternative pinmux for UART2 in SPL stage"
