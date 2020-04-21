@@ -408,6 +408,15 @@ static int dwc3_meson_g12a_probe(struct udevice *dev)
 			goto err_phy_init;
 	}
 
+	for (i = 0; i < PHY_COUNT; ++i) {
+		if (!priv->phys[i].dev)
+			continue;
+
+		ret = generic_phy_power_on(&priv->phys[i]);
+		if (ret)
+			goto err_phy_init;
+	}
+
 	return 0;
 
 err_phy_init:
@@ -429,6 +438,13 @@ static int dwc3_meson_g12a_remove(struct udevice *dev)
 	reset_release_all(&priv->reset, 1);
 
 	clk_release_all(&priv->clk, 1);
+
+	for (i = 0; i < PHY_COUNT; ++i) {
+		if (!priv->phys[i].dev)
+			continue;
+
+		 generic_phy_power_off(&priv->phys[i]);
+	}
 
 	for (i = 0 ; i < PHY_COUNT ; ++i) {
 		if (!priv->phys[i].dev)
