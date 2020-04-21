@@ -434,6 +434,11 @@ config SPL_LZ4
 	  fast compression and decompression speed. It belongs to the LZ77
 	  family of byte-oriented compression schemes.
 
+config SPL_LZMA
+	bool "Enable LZMA decompression support for SPL build"
+	help
+	  This enables support for LZMA compression altorithm for SPL boot.
+
 config SPL_LZO
 	bool "Enable LZO decompression support in SPL"
 	help
