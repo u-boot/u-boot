@@ -5,6 +5,9 @@
  * Written by David Howells (dhowells@redhat.com)
  */
 
+#ifndef _X509_PARSER_H
+#define _X509_PARSER_H
+
 #include <linux/time.h>
 #include <crypto/public_key.h>
 #include <keys/asymmetric-type.h>
@@ -55,3 +58,4 @@ extern int x509_decode_time(time64_t *_t,  size_t hdrlen,
  */
 extern int x509_get_sig_params(struct x509_certificate *cert);
 extern int x509_check_for_self_signed(struct x509_certificate *cert);
+#endif /* _X509_PARSER_H */
