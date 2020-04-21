@@ -19,12 +19,18 @@ config SYS_ICACHE_SIZE
 config SYS_ICACHE_LINE_SIZE
 	default 32
 
+config SYS_TEXT_BASE
+	default 0x9c000000
+
 choice
 	prompt "MediaTek MIPS SoC select"
 
 config SOC_MT7628
 	bool "MT7628"
 	select MIPS_L1_CACHE_SHIFT_5
+	select MIPS_INIT_STACK_IN_SRAM
+	select MIPS_SRAM_INIT
+	select SYS_MIPS_CACHE_INIT_RAM_LOAD
 	select PINCTRL_MT7628
 	select MTK_SERIAL
 	select SYSRESET_RESETCTL
@@ -76,69 +82,6 @@ config BOOT_ROM
 	  This builds an image that is linked to a ROM address. It can be
 	  used as main bootloader image which is programmed onto the onboard
 	  flash storage (SPI NOR).
-
-endchoice
-
-choice
-	prompt "DDR2 size"
-
-config ONBOARD_DDR2_SIZE_256MBIT
-	bool "256MBit (32MByte) total size"
-	depends on BOOT_ROM
-	help
-	  Use 256MBit (32MByte) of DDR total size
-
-config ONBOARD_DDR2_SIZE_512MBIT
-	bool "512MBit (64MByte) total size"
-	depends on BOOT_ROM
-	help
-	  Use 512MBit (64MByte) of DDR total size
-
-config ONBOARD_DDR2_SIZE_1024MBIT
-	bool "1024MBit (128MByte) total size"
-	depends on BOOT_ROM
-	help
-	  Use 1024MBit (128MByte) of DDR total size
-
-config ONBOARD_DDR2_SIZE_2048MBIT
-	bool "2048MBit (256MByte) total size"
-	depends on BOOT_ROM
-	help
-	  Use 2048MBit (256MByte) of DDR total size
-
-endchoice
-
-choice
-	prompt "DDR2 chip width"
-
-config ONBOARD_DDR2_CHIP_WIDTH_8BIT
-	bool "8bit DDR chip width"
-	depends on BOOT_ROM
-	help
-	  Use DDR chips with 8bit width
-
-config ONBOARD_DDR2_CHIP_WIDTH_16BIT
-	bool "16bit DDR chip width"
-	depends on BOOT_ROM
-	help
-	  Use DDR chips with 16bit width
-
-endchoice
-
-choice
-	prompt "DDR2 bus width"
-
-config ONBOARD_DDR2_BUS_WIDTH_16BIT
-	bool "16bit DDR bus width"
-	depends on BOOT_ROM
-	help
-	  Use 16bit DDR bus width
-
-config ONBOARD_DDR2_BUS_WIDTH_32BIT
-	bool "32bit DDR bus width"
-	depends on BOOT_ROM
-	help
-	  Use 32bit DDR bus width
 
 endchoice
 

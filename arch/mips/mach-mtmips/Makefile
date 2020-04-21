@@ -1,8 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0+
 
 obj-y += cpu.o
+obj-y += ddr_init.o
+obj-y += ddr_cal.o
 
-ifndef CONFIG_SKIP_LOWLEVEL_INIT
-obj-y += ddr_calibrate.o
-obj-y += lowlevel_init.o
-endif
+obj-$(CONFIG_SOC_MT7628) += mt7628/
