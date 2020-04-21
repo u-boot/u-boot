@@ -100,3 +100,18 @@ int riscv_board_reserved_mem_fixup(void *fdt)
 
 	return 0;
 }
+
+#ifdef CONFIG_OF_BOARD_FIXUP
+int board_fix_fdt(void *fdt)
+{
+	int err;
+
+	err = riscv_board_reserved_mem_fixup(fdt);
+	if (err < 0) {
+		printf("failed to fixup DT for reserved memory: %d\n", err);
+		return err;
+	}
+
+	return 0;
+}
+#endif
