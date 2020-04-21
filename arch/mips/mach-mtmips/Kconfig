@@ -7,6 +7,18 @@ config SYS_MALLOC_F_LEN
 config SYS_SOC
 	default "mt7628" if SOC_MT7628
 
+config SYS_DCACHE_SIZE
+	default 32768
+
+config SYS_DCACHE_LINE_SIZE
+	default 32
+
+config SYS_ICACHE_SIZE
+	default 65536
+
+config SYS_ICACHE_LINE_SIZE
+	default 32
+
 choice
 	prompt "MediaTek MIPS SoC select"
 
