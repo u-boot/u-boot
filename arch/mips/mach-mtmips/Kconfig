@@ -79,6 +79,14 @@ config BOARD_LINKIT_SMART_7688
 	  ethernet ports, 1 USB port, 1 UART, GPIO buttons and LEDs, and
 	  a MT7688 (PCIe).
 
+config BOARD_MT7628_RFB
+	bool "MediaTek MT7628 RFB"
+	depends on SOC_MT7628
+	help
+	  The reference design of MT7628. The board has 128 MiB DDR2, 8 MiB
+	  SPI-NOR flash, 1 built-in switch with 5 ports, 1 UART, 1 USB host,
+	  1 SDXC, 1 PCIe socket and JTAG pins.
+
 endchoice
 
 config SPL_UART2_SPIS_PINMUX
@@ -90,6 +98,7 @@ config SPL_UART2_SPIS_PINMUX
 	  (shared with SPIS) rather than the usual GPIO 20/21.
 
 source "board/gardena/smart-gateway-mt7688/Kconfig"
+source "board/mediatek/mt7628/Kconfig"
 source "board/seeed/linkit-smart-7688/Kconfig"
 
 endmenu
