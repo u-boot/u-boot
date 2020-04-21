@@ -667,7 +667,7 @@ efi_sigstore_parse_siglist(struct efi_signature_list *esl)
 	esd = (struct efi_signature_data *)
 			((u8 *)esl + sizeof(*esl) + esl->signature_header_size);
 
-	while ((left > 0) && left >= esl->signature_size) {
+	while (left > 0) {
 		/* Signature must exist if there is remaining data. */
 		if (left < esl->signature_size) {
 			debug("Certificate is too small\n");
