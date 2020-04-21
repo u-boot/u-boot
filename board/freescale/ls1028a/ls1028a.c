@@ -135,6 +135,46 @@ void detail_board_ddr_info(void)
 	print_ddr_info(0);
 }
 
+int esdhc_status_fixup(void *blob, const char *compat)
+{
+	void __iomem *dcfg_ccsr = (void __iomem *)DCFG_BASE;
+	char esdhc1_path[] = "/soc/mmc@2140000";
+	char esdhc2_path[] = "/soc/mmc@2150000";
+	char dspi1_path[] = "/soc/spi@2100000";
+	char dspi2_path[] = "/soc/spi@2110000";
+	u32 mux_sdhc1, mux_sdhc2;
+	u32 io = 0;
+
+	/*
+	 * The PMUX IO-expander for mux select is used to control
+	 * the muxing of various onboard interfaces.
+	 */
+
+	io = in_le32(dcfg_ccsr + DCFG_RCWSR12);
+	mux_sdhc1 = (io >> DCFG_RCWSR12_SDHC_SHIFT) & DCFG_RCWSR12_SDHC_MASK;
+
+	/* Disable esdhc1/dspi1 if not selected. */
+	if (mux_sdhc1 != 0)
+		do_fixup_by_path(blob, esdhc1_path, "status", "disabled",
+				 sizeof("disabled"), 1);
+	if (mux_sdhc1 != 2)
+		do_fixup_by_path(blob, dspi1_path, "status", "disabled",
+				 sizeof("disabled"), 1);
+
+	io = in_le32(dcfg_ccsr + DCFG_RCWSR13);
+	mux_sdhc2 = (io >> DCFG_RCWSR13_SDHC_SHIFT) & DCFG_RCWSR13_SDHC_MASK;
+
+	/* Disable esdhc2/dspi2 if not selected. */
+	if (mux_sdhc2 != 0)
+		do_fixup_by_path(blob, esdhc2_path, "status", "disabled",
+				 sizeof("disabled"), 1);
+	if (mux_sdhc2 != 2)
+		do_fixup_by_path(blob, dspi2_path, "status", "disabled",
+				 sizeof("disabled"), 1);
+
+	return 0;
+}
+
 #ifdef CONFIG_OF_BOARD_SETUP
 int ft_board_setup(void *blob, bd_t *bd)
 {

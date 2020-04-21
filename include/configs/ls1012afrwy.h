@@ -72,6 +72,7 @@
 	"kernel_size=0x2800000\0"		\
 	"kernelheader_size=0x40000\0"		\
 	"console=ttyS0,115200\0"		\
+	"BOARD=ls1012afrwy\0"			\
 	BOOTENV					\
 	"boot_scripts=ls1012afrwy_boot.scr\0"	\
 	"boot_script_hdr=hdr_ls1012afrwy_bs.out\0"	\
@@ -103,20 +104,20 @@
 		"source ${scriptaddr}\0"	  \
 	"installer=load mmc 0:2 $load_addr "	\
 		   "/flex_installer_arm64.itb; "	\
-		   "bootm $load_addr#$board\0"	\
+		   "bootm $load_addr#$BOARD\0"	\
 	"qspi_bootcmd=pfe stop; echo Trying load from qspi..;"	\
 		"sf probe && sf read $load_addr "	\
 		"$kernel_addr $kernel_size; env exists secureboot "	\
 		"&& sf read $kernelheader_addr_r $kernelheader_addr "	\
 		"$kernelheader_size && esbc_validate ${kernelheader_addr_r}; " \
-		"bootm $load_addr#$board\0"	\
+		"bootm $load_addr#$BOARD\0"	\
 	"sd_bootcmd=pfe stop; echo Trying load from sd card..;"		\
 		"mmcinfo; mmc read $load_addr "			\
 		"$kernel_addr_sd $kernel_size_sd ;"		\
 		"env exists secureboot && mmc read $kernelheader_addr_r "\
 		"$kernelhdr_addr_sd $kernelhdr_size_sd "		\
 		" && esbc_validate ${kernelheader_addr_r};"	\
-		"bootm $load_addr#$board\0"
+		"bootm $load_addr#$BOARD\0"
 
 #undef CONFIG_BOOTCOMMAND
 #ifdef CONFIG_TFABOOT
