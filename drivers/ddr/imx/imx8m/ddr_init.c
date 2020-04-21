@@ -190,6 +190,9 @@ int ddr_init(struct dram_timing_info *dram_timing)
 	/* Step15: Set SWCTL.sw_done to 0 */
 	reg32_write(DDRC_SWCTL(0), 0x00000000);
 
+	/* Apply rank-to-rank workaround */
+	update_umctl2_rank_space_setting(dram_timing->fsp_msg_num - 1);
+
 	/* Step16: Set DFIMISC.dfi_init_start to 1 */
 	setbits_le32(DDRC_DFIMISC(0), (0x1 << 5));
 

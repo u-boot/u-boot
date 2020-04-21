@@ -721,6 +721,9 @@ int wait_ddrphy_training_complete(void);
 void ddrphy_init_set_dfi_clk(unsigned int drate);
 void ddrphy_init_read_msg_block(enum fw_type type);
 
+void update_umctl2_rank_space_setting(unsigned int pstat_num);
+void get_trained_CDD(unsigned int fsp);
+
 static inline void reg32_write(unsigned long addr, u32 val)
 {
 	writel(val, addr);
