@@ -154,6 +154,56 @@ static const struct env_map_percpu env_map_go[] = {
 	{}
 };
 
+enum board_type {
+	T_BOARD_NONE,
+	T_BOARD_HSDK,
+	T_BOARD_HSDK_4XD
+};
+
+static inline enum board_type get_board_type_runtime(void)
+{
+	u32 arc_id = read_aux_reg(ARC_AUX_IDENTITY) & 0xFF;
+
+	if (arc_id == 0x52)
+		return T_BOARD_HSDK;
+	else if (arc_id == 0x54)
+		return T_BOARD_HSDK_4XD;
+	else
+		return T_BOARD_NONE;
+}
+
+static inline enum board_type get_board_type_config(void)
+{
+	if (IS_ENABLED(CONFIG_BOARD_HSDK))
+		return T_BOARD_HSDK;
+	else if (IS_ENABLED(CONFIG_BOARD_HSDK_4XD))
+		return T_BOARD_HSDK_4XD;
+	else
+		return T_BOARD_NONE;
+}
+
+static bool is_board_match_runtime(enum board_type type_req)
+{
+	return get_board_type_runtime() == type_req;
+}
+
+static const char * board_name(enum board_type type)
+{
+	switch (type) {
+		case T_BOARD_HSDK:
+			return "ARC HS Development Kit";
+		case T_BOARD_HSDK_4XD:
+			return "ARC HS4x/HS4xD Development Kit";
+		default:
+			return "?";
+	}
+}
+
+static bool board_mismatch(void)
+{
+	return get_board_type_config() != get_board_type_runtime();
+}
+
 static void sync_cross_cpu_data(void)
 {
 	u32 value;
@@ -221,7 +271,9 @@ static void init_cluster_nvlim(void)
 
 	flush_dcache_all();
 	write_aux_reg(ARC_AUX_NON_VOLATILE_LIMIT, val);
-	write_aux_reg(AUX_AUX_CACHE_LIMIT, val);
+	/* AUX_AUX_CACHE_LIMIT reg is missing starting from HS48 */
+	if (is_board_match_runtime(T_BOARD_HSDK))
+		write_aux_reg(AUX_AUX_CACHE_LIMIT, val);
 	flush_n_invalidate_dcache_all();
 }
 
@@ -758,6 +810,11 @@ static int do_hsdk_go(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
 	int ret;
 
+	if (board_mismatch()) {
+		printf("ERR: U-boot is not configured for this board!\n");
+		return CMD_RET_FAILURE;
+	}
+
 	/*
 	 * Check for 'halt' parameter. 'halt' = enter halt-mode just before
 	 * starting the application; can be used for debug.
@@ -797,6 +854,11 @@ static int do_hsdk_init(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[]
 {
 	static bool done = false;
 	int ret;
+
+	if (board_mismatch()) {
+		printf("ERR: U-boot is not configured for this board!\n");
+		return CMD_RET_FAILURE;
+	}
 
 	/* hsdk_init can be run only once */
 	if (done) {
@@ -1031,6 +1093,11 @@ int board_late_init(void)
 
 int checkboard(void)
 {
-	puts("Board: Synopsys ARC HS Development Kit\n");
+	printf("Board: Synopsys %s\n", board_name(get_board_type_runtime()));
+
+	if (board_mismatch())
+		printf("WARN: U-boot is configured NOT for this board but for %s!\n",
+		       board_name(get_board_type_config()));
+
 	return 0;
 };

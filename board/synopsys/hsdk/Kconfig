@@ -9,4 +9,21 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "hsdk"
 
+choice
+	prompt "HSDK board type"
+	default BOARD_HSDK
+
+config BOARD_HSDK
+	bool "ARC HS Development Kit"
+	help
+	  ARC HS Development Kit based on quard core ARC HS38 processor
+
+config BOARD_HSDK_4XD
+	bool "ARC HS4x/HS4xD Development Kit"
+	help
+	  ARC HS4x/HS4xD Development Kit based on quard core ARC HS48/HS47D
+	  processor
+
+endchoice
+
 endif

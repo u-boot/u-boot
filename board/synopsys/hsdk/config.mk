@@ -2,9 +2,17 @@
 #
 # Copyright (C) 2018 Synopsys, Inc. All rights reserved.
 
+ifdef CONFIG_BOARD_HSDK
 PLATFORM_CPPFLAGS += -mcpu=hs38_linux -mlittle-endian -matomic -mll64 \
                      -mdiv-rem -mswap -mnorm -mmpy-option=9 -mbarrel-shifter \
                      -mfpu=fpud_all
+endif
+
+ifdef CONFIG_BOARD_HSDK_4XD
+PLATFORM_CPPFLAGS += -mcpu=hs4x_rel31 -mlittle-endian -matomic -mll64 \
+                     -mdiv-rem -mswap -mnorm -mmpy-option=9 -mbarrel-shifter \
+                     -mfpu=fpud_all
+endif
 
 bsp-generate: u-boot u-boot.bin
 	$(Q)python3 $(srctree)/board/$(BOARDDIR)/headerize-hsdk.py \
