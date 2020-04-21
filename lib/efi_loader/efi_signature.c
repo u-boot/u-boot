@@ -10,11 +10,11 @@
 #include <image.h>
 #include <hexdump.h>
 #include <malloc.h>
+#include <crypto/pkcs7_parser.h>
 #include <linux/compat.h>
 #include <linux/oid_registry.h>
 #include <u-boot/rsa.h>
 #include <u-boot/sha256.h>
-#include "../lib/crypto/pkcs7_parser.h"
 
 const efi_guid_t efi_guid_image_security_database =
 		EFI_IMAGE_SECURITY_DATABASE_GUID;

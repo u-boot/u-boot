@@ -12,9 +12,9 @@
 #include <malloc.h>
 #include <rtc.h>
 #include <search.h>
+#include <crypto/pkcs7_parser.h>
 #include <linux/compat.h>
 #include <u-boot/crc.h>
-#include "../lib/crypto/pkcs7_parser.h"
 
 enum efi_secure_mode {
 	EFI_MODE_SETUP,

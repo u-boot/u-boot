@@ -16,15 +16,17 @@
 #include <linux/module.h>
 #endif
 #include <linux/kernel.h>
-#ifndef __UBOOT__
+#ifdef __UBOOT__
+#include <crypto/x509_parser.h>
+#else
 #include <linux/slab.h>
 #include <keys/asymmetric-subtype.h>
 #include <keys/asymmetric-parser.h>
 #include <keys/system_keyring.h>
 #include <crypto/hash.h>
 #include "asymmetric_keys.h"
-#endif
 #include "x509_parser.h"
+#endif
 
 /*
  * Set up the signature parameters in an X.509 certificate.  This involves
