@@ -110,6 +110,11 @@
 				function = "uart2";
 			};
 
+			uart2_pwm_pins: uart2_pwm_pins {
+				groups = "spis";
+				function = "pwm_uart2";
+			};
+
 			i2c_pins: i2c_pins {
 				groups = "i2c";
 				function = "i2c";
