@@ -119,6 +119,7 @@ call_board_init_f_0:
 
 	jal	board_init_f_init_reserve
 
+	SREG	s1, GD_FIRMWARE_FDT_ADDR(gp)
 	/* save the boot hart id to global_data */
 	SREG	tp, GD_BOOT_HART(gp)
 
