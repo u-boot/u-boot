@@ -28,8 +28,8 @@ __weak void board_quiesce_devices(void)
 
 int arch_fixup_fdt(void *blob)
 {
-#ifdef CONFIG_EFI_LOADER
 	int err;
+#ifdef CONFIG_EFI_LOADER
 	u32 size;
 	int chosen_offset;
 
@@ -50,6 +50,12 @@ int arch_fixup_fdt(void *blob)
 	/* Overwrite the boot-hartid as U-Boot is the last stage BL */
 	fdt_setprop_u32(blob, chosen_offset, "boot-hartid", gd->arch.boot_hart);
 #endif
+
+	/* Copy the reserved-memory node to the DT used by OS */
+	err = riscv_fdt_copy_resv_mem_node(gd->fdt_blob, blob);
+	if (err < 0)
+		return err;
+
 	return 0;
 }
 
