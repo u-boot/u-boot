@@ -7,7 +7,8 @@ config SYS_VENDOR
 	default "synopsys"
 
 config SYS_CONFIG_NAME
-	default "hsdk"
+	default "hsdk" if BOARD_HSDK
+	default "hsdk-4xd" if BOARD_HSDK_4XD
 
 choice
 	prompt "HSDK board type"
