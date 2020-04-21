@@ -287,6 +287,36 @@ config MIPS_RELOCATION_TABLE_SIZE
 
 	  If unsure, leave at the default value.
 
+config RESTORE_EXCEPTION_VECTOR_BASE
+	bool "Restore exception vector base before booting linux kernel"
+	default n
+	help
+	  In U-Boot the exception vector base will be moved to top of memory,
+	  to be used to display register dump when exception occurs.
+	  But some old linux kernel does not honor the base set in CP0_EBASE.
+	  A modified exception vector base will cause kernel crash.
+
+	  This option will restore the exception vector base to its previous
+	  value.
+
+	  If unsure, say N.
+
+config OVERRIDE_EXCEPTION_VECTOR_BASE
+	bool "Override the exception vector base to be restored"
+	depends on RESTORE_EXCEPTION_VECTOR_BASE
+	default n
+	help
+	  Enable this option if you want to use a different exception vector
+	  base rather than the previously saved one.
+
+config NEW_EXCEPTION_VECTOR_BASE
+	hex "New exception vector base"
+	depends on OVERRIDE_EXCEPTION_VECTOR_BASE
+	range 0x80000000 0xbffff000
+	default 0x80000000
+	help
+	  The exception vector base to be restored before booting linux kernel
+
 endmenu
 
 menu "OS boot interface"

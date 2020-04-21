@@ -20,6 +20,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static unsigned long saved_ebase;
+
 static void show_regs(const struct pt_regs *regs)
 {
 	const int field = 2 * sizeof(unsigned long);
@@ -102,7 +104,24 @@ void trap_init(ulong reloc_addr)
 	set_handler(0x180, &except_vec3_generic, 0x80);
 	set_handler(0x280, &except_vec_ejtag_debug, 0x80);
 
+	saved_ebase = read_c0_ebase() & 0xfffff000;
+
 	write_c0_ebase(ebase);
+	clear_c0_status(ST0_BEV);
+	execution_hazard_barrier();
+}
+
+void trap_restore(void)
+{
+	set_c0_status(ST0_BEV);
+	execution_hazard_barrier();
+
+#ifdef CONFIG_OVERRIDE_EXCEPTION_VECTOR_BASE
+	write_c0_ebase(CONFIG_NEW_EXCEPTION_VECTOR_BASE & 0xfffff000);
+#else
+	write_c0_ebase(saved_ebase);
+#endif
+
 	clear_c0_status(ST0_BEV);
 	execution_hazard_barrier();
 }
