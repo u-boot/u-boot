@@ -71,6 +71,14 @@ config SYS_I2C_AT91
 	  i2c-gpio driver unless your system can cope with this limitation.
 	  Binding info: doc/device-tree-bindings/i2c/i2c-at91.txt
 
+config SYS_I2C_IPROC
+	bool "Broadcom I2C driver"
+	depends on DM_I2C
+	help
+	  Broadcom I2C driver.
+	  Add support for Broadcom I2C driver.
+	  Say yes here to to enable the Broadco I2C driver.
+
 config SYS_I2C_FSL
        bool "Freescale I2C bus driver"
        depends on DM_I2C
