@@ -120,7 +120,7 @@ static int single_set_state(struct udevice *dev,
 	const struct single_fdt_bits_cfg *prop_bits;
 	int len;
 
-	prop = dev_read_prop(dev, "pinctrl-single,pins", &len);
+	prop = dev_read_prop(config, "pinctrl-single,pins", &len);
 
 	if (prop) {
 		dev_dbg(dev, "configuring pins for %s\n", config->name);
@@ -133,7 +133,7 @@ static int single_set_state(struct udevice *dev,
 	}
 
 	/* pinctrl-single,pins not found so check for pinctrl-single,bits */
-	prop_bits = dev_read_prop(dev, "pinctrl-single,bits", &len);
+	prop_bits = dev_read_prop(config, "pinctrl-single,bits", &len);
 	if (prop_bits) {
 		dev_dbg(dev, "configuring pins for %s\n", config->name);
 		if (len % sizeof(struct single_fdt_bits_cfg)) {
