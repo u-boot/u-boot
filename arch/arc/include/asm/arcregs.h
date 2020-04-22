@@ -100,6 +100,7 @@
 
 /* DSP-extensions related auxiliary registers */
 #define ARC_AUX_DSP_BUILD	0x7A
+#define ARC_AUX_DSP_CTRL	0x59F
 
 /* ARC Subsystems related auxiliary registers */
 #define ARC_AUX_SUBSYS_BUILD	0xF0
