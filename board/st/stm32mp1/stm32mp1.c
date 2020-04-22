@@ -616,6 +616,38 @@ static bool board_is_dk2(void)
 }
 #endif
 
+static bool board_is_ev1(void)
+{
+	if (CONFIG_IS_ENABLED(TARGET_ST_STM32MP15x) &&
+	    (of_machine_is_compatible("st,stm32mp157a-ev1") ||
+	     of_machine_is_compatible("st,stm32mp157c-ev1") ||
+	     of_machine_is_compatible("st,stm32mp157d-ev1") ||
+	     of_machine_is_compatible("st,stm32mp157f-ev1")))
+		return true;
+
+	return false;
+}
+
+/* touchscreen driver: only used for pincontrol configuration */
+static const struct udevice_id goodix_ids[] = {
+	{ .compatible = "goodix,gt9147", },
+	{ }
+};
+
+U_BOOT_DRIVER(goodix) = {
+	.name		= "goodix",
+	.id		= UCLASS_NOP,
+	.of_match	= goodix_ids,
+};
+
+static void board_ev1_init(void)
+{
+	struct udevice *dev;
+
+	/* configure IRQ line on EV1 for touchscreen before LCD reset */
+	uclass_get_device_by_driver(UCLASS_NOP, DM_GET_DRIVER(goodix), &dev);
+}
+
 /* board dependent setup after realloc */
 int board_init(void)
 {
@@ -632,6 +664,9 @@ int board_init(void)
 	}
 
 	board_key_check();
+
+	if (board_is_ev1())
+		board_ev1_init();
 
 #ifdef CONFIG_DM_REGULATOR
 	if (board_is_dk2())
