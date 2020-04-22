@@ -44,5 +44,9 @@ config TFTP_BLOCKSIZE
 	default 1468
 	help
 	  Default TFTP block size.
+	  The MTU is typically 1500 for ethernet, so a TFTP block of
+	  1468 (MTU minus eth.hdrs) provides a good throughput with
+	  almost-MTU block sizes.
+	  You can also activate CONFIG_IP_DEFRAG to set a larger block.
 
 endif   # if NET
