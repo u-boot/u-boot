@@ -199,17 +199,23 @@ static int dw_i2c_calc_timing(struct dw_i2c *priv, enum i2c_speed_mode mode,
 	return 0;
 }
 
-static int calc_bus_speed(struct dw_i2c *priv, int speed, ulong bus_clk,
-			  struct dw_i2c_speed_config *config)
+/**
+ * calc_bus_speed() - Calculate the config to use for a particular i2c speed
+ *
+ * @priv: Private information for the driver (NULL if not using driver model)
+ * @i2c_base: Registers for the I2C controller
+ * @speed: Required i2c speed in Hz
+ * @bus_clk: Input clock to the I2C controller in Hz (e.g. IC_CLK)
+ * @config: Returns the config to use for this speed
+ * @return 0 if OK, -ve on error
+ */
+static int calc_bus_speed(struct dw_i2c *priv, struct i2c_regs *regs, int speed,
+			  ulong bus_clk, struct dw_i2c_speed_config *config)
 {
 	const struct dw_scl_sda_cfg *scl_sda_cfg = NULL;
-	struct i2c_regs *regs = priv->regs;
 	enum i2c_speed_mode i2c_spd;
-	u32 comp_param1;
 	int spk_cnt;
 	int ret;
-
-	comp_param1 = readl(&regs->comp_param1);
 
 	if (priv)
 		scl_sda_cfg = priv->scl_sda_cfg;
@@ -225,6 +231,9 @@ static int calc_bus_speed(struct dw_i2c *priv, int speed, ulong bus_clk,
 
 	/* Check is high speed possible and fall back to fast mode if not */
 	if (i2c_spd == IC_SPEED_MODE_HIGH) {
+		u32 comp_param1;
+
+		comp_param1 = readl(&regs->comp_param1);
 		if ((comp_param1 & DW_IC_COMP_PARAM_1_SPEED_MODE_MASK)
 				!= DW_IC_COMP_PARAM_1_SPEED_MODE_HIGH)
 			i2c_spd = IC_SPEED_MODE_FAST;
@@ -260,11 +269,14 @@ static int calc_bus_speed(struct dw_i2c *priv, int speed, ulong bus_clk,
 	return 0;
 }
 
-/*
- * _dw_i2c_set_bus_speed - Set the i2c speed
- * @speed:	required i2c speed
+/**
+ * _dw_i2c_set_bus_speed() - Set the i2c speed
  *
- * Set the i2c speed.
+ * @priv: Private information for the driver (NULL if not using driver model)
+ * @i2c_base: Registers for the I2C controller
+ * @speed: Required i2c speed in Hz
+ * @bus_clk: Input clock to the I2C controller in Hz (e.g. IC_CLK)
+ * @return 0 if OK, -ve on error
  */
 static int _dw_i2c_set_bus_speed(struct dw_i2c *priv, struct i2c_regs *i2c_base,
 				 unsigned int speed, unsigned int bus_clk)
@@ -274,7 +286,7 @@ static int _dw_i2c_set_bus_speed(struct dw_i2c *priv, struct i2c_regs *i2c_base,
 	unsigned int ena;
 	int ret;
 
-	ret = calc_bus_speed(priv, speed, bus_clk, &config);
+	ret = calc_bus_speed(priv, i2c_base, speed, bus_clk, &config);
 	if (ret)
 		return ret;
 
