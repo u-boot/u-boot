@@ -135,6 +135,7 @@ int checkboard(void)
 
 #ifdef CONFIG_BOARD_EARLY_INIT_F
 static u8 brdcode __section("data");
+static u8 ddr3code __section("data");
 static u8 somcode __section("data");
 
 static void board_get_coding_straps(void)
@@ -150,6 +151,7 @@ static void board_get_coding_straps(void)
 	}
 
 	brdcode = 0;
+	ddr3code = 0;
 	somcode = 0;
 
 	ret = gpio_request_list_by_name_nodev(node, "dh,som-coding-gpios",
@@ -158,13 +160,34 @@ static void board_get_coding_straps(void)
 	for (i = 0; i < ret; i++)
 		somcode |= !!dm_gpio_get_value(&(gpio[i])) << i;
 
+	ret = gpio_request_list_by_name_nodev(node, "dh,ddr3-coding-gpios",
+					      gpio, ARRAY_SIZE(gpio),
+					      GPIOD_IS_IN);
+	for (i = 0; i < ret; i++)
+		ddr3code |= !!dm_gpio_get_value(&(gpio[i])) << i;
+
 	ret = gpio_request_list_by_name_nodev(node, "dh,board-coding-gpios",
 					      gpio, ARRAY_SIZE(gpio),
 					      GPIOD_IS_IN);
 	for (i = 0; i < ret; i++)
 		brdcode |= !!dm_gpio_get_value(&(gpio[i])) << i;
 
-	printf("Code:  SoM:rev=%d Board:rev=%d\n", somcode, brdcode);
+	printf("Code:  SoM:rev=%d,ddr3=%d Board:rev=%d\n",
+		somcode, ddr3code, brdcode);
+}
+
+int board_stm32mp1_ddr_config_name_match(struct udevice *dev,
+					 const char *name)
+{
+	if (ddr3code == 2 &&
+	    !strcmp(name, "st,ddr3-1066-888-bin-g-1x4gb-533mhz"))
+		return 0;
+
+	if (ddr3code == 3 &&
+	    !strcmp(name, "st,ddr3-1066-888-bin-g-2x4gb-533mhz"))
+		return 0;
+
+	return -EINVAL;
 }
 
 int board_early_init_f(void)
@@ -537,6 +560,7 @@ int board_late_init(void)
 #ifdef CONFIG_BOARD_EARLY_INIT_F
 	env_set_ulong("dh_som_rev", somcode);
 	env_set_ulong("dh_board_rev", brdcode);
+	env_set_ulong("dh_ddr3_code", ddr3code);
 #endif
 
 	return 0;
