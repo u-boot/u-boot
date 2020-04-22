@@ -8,6 +8,7 @@ F:	board/freescale/ls1028a/
 F:	include/configs/ls1028a_common.h
 F:	include/configs/ls1028aqds.h
 F:	configs/ls1028aqds_tfa_defconfig
+F:	configs/ls1028aqds_tfa_lpuart_defconfig
 
 LS1028ARDB BOARD
 M:	Sudhanshu Gupta <sudhanshu.gupta@nxp.com>
