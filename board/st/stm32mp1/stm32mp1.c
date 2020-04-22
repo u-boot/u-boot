@@ -255,7 +255,6 @@ int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
 
 #endif /* CONFIG_USB_GADGET */
 
-#ifdef CONFIG_LED
 static int get_led(struct udevice **dev, char *led_string)
 {
 	char *led_name;
@@ -281,6 +280,9 @@ static int setup_led(enum led_state_t cmd)
 	struct udevice *dev;
 	int ret;
 
+	if (!CONFIG_IS_ENABLED(LED))
+		return 0;
+
 	ret = get_led(&dev, "u-boot,boot-led");
 	if (ret)
 		return ret;
@@ -288,32 +290,29 @@ static int setup_led(enum led_state_t cmd)
 	ret = led_set_state(dev, cmd);
 	return ret;
 }
-#endif
 
 static void __maybe_unused led_error_blink(u32 nb_blink)
 {
-#ifdef CONFIG_LED
 	int ret;
 	struct udevice *led;
 	u32 i;
-#endif
 
 	if (!nb_blink)
 		return;
 
-#ifdef CONFIG_LED
-	ret = get_led(&led, "u-boot,error-led");
-	if (!ret) {
-		/* make u-boot,error-led blinking */
-		/* if U32_MAX and 125ms interval, for 17.02 years */
-		for (i = 0; i < 2 * nb_blink; i++) {
-			led_set_state(led, LEDST_TOGGLE);
-			mdelay(125);
-			WATCHDOG_RESET();
+	if (CONFIG_IS_ENABLED(LED)) {
+		ret = get_led(&led, "u-boot,error-led");
+		if (!ret) {
+			/* make u-boot,error-led blinking */
+			/* if U32_MAX and 125ms interval, for 17.02 years */
+			for (i = 0; i < 2 * nb_blink; i++) {
+				led_set_state(led, LEDST_TOGGLE);
+				mdelay(125);
+				WATCHDOG_RESET();
+			}
+			led_set_state(led, LEDST_ON);
 		}
-		led_set_state(led, LEDST_ON);
 	}
-#endif
 
 	/* infinite: the boot process must be stopped */
 	if (nb_blink == U32_MAX)
@@ -646,6 +645,8 @@ int board_init(void)
 	if (CONFIG_IS_ENABLED(LED))
 		led_default_state();
 
+	setup_led(LEDST_ON);
+
 	return 0;
 }
 
@@ -700,9 +701,7 @@ int board_late_init(void)
 
 void board_quiesce_devices(void)
 {
-#ifdef CONFIG_LED
 	setup_led(LEDST_OFF);
-#endif
 }
 
 /* eth init function : weak called in eqos driver */
