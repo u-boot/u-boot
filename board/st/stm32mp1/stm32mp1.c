@@ -699,10 +699,19 @@ int board_late_init(void)
 	fdt_compat = fdt_getprop(gd->fdt_blob, 0, "compatible",
 				 &fdt_compat_len);
 	if (fdt_compat && fdt_compat_len) {
-		if (strncmp(fdt_compat, "st,", 3) != 0)
+		if (strncmp(fdt_compat, "st,", 3) != 0) {
 			env_set("board_name", fdt_compat);
-		else
+		} else {
+			char dtb_name[256];
+			int buf_len = sizeof(dtb_name);
+
 			env_set("board_name", fdt_compat + 3);
+
+			strncpy(dtb_name, fdt_compat + 3, buf_len);
+			buf_len -= strlen(fdt_compat + 3);
+			strncat(dtb_name, ".dtb", buf_len);
+			env_set("fdtfile", dtb_name);
+		}
 	}
 	ret = uclass_get_device_by_driver(UCLASS_MISC,
 					  DM_GET_DRIVER(stm32mp_bsec),
