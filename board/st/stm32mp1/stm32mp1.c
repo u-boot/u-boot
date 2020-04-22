@@ -311,6 +311,7 @@ static void __maybe_unused led_error_blink(u32 nb_blink)
 			mdelay(125);
 			WATCHDOG_RESET();
 		}
+		led_set_state(led, LEDST_ON);
 	}
 #endif
 
