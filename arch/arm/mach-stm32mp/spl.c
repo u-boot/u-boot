@@ -76,6 +76,11 @@ void spl_display_print(void)
 }
 #endif
 
+__weak int board_early_init_f(void)
+{
+	return 0;
+}
+
 void board_init_f(ulong dummy)
 {
 	struct udevice *dev;
@@ -109,6 +114,12 @@ void board_init_f(ulong dummy)
 
 	/* enable console uart printing */
 	preloader_console_init();
+
+	ret = board_early_init_f();
+	if (ret) {
+		debug("board_early_init_f() failed: %d\n", ret);
+		hang();
+	}
 
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
 	if (ret) {
