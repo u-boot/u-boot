@@ -136,7 +136,7 @@ static void sdhci_iproc_writeb(struct sdhci_host *host, u8 val, int reg)
 }
 #endif
 
-static void sdhci_iproc_set_ios_post(struct sdhci_host *host)
+static int sdhci_iproc_set_ios_post(struct sdhci_host *host)
 {
 	u32 ctrl = sdhci_readw(host, SDHCI_HOST_CONTROL2);
 
@@ -147,6 +147,8 @@ static void sdhci_iproc_set_ios_post(struct sdhci_host *host)
 		ctrl |= UHS_DDR50_BUS_SPEED;
 
 	sdhci_writew(host, ctrl, SDHCI_HOST_CONTROL2);
+
+	return 0;
 }
 
 static struct sdhci_ops sdhci_platform_ops = {
@@ -176,8 +178,7 @@ static int iproc_sdhci_probe(struct udevice *dev)
 	u32 f_min_max[2];
 	int ret;
 
-	iproc_host = (struct sdhci_iproc_host *)
-			malloc(sizeof(struct sdhci_iproc_host));
+	iproc_host = malloc(sizeof(struct sdhci_iproc_host));
 	if (!iproc_host) {
 		printf("%s: sdhci host malloc fail!\n", __func__);
 		return -ENOMEM;
@@ -189,7 +190,7 @@ static int iproc_sdhci_probe(struct udevice *dev)
 	host->ioaddr = (void *)devfdt_get_addr(dev);
 	host->voltages = MMC_VDD_165_195 |
 			 MMC_VDD_32_33 | MMC_VDD_33_34;
-	host->quirks = SDHCI_QUIRK_BROKEN_VOLTAGE;
+	host->quirks = SDHCI_QUIRK_BROKEN_VOLTAGE | SDHCI_QUIRK_BROKEN_R1B;
 	host->host_caps = MMC_MODE_DDR_52MHz;
 	host->index = fdtdec_get_uint(gd->fdt_blob, node, "index", 0);
 	host->ops = &sdhci_platform_ops;
@@ -198,6 +199,7 @@ static int iproc_sdhci_probe(struct udevice *dev)
 				   "clock-freq-min-max", f_min_max, 2);
 	if (ret) {
 		printf("sdhci: clock-freq-min-max not found\n");
+		free(iproc_host);
 		return ret;
 	}
 	host->max_clk = f_min_max[1];
@@ -210,15 +212,17 @@ static int iproc_sdhci_probe(struct udevice *dev)
 
 	memcpy(&iproc_host->host, host, sizeof(struct sdhci_host));
 
-	ret = sdhci_setup_cfg(&plat->cfg, &iproc_host->host,
-			      f_min_max[1], f_min_max[0]);
-	if (ret)
-		return ret;
-
 	iproc_host->host.mmc = &plat->mmc;
 	iproc_host->host.mmc->dev = dev;
 	iproc_host->host.mmc->priv = &iproc_host->host;
 	upriv->mmc = iproc_host->host.mmc;
+
+	ret = sdhci_setup_cfg(&plat->cfg, &iproc_host->host,
+			      f_min_max[1], f_min_max[0]);
+	if (ret) {
+		free(iproc_host);
+		return ret;
+	}
 
 	return sdhci_probe(dev);
 }

@@ -409,6 +409,16 @@ static int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
 	return blkcnt;
 }
 
+#if !CONFIG_IS_ENABLED(DM_MMC)
+static int mmc_get_b_max(struct mmc *mmc, void *dst, lbaint_t blkcnt)
+{
+	if (mmc->cfg->ops->get_b_max)
+		return mmc->cfg->ops->get_b_max(mmc, dst, blkcnt);
+	else
+		return mmc->cfg->b_max;
+}
+#endif
+
 #if CONFIG_IS_ENABLED(BLK)
 ulong mmc_bread(struct udevice *dev, lbaint_t start, lbaint_t blkcnt, void *dst)
 #else
@@ -422,6 +432,7 @@ ulong mmc_bread(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt,
 	int dev_num = block_dev->devnum;
 	int err;
 	lbaint_t cur, blocks_todo = blkcnt;
+	uint b_max;
 
 	if (blkcnt == 0)
 		return 0;
@@ -451,9 +462,10 @@ ulong mmc_bread(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt,
 		return 0;
 	}
 
+	b_max = mmc_get_b_max(mmc, dst, blkcnt);
+
 	do {
-		cur = (blocks_todo > mmc->cfg->b_max) ?
-			mmc->cfg->b_max : blocks_todo;
+		cur = (blocks_todo > b_max) ? b_max : blocks_todo;
 		if (mmc_read_blocks(mmc, dst, start, cur) != cur) {
 			pr_debug("%s: Failed to read blocks\n", __func__);
 			return 0;
@@ -718,7 +730,7 @@ static int mmc_complete_op_cond(struct mmc *mmc)
 }
 
 
-static int mmc_send_ext_csd(struct mmc *mmc, u8 *ext_csd)
+int mmc_send_ext_csd(struct mmc *mmc, u8 *ext_csd)
 {
 	struct mmc_cmd cmd;
 	struct mmc_data data;
@@ -808,6 +820,11 @@ static int __mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value,
 int mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value)
 {
 	return __mmc_switch(mmc, set, index, value, true);
+}
+
+int mmc_boot_wp(struct mmc *mmc)
+{
+	return mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_BOOT_WP, 1);
 }
 
 #if !CONFIG_IS_ENABLED(MMC_TINY)

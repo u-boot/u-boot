@@ -1060,20 +1060,33 @@ config CMD_MMC
 	help
 	  MMC memory mapped support.
 
+if CMD_MMC
+
+config CMD_BKOPS_ENABLE
+	bool "mmc bkops enable"
+	depends on CMD_MMC
+	default n
+	help
+	  Enable command for setting manual background operations handshake
+	  on a eMMC device. The feature is optionally available on eMMC devices
+	  conforming to standard >= 4.41.
+
 config CMD_MMC_RPMB
 	bool "Enable support for RPMB in the mmc command"
-	depends on CMD_MMC
+	depends on SUPPORT_EMMC_RPMB
 	help
 	  Enable the commands for reading, writing and programming the
 	  key for the Replay Protection Memory Block partition in eMMC.
 
 config CMD_MMC_SWRITE
 	bool "mmc swrite"
-	depends on CMD_MMC && MMC_WRITE
+	depends on MMC_WRITE
 	select IMAGE_SPARSE
 	help
 	  Enable support for the "mmc swrite" command to write Android sparse
 	  images to eMMC.
+
+endif
 
 config CMD_MTD
 	bool "mtd"
@@ -1606,15 +1619,6 @@ config CMD_BSP
 	  during developemnt and need to be turned off for production. This
 	  option provides a way to control this. The commands that are enabled
 	  vary depending on the board.
-
-config CMD_BKOPS_ENABLE
-	bool "mmc bkops enable"
-	depends on CMD_MMC
-	default n
-	help
-	  Enable command for setting manual background operations handshake
-	  on a eMMC device. The feature is optionally available on eMMC devices
-	  conforming to standard >= 4.41.
 
 config CMD_BLOCK_CACHE
 	bool "blkcache - control and stats for block cache"

@@ -62,6 +62,21 @@ struct bounce_buffer {
  */
 int bounce_buffer_start(struct bounce_buffer *state, void *data,
 			size_t len, unsigned int flags);
+
+/**
+ * bounce_buffer_start() -- Start the bounce buffer session with external align check function
+ * state:	stores state passed between bounce_buffer_{start,stop}
+ * data:	pointer to buffer to be aligned
+ * len:		length of the buffer
+ * flags:	flags describing the transaction, see above.
+ * alignment:	alignment of the newly allocated bounce buffer
+ * addr_is_aligned: function for checking the alignment instead of the default one
+ */
+int bounce_buffer_start_extalign(struct bounce_buffer *state, void *data,
+				 size_t len, unsigned int flags,
+				 size_t alignment,
+				 int (*addr_is_aligned)(struct bounce_buffer *state));
+
 /**
  * bounce_buffer_stop() -- Finish the bounce buffer session
  * state:	stores state passed between bounce_buffer_{start,stop}
