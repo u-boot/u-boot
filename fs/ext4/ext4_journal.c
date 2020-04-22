@@ -409,6 +409,9 @@ int ext4fs_check_journal_state(int recovery_flag)
 	char *temp_buff1 = NULL;
 	struct ext_filesystem *fs = get_fs();
 
+	if (le32_to_cpu(fs->sb->feature_ro_compat) & EXT4_FEATURE_RO_COMPAT_METADATA_CSUM)
+		return 0;
+
 	temp_buff = zalloc(fs->blksz);
 	if (!temp_buff)
 		return -ENOMEM;
