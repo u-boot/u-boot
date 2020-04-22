@@ -363,7 +363,8 @@ enum clk_root_src {
 	EXT_CLK_2,
 	EXT_CLK_3,
 	EXT_CLK_4,
-	OSC_HDMI_CLK
+	OSC_HDMI_CLK,
+	ARM_A53_ALT_CLK,
 };
 
 enum clk_ccgr_index {
