@@ -99,19 +99,19 @@ void board_init_f(ulong dummy)
 	ret = uclass_get_device(UCLASS_CLK, 0, &dev);
 	if (ret) {
 		debug("Clock init failed: %d\n", ret);
-		return;
+		hang();
 	}
 
 	ret = uclass_get_device(UCLASS_RESET, 0, &dev);
 	if (ret) {
 		debug("Reset init failed: %d\n", ret);
-		return;
+		hang();
 	}
 
 	ret = uclass_get_device(UCLASS_PINCTRL, 0, &dev);
 	if (ret) {
 		debug("%s: Cannot find pinctrl device\n", __func__);
-		return;
+		hang();
 	}
 
 	/* enable console uart printing */
