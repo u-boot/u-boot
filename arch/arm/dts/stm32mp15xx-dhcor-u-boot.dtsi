@@ -11,6 +11,13 @@
 #include "stm32mp15-u-boot.dtsi"
 #include "stm32mp15-ddr3-2x4Gb-1066-binG.dtsi"
 
+/ {
+	u-boot,dm-pre-reloc;
+	config {
+		dh,som-coding-gpios = <&gpioz 7 0>, <&gpiof 3 0>;
+	};
+};
+
 &i2c4 {
 	u-boot,dm-pre-reloc;
 };

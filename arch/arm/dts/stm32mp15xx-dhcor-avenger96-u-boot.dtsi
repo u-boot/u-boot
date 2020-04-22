@@ -15,6 +15,7 @@
 	config {
 		u-boot,boot-led = "led1";
 		u-boot,error-led = "led4";
+		dh,board-coding-gpios = <&gpiog 13 0>, <&gpiod 9 0>;
 	};
 };
 

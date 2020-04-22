@@ -133,6 +133,62 @@ int checkboard(void)
 	return 0;
 }
 
+#ifdef CONFIG_BOARD_EARLY_INIT_F
+static u8 brdcode __section("data");
+static u8 somcode __section("data");
+
+static void board_get_coding_straps(void)
+{
+	struct gpio_desc gpio[4];
+	ofnode node;
+	int i, ret;
+
+	node = ofnode_path("/config");
+	if (!ofnode_valid(node)) {
+		printf("%s: no /config node?\n", __func__);
+		return;
+	}
+
+	brdcode = 0;
+	somcode = 0;
+
+	ret = gpio_request_list_by_name_nodev(node, "dh,som-coding-gpios",
+					      gpio, ARRAY_SIZE(gpio),
+					      GPIOD_IS_IN);
+	for (i = 0; i < ret; i++)
+		somcode |= !!dm_gpio_get_value(&(gpio[i])) << i;
+
+	ret = gpio_request_list_by_name_nodev(node, "dh,board-coding-gpios",
+					      gpio, ARRAY_SIZE(gpio),
+					      GPIOD_IS_IN);
+	for (i = 0; i < ret; i++)
+		brdcode |= !!dm_gpio_get_value(&(gpio[i])) << i;
+
+	printf("Code:  SoM:rev=%d Board:rev=%d\n", somcode, brdcode);
+}
+
+int board_early_init_f(void)
+{
+	board_get_coding_straps();
+
+	return 0;
+}
+
+#ifdef CONFIG_SPL_LOAD_FIT
+int board_fit_config_name_match(const char *name)
+{
+	char test[20];
+
+	snprintf(test, sizeof(test), "somrev%d_boardrev%d", somcode, brdcode);
+
+	if (!strcmp(name, test))
+		return 0;
+
+	return -EINVAL;
+}
+#endif
+#endif
+
 static void board_key_check(void)
 {
 #if defined(CONFIG_FASTBOOT) || defined(CONFIG_CMD_STM32PROG)
@@ -477,6 +533,11 @@ int board_late_init(void)
 	boot_device = env_get("boot_device");
 	if (!strcmp(boot_device, "serial") || !strcmp(boot_device, "usb"))
 		env_set("bootdelay", "0");
+
+#ifdef CONFIG_BOARD_EARLY_INIT_F
+	env_set_ulong("dh_som_rev", somcode);
+	env_set_ulong("dh_board_rev", brdcode);
+#endif
 
 	return 0;
 }
