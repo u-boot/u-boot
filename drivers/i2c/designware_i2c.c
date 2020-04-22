@@ -18,6 +18,12 @@
 #include <dm/device_compat.h>
 #include <linux/err.h>
 
+/*
+ * This assigned unique hex value is constant and is derived from the two ASCII
+ * letters 'DW' followed by a 16-bit unsigned number
+ */
+#define DW_I2C_COMP_TYPE	0x44570140
+
 #ifdef CONFIG_SYS_I2C_DW_ENABLE_STATUS_UNSUPPORTED
 static int  dw_i2c_enable(struct i2c_regs *i2c_base, bool enable)
 {
@@ -766,6 +772,17 @@ int designware_i2c_ofdata_to_platdata(struct udevice *bus)
 int designware_i2c_probe(struct udevice *bus)
 {
 	struct dw_i2c *priv = dev_get_priv(bus);
+	uint comp_type;
+
+	comp_type = readl(&priv->regs->comp_type);
+	if (comp_type != DW_I2C_COMP_TYPE) {
+		log_err("I2C bus %s has unknown type %#x\n", bus->name,
+			comp_type);
+		return -ENXIO;
+	}
+
+	log_info("I2C bus %s version %#x\n", bus->name,
+		 readl(&priv->regs->comp_version));
 
 	return __dw_i2c_init(priv->regs, 0, 0);
 }
