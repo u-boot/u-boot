@@ -85,7 +85,45 @@ struct mvebu_image_info {
 	u32	encrypt_start_offset;
 	u32	encrypt_size;
 };
-#endif /* CONFIG_ARMADA_XXX */
+#endif
+
+/* Structure of the main header, version 1 (Armada 370/38x/XP) */
+struct a38x_main_hdr_v1 {
+	u8  blockid;               /* 0x0       */
+	u8  flags;                 /* 0x1       */
+	u16 reserved2;             /* 0x2-0x3   */
+	u32 blocksize;             /* 0x4-0x7   */
+	u8  version;               /* 0x8       */
+	u8  headersz_msb;          /* 0x9       */
+	u16 headersz_lsb;          /* 0xA-0xB   */
+	u32 srcaddr;               /* 0xC-0xF   */
+	u32 destaddr;              /* 0x10-0x13 */
+	u32 execaddr;              /* 0x14-0x17 */
+	u8  options;               /* 0x18      */
+	u8  nandblocksize;         /* 0x19      */
+	u8  nandbadblklocation;    /* 0x1A      */
+	u8  reserved4;             /* 0x1B      */
+	u16 reserved5;             /* 0x1C-0x1D */
+	u8  ext;                   /* 0x1E      */
+	u8  checksum;              /* 0x1F      */
+};
+
+struct a38x_boot_mode {
+	unsigned int id;
+	const char *name;
+};
+
+/* The blockid header field values used to indicate boot device of image */
+struct a38x_boot_mode a38x_boot_modes[] = {
+	{ 0x4D, "i2c"  },
+	{ 0x5A, "spi"  },
+	{ 0x69, "uart" },
+	{ 0x78, "sata" },
+	{ 0x8B, "nand" },
+	{ 0x9C, "pex"  },
+	{ 0xAE, "mmc"  },
+	{},
+};
 
 struct bubt_dev {
 	char name[8];
@@ -324,7 +362,7 @@ static int nand_burn_image(size_t image_size)
 	/* Align U-Boot size to currently used blocksize */
 	image_size = ((image_size + (block_size - 1)) & (~(block_size - 1)));
 
-	/* Erase the U-BOOT image space */
+	/* Erase the U-Boot image space */
 	printf("Erasing 0x%x - 0x%x:...", 0, (int)image_size);
 	ret = nand_erase(mtd, 0, image_size);
 	if (ret) {
@@ -621,7 +659,52 @@ static int check_image_header(void)
 
 	return 0;
 }
+#elif defined(CONFIG_ARMADA_38X)
+static size_t a38x_header_size(const struct a38x_main_hdr_v1 *h)
+{
+	if (h->version == 1)
+		return (h->headersz_msb << 16) | le16_to_cpu(h->headersz_lsb);
 
+	printf("Error: Invalid A38x image (header version 0x%x unknown)!\n",
+	       h->version);
+	return 0;
+}
+
+static uint8_t image_checksum8(const void *start, size_t len)
+{
+	u8 csum = 0;
+	const u8 *p = start;
+
+	while (len) {
+		csum += *p;
+		++p;
+		--len;
+	}
+
+	return csum;
+}
+
+static int check_image_header(void)
+{
+	u8 checksum;
+	const struct a38x_main_hdr_v1 *hdr =
+		(struct a38x_main_hdr_v1 *)get_load_addr();
+	const size_t image_size = a38x_header_size(hdr);
+
+	if (!image_size)
+		return -ENOEXEC;
+
+	checksum = image_checksum8(hdr, image_size);
+	checksum -= hdr->checksum;
+	if (checksum != hdr->checksum) {
+		printf("Error: Bad A38x image checksum. 0x%x != 0x%x\n",
+		       checksum, hdr->checksum);
+		return -ENOEXEC;
+	}
+
+	printf("Image checksum...OK!\n");
+	return 0;
+}
 #else /* Not ARMADA? */
 static int check_image_header(void)
 {
@@ -630,7 +713,39 @@ static int check_image_header(void)
 }
 #endif
 
-static int bubt_verify(size_t image_size)
+static int bubt_check_boot_mode(const struct bubt_dev *dst)
+{
+	if (IS_ENABLED(CONFIG_ARMADA_38X)) {
+		int mode;
+		const struct a38x_main_hdr_v1 *hdr =
+			(struct a38x_main_hdr_v1 *)get_load_addr();
+
+		for (mode = 0; mode < ARRAY_SIZE(a38x_boot_modes); mode++) {
+			if (strcmp(a38x_boot_modes[mode].name, dst->name) == 0)
+				break;
+		}
+
+		if (a38x_boot_modes[mode].id == hdr->blockid)
+			return 0;
+
+		for (int i = 0; i < ARRAY_SIZE(a38x_boot_modes); i++) {
+			if (a38x_boot_modes[i].id == hdr->blockid) {
+				printf("Error: A38x image meant to be "
+				       "booted from \"%s\", not \"%s\"!\n",
+				       a38x_boot_modes[i].name, dst->name);
+				return -ENOEXEC;
+			}
+		}
+
+		printf("Error: unknown boot device in A38x image header: "
+		       "0x%x\n", hdr->blockid);
+		return -ENOEXEC;
+	} else {
+		return 0;
+	}
+}
+
+static int bubt_verify(const struct bubt_dev *dst)
 {
 	int err;
 
@@ -638,6 +753,12 @@ static int bubt_verify(size_t image_size)
 	err = check_image_header();
 	if (err) {
 		printf("Error: Image header verification failed\n");
+		return err;
+	}
+
+	err = bubt_check_boot_mode(dst);
+	if (err) {
+		printf("Error: Image boot mode verification failed\n");
 		return err;
 	}
 
@@ -667,7 +788,7 @@ static int bubt_read_file(struct bubt_dev *src)
 static int bubt_is_dev_active(struct bubt_dev *dev)
 {
 	if (!dev->active) {
-		printf("Device \"%s\" not supported by U-BOOT image\n",
+		printf("Device \"%s\" not supported by U-Boot image\n",
 		       dev->name);
 		return 0;
 	}
@@ -755,14 +876,14 @@ int do_bubt_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (!bubt_is_dev_active(src))
 		return -ENODEV;
 
-	printf("Burning U-BOOT image \"%s\" from \"%s\" to \"%s\"\n",
+	printf("Burning U-Boot image \"%s\" from \"%s\" to \"%s\"\n",
 	       net_boot_file_name, src->name, dst->name);
 
 	image_size = bubt_read_file(src);
 	if (!image_size)
 		return -EIO;
 
-	err = bubt_verify(image_size);
+	err = bubt_verify(dst);
 	if (err)
 		return err;
 

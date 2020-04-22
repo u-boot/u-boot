@@ -104,12 +104,6 @@
 #define BOOT_TARGET_DEVICES_MMC(func)
 #endif
 
-#ifdef CONFIG_SCSI
-#define BOOT_TARGET_DEVICES_SCSI(func) func(SCSI, scsi, 0)
-#else
-#define BOOT_TARGET_DEVICES_SCSI(func)
-#endif
-
 #ifdef CONFIG_USB_STORAGE
 #define BOOT_TARGET_DEVICES_USB(func) func(USB, usb, 0)
 #else
@@ -152,7 +146,6 @@
  */
 #define BOOT_TARGET_DEVICES(func) \
 	BOOT_TARGET_DEVICES_MMC(func) \
-	BOOT_TARGET_DEVICES_SCSI(func) \
 	BOOT_TARGET_DEVICES_USB(func) \
 	BOOT_TARGET_DEVICES_SCSI_BUS0(func) \
 	BOOT_TARGET_DEVICES_SCSI_BUS1(func) \
