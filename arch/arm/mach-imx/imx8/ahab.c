@@ -97,7 +97,7 @@ int authenticate_os_container(ulong addr)
 		       img->size);
 
 		s = img->dst & ~(CONFIG_SYS_CACHELINE_SIZE - 1);
-		e = ALIGN(img->dst + img->size, CONFIG_SYS_CACHELINE_SIZE);
+		e = ALIGN(img->dst + img->size, CONFIG_SYS_CACHELINE_SIZE) - 1;
 
 		flush_dcache_range(s, e);
 
