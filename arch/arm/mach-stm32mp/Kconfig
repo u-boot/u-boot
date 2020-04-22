@@ -127,11 +127,9 @@ config CMD_STM32PROG
 config CMD_STM32KEY
 	bool "command stm32key to fuse public key hash"
 	default y
-	depends on CMD_FUSE
 	help
 		fuse public key hash in corresponding fuse used to authenticate
 		binary.
-
 
 config PRE_CON_BUF_ADDR
 	default 0xC02FF000
