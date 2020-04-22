@@ -988,8 +988,10 @@ static int do_hsdk_clock_print_all(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (is_board_match_runtime(T_BOARD_HSDK_4XD))
 		soc_clk_ctl("hdmi-sys-clk", NULL, CLK_PRINT | CLK_MHZ);
 	soc_clk_ctl("gfx-core-clk", NULL, CLK_PRINT | CLK_MHZ);
-	soc_clk_ctl("gfx-dma-clk", NULL, CLK_PRINT | CLK_MHZ);
-	soc_clk_ctl("gfx-cfg-clk", NULL, CLK_PRINT | CLK_MHZ);
+	if (is_board_match_runtime(T_BOARD_HSDK)) {
+		soc_clk_ctl("gfx-dma-clk", NULL, CLK_PRINT | CLK_MHZ);
+		soc_clk_ctl("gfx-cfg-clk", NULL, CLK_PRINT | CLK_MHZ);
+	}
 	soc_clk_ctl("dmac-core-clk", NULL, CLK_PRINT | CLK_MHZ);
 	soc_clk_ctl("dmac-cfg-clk", NULL, CLK_PRINT | CLK_MHZ);
 	soc_clk_ctl("sdio-ref-clk", NULL, CLK_PRINT | CLK_MHZ);
