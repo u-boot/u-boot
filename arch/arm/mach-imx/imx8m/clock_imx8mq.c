@@ -15,6 +15,8 @@
 
 static struct anamix_pll *ana_pll = (struct anamix_pll *)ANATOP_BASE_ADDR;
 
+static u32 get_root_clk(enum clk_root_index clock_id);
+
 static u32 decode_frac_pll(enum clk_root_src frac_pll)
 {
 	u32 pll_cfg0, pll_cfg1, pllout;
@@ -275,6 +277,8 @@ static u32 get_root_src_clk(enum clk_root_src root_src)
 	case SYSTEM_PLL2_50M_CLK:
 	case SYSTEM_PLL3_CLK:
 		return decode_sscg_pll(root_src);
+	case ARM_A53_ALT_CLK:
+		return get_root_clk(ARM_A53_CLK_ROOT);
 	default:
 		return 0;
 	}
@@ -322,13 +326,26 @@ int enable_i2c_clk(unsigned char enable, unsigned int i2c_num)
 	return 0;
 }
 
+u32 get_arm_core_clk(void)
+{
+	enum clk_root_src root_src;
+	u32 root_src_clk;
+
+	if (clock_get_src(CORE_SEL_CFG, &root_src) < 0)
+		return 0;
+
+	root_src_clk = get_root_src_clk(root_src);
+
+	return root_src_clk;
+}
+
 unsigned int mxc_get_clock(enum mxc_clock clk)
 {
 	u32 val;
 
-	switch(clk) {
+	switch (clk) {
 	case MXC_ARM_CLK:
-		return get_root_clk(ARM_A53_CLK_ROOT);
+		return get_arm_core_clk();
 	case MXC_IPG_CLK:
 		clock_get_target_val(IPG_CLK_ROOT, &val);
 		val = val & 0x3;
@@ -637,7 +654,7 @@ void dram_pll_init(ulong pll_val)
 static int frac_pll_init(u32 pll, enum frac_pll_out_val val)
 {
 	void __iomem *pll_cfg0, __iomem *pll_cfg1;
-	u32 val_cfg0, val_cfg1;
+	u32 val_cfg0, val_cfg1, divq;
 	int ret;
 
 	switch (pll) {
@@ -645,14 +662,17 @@ static int frac_pll_init(u32 pll, enum frac_pll_out_val val)
 		pll_cfg0 = &ana_pll->arm_pll_cfg0;
 		pll_cfg1 = &ana_pll->arm_pll_cfg1;
 
-		if (val == FRAC_PLL_OUT_1000M)
+		if (val == FRAC_PLL_OUT_1000M) {
 			val_cfg1 = FRAC_PLL_INT_DIV_CTL_VAL(49);
-		else
+			divq = 0;
+		} else {
 			val_cfg1 = FRAC_PLL_INT_DIV_CTL_VAL(79);
+			divq = 1;
+		}
 		val_cfg0 = FRAC_PLL_CLKE_MASK | FRAC_PLL_REFCLK_SEL_OSC_25M |
 			FRAC_PLL_LOCK_SEL_MASK | FRAC_PLL_NEWDIV_VAL_MASK |
 			FRAC_PLL_REFCLK_DIV_VAL(4) |
-			FRAC_PLL_OUTPUT_DIV_VAL(0);
+			FRAC_PLL_OUTPUT_DIV_VAL(divq);
 		break;
 	default:
 		return -EINVAL;
@@ -688,17 +708,14 @@ int clock_init(void)
 	 * We set ARM clock to 1Ghz for consumer, 800Mhz for industrial
 	 */
 	grade = get_cpu_temp_grade(NULL, NULL);
-	if (!grade) {
+	if (!grade)
 		frac_pll_init(ANATOP_ARM_PLL, FRAC_PLL_OUT_1000M);
-		clock_set_target_val(ARM_A53_CLK_ROOT, CLK_ROOT_ON |
-			     CLK_ROOT_SOURCE_SEL(1) |
-			     CLK_ROOT_POST_DIV(CLK_ROOT_POST_DIV1));
-	} else {
-		frac_pll_init(ANATOP_ARM_PLL, FRAC_PLL_OUT_1600M);
-		clock_set_target_val(ARM_A53_CLK_ROOT, CLK_ROOT_ON |
-			     CLK_ROOT_SOURCE_SEL(1) |
-			     CLK_ROOT_POST_DIV(CLK_ROOT_POST_DIV2));
-	}
+	else
+		frac_pll_init(ANATOP_ARM_PLL, FRAC_PLL_OUT_800M);
+
+	/* Bypass CCM A53 ROOT, Switch to ARM PLL -> MUX-> CPU */
+	clock_set_target_val(CORE_SEL_CFG, CLK_ROOT_SOURCE_SEL(1));
+
 	/*
 	 * According to ANAMIX SPEC
 	 * sys pll1 fixed at 800MHz
