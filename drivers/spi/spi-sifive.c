@@ -86,6 +86,11 @@
 #define SIFIVE_SPI_IP_TXWM               BIT(0)
 #define SIFIVE_SPI_IP_RXWM               BIT(1)
 
+/* format protocol */
+#define SIFIVE_SPI_PROTO_QUAD		4 /* 4 lines I/O protocol transfer */
+#define SIFIVE_SPI_PROTO_DUAL		2 /* 2 lines I/O protocol transfer */
+#define SIFIVE_SPI_PROTO_SINGLE		1 /* 1 line I/O protocol transfer */
+
 struct sifive_spi {
 	void		*regs;		/* base address of the registers */
 	u32		fifo_depth;
@@ -93,6 +98,7 @@ struct sifive_spi {
 	u32		cs_inactive;	/* Level of the CS pins when inactive*/
 	u32		freq;
 	u32		num_cs;
+	u8		fmt_proto;
 };
 
 static void sifive_spi_prep_device(struct sifive_spi *spi,
@@ -147,12 +153,17 @@ static void sifive_spi_prep_transfer(struct sifive_spi *spi,
 
 	/* Number of wires ? */
 	cr &= ~SIFIVE_SPI_FMT_PROTO_MASK;
-	if ((slave_plat->mode & SPI_TX_QUAD) || (slave_plat->mode & SPI_RX_QUAD))
+	switch (spi->fmt_proto) {
+	case SIFIVE_SPI_PROTO_QUAD:
 		cr |= SIFIVE_SPI_FMT_PROTO_QUAD;
-	else if ((slave_plat->mode & SPI_TX_DUAL) || (slave_plat->mode & SPI_RX_DUAL))
+		break;
+	case SIFIVE_SPI_PROTO_DUAL:
 		cr |= SIFIVE_SPI_FMT_PROTO_DUAL;
-	else
+		break;
+	default:
 		cr |= SIFIVE_SPI_FMT_PROTO_SINGLE;
+		break;
+	}
 
 	/* SPI direction in/out ? */
 	cr &= ~SIFIVE_SPI_FMT_DIR;
@@ -246,6 +257,7 @@ static int sifive_spi_exec_op(struct spi_slave *slave,
 			      const struct spi_mem_op *op)
 {
 	struct udevice *dev = slave->dev;
+	struct sifive_spi *spi = dev_get_priv(dev->parent);
 	unsigned long flags = SPI_XFER_BEGIN;
 	u8 opcode = op->cmd.opcode;
 	unsigned int pos = 0;
@@ -256,6 +268,8 @@ static int sifive_spi_exec_op(struct spi_slave *slave,
 
 	if (!op->addr.nbytes && !op->dummy.nbytes && !op->data.nbytes)
 		flags |= SPI_XFER_END;
+
+	spi->fmt_proto = op->cmd.buswidth;
 
 	/* send the opcode */
 	ret = sifive_spi_xfer(dev, 8, (void *)&opcode, NULL, flags);
@@ -284,6 +298,8 @@ static int sifive_spi_exec_op(struct spi_slave *slave,
 		if (!op->data.nbytes)
 			flags |= SPI_XFER_END;
 
+		spi->fmt_proto = op->addr.buswidth;
+
 		ret = sifive_spi_xfer(dev, op_len * 8, op_buf, NULL, flags);
 		if (ret < 0) {
 			dev_err(dev, "failed to xfer addr + dummy\n");
@@ -297,6 +313,8 @@ static int sifive_spi_exec_op(struct spi_slave *slave,
 			rx_buf = op->data.buf.in;
 		else
 			tx_buf = op->data.buf.out;
+
+		spi->fmt_proto = op->data.buswidth;
 
 		ret = sifive_spi_xfer(dev, op->data.nbytes * 8,
 				      tx_buf, rx_buf, SPI_XFER_END);
