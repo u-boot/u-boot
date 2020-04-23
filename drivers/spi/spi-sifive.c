@@ -8,8 +8,9 @@
 
 #include <common.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <malloc.h>
-#include <spi.h>
+#include <spi-mem.h>
 #include <asm/io.h>
 #include <linux/log2.h>
 #include <clk.h>
@@ -241,6 +242,73 @@ static int sifive_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	return 0;
 }
 
+static int sifive_spi_exec_op(struct spi_slave *slave,
+			      const struct spi_mem_op *op)
+{
+	struct udevice *dev = slave->dev;
+	unsigned long flags = SPI_XFER_BEGIN;
+	u8 opcode = op->cmd.opcode;
+	unsigned int pos = 0;
+	const void *tx_buf = NULL;
+	void *rx_buf = NULL;
+	int op_len, i;
+	int ret;
+
+	if (!op->addr.nbytes && !op->dummy.nbytes && !op->data.nbytes)
+		flags |= SPI_XFER_END;
+
+	/* send the opcode */
+	ret = sifive_spi_xfer(dev, 8, (void *)&opcode, NULL, flags);
+	if (ret < 0) {
+		dev_err(dev, "failed to xfer opcode\n");
+		return ret;
+	}
+
+	op_len = op->addr.nbytes + op->dummy.nbytes;
+	u8 op_buf[op_len];
+
+	/* send the addr + dummy */
+	if (op->addr.nbytes) {
+		/* fill address */
+		for (i = 0; i < op->addr.nbytes; i++)
+			op_buf[pos + i] = op->addr.val >>
+				(8 * (op->addr.nbytes - i - 1));
+
+		pos += op->addr.nbytes;
+
+		/* fill dummy */
+		if (op->dummy.nbytes)
+			memset(op_buf + pos, 0xff, op->dummy.nbytes);
+
+		/* make sure to set end flag, if no data bytes */
+		if (!op->data.nbytes)
+			flags |= SPI_XFER_END;
+
+		ret = sifive_spi_xfer(dev, op_len * 8, op_buf, NULL, flags);
+		if (ret < 0) {
+			dev_err(dev, "failed to xfer addr + dummy\n");
+			return ret;
+		}
+	}
+
+	/* send/received the data */
+	if (op->data.nbytes) {
+		if (op->data.dir == SPI_MEM_DATA_IN)
+			rx_buf = op->data.buf.in;
+		else
+			tx_buf = op->data.buf.out;
+
+		ret = sifive_spi_xfer(dev, op->data.nbytes * 8,
+				      tx_buf, rx_buf, SPI_XFER_END);
+		if (ret) {
+			dev_err(dev, "failed to xfer data\n");
+			return ret;
+		}
+	}
+
+	return 0;
+}
+
 static int sifive_spi_set_speed(struct udevice *bus, uint speed)
 {
 	struct sifive_spi *spi = dev_get_priv(bus);
@@ -348,11 +416,16 @@ static int sifive_spi_probe(struct udevice *bus)
 	return 0;
 }
 
+static const struct spi_controller_mem_ops sifive_spi_mem_ops = {
+	.exec_op	= sifive_spi_exec_op,
+};
+
 static const struct dm_spi_ops sifive_spi_ops = {
 	.xfer		= sifive_spi_xfer,
 	.set_speed	= sifive_spi_set_speed,
 	.set_mode	= sifive_spi_set_mode,
 	.cs_info        = sifive_spi_cs_info,
+	.mem_ops	= &sifive_spi_mem_ops,
 };
 
 static const struct udevice_id sifive_spi_ids[] = {
