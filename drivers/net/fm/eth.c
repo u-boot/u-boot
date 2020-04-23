@@ -98,9 +98,8 @@ qsgmii_loop:
 #endif
 }
 
-static void dtsec_init_phy(struct eth_device *dev)
+static void dtsec_init_phy(struct fm_eth *fm_eth)
 {
-	struct fm_eth *fm_eth = dev->priv;
 #ifndef CONFIG_SYS_FMAN_V3
 	struct dtsec *regs = (struct dtsec *)CONFIG_SYS_FSL_FM1_DTSEC1_ADDR;
 
@@ -115,9 +114,8 @@ static void dtsec_init_phy(struct eth_device *dev)
 }
 
 #ifdef CONFIG_PHYLIB
-static int tgec_is_fibre(struct eth_device *dev)
+static int tgec_is_fibre(struct fm_eth *fm)
 {
-	struct fm_eth *fm = dev->priv;
 	char phyopt[20];
 
 	sprintf(phyopt, "fsl_fm%d_xaui_phy", fm->fm_index + 1);
@@ -679,21 +677,20 @@ static int fm_eth_init_mac(struct fm_eth *fm_eth, struct ccsr_fman *reg)
 	return 0;
 }
 
-static int init_phy(struct eth_device *dev)
+static int init_phy(struct fm_eth *fm_eth)
 {
-	struct fm_eth *fm_eth = dev->priv;
 #ifdef CONFIG_PHYLIB
 	struct phy_device *phydev = NULL;
 	u32 supported;
 #endif
 
 	if (fm_eth->type == FM_ETH_1G_E)
-		dtsec_init_phy(dev);
+		dtsec_init_phy(fm_eth);
 
 #ifdef CONFIG_PHYLIB
 	if (fm_eth->bus) {
-		phydev = phy_connect(fm_eth->bus, fm_eth->phyaddr, dev,
-					fm_eth->enet_if);
+		phydev = phy_connect(fm_eth->bus, fm_eth->phyaddr, fm_eth->dev,
+				     fm_eth->enet_if);
 		if (!phydev) {
 			printf("Failed to connect\n");
 			return -1;
@@ -711,7 +708,7 @@ static int init_phy(struct eth_device *dev)
 	} else {
 		supported = SUPPORTED_10000baseT_Full;
 
-		if (tgec_is_fibre(dev))
+		if (tgec_is_fibre(fm_eth))
 			phydev->port = PORT_FIBRE;
 	}
 
@@ -784,7 +781,7 @@ int fm_eth_initialize(struct ccsr_fman *reg, struct fm_eth_info *info)
 	if (ret)
 		return ret;
 
-	init_phy(dev);
+	init_phy(fm_eth);
 
 	/* clear the ethernet address */
 	for (i = 0; i < 6; i++)
