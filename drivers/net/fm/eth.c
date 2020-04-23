@@ -567,20 +567,46 @@ static int fm_eth_send(struct eth_device *dev, void *buf, int len)
 	return 1;
 }
 
+static struct fm_port_bd *fm_eth_free_one(struct fm_eth *fm_eth,
+					  struct fm_port_bd *rxbd)
+{
+	struct fm_port_global_pram *pram;
+	struct fm_port_bd *rxbd_base;
+	u16 offset_out;
+
+	pram = fm_eth->rx_pram;
+
+	/* clear the RxBDs */
+	muram_writew(&rxbd->status, RxBD_EMPTY);
+	muram_writew(&rxbd->len, 0);
+	sync();
+
+	/* advance RxBD */
+	rxbd++;
+	rxbd_base = (struct fm_port_bd *)fm_eth->rx_bd_ring;
+	if (rxbd >= (rxbd_base + RX_BD_RING_SIZE))
+		rxbd = rxbd_base;
+
+	/* update RxQD */
+	offset_out = muram_readw(&pram->rxqd.offset_out);
+	offset_out += sizeof(struct fm_port_bd);
+	if (offset_out >= muram_readw(&pram->rxqd.bd_ring_size))
+		offset_out = 0;
+	muram_writew(&pram->rxqd.offset_out, offset_out);
+	sync();
+
+	return rxbd;
+}
+
 static int fm_eth_recv(struct eth_device *dev)
 {
-	struct fm_eth *fm_eth;
-	struct fm_port_global_pram *pram;
-	struct fm_port_bd *rxbd, *rxbd_base;
-	u16 status, len;
+	struct fm_eth *fm_eth = (struct fm_eth *)dev->priv;
+	struct fm_port_bd *rxbd = fm_eth->cur_rxbd;
 	u32 buf_lo, buf_hi;
+	u16 status, len;
+	int ret = -1;
 	u8 *data;
-	u16 offset_out;
-	int ret = 1;
 
-	fm_eth = (struct fm_eth *)dev->priv;
-	pram = fm_eth->rx_pram;
-	rxbd = fm_eth->cur_rxbd;
 	status = muram_readw(&rxbd->status);
 
 	while (!(status & RxBD_EMPTY)) {
@@ -595,26 +621,11 @@ static int fm_eth_recv(struct eth_device *dev)
 			ret = 0;
 		}
 
-		/* clear the RxBDs */
-		muram_writew(&rxbd->status, RxBD_EMPTY);
-		muram_writew(&rxbd->len, 0);
-		sync();
+		/* free current bd, advance to next one */
+		rxbd = fm_eth_free_one(fm_eth, rxbd);
 
-		/* advance RxBD */
-		rxbd++;
-		rxbd_base = (struct fm_port_bd *)fm_eth->rx_bd_ring;
-		if (rxbd >= (rxbd_base + RX_BD_RING_SIZE))
-			rxbd = rxbd_base;
 		/* read next status */
 		status = muram_readw(&rxbd->status);
-
-		/* update RxQD */
-		offset_out = muram_readw(&pram->rxqd.offset_out);
-		offset_out += sizeof(struct fm_port_bd);
-		if (offset_out >= muram_readw(&pram->rxqd.bd_ring_size))
-			offset_out = 0;
-		muram_writew(&pram->rxqd.offset_out, offset_out);
-		sync();
 	}
 	fm_eth->cur_rxbd = (void *)rxbd;
 
