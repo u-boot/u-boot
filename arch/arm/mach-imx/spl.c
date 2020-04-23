@@ -229,7 +229,7 @@ u32 spl_mmc_boot_mode(const u32 boot_device)
 #ifdef CONFIG_SPL_FORCE_MMC_BOOT
 	switch (boot_device) {
 #else
-	switch (spl_boot_device()) {
+	switch (boot_device) {
 #endif
 	/* for MMC return either RAW or FAT mode */
 	case BOOT_DEVICE_MMC1:
