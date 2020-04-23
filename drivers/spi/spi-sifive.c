@@ -11,6 +11,7 @@
 #include <dm/device_compat.h>
 #include <malloc.h>
 #include <spi-mem.h>
+#include <wait_bit.h>
 #include <asm/io.h>
 #include <linux/log2.h>
 #include <clk.h>
@@ -134,8 +135,8 @@ static void sifive_spi_clear_cs(struct sifive_spi *spi)
 }
 
 static void sifive_spi_prep_transfer(struct sifive_spi *spi,
-				     bool is_rx_xfer,
-				     struct dm_spi_slave_platdata *slave_plat)
+				     struct dm_spi_slave_platdata *slave_plat,
+				     u8 *rx_ptr)
 {
 	u32 cr;
 
@@ -167,7 +168,7 @@ static void sifive_spi_prep_transfer(struct sifive_spi *spi,
 
 	/* SPI direction in/out ? */
 	cr &= ~SIFIVE_SPI_FMT_DIR;
-	if (!is_rx_xfer)
+	if (!rx_ptr)
 		cr |= SIFIVE_SPI_FMT_DIR;
 
 	writel(cr, spi->regs + SIFIVE_SPI_REG_FMT);
@@ -198,13 +199,19 @@ static void sifive_spi_tx(struct sifive_spi *spi, const u8 *tx_ptr)
 	writel(tx_data, spi->regs + SIFIVE_SPI_REG_TXDATA);
 }
 
+static int sifive_spi_wait(struct sifive_spi *spi, u32 bit)
+{
+	return wait_for_bit_le32(spi->regs + SIFIVE_SPI_REG_IP,
+				 bit, true, 100, false);
+}
+
 static int sifive_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			   const void *dout, void *din, unsigned long flags)
 {
 	struct udevice *bus = dev->parent;
 	struct sifive_spi *spi = dev_get_priv(bus);
 	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
-	const unsigned char *tx_ptr = dout;
+	const u8 *tx_ptr = dout;
 	u8 *rx_ptr = din;
 	u32 remaining_len;
 	int ret;
@@ -217,31 +224,37 @@ static int sifive_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			return ret;
 	}
 
-	sifive_spi_prep_transfer(spi, true, slave_plat);
+	sifive_spi_prep_transfer(spi, slave_plat, rx_ptr);
 
 	remaining_len = bitlen / 8;
 
 	while (remaining_len) {
-		int n_words, tx_words, rx_words;
-
-		n_words = min(remaining_len, spi->fifo_depth);
+		unsigned int n_words = min(remaining_len, spi->fifo_depth);
+		unsigned int tx_words, rx_words;
 
 		/* Enqueue n_words for transmission */
-		if (tx_ptr) {
-			for (tx_words = 0; tx_words < n_words; ++tx_words) {
-				sifive_spi_tx(spi, tx_ptr);
-				sifive_spi_rx(spi, NULL);
-				tx_ptr++;
-			}
+		for (tx_words = 0; tx_words < n_words; tx_words++) {
+			if (!tx_ptr)
+				sifive_spi_tx(spi, NULL);
+			else
+				sifive_spi_tx(spi, tx_ptr++);
 		}
 
-		/* Read out all the data from the RX FIFO */
 		if (rx_ptr) {
-			for (rx_words = 0; rx_words < n_words; ++rx_words) {
-				sifive_spi_tx(spi, NULL);
-				sifive_spi_rx(spi, rx_ptr);
-				rx_ptr++;
-			}
+			/* Wait for transmission + reception to complete */
+			writel(n_words - 1, spi->regs + SIFIVE_SPI_REG_RXMARK);
+			ret = sifive_spi_wait(spi, SIFIVE_SPI_IP_RXWM);
+			if (ret)
+				return ret;
+
+			/* Read out all the data from the RX FIFO */
+			for (rx_words = 0; rx_words < n_words; rx_words++)
+				sifive_spi_rx(spi, rx_ptr++);
+		} else {
+			/* Wait for transmission to complete */
+			ret = sifive_spi_wait(spi, SIFIVE_SPI_IP_TXWM);
+			if (ret)
+				return ret;
 		}
 
 		remaining_len -= n_words;
@@ -394,6 +407,10 @@ static void sifive_spi_init_hw(struct sifive_spi *spi)
 
 	/* Watermark interrupts are disabled by default */
 	writel(0, spi->regs + SIFIVE_SPI_REG_IE);
+
+	/* Default watermark FIFO threshold values */
+	writel(1, spi->regs + SIFIVE_SPI_REG_TXMARK);
+	writel(0, spi->regs + SIFIVE_SPI_REG_RXMARK);
 
 	/* Set CS/SCK Delays and Inactive Time to defaults */
 	writel(SIFIVE_SPI_DELAY0_CSSCK(1) | SIFIVE_SPI_DELAY0_SCKCS(1),
