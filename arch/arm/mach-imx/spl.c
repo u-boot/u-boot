@@ -219,18 +219,7 @@ u32 spl_mmc_boot_mode(const u32 boot_device)
 		hang();
 	}
 #else
-/*
- * When CONFIG_SPL_FORCE_MMC_BOOT is defined the 'boot_device' is used
- * unconditionally to decide about device to use for booting.
- * This is crucial for falcon boot mode, when board boots up (i.e. ROM
- * loads SPL) from slow SPI-NOR memory and afterwards the SPL's 'falcon' boot
- * mode is used to load Linux OS from eMMC partition.
- */
-#ifdef CONFIG_SPL_FORCE_MMC_BOOT
 	switch (boot_device) {
-#else
-	switch (boot_device) {
-#endif
 	/* for MMC return either RAW or FAT mode */
 	case BOOT_DEVICE_MMC1:
 	case BOOT_DEVICE_MMC2:
