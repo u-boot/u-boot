@@ -1017,6 +1017,8 @@ static int do_hsdk_clock_print_all(cmd_tbl_t *cmdtp, int flag, int argc,
 	soc_clk_ctl("tun-clk", NULL, CLK_PRINT | CLK_MHZ);
 	soc_clk_ctl("rom-clk", NULL, CLK_PRINT | CLK_MHZ);
 	soc_clk_ctl("pwm-clk", NULL, CLK_PRINT | CLK_MHZ);
+	if (is_board_match_runtime(T_BOARD_HSDK_4XD))
+		soc_clk_ctl("timer-clk", NULL, CLK_PRINT | CLK_MHZ);
 	printf("\n");
 
 	return CMD_RET_SUCCESS;

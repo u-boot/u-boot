@@ -40,7 +40,8 @@
 			 <&cgu_clk CLK_SYS_DMAC_CFG>, <&cgu_clk CLK_SYS_SDIO_REF>,
 			 <&cgu_clk CLK_SYS_SPI_REF>, <&cgu_clk CLK_SYS_I2C_REF>,
 			 <&cgu_clk CLK_SYS_UART_REF>, <&cgu_clk CLK_SYS_EBI_REF>,
-			 <&cgu_clk CLK_TUN_ROM>, <&cgu_clk CLK_TUN_PWM>;
+			 <&cgu_clk CLK_TUN_ROM>, <&cgu_clk CLK_TUN_PWM>,
+			 <&cgu_clk CLK_TUN_TIMER>;
 		clock-names = "cpu-pll", "sys-pll",
 			      "tun-pll", "ddr-clk",
 			      "cpu-clk", "hdmi-pll",
@@ -53,7 +54,8 @@
 			      "dmac-cfg-clk", "sdio-ref-clk",
 			      "spi-clk", "i2c-clk",
 			      "uart-clk", "ebi-clk",
-			      "rom-clk", "pwm-clk";
+			      "rom-clk", "pwm-clk",
+			      "timer-clk";
 	};
 
 	cgu_clk: cgu-clk@f0000000 {
