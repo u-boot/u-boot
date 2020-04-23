@@ -197,23 +197,19 @@ u32 spl_mmc_boot_mode(const u32 boot_device)
 	case SD1_BOOT:
 	case SD2_BOOT:
 	case SD3_BOOT:
-#if defined(CONFIG_SPL_FAT_SUPPORT)
-		return MMCSD_MODE_FS;
-#else
-		return MMCSD_MODE_RAW;
-#endif
-		break;
+		if (IS_ENABLED(CONFIG_SPL_FAT_SUPPORT))
+			return MMCSD_MODE_FS;
+		else
+			return MMCSD_MODE_RAW;
 	case MMC1_BOOT:
 	case MMC2_BOOT:
 	case MMC3_BOOT:
-#if defined(CONFIG_SPL_FAT_SUPPORT)
-		return MMCSD_MODE_FS;
-#elif defined(CONFIG_SUPPORT_EMMC_BOOT)
-		return MMCSD_MODE_EMMCBOOT;
-#else
-		return MMCSD_MODE_RAW;
-#endif
-		break;
+		if (IS_ENABLED(CONFIG_SPL_FAT_SUPPORT))
+			return MMCSD_MODE_FS;
+		else if (IS_ENABLED(CONFIG_SUPPORT_EMMC_BOOT))
+			return MMCSD_MODE_EMMCBOOT;
+		else
+			return MMCSD_MODE_RAW;
 	default:
 		puts("spl: ERROR:  unsupported device\n");
 		hang();
@@ -224,14 +220,12 @@ u32 spl_mmc_boot_mode(const u32 boot_device)
 	case BOOT_DEVICE_MMC1:
 	case BOOT_DEVICE_MMC2:
 	case BOOT_DEVICE_MMC2_2:
-#if defined(CONFIG_SPL_FS_FAT)
-		return MMCSD_MODE_FS;
-#elif defined(CONFIG_SUPPORT_EMMC_BOOT)
-		return MMCSD_MODE_EMMCBOOT;
-#else
-		return MMCSD_MODE_RAW;
-#endif
-		break;
+		if (IS_ENABLED(CONFIG_SPL_FS_FAT))
+			return MMCSD_MODE_FS;
+		else if (IS_ENABLED(CONFIG_SUPPORT_EMMC_BOOT))
+			return MMCSD_MODE_EMMCBOOT;
+		else
+			return MMCSD_MODE_RAW;
 	default:
 		puts("spl: ERROR:  unsupported device\n");
 		hang();
