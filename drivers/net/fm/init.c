@@ -15,6 +15,7 @@
 
 #include "fm.h"
 
+#ifndef CONFIG_DM_ETH
 struct fm_eth_info fm_info[] = {
 #if (CONFIG_SYS_NUM_FM1_DTSEC >= 1)
 	FM_DTSEC_INFO_INITIALIZER(1, 1),
@@ -380,3 +381,4 @@ int is_qsgmii_riser_card(struct mii_dev *bus, int phy_base_addr,
 
 	return 0;
 }
+#endif /* CONFIG_DM_ETH */

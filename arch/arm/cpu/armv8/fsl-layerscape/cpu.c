@@ -1156,7 +1156,9 @@ int arch_early_init_r(void)
 	fsl_rgmii_init();
 #endif
 #ifdef CONFIG_FMAN_ENET
+#ifndef CONFIG_DM_ETH
 	fman_enet_init();
+#endif
 #endif
 #ifdef CONFIG_SYS_DPAA_QBMAN
 	setup_qbman_portals();

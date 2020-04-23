@@ -53,6 +53,7 @@ int memac_mdio_write(struct mii_dev *bus, int port_addr, int dev_addr,
 		int regnum, u16 value);
 int memac_mdio_read(struct mii_dev *bus, int port_addr, int dev_addr,
 		int regnum);
+int memac_mdio_reset(struct mii_dev *bus);
 
 struct fsl_pq_mdio_info {
 	struct tsec_mii_mng __iomem *regs;
