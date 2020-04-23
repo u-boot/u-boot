@@ -164,11 +164,9 @@ config TARGET_NSIM
 
 config TARGET_AXS101
 	bool "Support Synopsys Designware SDP board AXS101"
-	select BOUNCE_BUFFER if CMD_NAND
 
 config TARGET_AXS103
 	bool "Support Synopsys Designware SDP board AXS103"
-	select BOUNCE_BUFFER if CMD_NAND
 
 config TARGET_EMSDP
 	bool "Synopsys EM Software Development Platform"
