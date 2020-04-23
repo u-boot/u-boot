@@ -67,6 +67,7 @@
 #define CGU_TUN_IDIV_TUN	0x380
 #define CGU_TUN_IDIV_ROM	0x390
 #define CGU_TUN_IDIV_PWM	0x3A0
+#define CGU_TUN_IDIV_TIMER	0x3B0
 #define CGU_HDMI_IDIV_APB	0x480
 #define CGU_SYS_IDIV_APB	0x180
 #define CGU_SYS_IDIV_AXI	0x190
@@ -123,12 +124,12 @@
 #define MIN_PLL_RATE			100000000 /* 100 MHz */
 #define PARENT_RATE_33			33333333 /* fixed clock - xtal */
 #define PARENT_RATE_27			27000000 /* fixed clock - xtal */
-#define CGU_MAX_CLOCKS			26
+#define CGU_MAX_CLOCKS			27
 
 #define CGU_SYS_CLOCKS			16
 #define MAX_AXI_CLOCKS			4
 
-#define CGU_TUN_CLOCKS			3
+#define CGU_TUN_CLOCKS			4
 #define MAX_TUN_CLOCKS			6
 
 struct hsdk_tun_idiv_cfg {
@@ -147,7 +148,8 @@ static const struct hsdk_tun_clk_cfg tun_clk_cfg = {
 	{ 600000000, 600000000, 600000000, 600000000, 750000000, 600000000 }, {
 	{ CGU_TUN_IDIV_TUN,	{ 24,	12,	8,	6,	6,	4 } },
 	{ CGU_TUN_IDIV_ROM,	{ 4,	4,	4,	4,	5,	4 } },
-	{ CGU_TUN_IDIV_PWM,	{ 8,	8,	8,	8,	10,	8 } }
+	{ CGU_TUN_IDIV_PWM,	{ 8,	8,	8,	8,	10,	8 } },
+	{ CGU_TUN_IDIV_TIMER,	{ 12,	12,	12,	12,	15,	12 } }
 	}
 };
 
@@ -316,6 +318,7 @@ static const struct hsdk_cgu_clock_map clock_map[] = {
 	{ CGU_TUN_PLL, 0, CGU_TUN_IDIV_TUN, &sdt_pll_dat, idiv_get, tun_clk_set, idiv_off },
 	{ CGU_TUN_PLL, 0, CGU_TUN_IDIV_ROM, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
 	{ CGU_TUN_PLL, 0, CGU_TUN_IDIV_PWM, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
+	{ CGU_TUN_PLL, 0, CGU_TUN_IDIV_TIMER, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
 	{ CGU_HDMI_PLL, 0, 0, &hdmi_pll_dat, pll_get, pll_set, NULL },
 	{ CGU_HDMI_PLL, 0, CGU_HDMI_IDIV_APB, &hdmi_pll_dat, idiv_get, idiv_set, idiv_off }
 };
