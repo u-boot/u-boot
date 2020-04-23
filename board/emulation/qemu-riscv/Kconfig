@@ -43,7 +43,6 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply CMD_EXT4
 	imply CMD_FAT
 	imply BOARD_LATE_INIT
-	imply OF_BOARD_SETUP
 	imply SIFIVE_SERIAL
 	imply SMP
 	imply PCI

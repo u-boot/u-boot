@@ -193,6 +193,7 @@ config SYS_MALLOC_F_LEN
 
 config SMP
 	bool "Symmetric Multi-Processing"
+	depends on SBI_V01 || !RISCV_SMODE
 	help
 	  This enables support for systems with more than one CPU. If
 	  you say N here, U-Boot will run on single and multiprocessor
@@ -200,10 +201,21 @@ config SMP
 	  machine. If you say Y here, U-Boot will run on many, but not
 	  all, single processor machines.
 
+config SPL_SMP
+	bool "Symmetric Multi-Processing in SPL"
+	depends on SPL && SPL_RISCV_MMODE
+	default y
+	help
+	  This enables support for systems with more than one CPU in SPL.
+	  If you say N here, U-Boot SPL will run on single and multiprocessor
+	  machines, but will use only one CPU of a multiprocessor
+	  machine. If you say Y here, U-Boot SPL will run on many, but not
+	  all, single processor machines.
+
 config NR_CPUS
 	int "Maximum number of CPUs (2-32)"
 	range 2 32
-	depends on SMP
+	depends on SMP || SPL_SMP
 	default 8
 	help
 	  On multiprocessor machines, U-Boot sets up a stack for each CPU.
@@ -214,13 +226,31 @@ config SBI
 	bool
 	default y if RISCV_SMODE || SPL_RISCV_SMODE
 
+choice
+	prompt "SBI support"
+	default SBI_V02
+
 config SBI_V01
 	bool "SBI v0.1 support"
-	default y
 	depends on SBI
 	help
 	  This config allows kernel to use SBI v0.1 APIs. This will be
 	  deprecated in future once legacy M-mode software are no longer in use.
+
+config SBI_V02
+	bool "SBI v0.2 support"
+	depends on SBI
+	help
+	  This config allows kernel to use SBI v0.2 APIs. SBI v0.2 is more
+	  scalable and extendable to handle future needs for RISC-V supervisor
+	  interfaces. For example, with SBI v0.2 HSM extension, only a single
+	  hart need to boot and enter operating system. The booting hart can
+	  bring up secondary harts one by one afterwards.
+
+	  Choose this option if OpenSBI v0.7 or above release is used together
+	  with U-Boot.
+
+endchoice
 
 config SBI_IPI
 	bool

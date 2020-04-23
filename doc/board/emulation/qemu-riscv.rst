@@ -56,7 +56,7 @@ For instructions on how to run U-Boot in supervisor mode on QEMU
 with OpenSBI, see the documentation available with OpenSBI:
 https://github.com/riscv/opensbi/blob/master/docs/platform/qemu_virt.md
 
-These have been tested in QEMU 3.0.0.
+These have been tested in QEMU 4.2.0.
 
 Running U-Boot SPL
 ------------------

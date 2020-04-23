@@ -26,11 +26,6 @@ __weak void board_quiesce_devices(void)
 {
 }
 
-int arch_fixup_fdt(void *blob)
-{
-	return 0;
-}
-
 /**
  * announce_and_cleanup() - Print message and prepare for kernel boot
  *

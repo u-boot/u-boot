@@ -14,6 +14,7 @@
 int main(void)
 {
 	DEFINE(GD_BOOT_HART, offsetof(gd_t, arch.boot_hart));
+	DEFINE(GD_FIRMWARE_FDT_ADDR, offsetof(gd_t, arch.firmware_fdt_addr));
 #ifndef CONFIG_XIP
 	DEFINE(GD_AVAILABLE_HARTS, offsetof(gd_t, arch.available_harts));
 #endif

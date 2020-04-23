@@ -15,6 +15,7 @@
 /* Architecture-specific global data */
 struct arch_global_data {
 	long boot_hart;		/* boot hart id */
+	phys_addr_t firmware_fdt_addr;
 #ifdef CONFIG_SIFIVE_CLINT
 	void __iomem *clint;	/* clint base address */
 #endif
@@ -24,7 +25,7 @@ struct arch_global_data {
 #ifdef CONFIG_ANDES_PLMT
 	void __iomem *plmt;	/* plmt base address */
 #endif
-#ifdef CONFIG_SMP
+#if CONFIG_IS_ENABLED(SMP)
 	struct ipi_data ipi[CONFIG_NR_CPUS];
 #endif
 #ifndef CONFIG_XIP
