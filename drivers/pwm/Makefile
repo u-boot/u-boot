@@ -15,5 +15,6 @@ obj-$(CONFIG_PWM_IMX)		+= pwm-imx.o pwm-imx-util.o
 obj-$(CONFIG_PWM_MTK)		+= pwm-mtk.o
 obj-$(CONFIG_PWM_ROCKCHIP)	+= rk_pwm.o
 obj-$(CONFIG_PWM_SANDBOX)	+= sandbox_pwm.o
+obj-$(CONFIG_PWM_SIFIVE)	+= pwm-sifive.o
 obj-$(CONFIG_PWM_TEGRA)		+= tegra_pwm.o
 obj-$(CONFIG_PWM_SUNXI)		+= sunxi_pwm.o
