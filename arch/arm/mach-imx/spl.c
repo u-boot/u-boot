@@ -197,14 +197,14 @@ u32 spl_mmc_boot_mode(const u32 boot_device)
 	case SD1_BOOT:
 	case SD2_BOOT:
 	case SD3_BOOT:
-		if (IS_ENABLED(CONFIG_SPL_FAT_SUPPORT))
+		if (IS_ENABLED(CONFIG_SPL_FS_FAT))
 			return MMCSD_MODE_FS;
 		else
 			return MMCSD_MODE_RAW;
 	case MMC1_BOOT:
 	case MMC2_BOOT:
 	case MMC3_BOOT:
-		if (IS_ENABLED(CONFIG_SPL_FAT_SUPPORT))
+		if (IS_ENABLED(CONFIG_SPL_FS_FAT))
 			return MMCSD_MODE_FS;
 		else if (IS_ENABLED(CONFIG_SUPPORT_EMMC_BOOT))
 			return MMCSD_MODE_EMMCBOOT;
