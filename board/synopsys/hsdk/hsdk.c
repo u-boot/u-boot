@@ -42,6 +42,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CREG_CPU_START_MASK	0xF
 #define CREG_CPU_START_POL	BIT(4)
 
+#define CREG_CPU_0_ENTRY	(CREG_BASE + 0x404)
+
 #define SDIO_BASE		(ARC_PERIPHERAL_BASE + 0xA000)
 #define SDIO_UHS_REG_EXT	(SDIO_BASE + 0x108)
 #define SDIO_UHS_REG_EXT_DIV_2	(2 << 30)
@@ -969,9 +971,29 @@ U_BOOT_CMD(
 	"hsdk_go halt - Boot stand-alone application on HSDK, halt CPU just before application run\n"
 );
 
+/*
+ * We may simply use static variable here to store init status, but we also want
+ * to avoid the situation when we reload U-boot via MDB after previous
+ * init is done but HW reset (board reset) isn't done. So let's store the
+ * init status in any unused register (i.e CREG_CPU_0_ENTRY) so status will
+ * survive after U-boot is reloaded via MDB.
+ */
+#define INIT_MARKER_REGISTER		((void __iomem *)CREG_CPU_0_ENTRY)
+/* must be equal to INIT_MARKER_REGISTER reset value */
+#define INIT_MARKER_PENDING		0
+
+static bool init_marker_get(void)
+{
+	return readl(INIT_MARKER_REGISTER) != INIT_MARKER_PENDING;
+}
+
+static void init_mark_done(void)
+{
+	writel(~INIT_MARKER_PENDING, INIT_MARKER_REGISTER);
+}
+
 static int do_hsdk_init(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
-	static bool done = false;
 	int ret;
 
 	if (board_mismatch()) {
@@ -980,14 +1002,14 @@ static int do_hsdk_init(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[]
 	}
 
 	/* hsdk_init can be run only once */
-	if (done) {
+	if (init_marker_get()) {
 		printf("HSDK HW is already initialized! Please reset the board if you want to change the configuration.\n");
 		return CMD_RET_FAILURE;
 	}
 
 	ret = prepare_cpus();
 	if (!ret)
-		done = true;
+		init_mark_done();
 
 	return ret ? CMD_RET_FAILURE : CMD_RET_SUCCESS;
 }
