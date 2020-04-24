@@ -4,24 +4,12 @@
  *
  * Copyright (C) Linaro Ltd 2019 - All Rights Reserved
  * Author: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+ * Copyright (C) 2020 Marek Vasut <marex@denx.de>
  */
 
 #include <dt-bindings/clock/stm32mp1-clksrc.h>
 #include "stm32mp15-u-boot.dtsi"
 #include "stm32mp15-ddr3-2x4Gb-1066-binG.dtsi"
-
-/ {
-	aliases {
-		mmc0 = &sdmmc1;
-		mmc1 = &sdmmc2;
-		usb0 = &usbotg_hs;
-	};
-
-	config {
-		u-boot,boot-led = "led1";
-		u-boot,error-led = "led4";
-	};
-};
 
 &i2c4 {
 	u-boot,dm-pre-reloc;
@@ -36,6 +24,10 @@
 
 &pmic {
 	u-boot,dm-pre-reloc;
+};
+
+&qspi {
+	u-boot,dm-spl;
 };
 
 &rcc {
@@ -130,75 +122,11 @@
 		u-boot,dm-pre-reloc;
 	};
 
-	/* VCO = 480.0 MHz => P = 120, Q = 40, R = 96 */
+	/* VCO = 600.0 MHz => P = 100, Q = 50, R = 100 */
 	pll4: st,pll@3 {
 		compatible = "st,stm32mp1-pll";
 		reg = <3>;
-		cfg = < 1 39 3 11 4 PQR(1,1,1) >;
+		cfg = < 1 49 5 11 5 PQR(1,1,1) >;
 		u-boot,dm-pre-reloc;
 	};
-};
-
-&sdmmc1 {
-	u-boot,dm-spl;
-};
-
-&sdmmc1_b4_pins_a {
-	u-boot,dm-spl;
-	pins1 {
-		u-boot,dm-spl;
-	};
-	pins2 {
-		u-boot,dm-spl;
-	};
-};
-
-&sdmmc1_dir_pins_b {
-	u-boot,dm-spl;
-	pins1 {
-		u-boot,dm-spl;
-	};
-	pins2 {
-		u-boot,dm-spl;
-	};
-};
-
-&sdmmc2 {
-	u-boot,dm-spl;
-};
-
-&sdmmc2_b4_pins_a {
-	u-boot,dm-spl;
-	pins1 {
-		u-boot,dm-spl;
-	};
-	pins2 {
-		u-boot,dm-spl;
-	};
-};
-
-&sdmmc2_d47_pins_b {
-	u-boot,dm-spl;
-	pins {
-		u-boot,dm-spl;
-	};
-};
-
-&uart4 {
-	u-boot,dm-pre-reloc;
-};
-
-&uart4_pins_b {
-	u-boot,dm-pre-reloc;
-	pins1 {
-		u-boot,dm-pre-reloc;
-	};
-	pins2 {
-		u-boot,dm-pre-reloc;
-	};
-};
-
-&usbotg_hs {
-	u-boot,force-b-session-valid;
-	hnp-srp-disable;
 };

@@ -51,11 +51,11 @@ And the necessary drivers
 
 Currently the following boards are supported:
 
- + stm32mp157a-avenger96.dts
  + stm32mp157a-dk1.dts
  + stm32mp157c-dk2.dts
  + stm32mp157c-ed1.dts
  + stm32mp157c-ev1.dts
+ + stm32mp15xx-dhcor-avenger96.dts
 
 Boot Sequences
 --------------
@@ -153,9 +153,9 @@ the supported device trees for STM32MP15x are:
 
    + stm32mp157c-dk2
 
-+ avenger96: Avenger96 board from Arrow Electronics
++ avenger96: Avenger96 board from Arrow Electronics based on DH Elec. DHCOR SoM
 
-   + stm32mp157a-avenger96
+   + stm32mp15xx-dhcor-avenger96
 
 Build Procedure
 ---------------
@@ -237,7 +237,7 @@ Build Procedure
 
      # export KBUILD_OUTPUT=stm32mp15_basic
      # make stm32mp15_basic_defconfig
-     # make DEVICE_TREE=stm32mp157a-avenger96 all
+     # make DEVICE_TREE=stm32mp15xx-dhcor-avenger96 all
 
 6. Output files
 
