@@ -389,16 +389,18 @@ int ft_system_setup(void *blob, bd_t *bd)
 			if (nodeoff < 0)
 				continue; /* Not found, skip it */
 
-			printf("Found %s node\n", nodes_path[i]);
+			debug("Found %s node\n", nodes_path[i]);
 
 			rc = fdt_delprop(blob, nodeoff, "cpu-idle-states");
+			if (rc == -FDT_ERR_NOTFOUND)
+				continue;
 			if (rc) {
 				printf("Unable to update property %s:%s, err=%s\n",
 				       nodes_path[i], "status", fdt_strerror(rc));
 				return rc;
 			}
 
-			printf("Remove %s:%s\n", nodes_path[i],
+			debug("Remove %s:%s\n", nodes_path[i],
 			       "cpu-idle-states");
 		}
 	}
