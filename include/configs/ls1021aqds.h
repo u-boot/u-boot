@@ -419,8 +419,6 @@ unsigned long get_board_ddr_clk(void);
 
 #define CONFIG_ETHPRIME			"eTSEC1"
 
-#define CONFIG_PHY_REALTEK
-
 #define CONFIG_HAS_ETH0
 #define CONFIG_HAS_ETH1
 #define CONFIG_HAS_ETH2

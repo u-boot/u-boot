@@ -167,6 +167,5 @@
 #endif
 
 /* Network. */
-#define CONFIG_PHY_SMSC
 
 #endif	/* ! __CONFIG_CHILIBOARD_H */

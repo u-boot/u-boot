@@ -449,7 +449,6 @@ DEFAULT_LINUX_BOOT_ENV \
 /* SPI flash. */
 
 /* Network. */
-#define CONFIG_PHY_SMSC
 
 /*
  * NOR Size = 16 MiB

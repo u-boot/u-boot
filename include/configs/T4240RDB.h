@@ -546,11 +546,8 @@ unsigned long get_board_ddr_clk(void);
 #endif /* CONFIG_NOBQFMAN */
 
 #ifdef CONFIG_SYS_DPAA_FMAN
-#define CONFIG_PHYLIB_10G
-#define CONFIG_PHY_VITESSE
 #define CONFIG_CORTINA_FW_ADDR		0xefe00000
 #define CONFIG_CORTINA_FW_LENGTH	0x40000
-#define CONFIG_PHY_TERANETICS
 #define SGMII_PHY_ADDR1 0x0
 #define SGMII_PHY_ADDR2 0x1
 #define SGMII_PHY_ADDR3 0x2

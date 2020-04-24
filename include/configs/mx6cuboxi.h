@@ -32,7 +32,6 @@
 #define IMX_FEC_BASE			ENET_BASE_ADDR
 #define CONFIG_FEC_XCV_TYPE		RGMII
 #define CONFIG_FEC_MXC_PHYADDR		0
-#define CONFIG_PHY_ATHEROS
 
 /* Framebuffer */
 #define CONFIG_VIDEO_BMP_RLE8

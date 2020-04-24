@@ -12,7 +12,6 @@
 #include "rcar-gen3-common.h"
 
 /* Ethernet RAVB */
-#define CONFIG_BITBANGMII
 #define CONFIG_BITBANGMII_MULTI
 
 /* Environment compatibility */
@@ -24,7 +23,6 @@
 #define CONFIG_SH_ETHER_CACHE_WRITEBACK
 #define CONFIG_SH_ETHER_CACHE_INVALIDATE
 #define CONFIG_SH_ETHER_ALIGNE_SIZE	64
-#define CONFIG_BITBANGMII
 #define CONFIG_BITBANGMII_MULTI
 
 /* Board Clock */

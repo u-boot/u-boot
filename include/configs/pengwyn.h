@@ -162,7 +162,5 @@
 
 /* Network */
 #define CONFIG_PHY_RESET	1
-#define CONFIG_PHY_NATSEMI
-#define CONFIG_PHY_REALTEK
 
 #endif	/* ! __CONFIG_PENGWYN_H */

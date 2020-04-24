@@ -54,7 +54,6 @@
 /*
  * Software (bit-bang) MII driver configuration
  */
-#define CONFIG_BITBANGMII		/* bit-bang MII PHY management */
 #define CONFIG_BITBANGMII_MULTI
 
 /* SPL */

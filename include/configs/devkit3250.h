@@ -65,7 +65,6 @@
  * Ethernet
  */
 #define CONFIG_RMII
-#define CONFIG_PHY_SMSC
 #define CONFIG_LPC32XX_ETH
 #define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
 

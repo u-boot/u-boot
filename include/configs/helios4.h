@@ -52,7 +52,6 @@
 /* stay within first 1M */
 #endif
 
-#define CONFIG_PHY_MARVELL		/* there is a marvell phy */
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */
 
 /* Keep device tree and initrd in lower memory so the kernel can access them */

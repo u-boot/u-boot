@@ -170,11 +170,6 @@
 #define AQR105_IRQ_MASK			0x80000000
 /* FMan */
 #ifndef SPL_NO_FMAN
-
-#ifdef CONFIG_NET
-#define CONFIG_PHY_REALTEK
-#endif
-
 #ifdef CONFIG_SYS_DPAA_FMAN
 #define RGMII_PHY1_ADDR			0x1
 #define RGMII_PHY2_ADDR			0x2

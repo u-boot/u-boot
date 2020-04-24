@@ -654,11 +654,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
 #endif /* CONFIG_NOBQFMAN */
 
-#ifdef CONFIG_SYS_DPAA_FMAN
-#define CONFIG_PHY_VITESSE
-#define CONFIG_PHY_REALTEK
-#endif
-
 #ifdef CONFIG_FMAN_ENET
 #if defined(CONFIG_TARGET_T1040RDB) || defined(CONFIG_TARGET_T1042RDB)
 #define CONFIG_SYS_SGMII1_PHY_ADDR             0x03

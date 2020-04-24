@@ -69,7 +69,6 @@
 #define CONFIG_ENV_OVERWRITE	/* ethaddr can be reprogrammed */
 #define CONFIG_ARP_TIMEOUT	200
 #define CONFIG_NET_RETRY_COUNT	50
-#define CONFIG_PHY_MARVELL
 
 #define CONFIG_USB_MAX_CONTROLLER_COUNT (3 + 3)
 
