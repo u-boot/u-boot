@@ -61,8 +61,11 @@ void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
 	unsigned long startpt, stoppt;
 	unsigned long upto, end;
 
-	end = ALIGN(start + size, MMU_SECTION_SIZE) >> MMU_SECTION_SHIFT;
+	/* div by 2 before start + size to avoid phys_addr_t overflow */
+	end = ALIGN((start / 2) + (size / 2), MMU_SECTION_SIZE / 2)
+	      >> (MMU_SECTION_SHIFT - 1);
 	start = start >> MMU_SECTION_SHIFT;
+
 #ifdef CONFIG_ARMV7_LPAE
 	debug("%s: start=%pa, size=%zu, option=%llx\n", __func__, &start, size,
 	      option);
