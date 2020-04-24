@@ -77,11 +77,6 @@
  * dependencies on include/config/my/option.h for every
  * CONFIG_MY_OPTION encountered in any of the prerequisites.
  *
- * It will also filter out all the dependencies on *.ver. We need
- * to make sure that the generated version checksum are globally up
- * to date before even starting the recursive build, so it's too late
- * at this point anyway.
- *
  * We don't even try to really parse the header files, but
  * merely grep, i.e. if CONFIG_FOO is mentioned in a comment, it will
  * be picked up as well. It's not a problem with respect to
@@ -99,17 +94,47 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
 
-int is_spl_build = 0; /* hack for U-Boot */
+char tmp_buf[256]; /* hack for U-Boot */
 
 static void usage(void)
 {
-	fprintf(stderr, "Usage: fixdep [-e] <depfile> <target> <cmdline>\n");
-	fprintf(stderr, " -e  insert extra dependencies given on stdin\n");
+	fprintf(stderr, "Usage: fixdep <depfile> <target> <cmdline>\n");
 	exit(1);
+}
+
+/*
+ * In the intended usage of this program, the stdout is redirected to .*.cmd
+ * files. The return value of printf() and putchar() must be checked to catch
+ * any error, e.g. "No space left on device".
+ */
+static void xprintf(const char *format, ...)
+{
+	va_list ap;
+	int ret;
+
+	va_start(ap, format);
+	ret = vprintf(format, ap);
+	if (ret < 0) {
+		perror("fixdep");
+		exit(1);
+	}
+	va_end(ap);
+}
+
+static void xputchar(int c)
+{
+	int ret;
+
+	ret = putchar(c);
+	if (ret == EOF) {
+		perror("fixdep");
+		exit(1);
+	}
 }
 
 /*
@@ -119,7 +144,7 @@ static void print_dep(const char *m, int slen, const char *dir)
 {
 	int c, prev_c = '/', i;
 
-	printf("    $(wildcard %s/", dir);
+	xprintf("    $(wildcard %s/", dir);
 	for (i = 0; i < slen; i++) {
 		c = m[i];
 		if (c == '_')
@@ -127,25 +152,10 @@ static void print_dep(const char *m, int slen, const char *dir)
 		else
 			c = tolower(c);
 		if (c != '/' || prev_c != '/')
-			putchar(c);
+			xputchar(c);
 		prev_c = c;
 	}
-	printf(".h) \\\n");
-}
-
-static void do_extra_deps(void)
-{
-	char buf[80];
-
-	while (fgets(buf, sizeof(buf), stdin)) {
-		int len = strlen(buf);
-
-		if (len < 2 || buf[len - 1] != '\n') {
-			fprintf(stderr, "fixdep: bad data on stdin\n");
-			exit(1);
-		}
-		print_dep(buf, len - 1, "include/ksym");
-	}
+	xprintf(".h) \\\n");
 }
 
 struct item {
@@ -230,7 +240,6 @@ static void parse_config_file(const char *p)
 {
 	const char *q, *r;
 	const char *start = p;
-	char tmp_buf[256] = "SPL_"; /* hack for U-Boot */
 
 	while ((p = strstr(p, "CONFIG_"))) {
 		if (p > start && (isalnum(p[-1]) || p[-1] == '_')) {
@@ -239,7 +248,7 @@ static void parse_config_file(const char *p)
 		}
 		p += 7;
 		q = p;
-		while (*q && (isalnum(*q) || *q == '_'))
+		while (isalnum(*q) || *q == '_')
 			q++;
 		if (str_ends_with(p, q - p, "_MODULE"))
 			r = q - 7;
@@ -260,7 +269,7 @@ static void parse_config_file(const char *p)
 			while (isalnum(*q) || *q == '_')
 				q++;
 			r = q;
-			if (r > p && is_spl_build) {
+			if (r > p && tmp_buf[0]) {
 				memcpy(tmp_buf + 4, p, r - p);
 				r = tmp_buf + 4 + (r - p);
 				p = tmp_buf;
@@ -310,8 +319,7 @@ static void *read_file(const char *filename)
 static int is_ignored_file(const char *s, int len)
 {
 	return str_ends_with(s, len, "include/generated/autoconf.h") ||
-	       str_ends_with(s, len, "include/generated/autoksyms.h") ||
-	       str_ends_with(s, len, ".ver");
+	       str_ends_with(s, len, "include/generated/autoksyms.h");
 }
 
 /*
@@ -319,7 +327,7 @@ static int is_ignored_file(const char *s, int len)
  * assignments are parsed not only by make, but also by the rather simple
  * parser in scripts/mod/sumversion.c.
  */
-static void parse_dep_file(char *m, const char *target, int insert_extra_deps)
+static void parse_dep_file(char *m, const char *target)
 {
 	char *p;
 	int is_last, is_target;
@@ -366,13 +374,13 @@ static void parse_dep_file(char *m, const char *target, int insert_extra_deps)
 				 */
 				if (!saw_any_target) {
 					saw_any_target = 1;
-					printf("source_%s := %s\n\n",
-					       target, m);
-					printf("deps_%s := \\\n", target);
+					xprintf("source_%s := %s\n\n",
+						target, m);
+					xprintf("deps_%s := \\\n", target);
 				}
 				is_first_dep = 0;
 			} else {
-				printf("  %s \\\n", m);
+				xprintf("  %s \\\n", m);
 			}
 
 			buf = read_file(m);
@@ -395,23 +403,16 @@ static void parse_dep_file(char *m, const char *target, int insert_extra_deps)
 		exit(1);
 	}
 
-	if (insert_extra_deps)
-		do_extra_deps();
-
-	printf("\n%s: $(deps_%s)\n\n", target, target);
-	printf("$(deps_%s):\n", target);
+	xprintf("\n%s: $(deps_%s)\n\n", target, target);
+	xprintf("$(deps_%s):\n", target);
 }
 
 int main(int argc, char *argv[])
 {
 	const char *depfile, *target, *cmdline;
-	int insert_extra_deps = 0;
 	void *buf;
 
-	if (argc == 5 && !strcmp(argv[1], "-e")) {
-		insert_extra_deps = 1;
-		argv++;
-	} else if (argc != 4)
+	if (argc != 4)
 		usage();
 
 	depfile = argv[1];
@@ -419,13 +420,16 @@ int main(int argc, char *argv[])
 	cmdline = argv[3];
 
 	/* hack for U-Boot */
-	if (!strncmp(target, "spl/", 4) || !strncmp(target, "tpl/", 4))
-		is_spl_build = 1;
+	if (!strncmp(target, "spl/", 4))
+		strcpy(tmp_buf, "SPL_");
+	else if (!strncmp(target, "tpl/", 4))
+		strcpy(tmp_buf, "TPL_");
+	/* end U-Boot hack */
 
-	printf("cmd_%s := %s\n\n", target, cmdline);
+	xprintf("cmd_%s := %s\n\n", target, cmdline);
 
 	buf = read_file(depfile);
-	parse_dep_file(buf, target, insert_extra_deps);
+	parse_dep_file(buf, target);
 	free(buf);
 
 	return 0;

@@ -3186,16 +3186,6 @@ necessary. For example using the ELDK on a 4xx CPU, please enter:
 	$ CROSS_COMPILE=ppc_4xx-
 	$ export CROSS_COMPILE
 
-Note: If you wish to generate Windows versions of the utilities in
-      the tools directory you can use the MinGW toolchain
-      (http://www.mingw.org).  Set your HOST tools to the MinGW
-      toolchain and execute 'make tools'.  For example:
-
-       $ make HOSTCC=i586-mingw32msvc-gcc HOSTSTRIP=i586-mingw32msvc-strip tools
-
-      Binaries such as tools/mkimage.exe will be created which can
-      be executed on computers running Windows.
-
 U-Boot is intended to be simple to build. After installing the
 sources you must configure U-Boot for one specific board type. This
 is done by typing:

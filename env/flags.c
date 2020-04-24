@@ -457,7 +457,6 @@ static int set_flags(const char *name, const char *value, void *priv)
 
 	e.key	= name;
 	e.data	= NULL;
-	e.callback = NULL;
 	hsearch_r(e, ENV_FIND, &ep, &env_htab, 0);
 
 	/* does the env variable actually exist? */

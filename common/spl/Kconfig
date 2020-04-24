@@ -508,12 +508,6 @@ config SPL_DMA
 	  the CPU moving the data. Enable this option to build the drivers
 	  in drivers/dma as part of an SPL build.
 
-config SPL_DM_GPIO
-	bool "Support Driver Model GPIO drivers"
-	depends on SPL_GPIO_SUPPORT && DM_GPIO
-	help
-	  Enable support for Driver Model based GPIO drivers in SPL.
-
 config SPL_DRIVERS_MISC_SUPPORT
 	bool "Support misc drivers"
 	help

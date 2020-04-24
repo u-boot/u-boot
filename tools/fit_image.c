@@ -422,7 +422,7 @@ err_buf:
  */
 static int fit_extract_data(struct image_tool_params *params, const char *fname)
 {
-	void *buf;
+	void *buf = NULL;
 	int buf_ptr;
 	int fit_size, new_size;
 	int fd;
@@ -431,19 +431,14 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 	int ret;
 	int images;
 	int node;
+	int image_number;
+	int align_size;
 
+	align_size = params->bl_len ? params->bl_len : 4;
 	fd = mmap_fdt(params->cmdname, fname, 0, &fdt, &sbuf, false, false);
 	if (fd < 0)
 		return -EIO;
 	fit_size = fdt_totalsize(fdt);
-
-	/* Allocate space to hold the image data we will extract */
-	buf = malloc(fit_size);
-	if (!buf) {
-		ret = -ENOMEM;
-		goto err_munmap;
-	}
-	buf_ptr = 0;
 
 	images = fdt_path_offset(fdt, FIT_IMAGES_PATH);
 	if (images < 0) {
@@ -451,6 +446,18 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 		ret = -EINVAL;
 		goto err_munmap;
 	}
+	image_number = fdtdec_get_child_count(fdt, images);
+
+	/*
+	 * Allocate space to hold the image data we will extract,
+	 * extral space allocate for image alignment to prevent overflow.
+	 */
+	buf = malloc(fit_size + (align_size * image_number));
+	if (!buf) {
+		ret = -ENOMEM;
+		goto err_munmap;
+	}
+	buf_ptr = 0;
 
 	for (node = fdt_first_subnode(fdt, images);
 	     node >= 0;
@@ -478,17 +485,17 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 					buf_ptr);
 		}
 		fdt_setprop_u32(fdt, node, FIT_DATA_SIZE_PROP, len);
-
-		buf_ptr += (len + 3) & ~3;
+		buf_ptr += ALIGN(len, align_size);
 	}
 
 	/* Pack the FDT and place the data after it */
 	fdt_pack(fdt);
 
+	new_size = fdt_totalsize(fdt);
+	new_size = ALIGN(new_size, align_size);
+	fdt_set_totalsize(fdt, new_size);
 	debug("Size reduced from %x to %x\n", fit_size, fdt_totalsize(fdt));
 	debug("External data size %x\n", buf_ptr);
-	new_size = fdt_totalsize(fdt);
-	new_size = (new_size + 3) & ~3;
 	munmap(fdt, sbuf.st_size);
 
 	if (ftruncate(fd, new_size)) {
@@ -527,8 +534,7 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 err_munmap:
 	munmap(fdt, sbuf.st_size);
 err:
-	if (buf)
-		free(buf);
+	free(buf);
 	close(fd);
 	return ret;
 }
@@ -547,7 +553,7 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 	if (fd < 0)
 		return -EIO;
 	fit_size = fdt_totalsize(old_fdt);
-	data_base = (fit_size + 3) & ~3;
+	data_base = ALIGN(fit_size, 4);
 
 	/* Allocate space to hold the new FIT */
 	size = sbuf.st_size + 16384;
@@ -556,21 +562,21 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 		fprintf(stderr, "%s: Failed to allocate memory (%d bytes)\n",
 			__func__, size);
 		ret = -ENOMEM;
-		goto err_has_fd;
+		goto err_munmap;
 	}
 	ret = fdt_open_into(old_fdt, fdt, size);
 	if (ret) {
 		debug("%s: Failed to expand FIT: %s\n", __func__,
 		      fdt_strerror(errno));
 		ret = -EINVAL;
-		goto err_has_fd;
+		goto err_munmap;
 	}
 
 	images = fdt_path_offset(fdt, FIT_IMAGES_PATH);
 	if (images < 0) {
 		debug("%s: Cannot find /images node: %d\n", __func__, images);
 		ret = -EINVAL;
-		goto err_has_fd;
+		goto err_munmap;
 	}
 
 	for (node = fdt_first_subnode(fdt, images);
@@ -591,9 +597,11 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 			debug("%s: Failed to write property: %s\n", __func__,
 			      fdt_strerror(ret));
 			ret = -EINVAL;
-			goto err_has_fd;
+			goto err_munmap;
 		}
 	}
+
+	munmap(old_fdt, sbuf.st_size);
 
 	/* Close the old fd so we can re-use it. */
 	close(fd);
@@ -609,22 +617,24 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 		fprintf(stderr, "%s: Can't open %s: %s\n",
 			params->cmdname, fname, strerror(errno));
 		ret = -EIO;
-		goto err_no_fd;
+		goto err;
 	}
 	if (write(fd, fdt, new_size) != new_size) {
 		debug("%s: Failed to write external data to file %s\n",
 		      __func__, strerror(errno));
 		ret = -EIO;
-		goto err_has_fd;
+		goto err;
 	}
 
-	ret = 0;
-
-err_has_fd:
-	close(fd);
-err_no_fd:
-	munmap(old_fdt, sbuf.st_size);
 	free(fdt);
+	close(fd);
+	return 0;
+
+err_munmap:
+	munmap(old_fdt, sbuf.st_size);
+err:
+	free(fdt);
+	close(fd);
 	return ret;
 }
 

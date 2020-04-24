@@ -203,7 +203,7 @@ static int sfp_sign_buffer(uint8_t *buf, uint8_t ver, uint8_t flags,
 	uint32_t calc_crc;
 
 	/* Align the length up */
-	len = (len + 3) & ~3;
+	len = ALIGN(len, 4);
 
 	/* Build header, adding 4 bytes to length to hold the CRC32. */
 	sfp_build_header(buf + HEADER_OFFSET, ver, flags, len + 4);

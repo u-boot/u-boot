@@ -217,7 +217,8 @@ script:
  #
  # Build a selection of boards if TEST_PY_BD is empty
  - if [[ "${BUILDMAN}" != "" ]]; then
-     tools/buildman/buildman -P -E -W ${BUILDMAN} ${OVERRIDE};
+     ret=0
+     tools/buildman/buildman -P -E -W ${BUILDMAN} ${OVERRIDE} || ret=$?;
      if [[ $ret -ne 0 ]]; then
        tools/buildman/buildman -seP ${BUILDMAN};
        exit $ret;

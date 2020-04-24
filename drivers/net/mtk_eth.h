@@ -34,7 +34,9 @@
 
 /* SGMII subsystem config registers */
 #define SGMSYS_PCS_CONTROL_1		0x0
+#define SGMII_LINK_STATUS		BIT(18)
 #define SGMII_AN_ENABLE			BIT(12)
+#define SGMII_AN_RESTART		BIT(9)
 
 #define SGMSYS_SGMII_MODE		0x20
 #define SGMII_FORCE_MODE		0x31120019
@@ -139,6 +141,11 @@
 #define FORCE_DPX			BIT(1)
 #define FORCE_LINK			BIT(0)
 
+/* Values of IPG_CFG */
+#define IPG_96BIT			0
+#define IPG_96BIT_WITH_SHORT_IPG	1
+#define IPG_64BIT			2
+
 /* MAC_RX_PKT_LEN: Max RX packet length */
 #define MAC_RX_PKT_LEN_1518		0
 #define MAC_RX_PKT_LEN_1536		1
@@ -178,17 +185,73 @@
 #define VLAN_ATTR_TRANSLATION		2
 #define VLAN_ATTR_TRANSPARENT		3
 
-#define PCMR_REG(p)			(0x3000 + (p) * 0x100)
-/* XXX: all fields are defined under GMAC_PORT_MCR */
+#define PMCR_REG(p)			(0x3000 + (p) * 0x100)
+/* XXX: all fields of MT7530 are defined under GMAC_PORT_MCR
+ * MT7531 specific fields are defined below
+ */
+#define FORCE_MODE_EEE1G		BIT(25)
+#define FORCE_MODE_EEE100		BIT(26)
+#define FORCE_MODE_TX_FC		BIT(27)
+#define FORCE_MODE_RX_FC		BIT(28)
+#define FORCE_MODE_DPX			BIT(29)
+#define FORCE_MODE_SPD			BIT(30)
+#define FORCE_MODE_LNK			BIT(31)
+#define MT7531_FORCE_MODE		FORCE_MODE_EEE1G | FORCE_MODE_EEE100 |\
+					FORCE_MODE_TX_FC | FORCE_MODE_RX_FC | \
+					FORCE_MODE_DPX   | FORCE_MODE_SPD | \
+					FORCE_MODE_LNK
 
+/* MT7531 SGMII Registers */
+#define MT7531_SGMII_REG_BASE		0x5000
+#define MT7531_SGMII_REG_PORT_BASE	0x1000
+#define MT7531_SGMII_REG(p, r)		(MT7531_SGMII_REG_BASE + \
+					(p) * MT7531_SGMII_REG_PORT_BASE + (r))
+#define MT7531_PCS_CONTROL_1(p)		MT7531_SGMII_REG(((p) - 5), 0x00)
+#define MT7531_SGMII_MODE(p)		MT7531_SGMII_REG(((p) - 5), 0x20)
+#define MT7531_QPHY_PWR_STATE_CTRL(p)	MT7531_SGMII_REG(((p) - 5), 0xe8)
+#define MT7531_PHYA_CTRL_SIGNAL3(p)	MT7531_SGMII_REG(((p) - 5), 0x128)
+/* XXX: all fields of MT7531 SGMII  are defined under SGMSYS */
+
+/* MT753x System Control Register */
 #define SYS_CTRL_REG			0x7000
 #define SW_PHY_RST			BIT(2)
 #define SW_SYS_RST			BIT(1)
 #define SW_REG_RST			BIT(0)
 
-#define NUM_TRGMII_CTRL			5
+/* MT7531  */
+#define MT7531_PHY_IAC			0x701c
+/* XXX: all fields are defined under GMAC_PIAC_REG */
+
+#define MT7531_CLKGEN_CTRL		0x7500
+#define CLK_SKEW_OUT_S			8
+#define CLK_SKEW_OUT_M			0x300
+#define CLK_SKEW_IN_S			6
+#define CLK_SKEW_IN_M			0xc0
+#define RXCLK_NO_DELAY			BIT(5)
+#define TXCLK_NO_REVERSE		BIT(4)
+#define GP_MODE_S			1
+#define GP_MODE_M			0x06
+#define GP_CLK_EN			BIT(0)
+
+/* Values of GP_MODE */
+#define GP_MODE_RGMII			0
+#define GP_MODE_MII			1
+#define GP_MODE_REV_MII			2
+
+/* Values of CLK_SKEW_IN */
+#define CLK_SKEW_IN_NO_CHANGE		0
+#define CLK_SKEW_IN_DELAY_100PPS	1
+#define CLK_SKEW_IN_DELAY_200PPS	2
+#define CLK_SKEW_IN_REVERSE		3
+
+/* Values of CLK_SKEW_OUT */
+#define CLK_SKEW_OUT_NO_CHANGE		0
+#define CLK_SKEW_OUT_DELAY_100PPS	1
+#define CLK_SKEW_OUT_DELAY_200PPS	2
+#define CLK_SKEW_OUT_REVERSE		3
 
 #define HWTRAP_REG			0x7800
+/* MT7530 Modified Hardware Trap Status Registers */
 #define MHWTRAP_REG			0x7804
 #define CHG_TRAP			BIT(16)
 #define LOOPDET_DIS			BIT(14)
@@ -222,6 +285,8 @@
 #define P6_INTF_MODE_RGMII		0
 #define P6_INTF_MODE_TRGMII		1
 
+#define NUM_TRGMII_CTRL			5
+
 #define MT7530_TRGMII_RD(n)		(0x7a10 + (n) * 8)
 #define RD_TAP_S			0
 #define RD_TAP_M			0x7f
@@ -229,8 +294,34 @@
 #define MT7530_TRGMII_TD_ODT(n)		(0x7a54 + (n) * 8)
 /* XXX: all fields are defined under GMAC_TRGMII_TD_ODT */
 
-/* MT7530 GPHY MDIO Indirect Access Registers */
+/* TOP Signals Status Register */
+#define MT7531_TOP_SIG_SR		0x780c
+#define PAD_MCM_SMI_EN			BIT(0)
+#define PAD_DUAL_SGMII_EN		BIT(1)
 
+/* MT7531 PLLGP Registers */
+#define MT7531_PLLGP_EN			0x7820
+#define EN_COREPLL			BIT(2)
+#define SW_CLKSW			BIT(1)
+#define SW_PLLGP			BIT(0)
+
+#define MT7531_PLLGP_CR0		0x78a8
+#define RG_COREPLL_EN			BIT(22)
+#define RG_COREPLL_POSDIV_S		23
+#define RG_COREPLL_POSDIV_M		0x3800000
+#define RG_COREPLL_SDM_PCW_S		1
+#define RG_COREPLL_SDM_PCW_M		0x3ffffe
+#define RG_COREPLL_SDM_PCW_CHG		BIT(0)
+
+/* MT7531 RGMII and SGMII PLL clock */
+#define MT7531_ANA_PLLGP_CR2		0x78b0
+#define MT7531_ANA_PLLGP_CR5		0x78bc
+
+/* MT7531 GPIO GROUP IOLB SMT0 Control */
+#define MT7531_SMT0_IOLB		0x7f04
+#define SMT_IOLB_5_SMI_MDC_EN		BIT(5)
+
+/* MT7530 GPHY MDIO Indirect Access Registers */
 #define MII_MMD_ACC_CTL_REG		0x0d
 #define MMD_CMD_S			14
 #define MMD_CMD_M			0xc000
@@ -246,7 +337,6 @@
 #define MII_MMD_ADDR_DATA_REG		0x0e
 
 /* MT7530 GPHY MDIO MMD Registers */
-
 #define CORE_PLL_GROUP2			0x401
 #define RG_SYSPLL_EN_NORMAL		BIT(15)
 #define RG_SYSPLL_VODEN			BIT(14)
@@ -254,6 +344,8 @@
 #define RG_SYSPLL_POSDIV_M		0x60
 
 #define CORE_PLL_GROUP4			0x403
+#define MT7531_BYPASS_MODE		BIT(4)
+#define MT7531_POWER_ON_OFF		BIT(5)
 #define RG_SYSPLL_DDSFBK_EN		BIT(12)
 #define RG_SYSPLL_BIAS_EN		BIT(11)
 #define RG_SYSPLL_BIAS_LPF_EN		BIT(10)
@@ -297,5 +389,25 @@
 #define CORE_TRGMII_GSW_CLK_CG		0x410
 #define REG_GSWCK_EN			BIT(0)
 #define REG_TRGMIICK_EN			BIT(1)
+
+/* Extend PHY Control Register 3 */
+#define PHY_EXT_REG_14			0x14
+
+/* Fields of PHY_EXT_REG_14 */
+#define PHY_EN_DOWN_SHFIT		BIT(4)
+
+/* Extend PHY Control Register 4 */
+#define PHY_EXT_REG_17			0x17
+
+/* Fields of PHY_EXT_REG_17 */
+#define PHY_LINKDOWN_POWER_SAVING_EN	BIT(4)
+
+/* PHY RXADC Control Register 7 */
+#define PHY_DEV1E_REG_0C6		0x0c6
+
+/* Fields of PHY_DEV1E_REG_0C6 */
+#define PHY_POWER_SAVING_S		8
+#define PHY_POWER_SAVING_M		0x300
+#define PHY_POWER_SAVING_TX		0x0
 
 #endif /* _MTK_ETH_H_ */

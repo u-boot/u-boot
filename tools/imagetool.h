@@ -25,6 +25,9 @@
 
 #define ARRAY_SIZE(x)		(sizeof(x) / sizeof((x)[0]))
 
+#define __ALIGN_MASK(x, mask)	(((x) + (mask)) & ~(mask))
+#define ALIGN(x, a)		__ALIGN_MASK((x), (typeof(x))(a) - 1)
+
 #define IH_ARCH_DEFAULT		IH_ARCH_INVALID
 
 /* Information about a file that needs to be placed into the FIT */
@@ -76,6 +79,7 @@ struct image_tool_params {
 	bool external_data;	/* Store data outside the FIT */
 	bool quiet;		/* Don't output text in normal operation */
 	unsigned int external_offset;	/* Add padding to external data */
+	int bl_len;		/* Block length in byte for external data */
 	const char *engine_id;	/* Engine to use for signing */
 };
 

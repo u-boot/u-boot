@@ -41,7 +41,6 @@ __weak const char *env_ext4_get_dev_part(void)
 	return (const char *)CONFIG_ENV_EXT4_DEVICE_AND_PART;
 }
 
-#ifdef CONFIG_CMD_SAVEENV
 static int env_ext4_save(void)
 {
 	env_t	env_new;
@@ -83,7 +82,6 @@ static int env_ext4_save(void)
 	puts("done\n");
 	return 0;
 }
-#endif /* CONFIG_CMD_SAVEENV */
 
 static int env_ext4_load(void)
 {
@@ -137,5 +135,5 @@ U_BOOT_ENV_LOCATION(ext4) = {
 	.location	= ENVL_EXT4,
 	ENV_NAME("EXT4")
 	.load		= env_ext4_load,
-	.save		= env_save_ptr(env_ext4_save),
+	.save		= ENV_SAVE_PTR(env_ext4_save),
 };

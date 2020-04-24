@@ -1,6 +1,6 @@
 #include <common.h>
 
-#if defined(CONFIG_UNIT_TEST)
+#if CONFIG_IS_ENABLED(UNIT_TEST)
 #define DEBUG
 #endif
 

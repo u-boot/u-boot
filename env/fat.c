@@ -26,12 +26,8 @@
 # endif
 #else
 # define LOADENV
-# if defined(CONFIG_CMD_SAVEENV)
-#  define CMD_SAVEENV
-# endif
 #endif
 
-#ifdef CMD_SAVEENV
 static int env_fat_save(void)
 {
 	env_t __aligned(ARCH_DMA_MINALIGN) env_new;
@@ -76,7 +72,6 @@ static int env_fat_save(void)
 
 	return 0;
 }
-#endif /* CMD_SAVEENV */
 
 #ifdef LOADENV
 static int env_fat_load(void)
@@ -135,7 +130,5 @@ U_BOOT_ENV_LOCATION(fat) = {
 #ifdef LOADENV
 	.load		= env_fat_load,
 #endif
-#ifdef CMD_SAVEENV
-	.save		= env_save_ptr(env_fat_save),
-#endif
+	.save		= ENV_SAVE_PTR(env_fat_save),
 };

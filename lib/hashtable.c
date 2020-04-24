@@ -222,6 +222,17 @@ int hmatch_r(const char *match, int last_idx, struct env_entry **retval,
 	return 0;
 }
 
+static int
+do_callback(const struct env_entry *e, const char *name, const char *value,
+	    enum env_op op, int flags)
+{
+#ifndef CONFIG_SPL_BUILD
+	if (e->callback)
+		return e->callback(name, value, op, flags);
+#endif
+	return 0;
+}
+
 /*
  * Compare an existing entry with the desired key, and overwrite if the action
  * is ENV_ENTER.  This is simply a helper function for hsearch_r().
@@ -247,9 +258,8 @@ static inline int _compare_and_overwrite_entry(struct env_entry item,
 			}
 
 			/* If there is a callback, call it */
-			if (htab->table[idx].entry.callback &&
-			    htab->table[idx].entry.callback(item.key,
-			    item.data, env_op_overwrite, flag)) {
+			if (do_callback(&htab->table[idx].entry, item.key,
+					item.data, env_op_overwrite, flag)) {
 				debug("callback() rejected setting variable "
 					"%s, skipping it!\n", item.key);
 				__set_errno(EINVAL);
@@ -402,9 +412,8 @@ int hsearch_r(struct env_entry item, enum env_action action,
 		}
 
 		/* If there is a callback, call it */
-		if (htab->table[idx].entry.callback &&
-		    htab->table[idx].entry.callback(item.key, item.data,
-		    env_op_create, flag)) {
+		if (do_callback(&htab->table[idx].entry, item.key, item.data,
+				env_op_create, flag)) {
 			debug("callback() rejected setting variable "
 				"%s, skipping it!\n", item.key);
 			_hdelete(item.key, htab, &htab->table[idx].entry, idx);
@@ -441,7 +450,6 @@ static void _hdelete(const char *key, struct hsearch_data *htab,
 	debug("hdelete: DELETING key \"%s\"\n", key);
 	free((void *)ep->key);
 	free(ep->data);
-	ep->callback = NULL;
 	ep->flags = 0;
 	htab->table[idx].used = USED_DELETED;
 
@@ -473,8 +481,8 @@ int hdelete_r(const char *key, struct hsearch_data *htab, int flag)
 	}
 
 	/* If there is a callback, call it */
-	if (htab->table[idx].entry.callback &&
-	    htab->table[idx].entry.callback(key, NULL, env_op_delete, flag)) {
+	if (do_callback(&htab->table[idx].entry, key, NULL,
+			env_op_delete, flag)) {
 		debug("callback() rejected deleting variable "
 			"%s, skipping it!\n", key);
 		__set_errno(EINVAL);

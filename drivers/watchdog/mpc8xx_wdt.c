@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <dm.h>
 #include <wdt.h>
 #include <mpc8xx.h>
@@ -21,8 +22,15 @@ void hw_watchdog_reset(void)
 static int mpc8xx_wdt_start(struct udevice *dev, u64 timeout, ulong flags)
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
+	u32 val = CONFIG_SYS_SYPCR;
+	const char *mode = env_get("watchdog_mode");
 
-	out_be32(&immap->im_siu_conf.sc_sypcr, CONFIG_SYS_SYPCR);
+	if (strcmp(mode, "off") == 0)
+		val = val & ~(SYPCR_SWE | SYPCR_SWRI);
+	else if (strcmp(mode, "nmi") == 0)
+		val = (val & ~SYPCR_SWRI) | SYPCR_SWE;
+
+	out_be32(&immap->im_siu_conf.sc_sypcr, val);
 
 	if (!(in_be32(&immap->im_siu_conf.sc_sypcr) & SYPCR_SWE))
 		return -EBUSY;

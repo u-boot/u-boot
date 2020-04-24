@@ -21,16 +21,12 @@
 #include <u-boot/crc.h>
 
 #ifndef CONFIG_SPL_BUILD
-#define CMD_SAVEENV
 #define INITENV
 #endif
 
 #ifdef CONFIG_ENV_OFFSET_REDUND
-#ifdef CMD_SAVEENV
 static ulong env_offset		= CONFIG_ENV_OFFSET;
 static ulong env_new_offset	= CONFIG_ENV_OFFSET_REDUND;
-#endif
-
 #endif /* CONFIG_ENV_OFFSET_REDUND */
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -69,7 +65,6 @@ static int setup_flash_device(void)
 }
 
 #if defined(CONFIG_ENV_OFFSET_REDUND)
-#ifdef CMD_SAVEENV
 static int env_sf_save(void)
 {
 	env_t	env_new;
@@ -148,7 +143,6 @@ static int env_sf_save(void)
 
 	return ret;
 }
-#endif /* CMD_SAVEENV */
 
 static int env_sf_load(void)
 {
@@ -187,7 +181,6 @@ out:
 	return ret;
 }
 #else
-#ifdef CMD_SAVEENV
 static int env_sf_save(void)
 {
 	u32	saved_size, saved_offset, sector;
@@ -247,7 +240,6 @@ static int env_sf_save(void)
 
 	return ret;
 }
-#endif /* CMD_SAVEENV */
 
 static int env_sf_load(void)
 {
@@ -313,9 +305,7 @@ U_BOOT_ENV_LOCATION(sf) = {
 	.location	= ENVL_SPI_FLASH,
 	ENV_NAME("SPI Flash")
 	.load		= env_sf_load,
-#ifdef CMD_SAVEENV
-	.save		= env_save_ptr(env_sf_save),
-#endif
+	.save		= ENV_SAVE_PTR(env_sf_save),
 #if defined(INITENV) && (CONFIG_ENV_ADDR != 0x0)
 	.init		= env_sf_init,
 #endif

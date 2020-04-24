@@ -1015,7 +1015,7 @@ static size_t image_headersz_v1(int *hasext)
 	 * The payload should be aligned on some reasonable
 	 * boundary
 	 */
-	return ALIGN_SUP(headersz, 4096);
+	return ALIGN(headersz, 4096);
 }
 
 int add_binary_header_v1(uint8_t *cur)
@@ -1058,7 +1058,7 @@ int add_binary_header_v1(uint8_t *cur)
 	 * up to a 4-byte boundary. Plus 4 bytes for the
 	 * next-header byte and 3-byte alignment at the end.
 	 */
-	binhdrsz = ALIGN_SUP(binhdrsz, 4) + 4;
+	binhdrsz = ALIGN(binhdrsz, 4) + 4;
 	hdr->headersz_lsb = cpu_to_le16(binhdrsz & 0xFFFF);
 	hdr->headersz_msb = (binhdrsz & 0xFFFF0000) >> 16;
 
@@ -1082,7 +1082,7 @@ int add_binary_header_v1(uint8_t *cur)
 
 	fclose(bin);
 
-	cur += ALIGN_SUP(s.st_size, 4);
+	cur += ALIGN(s.st_size, 4);
 
 	/*
 	 * For now, we don't support more than one binary
@@ -1548,7 +1548,7 @@ static void kwbimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	}
 
 	/* The MVEBU BootROM does not allow non word aligned payloads */
-	sbuf->st_size = ALIGN_SUP(sbuf->st_size, 4);
+	sbuf->st_size = ALIGN(sbuf->st_size, 4);
 
 	version = image_get_version();
 	switch (version) {

@@ -55,6 +55,8 @@ void env_callback_init(struct env_entry *var_entry)
 		first_call = 0;
 	}
 
+	var_entry->callback = NULL;
+
 	/* look in the ".callbacks" var for a reference to this variable */
 	if (callback_list != NULL)
 		ret = env_attr_lookup(callback_list, var_name, callback_name);
