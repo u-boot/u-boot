@@ -63,7 +63,7 @@
 	"name_fit=fitImage\0" \
 	"update_to_fit=setenv loadaddr ${addr_fit}; setenv bootfile ${name_fit}\0" \
 	"get_overlaystring=" \
-		"for overlay in $overlay_files;" \
+		"for overlay in $name_overlays;" \
 		"do;" \
 		"setenv overlaystring ${overlaystring}'#'${overlay};" \
 		"done;\0" \
