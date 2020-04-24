@@ -845,7 +845,7 @@ static void zynq_nand_cmd_function(struct mtd_info *mtd, unsigned int command,
 	if (curr_cmd->end_cmd_valid == ZYNQ_NAND_CMD_PHASE)
 		end_cmd_valid = 1;
 
-	if (curr_cmd->end_cmd == NAND_CMD_NONE)
+	if (curr_cmd->end_cmd == (u8)NAND_CMD_NONE)
 		end_cmd = 0x0;
 	else
 		end_cmd = curr_cmd->end_cmd;
