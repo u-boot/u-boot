@@ -954,10 +954,11 @@ static ulong stm32mp1_clk_get(struct stm32mp1_clk_priv *priv, int p)
 		case RCC_MPCKSELR_PLL:
 		case RCC_MPCKSELR_PLL_MPUDIV:
 			clock = stm32mp1_read_pll_freq(priv, _PLL1, _DIV_P);
-			if (p == RCC_MPCKSELR_PLL_MPUDIV) {
+			if ((reg & RCC_SELR_SRC_MASK) ==
+			    RCC_MPCKSELR_PLL_MPUDIV) {
 				reg = readl(priv->base + RCC_MPCKDIVR);
-				clock /= stm32mp1_mpu_div[reg &
-							  RCC_MPUDIV_MASK];
+				clock >>= stm32mp1_mpu_div[reg &
+					RCC_MPUDIV_MASK];
 			}
 			break;
 		}
