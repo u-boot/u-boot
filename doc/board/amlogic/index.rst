@@ -17,7 +17,7 @@ This matrix concerns the actual source code version.
 +===============================+===========+==============+==============+============+============+=============+==============+
 | Boards               		| Odroid-C2 | P212         | Khadas VIM2  | S400       | U200       | Odroid-N2   | SEI610       |
 |				| Nanopi-K2 | Khadas-VIM   | Libretech-PC |	       | SEI510	    | Khadas-VIM3 | Khadas-VIM3L |
-|				| P200	    | LibreTech-CC |	          |	       |            |	          |    	         |
+|				| P200	    | LibreTech-CC |	          |	       |            |	          | Odroid-C4    |
 |				| P201	    | LibreTech-AC |	          |	       |            |             |    	         |
 +-------------------------------+-----------+--------------+--------------+------------+------------+-------------+--------------+
 | UART               		| **Yes**   | **Yes**      | **Yes**      | **Yes**    | **Yes**    | **Yes**     | **Yes**      |
@@ -83,6 +83,7 @@ Board Documentation
    libretech-cc
    nanopi-k2
    odroid-c2
+   odroid-c4
    odroid-n2
    p200
    p201
