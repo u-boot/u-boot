@@ -30,6 +30,9 @@ ENTRY(lowlevel_init)
 	branch_if_slave x0, put_cpu_in_wfi
 	/* L2 reset completed */
 	str	xzr, [x4]
+	/* Clear previous CPU release address */
+	ldr	x4, =CPU_RELEASE_ADDR
+	str	wzr, [x4]
 	/* Master CPU (CPU0) request for warm reset */
 	mrs	x1, rmr_el3
 	orr	x1, x1, #0x02
