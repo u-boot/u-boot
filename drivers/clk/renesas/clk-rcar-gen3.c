@@ -526,6 +526,7 @@ U_BOOT_DRIVER(clk_gen3) = {
 	.ops		= &gen3_clk_ops,
 	.probe		= gen3_clk_probe,
 	.remove		= gen3_clk_remove,
+	.flags          = DM_FLAG_OS_PREPARE | DM_FLAG_VITAL,
 };
 
 static int gen3_reset_assert(struct reset_ctl *reset_ctl)
@@ -565,6 +566,7 @@ U_BOOT_DRIVER(rst_gen3) = {
 	.name = "rst_gen3",
 	.id = UCLASS_RESET,
 	.ops = &rst_gen3_ops,
+	.flags = DM_FLAG_OS_PREPARE | DM_FLAG_VITAL,
 };
 
 int gen3_cpg_bind(struct udevice *parent)
