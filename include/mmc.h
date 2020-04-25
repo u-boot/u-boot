@@ -377,7 +377,7 @@ struct mmc_uclass_priv {
  * @dev:	Device
  * @return associated mmc struct pointer if available, else NULL
  */
-struct mmc *mmc_get_mmc_dev(struct udevice *dev);
+struct mmc *mmc_get_mmc_dev(const struct udevice *dev);
 
 /* End of driver model support */
 

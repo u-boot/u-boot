@@ -10,6 +10,8 @@
 #include <cpu_func.h>
 #include <malloc.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
  * Flush range from all levels of d-cache/unified-cache.
  * Affects the range [start, start + size - 1].
@@ -118,3 +120,34 @@ void invalidate_l2_cache(void)
 	isb();
 }
 #endif
+
+int arch_reserve_mmu(void)
+{
+	return arm_reserve_mmu();
+}
+
+__weak int arm_reserve_mmu(void)
+{
+#if !(CONFIG_IS_ENABLED(SYS_ICACHE_OFF) && CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
+	/* reserve TLB table */
+	gd->arch.tlb_size = PGTABLE_SIZE;
+	gd->relocaddr -= gd->arch.tlb_size;
+
+	/* round down to next 64 kB limit */
+	gd->relocaddr &= ~(0x10000 - 1);
+
+	gd->arch.tlb_addr = gd->relocaddr;
+	debug("TLB table from %08lx to %08lx\n", gd->arch.tlb_addr,
+	      gd->arch.tlb_addr + gd->arch.tlb_size);
+
+#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
+	/*
+	 * Record allocated tlb_addr in case gd->tlb_addr to be overwritten
+	 * with location within secure ram.
+	 */
+	gd->arch.tlb_allocated = gd->arch.tlb_addr;
+#endif
+#endif
+
+	return 0;
+}

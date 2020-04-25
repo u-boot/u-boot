@@ -6,6 +6,7 @@ Board-specific doc
 .. toctree::
    :maxdepth: 2
 
+   actions/index
    AndesTech/index
    atmel/index
    coreboot/index

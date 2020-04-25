@@ -1,14 +1,14 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Board configuration file for Bubblegum-96
+ * Board configuration file for Actions Semi Owl SoCs.
  *
  * Copyright (C) 2015 Actions Semi Co., Ltd.
  * Copyright (C) 2018 Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
  *
  */
 
-#ifndef _BUBBLEGUM_96_H_
-#define _BUGGLEGUM_96_H_
+#ifndef _OWL_COMMON_CONFIG_H_
+#define _OWL_COMMON_CONFIG_H_
 
 /* SDRAM Definitions */
 #define CONFIG_SYS_SDRAM_BASE		0x0

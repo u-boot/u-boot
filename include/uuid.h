@@ -35,11 +35,13 @@ struct uuid {
 #define UUID_VARIANT		0x1
 
 int uuid_str_valid(const char *uuid);
-int uuid_str_to_bin(char *uuid_str, unsigned char *uuid_bin, int str_format);
-void uuid_bin_to_str(unsigned char *uuid_bin, char *uuid_str, int str_format);
+int uuid_str_to_bin(const char *uuid_str, unsigned char *uuid_bin,
+		    int str_format);
+void uuid_bin_to_str(const unsigned char *uuid_bin, char *uuid_str,
+		     int str_format);
 #ifdef CONFIG_PARTITION_TYPE_GUID
 int uuid_guid_get_bin(const char *guid_str, unsigned char *guid_bin);
-int uuid_guid_get_str(unsigned char *guid_bin, char *guid_str);
+int uuid_guid_get_str(const unsigned char *guid_bin, char *guid_str);
 #endif
 void gen_rand_uuid(unsigned char *uuid_bin);
 void gen_rand_uuid_str(char *uuid_str, int str_format);

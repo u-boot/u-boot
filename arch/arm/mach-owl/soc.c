@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Bubblegum-96 Boards Support
+ * Actions Semi Owl SoCs platform support.
  *
  * Copyright (C) 2018 Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
  */
@@ -40,7 +40,7 @@ static void show_psci_version(void)
 	arm_smccc_smc(ARM_PSCI_0_2_FN_PSCI_VERSION, 0, 0, 0, 0, 0, 0, 0, &res);
 
 	printf("PSCI:  v%ld.%ld\n",
-	       PSCI_VERSION_MAJOR(res.a0),
+		PSCI_VERSION_MAJOR(res.a0),
 		PSCI_VERSION_MINOR(res.a0));
 }
 

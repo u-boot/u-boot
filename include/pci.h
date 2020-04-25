@@ -543,6 +543,9 @@ typedef int pci_dev_t;
 #define PCI_VENDEV(v, d)	(((v) << 16) | (d))
 #define PCI_ANY_ID		(~0)
 
+/* Convert from Linux format to U-Boot format */
+#define PCI_TO_BDF(val)		((val) << 8)
+
 struct pci_device_id {
 	unsigned int vendor, device;	/* Vendor and device ID or PCI_ANY_ID */
 	unsigned int subvendor, subdevice; /* Subsystem ID's or PCI_ANY_ID */

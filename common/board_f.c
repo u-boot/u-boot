@@ -385,33 +385,10 @@ static int reserve_round_4k(void)
 	return 0;
 }
 
-#ifdef CONFIG_ARM
-__weak int reserve_mmu(void)
+__weak int arch_reserve_mmu(void)
 {
-#if !(CONFIG_IS_ENABLED(SYS_ICACHE_OFF) && CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
-	/* reserve TLB table */
-	gd->arch.tlb_size = PGTABLE_SIZE;
-	gd->relocaddr -= gd->arch.tlb_size;
-
-	/* round down to next 64 kB limit */
-	gd->relocaddr &= ~(0x10000 - 1);
-
-	gd->arch.tlb_addr = gd->relocaddr;
-	debug("TLB table from %08lx to %08lx\n", gd->arch.tlb_addr,
-	      gd->arch.tlb_addr + gd->arch.tlb_size);
-
-#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
-	/*
-	 * Record allocated tlb_addr in case gd->tlb_addr to be overwritten
-	 * with location within secure ram.
-	 */
-	gd->arch.tlb_allocated = gd->arch.tlb_addr;
-#endif
-#endif
-
 	return 0;
 }
-#endif
 
 static int reserve_video(void)
 {
@@ -979,9 +956,7 @@ static const init_fnc_t init_sequence_f[] = {
 	reserve_pram,
 #endif
 	reserve_round_4k,
-#ifdef CONFIG_ARM
-	reserve_mmu,
-#endif
+	arch_reserve_mmu,
 	reserve_video,
 	reserve_trace,
 	reserve_uboot,
