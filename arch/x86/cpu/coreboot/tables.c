@@ -115,20 +115,11 @@ __weak void cb_parse_unhandled(u32 tag, unsigned char *ptr)
 
 static int cb_parse_header(void *addr, int len, struct sysinfo_t *info)
 {
+	unsigned char *ptr = addr;
 	struct cb_header *header;
-	unsigned char *ptr = (unsigned char *)addr;
 	int i;
 
-	for (i = 0; i < len; i += 16, ptr += 16) {
-		header = (struct cb_header *)ptr;
-		if (!strncmp((const char *)header->signature, "LBIO", 4))
-			break;
-	}
-
-	/* We walked the entire space and didn't find anything. */
-	if (i >= len)
-		return -1;
-
+	header = (struct cb_header *)ptr;
 	if (!header->table_bytes)
 		return 0;
 
@@ -231,10 +222,13 @@ static int cb_parse_header(void *addr, int len, struct sysinfo_t *info)
 
 int get_coreboot_info(struct sysinfo_t *info)
 {
-	int ret = cb_parse_header((void *)0x00000000, 0x1000, info);
+	long addr;
+	int ret;
 
-	if (ret != 1)
-		ret = cb_parse_header((void *)0x000f0000, 0x1000, info);
+	addr = locate_coreboot_table();
+	if (addr < 0)
+		return addr;
+	ret = cb_parse_header((void *)addr, 0x1000, info);
 
-	return (ret == 1) ? 0 : -1;
+	return ret == 1 ? 0 : -ENOENT;
 }
