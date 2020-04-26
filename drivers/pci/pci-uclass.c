@@ -1009,7 +1009,7 @@ static int pci_uclass_post_probe(struct udevice *bus)
 	if (ret)
 		return ret;
 
-	if (CONFIG_IS_ENABLED(PCI_PNP) &&
+	if (CONFIG_IS_ENABLED(PCI_PNP) && ll_boot_init() &&
 	    (!hose->skip_auto_config_until_reloc ||
 	     (gd->flags & GD_FLG_RELOC))) {
 		ret = pci_auto_config_devices(bus);
@@ -1031,7 +1031,7 @@ static int pci_uclass_post_probe(struct udevice *bus)
 	 * Note we only call this 1) after U-Boot is relocated, and 2)
 	 * root bus has finished probing.
 	 */
-	if ((gd->flags & GD_FLG_RELOC) && (bus->seq == 0)) {
+	if ((gd->flags & GD_FLG_RELOC) && bus->seq == 0 && ll_boot_init()) {
 		ret = fsp_init_phase_pci();
 		if (ret)
 			return ret;
