@@ -42,19 +42,8 @@ static void acpi_write_rsdp(struct acpi_rsdp *rsdp, struct acpi_rsdt *rsdt,
 	rsdp->length = sizeof(struct acpi_rsdp);
 	rsdp->rsdt_address = (u32)rsdt;
 
-	/*
-	 * Revision: ACPI 1.0: 0, ACPI 2.0/3.0/4.0: 2
-	 *
-	 * Some OSes expect an XSDT to be present for RSD PTR revisions >= 2.
-	 * If we don't have an ACPI XSDT, force ACPI 1.0 (and thus RSD PTR
-	 * revision 0)
-	 */
-	if (xsdt == NULL) {
-		rsdp->revision = ACPI_RSDP_REV_ACPI_1_0;
-	} else {
-		rsdp->xsdt_address = (u64)(u32)xsdt;
-		rsdp->revision = ACPI_RSDP_REV_ACPI_2_0;
-	}
+	rsdp->xsdt_address = (u64)(u32)xsdt;
+	rsdp->revision = ACPI_RSDP_REV_ACPI_2_0;
 
 	/* Calculate checksums */
 	rsdp->checksum = table_compute_checksum((void *)rsdp, 20);
