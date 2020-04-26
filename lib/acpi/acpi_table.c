@@ -9,9 +9,8 @@
 #include <acpi/acpi_table.h>
 #include <dm.h>
 #include <cpu.h>
+#include <version.h>
 
-/* Temporary change to ensure bisectability */
-#ifndef CONFIG_SANDBOX
 int acpi_create_dmar(struct acpi_dmar *dmar, enum dmar_flags flags)
 {
 	struct acpi_table_header *header = &dmar->header;
@@ -37,7 +36,6 @@ int acpi_create_dmar(struct acpi_dmar *dmar, enum dmar_flags flags)
 
 	return 0;
 }
-#endif
 
 int acpi_get_table_revision(enum acpi_tables table)
 {
@@ -90,4 +88,13 @@ int acpi_get_table_revision(enum acpi_tables table)
 	default:
 		return -EINVAL;
 	}
+}
+
+void acpi_fill_header(struct acpi_table_header *header, char *signature)
+{
+	memcpy(header->signature, signature, 4);
+	memcpy(header->oem_id, OEM_ID, 6);
+	memcpy(header->oem_table_id, OEM_TABLE_ID, 8);
+	header->oem_revision = U_BOOT_BUILD_DATE;
+	memcpy(header->aslc_id, ASLC_ID, 4);
 }

@@ -60,15 +60,6 @@ static void acpi_write_rsdp(struct acpi_rsdp *rsdp, struct acpi_rsdt *rsdt,
 			sizeof(struct acpi_rsdp));
 }
 
-void acpi_fill_header(struct acpi_table_header *header, char *signature)
-{
-	memcpy(header->signature, signature, 4);
-	memcpy(header->oem_id, OEM_ID, 6);
-	memcpy(header->oem_table_id, OEM_TABLE_ID, 8);
-	header->oem_revision = U_BOOT_BUILD_DATE;
-	memcpy(header->aslc_id, ASLC_ID, 4);
-}
-
 static void acpi_write_rsdt(struct acpi_rsdt *rsdt)
 {
 	struct acpi_table_header *header = &(rsdt->header);

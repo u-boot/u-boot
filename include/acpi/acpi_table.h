@@ -505,6 +505,16 @@ int acpi_get_table_revision(enum acpi_tables table);
  */
 int acpi_create_dmar(struct acpi_dmar *dmar, enum dmar_flags flags);
 
+/**
+ * acpi_fill_header() - Set up a new table header
+ *
+ * This sets all fields except length, revision, checksum and aslc_revision
+ *
+ * @header: ACPI header to update
+ * @signature: Table signature to use (4 characters)
+ */
+void acpi_fill_header(struct acpi_table_header *header, char *signature);
+
 #endif /* !__ACPI__*/
 
 #include <asm/acpi_table.h>
