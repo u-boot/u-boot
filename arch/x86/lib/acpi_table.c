@@ -10,6 +10,7 @@
 #include <cpu.h>
 #include <dm.h>
 #include <dm/uclass-internal.h>
+#include <mapmem.h>
 #include <serial.h>
 #include <version.h>
 #include <acpi/acpi_table.h>
@@ -19,6 +20,7 @@
 #include <asm/mpspec.h>
 #include <asm/tables.h>
 #include <asm/arch/global_nvs.h>
+#include <dm/acpi.h>
 
 /*
  * IASL compiles the dsdt entries and writes the hex values
@@ -478,9 +480,9 @@ static void acpi_create_spcr(struct acpi_spcr *spcr)
 /*
  * QEMU's version of write_acpi_tables is defined in drivers/misc/qfw.c
  */
-ulong write_acpi_tables(ulong start)
+ulong write_acpi_tables(ulong start_addr)
 {
-	u32 current;
+	struct acpi_ctx sctx, *ctx = &sctx;
 	struct acpi_rsdp *rsdp;
 	struct acpi_rsdt *rsdt;
 	struct acpi_xsdt *xsdt;
@@ -491,60 +493,61 @@ ulong write_acpi_tables(ulong start)
 	struct acpi_madt *madt;
 	struct acpi_csrt *csrt;
 	struct acpi_spcr *spcr;
+	void *start;
+	ulong addr;
 	int i;
 
-	current = start;
+	start = map_sysmem(start_addr, 0);
+	ctx->current = start;
 
 	/* Align ACPI tables to 16 byte */
-	current = ALIGN(current, 16);
+	acpi_align(ctx);
 
-	debug("ACPI: Writing ACPI tables at %lx\n", start);
+	debug("ACPI: Writing ACPI tables at %lx\n", start_addr);
 
 	/* We need at least an RSDP and an RSDT Table */
-	rsdp = (struct acpi_rsdp *)current;
-	current += sizeof(struct acpi_rsdp);
-	current = ALIGN(current, 16);
-	rsdt = (struct acpi_rsdt *)current;
-	current += sizeof(struct acpi_rsdt);
-	current = ALIGN(current, 16);
-	xsdt = (struct acpi_xsdt *)current;
-	current += sizeof(struct acpi_xsdt);
+	rsdp = ctx->current;
+	acpi_inc_align(ctx, sizeof(struct acpi_rsdp));
+	rsdt = ctx->current;
+	acpi_inc_align(ctx, sizeof(struct acpi_rsdt));
+	xsdt = ctx->current;
+	acpi_inc_align(ctx, sizeof(struct acpi_xsdt));
 	/*
 	 * Per ACPI spec, the FACS table address must be aligned to a 64 byte
 	 * boundary (Windows checks this, but Linux does not).
 	 */
-	current = ALIGN(current, 64);
+	acpi_align64(ctx);
 
 	/* clear all table memory */
-	memset((void *)start, 0, current - start);
+	memset((void *)start, 0, ctx->current - start);
 
 	acpi_write_rsdp(rsdp, rsdt, xsdt);
 	acpi_write_rsdt(rsdt);
 	acpi_write_xsdt(xsdt);
 
 	debug("ACPI:    * FACS\n");
-	facs = (struct acpi_facs *)current;
-	current += sizeof(struct acpi_facs);
-	current = ALIGN(current, 16);
+	facs = ctx->current;
+	acpi_inc_align(ctx, sizeof(struct acpi_facs));
 
 	acpi_create_facs(facs);
 
 	debug("ACPI:    * DSDT\n");
-	dsdt = (struct acpi_table_header *)current;
+	dsdt = ctx->current;
 	memcpy(dsdt, &AmlCode, sizeof(struct acpi_table_header));
-	current += sizeof(struct acpi_table_header);
-	memcpy((char *)current,
+	acpi_inc(ctx, sizeof(struct acpi_table_header));
+	memcpy(ctx->current,
 	       (char *)&AmlCode + sizeof(struct acpi_table_header),
 	       dsdt->length - sizeof(struct acpi_table_header));
-	current += dsdt->length - sizeof(struct acpi_table_header);
-	current = ALIGN(current, 16);
+	acpi_inc_align(ctx, dsdt->length - sizeof(struct acpi_table_header));
 
 	/* Pack GNVS into the ACPI table area */
 	for (i = 0; i < dsdt->length; i++) {
 		u32 *gnvs = (u32 *)((u32)dsdt + i);
 		if (*gnvs == ACPI_GNVS_ADDR) {
-			debug("Fix up global NVS in DSDT to 0x%08x\n", current);
-			*gnvs = current;
+			ulong addr = (ulong)map_to_sysmem(ctx->current);
+
+			debug("Fix up global NVS in DSDT to %#08lx\n", addr);
+			*gnvs = addr;
 			break;
 		}
 	}
@@ -554,51 +557,46 @@ ulong write_acpi_tables(ulong start)
 	dsdt->checksum = table_compute_checksum((void *)dsdt, dsdt->length);
 
 	/* Fill in platform-specific global NVS variables */
-	acpi_create_gnvs((struct acpi_global_nvs *)current);
-	current += sizeof(struct acpi_global_nvs);
-	current = ALIGN(current, 16);
+	acpi_create_gnvs(ctx->current);
+	acpi_inc_align(ctx, sizeof(struct acpi_global_nvs));
 
 	debug("ACPI:    * FADT\n");
-	fadt = (struct acpi_fadt *)current;
-	current += sizeof(struct acpi_fadt);
-	current = ALIGN(current, 16);
+	fadt = ctx->current;
+	acpi_inc_align(ctx, sizeof(struct acpi_fadt));
 	acpi_create_fadt(fadt, facs, dsdt);
 	acpi_add_table(rsdp, fadt);
 
 	debug("ACPI:    * MADT\n");
-	madt = (struct acpi_madt *)current;
+	madt = ctx->current;
 	acpi_create_madt(madt);
-	current += madt->header.length;
+	acpi_inc_align(ctx, madt->header.length);
 	acpi_add_table(rsdp, madt);
-	current = ALIGN(current, 16);
 
 	debug("ACPI:    * MCFG\n");
-	mcfg = (struct acpi_mcfg *)current;
+	mcfg = ctx->current;
 	acpi_create_mcfg(mcfg);
-	current += mcfg->header.length;
+	acpi_inc_align(ctx, mcfg->header.length);
 	acpi_add_table(rsdp, mcfg);
-	current = ALIGN(current, 16);
 
 	debug("ACPI:    * CSRT\n");
-	csrt = (struct acpi_csrt *)current;
+	csrt = ctx->current;
 	acpi_create_csrt(csrt);
-	current += csrt->header.length;
+	acpi_inc_align(ctx, csrt->header.length);
 	acpi_add_table(rsdp, csrt);
-	current = ALIGN(current, 16);
 
 	debug("ACPI:    * SPCR\n");
-	spcr = (struct acpi_spcr *)current;
+	spcr = ctx->current;
 	acpi_create_spcr(spcr);
-	current += spcr->header.length;
+	acpi_inc_align(ctx, spcr->header.length);
 	acpi_add_table(rsdp, spcr);
-	current = ALIGN(current, 16);
 
-	debug("current = %x\n", current);
+	addr = map_to_sysmem(ctx->current);
+	debug("current = %lx\n", addr);
 
 	acpi_rsdp_addr = (unsigned long)rsdp;
 	debug("ACPI: done\n");
 
-	return current;
+	return addr;
 }
 
 ulong acpi_get_rsdp_addr(void)

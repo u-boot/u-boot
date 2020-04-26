@@ -151,3 +151,31 @@ static int dm_test_acpi_write_tables(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_acpi_write_tables, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test basic ACPI functions */
+static int dm_test_acpi_basic(struct unit_test_state *uts)
+{
+	struct acpi_ctx ctx;
+
+	/* Check align works */
+	ctx.current = (void *)5;
+	acpi_align(&ctx);
+	ut_asserteq_ptr((void *)16, ctx.current);
+
+	/* Check that align does nothing if already aligned */
+	acpi_align(&ctx);
+	ut_asserteq_ptr((void *)16, ctx.current);
+	acpi_align64(&ctx);
+	ut_asserteq_ptr((void *)64, ctx.current);
+	acpi_align64(&ctx);
+	ut_asserteq_ptr((void *)64, ctx.current);
+
+	/* Check incrementing */
+	acpi_inc(&ctx, 3);
+	ut_asserteq_ptr((void *)67, ctx.current);
+	acpi_inc_align(&ctx, 3);
+	ut_asserteq_ptr((void *)80, ctx.current);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_basic, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

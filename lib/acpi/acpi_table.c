@@ -6,10 +6,11 @@
  */
 
 #include <common.h>
-#include <acpi/acpi_table.h>
 #include <dm.h>
 #include <cpu.h>
 #include <version.h>
+#include <acpi/acpi_table.h>
+#include <dm/acpi.h>
 
 int acpi_create_dmar(struct acpi_dmar *dmar, enum dmar_flags flags)
 {
@@ -97,4 +98,25 @@ void acpi_fill_header(struct acpi_table_header *header, char *signature)
 	memcpy(header->oem_table_id, OEM_TABLE_ID, 8);
 	header->oem_revision = U_BOOT_BUILD_DATE;
 	memcpy(header->aslc_id, ASLC_ID, 4);
+}
+
+void acpi_align(struct acpi_ctx *ctx)
+{
+	ctx->current = (void *)ALIGN((ulong)ctx->current, 16);
+}
+
+void acpi_align64(struct acpi_ctx *ctx)
+{
+	ctx->current = (void *)ALIGN((ulong)ctx->current, 64);
+}
+
+void acpi_inc(struct acpi_ctx *ctx, uint amount)
+{
+	ctx->current += amount;
+}
+
+void acpi_inc_align(struct acpi_ctx *ctx, uint amount)
+{
+	ctx->current += amount;
+	acpi_align(ctx);
 }

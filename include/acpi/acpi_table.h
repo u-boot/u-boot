@@ -23,6 +23,8 @@
 
 #if !defined(__ACPI__)
 
+struct acpi_ctx;
+
 /*
  * RSDP (Root System Description Pointer)
  * Note: ACPI 1.0 didn't have length, xsdt_address, and ext_checksum
@@ -514,6 +516,40 @@ int acpi_create_dmar(struct acpi_dmar *dmar, enum dmar_flags flags);
  * @signature: Table signature to use (4 characters)
  */
 void acpi_fill_header(struct acpi_table_header *header, char *signature);
+
+/**
+ * acpi_align() - Align the ACPI output pointer to a 16-byte boundary
+ *
+ * @ctx: ACPI context
+ */
+void acpi_align(struct acpi_ctx *ctx);
+
+/**
+ * acpi_align64() - Align the ACPI output pointer to a 64-byte boundary
+ *
+ * @ctx: ACPI context
+ */
+void acpi_align64(struct acpi_ctx *ctx);
+
+/**
+ * acpi_inc() - Increment the ACPI output pointer by a bit
+ *
+ * The pointer is NOT aligned afterwards.
+ *
+ * @ctx: ACPI context
+ * @amount: Amount to increment by
+ */
+void acpi_inc(struct acpi_ctx *ctx, uint amount);
+
+/**
+ * acpi_inc_align() - Increment the ACPI output pointer by a bit and align
+ *
+ * The pointer is aligned afterwards to a 16-byte boundary
+ *
+ * @ctx: ACPI context
+ * @amount: Amount to increment by
+ */
+void acpi_inc_align(struct acpi_ctx *ctx, uint amount);
 
 #endif /* !__ACPI__*/
 
