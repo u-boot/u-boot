@@ -44,6 +44,14 @@ int dram_init_banksize(void)
 	phys_addr_t low_end;
 	uint bank;
 
+	if (!ll_boot_init()) {
+		gd->bd->bi_dram[0].start = 0;
+		gd->bd->bi_dram[0].size = gd->ram_size;
+
+		mtrr_add_request(MTRR_TYPE_WRBACK, 0, gd->ram_size);
+		return 0;
+	}
+
 	low_end = 0;
 	for (bank = 1, hdr = gd->arch.hob_list;
 	     bank < CONFIG_NR_DRAM_BANKS && !end_of_hob(hdr);
