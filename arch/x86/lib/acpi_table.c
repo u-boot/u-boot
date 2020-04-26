@@ -590,6 +590,8 @@ ulong write_acpi_tables(ulong start_addr)
 	acpi_inc_align(ctx, spcr->header.length);
 	acpi_add_table(rsdp, spcr);
 
+	acpi_write_dev_tables(ctx);
+
 	addr = map_to_sysmem(ctx->current);
 	debug("current = %lx\n", addr);
 
