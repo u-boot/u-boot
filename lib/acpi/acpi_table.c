@@ -8,6 +8,8 @@
 #include <common.h>
 #include <dm.h>
 #include <cpu.h>
+#include <mapmem.h>
+#include <tables_csum.h>
 #include <version.h>
 #include <acpi/acpi_table.h>
 #include <dm/acpi.h>
@@ -119,4 +121,63 @@ void acpi_inc_align(struct acpi_ctx *ctx, uint amount)
 {
 	ctx->current += amount;
 	acpi_align(ctx);
+}
+
+/**
+ * Add an ACPI table to the RSDT (and XSDT) structure, recalculate length
+ * and checksum.
+ */
+int acpi_add_table(struct acpi_ctx *ctx, void *table)
+{
+	int i, entries_num;
+	struct acpi_rsdt *rsdt;
+	struct acpi_xsdt *xsdt;
+
+	/* The RSDT is mandatory while the XSDT is not */
+	rsdt = ctx->rsdt;
+
+	/* This should always be MAX_ACPI_TABLES */
+	entries_num = ARRAY_SIZE(rsdt->entry);
+
+	for (i = 0; i < entries_num; i++) {
+		if (rsdt->entry[i] == 0)
+			break;
+	}
+
+	if (i >= entries_num) {
+		log_err("ACPI: Error: too many tables\n");
+		return -E2BIG;
+	}
+
+	/* Add table to the RSDT */
+	rsdt->entry[i] = map_to_sysmem(table);
+
+	/* Fix RSDT length or the kernel will assume invalid entries */
+	rsdt->header.length = sizeof(struct acpi_table_header) +
+				(sizeof(u32) * (i + 1));
+
+	/* Re-calculate checksum */
+	rsdt->header.checksum = 0;
+	rsdt->header.checksum = table_compute_checksum((u8 *)rsdt,
+						       rsdt->header.length);
+
+	/*
+	 * And now the same thing for the XSDT. We use the same index as for
+	 * now we want the XSDT and RSDT to always be in sync in U-Boot
+	 */
+	xsdt = map_sysmem(ctx->rsdp->xsdt_address, sizeof(*xsdt));
+
+	/* Add table to the XSDT */
+	xsdt->entry[i] = map_to_sysmem(table);
+
+	/* Fix XSDT length */
+	xsdt->header.length = sizeof(struct acpi_table_header) +
+				(sizeof(u64) * (i + 1));
+
+	/* Re-calculate checksum */
+	xsdt->header.checksum = 0;
+	xsdt->header.checksum = table_compute_checksum((u8 *)xsdt,
+						       xsdt->header.length);
+
+	return 0;
 }

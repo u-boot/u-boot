@@ -30,9 +30,14 @@
  * This contains a few useful pieces of information used when writing
  *
  * @current: Current address for writing
+ * @rsdp: Pointer to the Root System Description Pointer, typically used when
+ *	adding a new table. The RSDP holds pointers to the RSDT and XSDT.
+ * @rsdt: Pointer to the Root System Description Table
  */
 struct acpi_ctx {
 	void *current;
+	struct acpi_rsdp *rsdp;
+	struct acpi_rsdt *rsdt;
 };
 
 /**

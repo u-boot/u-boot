@@ -551,6 +551,15 @@ void acpi_inc(struct acpi_ctx *ctx, uint amount);
  */
 void acpi_inc_align(struct acpi_ctx *ctx, uint amount);
 
+/**
+ * acpi_add_table() - Add a new table to the RSDP and XSDT
+ *
+ * @ctx: ACPI context
+ * @table: Table to add
+ * @return 0 if OK, -E2BIG if too many tables
+ */
+int acpi_add_table(struct acpi_ctx *ctx, void *table);
+
 #endif /* !__ACPI__*/
 
 #include <asm/acpi_table.h>

@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <mapmem.h>
 #include <version.h>
 #include <acpi/acpi_table.h>
 #include <dm/acpi.h>
@@ -21,10 +22,14 @@ static int testacpi_write_tables(const struct udevice *dev,
 				 struct acpi_ctx *ctx)
 {
 	struct acpi_dmar *dmar;
+	int ret;
 
 	dmar = (struct acpi_dmar *)ctx->current;
 	acpi_create_dmar(dmar, DMAR_INTR_REMAP);
 	ctx->current += sizeof(struct acpi_dmar);
+	ret = acpi_add_table(ctx, dmar);
+	if (ret)
+		return log_msg_ret("add", ret);
 
 	return 0;
 }
@@ -127,6 +132,7 @@ DM_TEST(dm_test_acpi_fill_header, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 static int dm_test_acpi_write_tables(struct unit_test_state *uts)
 {
 	struct acpi_dmar *dmar;
+	struct acpi_xsdt *xsdt;
 	struct acpi_ctx ctx;
 	void *buf;
 
@@ -134,8 +140,16 @@ static int dm_test_acpi_write_tables(struct unit_test_state *uts)
 	ut_assertnonnull(buf);
 
 	ctx.current = buf;
+	ctx.rsdp = ctx.current;
+	acpi_inc_align(&ctx, sizeof(struct acpi_rsdp));
+	ctx.rsdt = ctx.current;
+	acpi_inc_align(&ctx, sizeof(struct acpi_rsdt));
+	xsdt = ctx.current;
+	acpi_inc_align(&ctx, sizeof(struct acpi_xsdt));
+	ctx.rsdp->xsdt_address = map_to_sysmem(xsdt);
+	dmar = ctx.current;
+
 	ut_assertok(acpi_write_dev_tables(&ctx));
-	dmar = buf;
 
 	/*
 	 * We should have two dmar tables, one for each "denx,u-boot-acpi-test"

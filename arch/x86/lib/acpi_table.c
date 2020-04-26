@@ -83,67 +83,6 @@ static void acpi_write_xsdt(struct acpi_xsdt *xsdt)
 			sizeof(struct acpi_xsdt));
 }
 
-/**
- * Add an ACPI table to the RSDT (and XSDT) structure, recalculate length
- * and checksum.
- */
-static void acpi_add_table(struct acpi_rsdp *rsdp, void *table)
-{
-	int i, entries_num;
-	struct acpi_rsdt *rsdt;
-	struct acpi_xsdt *xsdt;
-
-	/* The RSDT is mandatory while the XSDT is not */
-	rsdt = (struct acpi_rsdt *)rsdp->rsdt_address;
-
-	/* This should always be MAX_ACPI_TABLES */
-	entries_num = ARRAY_SIZE(rsdt->entry);
-
-	for (i = 0; i < entries_num; i++) {
-		if (rsdt->entry[i] == 0)
-			break;
-	}
-
-	if (i >= entries_num) {
-		debug("ACPI: Error: too many tables\n");
-		return;
-	}
-
-	/* Add table to the RSDT */
-	rsdt->entry[i] = (u32)table;
-
-	/* Fix RSDT length or the kernel will assume invalid entries */
-	rsdt->header.length = sizeof(struct acpi_table_header) +
-				sizeof(u32) * (i + 1);
-
-	/* Re-calculate checksum */
-	rsdt->header.checksum = 0;
-	rsdt->header.checksum = table_compute_checksum((u8 *)rsdt,
-			rsdt->header.length);
-
-	/* The RSDT is mandatory while the XSDT is not */
-	if (!rsdp->xsdt_address)
-		return;
-
-	/*
-	 * And now the same thing for the XSDT. We use the same index as for
-	 * now we want the XSDT and RSDT to always be in sync in U-Boot
-	 */
-	xsdt = (struct acpi_xsdt *)((u32)rsdp->xsdt_address);
-
-	/* Add table to the XSDT */
-	xsdt->entry[i] = (u64)(u32)table;
-
-	/* Fix XSDT length */
-	xsdt->header.length = sizeof(struct acpi_table_header) +
-				sizeof(u64) * (i + 1);
-
-	/* Re-calculate checksum */
-	xsdt->header.checksum = 0;
-	xsdt->header.checksum = table_compute_checksum((u8 *)xsdt,
-			xsdt->header.length);
-}
-
 static void acpi_create_facs(struct acpi_facs *facs)
 {
 	memset((void *)facs, 0, sizeof(struct acpi_facs));
@@ -472,8 +411,6 @@ static void acpi_create_spcr(struct acpi_spcr *spcr)
 ulong write_acpi_tables(ulong start_addr)
 {
 	struct acpi_ctx sctx, *ctx = &sctx;
-	struct acpi_rsdp *rsdp;
-	struct acpi_rsdt *rsdt;
 	struct acpi_xsdt *xsdt;
 	struct acpi_facs *facs;
 	struct acpi_table_header *dsdt;
@@ -495,9 +432,9 @@ ulong write_acpi_tables(ulong start_addr)
 	debug("ACPI: Writing ACPI tables at %lx\n", start_addr);
 
 	/* We need at least an RSDP and an RSDT Table */
-	rsdp = ctx->current;
+	ctx->rsdp = ctx->current;
 	acpi_inc_align(ctx, sizeof(struct acpi_rsdp));
-	rsdt = ctx->current;
+	ctx->rsdt = ctx->current;
 	acpi_inc_align(ctx, sizeof(struct acpi_rsdt));
 	xsdt = ctx->current;
 	acpi_inc_align(ctx, sizeof(struct acpi_xsdt));
@@ -510,8 +447,8 @@ ulong write_acpi_tables(ulong start_addr)
 	/* clear all table memory */
 	memset((void *)start, 0, ctx->current - start);
 
-	acpi_write_rsdp(rsdp, rsdt, xsdt);
-	acpi_write_rsdt(rsdt);
+	acpi_write_rsdp(ctx->rsdp, ctx->rsdt, xsdt);
+	acpi_write_rsdt(ctx->rsdt);
 	acpi_write_xsdt(xsdt);
 
 	debug("ACPI:    * FACS\n");
@@ -553,38 +490,38 @@ ulong write_acpi_tables(ulong start_addr)
 	fadt = ctx->current;
 	acpi_inc_align(ctx, sizeof(struct acpi_fadt));
 	acpi_create_fadt(fadt, facs, dsdt);
-	acpi_add_table(rsdp, fadt);
+	acpi_add_table(ctx, fadt);
 
 	debug("ACPI:    * MADT\n");
 	madt = ctx->current;
 	acpi_create_madt(madt);
 	acpi_inc_align(ctx, madt->header.length);
-	acpi_add_table(rsdp, madt);
+	acpi_add_table(ctx, madt);
 
 	debug("ACPI:    * MCFG\n");
 	mcfg = ctx->current;
 	acpi_create_mcfg(mcfg);
 	acpi_inc_align(ctx, mcfg->header.length);
-	acpi_add_table(rsdp, mcfg);
+	acpi_add_table(ctx, mcfg);
 
 	debug("ACPI:    * CSRT\n");
 	csrt = ctx->current;
 	acpi_create_csrt(csrt);
 	acpi_inc_align(ctx, csrt->header.length);
-	acpi_add_table(rsdp, csrt);
+	acpi_add_table(ctx, csrt);
 
 	debug("ACPI:    * SPCR\n");
 	spcr = ctx->current;
 	acpi_create_spcr(spcr);
 	acpi_inc_align(ctx, spcr->header.length);
-	acpi_add_table(rsdp, spcr);
+	acpi_add_table(ctx, spcr);
 
 	acpi_write_dev_tables(ctx);
 
 	addr = map_to_sysmem(ctx->current);
 	debug("current = %lx\n", addr);
 
-	acpi_rsdp_addr = (unsigned long)rsdp;
+	acpi_rsdp_addr = (unsigned long)ctx->rsdp;
 	debug("ACPI: done\n");
 
 	return addr;
