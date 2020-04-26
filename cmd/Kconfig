@@ -190,6 +190,20 @@ comment "Commands"
 
 menu "Info commands"
 
+config CMD_ACPI
+	bool "acpi"
+	default y if ACPIGEN
+	help
+	  List and dump ACPI tables. ACPI (Advanced Configuration and Power
+	  Interface) is used mostly on x86 for providing information to the
+	  Operating System about devices in the system. The tables are set up
+	  by the firmware, typically U-Boot but possibly an earlier firmware
+	  module, if U-Boot is chain-loaded from something else. ACPI tables
+	  can also include code, to perform hardware-specific tasks required
+	  by the Operating Systems. This allows some amount of separation
+	  between the firmware and OS, and is particularly useful when you
+	  want to make hardware changes without the OS needing to be adjusted.
+
 config CMD_BDI
 	bool "bdinfo"
 	default y

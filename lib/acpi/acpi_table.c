@@ -240,6 +240,7 @@ void acpi_setup_base_tables(struct acpi_ctx *ctx, void *start)
 
 	/* Align ACPI tables to 16 byte */
 	acpi_align(ctx);
+	gd->arch.acpi_start = map_to_sysmem(ctx->current);
 
 	/* We need at least an RSDP and an RSDT Table */
 	ctx->rsdp = ctx->current;

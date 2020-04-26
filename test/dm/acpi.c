@@ -7,9 +7,11 @@
  */
 
 #include <common.h>
+#include <console.h>
 #include <dm.h>
 #include <malloc.h>
 #include <mapmem.h>
+#include <version.h>
 #include <tables_csum.h>
 #include <version.h>
 #include <acpi/acpi_table.h>
@@ -212,6 +214,7 @@ static int dm_test_acpi_setup_base_tables(struct unit_test_state *uts)
 	buf = memalign(64, BUF_SIZE);
 	ut_assertnonnull(buf);
 	acpi_setup_base_tables(&ctx, buf + 4);
+	ut_asserteq(map_to_sysmem(PTR_ALIGN(buf + 4, 16)), gd->arch.acpi_start);
 
 	rsdp = buf + 16;
 	ut_asserteq_ptr(rsdp, ctx.rsdp);
@@ -242,3 +245,73 @@ static int dm_test_acpi_setup_base_tables(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_acpi_setup_base_tables,
 	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test 'acpi list' command */
+static int dm_test_acpi_cmd_list(struct unit_test_state *uts)
+{
+	struct acpi_ctx ctx;
+	ulong addr;
+	void *buf;
+
+	buf = memalign(16, BUF_SIZE);
+	ut_assertnonnull(buf);
+	acpi_setup_base_tables(&ctx, buf);
+
+	ut_assertok(acpi_write_dev_tables(&ctx));
+
+	console_record_reset();
+	run_command("acpi list", 0);
+	addr = (ulong)map_to_sysmem(buf);
+	ut_assert_nextline("ACPI tables start at %lx", addr);
+	ut_assert_nextline("RSDP %08lx %06lx (v02 U-BOOT)", addr,
+			   sizeof(struct acpi_rsdp));
+	addr = ALIGN(addr + sizeof(struct acpi_rsdp), 16);
+	ut_assert_nextline("RSDT %08lx %06lx (v01 U-BOOT U-BOOTBL %u INTL 0)",
+			   addr, sizeof(struct acpi_table_header) +
+			   2 * sizeof(u32), U_BOOT_BUILD_DATE);
+	addr = ALIGN(addr + sizeof(struct acpi_rsdt), 16);
+	ut_assert_nextline("XSDT %08lx %06lx (v01 U-BOOT U-BOOTBL %u INTL 0)",
+			   addr, sizeof(struct acpi_table_header) +
+			   2 * sizeof(u64), U_BOOT_BUILD_DATE);
+	addr = ALIGN(addr + sizeof(struct acpi_xsdt), 64);
+	ut_assert_nextline("DMAR %08lx %06lx (v01 U-BOOT U-BOOTBL %u INTL 0)",
+			   addr, sizeof(struct acpi_dmar), U_BOOT_BUILD_DATE);
+	addr = ALIGN(addr + sizeof(struct acpi_dmar), 16);
+	ut_assert_nextline("DMAR %08lx %06lx (v01 U-BOOT U-BOOTBL %u INTL 0)",
+			   addr, sizeof(struct acpi_dmar), U_BOOT_BUILD_DATE);
+	ut_assert_console_end();
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_cmd_list, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test 'acpi dump' command */
+static int dm_test_acpi_cmd_dump(struct unit_test_state *uts)
+{
+	struct acpi_ctx ctx;
+	ulong addr;
+	void *buf;
+
+	buf = memalign(16, BUF_SIZE);
+	ut_assertnonnull(buf);
+	acpi_setup_base_tables(&ctx, buf);
+
+	ut_assertok(acpi_write_dev_tables(&ctx));
+
+	/* First search for a non-existent table */
+	console_record_reset();
+	run_command("acpi dump rdst", 0);
+	ut_assert_nextline("Table 'RDST' not found");
+	ut_assert_console_end();
+
+	/* Now a real table */
+	console_record_reset();
+	run_command("acpi dump dmar", 0);
+	addr = ALIGN(map_to_sysmem(ctx.xsdt) + sizeof(struct acpi_xsdt), 64);
+	ut_assert_nextline("DMAR @ %08lx", addr);
+	ut_assert_nextlines_are_dump(0x30);
+	ut_assert_console_end();
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_cmd_dump, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
