@@ -566,6 +566,8 @@ int arch_fsp_init_r(void)
 	struct udevice *dev, *itss;
 	int ret;
 
+	if (!ll_boot_init())
+		return 0;
 	/*
 	 * This must be called before any devices are probed. Put any probing
 	 * into arch_fsps_preinit() above.
