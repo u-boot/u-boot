@@ -476,6 +476,8 @@ int x86_cpu_reinit_f(void)
 {
 	setup_identity();
 	setup_pci_ram_top();
+	if (locate_coreboot_table() >= 0)
+		gd->flags |= GD_FLG_SKIP_LL_INIT;
 
 	return 0;
 }
