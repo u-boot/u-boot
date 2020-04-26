@@ -560,6 +560,16 @@ void acpi_inc_align(struct acpi_ctx *ctx, uint amount);
  */
 int acpi_add_table(struct acpi_ctx *ctx, void *table);
 
+/**
+ * acpi_setup_base_tables() - Set up context along with RSDP, RSDT and XSDT
+ *
+ * Set up the context with the given start position. Some basic tables are
+ * always needed, so set them up as well.
+ *
+ * @ctx: Context to set up
+ */
+void acpi_setup_base_tables(struct acpi_ctx *ctx, void *start);
+
 #endif /* !__ACPI__*/
 
 #include <asm/acpi_table.h>

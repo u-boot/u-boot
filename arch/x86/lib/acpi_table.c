@@ -31,58 +31,6 @@ extern const unsigned char AmlCode[];
 /* ACPI RSDP address to be used in boot parameters */
 static ulong acpi_rsdp_addr;
 
-static void acpi_write_rsdp(struct acpi_rsdp *rsdp, struct acpi_rsdt *rsdt,
-			    struct acpi_xsdt *xsdt)
-{
-	memset(rsdp, 0, sizeof(struct acpi_rsdp));
-
-	memcpy(rsdp->signature, RSDP_SIG, 8);
-	memcpy(rsdp->oem_id, OEM_ID, 6);
-
-	rsdp->length = sizeof(struct acpi_rsdp);
-	rsdp->rsdt_address = (u32)rsdt;
-
-	rsdp->xsdt_address = (u64)(u32)xsdt;
-	rsdp->revision = ACPI_RSDP_REV_ACPI_2_0;
-
-	/* Calculate checksums */
-	rsdp->checksum = table_compute_checksum((void *)rsdp, 20);
-	rsdp->ext_checksum = table_compute_checksum((void *)rsdp,
-			sizeof(struct acpi_rsdp));
-}
-
-static void acpi_write_rsdt(struct acpi_rsdt *rsdt)
-{
-	struct acpi_table_header *header = &(rsdt->header);
-
-	/* Fill out header fields */
-	acpi_fill_header(header, "RSDT");
-	header->length = sizeof(struct acpi_rsdt);
-	header->revision = 1;
-
-	/* Entries are filled in later, we come with an empty set */
-
-	/* Fix checksum */
-	header->checksum = table_compute_checksum((void *)rsdt,
-			sizeof(struct acpi_rsdt));
-}
-
-static void acpi_write_xsdt(struct acpi_xsdt *xsdt)
-{
-	struct acpi_table_header *header = &(xsdt->header);
-
-	/* Fill out header fields */
-	acpi_fill_header(header, "XSDT");
-	header->length = sizeof(struct acpi_xsdt);
-	header->revision = 1;
-
-	/* Entries are filled in later, we come with an empty set */
-
-	/* Fix checksum */
-	header->checksum = table_compute_checksum((void *)xsdt,
-			sizeof(struct acpi_xsdt));
-}
-
 static void acpi_create_facs(struct acpi_facs *facs)
 {
 	memset((void *)facs, 0, sizeof(struct acpi_facs));
@@ -411,7 +359,6 @@ static void acpi_create_spcr(struct acpi_spcr *spcr)
 ulong write_acpi_tables(ulong start_addr)
 {
 	struct acpi_ctx sctx, *ctx = &sctx;
-	struct acpi_xsdt *xsdt;
 	struct acpi_facs *facs;
 	struct acpi_table_header *dsdt;
 	struct acpi_fadt *fadt;
@@ -424,32 +371,10 @@ ulong write_acpi_tables(ulong start_addr)
 	int i;
 
 	start = map_sysmem(start_addr, 0);
-	ctx->current = start;
-
-	/* Align ACPI tables to 16 byte */
-	acpi_align(ctx);
 
 	debug("ACPI: Writing ACPI tables at %lx\n", start_addr);
 
-	/* We need at least an RSDP and an RSDT Table */
-	ctx->rsdp = ctx->current;
-	acpi_inc_align(ctx, sizeof(struct acpi_rsdp));
-	ctx->rsdt = ctx->current;
-	acpi_inc_align(ctx, sizeof(struct acpi_rsdt));
-	xsdt = ctx->current;
-	acpi_inc_align(ctx, sizeof(struct acpi_xsdt));
-	/*
-	 * Per ACPI spec, the FACS table address must be aligned to a 64 byte
-	 * boundary (Windows checks this, but Linux does not).
-	 */
-	acpi_align64(ctx);
-
-	/* clear all table memory */
-	memset((void *)start, 0, ctx->current - start);
-
-	acpi_write_rsdp(ctx->rsdp, ctx->rsdt, xsdt);
-	acpi_write_rsdt(ctx->rsdt);
-	acpi_write_xsdt(xsdt);
+	acpi_setup_base_tables(ctx, start);
 
 	debug("ACPI:    * FACS\n");
 	facs = ctx->current;
