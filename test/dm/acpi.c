@@ -160,6 +160,10 @@ static int dm_test_acpi_write_tables(struct unit_test_state *uts)
 	ut_asserteq(map_to_sysmem(dmar + 1), ctx.rsdt->entry[1]);
 	ut_asserteq(0, ctx.rsdt->entry[2]);
 
+	ut_asserteq(map_to_sysmem(dmar), ctx.xsdt->entry[0]);
+	ut_asserteq(map_to_sysmem(dmar + 1), ctx.xsdt->entry[1]);
+	ut_asserteq(0, ctx.xsdt->entry[2]);
+
 	return 0;
 }
 DM_TEST(dm_test_acpi_write_tables, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
@@ -223,6 +227,7 @@ static int dm_test_acpi_setup_base_tables(struct unit_test_state *uts)
 	ut_assertok(table_compute_checksum(rsdt, sizeof(*rsdt)));
 
 	xsdt = PTR_ALIGN((void *)rsdt + sizeof(*rsdt), 16);
+	ut_asserteq_ptr(xsdt, ctx.xsdt);
 	ut_assertok(memcmp("XSDT", xsdt->header.signature, ACPI_NAME_LEN));
 	ut_asserteq(sizeof(*xsdt), xsdt->header.length);
 	ut_assertok(table_compute_checksum(xsdt, sizeof(*xsdt)));
