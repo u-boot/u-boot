@@ -82,6 +82,63 @@ int dram_init_banksize(void)
 	return 0;
 }
 
+#ifdef CONFIG_OF_BOARD
+#define JUNO_FLASH_SEC_SIZE	(256 * 1024)
+static phys_addr_t find_dtb_in_nor_flash(const char *partname)
+{
+	phys_addr_t sector = CONFIG_SYS_FLASH_BASE;
+	int i;
+
+	for (i = 0;
+	     i < CONFIG_SYS_MAX_FLASH_SECT;
+	     i++, sector += JUNO_FLASH_SEC_SIZE) {
+		int len = strlen(partname) + 1;
+		int offs;
+		phys_addr_t imginfo;
+		u32 reg;
+
+		reg = readl(sector + JUNO_FLASH_SEC_SIZE - 0x04);
+                /* This makes up the string "HSLFTOOF" flash footer */
+		if (reg != 0x464F4F54U)
+			continue;
+		reg = readl(sector + JUNO_FLASH_SEC_SIZE - 0x08);
+                if (reg != 0x464C5348U)
+			continue;
+
+		for (offs = 0; offs < 32; offs += 4, len -= 4) {
+			reg = readl(sector + JUNO_FLASH_SEC_SIZE - 0x30 + offs);
+			if (strncmp(partname + offs, (char *)&reg,
+			            len > 4 ? 4 : len))
+				break;
+
+			if (len > 4)
+				continue;
+
+			reg = readl(sector + JUNO_FLASH_SEC_SIZE - 0x10);
+			imginfo = sector + JUNO_FLASH_SEC_SIZE - 0x30 - reg;
+			reg = readl(imginfo + 0x54);
+
+			return CONFIG_SYS_FLASH_BASE +
+			       reg * JUNO_FLASH_SEC_SIZE;
+		}
+	}
+
+	printf("No DTB found\n");
+
+	return ~0;
+}
+
+void *board_fdt_blob_setup(void)
+{
+	phys_addr_t fdt_rom_addr = find_dtb_in_nor_flash(CONFIG_JUNO_DTB_PART);
+
+	if (fdt_rom_addr == ~0UL)
+		return NULL;
+
+	return (void *)fdt_rom_addr;
+}
+#endif
+
 /*
  * Board specific reset that is system reset.
  */
