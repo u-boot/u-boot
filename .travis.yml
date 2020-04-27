@@ -57,7 +57,7 @@ install:
  - ln -s travis-ci /tmp/uboot-test-hooks/py/`hostname`
  # prepare buildman environment
  - echo -e "[toolchain]\nroot = /usr" > ~/.buildman
- - echo -e "arc = /tmp/arc_gnu_2018.09_prebuilt_uclibc_le_archs_linux_install" >> ~/.buildman
+ - echo -e "arc = /tmp/arc_gnu_2019.09_prebuilt_uclibc_le_archs_linux_install" >> ~/.buildman
  - echo -e "\n[toolchain-alias]\nsh = sh2" >> ~/.buildman
  - echo -e "x86 = i386" >> ~/.buildman;
  - echo -e "riscv = riscv64" >> ~/.buildman;
@@ -86,8 +86,8 @@ before_script:
       ./tools/buildman/buildman --fetch-arch i386;
     fi
   - if [[ "${TOOLCHAIN}" == arc ]]; then
-       wget https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/download/arc-2018.09-release/arc_gnu_2018.09_prebuilt_uclibc_le_archs_linux_install.tar.gz &&
-       tar -C /tmp -xf arc_gnu_2018.09_prebuilt_uclibc_le_archs_linux_install.tar.gz;
+       wget https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/download/arc-2019.09-release/arc_gnu_2019.09_prebuilt_uclibc_le_archs_linux_install.tar.gz &&
+       tar -C /tmp -xf arc_gnu_2019.09_prebuilt_uclibc_le_archs_linux_install.tar.gz;
     fi
   - if [[ "${TOOLCHAIN}" == "nds32" ]]; then
        wget https://github.com/vincentzwc/prebuilt-nds32-toolchain/releases/download/20180521/nds32le-linux-glibc-v3-upstream.tar.gz &&
