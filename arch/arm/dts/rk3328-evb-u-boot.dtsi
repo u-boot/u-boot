@@ -40,6 +40,11 @@
 	status = "okay";
 };
 
+&gmac2phy {
+	/* Integrated PHY unsupported by U-boot */
+	status = "broken";
+};
+
 &usb_host0_xhci {
 	vbus-supply = <&vcc5v0_host_xhci>;
 	status = "okay";
