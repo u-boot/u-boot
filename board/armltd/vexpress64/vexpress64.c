@@ -139,9 +139,7 @@ void *board_fdt_blob_setup(void)
 }
 #endif
 
-/*
- * Board specific reset that is system reset.
- */
+/* Actual reset is done via PSCI. */
 void reset_cpu(ulong addr)
 {
 }

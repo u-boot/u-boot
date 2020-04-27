@@ -1167,6 +1167,8 @@ config TARGET_VEXPRESS64_JUNO
 	select OF_BOARD
 	select CLK
 	select DM_SERIAL
+	select ARM_PSCI_FW
+	select PSCI_RESET
 
 config TARGET_LS2080A_EMU
 	bool "Support ls2080a_emu"
