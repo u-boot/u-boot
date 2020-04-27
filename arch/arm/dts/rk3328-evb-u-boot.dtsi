@@ -6,6 +6,17 @@
 #include "rk3328-u-boot.dtsi"
 #include "rk3328-sdram-ddr3-666.dtsi"
 
+/{
+	vcc5v0_host_xhci: vcc5v0-host-xhci-drv {
+		compatible = "regulator-fixed";
+		enable-active-high;
+		gpio = <&gpio0 0 GPIO_ACTIVE_HIGH>;
+		regulator-name = "vcc5v0_host_xhci";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+	};
+};
+
 &usb_host0_xhci {
 	vbus-supply = <&vcc5v0_host_xhci>;
 	status = "okay";

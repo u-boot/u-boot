@@ -38,15 +38,6 @@
 		regulator-max-microvolt = <5000000>;
 	};
 
-	vcc5v0_host_xhci: vcc5v0-host-xhci-drv {
-		compatible = "regulator-fixed";
-		enable-active-high;
-		regulator-name = "vcc5v0_host_xhci";
-		gpio = <&gpio0 0 GPIO_ACTIVE_HIGH>;
-		regulator-min-microvolt = <5000000>;
-		regulator-max-microvolt = <5000000>;
-	};
-
 	vcc_phy: vcc-phy-regulator {
 		compatible = "regulator-fixed";
 		regulator-name = "vcc_phy";
