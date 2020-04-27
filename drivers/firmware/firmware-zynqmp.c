@@ -15,6 +15,8 @@
 
 #define PMUFW_PAYLOAD_ARG_CNT	8
 
+#define XST_PM_NO_ACCESS	2002L
+
 struct zynqmp_power {
 	struct mbox_chan tx_chan;
 	struct mbox_chan rx_chan;
@@ -96,16 +98,25 @@ void zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size)
 		PM_SET_CONFIGURATION,
 		(u32)((u64)cfg_obj)
 	};
-	u32 response;
+	u32 response = 0;
 	int err;
 
 	printf("Loading new PMUFW cfg obj (%ld bytes)\n", size);
 
 	err = send_req(request, ARRAY_SIZE(request), &response, 1);
+	if (err == XST_PM_NO_ACCESS) {
+		printf("PMUFW no permission to change config object\n");
+		return;
+	}
+
 	if (err)
-		panic("Cannot load PMUFW configuration object (%d)\n", err);
-	if (response != 0)
-		panic("PMUFW returned 0x%08x status!\n", response);
+		printf("Cannot load PMUFW configuration object (%d)\n", err);
+
+	if (response)
+		printf("PMUFW returned 0x%08x status!\n", response);
+
+	if ((err || response) && IS_ENABLED(CONFIG_SPL_BUILD))
+		panic("PMUFW config object loading failed in EL3\n");
 }
 
 static int zynqmp_power_probe(struct udevice *dev)
