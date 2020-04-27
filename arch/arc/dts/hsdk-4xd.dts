@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) 2017-2020 Synopsys, Inc. All rights reserved.
+ * Copyright (C) 2020 Synopsys, Inc. All rights reserved.
  * Author: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
  */
 /dts-v1/;
@@ -8,5 +8,5 @@
 #include "hsdk-common.dtsi"
 
 / {
-	model = "snps,hsdk";
+	model = "snps,hsdk-4xd";
 };

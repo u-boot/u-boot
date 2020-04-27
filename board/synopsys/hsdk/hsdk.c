@@ -40,6 +40,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CREG_BASE		(ARC_PERIPHERAL_BASE + 0x1000)
 #define CREG_CPU_START		(CREG_BASE + 0x400)
 #define CREG_CPU_START_MASK	0xF
+#define CREG_CPU_START_POL	BIT(4)
+
+#define CREG_CPU_0_ENTRY	(CREG_BASE + 0x404)
 
 #define SDIO_BASE		(ARC_PERIPHERAL_BASE + 0xA000)
 #define SDIO_UHS_REG_EXT	(SDIO_BASE + 0x108)
@@ -79,6 +82,9 @@ struct hsdk_env_common_ctl {
 	u32_env nvlim;
 	u32_env icache;
 	u32_env dcache;
+	u32_env csm_location;
+	u32_env l2_cache;
+	u32_env haps_apb;
 };
 
 /*
@@ -128,6 +134,11 @@ static const struct env_map_common env_map_common[] = {
 	{ "non_volatile_limit", ENV_HEX, true, 0, 0xF,	&env_common.nvlim },
 	{ "icache_ena",	ENV_HEX, true,	0, 1,		&env_common.icache },
 	{ "dcache_ena",	ENV_HEX, true,	0, 1,		&env_common.dcache },
+#if defined(CONFIG_BOARD_HSDK_4XD)
+	{ "l2_cache_ena",	ENV_HEX, true,	0, 1,		&env_common.l2_cache },
+	{ "csm_location",	ENV_HEX, true,	0, NO_CCM,	&env_common.csm_location },
+	{ "haps_apb_location",	ENV_HEX, true,	0, 1,		&env_common.haps_apb },
+#endif /* CONFIG_BOARD_HSDK_4XD */
 	{}
 };
 
@@ -153,6 +164,61 @@ static const struct env_map_percpu env_map_go[] = {
 	{ "core_entry", ENV_HEX, true, {0, 0, 0, 0}, {U32_MAX, U32_MAX, U32_MAX, U32_MAX}, &env_core.entry },
 	{}
 };
+
+enum board_type {
+	T_BOARD_NONE,
+	T_BOARD_HSDK,
+	T_BOARD_HSDK_4XD
+};
+
+static inline enum board_type get_board_type_runtime(void)
+{
+	u32 arc_id = read_aux_reg(ARC_AUX_IDENTITY) & 0xFF;
+
+	if (arc_id == 0x52)
+		return T_BOARD_HSDK;
+	else if (arc_id == 0x54)
+		return T_BOARD_HSDK_4XD;
+	else
+		return T_BOARD_NONE;
+}
+
+static inline enum board_type get_board_type_config(void)
+{
+	if (IS_ENABLED(CONFIG_BOARD_HSDK))
+		return T_BOARD_HSDK;
+	else if (IS_ENABLED(CONFIG_BOARD_HSDK_4XD))
+		return T_BOARD_HSDK_4XD;
+	else
+		return T_BOARD_NONE;
+}
+
+static bool is_board_match_runtime(enum board_type type_req)
+{
+	return get_board_type_runtime() == type_req;
+}
+
+static bool is_board_match_config(enum board_type type_req)
+{
+	return get_board_type_config() == type_req;
+}
+
+static const char * board_name(enum board_type type)
+{
+	switch (type) {
+		case T_BOARD_HSDK:
+			return "ARC HS Development Kit";
+		case T_BOARD_HSDK_4XD:
+			return "ARC HS4x/HS4xD Development Kit";
+		default:
+			return "?";
+	}
+}
+
+static bool board_mismatch(void)
+{
+	return get_board_type_config() != get_board_type_runtime();
+}
 
 static void sync_cross_cpu_data(void)
 {
@@ -221,8 +287,46 @@ static void init_cluster_nvlim(void)
 
 	flush_dcache_all();
 	write_aux_reg(ARC_AUX_NON_VOLATILE_LIMIT, val);
-	write_aux_reg(AUX_AUX_CACHE_LIMIT, val);
+	/* AUX_AUX_CACHE_LIMIT reg is missing starting from HS48 */
+	if (is_board_match_runtime(T_BOARD_HSDK))
+		write_aux_reg(AUX_AUX_CACHE_LIMIT, val);
 	flush_n_invalidate_dcache_all();
+}
+
+static void init_cluster_slc(void)
+{
+	/* ARC HS38 doesn't support SLC disabling */
+	if (!is_board_match_config(T_BOARD_HSDK_4XD))
+		return;
+
+	if (env_common.l2_cache.val)
+		slc_enable();
+	else
+		slc_disable();
+}
+
+#define CREG_CSM_BASE		(CREG_BASE + 0x210)
+
+static void init_cluster_csm(void)
+{
+	/* ARC HS38 in HSDK SoC doesn't include CSM */
+	if (!is_board_match_config(T_BOARD_HSDK_4XD))
+		return;
+
+	if (env_common.csm_location.val == NO_CCM) {
+		write_aux_reg(ARC_AUX_CSM_ENABLE, 0);
+	} else {
+		/*
+		 * CSM base address is 256kByte aligned but we allow to map
+		 * CSM only to aperture start (256MByte aligned)
+		 * The field in CREG_CSM_BASE is in 17:2 bits itself so we need
+		 * to shift it.
+		 */
+		u32 csm_base = (env_common.csm_location.val * SZ_1K) << 2;
+
+		write_aux_reg(ARC_AUX_CSM_ENABLE, 1);
+		writel(csm_base, (void __iomem *)CREG_CSM_BASE);
+	}
 }
 
 static void init_master_icache(void)
@@ -279,25 +383,36 @@ static inline void halt_this_cpu(void)
 	__builtin_arc_flag(1);
 }
 
-static void smp_kick_cpu_x(u32 cpu_id)
+static u32 get_masked_cpu_ctart_reg(void)
 {
 	int cmd = readl((void __iomem *)CREG_CPU_START);
+
+	/*
+	 * Quirk for HSDK-4xD - due to HW issues HSDK can use any pulse polarity
+	 * and HSDK-4xD require active low polarity of cpu_start pulse.
+	 */
+	cmd &= ~CREG_CPU_START_POL;
+
+	cmd &= ~CREG_CPU_START_MASK;
+
+	return cmd;
+}
+
+static void smp_kick_cpu_x(u32 cpu_id)
+{
+	int cmd;
 
 	if (cpu_id > NR_CPUS)
 		return;
 
-	cmd &= ~CREG_CPU_START_MASK;
+	cmd = get_masked_cpu_ctart_reg();
 	cmd |= (1 << cpu_id);
 	writel(cmd, (void __iomem *)CREG_CPU_START);
 }
 
 static u32 prepare_cpu_ctart_reg(void)
 {
-	int cmd = readl((void __iomem *)CREG_CPU_START);
-
-	cmd &= ~CREG_CPU_START_MASK;
-
-	return cmd | env_common.core_mask.val;
+	return get_masked_cpu_ctart_reg() | env_common.core_mask.val;
 }
 
 /* slave CPU entry for configuration */
@@ -560,6 +675,61 @@ void init_memory_bridge(void)
 	writel(UPDATE_VAL, CREG_PAE_UPDT);
 }
 
+/*
+ * For HSDK-4xD we do additional AXI bridge tweaking in hsdk_init command:
+ * - we shrink IOC region.
+ * - we configure HS CORE SLV1 aperture depending on haps_apb_location
+ *   environment variable.
+ *
+ * As we've already configured AXI bridge in init_memory_bridge we don't
+ * do full configuration here but reconfigure changed part.
+ *
+ * m	master		AXI_M_m_SLV0	AXI_M_m_SLV1	AXI_M_m_OFFSET0	AXI_M_m_OFFSET1
+ * 0	HS (CBU)	0x11111111	0x63111111	0xFEDCBA98	0x0E543210	[haps_apb_location = 0]
+ * 0	HS (CBU)	0x11111111	0x61111111	0xFEDCBA98	0x06543210	[haps_apb_location = 1]
+ * 1	HS (RTT)	0x77777777	0x77777777	0xFEDCBA98	0x76543210
+ * 2	AXI Tunnel	0x88888888	0x88888888	0xFEDCBA98	0x76543210
+ * 3	HDMI-VIDEO	0x77777777	0x77777777	0xFEDCBA98	0x76543210
+ * 4	HDMI-ADUIO	0x77777777	0x77777777	0xFEDCBA98	0x76543210
+ * 5	USB-HOST	0x77777777	0x77779999	0xFEDCBA98	0x7654BA98
+ * 6	ETHERNET	0x77777777	0x77779999	0xFEDCBA98	0x7654BA98
+ * 7	SDIO		0x77777777	0x77779999	0xFEDCBA98	0x7654BA98
+ * 8	GPU		0x77777777	0x77777777	0xFEDCBA98	0x76543210
+ * 9	DMAC (port #1)	0x77777777	0x77777777	0xFEDCBA98	0x76543210
+ * 10	DMAC (port #2)	0x77777777	0x77777777	0xFEDCBA98	0x76543210
+ * 11	DVFS		0x00000000	0x60000000	0x00000000	0x00000000
+ */
+void tweak_memory_bridge_cfg(void)
+{
+	/*
+	 * Only HSDK-4xD requre additional AXI bridge tweaking depending on
+	 * haps_apb_location environment variable
+	 */
+	if (!is_board_match_config(T_BOARD_HSDK_4XD))
+		return;
+
+	if (env_common.haps_apb.val) {
+		writel(0x61111111, CREG_AXI_M_SLV1(M_HS_CORE));
+		writel(0x06543210, CREG_AXI_M_OFT1(M_HS_CORE));
+	} else {
+		writel(0x63111111, CREG_AXI_M_SLV1(M_HS_CORE));
+		writel(0x0E543210, CREG_AXI_M_OFT1(M_HS_CORE));
+	}
+	writel(UPDATE_VAL, CREG_AXI_M_UPDT(M_HS_CORE));
+
+	writel(0x77779999, CREG_AXI_M_SLV1(M_USB_HOST));
+	writel(0x7654BA98, CREG_AXI_M_OFT1(M_USB_HOST));
+	writel(UPDATE_VAL, CREG_AXI_M_UPDT(M_USB_HOST));
+
+	writel(0x77779999, CREG_AXI_M_SLV1(M_ETHERNET));;
+	writel(0x7654BA98, CREG_AXI_M_OFT1(M_ETHERNET));
+	writel(UPDATE_VAL, CREG_AXI_M_UPDT(M_ETHERNET));
+
+	writel(0x77779999, CREG_AXI_M_SLV1(M_SDIO));
+	writel(0x7654BA98, CREG_AXI_M_OFT1(M_SDIO));
+	writel(UPDATE_VAL, CREG_AXI_M_UPDT(M_SDIO));
+}
+
 static void setup_clocks(void)
 {
 	ulong rate;
@@ -593,6 +763,9 @@ static void do_init_cluster(void)
 	 * cores.
 	 */
 	init_cluster_nvlim();
+	init_cluster_csm();
+	init_cluster_slc();
+	tweak_memory_bridge_cfg();
 }
 
 static int check_master_cpu_id(void)
@@ -758,6 +931,11 @@ static int do_hsdk_go(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
 	int ret;
 
+	if (board_mismatch()) {
+		printf("ERR: U-boot is not configured for this board!\n");
+		return CMD_RET_FAILURE;
+	}
+
 	/*
 	 * Check for 'halt' parameter. 'halt' = enter halt-mode just before
 	 * starting the application; can be used for debug.
@@ -793,20 +971,45 @@ U_BOOT_CMD(
 	"hsdk_go halt - Boot stand-alone application on HSDK, halt CPU just before application run\n"
 );
 
+/*
+ * We may simply use static variable here to store init status, but we also want
+ * to avoid the situation when we reload U-boot via MDB after previous
+ * init is done but HW reset (board reset) isn't done. So let's store the
+ * init status in any unused register (i.e CREG_CPU_0_ENTRY) so status will
+ * survive after U-boot is reloaded via MDB.
+ */
+#define INIT_MARKER_REGISTER		((void __iomem *)CREG_CPU_0_ENTRY)
+/* must be equal to INIT_MARKER_REGISTER reset value */
+#define INIT_MARKER_PENDING		0
+
+static bool init_marker_get(void)
+{
+	return readl(INIT_MARKER_REGISTER) != INIT_MARKER_PENDING;
+}
+
+static void init_mark_done(void)
+{
+	writel(~INIT_MARKER_PENDING, INIT_MARKER_REGISTER);
+}
+
 static int do_hsdk_init(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
-	static bool done = false;
 	int ret;
 
+	if (board_mismatch()) {
+		printf("ERR: U-boot is not configured for this board!\n");
+		return CMD_RET_FAILURE;
+	}
+
 	/* hsdk_init can be run only once */
-	if (done) {
+	if (init_marker_get()) {
 		printf("HSDK HW is already initialized! Please reset the board if you want to change the configuration.\n");
 		return CMD_RET_FAILURE;
 	}
 
 	ret = prepare_cpus();
 	if (!ret)
-		done = true;
+		init_mark_done();
 
 	return ret ? CMD_RET_FAILURE : CMD_RET_SUCCESS;
 }
@@ -911,10 +1114,13 @@ static int do_hsdk_clock_print_all(cmd_tbl_t *cmdtp, int flag, int argc,
 	soc_clk_ctl("eth-clk", NULL, CLK_PRINT | CLK_MHZ);
 	soc_clk_ctl("usb-clk", NULL, CLK_PRINT | CLK_MHZ);
 	soc_clk_ctl("sdio-clk", NULL, CLK_PRINT | CLK_MHZ);
-/*	soc_clk_ctl("hdmi-sys-clk", NULL, CLK_PRINT | CLK_MHZ); */
+	if (is_board_match_runtime(T_BOARD_HSDK_4XD))
+		soc_clk_ctl("hdmi-sys-clk", NULL, CLK_PRINT | CLK_MHZ);
 	soc_clk_ctl("gfx-core-clk", NULL, CLK_PRINT | CLK_MHZ);
-	soc_clk_ctl("gfx-dma-clk", NULL, CLK_PRINT | CLK_MHZ);
-	soc_clk_ctl("gfx-cfg-clk", NULL, CLK_PRINT | CLK_MHZ);
+	if (is_board_match_runtime(T_BOARD_HSDK)) {
+		soc_clk_ctl("gfx-dma-clk", NULL, CLK_PRINT | CLK_MHZ);
+		soc_clk_ctl("gfx-cfg-clk", NULL, CLK_PRINT | CLK_MHZ);
+	}
 	soc_clk_ctl("dmac-core-clk", NULL, CLK_PRINT | CLK_MHZ);
 	soc_clk_ctl("dmac-cfg-clk", NULL, CLK_PRINT | CLK_MHZ);
 	soc_clk_ctl("sdio-ref-clk", NULL, CLK_PRINT | CLK_MHZ);
@@ -929,15 +1135,19 @@ static int do_hsdk_clock_print_all(cmd_tbl_t *cmdtp, int flag, int argc,
 	printf("\n");
 
 	/* HDMI clock domain */
-/*	soc_clk_ctl("hdmi-pll", NULL, CLK_PRINT | CLK_MHZ); */
-/*	soc_clk_ctl("hdmi-clk", NULL, CLK_PRINT | CLK_MHZ); */
-/*	printf("\n"); */
+	if (is_board_match_runtime(T_BOARD_HSDK_4XD)) {
+		soc_clk_ctl("hdmi-pll", NULL, CLK_PRINT | CLK_MHZ);
+		soc_clk_ctl("hdmi-clk", NULL, CLK_PRINT | CLK_MHZ);
+		printf("\n");
+	}
 
 	/* TUN clock domain */
 	soc_clk_ctl("tun-pll", NULL, CLK_PRINT | CLK_MHZ);
 	soc_clk_ctl("tun-clk", NULL, CLK_PRINT | CLK_MHZ);
 	soc_clk_ctl("rom-clk", NULL, CLK_PRINT | CLK_MHZ);
 	soc_clk_ctl("pwm-clk", NULL, CLK_PRINT | CLK_MHZ);
+	if (is_board_match_runtime(T_BOARD_HSDK_4XD))
+		soc_clk_ctl("timer-clk", NULL, CLK_PRINT | CLK_MHZ);
 	printf("\n");
 
 	return CMD_RET_SUCCESS;
@@ -1031,6 +1241,11 @@ int board_late_init(void)
 
 int checkboard(void)
 {
-	puts("Board: Synopsys ARC HS Development Kit\n");
+	printf("Board: Synopsys %s\n", board_name(get_board_type_runtime()));
+
+	if (board_mismatch())
+		printf("WARN: U-boot is configured NOT for this board but for %s!\n",
+		       board_name(get_board_type_config()));
+
 	return 0;
 };
