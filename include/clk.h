@@ -9,6 +9,7 @@
 #define _CLK_H_
 
 #include <dm/ofnode.h>
+#include <linux/err.h>
 #include <linux/errno.h>
 #include <linux/types.h>
 
@@ -312,6 +313,7 @@ static inline int clk_release_bulk(struct clk_bulk *bulk)
 	return clk_release_all(bulk->clks, bulk->count);
 }
 
+#if CONFIG_IS_ENABLED(CLK)
 /**
  * clk_request - Request a clock by provider-specific ID.
  *
@@ -433,19 +435,6 @@ int clk_disable_bulk(struct clk_bulk *bulk);
  */
 bool clk_is_match(const struct clk *p, const struct clk *q);
 
-int soc_clk_dump(void);
-
-/**
- * clk_valid() - check if clk is valid
- *
- * @clk:	the clock to check
- * @return true if valid, or false
- */
-static inline bool clk_valid(struct clk *clk)
-{
-	return clk && !!clk->dev;
-}
-
 /**
  * clk_get_by_id() - Get the clock by its ID
  *
@@ -465,6 +454,93 @@ int clk_get_by_id(ulong id, struct clk **clkp);
  * @return true on binded, or false on no
  */
 bool clk_dev_binded(struct clk *clk);
+
+#else /* CONFIG_IS_ENABLED(CLK) */
+
+static inline int clk_request(struct udevice *dev, struct clk *clk)
+{
+	return -ENOSYS;
+}
+
+static inline int clk_free(struct clk *clk)
+{
+	return 0;
+}
+
+static inline ulong clk_get_rate(struct clk *clk)
+{
+	return -ENOSYS;
+}
+
+static inline struct clk *clk_get_parent(struct clk *clk)
+{
+	return ERR_PTR(-ENOSYS);
+}
+
+static inline long long clk_get_parent_rate(struct clk *clk)
+{
+	return -ENOSYS;
+}
+
+static inline ulong clk_set_rate(struct clk *clk, ulong rate)
+{
+	return -ENOSYS;
+}
+
+static inline int clk_set_parent(struct clk *clk, struct clk *parent)
+{
+	return -ENOSYS;
+}
+
+static inline int clk_enable(struct clk *clk)
+{
+	return 0;
+}
+
+static inline int clk_enable_bulk(struct clk_bulk *bulk)
+{
+	return 0;
+}
+
+static inline int clk_disable(struct clk *clk)
+{
+	return 0;
+}
+
+static inline int clk_disable_bulk(struct clk_bulk *bulk)
+{
+	return 0;
+}
+
+static inline bool clk_is_match(const struct clk *p, const struct clk *q)
+{
+	return false;
+}
+
+static inline int clk_get_by_id(ulong id, struct clk **clkp)
+{
+	return -ENOSYS;
+}
+
+static inline bool clk_dev_binded(struct clk *clk)
+{
+	return false;
+}
+#endif /* CONFIG_IS_ENABLED(CLK) */
+
+/**
+ * clk_valid() - check if clk is valid
+ *
+ * @clk:	the clock to check
+ * @return true if valid, or false
+ */
+static inline bool clk_valid(struct clk *clk)
+{
+	return clk && !!clk->dev;
+}
+
+int soc_clk_dump(void);
+
 #endif
 
 #define clk_prepare_enable(clk) clk_enable(clk)
