@@ -11,11 +11,11 @@ This will generate the SPL image called SPL and the u-boot.img.
 
 - Flash the SPL image into the micro SD card:
 
-sudo dd if=SPL of=/dev/mmcblk0 bs=1k seek=1; sync
+sudo dd if=SPL of=/dev/sdX bs=1k seek=1; sync
 
 - Flash the u-boot.img image into the micro SD card:
 
-sudo dd if=u-boot.img of=/dev/sdb bs=1k seek=128; sync
+sudo dd if=u-boot.img of=/dev/sdX bs=1k seek=128; sync
 
 - Jumper settings:
 
