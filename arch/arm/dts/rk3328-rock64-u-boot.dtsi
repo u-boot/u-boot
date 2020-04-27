@@ -12,5 +12,16 @@
 };
 
 &usb_host0_xhci {
+	vbus-supply = <&vcc_host_5v>;
 	status = "okay";
+};
+
+/*
+ * This makes XHCI responsible for toggling VBUS. This is needed to work
+ * around an issue where either XHCI only works with USB 2.0 or OTG doesn't
+ * work, depending on how VBUS is configured. Having USB 3.0 seems better.
+ */
+&vcc_host_5v {
+	/delete-property/ regulator-always-on;
+	/delete-property/ regulator-boot-on;
 };
