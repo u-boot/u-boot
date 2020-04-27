@@ -19,6 +19,8 @@ int regulator_common_ofdata_to_platdata(struct udevice *dev,
 
 	if (!dev_read_bool(dev, "enable-active-high"))
 		flags |= GPIOD_ACTIVE_LOW;
+	if (dev_read_bool(dev, "regulator-boot-on"))
+		flags |= GPIOD_IS_OUT_ACTIVE;
 
 	/* Get optional enable GPIO desc */
 	gpio = &dev_pdata->gpio;
