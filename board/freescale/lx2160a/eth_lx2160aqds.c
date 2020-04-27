@@ -25,6 +25,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifndef CONFIG_DM_ETH
 #define EMI_NONE	0
 #define EMI1		1 /* Mdio Bus 1 */
 #define EMI2		2 /* Mdio Bus 2 */
@@ -439,9 +440,11 @@ static inline void do_dpmac_config(int dpmac, const char *arg_dpmacid,
 }
 
 #endif
+#endif /* !CONFIG_DM_ETH */
 
 int board_eth_init(bd_t *bis)
 {
+#ifndef CONFIG_DM_ETH
 #if defined(CONFIG_FSL_MC_ENET)
 	struct memac_mdio_info mdio_info;
 	struct memac_mdio_controller *regs;
@@ -564,6 +567,7 @@ int board_eth_init(bd_t *bis)
 
 	cpu_eth_init(bis);
 #endif /* CONFIG_FMAN_ENET */
+#endif /* !CONFIG_DM_ETH */
 
 #ifdef CONFIG_PHY_AQUANTIA
 	/*
@@ -577,7 +581,12 @@ int board_eth_init(bd_t *bis)
 	gd->jt->mdio_phydev_for_ethname = mdio_phydev_for_ethname;
 	gd->jt->miiphy_set_current_dev = miiphy_set_current_dev;
 #endif
+
+#ifdef CONFIG_DM_ETH
+	return 0;
+#else
 	return pci_eth_init(bis);
+#endif
 }
 
 #if defined(CONFIG_RESET_PHY_R)
@@ -589,6 +598,7 @@ void reset_phy(void)
 }
 #endif /* CONFIG_RESET_PHY_R */
 
+#ifndef CONFIG_DM_ETH
 #if defined(CONFIG_FSL_MC_ENET)
 int fdt_fixup_dpmac_phy_handle(void *fdt, int dpmac_id, int node_phandle)
 {
@@ -837,4 +847,4 @@ int fdt_fixup_board_phy(void *fdt)
 	return ret;
 }
 #endif // CONFIG_FSL_MC_ENET
-
+#endif
