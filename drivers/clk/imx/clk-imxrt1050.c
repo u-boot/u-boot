@@ -255,7 +255,7 @@ static int imxrt1050_clk_probe(struct udevice *dev)
 	clk_dm(IMXRT1050_CLK_SEMC,
 	       imx_clk_gate2("semc", "semc_podf", base + 0x74, 4));
 	clk_dm(IMXRT1050_CLK_LCDIF,
-	       imx_clk_gate2("lcdif", "lcdif_podf", base + 0x70, 28));
+	       imx_clk_gate2("lcdif", "lcdif_podf", base + 0x74, 10));
 
 	struct clk *clk, *clk1;
 
