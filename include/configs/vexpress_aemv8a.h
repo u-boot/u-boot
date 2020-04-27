@@ -7,12 +7,6 @@
 #ifndef __VEXPRESS_AEMV8A_H
 #define __VEXPRESS_AEMV8A_H
 
-#ifdef CONFIG_TARGET_VEXPRESS64_BASE_FVP
-#ifndef CONFIG_SEMIHOSTING
-#error CONFIG_TARGET_VEXPRESS64_BASE_FVP requires CONFIG_SEMIHOSTING
-#endif
-#endif
-
 #define CONFIG_REMAKE_ELF
 
 /* Link Definitions */
