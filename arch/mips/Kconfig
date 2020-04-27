@@ -98,6 +98,7 @@ config ARCH_MTMIPS
 	select SUPPORTS_CPU_MIPS32_R2
 	select SUPPORTS_LITTLE_ENDIAN
 	select SYSRESET
+	select SUPPORT_SPL
 
 config ARCH_JZ47XX
 	bool "Support Ingenic JZ47xx"
@@ -287,6 +288,60 @@ config MIPS_RELOCATION_TABLE_SIZE
 
 	  If unsure, leave at the default value.
 
+config RESTORE_EXCEPTION_VECTOR_BASE
+	bool "Restore exception vector base before booting linux kernel"
+	default n
+	help
+	  In U-Boot the exception vector base will be moved to top of memory,
+	  to be used to display register dump when exception occurs.
+	  But some old linux kernel does not honor the base set in CP0_EBASE.
+	  A modified exception vector base will cause kernel crash.
+
+	  This option will restore the exception vector base to its previous
+	  value.
+
+	  If unsure, say N.
+
+config OVERRIDE_EXCEPTION_VECTOR_BASE
+	bool "Override the exception vector base to be restored"
+	depends on RESTORE_EXCEPTION_VECTOR_BASE
+	default n
+	help
+	  Enable this option if you want to use a different exception vector
+	  base rather than the previously saved one.
+
+config NEW_EXCEPTION_VECTOR_BASE
+	hex "New exception vector base"
+	depends on OVERRIDE_EXCEPTION_VECTOR_BASE
+	range 0x80000000 0xbffff000
+	default 0x80000000
+	help
+	  The exception vector base to be restored before booting linux kernel
+
+config INIT_STACK_WITHOUT_MALLOC_F
+	bool "Do not reserve malloc space on initial stack"
+	default n
+	help
+	  Enable this option if you don't want to reserve malloc space on
+	  initial stack. This is useful if the initial stack can't hold large
+	  malloc space. Platform should set the malloc_base later when DRAM is
+	  ready to use.
+
+config SPL_INIT_STACK_WITHOUT_MALLOC_F
+	bool "Do not reserve malloc space on initial stack in SPL"
+	default n
+	help
+	  Enable this option if you don't want to reserve malloc space on
+	  initial stack. This is useful if the initial stack can't hold large
+	  malloc space. Platform should set the malloc_base later when DRAM is
+	  ready to use.
+
+config SPL_LOADER_SUPPORT
+	bool
+	default n
+	help
+	  Enable this option if you want to use SPL loaders without DM enabled.
+
 endmenu
 
 menu "OS boot interface"
@@ -388,6 +443,15 @@ config MIPS_INIT_STACK_IN_SRAM
 	  stack frame and the early C environment is set up before
 	  lowlevel_init. Thus lowlevel_init does not need to be implemented
 	  in assembler.
+
+config MIPS_SRAM_INIT
+	bool
+	default n
+	depends on MIPS_INIT_STACK_IN_SRAM
+	help
+	  Select this if the SRAM for initial stack needs to be initialized
+	  before it can be used. If enabled, a function mips_sram_init() will
+	  be called just before setup_stack_gd.
 
 config SYS_DCACHE_SIZE
 	int

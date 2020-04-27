@@ -294,6 +294,9 @@ static void boot_jump_linux(bootm_headers_t *images)
 	bootstage_report();
 #endif
 
+	if (CONFIG_IS_ENABLED(RESTORE_EXCEPTION_VECTOR_BASE))
+		trap_restore();
+
 	if (images->ft_len)
 		kernel(-2, (ulong)images->ft_addr, 0, 0);
 	else

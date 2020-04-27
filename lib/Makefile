@@ -67,6 +67,7 @@ obj-$(CONFIG_$(SPL_)ZLIB) += zlib/
 obj-$(CONFIG_$(SPL_)ZSTD) += zstd/
 obj-$(CONFIG_$(SPL_)GZIP) += gunzip.o
 obj-$(CONFIG_$(SPL_)LZO) += lzo/
+obj-$(CONFIG_$(SPL_)LZMA) += lzma/
 obj-$(CONFIG_$(SPL_)LZ4) += lz4_wrapper.o
 
 obj-$(CONFIG_LIBAVB) += libavb/

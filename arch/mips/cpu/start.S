@@ -59,7 +59,8 @@
 		sp, sp, GD_SIZE		# reserve space for gd
 	and	sp, sp, t0		# force 16 byte alignment
 	move	k0, sp			# save gd pointer
-#if CONFIG_VAL(SYS_MALLOC_F_LEN)
+#if CONFIG_VAL(SYS_MALLOC_F_LEN) && \
+    !CONFIG_IS_ENABLED(INIT_STACK_WITHOUT_MALLOC_F)
 	li	t2, CONFIG_VAL(SYS_MALLOC_F_LEN)
 	PTR_SUBU \
 		sp, sp, t2		# reserve space for early malloc
@@ -71,10 +72,12 @@
 	move	t0, k0
 1:
 	PTR_S	zero, 0(t0)
+	PTR_ADDIU t0, PTRSIZE
 	blt	t0, t1, 1b
-	 PTR_ADDIU t0, PTRSIZE
+	 nop
 
-#if CONFIG_VAL(SYS_MALLOC_F_LEN)
+#if CONFIG_VAL(SYS_MALLOC_F_LEN) && \
+    !CONFIG_IS_ENABLED(INIT_STACK_WITHOUT_MALLOC_F)
 	PTR_S	sp, GD_MALLOC_BASE(k0)	# gd->malloc_base offset
 #endif
 	.endm
@@ -216,6 +219,13 @@ wr_done:
 #endif
 
 #ifdef CONFIG_MIPS_INIT_STACK_IN_SRAM
+#ifdef CONFIG_MIPS_SRAM_INIT
+	/* Initialize the SRAM first */
+	PTR_LA	t9, mips_sram_init
+	jalr	t9
+	 nop
+#endif
+
 	/* Set up initial stack and global data */
 	setup_stack_gd
 

@@ -1002,6 +1002,9 @@ append = cat $(filter-out $< $(PHONY), $^) >> $@
 quiet_cmd_pad_cat = CAT     $@
 cmd_pad_cat = $(cmd_objcopy) && $(append) || rm -f $@
 
+quiet_cmd_lzma = LZMA    $@
+cmd_lzma = lzma -c -z -k -9 $< > $@
+
 cfg: u-boot.cfg
 
 quiet_cmd_cfgcheck = CFGCHK  $2
@@ -1383,6 +1386,16 @@ UBOOT_BIN := u-boot-with-dtb.bin
 else
 UBOOT_BIN := u-boot.bin
 endif
+
+MKIMAGEFLAGS_u-boot-lzma.img = -A $(ARCH) -T standalone -C lzma -O u-boot \
+	-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_UBOOT_START) \
+	-n "U-Boot $(UBOOTRELEASE) for $(BOARD) board"
+
+u-boot.bin.lzma: u-boot.bin FORCE
+	$(call if_changed,lzma)
+
+u-boot-lzma.img: u-boot.bin.lzma FORCE
+	$(call if_changed,mkimage)
 
 u-boot-dtb.img u-boot.img u-boot.kwb u-boot.pbl u-boot-ivt.img: \
 		$(if $(CONFIG_SPL_LOAD_FIT),u-boot-nodtb.bin \

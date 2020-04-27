@@ -101,6 +101,12 @@ config SYSRESET_WATCHDOG
 	help
 	  Reboot support for generic watchdog reset.
 
+config SYSRESET_RESETCTL
+	bool "Enable support for reset controller reboot driver"
+	select DM_RESET
+	help
+	  Reboot support using generic reset controller.
+
 config SYSRESET_X86
 	bool "Enable support for x86 processor reboot driver"
 	depends on X86

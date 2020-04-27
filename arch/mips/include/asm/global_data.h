@@ -27,6 +27,9 @@ struct arch_global_data {
 #ifdef CONFIG_MIPS_L2_CACHE
 	unsigned short l2_line_size;
 #endif
+#ifdef CONFIG_ARCH_MTMIPS
+	unsigned long timer_freq;
+#endif
 };
 
 #include <asm-generic/global_data.h>
