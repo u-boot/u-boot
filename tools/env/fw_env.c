@@ -1647,6 +1647,9 @@ static int check_device_config(int dev)
 			goto err;
 		}
 		DEVTYPE(dev) = mtdinfo.type;
+		if (DEVESIZE(dev) == 0 && ENVSECTORS(dev) == 0 &&
+		    mtdinfo.type == MTD_NORFLASH)
+			DEVESIZE(dev) = mtdinfo.erasesize;
 		if (DEVESIZE(dev) == 0)
 			/* Assume the erase size is the same as the env-size */
 			DEVESIZE(dev) = ENVSIZE(dev);

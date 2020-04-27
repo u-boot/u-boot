@@ -335,8 +335,9 @@ def fs_obj_basic(request, u_boot_config):
         md5val.append(out.split()[0])
 
         umount_fs(mount_dir)
-    except CalledProcessError:
-        pytest.skip('Setup failed for filesystem: ' + fs_type)
+    except CalledProcessError as err:
+        pytest.skip('Setup failed for filesystem: ' + fs_type + \
+            '. {}'.format(err))
         return
     else:
         yield [fs_ubtype, fs_img, md5val]

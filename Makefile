@@ -1325,7 +1325,9 @@ endif
 # Boards with more complex image requirements can provide an .its source file
 # or a generator script
 ifneq ($(CONFIG_SPL_FIT_SOURCE),"")
-U_BOOT_ITS = $(subst ",,$(CONFIG_SPL_FIT_SOURCE))
+U_BOOT_ITS := u-boot.its
+$(U_BOOT_ITS): $(subst ",,$(CONFIG_SPL_FIT_SOURCE))
+	$(call if_changed,copy)
 else
 ifneq ($(CONFIG_SPL_FIT_GENERATOR),"")
 U_BOOT_ITS := u-boot.its

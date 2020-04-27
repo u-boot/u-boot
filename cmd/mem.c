@@ -1144,10 +1144,8 @@ static int do_random(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	unsigned char *buf8;
 	unsigned int i;
 
-	if (argc < 3 || argc > 4) {
-		printf("usage: %s <addr> <len> [<seed>]\n", argv[0]);
-		return 0;
-	}
+	if (argc < 3 || argc > 4)
+		return CMD_RET_USAGE;
 
 	len = simple_strtoul(argv[2], NULL, 16);
 	addr = simple_strtoul(argv[1], NULL, 16);
@@ -1174,7 +1172,8 @@ static int do_random(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	unmap_sysmem(start);
 	printf("%lu bytes filled with random data\n", len);
-	return 1;
+
+	return CMD_RET_SUCCESS;
 }
 #endif
 
