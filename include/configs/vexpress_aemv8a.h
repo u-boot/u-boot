@@ -138,35 +138,33 @@
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 				"kernel_name=norkern\0"	\
 				"kernel_alt_name=Image\0"	\
-				"kernel_addr=0x80080000\0" \
-				"initrd_name=ramdisk.img\0"	\
-				"initrd_addr=0x84000000\0"	\
+				"kernel_addr_r=0x80080000\0" \
+				"ramdisk_name=ramdisk.img\0"	\
+				"ramdisk_addr_r=0x88000000\0"	\
 				"fdtfile=board.dtb\0" \
 				"fdt_alt_name=juno\0" \
-				"fdt_addr=0x83000000\0" \
-				"fdt_high=0xffffffffffffffff\0" \
-				"initrd_high=0xffffffffffffffff\0" \
+				"fdt_addr_r=0x80000000\0" \
 
 /* Copy the kernel and FDT to DRAM memory and boot */
-#define CONFIG_BOOTCOMMAND	"afs load ${kernel_name} ${kernel_addr} ; " \
+#define CONFIG_BOOTCOMMAND	"afs load ${kernel_name} ${kernel_addr_r} ;"\
 				"if test $? -eq 1; then "\
 				"  echo Loading ${kernel_alt_name} instead of "\
 				"${kernel_name}; "\
-				"  afs load ${kernel_alt_name} ${kernel_addr};"\
+				"  afs load ${kernel_alt_name} ${kernel_addr_r};"\
 				"fi ; "\
-				"afs load  ${fdtfile} ${fdt_addr} ; " \
+				"afs load ${fdtfile} ${fdt_addr_r} ;"\
 				"if test $? -eq 1; then "\
 				"  echo Loading ${fdt_alt_name} instead of "\
 				"${fdtfile}; "\
-				"  afs load ${fdt_alt_name} ${fdt_addr}; "\
+				"  afs load ${fdt_alt_name} ${fdt_addr_r}; "\
 				"fi ; "\
-				"fdt addr ${fdt_addr}; fdt resize; " \
-				"if afs load  ${initrd_name} ${initrd_addr} ; "\
+				"fdt addr ${fdt_addr_r}; fdt resize; " \
+				"if afs load  ${ramdisk_name} ${ramdisk_addr_r} ; "\
 				"then "\
-				"  setenv initrd_param ${initrd_addr}; "\
-				"  else setenv initrd_param -; "\
+				"  setenv ramdisk_param ${ramdisk_addr_r}; "\
+				"  else setenv ramdisk_param -; "\
 				"fi ; " \
-				"booti ${kernel_addr} ${initrd_param} ${fdt_addr}"
+				"booti ${kernel_addr_r} ${ramdisk_param} ${fdt_addr_r}"
 
 
 #elif CONFIG_TARGET_VEXPRESS64_BASE_FVP
