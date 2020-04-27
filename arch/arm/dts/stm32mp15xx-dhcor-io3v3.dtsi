@@ -21,17 +21,6 @@
 		device_type = "memory";
 		reg = <0xc0000000 0x40000000>;
 	};
-
-	/* Enpirion EP3A8LQI U2 on the DHCOR */
-	vdd_io: regulator-buck-io {
-		compatible = "regulator-fixed";
-		regulator-name = "buck-io";
-		regulator-min-microvolt = <1800000>;
-		regulator-max-microvolt = <1800000>;
-		regulator-always-on;
-		regulator-boot-on;
-		vin-supply = <&vdd>;
-	};
 };
 
 &i2c4 {
@@ -200,7 +189,7 @@
 };
 
 &pwr_regulators {
-	vdd-supply = <&vdd_io>;
+	vdd-supply = <&vdd>;
 	vdd_3v3_usbfs-supply = <&vdd_usb>;
 };
 

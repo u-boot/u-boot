@@ -7,7 +7,7 @@
 
 /dts-v1/;
 
-#include "stm32mp15xx-dhcor.dtsi"
+#include "stm32mp15xx-dhcor-io1v8.dtsi"
 #include "stm32mp15xx-dhcor-avenger96-u-boot.dtsi"
 
 / {
