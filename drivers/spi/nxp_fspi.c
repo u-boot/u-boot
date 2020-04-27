@@ -421,7 +421,7 @@ static bool nxp_fspi_supports_op(struct spi_slave *slave,
 	return true;
 }
 
-/* Instead of busy looping invoke readl_poll_timeout functionality. */
+/* Instead of busy looping invoke readl_poll_sleep_timeout functionality. */
 static int fspi_readl_poll_tout(struct nxp_fspi *f, void __iomem *base,
 				u32 mask, u32 delay_us,
 				u32 timeout_us, bool c)
@@ -432,11 +432,11 @@ static int fspi_readl_poll_tout(struct nxp_fspi *f, void __iomem *base,
 		mask = (u32)cpu_to_be32(mask);
 
 	if (c)
-		return readl_poll_timeout(base, reg, (reg & mask),
-					  timeout_us);
+		return readl_poll_sleep_timeout(base, reg, (reg & mask),
+						delay_us, timeout_us);
 	else
-		return readl_poll_timeout(base, reg, !(reg & mask),
-					  timeout_us);
+		return readl_poll_sleep_timeout(base, reg, !(reg & mask),
+						delay_us, timeout_us);
 }
 
 /*
