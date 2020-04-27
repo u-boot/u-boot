@@ -483,7 +483,6 @@
 			     "snps,dwc2";
 		reg = <0x0 0xff580000 0x0 0x40000>;
 		interrupts = <GIC_SPI 23 IRQ_TYPE_LEVEL_HIGH>;
-		hnp-srp-disable;
 		dr_mode = "otg";
 		status = "disabled";
 	};
