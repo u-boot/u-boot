@@ -996,6 +996,7 @@ static ulong rk3399_clk_set_rate(struct clk *clk, ulong rate)
 		break;
 	case ACLK_VOP1:
 	case HCLK_VOP1:
+	case HCLK_SD:
 		/**
 		 * assigned-clocks handling won't require for vopl, so
 		 * return 0 to satisfy clk_set_defaults during device probe.
