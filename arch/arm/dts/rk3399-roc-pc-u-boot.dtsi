@@ -26,7 +26,33 @@
 	};
 };
 
+/*
+ * should be placed inside mp8859, but not until mp8859 has
+ * its own dt-binding.
+ */
+&dc_12v {
+	compatible = "regulator-fixed";
+	regulator-name = "dc_12v";
+	regulator-always-on;
+	regulator-boot-on;
+	regulator-min-microvolt = <12000000>;
+	regulator-max-microvolt = <12000000>;
+	vin-supply = <&vcc_vbus_typec0>;
+};
+
 &vdd_log {
 	regulator-min-microvolt = <430000>;
 	regulator-init-microvolt = <950000>;
+};
+
+&vcc5v0_host {
+	regulator-always-on;
+};
+
+&vcc_sys {
+	regulator-always-on;
+};
+
+&vcc_sdio {
+	regulator-always-on;
 };

@@ -85,6 +85,7 @@
 };
 
 &sdhci {
+	max-frequency = <200000000>;
 	u-boot,dm-pre-reloc;
 };
 
