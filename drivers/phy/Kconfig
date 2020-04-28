@@ -154,6 +154,14 @@ config PHY_STM32_USBPHYC
 	  between an HS USB OTG controller and an HS USB Host controller,
 	  selected by an USB switch.
 
+config MESON_GXBB_USB_PHY
+	bool "Amlogic Meson GXBB USB PHY"
+	depends on PHY && ARCH_MESON && MESON_GXBB
+	imply REGMAP
+	help
+	  This is the generic phy driver for the Amlogic Meson GXBB
+	  USB2 PHY.
+
 config MESON_GXL_USB_PHY
 	bool "Amlogic Meson GXL USB PHYs"
 	depends on PHY && ARCH_MESON && (MESON_GXL || MESON_GXM)
