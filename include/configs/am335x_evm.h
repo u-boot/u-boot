@@ -285,9 +285,7 @@
 /* SPI flash. */
 
 /* Network. */
-#define CONFIG_PHY_SMSC
 /* Enable Atheros phy driver */
-#define CONFIG_PHY_ATHEROS
 
 /*
  * NOR Size = 16 MiB

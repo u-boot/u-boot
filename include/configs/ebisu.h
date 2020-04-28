@@ -15,7 +15,6 @@
 
 /* Ethernet RAVB */
 #define CONFIG_NET_MULTI
-#define CONFIG_BITBANGMII
 #define CONFIG_BITBANGMII_MULTI
 
 /* Generic Timer Definitions (use in assembler source) */

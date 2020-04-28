@@ -82,9 +82,6 @@
 
 #define CONFIG_PHY_GIGE
 #define IMX_FEC_BASE			0x30BE0000
-
-#define CONFIG_PHYLIB
-#define CONFIG_PHY_ATHEROS
 #endif
 
 #define CONFIG_MFG_ENV_SETTINGS \

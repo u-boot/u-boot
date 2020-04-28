@@ -288,8 +288,6 @@
   #define FETH3_RST		0x80
 #endif					/* CONFIG_ETHER_INDEX */
 
-#define CONFIG_BITBANGMII		/* bit-bang MII PHY management */
-
 /*
  * GPIO pins used for bit-banged MII communications
  */

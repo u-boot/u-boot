@@ -38,7 +38,6 @@
  * Until Realtek PHY driver is fixed fall back to generic PHY driver
  * which implements all required functionality and behaves much more stable.
  *
- * #define CONFIG_PHY_REALTEK
  *
  */
 
