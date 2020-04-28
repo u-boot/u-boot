@@ -16,7 +16,6 @@
 #include <asm/io.h>
 #include <fdt_support.h>
 #include <linux/libfdt.h>
-#include <linux/sizes.h>
 #include <fsl-mc/fsl_mc.h>
 #include <env_internal.h>
 #include <efi_loader.h>
@@ -30,14 +29,11 @@
 #include "../common/vid.h"
 #include <fsl_immap.h>
 #include <asm/arch-fsl-layerscape/fsl_icid.h>
-#include <asm/gic-v3.h>
-#include <cpu_func.h>
 
 #ifdef CONFIG_EMC2305
 #include "../common/emc2305.h"
 #endif
 
-#define GIC_LPI_SIZE                             0x200000
 #ifdef CONFIG_TARGET_LX2160AQDS
 #define CFG_MUX_I2C_SDHC(reg, value)		((reg & 0x3f) | value)
 #define SET_CFG_MUX1_SDHC1_SDHC(reg)		(reg & 0x3f)
@@ -645,23 +641,6 @@ void board_quiesce_devices(void)
 }
 #endif
 
-#ifdef CONFIG_GIC_V3_ITS
-int fdt_fixup_gic_lpi_memory(void *blob, u64 gic_lpi_base)
-{
-	u32 phandle;
-	int err;
-	struct fdt_memory gic_lpi;
-
-	gic_lpi.start = gic_lpi_base;
-	gic_lpi.end = gic_lpi_base + GIC_LPI_SIZE - 1;
-	err = fdtdec_add_reserved_memory(blob, "gic-lpi", &gic_lpi, &phandle);
-	if (err < 0)
-		debug("failed to add reserved memory: %d\n", err);
-
-	return err;
-}
-#endif
-
 #ifdef CONFIG_OF_BOARD_SETUP
 int ft_board_setup(void *blob, bd_t *bd)
 {
@@ -673,8 +652,6 @@ int ft_board_setup(void *blob, bd_t *bd)
 	u64 mc_memory_base = 0;
 	u64 mc_memory_size = 0;
 	u16 total_memory_banks;
-	u64 __maybe_unused gic_lpi_base;
-	int ret;
 
 	ft_cpu_setup(blob, bd);
 
@@ -693,13 +670,6 @@ int ft_board_setup(void *blob, bd_t *bd)
 		base[i] = gd->bd->bi_dram[i].start;
 		size[i] = gd->bd->bi_dram[i].size;
 	}
-
-#ifdef CONFIG_GIC_V3_ITS
-	gic_lpi_base = ALIGN(gd->arch.resv_ram - GIC_LPI_SIZE, SZ_64K);
-	ret = fdt_fixup_gic_lpi_memory(blob, gic_lpi_base);
-	if (!ret && gic_lpi_tables_init(gic_lpi_base, cpu_numcores()))
-		debug("%s: failed to init gic-lpi-tables\n", __func__);
-#endif
 
 #ifdef CONFIG_RESV_RAM
 	/* reduce size if reserved memory is within this bank */

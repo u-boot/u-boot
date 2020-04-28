@@ -158,6 +158,10 @@ void erratum_a010315(void);
 
 bool soc_has_dp_ddr(void);
 bool soc_has_aiop(void);
+
+#ifdef CONFIG_GIC_V3_ITS
+int ls_gic_rd_tables_init(void *blob);
+#endif
 #endif
 
 #endif /* _ASM_ARMV8_FSL_LAYERSCAPE_SOC_H_ */
