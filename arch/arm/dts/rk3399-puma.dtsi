@@ -91,7 +91,6 @@
 	 */
 	bios_enable: bios_enable {
 		compatible = "regulator-fixed";
-		u-boot,dm-pre-reloc;
 		regulator-name = "bios_enable";
 		enable-active-high;
 		gpio = <&gpio3 RK_PD5 GPIO_ACTIVE_LOW>;
@@ -520,14 +519,6 @@
 	status = "okay";
 };
 
-&gpio1 {
-	u-boot,dm-pre-reloc;
-};
-
-&gpio3 {
-	u-boot,dm-pre-reloc;
-};
-
 &pinctrl {
 	/* Pins that are not explicitely used by any devices */
 	pinctrl-names = "default";
@@ -633,8 +624,6 @@
 	#size-cells = <0>;
 
 	spiflash: w25q32dw@0 {
-		u-boot,dm-pre-reloc;
-
 		compatible = "jedec,spi-nor";
 		reg = <0>;
 		spi-max-frequency = <49500000>;

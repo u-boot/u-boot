@@ -22,3 +22,19 @@
        };
 
 };
+
+&bios_enable {
+	u-boot,dm-pre-reloc;
+};
+
+&gpio1 {
+	u-boot,dm-pre-reloc;
+};
+
+&gpio3 {
+	u-boot,dm-pre-reloc;
+};
+
+&spiflash {
+	u-boot,dm-pre-reloc;
+};
