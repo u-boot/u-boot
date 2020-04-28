@@ -6,8 +6,7 @@
 
 """See README for more information"""
 
-from __future__ import print_function
-
+import doctest
 import multiprocessing
 import os
 import re
@@ -16,20 +15,18 @@ import unittest
 
 # Bring in the patman libraries
 our_path = os.path.dirname(os.path.realpath(__file__))
-sys.path.insert(1, os.path.join(our_path, '../patman'))
+sys.path.insert(1, os.path.join(our_path, '..'))
 
 # Our modules
-import board
-import bsettings
-import builder
-import checkpatch
-import cmdline
-import control
-import doctest
-import gitutil
-import patchstream
-import terminal
-import toolchain
+from buildman import board
+from buildman import bsettings
+from buildman import builder
+from buildman import cmdline
+from buildman import control
+from buildman import toolchain
+from patman import patchstream
+from patman import gitutil
+from patman import terminal
 
 def RunTests(skip_net_tests):
     import func_test
@@ -37,7 +34,7 @@ def RunTests(skip_net_tests):
     import doctest
 
     result = unittest.TestResult()
-    for module in ['toolchain', 'gitutil']:
+    for module in ['buildman.toolchain', 'patman.gitutil']:
         suite = doctest.DocTestSuite(module)
         suite.run(result)
 

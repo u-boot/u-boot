@@ -5,9 +5,9 @@
 
 from collections import OrderedDict
 
-from entry import Entry, EntryArg
-import fdt_util
-import tools
+from binman.entry import Entry, EntryArg
+from dtoc import fdt_util
+from patman import tools
 
 
 class Entry_text(Entry):

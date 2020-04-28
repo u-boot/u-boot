@@ -8,9 +8,9 @@ This handles putting an FDT into the image with just the information about the
 image.
 """
 
-from entry import Entry
-import tools
-import tout
+from binman.entry import Entry
+from patman import tools
+from patman import tout
 
 FDTMAP_MAGIC   = b'_FDTMAP_'
 FDTMAP_HDR_LEN = 16
@@ -82,8 +82,8 @@ class Entry_fdtmap(Entry):
         global Fdt
 
         import libfdt
-        import state
-        from fdt import Fdt
+        from binman import state
+        from dtoc.fdt import Fdt
 
         Entry.__init__(self, section, etype, node)
 

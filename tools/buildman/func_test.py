@@ -8,15 +8,15 @@ import sys
 import tempfile
 import unittest
 
-import board
-import bsettings
-import cmdline
-import command
-import control
-import gitutil
-import terminal
-import toolchain
-import tools
+from buildman import board
+from buildman import bsettings
+from buildman import cmdline
+from buildman import control
+from buildman import toolchain
+from patman import command
+from patman import gitutil
+from patman import terminal
+from patman import tools
 
 settings_data = '''
 # Buildman settings file
@@ -546,6 +546,13 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(self._builder.count, self._total_builds)
         self.assertEqual(self._builder.fail, 0)
 
+    def testEnvironment(self):
+        """Test that the done and environment files are written to out-env"""
+        self._RunControl('-o', self._output_dir)
+        board0_dir = os.path.join(self._output_dir, 'current', 'board0')
+        self.assertTrue(os.path.exists(os.path.join(board0_dir, 'done')))
+        self.assertTrue(os.path.exists(os.path.join(board0_dir, 'out-env')))
+
     def testWorkInOutput(self):
         """Test the -w option which should write directly to the output dir"""
         board_list = board.Boards()
@@ -554,6 +561,10 @@ class TestFunctional(unittest.TestCase):
                          boards=board_list)
         self.assertTrue(
             os.path.exists(os.path.join(self._output_dir, 'u-boot')))
+        self.assertTrue(
+            os.path.exists(os.path.join(self._output_dir, 'done')))
+        self.assertTrue(
+            os.path.exists(os.path.join(self._output_dir, 'out-env')))
 
     def testWorkInOutputFail(self):
         """Test the -w option failures"""
@@ -569,3 +580,9 @@ class TestFunctional(unittest.TestCase):
             self._RunControl('-b', self._test_branch, '-o', self._output_dir,
                              '-w', clean_dir=False, boards=board_list)
         self.assertIn("single commit", str(e.exception))
+
+        board_list = board.Boards()
+        board_list.AddBoard(board.Board(*boards[0]))
+        with self.assertRaises(SystemExit) as e:
+            self._RunControl('-w', clean_dir=False)
+        self.assertIn("specify -o", str(e.exception))

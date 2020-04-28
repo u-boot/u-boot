@@ -5,8 +5,8 @@
 # Entry-type module for the 16-bit x86 start-up code for U-Boot SPL
 #
 
-from entry import Entry
-from blob import Entry_blob
+from binman.entry import Entry
+from binman.etype.blob import Entry_blob
 
 class Entry_x86_start16_spl(Entry_blob):
     """x86 16-bit start-up code for SPL

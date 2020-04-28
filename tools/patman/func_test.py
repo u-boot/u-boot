@@ -12,15 +12,12 @@ import sys
 import tempfile
 import unittest
 
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
+from io import StringIO
 
-import gitutil
-import patchstream
-import settings
-import tools
+from patman import gitutil
+from patman import patchstream
+from patman import settings
+from patman import tools
 
 
 @contextlib.contextmanager

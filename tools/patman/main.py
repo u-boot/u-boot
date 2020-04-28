@@ -12,19 +12,20 @@ import re
 import sys
 import unittest
 
+if __name__ == "__main__":
+    # Allow 'from patman import xxx to work'
+    our_path = os.path.dirname(os.path.realpath(__file__))
+    sys.path.append(os.path.join(our_path, '..'))
+
 # Our modules
-try:
-    from patman import checkpatch, command, gitutil, patchstream, \
-        project, settings, terminal, test
-except ImportError:
-    import checkpatch
-    import command
-    import gitutil
-    import patchstream
-    import project
-    import settings
-    import terminal
-    import test
+from patman import checkpatch
+from patman import command
+from patman import gitutil
+from patman import patchstream
+from patman import project
+from patman import settings
+from patman import terminal
+from patman import test
 
 
 parser = OptionParser()
@@ -85,7 +86,7 @@ if __name__ != "__main__":
 # Run our meagre tests
 elif options.test:
     import doctest
-    import func_test
+    from patman import func_test
 
     sys.argv = [sys.argv[0]]
     result = unittest.TestResult()

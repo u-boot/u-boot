@@ -4,8 +4,8 @@
 # Entry-type module for Intel Video BIOS Table binary blob
 #
 
-from entry import Entry
-from blob import Entry_blob
+from binman.entry import Entry
+from binman.etype.blob import Entry_blob
 
 class Entry_intel_vbt(Entry_blob):
     """Entry containing an Intel Video BIOS Table (VBT) file

@@ -11,18 +11,17 @@ import unittest
 
 # Bring in the patman libraries
 our_path = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(our_path, '../patman'))
 
-import board
-import bsettings
-import builder
-import control
-import command
-import commit
-import terminal
-import test_util
-import toolchain
-import tools
+from buildman import board
+from buildman import bsettings
+from buildman import builder
+from buildman import control
+from buildman import toolchain
+from patman import commit
+from patman import command
+from patman import terminal
+from patman import test_util
+from patman import tools
 
 use_network = True
 
@@ -583,7 +582,7 @@ class TestBuild(unittest.TestCase):
                 url = self.toolchains.LocateArchUrl('arm')
             self.assertRegexpMatches(url, 'https://www.kernel.org/pub/tools/'
                     'crosstool/files/bin/x86_64/.*/'
-                    'x86_64-gcc-.*-nolibc_arm-.*linux-gnueabi.tar.xz')
+                    'x86_64-gcc-.*-nolibc[-_]arm-.*linux-gnueabi.tar.xz')
 
     def testGetEnvArgs(self):
         """Test the GetEnvArgs() function"""

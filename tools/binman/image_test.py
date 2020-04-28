@@ -7,7 +7,7 @@
 import unittest
 
 from image import Image
-from test_util import capture_sys_output
+from patman.test_util import capture_sys_output
 
 class TestImage(unittest.TestCase):
     def testInvalidFormat(self):

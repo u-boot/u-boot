@@ -9,10 +9,10 @@ import re
 import shutil
 import tempfile
 
-import command
-import commit
-import gitutil
-from series import Series
+from patman import command
+from patman import commit
+from patman import gitutil
+from patman.series import Series
 
 # Tags that we detect and remove
 re_remove = re.compile('^BUG=|^TEST=|^BRANCH=|^Review URL:'

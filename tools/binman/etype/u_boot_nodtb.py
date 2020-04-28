@@ -5,8 +5,8 @@
 # Entry-type module for 'u-boot-nodtb.bin'
 #
 
-from entry import Entry
-from blob import Entry_blob
+from binman.entry import Entry
+from binman.etype.blob import Entry_blob
 
 class Entry_u_boot_nodtb(Entry_blob):
     """U-Boot flat binary without device tree appended

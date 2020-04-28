@@ -5,8 +5,8 @@
 # Entry-type module for the 16-bit x86 reset code for U-Boot
 #
 
-from entry import Entry
-from blob import Entry_blob
+from binman.entry import Entry
+from binman.etype.blob import Entry_blob
 
 class Entry_x86_reset16(Entry_blob):
     """x86 16-bit reset code for U-Boot

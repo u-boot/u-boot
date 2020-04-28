@@ -9,10 +9,10 @@
 from collections import OrderedDict
 import os
 
-from entry import Entry, EntryArg
+from binman.entry import Entry, EntryArg
 
-import fdt_util
-import tools
+from dtoc import fdt_util
+from patman import tools
 
 class Entry_vblock(Entry):
     """An entry which contains a Chromium OS verified boot block

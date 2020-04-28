@@ -5,9 +5,9 @@
 # Entry-type module for a U-Boot binary with an embedded microcode pointer
 #
 
-from entry import Entry
-from blob import Entry_blob
-import tools
+from binman.entry import Entry
+from binman.etype.blob import Entry_blob
+from patman import tools
 
 class Entry_u_boot_ucode(Entry_blob):
     """U-Boot microcode block

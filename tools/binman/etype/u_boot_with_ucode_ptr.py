@@ -7,12 +7,12 @@
 
 import struct
 
-import command
-import elf
-from entry import Entry
-from blob import Entry_blob
-import fdt_util
-import tools
+from binman import elf
+from binman.entry import Entry
+from binman.etype.blob import Entry_blob
+from dtoc import fdt_util
+from patman import tools
+from patman import command
 
 class Entry_u_boot_with_ucode_ptr(Entry_blob):
     """U-Boot with embedded microcode pointer

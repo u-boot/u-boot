@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/python3
 # SPDX-License-Identifier: GPL-2.0+
 # Copyright 2019 Google LLC
 #
@@ -23,8 +23,6 @@ This script works by:
 Search for ## to update the commit message manually.
 """
 
-from __future__ import print_function
-
 import glob
 import os
 import re
@@ -32,9 +30,8 @@ import sys
 
 # Bring in the patman libraries
 our_path = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(our_path, '../tools/patman'))
 
-import command
+from patman import command
 
 def rm_kconfig_include(path):
     """Remove a path from Kconfig files

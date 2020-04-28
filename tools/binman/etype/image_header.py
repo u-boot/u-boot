@@ -11,8 +11,8 @@ image.
 
 import struct
 
-from entry import Entry
-import fdt_util
+from binman.entry import Entry
+from dtoc import fdt_util
 
 IMAGE_HEADER_MAGIC = b'BinM'
 IMAGE_HEADER_LEN   = 8

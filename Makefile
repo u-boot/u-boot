@@ -512,7 +512,7 @@ dt_h := include/generated/dt.h
 
 no-dot-config-targets := clean clobber mrproper distclean \
 			 help %docs check% coccicheck \
-			 ubootversion backup tests check qcheck
+			 ubootversion backup tests check qcheck tcheck
 
 config-targets := 0
 mixed-targets  := 0
@@ -2113,6 +2113,7 @@ help:
 	@echo  ''
 	@echo  '  check           - Run all automated tests that use sandbox'
 	@echo  '  qcheck          - Run quick automated tests that use sandbox'
+	@echo  '  tcheck          - Run quick automated tests on tools'
 	@echo  ''
 	@echo  'Other generic targets:'
 	@echo  '  all		  - Build all necessary images depending on configuration'
@@ -2157,6 +2158,9 @@ tests check:
 
 qcheck:
 	$(srctree)/test/run quick
+
+tcheck:
+	$(srctree)/test/run tools
 
 # Documentation targets
 # ---------------------------------------------------------------------------

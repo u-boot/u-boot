@@ -4,8 +4,6 @@
 # Written by Simon Glass <sjg@chromium.org>
 #
 
-from __future__ import print_function
-
 from optparse import OptionParser
 import glob
 import os
@@ -16,17 +14,16 @@ import unittest
 
 # Bring in the patman libraries
 our_path = os.path.dirname(os.path.realpath(__file__))
-for dirname in ['../patman', '..']:
-    sys.path.insert(0, os.path.join(our_path, dirname))
+sys.path.insert(1, os.path.join(our_path, '..'))
 
-import command
-import fdt
+from dtoc import fdt
+from dtoc import fdt_util
+from dtoc.fdt_util import fdt32_to_cpu
 from fdt import TYPE_BYTE, TYPE_INT, TYPE_STRING, TYPE_BOOL, BytesToValue
-import fdt_util
-from fdt_util import fdt32_to_cpu
 import libfdt
-import test_util
-import tools
+from patman import command
+from patman import test_util
+from patman import tools
 
 def _GetPropertyValue(dtb, node, prop_name):
     """Low-level function to get the property value based on its offset

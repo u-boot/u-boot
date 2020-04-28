@@ -9,8 +9,6 @@ These create and read various CBFSs and compare the results with expected
 values and with cbfstool
 """
 
-from __future__ import print_function
-
 import io
 import os
 import shutil
@@ -18,11 +16,11 @@ import struct
 import tempfile
 import unittest
 
-import cbfs_util
-from cbfs_util import CbfsWriter
-import elf
-import test_util
-import tools
+from binman import cbfs_util
+from binman.cbfs_util import CbfsWriter
+from binman import elf
+from patman import test_util
+from patman import tools
 
 U_BOOT_DATA           = b'1234'
 U_BOOT_DTB_DATA       = b'udtb'

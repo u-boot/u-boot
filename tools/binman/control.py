@@ -5,17 +5,15 @@
 # Creates binary images from input files controlled by a description
 #
 
-from __future__ import print_function
-
 from collections import OrderedDict
 import os
 import sys
-import tools
+from patman import tools
 
-import cbfs_util
-import command
-import elf
-import tout
+from binman import cbfs_util
+from binman import elf
+from patman import command
+from patman import tout
 
 # List of images we plan to create
 # Make this global so that it can be referenced from tests
@@ -62,7 +60,7 @@ def WriteEntryDocs(modules, test_missing=None):
             to show as missing even if it is present. Should be set to None in
             normal use.
     """
-    from entry import Entry
+    from binman.entry import Entry
     Entry.WriteDocs(modules, test_missing)
 
 
@@ -336,8 +334,8 @@ def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt):
     """
     # Import these here in case libfdt.py is not available, in which case
     # the above help option still works.
-    import fdt
-    import fdt_util
+    from dtoc import fdt
+    from dtoc import fdt_util
     global images
 
     # Get the device tree ready by compiling it and copying the compiled
@@ -475,7 +473,7 @@ def Binman(args):
 
     # Put these here so that we can import this module without libfdt
     from image import Image
-    import state
+    from binman import state
 
     if args.cmd in ['ls', 'extract', 'replace']:
         try:

@@ -8,10 +8,10 @@
 import hashlib
 import re
 
-import fdt
+from dtoc import fdt
 import os
-import tools
-import tout
+from patman import tools
+from patman import tout
 
 # Records the device-tree files known to binman, keyed by entry type (e.g.
 # 'u-boot-spl-dtb'). These are the output FDT files, which can be updated by
@@ -167,8 +167,8 @@ def Prepare(images, dtb):
     global output_fdt_info, main_dtb, fdt_path_prefix
     # Import these here in case libfdt.py is not available, in which case
     # the above help option still works.
-    import fdt
-    import fdt_util
+    from dtoc import fdt
+    from dtoc import fdt_util
 
     # If we are updating the DTBs we need to put these updated versions
     # where Entry_blob_dtb can find them. We can ignore 'u-boot.dtb'

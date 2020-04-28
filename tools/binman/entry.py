@@ -4,17 +4,15 @@
 # Base class for all entries
 #
 
-from __future__ import print_function
-
 from collections import namedtuple
 import importlib
 import os
 import sys
 
-import fdt_util
-import tools
-from tools import ToHex, ToHexSize
-import tout
+from dtoc import fdt_util
+from patman import tools
+from patman.tools import ToHex, ToHexSize
+from patman import tout
 
 modules = {}
 
@@ -65,7 +63,7 @@ class Entry(object):
     def __init__(self, section, etype, node, name_prefix=''):
         # Put this here to allow entry-docs and help to work without libfdt
         global state
-        import state
+        from binman import state
 
         self.section = section
         self.etype = etype
@@ -110,15 +108,11 @@ class Entry(object):
 
         # Import the module if we have not already done so.
         if not module:
-            old_path = sys.path
-            sys.path.insert(0, os.path.join(our_path, 'etype'))
             try:
-                module = importlib.import_module(module_name)
+                module = importlib.import_module('binman.etype.' + module_name)
             except ImportError as e:
                 raise ValueError("Unknown entry type '%s' in node '%s' (expected etype/%s.py, error '%s'" %
                                  (etype, node_path, module_name, e))
-            finally:
-                sys.path = old_path
             modules[module_name] = module
 
         # Look up the expected class name
@@ -592,9 +586,7 @@ features to produce new behaviours.
             modules.remove('_testing')
         missing = []
         for name in modules:
-            if name.startswith('__'):
-                continue
-            module = Entry.Lookup(name, name)
+            module = Entry.Lookup('WriteDocs', name)
             docs = getattr(module, '__doc__')
             if test_missing == name:
                 docs = None

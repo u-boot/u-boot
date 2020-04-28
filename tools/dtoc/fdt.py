@@ -8,10 +8,10 @@
 import struct
 import sys
 
-import fdt_util
+from dtoc import fdt_util
 import libfdt
 from libfdt import QUIET_NOTFOUND
-import tools
+from patman import tools
 
 # This deals with a device tree, presenting it as an assortment of Node and
 # Prop objects, representing nodes and properties, respectively. This file

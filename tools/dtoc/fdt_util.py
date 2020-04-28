@@ -13,8 +13,8 @@ import struct
 import sys
 import tempfile
 
-import command
-import tools
+from patman import command
+from patman import tools
 
 def fdt32_to_cpu(val):
     """Convert a device tree cell to an integer

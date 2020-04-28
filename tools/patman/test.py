@@ -8,11 +8,11 @@ import os
 import tempfile
 import unittest
 
-import checkpatch
-import gitutil
-import patchstream
-import series
-import commit
+from patman import checkpatch
+from patman import gitutil
+from patman import patchstream
+from patman import series
+from patman import commit
 
 
 class TestPatch(unittest.TestCase):

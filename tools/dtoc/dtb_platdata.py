@@ -15,9 +15,9 @@ import collections
 import copy
 import sys
 
-import fdt
-import fdt_util
-import tools
+from dtoc import fdt
+from dtoc import fdt_util
+from patman import tools
 
 # When we see these properties we ignore them - i.e. do not create a structure member
 PROP_IGNORE_LIST = [

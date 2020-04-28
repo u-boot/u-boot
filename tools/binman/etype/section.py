@@ -8,16 +8,14 @@ Sections are entries which can contain other entries. This allows hierarchical
 images to be created.
 """
 
-from __future__ import print_function
-
 from collections import OrderedDict
 import re
 import sys
 
-from entry import Entry
-import fdt_util
-import tools
-import tout
+from binman.entry import Entry
+from dtoc import fdt_util
+from patman import tools
+from patman import tout
 
 
 class Entry_section(Entry):

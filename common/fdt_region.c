@@ -6,6 +6,7 @@
  */
 
 #include <linux/libfdt_env.h>
+#include <fdt_region.h>
 
 #ifndef USE_HOSTCC
 #include <fdt.h>

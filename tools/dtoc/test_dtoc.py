@@ -9,22 +9,20 @@ This includes unit tests for some functions and functional tests for the dtoc
 tool.
 """
 
-from __future__ import print_function
-
 import collections
 import os
 import struct
 import unittest
 
-import dtb_platdata
+from dtoc import dtb_platdata
 from dtb_platdata import conv_name_to_c
 from dtb_platdata import get_compat_name
 from dtb_platdata import get_value
 from dtb_platdata import tab_to
-import fdt
-import fdt_util
-import test_util
-import tools
+from dtoc import fdt
+from dtoc import fdt_util
+from patman import test_util
+from patman import tools
 
 our_path = os.path.dirname(os.path.realpath(__file__))
 

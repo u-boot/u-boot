@@ -3,12 +3,14 @@
 #
 
 import collections
-import command
-import gitutil
 import os
 import re
 import sys
-import terminal
+
+from patman import command
+from patman import gitutil
+from patman import terminal
+from patman import tools
 
 def FindCheckPatch():
     top_level = gitutil.GetTopLevel()

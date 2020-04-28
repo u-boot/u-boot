@@ -25,8 +25,6 @@ options. For more information about the use of this options and tool please
 see doc/driver-model/of-plat.rst
 """
 
-from __future__ import print_function
-
 from optparse import OptionParser
 import os
 import sys
@@ -34,15 +32,15 @@ import unittest
 
 # Bring in the patman libraries
 our_path = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(our_path, '../patman'))
+sys.path.append(os.path.join(our_path, '..'))
 
 # Bring in the libfdt module
 sys.path.insert(0, 'scripts/dtc/pylibfdt')
 sys.path.insert(0, os.path.join(our_path,
                 '../../build-sandbox_spl/scripts/dtc/pylibfdt'))
 
-import dtb_platdata
-import test_util
+from dtoc import dtb_platdata
+from patman import test_util
 
 def run_tests(args):
     """Run all the test we have for dtoc
@@ -79,7 +77,7 @@ def run_tests(args):
 def RunTestCoverage():
     """Run the tests and check that we get 100% coverage"""
     sys.argv = [sys.argv[0]]
-    test_util.RunTestCoverage('tools/dtoc/dtoc.py', '/dtoc.py',
+    test_util.RunTestCoverage('tools/dtoc/dtoc', '/main.py',
             ['tools/patman/*.py', '*/fdt*', '*test*'], options.build_dir)
 
 

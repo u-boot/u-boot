@@ -5,18 +5,18 @@
 import multiprocessing
 import os
 import shutil
+import subprocess
 import sys
 
-import board
-import bsettings
-from builder import Builder
-import gitutil
-import patchstream
-import terminal
-from terminal import Print
-import toolchain
-import command
-import subprocess
+from buildman import board
+from buildman import bsettings
+from buildman import toolchain
+from buildman.builder import Builder
+from patman import command
+from patman import gitutil
+from patman import patchstream
+from patman import terminal
+from patman.terminal import Print
 
 def GetPlural(count):
     """Returns a plural 's' if count is not 1"""
@@ -175,6 +175,10 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
     if options.incremental:
         print(col.Color(col.RED,
                         'Warning: -I has been removed. See documentation'))
+    if not options.output_dir:
+        if options.work_in_output:
+            sys.exit(col.Color(col.RED, '-w requires that you specify -o'))
+        options.output_dir = '..'
 
     # Work out what subset of the boards we are building
     if not boards:
@@ -207,7 +211,7 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
         sys.exit(col.Color(col.RED, 'No matching boards found'))
 
     if options.print_prefix:
-        err = ShowToolchainInfo(boards, toolchains)
+        err = ShowToolchainPrefix(boards, toolchains)
         if err:
             sys.exit(col.Color(col.RED, err))
         return 0

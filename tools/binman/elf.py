@@ -5,10 +5,7 @@
 # Handle various things related to ELF images
 #
 
-from __future__ import print_function
-
 from collections import namedtuple, OrderedDict
-import command
 import io
 import os
 import re
@@ -16,8 +13,9 @@ import shutil
 import struct
 import tempfile
 
-import tools
-import tout
+from patman import command
+from patman import tools
+from patman import tout
 
 ELF_TOOLS = True
 try:
