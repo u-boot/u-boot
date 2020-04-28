@@ -1379,7 +1379,7 @@ static int tfa_dram_init_banksize(void)
 	if (i > 0)
 		ret = 0;
 
-#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_RESV_RAM) && !defined(CONFIG_SPL_BUILD)
 	/* Assign memory for MC */
 #ifdef CONFIG_SYS_DDR_BLOCK3_BASE
 	if (gd->bd->bi_dram[2].size >=
@@ -1402,7 +1402,7 @@ static int tfa_dram_init_banksize(void)
 				board_reserve_ram_top(gd->bd->bi_dram[0].size);
 		}
 	}
-#endif	/* CONFIG_FSL_MC_ENET */
+#endif	/* CONFIG_RESV_RAM */
 
 	return ret;
 }
@@ -1465,7 +1465,7 @@ int dram_init_banksize(void)
 	}
 #endif	/* CONFIG_SYS_MEM_RESERVE_SECURE */
 
-#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_RESV_RAM) && !defined(CONFIG_SPL_BUILD)
 	/* Assign memory for MC */
 #ifdef CONFIG_SYS_DDR_BLOCK3_BASE
 	if (gd->bd->bi_dram[2].size >=
@@ -1488,7 +1488,7 @@ int dram_init_banksize(void)
 				board_reserve_ram_top(gd->bd->bi_dram[0].size);
 		}
 	}
-#endif	/* CONFIG_FSL_MC_ENET */
+#endif	/* CONFIG_RESV_RAM */
 
 #ifdef CONFIG_SYS_DP_DDR_BASE_PHY
 #ifdef CONFIG_SYS_DDR_BLOCK3_BASE
