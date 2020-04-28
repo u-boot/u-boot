@@ -16,6 +16,7 @@
 #include <asm/io.h>
 #include <fdt_support.h>
 #include <linux/libfdt.h>
+#include <linux/sizes.h>
 #include <fsl-mc/fsl_mc.h>
 #include <env_internal.h>
 #include <efi_loader.h>
@@ -694,7 +695,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 	}
 
 #ifdef CONFIG_GIC_V3_ITS
-	gic_lpi_base = gd->arch.resv_ram - GIC_LPI_SIZE;
+	gic_lpi_base = ALIGN(gd->arch.resv_ram - GIC_LPI_SIZE, SZ_64K);
 	ret = fdt_fixup_gic_lpi_memory(blob, gic_lpi_base);
 	if (!ret && gic_lpi_tables_init(gic_lpi_base, cpu_numcores()))
 		debug("%s: failed to init gic-lpi-tables\n", __func__);
