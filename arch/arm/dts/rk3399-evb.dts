@@ -199,7 +199,6 @@
 	clock-frequency = <400000>;
 	i2c-scl-falling-time-ns = <50>;
 	i2c-scl-rising-time-ns = <100>;
-	u-boot,dm-pre-reloc;
 
 	rk808: pmic@1b {
 		compatible = "rockchip,rk808";
@@ -211,7 +210,6 @@
 		reg = <0x1b>;
 		rockchip,system-power-controller;
 		#clock-cells = <1>;
-		u-boot,dm-pre-reloc;
 		status = "okay";
 
 		vcc12-supply = <&vcc3v3_sys>;

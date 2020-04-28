@@ -15,3 +15,11 @@
 &rng {
 	status = "okay";
 };
+
+&i2c0 {
+	u-boot,dm-pre-reloc;
+};
+
+&rk808 {
+	u-boot,dm-pre-reloc;
+};
