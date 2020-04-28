@@ -1413,13 +1413,10 @@ static struct int_queue *_ehci_create_int_queue(struct usb_device *dev,
 	debug("Exit create_int_queue\n");
 	return result;
 fail3:
-	if (result->tds)
-		free(result->tds);
+	free(result->tds);
 fail2:
-	if (result->first)
-		free(result->first);
-	if (result)
-		free(result);
+	free(result->first);
+	free(result);
 fail1:
 	return NULL;
 }
