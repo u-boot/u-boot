@@ -6,11 +6,11 @@
  */
 
 /dts-v1/;
-#include "r8a7796.dtsi"
+#include "r8a77960.dtsi"
 #include "salvator-x.dtsi"
 
 / {
-	model = "Renesas Salvator-X board based on r8a7796";
+	model = "Renesas Salvator-X board based on r8a77960";
 	compatible = "renesas,salvator-x", "renesas,r8a7796";
 
 	memory@48000000 {
@@ -34,11 +34,6 @@
 		 <&versaclock5 2>;
 	clock-names = "du.0", "du.1", "du.2",
 		      "dclkin.0", "dclkin.1", "dclkin.2";
-};
-
-&sound_card {
-	dais = <&rsnd_port0	/* ak4613 */
-		&rsnd_port1>;	/* HDMI0  */
 };
 
 &hdmi0 {
@@ -80,4 +75,9 @@
 			};
 		};
 	};
+};
+
+&sound_card {
+	dais = <&rsnd_port0	/* ak4613 */
+		&rsnd_port1>;	/* HDMI0  */
 };

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Device Tree Source extras for U-Boot on RCar R8A77965 SoC
+ * Device Tree Source extras for U-Boot on RCar R8A7796 SoC
  *
  * Copyright (C) 2018 Marek Vasut <marek.vasut@gmail.com>
  */
@@ -14,7 +14,7 @@
 / {
 	soc {
 		rpc: rpc@0xee200000 {
-			compatible = "renesas,rpc-r8a77965", "renesas,rpc";
+			compatible = "renesas,rpc-r8a7796", "renesas,rpc";
 			reg = <0 0xee200000 0 0x100>, <0 0x08000000 0 0>;
 			clocks = <&cpg CPG_MOD 917>;
 			bank-width = <2>;
@@ -31,11 +31,20 @@
 /delete-node/ &canfd;
 /delete-node/ &csi20;
 /delete-node/ &csi40;
+/delete-node/ &drif00;
+/delete-node/ &drif01;
+/delete-node/ &drif10;
+/delete-node/ &drif11;
+/delete-node/ &drif20;
+/delete-node/ &drif21;
+/delete-node/ &drif30;
+/delete-node/ &drif31;
 /delete-node/ &du;
 /delete-node/ &fcpf0;
 /delete-node/ &fcpvb0;
 /delete-node/ &fcpvd0;
 /delete-node/ &fcpvd1;
+/delete-node/ &fcpvd2;
 /delete-node/ &fcpvi0;
 /delete-node/ &hdmi0;
 /delete-node/ &lvds0;
@@ -52,6 +61,7 @@
 /delete-node/ &vspb;
 /delete-node/ &vspd0;
 /delete-node/ &vspd1;
+/delete-node/ &vspd2;
 /delete-node/ &vspi0;
 
 / {
