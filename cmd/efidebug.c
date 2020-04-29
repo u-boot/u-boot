@@ -395,6 +395,7 @@ static const char * const efi_mem_type_string[] = {
 	[EFI_MMAP_IO] = "IO",
 	[EFI_MMAP_IO_PORT] = "IO PORT",
 	[EFI_PAL_CODE] = "PAL",
+	[EFI_PERSISTENT_MEMORY_TYPE] = "PERSISTENT",
 };
 
 static const struct efi_mem_attrs {
@@ -482,7 +483,7 @@ static int do_efi_show_memmap(cmd_tbl_t *cmdtp, int flag,
 	printf("================ %.*s %.*s ==========\n",
 	       EFI_PHYS_ADDR_WIDTH, sep, EFI_PHYS_ADDR_WIDTH, sep);
 	for (i = 0, map = memmap; i < map_size / sizeof(*map); map++, i++) {
-		if (map->type < EFI_MAX_MEMORY_TYPE)
+		if (map->type < ARRAY_SIZE(efi_mem_type_string))
 			type = efi_mem_type_string[map->type];
 		else
 			type = "(unknown)";
