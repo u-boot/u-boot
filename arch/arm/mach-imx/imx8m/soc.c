@@ -409,7 +409,7 @@ int ft_system_setup(void *blob, bd_t *bd)
 }
 #endif
 
-#if defined(CONFIG_SPL_BUILD) || !defined(CONFIG_SYSRESET)
+#if !CONFIG_IS_ENABLED(SYSRESET)
 void reset_cpu(ulong addr)
 {
 	struct watchdog_regs *wdog = (struct watchdog_regs *)WDOG1_BASE_ADDR;
