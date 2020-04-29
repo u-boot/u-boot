@@ -9,8 +9,9 @@
 
 #include <dt-bindings/clock/stm32mp1-clksrc.h>
 #include "stm32mp15-u-boot.dtsi"
-#include "stm32mp15-ddr3-1x4Gb-1066-binG.dtsi"
-#include "stm32mp15-ddr3-2x4Gb-1066-binG.dtsi"
+#include "stm32mp15-ddr3-dhsom-2x1Gb-1066-binG.dtsi"
+#include "stm32mp15-ddr3-dhsom-2x2Gb-1066-binG.dtsi"
+#include "stm32mp15-ddr3-dhsom-2x4Gb-1066-binG.dtsi"
 
 / {
 	u-boot,dm-pre-reloc;
