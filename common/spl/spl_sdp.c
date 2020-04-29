@@ -16,6 +16,8 @@ static int spl_sdp_load_image(struct spl_image_info *spl_image,
 	int ret;
 	const int controller_index = 0;
 
+	board_usb_init(0, USB_INIT_DEVICE);
+
 	g_dnl_clear_detach();
 	ret = g_dnl_register("usb_dnl_sdp");
 	if (ret) {
