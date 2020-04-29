@@ -55,6 +55,11 @@ config TARGET_IMX8MP_EVK
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
 
+config TARGET_PICO_IMX8MQ
+	bool "Support Technexion Pico iMX8MQ"
+	select IMX8MQ
+	select IMX8M_LPDDR4
+
 config TARGET_VERDIN_IMX8MM
        bool "Support Toradex Verdin iMX8M Mini module"
        select IMX8MM
@@ -68,6 +73,7 @@ source "board/freescale/imx8mm_evk/Kconfig"
 source "board/freescale/imx8mn_evk/Kconfig"
 source "board/freescale/imx8mp_evk/Kconfig"
 source "board/google/imx8mq_phanbell/Kconfig"
+source "board/technexion/pico-imx8mq/Kconfig"
 source "board/toradex/verdin-imx8mm/Kconfig"
 
 endif
