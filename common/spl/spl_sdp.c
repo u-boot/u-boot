@@ -14,9 +14,9 @@ static int spl_sdp_load_image(struct spl_image_info *spl_image,
 			      struct spl_boot_device *bootdev)
 {
 	int ret;
-	const int controller_index = 0;
+	const int controller_index = CONFIG_SPL_SDP_USB_DEV;
 
-	board_usb_init(0, USB_INIT_DEVICE);
+	board_usb_init(controller_index, USB_INIT_DEVICE);
 
 	g_dnl_clear_detach();
 	ret = g_dnl_register("usb_dnl_sdp");

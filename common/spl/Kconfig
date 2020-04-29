@@ -1172,6 +1172,14 @@ config SPL_USB_SDP_SUPPORT
 	  Enable Serial Download Protocol (SDP) device support in SPL. This
 	  allows to download images into memory and execute (jump to) them
 	  using the same protocol as implemented by the i.MX family's boot ROM.
+
+config SPL_SDP_USB_DEV
+	int "SDP USB controller index"
+	default 0
+	depends on SPL_USB_SDP_SUPPORT
+	help
+	  Some boards have USB controller other than 0. Define this option
+	  so it can be used in compiled environment.
 endif
 
 config SPL_WATCHDOG_SUPPORT
