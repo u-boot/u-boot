@@ -39,6 +39,7 @@ static int spl_sdp_load_image(struct spl_image_info *spl_image,
 	ret = spl_sdp_handle(controller_index, spl_image);
 	debug("SDP ended\n");
 
+	board_usb_cleanup(controller_index, USB_INIT_DEVICE);
 	return ret;
 }
 SPL_LOAD_IMAGE_METHOD("USB SDP", 0, BOOT_DEVICE_BOARD, spl_sdp_load_image);
