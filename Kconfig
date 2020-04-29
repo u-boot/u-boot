@@ -209,6 +209,20 @@ if EXPERT
 	  When disabling this, please check if malloc calls, maybe
 	  should be replaced by calloc - if one expects zeroed memory.
 
+config SYS_MALLOC_DEFAULT_TO_INIT
+	bool "Default malloc to init while reserving the memory for it"
+	default n
+	help
+	  It may happen that one needs to move the dynamic allocation
+	  from one to another memory range, eg. when moving the malloc
+	  from the limited static to a potentially large dynamic (DDR)
+	  memory.
+
+	  If so then on top of setting the updated memory aside one
+	  needs to bring the malloc init.
+
+	  If such a scenario is sought choose yes.
+
 config TOOLS_DEBUG
 	bool "Enable debug information for tools"
 	help
