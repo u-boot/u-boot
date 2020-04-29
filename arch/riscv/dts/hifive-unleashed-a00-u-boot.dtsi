@@ -5,6 +5,7 @@
 
 / {
 	aliases {
+		spi0 = &qspi0;
 		spi2 = &qspi2;
 	};
 };
