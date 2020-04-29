@@ -852,8 +852,7 @@ static int do_efi_boot_dump(cmd_tbl_t *cmdtp, int flag,
  */
 static int show_efi_boot_order(void)
 {
-	efi_guid_t guid;
-	u16 *bootorder = NULL;
+	u16 *bootorder;
 	efi_uintn_t size;
 	int num, i;
 	char var_name[9];
@@ -864,20 +863,25 @@ static int show_efi_boot_order(void)
 	size_t label_len16, label_len;
 	efi_status_t ret;
 
-	guid = efi_global_variable_guid;
 	size = 0;
-	ret = EFI_CALL(RT->get_variable(L"BootOrder", &guid, NULL, &size,
-					NULL));
-	if (ret == EFI_BUFFER_TOO_SMALL) {
-		bootorder = malloc(size);
-		ret = EFI_CALL(RT->get_variable(L"BootOrder", &guid, NULL,
-						&size, bootorder));
+	ret = EFI_CALL(RT->get_variable(L"BootOrder", &efi_global_variable_guid,
+					NULL, &size, NULL));
+	if (ret != EFI_BUFFER_TOO_SMALL) {
+		if (ret == EFI_NOT_FOUND) {
+			printf("BootOrder not defined\n");
+			return CMD_RET_SUCCESS;
+		} else {
+			return CMD_RET_FAILURE;
+		}
 	}
-	if (ret == EFI_NOT_FOUND) {
-		printf("BootOrder not defined\n");
-		ret = CMD_RET_SUCCESS;
-		goto out;
-	} else if (ret != EFI_SUCCESS) {
+	bootorder = malloc(size);
+	if (!bootorder) {
+		printf("ERROR: Out of memory\n");
+		return CMD_RET_FAILURE;
+	}
+	ret = EFI_CALL(efi_get_variable(L"BootOrder", &efi_global_variable_guid,
+					NULL, &size, bootorder));
+	if (ret != EFI_SUCCESS) {
 		ret = CMD_RET_FAILURE;
 		goto out;
 	}
@@ -889,11 +893,11 @@ static int show_efi_boot_order(void)
 		utf8_utf16_strncpy(&p16, var_name, 9);
 
 		size = 0;
-		ret = EFI_CALL(RT->get_variable(var_name16, &guid, NULL, &size,
-						NULL));
+		ret = EFI_CALL(efi_get_variable(var_name16,
+						&efi_global_variable_guid, NULL,
+						&size, NULL));
 		if (ret != EFI_BUFFER_TOO_SMALL) {
-			printf("%2d: Boot%04X: (not defined)\n",
-			       i + 1, bootorder[i]);
+			printf("%2d: %s: (not defined)\n", i + 1, var_name);
 			continue;
 		}
 
@@ -902,8 +906,9 @@ static int show_efi_boot_order(void)
 			ret = CMD_RET_FAILURE;
 			goto out;
 		}
-		ret = EFI_CALL(RT->get_variable(var_name16, &guid, NULL, &size,
-						data));
+		ret = EFI_CALL(efi_get_variable(var_name16,
+						&efi_global_variable_guid, NULL,
+						&size, data));
 		if (ret != EFI_SUCCESS) {
 			free(data);
 			ret = CMD_RET_FAILURE;
@@ -922,7 +927,7 @@ static int show_efi_boot_order(void)
 		}
 		p = label;
 		utf16_utf8_strncpy(&p, lo.label, label_len16);
-		printf("%2d: Boot%04X: %s\n", i + 1, bootorder[i], label);
+		printf("%2d: %s: %s\n", i + 1, var_name, label);
 		free(label);
 
 		free(data);
