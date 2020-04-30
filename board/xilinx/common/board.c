@@ -8,6 +8,8 @@
 #include <asm/sections.h>
 #include <dm/uclass.h>
 #include <i2c.h>
+#include <linux/sizes.h>
+#include "board.h"
 
 int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
 {
@@ -71,3 +73,16 @@ void *board_fdt_blob_setup(void)
 	return NULL;
 }
 #endif
+
+int board_late_init_xilinx(void)
+{
+	ulong initrd_hi;
+
+	env_set_hex("script_offset_f", CONFIG_BOOT_SCRIPT_OFFSET);
+
+	initrd_hi = gd->start_addr_sp - CONFIG_STACK_SIZE;
+	initrd_hi = round_down(initrd_hi, SZ_16M);
+	env_set_addr("initrd_high", (void *)initrd_hi);
+
+	return 0;
+}

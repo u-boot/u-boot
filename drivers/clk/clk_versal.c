@@ -503,6 +503,9 @@ static u64 versal_clock_calc(u32 clk_id)
 	     NODE_CLASS_MASK) == NODE_SUBCLASS_CLOCK_REF)
 		return versal_clock_ref(clk_id);
 
+	if (!parent_id)
+		return 0;
+
 	clk_rate = versal_clock_calc(parent_id);
 
 	if (versal_clock_div(clk_id)) {
@@ -526,7 +529,7 @@ static int versal_clock_get_rate(u32 clk_id, u64 *clk_rate)
 	     NODE_CLASS_MASK) == NODE_SUBCLASS_CLOCK_OUT &&
 	    ((clk_id >> NODE_CLASS_SHIFT) &
 	     NODE_CLASS_MASK) == NODE_CLASS_CLOCK) {
-		if (!versal_clock_gate(clk_id))
+		if (!versal_clock_gate(clk_id) && !versal_clock_mux(clk_id))
 			return -EINVAL;
 		*clk_rate = versal_clock_calc(clk_id);
 		return 0;

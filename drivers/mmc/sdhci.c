@@ -839,8 +839,7 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 		cfg->host_caps &= ~MMC_MODE_HS_52MHz;
 	}
 
-	if (!(cfg->voltages & MMC_VDD_165_195) ||
-	    (host->quirks & SDHCI_QUIRK_NO_1_8_V))
+	if (!(cfg->voltages & MMC_VDD_165_195))
 		caps_1 &= ~(SDHCI_SUPPORT_SDR104 | SDHCI_SUPPORT_SDR50 |
 			    SDHCI_SUPPORT_DDR50);
 

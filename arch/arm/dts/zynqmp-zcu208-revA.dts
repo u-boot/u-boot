@@ -351,13 +351,11 @@
 			/* u112 - ir38164 0x13/0x43 */
 			/* u123 - ir38164 0x1c/0x4c */
 
-			irps5401_44: irps54012@44 { /* IRPS5401 - u53 */
-				#clock-cells = <0>;
+			irps5401_44: irps5401@44 { /* IRPS5401 - u53 */
 				compatible = "infineon,irps5401";
 				reg = <0x44>; /* i2c addr 0x14 */
 			};
-			irps5401_45: irps54012@45 { /* IRPS5401 - u55 */
-				#clock-cells = <0>;
+			irps5401_45: irps5401@45 { /* IRPS5401 - u55 */
 				compatible = "infineon,irps5401";
 				reg = <0x45>; /* i2c addr 0x15 */
 			};
