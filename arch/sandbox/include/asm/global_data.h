@@ -13,6 +13,7 @@
 struct arch_global_data {
 	uint8_t		*ram_buf;	/* emulated RAM buffer */
 	void		*text_base;	/* pointer to base of text region */
+	ulong acpi_start;		/* Start address of ACPI tables */
 };
 
 #include <asm-generic/global_data.h>

@@ -78,6 +78,9 @@ static int fsp_video_probe(struct udevice *dev)
 	struct vesa_mode_info *vesa = &mode_info.vesa;
 	int ret;
 
+	if (!ll_boot_init())
+		return 0;
+
 	printf("Video: ");
 
 	/* Initialize vesa_mode_info structure */

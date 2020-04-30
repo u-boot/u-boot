@@ -1,0 +1,36 @@
+Devices
+=======
+
+Device bindings are described by their own individual binding files.
+
+U-Boot provides for some optional properties which are documented here. See
+also hid-over-i2c.txt which describes HID devices. See also
+Documentation/firmware-guide/acpi/enumeration.rst in the Linux kernel for
+the acpi,compatible property.
+
+ - acpi,has-power-resource : (boolean) true if this device has a power resource.
+    This causes an ACPI PowerResource to be written containing the properties
+    provided by this binding, to describe how to handle powering the device up
+    and down using GPIOs
+ - acpi,compatible : compatible string to report
+ - acpi,ddn : Contains the string to use as the _DDN (DOS (Disk Operating
+    System) Device Name)
+ - acpi,hid : Contains the string to use as the HID (Hardware ID)
+    identifier _HID
+ - acpi,uid : _UID value for device
+ - linux,probed : Tells U-Boot to add 'linux,probed' to the ACPI tables so that
+    Linux will only load the driver if the device can be detected (e.g. on I2C
+    bus). Note that this is an out-of-tree Linux feature.
+
+
+Example
+-------
+
+elan_touchscreen: elan-touchscreen@10 {
+	compatible = "i2c-chip";
+	reg = <0x10>;
+	acpi,hid = "ELAN0001";
+	acpi,ddn = "ELAN Touchscreen";
+	interrupts-extended = <&acpi_gpe GPIO_21_IRQ IRQ_TYPE_EDGE_FALLING>;
+	linux,probed;
+};

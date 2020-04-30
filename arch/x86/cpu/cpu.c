@@ -239,8 +239,10 @@ int cpu_init_r(void)
 	struct udevice *dev;
 	int ret;
 
-	if (!ll_boot_init())
+	if (!ll_boot_init()) {
+		uclass_first_device(UCLASS_PCI, &dev);
 		return 0;
+	}
 
 	ret = x86_init_cpus();
 	if (ret)

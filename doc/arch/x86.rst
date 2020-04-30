@@ -712,6 +712,34 @@ to load a 'u-boot-payload.efi', see below test logs on QEMU.
 See :doc:`../uefi/u-boot_on_efi` and :doc:`../uefi/uefi` for details of
 EFI support in U-Boot.
 
+Chain-loading
+-------------
+U-Boot can be chain-loaded from another bootloader, such as coreboot or
+Slim Bootloader. Typically this is done by building for targets 'coreboot' or
+'slimbootloader'.
+
+For example, at present we have a 'coreboot' target but this runs very
+different code from the bare-metal targets, such as coral. There is very little
+in common between them.
+
+It is useful to be able to boot the same U-Boot on a device, with or without a
+first-stage bootloader. For example, with chromebook_coral, it is helpful for
+testing to be able to boot the same U-Boot (complete with FSP) on bare metal
+and from coreboot. It allows checking of things like CPU speed, comparing
+registers, ACPI tables and the like.
+
+To do this you can use ll_boot_init() in appropriate places to skip init that
+has already been done by the previous stage. This works by setting a
+GD_FLG_NO_LL_INIT flag when U-Boot detects that it is running from another
+bootloader.
+
+With this feature, you can build a bare-metal target and boot it from
+coreboot, for example.
+
+Note that this is a development feature only. It is not intended for use in
+production environments. Also it is not currently part of the automated tests
+so may break in the future.
+
 TODO List
 ---------
 - Audio

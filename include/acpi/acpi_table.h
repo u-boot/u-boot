@@ -23,6 +23,8 @@
 
 #if !defined(__ACPI__)
 
+struct acpi_ctx;
+
 /*
  * RSDP (Root System Description Pointer)
  * Note: ACPI 1.0 didn't have length, xsdt_address, and ext_checksum
@@ -504,6 +506,69 @@ int acpi_get_table_revision(enum acpi_tables table);
  * @return 0 if OK, -ve on error
  */
 int acpi_create_dmar(struct acpi_dmar *dmar, enum dmar_flags flags);
+
+/**
+ * acpi_fill_header() - Set up a new table header
+ *
+ * This sets all fields except length, revision, checksum and aslc_revision
+ *
+ * @header: ACPI header to update
+ * @signature: Table signature to use (4 characters)
+ */
+void acpi_fill_header(struct acpi_table_header *header, char *signature);
+
+/**
+ * acpi_align() - Align the ACPI output pointer to a 16-byte boundary
+ *
+ * @ctx: ACPI context
+ */
+void acpi_align(struct acpi_ctx *ctx);
+
+/**
+ * acpi_align64() - Align the ACPI output pointer to a 64-byte boundary
+ *
+ * @ctx: ACPI context
+ */
+void acpi_align64(struct acpi_ctx *ctx);
+
+/**
+ * acpi_inc() - Increment the ACPI output pointer by a bit
+ *
+ * The pointer is NOT aligned afterwards.
+ *
+ * @ctx: ACPI context
+ * @amount: Amount to increment by
+ */
+void acpi_inc(struct acpi_ctx *ctx, uint amount);
+
+/**
+ * acpi_inc_align() - Increment the ACPI output pointer by a bit and align
+ *
+ * The pointer is aligned afterwards to a 16-byte boundary
+ *
+ * @ctx: ACPI context
+ * @amount: Amount to increment by
+ */
+void acpi_inc_align(struct acpi_ctx *ctx, uint amount);
+
+/**
+ * acpi_add_table() - Add a new table to the RSDP and XSDT
+ *
+ * @ctx: ACPI context
+ * @table: Table to add
+ * @return 0 if OK, -E2BIG if too many tables
+ */
+int acpi_add_table(struct acpi_ctx *ctx, void *table);
+
+/**
+ * acpi_setup_base_tables() - Set up context along with RSDP, RSDT and XSDT
+ *
+ * Set up the context with the given start position. Some basic tables are
+ * always needed, so set them up as well.
+ *
+ * @ctx: Context to set up
+ */
+void acpi_setup_base_tables(struct acpi_ctx *ctx, void *start);
 
 #endif /* !__ACPI__*/
 

@@ -23,7 +23,7 @@ int arch_cpu_init_dm(void)
 	int ret;
 
 	/* Make sure pads are set up early in U-Boot */
-	if (spl_phase() != PHASE_BOARD_F)
+	if (!ll_boot_init() || spl_phase() != PHASE_BOARD_F)
 		return 0;
 
 	/* Probe all pinctrl devices to set up the pads */

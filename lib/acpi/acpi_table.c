@@ -6,12 +6,14 @@
  */
 
 #include <common.h>
-#include <acpi/acpi_table.h>
 #include <dm.h>
 #include <cpu.h>
+#include <mapmem.h>
+#include <tables_csum.h>
+#include <version.h>
+#include <acpi/acpi_table.h>
+#include <dm/acpi.h>
 
-/* Temporary change to ensure bisectability */
-#ifndef CONFIG_SANDBOX
 int acpi_create_dmar(struct acpi_dmar *dmar, enum dmar_flags flags)
 {
 	struct acpi_table_header *header = &dmar->header;
@@ -37,7 +39,6 @@ int acpi_create_dmar(struct acpi_dmar *dmar, enum dmar_flags flags)
 
 	return 0;
 }
-#endif
 
 int acpi_get_table_revision(enum acpi_tables table)
 {
@@ -90,4 +91,174 @@ int acpi_get_table_revision(enum acpi_tables table)
 	default:
 		return -EINVAL;
 	}
+}
+
+void acpi_fill_header(struct acpi_table_header *header, char *signature)
+{
+	memcpy(header->signature, signature, 4);
+	memcpy(header->oem_id, OEM_ID, 6);
+	memcpy(header->oem_table_id, OEM_TABLE_ID, 8);
+	header->oem_revision = U_BOOT_BUILD_DATE;
+	memcpy(header->aslc_id, ASLC_ID, 4);
+}
+
+void acpi_align(struct acpi_ctx *ctx)
+{
+	ctx->current = (void *)ALIGN((ulong)ctx->current, 16);
+}
+
+void acpi_align64(struct acpi_ctx *ctx)
+{
+	ctx->current = (void *)ALIGN((ulong)ctx->current, 64);
+}
+
+void acpi_inc(struct acpi_ctx *ctx, uint amount)
+{
+	ctx->current += amount;
+}
+
+void acpi_inc_align(struct acpi_ctx *ctx, uint amount)
+{
+	ctx->current += amount;
+	acpi_align(ctx);
+}
+
+/**
+ * Add an ACPI table to the RSDT (and XSDT) structure, recalculate length
+ * and checksum.
+ */
+int acpi_add_table(struct acpi_ctx *ctx, void *table)
+{
+	int i, entries_num;
+	struct acpi_rsdt *rsdt;
+	struct acpi_xsdt *xsdt;
+
+	/* The RSDT is mandatory while the XSDT is not */
+	rsdt = ctx->rsdt;
+
+	/* This should always be MAX_ACPI_TABLES */
+	entries_num = ARRAY_SIZE(rsdt->entry);
+
+	for (i = 0; i < entries_num; i++) {
+		if (rsdt->entry[i] == 0)
+			break;
+	}
+
+	if (i >= entries_num) {
+		log_err("ACPI: Error: too many tables\n");
+		return -E2BIG;
+	}
+
+	/* Add table to the RSDT */
+	rsdt->entry[i] = map_to_sysmem(table);
+
+	/* Fix RSDT length or the kernel will assume invalid entries */
+	rsdt->header.length = sizeof(struct acpi_table_header) +
+				(sizeof(u32) * (i + 1));
+
+	/* Re-calculate checksum */
+	rsdt->header.checksum = 0;
+	rsdt->header.checksum = table_compute_checksum((u8 *)rsdt,
+						       rsdt->header.length);
+
+	/*
+	 * And now the same thing for the XSDT. We use the same index as for
+	 * now we want the XSDT and RSDT to always be in sync in U-Boot
+	 */
+	xsdt = ctx->xsdt;
+
+	/* Add table to the XSDT */
+	xsdt->entry[i] = map_to_sysmem(table);
+
+	/* Fix XSDT length */
+	xsdt->header.length = sizeof(struct acpi_table_header) +
+				(sizeof(u64) * (i + 1));
+
+	/* Re-calculate checksum */
+	xsdt->header.checksum = 0;
+	xsdt->header.checksum = table_compute_checksum((u8 *)xsdt,
+						       xsdt->header.length);
+
+	return 0;
+}
+
+static void acpi_write_rsdp(struct acpi_rsdp *rsdp, struct acpi_rsdt *rsdt,
+			    struct acpi_xsdt *xsdt)
+{
+	memset(rsdp, 0, sizeof(struct acpi_rsdp));
+
+	memcpy(rsdp->signature, RSDP_SIG, 8);
+	memcpy(rsdp->oem_id, OEM_ID, 6);
+
+	rsdp->length = sizeof(struct acpi_rsdp);
+	rsdp->rsdt_address = map_to_sysmem(rsdt);
+
+	rsdp->xsdt_address = map_to_sysmem(xsdt);
+	rsdp->revision = ACPI_RSDP_REV_ACPI_2_0;
+
+	/* Calculate checksums */
+	rsdp->checksum = table_compute_checksum(rsdp, 20);
+	rsdp->ext_checksum = table_compute_checksum(rsdp,
+						    sizeof(struct acpi_rsdp));
+}
+
+static void acpi_write_rsdt(struct acpi_rsdt *rsdt)
+{
+	struct acpi_table_header *header = &rsdt->header;
+
+	/* Fill out header fields */
+	acpi_fill_header(header, "RSDT");
+	header->length = sizeof(struct acpi_rsdt);
+	header->revision = 1;
+
+	/* Entries are filled in later, we come with an empty set */
+
+	/* Fix checksum */
+	header->checksum = table_compute_checksum(rsdt,
+						  sizeof(struct acpi_rsdt));
+}
+
+static void acpi_write_xsdt(struct acpi_xsdt *xsdt)
+{
+	struct acpi_table_header *header = &xsdt->header;
+
+	/* Fill out header fields */
+	acpi_fill_header(header, "XSDT");
+	header->length = sizeof(struct acpi_xsdt);
+	header->revision = 1;
+
+	/* Entries are filled in later, we come with an empty set */
+
+	/* Fix checksum */
+	header->checksum = table_compute_checksum(xsdt,
+						  sizeof(struct acpi_xsdt));
+}
+
+void acpi_setup_base_tables(struct acpi_ctx *ctx, void *start)
+{
+	ctx->current = start;
+
+	/* Align ACPI tables to 16 byte */
+	acpi_align(ctx);
+	gd->arch.acpi_start = map_to_sysmem(ctx->current);
+
+	/* We need at least an RSDP and an RSDT Table */
+	ctx->rsdp = ctx->current;
+	acpi_inc_align(ctx, sizeof(struct acpi_rsdp));
+	ctx->rsdt = ctx->current;
+	acpi_inc_align(ctx, sizeof(struct acpi_rsdt));
+	ctx->xsdt = ctx->current;
+	acpi_inc_align(ctx, sizeof(struct acpi_xsdt));
+
+	/* clear all table memory */
+	memset((void *)start, '\0', ctx->current - start);
+
+	acpi_write_rsdp(ctx->rsdp, ctx->rsdt, ctx->xsdt);
+	acpi_write_rsdt(ctx->rsdt);
+	acpi_write_xsdt(ctx->xsdt);
+	/*
+	 * Per ACPI spec, the FACS table address must be aligned to a 64 byte
+	 * boundary (Windows checks this, but Linux does not).
+	 */
+	acpi_align64(ctx);
 }

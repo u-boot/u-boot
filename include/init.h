@@ -20,7 +20,7 @@ struct global_data;
 #ifdef CONFIG_EFI_STUB
 #define ll_boot_init()	false
 #else
-#define ll_boot_init()	true
+#define ll_boot_init()	(!(gd->flags & GD_FLG_SKIP_LL_INIT))
 #endif
 
 /*

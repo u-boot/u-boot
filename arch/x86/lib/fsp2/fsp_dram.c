@@ -12,11 +12,18 @@
 #include <asm/fsp/fsp_support.h>
 #include <asm/fsp2/fsp_api.h>
 #include <asm/fsp2/fsp_internal.h>
+#include <linux/sizes.h>
 
 int dram_init(void)
 {
 	int ret;
 
+	if (!ll_boot_init()) {
+		/* Use a small and safe amount of 1GB */
+		gd->ram_size = SZ_1G;
+
+		return 0;
+	}
 	if (spl_phase() == PHASE_SPL) {
 #ifdef CONFIG_HAVE_ACPI_RESUME
 		bool s3wake = gd->arch.prev_sleep_state == ACPI_S3;
@@ -68,6 +75,9 @@ int dram_init(void)
 
 ulong board_get_usable_ram_top(ulong total_size)
 {
+	if (!ll_boot_init())
+		return gd->ram_size;
+
 #if CONFIG_IS_ENABLED(HANDOFF)
 	struct spl_handoff *ho = gd->spl_handoff;
 

@@ -264,6 +264,9 @@ int interrupt_init(void)
 	struct udevice *dev;
 	int ret;
 
+	if (!ll_boot_init())
+		return 0;
+
 	/* Try to set up the interrupt router, but don't require one */
 	ret = irq_first_device_type(X86_IRQT_BASE, &dev);
 	if (ret && ret != -ENODEV)
@@ -295,8 +298,7 @@ int interrupt_init(void)
 	 * TODO(sjg@chromium.org): But we don't handle these correctly when
 	 * booted from EFI.
 	 */
-	if (ll_boot_init())
-		enable_interrupts();
+	enable_interrupts();
 #endif
 
 	return 0;
