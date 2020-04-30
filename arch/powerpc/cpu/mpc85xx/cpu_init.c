@@ -963,7 +963,9 @@ int cpu_init_r(void)
 #endif
 
 #ifdef CONFIG_FMAN_ENET
+#ifndef CONFIG_DM_ETH
 	fman_enet_init();
+#endif
 #endif
 
 #if defined(CONFIG_NXP_ESBC) && defined(CONFIG_FSL_CORENET)

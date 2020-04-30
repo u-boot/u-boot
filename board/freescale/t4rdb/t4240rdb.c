@@ -113,7 +113,9 @@ int ft_board_setup(void *blob, bd_t *bd)
 	fsl_fdt_fixup_dr_usb(blob, bd);
 
 #ifdef CONFIG_SYS_DPAA_FMAN
+#ifndef CONFIG_DM_ETH
 	fdt_fixup_fman_ethernet(blob);
+#endif
 	fdt_fixup_board_enet(blob);
 #endif
 
