@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <hang.h>
 #include <spl.h>
@@ -128,4 +129,22 @@ void board_init_f(ulong dummy)
 		printf("DRAM init failed: %d\n", ret);
 		hang();
 	}
+
+	/*
+	 * activate cache on DDR only when DDR is fully initialized
+	 * to avoid speculative access and issue in get_ram_size()
+	 */
+	if (!CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
+		mmu_set_region_dcache_behaviour(STM32_DDR_BASE, STM32_DDR_SIZE,
+						DCACHE_DEFAULT_OPTION);
+}
+
+void spl_board_prepare_for_boot(void)
+{
+	dcache_disable();
+}
+
+void spl_board_prepare_for_boot_linux(void)
+{
+	dcache_disable();
 }
