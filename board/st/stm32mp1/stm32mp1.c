@@ -431,7 +431,7 @@ static int board_check_usb_power(void)
 	if (max_uV > USB_WARNING_LOW_THRESHOLD_UV &&
 	    max_uV <= USB_START_LOW_THRESHOLD_UV &&
 	    min_uV <= USB_LOW_THRESHOLD_UV) {
-		pr_err("*       WARNING 1.5mA power supply detected        *\n");
+		pr_err("*       WARNING 1.5A power supply detected        *\n");
 		nb_blink = 3;
 	}
 
