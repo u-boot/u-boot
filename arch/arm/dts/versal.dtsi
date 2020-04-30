@@ -476,6 +476,38 @@
 			#size-cells = <0>;
 		};
 
+		ttc0: timer@ff0e0000 {
+			compatible = "cdns,ttc";
+			status = "disabled";
+			interrupts = <0 37 4>, <0 38 4>, <0 39 4>;
+			reg = <0x0 0xff0e0000 0x0 0x1000>;
+			timer-width = <32>;
+		};
+
+		ttc1: timer@ff0f0000 {
+			compatible = "cdns,ttc";
+			status = "disabled";
+			interrupts = <0 40 4>, <0 41 4>, <0 42 4>;
+			reg = <0x0 0xff0f0000 0x0 0x1000>;
+			timer-width = <32>;
+		};
+
+		ttc2: timer@ff100000 {
+			compatible = "cdns,ttc";
+			status = "disabled";
+			interrupts = <0 43 4>, <0 44 4>, <0 45 4>;
+			reg = <0x0 0xff100000 0x0 0x1000>;
+			timer-width = <32>;
+		};
+
+		ttc3: timer@ff110000 {
+			compatible = "cdns,ttc";
+			status = "disabled";
+			interrupts = <0 46 4>, <0 47 4>, <0 48 4>;
+			reg = <0x0 0xff110000 0x0 0x1000>;
+			timer-width = <32>;
+		};
+
 		usb0: usb@ff9d0000 {
 			compatible = "xlnx,versal-dwc3";
 			status = "disabled";

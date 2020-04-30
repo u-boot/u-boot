@@ -228,6 +228,26 @@
 	power-domains = <&versal_firmware PM_DEV_SPI_1>;
 };
 
+&ttc0 {
+	clocks = <&versal_clk TTC0>, <&versal_clk LPD_LSBUS>;
+	power-domains = <&versal_firmware PM_DEV_TTC_0>;
+};
+
+&ttc1 {
+	clocks = <&versal_clk TTC1>, <&versal_clk LPD_LSBUS>;
+	power-domains = <&versal_firmware PM_DEV_TTC_1>;
+};
+
+&ttc2 {
+	clocks = <&versal_clk TTC2>, <&versal_clk LPD_LSBUS>;
+	power-domains = <&versal_firmware PM_DEV_TTC_2>;
+};
+
+&ttc3 {
+	clocks = <&versal_clk TTC3>, <&versal_clk LPD_LSBUS>;
+	power-domains = <&versal_firmware PM_DEV_TTC_3>;
+};
+
 &usb0 {
 	clocks = <&versal_clk USB0_BUS_REF>, <&versal_clk USB3_DUAL_REF>;
 	power-domains = <&versal_firmware PM_DEV_USB_0>;
