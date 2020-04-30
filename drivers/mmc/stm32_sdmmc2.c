@@ -674,7 +674,7 @@ static int stm32_sdmmc2_probe(struct udevice *dev)
 	cfg->f_max = dev_read_u32_default(dev, "max-frequency", 52000000);
 	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
-	cfg->name = "STM32 SDMMC2";
+	cfg->name = "STM32 SD/MMC";
 
 	cfg->host_caps = 0;
 	if (cfg->f_max > 25000000)
