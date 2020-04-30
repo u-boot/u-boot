@@ -8,8 +8,10 @@
 
 #include <common.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <malloc.h>
-#include <spi.h>
+#include <spi-mem.h>
+#include <wait_bit.h>
 #include <asm/io.h>
 #include <linux/log2.h>
 #include <clk.h>
@@ -85,6 +87,11 @@
 #define SIFIVE_SPI_IP_TXWM               BIT(0)
 #define SIFIVE_SPI_IP_RXWM               BIT(1)
 
+/* format protocol */
+#define SIFIVE_SPI_PROTO_QUAD		4 /* 4 lines I/O protocol transfer */
+#define SIFIVE_SPI_PROTO_DUAL		2 /* 2 lines I/O protocol transfer */
+#define SIFIVE_SPI_PROTO_SINGLE		1 /* 1 line I/O protocol transfer */
+
 struct sifive_spi {
 	void		*regs;		/* base address of the registers */
 	u32		fifo_depth;
@@ -92,28 +99,29 @@ struct sifive_spi {
 	u32		cs_inactive;	/* Level of the CS pins when inactive*/
 	u32		freq;
 	u32		num_cs;
+	u8		fmt_proto;
 };
 
 static void sifive_spi_prep_device(struct sifive_spi *spi,
-				   struct dm_spi_slave_platdata *slave)
+				   struct dm_spi_slave_platdata *slave_plat)
 {
 	/* Update the chip select polarity */
-	if (slave->mode & SPI_CS_HIGH)
-		spi->cs_inactive &= ~BIT(slave->cs);
+	if (slave_plat->mode & SPI_CS_HIGH)
+		spi->cs_inactive &= ~BIT(slave_plat->cs);
 	else
-		spi->cs_inactive |= BIT(slave->cs);
+		spi->cs_inactive |= BIT(slave_plat->cs);
 	writel(spi->cs_inactive, spi->regs + SIFIVE_SPI_REG_CSDEF);
 
 	/* Select the correct device */
-	writel(slave->cs, spi->regs + SIFIVE_SPI_REG_CSID);
+	writel(slave_plat->cs, spi->regs + SIFIVE_SPI_REG_CSID);
 }
 
 static int sifive_spi_set_cs(struct sifive_spi *spi,
-			     struct dm_spi_slave_platdata *slave)
+			     struct dm_spi_slave_platdata *slave_plat)
 {
 	u32 cs_mode = SIFIVE_SPI_CSMODE_MODE_HOLD;
 
-	if (slave->mode & SPI_CS_HIGH)
+	if (slave_plat->mode & SPI_CS_HIGH)
 		cs_mode = SIFIVE_SPI_CSMODE_MODE_AUTO;
 
 	writel(cs_mode, spi->regs + SIFIVE_SPI_REG_CSMODE);
@@ -127,8 +135,8 @@ static void sifive_spi_clear_cs(struct sifive_spi *spi)
 }
 
 static void sifive_spi_prep_transfer(struct sifive_spi *spi,
-				     bool is_rx_xfer,
-				     struct dm_spi_slave_platdata *slave)
+				     struct dm_spi_slave_platdata *slave_plat,
+				     u8 *rx_ptr)
 {
 	u32 cr;
 
@@ -141,21 +149,26 @@ static void sifive_spi_prep_transfer(struct sifive_spi *spi,
 
 	/* LSB first? */
 	cr &= ~SIFIVE_SPI_FMT_ENDIAN;
-	if (slave->mode & SPI_LSB_FIRST)
+	if (slave_plat->mode & SPI_LSB_FIRST)
 		cr |= SIFIVE_SPI_FMT_ENDIAN;
 
 	/* Number of wires ? */
 	cr &= ~SIFIVE_SPI_FMT_PROTO_MASK;
-	if ((slave->mode & SPI_TX_QUAD) || (slave->mode & SPI_RX_QUAD))
+	switch (spi->fmt_proto) {
+	case SIFIVE_SPI_PROTO_QUAD:
 		cr |= SIFIVE_SPI_FMT_PROTO_QUAD;
-	else if ((slave->mode & SPI_TX_DUAL) || (slave->mode & SPI_RX_DUAL))
+		break;
+	case SIFIVE_SPI_PROTO_DUAL:
 		cr |= SIFIVE_SPI_FMT_PROTO_DUAL;
-	else
+		break;
+	default:
 		cr |= SIFIVE_SPI_FMT_PROTO_SINGLE;
+		break;
+	}
 
 	/* SPI direction in/out ? */
 	cr &= ~SIFIVE_SPI_FMT_DIR;
-	if (!is_rx_xfer)
+	if (!rx_ptr)
 		cr |= SIFIVE_SPI_FMT_DIR;
 
 	writel(cr, spi->regs + SIFIVE_SPI_REG_FMT);
@@ -186,50 +199,62 @@ static void sifive_spi_tx(struct sifive_spi *spi, const u8 *tx_ptr)
 	writel(tx_data, spi->regs + SIFIVE_SPI_REG_TXDATA);
 }
 
+static int sifive_spi_wait(struct sifive_spi *spi, u32 bit)
+{
+	return wait_for_bit_le32(spi->regs + SIFIVE_SPI_REG_IP,
+				 bit, true, 100, false);
+}
+
 static int sifive_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			   const void *dout, void *din, unsigned long flags)
 {
 	struct udevice *bus = dev->parent;
 	struct sifive_spi *spi = dev_get_priv(bus);
-	struct dm_spi_slave_platdata *slave = dev_get_parent_platdata(dev);
-	const unsigned char *tx_ptr = dout;
+	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+	const u8 *tx_ptr = dout;
 	u8 *rx_ptr = din;
 	u32 remaining_len;
 	int ret;
 
 	if (flags & SPI_XFER_BEGIN) {
-		sifive_spi_prep_device(spi, slave);
+		sifive_spi_prep_device(spi, slave_plat);
 
-		ret = sifive_spi_set_cs(spi, slave);
+		ret = sifive_spi_set_cs(spi, slave_plat);
 		if (ret)
 			return ret;
 	}
 
-	sifive_spi_prep_transfer(spi, true, slave);
+	sifive_spi_prep_transfer(spi, slave_plat, rx_ptr);
 
 	remaining_len = bitlen / 8;
 
 	while (remaining_len) {
-		int n_words, tx_words, rx_words;
-
-		n_words = min(remaining_len, spi->fifo_depth);
+		unsigned int n_words = min(remaining_len, spi->fifo_depth);
+		unsigned int tx_words, rx_words;
 
 		/* Enqueue n_words for transmission */
-		if (tx_ptr) {
-			for (tx_words = 0; tx_words < n_words; ++tx_words) {
-				sifive_spi_tx(spi, tx_ptr);
-				sifive_spi_rx(spi, NULL);
-				tx_ptr++;
-			}
+		for (tx_words = 0; tx_words < n_words; tx_words++) {
+			if (!tx_ptr)
+				sifive_spi_tx(spi, NULL);
+			else
+				sifive_spi_tx(spi, tx_ptr++);
 		}
 
-		/* Read out all the data from the RX FIFO */
 		if (rx_ptr) {
-			for (rx_words = 0; rx_words < n_words; ++rx_words) {
-				sifive_spi_tx(spi, NULL);
-				sifive_spi_rx(spi, rx_ptr);
-				rx_ptr++;
-			}
+			/* Wait for transmission + reception to complete */
+			writel(n_words - 1, spi->regs + SIFIVE_SPI_REG_RXMARK);
+			ret = sifive_spi_wait(spi, SIFIVE_SPI_IP_RXWM);
+			if (ret)
+				return ret;
+
+			/* Read out all the data from the RX FIFO */
+			for (rx_words = 0; rx_words < n_words; rx_words++)
+				sifive_spi_rx(spi, rx_ptr++);
+		} else {
+			/* Wait for transmission to complete */
+			ret = sifive_spi_wait(spi, SIFIVE_SPI_IP_TXWM);
+			if (ret)
+				return ret;
 		}
 
 		remaining_len -= n_words;
@@ -237,6 +262,80 @@ static int sifive_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 	if (flags & SPI_XFER_END)
 		sifive_spi_clear_cs(spi);
+
+	return 0;
+}
+
+static int sifive_spi_exec_op(struct spi_slave *slave,
+			      const struct spi_mem_op *op)
+{
+	struct udevice *dev = slave->dev;
+	struct sifive_spi *spi = dev_get_priv(dev->parent);
+	unsigned long flags = SPI_XFER_BEGIN;
+	u8 opcode = op->cmd.opcode;
+	unsigned int pos = 0;
+	const void *tx_buf = NULL;
+	void *rx_buf = NULL;
+	int op_len, i;
+	int ret;
+
+	if (!op->addr.nbytes && !op->dummy.nbytes && !op->data.nbytes)
+		flags |= SPI_XFER_END;
+
+	spi->fmt_proto = op->cmd.buswidth;
+
+	/* send the opcode */
+	ret = sifive_spi_xfer(dev, 8, (void *)&opcode, NULL, flags);
+	if (ret < 0) {
+		dev_err(dev, "failed to xfer opcode\n");
+		return ret;
+	}
+
+	op_len = op->addr.nbytes + op->dummy.nbytes;
+	u8 op_buf[op_len];
+
+	/* send the addr + dummy */
+	if (op->addr.nbytes) {
+		/* fill address */
+		for (i = 0; i < op->addr.nbytes; i++)
+			op_buf[pos + i] = op->addr.val >>
+				(8 * (op->addr.nbytes - i - 1));
+
+		pos += op->addr.nbytes;
+
+		/* fill dummy */
+		if (op->dummy.nbytes)
+			memset(op_buf + pos, 0xff, op->dummy.nbytes);
+
+		/* make sure to set end flag, if no data bytes */
+		if (!op->data.nbytes)
+			flags |= SPI_XFER_END;
+
+		spi->fmt_proto = op->addr.buswidth;
+
+		ret = sifive_spi_xfer(dev, op_len * 8, op_buf, NULL, flags);
+		if (ret < 0) {
+			dev_err(dev, "failed to xfer addr + dummy\n");
+			return ret;
+		}
+	}
+
+	/* send/received the data */
+	if (op->data.nbytes) {
+		if (op->data.dir == SPI_MEM_DATA_IN)
+			rx_buf = op->data.buf.in;
+		else
+			tx_buf = op->data.buf.out;
+
+		spi->fmt_proto = op->data.buswidth;
+
+		ret = sifive_spi_xfer(dev, op->data.nbytes * 8,
+				      tx_buf, rx_buf, SPI_XFER_END);
+		if (ret) {
+			dev_err(dev, "failed to xfer data\n");
+			return ret;
+		}
+	}
 
 	return 0;
 }
@@ -309,6 +408,10 @@ static void sifive_spi_init_hw(struct sifive_spi *spi)
 	/* Watermark interrupts are disabled by default */
 	writel(0, spi->regs + SIFIVE_SPI_REG_IE);
 
+	/* Default watermark FIFO threshold values */
+	writel(1, spi->regs + SIFIVE_SPI_REG_TXMARK);
+	writel(0, spi->regs + SIFIVE_SPI_REG_RXMARK);
+
 	/* Set CS/SCK Delays and Inactive Time to defaults */
 	writel(SIFIVE_SPI_DELAY0_CSSCK(1) | SIFIVE_SPI_DELAY0_SCKCS(1),
 	       spi->regs + SIFIVE_SPI_REG_DELAY0);
@@ -348,11 +451,16 @@ static int sifive_spi_probe(struct udevice *bus)
 	return 0;
 }
 
+static const struct spi_controller_mem_ops sifive_spi_mem_ops = {
+	.exec_op	= sifive_spi_exec_op,
+};
+
 static const struct dm_spi_ops sifive_spi_ops = {
 	.xfer		= sifive_spi_xfer,
 	.set_speed	= sifive_spi_set_speed,
 	.set_mode	= sifive_spi_set_mode,
 	.cs_info        = sifive_spi_cs_info,
+	.mem_ops	= &sifive_spi_mem_ops,
 };
 
 static const struct udevice_id sifive_spi_ids[] = {
