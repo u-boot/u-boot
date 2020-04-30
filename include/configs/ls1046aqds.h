@@ -437,19 +437,27 @@ unsigned long get_board_ddr_clk(void);
 
 #undef CONFIG_BOOTCOMMAND
 #ifdef CONFIG_TFABOOT
-#define QSPI_NOR_BOOTCOMMAND		"sf probe && sf read $kernel_load "    \
-					"e0000 f00000 && bootm $kernel_load"
-#define IFC_NOR_BOOTCOMMAND		"cp.b $kernel_start $kernel_load "     \
-					"$kernel_size && bootm $kernel_load"
-#define SD_BOOTCOMMAND		"mmc info; mmc read $kernel_load"     \
-					"$kernel_addr_sd $kernel_size_sd && bootm $kernel_load"
+#define IFC_NAND_BOOTCOMMAND "run distro_bootcmd; run nand_bootcmd; "	\
+			   "env exists secureboot && esbc_halt;;"
+#define QSPI_NOR_BOOTCOMMAND "run distro_bootcmd; run nor_bootcmd"	\
+			   "env exists secureboot && esbc_halt;;"
+#define IFC_NOR_BOOTCOMMAND "run distro_bootcmd; run nor_bootcmd; "	\
+			   "env exists secureboot && esbc_halt;;"
+#define SD_BOOTCOMMAND "run distro_bootcmd; run sd_bootcmd; "	\
+			   "env exists secureboot && esbc_halt;;"
 #else
-#if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
-#define CONFIG_BOOTCOMMAND		"sf probe && sf read $kernel_load "    \
-					"e0000 f00000 && bootm $kernel_load"
+#if defined(CONFIG_QSPI_BOOT)
+#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run nor_bootcmd; "	\
+			   "env exists secureboot && esbc_halt;;"
+#elif defined(CONFIG_NAND_BOOT)
+#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run nand_bootcmd; "	\
+			   "env exists secureboot && esbc_halt;;"
+#elif defined(CONFIG_SD_BOOT)
+#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run sd_bootcmd; "	\
+			   "env exists secureboot && esbc_halt;;"
 #else
-#define CONFIG_BOOTCOMMAND		"cp.b $kernel_start $kernel_load "     \
-					"$kernel_size && bootm $kernel_load"
+#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run nor_bootcmd; "	\
+			   "env exists secureboot && esbc_halt;;"
 #endif
 #endif
 

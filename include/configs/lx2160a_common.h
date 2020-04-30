@@ -207,6 +207,16 @@ unsigned long get_board_ddr_clk(void);
 	"esbc_validate 0x80680000 ;"		\
 	"fsl_mc start mc 0x80a00000 0x80e00000\0"
 
+#define SD2_MC_INIT_CMD				\
+	"mmc dev 1; mmc read 0x80a00000 0x5000 0x1200;"	\
+	"mmc read 0x80e00000 0x7000 0x800;"	\
+	"env exists secureboot && "		\
+	"mmc read 0x80640000 0x3200 0x20 && "	\
+	"mmc read 0x80680000 0x3400 0x20 && "	\
+	"esbc_validate 0x80640000 && "		\
+	"esbc_validate 0x80680000 ;"		\
+	"fsl_mc start mc 0x80a00000 0x80e00000\0"
+
 #define EXTRA_ENV_SETTINGS			\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
 	"ramdisk_addr=0x800000\0"		\
@@ -274,11 +284,11 @@ unsigned long get_board_ddr_clk(void);
 		"env exists secureboot && esbc_halt;"
 
 #define SD2_BOOTCOMMAND						\
-		"env exists mcinitcmd && mmcinfo; "		\
+		"mmc dev 1; env exists mcinitcmd && mmcinfo; "	\
 		"mmc read 0x80d00000 0x6800 0x800; "		\
 		"env exists mcinitcmd && env exists secureboot "	\
-		" && mmc read 0x80780000 0x3C00 0x20 "		\
-		"&& esbc_validate 0x80780000;env exists mcinitcmd "	\
+		" && mmc read 0x806C0000 0x3600 0x20 "		\
+		"&& esbc_validate 0x806C0000;env exists mcinitcmd "	\
 		"&& fsl_mc lazyapply dpl 0x80d00000;"		\
 		"run distro_bootcmd;run sd2_bootcmd;"		\
 		"env exists secureboot && esbc_halt;"

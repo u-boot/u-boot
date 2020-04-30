@@ -217,6 +217,10 @@
 #define LS1046A_BOOT_SRC_AND_HDR\
 	"boot_scripts=ls1046afrwy_boot.scr\0"	\
 	"boot_script_hdr=hdr_ls1046afrwy_bs.out\0"
+#elif defined(CONFIG_TARGET_LS1046AQDS)
+#define LS1046A_BOOT_SRC_AND_HDR\
+	"boot_scripts=ls1046aqds_boot.scr\0"	\
+	"boot_script_hdr=hdr_ls1046aqds_bs.out\0"
 #else
 #define LS1046A_BOOT_SRC_AND_HDR\
 	"boot_scripts=ls1046ardb_boot.scr\0"	\
@@ -230,7 +234,7 @@
 	"ramdisk_size=0x2000000\0"		\
 	"bootm_size=0x10000000\0"		\
 	"fdt_addr=0x64f00000\0"                 \
-	"kernel_addr=0x65000000\0"              \
+	"kernel_addr=0x61000000\0"              \
 	"scriptaddr=0x80000000\0"               \
 	"scripthdraddr=0x80080000\0"		\
 	"fdtheader_addr_r=0x80100000\0"         \
@@ -277,6 +281,18 @@
 		"&& sf read $kernelheader_addr_r $kernelheader_start "	\
 		"$kernelheader_size && esbc_validate ${kernelheader_addr_r}; " \
 		"bootm $load_addr#$board\0"		\
+	"nand_bootcmd=echo Trying load from nand..;"      \
+		"nand info; nand read $load_addr "         \
+		"$kernel_start $kernel_size; env exists secureboot "	\
+		"&& nand read $kernelheader_addr_r $kernelheader_start " \
+		"$kernelheader_size && esbc_validate ${kernelheader_addr_r}; " \
+		"bootm $load_addr#$board\0"		\
+	"nor_bootcmd=echo Trying load from nor..;"	\
+		"cp.b $kernel_addr $load_addr "		\
+		"$kernel_size; env exists secureboot "	\
+		"&& cp.b $kernelheader_addr $kernelheader_addr_r "	\
+		"$kernelheader_size && esbc_validate ${kernelheader_addr_r}; " \
+		"bootm $load_addr#$board\0"	\
 	"sd_bootcmd=echo Trying load from SD ..;"	\
 		"mmcinfo; mmc read $load_addr "		\
 		"$kernel_addr_sd $kernel_size_sd && "	\

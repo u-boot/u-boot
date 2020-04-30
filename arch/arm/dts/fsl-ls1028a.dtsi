@@ -240,6 +240,66 @@
 		status = "disabled";
 	};
 
+	lpuart0: serial@2260000 {
+		compatible = "fsl,ls1021a-lpuart";
+		reg = <0x0 0x2260000 0x0 0x1000>;
+		interrupts = <0 232 0x4>;
+		clocks = <&sysclk>;
+		clock-names = "ipg";
+		little-endian;
+		status = "disabled";
+	};
+
+	lpuart1: serial@2270000 {
+		compatible = "fsl,ls1021a-lpuart";
+		reg = <0x0 0x2270000 0x0 0x1000>;
+		interrupts = <0 233 0x4>;
+		clocks = <&sysclk>;
+		clock-names = "ipg";
+		little-endian;
+		status = "disabled";
+	};
+
+	lpuart2: serial@2280000 {
+		compatible = "fsl,ls1021a-lpuart";
+		reg = <0x0 0x2280000 0x0 0x1000>;
+		interrupts = <0 234 0x4>;
+		clocks = <&sysclk>;
+		clock-names = "ipg";
+		little-endian;
+		status = "disabled";
+	};
+
+	lpuart3: serial@2290000 {
+		compatible = "fsl,ls1021a-lpuart";
+		reg = <0x0 0x2290000 0x0 0x1000>;
+		interrupts = <0 235 0x4>;
+		clocks = <&sysclk>;
+		clock-names = "ipg";
+		little-endian;
+		status = "disabled";
+	};
+
+	lpuart4: serial@22a0000 {
+		compatible = "fsl,ls1021a-lpuart";
+		reg = <0x0 0x22a0000 0x0 0x1000>;
+		interrupts = <0 236 0x4>;
+		clocks = <&sysclk>;
+		clock-names = "ipg";
+		little-endian;
+		status = "disabled";
+	};
+
+	lpuart5: serial@22b0000 {
+		compatible = "fsl,ls1021a-lpuart";
+		reg = <0x0 0x22b0000 0x0 0x1000>;
+		interrupts = <0 237 0x4>;
+		clocks = <&sysclk>;
+		clock-names = "ipg";
+		little-endian;
+		status = "disabled";
+	};
+
 	usb1: usb3@3100000 {
 		compatible = "fsl,layerscape-dwc3";
 		reg = <0x0 0x3100000 0x0 0x10000>;

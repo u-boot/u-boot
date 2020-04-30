@@ -363,4 +363,69 @@
 		bus-range = <0x0 0xff>;
 		ranges = <0x82000000 0x0 0x40000000 0xa8 0x40000000 0x0 0x40000000>;
 	};
+
+	fsl_mc: fsl-mc@80c000000 {
+		compatible = "fsl,qoriq-mc", "simple-mfd";
+		reg = <0x00000008 0x0c000000 0 0x40>,
+		      <0x00000000 0x08340000 0 0x40000>;
+		#address-cells = <3>;
+		#size-cells = <1>;
+
+		/*
+		 * Region type 0x0 - MC portals
+		 * Region type 0x1 - QBMAN portals
+		 */
+		ranges = <0x0 0x0 0x0 0x8 0x0c000000 0x4000000
+			  0x1 0x0 0x0 0x8 0x18000000 0x8000000>;
+
+		dpmacs {
+			compatible = "simple-mfd";
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			dpmac3: dpmac@3 {
+				compatible = "fsl,qoriq-mc-dpmac";
+				reg = <0x3>;
+				status = "disabled";
+			};
+
+			dpmac4: dpmac@4 {
+				compatible = "fsl,qoriq-mc-dpmac";
+				reg = <0x4>;
+				status = "disabled";
+			};
+
+			dpmac17: dpmac@11 {
+				compatible = "fsl,qoriq-mc-dpmac";
+				reg = <0x11>;
+				status = "disabled";
+			};
+
+			dpmac18: dpmac@12 {
+				compatible = "fsl,qoriq-mc-dpmac";
+				reg = <0x12>;
+				status = "disabled";
+			};
+		};
+	};
+
+	/* WRIOP0: 0x8b8_0000, E-MDIO1: 0x1_6000 */
+	emdio1: mdio@8b96000 {
+		compatible = "fsl,ls-mdio";
+		reg = <0x0 0x8b96000 0x0 0x1000>;
+		interrupts = <GIC_SPI 90 IRQ_TYPE_LEVEL_HIGH>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "disabled";
+	};
+
+	/* WRIOP0: 0x8b8_0000, E-MDIO2: 0x1_7000 */
+	emdio2: mdio@8b97000 {
+		compatible = "fsl,ls-mdio";
+		reg = <0x0 0x8b97000 0x0 0x1000>;
+		interrupts = <GIC_SPI 91 IRQ_TYPE_LEVEL_HIGH>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "disabled";
+	};
 };

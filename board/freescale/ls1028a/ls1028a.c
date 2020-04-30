@@ -31,6 +31,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int config_board_mux(void)
 {
+#ifndef CONFIG_LPUART
 #if defined(CONFIG_TARGET_LS1028AQDS) && defined(CONFIG_FSL_QIXIS)
 	u8 reg;
 
@@ -55,8 +56,17 @@ int config_board_mux(void)
 	reg &= ~(0xc0);
 	QIXIS_WRITE(brdcfg[15], reg);
 #endif
+#endif
+
 	return 0;
 }
+
+#ifdef CONFIG_LPUART
+u32 get_lpuart_clk(void)
+{
+	return gd->bus_clk / CONFIG_SYS_FSL_LPUART_CLK_DIV;
+}
+#endif
 
 int board_init(void)
 {
@@ -120,11 +130,33 @@ int misc_init_r(void)
 
 int board_early_init_f(void)
 {
+#ifdef CONFIG_LPUART
+	u8 uart;
+#endif
+
 #ifdef CONFIG_SYS_I2C_EARLY_INIT
 	i2c_early_init_f();
 #endif
 
 	fsl_lsch3_early_init_f();
+
+#ifdef CONFIG_LPUART
+	/*
+	 * Field| Function
+	 * --------------------------------------------------------------
+	 * 7-6  | Controls I2C3 routing (net CFG_MUX_I2C3):
+	 * I2C3 | 11= Routes {SCL, SDA} to LPUART1 header as {SOUT, SIN}.
+	 * --------------------------------------------------------------
+	 * 5-4  | Controls I2C4 routing (net CFG_MUX_I2C4):
+	 * I2C4 |11= Routes {SCL, SDA} to LPUART1 header as {CTS_B, RTS_B}.
+	 */
+	/* use lpuart0 as system console */
+	uart = QIXIS_READ(brdcfg[13]);
+	uart &= ~CFG_LPUART_MUX_MASK;
+	uart |= CFG_LPUART_EN;
+	QIXIS_WRITE(brdcfg[13], uart);
+#endif
+
 	return 0;
 }
 

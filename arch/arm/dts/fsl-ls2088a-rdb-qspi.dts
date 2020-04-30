@@ -21,6 +21,94 @@
 	};
 };
 
+&dpmac1 {
+	status = "okay";
+	phy-handle = <&mdio1_phy1>;
+	phy-connection-type = "xfi";
+};
+
+&dpmac2 {
+	status = "okay";
+	phy-handle = <&mdio1_phy2>;
+	phy-connection-type = "xfi";
+};
+
+&dpmac3 {
+	status = "okay";
+	phy-handle = <&mdio1_phy3>;
+	phy-connection-type = "xfi";
+};
+
+&dpmac4 {
+	status = "okay";
+	phy-handle = <&mdio1_phy4>;
+	phy-connection-type = "xfi";
+};
+
+&dpmac5 {
+	status = "okay";
+	phy-handle = <&mdio2_phy1>;
+	phy-connection-type = "xfi";
+};
+
+&dpmac6 {
+	status = "okay";
+	phy-handle = <&mdio2_phy2>;
+	phy-connection-type = "xfi";
+};
+
+&dpmac7 {
+	status = "okay";
+	phy-handle = <&mdio2_phy3>;
+	phy-connection-type = "xfi";
+};
+
+&dpmac8 {
+	status = "okay";
+	phy-handle = <&mdio2_phy4>;
+	phy-connection-type = "xfi";
+};
+
+&emdio1 {
+	status = "okay";
+
+	/* CS4340 PHYs */
+	mdio1_phy1: emdio1_phy@1 {
+		reg = <0x10>;
+	};
+	mdio1_phy2: emdio1_phy@2 {
+		reg = <0x11>;
+	};
+	mdio1_phy3: emdio1_phy@3 {
+		reg = <0x12>;
+	};
+	mdio1_phy4: emdio1_phy@4 {
+		reg = <0x13>;
+	};
+};
+
+&emdio2 {
+	status = "okay";
+
+	/* AQR405 PHYs */
+	mdio2_phy1: emdio2_phy@1 {
+		compatible = "ethernet-phy-ieee802.3-c45";
+		reg = <0x0>;
+	};
+	mdio2_phy2: emdio2_phy@2 {
+		compatible = "ethernet-phy-ieee802.3-c45";
+		reg = <0x1>;
+	};
+	mdio2_phy3: emdio2_phy@3 {
+		compatible = "ethernet-phy-ieee802.3-c45";
+		reg = <0x2>;
+	};
+	mdio2_phy4: emdio2_phy@4 {
+		compatible = "ethernet-phy-ieee802.3-c45";
+		reg = <0x3>;
+	};
+};
+
 &dspi {
 	bus-num = <0>;
 	status = "okay";
