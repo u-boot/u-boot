@@ -625,6 +625,7 @@ F:	include/asm-generic/pe.h
 F:	lib/charset.c
 F:	lib/efi*/
 F:	test/py/tests/test_efi*
+F:	test/py/tests/test_efi*/
 F:	test/unicode_ut.c
 F:	cmd/bootefi.c
 F:	cmd/efidebug.c

@@ -43,7 +43,8 @@ def efi_boot_env(request, u_boot_config):
         HELLO_PATH = u_boot_config.build_dir + '/lib/efi_loader/helloworld.efi'
 
     try:
-        non_root = tool_is_in_path('udisksctl')
+        mnt_point = u_boot_config.persistent_data_dir + '/mnt_efisecure'
+        check_call('mkdir -p {}'.format(mnt_point), shell=True)
 
         # create a disk/partition
         check_call('dd if=/dev/zero of=%s bs=1MiB count=%d'
@@ -57,24 +58,10 @@ def efi_boot_env(request, u_boot_config):
         check_call('dd if=%s.tmp of=%s bs=1MiB seek=1 count=%d conv=notrunc'
                             % (image_path, image_path, 1), shell=True)
         check_call('rm %s.tmp' % image_path, shell=True)
-        if non_root:
-            out_data = check_output('udisksctl loop-setup -f %s -o %d'
-                                % (image_path, 1048576), shell=True).decode()
-            m = re.search('(?<= as )(.*)\.', out_data)
-            loop_dev = m.group(1)
-            # print 'loop device is: %s' % loop_dev
-            out_data = check_output('udisksctl info -b %s'
-                                % loop_dev, shell=True).decode()
-            m = re.search('MountPoints:[ \t]+(.*)', out_data)
-            mnt_point = m.group(1)
-        else:
-            loop_dev = check_output('sudo losetup -o 1MiB --sizelimit %dMiB --show -f %s | tr -d "\n"'
+        loop_dev = check_output('sudo losetup -o 1MiB --sizelimit %dMiB --show -f %s | tr -d "\n"'
                                 % (part_size, image_path), shell=True).decode()
-            mnt_point = '/mnt'
-            check_output('sudo mount -t %s -o umask=000 %s %s'
+        check_output('sudo mount -t %s -o umask=000 %s %s'
                                 % (fs_type, loop_dev, mnt_point), shell=True)
-
-        # print 'mount point is: %s' % mnt_point
 
         # suffix
         # *.key: RSA private key in PEM
@@ -134,13 +121,8 @@ def efi_boot_env(request, u_boot_config):
                             % (mnt_point, EFITOOLS_PATH, EFITOOLS_PATH),
                             shell=True)
 
-        if non_root:
-            check_call('udisksctl unmount -b %s' % loop_dev, shell=True)
-            # not needed
-            # check_call('udisksctl loop-delete -b %s' % loop_dev, shell=True)
-        else:
-            check_call('sudo umount %s' % loop_dev, shell=True)
-            check_call('sudo losetup -d %s' % loop_dev, shell=True)
+        check_call('sudo umount %s' % loop_dev, shell=True)
+        check_call('sudo losetup -d %s' % loop_dev, shell=True)
 
     except CalledProcessError as e:
         pytest.skip('Setup failed: %s' % e.cmd)

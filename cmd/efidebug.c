@@ -395,6 +395,7 @@ static const char * const efi_mem_type_string[] = {
 	[EFI_MMAP_IO] = "IO",
 	[EFI_MMAP_IO_PORT] = "IO PORT",
 	[EFI_PAL_CODE] = "PAL",
+	[EFI_PERSISTENT_MEMORY_TYPE] = "PERSISTENT",
 };
 
 static const struct efi_mem_attrs {
@@ -482,7 +483,7 @@ static int do_efi_show_memmap(cmd_tbl_t *cmdtp, int flag,
 	printf("================ %.*s %.*s ==========\n",
 	       EFI_PHYS_ADDR_WIDTH, sep, EFI_PHYS_ADDR_WIDTH, sep);
 	for (i = 0, map = memmap; i < map_size / sizeof(*map); map++, i++) {
-		if (map->type < EFI_MAX_MEMORY_TYPE)
+		if (map->type < ARRAY_SIZE(efi_mem_type_string))
 			type = efi_mem_type_string[map->type];
 		else
 			type = "(unknown)";
@@ -682,13 +683,13 @@ static int do_efi_boot_rm(cmd_tbl_t *cmdtp, int flag,
 /**
  * show_efi_boot_opt_data() - dump UEFI load option
  *
- * @id:		load option number
+ * @varname16:	variable name
  * @data:	value of UEFI load option variable
  * @size:	size of the boot option
  *
  * Decode the value of UEFI load option variable and print information.
  */
-static void show_efi_boot_opt_data(int id, void *data, size_t size)
+static void show_efi_boot_opt_data(u16 *varname16, void *data, size_t size)
 {
 	struct efi_load_option lo;
 	char *label, *p;
@@ -705,8 +706,8 @@ static void show_efi_boot_opt_data(int id, void *data, size_t size)
 	p = label;
 	utf16_utf8_strncpy(&p, lo.label, label_len16);
 
-	printf("Boot%04X:\n", id);
-	printf("  attributes: %c%c%c (0x%08x)\n",
+	printf("%ls:\nattributes: %c%c%c (0x%08x)\n",
+	       varname16,
 	       /* ACTIVE */
 	       lo.attributes & LOAD_OPTION_ACTIVE ? 'A' : '-',
 	       /* FORCE RECONNECT */
@@ -730,37 +731,32 @@ static void show_efi_boot_opt_data(int id, void *data, size_t size)
 /**
  * show_efi_boot_opt() - dump UEFI load option
  *
- * @id:		Load option number
+ * @varname16:	variable name
  *
  * Dump information defined by UEFI load option.
  */
-static void show_efi_boot_opt(int id)
+static void show_efi_boot_opt(u16 *varname16)
 {
-	char var_name[9];
-	u16 var_name16[9], *p;
-	efi_guid_t guid;
-	void *data = NULL;
+	void *data;
 	efi_uintn_t size;
 	efi_status_t ret;
 
-	sprintf(var_name, "Boot%04X", id);
-	p = var_name16;
-	utf8_utf16_strncpy(&p, var_name, 9);
-	guid = efi_global_variable_guid;
-
 	size = 0;
-	ret = EFI_CALL(RT->get_variable(var_name16, &guid, NULL, &size, NULL));
+	ret = EFI_CALL(efi_get_variable(varname16, &efi_global_variable_guid,
+					NULL, &size, NULL));
 	if (ret == EFI_BUFFER_TOO_SMALL) {
 		data = malloc(size);
-		ret = EFI_CALL(RT->get_variable(var_name16, &guid, NULL, &size,
-						data));
+		if (!data) {
+			printf("ERROR: Out of memory\n");
+			return;
+		}
+		ret = EFI_CALL(efi_get_variable(varname16,
+						&efi_global_variable_guid,
+						NULL, &size, data));
+		if (ret == EFI_SUCCESS)
+			show_efi_boot_opt_data(varname16, data, size);
+		free(data);
 	}
-	if (ret == EFI_SUCCESS)
-		show_efi_boot_opt_data(id, data, size);
-	else if (ret == EFI_NOT_FOUND)
-		printf("Boot%04X: not found\n", id);
-
-	free(data);
 }
 
 static int u16_tohex(u16 c)
@@ -839,7 +835,7 @@ static int do_efi_boot_dump(cmd_tbl_t *cmdtp, int flag,
 			id = (id << 4) + digit;
 		}
 		if (i == 4 && !var_name16[8])
-			show_efi_boot_opt(id);
+			show_efi_boot_opt(var_name16);
 	}
 
 	free(var_name16);
@@ -856,8 +852,7 @@ static int do_efi_boot_dump(cmd_tbl_t *cmdtp, int flag,
  */
 static int show_efi_boot_order(void)
 {
-	efi_guid_t guid;
-	u16 *bootorder = NULL;
+	u16 *bootorder;
 	efi_uintn_t size;
 	int num, i;
 	char var_name[9];
@@ -868,20 +863,25 @@ static int show_efi_boot_order(void)
 	size_t label_len16, label_len;
 	efi_status_t ret;
 
-	guid = efi_global_variable_guid;
 	size = 0;
-	ret = EFI_CALL(RT->get_variable(L"BootOrder", &guid, NULL, &size,
-					NULL));
-	if (ret == EFI_BUFFER_TOO_SMALL) {
-		bootorder = malloc(size);
-		ret = EFI_CALL(RT->get_variable(L"BootOrder", &guid, NULL,
-						&size, bootorder));
+	ret = EFI_CALL(RT->get_variable(L"BootOrder", &efi_global_variable_guid,
+					NULL, &size, NULL));
+	if (ret != EFI_BUFFER_TOO_SMALL) {
+		if (ret == EFI_NOT_FOUND) {
+			printf("BootOrder not defined\n");
+			return CMD_RET_SUCCESS;
+		} else {
+			return CMD_RET_FAILURE;
+		}
 	}
-	if (ret == EFI_NOT_FOUND) {
-		printf("BootOrder not defined\n");
-		ret = CMD_RET_SUCCESS;
-		goto out;
-	} else if (ret != EFI_SUCCESS) {
+	bootorder = malloc(size);
+	if (!bootorder) {
+		printf("ERROR: Out of memory\n");
+		return CMD_RET_FAILURE;
+	}
+	ret = EFI_CALL(efi_get_variable(L"BootOrder", &efi_global_variable_guid,
+					NULL, &size, bootorder));
+	if (ret != EFI_SUCCESS) {
 		ret = CMD_RET_FAILURE;
 		goto out;
 	}
@@ -893,11 +893,11 @@ static int show_efi_boot_order(void)
 		utf8_utf16_strncpy(&p16, var_name, 9);
 
 		size = 0;
-		ret = EFI_CALL(RT->get_variable(var_name16, &guid, NULL, &size,
-						NULL));
+		ret = EFI_CALL(efi_get_variable(var_name16,
+						&efi_global_variable_guid, NULL,
+						&size, NULL));
 		if (ret != EFI_BUFFER_TOO_SMALL) {
-			printf("%2d: Boot%04X: (not defined)\n",
-			       i + 1, bootorder[i]);
+			printf("%2d: %s: (not defined)\n", i + 1, var_name);
 			continue;
 		}
 
@@ -906,8 +906,9 @@ static int show_efi_boot_order(void)
 			ret = CMD_RET_FAILURE;
 			goto out;
 		}
-		ret = EFI_CALL(RT->get_variable(var_name16, &guid, NULL, &size,
-						data));
+		ret = EFI_CALL(efi_get_variable(var_name16,
+						&efi_global_variable_guid, NULL,
+						&size, data));
 		if (ret != EFI_SUCCESS) {
 			free(data);
 			ret = CMD_RET_FAILURE;
@@ -926,7 +927,7 @@ static int show_efi_boot_order(void)
 		}
 		p = label;
 		utf16_utf8_strncpy(&p, lo.label, label_len16);
-		printf("%2d: Boot%04X: %s\n", i + 1, bootorder[i], label);
+		printf("%2d: %s: %s\n", i + 1, var_name, label);
 		free(label);
 
 		free(data);

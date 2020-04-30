@@ -11,6 +11,7 @@
 #include <common.h>
 #include <part_efi.h>
 #include <efi_api.h>
+#include <image.h>
 #include <pe.h>
 
 static inline int guidcmp(const void *g1, const void *g2)
@@ -46,6 +47,13 @@ static inline void *guidcpy(void *dst, const void *src)
 
 /* Root node */
 extern efi_handle_t efi_root;
+
+/* EFI system partition */
+extern struct efi_system_partition {
+	enum if_type if_type;
+	int devnum;
+	u8 part;
+} efi_system_partition;
 
 int __efi_entry_check(void);
 int __efi_exit_check(void);
@@ -695,9 +703,6 @@ void efi_deserialize_load_option(struct efi_load_option *lo, u8 *data);
 unsigned long efi_serialize_load_option(struct efi_load_option *lo, u8 **data);
 efi_status_t efi_bootmgr_load(efi_handle_t *handle);
 
-#ifdef CONFIG_EFI_SECURE_BOOT
-#include <image.h>
-
 /**
  * efi_image_regions - A list of memory regions
  *
@@ -767,7 +772,6 @@ bool efi_secure_boot_enabled(void);
 
 bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
 		     WIN_CERTIFICATE **auth, size_t *auth_len);
-#endif /* CONFIG_EFI_SECURE_BOOT */
 
 #else /* CONFIG_IS_ENABLED(EFI_LOADER) */
 

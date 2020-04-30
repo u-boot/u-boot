@@ -51,13 +51,22 @@ struct block_drvr {
 #define PART_TYPE_LEN 32
 #define MAX_SEARCH_PARTITIONS 64
 
+#define PART_BOOTABLE			((int)BIT(0))
+#define PART_EFI_SYSTEM_PARTITION	((int)BIT(1))
+
 typedef struct disk_partition {
 	lbaint_t	start;	/* # of first block in partition	*/
 	lbaint_t	size;	/* number of blocks in partition	*/
 	ulong	blksz;		/* block size in bytes			*/
 	uchar	name[PART_NAME_LEN];	/* partition name			*/
 	uchar	type[PART_TYPE_LEN];	/* string type description		*/
-	int	bootable;	/* Active/Bootable flag is set		*/
+	/*
+	 * The bootable is a bitmask with the following fields:
+	 *
+	 * PART_BOOTABLE		the MBR bootable flag is set
+	 * PART_EFI_SYSTEM_PARTITION	the partition is an EFI system partition
+	 */
+	int	bootable;
 #if CONFIG_IS_ENABLED(PARTITION_UUIDS)
 	char	uuid[UUID_STR_LEN + 1];	/* filesystem UUID as string, if exists	*/
 #endif
