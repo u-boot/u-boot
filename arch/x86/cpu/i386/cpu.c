@@ -24,6 +24,7 @@
 #include <malloc.h>
 #include <spl.h>
 #include <asm/control_regs.h>
+#include <asm/coreboot_tables.h>
 #include <asm/cpu.h>
 #include <asm/mp.h>
 #include <asm/msr.h>
@@ -445,31 +446,6 @@ int x86_cpu_init_f(void)
 		i8254_init();
 
 	return 0;
-}
-
-long detect_coreboot_table_at(ulong start, ulong size)
-{
-	u32 *ptr, *end;
-
-	size /= 4;
-	for (ptr = (void *)start, end = ptr + size; ptr < end; ptr += 4) {
-		if (*ptr == 0x4f49424c) /* "LBIO" */
-			return (long)ptr;
-	}
-
-	return -ENOENT;
-}
-
-long locate_coreboot_table(void)
-{
-	long addr;
-
-	/* We look for LBIO in the first 4K of RAM and again at 960KB */
-	addr = detect_coreboot_table_at(0x0, 0x1000);
-	if (addr < 0)
-		addr = detect_coreboot_table_at(0xf0000, 0x1000);
-
-	return addr;
 }
 
 int x86_cpu_reinit_f(void)
