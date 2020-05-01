@@ -21,10 +21,6 @@
 #define PCNET_DEBUG2(fmt,args...)	\
 	debug_cond(PCNET_DEBUG_LEVEL > 1, fmt ,##args)
 
-#if !defined(CONF_PCNET_79C973) && defined(CONF_PCNET_79C975)
-#error "Macro for PCnet chip version is not defined!"
-#endif
-
 /*
  * Set the number of Tx and Rx buffers, using Log_2(# buffers).
  * Reasonable default values are 4 Tx buffers, and 16 Rx buffers.
@@ -183,14 +179,14 @@ int pcnet_initialize(bd_t *bis)
 		/*
 		 * Setup the PCI device.
 		 */
-		pci_read_config_dword(devbusfn, PCI_BASE_ADDRESS_0, &bar);
-		dev->iobase = pci_io_to_phys(devbusfn, bar);
+		pci_read_config_dword(devbusfn, PCI_BASE_ADDRESS_1, &bar);
+		dev->iobase = pci_mem_to_phys(devbusfn, bar);
 		dev->iobase &= ~0xf;
 
 		PCNET_DEBUG1("%s: devbusfn=0x%x iobase=0x%lx: ",
 			     dev->name, devbusfn, (unsigned long)dev->iobase);
 
-		command = PCI_COMMAND_IO | PCI_COMMAND_MASTER;
+		command = PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER;
 		pci_write_config_word(devbusfn, PCI_COMMAND, command);
 		pci_read_config_word(devbusfn, PCI_COMMAND, &status);
 		if ((status & command) != command) {
@@ -254,16 +250,12 @@ static int pcnet_probe(struct eth_device *dev, bd_t *bis, int dev_nr)
 	case 0x2621:
 		chipname = "PCnet/PCI II 79C970A";	/* PCI */
 		break;
-#ifdef CONFIG_PCNET_79C973
 	case 0x2625:
 		chipname = "PCnet/FAST III 79C973";	/* PCI */
 		break;
-#endif
-#ifdef CONFIG_PCNET_79C975
 	case 0x2627:
 		chipname = "PCnet/FAST III 79C975";	/* PCI */
 		break;
-#endif
 	default:
 		printf("%s: PCnet version %#x not supported\n",
 		       dev->name, chip_version);
@@ -340,7 +332,9 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 		addr = (unsigned long)memalign(ARCH_DMA_MINALIGN,
 					       sizeof(*lp->uc));
 		flush_dcache_range(addr, addr + sizeof(*lp->uc));
-		addr = UNCACHED_SDRAM(addr);
+		addr = (unsigned long)map_physmem(addr,
+				roundup(sizeof(*lp->uc), ARCH_DMA_MINALIGN),
+				MAP_NOCACHE);
 		lp->uc = (struct pcnet_uncached_priv *)addr;
 
 		addr = (unsigned long)memalign(ARCH_DMA_MINALIGN,

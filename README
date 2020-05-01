@@ -896,8 +896,6 @@ The following options need to be configured:
 
 		CONFIG_TULIP
 		Support for Digital 2114x chips.
-		Optional CONFIG_TULIP_SELECT_MEDIA for board specific
-		modem chip initialisation (KS8761/QS6611).
 
 		CONFIG_NATSEMI
 		Support for National dp83815 chips.

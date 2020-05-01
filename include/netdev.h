@@ -125,6 +125,7 @@ int fec_probe(bd_t *bd, int dev_id, uint32_t base_addr,
 /*
  * Allow FEC to fine-tune MII configuration on boards which require this.
  */
+struct eth_device;
 int fecmxc_register_mii_postcall(struct eth_device *dev, int (*cb)(int));
 #endif
 
