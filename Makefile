@@ -926,6 +926,9 @@ ALL-$(CONFIG_EFI_STUB) += u-boot-payload.efi
 ifneq ($(BUILD_ROM)$(CONFIG_BUILD_ROM),)
 ALL-$(CONFIG_X86_RESET_VECTOR) += u-boot.rom
 endif
+ifeq ($(CONFIG_SYS_COREBOOT)$(CONFIG_SPL),yy)
+ALL-$(CONFIG_BINMAN) += u-boot-x86-with-spl.bin
+endif
 
 # Build a combined spl + u-boot image for sunxi
 ifeq ($(CONFIG_ARCH_SUNXI)$(CONFIG_SPL),yy)
@@ -1625,6 +1628,9 @@ u-boot-sunxi-with-spl.bin: spl/sunxi-spl.bin u-boot.itb FORCE
 	$(call if_changed,cat)
 endif
 endif
+
+u-boot-x86-with-spl.bin: spl/u-boot-spl.bin u-boot.bin FORCE
+	$(call if_changed,binman)
 
 ifneq ($(CONFIG_TEGRA),)
 ifneq ($(CONFIG_BINMAN),)
