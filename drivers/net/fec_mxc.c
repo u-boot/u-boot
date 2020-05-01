@@ -1204,6 +1204,13 @@ int fecmxc_initialize_multi(bd_t *bd, int dev_id, int phy_id, uint32_t addr)
 #endif
 	int ret;
 
+	if (CONFIG_IS_ENABLED(IMX_MODULE_FUSE)) {
+		if (enet_fused((ulong)addr)) {
+			printf("SoC fuse indicates Ethernet@0x%x is unavailable.\n", addr);
+			return -ENODEV;
+		}
+	}
+
 #ifdef CONFIG_FEC_MXC_MDIO_BASE
 	/*
 	 * The i.MX28 has two ethernet interfaces, but they are not equal.
@@ -1341,6 +1348,13 @@ static int fecmxc_probe(struct udevice *dev)
 	struct mii_dev *bus = NULL;
 	uint32_t start;
 	int ret;
+
+	if (CONFIG_IS_ENABLED(IMX_MODULE_FUSE)) {
+		if (enet_fused((ulong)priv->eth)) {
+			printf("SoC fuse indicates Ethernet@0x%lx is unavailable.\n", (ulong)priv->eth);
+			return -ENODEV;
+		}
+	}
 
 	if (IS_ENABLED(CONFIG_IMX8)) {
 		ret = clk_get_by_name(dev, "ipg", &priv->ipg_clk);
