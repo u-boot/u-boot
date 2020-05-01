@@ -614,16 +614,6 @@ int cpu_jump_to_64bit_uboot(ulong target)
 
 	func = (func_t)ptr;
 
-	/*
-	 * Copy U-Boot from ROM
-	 * TODO(sjg@chromium.org): Figure out a way to get the text base
-	 * correctly here, and in the device-tree binman definition.
-	 *
-	 * Also consider using FIT so we get the correct image length and
-	 * parameters.
-	 */
-	memcpy((char *)target, (char *)0xfff00000, 0x100000);
-
 	/* Jump to U-Boot */
 	func((ulong)pgtable, 0, (ulong)target);
 

@@ -207,6 +207,19 @@ static int spl_board_load_image(struct spl_image_info *spl_image,
 	spl_image->os = IH_OS_U_BOOT;
 	spl_image->name = "U-Boot";
 
+	if (!IS_ENABLED(CONFIG_SYS_COREBOOT)) {
+		/*
+		 * Copy U-Boot from ROM
+		 * TODO(sjg@chromium.org): Figure out a way to get the text base
+		 * correctly here, and in the device-tree binman definition.
+		 *
+		 * Also consider using FIT so we get the correct image length
+		 * and parameters.
+		 */
+		memcpy((char *)spl_image->load_addr, (char *)0xfff00000,
+		       0x100000);
+	}
+
 	debug("Loading to %lx\n", spl_image->load_addr);
 
 	return 0;
