@@ -32,7 +32,7 @@ static int generic_phy_xlate_offs_flags(struct phy *phy,
 	return 0;
 }
 
-int generic_phy_get_by_node(ofnode node, int index, struct phy *phy)
+int generic_phy_get_by_index_nodev(ofnode node, int index, struct phy *phy)
 {
 	struct ofnode_phandle_args args;
 	struct phy_ops *ops;
@@ -94,7 +94,7 @@ err:
 int generic_phy_get_by_index(struct udevice *dev, int index,
 			     struct phy *phy)
 {
-	return generic_phy_get_by_node(dev_ofnode(dev), index, phy);
+	return generic_phy_get_by_index_nodev(dev_ofnode(dev), index, phy);
 }
 
 int generic_phy_get_by_name(struct udevice *dev, const char *phy_name,
