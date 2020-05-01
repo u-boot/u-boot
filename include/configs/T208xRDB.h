@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
+ * Copyright 2020 NXP
  */
 
 /*
@@ -333,8 +334,8 @@ unsigned long get_board_ddr_clk(void);
 /*
  * I2C
  */
+#ifndef CONFIG_DM_I2C
 #define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_FSL
 #define CONFIG_SYS_FSL_I2C_SLAVE   0x7F
 #define CONFIG_SYS_FSL_I2C2_SLAVE  0x7F
 #define CONFIG_SYS_FSL_I2C3_SLAVE  0x7F
@@ -347,6 +348,13 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_FSL_I2C2_SPEED  100000
 #define CONFIG_SYS_FSL_I2C3_SPEED  100000
 #define CONFIG_SYS_FSL_I2C4_SPEED  100000
+#else
+#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
+#define CONFIG_I2C_DEFAULT_BUS_NUMBER	0
+#endif
+
+#define CONFIG_SYS_I2C_FSL
+
 #define I2C_MUX_PCA_ADDR_PRI	0x77 /* I2C bus multiplexer,primary */
 #define I2C_MUX_PCA_ADDR_SEC1	0x75 /* I2C bus multiplexer,secondary 1 */
 #define I2C_MUX_PCA_ADDR_SEC2	0x76 /* I2C bus multiplexer,secondary 2 */
