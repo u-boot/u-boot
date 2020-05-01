@@ -27,6 +27,13 @@ config IMX_BOOTAUX
 	help
 	  bootaux [addr] to boot auxiliary core.
 
+config IMX_MODULE_FUSE
+	bool "i.MX Module Fuse"
+	depends on ARCH_MX6
+	help
+	  i.MX module fuse to runtime disable some driver, including
+	  Linux OS device node.
+
 config USE_IMXIMG_PLUGIN
 	bool "Use imximage plugin code"
 	depends on ARCH_MX7 || ARCH_MX6 || ARCH_MX7ULP

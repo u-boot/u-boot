@@ -9,6 +9,7 @@
 
 #include <asm/io.h>
 #include <asm/mach-imx/regs-common.h>
+#include <asm/mach-imx/module_fuse.h>
 #include <common.h>
 #include "../arch-imx/cpu.h"
 
