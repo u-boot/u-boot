@@ -44,6 +44,8 @@
 		clock-frequency = <0>;
 	};
 
+	/include/ "pq3-i2c-0.dtsi"
+	/include/ "pq3-i2c-1.dtsi"
 };
 
 /* PCIe controller base address 0x9000 */
