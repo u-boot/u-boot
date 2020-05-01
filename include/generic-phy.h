@@ -215,7 +215,7 @@ int generic_phy_get_by_index(struct udevice *user, int index,
 /**
  * generic_phy_get_by_node() - Get a PHY device by integer index on ofnode
  *
- * @node:	the device node
+ * @node:	The client ofnode.
  * @index:	The index in the list of available PHYs
  * @phy:	A pointer to the PHY port
  *
