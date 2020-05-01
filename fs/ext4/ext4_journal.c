@@ -107,22 +107,18 @@ void ext4fs_free_journal(void)
 	for (i = 0; i < MAX_JOURNAL_ENTRIES; i++) {
 		if (dirty_block_ptr[i]->blknr == -1)
 			break;
-		if (dirty_block_ptr[i]->buf)
-			free(dirty_block_ptr[i]->buf);
+		free(dirty_block_ptr[i]->buf);
 	}
 
 	for (i = 0; i < MAX_JOURNAL_ENTRIES; i++) {
 		if (journal_ptr[i]->blknr == -1)
 			break;
-		if (journal_ptr[i]->buf)
-			free(journal_ptr[i]->buf);
+		free(journal_ptr[i]->buf);
 	}
 
 	for (i = 0; i < MAX_JOURNAL_ENTRIES; i++) {
-		if (journal_ptr[i])
-			free(journal_ptr[i]);
-		if (dirty_block_ptr[i])
-			free(dirty_block_ptr[i]);
+		free(journal_ptr[i]);
+		free(dirty_block_ptr[i]);
 	}
 	gindex = 0;
 	gd_index = 0;
@@ -272,8 +268,7 @@ void ext4fs_free_revoke_blks(void)
 	struct revoke_blk_list *next_node = NULL;
 
 	while (tmp_node != NULL) {
-		if (tmp_node->content)
-			free(tmp_node->content);
+		free(tmp_node->content);
 		tmp_node = tmp_node->next;
 	}
 

@@ -8,8 +8,6 @@
 #ifndef	__CONFIG_PXA_COMMON_H__
 #define	__CONFIG_PXA_COMMON_H__
 
-#define	CONFIG_SYS_ARM_CACHE_WRITETHROUGH
-
 /*
  * KGDB
  */

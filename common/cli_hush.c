@@ -1849,8 +1849,7 @@ static int run_list_real(struct pipe *pi)
 				continue;
 			} else {
 				/* insert new value from list for variable */
-				if (pi->progs->argv[0])
-					free(pi->progs->argv[0]);
+				free(pi->progs->argv[0]);
 				pi->progs->argv[0] = *list++;
 #ifndef __U_BOOT__
 				pi->progs->glob_result.gl_pathv[0] =

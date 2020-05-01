@@ -56,7 +56,7 @@ static int pcf2127_rtc_set(struct udevice *dev, const struct rtc_time *tm)
 	buf[i++] = tm->tm_wday & 0x07;
 
 	/* month, 1 - 12 */
-	buf[i++] = bin2bcd(tm->tm_mon + 1);
+	buf[i++] = bin2bcd(tm->tm_mon);
 
 	/* year */
 	buf[i++] = bin2bcd(tm->tm_year % 100);
@@ -83,7 +83,7 @@ static int pcf2127_rtc_get(struct udevice *dev, struct rtc_time *tm)
 	tm->tm_min  = bcd2bin(buf[PCF2127_REG_MN] & 0x7F);
 	tm->tm_hour = bcd2bin(buf[PCF2127_REG_HR] & 0x3F);
 	tm->tm_mday = bcd2bin(buf[PCF2127_REG_DM] & 0x3F);
-	tm->tm_mon  = bcd2bin(buf[PCF2127_REG_MO] & 0x1F) - 1;
+	tm->tm_mon  = bcd2bin(buf[PCF2127_REG_MO] & 0x1F);
 	tm->tm_year = bcd2bin(buf[PCF2127_REG_YR]) + 1900;
 	if (tm->tm_year < 1970)
 		tm->tm_year += 100;	/* assume we are in 1970...2069 */

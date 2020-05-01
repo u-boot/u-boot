@@ -518,15 +518,6 @@ static int initr_api(void)
 }
 #endif
 
-/* enable exceptions */
-#ifdef CONFIG_ARM
-static int initr_enable_interrupts(void)
-{
-	enable_interrupts();
-	return 0;
-}
-#endif
-
 #ifdef CONFIG_CMD_NET
 static int initr_ethaddr(void)
 {
@@ -641,15 +632,6 @@ int initr_mem(void)
 	pram = env_get_ulong("pram", 10, CONFIG_PRAM);
 	sprintf(memsz, "%ldk", (long int)((gd->ram_size / 1024) - pram));
 	env_set("mem", memsz);
-
-	return 0;
-}
-#endif
-
-#ifdef CONFIG_CMD_BEDBUG
-static int initr_bedbug(void)
-{
-	bedbug_init();
 
 	return 0;
 }
@@ -813,9 +795,6 @@ static init_fnc_t init_sequence_r[] = {
 	initr_kgdb,
 #endif
 	interrupt_init,
-#ifdef CONFIG_ARM
-	initr_enable_interrupts,
-#endif
 #if defined(CONFIG_MICROBLAZE) || defined(CONFIG_M68K)
 	timer_init,		/* initialize timer */
 #endif
@@ -860,7 +839,7 @@ static init_fnc_t init_sequence_r[] = {
 #endif
 #ifdef CONFIG_CMD_BEDBUG
 	INIT_FUNC_WATCHDOG_RESET
-	initr_bedbug,
+	bedbug_init,
 #endif
 #if defined(CONFIG_PRAM)
 	initr_mem,

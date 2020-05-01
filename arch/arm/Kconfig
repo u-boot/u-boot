@@ -340,6 +340,34 @@ config SYS_CACHELINE_SIZE
 	default 64 if SYS_CACHE_SHIFT_6
 	default 32 if SYS_CACHE_SHIFT_5
 
+choice
+	prompt "Select the ARM data write cache policy"
+	default SYS_ARM_CACHE_WRITETHROUGH if TARGET_BCMCYGNUS || \
+					      TARGET_BCMNSP || CPU_PXA || RZA1
+	default SYS_ARM_CACHE_WRITEBACK
+
+config SYS_ARM_CACHE_WRITEBACK
+	bool "Write-back (WB)"
+	help
+	  A write updates the cache only and marks the cache line as dirty.
+	  External memory is updated only when the line is evicted or explicitly
+	  cleaned.
+
+config SYS_ARM_CACHE_WRITETHROUGH
+	bool "Write-through (WT)"
+	help
+	  A write updates both the cache and the external memory system.
+	  This does not mark the cache line as dirty.
+
+config SYS_ARM_CACHE_WRITEALLOC
+	bool "Write allocation (WA)"
+	help
+	  A cache line is allocated on a write miss. This means that executing a
+	  store instruction on the processor might cause a burst read to occur.
+	  There is a linefill to obtain the data for the cache line, before the
+	  write is performed.
+endchoice
+
 config ARCH_CPU_INIT
 	bool "Enable ARCH_CPU_INIT"
 	help
@@ -881,7 +909,7 @@ config ARCH_OWL
 	select CLK
 	select CLK_OWL
 	select OF_CONTROL
-	select CONFIG_SYS_RELOC_GD_ENV_ADDR
+	select SYS_RELOC_GD_ENV_ADDR
 	imply CMD_DM
 
 config ARCH_QEMU

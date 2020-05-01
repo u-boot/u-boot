@@ -17,6 +17,7 @@
 #include "fit_common.h"
 #include "mkimage.h"
 #include <image.h>
+#include <string.h>
 #include <stdarg.h>
 #include <version.h>
 #include <u-boot/crc.h>
@@ -743,6 +744,9 @@ static int fit_handle_file(struct image_tool_params *params)
 	} else {
 		snprintf(cmd, sizeof(cmd), "cp \"%s\" \"%s\"",
 			 params->imagefile, tmpfile);
+	}
+	if (strlen(cmd) >= MKIMAGE_MAX_DTC_CMDLINE_LEN - 1) {
+		fprintf(stderr, "WARNING: command-line for FIT creation might be truncated and will probably fail.\n");
 	}
 
 	if (*cmd && system(cmd) == -1) {

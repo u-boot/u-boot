@@ -71,6 +71,7 @@ static const struct timer_ops mtk_timer_ops = {
 
 static const struct udevice_id mtk_timer_ids[] = {
 	{ .compatible = "mediatek,timer" },
+	{ .compatible = "mediatek,mt6577-timer" },
 	{ }
 };
 

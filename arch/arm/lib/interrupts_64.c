@@ -13,6 +13,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int interrupt_init(void)
 {
+	enable_interrupts();
+
 	return 0;
 }
 

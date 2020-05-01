@@ -61,8 +61,11 @@ void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
 	unsigned long startpt, stoppt;
 	unsigned long upto, end;
 
-	end = ALIGN(start + size, MMU_SECTION_SIZE) >> MMU_SECTION_SHIFT;
+	/* div by 2 before start + size to avoid phys_addr_t overflow */
+	end = ALIGN((start / 2) + (size / 2), MMU_SECTION_SIZE / 2)
+	      >> (MMU_SECTION_SHIFT - 1);
 	start = start >> MMU_SECTION_SHIFT;
+
 #ifdef CONFIG_ARMV7_LPAE
 	debug("%s: start=%pa, size=%zu, option=%llx\n", __func__, &start, size,
 	      option);
@@ -91,19 +94,16 @@ __weak void dram_bank_mmu_setup(int bank)
 	bd_t *bd = gd->bd;
 	int	i;
 
+	/* bd->bi_dram is available only after relocation */
+	if ((gd->flags & GD_FLG_RELOC) == 0)
+		return;
+
 	debug("%s: bank: %d\n", __func__, bank);
 	for (i = bd->bi_dram[bank].start >> MMU_SECTION_SHIFT;
 	     i < (bd->bi_dram[bank].start >> MMU_SECTION_SHIFT) +
 		 (bd->bi_dram[bank].size >> MMU_SECTION_SHIFT);
-	     i++) {
-#if defined(CONFIG_SYS_ARM_CACHE_WRITETHROUGH)
-		set_section_dcache(i, DCACHE_WRITETHROUGH);
-#elif defined(CONFIG_SYS_ARM_CACHE_WRITEALLOC)
-		set_section_dcache(i, DCACHE_WRITEALLOC);
-#else
-		set_section_dcache(i, DCACHE_WRITEBACK);
-#endif
-	}
+	     i++)
+		set_section_dcache(i, DCACHE_DEFAULT_OPTION);
 }
 
 /* to activate the MMU we need to set up virtual memory: use 1M areas */
