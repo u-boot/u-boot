@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <dm/devres.h>
 #include <generic-phy.h>
 
 static inline struct phy_ops *phy_dev_ops(struct udevice *dev)
@@ -165,6 +166,102 @@ int generic_phy_power_off(struct phy *phy)
 	ops = phy_dev_ops(phy->dev);
 
 	return ops->power_off ? ops->power_off(phy) : 0;
+}
+
+int generic_phy_get_bulk(struct udevice *dev, struct phy_bulk *bulk)
+{
+	int i, ret, count;
+
+	bulk->count = 0;
+
+	/* Return if no phy declared */
+	if (!dev_read_prop(dev, "phys", NULL))
+		return 0;
+
+	count = dev_count_phandle_with_args(dev, "phys", "#phy-cells");
+	if (count < 1)
+		return count;
+
+	bulk->phys = devm_kcalloc(dev, count, sizeof(struct phy), GFP_KERNEL);
+	if (!bulk->phys)
+		return -ENOMEM;
+
+	for (i = 0; i < count; i++) {
+		ret = generic_phy_get_by_index(dev, i, &bulk->phys[i]);
+		if (ret) {
+			pr_err("Failed to get PHY%d for %s\n", i, dev->name);
+			return ret;
+		}
+		bulk->count++;
+	}
+
+	return 0;
+}
+
+int generic_phy_init_bulk(struct phy_bulk *bulk)
+{
+	struct phy *phys = bulk->phys;
+	int i, ret;
+
+	for (i = 0; i < bulk->count; i++) {
+		ret = generic_phy_init(&phys[i]);
+		if (ret) {
+			pr_err("Can't init PHY%d\n", i);
+			goto phys_init_err;
+		}
+	}
+
+	return 0;
+
+phys_init_err:
+	for (; i > 0; i--)
+		generic_phy_exit(&phys[i - 1]);
+
+	return ret;
+}
+
+int generic_phy_exit_bulk(struct phy_bulk *bulk)
+{
+	struct phy *phys = bulk->phys;
+	int i, ret = 0;
+
+	for (i = 0; i < bulk->count; i++)
+		ret |= generic_phy_exit(&phys[i]);
+
+	return ret;
+}
+
+int generic_phy_power_on_bulk(struct phy_bulk *bulk)
+{
+	struct phy *phys = bulk->phys;
+	int i, ret;
+
+	for (i = 0; i < bulk->count; i++) {
+		ret = generic_phy_power_on(&phys[i]);
+		if (ret) {
+			pr_err("Can't power on PHY%d\n", i);
+			goto phys_poweron_err;
+		}
+	}
+
+	return 0;
+
+phys_poweron_err:
+	for (; i > 0; i--)
+		generic_phy_power_off(&phys[i - 1]);
+
+	return ret;
+}
+
+int generic_phy_power_off_bulk(struct phy_bulk *bulk)
+{
+	struct phy *phys = bulk->phys;
+	int i, ret = 0;
+
+	for (i = 0; i < bulk->count; i++)
+		ret |= generic_phy_power_off(&phys[i]);
+
+	return ret;
 }
 
 UCLASS_DRIVER(phy) = {
