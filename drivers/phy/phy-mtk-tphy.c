@@ -20,10 +20,65 @@
 /* version V1 sub-banks offset base address */
 /* banks shared by multiple phys */
 #define SSUSB_SIFSLV_V1_SPLLC		0x000	/* shared by u3 phys */
+#define SSUSB_SIFSLV_V1_U2FREQ		0x100	/* shared by u2 phys */
 #define SSUSB_SIFSLV_V1_CHIP		0x300	/* shared by u3 phys */
+/* u2 phy bank */
+#define SSUSB_SIFSLV_V1_U2PHY_COM	0x000
 /* u3/pcie/sata phy banks */
 #define SSUSB_SIFSLV_V1_U3PHYD		0x000
 #define SSUSB_SIFSLV_V1_U3PHYA		0x200
+
+#define U3P_USBPHYACR0			0x000
+#define PA0_RG_U2PLL_FORCE_ON		BIT(15)
+#define PA0_RG_USB20_INTR_EN		BIT(5)
+
+#define U3P_USBPHYACR5			0x014
+#define PA5_RG_U2_HSTX_SRCAL_EN		BIT(15)
+#define PA5_RG_U2_HSTX_SRCTRL		GENMASK(14, 12)
+#define PA5_RG_U2_HSTX_SRCTRL_VAL(x)	((0x7 & (x)) << 12)
+#define PA5_RG_U2_HS_100U_U3_EN		BIT(11)
+
+#define U3P_USBPHYACR6			0x018
+#define PA6_RG_U2_BC11_SW_EN		BIT(23)
+#define PA6_RG_U2_OTG_VBUSCMP_EN	BIT(20)
+#define PA6_RG_U2_SQTH			GENMASK(3, 0)
+#define PA6_RG_U2_SQTH_VAL(x)		(0xf & (x))
+
+#define U3P_U2PHYACR4			0x020
+#define P2C_RG_USB20_GPIO_CTL		BIT(9)
+#define P2C_USB20_GPIO_MODE		BIT(8)
+#define P2C_U2_GPIO_CTR_MSK	\
+		(P2C_RG_USB20_GPIO_CTL | P2C_USB20_GPIO_MODE)
+
+#define U3P_U2PHYDTM0			0x068
+#define P2C_FORCE_UART_EN		BIT(26)
+#define P2C_FORCE_DATAIN		BIT(23)
+#define P2C_FORCE_DM_PULLDOWN		BIT(21)
+#define P2C_FORCE_DP_PULLDOWN		BIT(20)
+#define P2C_FORCE_XCVRSEL		BIT(19)
+#define P2C_FORCE_SUSPENDM		BIT(18)
+#define P2C_FORCE_TERMSEL		BIT(17)
+#define P2C_RG_DATAIN			GENMASK(13, 10)
+#define P2C_RG_DATAIN_VAL(x)		((0xf & (x)) << 10)
+#define P2C_RG_DMPULLDOWN		BIT(7)
+#define P2C_RG_DPPULLDOWN		BIT(6)
+#define P2C_RG_XCVRSEL			GENMASK(5, 4)
+#define P2C_RG_XCVRSEL_VAL(x)		((0x3 & (x)) << 4)
+#define P2C_RG_SUSPENDM			BIT(3)
+#define P2C_RG_TERMSEL			BIT(2)
+#define P2C_DTM0_PART_MASK	\
+		(P2C_FORCE_DATAIN | P2C_FORCE_DM_PULLDOWN | \
+		P2C_FORCE_DP_PULLDOWN | P2C_FORCE_XCVRSEL | \
+		P2C_FORCE_TERMSEL | P2C_RG_DMPULLDOWN | \
+		P2C_RG_DPPULLDOWN | P2C_RG_TERMSEL)
+
+#define U3P_U2PHYDTM1			0x06C
+#define P2C_RG_UART_EN			BIT(16)
+#define P2C_FORCE_IDDIG			BIT(9)
+#define P2C_RG_VBUSVALID		BIT(5)
+#define P2C_RG_SESSEND			BIT(4)
+#define P2C_RG_AVALID			BIT(2)
+#define P2C_RG_IDDIG			BIT(1)
 
 #define U3P_U3_CHIP_GPIO_CTLD		0x0c
 #define P3C_REG_IP_SW_RST		BIT(31)
@@ -41,6 +96,14 @@
 #define U3P_U3_PHYA_REG1		0x004
 #define P3A_RG_CLKDRV_AMP		GENMASK(31, 29)
 #define P3A_RG_CLKDRV_AMP_VAL(x)	((0x7 & (x)) << 29)
+
+#define U3P_U3_PHYA_REG6		0x018
+#define P3A_RG_TX_EIDLE_CM		GENMASK(31, 28)
+#define P3A_RG_TX_EIDLE_CM_VAL(x)	((0xf & (x)) << 28)
+
+#define U3P_U3_PHYA_REG9		0x024
+#define P3A_RG_RX_DAC_MUX		GENMASK(5, 1)
+#define P3A_RG_RX_DAC_MUX_VAL(x)	((0x1f & (x)) << 1)
 
 #define U3P_U3_PHYA_DA_REG0		0x100
 #define P3A_RG_XTAL_EXT_PE2H		GENMASK(17, 16)
@@ -77,6 +140,16 @@
 #define P3A_RG_PLL_DELTA_PE2H		GENMASK(15, 0)
 #define P3A_RG_PLL_DELTA_PE2H_VAL(x)	(0xffff & (x))
 
+#define U3P_U3_PHYD_LFPS1		0x00c
+#define P3D_RG_FWAKE_TH			GENMASK(21, 16)
+#define P3D_RG_FWAKE_TH_VAL(x)		((0x3f & (x)) << 16)
+
+#define U3P_U3_PHYD_CDR1		0x05c
+#define P3D_RG_CDR_BIR_LTD1		GENMASK(28, 24)
+#define P3D_RG_CDR_BIR_LTD1_VAL(x)	((0x1f & (x)) << 24)
+#define P3D_RG_CDR_BIR_LTD0		GENMASK(12, 8)
+#define P3D_RG_CDR_BIR_LTD0_VAL(x)	((0x1f & (x)) << 8)
+
 #define U3P_U3_PHYD_RXDET1		0x128
 #define P3D_RG_RXDET_STB2_SET		GENMASK(17, 9)
 #define P3D_RG_RXDET_STB2_SET_VAL(x)	((0x1ff & (x)) << 9)
@@ -84,6 +157,16 @@
 #define U3P_U3_PHYD_RXDET2		0x12c
 #define P3D_RG_RXDET_STB2_SET_P3	GENMASK(8, 0)
 #define P3D_RG_RXDET_STB2_SET_P3_VAL(x)	(0x1ff & (x))
+
+#define U3P_SPLLC_XTALCTL3		0x018
+#define XC3_RG_U3_XTAL_RX_PWD		BIT(9)
+#define XC3_RG_U3_FRC_XTAL_RX_PWD	BIT(8)
+
+struct u2phy_banks {
+	void __iomem *misc;
+	void __iomem *fmreg;
+	void __iomem *com;
+};
 
 struct u3phy_banks {
 	void __iomem *spllc;
@@ -95,20 +178,126 @@ struct u3phy_banks {
 struct mtk_phy_instance {
 	void __iomem *port_base;
 	const struct device_node *np;
-
-	struct u3phy_banks u3_banks;
+	union {
+		struct u2phy_banks u2_banks;
+		struct u3phy_banks u3_banks;
+	};
 
 	/* reference clock of anolog phy */
 	struct clk ref_clk;
 	u32 index;
-	u8 type;
+	u32 type;
 };
 
 struct mtk_tphy {
+	struct udevice *dev;
 	void __iomem *sif_base;
 	struct mtk_phy_instance **phys;
 	int nphys;
 };
+
+static void u2_phy_instance_init(struct mtk_tphy *tphy,
+				 struct mtk_phy_instance *instance)
+{
+	struct u2phy_banks *u2_banks = &instance->u2_banks;
+
+	/* switch to USB function, and enable usb pll */
+	clrsetbits_le32(u2_banks->com + U3P_U2PHYDTM0,
+			P2C_FORCE_UART_EN | P2C_FORCE_SUSPENDM,
+			P2C_RG_XCVRSEL_VAL(1) | P2C_RG_DATAIN_VAL(0));
+
+	clrbits_le32(u2_banks->com + U3P_U2PHYDTM1, P2C_RG_UART_EN);
+	setbits_le32(u2_banks->com + U3P_USBPHYACR0, PA0_RG_USB20_INTR_EN);
+
+	/* disable switch 100uA current to SSUSB */
+	clrbits_le32(u2_banks->com + U3P_USBPHYACR5, PA5_RG_U2_HS_100U_U3_EN);
+
+	clrbits_le32(u2_banks->com + U3P_U2PHYACR4, P2C_U2_GPIO_CTR_MSK);
+
+	/* DP/DM BC1.1 path Disable */
+	clrsetbits_le32(u2_banks->com + U3P_USBPHYACR6,
+			PA6_RG_U2_BC11_SW_EN | PA6_RG_U2_SQTH,
+			PA6_RG_U2_SQTH_VAL(2));
+
+	/* set HS slew rate */
+	clrsetbits_le32(u2_banks->com + U3P_USBPHYACR5,
+			PA5_RG_U2_HSTX_SRCTRL, PA5_RG_U2_HSTX_SRCTRL_VAL(4));
+
+	dev_dbg(tphy->dev, "%s(%d)\n", __func__, instance->index);
+}
+
+static void u2_phy_instance_power_on(struct mtk_tphy *tphy,
+				     struct mtk_phy_instance *instance)
+{
+	struct u2phy_banks *u2_banks = &instance->u2_banks;
+
+	clrbits_le32(u2_banks->com + U3P_U2PHYDTM0,
+		     P2C_RG_XCVRSEL | P2C_RG_DATAIN | P2C_DTM0_PART_MASK);
+
+	/* OTG Enable */
+	setbits_le32(u2_banks->com + U3P_USBPHYACR6,
+		     PA6_RG_U2_OTG_VBUSCMP_EN);
+
+	clrsetbits_le32(u2_banks->com + U3P_U2PHYDTM1,
+			P2C_RG_SESSEND, P2C_RG_VBUSVALID | P2C_RG_AVALID);
+
+	dev_dbg(tphy->dev, "%s(%d)\n", __func__, instance->index);
+}
+
+static void u2_phy_instance_power_off(struct mtk_tphy *tphy,
+				      struct mtk_phy_instance *instance)
+{
+	struct u2phy_banks *u2_banks = &instance->u2_banks;
+
+	clrbits_le32(u2_banks->com + U3P_U2PHYDTM0,
+		     P2C_RG_XCVRSEL | P2C_RG_DATAIN);
+
+	/* OTG Disable */
+	clrbits_le32(u2_banks->com + U3P_USBPHYACR6,
+		     PA6_RG_U2_OTG_VBUSCMP_EN);
+
+	clrsetbits_le32(u2_banks->com + U3P_U2PHYDTM1,
+			P2C_RG_VBUSVALID | P2C_RG_AVALID, P2C_RG_SESSEND);
+
+	dev_dbg(tphy->dev, "%s(%d)\n", __func__, instance->index);
+}
+
+static void u3_phy_instance_init(struct mtk_tphy *tphy,
+				 struct mtk_phy_instance *instance)
+{
+	struct u3phy_banks *u3_banks = &instance->u3_banks;
+
+	/* gating PCIe Analog XTAL clock */
+	setbits_le32(u3_banks->spllc + U3P_SPLLC_XTALCTL3,
+		     XC3_RG_U3_XTAL_RX_PWD | XC3_RG_U3_FRC_XTAL_RX_PWD);
+
+	/* gating XSQ */
+	clrsetbits_le32(u3_banks->phya + U3P_U3_PHYA_DA_REG0,
+			P3A_RG_XTAL_EXT_EN_U3, P3A_RG_XTAL_EXT_EN_U3_VAL(2));
+
+	clrsetbits_le32(u3_banks->phya + U3P_U3_PHYA_REG9,
+			P3A_RG_RX_DAC_MUX, P3A_RG_RX_DAC_MUX_VAL(4));
+
+	clrsetbits_le32(u3_banks->phya + U3P_U3_PHYA_REG6,
+			P3A_RG_TX_EIDLE_CM, P3A_RG_TX_EIDLE_CM_VAL(0xe));
+
+	clrsetbits_le32(u3_banks->phyd + U3P_U3_PHYD_CDR1,
+			P3D_RG_CDR_BIR_LTD0 | P3D_RG_CDR_BIR_LTD1,
+			P3D_RG_CDR_BIR_LTD0_VAL(0xc) |
+			P3D_RG_CDR_BIR_LTD1_VAL(0x3));
+
+	clrsetbits_le32(u3_banks->phyd + U3P_U3_PHYD_LFPS1,
+			P3D_RG_FWAKE_TH, P3D_RG_FWAKE_TH_VAL(0x34));
+
+	clrsetbits_le32(u3_banks->phyd + U3P_U3_PHYD_RXDET1,
+			P3D_RG_RXDET_STB2_SET, P3D_RG_RXDET_STB2_SET_VAL(0x10));
+
+	clrsetbits_le32(u3_banks->phyd + U3P_U3_PHYD_RXDET2,
+			P3D_RG_RXDET_STB2_SET_P3,
+			P3D_RG_RXDET_STB2_SET_P3_VAL(0x10));
+
+	dev_dbg(tphy->dev, "%s(%d)\n", __func__, instance->index);
+}
 
 static void pcie_phy_instance_init(struct mtk_tphy *tphy,
 				   struct mtk_phy_instance *instance)
@@ -187,9 +376,16 @@ static void pcie_phy_instance_power_off(struct mtk_tphy *tphy,
 static void phy_v1_banks_init(struct mtk_tphy *tphy,
 			      struct mtk_phy_instance *instance)
 {
+	struct u2phy_banks *u2_banks = &instance->u2_banks;
 	struct u3phy_banks *u3_banks = &instance->u3_banks;
 
 	switch (instance->type) {
+	case PHY_TYPE_USB2:
+		u2_banks->misc = NULL;
+		u2_banks->fmreg = tphy->sif_base + SSUSB_SIFSLV_V1_U2FREQ;
+		u2_banks->com = instance->port_base + SSUSB_SIFSLV_V1_U2PHY_COM;
+		break;
+	case PHY_TYPE_USB3:
 	case PHY_TYPE_PCIE:
 		u3_banks->spllc = tphy->sif_base + SSUSB_SIFSLV_V1_SPLLC;
 		u3_banks->chip = tphy->sif_base + SSUSB_SIFSLV_V1_CHIP;
@@ -197,6 +393,7 @@ static void phy_v1_banks_init(struct mtk_tphy *tphy,
 		u3_banks->phya = instance->port_base + SSUSB_SIFSLV_V1_U3PHYA;
 		break;
 	default:
+		dev_err(tphy->dev, "incompatible PHY type\n");
 		return;
 	}
 }
@@ -212,10 +409,17 @@ static int mtk_phy_init(struct phy *phy)
 		return ret;
 
 	switch (instance->type) {
+	case PHY_TYPE_USB2:
+		u2_phy_instance_init(tphy, instance);
+		break;
+	case PHY_TYPE_USB3:
+		u3_phy_instance_init(tphy, instance);
+		break;
 	case PHY_TYPE_PCIE:
 		pcie_phy_instance_init(tphy, instance);
 		break;
 	default:
+		dev_err(tphy->dev, "incompatible PHY type\n");
 		return -EINVAL;
 	}
 
@@ -227,7 +431,10 @@ static int mtk_phy_power_on(struct phy *phy)
 	struct mtk_tphy *tphy = dev_get_priv(phy->dev);
 	struct mtk_phy_instance *instance = tphy->phys[phy->id];
 
-	pcie_phy_instance_power_on(tphy, instance);
+	if (instance->type == PHY_TYPE_USB2)
+		u2_phy_instance_power_on(tphy, instance);
+	else if (instance->type == PHY_TYPE_PCIE)
+		pcie_phy_instance_power_on(tphy, instance);
 
 	return 0;
 }
@@ -237,7 +444,10 @@ static int mtk_phy_power_off(struct phy *phy)
 	struct mtk_tphy *tphy = dev_get_priv(phy->dev);
 	struct mtk_phy_instance *instance = tphy->phys[phy->id];
 
-	pcie_phy_instance_power_off(tphy, instance);
+	if (instance->type == PHY_TYPE_USB2)
+		u2_phy_instance_power_off(tphy, instance);
+	else if (instance->type == PHY_TYPE_PCIE)
+		pcie_phy_instance_power_off(tphy, instance);
 
 	return 0;
 }
@@ -285,8 +495,7 @@ static int mtk_phy_xlate(struct phy *phy,
 	instance->type = args->args[1];
 	if (!(instance->type == PHY_TYPE_USB2 ||
 	      instance->type == PHY_TYPE_USB3 ||
-	      instance->type == PHY_TYPE_PCIE ||
-	      instance->type == PHY_TYPE_SATA)) {
+	      instance->type == PHY_TYPE_PCIE)) {
 		dev_err(phy->dev, "unsupported device type\n");
 		return -EINVAL;
 	}
@@ -310,14 +519,14 @@ static int mtk_tphy_probe(struct udevice *dev)
 	ofnode subnode;
 	int index = 0;
 
-	dev_for_each_subnode(subnode, dev)
-		tphy->nphys++;
+	tphy->nphys = dev_get_child_count(dev);
 
 	tphy->phys = devm_kcalloc(dev, tphy->nphys, sizeof(*tphy->phys),
 				  GFP_KERNEL);
 	if (!tphy->phys)
 		return -ENOMEM;
 
+	tphy->dev = dev;
 	tphy->sif_base = dev_read_addr_ptr(dev);
 	if (!tphy->sif_base)
 		return -ENOENT;
