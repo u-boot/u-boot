@@ -199,8 +199,8 @@ struct mtk_phy_instance {
 		struct u3phy_banks u3_banks;
 	};
 
-	/* reference clock of anolog phy */
-	struct clk ref_clk;
+	struct clk ref_clk;	/* reference clock of (digital) phy */
+	struct clk da_ref_clk;	/* reference clock of analog phy */
 	u32 index;
 	u32 type;
 };
@@ -450,8 +450,17 @@ static int mtk_phy_init(struct phy *phy)
 	int ret;
 
 	ret = clk_enable(&instance->ref_clk);
-	if (ret)
+	if (ret < 0) {
+		dev_err(tphy->dev, "failed to enable ref_clk\n");
 		return ret;
+	}
+
+	ret = clk_enable(&instance->da_ref_clk);
+	if (ret < 0) {
+		dev_err(tphy->dev, "failed to enable da_ref_clk %d\n", ret);
+		clk_disable(&instance->ref_clk);
+		return ret;
+	}
 
 	switch (instance->type) {
 	case PHY_TYPE_USB2:
@@ -502,6 +511,7 @@ static int mtk_phy_exit(struct phy *phy)
 	struct mtk_tphy *tphy = dev_get_priv(phy->dev);
 	struct mtk_phy_instance *instance = tphy->phys[phy->id];
 
+	clk_disable(&instance->da_ref_clk);
 	clk_disable(&instance->ref_clk);
 
 	return 0;
@@ -609,6 +619,11 @@ static int mtk_tphy_probe(struct udevice *dev)
 
 		err = clk_get_optional_nodev(subnode, "ref",
 					     &instance->ref_clk);
+		if (err)
+			return err;
+
+		err = clk_get_optional_nodev(subnode, "da_ref",
+					     &instance->da_ref_clk);
 		if (err)
 			return err;
 	}
