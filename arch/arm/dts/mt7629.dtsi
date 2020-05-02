@@ -11,6 +11,7 @@
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/power/mt7629-power.h>
 #include <dt-bindings/reset/mt7629-reset.h>
+#include <dt-bindings/phy/phy.h>
 #include "skeleton.dtsi"
 
 / {
@@ -220,6 +221,46 @@
 		status = "disabled";
 		#address-cells = <1>;
 		#size-cells = <0>;
+	};
+
+	ssusbsys: ssusbsys@1a000000 {
+		compatible = "mediatek,mt7629-ssusbsys", "syscon";
+		reg = <0x1a000000 0x1000>;
+		#clock-cells = <1>;
+	};
+
+	xhci: usb@1a0c0000 {
+		compatible = "mediatek,mt7629-xhci", "mediatek,mtk-xhci";
+		reg = <0x1a0c0000 0x1000>, <0x1a0c3e00 0x0100>;
+		reg-names = "mac", "ippc";
+		power-domains = <&scpsys MT7629_POWER_DOMAIN_HIF1>;
+		clocks = <&ssusbsys CLK_SSUSB_SYS_EN>,
+			 <&ssusbsys CLK_SSUSB_REF_EN>,
+			 <&ssusbsys CLK_SSUSB_MCU_EN>,
+			 <&ssusbsys CLK_SSUSB_DMA_EN>;
+		clock-names = "sys_ck", "ref_ck", "mcu_ck", "dma_ck";
+		phys = <&u2port0 PHY_TYPE_USB2>, <&u3port0 PHY_TYPE_USB3>;
+		status = "disabled";
+	};
+
+	u3phy: usb-phy@1a0c4000 {
+		compatible = "mediatek,mt7629-tphy", "mediatek,generic-tphy-v2";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges = <0 0x1a0c4000 0x1000>;
+		status = "disabled";
+
+		u2port0: usb-phy@0 {
+			reg = <0x0 0x0700>;
+			#phy-cells = <1>;
+			clocks = <&ssusbsys CLK_SSUSB_U2_PHY_EN>;
+			clock-names = "ref";
+		};
+
+		u3port0: usb-phy@700 {
+			reg = <0x0700 0x0700>;
+			#phy-cells = <1>;
+		};
 	};
 
 	ethsys: syscon@1b000000 {
