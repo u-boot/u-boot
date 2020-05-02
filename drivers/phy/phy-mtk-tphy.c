@@ -28,6 +28,17 @@
 #define SSUSB_SIFSLV_V1_U3PHYD		0x000
 #define SSUSB_SIFSLV_V1_U3PHYA		0x200
 
+/* version V2 sub-banks offset base address */
+/* u2 phy banks */
+#define SSUSB_SIFSLV_V2_MISC		0x000
+#define SSUSB_SIFSLV_V2_U2FREQ		0x100
+#define SSUSB_SIFSLV_V2_U2PHY_COM	0x300
+/* u3/pcie/sata phy banks */
+#define SSUSB_SIFSLV_V2_SPLLC		0x000
+#define SSUSB_SIFSLV_V2_CHIP		0x100
+#define SSUSB_SIFSLV_V2_U3PHYD		0x200
+#define SSUSB_SIFSLV_V2_U3PHYA		0x400
+
 #define U3P_USBPHYACR0			0x000
 #define PA0_RG_U2PLL_FORCE_ON		BIT(15)
 #define PA0_RG_USB20_INTR_EN		BIT(5)
@@ -162,6 +173,11 @@
 #define XC3_RG_U3_XTAL_RX_PWD		BIT(9)
 #define XC3_RG_U3_FRC_XTAL_RX_PWD	BIT(8)
 
+enum mtk_phy_version {
+	MTK_TPHY_V1 = 1,
+	MTK_TPHY_V2,
+};
+
 struct u2phy_banks {
 	void __iomem *misc;
 	void __iomem *fmreg;
@@ -192,6 +208,7 @@ struct mtk_phy_instance {
 struct mtk_tphy {
 	struct udevice *dev;
 	void __iomem *sif_base;
+	enum mtk_phy_version version;
 	struct mtk_phy_instance **phys;
 	int nphys;
 };
@@ -304,6 +321,9 @@ static void pcie_phy_instance_init(struct mtk_tphy *tphy,
 {
 	struct u3phy_banks *u3_banks = &instance->u3_banks;
 
+	if (tphy->version != MTK_TPHY_V1)
+		return;
+
 	clrsetbits_le32(u3_banks->phya + U3P_U3_PHYA_DA_REG0,
 			P3A_RG_XTAL_EXT_PE1H | P3A_RG_XTAL_EXT_PE2H,
 			P3A_RG_XTAL_EXT_PE1H_VAL(0x2) |
@@ -391,6 +411,31 @@ static void phy_v1_banks_init(struct mtk_tphy *tphy,
 		u3_banks->chip = tphy->sif_base + SSUSB_SIFSLV_V1_CHIP;
 		u3_banks->phyd = instance->port_base + SSUSB_SIFSLV_V1_U3PHYD;
 		u3_banks->phya = instance->port_base + SSUSB_SIFSLV_V1_U3PHYA;
+		break;
+	default:
+		dev_err(tphy->dev, "incompatible PHY type\n");
+		return;
+	}
+}
+
+static void phy_v2_banks_init(struct mtk_tphy *tphy,
+			      struct mtk_phy_instance *instance)
+{
+	struct u2phy_banks *u2_banks = &instance->u2_banks;
+	struct u3phy_banks *u3_banks = &instance->u3_banks;
+
+	switch (instance->type) {
+	case PHY_TYPE_USB2:
+		u2_banks->misc = instance->port_base + SSUSB_SIFSLV_V2_MISC;
+		u2_banks->fmreg = instance->port_base + SSUSB_SIFSLV_V2_U2FREQ;
+		u2_banks->com = instance->port_base + SSUSB_SIFSLV_V2_U2PHY_COM;
+		break;
+	case PHY_TYPE_USB3:
+	case PHY_TYPE_PCIE:
+		u3_banks->spllc = instance->port_base + SSUSB_SIFSLV_V2_SPLLC;
+		u3_banks->chip = instance->port_base + SSUSB_SIFSLV_V2_CHIP;
+		u3_banks->phyd = instance->port_base + SSUSB_SIFSLV_V2_U3PHYD;
+		u3_banks->phya = instance->port_base + SSUSB_SIFSLV_V2_U3PHYA;
 		break;
 	default:
 		dev_err(tphy->dev, "incompatible PHY type\n");
@@ -500,7 +545,14 @@ static int mtk_phy_xlate(struct phy *phy,
 		return -EINVAL;
 	}
 
-	phy_v1_banks_init(tphy, instance);
+	if (tphy->version == MTK_TPHY_V1) {
+		phy_v1_banks_init(tphy, instance);
+	} else if (tphy->version == MTK_TPHY_V2) {
+		phy_v2_banks_init(tphy, instance);
+	} else {
+		dev_err(phy->dev, "phy version is not supported\n");
+		return -EINVAL;
+	}
 
 	return 0;
 }
@@ -527,9 +579,14 @@ static int mtk_tphy_probe(struct udevice *dev)
 		return -ENOMEM;
 
 	tphy->dev = dev;
-	tphy->sif_base = dev_read_addr_ptr(dev);
-	if (!tphy->sif_base)
-		return -ENOENT;
+	tphy->version = dev_get_driver_data(dev);
+
+	/* v1 has shared banks */
+	if (tphy->version == MTK_TPHY_V1) {
+		tphy->sif_base = dev_read_addr_ptr(dev);
+		if (!tphy->sif_base)
+			return -ENOENT;
+	}
 
 	dev_for_each_subnode(subnode, dev) {
 		struct mtk_phy_instance *instance;
@@ -560,7 +617,8 @@ static int mtk_tphy_probe(struct udevice *dev)
 }
 
 static const struct udevice_id mtk_tphy_id_table[] = {
-	{ .compatible = "mediatek,generic-tphy-v1", },
+	{ .compatible = "mediatek,generic-tphy-v1", .data = MTK_TPHY_V1, },
+	{ .compatible = "mediatek,generic-tphy-v2", .data = MTK_TPHY_V2, },
 	{ }
 };
 
