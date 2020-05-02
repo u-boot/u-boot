@@ -110,3 +110,36 @@ static int dm_test_phy_ops(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_phy_ops, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+static int dm_test_phy_bulk(struct unit_test_state *uts)
+{
+	struct phy_bulk phys;
+	struct udevice *parent;
+
+	/* test normal operations */
+	ut_assertok(uclass_get_device_by_name(UCLASS_SIMPLE_BUS,
+					      "gen_phy_user1", &parent));
+
+	ut_assertok(generic_phy_get_bulk(parent, &phys));
+	ut_asserteq(2, phys.count);
+
+	ut_asserteq(0, generic_phy_init_bulk(&phys));
+	ut_asserteq(0, generic_phy_power_on_bulk(&phys));
+	ut_asserteq(0, generic_phy_power_off_bulk(&phys));
+	ut_asserteq(0, generic_phy_exit_bulk(&phys));
+
+	/* has a known problem phy */
+	ut_assertok(uclass_get_device_by_name(UCLASS_SIMPLE_BUS,
+					      "gen_phy_user", &parent));
+
+	ut_assertok(generic_phy_get_bulk(parent, &phys));
+	ut_asserteq(3, phys.count);
+
+	ut_asserteq(0, generic_phy_init_bulk(&phys));
+	ut_asserteq(-EIO, generic_phy_power_on_bulk(&phys));
+	ut_asserteq(-EIO, generic_phy_power_off_bulk(&phys));
+	ut_asserteq(0, generic_phy_exit_bulk(&phys));
+
+	return 0;
+}
+DM_TEST(dm_test_phy_bulk, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

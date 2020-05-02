@@ -159,10 +159,21 @@
 		broken;
 	};
 
+	phy_provider2: gen_phy@2 {
+		compatible = "sandbox,phy";
+		#phy-cells = <0>;
+	};
+
 	gen_phy_user: gen_phy_user {
 		compatible = "simple-bus";
 		phys = <&phy_provider0 0>, <&phy_provider0 1>, <&phy_provider1>;
 		phy-names = "phy1", "phy2", "phy3";
+	};
+
+	gen_phy_user1: gen_phy_user1 {
+		compatible = "simple-bus";
+		phys = <&phy_provider0 0>, <&phy_provider2>;
+		phy-names = "phy1", "phy2";
 	};
 
 	some-bus {
