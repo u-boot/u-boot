@@ -218,6 +218,24 @@
 		compatible = "denx,u-boot-fdt-test1";
 	};
 
+	i-test {
+		compatible = "mediatek,u-boot-fdt-test";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		subnode@0 {
+			reg = <0>;
+		};
+
+		subnode@1 {
+			reg = <1>;
+		};
+
+		subnode@2 {
+			reg = <2>;
+		};
+	};
+
 	devres-test {
 		compatible = "denx,u-boot-devres-test";
 	};
