@@ -131,12 +131,20 @@ static int clk_mux_set_parent(struct clk *clk, struct clk *parent)
 	if (mux->flags & CLK_MUX_HIWORD_MASK) {
 		reg = mux->mask << (mux->shift + 16);
 	} else {
+#if CONFIG_IS_ENABLED(SANDBOX_CLK_CCF)
+		reg = mux->io_mux_val;
+#else
 		reg = readl(mux->reg);
+#endif
 		reg &= ~(mux->mask << mux->shift);
 	}
 	val = val << mux->shift;
 	reg |= val;
+#if CONFIG_IS_ENABLED(SANDBOX_CLK_CCF)
+	mux->io_mux_val = reg;
+#else
 	writel(reg, mux->reg);
+#endif
 
 	return 0;
 }
