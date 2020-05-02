@@ -610,6 +610,16 @@ static int xhci_set_configuration(struct usb_device *udev)
 		ep_ctx[ep_index]->tx_info =
 			cpu_to_le32(EP_MAX_ESIT_PAYLOAD_LO(max_esit_payload) |
 			EP_AVG_TRB_LENGTH(avg_trb_len));
+
+		/*
+		 * The MediaTek xHCI defines some extra SW parameters which
+		 * are put into reserved DWs in Slot and Endpoint Contexts
+		 * for synchronous endpoints.
+		 */
+		if (IS_ENABLED(CONFIG_USB_XHCI_MTK)) {
+			ep_ctx[ep_index]->reserved[0] =
+				cpu_to_le32(EP_BPKTS(1) | EP_BBM(1));
+		}
 	}
 
 	return xhci_configure_endpoints(udev, false);

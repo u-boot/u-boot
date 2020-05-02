@@ -670,6 +670,9 @@ struct xhci_ep_ctx {
 /* deq bitmasks */
 #define EP_CTX_CYCLE_MASK		(1 << 0)
 
+/* reserved[0] bitmasks, MediaTek xHCI used */
+#define EP_BPKTS(p)	(((p) & 0x7f) << 0)
+#define EP_BBM(p)	(((p) & 0x1) << 11)
 
 /**
  * struct xhci_input_control_context
