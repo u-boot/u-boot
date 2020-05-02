@@ -838,87 +838,32 @@ MODULE_LICENSE("GPL v2");
 MODULE_DESCRIPTION("DesignWare USB3 DRD Controller Driver");
 
 #if CONFIG_IS_ENABLED(PHY) && CONFIG_IS_ENABLED(DM_USB)
-int dwc3_setup_phy(struct udevice *dev, struct phy **array, int *num_phys)
+int dwc3_setup_phy(struct udevice *dev, struct phy_bulk *phys)
 {
-	int i, ret, count;
-	struct phy *usb_phys;
+	int ret;
 
-	/* Return if no phy declared */
-	if (!dev_read_prop(dev, "phys", NULL))
-		return 0;
-	count = dev_count_phandle_with_args(dev, "phys", "#phy-cells");
-	if (count <= 0)
-		return count;
+	ret = generic_phy_get_bulk(dev, phys);
+	if (ret)
+		return ret;
 
-	usb_phys = devm_kcalloc(dev, count, sizeof(struct phy),
-				GFP_KERNEL);
-	if (!usb_phys)
-		return -ENOMEM;
+	ret = generic_phy_init_bulk(phys);
+	if (ret)
+		return ret;
 
-	for (i = 0; i < count; i++) {
-		ret = generic_phy_get_by_index(dev, i, &usb_phys[i]);
-		if (ret && ret != -ENOENT) {
-			pr_err("Failed to get USB PHY%d for %s\n",
-			       i, dev->name);
-			return ret;
-		}
-	}
-
-	for (i = 0; i < count; i++) {
-		ret = generic_phy_init(&usb_phys[i]);
-		if (ret) {
-			pr_err("Can't init USB PHY%d for %s\n",
-			       i, dev->name);
-			goto phys_init_err;
-		}
-	}
-
-	for (i = 0; i < count; i++) {
-		ret = generic_phy_power_on(&usb_phys[i]);
-		if (ret) {
-			pr_err("Can't power USB PHY%d for %s\n",
-			       i, dev->name);
-			goto phys_poweron_err;
-		}
-	}
-
-	*array = usb_phys;
-	*num_phys =  count;
-	return 0;
-
-phys_poweron_err:
-	for (i = count - 1; i >= 0; i--)
-		generic_phy_power_off(&usb_phys[i]);
-
-	for (i = 0; i < count; i++)
-		generic_phy_exit(&usb_phys[i]);
-
-	return ret;
-
-phys_init_err:
-	for (; i >= 0; i--)
-		generic_phy_exit(&usb_phys[i]);
+	ret = generic_phy_power_on_bulk(phys);
+	if (ret)
+		generic_phy_exit_bulk(phys);
 
 	return ret;
 }
 
-int dwc3_shutdown_phy(struct udevice *dev, struct phy *usb_phys, int num_phys)
+int dwc3_shutdown_phy(struct udevice *dev, struct phy_bulk *phys)
 {
-	int i, ret;
+	int ret;
 
-	for (i = 0; i < num_phys; i++) {
-		if (!generic_phy_valid(&usb_phys[i]))
-			continue;
-
-		ret = generic_phy_power_off(&usb_phys[i]);
-		ret |= generic_phy_exit(&usb_phys[i]);
-		if (ret) {
-			pr_err("Can't shutdown USB PHY%d for %s\n",
-			       i, dev->name);
-		}
-	}
-
-	return 0;
+	ret = generic_phy_power_off_bulk(phys);
+	ret |= generic_phy_exit_bulk(phys);
+	return ret;
 }
 #endif
 
