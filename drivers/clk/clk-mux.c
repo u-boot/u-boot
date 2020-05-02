@@ -191,7 +191,7 @@ struct clk *clk_hw_register_mux_table(struct device *dev, const char *name,
 	 * Read the current mux setup - so we assign correct parent.
 	 *
 	 * Changing parent would require changing internals of udevice struct
-	 * for the corresponding clock (to do that define .set_parent() method.
+	 * for the corresponding clock (to do that define .set_parent() method).
 	 */
 	ret = clk_register(clk, UBOOT_DM_CLK_CCF_MUX, name,
 			   parent_names[clk_mux_get_parent(clk)]);
