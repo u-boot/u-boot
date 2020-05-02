@@ -474,6 +474,17 @@ ofnode ofnode_get_chosen_node(const char *name)
 	return ofnode_path(prop);
 }
 
+int ofnode_get_child_count(ofnode parent)
+{
+	ofnode child;
+	int num = 0;
+
+	ofnode_for_each_subnode(child, parent)
+		num++;
+
+	return num;
+}
+
 static int decode_timing_property(ofnode node, const char *name,
 				  struct timing_entry *result)
 {
