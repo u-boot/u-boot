@@ -11,7 +11,7 @@
 #include <time.h>
 
 /**
- * readx_poll_timeout - Periodically poll an address until a condition is met or a timeout occurs
+ * read_poll_timeout - Periodically poll an address until a condition is met or a timeout occurs
  * @op: accessor function (takes @addr as its only argument)
  * @addr: Address to poll
  * @val: Variable to read the value into
@@ -24,7 +24,7 @@
  * When available, you'll probably want to use one of the specialized
  * macros defined below rather than this macro directly.
  */
-#define readx_poll_timeout(op, addr, val, cond, timeout_us)	\
+#define read_poll_timeout(op, addr, val, cond, timeout_us)	\
 ({ \
 	unsigned long timeout = timer_get_us() + timeout_us; \
 	for (;;) { \
@@ -39,6 +39,8 @@
 	(cond) ? 0 : -ETIMEDOUT; \
 })
 
+#define readx_poll_timeout(op, addr, val, cond, timeout_us) \
+	read_poll_timeout(op, addr, val, cond, timeout_us)
 
 #define readb_poll_timeout(addr, val, cond, timeout_us) \
 	readx_poll_timeout(readb, addr, val, cond, timeout_us)
