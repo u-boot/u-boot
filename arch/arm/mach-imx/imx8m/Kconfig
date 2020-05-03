@@ -66,6 +66,12 @@ config TARGET_VERDIN_IMX8MM
        select SUPPORT_SPL
        select IMX8M_LPDDR4
 
+config TARGET_IMX8MM_BEACON
+	bool "imx8mm Beacon Embedded devkit"
+	select IMX8MM
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
+
 endchoice
 
 source "board/freescale/imx8mq_evk/Kconfig"
@@ -75,5 +81,6 @@ source "board/freescale/imx8mp_evk/Kconfig"
 source "board/google/imx8mq_phanbell/Kconfig"
 source "board/technexion/pico-imx8mq/Kconfig"
 source "board/toradex/verdin-imx8mm/Kconfig"
+source "board/beacon/imx8mm/Kconfig"
 
 endif
