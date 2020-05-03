@@ -1145,6 +1145,16 @@ static int eqos_write_hwaddr(struct udevice *dev)
 	return 0;
 }
 
+static int eqos_read_rom_hwaddr(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+
+#ifdef CONFIG_ARCH_IMX8M
+	imx_get_mac_from_fuse(dev->req_seq, pdata->enetaddr);
+#endif
+	return !is_valid_ethaddr(pdata->enetaddr);
+}
+
 static int eqos_start(struct udevice *dev)
 {
 	struct eqos_priv *eqos = dev_get_priv(dev);
@@ -2066,6 +2076,7 @@ static const struct eth_ops eqos_ops = {
 	.recv = eqos_recv,
 	.free_pkt = eqos_free_pkt,
 	.write_hwaddr = eqos_write_hwaddr,
+	.read_rom_hwaddr	= eqos_read_rom_hwaddr,
 };
 
 static struct eqos_ops eqos_tegra186_ops = {
