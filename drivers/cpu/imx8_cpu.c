@@ -48,13 +48,13 @@ const char *get_imx8_rev(u32 rev)
 	}
 }
 
-const char *get_core_name(void)
+const char *get_core_name(struct udevice *dev)
 {
-	if (is_cortex_a35())
+	if (!device_is_compatible(dev, "arm,cortex-a35"))
 		return "A35";
-	else if (is_cortex_a53())
+	else if (!device_is_compatible(dev, "arm,cortex-a53"))
 		return "A53";
-	else if (is_cortex_a72())
+	else if (!device_is_compatible(dev, "arm,cortex-a72"))
 		return "A72";
 	else
 		return "?";
@@ -170,12 +170,19 @@ static const struct udevice_id cpu_imx8_ids[] = {
 	{ }
 };
 
-static ulong imx8_get_cpu_rate(void)
+static ulong imx8_get_cpu_rate(struct udevice *dev)
 {
 	ulong rate;
-	int ret;
-	int type = is_cortex_a35() ? SC_R_A35 : is_cortex_a53() ?
-		   SC_R_A53 : SC_R_A72;
+	int ret, type;
+
+	if (!device_is_compatible(dev, "arm,cortex-a35"))
+		type = SC_R_A35;
+	else if (!device_is_compatible(dev, "arm,cortex-a53"))
+		type = SC_R_A53;
+	else if (!device_is_compatible(dev, "arm,cortex-a72"))
+		type = SC_R_A72;
+	else
+		return 0;
 
 	ret = sc_pm_get_clock_rate(-1, type, SC_PM_CLK_CPU,
 				   (sc_pm_clock_rate_t *)&rate);
@@ -194,10 +201,10 @@ static int imx8_cpu_probe(struct udevice *dev)
 
 	cpurev = get_cpu_rev();
 	plat->cpurev = cpurev;
-	plat->name = get_core_name();
+	plat->name = get_core_name(dev);
 	plat->rev = get_imx8_rev(cpurev & 0xFFF);
 	plat->type = get_imx8_type((cpurev & 0xFF000) >> 12);
-	plat->freq_mhz = imx8_get_cpu_rate() / 1000000;
+	plat->freq_mhz = imx8_get_cpu_rate(dev) / 1000000;
 	plat->mpidr = dev_read_addr(dev);
 	if (plat->mpidr == FDT_ADDR_T_NONE) {
 		printf("%s: Failed to get CPU reg property\n", __func__);
