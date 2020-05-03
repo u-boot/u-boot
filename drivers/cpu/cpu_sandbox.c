@@ -36,11 +36,20 @@ int cpu_sandbox_get_vendor(struct udevice *dev, char *buf, int size)
 	return 0;
 }
 
+int cpu_sandbox_is_current(struct udevice *dev)
+{
+	if (!strcmp(dev->name, "cpu-test1"))
+		return 1;
+
+	return 0;
+}
+
 static const struct cpu_ops cpu_sandbox_ops = {
 	.get_desc = cpu_sandbox_get_desc,
 	.get_info = cpu_sandbox_get_info,
 	.get_count = cpu_sandbox_get_count,
 	.get_vendor = cpu_sandbox_get_vendor,
+	.is_current = cpu_sandbox_is_current,
 };
 
 int cpu_sandbox_probe(struct udevice *dev)
