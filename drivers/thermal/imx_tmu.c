@@ -105,15 +105,22 @@ static int read_temperature(struct udevice *dev, int *temp)
 	struct imx_tmu_plat *pdata = dev_get_platdata(dev);
 	ulong drv_data = dev_get_driver_data(dev);
 	u32 val;
+	u32 retry = 10;
 
 	do {
-		if (drv_data & FLAGS_VER2) {
+		mdelay(100);
+		retry--;
+
+		if (drv_data & FLAGS_VER2)
 			val = readl(&pdata->regs->regs_v2.tritsr);
 		else
 			val = readl(&pdata->regs->regs_v1.site[pdata->id].tritsr);
-	} while (!(val & 0x80000000));
+	} while (!(val & 0x80000000) && retry > 0);
 
-	*temp = (val & 0xff) * 1000;
+	if (retry > 0)
+		*temp = (val & 0xff) * 1000;
+	else
+		return -EINVAL;
 
 	return 0;
 }
