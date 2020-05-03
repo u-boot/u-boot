@@ -791,6 +791,7 @@ int tsec_probe(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct tsec_private *priv = dev_get_priv(dev);
+	struct tsec_mii_mng __iomem *ext_phyregs_mii;
 	struct ofnode_phandle_args phandle_args;
 	u32 tbiaddr = CONFIG_SYS_TBIPA_VALUE;
 	struct fsl_pq_mdio_info mdio_info;
@@ -824,13 +825,29 @@ int tsec_probe(struct udevice *dev)
 		return -ENOENT;
 	}
 
-	priv->phyregs_sgmii = map_physmem(reg + TSEC_MDIO_REGS_OFFSET, 0,
-					  MAP_NOCACHE);
+	ext_phyregs_mii = map_physmem(reg + TSEC_MDIO_REGS_OFFSET, 0,
+				      MAP_NOCACHE);
 
 	ret = dev_read_phandle_with_args(dev, "tbi-handle", NULL, 0, 0,
 					 &phandle_args);
-	if (ret == 0)
+	if (ret == 0) {
 		ofnode_read_u32(phandle_args.node, "reg", &tbiaddr);
+
+		parent = ofnode_get_parent(phandle_args.node);
+		if (!ofnode_valid(parent)) {
+			printf("No parent node for TBI PHY?\n");
+			return -ENOENT;
+		}
+
+		reg = ofnode_get_addr_index(parent, 0);
+		if (reg == FDT_ADDR_T_NONE) {
+			printf("No 'reg' property of MII for TBI PHY\n");
+			return -ENOENT;
+		}
+
+		priv->phyregs_sgmii = map_physmem(reg + TSEC_MDIO_REGS_OFFSET,
+						  0, MAP_NOCACHE);
+	}
 
 	priv->tbiaddr = tbiaddr;
 
@@ -848,7 +865,7 @@ int tsec_probe(struct udevice *dev)
 	if (priv->interface == PHY_INTERFACE_MODE_SGMII)
 		priv->flags |= TSEC_SGMII;
 
-	mdio_info.regs = priv->phyregs_sgmii;
+	mdio_info.regs = ext_phyregs_mii;
 	mdio_info.name = (char *)dev->name;
 	ret = fsl_pq_mdio_init(NULL, &mdio_info);
 	if (ret)
