@@ -21,6 +21,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define SITES_MAX	16
 #define FLAGS_VER2 	0x1
+#define FLAGS_VER3 	0x2
 
 #define TMR_DISABLE	0x0
 #define TMR_ME		0x80000000
@@ -30,6 +31,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define TER_EN			0x80000000
 #define TER_ADC_PD		0x40000000
+#define TER_ALPF		0x3
+
 /*
  * i.MX TMU Registers
  */
@@ -86,9 +89,29 @@ struct imx_tmu_regs_v2 {
 	u32 tcaliv;
 };
 
+struct imx_tmu_regs_v3 {
+	u32 ter;	/* TMU enable Register */
+	u32 tps;	/* Status Register */
+	u32 tier;	/* Interrupt enable register */
+	u32 tidr;	/* Interrupt detect  register */
+	u32 tmhtitr;	/* Monitor high temperature immediate threshold register */
+	u32 tmhtatr;	/* Monitor high temperature average threshold register */
+	u32 tmhtactr;	/* TMU monitor high temperature average critical  threshold register */
+	u32 tscr;	/* Sensor value capture register */
+	u32 tritsr;	/* Report immediate temperature site register 0 */
+	u32 tratsr;	/* Report average temperature site register 0 */
+	u32 tasr;	/* Amplifier setting register */
+	u32 ttmc;	/* Test MUX control */
+	u32 tcaliv0;
+	u32 tcaliv1;
+	u32 tcaliv_m40;
+	u32 trim;
+};
+
 union tmu_regs {
 	struct imx_tmu_regs regs_v1;
 	struct imx_tmu_regs_v2 regs_v2;
+	struct imx_tmu_regs_v3 regs_v3;
 };
 
 struct imx_tmu_plat {
@@ -112,7 +135,10 @@ static int read_temperature(struct udevice *dev, int *temp)
 		mdelay(100);
 		retry--;
 
-		if (drv_data & FLAGS_VER2) {
+		if (drv_data & FLAGS_VER3) {
+			val = readl(&pdata->regs->regs_v3.tritsr);
+			valid = val & (1 << (30 + pdata->id));
+		} else if (drv_data & FLAGS_VER2) {
 			val = readl(&pdata->regs->regs_v2.tritsr);
 			/*
 			 * Check if TEMP is in valid range, the V bit in TRITSR
@@ -125,10 +151,23 @@ static int read_temperature(struct udevice *dev, int *temp)
 		}
 	} while (!valid && retry > 0);
 
-	if (retry > 0)
-		*temp = (val & 0xff) * 1000;
-	else
+	if (retry > 0) {
+		if (drv_data & FLAGS_VER3) {
+			val = (val >> (pdata->id * 16)) & 0xff;
+			if (val & 0x80) /* Negative */
+				val = (~(val & 0x7f) + 1);
+
+			*temp = val;
+			if (*temp < -40 || *temp > 125) /* Check the range */
+				return -EINVAL;
+
+			*temp *= 1000;
+		} else {
+			*temp = (val & 0xff) * 1000;
+		}
+	} else {
 		return -EINVAL;
+	}
 
 	return 0;
 }
@@ -171,7 +210,7 @@ static int imx_tmu_calibration(struct udevice *dev)
 
 	debug("%s\n", __func__);
 
-	if (drv_data & FLAGS_VER2)
+	if (drv_data & (FLAGS_VER2 | FLAGS_VER3))
 		return 0;
 
 	ret = dev_read_u32_array(dev, "fsl,tmu-range", range, 4);
@@ -213,7 +252,14 @@ static void imx_tmu_init(struct udevice *dev)
 
 	debug("%s\n", __func__);
 
-	if (drv_data & FLAGS_VER2) {
+	if (drv_data & FLAGS_VER3) {
+		/* Disable monitoring */
+		writel(0x0, &pdata->regs->regs_v3.ter);
+
+		/* Disable interrupt, using polling instead */
+		writel(0x0, &pdata->regs->regs_v3.tier);
+
+	} else if (drv_data & FLAGS_VER2) {
 		/* Disable monitoring */
 		writel(0x0, &pdata->regs->regs_v2.ter);
 
@@ -244,7 +290,22 @@ static int imx_tmu_enable_msite(struct udevice *dev)
 	if (!pdata->regs)
 		return -EIO;
 
-	if (drv_data & FLAGS_VER2) {
+	if (drv_data & FLAGS_VER3) {
+		reg = readl(&pdata->regs->regs_v3.ter);
+		reg &= ~TER_EN;
+		writel(reg, &pdata->regs->regs_v3.ter);
+
+		writel(pdata->id << 30, &pdata->regs->regs_v3.tps);
+
+		reg &= ~TER_ALPF;
+		reg |= 0x1;
+		reg &= ~TER_ADC_PD;
+		writel(reg, &pdata->regs->regs_v3.ter);
+
+		/* Enable monitor */
+		reg |= TER_EN;
+		writel(reg, &pdata->regs->regs_v3.ter);
+	} else if (drv_data & FLAGS_VER2) {
 		reg = readl(&pdata->regs->regs_v2.ter);
 		reg &= ~TER_EN;
 		writel(reg, &pdata->regs->regs_v2.ter);
@@ -390,6 +451,7 @@ static int imx_tmu_probe(struct udevice *dev)
 static const struct udevice_id imx_tmu_ids[] = {
 	{ .compatible = "fsl,imx8mq-tmu", },
 	{ .compatible = "fsl,imx8mm-tmu", .data = FLAGS_VER2, },
+	{ .compatible = "fsl,imx8mp-tmu", .data = FLAGS_VER3, },
 	{ }
 };
 
