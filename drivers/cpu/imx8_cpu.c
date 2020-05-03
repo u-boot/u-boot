@@ -118,7 +118,24 @@ static int cpu_imx_get_info(struct udevice *dev, struct cpu_info *info)
 
 static int cpu_imx_get_count(struct udevice *dev)
 {
-	return 4;
+	ofnode node;
+	int num = 0;
+
+	ofnode_for_each_subnode(node, dev_ofnode(dev->parent)) {
+		const char *device_type;
+
+		if (!ofnode_is_available(node))
+			continue;
+
+		device_type = ofnode_read_string(node, "device_type");
+		if (!device_type)
+			continue;
+
+		if (!strcmp(device_type, "cpu"))
+			num++;
+	}
+
+	return num;
 }
 
 static int cpu_imx_get_vendor(struct udevice *dev,  char *buf, int size)
