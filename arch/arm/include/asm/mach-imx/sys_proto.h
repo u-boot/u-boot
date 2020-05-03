@@ -198,4 +198,6 @@ unsigned long call_imx_sip(unsigned long id, unsigned long reg0,
 unsigned long call_imx_sip_ret2(unsigned long id, unsigned long reg0,
 				unsigned long *reg1, unsigned long reg2,
 				unsigned long reg3);
+
+void imx_get_mac_from_fuse(int dev_id, unsigned char *mac);
 #endif
