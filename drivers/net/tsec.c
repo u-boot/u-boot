@@ -800,7 +800,7 @@ int tsec_probe(struct udevice *dev)
 	int ret;
 
 	pdata->iobase = (phys_addr_t)dev_read_addr(dev);
-	priv->regs = (struct tsec *)pdata->iobase;
+	priv->regs = dev_remap_addr(dev);
 
 	if (dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0,
 				       &phandle_args)) {
@@ -819,8 +819,13 @@ int tsec_probe(struct udevice *dev)
 	}
 
 	reg = ofnode_get_addr_index(parent, 0);
-	priv->phyregs_sgmii = (struct tsec_mii_mng *)
-			(reg + TSEC_MDIO_REGS_OFFSET);
+	if (reg == FDT_ADDR_T_NONE) {
+		printf("No 'reg' property of MII for external PHY\n");
+		return -ENOENT;
+	}
+
+	priv->phyregs_sgmii = map_physmem(reg + TSEC_MDIO_REGS_OFFSET, 0,
+					  MAP_NOCACHE);
 
 	ret = dev_read_phandle_with_args(dev, "tbi-handle", NULL, 0, 0,
 					 &phandle_args);
