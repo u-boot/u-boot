@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2017 NXP
+ * Copyright 2017-2019 NXP
  *
  * Peng Fan <peng.fan@nxp.com>
  */
@@ -448,3 +448,29 @@ int arch_misc_init(void)
 	return 0;
 }
 #endif
+
+void imx_tmu_arch_init(void *reg_base)
+{
+	if (is_imx8mm()) {
+		/* Load TCALIV and TASR from fuses */
+		struct ocotp_regs *ocotp =
+			(struct ocotp_regs *)OCOTP_BASE_ADDR;
+		struct fuse_bank *bank = &ocotp->bank[3];
+		struct fuse_bank3_regs *fuse =
+			(struct fuse_bank3_regs *)bank->fuse_regs;
+
+		u32 tca_rt, tca_hr, tca_en;
+		u32 buf_vref, buf_slope;
+
+		tca_rt = fuse->ana0 & 0xFF;
+		tca_hr = (fuse->ana0 & 0xFF00) >> 8;
+		tca_en = (fuse->ana0 & 0x2000000) >> 25;
+
+		buf_vref = (fuse->ana0 & 0x1F00000) >> 20;
+		buf_slope = (fuse->ana0 & 0xF0000) >> 16;
+
+		writel(buf_vref | (buf_slope << 16), (ulong)reg_base + 0x28);
+		writel((tca_en << 31) | (tca_hr << 16) | tca_rt,
+		       (ulong)reg_base + 0x30);
+	}
+}
