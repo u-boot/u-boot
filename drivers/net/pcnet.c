@@ -91,37 +91,49 @@ static pcnet_priv_t *lp;
 
 static u16 pcnet_read_csr(struct eth_device *dev, int index)
 {
-	outw(index, dev->iobase + PCNET_RAP);
-	return inw(dev->iobase + PCNET_RDP);
+	void __iomem *base = (void __iomem *)dev->iobase;
+
+	writew(index, base + PCNET_RAP);
+	return readw(base + PCNET_RDP);
 }
 
 static void pcnet_write_csr(struct eth_device *dev, int index, u16 val)
 {
-	outw(index, dev->iobase + PCNET_RAP);
-	outw(val, dev->iobase + PCNET_RDP);
+	void __iomem *base = (void __iomem *)dev->iobase;
+
+	writew(index, base + PCNET_RAP);
+	writew(val, base + PCNET_RDP);
 }
 
 static u16 pcnet_read_bcr(struct eth_device *dev, int index)
 {
-	outw(index, dev->iobase + PCNET_RAP);
-	return inw(dev->iobase + PCNET_BDP);
+	void __iomem *base = (void __iomem *)dev->iobase;
+
+	writew(index, base + PCNET_RAP);
+	return readw(base + PCNET_BDP);
 }
 
 static void pcnet_write_bcr(struct eth_device *dev, int index, u16 val)
 {
-	outw(index, dev->iobase + PCNET_RAP);
-	outw(val, dev->iobase + PCNET_BDP);
+	void __iomem *base = (void __iomem *)dev->iobase;
+
+	writew(index, base + PCNET_RAP);
+	writew(val, base + PCNET_BDP);
 }
 
 static void pcnet_reset(struct eth_device *dev)
 {
-	inw(dev->iobase + PCNET_RESET);
+	void __iomem *base = (void __iomem *)dev->iobase;
+
+	readw(base + PCNET_RESET);
 }
 
 static int pcnet_check(struct eth_device *dev)
 {
-	outw(88, dev->iobase + PCNET_RAP);
-	return inw(dev->iobase + PCNET_RAP) == 88;
+	void __iomem *base = (void __iomem *)dev->iobase;
+
+	writew(88, base + PCNET_RAP);
+	return readw(base + PCNET_RAP) == 88;
 }
 
 static int pcnet_init (struct eth_device *dev, bd_t * bis);
