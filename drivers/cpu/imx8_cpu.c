@@ -20,6 +20,7 @@ struct cpu_imx_platdata {
 	const char *type;
 	u32 cpurev;
 	u32 freq_mhz;
+	u32 mpidr;
 };
 
 const char *get_imx8_type(u32 imxtype)
@@ -144,16 +145,28 @@ static int cpu_imx_get_vendor(struct udevice *dev,  char *buf, int size)
 	return 0;
 }
 
+static int cpu_imx_is_current(struct udevice *dev)
+{
+	struct cpu_imx_platdata *plat = dev_get_platdata(dev);
+
+	if (plat->mpidr == (read_mpidr() & 0xffff))
+		return 1;
+
+	return 0;
+}
+
 static const struct cpu_ops cpu_imx8_ops = {
 	.get_desc	= cpu_imx_get_desc,
 	.get_info	= cpu_imx_get_info,
 	.get_count	= cpu_imx_get_count,
 	.get_vendor	= cpu_imx_get_vendor,
+	.is_current	= cpu_imx_is_current,
 };
 
 static const struct udevice_id cpu_imx8_ids[] = {
 	{ .compatible = "arm,cortex-a35" },
 	{ .compatible = "arm,cortex-a53" },
+	{ .compatible = "arm,cortex-a72" },
 	{ }
 };
 
@@ -185,6 +198,12 @@ static int imx8_cpu_probe(struct udevice *dev)
 	plat->rev = get_imx8_rev(cpurev & 0xFFF);
 	plat->type = get_imx8_type((cpurev & 0xFF000) >> 12);
 	plat->freq_mhz = imx8_get_cpu_rate() / 1000000;
+	plat->mpidr = dev_read_addr(dev);
+	if (plat->mpidr == FDT_ADDR_T_NONE) {
+		printf("%s: Failed to get CPU reg property\n", __func__);
+		return -EINVAL;
+	}
+
 	return 0;
 }
 
