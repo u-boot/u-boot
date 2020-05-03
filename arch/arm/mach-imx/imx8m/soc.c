@@ -491,7 +491,9 @@ void imx_tmu_arch_init(void *reg_base)
 	    !fuse->ana_trim4 && !fuse2->ana_trim5) {
 		/* Use a default 25C binary codes */
 		tca25[0] = 1596;
+		tca25[1] = 1596;
 		writel(tca25[0], (ulong)reg_base + 0x30);
+		writel(tca25[1], (ulong)reg_base + 0x34);
 		return;
 	}
 
