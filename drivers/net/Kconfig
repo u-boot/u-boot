@@ -57,6 +57,12 @@ config MDIO_MUX_SANDBOX
 
 	  This driver is used for testing in test/dm/mdio.c
 
+config DM_ETH_PHY
+	bool "Enable Driver Model for Ethernet Generic PHY drivers"
+	depends on DM
+	help
+	  Enable driver model for Ethernet Generic PHY .
+
 menuconfig NETDEVICES
 	bool "Network device support"
 	depends on NET
