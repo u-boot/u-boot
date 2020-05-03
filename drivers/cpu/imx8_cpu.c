@@ -43,6 +43,8 @@ const char *get_imx8_rev(u32 rev)
 		return "A";
 	case CHIP_REV_B:
 		return "B";
+	case CHIP_REV_C:
+		return "C";
 	default:
 		return "?";
 	}
