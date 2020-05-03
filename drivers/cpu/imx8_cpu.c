@@ -61,13 +61,15 @@ const char *get_core_name(struct udevice *dev)
 }
 
 #if IS_ENABLED(CONFIG_IMX_SCU_THERMAL)
-static int cpu_imx_get_temp(void)
+static int cpu_imx_get_temp(struct cpu_imx_platdata *plat)
 {
 	struct udevice *thermal_dev;
 	int cpu_tmp, ret;
 
-	ret = uclass_get_device_by_name(UCLASS_THERMAL, "cpu-thermal0",
-					&thermal_dev);
+	if (!strcmp(plat->name, "A72"))
+		ret = uclass_get_device(UCLASS_THERMAL, 1, &thermal_dev);
+	else
+		ret = uclass_get_device(UCLASS_THERMAL, 0, &thermal_dev);
 
 	if (!ret) {
 		ret = thermal_get_temp(thermal_dev, &cpu_tmp);
@@ -80,7 +82,7 @@ static int cpu_imx_get_temp(void)
 	return cpu_tmp;
 }
 #else
-static int cpu_imx_get_temp(void)
+static int cpu_imx_get_temp(struct cpu_imx_platdata *plat)
 {
 	return 0;
 }
@@ -89,7 +91,7 @@ static int cpu_imx_get_temp(void)
 int cpu_imx_get_desc(struct udevice *dev, char *buf, int size)
 {
 	struct cpu_imx_platdata *plat = dev_get_platdata(dev);
-	int ret;
+	int ret, temp;
 
 	if (size < 100)
 		return -ENOSPC;
@@ -98,9 +100,13 @@ int cpu_imx_get_desc(struct udevice *dev, char *buf, int size)
 		       plat->type, plat->rev, plat->name, plat->freq_mhz);
 
 	if (IS_ENABLED(CONFIG_IMX_SCU_THERMAL)) {
+		temp = cpu_imx_get_temp(plat);
 		buf = buf + ret;
 		size = size - ret;
-		ret = snprintf(buf, size, " at %dC", cpu_imx_get_temp());
+		if (temp != 0xdeadbeef)
+			ret = snprintf(buf, size, " at %dC", temp);
+		else
+			ret = snprintf(buf, size, " - invalid sensor data");
 	}
 
 	snprintf(buf + ret, size - ret, "\n");
