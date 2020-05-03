@@ -528,7 +528,7 @@ out:
  * pointed to by @regs. If @nocheck is false, overlapping among entries
  * will be checked first.
  *
- * Return:	0 on success, status code (negative) on error
+ * Return:	status code
  */
 efi_status_t efi_image_region_add(struct efi_image_regions *regs,
 				  const void *start, const void *end,

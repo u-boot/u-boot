@@ -86,7 +86,7 @@ out:
 /**
  * efi_init_secure_boot - initialize secure boot state
  *
- * Return:	EFI_SUCCESS on success, status code (negative) on error
+ * Return:	status code
  */
 static efi_status_t efi_init_secure_boot(void)
 {

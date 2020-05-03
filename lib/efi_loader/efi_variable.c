@@ -230,7 +230,7 @@ err:
  * Those variables are *read-only* for users, efi_set_variable_common()
  * is called here.
  *
- * Return:	EFI_SUCCESS on success, status code (negative) on error
+ * Return:	status code
  */
 static efi_status_t efi_transfer_secure_state(enum efi_secure_mode mode)
 {
@@ -284,7 +284,7 @@ err:
 /**
  * efi_init_secure_state - initialize secure boot state
  *
- * Return:	EFI_SUCCESS on success, status code (negative) on error
+ * Return:	status code
  */
 static efi_status_t efi_init_secure_state(void)
 {
@@ -438,7 +438,7 @@ out:
  * attributes and signed time will also be returned in @env_attr and @time,
  * respectively.
  *
- * Return:	EFI_SUCCESS on success, status code (negative) on error
+ * Return:	status code
  */
 static efi_status_t efi_variable_authenticate(u16 *variable,
 					      const efi_guid_t *vendor,
