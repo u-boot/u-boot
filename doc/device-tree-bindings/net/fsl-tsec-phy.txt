@@ -2,7 +2,7 @@
 
 Properties:
 
-  - compatible : Should be "fsl,tsec"
+  - compatible : Should be "fsl,etsec2"
   - reg : Offset and length of the register set for the device
   - phy-handle : See ethernet.txt file in the same directory.
   - phy-connection-type : See ethernet.txt file in the same directory. This
@@ -12,7 +12,7 @@ Properties:
 
 Example:
 	ethernet@24000 {
-		compatible = "fsl,tsec";
+		compatible = "fsl,etsec2";
 		reg = <0x24000 0x1000>;
 		phy-handle = <&phy0>;
 		phy-connection-type = "sgmii";
