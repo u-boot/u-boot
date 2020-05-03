@@ -41,6 +41,7 @@
 #include <wait_bit.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <eth_phy.h>
 
 /* Core registers */
 
@@ -1083,7 +1084,14 @@ static int eqos_start(struct udevice *dev)
 	 * don't need to reconnect/reconfigure again
 	 */
 	if (!eqos->phy) {
-		eqos->phy = phy_connect(eqos->mii, eqos->phyaddr, dev,
+		int addr = -1;
+#ifdef CONFIG_DM_ETH_PHY
+		addr = eth_phy_get_addr(dev);
+#endif
+#ifdef DWC_NET_PHYADDR
+		addr = DWC_NET_PHYADDR;
+#endif
+		eqos->phy = phy_connect(eqos->mii, addr, dev,
 					eqos->config->interface(dev));
 		if (!eqos->phy) {
 			pr_err("phy_connect() failed");
@@ -1820,22 +1828,31 @@ static int eqos_probe(struct udevice *dev)
 		goto err_remove_resources_core;
 	}
 
-	eqos->mii = mdio_alloc();
+#ifdef CONFIG_DM_ETH_PHY
+	eqos->mii = eth_phy_get_mdio_bus(dev);
+#endif
 	if (!eqos->mii) {
-		pr_err("mdio_alloc() failed");
-		ret = -ENOMEM;
-		goto err_remove_resources_tegra;
-	}
-	eqos->mii->read = eqos_mdio_read;
-	eqos->mii->write = eqos_mdio_write;
-	eqos->mii->priv = eqos;
-	strcpy(eqos->mii->name, dev->name);
+		eqos->mii = mdio_alloc();
+		if (!eqos->mii) {
+			pr_err("mdio_alloc() failed");
+			ret = -ENOMEM;
+			goto err_remove_resources_tegra;
+		}
+		eqos->mii->read = eqos_mdio_read;
+		eqos->mii->write = eqos_mdio_write;
+		eqos->mii->priv = eqos;
+		strcpy(eqos->mii->name, dev->name);
 
-	ret = mdio_register(eqos->mii);
-	if (ret < 0) {
-		pr_err("mdio_register() failed: %d", ret);
-		goto err_free_mdio;
+		ret = mdio_register(eqos->mii);
+		if (ret < 0) {
+			pr_err("mdio_register() failed: %d", ret);
+			goto err_free_mdio;
+		}
 	}
+
+#ifdef CONFIG_DM_ETH_PHY
+	eth_phy_set_mdio_bus(dev, eqos->mii);
+#endif
 
 	debug("%s: OK\n", __func__);
 	return 0;
