@@ -450,7 +450,6 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 
 	mem = (u32)malloc(AHCI_PORT_PRIV_DMA_SZ + 1024);
 	if (!mem) {
-		free(pp);
 		printf("No mem for table!\n");
 		return -ENOMEM;
 	}
