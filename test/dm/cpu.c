@@ -26,6 +26,8 @@ static int dm_test_cpu(struct unit_test_state *uts)
 		ut_assert(dev->flags & DM_FLAG_ACTIVATED);
 
 	ut_assertok(uclass_get_device_by_name(UCLASS_CPU, "cpu-test1", &dev));
+	ut_asserteq_ptr(cpu_get_current_dev(), dev);
+	ut_asserteq(cpu_is_current(dev), 1);
 
 	ut_assertok(cpu_get_desc(dev, text, sizeof(text)));
 	ut_assertok(strcmp(text, "LEG Inc. SuperMegaUltraTurbo CPU No. 1"));
