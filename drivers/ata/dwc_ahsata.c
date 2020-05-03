@@ -223,7 +223,7 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
 
 		/* Wait for COMINIT bit 26 (DIAG_X) in SERR */
 		timeout = 1000;
-		while (!(readl(&port_mmio->serr) | SATA_PORT_SERR_DIAG_X)
+		while (!(readl(&port_mmio->serr) & SATA_PORT_SERR_DIAG_X)
 			&& --timeout)
 			;
 		if (timeout <= 0) {
