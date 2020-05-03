@@ -847,6 +847,9 @@ static int ahci_init_one(int pdev)
 	struct ahci_uc_priv *uc_priv = NULL;
 
 	uc_priv = malloc(sizeof(struct ahci_uc_priv));
+	if (!uc_priv)
+		return -ENOMEM;
+
 	memset(uc_priv, 0, sizeof(struct ahci_uc_priv));
 	uc_priv->dev = pdev;
 
@@ -871,6 +874,8 @@ static int ahci_init_one(int pdev)
 	return 0;
 
 err_out:
+	if (uc_priv)
+		free(uc_priv);
 	return rc;
 }
 
