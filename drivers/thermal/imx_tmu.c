@@ -106,16 +106,24 @@ static int read_temperature(struct udevice *dev, int *temp)
 	ulong drv_data = dev_get_driver_data(dev);
 	u32 val;
 	u32 retry = 10;
+	u32 valid = 0;
 
 	do {
 		mdelay(100);
 		retry--;
 
-		if (drv_data & FLAGS_VER2)
+		if (drv_data & FLAGS_VER2) {
 			val = readl(&pdata->regs->regs_v2.tritsr);
-		else
+			/*
+			 * Check if TEMP is in valid range, the V bit in TRITSR
+			 * only reflects the RAW uncalibrated data
+			 */
+			valid =  ((val & 0xff) < 10 || (val & 0xff) > 125) ? 0 : 1;
+		} else {
 			val = readl(&pdata->regs->regs_v1.site[pdata->id].tritsr);
-	} while (!(val & 0x80000000) && retry > 0);
+			valid = val & 0x80000000;
+		}
+	} while (!valid && retry > 0);
 
 	if (retry > 0)
 		*temp = (val & 0xff) * 1000;
