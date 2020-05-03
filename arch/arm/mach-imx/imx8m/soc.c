@@ -473,4 +473,49 @@ void imx_tmu_arch_init(void *reg_base)
 		writel((tca_en << 31) | (tca_hr << 16) | tca_rt,
 		       (ulong)reg_base + 0x30);
 	}
+#ifdef CONFIG_IMX8MP
+	/* Load TCALIV0/1/m40 and TRIM from fuses */
+	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
+	struct fuse_bank *bank = &ocotp->bank[38];
+	struct fuse_bank38_regs *fuse =
+		(struct fuse_bank38_regs *)bank->fuse_regs;
+	struct fuse_bank *bank2 = &ocotp->bank[39];
+	struct fuse_bank39_regs *fuse2 =
+		(struct fuse_bank39_regs *)bank2->fuse_regs;
+	u32 buf_vref, buf_slope, bjt_cur, vlsb, bgr;
+	u32 reg;
+	u32 tca40[2], tca25[2], tca105[2];
+
+	/* For blank sample */
+	if (!fuse->ana_trim2 && !fuse->ana_trim3 &&
+	    !fuse->ana_trim4 && !fuse2->ana_trim5) {
+		/* Use a default 25C binary codes */
+		tca25[0] = 1596;
+		writel(tca25[0], (ulong)reg_base + 0x30);
+		return;
+	}
+
+	buf_vref = (fuse->ana_trim2 & 0xc0) >> 6;
+	buf_slope = (fuse->ana_trim2 & 0xF00) >> 8;
+	bjt_cur = (fuse->ana_trim2 & 0xF000) >> 12;
+	bgr = (fuse->ana_trim2 & 0xF0000) >> 16;
+	vlsb = (fuse->ana_trim2 & 0xF00000) >> 20;
+	writel(buf_vref | (buf_slope << 16), (ulong)reg_base + 0x28);
+
+	reg = (bgr << 28) | (bjt_cur << 20) | (vlsb << 12) | (1 << 7);
+	writel(reg, (ulong)reg_base + 0x3c);
+
+	tca40[0] = (fuse->ana_trim3 & 0xFFF0000) >> 16;
+	tca25[0] = (fuse->ana_trim3 & 0xF0000000) >> 28;
+	tca25[0] |= ((fuse->ana_trim4 & 0xFF) << 4);
+	tca105[0] = (fuse->ana_trim4 & 0xFFF00) >> 8;
+	tca40[1] = (fuse->ana_trim4 & 0xFFF00000) >> 20;
+	tca25[1] = fuse2->ana_trim5 & 0xFFF;
+	tca105[1] = (fuse2->ana_trim5 & 0xFFF000) >> 12;
+
+	/* use 25c for 1p calibration */
+	writel(tca25[0] | (tca105[0] << 16), (ulong)reg_base + 0x30);
+	writel(tca25[1] | (tca105[1] << 16), (ulong)reg_base + 0x34);
+	writel(tca40[0] | (tca40[1] << 16), (ulong)reg_base + 0x38);
+#endif
 }
