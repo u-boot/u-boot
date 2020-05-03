@@ -183,11 +183,11 @@ static int print_cpuinfo(void)
 	char desc[512];
 	int ret;
 
-	ret = uclass_first_device_err(UCLASS_CPU, &dev);
-	if (ret) {
-		debug("%s: Could not get CPU device (err = %d)\n",
-		      __func__, ret);
-		return ret;
+	dev = cpu_get_current_dev();
+	if (!dev) {
+		debug("%s: Could not get CPU device\n",
+		      __func__);
+		return -ENODEV;
 	}
 
 	ret = cpu_get_desc(dev, desc, sizeof(desc));
