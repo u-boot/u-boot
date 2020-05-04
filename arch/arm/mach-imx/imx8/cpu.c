@@ -536,4 +536,3 @@ u32 get_cpu_rev(void)
 
 	return (id << 12) | rev;
 }
-
