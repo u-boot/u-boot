@@ -317,7 +317,7 @@ void fdt_fixup_mc_ddr(u64 *base, u64 *size)
 void fdt_fsl_mc_fixup_iommu_map_entry(void *blob)
 {
 	u32 *prop;
-	u32 iommu_map[4];
+	u32 iommu_map[4], phandle;
 	int offset;
 	int lenp;
 
@@ -346,6 +346,21 @@ void fdt_fsl_mc_fixup_iommu_map_entry(void *blob)
 
 	fdt_setprop_inplace(blob, offset, "iommu-map",
 			    iommu_map, sizeof(iommu_map));
+
+	/* get phandle to MSI controller */
+	prop = (u32 *)fdt_getprop(blob, offset, "msi-parent", 0);
+	if (!prop) {
+		debug("\n%s: ERROR: missing msi-parent\n", __func__);
+		return;
+	}
+	phandle = fdt32_to_cpu(*prop);
+
+	/* also set msi-map property */
+	fdt_appendprop_u32(blob, offset, "msi-map", FSL_DPAA2_STREAM_ID_START);
+	fdt_appendprop_u32(blob, offset, "msi-map", phandle);
+	fdt_appendprop_u32(blob, offset, "msi-map", FSL_DPAA2_STREAM_ID_START);
+	fdt_appendprop_u32(blob, offset, "msi-map", FSL_DPAA2_STREAM_ID_END -
+			   FSL_DPAA2_STREAM_ID_START + 1);
 }
 
 static int mc_fixup_dpc_mac_addr(void *blob, int dpmac_id,
