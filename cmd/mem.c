@@ -25,10 +25,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifndef CONFIG_SYS_MEMTEST_SCRATCH
-#define CONFIG_SYS_MEMTEST_SCRATCH 0
-#endif
-
 static int mod_mem(cmd_tbl_t *, int, int, int, char * const []);
 
 /* Display values from last command.
@@ -922,7 +918,8 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 			char * const argv[])
 {
 	ulong start, end;
-	vu_long *buf, *dummy;
+	vu_long scratch_space;
+	vu_long *buf, *dummy = &scratch_space;
 	ulong iteration_limit = 0;
 	ulong count = 0;
 	ulong errs = 0;	/* number of errors, or -1 if interrupted */
@@ -958,7 +955,6 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 	      start, end);
 
 	buf = map_sysmem(start, end - start);
-	dummy = map_sysmem(CONFIG_SYS_MEMTEST_SCRATCH, sizeof(vu_long));
 	for (iteration = 0;
 			!iteration_limit || iteration < iteration_limit;
 			iteration++) {
@@ -988,7 +984,6 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 	}
 
 	unmap_sysmem((void *)buf);
-	unmap_sysmem((void *)dummy);
 
 	if (errs == -1UL) {
 		/* Memory test was aborted - write a newline to finish off */

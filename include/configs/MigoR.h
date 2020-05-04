@@ -32,7 +32,6 @@
 
 /* Enable alternate, more extensive, memory test */
 /* Scratch address used by the alternate memory test */
-#undef  CONFIG_SYS_MEMTEST_SCRATCH
 
 /* Enable temporary baudrate change while serial download */
 #undef  CONFIG_SYS_LOADS_BAUD_CHANGE

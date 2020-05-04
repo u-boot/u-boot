@@ -40,6 +40,5 @@
 /* 0x0 - 0x40 is used for placing exception vectors */
 #define CONFIG_SYS_MEMTEST_START	0x40
 #define CONFIG_SYS_MEMTEST_END		0x100
-#define CONFIG_SYS_MEMTEST_SCRATCH	0
 
 #endif /* __CONFIG_ZYNQ_ZYNQMP_R5_H */
