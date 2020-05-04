@@ -148,9 +148,6 @@
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_PROMPT		"=> "
 
-#define CONFIG_SYS_MEMTEST_START	(DDR_BASE_ADDR)
-#define CONFIG_SYS_MEMTEST_END		(DDR_BASE_ADDR + 0x7C00000)
-
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 #define CONFIG_SYS_HZ				1000
 

@@ -58,9 +58,6 @@
 #define CONFIG_SYS_NUM_ADDR_MAP		16	/* number of TLB1 entries */
 #endif
 
-#define CONFIG_SYS_MEMTEST_START 0x00010000	/* skip exception vectors */
-#define CONFIG_SYS_MEMTEST_END   0x1f000000	/* skip u-boot at top of RAM */
-
 /*
  * Config the L2 Cache as L2 SRAM
  */

@@ -105,9 +105,6 @@
 #define CONFIG_ADDR_MAP			1
 #define CONFIG_SYS_NUM_ADDR_MAP		16	/* number of TLB1 entries */
 
-#define CONFIG_SYS_MEMTEST_START	0x00200000
-#define CONFIG_SYS_MEMTEST_END		0x00400000
-
 /* DDR Setup */
 #define CONFIG_DDR_SPD
 #define CONFIG_SYS_SPD_BUS_NUM		0

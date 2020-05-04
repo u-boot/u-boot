@@ -22,8 +22,6 @@
 #define SYS_SDRAM_SIZE_1024		0x40000000
 #define CONFIG_CHIP_SELECTS_PER_CTRL	1
 #define CONFIG_CMD_MEMINFO
-#define CONFIG_SYS_MEMTEST_START	0x80000000
-#define CONFIG_SYS_MEMTEST_END		0x9fffffff
 
 /* ENV */
 #define CONFIG_SYS_FSL_QSPI_BASE	0x40000000
@@ -120,8 +118,6 @@
 			   "env exists secureboot && esbc_halt;"
 #endif
 #define CONFIG_CMD_MEMINFO
-#define CONFIG_SYS_MEMTEST_START	0x80000000
-#define CONFIG_SYS_MEMTEST_END		0x9fffffff
 
 #include <asm/fsl_secure_boot.h>
 

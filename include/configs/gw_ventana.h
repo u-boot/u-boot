@@ -131,8 +131,6 @@
 #define CONFIG_HWCONFIG
 
 /* Memory configuration */
-#define CONFIG_SYS_MEMTEST_START       0x10000000
-#define CONFIG_SYS_MEMTEST_END	       0x10010000
 
 /* Physical Memory Map */
 #define PHYS_SDRAM                     MMDC0_ARB_BASE_ADDR

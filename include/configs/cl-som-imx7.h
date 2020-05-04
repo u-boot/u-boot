@@ -111,9 +111,6 @@
 	"echo eMMC boot attempt ...; run emmcbootscript; run emmcboot; " \
 	"echo USB boot attempt ...; run usbbootscript; "
 
-#define CONFIG_SYS_MEMTEST_START	0x80000000
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x20000000)
-
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 #define CONFIG_SYS_HZ			1000
 

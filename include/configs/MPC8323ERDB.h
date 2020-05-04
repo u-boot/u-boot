@@ -85,8 +85,6 @@
  * Memory test
  */
 #undef CONFIG_SYS_DRAM_TEST		/* memory test, takes time */
-#define CONFIG_SYS_MEMTEST_START	0x00030000	/* memtest region */
-#define CONFIG_SYS_MEMTEST_END		0x03f00000
 
 /*
  * The reserved memory

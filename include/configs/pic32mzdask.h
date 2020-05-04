@@ -42,8 +42,6 @@
 #define CONFIG_SYS_FDT_ADDR		0x89d00000
 
 /* Memory Test */
-#define CONFIG_SYS_MEMTEST_START	0x88000000
-#define CONFIG_SYS_MEMTEST_END		0x88080000
 
 /*----------------------------------------------------------------------
  * Commands

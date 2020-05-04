@@ -27,9 +27,6 @@
 #define GICD_BASE			0xf7011000
 #define GICC_BASE			0xf7012000
 
-#define CONFIG_SYS_MEMTEST_START	0x05000000
-#define CONFIG_SYS_MEMTEST_END		0x0D000000
-
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (8 << 20))
 

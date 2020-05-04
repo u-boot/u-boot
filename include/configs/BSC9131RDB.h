@@ -56,9 +56,6 @@
 #define CONFIG_L2_CACHE			/* toggle L2 cache */
 #define CONFIG_BTB			/* enable branch predition */
 
-#define CONFIG_SYS_MEMTEST_START	0x01000000	/* memtest works on */
-#define CONFIG_SYS_MEMTEST_END		0x01ffffff
-
 /* DDR Setup */
 #undef CONFIG_SYS_DDR_RAW_TIMING
 #undef CONFIG_DDR_SPD

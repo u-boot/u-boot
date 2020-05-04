@@ -35,9 +35,6 @@
 /* Command support defines */
 #define CONFIG_PHY_RESET_DELAY			10000		/* in usec */
 
-#define CONFIG_SYS_MEMTEST_START               0x0000
-#define CONFIG_SYS_MEMTEST_END                 1024*1024
-
 /* Misc configuration */
 
 #define CONFIG_BOOTCOMMAND                     "go 0x40040000"

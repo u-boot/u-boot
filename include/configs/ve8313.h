@@ -23,8 +23,6 @@
  * On-board devices
  *
  */
-#define CONFIG_SYS_MEMTEST_START	0x00001000
-#define CONFIG_SYS_MEMTEST_END		0x07000000
 
 /*
  * Device configurations

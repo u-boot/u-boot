@@ -77,9 +77,6 @@
 
 #define CONFIG_SYS_LOAD_ADDR		0x20000
 
-#define CONFIG_SYS_MEMTEST_START	0x400
-#define CONFIG_SYS_MEMTEST_END		0x380000
-
 #define	CONFIG_SYS_CLK			64000000
 
 /* PLL Configuration: Ext Clock * 6 (see table 9-4 of MCF user manual) */

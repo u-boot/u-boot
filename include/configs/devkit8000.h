@@ -138,9 +138,6 @@
 #define CONFIG_BOOTCOMMAND "run autoboot"
 
 /* Boot Argument Buffer Size */
-#define CONFIG_SYS_MEMTEST_START	(OMAP34XX_SDRC_CS0 + 0x07000000)
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + \
-					0x01000000) /* 16MB */
 
 /* SRAM config */
 #define CONFIG_SYS_SRAM_START              0x40200000
