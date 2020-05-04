@@ -773,8 +773,9 @@ static int mxs_nand_ecc_read_page(struct mtd_info *mtd, struct nand_chip *nand,
 			continue;
 
 		if (status[i] == 0xff) {
-			if (is_mx6dqp() || is_mx7() ||
-			    is_mx6ul() || is_imx8() || is_imx8m())
+			if (!nand_info->en_randomizer &&
+			    (is_mx6dqp() || is_mx7() || is_mx6ul() ||
+			     is_imx8() || is_imx8m()))
 				if (readl(&bch_regs->hw_bch_debug1))
 					flag = 1;
 			continue;
