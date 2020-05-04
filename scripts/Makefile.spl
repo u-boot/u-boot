@@ -459,10 +459,13 @@ dtbs:
 # information in a variable so we can use it in if_changed and friends.
 .PHONY: $(PHONY)
 
-SHRUNK_ARCH_DTB = $(patsubst %,$(obj)/dts/%.dtb,$(subst ",,$(CONFIG_SPL_OF_LIST)))
+SPL_OF_LIST_TARGETS = $(patsubst %,dts/%.dtb,$(subst ",,$(CONFIG_SPL_OF_LIST)))
+SHRUNK_ARCH_DTB = $(addprefix $(obj)/,$(SPL_OF_LIST_TARGETS))
 .SECONDEXPANSION:
 $(SHRUNK_ARCH_DTB): $$(patsubst $(obj)/dts/%, arch/$(ARCH)/dts/%, $$@) dts_dir
 	$(call if_changed,fdtgrep)
+
+targets += $(SPL_OF_LIST_TARGETS)
 
 MKIMAGEFLAGS_$(SPL_BIN).multidtb.fit = -f auto -A $(ARCH) -T firmware -C none -O u-boot \
 	-n "Multi DTB fit image for $(SPL_BIN)" -E \
