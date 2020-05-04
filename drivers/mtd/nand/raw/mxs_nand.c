@@ -31,7 +31,8 @@
 
 #define	MXS_NAND_DMA_DESCRIPTOR_COUNT		4
 
-#if (defined(CONFIG_MX6) || defined(CONFIG_MX7) || defined(CONFIG_IMX8M))
+#if defined(CONFIG_MX6) || defined(CONFIG_MX7) || defined(CONFIG_IMX8) || \
+	defined(CONFIG_IMX8M)
 #define	MXS_NAND_CHUNK_DATA_CHUNK_SIZE_SHIFT	2
 #else
 #define	MXS_NAND_CHUNK_DATA_CHUNK_SIZE_SHIFT	0
@@ -55,21 +56,21 @@ struct nand_ecclayout fake_ecc_layout;
 #if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 static void mxs_nand_flush_data_buf(struct mxs_nand_info *info)
 {
-	uint32_t addr = (uint32_t)info->data_buf;
+	uint32_t addr = (uintptr_t)info->data_buf;
 
 	flush_dcache_range(addr, addr + info->data_buf_size);
 }
 
 static void mxs_nand_inval_data_buf(struct mxs_nand_info *info)
 {
-	uint32_t addr = (uint32_t)info->data_buf;
+	uint32_t addr = (uintptr_t)info->data_buf;
 
 	invalidate_dcache_range(addr, addr + info->data_buf_size);
 }
 
 static void mxs_nand_flush_cmd_buf(struct mxs_nand_info *info)
 {
-	uint32_t addr = (uint32_t)info->cmd_buf;
+	uint32_t addr = (uintptr_t)info->cmd_buf;
 
 	flush_dcache_range(addr, addr + MXS_NAND_COMMAND_BUFFER_SIZE);
 }
@@ -773,7 +774,7 @@ static int mxs_nand_ecc_read_page(struct mtd_info *mtd, struct nand_chip *nand,
 
 		if (status[i] == 0xff) {
 			if (is_mx6dqp() || is_mx7() ||
-			    is_mx6ul() || is_imx8m())
+			    is_mx6ul() || is_imx8() || is_imx8m())
 				if (readl(&bch_regs->hw_bch_debug1))
 					flag = 1;
 			continue;
@@ -1172,7 +1173,7 @@ int mxs_nand_setup_ecc(struct mtd_info *mtd)
 
 	/* Set erase threshold to ecc strength for mx6ul, mx6qp and mx7 */
 	if (is_mx6dqp() || is_mx7() ||
-	    is_mx6ul() || is_imx8m())
+	    is_mx6ul() || is_imx8() || is_imx8m())
 		writel(BCH_MODE_ERASE_THRESHOLD(geo->ecc_strength),
 		       &bch_regs->hw_bch_mode);
 
@@ -1311,7 +1312,7 @@ int mxs_nand_init_spl(struct nand_chip *nand)
 	nand_info->gpmi_regs = (struct mxs_gpmi_regs *)MXS_GPMI_BASE;
 	nand_info->bch_regs = (struct mxs_bch_regs *)MXS_BCH_BASE;
 
-	if (is_mx6sx() || is_mx7() || is_imx8m())
+	if (is_mx6sx() || is_mx7() || is_imx8() || is_imx8m())
 		nand_info->max_ecc_strength_supported = 62;
 	else
 		nand_info->max_ecc_strength_supported = 40;
