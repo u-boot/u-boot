@@ -29,7 +29,7 @@ class TestEfiSignedImage(object):
             # Test Case 1a, run signed image if no db/dbx
             output = u_boot_console.run_command_list([
                 'host bind 0 %s' % disk_img,
-                'efidebug boot add 1 HELLO1 host 0:1 /helloworld.efi.signed ""',
+                'efidebug boot add 1 HELLO1 host 0:1 /helloworld.efi.signed ""; echo',
                 'efidebug boot next 1',
                 'bootefi bootmgr'])
             assert(re.search('Hello, world!', ''.join(output)))
@@ -81,7 +81,7 @@ class TestEfiSignedImage(object):
             output = u_boot_console.run_command_list([
                 'host bind 0 %s' % disk_img,
                 'fatload host 0:1 4000000 db.auth',
-                'setenv -e -nv -bs -rt -at -i 4000000,$filesize dbx',
+                'setenv -e -nv -bs -rt -at -i 4000000,$filesize dbx; echo',
                 'fatload host 0:1 4000000 KEK.auth',
                 'setenv -e -nv -bs -rt -at -i 4000000,$filesize KEK',
                 'fatload host 0:1 4000000 PK.auth',

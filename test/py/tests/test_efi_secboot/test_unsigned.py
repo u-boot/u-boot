@@ -30,7 +30,7 @@ class TestEfiUnsignedImage(object):
             output = u_boot_console.run_command_list([
                 'host bind 0 %s' % disk_img,
 		'fatload host 0:1 4000000 KEK.auth',
-		'setenv -e -nv -bs -rt -at -i 4000000,$filesize KEK',
+		'setenv -e -nv -bs -rt -at -i 4000000,$filesize KEK; echo',
 		'fatload host 0:1 4000000 PK.auth',
 		'setenv -e -nv -bs -rt -at -i 4000000,$filesize PK'])
             assert(not re.search('Failed to set EFI variable', ''.join(output)))
@@ -58,7 +58,7 @@ class TestEfiUnsignedImage(object):
             output = u_boot_console.run_command_list([
                 'host bind 0 %s' % disk_img,
 		'fatload host 0:1 4000000 db_hello.auth',
-		'setenv -e -nv -bs -rt -at -i 4000000,$filesize db',
+		'setenv -e -nv -bs -rt -at -i 4000000,$filesize db; echo',
 		'fatload host 0:1 4000000 KEK.auth',
 		'setenv -e -nv -bs -rt -at -i 4000000,$filesize KEK',
 		'fatload host 0:1 4000000 PK.auth',
@@ -82,7 +82,7 @@ class TestEfiUnsignedImage(object):
             output = u_boot_console.run_command_list([
                 'host bind 0 %s' % disk_img,
 		'fatload host 0:1 4000000 db_hello.auth',
-		'setenv -e -nv -bs -rt -at -i 4000000,$filesize dbx',
+		'setenv -e -nv -bs -rt -at -i 4000000,$filesize dbx; echo',
 		'fatload host 0:1 4000000 KEK.auth',
 		'setenv -e -nv -bs -rt -at -i 4000000,$filesize KEK',
 		'fatload host 0:1 4000000 PK.auth',
