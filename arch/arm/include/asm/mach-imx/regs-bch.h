@@ -6,7 +6,8 @@
  * on behalf of DENX Software Engineering GmbH
  *
  * Based on code from LTIB:
- * Copyright 2008-2010 Freescale Semiconductor, Inc. All Rights Reserved.
+ * Copyright 2008-2010, 2016 Freescale Semiconductor, Inc. All Rights Reserved.
+ *
  */
 
 #ifndef __MX28_REGS_BCH_H__
@@ -40,6 +41,7 @@ struct mxs_bch_regs {
 	mxs_reg_32(hw_bch_dbgahbmread)
 	mxs_reg_32(hw_bch_blockname)
 	mxs_reg_32(hw_bch_version)
+	mxs_reg_32(hw_bch_debug1)
 };
 #endif
 
@@ -75,6 +77,9 @@ struct mxs_bch_regs {
 
 #define	BCH_MODE_ERASE_THRESHOLD_MASK			0xff
 #define	BCH_MODE_ERASE_THRESHOLD_OFFSET			0
+#define BCH_MODE_ERASE_THRESHOLD(v)			\
+	(((v) << BCH_MODE_ERASE_THRESHOLD_OFFSET) &	\
+	 BCH_MODE_ERASE_THRESHOLD_MASK)
 
 #define	BCH_ENCODEPTR_ADDR_MASK				0xffffffff
 #define	BCH_ENCODEPTR_ADDR_OFFSET			0

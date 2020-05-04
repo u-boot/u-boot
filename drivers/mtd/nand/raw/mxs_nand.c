@@ -10,6 +10,7 @@
  *
  * Copyright (C) 2010 Freescale Semiconductor, Inc.
  * Copyright (C) 2008 Embedded Alley Solutions, Inc.
+ * Copyright 2017-2019 NXP
  */
 
 #include <common.h>
@@ -660,11 +661,13 @@ static int mxs_nand_ecc_read_page(struct mtd_info *mtd, struct nand_chip *nand,
 {
 	struct mxs_nand_info *nand_info = nand_get_controller_data(nand);
 	struct bch_geometry *geo = &nand_info->bch_geometry;
+	struct mxs_bch_regs *bch_regs = nand_info->bch_regs;
 	struct mxs_dma_desc *d;
 	uint32_t channel = MXS_DMA_CHANNEL_AHB_APBH_GPMI0 + nand_info->cur_chip;
 	uint32_t corrected = 0, failed = 0;
 	uint8_t	*status;
 	int i, ret;
+	int flag = 0;
 
 	/* Compile the DMA descriptor - wait for ready. */
 	d = mxs_nand_get_dma_desc(nand_info);
@@ -768,8 +771,13 @@ static int mxs_nand_ecc_read_page(struct mtd_info *mtd, struct nand_chip *nand,
 		if (status[i] == 0x00)
 			continue;
 
-		if (status[i] == 0xff)
+		if (status[i] == 0xff) {
+			if (is_mx6dqp() || is_mx7() ||
+			    is_mx6ul())
+				if (readl(&bch_regs->hw_bch_debug1))
+					flag = 1;
 			continue;
+		}
 
 		if (status[i] == 0xfe) {
 			if (mxs_nand_erased_page(mtd, nand,
@@ -801,6 +809,8 @@ static int mxs_nand_ecc_read_page(struct mtd_info *mtd, struct nand_chip *nand,
 
 	memcpy(buf, nand_info->data_buf, mtd->writesize);
 
+	if (flag)
+		memset(buf, 0xff, mtd->writesize);
 rtn:
 	mxs_nand_return_dma_descs(nand_info);
 
@@ -1159,6 +1169,12 @@ int mxs_nand_setup_ecc(struct mtd_info *mtd)
 		BCH_FLASHLAYOUT1_GF13_0_GF14_1_OFFSET;
 	writel(tmp, &bch_regs->hw_bch_flash0layout1);
 	nand_info->bch_flash0layout1 = tmp;
+
+	/* Set erase threshold to ecc strength for mx6ul, mx6qp and mx7 */
+	if (is_mx6dqp() || is_mx7() ||
+	    is_mx6ul())
+		writel(BCH_MODE_ERASE_THRESHOLD(geo->ecc_strength),
+		       &bch_regs->hw_bch_mode);
 
 	/* Set *all* chip selects to use layout 0 */
 	writel(0, &bch_regs->hw_bch_layoutselect);
