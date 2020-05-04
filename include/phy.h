@@ -170,6 +170,13 @@ struct fixed_link {
 	int asym_pause;
 };
 
+/**
+ * phy_read - Convenience function for reading a given PHY register
+ * @phydev: the phy_device struct
+ * @devad: The MMD to read from
+ * @regnum: register number to read
+ * @return: value for success or negative errno for failure
+ */
 static inline int phy_read(struct phy_device *phydev, int devad, int regnum)
 {
 	struct mii_dev *bus = phydev->bus;
@@ -182,6 +189,14 @@ static inline int phy_read(struct phy_device *phydev, int devad, int regnum)
 	return bus->read(bus, phydev->addr, devad, regnum);
 }
 
+/**
+ * phy_write - Convenience function for writing a given PHY register
+ * @phydev: the phy_device struct
+ * @devad: The MMD to read from
+ * @regnum: register number to write
+ * @val: value to write to @regnum
+ * @return: 0 for success or negative errno for failure
+ */
 static inline int phy_write(struct phy_device *phydev, int devad, int regnum,
 			u16 val)
 {
@@ -195,6 +210,13 @@ static inline int phy_write(struct phy_device *phydev, int devad, int regnum,
 	return bus->write(bus, phydev->addr, devad, regnum, val);
 }
 
+/**
+ * phy_mmd_start_indirect - Convenience function for writing MMD registers
+ * @phydev: the phy_device struct
+ * @devad: The MMD to read from
+ * @regnum: register number to write
+ * @return: None
+ */
 static inline void phy_mmd_start_indirect(struct phy_device *phydev, int devad,
 					  int regnum)
 {
@@ -209,6 +231,14 @@ static inline void phy_mmd_start_indirect(struct phy_device *phydev, int devad,
 		  (devad | MII_MMD_CTRL_NOINCR));
 }
 
+/**
+ * phy_read_mmd - Convenience function for reading a register
+ * from an MMD on a given PHY.
+ * @phydev: The phy_device struct
+ * @devad: The MMD to read from
+ * @regnum: The register on the MMD to read
+ * @return: Value for success or negative errno for failure
+ */
 static inline int phy_read_mmd(struct phy_device *phydev, int devad,
 			       int regnum)
 {
@@ -233,6 +263,15 @@ static inline int phy_read_mmd(struct phy_device *phydev, int devad,
 	return phy_read(phydev, MDIO_DEVAD_NONE, MII_MMD_DATA);
 }
 
+/**
+ * phy_write_mmd - Convenience function for writing a register
+ * on an MMD on a given PHY.
+ * @phydev: The phy_device struct
+ * @devad: The MMD to read from
+ * @regnum: The register on the MMD to read
+ * @val: value to write to @regnum
+ * @return: 0 for success or negative errno for failure
+ */
 static inline int phy_write_mmd(struct phy_device *phydev, int devad,
 				int regnum, u16 val)
 {
