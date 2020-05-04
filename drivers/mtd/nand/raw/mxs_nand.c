@@ -710,6 +710,12 @@ static int mxs_nand_ecc_read_page(struct mtd_info *mtd, struct nand_chip *nand,
 	d->cmd.pio_words[4] = (dma_addr_t)nand_info->data_buf;
 	d->cmd.pio_words[5] = (dma_addr_t)nand_info->oob_buf;
 
+	if ((is_mx7() || is_imx8m()) && nand_info->en_randomizer) {
+		d->cmd.pio_words[2] |= GPMI_ECCCTRL_RANDOMIZER_ENABLE |
+				       GPMI_ECCCTRL_RANDOMIZER_TYPE2;
+		d->cmd.pio_words[3] |= (page % 256) << 16;
+	}
+
 	mxs_dma_desc_append(channel, d);
 
 	/* Compile the DMA descriptor - disable the BCH block. */
@@ -871,7 +877,7 @@ static int mxs_nand_ecc_write_page(struct mtd_info *mtd,
 		 * The value is between 0-255. For additional details
 		 * check 9.6.6.4 of i.MX7D Applications Processor reference
 		 */
-		d->cmd.pio_words[3] |= (page % 255) << 16;
+		d->cmd.pio_words[3] |= (page % 256) << 16;
 	}
 
 	mxs_dma_desc_append(channel, d);
