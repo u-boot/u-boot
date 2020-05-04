@@ -15,6 +15,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+__maybe_unused void print_cpu_word_size(void)
+{
+	printf("%-12s= %u-bit\n", "Build", (uint)sizeof(void *) * 8);
+}
+
 __maybe_unused
 static void print_num(const char *name, ulong value)
 {
@@ -208,6 +213,8 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_baudrate();
 	print_num("relocaddr", gd->relocaddr);
 	board_detail();
+	print_cpu_word_size();
+
 	return 0;
 }
 
@@ -227,6 +234,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	print_eth_ip_addr();
 	print_baudrate();
+	print_cpu_word_size();
 
 	return 0;
 }
@@ -252,6 +260,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_num("fdt_blob", (ulong)gd->fdt_blob);
 	print_num("new_fdt", (ulong)gd->new_fdt);
 	print_num("fdt_size", (ulong)gd->fdt_size);
+	print_cpu_word_size();
 
 	return 0;
 }
@@ -283,6 +292,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 	print_eth_ip_addr();
 	print_baudrate();
+	print_cpu_word_size();
 
 	return 0;
 }
@@ -294,6 +304,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_std_bdinfo(gd->bd);
 	print_num("relocaddr", gd->relocaddr);
 	print_num("reloc off", gd->reloc_off);
+	print_cpu_word_size();
 
 	return 0;
 }
@@ -354,6 +365,7 @@ static int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc,
 #endif
 	if (gd->fdt_blob)
 		print_num("fdt_blob", (ulong)gd->fdt_blob);
+	print_cpu_word_size();
 
 	return 0;
 }
@@ -368,6 +380,8 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_bi_flash(bd);
 	print_eth_ip_addr();
 	print_baudrate();
+	print_cpu_word_size();
+
 	return 0;
 }
 
@@ -388,6 +402,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_mhz("ethspeed",	    bd->bi_ethspeed);
 #endif
 	print_baudrate();
+	print_cpu_word_size();
 
 	return 0;
 }
@@ -405,6 +420,8 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #if defined(CONFIG_LCD) || defined(CONFIG_VIDEO)
 	print_num("FB base  ", gd->fb_base);
 #endif
+	print_cpu_word_size();
+
 	return 0;
 }
 
@@ -419,6 +436,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_bi_dram(bd);
 	print_eth_ip_addr();
 	print_baudrate();
+	print_cpu_word_size();
 
 	return 0;
 }
@@ -435,6 +453,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_num("reloc off", gd->reloc_off);
 	print_eth_ip_addr();
 	print_baudrate();
+	print_cpu_word_size();
 
 	return 0;
 }
@@ -448,6 +467,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_bi_mem(bd);
 	print_eth_ip_addr();
 	print_baudrate();
+	print_cpu_word_size();
 
 	return 0;
 }

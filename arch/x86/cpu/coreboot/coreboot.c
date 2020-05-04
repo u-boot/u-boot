@@ -27,7 +27,8 @@ int arch_cpu_init(void)
 
 	timestamp_init();
 
-	return x86_cpu_init_f();
+	return IS_ENABLED(CONFIG_X86_RUN_64BIT) ? x86_cpu_reinit_f() :
+		 x86_cpu_init_f();
 }
 
 int checkcpu(void)

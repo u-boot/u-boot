@@ -290,3 +290,28 @@ int reserve_arch(void)
 	return 0;
 }
 #endif
+
+long detect_coreboot_table_at(ulong start, ulong size)
+{
+	u32 *ptr, *end;
+
+	size /= 4;
+	for (ptr = (void *)start, end = ptr + size; ptr < end; ptr += 4) {
+		if (*ptr == 0x4f49424c) /* "LBIO" */
+			return (long)ptr;
+	}
+
+	return -ENOENT;
+}
+
+long locate_coreboot_table(void)
+{
+	long addr;
+
+	/* We look for LBIO in the first 4K of RAM and again at 960KB */
+	addr = detect_coreboot_table_at(0x0, 0x1000);
+	if (addr < 0)
+		addr = detect_coreboot_table_at(0xf0000, 0x1000);
+
+	return addr;
+}
