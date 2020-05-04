@@ -45,6 +45,9 @@ re_commit = re.compile('^commit ([0-9a-f]*)$')
 # We detect these since checkpatch doesn't always do it
 re_space_before_tab = re.compile('^[+].* \t')
 
+# Match indented lines for changes
+re_leading_whitespace = re.compile('^\s')
+
 # States we can be in - can we use range() and still have comments?
 STATE_MSG_HEADER = 0        # Still in the message header
 STATE_PATCH_SUBJECT = 1     # In patch subject (first line of log for a commit)
@@ -72,6 +75,7 @@ class PatchStream:
         self.is_log = is_log             # True if indent like git log
         self.in_change = None            # Name of the change list we are in
         self.change_version = 0          # Non-zero if we are in a change list
+        self.change_lines = []           # Lines of the current change
         self.blank_count = 0             # Number of blank lines stored up
         self.state = STATE_MSG_HEADER    # What state are we in?
         self.signoff = []                # Contents of signoff line
@@ -138,6 +142,20 @@ class PatchStream:
             raise ValueError("%s: Cannot decode version info '%s'" %
                 (self.commit.hash, line))
 
+    def FinalizeChange(self):
+        """Finalize a (multi-line) change and add it to the series or commit"""
+        if not self.change_lines:
+            return
+        change = '\n'.join(self.change_lines)
+
+        if self.in_change == 'Series':
+            self.series.AddChange(self.change_version, self.commit, change)
+        elif self.in_change == 'Cover':
+            self.series.AddChange(self.change_version, None, change)
+        elif self.in_change == 'Commit':
+            self.commit.AddChange(self.change_version, change)
+        self.change_lines = []
+
     def ProcessLine(self, line):
         """Process a single line of a patch file or commit log
 
@@ -178,6 +196,7 @@ class PatchStream:
         commit_tag_match = re_commit_tag.match(line)
         cover_match = re_cover.match(line)
         signoff_match = re_signoff.match(line)
+        leading_whitespace_match = re_leading_whitespace.match(line)
         tag_match = None
         if self.state == STATE_PATCH_HEADER:
             tag_match = re_tag.match(line)
@@ -218,6 +237,7 @@ class PatchStream:
             # is missing, fix it up.
             if self.in_change:
                 self.warn.append("Missing 'blank line' in section '%s-changes'" % self.in_change)
+                self.FinalizeChange()
                 self.in_change = None
                 self.change_version = 0
 
@@ -272,20 +292,18 @@ class PatchStream:
         elif self.in_change:
             if is_blank:
                 # Blank line ends this change list
+                self.FinalizeChange()
                 self.in_change = None
                 self.change_version = 0
             elif line == '---':
+                self.FinalizeChange()
                 self.in_change = None
                 self.change_version = 0
                 out = self.ProcessLine(line)
-            else:
-                if self.is_log:
-                    if self.in_change == 'Series':
-                        self.series.AddChange(self.change_version, self.commit, line)
-                    elif self.in_change == 'Cover':
-                        self.series.AddChange(self.change_version, None, line)
-                    elif self.in_change == 'Commit':
-                        self.commit.AddChange(self.change_version, line)
+            elif self.is_log:
+                if not leading_whitespace_match:
+                    self.FinalizeChange()
+                self.change_lines.append(line)
             self.skip_blank = False
 
         # Detect Series-xxx tags
@@ -378,6 +396,7 @@ class PatchStream:
 
     def Finalize(self):
         """Close out processing of this patch stream"""
+        self.FinalizeChange()
         self.CloseCommit()
         if self.lines_after_test:
             self.warn.append('Found %d lines after TEST=' %

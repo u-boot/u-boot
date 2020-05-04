@@ -270,8 +270,14 @@ Patch-cc: Their Name <email>
 	interpreted by git send-email if you use it.
 
 Series-process-log: sort, uniq
-	This tells patman to sort and/or uniq the change logs. It is
-	assumed that each change log entry is only a single line long.
+	This tells patman to sort and/or uniq the change logs. Changes may be
+	multiple lines long, as long as each subsequent line of a change begins
+	with a whitespace character. For example,
+
+- This change
+  continues onto the next line
+- But this change is separate
+
 	Use 'sort' to sort the entries, and 'uniq' to include only
 	unique entries. If omitted, no change log processing is done.
 	Separate each tag with a comma.
