@@ -3,6 +3,14 @@
  * Copyright 2019 NXP
  */
 
+/ {
+	wdt-reboot {
+		compatible = "wdt-reboot";
+		wdt = <&wdog1>;
+		u-boot,dm-spl;
+	};
+};
+
 &{/soc@0} {
 	u-boot,dm-pre-reloc;
 	u-boot,dm-spl;
@@ -117,5 +125,9 @@
 };
 
 &usdhc3 {
+	u-boot,dm-spl;
+};
+
+&wdog1 {
 	u-boot,dm-spl;
 };

@@ -165,7 +165,13 @@ static u32 get_cpu_variant_type(u32 type)
 
 	u32 value = readl(&fuse->tester4);
 
-	if (type == MXC_CPU_IMX8MM) {
+	if (type == MXC_CPU_IMX8MQ) {
+		if ((value & 0x3) == 0x2)
+			return MXC_CPU_IMX8MD;
+		else if (value & 0x200000)
+			return MXC_CPU_IMX8MQL;
+
+	} else if (type == MXC_CPU_IMX8MM) {
 		switch (value & 0x3) {
 		case 2:
 			if (value & 0x1c0000)
@@ -180,6 +186,23 @@ static u32 get_cpu_variant_type(u32 type)
 		default:
 			if (value & 0x1c0000)
 				return MXC_CPU_IMX8MML;
+			break;
+		}
+	} else if (type == MXC_CPU_IMX8MN) {
+		switch (value & 0x3) {
+		case 2:
+			if (value & 0x1000000)
+				return MXC_CPU_IMX8MNDL;
+			else
+				return MXC_CPU_IMX8MND;
+		case 3:
+			if (value & 0x1000000)
+				return MXC_CPU_IMX8MNSL;
+			else
+				return MXC_CPU_IMX8MNS;
+		default:
+			if (value & 0x1000000)
+				return MXC_CPU_IMX8MNL;
 			break;
 		}
 	}
@@ -202,7 +225,7 @@ u32 get_cpu_rev(void)
 		return (MXC_CPU_IMX8MP << 12) | reg;
 	} else if (major_low == 0x42) {
 		/* iMX8MN */
-		return (MXC_CPU_IMX8MN << 12) | reg;
+		type = get_cpu_variant_type(MXC_CPU_IMX8MN);
 	} else if (major_low == 0x41) {
 		type = get_cpu_variant_type(MXC_CPU_IMX8MM);
 	} else {
@@ -226,6 +249,8 @@ u32 get_cpu_rev(void)
 				}
 			}
 		}
+
+		type = get_cpu_variant_type(type);
 	}
 
 	return (type << 12) | reg;
@@ -364,16 +389,18 @@ int ft_system_setup(void *blob, bd_t *bd)
 			if (nodeoff < 0)
 				continue; /* Not found, skip it */
 
-			printf("Found %s node\n", nodes_path[i]);
+			debug("Found %s node\n", nodes_path[i]);
 
 			rc = fdt_delprop(blob, nodeoff, "cpu-idle-states");
+			if (rc == -FDT_ERR_NOTFOUND)
+				continue;
 			if (rc) {
 				printf("Unable to update property %s:%s, err=%s\n",
 				       nodes_path[i], "status", fdt_strerror(rc));
 				return rc;
 			}
 
-			printf("Remove %s:%s\n", nodes_path[i],
+			debug("Remove %s:%s\n", nodes_path[i],
 			       "cpu-idle-states");
 		}
 	}
@@ -382,21 +409,42 @@ int ft_system_setup(void *blob, bd_t *bd)
 }
 #endif
 
-#if defined(CONFIG_SPL_BUILD) || !defined(CONFIG_SYSRESET)
+#if !CONFIG_IS_ENABLED(SYSRESET)
 void reset_cpu(ulong addr)
 {
-       struct watchdog_regs *wdog = (struct watchdog_regs *)addr;
+	struct watchdog_regs *wdog = (struct watchdog_regs *)WDOG1_BASE_ADDR;
 
-       if (!addr)
-	       wdog = (struct watchdog_regs *)WDOG1_BASE_ADDR;
+	/* Clear WDA to trigger WDOG_B immediately */
+	writew((SET_WCR_WT(1) | WCR_WDT | WCR_WDE | WCR_SRS), &wdog->wcr);
 
-       /* Clear WDA to trigger WDOG_B immediately */
-       writew((WCR_WDE | WCR_SRS), &wdog->wcr);
+	while (1) {
+		/*
+		 * spin for .5 seconds before reset
+		 */
+	}
+}
+#endif
 
-       while (1) {
-               /*
-                * spin for .5 seconds before reset
-                */
-       }
+#if defined(CONFIG_ARCH_MISC_INIT)
+static void acquire_buildinfo(void)
+{
+	u64 atf_commit = 0;
+
+	/* Get ARM Trusted Firmware commit id */
+	atf_commit = call_imx_sip(IMX_SIP_BUILDINFO,
+				  IMX_SIP_BUILDINFO_GET_COMMITHASH, 0, 0, 0);
+	if (atf_commit == 0xffffffff) {
+		debug("ATF does not support build info\n");
+		atf_commit = 0x30; /* Display 0, 0 ascii is 0x30 */
+	}
+
+	printf("\n BuildInfo:\n  - ATF %s\n\n", (char *)&atf_commit);
+}
+
+int arch_misc_init(void)
+{
+	acquire_buildinfo();
+
+	return 0;
 }
 #endif

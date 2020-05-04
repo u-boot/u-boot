@@ -153,6 +153,7 @@ enum clk_root_src {
 	EXT_CLK_3,
 	EXT_CLK_4,
 	OSC_27M_CLK,
+	ARM_A53_ALT_CLK,
 };
 
 /* CCGR index */
@@ -419,7 +420,7 @@ enum clk_src_index {
 
 enum frac_pll_out_val {
 	FRAC_PLL_OUT_1000M,
-	FRAC_PLL_OUT_1600M,
+	FRAC_PLL_OUT_800M,
 };
 
 void init_nand_clk(void);

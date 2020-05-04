@@ -95,7 +95,17 @@ const char *get_imx_type(u32 imxtype)
 	case MXC_CPU_IMX8MP:
 		return "8MP";	/* Quad-core version of the imx8mp */
 	case MXC_CPU_IMX8MN:
-		return "8MNano";/* Quad-core version of the imx8mn */
+		return "8MNano Quad"; /* Quad-core version */
+	case MXC_CPU_IMX8MND:
+		return "8MNano Dual"; /* Dual-core version */
+	case MXC_CPU_IMX8MNS:
+		return "8MNano Solo"; /* Single-core version */
+	case MXC_CPU_IMX8MNL:
+		return "8MNano QuadLite"; /* Quad-core Lite version */
+	case MXC_CPU_IMX8MNDL:
+		return "8MNano DualLite"; /* Dual-core Lite version */
+	case MXC_CPU_IMX8MNSL:
+		return "8MNano SoloLite"; /* Single-core Lite version */
 	case MXC_CPU_IMX8MM:
 		return "8MMQ";	/* Quad-core version of the imx8mm */
 	case MXC_CPU_IMX8MML:
@@ -109,7 +119,11 @@ const char *get_imx_type(u32 imxtype)
 	case MXC_CPU_IMX8MMSL:
 		return "8MMSL";	/* Single-core Lite version of the imx8mm */
 	case MXC_CPU_IMX8MQ:
-		return "8MQ";	/* Quad-core version of the imx8m */
+		return "8MQ";	/* Quad-core version of the imx8mq */
+	case MXC_CPU_IMX8MQL:
+		return "8MQLite";	/* Quad-core Lite version of the imx8mq */
+	case MXC_CPU_IMX8MD:
+		return "8MD";	/* Dual-core version of the imx8mq */
 	case MXC_CPU_MX7S:
 		return "7S";	/* Single-core version of the mx7 */
 	case MXC_CPU_MX7D:
@@ -314,6 +328,7 @@ enum cpu_speed {
 	OCOTP_TESTER3_SPEED_GRADE1,
 	OCOTP_TESTER3_SPEED_GRADE2,
 	OCOTP_TESTER3_SPEED_GRADE3,
+	OCOTP_TESTER3_SPEED_GRADE4,
 };
 
 u32 get_cpu_speed_grade_hz(void)
@@ -326,17 +341,28 @@ u32 get_cpu_speed_grade_hz(void)
 
 	val = readl(&fuse->tester3);
 	val >>= OCOTP_TESTER3_SPEED_SHIFT;
-	val &= 0x3;
+
+	if (is_imx8mn() || is_imx8mp()) {
+		val &= 0xf;
+		return 2300000000 - val * 100000000;
+	}
+
+	if (is_imx8mm())
+		val &= 0x7;
+	else
+		val &= 0x3;
 
 	switch(val) {
 	case OCOTP_TESTER3_SPEED_GRADE0:
 		return 800000000;
 	case OCOTP_TESTER3_SPEED_GRADE1:
-		return is_mx7() ? 500000000 : 1000000000;
+		return (is_mx7() ? 500000000 : (is_imx8mq() ? 1000000000 : 1200000000));
 	case OCOTP_TESTER3_SPEED_GRADE2:
-		return is_mx7() ? 1000000000 : 1300000000;
+		return (is_mx7() ? 1000000000 : (is_imx8mq() ? 1300000000 : 1600000000));
 	case OCOTP_TESTER3_SPEED_GRADE3:
-		return is_mx7() ? 1200000000 : 1500000000;
+		return (is_mx7() ? 1200000000 : (is_imx8mq() ? 1500000000 : 1800000000));
+	case OCOTP_TESTER3_SPEED_GRADE4:
+		return 2000000000;
 	}
 
 	return 0;

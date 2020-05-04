@@ -8,6 +8,11 @@
 #define SC_RPC_H
 
 /* Note: Check SCFW API Released DOC before you want to modify something */
+/* Defines */
+
+#define SCFW_API_VERSION_MAJOR  1U
+#define SCFW_API_VERSION_MINOR  15U
+
 #define SC_RPC_VERSION          1U
 
 #define SC_RPC_MAX_MSG          8U
@@ -17,9 +22,13 @@
 #define RPC_SVC(MSG)            ((MSG)->svc)
 #define RPC_FUNC(MSG)           ((MSG)->func)
 #define RPC_R8(MSG)             ((MSG)->func)
+#define RPC_I64(MSG, IDX)       ((s64)(RPC_U32((MSG), (IDX))) << 32ULL) | \
+				  (s64)(RPC_U32((MSG), (IDX) + 4U))
 #define RPC_I32(MSG, IDX)       ((MSG)->DATA.i32[(IDX) / 4U])
 #define RPC_I16(MSG, IDX)       ((MSG)->DATA.i16[(IDX) / 2U])
 #define RPC_I8(MSG, IDX)        ((MSG)->DATA.i8[(IDX)])
+#define RPC_U64(MSG, IDX)       ((u64)(RPC_U32((MSG), (IDX))) << 32ULL) | \
+				  (u64)(RPC_U32((MSG), (IDX) + 4U))
 #define RPC_U32(MSG, IDX)       ((MSG)->DATA.u32[(IDX) / 4U])
 #define RPC_U16(MSG, IDX)       ((MSG)->DATA.u16[(IDX) / 2U])
 #define RPC_U8(MSG, IDX)        ((MSG)->DATA.u8[(IDX)])
@@ -76,6 +85,8 @@ struct sc_rpc_msg_s {
 #define PM_FUNC_REBOOT				9U
 #define PM_FUNC_REBOOT_PARTITION		12U
 #define PM_FUNC_CPU_START			11U
+#define PM_FUNC_CPU_RESET			23U
+#define PM_FUNC_RESOURCE_RESET			29U
 #define PM_FUNC_IS_PARTITION_STARTED 24U
 
 /* MISC RPC */
@@ -160,26 +171,59 @@ struct sc_rpc_msg_s {
 #define RM_FUNC_DUMP				27U
 
 /* SECO RPC */
-#define SECO_FUNC_UNKNOWN			0
-#define SECO_FUNC_IMAGE_LOAD			1U
-#define SECO_FUNC_AUTHENTICATE			2U
-#define SECO_FUNC_FORWARD_LIFECYCLE		3U
-#define SECO_FUNC_RETURN_LIFECYCLE		4U
-#define SECO_FUNC_COMMIT			5U
-#define SECO_FUNC_ATTEST_MODE			6U
-#define SECO_FUNC_ATTEST			7U
-#define SECO_FUNC_GET_ATTEST_PKEY		8U
-#define SECO_FUNC_GET_ATTEST_SIGN		9U
-#define SECO_FUNC_ATTEST_VERIFY			10U
-#define SECO_FUNC_GEN_KEY_BLOB			11U
-#define SECO_FUNC_LOAD_KEY			12U
-#define SECO_FUNC_GET_MP_KEY			13U
-#define SECO_FUNC_UPDATE_MPMR			14U
-#define SECO_FUNC_GET_MP_SIGN			15U
-#define SECO_FUNC_BUILD_INFO			16U
-#define SECO_FUNC_CHIP_INFO			17U
-#define SECO_FUNC_ENABLE_DEBUG			18U
-#define SECO_FUNC_GET_EVENT			19U
-#define SECO_FUNC_FUSE_WRITE			20U
+#define SECO_FUNC_UNKNOWN 0 /* Unknown function */
+#define SECO_FUNC_IMAGE_LOAD 1U /* Index for seco_image_load() RPC call */
+#define SECO_FUNC_AUTHENTICATE 2U /* Index for seco_authenticate() RPC call */
+#define SECO_FUNC_ENH_AUTHENTICATE 24U /* Index for sc_seco_enh_authenticate() RPC call */
+#define SECO_FUNC_FORWARD_LIFECYCLE 3U /* Index for seco_forward_lifecycle() RPC call */
+#define SECO_FUNC_RETURN_LIFECYCLE 4U /* Index for seco_return_lifecycle() RPC call */
+#define SECO_FUNC_COMMIT 5U /* Index for seco_commit() RPC call */
+#define SECO_FUNC_ATTEST_MODE 6U /* Index for seco_attest_mode() RPC call */
+#define SECO_FUNC_ATTEST 7U /* Index for seco_attest() RPC call */
+#define SECO_FUNC_GET_ATTEST_PKEY 8U /* Index for seco_get_attest_pkey() RPC call */
+#define SECO_FUNC_GET_ATTEST_SIGN 9U /* Index for seco_get_attest_sign() RPC call */
+#define SECO_FUNC_ATTEST_VERIFY 10U /* Index for seco_attest_verify() RPC call */
+#define SECO_FUNC_GEN_KEY_BLOB 11U /* Index for seco_gen_key_blob() RPC call */
+#define SECO_FUNC_LOAD_KEY 12U /* Index for seco_load_key() RPC call */
+#define SECO_FUNC_GET_MP_KEY 13U /* Index for seco_get_mp_key() RPC call */
+#define SECO_FUNC_UPDATE_MPMR 14U /* Index for seco_update_mpmr() RPC call */
+#define SECO_FUNC_GET_MP_SIGN 15U /* Index for seco_get_mp_sign() RPC call */
+#define SECO_FUNC_BUILD_INFO 16U /* Index for seco_build_info() RPC call */
+#define SECO_FUNC_CHIP_INFO 17U /* Index for seco_chip_info() RPC call */
+#define SECO_FUNC_ENABLE_DEBUG 18U /* Index for seco_enable_debug() RPC call */
+#define SECO_FUNC_GET_EVENT 19U /* Index for seco_get_event() RPC call */
+#define SECO_FUNC_FUSE_WRITE 20U /* Index for seco_fuse_write() RPC call */
+#define SECO_FUNC_PATCH 21U /* Index for sc_seco_patch() RPC call */
+#define SECO_FUNC_START_RNG 22U /* Index for sc_seco_start_rng() RPC call */
+#define SECO_FUNC_SAB_MSG 23U /* Index for sc_seco_sab_msg() RPC call */
+#define SECO_FUNC_SECVIO_ENABLE 25U /* Index for sc_seco_secvio_enable() RPC call */
+#define SECO_FUNC_SECVIO_CONFIG 26U /* Index for sc_seco_secvio_config() RPC call */
+#define SECO_FUNC_SECVIO_DGO_CONFIG 27U /* Index for sc_seco_secvio_dgo_config() RPC call */
+
+/* IRQ RPC */
+#define IRQ_FUNC_UNKNOWN 0 /* Unknown function */
+#define IRQ_FUNC_ENABLE 1U /* Index for sc_irq_enable() RPC call */
+#define IRQ_FUNC_STATUS 2U /* Index for sc_irq_status() RPC call */
+
+/* TIMER RPC */
+#define TIMER_FUNC_UNKNOWN 0 /* Unknown function */
+#define TIMER_FUNC_SET_WDOG_TIMEOUT 1U /* Index for sc_timer_set_wdog_timeout() RPC call */
+#define TIMER_FUNC_SET_WDOG_PRE_TIMEOUT 12U /* Index for sc_timer_set_wdog_pre_timeout() RPC call */
+#define TIMER_FUNC_START_WDOG 2U /* Index for sc_timer_start_wdog() RPC call */
+#define TIMER_FUNC_STOP_WDOG 3U /* Index for sc_timer_stop_wdog() RPC call */
+#define TIMER_FUNC_PING_WDOG 4U /* Index for sc_timer_ping_wdog() RPC call */
+#define TIMER_FUNC_GET_WDOG_STATUS 5U /* Index for sc_timer_get_wdog_status() RPC call */
+#define TIMER_FUNC_PT_GET_WDOG_STATUS 13U /* Index for sc_timer_pt_get_wdog_status() RPC call */
+#define TIMER_FUNC_SET_WDOG_ACTION 10U /* Index for sc_timer_set_wdog_action() RPC call */
+#define TIMER_FUNC_SET_RTC_TIME 6U /* Index for sc_timer_set_rtc_time() RPC call */
+#define TIMER_FUNC_GET_RTC_TIME 7U /* Index for sc_timer_get_rtc_time() RPC call */
+#define TIMER_FUNC_GET_RTC_SEC1970 9U /* Index for sc_timer_get_rtc_sec1970() RPC call */
+#define TIMER_FUNC_SET_RTC_ALARM 8U /* Index for sc_timer_set_rtc_alarm() RPC call */
+#define TIMER_FUNC_SET_RTC_PERIODIC_ALARM 14U /* Index for sc_timer_set_rtc_periodic_alarm() RPC call */
+#define TIMER_FUNC_CANCEL_RTC_ALARM 15U /* Index for sc_timer_cancel_rtc_alarm() RPC call */
+#define TIMER_FUNC_SET_RTC_CALB 11U /* Index for sc_timer_set_rtc_calb() RPC call */
+#define TIMER_FUNC_SET_SYSCTR_ALARM 16U /* Index for sc_timer_set_sysctr_alarm() RPC call */
+#define TIMER_FUNC_SET_SYSCTR_PERIODIC_ALARM 17U /* Index for sc_timer_set_sysctr_periodic_alarm() RPC call */
+#define TIMER_FUNC_CANCEL_SYSCTR_ALARM 18U /* Index for sc_timer_cancel_sysctr_alarm() RPC call */
 
 #endif /* SC_RPC_H */

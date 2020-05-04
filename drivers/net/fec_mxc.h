@@ -188,6 +188,8 @@ struct ethernet_regs {
 #define FEC_ECNTRL_ETHER_EN		0x00000002	/* enable the FEC */
 #define FEC_ECNTRL_SPEED		0x00000020
 #define FEC_ECNTRL_DBSWAP		0x00000100
+#define FEC_ECNTRL_TXC_DLY		0x00010000	/* TXC delayed */
+#define FEC_ECNTRL_RXC_DLY		0x00020000	/* RXC delayed */
 
 #define FEC_X_WMRK_STRFWD		0x00000100
 

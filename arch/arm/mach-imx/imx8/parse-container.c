@@ -23,23 +23,23 @@ static int authenticate_image(struct boot_img_t *img, int image_index)
 	int err;
 	int ret = 0;
 
-	debug("img %d, dst 0x%llx, src 0x%x, size 0x%x\n",
-	      image_index, img->dst, img->offset, img->size);
+	debug("img %d, dst 0x%x, src 0x%x, size 0x%x\n",
+	      image_index, (uint32_t)img->dst, img->offset, img->size);
 
 	/* Find the memreg and set permission for seco pt */
 	err = sc_rm_find_memreg(-1, &mr,
 				img->dst & ~(CONFIG_SYS_CACHELINE_SIZE - 1),
-				ALIGN(img->dst + img->size, CONFIG_SYS_CACHELINE_SIZE));
+				ALIGN(img->dst + img->size, CONFIG_SYS_CACHELINE_SIZE) - 1);
 
 	if (err) {
-		printf("can't find memreg for image: %d, err %d\n",
-		       image_index, err);
+		printf("can't find memreg for image %d load address 0x%x, error %d\n",
+		       image_index, img->dst & ~(CONFIG_SYS_CACHELINE_SIZE - 1), err);
 		return -ENOMEM;
 	}
 
 	err = sc_rm_get_memreg_info(-1, mr, &start, &end);
 	if (!err)
-		debug("memreg %u 0x%llx -- 0x%llx\n", mr, start, end);
+		debug("memreg %u 0x%x -- 0x%x\n", mr, start, end);
 
 	err = sc_rm_set_memreg_permissions(-1, mr,
 					   SECO_PT, SC_RM_PERM_FULL);
@@ -49,7 +49,7 @@ static int authenticate_image(struct boot_img_t *img, int image_index)
 		return -EPERM;
 	}
 
-	err = sc_seco_authenticate(-1, SC_MISC_VERIFY_IMAGE,
+	err = sc_seco_authenticate(-1, SC_SECO_VERIFY_IMAGE,
 				   1 << image_index);
 	if (err) {
 		printf("authenticate img %d failed, return %d\n",
@@ -168,7 +168,7 @@ static int read_auth_container(struct spl_image_info *spl_image,
 	memcpy((void *)SEC_SECURE_RAM_BASE, (const void *)container,
 	       ALIGN(length, CONFIG_SYS_CACHELINE_SIZE));
 
-	ret = sc_seco_authenticate(-1, SC_MISC_AUTH_CONTAINER,
+	ret = sc_seco_authenticate(-1, SC_SECO_AUTH_CONTAINER,
 				   SECO_LOCAL_SEC_SEC_SECURE_RAM_BASE);
 	if (ret) {
 		printf("authenticate container hdr failed, return %d\n", ret);
@@ -194,7 +194,7 @@ static int read_auth_container(struct spl_image_info *spl_image,
 
 end_auth:
 #ifdef CONFIG_AHAB_BOOT
-	if (sc_seco_authenticate(-1, SC_MISC_REL_CONTAINER, 0))
+	if (sc_seco_authenticate(-1, SC_SECO_REL_CONTAINER, 0))
 		printf("Error: release container failed!\n");
 #endif
 	return ret;

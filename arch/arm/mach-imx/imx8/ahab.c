@@ -75,7 +75,7 @@ int authenticate_os_container(ulong addr)
 	memcpy((void *)SEC_SECURE_RAM_BASE, (const void *)addr,
 	       ALIGN(length, CONFIG_SYS_CACHELINE_SIZE));
 
-	err = sc_seco_authenticate(-1, SC_MISC_AUTH_CONTAINER,
+	err = sc_seco_authenticate(-1, SC_SECO_AUTH_CONTAINER,
 				   SECO_LOCAL_SEC_SEC_SECURE_RAM_BASE);
 	if (err) {
 		printf("Authenticate container hdr failed, return %d\n",
@@ -90,22 +90,21 @@ int authenticate_os_container(ulong addr)
 					    sizeof(struct container_hdr) +
 					    i * sizeof(struct boot_img_t));
 
-		debug("img %d, dst 0x%llx, src 0x%lx, size 0x%x\n",
-		      i, img->dst, img->offset + addr, img->size);
+		debug("img %d, dst 0x%x, src 0x%x, size 0x%x\n",
+		      i, (uint32_t) img->dst, img->offset + addr, img->size);
 
 		memcpy((void *)img->dst, (const void *)(img->offset + addr),
 		       img->size);
 
 		s = img->dst & ~(CONFIG_SYS_CACHELINE_SIZE - 1);
-		e = ALIGN(img->dst + img->size, CONFIG_SYS_CACHELINE_SIZE);
+		e = ALIGN(img->dst + img->size, CONFIG_SYS_CACHELINE_SIZE) - 1;
 
 		flush_dcache_range(s, e);
 
 		/* Find the memreg and set permission for seco pt */
 		err = sc_rm_find_memreg(-1, &mr, s, e);
 		if (err) {
-			printf("Not found memreg for image: %d, error %d\n",
-			       i, err);
+			printf("Error: can't find memreg for image load address 0x%x, error %d\n", img->dst, err);
 			ret = -ENOMEM;
 			goto exit;
 		}
@@ -123,7 +122,7 @@ int authenticate_os_container(ulong addr)
 			goto exit;
 		}
 
-		err = sc_seco_authenticate(-1, SC_MISC_VERIFY_IMAGE,
+		err = sc_seco_authenticate(-1, SC_SECO_VERIFY_IMAGE,
 					   (1 << i));
 		if (err) {
 			printf("Authenticate img %d failed, return %d\n",
@@ -144,7 +143,7 @@ int authenticate_os_container(ulong addr)
 	}
 
 exit:
-	if (sc_seco_authenticate(-1, SC_MISC_REL_CONTAINER, 0) != SC_ERR_NONE)
+	if (sc_seco_authenticate(-1, SC_SECO_REL_CONTAINER, 0) != SC_ERR_NONE)
 		printf("Error: release container failed!\n");
 
 	return ret;

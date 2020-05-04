@@ -447,34 +447,34 @@ static u32 decode_fracpll(enum clk_root_src frac_pll)
 	}
 
 	/* Only support SYS_XTAL 24M, PAD_CLK not take into consideration */
-	if ((pll_gnrl_ctl & INTPLL_REF_CLK_SEL_MASK) != 0)
+	if ((pll_gnrl_ctl & GENMASK(1, 0)) != 0)
 		return 0;
 
-	if ((pll_gnrl_ctl & INTPLL_RST_MASK) == 0)
+	if ((pll_gnrl_ctl & RST_MASK) == 0)
 		return 0;
 	/*
 	 * When BYPASS is equal to 1, PLL enters the bypass mode
 	 * regardless of the values of RESETB
 	 */
-	if (pll_gnrl_ctl & INTPLL_BYPASS_MASK)
+	if (pll_gnrl_ctl & BYPASS_MASK)
 		return 24000000u;
 
-	if (!(pll_gnrl_ctl & INTPLL_LOCK_MASK)) {
+	if (!(pll_gnrl_ctl & LOCK_STATUS)) {
 		puts("pll not locked\n");
 		return 0;
 	}
 
-	if (!(pll_gnrl_ctl & INTPLL_CLKE_MASK))
+	if (!(pll_gnrl_ctl & CLKE_MASK))
 		return 0;
 
-	main_div = (pll_fdiv_ctl0 & INTPLL_MAIN_DIV_MASK) >>
-		INTPLL_MAIN_DIV_SHIFT;
-	pre_div = (pll_fdiv_ctl0 & INTPLL_PRE_DIV_MASK) >>
-		INTPLL_PRE_DIV_SHIFT;
-	post_div = (pll_fdiv_ctl0 & INTPLL_POST_DIV_MASK) >>
-		INTPLL_POST_DIV_SHIFT;
+	main_div = (pll_fdiv_ctl0 & MDIV_MASK) >>
+		MDIV_SHIFT;
+	pre_div = (pll_fdiv_ctl0 & PDIV_MASK) >>
+		PDIV_SHIFT;
+	post_div = (pll_fdiv_ctl0 & SDIV_MASK) >>
+		SDIV_SHIFT;
 
-	k = pll_fdiv_ctl1 & GENMASK(15, 0);
+	k = pll_fdiv_ctl1 & KDIV_MASK;
 
 	return lldiv((main_div * 65536 + k) * 24000000ULL,
 		     65536 * pre_div * (1 << post_div));
@@ -578,3 +578,52 @@ u32 mxc_get_clock(enum mxc_clock clk)
 
 	return 0;
 }
+
+#ifdef CONFIG_FEC_MXC
+int set_clk_enet(enum enet_freq type)
+{
+	u32 target;
+	u32 enet1_ref;
+
+	switch (type) {
+	case ENET_125MHZ:
+		enet1_ref = ENET1_REF_CLK_ROOT_FROM_PLL_ENET_MAIN_125M_CLK;
+		break;
+	case ENET_50MHZ:
+		enet1_ref = ENET1_REF_CLK_ROOT_FROM_PLL_ENET_MAIN_50M_CLK;
+		break;
+	case ENET_25MHZ:
+		enet1_ref = ENET1_REF_CLK_ROOT_FROM_PLL_ENET_MAIN_25M_CLK;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	/* disable the clock first */
+	clock_enable(CCGR_ENET1, 0);
+	clock_enable(CCGR_SIM_ENET, 0);
+
+	/* set enet axi clock 266Mhz */
+	target = CLK_ROOT_ON | ENET_AXI_CLK_ROOT_FROM_SYS1_PLL_266M |
+		 CLK_ROOT_PRE_DIV(CLK_ROOT_PRE_DIV1) |
+		 CLK_ROOT_POST_DIV(CLK_ROOT_POST_DIV1);
+	clock_set_target_val(ENET_AXI_CLK_ROOT, target);
+
+	target = CLK_ROOT_ON | enet1_ref |
+		 CLK_ROOT_PRE_DIV(CLK_ROOT_PRE_DIV1) |
+		 CLK_ROOT_POST_DIV(CLK_ROOT_POST_DIV1);
+	clock_set_target_val(ENET_REF_CLK_ROOT, target);
+
+	target = CLK_ROOT_ON |
+		ENET1_TIME_CLK_ROOT_FROM_PLL_ENET_MAIN_100M_CLK |
+		CLK_ROOT_PRE_DIV(CLK_ROOT_PRE_DIV1) |
+		CLK_ROOT_POST_DIV(CLK_ROOT_POST_DIV4);
+	clock_set_target_val(ENET_TIMER_CLK_ROOT, target);
+
+	/* enable clock */
+	clock_enable(CCGR_SIM_ENET, 1);
+	clock_enable(CCGR_ENET1, 1);
+
+	return 0;
+}
+#endif

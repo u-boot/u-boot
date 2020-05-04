@@ -2,6 +2,7 @@
 #include <common.h>
 #include <asm/arch/sci/sci.h>
 #include <asm/mach-imx/sys_proto.h>
+#include <imx_sip.h>
 
 int sc_pm_setup_uart(sc_rsrc_t uart_rsrc, sc_pm_clock_rate_t clk_rate)
 {
@@ -26,9 +27,6 @@ int sc_pm_setup_uart(sc_rsrc_t uart_rsrc, sc_pm_clock_rate_t clk_rate)
 	return 0;
 }
 
-#define FSL_SIP_BUILDINFO			0xC2000003
-#define FSL_SIP_BUILDINFO_GET_COMMITHASH	0x00
-
 void build_info(void)
 {
 	u32 seco_build = 0, seco_commit = 0;
@@ -51,8 +49,8 @@ void build_info(void)
 	}
 
 	/* Get ARM Trusted Firmware commit id */
-	atf_commit = call_imx_sip(FSL_SIP_BUILDINFO,
-				  FSL_SIP_BUILDINFO_GET_COMMITHASH, 0, 0, 0);
+	atf_commit = call_imx_sip(IMX_SIP_BUILDINFO,
+				  IMX_SIP_BUILDINFO_GET_COMMITHASH, 0, 0, 0);
 	if (atf_commit == 0xffffffff) {
 		debug("ATF does not support build info\n");
 		atf_commit = 0x30; /* Display 0 */

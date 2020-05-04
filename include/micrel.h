@@ -23,6 +23,16 @@
 #define MII_KSZ9031_FLP_BURST_TX_LO		0x3
 #define MII_KSZ9031_FLP_BURST_TX_HI		0x4
 
+#define MII_KSZ9x31_SILICON_REV_MASK		0xfffff0
+
+#define MII_KSZ9131_RXTXDLL_BYPASS		BIT(12)
+#define MII_KSZ9131_EXT_RGMII_2NS_SKEW_RXDLL	0x4c
+#define MII_KSZ9131_EXT_RGMII_2NS_SKEW_TXDLL	0x4d
+
+#define PHY_ID_KSZ9031				0x00221620
+#define PHY_ID_KSZ9131				0x00221640
+
+
 /* Registers */
 #define MMD_ACCESS_CONTROL	0xd
 #define MMD_ACCESS_REG_DATA	0xe
@@ -35,5 +45,6 @@ int ksz9031_phy_extended_write(struct phy_device *phydev, int devaddr,
 			       int regnum, u16 mode, u16 val);
 int ksz9031_phy_extended_read(struct phy_device *phydev, int devaddr,
 			      int regnum, u16 mode);
+int ksz9xx1_phy_get_id(struct phy_device *phydev);
 
 #endif
