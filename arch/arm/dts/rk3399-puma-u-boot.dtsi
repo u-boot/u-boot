@@ -13,7 +13,7 @@
        chosen {
                stdout-path = "serial0:115200n8";
                u-boot,spl-boot-order = \
-                       "same-as-spl", &spiflash, &sdhci, &sdmmc;
+			"same-as-spl", &norflash, &sdhci, &sdmmc;
        };
 
        aliases {
@@ -21,4 +21,33 @@
                spi1 = &spi5;
        };
 
+	/*
+	 * The Qseven BIOS_DISABLE signal on the RK3399-Q7 keeps the on-module
+	 * eMMC and SPI flash powered-down initially (in fact it keeps the
+	 * reset signal asserted).  Even though it is an enable signal, we
+	 * model this as a regulator.
+	 */
+	bios_enable: bios_enable {
+		compatible = "regulator-fixed";
+		u-boot,dm-pre-reloc;
+		regulator-name = "bios_enable";
+		enable-active-high;
+		gpio = <&gpio3 RK_PD5 GPIO_ACTIVE_LOW>;
+		regulator-always-on;
+		regulator-boot-on;
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+	};
+};
+
+&gpio1 {
+	u-boot,dm-pre-reloc;
+};
+
+&gpio3 {
+	u-boot,dm-pre-reloc;
+};
+
+&norflash {
+	u-boot,dm-pre-reloc;
 };

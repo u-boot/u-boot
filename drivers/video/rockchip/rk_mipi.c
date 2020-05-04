@@ -8,7 +8,6 @@
 #include <clk.h>
 #include <display.h>
 #include <dm.h>
-#include <fdtdec.h>
 #include <panel.h>
 #include <regmap.h>
 #include "rk_mipi.h"
@@ -29,8 +28,7 @@ int rk_mipi_read_timing(struct udevice *dev,
 {
 	int ret;
 
-	ret = fdtdec_decode_display_timing(gd->fdt_blob, dev_of_offset(dev),
-					 0, timing);
+	ret = ofnode_decode_display_timing(dev_ofnode(dev), 0, timing);
 	if (ret) {
 		debug("%s: Failed to decode display timing (ret=%d)\n",
 		      __func__, ret);
@@ -77,7 +75,7 @@ static void rk_mipi_dsi_write(uintptr_t regs, u32 reg, u32 val)
 int rk_mipi_dsi_enable(struct udevice *dev,
 		       const struct display_timing *timing)
 {
-	int node, timing_node;
+	ofnode node, timing_node;
 	int val;
 	struct rk_mipi_priv *priv = dev_get_priv(dev);
 	uintptr_t regs = priv->regs;
@@ -120,10 +118,10 @@ int rk_mipi_dsi_enable(struct udevice *dev,
 	rk_mipi_dsi_write(regs, VID_PKT_SIZE, 0x4b0);
 
 	/* Set dpi color coding depth 24 bit */
-	timing_node = fdt_subnode_offset(gd->fdt_blob, dev_of_offset(dev),
-									 "display-timings");
-	node = fdt_first_subnode(gd->fdt_blob, timing_node);
-	val = fdtdec_get_int(gd->fdt_blob, node, "bits-per-pixel", -1);
+	timing_node = ofnode_find_subnode(dev->node, "display-timings");
+	node = ofnode_first_subnode(timing_node);
+
+	val = ofnode_read_u32_default(node, "bits-per-pixel", -1);
 	switch (val) {
 	case 16:
 		rk_mipi_dsi_write(regs, DPI_COLOR_CODING, DPI_16BIT_CFG_1);

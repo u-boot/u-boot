@@ -52,10 +52,12 @@ Two RK3308 boards are supported:
    - EVB RK3308 - use evb-rk3308 configuration
    - ROC-CC-RK3308 - use roc-cc-rk3308 configuration
 
-Two RK3328 board are supported:
+Three RK3328 boards are supported:
 
    - EVB RK3328 - use evb-rk3328_defconfig
    - Pine64 Rock64 board - use rock64-rk3328_defconfig
+   - Firefly / Libre Computer Project ROC-RK3328-CC board -
+     use roc-cc-rk3328_defconfig
 
 Size RK3399 boards are supported (aarch64):
 
