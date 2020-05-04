@@ -54,10 +54,10 @@ static void dtsec_configure_serdes(struct fm_eth *priv)
 	bus.priv = priv->mac->phyregs;
 #else
 	bus.priv = priv->pcs_mdio;
-#endif
 	bus.read = memac_mdio_read;
 	bus.write = memac_mdio_write;
 	bus.reset = memac_mdio_reset;
+#endif
 
 qsgmii_loop:
 	/* SGMII IF mode + AN enable only for 1G SGMII, not for 2.5G */
