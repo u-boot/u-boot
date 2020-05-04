@@ -252,6 +252,13 @@ config PHY_TI_DP83867
 	---help---
 	  Adds support for the TI DP83867 1Gbit PHY.
 
+config PHY_TI_GENERIC
+	select PHY_TI
+	bool "Texas Instruments Generic Ethernet PHYs support"
+	---help---
+	  Adds support for Generic TI PHYs that don't need special handling but
+	  the PHY name is associated with a PHY ID.
+
 config PHY_VITESSE
 	bool "Vitesse Ethernet PHYs support"
 
