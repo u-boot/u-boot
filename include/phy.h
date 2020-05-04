@@ -296,6 +296,60 @@ static inline int phy_write_mmd(struct phy_device *phydev, int devad,
 	return phy_write(phydev, MDIO_DEVAD_NONE, MII_MMD_DATA, val);
 }
 
+/**
+ * phy_set_bits_mmd - Convenience function for setting bits in a register
+ * on MMD
+ * @phydev: the phy_device struct
+ * @devad: the MMD containing register to modify
+ * @regnum: register number to modify
+ * @val: bits to set
+ * @return: 0 for success or negative errno for failure
+ */
+static inline int phy_set_bits_mmd(struct phy_device *phydev, int devad,
+				   u32 regnum, u16 val)
+{
+	int value, ret;
+
+	value = phy_read_mmd(phydev, devad, regnum);
+	if (value < 0)
+		return value;
+
+	value |= val;
+
+	ret = phy_write_mmd(phydev, devad, regnum, value);
+	if (ret < 0)
+		return ret;
+
+	return 0;
+}
+
+/**
+ * phy_clear_bits_mmd - Convenience function for clearing bits in a register
+ * on MMD
+ * @phydev: the phy_device struct
+ * @devad: the MMD containing register to modify
+ * @regnum: register number to modify
+ * @val: bits to clear
+ * @return: 0 for success or negative errno for failure
+ */
+static inline int phy_clear_bits_mmd(struct phy_device *phydev, int devad,
+				     u32 regnum, u16 val)
+{
+	int value, ret;
+
+	value = phy_read_mmd(phydev, devad, regnum);
+	if (value < 0)
+		return value;
+
+	value &= ~val;
+
+	ret = phy_write_mmd(phydev, devad, regnum, value);
+	if (ret < 0)
+		return ret;
+
+	return 0;
+}
+
 #ifdef CONFIG_PHYLIB_10G
 extern struct phy_driver gen10g_driver;
 
