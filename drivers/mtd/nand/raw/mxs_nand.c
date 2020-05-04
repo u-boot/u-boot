@@ -612,6 +612,45 @@ static uint8_t mxs_nand_read_byte(struct mtd_info *mtd)
 	return buf;
 }
 
+static bool mxs_nand_erased_page(struct mtd_info *mtd, struct nand_chip *nand,
+				 u8 *buf, int chunk, int page)
+{
+	struct mxs_nand_info *nand_info = nand_get_controller_data(nand);
+	struct bch_geometry *geo = &nand_info->bch_geometry;
+	unsigned int flip_bits = 0, flip_bits_noecc = 0;
+	unsigned int threshold;
+	unsigned int base = geo->ecc_chunkn_size * chunk;
+	u32 *dma_buf = (u32 *)buf;
+	int i;
+
+	threshold = geo->gf_len / 2;
+	if (threshold > geo->ecc_strength)
+		threshold = geo->ecc_strength;
+
+	for (i = 0; i < geo->ecc_chunkn_size; i++) {
+		flip_bits += hweight8(~buf[base + i]);
+		if (flip_bits > threshold)
+			return false;
+	}
+
+	nand->cmdfunc(mtd, NAND_CMD_READ0, 0, page);
+	nand->read_buf(mtd, buf, mtd->writesize);
+
+	for (i = 0; i < mtd->writesize / 4; i++) {
+		flip_bits_noecc += hweight32(~dma_buf[i]);
+		if (flip_bits_noecc > threshold)
+			return false;
+	}
+
+	mtd->ecc_stats.corrected += flip_bits;
+
+	memset(buf, 0xff, mtd->writesize);
+
+	printf("The page(%d) is an erased page(%d,%d,%d,%d).\n", page, chunk, threshold, flip_bits, flip_bits_noecc);
+
+	return true;
+}
+
 /*
  * Read a page from NAND.
  */
@@ -715,6 +754,8 @@ static int mxs_nand_ecc_read_page(struct mtd_info *mtd, struct nand_chip *nand,
 		goto rtn;
 	}
 
+	mxs_nand_return_dma_descs(nand_info);
+
 	/* Invalidate caches */
 	mxs_nand_inval_data_buf(nand_info);
 
@@ -731,6 +772,9 @@ static int mxs_nand_ecc_read_page(struct mtd_info *mtd, struct nand_chip *nand,
 			continue;
 
 		if (status[i] == 0xfe) {
+			if (mxs_nand_erased_page(mtd, nand,
+						 nand_info->data_buf, i, page))
+				break;
 			failed++;
 			continue;
 		}
