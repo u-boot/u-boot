@@ -21,13 +21,23 @@ Series-cc: Stefan Brüns <stefan.bruens@rwth-aachen.de>
 Cover-letter-cc: Lord Mëlchett <clergy@palace.gov>
 Series-version: 3
 Patch-cc: fred
+Series-process-log: sort, uniq
 Series-changes: 4
 - Some changes
+- Multi
+  line
+  change
+
+Commit-changes: 2
+- Changes only for this commit
+
+Cover-changes: 4
+- Some notes for the cover letter
 
 Cover-letter:
 test: A test patch series
 This is a test of how the cover
-leter
+letter
 works
 END
 ---
