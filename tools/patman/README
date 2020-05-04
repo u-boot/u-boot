@@ -474,6 +474,11 @@ print out the command line patman would have used.
 not later when you can't remember which patch you changed. You can always
 go back and change or remove logs from commits.
 
+7. Some mailing lists have size limits and when we add binary contents to
+our patches it's easy to exceed the size limits. Use "--no-binary" to
+generate patches without any binary contents. You are supposed to include
+a link to a git repository in your "Commit-notes", "Series-notes" or
+"Cover-letter" for maintainers to fetch the original commit.
 
 Other thoughts
 ==============

@@ -58,6 +58,9 @@ parser.add_option('-T', '--thread', action='store_true', dest='thread',
                   default=False, help='Create patches as a single thread')
 parser.add_option('--cc-cmd', dest='cc_cmd', type='string', action='store',
        default=None, help='Output cc list for patch file (used by git)')
+parser.add_option('--no-binary', action='store_true', dest='ignore_binary',
+                  default=False,
+                  help="Do not output contents of changes in binary files")
 parser.add_option('--no-check', action='store_false', dest='check_patch',
                   default=True,
                   help="Don't check for patch compliance")
@@ -144,7 +147,7 @@ else:
     if options.count:
         series = patchstream.GetMetaData(options.start, options.count)
         cover_fname, args = gitutil.CreatePatches(options.start, options.count,
-                series)
+                options.ignore_binary, series)
 
     # Fix up the patch files to our liking, and insert the cover letter
     patchstream.FixPatches(series, args)
