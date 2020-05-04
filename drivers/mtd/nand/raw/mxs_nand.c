@@ -31,7 +31,7 @@
 
 #define	MXS_NAND_DMA_DESCRIPTOR_COUNT		4
 
-#if (defined(CONFIG_MX6) || defined(CONFIG_MX7))
+#if (defined(CONFIG_MX6) || defined(CONFIG_MX7) || defined(CONFIG_IMX8M))
 #define	MXS_NAND_CHUNK_DATA_CHUNK_SIZE_SHIFT	2
 #else
 #define	MXS_NAND_CHUNK_DATA_CHUNK_SIZE_SHIFT	0
@@ -773,7 +773,7 @@ static int mxs_nand_ecc_read_page(struct mtd_info *mtd, struct nand_chip *nand,
 
 		if (status[i] == 0xff) {
 			if (is_mx6dqp() || is_mx7() ||
-			    is_mx6ul())
+			    is_mx6ul() || is_imx8m())
 				if (readl(&bch_regs->hw_bch_debug1))
 					flag = 1;
 			continue;
@@ -1172,7 +1172,7 @@ int mxs_nand_setup_ecc(struct mtd_info *mtd)
 
 	/* Set erase threshold to ecc strength for mx6ul, mx6qp and mx7 */
 	if (is_mx6dqp() || is_mx7() ||
-	    is_mx6ul())
+	    is_mx6ul() || is_imx8m())
 		writel(BCH_MODE_ERASE_THRESHOLD(geo->ecc_strength),
 		       &bch_regs->hw_bch_mode);
 
@@ -1311,7 +1311,7 @@ int mxs_nand_init_spl(struct nand_chip *nand)
 	nand_info->gpmi_regs = (struct mxs_gpmi_regs *)MXS_GPMI_BASE;
 	nand_info->bch_regs = (struct mxs_bch_regs *)MXS_BCH_BASE;
 
-	if (is_mx6sx() || is_mx7())
+	if (is_mx6sx() || is_mx7() || is_imx8m())
 		nand_info->max_ecc_strength_supported = 62;
 	else
 		nand_info->max_ecc_strength_supported = 40;
