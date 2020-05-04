@@ -247,6 +247,23 @@ Series-changes: n
 	to update the log there and then, knowing that the script will
 	do the rest.
 
+Commit-changes: n
+- This line will not appear in the cover-letter changelog
+<blank line>
+	This tag is like Series-changes, except changes in this changelog will
+	only appear in the changelog of the commit this tag is in. This is
+	useful when you want to add notes which may not make sense in the cover
+	letter. For example, you can have short changes such as "New" or
+	"Lint".
+
+Cover-changes: n
+- This line will only appear in the cover letter
+<blank line>
+	This tag is like Series-changes, except changes in this changelog will
+	only appear in the cover-letter changelog. This is useful to summarize
+	changes made with Commit-changes, or to add additional context to
+	changes.
+
 Patch-cc: Their Name <email>
 	This copies a single patch to another email address. Note that the
 	Cc: used by git send-email is ignored by patman, but will be

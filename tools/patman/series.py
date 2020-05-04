@@ -2,6 +2,9 @@
 # Copyright (c) 2011 The Chromium OS Authors.
 #
 
+from __future__ import print_function
+
+import collections
 import itertools
 import os
 
@@ -156,7 +159,15 @@ class Series(dict):
             - Fix the widget
             - Jog the dial
         """
-        versions = sorted(self.changes, reverse=True)
+        # Collect changes from the series and this commit
+        changes = collections.defaultdict(list)
+        for version, changelist in self.changes.items():
+            changes[version] += changelist
+        if commit:
+            for version, changelist in commit.changes.items():
+                changes[version] += [[commit, text] for text in changelist]
+
+        versions = sorted(changes, reverse=True)
         newest_version = 1
         if 'version' in self:
             newest_version = max(newest_version, int(self.version))
@@ -169,7 +180,7 @@ class Series(dict):
         need_blank = False
         for version in versions:
             out = []
-            for this_commit, text in self.changes[version]:
+            for this_commit, text in changes[version]:
                 if commit and this_commit != commit:
                     continue
                 if 'uniq' not in process_it or text not in out:

@@ -65,7 +65,7 @@ parser.add_option('--no-check', action='store_false', dest='check_patch',
                   default=True,
                   help="Don't check for patch compliance")
 parser.add_option('--no-tags', action='store_false', dest='process_tags',
-                  default=True, help="Don't process subject tags as aliaes")
+                  default=True, help="Don't process subject tags as aliases")
 parser.add_option('--smtp-server', type='str',
                   help="Specify the SMTP server to 'git send-email'")
 parser.add_option('--test', action='store_true', dest='test',
