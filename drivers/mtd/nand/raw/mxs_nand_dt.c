@@ -39,6 +39,10 @@ static const struct udevice_id mxs_nand_dt_ids[] = {
 		.data = (unsigned long)&mxs_nand_imx6q_data,
 	},
 	{
+		.compatible = "fsl,imx6qp-gpmi-nand",
+		.data = (unsigned long)&mxs_nand_imx6q_data,
+	},
+	{
 		.compatible = "fsl,imx6sx-gpmi-nand",
 		.data = (unsigned long)&mxs_nand_imx6sx_data,
 	},
