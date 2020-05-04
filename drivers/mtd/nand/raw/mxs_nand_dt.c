@@ -25,6 +25,10 @@ static const struct mxs_nand_dt_data mxs_nand_imx6q_data = {
 	.max_ecc_strength_supported = 40,
 };
 
+static const struct mxs_nand_dt_data mxs_nand_imx6sx_data = {
+	.max_ecc_strength_supported = 62,
+};
+
 static const struct mxs_nand_dt_data mxs_nand_imx7d_data = {
 	.max_ecc_strength_supported = 62,
 };
@@ -33,6 +37,10 @@ static const struct udevice_id mxs_nand_dt_ids[] = {
 	{
 		.compatible = "fsl,imx6q-gpmi-nand",
 		.data = (unsigned long)&mxs_nand_imx6q_data,
+	},
+	{
+		.compatible = "fsl,imx6sx-gpmi-nand",
+		.data = (unsigned long)&mxs_nand_imx6sx_data,
 	},
 	{
 		.compatible = "fsl,imx7d-gpmi-nand",
