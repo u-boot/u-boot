@@ -314,26 +314,23 @@ static inline int is_10g_interface(phy_interface_t interface)
 
 /**
  * phy_init() - Initializes the PHY drivers
- *
  * This function registers all available PHY drivers
  *
- * @return 0 if OK, -ve on error
+ * @return: 0 if OK, -ve on error
  */
 int phy_init(void);
 
 /**
  * phy_reset() - Resets the specified PHY
- *
  * Issues a reset of the PHY and waits for it to complete
  *
  * @phydev:	PHY to reset
- * @return 0 if OK, -ve on error
+ * @return: 0 if OK, -ve on error
  */
 int phy_reset(struct phy_device *phydev);
 
 /**
  * phy_find_by_mask() - Searches for a PHY on the specified MDIO bus
- *
  * The function checks the PHY addresses flagged in phy_mask and returns a
  * phy_device pointer if it detects a PHY.
  * This function should only be called if just one PHY is expected to be present
@@ -343,7 +340,7 @@ int phy_reset(struct phy_device *phydev);
  * @bus:	MII/MDIO bus to scan
  * @phy_mask:	bitmap of PYH addresses to scan
  * @interface:	type of MAC-PHY interface
- * @return pointer to phy_device if a PHY is found, or NULL otherwise
+ * @return: pointer to phy_device if a PHY is found, or NULL otherwise
  */
 struct phy_device *phy_find_by_mask(struct mii_dev *bus, unsigned phy_mask,
 		phy_interface_t interface);
@@ -359,7 +356,6 @@ void phy_connect_dev(struct phy_device *phydev, struct udevice *dev);
 
 /**
  * phy_connect() - Creates a PHY device for the Ethernet interface
- *
  * Creates a PHY device for the PHY at the given address, if one doesn't exist
  * already, and associates it with the Ethernet device.
  * The function may be called with addr <= 0, in this case addr value is ignored
@@ -371,7 +367,7 @@ void phy_connect_dev(struct phy_device *phydev, struct udevice *dev);
  * @addr:	PHY address on MDIO bus
  * @dev:	Ethernet device to associate to the PHY
  * @interface:	type of MAC-PHY interface
- * @return pointer to phy_device if a PHY is found, or NULL otherwise
+ * @return: pointer to phy_device if a PHY is found, or NULL otherwise
  */
 struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 				struct udevice *dev,
@@ -395,7 +391,6 @@ void phy_connect_dev(struct phy_device *phydev, struct eth_device *dev);
 
 /**
  * phy_connect() - Creates a PHY device for the Ethernet interface
- *
  * Creates a PHY device for the PHY at the given address, if one doesn't exist
  * already, and associates it with the Ethernet device.
  * The function may be called with addr <= 0, in this case addr value is ignored
@@ -407,7 +402,7 @@ void phy_connect_dev(struct phy_device *phydev, struct eth_device *dev);
  * @addr:	PHY address on MDIO bus
  * @dev:	Ethernet device to associate to the PHY
  * @interface:	type of MAC-PHY interface
- * @return pointer to phy_device if a PHY is found, or NULL otherwise
+ * @return: pointer to phy_device if a PHY is found, or NULL otherwise
  */
 struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 				struct eth_device *dev,
@@ -467,7 +462,7 @@ int get_phy_id(struct mii_dev *bus, int addr, int devad, u32 *phy_id);
  * phy_get_interface_by_name() - Look up a PHY interface name
  *
  * @str:	PHY interface name, e.g. "mii"
- * @return PHY_INTERFACE_MODE_... value, or -1 if not found
+ * @return: PHY_INTERFACE_MODE_... value, or -1 if not found
  */
 int phy_get_interface_by_name(const char *str);
 
@@ -475,6 +470,7 @@ int phy_get_interface_by_name(const char *str);
  * phy_interface_is_rgmii - Convenience function for testing if a PHY interface
  * is RGMII (all variants)
  * @phydev: the phy_device struct
+ * @return: true if MII bus is RGMII or false if it is not
  */
 static inline bool phy_interface_is_rgmii(struct phy_device *phydev)
 {
@@ -486,6 +482,7 @@ static inline bool phy_interface_is_rgmii(struct phy_device *phydev)
  * phy_interface_is_sgmii - Convenience function for testing if a PHY interface
  * is SGMII (all variants)
  * @phydev: the phy_device struct
+ * @return: true if MII bus is SGMII or false if it is not
  */
 static inline bool phy_interface_is_sgmii(struct phy_device *phydev)
 {
