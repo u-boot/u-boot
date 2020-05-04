@@ -1474,6 +1474,8 @@ void mxs_nand_get_layout(struct mtd_info *mtd, struct mxs_nand_layout *l)
 			BCH_FLASHLAYOUT1_DATAN_SIZE_OFFSET);
 	l->eccn = (tmp & BCH_FLASHLAYOUT1_ECCN_MASK) >>
 			BCH_FLASHLAYOUT1_ECCN_OFFSET;
+	l->gf_len = (tmp & BCH_FLASHLAYOUT1_GF13_0_GF14_1_MASK) >>
+		     BCH_FLASHLAYOUT1_GF13_0_GF14_1_OFFSET;
 }
 
 /*

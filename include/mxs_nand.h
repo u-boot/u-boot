@@ -88,6 +88,7 @@ struct mxs_nand_layout {
 	u32 ecc0;
 	u32 datan_size;
 	u32 eccn;
+	u32 gf_len;
 };
 
 int mxs_nand_init_ctrl(struct mxs_nand_info *nand_info);
