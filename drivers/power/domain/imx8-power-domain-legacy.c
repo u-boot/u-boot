@@ -19,6 +19,34 @@ struct imx8_power_domain_priv {
 	bool state_on;
 };
 
+int imx8_power_domain_lookup_name(const char *name,
+				  struct power_domain *power_domain)
+{
+	struct udevice *dev;
+	struct power_domain_ops *ops;
+	int ret;
+
+	debug("%s(power_domain=%p name=%s)\n", __func__, power_domain, name);
+
+	ret = uclass_get_device_by_name(UCLASS_POWER_DOMAIN, name, &dev);
+	if (ret) {
+		printf("%s fail: %s, ret = %d\n", __func__, name, ret);
+		return ret;
+	}
+
+	ops = (struct power_domain_ops *)dev->driver->ops;
+	power_domain->dev = dev;
+	ret = ops->request(power_domain);
+	if (ret) {
+		debug("ops->request() failed: %d\n", ret);
+		return ret;
+	}
+
+	debug("%s ok: %s\n", __func__, dev->name);
+
+	return 0;
+}
+
 static int imx8_power_domain_request(struct power_domain *power_domain)
 {
 	debug("%s(power_domain=%p)\n", __func__, power_domain);
