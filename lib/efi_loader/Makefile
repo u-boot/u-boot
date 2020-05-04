@@ -17,6 +17,7 @@ CFLAGS_REMOVE_helloworld.o := $(CFLAGS_NON_EFI)
 
 ifneq ($(CONFIG_CMD_BOOTEFI_HELLO_COMPILE),)
 always += helloworld.efi
+targets += helloworld.o
 endif
 
 obj-$(CONFIG_CMD_BOOTEFI_HELLO) += helloworld_efi.o
