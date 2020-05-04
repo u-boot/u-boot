@@ -480,6 +480,28 @@ generate patches without any binary contents. You are supposed to include
 a link to a git repository in your "Commit-notes", "Series-notes" or
 "Cover-letter" for maintainers to fetch the original commit.
 
+8. Patches will have no changelog entries for revisions where they did not
+change. For clarity, if there are no changes for this patch in the most
+recent revision of the series, a note will be added. For example, a patch
+with the following tags in the commit
+
+    Series-version: 5
+    Series-changes: 2
+    - Some change
+
+    Series-changes: 4
+    - Another change
+
+would have a changelog of
+
+    (no changes since v4)
+
+    Changes in v4:
+    - Another change
+
+    Changes in v2:
+    - Some change
+
 Other thoughts
 ==============
 
