@@ -43,6 +43,8 @@ struct mxs_nand_info {
 	struct udevice *dev;
 	unsigned int	max_ecc_strength_supported;
 	bool		use_minimum_ecc;
+	/* legacy bch geometry flag */
+	bool		legacy_bch_geometry;
 	int		cur_chip;
 
 	uint32_t	cmd_queue_len;

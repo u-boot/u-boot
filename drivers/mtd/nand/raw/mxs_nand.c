@@ -1053,8 +1053,8 @@ static int mxs_nand_set_geometry(struct mtd_info *mtd, struct bch_geometry *geo)
 		return -EINVAL;
 	}
 
-	if (!(chip->ecc_strength_ds > 0 && chip->ecc_step_ds > 0) &&
-			(mtd->oobsize < 1024)) {
+	if ((!(chip->ecc_strength_ds > 0 && chip->ecc_step_ds > 0) &&
+	     mtd->oobsize < 1024) || nand_info->legacy_bch_geometry) {
 		dev_warn(this->dev, "use legacy bch geometry\n");
 		return mxs_nand_legacy_calc_ecc_layout(geo, mtd);
 	}
