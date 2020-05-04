@@ -13,11 +13,6 @@
 #endif
 
 /*
- * MPC83xx cpu provide RCR register to do reset thing specially
- */
-#define MPC83xx_RESET
-
-/*
  * System reset offset (PowerPC standard)
  */
 #define EXC_OFF_SYS_RESET		0x0100
