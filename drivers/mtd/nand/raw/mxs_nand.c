@@ -859,7 +859,7 @@ static int mxs_nand_ecc_write_page(struct mtd_info *mtd,
 	d->cmd.pio_words[4] = (dma_addr_t)nand_info->data_buf;
 	d->cmd.pio_words[5] = (dma_addr_t)nand_info->oob_buf;
 
-	if (is_mx7() && nand_info->en_randomizer) {
+	if ((is_mx7() || is_imx8m()) && nand_info->en_randomizer) {
 		d->cmd.pio_words[2] |= GPMI_ECCCTRL_RANDOMIZER_ENABLE |
 				       GPMI_ECCCTRL_RANDOMIZER_TYPE2;
 		/*
