@@ -30,6 +30,8 @@
 
 #define BF_VAL(v, bf)		(((v) & bf##_MASK) >> bf##_OFFSET)
 #define GETBIT(v, n)		(((v) >> (n)) & 0x1)
+#define IMX8MQ_SPL_SZ 0x3e000
+#define IMX8MQ_HDMI_FW_SZ 0x19c00
 
 #if defined(CONFIG_MX6UL) || defined(CONFIG_MX6ULL)
 static uint8_t reverse_bit(uint8_t b)
@@ -157,7 +159,7 @@ static void fill_fcb(struct fcb_block *fcb, struct mtd_info *mtd,
 	fcb->bchtype = l.gf_len;
 
 	/* Also hardcoded in kobs-ng */
-	if (is_mx6()) {
+	if (is_mx6() || is_imx8m()) {
 		fcb->datasetup = 80;
 		fcb->datahold = 60;
 		fcb->addr_setup = 25;
@@ -260,11 +262,11 @@ static int write_fcb_dbbt(struct mtd_info *mtd, struct fcb_block *fcb,
 		/*
 		 * User BCH ECC hardware module for i.MX7
 		 */
-		if (is_mx7()) {
+		if (is_mx7() || is_imx8m()) {
 			u32 off = i * mtd->erasesize;
 			size_t rwsize = sizeof(*fcb);
 
-			printf("Writing %d bytes to 0x%x: ", rwsize, off);
+			printf("Writing %zd bytes to 0x%x: ", rwsize, off);
 
 			/* switch nand BCH to FCB compatible settings */
 			mxs_nand_mode_fcb(mtd);
@@ -287,7 +289,7 @@ static int write_fcb_dbbt(struct mtd_info *mtd, struct fcb_block *fcb,
 			ret = mtd_write_oob(mtd, mtd->erasesize * i, &ops);
 			if (ret)
 				goto fcb_raw_page_err;
-			debug("NAND fcb write: 0x%x offset 0x%x written: %s\n",
+			debug("NAND fcb write: 0x%x offset 0x%zx written: %s\n",
 			      mtd->erasesize * i, ops.len, ret ?
 			      "ERROR" : "OK");
 		}
@@ -296,7 +298,7 @@ static int write_fcb_dbbt(struct mtd_info *mtd, struct fcb_block *fcb,
 				mtd->writesize, &dummy, (void *)dbbt);
 		if (ret)
 			goto fcb_raw_page_err;
-		debug("NAND dbbt write: 0x%x offset, 0x%x bytes written: %s\n",
+		debug("NAND dbbt write: 0x%x offset, 0x%zx bytes written: %s\n",
 		      mtd->erasesize * i + mtd->writesize, dummy,
 		      ret ? "ERROR" : "OK");
 
@@ -330,6 +332,9 @@ static int nandbcb_update(struct mtd_info *mtd, loff_t off, size_t size,
 	int nr_blks, nr_blks_fcb, fw1_blk;
 	size_t fwsize;
 	int ret;
+	size_t extra_fwsize;
+	void *extra_fwbuf;
+	loff_t extra_fw1_off;
 
 	/* erase */
 	memset(&opts, 0, sizeof(opts));
@@ -366,23 +371,62 @@ static int nandbcb_update(struct mtd_info *mtd, loff_t off, size_t size,
 	fw1_blk = nr_blks_fcb;
 
 	/* write fw */
-	fwsize = ALIGN(size + FLASH_OFFSET_STANDARD + mtd->writesize,
-		       mtd->writesize);
-	fwbuf = kzalloc(fwsize, GFP_KERNEL);
-	if (!fwbuf) {
-		debug("failed to allocate fwbuf\n");
-		ret = -ENOMEM;
-		goto err;
-	}
+	fwbuf = NULL;
+	if (is_mx6() || is_mx7()) {
+		fwsize = ALIGN(size + FLASH_OFFSET_STANDARD + mtd->writesize,
+			       mtd->writesize);
+		fwbuf = kzalloc(fwsize, GFP_KERNEL);
+		if (!fwbuf) {
+			debug("failed to allocate fwbuf\n");
+			ret = -ENOMEM;
+			goto err;
+		}
 
-	memcpy(fwbuf + FLASH_OFFSET_STANDARD, buf, size);
-	fw1_off = fw1_blk * mtd->erasesize;
-	ret = nand_write_skip_bad(mtd, fw1_off, &fwsize, NULL, maxsize,
-				  (u_char *)fwbuf, WITH_WR_VERIFY);
-	printf("NAND fw write: 0x%llx offset, 0x%x bytes written: %s\n",
-	       fw1_off, fwsize, ret ? "ERROR" : "OK");
-	if (ret)
-		goto fwbuf_err;
+		memcpy(fwbuf + FLASH_OFFSET_STANDARD, buf, size);
+		fw1_off = fw1_blk * mtd->erasesize;
+		ret = nand_write_skip_bad(mtd, fw1_off, &fwsize, NULL, maxsize,
+					  (u_char *)fwbuf, WITH_WR_VERIFY);
+		printf("NAND fw write: 0x%llx offset, 0x%zx bytes written: %s\n",
+		       fw1_off, fwsize, ret ? "ERROR" : "OK");
+		if (ret)
+			goto fwbuf_err;
+	} else if (is_imx8m()) {
+		fwsize = ALIGN(IMX8MQ_SPL_SZ + FLASH_OFFSET_STANDARD + mtd->writesize, mtd->writesize);
+		fwbuf = kzalloc(fwsize, GFP_KERNEL);
+		if (!fwbuf) {
+			printf("failed to allocate fwbuf\n");
+			ret = -ENOMEM;
+			goto err;
+		}
+
+		memcpy(fwbuf + FLASH_OFFSET_STANDARD, buf, IMX8MQ_SPL_SZ);
+		fw1_off = fw1_blk * mtd->erasesize;
+		ret = nand_write_skip_bad(mtd, fw1_off, &fwsize, NULL, maxsize,
+					  (u_char *)fwbuf, WITH_WR_VERIFY);
+		printf("NAND fw write: 0x%llx offset, 0x%zx bytes written: %s\n",
+		       fw1_off, fwsize, ret ? "ERROR" : "OK");
+		if (ret)
+			goto fwbuf_err;
+
+		extra_fwsize = ALIGN(IMX8MQ_SPL_SZ + mtd->writesize, mtd->writesize);
+		extra_fwbuf = kzalloc(extra_fwsize, GFP_KERNEL);
+		extra_fw1_off = fw1_off + mtd->erasesize * ((IMX8MQ_SPL_SZ + mtd->erasesize - 1) / mtd->erasesize);
+		if (!extra_fwbuf) {
+			printf("failed to allocate fwbuf\n");
+			ret = -ENOMEM;
+			goto fwbuf_err;
+		}
+
+		memcpy(extra_fwbuf, buf + IMX8MQ_HDMI_FW_SZ, IMX8MQ_SPL_SZ);
+		ret = nand_write_skip_bad(mtd, extra_fw1_off, &extra_fwsize, NULL, maxsize,
+					  (u_char *)extra_fwbuf, WITH_WR_VERIFY);
+		printf("NAND extra_fw write: 0x%llx offset, 0x%zx bytes written: %s\n",
+		       extra_fw1_off, extra_fwsize, ret ? "ERROR" : "OK");
+		if (ret) {
+			kfree(extra_fwbuf);
+			goto fwbuf_err;
+		}
+	}
 
 	/* fill fcb */
 	fcb = kzalloc(sizeof(*fcb), GFP_KERNEL);
@@ -394,6 +438,8 @@ static int nandbcb_update(struct mtd_info *mtd, loff_t off, size_t size,
 
 	fw1_start = (fw1_blk * mtd->erasesize) / mtd->writesize;
 	fw1_pages = size / mtd->writesize + 1;
+	if (is_imx8m())
+		fw1_pages = (IMX8MQ_SPL_SZ + (mtd->writesize - 1)) / mtd->writesize;
 	fill_fcb(fcb, mtd, fw1_start, 0, fw1_pages);
 
 	/* fill dbbt */
