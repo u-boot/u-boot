@@ -112,7 +112,6 @@ struct versal_clk_priv {
 	struct versal_clock *clk;
 };
 
-static ulong alt_ref_clk;
 static ulong pl_alt_ref_clk;
 static ulong ref_clk;
 
@@ -543,8 +542,7 @@ int soc_clk_dump(void)
 
 	printf("\n ****** VERSAL CLOCKS *****\n");
 
-	printf("alt_ref_clk:%ld pl_alt_ref_clk:%ld ref_clk:%ld\n",
-	       alt_ref_clk, pl_alt_ref_clk, ref_clk);
+	printf("pl_alt_ref_clk:%ld ref_clk:%ld\n", pl_alt_ref_clk, ref_clk);
 	for (i = 0; i < clock_max_idx; i++) {
 		debug("%s\n", clock[i].clk_name);
 		ret = versal_get_clock_type(i, &type);
@@ -661,10 +659,6 @@ static int versal_clk_probe(struct udevice *dev)
 	struct versal_clk_priv *priv = dev_get_priv(dev);
 
 	debug("%s\n", __func__);
-
-	ret = versal_clock_get_freq_by_name("alt_ref_clk", dev, &alt_ref_clk);
-	if (ret < 0)
-		return -EINVAL;
 
 	ret = versal_clock_get_freq_by_name("pl_alt_ref_clk",
 					    dev, &pl_alt_ref_clk);

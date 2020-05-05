@@ -11,13 +11,6 @@
 #include <dt-bindings/clock/xlnx-versal-clk.h>
 
 / {
-	alt_ref_clk: alt_ref_clk {
-		u-boot,dm-pre-reloc;
-		compatible = "fixed-clock";
-		#clock-cells = <0>;
-		clock-frequency = <33333333>;
-	};
-
 	pl_alt_ref_clk: pl_alt_ref_clk {
 		u-boot,dm-pre-reloc;
 		compatible = "fixed-clock";
@@ -59,8 +52,8 @@
 				u-boot,dm-pre-reloc;
 				#clock-cells = <1>;
 				compatible = "xlnx,versal-clk";
-				clocks = <&ref_clk>, <&alt_ref_clk>, <&pl_alt_ref_clk>;
-				clock-names = "ref_clk", "alt_ref_clk", "pl_alt_ref_clk";
+				clocks = <&ref_clk>, <&pl_alt_ref_clk>;
+				clock-names = "ref_clk", "pl_alt_ref_clk";
 			};
 
 			zynqmp_power: zynqmp-power {
