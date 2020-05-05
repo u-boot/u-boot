@@ -113,3 +113,24 @@ static int dm_test_ofnode_read_chosen(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_ofnode_read_chosen, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+static int dm_test_ofnode_get_child_count(struct unit_test_state *uts)
+{
+	ofnode node, child_node;
+	u32 val;
+
+	node = ofnode_path("/i-test");
+	ut_assert(ofnode_valid(node));
+
+	val = ofnode_get_child_count(node);
+	ut_asserteq(3, val);
+
+	child_node = ofnode_first_subnode(node);
+	ut_assert(ofnode_valid(child_node));
+	val = ofnode_get_child_count(child_node);
+	ut_asserteq(0, val);
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_get_child_count,
+	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

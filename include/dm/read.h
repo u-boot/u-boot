@@ -669,6 +669,14 @@ u64 dev_translate_dma_address(const struct udevice *dev,
  */
 int dev_read_alias_highest_id(const char *stem);
 
+/**
+ * dev_get_child_count() - get the child count of a device
+ *
+ * @dev: device to use for interation (struct udevice *)
+ * @return the count of child subnode
+ */
+int dev_get_child_count(const struct udevice *dev);
+
 #else /* CONFIG_DM_DEV_READ_INLINE is enabled */
 
 static inline int dev_read_u32(const struct udevice *dev,
@@ -976,6 +984,11 @@ static inline u64 dev_translate_dma_address(const struct udevice *dev,
 static inline int dev_read_alias_highest_id(const char *stem)
 {
 	return fdtdec_get_alias_highest_id(gd->fdt_blob, stem);
+}
+
+static inline int dev_get_child_count(const struct udevice *dev)
+{
+	return ofnode_get_child_count(dev_ofnode(dev));
 }
 
 #endif /* CONFIG_DM_DEV_READ_INLINE */

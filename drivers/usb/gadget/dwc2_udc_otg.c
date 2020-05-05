@@ -943,8 +943,7 @@ int usb_gadget_handle_interrupts(int index)
 struct dwc2_priv_data {
 	struct clk_bulk		clks;
 	struct reset_ctl_bulk	resets;
-	struct phy *phys;
-	int num_phys;
+	struct phy_bulk phys;
 	struct udevice *usb33d_supply;
 };
 
@@ -953,87 +952,29 @@ int dm_usb_gadget_handle_interrupts(struct udevice *dev)
 	return dwc2_udc_handle_interrupt();
 }
 
-int dwc2_phy_setup(struct udevice *dev, struct phy **array, int *num_phys)
+static int dwc2_phy_setup(struct udevice *dev, struct phy_bulk *phys)
 {
-	int i, ret, count;
-	struct phy *usb_phys;
+	int ret;
 
-	/* Return if no phy declared */
-	if (!dev_read_prop(dev, "phys", NULL))
-		return 0;
+	ret = generic_phy_get_bulk(dev, phys);
+	if (ret)
+		return ret;
 
-	count = dev_count_phandle_with_args(dev, "phys", "#phy-cells");
-	if (count <= 0)
-		return count;
+	ret = generic_phy_init_bulk(phys);
+	if (ret)
+		return ret;
 
-	usb_phys = devm_kcalloc(dev, count, sizeof(struct phy),
-				GFP_KERNEL);
-	if (!usb_phys)
-		return -ENOMEM;
-
-	for (i = 0; i < count; i++) {
-		ret = generic_phy_get_by_index(dev, i, &usb_phys[i]);
-		if (ret && ret != -ENOENT) {
-			dev_err(dev, "Failed to get USB PHY%d for %s\n",
-				i, dev->name);
-			return ret;
-		}
-	}
-
-	for (i = 0; i < count; i++) {
-		ret = generic_phy_init(&usb_phys[i]);
-		if (ret) {
-			dev_err(dev, "Can't init USB PHY%d for %s\n",
-				i, dev->name);
-			goto phys_init_err;
-		}
-	}
-
-	for (i = 0; i < count; i++) {
-		ret = generic_phy_power_on(&usb_phys[i]);
-		if (ret) {
-			dev_err(dev, "Can't power USB PHY%d for %s\n",
-				i, dev->name);
-			goto phys_poweron_err;
-		}
-	}
-
-	*array = usb_phys;
-	*num_phys =  count;
-
-	return 0;
-
-phys_poweron_err:
-	for (i = count - 1; i >= 0; i--)
-		generic_phy_power_off(&usb_phys[i]);
-
-	for (i = 0; i < count; i++)
-		generic_phy_exit(&usb_phys[i]);
-
-	return ret;
-
-phys_init_err:
-	for (; i >= 0; i--)
-		generic_phy_exit(&usb_phys[i]);
+	ret = generic_phy_power_on_bulk(phys);
+	if (ret)
+		generic_phy_exit_bulk(phys);
 
 	return ret;
 }
 
-void dwc2_phy_shutdown(struct udevice *dev, struct phy *usb_phys, int num_phys)
+static void dwc2_phy_shutdown(struct udevice *dev, struct phy_bulk *phys)
 {
-	int i, ret;
-
-	for (i = 0; i < num_phys; i++) {
-		if (!generic_phy_valid(&usb_phys[i]))
-			continue;
-
-		ret = generic_phy_power_off(&usb_phys[i]);
-		ret |= generic_phy_exit(&usb_phys[i]);
-		if (ret) {
-			dev_err(dev, "Can't shutdown USB PHY%d for %s\n",
-				i, dev->name);
-		}
-	}
+	generic_phy_power_off_bulk(phys);
+	generic_phy_exit_bulk(phys);
 }
 
 static int dwc2_udc_otg_ofdata_to_platdata(struct udevice *dev)
@@ -1158,7 +1099,7 @@ static int dwc2_udc_otg_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	ret = dwc2_phy_setup(dev, &priv->phys, &priv->num_phys);
+	ret = dwc2_phy_setup(dev, &priv->phys);
 	if (ret)
 		return ret;
 
@@ -1208,7 +1149,7 @@ static int dwc2_udc_otg_remove(struct udevice *dev)
 
 	clk_release_bulk(&priv->clks);
 
-	dwc2_phy_shutdown(dev, priv->phys, priv->num_phys);
+	dwc2_phy_shutdown(dev, &priv->phys);
 
 	return dm_scan_fdt_dev(dev);
 }
