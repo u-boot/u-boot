@@ -5,6 +5,9 @@
  * Written by David Howells (dhowells@redhat.com)
  */
 
+#ifndef _PKCS7_PARSER_H
+#define _PKCS7_PARSER_H
+
 #include <linux/oid_registry.h>
 #include <crypto/pkcs7.h>
 #include "x509_parser.h"
@@ -63,3 +66,4 @@ struct pkcs7_message {
 	size_t		data_hdrlen;	/* Length of Data ASN.1 header */
 	const void	*data;		/* Content Data (or 0) */
 };
+#endif /* _PKCS7_PARSER_H */

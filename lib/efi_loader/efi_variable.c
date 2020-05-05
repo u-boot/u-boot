@@ -12,9 +12,9 @@
 #include <malloc.h>
 #include <rtc.h>
 #include <search.h>
+#include <crypto/pkcs7_parser.h>
 #include <linux/compat.h>
 #include <u-boot/crc.h>
-#include "../lib/crypto/pkcs7_parser.h"
 
 enum efi_secure_mode {
 	EFI_MODE_SETUP,
@@ -169,176 +169,102 @@ static const char *parse_attr(const char *str, u32 *attrp, u64 *timep)
 	return str;
 }
 
-static efi_status_t efi_set_variable_internal(u16 *variable_name,
-					      const efi_guid_t *vendor,
-					      u32 attributes,
-					      efi_uintn_t data_size,
-					      const void *data,
-					      bool ro_check);
+static efi_status_t efi_set_variable_common(u16 *variable_name,
+					    const efi_guid_t *vendor,
+					    u32 attributes,
+					    efi_uintn_t data_size,
+					    const void *data,
+					    bool ro_check);
+
+/**
+ * efi_set_secure_state - modify secure boot state variables
+ * @sec_boot:		value of SecureBoot
+ * @setup_mode:		value of SetupMode
+ * @audit_mode:		value of AuditMode
+ * @deployed_mode:	value of DeployedMode
+ *
+ * Modify secure boot stat-related variables as indicated.
+ *
+ * Return:		status code
+ */
+static efi_status_t efi_set_secure_state(int sec_boot, int setup_mode,
+					 int audit_mode, int deployed_mode)
+{
+	u32 attributes;
+	efi_status_t ret;
+
+	attributes = EFI_VARIABLE_BOOTSERVICE_ACCESS |
+		     EFI_VARIABLE_RUNTIME_ACCESS |
+		     READ_ONLY;
+	ret = efi_set_variable_common(L"SecureBoot", &efi_global_variable_guid,
+				      attributes, sizeof(sec_boot), &sec_boot,
+				      false);
+	if (ret != EFI_SUCCESS)
+		goto err;
+
+	ret = efi_set_variable_common(L"SetupMode", &efi_global_variable_guid,
+				      attributes, sizeof(setup_mode),
+				      &setup_mode, false);
+	if (ret != EFI_SUCCESS)
+		goto err;
+
+	ret = efi_set_variable_common(L"AuditMode", &efi_global_variable_guid,
+				      attributes, sizeof(audit_mode),
+				      &audit_mode, false);
+	if (ret != EFI_SUCCESS)
+		goto err;
+
+	ret = efi_set_variable_common(L"DeployedMode",
+				      &efi_global_variable_guid, attributes,
+				      sizeof(deployed_mode), &deployed_mode,
+				      false);
+err:
+	return ret;
+}
 
 /**
  * efi_transfer_secure_state - handle a secure boot state transition
  * @mode:	new state
  *
  * Depending on @mode, secure boot related variables are updated.
- * Those variables are *read-only* for users, efi_set_variable_internal()
+ * Those variables are *read-only* for users, efi_set_variable_common()
  * is called here.
  *
- * Return:	EFI_SUCCESS on success, status code (negative) on error
+ * Return:	status code
  */
 static efi_status_t efi_transfer_secure_state(enum efi_secure_mode mode)
 {
-	u32 attributes;
-	u8 val;
 	efi_status_t ret;
 
-	debug("Secure state from %d to %d\n", efi_secure_mode, mode);
+	debug("Switching secure state from %d to %d\n", efi_secure_mode, mode);
 
-	attributes = EFI_VARIABLE_BOOTSERVICE_ACCESS |
-		     EFI_VARIABLE_RUNTIME_ACCESS;
 	if (mode == EFI_MODE_DEPLOYED) {
-		val = 1;
-		ret = efi_set_variable_internal(L"SecureBoot",
-						&efi_global_variable_guid,
-						attributes | READ_ONLY,
-						sizeof(val), &val,
-						false);
-		if (ret != EFI_SUCCESS)
-			goto err;
-		val = 0;
-		ret = efi_set_variable_internal(L"SetupMode",
-						&efi_global_variable_guid,
-						attributes | READ_ONLY,
-						sizeof(val), &val,
-						false);
-		if (ret != EFI_SUCCESS)
-			goto err;
-		val = 0;
-		ret = efi_set_variable_internal(L"AuditMode",
-						&efi_global_variable_guid,
-						attributes | READ_ONLY,
-						sizeof(val), &val,
-						false);
-		if (ret != EFI_SUCCESS)
-			goto err;
-		val = 1;
-		ret = efi_set_variable_internal(L"DeployedMode",
-						&efi_global_variable_guid,
-						attributes | READ_ONLY,
-						sizeof(val), &val,
-						false);
+		ret = efi_set_secure_state(1, 0, 0, 1);
 		if (ret != EFI_SUCCESS)
 			goto err;
 
 		efi_secure_boot = true;
 	} else if (mode == EFI_MODE_AUDIT) {
-		ret = efi_set_variable_internal(L"PK",
-						&efi_global_variable_guid,
-						attributes,
-						0, NULL,
-						false);
+		ret = efi_set_variable_common(L"PK", &efi_global_variable_guid,
+					      EFI_VARIABLE_BOOTSERVICE_ACCESS |
+					      EFI_VARIABLE_RUNTIME_ACCESS,
+					      0, NULL, false);
 		if (ret != EFI_SUCCESS)
 			goto err;
-		val = 0;
-		ret = efi_set_variable_internal(L"SecureBoot",
-						&efi_global_variable_guid,
-						attributes | READ_ONLY,
-						sizeof(val), &val,
-						false);
-		if (ret != EFI_SUCCESS)
-			goto err;
-		val = 1;
-		ret = efi_set_variable_internal(L"SetupMode",
-						&efi_global_variable_guid,
-						attributes | READ_ONLY,
-						sizeof(val), &val,
-						false);
-		if (ret != EFI_SUCCESS)
-			goto err;
-		val = 1;
-		ret = efi_set_variable_internal(L"AuditMode",
-						&efi_global_variable_guid,
-						attributes | READ_ONLY,
-						sizeof(val), &val,
-						false);
-		if (ret != EFI_SUCCESS)
-			goto err;
-		val = 0;
-		ret = efi_set_variable_internal(L"DeployedMode",
-						&efi_global_variable_guid,
-						attributes | READ_ONLY,
-						sizeof(val), &val,
-						false);
+
+		ret = efi_set_secure_state(0, 1, 1, 0);
 		if (ret != EFI_SUCCESS)
 			goto err;
 
 		efi_secure_boot = true;
 	} else if (mode == EFI_MODE_USER) {
-		val = 1;
-		ret = efi_set_variable_internal(L"SecureBoot",
-						&efi_global_variable_guid,
-						attributes | READ_ONLY,
-						sizeof(val), &val,
-						false);
-		if (ret != EFI_SUCCESS)
-			goto err;
-		val = 0;
-		ret = efi_set_variable_internal(L"SetupMode",
-						&efi_global_variable_guid,
-						attributes | READ_ONLY,
-						sizeof(val), &val,
-						false);
-		if (ret != EFI_SUCCESS)
-			goto err;
-		val = 0;
-		ret = efi_set_variable_internal(L"AuditMode",
-						&efi_global_variable_guid,
-						attributes,
-						sizeof(val), &val,
-						false);
-		if (ret != EFI_SUCCESS)
-			goto err;
-		val = 0;
-		ret = efi_set_variable_internal(L"DeployedMode",
-						&efi_global_variable_guid,
-						attributes,
-						sizeof(val), &val,
-						false);
+		ret = efi_set_secure_state(1, 0, 0, 0);
 		if (ret != EFI_SUCCESS)
 			goto err;
 
 		efi_secure_boot = true;
 	} else if (mode == EFI_MODE_SETUP) {
-		val = 0;
-		ret = efi_set_variable_internal(L"SecureBoot",
-						&efi_global_variable_guid,
-						attributes | READ_ONLY,
-						sizeof(val), &val,
-						false);
-		if (ret != EFI_SUCCESS)
-			goto err;
-		val = 1;
-		ret = efi_set_variable_internal(L"SetupMode",
-						&efi_global_variable_guid,
-						attributes | READ_ONLY,
-						sizeof(val), &val,
-						false);
-		if (ret != EFI_SUCCESS)
-			goto err;
-		val = 0;
-		ret = efi_set_variable_internal(L"AuditMode",
-						&efi_global_variable_guid,
-						attributes,
-						sizeof(val), &val,
-						false);
-		if (ret != EFI_SUCCESS)
-			goto err;
-		val = 0;
-		ret = efi_set_variable_internal(L"DeployedMode",
-						&efi_global_variable_guid,
-						attributes | READ_ONLY,
-						sizeof(val), &val,
-						false);
+		ret = efi_set_secure_state(0, 1, 0, 0);
 		if (ret != EFI_SUCCESS)
 			goto err;
 	} else {
@@ -358,7 +284,7 @@ err:
 /**
  * efi_init_secure_state - initialize secure boot state
  *
- * Return:	EFI_SUCCESS on success, status code (negative) on error
+ * Return:	status code
  */
 static efi_status_t efi_init_secure_state(void)
 {
@@ -392,14 +318,13 @@ static efi_status_t efi_init_secure_state(void)
 
 	ret = efi_transfer_secure_state(mode);
 	if (ret == EFI_SUCCESS)
-		ret = efi_set_variable_internal(L"VendorKeys",
-						&efi_global_variable_guid,
-						EFI_VARIABLE_BOOTSERVICE_ACCESS
-						 | EFI_VARIABLE_RUNTIME_ACCESS
-						 | READ_ONLY,
-						sizeof(efi_vendor_keys),
-						&efi_vendor_keys,
-						false);
+		ret = efi_set_variable_common(L"VendorKeys",
+					      &efi_global_variable_guid,
+					      EFI_VARIABLE_BOOTSERVICE_ACCESS |
+					      EFI_VARIABLE_RUNTIME_ACCESS |
+					      READ_ONLY,
+					      sizeof(efi_vendor_keys),
+					      &efi_vendor_keys, false);
 
 err:
 	return ret;
@@ -513,7 +438,7 @@ out:
  * attributes and signed time will also be returned in @env_attr and @time,
  * respectively.
  *
- * Return:	EFI_SUCCESS on success, status code (negative) on error
+ * Return:	status code
  */
 static efi_status_t efi_variable_authenticate(u16 *variable,
 					      const efi_guid_t *vendor,
@@ -666,8 +591,7 @@ static
 efi_status_t EFIAPI efi_get_variable_common(u16 *variable_name,
 					    const efi_guid_t *vendor,
 					    u32 *attributes,
-					    efi_uintn_t *data_size, void *data,
-					    bool is_non_volatile)
+					    efi_uintn_t *data_size, void *data)
 {
 	char *native_name;
 	efi_status_t ret;
@@ -750,27 +674,6 @@ out:
 	return ret;
 }
 
-static
-efi_status_t EFIAPI efi_get_volatile_variable(u16 *variable_name,
-					      const efi_guid_t *vendor,
-					      u32 *attributes,
-					      efi_uintn_t *data_size,
-					      void *data)
-{
-	return efi_get_variable_common(variable_name, vendor, attributes,
-				       data_size, data, false);
-}
-
-efi_status_t EFIAPI efi_get_nonvolatile_variable(u16 *variable_name,
-						 const efi_guid_t *vendor,
-						 u32 *attributes,
-						 efi_uintn_t *data_size,
-						 void *data)
-{
-	return efi_get_variable_common(variable_name, vendor, attributes,
-				       data_size, data, true);
-}
-
 /**
  * efi_efi_get_variable() - retrieve value of a UEFI variable
  *
@@ -795,12 +698,8 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
 	EFI_ENTRY("\"%ls\" %pUl %p %p %p", variable_name, vendor, attributes,
 		  data_size, data);
 
-	ret = efi_get_volatile_variable(variable_name, vendor, attributes,
-					data_size, data);
-	if (ret == EFI_NOT_FOUND)
-		ret = efi_get_nonvolatile_variable(variable_name, vendor,
-						   attributes, data_size, data);
-
+	ret = efi_get_variable_common(variable_name, vendor, attributes,
+				      data_size, data);
 	return EFI_EXIT(ret);
 }
 
@@ -964,14 +863,12 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
 	return EFI_EXIT(ret);
 }
 
-static
-efi_status_t EFIAPI efi_set_variable_common(u16 *variable_name,
+static efi_status_t efi_set_variable_common(u16 *variable_name,
 					    const efi_guid_t *vendor,
 					    u32 attributes,
 					    efi_uintn_t data_size,
 					    const void *data,
-					    bool ro_check,
-					    bool is_non_volatile)
+					    bool ro_check)
 {
 	char *native_name = NULL, *old_data = NULL, *val = NULL, *s;
 	efi_uintn_t old_size;
@@ -998,14 +895,6 @@ efi_status_t EFIAPI efi_set_variable_common(u16 *variable_name,
 	attr = 0;
 	ret = EFI_CALL(efi_get_variable(variable_name, vendor, &attr,
 					&old_size, NULL));
-	if (ret == EFI_BUFFER_TOO_SMALL) {
-		if ((is_non_volatile && !(attr & EFI_VARIABLE_NON_VOLATILE)) ||
-		    (!is_non_volatile && (attr & EFI_VARIABLE_NON_VOLATILE))) {
-			ret = EFI_INVALID_PARAMETER;
-			goto err;
-		}
-	}
-
 	append = !!(attributes & EFI_VARIABLE_APPEND_WRITE);
 	attributes &= ~(u32)EFI_VARIABLE_APPEND_WRITE;
 	delete = !append && (!data_size || !attributes);
@@ -1179,7 +1068,7 @@ out:
 		/* update VendorKeys */
 		if (vendor_keys_modified & efi_vendor_keys) {
 			efi_vendor_keys = 0;
-			ret = efi_set_variable_internal(
+			ret = efi_set_variable_common(
 						L"VendorKeys",
 						&efi_global_variable_guid,
 						EFI_VARIABLE_BOOTSERVICE_ACCESS
@@ -1197,54 +1086,6 @@ err:
 	free(native_name);
 	free(old_data);
 	free(val);
-
-	return ret;
-}
-
-static
-efi_status_t EFIAPI efi_set_volatile_variable(u16 *variable_name,
-					      const efi_guid_t *vendor,
-					      u32 attributes,
-					      efi_uintn_t data_size,
-					      const void *data,
-					      bool ro_check)
-{
-	return efi_set_variable_common(variable_name, vendor, attributes,
-				       data_size, data, ro_check, false);
-}
-
-efi_status_t EFIAPI efi_set_nonvolatile_variable(u16 *variable_name,
-						 const efi_guid_t *vendor,
-						 u32 attributes,
-						 efi_uintn_t data_size,
-						 const void *data,
-						 bool ro_check)
-{
-	efi_status_t ret;
-
-	ret = efi_set_variable_common(variable_name, vendor, attributes,
-				      data_size, data, ro_check, true);
-
-	return ret;
-}
-
-static efi_status_t efi_set_variable_internal(u16 *variable_name,
-					      const efi_guid_t *vendor,
-					      u32 attributes,
-					      efi_uintn_t data_size,
-					      const void *data,
-					      bool ro_check)
-{
-	efi_status_t ret;
-
-	if (attributes & EFI_VARIABLE_NON_VOLATILE)
-		ret = efi_set_nonvolatile_variable(variable_name, vendor,
-						   attributes,
-						   data_size, data, ro_check);
-	else
-		ret = efi_set_volatile_variable(variable_name, vendor,
-						attributes, data_size, data,
-						ro_check);
 
 	return ret;
 }
@@ -1274,9 +1115,9 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
 	/* READ_ONLY bit is not part of API */
 	attributes &= ~(u32)READ_ONLY;
 
-	return EFI_EXIT(efi_set_variable_internal(variable_name, vendor,
-						  attributes, data_size, data,
-						  true));
+	return EFI_EXIT(efi_set_variable_common(variable_name, vendor,
+						attributes, data_size, data,
+						true));
 }
 
 /**

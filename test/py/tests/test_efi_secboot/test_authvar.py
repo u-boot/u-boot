@@ -133,7 +133,7 @@ class TestEfiAuthVar(object):
             output = u_boot_console.run_command_list([
                 'host bind 0 %s' % disk_img,
                 'fatload host 0:1 4000000 PK.auth',
-                'setenv -e -nv -bs -rt -at -i 4000000,$filesize PK',
+                'setenv -e -nv -bs -rt -at -i 4000000,$filesize PK; echo',
                 'fatload host 0:1 4000000 KEK.auth',
                 'setenv -e -nv -bs -rt -at -i 4000000,$filesize KEK',
                 'fatload host 0:1 4000000 db.auth',
@@ -174,7 +174,7 @@ class TestEfiAuthVar(object):
             output = u_boot_console.run_command_list([
                 'host bind 0 %s' % disk_img,
                 'fatload host 0:1 4000000 PK.auth',
-                'setenv -e -nv -bs -rt -at -i 4000000,$filesize PK',
+                'setenv -e -nv -bs -rt -at -i 4000000,$filesize PK; echo',
                 'fatload host 0:1 4000000 KEK.auth',
                 'setenv -e -nv -bs -rt -at -i 4000000,$filesize KEK',
                 'fatload host 0:1 4000000 db.auth',
@@ -215,7 +215,7 @@ class TestEfiAuthVar(object):
             output = u_boot_console.run_command_list([
                 'host bind 0 %s' % disk_img,
                 'fatload host 0:1 4000000 PK.auth',
-                'setenv -e -nv -bs -rt -at -i 4000000,$filesize PK',
+                'setenv -e -nv -bs -rt -at -i 4000000,$filesize PK; echo',
                 'fatload host 0:1 4000000 KEK.auth',
                 'setenv -e -nv -bs -rt -at -i 4000000,$filesize KEK',
                 'fatload host 0:1 4000000 db.auth',
@@ -249,7 +249,7 @@ class TestEfiAuthVar(object):
             output = u_boot_console.run_command_list([
                 'host bind 0 %s' % disk_img,
                 'fatload host 0:1 4000000 PK.auth',
-                'setenv -e -nv -bs -rt -at -i 4000000,$filesize PK',
+                'setenv -e -nv -bs -rt -at -i 4000000,$filesize PK; echo',
                 'fatload host 0:1 4000000 KEK.auth',
                 'setenv -e -nv -bs -rt -at -i 4000000,$filesize KEK',
                 'fatload host 0:1 4000000 db.auth',

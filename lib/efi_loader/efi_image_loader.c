@@ -13,7 +13,7 @@
 #include <malloc.h>
 #include <pe.h>
 #include <sort.h>
-#include "../lib/crypto/pkcs7_parser.h"
+#include "crypto/pkcs7_parser.h"
 
 const efi_guid_t efi_global_variable_guid = EFI_GLOBAL_VARIABLE_GUID;
 const efi_guid_t efi_guid_device_path = EFI_DEVICE_PATH_PROTOCOL_GUID;
