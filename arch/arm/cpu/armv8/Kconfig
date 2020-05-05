@@ -76,6 +76,12 @@ config SPL_ARMV8_SEC_FIRMWARE_SUPPORT
 	help
 	  Say Y here to support this framework in SPL phase.
 
+config SPL_RECOVER_DATA_SECTION
+	bool "save/restore SPL data section"
+	help
+	  Say Y here to save SPL data section for cold boot, and restore
+	  at warm boot in SPL phase.
+
 config SEC_FIRMWARE_ARMV8_PSCI
 	bool "PSCI implementation in secure monitor firmware"
 	depends on ARMV8_SEC_FIRMWARE_SUPPORT || SPL_ARMV8_SEC_FIRMWARE_SUPPORT

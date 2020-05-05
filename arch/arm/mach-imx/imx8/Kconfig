@@ -18,11 +18,13 @@ config MU_BASE_SPL
 config IMX8QM
 	select IMX8
 	select SUPPORT_SPL
+	select SPL_RECOVER_DATA_SECTION
 	bool
 
 config IMX8QXP
 	select IMX8
 	select SUPPORT_SPL
+	select SPL_RECOVER_DATA_SECTION
 	bool
 
 config SYS_SOC
