@@ -154,6 +154,7 @@ static void fill_fcb(struct fcb_block *fcb, struct mtd_info *mtd,
 	fcb->ecc_level = l.ecc0;
 	fcb->ecc_size = l.datan_size;
 	fcb->ecc_type = l.eccn;
+	fcb->bchtype = l.gf_len;
 
 	/* Also hardcoded in kobs-ng */
 	if (is_mx6()) {
