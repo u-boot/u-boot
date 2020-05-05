@@ -981,7 +981,7 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
 	if (append) {
 		old_data = malloc(old_size);
 		if (!old_data) {
-			return EFI_OUT_OF_RESOURCES;
+			ret = EFI_OUT_OF_RESOURCES;
 			goto err;
 		}
 		ret = EFI_CALL(efi_get_variable(variable_name, vendor,
