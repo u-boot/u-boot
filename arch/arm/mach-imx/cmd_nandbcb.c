@@ -27,6 +27,7 @@
 #include <mxs_nand.h>
 #include <linux/mtd/mtd.h>
 #include <nand.h>
+#include <fuse.h>
 
 #include "../../../cmd/legacy-mtd-utils.h"
 
@@ -1260,6 +1261,35 @@ static bool check_fingerprint(void *data, int fingerprint)
 	return (*(int *)(data + off) == fingerprint);
 }
 
+static int fuse_to_search_count(u32 bank, u32 word, u32 mask, u32 off)
+{
+	int err;
+	u32 val;
+	int ret;
+
+	/* by default, the boot search count from fuse should be 2 */
+	err = fuse_read(bank, word, &val);
+	if (err)
+		return 2;
+
+	val = (val & mask) >> off;
+
+	switch (val) {
+		case 0:
+			ret = 2;
+			break;
+		case 1:
+		case 2:
+		case 3:
+			ret = 1 << val;
+			break;
+		default:
+			ret = 2;
+	}
+
+	return ret;
+}
+
 static int nandbcb_dump(struct boot_config *boot_cfg)
 {
 	int i;
@@ -1459,7 +1489,14 @@ static int do_nandbcb(cmd_tbl_t *cmdtp, int flag, int argc,
 		return CMD_RET_FAILURE;
 	}
 
-	/* TODO: set the boot search count if need to read from fuse */
+	if (plat_config.misc_flags & BT_SEARCH_CNT_FROM_FUSE) {
+		if (is_imx8qxp()) {
+			g_boot_search_count = fuse_to_search_count(0, 720,
+								   0xc0, 6);
+			printf("search count set to %d from fuse\n",
+			       g_boot_search_count);
+		}
+	}
 
 	cmd = argv[1];
 	--argc;
