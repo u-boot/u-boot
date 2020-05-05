@@ -3,7 +3,7 @@
  * P4080/P4040 Silicon/SoC Device Tree Source (pre include)
  *
  * Copyright 2011 - 2015 Freescale Semiconductor Inc.
- * Copyright 2019 NXP
+ * Copyright 2019-2020 NXP
  */
 
 /dts-v1/;
@@ -97,6 +97,8 @@
 			reg = <0x211000 0x1000>;
 			phy_type = "ulpi";
 		};
+		/include/ "qoriq-i2c-0.dtsi"
+		/include/ "qoriq-i2c-1.dtsi"
 	};
 
 	pcie@ffe200000 {

@@ -1,0 +1,14 @@
+// SPDX-License-Identifier: GPL-2.0+ OR X11
+/*
+ * P1010RDB Device Tree Source
+ *
+ * Copyright 2020 NXP
+ */
+&soc {
+	i2c@3000 {
+		rtc@68 {
+			compatible = "pericom,pt7c4338";
+			reg = <0x68>;
+		};
+	};
+};

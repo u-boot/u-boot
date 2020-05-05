@@ -280,6 +280,19 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 /* I2C */
+#ifndef CONFIG_DM_I2C
+#define CONFIG_SYS_I2C
+#else
+#undef CONFIG_SYS_I2C
+#undef CONFIG_SYS_FSL_I2C2_OFFSET
+#undef CONFIG_SYS_FSL_I2C2_SLAVE
+#undef CONFIG_SYS_FSL_I2C2_SPEED
+#undef CONFIG_SYS_FSL_I2C_SLAVE
+#undef CONFIG_SYS_FSL_I2C_SPEED
+#undef CONFIG_SYS_FSL_I2C_OFFSET
+#endif
+
+#define CONFIG_SYS_I2C_FSL
 #define CONFIG_SYS_FSL_I2C_SPEED	100000	/* I2C speed */
 #define CONFIG_SYS_FSL_I2C2_SPEED	100000	/* I2C2 speed */
 #define I2C_MUX_PCA_ADDR_PRI		0x77 /* I2C bus multiplexer,primary */

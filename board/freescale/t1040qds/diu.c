@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
+ * Copyright 2020 NXP
  * Author: Priyanka Jain <Priyanka.Jain@freescale.com>
  */
 
@@ -48,7 +49,7 @@ void diu_set_pixel_clock(unsigned int pixclock)
 
 	/* Program HDMI encoder */
 	/* Switch channel to DIU */
-	select_i2c_ch_pca9547(I2C_MUX_CH_DIU);
+	select_i2c_ch_pca9547(I2C_MUX_CH_DIU, 0);
 
 	/* Set dispaly encoder */
 	ret = diu_set_dvi_encoder(temp);
@@ -58,7 +59,7 @@ void diu_set_pixel_clock(unsigned int pixclock)
 	}
 
 	/* Switch channel to default */
-	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
+	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT, 0);
 
 	/* Program pixel clock */
 	out_be32((unsigned *)CONFIG_SYS_FSL_SCFG_PIXCLK_ADDR,

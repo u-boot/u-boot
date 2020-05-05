@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
+ * Copyright 2020 NXP
  */
 
 /*
@@ -437,14 +438,20 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 /* I2C */
+#ifndef CONFIG_DM_I2C
 #define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_FSL		/* Use FSL common I2C driver */
 #define CONFIG_SYS_FSL_I2C_SPEED	50000	/* I2C speed in Hz */
 #define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
 #define CONFIG_SYS_FSL_I2C2_SPEED	50000	/* I2C speed in Hz */
 #define CONFIG_SYS_FSL_I2C2_SLAVE	0x7F
 #define CONFIG_SYS_FSL_I2C_OFFSET	0x118000
 #define CONFIG_SYS_FSL_I2C2_OFFSET	0x118100
+#else
+#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
+#define CONFIG_I2C_DEFAULT_BUS_NUMBER	0
+#endif
+
+#define CONFIG_SYS_I2C_FSL		/* Use FSL common I2C driver */
 
 #define I2C_MUX_PCA_ADDR		0x77
 #define I2C_MUX_PCA_ADDR_PRI		0x77 /* Primary Mux*/
@@ -460,6 +467,7 @@ unsigned long get_board_ddr_clk(void);
 /* LDI/DVI Encoder for display */
 #define CONFIG_SYS_I2C_LDI_ADDR	 0x38
 #define CONFIG_SYS_I2C_DVI_ADDR	 0x75
+#define CONFIG_SYS_I2C_DVI_BUS_NUM 0
 
 /*
  * RTC configuration

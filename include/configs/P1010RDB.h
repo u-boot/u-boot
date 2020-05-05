@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2010-2011 Freescale Semiconductor, Inc.
+ * Copyright 2020 NXP
  */
 
 /*
@@ -113,8 +114,6 @@
 #if defined(CONFIG_PCI)
 #define CONFIG_PCIE1			/* PCIE controller 1 (slot 1) */
 #define CONFIG_PCIE2			/* PCIE controller 2 (slot 2) */
-#define CONFIG_FSL_PCI_INIT		/* Use common FSL init code */
-#define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
 #define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
 
 /*
@@ -122,19 +121,13 @@
  * Memory space is mapped 1-1, but I/O space must start from 0.
  */
 /* controller 1, Slot 1, tgtid 1, Base address a000 */
-#define CONFIG_SYS_PCIE1_NAME		"mini PCIe Slot"
 #define CONFIG_SYS_PCIE1_MEM_VIRT	0x80000000
 #ifdef CONFIG_PHYS_64BIT
-#define CONFIG_SYS_PCIE1_MEM_BUS	0x80000000
 #define CONFIG_SYS_PCIE1_MEM_PHYS	0xc00000000ull
 #else
-#define CONFIG_SYS_PCIE1_MEM_BUS	0x80000000
 #define CONFIG_SYS_PCIE1_MEM_PHYS	0x80000000
 #endif
-#define CONFIG_SYS_PCIE1_MEM_SIZE	0x20000000	/* 512M */
 #define CONFIG_SYS_PCIE1_IO_VIRT	0xffc00000
-#define CONFIG_SYS_PCIE1_IO_BUS		0x00000000
-#define CONFIG_SYS_PCIE1_IO_SIZE	0x00010000	/* 64k */
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_PCIE1_IO_PHYS	0xfffc00000ull
 #else
@@ -142,27 +135,45 @@
 #endif
 
 /* controller 2, Slot 2, tgtid 2, Base address 9000 */
+#define CONFIG_SYS_PCIE2_MEM_VIRT	0xa0000000
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_PCIE2_MEM_PHYS	0xc20000000ull
+#else
+#define CONFIG_SYS_PCIE2_MEM_PHYS	0xa0000000
+#endif
+#define CONFIG_SYS_PCIE2_IO_VIRT	0xffc10000
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_PCIE2_IO_PHYS	0xfffc10000ull
+#else
+#define CONFIG_SYS_PCIE2_IO_PHYS	0xffc10000
+#endif
+
+#if !defined(CONFIG_DM_PCI)
+#define CONFIG_FSL_PCI_INIT		/* Use common FSL init code */
+#define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
+#define CONFIG_SYS_PCIE1_NAME		"mini PCIe Slot"
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_PCIE1_MEM_BUS	0x80000000
+#else
+#define CONFIG_SYS_PCIE1_MEM_BUS	0x80000000
+#endif
+#define CONFIG_SYS_PCIE1_MEM_SIZE	0x20000000	/* 512M */
+#define CONFIG_SYS_PCIE1_IO_BUS		0x00000000
+#define CONFIG_SYS_PCIE1_IO_SIZE	0x00010000	/* 64k */
+
 #if defined(CONFIG_TARGET_P1010RDB_PA)
 #define CONFIG_SYS_PCIE2_NAME		"PCIe Slot"
 #elif defined(CONFIG_TARGET_P1010RDB_PB)
 #define CONFIG_SYS_PCIE2_NAME		"mini PCIe Slot"
 #endif
-#define CONFIG_SYS_PCIE2_MEM_VIRT	0xa0000000
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_PCIE2_MEM_BUS	0xc0000000
-#define CONFIG_SYS_PCIE2_MEM_PHYS	0xc20000000ull
 #else
 #define CONFIG_SYS_PCIE2_MEM_BUS	0xa0000000
-#define CONFIG_SYS_PCIE2_MEM_PHYS	0xa0000000
 #endif
 #define CONFIG_SYS_PCIE2_MEM_SIZE	0x20000000	/* 512M */
-#define CONFIG_SYS_PCIE2_IO_VIRT	0xffc10000
 #define CONFIG_SYS_PCIE2_IO_BUS		0x00000000
 #define CONFIG_SYS_PCIE2_IO_SIZE	0x00010000	/* 64k */
-#ifdef CONFIG_PHYS_64BIT
-#define CONFIG_SYS_PCIE2_IO_PHYS	0xfffc10000ull
-#else
-#define CONFIG_SYS_PCIE2_IO_PHYS	0xffc10000
 #endif
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
@@ -522,17 +533,22 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_CCSRBAR+0x4600)
 
 /* I2C */
+#ifndef CONFIG_DM_I2C
 #define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_FSL
 #define CONFIG_SYS_FSL_I2C_SPEED	400000
 #define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
 #define CONFIG_SYS_FSL_I2C_OFFSET	0x3000
 #define CONFIG_SYS_FSL_I2C2_SPEED	400000
 #define CONFIG_SYS_FSL_I2C2_SLAVE	0x7F
 #define CONFIG_SYS_FSL_I2C2_OFFSET	0x3100
+#else
+#define CONFIG_I2C_SET_DEFAULT_BUS_NUM
+#define CONFIG_I2C_DEFAULT_BUS_NUMBER	0
+#endif
 #define I2C_PCA9557_ADDR1		0x18
 #define I2C_PCA9557_ADDR2		0x19
 #define I2C_PCA9557_BUS_NUM		0
+#define CONFIG_SYS_I2C_FSL
 
 /* I2C EEPROM */
 #if defined(CONFIG_TARGET_P1010RDB_PB)
