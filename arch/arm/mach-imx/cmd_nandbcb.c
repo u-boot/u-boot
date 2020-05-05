@@ -25,6 +25,7 @@
 #include <mxs_nand.h>
 #include <linux/mtd/mtd.h>
 #include <nand.h>
+#include <div64.h>
 
 #include "../../../cmd/legacy-mtd-utils.h"
 
@@ -32,6 +33,16 @@
 #define GETBIT(v, n)		(((v) >> (n)) & 0x1)
 #define IMX8MQ_SPL_SZ 0x3e000
 #define IMX8MQ_HDMI_FW_SZ 0x19c00
+#define BOOT_SEARCH_COUNT 2
+
+struct mtd_info *dump_mtd;
+static loff_t dump_nandboot_size;
+static struct fcb_block dump_fill_fcb;
+static struct dbbt_block dump_fill_dbbt;
+static struct fcb_block dump_nand_fcb[BOOT_SEARCH_COUNT];
+static struct dbbt_block dump_nand_dbbt[BOOT_SEARCH_COUNT];
+static u32 dump_fcb_off[BOOT_SEARCH_COUNT];
+static u32 dump_dbbt_off[BOOT_SEARCH_COUNT];
 
 #if defined(CONFIG_MX6UL) || defined(CONFIG_MX6ULL)
 static uint8_t reverse_bit(uint8_t b)
@@ -212,9 +223,10 @@ static int dbbt_fill_data(struct mtd_info *mtd, void *buf, int num_blocks)
 	return n_bad_blocks;
 }
 
-static int write_fcb_dbbt(struct mtd_info *mtd, struct fcb_block *fcb,
-			  struct dbbt_block *dbbt, void *dbbt_data_page,
-			  loff_t off)
+static int write_fcb_dbbt_and_readback(struct mtd_info *mtd,
+				       struct fcb_block *fcb,
+				       struct dbbt_block *dbbt,
+				       void *dbbt_data_page, loff_t off)
 {
 	void *fcb_raw_page = 0;
 	int i, ret;
@@ -272,6 +284,11 @@ static int write_fcb_dbbt(struct mtd_info *mtd, struct fcb_block *fcb,
 			mxs_nand_mode_fcb(mtd);
 			ret = nand_write(mtd, off, &rwsize,
 					 (unsigned char *)fcb);
+
+			dump_fcb_off[i] = off;
+			nand_read(mtd, off, &rwsize,
+				  (unsigned char *)(dump_nand_fcb + i));
+
 			mxs_nand_mode_normal(mtd);
 
 			printf("%s\n", ret ? "ERROR" : "OK");
@@ -301,6 +318,12 @@ static int write_fcb_dbbt(struct mtd_info *mtd, struct fcb_block *fcb,
 		debug("NAND dbbt write: 0x%x offset, 0x%zx bytes written: %s\n",
 		      mtd->erasesize * i + mtd->writesize, dummy,
 		      ret ? "ERROR" : "OK");
+
+		dump_dbbt_off[i] = mtd->erasesize * i + mtd->writesize;
+		size_t rwsize = sizeof(*dbbt);
+
+		nand_read(mtd, dump_dbbt_off[i], &rwsize,
+			  (unsigned char *)(dump_nand_dbbt + i));
 
 		/* dbbtpages == 0 if no bad blocks */
 		if (dbbt->dbbtpages > 0) {
@@ -366,7 +389,7 @@ static int nandbcb_update(struct mtd_info *mtd, loff_t off, size_t size,
 	 * - rest split in half for primary and secondary firmware
 	 * - same firmware will write two times
 	 */
-	nr_blks_fcb = 2;
+	nr_blks_fcb = BOOT_SEARCH_COUNT;
 	nr_blks = maxsize / mtd->erasesize;
 	fw1_blk = nr_blks_fcb;
 
@@ -442,6 +465,8 @@ static int nandbcb_update(struct mtd_info *mtd, loff_t off, size_t size,
 		fw1_pages = (IMX8MQ_SPL_SZ + (mtd->writesize - 1)) / mtd->writesize;
 	fill_fcb(fcb, mtd, fw1_start, 0, fw1_pages);
 
+	dump_fill_fcb = *fcb;
+
 	/* fill dbbt */
 	dbbt_page = kzalloc(mtd->writesize, GFP_KERNEL);
 	if (!dbbt_page) {
@@ -467,8 +492,10 @@ static int nandbcb_update(struct mtd_info *mtd, loff_t off, size_t size,
 	else if (ret > 0)
 		dbbt->dbbtpages = 1;
 
+	dump_fill_dbbt = *dbbt;
+
 	/* write fcb and dbbt to nand */
-	ret = write_fcb_dbbt(mtd, fcb, dbbt, dbbt_data_page, off);
+	ret = write_fcb_dbbt_and_readback(mtd, fcb, dbbt, dbbt_data_page, off);
 	if (ret < 0)
 		printf("failed to write FCB/DBBT\n");
 
@@ -550,7 +577,7 @@ static int do_nandbcb_bcbonly(int argc, char * const argv[])
 		dbbt->dbbtpages = 1;
 
 	/* write fcb and dbbt to nand */
-	ret = write_fcb_dbbt(mtd, fcb, dbbt, dbbt_data_page, 0);
+	ret = write_fcb_dbbt_and_readback(mtd, fcb, dbbt, dbbt_data_page, 0);
 dbbt_data_page_err:
 	kfree(dbbt_data_page);
 dbbt_page_err:
@@ -564,6 +591,218 @@ fcb_err:
 	}
 
 	return CMD_RET_SUCCESS;
+}
+
+/* dump data which is planned to be encoded and written to NAND chip */
+void mtd_cfg_dump(void)
+{
+	u64 blocks;
+
+	printf("MTD CONFIG:\n");
+	printf("  %s = %d\n", "data_setup_time", dump_fill_fcb.datasetup);
+	printf("  %s = %d\n", "data_hold_time", dump_fill_fcb.datahold);
+	printf("  %s = %d\n", "address_setup_time", dump_fill_fcb.addr_setup);
+	printf("  %s = %d\n", "data_sample_time", dump_fill_fcb.dsample_time);
+
+	printf("NFC geometry :\n");
+	printf("\tECC Strength       : %d\n", dump_mtd->ecc_strength);
+	printf("\tPage Size in Bytes : %d\n", dump_fill_fcb.oob_pagesize);
+	printf("\tMetadata size      : %d\n", dump_fill_fcb.meta_size);
+	printf("\tECC Chunk Size in byte : %d\n", dump_fill_fcb.ecc_size);
+	printf("\tECC Chunk count        : %d\n", dump_fill_fcb.nr_blocks + 1);
+	printf("\tBlock Mark Byte Offset : %d\n", dump_fill_fcb.bb_byte);
+	printf("\tBlock Mark Bit Offset  : %d\n", dump_fill_fcb.bb_start_bit);
+	printf("====================================================\n");
+
+	printf("mtd: partition #0\n");
+	printf("  %s = %d\n", "type", dump_mtd->type);
+	printf("  %s = %d\n", "flags", dump_mtd->flags);
+	printf("  %s = %llu\n", "size", dump_nandboot_size);
+	printf("  %s = %d\n", "erasesize", dump_mtd->erasesize);
+	printf("  %s = %d\n", "writesize", dump_mtd->writesize);
+	printf("  %s = %d\n", "oobsize", dump_mtd->oobsize);
+	blocks = dump_nandboot_size;
+	do_div(blocks, dump_mtd->erasesize);
+	printf("  %s = %llu\n", "blocks", blocks);
+}
+
+/* dump data which is read from NAND chip */
+void mtd_dump_structure(int i)
+{
+	#define P1(x) printf("  %s = 0x%08x\n", #x, dump_nand_fcb[i].x)
+		printf("FCB %d:\n", i);
+		P1(checksum);
+		P1(fingerprint);
+		P1(version);
+	#undef P1
+	#define P1(x)	printf("  %s = %d\n", #x, dump_nand_fcb[i].x)
+		P1(datasetup);
+		P1(datahold);
+		P1(addr_setup);
+		P1(dsample_time);
+		P1(pagesize);
+		P1(oob_pagesize);
+		P1(sectors);
+		P1(nr_nand);
+		P1(nr_die);
+		P1(celltype);
+		P1(ecc_type);
+		P1(ecc_nr);
+		P1(ecc_size);
+		P1(ecc_level);
+		P1(meta_size);
+		P1(nr_blocks);
+		P1(ecc_type_sdk);
+		P1(ecc_nr_sdk);
+		P1(ecc_size_sdk);
+		P1(ecc_level_sdk);
+		P1(nr_blocks_sdk);
+		P1(meta_size_sdk);
+		P1(erase_th);
+		P1(bootpatch);
+		P1(patch_size);
+		P1(fw1_start);
+		P1(fw2_start);
+		P1(fw1_pages);
+		P1(fw2_pages);
+		P1(dbbt_start);
+		P1(bb_byte);
+		P1(bb_start_bit);
+		P1(phy_offset);
+		P1(bchtype);
+		P1(readlatency);
+		P1(predelay);
+		P1(cedelay);
+		P1(postdelay);
+		P1(cmdaddpause);
+		P1(datapause);
+		P1(tmspeed);
+		P1(busytimeout);
+		P1(disbbm);
+		P1(spare_offset);
+		P1(onfi_sync_enable);
+		P1(onfi_sync_speed);
+		P1(onfi_sync_nand_data);
+		P1(disbbm_search);
+		P1(disbbm_search_limit);
+		P1(read_retry_enable);
+	#undef P1
+	#define P1(x)	printf("  %s = 0x%08x\n", #x, dump_nand_dbbt[i].x)
+		printf("DBBT %d:\n", i);
+		P1(checksum);
+		P1(fingerprint);
+		P1(version);
+	#undef P1
+	#define P1(x)	printf("  %s = %d\n", #x, dump_nand_dbbt[i].x)
+		P1(numberbb);
+	#undef P1
+
+	printf("Firmware: image #0 @ 0x%x size 0x%x - available 0x%llx\n",
+	       dump_nand_fcb[i].fw1_start * dump_nand_fcb[i].pagesize,
+	       dump_nand_fcb[i].fw1_pages * dump_nand_fcb[i].pagesize,
+	       dump_nandboot_size - dump_nand_fcb[i].fw1_start *
+	       dump_nand_fcb[i].pagesize);
+	if (is_imx8m()) {
+		printf("Extra Firmware: image #0 @ 0x%x size 0x%x - available 0x%llx\n",
+		       dump_nand_fcb[i].fw1_start *
+		       dump_nand_fcb[i].pagesize + dump_mtd->erasesize *
+		       ((IMX8MQ_SPL_SZ + dump_mtd->erasesize - 1) /
+			dump_mtd->erasesize),
+		       dump_nand_fcb[i].fw1_pages * dump_nand_fcb[i].pagesize,
+		       dump_nandboot_size -
+		       (dump_nand_fcb[i].fw1_start *
+			dump_nand_fcb[i].pagesize + dump_mtd->erasesize *
+			((IMX8MQ_SPL_SZ + dump_mtd->erasesize - 1) /
+			 dump_mtd->erasesize)));
+	}
+}
+
+static int do_nandbcb_dump(int argc, char * const argv[])
+{
+	int num;
+	int stride;
+	int search_area_sz;
+	bool bab_block_table[BOOT_SEARCH_COUNT];
+	int bab_block_flag;
+
+	if (argc != 2)
+		return CMD_RET_USAGE;
+
+	switch (argv[1][0]) {
+	case '0':
+		num = 0;
+		break;
+	case '1':
+		num = 1;
+		break;
+	default:
+		return CMD_RET_USAGE;
+	}
+
+	/* dump data which is planned to be encoded and written to NAND chip */
+	mtd_cfg_dump();
+
+	stride = dump_mtd->erasesize;
+	search_area_sz = BOOT_SEARCH_COUNT * stride;
+	printf("stride: %x, search_area_sz: %x\n", stride, search_area_sz);
+
+	bab_block_flag = 0;
+	for (int i = 0; i < BOOT_SEARCH_COUNT; i++) {
+		if (mtd_block_isbad(dump_mtd,
+				    (loff_t)(dump_mtd->erasesize * i))) {
+			bab_block_table[i] = 1;
+			bab_block_flag = 1;
+			continue;
+		}
+		bab_block_table[i] = 0;
+		if (!memcmp(dump_nand_fcb + i, &dump_fill_fcb,
+			    sizeof(dump_fill_fcb))) {
+			printf("mtd: found FCB%d candidate version %08x @%d:0x%x\n",
+			       i, dump_nand_fcb[i].version, i, dump_fcb_off[i]);
+		} else {
+			printf("mtd: FCB%d not found\n", i);
+		}
+	}
+
+	for (int i = 0; i < BOOT_SEARCH_COUNT; i++) {
+		if (mtd_block_isbad(dump_mtd,
+				    (loff_t)(dump_mtd->erasesize * i)))
+			continue;
+
+		if (!memcmp(dump_nand_dbbt + i, &dump_fill_dbbt,
+			    sizeof(dump_fill_dbbt))) {
+			printf("mtd: DBBT%d found\n", i);
+			printf("mtd: Valid DBBT%d found @%d:0x%x\n",
+			       i, i, dump_dbbt_off[i]);
+
+		} else {
+			printf("mtd: DBBT%d not found\n", i);
+		}
+	}
+	if (bab_block_flag == 0) {
+		printf("no bad block found, dbbt: %08x\n",
+		       dump_fill_dbbt.fingerprint);
+	} else {
+		for (int i = 0; i < BOOT_SEARCH_COUNT; i++) {
+			if (bab_block_table[i] == 1)
+				printf("mtd: bad block @ 0x%llx\n",
+				       (loff_t)(dump_mtd->erasesize * i));
+		}
+	}
+
+	/* dump data which is read from NAND chip */
+	if (num > (BOOT_SEARCH_COUNT - 1))
+		return CMD_RET_USAGE;
+
+	if (bab_block_table[num] == 1) {
+		printf("mtd: bad block @ 0x%llx (FCB - DBBT)\n",
+		       (loff_t)(dump_mtd->erasesize * num));
+		return CMD_RET_USAGE;
+	}
+
+	mtd_dump_structure(num);
+
+	return 0;
 }
 
 static int do_nandbcb_update(int argc, char * const argv[])
@@ -593,6 +832,10 @@ static int do_nandbcb_update(int argc, char * const argv[])
 			     &maxsize, MTD_DEV_TYPE_NAND, mtd->size))
 		return CMD_RET_FAILURE;
 
+	/* dump_mtd and dump_nandboot_size are used for "nandbcb dump [-v]" */
+	dump_mtd = mtd;
+	dump_nandboot_size = maxsize;
+
 	buf = map_physmem(addr, size, MAP_WRBACK);
 	if (!buf) {
 		puts("failed to map physical memory\n");
@@ -610,7 +853,7 @@ static int do_nandbcb(cmd_tbl_t *cmdtp, int flag, int argc,
 	const char *cmd;
 	int ret = 0;
 
-	if (argc < 5)
+	if (argc < 3)
 		goto usage;
 
 	cmd = argv[1];
@@ -619,6 +862,11 @@ static int do_nandbcb(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	if (strcmp(cmd, "update") == 0) {
 		ret = do_nandbcb_update(argc, argv);
+		goto done;
+	}
+
+	if (strcmp(cmd, "dump") == 0) {
+		ret = do_nandbcb_dump(argc, argv);
 		goto done;
 	}
 
@@ -643,7 +891,9 @@ static char nandbcb_help_text[] =
 	"       and `fw2-off` - firmware offsets\n"
 	"       FIY, BCB isn't erased automatically, so mtd erase should\n"
 	"       be called in advance before writing new BCB:\n"
-	"           > mtd erase mx7-bcb";
+	"           > mtd erase mx7-bcb\n"
+	"nandbcb dump num - verify/dump boot structures\n"
+	"	'num' can be set to 0 and 1";
 #endif
 
 U_BOOT_CMD(nandbcb, 5, 1, do_nandbcb,
