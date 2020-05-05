@@ -58,7 +58,7 @@ void spl_board_init(void)
 
 void spl_board_prepare_for_boot(void)
 {
-	imx_power_off_pd_devices(NULL, 0);
+	imx8_power_off_pd_devices(NULL, 0);
 }
 
 #ifdef CONFIG_SPL_LOAD_FIT

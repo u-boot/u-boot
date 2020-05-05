@@ -585,3 +585,33 @@ void board_boot_order(u32 *spl_boot_list)
 			spl_boot_list[0] = BOOT_DEVICE_NOR;
 	}
 }
+
+bool m4_parts_booted(void)
+{
+	sc_rm_pt_t m4_parts[2];
+	int err;
+
+	err = sc_rm_get_resource_owner(-1, SC_R_M4_0_PID0, &m4_parts[0]);
+	if (err) {
+		printf("%s get resource [%d] owner error: %d\n", __func__,
+		       SC_R_M4_0_PID0, err);
+		return false;
+	}
+
+	if (sc_pm_is_partition_started(-1, m4_parts[0]))
+		return true;
+
+	if (is_imx8qm()) {
+		err = sc_rm_get_resource_owner(-1, SC_R_M4_1_PID0, &m4_parts[1]);
+		if (err) {
+			printf("%s get resource [%d] owner error: %d\n",
+			       __func__, SC_R_M4_1_PID0, err);
+			return false;
+		}
+
+		if (sc_pm_is_partition_started(-1, m4_parts[1]))
+			return true;
+	}
+
+	return false;
+}
