@@ -104,7 +104,9 @@
 			<&gpio_c 2 GPIO_OUT>,
 			<&gpio_c 3 (GPIO_IN|GPIO_PULL_UP)>,
 			<&gpio_c 4 (GPIO_IN|GPIO_PULL_DOWN)>,
-			<&gpio_c 5 GPIO_IN>;
+			<&gpio_c 5 GPIO_IN>,
+			<&gpio_c 6 (GPIO_ACTIVE_LOW|GPIO_OUT|GPIO_OPEN_DRAIN)>,
+			<&gpio_c 7 (GPIO_ACTIVE_LOW|GPIO_OUT|GPIO_OPEN_SOURCE)>;
 		int-value = <1234>;
 		uint-value = <(-1234)>;
 		int64-value = /bits/ 64 <0x1111222233334444>;

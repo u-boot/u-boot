@@ -112,6 +112,95 @@ static int dm_test_gpio(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_gpio, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
+/* Test that GPIO open-drain/open-source emulation works correctly */
+static int dm_test_gpio_opendrain_opensource(struct unit_test_state *uts)
+{
+	struct gpio_desc desc_list[8];
+	struct udevice *dev, *gpio_c;
+	char buf[80];
+
+	ut_assertok(uclass_get_device(UCLASS_TEST_FDT, 0, &dev));
+	ut_asserteq_str("a-test", dev->name);
+
+	ut_assertok(uclass_get_device(UCLASS_GPIO, 3, &gpio_c));
+	ut_asserteq_str("pinmux-gpios", gpio_c->name);
+
+	ut_asserteq(8, gpio_request_list_by_name(dev, "test3-gpios", desc_list,
+						 ARRAY_SIZE(desc_list), 0))
+
+	ut_asserteq(true, !!device_active(gpio_c));
+	ut_asserteq_ptr(gpio_c, desc_list[0].dev);
+	ut_asserteq_ptr(gpio_c, desc_list[1].dev);
+	ut_asserteq_ptr(gpio_c, desc_list[2].dev);
+	ut_asserteq_ptr(gpio_c, desc_list[3].dev);
+	ut_asserteq_ptr(gpio_c, desc_list[4].dev);
+	ut_asserteq_ptr(gpio_c, desc_list[5].dev);
+	ut_asserteq_ptr(gpio_c, desc_list[6].dev);
+	ut_asserteq_ptr(gpio_c, desc_list[7].dev);
+
+	/* GPIO 0 is (GPIO_OUT|GPIO_OPEN_DRAIN) */
+	ut_asserteq(GPIOD_IS_OUT | GPIOD_OPEN_DRAIN,
+		    sandbox_gpio_get_dir_flags(gpio_c, 0));
+
+	/* Set it as output high, should become an input */
+	ut_assertok(dm_gpio_set_value(&desc_list[0], 1));
+	ut_assertok(gpio_get_status(gpio_c, 0, buf, sizeof(buf)));
+	ut_asserteq_str("c0: input: 0 [x] a-test.test3-gpios0", buf);
+
+	/* Set it as output low, should become output low */
+	ut_assertok(dm_gpio_set_value(&desc_list[0], 0));
+	ut_assertok(gpio_get_status(gpio_c, 0, buf, sizeof(buf)));
+	ut_asserteq_str("c0: output: 0 [x] a-test.test3-gpios0", buf);
+
+	/* GPIO 1 is (GPIO_OUT|GPIO_OPEN_SOURCE) */
+	ut_asserteq(GPIOD_IS_OUT | GPIOD_OPEN_SOURCE,
+		    sandbox_gpio_get_dir_flags(gpio_c, 1));
+
+	/* Set it as output high, should become output high */
+	ut_assertok(dm_gpio_set_value(&desc_list[1], 1));
+	ut_assertok(gpio_get_status(gpio_c, 1, buf, sizeof(buf)));
+	ut_asserteq_str("c1: output: 1 [x] a-test.test3-gpios1", buf);
+
+	/* Set it as output low, should become an input */
+	ut_assertok(dm_gpio_set_value(&desc_list[1], 0));
+	ut_assertok(gpio_get_status(gpio_c, 1, buf, sizeof(buf)));
+	ut_asserteq_str("c1: input: 1 [x] a-test.test3-gpios1", buf);
+
+	/* GPIO 6 is (GPIO_ACTIVE_LOW|GPIO_OUT|GPIO_OPEN_DRAIN) */
+	ut_asserteq(GPIOD_ACTIVE_LOW | GPIOD_IS_OUT | GPIOD_OPEN_DRAIN,
+		    sandbox_gpio_get_dir_flags(gpio_c, 6));
+
+	/* Set it as output high, should become output low */
+	ut_assertok(dm_gpio_set_value(&desc_list[6], 1));
+	ut_assertok(gpio_get_status(gpio_c, 6, buf, sizeof(buf)));
+	ut_asserteq_str("c6: output: 0 [x] a-test.test3-gpios6", buf);
+
+	/* Set it as output low, should become an input */
+	ut_assertok(dm_gpio_set_value(&desc_list[6], 0));
+	ut_assertok(gpio_get_status(gpio_c, 6, buf, sizeof(buf)));
+	ut_asserteq_str("c6: input: 0 [x] a-test.test3-gpios6", buf);
+
+	/* GPIO 7 is (GPIO_ACTIVE_LOW|GPIO_OUT|GPIO_OPEN_SOURCE) */
+	ut_asserteq(GPIOD_ACTIVE_LOW | GPIOD_IS_OUT | GPIOD_OPEN_SOURCE,
+		    sandbox_gpio_get_dir_flags(gpio_c, 7));
+
+	/* Set it as output high, should become an input */
+	ut_assertok(dm_gpio_set_value(&desc_list[7], 1));
+	ut_assertok(gpio_get_status(gpio_c, 7, buf, sizeof(buf)));
+	ut_asserteq_str("c7: input: 0 [x] a-test.test3-gpios7", buf);
+
+	/* Set it as output low, should become output high */
+	ut_assertok(dm_gpio_set_value(&desc_list[7], 0));
+	ut_assertok(gpio_get_status(gpio_c, 7, buf, sizeof(buf)));
+	ut_asserteq_str("c7: output: 1 [x] a-test.test3-gpios7", buf);
+
+	ut_assertok(gpio_free_list(dev, desc_list, 8));
+
+	return 0;
+}
+DM_TEST(dm_test_gpio_opendrain_opensource,
+	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
 /* Test that sandbox anonymous GPIOs work correctly */
 static int dm_test_gpio_anon(struct unit_test_state *uts)
 {
