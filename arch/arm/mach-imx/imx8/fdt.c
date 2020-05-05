@@ -8,6 +8,7 @@
 #include <asm/arch/sys_proto.h>
 #include <dm/ofnode.h>
 #include <fdt_support.h>
+#include <linux/libfdt.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -279,6 +280,15 @@ static int ft_add_optee_node(void *fdt, bd_t *bd)
 int ft_system_setup(void *blob, bd_t *bd)
 {
 	int ret;
+	int off;
+
+	if (CONFIG_BOOTAUX_RESERVED_MEM_BASE) {
+		off = fdt_add_mem_rsv(blob, CONFIG_BOOTAUX_RESERVED_MEM_BASE,
+				      CONFIG_BOOTAUX_RESERVED_MEM_SIZE);
+		if (off < 0)
+			printf("Failed	to reserve memory for bootaux: %s\n",
+			       fdt_strerror(off));
+	}
 
 	update_fdt_with_owned_resources(blob);
 

@@ -41,6 +41,14 @@ config IMX_CONTAINER_CFG
 	  This is to specific the cfg file for generating container
 	  image which will be loaded by SPL.
 
+config BOOTAUX_RESERVED_MEM_BASE
+	hex "i.MX auxiliary core dram memory base"
+	default 0
+
+config BOOTAUX_RESERVED_MEM_SIZE
+	hex "i.MX auxiliary core dram memory size"
+	default 0
+
 choice
 	prompt "i.MX8 board select"
 	optional
