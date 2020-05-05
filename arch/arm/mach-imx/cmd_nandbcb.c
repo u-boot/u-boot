@@ -309,6 +309,10 @@ static int write_fcb_dbbt_and_readback(struct mtd_info *mtd,
 			debug("NAND fcb write: 0x%x offset 0x%zx written: %s\n",
 			      mtd->erasesize * i, ops.len, ret ?
 			      "ERROR" : "OK");
+
+			ops.datbuf = (u8 *)(dump_nand_fcb + i);
+			ops.oobbuf = ((u8 *)(dump_nand_fcb + i)) + mtd->writesize;
+			mtd_read_oob(mtd, mtd->erasesize * i, &ops);
 		}
 
 		ret = mtd_write(mtd, mtd->erasesize * i + mtd->writesize,
