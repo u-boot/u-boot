@@ -22,6 +22,7 @@
 #include <asm/armv8/mmu.h>
 #include <asm/setup.h>
 #include <asm/mach-imx/boot_mode.h>
+#include <spl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -572,4 +573,15 @@ u32 get_cpu_rev(void)
 	id = (id & 0x1f) + MXC_SOC_IMX8;  /* Dummy ID for chip */
 
 	return (id << 12) | rev;
+}
+
+void board_boot_order(u32 *spl_boot_list)
+{
+	spl_boot_list[0] = spl_boot_device();
+
+	if (spl_boot_list[0] == BOOT_DEVICE_SPI) {
+		/* Check whether we own the flexspi0, if not, use NOR boot */
+		if (!sc_rm_is_resource_owned(-1, SC_R_FSPI_0))
+			spl_boot_list[0] = BOOT_DEVICE_NOR;
+	}
 }
