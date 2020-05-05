@@ -11,6 +11,7 @@
 #include <asm/arch/power-domain.h>
 #include <dm/device-internal.h>
 #include <dm/device.h>
+#include <dm/uclass-internal.h>
 #include <asm/arch/sci/sci.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -18,6 +19,40 @@ DECLARE_GLOBAL_DATA_PTR;
 struct imx8_power_domain_priv {
 	bool state_on;
 };
+
+static bool check_device_power_off(struct udevice *dev,
+				   const char *permanent_on_devices[],
+				   int size)
+{
+	int i;
+
+	for (i = 0; i < size; i++) {
+		if (!strcmp(dev->name, permanent_on_devices[i]))
+			return false;
+	}
+
+	return true;
+}
+
+void imx8_power_off_pd_devices(const char *permanent_on_devices[], int size)
+{
+	struct udevice *dev;
+	struct power_domain pd;
+
+	for (uclass_find_first_device(UCLASS_POWER_DOMAIN, &dev); dev;
+	     uclass_find_next_device(&dev)) {
+		if (!device_active(dev))
+			continue;
+		/*
+		 * Power off active pd devices except the permanent
+		 * power on devices
+		 */
+		if (check_device_power_off(dev, permanent_on_devices, size)) {
+			pd.dev = dev;
+			power_domain_off(&pd);
+		}
+	}
+}
 
 int imx8_power_domain_lookup_name(const char *name,
 				  struct power_domain *power_domain)

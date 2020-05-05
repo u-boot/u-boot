@@ -17,6 +17,7 @@
 #include <asm/arch/sci/sci.h>
 #include <asm/arch/imx8-pins.h>
 #include <asm/arch/iomux.h>
+#include <asm/arch/sys_proto.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -53,6 +54,11 @@ void spl_board_init(void)
 	preloader_console_init();
 
 	puts("Normal Boot\n");
+}
+
+void spl_board_prepare_for_boot(void)
+{
+	imx_power_off_pd_devices(NULL, 0);
 }
 
 #ifdef CONFIG_SPL_LOAD_FIT
