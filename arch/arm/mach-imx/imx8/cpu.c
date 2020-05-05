@@ -223,7 +223,7 @@ static int get_owned_memreg(sc_rm_mr_t mr, sc_faddr_t *addr_start,
 phys_size_t get_effective_memsize(void)
 {
 	sc_rm_mr_t mr;
-	sc_faddr_t start, end, end1;
+	sc_faddr_t start, end, end1, start_aligned;
 	int err;
 
 	end1 = (sc_faddr_t)PHYS_SDRAM_1 + PHYS_SDRAM_1_SIZE;
@@ -231,9 +231,9 @@ phys_size_t get_effective_memsize(void)
 	for (mr = 0; mr < 64; mr++) {
 		err = get_owned_memreg(mr, &start, &end);
 		if (!err) {
-			start = roundup(start, MEMSTART_ALIGNMENT);
+			start_aligned = roundup(start, MEMSTART_ALIGNMENT);
 			/* Too small memory region, not use it */
-			if (start > end)
+			if (start_aligned > end)
 				continue;
 
 			/* Find the memory region runs the U-Boot */
