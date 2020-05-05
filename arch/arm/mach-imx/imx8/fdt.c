@@ -106,13 +106,13 @@ static int config_smmu_resource_sid(int rsrc, int sid)
 {
 	int err;
 
-	if (!check_owned_resource(rsrc)) {
-		printf("%s rsrc[%d] not owned\n", __func__, rsrc);
-		return -1;
-	}
 	err = sc_rm_set_master_sid(-1, rsrc, sid);
 	debug("set_master_sid rsrc=%d sid=0x%x err=%d\n", rsrc, sid, err);
 	if (err != SC_ERR_NONE) {
+		if (!check_owned_resource(rsrc)) {
+			printf("%s rsrc[%d] not owned\n", __func__, rsrc);
+			return -1;
+		}
 		pr_err("fail set_master_sid rsrc=%d sid=0x%x err=%d\n", rsrc, sid, err);
 		return -EINVAL;
 	}
