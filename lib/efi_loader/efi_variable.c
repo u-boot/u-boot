@@ -30,6 +30,18 @@ static u8 efi_vendor_keys;
 
 #define READ_ONLY BIT(31)
 
+static efi_status_t efi_get_variable_common(u16 *variable_name,
+					    const efi_guid_t *vendor,
+					    u32 *attributes,
+					    efi_uintn_t *data_size, void *data);
+
+static efi_status_t efi_set_variable_common(u16 *variable_name,
+					    const efi_guid_t *vendor,
+					    u32 attributes,
+					    efi_uintn_t data_size,
+					    const void *data,
+					    bool ro_check);
+
 /*
  * Mapping between EFI variables and u-boot variables:
  *
@@ -169,13 +181,6 @@ static const char *parse_attr(const char *str, u32 *attrp, u64 *timep)
 	return str;
 }
 
-static efi_status_t efi_set_variable_common(u16 *variable_name,
-					    const efi_guid_t *vendor,
-					    u32 attributes,
-					    efi_uintn_t data_size,
-					    const void *data,
-					    bool ro_check);
-
 /**
  * efi_set_secure_state - modify secure boot state variables
  * @sec_boot:		value of SecureBoot
@@ -300,8 +305,8 @@ static efi_status_t efi_init_secure_state(void)
 	 */
 
 	size = 0;
-	ret = EFI_CALL(efi_get_variable(L"PK", &efi_global_variable_guid,
-					NULL, &size, NULL));
+	ret = efi_get_variable_common(L"PK", &efi_global_variable_guid,
+				      NULL, &size, NULL);
 	if (ret == EFI_BUFFER_TOO_SMALL) {
 		if (IS_ENABLED(CONFIG_EFI_SECURE_BOOT))
 			mode = EFI_MODE_USER;
@@ -587,8 +592,7 @@ static efi_status_t efi_variable_authenticate(u16 *variable,
 }
 #endif /* CONFIG_EFI_SECURE_BOOT */
 
-static
-efi_status_t EFIAPI efi_get_variable_common(u16 *variable_name,
+static efi_status_t efi_get_variable_common(u16 *variable_name,
 					    const efi_guid_t *vendor,
 					    u32 *attributes,
 					    efi_uintn_t *data_size, void *data)
@@ -893,8 +897,8 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
 	/* check if a variable exists */
 	old_size = 0;
 	attr = 0;
-	ret = EFI_CALL(efi_get_variable(variable_name, vendor, &attr,
-					&old_size, NULL));
+	ret = efi_get_variable_common(variable_name, vendor, &attr,
+				      &old_size, NULL);
 	append = !!(attributes & EFI_VARIABLE_APPEND_WRITE);
 	attributes &= ~(u32)EFI_VARIABLE_APPEND_WRITE;
 	delete = !append && (!data_size || !attributes);
@@ -984,8 +988,8 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
 			ret = EFI_OUT_OF_RESOURCES;
 			goto err;
 		}
-		ret = EFI_CALL(efi_get_variable(variable_name, vendor,
-						&attr, &old_size, old_data));
+		ret = efi_get_variable_common(variable_name, vendor,
+					      &attr, &old_size, old_data);
 		if (ret != EFI_SUCCESS)
 			goto err;
 	} else {
