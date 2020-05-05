@@ -4,6 +4,7 @@
 
 import pytest
 
+@pytest.mark.xfail
 @pytest.mark.buildconfigspec("cmd_mii")
 @pytest.mark.buildconfigspec("phylib")
 def test_mdio_list(u_boot_console):
