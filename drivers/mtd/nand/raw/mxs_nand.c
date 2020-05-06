@@ -710,7 +710,7 @@ static int mxs_nand_ecc_read_page(struct mtd_info *mtd, struct nand_chip *nand,
 	d->cmd.pio_words[4] = (dma_addr_t)nand_info->data_buf;
 	d->cmd.pio_words[5] = (dma_addr_t)nand_info->oob_buf;
 
-	if ((is_mx7() || is_imx8m()) && nand_info->en_randomizer) {
+	if (nand_info->en_randomizer) {
 		d->cmd.pio_words[2] |= GPMI_ECCCTRL_RANDOMIZER_ENABLE |
 				       GPMI_ECCCTRL_RANDOMIZER_TYPE2;
 		d->cmd.pio_words[3] |= (page % 256) << 16;
@@ -867,7 +867,7 @@ static int mxs_nand_ecc_write_page(struct mtd_info *mtd,
 	d->cmd.pio_words[4] = (dma_addr_t)nand_info->data_buf;
 	d->cmd.pio_words[5] = (dma_addr_t)nand_info->oob_buf;
 
-	if ((is_mx7() || is_imx8m()) && nand_info->en_randomizer) {
+	if (nand_info->en_randomizer) {
 		d->cmd.pio_words[2] |= GPMI_ECCCTRL_RANDOMIZER_ENABLE |
 				       GPMI_ECCCTRL_RANDOMIZER_TYPE2;
 		/*
@@ -1489,7 +1489,7 @@ void mxs_nand_get_layout(struct mtd_info *mtd, struct mxs_nand_layout *l)
 /*
  * Set BCH to specific layout used by ROM bootloader to read FCB.
  */
-void mxs_nand_mode_fcb(struct mtd_info *mtd)
+void mxs_nand_mode_fcb_62bit(struct mtd_info *mtd)
 {
 	u32 tmp;
 	struct mxs_bch_regs *bch_regs = (struct mxs_bch_regs *)MXS_BCH_BASE;
@@ -1516,6 +1516,43 @@ void mxs_nand_mode_fcb(struct mtd_info *mtd)
 	tmp = 1862 << BCH_FLASHLAYOUT1_PAGE_SIZE_OFFSET;
 	/* using ECC62 level to be performed */
 	tmp |= 0x1F << BCH_FLASHLAYOUT1_ECCN_OFFSET;
+	/* 0x20 * 4 bytes of the data0 block */
+	tmp |= 0x20 << BCH_FLASHLAYOUT1_DATAN_SIZE_OFFSET;
+	tmp |= 0 << BCH_FLASHLAYOUT1_GF13_0_GF14_1_OFFSET;
+	writel(tmp, &bch_regs->hw_bch_flash0layout1);
+}
+
+/*
+ * Set BCH to specific layout used by ROM bootloader to read FCB.
+ */
+void mxs_nand_mode_fcb_40bit(struct mtd_info *mtd)
+{
+	u32 tmp;
+	struct mxs_bch_regs *bch_regs = (struct mxs_bch_regs *)MXS_BCH_BASE;
+	struct nand_chip *nand = mtd_to_nand(mtd);
+	struct mxs_nand_info *nand_info = nand_get_controller_data(nand);
+
+	/* no randomizer in this setting*/
+	nand_info->en_randomizer = 0;
+
+	mtd->writesize = 1024;
+	mtd->oobsize = 1576 - 1024;
+
+	/* 8 ecc_chunks_*/
+	tmp = 7	<< BCH_FLASHLAYOUT0_NBLOCKS_OFFSET;
+	/* 32 bytes for metadata */
+	tmp |= 32 << BCH_FLASHLAYOUT0_META_SIZE_OFFSET;
+	/* using ECC40 level to be performed */
+	tmp |= 0x14 << BCH_FLASHLAYOUT0_ECC0_OFFSET;
+	/* 0x20 * 4 bytes of the data0 block */
+	tmp |= 0x20 << BCH_FLASHLAYOUT0_DATA0_SIZE_OFFSET;
+	tmp |= 0 << BCH_FLASHLAYOUT0_GF13_0_GF14_1_OFFSET;
+	writel(tmp, &bch_regs->hw_bch_flash0layout0);
+
+	/* 1024 for data + 552 for OOB */
+	tmp = 1576 << BCH_FLASHLAYOUT1_PAGE_SIZE_OFFSET;
+	/* using ECC40 level to be performed */
+	tmp |= 0x14 << BCH_FLASHLAYOUT1_ECCN_OFFSET;
 	/* 0x20 * 4 bytes of the data0 block */
 	tmp |= 0x20 << BCH_FLASHLAYOUT1_DATAN_SIZE_OFFSET;
 	tmp |= 0 << BCH_FLASHLAYOUT1_GF13_0_GF14_1_OFFSET;

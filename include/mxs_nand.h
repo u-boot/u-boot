@@ -95,7 +95,8 @@ int mxs_nand_init_ctrl(struct mxs_nand_info *nand_info);
 int mxs_nand_init_spl(struct nand_chip *nand);
 int mxs_nand_setup_ecc(struct mtd_info *mtd);
 
-void mxs_nand_mode_fcb(struct mtd_info *mtd);
+void mxs_nand_mode_fcb_62bit(struct mtd_info *mtd);
+void mxs_nand_mode_fcb_40bit(struct mtd_info *mtd);
 void mxs_nand_mode_normal(struct mtd_info *mtd);
 u32 mxs_nand_mark_byte_offset(struct mtd_info *mtd);
 u32 mxs_nand_mark_bit_offset(struct mtd_info *mtd);
