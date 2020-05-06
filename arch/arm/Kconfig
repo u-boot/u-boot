@@ -576,7 +576,7 @@ config TARGET_APF27
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
 
-config ORION5X
+config ARCH_ORION5X
 	bool "Marvell Orion"
 	select CPU_ARM926EJS
 

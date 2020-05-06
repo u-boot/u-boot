@@ -25,7 +25,7 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 
 #ifndef CONFIG_DM_I2C
-#if defined(CONFIG_ORION5X)
+#if defined(CONFIG_ARCH_ORION5X)
 #include <asm/arch/orion5x.h>
 #elif (defined(CONFIG_KIRKWOOD) || defined(CONFIG_ARCH_MVEBU))
 #include <asm/arch/soc.h>

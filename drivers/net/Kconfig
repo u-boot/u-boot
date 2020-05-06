@@ -309,7 +309,7 @@ config FSLDMAFEC
 
 config MVGBE
 	bool "Marvell Orion5x/Kirkwood network interface support"
-	depends on KIRKWOOD || ORION5X
+	depends on KIRKWOOD || ARCH_ORION5X
 	select PHYLIB if DM_ETH
 	help
 	  This driver supports the network interface units in the
