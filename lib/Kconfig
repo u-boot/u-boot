@@ -363,7 +363,22 @@ config SHA_PROG_HW_ACCEL
 	  is performed in hardware.
 
 config MD5
-	bool
+	bool "Support MD5 algorithm"
+	help
+	  This option enables MD5 support. MD5 is an algorithm designed
+	  in 1991 that produces a 16-byte digest (or checksum) from its input
+	  data. It has a number of vulnerabilities which preclude its use in
+	  security applications, but it can be useful for providing a quick
+	  checksum of a block of data.
+
+config SPL_MD5
+	bool "Support MD5 algorithm in SPL"
+	help
+	  This option enables MD5 support in SPL. MD5 is an algorithm designed
+	  in 1991 that produces a 16-byte digest (or checksum) from its input
+	  data. It has a number of vulnerabilities which preclude its use in
+	  security applications, but it can be useful for providing a quick
+	  checksum of a block of data.
 
 config CRC32C
 	bool
