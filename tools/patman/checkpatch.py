@@ -91,9 +91,11 @@ def CheckPatch(fname, verbose=False):
             print(line)
 
         # A blank line indicates the end of a message
-        if not line and item:
-            result.problems.append(item)
-            item = {}
+        if not line:
+            if item:
+                result.problems.append(item)
+                item = {}
+            continue
         match = re_stats_full.match(line)
         if not match:
             match = re_stats.match(line)
@@ -105,10 +107,13 @@ def CheckPatch(fname, verbose=False):
                 result.lines = int(match.group(4))
             else:
                 result.lines = int(match.group(3))
+            continue
         elif re_ok.match(line):
             result.ok = True
+            continue
         elif re_bad.match(line):
             result.ok = False
+            continue
         err_match = re_error.match(line)
         warn_match = re_warning.match(line)
         file_match = re_file.match(line)
