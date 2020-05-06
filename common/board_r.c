@@ -232,9 +232,8 @@ static int initr_unlock_ram_in_cache(void)
 #ifdef CONFIG_PCI
 static int initr_pci(void)
 {
-#ifndef CONFIG_DM_PCI
-	pci_init();
-#endif
+	if (IS_ENABLED(CONFIG_PCI_INIT_R))
+		pci_init();
 
 	return 0;
 }
