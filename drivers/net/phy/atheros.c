@@ -56,10 +56,10 @@ static void ar803x_enable_tx_delay(struct phy_device *phydev, bool on)
 
 static int ar8021_config(struct phy_device *phydev)
 {
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x00, 0x1200);
-	phy_write(phydev, MDIO_DEVAD_NONE, AR803x_PHY_DEBUG_ADDR_REG,
-		  AR803x_DEBUG_REG_5);
-	phy_write(phydev, MDIO_DEVAD_NONE, AR803x_PHY_DEBUG_DATA_REG, 0x3D47);
+	phy_write(phydev, MDIO_DEVAD_NONE, MII_BMCR,
+		  BMCR_ANENABLE | BMCR_ANRESTART);
+
+	ar803x_enable_tx_delay(phydev, true);
 
 	phydev->supported = phydev->drv->features;
 	return 0;
