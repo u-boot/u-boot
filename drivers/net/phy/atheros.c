@@ -63,10 +63,6 @@ static int ar8035_config(struct phy_device *phydev)
 	regval = phy_read(phydev, MDIO_DEVAD_NONE, 0xe);
 	phy_write(phydev, MDIO_DEVAD_NONE, 0xe, (regval|0x0018));
 
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x05);
-	regval = phy_read(phydev, MDIO_DEVAD_NONE, 0x1e);
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, (regval|0x0100));
-
 	if ((phydev->interface == PHY_INTERFACE_MODE_RGMII_ID) ||
 	    (phydev->interface == PHY_INTERFACE_MODE_RGMII_TXID)) {
 		/* select debug reg 5 */
