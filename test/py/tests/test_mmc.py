@@ -54,6 +54,9 @@ def test_mmc_dev(u_boot_console):
         if "no mmc device at slot" in output:
             devices[x]["detected"] = "no"
 
+        if "MMC: no card present" in output:
+            devices[x]["detected"] = "no"
+
     if fail:
         pytest.fail("Card not present")
 
