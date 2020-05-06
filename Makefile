@@ -929,7 +929,7 @@ ALL-y += u-boot-sunxi-with-spl.bin
 endif
 
 # enable combined SPL/u-boot/dtb rules for tegra
-ifeq ($(CONFIG_TEGRA)$(CONFIG_SPL),yy)
+ifeq ($(CONFIG_ARCH_TEGRA)$(CONFIG_SPL),yy)
 ALL-y += u-boot-tegra.bin u-boot-nodtb-tegra.bin
 ALL-$(CONFIG_OF_SEPARATE) += u-boot-dtb-tegra.bin
 endif
@@ -1625,7 +1625,7 @@ endif
 u-boot-x86-with-spl.bin: spl/u-boot-spl.bin u-boot.bin FORCE
 	$(call if_changed,binman)
 
-ifneq ($(CONFIG_TEGRA),)
+ifneq ($(CONFIG_ARCH_TEGRA),)
 ifneq ($(CONFIG_BINMAN),)
 # Makes u-boot-dtb-tegra.bin u-boot-tegra.bin u-boot-nodtb-tegra.bin
 %-dtb-tegra.bin %-tegra.bin %-nodtb-tegra.bin: \

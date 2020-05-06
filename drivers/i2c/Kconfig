@@ -402,7 +402,7 @@ config SYS_I2C_STM32F7
 
 config SYS_I2C_TEGRA
 	bool "NVIDIA Tegra internal I2C controller"
-	depends on TEGRA
+	depends on ARCH_TEGRA
 	help
 	  Support for NVIDIA I2C controller available in Tegra SoCs.
 

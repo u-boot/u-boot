@@ -203,7 +203,7 @@ config USB_EHCI_PCI
 
 config USB_EHCI_TEGRA
 	bool "Support for NVIDIA Tegra on-chip EHCI USB controller"
-	depends on TEGRA
+	depends on ARCH_TEGRA
 	---help---
 	  Enable support for Tegra on-chip EHCI USB controller
 

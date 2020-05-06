@@ -1142,7 +1142,7 @@ config ARCH_ZYNQMP
 	imply MP
 	imply DM_USB_GADGET
 
-config TEGRA
+config ARCH_TEGRA
 	bool "NVIDIA Tegra"
 	imply DISTRO_DEFAULTS
 	imply FAT_WRITE
