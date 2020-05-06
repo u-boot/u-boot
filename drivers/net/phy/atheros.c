@@ -26,6 +26,10 @@
 #define AR8035_CLK_25M_FREQ_125M	(BIT(4) | BIT(3))
 #define AR8035_CLK_25M_MASK		GENMASK(4, 3)
 
+#define AR8021_PHY_ID 0x004dd040
+#define AR8031_PHY_ID 0x004dd074
+#define AR8035_PHY_ID 0x004dd072
+
 static void ar803x_enable_rx_delay(struct phy_device *phydev, bool on)
 {
 	int regval;
@@ -119,7 +123,7 @@ static int ar8035_config(struct phy_device *phydev)
 
 static struct phy_driver AR8021_driver =  {
 	.name = "AR8021",
-	.uid = 0x4dd040,
+	.uid = AR8021_PHY_ID,
 	.mask = 0xfffffff0,
 	.features = PHY_GBIT_FEATURES,
 	.config = ar8021_config,
@@ -129,7 +133,7 @@ static struct phy_driver AR8021_driver =  {
 
 static struct phy_driver AR8031_driver =  {
 	.name = "AR8031/AR8033",
-	.uid = 0x4dd074,
+	.uid = AR8031_PHY_ID,
 	.mask = 0xffffffef,
 	.features = PHY_GBIT_FEATURES,
 	.config = ar8031_config,
@@ -139,7 +143,7 @@ static struct phy_driver AR8031_driver =  {
 
 static struct phy_driver AR8035_driver =  {
 	.name = "AR8035",
-	.uid = 0x4dd072,
+	.uid = AR8035_PHY_ID,
 	.mask = 0xffffffef,
 	.features = PHY_GBIT_FEATURES,
 	.config = ar8035_config,
