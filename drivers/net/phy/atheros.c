@@ -4,21 +4,41 @@
  *
  * Copyright 2011, 2013 Freescale Semiconductor, Inc.
  * author Andy Fleming
+ * Copyright (c) 2019 Michael Walle <michael@walle.cc>
  */
 #include <common.h>
 #include <phy.h>
+#include <dm/device_compat.h>
+#include <linux/bitfield.h>
+#include <dt-bindings/net/qca-ar803x.h>
 
 #define AR803x_PHY_DEBUG_ADDR_REG	0x1d
 #define AR803x_PHY_DEBUG_DATA_REG	0x1e
 
-#define AR803x_DEBUG_REG_5		0x5
-#define AR803x_RGMII_TX_CLK_DLY		BIT(8)
-
+/* Debug registers */
 #define AR803x_DEBUG_REG_0		0x0
 #define AR803x_RGMII_RX_CLK_DLY		BIT(15)
 
+#define AR803x_DEBUG_REG_5		0x5
+#define AR803x_RGMII_TX_CLK_DLY		BIT(8)
+
+#define AR803x_DEBUG_REG_1F		0x1f
+#define AR803x_PLL_ON			BIT(2)
+#define AR803x_RGMII_1V8		BIT(3)
+
 /* CLK_25M register is at MMD 7, address 0x8016 */
 #define AR803x_CLK_25M_SEL_REG		0x8016
+
+#define AR803x_CLK_25M_MASK		GENMASK(4, 2)
+#define AR803x_CLK_25M_25MHZ_XTAL	0
+#define AR803x_CLK_25M_25MHZ_DSP	1
+#define AR803x_CLK_25M_50MHZ_PLL	2
+#define AR803x_CLK_25M_50MHZ_DSP	3
+#define AR803x_CLK_25M_62_5MHZ_PLL	4
+#define AR803x_CLK_25M_62_5MHZ_DSP	5
+#define AR803x_CLK_25M_125MHZ_PLL	6
+#define AR803x_CLK_25M_125MHZ_DSP	7
+
 /* AR8035: Select frequency on CLK_25M pin through bits 4:3 */
 #define AR8035_CLK_25M_FREQ_25M		(0 | 0)
 #define AR8035_CLK_25M_FREQ_50M		(0 | BIT(3))
@@ -26,9 +46,22 @@
 #define AR8035_CLK_25M_FREQ_125M	(BIT(4) | BIT(3))
 #define AR8035_CLK_25M_MASK		GENMASK(4, 3)
 
+#define AR803x_CLK_25M_DR_MASK		GENMASK(8, 7)
+#define AR803x_CLK_25M_DR_FULL		0
+#define AR803x_CLK_25M_DR_HALF		1
+#define AR803x_CLK_25M_DR_QUARTER	2
+
 #define AR8021_PHY_ID 0x004dd040
 #define AR8031_PHY_ID 0x004dd074
 #define AR8035_PHY_ID 0x004dd072
+
+struct ar803x_priv {
+	int flags;
+#define AR803x_FLAG_KEEP_PLL_ENABLED	BIT(0) /* don't turn off internal PLL */
+#define AR803x_FLAG_RGMII_1V8		BIT(1) /* use 1.8V RGMII I/O voltage */
+	u16 clk_25m_reg;
+	u16 clk_25m_mask;
+};
 
 static int ar803x_debug_reg_read(struct phy_device *phydev, u16 reg)
 {
@@ -113,11 +146,190 @@ static int ar803x_delay_config(struct phy_device *phydev)
 	return ret;
 }
 
+static int ar803x_regs_config(struct phy_device *phydev)
+{
+	struct ar803x_priv *priv = phydev->priv;
+	u16 set = 0, clear = 0;
+	int val;
+	int ret;
+
+	/* no configuration available */
+	if (!priv)
+		return 0;
+
+	/*
+	 * Only supported on the AR8031, AR8035 has strappings for the PLL mode
+	 * as well as the RGMII voltage.
+	 */
+	if (phydev->drv->uid == AR8031_PHY_ID) {
+		if (priv->flags & AR803x_FLAG_KEEP_PLL_ENABLED)
+			set |= AR803x_PLL_ON;
+		else
+			clear |= AR803x_PLL_ON;
+
+		if (priv->flags & AR803x_FLAG_RGMII_1V8)
+			set |= AR803x_RGMII_1V8;
+		else
+			clear |= AR803x_RGMII_1V8;
+
+		ret = ar803x_debug_reg_mask(phydev, AR803x_DEBUG_REG_1F, clear,
+					    set);
+		if (ret < 0)
+			return ret;
+	}
+
+	/* save the write access if the mask is empty */
+	if (priv->clk_25m_mask) {
+		val = phy_read_mmd(phydev, MDIO_MMD_AN, AR803x_CLK_25M_SEL_REG);
+		if (val < 0)
+			return val;
+		val &= ~priv->clk_25m_mask;
+		val |= priv->clk_25m_reg;
+		ret = phy_write_mmd(phydev, MDIO_MMD_AN,
+				    AR803x_CLK_25M_SEL_REG, val);
+		if (ret < 0)
+			return ret;
+	}
+
+	return 0;
+}
+
+static int ar803x_of_init(struct phy_device *phydev)
+{
+#if defined(CONFIG_DM_ETH)
+	struct ar803x_priv *priv;
+	ofnode node, vddio_reg_node;
+	u32 strength, freq, min_uV, max_uV;
+	int sel;
+
+	node = phy_get_ofnode(phydev);
+	if (!ofnode_valid(node))
+		return -EINVAL;
+
+	priv = malloc(sizeof(*priv));
+	if (!priv)
+		return -ENOMEM;
+	memset(priv, 0, sizeof(*priv));
+
+	phydev->priv = priv;
+
+	debug("%s: found PHY node: %s\n", __func__, ofnode_get_name(node));
+
+	if (ofnode_read_bool(node, "qca,keep-pll-enabled"))
+		priv->flags |= AR803x_FLAG_KEEP_PLL_ENABLED;
+
+	/*
+	 * We can't use the regulator framework because the regulator is
+	 * a subnode of the PHY. So just read the two properties we are
+	 * interested in.
+	 */
+	vddio_reg_node = ofnode_find_subnode(node, "vddio-regulator");
+	if (ofnode_valid(vddio_reg_node)) {
+		min_uV = ofnode_read_u32_default(vddio_reg_node,
+						 "regulator-min-microvolt", 0);
+		max_uV = ofnode_read_u32_default(vddio_reg_node,
+						 "regulator-max-microvolt", 0);
+
+		if (min_uV != max_uV) {
+			free(priv);
+			return -EINVAL;
+		}
+
+		switch (min_uV) {
+		case 1500000:
+			break;
+		case 1800000:
+			priv->flags |= AR803x_FLAG_RGMII_1V8;
+			break;
+		default:
+			free(priv);
+			return -EINVAL;
+		}
+	}
+
+	/*
+	 * Get the CLK_25M frequency from the device tree. Only XTAL and PLL
+	 * sources are supported right now. There is also the possibilty to use
+	 * the DSP as frequency reference, this is used for synchronous
+	 * ethernet.
+	 */
+	if (!ofnode_read_u32(node, "qca,clk-out-frequency", &freq)) {
+		switch (freq) {
+		case 25000000:
+			sel = AR803x_CLK_25M_25MHZ_XTAL;
+			break;
+		case 50000000:
+			sel = AR803x_CLK_25M_50MHZ_PLL;
+			break;
+		case 62500000:
+			sel = AR803x_CLK_25M_62_5MHZ_PLL;
+			break;
+		case 125000000:
+			sel = AR803x_CLK_25M_125MHZ_PLL;
+			break;
+		default:
+			dev_err(phydev->dev,
+				"invalid qca,clk-out-frequency\n");
+			free(priv);
+			return -EINVAL;
+		}
+
+		priv->clk_25m_mask |= AR803x_CLK_25M_MASK;
+		priv->clk_25m_reg |= FIELD_PREP(AR803x_CLK_25M_MASK, sel);
+		/*
+		 * Fixup for the AR8035 which only has two bits. The two
+		 * remaining bits map to the same frequencies.
+		 */
+		if (phydev->drv->uid == AR8035_PHY_ID) {
+			u16 clear = AR803x_CLK_25M_MASK & AR8035_CLK_25M_MASK;
+
+			priv->clk_25m_mask &= ~clear;
+			priv->clk_25m_reg &= ~clear;
+		}
+	}
+
+	if (phydev->drv->uid == AR8031_PHY_ID &&
+	    !ofnode_read_u32(node, "qca,clk-out-strength", &strength)) {
+		switch (strength) {
+		case AR803X_STRENGTH_FULL:
+			sel = AR803x_CLK_25M_DR_FULL;
+			break;
+		case AR803X_STRENGTH_HALF:
+			sel = AR803x_CLK_25M_DR_HALF;
+			break;
+		case AR803X_STRENGTH_QUARTER:
+			sel = AR803x_CLK_25M_DR_QUARTER;
+			break;
+		default:
+			dev_err(phydev->dev,
+				"invalid qca,clk-out-strength\n");
+			free(priv);
+			return -EINVAL;
+		}
+		priv->clk_25m_mask |= AR803x_CLK_25M_DR_MASK;
+		priv->clk_25m_reg |= FIELD_PREP(AR803x_CLK_25M_DR_MASK, sel);
+	}
+
+	debug("%s: flags=%x clk_25m_reg=%04x clk_25m_mask=%04x\n", __func__,
+	      priv->flags, priv->clk_25m_reg, priv->clk_25m_mask);
+#endif
+
+	return 0;
+}
+
 static int ar8031_config(struct phy_device *phydev)
 {
 	int ret;
 
+	ret = ar803x_of_init(phydev);
+	if (ret < 0)
+		return ret;
+
 	ret = ar803x_delay_config(phydev);
+	if (ret < 0)
+		return ret;
+
+	ret = ar803x_regs_config(phydev);
 	if (ret < 0)
 		return ret;
 
@@ -134,6 +346,10 @@ static int ar8035_config(struct phy_device *phydev)
 	int ret;
 	int regval;
 
+	ret = ar803x_of_init(phydev);
+	if (ret < 0)
+		return ret;
+
 	/* Configure CLK_25M output clock at 125 MHz */
 	regval = phy_read_mmd(phydev, MDIO_MMD_AN, AR803x_CLK_25M_SEL_REG);
 	regval &= ~AR8035_CLK_25M_MASK; /* No surprises */
@@ -141,6 +357,10 @@ static int ar8035_config(struct phy_device *phydev)
 	phy_write_mmd(phydev, MDIO_MMD_AN, AR803x_CLK_25M_SEL_REG, regval);
 
 	ret = ar803x_delay_config(phydev);
+	if (ret < 0)
+		return ret;
+
+	ret = ar803x_regs_config(phydev);
 	if (ret < 0)
 		return ret;
 
