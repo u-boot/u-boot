@@ -17,6 +17,15 @@
 #define AR803x_DEBUG_REG_0		0x0
 #define AR803x_RGMII_RX_CLK_DLY		BIT(15)
 
+/* CLK_25M register is at MMD 7, address 0x8016 */
+#define AR803x_CLK_25M_SEL_REG		0x8016
+/* AR8035: Select frequency on CLK_25M pin through bits 4:3 */
+#define AR8035_CLK_25M_FREQ_25M		(0 | 0)
+#define AR8035_CLK_25M_FREQ_50M		(0 | BIT(3))
+#define AR8035_CLK_25M_FREQ_62M		(BIT(4) | 0)
+#define AR8035_CLK_25M_FREQ_125M	(BIT(4) | BIT(3))
+#define AR8035_CLK_25M_MASK		GENMASK(4, 3)
+
 static void ar803x_enable_rx_delay(struct phy_device *phydev, bool on)
 {
 	int regval;
@@ -78,11 +87,11 @@ static int ar8035_config(struct phy_device *phydev)
 {
 	int regval;
 
-	phy_write(phydev, MDIO_DEVAD_NONE, 0xd, 0x0007);
-	phy_write(phydev, MDIO_DEVAD_NONE, 0xe, 0x8016);
-	phy_write(phydev, MDIO_DEVAD_NONE, 0xd, 0x4007);
-	regval = phy_read(phydev, MDIO_DEVAD_NONE, 0xe);
-	phy_write(phydev, MDIO_DEVAD_NONE, 0xe, (regval|0x0018));
+	/* Configure CLK_25M output clock at 125 MHz */
+	regval = phy_read_mmd(phydev, MDIO_MMD_AN, AR803x_CLK_25M_SEL_REG);
+	regval &= ~AR8035_CLK_25M_MASK; /* No surprises */
+	regval |= AR8035_CLK_25M_FREQ_125M;
+	phy_write_mmd(phydev, MDIO_MMD_AN, AR803x_CLK_25M_SEL_REG, regval);
 
 	if ((phydev->interface == PHY_INTERFACE_MODE_RGMII_ID) ||
 	    (phydev->interface == PHY_INTERFACE_MODE_RGMII_TXID))
