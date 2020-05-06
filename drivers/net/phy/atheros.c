@@ -94,19 +94,32 @@ static int ar8021_config(struct phy_device *phydev)
 	return 0;
 }
 
-static int ar8031_config(struct phy_device *phydev)
+static int ar803x_delay_config(struct phy_device *phydev)
 {
+	int ret;
+
 	if (phydev->interface == PHY_INTERFACE_MODE_RGMII_TXID ||
 	    phydev->interface == PHY_INTERFACE_MODE_RGMII_ID)
-		ar803x_enable_tx_delay(phydev, true);
+		ret = ar803x_enable_tx_delay(phydev, true);
 	else
-		ar803x_enable_tx_delay(phydev, false);
+		ret = ar803x_enable_tx_delay(phydev, false);
 
 	if (phydev->interface == PHY_INTERFACE_MODE_RGMII_RXID ||
 	    phydev->interface == PHY_INTERFACE_MODE_RGMII_ID)
-		ar803x_enable_rx_delay(phydev, true);
+		ret = ar803x_enable_rx_delay(phydev, true);
 	else
-		ar803x_enable_rx_delay(phydev, false);
+		ret = ar803x_enable_rx_delay(phydev, false);
+
+	return ret;
+}
+
+static int ar8031_config(struct phy_device *phydev)
+{
+	int ret;
+
+	ret = ar803x_delay_config(phydev);
+	if (ret < 0)
+		return ret;
 
 	phydev->supported = phydev->drv->features;
 
@@ -118,6 +131,7 @@ static int ar8031_config(struct phy_device *phydev)
 
 static int ar8035_config(struct phy_device *phydev)
 {
+	int ret;
 	int regval;
 
 	/* Configure CLK_25M output clock at 125 MHz */
@@ -126,17 +140,9 @@ static int ar8035_config(struct phy_device *phydev)
 	regval |= AR8035_CLK_25M_FREQ_125M;
 	phy_write_mmd(phydev, MDIO_MMD_AN, AR803x_CLK_25M_SEL_REG, regval);
 
-	if ((phydev->interface == PHY_INTERFACE_MODE_RGMII_ID) ||
-	    (phydev->interface == PHY_INTERFACE_MODE_RGMII_TXID))
-		ar803x_enable_tx_delay(phydev, true);
-	else
-		ar803x_enable_tx_delay(phydev, false);
-
-	if ((phydev->interface == PHY_INTERFACE_MODE_RGMII_ID) ||
-	    (phydev->interface == PHY_INTERFACE_MODE_RGMII_RXID))
-		ar803x_enable_rx_delay(phydev, true);
-	else
-		ar803x_enable_rx_delay(phydev, false);
+	ret = ar803x_delay_config(phydev);
+	if (ret < 0)
+		return ret;
 
 	phydev->supported = phydev->drv->features;
 
