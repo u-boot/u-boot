@@ -85,7 +85,8 @@ def CheckPatch(fname, verbose=False):
     re_warning = re.compile(emacs_prefix + 'WARNING:(?:[A-Z_]+:)? (.*)')
     re_check = re.compile('CHECK: (.*)')
     re_file = re.compile('#\d+: FILE: ([^:]*):(\d+):')
-
+    re_note = re.compile('NOTE: (.*)')
+    indent = ' ' * 6
     for line in result.stdout.splitlines():
         if verbose:
             print(line)
@@ -95,6 +96,14 @@ def CheckPatch(fname, verbose=False):
             if item:
                 result.problems.append(item)
                 item = {}
+            continue
+        if re_note.match(line):
+            continue
+        # Skip lines which quote code
+        if line.startswith(indent):
+            continue
+        # Skip code quotes and #<n>
+        if line.startswith('+') or line.startswith('#'):
             continue
         match = re_stats_full.match(line)
         if not match:
