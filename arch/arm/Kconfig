@@ -1607,7 +1607,7 @@ config ARCH_UNIPHIER
 	  Support for UniPhier SoC family developed by Socionext Inc.
 	  (formerly, System LSI Business Division of Panasonic Corporation)
 
-config STM32
+config ARCH_STM32
 	bool "Support STMicroelectronics STM32 MCU with cortex M"
 	select CPU_V7M
 	select DM
