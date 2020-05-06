@@ -33,7 +33,7 @@ config STM32_RESET
 	depends on ARCH_STM32 || ARCH_STM32MP
 	help
 	  Support for reset controllers on STMicroelectronics STM32 family SoCs.
-	  This resset driver is compatible with STM32 F4/F7 and H7 SoCs.
+	  This reset driver is compatible with STM32 F4/F7 and H7 SoCs.
 
 config TEGRA_CAR_RESET
 	bool "Enable Tegra CAR-based reset driver"
