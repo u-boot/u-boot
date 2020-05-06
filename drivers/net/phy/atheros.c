@@ -70,10 +70,14 @@ static int ar8031_config(struct phy_device *phydev)
 	if (phydev->interface == PHY_INTERFACE_MODE_RGMII_TXID ||
 	    phydev->interface == PHY_INTERFACE_MODE_RGMII_ID)
 		ar803x_enable_tx_delay(phydev, true);
+	else
+		ar803x_enable_tx_delay(phydev, false);
 
 	if (phydev->interface == PHY_INTERFACE_MODE_RGMII_RXID ||
 	    phydev->interface == PHY_INTERFACE_MODE_RGMII_ID)
 		ar803x_enable_rx_delay(phydev, true);
+	else
+		ar803x_enable_rx_delay(phydev, false);
 
 	phydev->supported = phydev->drv->features;
 
@@ -96,10 +100,14 @@ static int ar8035_config(struct phy_device *phydev)
 	if ((phydev->interface == PHY_INTERFACE_MODE_RGMII_ID) ||
 	    (phydev->interface == PHY_INTERFACE_MODE_RGMII_TXID))
 		ar803x_enable_tx_delay(phydev, true);
+	else
+		ar803x_enable_tx_delay(phydev, false);
 
 	if ((phydev->interface == PHY_INTERFACE_MODE_RGMII_ID) ||
 	    (phydev->interface == PHY_INTERFACE_MODE_RGMII_RXID))
 		ar803x_enable_rx_delay(phydev, true);
+	else
+		ar803x_enable_rx_delay(phydev, false);
 
 	phydev->supported = phydev->drv->features;
 
