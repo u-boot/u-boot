@@ -38,12 +38,6 @@
 #define AR803x_CLK_25M_62_5MHZ_DSP	5
 #define AR803x_CLK_25M_125MHZ_PLL	6
 #define AR803x_CLK_25M_125MHZ_DSP	7
-
-/* AR8035: Select frequency on CLK_25M pin through bits 4:3 */
-#define AR8035_CLK_25M_FREQ_25M		(0 | 0)
-#define AR8035_CLK_25M_FREQ_50M		(0 | BIT(3))
-#define AR8035_CLK_25M_FREQ_62M		(BIT(4) | 0)
-#define AR8035_CLK_25M_FREQ_125M	(BIT(4) | BIT(3))
 #define AR8035_CLK_25M_MASK		GENMASK(4, 3)
 
 #define AR803x_CLK_25M_DR_MASK		GENMASK(8, 7)
@@ -344,17 +338,10 @@ static int ar8031_config(struct phy_device *phydev)
 static int ar8035_config(struct phy_device *phydev)
 {
 	int ret;
-	int regval;
 
 	ret = ar803x_of_init(phydev);
 	if (ret < 0)
 		return ret;
-
-	/* Configure CLK_25M output clock at 125 MHz */
-	regval = phy_read_mmd(phydev, MDIO_MMD_AN, AR803x_CLK_25M_SEL_REG);
-	regval &= ~AR8035_CLK_25M_MASK; /* No surprises */
-	regval |= AR8035_CLK_25M_FREQ_125M;
-	phy_write_mmd(phydev, MDIO_MMD_AN, AR803x_CLK_25M_SEL_REG, regval);
 
 	ret = ar803x_delay_config(phydev);
 	if (ret < 0)
