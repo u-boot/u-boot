@@ -127,6 +127,7 @@ def CheckPatch(fname, verbose=False):
         warn_match = re_warning.match(line)
         file_match = re_file.match(line)
         check_match = re_check.match(line)
+        subject_match = line.startswith('Subject:')
         if err_match:
             item['msg'] = err_match.group(1)
             item['type'] = 'error'
@@ -139,6 +140,9 @@ def CheckPatch(fname, verbose=False):
         elif file_match:
             item['file'] = file_match.group(1)
             item['line'] = int(file_match.group(2))
+        elif subject_match:
+            item['file'] = '<patch subject>'
+            item['line'] = None
 
     return result
 
@@ -157,7 +161,8 @@ def GetWarningMsg(col, msg_type, fname, line, msg):
         msg_type = col.Color(col.RED, msg_type)
     elif msg_type == 'check':
         msg_type = col.Color(col.MAGENTA, msg_type)
-    return '%s:%d: %s: %s\n' % (fname, line, msg_type, msg)
+    line_str = '' if line is None else '%d' % line
+    return '%s:%s: %s: %s\n' % (fname, line_str, msg_type, msg)
 
 def CheckPatches(verbose, args):
     '''Run the checkpatch.pl script on each patch'''
