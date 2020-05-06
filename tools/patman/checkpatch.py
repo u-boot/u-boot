@@ -59,7 +59,7 @@ def CheckPatch(fname, verbose=False):
               'stdout']
     result = collections.namedtuple('CheckPatchResult', fields)
     result.ok = False
-    result.errors, result.warning, result.checks = 0, 0, 0
+    result.errors, result.warnings, result.checks = 0, 0, 0
     result.lines = 0
     result.problems = []
     chk = FindCheckPatch()
