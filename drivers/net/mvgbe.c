@@ -24,7 +24,7 @@
 #include <asm/byteorder.h>
 #include <asm/arch/cpu.h>
 
-#if defined(CONFIG_KIRKWOOD)
+#if defined(CONFIG_ARCH_KIRKWOOD)
 #include <asm/arch/soc.h>
 #elif defined(CONFIG_ARCH_ORION5X)
 #include <asm/arch/orion5x.h>

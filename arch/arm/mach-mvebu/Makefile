@@ -10,14 +10,14 @@ obj-y += arm64-common.o
 
 else # CONFIG_ARM64
 
-ifdef CONFIG_KIRKWOOD
+ifdef CONFIG_ARCH_KIRKWOOD
 
 obj-y	= dram.o
 obj-y	+= gpio.o
 obj-y	+= mbus.o
 obj-y	+= timer.o
 
-else # CONFIG_KIRKWOOD
+else # CONFIG_ARCH_KIRKWOOD
 
 obj-y	= cpu.o
 obj-y	+= dram.o
@@ -73,5 +73,5 @@ obj-$(CONFIG_SPL_BUILD) += lowlevel_spl.o
 obj-$(CONFIG_ARMADA_38X) += serdes/a38x/
 obj-$(CONFIG_ARMADA_XP) += serdes/axp/
 
-endif # CONFIG_KIRKWOOD
+endif # CONFIG_ARCH_KIRKWOOD
 endif # CONFIG_ARM64

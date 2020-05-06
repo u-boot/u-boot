@@ -34,7 +34,7 @@ dtb-$(CONFIG_ARCH_DAVINCI) += \
 	da850-lcdk.dtb \
 	da850-lego-ev3.dtb
 
-dtb-$(CONFIG_KIRKWOOD) += \
+dtb-$(CONFIG_ARCH_KIRKWOOD) += \
 	kirkwood-atl-sbx81lifkw.dtb \
 	kirkwood-atl-sbx81lifxcat.dtb \
 	kirkwood-blackarmor-nas220.dtb \

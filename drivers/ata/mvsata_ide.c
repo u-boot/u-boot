@@ -10,7 +10,7 @@
 
 #if defined(CONFIG_ARCH_ORION5X)
 #include <asm/arch/orion5x.h>
-#elif defined(CONFIG_KIRKWOOD)
+#elif defined(CONFIG_ARCH_KIRKWOOD)
 #include <asm/arch/soc.h>
 #elif defined(CONFIG_ARCH_MVEBU)
 #include <linux/mbus.h>

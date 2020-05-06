@@ -5,7 +5,7 @@
 
 # Enable all the config-independent tools
 ifneq ($(HOST_TOOLS_ALL),)
-CONFIG_KIRKWOOD = y
+CONFIG_ARCH_KIRKWOOD = y
 CONFIG_LCD_LOGO = y
 CONFIG_CMD_LOADS = y
 CONFIG_CMD_NET = y
@@ -199,7 +199,7 @@ ubsha1-objs := os_support.o ubsha1.o lib/sha1.o
 
 HOSTCFLAGS_ubsha1.o := -pedantic
 
-hostprogs-$(CONFIG_KIRKWOOD) += kwboot
+hostprogs-$(CONFIG_ARCH_KIRKWOOD) += kwboot
 hostprogs-$(CONFIG_ARCH_MVEBU) += kwboot
 hostprogs-y += proftool
 hostprogs-$(CONFIG_STATIC_RELA) += relocate-rela

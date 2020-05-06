@@ -46,7 +46,7 @@
 #include <linux/mbus.h>
 
 #include <asm/arch/soc.h>
-#if defined(CONFIG_KIRKWOOD)
+#if defined(CONFIG_ARCH_KIRKWOOD)
 #define SATAHC_BASE		KW_SATA_BASE
 #else
 #define SATAHC_BASE		MVEBU_AXP_SATA_BASE

@@ -553,7 +553,7 @@ config ARCH_DAVINCI
 	help
 	  Support for TI's DaVinci platform.
 
-config KIRKWOOD
+config ARCH_KIRKWOOD
 	bool "Marvell Kirkwood"
 	select ARCH_MISC_INIT
 	select BOARD_EARLY_INIT_F
