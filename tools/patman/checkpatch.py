@@ -72,13 +72,17 @@ def CheckPatch(fname, verbose=False):
     # total: 0 errors, 0 warnings, 159 lines checked
     # or:
     # total: 0 errors, 2 warnings, 7 checks, 473 lines checked
-    re_stats = re.compile('total: (\\d+) errors, (\d+) warnings, (\d+)')
-    re_stats_full = re.compile('total: (\\d+) errors, (\d+) warnings, (\d+)'
+    emacs_prefix = '(?:[0-9]{4}.*\.patch:[0-9]+: )?'
+    emacs_stats = '(?:[0-9]{4}.*\.patch )?'
+    re_stats = re.compile(emacs_stats +
+                          'total: (\\d+) errors, (\d+) warnings, (\d+)')
+    re_stats_full = re.compile(emacs_stats +
+                               'total: (\\d+) errors, (\d+) warnings, (\d+)'
                                ' checks, (\d+)')
     re_ok = re.compile('.*has no obvious style problems')
     re_bad = re.compile('.*has style problems, please review')
     re_error = re.compile('ERROR: (.*)')
-    re_warning = re.compile('WARNING: (.*)')
+    re_warning = re.compile(emacs_prefix + 'WARNING:(?:[A-Z_]+:)? (.*)')
     re_check = re.compile('CHECK: (.*)')
     re_file = re.compile('#\d+: FILE: ([^:]*):(\d+):')
 
