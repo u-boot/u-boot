@@ -143,6 +143,8 @@ def CheckPatch(fname, verbose=False):
         elif subject_match:
             item['file'] = '<patch subject>'
             item['line'] = None
+        else:
+            print('bad line "%s", %d' % (line, len(line)))
 
     return result
 
