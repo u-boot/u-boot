@@ -41,6 +41,7 @@ struct arasan_sdhci_priv {
 	struct arasan_sdhci_clk_data clk_data;
 	u8 deviceid;
 	u8 bank;
+	u8 no_1p8;
 };
 
 #if defined(CONFIG_ARCH_ZYNQMP) || defined(CONFIG_ARCH_VERSAL)
@@ -587,6 +588,9 @@ static int arasan_sdhci_probe(struct udevice *dev)
 	host->quirks |= SDHCI_QUIRK_BROKEN_HISPD_MODE;
 #endif
 
+	if (priv->no_1p8)
+		host->quirks |= SDHCI_QUIRK_NO_1_8_V;
+
 	plat->cfg.f_max = CONFIG_ZYNQ_SDHCI_MAX_FREQ;
 
 	ret = mmc_of_parse(dev, &plat->cfg);
@@ -629,6 +633,7 @@ static int arasan_sdhci_ofdata_to_platdata(struct udevice *dev)
 
 	priv->deviceid = dev_read_u32_default(dev, "xlnx,device_id", -1);
 	priv->bank = dev_read_u32_default(dev, "xlnx,mio_bank", -1);
+	priv->no_1p8 = dev_read_bool(dev, "no-1-8-v");
 
 	return 0;
 }
