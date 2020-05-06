@@ -30,32 +30,57 @@
 #define AR8031_PHY_ID 0x004dd074
 #define AR8035_PHY_ID 0x004dd072
 
-static void ar803x_enable_rx_delay(struct phy_device *phydev, bool on)
+static int ar803x_debug_reg_read(struct phy_device *phydev, u16 reg)
 {
-	int regval;
+	int ret;
 
-	phy_write(phydev, MDIO_DEVAD_NONE, AR803x_PHY_DEBUG_ADDR_REG,
-		  AR803x_DEBUG_REG_0);
-	regval = phy_read(phydev, MDIO_DEVAD_NONE, AR803x_PHY_DEBUG_DATA_REG);
-	if (on)
-		regval |= AR803x_RGMII_RX_CLK_DLY;
-	else
-		regval &= ~AR803x_RGMII_RX_CLK_DLY;
-	phy_write(phydev, MDIO_DEVAD_NONE, AR803x_PHY_DEBUG_DATA_REG, regval);
+	ret = phy_write(phydev, MDIO_DEVAD_NONE, AR803x_PHY_DEBUG_ADDR_REG,
+			reg);
+	if (ret < 0)
+		return ret;
+
+	return phy_read(phydev, MDIO_DEVAD_NONE, AR803x_PHY_DEBUG_DATA_REG);
 }
 
-static void ar803x_enable_tx_delay(struct phy_device *phydev, bool on)
+static int ar803x_debug_reg_mask(struct phy_device *phydev, u16 reg,
+				 u16 clear, u16 set)
 {
-	int regval;
+	int val;
 
-	phy_write(phydev, MDIO_DEVAD_NONE, AR803x_PHY_DEBUG_ADDR_REG,
-		  AR803x_DEBUG_REG_5);
-	regval = phy_read(phydev, MDIO_DEVAD_NONE, AR803x_PHY_DEBUG_DATA_REG);
+	val = ar803x_debug_reg_read(phydev, reg);
+	if (val < 0)
+		return val;
+
+	val &= 0xffff;
+	val &= ~clear;
+	val |= set;
+
+	return phy_write(phydev, MDIO_DEVAD_NONE, AR803x_PHY_DEBUG_DATA_REG,
+			 val);
+}
+
+static int ar803x_enable_rx_delay(struct phy_device *phydev, bool on)
+{
+	u16 clear = 0, set = 0;
+
 	if (on)
-		regval |= AR803x_RGMII_TX_CLK_DLY;
+		set = AR803x_RGMII_RX_CLK_DLY;
 	else
-		regval &= ~AR803x_RGMII_TX_CLK_DLY;
-	phy_write(phydev, MDIO_DEVAD_NONE, AR803x_PHY_DEBUG_DATA_REG, regval);
+		clear = AR803x_RGMII_RX_CLK_DLY;
+
+	return ar803x_debug_reg_mask(phydev, AR803x_DEBUG_REG_0, clear, set);
+}
+
+static int ar803x_enable_tx_delay(struct phy_device *phydev, bool on)
+{
+	u16 clear = 0, set = 0;
+
+	if (on)
+		set = AR803x_RGMII_TX_CLK_DLY;
+	else
+		clear = AR803x_RGMII_TX_CLK_DLY;
+
+	return ar803x_debug_reg_mask(phydev, AR803x_DEBUG_REG_5, clear, set);
 }
 
 static int ar8021_config(struct phy_device *phydev)
