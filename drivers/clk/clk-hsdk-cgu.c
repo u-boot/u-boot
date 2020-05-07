@@ -227,6 +227,7 @@ struct hsdk_cgu_domain {
 };
 
 struct hsdk_cgu_clk {
+	const struct cgu_clk_map *map;
 	/* CGU block register */
 	void __iomem *cgu_regs;
 	/* CREG block register */
@@ -632,37 +633,47 @@ static int hsdk_prepare_clock_tree_branch(struct clk *sclk)
 	if (sclk->id >= CGU_MAX_CLOCKS)
 		return -EINVAL;
 
-	clk->curr_domain.pll = clock_map[sclk->id].pll_devdata;
-	clk->curr_domain.pll_regs = clk->cgu_regs + clock_map[sclk->id].cgu_pll_oft;
+	/* clocks missing in current map have their entry zeroed */
+	if (!clk->map[sclk->id].pll_devdata)
+		return -EINVAL;
+
+	clk->curr_domain.pll = clk->map[sclk->id].pll_devdata;
+	clk->curr_domain.pll_regs = clk->cgu_regs + clk->map[sclk->id].cgu_pll_oft;
 	clk->curr_domain.spec_regs = clk->creg_regs;
-	clk->curr_domain.idiv_regs = clk->cgu_regs + clock_map[sclk->id].cgu_div_oft;
+	clk->curr_domain.idiv_regs = clk->cgu_regs + clk->map[sclk->id].cgu_div_oft;
 
 	return 0;
 }
 
 static ulong hsdk_cgu_get_rate(struct clk *sclk)
 {
+	struct hsdk_cgu_clk *clk = dev_get_priv(sclk->dev);
+
 	if (hsdk_prepare_clock_tree_branch(sclk))
 		return -EINVAL;
 
-	return clock_map[sclk->id].get_rate(sclk);
+	return clk->map[sclk->id].get_rate(sclk);
 }
 
 static ulong hsdk_cgu_set_rate(struct clk *sclk, ulong rate)
 {
+	struct hsdk_cgu_clk *clk = dev_get_priv(sclk->dev);
+
 	if (hsdk_prepare_clock_tree_branch(sclk))
 		return -EINVAL;
 
-	return clock_map[sclk->id].set_rate(sclk, rate);
+	return clk->map[sclk->id].set_rate(sclk, rate);
 }
 
 static int hsdk_cgu_disable(struct clk *sclk)
 {
+	struct hsdk_cgu_clk *clk = dev_get_priv(sclk->dev);
+
 	if (hsdk_prepare_clock_tree_branch(sclk))
 		return -EINVAL;
 
-	if (clock_map[sclk->id].disable)
-		return clock_map[sclk->id].disable(sclk);
+	if (clk->map[sclk->id].disable)
+		return clk->map[sclk->id].disable(sclk);
 
 	return -ENOTSUPP;
 }
@@ -678,6 +689,8 @@ static int hsdk_cgu_clk_probe(struct udevice *dev)
 	struct hsdk_cgu_clk *hsdk_clk = dev_get_priv(dev);
 
 	BUILD_BUG_ON(ARRAY_SIZE(clock_map) != CGU_MAX_CLOCKS);
+
+	hsdk_clk->map = clock_map;
 
 	hsdk_clk->cgu_regs = (void __iomem *)devfdt_get_addr_index(dev, 0);
 	if (!hsdk_clk->cgu_regs)
