@@ -272,7 +272,6 @@ static ulong pll_get(struct clk *);
 
 struct hsdk_cgu_clock_map {
 	u32 cgu_pll_oft;
-	u32 creg_div_oft;
 	u32 cgu_div_oft;
 	const struct hsdk_pll_devdata *pll_devdata;
 	ulong (*get_rate)(struct clk *clk);
@@ -281,33 +280,33 @@ struct hsdk_cgu_clock_map {
 };
 
 static const struct hsdk_cgu_clock_map clock_map[] = {
-	{ CGU_ARC_PLL, 0, 0, &core_pll_dat, pll_get, pll_set, NULL },
-	{ CGU_ARC_PLL, 0, CGU_ARC_IDIV, &core_pll_dat, idiv_get, cpu_clk_set, idiv_off },
-	{ CGU_DDR_PLL, 0, 0, &sdt_pll_dat, pll_get, pll_set, NULL },
-	{ CGU_SYS_PLL, 0, 0, &sdt_pll_dat, pll_get, pll_set, NULL },
-	{ CGU_SYS_PLL, 0, CGU_SYS_IDIV_APB, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_SYS_PLL, 0, CGU_SYS_IDIV_AXI, &sdt_pll_dat, idiv_get, axi_clk_set, idiv_off },
-	{ CGU_SYS_PLL, 0, CGU_SYS_IDIV_ETH, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_SYS_PLL, 0, CGU_SYS_IDIV_USB, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_SYS_PLL, 0, CGU_SYS_IDIV_SDIO, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_SYS_PLL, 0, CGU_SYS_IDIV_HDMI, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_SYS_PLL, 0, CGU_SYS_IDIV_GFX_CORE, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_SYS_PLL, 0, CGU_SYS_IDIV_GFX_DMA, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_SYS_PLL, 0, CGU_SYS_IDIV_GFX_CFG, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_SYS_PLL, 0, CGU_SYS_IDIV_DMAC_CORE, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_SYS_PLL, 0, CGU_SYS_IDIV_DMAC_CFG, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_SYS_PLL, 0, CGU_SYS_IDIV_SDIO_REF, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_SYS_PLL, 0, CGU_SYS_IDIV_SPI_REF, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_SYS_PLL, 0, CGU_SYS_IDIV_I2C_REF, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_SYS_PLL, 0, CGU_SYS_IDIV_UART_REF, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_SYS_PLL, 0, CGU_SYS_IDIV_EBI_REF, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_TUN_PLL, 0, 0, &sdt_pll_dat, pll_get, pll_set, NULL },
-	{ CGU_TUN_PLL, 0, CGU_TUN_IDIV_TUN, &sdt_pll_dat, idiv_get, tun_clk_set, idiv_off },
-	{ CGU_TUN_PLL, 0, CGU_TUN_IDIV_ROM, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_TUN_PLL, 0, CGU_TUN_IDIV_PWM, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_TUN_PLL, 0, CGU_TUN_IDIV_TIMER, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
-	{ CGU_HDMI_PLL, 0, 0, &hdmi_pll_dat, pll_get, pll_set, NULL },
-	{ CGU_HDMI_PLL, 0, CGU_HDMI_IDIV_APB, &hdmi_pll_dat, idiv_get, idiv_set, idiv_off }
+	{ CGU_ARC_PLL, 0, &core_pll_dat, pll_get, pll_set, NULL },
+	{ CGU_ARC_PLL, CGU_ARC_IDIV, &core_pll_dat, idiv_get, cpu_clk_set, idiv_off },
+	{ CGU_DDR_PLL, 0, &sdt_pll_dat, pll_get, pll_set, NULL },
+	{ CGU_SYS_PLL, 0, &sdt_pll_dat, pll_get, pll_set, NULL },
+	{ CGU_SYS_PLL, CGU_SYS_IDIV_APB, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
+	{ CGU_SYS_PLL, CGU_SYS_IDIV_AXI, &sdt_pll_dat, idiv_get, axi_clk_set, idiv_off },
+	{ CGU_SYS_PLL, CGU_SYS_IDIV_ETH, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
+	{ CGU_SYS_PLL, CGU_SYS_IDIV_USB, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
+	{ CGU_SYS_PLL, CGU_SYS_IDIV_SDIO, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
+	{ CGU_SYS_PLL, CGU_SYS_IDIV_HDMI, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
+	{ CGU_SYS_PLL, CGU_SYS_IDIV_GFX_CORE, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
+	{ CGU_SYS_PLL, CGU_SYS_IDIV_GFX_DMA, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
+	{ CGU_SYS_PLL, CGU_SYS_IDIV_GFX_CFG, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
+	{ CGU_SYS_PLL, CGU_SYS_IDIV_DMAC_CORE, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
+	{ CGU_SYS_PLL, CGU_SYS_IDIV_DMAC_CFG, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
+	{ CGU_SYS_PLL, CGU_SYS_IDIV_SDIO_REF, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
+	{ CGU_SYS_PLL, CGU_SYS_IDIV_SPI_REF, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
+	{ CGU_SYS_PLL, CGU_SYS_IDIV_I2C_REF, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
+	{ CGU_SYS_PLL, CGU_SYS_IDIV_UART_REF, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
+	{ CGU_SYS_PLL, CGU_SYS_IDIV_EBI_REF, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
+	{ CGU_TUN_PLL, 0, &sdt_pll_dat, pll_get, pll_set, NULL },
+	{ CGU_TUN_PLL, CGU_TUN_IDIV_TUN, &sdt_pll_dat, idiv_get, tun_clk_set, idiv_off },
+	{ CGU_TUN_PLL, CGU_TUN_IDIV_ROM, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
+	{ CGU_TUN_PLL, CGU_TUN_IDIV_PWM, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
+	{ CGU_TUN_PLL, CGU_TUN_IDIV_TIMER, &sdt_pll_dat, idiv_get, idiv_set, idiv_off },
+	{ CGU_HDMI_PLL, 0, &hdmi_pll_dat, pll_get, pll_set, NULL },
+	{ CGU_HDMI_PLL, CGU_HDMI_IDIV_APB, &hdmi_pll_dat, idiv_get, idiv_set, idiv_off }
 };
 
 static inline void hsdk_idiv_write(struct hsdk_cgu_clk *clk, u32 val)
@@ -631,7 +630,7 @@ static int hsdk_prepare_clock_tree_branch(struct clk *sclk)
 
 	clk->pll_devdata = clock_map[sclk->id].pll_devdata;
 	clk->regs = clk->cgu_regs + clock_map[sclk->id].cgu_pll_oft;
-	clk->spec_regs = clk->creg_regs + clock_map[sclk->id].creg_div_oft;
+	clk->spec_regs = clk->creg_regs;
 	clk->idiv_regs = clk->cgu_regs + clock_map[sclk->id].cgu_div_oft;
 
 	return 0;
