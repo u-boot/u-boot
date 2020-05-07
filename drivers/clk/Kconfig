@@ -100,10 +100,11 @@ config CLK_TI_SCI
 	  managed by the TI System Controller, say Y here. Otherwise, say N.
 
 config CLK_HSDK
-	bool "Enable cgu clock driver for HSDK"
-	depends on CLK
+	bool "Enable cgu clock driver for HSDK boards"
+	depends on CLK && TARGET_HSDK
 	help
-	  Enable this to support the cgu clocks on Synopsys ARC HSDK
+	  Enable this to support the cgu clocks on Synopsys ARC HSDK and
+	  Synopsys ARC HSDK-4xD boards
 
 config CLK_VERSAL
 	bool "Enable clock driver support for Versal"

@@ -14,6 +14,7 @@
 #include <div64.h>
 #include <dm.h>
 #include <linux/io.h>
+#include <asm/arcregs.h>
 
 #include <dt-bindings/clock/snps,hsdk-cgu.h>
 
@@ -141,13 +142,23 @@ struct hsdk_div_full_cfg {
 	const struct hsdk_idiv_cfg idiv[];
 };
 
-static const struct hsdk_div_full_cfg tun_clk_cfg = {
+static const struct hsdk_div_full_cfg hsdk_4xd_tun_clk_cfg = {
 	{ 25000000,  50000000,  75000000,  100000000, 125000000, 150000000 },
 	{ 600000000, 600000000, 600000000, 600000000, 750000000, 600000000 }, {
 	{ CGU_TUN_IDIV_TUN,	{ 24,	12,	8,	6,	6,	4 } },
 	{ CGU_TUN_IDIV_ROM,	{ 4,	4,	4,	4,	5,	4 } },
 	{ CGU_TUN_IDIV_PWM,	{ 8,	8,	8,	8,	10,	8 } },
 	{ CGU_TUN_IDIV_TIMER,	{ 12,	12,	12,	12,	15,	12 } },
+	{ /* last one */ }
+	}
+};
+
+static const struct hsdk_div_full_cfg hsdk_tun_clk_cfg = {
+	{ 25000000,  50000000,  75000000,  100000000, 125000000, 150000000 },
+	{ 600000000, 600000000, 600000000, 600000000, 750000000, 600000000 }, {
+	{ CGU_TUN_IDIV_TUN,	{ 24,	12,	8,	6,	6,	4 } },
+	{ CGU_TUN_IDIV_ROM,	{ 4,	4,	4,	4,	5,	4 } },
+	{ CGU_TUN_IDIV_PWM,	{ 8,	8,	8,	8,	10,	8 } },
 	{ /* last one */ }
 	}
 };
@@ -273,7 +284,8 @@ static const struct hsdk_pll_devdata hdmi_pll_dat = {
 static ulong idiv_set(struct clk *, ulong);
 static ulong cpu_clk_set(struct clk *, ulong);
 static ulong axi_clk_set(struct clk *, ulong);
-static ulong tun_clk_set(struct clk *, ulong);
+static ulong tun_hsdk_set(struct clk *, ulong);
+static ulong tun_h4xd_set(struct clk *, ulong);
 static ulong idiv_get(struct clk *);
 static int idiv_off(struct clk *);
 static ulong pll_set(struct clk *, ulong);
@@ -288,7 +300,7 @@ struct cgu_clk_map {
 	const int (*const disable)(struct clk *clk);
 };
 
-static const struct cgu_clk_map clock_map[] = {
+static const struct cgu_clk_map hsdk_clk_map[] = {
 	[CLK_ARC_PLL]        = { CGU_ARC_PLL,  0,                      &core_pll_dat, pll_get,  pll_set,      NULL     },
 	[CLK_ARC]            = { CGU_ARC_PLL,  CGU_ARC_IDIV,           &core_pll_dat, idiv_get, cpu_clk_set,  idiv_off },
 	[CLK_DDR_PLL]        = { CGU_DDR_PLL,  0,                      &sdt_pll_dat,  pll_get,  pll_set,      NULL     },
@@ -310,7 +322,37 @@ static const struct cgu_clk_map clock_map[] = {
 	[CLK_SYS_UART_REF]   = { CGU_SYS_PLL,  CGU_SYS_IDIV_UART_REF,  &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
 	[CLK_SYS_EBI_REF]    = { CGU_SYS_PLL,  CGU_SYS_IDIV_EBI_REF,   &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
 	[CLK_TUN_PLL]        = { CGU_TUN_PLL,  0,                      &sdt_pll_dat,  pll_get,  pll_set,      NULL     },
-	[CLK_TUN_TUN]        = { CGU_TUN_PLL,  CGU_TUN_IDIV_TUN,       &sdt_pll_dat,  idiv_get, tun_clk_set,  idiv_off },
+	[CLK_TUN_TUN]        = { CGU_TUN_PLL,  CGU_TUN_IDIV_TUN,       &sdt_pll_dat,  idiv_get, tun_hsdk_set, idiv_off },
+	[CLK_TUN_ROM]        = { CGU_TUN_PLL,  CGU_TUN_IDIV_ROM,       &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_TUN_PWM]        = { CGU_TUN_PLL,  CGU_TUN_IDIV_PWM,       &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_TUN_TIMER]      = { /* missing in HSDK */ },
+	[CLK_HDMI_PLL]       = { CGU_HDMI_PLL, 0,                      &hdmi_pll_dat, pll_get,  pll_set,      NULL     },
+	[CLK_HDMI]           = { CGU_HDMI_PLL, CGU_HDMI_IDIV_APB,      &hdmi_pll_dat, idiv_get, idiv_set,     idiv_off }
+};
+
+static const struct cgu_clk_map hsdk_4xd_clk_map[] = {
+	[CLK_ARC_PLL]        = { CGU_ARC_PLL,  0,                      &core_pll_dat, pll_get,  pll_set,      NULL     },
+	[CLK_ARC]            = { CGU_ARC_PLL,  CGU_ARC_IDIV,           &core_pll_dat, idiv_get, cpu_clk_set,  idiv_off },
+	[CLK_DDR_PLL]        = { CGU_DDR_PLL,  0,                      &sdt_pll_dat,  pll_get,  pll_set,      NULL     },
+	[CLK_SYS_PLL]        = { CGU_SYS_PLL,  0,                      &sdt_pll_dat,  pll_get,  pll_set,      NULL     },
+	[CLK_SYS_APB]        = { CGU_SYS_PLL,  CGU_SYS_IDIV_APB,       &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_AXI]        = { CGU_SYS_PLL,  CGU_SYS_IDIV_AXI,       &sdt_pll_dat,  idiv_get, axi_clk_set,  idiv_off },
+	[CLK_SYS_ETH]        = { CGU_SYS_PLL,  CGU_SYS_IDIV_ETH,       &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_USB]        = { CGU_SYS_PLL,  CGU_SYS_IDIV_USB,       &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_SDIO]       = { CGU_SYS_PLL,  CGU_SYS_IDIV_SDIO,      &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_HDMI]       = { CGU_SYS_PLL,  CGU_SYS_IDIV_HDMI,      &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_GFX_CORE]   = { CGU_SYS_PLL,  CGU_SYS_IDIV_GFX_CORE,  &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_GFX_DMA]    = { /* missing in HSDK-4xD */ },
+	[CLK_SYS_GFX_CFG]    = { /* missing in HSDK-4xD */ },
+	[CLK_SYS_DMAC_CORE]  = { CGU_SYS_PLL,  CGU_SYS_IDIV_DMAC_CORE, &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_DMAC_CFG]   = { CGU_SYS_PLL,  CGU_SYS_IDIV_DMAC_CFG,  &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_SDIO_REF]   = { CGU_SYS_PLL,  CGU_SYS_IDIV_SDIO_REF,  &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_SPI_REF]    = { CGU_SYS_PLL,  CGU_SYS_IDIV_SPI_REF,   &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_I2C_REF]    = { CGU_SYS_PLL,  CGU_SYS_IDIV_I2C_REF,   &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_UART_REF]   = { CGU_SYS_PLL,  CGU_SYS_IDIV_UART_REF,  &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_SYS_EBI_REF]    = { CGU_SYS_PLL,  CGU_SYS_IDIV_EBI_REF,   &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
+	[CLK_TUN_PLL]        = { CGU_TUN_PLL,  0,                      &sdt_pll_dat,  pll_get,  pll_set,      NULL     },
+	[CLK_TUN_TUN]        = { CGU_TUN_PLL,  CGU_TUN_IDIV_TUN,       &sdt_pll_dat,  idiv_get, tun_h4xd_set, idiv_off },
 	[CLK_TUN_ROM]        = { CGU_TUN_PLL,  CGU_TUN_IDIV_ROM,       &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
 	[CLK_TUN_PWM]        = { CGU_TUN_PLL,  CGU_TUN_IDIV_PWM,       &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
 	[CLK_TUN_TIMER]      = { CGU_TUN_PLL,  CGU_TUN_IDIV_TIMER,     &sdt_pll_dat,  idiv_get, idiv_set,     idiv_off },
@@ -592,9 +634,14 @@ static ulong axi_clk_set(struct clk *sclk, ulong rate)
 	return common_div_clk_set(sclk, rate, &axi_clk_cfg);
 }
 
-static ulong tun_clk_set(struct clk *sclk, ulong rate)
+static ulong tun_hsdk_set(struct clk *sclk, ulong rate)
 {
-	return common_div_clk_set(sclk, rate, &tun_clk_cfg);
+	return common_div_clk_set(sclk, rate, &hsdk_tun_clk_cfg);
+}
+
+static ulong tun_h4xd_set(struct clk *sclk, ulong rate)
+{
+	return common_div_clk_set(sclk, rate, &hsdk_4xd_tun_clk_cfg);
 }
 
 static ulong idiv_set(struct clk *sclk, ulong rate)
@@ -693,9 +740,14 @@ static int hsdk_cgu_clk_probe(struct udevice *dev)
 {
 	struct hsdk_cgu_clk *hsdk_clk = dev_get_priv(dev);
 
-	BUILD_BUG_ON(ARRAY_SIZE(clock_map) != CGU_MAX_CLOCKS);
+	BUILD_BUG_ON(ARRAY_SIZE(hsdk_clk_map) != CGU_MAX_CLOCKS);
+	BUILD_BUG_ON(ARRAY_SIZE(hsdk_4xd_clk_map) != CGU_MAX_CLOCKS);
 
-	hsdk_clk->map = clock_map;
+	/* Choose which clock map to use in runtime */
+	if ((read_aux_reg(ARC_AUX_IDENTITY) & 0xFF) == 0x52)
+		hsdk_clk->map = hsdk_clk_map;
+	else
+		hsdk_clk->map = hsdk_4xd_clk_map;
 
 	hsdk_clk->cgu_regs = (void __iomem *)devfdt_get_addr_index(dev, 0);
 	if (!hsdk_clk->cgu_regs)
