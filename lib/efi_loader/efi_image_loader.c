@@ -13,7 +13,7 @@
 #include <malloc.h>
 #include <pe.h>
 #include <sort.h>
-#include "crypto/pkcs7_parser.h"
+#include <crypto/pkcs7_parser.h>
 #include <linux/err.h>
 
 const efi_guid_t efi_global_variable_guid = EFI_GLOBAL_VARIABLE_GUID;
