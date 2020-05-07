@@ -214,21 +214,26 @@ static const struct hsdk_pll_cfg hdmi_pll_cfg[] = {
 	{}
 };
 
+struct hsdk_cgu_domain {
+	/* PLLs registers */
+	void __iomem *pll_regs;
+	/* PLLs special registers */
+	void __iomem *spec_regs;
+	/* PLLs devdata */
+	const struct hsdk_pll_devdata *pll;
+
+	/* Dividers registers */
+	void __iomem *idiv_regs;
+};
+
 struct hsdk_cgu_clk {
 	/* CGU block register */
 	void __iomem *cgu_regs;
 	/* CREG block register */
 	void __iomem *creg_regs;
 
-	/* PLLs registers */
-	void __iomem *regs;
-	/* PLLs special registers */
-	void __iomem *spec_regs;
-	/* PLLs devdata */
-	const struct hsdk_pll_devdata *pll_devdata;
-
-	/* Dividers registers */
-	void __iomem *idiv_regs;
+	/* The domain we are working with */
+	struct hsdk_cgu_domain curr_domain;
 };
 
 struct hsdk_pll_devdata {
@@ -271,7 +276,7 @@ static int idiv_off(struct clk *);
 static ulong pll_set(struct clk *, ulong);
 static ulong pll_get(struct clk *);
 
-struct hsdk_cgu_clock_map {
+struct cgu_clk_map {
 	const u32 cgu_pll_oft;
 	const u32 cgu_div_oft;
 	const struct hsdk_pll_devdata *const pll_devdata;
@@ -280,7 +285,7 @@ struct hsdk_cgu_clock_map {
 	const int (*const disable)(struct clk *clk);
 };
 
-static const struct hsdk_cgu_clock_map clock_map[] = {
+static const struct cgu_clk_map clock_map[] = {
 	{ CGU_ARC_PLL, 0, &core_pll_dat, pll_get, pll_set, NULL },
 	{ CGU_ARC_PLL, CGU_ARC_IDIV, &core_pll_dat, idiv_get, cpu_clk_set, idiv_off },
 	{ CGU_DDR_PLL, 0, &sdt_pll_dat, pll_get, pll_set, NULL },
@@ -312,32 +317,32 @@ static const struct hsdk_cgu_clock_map clock_map[] = {
 
 static inline void hsdk_idiv_write(struct hsdk_cgu_clk *clk, u32 val)
 {
-	iowrite32(val, clk->idiv_regs);
+	iowrite32(val, clk->curr_domain.idiv_regs);
 }
 
 static inline u32 hsdk_idiv_read(struct hsdk_cgu_clk *clk)
 {
-	return ioread32(clk->idiv_regs);
+	return ioread32(clk->curr_domain.idiv_regs);
 }
 
 static inline void hsdk_pll_write(struct hsdk_cgu_clk *clk, u32 reg, u32 val)
 {
-	iowrite32(val, clk->regs + reg);
+	iowrite32(val, clk->curr_domain.pll_regs + reg);
 }
 
 static inline u32 hsdk_pll_read(struct hsdk_cgu_clk *clk, u32 reg)
 {
-	return ioread32(clk->regs + reg);
+	return ioread32(clk->curr_domain.pll_regs + reg);
 }
 
 static inline void hsdk_pll_spcwrite(struct hsdk_cgu_clk *clk, u32 reg, u32 val)
 {
-	iowrite32(val, clk->spec_regs + reg);
+	iowrite32(val, clk->curr_domain.spec_regs + reg);
 }
 
 static inline u32 hsdk_pll_spcread(struct hsdk_cgu_clk *clk, u32 reg)
 {
-	return ioread32(clk->spec_regs + reg);
+	return ioread32(clk->curr_domain.spec_regs + reg);
 }
 
 static inline void hsdk_pll_set_cfg(struct hsdk_cgu_clk *clk,
@@ -372,7 +377,7 @@ static ulong pll_get(struct clk *sclk)
 	u64 rate;
 	u32 idiv, fbdiv, odiv;
 	struct hsdk_cgu_clk *clk = dev_get_priv(sclk->dev);
-	u32 parent_rate = clk->pll_devdata->parent_rate;
+	u32 parent_rate = clk->curr_domain.pll->parent_rate;
 
 	val = hsdk_pll_read(clk, CGU_PLL_CTRL);
 
@@ -404,7 +409,7 @@ static unsigned long hsdk_pll_round_rate(struct clk *sclk, unsigned long rate)
 	int i;
 	unsigned long best_rate;
 	struct hsdk_cgu_clk *clk = dev_get_priv(sclk->dev);
-	const struct hsdk_pll_cfg *pll_cfg = clk->pll_devdata->pll_cfg;
+	const struct hsdk_pll_cfg *pll_cfg = clk->curr_domain.pll->pll_cfg;
 
 	if (pll_cfg[0].rate == 0)
 		return -EINVAL;
@@ -480,19 +485,17 @@ static ulong pll_set(struct clk *sclk, ulong rate)
 	int i;
 	unsigned long best_rate;
 	struct hsdk_cgu_clk *clk = dev_get_priv(sclk->dev);
-	const struct hsdk_pll_cfg *pll_cfg = clk->pll_devdata->pll_cfg;
+	const struct hsdk_pll_devdata *pll = clk->curr_domain.pll;
+	const struct hsdk_pll_cfg *pll_cfg = pll->pll_cfg;
 
 	best_rate = hsdk_pll_round_rate(sclk, rate);
 
-	for (i = 0; pll_cfg[i].rate != 0; i++) {
-		if (pll_cfg[i].rate == best_rate) {
-			return clk->pll_devdata->update_rate(clk, best_rate,
-							     &pll_cfg[i]);
-		}
-	}
+	for (i = 0; pll_cfg[i].rate != 0; i++)
+		if (pll_cfg[i].rate == best_rate)
+			return pll->update_rate(clk, best_rate, &pll_cfg[i]);
 
 	pr_err("invalid rate=%ld Hz, parent_rate=%d Hz\n", best_rate,
-	       clk->pll_devdata->parent_rate);
+	       pll->parent_rate);
 
 	return -EINVAL;
 }
@@ -570,7 +573,7 @@ static ulong common_div_clk_set(struct clk *sclk, ulong rate,
 
 	/* configure SYS dividers */
 	for (i = 0; cfg->idiv[i].oft != 0; i++) {
-		clk->idiv_regs = clk->cgu_regs + cfg->idiv[i].oft;
+		clk->curr_domain.idiv_regs = clk->cgu_regs + cfg->idiv[i].oft;
 		hsdk_idiv_write(clk, cfg->idiv[i].val[freq_idx]);
 	}
 
@@ -629,10 +632,10 @@ static int hsdk_prepare_clock_tree_branch(struct clk *sclk)
 	if (sclk->id >= CGU_MAX_CLOCKS)
 		return -EINVAL;
 
-	clk->pll_devdata = clock_map[sclk->id].pll_devdata;
-	clk->regs = clk->cgu_regs + clock_map[sclk->id].cgu_pll_oft;
-	clk->spec_regs = clk->creg_regs;
-	clk->idiv_regs = clk->cgu_regs + clock_map[sclk->id].cgu_div_oft;
+	clk->curr_domain.pll = clock_map[sclk->id].pll_devdata;
+	clk->curr_domain.pll_regs = clk->cgu_regs + clock_map[sclk->id].cgu_pll_oft;
+	clk->curr_domain.spec_regs = clk->creg_regs;
+	clk->curr_domain.idiv_regs = clk->cgu_regs + clock_map[sclk->id].cgu_div_oft;
 
 	return 0;
 }
@@ -672,16 +675,16 @@ static const struct clk_ops hsdk_cgu_ops = {
 
 static int hsdk_cgu_clk_probe(struct udevice *dev)
 {
-	struct hsdk_cgu_clk *pll_clk = dev_get_priv(dev);
+	struct hsdk_cgu_clk *hsdk_clk = dev_get_priv(dev);
 
 	BUILD_BUG_ON(ARRAY_SIZE(clock_map) != CGU_MAX_CLOCKS);
 
-	pll_clk->cgu_regs = (void __iomem *)devfdt_get_addr_index(dev, 0);
-	if (!pll_clk->cgu_regs)
+	hsdk_clk->cgu_regs = (void __iomem *)devfdt_get_addr_index(dev, 0);
+	if (!hsdk_clk->cgu_regs)
 		return -EINVAL;
 
-	pll_clk->creg_regs = (void __iomem *)devfdt_get_addr_index(dev, 1);
-	if (!pll_clk->creg_regs)
+	hsdk_clk->creg_regs = (void __iomem *)devfdt_get_addr_index(dev, 1);
+	if (!hsdk_clk->creg_regs)
 		return -EINVAL;
 
 	return 0;
