@@ -129,8 +129,8 @@
 #define MAX_FREQ_VARIATIONS		6
 
 struct hsdk_idiv_cfg {
-	u32 oft;
-	u8  val[MAX_FREQ_VARIATIONS];
+	const u32 oft;
+	const u8  val[MAX_FREQ_VARIATIONS];
 };
 
 struct hsdk_div_full_cfg {
@@ -174,11 +174,11 @@ static const struct hsdk_div_full_cfg axi_clk_cfg = {
 };
 
 struct hsdk_pll_cfg {
-	u32 rate;
-	u32 idiv;
-	u32 fbdiv;
-	u32 odiv;
-	u32 band;
+	const u32 rate;
+	const u8  idiv;
+	const u8  fbdiv;
+	const u8  odiv;
+	const u8  band;
 };
 
 static const struct hsdk_pll_cfg asdt_pll_cfg[] = {
@@ -233,9 +233,10 @@ struct hsdk_cgu_clk {
 
 struct hsdk_pll_devdata {
 	const u32 parent_rate;
-	const struct hsdk_pll_cfg *pll_cfg;
-	int (*update_rate)(struct hsdk_cgu_clk *clk, unsigned long rate,
-			   const struct hsdk_pll_cfg *cfg);
+	const struct hsdk_pll_cfg *const pll_cfg;
+	const int (*const update_rate)(struct hsdk_cgu_clk *clk,
+				       unsigned long rate,
+				       const struct hsdk_pll_cfg *cfg);
 };
 
 static int hsdk_pll_core_update_rate(struct hsdk_cgu_clk *, unsigned long,
@@ -271,12 +272,12 @@ static ulong pll_set(struct clk *, ulong);
 static ulong pll_get(struct clk *);
 
 struct hsdk_cgu_clock_map {
-	u32 cgu_pll_oft;
-	u32 cgu_div_oft;
-	const struct hsdk_pll_devdata *pll_devdata;
-	ulong (*get_rate)(struct clk *clk);
-	ulong (*set_rate)(struct clk *clk, ulong rate);
-	int (*disable)(struct clk *clk);
+	const u32 cgu_pll_oft;
+	const u32 cgu_div_oft;
+	const struct hsdk_pll_devdata *const pll_devdata;
+	const ulong (*const get_rate)(struct clk *clk);
+	const ulong (*const set_rate)(struct clk *clk, ulong rate);
+	const int (*const disable)(struct clk *clk);
 };
 
 static const struct hsdk_cgu_clock_map clock_map[] = {
@@ -345,10 +346,10 @@ static inline void hsdk_pll_set_cfg(struct hsdk_cgu_clk *clk,
 	u32 val = 0;
 
 	/* Powerdown and Bypass bits should be cleared */
-	val |= cfg->idiv << CGU_PLL_CTRL_IDIV_SHIFT;
-	val |= cfg->fbdiv << CGU_PLL_CTRL_FBDIV_SHIFT;
-	val |= cfg->odiv << CGU_PLL_CTRL_ODIV_SHIFT;
-	val |= cfg->band << CGU_PLL_CTRL_BAND_SHIFT;
+	val |= (u32)cfg->idiv << CGU_PLL_CTRL_IDIV_SHIFT;
+	val |= (u32)cfg->fbdiv << CGU_PLL_CTRL_FBDIV_SHIFT;
+	val |= (u32)cfg->odiv << CGU_PLL_CTRL_ODIV_SHIFT;
+	val |= (u32)cfg->band << CGU_PLL_CTRL_BAND_SHIFT;
 
 	pr_debug("write configurarion: %#x\n", val);
 
