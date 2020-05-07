@@ -662,7 +662,10 @@ static ulong hsdk_cgu_set_rate(struct clk *sclk, ulong rate)
 	if (hsdk_prepare_clock_tree_branch(sclk))
 		return -EINVAL;
 
-	return clk->map[sclk->id].set_rate(sclk, rate);
+	if (clk->map[sclk->id].set_rate)
+		return clk->map[sclk->id].set_rate(sclk, rate);
+
+	return -ENOTSUPP;
 }
 
 static int hsdk_cgu_disable(struct clk *sclk)
