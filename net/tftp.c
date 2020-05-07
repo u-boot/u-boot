@@ -233,9 +233,11 @@ static void tftp_timeout_handler(void);
 
 static void show_block_marker(void)
 {
+	ulong pos;
+
 #ifdef CONFIG_TFTP_TSIZE
 	if (tftp_tsize) {
-		ulong pos = tftp_cur_block * tftp_block_size +
+		pos = tftp_cur_block * tftp_block_size +
 			tftp_block_wrap_offset;
 		if (pos > tftp_tsize)
 			pos = tftp_tsize;
@@ -247,9 +249,11 @@ static void show_block_marker(void)
 	} else
 #endif
 	{
-		if (((tftp_cur_block - 1) % 10) == 0)
+		pos = (tftp_cur_block - 1) +
+			(tftp_block_wrap * TFTP_SEQUENCE_SIZE);
+		if ((pos % 10) == 0)
 			putc('#');
-		else if ((tftp_cur_block % (10 * HASHES_PER_LINE)) == 0)
+		else if (((pos + 1) % (10 * HASHES_PER_LINE)) == 0)
 			puts("\n\t ");
 	}
 }
@@ -282,9 +286,8 @@ static void update_block_number(void)
 		tftp_block_wrap++;
 		tftp_block_wrap_offset += tftp_block_size * TFTP_SEQUENCE_SIZE;
 		timeout_count = 0; /* we've done well, reset the timeout */
-	} else {
-		show_block_marker();
 	}
+	show_block_marker();
 }
 
 /* The TFTP get or put is complete */
@@ -518,8 +521,6 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 		len -= 2;
 		tftp_cur_block = ntohs(*(__be16 *)pkt);
 
-		update_block_number();
-
 		if (tftp_state == STATE_SEND_RRQ)
 			debug("Server did not acknowledge timeout option!\n");
 
@@ -545,6 +546,7 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 			break;
 		}
 
+		update_block_number();
 		tftp_prev_block = tftp_cur_block;
 		timeout_count_max = tftp_timeout_count_max;
 		net_set_timeout_handler(timeout_ms, tftp_timeout_handler);
