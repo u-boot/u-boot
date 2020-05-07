@@ -126,45 +126,31 @@
 #define PARENT_RATE_27			27000000 /* fixed clock - xtal */
 #define CGU_MAX_CLOCKS			27
 
-#define CGU_SYS_CLOCKS			16
-#define MAX_AXI_CLOCKS			4
+#define MAX_FREQ_VARIATIONS		6
 
-#define CGU_TUN_CLOCKS			4
-#define MAX_TUN_CLOCKS			6
-
-struct hsdk_tun_idiv_cfg {
+struct hsdk_idiv_cfg {
 	u32 oft;
-	u8  val[MAX_TUN_CLOCKS];
+	u8  val[MAX_FREQ_VARIATIONS];
 };
 
-struct hsdk_tun_clk_cfg {
-	const u32 clk_rate[MAX_TUN_CLOCKS];
-	const u32 pll_rate[MAX_TUN_CLOCKS];
-	const struct hsdk_tun_idiv_cfg idiv[CGU_TUN_CLOCKS];
+struct hsdk_div_full_cfg {
+	const u32 clk_rate[MAX_FREQ_VARIATIONS];
+	const u32 pll_rate[MAX_FREQ_VARIATIONS];
+	const struct hsdk_idiv_cfg idiv[];
 };
 
-static const struct hsdk_tun_clk_cfg tun_clk_cfg = {
+static const struct hsdk_div_full_cfg tun_clk_cfg = {
 	{ 25000000,  50000000,  75000000,  100000000, 125000000, 150000000 },
 	{ 600000000, 600000000, 600000000, 600000000, 750000000, 600000000 }, {
 	{ CGU_TUN_IDIV_TUN,	{ 24,	12,	8,	6,	6,	4 } },
 	{ CGU_TUN_IDIV_ROM,	{ 4,	4,	4,	4,	5,	4 } },
 	{ CGU_TUN_IDIV_PWM,	{ 8,	8,	8,	8,	10,	8 } },
-	{ CGU_TUN_IDIV_TIMER,	{ 12,	12,	12,	12,	15,	12 } }
+	{ CGU_TUN_IDIV_TIMER,	{ 12,	12,	12,	12,	15,	12 } },
+	{ /* last one */ }
 	}
 };
 
-struct hsdk_sys_idiv_cfg {
-	u32 oft;
-	u8  val[MAX_AXI_CLOCKS];
-};
-
-struct hsdk_axi_clk_cfg {
-	const u32 clk_rate[MAX_AXI_CLOCKS];
-	const u32 pll_rate[MAX_AXI_CLOCKS];
-	const struct hsdk_sys_idiv_cfg idiv[CGU_SYS_CLOCKS];
-};
-
-static const struct hsdk_axi_clk_cfg axi_clk_cfg = {
+static const struct hsdk_div_full_cfg axi_clk_cfg = {
 	{ 200000000,	400000000,	600000000,	800000000 },
 	{ 800000000,	800000000,	600000000,	800000000 }, {
 	{ CGU_SYS_IDIV_APB,	 { 4,	4,	3,	4 } },	/* APB */
@@ -182,7 +168,8 @@ static const struct hsdk_axi_clk_cfg axi_clk_cfg = {
 	{ CGU_SYS_IDIV_SPI_REF,	 { 24,	24,	18,	24 } },	/* SPI-REF */
 	{ CGU_SYS_IDIV_I2C_REF,	 { 4,	4,	3,	4 } },	/* I2C-REF */
 	{ CGU_SYS_IDIV_UART_REF, { 24,	24,	18,	24 } },	/* UART-REF */
-	{ CGU_SYS_IDIV_EBI_REF,	 { 16,	16,	12,	16 } }	/* EBI-REF */
+	{ CGU_SYS_IDIV_EBI_REF,	 { 16,	16,	12,	16 } },	/* EBI-REF */
+	{ /* last one */ }
 	}
 };
 
@@ -546,8 +533,13 @@ static ulong cpu_clk_set(struct clk *sclk, ulong rate)
 	return ret;
 }
 
-/* Special behavior: wen we set this clock we set both idiv and pll and all pll dividers */
-static ulong axi_clk_set(struct clk *sclk, ulong rate)
+/*
+ * Special behavior:
+ * when we set these clocks we set both PLL and all idiv dividers related to
+ * this PLL domain.
+ */
+static ulong common_div_clk_set(struct clk *sclk, ulong rate,
+				const struct hsdk_div_full_cfg *cfg)
 {
 	struct hsdk_cgu_clk *clk = dev_get_priv(sclk->dev);
 	ulong pll_rate;
@@ -556,71 +548,47 @@ static ulong axi_clk_set(struct clk *sclk, ulong rate)
 
 	pll_rate = pll_get(sclk);
 
-	for (i = 0; i < MAX_AXI_CLOCKS; i++) {
-		if (axi_clk_cfg.clk_rate[i] == rate) {
+	for (i = 0; i < MAX_FREQ_VARIATIONS; i++) {
+		/* unused freq variations are filled with 0 */
+		if (!cfg->clk_rate[i])
+			break;
+
+		if (cfg->clk_rate[i] == rate) {
 			freq_idx = i;
 			break;
 		}
 	}
 
 	if (freq_idx < 0) {
-		pr_err("axi clk: invalid rate=%ld Hz\n", rate);
+		pr_err("clk: invalid rate=%ld Hz\n", rate);
 		return -EINVAL;
 	}
 
 	/* configure PLL before dividers */
-	if (axi_clk_cfg.pll_rate[freq_idx] < pll_rate)
-		ret = pll_set(sclk, axi_clk_cfg.pll_rate[freq_idx]);
+	if (cfg->pll_rate[freq_idx] < pll_rate)
+		ret = pll_set(sclk, cfg->pll_rate[freq_idx]);
 
 	/* configure SYS dividers */
-	for (i = 0; i < CGU_SYS_CLOCKS; i++) {
-		clk->idiv_regs = clk->cgu_regs + axi_clk_cfg.idiv[i].oft;
-		hsdk_idiv_write(clk, axi_clk_cfg.idiv[i].val[freq_idx]);
+	for (i = 0; cfg->idiv[i].oft != 0; i++) {
+		clk->idiv_regs = clk->cgu_regs + cfg->idiv[i].oft;
+		hsdk_idiv_write(clk, cfg->idiv[i].val[freq_idx]);
 	}
 
 	/* configure PLL after dividers */
-	if (axi_clk_cfg.pll_rate[freq_idx] >= pll_rate)
-		ret = pll_set(sclk, axi_clk_cfg.pll_rate[freq_idx]);
+	if (cfg->pll_rate[freq_idx] >= pll_rate)
+		ret = pll_set(sclk, cfg->pll_rate[freq_idx]);
 
 	return ret;
 }
 
+static ulong axi_clk_set(struct clk *sclk, ulong rate)
+{
+	return common_div_clk_set(sclk, rate, &axi_clk_cfg);
+}
+
 static ulong tun_clk_set(struct clk *sclk, ulong rate)
 {
-	struct hsdk_cgu_clk *clk = dev_get_priv(sclk->dev);
-	ulong pll_rate;
-	int i, freq_idx = -1;
-	ulong ret = 0;
-
-	pll_rate = pll_get(sclk);
-
-	for (i = 0; i < MAX_TUN_CLOCKS; i++) {
-		if (tun_clk_cfg.clk_rate[i] == rate) {
-			freq_idx = i;
-			break;
-		}
-	}
-
-	if (freq_idx < 0) {
-		pr_err("tun clk: invalid rate=%ld Hz\n", rate);
-		return -EINVAL;
-	}
-
-	/* configure PLL before dividers */
-	if (tun_clk_cfg.pll_rate[freq_idx] < pll_rate)
-		ret = pll_set(sclk, tun_clk_cfg.pll_rate[freq_idx]);
-
-	/* configure SYS dividers */
-	for (i = 0; i < CGU_TUN_CLOCKS; i++) {
-		clk->idiv_regs = clk->cgu_regs + tun_clk_cfg.idiv[i].oft;
-		hsdk_idiv_write(clk, tun_clk_cfg.idiv[i].val[freq_idx]);
-	}
-
-	/* configure PLL after dividers */
-	if (tun_clk_cfg.pll_rate[freq_idx] >= pll_rate)
-		ret = pll_set(sclk, tun_clk_cfg.pll_rate[freq_idx]);
-
-	return ret;
+	return common_div_clk_set(sclk, rate, &tun_clk_cfg);
 }
 
 static ulong idiv_set(struct clk *sclk, ulong rate)
