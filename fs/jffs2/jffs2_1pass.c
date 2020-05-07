@@ -1471,7 +1471,7 @@ static u32
 jffs2_1pass_build_lists(struct part_info * part)
 {
 	struct b_lists *pL;
-	struct jffs2_unknown_node *node;
+	union jffs2_node_union *node;
 	u32 nr_sectors;
 	u32 i;
 	u32 counter4 = 0;
@@ -1507,6 +1507,7 @@ jffs2_1pass_build_lists(struct part_info * part)
 #endif
 		/* Indicates a sector with a CLEANMARKER was found */
 		int clean_sector = 0;
+		struct jffs2_unknown_node crcnode;
 
 		/* Set buf_size to maximum length */
 		buf_size = DEFAULT_EMPTY_SCAN_SIZE;
@@ -1600,9 +1601,10 @@ jffs2_1pass_build_lists(struct part_info * part)
 			}
 			prevofs = ofs;
 			if (sector_ofs + part->sector_size <
-					ofs + sizeof(*node))
+					ofs + sizeof(struct jffs2_unknown_node))
 				break;
-			if (buf_ofs + buf_len < ofs + sizeof(*node)) {
+			if (buf_ofs + buf_len <
+					ofs + sizeof(struct jffs2_unknown_node)) {
 				buf_len = min_t(uint32_t, buf_size, sector_ofs
 						+ part->sector_size - ofs);
 				get_fl_mem((u32)part->offset + ofs, buf_len,
@@ -1610,7 +1612,7 @@ jffs2_1pass_build_lists(struct part_info * part)
 				buf_ofs = ofs;
 			}
 
-			node = (struct jffs2_unknown_node *)&buf[ofs-buf_ofs];
+			node = (union jffs2_node_union *)&buf[ofs - buf_ofs];
 
 			if (*(uint32_t *)(&buf[ofs-buf_ofs]) == 0xffffffff) {
 				uint32_t inbuf_ofs;
@@ -1665,23 +1667,41 @@ jffs2_1pass_build_lists(struct part_info * part)
 			 * the 'clean_sector' flag.
 			 */
 			clean_sector = 0;
-			if (node->magic != JFFS2_MAGIC_BITMASK ||
-					!hdr_crc(node)) {
+			if (node->u.magic != JFFS2_MAGIC_BITMASK) {
 				ofs += 4;
 				counter4++;
 				continue;
 			}
-			if (ofs + node->totlen >
-					sector_ofs + part->sector_size) {
+
+			crcnode.magic = node->u.magic;
+			crcnode.nodetype = node->u.nodetype | JFFS2_NODE_ACCURATE;
+			crcnode.totlen = node->u.totlen;
+			crcnode.hdr_crc = node->u.hdr_crc;
+			if (!hdr_crc(&crcnode)) {
 				ofs += 4;
 				counter4++;
 				continue;
 			}
+
+			if (ofs + node->u.totlen > sector_ofs + part->sector_size) {
+				ofs += 4;
+				counter4++;
+				continue;
+			}
+
+			if (!(node->u.nodetype & JFFS2_NODE_ACCURATE)) {
+				DEBUGF("Obsolete node type: %x len %d offset 0x%x\n",
+				       node->u.nodetype, node->u.totlen, ofs);
+				ofs += ((node->u.totlen + 3) & ~3);
+				counterF++;
+				continue;
+			}
+
 			/* if its a fragment add it */
-			switch (node->nodetype) {
+			switch (node->u.nodetype) {
 			case JFFS2_NODETYPE_INODE:
-				if (buf_ofs + buf_len < ofs + sizeof(struct
-							jffs2_raw_inode)) {
+				if (buf_ofs + buf_len <
+					ofs + sizeof(struct jffs2_raw_inode)) {
 					buf_len = min_t(uint32_t,
 							sizeof(struct jffs2_raw_inode),
 							sector_ofs +
@@ -1701,8 +1721,8 @@ jffs2_1pass_build_lists(struct part_info * part)
 					jffs2_free_cache(part);
 					return 0;
 				}
-				if (max_totlen < node->totlen)
-					max_totlen = node->totlen;
+				if (max_totlen < node->u.totlen)
+					max_totlen = node->u.totlen;
 				break;
 			case JFFS2_NODETYPE_DIRENT:
 				if (buf_ofs + buf_len < ofs + sizeof(struct
@@ -1711,7 +1731,7 @@ jffs2_1pass_build_lists(struct part_info * part)
 							 jffs2_raw_dirent *)
 							node)->nsize) {
 					buf_len = min_t(uint32_t,
-							node->totlen,
+							node->u.totlen,
 							sector_ofs +
 							part->sector_size -
 							ofs);
@@ -1736,19 +1756,19 @@ jffs2_1pass_build_lists(struct part_info * part)
 					jffs2_free_cache(part);
 					return 0;
 				}
-				if (max_totlen < node->totlen)
-					max_totlen = node->totlen;
+				if (max_totlen < node->u.totlen)
+					max_totlen = node->u.totlen;
 				counterN++;
 				break;
 			case JFFS2_NODETYPE_CLEANMARKER:
-				if (node->totlen != sizeof(struct jffs2_unknown_node))
+				if (node->u.totlen != sizeof(struct jffs2_unknown_node))
 					printf("OOPS Cleanmarker has bad size "
 						"%d != %zu\n",
-						node->totlen,
+						node->u.totlen,
 						sizeof(struct jffs2_unknown_node));
-				if ((node->totlen ==
-				     sizeof(struct jffs2_unknown_node)) &&
-				    (ofs == sector_ofs)) {
+				if (node->u.totlen ==
+				     sizeof(struct jffs2_unknown_node) &&
+				    ofs == sector_ofs) {
 					/*
 					 * Found a CLEANMARKER at the beginning
 					 * of the sector. It's in the correct
@@ -1758,20 +1778,21 @@ jffs2_1pass_build_lists(struct part_info * part)
 				}
 				break;
 			case JFFS2_NODETYPE_PADDING:
-				if (node->totlen < sizeof(struct jffs2_unknown_node))
+				if (node->u.totlen <
+						sizeof(struct jffs2_unknown_node))
 					printf("OOPS Padding has bad size "
 						"%d < %zu\n",
-						node->totlen,
+						node->u.totlen,
 						sizeof(struct jffs2_unknown_node));
 				break;
 			case JFFS2_NODETYPE_SUMMARY:
 				break;
 			default:
 				printf("Unknown node type: %x len %d offset 0x%x\n",
-					node->nodetype,
-					node->totlen, ofs);
+					node->u.nodetype,
+					node->u.totlen, ofs);
 			}
-			ofs += ((node->totlen + 3) & ~3);
+			ofs += ((node->u.totlen + 3) & ~3);
 			counterF++;
 		}
 	}
