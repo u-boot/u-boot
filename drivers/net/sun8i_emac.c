@@ -300,9 +300,9 @@ static int sun8i_emac_set_syscon(struct sun8i_eth_pdata *pdata,
 	if (priv->variant == R40_GMAC) {
 		/* Select RGMII for R40 */
 		reg = readl(priv->sysctl_reg + 0x164);
-		reg |= CCM_GMAC_CTRL_TX_CLK_SRC_INT_RGMII |
-		       CCM_GMAC_CTRL_GPIT_RGMII |
-		       CCM_GMAC_CTRL_TX_CLK_DELAY(CONFIG_GMAC_TX_DELAY);
+		reg |= SC_ETCS_INT_GMII |
+		       SC_EPIT |
+		       (CONFIG_GMAC_TX_DELAY << SC_ETXDC_OFFSET);
 
 		writel(reg, priv->sysctl_reg + 0x164);
 		return 0;
