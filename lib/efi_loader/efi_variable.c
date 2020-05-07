@@ -524,9 +524,8 @@ static efi_status_t efi_variable_authenticate(u16 *variable,
 	var_sig = efi_variable_parse_signature(auth->auth_info.cert_data,
 					       auth->auth_info.hdr.dwLength
 						   - sizeof(auth->auth_info));
-	if (IS_ERR(var_sig)) {
+	if (!var_sig) {
 		debug("Parsing variable's signature failed\n");
-		var_sig = NULL;
 		goto err;
 	}
 
