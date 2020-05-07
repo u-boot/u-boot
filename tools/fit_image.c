@@ -435,7 +435,7 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 	int image_number;
 	int align_size;
 
-	align_size = params->bl_len ? params->bl_len : 1;
+	align_size = params->bl_len ? params->bl_len : 4;
 	fd = mmap_fdt(params->cmdname, fname, 0, &fdt, &sbuf, false, false);
 	if (fd < 0)
 		return -EIO;
@@ -493,6 +493,7 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 	fdt_pack(fdt);
 
 	new_size = fdt_totalsize(fdt);
+	new_size = ALIGN(new_size, align_size);
 	fdt_set_totalsize(fdt, new_size);
 	debug("Size reduced from %x to %x\n", fit_size, fdt_totalsize(fdt));
 	debug("External data size %x\n", buf_ptr);

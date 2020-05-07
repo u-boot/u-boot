@@ -1162,6 +1162,17 @@ config TARGET_VEXPRESS64_JUNO
 	bool "Support Versatile Express Juno Development Platform"
 	select ARM64
 	select PL01X_SERIAL
+	select DM
+	select OF_CONTROL
+	select OF_BOARD
+	select CLK
+	select DM_SERIAL
+	select ARM_PSCI_FW
+	select PSCI_RESET
+	select DM
+	select BLK
+	select USB
+	select DM_USB
 
 config TARGET_LS2080A_EMU
 	bool "Support ls2080a_emu"

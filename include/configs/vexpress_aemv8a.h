@@ -7,12 +7,6 @@
 #ifndef __VEXPRESS_AEMV8A_H
 #define __VEXPRESS_AEMV8A_H
 
-#ifdef CONFIG_TARGET_VEXPRESS64_BASE_FVP
-#ifndef CONFIG_SEMIHOSTING
-#error CONFIG_TARGET_VEXPRESS64_BASE_FVP requires CONFIG_SEMIHOSTING
-#endif
-#endif
-
 #define CONFIG_REMAKE_ELF
 
 /* Link Definitions */
@@ -102,7 +96,7 @@
 
 /* PL011 Serial Configuration */
 #ifdef CONFIG_TARGET_VEXPRESS64_JUNO
-#define CONFIG_PL011_CLOCK		7273800
+#define CONFIG_PL011_CLOCK		7372800
 #else
 #define CONFIG_PL011_CLOCK		24000000
 #endif
@@ -138,35 +132,33 @@
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 				"kernel_name=norkern\0"	\
 				"kernel_alt_name=Image\0"	\
-				"kernel_addr=0x80080000\0" \
-				"initrd_name=ramdisk.img\0"	\
-				"initrd_addr=0x84000000\0"	\
+				"kernel_addr_r=0x80080000\0" \
+				"ramdisk_name=ramdisk.img\0"	\
+				"ramdisk_addr_r=0x88000000\0"	\
 				"fdtfile=board.dtb\0" \
 				"fdt_alt_name=juno\0" \
-				"fdt_addr=0x83000000\0" \
-				"fdt_high=0xffffffffffffffff\0" \
-				"initrd_high=0xffffffffffffffff\0" \
+				"fdt_addr_r=0x80000000\0" \
 
 /* Copy the kernel and FDT to DRAM memory and boot */
-#define CONFIG_BOOTCOMMAND	"afs load ${kernel_name} ${kernel_addr} ; " \
+#define CONFIG_BOOTCOMMAND	"afs load ${kernel_name} ${kernel_addr_r} ;"\
 				"if test $? -eq 1; then "\
 				"  echo Loading ${kernel_alt_name} instead of "\
 				"${kernel_name}; "\
-				"  afs load ${kernel_alt_name} ${kernel_addr};"\
+				"  afs load ${kernel_alt_name} ${kernel_addr_r};"\
 				"fi ; "\
-				"afs load  ${fdtfile} ${fdt_addr} ; " \
+				"afs load ${fdtfile} ${fdt_addr_r} ;"\
 				"if test $? -eq 1; then "\
 				"  echo Loading ${fdt_alt_name} instead of "\
 				"${fdtfile}; "\
-				"  afs load ${fdt_alt_name} ${fdt_addr}; "\
+				"  afs load ${fdt_alt_name} ${fdt_addr_r}; "\
 				"fi ; "\
-				"fdt addr ${fdt_addr}; fdt resize; " \
-				"if afs load  ${initrd_name} ${initrd_addr} ; "\
+				"fdt addr ${fdt_addr_r}; fdt resize; " \
+				"if afs load  ${ramdisk_name} ${ramdisk_addr_r} ; "\
 				"then "\
-				"  setenv initrd_param ${initrd_addr}; "\
-				"  else setenv initrd_param -; "\
+				"  setenv ramdisk_param ${ramdisk_addr_r}; "\
+				"  else setenv ramdisk_param -; "\
 				"fi ; " \
-				"booti ${kernel_addr} ${initrd_param} ${fdt_addr}"
+				"booti ${kernel_addr_r} ${ramdisk_param} ${fdt_addr_r}"
 
 
 #elif CONFIG_TARGET_VEXPRESS64_BASE_FVP
@@ -220,6 +212,11 @@
 
 #define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_32BIT
 #define CONFIG_SYS_MAX_FLASH_BANKS	1
+
+#ifdef CONFIG_USB_EHCI_HCD
+#define CONFIG_USB_OHCI_NEW
+#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS 1
+#endif
 
 #define CONFIG_SYS_FLASH_EMPTY_INFO	/* flinfo indicates empty blocks */
 #define FLASH_MAX_SECTOR_SIZE		0x00040000

@@ -262,8 +262,8 @@ int rsa_mod_exp_sw(const uint8_t *sig, uint32_t sig_len,
 	if (!prop->public_exponent)
 		key.exponent = RSA_DEFAULT_PUBEXP;
 	else
-		key.exponent =
-			fdt64_to_cpu(*((uint64_t *)(prop->public_exponent)));
+		rsa_convert_big_endian((uint32_t *)&key.exponent,
+				       prop->public_exponent, 2);
 
 	if (!key.len || !prop->modulus || !prop->rr) {
 		debug("%s: Missing RSA key info", __func__);
