@@ -530,7 +530,7 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 #ifdef CONFIG_SANDBOX
 		case UCLASS_ROOT: {
 			/* stop traversing parents at this point: */
-			struct efi_device_path_vendor *dp = buf;
+			struct efi_device_path_vendor *dp;
 			struct blk_desc *desc = dev_get_uclass_platdata(dev);
 
 			dp_fill(buf, dev->parent);
