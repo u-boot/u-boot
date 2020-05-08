@@ -602,7 +602,7 @@ static int do_efi_boot_add(cmd_tbl_t *cmdtp, int flag,
 				+ sizeof(struct efi_device_path); /* for END */
 
 	/* optional data */
-	if (argc < 6)
+	if (argc == 6)
 		lo.optional_data = NULL;
 	else
 		lo.optional_data = (const u8 *)argv[6];
