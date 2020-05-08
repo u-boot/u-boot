@@ -293,12 +293,12 @@ bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
 		efi_image_region_add(regs, efi, &opt->CheckSum, 0);
 		if (nt64->OptionalHeader.NumberOfRvaAndSizes <= ctidx) {
 			efi_image_region_add(regs,
-					     &opt->CheckSum + 1,
+					     &opt->Subsystem,
 					     efi + opt->SizeOfHeaders, 0);
 		} else {
 			/* Skip Certificates Table */
 			efi_image_region_add(regs,
-					     &opt->CheckSum + 1,
+					     &opt->Subsystem,
 					     &opt->DataDirectory[ctidx], 0);
 			efi_image_region_add(regs,
 					     &opt->DataDirectory[ctidx] + 1,
@@ -313,7 +313,7 @@ bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
 		IMAGE_OPTIONAL_HEADER32 *opt = &nt->OptionalHeader;
 
 		efi_image_region_add(regs, efi, &opt->CheckSum, 0);
-		efi_image_region_add(regs, &opt->CheckSum + 1,
+		efi_image_region_add(regs, &opt->Subsystem,
 				     &opt->DataDirectory[ctidx], 0);
 		efi_image_region_add(regs, &opt->DataDirectory[ctidx] + 1,
 				     efi + opt->SizeOfHeaders, 0);
