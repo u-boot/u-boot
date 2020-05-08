@@ -92,12 +92,12 @@ static int sb_log_tx_handler(struct udevice *dev, void *packet,
 }
 
 /**
- * syslog_test_log_err() - test log_err() function
+ * log_test_syslog_err() - test log_err() function
  *
  * @uts:	unit test state
  * Return:	0 = success
  */
-static int syslog_test_log_err(struct unit_test_state *uts)
+static int log_test_syslog_err(struct unit_test_state *uts)
 {
 	int old_log_level = gd->default_log_level;
 	struct sb_log_env env;
@@ -106,7 +106,7 @@ static int syslog_test_log_err(struct unit_test_state *uts)
 	gd->default_log_level = LOGL_INFO;
 	env_set("ethact", "eth@10002000");
 	env_set("log_hostname", "sandbox");
-	env.expected = "<3>sandbox uboot: syslog_test_log_err() "
+	env.expected = "<3>sandbox uboot: log_test_syslog_err() "
 		       "testing log_err\n";
 	env.uts = uts;
 	sandbox_eth_set_tx_handler(0, sb_log_tx_handler);
@@ -119,15 +119,15 @@ static int syslog_test_log_err(struct unit_test_state *uts)
 
 	return 0;
 }
-LOG_TEST(syslog_test_log_err);
+LOG_TEST(log_test_syslog_err);
 
 /**
- * syslog_test_log_warning() - test log_warning() function
+ * log_test_syslog_warning() - test log_warning() function
  *
  * @uts:	unit test state
  * Return:	0 = success
  */
-static int syslog_test_log_warning(struct unit_test_state *uts)
+static int log_test_syslog_warning(struct unit_test_state *uts)
 {
 	int old_log_level = gd->default_log_level;
 	struct sb_log_env env;
@@ -136,7 +136,7 @@ static int syslog_test_log_warning(struct unit_test_state *uts)
 	gd->default_log_level = LOGL_INFO;
 	env_set("ethact", "eth@10002000");
 	env_set("log_hostname", "sandbox");
-	env.expected = "<4>sandbox uboot: syslog_test_log_warning() "
+	env.expected = "<4>sandbox uboot: log_test_syslog_warning() "
 		       "testing log_warning\n";
 	env.uts = uts;
 	sandbox_eth_set_tx_handler(0, sb_log_tx_handler);
@@ -150,15 +150,15 @@ static int syslog_test_log_warning(struct unit_test_state *uts)
 
 	return 0;
 }
-LOG_TEST(syslog_test_log_warning);
+LOG_TEST(log_test_syslog_warning);
 
 /**
- * syslog_test_log_notice() - test log_notice() function
+ * log_test_syslog_notice() - test log_notice() function
  *
  * @uts:	unit test state
  * Return:	0 = success
  */
-static int syslog_test_log_notice(struct unit_test_state *uts)
+static int log_test_syslog_notice(struct unit_test_state *uts)
 {
 	int old_log_level = gd->default_log_level;
 	struct sb_log_env env;
@@ -167,7 +167,7 @@ static int syslog_test_log_notice(struct unit_test_state *uts)
 	gd->default_log_level = LOGL_INFO;
 	env_set("ethact", "eth@10002000");
 	env_set("log_hostname", "sandbox");
-	env.expected = "<5>sandbox uboot: syslog_test_log_notice() "
+	env.expected = "<5>sandbox uboot: log_test_syslog_notice() "
 		       "testing log_notice\n";
 	env.uts = uts;
 	sandbox_eth_set_tx_handler(0, sb_log_tx_handler);
@@ -181,15 +181,15 @@ static int syslog_test_log_notice(struct unit_test_state *uts)
 
 	return 0;
 }
-LOG_TEST(syslog_test_log_notice);
+LOG_TEST(log_test_syslog_notice);
 
 /**
- * syslog_test_log_info() - test log_info() function
+ * log_test_syslog_info() - test log_info() function
  *
  * @uts:	unit test state
  * Return:	0 = success
  */
-static int syslog_test_log_info(struct unit_test_state *uts)
+static int log_test_syslog_info(struct unit_test_state *uts)
 {
 	int old_log_level = gd->default_log_level;
 	struct sb_log_env env;
@@ -198,7 +198,7 @@ static int syslog_test_log_info(struct unit_test_state *uts)
 	gd->default_log_level = LOGL_INFO;
 	env_set("ethact", "eth@10002000");
 	env_set("log_hostname", "sandbox");
-	env.expected = "<6>sandbox uboot: syslog_test_log_info() "
+	env.expected = "<6>sandbox uboot: log_test_syslog_info() "
 		       "testing log_info\n";
 	env.uts = uts;
 	sandbox_eth_set_tx_handler(0, sb_log_tx_handler);
@@ -212,15 +212,15 @@ static int syslog_test_log_info(struct unit_test_state *uts)
 
 	return 0;
 }
-LOG_TEST(syslog_test_log_info);
+LOG_TEST(log_test_syslog_info);
 
 /**
- * syslog_test_log_debug() - test log_debug() function
+ * log_test_syslog_debug() - test log_debug() function
  *
  * @uts:	unit test state
  * Return:	0 = success
  */
-static int syslog_test_log_debug(struct unit_test_state *uts)
+static int log_test_syslog_debug(struct unit_test_state *uts)
 {
 	int old_log_level = gd->default_log_level;
 	struct sb_log_env env;
@@ -229,7 +229,7 @@ static int syslog_test_log_debug(struct unit_test_state *uts)
 	gd->default_log_level = LOGL_DEBUG;
 	env_set("ethact", "eth@10002000");
 	env_set("log_hostname", "sandbox");
-	env.expected = "<7>sandbox uboot: syslog_test_log_debug() "
+	env.expected = "<7>sandbox uboot: log_test_syslog_debug() "
 		       "testing log_debug\n";
 	env.uts = uts;
 	sandbox_eth_set_tx_handler(0, sb_log_tx_handler);
@@ -243,10 +243,10 @@ static int syslog_test_log_debug(struct unit_test_state *uts)
 
 	return 0;
 }
-LOG_TEST(syslog_test_log_debug);
+LOG_TEST(log_test_syslog_debug);
 
 /**
- * syslog_test_log_nodebug() - test logging level filter
+ * log_test_syslog_nodebug() - test logging level filter
  *
  * Verify that log_debug() does not lead to a log message if the logging level
  * is set to LOGL_INFO.
@@ -254,7 +254,7 @@ LOG_TEST(syslog_test_log_debug);
  * @uts:	unit test state
  * Return:	0 = success
  */
-static int syslog_test_log_nodebug(struct unit_test_state *uts)
+static int log_test_syslog_nodebug(struct unit_test_state *uts)
 {
 	int old_log_level = gd->default_log_level;
 	struct sb_log_env env;
@@ -263,7 +263,7 @@ static int syslog_test_log_nodebug(struct unit_test_state *uts)
 	gd->default_log_level = LOGL_INFO;
 	env_set("ethact", "eth@10002000");
 	env_set("log_hostname", "sandbox");
-	env.expected = "<7>sandbox uboot: syslog_test_log_nodebug() "
+	env.expected = "<7>sandbox uboot: log_test_syslog_nodebug() "
 		       "testing log_debug\n";
 	env.uts = uts;
 	sandbox_eth_set_tx_handler(0, sb_log_tx_handler);
@@ -277,4 +277,4 @@ static int syslog_test_log_nodebug(struct unit_test_state *uts)
 
 	return 0;
 }
-LOG_TEST(syslog_test_log_nodebug);
+LOG_TEST(log_test_syslog_nodebug);

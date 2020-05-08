@@ -41,7 +41,29 @@ struct unit_test {
 	int flags;
 };
 
-/* Declare a new unit test */
+/**
+ * UNIT_TEST() - create linker generated list entry for unit a unit test
+ *
+ * The macro UNIT_TEST() is used to create a linker generated list entry. These
+ * list entries are enumerate tests that can be execute using the ut command.
+ * The list entries are used both by the implementation of the ut command as
+ * well as in a related Python test.
+ *
+ * For Python testing the subtests are collected in Python function
+ * generate_ut_subtest() by applying a regular expression to the lines of file
+ * u-boot.sym. The list entries have to follow strict naming conventions to be
+ * matched by the expression.
+ *
+ * Use UNIT_TEST(foo_test_bar, _flags, foo_test) for a test bar in test suite
+ * foo that can be executed via command 'ut foo bar' and is implemented in
+ * function foo_test_bar().
+ *
+ * @_name:	concatenation of name of the test suite, "_test_", and the name
+ *		of the test
+ * @_flags:	an integer field that can be evaluated by the test suite
+ *		implementation
+ * @_suite:	name of the test suite concatenated with "_test"
+ */
 #define UNIT_TEST(_name, _flags, _suite)				\
 	ll_entry_declare(struct unit_test, _name, _suite) = {		\
 		.file = __FILE__,					\
