@@ -42,8 +42,6 @@
 /* Miscellaneous configurable options */
 #define CONFIG_DEFAULT_CONSOLE		"console=ttySAC2,115200n8\0"
 /* memtest works on */
-#define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_SDRAM_BASE + 0x6000000)
 #define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x3E00000)
 
 /* SMDKV310 has 4 bank of DRAM */

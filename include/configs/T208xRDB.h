@@ -100,9 +100,6 @@
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 #endif
 
-#define CONFIG_SYS_MEMTEST_START	0x00200000 /* memtest works on */
-#define CONFIG_SYS_MEMTEST_END		0x00400000
-
 #if defined(CONFIG_SPIFLASH)
 #elif defined(CONFIG_SDCARD)
 #define CONFIG_SYS_MMC_ENV_DEV	0

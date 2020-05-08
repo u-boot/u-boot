@@ -32,9 +32,6 @@
 
 #define CONFIG_SYS_LOAD_ADDR		0x20000	/* default load address */
 
-#define CONFIG_SYS_MEMTEST_START	0x0
-#define CONFIG_SYS_MEMTEST_END		0x1000000
-
 #define CONFIG_SYS_HZ			1000
 
 #define CONFIG_SYS_CLK			45000000

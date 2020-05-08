@@ -199,9 +199,6 @@
 #define CONFIG_SYS_NUM_ADDR_MAP		16	/* number of TLB1 entries */
 #endif
 
-#define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest works on */
-#define CONFIG_SYS_MEMTEST_END		0x1fffffff
-
 /* DDR Setup */
 #define CONFIG_SYS_DDR_RAW_TIMING
 #define CONFIG_DDR_SPD

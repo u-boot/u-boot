@@ -121,9 +121,6 @@
 #define CONFIG_SYS_MAXARGS	48	/* max number of command args */
 #define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE /* Boot Argument Buffer Size */
 
-#define CONFIG_SYS_MEMTEST_START       0x70000000
-#define CONFIG_SYS_MEMTEST_END         0x70010000
-
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 #define CONFIG_SYS_BOOTMAPSZ (256 << 20)     /* 256M */

@@ -750,6 +750,22 @@ config SYS_ALT_MEMTEST
 	help
 	  Use a more complete alternative memory test.
 
+config SYS_MEMTEST_START
+	hex "default start address for mtest"
+	default 0
+	help
+	  This is the default start address for mtest for simple read/write
+	  test. If no arguments are given to mtest, default address is used
+	  as start address.
+
+config SYS_MEMTEST_END
+	hex "default end address for mtest"
+	default 0x1000
+	help
+	  This is the default end address for mtest for simple read/write
+	  test. If no arguments are given to mtest, default address is used
+	  as end address.
+
 endif
 
 config CMD_SHA1SUM

@@ -171,9 +171,6 @@
 
 /* Defines memory range for test */
 
-#define CONFIG_SYS_MEMTEST_START	0x40020000
-#define CONFIG_SYS_MEMTEST_END		0x41ffffff
-
 /*
  * Low Level Configuration Settings
  * (address mappings, register initial values, etc.)

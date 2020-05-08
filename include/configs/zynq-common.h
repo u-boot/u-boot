@@ -219,9 +219,6 @@
 #define CONFIG_SYS_MAXARGS		32 /* max number of command args */
 #define CONFIG_SYS_CBSIZE		2048 /* Console I/O Buffer Size */
 
-#define CONFIG_SYS_MEMTEST_START	0
-#define CONFIG_SYS_MEMTEST_END		0x1000
-
 #define CONFIG_SYS_INIT_RAM_ADDR	0xFFFF0000
 #define CONFIG_SYS_INIT_RAM_SIZE	0x2000
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + \

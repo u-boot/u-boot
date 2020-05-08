@@ -42,9 +42,6 @@ extern unsigned long get_clock_freq(void);
 
 #define CONFIG_ENABLE_36BIT_PHYS
 
-#define CONFIG_SYS_MEMTEST_START	0x01000000	/* memtest works on */
-#define CONFIG_SYS_MEMTEST_END		0x02000000
-
 /* Implement conversion of addresses in the LBC */
 #define CONFIG_SYS_LBC_LBCR		0x00000000
 #define CONFIG_SYS_LBC_LCRR		LCRR_CLKDIV_8

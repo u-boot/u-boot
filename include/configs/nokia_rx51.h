@@ -274,9 +274,6 @@ int rx51_kp_getc(struct stdio_dev *sdev);
  * Miscellaneous configurable options
  */
 
-#define CONFIG_SYS_MEMTEST_START	(OMAP34XX_SDRC_CS0)
-#define CONFIG_SYS_MEMTEST_END		(OMAP34XX_SDRC_CS0 + 0x01F00000)/*31MB*/
-
 /* default load address */
 #define CONFIG_SYS_LOAD_ADDR		(OMAP34XX_SDRC_CS0)
 

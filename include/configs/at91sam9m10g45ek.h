@@ -69,9 +69,6 @@
 
 #define CONFIG_SYS_LOAD_ADDR		0x22000000	/* load address */
 
-#define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
-#define CONFIG_SYS_MEMTEST_END		0x23e00000
-
 #ifdef CONFIG_NAND_BOOT
 /* bootstrap + u-boot + env in nandflash */
 

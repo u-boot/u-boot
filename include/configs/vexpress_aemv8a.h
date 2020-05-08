@@ -120,8 +120,6 @@
 #endif
 
 /* Enable memtest */
-#define CONFIG_SYS_MEMTEST_START	PHYS_SDRAM_1
-#define CONFIG_SYS_MEMTEST_END		(PHYS_SDRAM_1 + PHYS_SDRAM_1_SIZE)
 
 /* Initial environment variables */
 #ifdef CONFIG_TARGET_VEXPRESS64_JUNO

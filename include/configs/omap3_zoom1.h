@@ -110,9 +110,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_MEMTEST_START	(PHYS_SDRAM_1)	/* memtest */
-#define CONFIG_SYS_MEMTEST_END		(PHYS_SDRAM_2 + \
-					0x01F00000) /* 31MB */
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization

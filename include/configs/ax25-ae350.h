@@ -91,8 +91,6 @@
 /*
  * memtest works on 512 MB in DRAM
  */
-#define CONFIG_SYS_MEMTEST_START	PHYS_SDRAM_0
-#define CONFIG_SYS_MEMTEST_END		(PHYS_SDRAM_0 + PHYS_SDRAM_0_SIZE)
 
 /*
  * FLASH and environment organization

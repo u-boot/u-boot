@@ -13,8 +13,6 @@
 #define CONFIG_CHIP_SELECTS_PER_CTRL	1
 #define CONFIG_SYS_SDRAM_SIZE		0x40000000
 #define CONFIG_CMD_MEMINFO
-#define CONFIG_SYS_MEMTEST_START	0x80000000
-#define CONFIG_SYS_MEMTEST_END		0x9fffffff
 
 /*
  * QIXIS Definitions
@@ -107,8 +105,6 @@
 #define CONFIG_PCI_SCAN_SHOW
 
 #define CONFIG_CMD_MEMINFO
-#define CONFIG_SYS_MEMTEST_START	0x80000000
-#define CONFIG_SYS_MEMTEST_END		0x9fffffff
 
 #include <asm/fsl_secure_boot.h>
 #endif /* __LS1012AQDS_H__ */

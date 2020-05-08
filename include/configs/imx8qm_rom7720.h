@@ -163,9 +163,6 @@
 /* LPDDR4 board total DDR is 6GB, DDR4 board total DDR is 4 GB */
 #define PHYS_SDRAM_2_SIZE		0x80000000	/* 2 GB */
 
-#define CONFIG_SYS_MEMTEST_START	0xA0000000
-#define CONFIG_SYS_MEMTEST_END      (CONFIG_SYS_MEMTEST_START + (PHYS_SDRAM_1_SIZE >> 2))
-
 /* Serial */
 #define CONFIG_BAUDRATE			115200
 

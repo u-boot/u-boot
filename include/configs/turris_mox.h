@@ -45,12 +45,8 @@
  * Other required minimal configurations
  */
 #define CONFIG_SYS_LOAD_ADDR	0x00800000	/* default load adr- 8M */
-#define CONFIG_SYS_MEMTEST_START 0x00800000	/* 8M */
-#define CONFIG_SYS_MEMTEST_END	0x00ffffff	/*(_16M -1) */
 #define CONFIG_SYS_RESET_ADDRESS 0xffff0000	/* Rst Vector Adr */
 #define CONFIG_SYS_MAXARGS	32	/* max number of command args */
-
-#define CONFIG_SYS_ALT_MEMTEST
 
 /* End of 16M scrubbed by training in bootrom */
 #define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_TEXT_BASE + 0xFF0000)

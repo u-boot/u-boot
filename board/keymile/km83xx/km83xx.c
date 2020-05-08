@@ -330,8 +330,12 @@ void post_word_store(ulong value)
 
 int arch_memory_test_prepare(u32 *vstart, u32 *size, phys_addr_t *phys_offset)
 {
-	*vstart = CONFIG_SYS_MEMTEST_START;
-	*size = CONFIG_SYS_MEMTEST_END - CONFIG_SYS_MEMTEST_START;
+	/*
+	 * These match CONFIG_SYS_MEMTEST_START and
+	 * (CONFIG_SYS_MEMTEST_END - CONFIG_SYS_MEMTEST_START)
+	 */
+	*vstart = 0x00100000;
+	*size = 0xe00000;
 	debug("arch_memory_test_prepare 0x%08X 0x%08X\n", *vstart, *size);
 
 	return 0;

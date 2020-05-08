@@ -57,9 +57,6 @@
 #define CONFIG_DEFAULT_IMMR	CONFIG_SYS_IMMR
 #endif
 
-#define CONFIG_SYS_MEMTEST_START	0x00001000
-#define CONFIG_SYS_MEMTEST_END		0x07f00000
-
 /* Early revs of this board will lock up hard when attempting
  * to access the PMC registers, unless a JTAG debugger is
  * connected, or some resistor modifications are made.

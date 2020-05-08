@@ -87,10 +87,6 @@
 /* Console I/O Buffer Size */
 #define CONFIG_SYS_CBSIZE		512
 
-#define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START \
-					+ PHYS_DRAM_1_SIZE - (8 << 12))
-
 #define CONFIG_SYS_LOAD_ADDR		0x81000000	/* Default */
 
 /**

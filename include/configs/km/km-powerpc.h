@@ -16,10 +16,6 @@
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	3  /* 8 Byte write page */
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	10
 
-#define CONFIG_SYS_MEMTEST_START 0x00100000	/* memtest works on */
-
-#define CONFIG_SYS_MEMTEST_END	0x00f00000	/* 1 ... 15 MB in DRAM	*/
-
 #define CONFIG_SYS_LOAD_ADDR	0x100000	/* default load address */
 
 /* Reserve 4 MB for malloc */

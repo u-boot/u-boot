@@ -112,8 +112,6 @@
 #define CONFIG_SYS_LOAD_ADDR		0x300000
 
 /* memtest works on 63 MB in DRAM */
-#define CONFIG_SYS_MEMTEST_START	PHYS_SDRAM_0
-#define CONFIG_SYS_MEMTEST_END		(PHYS_SDRAM_0 + 0x03F00000)
 
 /*
  * Static memory controller configuration

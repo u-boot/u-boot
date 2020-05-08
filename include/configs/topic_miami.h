@@ -36,10 +36,6 @@
 /* FPGA commands that we don't use */
 
 /* Extras */
-#undef CONFIG_SYS_MEMTEST_START
-#define CONFIG_SYS_MEMTEST_START	0
-#undef CONFIG_SYS_MEMTEST_END
-#define CONFIG_SYS_MEMTEST_END	0x18000000
 
 /* Faster flash, ours may run at 108 MHz */
 #undef CONFIG_SPI_FLASH_WINBOND
