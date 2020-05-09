@@ -502,16 +502,10 @@ static int rtl8139_free_pkt_common(struct rtl8139_priv *priv, unsigned int len)
 
 static int rtl8139_init_common(struct rtl8139_priv *priv)
 {
-	unsigned short *ap = (unsigned short *)priv->enetaddr;
-	int addr_len, i;
 	u8 reg;
 
 	/* Bring the chip out of low-power mode. */
 	outb(0x00, priv->ioaddr + RTL_REG_CONFIG1);
-
-	addr_len = rtl8139_read_eeprom(priv, 0, 8) == 0x8129 ? 8 : 6;
-	for (i = 0; i < 3; i++)
-		*ap++ = le16_to_cpu(rtl8139_read_eeprom(priv, i + 7, addr_len));
 
 	rtl8139_reset(priv);
 
@@ -521,15 +515,25 @@ static int rtl8139_init_common(struct rtl8139_priv *priv)
 		return -1;
 	}
 
-	/* Non-DM compatibility */
-	memcpy(priv->dev.enetaddr, priv->enetaddr, 6);
-
 	return 0;
 }
 
 static void rtl8139_stop_common(struct rtl8139_priv *priv)
 {
 	rtl8139_hw_reset(priv);
+}
+
+static void rtl8139_get_hwaddr(struct rtl8139_priv *priv)
+{
+	unsigned short *ap = (unsigned short *)priv->enetaddr;
+	int i, addr_len;
+
+	/* Bring the chip out of low-power mode. */
+	outb(0x00, priv->ioaddr + RTL_REG_CONFIG1);
+
+	addr_len = rtl8139_read_eeprom(priv, 0, 8) == 0x8129 ? 8 : 6;
+	for (i = 0; i < 3; i++)
+		*ap++ = le16_to_cpu(rtl8139_read_eeprom(priv, i + 7, addr_len));
 }
 
 static void rtl8139_name(char *str, int card_number)
@@ -625,6 +629,11 @@ int rtl8139_initialize(bd_t *bis)
 		dev->send = rtl8139_send;
 		dev->recv = rtl8139_recv;
 		dev->mcast = rtl8139_bcast_addr;
+
+		rtl8139_get_hwaddr(priv);
+
+		/* Non-DM compatibility */
+		memcpy(priv->dev.enetaddr, priv->enetaddr, 6);
 
 		eth_register(dev);
 
