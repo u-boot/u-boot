@@ -23,6 +23,7 @@ config ARCH_LS1012A
 config ARCH_LS1028A
 	bool
 	select ARMV8_SET_SMPEN
+	select FSL_LAYERSCAPE
 	select FSL_LSCH3
 	select NXP_LSCH3_2
 	select SYS_FSL_HAS_CCI400
