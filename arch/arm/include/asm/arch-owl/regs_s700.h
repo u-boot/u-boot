@@ -53,4 +53,6 @@
 #define CMU_CVBSPLL		0x00B8
 #define CMU_SSTSCLK		0x00C0
 
+#define CMU_DEVCLKEN1_ETH	BIT(23)
+
 #endif

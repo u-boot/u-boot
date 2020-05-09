@@ -87,6 +87,11 @@ int owl_clk_enable(struct clk *clk)
 		/* Enable UART3 interface clock */
 		setbits_le32(priv->base + CMU_DEVCLKEN1, CMU_DEVCLKEN1_UART3);
 		break;
+	case CLK_RMII_REF:
+	case CLK_ETHERNET:
+		setbits_le32(priv->base + CMU_DEVCLKEN1, CMU_DEVCLKEN1_ETH);
+		setbits_le32(priv->base + CMU_ETHERNETPLL, 5);
+		break;
 	default:
 		return -EINVAL;
 	}
@@ -111,6 +116,10 @@ int owl_clk_disable(struct clk *clk)
 			return -EINVAL;
 		/* Disable UART3 interface clock */
 		clrbits_le32(priv->base + CMU_DEVCLKEN1, CMU_DEVCLKEN1_UART3);
+		break;
+	case CLK_RMII_REF:
+	case CLK_ETHERNET:
+		clrbits_le32(priv->base + CMU_DEVCLKEN1, CMU_DEVCLKEN1_ETH);
 		break;
 	default:
 		return -EINVAL;

@@ -62,6 +62,4 @@ struct owl_clk_priv {
 #define CMU_DEVCLKEN1_UART5	BIT(21)
 #define CMU_DEVCLKEN1_UART3	BIT(11)
 
-#define CMU_DEVCLKEN1_ETH_S700	BIT(23)
-
 #endif
