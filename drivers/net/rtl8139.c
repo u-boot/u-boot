@@ -96,8 +96,8 @@
 #define DEBUG_TX	0	/* set to 1 to enable debug code */
 #define DEBUG_RX	0	/* set to 1 to enable debug code */
 
-#define bus_to_phys(a)	pci_mem_to_phys((pci_dev_t)dev->priv, a)
-#define phys_to_bus(a)	pci_phys_to_mem((pci_dev_t)dev->priv, a)
+#define bus_to_phys(devno, a)	pci_mem_to_phys((pci_dev_t)(devno), (a))
+#define phys_to_bus(devno, a)	pci_phys_to_mem((pci_dev_t)(devno), (a))
 
 /* Symbolic offsets to registers. */
 /* Ethernet hardware address. */
@@ -331,7 +331,7 @@ static void rtl8139_reset(struct eth_device *dev)
 	debug_cond(DEBUG_RX, "rx ring address is %p\n", rx_ring);
 
 	flush_cache((unsigned long)rx_ring, RX_BUF_LEN);
-	outl(phys_to_bus((int)rx_ring), dev->iobase + RTL_REG_RXBUF);
+	outl(phys_to_bus(dev->priv, (int)rx_ring), dev->iobase + RTL_REG_RXBUF);
 
 	/*
 	 * If we add multicast support, the RTL_REG_MAR0 register would have
@@ -372,7 +372,7 @@ static int rtl8139_send(struct eth_device *dev, void *packet, int length)
 		tx_buffer[len++] = '\0';
 
 	flush_cache((unsigned long)tx_buffer, length);
-	outl(phys_to_bus((unsigned long)tx_buffer),
+	outl(phys_to_bus(dev->priv, (unsigned long)tx_buffer),
 	     dev->iobase + RTL_REG_TXADDR0 + cur_tx * 4);
 	outl(((TX_FIFO_THRESH << 11) & 0x003f0000) | len,
 	     dev->iobase + RTL_REG_TXSTATUS0 + cur_tx * 4);
@@ -555,7 +555,7 @@ int rtl8139_initialize(bd_t *bis)
 		rtl8139_name(dev->name, card_number);
 
 		dev->priv = (void *)devno;
-		dev->iobase = (int)bus_to_phys(iobase);
+		dev->iobase = (unsigned long)bus_to_phys(devno, iobase);
 		dev->init = rtl8139_init;
 		dev->halt = rtl8139_stop;
 		dev->send = rtl8139_send;
