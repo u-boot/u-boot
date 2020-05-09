@@ -524,6 +524,11 @@ static int rtl8139_bcast_addr(struct eth_device *dev, const u8 *bcast_mac,
 	return 0;
 }
 
+static void rtl8139_name(char *str, int card_number)
+{
+	sprintf(str, "RTL8139#%u", card_number);
+}
+
 static struct pci_device_id supported[] = {
 	{ PCI_VENDOR_ID_REALTEK, PCI_DEVICE_ID_REALTEK_8139 },
 	{ PCI_VENDOR_ID_DLINK, PCI_DEVICE_ID_DLINK_8139 },
@@ -556,7 +561,7 @@ int rtl8139_initialize(bd_t *bis)
 		}
 		memset(dev, 0, sizeof(*dev));
 
-		sprintf(dev->name, "RTL8139#%d", card_number);
+		rtl8139_name(dev->name, card_number);
 
 		dev->priv = (void *)devno;
 		dev->iobase = (int)bus_to_phys(iobase);
