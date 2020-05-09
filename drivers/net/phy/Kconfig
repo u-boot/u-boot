@@ -235,6 +235,15 @@ config RTL8211F_PHY_FORCE_EEE_RXC_ON
 	  Default n, which means that the PHY state is not changed. To work
 	  around the issues, change this setting to y.
 
+config RTL8201F_PHY_S700_RMII_TIMINGS
+	bool "Ethernet PHY RTL8201F: adjust RMII Tx Interface timings"
+	depends on PHY_REALTEK
+	help
+	  This provides an option to configure specific timing requirements (needed
+	  for proper PHY operations) for the PHY module present on ACTION SEMI S700
+	  based cubieboard7. Exact timing requiremnets seems to be SoC specific
+	  (and it's undocumented) that comes from vendor code itself.
+
 config PHY_SMSC
 	bool  "Microchip(SMSC) Ethernet PHYs support"
 

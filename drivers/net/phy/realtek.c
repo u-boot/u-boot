@@ -14,6 +14,7 @@
 #define PHY_RTL8211x_FORCE_MASTER BIT(1)
 #define PHY_RTL8211E_PINE64_GIGABIT_FIX BIT(2)
 #define PHY_RTL8211F_FORCE_EEE_RXC_ON BIT(3)
+#define PHY_RTL8201F_S700_RMII_TIMINGS BIT(4)
 
 #define PHY_AUTONEGOTIATE_TIMEOUT 5000
 
@@ -59,6 +60,15 @@
 #define MIIM_RTL8211F_TX_DELAY		0x100
 #define MIIM_RTL8211F_RX_DELAY		0x8
 #define MIIM_RTL8211F_LCR		0x10
+
+#define RTL8201F_RMSR			0x10
+
+#define RMSR_RX_TIMING_SHIFT		BIT(2)
+#define RMSR_RX_TIMING_MASK		GENMASK(7, 4)
+#define RMSR_RX_TIMING_VAL		0x4
+#define RMSR_TX_TIMING_SHIFT		BIT(3)
+#define RMSR_TX_TIMING_MASK		GENMASK(11, 8)
+#define RMSR_TX_TIMING_VAL		0x5
 
 static int rtl8211f_phy_extread(struct phy_device *phydev, int addr,
 				int devaddr, int regnum)
@@ -114,6 +124,15 @@ static int rtl8211f_probe(struct phy_device *phydev)
 	return 0;
 }
 
+static int rtl8210f_probe(struct phy_device *phydev)
+{
+#ifdef CONFIG_RTL8201F_PHY_S700_RMII_TIMINGS
+	phydev->flags |= PHY_RTL8201F_S700_RMII_TIMINGS;
+#endif
+
+	return 0;
+}
+
 /* RealTek RTL8211x */
 static int rtl8211x_config(struct phy_device *phydev)
 {
@@ -162,6 +181,21 @@ static int rtl8211x_config(struct phy_device *phydev)
 /* RealTek RTL8201F */
 static int rtl8201f_config(struct phy_device *phydev)
 {
+	unsigned int reg;
+
+	if (phydev->flags & PHY_RTL8201F_S700_RMII_TIMINGS) {
+		phy_write(phydev, MDIO_DEVAD_NONE, MIIM_RTL8211F_PAGE_SELECT,
+			  7);
+		reg = phy_read(phydev, MDIO_DEVAD_NONE, RTL8201F_RMSR);
+		reg &= ~(RMSR_RX_TIMING_MASK | RMSR_TX_TIMING_MASK);
+		/* Set the needed Rx/Tx Timings for proper PHY operation */
+		reg |= (RMSR_RX_TIMING_VAL << RMSR_RX_TIMING_SHIFT)
+		       | (RMSR_TX_TIMING_VAL << RMSR_TX_TIMING_SHIFT);
+		phy_write(phydev, MDIO_DEVAD_NONE, RTL8201F_RMSR, reg);
+		phy_write(phydev, MDIO_DEVAD_NONE, MIIM_RTL8211F_PAGE_SELECT,
+			  0);
+	}
+
 	genphy_config_aneg(phydev);
 
 	return 0;
@@ -412,6 +446,7 @@ static struct phy_driver RTL8201F_driver = {
 	.uid = 0x1cc816,
 	.mask = 0xffffff,
 	.features = PHY_BASIC_FEATURES,
+	.probe = &rtl8210f_probe,
 	.config = &rtl8201f_config,
 	.startup = &rtl8211e_startup,
 	.shutdown = &genphy_shutdown,
