@@ -538,8 +538,8 @@ static void rtl8139_name(char *str, int card_number)
 }
 
 static struct pci_device_id supported[] = {
-	{ PCI_VENDOR_ID_REALTEK, PCI_DEVICE_ID_REALTEK_8139 },
-	{ PCI_VENDOR_ID_DLINK, PCI_DEVICE_ID_DLINK_8139 },
+	{ PCI_DEVICE(PCI_VENDOR_ID_REALTEK, PCI_DEVICE_ID_REALTEK_8139) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_DLINK, PCI_DEVICE_ID_DLINK_8139) },
 	{ }
 };
 
