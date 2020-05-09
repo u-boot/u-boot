@@ -15,14 +15,34 @@
 #include <asm/mach-types.h>
 #include <asm/psci.h>
 
+#define DMM_INTERLEAVE_PER_CH_CFG	0xe0290028
+
 DECLARE_GLOBAL_DATA_PTR;
+
+unsigned int owl_get_ddrcap(void)
+{
+	unsigned int val, cap;
+
+	/* ddr capacity register initialized by ddr driver
+	 * in early bootloader
+	 */
+#if defined(CONFIG_MACH_S700)
+	val = (readl(DMM_INTERLEAVE_PER_CH_CFG) >> 8) & 0x7;
+	cap =  (val + 1) * 256;
+#elif defined(CONFIG_MACH_S900)
+	val = (readl(DMM_INTERLEAVE_PER_CH_CFG) >> 8) & 0xf;
+	cap =  64 * (1 << val);
+#endif
+
+	return cap;
+}
 
 /*
  * dram_init - sets uboots idea of sdram size
  */
 int dram_init(void)
 {
-	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
+	gd->ram_size = owl_get_ddrcap() * 1024 * 1024;
 	return 0;
 }
 
