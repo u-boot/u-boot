@@ -220,13 +220,13 @@ static unsigned char rx_ring[RX_BUF_LEN + 16] __aligned(4);
 #define EE_READ_CMD	6
 #define EE_ERASE_CMD	7
 
-static void rtl8139_eeprom_delay(uintptr_t regbase)
+static void rtl8139_eeprom_delay(struct rtl8139_priv *priv)
 {
 	/*
 	 * Delay between EEPROM clock transitions.
 	 * No extra delay is needed with 33MHz PCI, but 66MHz may change this.
 	 */
-	inl(regbase + RTL_REG_CFG9346);
+	inl(priv->ioaddr + RTL_REG_CFG9346);
 }
 
 static int rtl8139_read_eeprom(struct rtl8139_priv *priv,
@@ -240,32 +240,32 @@ static int rtl8139_read_eeprom(struct rtl8139_priv *priv,
 
 	outb(EE_ENB & ~EE_CS, ee_addr);
 	outb(EE_ENB, ee_addr);
-	rtl8139_eeprom_delay(priv->ioaddr);
+	rtl8139_eeprom_delay(priv);
 
 	/* Shift the read command bits out. */
 	for (i = 4 + addr_len; i >= 0; i--) {
 		dataval = (read_cmd & BIT(i)) ? EE_DATA_WRITE : 0;
 		outb(EE_ENB | dataval, ee_addr);
-		rtl8139_eeprom_delay(priv->ioaddr);
+		rtl8139_eeprom_delay(priv);
 		outb(EE_ENB | dataval | EE_SHIFT_CLK, ee_addr);
-		rtl8139_eeprom_delay(priv->ioaddr);
+		rtl8139_eeprom_delay(priv);
 	}
 
 	outb(EE_ENB, ee_addr);
-	rtl8139_eeprom_delay(priv->ioaddr);
+	rtl8139_eeprom_delay(priv);
 
 	for (i = 16; i > 0; i--) {
 		outb(EE_ENB | EE_SHIFT_CLK, ee_addr);
-		rtl8139_eeprom_delay(priv->ioaddr);
+		rtl8139_eeprom_delay(priv);
 		retval <<= 1;
 		retval |= inb(ee_addr) & EE_DATA_READ;
 		outb(EE_ENB, ee_addr);
-		rtl8139_eeprom_delay(priv->ioaddr);
+		rtl8139_eeprom_delay(priv);
 	}
 
 	/* Terminate the EEPROM access. */
 	outb(~EE_CS, ee_addr);
-	rtl8139_eeprom_delay(priv->ioaddr);
+	rtl8139_eeprom_delay(priv);
 
 	return retval;
 }
