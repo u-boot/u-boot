@@ -159,6 +159,8 @@ static int rockchip_pcie_atr_init(struct rockchip_pcie *priv)
 static int rockchip_pcie_init_port(struct udevice *dev)
 {
 	struct rockchip_pcie *priv = dev_get_priv(dev);
+	struct rockchip_pcie_phy *phy = pcie_get_phy(priv);
+	struct rockchip_pcie_phy_ops *ops = phy_get_ops(phy);
 	u32 cr, val, status;
 	int ret;
 
@@ -183,29 +185,35 @@ static int rockchip_pcie_init_port(struct udevice *dev)
 		return ret;
 	}
 
+	ret = ops->init(phy);
+	if (ret) {
+		dev_err(dev, "failed to init phy (ret=%d)\n", ret);
+		goto err_exit_phy;
+	}
+
 	ret = reset_assert(&priv->core_rst);
 	if (ret) {
 		dev_err(dev, "failed to assert core reset (ret=%d)\n", ret);
-		return ret;
+		goto err_exit_phy;
 	}
 
 	ret = reset_assert(&priv->mgmt_rst);
 	if (ret) {
 		dev_err(dev, "failed to assert mgmt reset (ret=%d)\n", ret);
-		return ret;
+		goto err_exit_phy;
 	}
 
 	ret = reset_assert(&priv->mgmt_sticky_rst);
 	if (ret) {
 		dev_err(dev, "failed to assert mgmt-sticky reset (ret=%d)\n",
 			ret);
-		return ret;
+		goto err_exit_phy;
 	}
 
 	ret = reset_assert(&priv->pipe_rst);
 	if (ret) {
 		dev_err(dev, "failed to assert pipe reset (ret=%d)\n", ret);
-		return ret;
+		goto err_exit_phy;
 	}
 
 	udelay(10);
@@ -213,19 +221,19 @@ static int rockchip_pcie_init_port(struct udevice *dev)
 	ret = reset_deassert(&priv->pm_rst);
 	if (ret) {
 		dev_err(dev, "failed to deassert pm reset (ret=%d)\n", ret);
-		return ret;
+		goto err_exit_phy;
 	}
 
 	ret = reset_deassert(&priv->aclk_rst);
 	if (ret) {
 		dev_err(dev, "failed to deassert aclk reset (ret=%d)\n", ret);
-		return ret;
+		goto err_exit_phy;
 	}
 
 	ret = reset_deassert(&priv->pclk_rst);
 	if (ret) {
 		dev_err(dev, "failed to deassert pclk reset (ret=%d)\n", ret);
-		return ret;
+		goto err_exit_phy;
 	}
 
 	/* Select GEN1 for now */
@@ -234,29 +242,35 @@ static int rockchip_pcie_init_port(struct udevice *dev)
 	cr |= PCIE_CLIENT_CONF_ENABLE | PCIE_CLIENT_MODE_RC;
 	writel(cr, priv->apb_base + PCIE_CLIENT_CONFIG);
 
+	ret = ops->power_on(phy);
+	if (ret) {
+		dev_err(dev, "failed to power on phy (ret=%d)\n", ret);
+		goto err_power_off_phy;
+	}
+
 	ret = reset_deassert(&priv->mgmt_sticky_rst);
 	if (ret) {
 		dev_err(dev, "failed to deassert mgmt-sticky reset (ret=%d)\n",
 			ret);
-		return ret;
+		goto err_power_off_phy;
 	}
 
 	ret = reset_deassert(&priv->core_rst);
 	if (ret) {
 		dev_err(dev, "failed to deassert core reset (ret=%d)\n", ret);
-		return ret;
+		goto err_power_off_phy;
 	}
 
 	ret = reset_deassert(&priv->mgmt_rst);
 	if (ret) {
 		dev_err(dev, "failed to deassert mgmt reset (ret=%d)\n", ret);
-		return ret;
+		goto err_power_off_phy;
 	}
 
 	ret = reset_deassert(&priv->pipe_rst);
 	if (ret) {
 		dev_err(dev, "failed to deassert pipe reset (ret=%d)\n", ret);
-		return ret;
+		goto err_power_off_phy;
 	}
 
 	/* Enable Gen1 training */
@@ -271,7 +285,7 @@ static int rockchip_pcie_init_port(struct udevice *dev)
 			status, PCIE_LINK_UP(status), 20, 500 * 1000);
 	if (ret) {
 		dev_err(dev, "PCIe link training gen1 timeout!\n");
-		return ret;
+		goto err_power_off_phy;
 	}
 
 	/* Initialize Root Complex registers. */
@@ -291,10 +305,16 @@ static int rockchip_pcie_init_port(struct udevice *dev)
 	ret = rockchip_pcie_atr_init(priv);
 	if (ret) {
 		dev_err(dev, "PCIE-%d: ATR init failed\n", dev->seq);
-		return ret;
+		goto err_power_off_phy;
 	}
 
 	return 0;
+
+err_power_off_phy:
+	ops->power_off(phy);
+err_exit_phy:
+	ops->exit(phy);
+	return ret;
 }
 
 static int rockchip_pcie_set_vpcie(struct udevice *dev)
@@ -430,6 +450,10 @@ static int rockchip_pcie_probe(struct udevice *dev)
 	priv->dev = dev;
 
 	ret = rockchip_pcie_parse_dt(dev);
+	if (ret)
+		return ret;
+
+	ret = rockchip_pcie_phy_get(dev);
 	if (ret)
 		return ret;
 

@@ -53,11 +53,61 @@
 #define PCIE_ATR_OB_REGION0_SIZE	(32 * 1024 * 1024)
 #define PCIE_ATR_OB_REGION_SIZE		(1 * 1024 * 1024)
 
+/*
+ * The higher 16-bit of this register is used for write protection
+ * only if BIT(x + 16) set to 1 the BIT(x) can be written.
+ */
+#define HIWORD_UPDATE_MASK(val, mask, shift) \
+		((val) << (shift) | (mask) << ((shift) + 16))
+
+#define PHY_CFG_DATA_SHIFT    7
+#define PHY_CFG_ADDR_SHIFT    1
+#define PHY_CFG_DATA_MASK     0xf
+#define PHY_CFG_ADDR_MASK     0x3f
+#define PHY_CFG_RD_MASK       0x3ff
+#define PHY_CFG_WR_ENABLE     1
+#define PHY_CFG_WR_DISABLE    1
+#define PHY_CFG_WR_SHIFT      0
+#define PHY_CFG_WR_MASK       1
+#define PHY_CFG_PLL_LOCK      0x10
+#define PHY_CFG_CLK_TEST      0x10
+#define PHY_CFG_CLK_SCC       0x12
+#define PHY_CFG_SEPE_RATE     BIT(3)
+#define PHY_CFG_PLL_100M      BIT(3)
+#define PHY_PLL_LOCKED        BIT(9)
+#define PHY_PLL_OUTPUT        BIT(10)
+#define PHY_LANE_IDLE_OFF     0x1
+#define PHY_LANE_IDLE_MASK    0x1
+#define PHY_LANE_IDLE_A_SHIFT 3
+#define PHY_LANE_IDLE_B_SHIFT 4
+#define PHY_LANE_IDLE_C_SHIFT 5
+#define PHY_LANE_IDLE_D_SHIFT 6
+
+#define PCIE_PHY_CONF		0xe220
+#define PCIE_PHY_STATUS		0xe2a4
+#define PCIE_PHY_LANEOFF	0xe214
+
+struct rockchip_pcie_phy {
+	void *reg_base;
+	struct clk refclk;
+	struct reset_ctl phy_rst;
+	struct rockchip_pcie_phy_ops *ops;
+};
+
+struct rockchip_pcie_phy_ops {
+	int (*init)(struct rockchip_pcie_phy *phy);
+	int (*exit)(struct rockchip_pcie_phy *phy);
+	int (*power_on)(struct rockchip_pcie_phy *phy);
+	int (*power_off)(struct rockchip_pcie_phy *phy);
+};
+
 struct rockchip_pcie {
 	fdt_addr_t axi_base;
 	fdt_addr_t apb_base;
 	int first_busno;
 	struct udevice *dev;
+	struct rockchip_pcie_phy rk_phy;
+	struct rockchip_pcie_phy *phy;
 
 	/* resets */
 	struct reset_ctl core_rst;
@@ -77,3 +127,16 @@ struct rockchip_pcie {
 	struct udevice *vpcie1v8;
 	struct udevice *vpcie0v9;
 };
+
+int rockchip_pcie_phy_get(struct udevice *dev);
+
+inline struct rockchip_pcie_phy *pcie_get_phy(struct rockchip_pcie *pcie)
+{
+	return pcie->phy;
+}
+
+inline
+struct rockchip_pcie_phy_ops *phy_get_ops(struct rockchip_pcie_phy *phy)
+{
+	return (struct rockchip_pcie_phy_ops *)phy->ops;
+}
