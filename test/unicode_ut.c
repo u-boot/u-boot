@@ -581,6 +581,16 @@ static int unicode_test_u16_strncmp(struct unit_test_state *uts)
 }
 UNICODE_TEST(unicode_test_u16_strncmp);
 
+static int unicode_test_u16_strsize(struct unit_test_state *uts)
+{
+	ut_asserteq_64(u16_strsize(c1), 14);
+	ut_asserteq_64(u16_strsize(c2), 18);
+	ut_asserteq_64(u16_strsize(c3), 8);
+	ut_asserteq_64(u16_strsize(c4), 14);
+	return 0;
+}
+UNICODE_TEST(unicode_test_u16_strsize);
+
 int do_ut_unicode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	struct unit_test *tests = ll_entry_start(struct unit_test, unicode_test);
