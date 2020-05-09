@@ -516,7 +516,7 @@ int i2c_deblock_gpio_loop(struct gpio_desc *sda_pin,
 	udelay(delay);
 
 	/*  Toggle SCL until slave release SDA */
-	while (scl_count-- >= 0) {
+	for (; scl_count; --scl_count) {
 		i2c_gpio_set_pin(scl_pin, 1);
 		udelay(delay);
 		i2c_gpio_set_pin(scl_pin, 0);
