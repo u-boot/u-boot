@@ -970,7 +970,7 @@ static int do_efi_boot_next(cmd_tbl_t *cmdtp, int flag,
 		return CMD_RET_USAGE;
 
 	bootnext = (u16)simple_strtoul(argv[1], &endp, 16);
-	if (*endp != '\0' || bootnext > 0xffff) {
+	if (*endp) {
 		printf("invalid value: %s\n", argv[1]);
 		r = CMD_RET_FAILURE;
 		goto out;
