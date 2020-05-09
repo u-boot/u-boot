@@ -10,6 +10,29 @@
 	model = "R2D";
 	compatible = "renesas,r2d", "renesas,sh7751";
 
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	aliases {
+		serial0 = &scif1;
+	};
+
+	scif_clks: scif60 {
+		#clock-cells = <0>;
+		compatible = "fixed-clock";
+		clock-frequency = <60000000>;
+		u-boot,dm-pre-reloc;
+	};
+
+	scif1: serial@ffe80000 {
+		compatible = "renesas,scif";
+		reg = <0 0xffe80000 0 0x1000>;
+		clocks = <&scif_clks>;
+		clock-names = "fck";
+		status = "okay";
+		u-boot,dm-pre-reloc;
+	};
+
 	pci@fe200000 {
 		compatible = "renesas,pci-sh7751";
 		device_type = "pci";
