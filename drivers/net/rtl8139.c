@@ -70,6 +70,7 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <dm.h>
 #include <log.h>
 #include <malloc.h>
 #include <net.h>
@@ -96,8 +97,13 @@
 #define DEBUG_TX	0	/* set to 1 to enable debug code */
 #define DEBUG_RX	0	/* set to 1 to enable debug code */
 
+#ifdef CONFIG_DM_ETH
+#define bus_to_phys(devno, a)	dm_pci_mem_to_phys((devno), (a))
+#define phys_to_bus(devno, a)	dm_pci_phys_to_mem((devno), (a))
+#else
 #define bus_to_phys(devno, a)	pci_mem_to_phys((pci_dev_t)(devno), (a))
 #define phys_to_bus(devno, a)	pci_phys_to_mem((pci_dev_t)(devno), (a))
+#endif
 
 /* Symbolic offsets to registers. */
 /* Ethernet hardware address. */
@@ -192,12 +198,16 @@
 #define RTL_STS_RXSTATUSOK			BIT(0)
 
 struct rtl8139_priv {
+#ifndef CONFIG_DM_ETH
 	struct eth_device	dev;
+	pci_dev_t		devno;
+#else
+	struct udevice		*devno;
+#endif
 	unsigned int		rxstatus;
 	unsigned int		cur_rx;
 	unsigned int		cur_tx;
 	unsigned long		ioaddr;
-	pci_dev_t		devno;
 	unsigned char		enetaddr[6];
 };
 
@@ -547,6 +557,7 @@ static struct pci_device_id supported[] = {
 	{ }
 };
 
+#ifndef CONFIG_DM_ETH
 static int rtl8139_bcast_addr(struct eth_device *dev, const u8 *bcast_mac,
 			      int join)
 {
@@ -646,3 +657,123 @@ int rtl8139_initialize(bd_t *bis)
 
 	return card_number;
 }
+#else /* DM_ETH */
+static int rtl8139_start(struct udevice *dev)
+{
+	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct rtl8139_priv *priv = dev_get_priv(dev);
+
+	memcpy(priv->enetaddr, plat->enetaddr, sizeof(plat->enetaddr));
+
+	return rtl8139_init_common(priv);
+}
+
+static void rtl8139_stop(struct udevice *dev)
+{
+	struct rtl8139_priv *priv = dev_get_priv(dev);
+
+	rtl8139_stop_common(priv);
+}
+
+static int rtl8139_send(struct udevice *dev, void *packet, int length)
+{
+	struct rtl8139_priv *priv = dev_get_priv(dev);
+	int ret;
+
+	ret = rtl8139_send_common(priv, packet, length);
+
+	return ret ? 0 : -ETIMEDOUT;
+}
+
+static int rtl8139_recv(struct udevice *dev, int flags, uchar **packetp)
+{
+	struct rtl8139_priv *priv = dev_get_priv(dev);
+	static unsigned char rxdata[RX_BUF_LEN];
+
+	return rtl8139_recv_common(priv, rxdata, packetp);
+}
+
+static int rtl8139_free_pkt(struct udevice *dev, uchar *packet, int length)
+{
+	struct rtl8139_priv *priv = dev_get_priv(dev);
+
+	rtl8139_free_pkt_common(priv, length);
+
+	return 0;
+}
+
+static int rtl8139_write_hwaddr(struct udevice *dev)
+{
+	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct rtl8139_priv *priv = dev_get_priv(dev);
+
+	memcpy(priv->enetaddr, plat->enetaddr, sizeof(plat->enetaddr));
+
+	rtl8139_reset(priv);
+
+	return 0;
+}
+
+static int rtl8139_read_rom_hwaddr(struct udevice *dev)
+{
+	struct rtl8139_priv *priv = dev_get_priv(dev);
+
+	rtl8139_get_hwaddr(priv);
+
+	return 0;
+}
+
+static int rtl8139_bind(struct udevice *dev)
+{
+	static int card_number;
+	char name[16];
+
+	rtl8139_name(name, card_number++);
+
+	return device_set_name(dev, name);
+}
+
+static int rtl8139_probe(struct udevice *dev)
+{
+	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct rtl8139_priv *priv = dev_get_priv(dev);
+	u32 iobase;
+
+	dm_pci_read_config32(dev, PCI_BASE_ADDRESS_1, &iobase);
+	iobase &= ~0xf;
+
+	debug("rtl8139: REALTEK RTL8139 @0x%x\n", iobase);
+
+	priv->devno = dev;
+	priv->ioaddr = (unsigned long)bus_to_phys(dev, iobase);
+
+	rtl8139_get_hwaddr(priv);
+	memcpy(plat->enetaddr, priv->enetaddr, sizeof(priv->enetaddr));
+
+	dm_pci_write_config8(dev, PCI_LATENCY_TIMER, 0x20);
+
+	return 0;
+}
+
+static const struct eth_ops rtl8139_ops = {
+	.start		= rtl8139_start,
+	.send		= rtl8139_send,
+	.recv		= rtl8139_recv,
+	.stop		= rtl8139_stop,
+	.free_pkt	= rtl8139_free_pkt,
+	.write_hwaddr	= rtl8139_write_hwaddr,
+	.read_rom_hwaddr = rtl8139_read_rom_hwaddr,
+};
+
+U_BOOT_DRIVER(eth_rtl8139) = {
+	.name	= "eth_rtl8139",
+	.id	= UCLASS_ETH,
+	.bind	= rtl8139_bind,
+	.probe	= rtl8139_probe,
+	.ops	= &rtl8139_ops,
+	.priv_auto_alloc_size = sizeof(struct rtl8139_priv),
+	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+};
+
+U_BOOT_PCI_DEVICE(eth_rtl8139, supported);
+#endif
