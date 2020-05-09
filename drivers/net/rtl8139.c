@@ -193,6 +193,7 @@
 
 struct rtl8139_priv {
 	struct eth_device	dev;
+	unsigned int		rxstatus;
 	unsigned int		cur_rx;
 	unsigned int		cur_tx;
 	unsigned long		ioaddr;
@@ -360,9 +361,9 @@ static void rtl8139_reset(struct rtl8139_priv *priv)
 	outw(0, priv->ioaddr + RTL_REG_INTRMASK);
 }
 
-static int rtl8139_send(struct eth_device *dev, void *packet, int length)
+static int rtl8139_send_common(struct rtl8139_priv *priv,
+			       void *packet, int length)
 {
-	struct rtl8139_priv *priv = container_of(dev, struct rtl8139_priv, dev);
 	unsigned int len = length;
 	unsigned long txstatus;
 	unsigned int status;
@@ -422,25 +423,24 @@ static int rtl8139_send(struct eth_device *dev, void *packet, int length)
 	return length;
 }
 
-static int rtl8139_recv(struct eth_device *dev)
+static int rtl8139_recv_common(struct rtl8139_priv *priv, unsigned char *rxdata,
+			       uchar **packetp)
 {
-	struct rtl8139_priv *priv = container_of(dev, struct rtl8139_priv, dev);
 	const unsigned int rxstat = RTL_REG_INTRSTATUS_RXFIFOOVER |
 				    RTL_REG_INTRSTATUS_RXOVERFLOW |
 				    RTL_REG_INTRSTATUS_RXOK;
 	unsigned int rx_size, rx_status;
 	unsigned int ring_offs;
-	unsigned int status;
 	int length = 0;
 
 	if (inb(priv->ioaddr + RTL_REG_CHIPCMD) & RTL_REG_CHIPCMD_RXBUFEMPTY)
 		return 0;
 
-	status = inw(priv->ioaddr + RTL_REG_INTRSTATUS);
+	priv->rxstatus = inw(priv->ioaddr + RTL_REG_INTRSTATUS);
 	/* See below for the rest of the interrupt acknowledges.  */
-	outw(status & ~rxstat, priv->ioaddr + RTL_REG_INTRSTATUS);
+	outw(priv->rxstatus & ~rxstat, priv->ioaddr + RTL_REG_INTRSTATUS);
 
-	debug_cond(DEBUG_RX, "%s: int %hX ", __func__, status);
+	debug_cond(DEBUG_RX, "%s: int %hX ", __func__, priv->rxstatus);
 
 	ring_offs = priv->cur_rx % RX_BUF_LEN;
 	/* ring_offs is guaranteed being 4-byte aligned */
@@ -462,20 +462,30 @@ static int rtl8139_recv(struct eth_device *dev)
 	/* Received a good packet */
 	length = rx_size - 4;	/* no one cares about the FCS */
 	if (ring_offs + 4 + rx_size - 4 > RX_BUF_LEN) {
-		unsigned char rxdata[RX_BUF_LEN];
 		int semi_count = RX_BUF_LEN - ring_offs - 4;
 
 		memcpy(rxdata, rx_ring + ring_offs + 4, semi_count);
 		memcpy(&rxdata[semi_count], rx_ring,
 		       rx_size - 4 - semi_count);
 
-		net_process_received_packet(rxdata, length);
+		*packetp = rxdata;
 		debug_cond(DEBUG_RX, "rx packet %d+%d bytes",
 			   semi_count, rx_size - 4 - semi_count);
 	} else {
-		net_process_received_packet(rx_ring + ring_offs + 4, length);
+		*packetp = rx_ring + ring_offs + 4;
 		debug_cond(DEBUG_RX, "rx packet %d bytes", rx_size - 4);
 	}
+
+	return length;
+}
+
+static int rtl8139_free_pkt_common(struct rtl8139_priv *priv, unsigned int len)
+{
+	const unsigned int rxstat = RTL_REG_INTRSTATUS_RXFIFOOVER |
+				    RTL_REG_INTRSTATUS_RXOVERFLOW |
+				    RTL_REG_INTRSTATUS_RXOK;
+	unsigned int rx_size = len + 4;
+
 	flush_cache((unsigned long)rx_ring, RX_BUF_LEN);
 
 	priv->cur_rx = ROUND(priv->cur_rx + rx_size + 4, 4);
@@ -485,14 +495,13 @@ static int rtl8139_recv(struct eth_device *dev)
 	 * Rx overflow situations. The document itself contains basically
 	 * no usable information, except for a few exception handling rules.
 	 */
-	outw(status & rxstat, priv->ioaddr + RTL_REG_INTRSTATUS);
+	outw(priv->rxstatus & rxstat, priv->ioaddr + RTL_REG_INTRSTATUS);
 
-	return length;
+	return 0;
 }
 
-static int rtl8139_init(struct eth_device *dev, bd_t *bis)
+static int rtl8139_init_common(struct rtl8139_priv *priv)
 {
-	struct rtl8139_priv *priv = container_of(dev, struct rtl8139_priv, dev);
 	unsigned short *ap = (unsigned short *)priv->enetaddr;
 	int addr_len, i;
 	u8 reg;
@@ -518,17 +527,9 @@ static int rtl8139_init(struct eth_device *dev, bd_t *bis)
 	return 0;
 }
 
-static void rtl8139_stop(struct eth_device *dev)
+static void rtl8139_stop_common(struct rtl8139_priv *priv)
 {
-	struct rtl8139_priv *priv = container_of(dev, struct rtl8139_priv, dev);
-
 	rtl8139_hw_reset(priv);
-}
-
-static int rtl8139_bcast_addr(struct eth_device *dev, const u8 *bcast_mac,
-			      int join)
-{
-	return 0;
 }
 
 static void rtl8139_name(char *str, int card_number)
@@ -541,6 +542,49 @@ static struct pci_device_id supported[] = {
 	{ PCI_VENDOR_ID_DLINK, PCI_DEVICE_ID_DLINK_8139 },
 	{ }
 };
+
+static int rtl8139_bcast_addr(struct eth_device *dev, const u8 *bcast_mac,
+			      int join)
+{
+	return 0;
+}
+
+static int rtl8139_init(struct eth_device *dev, bd_t *bis)
+{
+	struct rtl8139_priv *priv = container_of(dev, struct rtl8139_priv, dev);
+
+	return rtl8139_init_common(priv);
+}
+
+static void rtl8139_stop(struct eth_device *dev)
+{
+	struct rtl8139_priv *priv = container_of(dev, struct rtl8139_priv, dev);
+
+	return rtl8139_stop_common(priv);
+}
+
+static int rtl8139_send(struct eth_device *dev, void *packet, int length)
+{
+	struct rtl8139_priv *priv = container_of(dev, struct rtl8139_priv, dev);
+
+	return rtl8139_send_common(priv, packet, length);
+}
+
+static int rtl8139_recv(struct eth_device *dev)
+{
+	struct rtl8139_priv *priv = container_of(dev, struct rtl8139_priv, dev);
+	unsigned char rxdata[RX_BUF_LEN];
+	uchar *packet;
+	int ret;
+
+	ret = rtl8139_recv_common(priv, rxdata, &packet);
+	if (ret) {
+		net_process_received_packet(packet, ret);
+		rtl8139_free_pkt_common(priv, ret);
+	}
+
+	return ret;
+}
 
 int rtl8139_initialize(bd_t *bis)
 {
