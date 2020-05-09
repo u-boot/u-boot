@@ -159,6 +159,14 @@ static int rtl8211x_config(struct phy_device *phydev)
 	return 0;
 }
 
+/* RealTek RTL8201F */
+static int rtl8201f_config(struct phy_device *phydev)
+{
+	genphy_config_aneg(phydev);
+
+	return 0;
+}
+
 static int rtl8211f_config(struct phy_device *phydev)
 {
 	u16 reg;
@@ -398,12 +406,24 @@ static struct phy_driver RTL8211F_driver = {
 	.writeext = &rtl8211f_phy_extwrite,
 };
 
+/* Support for RTL8201F PHY */
+static struct phy_driver RTL8201F_driver = {
+	.name = "RealTek RTL8201F 10/100Mbps Ethernet",
+	.uid = 0x1cc816,
+	.mask = 0xffffff,
+	.features = PHY_BASIC_FEATURES,
+	.config = &rtl8201f_config,
+	.startup = &rtl8211e_startup,
+	.shutdown = &genphy_shutdown,
+};
+
 int phy_realtek_init(void)
 {
 	phy_register(&RTL8211B_driver);
 	phy_register(&RTL8211E_driver);
 	phy_register(&RTL8211F_driver);
 	phy_register(&RTL8211DN_driver);
+	phy_register(&RTL8201F_driver);
 
 	return 0;
 }
