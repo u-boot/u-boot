@@ -11,6 +11,18 @@
 		/delete-property/ serial1;
 		/delete-property/ serial2;
 	};
+
+	ethernet@08000000 {
+		compatible = "smsc,lan9221","smsc,lan9115";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x08000000 0xff>;
+		bank-width = <2>;
+		vddvario-supply = <&vddvario>;
+		vdd33a-supply = <&vdd33a>;
+		reg-io-width = <4>;
+		smsc,save-mac-address;
+	};
 };
 
 &i2c1 {
