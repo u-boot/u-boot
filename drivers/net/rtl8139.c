@@ -192,7 +192,6 @@
 #define RTL_STS_RXSTATUSOK			BIT(0)
 
 static unsigned int cur_rx, cur_tx;
-static int ioaddr;
 
 /* The RTL8139 can only transmit from a contiguous, aligned memory block.  */
 static unsigned char tx_buffer[TX_BUF_SIZE] __aligned(4);
@@ -223,42 +222,43 @@ static void rtl8139_eeprom_delay(uintptr_t regbase)
 	inl(regbase + RTL_REG_CFG9346);
 }
 
-static int rtl8139_read_eeprom(unsigned int location, unsigned int addr_len)
+static int rtl8139_read_eeprom(struct eth_device *dev,
+			       unsigned int location, unsigned int addr_len)
 {
 	unsigned int read_cmd = location | (EE_READ_CMD << addr_len);
-	uintptr_t ee_addr = ioaddr + RTL_REG_CFG9346;
+	uintptr_t ee_addr = dev->iobase + RTL_REG_CFG9346;
 	unsigned int retval = 0;
 	u8 dataval;
 	int i;
 
 	outb(EE_ENB & ~EE_CS, ee_addr);
 	outb(EE_ENB, ee_addr);
-	rtl8139_eeprom_delay(ioaddr);
+	rtl8139_eeprom_delay(dev->iobase);
 
 	/* Shift the read command bits out. */
 	for (i = 4 + addr_len; i >= 0; i--) {
 		dataval = (read_cmd & BIT(i)) ? EE_DATA_WRITE : 0;
 		outb(EE_ENB | dataval, ee_addr);
-		rtl8139_eeprom_delay(ioaddr);
+		rtl8139_eeprom_delay(dev->iobase);
 		outb(EE_ENB | dataval | EE_SHIFT_CLK, ee_addr);
-		rtl8139_eeprom_delay(ioaddr);
+		rtl8139_eeprom_delay(dev->iobase);
 	}
 
 	outb(EE_ENB, ee_addr);
-	rtl8139_eeprom_delay(ioaddr);
+	rtl8139_eeprom_delay(dev->iobase);
 
 	for (i = 16; i > 0; i--) {
 		outb(EE_ENB | EE_SHIFT_CLK, ee_addr);
-		rtl8139_eeprom_delay(ioaddr);
+		rtl8139_eeprom_delay(dev->iobase);
 		retval <<= 1;
 		retval |= inb(ee_addr) & EE_DATA_READ;
 		outb(EE_ENB, ee_addr);
-		rtl8139_eeprom_delay(ioaddr);
+		rtl8139_eeprom_delay(dev->iobase);
 	}
 
 	/* Terminate the EEPROM access. */
 	outb(~EE_CS, ee_addr);
-	rtl8139_eeprom_delay(ioaddr);
+	rtl8139_eeprom_delay(dev->iobase);
 
 	return retval;
 }
@@ -275,10 +275,10 @@ static void rtl8139_set_rx_mode(struct eth_device *dev)
 			       RTL_REG_RXCONFIG_ACCEPTMULTICAST |
 			       RTL_REG_RXCONFIG_ACCEPTMYPHYS;
 
-	outl(rtl8139_rx_config | rx_mode, ioaddr + RTL_REG_RXCONFIG);
+	outl(rtl8139_rx_config | rx_mode, dev->iobase + RTL_REG_RXCONFIG);
 
-	outl(0xffffffff, ioaddr + RTL_REG_MAR0 + 0);
-	outl(0xffffffff, ioaddr + RTL_REG_MAR0 + 4);
+	outl(0xffffffff, dev->iobase + RTL_REG_MAR0 + 0);
+	outl(0xffffffff, dev->iobase + RTL_REG_MAR0 + 4);
 }
 
 static void rtl8139_hw_reset(struct eth_device *dev)
@@ -286,11 +286,11 @@ static void rtl8139_hw_reset(struct eth_device *dev)
 	u8 reg;
 	int i;
 
-	outb(RTL_REG_CHIPCMD_CMDRESET, ioaddr + RTL_REG_CHIPCMD);
+	outb(RTL_REG_CHIPCMD_CMDRESET, dev->iobase + RTL_REG_CHIPCMD);
 
 	/* Give the chip 10ms to finish the reset. */
 	for (i = 0; i < 100; i++) {
-		reg = inb(ioaddr + RTL_REG_CHIPCMD);
+		reg = inb(dev->iobase + RTL_REG_CHIPCMD);
 		if (!(reg & RTL_REG_CHIPCMD_CMDRESET))
 			break;
 
@@ -308,15 +308,15 @@ static void rtl8139_reset(struct eth_device *dev)
 	rtl8139_hw_reset(dev);
 
 	for (i = 0; i < ETH_ALEN; i++)
-		outb(dev->enetaddr[i], ioaddr + RTL_REG_MAC0 + i);
+		outb(dev->enetaddr[i], dev->iobase + RTL_REG_MAC0 + i);
 
 	/* Must enable Tx/Rx before setting transfer thresholds! */
 	outb(RTL_REG_CHIPCMD_CMDRXENB | RTL_REG_CHIPCMD_CMDTXENB,
-	     ioaddr + RTL_REG_CHIPCMD);
+	     dev->iobase + RTL_REG_CHIPCMD);
 
 	/* accept no frames yet! */
-	outl(rtl8139_rx_config, ioaddr + RTL_REG_RXCONFIG);
-	outl((TX_DMA_BURST << 8) | 0x03000000, ioaddr + RTL_REG_TXCONFIG);
+	outl(rtl8139_rx_config, dev->iobase + RTL_REG_RXCONFIG);
+	outl((TX_DMA_BURST << 8) | 0x03000000, dev->iobase + RTL_REG_TXCONFIG);
 
 	/*
 	 * The Linux driver changes RTL_REG_CONFIG1 here to use a different
@@ -331,7 +331,7 @@ static void rtl8139_reset(struct eth_device *dev)
 	debug_cond(DEBUG_RX, "rx ring address is %p\n", rx_ring);
 
 	flush_cache((unsigned long)rx_ring, RX_BUF_LEN);
-	outl(phys_to_bus((int)rx_ring), ioaddr + RTL_REG_RXBUF);
+	outl(phys_to_bus((int)rx_ring), dev->iobase + RTL_REG_RXBUF);
 
 	/*
 	 * If we add multicast support, the RTL_REG_MAR0 register would have
@@ -340,17 +340,17 @@ static void rtl8139_reset(struct eth_device *dev)
 	 * unicast.
 	 */
 	outb(RTL_REG_CHIPCMD_CMDRXENB | RTL_REG_CHIPCMD_CMDTXENB,
-	     ioaddr + RTL_REG_CHIPCMD);
+	     dev->iobase + RTL_REG_CHIPCMD);
 
-	outl(rtl8139_rx_config, ioaddr + RTL_REG_RXCONFIG);
+	outl(rtl8139_rx_config, dev->iobase + RTL_REG_RXCONFIG);
 
 	/* Start the chip's Tx and Rx process. */
-	outl(0, ioaddr + RTL_REG_RXMISSED);
+	outl(0, dev->iobase + RTL_REG_RXMISSED);
 
 	rtl8139_set_rx_mode(dev);
 
 	/* Disable all known interrupts by setting the interrupt mask. */
-	outw(0, ioaddr + RTL_REG_INTRMASK);
+	outw(0, dev->iobase + RTL_REG_INTRMASK);
 }
 
 static int rtl8139_send(struct eth_device *dev, void *packet, int length)
@@ -359,8 +359,6 @@ static int rtl8139_send(struct eth_device *dev, void *packet, int length)
 	unsigned long txstatus;
 	unsigned int status;
 	int i = 0;
-
-	ioaddr = dev->iobase;
 
 	memcpy(tx_buffer, packet, length);
 
@@ -375,12 +373,12 @@ static int rtl8139_send(struct eth_device *dev, void *packet, int length)
 
 	flush_cache((unsigned long)tx_buffer, length);
 	outl(phys_to_bus((unsigned long)tx_buffer),
-	     ioaddr + RTL_REG_TXADDR0 + cur_tx * 4);
+	     dev->iobase + RTL_REG_TXADDR0 + cur_tx * 4);
 	outl(((TX_FIFO_THRESH << 11) & 0x003f0000) | len,
-	     ioaddr + RTL_REG_TXSTATUS0 + cur_tx * 4);
+	     dev->iobase + RTL_REG_TXSTATUS0 + cur_tx * 4);
 
 	do {
-		status = inw(ioaddr + RTL_REG_INTRSTATUS);
+		status = inw(dev->iobase + RTL_REG_INTRSTATUS);
 		/*
 		 * Only acknlowledge interrupt sources we can properly
 		 * handle here - the RTL_REG_INTRSTATUS_RXOVERFLOW/
@@ -389,14 +387,14 @@ static int rtl8139_send(struct eth_device *dev, void *packet, int length)
 		 */
 		status &= RTL_REG_INTRSTATUS_TXOK | RTL_REG_INTRSTATUS_TXERR |
 			  RTL_REG_INTRSTATUS_PCIERR;
-		outw(status, ioaddr + RTL_REG_INTRSTATUS);
+		outw(status, dev->iobase + RTL_REG_INTRSTATUS);
 		if (status)
 			break;
 
 		udelay(10);
 	} while (i++ < RTL_TIMEOUT);
 
-	txstatus = inl(ioaddr + RTL_REG_TXSTATUS0 + cur_tx * 4);
+	txstatus = inl(dev->iobase + RTL_REG_TXSTATUS0 + cur_tx * 4);
 
 	if (!(status & RTL_REG_INTRSTATUS_TXOK)) {
 		debug_cond(DEBUG_TX,
@@ -426,14 +424,12 @@ static int rtl8139_recv(struct eth_device *dev)
 	unsigned int status;
 	int length = 0;
 
-	ioaddr = dev->iobase;
-
-	if (inb(ioaddr + RTL_REG_CHIPCMD) & RTL_REG_CHIPCMD_RXBUFEMPTY)
+	if (inb(dev->iobase + RTL_REG_CHIPCMD) & RTL_REG_CHIPCMD_RXBUFEMPTY)
 		return 0;
 
-	status = inw(ioaddr + RTL_REG_INTRSTATUS);
+	status = inw(dev->iobase + RTL_REG_INTRSTATUS);
 	/* See below for the rest of the interrupt acknowledges.  */
-	outw(status & ~rxstat, ioaddr + RTL_REG_INTRSTATUS);
+	outw(status & ~rxstat, dev->iobase + RTL_REG_INTRSTATUS);
 
 	debug_cond(DEBUG_RX, "%s: int %hX ", __func__, status);
 
@@ -474,13 +470,13 @@ static int rtl8139_recv(struct eth_device *dev)
 	flush_cache((unsigned long)rx_ring, RX_BUF_LEN);
 
 	cur_rx = ROUND(cur_rx + rx_size + 4, 4);
-	outw(cur_rx - 16, ioaddr + RTL_REG_RXBUFPTR);
+	outw(cur_rx - 16, dev->iobase + RTL_REG_RXBUFPTR);
 	/*
 	 * See RTL8139 Programming Guide V0.1 for the official handling of
 	 * Rx overflow situations. The document itself contains basically
 	 * no usable information, except for a few exception handling rules.
 	 */
-	outw(status & rxstat, ioaddr + RTL_REG_INTRSTATUS);
+	outw(status & rxstat, dev->iobase + RTL_REG_INTRSTATUS);
 
 	return length;
 }
@@ -491,18 +487,16 @@ static int rtl8139_init(struct eth_device *dev, bd_t *bis)
 	int addr_len, i;
 	u8 reg;
 
-	ioaddr = dev->iobase;
-
 	/* Bring the chip out of low-power mode. */
-	outb(0x00, ioaddr + RTL_REG_CONFIG1);
+	outb(0x00, dev->iobase + RTL_REG_CONFIG1);
 
-	addr_len = rtl8139_read_eeprom(0, 8) == 0x8129 ? 8 : 6;
+	addr_len = rtl8139_read_eeprom(dev, 0, 8) == 0x8129 ? 8 : 6;
 	for (i = 0; i < 3; i++)
-		*ap++ = le16_to_cpu(rtl8139_read_eeprom(i + 7, addr_len));
+		*ap++ = le16_to_cpu(rtl8139_read_eeprom(dev, i + 7, addr_len));
 
 	rtl8139_reset(dev);
 
-	reg = inb(ioaddr + RTL_REG_MEDIASTATUS);
+	reg = inb(dev->iobase + RTL_REG_MEDIASTATUS);
 	if (reg & RTL_REG_MEDIASTATUS_MSRLINKFAIL) {
 		printf("Cable not connected or other link failure\n");
 		return -1;
@@ -513,8 +507,6 @@ static int rtl8139_init(struct eth_device *dev, bd_t *bis)
 
 static void rtl8139_stop(struct eth_device *dev)
 {
-	ioaddr = dev->iobase;
-
 	rtl8139_hw_reset(dev);
 }
 
