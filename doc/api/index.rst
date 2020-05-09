@@ -9,3 +9,4 @@ U-Boot API documentation
    efi
    linker_lists
    serial
+   unicode
