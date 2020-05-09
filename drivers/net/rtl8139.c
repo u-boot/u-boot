@@ -554,12 +554,11 @@ int rtl8139_initialize(bd_t *bis)
 
 		debug("rtl8139: REALTEK RTL8139 @0x%x\n", iobase);
 
-		dev = (struct eth_device *)malloc(sizeof(*dev));
+		dev = calloc(1, sizeof(*dev));
 		if (!dev) {
 			printf("Can not allocate memory of rtl8139\n");
 			break;
 		}
-		memset(dev, 0, sizeof(*dev));
 
 		rtl8139_name(dev->name, card_number);
 
