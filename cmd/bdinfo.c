@@ -88,21 +88,6 @@ static void print_eth_ip_addr(void)
 {
 #if defined(CONFIG_CMD_NET)
 	print_eth(0);
-#if defined(CONFIG_HAS_ETH1)
-	print_eth(1);
-#endif
-#if defined(CONFIG_HAS_ETH2)
-	print_eth(2);
-#endif
-#if defined(CONFIG_HAS_ETH3)
-	print_eth(3);
-#endif
-#if defined(CONFIG_HAS_ETH4)
-	print_eth(4);
-#endif
-#if defined(CONFIG_HAS_ETH5)
-	print_eth(5);
-#endif
 	printf("IP addr     = %s\n", env_get("ipaddr"));
 #endif
 }
