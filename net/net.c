@@ -95,6 +95,7 @@
 #include <env_internal.h>
 #include <errno.h>
 #include <image.h>
+#include <log.h>
 #include <net.h>
 #include <net/fastboot.h>
 #include <net/tftp.h>

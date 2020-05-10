@@ -9,6 +9,7 @@
 #include <command.h>
 #include <cpu_func.h>
 #include <init.h>
+#include <log.h>
 #include <asm/armv8/mmu.h>
 #include <asm/cache.h>
 #include <asm/system.h>

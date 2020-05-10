@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 
 #include <i2c.h>
 #include <ddr_spd.h>

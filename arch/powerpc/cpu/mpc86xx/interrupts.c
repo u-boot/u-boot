@@ -16,6 +16,7 @@
 
 #include <common.h>
 #include <irq_func.h>
+#include <log.h>
 #include <mpc86xx.h>
 #include <command.h>
 #include <time.h>

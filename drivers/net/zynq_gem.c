@@ -12,6 +12,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <log.h>
 #include <net.h>
 #include <netdev.h>
 #include <config.h>

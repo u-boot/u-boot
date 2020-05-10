@@ -7,6 +7,7 @@
  * Written by David Howells (dhowells@redhat.com)
  */
 #ifndef __UBOOT__
+#include <log.h>
 #include <dm/devres.h>
 #include <keys/asymmetric-subtype.h>
 #include <keys/asymmetric-parser.h>

@@ -9,6 +9,7 @@
 #include <common.h>
 #include <dm.h>
 #include <i2c.h>
+#include <log.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/pinmux.h>

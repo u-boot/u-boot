@@ -9,6 +9,7 @@
  * warranty of any kind, whether express or implied.
  */
 
+#include <log.h>
 #include <asm-generic/gpio.h>
 #include <asm/io.h>
 #include <common.h>

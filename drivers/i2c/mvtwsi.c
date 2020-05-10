@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <i2c.h>
+#include <log.h>
 #include <linux/errno.h>
 #include <asm/io.h>
 #include <linux/bitops.h>

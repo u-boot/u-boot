@@ -6,6 +6,7 @@
  */
 
 #include "btrfs.h"
+#include <log.h>
 #include <malloc.h>
 
 struct chunk_map_item {

@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <regmap.h>
 #include <remoteproc.h>
 #include <reset.h>

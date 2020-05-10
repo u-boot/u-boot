@@ -10,6 +10,7 @@
 #include <common.h>
 #include <axi.h>
 #include <dm.h>
+#include <log.h>
 #include <regmap.h>
 
 /**

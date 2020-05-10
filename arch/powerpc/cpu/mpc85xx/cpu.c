@@ -13,6 +13,7 @@
 #include <cpu_func.h>
 #include <init.h>
 #include <irq_func.h>
+#include <log.h>
 #include <time.h>
 #include <vsprintf.h>
 #include <watchdog.h>

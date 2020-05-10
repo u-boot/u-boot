@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <hang.h>
 #include <init.h>
+#include <log.h>
 #include <ram.h>
 #include <spl.h>
 #include <version.h>

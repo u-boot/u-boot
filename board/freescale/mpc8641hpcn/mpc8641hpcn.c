@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <init.h>
+#include <log.h>
 #include <net.h>
 #include <pci.h>
 #include <asm/processor.h>

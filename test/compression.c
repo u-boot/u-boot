@@ -8,6 +8,7 @@
 #include <command.h>
 #include <gzip.h>
 #include <image.h>
+#include <log.h>
 #include <lz4.h>
 #include <malloc.h>
 #include <mapmem.h>

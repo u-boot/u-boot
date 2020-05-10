@@ -9,6 +9,7 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <malloc.h>
 #include <asm/cache.h>
 #include <linux/libfdt.h>

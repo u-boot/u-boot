@@ -9,6 +9,7 @@
 #include <bootstage.h>
 #include <dm.h>
 #include <env.h>
+#include <log.h>
 #include <part.h>
 #include <pci.h>
 #include <scsi.h>

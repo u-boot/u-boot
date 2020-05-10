@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <generic-phy.h>
+#include <log.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <phys2bus.h>

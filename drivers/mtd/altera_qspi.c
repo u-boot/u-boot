@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <fdt_support.h>
 #include <flash.h>
+#include <log.h>
 #include <mtd.h>
 #include <asm/io.h>
 

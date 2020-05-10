@@ -7,6 +7,7 @@
 #include <bouncebuf.h>
 #include <clk.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <malloc.h>
 #include <mmc.h>
 #include <dm.h>

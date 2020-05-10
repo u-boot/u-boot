@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <clk.h>
+#include <log.h>
 #include <ram.h>
 #include <reset.h>
 #include <timer.h>

@@ -11,6 +11,7 @@
 #include <efi_loader.h>
 #include <exports.h>
 #include <hexdump.h>
+#include <log.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <search.h>

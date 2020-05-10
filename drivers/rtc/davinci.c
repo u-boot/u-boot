@@ -5,6 +5,7 @@
  */
 #include <common.h>
 #include <command.h>
+#include <log.h>
 #include <rtc.h>
 #include <asm/io.h>
 #include <asm/davinci_rtc.h>

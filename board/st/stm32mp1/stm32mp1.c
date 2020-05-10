@@ -17,6 +17,7 @@
 #include <i2c.h>
 #include <init.h>
 #include <led.h>
+#include <log.h>
 #include <malloc.h>
 #include <misc.h>
 #include <mtd_node.h>

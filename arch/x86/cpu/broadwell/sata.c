@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/intel_regs.h>

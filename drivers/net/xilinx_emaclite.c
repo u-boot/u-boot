@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <net.h>
 #include <config.h>
 #include <dm.h>

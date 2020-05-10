@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm/arch/clock-axg.h>
 #include <asm/io.h>
 #include <clk-uclass.h>

@@ -4,6 +4,7 @@
  * Copyright (c) 2011 Roberto Cerati <roberto.cerati@bticino.it>
  */
 
+#include <log.h>
 #include <asm/io.h>
 #include <common.h>
 #include <command.h>

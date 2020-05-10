@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm/io.h>
 
 int mscc_phy_rd_wr(u8 read,

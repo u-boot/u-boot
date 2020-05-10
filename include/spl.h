@@ -7,6 +7,7 @@
 #define	_SPL_H_
 
 #include <binman_sym.h>
+#include <linker_lists.h>
 
 /* Platform-specific defines */
 #include <linux/compiler.h>

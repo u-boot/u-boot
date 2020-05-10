@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <image.h>
+#include <log.h>
 #include <malloc.h>
 #include <linux/libfdt.h>
 #include <tee/optee.h>

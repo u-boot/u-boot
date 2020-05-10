@@ -12,6 +12,7 @@
 #else
 #include <gdsys_fpga.h>
 #endif
+#include <log.h>
 #include <asm/unaligned.h>
 
 #ifdef CONFIG_DM_I2C

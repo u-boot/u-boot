@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <asm/msr.h>
 #include <asm/cpu.h>
 #include <asm/intel_regs.h>

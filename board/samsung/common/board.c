@@ -11,6 +11,7 @@
 #include <fdtdec.h>
 #include <hang.h>
 #include <init.h>
+#include <log.h>
 #include <net.h>
 #include <spi.h>
 #include <tmu.h>

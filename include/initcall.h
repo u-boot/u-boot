@@ -8,6 +8,7 @@
 
 typedef int (*init_fnc_t)(void);
 
+#include <log.h>
 #ifdef CONFIG_EFI_APP
 #include <efi.h>
 #endif

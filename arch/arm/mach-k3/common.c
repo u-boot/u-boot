@@ -10,6 +10,7 @@
 #include <cpu_func.h>
 #include <image.h>
 #include <init.h>
+#include <log.h>
 #include <spl.h>
 #include "common.h"
 #include <dm.h>

@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <fsl_ddr_sdram.h>
+#include <log.h>
 
 #include <fsl_ddr.h>
 /*

@@ -11,6 +11,7 @@
  */
 #include <common.h>
 #include <blk.h>
+#include <log.h>
 #include <part.h>
 #include <uuid.h>
 #include <asm/cache.h>

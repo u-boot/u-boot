@@ -9,6 +9,7 @@
 #include <cpu_func.h>
 #include <image.h>
 #include <init.h>
+#include <log.h>
 #include <asm/io.h>
 #include <spl.h>
 

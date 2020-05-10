@@ -21,6 +21,7 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <log.h>
 #include <spi.h>
 #include <errno.h>
 #include <fdt_support.h>

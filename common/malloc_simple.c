@@ -8,6 +8,7 @@
 #define LOG_CATEGORY LOGC_ALLOC
 
 #include <common.h>
+#include <log.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <asm/io.h>

@@ -19,6 +19,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <generic-phy.h>
+#include <log.h>
 #include <malloc.h>
 #include <phy-sun4i-usb.h>
 #include <reset.h>

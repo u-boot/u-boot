@@ -6,6 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <init.h>
+#include <log.h>
 #include <asm/arch-rockchip/periph.h>
 #include <power/regulator.h>
 

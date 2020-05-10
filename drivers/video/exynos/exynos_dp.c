@@ -10,6 +10,7 @@
 #include <common.h>
 #include <display.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <linux/libfdt.h>
 #include <malloc.h>
 #include <video_bridge.h>

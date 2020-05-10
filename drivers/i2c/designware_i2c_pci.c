@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <spl.h>
 #include <asm/lpss.h>
 #include "designware_i2c.h"

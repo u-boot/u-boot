@@ -9,6 +9,7 @@
 #include <bootstage.h>
 #include <dm.h>
 #include <env.h>
+#include <log.h>
 #include <net.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>

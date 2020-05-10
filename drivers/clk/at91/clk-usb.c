@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <clk-uclass.h>
+#include <log.h>
 #include <dm/device.h>
 #include <linux/err.h>
 #include <linux/io.h>

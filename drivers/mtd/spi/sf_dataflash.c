@@ -11,6 +11,7 @@
 #include <errno.h>
 #include <fdtdec.h>
 #include <flash.h>
+#include <log.h>
 #include <spi.h>
 #include <spi_flash.h>
 #include <div64.h>

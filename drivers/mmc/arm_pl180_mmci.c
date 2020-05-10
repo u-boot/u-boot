@@ -14,6 +14,7 @@
 #include "common.h"
 #include <clk.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <mmc.h>
 #include <dm/device_compat.h>

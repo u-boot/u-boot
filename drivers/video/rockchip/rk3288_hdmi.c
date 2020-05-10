@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <dw_hdmi.h>
 #include <edid.h>
+#include <log.h>
 #include <malloc.h>
 #include <regmap.h>
 #include <syscon.h>

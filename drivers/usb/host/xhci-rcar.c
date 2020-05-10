@@ -9,6 +9,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <malloc.h>
 #include <usb.h>
 #include <wait_bit.h>

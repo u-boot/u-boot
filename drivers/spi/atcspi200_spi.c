@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <clk.h>
+#include <log.h>
 #include <malloc.h>
 #include <spi.h>
 #include <asm/io.h>

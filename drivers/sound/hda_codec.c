@@ -10,6 +10,7 @@
 #include <common.h>
 #include <dm.h>
 #include <hda_codec.h>
+#include <log.h>
 #include <pci.h>
 #include <sound.h>
 #include <asm/io.h>

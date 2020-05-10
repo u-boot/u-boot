@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <time.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>

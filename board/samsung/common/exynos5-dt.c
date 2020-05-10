@@ -8,6 +8,7 @@
 #include <dwc3-uboot.h>
 #include <env.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <asm/io.h>
 #include <errno.h>
 #include <i2c.h>

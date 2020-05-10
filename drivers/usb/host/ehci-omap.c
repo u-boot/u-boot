@@ -11,6 +11,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <usb.h>
 #include <usb/ulpi.h>
 #include <errno.h>

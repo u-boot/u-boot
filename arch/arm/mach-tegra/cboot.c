@@ -9,6 +9,7 @@
 #include <fdtdec.h>
 #include <hang.h>
 #include <init.h>
+#include <log.h>
 #include <malloc.h>
 #include <net.h>
 #include <stdlib.h>

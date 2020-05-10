@@ -6,6 +6,7 @@
 #include <common.h>
 #include <ahci.h>
 #include <dm.h>
+#include <log.h>
 
 /*
  * Dummy implementation that can be overwritten by a board

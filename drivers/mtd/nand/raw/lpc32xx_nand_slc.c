@@ -11,6 +11,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <nand.h>
 #include <linux/mtd/nand_ecc.h>
 #include <linux/errno.h>

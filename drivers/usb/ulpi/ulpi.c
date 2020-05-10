@@ -21,6 +21,7 @@
 
 #include <common.h>
 #include <exports.h>
+#include <log.h>
 #include <usb/ulpi.h>
 
 #define ULPI_ID_REGS_COUNT	4

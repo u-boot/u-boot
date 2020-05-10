@@ -11,6 +11,7 @@
 #include <cpu.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <asm/cpu.h>
 #include <asm/cpu_common.h>
 #include <asm/intel_regs.h>

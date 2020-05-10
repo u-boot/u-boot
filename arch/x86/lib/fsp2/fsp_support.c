@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <spi_flash.h>
 #include <asm/fsp/fsp_support.h>
 #include <asm/fsp2/fsp_internal.h>

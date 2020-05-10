@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <net.h>
 #include <asm/io.h>
 #include <netdev.h>

@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <edid.h>
+#include <log.h>
 #include <video_bridge.h>
 
 int video_bridge_set_backlight(struct udevice *dev, int percent)

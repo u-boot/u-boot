@@ -7,6 +7,7 @@
 #include <config.h>
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <u-boot/rsa-mod-exp.h>
 
 static int mod_exp_sw(struct udevice *dev, const uint8_t *sig, uint32_t sig_len,

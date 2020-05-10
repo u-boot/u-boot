@@ -11,6 +11,7 @@
 #include <env.h>
 #include <i2c.h>
 #include <init.h>
+#include <log.h>
 #include <miiphy.h>
 #include <net.h>
 #include <netdev.h>

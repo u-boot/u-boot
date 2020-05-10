@@ -9,6 +9,7 @@
 #include <bootstage.h>
 #include <command.h>
 #include <env.h>
+#include <log.h>
 #include <net.h>
 #include <phy.h>
 #include <linux/errno.h>

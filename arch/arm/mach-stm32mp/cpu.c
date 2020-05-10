@@ -8,6 +8,7 @@
 #include <debug_uart.h>
 #include <env.h>
 #include <init.h>
+#include <log.h>
 #include <misc.h>
 #include <net.h>
 #include <asm/io.h>

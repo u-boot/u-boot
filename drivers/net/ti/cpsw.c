@@ -8,6 +8,7 @@
 #include <common.h>
 #include <command.h>
 #include <cpu_func.h>
+#include <log.h>
 #include <net.h>
 #include <miiphy.h>
 #include <malloc.h>

@@ -9,6 +9,7 @@
 #include <image.h>
 #include <irq_func.h>
 #include <lmb.h>
+#include <log.h>
 #include <asm/cache.h>
 
 DECLARE_GLOBAL_DATA_PTR;

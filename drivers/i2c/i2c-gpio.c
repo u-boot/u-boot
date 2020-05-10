@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <dm.h>
 #include <i2c.h>
+#include <log.h>
 #include <asm/gpio.h>
 
 #define DEFAULT_UDELAY	5

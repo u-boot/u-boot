@@ -13,6 +13,7 @@
 
 #include <common.h>
 #include <init.h>
+#include <log.h>
 #include <mvmfp.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/mfp.h>

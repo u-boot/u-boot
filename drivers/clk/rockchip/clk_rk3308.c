@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <div64.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <syscon.h>
 #include <asm/io.h>

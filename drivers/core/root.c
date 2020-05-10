@@ -9,6 +9,7 @@
 #include <common.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <malloc.h>
 #include <linux/libfdt.h>
 #include <dm/device.h>

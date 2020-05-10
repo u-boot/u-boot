@@ -1,6 +1,7 @@
 #include <common.h>
 #include <dm.h>
 #include <hwspinlock.h>
+#include <log.h>
 #include <malloc.h>
 #include <asm/arch/gpio.h>
 #include <asm/gpio.h>

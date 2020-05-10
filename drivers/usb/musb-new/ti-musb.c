@@ -9,6 +9,7 @@
 #include <command.h>
 #include <console.h>
 #include <dm.h>
+#include <log.h>
 #include <malloc.h>
 #include <linux/usb/otg.h>
 #include <dm/device-internal.h>

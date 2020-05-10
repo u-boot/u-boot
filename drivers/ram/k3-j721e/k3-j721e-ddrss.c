@@ -9,6 +9,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <hang.h>
+#include <log.h>
 #include <ram.h>
 #include <asm/io.h>
 #include <power-domain.h>

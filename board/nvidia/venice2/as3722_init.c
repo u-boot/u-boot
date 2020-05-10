@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm/io.h>
 #include <asm/arch-tegra/tegra_i2c.h>
 #include "as3722_init.h"

@@ -9,6 +9,7 @@
 #include <env.h>
 #include <image.h>
 #include <init.h>
+#include <log.h>
 #include <spl.h>
 #include <asm/cache.h>
 #include <asm/io.h>

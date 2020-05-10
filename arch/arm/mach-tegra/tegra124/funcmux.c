@@ -7,6 +7,7 @@
 /* Tegra124 high-level function multiplexing */
 
 #include <common.h>
+#include <log.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/funcmux.h>
 #include <asm/arch/pinmux.h>

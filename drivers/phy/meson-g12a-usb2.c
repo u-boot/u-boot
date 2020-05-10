@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <malloc.h>
 #include <asm/io.h>
 #include <bitfield.h>

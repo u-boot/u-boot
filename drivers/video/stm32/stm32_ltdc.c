@@ -9,6 +9,7 @@
 #include <clk.h>
 #include <display.h>
 #include <dm.h>
+#include <log.h>
 #include <panel.h>
 #include <reset.h>
 #include <video.h>

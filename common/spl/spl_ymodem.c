@@ -11,6 +11,7 @@
 #include <common.h>
 #include <gzip.h>
 #include <image.h>
+#include <log.h>
 #include <spl.h>
 #include <xyzModem.h>
 #include <asm/u-boot.h>

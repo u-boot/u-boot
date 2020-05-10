@@ -8,6 +8,7 @@
 #include <common.h>
 #include <dm.h>
 #include <clk.h>
+#include <log.h>
 #include <net.h>
 #include <phy.h>
 #include <syscon.h>

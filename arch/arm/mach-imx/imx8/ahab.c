@@ -6,6 +6,7 @@
 #include <common.h>
 #include <command.h>
 #include <errno.h>
+#include <log.h>
 #include <asm/io.h>
 #include <asm/arch/sci/sci.h>
 #include <asm/mach-imx/sys_proto.h>

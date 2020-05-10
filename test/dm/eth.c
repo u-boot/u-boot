@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <env.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <malloc.h>
 #include <net.h>
 #include <dm/test.h>

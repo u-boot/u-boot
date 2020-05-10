@@ -16,6 +16,8 @@
 #ifndef _I2C_H_
 #define _I2C_H_
 
+#include <linker_lists.h>
+
 /*
  * For now there are essentially two parts to this file - driver model
  * here at the top, and the older code below (with CONFIG_SYS_I2C being

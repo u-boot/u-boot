@@ -8,6 +8,7 @@
 #include <cpu_func.h>
 #include <env.h>
 #include <init.h>
+#include <log.h>
 #include <asm/arch/hardware.h>
 #include <asm/cache.h>
 #include <asm/emif.h>

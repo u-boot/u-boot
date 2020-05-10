@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <usb.h>
 #include <asm/io.h>
 #include <hwconfig.h>

@@ -32,6 +32,7 @@
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 #include <fdtdec.h>
 #endif
+#include <log.h>
 #include <malloc.h>
 #include <watchdog.h>
 #include <dm/devres.h>

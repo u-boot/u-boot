@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <log.h>
 #include <malloc.h>
 #include <net.h>
 #include <asm/cache.h>

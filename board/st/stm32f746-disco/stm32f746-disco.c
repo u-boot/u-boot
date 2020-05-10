@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <init.h>
 #include <lcd.h>
+#include <log.h>
 #include <miiphy.h>
 #include <phy_interface.h>
 #include <ram.h>

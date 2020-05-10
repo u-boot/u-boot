@@ -9,6 +9,7 @@
 #include <common.h>
 #include <env.h>
 #include <lmb.h>
+#include <log.h>
 #include <mapmem.h>
 #include <part.h>
 #include <ext4fs.h>

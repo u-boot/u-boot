@@ -5,6 +5,7 @@
  */
 #include <common.h>
 #include <env.h>
+#include <log.h>
 #include <malloc.h>
 #include <dm/device.h>
 #include <dm/uclass-internal.h>

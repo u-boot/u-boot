@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <init.h>
+#include <log.h>
 #include <malloc.h>
 #include <rtc.h>
 #include <acpi/acpi_s3.h>

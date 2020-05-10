@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <init.h>
+#include <log.h>
 #include <nuvoton_nct6102d.h>
 #include <asm/gpio.h>
 #include <asm/ibmpc.h>

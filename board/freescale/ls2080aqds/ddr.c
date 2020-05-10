@@ -6,6 +6,7 @@
 #include <common.h>
 #include <fsl_ddr_sdram.h>
 #include <fsl_ddr_dimm_params.h>
+#include <log.h>
 #include <asm/arch/soc.h>
 #include <asm/arch/clock.h>
 #include "ddr.h"

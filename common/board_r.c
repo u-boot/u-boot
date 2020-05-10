@@ -18,6 +18,7 @@
 #include <hang.h>
 #include <image.h>
 #include <irq_func.h>
+#include <log.h>
 #include <net.h>
 #include <asm/cache.h>
 #include <u-boot/crc.h>

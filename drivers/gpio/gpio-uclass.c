@@ -5,7 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
-#include <dm/device_compat.h>
+#include <log.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dm/uclass-internal.h>
@@ -14,6 +14,7 @@
 #include <fdtdec.h>
 #include <malloc.h>
 #include <asm/gpio.h>
+#include <dm/device_compat.h>
 #include <linux/bug.h>
 #include <linux/ctype.h>
 

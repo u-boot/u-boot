@@ -14,6 +14,7 @@
 #include <common.h>
 #include <i2c.h>
 #include <dm.h>
+#include <log.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/i2c_defs.h>
 #include <asm/io.h>

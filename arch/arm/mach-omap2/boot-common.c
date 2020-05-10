@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <ahci.h>
+#include <log.h>
 #include <spl.h>
 #include <asm/omap_common.h>
 #include <asm/arch/omap.h>

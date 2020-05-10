@@ -13,6 +13,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <video_fb.h>

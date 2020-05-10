@@ -8,6 +8,7 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <init.h>
+#include <log.h>
 #include <ns16550.h>
 #include <spl.h>
 #include <asm/cache.h>

@@ -9,7 +9,9 @@
  * @brief PFE utility commands
  */
 
+#include <common.h>
 #include <command.h>
+#include <log.h>
 #include <net/pfe_eth/pfe_eth.h>
 
 static inline void pfe_command_help(void)

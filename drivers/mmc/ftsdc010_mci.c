@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <clk.h>
+#include <log.h>
 #include <malloc.h>
 #include <part.h>
 #include <mmc.h>

@@ -11,6 +11,7 @@
 #include <common.h>
 #include <blk.h>
 #include <cpu_func.h>
+#include <log.h>
 
 #include <command.h>
 #include <dm.h>

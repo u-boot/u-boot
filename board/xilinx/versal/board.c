@@ -9,6 +9,7 @@
 #include <env.h>
 #include <fdtdec.h>
 #include <init.h>
+#include <log.h>
 #include <malloc.h>
 #include <time.h>
 #include <asm/cache.h>

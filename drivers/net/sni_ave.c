@@ -8,6 +8,7 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <fdt_support.h>
+#include <log.h>
 #include <malloc.h>
 #include <miiphy.h>
 #include <net.h>

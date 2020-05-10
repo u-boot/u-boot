@@ -8,6 +8,7 @@
 #include <display.h>
 #include <dm.h>
 #include <edid.h>
+#include <log.h>
 #include <asm/io.h>
 #include <dw_hdmi.h>
 #include <dm/device-internal.h>

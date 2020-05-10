@@ -9,6 +9,7 @@
 #include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <linux/libfdt.h>
 #include <malloc.h>
 #include <usb.h>

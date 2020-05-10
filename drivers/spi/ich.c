@@ -13,6 +13,7 @@
 #include <dm.h>
 #include <dt-structs.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <pch.h>
 #include <pci.h>

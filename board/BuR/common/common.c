@@ -8,6 +8,7 @@
  * Bernecker & Rainer Industrieelektronik GmbH - http://www.br-automation.com
  *
  */
+#include <log.h>
 #include <version.h>
 #include <common.h>
 #include <env.h>

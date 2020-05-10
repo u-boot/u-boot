@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <env.h>
 #include <init.h>
+#include <log.h>
 
 #include <asm/io.h>
 #include <asm/arch/stm32.h>

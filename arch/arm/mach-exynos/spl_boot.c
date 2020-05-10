@@ -6,6 +6,7 @@
 #include <common.h>
 #include <config.h>
 #include <init.h>
+#include <log.h>
 
 #include <asm/cache.h>
 #include <asm/arch/clock.h>

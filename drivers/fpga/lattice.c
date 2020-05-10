@@ -11,6 +11,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <malloc.h>
 #include <fpga.h>
 #include <lattice.h>

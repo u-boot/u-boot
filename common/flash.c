@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <flash.h>
+#include <log.h>
 #include <uuid.h>
 
 #include <mtd/cfi_flash.h>

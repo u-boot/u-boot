@@ -11,6 +11,7 @@
 #include <image.h>
 #include <init.h>
 #include <irq_func.h>
+#include <log.h>
 #include <netdev.h>
 #include <linux/compiler.h>
 #include <asm/mmu.h>

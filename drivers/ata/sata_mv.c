@@ -36,6 +36,7 @@
 #include <blk.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <log.h>
 #include <asm/cache.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>

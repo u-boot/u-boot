@@ -30,6 +30,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <irq_func.h>
 #include <asm/interrupt.h>
 

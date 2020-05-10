@@ -8,6 +8,7 @@
 #include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <usb.h>
 #include <power/regulator.h>
 #include <asm/gpio.h>

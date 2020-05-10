@@ -10,6 +10,7 @@
 #include <elf.h>
 #include <env.h>
 #include <image.h>
+#include <log.h>
 #include <net.h>
 #include <vxworks.h>
 #ifdef CONFIG_X86

@@ -10,6 +10,7 @@
 #include <linux/libfdt.h>
 #else
 #include <common.h>
+#include <log.h>
 #include <malloc.h>
 DECLARE_GLOBAL_DATA_PTR;
 #endif /* !USE_HOSTCC*/

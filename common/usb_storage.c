@@ -37,6 +37,7 @@
 #include <command.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <mapmem.h>
 #include <memalign.h>
 #include <asm/byteorder.h>

@@ -5,6 +5,7 @@
 #include <common.h>
 #include <console.h>
 #include <clk.h>
+#include <log.h>
 #include <ram.h>
 #include <rand.h>
 #include <reset.h>

@@ -18,6 +18,7 @@
 #include <dm.h>
 #include <hang.h>
 #include <lmb.h>
+#include <log.h>
 #include <dm/root.h>
 #include <env.h>
 #include <image.h>

@@ -8,6 +8,7 @@
 #include <common.h>
 #include <console.h>
 #include <dm.h>
+#include <log.h>
 #include <usb.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>

@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm/io.h>
 #include <asm/arch/tegra.h>
 #include <asm/arch/pinmux.h>

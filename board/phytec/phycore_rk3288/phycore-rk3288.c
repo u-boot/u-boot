@@ -6,6 +6,7 @@
 
 #include <eeprom.h>
 #include <init.h>
+#include <log.h>
 #include <net.h>
 #include <asm/io.h>
 #include <common.h>

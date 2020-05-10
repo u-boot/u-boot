@@ -14,6 +14,7 @@
 #include <config.h>
 #include <errno.h>
 #include <dm.h>
+#include <log.h>
 #include <dm/pinctrl.h>
 #include <dm/root.h>
 #include <dm/device-internal.h>

@@ -8,6 +8,7 @@
 #include <common.h>
 #include <blk.h>
 #include <compiler.h>
+#include <log.h>
 #include <part.h>
 #include <memalign.h>
 

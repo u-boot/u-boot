@@ -8,6 +8,7 @@
 #include <bootcount.h>
 #include <dm.h>
 #include <i2c_eeprom.h>
+#include <log.h>
 
 static const u8 bootcount_magic = 0xbc;
 

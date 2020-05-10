@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <fdt_support.h>
+#include <log.h>
 #include <mapmem.h>
 
 DECLARE_GLOBAL_DATA_PTR;

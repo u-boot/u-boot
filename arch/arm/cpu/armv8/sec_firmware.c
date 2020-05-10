@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <fdt_support.h>
 #include <image.h>
+#include <log.h>
 #include <asm/cache.h>
 #include <linux/kernel.h>
 #include <asm/io.h>

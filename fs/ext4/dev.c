@@ -29,6 +29,7 @@
 #include <ext4fs.h>
 #include <ext_common.h>
 #include "ext4_common.h"
+#include <log.h>
 
 lbaint_t part_offset;
 

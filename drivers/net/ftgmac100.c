@@ -11,9 +11,11 @@
  * Copyright (C) 2018, IBM Corporation.
  */
 
+#include <common.h>
 #include <clk.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <log.h>
 #include <malloc.h>
 #include <miiphy.h>
 #include <net.h>

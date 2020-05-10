@@ -9,6 +9,7 @@
  *
  */
 
+#include <log.h>
 #include <miiphy.h>
 #include <bitfield.h>
 #include <time.h>

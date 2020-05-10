@@ -20,6 +20,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <watchdog.h>
 #include <dm/devres.h>
 #include <linux/compat.h>

@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <log.h>
 #include <linux/ctype.h>
 #include <dm.h>
 #include <video.h>

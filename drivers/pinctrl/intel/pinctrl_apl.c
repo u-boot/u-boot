@@ -11,6 +11,7 @@
 #include <common.h>
 #include <dm.h>
 #include <dt-structs.h>
+#include <log.h>
 #include <p2sb.h>
 #include <asm/intel_pinctrl.h>
 #include <asm-generic/gpio.h>

@@ -12,6 +12,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <init.h>
+#include <log.h>
 #include <mmc.h>
 #include <i2c.h>
 #include <serial.h>

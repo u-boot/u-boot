@@ -3,6 +3,7 @@
  * Copyright (c) 2017, Impinj, Inc.
  */
 
+#include <log.h>
 #include <malloc.h>
 #include <asm/io.h>
 #include <common.h>

@@ -8,6 +8,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <i2c.h>
+#include <log.h>
 #include <malloc.h>
 #include <pci.h>
 #include <reset.h>

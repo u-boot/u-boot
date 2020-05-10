@@ -70,6 +70,7 @@
 #include <env.h>
 #include <fdtdec.h>
 #include <gzip.h>
+#include <log.h>
 #include <version.h>
 #include <malloc.h>
 #include <video.h>

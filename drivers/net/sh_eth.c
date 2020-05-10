@@ -12,6 +12,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <env.h>
+#include <log.h>
 #include <malloc.h>
 #include <net.h>
 #include <netdev.h>

@@ -6,6 +6,7 @@
  * Author: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
  */
 
+#include <log.h>
 #include <asm/io.h>
 #include <common.h>
 #include <dm.h>

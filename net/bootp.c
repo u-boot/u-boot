@@ -13,6 +13,7 @@
 #include <command.h>
 #include <env.h>
 #include <efi_loader.h>
+#include <log.h>
 #include <net.h>
 #include <rand.h>
 #include <uuid.h>

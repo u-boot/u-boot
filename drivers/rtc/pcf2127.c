@@ -9,6 +9,7 @@
 #include <command.h>
 #include <dm.h>
 #include <i2c.h>
+#include <log.h>
 #include <rtc.h>
 
 #define PCF2127_REG_CTRL1	0x00

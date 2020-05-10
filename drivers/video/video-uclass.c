@@ -6,6 +6,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <log.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <stdio_dev.h>

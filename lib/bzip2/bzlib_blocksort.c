@@ -60,6 +60,7 @@
 --*/
 
 #include "bzlib_private.h"
+#include <log.h>
 
 /*---------------------------------------------*/
 /*--- Fallback O(N log(N)^2) sorting        ---*/

@@ -10,6 +10,7 @@
 #include <flash.h>
 #include <init.h>
 #include <led.h>
+#include <log.h>
 #include <malloc.h>
 #include <net.h>
 #include <spi.h>

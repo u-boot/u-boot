@@ -15,6 +15,7 @@
 #include <i2c.h>
 #include <errno.h>
 #include <atsha204a-i2c.h>
+#include <log.h>
 #include <u-boot/crc.h>
 
 #define ATSHA204A_TWLO			60

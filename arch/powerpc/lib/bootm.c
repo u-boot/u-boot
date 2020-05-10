@@ -13,6 +13,7 @@
 #include <env.h>
 #include <init.h>
 #include <lmb.h>
+#include <log.h>
 #include <watchdog.h>
 #include <command.h>
 #include <image.h>

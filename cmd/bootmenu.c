@@ -7,6 +7,7 @@
 #include <command.h>
 #include <ansi.h>
 #include <env.h>
+#include <log.h>
 #include <menu.h>
 #include <watchdog.h>
 #include <malloc.h>

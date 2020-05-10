@@ -6,6 +6,7 @@
 
 #include "regulator_common.h"
 #include <common.h>
+#include <log.h>
 #include <power/regulator.h>
 
 int regulator_common_ofdata_to_platdata(struct udevice *dev,

@@ -7,6 +7,7 @@
 #include <common.h>
 #include <command.h>
 #include <dm.h>
+#include <log.h>
 #include <sysreset.h>
 #include <wait_bit.h>
 

@@ -12,6 +12,7 @@
 #include <command.h>
 #include <console.h>
 #include <env.h>
+#include <log.h>
 #include <linux/ctype.h>
 
 /*

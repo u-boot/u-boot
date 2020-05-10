@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <fdt_support.h>
+#include <log.h>
 #include <tee.h>
 #include <asm/arch/sys_proto.h>
 #include <dt-bindings/pinctrl/stm32-pinfunc.h>

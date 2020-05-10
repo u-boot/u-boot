@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <power/pmic.h>
 #include <spmi/spmi.h>
 #include <asm/io.h>

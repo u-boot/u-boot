@@ -10,6 +10,7 @@
 #include <command.h>
 #include <config.h>
 #include <cpu_func.h>
+#include <log.h>
 #include <net.h>
 #include <malloc.h>
 #include <asm/io.h>

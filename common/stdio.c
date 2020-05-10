@@ -12,6 +12,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <stdarg.h>
 #include <malloc.h>
 #include <stdio_dev.h>

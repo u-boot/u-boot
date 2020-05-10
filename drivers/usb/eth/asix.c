@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <net.h>
 #include <usb.h>
 #include <malloc.h>

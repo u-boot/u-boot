@@ -51,6 +51,7 @@
 
 /* Includes */
 #include <common.h>
+#include <log.h>
 #include <malloc.h>
 #include <net.h>
 #include <netdev.h>

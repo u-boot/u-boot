@@ -11,6 +11,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <part.h>
 #include <asm/cache.h>
 #include <linux/errno.h>

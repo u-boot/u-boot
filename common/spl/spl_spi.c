@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <image.h>
+#include <log.h>
 #include <spi.h>
 #include <spi_flash.h>
 #include <errno.h>

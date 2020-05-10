@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <dt-structs.h>
 #include <irq.h>
+#include <log.h>
 #include <dm/device-internal.h>
 
 int irq_route_pmc_gpio_gpe(struct udevice *dev, uint pmc_gpe_num)

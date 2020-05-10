@@ -7,6 +7,7 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <log.h>
 #include <nand.h>
 #include <reset.h>
 #include <linux/err.h>

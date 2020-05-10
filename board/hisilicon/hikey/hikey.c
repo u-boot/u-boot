@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <fdt_support.h>
 #include <init.h>
+#include <log.h>
 #include <dm/platform_data/serial_pl01x.h>
 #include <errno.h>
 #include <malloc.h>

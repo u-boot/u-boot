@@ -9,6 +9,7 @@
 #include <common.h>
 #include <command.h>
 #include <lcd.h>
+#include <log.h>
 #include <serial.h>
 #include <video_font.h>		/* Get font data, width and height */
 #if defined(CONFIG_LCD_LOGO)

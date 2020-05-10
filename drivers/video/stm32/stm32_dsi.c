@@ -12,6 +12,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <dsi_host.h>
+#include <log.h>
 #include <mipi_dsi.h>
 #include <panel.h>
 #include <reset.h>

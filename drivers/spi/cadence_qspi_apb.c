@@ -26,6 +26,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm/io.h>
 #include <dma.h>
 #include <linux/errno.h>

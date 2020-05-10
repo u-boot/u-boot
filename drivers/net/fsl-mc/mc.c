@@ -9,6 +9,7 @@
 #include <env.h>
 #include <errno.h>
 #include <image.h>
+#include <log.h>
 #include <malloc.h>
 #include <linux/bug.h>
 #include <asm/io.h>

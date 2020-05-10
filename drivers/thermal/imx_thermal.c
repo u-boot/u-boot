@@ -9,6 +9,7 @@
 #include <common.h>
 #include <div64.h>
 #include <fuse.h>
+#include <log.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>

@@ -10,6 +10,7 @@
 #include <common.h>
 #include <dm.h>
 #include <dt-structs.h>
+#include <log.h>
 #include <p2sb.h>
 #include <spl.h>
 #include <asm/pci.h>

@@ -8,6 +8,7 @@
 #include <common.h>
 #include <command.h>
 #include <dm.h>
+#include <log.h>
 #include <net.h>
 #include <rtc.h>
 

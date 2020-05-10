@@ -9,6 +9,7 @@
 #include <fdt_support.h>
 #include <hwconfig.h>
 #include <command.h>
+#include <log.h>
 #include <net.h>
 #include <netdev.h>
 #include <malloc.h>

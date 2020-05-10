@@ -11,6 +11,7 @@
 #include <dm.h>
 #include <i2c.h>
 #include <irq.h>
+#include <log.h>
 #include <spl.h>
 #include <tpm-v2.h>
 #include <asm/gpio.h>

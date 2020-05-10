@@ -22,6 +22,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <log.h>
 #include <asm/byteorder.h>
 #include <usb.h>
 #include <malloc.h>

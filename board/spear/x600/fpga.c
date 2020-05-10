@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <spartan3.h>
 #include <command.h>
 #include <asm/gpio.h>

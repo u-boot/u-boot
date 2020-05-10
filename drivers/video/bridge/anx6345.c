@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <i2c.h>
 #include <edid.h>
+#include <log.h>
 #include <video_bridge.h>
 #include "../anx98xx-edp.h"
 

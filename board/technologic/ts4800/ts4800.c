@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <init.h>
+#include <log.h>
 #include <net.h>
 #include <asm/io.h>
 #include <asm/gpio.h>

@@ -7,6 +7,7 @@
 #include <common.h>
 #include <blk.h>
 #include <dm.h>
+#include <log.h>
 #include <malloc.h>
 #include <part.h>
 #include <dm/device-internal.h>

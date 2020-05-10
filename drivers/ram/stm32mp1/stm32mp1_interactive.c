@@ -8,6 +8,7 @@
 #include <console.h>
 #include <cli.h>
 #include <clk.h>
+#include <log.h>
 #include <malloc.h>
 #include <ram.h>
 #include <reset.h>

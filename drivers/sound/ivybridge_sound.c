@@ -15,6 +15,7 @@
 #include <common.h>
 #include <dm.h>
 #include <hda_codec.h>
+#include <log.h>
 #include <pch.h>
 #include <sound.h>
 

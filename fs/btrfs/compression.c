@@ -6,6 +6,7 @@
  */
 
 #include "btrfs.h"
+#include <log.h>
 #include <malloc.h>
 #include <linux/lzo.h>
 #include <linux/zstd.h>

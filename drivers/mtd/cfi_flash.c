@@ -25,6 +25,7 @@
 #include <flash.h>
 #include <init.h>
 #include <irq_func.h>
+#include <log.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/byteorder.h>

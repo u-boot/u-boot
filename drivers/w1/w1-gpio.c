@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <w1.h>
 
 #include <asm/gpio.h>

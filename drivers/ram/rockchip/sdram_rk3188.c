@@ -13,6 +13,7 @@
 #include <errno.h>
 #include <hang.h>
 #include <init.h>
+#include <log.h>
 #include <ram.h>
 #include <regmap.h>
 #include <syscon.h>

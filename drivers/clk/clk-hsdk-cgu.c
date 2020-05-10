@@ -13,6 +13,7 @@
 #include <clk-uclass.h>
 #include <div64.h>
 #include <dm.h>
+#include <log.h>
 #include <linux/io.h>
 #include <asm/arcregs.h>
 

@@ -15,6 +15,7 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <log.h>
 #include <malloc.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>

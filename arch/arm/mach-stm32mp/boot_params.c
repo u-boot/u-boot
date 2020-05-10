@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm/sections.h>
 #include <asm/system.h>
 

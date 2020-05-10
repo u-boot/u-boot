@@ -8,6 +8,7 @@
 #include <common.h>
 #include <command.h>
 #include <env.h>
+#include <log.h>
 #include <asm/arch/sm.h>
 #include <asm/cache.h>
 #include <linux/err.h>

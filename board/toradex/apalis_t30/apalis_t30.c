@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <init.h>
+#include <log.h>
 #include <asm/arch/gp_padctrl.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch-tegra/ap.h>

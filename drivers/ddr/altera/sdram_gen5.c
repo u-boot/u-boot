@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <div64.h>
 #include <init.h>
+#include <log.h>
 #include <ram.h>
 #include <reset.h>
 #include <watchdog.h>

@@ -12,6 +12,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <clk-uclass.h>
+#include <log.h>
 #include <malloc.h>
 #include <dm/device_compat.h>
 #include <linux/err.h>

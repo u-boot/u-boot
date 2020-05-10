@@ -5,6 +5,7 @@
  */
 
 #include "vsc3316_3308.h"
+#include <log.h>
 
 #define REVISION_ID_REG		0x7E
 #define INTERFACE_MODE_REG		0x79

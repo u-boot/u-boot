@@ -9,6 +9,7 @@
 #include <common.h>
 #include <div64.h>
 #include <dm.h>
+#include <log.h>
 #include <pwm.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/io.h>

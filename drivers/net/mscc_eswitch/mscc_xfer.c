@@ -3,6 +3,7 @@
  * Copyright (c) 2018 Microsemi Corporation
  */
 
+#include <log.h>
 #include <linux/io.h>
 #include "mscc_xfer.h"
 

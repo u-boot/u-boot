@@ -6,6 +6,7 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <log.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>
 #include <dm/ofnode.h>

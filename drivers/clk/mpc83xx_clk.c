@@ -9,6 +9,7 @@
 #include <clock_legacy.h>
 #include <command.h>
 #include <dm.h>
+#include <log.h>
 #include <vsprintf.h>
 #include <dm/lists.h>
 #include <dt-bindings/clk/mpc83xx-clk.h>

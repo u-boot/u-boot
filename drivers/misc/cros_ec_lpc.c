@@ -16,6 +16,7 @@
 #include <dm.h>
 #include <command.h>
 #include <cros_ec.h>
+#include <log.h>
 #include <asm/io.h>
 
 #ifdef DEBUG_TRACE

@@ -12,6 +12,7 @@
 #include <fdtdec.h>
 #include <hang.h>
 #include <init.h>
+#include <log.h>
 #include <ram.h>
 #include <reset.h>
 #include "sdram_s10.h"

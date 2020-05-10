@@ -18,6 +18,7 @@
 #include <console.h>
 #include <flash.h>
 #include <hash.h>
+#include <log.h>
 #include <mapmem.h>
 #include <rand.h>
 #include <watchdog.h>

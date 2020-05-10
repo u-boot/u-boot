@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <syscon.h>
 #include <dm.h>
 #include <errno.h>

@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <malloc.h>
 #include <miiphy.h>
 #include <dm/device-internal.h>

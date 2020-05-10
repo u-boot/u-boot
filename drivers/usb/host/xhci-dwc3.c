@@ -10,6 +10,7 @@
 #include <common.h>
 #include <dm.h>
 #include <generic-phy.h>
+#include <log.h>
 #include <usb.h>
 #include <dwc3-uboot.h>
 

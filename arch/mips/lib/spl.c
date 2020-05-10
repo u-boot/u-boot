@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <log.h>
 #include <spl.h>
 
 void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)

@@ -8,6 +8,7 @@
 #include <console.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <asm/state.h>
 #include <dm/test.h>

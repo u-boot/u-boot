@@ -18,6 +18,7 @@
 #include <fdt_support.h>
 #include <init.h>
 #include <ioports.h>
+#include <log.h>
 #include <mpc83xx.h>
 #include <i2c.h>
 #include <miiphy.h>

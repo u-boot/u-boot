@@ -18,6 +18,7 @@
 
 #include <common.h>
 #include <errno.h>
+#include <log.h>
 #include <asm/byteorder.h>
 #include <asm/system.h>
 #include <asm/mach-types.h>

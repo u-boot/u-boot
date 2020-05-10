@@ -6,6 +6,7 @@
 #include <common.h>
 #include <image.h>
 #include <init.h>
+#include <log.h>
 #include <asm/io.h>
 #include <asm/addrspace.h>
 #include <asm/types.h>

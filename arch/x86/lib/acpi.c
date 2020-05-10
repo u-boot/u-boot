@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <acpi/acpi_table.h>
 #include <asm/io.h>
 #include <asm/tables.h>

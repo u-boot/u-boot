@@ -3,6 +3,7 @@
  * (C) Copyright 2017 - Beniamino Galvani <b.galvani@gmail.com>
  */
 #include <common.h>
+#include <log.h>
 #include <asm/io.h>
 #include <clk.h>
 #include <dm.h>

@@ -10,6 +10,7 @@
 #include <image.h>
 #include <irq_func.h>
 #include <lmb.h>
+#include <log.h>
 #include <mapmem.h>
 #include <linux/kernel.h>
 #include <linux/sizes.h>

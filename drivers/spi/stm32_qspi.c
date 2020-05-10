@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <clk.h>
+#include <log.h>
 #include <reset.h>
 #include <spi-mem.h>
 #include <dm/device_compat.h>

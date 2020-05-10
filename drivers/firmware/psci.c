@@ -10,6 +10,7 @@
 #include <command.h>
 #include <dm.h>
 #include <irq_func.h>
+#include <log.h>
 #include <dm/lists.h>
 #include <efi_loader.h>
 #include <linux/libfdt.h>

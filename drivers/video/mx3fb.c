@@ -7,6 +7,7 @@
  */
 #include <common.h>
 #include <env.h>
+#include <log.h>
 #include <malloc.h>
 #include <video_fb.h>
 

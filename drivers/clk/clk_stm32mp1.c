@@ -8,6 +8,7 @@
 #include <div64.h>
 #include <dm.h>
 #include <init.h>
+#include <log.h>
 #include <regmap.h>
 #include <spl.h>
 #include <syscon.h>

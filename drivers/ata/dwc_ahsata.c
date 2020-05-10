@@ -12,6 +12,7 @@
 #include <dwc_ahsata.h>
 #include <fis.h>
 #include <libata.h>
+#include <log.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <part.h>

@@ -13,6 +13,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <net.h>
 #include <malloc.h>
 #include <miiphy.h>

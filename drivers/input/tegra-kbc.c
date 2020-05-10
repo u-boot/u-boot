@@ -10,6 +10,7 @@
 #include <input.h>
 #include <keyboard.h>
 #include <key_matrix.h>
+#include <log.h>
 #include <stdio_dev.h>
 #include <tegra-kbc.h>
 #include <asm/io.h>

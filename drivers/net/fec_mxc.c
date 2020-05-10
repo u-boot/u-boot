@@ -11,6 +11,7 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <env.h>
+#include <log.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <miiphy.h>

@@ -10,6 +10,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <pci.h>
 
 /* the user can define CONFIG_SYS_PCI_CACHE_LINE_SIZE to avoid problems */

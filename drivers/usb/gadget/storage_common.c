@@ -268,6 +268,7 @@ struct interrupt_data {
 struct device_attribute { int i; };
 #define ETOOSMALL	525
 
+#include <log.h>
 #include <usb_mass_storage.h>
 #include <dm/device_compat.h>
 

@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <log.h>
 #include <miiphy.h>
 #include <linux/errno.h>
 #include <mv88e6352.h>

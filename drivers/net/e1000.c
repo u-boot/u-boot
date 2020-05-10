@@ -34,6 +34,7 @@ tested on both gig copper and gig fiber boards
 #include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <net.h>

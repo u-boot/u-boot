@@ -6,6 +6,7 @@
  */
 
 #define pr_fmt(fmt) "X.509: "fmt
+#include <log.h>
 #include <dm/devres.h>
 #include <linux/kernel.h>
 #ifndef __UBOOT__

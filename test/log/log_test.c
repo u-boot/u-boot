@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <log.h>
 
 /* emit some sample log records in different ways, for testing */
 static int log_run(enum uclass_id cat, const char *file)

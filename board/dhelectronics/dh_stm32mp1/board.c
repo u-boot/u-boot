@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <adc.h>
+#include <log.h>
 #include <net.h>
 #include <asm/arch/stm32.h>
 #include <asm/arch/sys_proto.h>

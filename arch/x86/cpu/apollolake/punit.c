@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <spl.h>
 #include <asm/cpu.h>
 #include <asm/cpu_common.h>

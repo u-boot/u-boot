@@ -10,6 +10,7 @@
 #include <env.h>
 #include <image.h>
 #include <lmb.h>
+#include <log.h>
 #include <u-boot/zlib.h>
 #include <bzlib.h>
 #include <watchdog.h>

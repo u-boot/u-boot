@@ -2,6 +2,7 @@
 
 #include <common.h>
 #include <init.h>
+#include <log.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

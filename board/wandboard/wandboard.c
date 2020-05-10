@@ -9,6 +9,7 @@
 #include <common.h>
 #include <image.h>
 #include <init.h>
+#include <log.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/iomux.h>

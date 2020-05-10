@@ -15,6 +15,7 @@
 #include <gzip.h>
 #include <image.h>
 #include <lcd.h>
+#include <log.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <splash.h>

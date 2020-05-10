@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <log.h>
 #include <search.h>
 #include <stdio.h>
 #include <test/env.h>

@@ -21,6 +21,7 @@
  */
 #include <common.h>
 #include <init.h>
+#include <log.h>
 #include <pci.h>
 #include <asm/io.h>
 #include "integrator-sc.h"

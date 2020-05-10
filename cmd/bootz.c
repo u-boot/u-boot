@@ -10,6 +10,7 @@
 #include <image.h>
 #include <irq_func.h>
 #include <lmb.h>
+#include <log.h>
 #include <linux/compiler.h>
 
 int __weak bootz_setup(ulong image, ulong *start, ulong *end)

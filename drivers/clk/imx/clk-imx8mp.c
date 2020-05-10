@@ -8,6 +8,7 @@
 #include <clk.h>
 #include <clk-uclass.h>
 #include <dm.h>
+#include <log.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <dt-bindings/clock/imx8mp-clock.h>

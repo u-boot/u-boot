@@ -15,6 +15,7 @@
 #include <common.h>
 #include <dm.h>
 #include <clk.h>
+#include <log.h>
 #include <wdt.h>
 #include <linux/kernel.h>
 #include <asm/io.h>

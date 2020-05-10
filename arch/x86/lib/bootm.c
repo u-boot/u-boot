@@ -11,6 +11,7 @@
 #include <bootstage.h>
 #include <command.h>
 #include <hang.h>
+#include <log.h>
 #include <dm/device.h>
 #include <dm/root.h>
 #include <errno.h>

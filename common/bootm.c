@@ -13,6 +13,7 @@
 #include <fdt_support.h>
 #include <irq_func.h>
 #include <lmb.h>
+#include <log.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <net.h>

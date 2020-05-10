@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <init.h>
 #include <irq.h>
+#include <log.h>
 #include <malloc.h>
 #include <acpi/acpi_s3.h>
 #include <asm/intel_pinctrl.h>

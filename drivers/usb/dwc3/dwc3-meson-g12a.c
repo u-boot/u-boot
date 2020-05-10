@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm-generic/io.h>
 #include <dm.h>
 #include <dm/device-internal.h>

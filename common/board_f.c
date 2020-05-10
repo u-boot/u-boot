@@ -26,6 +26,7 @@
 #include <init.h>
 #include <initcall.h>
 #include <lcd.h>
+#include <log.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <os.h>

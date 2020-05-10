@@ -15,6 +15,7 @@
 #include <fsl_ddr_sdram.h>
 #include <fsl_ddr.h>
 #include <init.h>
+#include <log.h>
 
 /*
  * CONFIG_SYS_FSL_DDR_SDRAM_BASE_PHY is the physical address from the view

@@ -26,6 +26,7 @@
 #include <dm.h>
 #include <env.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <asm/processor.h>

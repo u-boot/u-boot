@@ -8,6 +8,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <sysreset.h>
 #include <asm/pci.h>
 #include <asm/cpu.h>

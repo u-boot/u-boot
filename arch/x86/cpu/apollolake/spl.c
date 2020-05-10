@@ -8,6 +8,7 @@
 #include <bootstage.h>
 #include <dm.h>
 #include <image.h>
+#include <log.h>
 #include <malloc.h>
 #include <spi.h>
 #include <spl.h>

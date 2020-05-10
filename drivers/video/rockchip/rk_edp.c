@@ -9,6 +9,7 @@
 #include <display.h>
 #include <dm.h>
 #include <edid.h>
+#include <log.h>
 #include <malloc.h>
 #include <panel.h>
 #include <regmap.h>

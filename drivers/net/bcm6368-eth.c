@@ -10,6 +10,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <dma.h>
+#include <log.h>
 #include <malloc.h>
 #include <miiphy.h>
 #include <net.h>

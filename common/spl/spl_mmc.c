@@ -7,6 +7,7 @@
  */
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <part.h>
 #include <spl.h>
 #include <linux/compiler.h>

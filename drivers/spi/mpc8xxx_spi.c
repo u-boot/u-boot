@@ -8,6 +8,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <spi.h>
 #include <asm/mpc8xxx_spi.h>

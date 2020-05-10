@@ -5,6 +5,7 @@
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  */
 
+#include <log.h>
 #include <linux/errno.h>
 #include <linux/io.h>
 #include <linux/printk.h>

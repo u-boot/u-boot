@@ -10,6 +10,7 @@
 #include <common.h>
 #include <console.h>
 #include <dm.h>
+#include <log.h>
 #include <malloc.h>
 #include <net.h>
 #include <command.h>

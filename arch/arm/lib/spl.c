@@ -10,6 +10,7 @@
 #include <common.h>
 #include <config.h>
 #include <init.h>
+#include <log.h>
 #include <spl.h>
 #include <image.h>
 #include <asm/cache.h>

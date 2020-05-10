@@ -11,6 +11,7 @@
 #include <common.h>
 #include <dt-structs.h>
 #include <dm.h>
+#include <log.h>
 #include <spl.h>
 #include <acpi/acpi_s3.h>
 #include <asm/io.h>

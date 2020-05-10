@@ -7,6 +7,7 @@
  */
 #undef DEBUG
 
+#include <log.h>
 #include <dm/devres.h>
 #include <linux/bitops.h>
 #include <linux/usb/composite.h>

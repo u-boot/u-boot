@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <log.h>
 #include <asm/io.h>
 #include <linux/errno.h>
 #include <asm/arch/imx-regs.h>

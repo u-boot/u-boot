@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <asm/fsp1/fsp_support.h>
 
 DECLARE_GLOBAL_DATA_PTR;

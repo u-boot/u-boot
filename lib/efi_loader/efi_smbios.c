@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <efi_loader.h>
+#include <log.h>
 #include <mapmem.h>
 #include <smbios.h>
 

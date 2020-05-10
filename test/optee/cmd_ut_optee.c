@@ -7,6 +7,7 @@
 #include <command.h>
 #include <errno.h>
 #include <fdt_support.h>
+#include <log.h>
 #include <malloc.h>
 #include <tee/optee.h>
 

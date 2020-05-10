@@ -9,6 +9,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <ns16550.h>
 #include <reset.h>
 #include <serial.h>

@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <sound.h>
 
 void sound_create_square_wave(uint sample_rate, unsigned short *data, int size,

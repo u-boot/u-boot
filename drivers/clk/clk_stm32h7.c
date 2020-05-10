@@ -7,6 +7,7 @@
 #include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
+#include <log.h>
 #include <regmap.h>
 #include <syscon.h>
 #include <asm/io.h>

@@ -21,6 +21,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <generic-phy.h>
+#include <log.h>
 #include <malloc.h>
 #include <reset.h>
 #include <dm/device_compat.h>

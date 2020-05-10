@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <pci_rom.h>
 #include <vbe.h>
 #include <asm/intel_regs.h>

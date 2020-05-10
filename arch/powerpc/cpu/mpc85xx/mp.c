@@ -6,6 +6,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <env.h>
+#include <log.h>
 #include <asm/processor.h>
 #include <env.h>
 #include <ioports.h>

@@ -9,6 +9,7 @@
 #include <dt-structs.h>
 #include <dwmmc.h>
 #include <errno.h>
+#include <log.h>
 #include <mapmem.h>
 #include <pwrseq.h>
 #include <syscon.h>

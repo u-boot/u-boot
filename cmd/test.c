@@ -7,6 +7,7 @@
 #include <common.h>
 #include <command.h>
 #include <fs.h>
+#include <log.h>
 
 #define OP_INVALID	0
 #define OP_NOT		1

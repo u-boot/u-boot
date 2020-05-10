@@ -6,6 +6,7 @@
 #include <android_ab.h>
 #include <android_bootloader_message.h>
 #include <blk.h>
+#include <log.h>
 #include <malloc.h>
 #include <part.h>
 #include <memalign.h>

@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <fdtdec.h>
 #include <init.h>
+#include <log.h>
 #include <malloc.h>
 #include <asm/cache.h>
 #include <asm/mrccache.h>

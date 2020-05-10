@@ -4,6 +4,7 @@
  */
 
 #include <dm.h>
+#include <log.h>
 #include <usb.h>
 #include <linux/mii.h>
 #include "usb_ether.h"

@@ -6,6 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <i2c.h>
+#include <log.h>
 #include <misc.h>
 #include <asm/arch-tegra/bpmp_abi.h>
 

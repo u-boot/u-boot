@@ -16,6 +16,7 @@
 #include <hang.h>
 #include <image.h>
 #include <lmb.h>
+#include <log.h>
 #include <asm/cache.h>
 #include <u-boot/zlib.h>
 #include <asm/byteorder.h>

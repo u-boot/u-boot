@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <lmb.h>
+#include <log.h>
 #include <asm/arch/sys_proto.h>
 #include <linux/errno.h>
 #include <asm/io.h>

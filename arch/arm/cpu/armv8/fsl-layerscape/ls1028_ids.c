@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <fdt_support.h>
+#include <log.h>
 #include <asm/arch-fsl-layerscape/immap_lsch3.h>
 #include <asm/arch-fsl-layerscape/fsl_icid.h>
 #include <asm/arch-fsl-layerscape/fsl_portals.h>

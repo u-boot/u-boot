@@ -37,6 +37,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <watchdog.h>
 #include <asm/arch/hardware.h>
 #include <asm/io.h>

@@ -7,6 +7,7 @@
 #include <cpu_func.h>
 #include <hang.h>
 #include <init.h>
+#include <log.h>
 #include <spl.h>
 #include <asm/smp.h>
 

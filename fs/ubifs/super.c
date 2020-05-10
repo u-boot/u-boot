@@ -15,6 +15,7 @@
  */
 
 #ifndef __UBOOT__
+#include <log.h>
 #include <dm/devres.h>
 #include <linux/init.h>
 #include <linux/slab.h>

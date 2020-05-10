@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <asm/io.h>
 #include <asm/arch-tegra/ap.h>
 #include <asm/arch-tegra/apb_misc.h>

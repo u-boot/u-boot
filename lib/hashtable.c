@@ -13,6 +13,7 @@
  */
 
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <sort.h>
 

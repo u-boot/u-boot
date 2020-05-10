@@ -4,6 +4,7 @@
  * Copyright (C) 2017 Xingyu Chen <xingyu.chen@amlogic.com>
  */
 
+#include <log.h>
 #include <asm/gpio.h>
 #include <common.h>
 #include <dm.h>

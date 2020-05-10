@@ -8,9 +8,11 @@
 #ifndef __WAIT_BIT_H
 #define __WAIT_BIT_H
 
-#include <common.h>
 #include <console.h>
+#include <log.h>
+#include <time.h>
 #include <watchdog.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/io.h>
 

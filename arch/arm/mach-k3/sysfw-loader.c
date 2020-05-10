@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <image.h>
+#include <log.h>
 #include <spl.h>
 #include <malloc.h>
 #include <remoteproc.h>

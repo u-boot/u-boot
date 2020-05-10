@@ -12,6 +12,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <log.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/emc.h>

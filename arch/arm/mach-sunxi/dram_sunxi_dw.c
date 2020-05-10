@@ -10,6 +10,7 @@
  */
 #include <common.h>
 #include <init.h>
+#include <log.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/dram.h>

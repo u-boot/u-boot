@@ -11,6 +11,7 @@
 /************************************************************************/
 
 #include <common.h>
+#include <log.h>
 #include <asm/arch/pxa-regs.h>
 #include <asm/io.h>
 #include <lcd.h>

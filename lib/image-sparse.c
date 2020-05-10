@@ -39,6 +39,7 @@
 #include <blk.h>
 #include <image-sparse.h>
 #include <div64.h>
+#include <log.h>
 #include <malloc.h>
 #include <part.h>
 #include <sparse_format.h>

@@ -70,12 +70,13 @@
 
 #include <common.h>
 #include <cpu_func.h>
-#include <linux/types.h>
+#include <log.h>
 #include <malloc.h>
 #include <net.h>
 #include <netdev.h>
 #include <asm/io.h>
 #include <pci.h>
+#include <linux/types.h>
 
 #define RTL_TIMEOUT	100000
 

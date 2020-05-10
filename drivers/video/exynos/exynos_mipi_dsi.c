@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <malloc.h>
 #include <fdtdec.h>
 #include <dm/devres.h>

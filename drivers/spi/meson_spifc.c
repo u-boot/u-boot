@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <spi.h>
 #include <clk.h>
 #include <dm.h>

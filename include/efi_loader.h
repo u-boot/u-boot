@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <blk.h>
+#include <log.h>
 #include <part_efi.h>
 #include <efi_api.h>
 #include <image.h>

@@ -29,6 +29,7 @@
 #include <console.h>
 #include <env.h>
 #include <env_internal.h>
+#include <log.h>
 #include <net.h>
 #include <search.h>
 #include <errno.h>

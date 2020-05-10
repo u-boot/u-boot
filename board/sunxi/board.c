@@ -16,6 +16,7 @@
 #include <hang.h>
 #include <image.h>
 #include <init.h>
+#include <log.h>
 #include <mmc.h>
 #include <axp_pmic.h>
 #include <generic-phy.h>

@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <memalign.h>
 #include <part.h>
 #include <linux/compat.h>

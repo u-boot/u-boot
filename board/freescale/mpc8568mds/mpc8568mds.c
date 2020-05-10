@@ -8,6 +8,7 @@
 #include <common.h>
 #include <flash.h>
 #include <init.h>
+#include <log.h>
 #include <pci.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>

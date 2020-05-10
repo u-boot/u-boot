@@ -8,6 +8,7 @@
 #include <clk.h>
 #include <display.h>
 #include <dm.h>
+#include <log.h>
 #include <panel.h>
 #include <regmap.h>
 #include "rk_mipi.h"

@@ -10,6 +10,7 @@
 #include <common.h>
 #include <dm.h>
 #include <generic-phy.h>
+#include <log.h>
 #include <reset.h>
 #include <asm/io.h>
 #include <linux/bitops.h>

@@ -14,6 +14,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <dm/device_compat.h>

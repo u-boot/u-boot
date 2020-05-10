@@ -6,6 +6,7 @@
 #include <common.h>
 #include <fdt_support.h>
 #include <init.h>
+#include <log.h>
 #include <spl.h>
 #include <spl_gpio.h>
 #include <syscon.h>

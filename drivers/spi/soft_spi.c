@@ -13,6 +13,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <malloc.h>
 #include <spi.h>
 #include <asm/gpio.h>

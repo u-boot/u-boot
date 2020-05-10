@@ -11,6 +11,7 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <mmc.h>
 #include <sdhci.h>

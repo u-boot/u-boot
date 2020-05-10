@@ -8,6 +8,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <fsl_lpuart.h>
+#include <log.h>
 #include <watchdog.h>
 #include <asm/io.h>
 #include <serial.h>

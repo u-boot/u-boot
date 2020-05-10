@@ -15,6 +15,7 @@
 #include <cli.h>
 #include <command.h>
 #include <env.h>
+#include <log.h>
 #include <linux/ctype.h>
 #include <asm/types.h>
 #include <asm/io.h>

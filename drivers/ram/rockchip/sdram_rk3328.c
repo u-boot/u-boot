@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <dt-structs.h>
 #include <init.h>
+#include <log.h>
 #include <ram.h>
 #include <regmap.h>
 #include <syscon.h>

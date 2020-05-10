@@ -14,6 +14,7 @@
 #include <cpu_func.h>
 #include <errno.h>
 #include <image.h>
+#include <log.h>
 #include <spl.h>
 #include <asm/cache.h>
 

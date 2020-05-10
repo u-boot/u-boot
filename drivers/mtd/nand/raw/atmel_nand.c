@@ -11,6 +11,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm/gpio.h>
 #include <asm/arch/gpio.h>
 #include <dm/device_compat.h>

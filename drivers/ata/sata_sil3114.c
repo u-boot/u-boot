@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <blk.h>
+#include <log.h>
 #include <part.h>
 #include <pci.h>
 #include <command.h>

@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <mmc.h>
 #include <dm.h>
 #include <dm/device-internal.h>

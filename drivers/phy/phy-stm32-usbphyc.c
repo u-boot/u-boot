@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <fdtdec.h>
 #include <generic-phy.h>
+#include <log.h>
 #include <reset.h>
 #include <syscon.h>
 #include <usb.h>

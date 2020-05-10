@@ -241,6 +241,7 @@
 
 #include <config.h>
 #include <hexdump.h>
+#include <log.h>
 #include <malloc.h>
 #include <common.h>
 #include <console.h>

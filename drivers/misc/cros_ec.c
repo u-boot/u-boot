@@ -22,6 +22,7 @@
 #include <i2c.h>
 #include <cros_ec.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <malloc.h>
 #include <spi.h>
 #include <linux/errno.h>

@@ -12,6 +12,7 @@
 #include <div64.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <linux/libfdt.h>
 #include <panel.h>
 #include <video.h>

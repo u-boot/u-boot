@@ -6,6 +6,7 @@
 #include <dm.h>
 #include <image.h>
 #include <init.h>
+#include <log.h>
 #include <spl.h>
 #include <fsl_esdhc.h>
 

@@ -13,6 +13,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <fdt_support.h>
+#include <log.h>
 #include <memalign.h>
 #include <miiphy.h>
 #include <net.h>

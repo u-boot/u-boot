@@ -13,6 +13,7 @@
 #include <common.h>
 #include <command.h>
 #include <env.h>
+#include <log.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <hw_sha.h>

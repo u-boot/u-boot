@@ -10,6 +10,7 @@
 #include <flash.h>
 #include <hwconfig.h>
 #include <init.h>
+#include <log.h>
 #include <pci.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>

@@ -9,6 +9,7 @@
 #include <common.h>
 #include <bootstage.h>
 #include <dm.h>
+#include <log.h>
 #include <malloc.h>
 #include <time.h>
 #include <timer.h>

@@ -6,6 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <ahci.h>
+#include <log.h>
 #include <scsi.h>
 #include <asm/io.h>
 #include <linux/ioport.h>

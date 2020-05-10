@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #else
+#include <log.h>
 #include <common.h>
 #include <linux/ctype.h>
 #endif /* SLRE_TEST */

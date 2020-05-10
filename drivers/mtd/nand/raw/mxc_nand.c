@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <nand.h>
 #include <linux/err.h>
 #include <asm/io.h>

@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm/arch/me.h>
 
 /* HFS1[3:0] Current Working State Values */

@@ -7,6 +7,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <log.h>
 #include <watchdog.h>
 #include <command.h>
 #include <mmc.h>

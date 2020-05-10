@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <spi.h>
 #include <malloc.h>
 #include <asm/io.h>

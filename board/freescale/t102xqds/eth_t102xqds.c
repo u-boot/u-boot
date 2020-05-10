@@ -8,6 +8,7 @@
 #include <common.h>
 #include <command.h>
 #include <fdt_support.h>
+#include <log.h>
 #include <net.h>
 #include <netdev.h>
 #include <asm/mmu.h>

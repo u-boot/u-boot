@@ -7,6 +7,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <rtc.h>
 
 int dm_rtc_get(struct udevice *dev, struct rtc_time *time)

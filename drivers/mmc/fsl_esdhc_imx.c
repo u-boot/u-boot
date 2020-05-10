@@ -17,6 +17,7 @@
 #include <cpu_func.h>
 #include <errno.h>
 #include <hwconfig.h>
+#include <log.h>
 #include <mmc.h>
 #include <part.h>
 #include <asm/cache.h>

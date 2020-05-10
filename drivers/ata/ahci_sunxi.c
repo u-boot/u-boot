@@ -1,6 +1,7 @@
 #include <common.h>
 #include <ahci.h>
 #include <dm.h>
+#include <log.h>
 #include <scsi.h>
 #include <errno.h>
 #include <asm/io.h>

@@ -11,6 +11,7 @@
 #include <dm.h>
 #include <fdtdec.h>
 #include <init.h>
+#include <log.h>
 #include <ram.h>
 #include <wdt.h>
 #include <asm/arch/misc.h>

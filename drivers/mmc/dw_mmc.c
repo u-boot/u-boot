@@ -9,6 +9,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <mmc.h>

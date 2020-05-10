@@ -11,6 +11,7 @@
 #include <fsl_sfp.h>
 #include <fsl_sec.h>
 #include <command.h>
+#include <log.h>
 #include <malloc.h>
 #include <u-boot/rsa-mod-exp.h>
 #include <hash.h>

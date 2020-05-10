@@ -8,6 +8,7 @@
 #include <common.h>
 #include <image.h>
 #include <init.h>
+#include <log.h>
 #include <spl.h>
 
 #include <asm/io.h>

@@ -12,6 +12,7 @@
 #include <fdt_support.h>
 #include <image.h>
 #include <init.h>
+#include <log.h>
 #include <net.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/hardware.h>

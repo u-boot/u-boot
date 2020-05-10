@@ -3,6 +3,7 @@
  * Copyright 2016 NXP Semiconductor, Inc.
  */
 #include <common.h>
+#include <log.h>
 #include <malloc.h>
 #include <config.h>
 #include <errno.h>

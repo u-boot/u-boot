@@ -5,6 +5,7 @@
  *	Dave Liu <daveliu@freescale.com>
  */
 #include <common.h>
+#include <log.h>
 #include <part.h>
 #include <asm/io.h>
 #ifdef CONFIG_DM_ETH

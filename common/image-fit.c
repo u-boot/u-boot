@@ -18,6 +18,7 @@
 #include <linux/kconfig.h>
 #include <common.h>
 #include <errno.h>
+#include <log.h>
 #include <mapmem.h>
 #include <asm/io.h>
 #include <malloc.h>

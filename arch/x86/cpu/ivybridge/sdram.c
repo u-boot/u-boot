@@ -13,6 +13,7 @@
 #include <errno.h>
 #include <fdtdec.h>
 #include <init.h>
+#include <log.h>
 #include <malloc.h>
 #include <net.h>
 #include <rtc.h>

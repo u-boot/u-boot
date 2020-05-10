@@ -8,6 +8,7 @@
 #include <common.h>
 #include <display.h>
 #include <dm.h>
+#include <log.h>
 #include <regmap.h>
 #include <video.h>
 #include <asm/arch-rockchip/hardware.h>

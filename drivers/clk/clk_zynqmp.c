@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <malloc.h>
 #include <dm/device_compat.h>
 #include <linux/bitops.h>

@@ -13,6 +13,7 @@
 #include <clk-uclass.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <wait_bit.h>
 #include <asm/io.h>
 
