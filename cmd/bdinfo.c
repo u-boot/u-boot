@@ -17,11 +17,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-void print_cpu_word_size(void)
-{
-	printf("%-12s= %u-bit\n", "Build", (uint)sizeof(void *) * 8);
-}
-
 static void print_num(const char *name, ulong value)
 {
 	printf("%-12s= 0x%0*lx\n", name, 2 * (int)sizeof(value), value);
@@ -137,7 +132,7 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	printf("baudrate    = %u bps\n", gd->baudrate);
 	print_num("relocaddr", gd->relocaddr);
 	print_num("reloc off", gd->reloc_off);
-	print_cpu_word_size();
+	printf("%-12s= %u-bit\n", "Build", (uint)sizeof(void *) * 8);
 #if defined(CONFIG_CMD_NET) && !defined(CONFIG_DM_ETH)
 	print_eths();
 #endif
