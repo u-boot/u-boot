@@ -19,25 +19,9 @@
 #ifndef _U_BOOT_H_
 #define _U_BOOT_H_	1
 
+/* Use the generic board which requires a unified bd_info */
+#include <asm-generic/u-boot.h>
 #include <asm/u-boot-nds32.h>
-
-
-typedef struct bd_info {
-	unsigned long	bi_arch_number;	/* unique id for this board */
-	unsigned long	bi_boot_params;	/* where this board expects params */
-	unsigned long	bi_memstart;	/* start of DRAM memory */
-	unsigned long	bi_memsize;	/* size	 of DRAM memory in bytes */
-	unsigned long	bi_flashstart;	/* start of FLASH memory */
-	unsigned long	bi_flashsize;	/* size	 of FLASH memory */
-	unsigned long	bi_flashoffset; /* reserved area for startup monitor */
-	unsigned char	bi_enetaddr[6];
-
-	struct				/* RAM configuration */
-	{
-		unsigned long start;
-		unsigned long size;
-	} bi_dram[CONFIG_NR_DRAM_BANKS];
-} bd_t;
 
 /* For image.h:image_check_target_arch() */
 #define IH_ARCH_DEFAULT IH_ARCH_NDS32
