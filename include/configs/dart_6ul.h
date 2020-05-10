@@ -7,6 +7,7 @@
 #define __DART_6UL_H
 
 #include <linux/sizes.h>
+#include <linux/stringify.h>
 #include "mx6_common.h"
 
 /* SPL options */

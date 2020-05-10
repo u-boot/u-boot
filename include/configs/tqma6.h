@@ -9,6 +9,8 @@
 #define __CONFIG_H
 
 #include <linux/kconfig.h>
+#include <linux/stringify.h>
+
 /* SPL */
 /* #if defined(CONFIG_SPL_BUILD) */
 /* common IMX6 SPL configuration */

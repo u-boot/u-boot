@@ -38,6 +38,7 @@
 #include <linux/err.h>
 #include "ubifs.h"
 #include <ubi_uboot.h>
+#include <linux/stringify.h>
 #include <mtd/ubi-user.h>
 
 struct dentry;

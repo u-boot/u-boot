@@ -7,6 +7,7 @@
 #define __IMX8QM_ROM7720_H
 
 #include <linux/sizes.h>
+#include <linux/stringify.h>
 #include <asm/arch/imx-regs.h>
 #define CONFIG_REMAKE_ELF
 
@@ -173,4 +174,5 @@
 #define CONFIG_FEC_XCV_TYPE		RGMII
 #define FEC_QUIRK_ENET_MAC
 
+#include <linux/stringify.h>
 #endif /* __IMX8QM_ROM7720_H */

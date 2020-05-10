@@ -17,6 +17,7 @@
 #include <dm/lists.h>
 #include <dt-bindings/clock/rk3228-cru.h>
 #include <linux/log2.h>
+#include <linux/stringify.h>
 
 enum {
 	VCO_MAX_HZ	= 3200U * 1000000,

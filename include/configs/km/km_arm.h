@@ -104,6 +104,7 @@
 
 #ifndef __ASSEMBLY__
 #include <asm/arch/gpio.h>
+#include <linux/stringify.h>
 extern void __set_direction(unsigned pin, int high);
 void set_sda(int state);
 void set_scl(int state);

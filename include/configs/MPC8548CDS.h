@@ -27,6 +27,7 @@
 #define CONFIG_FSL_VIA
 
 #ifndef __ASSEMBLY__
+#include <linux/stringify.h>
 extern unsigned long get_clock_freq(void);
 #endif
 #define CONFIG_SYS_CLK_FREQ	get_clock_freq() /* sysclk for MPC85xx */

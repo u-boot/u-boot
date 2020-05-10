@@ -7,6 +7,7 @@
 #define __IMX8M_EVK_H
 
 #include <linux/sizes.h>
+#include <linux/stringify.h>
 #include <asm/arch/imx-regs.h>
 
 #define CONFIG_SPL_MAX_SIZE		(124 * 1024)

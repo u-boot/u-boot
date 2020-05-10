@@ -24,6 +24,7 @@
 #include <dm/uclass-internal.h>
 #include <linux/err.h>
 #include <linux/log2.h>
+#include <linux/stringify.h>
 
 enum rk3188_clk_type {
 	RK3188_CRU,

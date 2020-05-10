@@ -11,6 +11,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <linux/stringify.h>
+
 #include <asm/config_mpc85xx.h>
 #define CONFIG_NAND_FSL_IFC
 

@@ -5,6 +5,8 @@
 #ifndef __CONFIG_SOCFPGA_COMMON_H__
 #define __CONFIG_SOCFPGA_COMMON_H__
 
+#include <linux/stringify.h>
+
 /*
  * High level configuration
  */

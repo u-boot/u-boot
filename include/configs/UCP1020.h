@@ -13,6 +13,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <linux/stringify.h>
+
 /*** Arcturus FirmWare Environment */
 
 #define MAX_SERIAL_SIZE 15

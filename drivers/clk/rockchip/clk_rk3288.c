@@ -25,6 +25,7 @@
 #include <dm/uclass-internal.h>
 #include <linux/err.h>
 #include <linux/log2.h>
+#include <linux/stringify.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

@@ -7,6 +7,8 @@
 #ifndef __CONFIG_KEYMILE_H
 #define __CONFIG_KEYMILE_H
 
+#include <linux/stringify.h>
+
 /*
  * Miscellaneous configurable options
  */

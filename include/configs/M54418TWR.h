@@ -13,6 +13,8 @@
 #ifndef _M54418TWR_H
 #define _M54418TWR_H
 
+#include <linux/stringify.h>
+
 /*
  * High Level Configuration Options
  * (easy to change)

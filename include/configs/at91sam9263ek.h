@@ -10,6 +10,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <linux/stringify.h>
+
 /*
  * SoC must be defined first, before hardware.h is included.
  * In this case SoC is defined in boards.cfg.
@@ -178,6 +180,7 @@
 		 AT91_WDT_MR_WDD(0xfff))
 
 #endif
+#include <linux/stringify.h>
 #endif
 
 /* NAND flash */

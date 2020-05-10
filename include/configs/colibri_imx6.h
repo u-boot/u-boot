@@ -8,6 +8,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <linux/stringify.h>
+
 #include "mx6_common.h"
 
 #undef CONFIG_DISPLAY_BOARDINFO

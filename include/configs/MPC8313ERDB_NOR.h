@@ -18,6 +18,7 @@
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
 #endif
 
+#include <linux/stringify.h>
 #define CONFIG_PCI_INDIRECT_BRIDGE
 
 /*

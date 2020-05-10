@@ -8,6 +8,8 @@
 #ifndef __MX6QSABRE_COMMON_CONFIG_H
 #define __MX6QSABRE_COMMON_CONFIG_H
 
+#include <linux/stringify.h>
+
 #include "mx6_common.h"
 
 #define CONFIG_IMX_THERMAL

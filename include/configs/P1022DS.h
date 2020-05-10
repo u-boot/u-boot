@@ -8,6 +8,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <linux/stringify.h>
+
 #include "../board/freescale/common/ics307_clk.h"
 
 #ifdef CONFIG_SDCARD

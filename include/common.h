@@ -21,7 +21,6 @@
 #include <linux/types.h>
 #include <linux/printk.h>
 #include <linux/string.h>
-#include <linux/stringify.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <linux/kernel.h>

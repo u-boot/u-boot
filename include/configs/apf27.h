@@ -9,6 +9,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <linux/stringify.h>
+
 #define CONFIG_ENV_VERSION	10
 #define CONFIG_BOARD_NAME apf27
 

@@ -10,6 +10,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <linux/stringify.h>
+
 #if defined(CONFIG_TARGET_P1020MBG)
 #define CONFIG_BOARDNAME "P1020MBG-PC"
 #define CONFIG_VSC7385_ENET

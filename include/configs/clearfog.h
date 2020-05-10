@@ -6,6 +6,8 @@
 #ifndef _CONFIG_CLEARFOG_H
 #define _CONFIG_CLEARFOG_H
 
+#include <linux/stringify.h>
+
 /*
  * High Level Configuration Options (easy to change)
  */

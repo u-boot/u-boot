@@ -56,6 +56,7 @@
 
 #ifndef __ASSEMBLY__
 unsigned long get_board_sys_clk(unsigned long dummy);
+#include <linux/stringify.h>
 #endif
 #define CONFIG_SYS_CLK_FREQ	get_board_sys_clk(0)
 

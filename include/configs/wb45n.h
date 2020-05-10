@@ -7,6 +7,7 @@
 #define __CONFIG_H__
 
 #include <asm/hardware.h>
+#include <linux/stringify.h>
 
 /* ARM asynchronous clock */
 #define CONFIG_SYS_AT91_SLOW_CLOCK  32768

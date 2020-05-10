@@ -9,6 +9,7 @@
 #define __MX7_COMMON_H
 
 #include <linux/sizes.h>
+#include <linux/stringify.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/mach-imx/gpio.h>
 

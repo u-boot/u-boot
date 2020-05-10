@@ -10,6 +10,7 @@
 #define __PCL063_ULL_H
 
 #include <linux/sizes.h>
+#include <linux/stringify.h>
 #include "mx6_common.h"
 
 /* SPL options */

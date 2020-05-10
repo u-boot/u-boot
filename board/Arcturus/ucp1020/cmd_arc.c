@@ -19,6 +19,7 @@
 #include <mmc.h>
 #include <version.h>
 #include <asm/io.h>
+#include <linux/stringify.h>
 
 static ulong fwenv_addr[MAX_FWENV_ADDR];
 const char mystrerr[] = "ERROR: Failed to save factory info";

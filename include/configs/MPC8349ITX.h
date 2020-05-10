@@ -52,6 +52,7 @@
 #define CONFIG_SYS_USB_HOST	/* use the EHCI USB controller */
 #endif
 
+#include <linux/stringify.h>
 #define CONFIG_RTC_DS1337
 #define CONFIG_SYS_I2C
 

@@ -7,6 +7,7 @@
 #define __CONFIG_SOCFPGA_SECU1_H__
 
 #include <asm/arch/base_addr_ac5.h>
+#include <linux/stringify.h>
 
 /* Call misc_init_r */
 #define CONFIG_MISC_INIT_R

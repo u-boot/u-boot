@@ -47,6 +47,7 @@
 #define CONFIG_VERY_BIG_RAM
 
 #ifndef __ASSEMBLY__
+#include <linux/stringify.h>
 extern unsigned long get_board_sys_clk(unsigned long dummy);
 extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #endif

@@ -21,6 +21,7 @@
 #include <asm/io.h>
 #include <dm/lists.h>
 #include <dt-bindings/clock/rk3368-cru.h>
+#include <linux/stringify.h>
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 struct rk3368_clk_plat {

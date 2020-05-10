@@ -9,6 +9,8 @@
 #ifndef __TI_BOOT_H
 #define __TI_BOOT_H
 
+#include <linux/stringify.h>
+
 #ifndef CONSOLEDEV
 #define CONSOLEDEV "ttyS2"
 #endif

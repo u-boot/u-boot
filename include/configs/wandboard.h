@@ -107,6 +107,7 @@
 	func(DHCP, dhcp, na)
 
 #include <config_distro_bootcmd.h>
+#include <linux/stringify.h>
 
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
