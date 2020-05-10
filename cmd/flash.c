@@ -88,7 +88,7 @@ abbrev_spec (char *str, flash_info_t ** pinfo, int *psf, int *psl)
 /*
  * Take *addr in Flash and adjust it to fall on the end of its sector
  */
-int flash_sect_roundb (ulong *addr)
+int flash_sect_roundb(ulong *addr)
 {
 	flash_info_t *info;
 	ulong bank, sector_end_addr;
@@ -279,7 +279,7 @@ static int do_flinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		for (bank=0; bank <CONFIG_SYS_MAX_FLASH_BANKS; ++bank) {
 			printf ("\nBank # %ld: ", bank+1);
 
-			flash_print_info (&flash_info[bank]);
+			flash_print_info(&flash_info[bank]);
 		}
 		return 0;
 	}
@@ -291,7 +291,7 @@ static int do_flinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return 1;
 	}
 	printf ("\nBank # %ld: ", bank);
-	flash_print_info (&flash_info[bank-1]);
+	flash_print_info(&flash_info[bank - 1]);
 #endif /* CONFIG_MTD_NOR_FLASH */
 	return 0;
 }
@@ -316,7 +316,7 @@ static int do_flerase(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		for (bank=1; bank<=CONFIG_SYS_MAX_FLASH_BANKS; ++bank) {
 			printf ("Erase Flash Bank # %ld ", bank);
 			info = &flash_info[bank-1];
-			rcode = flash_erase (info, 0, info->sector_count-1);
+			rcode = flash_erase(info, 0, info->sector_count - 1);
 		}
 		return rcode;
 	}
@@ -370,7 +370,7 @@ static int do_flerase(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		}
 		printf ("Erase Flash Bank # %ld ", bank);
 		info = &flash_info[bank-1];
-		rcode = flash_erase (info, 0, info->sector_count-1);
+		rcode = flash_erase(info, 0, info->sector_count - 1);
 		return rcode;
 	}
 
@@ -390,7 +390,7 @@ static int do_flerase(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 
 #ifdef CONFIG_MTD_NOR_FLASH
-int flash_sect_erase (ulong addr_first, ulong addr_last)
+int flash_sect_erase(ulong addr_first, ulong addr_last)
 {
 	flash_info_t *info;
 	ulong bank;
@@ -415,7 +415,8 @@ int flash_sect_erase (ulong addr_first, ulong addr_last)
 						info->start[0] + info->size - 1:
 						info->start[s_last[bank]+1] - 1,
 					bank+1);
-				rcode = flash_erase (info, s_first[bank], s_last[bank]);
+				rcode = flash_erase(info, s_first[bank],
+						    s_last[bank]);
 			}
 		}
 		if (rcode == 0)
@@ -526,7 +527,8 @@ static int do_protect(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 						p ? "" : "Un", argv[1],
 						bank, addr_first, addr_last);
 
-				rcode = flash_sect_protect (p, addr_first, addr_last);
+				rcode = flash_sect_protect(p, addr_first,
+							   addr_last);
 				return rcode;
 			}
 
@@ -580,13 +582,13 @@ static int do_protect(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (addr_first >= addr_last)
 		return CMD_RET_USAGE;
 
-	rcode = flash_sect_protect (p, addr_first, addr_last);
+	rcode = flash_sect_protect(p, addr_first, addr_last);
 #endif /* CONFIG_MTD_NOR_FLASH */
 	return rcode;
 }
 
 #ifdef CONFIG_MTD_NOR_FLASH
-int flash_sect_protect (int p, ulong addr_first, ulong addr_last)
+int flash_sect_protect(int p, ulong addr_first, ulong addr_last)
 {
 	flash_info_t *info;
 	ulong bank;

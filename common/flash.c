@@ -24,7 +24,7 @@ extern flash_info_t  flash_info[]; /* info for FLASH chips */
  * If necessary you have to map the second bank at lower addresses.
  */
 void
-flash_protect (int flag, ulong from, ulong to, flash_info_t *info)
+flash_protect(int flag, ulong from, ulong to, flash_info_t *info)
 {
 	ulong b_end;
 	short s_end;
@@ -84,7 +84,7 @@ flash_protect (int flag, ulong from, ulong to, flash_info_t *info)
  */
 
 flash_info_t *
-addr2info (ulong addr)
+addr2info(ulong addr)
 {
 	flash_info_t *info;
 	int i;
@@ -119,12 +119,12 @@ addr2info (ulong addr)
  *			(only some targets require alignment)
  */
 int
-flash_write (char *src, ulong addr, ulong cnt)
+flash_write(char *src, ulong addr, ulong cnt)
 {
 	int i;
 	ulong         end        = addr + cnt - 1;
-	flash_info_t *info_first = addr2info (addr);
-	flash_info_t *info_last  = addr2info (end );
+	flash_info_t *info_first = addr2info(addr);
+	flash_info_t *info_last  = addr2info(end);
 	flash_info_t *info;
 	__maybe_unused char *src_orig = src;
 	__maybe_unused char *addr_orig = (char *)addr;
