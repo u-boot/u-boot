@@ -172,53 +172,8 @@ static inline void __maybe_unused print_std_bdinfo(const bd_t *bd)
 }
 
 #if defined(CONFIG_PPC)
-void __weak board_detail(void)
-{
-	/* Please define board_detail() for your platform */
-}
 
-int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
-{
-	bd_t *bd = gd->bd;
-
-#ifdef DEBUG
-	print_num("bd address",		(ulong)bd);
-#endif
-	print_bi_mem(bd);
-	print_bi_flash(bd);
-	print_num("sramstart",		bd->bi_sramstart);
-	print_num("sramsize",		bd->bi_sramsize);
-#if	defined(CONFIG_MPC8xx) || defined(CONFIG_E500)
-	print_num("immr_base",		bd->bi_immr_base);
-#endif
-	print_num("bootflags",		bd->bi_bootflags);
-#if defined(CONFIG_CPM2)
-	print_mhz("vco",		bd->bi_vco);
-	print_mhz("sccfreq",		bd->bi_sccfreq);
-	print_mhz("brgfreq",		bd->bi_brgfreq);
-#endif
-	print_mhz("intfreq",		bd->bi_intfreq);
-#if defined(CONFIG_CPM2)
-	print_mhz("cpmfreq",		bd->bi_cpmfreq);
-#endif
-	print_mhz("busfreq",		bd->bi_busfreq);
-
-#ifdef CONFIG_ENABLE_36BIT_PHYS
-#ifdef CONFIG_PHYS_64BIT
-	puts("addressing  = 36-bit\n");
-#else
-	puts("addressing  = 32-bit\n");
-#endif
-#endif
-
-	print_eth_ip_addr();
-	print_baudrate();
-	print_num("relocaddr", gd->relocaddr);
-	board_detail();
-	print_cpu_word_size();
-
-	return 0;
-}
+#define USE_GENERIC
 
 #elif defined(CONFIG_NIOS2)
 
@@ -369,10 +324,20 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 /* Temporary check for archs that use generic bdinfo. Eventually all will */
 #ifdef USE_GENERIC
+void __weak board_detail(void)
+{
+	/* Please define board_detail() for your PPC platform */
+}
+
 int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	print_bi_dram(gd->bd);
-	print_std_bdinfo(gd->bd);
+	bd_t *bd = gd->bd;
+
+#ifdef DEBUG
+	print_num("bd address", (ulong)bd);
+#endif
+	print_bi_dram(bd);
+	print_std_bdinfo(bd);
 	print_num("relocaddr", gd->relocaddr);
 	print_num("reloc off", gd->reloc_off);
 	print_cpu_word_size();
@@ -382,6 +347,34 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	print_num("fdt_blob", (ulong)gd->fdt_blob);
 	print_num("new_fdt", (ulong)gd->new_fdt);
 	print_num("fdt_size", (ulong)gd->fdt_size);
+
+	/* This section is used only by ppc */
+#if defined(CONFIG_MPC8xx) || defined(CONFIG_E500)
+	print_num("immr_base", bd->bi_immr_base);
+#endif
+	if (IS_ENABLED(CONFIG_PPC)) {
+		print_num("bootflags", bd->bi_bootflags);
+		print_mhz("intfreq", bd->bi_intfreq);
+#ifdef CONFIG_ENABLE_36BIT_PHYS
+		if (IS_ENABLED(CONFIG_PHYS_64BIT))
+			puts("addressing  = 36-bit\n");
+		else
+			puts("addressing  = 32-bit\n");
+#endif
+		print_mhz("busfreq", bd->bi_busfreq);
+		board_detail();
+	}
+#if defined(CONFIG_CPM2)
+	print_mhz("cpmfreq", bd->bi_cpmfreq);
+	print_mhz("vco", bd->bi_vco);
+	print_mhz("sccfreq", bd->bi_sccfreq);
+	print_mhz("brgfreq", bd->bi_brgfreq);
+#endif
+
+#if defined(CONFIG_SYS_INIT_RAM_ADDR)
+	print_num("sramstart", (ulong)bd->bi_sramstart);
+	print_num("sramsize", (ulong)bd->bi_sramsize);
+#endif
 
 	return 0;
 }
