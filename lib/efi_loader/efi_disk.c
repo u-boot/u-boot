@@ -424,7 +424,7 @@ static efi_status_t efi_disk_add_dev(
 	/* Store first EFI system partition */
 	if (part && !efi_system_partition.if_type) {
 		int r;
-		disk_partition_t info;
+		struct disk_partition info;
 
 		r = part_get_info(desc, part, &info);
 		if (r)
@@ -459,7 +459,7 @@ int efi_disk_create_partitions(efi_handle_t parent, struct blk_desc *desc,
 {
 	int disks = 0;
 	char devname[32] = { 0 }; /* dp->str is u16[32] long */
-	disk_partition_t info;
+	struct disk_partition info;
 	int part;
 	struct efi_device_path *dp = NULL;
 	efi_status_t ret;
@@ -600,7 +600,7 @@ bool efi_disk_is_system_part(efi_handle_t handle)
 {
 	struct efi_handler *handler;
 	struct efi_disk_obj *diskobj;
-	disk_partition_t info;
+	struct disk_partition info;
 	efi_status_t ret;
 	int r;
 

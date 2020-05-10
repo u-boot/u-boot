@@ -8,7 +8,7 @@
 #include <malloc.h>
 #include <os.h>
 
-int sandbox_fs_set_blk_dev(struct blk_desc *rbdd, disk_partition_t *info)
+int sandbox_fs_set_blk_dev(struct blk_desc *rbdd, struct disk_partition *info)
 {
 	/*
 	 * Only accept a NULL struct blk_desc for the sandbox, which is when

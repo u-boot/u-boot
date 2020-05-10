@@ -11,7 +11,7 @@ static int do_ab_select(cmd_tbl_t *cmdtp, int flag, int argc,
 {
 	int ret;
 	struct blk_desc *dev_desc;
-	disk_partition_t part_info;
+	struct disk_partition part_info;
 	char slot[2];
 
 	if (argc != 4)

@@ -33,7 +33,7 @@ static int env_fat_save(void)
 {
 	env_t __aligned(ARCH_DMA_MINALIGN) env_new;
 	struct blk_desc *dev_desc = NULL;
-	disk_partition_t info;
+	struct disk_partition info;
 	int dev, part;
 	int err;
 	loff_t size;
@@ -79,7 +79,7 @@ static int env_fat_load(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
 	struct blk_desc *dev_desc = NULL;
-	disk_partition_t info;
+	struct disk_partition info;
 	int dev, part;
 	int err;
 

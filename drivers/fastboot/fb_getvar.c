@@ -103,7 +103,7 @@ static int getvar_get_part_info(const char *part_name, char *response,
 	int r;
 # if CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC)
 	struct blk_desc *dev_desc;
-	disk_partition_t part_info;
+	struct disk_partition part_info;
 
 	r = fastboot_mmc_get_part_info(part_name, &dev_desc, &part_info,
 				       response);
@@ -219,7 +219,7 @@ static void getvar_partition_type(char *part_name, char *response)
 {
 	int r;
 	struct blk_desc *dev_desc;
-	disk_partition_t part_info;
+	struct disk_partition part_info;
 
 	r = fastboot_mmc_get_part_info(part_name, &dev_desc, &part_info,
 				       response);

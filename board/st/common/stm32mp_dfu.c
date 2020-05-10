@@ -17,7 +17,7 @@
 
 static void board_get_alt_info_mmc(struct udevice *dev, char *buf)
 {
-	disk_partition_t info;
+	struct disk_partition info;
 	int p, len, devnum;
 	bool first = true;
 	const char *name;

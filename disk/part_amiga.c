@@ -291,7 +291,7 @@ static struct partition_block *find_partition(struct blk_desc *dev_desc,
  * Get info about a partition
  */
 static int part_get_info_amiga(struct blk_desc *dev_desc, int part,
-				    disk_partition_t *info)
+				    struct disk_partition *info)
 {
     struct partition_block *p = find_partition(dev_desc, part-1);
     struct amiga_part_geometry *g;

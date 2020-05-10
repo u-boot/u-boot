@@ -64,7 +64,7 @@ static int do_fat_fsinfo(cmd_tbl_t *cmdtp, int flag, int argc,
 {
 	int dev, part;
 	struct blk_desc *dev_desc;
-	disk_partition_t info;
+	struct disk_partition info;
 
 	if (argc < 2) {
 		printf("usage: fatinfo <interface> [<dev[:part]>]\n");
@@ -101,7 +101,7 @@ static int do_fat_fswrite(cmd_tbl_t *cmdtp, int flag,
 	unsigned long count;
 	long offset;
 	struct blk_desc *dev_desc = NULL;
-	disk_partition_t info;
+	struct disk_partition info;
 	int dev = 0;
 	int part = 1;
 	void *buf;

@@ -112,7 +112,7 @@ static int do_bcb_load(cmd_tbl_t *cmdtp, int flag, int argc,
 		       char * const argv[])
 {
 	struct blk_desc *desc;
-	disk_partition_t info;
+	struct disk_partition info;
 	u64 cnt;
 	char *endp;
 	int part, ret;
@@ -252,7 +252,7 @@ static int do_bcb_store(cmd_tbl_t *cmdtp, int flag, int argc,
 			char * const argv[])
 {
 	struct blk_desc *desc;
-	disk_partition_t info;
+	struct disk_partition info;
 	u64 cnt;
 	int ret;
 

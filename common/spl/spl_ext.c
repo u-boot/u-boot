@@ -15,7 +15,7 @@ int spl_load_image_ext(struct spl_image_info *spl_image,
 	s32 err;
 	struct image_header *header;
 	loff_t filelen, actlen;
-	disk_partition_t part_info = {};
+	struct disk_partition part_info = {};
 
 	header = spl_get_load_buffer(-sizeof(*header), sizeof(*header));
 
@@ -69,7 +69,7 @@ int spl_load_image_ext_os(struct spl_image_info *spl_image,
 {
 	int err;
 	__maybe_unused loff_t filelen, actlen;
-	disk_partition_t part_info = {};
+	struct disk_partition part_info = {};
 	__maybe_unused char *file;
 
 	if (part_get_info(block_dev, partition, &part_info)) {

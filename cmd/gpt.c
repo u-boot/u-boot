@@ -189,7 +189,8 @@ static void del_gpt_info(void)
 	}
 }
 
-static struct disk_part *allocate_disk_part(disk_partition_t *info, int partnum)
+static struct disk_part *allocate_disk_part(struct disk_partition *info,
+					    int partnum)
 {
 	struct disk_part *newpart;
 	newpart = calloc(1, sizeof(struct disk_part));
@@ -310,7 +311,7 @@ static int get_gpt_info(struct blk_desc *dev_desc)
 {
 	/* start partition numbering at 1, as U-Boot does */
 	int valid_parts = 0, p, ret;
-	disk_partition_t info;
+	struct disk_partition info;
 	struct disk_part *new_disk_part;
 
 	/*
@@ -375,14 +376,14 @@ static int do_get_gpt_info(struct blk_desc *dev_desc)
 static int set_gpt_info(struct blk_desc *dev_desc,
 			const char *str_part,
 			char **str_disk_guid,
-			disk_partition_t **partitions,
+			struct disk_partition **partitions,
 			u8 *parts_count)
 {
 	char *tok, *str, *s;
 	int i;
 	char *val, *p;
 	int p_count;
-	disk_partition_t *parts;
+	struct disk_partition *parts;
 	int errno = 0;
 	uint64_t size_ll, start_ll;
 	lbaint_t offset = 0;
@@ -440,7 +441,7 @@ static int set_gpt_info(struct blk_desc *dev_desc,
 	}
 
 	/* allocate memory for partitions */
-	parts = calloc(sizeof(disk_partition_t), p_count);
+	parts = calloc(sizeof(struct disk_partition), p_count);
 	if (parts == NULL)
 		return -ENOMEM;
 
@@ -557,7 +558,7 @@ static int gpt_default(struct blk_desc *blk_dev_desc, const char *str_part)
 	int ret;
 	char *str_disk_guid;
 	u8 part_count = 0;
-	disk_partition_t *partitions = NULL;
+	struct disk_partition *partitions = NULL;
 
 	/* fill partitions */
 	ret = set_gpt_info(blk_dev_desc, str_part,
@@ -584,7 +585,7 @@ static int gpt_verify(struct blk_desc *blk_dev_desc, const char *str_part)
 {
 	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1,
 				     blk_dev_desc->blksz);
-	disk_partition_t *partitions = NULL;
+	struct disk_partition *partitions = NULL;
 	gpt_entry *gpt_pte = NULL;
 	char *str_disk_guid;
 	u8 part_count = 0;
@@ -640,7 +641,7 @@ static int do_rename_gpt_parts(struct blk_desc *dev_desc, char *subcomm,
 {
 	struct list_head *pos;
 	struct disk_part *curr;
-	disk_partition_t *new_partitions = NULL;
+	struct disk_partition *new_partitions = NULL;
 	char disk_guid[UUID_STR_LEN + 1];
 	char *partitions_list, *str_disk_guid = NULL;
 	u8 part_count = 0;

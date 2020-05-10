@@ -38,7 +38,7 @@ static int do_zfs_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	int dev;
 	int part;
 	ulong addr = 0;
-	disk_partition_t info;
+	struct disk_partition info;
 	struct blk_desc *dev_desc;
 	unsigned long count;
 	const char *addr_str;
@@ -135,7 +135,7 @@ static int do_zfs_ls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	const char *filename = "/";
 	int part;
 	struct blk_desc *dev_desc;
-	disk_partition_t info;
+	struct disk_partition info;
 	struct device_s vdev;
 
 	if (argc < 2)

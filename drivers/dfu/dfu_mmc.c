@@ -369,7 +369,7 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 					simple_strtoul(s, NULL, 0);
 
 	} else if (!strcmp(entity_type, "part")) {
-		disk_partition_t partinfo;
+		struct disk_partition partinfo;
 		struct blk_desc *blk_dev = mmc_get_blk_desc(mmc);
 		int mmcdev = second_arg;
 		int mmcpart = third_arg;

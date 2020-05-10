@@ -27,7 +27,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 static inline int mmc_offset_try_partition(const char *str, s64 *val)
 {
-	disk_partition_t info;
+	struct disk_partition info;
 	struct blk_desc *desc;
 	int len, i, ret;
 

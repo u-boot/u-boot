@@ -227,7 +227,7 @@ int ext4fs_read(char *buf, loff_t offset, loff_t len, loff_t *actread)
 }
 
 int ext4fs_probe(struct blk_desc *fs_dev_desc,
-		 disk_partition_t *fs_partition)
+		 struct disk_partition *fs_partition)
 {
 	ext4fs_set_blk_dev(fs_dev_desc, fs_partition);
 

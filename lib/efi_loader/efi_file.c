@@ -634,7 +634,7 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
 		utf8_utf16_strcpy(&dst, filename);
 	} else if (!guidcmp(info_type, &efi_file_system_info_guid)) {
 		struct efi_file_system_info *info = buffer;
-		disk_partition_t part;
+		struct disk_partition part;
 		efi_uintn_t required_size;
 		int r;
 

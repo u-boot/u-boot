@@ -727,7 +727,7 @@ static int init_device(struct stm32prog_data *data,
 				pr_debug("\n");
 				continue;
 			}
-			disk_partition_t partinfo;
+			struct disk_partition partinfo;
 
 			ret = part_get_info(block_dev, part->part_id,
 					    &partinfo);

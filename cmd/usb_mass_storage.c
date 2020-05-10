@@ -55,7 +55,7 @@ static int ums_init(const char *devtype, const char *devnums_part_str)
 {
 	char *s, *t, *devnum_part_str, *name;
 	struct blk_desc *block_dev;
-	disk_partition_t info;
+	struct disk_partition info;
 	int partnum;
 	int ret = -1;
 	struct ums *ums_new;

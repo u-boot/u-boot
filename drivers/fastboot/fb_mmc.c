@@ -27,7 +27,7 @@ struct fb_mmc_sparse {
 };
 
 static int part_get_info_by_name_or_alias(struct blk_desc *dev_desc,
-		const char *name, disk_partition_t *info)
+		const char *name, struct disk_partition *info)
 {
 	int ret;
 
@@ -98,9 +98,9 @@ static lbaint_t fb_mmc_sparse_reserve(struct sparse_storage *info,
 	return blkcnt;
 }
 
-static void write_raw_image(struct blk_desc *dev_desc, disk_partition_t *info,
-		const char *part_name, void *buffer,
-		u32 download_bytes, char *response)
+static void write_raw_image(struct blk_desc *dev_desc,
+			    struct disk_partition *info, const char *part_name,
+			    void *buffer, u32 download_bytes, char *response)
 {
 	lbaint_t blkcnt;
 	lbaint_t blks;
@@ -211,7 +211,7 @@ static void fb_mmc_boot1_ops(struct blk_desc *dev_desc, void *buffer,
  * @return Boot image header sectors count or 0 on error
  */
 static lbaint_t fb_mmc_get_boot_header(struct blk_desc *dev_desc,
-				       disk_partition_t *info,
+				       struct disk_partition *info,
 				       struct andr_img_hdr *hdr,
 				       char *response)
 {
@@ -271,7 +271,7 @@ static int fb_mmc_update_zimage(struct blk_desc *dev_desc,
 	u32 kernel_sector_start;
 	u32 kernel_sectors;
 	u32 sectors_per_page;
-	disk_partition_t info;
+	struct disk_partition info;
 	int res;
 
 	puts("Flashing zImage\n");
@@ -367,12 +367,12 @@ static int fb_mmc_update_zimage(struct blk_desc *dev_desc,
  *
  * @part_name: Named partition to lookup
  * @dev_desc: Pointer to returned blk_desc pointer
- * @part_info: Pointer to returned disk_partition_t
+ * @part_info: Pointer to returned struct disk_partition
  * @response: Pointer to fastboot response buffer
  */
 int fastboot_mmc_get_part_info(const char *part_name,
 			       struct blk_desc **dev_desc,
-			       disk_partition_t *part_info, char *response)
+			       struct disk_partition *part_info, char *response)
 {
 	int r;
 
@@ -407,7 +407,7 @@ void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
 			      u32 download_bytes, char *response)
 {
 	struct blk_desc *dev_desc;
-	disk_partition_t info;
+	struct disk_partition info;
 
 	dev_desc = blk_get_dev("mmc", CONFIG_FASTBOOT_FLASH_MMC_DEV);
 	if (!dev_desc || dev_desc->type == DEV_TYPE_UNKNOWN) {
@@ -524,7 +524,7 @@ void fastboot_mmc_erase(const char *cmd, char *response)
 {
 	int ret;
 	struct blk_desc *dev_desc;
-	disk_partition_t info;
+	struct disk_partition info;
 	lbaint_t blks, blks_start, blks_size, grp_size;
 	struct mmc *mmc = find_mmc_device(CONFIG_FASTBOOT_FLASH_MMC_DEV);
 

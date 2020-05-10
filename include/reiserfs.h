@@ -62,7 +62,7 @@ typedef enum
 } reiserfs_error_t;
 
 
-void reiserfs_set_blk_dev(struct blk_desc *rbdd, disk_partition_t *info);
+void reiserfs_set_blk_dev(struct blk_desc *rbdd, struct disk_partition *info);
 extern int reiserfs_ls (char *dirname);
 extern int reiserfs_open (char *filename);
 extern int reiserfs_read (char *buf, unsigned len);

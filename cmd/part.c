@@ -32,7 +32,7 @@ static int do_part_uuid(int argc, char * const argv[])
 {
 	int part;
 	struct blk_desc *dev_desc;
-	disk_partition_t info;
+	struct disk_partition info;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
@@ -90,7 +90,7 @@ static int do_part_list(int argc, char * const argv[])
 	if (var != NULL) {
 		int p;
 		char str[512] = { '\0', };
-		disk_partition_t info;
+		struct disk_partition info;
 
 		for (p = 1; p < MAX_SEARCH_PARTITIONS; p++) {
 			char t[5];
@@ -117,7 +117,7 @@ static int do_part_list(int argc, char * const argv[])
 static int do_part_info(int argc, char * const argv[], enum cmd_part_info param)
 {
 	struct blk_desc *desc;
-	disk_partition_t info;
+	struct disk_partition info;
 	char buf[512] = { 0 };
 	char *endp;
 	int part;

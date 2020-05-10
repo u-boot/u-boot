@@ -214,7 +214,7 @@ static int part_mac_read_pdb(struct blk_desc *dev_desc, int part,
 }
 
 static int part_get_info_mac(struct blk_desc *dev_desc, int part,
-				  disk_partition_t *info)
+				  struct disk_partition *info)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(mac_driver_desc_t, ddesc, 1);
 	ALLOC_CACHE_ALIGN_BUFFER(mac_partition_t, mpart, 1);

@@ -36,7 +36,7 @@ static inline u64 btrfs_name_hash(const char *name, int len)
 
 /* dev.c */
 extern struct blk_desc *btrfs_blk_desc;
-extern disk_partition_t *btrfs_part_info;
+extern struct disk_partition *btrfs_part_info;
 
 int btrfs_devread(u64, int, void *);
 

@@ -16,7 +16,7 @@ int common_diskboot(cmd_tbl_t *cmdtp, const char *intf, int argc,
 	int part;
 	ulong addr = CONFIG_SYS_LOAD_ADDR;
 	ulong cnt;
-	disk_partition_t info;
+	struct disk_partition info;
 #if defined(CONFIG_LEGACY_IMAGE_FORMAT)
 	image_header_t *hdr;
 #endif

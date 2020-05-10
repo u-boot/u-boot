@@ -45,7 +45,7 @@ static int env_ext4_save(void)
 {
 	env_t	env_new;
 	struct blk_desc *dev_desc = NULL;
-	disk_partition_t info;
+	struct disk_partition info;
 	int dev, part;
 	int err;
 	const char *ifname = env_ext4_get_intf();
@@ -87,7 +87,7 @@ static int env_ext4_load(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
 	struct blk_desc *dev_desc = NULL;
-	disk_partition_t info;
+	struct disk_partition info;
 	int dev, part;
 	int err;
 	loff_t off;
