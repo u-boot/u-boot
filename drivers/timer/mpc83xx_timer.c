@@ -14,6 +14,7 @@
 #include <time.h>
 #include <timer.h>
 #include <watchdog.h>
+#include <asm/ptrace.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

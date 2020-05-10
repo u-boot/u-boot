@@ -15,6 +15,7 @@
 #include <vsprintf.h>
 #include <asm/cache.h>
 #include <asm/io.h>
+#include <asm/ptrace.h>
 #include <linux/errno.h>
 #include <asm/system.h>
 #include <fm_eth.h>

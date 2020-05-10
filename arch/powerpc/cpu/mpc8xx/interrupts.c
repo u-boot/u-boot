@@ -12,6 +12,7 @@
 #include <asm/cpm_8xx.h>
 #include <asm/processor.h>
 #include <asm/io.h>
+#include <asm/ptrace.h>
 
 /************************************************************************/
 

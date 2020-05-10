@@ -21,6 +21,7 @@
 #ifdef CONFIG_POST
 #include <post.h>
 #endif
+#include <asm/ptrace.h>
 
 void interrupt_init_cpu(unsigned *decrementer_count)
 {

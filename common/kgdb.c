@@ -88,6 +88,7 @@
  ****************************************************************************/
 
 #include <common.h>
+#include <asm/ptrace.h>
 
 #include <kgdb.h>
 #include <command.h>

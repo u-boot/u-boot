@@ -11,6 +11,7 @@
 #include <spl.h>
 #include <version.h>
 #include <asm/io.h>
+#include <asm/ptrace.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/spr_defs.h>
 #include <asm/arch/spr_misc.h>

@@ -1,6 +1,7 @@
 #include <common.h>
 #include <command.h>
 #include <kgdb.h>
+#include <asm/ptrace.h>
 #include <asm/signal.h>
 #include <asm/processor.h>
 

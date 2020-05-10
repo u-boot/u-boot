@@ -14,6 +14,7 @@
 #ifdef CONFIG_LED_STATUS
 #include <status_led.h>
 #endif
+#include <asm/ptrace.h>
 
 #ifndef CONFIG_MPC83XX_TIMER
 #ifndef CONFIG_SYS_WATCHDOG_FREQ

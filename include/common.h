@@ -24,7 +24,6 @@
 #include <linux/printk.h>
 #include <linux/string.h>
 #include <linux/stringify.h>
-#include <asm/ptrace.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <linux/kernel.h>

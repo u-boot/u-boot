@@ -11,6 +11,7 @@
  */
 
 #include <common.h>
+#include <asm/ptrace.h>
 #include <cpu_func.h>
 #include <hang.h>
 #include <init.h>
