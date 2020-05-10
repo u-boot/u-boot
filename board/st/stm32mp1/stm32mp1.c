@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <env.h>
 #include <env_internal.h>
+#include <fdt_support.h>
 #include <g_dnl.h>
 #include <generic-phy.h>
 #include <hang.h>

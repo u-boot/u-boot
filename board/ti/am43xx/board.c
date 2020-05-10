@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <eeprom.h>
+#include <image.h>
 #include <dm/uclass.h>
 #include <env.h>
 #include <fdt_support.h>

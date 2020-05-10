@@ -5,6 +5,7 @@
  * Author: Fabio Estevam <fabio.estevam@freescale.com>
  */
 
+#include <image.h>
 #include <init.h>
 #include <net.h>
 #include <asm/arch/clock.h>

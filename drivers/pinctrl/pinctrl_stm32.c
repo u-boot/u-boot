@@ -9,6 +9,7 @@
 #include <dm/lists.h>
 #include <dm/pinctrl.h>
 #include <linux/err.h>
+#include <linux/libfdt.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

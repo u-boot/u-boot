@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <image.h>
 #include <spi.h>
 #include <spi_flash.h>
 #include <errno.h>

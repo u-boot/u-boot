@@ -5,6 +5,7 @@
  * Copyright 2012 Freescale Semiconductor, Inc.
  */
 
+#include <image.h>
 #include <init.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>

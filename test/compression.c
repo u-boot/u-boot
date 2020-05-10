@@ -7,6 +7,7 @@
 #include <bootm.h>
 #include <command.h>
 #include <gzip.h>
+#include <image.h>
 #include <lz4.h>
 #include <malloc.h>
 #include <mapmem.h>

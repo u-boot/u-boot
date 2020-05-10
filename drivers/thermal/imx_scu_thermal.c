@@ -11,6 +11,7 @@
 #include <dm/device-internal.h>
 #include <dm/device.h>
 #include <asm/arch/sci/sci.h>
+#include <linux/libfdt.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

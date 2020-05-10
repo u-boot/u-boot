@@ -10,6 +10,7 @@
 #include <common.h>
 #include <env.h>
 #include <fdt_support.h>
+#include <image.h>
 #include <init.h>
 #include <malloc.h>
 #include <net.h>

@@ -5,6 +5,8 @@
 
 #include <common.h>
 #include <dm.h>
+#include <image.h>
+#include <init.h>
 #include <lmb.h>
 #include <ram.h>
 

@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <image.h>
 #include <mapmem.h>
 #include <linux/sizes.h>
 

@@ -9,6 +9,7 @@
 #include <env.h>
 #include <image.h>
 #include <fdt_support.h>
+#include <lmb.h>
 #include <asm/addrspace.h>
 #include <asm/io.h>
 

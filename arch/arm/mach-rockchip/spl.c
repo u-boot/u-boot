@@ -7,6 +7,7 @@
 #include <debug_uart.h>
 #include <dm.h>
 #include <hang.h>
+#include <image.h>
 #include <ram.h>
 #include <spl.h>
 #include <asm/arch-rockchip/bootrom.h>

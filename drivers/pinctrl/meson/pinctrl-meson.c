@@ -13,6 +13,7 @@
 #include <fdt_support.h>
 #include <linux/err.h>
 #include <linux/io.h>
+#include <linux/libfdt.h>
 #include <linux/sizes.h>
 #include <asm/gpio.h>
 

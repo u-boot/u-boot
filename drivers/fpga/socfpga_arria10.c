@@ -2,6 +2,7 @@
 /*
  * Copyright (C) 2017-2019 Intel Corporation <www.intel.com>
  */
+#include <image.h>
 #include <asm/io.h>
 #include <asm/arch/fpga_manager.h>
 #include <asm/arch/reset_manager.h>

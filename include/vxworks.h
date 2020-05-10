@@ -9,6 +9,8 @@
 
 #include <efi_api.h>
 
+struct bootm_headers;
+
 /* Use Linux compatible standard DTB */
 #define VXWORKS_SYSFLG_STD_DTB	0x1
 
@@ -84,7 +86,7 @@ struct efi_gop_info {
 };
 
 int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
-void boot_prep_vxworks(bootm_headers_t *images);
-void boot_jump_vxworks(bootm_headers_t *images);
+void boot_prep_vxworks(struct bootm_headers *images);
+void boot_jump_vxworks(struct bootm_headers *images);
 
 #endif

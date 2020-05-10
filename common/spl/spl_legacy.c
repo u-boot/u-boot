@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <image.h>
 #include <malloc.h>
 #include <spl.h>
 

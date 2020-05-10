@@ -6,6 +6,7 @@
 
 #include <android_image.h>
 #include <common.h>
+#include <image.h>
 #include <mapmem.h>
 
 #define abootimg_addr() \

@@ -8,6 +8,7 @@
 #include <debug_uart.h>
 #include <dm.h>
 #include <hang.h>
+#include <image.h>
 #include <irq_func.h>
 #include <malloc.h>
 #include <spl.h>

@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <image.h>
 #include <spl.h>
 #include <asm/gpio.h>
 #include <asm/io.h>

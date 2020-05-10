@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <image.h>
 #include <init.h>
 #include <spl.h>
 

@@ -7,6 +7,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <env.h>
+#include <image.h>
 #include <serial.h>
 #include <spl.h>
 #include <linux/libfdt.h>

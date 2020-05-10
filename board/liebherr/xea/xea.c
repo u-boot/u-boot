@@ -14,6 +14,7 @@
  */
 
 #include <common.h>
+#include <fdt_support.h>
 #include <net.h>
 #include <asm/gpio.h>
 #include <asm/io.h>

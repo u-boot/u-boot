@@ -11,6 +11,7 @@
 #include <bootstage.h>
 #include <cpu_func.h>
 #include <env.h>
+#include <lmb.h>
 #include <malloc.h>
 #include <asm/cache.h>
 #include <u-boot/crc.h>

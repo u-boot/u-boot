@@ -7,6 +7,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <fdt_support.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <net.h>

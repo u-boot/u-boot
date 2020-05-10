@@ -10,6 +10,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <hang.h>
+#include <image.h>
 #include <init.h>
 #include <asm/io.h>
 #include <asm/sections.h>

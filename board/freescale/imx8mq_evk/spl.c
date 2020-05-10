@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <hang.h>
+#include <image.h>
 #include <asm/io.h>
 #include <errno.h>
 #include <asm/io.h>

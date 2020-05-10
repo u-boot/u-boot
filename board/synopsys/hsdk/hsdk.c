@@ -8,6 +8,7 @@
 #include <config.h>
 #include <cpu_func.h>
 #include <env.h>
+#include <image.h>
 #include <init.h>
 #include <irq_func.h>
 #include <asm/cache.h>

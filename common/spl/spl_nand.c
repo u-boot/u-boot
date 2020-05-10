@@ -5,6 +5,8 @@
  */
 #include <common.h>
 #include <config.h>
+#include <fdt_support.h>
+#include <image.h>
 #include <spl.h>
 #include <asm/io.h>
 #include <nand.h>

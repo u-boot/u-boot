@@ -10,6 +10,7 @@
 #include <fsl_mdio.h>
 #ifdef CONFIG_FSL_LAYERSCAPE
 #include <asm/arch/fsl_serdes.h>
+#include <linux/libfdt.h>
 #else
 #include <asm/fsl_serdes.h>
 #endif

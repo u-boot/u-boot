@@ -12,6 +12,8 @@
 #ifndef _U_BOOT_NDS32_H_
 #define _U_BOOT_NDS32_H_	1
 
+#include <linux/types.h>
+
 /* for the following variables, see start.S */
 extern ulong IRQ_STACK_START;	/* top of IRQ stack */
 extern ulong FIQ_STACK_START;	/* top of FIQ stack */

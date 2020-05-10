@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <image.h>
 #include <asm/arch/ddr3.h>
 #include <asm/arch/hardware.h>
 #include <asm/ti-common/keystone_net.h>

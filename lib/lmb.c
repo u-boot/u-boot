@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <image.h>
 #include <lmb.h>
 #include <malloc.h>
 

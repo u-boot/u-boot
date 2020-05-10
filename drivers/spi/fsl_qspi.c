@@ -25,6 +25,9 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <linux/libfdt.h>
+#include <linux/sizes.h>
+#include <linux/iopoll.h>
 #include <dm.h>
 #include <linux/iopoll.h>
 #include <linux/sizes.h>

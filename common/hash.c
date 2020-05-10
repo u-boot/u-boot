@@ -23,10 +23,10 @@
 #else
 #include "mkimage.h"
 #include <time.h>
-#include <image.h>
 #endif /* !USE_HOSTCC*/
 
 #include <hash.h>
+#include <image.h>
 #include <u-boot/crc.h>
 #include <u-boot/sha1.h>
 #include <u-boot/sha256.h>

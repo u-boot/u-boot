@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <fdt_support.h>
 #include <spl.h>
 #include <spl_gpio.h>
 #include <syscon.h>

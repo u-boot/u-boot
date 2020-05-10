@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <image.h>
 #include <asm/byteorder.h>
 #include <asm/zimage.h>
 

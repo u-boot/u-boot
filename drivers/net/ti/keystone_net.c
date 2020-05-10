@@ -21,6 +21,7 @@
 #include <asm/ti-common/keystone_net.h>
 #include <asm/ti-common/keystone_serdes.h>
 #include <asm/arch/psc_defs.h>
+#include <linux/libfdt.h>
 
 #include "cpsw_mdio.h"
 

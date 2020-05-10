@@ -11,6 +11,7 @@
 #include <dm.h>
 #include <env.h>
 #include <errno.h>
+#include <image.h>
 #include <init.h>
 #include <malloc.h>
 #include <net.h>

@@ -12,6 +12,7 @@
 #include <common.h>
 #include <env.h>
 #include <dm.h>
+#include <hash.h>
 #include <dm/uclass-internal.h>
 #include <misc.h>
 #include <u-boot/crc.h>
