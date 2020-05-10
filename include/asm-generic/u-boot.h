@@ -68,23 +68,6 @@ typedef struct bd_info {
 	unsigned long bi_vcofreq;	/* vco Freq in MHz */
 	unsigned long bi_flbfreq;	/* Flexbus Freq in MHz */
 #endif
-
-#ifdef CONFIG_HAS_ETH1
-	unsigned char   bi_enet1addr[6];	/* OLD: see README.enetaddr */
-#endif
-#ifdef CONFIG_HAS_ETH2
-	unsigned char	bi_enet2addr[6];	/* OLD: see README.enetaddr */
-#endif
-#ifdef CONFIG_HAS_ETH3
-	unsigned char   bi_enet3addr[6];	/* OLD: see README.enetaddr */
-#endif
-#ifdef CONFIG_HAS_ETH4
-	unsigned char   bi_enet4addr[6];	/* OLD: see README.enetaddr */
-#endif
-#ifdef CONFIG_HAS_ETH5
-	unsigned char   bi_enet5addr[6];	/* OLD: see README.enetaddr */
-#endif
-
 	ulong	        bi_arch_number;	/* unique id for this board */
 	ulong	        bi_boot_params;	/* where this board expects params */
 #ifdef CONFIG_NR_DRAM_BANKS
