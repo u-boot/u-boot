@@ -1,19 +1,17 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
+ * Implements the 'bd' command to show board information
+ *
  * (C) Copyright 2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
-/*
- * Boot support
- */
 #include <common.h>
 #include <command.h>
 #include <env.h>
 #include <net.h>
 #include <vsprintf.h>
 #include <asm/cache.h>
-#include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -103,8 +101,6 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 	return 0;
 }
-
-/* -------------------------------------------------------------------- */
 
 U_BOOT_CMD(
 	bdinfo,	1,	1,	do_bdinfo,
