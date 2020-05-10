@@ -301,15 +301,7 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 #elif defined(CONFIG_MIPS)
 
-int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
-{
-	print_std_bdinfo(gd->bd);
-	print_num("relocaddr", gd->relocaddr);
-	print_num("reloc off", gd->reloc_off);
-	print_cpu_word_size();
-
-	return 0;
-}
+#define USE_GENERIC
 
 #elif defined(CONFIG_ARM)
 
@@ -487,6 +479,9 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	print_std_bdinfo(gd->bd);
+	print_num("relocaddr", gd->relocaddr);
+	print_num("reloc off", gd->reloc_off);
+	print_cpu_word_size();
 
 	return 0;
 }
