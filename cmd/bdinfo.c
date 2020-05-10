@@ -62,11 +62,6 @@ static void print_bi_dram(const bd_t *bd)
 #endif
 }
 
-void __weak board_detail(void)
-{
-	/* Please define board_detail() for your PPC platform */
-}
-
 __weak void arch_print_bdinfo(void)
 {
 }
@@ -105,28 +100,6 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 #endif
 
 	arch_print_bdinfo();
-
-	/* This section is used only by ppc */
-#if defined(CONFIG_MPC8xx) || defined(CONFIG_E500)
-	bdinfo_print_num("immr_base", bd->bi_immr_base);
-#endif
-	if (IS_ENABLED(CONFIG_PPC)) {
-		bdinfo_print_num("bootflags", bd->bi_bootflags);
-		bdinfo_print_mhz("intfreq", bd->bi_intfreq);
-#ifdef CONFIG_ENABLE_36BIT_PHYS
-		if (IS_ENABLED(CONFIG_PHYS_64BIT))
-			puts("addressing  = 36-bit\n");
-		else
-			puts("addressing  = 32-bit\n");
-#endif
-		board_detail();
-	}
-#if defined(CONFIG_CPM2)
-	bdinfo_print_mhz("cpmfreq", bd->bi_cpmfreq);
-	bdinfo_print_mhz("vco", bd->bi_vco);
-	bdinfo_print_mhz("sccfreq", bd->bi_sccfreq);
-	bdinfo_print_mhz("brgfreq", bd->bi_brgfreq);
-#endif
 
 	/* This is used by m68k and ppc */
 #if defined(CONFIG_SYS_INIT_RAM_ADDR)
