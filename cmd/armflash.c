@@ -8,6 +8,7 @@
 #include <common.h>
 #include <command.h>
 #include <console.h>
+#include <flash.h>
 #include <asm/io.h>
 
 #define MAX_REGIONS 4

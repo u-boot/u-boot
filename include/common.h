@@ -29,7 +29,6 @@
 #include <stdio.h>
 #include <linux/kernel.h>
 #include <part.h>
-#include <flash.h>
 #include <image.h>
 #include <log.h>
 #include <asm/u-boot.h> /* boot information for Linux kernel */

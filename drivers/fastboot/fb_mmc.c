@@ -10,6 +10,7 @@
 #include <fastboot.h>
 #include <fastboot-internal.h>
 #include <fb_mmc.h>
+#include <flash.h>
 #include <image-sparse.h>
 #include <part.h>
 #include <mmc.h>

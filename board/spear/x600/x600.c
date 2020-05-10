@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <flash.h>
 #include <init.h>
 #include <micrel.h>
 #include <nand.h>

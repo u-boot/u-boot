@@ -10,6 +10,7 @@
 #include <command.h>
 #include <cros_ec.h>
 #include <dm.h>
+#include <flash.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
 

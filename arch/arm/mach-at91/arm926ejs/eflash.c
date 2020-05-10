@@ -43,6 +43,7 @@
  * do a read-modify-write for partially programmed pages
  */
 #include <common.h>
+#include <flash.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/at91_common.h>

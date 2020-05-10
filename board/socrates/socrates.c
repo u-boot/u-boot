@@ -14,6 +14,7 @@
 #include <clock_legacy.h>
 #include <env.h>
 #include <pci.h>
+#include <uuid.h>
 #include <asm/processor.h>
 #include <asm/immap_85xx.h>
 #include <ioports.h>

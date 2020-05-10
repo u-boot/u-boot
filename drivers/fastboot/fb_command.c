@@ -10,6 +10,7 @@
 #include <fastboot-internal.h>
 #include <fb_mmc.h>
 #include <fb_nand.h>
+#include <flash.h>
 #include <part.h>
 #include <stdlib.h>
 

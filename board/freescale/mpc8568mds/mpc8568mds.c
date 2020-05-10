@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <flash.h>
 #include <init.h>
 #include <pci.h>
 #include <asm/processor.h>

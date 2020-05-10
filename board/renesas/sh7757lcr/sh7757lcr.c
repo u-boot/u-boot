@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <env.h>
+#include <flash.h>
 #include <init.h>
 #include <malloc.h>
 #include <asm/processor.h>

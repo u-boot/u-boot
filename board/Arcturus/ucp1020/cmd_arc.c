@@ -12,6 +12,7 @@
 #include <cpu_func.h>
 #include <div64.h>
 #include <env.h>
+#include <flash.h>
 #include <malloc.h>
 #include <spi_flash.h>
 #include <mmc.h>

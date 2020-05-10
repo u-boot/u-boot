@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <console.h>
+#include <flash.h>
 #include <hwconfig.h>
 #include <init.h>
 #include <pci.h>

@@ -18,6 +18,7 @@
 #include <common.h>
 #include <command.h>
 #include <dm.h>
+#include <flash.h>
 #include <i2c.h>
 #include <cros_ec.h>
 #include <fdtdec.h>

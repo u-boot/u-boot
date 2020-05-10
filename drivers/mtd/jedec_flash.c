@@ -12,6 +12,7 @@
 /*#define DEBUG*/
 
 #include <common.h>
+#include <flash.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/byteorder.h>

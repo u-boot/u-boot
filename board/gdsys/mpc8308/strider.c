@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <env.h>
+#include <flash.h>
 #include <hwconfig.h>
 #include <i2c.h>
 #include <init.h>
