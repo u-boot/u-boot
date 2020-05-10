@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <ufs.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
 #include <linux/err.h>
 
 #include "ufs.h"

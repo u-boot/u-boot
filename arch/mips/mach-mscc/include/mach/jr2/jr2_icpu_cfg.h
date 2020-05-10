@@ -6,6 +6,8 @@
 #ifndef _MSCC_JR2_ICPU_CFG_H_
 #define _MSCC_JR2_ICPU_CFG_H_
 
+#include <linux/bitops.h>
+
 #define ICPU_GPR(x)                                       (0x4 * (x))
 #define ICPU_GPR_RSZ                                      0x4
 

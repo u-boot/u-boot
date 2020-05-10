@@ -39,6 +39,7 @@
 #ifndef __ASSEMBLY__
 
 #include <asm/io.h>
+#include <linux/bitops.h>
 
 static inline void *mips_cm_base(void)
 {

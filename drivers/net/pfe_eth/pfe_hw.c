@@ -4,6 +4,7 @@
  * Copyright 2017 NXP
  */
 #include <log.h>
+#include <linux/bitops.h>
 #include <net/pfe_eth/pfe_eth.h>
 #include <net/pfe_eth/pfe/pfe_hw.h>
 

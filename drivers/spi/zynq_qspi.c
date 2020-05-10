@@ -12,6 +12,7 @@
 #include <malloc.h>
 #include <spi.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

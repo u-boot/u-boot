@@ -7,6 +7,7 @@
 #ifndef _RTL8152_ETH_H
 #define _RTL8152_ETH_H
 
+#include <linux/bitops.h>
 #define R8152_BASE_NAME		"r8152"
 
 #define PLA_IDR			0xc000

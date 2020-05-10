@@ -8,6 +8,7 @@
 #ifndef __R8A66597_H__
 #define __R8A66597_H__
 
+#include <linux/bitops.h>
 #define SYSCFG0		0x00
 #define SYSCFG1		0x02
 #define SYSSTS0		0x04

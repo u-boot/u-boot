@@ -4,6 +4,7 @@
  */
 
 #include <log.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/io.h>
 #include "mscc_xfer.h"

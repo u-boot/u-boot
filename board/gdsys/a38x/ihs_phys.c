@@ -2,6 +2,7 @@
 #include <dm.h>
 #include <miiphy.h>
 #include <asm-generic/gpio.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 
 #include "ihs_phys.h"

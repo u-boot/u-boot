@@ -5,6 +5,7 @@
  *
  */
 #include <common.h>
+#include <asm/bitops.h>
 #include <asm/cpm_85xx.h>
 #include <pci.h>
 #include <dm.h>

@@ -19,6 +19,7 @@
 #include <asm/io.h>
 #include <phy.h>
 #include <linux/delay.h>
+#include <linux/bitops.h>
 
 #include "bcm-sf2-eth.h"
 #include "bcm-sf2-eth-gmac.h"

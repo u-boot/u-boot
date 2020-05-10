@@ -12,6 +12,7 @@
 #include <zynqmppl.h>
 #include <zynqmp_firmware.h>
 #include <asm/cache.h>
+#include <linux/bitops.h>
 #include <linux/sizes.h>
 #include <asm/arch/sys_proto.h>
 #include <memalign.h>

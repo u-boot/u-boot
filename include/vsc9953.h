@@ -11,6 +11,7 @@
 #include <config.h>
 #include <miiphy.h>
 #include <asm/types.h>
+#include <linux/bitops.h>
 
 #define VSC9953_OFFSET			(CONFIG_SYS_CCSRBAR_DEFAULT + 0x800000)
 

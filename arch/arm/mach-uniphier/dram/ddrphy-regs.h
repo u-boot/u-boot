@@ -9,6 +9,7 @@
 #ifndef ARCH_DDRPHY_REGS_H
 #define ARCH_DDRPHY_REGS_H
 
+#include <linux/bitops.h>
 #define PHY_REG_SHIFT		2
 
 #define PHY_RIDR		(0x000 << PHY_REG_SHIFT)

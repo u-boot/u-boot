@@ -81,6 +81,7 @@
 #else
 #include <common.h>
 #include <usb.h>
+#include <linux/bitops.h>
 #include <linux/bug.h>
 #include <linux/errno.h>
 #include <linux/usb/ch9.h>

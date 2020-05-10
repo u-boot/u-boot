@@ -11,6 +11,7 @@
 #include <dm.h>
 #include <clk.h>
 #include <timer.h>
+#include <linux/bitops.h>
 
 #define OSTM_CMP	0x00
 #define OSTM_CNT	0x04

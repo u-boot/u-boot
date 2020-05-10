@@ -8,6 +8,7 @@
 #define _ASM_GENERIC_GPIO_H_
 
 #include <dm/ofnode.h>
+#include <linux/bitops.h>
 
 struct ofnode_phandle_args;
 

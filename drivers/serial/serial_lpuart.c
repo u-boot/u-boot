@@ -13,6 +13,7 @@
 #include <asm/io.h>
 #include <serial.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
 #include <linux/compiler.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>

@@ -8,6 +8,7 @@
 #define _MAILBOX_S10_H_
 
 /* user define Uboot ID */
+#include <linux/bitops.h>
 #define MBOX_CLIENT_ID_UBOOT	0xB
 #define MBOX_ID_UBOOT		0x1
 

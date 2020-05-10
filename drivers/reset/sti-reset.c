@@ -14,6 +14,7 @@
 #include <regmap.h>
 #include <syscon.h>
 #include <dt-bindings/reset/stih407-resets.h>
+#include <linux/bitops.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

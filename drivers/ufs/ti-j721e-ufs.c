@@ -8,6 +8,7 @@
 #include <common.h>
 #include <dm.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
 #include <linux/err.h>
 
 #define UFS_SS_CTRL             0x4

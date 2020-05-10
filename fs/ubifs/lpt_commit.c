@@ -20,6 +20,7 @@
 #include <linux/slab.h>
 #include <linux/random.h>
 #else
+#include <linux/bitops.h>
 #include <linux/compat.h>
 #include <linux/err.h>
 #include "crc16.h"

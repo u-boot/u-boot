@@ -7,6 +7,7 @@
 #ifndef __MACH_INIT_H
 #define __MACH_INIT_H
 
+#include <linux/bitops.h>
 #include <linux/types.h>
 
 #define UNIPHIER_MAX_NR_DRAM_CH		3

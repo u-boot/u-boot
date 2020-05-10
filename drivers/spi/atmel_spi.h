@@ -3,6 +3,7 @@
  */
 
 /* Register offsets */
+#include <linux/bitops.h>
 #define ATMEL_SPI_CR			0x0000
 #define ATMEL_SPI_MR			0x0004
 #define ATMEL_SPI_RDR			0x0008

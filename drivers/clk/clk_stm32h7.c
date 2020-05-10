@@ -12,6 +12,7 @@
 #include <syscon.h>
 #include <asm/io.h>
 #include <dm/root.h>
+#include <linux/bitops.h>
 
 #include <dt-bindings/clock/stm32h7-clks.h>
 

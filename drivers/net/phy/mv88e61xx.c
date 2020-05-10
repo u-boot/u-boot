@@ -31,6 +31,7 @@
 
 #include <common.h>
 #include <log.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 
 #include <bitfield.h>

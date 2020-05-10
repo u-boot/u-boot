@@ -14,6 +14,7 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
 #include <linux/errno.h>
 #include <linux/io.h>
 

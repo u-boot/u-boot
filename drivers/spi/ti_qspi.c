@@ -19,6 +19,7 @@
 #include <asm/omap_gpio.h>
 #include <asm/omap_common.h>
 #include <asm/ti-common/ti-edma3.h>
+#include <linux/bitops.h>
 #include <linux/err.h>
 #include <linux/kernel.h>
 #include <regmap.h>

@@ -14,6 +14,7 @@
 #include <dm.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 
 struct mscc_bb_priv {

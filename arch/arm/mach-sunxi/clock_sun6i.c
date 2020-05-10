@@ -14,6 +14,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/prcm.h>
 #include <asm/arch/sys_proto.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 
 #ifdef CONFIG_SPL_BUILD

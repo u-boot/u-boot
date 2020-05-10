@@ -14,6 +14,7 @@
 #include <syscon.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/pwm.h>
+#include <linux/bitops.h>
 #include <power/regulator.h>
 
 DECLARE_GLOBAL_DATA_PTR;

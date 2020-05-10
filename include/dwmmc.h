@@ -10,6 +10,7 @@
 #include <asm/cache.h>
 #include <asm/io.h>
 #include <mmc.h>
+#include <linux/bitops.h>
 
 #define DWMCI_CTRL		0x000
 #define	DWMCI_PWREN		0x004

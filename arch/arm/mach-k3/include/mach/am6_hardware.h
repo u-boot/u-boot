@@ -8,6 +8,9 @@
 #define __ASM_ARCH_AM6_HARDWARE_H
 
 #include <config.h>
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
 
 #define CTRL_MMR0_BASE					0x00100000
 #define CTRLMMR_MAIN_DEVSTAT				(CTRL_MMR0_BASE + 0x30)

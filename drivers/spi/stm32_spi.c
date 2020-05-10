@@ -13,6 +13,7 @@
 #include <reset.h>
 #include <spi.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 
 #include <asm/io.h>

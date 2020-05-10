@@ -29,6 +29,7 @@
 #include <watchdog.h>
 #include <asm/cache.h>
 #include <asm/unaligned.h>
+#include <linux/bitops.h>
 #include <linux/bug.h>
 #include <linux/delay.h>
 #include <linux/errno.h>

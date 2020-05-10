@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <linux/bitops.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
 #include <asm/hardware.h>

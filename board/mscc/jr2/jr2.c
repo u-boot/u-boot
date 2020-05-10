@@ -9,6 +9,7 @@
 #include <asm/io.h>
 #include <led.h>
 #include <miiphy.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 
 enum {

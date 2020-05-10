@@ -12,6 +12,7 @@
 #include <dm.h>
 #include <log.h>
 #include <regmap.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 
 /**

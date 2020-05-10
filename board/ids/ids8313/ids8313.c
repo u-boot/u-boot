@@ -16,6 +16,7 @@
 #include <init.h>
 #include <mpc83xx.h>
 #include <spi.h>
+#include <asm/bitops.h>
 #include <linux/delay.h>
 #include <linux/libfdt.h>
 

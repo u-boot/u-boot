@@ -12,6 +12,7 @@
 #include <dm/lists.h>
 #include <dm/pinctrl.h>
 #include <fdt_support.h>
+#include <linux/bitops.h>
 #include <linux/err.h>
 #include <linux/io.h>
 #include <linux/libfdt.h>

@@ -16,6 +16,7 @@
 #include <i2c.h>
 #include <i2c_eeprom.h>
 #include <netdev.h>
+#include <linux/bitops.h>
 #include "som.h"
 #include <power/regulator.h>
 #include <power/rk8xx_pmic.h>

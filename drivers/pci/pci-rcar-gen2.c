@@ -11,6 +11,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <pci.h>
+#include <linux/bitops.h>
 
 /* AHB-PCI Bridge PCI communication registers */
 #define RCAR_AHBPCI_PCICOM_OFFSET	0x800

@@ -10,6 +10,7 @@
 #include <log.h>
 #include <asm/io.h>
 #include <dm/pinctrl.h>
+#include <linux/bitops.h>
 #include <mach/pic32.h>
 
 DECLARE_GLOBAL_DATA_PTR;

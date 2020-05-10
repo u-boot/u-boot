@@ -7,6 +7,7 @@
 #define _RESET_MANAGER_ARRIA10_H_
 
 #include <dt-bindings/reset/altr,rst-mgr-a10.h>
+#include <linux/bitops.h>
 
 void socfpga_watchdog_disable(void);
 void socfpga_reset_deassert_noc_ddr_scheduler(void);

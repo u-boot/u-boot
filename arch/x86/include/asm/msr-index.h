@@ -9,6 +9,10 @@
 #ifndef _ASM_X86_MSR_INDEX_H
 #define _ASM_X86_MSR_INDEX_H
 
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 /* CPU model specific register (MSR) numbers */
 
 /* x86-64 specific MSRs */

@@ -6,6 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <generic-phy.h>
+#include <linux/bitops.h>
 #include <usb/ehci-ci.h>
 #include <usb/ulpi.h>
 #include <asm/io.h>

@@ -22,6 +22,7 @@
 #include <fdt_support.h>
 #include <fsl_wdog.h>
 #include <imx_sip.h>
+#include <linux/bitops.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

@@ -10,6 +10,7 @@
 #include <asm/arch-rockchip/hardware.h>
 #include <asm/gpio.h>
 #include <debug_uart.h>
+#include <linux/bitops.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

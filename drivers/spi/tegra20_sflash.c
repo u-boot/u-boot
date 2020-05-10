@@ -17,6 +17,7 @@
 #include <asm/arch-tegra/clk_rst.h>
 #include <spi.h>
 #include <fdtdec.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 #include "tegra_spi.h"
 

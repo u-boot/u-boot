@@ -14,6 +14,7 @@
 #include <syscon.h>
 #include <time.h>
 #include <vsprintf.h>
+#include <linux/bitops.h>
 #include <linux/io.h>
 #include <linux/iopoll.h>
 #include <dt-bindings/clock/stm32mp1-clks.h>

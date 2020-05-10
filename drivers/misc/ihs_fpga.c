@@ -14,6 +14,7 @@
 #include <log.h>
 #include <regmap.h>
 #include <asm/gpio.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 
 #include "ihs_fpga.h"

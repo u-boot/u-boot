@@ -28,6 +28,7 @@
 #include <asm/io.h>
 #include <dm/device_compat.h>
 #include <dt-bindings/gpio/gpio.h>
+#include <linux/bitops.h>
 
 #define PCA953X_INPUT           0
 #define PCA953X_OUTPUT          1

@@ -7,6 +7,7 @@
 #define _SOCFPGA_SDRAM_ARRIA10_H_
 
 #ifndef __ASSEMBLY__
+#include <linux/bitops.h>
 int ddr_calibration_sequence(void);
 
 struct socfpga_ecc_hmc {

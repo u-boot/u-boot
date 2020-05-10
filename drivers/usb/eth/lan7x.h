@@ -6,6 +6,7 @@
 #include <console.h>
 #include <time.h>
 #include <watchdog.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/errno.h>
 

@@ -24,6 +24,7 @@
  * Bit 0 RW sw_reset_core: connects to IP's ~irstz. 1=Apply reset;
  *     0=Release from reset. Default 1.
  */
+#include <linux/bitops.h>
 #define HDMITX_TOP_SW_RESET                     (0x000)
 
 /*

@@ -13,6 +13,7 @@
 #include <dm/root.h>
 #include <dm/device-internal.h>
 #include <asm/arch/sci/sci.h>
+#include <linux/bitops.h>
 #include <linux/iopoll.h>
 #include <misc.h>
 

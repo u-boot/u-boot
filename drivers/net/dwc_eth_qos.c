@@ -48,6 +48,7 @@
 #include <asm/arch/clock.h>
 #include <asm/mach-imx/sys_proto.h>
 #endif
+#include <linux/bitops.h>
 #include <linux/delay.h>
 
 /* Core registers */

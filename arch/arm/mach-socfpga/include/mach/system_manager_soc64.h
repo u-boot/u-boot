@@ -6,6 +6,7 @@
 #ifndef _SYSTEM_MANAGER_SOC64_H_
 #define _SYSTEM_MANAGER_SOC64_H_
 
+#include <linux/bitops.h>
 void sysmgr_pinmux_init(void);
 void populate_sysmgr_fpgaintf_module(void);
 void populate_sysmgr_pinmux(void);

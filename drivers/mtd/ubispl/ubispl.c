@@ -13,6 +13,7 @@
 #include <u-boot/crc.h>
 #include <ubispl.h>
 
+#include <linux/bitops.h>
 #include <linux/crc32.h>
 
 #include "ubispl.h"

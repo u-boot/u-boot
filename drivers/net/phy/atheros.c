@@ -10,6 +10,7 @@
 #include <phy.h>
 #include <dm/device_compat.h>
 #include <linux/bitfield.h>
+#include <linux/bitops.h>
 #include <dt-bindings/net/qca-ar803x.h>
 
 #define AR803x_PHY_DEBUG_ADDR_REG	0x1d

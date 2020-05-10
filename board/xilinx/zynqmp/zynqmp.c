@@ -31,6 +31,7 @@
 #include <zynqmppl.h>
 #include <zynqmp_firmware.h>
 #include <g_dnl.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/sizes.h>
 #include "../common/board.h"

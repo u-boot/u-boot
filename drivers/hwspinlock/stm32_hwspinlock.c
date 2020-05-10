@@ -9,6 +9,7 @@
 #include <hwspinlock.h>
 #include <malloc.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 
 #define STM32_MUTEX_COREID	BIT(8)
 #define STM32_MUTEX_LOCK_BIT	BIT(31)

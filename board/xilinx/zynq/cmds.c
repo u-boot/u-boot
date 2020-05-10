@@ -10,6 +10,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 #include <malloc.h>
+#include <linux/bitops.h>
 #include <u-boot/md5.h>
 #include <u-boot/rsa.h>
 #include <u-boot/rsa-mod-exp.h>

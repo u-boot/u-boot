@@ -14,6 +14,7 @@
 #include <version.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/bootrom.h>
+#include <linux/bitops.h>
 
 #define TIMER_LOAD_COUNT_L	0x00
 #define TIMER_LOAD_COUNT_H	0x04

@@ -15,6 +15,7 @@
 #include <dm/lists.h>
 #include <dm/pinctrl.h>
 #include <linux/bitfield.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 #include <power/regulator.h>
 

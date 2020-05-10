@@ -16,6 +16,7 @@
 #include <asm/arch/hardware.h>
 #include <dm.h>
 #include <dm/platform_data/spi_davinci.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 
 /* SPIGCR0 */

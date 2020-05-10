@@ -21,6 +21,7 @@
 #include <asm/arch/display2.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
+#include <linux/bitops.h>
 #include "simplefb_common.h"
 
 DECLARE_GLOBAL_DATA_PTR;

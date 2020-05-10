@@ -9,6 +9,7 @@
 #define __ARCH_BROADWELL_SERIALIO_H_
 
 /* Serial IO IOBP Registers */
+#include <linux/bitops.h>
 #define SIO_IOBP_PORTCTRL0	0xcb000000	/* SDIO D23:F0 */
 #define  SIO_IOBP_PORTCTRL0_ACPI_IRQ_EN		BIT(5)
 #define  SIO_IOBP_PORTCTRL0_PCI_CONF_DIS	BIT(4)

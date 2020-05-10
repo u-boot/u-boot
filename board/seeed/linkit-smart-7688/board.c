@@ -6,6 +6,7 @@
 #include <common.h>
 #include <init.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 
 #define MT76XX_GPIO1_MODE	0x10000060
 

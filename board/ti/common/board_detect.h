@@ -9,6 +9,7 @@
 #define __BOARD_DETECT_H
 
 /* TI EEPROM MAGIC Header identifier */
+#include <linux/bitops.h>
 #define TI_EEPROM_HEADER_MAGIC	0xEE3355AA
 #define TI_DEAD_EEPROM_MAGIC	0xADEAD12C
 

@@ -44,6 +44,7 @@
 #include <libata.h>
 #include <malloc.h>
 #include <sata.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/io.h>

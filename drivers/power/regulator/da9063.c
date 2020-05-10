@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <linux/bitops.h>
 #include <power/da9063_pmic.h>
 #include <power/pmic.h>
 #include <power/regulator.h>

@@ -8,6 +8,7 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <errno.h>
+#include <linux/bitops.h>
 
 #define MVEBU_GPIOS_PER_BANK	32
 

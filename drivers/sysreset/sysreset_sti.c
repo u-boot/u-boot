@@ -10,6 +10,7 @@
 #include <syscon.h>
 #include <sysreset.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

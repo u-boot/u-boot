@@ -12,6 +12,7 @@
 #include <fdtdec.h>
 #include <micrel.h>
 #include <phy.h>
+#include <linux/bitops.h>
 
 static struct phy_driver KSZ804_driver = {
 	.name = "Micrel KSZ804",

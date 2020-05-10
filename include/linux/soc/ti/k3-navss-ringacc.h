@@ -9,6 +9,7 @@
 #define __SOC_TI_K3_NAVSS_RINGACC_API_H_
 
 #include <dm/ofnode.h>
+#include <linux/bitops.h>
 
 /**
  * enum k3_nav_ring_mode - &struct k3_nav_ring_cfg mode

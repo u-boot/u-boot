@@ -11,6 +11,7 @@
 #include <i2c.h>
 #include <log.h>
 #include <asm/gpio.h>
+#include <linux/bitops.h>
 #include <power/fan53555.h>
 #include <power/pmic.h>
 #include <power/regulator.h>

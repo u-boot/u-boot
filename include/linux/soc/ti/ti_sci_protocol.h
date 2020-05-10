@@ -20,6 +20,7 @@
  * @firmware_revision:	Firmware revision (not usually used).
  * @firmware_description: Firmware description (not usually used).
  */
+#include <linux/bitops.h>
 struct ti_sci_version_info {
 	u8 abi_major;
 	u8 abi_minor;

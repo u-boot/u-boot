@@ -18,6 +18,7 @@
 #include <asm/arch/gpio.h>
 #include <dm/device-internal.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
 
 struct stm32_ltdc_priv {
 	void __iomem *regs;

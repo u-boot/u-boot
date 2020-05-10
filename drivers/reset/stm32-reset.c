@@ -12,6 +12,7 @@
 #include <reset-uclass.h>
 #include <stm32_rcc.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 
 /* reset clear offset for STM32MP RCC */
 #define RCC_CL 0x4

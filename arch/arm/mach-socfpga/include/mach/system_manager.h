@@ -94,5 +94,6 @@ phys_addr_t socfpga_get_sysmgr_addr(void);
 
 #define SYSMGR_GET_BOOTINFO_BSEL(bsel)		\
 		(((bsel) >> SYSMGR_BOOTINFO_BSEL_SHIFT) & 7)
+#include <linux/bitops.h>
 #endif
 #endif /* _SYSTEM_MANAGER_H_ */

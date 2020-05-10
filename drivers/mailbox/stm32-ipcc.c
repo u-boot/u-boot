@@ -11,6 +11,7 @@
 #include <malloc.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
 
 /*
  * IPCC has one set of registers per CPU

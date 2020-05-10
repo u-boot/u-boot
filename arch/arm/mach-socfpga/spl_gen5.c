@@ -24,6 +24,7 @@
 #include <fdtdec.h>
 #include <watchdog.h>
 #include <dm/uclass.h>
+#include <linux/bitops.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

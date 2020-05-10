@@ -23,6 +23,7 @@
 #include <rand.h>
 #include <watchdog.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 #include <linux/compiler.h>
 #include <linux/delay.h>
 

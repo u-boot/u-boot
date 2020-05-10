@@ -9,6 +9,7 @@
 #include <syscon.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
 #include <linux/err.h>
 #include <power/pmic.h>
 #include <power/regulator.h>

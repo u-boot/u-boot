@@ -24,6 +24,7 @@
 #else
 
 #include <asm/types.h>
+#include <linux/bitops.h>
 
 typedef struct at91_pmc {
 	u32	scer;		/* 0x00 System Clock Enable Register */

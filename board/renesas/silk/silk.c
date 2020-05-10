@@ -18,6 +18,7 @@
 #include <asm/processor.h>
 #include <asm/mach-types.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/arch/sys_proto.h>

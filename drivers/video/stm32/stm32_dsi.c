@@ -23,6 +23,7 @@
 #include <dm/device-internal.h>
 #include <dm/device_compat.h>
 #include <dm/lists.h>
+#include <linux/bitops.h>
 #include <linux/iopoll.h>
 #include <power/regulator.h>
 

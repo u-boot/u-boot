@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <linux/bitops.h>
 #include <linux/compiler.h>
 #include <serial.h>
 

@@ -13,6 +13,7 @@
 #include <errno.h>
 #include <init.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 
 #define REV_CHIPID_SHIFT		16
 #define REV_CHIPID_MASK			(0xffff << REV_CHIPID_SHIFT)

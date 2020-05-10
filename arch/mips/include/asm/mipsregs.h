@@ -27,6 +27,7 @@
 #ifdef __ASSEMBLY__
 #define _ULCAST_
 #else
+#include <linux/bitops.h>
 #define _ULCAST_ (unsigned long)
 #endif
 

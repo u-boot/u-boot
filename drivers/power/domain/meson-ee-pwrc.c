@@ -15,6 +15,7 @@
 #include <clk.h>
 #include <dt-bindings/power/meson-g12a-power.h>
 #include <dt-bindings/power/meson-sm1-power.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/err.h>
 

@@ -8,6 +8,7 @@
 #include <common.h>
 #include <dm.h>
 #include <dm/pinctrl.h>
+#include <linux/bitops.h>
 #include <linux/io.h>
 #include "pinctrl-meson-gx.h"
 

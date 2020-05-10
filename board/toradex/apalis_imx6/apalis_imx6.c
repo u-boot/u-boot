@@ -12,6 +12,7 @@
 #include <image.h>
 #include <init.h>
 #include <net.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 
 #include <ahci.h>

@@ -14,6 +14,7 @@
 #include <misc.h>
 #include <asm/arch-tegra/bpmp_abi.h>
 #include <asm/arch-tegra/ivc.h>
+#include <linux/bitops.h>
 #include <linux/err.h>
 
 #define BPMP_IVC_FRAME_COUNT 1

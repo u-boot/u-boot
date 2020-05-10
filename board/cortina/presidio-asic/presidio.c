@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <netdev.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 #include <linux/compiler.h>
 #include <configs/presidio_asic.h>
 #include <linux/psci.h>

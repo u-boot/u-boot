@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <dm/devres.h>
+#include <linux/bitops.h>
 #include <linux/mtd/nand.h>
 #ifndef __UBOOT__
 #include <linux/slab.h>

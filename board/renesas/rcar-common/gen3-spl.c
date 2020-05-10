@@ -12,6 +12,7 @@
 #include <log.h>
 #include <asm/io.h>
 #include <spl.h>
+#include <linux/bitops.h>
 
 #define RCAR_CNTC_BASE	0xE6080000
 #define CNTCR_EN	BIT(0)

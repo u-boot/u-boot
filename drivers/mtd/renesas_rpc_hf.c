@@ -19,6 +19,7 @@
 #include <flash.h>
 #include <mtd.h>
 #include <wait_bit.h>
+#include <linux/bitops.h>
 #include <mtd/cfi_flash.h>
 
 #define RPC_CMNCR		0x0000	/* R/W */

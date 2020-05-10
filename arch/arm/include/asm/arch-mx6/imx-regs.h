@@ -372,6 +372,7 @@
 #include <asm/mach-imx/regs-lcdif.h>
 #if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
 #include <asm/types.h>
+#include <linux/bitops.h>
 
 /* only for i.MX6SX/UL */
 #define WDOG3_BASE_ADDR (((is_mx6ul() || is_mx6ull()) ?	\

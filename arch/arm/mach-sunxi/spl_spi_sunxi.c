@@ -9,6 +9,7 @@
 #include <spl.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/libfdt.h>
 

@@ -10,6 +10,10 @@
 #include <linux/kconfig.h>
 #include <fsl_ddrc_version.h>
 
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 #define CONFIG_STANDALONE_LOAD_ADDR	0x80300000
 
 /*

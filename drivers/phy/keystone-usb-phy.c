@@ -11,6 +11,7 @@
 #include <generic-phy.h>
 #include <asm/io.h>
 #include <asm/arch/psc_defs.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 
 /* USB PHY control register offsets */

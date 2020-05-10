@@ -7,6 +7,7 @@
 #define _ASM_ARCH_J721E_SPL_H_
 
 /* With BootMode B = 0 */
+#include <linux/bitops.h>
 #define BOOT_DEVICE_HYPERFLASH		0x00
 #define BOOT_DEVICE_OSPI		0x01
 #define BOOT_DEVICE_QSPI		0x02

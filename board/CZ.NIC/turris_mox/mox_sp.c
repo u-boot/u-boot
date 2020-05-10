@@ -6,6 +6,7 @@
 #include <common.h>
 #include <asm/arch/soc.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 
 #define RWTM_BASE		(MVEBU_REGISTER(0xb0000))

@@ -21,6 +21,7 @@
 #include <dm/uclass.h>
 #include <fdt_support.h>
 #include <time.h>
+#include <linux/bitops.h>
 #include <u-boot/crc.h>
 # include <atsha204a-i2c.h>
 

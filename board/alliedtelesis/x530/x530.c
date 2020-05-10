@@ -11,6 +11,7 @@
 #include <init.h>
 #include <wdt.h>
 #include <asm/gpio.h>
+#include <linux/bitops.h>
 #include <linux/mbus.h>
 #include <linux/io.h>
 #include <asm/arch/cpu.h>

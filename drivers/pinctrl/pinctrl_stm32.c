@@ -9,6 +9,7 @@
 #include <dm/device_compat.h>
 #include <dm/lists.h>
 #include <dm/pinctrl.h>
+#include <linux/bitops.h>
 #include <linux/err.h>
 #include <linux/libfdt.h>
 

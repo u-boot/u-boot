@@ -12,6 +12,7 @@
 #include <asm/arch-mediatek/reset.h>
 #include <asm/io.h>
 #include <dt-bindings/clock/mt7629-clk.h>
+#include <linux/bitops.h>
 
 #include "clk-mtk.h"
 

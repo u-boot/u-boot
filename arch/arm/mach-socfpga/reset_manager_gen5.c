@@ -9,6 +9,7 @@
 #include <asm/arch/fpga_manager.h>
 #include <asm/arch/reset_manager.h>
 #include <asm/arch/system_manager.h>
+#include <linux/bitops.h>
 
 /* Assert or de-assert SoCFPGA reset manager reset. */
 void socfpga_per_reset(u32 reset, int set)

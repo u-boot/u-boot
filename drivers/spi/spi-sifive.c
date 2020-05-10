@@ -13,6 +13,7 @@
 #include <spi-mem.h>
 #include <wait_bit.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 #include <linux/log2.h>
 #include <clk.h>
 

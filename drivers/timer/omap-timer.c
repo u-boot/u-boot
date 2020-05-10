@@ -11,6 +11,7 @@
 #include <timer.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
+#include <linux/bitops.h>
 
 /* Timer register bits */
 #define TCLR_START			BIT(0)	/* Start=1 */

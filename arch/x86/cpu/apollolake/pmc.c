@@ -16,6 +16,7 @@
 #include <acpi/acpi_s3.h>
 #include <asm/io.h>
 #include <asm/pci.h>
+#include <linux/bitops.h>
 #include <power/acpi_pmc.h>
 
 #define GPIO_GPE_CFG		0x1050

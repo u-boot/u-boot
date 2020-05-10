@@ -9,6 +9,7 @@
 #include <rtc.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
 #include <linux/iopoll.h>
 
 #define STM32_RTC_TR		0x00

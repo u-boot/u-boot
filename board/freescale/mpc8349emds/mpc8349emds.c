@@ -9,6 +9,7 @@
 #include <init.h>
 #include <ioports.h>
 #include <mpc83xx.h>
+#include <asm/bitops.h>
 #include <asm/mpc8349_pci.h>
 #include <i2c.h>
 #include <spi.h>

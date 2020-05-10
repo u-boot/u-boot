@@ -36,6 +36,7 @@
  * tables which describe all bitfields in all registers.
  */
 
+#include <linux/bitops.h>
 #include <linux/types.h>
 
 /* Produces a mask of set bits covering a range of a uint value */

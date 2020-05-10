@@ -11,6 +11,7 @@
 #include <timer.h>
 #include <asm/io.h>
 #include <asm/arch/ddr.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/iopoll.h>
 #include "stm32mp1_ddr.h"

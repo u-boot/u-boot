@@ -16,6 +16,7 @@
 #include <asm/arch-rockchip/hardware.h>
 #include <dm/lists.h>
 #include <dt-bindings/clock/rk3228-cru.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/log2.h>
 #include <linux/stringify.h>

@@ -12,6 +12,7 @@
 #include <ram.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 
 #define MEM_MODE_MASK	GENMASK(2, 0)

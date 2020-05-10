@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <linux/bitops.h>
 
 #include "common.h"
 #include "qrio.h"

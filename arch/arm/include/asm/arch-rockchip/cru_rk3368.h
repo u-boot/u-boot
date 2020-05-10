@@ -6,6 +6,10 @@
 #ifndef _ASM_ARCH_CRU_RK3368_H
 #define _ASM_ARCH_CRU_RK3368_H
 
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 /* RK3368 clock numbers */
 enum rk3368_pll_id {
 	APLLB,

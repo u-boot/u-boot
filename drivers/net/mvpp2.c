@@ -26,6 +26,7 @@
 #include <config.h>
 #include <malloc.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 #include <linux/bug.h>
 #include <linux/delay.h>
 #include <linux/err.h>

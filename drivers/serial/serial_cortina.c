@@ -11,6 +11,7 @@
 #include <watchdog.h>
 #include <asm/io.h>
 #include <serial.h>
+#include <linux/bitops.h>
 #include <linux/compiler.h>
 
 /* Register definitions */

@@ -7,6 +7,7 @@
 #ifndef _ASM_ARCH_LPC_H
 #define _ASM_ARCH_LPC_H
 
+#include <linux/bitops.h>
 #define LPC_SERIRQ_CTL			0x64
 #define  LPC_SCNT_EN			BIT(7)
 #define  LPC_SCNT_MODE			BIT(6)

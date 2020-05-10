@@ -12,6 +12,7 @@
 #include <malloc.h>
 #include <asm/arch/hardware.h>
 #include <asm/gpio.h>
+#include <linux/bitops.h>
 #include <mach/gpio.h>
 #include <mach/atmel_pio4.h>
 

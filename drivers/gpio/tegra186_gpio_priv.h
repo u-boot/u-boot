@@ -10,6 +10,7 @@
  * For each GPIO, there are a set of registers than affect it, all packed
  * back-to-back.
  */
+#include <linux/bitops.h>
 #define TEGRA186_GPIO_ENABLE_CONFIG				0x00
 #define TEGRA186_GPIO_ENABLE_CONFIG_ENABLE			BIT(0)
 #define TEGRA186_GPIO_ENABLE_CONFIG_OUT				BIT(1)

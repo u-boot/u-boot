@@ -19,6 +19,7 @@
 #include <ubi_uboot.h>
 #include <wait_bit.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
 #include <linux/err.h>
 
 #define GQSPI_GFIFO_STRT_MODE_MASK	BIT(29)

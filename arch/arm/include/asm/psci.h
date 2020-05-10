@@ -100,6 +100,7 @@
 
 #ifndef __ASSEMBLY__
 #include <asm/types.h>
+#include <linux/bitops.h>
 
 /* These 3 helper functions assume cpu < CONFIG_ARMV7_PSCI_NR_CPUS */
 u32 psci_get_target_pc(int cpu);

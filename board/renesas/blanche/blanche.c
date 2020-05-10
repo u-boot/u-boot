@@ -24,6 +24,7 @@
 #include <env.h>
 #include <hang.h>
 #include <i2c.h>
+#include <linux/bitops.h>
 #include <linux/errno.h>
 #include <malloc.h>
 #include <miiphy.h>

@@ -9,6 +9,7 @@
 #include <i2c.h>
 #include <log.h>
 #include <reset.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 
 #include <dm/device.h>

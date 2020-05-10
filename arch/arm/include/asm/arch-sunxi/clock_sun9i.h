@@ -8,6 +8,10 @@
 #ifndef _SUNXI_CLOCK_SUN9I_H
 #define _SUNXI_CLOCK_SUN9I_H
 
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 struct sunxi_ccm_reg {
 	u32 pll1_c0_cfg;	/* 0x00 c0cpu# pll configuration */
 	u32 pll2_c1_cfg;	/* 0x04 c1cpu# pll configuration */

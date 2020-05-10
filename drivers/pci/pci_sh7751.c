@@ -11,6 +11,7 @@
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/pci.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 
 /* Register addresses and such */

@@ -11,6 +11,7 @@
 #include <dm/lists.h>
 #include <dm/util.h>
 #include <dt-bindings/clock/agilex-clock.h>
+#include <linux/bitops.h>
 
 #include <asm/arch/clock_manager.h>
 

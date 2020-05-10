@@ -12,6 +12,7 @@
 #include <reset.h>
 #include <asm/io.h>
 #include <asm/arch/ccu.h>
+#include <linux/bitops.h>
 #include <linux/log2.h>
 
 static const struct ccu_clk_gate *priv_to_gate(struct ccu_priv *priv,

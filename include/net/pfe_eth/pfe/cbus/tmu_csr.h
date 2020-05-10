@@ -7,6 +7,7 @@
 #ifndef _TMU_CSR_H_
 #define _TMU_CSR_H_
 
+#include <linux/bitops.h>
 #define TMU_VERSION			(TMU_CSR_BASE_ADDR + 0x000)
 #define TMU_INQ_WATERMARK		(TMU_CSR_BASE_ADDR + 0x004)
 #define TMU_PHY_INQ_PKTPTR		(TMU_CSR_BASE_ADDR + 0x008)

@@ -15,6 +15,7 @@
 #include <timer.h>
 #include <watchdog.h>
 #include <asm/ptrace.h>
+#include <linux/bitops.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

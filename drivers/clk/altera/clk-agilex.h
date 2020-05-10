@@ -6,6 +6,10 @@
 #ifndef	_CLK_AGILEX_
 #define	_CLK_AGILEX_
 
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 #define CM_REG_READL(plat, reg)				\
 	readl((plat)->regs + (reg))
 

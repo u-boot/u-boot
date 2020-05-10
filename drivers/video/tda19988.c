@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <display.h>
 #include <i2c.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 
 /*

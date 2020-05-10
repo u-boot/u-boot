@@ -17,6 +17,7 @@
 #include <sdhci.h>
 #include <dm.h>
 #include <asm/cache.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/dma-mapping.h>
 #include <phys2bus.h>

@@ -8,6 +8,7 @@
 #ifndef _MSCC_LUTON_MIIM_REGS_H_
 #define _MSCC_LUTON_MIIM_REGS_H_
 
+#include <linux/bitops.h>
 #define MIIM_MII_STATUS(gi) (0xa0 + (gi * 36))
 #define MIIM_MII_CMD(gi)    (0xa8 + (gi * 36))
 #define MIIM_MII_DATA(gi)   (0xac + (gi * 36))

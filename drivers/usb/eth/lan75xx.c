@@ -6,6 +6,7 @@
 #include <dm.h>
 #include <log.h>
 #include <usb.h>
+#include <linux/bitops.h>
 #include <linux/mii.h>
 #include "usb_ether.h"
 #include "lan7x.h"

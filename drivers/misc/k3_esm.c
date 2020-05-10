@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
 
 #define ESM_SFT_RST			0x0c
 #define ESM_SFT_RST_KEY			0x0f

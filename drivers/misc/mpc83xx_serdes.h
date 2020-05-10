@@ -18,6 +18,7 @@
  *			lane E) field of the SRCSCR0
  * @SRDSCR0_TXEQE_SATA: Bitmask to set the TXEQE to the value used for SATA
  */
+#include <linux/bitops.h>
 enum srdscr0_mask {
 	SRDSCR0_DPPA        = BIT(31 - 16),
 	SRDSCR0_DPPE        = BIT(31 - 20),

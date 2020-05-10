@@ -13,6 +13,7 @@
 #include <log.h>
 #include <sound.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 
 struct rk_i2s_regs {
 	u32 txcr;		/* I2S_TXCR, 0x00 */

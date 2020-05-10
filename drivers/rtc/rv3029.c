@@ -15,6 +15,7 @@
 #include <log.h>
 #include <rtc.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 
 #define RTC_RV3029_PAGE_LEN             7

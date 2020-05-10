@@ -23,6 +23,7 @@
 #include <serial.h>
 #include <dm/platform_data/serial_bcm283x_mu.h>
 #include <dm/pinctrl.h>
+#include <linux/bitops.h>
 #include <linux/compiler.h>
 
 struct bcm283x_mu_regs {

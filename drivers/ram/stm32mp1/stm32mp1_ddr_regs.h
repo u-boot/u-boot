@@ -7,6 +7,7 @@
 #define _RAM_STM32MP1_DDR_REGS_H
 
 /* DDR3/LPDDR2/LPDDR3 Controller (DDRCTRL) registers */
+#include <linux/bitops.h>
 struct stm32mp1_ddrctl {
 	u32 mstr ;		/* 0x0 Master*/
 	u32 stat;		/* 0x4 Operating Mode Status*/

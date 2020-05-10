@@ -16,6 +16,7 @@
 #include <malloc.h>
 #include <net.h>
 #include <asm/cache.h>
+#include <linux/bitops.h>
 #include <linux/compiler.h>
 #include <linux/delay.h>
 #include <linux/err.h>

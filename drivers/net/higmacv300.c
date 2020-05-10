@@ -10,6 +10,7 @@
 #include <asm/io.h>
 #include <common.h>
 #include <console.h>
+#include <linux/bitops.h>
 #include <linux/bug.h>
 #include <linux/delay.h>
 #include <linux/mii.h>

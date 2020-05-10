@@ -8,6 +8,8 @@
 
 #ifndef __ASSEMBLY__
 
+#include <linux/bitops.h>
+
 /* Clock manager group */
 #define CLKMGR_A10_CTRL				0x00
 #define CLKMGR_A10_INTR				0x04
@@ -64,6 +66,7 @@
 int cm_basic_init(const void *blob);
 #endif
 
+#include <linux/bitops.h>
 unsigned int cm_get_l4_sp_clk_hz(void);
 unsigned long cm_get_mpu_clk_hz(void);
 

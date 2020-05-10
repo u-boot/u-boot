@@ -9,6 +9,7 @@
 #ifndef _MMC_H_
 #define _MMC_H_
 
+#include <linux/bitops.h>
 #include <linux/list.h>
 #include <linux/sizes.h>
 #include <linux/compiler.h>

@@ -13,6 +13,7 @@
 #include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
+#include <linux/bitops.h>
 
 #include <dt-bindings/clock/r8a77970-cpg-mssr.h>
 

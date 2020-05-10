@@ -9,6 +9,7 @@
  * PCI Configuration space access support for MPC85xx PCI Bridge
  */
 #include <common.h>
+#include <asm/bitops.h>
 #include <asm/cpm_85xx.h>
 #include <pci.h>
 

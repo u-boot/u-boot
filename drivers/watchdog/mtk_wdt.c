@@ -11,6 +11,7 @@
 #include <hang.h>
 #include <wdt.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 
 #define MTK_WDT_MODE			0x00
 #define MTK_WDT_LENGTH			0x04

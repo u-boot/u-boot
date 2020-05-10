@@ -11,6 +11,7 @@
 #include <dm.h>
 #include <log.h>
 #include <vsprintf.h>
+#include <linux/bitops.h>
 
 #include "mpc83xx_cpu.h"
 

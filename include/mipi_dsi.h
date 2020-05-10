@@ -16,6 +16,7 @@
 #define MIPI_DSI_H
 
 #include <mipi_display.h>
+#include <linux/bitops.h>
 
 struct mipi_dsi_host;
 struct mipi_dsi_device;

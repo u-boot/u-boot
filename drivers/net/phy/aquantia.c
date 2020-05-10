@@ -11,6 +11,7 @@
 #include <log.h>
 #include <net.h>
 #include <phy.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 #include <u-boot/crc.h>
 #include <malloc.h>

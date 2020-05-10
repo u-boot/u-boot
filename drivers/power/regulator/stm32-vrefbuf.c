@@ -11,6 +11,7 @@
 #include <dm.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
 #include <linux/iopoll.h>
 #include <linux/kernel.h>
 #include <power/regulator.h>

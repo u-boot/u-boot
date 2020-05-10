@@ -6,6 +6,10 @@
 #ifndef _MACH_STM32_H_
 #define _MACH_STM32_H_
 
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 /*
  * Peripheral memory map
  * only address used before device tree parsing
