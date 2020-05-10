@@ -226,29 +226,7 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 #elif defined(CONFIG_MICROBLAZE)
 
-int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
-{
-	bd_t *bd = gd->bd;
-
-	print_bi_dram(bd);
-	print_bi_flash(bd);
-#if defined(CONFIG_SYS_SRAM_BASE)
-	print_num("sram start     ",	(ulong)bd->bi_sramstart);
-	print_num("sram size      ",	(ulong)bd->bi_sramsize);
-#endif
-#if defined(CONFIG_CMD_NET) && !defined(CONFIG_DM_ETH)
-	print_eths();
-#endif
-	print_baudrate();
-	print_num("relocaddr", gd->relocaddr);
-	print_num("reloc off", gd->reloc_off);
-	print_num("fdt_blob", (ulong)gd->fdt_blob);
-	print_num("new_fdt", (ulong)gd->new_fdt);
-	print_num("fdt_size", (ulong)gd->fdt_size);
-	print_cpu_word_size();
-
-	return 0;
-}
+#define USE_GENERIC
 
 #elif defined(CONFIG_M68K)
 
@@ -465,6 +443,12 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	print_num("relocaddr", gd->relocaddr);
 	print_num("reloc off", gd->reloc_off);
 	print_cpu_word_size();
+#if defined(CONFIG_CMD_NET) && !defined(CONFIG_DM_ETH)
+	print_eths();
+#endif
+	print_num("fdt_blob", (ulong)gd->fdt_blob);
+	print_num("new_fdt", (ulong)gd->new_fdt);
+	print_num("fdt_size", (ulong)gd->fdt_size);
 
 	return 0;
 }
