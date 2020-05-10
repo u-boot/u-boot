@@ -109,21 +109,6 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (IS_ENABLED(CONFIG_PPC) || IS_ENABLED(CONFIG_M68K))
 		bdinfo_print_mhz("busfreq", bd->bi_busfreq);
 
-	/* The rest are used only by m68k */
-#ifdef CONFIG_M68K
-#if defined(CONFIG_SYS_MBAR)
-	bdinfo_print_num("mbar", bd->bi_mbar_base);
-#endif
-	bdinfo_print_mhz("cpufreq", bd->bi_intfreq);
-	if (IS_ENABLED(CONFIG_PCI))
-		bdinfo_print_mhz("pcifreq", bd->bi_pcifreq);
-#ifdef CONFIG_EXTRA_CLOCK
-	bdinfo_print_mhz("flbfreq", bd->bi_flbfreq);
-	bdinfo_print_mhz("inpfreq", bd->bi_inpfreq);
-	bdinfo_print_mhz("vcofreq", bd->bi_vcofreq);
-#endif
-#endif
-
 	return 0;
 }
 
