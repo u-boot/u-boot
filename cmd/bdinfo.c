@@ -139,15 +139,6 @@ static void print_eth_ip_addr(void)
 #endif
 }
 
-static void print_baudrate(void)
-{
-#if defined(CONFIG_PPC)
-	printf("baudrate    = %6u bps\n", gd->baudrate);
-#else
-	printf("baudrate    = %u bps\n", gd->baudrate);
-#endif
-}
-
 void __weak board_detail(void)
 {
 	/* Please define board_detail() for your PPC platform */
@@ -167,7 +158,7 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	print_bi_mem(bd);
 	print_bi_flash(bd);
 	print_eth_ip_addr();
-	print_baudrate();
+	printf("baudrate    = %u bps\n", gd->baudrate);
 	print_num("relocaddr", gd->relocaddr);
 	print_num("reloc off", gd->reloc_off);
 	print_cpu_word_size();
