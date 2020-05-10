@@ -67,6 +67,10 @@ void __weak board_detail(void)
 	/* Please define board_detail() for your PPC platform */
 }
 
+__weak void arch_print_bdinfo(void)
+{
+}
+
 int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	bd_t *bd = gd->bd;
@@ -74,8 +78,6 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 #ifdef DEBUG
 	bdinfo_print_num("bd address", (ulong)bd);
 #endif
-	if (IS_ENABLED(CONFIG_ARM))
-		bdinfo_print_num("arch_number", bd->bi_arch_number);
 	bdinfo_print_num("boot_params", (ulong)bd->bi_boot_params);
 	print_bi_dram(bd);
 	bdinfo_print_num("memstart", (ulong)bd->bi_memstart);
@@ -98,44 +100,11 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 #if defined(CONFIG_LCD) || defined(CONFIG_VIDEO) || defined(CONFIG_DM_VIDEO)
 	bdinfo_print_num("FB base  ", gd->fb_base);
 #endif
-
-	/* This section is used only by ARM */
-#ifdef CONFIG_ARM
-#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
-	if (gd->arch.secure_ram & MEM_RESERVE_SECURE_SECURED) {
-		bdinfo_print_num("Secure ram",
-			  gd->arch.secure_ram & MEM_RESERVE_SECURE_ADDR_MASK);
-	}
-#endif
-#ifdef CONFIG_RESV_RAM
-	if (gd->arch.resv_ram)
-		bdinfo_print_num("Reserved ram", gd->arch.resv_ram);
-#endif
-#if !(CONFIG_IS_ENABLED(SYS_ICACHE_OFF) && CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
-	bdinfo_print_num("TLB addr", gd->arch.tlb_addr);
-#endif
-	bdinfo_print_num("irq_sp", gd->irq_sp);	/* irq stack pointer */
-	bdinfo_print_num("sp start ", gd->start_addr_sp);
-	/*
-	 * TODO: Currently only support for davinci SOC's is added.
-	 * Remove this check once all the board implement this.
-	 */
-#ifdef CONFIG_CLOCKS
-	printf("ARM frequency = %ld MHz\n", gd->bd->bi_arm_freq);
-	printf("DSP frequency = %ld MHz\n", gd->bd->bi_dsp_freq);
-	printf("DDR frequency = %ld MHz\n", gd->bd->bi_ddr_freq);
-#endif
-#ifdef CONFIG_BOARD_TYPES
-	printf("Board Type  = %ld\n", gd->board_type);
-#endif
-#if CONFIG_VAL(SYS_MALLOC_F_LEN)
-	printf("Early malloc usage: %lx / %x\n", gd->malloc_ptr,
-	       CONFIG_VAL(SYS_MALLOC_F_LEN));
-#endif
 #if CONFIG_IS_ENABLED(MULTI_DTB_FIT)
 	bdinfo_print_num("multi_dtb_fit", (ulong)gd->multi_dtb_fit);
 #endif
-#endif /* CONFIG_ARM */
+
+	arch_print_bdinfo();
 
 	/* This section is used only by ppc */
 #if defined(CONFIG_MPC8xx) || defined(CONFIG_E500)
@@ -170,7 +139,7 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	/* The rest are used only by m68k */
 #ifdef CONFIG_M68K
 #if defined(CONFIG_SYS_MBAR)
-	print_num("mbar", bd->bi_mbar_base);
+	bdinfo_print_num("mbar", bd->bi_mbar_base);
 #endif
 	bdinfo_print_mhz("cpufreq", bd->bi_intfreq);
 	if (IS_ENABLED(CONFIG_PCI))
