@@ -8,6 +8,7 @@
  * SCSI support.
  */
 #include <common.h>
+#include <blk.h>
 #include <command.h>
 #include <scsi.h>
 

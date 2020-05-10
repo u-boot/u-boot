@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <fdtdec.h>
 #include <panel.h>
+#include <part.h>
 #include <pwm.h>
 #include <video.h>
 #include <asm/cache.h>

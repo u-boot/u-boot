@@ -12,6 +12,7 @@
 #include <display.h>
 #include <edid.h>
 #include <lcd.h>
+#include <part.h>
 #include <video.h>
 #include <asm/gpio.h>
 #include <asm/io.h>

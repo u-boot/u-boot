@@ -8,6 +8,7 @@
 #include <command.h>
 #include <env.h>
 #include <gzip.h>
+#include <part.h>
 
 static int do_unzip(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {

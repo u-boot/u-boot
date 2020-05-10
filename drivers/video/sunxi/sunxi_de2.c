@@ -12,6 +12,7 @@
 #include <efi_loader.h>
 #include <fdtdec.h>
 #include <fdt_support.h>
+#include <part.h>
 #include <video.h>
 #include <asm/global_data.h>
 #include <asm/io.h>

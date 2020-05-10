@@ -10,6 +10,7 @@
 #include <fb_mmc.h>
 #include <fb_nand.h>
 #include <fs.h>
+#include <part.h>
 #include <version.h>
 
 static void getvar_version(char *var_parameter, char *response);

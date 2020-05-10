@@ -7,18 +7,18 @@
  */
 
 #include <common.h>
-#include <asm/cache.h>
-
 #include <command.h>
 #include <env.h>
 #include <env_internal.h>
-#include <linux/stddef.h>
+#include <part.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <search.h>
 #include <errno.h>
 #include <fat.h>
 #include <mmc.h>
+#include <asm/cache.h>
+#include <linux/stddef.h>
 
 #ifdef CONFIG_SPL_BUILD
 /* TODO(sjg@chromium.org): Figure out why this is needed */

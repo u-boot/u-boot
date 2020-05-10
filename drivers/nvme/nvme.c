@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <blk.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>

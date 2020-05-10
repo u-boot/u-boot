@@ -14,6 +14,8 @@
 #define FS_TYPE_UBIFS	4
 #define FS_TYPE_BTRFS	5
 
+struct blk_desc;
+
 /**
  * do_fat_fsload - Run the fatload command
  *

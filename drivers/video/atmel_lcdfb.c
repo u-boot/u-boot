@@ -9,6 +9,7 @@
 #include <atmel_lcd.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <part.h>
 #include <video.h>
 #include <asm/io.h>
 #include <asm/arch/gpio.h>

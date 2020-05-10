@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <common.h>
 #include <env.h>
+#include <lmb.h>
 #include <mapmem.h>
 #include <part.h>
 #include <ext4fs.h>

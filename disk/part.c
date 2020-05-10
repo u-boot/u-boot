@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <blk.h>
 #include <command.h>
 #include <env.h>
 #include <errno.h>

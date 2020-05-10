@@ -6,6 +6,9 @@
 #ifndef _FB_MMC_H_
 #define _FB_MMC_H_
 
+struct blk_desc;
+struct disk_partition;
+
 /**
  * fastboot_mmc_get_part_info() - Lookup eMMC partion by name
  *

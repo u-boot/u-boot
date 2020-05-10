@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <ahci.h>
+#include <blk.h>
 #include <dm.h>
 #include <command.h>
 #include <part.h>

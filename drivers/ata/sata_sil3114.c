@@ -8,6 +8,8 @@
  */
 
 #include <common.h>
+#include <blk.h>
+#include <part.h>
 #include <pci.h>
 #include <command.h>
 #include <config.h>

@@ -9,6 +9,7 @@
 #include <env.h>
 #include <ide.h>
 #include "part_amiga.h"
+#include <part.h>
 
 #ifdef CONFIG_HAVE_BLOCK_DEVICE
 

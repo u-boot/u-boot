@@ -14,10 +14,12 @@
  */
 
 #include <common.h>
+#include <blk.h>
 #include <command.h>
 #include <ide.h>
 #include <memalign.h>
 #include "part_dos.h"
+#include <part.h>
 
 #ifdef CONFIG_HAVE_BLOCK_DEVICE
 

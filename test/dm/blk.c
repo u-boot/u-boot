@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <part.h>
 #include <usb.h>
 #include <asm/state.h>
 #include <dm/test.h>

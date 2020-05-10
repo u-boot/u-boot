@@ -28,6 +28,8 @@
 #define __EXT4__
 #include <ext_common.h>
 
+struct disk_partition;
+
 #define EXT4_INDEX_FL		0x00001000 /* Inode uses hash tree index */
 #define EXT4_EXTENTS_FL		0x00080000 /* Inode uses extents */
 #define EXT4_EXT_MAGIC			0xf30a

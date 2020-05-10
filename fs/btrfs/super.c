@@ -5,9 +5,11 @@
  * 2017 Marek Behun, CZ.NIC, marek.behun@nic.cz
  */
 
-#include "btrfs.h"
+#include <common.h>
 #include <memalign.h>
+#include <part.h>
 #include <linux/compat.h>
+#include "btrfs.h"
 
 #define BTRFS_SUPER_FLAG_SUPP	(BTRFS_HEADER_FLAG_WRITTEN	\
 				 | BTRFS_HEADER_FLAG_RELOC	\

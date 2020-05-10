@@ -18,6 +18,9 @@
 #define SECTOR_SIZE		0x200
 #define SECTOR_BITS		9
 
+struct blk_desc;
+struct disk_partition;
+
 /* Error codes */
 typedef enum
 {

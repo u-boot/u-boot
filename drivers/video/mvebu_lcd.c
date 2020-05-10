@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <part.h>
 #include <video.h>
 #include <asm/cache.h>
 #include <dm/device_compat.h>

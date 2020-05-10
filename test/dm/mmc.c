@@ -6,6 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <mmc.h>
+#include <part.h>
 #include <dm/test.h>
 #include <test/ut.h>
 

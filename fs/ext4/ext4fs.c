@@ -21,11 +21,13 @@
  */
 
 #include <common.h>
+#include <blk.h>
 #include <ext_common.h>
 #include <ext4fs.h>
 #include "ext4_common.h"
 #include <div64.h>
 #include <malloc.h>
+#include <part.h>
 #include <uuid.h>
 
 int ext4fs_symlinknest;

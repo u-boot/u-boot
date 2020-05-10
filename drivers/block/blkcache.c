@@ -4,8 +4,8 @@
  * Author: Eric Nelson<eric@nelint.com>
  *
  */
-#include <config.h>
 #include <common.h>
+#include <blk.h>
 #include <malloc.h>
 #include <part.h>
 #include <linux/ctype.h>

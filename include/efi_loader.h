@@ -9,10 +9,13 @@
 #define _EFI_LOADER_H 1
 
 #include <common.h>
+#include <blk.h>
 #include <part_efi.h>
 #include <efi_api.h>
 #include <image.h>
 #include <pe.h>
+
+struct blk_desc;
 
 static inline int guidcmp(const void *g1, const void *g2)
 {

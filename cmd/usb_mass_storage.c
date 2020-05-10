@@ -6,10 +6,11 @@
  * Copyright (c) 2015, NVIDIA CORPORATION. All rights reserved.
  */
 
-#include <errno.h>
 #include <common.h>
+#include <blk.h>
 #include <command.h>
 #include <console.h>
+#include <errno.h>
 #include <g_dnl.h>
 #include <malloc.h>
 #include <part.h>

@@ -8,6 +8,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <blk.h>
 #include <command.h>
 #include <dm.h>
 #include <dm/device-internal.h>

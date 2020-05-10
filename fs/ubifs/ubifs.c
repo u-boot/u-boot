@@ -17,6 +17,7 @@
 #include <malloc.h>
 #include <memalign.h>
 #include "ubifs.h"
+#include <part.h>
 #include <dm/devres.h>
 #include <u-boot/zlib.h>
 

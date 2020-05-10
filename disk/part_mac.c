@@ -17,6 +17,7 @@
 #include <memalign.h>
 #include <ide.h>
 #include "part_mac.h"
+#include <part.h>
 
 #ifdef CONFIG_HAVE_BLOCK_DEVICE
 

@@ -28,7 +28,6 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <linux/kernel.h>
-#include <part.h>
 #include <image.h>
 #include <log.h>
 #include <asm/u-boot.h> /* boot information for Linux kernel */

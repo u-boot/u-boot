@@ -5,7 +5,9 @@
  */
 
 #include <common.h>
+#include <blk.h>
 #include <command.h>
+#include <part.h>
 #include <asm/cache.h>
 #include <asm/unaligned.h>
 #include "part_iso.h"

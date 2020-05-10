@@ -11,6 +11,7 @@
 #include <dm.h>
 #include <efi_loader.h>
 #include <fdt_support.h>
+#include <part.h>
 #include <linux/sizes.h>
 #include <asm/arch/mem.h>
 #include <dm/device-internal.h>

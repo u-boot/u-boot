@@ -6,7 +6,8 @@
 #ifndef __ANDROID_AB_H
 #define __ANDROID_AB_H
 
-#include <common.h>
+struct blk_desc;
+struct disk_partition;
 
 /* Android standard boot slot names are 'a', 'b', 'c', ... */
 #define BOOT_SLOT_NAME(slot_num) ('a' + (slot_num))

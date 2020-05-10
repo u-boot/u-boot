@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <part.h>
 #include <smem.h>
 #include <fdt_support.h>
 #include <asm/arch/dram.h>

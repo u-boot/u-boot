@@ -11,6 +11,7 @@
  */
 
 #include <common.h>
+#include <part.h>
 #include <asm/cache.h>
 #include <linux/errno.h>
 #include <asm/global_data.h>

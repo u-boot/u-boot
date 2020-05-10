@@ -7,6 +7,7 @@
 #include <common.h>
 #include <blk.h>
 #include <dm.h>
+#include <part.h>
 #include <virtio_types.h>
 #include <virtio.h>
 #include <virtio_ring.h>

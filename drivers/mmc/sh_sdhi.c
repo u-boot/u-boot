@@ -13,6 +13,7 @@
 #include <malloc.h>
 #include <mmc.h>
 #include <dm.h>
+#include <part.h>
 #include <dm/device_compat.h>
 #include <linux/errno.h>
 #include <linux/compat.h>

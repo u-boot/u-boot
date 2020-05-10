@@ -14,6 +14,7 @@
  */
 
 #include <common.h>
+#include <blk.h>
 #include <ext4fs.h>
 #include <malloc.h>
 #include <ext_common.h>
