@@ -74,12 +74,6 @@ static void print_mhz(const char *name, unsigned long hz)
 	printf("%-12s= %6s MHz\n", name, strmhz(buf, hz));
 }
 
-
-static void print_bi_boot_params(const bd_t *bd)
-{
-	print_num("boot_params",	(ulong)bd->bi_boot_params);
-}
-
 static void print_bi_dram(const bd_t *bd)
 {
 #ifdef CONFIG_NR_DRAM_BANKS
@@ -139,7 +133,7 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 #endif
 	if (IS_ENABLED(CONFIG_ARM))
 		print_num("arch_number", bd->bi_arch_number);
-	print_bi_boot_params(bd);
+	print_num("boot_params", (ulong)bd->bi_boot_params);
 	print_bi_dram(bd);
 	print_num("memstart", (ulong)bd->bi_memstart);
 	print_lnum("memsize", (u64)bd->bi_memsize);
