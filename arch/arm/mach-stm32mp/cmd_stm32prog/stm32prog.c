@@ -3,7 +3,7 @@
  * Copyright (C) 2020, STMicroelectronics - All Rights Reserved
  */
 
-#include <common.h>
+#include <command.h>
 #include <console.h>
 #include <dfu.h>
 #include <malloc.h>

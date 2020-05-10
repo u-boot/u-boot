@@ -590,10 +590,10 @@ ulong genimg_get_kernel_addr(char * const img_addr);
 int genimg_get_format(const void *img_addr);
 int genimg_has_config(bootm_headers_t *images);
 
-int boot_get_fpga(int argc, char * const argv[], bootm_headers_t *images,
-		uint8_t arch, const ulong *ld_start, ulong * const ld_len);
-int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
-		uint8_t arch, ulong *rd_start, ulong *rd_end);
+int boot_get_fpga(int argc, char *const argv[], bootm_headers_t *images,
+		  uint8_t arch, const ulong *ld_start, ulong * const ld_len);
+int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
+		     uint8_t arch, ulong *rd_start, ulong *rd_end);
 
 /**
  * boot_get_loadable - routine to load a list of binaries to memory
@@ -616,8 +616,8 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
  *     0, if only valid images or no images are found
  *     error code, if an error occurs during fit_image_load
  */
-int boot_get_loadable(int argc, char * const argv[], bootm_headers_t *images,
-		uint8_t arch, const ulong *ld_start, ulong * const ld_len);
+int boot_get_loadable(int argc, char *const argv[], bootm_headers_t *images,
+		      uint8_t arch, const ulong *ld_start, ulong *const ld_len);
 #endif /* !USE_HOSTCC */
 
 int boot_get_setup_fit(bootm_headers_t *images, uint8_t arch,
@@ -726,7 +726,7 @@ int image_source_script(ulong addr, const char *fit_uname);
 int fit_get_node_from_config(bootm_headers_t *images, const char *prop_name,
 			ulong addr);
 
-int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
+int boot_get_fdt(int flag, int argc, char *const argv[], uint8_t arch,
 		 bootm_headers_t *images,
 		 char **of_flat_tree, ulong *of_size);
 void boot_fdt_add_mem_rsv_regions(struct lmb *lmb, void *fdt_blob);

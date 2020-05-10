@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <env.h>
 #include <init.h>
 #include <net.h>
@@ -988,7 +989,7 @@ static int read_keys(char *buf)
 	return numpressed;
 }
 
-static int do_kbd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_kbd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	char envvalue[ARRAY_SIZE(buttons)+1];
 	int numpressed = read_keys(envvalue);

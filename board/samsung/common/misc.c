@@ -262,7 +262,7 @@ static int mode_leave_menu(int mode)
 	char *exit_option;
 	char *exit_reset = "reset";
 	char *exit_back = "back";
-	cmd_tbl_t *cmd;
+	struct cmd_tbl *cmd;
 	int cmd_result;
 	int leave;
 

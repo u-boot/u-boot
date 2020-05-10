@@ -6,6 +6,7 @@
  * Author: Fabio Estevam <festevam@gmail.com>
  */
 
+#include <env.h>
 #include <init.h>
 #include <net.h>
 #include <asm/arch/clock.h>

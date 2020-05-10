@@ -47,7 +47,8 @@
 #include <lzma/LzmaTools.h>
 
 #ifdef CONFIG_CMD_BDI
-extern int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+extern int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[]);
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -1075,8 +1076,8 @@ int genimg_has_config(bootm_headers_t *images)
  *     1, if ramdisk image is found but corrupted, or invalid
  *     rd_start and rd_end are set to 0 if no ramdisk exists
  */
-int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
-		uint8_t arch, ulong *rd_start, ulong *rd_end)
+int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
+		     uint8_t arch, ulong *rd_start, ulong *rd_end)
 {
 	ulong rd_addr, rd_load;
 	ulong rd_data, rd_len;
@@ -1371,7 +1372,7 @@ int boot_get_setup(bootm_headers_t *images, uint8_t arch,
 
 #if IMAGE_ENABLE_FIT
 #if defined(CONFIG_FPGA)
-int boot_get_fpga(int argc, char * const argv[], bootm_headers_t *images,
+int boot_get_fpga(int argc, char *const argv[], bootm_headers_t *images,
 		  uint8_t arch, const ulong *ld_start, ulong * const ld_len)
 {
 	ulong tmp_img_addr, img_data, img_len;
@@ -1472,8 +1473,8 @@ static void fit_loadable_process(uint8_t img_type,
 			fit_loadable_handler->handler(img_data, img_len);
 }
 
-int boot_get_loadable(int argc, char * const argv[], bootm_headers_t *images,
-		uint8_t arch, const ulong *ld_start, ulong * const ld_len)
+int boot_get_loadable(int argc, char *const argv[], bootm_headers_t *images,
+		      uint8_t arch, const ulong *ld_start, ulong * const ld_len)
 {
 	/*
 	 * These variables are used to hold the current image location

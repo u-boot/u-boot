@@ -5,6 +5,8 @@
 
 #include <common.h>
 #include <adc.h>
+#include <command.h>
+#include <env.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/boot_mode.h>
 #include <dm/device.h>

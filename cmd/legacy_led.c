@@ -85,7 +85,7 @@ void __weak __led_blink(led_id_t mask, int freq)
 {
 }
 
-int do_legacy_led(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_legacy_led(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	int i, match = 0;
 	enum led_cmd cmd;

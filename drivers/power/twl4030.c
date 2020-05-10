@@ -22,6 +22,7 @@
  *	Syed Mohammed Khasim <khasim at ti.com>
  */
 
+#include <command.h>
 #include <twl4030.h>
 
 /*
@@ -172,7 +173,7 @@ void twl4030_power_mmc_init(int dev_index)
 }
 
 #ifdef CONFIG_CMD_POWEROFF
-int do_poweroff(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_poweroff(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	twl4030_power_off();
 

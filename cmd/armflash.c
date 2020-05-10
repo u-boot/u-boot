@@ -267,7 +267,7 @@ static int exists(const char * const name)
 	return CMD_RET_FAILURE;
 }
 
-static int do_afs(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_afs(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	int ret = CMD_RET_SUCCESS;
 

@@ -12,7 +12,8 @@
 #include "license_data_gz.h"
 #include "license_data_size.h"
 
-static int do_license(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_license(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	char *dst;
 	unsigned long len = data_size;

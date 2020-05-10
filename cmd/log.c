@@ -11,8 +11,8 @@
 
 static char log_fmt_chars[LOGF_COUNT] = "clFLfm";
 
-static int do_log_level(cmd_tbl_t *cmdtp, int flag, int argc,
-			char * const argv[])
+static int do_log_level(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
 	if (argc > 1)
 		gd->default_log_level = simple_strtol(argv[1], NULL, 10);
@@ -22,8 +22,8 @@ static int do_log_level(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
-static int do_log_format(cmd_tbl_t *cmdtp, int flag, int argc,
-			 char * const argv[])
+static int do_log_format(struct cmd_tbl *cmdtp, int flag, int argc,
+			 char *const argv[])
 {
 	int i;
 
@@ -58,7 +58,8 @@ static int do_log_format(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
-static int do_log_rec(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_log_rec(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	enum log_category_t cat;
 	enum log_level_t level;
@@ -94,7 +95,7 @@ static int do_log_rec(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-static cmd_tbl_t log_sub[] = {
+static struct cmd_tbl log_sub[] = {
 	U_BOOT_CMD_MKENT(level, CONFIG_SYS_MAXARGS, 1, do_log_level, "", ""),
 #ifdef CONFIG_LOG_TEST
 	U_BOOT_CMD_MKENT(test, 2, 1, do_log_test, "", ""),
@@ -103,9 +104,9 @@ static cmd_tbl_t log_sub[] = {
 	U_BOOT_CMD_MKENT(rec, CONFIG_SYS_MAXARGS, 1, do_log_rec, "", ""),
 };
 
-static int do_log(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_log(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	cmd_tbl_t *cp;
+	struct cmd_tbl *cp;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;

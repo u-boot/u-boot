@@ -11,6 +11,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/emc.h>
@@ -266,7 +267,7 @@ void work_92105_display_init(void)
 
 #ifdef CONFIG_CMD_MAX6957
 
-static int do_max6957aax(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_max6957aax(struct cmd_tbl *cmdtp, int flag, int argc,
 			 char *const argv[])
 {
 	int reg, val;
@@ -315,7 +316,8 @@ U_BOOT_CMD(
 #error CONFIG_CMD_HD44760 requires CONFIG_HUSH_PARSER
 #endif
 
-static int do_hd44780(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+static int do_hd44780(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	char *cmd;
 

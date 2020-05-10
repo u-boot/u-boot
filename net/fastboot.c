@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <fastboot.h>
 #include <net.h>
 #include <net/fastboot.h>

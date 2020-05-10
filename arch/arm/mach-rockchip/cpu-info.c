@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <init.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/clock.h>

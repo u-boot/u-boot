@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <env.h>
 #include <malloc.h>
 #include <asm/unaligned.h>
@@ -11,8 +12,8 @@
 #include <tpm-v1.h>
 #include "tpm-user-utils.h"
 
-static int do_tpm_startup(cmd_tbl_t *cmdtp, int flag, int argc,
-			  char * const argv[])
+static int do_tpm_startup(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
 {
 	enum tpm_startup_type mode;
 	struct udevice *dev;
@@ -37,8 +38,8 @@ static int do_tpm_startup(cmd_tbl_t *cmdtp, int flag, int argc,
 	return report_return_code(tpm_startup(dev, mode));
 }
 
-static int do_tpm_nv_define_space(cmd_tbl_t *cmdtp, int flag, int argc,
-				  char * const argv[])
+static int do_tpm_nv_define_space(struct cmd_tbl *cmdtp, int flag, int argc,
+				  char *const argv[])
 {
 	u32 index, perm, size;
 	struct udevice *dev;
@@ -57,8 +58,8 @@ static int do_tpm_nv_define_space(cmd_tbl_t *cmdtp, int flag, int argc,
 	return report_return_code(tpm_nv_define_space(dev, index, perm, size));
 }
 
-static int do_tpm_nv_read_value(cmd_tbl_t *cmdtp, int flag, int argc,
-				char * const argv[])
+static int do_tpm_nv_read_value(struct cmd_tbl *cmdtp, int flag, int argc,
+				char *const argv[])
 {
 	u32 index, count, rc;
 	struct udevice *dev;
@@ -83,8 +84,8 @@ static int do_tpm_nv_read_value(cmd_tbl_t *cmdtp, int flag, int argc,
 	return report_return_code(rc);
 }
 
-static int do_tpm_nv_write_value(cmd_tbl_t *cmdtp, int flag, int argc,
-				 char * const argv[])
+static int do_tpm_nv_write_value(struct cmd_tbl *cmdtp, int flag, int argc,
+				 char *const argv[])
 {
 	struct udevice *dev;
 	u32 index, rc;
@@ -110,8 +111,8 @@ static int do_tpm_nv_write_value(cmd_tbl_t *cmdtp, int flag, int argc,
 	return report_return_code(rc);
 }
 
-static int do_tpm_extend(cmd_tbl_t *cmdtp, int flag, int argc,
-			 char * const argv[])
+static int do_tpm_extend(struct cmd_tbl *cmdtp, int flag, int argc,
+			 char *const argv[])
 {
 	u8 in_digest[20], out_digest[20];
 	struct udevice *dev;
@@ -138,8 +139,8 @@ static int do_tpm_extend(cmd_tbl_t *cmdtp, int flag, int argc,
 	return report_return_code(rc);
 }
 
-static int do_tpm_pcr_read(cmd_tbl_t *cmdtp, int flag, int argc,
-			   char * const argv[])
+static int do_tpm_pcr_read(struct cmd_tbl *cmdtp, int flag, int argc,
+			   char *const argv[])
 {
 	u32 index, count, rc;
 	struct udevice *dev;
@@ -164,8 +165,8 @@ static int do_tpm_pcr_read(cmd_tbl_t *cmdtp, int flag, int argc,
 	return report_return_code(rc);
 }
 
-static int do_tpm_tsc_physical_presence(cmd_tbl_t *cmdtp, int flag, int argc,
-					char * const argv[])
+static int do_tpm_tsc_physical_presence(struct cmd_tbl *cmdtp, int flag,
+					int argc, char *const argv[])
 {
 	struct udevice *dev;
 	u16 presence;
@@ -182,8 +183,8 @@ static int do_tpm_tsc_physical_presence(cmd_tbl_t *cmdtp, int flag, int argc,
 	return report_return_code(tpm_tsc_physical_presence(dev, presence));
 }
 
-static int do_tpm_read_pubek(cmd_tbl_t *cmdtp, int flag, int argc,
-			     char * const argv[])
+static int do_tpm_read_pubek(struct cmd_tbl *cmdtp, int flag, int argc,
+			     char *const argv[])
 {
 	struct udevice *dev;
 	u32 count, rc;
@@ -207,8 +208,8 @@ static int do_tpm_read_pubek(cmd_tbl_t *cmdtp, int flag, int argc,
 	return report_return_code(rc);
 }
 
-static int do_tpm_physical_set_deactivated(cmd_tbl_t *cmdtp, int flag, int argc,
-					   char * const argv[])
+static int do_tpm_physical_set_deactivated(struct cmd_tbl *cmdtp, int flag,
+					   int argc, char *const argv[])
 {
 	struct udevice *dev;
 	u8 state;
@@ -225,8 +226,8 @@ static int do_tpm_physical_set_deactivated(cmd_tbl_t *cmdtp, int flag, int argc,
 	return report_return_code(tpm_physical_set_deactivated(dev, state));
 }
 
-static int do_tpm_get_capability(cmd_tbl_t *cmdtp, int flag, int argc,
-				 char * const argv[])
+static int do_tpm_get_capability(struct cmd_tbl *cmdtp, int flag, int argc,
+				 char *const argv[])
 {
 	u32 cap_area, sub_cap, rc;
 	void *cap;
@@ -253,8 +254,8 @@ static int do_tpm_get_capability(cmd_tbl_t *cmdtp, int flag, int argc,
 	return report_return_code(rc);
 }
 
-static int do_tpm_raw_transfer(cmd_tbl_t *cmdtp, int flag, int argc,
-			       char * const argv[])
+static int do_tpm_raw_transfer(struct cmd_tbl *cmdtp, int flag, int argc,
+			       char *const argv[])
 {
 	struct udevice *dev;
 	void *command;
@@ -282,8 +283,8 @@ static int do_tpm_raw_transfer(cmd_tbl_t *cmdtp, int flag, int argc,
 	return report_return_code(rc);
 }
 
-static int do_tpm_nv_define(cmd_tbl_t *cmdtp, int flag, int argc,
-			    char * const argv[])
+static int do_tpm_nv_define(struct cmd_tbl *cmdtp, int flag, int argc,
+			    char *const argv[])
 {
 	u32 index, perm, size;
 	struct udevice *dev;
@@ -306,8 +307,8 @@ static int do_tpm_nv_define(cmd_tbl_t *cmdtp, int flag, int argc,
 	return report_return_code(tpm_nv_define_space(dev, index, perm, size));
 }
 
-static int do_tpm_nv_read(cmd_tbl_t *cmdtp, int flag, int argc,
-			  char * const argv[])
+static int do_tpm_nv_read(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
 {
 	u32 index, count, err;
 	struct udevice *dev;
@@ -341,8 +342,8 @@ static int do_tpm_nv_read(cmd_tbl_t *cmdtp, int flag, int argc,
 	return report_return_code(err);
 }
 
-static int do_tpm_nv_write(cmd_tbl_t *cmdtp, int flag, int argc,
-			   char * const argv[])
+static int do_tpm_nv_write(struct cmd_tbl *cmdtp, int flag, int argc,
+			   char *const argv[])
 {
 	u32 index, count, err;
 	struct udevice *dev;
@@ -377,8 +378,8 @@ static int do_tpm_nv_write(cmd_tbl_t *cmdtp, int flag, int argc,
 
 #ifdef CONFIG_TPM_AUTH_SESSIONS
 
-static int do_tpm_oiap(cmd_tbl_t *cmdtp, int flag, int argc,
-		       char * const argv[])
+static int do_tpm_oiap(struct cmd_tbl *cmdtp, int flag, int argc,
+		       char *const argv[])
 {
 	u32 auth_handle, err;
 	struct udevice *dev;
@@ -394,8 +395,8 @@ static int do_tpm_oiap(cmd_tbl_t *cmdtp, int flag, int argc,
 }
 
 #ifdef CONFIG_TPM_LOAD_KEY_BY_SHA1
-static int do_tpm_load_key_by_sha1(cmd_tbl_t *cmdtp, int flag, int argc, char *
-				   const argv[])
+static int do_tpm_load_key_by_sha1(struct cmd_tbl *cmdtp, int flag, int argc,
+				   char *const argv[])
 {
 	u32 parent_handle = 0;
 	u32 key_len, key_handle, err;
@@ -437,8 +438,8 @@ static int do_tpm_load_key_by_sha1(cmd_tbl_t *cmdtp, int flag, int argc, char *
 }
 #endif /* CONFIG_TPM_LOAD_KEY_BY_SHA1 */
 
-static int do_tpm_load_key2_oiap(cmd_tbl_t *cmdtp, int flag, int argc,
-				 char * const argv[])
+static int do_tpm_load_key2_oiap(struct cmd_tbl *cmdtp, int flag, int argc,
+				 char *const argv[])
 {
 	u32 parent_handle, key_len, key_handle, err;
 	u8 usage_auth[DIGEST_LENGTH];
@@ -468,8 +469,8 @@ static int do_tpm_load_key2_oiap(cmd_tbl_t *cmdtp, int flag, int argc,
 	return report_return_code(err);
 }
 
-static int do_tpm_get_pub_key_oiap(cmd_tbl_t *cmdtp, int flag, int argc,
-				   char * const argv[])
+static int do_tpm_get_pub_key_oiap(struct cmd_tbl *cmdtp, int flag, int argc,
+				   char *const argv[])
 {
 	u32 key_handle, err;
 	u8 usage_auth[DIGEST_LENGTH];
@@ -504,8 +505,8 @@ TPM_COMMAND_NO_ARG(tpm_end_oiap)
 #endif /* CONFIG_TPM_AUTH_SESSIONS */
 
 #ifdef CONFIG_TPM_FLUSH_RESOURCES
-static int do_tpm_flush(cmd_tbl_t *cmdtp, int flag, int argc,
-			char * const argv[])
+static int do_tpm_flush(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
 	struct udevice *dev;
 	int type = 0;
@@ -577,8 +578,8 @@ static int do_tpm_flush(cmd_tbl_t *cmdtp, int flag, int argc,
 #endif /* CONFIG_TPM_FLUSH_RESOURCES */
 
 #ifdef CONFIG_TPM_LIST_RESOURCES
-static int do_tpm_list(cmd_tbl_t *cmdtp, int flag, int argc,
-		       char * const argv[])
+static int do_tpm_list(struct cmd_tbl *cmdtp, int flag, int argc,
+		       char *const argv[])
 {
 	int type = 0;
 	u16 res_count;
@@ -644,7 +645,7 @@ TPM_COMMAND_NO_ARG(tpm_force_clear)
 TPM_COMMAND_NO_ARG(tpm_physical_enable)
 TPM_COMMAND_NO_ARG(tpm_physical_disable)
 
-static cmd_tbl_t tpm1_commands[] = {
+static struct cmd_tbl tpm1_commands[] = {
 	U_BOOT_CMD_MKENT(device, 0, 1, do_tpm_device, "", ""),
 	U_BOOT_CMD_MKENT(info, 0, 1, do_tpm_info, "", ""),
 	U_BOOT_CMD_MKENT(init, 0, 1, do_tpm_init, "", ""),
@@ -710,7 +711,7 @@ static cmd_tbl_t tpm1_commands[] = {
 #endif /* CONFIG_TPM_LIST_RESOURCES */
 };
 
-cmd_tbl_t *get_tpm1_commands(unsigned int *size)
+struct cmd_tbl *get_tpm1_commands(unsigned int *size)
 {
 	*size = ARRAY_SIZE(tpm1_commands);
 

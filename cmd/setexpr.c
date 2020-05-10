@@ -290,7 +290,8 @@ static int regex_sub(const char *name,
 }
 #endif
 
-static int do_setexpr(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_setexpr(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	ulong a, b;
 	ulong value;

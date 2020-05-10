@@ -226,7 +226,7 @@ static int ini_handler(void *user, char *section, char *name, char *value)
 	return 1;
 }
 
-static int do_ini(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_ini(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	const char *section;
 	char *file_address;

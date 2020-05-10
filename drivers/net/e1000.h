@@ -74,8 +74,8 @@ void e1000_lower_ee_clk(struct e1000_hw *hw, uint32_t *eecd);
 #endif
 
 #ifdef CONFIG_E1000_SPI
-int do_e1000_spi(cmd_tbl_t *cmdtp, struct e1000_hw *hw,
-		int argc, char * const argv[]);
+int do_e1000_spi(struct cmd_tbl *cmdtp, struct e1000_hw *hw,
+		 int argc, char *const argv[]);
 #endif
 
 /* Enumerated types specific to the e1000 hardware */

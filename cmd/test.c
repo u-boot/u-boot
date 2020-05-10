@@ -50,7 +50,8 @@ const struct {
 	{0, "-e", OP_FILE_EXISTS, 4},
 };
 
-static int do_test(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_test(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
 	char * const *ap;
 	int i, op, left, adv, expr, last_expr, last_unop, last_binop;
@@ -190,7 +191,8 @@ U_BOOT_CMD(
 	"[args..]"
 );
 
-static int do_false(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_false(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[])
 {
 	return 1;
 }
@@ -201,7 +203,8 @@ U_BOOT_CMD(
 	NULL
 );
 
-static int do_true(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_true(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
 	return 0;
 }

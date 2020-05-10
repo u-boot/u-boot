@@ -22,7 +22,7 @@
 #include <rand.h>
 
 struct bd_info;
-struct cmd_tbl_s;
+struct cmd_tbl;
 struct udevice;
 
 #define DEBUG_LL_STATE 0	/* Link local state machine changes */
@@ -66,7 +66,7 @@ struct in_addr {
  * @argv: List of arguments
  * @return result (see enum command_ret_t)
  */
-int do_tftpb(struct cmd_tbl_s *cmdtp, int flag, int argc, char *const argv[]);
+int do_tftpb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
 
 /**
  * An incoming packet handler.

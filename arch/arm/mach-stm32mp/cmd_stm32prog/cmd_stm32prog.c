@@ -38,7 +38,7 @@ static void enable_vidconsole(void)
 #endif
 }
 
-static int do_stm32prog(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_stm32prog(struct cmd_tbl *cmdtp, int flag, int argc,
 			char * const argv[])
 {
 	ulong	addr, size;

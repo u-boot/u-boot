@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <clock_legacy.h>
+#include <command.h>
 #include <div64.h>
 #include <asm/io.h>
 #include <errno.h>
@@ -329,7 +330,8 @@ void hab_caam_clock_enable(unsigned char enable)
 /*
  * Dump some core clockes.
  */
-int do_mx7_showclocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_mx7_showclocks(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	u32 addr = 0;
 	u32 freq;

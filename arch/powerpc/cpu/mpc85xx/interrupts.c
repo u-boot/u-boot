@@ -102,7 +102,7 @@ void timer_interrupt_cpu(struct pt_regs *regs)
 
 #if defined(CONFIG_CMD_IRQ)
 /* irqinfo - print information about PCI devices,not implemented. */
-int do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_irqinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	return 0;
 }

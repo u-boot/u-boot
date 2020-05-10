@@ -106,7 +106,7 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 	}
 }
 
-int do_bootm_linux(int flag, int argc, char * const argv[],
+int do_bootm_linux(int flag, int argc, char *const argv[],
 		   bootm_headers_t *images)
 {
 	/* No need for those on RISC-V */
@@ -128,7 +128,7 @@ int do_bootm_linux(int flag, int argc, char * const argv[],
 	return 0;
 }
 
-int do_bootm_vxworks(int flag, int argc, char * const argv[],
+int do_bootm_vxworks(int flag, int argc, char *const argv[],
 		     bootm_headers_t *images)
 {
 	return do_bootm_linux(flag, argc, argv, images);

@@ -444,8 +444,8 @@ static void hash_show(struct hash_algo *algo, ulong addr, ulong len, uint8_t *ou
 		printf("%02x", output[i]);
 }
 
-int hash_command(const char *algo_name, int flags, cmd_tbl_t *cmdtp, int flag,
-		 int argc, char * const argv[])
+int hash_command(const char *algo_name, int flags, struct cmd_tbl *cmdtp,
+		 int flag, int argc, char *const argv[])
 {
 	ulong addr, len;
 

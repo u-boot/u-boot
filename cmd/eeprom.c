@@ -237,7 +237,7 @@ static int parse_numeric_param(char *str)
  * @returns:	number of arguments parsed or CMD_RET_USAGE if error
  */
 static int parse_i2c_bus_addr(int *i2c_bus, ulong *i2c_addr, int argc,
-			      char * const argv[], int argc_no_bus_addr)
+			      char *const argv[], int argc_no_bus_addr)
 {
 	int argc_no_bus = argc_no_bus_addr + 1;
 	int argc_bus_addr = argc_no_bus_addr + 2;
@@ -355,7 +355,7 @@ static int eeprom_execute_command(enum eeprom_action action, int i2c_bus,
 }
 
 #define NEXT_PARAM(argc, index)	{ (argc)--; (index)++; }
-int do_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	int layout_ver = LAYOUT_VERSION_AUTODETECT;
 	enum eeprom_action action = EEPROM_ACTION_INVALID;

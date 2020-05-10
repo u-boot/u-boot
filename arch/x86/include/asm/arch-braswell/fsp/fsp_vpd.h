@@ -7,6 +7,8 @@
 #ifndef __FSP_VPD_H__
 #define __FSP_VPD_H__
 
+#include <stddef.h>
+
 struct __packed memory_upd {
 	u64 signature;				/* Offset 0x0020 */
 	u8 revision;				/* Offset 0x0028 */

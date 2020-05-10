@@ -127,7 +127,7 @@ void do_irq(int hw_irq)
 #endif
 
 #if defined(CONFIG_CMD_IRQ)
-int do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_irqinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 #if !CONFIG_IS_ENABLED(X86_64)
 	int irq;

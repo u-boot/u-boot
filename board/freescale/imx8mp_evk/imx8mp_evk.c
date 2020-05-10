@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <errno.h>
 #include <init.h>
 #include <asm/mach-imx/iomux-v3.h>

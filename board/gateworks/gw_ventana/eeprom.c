@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <errno.h>
 #include <hexdump.h>
 #include <i2c.h>
@@ -158,7 +159,8 @@ static struct ventana_eeprom_config *get_config(const char *name)
 static u8 econfig_bytes[sizeof(ventana_info.config)];
 static int econfig_init = -1;
 
-static int do_econfig(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_econfig(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	struct ventana_eeprom_config *cfg;
 	struct ventana_board_info *info = &ventana_info;

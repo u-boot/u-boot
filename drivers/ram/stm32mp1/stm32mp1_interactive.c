@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <console.h>
 #include <cli.h>
 #include <clk.h>
@@ -150,7 +151,7 @@ static bool stm32mp1_check_step(enum stm32mp1_ddr_interact_step step,
 static void stm32mp1_do_info(struct ddr_info *priv,
 			     struct stm32mp1_ddr_config *config,
 			     enum stm32mp1_ddr_interact_step step,
-			     int argc, char * const argv[])
+			     int argc, char *const argv[])
 {
 	unsigned long value;
 	static char *ddr_name;
@@ -223,7 +224,7 @@ static void stm32mp1_do_info(struct ddr_info *priv,
 }
 
 static bool stm32mp1_do_freq(struct ddr_info *priv,
-			     int argc, char * const argv[])
+			     int argc, char *const argv[])
 {
 	unsigned long ddrphy_clk;
 
@@ -246,7 +247,7 @@ static bool stm32mp1_do_freq(struct ddr_info *priv,
 
 static void stm32mp1_do_param(enum stm32mp1_ddr_interact_step step,
 			      const struct stm32mp1_ddr_config *config,
-			      int argc, char * const argv[])
+			      int argc, char *const argv[])
 {
 	switch (argc) {
 	case 1:
@@ -266,7 +267,7 @@ static void stm32mp1_do_param(enum stm32mp1_ddr_interact_step step,
 }
 
 static void stm32mp1_do_print(struct ddr_info *priv,
-			      int argc, char * const argv[])
+			      int argc, char *const argv[])
 {
 	switch (argc) {
 	case 1:
@@ -281,7 +282,7 @@ static void stm32mp1_do_print(struct ddr_info *priv,
 }
 
 static int stm32mp1_do_step(enum stm32mp1_ddr_interact_step step,
-			    int argc, char * const argv[])
+			    int argc, char *const argv[])
 {
 	int i;
 	unsigned long value;

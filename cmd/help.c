@@ -7,11 +7,12 @@
 #include <common.h>
 #include <command.h>
 
-static int do_help(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_help(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
 #ifdef CONFIG_CMDLINE
-	cmd_tbl_t *start = ll_entry_start(cmd_tbl_t, cmd);
-	const int len = ll_entry_count(cmd_tbl_t, cmd);
+	struct cmd_tbl *start = ll_entry_start(struct cmd_tbl, cmd);
+	const int len = ll_entry_count(struct cmd_tbl, cmd);
 	return _do_help(start, len, cmdtp, flag, argc, argv);
 #else
 	return 0;
@@ -29,7 +30,7 @@ U_BOOT_CMD(
 
 #ifdef CONFIG_CMDLINE
 /* This does not use the U_BOOT_CMD macro as ? can't be used in symbol names */
-ll_entry_declare(cmd_tbl_t, question_mark, cmd) = {
+ll_entry_declare(struct cmd_tbl, question_mark, cmd) = {
 	"?",	CONFIG_SYS_MAXARGS, cmd_always_repeatable,	do_help,
 	"alias for 'help'",
 #ifdef  CONFIG_SYS_LONGHELP

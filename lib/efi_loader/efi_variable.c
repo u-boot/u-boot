@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <efi_loader.h>
+#include <env.h>
 #include <env_internal.h>
 #include <hexdump.h>
 #include <malloc.h>

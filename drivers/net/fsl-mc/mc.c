@@ -1745,7 +1745,8 @@ err:
 	return err;
 }
 
-static int do_fsl_mc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_fsl_mc(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[])
 {
 	int err = 0;
 	if (argc < 3)

@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <cpu_func.h>
 #include <env.h>
 #include <malloc.h>
@@ -13,8 +14,8 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>
 
-static int do_zynqmp_verify_secure(cmd_tbl_t *cmdtp, int flag, int argc,
-				   char * const argv[])
+static int do_zynqmp_verify_secure(struct cmd_tbl *cmdtp, int flag, int argc,
+				   char *const argv[])
 {
 	u64 src_addr, addr;
 	u32 len, src_lo, src_hi;
@@ -65,8 +66,8 @@ static int do_zynqmp_verify_secure(cmd_tbl_t *cmdtp, int flag, int argc,
 	return ret;
 }
 
-static int do_zynqmp_mmio_read(cmd_tbl_t *cmdtp, int flag, int argc,
-			       char * const argv[])
+static int do_zynqmp_mmio_read(struct cmd_tbl *cmdtp, int flag, int argc,
+			       char *const argv[])
 {
 	u32 read_val, addr;
 	int ret;
@@ -86,8 +87,8 @@ static int do_zynqmp_mmio_read(cmd_tbl_t *cmdtp, int flag, int argc,
 	return ret;
 }
 
-static int do_zynqmp_mmio_write(cmd_tbl_t *cmdtp, int flag, int argc,
-				char * const argv[])
+static int do_zynqmp_mmio_write(struct cmd_tbl *cmdtp, int flag, int argc,
+				char *const argv[])
 {
 	u32 addr, mask, val;
 	int ret;
@@ -107,8 +108,8 @@ static int do_zynqmp_mmio_write(cmd_tbl_t *cmdtp, int flag, int argc,
 }
 
 #ifdef CONFIG_DEFINE_TCM_OCM_MMAP
-static int do_zynqmp_tcm_init(cmd_tbl_t *cmdtp, int flag, int argc,
-			      char * const argv[])
+static int do_zynqmp_tcm_init(struct cmd_tbl *cmdtp, int flag, int argc,
+			      char *const argv[])
 {
 	u8 mode;
 
@@ -129,7 +130,7 @@ static int do_zynqmp_tcm_init(cmd_tbl_t *cmdtp, int flag, int argc,
 }
 #endif
 
-static cmd_tbl_t cmd_zynqmp_sub[] = {
+static struct cmd_tbl cmd_zynqmp_sub[] = {
 	U_BOOT_CMD_MKENT(secure, 5, 0, do_zynqmp_verify_secure, "", ""),
 	U_BOOT_CMD_MKENT(mmio_read, 3, 0, do_zynqmp_mmio_read, "", ""),
 	U_BOOT_CMD_MKENT(mmio_write, 5, 0, do_zynqmp_mmio_write, "", ""),
@@ -149,10 +150,10 @@ static cmd_tbl_t cmd_zynqmp_sub[] = {
  *
  * Return: return 0 on success and CMD_RET_USAGE incase of misuse and error
  */
-static int do_zynqmp(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_zynqmp(struct cmd_tbl *cmdtp, int flag, int argc,
 		     char *const argv[])
 {
-	cmd_tbl_t *c;
+	struct cmd_tbl *c;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;

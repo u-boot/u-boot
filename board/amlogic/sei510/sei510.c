@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <env.h>
 #include <env_internal.h>
 #include <init.h>
 #include <net.h>

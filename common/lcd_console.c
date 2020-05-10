@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <lcd.h>
 #include <serial.h>
 #include <video_font.h>		/* Get font data, width and height */
@@ -219,7 +220,7 @@ void lcd_printf(const char *fmt, ...)
 	lcd_puts(buf);
 }
 
-static int do_lcd_setcursor(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_lcd_setcursor(struct cmd_tbl *cmdtp, int flag, int argc,
 			    char *const argv[])
 {
 	unsigned int col, row;
@@ -234,7 +235,7 @@ static int do_lcd_setcursor(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
-static int do_lcd_puts(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_lcd_puts(struct cmd_tbl *cmdtp, int flag, int argc,
 		       char *const argv[])
 {
 	if (argc != 2)

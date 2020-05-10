@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <clock_legacy.h>
+#include <command.h>
 #include <fdt_support.h>
 #include <i2c.h>
 #include <init.h>
@@ -612,8 +613,8 @@ static void convert_flash_bank(char bank)
 	cpld_data->system_rst = CONFIG_RESET;
 }
 
-static int flash_bank_cmd(cmd_tbl_t *cmdtp, int flag, int argc,
-			  char * const argv[])
+static int flash_bank_cmd(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
 {
 	if (argc != 2)
 		return CMD_RET_USAGE;
@@ -633,8 +634,8 @@ U_BOOT_CMD(
 	"bank[0-upper bank/1-lower bank] (e.g. boot_bank 0)"
 );
 
-static int cpld_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc,
-			  char * const argv[])
+static int cpld_reset_cmd(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
 {
 	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
 
@@ -692,8 +693,8 @@ static void print_serdes_mux(void)
 		printf("B.\n");
 }
 
-static int serdes_mux_cmd(cmd_tbl_t *cmdtp, int flag, int argc,
-			  char * const argv[])
+static int serdes_mux_cmd(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
 {
 	if (argc != 2)
 		return CMD_RET_USAGE;

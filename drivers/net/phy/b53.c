@@ -23,6 +23,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 
 #include <errno.h>
 #include <malloc.h>
@@ -627,7 +628,7 @@ int phy_b53_init(void)
 	return 0;
 }
 
-int do_b53_reg_read(const char *name, int argc, char * const argv[])
+int do_b53_reg_read(const char *name, int argc, char *const argv[])
 {
 	u8 page, offset, width;
 	struct mii_dev *bus;
@@ -681,7 +682,7 @@ int do_b53_reg_read(const char *name, int argc, char * const argv[])
 	return ret;
 }
 
-int do_b53_reg_write(const char *name, int argc, char * const argv[])
+int do_b53_reg_write(const char *name, int argc, char *const argv[])
 {
 	u8 page, offset, width;
 	struct mii_dev *bus;
@@ -727,7 +728,7 @@ int do_b53_reg_write(const char *name, int argc, char * const argv[])
 	return ret;
 }
 
-int do_b53_reg(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_b53_reg(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	const char *cmd, *mdioname;
 	int ret = 0;

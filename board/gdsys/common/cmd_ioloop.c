@@ -264,7 +264,7 @@ static void io_reflect(struct udevice *dev)
  * Syntax:
  *	ioreflect {fpga} {reportrate}
  */
-int do_ioreflect(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_ioreflect(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	uint fpga;
 	uint rate = 0;
@@ -321,7 +321,7 @@ int do_ioreflect(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  * Syntax:
  *	ioreflect {reportrate}
  */
-int do_ioreflect(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_ioreflect(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct udevice *fpga;
 	struct regmap *map;
@@ -374,7 +374,7 @@ int do_ioreflect(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  * Syntax:
  *	ioloop {fpga} {size} {rate}
  */
-int do_ioloop(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_ioloop(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	uint fpga;
 	uint size;
@@ -440,7 +440,7 @@ int do_ioloop(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  * Syntax:
  *	ioloop {size} {rate}
  */
-int do_ioloop(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_ioloop(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	uint size;
 	uint rate = 0;
@@ -501,7 +501,7 @@ int do_ioloop(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif /* CONFIG_GDSYS_LEGACY_DRIVERS */
 
 #ifndef CONFIG_GDSYS_LEGACY_DRIVERS
-int do_iodev(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_iodev(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct udevice *ioep = NULL;
 	struct udevice *board;

@@ -17,7 +17,8 @@
 
 #include <lzma/LzmaTools.h>
 
-static int do_lzmadec(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+static int do_lzmadec(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	unsigned long src, dst;
 	SizeT src_len = ~0UL, dst_len = ~0UL;

@@ -34,12 +34,13 @@ extern flash_info_t flash_info[]; /* info for FLASH chips */
 #endif
 
 #if defined(CONFIG_CMD_IMLS) || defined(CONFIG_CMD_IMLS_NAND)
-static int do_imls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+static int do_imls(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[]);
 #endif
 
 /* we overload the cmd field with our state machine info instead of a
  * function pointer */
-static cmd_tbl_t cmd_bootm_sub[] = {
+static struct cmd_tbl cmd_bootm_sub[] = {
 	U_BOOT_CMD_MKENT(start, 0, 1, (void *)BOOTM_STATE_START, "", ""),
 	U_BOOT_CMD_MKENT(loados, 0, 1, (void *)BOOTM_STATE_LOADOS, "", ""),
 #ifdef CONFIG_SYS_BOOT_RAMDISK_HIGH
@@ -55,12 +56,12 @@ static cmd_tbl_t cmd_bootm_sub[] = {
 	U_BOOT_CMD_MKENT(go, 0, 1, (void *)BOOTM_STATE_OS_GO, "", ""),
 };
 
-static int do_bootm_subcommand(cmd_tbl_t *cmdtp, int flag, int argc,
-			char * const argv[])
+static int do_bootm_subcommand(struct cmd_tbl *cmdtp, int flag, int argc,
+			       char *const argv[])
 {
 	int ret = 0;
 	long state;
-	cmd_tbl_t *c;
+	struct cmd_tbl *c;
 
 	c = find_cmd_tbl(argv[0], &cmd_bootm_sub[0], ARRAY_SIZE(cmd_bootm_sub));
 	argc--; argv++;
@@ -89,7 +90,7 @@ static int do_bootm_subcommand(cmd_tbl_t *cmdtp, int flag, int argc,
 /* bootm - boot application image from image in memory */
 /*******************************************************************/
 
-int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_bootm(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
 	static int relocated = 0;
@@ -136,7 +137,7 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		BOOTM_STATE_OS_GO, &images, 1);
 }
 
-int bootm_maybe_autostart(cmd_tbl_t *cmdtp, const char *cmd)
+int bootm_maybe_autostart(struct cmd_tbl *cmdtp, const char *cmd)
 {
 	const char *ep = env_get("autostart");
 
@@ -201,7 +202,7 @@ U_BOOT_CMD(
 /* bootd - boot default image */
 /*******************************************************************/
 #if defined(CONFIG_CMD_BOOTD)
-int do_bootd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_bootd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	return run_command(env_get("bootcmd"), flag);
 }
@@ -226,7 +227,8 @@ U_BOOT_CMD(
 /* iminfo - print header info for a requested image */
 /*******************************************************************/
 #if defined(CONFIG_CMD_IMI)
-static int do_iminfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_iminfo(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[])
 {
 	int	arg;
 	ulong	addr;
@@ -519,7 +521,8 @@ static int do_imls_nand(void)
 #endif
 
 #if defined(CONFIG_CMD_IMLS) || defined(CONFIG_CMD_IMLS_NAND)
-static int do_imls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_imls(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
 	int ret_nor = 0, ret_nand = 0;
 

@@ -10,9 +10,11 @@
 #define __LOG_H
 
 #include <stdio.h>
-#include <command.h>
+#include <linker_lists.h>
 #include <dm/uclass-id.h>
 #include <linux/list.h>
+
+struct cmd_tbl;
 
 /** Log levels supported, ranging from most to least important */
 enum log_level_t {
@@ -414,7 +416,7 @@ enum log_fmt {
 };
 
 /* Handle the 'log test' command */
-int do_log_test(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[]);
+int do_log_test(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
 
 /**
  * log_add_filter() - Add a new filter to a log device

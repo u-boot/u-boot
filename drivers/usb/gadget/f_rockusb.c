@@ -4,6 +4,7 @@
  *
  * Eddie Cai <eddie.cai.linux@gmail.com>
  */
+#include <command.h>
 #include <config.h>
 #include <common.h>
 #include <env.h>

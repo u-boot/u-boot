@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
@@ -408,8 +409,8 @@ static int zynq_verify_image(u32 src_ptr)
 	return 0;
 }
 
-static int do_zynq_rsa(cmd_tbl_t *cmdtp, int flag, int argc,
-		       char * const argv[])
+static int do_zynq_rsa(struct cmd_tbl *cmdtp, int flag, int argc,
+		       char *const argv[])
 {
 	u32 src_ptr;
 	char *endp;
@@ -429,8 +430,8 @@ static int do_zynq_rsa(cmd_tbl_t *cmdtp, int flag, int argc,
 #endif
 
 #ifdef CONFIG_CMD_ZYNQ_AES
-static int zynq_decrypt_image(cmd_tbl_t *cmdtp, int flag, int argc,
-			      char * const argv[])
+static int zynq_decrypt_image(struct cmd_tbl *cmdtp, int flag, int argc,
+			      char *const argv[])
 {
 	char *endp;
 	u32 srcaddr, srclen, dstaddr, dstlen;
@@ -469,7 +470,7 @@ static int zynq_decrypt_image(cmd_tbl_t *cmdtp, int flag, int argc,
 }
 #endif
 
-static cmd_tbl_t zynq_commands[] = {
+static struct cmd_tbl zynq_commands[] = {
 #ifdef CONFIG_CMD_ZYNQ_RSA
 	U_BOOT_CMD_MKENT(rsa, 3, 1, do_zynq_rsa, "", ""),
 #endif
@@ -478,9 +479,10 @@ static cmd_tbl_t zynq_commands[] = {
 #endif
 };
 
-static int do_zynq(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_zynq(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
-	cmd_tbl_t *zynq_cmd;
+	struct cmd_tbl *zynq_cmd;
 	int ret;
 
 	if (!ARRAY_SIZE(zynq_commands)) {

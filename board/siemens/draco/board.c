@@ -13,6 +13,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <env.h>
 #include <errno.h>
 #include <init.h>
@@ -343,8 +344,8 @@ int board_eth_init(bd_t *bis)
 	return n;
 }
 
-static int do_switch_reset(cmd_tbl_t *cmdtp, int flag, int argc,
-			  char *const argv[])
+static int do_switch_reset(struct cmd_tbl *cmdtp, int flag, int argc,
+			   char *const argv[])
 {
 	/* Reset SMSC LAN9303 switch for default configuration */
 	gpio_request(GPIO_LAN9303_NRST, "nRST");

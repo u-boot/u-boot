@@ -260,7 +260,7 @@ int cpu_status(u32 nr)
 	return 0;
 }
 
-int cpu_release(u32 nr, int argc, char * const argv[])
+int cpu_release(u32 nr, int argc, char *const argv[])
 {
 	u64 boot_addr;
 	u64 *table = (u64 *)get_spin_tbl_addr();

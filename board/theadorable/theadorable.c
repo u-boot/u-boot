@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <console.h>
 #include <i2c.h>
 #include <init.h>
@@ -309,7 +310,7 @@ int board_late_init(void)
 #endif
 
 #if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_PCI)
-int do_pcie_test(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_pcie_test(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	pci_dev_t bdf;
 	u16 ven_id, dev_id;

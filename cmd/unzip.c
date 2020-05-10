@@ -10,7 +10,8 @@
 #include <gzip.h>
 #include <part.h>
 
-static int do_unzip(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_unzip(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[])
 {
 	unsigned long src, dst;
 	unsigned long src_len = ~0UL, dst_len = ~0UL;
@@ -42,8 +43,8 @@ U_BOOT_CMD(
 	"srcaddr dstaddr [dstsize]"
 );
 
-static int do_gzwrite(cmd_tbl_t *cmdtp, int flag,
-		      int argc, char * const argv[])
+static int do_gzwrite(struct cmd_tbl *cmdtp, int flag,
+		      int argc, char *const argv[])
 {
 	struct blk_desc *bdev;
 	int ret;

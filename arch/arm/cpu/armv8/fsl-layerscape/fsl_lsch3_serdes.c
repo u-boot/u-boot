@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <asm/io.h>
 #include <linux/errno.h>
 #include <asm/arch/fsl_serdes.h>

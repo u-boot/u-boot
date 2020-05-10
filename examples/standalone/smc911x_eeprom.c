@@ -466,7 +466,7 @@ static char *getline(void)
 /**
  *	smc911x_eeprom - our application's main() function
  */
-int smc911x_eeprom(int argc, char * const argv[])
+int smc911x_eeprom(int argc, char *const argv[])
 {
 	/* Avoid initializing on stack as gcc likes to call memset() */
 	struct eth_device dev;

@@ -26,7 +26,7 @@ static char *hob_type[] = {
 	"Capsule",
 };
 
-static int do_hob(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_hob(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	const struct hob_header *hdr;
 	uint type;

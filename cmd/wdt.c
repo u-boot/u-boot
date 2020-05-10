@@ -12,7 +12,7 @@
 
 static struct udevice *currdev;
 
-static int do_wdt_list(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_wdt_list(struct cmd_tbl *cmdtp, int flag, int argc,
 		       char *const argv[])
 {
 	struct udevice *dev;
@@ -29,7 +29,7 @@ static int do_wdt_list(cmd_tbl_t *cmdtp, int flag, int argc,
 	return CMD_RET_SUCCESS;
 }
 
-static int do_wdt_dev(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_wdt_dev(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[])
 {
 	int ret;
@@ -60,7 +60,7 @@ static int check_currdev(void)
 	return 0;
 }
 
-static int do_wdt_start(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_wdt_start(struct cmd_tbl *cmdtp, int flag, int argc,
 			char *const argv[])
 {
 	int ret;
@@ -90,7 +90,7 @@ static int do_wdt_start(cmd_tbl_t *cmdtp, int flag, int argc,
 	return CMD_RET_SUCCESS;
 }
 
-static int do_wdt_stop(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_wdt_stop(struct cmd_tbl *cmdtp, int flag, int argc,
 		       char *const argv[])
 {
 	int ret;
@@ -111,7 +111,7 @@ static int do_wdt_stop(cmd_tbl_t *cmdtp, int flag, int argc,
 	return CMD_RET_SUCCESS;
 }
 
-static int do_wdt_reset(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_wdt_reset(struct cmd_tbl *cmdtp, int flag, int argc,
 			char *const argv[])
 {
 	int ret;
@@ -132,7 +132,7 @@ static int do_wdt_reset(cmd_tbl_t *cmdtp, int flag, int argc,
 	return CMD_RET_SUCCESS;
 }
 
-static int do_wdt_expire(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_wdt_expire(struct cmd_tbl *cmdtp, int flag, int argc,
 			 char *const argv[])
 {
 	int ret;

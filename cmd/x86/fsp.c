@@ -9,7 +9,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static int do_hdr(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_hdr(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct fsp_header *hdr;
 	u32 img_addr;
@@ -80,13 +80,13 @@ static int do_hdr(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-static cmd_tbl_t fsp_commands[] = {
+static struct cmd_tbl fsp_commands[] = {
 	U_BOOT_CMD_MKENT(hdr, 0, 1, do_hdr, "", ""),
 };
 
-static int do_fsp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_fsp(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	cmd_tbl_t *fsp_cmd;
+	struct cmd_tbl *fsp_cmd;
 	int ret;
 
 	if (argc < 2)

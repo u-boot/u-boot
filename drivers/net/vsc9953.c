@@ -5,6 +5,7 @@
  *  Driver for the Vitesse VSC9953 L2 Switch
  */
 
+#include <command.h>
 #include <asm/io.h>
 #include <asm/fsl_serdes.h>
 #include <fm_eth.h>

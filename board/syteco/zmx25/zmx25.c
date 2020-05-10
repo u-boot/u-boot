@@ -15,6 +15,7 @@
  */
 #include <common.h>
 #include <cpu_func.h>
+#include <env.h>
 #include <init.h>
 #include <asm/gpio.h>
 #include <asm/io.h>

@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <cros_ec.h>
+#include <env.h>
 #include <errno.h>
 #include <fdtdec.h>
 #include <hang.h>

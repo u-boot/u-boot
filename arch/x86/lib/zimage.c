@@ -13,6 +13,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <env.h>
 #include <irq_func.h>
 #include <malloc.h>
@@ -310,7 +311,7 @@ void __setup_pcat_compatibility(void)
 {
 }
 
-int do_zboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+int do_zboot(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct boot_params *base_ptr;
 	void *bzImage_addr = NULL;

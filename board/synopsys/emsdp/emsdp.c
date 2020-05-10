@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <cpu_func.h>
 #include <dwmmc.h>
 #include <init.h>
@@ -102,7 +103,8 @@ void reset_cpu(ulong addr)
 		; /* loop forever till reset */
 }
 
-static int do_emsdp_rom(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+static int do_emsdp_rom(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
 	u32 creg_boot = readl(CREG_BOOT);
 
@@ -118,13 +120,14 @@ static int do_emsdp_rom(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[]
 	return CMD_RET_SUCCESS;
 }
 
-cmd_tbl_t cmd_emsdp[] = {
+struct cmd_tbl cmd_emsdp[] = {
 	U_BOOT_CMD_MKENT(rom, 2, 0, do_emsdp_rom, "", ""),
 };
 
-static int do_emsdp(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+static int do_emsdp(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[])
 {
-	cmd_tbl_t *c;
+	struct cmd_tbl *c;
 
 	c = find_cmd_tbl(argv[1], cmd_emsdp, ARRAY_SIZE(cmd_emsdp));
 

@@ -92,7 +92,8 @@ int arch_auxiliary_core_check_up(u32 core_id)
  * The TCMUL is mapped to (M4_BOOTROM_BASE_ADDR) at A core side for
  * accessing the M4 TCMUL.
  */
-static int do_bootaux(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_bootaux(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	ulong addr;
 	int ret, up;

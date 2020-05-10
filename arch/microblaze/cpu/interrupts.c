@@ -187,7 +187,7 @@ void interrupt_handler(void)
 }
 
 #if defined(CONFIG_CMD_IRQ)
-int do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, const char *argv[])
+int do_irqinfo(struct cmd_tbl *cmdtp, int flag, int argc, const char *argv[])
 {
 	int i;
 	struct irq_action *act = vecs;

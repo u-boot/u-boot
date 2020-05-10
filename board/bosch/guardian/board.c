@@ -11,6 +11,7 @@
 #include <common.h>
 #include <cpsw.h>
 #include <dm.h>
+#include <env.h>
 #include <env_internal.h>
 #include <errno.h>
 #include <i2c.h>

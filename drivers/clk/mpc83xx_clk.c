@@ -7,6 +7,7 @@
 #include <common.h>
 #include <clk-uclass.h>
 #include <clock_legacy.h>
+#include <command.h>
 #include <dm.h>
 #include <vsprintf.h>
 #include <dm/lists.h>
@@ -390,7 +391,8 @@ U_BOOT_DRIVER(mpc83xx_clk) = {
 	.bind = mpc83xx_clk_bind,
 };
 
-static int do_clocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_clocks(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[])
 {
 	int i;
 	char buf[32];

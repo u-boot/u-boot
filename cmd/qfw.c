@@ -93,8 +93,8 @@ static int qemu_fwcfg_list_firmware(void)
 	return 0;
 }
 
-static int qemu_fwcfg_do_list(cmd_tbl_t *cmdtp, int flag,
-		int argc, char * const argv[])
+static int qemu_fwcfg_do_list(struct cmd_tbl *cmdtp, int flag,
+			      int argc, char *const argv[])
 {
 	if (qemu_fwcfg_list_firmware() < 0)
 		return CMD_RET_FAILURE;
@@ -102,8 +102,8 @@ static int qemu_fwcfg_do_list(cmd_tbl_t *cmdtp, int flag,
 	return 0;
 }
 
-static int qemu_fwcfg_do_cpus(cmd_tbl_t *cmdtp, int flag,
-		int argc, char * const argv[])
+static int qemu_fwcfg_do_cpus(struct cmd_tbl *cmdtp, int flag,
+			      int argc, char *const argv[])
 {
 	int ret = qemu_fwcfg_online_cpus();
 	if (ret < 0) {
@@ -116,8 +116,8 @@ static int qemu_fwcfg_do_cpus(cmd_tbl_t *cmdtp, int flag,
 	return 0;
 }
 
-static int qemu_fwcfg_do_load(cmd_tbl_t *cmdtp, int flag,
-		int argc, char * const argv[])
+static int qemu_fwcfg_do_load(struct cmd_tbl *cmdtp, int flag,
+			      int argc, char *const argv[])
 {
 	char *env;
 	void *load_addr;
@@ -156,16 +156,17 @@ static int qemu_fwcfg_do_load(cmd_tbl_t *cmdtp, int flag,
 	return qemu_fwcfg_setup_kernel(load_addr, initrd_addr);
 }
 
-static cmd_tbl_t fwcfg_commands[] = {
+static struct cmd_tbl fwcfg_commands[] = {
 	U_BOOT_CMD_MKENT(list, 0, 1, qemu_fwcfg_do_list, "", ""),
 	U_BOOT_CMD_MKENT(cpus, 0, 1, qemu_fwcfg_do_cpus, "", ""),
 	U_BOOT_CMD_MKENT(load, 2, 1, qemu_fwcfg_do_load, "", ""),
 };
 
-static int do_qemu_fw(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_qemu_fw(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	int ret;
-	cmd_tbl_t *fwcfg_cmd;
+	struct cmd_tbl *fwcfg_cmd;
 
 	if (!qemu_fwcfg_present()) {
 		printf("QEMU fw_cfg interface not found\n");

@@ -246,7 +246,8 @@ void reset_phy(void)
 #if defined(CONFIG_KIRKWOOD_GPIO)
 /* Return GPIO push button status */
 static int
-do_read_push_button(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+do_read_push_button(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[])
 {
 	return !kw_gpio_get_value(NET2BIG_V2_GPIO_PUSH_BUTTON);
 }

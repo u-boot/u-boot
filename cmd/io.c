@@ -24,7 +24,7 @@ static ulong base_address;
  * Syntax:
  *	iod{.b, .w, .l} {addr}
  */
-int do_io_iod(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+int do_io_iod(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	ulong addr, length, bytes;
 	u8 buf[DISP_LINE_LEN];
@@ -90,7 +90,7 @@ int do_io_iod(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	return 0;
 }
 
-int do_io_iow(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+int do_io_iow(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	ulong addr, val;
 	int size;

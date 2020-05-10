@@ -30,6 +30,7 @@ tested on both gig copper and gig fiber boards
  */
 
 #include <common.h>
+#include <command.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>
@@ -5761,8 +5762,8 @@ struct e1000_hw *e1000_find_card(unsigned int cardnum)
 #endif /* !CONFIG_DM_ETH */
 
 #ifdef CONFIG_CMD_E1000
-static int do_e1000(cmd_tbl_t *cmdtp, int flag,
-		int argc, char * const argv[])
+static int do_e1000(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[])
 {
 	unsigned char *mac = NULL;
 #ifdef CONFIG_DM_ETH

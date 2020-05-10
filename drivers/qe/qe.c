@@ -781,7 +781,7 @@ struct qe_firmware_info *qe_get_firmware_info(void)
 	return qe_firmware_uploaded ? &qe_firmware_info : NULL;
 }
 
-static int qe_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int qe_cmd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	ulong addr;
 

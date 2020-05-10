@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <env.h>
 #include <fdtdec.h>
 #include <init.h>
 #include <malloc.h>

@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <div64.h>
 #include <asm/io.h>
 #include <linux/errno.h>
@@ -1305,7 +1306,8 @@ void disable_ipu_clock(void)
 /*
  * Dump some core clockes.
  */
-int do_mx6_showclocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_mx6_showclocks(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	u32 freq;
 	freq = decode_pll(PLL_SYS, MXC_HCLK);

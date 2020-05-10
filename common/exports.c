@@ -1,4 +1,5 @@
 #include <common.h>
+#include <command.h>
 #include <exports.h>
 #include <malloc.h>
 #include <spi.h>

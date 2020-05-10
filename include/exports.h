@@ -11,6 +11,7 @@
 
 #include <irq_func.h>
 
+struct cmd_tbl;
 struct spi_slave;
 
 /* Set up the jump table for use by the API */

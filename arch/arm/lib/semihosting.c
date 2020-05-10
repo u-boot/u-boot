@@ -13,6 +13,7 @@
  */
 #include <common.h>
 #include <command.h>
+#include <env.h>
 
 #define SYSOPEN		0x01
 #define SYSCLOSE	0x02
@@ -180,7 +181,8 @@ static int smh_load_file(const char * const name, ulong load_addr,
 	return 0;
 }
 
-static int do_smhload(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_smhload(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	if (argc == 3 || argc == 4) {
 		ulong load_addr;

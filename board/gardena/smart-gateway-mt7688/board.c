@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <env.h>
 #include <env_internal.h>
 #include <flash.h>
@@ -206,7 +207,7 @@ static void copy_or_generate_uuid(char *fd_ptr, const char *env_var_name)
  * Helper function to provide some sane factory-data values for testing
  * purpose, when these values are not programmed correctly
  */
-int do_fd_write(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_fd_write(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct factory_data_values *fd;
 	struct spi_flash *sf;

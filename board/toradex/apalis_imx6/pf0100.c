@@ -8,6 +8,7 @@
 */
 
 #include <common.h>
+#include <command.h>
 #include <i2c.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/iomux.h>
@@ -261,8 +262,8 @@ static int pf0100_prog(void)
 	return CMD_RET_SUCCESS;
 }
 
-static int do_pf0100_prog(cmd_tbl_t *cmdtp, int flag, int argc,
-		char * const argv[])
+static int do_pf0100_prog(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
 {
 	int ret;
 	puts("Programming PMIC OTP...");

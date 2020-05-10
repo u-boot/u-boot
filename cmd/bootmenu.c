@@ -482,7 +482,7 @@ int menu_show(int bootdelay)
 }
 #endif
 
-int do_bootmenu(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+int do_bootmenu(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	char *delay_str = NULL;
 	int delay = 10;

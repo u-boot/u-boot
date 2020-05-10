@@ -264,8 +264,8 @@ error:
  *     1, if fdt image is found but corrupted
  *     of_flat_tree and of_size are set to 0 if no fdt exists
  */
-int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
-		bootm_headers_t *images, char **of_flat_tree, ulong *of_size)
+int boot_get_fdt(int flag, int argc, char *const argv[], uint8_t arch,
+		 bootm_headers_t *images, char **of_flat_tree, ulong *of_size)
 {
 #if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
 	const image_header_t *fdt_hdr;

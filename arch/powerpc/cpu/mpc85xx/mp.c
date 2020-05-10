@@ -140,7 +140,7 @@ static u8 boot_entry_map[4] = {
 	BOOT_ENTRY_R3_LOWER,
 };
 
-int cpu_release(u32 nr, int argc, char * const argv[])
+int cpu_release(u32 nr, int argc, char *const argv[])
 {
 	u32 i, val, *table = (u32 *)&__spin_table + nr * NUM_BOOT_ENTRY;
 	u64 boot_addr;

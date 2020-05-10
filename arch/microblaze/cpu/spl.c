@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <image.h>
 #include <spl.h>
 #include <asm/io.h>
@@ -48,7 +49,7 @@ int spl_start_uboot(void)
 	return 1;
 }
 
-int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	__asm__ __volatile__ ("mts rmsr, r0;" \
 			      "bra r0");

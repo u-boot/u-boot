@@ -39,10 +39,10 @@ flash_protect(int flag, ulong from, ulong to, flash_info_t *info)
 	s_end = info->sector_count - 1;	/* index of last sector */
 	b_end = info->start[0] + info->size - 1;	/* bank end address */
 
-	debug ("flash_protect %s: from 0x%08lX to 0x%08lX\n",
-		(flag & FLAG_PROTECT_SET) ? "ON" :
-			(flag & FLAG_PROTECT_CLEAR) ? "OFF" : "???",
-		from, to);
+	debug("%s %s: from 0x%08lX to 0x%08lX\n", __func__,
+	      (flag & FLAG_PROTECT_SET) ? "ON" :
+		      (flag & FLAG_PROTECT_CLEAR) ? "OFF" : "???",
+	      from, to);
 
 	/* There is nothing to do if we have no data about the flash
 	 * or the protect range and flash range don't overlap.

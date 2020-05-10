@@ -425,7 +425,7 @@ void show_tlv_code_list(void)
  *
  *  This function implements the tlv_eeprom command.
  */
-int do_tlv_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+int do_tlv_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	char cmd;
 	struct tlvinfo_header *eeprom_hdr = to_header(eeprom);

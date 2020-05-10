@@ -115,7 +115,7 @@ static char *getline(void)
 	}
 }
 
-int atmel_df_pow2(int argc, char * const argv[])
+int atmel_df_pow2(int argc, char *const argv[])
 {
 	/* Print the ABI version */
 	app_startup(argv);

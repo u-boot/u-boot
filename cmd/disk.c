@@ -10,7 +10,7 @@
 #include <image.h>
 #include <part.h>
 
-int common_diskboot(cmd_tbl_t *cmdtp, const char *intf, int argc,
+int common_diskboot(struct cmd_tbl *cmdtp, const char *intf, int argc,
 		    char *const argv[])
 {
 	__maybe_unused int dev;

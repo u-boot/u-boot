@@ -32,6 +32,7 @@
  * http://www.ethernut.de/
  */
 #include <common.h>
+#include <command.h>
 #include <asm/arch/at91sam9260.h>
 #include <asm/arch/at91_common.h>
 #include <asm/arch/gpio.h>
@@ -215,7 +216,7 @@ void ethernut5_print_voltage(void)
 /*
  * Process the board specific 'pwrman' command.
  */
-int do_pwrman(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_pwrman(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	u8 val;
 	int i;

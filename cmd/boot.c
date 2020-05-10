@@ -16,12 +16,12 @@
 /* Allow ports to override the default behavior */
 __attribute__((weak))
 unsigned long do_go_exec(ulong (*entry)(int, char * const []), int argc,
-				 char * const argv[])
+				 char *const argv[])
 {
 	return entry (argc, argv);
 }
 
-static int do_go(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_go(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	ulong	addr, rc;
 	int     rcode = 0;

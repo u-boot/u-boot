@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <cpu_func.h>
 #include <div64.h>
 #include <env.h>
@@ -376,7 +377,8 @@ void get_arc_info(void)
 		do_get_arc_info();
 }
 
-static int do_arc_cmd(cmd_tbl_t * cmdtp, int flag, int argc, char *const argv[])
+static int do_arc_cmd(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	const char *cmd;
 	int ret = -1;

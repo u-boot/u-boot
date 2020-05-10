@@ -117,7 +117,8 @@ static int do_gpio_status(bool all, const char *gpio_name)
 }
 #endif
 
-static int do_gpio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_gpio(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
 	unsigned int gpio;
 	enum gpio_cmd sub_cmd;

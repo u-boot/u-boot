@@ -605,7 +605,7 @@ static int match_entry(struct env_entry *ep, int flag, int argc,
 
 ssize_t hexport_r(struct hsearch_data *htab, const char sep, int flag,
 		 char **resp, size_t size,
-		 int argc, char * const argv[])
+		 int argc, char *const argv[])
 {
 	struct env_entry *list[htab->size];
 	char *res, *p;

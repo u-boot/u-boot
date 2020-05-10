@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <board.h>
+#include <command.h>
 #include <dm.h>
 #include <env.h>
 #include <fdt_support.h>

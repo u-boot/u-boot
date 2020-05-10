@@ -3,6 +3,7 @@
  * Copyright (c) 2016 Rockchip Electronics Co., Ltd
  */
 #include <common.h>
+#include <command.h>
 #include <dm.h>
 #include <env.h>
 #include <clk.h>
@@ -114,8 +115,8 @@ int rk_board_late_init(void)
 	return rk3288_board_late_init();
 }
 
-static int do_clock(cmd_tbl_t *cmdtp, int flag, int argc,
-		       char * const argv[])
+static int do_clock(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[])
 {
 	static const struct {
 		char *name;

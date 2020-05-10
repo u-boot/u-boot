@@ -11,6 +11,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <errno.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/pmic_bus.h>
@@ -219,7 +220,7 @@ int axp_init(void)
 	return pmic_bus_init();
 }
 
-int do_poweroff(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_poweroff(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	pmic_bus_write(AXP809_SHUTDOWN, AXP809_SHUTDOWN_POWEROFF);
 

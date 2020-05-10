@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <env.h>
 #include <rand.h>
 #include <time.h>
@@ -286,7 +287,7 @@ void gen_rand_uuid_str(char *uuid_str, int str_format)
 }
 
 #if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_CMD_UUID)
-int do_uuid(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_uuid(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	char uuid[UUID_STR_LEN + 1];
 	int str_format;

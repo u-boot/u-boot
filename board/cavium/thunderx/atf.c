@@ -4,6 +4,7 @@
 **/
 
 #include <common.h>
+#include <command.h>
 #include <asm/cache.h>
 #include <asm/io.h>
 
@@ -224,7 +225,7 @@ static void atf_print_part_table(void)
 	}
 }
 
-int do_atf(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_atf(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	ssize_t ret;
 	size_t size, offset;

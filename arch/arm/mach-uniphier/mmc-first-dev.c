@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <env.h>
 #include <mmc.h>
 #include <linux/errno.h>
@@ -28,7 +29,8 @@ int mmc_get_env_dev(void)
 	return find_first_mmc_device(false);
 }
 
-static int do_mmcsetn(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_mmcsetn(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	int dev;
 
@@ -46,7 +48,8 @@ U_BOOT_CMD(
 	""
 );
 
-static int do_sdsetn(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_sdsetn(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[])
 {
 	int dev;
 

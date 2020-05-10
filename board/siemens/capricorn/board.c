@@ -6,7 +6,9 @@
  *
  */
 #include <common.h>
+#include <command.h>
 #include <dm.h>
+#include <env.h>
 #include <errno.h>
 #include <init.h>
 #include <netdev.h>
@@ -411,7 +413,7 @@ unsigned char get_button_state(char * const envname, unsigned char def)
  *		0 if button is not held down
  */
 static int
-do_userbutton(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+do_userbutton(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	int button = 0;
 
@@ -432,7 +434,7 @@ U_BOOT_CMD(
 #define ERST	IMX_GPIO_NR(0, 3)
 
 static int
-do_eth_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+do_eth_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	gpio_request(ERST, "ERST");
 	gpio_direction_output(ERST, 0);

@@ -3664,8 +3664,8 @@ static char *make_string(char **inp, int *nonnull)
 }
 
 #ifdef __U_BOOT__
-static int do_showvar(cmd_tbl_t *cmdtp, int flag, int argc,
-		      char * const argv[])
+static int do_showvar(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	int i, k;
 	int rcode = 0;

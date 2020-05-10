@@ -65,6 +65,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <cpu_func.h>
 #include <env.h>
 #include <fdtdec.h>
@@ -1710,7 +1711,8 @@ static void logo_black(void)
 			1);
 }
 
-static int do_clrlogo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_clrlogo(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	if (argc != 1)
 		return cmd_usage(cmdtp);

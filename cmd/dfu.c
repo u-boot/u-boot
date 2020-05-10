@@ -11,6 +11,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <watchdog.h>
 #include <dfu.h>
 #include <console.h>
@@ -18,7 +19,7 @@
 #include <usb.h>
 #include <net.h>
 
-static int do_dfu(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_dfu(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 
 	if (argc < 2)

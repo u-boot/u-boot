@@ -28,7 +28,7 @@ enum cmd_part_info {
 	CMD_PART_INFO_NUMBER
 };
 
-static int do_part_uuid(int argc, char * const argv[])
+static int do_part_uuid(int argc, char *const argv[])
 {
 	int part;
 	struct blk_desc *dev_desc;
@@ -51,7 +51,7 @@ static int do_part_uuid(int argc, char * const argv[])
 	return 0;
 }
 
-static int do_part_list(int argc, char * const argv[])
+static int do_part_list(int argc, char *const argv[])
 {
 	int ret;
 	struct blk_desc *desc;
@@ -114,7 +114,7 @@ static int do_part_list(int argc, char * const argv[])
 	return 0;
 }
 
-static int do_part_info(int argc, char * const argv[], enum cmd_part_info param)
+static int do_part_info(int argc, char *const argv[], enum cmd_part_info param)
 {
 	struct blk_desc *desc;
 	struct disk_partition info;
@@ -167,22 +167,23 @@ static int do_part_info(int argc, char * const argv[], enum cmd_part_info param)
 	return 0;
 }
 
-static int do_part_start(int argc, char * const argv[])
+static int do_part_start(int argc, char *const argv[])
 {
 	return do_part_info(argc, argv, CMD_PART_INFO_START);
 }
 
-static int do_part_size(int argc, char * const argv[])
+static int do_part_size(int argc, char *const argv[])
 {
 	return do_part_info(argc, argv, CMD_PART_INFO_SIZE);
 }
 
-static int do_part_number(int argc, char * const argv[])
+static int do_part_number(int argc, char *const argv[])
 {
 	return do_part_info(argc, argv, CMD_PART_INFO_NUMBER);
 }
 
-static int do_part(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_part(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
 	if (argc < 2)
 		return CMD_RET_USAGE;

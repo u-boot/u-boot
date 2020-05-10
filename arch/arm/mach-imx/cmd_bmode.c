@@ -54,8 +54,8 @@ static int create_usage(char *dest)
 	return size;
 }
 
-static int do_boot_mode(cmd_tbl_t *cmdtp, int flag, int argc,
-		char * const argv[])
+static int do_boot_mode(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
 	const struct boot_mode *p;
 	int reset_requested = 1;
@@ -87,7 +87,7 @@ void add_board_boot_modes(const struct boot_mode *p)
 	int size;
 	char *dest;
 
-	cmd_tbl_t *entry = ll_entry_get(cmd_tbl_t, bmode, cmd);
+	struct cmd_tbl *entry = ll_entry_get(struct cmd_tbl, bmode, cmd);
 
 	if (entry->usage) {
 		free(entry->usage);

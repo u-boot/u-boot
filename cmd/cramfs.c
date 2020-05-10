@@ -94,7 +94,8 @@ extern int cramfs_info (struct part_info *info);
  * @param argv arguments list
  * @return 0 on success, 1 otherwise
  */
-int do_cramfs_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_cramfs_load(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
 	char *filename;
 	int size;
@@ -162,7 +163,7 @@ int do_cramfs_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  * @param argv arguments list
  * @return 0 on success, 1 otherwise
  */
-int do_cramfs_ls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_cramfs_ls(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	char *filename = "/";
 	int ret;

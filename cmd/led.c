@@ -71,7 +71,7 @@ static int list_leds(void)
 	return 0;
 }
 
-int do_led(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_led(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	enum led_state_t cmd;
 	const char *led_label;

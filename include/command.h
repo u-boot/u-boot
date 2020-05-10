@@ -27,7 +27,7 @@
  * Monitor Command Table
  */
 
-struct cmd_tbl_s {
+struct cmd_tbl {
 	char		*name;		/* Command Name			*/
 	int		maxargs;	/* maximum number of arguments	*/
 					/*
@@ -38,54 +38,57 @@ struct cmd_tbl_s {
 					 * repeatable property different for
 					 * the main command and sub-commands.
 					 */
-	int		(*cmd_rep)(struct cmd_tbl_s *cmd, int flags, int argc,
-				   char * const argv[], int *repeatable);
+	int		(*cmd_rep)(struct cmd_tbl *cmd, int flags, int argc,
+				   char *const argv[], int *repeatable);
 					/* Implementation function	*/
-	int		(*cmd)(struct cmd_tbl_s *, int, int, char * const []);
+	int		(*cmd)(struct cmd_tbl *cmd, int flags, int argc,
+			       char *const argv[]);
 	char		*usage;		/* Usage message	(short)	*/
 #ifdef	CONFIG_SYS_LONGHELP
 	char		*help;		/* Help  message	(long)	*/
 #endif
 #ifdef CONFIG_AUTO_COMPLETE
 	/* do auto completion on the arguments */
-	int		(*complete)(int argc, char * const argv[], char last_char, int maxv, char *cmdv[]);
+	int		(*complete)(int argc, char *const argv[],
+				    char last_char, int maxv, char *cmdv[]);
 #endif
 };
 
-typedef struct cmd_tbl_s	cmd_tbl_t;
-
-
 #if defined(CONFIG_CMD_RUN)
-extern int do_run(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+extern int do_run(struct cmd_tbl *cmdtp, int flag, int argc,
+		  char *const argv[]);
 #endif
 
 /* common/command.c */
-int _do_help (cmd_tbl_t *cmd_start, int cmd_items, cmd_tbl_t * cmdtp, int
-	      flag, int argc, char * const argv[]);
-cmd_tbl_t *find_cmd(const char *cmd);
-cmd_tbl_t *find_cmd_tbl (const char *cmd, cmd_tbl_t *table, int table_len);
-int complete_subcmdv(cmd_tbl_t *cmdtp, int count, int argc,
-		     char * const argv[], char last_char, int maxv,
+int _do_help(struct cmd_tbl *cmd_start, int cmd_items, struct cmd_tbl *cmdtp,
+	     int flag, int argc, char *const argv[]);
+struct cmd_tbl *find_cmd(const char *cmd);
+struct cmd_tbl *find_cmd_tbl(const char *cmd, struct cmd_tbl *table,
+			     int table_len);
+int complete_subcmdv(struct cmd_tbl *cmdtp, int count, int argc,
+		     char *const argv[], char last_char, int maxv,
 		     char *cmdv[]);
 
-extern int cmd_usage(const cmd_tbl_t *cmdtp);
+extern int cmd_usage(const struct cmd_tbl *cmdtp);
 
 /* Dummy ->cmd and ->cmd_rep wrappers. */
-int cmd_always_repeatable(cmd_tbl_t *cmdtp, int flag, int argc,
-			  char * const argv[], int *repeatable);
-int cmd_never_repeatable(cmd_tbl_t *cmdtp, int flag, int argc,
-			 char * const argv[], int *repeatable);
-int cmd_discard_repeatable(cmd_tbl_t *cmdtp, int flag, int argc,
-			   char * const argv[]);
+int cmd_always_repeatable(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[], int *repeatable);
+int cmd_never_repeatable(struct cmd_tbl *cmdtp, int flag, int argc,
+			 char *const argv[], int *repeatable);
+int cmd_discard_repeatable(struct cmd_tbl *cmdtp, int flag, int argc,
+			   char *const argv[]);
 
-static inline bool cmd_is_repeatable(cmd_tbl_t *cmdtp)
+static inline bool cmd_is_repeatable(struct cmd_tbl *cmdtp)
 {
 	return cmdtp->cmd_rep == cmd_always_repeatable;
 }
 
 #ifdef CONFIG_AUTO_COMPLETE
-extern int var_complete(int argc, char * const argv[], char last_char, int maxv, char *cmdv[]);
-extern int cmd_auto_complete(const char *const prompt, char *buf, int *np, int *colp);
+extern int var_complete(int argc, char *const argv[], char last_char, int maxv,
+			char *cmdv[]);
+extern int cmd_auto_complete(const char *const prompt, char *buf, int *np,
+			     int *colp);
 #endif
 
 /**
@@ -97,14 +100,15 @@ extern int cmd_auto_complete(const char *const prompt, char *buf, int *np, int *
  *	   1 (CMD_RET_FAILURE) if an error is found
  *	   -1 (CMD_RET_USAGE) if 'usage' error is found
  */
-int cmd_process_error(cmd_tbl_t *cmdtp, int err);
+int cmd_process_error(struct cmd_tbl *cmdtp, int err);
 
 /*
  * Monitor Command
  *
  * All commands use a common argument format:
  *
- * void function (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+ * void function(struct cmd_tbl *cmdtp, int flag, int argc,
+ *		 char *const argv[]);
  */
 
 #if defined(CONFIG_CMD_MEMORY) || \
@@ -117,36 +121,42 @@ extern int cmd_get_data_size(char* arg, int default_size);
 #endif
 
 #ifdef CONFIG_CMD_BOOTD
-extern int do_bootd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+extern int do_bootd(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[]);
 #endif
 #ifdef CONFIG_CMD_BOOTM
-extern int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
-extern int bootm_maybe_autostart(cmd_tbl_t *cmdtp, const char *cmd);
+extern int do_bootm(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[]);
+extern int bootm_maybe_autostart(struct cmd_tbl *cmdtp, const char *cmd);
 #else
-static inline int bootm_maybe_autostart(cmd_tbl_t *cmdtp, const char *cmd)
+static inline int bootm_maybe_autostart(struct cmd_tbl *cmdtp, const char *cmd)
 {
 	return 0;
 }
 #endif
 
-extern int do_bootz(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+extern int do_bootz(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[]);
 
-extern int do_booti(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+extern int do_booti(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[]);
 
-extern int common_diskboot(cmd_tbl_t *cmdtp, const char *intf, int argc,
+extern int common_diskboot(struct cmd_tbl *cmdtp, const char *intf, int argc,
 			   char *const argv[]);
 
-extern int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
-extern int do_poweroff(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+extern int do_reset(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[]);
+extern int do_poweroff(struct cmd_tbl *cmdtp, int flag, int argc,
+		       char *const argv[]);
 
 extern unsigned long do_go_exec(ulong (*entry)(int, char * const []), int argc,
-				char * const argv[]);
+				char *const argv[]);
 
 #if defined(CONFIG_CMD_NVEDIT_EFI)
-extern int do_env_print_efi(cmd_tbl_t *cmdtp, int flag, int argc,
-			    char * const argv[]);
-extern int do_env_set_efi(cmd_tbl_t *cmdtp, int flag, int argc,
-			  char * const argv[]);
+extern int do_env_print_efi(struct cmd_tbl *cmdtp, int flag, int argc,
+			    char *const argv[]);
+extern int do_env_set_efi(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[]);
 #endif
 
 /*
@@ -177,10 +187,10 @@ enum command_ret_t {
  *			number of ticks the command took to complete.
  * @return 0 if the command succeeded, 1 if it failed
  */
-int cmd_process(int flag, int argc, char * const argv[],
-			       int *repeatable, unsigned long *ticks);
+int cmd_process(int flag, int argc, char *const argv[], int *repeatable,
+		unsigned long *ticks);
 
-void fixup_cmdtable(cmd_tbl_t *cmdtp, int size);
+void fixup_cmdtable(struct cmd_tbl *cmdtp, int size);
 
 /**
  * board_run_command() - Fallback function to execute a command
@@ -254,10 +264,11 @@ int run_command_list(const char *cmd, int len, int flag);
 #endif
 
 #define U_BOOT_SUBCMDS_DO_CMD(_cmdname)					\
-	static int do_##_cmdname(cmd_tbl_t *cmdtp, int flag, int argc,	\
-				 char * const argv[], int *repeatable)	\
+	static int do_##_cmdname(struct cmd_tbl *cmdtp, int flag,	\
+				 int argc, char *const argv[],		\
+				 int *repeatable)			\
 	{								\
-		cmd_tbl_t *subcmd;					\
+		struct cmd_tbl *subcmd;					\
 									\
 		_cmdname##_subcmds_reloc();				\
 									\
@@ -280,7 +291,7 @@ int run_command_list(const char *cmd, int len, int flag);
 
 #ifdef CONFIG_AUTO_COMPLETE
 #define U_BOOT_SUBCMDS_COMPLETE(_cmdname)				\
-	static int complete_##_cmdname(int argc, char * const argv[],	\
+	static int complete_##_cmdname(int argc, char *const argv[],	\
 				       char last_char, int maxv,	\
 				       char *cmdv[])			\
 	{								\
@@ -294,7 +305,7 @@ int run_command_list(const char *cmd, int len, int flag);
 #endif
 
 #define U_BOOT_SUBCMDS(_cmdname, ...)					\
-	static cmd_tbl_t _cmdname##_subcmds[] = { __VA_ARGS__ };	\
+	static struct cmd_tbl _cmdname##_subcmds[] = { __VA_ARGS__ };	\
 	U_BOOT_SUBCMDS_RELOC(_cmdname)					\
 	U_BOOT_SUBCMDS_DO_CMD(_cmdname)					\
 	U_BOOT_SUBCMDS_COMPLETE(_cmdname)
@@ -312,18 +323,18 @@ int run_command_list(const char *cmd, int len, int flag);
 		 _cmd, _usage, _CMD_HELP(_help) _CMD_COMPLETE(_comp) }
 
 #define U_BOOT_CMD_COMPLETE(_name, _maxargs, _rep, _cmd, _usage, _help, _comp) \
-	ll_entry_declare(cmd_tbl_t, _name, cmd) =			\
+	ll_entry_declare(struct cmd_tbl, _name, cmd) =			\
 		U_BOOT_CMD_MKENT_COMPLETE(_name, _maxargs, _rep, _cmd,	\
 						_usage, _help, _comp);
 
 #define U_BOOT_CMDREP_COMPLETE(_name, _maxargs, _cmd_rep, _usage,	\
 			       _help, _comp)				\
-	ll_entry_declare(cmd_tbl_t, _name, cmd) =			\
+	ll_entry_declare(struct cmd_tbl, _name, cmd) =			\
 		U_BOOT_CMDREP_MKENT_COMPLETE(_name, _maxargs, _cmd_rep,	\
 					     _usage, _help, _comp)
 
 #else
-#define U_BOOT_SUBCMD_START(name)	static cmd_tbl_t name[] = {};
+#define U_BOOT_SUBCMD_START(name)	static struct cmd_tbl name[] = {};
 #define U_BOOT_SUBCMD_END
 
 #define _CMD_REMOVE(_name, _cmd)					\

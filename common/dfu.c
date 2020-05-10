@@ -11,6 +11,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <watchdog.h>
 #include <dfu.h>
 #include <console.h>

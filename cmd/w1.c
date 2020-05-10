@@ -103,7 +103,7 @@ static int w1_read(int argc, char *const argv[])
 	return CMD_RET_SUCCESS;
 }
 
-int do_w1(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+int do_w1(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	if (argc < 2)
 		return CMD_RET_USAGE;

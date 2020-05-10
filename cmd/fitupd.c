@@ -12,7 +12,8 @@
 #error "CONFIG_UPDATE_TFTP required"
 #endif
 
-static int do_fitupd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_fitupd(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[])
 {
 	ulong addr = 0UL;
 

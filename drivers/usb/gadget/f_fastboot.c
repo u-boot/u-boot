@@ -9,6 +9,7 @@
  * Copyright 2014 Linaro, Ltd.
  * Rob Herring <robh@kernel.org>
  */
+#include <command.h>
 #include <config.h>
 #include <common.h>
 #include <env.h>

@@ -12,6 +12,7 @@
 
 #include <common.h>
 #include <config.h>
+#include <env.h>
 #include <init.h>
 #include <dm/lists.h>
 #include <fdtdec.h>

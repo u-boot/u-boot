@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <bootstage.h>
+#include <command.h>
 #include <env.h>
 #include <env_internal.h>
 #include <flash.h>

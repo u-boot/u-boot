@@ -93,7 +93,8 @@ exit:
 #endif
 }
 
-static int do_fastboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+static int do_fastboot(struct cmd_tbl *cmdtp, int flag, int argc,
+		       char *const argv[])
 {
 	uintptr_t buf_addr = (uintptr_t)NULL;
 	size_t buf_size = 0;

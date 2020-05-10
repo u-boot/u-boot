@@ -626,7 +626,8 @@ static char snvs_cfg_help_text[] =
 	"ALL values should be in hexadecimal format";
 
 #define NB_REGISTERS 18
-static int do_snvs_cfg(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+static int do_snvs_cfg(struct cmd_tbl *cmdtp, int flag, int argc,
+		       char *const argv[])
 {
 	int err = 0;
 	u32 idx = 0;
@@ -677,7 +678,7 @@ static char snvs_dgo_cfg_help_text[] =
 	"\n"
 	"ALL values should be in hexadecimal format";
 
-static int do_snvs_dgo_cfg(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_snvs_dgo_cfg(struct cmd_tbl *cmdtp, int flag, int argc,
 			   char *const argv[])
 {
 	int err = 0;
@@ -713,7 +714,7 @@ static char tamper_pin_cfg_help_text[] =
 	"\n"
 	"ALL values should be in hexadecimal format";
 
-static int do_tamper_pin_cfg(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_tamper_pin_cfg(struct cmd_tbl *cmdtp, int flag, int argc,
 			     char *const argv[])
 {
 	int err = 0;
@@ -748,8 +749,8 @@ static char snvs_clear_status_help_text[] =
 	"Write the status registers with the value provided,"
 	" clearing the status";
 
-static int do_snvs_clear_status(cmd_tbl_t *cmdtp, int flag, int argc,
-				  char *const argv[])
+static int do_snvs_clear_status(struct cmd_tbl *cmdtp, int flag, int argc,
+				char *const argv[])
 {
 	int scierr = 0;
 	u32 idx = 0;
@@ -788,7 +789,7 @@ static char snvs_sec_status_help_text[] =
 	"snvs_sec_status\n"
 	"Display information about the security related to tamper and secvio";
 
-static int do_snvs_sec_status(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_snvs_sec_status(struct cmd_tbl *cmdtp, int flag, int argc,
 			      char *const argv[])
 {
 	int scierr;

@@ -794,7 +794,7 @@ static int do_rename_gpt_parts(struct blk_desc *dev_desc, char *subcomm,
  *
  * @return zero on success; otherwise error
  */
-static int do_gpt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_gpt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	int ret = CMD_RET_SUCCESS;
 	int dev = 0;

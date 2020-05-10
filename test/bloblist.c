@@ -234,7 +234,8 @@ static int bloblist_test_checksum(struct unit_test_state *uts)
 
 BLOBLIST_TEST(bloblist_test_checksum, 0);
 
-int do_ut_bloblist(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+int do_ut_bloblist(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
 	struct unit_test *tests = ll_entry_start(struct unit_test,
 						 bloblist_test);

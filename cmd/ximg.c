@@ -33,7 +33,7 @@
 #endif
 
 static int
-do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+do_imgextract(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	ulong		addr = image_load_addr;
 	ulong		dest = 0;

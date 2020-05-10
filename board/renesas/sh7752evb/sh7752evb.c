@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <env.h>
 #include <flash.h>
 #include <init.h>
@@ -245,7 +246,7 @@ int board_late_init(void)
 }
 
 #ifdef CONFIG_DEPRECATED
-int do_write_mac(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_write_mac(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	int i, ret;
 	char mac_string[256];

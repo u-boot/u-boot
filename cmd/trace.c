@@ -10,7 +10,7 @@
 #include <trace.h>
 #include <asm/io.h>
 
-static int get_args(int argc, char * const argv[], char **buff,
+static int get_args(int argc, char *const argv[], char **buff,
 		    size_t *buff_ptr, size_t *buff_size)
 {
 	if (argc < 2)
@@ -29,7 +29,7 @@ static int get_args(int argc, char * const argv[], char **buff,
 	return 0;
 }
 
-static int create_func_list(int argc, char * const argv[])
+static int create_func_list(int argc, char *const argv[])
 {
 	size_t buff_size, avail, buff_ptr, needed, used;
 	char *buff;
@@ -52,7 +52,7 @@ static int create_func_list(int argc, char * const argv[])
 	return 0;
 }
 
-static int create_call_list(int argc, char * const argv[])
+static int create_call_list(int argc, char *const argv[])
 {
 	size_t buff_size, avail, buff_ptr, needed, used;
 	char *buff;
@@ -76,7 +76,7 @@ static int create_call_list(int argc, char * const argv[])
 	return 0;
 }
 
-int do_trace(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_trace(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	const char *cmd = argc < 2 ? NULL : argv[1];
 

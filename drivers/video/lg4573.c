@@ -6,6 +6,7 @@
  */
 #include <common.h>
 #include <backlight.h>
+#include <command.h>
 #include <display.h>
 #include <dm.h>
 #include <dm/read.h>
@@ -208,8 +209,8 @@ static int lg4573_spi_startup(struct spi_slave *slave)
 	return 0;
 }
 
-static int do_lgset(cmd_tbl_t *cmdtp, int flag, int argc,
-		       char * const argv[])
+static int do_lgset(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[])
 {
 	struct spi_slave *slave;
 	struct udevice *dev;

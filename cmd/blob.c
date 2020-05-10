@@ -48,7 +48,8 @@ __weak int blob_encap(u8 *key_mod, u8 *src, u8 *dst, u32 len)
  * Returns zero on success, CMD_RET_USAGE in case of misuse and negative
  * on error.
  */
-static int do_blob(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+static int do_blob(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
 	ulong key_addr, src_addr, dst_addr, len;
 	uint8_t *km_ptr, *src_ptr, *dst_ptr;

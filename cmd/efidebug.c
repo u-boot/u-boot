@@ -60,8 +60,8 @@ static const char sep[] = "================";
  * Implement efidebug "devices" sub-command.
  * Show all UEFI devices and their information.
  */
-static int do_efi_show_devices(cmd_tbl_t *cmdtp, int flag,
-			       int argc, char * const argv[])
+static int do_efi_show_devices(struct cmd_tbl *cmdtp, int flag,
+			       int argc, char *const argv[])
 {
 	efi_handle_t *handles;
 	efi_uintn_t num, i;
@@ -139,8 +139,8 @@ static int efi_get_driver_handle_info(efi_handle_t handle, u16 **driver_name,
  * Implement efidebug "drivers" sub-command.
  * Show all UEFI drivers and their information.
  */
-static int do_efi_show_drivers(cmd_tbl_t *cmdtp, int flag,
-			       int argc, char * const argv[])
+static int do_efi_show_drivers(struct cmd_tbl *cmdtp, int flag,
+			       int argc, char *const argv[])
 {
 	efi_handle_t *handles;
 	efi_uintn_t num, i;
@@ -311,8 +311,8 @@ static const char *get_guid_text(const void *guid)
  * Show all UEFI handles and their information, currently all protocols
  * added to handle.
  */
-static int do_efi_show_handles(cmd_tbl_t *cmdtp, int flag,
-			       int argc, char * const argv[])
+static int do_efi_show_handles(struct cmd_tbl *cmdtp, int flag,
+			       int argc, char *const argv[])
 {
 	efi_handle_t *handles;
 	efi_guid_t **guid;
@@ -371,8 +371,8 @@ static int do_efi_show_handles(cmd_tbl_t *cmdtp, int flag,
  * Implement efidebug "images" sub-command.
  * Show all UEFI loaded images and their information.
  */
-static int do_efi_show_images(cmd_tbl_t *cmdtp, int flag,
-			      int argc, char * const argv[])
+static int do_efi_show_images(struct cmd_tbl *cmdtp, int flag,
+			      int argc, char *const argv[])
 {
 	efi_print_image_infos(NULL);
 
@@ -453,8 +453,8 @@ static void print_memory_attributes(u64 attributes)
  * Implement efidebug "memmap" sub-command.
  * Show UEFI memory map.
  */
-static int do_efi_show_memmap(cmd_tbl_t *cmdtp, int flag,
-			      int argc, char * const argv[])
+static int do_efi_show_memmap(struct cmd_tbl *cmdtp, int flag,
+			      int argc, char *const argv[])
 {
 	struct efi_mem_desc *memmap = NULL, *map;
 	efi_uintn_t map_size = 0;
@@ -521,8 +521,8 @@ static int do_efi_show_memmap(cmd_tbl_t *cmdtp, int flag,
  * Implement efidebug "tables" sub-command.
  * Show UEFI configuration tables.
  */
-static int do_efi_show_tables(cmd_tbl_t *cmdtp, int flag,
-			      int argc, char * const argv[])
+static int do_efi_show_tables(struct cmd_tbl *cmdtp, int flag,
+			      int argc, char *const argv[])
 {
 	efi_uintn_t i;
 	const char *guid_str;
@@ -551,8 +551,8 @@ static int do_efi_show_tables(cmd_tbl_t *cmdtp, int flag,
  *
  *     efidebug boot add <id> <label> <interface> <devnum>[:<part>] <file> <options>
  */
-static int do_efi_boot_add(cmd_tbl_t *cmdtp, int flag,
-			   int argc, char * const argv[])
+static int do_efi_boot_add(struct cmd_tbl *cmdtp, int flag,
+			   int argc, char *const argv[])
 {
 	int id;
 	char *endp;
@@ -650,8 +650,8 @@ out:
  *
  *     efidebug boot rm <id> ...
  */
-static int do_efi_boot_rm(cmd_tbl_t *cmdtp, int flag,
-			  int argc, char * const argv[])
+static int do_efi_boot_rm(struct cmd_tbl *cmdtp, int flag,
+			  int argc, char *const argv[])
 {
 	efi_guid_t guid;
 	int id, i;
@@ -787,8 +787,8 @@ static int u16_tohex(u16 c)
  *
  *     efidebug boot dump
  */
-static int do_efi_boot_dump(cmd_tbl_t *cmdtp, int flag,
-			    int argc, char * const argv[])
+static int do_efi_boot_dump(struct cmd_tbl *cmdtp, int flag,
+			    int argc, char *const argv[])
 {
 	u16 *var_name16, *p;
 	efi_uintn_t buf_size, size;
@@ -956,8 +956,8 @@ out:
  *
  *     efidebug boot next <id>
  */
-static int do_efi_boot_next(cmd_tbl_t *cmdtp, int flag,
-			    int argc, char * const argv[])
+static int do_efi_boot_next(struct cmd_tbl *cmdtp, int flag,
+			    int argc, char *const argv[])
 {
 	u16 bootnext;
 	efi_uintn_t size;
@@ -1005,8 +1005,8 @@ out:
  *
  *     efidebug boot order [<id> ...]
  */
-static int do_efi_boot_order(cmd_tbl_t *cmdtp, int flag,
-			     int argc, char * const argv[])
+static int do_efi_boot_order(struct cmd_tbl *cmdtp, int flag,
+			     int argc, char *const argv[])
 {
 	u16 *bootorder = NULL;
 	efi_uintn_t size;
@@ -1054,7 +1054,7 @@ out:
 	return r;
 }
 
-static cmd_tbl_t cmd_efidebug_boot_sub[] = {
+static struct cmd_tbl cmd_efidebug_boot_sub[] = {
 	U_BOOT_CMD_MKENT(add, CONFIG_SYS_MAXARGS, 1, do_efi_boot_add, "", ""),
 	U_BOOT_CMD_MKENT(rm, CONFIG_SYS_MAXARGS, 1, do_efi_boot_rm, "", ""),
 	U_BOOT_CMD_MKENT(dump, CONFIG_SYS_MAXARGS, 1, do_efi_boot_dump, "", ""),
@@ -1075,10 +1075,10 @@ static cmd_tbl_t cmd_efidebug_boot_sub[] = {
  *
  * Implement efidebug "boot" sub-command.
  */
-static int do_efi_boot_opt(cmd_tbl_t *cmdtp, int flag,
-			   int argc, char * const argv[])
+static int do_efi_boot_opt(struct cmd_tbl *cmdtp, int flag,
+			   int argc, char *const argv[])
 {
-	cmd_tbl_t *cp;
+	struct cmd_tbl *cp;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
@@ -1108,7 +1108,7 @@ static int do_efi_boot_opt(cmd_tbl_t *cmdtp, int flag,
  *
  *     efidebug test bootmgr
  */
-static int do_efi_test_bootmgr(cmd_tbl_t *cmdtp, int flag,
+static int do_efi_test_bootmgr(struct cmd_tbl *cmdtp, int flag,
 			       int argc, char * const argv[])
 {
 	efi_handle_t image;
@@ -1130,7 +1130,7 @@ static int do_efi_test_bootmgr(cmd_tbl_t *cmdtp, int flag,
 	return CMD_RET_SUCCESS;
 }
 
-static cmd_tbl_t cmd_efidebug_test_sub[] = {
+static struct cmd_tbl cmd_efidebug_test_sub[] = {
 	U_BOOT_CMD_MKENT(bootmgr, CONFIG_SYS_MAXARGS, 1, do_efi_test_bootmgr,
 			 "", ""),
 };
@@ -1147,10 +1147,10 @@ static cmd_tbl_t cmd_efidebug_test_sub[] = {
  *
  * Implement efidebug "test" sub-command.
  */
-static int do_efi_test(cmd_tbl_t *cmdtp, int flag,
+static int do_efi_test(struct cmd_tbl *cmdtp, int flag,
 		       int argc, char * const argv[])
 {
-	cmd_tbl_t *cp;
+	struct cmd_tbl *cp;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
@@ -1178,7 +1178,7 @@ static int do_efi_test(cmd_tbl_t *cmdtp, int flag,
  * Implement efidebug "test" sub-command.
  */
 
-static int do_efi_query_info(cmd_tbl_t *cmdtp, int flag,
+static int do_efi_query_info(struct cmd_tbl *cmdtp, int flag,
 			     int argc, char * const argv[])
 {
 	efi_status_t ret;
@@ -1217,7 +1217,7 @@ static int do_efi_query_info(cmd_tbl_t *cmdtp, int flag,
 	return CMD_RET_SUCCESS;
 }
 
-static cmd_tbl_t cmd_efidebug_sub[] = {
+static struct cmd_tbl cmd_efidebug_sub[] = {
 	U_BOOT_CMD_MKENT(boot, CONFIG_SYS_MAXARGS, 1, do_efi_boot_opt, "", ""),
 	U_BOOT_CMD_MKENT(devices, CONFIG_SYS_MAXARGS, 1, do_efi_show_devices,
 			 "", ""),
@@ -1250,10 +1250,10 @@ static cmd_tbl_t cmd_efidebug_sub[] = {
  * Implement efidebug command which allows us to display and
  * configure UEFI environment.
  */
-static int do_efidebug(cmd_tbl_t *cmdtp, int flag,
-		       int argc, char * const argv[])
+static int do_efidebug(struct cmd_tbl *cmdtp, int flag,
+		       int argc, char *const argv[])
 {
-	cmd_tbl_t *cp;
+	struct cmd_tbl *cp;
 	efi_status_t r;
 
 	if (argc < 2)

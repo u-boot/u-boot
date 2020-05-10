@@ -10,6 +10,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <cpu_func.h>
 #include <hang.h>
 #include <init.h>
@@ -187,7 +188,8 @@ int print_cpuinfo(void)
 }
 #endif
 
-int do_mx28_showclocks(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+int do_mx28_showclocks(struct cmd_tbl *cmdtp, int flag, int argc,
+		       char *const argv[])
 {
 	printf("CPU:   %3d MHz\n", mxc_get_clock(MXC_ARM_CLK) / 1000000);
 	printf("BUS:   %3d MHz\n", mxc_get_clock(MXC_AHB_CLK) / 1000000);
