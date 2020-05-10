@@ -185,35 +185,7 @@ static inline void __maybe_unused print_std_bdinfo(const bd_t *bd)
 
 #elif defined(CONFIG_M68K)
 
-int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
-{
-	bd_t *bd = gd->bd;
-
-	print_bi_mem(bd);
-	print_bi_flash(bd);
-#if defined(CONFIG_SYS_INIT_RAM_ADDR)
-	print_num("sramstart",		(ulong)bd->bi_sramstart);
-	print_num("sramsize",		(ulong)bd->bi_sramsize);
-#endif
-#if defined(CONFIG_SYS_MBAR)
-	print_num("mbar",		bd->bi_mbar_base);
-#endif
-	print_mhz("cpufreq",		bd->bi_intfreq);
-	print_mhz("busfreq",		bd->bi_busfreq);
-#ifdef CONFIG_PCI
-	print_mhz("pcifreq",		bd->bi_pcifreq);
-#endif
-#ifdef CONFIG_EXTRA_CLOCK
-	print_mhz("flbfreq",		bd->bi_flbfreq);
-	print_mhz("inpfreq",		bd->bi_inpfreq);
-	print_mhz("vcofreq",		bd->bi_vcofreq);
-#endif
-	print_eth_ip_addr();
-	print_baudrate();
-	print_cpu_word_size();
-
-	return 0;
-}
+#define USE_GENERIC
 
 #elif defined(CONFIG_MIPS)
 
@@ -361,7 +333,6 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		else
 			puts("addressing  = 32-bit\n");
 #endif
-		print_mhz("busfreq", bd->bi_busfreq);
 		board_detail();
 	}
 #if defined(CONFIG_CPM2)
@@ -371,9 +342,27 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	print_mhz("brgfreq", bd->bi_brgfreq);
 #endif
 
+	/* This is used by m68k and ppc */
 #if defined(CONFIG_SYS_INIT_RAM_ADDR)
 	print_num("sramstart", (ulong)bd->bi_sramstart);
 	print_num("sramsize", (ulong)bd->bi_sramsize);
+#endif
+	if (IS_ENABLED(CONFIG_PPC) || IS_ENABLED(CONFIG_M68K))
+		print_mhz("busfreq", bd->bi_busfreq);
+
+	/* The rest are used only by m68k */
+#ifdef CONFIG_M68K
+#if defined(CONFIG_SYS_MBAR)
+	print_num("mbar", bd->bi_mbar_base);
+#endif
+	print_mhz("cpufreq", bd->bi_intfreq);
+	if (IS_ENABLED(CONFIG_PCI))
+		print_mhz("pcifreq", bd->bi_pcifreq);
+#ifdef CONFIG_EXTRA_CLOCK
+	print_mhz("flbfreq", bd->bi_flbfreq);
+	print_mhz("inpfreq", bd->bi_inpfreq);
+	print_mhz("vcofreq", bd->bi_vcofreq);
+#endif
 #endif
 
 	return 0;
