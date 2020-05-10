@@ -101,14 +101,6 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 	arch_print_bdinfo();
 
-	/* This is used by m68k and ppc */
-#if defined(CONFIG_SYS_INIT_RAM_ADDR)
-	bdinfo_print_num("sramstart", (ulong)bd->bi_sramstart);
-	bdinfo_print_num("sramsize", (ulong)bd->bi_sramsize);
-#endif
-	if (IS_ENABLED(CONFIG_PPC) || IS_ENABLED(CONFIG_M68K))
-		bdinfo_print_mhz("busfreq", bd->bi_busfreq);
-
 	return 0;
 }
 

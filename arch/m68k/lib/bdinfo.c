@@ -15,6 +15,11 @@ void arch_print_bdinfo(void)
 {
 	bd_t *bd = gd->bd;
 
+#if defined(CONFIG_SYS_INIT_RAM_ADDR)
+	bdinfo_print_num("sramstart", (ulong)bd->bi_sramstart);
+	bdinfo_print_num("sramsize", (ulong)bd->bi_sramsize);
+#endif
+	bdinfo_print_mhz("busfreq", bd->bi_busfreq);
 #if defined(CONFIG_SYS_MBAR)
 	bdinfo_print_num("mbar", bd->bi_mbar_base);
 #endif
