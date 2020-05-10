@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <asm-offsets.h>
 #include <mpc83xx.h>
 #include <ioports.h>
 #include <asm/io.h>

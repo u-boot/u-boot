@@ -16,7 +16,6 @@
 #include <config.h>
 #include <errno.h>
 #include <time.h>
-#include <asm-offsets.h>
 #include <linux/bitops.h>
 #include <linux/bug.h>
 #include <linux/delay.h>

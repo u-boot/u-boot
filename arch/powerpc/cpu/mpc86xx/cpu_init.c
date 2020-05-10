@@ -9,6 +9,7 @@
  * cpu_init.c - low level cpu init
  */
 
+#include <asm-offsets.h>
 #include <config.h>
 #include <common.h>
 #include <init.h>
