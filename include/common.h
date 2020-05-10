@@ -36,7 +36,6 @@
 #include <asm/global_data.h>	/* global data used for startup functions */
 #include <init.h>
 #include <display_options.h>
-#include <uuid.h>
 #include <vsprintf.h>
 #include <net.h>
 #include <bootstage.h>

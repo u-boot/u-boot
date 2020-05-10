@@ -14,6 +14,7 @@
 #include <hexdump.h>
 #include <malloc.h>
 #include <mapmem.h>
+#include <uuid.h>
 #include <linux/kernel.h>
 
 /*

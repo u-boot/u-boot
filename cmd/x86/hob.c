@@ -6,6 +6,7 @@
 #include <common.h>
 #include <command.h>
 #include <efi.h>
+#include <uuid.h>
 #include <asm/hob.h>
 
 DECLARE_GLOBAL_DATA_PTR;

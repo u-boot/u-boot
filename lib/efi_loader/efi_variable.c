@@ -12,6 +12,7 @@
 #include <malloc.h>
 #include <rtc.h>
 #include <search.h>
+#include <uuid.h>
 #include <crypto/pkcs7_parser.h>
 #include <linux/compat.h>
 #include <u-boot/crc.h>

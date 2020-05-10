@@ -8,6 +8,7 @@
 #include "btrfs.h"
 #include <config.h>
 #include <malloc.h>
+#include <uuid.h>
 #include <linux/time.h>
 
 struct btrfs_info btrfs_info;
