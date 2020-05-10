@@ -22,6 +22,7 @@
 #include <virtio_types.h>
 #include <virtio.h>
 #include <dm/lists.h>
+#include <linux/bug.h>
 
 static const char *const virtio_drv_name[VIRTIO_ID_MAX_NUM] = {
 	[VIRTIO_ID_NET]		= VIRTIO_NET_DRV_NAME,

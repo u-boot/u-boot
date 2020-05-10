@@ -16,6 +16,7 @@
 #include <malloc.h>
 #include <dm/devres.h>
 #include <dm/read.h>
+#include <linux/bug.h>
 #include <linux/clk-provider.h>
 #include <linux/err.h>
 

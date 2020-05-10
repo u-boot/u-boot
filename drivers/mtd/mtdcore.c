@@ -28,6 +28,7 @@
 #include <linux/gfp.h>
 #include <linux/slab.h>
 #else
+#include <linux/bug.h>
 #include <linux/err.h>
 #include <ubi_uboot.h>
 #endif

@@ -10,6 +10,7 @@
 #include <linux/device.h>
 #include <linux/kernel.h>
 #endif
+#include <linux/bug.h>
 #include <linux/mtd/spinand.h>
 
 #define SPINAND_MFR_MACRONIX		0xC2

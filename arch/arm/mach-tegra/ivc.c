@@ -7,6 +7,7 @@
 #include <cpu_func.h>
 #include <asm/io.h>
 #include <asm/arch-tegra/ivc.h>
+#include <linux/bug.h>
 
 #define TEGRA_IVC_ALIGN 64
 

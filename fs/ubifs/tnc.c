@@ -25,6 +25,7 @@
 #include <linux/slab.h>
 #include <u-boot/crc.h>
 #else
+#include <linux/bug.h>
 #include <linux/compat.h>
 #include <linux/err.h>
 #include <linux/stat.h>

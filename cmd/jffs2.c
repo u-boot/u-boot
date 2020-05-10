@@ -77,6 +77,7 @@
 #include <image.h>
 #include <malloc.h>
 #include <jffs2/jffs2.h>
+#include <linux/bug.h>
 #include <linux/list.h>
 #include <linux/ctype.h>
 #include <cramfs/cramfs_fs.h>

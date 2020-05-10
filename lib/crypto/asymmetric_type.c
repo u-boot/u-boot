@@ -14,6 +14,7 @@
 #endif
 #include <crypto/public_key.h>
 #ifdef __UBOOT__
+#include <linux/bug.h>
 #include <linux/compat.h>
 #include <linux/ctype.h>
 #include <linux/err.h>

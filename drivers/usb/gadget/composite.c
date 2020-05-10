@@ -10,6 +10,7 @@
 #include <log.h>
 #include <dm/devres.h>
 #include <linux/bitops.h>
+#include <linux/bug.h>
 #include <linux/usb/composite.h>
 
 #define USB_BUFSIZ	4096

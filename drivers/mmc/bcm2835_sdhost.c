@@ -37,6 +37,7 @@
 #include <asm/arch/mbox.h>
 #include <asm/unaligned.h>
 #include <dm/device_compat.h>
+#include <linux/bug.h>
 #include <linux/compat.h>
 #include <linux/io.h>
 #include <linux/iopoll.h>

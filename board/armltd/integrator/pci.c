@@ -24,6 +24,7 @@
 #include <log.h>
 #include <pci.h>
 #include <asm/io.h>
+#include <linux/bug.h>
 #include "integrator-sc.h"
 #include "pci_v3.h"
 

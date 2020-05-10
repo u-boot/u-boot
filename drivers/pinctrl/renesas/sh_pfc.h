@@ -672,4 +672,5 @@ extern const struct sh_pfc_soc_info r8a77995_pinmux_info;
  */
 #define RCAR_GP_PIN(bank, pin)		(((bank) * 32) + (pin))
 
+#include <linux/bug.h>
 #endif /* __SH_PFC_H */

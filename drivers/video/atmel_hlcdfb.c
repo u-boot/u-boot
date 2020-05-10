@@ -20,6 +20,7 @@
 #include <video.h>
 #include <wait_bit.h>
 #include <atmel_hlcdc.h>
+#include <linux/bug.h>
 
 #if defined(CONFIG_LCD_LOGO)
 #include <bmp_logo.h>

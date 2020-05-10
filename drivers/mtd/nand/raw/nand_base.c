@@ -36,6 +36,7 @@
 #include <malloc.h>
 #include <watchdog.h>
 #include <dm/devres.h>
+#include <linux/bug.h>
 #include <linux/err.h>
 #include <linux/compat.h>
 #include <linux/mtd/mtd.h>

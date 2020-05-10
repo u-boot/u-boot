@@ -13,6 +13,7 @@
 #include <dm/of_access.h>
 #include <dm/of_addr.h>
 #include <asm/io.h>
+#include <linux/bug.h>
 #include <linux/err.h>
 #include <linux/ioport.h>
 #include <linux/io.h>

@@ -21,6 +21,7 @@
 #include <asm/div64.h>
 #else
 #include <div64.h>
+#include <linux/bug.h>
 #include <linux/compat.h>
 #endif
 

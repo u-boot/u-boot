@@ -8,6 +8,7 @@
 
 #ifndef __ASSEMBLY__
 #include <asm/arch/base.h>
+#include <linux/bug.h>
 #endif
 
 #define BCM2835_TIMER_PHYSADDR ({ BUG_ON(!rpi_bcm283x_base); \

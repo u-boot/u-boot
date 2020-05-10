@@ -12,6 +12,7 @@
 #include <log.h>
 #include <net.h>
 #include <phy.h>
+#include <linux/bug.h>
 #include <linux/errno.h>
 #include <net/pcap.h>
 #include "eth_internal.h"

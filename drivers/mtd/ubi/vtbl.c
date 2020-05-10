@@ -55,6 +55,7 @@
 #include <u-boot/crc.h>
 #else
 #include <ubi_uboot.h>
+#include <linux/bug.h>
 #endif
 
 #include <linux/err.h>
