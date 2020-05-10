@@ -111,20 +111,9 @@ static inline void print_bi_dram(const bd_t *bd)
 
 static inline void print_bi_flash(const bd_t *bd)
 {
-#if defined(CONFIG_MICROBLAZE) || defined(CONFIG_SH)
-	print_num("flash start    ",	(ulong)bd->bi_flashstart);
-	print_num("flash size     ",	(ulong)bd->bi_flashsize);
-	print_num("flash offset   ",	(ulong)bd->bi_flashoffset);
-
-#elif defined(CONFIG_NIOS2)
-	print_num("flash start",	(ulong)bd->bi_flashstart);
-	print_num("flash size",		(ulong)bd->bi_flashsize);
-	print_num("flash offset",	(ulong)bd->bi_flashoffset);
-#else
-	print_num("flashstart",		(ulong)bd->bi_flashstart);
-	print_num("flashsize",		(ulong)bd->bi_flashsize);
-	print_num("flashoffset",	(ulong)bd->bi_flashoffset);
-#endif
+	print_num("flashstart", (ulong)bd->bi_flashstart);
+	print_num("flashsize", (ulong)bd->bi_flashsize);
+	print_num("flashoffset", (ulong)bd->bi_flashoffset);
 }
 
 static inline void print_eth_ip_addr(void)
