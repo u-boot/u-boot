@@ -123,12 +123,12 @@ long int fixed_sdram (void)
 
 	asm ("sync;isync");
 
-	udelay (500);
+	udelay(500);
 
 	ddr->sdram_cfg = CONFIG_SYS_DDR_CFG_1B;
 	asm ("sync; isync");
 
-	udelay (500);
+	udelay(500);
 	ddr = &immap->im_ddr2;
 
 	ddr->cs0_bnds = CONFIG_SYS_DDR2_CS0_BNDS;
@@ -154,12 +154,12 @@ long int fixed_sdram (void)
 
 	asm ("sync;isync");
 
-	udelay (500);
+	udelay(500);
 
 	ddr->sdram_cfg = CONFIG_SYS_DDR2_CFG_1B;
 	asm ("sync; isync");
 
-	udelay (500);
+	udelay(500);
 #endif
 	return CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
 }

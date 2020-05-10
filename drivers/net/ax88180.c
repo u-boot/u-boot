@@ -118,7 +118,7 @@ static int ax88180_phy_reset (struct eth_device *dev)
 
 	/* Wait for the reset to complete, or time out (500 ms) */
 	while (ax88180_mdio_read (dev, MII_BMCR) & BMCR_RESET) {
-		udelay (1000);
+		udelay(1000);
 		if (--delay_cnt == 0) {
 			printf ("Failed to reset PHY!\n");
 			return -1;
@@ -177,7 +177,7 @@ static int ax88180_poll_tx_complete (struct eth_device *dev)
 		if ((tmpval & txbs_txdp) == 0)
 			break;
 
-		udelay (100);
+		udelay(100);
 	}
 
 	if (TimeOutCnt)
@@ -342,7 +342,7 @@ static void ax88180_media_config (struct eth_device *dev)
 		if (bmsr_val & BMSR_LSTATUS) {
 			break;
 		}
-		udelay (100);
+		udelay(100);
 	}
 
 	bmsr_val = ax88180_mdio_read (dev, MII_BMSR);
@@ -364,7 +364,7 @@ static void ax88180_media_config (struct eth_device *dev)
 				if (bmsr_val & BMSR_ANEGCOMPLETE) {
 					break;
 				}
-				udelay (100);
+				udelay(100);
 			}
 		} else
 			debug ("ax88180: Auto-negotiation is disabled.\n");
@@ -680,7 +680,7 @@ static void ax88180_read_mac_addr (struct eth_device *dev)
 		tmp_regval = INW (dev, PROMCTRL);
 		if ((tmp_regval & RELOAD_EEPROM) == 0)
 			break;
-		udelay (1000);
+		udelay(1000);
 	}
 
 	/* Get MAC addresses */

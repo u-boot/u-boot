@@ -23,7 +23,7 @@ ulong get_timer (ulong base)
 	return get_timer_masked ();
 }
 
-void __udelay (unsigned long usec)
+void __udelay(unsigned long usec)
 {
 	ulong tmo;
 	ulong endtime;

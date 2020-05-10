@@ -116,9 +116,9 @@ int StratixII_ps_fpp_load (Altera_desc * desc, void *buf, size_t bsize,
 
 	/* 2. Strat burn cycle by deasserting config for t_CFG and waiting t_CF2CK after reaserted */
 	fns->config (0, 1, cookie);
-	udelay (5);		/* nCONFIG low pulse width 2usec */
+	udelay(5);		/* nCONFIG low pulse width 2usec */
 	fns->config (1, 1, cookie);
-	udelay (100);		/* nCONFIG high to first rising edge on DCLK */
+	udelay(100);		/* nCONFIG high to first rising edge on DCLK */
 
 	/* 3. Start the Data cycle with clk deasserted */
 	bytecount = 0;
@@ -168,7 +168,7 @@ int StratixII_ps_fpp_load (Altera_desc * desc, void *buf, size_t bsize,
 
 	/* 4. Set one last clock and check conf done signal */
 	fns->clk (1, 1, cookie);
-	udelay (100);
+	udelay(100);
 	if (!fns->done (cookie)) {
 		printf (" error!.\n");
 		fns->abort (cookie);

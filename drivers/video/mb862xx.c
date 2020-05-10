@@ -79,7 +79,7 @@ static void gdc_sw_reset (void)
 	GraphicDevice *dev = &mb862xx;
 
 	HOST_WR_REG (GC_SRST, 0x1);
-	udelay (500);
+	udelay(500);
 	video_hw_init ();
 }
 
@@ -222,9 +222,9 @@ unsigned int pci_video_init (void)
 
 	/* Setup clocks and memory mode for Coral-P(A) */
 	HOST_WR_REG(GC_CCF, CONFIG_SYS_MB862xx_CCF);
-	udelay (200);
+	udelay(200);
 	HOST_WR_REG(GC_MMR, CONFIG_SYS_MB862xx_MMR);
-	udelay (100);
+	udelay(100);
 	return dev->frameAdrs;
 }
 

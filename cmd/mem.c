@@ -189,7 +189,7 @@ static int do_mem_mdc(struct cmd_tbl *cmdtp, int flag, int argc,
 
 		/* delay for <count> ms... */
 		for (i=0; i<count; i++)
-			udelay (1000);
+			udelay(1000);
 
 		/* check for ctrl-c to abort... */
 		if (ctrlc()) {
@@ -217,7 +217,7 @@ static int do_mem_mwc(struct cmd_tbl *cmdtp, int flag, int argc,
 
 		/* delay for <count> ms... */
 		for (i=0; i<count; i++)
-			udelay (1000);
+			udelay(1000);
 
 		/* check for ctrl-c to abort... */
 		if (ctrlc()) {
