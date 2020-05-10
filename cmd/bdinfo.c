@@ -339,19 +339,7 @@ static int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc,
 
 #elif defined(CONFIG_NDS32)
 
-int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
-{
-	bd_t *bd = gd->bd;
-
-	print_num("arch_number",	bd->bi_arch_number);
-	print_bi_boot_params(bd);
-	print_bi_dram(bd);
-	print_eth_ip_addr();
-	print_baudrate();
-	print_cpu_word_size();
-
-	return 0;
-}
+#define USE_GENERIC
 
 #elif defined(CONFIG_RISCV)
 
