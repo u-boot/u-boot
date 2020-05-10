@@ -89,13 +89,6 @@ static void print_bi_dram(const bd_t *bd)
 #endif
 }
 
-static void print_bi_flash(const bd_t *bd)
-{
-	print_num("flashstart", (ulong)bd->bi_flashstart);
-	print_num("flashsize", (ulong)bd->bi_flashsize);
-	print_num("flashoffset", (ulong)bd->bi_flashoffset);
-}
-
 static void print_eth_ip_addr(void)
 {
 #if defined(CONFIG_CMD_NET)
@@ -137,7 +130,9 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	print_bi_dram(bd);
 	print_num("memstart", (ulong)bd->bi_memstart);
 	print_lnum("memsize", (u64)bd->bi_memsize);
-	print_bi_flash(bd);
+	print_num("flashstart", (ulong)bd->bi_flashstart);
+	print_num("flashsize", (ulong)bd->bi_flashsize);
+	print_num("flashoffset", (ulong)bd->bi_flashoffset);
 	print_eth_ip_addr();
 	printf("baudrate    = %u bps\n", gd->baudrate);
 	print_num("relocaddr", gd->relocaddr);
