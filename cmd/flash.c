@@ -411,13 +411,12 @@ int flash_sect_erase(ulong addr_first, ulong addr_last)
 		     ++bank, ++info) {
 			if (s_first[bank]>=0) {
 				erased += s_last[bank] - s_first[bank] + 1;
-				debug ("Erase Flash from 0x%08lx to 0x%08lx "
-					"in Bank # %ld ",
-					info->start[s_first[bank]],
-					(s_last[bank] == info->sector_count) ?
-						info->start[0] + info->size - 1:
-						info->start[s_last[bank]+1] - 1,
-					bank+1);
+				debug("Erase Flash from 0x%08lx to 0x%08lx in Bank # %ld ",
+				      info->start[s_first[bank]],
+				      (s_last[bank] == info->sector_count) ?
+				      info->start[0] + info->size - 1 :
+				      info->start[s_last[bank] + 1] - 1,
+				      bank + 1);
 				rcode = flash_erase(info, s_first[bank],
 						    s_last[bank]);
 			}
@@ -612,9 +611,9 @@ int flash_sect_protect(int p, ulong addr_first, ulong addr_last)
 			}
 
 			if (s_first[bank]>=0 && s_first[bank]<=s_last[bank]) {
-				debug ("%sProtecting sectors %d..%d in bank %ld\n",
-					p ? "" : "Un-",
-					s_first[bank], s_last[bank], bank+1);
+				debug("%sProtecting sectors %d..%d in bank %ld\n",
+				      p ? "" : "Un-", s_first[bank],
+				      s_last[bank], bank + 1);
 				protected += s_last[bank] - s_first[bank] + 1;
 				for (i=s_first[bank]; i<=s_last[bank]; ++i) {
 #if defined(CONFIG_SYS_FLASH_PROTECTION)

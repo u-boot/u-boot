@@ -49,7 +49,7 @@ int dram_init(void)
 	dram_size = fixed_sdram ();
 #endif
 
-	debug ("    DDR: ");
+	debug("    DDR: ");
 	gd->ram_size = dram_size;
 
 	return 0;

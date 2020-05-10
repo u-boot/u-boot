@@ -41,7 +41,7 @@ flash_protect(int flag, ulong from, ulong to, flash_info_t *info)
 
 	debug("%s %s: from 0x%08lX to 0x%08lX\n", __func__,
 	      (flag & FLAG_PROTECT_SET) ? "ON" :
-		      (flag & FLAG_PROTECT_CLEAR) ? "OFF" : "???",
+	      (flag & FLAG_PROTECT_CLEAR) ? "OFF" : "???",
 	      from, to);
 
 	/* There is nothing to do if we have no data about the flash
@@ -67,7 +67,7 @@ flash_protect(int flag, ulong from, ulong to, flash_info_t *info)
 #else
 				info->protect[i] = 0;
 #endif	/* CONFIG_SYS_FLASH_PROTECTION */
-				debug ("protect off %d\n", i);
+				debug("protect off %d\n", i);
 			}
 			else if (flag & FLAG_PROTECT_SET) {
 #if defined(CONFIG_SYS_FLASH_PROTECTION)
@@ -75,7 +75,7 @@ flash_protect(int flag, ulong from, ulong to, flash_info_t *info)
 #else
 				info->protect[i] = 1;
 #endif	/* CONFIG_SYS_FLASH_PROTECTION */
-				debug ("protect on %d\n", i);
+				debug("protect on %d\n", i);
 			}
 		}
 	}
