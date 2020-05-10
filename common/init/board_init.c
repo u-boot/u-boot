@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <bootstage.h>
+#include <init.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

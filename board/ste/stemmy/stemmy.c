@@ -3,6 +3,7 @@
  * Copyright (C) 2019 Stephan Gerhold <stephan@gerhold.net>
  */
 #include <common.h>
+#include <init.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

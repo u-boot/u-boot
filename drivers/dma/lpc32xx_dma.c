@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <errno.h>
+#include <init.h>
 #include <asm/arch/dma.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/clk.h>

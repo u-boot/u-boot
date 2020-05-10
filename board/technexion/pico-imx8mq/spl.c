@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <hang.h>
+#include <init.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/ddr.h>
 #include <asm/arch/imx8mq_pins.h>

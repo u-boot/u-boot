@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <env.h>
 #include <i2c.h>
+#include <init.h>
 #include <wdt.h>
 #include <asm/gpio.h>
 #include <linux/mbus.h>

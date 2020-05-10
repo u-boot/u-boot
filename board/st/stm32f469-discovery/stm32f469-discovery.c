@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <init.h>
 
 #include <asm/io.h>
 #include <asm/arch/stm32.h>

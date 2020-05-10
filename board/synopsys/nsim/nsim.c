@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <dm/device.h>
 #include <virtio_types.h>
 #include <virtio.h>

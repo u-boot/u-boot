@@ -8,6 +8,7 @@
 #include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <init.h>
 #include <ram.h>
 #include <asm/arch/misc.h>
 #include <asm/sections.h>

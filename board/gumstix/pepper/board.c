@@ -9,6 +9,7 @@
 #include <common.h>
 #include <env.h>
 #include <errno.h>
+#include <init.h>
 #include <net.h>
 #include <serial.h>
 #include <spl.h>

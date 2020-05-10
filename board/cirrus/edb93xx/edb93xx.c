@@ -16,6 +16,7 @@
 #include <config.h>
 #include <common.h>
 #include <cpu_func.h>
+#include <init.h>
 #include <irq_func.h>
 #include <net.h>
 #include <netdev.h>

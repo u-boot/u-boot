@@ -16,6 +16,7 @@
 #include <bootstage.h>
 #include <dm.h>
 #include <env.h>
+#include <init.h>
 #include <net.h>
 #include <ns16550.h>
 #include <serial.h>

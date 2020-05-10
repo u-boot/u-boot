@@ -6,6 +6,7 @@
  * Steve Sakoman  <steve@sakoman.com>
  */
 #include <common.h>
+#include <init.h>
 #include <net.h>
 #include <palmas.h>
 #include <asm/arch/omap.h>

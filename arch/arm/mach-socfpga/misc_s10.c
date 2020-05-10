@@ -9,6 +9,7 @@
 #include <env.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <init.h>
 #include <miiphy.h>
 #include <netdev.h>
 #include <asm/io.h>

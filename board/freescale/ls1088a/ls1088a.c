@@ -5,6 +5,7 @@
 #include <common.h>
 #include <env.h>
 #include <i2c.h>
+#include <init.h>
 #include <malloc.h>
 #include <errno.h>
 #include <netdev.h>

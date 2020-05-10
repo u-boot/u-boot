@@ -7,6 +7,7 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <hang.h>
+#include <init.h>
 #include <spl.h>
 #include <asm/cache.h>
 #include <asm/io.h>

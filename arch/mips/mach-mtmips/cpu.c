@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <malloc.h>
 #include <linux/io.h>
 #include <linux/sizes.h>

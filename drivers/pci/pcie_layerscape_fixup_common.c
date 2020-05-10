@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/soc.h>
 #include "pcie_layerscape_fixup_common.h"

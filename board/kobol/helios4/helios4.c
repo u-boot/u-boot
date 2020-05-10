@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <i2c.h>
+#include <init.h>
 #include <miiphy.h>
 #include <net.h>
 #include <netdev.h>

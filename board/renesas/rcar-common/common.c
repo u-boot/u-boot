@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <init.h>
 #include <dm/uclass-internal.h>
 #include <asm/arch/rmobile.h>
 #include <linux/libfdt.h>

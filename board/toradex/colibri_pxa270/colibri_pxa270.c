@@ -9,6 +9,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <init.h>
 #include <net.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/pxa.h>

@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <miiphy.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>

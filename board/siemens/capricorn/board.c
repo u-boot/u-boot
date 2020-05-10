@@ -8,6 +8,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <init.h>
 #include <netdev.h>
 #include <env_internal.h>
 #include <fsl_esdhc_imx.h>

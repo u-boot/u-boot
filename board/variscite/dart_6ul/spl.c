@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <spl.h>
 #include <asm/arch/clock.h>
 #include <asm/io.h>

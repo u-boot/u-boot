@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <handoff.h>
+#include <init.h>
 #include <asm/cpu_common.h>
 #include <asm/intel_regs.h>
 #include <asm/lapic.h>

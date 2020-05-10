@@ -8,6 +8,7 @@
 #include <bootstage.h>
 #include <dm.h>
 #include <errno.h>
+#include <init.h>
 #include <time.h>
 #include <timer.h>
 #include <watchdog.h>

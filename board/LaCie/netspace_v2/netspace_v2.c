@@ -11,6 +11,7 @@
 #include <common.h>
 #include <command.h>
 #include <env.h>
+#include <init.h>
 #include <net.h>
 #include <asm/mach-types.h>
 #include <asm/arch/cpu.h>

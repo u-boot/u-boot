@@ -8,6 +8,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <fdtdec.h>
+#include <init.h>
 #include <usb.h>
 #include <asm/io.h>
 #include <asm/msr.h>

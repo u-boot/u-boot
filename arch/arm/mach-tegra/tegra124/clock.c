@@ -7,6 +7,7 @@
 /* Tegra124 Clock control functions */
 
 #include <common.h>
+#include <init.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sysctr.h>

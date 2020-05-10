@@ -12,6 +12,7 @@
 #include <env.h>
 #include <env_internal.h>
 #include <hang.h>
+#include <init.h>
 #include <malloc.h>
 #include <netdev.h>
 #include <dm.h>

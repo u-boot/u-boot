@@ -1,6 +1,7 @@
 /* DRAM parameters for auto dram configuration on sun5i and sun7i */
 
 #include <common.h>
+#include <init.h>
 #include <asm/arch/dram.h>
 
 static struct dram_para dram_para = {

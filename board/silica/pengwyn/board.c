@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <env.h>
+#include <init.h>
 #include <net.h>
 #include <serial.h>
 #include <asm/arch/cpu.h>

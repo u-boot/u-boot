@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 
 #ifdef CONFIG_SPL_BUILD
 /* provided to defeat compiler optimisation in board_init_f() */

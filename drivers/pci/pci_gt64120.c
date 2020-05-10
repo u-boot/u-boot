@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <gt64120.h>
+#include <init.h>
 #include <pci.h>
 #include <pci_gt64120.h>
 

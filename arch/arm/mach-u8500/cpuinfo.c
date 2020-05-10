@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/io.h>
 
 #define U8500_BOOTROM_BASE	0x90000000

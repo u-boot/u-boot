@@ -7,6 +7,7 @@
 #include <debug_uart.h>
 #include <dm.h>
 #include <dt-structs.h>
+#include <init.h>
 #include <ram.h>
 #include <regmap.h>
 #include <syscon.h>

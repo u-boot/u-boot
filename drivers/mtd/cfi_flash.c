@@ -23,6 +23,7 @@
 #include <errno.h>
 #include <fdt_support.h>
 #include <flash.h>
+#include <init.h>
 #include <irq_func.h>
 #include <asm/processor.h>
 #include <asm/io.h>

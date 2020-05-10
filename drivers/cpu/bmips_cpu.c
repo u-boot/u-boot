@@ -11,6 +11,7 @@
 #include <cpu.h>
 #include <dm.h>
 #include <errno.h>
+#include <init.h>
 #include <asm/io.h>
 
 #define REV_CHIPID_SHIFT		16

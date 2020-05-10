@@ -6,6 +6,7 @@
 
 /* Generic FPGA support */
 #include <common.h>             /* core U-Boot definitions */
+#include <init.h>
 #include <xilinx.h>             /* xilinx specific definitions */
 #include <altera.h>             /* altera specific definitions */
 #include <lattice.h>

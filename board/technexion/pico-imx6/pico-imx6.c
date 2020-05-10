@@ -6,6 +6,7 @@
  * Author: Fabio Estevam <festevam@gmail.com>
  */
 
+#include <init.h>
 #include <net.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>

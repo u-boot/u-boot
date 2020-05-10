@@ -6,6 +6,7 @@
 #include <common.h>
 #include <command.h>
 #include <errno.h>
+#include <init.h>
 #include <os.h>
 #include <cli.h>
 #include <sort.h>

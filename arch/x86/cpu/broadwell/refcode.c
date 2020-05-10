@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <errno.h>
+#include <init.h>
 #include <asm/arch/pei_data.h>
 
 #define RMODULE_MAGIC		0xf8fe

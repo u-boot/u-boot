@@ -13,6 +13,7 @@
 #include <common.h>
 #include <debug_uart.h>
 #include <fdtdec.h>
+#include <init.h>
 #include <spl.h>
 #include <asm/arch/sys_proto.h>
 #include <linux/sizes.h>

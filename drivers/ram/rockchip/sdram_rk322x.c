@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <dt-structs.h>
 #include <errno.h>
+#include <init.h>
 #include <ram.h>
 #include <regmap.h>
 #include <syscon.h>

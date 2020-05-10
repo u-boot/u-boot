@@ -8,6 +8,7 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <init.h>
 #include <linux/libfdt.h>
 #include <asm/io.h>
 #include <asm/system.h>

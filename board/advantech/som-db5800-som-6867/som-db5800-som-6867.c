@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/fsp1/fsp_support.h>
 
 /* ALC262 Verb Table - 10EC0262 */

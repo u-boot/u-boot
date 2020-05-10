@@ -13,6 +13,7 @@
 #include <common.h>
 #include <clock_legacy.h>
 #include <env.h>
+#include <init.h>
 #include <pci.h>
 #include <uuid.h>
 #include <asm/processor.h>

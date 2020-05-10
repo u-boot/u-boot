@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <asm/cache.h>
+#include <init.h>
 #include <asm/io.h>
 #include <asm/arch/hi3660.h>
 #include <asm/armv8/mmu.h>

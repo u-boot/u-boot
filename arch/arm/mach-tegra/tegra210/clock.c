@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <errno.h>
+#include <init.h>
 #include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>

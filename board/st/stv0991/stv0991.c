@@ -7,6 +7,7 @@
 #include <common.h>
 #include <bootstage.h>
 #include <dm.h>
+#include <init.h>
 #include <miiphy.h>
 #include <net.h>
 #include <asm/arch/stv0991_periph.h>

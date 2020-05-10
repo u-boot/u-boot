@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <irq_func.h>
 
 #include <asm/timer.h>

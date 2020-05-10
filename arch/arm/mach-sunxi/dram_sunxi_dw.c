@@ -9,6 +9,7 @@
  * (C) Copyright 2015      Jens Kuske <jenskuske@gmail.com>
  */
 #include <common.h>
+#include <init.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/dram.h>

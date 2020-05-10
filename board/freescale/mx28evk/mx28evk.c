@@ -12,6 +12,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <net.h>
 #include <asm/gpio.h>
 #include <asm/io.h>

@@ -11,6 +11,7 @@
 #include <div64.h>
 #include <fdtdec.h>
 #include <hang.h>
+#include <init.h>
 #include <ram.h>
 #include <reset.h>
 #include "sdram_soc64.h"

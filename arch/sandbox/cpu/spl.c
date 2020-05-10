@@ -6,6 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <hang.h>
+#include <init.h>
 #include <os.h>
 #include <spl.h>
 #include <asm/spl.h>

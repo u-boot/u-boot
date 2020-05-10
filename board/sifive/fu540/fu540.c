@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <init.h>
 #include <linux/delay.h>
 #include <linux/io.h>
 

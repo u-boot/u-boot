@@ -7,6 +7,7 @@
 #include <bootstage.h>
 #include <dm.h>
 #include <errno.h>
+#include <init.h>
 #include <timer.h>
 #include <asm/io.h>
 #include <linux/err.h>

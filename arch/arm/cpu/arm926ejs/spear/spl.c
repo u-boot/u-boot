@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <spl.h>
 #include <version.h>
 #include <asm/io.h>

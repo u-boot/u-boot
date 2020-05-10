@@ -9,6 +9,7 @@
  */
 #include <common.h>
 #include <hang.h>
+#include <init.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/hardware.h>

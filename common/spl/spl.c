@@ -13,6 +13,7 @@
 #include <dm.h>
 #include <handoff.h>
 #include <hang.h>
+#include <init.h>
 #include <irq_func.h>
 #include <serial.h>
 #include <spl.h>

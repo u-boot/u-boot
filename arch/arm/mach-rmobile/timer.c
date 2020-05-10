@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <div64.h>
+#include <init.h>
 #include <time.h>
 #include <asm/io.h>
 #include <asm/arch-armv7/globaltimer.h>

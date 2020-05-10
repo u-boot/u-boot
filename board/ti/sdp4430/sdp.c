@@ -6,6 +6,7 @@
  * Steve Sakoman  <steve@sakoman.com>
  */
 #include <common.h>
+#include <init.h>
 #include <net.h>
 #include <twl6030.h>
 #include <asm/arch/sys_proto.h>

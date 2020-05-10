@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <hang.h>
 #include <image.h>
+#include <init.h>
 #include <spl.h>
 #include <asm/cpu.h>
 #include <asm/mtrr.h>

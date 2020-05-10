@@ -4,6 +4,7 @@
  * Copyright (C) 2019 Parthiban Nallathambi <parthitce@gmail.com>
  */
 
+#include <init.h>
 #include <net.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>

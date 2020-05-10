@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <init.h>
 #include <linux/compiler.h>
 #include <asm/cache.h>
 #include <asm/mipsregs.h>

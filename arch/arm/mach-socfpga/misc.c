@@ -7,6 +7,7 @@
 #include <cpu_func.h>
 #include <hang.h>
 #include <asm/cache.h>
+#include <init.h>
 #include <asm/io.h>
 #include <errno.h>
 #include <fdtdec.h>

@@ -6,6 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <init.h>
 #include <virtio_types.h>
 #include <virtio.h>
 

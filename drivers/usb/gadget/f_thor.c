@@ -18,6 +18,7 @@
 #include <errno.h>
 #include <common.h>
 #include <console.h>
+#include <init.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <version.h>

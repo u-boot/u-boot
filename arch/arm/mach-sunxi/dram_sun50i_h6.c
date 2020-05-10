@@ -1,11 +1,12 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * sun50i H6 platform dram controller init
  *
  * (C) Copyright 2017      Icenowy Zheng <icenowy@aosc.io>
  *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <init.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/dram.h>

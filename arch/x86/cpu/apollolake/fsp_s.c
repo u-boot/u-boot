@@ -8,6 +8,7 @@
 #include <binman.h>
 #include <bootstage.h>
 #include <dm.h>
+#include <init.h>
 #include <irq.h>
 #include <malloc.h>
 #include <acpi/acpi_s3.h>

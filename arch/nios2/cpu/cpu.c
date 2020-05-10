@@ -9,6 +9,7 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>
+#include <init.h>
 #include <irq_func.h>
 #include <asm/cache.h>
 

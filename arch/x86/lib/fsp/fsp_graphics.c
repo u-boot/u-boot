@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <init.h>
 #include <vbe.h>
 #include <video.h>
 #include <asm/fsp/fsp_support.h>

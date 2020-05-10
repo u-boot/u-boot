@@ -11,6 +11,7 @@
 #include <common.h>
 #include <clock_legacy.h>
 #include <div64.h>
+#include <init.h>
 #include <net.h>
 #include <netdev.h>
 #include <vsprintf.h>

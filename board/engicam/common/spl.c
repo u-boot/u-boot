@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <image.h>
+#include <init.h>
 #include <serial.h>
 #include <spl.h>
 

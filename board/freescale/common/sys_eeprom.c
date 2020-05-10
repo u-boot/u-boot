@@ -10,6 +10,7 @@
 #include <command.h>
 #include <env.h>
 #include <i2c.h>
+#include <init.h>
 #include <linux/ctype.h>
 #include <u-boot/crc.h>
 

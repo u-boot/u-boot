@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <env.h>
+#include <init.h>
 #include <malloc.h>
 #include <netdev.h>
 #include <dm.h>

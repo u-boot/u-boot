@@ -13,6 +13,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <init.h>
 #include <ram.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>

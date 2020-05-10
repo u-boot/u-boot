@@ -2,6 +2,7 @@
 /*
  * (C) Copyright 2019 Rockchip Electronics Co., Ltd
  */
+#include <init.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/bootrom.h>
 #include <asm/arch-rockchip/grf_rk322x.h>

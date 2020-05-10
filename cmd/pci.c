@@ -18,6 +18,7 @@
 #include <command.h>
 #include <console.h>
 #include <dm.h>
+#include <init.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <pci.h>

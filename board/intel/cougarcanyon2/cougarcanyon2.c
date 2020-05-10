@@ -6,6 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <init.h>
 #include <pci.h>
 #include <smsc_sio1007.h>
 #include <asm/ibmpc.h>

@@ -31,7 +31,6 @@
 #include <log.h>
 #include <asm/u-boot.h> /* boot information for Linux kernel */
 #include <asm/global_data.h>	/* global data used for startup functions */
-#include <init.h>
 #include <display_options.h>
 #include <vsprintf.h>
 #endif	/* __ASSEMBLY__ */

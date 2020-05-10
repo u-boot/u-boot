@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <init.h>
 #include <linux/compiler.h>
 #include <fsl_errata.h>
 #include <asm/processor.h>

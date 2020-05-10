@@ -5,6 +5,7 @@
  * Author: Richard Hu <richard.hu@technexion.com>
  */
 
+#include <init.h>
 #include <net.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/iomux.h>

@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <malloc.h>
 #include <errno.h>
 #include <fsl_ddr.h>

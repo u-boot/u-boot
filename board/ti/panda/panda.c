@@ -5,6 +5,7 @@
  * Steve Sakoman  <steve@sakoman.com>
  */
 #include <common.h>
+#include <init.h>
 #include <net.h>
 #include <asm/mach-types.h>
 #include <asm/arch/sys_proto.h>

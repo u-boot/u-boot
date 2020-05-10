@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <time.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/hardware.h>

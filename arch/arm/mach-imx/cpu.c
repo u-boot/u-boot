@@ -8,6 +8,7 @@
 
 #include <bootm.h>
 #include <common.h>
+#include <init.h>
 #include <net.h>
 #include <netdev.h>
 #include <linux/errno.h>

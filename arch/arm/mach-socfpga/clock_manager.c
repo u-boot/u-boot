@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <wait_bit.h>
 #include <asm/io.h>
 #include <asm/arch/clock_manager.h>

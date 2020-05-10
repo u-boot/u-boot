@@ -14,6 +14,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <net.h>
 #include <vsprintf.h>
 #include <watchdog.h>

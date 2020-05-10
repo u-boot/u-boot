@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/armv8/mmu.h>
 #include <asm/cache.h>
 #include <asm/io.h>

@@ -15,6 +15,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <init.h>
 #include <pch.h>
 #include <asm/cpu.h>
 #include <asm/cpu_common.h>
