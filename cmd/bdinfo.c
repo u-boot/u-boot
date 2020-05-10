@@ -17,12 +17,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-__maybe_unused void print_cpu_word_size(void)
+void print_cpu_word_size(void)
 {
 	printf("%-12s= %u-bit\n", "Build", (uint)sizeof(void *) * 8);
 }
 
-__maybe_unused
 static void print_num(const char *name, ulong value)
 {
 	printf("%-12s= 0x%0*lx\n", name, 2 * (int)sizeof(value), value);
@@ -63,13 +62,11 @@ static void print_eths(void)
 }
 #endif
 
-__maybe_unused
 static void print_lnum(const char *name, unsigned long long value)
 {
 	printf("%-12s= 0x%.8llX\n", name, value);
 }
 
-__maybe_unused
 static void print_mhz(const char *name, unsigned long hz)
 {
 	char buf[32];
@@ -162,7 +159,7 @@ static inline void print_baudrate(void)
 #endif
 }
 
-static inline void __maybe_unused print_std_bdinfo(const bd_t *bd)
+static inline void print_std_bdinfo(const bd_t *bd)
 {
 	print_bi_boot_params(bd);
 	print_bi_mem(bd);
