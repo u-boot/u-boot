@@ -3,9 +3,10 @@
  * Copyright (C) 2013-2014 Synopsys, Inc. All rights reserved.
  */
 
+#include <common.h>
+#include <bootstage.h>
 #include <irq_func.h>
 #include <asm/cache.h>
-#include <common.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

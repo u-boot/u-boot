@@ -12,6 +12,7 @@
 
 #include <common.h>
 #include <blk.h>
+#include <bootstage.h>
 #include <command.h>
 #include <console.h>
 #include <dm.h>

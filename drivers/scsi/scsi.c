@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <blk.h>
+#include <bootstage.h>
 #include <dm.h>
 #include <env.h>
 #include <part.h>

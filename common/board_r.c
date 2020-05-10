@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <api.h>
+#include <bootstage.h>
 #include <cpu_func.h>
 #include <exports.h>
 #include <flash.h>

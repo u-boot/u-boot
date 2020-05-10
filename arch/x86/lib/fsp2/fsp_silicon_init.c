@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <binman.h>
+#include <bootstage.h>
 #include <dm.h>
 #include <asm/arch/fsp/fsp_configs.h>
 #include <asm/arch/fsp/fsp_s_upd.h>

@@ -20,6 +20,7 @@
  */
 
 #include <common.h>
+#include <bootstage.h>
 #include <image.h>
 #include <asm/cache.h>
 #include <linux/mtd/mtd.h>

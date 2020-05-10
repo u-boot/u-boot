@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <bootstage.h>
 #include <dm.h>
 #include <errno.h>
 #include <time.h>

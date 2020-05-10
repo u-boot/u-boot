@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <bootstage.h>
 #include <dm.h>
 #include <dm/ofnode.h>
 #include <mapmem.h>

@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <bootstage.h>
 
 static int do_bootstage_report(cmd_tbl_t *cmdtp, int flag, int argc,
 			       char * const argv[])

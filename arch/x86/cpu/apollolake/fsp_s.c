@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <binman.h>
+#include <bootstage.h>
 #include <dm.h>
 #include <irq.h>
 #include <malloc.h>

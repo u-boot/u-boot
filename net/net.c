@@ -88,6 +88,7 @@
 
 
 #include <common.h>
+#include <bootstage.h>
 #include <command.h>
 #include <console.h>
 #include <env.h>

@@ -35,7 +35,6 @@
 #include <init.h>
 #include <display_options.h>
 #include <vsprintf.h>
-#include <bootstage.h>
 #endif	/* __ASSEMBLY__ */
 
 /* Pull in stuff for the build system */

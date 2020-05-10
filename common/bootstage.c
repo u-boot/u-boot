@@ -10,6 +10,7 @@
  */
 
 #include <common.h>
+#include <bootstage.h>
 #include <hang.h>
 #include <malloc.h>
 #include <sort.h>

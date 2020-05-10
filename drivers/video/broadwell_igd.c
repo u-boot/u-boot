@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <bios_emul.h>
+#include <bootstage.h>
 #include <dm.h>
 #include <init.h>
 #include <vbe.h>

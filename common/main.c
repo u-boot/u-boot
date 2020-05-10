@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <autoboot.h>
+#include <bootstage.h>
 #include <cli.h>
 #include <command.h>
 #include <console.h>

@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <bootstage.h>
 #include <cli.h>
 #include <cli_hush.h>
 #include <command.h>

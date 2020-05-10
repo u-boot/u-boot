@@ -9,6 +9,7 @@
 #include <common.h>
 #include <bloblist.h>
 #include <binman_sym.h>
+#include <bootstage.h>
 #include <dm.h>
 #include <handoff.h>
 #include <hang.h>

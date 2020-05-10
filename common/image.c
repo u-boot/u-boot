@@ -8,6 +8,7 @@
 
 #ifndef USE_HOSTCC
 #include <common.h>
+#include <bootstage.h>
 #include <cpu_func.h>
 #include <env.h>
 #include <malloc.h>

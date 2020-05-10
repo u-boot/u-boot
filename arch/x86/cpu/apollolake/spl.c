@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <binman_sym.h>
+#include <bootstage.h>
 #include <dm.h>
 #include <malloc.h>
 #include <spi.h>
