@@ -61,7 +61,6 @@ typedef struct bd_info {
 	unsigned long	bi_vco;		/* VCO Out from PLL, in MHz */
 #endif
 #if defined(CONFIG_M68K)
-	unsigned long	bi_ipbfreq;	/* IPB Bus Freq, in MHz */
 	unsigned long	bi_pcifreq;	/* PCI Bus Freq, in MHz */
 #endif
 #if defined(CONFIG_EXTRA_CLOCK)
