@@ -22,7 +22,6 @@ static void print_num(const char *name, ulong value)
 	printf("%-12s= 0x%0*lx\n", name, 2 * (int)sizeof(value), value);
 }
 
-__maybe_unused
 static void print_eth(int idx)
 {
 	char name[10], *val;
@@ -63,14 +62,6 @@ static void print_bi_dram(const bd_t *bd)
 #endif
 }
 
-static void print_eth_ip_addr(void)
-{
-#if defined(CONFIG_CMD_NET)
-	print_eth(0);
-	printf("IP addr     = %s\n", env_get("ipaddr"));
-#endif
-}
-
 void __weak board_detail(void)
 {
 	/* Please define board_detail() for your PPC platform */
@@ -92,13 +83,15 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	print_num("flashstart", (ulong)bd->bi_flashstart);
 	print_num("flashsize", (ulong)bd->bi_flashsize);
 	print_num("flashoffset", (ulong)bd->bi_flashoffset);
-	print_eth_ip_addr();
 	printf("baudrate    = %u bps\n", gd->baudrate);
 	print_num("relocaddr", gd->relocaddr);
 	print_num("reloc off", gd->reloc_off);
 	printf("%-12s= %u-bit\n", "Build", (uint)sizeof(void *) * 8);
-	if (IS_ENABLED(CONFIG_CMD_NET))
+	if (IS_ENABLED(CONFIG_CMD_NET)) {
 		printf("current eth = %s\n", eth_get_name());
+		print_eth(0);
+		printf("IP addr     = %s\n", env_get("ipaddr"));
+	}
 	print_num("fdt_blob", (ulong)gd->fdt_blob);
 	print_num("new_fdt", (ulong)gd->new_fdt);
 	print_num("fdt_size", (ulong)gd->fdt_size);
