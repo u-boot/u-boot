@@ -35,7 +35,7 @@ static int dm_test_spi_flash(struct unit_test_state *uts)
 
 	dst = map_sysmem(0x20000 + full_size, full_size);
 	ut_assertok(spi_flash_read_dm(dev, 0, size, dst));
-	ut_assertok(memcmp(src, dst, size));
+	ut_asserteq_mem(src, dst, size);
 
 	/* Erase */
 	ut_assertok(spi_flash_erase_dm(dev, 0, size));
@@ -48,7 +48,7 @@ static int dm_test_spi_flash(struct unit_test_state *uts)
 		src[i] = i;
 	ut_assertok(spi_flash_write_dm(dev, 0, size, src));
 	ut_assertok(spi_flash_read_dm(dev, 0, size, dst));
-	ut_assertok(memcmp(src, dst, size));
+	ut_asserteq_mem(src, dst, size);
 
 	/* Try the write-protect stuff */
 	ut_assertok(uclass_first_device_err(UCLASS_SPI_EMUL, &emul));

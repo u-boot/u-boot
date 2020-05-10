@@ -282,17 +282,17 @@ static int sb_check_arp_reply(struct udevice *dev, void *packet,
 	ut_assert(arp_is_waiting());
 
 	/* Validate response */
-	ut_assert(memcmp(eth->et_src, net_ethaddr, ARP_HLEN) == 0);
-	ut_assert(memcmp(eth->et_dest, priv->fake_host_hwaddr, ARP_HLEN) == 0);
+	ut_asserteq_mem(eth->et_src, net_ethaddr, ARP_HLEN);
+	ut_asserteq_mem(eth->et_dest, priv->fake_host_hwaddr, ARP_HLEN);
 	ut_assert(eth->et_protlen == htons(PROT_ARP));
 
 	ut_assert(arp->ar_hrd == htons(ARP_ETHER));
 	ut_assert(arp->ar_pro == htons(PROT_IP));
 	ut_assert(arp->ar_hln == ARP_HLEN);
 	ut_assert(arp->ar_pln == ARP_PLEN);
-	ut_assert(memcmp(&arp->ar_sha, net_ethaddr, ARP_HLEN) == 0);
+	ut_asserteq_mem(&arp->ar_sha, net_ethaddr, ARP_HLEN);
 	ut_assert(net_read_ip(&arp->ar_spa).s_addr == net_ip.s_addr);
-	ut_assert(memcmp(&arp->ar_tha, priv->fake_host_hwaddr, ARP_HLEN) == 0);
+	ut_asserteq_mem(&arp->ar_tha, priv->fake_host_hwaddr, ARP_HLEN);
 	ut_assert(net_read_ip(&arp->ar_tpa).s_addr ==
 		  string_to_ip("1.1.2.4").s_addr);
 
@@ -373,8 +373,8 @@ static int sb_check_ping_reply(struct udevice *dev, void *packet,
 	ut_assert(arp_is_waiting());
 
 	/* Validate response */
-	ut_assert(memcmp(eth->et_src, net_ethaddr, ARP_HLEN) == 0);
-	ut_assert(memcmp(eth->et_dest, priv->fake_host_hwaddr, ARP_HLEN) == 0);
+	ut_asserteq_mem(eth->et_src, net_ethaddr, ARP_HLEN);
+	ut_asserteq_mem(eth->et_dest, priv->fake_host_hwaddr, ARP_HLEN);
 	ut_assert(eth->et_protlen == htons(PROT_IP));
 
 	ut_assert(net_read_ip(&ip->ip_src).s_addr == net_ip.s_addr);

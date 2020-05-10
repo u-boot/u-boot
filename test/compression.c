@@ -164,7 +164,7 @@ static int compress_using_bzip2(struct unit_test_state *uts,
 {
 	/* There is no bzip2 compression in u-boot, so fake it. */
 	ut_asserteq(in_size, strlen(plain));
-	ut_asserteq(0, memcmp(plain, in, in_size));
+	ut_asserteq_mem(plain, in, in_size);
 
 	if (bzip2_compressed_size > out_max)
 		return -1;
@@ -199,7 +199,7 @@ static int compress_using_lzma(struct unit_test_state *uts,
 {
 	/* There is no lzma compression in u-boot, so fake it. */
 	ut_asserteq(in_size,  strlen(plain));
-	ut_asserteq(0, memcmp(plain, in, in_size));
+	ut_asserteq_mem(plain, in, in_size);
 
 	if (lzma_compressed_size > out_max)
 		return -1;
@@ -233,7 +233,7 @@ static int compress_using_lzo(struct unit_test_state *uts,
 {
 	/* There is no lzo compression in u-boot, so fake it. */
 	ut_asserteq(in_size,  strlen(plain));
-	ut_asserteq(0, memcmp(plain, in, in_size));
+	ut_asserteq_mem(plain, in, in_size);
 
 	if (lzo_compressed_size > out_max)
 		return -1;
@@ -268,7 +268,7 @@ static int compress_using_lz4(struct unit_test_state *uts,
 {
 	/* There is no lz4 compression in u-boot, so fake it. */
 	ut_asserteq(in_size,  strlen(plain));
-	ut_asserteq(0, memcmp(plain, in, in_size));
+	ut_asserteq_mem(plain, in, in_size);
 
 	if (lz4_compressed_size > out_max)
 		return -1;
