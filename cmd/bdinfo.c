@@ -80,20 +80,6 @@ static void print_bi_boot_params(const bd_t *bd)
 	print_num("boot_params",	(ulong)bd->bi_boot_params);
 }
 
-static void print_bi_mem(const bd_t *bd)
-{
-#if defined(CONFIG_SH)
-	print_num("mem start      ",	(ulong)bd->bi_memstart);
-	print_lnum("mem size       ",	(u64)bd->bi_memsize);
-#elif defined(CONFIG_ARC)
-	print_num("mem start",		(ulong)bd->bi_memstart);
-	print_lnum("mem size",		(u64)bd->bi_memsize);
-#else
-	print_num("memstart",		(ulong)bd->bi_memstart);
-	print_lnum("memsize",		(u64)bd->bi_memsize);
-#endif
-}
-
 static void print_bi_dram(const bd_t *bd)
 {
 #ifdef CONFIG_NR_DRAM_BANKS
@@ -155,7 +141,8 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		print_num("arch_number", bd->bi_arch_number);
 	print_bi_boot_params(bd);
 	print_bi_dram(bd);
-	print_bi_mem(bd);
+	print_num("memstart", (ulong)bd->bi_memstart);
+	print_lnum("memsize", (u64)bd->bi_memsize);
 	print_bi_flash(bd);
 	print_eth_ip_addr();
 	printf("baudrate    = %u bps\n", gd->baudrate);
