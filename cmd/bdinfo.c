@@ -476,14 +476,20 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 #elif defined(CONFIG_XTENSA)
 
-int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
-{
-	print_std_bdinfo(gd->bd);
-	return 0;
-}
+#define USE_GENERIC
 
 #else
  #error "a case for this architecture does not exist!"
+#endif
+
+/* Temporary check for archs that use generic bdinfo. Eventually all will */
+#ifdef USE_GENERIC
+int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
+{
+	print_std_bdinfo(gd->bd);
+
+	return 0;
+}
 #endif
 
 /* -------------------------------------------------------------------- */
