@@ -33,8 +33,7 @@ struct dwc3_generic_plat {
 struct dwc3_generic_priv {
 	void *base;
 	struct dwc3 dwc3;
-	struct phy *phys;
-	int num_phys;
+	struct phy_bulk phys;
 };
 
 struct dwc3_generic_host_priv {
@@ -56,7 +55,7 @@ static int dwc3_generic_probe(struct udevice *dev,
 	dwc3_of_parse(dwc3);
 #endif
 
-	rc = dwc3_setup_phy(dev, &priv->phys, &priv->num_phys);
+	rc = dwc3_setup_phy(dev, &priv->phys);
 	if (rc)
 		return rc;
 
@@ -79,7 +78,7 @@ static int dwc3_generic_remove(struct udevice *dev,
 	struct dwc3 *dwc3 = &priv->dwc3;
 
 	dwc3_remove(dwc3);
-	dwc3_shutdown_phy(dev, priv->phys, priv->num_phys);
+	dwc3_shutdown_phy(dev, &priv->phys);
 	unmap_physmem(dwc3->regs, MAP_NOCACHE);
 
 	return 0;

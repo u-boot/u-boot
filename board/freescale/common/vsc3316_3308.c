@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2012 Freescale Semiconductor, Inc.
+ * Copyright 2020 NXP
  */
 
 #include "vsc3316_3308.h"
@@ -32,7 +33,22 @@ int vsc_if_enable(unsigned int vsc_addr)
 
 	/* enable 2-wire Serial InterFace (I2C) */
 	data = 0x02;
+#ifdef CONFIG_DM_I2C
+	int ret, bus_num = 0;
+	struct udevice *dev;
+
+	ret = i2c_get_chip_for_busnum(bus_num, vsc_addr,
+				      1, &dev);
+	if (ret) {
+		printf("%s: Cannot find udev for a bus %d\n", __func__,
+		       bus_num);
+		return ret;
+	}
+
+	return dm_i2c_write(dev, INTERFACE_MODE_REG, &data, 1);
+#else
 	return i2c_write(vsc_addr, INTERFACE_MODE_REG, 1, &data, 1);
+#endif
 }
 
 int vsc3316_config(unsigned int vsc_addr, int8_t con_arr[][2],
@@ -45,6 +61,66 @@ int vsc3316_config(unsigned int vsc_addr, int8_t con_arr[][2],
 	debug("VSC:Initializing VSC3316 at I2C address 0x%2x"
 		" for Tx\n", vsc_addr);
 
+#ifdef CONFIG_DM_I2C
+	int bus_num = 0;
+	struct udevice *dev;
+
+	ret = i2c_get_chip_for_busnum(bus_num, vsc_addr,
+				      1, &dev);
+	if (ret) {
+		printf("%s: Cannot find udev for a bus %d\n", __func__,
+		       bus_num);
+		return ret;
+	}
+
+	ret = dm_i2c_read(dev, REVISION_ID_REG, &rev_id, 1);
+	if (ret < 0) {
+		printf("VSC:0x%x could not read REV_ID from device.\n",
+		       vsc_addr);
+		return ret;
+	}
+
+	if (rev_id != 0xab) {
+		printf("VSC: device at address 0x%x is not VSC3316/3308.\n",
+		       vsc_addr);
+		return -ENODEV;
+	}
+
+	ret = vsc_if_enable(vsc_addr);
+	if (ret) {
+		printf("VSC:0x%x could not configured for 2-wire I/F.\n",
+		       vsc_addr);
+		return ret;
+	}
+
+	/* config connections - page 0x00 */
+	dm_i2c_reg_write(dev, CURRENT_PAGE_REGISTER, CONNECTION_CONFIG_PAGE);
+
+	/* Making crosspoint connections, by connecting required
+	 * input to output
+	 */
+	for (i = 0; i < num_con ; i++)
+		dm_i2c_reg_write(dev, con_arr[i][1], con_arr[i][0]);
+
+	/* input state - page 0x13 */
+	dm_i2c_reg_write(dev, CURRENT_PAGE_REGISTER, INPUT_STATE_REG);
+	/* Configuring the required input of the switch */
+	for (i = 0; i < num_con ; i++)
+		dm_i2c_reg_write(dev, con_arr[i][0], 0x80);
+
+	/* Setting Global Input LOS threshold value */
+	dm_i2c_reg_write(dev, GLOBAL_INPUT_LOS, 0x60);
+
+	/* config output mode - page 0x23 */
+	dm_i2c_reg_write(dev, CURRENT_PAGE_REGISTER, OUTPUT_MODE_PAGE);
+	/* Turn ON the Output driver correspond to required output*/
+	for (i = 0; i < num_con ; i++)
+		dm_i2c_reg_write(dev,  con_arr[i][1], 0);
+
+	/* configure global core control register, Turn on Global core power */
+	dm_i2c_reg_write(dev, GLOBAL_CORE_CNTRL, 0);
+
+#else
 	ret = i2c_read(vsc_addr, REVISION_ID_REG, 1, &rev_id, 1);
 	if (ret < 0) {
 		printf("VSC:0x%x could not read REV_ID from device.\n",
@@ -90,6 +166,7 @@ int vsc3316_config(unsigned int vsc_addr, int8_t con_arr[][2],
 
 	/* configure global core control register, Turn on Global core power */
 	i2c_reg_write(vsc_addr, GLOBAL_CORE_CNTRL, 0);
+#endif
 
 	vsc_wp_config(vsc_addr);
 
@@ -107,6 +184,105 @@ int vsc3308_config_adjust(unsigned int vsc_addr, const int8_t con_arr[][2],
 	debug("VSC:Initializing VSC3308 at I2C address 0x%x for Tx\n",
 	      vsc_addr);
 
+#ifdef CONFIG_DM_I2C
+	int bus_num = 0;
+	struct udevice *dev;
+
+	ret = i2c_get_chip_for_busnum(bus_num, vsc_addr,
+				      1, &dev);
+	if (ret) {
+		printf("%s: Cannot find udev for a bus %d\n", __func__,
+		       bus_num);
+		return ret;
+	}
+
+	ret = dm_i2c_read(dev, REVISION_ID_REG, &rev_id, 1);
+	if (ret < 0) {
+		printf("VSC:0x%x could not read REV_ID from device.\n",
+		       vsc_addr);
+		return ret;
+	}
+
+	if (rev_id != 0xab) {
+		printf("VSC: device at address 0x%x is not VSC3316/3308.\n",
+		       vsc_addr);
+		return -ENODEV;
+	}
+
+	ret = vsc_if_enable(vsc_addr);
+	if (ret) {
+		printf("VSC:0x%x could not configured for 2-wire I/F.\n",
+		       vsc_addr);
+		return ret;
+	}
+
+	/* config connections - page 0x00 */
+	dm_i2c_reg_write(dev, CURRENT_PAGE_REGISTER, CONNECTION_CONFIG_PAGE);
+
+	/* Configure Global Input ISE */
+	dm_i2c_reg_write(dev, GLOBAL_INPUT_ISE1, 0);
+	dm_i2c_reg_write(dev, GLOBAL_INPUT_ISE2, 0);
+
+	/* Configure Tx/Rx Global Output PE1 */
+	dm_i2c_reg_write(dev, GLOBAL_OUTPUT_PE1, 0);
+
+	/* Configure Tx/Rx Global Output PE2 */
+	dm_i2c_reg_write(dev, GLOBAL_OUTPUT_PE2, 0);
+
+	/* Configure Tx/Rx Global Input GAIN */
+	dm_i2c_reg_write(dev, GLOBAL_INPUT_GAIN, 0x3F);
+
+	/* Setting Global Input LOS threshold value */
+	dm_i2c_reg_write(dev, GLOBAL_INPUT_LOS, 0xE0);
+
+	/* Setting Global output termination */
+	dm_i2c_reg_write(dev, GLOBAL_OUTPUT_TERMINATION, 0);
+
+	/* Configure Tx/Rx Global Output level */
+	if (vsc_addr == VSC3308_TX_ADDRESS)
+		dm_i2c_reg_write(dev, GLOBAL_OUTPUT_LEVEL, 4);
+	else
+		dm_i2c_reg_write(dev, GLOBAL_OUTPUT_LEVEL, 2);
+
+	/* Making crosspoint connections, by connecting required
+	 * input to output
+	 */
+	for (i = 0; i < num_con ; i++)
+		dm_i2c_reg_write(dev, con_arr[i][1], con_arr[i][0]);
+
+	/* input state - page 0x13 */
+	dm_i2c_reg_write(dev, CURRENT_PAGE_REGISTER, INPUT_STATE_REG);
+	/* Turning off all the required input of the switch */
+	for (i = 0; i < num_con; i++)
+		dm_i2c_reg_write(dev, con_arr[i][0], 1);
+
+	/* only turn on specific Tx/Rx requested by the XFI erratum */
+	if (vsc_addr == VSC3308_TX_ADDRESS) {
+		dm_i2c_reg_write(dev, 2, 0);
+		dm_i2c_reg_write(dev, 3, 0);
+	} else {
+		dm_i2c_reg_write(dev, 0, 0);
+		dm_i2c_reg_write(dev, 1, 0);
+	}
+
+	/* config output mode - page 0x23 */
+	dm_i2c_reg_write(dev, CURRENT_PAGE_REGISTER, OUTPUT_MODE_PAGE);
+	/* Turn off the Output driver correspond to required output*/
+	for (i = 0; i < num_con ; i++)
+		dm_i2c_reg_write(dev,  con_arr[i][1], 1);
+
+	/* only turn on specific Tx/Rx requested by the XFI erratum */
+	if (vsc_addr == VSC3308_TX_ADDRESS) {
+		dm_i2c_reg_write(dev, 0, 0);
+		dm_i2c_reg_write(dev, 1, 0);
+	} else {
+		dm_i2c_reg_write(dev, 3, 0);
+		dm_i2c_reg_write(dev, 4, 0);
+	}
+
+	/* configure global core control register, Turn on Global core power */
+	dm_i2c_reg_write(dev, GLOBAL_CORE_CNTRL, 0);
+#else
 	ret = i2c_read(vsc_addr, REVISION_ID_REG, 1, &rev_id, 1);
 	if (ret < 0) {
 		printf("VSC:0x%x could not read REV_ID from device.\n",
@@ -192,7 +368,7 @@ int vsc3308_config_adjust(unsigned int vsc_addr, const int8_t con_arr[][2],
 
 	/* configure global core control register, Turn on Global core power */
 	i2c_reg_write(vsc_addr, GLOBAL_CORE_CNTRL, 0);
-
+#endif
 	vsc_wp_config(vsc_addr);
 
 	return 0;
@@ -208,7 +384,69 @@ int vsc3308_config(unsigned int vsc_addr, const int8_t con_arr[][2],
 
 	debug("VSC:Initializing VSC3308 at I2C address 0x%x"
 		" for Tx\n", vsc_addr);
+#ifdef CONFIG_DM_I2C
+	int bus_num = 0;
+	struct udevice *dev;
 
+	ret = i2c_get_chip_for_busnum(bus_num, vsc_addr,
+				      1, &dev);
+	if (ret) {
+		printf("%s: Cannot find udev for a bus %d\n", __func__,
+		       bus_num);
+		return ret;
+	}
+
+	ret = dm_i2c_read(dev, REVISION_ID_REG, &rev_id, 1);
+	if (ret < 0) {
+		printf("VSC:0x%x could not read REV_ID from device.\n",
+		       vsc_addr);
+		return ret;
+	}
+
+	if (rev_id != 0xab) {
+		printf("VSC: device at address 0x%x is not VSC3316/3308.\n",
+		       vsc_addr);
+		return -ENODEV;
+	}
+
+	ret = vsc_if_enable(vsc_addr);
+	if (ret) {
+		printf("VSC:0x%x could not configured for 2-wire I/F.\n",
+		       vsc_addr);
+		return ret;
+	}
+
+	/* config connections - page 0x00 */
+	dm_i2c_reg_write(dev, CURRENT_PAGE_REGISTER, CONNECTION_CONFIG_PAGE);
+
+	/* Making crosspoint connections, by connecting required
+	 * input to output
+	 */
+	for (i = 0; i < num_con ; i++)
+		dm_i2c_reg_write(dev, con_arr[i][1], con_arr[i][0]);
+
+	/*Configure Global Input ISE and gain */
+	dm_i2c_reg_write(dev, GLOBAL_INPUT_ISE1, 0x12);
+	dm_i2c_reg_write(dev, GLOBAL_INPUT_ISE2, 0x12);
+
+	/* input state - page 0x13 */
+	dm_i2c_reg_write(dev, CURRENT_PAGE_REGISTER, INPUT_STATE_REG);
+	/* Turning ON the required input of the switch */
+	for (i = 0; i < num_con ; i++)
+		dm_i2c_reg_write(dev, con_arr[i][0], 0);
+
+	/* Setting Global Input LOS threshold value */
+	dm_i2c_reg_write(dev, GLOBAL_INPUT_LOS, 0x60);
+
+	/* config output mode - page 0x23 */
+	dm_i2c_reg_write(dev, CURRENT_PAGE_REGISTER, OUTPUT_MODE_PAGE);
+	/* Turn ON the Output driver correspond to required output*/
+	for (i = 0; i < num_con ; i++)
+		dm_i2c_reg_write(dev,  con_arr[i][1], 0);
+
+	/* configure global core control register, Turn on Global core power */
+	dm_i2c_reg_write(dev, GLOBAL_CORE_CNTRL, 0);
+#else
 	ret = i2c_read(vsc_addr, REVISION_ID_REG, 1, &rev_id, 1);
 	if (ret < 0) {
 		printf("VSC:0x%x could not read REV_ID from device.\n",
@@ -258,7 +496,7 @@ int vsc3308_config(unsigned int vsc_addr, const int8_t con_arr[][2],
 
 	/* configure global core control register, Turn on Global core power */
 	i2c_reg_write(vsc_addr, GLOBAL_CORE_CNTRL, 0);
-
+#endif
 	vsc_wp_config(vsc_addr);
 
 	return 0;
@@ -270,6 +508,22 @@ void vsc_wp_config(unsigned int vsc_addr)
 
 	/* For new crosspoint configuration to occur, WP bit of
 	 * CORE_CONFIG_REG should be set 1 and then reset to 0 */
+#ifdef CONFIG_DM_I2C
+	int ret, bus_num = 0;
+	struct udevice *dev;
+
+	ret = i2c_get_chip_for_busnum(bus_num, vsc_addr,
+				      1, &dev);
+	if (ret) {
+		printf("%s: Cannot find udev for a bus %d\n", __func__,
+		       bus_num);
+		return;
+	}
+
+	dm_i2c_reg_write(dev, CORE_CONFIG_REG, 0x01);
+	dm_i2c_reg_write(dev, CORE_CONFIG_REG, 0x0);
+#else
 	i2c_reg_write(vsc_addr, CORE_CONFIG_REG, 0x01);
 	i2c_reg_write(vsc_addr, CORE_CONFIG_REG, 0x0);
+#endif
 }

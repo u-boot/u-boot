@@ -162,9 +162,6 @@
 
 /* Miscellaneous configurable options */
 
-#define CONFIG_SYS_MEMTEST_START	0x80010000
-#define CONFIG_SYS_MEMTEST_END		0x87C00000
-
 /* Physical memory map */
 #define PHYS_SDRAM			(0x80000000)
 #define PHYS_SDRAM_SIZE			(128 * 1024 * 1024)

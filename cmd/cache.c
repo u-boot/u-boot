@@ -20,6 +20,10 @@ void __weak invalidate_icache_all(void)
 	puts("No arch specific invalidate_icache_all available!\n");
 }
 
+__weak void noncached_set_region(void)
+{
+}
+
 static int do_icache(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	switch (argc) {
@@ -64,6 +68,7 @@ static int do_dcache(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			break;
 		case 1:
 			dcache_enable();
+			noncached_set_region();
 			break;
 		case 2:
 			flush_dcache_all();

@@ -32,6 +32,8 @@ obj-$(CONFIG_HAVE_P2SB) += p2sb.o
 
 ifdef CONFIG_SPL
 ifndef CONFIG_SPL_BUILD
+ifndef CONFIG_SYS_COREBOOT
 obj-y += cpu_from_spl.o
+endif
 endif
 endif

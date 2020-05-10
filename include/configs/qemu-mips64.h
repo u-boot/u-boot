@@ -73,9 +73,6 @@
 /* default load address */
 #define CONFIG_SYS_LOAD_ADDR		0xffffffff81000000
 
-#define CONFIG_SYS_MEMTEST_START	0xffffffff80100000
-#define CONFIG_SYS_MEMTEST_END		0xffffffff80800000
-
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */

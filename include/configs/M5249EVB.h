@@ -39,9 +39,6 @@
 
 #define CONFIG_SYS_LOAD_ADDR		0x200000	/* default load address */
 
-#define CONFIG_SYS_MEMTEST_START	0x400
-#define CONFIG_SYS_MEMTEST_END		0x380000
-
 /*
  * Clock configuration: enable only one of the following options
  */

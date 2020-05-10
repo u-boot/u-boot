@@ -298,7 +298,7 @@ int do_env_print_efi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				return CMD_RET_USAGE;
 
 			/* -a already specified */
-			if (!default_guid & guid_any)
+			if (!default_guid && guid_any)
 				return CMD_RET_USAGE;
 
 			argc--;

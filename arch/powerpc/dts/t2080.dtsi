@@ -3,7 +3,7 @@
  * T2080/T2081 Silicon/SoC Device Tree Source (pre include)
  *
  * Copyright 2013 Freescale Semiconductor Inc.
- * Copyright 2018 NXP
+ * Copyright 2018,2020 NXP
  */
 
 /dts-v1/;
@@ -96,6 +96,8 @@
 			sata-number = <2>;
 			sata-fpdma = <0>;
 		};
+		/include/ "qoriq-i2c-0.dtsi"
+		/include/ "qoriq-i2c-1.dtsi"
 	};
 
 	pcie@ffe240000 {

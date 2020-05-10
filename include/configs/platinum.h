@@ -88,10 +88,6 @@
 
 /* Board startup config */
 
-#define CONFIG_SYS_MEMTEST_START		PHYS_SDRAM
-#define CONFIG_SYS_MEMTEST_END			(CONFIG_SYS_MEMTEST_START + \
-						 PHYS_SDRAM_SIZE - (12 << 20))
-
 #define CONFIG_BOOTCOMMAND			"run bootubi_scr"
 
 /* Miscellaneous configurable options */

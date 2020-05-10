@@ -82,6 +82,14 @@
 	status = "okay";
 };
 
+&xhci {
+	status = "okay";
+};
+
+&u3phy {
+	status = "okay";
+};
+
 &watchdog {
 	pinctrl-names = "default";
 	pinctrl-0 = <&watchdog_pins>;

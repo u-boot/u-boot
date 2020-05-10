@@ -365,6 +365,34 @@ cleanup:
 	return NULL;
 }
 
+static void menu_display_statusline(struct menu *m)
+{
+	struct bootmenu_entry *entry;
+	struct bootmenu_data *menu;
+
+	if (menu_default_choice(m, (void *)&entry) < 0)
+		return;
+
+	menu = entry->menu;
+
+	printf(ANSI_CURSOR_POSITION, 1, 1);
+	puts(ANSI_CLEAR_LINE);
+	printf(ANSI_CURSOR_POSITION, 2, 1);
+	puts("  *** U-Boot Boot Menu ***");
+	puts(ANSI_CLEAR_LINE_TO_END);
+	printf(ANSI_CURSOR_POSITION, 3, 1);
+	puts(ANSI_CLEAR_LINE);
+
+	/* First 3 lines are bootmenu header + 2 empty lines between entries */
+	printf(ANSI_CURSOR_POSITION, menu->count + 5, 1);
+	puts(ANSI_CLEAR_LINE);
+	printf(ANSI_CURSOR_POSITION, menu->count + 6, 1);
+	puts("  Press UP/DOWN to move, ENTER to select");
+	puts(ANSI_CLEAR_LINE_TO_END);
+	printf(ANSI_CURSOR_POSITION, menu->count + 7, 1);
+	puts(ANSI_CLEAR_LINE);
+}
+
 static void bootmenu_show(int delay)
 {
 	int init = 0;
@@ -396,8 +424,9 @@ static void bootmenu_show(int delay)
 	if (!bootmenu)
 		return;
 
-	menu = menu_create(NULL, bootmenu->delay, 1, bootmenu_print_entry,
-			   bootmenu_choice_entry, bootmenu);
+	menu = menu_create(NULL, bootmenu->delay, 1, menu_display_statusline,
+			   bootmenu_print_entry, bootmenu_choice_entry,
+			   bootmenu);
 	if (!menu) {
 		bootmenu_destroy(bootmenu);
 		return;
@@ -443,34 +472,6 @@ cleanup:
 #ifdef CONFIG_POSTBOOTMENU
 	run_command(CONFIG_POSTBOOTMENU, 0);
 #endif
-}
-
-void menu_display_statusline(struct menu *m)
-{
-	struct bootmenu_entry *entry;
-	struct bootmenu_data *menu;
-
-	if (menu_default_choice(m, (void *)&entry) < 0)
-		return;
-
-	menu = entry->menu;
-
-	printf(ANSI_CURSOR_POSITION, 1, 1);
-	puts(ANSI_CLEAR_LINE);
-	printf(ANSI_CURSOR_POSITION, 2, 1);
-	puts("  *** U-Boot Boot Menu ***");
-	puts(ANSI_CLEAR_LINE_TO_END);
-	printf(ANSI_CURSOR_POSITION, 3, 1);
-	puts(ANSI_CLEAR_LINE);
-
-	/* First 3 lines are bootmenu header + 2 empty lines between entries */
-	printf(ANSI_CURSOR_POSITION, menu->count + 5, 1);
-	puts(ANSI_CLEAR_LINE);
-	printf(ANSI_CURSOR_POSITION, menu->count + 6, 1);
-	puts("  Press UP/DOWN to move, ENTER to select");
-	puts(ANSI_CLEAR_LINE_TO_END);
-	printf(ANSI_CURSOR_POSITION, menu->count + 7, 1);
-	puts(ANSI_CLEAR_LINE);
 }
 
 #ifdef CONFIG_AUTOBOOT_MENU_SHOW

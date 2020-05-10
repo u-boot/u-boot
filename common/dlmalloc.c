@@ -280,6 +280,7 @@ nextchunk-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 	    |             Unused space (may be 0 bytes long)                .
 	    .                                                               .
 	    .                                                               |
+
 nextchunk-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     `foot:' |             Size of chunk, in bytes                           |
 	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -574,6 +575,10 @@ static void malloc_bin_reloc(void)
 static inline void malloc_bin_reloc(void) {}
 #endif
 
+#ifdef CONFIG_SYS_MALLOC_DEFAULT_TO_INIT
+static void malloc_init(void);
+#endif
+
 ulong mem_malloc_start = 0;
 ulong mem_malloc_end = 0;
 ulong mem_malloc_brk = 0;
@@ -603,6 +608,10 @@ void mem_malloc_init(ulong start, ulong size)
 	mem_malloc_start = start;
 	mem_malloc_end = start + size;
 	mem_malloc_brk = start;
+
+#ifdef CONFIG_SYS_MALLOC_DEFAULT_TO_INIT
+	malloc_init();
+#endif
 
 	debug("using memory %#lx-%#lx for malloc()\n", mem_malloc_start,
 	      mem_malloc_end);
@@ -708,7 +717,36 @@ static unsigned int max_n_mmaps = 0;
 static unsigned long max_mmapped_mem = 0;
 #endif
 
+#ifdef CONFIG_SYS_MALLOC_DEFAULT_TO_INIT
+static void malloc_init(void)
+{
+	int i, j;
 
+	debug("bins (av_ array) are at %p\n", (void *)av_);
+
+	av_[0] = NULL; av_[1] = NULL;
+	for (i = 2, j = 2; i < NAV * 2 + 2; i += 2, j++) {
+		av_[i] = bin_at(j - 2);
+		av_[i + 1] = bin_at(j - 2);
+
+		/* Just print the first few bins so that
+		 * we can see there are alright.
+		 */
+		if (i < 10)
+			debug("av_[%d]=%lx av_[%d]=%lx\n",
+			      i, (ulong)av_[i],
+			      i + 1, (ulong)av_[i + 1]);
+	}
+
+	/* Init the static bookkeeping as well */
+	sbrk_base = (char *)(-1);
+	max_sbrked_mem = 0;
+	max_total_mem = 0;
+#ifdef DEBUG
+	memset((void *)&current_mallinfo, 0, sizeof(struct mallinfo));
+#endif
+}
+#endif
 
 /*
   Debugging support
@@ -1050,9 +1088,6 @@ static mchunkptr mremap_chunk(p, new_size) mchunkptr p; size_t new_size;
 #endif /* HAVE_MREMAP */
 
 #endif /* HAVE_MMAP */
-
-
-
 
 /*
   Extend the top-most chunk by obtaining memory from system.

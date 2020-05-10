@@ -35,7 +35,7 @@ cp ${env_obj_file_path} ${ENV_OBJ_FILE_COPY}
 ${OBJCOPY} -O binary -j ".rodata.default_environment" ${ENV_OBJ_FILE_COPY}
 
 # Replace default '\0' with '\n' and sort entries
-tr '\0' '\n' < ${ENV_OBJ_FILE_COPY} | sort -u
+tr '\0' '\n' < ${ENV_OBJ_FILE_COPY} | sort --field-separator== -k1,1 --stable
 
 rm ${ENV_OBJ_FILE_COPY}
 

@@ -19,7 +19,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define BUFFSIZE 32
 
-static int nolog_test_log_err(struct unit_test_state *uts)
+static int log_test_nolog_err(struct unit_test_state *uts)
 {
 	char buf[BUFFSIZE];
 
@@ -31,9 +31,9 @@ static int nolog_test_log_err(struct unit_test_state *uts)
 	ut_assertok(ut_check_console_end(uts));
 	return 0;
 }
-LOG_TEST(nolog_test_log_err);
+LOG_TEST(log_test_nolog_err);
 
-static int nolog_test_log_warning(struct unit_test_state *uts)
+static int log_test_nolog_warning(struct unit_test_state *uts)
 {
 	char buf[BUFFSIZE];
 
@@ -45,9 +45,9 @@ static int nolog_test_log_warning(struct unit_test_state *uts)
 	ut_assertok(ut_check_console_end(uts));
 	return 0;
 }
-LOG_TEST(nolog_test_log_warning);
+LOG_TEST(log_test_nolog_warning);
 
-static int nolog_test_log_notice(struct unit_test_state *uts)
+static int log_test_nolog_notice(struct unit_test_state *uts)
 {
 	char buf[BUFFSIZE];
 
@@ -59,9 +59,9 @@ static int nolog_test_log_notice(struct unit_test_state *uts)
 	ut_assertok(ut_check_console_end(uts));
 	return 0;
 }
-LOG_TEST(nolog_test_log_notice);
+LOG_TEST(log_test_nolog_notice);
 
-static int nolog_test_log_info(struct unit_test_state *uts)
+static int log_test_nolog_info(struct unit_test_state *uts)
 {
 	char buf[BUFFSIZE];
 
@@ -73,7 +73,7 @@ static int nolog_test_log_info(struct unit_test_state *uts)
 	ut_assertok(ut_check_console_end(uts));
 	return 0;
 }
-LOG_TEST(nolog_test_log_info);
+LOG_TEST(log_test_nolog_info);
 
 #undef _DEBUG
 #define _DEBUG 0
@@ -90,7 +90,7 @@ static int nolog_test_nodebug(struct unit_test_state *uts)
 }
 LOG_TEST(nolog_test_nodebug);
 
-static int nolog_test_log_nodebug(struct unit_test_state *uts)
+static int log_test_nolog_nodebug(struct unit_test_state *uts)
 {
 	char buf[BUFFSIZE];
 
@@ -102,7 +102,7 @@ static int nolog_test_log_nodebug(struct unit_test_state *uts)
 	ut_assertok(ut_check_console_end(uts));
 	return 0;
 }
-LOG_TEST(nolog_test_log_nodebug);
+LOG_TEST(log_test_nolog_nodebug);
 
 #undef _DEBUG
 #define _DEBUG 1
@@ -120,7 +120,7 @@ static int nolog_test_debug(struct unit_test_state *uts)
 }
 LOG_TEST(nolog_test_debug);
 
-static int nolog_test_log_debug(struct unit_test_state *uts)
+static int log_test_nolog_debug(struct unit_test_state *uts)
 {
 	char buf[BUFFSIZE];
 
@@ -132,4 +132,4 @@ static int nolog_test_log_debug(struct unit_test_state *uts)
 	ut_assertok(ut_check_console_end(uts));
 	return 0;
 }
-LOG_TEST(nolog_test_log_debug);
+LOG_TEST(log_test_nolog_debug);

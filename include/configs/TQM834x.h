@@ -30,8 +30,6 @@
 #undef CONFIG_SPD_EEPROM	/* do not use SPD EEPROM for DDR setup */
 
 #undef CONFIG_SYS_DRAM_TEST		/* memory test, takes time */
-#define CONFIG_SYS_MEMTEST_START	0x00000000	/* memtest region */
-#define CONFIG_SYS_MEMTEST_END		0x00100000
 
 /*
  * FLASH on the Local Bus

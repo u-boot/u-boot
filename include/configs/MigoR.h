@@ -27,12 +27,8 @@
 /* SCIF */
 #define CONFIG_CONS_SCIF0	1
 
-#define CONFIG_SYS_MEMTEST_START	(MIGO_R_SDRAM_BASE)
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + (60 * 1024 * 1024))
-
 /* Enable alternate, more extensive, memory test */
 /* Scratch address used by the alternate memory test */
-#undef  CONFIG_SYS_MEMTEST_SCRATCH
 
 /* Enable temporary baudrate change while serial download */
 #undef  CONFIG_SYS_LOADS_BAUD_CHANGE

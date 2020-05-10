@@ -69,8 +69,6 @@
 /*
  * Other required minimal configurations
  */
-#define CONFIG_SYS_MEMTEST_START 0x00400000	/* 4M */
-#define CONFIG_SYS_MEMTEST_END	0x007fffff	/* (_8M - 1) */
 #define CONFIG_SYS_RESET_ADDRESS 0xffff0000	/* Rst Vector Adr */
 
 /*

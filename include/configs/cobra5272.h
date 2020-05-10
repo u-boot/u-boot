@@ -155,9 +155,6 @@ from which user programs will be started */
  * ---
  */
 
-#define CONFIG_SYS_MEMTEST_START	0x400
-#define CONFIG_SYS_MEMTEST_END		0x380000
-
 /* ---
  * Low Level Configuration Settings
  * (address mappings, register initial values, etc.)

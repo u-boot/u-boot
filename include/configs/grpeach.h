@@ -16,7 +16,6 @@
 
 /* Miscellaneous */
 #define CONFIG_SYS_PBSIZE	256
-#define CONFIG_SYS_ARM_CACHE_WRITETHROUGH
 #define CONFIG_CMDLINE_TAG
 
 /* Internal RAM Size (RZ/A1=3M, RZ/A1M=5M, RZ/A1H=10M) */

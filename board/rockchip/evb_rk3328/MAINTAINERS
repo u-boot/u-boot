@@ -5,6 +5,13 @@ F:      board/rockchip/evb_rk3328
 F:      include/configs/evb_rk3328.h
 F:      configs/evb-rk3328_defconfig
 
+ROC-RK3328-CC
+M:      Loic Devulder <ldevulder@suse.com>
+M:      Chen-Yu Tsai <wens@csie.org>
+S:      Maintained
+F:      configs/roc-cc-rk3328_defconfig
+F:      arch/arm/dts/rk3328-roc-cc-u-boot.dtsi
+
 ROCK64-RK3328
 M:      Matwey V. Kornilov <matwey.kornilov@gmail.com>
 S:      Maintained

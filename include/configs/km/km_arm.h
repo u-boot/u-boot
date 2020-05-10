@@ -37,8 +37,6 @@
 
 #include "asm/arch/config.h"
 
-#define CONFIG_SYS_MEMTEST_START 0x00400000	/* 4M */
-#define CONFIG_SYS_MEMTEST_END	0x007fffff	/*(_8M -1) */
 #define CONFIG_SYS_LOAD_ADDR	0x00800000	/* default load adr- 8M */
 
 /* architecture specific default bootargs */

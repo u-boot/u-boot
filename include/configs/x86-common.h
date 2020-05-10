@@ -61,8 +61,6 @@
  */
 #define CONFIG_SYS_CBSIZE			512
 
-#define CONFIG_SYS_MEMTEST_START		0x00100000
-#define CONFIG_SYS_MEMTEST_END			0x01000000
 #define CONFIG_SYS_LOAD_ADDR			0x20000000
 
 /*-----------------------------------------------------------------------

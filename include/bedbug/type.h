@@ -3,7 +3,7 @@
 
 /* Supporting routines */
 int bedbug_puts (const char *);
-void bedbug_init (void);
+int bedbug_init(void);
 void bedbug860_init (void);
 void do_bedbug_breakpoint (struct pt_regs *);
 void bedbug_main_loop (unsigned long, struct pt_regs *);

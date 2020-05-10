@@ -37,8 +37,6 @@
 #define CONFIG_CONS_INDEX		3
 
 /* RAM */
-#define CONFIG_SYS_MEMTEST_START	0x80100000
-#define CONFIG_SYS_MEMTEST_END		0x80400000
 
 /* Memory usage */
 #define CONFIG_SYS_MAXARGS		64

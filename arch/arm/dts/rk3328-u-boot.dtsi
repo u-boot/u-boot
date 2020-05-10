@@ -62,3 +62,7 @@
 	/* mmc to sram can't do dma, prevent aborts transfering TF-A parts */
 	u-boot,spl-fifo-mode;
 };
+
+&usb20_otg {
+	hnp-srp-disable;
+};

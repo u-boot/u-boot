@@ -124,6 +124,23 @@ struct phy_ops {
 	int	(*power_off)(struct phy *phy);
 };
 
+/**
+ * struct phy_bulk - A handle to (allowing control of) a bulk of phys.
+ *
+ * Consumers provide storage for the phy bulk. The content of the structure is
+ * managed solely by the phy API. A phy bulk struct is initialized
+ * by "get"ing the phy bulk struct.
+ * The phy bulk struct is passed to all other bulk phy APIs to apply
+ * the API to all the phy in the bulk struct.
+ *
+ * @phys: An array of phy handles.
+ * @count: The number of phy handles in the phys array.
+ */
+struct phy_bulk {
+	struct phy *phys;
+	unsigned int count;
+};
+
 #ifdef CONFIG_PHY
 
 /**
@@ -250,6 +267,55 @@ int generic_phy_get_by_node(ofnode node, int index, struct phy *phy);
 int generic_phy_get_by_name(struct udevice *user, const char *phy_name,
 			    struct phy *phy);
 
+/**
+ * generic_phy_get_bulk - Get all phys of a device.
+ *
+ * This looks up and gets all phys of the consumer device; each device is
+ * assumed to have n phys associated with it somehow, and this function finds
+ * and gets all of them in a separate structure.
+ *
+ * @dev:	The consumer device.
+ * @bulk	A pointer to a phy bulk struct to initialize.
+ * @return 0 if OK, or a negative error code.
+ */
+int generic_phy_get_bulk(struct udevice *dev, struct phy_bulk *bulk);
+
+/**
+ * generic_phy_init_bulk() - Initialize all phys in a phy bulk struct.
+ *
+ * @bulk:	A phy bulk struct that was previously successfully requested
+ *		by generic_phy_get_bulk().
+ * @return 0 if OK, or negative error code.
+ */
+int generic_phy_init_bulk(struct phy_bulk *bulk);
+
+/**
+ * generic_phy_exit_bulk() - de-initialize all phys in a phy bulk struct.
+ *
+ * @bulk:	A phy bulk struct that was previously successfully requested
+ *		by generic_phy_get_bulk().
+ * @return 0 if OK, or negative error code.
+ */
+int generic_phy_exit_bulk(struct phy_bulk *bulk);
+
+/**
+ * generic_phy_power_on_bulk() - Power on all phys in a phy	bulk struct.
+ *
+ * @bulk:	A phy bulk struct that was previously successfully requested
+ *		by generic_phy_get_bulk().
+ * @return 0 if OK, or negative error code.
+ */
+int generic_phy_power_on_bulk(struct phy_bulk *bulk);
+
+/**
+ * generic_phy_power_off_bulk() - Power off all phys in a phy bulk struct.
+ *
+ * @bulk:	A phy bulk struct that was previously successfully requested
+ *		by generic_phy_get_bulk().
+ * @return 0 if OK, or negative error code.
+ */
+int generic_phy_power_off_bulk(struct phy_bulk *bulk);
+
 #else /* CONFIG_PHY */
 
 static inline int generic_phy_init(struct phy *phy)
@@ -285,6 +351,32 @@ static inline int generic_phy_get_by_index(struct udevice *user, int index,
 
 static inline int generic_phy_get_by_name(struct udevice *user, const char *phy_name,
 			    struct phy *phy)
+{
+	return 0;
+}
+
+static inline int
+generic_phy_get_bulk(struct udevice *dev, struct phy_bulk *bulk)
+{
+	return 0;
+}
+
+static inline int generic_phy_init_bulk(struct phy_bulk *bulk)
+{
+	return 0;
+}
+
+static inline int generic_phy_exit_bulk(struct phy_bulk *bulk)
+{
+	return 0;
+}
+
+static inline int generic_phy_power_on_bulk(struct phy_bulk *bulk)
+{
+	return 0;
+}
+
+static inline int generic_phy_power_off_bulk(struct phy_bulk *bulk)
 {
 	return 0;
 }

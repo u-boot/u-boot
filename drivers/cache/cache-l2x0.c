@@ -36,6 +36,8 @@ static void l2c310_of_parse_and_init(struct udevice *dev)
 	if (dev_read_bool(dev, "arm,shared-override"))
 		saved_reg |= L310_SHARED_ATT_OVERRIDE_ENABLE;
 
+	writel(saved_reg, &regs->pl310_aux_ctrl);
+
 	saved_reg = readl(&regs->pl310_tag_latency_ctrl);
 	if (!dev_read_u32_array(dev, "arm,tag-latency", tag, 3))
 		saved_reg |= L310_LATENCY_CTRL_RD(tag[0] - 1) |

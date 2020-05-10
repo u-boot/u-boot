@@ -388,11 +388,13 @@ config SMC911X
 
 if SMC911X
 
+if !DM_ETH
 config SMC911X_BASE
 	hex "SMC911X Base Address"
 	help
 	  Define this to hold the physical address
 	  of the device (I/O space)
+endif #DM_ETH
 
 choice
 	prompt "SMC911X bus width"

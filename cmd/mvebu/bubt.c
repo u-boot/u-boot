@@ -730,8 +730,8 @@ static int bubt_check_boot_mode(const struct bubt_dev *dst)
 
 		for (int i = 0; i < ARRAY_SIZE(a38x_boot_modes); i++) {
 			if (a38x_boot_modes[i].id == hdr->blockid) {
-				printf("Error: A38x image meant to be "
-				       "booted from \"%s\", not \"%s\"!\n",
+				printf("Error: A38x image meant to be booted from "
+				       "\"%s\", not \"%s\"!\n",
 				       a38x_boot_modes[i].name, dst->name);
 				return -ENOEXEC;
 			}

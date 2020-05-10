@@ -9,6 +9,7 @@
 #ifndef __DWC3_UBOOT_H_
 #define __DWC3_UBOOT_H_
 
+#include <generic-phy.h>
 #include <linux/usb/otg.h>
 #include <linux/usb/phy.h>
 
@@ -43,17 +44,15 @@ void dwc3_uboot_handle_interrupt(int index);
 
 struct phy;
 #if CONFIG_IS_ENABLED(PHY) && CONFIG_IS_ENABLED(DM_USB)
-int dwc3_setup_phy(struct udevice *dev, struct phy **array, int *num_phys);
-int dwc3_shutdown_phy(struct udevice *dev, struct phy *usb_phys, int num_phys);
+int dwc3_setup_phy(struct udevice *dev, struct phy_bulk *phys);
+int dwc3_shutdown_phy(struct udevice *dev, struct phy_bulk *phys);
 #else
-static inline int dwc3_setup_phy(struct udevice *dev, struct phy **array,
-				 int *num_phys)
+static inline int dwc3_setup_phy(struct udevice *dev, struct phy_bulk *phys)
 {
 	return -ENOTSUPP;
 }
 
-static inline int dwc3_shutdown_phy(struct udevice *dev, struct phy *usb_phys,
-				    int num_phys)
+static inline int dwc3_shutdown_phy(struct udevice *dev, struct phy_bulk *phys)
 {
 	return -ENOTSUPP;
 }

@@ -595,6 +595,7 @@ unsigned int get_cpu_board_revision(void)
 		(void *)&be, sizeof(be));
 #else
 	struct udevice *dev;
+	int ret;
 #ifdef CONFIG_SYS_EEPROM_BUS_NUM
 	ret = i2c_get_chip_for_busnum(CONFIG_SYS_EEPROM_BUS_NUM,
 				      CONFIG_SYS_I2C_EEPROM_ADDR,
@@ -603,7 +604,7 @@ unsigned int get_cpu_board_revision(void)
 #else
 	ret = i2c_get_chip_for_busnum(0, CONFIG_SYS_I2C_EEPROM_ADDR,
 				      CONFIG_SYS_I2C_EEPROM_ADDR_LEN,
-				      &dev)
+				      &dev);
 #endif
 	if (!ret)
 		dm_i2c_read(dev, 0, (void *)&be, sizeof(be));

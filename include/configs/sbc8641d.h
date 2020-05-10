@@ -69,8 +69,6 @@
 #endif
 
 #undef	CONFIG_SYS_DRAM_TEST				/* memory test, takes time */
-#define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest region */
-#define CONFIG_SYS_MEMTEST_END		0x00400000
 
 /*
  * Base addresses -- Note these are effective addresses where the

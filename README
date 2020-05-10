@@ -896,8 +896,6 @@ The following options need to be configured:
 
 		CONFIG_TULIP
 		Support for Digital 2114x chips.
-		Optional CONFIG_TULIP_SELECT_MEDIA for board specific
-		modem chip initialisation (KS8761/QS6611).
 
 		CONFIG_NATSEMI
 		Support for National dp83815 chips.
@@ -2474,14 +2472,6 @@ Configuration Settings:
 
 - CONFIG_SYS_BAUDRATE_TABLE:
 		List of legal baudrate settings for this board.
-
-- CONFIG_SYS_MEMTEST_START, CONFIG_SYS_MEMTEST_END:
-		Begin and End addresses of the area used by the
-		simple memory test.
-
-- CONFIG_SYS_MEMTEST_SCRATCH:
-		Scratch address used by the alternate memory test
-		You only need to set this if address zero isn't writeable
 
 - CONFIG_SYS_MEM_RESERVE_SECURE
 		Only implemented for ARMv8 for now.

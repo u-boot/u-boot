@@ -8,6 +8,5 @@
 
 / {
 	model = "Firefly ROC-RK3399-PC Board";
-	compatible = "libretech,roc-rk3399-pc", "firefly,roc-rk3399-pc",
-		     "rockchip,rk3399";
+	compatible = "firefly,roc-rk3399-pc", "rockchip,rk3399";
 };

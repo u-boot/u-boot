@@ -63,7 +63,7 @@ static int x86_spl_init(void)
 	 * is not needed. We could make this a CONFIG option or perhaps
 	 * place it immediately below CONFIG_SYS_TEXT_BASE.
 	 */
-	char *ptr = (char *)0x110000;
+	__maybe_unused char *ptr = (char *)0x110000;
 #else
 	struct udevice *punit;
 #endif
@@ -111,7 +111,8 @@ static int x86_spl_init(void)
 			      __func__, ret);
 	}
 
-#ifndef CONFIG_TPL
+#ifndef CONFIG_SYS_COREBOOT
+# ifndef CONFIG_TPL
 	memset(&__bss_start, 0, (ulong)&__bss_end - (ulong)&__bss_start);
 
 	/* TODO(sjg@chromium.org): Consider calling cpu_init_r() here */
@@ -140,7 +141,7 @@ static int x86_spl_init(void)
 		return ret;
 	}
 	mtrr_commit(true);
-#else
+# else
 	ret = syscon_get_by_driver_data(X86_SYSCON_PUNIT, &punit);
 	if (ret)
 		debug("Could not find PUNIT (err=%d)\n", ret);
@@ -148,6 +149,7 @@ static int x86_spl_init(void)
 	ret = set_max_freq();
 	if (ret)
 		debug("Failed to set CPU frequency (err=%d)\n", ret);
+# endif
 #endif
 
 	return 0;
@@ -162,7 +164,7 @@ void board_init_f(ulong flags)
 		debug("Error %d\n", ret);
 		panic("x86_spl_init fail");
 	}
-#ifdef CONFIG_TPL
+#if IS_ENABLED(CONFIG_TPL) || IS_ENABLED(CONFIG_SYS_COREBOOT)
 	gd->bd = malloc(sizeof(*gd->bd));
 	if (!gd->bd) {
 		printf("Out of memory for bd_info size %x\n", sizeof(*gd->bd));
@@ -206,6 +208,19 @@ static int spl_board_load_image(struct spl_image_info *spl_image,
 	spl_image->load_addr = CONFIG_SYS_TEXT_BASE;
 	spl_image->os = IH_OS_U_BOOT;
 	spl_image->name = "U-Boot";
+
+	if (!IS_ENABLED(CONFIG_SYS_COREBOOT)) {
+		/*
+		 * Copy U-Boot from ROM
+		 * TODO(sjg@chromium.org): Figure out a way to get the text base
+		 * correctly here, and in the device-tree binman definition.
+		 *
+		 * Also consider using FIT so we get the correct image length
+		 * and parameters.
+		 */
+		memcpy((char *)spl_image->load_addr, (char *)0xfff00000,
+		       0x100000);
+	}
 
 	debug("Loading to %lx\n", spl_image->load_addr);
 

@@ -772,11 +772,9 @@ static int do_rename_gpt_parts(struct blk_desc *dev_desc, char *subcomm,
  out:
 	del_gpt_info();
 #ifdef CONFIG_RANDOM_UUID
-	if (str_disk_guid)
-		free(str_disk_guid);
+	free(str_disk_guid);
 #endif
-	if (new_partitions)
-		free(new_partitions);
+	free(new_partitions);
 	free(partitions_list);
 	return ret;
 }

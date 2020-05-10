@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
+ * Copyright 2020 NXP
  */
 
 #include <common.h>
@@ -250,8 +251,69 @@ static u32 t1023rdb_ctrl(u32 ctrl_type)
 {
 	ccsr_gpio_t __iomem *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
 	ccsr_gur_t __iomem  *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-	u32 val, orig_bus = i2c_get_bus_num();
+	u32 val;
 	u8 tmp;
+	int bus_num = I2C_PCA6408_BUS_NUM;
+
+#ifdef CONFIG_DM_I2C
+	struct udevice *dev;
+	int ret;
+
+	ret = i2c_get_chip_for_busnum(bus_num, I2C_PCA6408_ADDR,
+				      1, &dev);
+	if (ret) {
+		printf("%s: Cannot find udev for a bus %d\n", __func__,
+		       bus_num);
+		return ret;
+	}
+	switch (ctrl_type) {
+	case GPIO1_SD_SEL:
+		val = in_be32(&pgpio->gpdat);
+		val |= GPIO1_SD_SEL;
+		out_be32(&pgpio->gpdat, val);
+		setbits_be32(&pgpio->gpdir, GPIO1_SD_SEL);
+		break;
+	case GPIO1_EMMC_SEL:
+		val = in_be32(&pgpio->gpdat);
+		val &= ~GPIO1_SD_SEL;
+		out_be32(&pgpio->gpdat, val);
+		setbits_be32(&pgpio->gpdir, GPIO1_SD_SEL);
+		break;
+	case GPIO3_GET_VERSION:
+		pgpio = (ccsr_gpio_t *)(CONFIG_SYS_MPC85xx_GPIO_ADDR
+			 + GPIO3_OFFSET);
+		val = in_be32(&pgpio->gpdat);
+		val = ((val & GPIO3_BRD_VER_MASK) >> 26) & 0x3;
+		if (val == 0x3) /* GPIO3_4/5 not used on RevB */
+			val = 0;
+		return val;
+	case I2C_GET_BANK:
+		dm_i2c_read(dev, 0, &tmp, 1);
+		tmp &= 0x7;
+		tmp = ((tmp & 1) << 2) | (tmp & 2) | ((tmp & 4) >> 2);
+		return tmp;
+	case I2C_SET_BANK0:
+		tmp = 0x0;
+		dm_i2c_write(dev, 1, &tmp, 1);
+		tmp = 0xf8;
+		dm_i2c_write(dev, 3, &tmp, 1);
+		/* asserting HRESET_REQ */
+		out_be32(&gur->rstcr, 0x2);
+		break;
+	case I2C_SET_BANK4:
+		tmp = 0x1;
+		dm_i2c_write(dev, 1, &tmp, 1);
+		tmp = 0xf8;
+		dm_i2c_write(dev, 3, &tmp, 1);
+		out_be32(&gur->rstcr, 0x2);
+		break;
+	default:
+		break;
+	}
+#else
+	u32 orig_bus;
+
+	orig_bus = i2c_get_bus_num();
 
 	switch (ctrl_type) {
 	case GPIO1_SD_SEL:
@@ -275,14 +337,14 @@ static u32 t1023rdb_ctrl(u32 ctrl_type)
 			val = 0;
 		return val;
 	case I2C_GET_BANK:
-		i2c_set_bus_num(I2C_PCA6408_BUS_NUM);
+		i2c_set_bus_num(bus_num);
 		i2c_read(I2C_PCA6408_ADDR, 0, 1, &tmp, 1);
 		tmp &= 0x7;
 		tmp = ((tmp & 1) << 2) | (tmp & 2) | ((tmp & 4) >> 2);
 		i2c_set_bus_num(orig_bus);
 		return tmp;
 	case I2C_SET_BANK0:
-		i2c_set_bus_num(I2C_PCA6408_BUS_NUM);
+		i2c_set_bus_num(bus_num);
 		tmp = 0x0;
 		i2c_write(I2C_PCA6408_ADDR, 1, 1, &tmp, 1);
 		tmp = 0xf8;
@@ -291,7 +353,7 @@ static u32 t1023rdb_ctrl(u32 ctrl_type)
 		out_be32(&gur->rstcr, 0x2);
 		break;
 	case I2C_SET_BANK4:
-		i2c_set_bus_num(I2C_PCA6408_BUS_NUM);
+		i2c_set_bus_num(bus_num);
 		tmp = 0x1;
 		i2c_write(I2C_PCA6408_ADDR, 1, 1, &tmp, 1);
 		tmp = 0xf8;
@@ -301,6 +363,7 @@ static u32 t1023rdb_ctrl(u32 ctrl_type)
 	default:
 		break;
 	}
+#endif
 	return 0;
 }
 

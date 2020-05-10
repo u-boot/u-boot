@@ -53,6 +53,7 @@ int misc_init_r(void)
 	return 0;
 }
 
+#ifndef CONFIG_SYS_COREBOOT
 int checkcpu(void)
 {
 	return 0;
@@ -62,6 +63,7 @@ int print_cpuinfo(void)
 {
 	return 0;
 }
+#endif
 
 int x86_cpu_reinit_f(void)
 {
