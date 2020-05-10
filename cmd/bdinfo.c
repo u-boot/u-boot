@@ -171,64 +171,6 @@ static inline void __maybe_unused print_std_bdinfo(const bd_t *bd)
 	print_baudrate();
 }
 
-#if defined(CONFIG_PPC)
-
-#define USE_GENERIC
-
-#elif defined(CONFIG_NIOS2)
-
-#define USE_GENERIC
-
-#elif defined(CONFIG_MICROBLAZE)
-
-#define USE_GENERIC
-
-#elif defined(CONFIG_M68K)
-
-#define USE_GENERIC
-
-#elif defined(CONFIG_MIPS)
-
-#define USE_GENERIC
-
-#elif defined(CONFIG_ARM)
-
-#define USE_GENERIC
-
-#elif defined(CONFIG_SH)
-
-#define USE_GENERIC
-
-#elif defined(CONFIG_X86)
-
-#define USE_GENERIC
-
-#elif defined(CONFIG_SANDBOX)
-
-#define USE_GENERIC
-
-#elif defined(CONFIG_NDS32)
-
-#define USE_GENERIC
-
-#elif defined(CONFIG_RISCV)
-
-#define USE_GENERIC
-
-#elif defined(CONFIG_ARC)
-
-#define USE_GENERIC
-
-#elif defined(CONFIG_XTENSA)
-
-#define USE_GENERIC
-
-#else
- #error "a case for this architecture does not exist!"
-#endif
-
-/* Temporary check for archs that use generic bdinfo. Eventually all will */
-#ifdef USE_GENERIC
 void __weak board_detail(void)
 {
 	/* Please define board_detail() for your PPC platform */
@@ -343,7 +285,6 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 	return 0;
 }
-#endif
 
 /* -------------------------------------------------------------------- */
 
