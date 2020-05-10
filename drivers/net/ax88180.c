@@ -42,6 +42,7 @@
 #include <log.h>
 #include <net.h>
 #include <malloc.h>
+#include <linux/delay.h>
 #include <linux/mii.h>
 #include "ax88180.h"
 

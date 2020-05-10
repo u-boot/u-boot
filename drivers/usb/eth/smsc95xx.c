@@ -15,6 +15,7 @@
 #include <net.h>
 #include <usb.h>
 #include <asm/unaligned.h>
+#include <linux/delay.h>
 #include <linux/mii.h>
 #include "usb_ether.h"
 

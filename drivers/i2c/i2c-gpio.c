@@ -11,6 +11,7 @@
 #include <i2c.h>
 #include <log.h>
 #include <asm/gpio.h>
+#include <linux/delay.h>
 
 #define DEFAULT_UDELAY	5
 #define RETRIES		0

@@ -24,6 +24,7 @@
 #include <asm/mach-imx/sata.h>
 #include <linux/bitops.h>
 #include <linux/ctype.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include "dwc_ahsata_priv.h"
 

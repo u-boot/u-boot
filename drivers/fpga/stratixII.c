@@ -6,6 +6,7 @@
 
 #include <common.h>		/* core U-Boot definitions */
 #include <altera.h>
+#include <linux/delay.h>
 
 int StratixII_ps_fpp_load (Altera_desc * desc, void *buf, size_t bsize,
 			   int isSerial, int isSecure);

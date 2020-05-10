@@ -21,6 +21,7 @@
 #include <watchdog.h>
 #include <dm/device_compat.h>
 #include <linux/compiler.h>
+#include <linux/delay.h>
 
 #include "ehci.h"
 

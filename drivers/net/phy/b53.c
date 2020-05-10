@@ -24,6 +24,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <linux/delay.h>
 
 #include <errno.h>
 #include <malloc.h>

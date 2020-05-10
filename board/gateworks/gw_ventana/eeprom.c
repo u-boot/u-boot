@@ -12,6 +12,7 @@
 #include <log.h>
 #include <malloc.h>
 #include <asm/bitops.h>
+#include <linux/delay.h>
 
 #include "gsc.h"
 #include "ventana_eeprom.h"

@@ -13,6 +13,7 @@
 #include <malloc.h>
 #include <pwm.h>
 #include <asm/gpio.h>
+#include <linux/delay.h>
 #include <power/regulator.h>
 
 /**

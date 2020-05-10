@@ -19,6 +19,7 @@
 #include <command.h>
 #include <mpc83xx.h>
 #include <asm/processor.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <tsec.h>
 #include <netdev.h>

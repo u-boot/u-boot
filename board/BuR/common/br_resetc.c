@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <i2c.h>
 #include <dm/uclass.h>
+#include <linux/delay.h>
 #include "br_resetc.h"
 
 /* I2C Address of controller */

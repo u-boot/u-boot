@@ -8,6 +8,7 @@
 #include <common.h>
 #include <errno.h>
 #include <phy.h>
+#include <linux/delay.h>
 
 #define PHY_AUTONEGOTIATE_TIMEOUT 5000
 

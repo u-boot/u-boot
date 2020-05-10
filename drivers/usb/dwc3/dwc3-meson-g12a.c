@@ -14,6 +14,7 @@
 #include <dm/lists.h>
 #include <dwc3-uboot.h>
 #include <generic-phy.h>
+#include <linux/delay.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
 #include <malloc.h>

@@ -28,6 +28,7 @@
 #include <fsl_sec.h>
 #include <fsl_devdis.h>
 #include <spl.h>
+#include <linux/delay.h>
 #include "../common/sleep.h"
 #ifdef CONFIG_U_QE
 #include <fsl_qe.h>

@@ -20,6 +20,7 @@
 #include <serial.h>
 #include <xyzModem.h>
 #include <asm/cache.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

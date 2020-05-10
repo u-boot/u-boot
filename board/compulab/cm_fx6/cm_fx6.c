@@ -35,6 +35,7 @@
 #include <dm/platform_data/serial_mxc.h>
 #include <dm/device-internal.h>
 #include <jffs2/load_kernel.h>
+#include <linux/delay.h>
 #include "common.h"
 #include "../common/eeprom.h"
 #include "../common/common.h"

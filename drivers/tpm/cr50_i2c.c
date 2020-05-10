@@ -18,6 +18,7 @@
 #include <asm/io.h>
 #include <asm/arch/iomap.h>
 #include <asm/arch/pm.h>
+#include <linux/delay.h>
 
 enum {
 	TIMEOUT_INIT_MS		= 30000, /* Very long timeout for TPM init */

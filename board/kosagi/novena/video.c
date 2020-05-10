@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <log.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
 #include <asm/io.h>

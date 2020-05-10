@@ -25,6 +25,7 @@
 #include <pci.h>
 #include <asm/io.h>
 #include <linux/bug.h>
+#include <linux/delay.h>
 #include "integrator-sc.h"
 #include "pci_v3.h"
 

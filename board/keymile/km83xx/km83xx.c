@@ -26,6 +26,7 @@
 #include <asm/mmu.h>
 #include <asm/processor.h>
 #include <pci.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <post.h>
 

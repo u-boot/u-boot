@@ -10,6 +10,7 @@
 #include <asm/io.h>
 #include <asm/iproc-common/timer.h>
 #include <asm/iproc-common/sysmap.h>
+#include <linux/delay.h>
 
 static inline uint64_t timer_global_read(void)
 {

@@ -15,6 +15,7 @@
 #include <malloc.h>
 #include <asm/byteorder.h>
 #include <asm/cache.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/io.h>
 #include <asm/unaligned.h>

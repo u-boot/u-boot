@@ -9,6 +9,7 @@
 #include <asm/arch/freeze_controller.h>
 #include <asm/arch/scan_manager.h>
 #include <asm/arch/system_manager.h>
+#include <linux/delay.h>
 
 /*
  * Maximum polling loop to wait for IO scan chain engine becomes idle

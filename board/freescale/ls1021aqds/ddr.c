@@ -10,6 +10,7 @@
 #include <log.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
+#include <linux/delay.h>
 #include "ddr.h"
 
 DECLARE_GLOBAL_DATA_PTR;

@@ -20,6 +20,7 @@
 #include <asm/arch-rockchip/ddr_rk3368.h>
 #include <asm/arch-rockchip/sdram.h>
 #include <asm/arch-rockchip/sdram_rk3288.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 
 struct dram_info {

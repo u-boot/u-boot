@@ -16,6 +16,7 @@
 #include <asm/arch/pinmux.h>
 #include <asm/arch/watchdog.h>
 #include <ld9040.h>
+#include <linux/delay.h>
 #include <power/pmic.h>
 #include <usb.h>
 #include <usb/dwc2_udc.h>

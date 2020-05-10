@@ -22,6 +22,7 @@
 #include <asm/arch/clock.h>
 #endif
 #include <fsl_dspi.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

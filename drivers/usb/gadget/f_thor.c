@@ -23,6 +23,7 @@
 #include <malloc.h>
 #include <memalign.h>
 #include <version.h>
+#include <linux/delay.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
 #include <linux/usb/composite.h>

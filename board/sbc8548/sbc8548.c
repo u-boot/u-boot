@@ -23,6 +23,7 @@
 #include <netdev.h>
 #include <tsec.h>
 #include <miiphy.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 

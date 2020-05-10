@@ -16,6 +16,7 @@
 #include <phy.h>
 #include <miiphy.h>
 #include <wait_bit.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

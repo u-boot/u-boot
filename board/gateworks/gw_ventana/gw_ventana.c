@@ -35,6 +35,7 @@
 #include <mtd_node.h>
 #include <netdev.h>
 #include <pci.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <power/pmic.h>
 #include <power/ltc3676_pmic.h>

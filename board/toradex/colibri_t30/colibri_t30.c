@@ -13,6 +13,7 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <i2c.h>
+#include <linux/delay.h>
 #include "pinmux-config-colibri_t30.h"
 #include "../common/tdx-common.h"
 

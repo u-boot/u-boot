@@ -18,6 +18,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/i2c_defs.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 #include "davinci_i2c.h"
 
 #ifdef CONFIG_DM_I2C

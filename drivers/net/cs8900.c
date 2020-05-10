@@ -29,6 +29,7 @@
 #include <asm/io.h>
 #include <net.h>
 #include <malloc.h>
+#include <linux/delay.h>
 #include "cs8900.h"
 
 #undef DEBUG

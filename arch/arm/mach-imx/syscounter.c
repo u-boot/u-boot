@@ -13,6 +13,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-imx/syscounter.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

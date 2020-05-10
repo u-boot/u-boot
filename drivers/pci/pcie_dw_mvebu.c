@@ -16,6 +16,7 @@
 #include <pci.h>
 #include <asm/io.h>
 #include <asm-generic/gpio.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

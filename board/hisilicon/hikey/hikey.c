@@ -15,6 +15,7 @@
 #include <netdev.h>
 #include <asm/io.h>
 #include <usb.h>
+#include <linux/delay.h>
 #include <power/hi6553_pmic.h>
 #include <asm-generic/gpio.h>
 #include <asm/arch/dwmmc.h>

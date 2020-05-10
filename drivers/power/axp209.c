@@ -8,6 +8,7 @@
 #include <command.h>
 #include <asm/arch/pmic_bus.h>
 #include <axp_pmic.h>
+#include <linux/delay.h>
 
 #ifdef CONFIG_AXP_ALDO3_VOLT_SLOPE_08
 #  define AXP209_VRC_SLOPE AXP209_VRC_LDO3_800uV_uS

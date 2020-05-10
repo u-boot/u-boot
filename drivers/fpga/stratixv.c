@@ -8,6 +8,7 @@
 #include <log.h>
 #include <spi.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 
 /* Write the RBF data to FPGA via SPI */

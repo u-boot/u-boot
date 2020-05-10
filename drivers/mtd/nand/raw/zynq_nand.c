@@ -10,6 +10,7 @@
 #include <log.h>
 #include <malloc.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <nand.h>
 #include <linux/ioport.h>

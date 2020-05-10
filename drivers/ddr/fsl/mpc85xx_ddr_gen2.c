@@ -7,6 +7,7 @@
 #include <asm/io.h>
 #include <asm/processor.h>
 #include <fsl_ddr_sdram.h>
+#include <linux/delay.h>
 
 #if (CONFIG_CHIP_SELECTS_PER_CTRL > 4)
 #error Invalid setting for CONFIG_CHIP_SELECTS_PER_CTRL

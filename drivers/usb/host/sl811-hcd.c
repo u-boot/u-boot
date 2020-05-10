@@ -21,6 +21,7 @@
 #include <common.h>
 #include <mpc8xx.h>
 #include <usb.h>
+#include <linux/delay.h>
 #include "sl811.h"
 
 #include "../../../board/kup/common/kup.h"

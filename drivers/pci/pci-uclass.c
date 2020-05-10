@@ -17,6 +17,7 @@
 #if defined(CONFIG_X86) && defined(CONFIG_HAVE_FSP)
 #include <asm/fsp/fsp_support.h>
 #endif
+#include <linux/delay.h>
 #include "pci_internal.h"
 
 DECLARE_GLOBAL_DATA_PTR;

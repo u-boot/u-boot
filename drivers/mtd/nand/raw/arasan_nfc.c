@@ -8,6 +8,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/rawnand.h>

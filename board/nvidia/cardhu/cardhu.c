@@ -11,6 +11,7 @@
 #include <asm/arch/gp_padctrl.h>
 #include <asm/arch/gpio.h>
 #include <asm/gpio.h>
+#include <linux/delay.h>
 #include "pinmux-config-cardhu.h"
 #include <i2c.h>
 

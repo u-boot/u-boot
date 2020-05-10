@@ -15,6 +15,7 @@
 #include <asm/mmu.h>
 #include <asm/fsl_law.h>
 #include <fsl_ddr_sdram.h>
+#include <linux/delay.h>
 #include "mp.h"
 
 DECLARE_GLOBAL_DATA_PTR;

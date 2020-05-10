@@ -15,6 +15,7 @@
 #include <mmc.h>
 #include <palmas.h>
 #include <spl.h>
+#include <linux/delay.h>
 
 #include <asm/gpio.h>
 #include <asm/arch/sys_proto.h>

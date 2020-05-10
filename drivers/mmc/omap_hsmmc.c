@@ -50,6 +50,7 @@
 #endif
 #include <dm.h>
 #include <dm/devres.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 #include <power/regulator.h>
 #include <thermal.h>

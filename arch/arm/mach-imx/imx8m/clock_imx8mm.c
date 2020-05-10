@@ -12,6 +12,7 @@
 #include <asm/io.h>
 #include <div64.h>
 #include <errno.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

@@ -18,6 +18,7 @@
 #include <fsl_esdhc.h>
 #include <config.h>
 #include <fsl_wdog.h>
+#include <linux/delay.h>
 
 #include "fsl_epu.h"
 

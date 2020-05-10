@@ -15,6 +15,7 @@
 #include <asm/arch/clk.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 
 /* DMA controller channel register structure */
 struct dmac_chan_reg {

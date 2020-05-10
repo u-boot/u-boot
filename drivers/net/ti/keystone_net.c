@@ -8,6 +8,7 @@
 #include <common.h>
 #include <command.h>
 #include <console.h>
+#include <linux/delay.h>
 
 #include <dm.h>
 #include <dm/lists.h>

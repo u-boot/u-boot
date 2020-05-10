@@ -39,6 +39,7 @@
 #include <dm/device_compat.h>
 #include <linux/bug.h>
 #include <linux/compat.h>
+#include <linux/delay.h>
 #include <linux/io.h>
 #include <linux/iopoll.h>
 #include <linux/sizes.h>

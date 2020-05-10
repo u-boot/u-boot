@@ -11,6 +11,7 @@
 #include <init.h>
 #include <asm/io.h>
 #include <env.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/crm_regs.h>

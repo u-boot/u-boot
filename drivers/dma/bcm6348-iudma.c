@@ -26,6 +26,7 @@
 #include <net.h>
 #include <reset.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 
 #define DMA_RX_DESC	6
 #define DMA_TX_DESC	1

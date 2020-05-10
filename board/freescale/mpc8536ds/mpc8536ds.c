@@ -19,6 +19,7 @@
 #include <asm/fsl_serdes.h>
 #include <spd.h>
 #include <miiphy.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <spd_sdram.h>
 #include <fdt_support.h>

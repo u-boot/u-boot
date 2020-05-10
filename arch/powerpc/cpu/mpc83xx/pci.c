@@ -9,6 +9,7 @@
 #include <common.h>
 #include <init.h>
 #include <pci.h>
+#include <linux/delay.h>
 
 #if defined(CONFIG_OF_LIBFDT)
 #include <linux/libfdt.h>

@@ -18,6 +18,7 @@
 #include <fdtdec.h>
 #include <i2c.h>
 #include <remoteproc.h>
+#include <linux/delay.h>
 #include "mux-k2g.h"
 #include "../common/board_detect.h"
 

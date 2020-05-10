@@ -16,6 +16,7 @@
 #include <asm/arch/hardware.h>
 #include <dm.h>
 #include <dm/platform_data/spi_davinci.h>
+#include <linux/delay.h>
 
 /* SPIGCR0 */
 #define SPIGCR0_SPIENA_MASK	0x1

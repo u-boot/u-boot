@@ -14,6 +14,7 @@
 #endif
 #include <log.h>
 #include <asm/unaligned.h>
+#include <linux/delay.h>
 
 #ifdef CONFIG_DM_I2C
 struct ihs_i2c_priv {

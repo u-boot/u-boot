@@ -8,6 +8,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <i2c.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 
 #define I2C_TIMEOUT_MS		100

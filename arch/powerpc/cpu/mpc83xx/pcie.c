@@ -11,6 +11,7 @@
 #include <pci.h>
 #include <mpc83xx.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

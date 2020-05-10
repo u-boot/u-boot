@@ -13,6 +13,7 @@
 #include <dm/platform_data/serial_pl01x.h>
 #include <asm/arch/hi3798cv200.h>
 #include <asm/armv8/mmu.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

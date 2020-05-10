@@ -11,6 +11,7 @@
 #include <efi_loader.h>
 #include <init.h>
 #include <time.h>
+#include <linux/delay.h>
 
 #include <asm/arch/clock.h>
 #include <asm/arch/display.h>

@@ -8,6 +8,7 @@
 #include <asm/fsl_law.h>
 #endif
 #include <div64.h>
+#include <linux/delay.h>
 
 #include <fsl_ddr.h>
 #include <fsl_immap.h>

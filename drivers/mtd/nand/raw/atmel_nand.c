@@ -17,6 +17,7 @@
 #include <dm/device_compat.h>
 #include <dm/devres.h>
 #include <linux/bug.h>
+#include <linux/delay.h>
 
 #include <malloc.h>
 #include <nand.h>

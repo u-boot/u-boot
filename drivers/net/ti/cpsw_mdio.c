@@ -11,6 +11,7 @@
 #include <asm/io.h>
 #include <miiphy.h>
 #include <wait_bit.h>
+#include <linux/delay.h>
 
 struct cpsw_mdio_regs {
 	u32	version;

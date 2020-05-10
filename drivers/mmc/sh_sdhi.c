@@ -16,6 +16,7 @@
 #include <dm.h>
 #include <part.h>
 #include <dm/device_compat.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <linux/compat.h>
 #include <linux/io.h>

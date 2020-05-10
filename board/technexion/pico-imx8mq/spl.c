@@ -15,6 +15,7 @@
 #include <asm/mach-imx/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/mxc_i2c.h>
+#include <linux/delay.h>
 #include <errno.h>
 #include <fsl_esdhc_imx.h>
 #include <mmc.h>

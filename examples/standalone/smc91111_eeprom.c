@@ -12,6 +12,7 @@
 
 #include <common.h>
 #include <exports.h>
+#include <linux/delay.h>
 #include "../drivers/net/smc91111.h"
 
 #ifndef SMC91111_EEPROM_INIT

@@ -76,6 +76,7 @@
 #include <netdev.h>
 #include <asm/io.h>
 #include <pci.h>
+#include <linux/delay.h>
 #include <linux/types.h>
 
 #define RTL_TIMEOUT	100000

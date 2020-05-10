@@ -13,6 +13,7 @@
 #include <asm/arch/emc.h>
 #include <asm/arch/wdt.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

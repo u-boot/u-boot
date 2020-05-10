@@ -11,6 +11,7 @@
 #include <dt-bindings/reset/imx7-reset.h>
 #include <dt-bindings/reset/imx8mq-reset.h>
 #include <reset-uclass.h>
+#include <linux/delay.h>
 
 struct imx7_reset_priv {
 	void __iomem *base;

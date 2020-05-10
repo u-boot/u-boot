@@ -33,6 +33,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <asm/cache.h>
+#include <linux/delay.h>
 
 #if defined(CONFIG_PCI_OHCI)
 # include <pci.h>

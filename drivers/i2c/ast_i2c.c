@@ -14,6 +14,7 @@
 #include <log.h>
 #include <asm/io.h>
 #include <asm/arch/scu_ast2500.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 
 #include "ast_i2c.h"

@@ -11,6 +11,7 @@
 #include <asm/arch/immap_ls102xa.h>
 #include <asm/arch/ls102xa_soc.h>
 #include <asm/arch/fsl_serdes.h>
+#include <linux/delay.h>
 #include "../common/sleep.h"
 #include <fsl_validate.h>
 #include <fsl_immap.h>

@@ -16,6 +16,7 @@
 #include <asm/mach-imx/mx5_video.h>
 #include <ACEX1K.h>
 #include <asm/gpio.h>
+#include <linux/delay.h>
 
 enum LED_GPIOS {
 	GPIO_SD1_CD = IMX_GPIO_NR(1, 1),

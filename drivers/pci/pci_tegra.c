@@ -21,6 +21,7 @@
 #include <pci_tegra.h>
 #include <power-domain.h>
 #include <reset.h>
+#include <linux/delay.h>
 
 #include <asm/io.h>
 #include <asm/gpio.h>

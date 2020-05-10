@@ -11,6 +11,7 @@
 #include <common.h>
 #include <i2c.h>
 #include <command.h>
+#include <linux/delay.h>
 #include "ds4510.h"
 
 enum {

@@ -9,6 +9,7 @@
 #include <spl.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 
 #ifdef CONFIG_SPL_OS_BOOT

@@ -29,6 +29,7 @@
 #include <malloc.h>
 #include <asm/io.h>
 #include <asm/arch/pxa.h>
+#include <linux/delay.h>
 
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>

@@ -13,6 +13,7 @@
 #include <pci.h>
 #include <reset.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 #include "designware_i2c.h"
 #include <dm/device_compat.h>
 #include <linux/err.h>

@@ -10,6 +10,7 @@
 #include <flash.h>
 #include <irq_func.h>
 #include <uuid.h>
+#include <linux/delay.h>
 
 #define PHYS_FLASH_1 CONFIG_SYS_FLASH_BASE
 #define FLASH_BANK_SIZE 0x200000
@@ -235,7 +236,7 @@ int flash_erase(flash_info_t *info, int s_first, int s_last)
 
       outahere:
 	/* allow flash to settle - wait 10 ms */
-	udelay (10000);
+	mdelay(10);
 
 	if (iflag)
 		enable_interrupts();

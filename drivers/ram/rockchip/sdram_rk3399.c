@@ -22,6 +22,7 @@
 #include <asm/arch-rockchip/hardware.h>
 #include <asm/arch-rockchip/sdram.h>
 #include <asm/arch-rockchip/sdram_rk3399.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 #include <time.h>
 

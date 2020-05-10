@@ -18,6 +18,7 @@
  */
 
 #include <common.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <linux/list.h>
 #include <malloc.h>

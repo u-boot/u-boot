@@ -14,6 +14,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/dram.h>
 #include <asm/arch/prcm.h>
+#include <linux/delay.h>
 
 #define DRAM_CLK_MUL 2
 #define DRAM_CLK_DIV 1

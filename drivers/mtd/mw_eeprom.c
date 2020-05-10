@@ -3,6 +3,7 @@
 #include <common.h>
 #include <eeprom.h>
 #include <asm/ic/ssi.h>
+#include <linux/delay.h>
 
 /*
  * Serial EEPROM opcodes, including start bit

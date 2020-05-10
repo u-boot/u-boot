@@ -11,6 +11,7 @@
 #include <menu.h>
 #include <watchdog.h>
 #include <malloc.h>
+#include <linux/delay.h>
 #include <linux/string.h>
 
 /* maximum bootmenu entries */

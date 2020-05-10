@@ -13,6 +13,7 @@
 #include <video_bridge.h>
 #include <asm/io.h>
 #include <asm/arch-tegra/dc.h>
+#include <linux/delay.h>
 #include "display.h"
 #include "edid.h"
 #include "sor.h"

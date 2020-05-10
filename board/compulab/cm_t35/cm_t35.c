@@ -23,6 +23,7 @@
 #include <splash.h>
 #include <twl4030.h>
 #include <linux/compiler.h>
+#include <linux/delay.h>
 
 #include <asm/io.h>
 #include <linux/errno.h>

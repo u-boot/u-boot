@@ -18,6 +18,7 @@
 #include <lcd.h>
 #include <bmp_layout.h>
 #include <atmel_lcdc.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

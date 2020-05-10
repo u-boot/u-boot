@@ -10,6 +10,7 @@
 #include <common.h>
 #include <log.h>
 #include <usb.h>
+#include <linux/delay.h>
 #include "musb_hcd.h"
 
 /* MSC control transfers */

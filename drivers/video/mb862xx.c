@@ -10,6 +10,7 @@
  */
 
 #include <common.h>
+#include <linux/delay.h>
 
 #include <asm/io.h>
 #include <env.h>

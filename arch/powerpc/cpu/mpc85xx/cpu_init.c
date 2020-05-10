@@ -33,6 +33,7 @@
 #include <fsl_usb.h>
 #include <hwconfig.h>
 #include <linux/compiler.h>
+#include <linux/delay.h>
 #include "mp.h"
 #ifdef CONFIG_CHAIN_OF_TRUST
 #include <fsl_validate.h>

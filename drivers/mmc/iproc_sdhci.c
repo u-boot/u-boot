@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <malloc.h>
 #include <sdhci.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

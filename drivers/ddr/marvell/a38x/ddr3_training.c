@@ -8,6 +8,7 @@
 #include "mv_ddr_training_db.h"
 #include "mv_ddr_regs.h"
 #include <log.h>
+#include <linux/delay.h>
 
 #define GET_CS_FROM_MASK(mask)	(cs_mask2_num[mask])
 #define CS_CBE_VALUE(cs_num)	(cs_cbe_reg[cs_num])

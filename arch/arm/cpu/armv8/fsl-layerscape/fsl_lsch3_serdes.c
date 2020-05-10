@@ -8,6 +8,7 @@
 #include <env.h>
 #include <log.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch/soc.h>

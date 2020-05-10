@@ -77,6 +77,7 @@
 #include <malloc.h>
 #include <asm/byteorder.h>
 #include <linux/compiler.h>
+#include <linux/delay.h>
 #include <u-boot/crc.h>
 
 /* Display values from last command.

@@ -11,6 +11,7 @@
 #include <asm/gpio.h>
 #include <asm/arch/mmc.h>
 #include <dm.h>
+#include <linux/delay.h>
 #include <power/pmic.h>
 #include <usb/dwc2_udc.h>
 #include <asm/arch/cpu.h>

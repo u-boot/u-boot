@@ -7,6 +7,8 @@
 #ifndef __REGMAP_H
 #define __REGMAP_H
 
+#include <linux/delay.h>
+
 /**
  * DOC: Overview
  *

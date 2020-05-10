@@ -10,6 +10,7 @@
 #include <asm/io.h>
 #include <asm/processor.h>
 #include <asm/fsl_law.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <fsl_errata.h>
 #include "fsl_corenet2_serdes.h"

@@ -7,6 +7,7 @@
  */
 #include <common.h>
 #include <command.h>
+#include <linux/delay.h>
 
 static int do_conitrace(struct cmd_tbl *cmdtp, int flag, int argc,
 			char *const argv[])

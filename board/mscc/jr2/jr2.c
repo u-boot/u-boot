@@ -9,6 +9,7 @@
 #include <asm/io.h>
 #include <led.h>
 #include <miiphy.h>
+#include <linux/delay.h>
 
 enum {
 	BOARD_TYPE_PCB110 = 0xAABBCE00,

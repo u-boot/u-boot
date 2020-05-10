@@ -15,6 +15,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/dram.h>
 #include <asm/arch/cpu.h>
+#include <linux/delay.h>
 #include <linux/kconfig.h>
 
 static void mctl_phy_init(u32 val)

@@ -12,6 +12,7 @@
 #ifdef CONFIG_USB_EHCI_FSL
 #include <usb/ehci-ci.h>
 #endif
+#include <linux/delay.h>
 
 #include "lblaw/lblaw.h"
 #include "elbc/elbc.h"

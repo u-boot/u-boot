@@ -16,6 +16,7 @@
 #include <pci.h>
 #include <miiphy.h>
 #include <linux/bug.h>
+#include <linux/delay.h>
 
 #include "fsl_enetc.h"
 

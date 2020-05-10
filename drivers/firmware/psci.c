@@ -13,6 +13,7 @@
 #include <log.h>
 #include <dm/lists.h>
 #include <efi_loader.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <linux/arm-smccc.h>
 #include <linux/errno.h>

@@ -15,6 +15,7 @@
 #include <phy.h>
 #include <netdev.h>
 #include <fsl_esdhc_imx.h>
+#include <linux/delay.h>
 #include <power/pmic.h>
 #include <power/pfuze3000_pmic.h>
 #include <asm/mach-imx/mxc_i2c.h>

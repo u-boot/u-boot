@@ -25,6 +25,8 @@
 #ifndef _XYZMODEM_H_
 #define _XYZMODEM_H_
 
+#include <linux/delay.h>
+
 #define xyzModem_xmodem 1
 #define xyzModem_ymodem 2
 /* Don't define this until the protocol support is in place */

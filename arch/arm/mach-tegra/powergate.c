@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <errno.h>
+#include <linux/delay.h>
 
 #include <asm/io.h>
 #include <asm/types.h>

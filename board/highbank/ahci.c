@@ -6,6 +6,7 @@
 #include <common.h>
 #include <ahci.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 
 #define CPHY_MAP(dev, addr) ((((dev) & 0x1f) << 7) | (((addr) >> 9) & 0x7f))
 #define CPHY_ADDR(base, dev, addr) ((base) | (((addr) & 0x1ff) << 2))

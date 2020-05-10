@@ -15,6 +15,7 @@
 #if CONFIG_IS_ENABLED(DM_GPIO)
 #include <asm/gpio.h>
 #endif
+#include <linux/delay.h>
 
 #define I2C_MAX_OFFSET_LEN	4
 

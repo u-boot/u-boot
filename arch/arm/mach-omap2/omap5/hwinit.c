@@ -18,6 +18,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/clock.h>
+#include <linux/delay.h>
 #include <linux/sizes.h>
 #include <asm/utils.h>
 #include <asm/arch/gpio.h>

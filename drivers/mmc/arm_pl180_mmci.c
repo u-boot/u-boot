@@ -23,6 +23,7 @@
 #include <asm-generic/gpio.h>
 
 #include "arm_pl180_mmci.h"
+#include <linux/delay.h>
 
 #ifdef CONFIG_DM_MMC
 #include <dm.h>

@@ -11,6 +11,7 @@
 #include <net.h>
 #include <miiphy.h>
 #include <linux/io.h>
+#include <linux/delay.h>
 #include <linux/types.h>
 
 #include "smc911x.h"

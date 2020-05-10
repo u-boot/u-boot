@@ -15,6 +15,7 @@
 #include <errno.h>
 #include <spi.h>
 #include <asm/gpio.h>
+#include <linux/delay.h>
 
 #define PWR_ON_DELAY_MSECS  120
 

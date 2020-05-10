@@ -10,6 +10,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 
 #define LOCK		0
 #define SPLIT		1

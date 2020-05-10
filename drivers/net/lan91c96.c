@@ -48,6 +48,7 @@
 #include <command.h>
 #include <env.h>
 #include <malloc.h>
+#include <linux/delay.h>
 #include "lan91c96.h"
 #include <net.h>
 #include <linux/compiler.h>

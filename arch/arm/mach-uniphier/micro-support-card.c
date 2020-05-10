@@ -11,6 +11,7 @@
 #include <net.h>
 #include <dm/of.h>
 #include <linux/ctype.h>
+#include <linux/delay.h>
 #include <linux/io.h>
 
 #include "micro-support-card.h"

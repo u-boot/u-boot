@@ -25,6 +25,7 @@
 #include <eeprom.h>
 #include <i2c.h>
 #include <eeprom_layout.h>
+#include <linux/delay.h>
 
 #ifndef	CONFIG_SYS_I2C_SPEED
 #define	CONFIG_SYS_I2C_SPEED	50000

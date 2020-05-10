@@ -12,6 +12,7 @@
 #include <env.h>
 #include <malloc.h>
 #include <net.h>
+#include <linux/delay.h>
 #include <linux/io.h>
 
 #include "ftmac100.h"

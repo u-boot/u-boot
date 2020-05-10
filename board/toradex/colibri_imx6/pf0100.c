@@ -15,6 +15,7 @@
 #include <asm/arch/mx6-pins.h>
 #include <asm/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>
+#include <linux/delay.h>
 
 #include "pf0100_otp.inc"
 #include "pf0100.h"

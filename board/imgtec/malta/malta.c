@@ -13,6 +13,7 @@
 #include <pci_gt64120.h>
 #include <pci_msc01.h>
 #include <rtc.h>
+#include <linux/delay.h>
 
 #include <asm/addrspace.h>
 #include <asm/io.h>

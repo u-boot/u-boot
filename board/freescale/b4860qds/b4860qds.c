@@ -16,6 +16,7 @@
 #include <linux/compiler.h>
 #include <asm/mmu.h>
 #include <asm/processor.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/cache.h>
 #include <asm/immap_85xx.h>

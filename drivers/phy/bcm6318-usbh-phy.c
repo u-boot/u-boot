@@ -17,6 +17,7 @@
 #include <reset.h>
 #include <asm/io.h>
 #include <dm/device.h>
+#include <linux/delay.h>
 
 /* USBH Setup register */
 #define USBH_SETUP_REG		0x00

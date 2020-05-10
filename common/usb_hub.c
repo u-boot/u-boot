@@ -32,6 +32,7 @@
 #include <asm/processor.h>
 #include <asm/unaligned.h>
 #include <linux/ctype.h>
+#include <linux/delay.h>
 #include <linux/list.h>
 #include <asm/byteorder.h>
 #ifdef CONFIG_SANDBOX

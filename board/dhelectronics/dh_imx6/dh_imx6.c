@@ -32,6 +32,7 @@
 #include <i2c_eeprom.h>
 #include <mmc.h>
 #include <usb.h>
+#include <linux/delay.h>
 #include <usb/ehci-ci.h>
 
 DECLARE_GLOBAL_DATA_PTR;

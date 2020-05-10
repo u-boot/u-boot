@@ -19,6 +19,7 @@
 #include <exports.h>
 #include <env_internal.h>
 #include <watchdog.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

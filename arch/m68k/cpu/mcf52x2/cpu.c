@@ -22,6 +22,7 @@
 #include <asm/immap.h>
 #include <asm/io.h>
 #include <netdev.h>
+#include <linux/delay.h>
 #include "cpu.h"
 
 DECLARE_GLOBAL_DATA_PTR;

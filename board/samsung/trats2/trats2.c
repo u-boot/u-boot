@@ -12,6 +12,7 @@
 #include <asm/arch/pinmux.h>
 #include <asm/arch/power.h>
 #include <asm/arch/mipi_dsim.h>
+#include <linux/delay.h>
 #include <power/pmic.h>
 #include <power/max77686_pmic.h>
 #include <power/battery.h>

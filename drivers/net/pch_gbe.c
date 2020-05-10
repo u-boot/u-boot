@@ -14,6 +14,7 @@
 #include <asm/io.h>
 #include <pci.h>
 #include <miiphy.h>
+#include <linux/delay.h>
 #include "pch_gbe.h"
 
 #if !defined(CONFIG_PHYLIB)

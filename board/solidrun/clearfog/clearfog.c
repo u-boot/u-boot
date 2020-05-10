@@ -13,6 +13,7 @@
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
+#include <linux/delay.h>
 #include "../common/tlv_data.h"
 
 #include "../drivers/ddr/marvell/a38x/ddr3_init.h"

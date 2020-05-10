@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <linux/delay.h>
 #include <power/pmic.h>
 #include <power/regulator.h>
 #include <power/s2mps11.h>

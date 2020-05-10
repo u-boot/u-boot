@@ -51,6 +51,7 @@
 #include <command.h>
 #include <config.h>
 #include <malloc.h>
+#include <linux/delay.h>
 #include "smc91111.h"
 #include <net.h>
 

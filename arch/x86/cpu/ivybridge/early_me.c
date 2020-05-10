@@ -16,6 +16,7 @@
 #include <asm/arch/me.h>
 #include <asm/arch/pch.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 
 static const char *const me_ack_values[] = {
 	[ME_HFS_ACK_NO_DID]	= "No DID Ack received",

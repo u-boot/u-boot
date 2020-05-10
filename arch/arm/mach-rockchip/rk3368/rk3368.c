@@ -14,6 +14,7 @@
 #include <asm/arch-rockchip/cru_rk3368.h>
 #include <asm/arch-rockchip/grf_rk3368.h>
 #include <asm/arch-rockchip/hardware.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

@@ -8,6 +8,7 @@
 #include <common.h>
 #include <asm/addrspace.h>
 #include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/sizes.h>
 #include <linux/io.h>
 #include <mach/ddr.h>

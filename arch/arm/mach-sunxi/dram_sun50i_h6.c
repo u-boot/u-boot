@@ -13,6 +13,7 @@
 #include <asm/arch/dram.h>
 #include <asm/arch/cpu.h>
 #include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/kconfig.h>
 
 /*

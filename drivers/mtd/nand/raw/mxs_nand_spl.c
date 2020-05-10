@@ -10,6 +10,7 @@
 #include <malloc.h>
 #include <mxs_nand.h>
 #include <asm/cache.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 
 static struct mtd_info *mtd;

@@ -19,6 +19,7 @@
 #include <asm/ibmpc.h>
 #include <asm/msr.h>
 #include <asm/u-boot-x86.h>
+#include <linux/delay.h>
 
 #define MAX_NUM_FREQS	9
 

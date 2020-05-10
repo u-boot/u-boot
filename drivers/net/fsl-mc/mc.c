@@ -13,6 +13,7 @@
 #include <malloc.h>
 #include <linux/bug.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <net.h>
 #include <fdt_support.h>

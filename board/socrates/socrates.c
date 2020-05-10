@@ -20,6 +20,7 @@
 #include <asm/immap_85xx.h>
 #include <ioports.h>
 #include <flash.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <asm/io.h>

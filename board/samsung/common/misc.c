@@ -9,6 +9,7 @@
 #include <env.h>
 #include <lcd.h>
 #include <libtizen.h>
+#include <linux/delay.h>
 #include <samsung/misc.h>
 #include <errno.h>
 #include <version.h>

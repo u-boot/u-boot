@@ -17,6 +17,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <linux/delay.h>
+
 /* High Level Configuration Options */
 #define CONFIG_CPM2		1	/* has CPM2 */
 

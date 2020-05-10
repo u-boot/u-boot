@@ -18,6 +18,7 @@
 #include <command.h>
 #include <rtc.h>
 #include <spi.h>
+#include <linux/delay.h>
 
 #define	RTC_SECONDS		0x00
 #define	RTC_MINUTES		0x01

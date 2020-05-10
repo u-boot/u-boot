@@ -15,6 +15,7 @@
 #include <dm.h>
 #include <log.h>
 #include <linux/bug.h>
+#include <linux/delay.h>
 #include <linux/io.h>
 #include <asm/arcregs.h>
 

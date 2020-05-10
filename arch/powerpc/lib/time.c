@@ -8,6 +8,7 @@
 #include <init.h>
 #include <time.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 
 /* ------------------------------------------------------------------------- */
 

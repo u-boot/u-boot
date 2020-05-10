@@ -11,6 +11,7 @@
 #include <asm/system.h>
 #include <asm/arch/mp.h>
 #include <asm/arch/soc.h>
+#include <linux/delay.h>
 #include "cpu.h"
 #include <asm/arch-fsl-layerscape/soc.h>
 

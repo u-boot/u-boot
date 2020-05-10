@@ -12,6 +12,7 @@
 #include <env.h>
 #include <init.h>
 #include <net.h>
+#include <linux/delay.h>
 
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>

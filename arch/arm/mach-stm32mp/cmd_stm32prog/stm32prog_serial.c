@@ -11,6 +11,7 @@
 #include <watchdog.h>
 #include <dm/lists.h>
 #include <dm/device-internal.h>
+#include <linux/delay.h>
 #include "stm32prog.h"
 
 /* - configuration part -----------------------------*/

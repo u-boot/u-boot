@@ -16,6 +16,7 @@
 #ifdef CONFIG_LED_STATUS
 #include <status_led.h>
 #endif
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

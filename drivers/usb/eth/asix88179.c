@@ -10,6 +10,7 @@
 #include <log.h>
 #include <usb.h>
 #include <net.h>
+#include <linux/delay.h>
 #include <linux/mii.h>
 #include "usb_ether.h"
 #include <malloc.h>

@@ -17,6 +17,7 @@
 #include <net.h>
 #include <rand.h>
 #include <uuid.h>
+#include <linux/delay.h>
 #include <net/tftp.h>
 #include "bootp.h"
 #ifdef CONFIG_LED_STATUS

@@ -23,6 +23,7 @@
 #include <dm/device_compat.h>
 #include <dm/devres.h>
 #include <linux/compiler.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 #include <linux/kernel.h>
 #include <asm/io.h>

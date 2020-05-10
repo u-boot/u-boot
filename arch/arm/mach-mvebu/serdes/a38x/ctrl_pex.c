@@ -8,6 +8,7 @@
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
+#include <linux/delay.h>
 
 #include "ctrl_pex.h"
 #include "sys_env_lib.h"

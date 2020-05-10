@@ -17,6 +17,7 @@
 #include <asm/io.h>
 #include <dm/lists.h>
 #include <dt-bindings/clock/px30-cru.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

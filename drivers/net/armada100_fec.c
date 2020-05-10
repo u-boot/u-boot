@@ -17,6 +17,7 @@
 #include <netdev.h>
 #include <asm/types.h>
 #include <asm/byteorder.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 #include <linux/mii.h>
 #include <asm/io.h>

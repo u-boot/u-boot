@@ -22,6 +22,7 @@
 #include <part.h>
 #include <asm/cache.h>
 #include <dm/device_compat.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 #include <power/regulator.h>
 #include <malloc.h>

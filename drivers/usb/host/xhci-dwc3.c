@@ -13,6 +13,7 @@
 #include <log.h>
 #include <usb.h>
 #include <dwc3-uboot.h>
+#include <linux/delay.h>
 
 #include <usb/xhci.h>
 #include <asm/io.h>

@@ -18,6 +18,7 @@
 #include <asm/io.h>
 #include <dm/device_compat.h>
 #include <linux/bitops.h>
+#include <linux/delay.h>
 #include <power/regulator.h>
 
 #define USBHS_LPSTS			0x02

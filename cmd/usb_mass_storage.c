@@ -17,6 +17,7 @@
 #include <usb.h>
 #include <usb_mass_storage.h>
 #include <watchdog.h>
+#include <linux/delay.h>
 
 static int ums_read_sector(struct ums *ums_dev,
 			   ulong start, lbaint_t blkcnt, void *buf)

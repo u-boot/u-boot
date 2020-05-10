@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <log.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <os.h>
 #include <asm/io.h>

@@ -19,6 +19,7 @@
 #include <ide.h>
 #include <sata.h>
 #include <libata.h>
+#include <linux/delay.h>
 #include "sata_sil3114.h"
 
 /* Convert sectorsize to wordsize */

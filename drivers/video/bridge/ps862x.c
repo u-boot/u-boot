@@ -10,6 +10,7 @@
 #include <i2c.h>
 #include <log.h>
 #include <video_bridge.h>
+#include <linux/delay.h>
 #include <power/regulator.h>
 
 DECLARE_GLOBAL_DATA_PTR;

@@ -9,6 +9,7 @@
 #include <log.h>
 #include <reset.h>
 #include <rng.h>
+#include <linux/delay.h>
 
 #include <asm/io.h>
 #include <linux/iopoll.h>

@@ -23,6 +23,7 @@
 #include <spd.h>
 #include <asm/mmu.h>
 #include <spd_sdram.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

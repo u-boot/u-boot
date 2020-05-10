@@ -19,6 +19,7 @@
 #endif
 #include <asm/arch/gpio.h>
 #include <asm/arch-tegra/tegra_i2c.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 
 enum i2c_type {

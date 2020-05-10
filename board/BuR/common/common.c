@@ -15,6 +15,7 @@
 #include <fdtdec.h>
 #include <i2c.h>
 #include <lcd.h>
+#include <linux/delay.h>
 #include "bur_common.h"
 
 DECLARE_GLOBAL_DATA_PTR;

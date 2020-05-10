@@ -15,6 +15,7 @@
 #include <dm/lists.h>
 #include <dm/device-internal.h>
 #include <dm/of_access.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

@@ -38,6 +38,7 @@
 #include <asm/arch/gpio.h>
 #include <asm/io.h>
 #include <i2c.h>
+#include <linux/delay.h>
 
 #include "ethernut5_pwrman.h"
 

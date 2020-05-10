@@ -10,6 +10,7 @@
 #include <common.h>
 #include <log.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 #include <usb/ulpi.h>
 
 #define OMAP_ULPI_WR_OPSEL	(2 << 22)

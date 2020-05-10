@@ -18,6 +18,7 @@
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dm/root.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 
 int sysreset_request(struct udevice *dev, enum sysreset_t type)

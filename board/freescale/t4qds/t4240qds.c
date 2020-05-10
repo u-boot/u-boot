@@ -23,6 +23,7 @@
 #include <asm/fsl_serdes.h>
 #include <asm/fsl_liodn.h>
 #include <fm_eth.h>
+#include <linux/delay.h>
 
 #include "../common/qixis.h"
 #include "../common/vsc3316_3308.h"

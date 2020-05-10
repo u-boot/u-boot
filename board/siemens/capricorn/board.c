@@ -27,6 +27,7 @@
 #ifndef CONFIG_SPL
 #include <asm/arch-imx8/clock.h>
 #endif
+#include <linux/delay.h>
 #include "../common/factoryset.h"
 
 #define GPIO_PAD_CTRL \

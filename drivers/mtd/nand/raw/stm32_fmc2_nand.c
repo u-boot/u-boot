@@ -10,6 +10,7 @@
 #include <log.h>
 #include <nand.h>
 #include <reset.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 #include <linux/iopoll.h>
 #include <linux/ioport.h>

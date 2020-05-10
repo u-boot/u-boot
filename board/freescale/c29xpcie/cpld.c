@@ -17,6 +17,7 @@
 #include <common.h>
 #include <command.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 
 #include "cpld.h"
 /**

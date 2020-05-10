@@ -17,6 +17,7 @@
 #include <asm/arch-fsl-layerscape/config.h>
 #include <asm/arch-fsl-layerscape/immap_lsch2.h>
 #include <asm/arch/fsl_serdes.h>
+#include <linux/delay.h>
 #include "../common/qixis.h"
 #include <net/pfe_eth/pfe_eth.h>
 #include <dm/platform_data/pfe_dm_eth.h>

@@ -12,6 +12,7 @@
 #include <log.h>
 #include <malloc.h>
 #include <asm/cache.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <mmc.h>
 #include <reset.h>

@@ -11,6 +11,7 @@
 #include <asm/io.h>
 #include <pci.h>
 #include <miiphy.h>
+#include <linux/delay.h>
 
 #undef DEBUG
 

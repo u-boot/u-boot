@@ -19,6 +19,7 @@
 #include <common.h>
 #include <div64.h>
 #include <time.h>
+#include <linux/delay.h>
 
 #ifdef CONFIG_ARCH_CINTEGRATOR
 #define DIV_CLOCK_INIT	1
@@ -124,7 +125,7 @@ ulong get_timer (ulong base_ticks)
 }
 
 /* delay usec useconds */
-void __udelay (unsigned long usec)
+void __udelay(unsigned long usec)
 {
 	ulong tmo, tmp;
 

@@ -12,6 +12,7 @@
 #include <memalign.h>
 #include <net.h>
 #include <usb.h>
+#include <linux/delay.h>
 #include <linux/mii.h>
 #include <linux/bitops.h>
 #include "usb_ether.h"

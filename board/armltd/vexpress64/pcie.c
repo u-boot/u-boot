@@ -11,6 +11,7 @@
 #include <asm/io.h>
 #include <linux/bitops.h>
 #include <pci_ids.h>
+#include <linux/delay.h>
 #include "pcie.h"
 
 /* XpressRICH3 support */

@@ -28,6 +28,7 @@
 #include <twl4030.h>
 #include <asm/mach-types.h>
 #include <asm/omap_musb.h>
+#include <linux/delay.h>
 #include <linux/mtd/rawnand.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>

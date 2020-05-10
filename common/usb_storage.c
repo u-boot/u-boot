@@ -45,6 +45,7 @@
 #include <asm/processor.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
+#include <linux/delay.h>
 
 #include <part.h>
 #include <usb.h>

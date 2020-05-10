@@ -18,6 +18,7 @@
 #include <netdev.h>
 #include <malloc.h>
 #include <miiphy.h>
+#include <linux/delay.h>
 #include <linux/mii.h>
 
 #undef MII_DEBUG
