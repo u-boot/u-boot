@@ -10,6 +10,7 @@
 #ifndef _CM_T54_MUX_DATA_H
 #define _CM_T54_MUX_DATA_H
 
+#include <common.h>
 #include <asm/arch/mux_omap5.h>
 #include <asm/arch/sys_proto.h>
 

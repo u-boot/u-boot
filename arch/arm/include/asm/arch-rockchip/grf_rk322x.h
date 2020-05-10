@@ -5,8 +5,6 @@
 #ifndef _ASM_ARCH_GRF_RK322X_H
 #define _ASM_ARCH_GRF_RK322X_H
 
-#include <common.h>
-
 struct rk322x_grf {
 	unsigned int gpio0a_iomux;
 	unsigned int gpio0b_iomux;

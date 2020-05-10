@@ -15,8 +15,12 @@
 #include <asm/cache.h>
 #include <asm/byteorder.h>	/* for nton* / ntoh* stuff */
 #include <env.h>
+#include <log.h>
+#include <time.h>
 #include <linux/if_ether.h>
 #include <rand.h>
+
+struct cmd_tbl_s;
 
 #define DEBUG_LL_STATE 0	/* Link local state machine changes */
 #define DEBUG_DEV_PKT 0		/* Packets or info directed to the device */
@@ -59,7 +63,7 @@ struct in_addr {
  * @argv: List of arguments
  * @return result (see enum command_ret_t)
  */
-int do_tftpb(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[]);
+int do_tftpb(struct cmd_tbl_s *cmdtp, int flag, int argc, char *const argv[]);
 
 /**
  * An incoming packet handler.

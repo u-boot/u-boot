@@ -10,7 +10,7 @@
 #ifndef __MACH_IOMUX_V3_H__
 #define __MACH_IOMUX_V3_H__
 
-#include <common.h>
+#include <linux/types.h>
 
 /*
  *	build IOMUX_PAD structure

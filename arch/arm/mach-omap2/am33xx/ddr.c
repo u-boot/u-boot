@@ -5,6 +5,7 @@
  * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
  */
 
+#include <common.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/ddr_defs.h>
 #include <asm/arch/sys_proto.h>

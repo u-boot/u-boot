@@ -6,8 +6,6 @@
 #ifndef _ASM_ARCH_GRF_RK3368_H
 #define _ASM_ARCH_GRF_RK3368_H
 
-#include <common.h>
-
 struct rk3368_grf {
 	u32 gpio1a_iomux;
 	u32 gpio1b_iomux;

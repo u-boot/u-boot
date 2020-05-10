@@ -9,7 +9,6 @@
 #ifndef _DRA7_IODELAY_H_
 #define _DRA7_IODELAY_H_
 
-#include <common.h>
 #include <asm/arch/sys_proto.h>
 
 /* CONFIG_REG_0 */

@@ -5,8 +5,6 @@
 #ifndef _ASM_ARCH_SDRAM_RK3036_H
 #define _ASM_ARCH_SDRAM_RK3036_H
 
-#include <common.h>
-
 struct rk3036_ddr_pctl {
 	u32 scfg;
 	u32 sctl;

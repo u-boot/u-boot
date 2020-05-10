@@ -6,8 +6,6 @@
 #ifndef _ASM_ARCH_TEGRA_IVC_H
 #define _ASM_ARCH_TEGRA_IVC_H
 
-#include <common.h>
-
 /*
  * Tegra IVC is a communication protocol that transfers fixed-size frames
  * bi-directionally and in-order between the local CPU and some remote entity.

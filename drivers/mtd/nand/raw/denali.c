@@ -11,6 +11,8 @@
 #include <dm/device_compat.h>
 #include <dm/devres.h>
 #include <linux/bitfield.h>
+#include <linux/delay.h>
+#include <linux/dma-direction.h>
 #include <linux/dma-mapping.h>
 #include <linux/err.h>
 #include <linux/errno.h>

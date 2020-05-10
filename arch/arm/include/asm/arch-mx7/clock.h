@@ -9,7 +9,6 @@
 #ifndef _ASM_ARCH_CLOCK_H
 #define _ASM_ARCH_CLOCK_H
 
-#include <common.h>
 #include <asm/arch/crm_regs.h>
 
 #ifdef CONFIG_SYS_MX7_HCLK

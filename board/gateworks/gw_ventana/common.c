@@ -5,6 +5,7 @@
  * Author: Tim Harvey <tharvey@gateworks.com>
  */
 
+#include <common.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/sys_proto.h>

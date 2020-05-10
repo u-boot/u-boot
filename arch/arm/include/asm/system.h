@@ -1,7 +1,6 @@
 #ifndef __ASM_ARM_SYSTEM_H
 #define __ASM_ARM_SYSTEM_H
 
-#include <common.h>
 #include <linux/compiler.h>
 #include <asm/barriers.h>
 
@@ -109,6 +108,8 @@
 #define SCTLR_EL1_MMU_DIS	(0)       /* MMU disabled                     */
 
 #ifndef __ASSEMBLY__
+
+struct pt_regs;
 
 u64 get_page_table_size(void);
 #define PGTABLE_SIZE	get_page_table_size()

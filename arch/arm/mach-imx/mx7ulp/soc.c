@@ -2,6 +2,8 @@
 /*
  * Copyright (C) 2016 Freescale Semiconductor, Inc.
  */
+
+#include <common.h>
 #include <cpu_func.h>
 #include <init.h>
 #include <asm/io.h>

@@ -6,6 +6,7 @@
  * Copyright 2013 Freescale Semiconductor, Inc.
  */
 
+#include <common.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/iomux-vf610.h>

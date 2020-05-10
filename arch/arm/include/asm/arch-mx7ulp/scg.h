@@ -6,8 +6,6 @@
 #ifndef _ASM_ARCH_SCG_H
 #define _ASM_ARCH_SCG_H
 
-#include <common.h>
-
 #ifdef CONFIG_CLK_DEBUG
 #define clk_debug(fmt, args...)	printf(fmt, ##args)
 #else
