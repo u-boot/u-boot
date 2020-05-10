@@ -1003,5 +1003,5 @@ struct pwm_regs {
  */
 #define	is_boot_from_usb(void) (!(readl(USB_PHY0_BASE_ADDR) & (1<<20)))
 
-#endif /* __ASSEMBLER__*/
+#endif /* __ASSEMBLY__ */
 #endif /* __ASM_ARCH_MX6_IMX_REGS_H__ */

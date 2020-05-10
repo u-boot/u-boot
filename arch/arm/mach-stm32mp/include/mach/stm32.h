@@ -133,5 +133,5 @@ enum forced_boot_mode {
 #define BSEC_OTP_MAC	57
 #define BSEC_OTP_BOARD	59
 
-#endif /* __ASSEMBLY__*/
+#endif /* __ASSEMBLY__ */
 #endif /* _MACH_STM32_H_ */

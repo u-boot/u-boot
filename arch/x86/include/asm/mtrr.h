@@ -57,7 +57,7 @@
 
 #define MTRR_FIX_TYPE(t)	((t << 24) | (t << 16) | (t << 8) | t)
 
-#if !defined(__ASSEMBLER__)
+#if !defined(__ASSEMBLY__)
 
 /**
  * Information about the previous MTRR state, set up by mtrr_open()

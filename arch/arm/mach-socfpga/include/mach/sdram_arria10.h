@@ -205,7 +205,7 @@ struct socfpga_io48_mmr {
 	u32 niosreserve2;
 };
 
-#endif /*__ASSEMBLY__*/
+#endif /*__ASSEMBLY__ */
 
 #define IO48_MMR_CTRLCFG0_DB2_BURST_LENGTH_MASK		0x1F000000
 #define IO48_MMR_CTRLCFG0_DB2_BURST_LENGTH_SHIFT	24

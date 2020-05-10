@@ -474,6 +474,6 @@ struct mscm {
 	u32 cpxcfg3;
 };
 
-#endif	/* __ASSEMBLER__*/
+#endif	/* __ASSEMBLY__ */
 
 #endif	/* __ASM_ARCH_IMX_REGS_H__ */

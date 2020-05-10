@@ -1223,5 +1223,5 @@ struct bootrom_sw_info {
 	u32 reserved_3[3];
 };
 
-#endif /* __ASSEMBLER__*/
+#endif /* __ASSEMBLY__ */
 #endif /* __ASM_ARCH_MX7_IMX_REGS_H__ */

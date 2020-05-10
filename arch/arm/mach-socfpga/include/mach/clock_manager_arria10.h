@@ -6,7 +6,7 @@
 #ifndef CLOCK_MANAGER_ARRIA10
 #define CLOCK_MANAGER_ARRIA10
 
-#ifndef __ASSEMBLER__
+#ifndef __ASSEMBLY__
 
 /* Clock manager group */
 #define CLKMGR_A10_CTRL				0x00
@@ -69,7 +69,7 @@ unsigned long cm_get_mpu_clk_hz(void);
 
 unsigned int cm_get_qspi_controller_clk_hz(void);
 
-#endif /* __ASSEMBLER__ */
+#endif /* __ASSEMBLY__ */
 
 #define LOCKED_MASK	(CLKMGR_CLKMGR_STAT_MAINPLLLOCKED_SET_MSK | \
 			 CLKMGR_CLKMGR_STAT_PERPLLLOCKED_SET_MSK)

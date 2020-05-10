@@ -6,7 +6,7 @@
 #ifndef _CLOCK_MANAGER_GEN5_H_
 #define _CLOCK_MANAGER_GEN5_H_
 
-#ifndef __ASSEMBLER__
+#ifndef __ASSEMBLY__
 
 struct cm_config {
 	/* main group */
@@ -107,7 +107,7 @@ const unsigned int cm_get_f2s_sdr_ref_clk_hz(void);
 /* Clock configuration accessors */
 int cm_basic_init(const struct cm_config * const cfg);
 const struct cm_config * const cm_get_default_config(void);
-#endif /* __ASSEMBLER__ */
+#endif /* __ASSEMBLY__ */
 
 #define LOCKED_MASK \
 	(CLKMGR_INTER_SDRPLLLOCKED_MASK  | \

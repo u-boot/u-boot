@@ -177,6 +177,6 @@ struct bl2_to_bl31_params_mem {
 	struct entry_point_info bl31_ep_info;
 };
 
-#endif /*__ASSEMBLY__*/
+#endif /*__ASSEMBLY__ */
 
 #endif /* __BL_COMMON_H__ */
