@@ -10,6 +10,7 @@
  *   limits the maximum size of addressable storage to < 2 Terra Bytes
  */
 #include <uuid.h>
+#include <asm/cache.h>
 #include <asm/unaligned.h>
 #include <common.h>
 #include <command.h>

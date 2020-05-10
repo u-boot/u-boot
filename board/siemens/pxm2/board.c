@@ -17,6 +17,7 @@
 #include <errno.h>
 #include <init.h>
 #include <malloc.h>
+#include <net.h>
 #include <spl.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/hardware.h>

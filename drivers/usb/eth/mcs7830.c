@@ -12,6 +12,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <net.h>
 #include <linux/mii.h>
 #include <malloc.h>
 #include <memalign.h>

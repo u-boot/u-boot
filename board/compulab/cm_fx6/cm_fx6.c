@@ -16,6 +16,7 @@
 #include <init.h>
 #include <miiphy.h>
 #include <mtd_node.h>
+#include <net.h>
 #include <netdev.h>
 #include <errno.h>
 #include <usb.h>

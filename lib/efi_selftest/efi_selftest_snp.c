@@ -15,6 +15,7 @@
  */
 
 #include <efi_selftest.h>
+#include <net.h>
 
 /*
  * MAC address for broadcasts

@@ -7,6 +7,7 @@
 #include <common.h>
 #include <flash.h>
 #include <init.h>
+#include <net.h>
 #if defined(CONFIG_FTMAC100) && !defined(CONFIG_DM_ETH)
 #include <netdev.h>
 #endif

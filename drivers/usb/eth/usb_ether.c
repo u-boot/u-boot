@@ -7,7 +7,9 @@
 #include <dm.h>
 #include <errno.h>
 #include <malloc.h>
+#include <net.h>
 #include <usb.h>
+#include <asm/cache.h>
 #include <dm/device-internal.h>
 
 #include "usb_ether.h"

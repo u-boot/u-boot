@@ -11,6 +11,7 @@
 #include <dm.h>
 #include <env.h>
 #include <init.h>
+#include <net.h>
 
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>

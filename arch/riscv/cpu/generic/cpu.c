@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <irq_func.h>
+#include <asm/cache.h>
 
 /*
  * cleanup_before_linux() is called just before we call linux

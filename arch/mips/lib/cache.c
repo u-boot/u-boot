@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <asm/cache.h>
 #include <asm/cacheops.h>
 #ifdef CONFIG_MIPS_L2_CACHE
 #include <asm/cm.h>

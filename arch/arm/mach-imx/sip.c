@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/cache.h>
 
 unsigned long call_imx_sip(unsigned long id, unsigned long reg0,
 			   unsigned long reg1, unsigned long reg2,

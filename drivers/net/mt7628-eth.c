@@ -21,6 +21,7 @@
 #include <net.h>
 #include <reset.h>
 #include <wait_bit.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <linux/bitfield.h>
 #include <linux/err.h>

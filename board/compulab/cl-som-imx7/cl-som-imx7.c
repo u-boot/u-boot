@@ -11,6 +11,7 @@
 #include <env.h>
 #include <init.h>
 #include <mmc.h>
+#include <net.h>
 #include <phy.h>
 #include <netdev.h>
 #include <fsl_esdhc_imx.h>

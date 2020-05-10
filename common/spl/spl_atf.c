@@ -14,6 +14,7 @@
 #include <cpu_func.h>
 #include <errno.h>
 #include <spl.h>
+#include <asm/cache.h>
 
 static struct bl2_to_bl31_params_mem bl31_params_mem;
 static struct bl31_params *bl2_to_bl31_params;

@@ -8,6 +8,7 @@
 #include <common.h>
 #include <blk.h>
 #include <dm.h>
+#include <net.h>
 #include <usb.h>
 #include <mmc.h>
 #include <nvme.h>

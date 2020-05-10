@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <malloc.h>
 #include <errno.h>
+#include <net.h>
 #include <netdev.h>
 #include <asm/io.h>
 #include <linux/compiler.h>

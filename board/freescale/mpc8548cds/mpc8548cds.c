@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <init.h>
+#include <net.h>
 #include <pci.h>
 #include <vsprintf.h>
 #include <asm/processor.h>

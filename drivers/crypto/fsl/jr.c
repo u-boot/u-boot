@@ -13,7 +13,9 @@
 #include "jobdesc.h"
 #include "desc_constr.h"
 #include <time.h>
+#include <asm/cache.h>
 #ifdef CONFIG_FSL_CORENET
+#include <asm/cache.h>
 #include <asm/fsl_pamu.h>
 #endif
 

@@ -22,6 +22,7 @@
 #include <dma-uclass.h>
 #include <malloc.h>
 #include <memalign.h>
+#include <net.h>
 #include <reset.h>
 #include <asm/io.h>
 

@@ -14,6 +14,7 @@
 #include <regmap.h>
 #include <reset.h>
 #include <syscon.h>
+#include <asm/cache.h>
 #include <dm/device_compat.h>
 #include <linux/err.h>
 #include <linux/io.h>

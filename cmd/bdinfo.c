@@ -10,7 +10,9 @@
 #include <common.h>
 #include <command.h>
 #include <env.h>
+#include <net.h>
 #include <vsprintf.h>
+#include <asm/cache.h>
 #include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;

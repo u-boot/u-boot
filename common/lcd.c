@@ -12,6 +12,7 @@
 #include <command.h>
 #include <cpu_func.h>
 #include <env_callback.h>
+#include <asm/cache.h>
 #include <linux/types.h>
 #include <stdio_dev.h>
 #include <lcd.h>

@@ -30,6 +30,7 @@
 
 #include <asm/types.h>
 #include <config.h>
+#include <net.h>
 
 /*
  * This function may be called by the board specific initialisation code

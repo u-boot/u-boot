@@ -7,6 +7,9 @@
 #ifndef _DW_ETH_H
 #define _DW_ETH_H
 
+#include <asm/cache.h>
+#include <net.h>
+
 #if CONFIG_IS_ENABLED(DM_GPIO)
 #include <asm-generic/gpio.h>
 #endif

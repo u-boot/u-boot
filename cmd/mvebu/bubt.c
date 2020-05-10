@@ -10,6 +10,7 @@
 #include <env.h>
 #include <flash.h>
 #include <image.h>
+#include <net.h>
 #include <vsprintf.h>
 #include <errno.h>
 #include <dm.h>

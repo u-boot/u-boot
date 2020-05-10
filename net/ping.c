@@ -11,6 +11,7 @@
 
 #include "ping.h"
 #include "arp.h"
+#include <net.h>
 
 static ushort ping_seq_number;
 

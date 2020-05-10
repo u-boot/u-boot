@@ -4,6 +4,7 @@
  */
 
 #include <cpu_func.h>
+#include <asm/cache.h>
 #include <linux/types.h>
 #include <common.h>
 

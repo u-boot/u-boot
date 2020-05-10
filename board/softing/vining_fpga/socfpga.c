@@ -7,6 +7,7 @@
 #include <eeprom.h>
 #include <env.h>
 #include <init.h>
+#include <net.h>
 #include <status_led.h>
 #include <asm/arch/reset_manager.h>
 #include <asm/io.h>

@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <net.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/mx6-pins.h>

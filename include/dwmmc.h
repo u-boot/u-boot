@@ -7,6 +7,7 @@
 #ifndef __DWMMC_HW_H
 #define __DWMMC_HW_H
 
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <mmc.h>
 

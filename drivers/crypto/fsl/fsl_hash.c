@@ -13,6 +13,7 @@
 #include "jr.h"
 #include "fsl_hash.h"
 #include <hw_sha.h>
+#include <asm/cache.h>
 #include <linux/errno.h>
 
 #define CRYPTO_MAX_ALG_NAME	80

@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <init.h>
 #include <miiphy.h>
+#include <net.h>
 #include <tpm-v1.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>

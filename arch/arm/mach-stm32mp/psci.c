@@ -6,6 +6,7 @@
 #include <config.h>
 #include <common.h>
 #include <asm/armv7.h>
+#include <asm/cache.h>
 #include <asm/gic.h>
 #include <asm/io.h>
 #include <asm/psci.h>

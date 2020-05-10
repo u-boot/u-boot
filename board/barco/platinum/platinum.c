@@ -9,6 +9,7 @@
 #include <mmc.h>
 #include <fsl_esdhc_imx.h>
 #include <miiphy.h>
+#include <net.h>
 #include <netdev.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>

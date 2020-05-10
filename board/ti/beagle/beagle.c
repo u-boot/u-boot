@@ -15,6 +15,7 @@
 #include <common.h>
 #include <dm.h>
 #include <env.h>
+#include <net.h>
 #include <ns16550.h>
 #include <serial.h>
 #ifdef CONFIG_LED_STATUS

@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <asm/cache.h>
 #include <asm/unaligned.h>
 #include "part_iso.h"
 

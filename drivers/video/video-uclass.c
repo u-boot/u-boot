@@ -11,6 +11,7 @@
 #include <stdio_dev.h>
 #include <video.h>
 #include <video_console.h>
+#include <asm/cache.h>
 #include <dm/lists.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>

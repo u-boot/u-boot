@@ -19,6 +19,7 @@
 #include <search.h>
 #include <errno.h>
 #include <uuid.h>
+#include <asm/cache.h>
 #include <dm/device-internal.h>
 #include <u-boot/crc.h>
 

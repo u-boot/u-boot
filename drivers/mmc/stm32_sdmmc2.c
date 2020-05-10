@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <fdtdec.h>
 #include <malloc.h>
+#include <asm/cache.h>
 #include <linux/libfdt.h>
 #include <mmc.h>
 #include <reset.h>

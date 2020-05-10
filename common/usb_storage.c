@@ -39,6 +39,7 @@
 #include <mapmem.h>
 #include <memalign.h>
 #include <asm/byteorder.h>
+#include <asm/cache.h>
 #include <asm/processor.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>

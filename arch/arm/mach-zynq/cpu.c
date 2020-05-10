@@ -6,6 +6,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <zynqpl.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/hardware.h>

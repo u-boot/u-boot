@@ -16,6 +16,7 @@
  * we only support v5, as used in the Raspberry Pi 4.
  */
 
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <clk.h>
 #include <cpu_func.h>

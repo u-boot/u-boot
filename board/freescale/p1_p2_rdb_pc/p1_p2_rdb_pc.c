@@ -10,6 +10,7 @@
 #include <hang.h>
 #include <hwconfig.h>
 #include <init.h>
+#include <net.h>
 #include <pci.h>
 #include <i2c.h>
 #include <asm/processor.h>

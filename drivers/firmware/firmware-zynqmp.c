@@ -8,6 +8,7 @@
 #include <common.h>
 #include <dm.h>
 #include <zynqmp_firmware.h>
+#include <asm/cache.h>
 
 #if defined(CONFIG_ZYNQMP_IPI)
 #include <mailbox.h>

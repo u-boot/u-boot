@@ -17,6 +17,7 @@
 #include <common.h>
 #include <console.h>
 #include <exports.h>
+#include <net.h>
 #include <linux/ctype.h>
 #include <linux/types.h>
 #include "../drivers/net/smc911x.h"

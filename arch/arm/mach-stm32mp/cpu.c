@@ -8,6 +8,7 @@
 #include <debug_uart.h>
 #include <env.h>
 #include <misc.h>
+#include <net.h>
 #include <asm/io.h>
 #include <asm/arch/stm32.h>
 #include <asm/arch/sys_proto.h>

@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <net.h>
 #include <asm/io.h>
 #include <netdev.h>
 #include <fdt_support.h>

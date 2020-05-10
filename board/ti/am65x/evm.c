@@ -10,6 +10,7 @@
 #include <common.h>
 #include <dm.h>
 #include <init.h>
+#include <net.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/hardware.h>
 #include <asm/gpio.h>

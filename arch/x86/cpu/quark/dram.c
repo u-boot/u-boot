@@ -9,6 +9,7 @@
 #include <fdtdec.h>
 #include <init.h>
 #include <malloc.h>
+#include <asm/cache.h>
 #include <asm/mrccache.h>
 #include <asm/mtrr.h>
 #include <asm/post.h>

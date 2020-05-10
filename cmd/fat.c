@@ -11,6 +11,7 @@
 #include <mapmem.h>
 #include <fat.h>
 #include <fs.h>
+#include <asm/cache.h>
 
 int do_fat_size(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {

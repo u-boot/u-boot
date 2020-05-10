@@ -10,6 +10,7 @@
 #include <init.h>
 #include <ns16550.h>
 #include <spl.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #if IS_ENABLED(CONFIG_TEGRA_CLKRST)
 #include <asm/arch/clock.h>

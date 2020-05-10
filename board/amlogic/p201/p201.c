@@ -6,6 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <env.h>
+#include <net.h>
 #include <asm/io.h>
 #include <asm/arch/gx.h>
 #include <asm/arch/sm.h>

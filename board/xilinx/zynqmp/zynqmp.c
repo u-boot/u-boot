@@ -9,6 +9,7 @@
 #include <debug_uart.h>
 #include <env.h>
 #include <init.h>
+#include <net.h>
 #include <sata.h>
 #include <ahci.h>
 #include <scsi.h>
@@ -18,6 +19,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/psu_init_gpl.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <dm/device.h>
 #include <dm/uclass.h>

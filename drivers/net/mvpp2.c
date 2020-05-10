@@ -16,6 +16,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <asm/cache.h>
 #include <dm/device-internal.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>

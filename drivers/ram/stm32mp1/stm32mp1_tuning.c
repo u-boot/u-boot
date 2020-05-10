@@ -6,6 +6,7 @@
 #include <console.h>
 #include <clk.h>
 #include <ram.h>
+#include <rand.h>
 #include <reset.h>
 #include <asm/io.h>
 #include <linux/bitops.h>

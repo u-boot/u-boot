@@ -10,6 +10,7 @@
  */
 
 #include <common.h>
+#include <net.h>
 
 #include "arp.h"
 

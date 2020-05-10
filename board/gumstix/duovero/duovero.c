@@ -5,6 +5,7 @@
  * Maintainer: Ash Charles  <ash@gumstix.com>
  */
 #include <common.h>
+#include <net.h>
 #include <netdev.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mmc_host_def.h>

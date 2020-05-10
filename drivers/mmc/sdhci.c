@@ -15,6 +15,7 @@
 #include <mmc.h>
 #include <sdhci.h>
 #include <dm.h>
+#include <asm/cache.h>
 #include <linux/dma-mapping.h>
 #include <phys2bus.h>
 

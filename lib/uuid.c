@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <env.h>
+#include <rand.h>
 #include <time.h>
 #include <uuid.h>
 #include <linux/ctype.h>

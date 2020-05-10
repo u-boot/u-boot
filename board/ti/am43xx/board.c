@@ -14,6 +14,7 @@
 #include <fdt_support.h>
 #include <i2c.h>
 #include <init.h>
+#include <net.h>
 #include <linux/errno.h>
 #include <spl.h>
 #include <usb.h>

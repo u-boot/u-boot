@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <asm/arch/sm.h>
+#include <asm/cache.h>
 #include <linux/err.h>
 #include <linux/kernel.h>
 #include <dm.h>

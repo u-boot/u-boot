@@ -16,6 +16,7 @@
 #include <miiphy.h>
 #include <net.h>
 #include <netdev.h>
+#include <asm/cache.h>
 #include <power/regulator.h>
 
 #include <asm/io.h>

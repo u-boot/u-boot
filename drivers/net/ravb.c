@@ -15,6 +15,7 @@
 #include <errno.h>
 #include <miiphy.h>
 #include <malloc.h>
+#include <asm/cache.h>
 #include <linux/mii.h>
 #include <wait_bit.h>
 #include <asm/io.h>

@@ -6,6 +6,7 @@
 #include <common.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
+#include <net.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <clk.h>

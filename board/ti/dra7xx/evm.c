@@ -14,6 +14,7 @@
 #include <fdt_support.h>
 #include <init.h>
 #include <spl.h>
+#include <net.h>
 #include <palmas.h>
 #include <sata.h>
 #include <serial.h>

@@ -13,6 +13,8 @@
 #include <errno.h>
 #include <miiphy.h>
 #include <malloc.h>
+#include <net.h>
+#include <asm/cache.h>
 #include <linux/compiler.h>
 #include <linux/err.h>
 #include <linux/mii.h>

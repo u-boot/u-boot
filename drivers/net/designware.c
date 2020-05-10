@@ -15,8 +15,10 @@
 #include <errno.h>
 #include <miiphy.h>
 #include <malloc.h>
+#include <net.h>
 #include <pci.h>
 #include <reset.h>
+#include <asm/cache.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>
 #include <linux/compiler.h>

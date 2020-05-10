@@ -8,6 +8,7 @@
 #include <cpu_func.h>
 #include <errno.h>
 #include <asm/armv7m.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 
 /* Cache maintenance operation registers */

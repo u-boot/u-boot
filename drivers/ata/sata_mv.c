@@ -35,6 +35,7 @@
 #include <ahci.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <asm/cache.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <fis.h>

@@ -29,6 +29,7 @@
 #include <console.h>
 #include <env.h>
 #include <env_internal.h>
+#include <net.h>
 #include <search.h>
 #include <errno.h>
 #include <malloc.h>

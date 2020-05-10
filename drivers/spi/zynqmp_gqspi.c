@@ -8,6 +8,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <clk.h>
 #include <dm.h>

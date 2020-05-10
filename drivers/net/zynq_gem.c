@@ -17,6 +17,7 @@
 #include <config.h>
 #include <console.h>
 #include <malloc.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <phy.h>
 #include <miiphy.h>

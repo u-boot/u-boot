@@ -11,6 +11,7 @@
 #include <init.h>
 #include <micrel.h>
 #include <nand.h>
+#include <net.h>
 #include <netdev.h>
 #include <phy.h>
 #include <rtc.h>

@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <net.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>

@@ -8,6 +8,7 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <init.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <dm/platform_data/serial_pl01x.h>
 #include <asm/arch/hi3798cv200.h>

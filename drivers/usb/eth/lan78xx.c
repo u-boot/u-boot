@@ -4,6 +4,7 @@
  */
 
 #include <dm.h>
+#include <net.h>
 #include <usb.h>
 #include "usb_ether.h"
 #include "lan7x.h"

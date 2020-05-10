@@ -16,6 +16,7 @@
 #include <net.h>
 #include <netdev.h>
 #include <miiphy.h>
+#include <asm/cache.h>
 #include <linux/errno.h>
 #include <asm/io.h>
 

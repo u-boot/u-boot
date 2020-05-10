@@ -10,6 +10,7 @@
 #include <malloc.h>
 #include <mapmem.h>
 #include <lcd.h>
+#include <net.h>
 #include <linux/string.h>
 #include <linux/ctype.h>
 #include <errno.h>

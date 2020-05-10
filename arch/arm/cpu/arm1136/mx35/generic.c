@@ -9,6 +9,7 @@
 #include <common.h>
 #include <clock_legacy.h>
 #include <div64.h>
+#include <net.h>
 #include <asm/io.h>
 #include <linux/errno.h>
 #include <asm/arch/imx-regs.h>

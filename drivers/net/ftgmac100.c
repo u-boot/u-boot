@@ -18,6 +18,7 @@
 #include <miiphy.h>
 #include <net.h>
 #include <wait_bit.h>
+#include <asm/cache.h>
 #include <dm/device_compat.h>
 #include <linux/io.h>
 #include <linux/iopoll.h>

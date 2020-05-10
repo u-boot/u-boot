@@ -13,6 +13,7 @@
 #include <cpu_func.h>
 #include <irq_func.h>
 #include <asm/arch/pxa-regs.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/system.h>
 #include <command.h>

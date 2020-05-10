@@ -7,6 +7,7 @@
 #include <common.h>
 #include <dm.h>
 #include <miiphy.h>
+#include <net.h>
 #include <asm/arch/stv0991_periph.h>
 #include <asm/arch/stv0991_defs.h>
 #include <asm/arch/hardware.h>

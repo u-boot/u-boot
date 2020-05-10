@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <malloc.h>
 #include <memalign.h>
+#include <net.h>
 #include <usb.h>
 #include <linux/mii.h>
 #include <linux/bitops.h>

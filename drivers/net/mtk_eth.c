@@ -11,10 +11,12 @@
 #include <dm.h>
 #include <malloc.h>
 #include <miiphy.h>
+#include <net.h>
 #include <regmap.h>
 #include <reset.h>
 #include <syscon.h>
 #include <wait_bit.h>
+#include <asm/cache.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>

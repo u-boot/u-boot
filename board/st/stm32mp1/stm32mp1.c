@@ -19,6 +19,7 @@
 #include <malloc.h>
 #include <misc.h>
 #include <mtd_node.h>
+#include <net.h>
 #include <netdev.h>
 #include <phy.h>
 #include <remoteproc.h>

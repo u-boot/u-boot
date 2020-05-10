@@ -10,7 +10,9 @@
 #include <dm.h>
 #include <env.h>
 #include <init.h>
+#include <net.h>
 #include <usb.h>
+#include <asm/cache.h>
 #include <asm/gpio.h>
 #include <fdt_support.h>
 #include <asm/arch/dram.h>

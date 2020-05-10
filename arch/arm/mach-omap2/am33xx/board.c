@@ -12,6 +12,7 @@
 #include <debug_uart.h>
 #include <errno.h>
 #include <init.h>
+#include <net.h>
 #include <ns16550.h>
 #include <spl.h>
 #include <asm/arch/cpu.h>

@@ -6,6 +6,7 @@
  */
 
 #include <init.h>
+#include <net.h>
 #include <asm/mach-types.h>
 #include <common.h>
 #include <flash.h>

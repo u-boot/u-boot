@@ -25,6 +25,7 @@
 #include <command.h>
 #include <env.h>
 #include <init.h>
+#include <net.h>
 #include <pci.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>

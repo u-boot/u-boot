@@ -10,6 +10,7 @@
 #include <common.h>
 #include <env.h>
 #include <fdt_support.h>
+#include <net.h>
 #include <usb.h>
 #include <mmc.h>
 #include <palmas.h>

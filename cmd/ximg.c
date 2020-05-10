@@ -24,6 +24,7 @@
 #include <bzlib.h>
 #endif
 #include <asm/byteorder.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 
 #ifndef CONFIG_SYS_XIMG_LEN

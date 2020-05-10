@@ -4,6 +4,7 @@
  */
 #include <errno.h>
 #include <common.h>
+#include <net.h>
 #include <asm/io.h>
 #include <fdt_support.h>
 #include <fsl_mdio.h>

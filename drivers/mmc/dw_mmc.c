@@ -14,6 +14,7 @@
 #include <mmc.h>
 #include <dwmmc.h>
 #include <wait_bit.h>
+#include <asm/cache.h>
 #include <power/regulator.h>
 
 #define PAGE_SIZE 4096

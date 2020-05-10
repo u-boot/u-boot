@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <net.h>
 #include <netdev.h>
 #include <fm_eth.h>
 #include <fsl_mdio.h>

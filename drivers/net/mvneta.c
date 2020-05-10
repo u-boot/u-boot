@@ -19,6 +19,7 @@
 #include <netdev.h>
 #include <config.h>
 #include <malloc.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>

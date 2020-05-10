@@ -15,6 +15,7 @@
 #include <fdtdec.h>
 #include <fdt_support.h>
 #include <malloc.h>
+#include <asm/cache.h>
 #include <dm/device.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>

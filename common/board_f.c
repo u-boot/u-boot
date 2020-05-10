@@ -40,6 +40,7 @@
 #include <trace.h>
 #include <video.h>
 #include <watchdog.h>
+#include <asm/cache.h>
 #ifdef CONFIG_MACH_TYPE
 #include <asm/mach-types.h>
 #endif

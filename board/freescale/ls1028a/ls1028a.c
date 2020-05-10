@@ -7,6 +7,7 @@
 #include <malloc.h>
 #include <errno.h>
 #include <fsl_ddr.h>
+#include <net.h>
 #include <asm/io.h>
 #include <hwconfig.h>
 #include <fdt_support.h>

@@ -8,6 +8,7 @@
 #include <flash.h>
 #include <init.h>
 #include <malloc.h>
+#include <net.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/mmc.h>

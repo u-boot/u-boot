@@ -18,6 +18,7 @@
 
 #include <command.h>
 #include <common.h>
+#include <net.h>
 #include <asm/arch/ep93xx.h>
 #include <asm/io.h>
 #include <malloc.h>

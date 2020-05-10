@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <env.h>
+#include <net.h>
 #include <spl.h>
 #include <asm/cache.h>
 #include <asm/io.h>

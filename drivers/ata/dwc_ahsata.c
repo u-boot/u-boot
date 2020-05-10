@@ -14,6 +14,7 @@
 #include <malloc.h>
 #include <memalign.h>
 #include <sata.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>

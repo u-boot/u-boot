@@ -35,8 +35,10 @@ tested on both gig copper and gig fiber boards
 #include <errno.h>
 #include <malloc.h>
 #include <memalign.h>
+#include <net.h>
 #include <pci.h>
 #include "e1000.h"
+#include <asm/cache.h>
 
 #define TOUT_LOOP   100000
 

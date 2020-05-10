@@ -15,6 +15,7 @@
 
 #include <efi_selftest.h>
 #include "efi_selftest_disk_image.h"
+#include <asm/cache.h>
 
 /* Block size of compressed disk image */
 #define COMPRESSED_DISK_IMAGE_BLOCK_SIZE 8

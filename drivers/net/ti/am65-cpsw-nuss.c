@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <malloc.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/processor.h>
 #include <clk.h>

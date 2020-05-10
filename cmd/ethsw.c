@@ -11,6 +11,7 @@
 #include <errno.h>
 #include <env_flags.h>
 #include <ethsw.h>
+#include <net.h>
 
 static const char *ethsw_name;
 

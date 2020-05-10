@@ -10,6 +10,7 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <init.h>
+#include <net.h>
 
 #include <ahci.h>
 #include <asm/arch/clock.h>

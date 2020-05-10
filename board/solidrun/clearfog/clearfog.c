@@ -6,6 +6,7 @@
 #include <common.h>
 #include <i2c.h>
 #include <miiphy.h>
+#include <net.h>
 #include <netdev.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>

@@ -5,9 +5,12 @@
  * Copyright (C) 2009-2010, Intel Corporation and its suppliers.
  */
 
+#include <common.h>
 #include <dm.h>
 #include <malloc.h>
 #include <nand.h>
+#include <asm/cache.h>
+#include <asm/dma-mapping.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>
 #include <linux/bitfield.h>

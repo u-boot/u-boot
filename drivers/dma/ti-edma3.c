@@ -8,6 +8,7 @@
  * Author: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
  */
 
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <common.h>
 #include <dm.h>

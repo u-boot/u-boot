@@ -29,6 +29,7 @@
 #include <linux/compiler.h>
 #include <bootm.h>
 #include <vxworks.h>
+#include <asm/cache.h>
 
 #ifdef CONFIG_ARMV7_NONSEC
 #include <asm/armv7.h>

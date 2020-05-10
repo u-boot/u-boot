@@ -8,6 +8,8 @@
 #ifndef	__ASM_CACHEOPS_H
 #define	__ASM_CACHEOPS_H
 
+#include <asm/cache.h>
+
 #ifndef __ASSEMBLY__
 
 static inline void mips_cache(int op, const volatile void *addr)

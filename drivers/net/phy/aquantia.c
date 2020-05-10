@@ -8,6 +8,7 @@
 #include <config.h>
 #include <common.h>
 #include <dm.h>
+#include <net.h>
 #include <phy.h>
 #include <u-boot/crc.h>
 #include <malloc.h>

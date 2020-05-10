@@ -41,6 +41,7 @@
 #include <malloc.h>
 #include <part.h>
 #include <sparse_format.h>
+#include <asm/cache.h>
 
 #include <linux/math64.h>
 

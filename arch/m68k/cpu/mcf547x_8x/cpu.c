@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <net.h>
 #include <vsprintf.h>
 #include <watchdog.h>
 #include <command.h>

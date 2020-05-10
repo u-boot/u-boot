@@ -10,6 +10,7 @@
 #include <fdtdec.h>
 #include <hang.h>
 #include <init.h>
+#include <net.h>
 #include <spi.h>
 #include <tmu.h>
 #include <netdev.h>

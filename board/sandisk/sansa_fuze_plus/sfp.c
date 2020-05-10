@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <errno.h>
+#include <net.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch/iomux-mx23.h>

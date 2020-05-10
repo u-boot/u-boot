@@ -18,6 +18,7 @@
 #include <common.h>
 #include <efi_loader.h>
 #include <malloc.h>
+#include <net.h>
 
 static const efi_guid_t efi_net_guid = EFI_SIMPLE_NETWORK_PROTOCOL_GUID;
 static const efi_guid_t efi_pxe_base_code_protocol_guid =

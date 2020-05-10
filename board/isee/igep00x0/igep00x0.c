@@ -6,6 +6,7 @@
 #include <common.h>
 #include <env.h>
 #include <malloc.h>
+#include <net.h>
 #include <status_led.h>
 #include <dm.h>
 #include <ns16550.h>
