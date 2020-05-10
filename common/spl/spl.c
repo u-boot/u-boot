@@ -423,11 +423,11 @@ static int spl_common_init(bool setup_malloc)
 		}
 	}
 	if (CONFIG_IS_ENABLED(DM)) {
-		bootstage_start(BOOTSTATE_ID_ACCUM_DM_SPL,
+		bootstage_start(BOOTSTAGE_ID_ACCUM_DM_SPL,
 				spl_phase() == PHASE_TPL ? "dm tpl" : "dm_spl");
 		/* With CONFIG_SPL_OF_PLATDATA, bring in all devices */
 		ret = dm_init_and_scan(!CONFIG_IS_ENABLED(OF_PLATDATA));
-		bootstage_accum(BOOTSTATE_ID_ACCUM_DM_SPL);
+		bootstage_accum(BOOTSTAGE_ID_ACCUM_DM_SPL);
 		if (ret) {
 			debug("dm_init_and_scan() returned error %d\n", ret);
 			return ret;

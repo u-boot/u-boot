@@ -312,9 +312,9 @@ static int initr_dm(void)
 #ifdef CONFIG_TIMER
 	gd->timer = NULL;
 #endif
-	bootstage_start(BOOTSTATE_ID_ACCUM_DM_R, "dm_r");
+	bootstage_start(BOOTSTAGE_ID_ACCUM_DM_R, "dm_r");
 	ret = dm_init_and_scan(false);
-	bootstage_accum(BOOTSTATE_ID_ACCUM_DM_R);
+	bootstage_accum(BOOTSTAGE_ID_ACCUM_DM_R);
 	if (ret)
 		return ret;
 
