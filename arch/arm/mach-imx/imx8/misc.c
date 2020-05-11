@@ -4,6 +4,7 @@
 #include <asm/arch/sci/sci.h>
 #include <asm/mach-imx/sys_proto.h>
 #include <imx_sip.h>
+#include <linux/arm-smccc.h>
 
 int sc_pm_setup_uart(sc_rsrc_t uart_rsrc, sc_pm_clock_rate_t clk_rate)
 {
@@ -30,6 +31,7 @@ int sc_pm_setup_uart(sc_rsrc_t uart_rsrc, sc_pm_clock_rate_t clk_rate)
 
 void build_info(void)
 {
+	struct arm_smccc_res res;
 	u32 seco_build = 0, seco_commit = 0;
 	u32 sc_build = 0, sc_commit = 0;
 	ulong atf_commit = 0;
@@ -50,8 +52,9 @@ void build_info(void)
 	}
 
 	/* Get ARM Trusted Firmware commit id */
-	atf_commit = call_imx_sip(IMX_SIP_BUILDINFO,
-				  IMX_SIP_BUILDINFO_GET_COMMITHASH, 0, 0, 0);
+	arm_smccc_smc(IMX_SIP_BUILDINFO, IMX_SIP_BUILDINFO_GET_COMMITHASH,
+		      0, 0, 0, 0, 0, 0, &res);
+	atf_commit = res.a0;
 	if (atf_commit == 0xffffffff) {
 		debug("ATF does not support build info\n");
 		atf_commit = 0x30; /* Display 0 */
