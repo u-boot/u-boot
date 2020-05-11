@@ -93,7 +93,7 @@ int clk_get_by_index_platdata(struct udevice *dev, int index,
 			      struct phandle_1_arg *cells, struct clk *clk);
 
 /**
- * clock_get_by_index - Get/request a clock by integer index.
+ * clk_get_by_index - Get/request a clock by integer index.
  *
  * This looks up and requests a clock. The index is relative to the client
  * device; each device is assumed to have n clocks associated with it somehow,
@@ -110,7 +110,7 @@ int clk_get_by_index_platdata(struct udevice *dev, int index,
 int clk_get_by_index(struct udevice *dev, int index, struct clk *clk);
 
 /**
- * clock_get_by_index_nodev - Get/request a clock by integer index
+ * clk_get_by_index_nodev - Get/request a clock by integer index
  * without a device.
  *
  * This is a version of clk_get_by_index() that does not use a device.
@@ -124,7 +124,7 @@ int clk_get_by_index(struct udevice *dev, int index, struct clk *clk);
 int clk_get_by_index_nodev(ofnode node, int index, struct clk *clk);
 
 /**
- * clock_get_bulk - Get/request all clocks of a device.
+ * clk_get_bulk - Get/request all clocks of a device.
  *
  * This looks up and requests all clocks of the client device; each device is
  * assumed to have n clocks associated with it somehow, and this function finds
@@ -139,7 +139,7 @@ int clk_get_by_index_nodev(ofnode node, int index, struct clk *clk);
 int clk_get_bulk(struct udevice *dev, struct clk_bulk *bulk);
 
 /**
- * clock_get_by_name - Get/request a clock by name.
+ * clk_get_by_name - Get/request a clock by name.
  *
  * This looks up and requests a clock. The name is relative to the client
  * device; each device is assumed to have n clocks associated with it somehow,
@@ -169,7 +169,7 @@ int clk_get_by_name(struct udevice *dev, const char *name, struct clk *clk);
 int clk_get_by_name_nodev(ofnode node, const char *name, struct clk *clk);
 
 /**
- * clock_get_optional_nodev - Get/request an optinonal clock by name
+ * clk_get_optional_nodev - Get/request an optinonal clock by name
  *		without a device.
  * @node:	The client ofnode.
  * @name:	The name of the clock to request.
@@ -331,7 +331,7 @@ static inline int clk_release_bulk(struct clk_bulk *bulk)
 int clk_request(struct udevice *dev, struct clk *clk);
 
 /**
- * clock_free - Free a previously requested clock.
+ * clk_free - Free a previously requested clock.
  *
  * @clock:	A clock struct that was previously successfully requested by
  *		clk_request/get_by_*().

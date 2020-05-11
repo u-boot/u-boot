@@ -55,11 +55,6 @@
 #define CONFIG_LPC32XX_GPIO
 
 /*
- * SSP/SPI
- */
-#define CONFIG_LPC32XX_SSP_TIMEOUT	100000
-
-/*
  * Ethernet
  */
 #define CONFIG_RMII

@@ -213,11 +213,14 @@ int generic_phy_get_by_index(struct udevice *user, int index,
 			     struct phy *phy);
 
 /**
- * generic_phy_get_by_node() - Get a PHY device by integer index on ofnode
+ * generic_phy_get_by_index_nodev() - Get a PHY device by integer index
+ * without a device
  *
- * @node:	the device node
+ * @node:	The client ofnode.
  * @index:	The index in the list of available PHYs
  * @phy:	A pointer to the PHY port
+ *
+ * This is a version of generic_phy_get_by_index() that does not use a device.
  *
  * This looks up a PHY device for a client device based on its ofnode and on
  * its position in the list of the possible PHYs.
@@ -237,7 +240,7 @@ int generic_phy_get_by_index(struct udevice *user, int index,
  *
  * @return 0 if OK, or a negative error code
  */
-int generic_phy_get_by_node(ofnode node, int index, struct phy *phy);
+int generic_phy_get_by_index_nodev(ofnode node, int index, struct phy *phy);
 
 /**
  * generic_phy_get_by_name() - Get a PHY device by its name.
