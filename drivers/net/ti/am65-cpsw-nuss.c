@@ -61,6 +61,7 @@
 
 #define AM65_CPSW_MACSL_CTL_REG			0x0
 #define AM65_CPSW_MACSL_CTL_REG_IFCTL_A		BIT(15)
+#define AM65_CPSW_MACSL_CTL_EXT_EN		BIT(18)
 #define AM65_CPSW_MACSL_CTL_REG_GIG		BIT(7)
 #define AM65_CPSW_MACSL_CTL_REG_GMII_EN		BIT(5)
 #define AM65_CPSW_MACSL_CTL_REG_LOOPBACK	BIT(1)
@@ -187,6 +188,9 @@ static int am65_cpsw_update_link(struct am65_cpsw_priv *priv)
 			      AM65_CPSW_MACSL_CTL_REG_GMII_EN;
 		if (phy->speed == 1000)
 			mac_control |= AM65_CPSW_MACSL_CTL_REG_GIG;
+		if (phy->speed == 10 && phy_interface_is_rgmii(phy))
+			/* Can be used with in band mode only */
+			mac_control |= AM65_CPSW_MACSL_CTL_EXT_EN;
 		if (phy->duplex == DUPLEX_FULL)
 			mac_control |= AM65_CPSW_MACSL_CTL_REG_FULL_DUPLEX;
 		if (phy->speed == 100)

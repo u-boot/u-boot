@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2011-2012
- * Pali Rohár <pali.rohar@gmail.com>
+ * Pali Rohár <pali@kernel.org>
  *
  * (C) Copyright 2011
  * marcel@mesa.nl, Mesa Consulting B.V.
@@ -182,7 +182,7 @@ struct omap_em_asic_bb5_config {
  *  processing omap tag structures
  *
  *  Copyright (C) 2011  marcel@mesa.nl, Mesa Consulting B.V.
- *  Copyright (C) 2012  Pali Rohár <pali.rohar@gmail.com>
+ *  Copyright (C) 2012  Pali Rohár <pali@kernel.org>
  */
 
 /* TI OMAP specific information */
