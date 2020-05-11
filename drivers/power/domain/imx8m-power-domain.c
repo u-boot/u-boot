@@ -13,6 +13,7 @@
 #include <dm/device-internal.h>
 #include <dm/device.h>
 #include <imx_sip.h>
+#include <linux/arm-smccc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -30,6 +31,7 @@ static int imx8m_power_domain_on(struct power_domain *power_domain)
 {
 	struct udevice *dev = power_domain->dev;
 	struct imx8m_power_domain_platdata *pdata;
+
 	pdata = dev_get_platdata(dev);
 
 	if (pdata->resource_id < 0)
@@ -38,8 +40,8 @@ static int imx8m_power_domain_on(struct power_domain *power_domain)
 	if (pdata->has_pd)
 		power_domain_on(&pdata->pd);
 
-	call_imx_sip(IMX_SIP_GPC, IMX_SIP_GPC_PM_DOMAIN,
-		     pdata->resource_id, 1, 0);
+	arm_smccc_smc(IMX_SIP_GPC, IMX_SIP_GPC_PM_DOMAIN,
+		      pdata->resource_id, 1, 0, 0, 0, 0, NULL);
 
 	return 0;
 }
@@ -53,8 +55,8 @@ static int imx8m_power_domain_off(struct power_domain *power_domain)
 	if (pdata->resource_id < 0)
 		return -EINVAL;
 
-	call_imx_sip(IMX_SIP_GPC, IMX_SIP_GPC_PM_DOMAIN,
-		     pdata->resource_id, 0, 0);
+	arm_smccc_smc(IMX_SIP_GPC, IMX_SIP_GPC_PM_DOMAIN,
+		      pdata->resource_id, 0, 0, 0, 0, 0, NULL);
 
 	if (pdata->has_pd)
 		power_domain_off(&pdata->pd);
