@@ -767,7 +767,10 @@ static efi_status_t parse_uboot_variable(char *variable,
 	/* guid */
 	c = *(name - 1);
 	*(name - 1) = '\0'; /* guid need be null-terminated here */
-	uuid_str_to_bin(guid, (unsigned char *)vendor, UUID_STR_FORMAT_GUID);
+	if (uuid_str_to_bin(guid, (unsigned char *)vendor,
+			    UUID_STR_FORMAT_GUID))
+		/* The only error would be EINVAL. */
+		return EFI_INVALID_PARAMETER;
 	*(name - 1) = c;
 
 	/* attributes */

@@ -480,6 +480,11 @@ static int do_efi_show_memmap(cmd_tbl_t *cmdtp, int flag,
 	       EFI_PHYS_ADDR_WIDTH - 5, spc, EFI_PHYS_ADDR_WIDTH - 3, spc);
 	printf("================ %.*s %.*s ==========\n",
 	       EFI_PHYS_ADDR_WIDTH, sep, EFI_PHYS_ADDR_WIDTH, sep);
+	/*
+	 * Coverity check: dereferencing null pointer "map."
+	 * This is a false positive as memmap will always be
+	 * populated by allocate_pool() above.
+	 */
 	for (i = 0, map = memmap; i < map_size / sizeof(*map); map++, i++) {
 		if (map->type < ARRAY_SIZE(efi_mem_type_string))
 			type = efi_mem_type_string[map->type];
@@ -602,7 +607,7 @@ static int do_efi_boot_add(cmd_tbl_t *cmdtp, int flag,
 				+ sizeof(struct efi_device_path); /* for END */
 
 	/* optional data */
-	if (argc < 6)
+	if (argc == 6)
 		lo.optional_data = NULL;
 	else
 		lo.optional_data = (const u8 *)argv[6];
@@ -965,7 +970,7 @@ static int do_efi_boot_next(cmd_tbl_t *cmdtp, int flag,
 		return CMD_RET_USAGE;
 
 	bootnext = (u16)simple_strtoul(argv[1], &endp, 16);
-	if (*endp != '\0' || bootnext > 0xffff) {
+	if (*endp) {
 		printf("invalid value: %s\n", argv[1]);
 		r = CMD_RET_FAILURE;
 		goto out;
