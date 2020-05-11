@@ -22,6 +22,7 @@
 #include <fdt_support.h>
 #include <fsl_wdog.h>
 #include <imx_sip.h>
+#include <linux/arm-smccc.h>
 #include <linux/bitops.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -432,10 +433,12 @@ void reset_cpu(ulong addr)
 static void acquire_buildinfo(void)
 {
 	u64 atf_commit = 0;
+	struct arm_smccc_res res;
 
 	/* Get ARM Trusted Firmware commit id */
-	atf_commit = call_imx_sip(IMX_SIP_BUILDINFO,
-				  IMX_SIP_BUILDINFO_GET_COMMITHASH, 0, 0, 0);
+	arm_smccc_smc(IMX_SIP_BUILDINFO, IMX_SIP_BUILDINFO_GET_COMMITHASH,
+		      0, 0 , 0, 0, 0, 0, &res);
+	atf_commit = res.a0;
 	if (atf_commit == 0xffffffff) {
 		debug("ATF does not support build info\n");
 		atf_commit = 0x30; /* Display 0, 0 ascii is 0x30 */
