@@ -179,12 +179,20 @@ static int imx_sc_thermal_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
+static const sc_rsrc_t imx8qm_sensor_rsrc[] = {
+	SC_R_A53, SC_R_A72, SC_R_GPU_0_PID0, SC_R_GPU_1_PID0,
+	SC_R_DRC_0, SC_R_DRC_1, SC_R_VPU_PID0, SC_R_PMIC_0,
+	SC_R_PMIC_1, SC_R_PMIC_2,
+};
+
 static const sc_rsrc_t imx8qxp_sensor_rsrc[] = {
 	SC_R_SYSTEM, SC_R_DRC_0, SC_R_PMIC_0,
 	SC_R_PMIC_1, SC_R_PMIC_2,
 };
 
 static const struct udevice_id imx_sc_thermal_ids[] = {
+	{ .compatible = "nxp,imx8qm-sc-tsens", .data =
+		(ulong)&imx8qm_sensor_rsrc, },
 	{ .compatible = "nxp,imx8qxp-sc-tsens", .data =
 		(ulong)&imx8qxp_sensor_rsrc, },
 	{ }

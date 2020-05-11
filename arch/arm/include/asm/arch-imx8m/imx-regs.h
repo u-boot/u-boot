@@ -137,6 +137,40 @@ struct fuse_bank1_regs {
 	u32 rsvd3[3];
 };
 
+struct fuse_bank3_regs {
+	u32 mem_trim0;
+	u32 rsvd0[3];
+	u32 mem_trim1;
+	u32 rsvd1[3];
+	u32 mem_trim2;
+	u32 rsvd2[3];
+	u32 ana0;
+	u32 rsvd3[3];
+};
+
+struct fuse_bank9_regs {
+	u32 mac_addr0;
+	u32 rsvd0[3];
+	u32 mac_addr1;
+	u32 rsvd1[11];
+};
+
+struct fuse_bank38_regs {
+	u32 ana_trim1; /* trim0 is at 0xD70, bank 37*/
+	u32 rsvd0[3];
+	u32 ana_trim2;
+	u32 rsvd1[3];
+	u32 ana_trim3;
+	u32 rsvd2[3];
+	u32 ana_trim4;
+	u32 rsvd3[3];
+};
+
+struct fuse_bank39_regs {
+	u32 ana_trim5;
+	u32 rsvd[15];
+};
+
 #ifdef CONFIG_IMX8MQ
 struct anamix_pll {
 	u32 audio_pll1_cfg0;
@@ -226,13 +260,6 @@ struct anamix_pll {
 	u32 digprog;
 };
 #endif
-
-struct fuse_bank9_regs {
-	u32 mac_addr0;
-	u32 rsvd0[3];
-	u32 mac_addr1;
-	u32 rsvd1[11];
-};
 
 /* System Reset Controller (SRC) */
 struct src {

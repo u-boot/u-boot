@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2014 Gateworks Corporation
+ * Copyright 2019 NXP
  * Author: Tim Harvey <tharvey@gateworks.com>
  */
 #include <common.h>
@@ -38,6 +39,12 @@ static void mxs_nand_command(struct mtd_info *mtd, unsigned int command,
 	if (command == NAND_CMD_READ0) {
 		chip->cmd_ctrl(mtd, NAND_CMD_READSTART, NAND_CLE);
 		chip->cmd_ctrl(mtd, NAND_CMD_NONE, 0);
+	} else if (command == NAND_CMD_RNDOUT) {
+		/* No ready / busy check necessary */
+		chip->cmd_ctrl(mtd, NAND_CMD_RNDOUTSTART,
+			       NAND_NCE | NAND_CLE);
+		chip->cmd_ctrl(mtd, NAND_CMD_NONE,
+			       NAND_NCE);
 	}
 
 	/* wait for nand ready */
@@ -212,23 +219,39 @@ int nand_spl_load_image(uint32_t offs, unsigned int size, void *buf)
 	unsigned int page;
 	unsigned int nand_page_per_block;
 	unsigned int sz = 0;
+	u8 *page_buf = NULL;
+	u32 page_off;
 
 	chip = mtd_to_nand(mtd);
 	if (!chip->numchips)
 		return -ENODEV;
+
+	page_buf = malloc(mtd->writesize);
+	if (!page_buf)
+		return -ENOMEM;
+
 	page = offs >> chip->page_shift;
+	page_off = offs & (mtd->writesize - 1);
 	nand_page_per_block = mtd->erasesize / mtd->writesize;
 
-	debug("%s offset:0x%08x len:%d page:%d\n", __func__, offs, size, page);
+	debug("%s offset:0x%08x len:%d page:%x\n", __func__, offs, size, page);
 
-	size = roundup(size, mtd->writesize);
-	while (sz < size) {
-		if (mxs_read_page_ecc(mtd, buf, page) < 0)
+	while (size) {
+		if (mxs_read_page_ecc(mtd, page_buf, page) < 0)
 			return -1;
-		sz += mtd->writesize;
+
+		if (size > (mtd->writesize - page_off))
+			sz = (mtd->writesize - page_off);
+		else
+			sz = size;
+
+		memcpy(buf, page_buf + page_off, sz);
+
 		offs += mtd->writesize;
 		page++;
-		buf += mtd->writesize;
+		buf += (mtd->writesize - page_off);
+		page_off = 0;
+		size -= sz;
 
 		/*
 		 * Check if we have crossed a block boundary, and if so
@@ -242,11 +265,15 @@ int nand_spl_load_image(uint32_t offs, unsigned int size, void *buf)
 			while (is_badblock(mtd, offs, 1)) {
 				page = page + nand_page_per_block;
 				/* Check i we've reached the end of flash. */
-				if (page >= mtd->size >> chip->page_shift)
+				if (page >= mtd->size >> chip->page_shift) {
+					free(page_buf);
 					return -ENOMEM;
+				}
 			}
 		}
 	}
+
+	free(page_buf);
 
 	return 0;
 }

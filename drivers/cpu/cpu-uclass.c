@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <dm/lists.h>
 #include <dm/root.h>
+#include <linux/err.h>
 
 int cpu_probe_all(void)
 {
@@ -32,6 +33,39 @@ int cpu_probe_all(void)
 	}
 
 	return 0;
+}
+
+int cpu_is_current(struct udevice *cpu)
+{
+	struct cpu_ops *ops = cpu_get_ops(cpu);
+
+	if (ops->is_current) {
+		if (ops->is_current(cpu))
+			return 1;
+	}
+
+	return -ENOSYS;
+}
+
+struct udevice *cpu_get_current_dev(void)
+{
+	struct udevice *cpu;
+	int ret;
+
+	uclass_foreach_dev_probe(UCLASS_CPU, cpu) {
+		if (cpu_is_current(cpu) > 0)
+			return cpu;
+	}
+
+	/* If can't find current cpu device, use the first dev instead */
+	ret = uclass_first_device_err(UCLASS_CPU, &cpu);
+	if (ret) {
+		debug("%s: Could not get CPU device (err = %d)\n",
+		      __func__, ret);
+		return NULL;
+	}
+
+	return cpu;
 }
 
 int cpu_get_desc(struct udevice *dev, char *buf, int size)

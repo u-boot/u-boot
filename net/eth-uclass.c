@@ -13,6 +13,7 @@
 #include <dm/uclass-internal.h>
 #include <net/pcap.h>
 #include "eth_internal.h"
+#include <eth_phy.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -40,8 +41,12 @@ static int eth_errno;
 static struct eth_uclass_priv *eth_get_uclass_priv(void)
 {
 	struct uclass *uc;
+	int ret;
 
-	uclass_get(UCLASS_ETH, &uc);
+	ret = uclass_get(UCLASS_ETH, &uc);
+	if (ret)
+		return NULL;
+
 	assert(uc);
 	return uc->priv;
 }
@@ -102,6 +107,7 @@ struct udevice *eth_get_dev_by_name(const char *devname)
 	struct udevice *it;
 	struct uclass *uc;
 	int len = strlen("eth");
+	int ret;
 
 	/* Must be longer than 3 to be an alias */
 	if (!strncmp(devname, "eth", len) && strlen(devname) > len) {
@@ -109,7 +115,10 @@ struct udevice *eth_get_dev_by_name(const char *devname)
 		seq = simple_strtoul(startp, &endp, 10);
 	}
 
-	uclass_get(UCLASS_ETH, &uc);
+	ret = uclass_get(UCLASS_ETH, &uc);
+	if (ret)
+		return NULL;
+
 	uclass_foreach_dev(it, uc) {
 		/*
 		 * We need the seq to be valid, so try to probe it.
@@ -452,6 +461,10 @@ static int eth_post_bind(struct udevice *dev)
 		       dev->name);
 		return -EINVAL;
 	}
+
+#ifdef CONFIG_DM_ETH_PHY
+	eth_phy_binds_nodes(dev);
+#endif
 
 	return 0;
 }

@@ -28,6 +28,7 @@
 #include <asm-generic/gpio.h>
 
 #include "fec_mxc.h"
+#include <eth_phy.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -1204,6 +1205,13 @@ int fecmxc_initialize_multi(bd_t *bd, int dev_id, int phy_id, uint32_t addr)
 #endif
 	int ret;
 
+	if (CONFIG_IS_ENABLED(IMX_MODULE_FUSE)) {
+		if (enet_fused((ulong)addr)) {
+			printf("SoC fuse indicates Ethernet@0x%x is unavailable.\n", addr);
+			return -ENODEV;
+		}
+	}
+
 #ifdef CONFIG_FEC_MXC_MDIO_BASE
 	/*
 	 * The i.MX28 has two ethernet interfaces, but they are not equal.
@@ -1342,6 +1350,13 @@ static int fecmxc_probe(struct udevice *dev)
 	uint32_t start;
 	int ret;
 
+	if (CONFIG_IS_ENABLED(IMX_MODULE_FUSE)) {
+		if (enet_fused((ulong)priv->eth)) {
+			printf("SoC fuse indicates Ethernet@0x%lx is unavailable.\n", (ulong)priv->eth);
+			return -ENODEV;
+		}
+	}
+
 	if (IS_ENABLED(CONFIG_IMX8)) {
 		ret = clk_get_by_name(dev, "ipg", &priv->ipg_clk);
 		if (ret < 0) {
@@ -1430,15 +1445,26 @@ static int fecmxc_probe(struct udevice *dev)
 	fec_reg_setup(priv);
 
 	priv->dev_id = dev->seq;
-#ifdef CONFIG_FEC_MXC_MDIO_BASE
-	bus = fec_get_miibus((ulong)CONFIG_FEC_MXC_MDIO_BASE, dev->seq);
-#else
-	bus = fec_get_miibus((ulong)priv->eth, dev->seq);
+
+#ifdef CONFIG_DM_ETH_PHY
+	bus = eth_phy_get_mdio_bus(dev);
 #endif
+
+	if (!bus) {
+#ifdef CONFIG_FEC_MXC_MDIO_BASE
+		bus = fec_get_miibus((ulong)CONFIG_FEC_MXC_MDIO_BASE, dev->seq);
+#else
+		bus = fec_get_miibus((ulong)priv->eth, dev->seq);
+#endif
+	}
 	if (!bus) {
 		ret = -ENOMEM;
 		goto err_mii;
 	}
+
+#ifdef CONFIG_DM_ETH_PHY
+	eth_phy_set_mdio_bus(dev, bus);
+#endif
 
 	priv->bus = bus;
 	priv->interface = pdata->phy_interface;

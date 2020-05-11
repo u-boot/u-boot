@@ -44,7 +44,7 @@ config TI_EDMA3
 
 config APBH_DMA
 	bool "Support APBH DMA"
-	depends on MX23 || MX28 || MX6 || MX7
+	depends on MX23 || MX28 || MX6 || MX7 || IMX8 || IMX8M
 	help
 	  Enable APBH DMA driver.
 

@@ -736,8 +736,10 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mm-verdin.dtb \
 	imx8mn-ddr4-evk.dtb \
 	imx8mq-evk.dtb \
+	imx8mm-beacon-kit.dtb \
 	imx8mq-phanbell.dtb \
-	imx8mp-evk.dtb
+	imx8mp-evk.dtb \
+	imx8mq-pico-pi.dtb
 
 dtb-$(CONFIG_ARCH_IMXRT) += imxrt1050-evk.dtb \
 	imxrt1020-evk.dtb

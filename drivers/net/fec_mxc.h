@@ -273,8 +273,6 @@ struct fec_priv {
 	u32 clk_rate;
 };
 
-void imx_get_mac_from_fuse(int dev_id, unsigned char *mac);
-
 /**
  * @brief Numbers of buffer descriptors for receiving
  *

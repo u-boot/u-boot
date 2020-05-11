@@ -74,7 +74,7 @@ static int mu_hal_receivemsg(struct mu_type *base, u32 reg_index, u32 *msg)
 	assert(reg_index < MU_TR_COUNT);
 
 	/* Wait RX register to be full. */
-	ret = readl_poll_timeout(&base->sr, val, val & mask, 10000);
+	ret = readl_poll_timeout(&base->sr, val, val & mask, 1000000);
 	if (ret < 0) {
 		printf("%s timeout\n", __func__);
 		return -ETIMEDOUT;

@@ -13,13 +13,16 @@
 #include <dm/lists.h>
 #include <dm/uclass.h>
 #include <errno.h>
+#include <spl.h>
 #include <thermal.h>
 #include <asm/arch/sci/sci.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch-imx/cpu.h>
 #include <asm/armv8/cpu.h>
 #include <asm/armv8/mmu.h>
+#include <asm/setup.h>
 #include <asm/mach-imx/boot_mode.h>
+#include <spl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -38,6 +41,10 @@ struct pass_over_info_t *get_pass_over_info(void)
 
 int arch_cpu_init(void)
 {
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_RECOVER_DATA_SECTION)
+	spl_save_restore_data();
+#endif
+
 #ifdef CONFIG_SPL_BUILD
 	struct pass_over_info_t *pass_over;
 
@@ -162,6 +169,37 @@ enum boot_device get_boot_device(void)
 	return boot_dev;
 }
 
+#ifdef CONFIG_SERIAL_TAG
+#define FUSE_UNIQUE_ID_WORD0 16
+#define FUSE_UNIQUE_ID_WORD1 17
+void get_board_serial(struct tag_serialnr *serialnr)
+{
+	sc_err_t err;
+	u32 val1 = 0, val2 = 0;
+	u32 word1, word2;
+
+	if (!serialnr)
+		return;
+
+	word1 = FUSE_UNIQUE_ID_WORD0;
+	word2 = FUSE_UNIQUE_ID_WORD1;
+
+	err = sc_misc_otp_fuse_read(-1, word1, &val1);
+	if (err != SC_ERR_NONE) {
+		printf("%s fuse %d read error: %d\n", __func__, word1, err);
+		return;
+	}
+
+	err = sc_misc_otp_fuse_read(-1, word2, &val2);
+	if (err != SC_ERR_NONE) {
+		printf("%s fuse %d read error: %d\n", __func__, word2, err);
+		return;
+	}
+	serialnr->low = val1;
+	serialnr->high = val2;
+}
+#endif /*CONFIG_SERIAL_TAG*/
+
 #ifdef CONFIG_ENV_IS_IN_MMC
 __weak int board_mmc_get_env_dev(int devno)
 {
@@ -223,7 +261,7 @@ static int get_owned_memreg(sc_rm_mr_t mr, sc_faddr_t *addr_start,
 phys_size_t get_effective_memsize(void)
 {
 	sc_rm_mr_t mr;
-	sc_faddr_t start, end, end1;
+	sc_faddr_t start, end, end1, start_aligned;
 	int err;
 
 	end1 = (sc_faddr_t)PHYS_SDRAM_1 + PHYS_SDRAM_1_SIZE;
@@ -231,9 +269,9 @@ phys_size_t get_effective_memsize(void)
 	for (mr = 0; mr < 64; mr++) {
 		err = get_owned_memreg(mr, &start, &end);
 		if (!err) {
-			start = roundup(start, MEMSTART_ALIGNMENT);
+			start_aligned = roundup(start, MEMSTART_ALIGNMENT);
 			/* Too small memory region, not use it */
-			if (start > end)
+			if (start_aligned > end)
 				continue;
 
 			/* Find the memory region runs the U-Boot */
@@ -537,3 +575,43 @@ u32 get_cpu_rev(void)
 	return (id << 12) | rev;
 }
 
+void board_boot_order(u32 *spl_boot_list)
+{
+	spl_boot_list[0] = spl_boot_device();
+
+	if (spl_boot_list[0] == BOOT_DEVICE_SPI) {
+		/* Check whether we own the flexspi0, if not, use NOR boot */
+		if (!sc_rm_is_resource_owned(-1, SC_R_FSPI_0))
+			spl_boot_list[0] = BOOT_DEVICE_NOR;
+	}
+}
+
+bool m4_parts_booted(void)
+{
+	sc_rm_pt_t m4_parts[2];
+	int err;
+
+	err = sc_rm_get_resource_owner(-1, SC_R_M4_0_PID0, &m4_parts[0]);
+	if (err) {
+		printf("%s get resource [%d] owner error: %d\n", __func__,
+		       SC_R_M4_0_PID0, err);
+		return false;
+	}
+
+	if (sc_pm_is_partition_started(-1, m4_parts[0]))
+		return true;
+
+	if (is_imx8qm()) {
+		err = sc_rm_get_resource_owner(-1, SC_R_M4_1_PID0, &m4_parts[1]);
+		if (err) {
+			printf("%s get resource [%d] owner error: %d\n",
+			       __func__, SC_R_M4_1_PID0, err);
+			return false;
+		}
+
+		if (sc_pm_is_partition_started(-1, m4_parts[1]))
+			return true;
+	}
+
+	return false;
+}

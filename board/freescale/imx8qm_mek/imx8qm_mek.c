@@ -123,10 +123,23 @@ int board_mmc_get_env_dev(int devno)
 
 int board_late_init(void)
 {
+	char *fdt_file;
+	bool m4_booted;
+
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	env_set("board_name", "MEK");
 	env_set("board_rev", "iMX8QM");
 #endif
+
+	fdt_file = env_get("fdt_file");
+	m4_booted = m4_parts_booted();
+
+	if (fdt_file && !strcmp(fdt_file, "undefined")) {
+		if (m4_booted)
+			env_set("fdt_file", "imx8qm-mek-rpmsg.dtb");
+		else
+			env_set("fdt_file", "imx8qm-mek.dtb");
+	}
 
 	return 0;
 }

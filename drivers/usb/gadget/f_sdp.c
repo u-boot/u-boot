@@ -276,7 +276,7 @@ static void sdp_rx_command_complete(struct usb_ep *ep, struct usb_request *req)
 		sdp->error_status = SDP_WRITE_FILE_COMPLETE;
 
 		sdp->state = SDP_STATE_RX_FILE_DATA;
-		sdp->dnl_address = be32_to_cpu(cmd->addr);
+		sdp->dnl_address = cmd->addr ? be32_to_cpu(cmd->addr) : CONFIG_SDP_LOADADDR;
 		sdp->dnl_bytes_remaining = be32_to_cpu(cmd->cnt);
 		sdp->dnl_bytes = sdp->dnl_bytes_remaining;
 		sdp->next_state = SDP_STATE_IDLE;
@@ -304,7 +304,7 @@ static void sdp_rx_command_complete(struct usb_ep *ep, struct usb_request *req)
 		sdp->always_send_status = false;
 		sdp->error_status = 0;
 
-		sdp->jmp_address = be32_to_cpu(cmd->addr);
+		sdp->jmp_address = cmd->addr ? be32_to_cpu(cmd->addr) : CONFIG_SDP_LOADADDR;
 		sdp->state = SDP_STATE_TX_SEC_CONF;
 		sdp->next_state = SDP_STATE_JUMP;
 		break;
