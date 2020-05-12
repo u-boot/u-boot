@@ -1315,7 +1315,8 @@ struct udevice *pci_get_controller(struct udevice *dev);
  */
 int pci_get_regions(struct udevice *dev, struct pci_region **iop,
 		    struct pci_region **memp, struct pci_region **prefp);
-
+int
+pci_get_dma_regions(struct udevice *dev, struct pci_region *memp, int index);
 /**
  * dm_pci_write_bar32() - Write the address of a BAR
  *

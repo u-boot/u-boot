@@ -1179,6 +1179,48 @@ ulong pci_conv_size_to_32(ulong old, ulong value, uint offset,
 	return value;
 }
 
+int pci_get_dma_regions(struct udevice *dev, struct pci_region *memp, int index)
+{
+	int pci_addr_cells, addr_cells, size_cells;
+	int cells_per_record;
+	const u32 *prop;
+	int len;
+	int i = 0;
+
+	prop = ofnode_get_property(dev_ofnode(dev), "dma-ranges", &len);
+	if (!prop) {
+		log_err("PCI: Device '%s': Cannot decode dma-ranges\n",
+			dev->name);
+		return -EINVAL;
+	}
+
+	pci_addr_cells = ofnode_read_simple_addr_cells(dev_ofnode(dev));
+	addr_cells = ofnode_read_simple_addr_cells(dev_ofnode(dev->parent));
+	size_cells = ofnode_read_simple_size_cells(dev_ofnode(dev));
+
+	/* PCI addresses are always 3-cells */
+	len /= sizeof(u32);
+	cells_per_record = pci_addr_cells + addr_cells + size_cells;
+	debug("%s: len=%d, cells_per_record=%d\n", __func__, len,
+	      cells_per_record);
+
+	while (len) {
+		memp->bus_start = fdtdec_get_number(prop + 1, 2);
+		prop += pci_addr_cells;
+		memp->phys_start = fdtdec_get_number(prop, addr_cells);
+		prop += addr_cells;
+		memp->size = fdtdec_get_number(prop, size_cells);
+		prop += size_cells;
+
+		if (i == index)
+			return 0;
+		i++;
+		len -= cells_per_record;
+	}
+
+	return -EINVAL;
+}
+
 int pci_get_regions(struct udevice *dev, struct pci_region **iop,
 		    struct pci_region **memp, struct pci_region **prefp)
 {
