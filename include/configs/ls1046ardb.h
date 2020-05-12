@@ -175,13 +175,6 @@
 
 #endif
 
-/* QSPI device */
-#ifndef SPL_NO_QSPI
-#ifdef CONFIG_FSL_QSPI
-#define CONFIG_SPI_FLASH_SPANSION
-#endif
-#endif
-
 #ifndef SPL_NO_MISC
 #undef CONFIG_BOOTCOMMAND
 #ifdef CONFIG_TFABOOT

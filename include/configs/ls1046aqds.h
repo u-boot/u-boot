@@ -41,14 +41,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SPI_FLASH_EON		/* cs2 */
 #endif
 
-/* QSPI */
-#if defined(CONFIG_TFABOOT) ||	\
-	defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
-#ifdef CONFIG_FSL_QSPI
-#define CONFIG_SPI_FLASH_SPANSION
-#endif
-#endif
-
 #ifdef CONFIG_SYS_DPAA_FMAN
 #define RGMII_PHY1_ADDR		0x1
 #define RGMII_PHY2_ADDR		0x2
