@@ -45,9 +45,8 @@ static int spi_flash_probe_slave(struct spi_flash *flash)
 	if (ret)
 		goto err_read_id;
 
-#if CONFIG_IS_ENABLED(SPI_FLASH_MTD)
-	ret = spi_flash_mtd_register(flash);
-#endif
+	if (CONFIG_IS_ENABLED(SPI_FLASH_MTD))
+		ret = spi_flash_mtd_register(flash);
 
 err_read_id:
 	spi_release_bus(spi);
@@ -84,9 +83,9 @@ struct spi_flash *spi_flash_probe(unsigned int busnum, unsigned int cs,
 
 void spi_flash_free(struct spi_flash *flash)
 {
-#if CONFIG_IS_ENABLED(SPI_FLASH_MTD)
-	spi_flash_mtd_unregister();
-#endif
+	if (CONFIG_IS_ENABLED(SPI_FLASH_MTD))
+		spi_flash_mtd_unregister();
+
 	spi_free_slave(flash->spi);
 	free(flash);
 }
@@ -153,9 +152,9 @@ int spi_flash_std_probe(struct udevice *dev)
 
 static int spi_flash_std_remove(struct udevice *dev)
 {
-#if CONFIG_IS_ENABLED(SPI_FLASH_MTD)
-	spi_flash_mtd_unregister();
-#endif
+	if (CONFIG_IS_ENABLED(SPI_FLASH_MTD))
+		spi_flash_mtd_unregister();
+
 	return 0;
 }
 
