@@ -744,8 +744,8 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 	if ((caps & SDHCI_CAN_DO_SDMA)) {
 		host->flags |= USE_SDMA;
 	} else {
-		printf("%s: Your controller doesn't support SDMA!!\n",
-		       __func__);
+		debug("%s: Your controller doesn't support SDMA!!\n",
+		      __func__);
 	}
 #endif
 #if CONFIG_IS_ENABLED(MMC_SDHCI_ADMA)
