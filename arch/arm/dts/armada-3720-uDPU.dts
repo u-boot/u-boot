@@ -125,14 +125,14 @@
 &eth0 {
 	pinctrl-0 = <&pcie_pins>;
 	status = "okay";
-	phy-mode = "2500base-x";
+	phy-mode = "sgmii-2500";
 	managed = "in-band-status";
 	phy = <&ethphy0>;
 };
 
 &eth1 {
 	status = "okay";
-	phy-mode = "2500base-x";
+	phy-mode = "sgmii-2500";
 	managed = "in-band-status";
 	phy = <&ethphy1>;
 };
