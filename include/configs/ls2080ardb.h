@@ -273,12 +273,8 @@ unsigned long get_board_sys_clk(void);
 #define I2C_MUX_CH_DEFAULT      0x8
 
 /* SPI */
-#if defined(CONFIG_FSL_QSPI) || defined(CONFIG_FSL_DSPI)
-#ifdef CONFIG_FSL_DSPI
+#if defined(CONFIG_FSL_DSPI)
 #define CONFIG_SPI_FLASH_STMICRO
-#endif
-#define FSL_QSPI_FLASH_SIZE		SZ_64M	/* 64MB */
-#define FSL_QSPI_FLASH_NUM		2
 #endif
 
 /*

@@ -15,9 +15,6 @@
 #define CONFIG_SYS_SDRAM_SIZE		0x40000000
 #define CONFIG_CMD_MEMINFO
 
-
-/* ENV */
-#define CONFIG_SYS_FSL_QSPI_BASE	0x40000000
 /*
  * I2C IO expander
  */

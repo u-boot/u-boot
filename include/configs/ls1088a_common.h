@@ -35,13 +35,7 @@
 #endif
 
 /* Link Definitions */
-#ifdef CONFIG_TFABOOT
 #define CONFIG_SYS_FSL_QSPI_BASE	0x20000000
-#else
-#ifdef CONFIG_QSPI_BOOT
-#define CONFIG_SYS_FSL_QSPI_BASE	0x20000000
-#endif
-#endif
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 

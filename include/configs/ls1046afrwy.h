@@ -96,10 +96,7 @@
 /*
  * Environment
  */
-#define CONFIG_ENV_OVERWRITE
-
 #define CONFIG_SYS_MMC_ENV_DEV		0
-
 #define CONFIG_SYS_FSL_QSPI_BASE	0x40000000
 
 /* FMan */
@@ -115,12 +112,6 @@
 
 #define CONFIG_ETHPRIME			"FM1@DTSEC3"
 
-#endif
-
-/* QSPI device */
-#ifdef CONFIG_FSL_QSPI
-#define FSL_QSPI_FLASH_SIZE		SZ_64M
-#define FSL_QSPI_FLASH_NUM		1
 #endif
 
 #undef CONFIG_BOOTCOMMAND
