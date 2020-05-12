@@ -5,3 +5,11 @@
  */
 
 #include "meson-gx-u-boot.dtsi"
+
+&usb0 {
+	status = "disabled";
+};
+
+&usb1 {
+	hnp-srp-disable;
+};
