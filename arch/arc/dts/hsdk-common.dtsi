@@ -84,12 +84,19 @@
 		phy-mode = "gmii";
 	};
 
-	ehci@0xf0040000 {
+	ehci@f0040000 {
 		compatible = "generic-ehci";
 		reg = <0xf0040000 0x100>;
+
+		/*
+		 * OHCI and EHCI have reset line shared so we don't add
+		 * reset property to OHCI node as it is probed later and
+		 * it will reset sucessfuly probed and configured EHCI HW.
+		 */
+		resets = <&cgu_rst HSDK_USB_RESET>;
 	};
 
-	ohci@0xf0060000 {
+	ohci@f0060000 {
 		compatible = "generic-ohci";
 		reg = <0xf0060000 0x100>;
 	};

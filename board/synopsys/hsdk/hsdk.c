@@ -42,6 +42,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CREG_CPU_START_MASK	0xF
 #define CREG_CPU_START_POL	BIT(4)
 
+#define CREG_CORE_BOOT_IMAGE	GENMASK(5, 4)
+
 #define CREG_CPU_0_ENTRY	(CREG_BASE + 0x404)
 
 #define SDIO_BASE		(ARC_PERIPHERAL_BASE + 0xA000)
@@ -1241,11 +1243,16 @@ int board_late_init(void)
 
 int checkboard(void)
 {
+	u32 reg;
+
 	printf("Board: Synopsys %s\n", board_name(get_board_type_runtime()));
 
 	if (board_mismatch())
 		printf("WARN: U-boot is configured NOT for this board but for %s!\n",
 		       board_name(get_board_type_config()));
+
+	reg = readl(CREG_AXI_M_HS_CORE_BOOT) & CREG_CORE_BOOT_IMAGE;
+	printf("U-boot autostart: %s\n", reg ? "enabled" : "disabled");
 
 	return 0;
 };
