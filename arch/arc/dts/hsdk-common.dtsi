@@ -84,12 +84,12 @@
 		phy-mode = "gmii";
 	};
 
-	ehci@0xf0040000 {
+	ehci@f0040000 {
 		compatible = "generic-ehci";
 		reg = <0xf0040000 0x100>;
 	};
 
-	ohci@0xf0060000 {
+	ohci@f0060000 {
 		compatible = "generic-ohci";
 		reg = <0xf0060000 0x100>;
 	};
