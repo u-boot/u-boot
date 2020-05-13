@@ -71,7 +71,7 @@ static int veyron_init(void)
 }
 #endif
 
-int board_early_init_f(void)
+int board_early_init_r(void)
 {
 	struct udevice *dev;
 	int ret;
