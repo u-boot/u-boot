@@ -145,13 +145,10 @@ static int do_spi_flash_probe(int argc, char *const argv[])
 
 	new = spi_flash_probe(bus, cs, speed, mode);
 	flash = new;
-
 	if (!new) {
 		printf("Failed to initialize SPI flash at %u:%u\n", bus, cs);
 		return 1;
 	}
-
-	flash = new;
 #endif
 
 	return 0;
