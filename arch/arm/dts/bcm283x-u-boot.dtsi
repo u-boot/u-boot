@@ -19,3 +19,11 @@
 &gpio {
 	u-boot,dm-pre-reloc;
 };
+
+&uart0_gpio14 {
+	u-boot,dm-pre-reloc;
+};
+
+&uart1_gpio14 {
+	u-boot,dm-pre-reloc;
+};

@@ -209,4 +209,6 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "rpi"
 
+source "board/raspberrypi/rpi/Kconfig"
+
 endmenu
