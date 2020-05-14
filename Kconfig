@@ -65,7 +65,27 @@ config CC_OPTIMIZE_FOR_SIZE
 	  This option is enabled by default for U-Boot.
 
 config OPTIMIZE_INLINING
-	bool "Allow compiler to uninline functions marked 'inline'"
+	bool "Allow compiler to uninline functions marked 'inline' in full U-Boot"
+	default n
+	help
+	  This option determines if U-Boot forces gcc to inline the functions
+	  developers have marked 'inline'. Doing so takes away freedom from gcc to
+	  do what it thinks is best, which is desirable in some cases for size
+	  reasons.
+
+config SPL_OPTIMIZE_INLINING
+	bool "Allow compiler to uninline functions marked 'inline' in SPL"
+	depends on SPL
+	default n
+	help
+	  This option determines if U-Boot forces gcc to inline the functions
+	  developers have marked 'inline'. Doing so takes away freedom from gcc to
+	  do what it thinks is best, which is desirable in some cases for size
+	  reasons.
+
+config TPL_OPTIMIZE_INLINING
+	bool "Allow compiler to uninline functions marked 'inline' in TPL"
+	depends on TPL
 	default n
 	help
 	  This option determines if U-Boot forces gcc to inline the functions
