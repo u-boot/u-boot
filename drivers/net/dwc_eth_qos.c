@@ -2170,7 +2170,7 @@ static const struct udevice_id eqos_ids[] = {
 		.data = (ulong)&eqos_tegra186_config
 	},
 	{
-		.compatible = "snps,dwmac-4.20a",
+		.compatible = "st,stm32mp1-dwmac",
 		.data = (ulong)&eqos_stm32_config
 	},
 	{
