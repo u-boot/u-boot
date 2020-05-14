@@ -236,7 +236,7 @@ static int zynqmp_load(xilinx_desc *desc, const void *buf, size_t bsize,
 					buf_hi, (u32)bsize, 0, ret_payload);
 
 	if (ret)
-		puts("PL FPGA LOAD fail\n");
+		printf("PL FPGA LOAD failed with err: 0x%08x\n", ret);
 
 	return ret;
 }
