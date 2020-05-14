@@ -13,7 +13,9 @@ unsigned long notrace timer_read_counter(void)
 	return read_c0_count();
 }
 
+#if defined(CONFIG_SYS_MIPS_TIMER_FREQ)
 ulong notrace __weak get_tbclk(void)
 {
 	return CONFIG_SYS_MIPS_TIMER_FREQ;
 }
+#endif
