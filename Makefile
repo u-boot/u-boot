@@ -722,13 +722,6 @@ else
 KBUILD_CFLAGS += $(call cc-disable-warning, unused-but-set-variable)
 endif
 
-# turn jbsr into jsr for m68k
-ifeq ($(ARCH),m68k)
-ifeq ($(findstring 3.4,$(shell $(CC) --version)),3.4)
-KBUILD_AFLAGS += -Wa,-gstabs,-S
-endif
-endif
-
 # Prohibit date/time macros, which would make the build non-deterministic
 KBUILD_CFLAGS   += $(call cc-option,-Werror=date-time)
 
