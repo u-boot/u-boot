@@ -20,7 +20,6 @@
 #define MODE_BITS_MASK			3
 #define BSRR_BIT(gpio_pin, value)	BIT(gpio_pin + (value ? 0 : 16))
 
-#ifndef CONFIG_SPL_BUILD
 /*
  * convert gpio offset to gpio index taking into account gpio holes
  * into gpio bank
@@ -147,7 +146,6 @@ static const struct dm_gpio_ops gpio_stm32_ops = {
 	.set_value		= stm32_gpio_set_value,
 	.get_function		= stm32_gpio_get_function,
 };
-#endif
 
 static int gpio_stm32_probe(struct udevice *dev)
 {
@@ -162,7 +160,6 @@ static int gpio_stm32_probe(struct udevice *dev)
 
 	priv->regs = (struct stm32_gpio_regs *)addr;
 
-#ifndef CONFIG_SPL_BUILD
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct ofnode_phandle_args args;
 	const char *name;
@@ -195,7 +192,7 @@ static int gpio_stm32_probe(struct udevice *dev)
 	dev_dbg(dev, "addr = 0x%p bank_name = %s gpio_count = %d gpio_range = 0x%x\n",
 		(u32 *)priv->regs, uc_priv->bank_name, uc_priv->gpio_count,
 		priv->gpio_range);
-#endif
+
 	ret = clk_get_by_index(dev, 0, &clk);
 	if (ret < 0)
 		return ret;
@@ -215,9 +212,7 @@ U_BOOT_DRIVER(gpio_stm32) = {
 	.name	= "gpio_stm32",
 	.id	= UCLASS_GPIO,
 	.probe	= gpio_stm32_probe,
-#ifndef CONFIG_SPL_BUILD
 	.ops	= &gpio_stm32_ops,
-#endif
 	.flags	= DM_UC_FLAG_SEQ_ALIAS,
 	.priv_auto_alloc_size	= sizeof(struct stm32_gpio_priv),
 };

@@ -116,9 +116,7 @@ int checkboard(void)
 	const char *fdt_compat;
 	int fdt_compat_len;
 
-	if (IS_ENABLED(CONFIG_STM32MP1_OPTEE))
-		mode = "trusted with OP-TEE";
-	else if (IS_ENABLED(CONFIG_TFABOOT))
+	if (IS_ENABLED(CONFIG_TFABOOT))
 		mode = "trusted";
 	else
 		mode = "basic";
@@ -132,6 +130,89 @@ int checkboard(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_BOARD_EARLY_INIT_F
+static u8 brdcode __section("data");
+static u8 ddr3code __section("data");
+static u8 somcode __section("data");
+
+static void board_get_coding_straps(void)
+{
+	struct gpio_desc gpio[4];
+	ofnode node;
+	int i, ret;
+
+	node = ofnode_path("/config");
+	if (!ofnode_valid(node)) {
+		printf("%s: no /config node?\n", __func__);
+		return;
+	}
+
+	brdcode = 0;
+	ddr3code = 0;
+	somcode = 0;
+
+	ret = gpio_request_list_by_name_nodev(node, "dh,som-coding-gpios",
+					      gpio, ARRAY_SIZE(gpio),
+					      GPIOD_IS_IN);
+	for (i = 0; i < ret; i++)
+		somcode |= !!dm_gpio_get_value(&(gpio[i])) << i;
+
+	ret = gpio_request_list_by_name_nodev(node, "dh,ddr3-coding-gpios",
+					      gpio, ARRAY_SIZE(gpio),
+					      GPIOD_IS_IN);
+	for (i = 0; i < ret; i++)
+		ddr3code |= !!dm_gpio_get_value(&(gpio[i])) << i;
+
+	ret = gpio_request_list_by_name_nodev(node, "dh,board-coding-gpios",
+					      gpio, ARRAY_SIZE(gpio),
+					      GPIOD_IS_IN);
+	for (i = 0; i < ret; i++)
+		brdcode |= !!dm_gpio_get_value(&(gpio[i])) << i;
+
+	printf("Code:  SoM:rev=%d,ddr3=%d Board:rev=%d\n",
+		somcode, ddr3code, brdcode);
+}
+
+int board_stm32mp1_ddr_config_name_match(struct udevice *dev,
+					 const char *name)
+{
+	if (ddr3code == 1 &&
+	    !strcmp(name, "st,ddr3l-dhsom-1066-888-bin-g-2x1gb-533mhz"))
+		return 0;
+
+	if (ddr3code == 2 &&
+	    !strcmp(name, "st,ddr3l-dhsom-1066-888-bin-g-2x2gb-533mhz"))
+		return 0;
+
+	if (ddr3code == 3 &&
+	    !strcmp(name, "st,ddr3l-dhsom-1066-888-bin-g-2x4gb-533mhz"))
+		return 0;
+
+	return -EINVAL;
+}
+
+int board_early_init_f(void)
+{
+	board_get_coding_straps();
+
+	return 0;
+}
+
+#ifdef CONFIG_SPL_LOAD_FIT
+int board_fit_config_name_match(const char *name)
+{
+	char test[20];
+
+	snprintf(test, sizeof(test), "somrev%d_boardrev%d", somcode, brdcode);
+
+	if (!strcmp(name, test))
+		return 0;
+
+	return -EINVAL;
+}
+#endif
+#endif
 
 static void board_key_check(void)
 {
@@ -478,6 +559,12 @@ int board_late_init(void)
 	if (!strcmp(boot_device, "serial") || !strcmp(boot_device, "usb"))
 		env_set("bootdelay", "0");
 
+#ifdef CONFIG_BOARD_EARLY_INIT_F
+	env_set_ulong("dh_som_rev", somcode);
+	env_set_ulong("dh_board_rev", brdcode);
+	env_set_ulong("dh_ddr3_code", ddr3code);
+#endif
+
 	return 0;
 }
 
@@ -570,149 +657,10 @@ enum env_location env_get_location(enum env_operation op, int prio)
 #endif
 }
 
-#ifdef CONFIG_SYS_MTDPARTS_RUNTIME
-
-#define MTDPARTS_LEN		256
-#define MTDIDS_LEN		128
-
-/**
- * The mtdparts_nand0 and mtdparts_nor0 variable tends to be long.
- * If we need to access it before the env is relocated, then we need
- * to use our own stack buffer. gd->env_buf will be too small.
- *
- * @param buf temporary buffer pointer MTDPARTS_LEN long
- * @return mtdparts variable string, NULL if not found
- */
-static const char *env_get_mtdparts(const char *str, char *buf)
-{
-	if (gd->flags & GD_FLG_ENV_READY)
-		return env_get(str);
-	if (env_get_f(str, buf, MTDPARTS_LEN) != -1)
-		return buf;
-
-	return NULL;
-}
-
-/**
- * update the variables "mtdids" and "mtdparts" with content of mtdparts_<dev>
- */
-static void board_get_mtdparts(const char *dev,
-			       char *mtdids,
-			       char *mtdparts)
-{
-	char env_name[32] = "mtdparts_";
-	char tmp_mtdparts[MTDPARTS_LEN];
-	const char *tmp;
-
-	/* name of env variable to read = mtdparts_<dev> */
-	strcat(env_name, dev);
-	tmp = env_get_mtdparts(env_name, tmp_mtdparts);
-	if (tmp) {
-		/* mtdids: "<dev>=<dev>, ...." */
-		if (mtdids[0] != '\0')
-			strcat(mtdids, ",");
-		strcat(mtdids, dev);
-		strcat(mtdids, "=");
-		strcat(mtdids, dev);
-
-		/* mtdparts: "mtdparts=<dev>:<mtdparts_<dev>>;..." */
-		if (mtdparts[0] != '\0')
-			strncat(mtdparts, ";", MTDPARTS_LEN);
-		else
-			strcat(mtdparts, "mtdparts=");
-		strncat(mtdparts, dev, MTDPARTS_LEN);
-		strncat(mtdparts, ":", MTDPARTS_LEN);
-		strncat(mtdparts, tmp, MTDPARTS_LEN);
-	}
-}
-
-void board_mtdparts_default(const char **mtdids, const char **mtdparts)
-{
-	struct udevice *dev;
-	static char parts[3 * MTDPARTS_LEN + 1];
-	static char ids[MTDIDS_LEN + 1];
-	static bool mtd_initialized;
-
-	if (mtd_initialized) {
-		*mtdids = ids;
-		*mtdparts = parts;
-		return;
-	}
-
-	memset(parts, 0, sizeof(parts));
-	memset(ids, 0, sizeof(ids));
-
-	/* probe all MTD devices */
-	for (uclass_first_device(UCLASS_MTD, &dev);
-	     dev;
-	     uclass_next_device(&dev)) {
-		pr_debug("mtd device = %s\n", dev->name);
-	}
-
-	if (!uclass_get_device(UCLASS_SPI_FLASH, 0, &dev))
-		board_get_mtdparts("nor0", ids, parts);
-
-	mtd_initialized = true;
-	*mtdids = ids;
-	*mtdparts = parts;
-	debug("%s:mtdids=%s & mtdparts=%s\n", __func__, ids, parts);
-}
-#endif
-
 #if defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, bd_t *bd)
 {
 	return 0;
-}
-#endif
-
-#ifdef CONFIG_SET_DFU_ALT_INFO
-#define DFU_ALT_BUF_LEN SZ_1K
-
-static void board_get_alt_info(const char *dev, char *buff)
-{
-	char var_name[32] = "dfu_alt_info_";
-	int ret;
-
-	ALLOC_CACHE_ALIGN_BUFFER(char, tmp_alt, DFU_ALT_BUF_LEN);
-
-	/* name of env variable to read = dfu_alt_info_<dev> */
-	strcat(var_name, dev);
-	ret = env_get_f(var_name, tmp_alt, DFU_ALT_BUF_LEN);
-	if (ret) {
-		if (buff[0] != '\0')
-			strcat(buff, "&");
-		strncat(buff, tmp_alt, DFU_ALT_BUF_LEN);
-	}
-}
-
-void set_dfu_alt_info(char *interface, char *devstr)
-{
-	struct udevice *dev;
-
-	ALLOC_CACHE_ALIGN_BUFFER(char, buf, DFU_ALT_BUF_LEN);
-
-	if (env_get("dfu_alt_info"))
-		return;
-
-	memset(buf, 0, sizeof(buf));
-
-	/* probe all MTD devices */
-	mtd_probe_devices();
-
-	board_get_alt_info("ram", buf);
-
-	if (!uclass_get_device(UCLASS_MMC, 0, &dev))
-		board_get_alt_info("mmc0", buf);
-
-	if (!uclass_get_device(UCLASS_MMC, 1, &dev))
-		board_get_alt_info("mmc1", buf);
-
-	if (!uclass_get_device(UCLASS_SPI_FLASH, 0, &dev))
-		board_get_alt_info("nor0", buf);
-
-	env_set("dfu_alt_info", buf);
-	puts("DFU alt info setting: done\n");
 }
 #endif
 

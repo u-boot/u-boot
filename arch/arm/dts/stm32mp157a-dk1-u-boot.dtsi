@@ -27,10 +27,6 @@
 			default-state = "off";
 			status = "okay";
 		};
-
-		blue {
-			default-state = "on";
-		};
 	};
 };
 

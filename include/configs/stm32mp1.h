@@ -23,10 +23,6 @@
 #define CONFIG_SYS_SDRAM_BASE			STM32_DDR_BASE
 #define CONFIG_SYS_INIT_SP_ADDR			CONFIG_SYS_TEXT_BASE
 
-#ifdef CONFIG_STM32MP1_OPTEE
-#define CONFIG_SYS_MEM_TOP_HIDE			SZ_32M
-#endif /* CONFIG_STM32MP1_OPTEE */
-
 /*
  * Console I/O buffer size
  */
@@ -126,7 +122,7 @@
  * bootcmd for stm32mp1:
  * for serial/usb: execute the stm32prog command
  * for mmc boot (eMMC, SD card), boot only on the same device
- * for nand boot, boot with on ubifs partition on nand
+ * for nand or spi-nand boot, boot with on ubifs partition on UBI partition
  * for nor boot, use the default order
  */
 #define STM32MP_BOOTCMD "bootcmd_stm32mp=" \
@@ -137,64 +133,13 @@
 		"run env_check;" \
 		"if test ${boot_device} = mmc;" \
 		"then env set boot_targets \"mmc${boot_instance}\"; fi;" \
-		"if test ${boot_device} = nand;" \
+		"if test ${boot_device} = nand ||" \
+		  " test ${boot_device} = spi-nand ;" \
 		"then env set boot_targets ubifs0; fi;" \
 		"run distro_bootcmd;" \
 	"fi;\0"
 
 #include <config_distro_bootcmd.h>
-
-#ifdef CONFIG_STM32MP1_OPTEE
-/* with OPTEE: define specific MTD partitions = teeh, teed, teex */
-#define STM32MP_MTDPARTS \
-	"mtdparts_nor0=256k(fsbl1),256k(fsbl2),2m(ssbl),256k(u-boot-env),256k(teeh),256k(teed),256k(teex),-(nor_user)\0" \
-	"mtdparts_nand0=2m(fsbl),2m(ssbl1),2m(ssbl2),512k(teeh),512k(teed),512k(teex),-(UBI)\0" \
-	"mtdparts_spi-nand0=2m(fsbl),2m(ssbl1),2m(ssbl2),"\
-		"512k(teeh),512k(teed),512k(teex),-(UBI)\0"
-
-#else /* CONFIG_STM32MP1_OPTEE */
-#define STM32MP_MTDPARTS \
-	"mtdparts_nor0=256k(fsbl1),256k(fsbl2),2m(ssbl),256k(u-boot-env),-(nor_user)\0" \
-	"mtdparts_nand0=2m(fsbl),2m(ssbl1),2m(ssbl2),-(UBI)\0" \
-	"mtdparts_spi-nand0=2m(fsbl),2m(ssbl1),2m(ssbl2),-(UBI)\0"
-
-#endif /* CONFIG_STM32MP1_OPTEE */
-
-#ifndef CONFIG_SYS_MTDPARTS_RUNTIME
-#undef STM32MP_MTDPARTS
-#define STM32MP_MTDPARTS
-#endif
-
-#define STM32MP_DFU_ALT_RAM \
-	"dfu_alt_info_ram=ram 0=" \
-		"uImage ram ${kernel_addr_r} 0x2000000;" \
-		"devicetree.dtb ram ${fdt_addr_r} 0x100000;" \
-		"uramdisk.image.gz ram ${ramdisk_addr_r} 0x10000000\0"
-
-#ifdef CONFIG_SET_DFU_ALT_INFO
-#define STM32MP_DFU_ALT_INFO \
-	"dfu_alt_info_nor0=mtd nor0=" \
-		"nor_fsbl1 part 1;nor_fsbl2 part 2;" \
-		"nor_ssbl part 3;nor_env part 4\0" \
-	"dfu_alt_info_nand0=mtd nand0="\
-		"nand_fsbl part 1;nand_ssbl1 part 2;" \
-		"nand_ssbl2 part 3;nand_UBI partubi 4\0" \
-	"dfu_alt_info_spi-nand0=mtd spi-nand0="\
-		"spi-nand_fsbl part 1;spi-nand_ssbl1 part 2;" \
-		"spi-nand_ssbl2 part 3;spi-nand_UBI partubi 4\0" \
-	"dfu_alt_info_mmc0=mmc 0=" \
-		"sdcard_fsbl1 part 0 1;sdcard_fsbl2 part 0 2;" \
-		"sdcard_ssbl part 0 3;sdcard_bootfs part 0 4;" \
-		"sdcard_vendorfs part 0 5;sdcard_rootfs part 0 6;" \
-		"sdcard_userfs part 0 7\0" \
-	"dfu_alt_info_mmc1=mmc 1=" \
-		"emmc_fsbl1 raw 0x0 0x200 mmcpart 1;" \
-		"emmc_fsbl2 raw 0x0 0x200 mmcpart 2;emmc_ssbl part 1 1;" \
-		"emmc_bootfs part 1 2;emmc_vendorfs part 1 3;" \
-		"emmc_rootfs part 1 4;emmc_userfs part 1 5\0"
-#else
-#define STM32MP_DFU_ALT_INFO
-#endif
 
 /*
  * memory layout for 32M uncompressed/compressed kernel,
@@ -214,9 +159,6 @@
 	"env_check=if test $env_default -eq 1;"\
 		" then env set env_default 0;env save;fi\0" \
 	STM32MP_BOOTCMD \
-	STM32MP_MTDPARTS \
-	STM32MP_DFU_ALT_RAM \
-	STM32MP_DFU_ALT_INFO \
 	BOOTENV \
 	"boot_net_usb_start=true\0"
 

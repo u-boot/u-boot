@@ -5,7 +5,9 @@
 
 #include <dt-bindings/clock/stm32mp1-clksrc.h>
 #include "stm32mp15-u-boot.dtsi"
-#include "stm32mp15-ddr3-2x4Gb-1066-binG.dtsi"
+#include "stm32mp15-ddr3-dhsom-2x1Gb-1066-binG.dtsi"
+#include "stm32mp15-ddr3-dhsom-2x2Gb-1066-binG.dtsi"
+#include "stm32mp15-ddr3-dhsom-2x4Gb-1066-binG.dtsi"
 
 / {
 	aliases {
@@ -23,6 +25,8 @@
 		u-boot,error-led = "error";
 		st,fastboot-gpios = <&gpioa 13 GPIO_ACTIVE_LOW>;
 		st,stm32prog-gpios = <&gpioa 14 GPIO_ACTIVE_LOW>;
+		dh,som-coding-gpios = <&gpiof 12 0>, <&gpiof 13 0>, <&gpiof 15 0>;
+		dh,ddr3-coding-gpios = <&gpioz 6 0>, <&gpioz 7 0>;
 	};
 
 	led {
@@ -42,6 +46,15 @@
 	ksz8851: ks8851mll@64000000 {
 		compatible = "micrel,ks8851-mll";
 		reg = <0x64000000 0x20000>;
+	};
+};
+
+&gpiof {
+	snor-nwp {
+		gpio-hog;
+		gpios = <7 0>;
+		output-high;
+		line-name = "spi-nor-nwp";
 	};
 };
 

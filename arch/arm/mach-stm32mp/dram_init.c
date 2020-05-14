@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <lmb.h>
 #include <ram.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -30,4 +31,21 @@ int dram_init(void)
 	gd->ram_size = ram.size;
 
 	return 0;
+}
+
+ulong board_get_usable_ram_top(ulong total_size)
+{
+	phys_addr_t reg;
+	struct lmb lmb;
+
+	/* found enough not-reserved memory to relocated U-Boot */
+	lmb_init(&lmb);
+	lmb_add(&lmb, gd->ram_base, gd->ram_size);
+	boot_fdt_add_mem_rsv_regions(&lmb, (void *)gd->fdt_blob);
+	reg = lmb_alloc(&lmb, CONFIG_SYS_MALLOC_LEN + total_size, SZ_4K);
+
+	if (reg)
+		return ALIGN(reg + CONFIG_SYS_MALLOC_LEN + total_size, SZ_4K);
+
+	return gd->ram_top;
 }

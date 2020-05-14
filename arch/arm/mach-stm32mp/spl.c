@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <hang.h>
 #include <spl.h>
@@ -39,6 +40,8 @@ u32 spl_boot_device(void)
 		return BOOT_DEVICE_NAND;
 	case BOOT_FLASH_NOR_QSPI:
 		return BOOT_DEVICE_SPI;
+	case BOOT_FLASH_SPINAND_1:
+		return BOOT_DEVICE_NONE; /* SPINAND not supported in SPL */
 	}
 
 	return BOOT_DEVICE_MMC1;
@@ -76,6 +79,11 @@ void spl_display_print(void)
 }
 #endif
 
+__weak int board_early_init_f(void)
+{
+	return 0;
+}
+
 void board_init_f(ulong dummy)
 {
 	struct udevice *dev;
@@ -92,27 +100,51 @@ void board_init_f(ulong dummy)
 	ret = uclass_get_device(UCLASS_CLK, 0, &dev);
 	if (ret) {
 		debug("Clock init failed: %d\n", ret);
-		return;
+		hang();
 	}
 
 	ret = uclass_get_device(UCLASS_RESET, 0, &dev);
 	if (ret) {
 		debug("Reset init failed: %d\n", ret);
-		return;
+		hang();
 	}
 
 	ret = uclass_get_device(UCLASS_PINCTRL, 0, &dev);
 	if (ret) {
 		debug("%s: Cannot find pinctrl device\n", __func__);
-		return;
+		hang();
 	}
 
 	/* enable console uart printing */
 	preloader_console_init();
+
+	ret = board_early_init_f();
+	if (ret) {
+		debug("board_early_init_f() failed: %d\n", ret);
+		hang();
+	}
 
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
 	if (ret) {
 		printf("DRAM init failed: %d\n", ret);
 		hang();
 	}
+
+	/*
+	 * activate cache on DDR only when DDR is fully initialized
+	 * to avoid speculative access and issue in get_ram_size()
+	 */
+	if (!CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
+		mmu_set_region_dcache_behaviour(STM32_DDR_BASE, STM32_DDR_SIZE,
+						DCACHE_DEFAULT_OPTION);
+}
+
+void spl_board_prepare_for_boot(void)
+{
+	dcache_disable();
+}
+
+void spl_board_prepare_for_boot_linux(void)
+{
+	dcache_disable();
 }
