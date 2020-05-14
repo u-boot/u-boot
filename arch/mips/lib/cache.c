@@ -107,7 +107,7 @@ static inline unsigned long scache_line_size(void)
 	}								\
 } while (0)
 
-void flush_cache(ulong start_addr, ulong size)
+void __weak flush_cache(ulong start_addr, ulong size)
 {
 	unsigned long ilsize = icache_line_size();
 	unsigned long dlsize = dcache_line_size();
