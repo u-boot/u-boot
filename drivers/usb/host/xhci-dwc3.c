@@ -21,7 +21,7 @@
 #include <linux/usb/otg.h>
 
 struct xhci_dwc3_platdata {
-	struct phy_bulk *usb_phys;
+	struct phy_bulk phys;
 };
 
 void dwc3_set_mode(struct dwc3 *dwc3_reg, u32 mode)
@@ -126,7 +126,7 @@ static int xhci_dwc3_probe(struct udevice *dev)
 	hcor = (struct xhci_hcor *)((uintptr_t)hccr +
 			HC_LENGTH(xhci_readl(&(hccr)->cr_capbase)));
 
-	ret = dwc3_setup_phy(dev, plat->usb_phys);
+	ret = dwc3_setup_phy(dev, &plat->phys);
 	if (ret && (ret != -ENOTSUPP))
 		return ret;
 
@@ -169,7 +169,7 @@ static int xhci_dwc3_remove(struct udevice *dev)
 {
 	struct xhci_dwc3_platdata *plat = dev_get_platdata(dev);
 
-	dwc3_shutdown_phy(dev, plat->usb_phys);
+	dwc3_shutdown_phy(dev, &plat->phys);
 
 	return xhci_deregister(dev);
 }
