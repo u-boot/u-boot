@@ -366,6 +366,7 @@
  * Bits in the coprocessor 0 EBase register.
  */
 #define EBASE_CPUNUM		0x3ff
+#define EBASE_WG		(_ULCAST_(1) << 11)
 
 /*
  * Bits in the coprocessor 0 config register.
