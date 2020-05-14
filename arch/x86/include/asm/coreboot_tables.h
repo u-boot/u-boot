@@ -214,6 +214,17 @@ struct cb_vbnv {
 	uint32_t vbnv_size;
 };
 
+#define CB_TAG_CBMEM_ENTRY 0x0031
+#define CBMEM_ID_SMBIOS    0x534d4254
+
+struct cb_cbmem_entry {
+	uint32_t tag;
+	uint32_t size;
+	uint64_t address;
+	uint32_t entry_size;
+	uint32_t id;
+};
+
 #define CB_TAG_CMOS_OPTION_TABLE	0x00c8
 
 struct cb_cmos_option_table {
