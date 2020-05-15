@@ -445,7 +445,7 @@ static int rsa_verify_with_keynode(struct image_sign_info *info,
 
 	prop.rr = fdt_getprop(blob, node, "rsa,r-squared", NULL);
 
-	if (!prop.num_bits || !prop.modulus) {
+	if (!prop.num_bits || !prop.modulus || !prop.rr) {
 		debug("%s: Missing RSA key info", __func__);
 		return -EFAULT;
 	}

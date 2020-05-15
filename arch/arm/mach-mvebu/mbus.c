@@ -411,7 +411,7 @@ int mvebu_mbus_del_window(phys_addr_t base, size_t size)
 	return 0;
 }
 
-#ifndef CONFIG_KIRKWOOD
+#ifndef CONFIG_ARCH_KIRKWOOD
 static void mvebu_mbus_get_lowest_base(struct mvebu_mbus_state *mbus,
 				       phys_addr_t *base)
 {
@@ -479,7 +479,7 @@ int mbus_dt_setup_win(struct mvebu_mbus_state *mbus,
 			return -ENOMEM;
 	}
 
-#ifndef CONFIG_KIRKWOOD
+#ifndef CONFIG_ARCH_KIRKWOOD
 	/*
 	 * Re-configure the mbus bridge registers each time this function
 	 * is called. Since it may get called from the board code in
@@ -497,7 +497,7 @@ int mvebu_mbus_probe(struct mbus_win windows[], int count)
 	int ret;
 	int i;
 
-#if defined(CONFIG_KIRKWOOD)
+#if defined(CONFIG_ARCH_KIRKWOOD)
 	mbus_state.soc = &kirkwood_mbus_data;
 #endif
 #if defined(CONFIG_ARCH_MVEBU)

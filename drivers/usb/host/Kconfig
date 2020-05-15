@@ -135,7 +135,7 @@ config USB_EHCI_ATMEL
 
 config USB_EHCI_MARVELL
 	bool "Support for Marvell on-chip EHCI USB controller"
-	depends on ARCH_MVEBU || KIRKWOOD || ORION5X
+	depends on ARCH_MVEBU || ARCH_KIRKWOOD || ARCH_ORION5X
 	default y
 	---help---
 	  Enables support for the on-chip EHCI controller on MVEBU SoCs.
@@ -203,7 +203,7 @@ config USB_EHCI_PCI
 
 config USB_EHCI_TEGRA
 	bool "Support for NVIDIA Tegra on-chip EHCI USB controller"
-	depends on TEGRA
+	depends on ARCH_TEGRA
 	---help---
 	  Enable support for Tegra on-chip EHCI USB controller
 

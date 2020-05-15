@@ -11,7 +11,7 @@
 
 #include <common.h>
 
-#if defined(CONFIG_TEGRA)
+#if defined(CONFIG_ARCH_TEGRA)
 static ulong timestamp;
 static ulong lastdec;
 

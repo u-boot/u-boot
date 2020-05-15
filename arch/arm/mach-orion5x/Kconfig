@@ -1,4 +1,4 @@
-if ORION5X
+if ARCH_ORION5X
 
 choice
 	prompt "Marvell Orion board select"

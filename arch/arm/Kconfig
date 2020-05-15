@@ -553,7 +553,7 @@ config ARCH_DAVINCI
 	help
 	  Support for TI's DaVinci platform.
 
-config KIRKWOOD
+config ARCH_KIRKWOOD
 	bool "Marvell Kirkwood"
 	select ARCH_MISC_INIT
 	select BOARD_EARLY_INIT_F
@@ -576,7 +576,7 @@ config TARGET_APF27
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
 
-config ORION5X
+config ARCH_ORION5X
 	bool "Marvell Orion"
 	select CPU_ARM926EJS
 
@@ -1142,7 +1142,7 @@ config ARCH_ZYNQMP
 	imply MP
 	imply DM_USB_GADGET
 
-config TEGRA
+config ARCH_TEGRA
 	bool "NVIDIA Tegra"
 	imply DISTRO_DEFAULTS
 	imply FAT_WRITE
@@ -1607,7 +1607,7 @@ config ARCH_UNIPHIER
 	  Support for UniPhier SoC family developed by Socionext Inc.
 	  (formerly, System LSI Business Division of Panasonic Corporation)
 
-config STM32
+config ARCH_STM32
 	bool "Support STMicroelectronics STM32 MCU with cortex M"
 	select CPU_V7M
 	select DM
@@ -1777,7 +1777,7 @@ source "arch/arm/mach-keystone/Kconfig"
 
 source "arch/arm/mach-kirkwood/Kconfig"
 
-source "arch/arm/cpu/arm926ejs/lpc32xx/Kconfig"
+source "arch/arm/mach-lpc32xx/Kconfig"
 
 source "arch/arm/mach-mvebu/Kconfig"
 

@@ -211,7 +211,7 @@ static void process_args(int argc, char **argv)
 		case 'f':
 			datafile = optarg;
 			params.auto_its = !strcmp(datafile, "auto");
-			/* no break */
+			/* fallthrough */
 		case 'F':
 			/*
 			 * The flattened image tree (FIT) format

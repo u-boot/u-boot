@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0+
 
-ifeq ($(CONFIG_SPL_BUILD)$(CONFIG_TEGRA),yy)
+ifeq ($(CONFIG_SPL_BUILD)$(CONFIG_ARCH_TEGRA),yy)
 CONFIG_CPU_V7A=
 CONFIG_CPU_ARM720T=y
 endif
@@ -22,7 +22,7 @@ arch-$(CONFIG_ARM64)		=-march=armv8-a
 
 # On Tegra systems we must build SPL for the armv4 core on the device
 # but otherwise we can use the value in CONFIG_SYS_ARM_ARCH
-ifeq ($(CONFIG_SPL_BUILD)$(CONFIG_TEGRA),yy)
+ifeq ($(CONFIG_SPL_BUILD)$(CONFIG_ARCH_TEGRA),yy)
 arch-y += -D__LINUX_ARM_ARCH__=4
 else
 arch-y += -D__LINUX_ARM_ARCH__=$(CONFIG_SYS_ARM_ARCH)
@@ -60,30 +60,28 @@ machine-$(CONFIG_ARCH_EXYNOS)		+= exynos
 machine-$(CONFIG_ARCH_HIGHBANK)		+= highbank
 machine-$(CONFIG_ARCH_K3)		+= k3
 machine-$(CONFIG_ARCH_KEYSTONE)		+= keystone
-# TODO: rename CONFIG_KIRKWOOD -> CONFIG_ARCH_KIRKWOOD
-machine-$(CONFIG_KIRKWOOD)		+= kirkwood
+machine-$(CONFIG_ARCH_KIRKWOOD)		+= kirkwood
+machine-$(CONFIG_ARCH_LPC32XX)		+= lpc32xx
 machine-$(CONFIG_ARCH_MEDIATEK)		+= mediatek
 machine-$(CONFIG_ARCH_MESON)		+= meson
 machine-$(CONFIG_ARCH_MVEBU)		+= mvebu
-# TODO: rename CONFIG_TEGRA -> CONFIG_ARCH_TEGRA
-# TODO: rename CONFIG_ORION5X -> CONFIG_ARCH_ORION5X
-machine-$(CONFIG_ORION5X)		+= orion5x
 machine-$(CONFIG_ARCH_OMAP2PLUS)	+= omap2
+machine-$(CONFIG_ARCH_ORION5X)		+= orion5x
 machine-$(CONFIG_ARCH_OWL)		+= owl
-machine-$(CONFIG_ARCH_S5PC1XX)		+= s5pc1xx
-machine-$(CONFIG_ARCH_SUNXI)		+= sunxi
-machine-$(CONFIG_ARCH_SNAPDRAGON)	+= snapdragon
-machine-$(CONFIG_ARCH_SOCFPGA)		+= socfpga
 machine-$(CONFIG_ARCH_RMOBILE)		+= rmobile
 machine-$(CONFIG_ARCH_ROCKCHIP)		+= rockchip
-machine-$(CONFIG_STM32)			+= stm32
+machine-$(CONFIG_ARCH_S5PC1XX)		+= s5pc1xx
+machine-$(CONFIG_ARCH_SNAPDRAGON)	+= snapdragon
+machine-$(CONFIG_ARCH_SOCFPGA)		+= socfpga
+machine-$(CONFIG_ARCH_STM32)		+= stm32
 machine-$(CONFIG_ARCH_STM32MP)		+= stm32mp
-machine-$(CONFIG_TEGRA)			+= tegra
+machine-$(CONFIG_ARCH_SUNXI)		+= sunxi
+machine-$(CONFIG_ARCH_TEGRA)		+= tegra
 machine-$(CONFIG_ARCH_U8500)		+= u8500
 machine-$(CONFIG_ARCH_UNIPHIER)		+= uniphier
+machine-$(CONFIG_ARCH_VERSAL)		+= versal
 machine-$(CONFIG_ARCH_ZYNQ)		+= zynq
 machine-$(CONFIG_ARCH_ZYNQMP)		+= zynqmp
-machine-$(CONFIG_ARCH_VERSAL)		+= versal
 machine-$(CONFIG_ARCH_ZYNQMP_R5)	+= zynqmp-r5
 
 machdirs := $(patsubst %,arch/arm/mach-%/,$(machine-y))

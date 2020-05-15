@@ -1,4 +1,4 @@
-if TEGRA
+if ARCH_TEGRA
 
 config SPL_GPIO_SUPPORT
 	default y

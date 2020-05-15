@@ -4,7 +4,7 @@
  */
 
 #include "mkimage.h"
-#include <malloc.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <image.h>
@@ -135,9 +135,14 @@ static int rsa_engine_get_pub_key(const char *keydir, const char *name,
 
 	if (engine_id && !strcmp(engine_id, "pkcs11")) {
 		if (keydir)
-			snprintf(key_id, sizeof(key_id),
-				 "pkcs11:%s;object=%s;type=public",
-				 keydir, name);
+			if (strstr(keydir, "object="))
+				snprintf(key_id, sizeof(key_id),
+					 "pkcs11:%s;type=public",
+					 keydir);
+			else
+				snprintf(key_id, sizeof(key_id),
+					 "pkcs11:%s;object=%s;type=public",
+					 keydir, name);
 		else
 			snprintf(key_id, sizeof(key_id),
 				 "pkcs11:object=%s;type=public",
@@ -255,9 +260,14 @@ static int rsa_engine_get_priv_key(const char *keydir, const char *name,
 
 	if (engine_id && !strcmp(engine_id, "pkcs11")) {
 		if (keydir)
-			snprintf(key_id, sizeof(key_id),
-				 "pkcs11:%s;object=%s;type=private",
-				 keydir, name);
+			if (strstr(keydir, "object="))
+				snprintf(key_id, sizeof(key_id),
+					 "pkcs11:%s;type=private",
+					 keydir);
+			else
+				snprintf(key_id, sizeof(key_id),
+					 "pkcs11:%s;object=%s;type=private",
+					 keydir, name);
 		else
 			snprintf(key_id, sizeof(key_id),
 				 "pkcs11:object=%s;type=private",

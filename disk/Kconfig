@@ -53,7 +53,7 @@ config ISO_PARTITION
 	bool "Enable ISO partition table"
 	depends on PARTITIONS
 	default y if DISTRO_DEFAULTS
-	default y if MIPS || TEGRA
+	default y if MIPS || ARCH_TEGRA
 
 config SPL_ISO_PARTITION
 	bool "Enable ISO partition table for SPL"
@@ -75,7 +75,7 @@ config EFI_PARTITION
 	bool "Enable EFI GPT partition table"
 	depends on PARTITIONS
 	default y if DISTRO_DEFAULTS
-	default y if TEGRA
+	default y if ARCH_TEGRA
 	select LIB_UUID
 	help
 	  Say Y here if you would like to use device under U-Boot which

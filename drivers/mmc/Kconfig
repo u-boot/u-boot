@@ -616,7 +616,7 @@ config MMC_SDHCI_TANGIER
 
 config MMC_SDHCI_TEGRA
 	bool "SDHCI platform support for the Tegra SD/MMC Controller"
-	depends on TEGRA
+	depends on ARCH_TEGRA
 	select BOUNCE_BUFFER
 	default y
 	help

@@ -531,7 +531,7 @@ typedef int pci_dev_t;
  * This is relevant for the following macros:
  * PCI_DEV, PCI_FUNC, PCI_DEVFN
  * The U-Boot macro PCI_DEV is equivalent to the Linux PCI_SLOT version with
- * the remark from above (input d in bits 15-8 instead of 7-0.
+ * the remark from above (input is in bits 15-8 instead of 7-0.
  */
 #define PCI_DEV(d)		(((d) >> 11) & 0x1f)
 #define PCI_FUNC(d)		(((d) >> 8) & 0x7)

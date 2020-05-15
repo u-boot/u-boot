@@ -19,7 +19,7 @@ config SANDBOX_MBOX
 
 config TEGRA_HSP
 	bool "Enable Tegra HSP controller support"
-	depends on DM_MAILBOX && TEGRA
+	depends on DM_MAILBOX && ARCH_TEGRA
 	help
 	  This enables support for the NVIDIA Tegra HSP Hw module, which
 	  implements doorbells, mailboxes, semaphores, and shared interrupts.

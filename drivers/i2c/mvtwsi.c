@@ -25,9 +25,9 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 
 #ifndef CONFIG_DM_I2C
-#if defined(CONFIG_ORION5X)
+#if defined(CONFIG_ARCH_ORION5X)
 #include <asm/arch/orion5x.h>
-#elif (defined(CONFIG_KIRKWOOD) || defined(CONFIG_ARCH_MVEBU))
+#elif (defined(CONFIG_ARCH_KIRKWOOD) || defined(CONFIG_ARCH_MVEBU))
 #include <asm/arch/soc.h>
 #elif defined(CONFIG_ARCH_SUNXI)
 #include <asm/arch/i2c.h>
@@ -821,7 +821,7 @@ static int mvtwsi_i2c_bind(struct udevice *bus)
 	struct mvtwsi_registers *twsi = devfdt_get_addr_ptr(bus);
 
 	/* Disable the hidden slave in i2c0 of these platforms */
-	if ((IS_ENABLED(CONFIG_ARMADA_38X) || IS_ENABLED(CONFIG_KIRKWOOD))
+	if ((IS_ENABLED(CONFIG_ARMADA_38X) || IS_ENABLED(CONFIG_ARCH_KIRKWOOD))
 			&& bus->req_seq == 0)
 		twsi_disable_i2c_slave(twsi);
 

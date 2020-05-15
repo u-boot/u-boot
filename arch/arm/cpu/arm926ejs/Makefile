@@ -13,7 +13,6 @@ endif
 endif
 
 obj-$(CONFIG_ARMADA100) += armada100/
-obj-$(if $(filter lpc32xx,$(SOC)),y) += lpc32xx/
 obj-$(CONFIG_MX25) += mx25/
 obj-$(CONFIG_MX27) += mx27/
 obj-$(if $(filter mxs,$(SOC)),y) += mxs/
