@@ -541,7 +541,7 @@ class TestBuild(unittest.TestCase):
         build.commits = self.commits
         build.commit_count = len(self.commits)
         subject = self.commits[1].subject.translate(builder.trans_valid_chars)
-        dirname ='/%02d_of_%02d_g%s_%s' % (2, build.commit_count, commits[1][0],
+        dirname ='/%02d_g%s_%s' % (2, build.commit_count, commits[1][0],
                                            subject[:20])
         self.CheckDirs(build, dirname)
 
@@ -609,9 +609,9 @@ class TestBuild(unittest.TestCase):
         base_dir = tempfile.mkdtemp()
 
         # Add various files that we want removed and left alone
-        to_remove = ['01_of_22_g0982734987_title', '102_of_222_g92bf_title',
-                     '01_of_22_g2938abd8_title']
-        to_leave = ['something_else', '01-something.patch', '01_of_22_another']
+        to_remove = ['01_g0982734987_title', '102_g92bf_title',
+                     '01_g2938abd8_title']
+        to_leave = ['something_else', '01-something.patch', '01_another']
         for name in to_remove + to_leave:
             _Touch(name)
 

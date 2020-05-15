@@ -70,12 +70,12 @@ As an example, say we are building branch 'us-net' for boards 'sandbox' and
 like this:
 
 us-net/             base directory
-    01_of_02_g4ed4ebc_net--Add-tftp-speed-/
+    01_g4ed4ebc_net--Add-tftp-speed-/
         sandbox/
             u-boot.bin
         seaboard/
             u-boot.bin
-    02_of_02_g4ed4ebc_net--Check-tftp-comp/
+    02_g4ed4ebc_net--Check-tftp-comp/
         sandbox/
             u-boot.bin
         seaboard/
@@ -487,8 +487,8 @@ class Builder:
             commit = self.commits[commit_upto]
             subject = commit.subject.translate(trans_valid_chars)
             # See _GetOutputSpaceRemovals() which parses this name
-            commit_dir = ('%02d_of_%02d_g%s_%s' % (commit_upto + 1,
-                    self.commit_count, commit.hash, subject[:20]))
+            commit_dir = ('%02d_g%s_%s' % (commit_upto + 1,
+                    commit.hash, subject[:20]))
         elif not self.no_subdirs:
             commit_dir = 'current'
         if not commit_dir:
@@ -1599,7 +1599,7 @@ class Builder:
         for dirname in glob.glob(os.path.join(self.base_dir, '*')):
             if dirname not in dir_list:
                 leaf = dirname[len(self.base_dir) + 1:]
-                m =  re.match('[0-9]+_of_[0-9]+_g[0-9a-f]+_.*', leaf)
+                m =  re.match('[0-9]+_g[0-9a-f]+_.*', leaf)
                 if m:
                     to_remove.append(dirname)
         return to_remove
