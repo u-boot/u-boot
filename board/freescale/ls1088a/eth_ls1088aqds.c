@@ -24,6 +24,7 @@
 
 #include "ls1088a_qixis.h"
 
+#ifndef CONFIG_DM_ETH
 #ifdef CONFIG_FSL_MC_ENET
 
 #define SFP_TX		0
@@ -735,6 +736,7 @@ int board_eth_init(bd_t *bis)
 	error = pci_eth_init(bis);
 	return error;
 }
+#endif // !CONFIG_DM_ETH
 
 #if defined(CONFIG_RESET_PHY_R)
 void reset_phy(void)
