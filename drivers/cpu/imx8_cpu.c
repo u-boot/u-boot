@@ -54,11 +54,11 @@ const char *get_imx8_rev(u32 rev)
 
 const char *get_core_name(struct udevice *dev)
 {
-	if (!device_is_compatible(dev, "arm,cortex-a35"))
+	if (device_is_compatible(dev, "arm,cortex-a35"))
 		return "A35";
-	else if (!device_is_compatible(dev, "arm,cortex-a53"))
+	else if (device_is_compatible(dev, "arm,cortex-a53"))
 		return "A53";
-	else if (!device_is_compatible(dev, "arm,cortex-a72"))
+	else if (device_is_compatible(dev, "arm,cortex-a72"))
 		return "A72";
 	else
 		return "?";
@@ -185,11 +185,11 @@ static ulong imx8_get_cpu_rate(struct udevice *dev)
 	ulong rate;
 	int ret, type;
 
-	if (!device_is_compatible(dev, "arm,cortex-a35"))
+	if (device_is_compatible(dev, "arm,cortex-a35"))
 		type = SC_R_A35;
-	else if (!device_is_compatible(dev, "arm,cortex-a53"))
+	else if (device_is_compatible(dev, "arm,cortex-a53"))
 		type = SC_R_A53;
-	else if (!device_is_compatible(dev, "arm,cortex-a72"))
+	else if (device_is_compatible(dev, "arm,cortex-a72"))
 		type = SC_R_A72;
 	else
 		return 0;
