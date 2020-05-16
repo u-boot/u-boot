@@ -932,6 +932,16 @@ config LAST_STAGE_INIT
 	  U-Boot calls last_stage_init() before the command-line interpreter is
 	  started.
 
+config PCI_INIT_R
+	bool "Enumerate PCI buses during init"
+	depends on PCI
+	default y if !DM_PCI
+	help
+	  With this option U-Boot will call pci_init() soon after relocation,
+	  which will enumerate PCI buses. This is needed, for instance, in the
+	  case of DM PCI-based Ethernet devices, which will not be detected
+	  without having the enumeration performed earlier.
+
 endmenu
 
 menu "Security support"

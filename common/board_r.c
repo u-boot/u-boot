@@ -232,9 +232,8 @@ static int initr_unlock_ram_in_cache(void)
 #ifdef CONFIG_PCI
 static int initr_pci(void)
 {
-#ifndef CONFIG_DM_PCI
-	pci_init();
-#endif
+	if (IS_ENABLED(CONFIG_PCI_INIT_R))
+		pci_init();
 
 	return 0;
 }
@@ -464,13 +463,14 @@ static int initr_mmc(void)
  */
 static int should_load_env(void)
 {
-#ifdef CONFIG_OF_CONTROL
-	return fdtdec_get_config_int(gd->fdt_blob, "load-environment", 1);
-#elif defined CONFIG_DELAY_ENVIRONMENT
-	return 0;
-#else
+	if (IS_ENABLED(CONFIG_OF_CONTROL))
+		return fdtdec_get_config_int(gd->fdt_blob,
+						"load-environment", 1);
+
+	if (IS_ENABLED(CONFIG_DELAY_ENVIRONMENT))
+		return 0;
+
 	return 1;
-#endif
 }
 
 static int initr_env(void)
@@ -480,10 +480,10 @@ static int initr_env(void)
 		env_relocate();
 	else
 		env_set_default(NULL, 0);
-#ifdef CONFIG_OF_CONTROL
-	env_set_hex("fdtcontroladdr",
-		    (unsigned long)map_to_sysmem(gd->fdt_blob));
-#endif
+
+	if (IS_ENABLED(CONFIG_OF_CONTROL))
+		env_set_hex("fdtcontroladdr",
+			    (unsigned long)map_to_sysmem(gd->fdt_blob));
 
 	/* Initialize from environment */
 	image_load_addr = env_get_ulong("loadaddr", 16, image_load_addr);
