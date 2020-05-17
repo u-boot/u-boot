@@ -141,12 +141,6 @@ static int pcnet_check(struct eth_device *dev)
 	return readw(base + PCNET_RAP) == 88;
 }
 
-static int pcnet_init (struct eth_device *dev, bd_t * bis);
-static int pcnet_send(struct eth_device *dev, void *packet, int length);
-static int pcnet_recv (struct eth_device *dev);
-static void pcnet_halt (struct eth_device *dev);
-static int pcnet_probe (struct eth_device *dev, bd_t * bis, int dev_num);
-
 static inline pci_addr_t pcnet_virt_to_mem(const struct eth_device *dev,
 						void *addr)
 {
