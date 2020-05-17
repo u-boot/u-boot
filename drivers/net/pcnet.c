@@ -241,10 +241,7 @@ static int pcnet_probe(struct eth_device *dev, bd_t *bis, int dev_nr)
 {
 	int chip_version;
 	char *chipname;
-
-#ifdef PCNET_HAS_PROM
 	int i;
-#endif
 
 	/* Reset the PCnet controller */
 	pcnet_reset(dev);
@@ -279,7 +276,6 @@ static int pcnet_probe(struct eth_device *dev, bd_t *bis, int dev_nr)
 
 	PCNET_DEBUG1("AMD %s\n", chipname);
 
-#ifdef PCNET_HAS_PROM
 	/*
 	 * In most chips, after a chip reset, the ethernet address is read from
 	 * the station address PROM at the base address and programmed into the
@@ -293,7 +289,6 @@ static int pcnet_probe(struct eth_device *dev, bd_t *bis, int dev_nr)
 		dev->enetaddr[2 * i] = val & 0x0ff;
 		dev->enetaddr[2 * i + 1] = (val >> 8) & 0x0ff;
 	}
-#endif /* PCNET_HAS_PROM */
 
 	return 0;
 }
