@@ -184,12 +184,11 @@ int pcnet_initialize(bd_t *bis)
 		/*
 		 * Allocate and pre-fill the device structure.
 		 */
-		dev = (struct eth_device *)malloc(sizeof(*dev));
+		dev = calloc(1, sizeof(*dev));
 		if (!dev) {
 			printf("pcnet: Can not allocate memory\n");
 			break;
 		}
-		memset(dev, 0, sizeof(*dev));
 		dev->priv = (void *)(unsigned long)devbusfn;
 		sprintf(dev->name, "pcnet#%d", dev_nr);
 
