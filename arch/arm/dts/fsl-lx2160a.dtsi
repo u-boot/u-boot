@@ -428,4 +428,10 @@
 		#size-cells = <0>;
 		status = "disabled";
 	};
+	firmware {
+		optee {
+			compatible = "linaro,optee-tz";
+			method = "smc";
+		};
+	};
 };
