@@ -83,6 +83,7 @@ struct pcnet_priv {
 	unsigned char rx_buf[RX_RING_SIZE][PKT_BUF_SZ + 4];
 	struct pcnet_uncached_priv *uc;
 	pci_dev_t dev;
+	void __iomem *iobase;
 	int cur_rx;
 	int cur_tx;
 };
@@ -93,51 +94,39 @@ struct pcnet_priv {
 #define PCNET_RESET		0x14
 #define PCNET_BDP		0x16
 
-static u16 pcnet_read_csr(struct eth_device *dev, int index)
+static u16 pcnet_read_csr(struct pcnet_priv *lp, int index)
 {
-	void __iomem *base = (void __iomem *)dev->iobase;
-
-	writew(index, base + PCNET_RAP);
-	return readw(base + PCNET_RDP);
+	writew(index, lp->iobase + PCNET_RAP);
+	return readw(lp->iobase + PCNET_RDP);
 }
 
-static void pcnet_write_csr(struct eth_device *dev, int index, u16 val)
+static void pcnet_write_csr(struct pcnet_priv *lp, int index, u16 val)
 {
-	void __iomem *base = (void __iomem *)dev->iobase;
-
-	writew(index, base + PCNET_RAP);
-	writew(val, base + PCNET_RDP);
+	writew(index, lp->iobase + PCNET_RAP);
+	writew(val, lp->iobase + PCNET_RDP);
 }
 
-static u16 pcnet_read_bcr(struct eth_device *dev, int index)
+static u16 pcnet_read_bcr(struct pcnet_priv *lp, int index)
 {
-	void __iomem *base = (void __iomem *)dev->iobase;
-
-	writew(index, base + PCNET_RAP);
-	return readw(base + PCNET_BDP);
+	writew(index, lp->iobase + PCNET_RAP);
+	return readw(lp->iobase + PCNET_BDP);
 }
 
-static void pcnet_write_bcr(struct eth_device *dev, int index, u16 val)
+static void pcnet_write_bcr(struct pcnet_priv *lp, int index, u16 val)
 {
-	void __iomem *base = (void __iomem *)dev->iobase;
-
-	writew(index, base + PCNET_RAP);
-	writew(val, base + PCNET_BDP);
+	writew(index, lp->iobase + PCNET_RAP);
+	writew(val, lp->iobase + PCNET_BDP);
 }
 
-static void pcnet_reset(struct eth_device *dev)
+static void pcnet_reset(struct pcnet_priv *lp)
 {
-	void __iomem *base = (void __iomem *)dev->iobase;
-
-	readw(base + PCNET_RESET);
+	readw(lp->iobase + PCNET_RESET);
 }
 
-static int pcnet_check(struct eth_device *dev)
+static int pcnet_check(struct pcnet_priv *lp)
 {
-	void __iomem *base = (void __iomem *)dev->iobase;
-
-	writew(88, base + PCNET_RAP);
-	return readw(base + PCNET_RAP) == 88;
+	writew(88, lp->iobase + PCNET_RAP);
+	return readw(lp->iobase + PCNET_RAP) == 88;
 }
 
 static inline pci_addr_t pcnet_virt_to_mem(struct pcnet_priv *lp, void *addr)
@@ -154,22 +143,22 @@ static struct pci_device_id supported[] = {
 
 static int pcnet_probe(struct eth_device *dev, bd_t *bis, int dev_nr)
 {
+	struct pcnet_priv *lp = dev->priv;
 	int chip_version;
 	char *chipname;
 	int i;
 
 	/* Reset the PCnet controller */
-	pcnet_reset(dev);
+	pcnet_reset(lp);
 
 	/* Check if register access is working */
-	if (pcnet_read_csr(dev, 0) != 4 || !pcnet_check(dev)) {
+	if (pcnet_read_csr(lp, 0) != 4 || !pcnet_check(lp)) {
 		printf("%s: CSR register access check failed\n", dev->name);
 		return -1;
 	}
 
 	/* Identify the chip */
-	chip_version =
-		pcnet_read_csr(dev, 88) | (pcnet_read_csr(dev, 89) << 16);
+	chip_version = pcnet_read_csr(lp, 88) | (pcnet_read_csr(lp, 89) << 16);
 	if ((chip_version & 0xfff) != 0x003)
 		return -1;
 	chip_version = (chip_version >> 12) & 0xffff;
@@ -199,7 +188,7 @@ static int pcnet_probe(struct eth_device *dev, bd_t *bis, int dev_nr)
 	for (i = 0; i < 3; i++) {
 		unsigned int val;
 
-		val = pcnet_read_csr(dev, i + 12) & 0x0ffff;
+		val = pcnet_read_csr(lp, i + 12) & 0x0ffff;
 		/* There may be endianness issues here. */
 		dev->enetaddr[2 * i] = val & 0x0ff;
 		dev->enetaddr[2 * i + 1] = (val >> 8) & 0x0ff;
@@ -218,17 +207,17 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 	PCNET_DEBUG1("%s: pcnet_init...\n", dev->name);
 
 	/* Switch pcnet to 32bit mode */
-	pcnet_write_bcr(dev, 20, 2);
+	pcnet_write_bcr(lp, 20, 2);
 
 	/* Set/reset autoselect bit */
-	val = pcnet_read_bcr(dev, 2) & ~2;
+	val = pcnet_read_bcr(lp, 2) & ~2;
 	val |= 2;
-	pcnet_write_bcr(dev, 2, val);
+	pcnet_write_bcr(lp, 2, val);
 
 	/* Enable auto negotiate, setup, disable fd */
-	val = pcnet_read_bcr(dev, 32) & ~0x98;
+	val = pcnet_read_bcr(lp, 32) & ~0x98;
 	val |= 0x20;
-	pcnet_write_bcr(dev, 32, val);
+	pcnet_write_bcr(lp, 32, val);
 
 	/*
 	 * Enable NOUFLO on supported controllers, with the transmit
@@ -238,12 +227,12 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 	 * slower devices. Controllers which do not support NOUFLO will
 	 * simply be left with a larger transmit FIFO threshold.
 	 */
-	val = pcnet_read_bcr(dev, 18);
+	val = pcnet_read_bcr(lp, 18);
 	val |= 1 << 11;
-	pcnet_write_bcr(dev, 18, val);
-	val = pcnet_read_csr(dev, 80);
+	pcnet_write_bcr(lp, 18, val);
+	val = pcnet_read_csr(lp, 80);
 	val |= 0x3 << 10;
-	pcnet_write_csr(dev, 80, val);
+	pcnet_write_csr(lp, 80, val);
 
 	uc = lp->uc;
 
@@ -302,28 +291,28 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 	 */
 	barrier();
 	addr = pcnet_virt_to_mem(lp, &lp->uc->init_block);
-	pcnet_write_csr(dev, 1, addr & 0xffff);
-	pcnet_write_csr(dev, 2, (addr >> 16) & 0xffff);
+	pcnet_write_csr(lp, 1, addr & 0xffff);
+	pcnet_write_csr(lp, 2, (addr >> 16) & 0xffff);
 
-	pcnet_write_csr(dev, 4, 0x0915);
-	pcnet_write_csr(dev, 0, 0x0001);	/* start */
+	pcnet_write_csr(lp, 4, 0x0915);
+	pcnet_write_csr(lp, 0, 0x0001);	/* start */
 
 	/* Wait for Init Done bit */
 	for (i = 10000; i > 0; i--) {
-		if (pcnet_read_csr(dev, 0) & 0x0100)
+		if (pcnet_read_csr(lp, 0) & 0x0100)
 			break;
 		udelay(10);
 	}
 	if (i <= 0) {
 		printf("%s: TIMEOUT: controller init failed\n", dev->name);
-		pcnet_reset(dev);
+		pcnet_reset(lp);
 		return -1;
 	}
 
 	/*
 	 * Finally start network controller operation.
 	 */
-	pcnet_write_csr(dev, 0, 0x0002);
+	pcnet_write_csr(lp, 0, 0x0002);
 
 	return 0;
 }
@@ -367,7 +356,7 @@ static int pcnet_send(struct eth_device *dev, void *packet, int pkt_len)
 	writew(0x8300, &entry->status);
 
 	/* Trigger an immediate send poll. */
-	pcnet_write_csr(dev, 0, 0x0008);
+	pcnet_write_csr(lp, 0, 0x0008);
 
       failure:
 	if (++lp->cur_tx >= TX_RING_SIZE)
@@ -435,16 +424,17 @@ static int pcnet_recv (struct eth_device *dev)
 
 static void pcnet_halt(struct eth_device *dev)
 {
+	struct pcnet_priv *lp = dev->priv;
 	int i;
 
 	PCNET_DEBUG1("%s: pcnet_halt...\n", dev->name);
 
 	/* Reset the PCnet controller */
-	pcnet_reset(dev);
+	pcnet_reset(lp);
 
 	/* Wait for Stop bit */
 	for (i = 1000; i > 0; i--) {
-		if (pcnet_read_csr(dev, 0) & 0x4)
+		if (pcnet_read_csr(lp, 0) & 0x4)
 			break;
 		udelay(10);
 	}
@@ -498,11 +488,10 @@ int pcnet_initialize(bd_t *bis)
 		 * Setup the PCI device.
 		 */
 		pci_read_config_dword(devbusfn, PCI_BASE_ADDRESS_1, &bar);
-		dev->iobase = pci_mem_to_phys(devbusfn, bar);
-		dev->iobase &= ~0xf;
+		lp->iobase = (void *)(pci_mem_to_phys(devbusfn, bar) & ~0xf);
 
-		PCNET_DEBUG1("%s: devbusfn=0x%x iobase=0x%lx: ",
-			     dev->name, devbusfn, (unsigned long)dev->iobase);
+		PCNET_DEBUG1("%s: devbusfn=0x%x iobase=0x%p: ",
+			     dev->name, devbusfn, lp->iobase);
 
 		command = PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER;
 		pci_write_config_word(devbusfn, PCI_COMMAND, command);
