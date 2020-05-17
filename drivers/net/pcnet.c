@@ -87,8 +87,6 @@ struct pcnet_priv {
 	int cur_tx;
 };
 
-static struct pcnet_priv *lp;
-
 /* Offsets from base I/O address for WIO mode */
 #define PCNET_RDP		0x10
 #define PCNET_RAP		0x12
@@ -212,6 +210,7 @@ static int pcnet_probe(struct eth_device *dev, bd_t *bis, int dev_nr)
 
 static int pcnet_init(struct eth_device *dev, bd_t *bis)
 {
+	struct pcnet_priv *lp = dev->priv;
 	struct pcnet_uncached_priv *uc;
 	int i, val;
 	unsigned long addr;
@@ -331,6 +330,7 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 
 static int pcnet_send(struct eth_device *dev, void *packet, int pkt_len)
 {
+	struct pcnet_priv *lp = dev->priv;
 	int i, status;
 	u32 addr;
 	struct pcnet_tx_head *entry = &lp->uc->tx_ring[lp->cur_tx];
@@ -379,6 +379,7 @@ static int pcnet_send(struct eth_device *dev, void *packet, int pkt_len)
 
 static int pcnet_recv (struct eth_device *dev)
 {
+	struct pcnet_priv *lp = dev->priv;
 	struct pcnet_rx_head *entry;
 	unsigned char *buf;
 	int pkt_len = 0;
@@ -455,6 +456,7 @@ int pcnet_initialize(bd_t *bis)
 {
 	pci_dev_t devbusfn;
 	struct eth_device *dev;
+	struct pcnet_priv *lp;
 	u16 command, status;
 	int dev_nr = 0;
 	u32 bar;
@@ -483,15 +485,13 @@ int pcnet_initialize(bd_t *bis)
 		 * never be used concurrently. In 32bit mode the RX and TX
 		 * ring entries must be aligned on 16-byte boundaries.
 		 */
-		if (!lp) {
-			lp = malloc_cache_aligned(sizeof(*lp));
-			lp->uc = map_physmem((phys_addr_t)&lp->ucp,
-					     sizeof(lp->ucp), MAP_NOCACHE);
-			flush_dcache_range((unsigned long)lp,
-					   (unsigned long)lp + sizeof(*lp));
-		}
-
+		lp = malloc_cache_aligned(sizeof(*lp));
+		lp->uc = map_physmem((phys_addr_t)&lp->ucp,
+				     sizeof(lp->ucp), MAP_NOCACHE);
 		lp->dev = devbusfn;
+		flush_dcache_range((unsigned long)lp,
+				   (unsigned long)lp + sizeof(*lp));
+		dev->priv = lp;
 		sprintf(dev->name, "pcnet#%d", dev_nr);
 
 		/*
