@@ -84,6 +84,8 @@ struct pcnet_priv {
 	struct pcnet_uncached_priv *uc;
 	pci_dev_t dev;
 	void __iomem *iobase;
+	char *name;
+	u8 *enetaddr;
 	int cur_rx;
 	int cur_tx;
 };
@@ -153,7 +155,7 @@ static int pcnet_probe(struct eth_device *dev, bd_t *bis, int dev_nr)
 
 	/* Check if register access is working */
 	if (pcnet_read_csr(lp, 0) != 4 || !pcnet_check(lp)) {
-		printf("%s: CSR register access check failed\n", dev->name);
+		printf("%s: CSR register access check failed\n", lp->name);
 		return -1;
 	}
 
@@ -174,7 +176,7 @@ static int pcnet_probe(struct eth_device *dev, bd_t *bis, int dev_nr)
 		break;
 	default:
 		printf("%s: PCnet version %#x not supported\n",
-		       dev->name, chip_version);
+		       lp->name, chip_version);
 		return -1;
 	}
 
@@ -190,8 +192,8 @@ static int pcnet_probe(struct eth_device *dev, bd_t *bis, int dev_nr)
 
 		val = pcnet_read_csr(lp, i + 12) & 0x0ffff;
 		/* There may be endianness issues here. */
-		dev->enetaddr[2 * i] = val & 0x0ff;
-		dev->enetaddr[2 * i + 1] = (val >> 8) & 0x0ff;
+		lp->enetaddr[2 * i] = val & 0x0ff;
+		lp->enetaddr[2 * i + 1] = (val >> 8) & 0x0ff;
 	}
 
 	return 0;
@@ -204,7 +206,7 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 	int i, val;
 	unsigned long addr;
 
-	PCNET_DEBUG1("%s: pcnet_init...\n", dev->name);
+	PCNET_DEBUG1("%s: %s...\n", lp->name, __func__);
 
 	/* Switch pcnet to 32bit mode */
 	pcnet_write_bcr(lp, 20, 2);
@@ -271,7 +273,7 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 	PCNET_DEBUG1("Init block at 0x%p: MAC", &lp->uc->init_block);
 
 	for (i = 0; i < 6; i++) {
-		lp->uc->init_block.phys_addr[i] = dev->enetaddr[i];
+		lp->uc->init_block.phys_addr[i] = lp->enetaddr[i];
 		PCNET_DEBUG1(" %02x", lp->uc->init_block.phys_addr[i]);
 	}
 
@@ -304,7 +306,7 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 		udelay(10);
 	}
 	if (i <= 0) {
-		printf("%s: TIMEOUT: controller init failed\n", dev->name);
+		printf("%s: TIMEOUT: controller init failed\n", lp->name);
 		pcnet_reset(lp);
 		return -1;
 	}
@@ -340,7 +342,7 @@ static int pcnet_send(struct eth_device *dev, void *packet, int pkt_len)
 	}
 	if (i <= 0) {
 		printf("%s: TIMEOUT: Tx%d failed (status = 0x%x)\n",
-		       dev->name, lp->cur_tx, status);
+		       lp->name, lp->cur_tx, status);
 		pkt_len = 0;
 		goto failure;
 	}
@@ -385,7 +387,7 @@ static int pcnet_recv (struct eth_device *dev)
 		err_status = status >> 8;
 
 		if (err_status != 0x03) {	/* There was an error. */
-			printf("%s: Rx%d", dev->name, lp->cur_rx);
+			printf("%s: Rx%d", lp->name, lp->cur_rx);
 			PCNET_DEBUG1(" (status=0x%x)", err_status);
 			if (err_status & 0x20)
 				printf(" Frame");
@@ -402,7 +404,7 @@ static int pcnet_recv (struct eth_device *dev)
 			pkt_len = (readl(&entry->msg_length) & 0xfff) - 4;
 			if (pkt_len < 60) {
 				printf("%s: Rx%d: invalid packet length %d\n",
-				       dev->name, lp->cur_rx, pkt_len);
+				       lp->name, lp->cur_rx, pkt_len);
 			} else {
 				buf = lp->rx_buf[lp->cur_rx];
 				invalidate_dcache_range((unsigned long)buf,
@@ -427,7 +429,7 @@ static void pcnet_halt(struct eth_device *dev)
 	struct pcnet_priv *lp = dev->priv;
 	int i;
 
-	PCNET_DEBUG1("%s: pcnet_halt...\n", dev->name);
+	PCNET_DEBUG1("%s: %s...\n", lp->name, __func__);
 
 	/* Reset the PCnet controller */
 	pcnet_reset(lp);
@@ -439,7 +441,7 @@ static void pcnet_halt(struct eth_device *dev)
 		udelay(10);
 	}
 	if (i <= 0)
-		printf("%s: TIMEOUT: controller reset failed\n", dev->name);
+		printf("%s: TIMEOUT: controller reset failed\n", lp->name);
 }
 
 int pcnet_initialize(bd_t *bis)
@@ -451,7 +453,7 @@ int pcnet_initialize(bd_t *bis)
 	int dev_nr = 0;
 	u32 bar;
 
-	PCNET_DEBUG1("\npcnet_initialize...\n");
+	PCNET_DEBUG1("\n%s...\n", __func__);
 
 	for (dev_nr = 0; ; dev_nr++) {
 		/*
@@ -483,6 +485,8 @@ int pcnet_initialize(bd_t *bis)
 				   (unsigned long)lp + sizeof(*lp));
 		dev->priv = lp;
 		sprintf(dev->name, "pcnet#%d", dev_nr);
+		lp->name = dev->name;
+		lp->enetaddr = dev->enetaddr;
 
 		/*
 		 * Setup the PCI device.
@@ -491,14 +495,14 @@ int pcnet_initialize(bd_t *bis)
 		lp->iobase = (void *)(pci_mem_to_phys(devbusfn, bar) & ~0xf);
 
 		PCNET_DEBUG1("%s: devbusfn=0x%x iobase=0x%p: ",
-			     dev->name, devbusfn, lp->iobase);
+			     lp->name, devbusfn, lp->iobase);
 
 		command = PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER;
 		pci_write_config_word(devbusfn, PCI_COMMAND, command);
 		pci_read_config_word(devbusfn, PCI_COMMAND, &status);
 		if ((status & command) != command) {
 			printf("%s: Couldn't enable IO access or Bus Mastering\n",
-			       dev->name);
+			       lp->name);
 			free(dev);
 			continue;
 		}
