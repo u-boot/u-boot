@@ -164,4 +164,13 @@ config EFI_SECURE_BOOT
 	  it is signed with a trusted key. To do that, you need to install,
 	  at least, PK, KEK and db.
 
+config EFI_MM_COMM_TEE
+	bool "UEFI variables storage service via OP-TEE"
+	depends on OPTEE
+	default n
+	help
+	  If OP-TEE is present and running StandAloneMM, dispatch all UEFI variable
+	  related operations to that. The application will verify, authenticate and
+	  store the variables on an RPMB.
+
 endif
