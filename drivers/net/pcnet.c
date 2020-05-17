@@ -189,6 +189,20 @@ int pcnet_initialize(bd_t *bis)
 			printf("pcnet: Can not allocate memory\n");
 			break;
 		}
+
+		/*
+		 * We only maintain one structure because the drivers will
+		 * never be used concurrently. In 32bit mode the RX and TX
+		 * ring entries must be aligned on 16-byte boundaries.
+		 */
+		if (!lp) {
+			lp = malloc_cache_aligned(sizeof(*lp));
+			lp->uc = map_physmem((phys_addr_t)&lp->ucp,
+					     sizeof(lp->ucp), MAP_NOCACHE);
+			flush_dcache_range((unsigned long)lp,
+					   (unsigned long)lp + sizeof(*lp));
+		}
+
 		dev->priv = (void *)(unsigned long)devbusfn;
 		sprintf(dev->name, "pcnet#%d", dev_nr);
 
@@ -329,19 +343,6 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 	val = pcnet_read_csr(dev, 80);
 	val |= 0x3 << 10;
 	pcnet_write_csr(dev, 80, val);
-
-	/*
-	 * We only maintain one structure because the drivers will never
-	 * be used concurrently. In 32bit mode the RX and TX ring entries
-	 * must be aligned on 16-byte boundaries.
-	 */
-	if (lp == NULL) {
-		lp = malloc_cache_aligned(sizeof(*lp));
-		lp->uc = map_physmem((phys_addr_t)&lp->ucp,
-				     sizeof(lp->ucp), MAP_NOCACHE);
-		flush_dcache_range((unsigned long)lp,
-				   (unsigned long)lp + sizeof(*lp));
-	}
 
 	uc = lp->uc;
 
