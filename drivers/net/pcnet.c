@@ -86,6 +86,7 @@ struct pcnet_priv {
 	void __iomem *iobase;
 	char *name;
 	u8 *enetaddr;
+	u16 status;
 	int cur_rx;
 	int cur_tx;
 };
@@ -143,9 +144,8 @@ static struct pci_device_id supported[] = {
 	{}
 };
 
-static int pcnet_probe(struct eth_device *dev, bd_t *bis, int dev_nr)
+static int pcnet_probe_common(struct pcnet_priv *lp)
 {
-	struct pcnet_priv *lp = dev->priv;
 	int chip_version;
 	char *chipname;
 	int i;
@@ -199,9 +199,8 @@ static int pcnet_probe(struct eth_device *dev, bd_t *bis, int dev_nr)
 	return 0;
 }
 
-static int pcnet_init(struct eth_device *dev, bd_t *bis)
+static int pcnet_init_common(struct pcnet_priv *lp)
 {
-	struct pcnet_priv *lp = dev->priv;
 	struct pcnet_uncached_priv *uc;
 	int i, val;
 	unsigned long addr;
@@ -319,9 +318,8 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 	return 0;
 }
 
-static int pcnet_send(struct eth_device *dev, void *packet, int pkt_len)
+static int pcnet_send_common(struct pcnet_priv *lp, void *packet, int pkt_len)
 {
-	struct pcnet_priv *lp = dev->priv;
 	int i, status;
 	u32 addr;
 	struct pcnet_tx_head *entry = &lp->uc->tx_ring[lp->cur_tx];
@@ -368,65 +366,70 @@ static int pcnet_send(struct eth_device *dev, void *packet, int pkt_len)
 	return pkt_len;
 }
 
-static int pcnet_recv (struct eth_device *dev)
+static int pcnet_recv_common(struct pcnet_priv *lp, unsigned char **bufp)
 {
-	struct pcnet_priv *lp = dev->priv;
 	struct pcnet_rx_head *entry;
 	unsigned char *buf;
 	int pkt_len = 0;
-	u16 status, err_status;
+	u16 err_status;
 
-	while (1) {
-		entry = &lp->uc->rx_ring[lp->cur_rx];
-		/*
-		 * If we own the next entry, it's a new packet. Send it up.
-		 */
-		status = readw(&entry->status);
-		if ((status & 0x8000) != 0)
-			break;
-		err_status = status >> 8;
+	entry = &lp->uc->rx_ring[lp->cur_rx];
+	/*
+	 * If we own the next entry, it's a new packet. Send it up.
+	 */
+	lp->status = readw(&entry->status);
+	if ((lp->status & 0x8000) != 0)
+		return 0;
+	err_status = lp->status >> 8;
 
-		if (err_status != 0x03) {	/* There was an error. */
-			printf("%s: Rx%d", lp->name, lp->cur_rx);
-			PCNET_DEBUG1(" (status=0x%x)", err_status);
-			if (err_status & 0x20)
-				printf(" Frame");
-			if (err_status & 0x10)
-				printf(" Overflow");
-			if (err_status & 0x08)
-				printf(" CRC");
-			if (err_status & 0x04)
-				printf(" Fifo");
-			printf(" Error\n");
-			status &= 0x03ff;
-
-		} else {
-			pkt_len = (readl(&entry->msg_length) & 0xfff) - 4;
-			if (pkt_len < 60) {
-				printf("%s: Rx%d: invalid packet length %d\n",
-				       lp->name, lp->cur_rx, pkt_len);
-			} else {
-				buf = lp->rx_buf[lp->cur_rx];
-				invalidate_dcache_range((unsigned long)buf,
-					(unsigned long)buf + pkt_len);
-				net_process_received_packet(buf, pkt_len);
-				PCNET_DEBUG2("Rx%d: %d bytes from 0x%p\n",
-					     lp->cur_rx, pkt_len, buf);
-			}
-		}
-
-		status |= 0x8000;
-		writew(status, &entry->status);
-
-		if (++lp->cur_rx >= RX_RING_SIZE)
-			lp->cur_rx = 0;
+	if (err_status != 0x03) {	/* There was an error. */
+		printf("%s: Rx%d", lp->name, lp->cur_rx);
+		PCNET_DEBUG1(" (status=0x%x)", err_status);
+		if (err_status & 0x20)
+			printf(" Frame");
+		if (err_status & 0x10)
+			printf(" Overflow");
+		if (err_status & 0x08)
+			printf(" CRC");
+		if (err_status & 0x04)
+			printf(" Fifo");
+		printf(" Error\n");
+		lp->status &= 0x03ff;
+		return 0;
 	}
+
+	pkt_len = (readl(&entry->msg_length) & 0xfff) - 4;
+	if (pkt_len < 60) {
+		printf("%s: Rx%d: invalid packet length %d\n",
+		       lp->name, lp->cur_rx, pkt_len);
+		return 0;
+	}
+
+	*bufp = lp->rx_buf[lp->cur_rx];
+	invalidate_dcache_range((unsigned long)*bufp,
+				(unsigned long)*bufp + pkt_len);
+
+	PCNET_DEBUG2("Rx%d: %d bytes from 0x%p\n",
+		     lp->cur_rx, pkt_len, buf);
+
 	return pkt_len;
 }
 
-static void pcnet_halt(struct eth_device *dev)
+static void pcnet_free_pkt_common(struct pcnet_priv *lp, unsigned int len)
 {
-	struct pcnet_priv *lp = dev->priv;
+	struct pcnet_rx_head *entry;
+
+	entry = &lp->uc->rx_ring[lp->cur_rx];
+
+	lp->status |= 0x8000;
+	writew(lp->status, &entry->status);
+
+	if (++lp->cur_rx >= RX_RING_SIZE)
+		lp->cur_rx = 0;
+}
+
+static void pcnet_halt_common(struct pcnet_priv *lp)
+{
 	int i;
 
 	PCNET_DEBUG1("%s: %s...\n", lp->name, __func__);
@@ -442,6 +445,42 @@ static void pcnet_halt(struct eth_device *dev)
 	}
 	if (i <= 0)
 		printf("%s: TIMEOUT: controller reset failed\n", lp->name);
+}
+
+static int pcnet_init(struct eth_device *dev, bd_t *bis)
+{
+	struct pcnet_priv *lp = dev->priv;
+
+	return pcnet_init_common(lp);
+}
+
+static int pcnet_send(struct eth_device *dev, void *packet, int pkt_len)
+{
+	struct pcnet_priv *lp = dev->priv;
+
+	return pcnet_send_common(lp, packet, pkt_len);
+}
+
+static int pcnet_recv(struct eth_device *dev)
+{
+	struct pcnet_priv *lp = dev->priv;
+	uchar *packet;
+	int ret;
+
+	ret = pcnet_recv_common(lp, &packet);
+	if (ret > 0)
+		net_process_received_packet(packet, ret);
+	if (ret)
+		pcnet_free_pkt_common(lp, ret);
+
+	return ret;
+}
+
+static void pcnet_halt(struct eth_device *dev)
+{
+	struct pcnet_priv *lp = dev->priv;
+
+	pcnet_halt_common(lp);
 }
 
 int pcnet_initialize(bd_t *bis)
@@ -512,7 +551,7 @@ int pcnet_initialize(bd_t *bis)
 		/*
 		 * Probe the PCnet chip.
 		 */
-		if (pcnet_probe(dev, bis, dev_nr) < 0) {
+		if (pcnet_probe_common(lp) < 0) {
 			free(dev);
 			continue;
 		}
