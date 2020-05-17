@@ -398,6 +398,12 @@ config MII
 	help
 	  Enable support of the Media-Independent Interface (MII)
 
+config PCNET
+	bool "AMD PCnet series Ethernet controller driver"
+	help
+	  This driver supports AMD PCnet series fast ethernet family of
+	  PCI chipsets/adapters.
+
 config RTL8139
 	bool "Realtek 8139 series Ethernet controller driver"
 	help
