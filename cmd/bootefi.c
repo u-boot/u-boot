@@ -151,14 +151,10 @@ done:
 
 static void efi_reserve_memory(u64 addr, u64 size)
 {
-	u64 pages;
-
 	/* Convert from sandbox address space. */
 	addr = (uintptr_t)map_sysmem(addr, 0);
-	pages = efi_size_in_pages(size + (addr & EFI_PAGE_MASK));
-	addr &= ~EFI_PAGE_MASK;
-	if (efi_add_memory_map(addr, pages, EFI_RESERVED_MEMORY_TYPE,
-			       false) != EFI_SUCCESS)
+	if (efi_add_memory_map(addr, size,
+			       EFI_RESERVED_MEMORY_TYPE) != EFI_SUCCESS)
 		printf("Reserved memory mapping failed addr %llx size %llx\n",
 		       addr, size);
 }

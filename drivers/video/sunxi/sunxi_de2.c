@@ -224,9 +224,9 @@ static int sunxi_de2_init(struct udevice *dev, ulong fbbase,
 
 #ifdef CONFIG_EFI_LOADER
 	efi_add_memory_map(fbbase,
-			   ALIGN(timing.hactive.typ * timing.vactive.typ *
-			   (1 << l2bpp) / 8, EFI_PAGE_SIZE) >> EFI_PAGE_SHIFT,
-			   EFI_RESERVED_MEMORY_TYPE, false);
+			   timing.hactive.typ * timing.vactive.typ *
+			   (1 << l2bpp) / 8,
+			   EFI_RESERVED_MEMORY_TYPE);
 #endif
 
 	return 0;

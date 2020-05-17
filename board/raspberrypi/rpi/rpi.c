@@ -489,8 +489,8 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 #ifdef CONFIG_EFI_LOADER
 	/* Reserve the spin table */
-	efi_add_memory_map(0, CONFIG_RPI_EFI_NR_SPIN_PAGES,
-			   EFI_RESERVED_MEMORY_TYPE, 0);
+	efi_add_memory_map(0, CONFIG_RPI_EFI_NR_SPIN_PAGES << EFI_PAGE_SHIFT,
+			   EFI_RESERVED_MEMORY_TYPE);
 #endif
 
 	return 0;

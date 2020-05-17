@@ -1529,9 +1529,8 @@ int dram_init_banksize(void)
 void efi_add_known_memory(void)
 {
 	int i;
-	phys_addr_t ram_start, start;
+	phys_addr_t ram_start;
 	phys_size_t ram_size;
-	u64 pages;
 
 	/* Add RAM */
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
@@ -1549,11 +1548,8 @@ void efi_add_known_memory(void)
 		    gd->arch.resv_ram < ram_start + ram_size)
 			ram_size = gd->arch.resv_ram - ram_start;
 #endif
-		start = (ram_start + EFI_PAGE_MASK) & ~EFI_PAGE_MASK;
-		pages = (ram_size + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
-
-		efi_add_memory_map(start, pages, EFI_CONVENTIONAL_MEMORY,
-				   false);
+		efi_add_memory_map(ram_start, ram_size,
+				   EFI_CONVENTIONAL_MEMORY);
 	}
 }
 #endif
