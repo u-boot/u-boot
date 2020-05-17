@@ -188,6 +188,23 @@ on the sandbox
     cd <U-Boot source directory>
     pytest.py test/py/tests/test_efi_secboot/test_signed.py --bd sandbox
 
+Using OP-TEE for EFI variables
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Instead of implementing UEFI variable services inside U-Boot they can
+also be provided in the secure world by a module for OP-TEE[1]. The
+interface between U-Boot and OP-TEE for variable services is enabled by
+CONFIG_EFI_MM_COMM_TEE=y.
+
+Tianocore EDK II's standalone management mode driver for variables can
+be linked to OP-TEE for this purpose. This module uses the Replay
+Protected Memory Block (RPMB) of an eMMC device for persisting
+non-volatile variables. When calling the variable services via the
+OP-TEE API U-Boot's OP-TEE supplicant relays calls to the RPMB driver
+which has to be enabled via CONFIG_SUPPORT_EMMC_RPMB=y.
+
+[1] https://optee.readthedocs.io/ - OP-TEE documentation
+
 Executing the boot manager
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
