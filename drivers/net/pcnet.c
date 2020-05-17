@@ -155,7 +155,7 @@ static inline pci_addr_t pcnet_virt_to_mem(const struct eth_device *dev,
 }
 
 static struct pci_device_id supported[] = {
-	{PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_LANCE},
+	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_LANCE) },
 	{}
 };
 
