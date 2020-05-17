@@ -82,6 +82,7 @@ struct pcnet_priv {
 	/* Receive Buffer space */
 	unsigned char rx_buf[RX_RING_SIZE][PKT_BUF_SZ + 4];
 	struct pcnet_uncached_priv *uc;
+	pci_dev_t dev;
 	int cur_rx;
 	int cur_tx;
 };
@@ -141,13 +142,11 @@ static int pcnet_check(struct eth_device *dev)
 	return readw(base + PCNET_RAP) == 88;
 }
 
-static inline pci_addr_t pcnet_virt_to_mem(const struct eth_device *dev,
-						void *addr)
+static inline pci_addr_t pcnet_virt_to_mem(struct pcnet_priv *lp, void *addr)
 {
-	pci_dev_t devbusfn = (pci_dev_t)(unsigned long)dev->priv;
 	void *virt_addr = addr;
 
-	return pci_virt_to_mem(devbusfn, virt_addr);
+	return pci_virt_to_mem(lp->dev, virt_addr);
 }
 
 static struct pci_device_id supported[] = {
@@ -258,7 +257,7 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 	 */
 	lp->cur_rx = 0;
 	for (i = 0; i < RX_RING_SIZE; i++) {
-		addr = pcnet_virt_to_mem(dev, lp->rx_buf[i]);
+		addr = pcnet_virt_to_mem(lp, lp->rx_buf[i]);
 		uc->rx_ring[i].base = cpu_to_le32(addr);
 		uc->rx_ring[i].buf_length = cpu_to_le16(-PKT_BUF_SZ);
 		uc->rx_ring[i].status = cpu_to_le16(0x8000);
@@ -290,9 +289,9 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 
 	uc->init_block.tlen_rlen = cpu_to_le16(TX_RING_LEN_BITS |
 					       RX_RING_LEN_BITS);
-	addr = pcnet_virt_to_mem(dev, uc->rx_ring);
+	addr = pcnet_virt_to_mem(lp, uc->rx_ring);
 	uc->init_block.rx_ring = cpu_to_le32(addr);
-	addr = pcnet_virt_to_mem(dev, uc->tx_ring);
+	addr = pcnet_virt_to_mem(lp, uc->tx_ring);
 	uc->init_block.tx_ring = cpu_to_le32(addr);
 
 	PCNET_DEBUG1("\ntlen_rlen=0x%x rx_ring=0x%x tx_ring=0x%x\n",
@@ -303,7 +302,7 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 	 * Tell the controller where the Init Block is located.
 	 */
 	barrier();
-	addr = pcnet_virt_to_mem(dev, &lp->uc->init_block);
+	addr = pcnet_virt_to_mem(lp, &lp->uc->init_block);
 	pcnet_write_csr(dev, 1, addr & 0xffff);
 	pcnet_write_csr(dev, 2, (addr >> 16) & 0xffff);
 
@@ -361,7 +360,7 @@ static int pcnet_send(struct eth_device *dev, void *packet, int pkt_len)
 	 * Setup Tx ring. Caution: the write order is important here,
 	 * set the status with the "ownership" bits last.
 	 */
-	addr = pcnet_virt_to_mem(dev, packet);
+	addr = pcnet_virt_to_mem(lp, packet);
 	writew(-pkt_len, &entry->length);
 	writel(0, &entry->misc);
 	writel(addr, &entry->base);
@@ -492,7 +491,7 @@ int pcnet_initialize(bd_t *bis)
 					   (unsigned long)lp + sizeof(*lp));
 		}
 
-		dev->priv = (void *)(unsigned long)devbusfn;
+		lp->dev = devbusfn;
 		sprintf(dev->name, "pcnet#%d", dev_nr);
 
 		/*
