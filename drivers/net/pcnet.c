@@ -10,6 +10,7 @@
 #include <cpu_func.h>
 #include <log.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <net.h>
 #include <netdev.h>
 #include <asm/cache.h>
@@ -74,12 +75,13 @@ struct pcnet_uncached_priv {
 	struct pcnet_rx_head rx_ring[RX_RING_SIZE];
 	struct pcnet_tx_head tx_ring[TX_RING_SIZE];
 	struct pcnet_init_block init_block;
-};
+} __aligned(ARCH_DMA_MINALIGN);
 
 struct pcnet_priv {
-	struct pcnet_uncached_priv *uc;
+	struct pcnet_uncached_priv ucp;
 	/* Receive Buffer space */
-	unsigned char (*rx_buf)[RX_RING_SIZE][PKT_BUF_SZ + 4];
+	unsigned char rx_buf[RX_RING_SIZE][PKT_BUF_SZ + 4];
+	struct pcnet_uncached_priv *uc;
 	int cur_rx;
 	int cur_tx;
 };
@@ -335,22 +337,11 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 	 * must be aligned on 16-byte boundaries.
 	 */
 	if (lp == NULL) {
-		addr = (unsigned long)malloc(sizeof(*lp) + 0x10);
-		addr = (addr + 0xf) & ~0xf;
-		lp = (struct pcnet_priv *)addr;
-
-		addr = (unsigned long)memalign(ARCH_DMA_MINALIGN,
-					       sizeof(*lp->uc));
-		flush_dcache_range(addr, addr + sizeof(*lp->uc));
-		addr = (unsigned long)map_physmem(addr,
-				roundup(sizeof(*lp->uc), ARCH_DMA_MINALIGN),
-				MAP_NOCACHE);
-		lp->uc = (struct pcnet_uncached_priv *)addr;
-
-		addr = (unsigned long)memalign(ARCH_DMA_MINALIGN,
-					       sizeof(*lp->rx_buf));
-		flush_dcache_range(addr, addr + sizeof(*lp->rx_buf));
-		lp->rx_buf = (void *)addr;
+		lp = malloc_cache_aligned(sizeof(*lp));
+		lp->uc = map_physmem((phys_addr_t)&lp->ucp,
+				     sizeof(lp->ucp), MAP_NOCACHE);
+		flush_dcache_range((unsigned long)lp,
+				   (unsigned long)lp + sizeof(*lp));
 	}
 
 	uc = lp->uc;
@@ -364,7 +355,7 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 	 */
 	lp->cur_rx = 0;
 	for (i = 0; i < RX_RING_SIZE; i++) {
-		addr = pcnet_virt_to_mem(dev, (*lp->rx_buf)[i]);
+		addr = pcnet_virt_to_mem(dev, lp->rx_buf[i]);
 		uc->rx_ring[i].base = cpu_to_le32(addr);
 		uc->rx_ring[i].buf_length = cpu_to_le16(-PKT_BUF_SZ);
 		uc->rx_ring[i].status = cpu_to_le16(0x8000);
@@ -521,7 +512,7 @@ static int pcnet_recv (struct eth_device *dev)
 				printf("%s: Rx%d: invalid packet length %d\n",
 				       dev->name, lp->cur_rx, pkt_len);
 			} else {
-				buf = (*lp->rx_buf)[lp->cur_rx];
+				buf = lp->rx_buf[lp->cur_rx];
 				invalidate_dcache_range((unsigned long)buf,
 					(unsigned long)buf + pkt_len);
 				net_process_received_packet(buf, pkt_len);
