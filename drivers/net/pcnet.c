@@ -76,15 +76,15 @@ struct pcnet_uncached_priv {
 	struct pcnet_init_block init_block;
 };
 
-typedef struct pcnet_priv {
+struct pcnet_priv {
 	struct pcnet_uncached_priv *uc;
 	/* Receive Buffer space */
 	unsigned char (*rx_buf)[RX_RING_SIZE][PKT_BUF_SZ + 4];
 	int cur_rx;
 	int cur_tx;
-} pcnet_priv_t;
+};
 
-static pcnet_priv_t *lp;
+static struct pcnet_priv *lp;
 
 /* Offsets from base I/O address for WIO mode */
 #define PCNET_RDP		0x10
@@ -340,9 +340,9 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 	 * must be aligned on 16-byte boundaries.
 	 */
 	if (lp == NULL) {
-		addr = (unsigned long)malloc(sizeof(pcnet_priv_t) + 0x10);
+		addr = (unsigned long)malloc(sizeof(*lp) + 0x10);
 		addr = (addr + 0xf) & ~0xf;
-		lp = (pcnet_priv_t *)addr;
+		lp = (struct pcnet_priv *)addr;
 
 		addr = (unsigned long)memalign(ARCH_DMA_MINALIGN,
 					       sizeof(*lp->uc));
