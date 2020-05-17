@@ -5,6 +5,7 @@ F:	board/freescale/lx2160a/
 F:	include/configs/lx2160a_common.h
 F:	include/configs/lx2160ardb.h
 F:	configs/lx2160ardb_tfa_defconfig
+F:	configs/lx2160ardb_tfa_stmm_defconfig
 F:	arch/arm/dts/fsl-lx2160a-rdb.dts
 
 LX2160ARDB_SECURE_BOOT BOARD
