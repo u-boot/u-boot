@@ -635,6 +635,12 @@ F:	cmd/efidebug.c
 F:	cmd/nvedit_efi.c
 F:	tools/file2include.c
 
+EFI VARIABLES VIA OP-TEE
+M:	Ilias Apalodimas <ilias.apalodimas@linaro.org>
+S:	Maintained
+F:	lib/efi_loader/efi_variable_tee.c
+F:	include/mm_communication.h
+
 ENVIRONMENT
 M:	Joe Hershberger <joe.hershberger@ni.com>
 R:	Wolfgang Denk <wd@denx.de>
