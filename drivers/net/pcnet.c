@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <dm.h>
 #include <log.h>
 #include <malloc.h>
 #include <memalign.h>
@@ -82,9 +83,14 @@ struct pcnet_priv {
 	/* Receive Buffer space */
 	unsigned char rx_buf[RX_RING_SIZE][PKT_BUF_SZ + 4];
 	struct pcnet_uncached_priv *uc;
+#ifdef CONFIG_DM_ETH
+	struct udevice *dev;
+	const char *name;
+#else
 	pci_dev_t dev;
-	void __iomem *iobase;
 	char *name;
+#endif
+	void __iomem *iobase;
 	u8 *enetaddr;
 	u16 status;
 	int cur_rx;
@@ -136,7 +142,11 @@ static inline pci_addr_t pcnet_virt_to_mem(struct pcnet_priv *lp, void *addr)
 {
 	void *virt_addr = addr;
 
+#ifdef CONFIG_DM_ETH
+	return dm_pci_virt_to_mem(lp->dev, virt_addr);
+#else
 	return pci_virt_to_mem(lp->dev, virt_addr);
+#endif
 }
 
 static struct pci_device_id supported[] = {
@@ -447,6 +457,7 @@ static void pcnet_halt_common(struct pcnet_priv *lp)
 		printf("%s: TIMEOUT: controller reset failed\n", lp->name);
 }
 
+#ifndef CONFIG_DM_ETH
 static int pcnet_init(struct eth_device *dev, bd_t *bis)
 {
 	struct pcnet_priv *lp = dev->priv;
@@ -571,3 +582,117 @@ int pcnet_initialize(bd_t *bis)
 
 	return dev_nr;
 }
+#else /* DM_ETH */
+static int pcnet_start(struct udevice *dev)
+{
+	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct pcnet_priv *priv = dev_get_priv(dev);
+
+	memcpy(priv->enetaddr, plat->enetaddr, sizeof(plat->enetaddr));
+
+	return pcnet_init_common(priv);
+}
+
+static void pcnet_stop(struct udevice *dev)
+{
+	struct pcnet_priv *priv = dev_get_priv(dev);
+
+	pcnet_halt_common(priv);
+}
+
+static int pcnet_send(struct udevice *dev, void *packet, int length)
+{
+	struct pcnet_priv *priv = dev_get_priv(dev);
+	int ret;
+
+	ret = pcnet_send_common(priv, packet, length);
+
+	return ret ? 0 : -ETIMEDOUT;
+}
+
+static int pcnet_recv(struct udevice *dev, int flags, uchar **packetp)
+{
+	struct pcnet_priv *priv = dev_get_priv(dev);
+
+	return pcnet_recv_common(priv, packetp);
+}
+
+static int pcnet_free_pkt(struct udevice *dev, uchar *packet, int length)
+{
+	struct pcnet_priv *priv = dev_get_priv(dev);
+
+	pcnet_free_pkt_common(priv, length);
+
+	return 0;
+}
+
+static int pcnet_bind(struct udevice *dev)
+{
+	static int card_number;
+	char name[16];
+
+	sprintf(name, "pcnet#%u", card_number++);
+
+	return device_set_name(dev, name);
+}
+
+static int pcnet_probe(struct udevice *dev)
+{
+	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct pcnet_priv *lp = dev_get_priv(dev);
+	u16 command, status;
+	u32 iobase;
+	int ret;
+
+	dm_pci_read_config32(dev, PCI_BASE_ADDRESS_1, &iobase);
+	iobase &= ~0xf;
+
+	lp->uc = map_physmem((phys_addr_t)&lp->ucp,
+			     sizeof(lp->ucp), MAP_NOCACHE);
+	lp->dev = dev;
+	lp->name = dev->name;
+	lp->enetaddr = plat->enetaddr;
+	lp->iobase = (void *)dm_pci_mem_to_phys(dev, iobase);
+
+	flush_dcache_range((unsigned long)lp,
+			   (unsigned long)lp + sizeof(*lp));
+
+	command = PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER;
+	dm_pci_write_config16(dev, PCI_COMMAND, command);
+	dm_pci_read_config16(dev, PCI_COMMAND, &status);
+	if ((status & command) != command) {
+		printf("%s: Couldn't enable IO access or Bus Mastering\n",
+		       lp->name);
+		return -EINVAL;
+	}
+
+	dm_pci_write_config8(dev, PCI_LATENCY_TIMER, 0x20);
+
+	ret = pcnet_probe_common(lp);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+static const struct eth_ops pcnet_ops = {
+	.start		= pcnet_start,
+	.send		= pcnet_send,
+	.recv		= pcnet_recv,
+	.stop		= pcnet_stop,
+	.free_pkt	= pcnet_free_pkt,
+};
+
+U_BOOT_DRIVER(eth_pcnet) = {
+	.name	= "eth_pcnet",
+	.id	= UCLASS_ETH,
+	.bind	= pcnet_bind,
+	.probe	= pcnet_probe,
+	.ops	= &pcnet_ops,
+	.priv_auto_alloc_size = sizeof(struct pcnet_priv),
+	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.flags	= DM_UC_FLAG_ALLOC_PRIV_DMA,
+};
+
+U_BOOT_PCI_DEVICE(eth_pcnet, supported);
+#endif
