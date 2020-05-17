@@ -151,6 +151,19 @@ jobs:
           # seems to hang forever with pre-configured "container" environment
           docker run -v $PWD:$(work_dir) $(ci_runner_image) /bin/bash $(work_dir)/build.sh
 
+  - job: nokia_rx51_test
+    displayName: 'Run tests for Nokia RX-51 (aka N900)'
+    pool:
+      vmImage: $(ubuntu_vm)
+    container:
+      image: $(ci_runner_image)
+      options: $(container_option)
+    steps:
+      - script: |
+          ./tools/buildman/buildman --fetch-arch arm
+          export PATH=~/.buildman-toolchains/gcc-9.2.0-nolibc/arm-linux-gnueabi/bin/:$PATH
+          test/nokia_rx51_test.sh
+
   - job: test_py
     displayName: 'test.py'
     pool:
