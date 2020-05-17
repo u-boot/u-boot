@@ -161,97 +161,6 @@ static struct pci_device_id supported[] = {
 	{}
 };
 
-
-int pcnet_initialize(bd_t *bis)
-{
-	pci_dev_t devbusfn;
-	struct eth_device *dev;
-	u16 command, status;
-	int dev_nr = 0;
-	u32 bar;
-
-	PCNET_DEBUG1("\npcnet_initialize...\n");
-
-	for (dev_nr = 0;; dev_nr++) {
-
-		/*
-		 * Find the PCnet PCI device(s).
-		 */
-		devbusfn = pci_find_devices(supported, dev_nr);
-		if (devbusfn < 0)
-			break;
-
-		/*
-		 * Allocate and pre-fill the device structure.
-		 */
-		dev = calloc(1, sizeof(*dev));
-		if (!dev) {
-			printf("pcnet: Can not allocate memory\n");
-			break;
-		}
-
-		/*
-		 * We only maintain one structure because the drivers will
-		 * never be used concurrently. In 32bit mode the RX and TX
-		 * ring entries must be aligned on 16-byte boundaries.
-		 */
-		if (!lp) {
-			lp = malloc_cache_aligned(sizeof(*lp));
-			lp->uc = map_physmem((phys_addr_t)&lp->ucp,
-					     sizeof(lp->ucp), MAP_NOCACHE);
-			flush_dcache_range((unsigned long)lp,
-					   (unsigned long)lp + sizeof(*lp));
-		}
-
-		dev->priv = (void *)(unsigned long)devbusfn;
-		sprintf(dev->name, "pcnet#%d", dev_nr);
-
-		/*
-		 * Setup the PCI device.
-		 */
-		pci_read_config_dword(devbusfn, PCI_BASE_ADDRESS_1, &bar);
-		dev->iobase = pci_mem_to_phys(devbusfn, bar);
-		dev->iobase &= ~0xf;
-
-		PCNET_DEBUG1("%s: devbusfn=0x%x iobase=0x%lx: ",
-			     dev->name, devbusfn, (unsigned long)dev->iobase);
-
-		command = PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER;
-		pci_write_config_word(devbusfn, PCI_COMMAND, command);
-		pci_read_config_word(devbusfn, PCI_COMMAND, &status);
-		if ((status & command) != command) {
-			printf("%s: Couldn't enable IO access or Bus Mastering\n",
-			       dev->name);
-			free(dev);
-			continue;
-		}
-
-		pci_write_config_byte(devbusfn, PCI_LATENCY_TIMER, 0x40);
-
-		/*
-		 * Probe the PCnet chip.
-		 */
-		if (pcnet_probe(dev, bis, dev_nr) < 0) {
-			free(dev);
-			continue;
-		}
-
-		/*
-		 * Setup device structure and register the driver.
-		 */
-		dev->init = pcnet_init;
-		dev->halt = pcnet_halt;
-		dev->send = pcnet_send;
-		dev->recv = pcnet_recv;
-
-		eth_register(dev);
-	}
-
-	udelay(10 * 1000);
-
-	return dev_nr;
-}
-
 static int pcnet_probe(struct eth_device *dev, bd_t *bis, int dev_nr)
 {
 	int chip_version;
@@ -547,4 +456,93 @@ static void pcnet_halt(struct eth_device *dev)
 	}
 	if (i <= 0)
 		printf("%s: TIMEOUT: controller reset failed\n", dev->name);
+}
+
+int pcnet_initialize(bd_t *bis)
+{
+	pci_dev_t devbusfn;
+	struct eth_device *dev;
+	u16 command, status;
+	int dev_nr = 0;
+	u32 bar;
+
+	PCNET_DEBUG1("\npcnet_initialize...\n");
+
+	for (dev_nr = 0; ; dev_nr++) {
+		/*
+		 * Find the PCnet PCI device(s).
+		 */
+		devbusfn = pci_find_devices(supported, dev_nr);
+		if (devbusfn < 0)
+			break;
+
+		/*
+		 * Allocate and pre-fill the device structure.
+		 */
+		dev = calloc(1, sizeof(*dev));
+		if (!dev) {
+			printf("pcnet: Can not allocate memory\n");
+			break;
+		}
+
+		/*
+		 * We only maintain one structure because the drivers will
+		 * never be used concurrently. In 32bit mode the RX and TX
+		 * ring entries must be aligned on 16-byte boundaries.
+		 */
+		if (!lp) {
+			lp = malloc_cache_aligned(sizeof(*lp));
+			lp->uc = map_physmem((phys_addr_t)&lp->ucp,
+					     sizeof(lp->ucp), MAP_NOCACHE);
+			flush_dcache_range((unsigned long)lp,
+					   (unsigned long)lp + sizeof(*lp));
+		}
+
+		dev->priv = (void *)(unsigned long)devbusfn;
+		sprintf(dev->name, "pcnet#%d", dev_nr);
+
+		/*
+		 * Setup the PCI device.
+		 */
+		pci_read_config_dword(devbusfn, PCI_BASE_ADDRESS_1, &bar);
+		dev->iobase = pci_mem_to_phys(devbusfn, bar);
+		dev->iobase &= ~0xf;
+
+		PCNET_DEBUG1("%s: devbusfn=0x%x iobase=0x%lx: ",
+			     dev->name, devbusfn, (unsigned long)dev->iobase);
+
+		command = PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER;
+		pci_write_config_word(devbusfn, PCI_COMMAND, command);
+		pci_read_config_word(devbusfn, PCI_COMMAND, &status);
+		if ((status & command) != command) {
+			printf("%s: Couldn't enable IO access or Bus Mastering\n",
+			       dev->name);
+			free(dev);
+			continue;
+		}
+
+		pci_write_config_byte(devbusfn, PCI_LATENCY_TIMER, 0x40);
+
+		/*
+		 * Probe the PCnet chip.
+		 */
+		if (pcnet_probe(dev, bis, dev_nr) < 0) {
+			free(dev);
+			continue;
+		}
+
+		/*
+		 * Setup device structure and register the driver.
+		 */
+		dev->init = pcnet_init;
+		dev->halt = pcnet_halt;
+		dev->send = pcnet_send;
+		dev->recv = pcnet_recv;
+
+		eth_register(dev);
+	}
+
+	udelay(10 * 1000);
+
+	return dev_nr;
 }
