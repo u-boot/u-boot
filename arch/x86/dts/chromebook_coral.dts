@@ -21,6 +21,7 @@
 #include <asm/arch-apollolake/iomap.h>
 #include <asm/arch-apollolake/pm.h>
 #include <dt-bindings/clock/intel-clock.h>
+#include <asm/arch-apollolake/fsp/fsp_m_upd.h>
 
 / {
 	model = "Google Coral";
@@ -436,7 +437,42 @@
 		PAD_CFG_NF(LPC_FRAMEB, NATIVE, DEEP, NF1) /* LPC_FRAME_N */
 		>;
 
-	lpddr4-swizzle = /bits/ 8 <
+	fspm,package = <PACKAGE_BGA>;
+	fspm,profile = <PROFILE_LPDDR4_2400_24_22_22>;
+	fspm,memory-down = <MEMORY_DOWN_YES>;
+	fspm,scrambler-support = <1>;
+	fspm,interleaved-mode = <INTERLEAVED_MODE_ENABLE>;
+	fspm,channel-hash-mask = <0x36>;
+	fspm,slice-hash-mask = <0x9>;
+	fspm,dual-rank-support-enable = <1>;
+	fspm,low-memory-max-value = <2048>;
+	fspm,ch0-rank-enable = <1>;
+	fspm,ch0-device-width = <CHX_DEVICE_WIDTH_X16>;
+	fspm,ch0-dram-density = <CHX_DEVICE_DENSITY_8GB>;
+	fspm,ch0-option = <(CHX_OPTION_RANK_INTERLEAVING |
+			   CHX_OPTION_BANK_ADDRESS_HASHING_ENABLE)>;
+	fspm,ch0-odt-config = <CHX_ODT_CONFIG_DDR4_CA_ODT>;
+	fspm,ch1-rank-enable = <1>;
+	fspm,ch1-device-width = <CHX_DEVICE_WIDTH_X16>;
+	fspm,ch1-dram-density = <CHX_DEVICE_DENSITY_8GB>;
+	fspm,ch1-option = <(CHX_OPTION_RANK_INTERLEAVING |
+			   CHX_OPTION_BANK_ADDRESS_HASHING_ENABLE)>;
+	fspm,ch1-odt-config = <CHX_ODT_CONFIG_DDR4_CA_ODT>;
+	fspm,ch2-rank-enable = <1>;
+	fspm,ch2-device-width = <CHX_DEVICE_WIDTH_X16>;
+	fspm,ch2-dram-density = <CHX_DEVICE_DENSITY_8GB>;
+	fspm,ch2-option = <(CHX_OPTION_RANK_INTERLEAVING |
+			   CHX_OPTION_BANK_ADDRESS_HASHING_ENABLE)>;
+	fspm,ch2-odt-config = <CHX_ODT_CONFIG_DDR4_CA_ODT>;
+	fspm,ch3-rank-enable = <1>;
+	fspm,ch3-device-width = <CHX_DEVICE_WIDTH_X16>;
+	fspm,ch3-dram-density = <CHX_DEVICE_DENSITY_8GB>;
+	fspm,ch3-option = <(CHX_OPTION_RANK_INTERLEAVING |
+			   CHX_OPTION_BANK_ADDRESS_HASHING_ENABLE)>;
+	fspm,ch3-odt-config = <CHX_ODT_CONFIG_DDR4_CA_ODT>;
+	fspm,fspm,skip-cse-rbp = <1>;
+
+	fspm,ch-bit-swizzling = /bits/ 8 <
 		/* LP4_PHYS_CH0A */
 
 		/* DQA[0:7] pins of LPDDR4 module */
