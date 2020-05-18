@@ -221,6 +221,7 @@ void board_init_f(ulong dummy)
 	if (ret)
 		panic("DRAM init failed: %d\n", ret);
 #endif
+	spl_enable_dcache();
 }
 
 u32 spl_mmc_boot_mode(const u32 boot_device)
