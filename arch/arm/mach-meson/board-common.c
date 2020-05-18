@@ -69,11 +69,8 @@ void meson_board_add_reserved_memory(void *fdt, u64 start, u64 size)
 	if (ret)
 		printf("Could not reserve zone @ 0x%llx\n", start);
 
-	if (IS_ENABLED(CONFIG_EFI_LOADER)) {
-		efi_add_memory_map(start,
-				   ALIGN(size, EFI_PAGE_SIZE) >> EFI_PAGE_SHIFT,
-				   EFI_RESERVED_MEMORY_TYPE, false);
-	}
+	if (IS_ENABLED(CONFIG_EFI_LOADER))
+		efi_add_memory_map(start, size, EFI_RESERVED_MEMORY_TYPE);
 }
 
 int meson_generate_serial_ethaddr(void)

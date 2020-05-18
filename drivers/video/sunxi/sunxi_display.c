@@ -1196,10 +1196,8 @@ void *video_hw_init(void)
 	sunxi_engines_init();
 
 #ifdef CONFIG_EFI_LOADER
-	efi_add_memory_map(gd->fb_base,
-			   ALIGN(sunxi_display.fb_size, EFI_PAGE_SIZE) >>
-			   EFI_PAGE_SHIFT,
-			   EFI_RESERVED_MEMORY_TYPE, false);
+	efi_add_memory_map(gd->fb_base, sunxi_display.fb_size,
+			   EFI_RESERVED_MEMORY_TYPE);
 #endif
 
 	fb_dma_addr = gd->fb_base - CONFIG_SYS_SDRAM_BASE;

@@ -1165,6 +1165,58 @@ static int do_efi_test(cmd_tbl_t *cmdtp, int flag,
 	return cp->cmd(cmdtp, flag, argc, argv);
 }
 
+/**
+ * do_efi_query_info() - QueryVariableInfo EFI service
+ *
+ * @cmdtp:	Command table
+ * @flag:	Command flag
+ * @argc:	Number of arguments
+ * @argv:	Argument array
+ * Return:	CMD_RET_SUCCESS on success,
+ *		CMD_RET_USAGE or CMD_RET_FAILURE on failure
+ *
+ * Implement efidebug "test" sub-command.
+ */
+
+static int do_efi_query_info(cmd_tbl_t *cmdtp, int flag,
+			     int argc, char * const argv[])
+{
+	efi_status_t ret;
+	u32 attr = 0;
+	u64 max_variable_storage_size;
+	u64 remain_variable_storage_size;
+	u64 max_variable_size;
+	int i;
+
+	for (i = 1; i < argc; i++) {
+		if (!strcmp(argv[i], "-bs"))
+			attr |= EFI_VARIABLE_BOOTSERVICE_ACCESS;
+		else if (!strcmp(argv[i], "-rt"))
+			attr |= EFI_VARIABLE_RUNTIME_ACCESS;
+		else if (!strcmp(argv[i], "-nv"))
+			attr |= EFI_VARIABLE_NON_VOLATILE;
+		else if (!strcmp(argv[i], "-at"))
+			attr |=
+				EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS;
+	}
+
+	ret = EFI_CALL(efi_query_variable_info(attr,
+					       &max_variable_storage_size,
+					       &remain_variable_storage_size,
+					       &max_variable_size));
+	if (ret != EFI_SUCCESS) {
+		printf("Error: Cannot query UEFI variables, r = %lu\n",
+		       ret & ~EFI_ERROR_MASK);
+		return CMD_RET_FAILURE;
+	}
+
+	printf("Max storage size %llu\n", max_variable_storage_size);
+	printf("Remaining storage size %llu\n", remain_variable_storage_size);
+	printf("Max variable size %llu\n", max_variable_size);
+
+	return CMD_RET_SUCCESS;
+}
+
 static cmd_tbl_t cmd_efidebug_sub[] = {
 	U_BOOT_CMD_MKENT(boot, CONFIG_SYS_MAXARGS, 1, do_efi_boot_opt, "", ""),
 	U_BOOT_CMD_MKENT(devices, CONFIG_SYS_MAXARGS, 1, do_efi_show_devices,
@@ -1180,6 +1232,8 @@ static cmd_tbl_t cmd_efidebug_sub[] = {
 	U_BOOT_CMD_MKENT(tables, CONFIG_SYS_MAXARGS, 1, do_efi_show_tables,
 			 "", ""),
 	U_BOOT_CMD_MKENT(test, CONFIG_SYS_MAXARGS, 1, do_efi_test,
+			 "", ""),
+	U_BOOT_CMD_MKENT(query, CONFIG_SYS_MAXARGS, 1, do_efi_query_info,
 			 "", ""),
 };
 
@@ -1252,7 +1306,9 @@ static char efidebug_help_text[] =
 	"efidebug tables\n"
 	"  - show UEFI configuration tables\n"
 	"efidebug test bootmgr\n"
-	"  - run simple bootmgr for test\n";
+	"  - run simple bootmgr for test\n"
+	"efidebug query [-nv][-bs][-rt][-at]\n"
+	"  - show size of UEFI variables store\n";
 #endif
 
 U_BOOT_CMD(

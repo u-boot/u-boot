@@ -41,7 +41,7 @@ void efi_add_known_memory(void)
 {
 	struct e820_entry e820[E820MAX];
 	unsigned int i, num;
-	u64 start, pages, ram_top;
+	u64 start, ram_top;
 	int type;
 
 	num = install_e820_map(ARRAY_SIZE(e820), e820);
@@ -77,9 +77,7 @@ void efi_add_known_memory(void)
 							start + e820[i].size,
 							ram_top);
 		} else {
-			pages = ALIGN(e820[i].size, EFI_PAGE_SIZE)
-				>> EFI_PAGE_SHIFT;
-			efi_add_memory_map(start, pages, type, false);
+			efi_add_memory_map(start, e820[i].size, type);
 		}
 	}
 }

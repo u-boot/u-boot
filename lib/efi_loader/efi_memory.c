@@ -229,7 +229,7 @@ static s64 efi_mem_carve_out(struct efi_mem_list *map,
 }
 
 /**
- * efi_add_memory_map() - add memory area to the memory map
+ * efi_add_memory_map_pg() - add pages to the memory map
  *
  * @start:		start address, must be a multiple of EFI_PAGE_SIZE
  * @pages:		number of pages to add
@@ -237,8 +237,9 @@ static s64 efi_mem_carve_out(struct efi_mem_list *map,
  * @overlap_only_ram:	the memory area must overlap existing
  * Return:		status code
  */
-efi_status_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
-				bool overlap_only_ram)
+static efi_status_t efi_add_memory_map_pg(u64 start, u64 pages,
+					  int memory_type,
+					  bool overlap_only_ram)
 {
 	struct list_head *lhandle;
 	struct efi_mem_list *newlist;
@@ -341,6 +342,28 @@ efi_status_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 	}
 
 	return EFI_SUCCESS;
+}
+
+/**
+ * efi_add_memory_map() - add memory area to the memory map
+ *
+ * @start:		start address of the memory area
+ * @size:		length in bytes of the memory area
+ * @memory_type:	type of memory added
+ *
+ * Return:		status code
+ *
+ * This function automatically aligns the start and size of the memory area
+ * to EFI_PAGE_SIZE.
+ */
+efi_status_t efi_add_memory_map(u64 start, u64 size, int memory_type)
+{
+	u64 pages;
+
+	pages = efi_size_in_pages(size + (start & EFI_PAGE_MASK));
+	start &= ~EFI_PAGE_MASK;
+
+	return efi_add_memory_map_pg(start, pages, memory_type, false);
 }
 
 /**
@@ -469,7 +492,8 @@ efi_status_t efi_allocate_pages(int type, int memory_type,
 	}
 
 	/* Reserve that map in our memory maps */
-	if (efi_add_memory_map(addr, pages, memory_type, true) != EFI_SUCCESS)
+	ret = efi_add_memory_map_pg(addr, pages, memory_type, true);
+	if (ret != EFI_SUCCESS)
 		/* Map would overlap, bail out */
 		return  EFI_OUT_OF_RESOURCES;
 
@@ -514,7 +538,8 @@ efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
 		return EFI_INVALID_PARAMETER;
 	}
 
-	ret = efi_add_memory_map(memory, pages, EFI_CONVENTIONAL_MEMORY, false);
+	ret = efi_add_memory_map_pg(memory, pages, EFI_CONVENTIONAL_MEMORY,
+				    false);
 	/* Merging of adjacent free regions is missing */
 
 	if (ret != EFI_SUCCESS)
@@ -680,8 +705,8 @@ efi_status_t efi_add_conventional_memory_map(u64 ram_start, u64 ram_end,
 
 	pages = (ram_end - ram_start) >> EFI_PAGE_SHIFT;
 
-	efi_add_memory_map(ram_start, pages,
-			   EFI_CONVENTIONAL_MEMORY, false);
+	efi_add_memory_map_pg(ram_start, pages,
+			      EFI_CONVENTIONAL_MEMORY, false);
 
 	/*
 	 * Boards may indicate to the U-Boot memory core that they
@@ -691,14 +716,14 @@ efi_status_t efi_add_conventional_memory_map(u64 ram_start, u64 ram_end,
 	 */
 	if (ram_top < ram_start) {
 		/* ram_top is before this region, reserve all */
-		efi_add_memory_map(ram_start, pages,
-				   EFI_BOOT_SERVICES_DATA, true);
+		efi_add_memory_map_pg(ram_start, pages,
+				      EFI_BOOT_SERVICES_DATA, true);
 	} else if ((ram_top >= ram_start) && (ram_top < ram_end)) {
 		/* ram_top is inside this region, reserve parts */
 		pages = (ram_end - ram_top) >> EFI_PAGE_SHIFT;
 
-		efi_add_memory_map(ram_top, pages,
-				   EFI_BOOT_SERVICES_DATA, true);
+		efi_add_memory_map_pg(ram_top, pages,
+				      EFI_BOOT_SERVICES_DATA, true);
 	}
 
 	return EFI_SUCCESS;
@@ -743,7 +768,8 @@ static void add_u_boot_and_runtime(void)
 		       uboot_stack_size) & ~EFI_PAGE_MASK;
 	uboot_pages = ((uintptr_t)map_sysmem(gd->ram_top - 1, 0) -
 		       uboot_start + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
-	efi_add_memory_map(uboot_start, uboot_pages, EFI_LOADER_DATA, false);
+	efi_add_memory_map_pg(uboot_start, uboot_pages, EFI_LOADER_DATA,
+			      false);
 
 #if defined(__aarch64__)
 	/*
@@ -762,8 +788,8 @@ static void add_u_boot_and_runtime(void)
 	runtime_end = (ulong)&__efi_runtime_stop;
 	runtime_end = (runtime_end + runtime_mask) & ~runtime_mask;
 	runtime_pages = (runtime_end - runtime_start) >> EFI_PAGE_SHIFT;
-	efi_add_memory_map(runtime_start, runtime_pages,
-			   EFI_RUNTIME_SERVICES_CODE, false);
+	efi_add_memory_map_pg(runtime_start, runtime_pages,
+			      EFI_RUNTIME_SERVICES_CODE, false);
 }
 
 int efi_memory_init(void)
