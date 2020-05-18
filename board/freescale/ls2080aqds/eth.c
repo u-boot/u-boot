@@ -24,6 +24,8 @@
 
 #define MC_BOOT_ENV_VAR "mcinitcmd"
 
+#ifndef CONFIG_DM_ETH
+
 #if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
  /* - In LS2080A there are only 16 SERDES lanes, spread across 2 SERDES banks.
  *   Bank 1 -> Lanes A, B, C, D, E, F, G, H
@@ -889,10 +891,11 @@ void ls2080a_handle_phy_interface_xsgmii(int i)
 	}
 }
 #endif
+#endif // !CONFIG_DM_ETH
 
 int board_eth_init(bd_t *bis)
 {
-	int error;
+#ifndef CONFIG_DM_ETH
 #if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
 	struct ccsr_gur __iomem *gur = (void *)CONFIG_SYS_FSL_GUTS_ADDR;
 	int serdes1_prtcl = (in_le32(&gur->rcwsr[28]) &
@@ -906,6 +909,7 @@ int board_eth_init(bd_t *bis)
 	struct memac_mdio_info *memac_mdio1_info;
 	unsigned int i;
 	char *env_hwconfig;
+	int error;
 
 	env_hwconfig = env_get("hwconfig");
 
@@ -970,8 +974,13 @@ int board_eth_init(bd_t *bis)
 			sgmii_configure_repeater(2);
 	}
 #endif
-	error = pci_eth_init(bis);
-	return error;
+#endif // !CONFIG_DM_ETH
+
+#ifdef CONFIG_DM_ETH
+	return 0;
+#else
+	return pci_eth_init(bis);
+#endif
 }
 
 #if defined(CONFIG_RESET_PHY_R)
