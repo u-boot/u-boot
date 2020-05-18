@@ -8,6 +8,7 @@
 #define __ASM_ARCH_FSP_BINDINGS_H
 
 #include <asm/arch/fsp/fsp_m_upd.h>
+#include <asm/arch/fsp/fsp_s_upd.h>
 
 #define ARRAY_SIZE_OF_MEMBER(s, m) (ARRAY_SIZE((((s *)0)->m)))
 #define SIZE_OF_MEMBER(s, m) (sizeof((((s *)0)->m)))
@@ -92,5 +93,18 @@ struct lpddr4_swizzle_cfg {
  * left at their current value.
  */
 int fsp_m_update_config_from_dtb(ofnode node, struct fsp_m_config *cfg);
+
+/**
+ * fsp_s_update_config_from_dtb() - Read FSP-S config from devicetree node
+ * @node: Valid node reference to read property from
+ * @cfg:  Pointer to FSP-S config structure
+ * @return 0 on success, -ve on error
+ *
+ * This function reads the configuration for FSP-S from the provided
+ * devicetree node and saves it in the FSP-S configuration structure.
+ * Configuration options that are not present in the devicetree are
+ * left at their current value.
+ */
+int fsp_s_update_config_from_dtb(ofnode node, struct fsp_s_config *cfg);
 
 #endif
