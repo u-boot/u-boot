@@ -154,74 +154,9 @@ static void setup_iomux_uart(void)
 	SETUP_IOMUX_PADS(uart1_pads);
 }
 
-static struct fsl_esdhc_cfg usdhc_cfg = {
-	.esdhc_base = USDHC2_BASE_ADDR,
-	.max_bus_width = 4,
-};
-
-static struct fsl_esdhc_cfg emmc_cfg = {
-	.esdhc_base = USDHC3_BASE_ADDR,
-	.max_bus_width = 8,
-};
-
 int board_mmc_get_env_dev(int devno)
 {
 	return devno;
-}
-
-#define USDHC2_CD_GPIO  IMX_GPIO_NR(1, 4)
-
-int board_mmc_getcd(struct mmc *mmc)
-{
-	struct fsl_esdhc_cfg *cfg = mmc->priv;
-	int ret = 0;
-
-	switch (cfg->esdhc_base) {
-	case USDHC2_BASE_ADDR:
-		ret = !gpio_get_value(USDHC2_CD_GPIO);
-		break;
-	case USDHC3_BASE_ADDR:
-		ret = (mmc_get_op_cond(mmc) < 0) ? 0 : 1; /* eMMC/uSDHC3 has no CD GPIO */
-		break;
-	}
-
-	return ret;
-}
-
-static int mmc_init_spl(bd_t *bis)
-{
-	struct src *psrc = (struct src *)SRC_BASE_ADDR;
-	unsigned reg = readl(&psrc->sbmr1) >> 11;
-
-	/*
-	 * Upon reading BOOT_CFG register the following map is done:
-	 * Bit 11 and 12 of BOOT_CFG register can determine the current
-	 * mmc port
-	 * 0x1                  SD2
-	 * 0x2                  SD3
-	 */
-	switch (reg & 0x3) {
-	case 0x1:
-		SETUP_IOMUX_PADS(usdhc2_pads);
-		usdhc_cfg.sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
-		gd->arch.sdhc_clk = usdhc_cfg.sdhc_clk;
-		return fsl_esdhc_initialize(bis, &usdhc_cfg);
-	case 0x2:
-		SETUP_IOMUX_PADS(usdhc3_pads);
-		emmc_cfg.sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
-		gd->arch.sdhc_clk = emmc_cfg.sdhc_clk;
-		return fsl_esdhc_initialize(bis, &emmc_cfg);
-	}
-
-	return -ENODEV;
-}
-
-int board_mmc_init(bd_t *bis)
-{
-	if (IS_ENABLED(CONFIG_SPL_BUILD))
-		return mmc_init_spl(bis);
-
-	return 0;
 }
 
 #ifdef CONFIG_VIDEO_IPUV3
