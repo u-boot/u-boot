@@ -511,6 +511,10 @@ config TARGET_PCM058
 	bool "Phytec PCM058 i.MX6 Quad"
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
+	select MX6Q
+	select DM
+	select OF_CONTROL
+	imply CMD_DM
 
 config TARGET_PFLA02
 	bool "Phytec PFLA02 (PhyFlex) i.MX6 Quad"

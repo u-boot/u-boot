@@ -3,7 +3,6 @@
  * Copyright (C) Stefano Babic <sbabic@denx.de>
  */
 
-
 #ifndef __PCM058_CONFIG_H
 #define __PCM058_CONFIG_H
 
@@ -13,48 +12,13 @@
 
 #include "mx6_common.h"
 
-/* Thermal */
-#define CONFIG_IMX_THERMAL
-
-/* Serial */
-#define CONFIG_MXC_UART
-#define CONFIG_MXC_UART_BASE	       UART2_BASE
-#define CONSOLE_DEV		"ttymxc1"
-
 #define PHYS_SDRAM_SIZE		(1u * 1024 * 1024 * 1024)
-
-/* Early setup */
-
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(8 * SZ_1M)
 
-/* Ethernet */
-#define CONFIG_FEC_MXC
-#define IMX_FEC_BASE			ENET_BASE_ADDR
-#define CONFIG_FEC_XCV_TYPE		RGMII
-#define CONFIG_ETHPRIME			"FEC"
-#define CONFIG_FEC_MXC_PHYADDR		3
-
-/* SPI Flash */
-
-/* I2C Configs */
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 2 */
-#define CONFIG_SYS_I2C_SPEED		  100000
-
-#ifndef CONFIG_SPL_BUILD
 /* Enable NAND support */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_SYS_NAND_BASE		0x40000000
-#define CONFIG_SYS_NAND_5_ADDR_CYCLE
-#define CONFIG_SYS_NAND_ONFI_DETECTION
-#endif
-
-/* DMA stuff, needed for GPMI/MXS NAND support */
-
-/* Filesystem support */
 
 /* Physical Memory Map */
 #define PHYS_SDRAM                     MMDC0_ARB_BASE_ADDR
@@ -68,10 +32,33 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
-/* MMC Configs */
-#define CONFIG_SYS_FSL_ESDHC_ADDR	0
-#define CONFIG_SYS_FSL_USDHC_NUM	1
-
 /* Environment organization */
+#define ENV_MMC \
+	"mmcdev=0\0" \
+	"mmcpart=2\0" \
+	"fitpart=1\0" \
+	"mmcrootfstype=ext4\0" \
+	"fitname=fitImage\0" \
+	"mmcloadfit=load mmc ${mmcdev}:${fitpart} ${loadaddr} ${fitname}\0" \
+	"mmcargs=setenv bootargs root=/dev/mmcblk${mmcdev}p${mmcpart} " \
+		"rootfstype=${mmcrootfstype} ${optargs}\0" \
+	"mmcboot=run mmcloadfit;run mmcargs;bootm ${loadaddr}\0"
 
+#define ENV_NAND \
+	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
+	"nandroot=ubi0:root ubi.mtd=rootfs\0" \
+	"nandrootfstype=ubifs\0" \
+	"nandargs=setenv bootargs root=${nandroot} " \
+		"rootfstype=${nandrootfstype} ${mtdparts} ${optargs}\0" \
+	"nandloadfit=ubi part rootfs;ubi readvol ${loadaddr} fit\0" \
+	"nandboot=run nandloadfit;run nandargs;bootm ${loadaddr}\0"
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	"bootm_size=0x30000000\0" \
+	"optargs=rw rootwait\0" \
+	ENV_MMC \
+	ENV_NAND
+
+#define CONFIG_BOOTCOMMAND "run mmcboot;run nandboot"
 #endif

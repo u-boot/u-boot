@@ -33,3 +33,54 @@ is present, then the RBL tries to load SPL from the SD Card, if not,
 RBL loads from SPI-NOR. The SPL tries then to load from the same
 device where SPL was loaded (SD or SPI). Booting from NAND is
 not supported.
+
+Flashing U-Boot onto an SD card
+-------------------------------
+
+After a successful build, the generated SPL and U-boot binaries can be copied
+to an SD card. Adjust the SD card device as necessary:
+
+$ sudo dd if=u-boot-with-spl.imx of=/dev/mmcblk0 bs=1k seek=1
+
+This is equivalent to separately copying the SPL and U-boot using:
+
+$ sudo dd if=SPL of=/dev/mmcblk0 bs=1k seek=1
+$ sudo dd if=u-boot-dtb.img of=/dev/mmcblk0 bs=1k seek=197
+
+The default bootscripts expect a kernel fit-image file named "fitImage" in the
+first partition and Linux ext4 rootfs in the second partition.
+
+Flashing U-boot to the SPI Flash, for booting Linux from NAND
+-------------------------------------------------------------
+
+The SD card created above can also be used to install the SPL and U-boot into
+the SPI flash. Boot U-boot from the SD card as above, and stop at the autoboot.
+
+Then, clear the SPI flash:
+
+=> sf probe
+=> sf erase 0x0 0x1000000
+
+Load the SPL from raw MMC into memory and copy to the SPI. The SPL is maximum
+392*512-byte blocks in size therefore 0x188 blocks, totaling 0x31000 bytes:
+
+=> mmc read ${loadaddr} 0x2 0x188
+=> sf write ${loadaddr} 0x400 0x31000
+
+Load the U-boot binary into memory and copy to the SPI. U-boot should fit into
+640KiB, so 0x500 512-byte blocks, totalling 0xA0000 bytes:
+
+=> mmc read ${loadaddr} 0x18a 0x500
+=> sf write ${loadaddr} 0x40000 0xA0000
+
+The default NAND bootscripts expect a single MTD partition named "rootfs",
+which in turn contains the UBI volumes "fit" (which contains the kernel fit-
+image) and "root" (which contains a ubifs root filesystem).
+
+The "bootm_size" variable in the environment
+--------------------------------------------
+
+By default, U-boot relocates the device tree towards the upper end of the RAM,
+which kernels using CONFIG_HIGHMEM=y may not be able to access during early
+boot. With the bootm_size variable set to 0x30000000, U-boot relocates the
+device tree to below this address instead.
