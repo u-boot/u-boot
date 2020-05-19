@@ -723,13 +723,38 @@ __weak int esdhc_status_fixup(void *blob, const char *compat)
 	return 0;
 }
 
+#ifdef CONFIG_FSL_ESDHC_33V_IO_RELIABILITY_WORKAROUND
+static int fsl_esdhc_get_cd(struct udevice *dev);
+
+static void esdhc_disable_for_no_card(void *blob)
+{
+	struct udevice *dev;
+
+	for (uclass_first_device(UCLASS_MMC, &dev);
+	     dev;
+	     uclass_next_device(&dev)) {
+		char esdhc_path[50];
+
+		if (fsl_esdhc_get_cd(dev))
+			continue;
+
+		snprintf(esdhc_path, sizeof(esdhc_path), "/soc/esdhc@%lx",
+			 (unsigned long)dev_read_addr(dev));
+		do_fixup_by_path(blob, esdhc_path, "status", "disabled",
+				 sizeof("disabled"), 1);
+	}
+}
+#endif
+
 void fdt_fixup_esdhc(void *blob, bd_t *bd)
 {
 	const char *compat = "fsl,esdhc";
 
 	if (esdhc_status_fixup(blob, compat))
 		return;
-
+#ifdef CONFIG_FSL_ESDHC_33V_IO_RELIABILITY_WORKAROUND
+	esdhc_disable_for_no_card(blob);
+#endif
 	do_fixup_by_compat_u32(blob, compat, "clock-frequency",
 			       gd->arch.sdhc_clk, 1);
 }
@@ -848,6 +873,7 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
 	fdt_addr_t addr;
 	struct mmc *mmc;
+	int ret;
 
 	addr = dev_read_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
@@ -881,7 +907,15 @@ static int fsl_esdhc_probe(struct udevice *dev)
 
 	upriv->mmc = mmc;
 
-	return esdhc_init_common(priv, mmc);
+	ret = esdhc_init_common(priv, mmc);
+	if (ret)
+		return ret;
+
+#ifdef CONFIG_FSL_ESDHC_33V_IO_RELIABILITY_WORKAROUND
+	if (!fsl_esdhc_get_cd(dev))
+		esdhc_setbits32(&priv->esdhc_regs->proctl, PROCTL_VOLT_SEL);
+#endif
+	return 0;
 }
 
 static int fsl_esdhc_get_cd(struct udevice *dev)

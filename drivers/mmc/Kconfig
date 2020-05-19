@@ -727,6 +727,21 @@ config FSL_ESDHC
 	  This selects support for the eSDHC (Enhanced Secure Digital Host
 	  Controller) found on numerous Freescale/NXP SoCs.
 
+config FSL_ESDHC_33V_IO_RELIABILITY_WORKAROUND
+	bool "enable eSDHC workaround for 3.3v IO reliability issue"
+	depends on FSL_ESDHC && DM_MMC
+	default n
+	help
+	  When eSDHC operates at 3.3v, damage can accumulate in an internal
+	  level shifter at a higher than expected rate. The faster the interface
+	  runs, the more damage accumulates. This issue now is found on LX2160A
+	  eSDHC1 for only SD card. The hardware workaround is recommended to use
+	  an on-board level shifter that is 1.8v on SoC side and 3.3v on SD card
+	  side. For boards without hardware workaround, this option could be
+	  enabled, ensuring 1.8v IO voltage and disabling eSDHC if no card.
+	  This option assumes no hotplug, and u-boot has to make all the way to
+	  to linux to use 1.8v UHS-I speed mode if has card.
+
 config FSL_ESDHC_IMX
 	bool "Freescale/NXP i.MX eSDHC controller support"
 	help
