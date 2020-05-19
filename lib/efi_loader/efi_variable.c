@@ -886,8 +886,6 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
 	u32 attr;
 	efi_status_t ret = EFI_SUCCESS;
 
-	debug("%s: set '%s'\n", __func__, native_name);
-
 	if (!variable_name || !*variable_name || !vendor ||
 	    ((attributes & EFI_VARIABLE_RUNTIME_ACCESS) &&
 	     !(attributes & EFI_VARIABLE_BOOTSERVICE_ACCESS))) {
