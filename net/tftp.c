@@ -70,6 +70,7 @@ enum {
 	TFTP_ERR_UNEXPECTED_OPCODE   = 4,
 	TFTP_ERR_UNKNOWN_TRANSFER_ID  = 5,
 	TFTP_ERR_FILE_ALREADY_EXISTS = 6,
+	TFTP_ERR_OPTION_NEGOTIATION = 8,
 };
 
 static struct in_addr tftp_remote_ip;
@@ -113,6 +114,7 @@ static int	tftp_put_final_block_sent;
 #define STATE_OACK	5
 #define STATE_RECV_WRQ	6
 #define STATE_SEND_WRQ	7
+#define STATE_INVALID_OPTION	8
 
 /* default TFTP block size */
 #define TFTP_BLOCK_SIZE		512
@@ -318,6 +320,7 @@ static void tftp_send(void)
 	uchar *xp;
 	int len = 0;
 	ushort *s;
+	bool err_pkt = false;
 
 	/*
 	 *	We will always be sending some sort of packet, so
@@ -388,6 +391,7 @@ static void tftp_send(void)
 		strcpy((char *)pkt, "File too large");
 		pkt += 14 /*strlen("File too large")*/ + 1;
 		len = pkt - xp;
+		err_pkt = true;
 		break;
 
 	case STATE_BAD_MAGIC:
@@ -399,11 +403,28 @@ static void tftp_send(void)
 		strcpy((char *)pkt, "File has bad magic");
 		pkt += 18 /*strlen("File has bad magic")*/ + 1;
 		len = pkt - xp;
+		err_pkt = true;
+		break;
+
+	case STATE_INVALID_OPTION:
+		xp = pkt;
+		s = (ushort *)pkt;
+		*s++ = htons(TFTP_ERROR);
+		*s++ = htons(TFTP_ERR_OPTION_NEGOTIATION);
+		pkt = (uchar *)s;
+		strcpy((char *)pkt, "Option Negotiation Failed");
+		/* strlen("Option Negotiation Failed") + NULL*/
+		pkt += 25 + 1;
+		len = pkt - xp;
+		err_pkt = true;
 		break;
 	}
 
 	net_send_udp_packet(net_server_ethaddr, tftp_remote_ip,
 			    tftp_remote_port, tftp_our_port, len);
+
+	if (err_pkt)
+		net_set_state(NETLOOP_FAIL);
 }
 
 #ifdef CONFIG_CMD_TFTPPUT
@@ -424,6 +445,7 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 	__be16 proto;
 	__be16 *s;
 	int i;
+	u16 timeout_val_rcvd;
 
 	if (dest != tftp_our_port) {
 			return;
@@ -480,8 +502,14 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 #endif
 
 	case TFTP_OACK:
-		debug("Got OACK: %s %s\n",
-		      pkt, pkt + strlen((char *)pkt) + 1);
+		debug("Got OACK: ");
+		for (i = 0; i < len; i++) {
+			if (pkt[i] == '\0')
+				debug(" ");
+			else
+				debug("%c", pkt[i]);
+		}
+		debug("\n");
 		tftp_state = STATE_OACK;
 		tftp_remote_port = src;
 		/*
@@ -490,15 +518,32 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 		 * something like "len-8" may give a *huge* number
 		 */
 		for (i = 0; i+8 < len; i++) {
-			if (strcmp((char *)pkt + i, "blksize") == 0) {
+			if (strcasecmp((char *)pkt + i, "blksize") == 0) {
 				tftp_block_size = (unsigned short)
 					simple_strtoul((char *)pkt + i + 8,
 						       NULL, 10);
-				debug("Blocksize ack: %s, %d\n",
+				debug("Blocksize oack: %s, %d\n",
 				      (char *)pkt + i + 8, tftp_block_size);
+				if (tftp_block_size > tftp_block_size_option) {
+					printf("Invalid blk size(=%d)\n",
+					       tftp_block_size);
+					tftp_state = STATE_INVALID_OPTION;
+				}
+			}
+			if (strcasecmp((char *)pkt + i, "timeout") == 0) {
+				timeout_val_rcvd = (unsigned short)
+					simple_strtoul((char *)pkt + i + 8,
+						       NULL, 10);
+				debug("Timeout oack: %s, %d\n",
+				      (char *)pkt + i + 8, timeout_val_rcvd);
+				if (timeout_val_rcvd != (timeout_ms / 1000)) {
+					printf("Invalid timeout val(=%d s)\n",
+					       timeout_val_rcvd);
+					tftp_state = STATE_INVALID_OPTION;
+				}
 			}
 #ifdef CONFIG_TFTP_TSIZE
-			if (strcmp((char *)pkt+i, "tsize") == 0) {
+			if (strcasecmp((char *)pkt + i, "tsize") == 0) {
 				tftp_tsize = simple_strtoul((char *)pkt + i + 6,
 							   NULL, 10);
 				debug("size = %s, %d\n",
@@ -507,7 +552,7 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 #endif
 		}
 #ifdef CONFIG_CMD_TFTPPUT
-		if (tftp_put_active) {
+		if (tftp_put_active && tftp_state == STATE_OACK) {
 			/* Get ready to send the first block */
 			tftp_state = STATE_DATA;
 			tftp_cur_block++;
@@ -522,7 +567,7 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 		tftp_cur_block = ntohs(*(__be16 *)pkt);
 
 		if (tftp_state == STATE_SEND_RRQ)
-			debug("Server did not acknowledge timeout option!\n");
+			debug("Server did not acknowledge any options!\n");
 
 		if (tftp_state == STATE_SEND_RRQ || tftp_state == STATE_OACK ||
 		    tftp_state == STATE_RECV_WRQ) {
