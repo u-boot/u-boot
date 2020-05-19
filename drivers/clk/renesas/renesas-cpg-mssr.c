@@ -55,7 +55,7 @@ static const u16 smstpcr[] = {
 
 
 /* Realtime Module Stop Control Register offsets */
-#define RMSTPCR(i)	(smstpcr[i] - 0x20)
+#define RMSTPCR(i)	((i) < 8 ? smstpcr[i] - 0x20 : smstpcr[i] - 0x10)
 
 /* Modem Module Stop Control Register offsets (r8a73a4) */
 #define MMSTPCR(i)	(smstpcr[i] + 0x20)
