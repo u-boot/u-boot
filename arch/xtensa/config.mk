@@ -3,7 +3,6 @@
 # (C) Copyright 2007 - 2013 Tensilica, Inc.
 # (C) Copyright 2014 - 2016 Cadence Design Systems Inc.
 
-CROSS_COMPILE ?= xtensa-linux-
 PLATFORM_CPPFLAGS += -D__XTENSA__ -mlongcalls -mforce-no-pic \
 		     -ffunction-sections -fdata-sections
 
