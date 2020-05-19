@@ -529,6 +529,54 @@ int board_fit_config_name_match(const char *name)
 	return strcmp(name, tmp_name);
 }
 
+void board_boot_order(u32 *spl_boot_list)
+{
+	struct src *psrc = (struct src *)SRC_BASE_ADDR;
+	unsigned int reg = readl(&psrc->sbmr1) >> 11;
+	u32 boot_mode = imx6_src_get_boot_mode() & IMX6_BMODE_MASK;
+	unsigned int bmode = readl(&src_base->sbmr2);
+
+	/* If bmode is serial or USB phy is active, return serial */
+	if (((bmode >> 24) & 0x03) == 0x01 || is_usbotg_phy_active()) {
+		spl_boot_list[0] = BOOT_DEVICE_BOARD;
+		return;
+	}
+
+	switch (boot_mode >> IMX6_BMODE_SHIFT) {
+	case IMX6_BMODE_SD:
+	case IMX6_BMODE_ESD:
+	case IMX6_BMODE_MMC:
+	case IMX6_BMODE_EMMC:
+		/*
+		 * Upon reading BOOT_CFG register the following map is done:
+		 * Bit 11 and 12 of BOOT_CFG register can determine the current
+		 * mmc port
+		 * 0x1                  SD2
+		 * 0x2                  SD3
+		 */
+
+		reg &= 0x3; /* Only care about bottom 2 bits */
+		switch (reg) {
+		case 1:
+			SETUP_IOMUX_PADS(usdhc2_pads);
+			spl_boot_list[0] = BOOT_DEVICE_MMC1;
+			break;
+		case 2:
+			SETUP_IOMUX_PADS(usdhc3_pads);
+			spl_boot_list[0] = BOOT_DEVICE_MMC2;
+			break;
+		}
+		break;
+	default:
+		/* By default use USB downloader */
+		spl_boot_list[0] = BOOT_DEVICE_BOARD;
+		break;
+	}
+
+	/* As a last resort, use serial downloader */
+	spl_boot_list[1] = BOOT_DEVICE_BOARD;
+}
+
 #ifdef CONFIG_SPL_BUILD
 #include <asm/arch/mx6-ddr.h>
 static const struct mx6dq_iomux_ddr_regs mx6q_ddr_ioregs = {
