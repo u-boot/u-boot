@@ -80,8 +80,6 @@ struct cbfs_cachenode {
 	u32 attributes_offset;
 };
 
-extern enum cbfs_result file_cbfs_result;
-
 /**
  * file_cbfs_error() - Return a string describing the most recent error
  * condition.
