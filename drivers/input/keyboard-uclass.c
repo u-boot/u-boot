@@ -6,6 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <keyboard.h>
+#include <log.h>
 
 static int keyboard_start(struct stdio_dev *sdev)
 {

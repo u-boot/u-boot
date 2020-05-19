@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <init.h>
+#include <net.h>
 #include <pci.h>
 #include <vsprintf.h>
 #include <asm/processor.h>
@@ -16,6 +17,7 @@
 #include <fsl_ddr_sdram.h>
 #include <asm/fsl_serdes.h>
 #include <miiphy.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <tsec.h>

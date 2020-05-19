@@ -9,12 +9,14 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <log.h>
 #include <net.h>
 #include <malloc.h>
 #include <asm/io.h>
 #include <phy.h>
 #include <miiphy.h>
 #include <wait_bit.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

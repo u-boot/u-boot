@@ -16,6 +16,7 @@
 #include <config.h>
 
 #include <dm/device.h>
+#include <linux/bitops.h>
 #include <linux/compat.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/flashchip.h>

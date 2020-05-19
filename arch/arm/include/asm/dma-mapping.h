@@ -7,10 +7,10 @@
 #ifndef __ASM_ARM_DMA_MAPPING_H
 #define __ASM_ARM_DMA_MAPPING_H
 
-#include <common.h>
 #include <asm/cache.h>
 #include <cpu_func.h>
 #include <linux/dma-direction.h>
+#include <linux/kernel.h>
 #include <linux/types.h>
 #include <malloc.h>
 

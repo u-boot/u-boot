@@ -8,6 +8,7 @@
 #include <syscon.h>
 #include <asm/cpu.h>
 #include <asm/pmu.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <linux/io.h>
 

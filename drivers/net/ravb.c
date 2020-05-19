@@ -13,8 +13,12 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <miiphy.h>
 #include <malloc.h>
+#include <asm/cache.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/mii.h>
 #include <wait_bit.h>
 #include <asm/io.h>

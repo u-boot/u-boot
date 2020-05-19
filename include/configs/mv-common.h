@@ -16,6 +16,8 @@
 #ifndef _MV_COMMON_H
 #define _MV_COMMON_H
 
+#include <linux/stringify.h>
+
 /*
  * High Level Configuration Options (easy to change)
  */

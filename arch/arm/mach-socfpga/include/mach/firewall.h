@@ -7,6 +7,8 @@
 #ifndef	_FIREWALL_H_
 #define	_FIREWALL_H_
 
+#include <linux/bitops.h>
+
 struct socfpga_firwall_l4_per {
 	u32	nand;		/* 0x00 */
 	u32	nand_data;

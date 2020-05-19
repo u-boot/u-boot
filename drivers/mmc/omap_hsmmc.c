@@ -25,6 +25,7 @@
 #include <config.h>
 #include <common.h>
 #include <cpu_func.h>
+#include <log.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <mmc.h>
@@ -33,6 +34,7 @@
 #if defined(CONFIG_OMAP54XX) || defined(CONFIG_OMAP44XX)
 #include <palmas.h>
 #endif
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/arch/mmc_host_def.h>
 #ifdef CONFIG_OMAP54XX
@@ -48,6 +50,8 @@
 #endif
 #include <dm.h>
 #include <dm/devres.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 #include <power/regulator.h>
 #include <thermal.h>

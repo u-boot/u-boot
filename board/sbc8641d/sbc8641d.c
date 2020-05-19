@@ -14,12 +14,14 @@
 #include <common.h>
 #include <command.h>
 #include <init.h>
+#include <log.h>
 #include <pci.h>
 #include <asm/processor.h>
 #include <asm/immap_86xx.h>
 #include <asm/fsl_pci.h>
 #include <fsl_ddr_sdram.h>
 #include <asm/fsl_serdes.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 
@@ -49,7 +51,7 @@ int dram_init(void)
 	dram_size = fixed_sdram ();
 #endif
 
-	debug ("    DDR: ");
+	debug("    DDR: ");
 	gd->ram_size = dram_size;
 
 	return 0;
@@ -122,12 +124,12 @@ long int fixed_sdram (void)
 
 	asm ("sync;isync");
 
-	udelay (500);
+	udelay(500);
 
 	ddr->sdram_cfg = CONFIG_SYS_DDR_CFG_1B;
 	asm ("sync; isync");
 
-	udelay (500);
+	udelay(500);
 	ddr = &immap->im_ddr2;
 
 	ddr->cs0_bnds = CONFIG_SYS_DDR2_CS0_BNDS;
@@ -153,12 +155,12 @@ long int fixed_sdram (void)
 
 	asm ("sync;isync");
 
-	udelay (500);
+	udelay(500);
 
 	ddr->sdram_cfg = CONFIG_SYS_DDR2_CFG_1B;
 	asm ("sync; isync");
 
-	udelay (500);
+	udelay(500);
 #endif
 	return CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
 }

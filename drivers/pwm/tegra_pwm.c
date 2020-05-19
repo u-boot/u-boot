@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <pwm.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>

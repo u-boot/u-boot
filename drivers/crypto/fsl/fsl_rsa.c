@@ -7,6 +7,7 @@
 #include <config.h>
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <asm/types.h>
 #include <malloc.h>
 #include "jobdesc.h"

@@ -5,6 +5,10 @@
  * Author: Tim Harvey <tharvey@gateworks.com>
  */
 
+#include <common.h>
+#include <command.h>
+#include <log.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <common.h>
 #include <i2c.h>
@@ -176,8 +180,8 @@ int gsc_boot_wd_disable(void)
 }
 
 #if defined(CONFIG_CMD_GSC) && !defined(CONFIG_SPL_BUILD)
-static int do_gsc_sleep(cmd_tbl_t *cmdtp, int flag, int argc,
-			char * const argv[])
+static int do_gsc_sleep(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
 	unsigned char reg;
 	unsigned long secs = 0;
@@ -218,7 +222,8 @@ error:
 	return CMD_RET_FAILURE;
 }
 
-static int do_gsc_wd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_gsc_wd(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[])
 {
 	unsigned char reg;
 
@@ -257,7 +262,7 @@ static int do_gsc_wd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return CMD_RET_SUCCESS;
 }
 
-static int do_gsc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_gsc(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	if (argc < 2)
 		return gsc_info(1);

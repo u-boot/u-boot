@@ -108,6 +108,7 @@
 	func(DHCP, dhcp, na)
 
 #include <config_distro_bootcmd.h>
+#include <linux/stringify.h>
 
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 #define CONFIG_SYS_HZ			1000

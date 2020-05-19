@@ -7,6 +7,7 @@
 #define _SOCFPGA_SDRAM_ARRIA10_H_
 
 #ifndef __ASSEMBLY__
+#include <linux/bitops.h>
 int ddr_calibration_sequence(void);
 
 struct socfpga_ecc_hmc {
@@ -205,7 +206,7 @@ struct socfpga_io48_mmr {
 	u32 niosreserve2;
 };
 
-#endif /*__ASSEMBLY__*/
+#endif /*__ASSEMBLY__ */
 
 #define IO48_MMR_CTRLCFG0_DB2_BURST_LENGTH_MASK		0x1F000000
 #define IO48_MMR_CTRLCFG0_DB2_BURST_LENGTH_SHIFT	24

@@ -18,6 +18,7 @@
 #include <command.h>
 #include <env.h>
 #include <image.h>
+#include <log.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <asm/byteorder.h>
@@ -154,13 +155,14 @@ int image_source_script(ulong addr, const char *fit_uname)
 		return 1;
 	}
 
-	debug ("** Script length: %ld\n", len);
+	debug("** Script length: %ld\n", len);
 	return run_command_list((char *)data, len, 0);
 }
 
 /**************************************************/
 #if defined(CONFIG_CMD_SOURCE)
-static int do_source(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_source(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[])
 {
 	ulong addr;
 	int rcode;
@@ -169,16 +171,16 @@ static int do_source(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	/* Find script image */
 	if (argc < 2) {
 		addr = CONFIG_SYS_LOAD_ADDR;
-		debug ("*  source: default load address = 0x%08lx\n", addr);
+		debug("*  source: default load address = 0x%08lx\n", addr);
 #if defined(CONFIG_FIT)
 	} else if (fit_parse_subimage(argv[1], image_load_addr, &addr,
 				      &fit_uname)) {
-		debug ("*  source: subimage '%s' from FIT image at 0x%08lx\n",
-				fit_uname, addr);
+		debug("*  source: subimage '%s' from FIT image at 0x%08lx\n",
+		      fit_uname, addr);
 #endif
 	} else {
 		addr = simple_strtoul(argv[1], NULL, 16);
-		debug ("*  source: cmdline image address = 0x%08lx\n", addr);
+		debug("*  source: cmdline image address = 0x%08lx\n", addr);
 	}
 
 	printf ("## Executing script at %08lx\n", addr);

@@ -22,6 +22,7 @@
 #define CONFIG_INTERRUPTS		/* enable pci, srio, ddr interrupts */
 
 #ifndef __ASSEMBLY__
+#include <linux/stringify.h>
 extern unsigned long get_board_sys_clk(unsigned long dummy);
 #endif
 #define CONFIG_SYS_CLK_FREQ	get_board_sys_clk(0) /* sysclk for MPC85xx */

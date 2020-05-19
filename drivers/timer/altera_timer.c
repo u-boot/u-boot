@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <timer.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 
 /* control register */
 #define ALTERA_TIMER_CONT	BIT(1)	/* Continuous mode */

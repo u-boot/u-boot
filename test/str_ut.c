@@ -105,7 +105,7 @@ static int str_simple_strtoul(struct unit_test_state *uts)
 }
 STR_TEST(str_simple_strtoul, 0);
 
-int do_ut_str(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+int do_ut_str(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct unit_test *tests = ll_entry_start(struct unit_test,
 						 str_test);

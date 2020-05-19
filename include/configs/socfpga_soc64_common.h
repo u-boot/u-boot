@@ -9,6 +9,7 @@
 
 #include <asm/arch/base_addr_s10.h>
 #include <asm/arch/handoff_s10.h>
+#include <linux/stringify.h>
 
 /*
  * U-Boot general configurations

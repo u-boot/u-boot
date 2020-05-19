@@ -7,10 +7,12 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <net.h>
 #include <malloc.h>
 #include <miiphy.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/types.h>
 #include <asm/system.h>

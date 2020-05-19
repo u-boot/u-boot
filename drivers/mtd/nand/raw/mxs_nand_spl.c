@@ -5,9 +5,13 @@
  * Author: Tim Harvey <tharvey@gateworks.com>
  */
 #include <common.h>
+#include <log.h>
 #include <nand.h>
 #include <malloc.h>
 #include <mxs_nand.h>
+#include <asm/cache.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 
 static struct mtd_info *mtd;

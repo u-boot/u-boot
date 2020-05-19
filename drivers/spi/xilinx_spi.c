@@ -16,10 +16,12 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <spi.h>
 #include <asm/io.h>
 #include <wait_bit.h>
+#include <linux/bitops.h>
 
 /*
  * [0]: http://www.xilinx.com/support/documentation

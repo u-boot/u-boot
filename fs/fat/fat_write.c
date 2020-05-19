@@ -9,9 +9,11 @@
 #include <command.h>
 #include <config.h>
 #include <fat.h>
+#include <log.h>
 #include <malloc.h>
 #include <asm/byteorder.h>
 #include <part.h>
+#include <asm/cache.h>
 #include <linux/ctype.h>
 #include <div64.h>
 #include <linux/math64.h>

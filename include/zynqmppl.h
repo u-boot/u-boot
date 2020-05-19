@@ -8,6 +8,7 @@
 #define _ZYNQMPPL_H_
 
 #include <xilinx.h>
+#include <linux/bitops.h>
 
 #define ZYNQMP_SIP_SVC_CSU_DMA_CHIPID		0xC2000018
 #define ZYNQMP_SIP_SVC_PM_FPGA_LOAD		0xC2000016

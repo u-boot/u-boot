@@ -14,6 +14,7 @@
 #include <command.h>
 #include <cpu_func.h>
 #include <irq_func.h>
+#include <asm/cache.h>
 #include <asm/system.h>
 #include <asm/secure.h>
 #include <linux/compiler.h>

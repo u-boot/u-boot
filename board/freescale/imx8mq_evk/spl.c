@@ -7,6 +7,9 @@
 
 #include <common.h>
 #include <hang.h>
+#include <image.h>
+#include <init.h>
+#include <log.h>
 #include <asm/io.h>
 #include <errno.h>
 #include <asm/io.h>
@@ -19,6 +22,7 @@
 #include <asm/mach-imx/mxc_i2c.h>
 #include <fsl_esdhc_imx.h>
 #include <mmc.h>
+#include <linux/delay.h>
 #include <power/pmic.h>
 #include <power/pfuze100_pmic.h>
 #include <spl.h>

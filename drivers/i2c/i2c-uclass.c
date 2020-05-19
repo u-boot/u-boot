@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <i2c.h>
+#include <log.h>
 #include <malloc.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
@@ -14,6 +15,7 @@
 #if CONFIG_IS_ENABLED(DM_GPIO)
 #include <asm/gpio.h>
 #endif
+#include <linux/delay.h>
 
 #define I2C_MAX_OFFSET_LEN	4
 

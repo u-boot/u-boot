@@ -6,6 +6,7 @@
 #ifndef __PMIC_STPMIC1_H_
 #define __PMIC_STPMIC1_H_
 
+#include <linux/bitops.h>
 #define STPMIC1_MAIN_CR			0x10
 #define STPMIC1_BUCKS_MRST_CR		0x18
 #define STPMIC1_LDOS_MRST_CR		0x1a

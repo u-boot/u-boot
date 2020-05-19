@@ -11,6 +11,8 @@
 */
 
 #include <cpu_func.h>
+#include <log.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/gpio.h>
@@ -19,6 +21,8 @@
 #include <dm.h>
 #include <fdt_support.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 #include <malloc.h>
 #include <miiphy.h>

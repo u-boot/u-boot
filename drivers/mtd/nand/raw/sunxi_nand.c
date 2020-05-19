@@ -31,6 +31,8 @@
 #include <nand.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 
 #include <linux/kernel.h>

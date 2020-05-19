@@ -9,7 +9,9 @@
 #include <env.h>
 #include <hang.h>
 #include <hwconfig.h>
+#include <image.h>
 #include <init.h>
+#include <net.h>
 #include <pci.h>
 #include <i2c.h>
 #include <asm/processor.h>
@@ -23,6 +25,7 @@
 #include <asm/fsl_lbc.h>
 #include <asm/mp.h>
 #include <miiphy.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <fsl_mdio.h>

@@ -13,6 +13,7 @@
 #include <syscon.h>
 #include <asm/io.h>
 #include <asm/processor.h>
+#include <linux/bitops.h>
 #include <linux/err.h>
 #include <linux/iopoll.h>
 

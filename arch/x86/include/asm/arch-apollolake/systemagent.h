@@ -8,6 +8,7 @@
 #define _ASM_ARCH_SYSTEMAGENT_H
 
 /* Device 0:0.0 PCI configuration space */
+#include <linux/bitops.h>
 #define MCHBAR		0x48
 
 /* RAPL Package Power Limit register under MCHBAR */

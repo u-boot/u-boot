@@ -12,6 +12,8 @@
 #ifndef __CONFIG_CGTQMX6EVAL_H
 #define __CONFIG_CGTQMX6EVAL_H
 
+#include <linux/stringify.h>
+
 #include "mx6_common.h"
 
 #define CONFIG_MACH_TYPE	4122

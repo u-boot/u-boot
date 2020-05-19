@@ -97,7 +97,7 @@ done:
  * The command prints out the hexadecimal string received via SPI.
  */
 
-int do_spi (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_spi(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	char  *cp = 0;
 	uchar tmp;

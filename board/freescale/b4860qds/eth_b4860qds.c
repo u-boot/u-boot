@@ -19,6 +19,8 @@
  */
 
 #include <common.h>
+#include <log.h>
+#include <net.h>
 #include <netdev.h>
 #include <asm/fsl_serdes.h>
 #include <fm_eth.h>

@@ -10,7 +10,8 @@
 #include <linux/compiler.h>
 #include <linux/psci.h>
 
-static int do_call(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_call(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
 	struct arm_smccc_res res;
 

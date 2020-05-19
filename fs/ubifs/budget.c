@@ -20,6 +20,7 @@
 
 #include "ubifs.h"
 #ifndef __UBOOT__
+#include <log.h>
 #include <linux/writeback.h>
 #else
 #include <linux/err.h>

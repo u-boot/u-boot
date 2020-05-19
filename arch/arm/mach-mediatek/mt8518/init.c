@@ -11,9 +11,11 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <init.h>
 #include <ram.h>
 #include <asm/arch/misc.h>
 #include <asm/armv8/mmu.h>
+#include <asm/cache.h>
 #include <asm/sections.h>
 #include <dm/uclass.h>
 #include <dt-bindings/clock/mt8518-clk.h>

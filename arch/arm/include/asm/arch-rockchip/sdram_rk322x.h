@@ -5,7 +5,9 @@
 #ifndef _ASM_ARCH_SDRAM_RK322X_H
 #define _ASM_ARCH_SDRAM_RK322X_H
 
-#include <common.h>
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
 
 struct rk322x_sdram_channel {
 	/*

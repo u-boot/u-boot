@@ -6,10 +6,13 @@
 
 #include <common.h>
 #include <env.h>
+#include <flash.h>
 #include <hwconfig.h>
 #include <i2c.h>
 #include <init.h>
 #include <spi.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <pci.h>

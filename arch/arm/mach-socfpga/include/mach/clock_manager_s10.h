@@ -8,6 +8,7 @@
 #define	_CLOCK_MANAGER_S10_
 
 #include <asm/arch/clock_manager_soc64.h>
+#include <linux/bitops.h>
 
 /* Clock speed accessors */
 unsigned long cm_get_mpu_clk_hz(void);

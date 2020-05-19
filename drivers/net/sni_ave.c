@@ -8,13 +8,17 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <fdt_support.h>
+#include <log.h>
 #include <malloc.h>
 #include <miiphy.h>
 #include <net.h>
 #include <regmap.h>
 #include <reset.h>
 #include <syscon.h>
+#include <asm/cache.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 #include <linux/io.h>
 #include <linux/iopoll.h>

@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
@@ -194,8 +195,8 @@ static int unbind_by_node_path(const char *path)
 	return 0;
 }
 
-static int do_bind_unbind(cmd_tbl_t *cmdtp, int flag, int argc,
-			  char * const argv[])
+static int do_bind_unbind(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
 {
 	int ret = 0;
 	bool bind;

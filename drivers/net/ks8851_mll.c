@@ -4,12 +4,14 @@
  * Copyright (c) 2011 Roberto Cerati <roberto.cerati@bticino.it>
  */
 
+#include <log.h>
 #include <asm/io.h>
 #include <common.h>
 #include <command.h>
 #include <malloc.h>
 #include <net.h>
 #include <miiphy.h>
+#include <linux/delay.h>
 
 #include "ks8851_mll.h"
 

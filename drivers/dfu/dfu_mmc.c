@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <malloc.h>
 #include <errno.h>
 #include <div64.h>
@@ -14,6 +15,7 @@
 #include <ext4fs.h>
 #include <fat.h>
 #include <mmc.h>
+#include <part.h>
 
 static unsigned char *dfu_file_buf;
 static u64 dfu_file_buf_len;
@@ -369,7 +371,7 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 					simple_strtoul(s, NULL, 0);
 
 	} else if (!strcmp(entity_type, "part")) {
-		disk_partition_t partinfo;
+		struct disk_partition partinfo;
 		struct blk_desc *blk_dev = mmc_get_blk_desc(mmc);
 		int mmcdev = second_arg;
 		int mmcpart = third_arg;

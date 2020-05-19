@@ -8,7 +8,9 @@
 #include <env.h>
 #include <fdt_support.h>
 #include <hwconfig.h>
+#include <image.h>
 #include <init.h>
+#include <log.h>
 #include <netdev.h>
 #include <linux/compiler.h>
 #include <asm/mmu.h>

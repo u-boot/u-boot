@@ -7,6 +7,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <spi.h>
 #include <fdtdec.h>
@@ -18,6 +19,7 @@
 #include <asm/arch/pinmux.h>
 #include <asm/arch/spi.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

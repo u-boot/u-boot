@@ -8,6 +8,8 @@
 
 #include <common.h>
 #include <binman.h>
+#include <bootstage.h>
+#include <log.h>
 #include <asm/mrccache.h>
 #include <asm/fsp/fsp_infoheader.h>
 #include <asm/fsp2/fsp_api.h>
@@ -79,10 +81,10 @@ int fsp_memory_init(bool s3wake, bool use_spi_flash)
 		return log_msg_ret("Could not setup config", ret);
 
 	debug("SDRAM init...");
-	bootstage_start(BOOTSTATE_ID_ACCUM_FSP_M, "fsp-m");
+	bootstage_start(BOOTSTAGE_ID_ACCUM_FSP_M, "fsp-m");
 	func = (fsp_memory_init_func)(hdr->img_base + hdr->fsp_mem_init);
 	ret = func(&upd, &hob);
-	bootstage_accum(BOOTSTATE_ID_ACCUM_FSP_M);
+	bootstage_accum(BOOTSTAGE_ID_ACCUM_FSP_M);
 	if (ret)
 		return log_msg_ret("SDRAM init fail\n", ret);
 

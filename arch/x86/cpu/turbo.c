@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm/cpu.h>
 #include <asm/msr.h>
 #include <asm/processor.h>

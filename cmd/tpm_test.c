@@ -6,6 +6,7 @@
 #include <common.h>
 #include <command.h>
 #include <cpu_func.h>
+#include <log.h>
 #include <tpm-v1.h>
 #include "tpm-user-utils.h"
 
@@ -483,8 +484,8 @@ static int test_write_limit(struct udevice *dev)
 }
 
 #define VOIDTEST(XFUNC) \
-	int do_test_##XFUNC(cmd_tbl_t *cmd_tbl, int flag, int argc, \
-	char * const argv[]) \
+	int do_test_##XFUNC(struct cmd_tbl *cmd_tbl, int flag, int argc, \
+	char *const argv[]) \
 	{ \
 		struct udevice *dev; \
 		int ret; \
@@ -513,7 +514,7 @@ VOIDTEST(timing)
 VOIDTEST(write_limit)
 VOIDTEST(timer)
 
-static cmd_tbl_t cmd_cros_tpm_sub[] = {
+static struct cmd_tbl cmd_cros_tpm_sub[] = {
 	VOIDENT(early_extend)
 	VOIDENT(early_nvram)
 	VOIDENT(early_nvram2)
@@ -530,9 +531,10 @@ static cmd_tbl_t cmd_cros_tpm_sub[] = {
 	VOIDENT(timer)
 };
 
-static int do_tpmtest(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_tpmtest(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
-	cmd_tbl_t *c;
+	struct cmd_tbl *c;
 	int i;
 
 	printf("argc = %d, argv = ", argc);

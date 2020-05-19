@@ -18,6 +18,7 @@
 #include <fdt_support.h>
 #include <init.h>
 #include <ioports.h>
+#include <log.h>
 #include <mpc83xx.h>
 #include <i2c.h>
 #include <miiphy.h>
@@ -25,6 +26,7 @@
 #include <asm/mmu.h>
 #include <asm/processor.h>
 #include <pci.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <post.h>
 

@@ -6,6 +6,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <init.h>
+#include <net.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/imx-regs.h>
@@ -20,6 +21,7 @@
 #include <fdt_support.h>
 #include <fsl_esdhc_imx.h>
 #include <jffs2/load_kernel.h>
+#include <linux/delay.h>
 #include <linux/sizes.h>
 #include <mmc.h>
 #include <miiphy.h>

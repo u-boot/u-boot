@@ -8,11 +8,14 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>
+#include <asm/cache.h>
+#include <init.h>
 #include <asm/io.h>
 #include <asm/arch/hi3660.h>
 #include <asm/armv8/mmu.h>
 #include <asm/psci.h>
 #include <linux/arm-smccc.h>
+#include <linux/delay.h>
 #include <linux/psci.h>
 
 #define PMIC_REG_TO_BUS_ADDR(x) (x << 2)

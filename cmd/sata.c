@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <ahci.h>
+#include <blk.h>
 #include <dm.h>
 #include <command.h>
 #include <part.h>
@@ -78,7 +79,8 @@ int sata_probe(int devnum)
 #endif
 }
 
-static int do_sata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_sata(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
 	int rc = 0;
 

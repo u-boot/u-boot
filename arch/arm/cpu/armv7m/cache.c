@@ -7,8 +7,11 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <errno.h>
+#include <log.h>
 #include <asm/armv7m.h>
+#include <asm/cache.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 
 /* Cache maintenance operation registers */
 

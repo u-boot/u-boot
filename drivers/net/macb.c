@@ -6,6 +6,8 @@
 #include <clk.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <log.h>
+#include <linux/delay.h>
 
 /*
  * The u-boot networking stack is a little weird.  It seems like the

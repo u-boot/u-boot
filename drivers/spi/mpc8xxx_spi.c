@@ -8,11 +8,14 @@
 #include <clk.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <spi.h>
 #include <asm/mpc8xxx_spi.h>
 #include <asm-generic/gpio.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 enum {
 	SPI_EV_NE = BIT(31 - 22),	/* Receiver Not Empty */

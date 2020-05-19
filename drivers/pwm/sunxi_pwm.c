@@ -6,6 +6,7 @@
 #include <common.h>
 #include <div64.h>
 #include <dm.h>
+#include <log.h>
 #include <pwm.h>
 #include <regmap.h>
 #include <syscon.h>

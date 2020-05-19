@@ -35,7 +35,7 @@ u32 aes_get_key_len(char *command)
  * Returns zero on success, CMD_RET_USAGE in case of misuse and negative
  * on error.
  */
-static int do_aes(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+static int do_aes(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	uint32_t key_addr, iv_addr, src_addr, dst_addr, len;
 	uint8_t *key_ptr, *iv_ptr, *src_ptr, *dst_ptr;

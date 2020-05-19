@@ -33,15 +33,19 @@
 
 
 #include <common.h>
+#include <blk.h>
 #include <command.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <mapmem.h>
 #include <memalign.h>
 #include <asm/byteorder.h>
+#include <asm/cache.h>
 #include <asm/processor.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
+#include <linux/delay.h>
 
 #include <part.h>
 #include <usb.h>

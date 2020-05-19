@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <linux/errno.h>
 #include <linux/io.h>
 #include <linux/kernel.h>

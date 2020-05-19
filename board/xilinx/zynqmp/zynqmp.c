@@ -5,10 +5,13 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <cpu_func.h>
 #include <debug_uart.h>
 #include <env.h>
 #include <init.h>
+#include <log.h>
+#include <net.h>
 #include <sata.h>
 #include <ahci.h>
 #include <scsi.h>
@@ -18,7 +21,9 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/psu_init_gpl.h>
+#include <asm/cache.h>
 #include <asm/io.h>
+#include <asm/ptrace.h>
 #include <dm/device.h>
 #include <dm/uclass.h>
 #include <usb.h>
@@ -26,6 +31,9 @@
 #include <zynqmppl.h>
 #include <zynqmp_firmware.h>
 #include <g_dnl.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
+#include <linux/sizes.h>
 #include "../common/board.h"
 
 #include "pm_cfg_obj.h"
@@ -413,7 +421,7 @@ int board_early_init_r(void)
 }
 
 unsigned long do_go_exec(ulong (*entry)(int, char * const []), int argc,
-			 char * const argv[])
+			 char *const argv[])
 {
 	int ret = 0;
 

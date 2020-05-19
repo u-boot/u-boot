@@ -12,9 +12,11 @@
 #include <dm.h>
 #include <dt-structs.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <dm/devres.h>
 #include <dm/read.h>
+#include <linux/bug.h>
 #include <linux/clk-provider.h>
 #include <linux/err.h>
 

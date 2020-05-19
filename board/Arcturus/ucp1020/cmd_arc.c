@@ -9,14 +9,17 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <cpu_func.h>
 #include <div64.h>
 #include <env.h>
+#include <flash.h>
 #include <malloc.h>
 #include <spi_flash.h>
 #include <mmc.h>
 #include <version.h>
 #include <asm/io.h>
+#include <linux/stringify.h>
 
 static ulong fwenv_addr[MAX_FWENV_ADDR];
 const char mystrerr[] = "ERROR: Failed to save factory info";
@@ -375,7 +378,8 @@ void get_arc_info(void)
 		do_get_arc_info();
 }
 
-static int do_arc_cmd(cmd_tbl_t * cmdtp, int flag, int argc, char *const argv[])
+static int do_arc_cmd(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	const char *cmd;
 	int ret = -1;

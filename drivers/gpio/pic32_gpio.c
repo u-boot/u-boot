@@ -10,6 +10,7 @@
 #include <malloc.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
+#include <linux/bitops.h>
 #include <linux/compat.h>
 #include <mach/pic32.h>
 

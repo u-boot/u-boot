@@ -7,6 +7,7 @@
 #ifndef __PFE_ETH_H__
 #define __PFE_ETH_H__
 
+#include <linux/bitops.h>
 #include <linux/sizes.h>
 #include <asm/io.h>
 #include <miiphy.h>

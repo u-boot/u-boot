@@ -8,8 +8,10 @@
 
 #include <common.h>
 #include <command.h>
+#include <log.h>
 #include <malloc.h>
 #include <net.h>
+#include <asm/cache.h>
 #include <linux/errno.h>
 #include <asm/io.h>
 #include <linux/dma-mapping.h>

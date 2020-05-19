@@ -233,7 +233,8 @@ void __weak qixis_dump_switch(void)
 	puts("Reverse engineering switch is not implemented for this board\n");
 }
 
-static int qixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int qixis_reset_cmd(struct cmd_tbl *cmdtp, int flag, int argc,
+			   char *const argv[])
 {
 	int i;
 

@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <env.h>
+#include <log.h>
 #include <net.h>
 #include <netdev.h>
 #include <asm/io.h>
@@ -17,6 +18,7 @@
 #include <miiphy.h>
 #include <fsl-mc/fsl_mc.h>
 #include <fsl-mc/ldpaa_wriop.h>
+#include <linux/delay.h>
 
 #include "../common/qixis.h"
 

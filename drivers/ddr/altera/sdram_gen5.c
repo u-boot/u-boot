@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <div64.h>
 #include <init.h>
+#include <log.h>
 #include <ram.h>
 #include <reset.h>
 #include <watchdog.h>
@@ -14,6 +15,7 @@
 #include <asm/arch/reset_manager.h>
 #include <asm/arch/sdram.h>
 #include <asm/arch/system_manager.h>
+#include <asm/bitops.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
 

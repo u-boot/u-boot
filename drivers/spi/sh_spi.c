@@ -10,6 +10,7 @@
 #include <malloc.h>
 #include <spi.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 #include "sh_spi.h"
 
 static void sh_spi_write(unsigned long data, unsigned long *reg)

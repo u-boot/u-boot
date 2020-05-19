@@ -5,6 +5,7 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <init.h>
 #include <asm/armv8/mmu.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/grf_px30.h>

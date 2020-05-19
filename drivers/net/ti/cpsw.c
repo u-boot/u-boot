@@ -8,6 +8,7 @@
 #include <common.h>
 #include <command.h>
 #include <cpu_func.h>
+#include <log.h>
 #include <net.h>
 #include <miiphy.h>
 #include <malloc.h>
@@ -15,6 +16,7 @@
 #include <netdev.h>
 #include <cpsw.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
 #include <asm/io.h>

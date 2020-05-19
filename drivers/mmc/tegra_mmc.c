@@ -10,10 +10,13 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <mmc.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch-tegra/tegra_mmc.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 #if defined(CONFIG_TEGRA30) || defined(CONFIG_TEGRA210)
 #include <asm/arch/clock.h>

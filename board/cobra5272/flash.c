@@ -7,14 +7,17 @@
 #include <common.h>
 #include <console.h>
 #include <cpu_func.h>
+#include <flash.h>
 #include <irq_func.h>
+#include <uuid.h>
+#include <linux/delay.h>
 
 #define PHYS_FLASH_1 CONFIG_SYS_FLASH_BASE
 #define FLASH_BANK_SIZE 0x200000
 
 flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
-void flash_print_info (flash_info_t * info)
+void flash_print_info(flash_info_t *info)
 {
 	int i;
 
@@ -55,7 +58,7 @@ Done:
 }
 
 
-unsigned long flash_init (void)
+unsigned long flash_init(void)
 {
 	int i, j;
 	ulong size = 0;
@@ -98,9 +101,9 @@ unsigned long flash_init (void)
 		size += flash_info[i].size;
 	}
 
-	flash_protect (FLAG_PROTECT_SET,
-		       CONFIG_SYS_FLASH_BASE,
-		       CONFIG_SYS_FLASH_BASE + 0x3ffff, &flash_info[0]);
+	flash_protect(FLAG_PROTECT_SET,
+		      CONFIG_SYS_FLASH_BASE,
+		      CONFIG_SYS_FLASH_BASE + 0x3ffff, &flash_info[0]);
 
 	return size;
 }
@@ -127,7 +130,7 @@ unsigned long flash_init (void)
 #define TMO   4
 
 
-int flash_erase (flash_info_t * info, int s_first, int s_last)
+int flash_erase(flash_info_t *info, int s_first, int s_last)
 {
 	ulong result;
 	int iflag, cflag, prot, sect;
@@ -233,7 +236,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 
       outahere:
 	/* allow flash to settle - wait 10 ms */
-	udelay (10000);
+	mdelay(10);
 
 	if (iflag)
 		enable_interrupts();
@@ -244,7 +247,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	return rc;
 }
 
-static int write_word (flash_info_t * info, ulong dest, ulong data)
+static int write_word(flash_info_t *info, ulong dest, ulong data)
 {
 	volatile u16 *addr = (volatile u16 *) dest;
 	ulong result;
@@ -311,7 +314,7 @@ static int write_word (flash_info_t * info, ulong dest, ulong data)
 }
 
 
-int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
+int write_buff(flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 {
 	ulong wp, data;
 	int rc;

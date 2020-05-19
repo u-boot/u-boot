@@ -6,6 +6,7 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 #include <common.h>
+#include <log.h>
 
 /*
  * The exception table consists of pairs of addresses: the first is the

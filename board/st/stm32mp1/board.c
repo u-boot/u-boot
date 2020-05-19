@@ -7,6 +7,8 @@
 #include <dm.h>
 #include <asm/io.h>
 #include <asm/arch/ddr.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <power/pmic.h>
 #include <power/stpmic1.h>
 

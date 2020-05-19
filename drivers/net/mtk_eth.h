@@ -10,6 +10,7 @@
 #define _MTK_ETH_H_
 
 /* Frame Engine Register Bases */
+#include <linux/bitops.h>
 #define PDMA_BASE			0x0800
 #define GDMA1_BASE			0x0500
 #define GDMA2_BASE			0x1500

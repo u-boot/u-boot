@@ -5,8 +5,10 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/io.h>
 #include <asm/armv7_mpu.h>
+#include <linux/bitops.h>
 
 int arch_cpu_init(void)
 {

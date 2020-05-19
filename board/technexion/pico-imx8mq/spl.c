@@ -5,6 +5,8 @@
 
 #include <common.h>
 #include <hang.h>
+#include <init.h>
+#include <log.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/ddr.h>
 #include <asm/arch/imx8mq_pins.h>
@@ -13,6 +15,7 @@
 #include <asm/mach-imx/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/mxc_i2c.h>
+#include <linux/delay.h>
 #include <errno.h>
 #include <fsl_esdhc_imx.h>
 #include <mmc.h>

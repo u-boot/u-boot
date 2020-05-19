@@ -6,6 +6,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <asm/armv7.h>
+#include <asm/cache.h>
 #include <asm/pl310.h>
 
 #define PL310_WAY_MASK	0xff

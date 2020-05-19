@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <hang.h>
+#include <log.h>
 #include <time.h>
 #include <wdt.h>
 #include <dm/device-internal.h>

@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <errno.h>
+#include <log.h>
 #include <spl.h>
 #include <asm/arch/image.h>
 #include <asm/arch/sci/sci.h>

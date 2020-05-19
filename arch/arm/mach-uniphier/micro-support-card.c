@@ -6,9 +6,12 @@
  */
 
 #include <common.h>
-#include <dm/of.h>
 #include <fdt_support.h>
+#include <log.h>
+#include <net.h>
+#include <dm/of.h>
 #include <linux/ctype.h>
+#include <linux/delay.h>
 #include <linux/io.h>
 
 #include "micro-support-card.h"

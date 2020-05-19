@@ -5,6 +5,8 @@
 
 #include <common.h>
 #include <adc.h>
+#include <log.h>
+#include <net.h>
 #include <asm/arch/stm32.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
@@ -30,6 +32,8 @@
 #include <mtd_node.h>
 #include <netdev.h>
 #include <phy.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <power/regulator.h>
 #include <remoteproc.h>
 #include <reset.h>

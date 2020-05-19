@@ -6,10 +6,13 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <env.h>
 #include <fdtdec.h>
 #include <init.h>
+#include <log.h>
 #include <malloc.h>
 #include <time.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>

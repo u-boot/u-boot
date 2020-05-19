@@ -18,11 +18,14 @@
 #include <common.h>
 #include <command.h>
 #include <dm.h>
+#include <flash.h>
 #include <i2c.h>
 #include <cros_ec.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <malloc.h>
 #include <spi.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/io.h>
 #include <asm-generic/gpio.h>

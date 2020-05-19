@@ -12,6 +12,7 @@
 #include <debug_uart.h>
 #include <errno.h>
 #include <init.h>
+#include <net.h>
 #include <ns16550.h>
 #include <spl.h>
 #include <asm/arch/cpu.h>
@@ -31,6 +32,7 @@
 #include <i2c.h>
 #include <miiphy.h>
 #include <cpsw.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <linux/compiler.h>
 #include <linux/usb/ch9.h>

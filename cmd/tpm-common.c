@@ -296,7 +296,7 @@ int get_tpm(struct udevice **devp)
 	return 0;
 }
 
-int do_tpm_device(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+int do_tpm_device(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	unsigned long num;
 	int rc;
@@ -314,7 +314,7 @@ int do_tpm_device(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	return rc;
 }
 
-int do_tpm_info(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+int do_tpm_info(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct udevice *dev;
 	char buf[80];
@@ -333,7 +333,7 @@ int do_tpm_info(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	return 0;
 }
 
-int do_tpm_init(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_tpm_init(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct udevice *dev;
 	int rc;
@@ -347,9 +347,9 @@ int do_tpm_init(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return report_return_code(tpm_init(dev));
 }
 
-int do_tpm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_tpm(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	cmd_tbl_t *tpm_commands, *cmd;
+	struct cmd_tbl *tpm_commands, *cmd;
 	struct tpm_chip_priv *priv;
 	struct udevice *dev;
 	unsigned int size;

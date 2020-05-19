@@ -5,6 +5,9 @@
 #include <common.h>
 #include <debug_uart.h>
 #include <hang.h>
+#include <image.h>
+#include <init.h>
+#include <log.h>
 #include <spl.h>
 #include <generated/dt.h>
 

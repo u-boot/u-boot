@@ -22,12 +22,16 @@
 #include <env.h>
 #include <errno.h>
 #include <fdt_support.h>
+#include <flash.h>
+#include <init.h>
 #include <irq_func.h>
+#include <log.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/byteorder.h>
 #include <asm/unaligned.h>
 #include <env_internal.h>
+#include <linux/delay.h>
 #include <mtd/cfi_flash.h>
 #include <watchdog.h>
 

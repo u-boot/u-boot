@@ -9,12 +9,14 @@
 #include <common.h>
 #include <div64.h>
 #include <fuse.h>
+#include <log.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 #include <dm.h>
 #include <errno.h>
 #include <malloc.h>
+#include <linux/delay.h>
 #include <linux/math64.h>
 #include <thermal.h>
 #include <imx_thermal.h>

@@ -5,6 +5,8 @@
 
 #include <common.h>
 #include <command.h>
+#include <fdt_support.h>
+#include <net.h>
 #include <netdev.h>
 #include <asm/mmu.h>
 #include <asm/processor.h>
@@ -20,6 +22,7 @@
 #include <fsl_mdio.h>
 #include <miiphy.h>
 #include <phy.h>
+#include <linux/delay.h>
 
 #include "../common/ngpixis.h"
 #include "../common/fman.h"

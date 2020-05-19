@@ -277,7 +277,7 @@ static void extract_range(
 }
 
 /* ---------------------------------------------------------------- */
-static int do_mii(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_mii(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	char		op[2];
 	unsigned char	addrlo, addrhi, reglo, reghi;

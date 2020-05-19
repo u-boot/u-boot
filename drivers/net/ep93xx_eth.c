@@ -18,10 +18,13 @@
 
 #include <command.h>
 #include <common.h>
+#include <log.h>
+#include <net.h>
 #include <asm/arch/ep93xx.h>
 #include <asm/io.h>
 #include <malloc.h>
 #include <miiphy.h>
+#include <linux/bug.h>
 #include <linux/types.h>
 #include "ep93xx_eth.h"
 

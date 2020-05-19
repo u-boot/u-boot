@@ -18,6 +18,7 @@
 #include <common.h>
 #include <dm.h>
 #include <init.h>
+#include <net.h>
 #include <asm/io.h>
 #include <asm/arch/at91sam9_sdramc.h>
 #include <asm/arch/at91sam9260_matrix.h>

@@ -7,6 +7,9 @@
  * Copyright (C) 2015 Socionext Inc.
  */
 
+#include <init.h>
+#include <log.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/errno.h>
 #include <linux/io.h>

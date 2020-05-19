@@ -26,6 +26,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <linux/stringify.h>
+
 #ifdef CONFIG_SDCARD
 #define CONFIG_RAMBOOT_SDCARD
 #endif

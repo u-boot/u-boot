@@ -8,12 +8,15 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <time.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch-tegra/clk_rst.h>
 #include <spi.h>
 #include <fdtdec.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include "tegra_spi.h"
 
 DECLARE_GLOBAL_DATA_PTR;

@@ -6,6 +6,7 @@
 #include <common.h>
 #include <handoff.h>
 #include <init.h>
+#include <log.h>
 #include <asm/fsp/fsp_support.h>
 #include <asm/e820.h>
 #include <asm/mrccache.h>

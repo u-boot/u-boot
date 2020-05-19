@@ -4,6 +4,8 @@
  */
 
 #include <common.h>
+#include <image.h>
+#include <init.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
 #include <asm/cache.h>

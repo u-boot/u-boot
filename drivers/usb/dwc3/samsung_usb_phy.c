@@ -10,6 +10,7 @@
 #include <common.h>
 #include <asm/arch/power.h>
 #include <asm/arch/xhci-exynos.h>
+#include <linux/delay.h>
 
 void exynos5_usb3_phy_init(struct exynos_usb3_phy *phy)
 {

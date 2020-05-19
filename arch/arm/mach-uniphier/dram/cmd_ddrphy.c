@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <stdio.h>
 #include <linux/io.h>
 #include <linux/printk.h>
@@ -261,7 +262,8 @@ static void reg_dump(const struct uniphier_ddrphy_param *param)
 	}
 }
 
-static int do_ddr(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_ddr(struct cmd_tbl *cmdtp, int flag, int argc,
+		  char *const argv[])
 {
 	const struct uniphier_ddrphy_param *param;
 	char *cmd;

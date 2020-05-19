@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <spl.h>
 #include <asm/lpc_common.h>
 #include <asm/pci.h>

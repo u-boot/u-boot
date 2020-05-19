@@ -24,7 +24,8 @@ const char *pxe_default_paths[] = {
 	NULL
 };
 
-static int do_get_tftp(cmd_tbl_t *cmdtp, const char *file_path, char *file_addr)
+static int do_get_tftp(struct cmd_tbl *cmdtp, const char *file_path,
+		       char *file_addr)
 {
 	char *tftp_argv[] = {"tftp", NULL, NULL, NULL};
 
@@ -42,7 +43,7 @@ static int do_get_tftp(cmd_tbl_t *cmdtp, const char *file_path, char *file_addr)
  *
  * Returns 1 on success or < 0 on error.
  */
-static int pxe_uuid_path(cmd_tbl_t *cmdtp, unsigned long pxefile_addr_r)
+static int pxe_uuid_path(struct cmd_tbl *cmdtp, unsigned long pxefile_addr_r)
 {
 	char *uuid_str;
 
@@ -60,7 +61,7 @@ static int pxe_uuid_path(cmd_tbl_t *cmdtp, unsigned long pxefile_addr_r)
  *
  * Returns 1 on success or < 0 on error.
  */
-static int pxe_mac_path(cmd_tbl_t *cmdtp, unsigned long pxefile_addr_r)
+static int pxe_mac_path(struct cmd_tbl *cmdtp, unsigned long pxefile_addr_r)
 {
 	char mac_str[21];
 	int err;
@@ -80,7 +81,7 @@ static int pxe_mac_path(cmd_tbl_t *cmdtp, unsigned long pxefile_addr_r)
  *
  * Returns 1 on success or < 0 on error.
  */
-static int pxe_ipaddr_paths(cmd_tbl_t *cmdtp, unsigned long pxefile_addr_r)
+static int pxe_ipaddr_paths(struct cmd_tbl *cmdtp, unsigned long pxefile_addr_r)
 {
 	char ip_addr[9];
 	int mask_pos, err;
@@ -113,7 +114,7 @@ static int pxe_ipaddr_paths(cmd_tbl_t *cmdtp, unsigned long pxefile_addr_r)
  * Returns 0 on success or 1 on error.
  */
 static int
-do_pxe_get(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+do_pxe_get(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	char *pxefile_addr_str;
 	unsigned long pxefile_addr_r;
@@ -166,7 +167,7 @@ do_pxe_get(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  * Returns 0 on success, 1 on error.
  */
 static int
-do_pxe_boot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+do_pxe_boot(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	unsigned long pxefile_addr_r;
 	struct pxe_menu *cfg;
@@ -206,14 +207,14 @@ do_pxe_boot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-static cmd_tbl_t cmd_pxe_sub[] = {
+static struct cmd_tbl cmd_pxe_sub[] = {
 	U_BOOT_CMD_MKENT(get, 1, 1, do_pxe_get, "", ""),
 	U_BOOT_CMD_MKENT(boot, 2, 1, do_pxe_boot, "", "")
 };
 
-static int do_pxe(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_pxe(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	cmd_tbl_t *cp;
+	struct cmd_tbl *cp;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;

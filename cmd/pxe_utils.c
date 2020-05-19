@@ -5,11 +5,14 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <env.h>
 #include <image.h>
+#include <log.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <lcd.h>
+#include <net.h>
 #include <linux/string.h>
 #include <linux/ctype.h>
 #include <errno.h>
@@ -99,7 +102,8 @@ static int get_bootfile_path(const char *file_path, char *bootfile_path,
 	return 1;
 }
 
-int (*do_getfile)(cmd_tbl_t *cmdtp, const char *file_path, char *file_addr);
+int (*do_getfile)(struct cmd_tbl *cmdtp, const char *file_path,
+		  char *file_addr);
 
 /*
  * As in pxelinux, paths to files referenced from files we retrieve are
@@ -109,7 +113,7 @@ int (*do_getfile)(cmd_tbl_t *cmdtp, const char *file_path, char *file_addr);
  *
  * Returns 1 for success, or < 0 on error.
  */
-static int get_relfile(cmd_tbl_t *cmdtp, const char *file_path,
+static int get_relfile(struct cmd_tbl *cmdtp, const char *file_path,
 		       unsigned long file_addr)
 {
 	size_t path_len;
@@ -147,7 +151,7 @@ static int get_relfile(cmd_tbl_t *cmdtp, const char *file_path,
  *
  * Returns 1 on success, or < 0 for error.
  */
-int get_pxe_file(cmd_tbl_t *cmdtp, const char *file_path,
+int get_pxe_file(struct cmd_tbl *cmdtp, const char *file_path,
 		 unsigned long file_addr)
 {
 	unsigned long config_file_size;
@@ -188,7 +192,7 @@ int get_pxe_file(cmd_tbl_t *cmdtp, const char *file_path,
  *
  * Returns 1 on success or < 0 on error.
  */
-int get_pxelinux_path(cmd_tbl_t *cmdtp, const char *file,
+int get_pxelinux_path(struct cmd_tbl *cmdtp, const char *file,
 		      unsigned long pxefile_addr_r)
 {
 	size_t base_len = strlen(PXELINUX_DIR);
@@ -212,7 +216,7 @@ int get_pxelinux_path(cmd_tbl_t *cmdtp, const char *file,
  *
  * Returns 1 on success or < 0 on error.
  */
-static int get_relfile_envaddr(cmd_tbl_t *cmdtp, const char *file_path,
+static int get_relfile_envaddr(struct cmd_tbl *cmdtp, const char *file_path,
 			       const char *envaddr_name)
 {
 	unsigned long file_addr;
@@ -342,7 +346,7 @@ static int label_localboot(struct pxe_label *label)
  * If the label specifies an 'append' line, its contents will overwrite that
  * of the 'bootargs' environment variable.
  */
-static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
+static int label_boot(struct cmd_tbl *cmdtp, struct pxe_label *label)
 {
 	char *bootm_argv[] = { "bootm", NULL, NULL, NULL, NULL };
 	char initrd_str[28];
@@ -821,7 +825,7 @@ static int parse_integer(char **c, int *dst)
 	return 1;
 }
 
-static int parse_pxefile_top(cmd_tbl_t *cmdtp, char *p, unsigned long base,
+static int parse_pxefile_top(struct cmd_tbl *cmdtp, char *p, unsigned long base,
 			     struct pxe_menu *cfg, int nest_level);
 
 /*
@@ -832,7 +836,7 @@ static int parse_pxefile_top(cmd_tbl_t *cmdtp, char *p, unsigned long base,
  * include, nest_level has already been incremented and doesn't need to be
  * incremented here.
  */
-static int handle_include(cmd_tbl_t *cmdtp, char **c, unsigned long base,
+static int handle_include(struct cmd_tbl *cmdtp, char **c, unsigned long base,
 			  struct pxe_menu *cfg, int nest_level)
 {
 	char *include_path;
@@ -872,7 +876,7 @@ static int handle_include(cmd_tbl_t *cmdtp, char **c, unsigned long base,
  * nest_level should be 1 when parsing the top level pxe file, 2 when parsing
  * a file it includes, 3 when parsing a file included by that file, and so on.
  */
-static int parse_menu(cmd_tbl_t *cmdtp, char **c, struct pxe_menu *cfg,
+static int parse_menu(struct cmd_tbl *cmdtp, char **c, struct pxe_menu *cfg,
 		      unsigned long base, int nest_level)
 {
 	struct token t;
@@ -1085,7 +1089,7 @@ static int parse_label(char **c, struct pxe_menu *cfg)
  *
  * Returns 1 on success, < 0 on error.
  */
-static int parse_pxefile_top(cmd_tbl_t *cmdtp, char *p, unsigned long base,
+static int parse_pxefile_top(struct cmd_tbl *cmdtp, char *p, unsigned long base,
 			     struct pxe_menu *cfg, int nest_level)
 {
 	struct token t;
@@ -1193,7 +1197,7 @@ void destroy_pxe_menu(struct pxe_menu *cfg)
  * files it includes). The resulting pxe_menu struct can be free()'d by using
  * the destroy_pxe_menu() function.
  */
-struct pxe_menu *parse_pxefile(cmd_tbl_t *cmdtp, unsigned long menucfg)
+struct pxe_menu *parse_pxefile(struct cmd_tbl *cmdtp, unsigned long menucfg)
 {
 	struct pxe_menu *cfg;
 	char *buf;
@@ -1277,7 +1281,7 @@ static struct menu *pxe_menu_to_menu(struct pxe_menu *cfg)
 /*
  * Try to boot any labels we have yet to attempt to boot.
  */
-static void boot_unattempted_labels(cmd_tbl_t *cmdtp, struct pxe_menu *cfg)
+static void boot_unattempted_labels(struct cmd_tbl *cmdtp, struct pxe_menu *cfg)
 {
 	struct list_head *pos;
 	struct pxe_label *label;
@@ -1302,7 +1306,7 @@ static void boot_unattempted_labels(cmd_tbl_t *cmdtp, struct pxe_menu *cfg)
  * If this function returns, there weren't any labels that successfully
  * booted, or the user interrupted the menu selection via ctrl+c.
  */
-void handle_pxe_menu(cmd_tbl_t *cmdtp, struct pxe_menu *cfg)
+void handle_pxe_menu(struct cmd_tbl *cmdtp, struct pxe_menu *cfg)
 {
 	void *choice;
 	struct menu *m;

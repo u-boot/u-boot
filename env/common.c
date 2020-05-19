@@ -8,9 +8,11 @@
  */
 
 #include <common.h>
+#include <bootstage.h>
 #include <command.h>
 #include <env.h>
 #include <env_internal.h>
+#include <log.h>
 #include <sort.h>
 #include <linux/stddef.h>
 #include <search.h>

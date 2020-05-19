@@ -10,6 +10,7 @@
 #include <blk.h>
 #include <fs.h>
 #include <fs_loader.h>
+#include <log.h>
 #include <linux/string.h>
 #include <mapmem.h>
 #include <malloc.h>

@@ -5,7 +5,9 @@
 
 #include <common.h>
 #include <altera.h>
+#include <log.h>
 #include <asm/arch/mailbox_s10.h>
+#include <linux/delay.h>
 
 #define RECONFIG_STATUS_POLL_RESP_TIMEOUT_MS		60000
 #define RECONFIG_STATUS_INTERVAL_DELAY_US		1000000

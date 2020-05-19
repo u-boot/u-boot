@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <timer.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 
 #define AT91_PIT_VALUE		0xfffff
 #define AT91_PIT_PITEN		BIT(24)		/* Timer Enabled */

@@ -6,6 +6,10 @@
 #ifndef __GIC_V3_H__
 #define __GIC_V3_H__
 
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 #define GICR_CTLR_ENABLE_LPIS		BIT(0)
 #define GICR_CTLR_RWP			BIT(3)
 

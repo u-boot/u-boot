@@ -6,6 +6,8 @@
  */
 
 #include <common.h>
+#include <init.h>
+#include <log.h>
 #include <pci.h>
 #include <asm/arch/fsl_serdes.h>
 #include <asm/io.h>

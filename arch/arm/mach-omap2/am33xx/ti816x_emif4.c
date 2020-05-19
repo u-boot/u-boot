@@ -15,6 +15,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>
 #include <asm/emif.h>
+#include <linux/delay.h>
 
 /*********************************************************************
  * Init DDR3 on TI816X EVM

@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <led.h>
+#include <log.h>
 #include <asm/io.h>
 #include <dm/lists.h>
 

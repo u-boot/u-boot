@@ -10,6 +10,7 @@
 #include <cpu.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <malloc.h>
 #include <asm/cpu.h>
 #include <asm/cpu_common.h>

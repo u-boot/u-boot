@@ -7,6 +7,7 @@
 #include "mv_ddr_regs.h"
 #include "ddr_training_ip_db.h"
 #include <image.h>
+#include <linux/delay.h>
 
 #define PATTERN_1	0x55555555
 #define PATTERN_2	0xaaaaaaaa

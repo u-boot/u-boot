@@ -9,12 +9,15 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <spi.h>
 #include <malloc.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <dm.h>
 #include <dm/platform_data/spi_davinci.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 /* SPIGCR0 */
 #define SPIGCR0_SPIENA_MASK	0x1

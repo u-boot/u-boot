@@ -3,6 +3,7 @@
  * Copyright (c) 2017, Impinj, Inc.
  */
 
+#include <log.h>
 #include <malloc.h>
 #include <asm/io.h>
 #include <common.h>
@@ -10,6 +11,8 @@
 #include <dt-bindings/reset/imx7-reset.h>
 #include <dt-bindings/reset/imx8mq-reset.h>
 #include <reset-uclass.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 struct imx7_reset_priv {
 	void __iomem *base;

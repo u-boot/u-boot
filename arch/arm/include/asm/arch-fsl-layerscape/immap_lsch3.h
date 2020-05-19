@@ -589,5 +589,5 @@ struct ccsr_serdes {
 	u8 res5[0x19fc - 0xa00];
 };
 
-#endif /*__ASSEMBLY__*/
+#endif /*__ASSEMBLY__ */
 #endif /* __ARCH_FSL_LSCH3_IMMAP_H_ */

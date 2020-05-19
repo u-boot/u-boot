@@ -8,7 +8,7 @@
 
 phys_addr_t socfpga_get_clkmgr_addr(void);
 
-#ifndef __ASSEMBLER__
+#ifndef __ASSEMBLY__
 void cm_wait_for_lock(u32 mask);
 int cm_wait_for_fsm(void);
 void cm_print_clock_quick_summary(void);

@@ -11,12 +11,15 @@
 
 #include <common.h>
 #include <errno.h>
+#include <init.h>
+#include <net.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch/iomux-mx23.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

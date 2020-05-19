@@ -6,6 +6,7 @@
 #include <config.h>
 #include <common.h>
 #include <cpu_func.h>
+#include <linux/bitops.h>
 #include <linux/compiler.h>
 #include <linux/kernel.h>
 #include <linux/log2.h>

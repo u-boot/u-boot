@@ -8,7 +8,10 @@
 
 #include <common.h>
 #include <clock_legacy.h>
+#include <command.h>
 #include <div64.h>
+#include <init.h>
+#include <net.h>
 #include <asm/io.h>
 #include <linux/errno.h>
 #include <asm/arch/imx-regs.h>
@@ -377,8 +380,8 @@ u32 imx_get_fecclk(void)
 }
 #endif
 
-int do_mx35_showclocks(cmd_tbl_t *cmdtp,
-	int flag, int argc, char * const argv[])
+int do_mx35_showclocks(struct cmd_tbl *cmdtp, int flag, int argc,
+		       char *const argv[])
 {
 	u32 cpufreq = get_mcu_main_clk();
 	printf("mx35 cpu clock: %dMHz\n", cpufreq / 1000000);

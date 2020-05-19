@@ -12,9 +12,12 @@
  */
 
 #include <common.h>
+#include <command.h>
+#include <log.h>
 #include <malloc.h>
 #include <nand.h>
 #include <dm/devres.h>
+#include <linux/bug.h>
 
 #include <asm/io.h>
 #include <jffs2/jffs2.h>
@@ -1048,7 +1051,7 @@ err:
 	return ret;
 }
 
-static int do_nandbcb_bcbonly(int argc, char * const argv[])
+static int do_nandbcb_bcbonly(int argc, char *const argv[])
 {
 	struct fcb_block *fcb;
 	struct dbbt_block *dbbt;
@@ -1458,8 +1461,8 @@ static int do_nandbcb_init(int argc, char * const argv[])
 	return ret == 0 ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
 }
 
-static int do_nandbcb(cmd_tbl_t *cmdtp, int flag, int argc,
-		      char * const argv[])
+static int do_nandbcb(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	const char *cmd;
 	int ret = 0;

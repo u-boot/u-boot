@@ -7,6 +7,7 @@
 #define	_SPL_H_
 
 #include <binman_sym.h>
+#include <linker_lists.h>
 
 /* Platform-specific defines */
 #include <linux/compiler.h>
@@ -25,6 +26,9 @@ struct image_header;
 #define MMCSD_MODE_RAW		1
 #define MMCSD_MODE_FS		2
 #define MMCSD_MODE_EMMCBOOT	3
+
+struct blk_desc;
+struct image_header;
 
 /*
  * u_boot_first_phase() - check if this is the first U-Boot phase

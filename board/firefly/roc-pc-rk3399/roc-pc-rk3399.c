@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <asm/arch-rockchip/periph.h>
 #include <power/regulator.h>
 #include <spl_gpio.h>

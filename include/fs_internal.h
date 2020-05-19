@@ -10,7 +10,7 @@
 
 #include <part.h>
 
-int fs_devread(struct blk_desc *, disk_partition_t *, lbaint_t, int, int,
+int fs_devread(struct blk_desc *, struct disk_partition *, lbaint_t, int, int,
 	       char *);
 
 #endif /* __U_BOOT_FS_INTERNAL_H__ */

@@ -10,6 +10,7 @@
 #define _SPI_H_
 
 #include <common.h>
+#include <linux/bitops.h>
 
 /* SPI mode flags */
 #define SPI_CPHA	BIT(0)			/* clock phase */

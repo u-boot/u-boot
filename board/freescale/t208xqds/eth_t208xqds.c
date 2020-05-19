@@ -8,6 +8,9 @@
 
 #include <common.h>
 #include <command.h>
+#include <fdt_support.h>
+#include <log.h>
+#include <net.h>
 #include <netdev.h>
 #include <asm/mmu.h>
 #include <asm/processor.h>
@@ -27,6 +30,7 @@
 #include "../common/qixis.h"
 #include "../common/fman.h"
 #include "t208xqds_qixis.h"
+#include <linux/libfdt.h>
 
 #define EMI_NONE	0xFFFFFFFF
 #define EMI1_RGMII1	0

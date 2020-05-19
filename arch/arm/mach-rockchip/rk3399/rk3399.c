@@ -4,6 +4,9 @@
  */
 
 #include <common.h>
+#include <fdt_support.h>
+#include <init.h>
+#include <log.h>
 #include <spl.h>
 #include <spl_gpio.h>
 #include <syscon.h>
@@ -14,6 +17,7 @@
 #include <asm/arch-rockchip/gpio.h>
 #include <asm/arch-rockchip/grf_rk3399.h>
 #include <asm/arch-rockchip/hardware.h>
+#include <linux/bitops.h>
 #include <power/regulator.h>
 
 DECLARE_GLOBAL_DATA_PTR;

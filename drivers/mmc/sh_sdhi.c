@@ -10,10 +10,14 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <malloc.h>
 #include <mmc.h>
 #include <dm.h>
+#include <part.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <linux/compat.h>
 #include <linux/io.h>

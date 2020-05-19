@@ -4,12 +4,17 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <i2c.h>
+#include <init.h>
 #include <miiphy.h>
+#include <net.h>
 #include <netdev.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include "../common/tlv_data.h"
 
 #include "../drivers/ddr/marvell/a38x/ddr3_init.h"

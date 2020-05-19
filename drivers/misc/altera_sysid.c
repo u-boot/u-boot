@@ -44,7 +44,7 @@ void display_sysid(void)
 	printf("SYSID: %08x, %s", sysid[0], asc);
 }
 
-int do_sysid(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_sysid(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	display_sysid();
 	return 0;

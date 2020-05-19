@@ -9,9 +9,12 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <reset-uclass.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 #define MAX_RESETS	32
 

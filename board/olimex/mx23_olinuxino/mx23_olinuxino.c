@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch/iomux-mx23.h>
@@ -15,6 +16,7 @@
 #ifdef CONFIG_LED_STATUS
 #include <status_led.h>
 #endif
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

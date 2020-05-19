@@ -15,6 +15,7 @@
 
 #ifndef __ASSEMBLY__
 
+#include <linux/stringify.h>
 #include <linux/types.h>
 
 struct bcmstb_boot_parameters {

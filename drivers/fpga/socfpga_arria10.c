@@ -2,6 +2,8 @@
 /*
  * Copyright (C) 2017-2019 Intel Corporation <www.intel.com>
  */
+#include <image.h>
+#include <log.h>
 #include <asm/io.h>
 #include <asm/arch/fpga_manager.h>
 #include <asm/arch/reset_manager.h>
@@ -16,6 +18,8 @@
 #include <fs_loader.h>
 #include <wait_bit.h>
 #include <watchdog.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 #define CFGWDTH_32	1
 #define MIN_BITSTREAM_SIZECHECK	230

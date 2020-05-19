@@ -9,12 +9,14 @@
 #include <dm.h>
 #include <fdtdec.h>
 #include <generic-phy.h>
+#include <log.h>
 #include <reset.h>
 #include <syscon.h>
 #include <usb.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
 #include <linux/bitops.h>
+#include <linux/delay.h>
 #include <power/regulator.h>
 
 /* USBPHYC registers */

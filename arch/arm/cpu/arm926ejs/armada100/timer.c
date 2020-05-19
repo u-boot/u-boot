@@ -8,9 +8,11 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <init.h>
 #include <time.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/armada100.h>
+#include <linux/delay.h>
 
 /*
  * Timer registers

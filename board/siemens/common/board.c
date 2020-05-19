@@ -10,8 +10,10 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <env.h>
 #include <errno.h>
+#include <init.h>
 #include <malloc.h>
 #include <serial.h>
 #include <spl.h>
@@ -150,7 +152,7 @@ unsigned char get_button_state(char * const envname, unsigned char def)
  *		0 if button is not held down
  */
 static int
-do_userbutton(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+do_userbutton(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	int button = 0;
 	button = get_button_state("button_dfu0", BOARD_DFU_BUTTON_GPIO);
@@ -166,7 +168,7 @@ U_BOOT_CMD(
 #endif
 
 static int
-do_usertestwdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+do_usertestwdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	printf("\n\n\n Go into infinite loop\n\n\n");
 	while (1)
@@ -250,8 +252,8 @@ void set_env_gpios(unsigned char state)
 	} /* loop through defined led in environment */
 }
 
-static int do_board_led(cmd_tbl_t *cmdtp, int flag, int argc,
-			   char *const argv[])
+static int do_board_led(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
 	if (argc != 2)
 		return CMD_RET_USAGE;

@@ -7,6 +7,8 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <log.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/arch/omap.h>
 #include <malloc.h>
@@ -17,6 +19,7 @@
 #include <asm/omap_gpio.h>
 #include <asm/omap_common.h>
 #include <asm/ti-common/ti-edma3.h>
+#include <linux/bitops.h>
 #include <linux/err.h>
 #include <linux/kernel.h>
 #include <regmap.h>

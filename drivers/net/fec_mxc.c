@@ -11,11 +11,14 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <env.h>
+#include <log.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <miiphy.h>
 #include <net.h>
 #include <netdev.h>
+#include <asm/cache.h>
+#include <linux/delay.h>
 #include <power/regulator.h>
 
 #include <asm/io.h>

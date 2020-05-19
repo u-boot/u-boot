@@ -8,6 +8,7 @@
 #include "btrfs.h"
 #include <config.h>
 #include <malloc.h>
+#include <uuid.h>
 #include <linux/time.h>
 
 struct btrfs_info btrfs_info;
@@ -74,7 +75,8 @@ static int readdir_callback(const struct btrfs_root *root,
 	return 0;
 }
 
-int btrfs_probe(struct blk_desc *fs_dev_desc, disk_partition_t *fs_partition)
+int btrfs_probe(struct blk_desc *fs_dev_desc,
+		struct disk_partition *fs_partition)
 {
 	btrfs_blk_desc = fs_dev_desc;
 	btrfs_part_info = fs_partition;

@@ -17,6 +17,7 @@
 #include <errno.h>
 #include <fdtdec.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
 #include <linux/err.h>
 #include <linux/io.h>
 #include <linux/iopoll.h>

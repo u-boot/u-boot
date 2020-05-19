@@ -5,7 +5,10 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <env.h>
+#include <init.h>
+#include <net.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
@@ -13,6 +16,7 @@
 #include <asm/arch/sys_proto.h>
 #include <malloc.h>
 #include <asm/arch/mx6-pins.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>
@@ -986,7 +990,7 @@ static int read_keys(char *buf)
 	return numpressed;
 }
 
-static int do_kbd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_kbd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	char envvalue[ARRAY_SIZE(buttons)+1];
 	int numpressed = read_keys(envvalue);

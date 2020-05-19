@@ -9,9 +9,11 @@
  *
  */
 
+#include <log.h>
 #include <miiphy.h>
 #include <bitfield.h>
 #include <time.h>
+#include <linux/bitops.h>
 #include <linux/delay.h>
 
 /* Microsemi PHY ID's */

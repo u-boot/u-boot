@@ -11,14 +11,18 @@
  * Copyright (C) 2018, IBM Corporation.
  */
 
+#include <common.h>
 #include <clk.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <log.h>
 #include <malloc.h>
 #include <miiphy.h>
 #include <net.h>
 #include <wait_bit.h>
+#include <asm/cache.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
 #include <linux/io.h>
 #include <linux/iopoll.h>
 

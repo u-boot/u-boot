@@ -7,6 +7,7 @@
 #define _WDT_H_
 
 #include <dm.h>
+#include <log.h>
 #include <dm/read.h>
 
 /*

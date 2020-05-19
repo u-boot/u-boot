@@ -14,6 +14,7 @@
 #include <asm/arch/iomux.h>
 #include <asm/arch/sys_proto.h>
 #include <env.h>
+#include <fdt_support.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
 #include <asm/io.h>

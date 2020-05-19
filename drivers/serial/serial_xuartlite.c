@@ -11,6 +11,7 @@
 #include <common.h>
 #include <dm.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 #include <linux/compiler.h>
 #include <serial.h>
 

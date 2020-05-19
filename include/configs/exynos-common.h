@@ -14,6 +14,7 @@
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <linux/sizes.h>
+#include <linux/stringify.h>
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 

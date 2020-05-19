@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <pci_rom.h>
 #include <vbe.h>
 #include <asm/intel_regs.h>
@@ -16,6 +17,7 @@
 #include <asm/pci.h>
 #include <asm/arch/pch.h>
 #include <asm/arch/sandybridge.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

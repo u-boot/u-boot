@@ -9,12 +9,14 @@
 #include <common.h>
 #include <command.h>
 #include <i2c.h>		/* Functional interface */
+#include <log.h>
 #include <time.h>
 #include <asm/io.h>
 #include <asm/fsl_i2c.h>	/* HW definitions */
 #include <clk.h>
 #include <dm.h>
 #include <mapmem.h>
+#include <linux/delay.h>
 
 /* The maximum number of microseconds we will wait until another master has
  * released the bus.  If not defined in the board header file, then use a

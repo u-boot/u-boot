@@ -7,8 +7,12 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <init.h>
+#include <log.h>
 #include <ram.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 
 /* SDRAM Command Code */

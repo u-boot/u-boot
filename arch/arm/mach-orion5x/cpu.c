@@ -10,6 +10,8 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <init.h>
+#include <net.h>
 #include <netdev.h>
 #include <asm/cache.h>
 #include <asm/io.h>

@@ -13,6 +13,7 @@
 #include <common.h>
 #include <dm.h>
 #include <init.h>
+#include <log.h>
 #include <asm/io.h>
 #include <asm/arch/at91sam9g45_matrix.h>
 #include <asm/arch/at91sam9_smc.h>

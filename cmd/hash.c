@@ -14,7 +14,8 @@
 #include <hash.h>
 #include <linux/ctype.h>
 
-static int do_hash(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_hash(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
 	char *s;
 	int flags = HASH_FLAG_ENV;

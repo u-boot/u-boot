@@ -7,7 +7,11 @@
 #include <clock_legacy.h>
 #include <cpu_func.h>
 #include <env.h>
+#include <image.h>
+#include <init.h>
+#include <log.h>
 #include <spl.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <fsl_ifc.h>
 #include <i2c.h>

@@ -26,6 +26,7 @@
  */
 
 #ifndef __UBOOT__
+#include <log.h>
 #include <malloc.h>
 #include <linux/uaccess.h>
 #else

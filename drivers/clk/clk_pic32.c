@@ -12,6 +12,8 @@
 #include <wait_bit.h>
 #include <dm/lists.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
+#include <linux/bug.h>
 #include <mach/pic32.h>
 #include <dt-bindings/clock/microchip,clock.h>
 

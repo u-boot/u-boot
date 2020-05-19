@@ -7,10 +7,12 @@
 #include <clock_legacy.h>
 #include <fdt_support.h>
 #include <init.h>
+#include <net.h>
 #include <asm/arch/immap_ls102xa.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch/ls102xa_stream_id.h>
+#include <linux/delay.h>
 
 #include <asm/arch/ls102xa_devdis.h>
 #include <asm/arch/ls102xa_soc.h>

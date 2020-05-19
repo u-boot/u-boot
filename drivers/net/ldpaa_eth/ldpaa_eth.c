@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <log.h>
 #include <asm/io.h>
 #include <asm/types.h>
 #include <malloc.h>
@@ -13,8 +14,10 @@
 #include <hwconfig.h>
 #include <phy.h>
 #include <miiphy.h>
+#include <linux/bug.h>
 #include <linux/compat.h>
 #include <fsl-mc/fsl_dpmac.h>
+#include <linux/delay.h>
 
 #include <fsl-mc/ldpaa_wriop.h>
 #include "ldpaa_eth.h"

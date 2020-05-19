@@ -6,8 +6,10 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <net.h>
 #include <malloc.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/io.h>
 #include <linux/immap_qe.h>

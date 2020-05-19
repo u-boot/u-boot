@@ -6,6 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <malloc.h>
 #include <reset.h>
 #include <reset-uclass.h>

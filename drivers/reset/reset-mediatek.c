@@ -8,11 +8,13 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <malloc.h>
 #include <dm/lists.h>
 #include <regmap.h>
 #include <reset-uclass.h>
 #include <syscon.h>
+#include <linux/bitops.h>
 #include <linux/err.h>
 
 struct mediatek_reset_priv {

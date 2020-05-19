@@ -15,6 +15,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <tpm-v2.h>
 #include <tee.h>
 

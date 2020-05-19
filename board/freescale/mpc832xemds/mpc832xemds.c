@@ -23,6 +23,7 @@
 #if defined(CONFIG_PQ_MDS_PIB)
 #include "../common/pq-mds-pib.h"
 #endif
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

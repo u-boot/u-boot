@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <malloc.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/processor.h>
 #include <clk.h>
@@ -20,6 +21,7 @@
 #include <net.h>
 #include <phy.h>
 #include <power-domain.h>
+#include <linux/bitops.h>
 #include <linux/soc/ti/ti-udma.h>
 
 #include "cpsw_mdio.h"

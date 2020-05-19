@@ -7,6 +7,10 @@
 #ifndef _ASM_ARCH_HARDWARE_H
 #define _ASM_ARCH_HARDWARE_H
 
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 #define ZYNQMP_TCM_BASE_ADDR	0xFFE00000
 #define ZYNQMP_TCM_SIZE		0x40000
 

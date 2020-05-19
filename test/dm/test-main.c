@@ -8,6 +8,7 @@
 #include <console.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <asm/state.h>
 #include <dm/test.h>
@@ -200,7 +201,7 @@ static int dm_test_main(const char *test_name)
 	return uts->fail_count ? CMD_RET_FAILURE : 0;
 }
 
-int do_ut_dm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_ut_dm(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	const char *test_name = NULL;
 

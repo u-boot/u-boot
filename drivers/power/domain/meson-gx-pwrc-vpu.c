@@ -8,12 +8,15 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <malloc.h>
 #include <power-domain-uclass.h>
 #include <regmap.h>
 #include <syscon.h>
 #include <reset.h>
 #include <clk.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 
 enum {

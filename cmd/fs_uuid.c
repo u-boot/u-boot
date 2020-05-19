@@ -9,8 +9,8 @@
 #include <command.h>
 #include <fs.h>
 
-static int do_fs_uuid_wrapper(cmd_tbl_t *cmdtp, int flag,
-	int argc, char * const argv[])
+static int do_fs_uuid_wrapper(struct cmd_tbl *cmdtp, int flag, int argc,
+			      char *const argv[])
 {
 	return do_fs_uuid(cmdtp, flag, argc, argv, FS_TYPE_ANY);
 }

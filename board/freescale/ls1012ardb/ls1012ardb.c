@@ -4,9 +4,12 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <fdt_support.h>
 #include <hang.h>
 #include <i2c.h>
+#include <asm/cache.h>
+#include <init.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/fsl_serdes.h>
@@ -392,8 +395,8 @@ static int convert_flash_bank(int bank)
 	return ret;
 }
 
-static int flash_bank_cmd(cmd_tbl_t *cmdtp, int flag, int argc,
-			  char * const argv[])
+static int flash_bank_cmd(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
 {
 	if (argc != 2)
 		return CMD_RET_USAGE;

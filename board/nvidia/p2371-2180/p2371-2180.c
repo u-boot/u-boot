@@ -8,6 +8,9 @@
 #include <env.h>
 #include <fdtdec.h>
 #include <i2c.h>
+#include <log.h>
+#include <net.h>
+#include <linux/bitops.h>
 #include <linux/libfdt.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/pinmux.h>

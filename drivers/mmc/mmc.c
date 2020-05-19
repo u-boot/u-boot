@@ -8,12 +8,16 @@
 
 #include <config.h>
 #include <common.h>
+#include <blk.h>
 #include <command.h>
 #include <dm.h>
+#include <log.h>
 #include <dm/device-internal.h>
 #include <errno.h>
 #include <mmc.h>
 #include <part.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <power/regulator.h>
 #include <malloc.h>
 #include <memalign.h>

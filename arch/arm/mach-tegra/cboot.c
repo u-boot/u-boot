@@ -8,7 +8,10 @@
 #include <fdt_support.h>
 #include <fdtdec.h>
 #include <hang.h>
+#include <init.h>
+#include <log.h>
 #include <malloc.h>
+#include <net.h>
 #include <stdlib.h>
 #include <string.h>
 

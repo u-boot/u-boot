@@ -1,6 +1,7 @@
 #ifndef _LINUX_COMPAT_H_
 #define _LINUX_COMPAT_H_
 
+#include <log.h>
 #include <malloc.h>
 #include <linux/types.h>
 #include <linux/err.h>

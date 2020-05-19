@@ -19,10 +19,13 @@
  */
 
 #include <common.h>
+#include <blk.h>
 #include <ext_common.h>
 #include <ext4fs.h>
+#include <log.h>
 #include <malloc.h>
 #include <memalign.h>
+#include <part.h>
 #include <stddef.h>
 #include <linux/stat.h>
 #include <linux/time.h>

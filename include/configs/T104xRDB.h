@@ -7,6 +7,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <linux/stringify.h>
+
 /*
  * T104x RDB board configuration file
  */

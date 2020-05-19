@@ -8,6 +8,10 @@
 #include <asm/arch-rockchip/sdram_common.h>
 #include <asm/arch-rockchip/sdram_phy_ron_rtt_px30.h>
 
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 struct ddr_phy_regs {
 	u32 phy[5][2];
 };

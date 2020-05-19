@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <log.h>
 #include <pci.h>
 #include <command.h>
 #include <asm/byteorder.h>
@@ -16,6 +17,7 @@
 #include <sata.h>
 #include <libata.h>
 #include <sata.h>
+#include <linux/delay.h>
 
 #if CONFIG_IS_ENABLED(BLK)
 #include <dm.h>

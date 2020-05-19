@@ -7,6 +7,10 @@
 #define __SD_EMMC_H__
 
 #include <mmc.h>
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 
 #define SDIO_PORT_A			0
 #define SDIO_PORT_B			1

@@ -6,12 +6,14 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm/io.h>
 #include <dm.h>
 #include <dm/lists.h>
 #include <dm/root.h>
 #include <dm/device-internal.h>
 #include <asm/arch/sci/sci.h>
+#include <linux/bitops.h>
 #include <linux/iopoll.h>
 #include <misc.h>
 

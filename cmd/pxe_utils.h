@@ -74,15 +74,15 @@ struct pxe_menu {
 
 extern bool is_pxe;
 
-extern int (*do_getfile)(cmd_tbl_t *cmdtp, const char *file_path,
+extern int (*do_getfile)(struct cmd_tbl *cmdtp, const char *file_path,
 			 char *file_addr);
 void destroy_pxe_menu(struct pxe_menu *cfg);
-int get_pxe_file(cmd_tbl_t *cmdtp, const char *file_path,
+int get_pxe_file(struct cmd_tbl *cmdtp, const char *file_path,
 		 unsigned long file_addr);
-int get_pxelinux_path(cmd_tbl_t *cmdtp, const char *file,
+int get_pxelinux_path(struct cmd_tbl *cmdtp, const char *file,
 		      unsigned long pxefile_addr_r);
-void handle_pxe_menu(cmd_tbl_t *cmdtp, struct pxe_menu *cfg);
-struct pxe_menu *parse_pxefile(cmd_tbl_t *cmdtp, unsigned long menucfg);
+void handle_pxe_menu(struct cmd_tbl *cmdtp, struct pxe_menu *cfg);
+struct pxe_menu *parse_pxefile(struct cmd_tbl *cmdtp, unsigned long menucfg);
 int format_mac_pxe(char *outbuf, size_t outbuf_len);
 
 #endif /* __PXE_UTILS_H */

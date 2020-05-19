@@ -10,6 +10,8 @@
 #include <adc.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/iopoll.h>
 #include "stm32-adc-core.h"
 

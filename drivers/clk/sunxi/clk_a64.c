@@ -11,6 +11,7 @@
 #include <asm/arch/ccu.h>
 #include <dt-bindings/clock/sun50i-a64-ccu.h>
 #include <dt-bindings/reset/sun50i-a64-ccu.h>
+#include <linux/bitops.h>
 
 static const struct ccu_clk_gate a64_gates[] = {
 	[CLK_BUS_MMC0]		= GATE(0x060, BIT(8)),

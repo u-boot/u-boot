@@ -10,6 +10,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <mmc.h>
 #include <clk.h>
@@ -20,6 +21,7 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
 #include <asm-generic/gpio.h>
+#include <linux/delay.h>
 
 #ifdef CONFIG_DM_MMC
 struct sunxi_mmc_variant {

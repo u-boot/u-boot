@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <asm/arch/iomap.h>
 #include <asm/arch/fsp/fsp_configs.h>
 #include <asm/arch/fsp/fsp_m_upd.h>

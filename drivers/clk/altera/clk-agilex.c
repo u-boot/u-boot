@@ -4,12 +4,14 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm/io.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <dm/lists.h>
 #include <dm/util.h>
 #include <dt-bindings/clock/agilex-clock.h>
+#include <linux/bitops.h>
 
 #include <asm/arch/clock_manager.h>
 

@@ -10,11 +10,13 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <log.h>
 #include <asm/io.h>
 #include <clk.h>
 #include <fdtdec.h>
 #include <fdt_support.h>
 #include <malloc.h>
+#include <asm/cache.h>
 #include <dm/device.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>

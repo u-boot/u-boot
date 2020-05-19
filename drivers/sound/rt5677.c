@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <i2c.h>
 #include "rt5677.h"
+#include <log.h>
 
 struct rt5677_priv {
 	struct udevice *dev;

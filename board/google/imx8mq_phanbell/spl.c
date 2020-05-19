@@ -8,6 +8,8 @@
 #include <hang.h>
 #include <asm/io.h>
 #include <errno.h>
+#include <init.h>
+#include <log.h>
 #include <asm/io.h>
 #include <asm/arch/ddr.h>
 #include <asm/arch/imx8mq_pins.h>
@@ -17,6 +19,7 @@
 #include <asm/mach-imx/gpio.h>
 #include <asm/mach-imx/mxc_i2c.h>
 #include <asm/sections.h>
+#include <linux/delay.h>
 #include <fsl_esdhc_imx.h>
 #include <mmc.h>
 #include <spl.h>

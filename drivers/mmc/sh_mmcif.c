@@ -7,6 +7,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <log.h>
 #include <watchdog.h>
 #include <command.h>
 #include <mmc.h>
@@ -14,6 +15,8 @@
 #include <dm.h>
 #include <malloc.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <linux/compat.h>
 #include <linux/io.h>

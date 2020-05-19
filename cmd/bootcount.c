@@ -4,15 +4,15 @@
 #include <command.h>
 #include <bootcount.h>
 
-static int do_bootcount_print(cmd_tbl_t *cmdtp, int flag, int argc,
-			      char * const argv[])
+static int do_bootcount_print(struct cmd_tbl *cmdtp, int flag, int argc,
+			      char *const argv[])
 {
 	printf("%lu\n", bootcount_load());
 	return CMD_RET_SUCCESS;
 }
 
-static int do_bootcount_reset(cmd_tbl_t *cmdtp, int flag, int argc,
-			      char * const argv[])
+static int do_bootcount_reset(struct cmd_tbl *cmdtp, int flag, int argc,
+			      char *const argv[])
 {
 	/*
 	 * note that we're explicitly not resetting the environment
@@ -22,15 +22,15 @@ static int do_bootcount_reset(cmd_tbl_t *cmdtp, int flag, int argc,
 	return CMD_RET_SUCCESS;
 }
 
-static cmd_tbl_t bootcount_sub[] = {
+static struct cmd_tbl bootcount_sub[] = {
 	U_BOOT_CMD_MKENT(print, 1, 1, do_bootcount_print, "", ""),
 	U_BOOT_CMD_MKENT(reset, 1, 1, do_bootcount_reset, "", ""),
 };
 
-static int do_bootcount(cmd_tbl_t *cmdtp, int flag, int argc,
-			char * const argv[])
+static int do_bootcount(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
-	cmd_tbl_t *cp;
+	struct cmd_tbl *cp;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;

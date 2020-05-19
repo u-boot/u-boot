@@ -6,6 +6,8 @@
 #include <net.h>
 #include <netdev.h>
 #include <pci.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 #define SROM_DLEVEL	0
 

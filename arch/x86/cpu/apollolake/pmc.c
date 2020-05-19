@@ -11,10 +11,12 @@
 #include <common.h>
 #include <dt-structs.h>
 #include <dm.h>
+#include <log.h>
 #include <spl.h>
 #include <acpi/acpi_s3.h>
 #include <asm/io.h>
 #include <asm/pci.h>
+#include <linux/bitops.h>
 #include <power/acpi_pmc.h>
 
 #define GPIO_GPE_CFG		0x1050

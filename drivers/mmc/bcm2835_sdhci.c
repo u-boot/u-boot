@@ -38,6 +38,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <sdhci.h>

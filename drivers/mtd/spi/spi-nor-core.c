@@ -10,8 +10,10 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>
+#include <linux/bitops.h>
 #include <linux/err.h>
 #include <linux/errno.h>
 #include <linux/log2.h>

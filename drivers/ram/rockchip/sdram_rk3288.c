@@ -12,6 +12,8 @@
 #include <dt-structs.h>
 #include <errno.h>
 #include <hang.h>
+#include <init.h>
+#include <log.h>
 #include <ram.h>
 #include <regmap.h>
 #include <syscon.h>
@@ -23,6 +25,7 @@
 #include <asm/arch-rockchip/pmu_rk3288.h>
 #include <asm/arch-rockchip/sdram.h>
 #include <asm/arch-rockchip/sdram_rk3288.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 #include <power/regulator.h>
 #include <power/rk8xx_pmic.h>

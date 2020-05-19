@@ -6,7 +6,10 @@
  * Author: Fabio Estevam <fabio.estevam@freescale.com>
  */
 
+#include <common.h>
+#include <image.h>
 #include <init.h>
+#include <log.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/iomux.h>
@@ -22,6 +25,7 @@
 #include <asm/mach-imx/sata.h>
 #include <asm/io.h>
 #include <env.h>
+#include <linux/delay.h>
 #include <linux/sizes.h>
 #include <common.h>
 #include <miiphy.h>

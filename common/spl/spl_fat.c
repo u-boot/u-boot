@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <env.h>
+#include <log.h>
 #include <spl.h>
 #include <asm/u-boot.h>
 #include <fat.h>

@@ -6,6 +6,7 @@
 #include <common.h>
 #include <command.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 
 #define PWRAP_BASE		0x1000d000
 #define PWRAP_WACS2_CMD		0x9c
@@ -17,7 +18,7 @@
 #define RTC_BBPU_KEY		(0x43 << 8)
 #define RTC_WRTGR		0x003c
 
-int do_poweroff(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_poweroff(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	u32 addr, val;
 

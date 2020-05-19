@@ -4,10 +4,12 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <malloc.h>
 #include <vsprintf.h>
 #include <asm/arcregs.h>
 #include <asm/cache.h>
+#include <linux/bitops.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

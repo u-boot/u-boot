@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <misc.h>
 #include <reset.h>
 #include <reset-uclass.h>

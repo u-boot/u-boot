@@ -4,11 +4,13 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <malloc.h>
 #include <asm/io.h>
 #include <dm.h>
 #include <mailbox-uclass.h>
 #include <dt-bindings/mailbox/tegra186-hsp.h>
+#include <linux/bitops.h>
 
 #define TEGRA_HSP_INT_DIMENSIONING		0x380
 #define TEGRA_HSP_INT_DIMENSIONING_NSI_SHIFT	16

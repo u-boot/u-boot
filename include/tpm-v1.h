@@ -8,6 +8,7 @@
 #define __TPM_V1_H
 
 #include <tpm-common.h>
+#include <linux/bitops.h>
 
 /* Useful constants */
 enum {

@@ -16,10 +16,12 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <log.h>
 #include <asm/byteorder.h>
 #include <usb.h>
 #include <malloc.h>
 #include <asm/cache.h>
+#include <linux/bug.h>
 #include <linux/errno.h>
 
 #include <usb/xhci.h>

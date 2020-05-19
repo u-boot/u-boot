@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <power/pmic.h>
 #include <power/max77693_fg.h>
 #include <i2c.h>

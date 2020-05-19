@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <cpu_func.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
@@ -124,7 +125,8 @@ void cpld_init(void)
 #endif
 }
 
-static int do_cpld(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_cpld(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
 	u32 addr, val;
 

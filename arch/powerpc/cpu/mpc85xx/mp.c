@@ -6,6 +6,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <env.h>
+#include <log.h>
 #include <asm/processor.h>
 #include <env.h>
 #include <ioports.h>
@@ -14,6 +15,7 @@
 #include <asm/mmu.h>
 #include <asm/fsl_law.h>
 #include <fsl_ddr_sdram.h>
+#include <linux/delay.h>
 #include "mp.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -140,7 +142,7 @@ static u8 boot_entry_map[4] = {
 	BOOT_ENTRY_R3_LOWER,
 };
 
-int cpu_release(u32 nr, int argc, char * const argv[])
+int cpu_release(u32 nr, int argc, char *const argv[])
 {
 	u32 i, val, *table = (u32 *)&__spin_table + nr * NUM_BOOT_ENTRY;
 	u64 boot_addr;

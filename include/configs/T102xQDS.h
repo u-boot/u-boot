@@ -11,6 +11,8 @@
 #ifndef __T1024QDS_H
 #define __T1024QDS_H
 
+#include <linux/stringify.h>
+
 /* High Level Configuration Options */
 #define CONFIG_SYS_BOOK3E_HV		/* Category E.HV supported */
 #define CONFIG_ENABLE_36BIT_PHYS

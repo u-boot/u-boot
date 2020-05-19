@@ -5,9 +5,12 @@
 #include <common.h>
 #include <android_ab.h>
 #include <android_bootloader_message.h>
+#include <blk.h>
+#include <log.h>
 #include <malloc.h>
-#include <linux/err.h>
+#include <part.h>
 #include <memalign.h>
+#include <linux/err.h>
 #include <u-boot/crc.h>
 #include <u-boot/crc.h>
 
@@ -81,7 +84,7 @@ static int ab_control_default(struct bootloader_control *abc)
  * @return 0 on success and a negative on error
  */
 static int ab_control_create_from_disk(struct blk_desc *dev_desc,
-				       const disk_partition_t *part_info,
+				       const struct disk_partition *part_info,
 				       struct bootloader_control **abc)
 {
 	ulong abc_offset, abc_blocks, ret;
@@ -131,7 +134,7 @@ static int ab_control_create_from_disk(struct blk_desc *dev_desc,
  * @return 0 on success and a negative on error
  */
 static int ab_control_store(struct blk_desc *dev_desc,
-			    const disk_partition_t *part_info,
+			    const struct disk_partition *part_info,
 			    struct bootloader_control *abc)
 {
 	ulong abc_offset, abc_blocks, ret;
@@ -178,7 +181,7 @@ static int ab_compare_slots(const struct slot_metadata *a,
 	return 0;
 }
 
-int ab_select_slot(struct blk_desc *dev_desc, disk_partition_t *part_info)
+int ab_select_slot(struct blk_desc *dev_desc, struct disk_partition *part_info)
 {
 	struct bootloader_control *abc = NULL;
 	u32 crc32_le;

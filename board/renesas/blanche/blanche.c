@@ -8,6 +8,8 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <init.h>
+#include <net.h>
 #include <asm/arch/mmc.h>
 #include <asm/arch/rcar-mstp.h>
 #include <asm/arch/rmobile.h>
@@ -22,6 +24,7 @@
 #include <env.h>
 #include <hang.h>
 #include <i2c.h>
+#include <linux/bitops.h>
 #include <linux/errno.h>
 #include <malloc.h>
 #include <miiphy.h>

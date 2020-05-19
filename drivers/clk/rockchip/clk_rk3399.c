@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <dt-structs.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <syscon.h>
@@ -19,6 +20,8 @@
 #include <asm/arch-rockchip/hardware.h>
 #include <dm/lists.h>
 #include <dt-bindings/clock/rk3399-cru.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 struct rk3399_clk_plat {

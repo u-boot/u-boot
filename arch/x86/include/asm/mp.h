@@ -9,6 +9,7 @@
 #define _X86_MP_H_
 
 #include <asm/atomic.h>
+#include <asm/cache.h>
 
 typedef int (*mp_callback_t)(struct udevice *cpu, void *arg);
 

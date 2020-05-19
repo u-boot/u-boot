@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <dm/lists.h>
 #include <dm/pinctrl.h>
+#include <linux/bitops.h>
 #include <linux/io.h>
 #include <linux/err.h>
 

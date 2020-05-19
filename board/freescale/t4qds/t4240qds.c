@@ -9,8 +9,10 @@
 #include <env.h>
 #include <fdt_support.h>
 #include <i2c.h>
+#include <image.h>
 #include <init.h>
 #include <irq_func.h>
+#include <log.h>
 #include <netdev.h>
 #include <linux/compiler.h>
 #include <asm/mmu.h>
@@ -21,6 +23,7 @@
 #include <asm/fsl_serdes.h>
 #include <asm/fsl_liodn.h>
 #include <fm_eth.h>
+#include <linux/delay.h>
 
 #include "../common/qixis.h"
 #include "../common/vsc3316_3308.h"
@@ -901,9 +904,9 @@ void qixis_dump_switch(void)
 	}
 }
 
-static int do_vdd_adjust(cmd_tbl_t *cmdtp,
+static int do_vdd_adjust(struct cmd_tbl *cmdtp,
 			 int flag, int argc,
-			 char * const argv[])
+			 char *const argv[])
 {
 	ulong override;
 

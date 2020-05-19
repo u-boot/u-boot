@@ -7,6 +7,7 @@
 #define ASM_FAST_SPI_H
 
 /* Register offsets from the MMIO region base (PCI_BASE_ADDRESS_0) */
+#include <linux/bitops.h>
 struct fast_spi_regs {
 	u32 bfp;
 	u32 hsfsts_ctl;

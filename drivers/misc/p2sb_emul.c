@@ -12,6 +12,7 @@
 #include <common.h>
 #include <axi.h>
 #include <dm.h>
+#include <log.h>
 #include <pci.h>
 #include <asm/test.h>
 #include <p2sb.h>

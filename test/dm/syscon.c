@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <syscon.h>
 #include <regmap.h>
 #include <asm/test.h>

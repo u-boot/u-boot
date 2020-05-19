@@ -7,8 +7,10 @@
 
 #include <common.h>
 #include <bios_emul.h>
+#include <bootstage.h>
 #include <dm.h>
 #include <init.h>
+#include <log.h>
 #include <vbe.h>
 #include <video.h>
 #include <asm/cpu.h>
@@ -18,6 +20,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/iomap.h>
 #include <asm/arch/pch.h>
+#include <linux/delay.h>
 #include "i915_reg.h"
 
 struct broadwell_igd_priv {

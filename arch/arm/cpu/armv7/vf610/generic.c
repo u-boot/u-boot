@@ -5,7 +5,11 @@
 
 #include <common.h>
 #include <clock_legacy.h>
+#include <command.h>
 #include <cpu_func.h>
+#include <init.h>
+#include <net.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
@@ -237,8 +241,8 @@ unsigned int mxc_get_clock(enum mxc_clock clk)
 }
 
 /* Dump some core clocks */
-int do_vf610_showclocks(cmd_tbl_t *cmdtp, int flag, int argc,
-			 char * const argv[])
+int do_vf610_showclocks(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
 	printf("\n");
 	printf("cpu clock : %8d MHz\n", mxc_get_clock(MXC_ARM_CLK) / 1000000);

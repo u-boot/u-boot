@@ -16,39 +16,39 @@
 #include <dm/root.h>
 #include <dm/util.h>
 
-static int do_dm_dump_all(cmd_tbl_t *cmdtp, int flag, int argc,
-			  char * const argv[])
+static int do_dm_dump_all(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
 {
 	dm_dump_all();
 
 	return 0;
 }
 
-static int do_dm_dump_uclass(cmd_tbl_t *cmdtp, int flag, int argc,
-			     char * const argv[])
+static int do_dm_dump_uclass(struct cmd_tbl *cmdtp, int flag, int argc,
+			     char *const argv[])
 {
 	dm_dump_uclass();
 
 	return 0;
 }
 
-static int do_dm_dump_devres(cmd_tbl_t *cmdtp, int flag, int argc,
-			     char * const argv[])
+static int do_dm_dump_devres(struct cmd_tbl *cmdtp, int flag, int argc,
+			     char *const argv[])
 {
 	dm_dump_devres();
 
 	return 0;
 }
 
-static int do_dm_dump_drivers(cmd_tbl_t *cmdtp, int flag, int argc,
-			      char * const argv[])
+static int do_dm_dump_drivers(struct cmd_tbl *cmdtp, int flag, int argc,
+			      char *const argv[])
 {
 	dm_dump_drivers();
 
 	return 0;
 }
 
-static cmd_tbl_t test_commands[] = {
+static struct cmd_tbl test_commands[] = {
 	U_BOOT_CMD_MKENT(tree, 0, 1, do_dm_dump_all, "", ""),
 	U_BOOT_CMD_MKENT(uclass, 1, 1, do_dm_dump_uclass, "", ""),
 	U_BOOT_CMD_MKENT(devres, 1, 1, do_dm_dump_devres, "", ""),
@@ -65,9 +65,9 @@ static __maybe_unused void dm_reloc(void)
 	}
 }
 
-static int do_dm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_dm(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	cmd_tbl_t *test_cmd;
+	struct cmd_tbl *test_cmd;
 	int ret;
 
 #ifdef CONFIG_NEEDS_MANUAL_RELOC

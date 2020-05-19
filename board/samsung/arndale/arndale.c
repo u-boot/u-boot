@@ -6,6 +6,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <init.h>
+#include <log.h>
 #include <usb.h>
 #include <asm/gpio.h>
 #include <asm/arch/pinmux.h>

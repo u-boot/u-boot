@@ -21,6 +21,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <i2c.h>
 #include <tca642x.h>
 
@@ -212,7 +213,7 @@ static int tca642x_info(uchar chip)
 	return 0;
 }
 
-static cmd_tbl_t cmd_tca642x[] = {
+static struct cmd_tbl cmd_tca642x[] = {
 	U_BOOT_CMD_MKENT(device, 3, 0, (void *)TCA642X_CMD_DEVICE, "", ""),
 	U_BOOT_CMD_MKENT(output, 4, 0, (void *)TCA642X_CMD_OUTPUT, "", ""),
 	U_BOOT_CMD_MKENT(input, 3, 0, (void *)TCA642X_CMD_INPUT, "", ""),
@@ -220,7 +221,8 @@ static cmd_tbl_t cmd_tca642x[] = {
 	U_BOOT_CMD_MKENT(info, 2, 0, (void *)TCA642X_CMD_INFO, "", ""),
 };
 
-static int do_tca642x(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_tca642x(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	static uchar chip = CONFIG_SYS_I2C_TCA642X_ADDR;
 	int ret = CMD_RET_USAGE, val;
@@ -228,7 +230,7 @@ static int do_tca642x(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	uint8_t bank_shift;
 	ulong ul_arg2 = 0;
 	ulong ul_arg3 = 0;
-	cmd_tbl_t *c;
+	struct cmd_tbl *c;
 
 	c = find_cmd_tbl(argv[1], cmd_tca642x, ARRAY_SIZE(cmd_tca642x));
 

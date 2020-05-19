@@ -10,6 +10,7 @@
 #define __ASM_INTEL_PINCTRL_H
 
 #include <dm/pinctrl.h>
+#include <linux/bitops.h>
 
 /**
  * struct pad_config - config for a pad

@@ -9,9 +9,12 @@
 
 #include <common.h>
 #include <clk.h>
+#include <log.h>
 #include <reset.h>
 #include <spi-mem.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/iopoll.h>
 #include <linux/ioport.h>
 #include <linux/sizes.h>

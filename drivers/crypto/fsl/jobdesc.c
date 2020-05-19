@@ -13,6 +13,7 @@
 #include "desc_constr.h"
 #include "jobdesc.h"
 #include "rsa_caam.h"
+#include <asm/cache.h>
 
 #if defined(CONFIG_MX6) || defined(CONFIG_MX7)
 /*!

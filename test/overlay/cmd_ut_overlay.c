@@ -8,6 +8,8 @@
 #include <command.h>
 #include <errno.h>
 #include <fdt_support.h>
+#include <image.h>
+#include <log.h>
 #include <malloc.h>
 
 #include <linux/sizes.h>
@@ -209,7 +211,7 @@ static int fdt_overlay_stacked(struct unit_test_state *uts)
 }
 OVERLAY_TEST(fdt_overlay_stacked, 0);
 
-int do_ut_overlay(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_ut_overlay(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct unit_test *tests = ll_entry_start(struct unit_test,
 						 overlay_test);

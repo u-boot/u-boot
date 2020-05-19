@@ -12,6 +12,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <log.h>
 #include <dm/platform_data/net_ethoc.h>
 #include <linux/io.h>
 #include <malloc.h>

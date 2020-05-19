@@ -12,12 +12,14 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <irq_func.h>
+#include <net.h>
 #include <time.h>
 #include <vsprintf.h>
 #include <watchdog.h>
 #include <command.h>
 #include <mpc83xx.h>
 #include <asm/processor.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <tsec.h>
 #include <netdev.h>
@@ -122,8 +124,7 @@ int checkcpu(void)
 #endif
 
 #ifndef CONFIG_SYSRESET
-int
-do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	ulong msr;
 #ifndef MPC83xx_RESET

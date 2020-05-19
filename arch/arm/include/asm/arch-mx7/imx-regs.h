@@ -225,6 +225,7 @@
 #if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
 #include <asm/mach-imx/regs-lcdif.h>
 #include <asm/types.h>
+#include <linux/bitops.h>
 
 extern void imx_get_mac_from_fuse(int dev_id, unsigned char *mac);
 
@@ -1223,5 +1224,5 @@ struct bootrom_sw_info {
 	u32 reserved_3[3];
 };
 
-#endif /* __ASSEMBLER__*/
+#endif /* __ASSEMBLY__ */
 #endif /* __ASM_ARCH_MX7_IMX_REGS_H__ */

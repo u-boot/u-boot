@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm/io.h>
 
 #include "comphy_core.h"

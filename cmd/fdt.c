@@ -10,6 +10,7 @@
 #include <common.h>
 #include <command.h>
 #include <env.h>
+#include <image.h>
 #include <linux/ctype.h>
 #include <linux/types.h>
 #include <asm/global_data.h>
@@ -87,7 +88,7 @@ static const char * const fdt_member_table[] = {
 	"size_dt_struct",
 };
 
-static int fdt_get_header_value(int argc, char * const argv[])
+static int fdt_get_header_value(int argc, char *const argv[])
 {
 	fdt32_t *fdtp = (fdt32_t *)working_fdt;
 	ulong val;
@@ -111,7 +112,7 @@ static int fdt_get_header_value(int argc, char * const argv[])
 /*
  * Flattened Device Tree command, see the help for parameter definitions.
  */
-static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	if (argc < 2)
 		return CMD_RET_USAGE;

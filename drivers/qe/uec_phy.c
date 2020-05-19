@@ -12,6 +12,7 @@
 #include <common.h>
 #include <net.h>
 #include <malloc.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <linux/immap_qe.h>
 #include <asm/io.h>
@@ -875,7 +876,7 @@ void marvell_phy_interface_mode(struct eth_device *dev, phy_interface_t type,
 			uec_phy_write(mii_info, 0x04, 0x01e1);
 			uec_phy_write(mii_info, 0x00, 0x9140);
 			uec_phy_write(mii_info, 0x00, 0x1000);
-			udelay (100000);
+			mdelay(100);
 			uec_phy_write(mii_info, 0x00, 0x2900);
 			uec_phy_write(mii_info, 0x14, 0x0cd2);
 			uec_phy_write(mii_info, 0x00, 0xa100);
@@ -884,13 +885,13 @@ void marvell_phy_interface_mode(struct eth_device *dev, phy_interface_t type,
 			uec_phy_write(mii_info, 0x04, 0x05e1);
 			uec_phy_write(mii_info, 0x00, 0xa100);
 			uec_phy_write(mii_info, 0x00, 0x2100);
-			udelay (1000000);
+			mdelay(1000);
 		} else if (speed == SPEED_10) {
 			uec_phy_write(mii_info, 0x14, 0x8e40);
 			uec_phy_write(mii_info, 0x1b, 0x800b);
 			uec_phy_write(mii_info, 0x14, 0x0c82);
 			uec_phy_write(mii_info, 0x00, 0x8100);
-			udelay (1000000);
+			mdelay(1000);
 		}
 	}
 

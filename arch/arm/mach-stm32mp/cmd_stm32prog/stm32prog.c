@@ -3,7 +3,7 @@
  * Copyright (C) 2020, STMicroelectronics - All Rights Reserved
  */
 
-#include <common.h>
+#include <command.h>
 #include <console.h>
 #include <dfu.h>
 #include <malloc.h>
@@ -727,7 +727,7 @@ static int init_device(struct stm32prog_data *data,
 				pr_debug("\n");
 				continue;
 			}
-			disk_partition_t partinfo;
+			struct disk_partition partinfo;
 
 			ret = part_get_info(block_dev, part->part_id,
 					    &partinfo);

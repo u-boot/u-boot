@@ -8,8 +8,6 @@
 #ifndef __ASM_ARCH_FSL_LAYERSCAPE_CLOCK_H_
 #define __ASM_ARCH_FSL_LAYERSCAPE_CLOCK_H_
 
-#include <common.h>
-
 enum mxc_clock {
 	MXC_ARM_CLK = 0,
 	MXC_BUS_CLK,

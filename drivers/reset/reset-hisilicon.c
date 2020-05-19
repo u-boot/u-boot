@@ -3,12 +3,14 @@
  * Copyright (c) 2019, Linaro Limited
  */
 
+#include <log.h>
 #include <malloc.h>
 #include <asm/io.h>
 #include <common.h>
 #include <dm.h>
 #include <dt-bindings/reset/ti-syscon.h>
 #include <reset-uclass.h>
+#include <linux/bitops.h>
 
 struct hisi_reset_priv {
 	void __iomem *base;

@@ -10,14 +10,17 @@
 #include <dm.h>
 #include <errno.h>
 #include <generic-phy.h>
+#include <log.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <phys2bus.h>
 #include <usb.h>
 #include <usbroothubdes.h>
 #include <wait_bit.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
+#include <linux/delay.h>
 #include <power/regulator.h>
 #include <reset.h>
 

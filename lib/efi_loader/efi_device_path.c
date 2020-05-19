@@ -8,6 +8,8 @@
 #include <common.h>
 #include <blk.h>
 #include <dm.h>
+#include <log.h>
+#include <net.h>
 #include <usb.h>
 #include <mmc.h>
 #include <nvme.h>
@@ -693,7 +695,7 @@ static unsigned dp_part_size(struct blk_desc *desc, int part)
  */
 static void *dp_part_node(void *buf, struct blk_desc *desc, int part)
 {
-	disk_partition_t info;
+	struct disk_partition info;
 
 	part_get_info(desc, part, &info);
 
@@ -1035,7 +1037,7 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 {
 	int is_net;
 	struct blk_desc *desc = NULL;
-	disk_partition_t fs_partition;
+	struct disk_partition fs_partition;
 	int part = 0;
 	char filename[32] = { 0 }; /* dp->str is u16[32] long */
 	char *s;

@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <efi_loader.h>
 #include <efi_rng.h>
+#include <log.h>
 #include <rng.h>
 
 DECLARE_GLOBAL_DATA_PTR;

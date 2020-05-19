@@ -6,6 +6,8 @@
 #include <common.h>
 #include <dm.h>
 #include <env.h>
+#include <init.h>
+#include <log.h>
 #include <misc.h>
 #include <spl.h>
 #include <syscon.h>

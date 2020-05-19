@@ -5,14 +5,17 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <malloc.h>
 #include <dm/device-internal.h>
 #include <dm/device_compat.h>
 #include <dm/lists.h>
 #include <dm/pinctrl.h>
 #include <fdt_support.h>
+#include <linux/bitops.h>
 #include <linux/err.h>
 #include <linux/io.h>
+#include <linux/libfdt.h>
 #include <linux/sizes.h>
 #include <asm/gpio.h>
 

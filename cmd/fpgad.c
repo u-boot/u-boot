@@ -25,7 +25,7 @@ static uint	dp_last_length = 0x40;
  *	fpgad {fpga} {addr} {len}
  */
 #define DISP_LINE_LEN	16
-int do_fpga_md(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_fpga_md(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	unsigned int k;
 	unsigned int fpga;

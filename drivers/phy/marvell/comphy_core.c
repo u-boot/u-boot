@@ -8,10 +8,11 @@
 #include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <asm/io.h>
 #include <dm/device_compat.h>
 #include <linux/err.h>
 #include <linux/errno.h>
-#include <asm/io.h>
+#include <linux/libfdt.h>
 
 #include "comphy_core.h"
 

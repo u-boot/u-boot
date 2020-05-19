@@ -6,8 +6,10 @@
  */
 
 #include <cpu_func.h>
+#include <init.h>
 #include <asm/arch/sysmap-apq8096.h>
 #include <env.h>
+#include <asm/cache.h>
 #include <linux/arm-smccc.h>
 #include <linux/psci.h>
 #include <common.h>

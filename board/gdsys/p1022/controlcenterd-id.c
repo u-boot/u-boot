@@ -11,15 +11,18 @@
 #endif
 
 #include <common.h>
+#include <bootstage.h>
 #include <command.h>
 #include <dm.h>
 #include <env.h>
 #include <hang.h>
+#include <log.h>
 #include <malloc.h>
 #include <fs.h>
 #include <i2c.h>
 #include <mmc.h>
 #include <tpm-v1.h>
+#include <linux/delay.h>
 #include <u-boot/crc.h>
 #include <u-boot/sha1.h>
 #include <asm/byteorder.h>

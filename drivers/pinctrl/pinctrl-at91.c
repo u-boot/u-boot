@@ -8,8 +8,10 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <dm/pinctrl.h>
 #include <asm/hardware.h>
+#include <linux/bitops.h>
 #include <linux/io.h>
 #include <linux/err.h>
 #include <mach/at91_pio.h>

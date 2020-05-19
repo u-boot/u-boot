@@ -8,9 +8,12 @@
 #include <cpu_func.h>
 #include <env.h>
 #include <errno.h>
+#include <image.h>
+#include <log.h>
 #include <malloc.h>
 #include <linux/bug.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <net.h>
 #include <fdt_support.h>
@@ -1744,7 +1747,8 @@ err:
 	return err;
 }
 
-static int do_fsl_mc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_fsl_mc(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[])
 {
 	int err = 0;
 	if (argc < 3)

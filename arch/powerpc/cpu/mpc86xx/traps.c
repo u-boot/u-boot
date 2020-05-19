@@ -14,6 +14,7 @@
  */
 
 #include <common.h>
+#include <asm/ptrace.h>
 #include <command.h>
 #include <init.h>
 #include <kgdb.h>

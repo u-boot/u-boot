@@ -137,7 +137,7 @@ static int list_rsdp(struct acpi_rsdp *rsdp)
 	return 0;
 }
 
-static int do_acpi_list(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_acpi_list(struct cmd_tbl *cmdtp, int flag, int argc,
 			char *const argv[])
 {
 	struct acpi_rsdp *rsdp;
@@ -153,7 +153,7 @@ static int do_acpi_list(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
-static int do_acpi_dump(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_acpi_dump(struct cmd_tbl *cmdtp, int flag, int argc,
 			char *const argv[])
 {
 	const char *name;

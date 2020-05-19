@@ -7,6 +7,7 @@
 #include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
+#include <log.h>
 #include <malloc.h>
 #include <linux/err.h>
 #include <linux/io.h>

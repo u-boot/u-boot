@@ -4,7 +4,10 @@
  */
 
 #include <dm.h>
+#include <log.h>
+#include <net.h>
 #include <usb.h>
+#include <linux/bitops.h>
 #include "usb_ether.h"
 #include "lan7x.h"
 

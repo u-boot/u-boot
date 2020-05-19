@@ -21,12 +21,14 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <log.h>
 #include <spi.h>
 #include <errno.h>
 #include <fdt_support.h>
 #include <reset.h>
 #include <wait_bit.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
 
 #include <asm/bitops.h>
 #include <asm/gpio.h>

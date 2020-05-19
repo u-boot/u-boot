@@ -13,6 +13,7 @@
 #include <wait_bit.h>
 #include <asm/arch/rmobile.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 
 /* SH QSPI register bit masks <REG>_<BIT> */
 #define SPCR_MSTR	0x08

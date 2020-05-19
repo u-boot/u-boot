@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <i2c.h>
+#include <log.h>
 #include <asm/io.h>
 #include <clk.h>
 #include <reset.h>
@@ -18,6 +19,7 @@
 #endif
 #include <asm/arch/gpio.h>
 #include <asm/arch-tegra/tegra_i2c.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 
 enum i2c_type {

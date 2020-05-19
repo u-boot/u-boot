@@ -16,10 +16,12 @@
  * Philippe Robin, <philippe.robin@arm.com>
  */
 #include <common.h>
+#include <bootstage.h>
 #include <cpu_func.h>
 #include <init.h>
 #include <malloc.h>
 #include <errno.h>
+#include <net.h>
 #include <netdev.h>
 #include <asm/io.h>
 #include <asm/mach-types.h>

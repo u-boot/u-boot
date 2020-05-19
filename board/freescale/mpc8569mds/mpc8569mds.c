@@ -7,8 +7,10 @@
 
 #include <common.h>
 #include <console.h>
+#include <flash.h>
 #include <hwconfig.h>
 #include <init.h>
+#include <log.h>
 #include <pci.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
@@ -21,6 +23,7 @@
 #include <spd_sdram.h>
 #include <i2c.h>
 #include <ioports.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <fsl_esdhc.h>

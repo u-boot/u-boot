@@ -6,9 +6,11 @@
 #include <common.h>
 #include <cpu.h>
 #include <dm.h>
+#include <init.h>
 #include <log.h>
 #include <asm/encoding.h>
 #include <dm/uclass-internal.h>
+#include <linux/bitops.h>
 
 /*
  * The variables here must be stored in the data section since they are used

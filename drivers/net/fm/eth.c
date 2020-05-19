@@ -5,6 +5,8 @@
  *	Dave Liu <daveliu@freescale.com>
  */
 #include <common.h>
+#include <log.h>
+#include <part.h>
 #include <asm/io.h>
 #ifdef CONFIG_DM_ETH
 #include <dm.h>
@@ -22,6 +24,7 @@
 #include <fsl_dtsec.h>
 #include <fsl_tgec.h>
 #include <fsl_memac.h>
+#include <linux/delay.h>
 
 #include "fm.h"
 

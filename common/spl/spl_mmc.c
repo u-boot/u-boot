@@ -7,6 +7,8 @@
  */
 #include <common.h>
 #include <dm.h>
+#include <log.h>
+#include <part.h>
 #include <spl.h>
 #include <linux/compiler.h>
 #include <errno.h>
@@ -168,7 +170,7 @@ static int mmc_load_image_raw_partition(struct spl_image_info *spl_image,
 					struct mmc *mmc, int partition,
 					unsigned long sector)
 {
-	disk_partition_t info;
+	struct disk_partition info;
 	int err;
 
 #ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_TYPE

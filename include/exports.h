@@ -2,6 +2,7 @@
 #define __EXPORTS_H__
 
 #include <irq_func.h>
+#include <linux/delay.h>
 
 #ifndef __ASSEMBLY__
 #ifdef CONFIG_PHY_AQUANTIA
@@ -11,6 +12,7 @@
 
 #include <irq_func.h>
 
+struct cmd_tbl;
 struct spi_slave;
 
 /* Set up the jump table for use by the API */

@@ -7,9 +7,12 @@
  */
 
 #include <common.h>
+#include <image.h>
+#include <log.h>
 #include <spl.h>
 #include <malloc.h>
 #include <remoteproc.h>
+#include <asm/cache.h>
 #include <linux/soc/ti/ti_sci_protocol.h>
 #include <g_dnl.h>
 #include <usb.h>

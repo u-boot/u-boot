@@ -4,9 +4,12 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <env.h>
+#include <flash.h>
 #include <init.h>
 #include <malloc.h>
+#include <net.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/mmc.h>
@@ -342,7 +345,7 @@ int board_late_init(void)
 	return 0;
 }
 
-int do_sh_g200(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_sh_g200(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct gctrl_regs *gctrl = GCTRL_BASE;
 	unsigned long graofst;
@@ -361,7 +364,7 @@ U_BOOT_CMD(
 );
 
 #ifdef CONFIG_DEPRECATED
-int do_write_mac(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_write_mac(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	int i, ret;
 	char mac_string[256];

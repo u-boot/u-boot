@@ -8,6 +8,7 @@
 #include <env.h>
 #include <i2c.h>
 #include <irq_func.h>
+#include <log.h>
 #include <asm/io.h>
 #ifdef CONFIG_FSL_LSCH2
 #include <asm/arch/immap_lsch2.h>
@@ -16,6 +17,7 @@
 #else
 #include <asm/immap_85xx.h>
 #endif
+#include <linux/delay.h>
 #include "vid.h"
 
 int __weak i2c_multiplexer_select_vid_channel(u8 channel)
@@ -925,9 +927,9 @@ exit:
 
 }
 
-static int do_vdd_override(cmd_tbl_t *cmdtp,
+static int do_vdd_override(struct cmd_tbl *cmdtp,
 			   int flag, int argc,
-			   char * const argv[])
+			   char *const argv[])
 {
 	ulong override;
 
@@ -941,9 +943,8 @@ static int do_vdd_override(cmd_tbl_t *cmdtp,
 	return 0;
 }
 
-static int do_vdd_read(cmd_tbl_t *cmdtp,
-			 int flag, int argc,
-			 char * const argv[])
+static int do_vdd_read(struct cmd_tbl *cmdtp, int flag, int argc,
+		       char *const argv[])
 {
 	if (argc < 1)
 		return CMD_RET_USAGE;

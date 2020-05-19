@@ -10,8 +10,10 @@
 #include <common.h>
 #include <command.h>
 #include <console.h>
+#include <linux/delay.h>
 
-static int do_sleep(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_sleep(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[])
 {
 	ulong start = get_timer(0);
 	ulong mdelay = 0;
@@ -58,7 +60,8 @@ U_BOOT_CMD(
 );
 
 #ifdef CONFIG_CMD_TIMER
-static int do_timer(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_timer(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[])
 {
 	static ulong start;
 

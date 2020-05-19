@@ -8,7 +8,9 @@
 
 #include <common.h>
 #include <clock_legacy.h>
+#include <command.h>
 #include <div64.h>
+#include <log.h>
 #include <asm/io.h>
 #include <linux/errno.h>
 #include <asm/arch/imx-regs.h>
@@ -1100,7 +1102,8 @@ void epdc_clock_disable(void)
 /*
  * Dump some core clockes.
  */
-int do_mx7_showclocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_mx7_showclocks(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	u32 freq;
 	freq = decode_pll(PLL_CORE, MXC_HCLK);

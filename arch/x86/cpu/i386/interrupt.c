@@ -23,6 +23,7 @@
 #include <asm/io.h>
 #include <asm/lapic.h>
 #include <asm/processor-flags.h>
+#include <asm/ptrace.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

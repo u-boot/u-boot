@@ -11,6 +11,8 @@
 #include <pci.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 #define RP_TX_REG0			0x2000
 #define RP_TX_CNTRL			0x2004

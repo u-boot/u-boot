@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <linux/delay.h>
 
 #include <asm/processor.h>
 #include <asm/io.h>

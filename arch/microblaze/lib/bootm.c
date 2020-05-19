@@ -8,12 +8,16 @@
  */
 
 #include <common.h>
+#include <bootstage.h>
 #include <command.h>
 #include <cpu_func.h>
 #include <env.h>
 #include <fdt_support.h>
 #include <hang.h>
 #include <image.h>
+#include <lmb.h>
+#include <log.h>
+#include <asm/cache.h>
 #include <u-boot/zlib.h>
 #include <asm/byteorder.h>
 
@@ -105,7 +109,7 @@ static void boot_prep_linux(bootm_headers_t *images)
 	}
 }
 
-int do_bootm_linux(int flag, int argc, char * const argv[],
+int do_bootm_linux(int flag, int argc, char *const argv[],
 		   bootm_headers_t *images)
 {
 	images->cmdline_start = (ulong)env_get("bootargs");

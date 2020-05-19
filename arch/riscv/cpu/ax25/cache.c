@@ -7,6 +7,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <asm/cache.h>
 #include <dm/uclass-internal.h>
 #include <cache.h>
 #include <asm/csr.h>

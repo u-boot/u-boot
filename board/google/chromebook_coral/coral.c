@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 
 int arch_misc_init(void)
 {

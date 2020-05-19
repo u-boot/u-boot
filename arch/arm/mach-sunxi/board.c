@@ -11,10 +11,13 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <init.h>
+#include <log.h>
 #include <mmc.h>
 #include <i2c.h>
 #include <serial.h>
 #include <spl.h>
+#include <asm/cache.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>

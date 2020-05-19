@@ -30,7 +30,8 @@ static int get_pmc_dev(struct udevice **devp)
 	return 0;
 }
 
-static int do_pmc_init(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+static int do_pmc_init(struct cmd_tbl *cmdtp, int flag, int argc,
+		       char *const argv[])
 {
 	struct udevice *dev;
 	int ret;
@@ -42,7 +43,8 @@ static int do_pmc_init(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	return 0;
 }
 
-static int do_pmc_info(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+static int do_pmc_info(struct cmd_tbl *cmdtp, int flag, int argc,
+		       char *const argv[])
 {
 	struct udevice *dev;
 	int ret;
@@ -55,14 +57,14 @@ static int do_pmc_info(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	return 0;
 }
 
-static cmd_tbl_t cmd_pmc_sub[] = {
+static struct cmd_tbl cmd_pmc_sub[] = {
 	U_BOOT_CMD_MKENT(init, 0, 1, do_pmc_init, "", ""),
 	U_BOOT_CMD_MKENT(info, 0, 1, do_pmc_info, "", ""),
 };
 
-static int do_pmc(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+static int do_pmc(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	const cmd_tbl_t *cp;
+	const struct cmd_tbl *cp;
 
 	if (argc < 2) /* no subcommand */
 		return cmd_usage(cmdtp);

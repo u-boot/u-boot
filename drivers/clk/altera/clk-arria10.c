@@ -12,6 +12,7 @@
 #include <dm/devres.h>
 #include <dm/lists.h>
 #include <dm/util.h>
+#include <linux/bitops.h>
 
 #include <asm/arch/clock_manager.h>
 

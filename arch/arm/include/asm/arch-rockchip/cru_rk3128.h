@@ -6,7 +6,9 @@
 #ifndef _ASM_ARCH_CRU_RK3128_H
 #define _ASM_ARCH_CRU_RK3128_H
 
-#include <common.h>
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
 
 #define MHz		1000000
 #define OSC_HZ		(24 * MHz)

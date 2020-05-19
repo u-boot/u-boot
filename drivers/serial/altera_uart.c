@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <serial.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 
 /* status register */
 #define ALTERA_UART_TMT		BIT(5)	/* tx empty */

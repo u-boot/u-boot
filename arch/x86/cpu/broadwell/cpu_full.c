@@ -8,6 +8,8 @@
 #include <common.h>
 #include <dm.h>
 #include <cpu.h>
+#include <init.h>
+#include <log.h>
 #include <asm/cpu.h>
 #include <asm/cpu_x86.h>
 #include <asm/cpu_common.h>
@@ -18,6 +20,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/pch.h>
 #include <asm/arch/rcb.h>
+#include <linux/delay.h>
 
 struct cpu_broadwell_priv {
 	bool ht_disabled;

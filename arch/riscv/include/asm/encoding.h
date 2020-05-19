@@ -8,6 +8,9 @@
 #define RISCV_CSR_ENCODING_H
 
 #include <asm/csr.h>
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
 
 #if CONFIG_IS_ENABLED(RISCV_SMODE)
 #define MODE_PREFIX(__suffix)	s##__suffix

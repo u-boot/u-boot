@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <dm.h>
 #include <fs.h>
 #include <part.h>
@@ -13,32 +14,32 @@
 
 static int host_curr_device = -1;
 
-static int do_host_load(cmd_tbl_t *cmdtp, int flag, int argc,
-			   char * const argv[])
+static int do_host_load(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
 	return do_load(cmdtp, flag, argc, argv, FS_TYPE_SANDBOX);
 }
 
-static int do_host_ls(cmd_tbl_t *cmdtp, int flag, int argc,
-			   char * const argv[])
+static int do_host_ls(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	return do_ls(cmdtp, flag, argc, argv, FS_TYPE_SANDBOX);
 }
 
-static int do_host_size(cmd_tbl_t *cmdtp, int flag, int argc,
-			   char * const argv[])
+static int do_host_size(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
 	return do_size(cmdtp, flag, argc, argv, FS_TYPE_SANDBOX);
 }
 
-static int do_host_save(cmd_tbl_t *cmdtp, int flag, int argc,
-			   char * const argv[])
+static int do_host_save(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
 	return do_save(cmdtp, flag, argc, argv, FS_TYPE_SANDBOX);
 }
 
-static int do_host_bind(cmd_tbl_t *cmdtp, int flag, int argc,
-			   char * const argv[])
+static int do_host_bind(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
 	if (argc < 2 || argc > 3)
 		return CMD_RET_USAGE;
@@ -53,8 +54,8 @@ static int do_host_bind(cmd_tbl_t *cmdtp, int flag, int argc,
 	return host_dev_bind(dev, file);
 }
 
-static int do_host_info(cmd_tbl_t *cmdtp, int flag, int argc,
-			   char * const argv[])
+static int do_host_info(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
 	if (argc < 1 || argc > 2)
 		return CMD_RET_USAGE;
@@ -100,8 +101,8 @@ static int do_host_info(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
-static int do_host_dev(cmd_tbl_t *cmdtp, int flag, int argc,
-		       char * const argv[])
+static int do_host_dev(struct cmd_tbl *cmdtp, int flag, int argc,
+		       char *const argv[])
 {
 	int dev;
 	char *ep;
@@ -140,7 +141,7 @@ static int do_host_dev(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
-static cmd_tbl_t cmd_host_sub[] = {
+static struct cmd_tbl cmd_host_sub[] = {
 	U_BOOT_CMD_MKENT(load, 7, 0, do_host_load, "", ""),
 	U_BOOT_CMD_MKENT(ls, 3, 0, do_host_ls, "", ""),
 	U_BOOT_CMD_MKENT(save, 6, 0, do_host_save, "", ""),
@@ -150,10 +151,10 @@ static cmd_tbl_t cmd_host_sub[] = {
 	U_BOOT_CMD_MKENT(dev, 0, 1, do_host_dev, "", ""),
 };
 
-static int do_host(cmd_tbl_t *cmdtp, int flag, int argc,
-		      char * const argv[])
+static int do_host(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
-	cmd_tbl_t *c;
+	struct cmd_tbl *c;
 
 	/* Skip past 'host' */
 	argc--;

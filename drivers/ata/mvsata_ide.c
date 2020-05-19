@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 
 #if defined(CONFIG_ARCH_ORION5X)
 #include <asm/arch/orion5x.h>

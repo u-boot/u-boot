@@ -16,6 +16,7 @@
  */
 
 #ifdef __UBOOT__
+#include <log.h>
 #include <dm/devres.h>
 #include <linux/err.h>
 #endif

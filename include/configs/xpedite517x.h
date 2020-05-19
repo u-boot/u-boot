@@ -51,6 +51,7 @@
 #define CONFIG_SYS_SCRATCH_VA	0xe0000000
 
 #ifndef __ASSEMBLY__
+#include <linux/stringify.h>
 extern unsigned long get_board_sys_clk(unsigned long dummy);
 #endif
 

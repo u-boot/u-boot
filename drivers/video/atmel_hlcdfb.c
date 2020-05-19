@@ -7,7 +7,9 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <log.h>
 #include <malloc.h>
+#include <part.h>
 #include <asm/io.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/clk.h>
@@ -18,6 +20,7 @@
 #include <video.h>
 #include <wait_bit.h>
 #include <atmel_hlcdc.h>
+#include <linux/bug.h>
 
 #if defined(CONFIG_LCD_LOGO)
 #include <bmp_logo.h>

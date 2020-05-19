@@ -12,8 +12,8 @@
 #include <mach/mon.h>
 asm(".arch_extension sec\n\t");
 
-static int do_mon_install(cmd_tbl_t *cmdtp, int flag, int argc,
-			  char * const argv[])
+static int do_mon_install(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
 {
 	u32 addr, dpsc_base = 0x1E80000, freq, load_addr, size;
 	int     rcode = 0;
@@ -65,8 +65,8 @@ static void core_spin(void)
 	}
 }
 
-int do_mon_power(cmd_tbl_t *cmdtp, int flag, int argc,
-			char * const argv[])
+int do_mon_power(struct cmd_tbl *cmdtp, int flag, int argc,
+		 char *const argv[])
 {
 	int     rcode = 0, core_id, on;
 	void (*fn)(void);

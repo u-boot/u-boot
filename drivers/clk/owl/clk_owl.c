@@ -17,6 +17,8 @@
 #include <asm/arch-owl/regs_s700.h>
 #include <dt-bindings/clock/actions,s700-cmu.h>
 #endif
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 void owl_clk_init(struct owl_clk_priv *priv)
 {

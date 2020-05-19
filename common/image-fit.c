@@ -11,12 +11,14 @@
 #ifdef USE_HOSTCC
 #include "mkimage.h"
 #include <time.h>
+#include <linux/libfdt.h>
 #include <u-boot/crc.h>
 #else
 #include <linux/compiler.h>
 #include <linux/kconfig.h>
 #include <common.h>
 #include <errno.h>
+#include <log.h>
 #include <mapmem.h>
 #include <asm/io.h>
 #include <malloc.h>

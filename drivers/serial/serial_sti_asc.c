@@ -8,8 +8,10 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <serial.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

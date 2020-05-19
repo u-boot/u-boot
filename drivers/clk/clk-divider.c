@@ -18,6 +18,7 @@
 #include <dm/uclass.h>
 #include <dm/lists.h>
 #include <dm/device-internal.h>
+#include <linux/bug.h>
 #include <linux/clk-provider.h>
 #include <linux/err.h>
 #include <linux/log2.h>

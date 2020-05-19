@@ -109,6 +109,8 @@
 #define ARC_AUX_SUBSYS_BUILD	0xF0
 
 #ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+
 /* Accessors for auxiliary registers */
 #define read_aux_reg(reg)	__builtin_arc_lr(reg)
 

@@ -8,10 +8,12 @@
 #include <clk.h>
 #include <dm.h>
 #include <fsl_lpuart.h>
+#include <log.h>
 #include <watchdog.h>
 #include <asm/io.h>
 #include <serial.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
 #include <linux/compiler.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>

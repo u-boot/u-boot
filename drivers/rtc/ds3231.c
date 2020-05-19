@@ -17,6 +17,7 @@
 #include <common.h>
 #include <command.h>
 #include <dm.h>
+#include <log.h>
 #include <rtc.h>
 #include <i2c.h>
 

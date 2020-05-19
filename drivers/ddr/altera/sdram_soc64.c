@@ -11,6 +11,8 @@
 #include <div64.h>
 #include <fdtdec.h>
 #include <hang.h>
+#include <init.h>
+#include <log.h>
 #include <ram.h>
 #include <reset.h>
 #include "sdram_soc64.h"
@@ -18,6 +20,7 @@
 #include <asm/arch/firewall.h>
 #include <asm/arch/system_manager.h>
 #include <asm/arch/reset_manager.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
 #include <linux/sizes.h>

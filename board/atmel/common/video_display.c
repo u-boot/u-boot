@@ -7,6 +7,7 @@
 #include <common.h>
 #include <atmel_lcd.h>
 #include <dm.h>
+#include <init.h>
 #include <nand.h>
 #include <version.h>
 #include <video.h>

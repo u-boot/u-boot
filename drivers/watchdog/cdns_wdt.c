@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <wdt.h>
 #include <clk.h>
 #include <div64.h>

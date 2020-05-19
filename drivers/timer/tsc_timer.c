@@ -7,7 +7,9 @@
  */
 
 #include <common.h>
+#include <bootstage.h>
 #include <dm.h>
+#include <log.h>
 #include <malloc.h>
 #include <time.h>
 #include <timer.h>
@@ -17,6 +19,7 @@
 #include <asm/ibmpc.h>
 #include <asm/msr.h>
 #include <asm/u-boot-x86.h>
+#include <linux/delay.h>
 
 #define MAX_NUM_FREQS	9
 

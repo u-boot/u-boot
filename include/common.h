@@ -16,30 +16,16 @@
 #include <config.h>
 #include <errno.h>
 #include <time.h>
-#include <asm-offsets.h>
-#include <linux/bitops.h>
-#include <linux/bug.h>
-#include <linux/delay.h>
 #include <linux/types.h>
 #include <linux/printk.h>
 #include <linux/string.h>
-#include <linux/stringify.h>
-#include <asm/ptrace.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <linux/kernel.h>
-#include <part.h>
-#include <flash.h>
-#include <image.h>
-#include <log.h>
 #include <asm/u-boot.h> /* boot information for Linux kernel */
 #include <asm/global_data.h>	/* global data used for startup functions */
-#include <init.h>
 #include <display_options.h>
-#include <uuid.h>
 #include <vsprintf.h>
-#include <net.h>
-#include <bootstage.h>
 #endif	/* __ASSEMBLY__ */
 
 /* Pull in stuff for the build system */

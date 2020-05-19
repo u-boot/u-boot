@@ -41,25 +41,23 @@
 #include <usb.h>
 #endif
 
-int do_ext4_size(cmd_tbl_t *cmdtp, int flag, int argc,
-						char *const argv[])
+int do_ext4_size(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	return do_size(cmdtp, flag, argc, argv, FS_TYPE_EXT);
 }
 
-int do_ext4_load(cmd_tbl_t *cmdtp, int flag, int argc,
-						char *const argv[])
+int do_ext4_load(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	return do_load(cmdtp, flag, argc, argv, FS_TYPE_EXT);
 }
 
-int do_ext4_ls(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+int do_ext4_ls(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	return do_ls(cmdtp, flag, argc, argv, FS_TYPE_EXT);
 }
 
 #if defined(CONFIG_CMD_EXT4_WRITE)
-int do_ext4_write(cmd_tbl_t *cmdtp, int flag, int argc,
+int do_ext4_write(struct cmd_tbl *cmdtp, int flag, int argc,
 		  char *const argv[])
 {
 	return do_save(cmdtp, flag, argc, argv, FS_TYPE_EXT);

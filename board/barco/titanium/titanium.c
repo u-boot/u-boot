@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <init.h>
+#include <net.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
@@ -21,6 +22,7 @@
 #include <micrel.h>
 #include <miiphy.h>
 #include <netdev.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

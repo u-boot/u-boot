@@ -17,6 +17,7 @@
 #include <common.h>
 #include <command.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 
 #include "cpld.h"
 /**
@@ -89,7 +90,7 @@ static void cpld_dump_regs(void)
 #endif
 
 #ifndef CONFIG_SPL_BUILD
-int cpld_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int cpld_cmd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	int rc = 0;
 	unsigned char value;

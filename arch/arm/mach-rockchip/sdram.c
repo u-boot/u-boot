@@ -6,6 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <init.h>
+#include <log.h>
 #include <ram.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/sdram.h>

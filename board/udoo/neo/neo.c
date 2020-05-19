@@ -9,6 +9,7 @@
  */
 
 #include <init.h>
+#include <net.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/imx-regs.h>
@@ -24,6 +25,7 @@
 #include <asm/mach-imx/mxc_i2c.h>
 #include <asm/arch/sys_proto.h>
 #include <spl.h>
+#include <linux/delay.h>
 #include <linux/sizes.h>
 #include <common.h>
 #include <i2c.h>

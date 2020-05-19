@@ -10,8 +10,12 @@
 #include <fsl_ddr_sdram.h>
 #include <init.h>
 #include <hang.h>
+#include <log.h>
+#include <net.h>
 #include <vsprintf.h>
+#include <asm/cache.h>
 #include <asm/io.h>
+#include <asm/ptrace.h>
 #include <linux/errno.h>
 #include <asm/system.h>
 #include <fm_eth.h>

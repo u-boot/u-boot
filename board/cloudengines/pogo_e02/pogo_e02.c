@@ -10,6 +10,8 @@
  */
 
 #include <common.h>
+#include <init.h>
+#include <log.h>
 #include <miiphy.h>
 #include <net.h>
 #include <asm/arch/cpu.h>

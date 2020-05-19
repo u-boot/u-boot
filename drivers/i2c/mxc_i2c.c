@@ -14,9 +14,11 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <dm/device_compat.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/mach-imx/mxc_i2c.h>
 #include <asm/mach-imx/sys_proto.h>

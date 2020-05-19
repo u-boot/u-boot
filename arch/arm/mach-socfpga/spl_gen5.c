@@ -5,6 +5,8 @@
 
 #include <common.h>
 #include <hang.h>
+#include <init.h>
+#include <log.h>
 #include <asm/io.h>
 #include <asm/u-boot.h>
 #include <asm/utils.h>
@@ -22,6 +24,7 @@
 #include <fdtdec.h>
 #include <watchdog.h>
 #include <dm/uclass.h>
+#include <linux/bitops.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

@@ -9,9 +9,12 @@
 #include <common.h>
 #include <console.h>
 #include <cpu_func.h>
+#include <log.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <fs.h>
 #include <zynqpl.h>
+#include <linux/delay.h>
 #include <linux/sizes.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>

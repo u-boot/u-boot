@@ -7,10 +7,12 @@
 #include <cpu.h>
 #include <dm.h>
 #include <thermal.h>
+#include <asm/system.h>
 #include <asm/arch/sci/sci.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch-imx/cpu.h>
 #include <asm/armv8/cpu.h>
+#include <linux/bitops.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

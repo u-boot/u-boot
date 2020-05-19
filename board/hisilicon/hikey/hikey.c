@@ -7,12 +7,15 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <fdt_support.h>
+#include <init.h>
+#include <log.h>
 #include <dm/platform_data/serial_pl01x.h>
 #include <errno.h>
 #include <malloc.h>
 #include <netdev.h>
 #include <asm/io.h>
 #include <usb.h>
+#include <linux/delay.h>
 #include <power/hi6553_pmic.h>
 #include <asm-generic/gpio.h>
 #include <asm/arch/dwmmc.h>

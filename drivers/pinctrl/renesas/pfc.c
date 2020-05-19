@@ -17,6 +17,8 @@
 #include <dm/device_compat.h>
 #include <dm/devres.h>
 #include <dm/pinctrl.h>
+#include <linux/bitops.h>
+#include <linux/bug.h>
 #include <linux/io.h>
 #include <linux/sizes.h>
 

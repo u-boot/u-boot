@@ -13,6 +13,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <common.h>
+#include <log.h>
 #include <spi.h>
 #include <malloc.h>
 #include <asm/io.h>
@@ -21,6 +22,8 @@
 #include <asm/arch/clock.h>
 #endif
 #include <fsl_dspi.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

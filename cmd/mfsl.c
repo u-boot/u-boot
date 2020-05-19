@@ -14,7 +14,7 @@
 #include <command.h>
 #include <asm/asm.h>
 
-int do_frd (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+int do_frd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	unsigned int fslnum;
 	unsigned int num;
@@ -169,7 +169,7 @@ int do_frd (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-int do_fwr (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+int do_fwr(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	unsigned int fslnum;
 	unsigned int num;
@@ -324,7 +324,7 @@ int do_fwr (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 
 }
 
-int do_rspr (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+int do_rspr(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	unsigned int reg = 0;
 	unsigned int val = 0;

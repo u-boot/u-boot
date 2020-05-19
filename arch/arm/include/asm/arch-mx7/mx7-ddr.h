@@ -10,6 +10,10 @@
 #ifndef __ASM_ARCH_MX7_DDR_H__
 #define __ASM_ARCH_MX7_DDR_H__
 
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 /* DDRC Registers (DDRC_IPS_BASE_ADDR) */
 struct ddrc {
 	u32 mstr;		/* 0x0000 */

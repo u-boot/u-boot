@@ -372,6 +372,7 @@
 #include <asm/mach-imx/regs-lcdif.h>
 #if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
 #include <asm/types.h>
+#include <linux/bitops.h>
 
 /* only for i.MX6SX/UL */
 #define WDOG3_BASE_ADDR (((is_mx6ul() || is_mx6ull()) ?	\
@@ -1003,5 +1004,5 @@ struct pwm_regs {
  */
 #define	is_boot_from_usb(void) (!(readl(USB_PHY0_BASE_ADDR) & (1<<20)))
 
-#endif /* __ASSEMBLER__*/
+#endif /* __ASSEMBLY__ */
 #endif /* __ASM_ARCH_MX6_IMX_REGS_H__ */

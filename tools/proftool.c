@@ -532,7 +532,7 @@ static int make_ftrace(void)
 	return 0;
 }
 
-static int prof_tool(int argc, char * const argv[],
+static int prof_tool(int argc, char *const argv[],
 		     const char *prof_fname, const char *map_fname,
 		     const char *trace_config_fname)
 {

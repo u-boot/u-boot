@@ -10,6 +10,7 @@
 #include <common.h>
 #include <dm.h>
 #include <i2s.h>
+#include <log.h>
 #include <misc.h>
 #include <asm/io.h>
 #include <asm/arch-tegra/tegra_ahub.h>

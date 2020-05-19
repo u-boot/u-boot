@@ -3,6 +3,7 @@
  * Copyright 2015 Freescale Semiconductor, Inc.
  */
 #include <common.h>
+#include <net.h>
 #include <asm/io.h>
 #include <netdev.h>
 #include <fm_eth.h>

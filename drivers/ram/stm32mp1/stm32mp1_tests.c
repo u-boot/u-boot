@@ -5,6 +5,8 @@
 #include <common.h>
 #include <console.h>
 #include <init.h>
+#include <log.h>
+#include <rand.h>
 #include <watchdog.h>
 #include <asm/io.h>
 #include <linux/log2.h>

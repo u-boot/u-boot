@@ -190,7 +190,8 @@ static int extract_phy_range(char *const argv[], int argc, struct mii_dev **bus,
 }
 
 /* ---------------------------------------------------------------- */
-static int do_mdio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_mdio(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
 	char op[2];
 	int addrlo, addrhi, reglo, reghi, devadlo, devadhi;

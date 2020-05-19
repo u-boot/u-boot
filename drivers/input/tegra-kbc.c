@@ -10,12 +10,14 @@
 #include <input.h>
 #include <keyboard.h>
 #include <key_matrix.h>
+#include <log.h>
 #include <stdio_dev.h>
 #include <tegra-kbc.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/funcmux.h>
 #include <asm/arch-tegra/timer.h>
+#include <linux/delay.h>
 #include <linux/input.h>
 
 enum {

@@ -11,6 +11,7 @@
 #include <asm/mrccache.h>
 #include <asm/post.h>
 #include <asm/arch/iomap.h>
+#include <linux/bitops.h>
 
 /* GPIO SUS */
 #define GPIO_SUS_PAD_BASE	(IO_BASE_ADDRESS + IO_BASE_OFFSET_GPSSUS)

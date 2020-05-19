@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm/pci.h>
 #include "bios_emul.h"
 

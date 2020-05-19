@@ -8,7 +8,7 @@
 #include <dm.h>
 #include <adc.h>
 
-static int do_adc_list(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_adc_list(struct cmd_tbl *cmdtp, int flag, int argc,
 		       char *const argv[])
 {
 	struct udevice *dev;
@@ -31,7 +31,7 @@ static int do_adc_list(cmd_tbl_t *cmdtp, int flag, int argc,
 	return CMD_RET_SUCCESS;
 }
 
-static int do_adc_info(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_adc_info(struct cmd_tbl *cmdtp, int flag, int argc,
 		       char *const argv[])
 {
 	struct udevice *dev;
@@ -68,7 +68,7 @@ static int do_adc_info(cmd_tbl_t *cmdtp, int flag, int argc,
 	return CMD_RET_SUCCESS;
 }
 
-static int do_adc_single(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_adc_single(struct cmd_tbl *cmdtp, int flag, int argc,
 			 char *const argv[])
 {
 	struct udevice *dev;
@@ -95,7 +95,7 @@ static int do_adc_single(cmd_tbl_t *cmdtp, int flag, int argc,
 	return CMD_RET_SUCCESS;
 }
 
-static int do_adc_scan(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_adc_scan(struct cmd_tbl *cmdtp, int flag, int argc,
 		       char *const argv[])
 {
 	struct adc_channel ch[ADC_MAX_CHANNEL];

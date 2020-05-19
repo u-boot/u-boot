@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <wait_bit.h>
 #include <dm.h>
@@ -13,6 +14,7 @@
 #include <regmap.h>
 #include <syscon.h>
 #include <dt-bindings/reset/stih407-resets.h>
+#include <linux/bitops.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

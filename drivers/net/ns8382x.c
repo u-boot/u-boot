@@ -51,11 +51,13 @@
 
 /* Includes */
 #include <common.h>
+#include <log.h>
 #include <malloc.h>
 #include <net.h>
 #include <netdev.h>
 #include <asm/io.h>
 #include <pci.h>
+#include <linux/delay.h>
 
 /* defines */
 #define DSIZE     0x00000FFF

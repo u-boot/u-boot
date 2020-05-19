@@ -8,7 +8,9 @@
 #include <common.h>
 #include <command.h>
 #include <env.h>
+#include <flash.h>
 #include <image.h>
+#include <net.h>
 #include <vsprintf.h>
 #include <errno.h>
 #include <dm.h>
@@ -827,7 +829,7 @@ else
 #endif
 #endif /* DEFAULT_BUBT_DST */
 
-int do_bubt_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_bubt_cmd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct bubt_dev *src, *dst;
 	size_t image_size;

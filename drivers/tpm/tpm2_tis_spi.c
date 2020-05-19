@@ -19,6 +19,8 @@
 #include <log.h>
 #include <spi.h>
 #include <tpm-v2.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <linux/compiler.h>
 #include <linux/types.h>

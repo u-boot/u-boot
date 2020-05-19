@@ -32,6 +32,8 @@
 #include <asm/gpio.h>
 #include <asm/system.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
+#include <linux/libfdt.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

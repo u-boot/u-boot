@@ -72,7 +72,7 @@ int __weak soc_clk_dump(void)
 }
 #endif
 
-static int do_clk_dump(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_clk_dump(struct cmd_tbl *cmdtp, int flag, int argc,
 		       char *const argv[])
 {
 	int ret;
@@ -86,14 +86,14 @@ static int do_clk_dump(cmd_tbl_t *cmdtp, int flag, int argc,
 	return ret;
 }
 
-static cmd_tbl_t cmd_clk_sub[] = {
+static struct cmd_tbl cmd_clk_sub[] = {
 	U_BOOT_CMD_MKENT(dump, 1, 1, do_clk_dump, "", ""),
 };
 
-static int do_clk(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_clk(struct cmd_tbl *cmdtp, int flag, int argc,
 		  char *const argv[])
 {
-	cmd_tbl_t *c;
+	struct cmd_tbl *c;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;

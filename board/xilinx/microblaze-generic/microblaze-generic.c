@@ -12,7 +12,9 @@
 
 #include <common.h>
 #include <config.h>
+#include <env.h>
 #include <init.h>
+#include <log.h>
 #include <dm/lists.h>
 #include <fdtdec.h>
 #include <linux/sizes.h>

@@ -18,6 +18,7 @@
 #include <command.h>
 #include <console.h>
 #include <dm.h>
+#include <init.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <pci.h>
@@ -655,7 +656,7 @@ static void pci_show_regions(struct udevice *bus)
  *      pci modify[.b, .w, .l] bus.device.function [addr]
  *      pci write[.b, .w, .l] bus.device.function addr value
  */
-static int do_pci(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_pci(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	ulong addr = 0, value = 0, cmd_size = 0;
 	enum pci_size_t size = PCI_SIZE_32;

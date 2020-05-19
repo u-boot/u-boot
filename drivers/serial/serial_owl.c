@@ -14,6 +14,7 @@
 #include <serial.h>
 #include <asm/io.h>
 #include <asm/types.h>
+#include <linux/bitops.h>
 
 /* UART Registers */
 #define	OWL_UART_CTL			(0x0000)

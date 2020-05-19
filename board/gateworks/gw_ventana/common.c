@@ -5,6 +5,8 @@
  * Author: Tim Harvey <tharvey@gateworks.com>
  */
 
+#include <common.h>
+#include <log.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/sys_proto.h>
@@ -13,6 +15,7 @@
 #include <env.h>
 #include <fsl_esdhc_imx.h>
 #include <hwconfig.h>
+#include <linux/delay.h>
 #include <power/pmic.h>
 #include <power/ltc3676_pmic.h>
 #include <power/pfuze100_pmic.h>

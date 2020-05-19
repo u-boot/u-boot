@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <fdtdec.h>
 #include <fdt_support.h>
+#include <log.h>
 #include <malloc.h>
 #include <linux/libfdt.h>
 #include <dm/of_access.h>

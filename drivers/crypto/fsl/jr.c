@@ -7,13 +7,16 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <log.h>
 #include <malloc.h>
 #include "fsl_sec.h"
 #include "jr.h"
 #include "jobdesc.h"
 #include "desc_constr.h"
 #include <time.h>
+#include <asm/cache.h>
 #ifdef CONFIG_FSL_CORENET
+#include <asm/cache.h>
 #include <asm/fsl_pamu.h>
 #endif
 

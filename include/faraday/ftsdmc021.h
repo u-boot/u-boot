@@ -14,6 +14,7 @@
 #define __FTSDMC021_H
 
 #ifndef __ASSEMBLY__
+#include <linux/bitops.h>
 struct ftsdmc021 {
 	unsigned int	tp1;		/* 0x00 - SDRAM Timing Parameter 1 */
 	unsigned int	tp2;		/* 0x04 - SDRAM Timing Parameter 2 */

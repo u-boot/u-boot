@@ -19,11 +19,13 @@
  */
 
 #include <common.h>
+#include <bootstage.h>
 #include <command.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>
 #include <init.h>
+#include <log.h>
 #include <malloc.h>
 #include <syscon.h>
 #include <acpi/acpi_s3.h>

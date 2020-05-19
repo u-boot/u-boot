@@ -1,6 +1,8 @@
 #ifndef _TYPE_BEDBUG_H
 #define _TYPE_BEDBUG_H
 
+struct cmd_tbl;
+
 /* Supporting routines */
 int bedbug_puts (const char *);
 int bedbug_init(void);
@@ -15,7 +17,8 @@ typedef struct {
 	int current_bp;
 	struct pt_regs *regs;
 
-	void (*do_break) (cmd_tbl_t *, int, int, char * const []);
+	void (*do_break)(struct cmd_tbl *cmd, int flags, int argc,
+			 char *const argv[]);
 	void (*break_isr) (struct pt_regs *);
 	int (*find_empty) (void);
 	int (*set) (int, unsigned long);

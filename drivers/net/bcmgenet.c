@@ -16,11 +16,15 @@
  * we only support v5, as used in the Raspberry Pi 4.
  */
 
+#include <log.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <clk.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <fdt_support.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 #include <malloc.h>
 #include <miiphy.h>

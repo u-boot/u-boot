@@ -6,6 +6,7 @@
 #include <common.h>
 #include <clock_legacy.h>
 #include <dm.h>
+#include <init.h>
 #include <dm/platform_data/serial_pl01x.h>
 #include <i2c.h>
 #include <malloc.h>
@@ -15,6 +16,7 @@
 #include <fsl_sec.h>
 #include <asm/io.h>
 #include <fdt_support.h>
+#include <linux/bitops.h>
 #include <linux/libfdt.h>
 #include <fsl-mc/fsl_mc.h>
 #include <env_internal.h>

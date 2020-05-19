@@ -8,10 +8,12 @@
  */
 #include <common.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <part.h>
 #include <mmc.h>
 #include <stdlib.h>
+#include <linux/bitops.h>
 #include <u-boot/crc.h>
 #include <linux/crc7.h>
 #include <asm/byteorder.h>

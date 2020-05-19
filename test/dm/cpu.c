@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <dm/test.h>
 #include <dm/uclass-internal.h>
 #include <cpu.h>

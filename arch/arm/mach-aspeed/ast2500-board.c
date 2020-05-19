@@ -4,6 +4,8 @@
  */
 #include <common.h>
 #include <dm.h>
+#include <init.h>
+#include <log.h>
 #include <ram.h>
 #include <timer.h>
 #include <asm/io.h>

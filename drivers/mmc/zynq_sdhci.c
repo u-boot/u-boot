@@ -9,7 +9,9 @@
 #include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <linux/delay.h>
 #include "mmc_private.h"
+#include <log.h>
 #include <dm/device_compat.h>
 #include <linux/err.h>
 #include <linux/libfdt.h>

@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <bootstage.h>
 #include <asm/arch/timestamp.h>
 #include <asm/arch/sysinfo.h>
 #include <linux/compiler.h>

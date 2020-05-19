@@ -5,10 +5,12 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <malloc.h>
 #include <misc.h>
 #include <power-domain-uclass.h>
 #include <asm/arch-tegra/bpmp_abi.h>
+#include <linux/bitops.h>
 
 #define UPDATE	BIT(0)
 #define ON	BIT(1)

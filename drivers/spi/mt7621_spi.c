@@ -11,8 +11,10 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <log.h>
 #include <spi.h>
 #include <wait_bit.h>
+#include <linux/bitops.h>
 #include <linux/io.h>
 
 #define MT7621_RX_FIFO_LEN	32

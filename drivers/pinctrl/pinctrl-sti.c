@@ -14,6 +14,8 @@
 #include <syscon.h>
 #include <asm/io.h>
 #include <dm/pinctrl.h>
+#include <linux/bug.h>
+#include <linux/libfdt.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

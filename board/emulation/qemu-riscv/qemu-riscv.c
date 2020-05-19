@@ -7,6 +7,8 @@
 #include <dm.h>
 #include <env.h>
 #include <fdtdec.h>
+#include <image.h>
+#include <log.h>
 #include <spl.h>
 #include <init.h>
 #include <virtio_types.h>

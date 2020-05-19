@@ -5,8 +5,6 @@
 #ifndef _ASM_ARCH_CRU_RK322X_H
 #define _ASM_ARCH_CRU_RK322X_H
 
-#include <common.h>
-
 #define MHz		1000000
 #define OSC_HZ		(24 * MHz)
 

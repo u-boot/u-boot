@@ -113,6 +113,7 @@
 
 #include <common.h>
 #include <config.h>
+#include <flash.h>
 #include <malloc.h>
 #include <div64.h>
 #include <linux/compiler.h>

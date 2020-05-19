@@ -6,6 +6,9 @@
 #include <common.h>
 #include <ahci.h>
 #include <cpu_func.h>
+#include <init.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/mbus.h>
 #include <asm/io.h>
 #include <asm/pl310.h>

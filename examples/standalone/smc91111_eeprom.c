@@ -12,6 +12,7 @@
 
 #include <common.h>
 #include <exports.h>
+#include <linux/delay.h>
 #include "../drivers/net/smc91111.h"
 
 #ifndef SMC91111_EEPROM_INIT
@@ -31,7 +32,7 @@ void print_MAC (struct eth_device *dev);
 int read_eeprom_reg (struct eth_device *dev, int reg);
 void print_macaddr (struct eth_device *dev);
 
-int smc91111_eeprom (int argc, char * const argv[])
+int smc91111_eeprom(int argc, char *const argv[])
 {
 	int c, i, j, done, line, reg, value, start, what;
 	char input[50];
@@ -237,7 +238,7 @@ void copy_from_eeprom (struct eth_device *dev)
 		CTL_RELOAD, CTL_REG);
 	i = 100;
 	while ((SMC_inw (dev, CTL_REG) & CTL_RELOAD) && --i)
-		udelay (100);
+		udelay(100);
 	if (i == 0) {
 		printf ("Timeout Refreshing EEPROM registers\n");
 	} else {
@@ -318,7 +319,7 @@ int read_eeprom_reg (struct eth_device *dev, int reg)
 		CTL_RELOAD, CTL_REG);
 	timeout = 100;
 	while ((SMC_inw (dev, CTL_REG) & CTL_RELOAD) && --timeout)
-		udelay (100);
+		udelay(100);
 	if (timeout == 0) {
 		printf ("Timeout Reading EEPROM register %02x\n", reg);
 		return 0;
@@ -341,7 +342,7 @@ int write_eeprom_reg (struct eth_device *dev, int value, int reg)
 		CTL_STORE, CTL_REG);
 	timeout = 100;
 	while ((SMC_inw (dev, CTL_REG) & CTL_STORE) && --timeout)
-		udelay (100);
+		udelay(100);
 	if (timeout == 0) {
 		printf ("Timeout Writing EEPROM register %02x\n", reg);
 		return 0;

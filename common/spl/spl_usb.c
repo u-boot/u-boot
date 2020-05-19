@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <spl.h>
 #include <asm/u-boot.h>
 #include <errno.h>

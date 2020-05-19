@@ -11,6 +11,7 @@
 #include <ec_commands.h>
 #include <errno.h>
 #include <hash.h>
+#include <log.h>
 #include <os.h>
 #include <u-boot/sha256.h>
 #include <spi.h>

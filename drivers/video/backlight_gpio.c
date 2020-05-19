@@ -7,6 +7,7 @@
 #include <common.h>
 #include <dm.h>
 #include <backlight.h>
+#include <log.h>
 #include <asm/gpio.h>
 
 struct gpio_backlight_priv {

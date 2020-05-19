@@ -5,6 +5,7 @@
  */
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <malloc.h>
 #include <usb.h>
 #include <watchdog.h>

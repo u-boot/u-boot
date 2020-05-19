@@ -12,6 +12,8 @@
 #include <dm/of_access.h>
 #include <dt-structs.h>
 #include <errno.h>
+#include <linux/bitops.h>
+#include <linux/bug.h>
 #include <linux/errno.h>
 #include <spi.h>
 #include <wait_bit.h>

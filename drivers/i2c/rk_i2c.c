@@ -11,11 +11,13 @@
 #include <dm.h>
 #include <errno.h>
 #include <i2c.h>
+#include <log.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/i2c.h>
 #include <asm/arch-rockchip/periph.h>
 #include <dm/pinctrl.h>
+#include <linux/delay.h>
 #include <linux/sizes.h>
 
 /* i2c timerout */

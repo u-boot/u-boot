@@ -33,14 +33,19 @@
 
 #include <common.h>
 #include <ahci.h>
+#include <blk.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <log.h>
+#include <asm/cache.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <fis.h>
 #include <libata.h>
 #include <malloc.h>
 #include <sata.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/io.h>
 #include <linux/mbus.h>

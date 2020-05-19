@@ -8,6 +8,7 @@
 #include <common.h>
 #include <errno.h>
 #include <dm.h>
+#include <log.h>
 #include <malloc.h>
 #include <dm/device-internal.h>
 #include <dm/devres.h>

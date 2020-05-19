@@ -6,7 +6,13 @@
  */
 
 #include <common.h>
+#include <command.h>
+#include <env.h>
+#include <log.h>
 #include <asm/arch/sm.h>
+#include <asm/cache.h>
+#include <asm/ptrace.h>
+#include <linux/bitops.h>
 #include <linux/err.h>
 #include <linux/kernel.h>
 #include <dm.h>
@@ -116,7 +122,7 @@ int meson_sm_get_reboot_reason(void)
 	return FIELD_GET(REBOOT_REASON_MASK, reason);
 }
 
-static int do_sm_serial(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_sm_serial(struct cmd_tbl *cmdtp, int flag, int argc,
 			char *const argv[])
 {
 	ulong address;
@@ -152,8 +158,8 @@ static const char *reboot_reasons[MAX_REBOOT_REASONS] = {
 	[REBOOT_REASON_WATCHDOG_REBOOT] = "watchdog_reboot",
 };
 
-static int do_sm_reboot_reason(cmd_tbl_t *cmdtp, int flag, int argc,
-			char *const argv[])
+static int do_sm_reboot_reason(struct cmd_tbl *cmdtp, int flag, int argc,
+			       char *const argv[])
 {
 	const char *reason_str;
 	char *destarg = NULL;
@@ -180,15 +186,15 @@ static int do_sm_reboot_reason(cmd_tbl_t *cmdtp, int flag, int argc,
 	return CMD_RET_SUCCESS;
 }
 
-static cmd_tbl_t cmd_sm_sub[] = {
+static struct cmd_tbl cmd_sm_sub[] = {
 	U_BOOT_CMD_MKENT(serial, 2, 1, do_sm_serial, "", ""),
 	U_BOOT_CMD_MKENT(reboot_reason, 1, 1, do_sm_reboot_reason, "", ""),
 };
 
-static int do_sm(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_sm(struct cmd_tbl *cmdtp, int flag, int argc,
 		 char *const argv[])
 {
-	cmd_tbl_t *c;
+	struct cmd_tbl *c;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;

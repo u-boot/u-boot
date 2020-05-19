@@ -11,8 +11,6 @@
 #ifndef _LPC32XX_DMA_H
 #define _LPC32XX_DMA_H
 
-#include <common.h>
-
 /*
  * DMA linked list structure used with a channel's LLI register;
  * refer to UM10326, "LPC32x0 and LPC32x0/01 User manual" - Rev. 3

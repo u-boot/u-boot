@@ -9,12 +9,14 @@
 #include <dt-structs.h>
 #include <dwmmc.h>
 #include <errno.h>
+#include <log.h>
 #include <mapmem.h>
 #include <pwrseq.h>
 #include <syscon.h>
 #include <asm/gpio.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/periph.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 
 struct rockchip_mmc_plat {

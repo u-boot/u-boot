@@ -5,7 +5,9 @@
  */
 
 #include <common.h>
+#include <image.h>
 #include <mapmem.h>
+#include <linux/bitops.h>
 #include <linux/sizes.h>
 
 DECLARE_GLOBAL_DATA_PTR;

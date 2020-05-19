@@ -144,6 +144,7 @@
 	"run distro_bootcmd"
 
 #include <config_distro_bootcmd.h>
+#include <linux/stringify.h>
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_PROMPT		"=> "

@@ -8,7 +8,9 @@
 #include <common.h>
 #include <dm.h>
 #include <eeprom.h>
+#include <image.h>
 #include <init.h>
+#include <net.h>
 #include <dm/device-internal.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
@@ -30,6 +32,7 @@
 #include <i2c_eeprom.h>
 #include <mmc.h>
 #include <usb.h>
+#include <linux/delay.h>
 #include <usb/ehci-ci.h>
 
 DECLARE_GLOBAL_DATA_PTR;

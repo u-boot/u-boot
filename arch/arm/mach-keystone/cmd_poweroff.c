@@ -12,7 +12,7 @@
 #include <asm/arch/psc_defs.h>
 #include <asm/arch/hardware.h>
 
-int do_poweroff(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_poweroff(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	mon_power_off(0);
 

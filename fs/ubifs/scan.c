@@ -17,6 +17,7 @@
 
 #ifdef __UBOOT__
 #include <hexdump.h>
+#include <log.h>
 #include <dm/devres.h>
 #include <linux/err.h>
 #endif

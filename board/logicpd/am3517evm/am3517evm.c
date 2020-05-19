@@ -12,6 +12,8 @@
 
 #include <common.h>
 #include <dm.h>
+#include <init.h>
+#include <net.h>
 #include <ns16550.h>
 #include <serial.h>
 #include <asm/io.h>

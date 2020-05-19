@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <asm/io.h>
 #include <linux/bitfield.h>
+#include <linux/bitops.h>
 
 #include "meson_vpu.h"
 

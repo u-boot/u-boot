@@ -9,9 +9,11 @@
 
 #include <common.h>
 #include <env.h>
+#include <log.h>
 #include <pci.h>
 #include <usb.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 #include <usb/ehci-ci.h>
 #include <hwconfig.h>
 #include <fsl_usb.h>

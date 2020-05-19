@@ -9,6 +9,7 @@
 #include <charset.h>
 #include <command.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <test/test.h>
 #include <test/suites.h>
@@ -591,7 +592,7 @@ static int unicode_test_u16_strsize(struct unit_test_state *uts)
 }
 UNICODE_TEST(unicode_test_u16_strsize);
 
-int do_ut_unicode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_ut_unicode(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct unit_test *tests = ll_entry_start(struct unit_test, unicode_test);
 	const int n_ents = ll_entry_count(struct unit_test, unicode_test);

@@ -7,6 +7,8 @@
 #ifndef __MX6CUBOXI_CONFIG_H
 #define __MX6CUBOXI_CONFIG_H
 
+#include <linux/stringify.h>
+
 #include "mx6_common.h"
 
 #include "imx6_spl.h"

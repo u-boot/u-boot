@@ -4,8 +4,11 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <cpu_func.h>
 #include <hang.h>
+#include <asm/cache.h>
+#include <init.h>
 #include <asm/io.h>
 #include <errno.h>
 #include <fdtdec.h>
@@ -176,7 +179,8 @@ int arch_cpu_init(void)
 }
 
 #ifndef CONFIG_SPL_BUILD
-static int do_bridge(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_bridge(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[])
 {
 	unsigned int mask = ~0;
 

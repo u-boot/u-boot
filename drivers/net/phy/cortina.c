@@ -9,8 +9,10 @@
 
 #include <config.h>
 #include <common.h>
+#include <log.h>
 #include <malloc.h>
 #include <linux/ctype.h>
+#include <linux/delay.h>
 #include <linux/string.h>
 #include <linux/err.h>
 #include <phy.h>

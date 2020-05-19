@@ -14,6 +14,7 @@
 #include <env.h>
 #include <env_internal.h>
 #include <flash.h>
+#include <log.h>
 #include <linux/stddef.h>
 #include <malloc.h>
 #include <search.h>

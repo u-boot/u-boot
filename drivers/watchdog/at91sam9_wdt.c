@@ -14,6 +14,7 @@
  * write to this register. Inform Linux to it too
  */
 
+#include <log.h>
 #include <asm/io.h>
 #include <asm/arch/at91_wdt.h>
 #include <common.h>

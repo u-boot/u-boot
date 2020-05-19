@@ -48,8 +48,10 @@
 #include <common.h>
 #include <bios_emul.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <vbe.h>
+#include <linux/delay.h>
 #include "biosemui.h"
 
 /* Length of the BIOS image */

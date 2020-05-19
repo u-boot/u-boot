@@ -14,6 +14,7 @@
 #include "common.h"
 #include <clk.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <mmc.h>
 #include <dm/device_compat.h>
@@ -22,6 +23,7 @@
 #include <asm-generic/gpio.h>
 
 #include "arm_pl180_mmci.h"
+#include <linux/delay.h>
 
 #ifdef CONFIG_DM_MMC
 #include <dm.h>

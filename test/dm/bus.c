@@ -5,6 +5,7 @@
 
 #include <common.h>
 #ifdef CONFIG_SANDBOX
+#include <log.h>
 #include <os.h>
 #endif
 #include <dm.h>

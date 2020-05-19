@@ -7,6 +7,8 @@
  */
 
 #include <common.h>
+#include <command.h>
+#include <log.h>
 #include <asm/io.h>
 #include <linux/errno.h>
 #include <asm/arch/imx-regs.h>
@@ -943,7 +945,8 @@ void mxc_set_sata_internal_clock(void)
 /*
  * Dump some core clockes.
  */
-static int do_mx5_showclocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_mx5_showclocks(struct cmd_tbl *cmdtp, int flag, int argc,
+			     char *const argv[])
 {
 	u32 freq;
 

@@ -9,6 +9,8 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <init.h>
+#include <net.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/pxa.h>
 #include <asm/arch/regs-mmc.h>
@@ -20,6 +22,7 @@
 #include <serial.h>
 #include <usb.h>
 #include <asm/mach-types.h>
+#include <linux/delay.h>
 #include "../common/tdx-common.h"
 
 DECLARE_GLOBAL_DATA_PTR;

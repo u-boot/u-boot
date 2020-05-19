@@ -6,6 +6,8 @@
 
 #include <common.h>
 #include <init.h>
+#include <log.h>
+#include <net.h>
 #include <asm/arch/boot.h>
 #include <asm/arch/eth.h>
 #include <asm/arch/g12a.h>

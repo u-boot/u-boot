@@ -13,6 +13,8 @@
 #ifndef _M52277EVB_H
 #define _M52277EVB_H
 
+#include <linux/stringify.h>
+
 /*
  * High Level Configuration Options
  * (easy to change)

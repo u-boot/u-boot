@@ -11,6 +11,9 @@
 #define _OWL_CLK_H_
 
 #include <clk-uclass.h>
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
 
 enum owl_soc {
 	S700,

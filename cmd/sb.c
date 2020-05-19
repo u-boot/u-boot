@@ -5,11 +5,12 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <dm.h>
 #include <spl.h>
 #include <asm/state.h>
 
-static int do_sb_handoff(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_sb_handoff(struct cmd_tbl *cmdtp, int flag, int argc,
 			 char *const argv[])
 {
 #if CONFIG_IS_ENABLED(HANDOFF)
@@ -26,8 +27,8 @@ static int do_sb_handoff(cmd_tbl_t *cmdtp, int flag, int argc,
 #endif
 }
 
-static int do_sb_state(cmd_tbl_t *cmdtp, int flag, int argc,
-		       char * const argv[])
+static int do_sb_state(struct cmd_tbl *cmdtp, int flag, int argc,
+		       char *const argv[])
 {
 	struct sandbox_state *state;
 
@@ -37,14 +38,14 @@ static int do_sb_state(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
-static cmd_tbl_t cmd_sb_sub[] = {
+static struct cmd_tbl cmd_sb_sub[] = {
 	U_BOOT_CMD_MKENT(handoff, 1, 0, do_sb_handoff, "", ""),
 	U_BOOT_CMD_MKENT(state, 1, 0, do_sb_state, "", ""),
 };
 
-static int do_sb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_sb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	cmd_tbl_t *c;
+	struct cmd_tbl *c;
 
 	/* Skip past 'sb' */
 	argc--;

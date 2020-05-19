@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <init.h>
 #include <linux/compiler.h>
 #include <asm/cache.h>
 #include <asm/mipsregs.h>
@@ -20,7 +21,7 @@ void __weak _machine_restart(void)
 		/* NOP */;
 }
 
-int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	_machine_restart();
 

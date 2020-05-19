@@ -7,10 +7,13 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <dm.h>
 #include <irq_func.h>
+#include <log.h>
 #include <dm/lists.h>
 #include <efi_loader.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <linux/arm-smccc.h>
 #include <linux/errno.h>
@@ -131,7 +134,7 @@ void reset_misc(void)
 #endif /* CONFIG_PSCI_RESET */
 
 #ifdef CONFIG_CMD_POWEROFF
-int do_poweroff(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_poweroff(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	do_psci_probe();
 

@@ -7,11 +7,12 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <g_dnl.h>
 #include <sdp.h>
 #include <usb.h>
 
-static int do_sdp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_sdp(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	int ret;
 

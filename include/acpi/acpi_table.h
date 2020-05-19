@@ -13,6 +13,8 @@
 #ifndef __ACPI_TABLE_H__
 #define __ACPI_TABLE_H__
 
+#include <linux/bitops.h>
+
 #define RSDP_SIG		"RSD PTR "	/* RSDP pointer signature */
 #define OEM_ID			"U-BOOT"	/* U-Boot */
 #define OEM_TABLE_ID		"U-BOOTBL"	/* U-Boot Table */

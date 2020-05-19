@@ -23,6 +23,7 @@
 
 #ifndef __ASSEMBLY__
 
+#include <asm/types.h>
 #include <linux/types.h>
 
 typedef struct bd_info {

@@ -10,7 +10,8 @@
 #include <usb.h>
 #include <asm/arch-rockchip/f_rockusb.h>
 
-static int do_rockusb(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+static int do_rockusb(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	int controller_index, dev_index;
 	char *usb_controller;

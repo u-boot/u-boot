@@ -11,6 +11,8 @@
 #ifndef __T2080RDB_H
 #define __T2080RDB_H
 
+#include <linux/stringify.h>
+
 #define CONFIG_ICS307_REFCLK_HZ 25000000  /* ICS307 ref clk freq */
 #define CONFIG_FSL_SATA_V2
 

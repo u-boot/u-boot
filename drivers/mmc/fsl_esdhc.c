@@ -20,9 +20,12 @@
 #include <malloc.h>
 #include <fsl_esdhc.h>
 #include <fdt_support.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <dm.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

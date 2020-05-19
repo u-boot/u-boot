@@ -9,11 +9,12 @@
 #include <test/suites.h>
 #include <test/test.h>
 
-static int do_ut_all(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+static int do_ut_all(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[]);
 
 int cmd_ut_category(const char *name, const char *prefix,
 		    struct unit_test *tests, int n_ents,
-		    int argc, char * const argv[])
+		    int argc, char *const argv[])
 {
 	struct unit_test_state uts = { .fail_count = 0 };
 	struct unit_test *test;
@@ -43,7 +44,7 @@ int cmd_ut_category(const char *name, const char *prefix,
 	return uts.fail_count ? CMD_RET_FAILURE : 0;
 }
 
-static cmd_tbl_t cmd_ut_sub[] = {
+static struct cmd_tbl cmd_ut_sub[] = {
 	U_BOOT_CMD_MKENT(all, CONFIG_SYS_MAXARGS, 1, do_ut_all, "", ""),
 #if defined(CONFIG_UT_DM)
 	U_BOOT_CMD_MKENT(dm, CONFIG_SYS_MAXARGS, 1, do_ut_dm, "", ""),
@@ -79,7 +80,8 @@ static cmd_tbl_t cmd_ut_sub[] = {
 #endif
 };
 
-static int do_ut_all(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_ut_all(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[])
 {
 	int i;
 	int retval;
@@ -95,9 +97,9 @@ static int do_ut_all(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return any_fail;
 }
 
-static int do_ut(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_ut(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	cmd_tbl_t *cp;
+	struct cmd_tbl *cp;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;

@@ -6,7 +6,10 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <env.h>
 #include <errno.h>
+#include <init.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <asm/io.h>
 #include <asm/gpio.h>

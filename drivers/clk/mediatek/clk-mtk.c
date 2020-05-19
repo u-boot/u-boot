@@ -11,6 +11,8 @@
 #include <div64.h>
 #include <dm.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 #include "clk-mtk.h"
 

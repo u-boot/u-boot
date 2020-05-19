@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <dt-structs.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <syscon.h>
@@ -22,8 +23,11 @@
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dm/uclass-internal.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 #include <linux/log2.h>
+#include <linux/stringify.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

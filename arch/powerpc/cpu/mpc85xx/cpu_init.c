@@ -12,6 +12,7 @@
 #include <common.h>
 #include <env.h>
 #include <init.h>
+#include <net.h>
 #include <watchdog.h>
 #include <asm/processor.h>
 #include <ioports.h>
@@ -32,6 +33,7 @@
 #include <fsl_usb.h>
 #include <hwconfig.h>
 #include <linux/compiler.h>
+#include <linux/delay.h>
 #include "mp.h"
 #ifdef CONFIG_CHAIN_OF_TRUST
 #include <fsl_validate.h>

@@ -13,6 +13,7 @@
 #ifndef __DMA_H__
 #define __DMA_H__
 
+#include <asm/cache.h>
 #include <linux/list.h>
 #include <linux/compiler.h>
 

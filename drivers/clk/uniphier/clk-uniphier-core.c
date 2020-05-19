@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <dm/device_compat.h>
 #include <linux/bitops.h>
+#include <linux/bug.h>
 #include <linux/io.h>
 #include <linux/sizes.h>
 

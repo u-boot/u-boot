@@ -64,7 +64,7 @@ static int print_cpu_list(bool detail)
 	return 0;
 }
 
-static int do_cpu_list(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_cpu_list(struct cmd_tbl *cmdtp, int flag, int argc,
 		       char *const argv[])
 {
 	if (print_cpu_list(false))
@@ -73,7 +73,7 @@ static int do_cpu_list(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
-static int do_cpu_detail(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_cpu_detail(struct cmd_tbl *cmdtp, int flag, int argc,
 			 char *const argv[])
 {
 	if (print_cpu_list(true))
@@ -82,7 +82,7 @@ static int do_cpu_detail(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
-static cmd_tbl_t cmd_cpu_sub[] = {
+static struct cmd_tbl cmd_cpu_sub[] = {
 	U_BOOT_CMD_MKENT(list, 2, 1, do_cpu_list, "", ""),
 	U_BOOT_CMD_MKENT(detail, 4, 0, do_cpu_detail, "", ""),
 };
@@ -90,10 +90,10 @@ static cmd_tbl_t cmd_cpu_sub[] = {
 /*
  * Process a cpu sub-command
  */
-static int do_cpu(cmd_tbl_t *cmdtp, int flag, int argc,
-		  char * const argv[])
+static int do_cpu(struct cmd_tbl *cmdtp, int flag, int argc,
+		  char *const argv[])
 {
-	cmd_tbl_t *c = NULL;
+	struct cmd_tbl *c = NULL;
 
 	/* Strip off leading 'cpu' command argument */
 	argc--;

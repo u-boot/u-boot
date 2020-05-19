@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <linux/io.h>
 
 #include "arm-mpcore.h"

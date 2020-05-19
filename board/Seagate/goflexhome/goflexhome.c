@@ -12,6 +12,8 @@
  */
 
 #include <common.h>
+#include <bootstage.h>
+#include <init.h>
 #include <miiphy.h>
 #include <net.h>
 #include <asm/mach-types.h>

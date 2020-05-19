@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <pci.h>
 #include <generic-phy.h>
 #include <power-domain.h>
@@ -13,6 +14,8 @@
 #include <asm/io.h>
 #include <asm-generic/gpio.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 
 DECLARE_GLOBAL_DATA_PTR;

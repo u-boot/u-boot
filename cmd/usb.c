@@ -11,6 +11,8 @@
  */
 
 #include <common.h>
+#include <blk.h>
+#include <bootstage.h>
 #include <command.h>
 #include <console.h>
 #include <dm.h>
@@ -554,7 +556,8 @@ static int usb_test(struct usb_device *dev, int port, char* arg)
  * usb boot command intepreter. Derived from diskboot
  */
 #ifdef CONFIG_USB_STORAGE
-static int do_usbboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_usbboot(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	return common_diskboot(cmdtp, "usb", argc, argv);
 }
@@ -623,7 +626,7 @@ static void usb_show_info(struct usb_device *udev)
 /******************************************************************************
  * usb command intepreter
  */
-static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_usb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct usb_device *udev = NULL;
 	int i;

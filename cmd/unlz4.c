@@ -9,7 +9,8 @@
 #include <env.h>
 #include <lz4.h>
 
-static int do_unlz4(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_unlz4(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[])
 {
 	unsigned long src, dst;
 	size_t src_len = ~0UL, dst_len = ~0UL;

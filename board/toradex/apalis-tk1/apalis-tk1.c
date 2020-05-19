@@ -5,6 +5,9 @@
 
 #include <common.h>
 #include <dm.h>
+#include <env.h>
+#include <init.h>
+#include <log.h>
 #include <asm/arch-tegra/ap.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
@@ -12,6 +15,7 @@
 #include <asm/arch/pinmux.h>
 #include <env_internal.h>
 #include <pci_tegra.h>
+#include <linux/delay.h>
 #include <power/as3722.h>
 #include <power/pmic.h>
 

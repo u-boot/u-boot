@@ -18,6 +18,10 @@
 #ifndef __ARM_PSCI_H__
 #define __ARM_PSCI_H__
 
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 #define ARM_PSCI_VER_1_0		(0x00010000)
 #define ARM_PSCI_VER_0_2		(0x00000002)
 
@@ -96,6 +100,7 @@
 
 #ifndef __ASSEMBLY__
 #include <asm/types.h>
+#include <linux/bitops.h>
 
 /* These 3 helper functions assume cpu < CONFIG_ARMV7_PSCI_NR_CPUS */
 u32 psci_get_target_pc(int cpu);

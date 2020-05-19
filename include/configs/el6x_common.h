@@ -8,6 +8,8 @@
 #ifndef __EL6Q_COMMON_CONFIG_H
 #define __EL6Q_COMMON_CONFIG_H
 
+#include <linux/stringify.h>
+
 #define CONFIG_BOARD_NAME		EL6Q
 
 #include "mx6_common.h"

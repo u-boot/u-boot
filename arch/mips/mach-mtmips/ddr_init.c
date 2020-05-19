@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/io.h>
 #include <linux/sizes.h>
 #include <mach/ddr.h>

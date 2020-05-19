@@ -84,7 +84,7 @@ int hmatch_r(const char *match, int last_idx, struct env_entry **retval,
 int hdelete_r(const char *key, struct hsearch_data *htab, int flag);
 
 ssize_t hexport_r(struct hsearch_data *htab, const char sep, int flag,
-		  char **resp, size_t size, int argc, char * const argv[]);
+		  char **resp, size_t size, int argc, char *const argv[]);
 
 /*
  * nvars: length of vars array

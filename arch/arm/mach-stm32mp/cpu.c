@@ -7,12 +7,16 @@
 #include <cpu_func.h>
 #include <debug_uart.h>
 #include <env.h>
+#include <init.h>
+#include <log.h>
 #include <misc.h>
+#include <net.h>
 #include <asm/io.h>
 #include <asm/arch/stm32.h>
 #include <asm/arch/sys_proto.h>
 #include <dm/device.h>
 #include <dm/uclass.h>
+#include <linux/bitops.h>
 
 /* RCC register */
 #define RCC_TZCR		(STM32_RCC_BASE + 0x00)

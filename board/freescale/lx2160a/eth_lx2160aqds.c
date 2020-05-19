@@ -6,8 +6,10 @@
 
 #include <common.h>
 #include <env.h>
+#include <fdt_support.h>
 #include <hwconfig.h>
 #include <command.h>
+#include <log.h>
 #include <net.h>
 #include <netdev.h>
 #include <malloc.h>
@@ -20,6 +22,7 @@
 #include <asm/arch/fsl_serdes.h>
 #include <fsl-mc/fsl_mc.h>
 #include <fsl-mc/ldpaa_wriop.h>
+#include <linux/libfdt.h>
 
 #include "../common/qixis.h"
 

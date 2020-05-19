@@ -9,6 +9,7 @@
 #include <cpu.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <qfw.h>
 #include <asm/atomic.h>
@@ -25,6 +26,7 @@
 #include <dm/uclass-internal.h>
 #include <dm/lists.h>
 #include <dm/root.h>
+#include <linux/delay.h>
 #include <linux/linkage.h>
 
 DECLARE_GLOBAL_DATA_PTR;

@@ -5,8 +5,10 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm/io.h>
 #include <asm/arch-tegra/tegra_i2c.h>
+#include <linux/delay.h>
 #include "as3722_init.h"
 
 /* AS3722-PMIC-specific early init code - get CPU rails up, etc */

@@ -7,8 +7,10 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/io.h>
 #include <asm/arch/soc.h>
+#include <linux/bitops.h>
 
 #define TIMER_LOAD_VAL			0xffffffff
 

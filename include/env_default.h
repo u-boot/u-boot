@@ -8,6 +8,7 @@
  */
 
 #include <env_callback.h>
+#include <linux/stringify.h>
 
 #ifdef DEFAULT_ENV_INSTANCE_EMBEDDED
 env_t embedded_environment __UBOOT_ENV_SECTION__(environment) = {

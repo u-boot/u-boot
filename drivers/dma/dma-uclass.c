@@ -12,7 +12,9 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <log.h>
 #include <malloc.h>
+#include <asm/cache.h>
 #include <dm/read.h>
 #include <dma-uclass.h>
 #include <dt-structs.h>

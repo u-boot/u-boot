@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <serial.h>
 #include <dm.h>
 #include <dm/test.h>

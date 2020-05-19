@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <pch.h>
 
 #define GPIO_BASE	0x44

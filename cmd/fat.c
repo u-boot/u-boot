@@ -8,11 +8,14 @@
  * Boot support
  */
 #include <common.h>
+#include <command.h>
 #include <mapmem.h>
 #include <fat.h>
 #include <fs.h>
+#include <part.h>
+#include <asm/cache.h>
 
-int do_fat_size(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_fat_size(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	return do_size(cmdtp, flag, argc, argv, FS_TYPE_FAT);
 }
@@ -25,7 +28,7 @@ U_BOOT_CMD(
 	"      and determine its size."
 );
 
-int do_fat_fsload(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_fat_fsload(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	return do_load(cmdtp, flag, argc, argv, FS_TYPE_FAT);
 }
@@ -46,7 +49,8 @@ U_BOOT_CMD(
 	"      be printed and performance will suffer for the load."
 );
 
-static int do_fat_ls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_fat_ls(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[])
 {
 	return do_ls(cmdtp, flag, argc, argv, FS_TYPE_FAT);
 }
@@ -58,12 +62,12 @@ U_BOOT_CMD(
 	"    - list files from 'dev' on 'interface' in a 'directory'"
 );
 
-static int do_fat_fsinfo(cmd_tbl_t *cmdtp, int flag, int argc,
-			 char * const argv[])
+static int do_fat_fsinfo(struct cmd_tbl *cmdtp, int flag, int argc,
+			 char *const argv[])
 {
 	int dev, part;
 	struct blk_desc *dev_desc;
-	disk_partition_t info;
+	struct disk_partition info;
 
 	if (argc < 2) {
 		printf("usage: fatinfo <interface> [<dev[:part]>]\n");
@@ -91,8 +95,8 @@ U_BOOT_CMD(
 );
 
 #ifdef CONFIG_FAT_WRITE
-static int do_fat_fswrite(cmd_tbl_t *cmdtp, int flag,
-		int argc, char * const argv[])
+static int do_fat_fswrite(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
 {
 	loff_t size;
 	int ret;
@@ -100,7 +104,7 @@ static int do_fat_fswrite(cmd_tbl_t *cmdtp, int flag,
 	unsigned long count;
 	long offset;
 	struct blk_desc *dev_desc = NULL;
-	disk_partition_t info;
+	struct disk_partition info;
 	int dev = 0;
 	int part = 1;
 	void *buf;
@@ -146,7 +150,8 @@ U_BOOT_CMD(
 	"      to 'dev' on 'interface'"
 );
 
-static int do_fat_rm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_fat_rm(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[])
 {
 	return do_rm(cmdtp, flag, argc, argv, FS_TYPE_FAT);
 }
@@ -158,8 +163,8 @@ U_BOOT_CMD(
 	"    - delete a file from 'dev' on 'interface'"
 );
 
-static int do_fat_mkdir(cmd_tbl_t *cmdtp, int flag, int argc,
-			char * const argv[])
+static int do_fat_mkdir(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
 	return do_mkdir(cmdtp, flag, argc, argv, FS_TYPE_FAT);
 }

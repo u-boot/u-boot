@@ -9,8 +9,10 @@
 #include <errno.h>
 #include <fdt_support.h>
 #include <flash.h>
+#include <log.h>
 #include <mtd.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

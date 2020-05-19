@@ -9,6 +9,7 @@
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/spr_syscntl.h>
+#include <linux/delay.h>
 
 void reset_cpu(ulong ignored)
 {

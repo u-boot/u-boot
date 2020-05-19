@@ -14,6 +14,7 @@
 #include <hexdump.h>
 #include <malloc.h>
 #include <mapmem.h>
+#include <uuid.h>
 #include <linux/kernel.h>
 
 /*
@@ -137,7 +138,7 @@ out:
  *
  * Show information encoded in named UEFI variables
  */
-static int efi_dump_vars(int argc,  char * const argv[],
+static int efi_dump_vars(int argc,  char *const argv[],
 			 const efi_guid_t *guid, bool verbose)
 {
 	u16 *var_name16, *p;
@@ -171,7 +172,7 @@ static int efi_dump_vars(int argc,  char * const argv[],
 	return CMD_RET_SUCCESS;
 }
 
-static bool match_name(int argc, char * const argv[], u16 *var_name16)
+static bool match_name(int argc, char *const argv[], u16 *var_name16)
 {
 	char *buf, *p;
 	size_t buflen;
@@ -209,7 +210,7 @@ out:
  *
  * Show information encoded in all the UEFI variables
  */
-static int efi_dump_var_all(int argc,  char * const argv[],
+static int efi_dump_var_all(int argc,  char *const argv[],
 			    const efi_guid_t *guid_p, bool verbose)
 {
 	u16 *var_name16, *p;
@@ -274,7 +275,8 @@ static int efi_dump_var_all(int argc,  char * const argv[],
  * If one or more variable names are specified, show information
  * named UEFI variables, otherwise show all the UEFI variables.
  */
-int do_env_print_efi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_env_print_efi(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[])
 {
 	efi_guid_t guid;
 	const efi_guid_t *guid_p;
@@ -464,7 +466,8 @@ out:
  * Encode values specified and set given UEFI variable.
  * If no value is specified, delete the variable.
  */
-int do_env_set_efi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_env_set_efi(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
 	char *var_name, *value, *ep;
 	ulong addr;

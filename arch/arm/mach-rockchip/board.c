@@ -7,8 +7,10 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <init.h>
+#include <log.h>
 #include <ram.h>
 #include <syscon.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/boot_mode.h>
 #include <asm/arch-rockchip/clock.h>

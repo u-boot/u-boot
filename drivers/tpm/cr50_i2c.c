@@ -11,12 +11,14 @@
 #include <dm.h>
 #include <i2c.h>
 #include <irq.h>
+#include <log.h>
 #include <spl.h>
 #include <tpm-v2.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch/iomap.h>
 #include <asm/arch/pm.h>
+#include <linux/delay.h>
 
 enum {
 	TIMEOUT_INIT_MS		= 30000, /* Very long timeout for TPM init */

@@ -6,20 +6,25 @@
 
 #include <common.h>
 #include <ahci.h>
+#include <blk.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <dwc_ahsata.h>
 #include <fis.h>
 #include <libata.h>
+#include <log.h>
 #include <malloc.h>
 #include <memalign.h>
+#include <part.h>
 #include <sata.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-imx/sata.h>
 #include <linux/bitops.h>
 #include <linux/ctype.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include "dwc_ahsata_priv.h"
 

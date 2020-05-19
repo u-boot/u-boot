@@ -14,6 +14,7 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <log.h>
 #include <time.h>
 #include <vsprintf.h>
 #include <asm/processor.h>
@@ -22,6 +23,8 @@
 #include <spd.h>
 #include <asm/mmu.h>
 #include <spd_sdram.h>
+#include <asm/bitops.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

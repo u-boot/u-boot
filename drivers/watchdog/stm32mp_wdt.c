@@ -6,9 +6,11 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <log.h>
 #include <syscon.h>
 #include <wdt.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 #include <linux/iopoll.h>
 
 /* IWDG registers */

@@ -4,11 +4,14 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <miiphy.h>
+#include <net.h>
 #include <netdev.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
+#include <linux/bitops.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

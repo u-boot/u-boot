@@ -11,11 +11,13 @@
 #include <clk.h>
 #include <dm.h>
 #include <generic-phy.h>
+#include <log.h>
 #include <malloc.h>
 #include <pci.h>
 #include <reset.h>
 #include <asm/io.h>
 #include <dm/devres.h>
+#include <linux/bitops.h>
 #include <linux/iopoll.h>
 #include <linux/list.h>
 

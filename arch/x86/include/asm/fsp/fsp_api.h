@@ -6,6 +6,8 @@
 #ifndef __ASM_FSP_API_H
 #define __ASM_FSP_API_H
 
+#include <linux/linkage.h>
+
 enum fsp_phase {
 	/* Notification code for post PCI enuermation */
 	INIT_PHASE_PCI	= 0x20,

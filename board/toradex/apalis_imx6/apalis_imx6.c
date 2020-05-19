@@ -9,7 +9,11 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <image.h>
 #include <init.h>
+#include <net.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 #include <ahci.h>
 #include <asm/arch/clock.h>

@@ -7,6 +7,10 @@
 #ifndef _ROCKCHIP_CLOCK_H
 #define _ROCKCHIP_CLOCK_H
 
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 #if defined(CONFIG_ROCKCHIP_RK3288)
 # include <asm/arch-rockchip/cru_rk3288.h>
 #elif defined(CONFIG_ROCKCHIP_RK3399)

@@ -6,12 +6,15 @@
  * Steve Sakoman  <steve@sakoman.com>
  */
 #include <common.h>
+#include <init.h>
+#include <net.h>
 #include <palmas.h>
 #include <asm/arch/omap.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mmc_host_def.h>
 #include <tca642x.h>
 #include <usb.h>
+#include <linux/delay.h>
 #include <linux/usb/gadget.h>
 #include <dwc3-uboot.h>
 #include <dwc3-omap-uboot.h>

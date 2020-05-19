@@ -8,7 +8,11 @@
 #include <config.h>
 #include <common.h>
 #include <dm.h>
+#include <log.h>
+#include <net.h>
 #include <phy.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <u-boot/crc.h>
 #include <malloc.h>
 #include <asm/byteorder.h>

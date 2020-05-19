@@ -6,10 +6,12 @@
 #include <config.h>
 #include <common.h>
 #include <asm/armv7.h>
+#include <asm/cache.h>
 #include <asm/gic.h>
 #include <asm/io.h>
 #include <asm/psci.h>
 #include <asm/secure.h>
+#include <linux/bitops.h>
 
 #define BOOT_API_A7_CORE0_MAGIC_NUMBER	0xCA7FACE0
 #define BOOT_API_A7_CORE1_MAGIC_NUMBER	0xCA7FACE1

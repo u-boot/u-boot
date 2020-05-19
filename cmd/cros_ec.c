@@ -10,6 +10,8 @@
 #include <command.h>
 #include <cros_ec.h>
 #include <dm.h>
+#include <flash.h>
+#include <log.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
 
@@ -23,7 +25,7 @@ static const char * const ec_current_image_name[] = {"unknown", "RO", "RW"};
  * @param argv List of remaining parameters
  * @return flash region (EC_FLASH_REGION_...) or -1 on error
  */
-static int cros_ec_decode_region(int argc, char * const argv[])
+static int cros_ec_decode_region(int argc, char *const argv[])
 {
 	if (argc > 0) {
 		if (0 == strcmp(*argv, "rw"))
@@ -50,7 +52,7 @@ static int cros_ec_decode_region(int argc, char * const argv[])
  *	(negative EC_RES_...)
  */
 static int do_read_write(struct udevice *dev, int is_write, int argc,
-			 char * const argv[])
+			 char *const argv[])
 {
 	uint32_t offset, size = -1U, region_size;
 	unsigned long addr;
@@ -92,7 +94,8 @@ static int do_read_write(struct udevice *dev, int is_write, int argc,
 	return 0;
 }
 
-static int do_cros_ec(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_cros_ec(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	struct udevice *dev;
 	const char *cmd;

@@ -11,6 +11,10 @@
 #ifndef _SUNXI_DRAM_SUN9I_H
 #define _SUNXI_DRAM_SUN9I_H
 
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 struct sunxi_mctl_com_reg {
 	u32 cr;			/* 0x00 */
 	u32 ccr;		/* 0x04 controller configuration register */

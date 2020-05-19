@@ -9,6 +9,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <linux/stringify.h>
+
 #define CONFIG_FSL_SATA_V2
 #define CONFIG_PCIE4
 

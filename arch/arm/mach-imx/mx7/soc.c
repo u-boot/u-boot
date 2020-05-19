@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
@@ -18,6 +19,7 @@
 #include <imx_thermal.h>
 #include <fsl_sec.h>
 #include <asm/setup.h>
+#include <linux/delay.h>
 
 #define IOMUXC_GPR1		0x4
 #define BM_IOMUXC_GPR1_IRQ	0x1000

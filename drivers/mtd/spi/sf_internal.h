@@ -9,6 +9,7 @@
 #ifndef _SF_INTERNAL_H_
 #define _SF_INTERNAL_H_
 
+#include <linux/bitops.h>
 #include <linux/types.h>
 #include <linux/compiler.h>
 

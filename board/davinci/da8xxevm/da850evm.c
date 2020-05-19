@@ -12,6 +12,7 @@
 #include <dm.h>
 #include <env.h>
 #include <i2c.h>
+#include <init.h>
 #include <net.h>
 #include <spi.h>
 #include <spi_flash.h>

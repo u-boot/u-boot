@@ -4,6 +4,8 @@
  */
 
 #include <common.h>
+#include <image.h>
+#include <log.h>
 #include <malloc.h>
 #include <spl.h>
 

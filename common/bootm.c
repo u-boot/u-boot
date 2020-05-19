@@ -13,8 +13,11 @@
 #include <fdt_support.h>
 #include <irq_func.h>
 #include <lmb.h>
+#include <log.h>
 #include <malloc.h>
 #include <mapmem.h>
+#include <net.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #if defined(CONFIG_CMD_USB)
 #include <usb.h>
@@ -40,8 +43,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 bootm_headers_t images;		/* pointers to os/initrd/fdt images */
 
-static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
-				   char * const argv[], bootm_headers_t *images,
+static const void *boot_get_kernel(struct cmd_tbl *cmdtp, int flag, int argc,
+				   char *const argv[], bootm_headers_t *images,
 				   ulong *os_data, ulong *os_len);
 
 __weak void board_quiesce_devices(void)
@@ -65,8 +68,8 @@ static void boot_start_lmb(bootm_headers_t *images)
 static inline void boot_start_lmb(bootm_headers_t *images) { }
 #endif
 
-static int bootm_start(cmd_tbl_t *cmdtp, int flag, int argc,
-		       char * const argv[])
+static int bootm_start(struct cmd_tbl *cmdtp, int flag, int argc,
+		       char *const argv[])
 {
 	memset((void *)&images, 0, sizeof(images));
 	images.verify = env_get_yesno("verify");
@@ -79,8 +82,8 @@ static int bootm_start(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
-static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
-			 char * const argv[])
+static int bootm_find_os(struct cmd_tbl *cmdtp, int flag, int argc,
+			 char *const argv[])
 {
 	const void *os_hdr;
 	bool ep_found = false;
@@ -236,7 +239,7 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
  *     0, if all existing images were loaded correctly
  *     1, if an image is found but corrupted, or invalid
  */
-int bootm_find_images(int flag, int argc, char * const argv[])
+int bootm_find_images(int flag, int argc, char *const argv[])
 {
 	int ret;
 
@@ -283,8 +286,8 @@ int bootm_find_images(int flag, int argc, char * const argv[])
 	return 0;
 }
 
-static int bootm_find_other(cmd_tbl_t *cmdtp, int flag, int argc,
-			    char * const argv[])
+static int bootm_find_other(struct cmd_tbl *cmdtp, int flag, int argc,
+			    char *const argv[])
 {
 	if (((images.os.type == IH_TYPE_KERNEL) ||
 	     (images.os.type == IH_TYPE_KERNEL_NOLOAD) ||
@@ -518,8 +521,9 @@ static void fixup_silent_linux(void)
  *	then the intent is to boot an OS, so this function will not return
  *	unless the image type is standalone.
  */
-int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
-		    int states, bootm_headers_t *images, int boot_progress)
+int do_bootm_states(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[], int states, bootm_headers_t *images,
+		    int boot_progress)
 {
 	boot_os_fn *boot_fn;
 	ulong iflag = 0;
@@ -702,8 +706,8 @@ static image_header_t *image_get_kernel(ulong img_addr, int verify)
  *     pointer to image header if valid image was found, plus kernel start
  *     address and length, otherwise NULL
  */
-static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
-				   char * const argv[], bootm_headers_t *images,
+static const void *boot_get_kernel(struct cmd_tbl *cmdtp, int flag, int argc,
+				   char *const argv[], bootm_headers_t *images,
 				   ulong *os_data, ulong *os_len)
 {
 #if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)

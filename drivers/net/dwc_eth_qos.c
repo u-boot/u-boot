@@ -31,6 +31,7 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <miiphy.h>
@@ -39,6 +40,7 @@
 #include <phy.h>
 #include <reset.h>
 #include <wait_bit.h>
+#include <asm/cache.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <eth_phy.h>
@@ -46,6 +48,8 @@
 #include <asm/arch/clock.h>
 #include <asm/mach-imx/sys_proto.h>
 #endif
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 /* Core registers */
 

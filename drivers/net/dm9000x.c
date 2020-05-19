@@ -54,6 +54,7 @@ TODO: external MII is not functional, only internal at the moment.
 #include <net.h>
 #include <asm/io.h>
 #include <dm9000.h>
+#include <linux/delay.h>
 
 #include "dm9000x.h"
 

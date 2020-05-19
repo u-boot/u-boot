@@ -10,6 +10,7 @@
 
 #include <asm/arch/imx-regs.h>
 #include <linux/sizes.h>
+#include <linux/stringify.h>
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 

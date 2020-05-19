@@ -9,6 +9,8 @@
 
 #include <common.h>
 #include <eeprom.h>
+#include <log.h>
+#include <net.h>
 #include <asm/arch/hardware.h>
 #include <asm/omap_common.h>
 #include <dm/uclass.h>

@@ -10,6 +10,7 @@
 #define __IMX6_ENGICAM_CONFIG_H
 
 #include <linux/sizes.h>
+#include <linux/stringify.h>
 #include "mx6_common.h"
 
 /* Size of malloc() pool */

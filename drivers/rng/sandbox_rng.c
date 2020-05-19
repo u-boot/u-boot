@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <rand.h>
 #include <rng.h>
 
 #include <linux/string.h>

@@ -12,6 +12,8 @@
  */
 
 #include <common.h>
+#include <init.h>
+#include <log.h>
 #include <mvmfp.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/mfp.h>
@@ -19,6 +21,7 @@
 #include <asm/gpio.h>
 #include <miiphy.h>
 #include <asm/mach-types.h>
+#include <linux/delay.h>
 
 #ifdef CONFIG_ARMADA100_FEC
 #include <net.h>

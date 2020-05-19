@@ -19,6 +19,7 @@
 #include <common.h>
 #include <dm.h>
 #include <irq.h>
+#include <log.h>
 #include <malloc.h>
 #include <p2sb.h>
 #include <spl.h>

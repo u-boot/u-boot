@@ -12,13 +12,13 @@
 #include <command.h>
 #include <part.h>
 
-int do_read(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_read(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	char *ep;
 	struct blk_desc *dev_desc = NULL;
 	int dev;
 	int part = 0;
-	disk_partition_t part_info;
+	struct disk_partition part_info;
 	ulong offset = 0u;
 	ulong limit = 0u;
 	void *addr;

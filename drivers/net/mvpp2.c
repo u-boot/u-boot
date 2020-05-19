@@ -16,6 +16,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <asm/cache.h>
 #include <dm/device-internal.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>
@@ -25,6 +26,9 @@
 #include <config.h>
 #include <malloc.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
+#include <linux/bug.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 #include <linux/errno.h>
 #include <phy.h>
@@ -33,6 +37,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 #include <linux/compat.h>
+#include <linux/libfdt.h>
 #include <linux/mbus.h>
 #include <asm-generic/gpio.h>
 #include <fdt_support.h>

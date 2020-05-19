@@ -11,9 +11,11 @@
 #include <common.h>
 #include <cpsw.h>
 #include <dm.h>
+#include <env.h>
 #include <env_internal.h>
 #include <errno.h>
 #include <i2c.h>
+#include <init.h>
 #include <led.h>
 #include <miiphy.h>
 #include <panel.h>

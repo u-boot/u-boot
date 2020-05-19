@@ -5,6 +5,7 @@
  * Eugeniu Rosca <rosca.eugeniu@gmail.com>
  */
 
+#include <command.h>
 #include <env.h>
 #include <image-android-dt.h>
 #include <common.h>
@@ -17,8 +18,8 @@
  */
 static ulong working_img;
 
-static int do_adtimg_addr(cmd_tbl_t *cmdtp, int flag, int argc,
-			  char * const argv[])
+static int do_adtimg_addr(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
 {
 	char *endp;
 	ulong hdr_addr;
@@ -56,8 +57,8 @@ static int adtimg_check_working_img(void)
 	return CMD_RET_SUCCESS;
 }
 
-static int do_adtimg_dump(cmd_tbl_t *cmdtp, int flag, int argc,
-			  char * const argv[])
+static int do_adtimg_dump(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
 {
 	if (argc != 1)
 		return CMD_RET_USAGE;
@@ -99,7 +100,7 @@ static int adtimg_getopt_u32(char * const opt, char * const name, u32 *optval)
 	return CMD_RET_SUCCESS;
 }
 
-static int adtimg_getopt_index(int argc, char * const argv[], u32 *index,
+static int adtimg_getopt_index(int argc, char *const argv[], u32 *index,
 			       char **avar, char **svar)
 {
 	int ret;
@@ -124,7 +125,7 @@ static int adtimg_getopt_index(int argc, char * const argv[], u32 *index,
 	return CMD_RET_SUCCESS;
 }
 
-static int adtimg_get_dt_by_index(int argc, char * const argv[])
+static int adtimg_get_dt_by_index(int argc, char *const argv[])
 {
 	ulong addr;
 	u32 index, size;
@@ -163,7 +164,7 @@ static int adtimg_get_dt_by_index(int argc, char * const argv[])
 	return CMD_RET_SUCCESS;
 }
 
-static int adtimg_get_dt(int argc, char * const argv[])
+static int adtimg_get_dt(int argc, char *const argv[])
 {
 	if (argc < 2) {
 		printf("Error: No options passed to '%s'\n", argv[0]);
@@ -181,8 +182,8 @@ static int adtimg_get_dt(int argc, char * const argv[])
 	return CMD_RET_FAILURE;
 }
 
-static int do_adtimg_get(cmd_tbl_t *cmdtp, int flag, int argc,
-			 char * const argv[])
+static int do_adtimg_get(struct cmd_tbl *cmdtp, int flag, int argc,
+			 char *const argv[])
 {
 	if (argc < 2) {
 		printf("Error: No arguments passed to '%s'\n", argv[0]);
@@ -203,15 +204,16 @@ static int do_adtimg_get(cmd_tbl_t *cmdtp, int flag, int argc,
 	return CMD_RET_FAILURE;
 }
 
-static cmd_tbl_t cmd_adtimg_sub[] = {
+static struct cmd_tbl cmd_adtimg_sub[] = {
 	U_BOOT_CMD_MKENT(addr, CONFIG_SYS_MAXARGS, 1, do_adtimg_addr, "", ""),
 	U_BOOT_CMD_MKENT(dump, CONFIG_SYS_MAXARGS, 1, do_adtimg_dump, "", ""),
 	U_BOOT_CMD_MKENT(get, CONFIG_SYS_MAXARGS, 1, do_adtimg_get, "", ""),
 };
 
-static int do_adtimg(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_adtimg(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[])
 {
-	cmd_tbl_t *cp;
+	struct cmd_tbl *cp;
 
 	cp = find_cmd_tbl(argv[1], cmd_adtimg_sub, ARRAY_SIZE(cmd_adtimg_sub));
 

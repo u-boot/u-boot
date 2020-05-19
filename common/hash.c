@@ -13,19 +13,21 @@
 #include <common.h>
 #include <command.h>
 #include <env.h>
+#include <log.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <hw_sha.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <linux/errno.h>
 #include <u-boot/crc.h>
 #else
 #include "mkimage.h"
 #include <time.h>
-#include <image.h>
 #endif /* !USE_HOSTCC*/
 
 #include <hash.h>
+#include <image.h>
 #include <u-boot/crc.h>
 #include <u-boot/sha1.h>
 #include <u-boot/sha256.h>
@@ -443,8 +445,8 @@ static void hash_show(struct hash_algo *algo, ulong addr, ulong len, uint8_t *ou
 		printf("%02x", output[i]);
 }
 
-int hash_command(const char *algo_name, int flags, cmd_tbl_t *cmdtp, int flag,
-		 int argc, char * const argv[])
+int hash_command(const char *algo_name, int flags, struct cmd_tbl *cmdtp,
+		 int flag, int argc, char *const argv[])
 {
 	ulong addr, len;
 

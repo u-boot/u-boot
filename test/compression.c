@@ -7,6 +7,8 @@
 #include <bootm.h>
 #include <command.h>
 #include <gzip.h>
+#include <image.h>
+#include <log.h>
 #include <lz4.h>
 #include <malloc.h>
 #include <mapmem.h>
@@ -534,7 +536,8 @@ static int compression_test_bootm_none(struct unit_test_state *uts)
 }
 COMPRESSION_TEST(compression_test_bootm_none, 0);
 
-int do_ut_compression(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_ut_compression(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	struct unit_test *tests = ll_entry_start(struct unit_test,
 						 compression_test);

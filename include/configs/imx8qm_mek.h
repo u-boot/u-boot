@@ -7,6 +7,7 @@
 #define __IMX8QM_MEK_H
 
 #include <linux/sizes.h>
+#include <linux/stringify.h>
 #include <asm/arch/imx-regs.h>
 
 #ifdef CONFIG_SPL_BUILD

@@ -7,11 +7,16 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <fdt_support.h>
 #include <malloc.h>
 #include <memalign.h>
+#include <net.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <pci.h>
 #include <miiphy.h>
+#include <linux/bug.h>
+#include <linux/delay.h>
 
 #include "fsl_enetc.h"
 

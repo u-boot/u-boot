@@ -5,7 +5,10 @@
 
 #include <common.h>
 #include <dm.h>
+#include <image.h>
+#include <init.h>
 #include <lmb.h>
+#include <log.h>
 #include <ram.h>
 
 DECLARE_GLOBAL_DATA_PTR;

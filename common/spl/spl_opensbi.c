@@ -9,9 +9,11 @@
 #include <cpu_func.h>
 #include <errno.h>
 #include <hang.h>
+#include <image.h>
 #include <spl.h>
 #include <asm/smp.h>
 #include <opensbi.h>
+#include <linux/libfdt.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

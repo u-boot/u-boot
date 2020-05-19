@@ -9,6 +9,7 @@
 #include <clk.h>
 #include <display.h>
 #include <dm.h>
+#include <log.h>
 #include <panel.h>
 #include <reset.h>
 #include <video.h>
@@ -17,6 +18,7 @@
 #include <asm/arch/gpio.h>
 #include <dm/device-internal.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
 
 struct stm32_ltdc_priv {
 	void __iomem *regs;

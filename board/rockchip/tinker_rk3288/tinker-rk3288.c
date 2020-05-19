@@ -9,6 +9,7 @@
 #include <env.h>
 #include <i2c_eeprom.h>
 #include <init.h>
+#include <net.h>
 #include <netdev.h>
 #include <asm/arch-rockchip/bootrom.h>
 #include <asm/io.h>

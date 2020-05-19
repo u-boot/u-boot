@@ -48,6 +48,7 @@
 #include <command.h>
 #include <env.h>
 #include <malloc.h>
+#include <linux/delay.h>
 #include "lan91c96.h"
 #include <net.h>
 #include <linux/compiler.h>
@@ -211,7 +212,7 @@ static void smc_reset(struct eth_device *dev)
 	SMC_SELECT_BANK(dev, 0);
 	SMC_outw(dev, LAN91C96_RCR_SOFT_RST, LAN91C96_RCR);
 
-	udelay (10);
+	udelay(10);
 
 	/* Disable transmit and receive functionality */
 	SMC_outw(dev, 0, LAN91C96_RCR);
@@ -438,7 +439,7 @@ static int smc_send_packet(struct eth_device *dev, void *packet,
 
 		/* wait for MMU getting ready (low) */
 		while (SMC_inw(dev, LAN91C96_MMU) & LAN91C96_MMUCR_NO_BUSY)
-			udelay (10);
+			udelay(10);
 
 		PRINTK2("MMU ready\n");
 
@@ -455,7 +456,7 @@ static int smc_send_packet(struct eth_device *dev, void *packet,
 
 		/* wait for MMU getting ready (low) */
 		while (SMC_inw(dev, LAN91C96_MMU) & LAN91C96_MMUCR_NO_BUSY)
-			udelay (10);
+			udelay(10);
 
 		PRINTK2 ("MMU ready\n");
 	}
@@ -600,13 +601,13 @@ static int smc_rcv(struct eth_device *dev)
 	}
 
 	while (SMC_inw(dev, LAN91C96_MMU) & LAN91C96_MMUCR_NO_BUSY)
-		udelay (1);		/* Wait until not busy */
+		udelay(1);		/* Wait until not busy */
 
 	/*  error or good, tell the card to get rid of this packet */
 	SMC_outw(dev, LAN91C96_MMUCR_RELEASE_RX, LAN91C96_MMU);
 
 	while (SMC_inw(dev, LAN91C96_MMU) & LAN91C96_MMUCR_NO_BUSY)
-		udelay (1);		/* Wait until not busy */
+		udelay(1);		/* Wait until not busy */
 
 	if (!is_error) {
 		/* Pass the packet up to the protocol layers. */

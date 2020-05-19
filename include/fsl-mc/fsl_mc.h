@@ -7,6 +7,7 @@
 #define __FSL_MC_H__
 
 #include <common.h>
+#include <linux/bitops.h>
 
 #define MC_CCSR_BASE_ADDR \
 	((struct mc_ccsr_registers __iomem *)0x8340000)

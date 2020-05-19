@@ -38,7 +38,7 @@ struct mmc_part {
 	int dev_num;
 	struct mmc *mmc;
 	struct blk_desc *mmc_blk;
-	disk_partition_t info;
+	struct disk_partition info;
 };
 
 enum mmc_io_type {

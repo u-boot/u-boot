@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <malloc.h>
 #include <asm/arch/gpio.h>
 #include <asm/gpio.h>
@@ -18,6 +19,7 @@
 #include <dm/root.h>
 #include <errno.h>
 #include <reset.h>
+#include <linux/bitops.h>
 
 #define GPIO_SWPORT_DR(p)	(0x00 + (p) * 0xc)
 #define GPIO_SWPORT_DDR(p)	(0x04 + (p) * 0xc)

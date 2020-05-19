@@ -9,11 +9,13 @@
  * Copyright 2014 Linaro, Ltd.
  * Rob Herring <robh@kernel.org>
  */
+#include <command.h>
 #include <config.h>
 #include <common.h>
 #include <env.h>
 #include <errno.h>
 #include <fastboot.h>
+#include <log.h>
 #include <malloc.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>

@@ -9,6 +9,7 @@
 #define __CONFIG_H
 
 #include <asm/arch/imx-regs.h>
+#include <linux/stringify.h>
 
 #define CONFIG_SYS_FSL_CLK
 

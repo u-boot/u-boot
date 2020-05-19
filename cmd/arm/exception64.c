@@ -8,8 +8,8 @@
 #include <common.h>
 #include <command.h>
 
-static int do_undefined(cmd_tbl_t *cmdtp, int flag, int argc,
-			char * const argv[])
+static int do_undefined(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
 	/*
 	 * 0xe7f...f.	is undefined in ARM mode
@@ -19,7 +19,7 @@ static int do_undefined(cmd_tbl_t *cmdtp, int flag, int argc,
 	return CMD_RET_FAILURE;
 }
 
-static cmd_tbl_t cmd_sub[] = {
+static struct cmd_tbl cmd_sub[] = {
 	U_BOOT_CMD_MKENT(undefined, CONFIG_SYS_MAXARGS, 1, do_undefined,
 			 "", ""),
 };

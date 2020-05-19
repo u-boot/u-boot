@@ -4,6 +4,7 @@
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  */
 
+#include <log.h>
 #include <linux/errno.h>
 #include <dm.h>
 #include <dm/uclass-internal.h>

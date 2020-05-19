@@ -8,11 +8,14 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <log.h>
 #include <malloc.h>
 #include <net.h>
 #include <netdev.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <pci.h>
+#include <linux/delay.h>
 
 #define	PCNET_DEBUG_LEVEL	0	/* 0=off, 1=init, 2=rx/tx */
 

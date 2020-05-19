@@ -6,7 +6,9 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <elf.h>
+#include <log.h>
 #include <remoteproc.h>
+#include <asm/cache.h>
 #include <dm/device_compat.h>
 #include <linux/compat.h>
 

@@ -12,6 +12,7 @@
  * hif - PFE hif block control and status register.
  * Mapped on CBUS and accessible from all PE's and ARM.
  */
+#include <linux/bitops.h>
 #define HIF_VERSION		(HIF_BASE_ADDR + 0x00)
 #define HIF_TX_CTRL		(HIF_BASE_ADDR + 0x04)
 #define HIF_TX_CURR_BD_ADDR	(HIF_BASE_ADDR + 0x08)

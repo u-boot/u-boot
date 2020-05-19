@@ -6,9 +6,11 @@
  */
 
 #include <common.h>
+#include <blk.h>
 #include <command.h>
 #include <console.h>
 #include <cpu_func.h>
+#include <log.h>
 #include <asm/io.h>
 #include <asm/processor.h>
 #include <asm/fsl_serdes.h>
@@ -16,6 +18,7 @@
 #include <libata.h>
 #include <fis.h>
 #include <sata.h>
+#include <linux/delay.h>
 #include "fsl_sata.h"
 
 #if CONFIG_IS_ENABLED(BLK)

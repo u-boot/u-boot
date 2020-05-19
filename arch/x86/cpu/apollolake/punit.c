@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <spl.h>
 #include <asm/cpu.h>
 #include <asm/cpu_common.h>
@@ -12,6 +13,7 @@
 #include <asm/io.h>
 #include <asm/pci.h>
 #include <asm/arch/systemagent.h>
+#include <linux/delay.h>
 
 /*
  * Punit Initialisation code. This all isn't documented, but

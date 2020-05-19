@@ -88,12 +88,14 @@
 
 
 #include <common.h>
+#include <bootstage.h>
 #include <command.h>
 #include <console.h>
 #include <env.h>
 #include <env_internal.h>
 #include <errno.h>
 #include <image.h>
+#include <log.h>
 #include <net.h>
 #include <net/fastboot.h>
 #include <net/tftp.h>

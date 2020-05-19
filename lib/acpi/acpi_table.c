@@ -8,6 +8,7 @@
 #include <common.h>
 #include <dm.h>
 #include <cpu.h>
+#include <log.h>
 #include <mapmem.h>
 #include <tables_csum.h>
 #include <version.h>

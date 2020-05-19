@@ -10,7 +10,9 @@
 #include <common.h>
 #include <command.h>
 #include <env.h>
+#include <net.h>
 #include <vsprintf.h>
+#include <asm/cache.h>
 #include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -175,7 +177,7 @@ void __weak board_detail(void)
 	/* Please define board_detail() for your platform */
 }
 
-int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	bd_t *bd = gd->bd;
 
@@ -220,7 +222,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 #elif defined(CONFIG_NIOS2)
 
-int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	bd_t *bd = gd->bd;
 
@@ -241,7 +243,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 #elif defined(CONFIG_MICROBLAZE)
 
-int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	bd_t *bd = gd->bd;
 
@@ -267,7 +269,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 #elif defined(CONFIG_M68K)
 
-int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	bd_t *bd = gd->bd;
 
@@ -299,7 +301,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 #elif defined(CONFIG_MIPS)
 
-int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	print_std_bdinfo(gd->bd);
 	print_num("relocaddr", gd->relocaddr);
@@ -311,8 +313,8 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 #elif defined(CONFIG_ARM)
 
-static int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc,
-			char * const argv[])
+static int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[])
 {
 	bd_t *bd = gd->bd;
 
@@ -372,7 +374,7 @@ static int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc,
 
 #elif defined(CONFIG_SH)
 
-int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	bd_t *bd = gd->bd;
 
@@ -387,7 +389,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 #elif defined(CONFIG_X86)
 
-int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	bd_t *bd = gd->bd;
 
@@ -409,7 +411,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 #elif defined(CONFIG_SANDBOX)
 
-int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	bd_t *bd = gd->bd;
 
@@ -427,7 +429,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 #elif defined(CONFIG_NDS32)
 
-int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	bd_t *bd = gd->bd;
 
@@ -443,7 +445,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 #elif defined(CONFIG_RISCV)
 
-int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	bd_t *bd = gd->bd;
 
@@ -460,7 +462,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 #elif defined(CONFIG_ARC)
 
-int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	bd_t *bd = gd->bd;
 
@@ -474,7 +476,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 #elif defined(CONFIG_XTENSA)
 
-int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	print_std_bdinfo(gd->bd);
 	return 0;

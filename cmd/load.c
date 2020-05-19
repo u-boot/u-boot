@@ -19,6 +19,8 @@
 #include <exports.h>
 #include <serial.h>
 #include <xyzModem.h>
+#include <asm/cache.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -40,8 +42,8 @@ static int do_echo = 1;
 /* -------------------------------------------------------------------- */
 
 #if defined(CONFIG_CMD_LOADS)
-static int do_load_serial(cmd_tbl_t *cmdtp, int flag, int argc,
-			  char * const argv[])
+static int do_load_serial(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
 {
 	long offset = 0;
 	ulong addr;
@@ -241,7 +243,8 @@ static int read_record(char *buf, ulong len)
 
 #if defined(CONFIG_CMD_SAVES)
 
-int do_save_serial (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_save_serial(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
 {
 	ulong offset = 0;
 	ulong size   = 0;
@@ -418,8 +421,8 @@ static int  his_pad_count;  /* number of pad chars he needs */
 static char his_pad_char;   /* pad chars he needs */
 static char his_quote;      /* quote chars he'll use */
 
-static int do_load_serial_bin(cmd_tbl_t *cmdtp, int flag, int argc,
-			      char * const argv[])
+static int do_load_serial_bin(struct cmd_tbl *cmdtp, int flag, int argc,
+			      char *const argv[])
 {
 	ulong offset = 0;
 	ulong addr;

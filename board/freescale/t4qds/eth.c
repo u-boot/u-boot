@@ -5,6 +5,9 @@
 
 #include <common.h>
 #include <command.h>
+#include <fdt_support.h>
+#include <log.h>
+#include <net.h>
 #include <netdev.h>
 #include <asm/mmu.h>
 #include <asm/processor.h>
@@ -25,6 +28,7 @@
 #include <hwconfig.h>
 #include "../common/qixis.h"
 #include "../common/fman.h"
+#include <linux/libfdt.h>
 
 #include "t4240qds_qixis.h"
 

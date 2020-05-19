@@ -8,6 +8,7 @@
 #include <cpu.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <dm/lists.h>
 #include <dm/root.h>
 #include <linux/err.h>

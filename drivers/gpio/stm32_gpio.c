@@ -8,11 +8,13 @@
 #include <clk.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/stm32.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
 #include <linux/errno.h>
 #include <linux/io.h>
 

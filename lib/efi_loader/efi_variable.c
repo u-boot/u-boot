@@ -7,12 +7,15 @@
 
 #include <common.h>
 #include <efi_loader.h>
+#include <env.h>
 #include <env_internal.h>
 #include <hexdump.h>
 #include <malloc.h>
 #include <rtc.h>
 #include <search.h>
+#include <uuid.h>
 #include <crypto/pkcs7_parser.h>
+#include <linux/bitops.h>
 #include <linux/compat.h>
 #include <u-boot/crc.h>
 

@@ -9,8 +9,13 @@
  *   when CONFIG_SYS_64BIT_LBA is not defined, lbaint_t is 32 bits; this
  *   limits the maximum size of addressable storage to < 2 Terra Bytes
  */
-#include <asm/unaligned.h>
 #include <common.h>
+#include <blk.h>
+#include <log.h>
+#include <part.h>
+#include <uuid.h>
+#include <asm/cache.h>
+#include <asm/unaligned.h>
 #include <command.h>
 #include <fdtdec.h>
 #include <ide.h>
@@ -257,7 +262,7 @@ void part_print_efi(struct blk_desc *dev_desc)
 }
 
 int part_get_info_efi(struct blk_desc *dev_desc, int part,
-		      disk_partition_t *info)
+		      struct disk_partition *info)
 {
 	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1, dev_desc->blksz);
 	gpt_entry *gpt_pte = NULL;
@@ -411,7 +416,7 @@ int write_gpt_table(struct blk_desc *dev_desc,
 
 int gpt_fill_pte(struct blk_desc *dev_desc,
 		 gpt_header *gpt_h, gpt_entry *gpt_e,
-		 disk_partition_t *partitions, int parts)
+		 struct disk_partition *partitions, int parts)
 {
 	lbaint_t offset = (lbaint_t)le64_to_cpu(gpt_h->first_usable_lba);
 	lbaint_t last_usable_lba = (lbaint_t)
@@ -601,7 +606,7 @@ int gpt_fill_header(struct blk_desc *dev_desc, gpt_header *gpt_h,
 }
 
 int gpt_restore(struct blk_desc *dev_desc, char *str_disk_guid,
-		disk_partition_t *partitions, int parts_count)
+		struct disk_partition *partitions, int parts_count)
 {
 	gpt_header *gpt_h;
 	gpt_entry *gpt_e;
@@ -696,7 +701,7 @@ int gpt_verify_headers(struct blk_desc *dev_desc, gpt_header *gpt_head,
 }
 
 int gpt_verify_partitions(struct blk_desc *dev_desc,
-			  disk_partition_t *partitions, int parts,
+			  struct disk_partition *partitions, int parts,
 			  gpt_header *gpt_head, gpt_entry **gpt_pte)
 {
 	char efi_str[PARTNAME_SZ + 1];

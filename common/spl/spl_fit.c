@@ -10,8 +10,10 @@
 #include <fpga.h>
 #include <gzip.h>
 #include <image.h>
+#include <log.h>
 #include <malloc.h>
 #include <spl.h>
+#include <asm/cache.h>
 #include <linux/libfdt.h>
 
 DECLARE_GLOBAL_DATA_PTR;

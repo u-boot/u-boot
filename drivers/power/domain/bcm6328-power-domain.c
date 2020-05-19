@@ -8,6 +8,7 @@
 #include <malloc.h>
 #include <power-domain-uclass.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 
 #define MAX_DOMAINS	32
 

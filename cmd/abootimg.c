@@ -6,6 +6,8 @@
 
 #include <android_image.h>
 #include <common.h>
+#include <command.h>
+#include <image.h>
 #include <mapmem.h>
 
 #define abootimg_addr() \
@@ -14,7 +16,7 @@
 /* Please use abootimg_addr() macro to obtain the boot image address */
 static ulong _abootimg_addr = -1;
 
-static int abootimg_get_ver(int argc, char * const argv[])
+static int abootimg_get_ver(int argc, char *const argv[])
 {
 	const struct andr_img_hdr *hdr;
 	int res = CMD_RET_SUCCESS;
@@ -39,7 +41,7 @@ exit:
 	return res;
 }
 
-static int abootimg_get_recovery_dtbo(int argc, char * const argv[])
+static int abootimg_get_recovery_dtbo(int argc, char *const argv[])
 {
 	ulong addr;
 	u32 size;
@@ -61,7 +63,7 @@ static int abootimg_get_recovery_dtbo(int argc, char * const argv[])
 	return CMD_RET_SUCCESS;
 }
 
-static int abootimg_get_dtb_load_addr(int argc, char * const argv[])
+static int abootimg_get_dtb_load_addr(int argc, char *const argv[])
 {
 	const struct andr_img_hdr *hdr;
 	int res = CMD_RET_SUCCESS;
@@ -92,7 +94,7 @@ exit:
 	return res;
 }
 
-static int abootimg_get_dtb_by_index(int argc, char * const argv[])
+static int abootimg_get_dtb_by_index(int argc, char *const argv[])
 {
 	const char *index_str;
 	u32 num;
@@ -139,7 +141,7 @@ static int abootimg_get_dtb_by_index(int argc, char * const argv[])
 	return CMD_RET_SUCCESS;
 }
 
-static int abootimg_get_dtb(int argc, char * const argv[])
+static int abootimg_get_dtb(int argc, char *const argv[])
 {
 	if (argc < 1)
 		return CMD_RET_USAGE;
@@ -150,8 +152,8 @@ static int abootimg_get_dtb(int argc, char * const argv[])
 	return CMD_RET_USAGE;
 }
 
-static int do_abootimg_addr(cmd_tbl_t *cmdtp, int flag, int argc,
-			    char * const argv[])
+static int do_abootimg_addr(struct cmd_tbl *cmdtp, int flag, int argc,
+			    char *const argv[])
 {
 	char *endp;
 	ulong img_addr;
@@ -169,8 +171,8 @@ static int do_abootimg_addr(cmd_tbl_t *cmdtp, int flag, int argc,
 	return CMD_RET_SUCCESS;
 }
 
-static int do_abootimg_get(cmd_tbl_t *cmdtp, int flag, int argc,
-			   char * const argv[])
+static int do_abootimg_get(struct cmd_tbl *cmdtp, int flag, int argc,
+			   char *const argv[])
 {
 	const char *param;
 
@@ -192,8 +194,8 @@ static int do_abootimg_get(cmd_tbl_t *cmdtp, int flag, int argc,
 	return CMD_RET_USAGE;
 }
 
-static int do_abootimg_dump(cmd_tbl_t *cmdtp, int flag, int argc,
-			    char * const argv[])
+static int do_abootimg_dump(struct cmd_tbl *cmdtp, int flag, int argc,
+			    char *const argv[])
 {
 	if (argc != 2)
 		return CMD_RET_USAGE;
@@ -208,16 +210,16 @@ static int do_abootimg_dump(cmd_tbl_t *cmdtp, int flag, int argc,
 	return CMD_RET_SUCCESS;
 }
 
-static cmd_tbl_t cmd_abootimg_sub[] = {
+static struct cmd_tbl cmd_abootimg_sub[] = {
 	U_BOOT_CMD_MKENT(addr, 2, 1, do_abootimg_addr, "", ""),
 	U_BOOT_CMD_MKENT(dump, 2, 1, do_abootimg_dump, "", ""),
 	U_BOOT_CMD_MKENT(get, 5, 1, do_abootimg_get, "", ""),
 };
 
-static int do_abootimg(cmd_tbl_t *cmdtp, int flag, int argc,
-		       char * const argv[])
+static int do_abootimg(struct cmd_tbl *cmdtp, int flag, int argc,
+		       char *const argv[])
 {
-	cmd_tbl_t *cp;
+	struct cmd_tbl *cp;
 
 	cp = find_cmd_tbl(argv[1], cmd_abootimg_sub,
 			  ARRAY_SIZE(cmd_abootimg_sub));

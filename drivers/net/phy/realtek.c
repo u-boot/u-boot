@@ -9,6 +9,7 @@
 #include <common.h>
 #include <linux/bitops.h>
 #include <phy.h>
+#include <linux/delay.h>
 
 #define PHY_RTL8211x_FORCE_MASTER BIT(1)
 #define PHY_RTL8211E_PINE64_GIGABIT_FIX BIT(2)

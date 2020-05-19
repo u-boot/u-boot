@@ -22,6 +22,7 @@
 #include <errno.h>
 #include <pci.h>
 #include <wait_bit.h>
+#include <linux/bitops.h>
 
 #define PCIECAR			0x000010
 #define PCIECCTLR		0x000018

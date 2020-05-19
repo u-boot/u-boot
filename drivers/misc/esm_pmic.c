@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <power/pmic.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
 
 #define INT_ESM_REG		0x6c
 #define INT_ESM_MASK		0x3f

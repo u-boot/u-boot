@@ -40,7 +40,7 @@ Design Notes on Exporting U-Boot Functions to Standalone Applications:
    that returns the ABI version of the running U-Boot. I.e., a
    typical application startup may look like this:
 
-	int my_app (int argc, char * const argv[])
+	int my_app (int argc, char *const argv[])
 	{
 		app_startup (argv);
 		if (get_version () != XF_VERSION)

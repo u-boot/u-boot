@@ -9,6 +9,7 @@
 #include <display.h>
 #include <dm.h>
 #include <edid.h>
+#include <log.h>
 #include <malloc.h>
 #include <panel.h>
 #include <regmap.h>
@@ -20,6 +21,7 @@
 #include <asm/arch-rockchip/grf_rk3288.h>
 #include <asm/arch-rockchip/hardware.h>
 #include <dt-bindings/clock/rk3288-cru.h>
+#include <linux/delay.h>
 
 #define MAX_CR_LOOP 5
 #define MAX_EQ_LOOP 5

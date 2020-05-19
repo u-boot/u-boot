@@ -9,10 +9,15 @@
  */
 
 #include <common.h>
+#include <bootstage.h>
 #include <command.h>
 #include <env.h>
 #include <efi_loader.h>
+#include <log.h>
 #include <net.h>
+#include <rand.h>
+#include <uuid.h>
+#include <linux/delay.h>
 #include <net/tftp.h>
 #include "bootp.h"
 #ifdef CONFIG_LED_STATUS

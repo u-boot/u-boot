@@ -10,6 +10,8 @@
 #include <dm/of_access.h>
 #include <dm/of_addr.h>
 #include <fdt_support.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/io.h>
 #include <linux/ioport.h>
 #include <miiphy.h>

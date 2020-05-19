@@ -8,9 +8,11 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <malloc.h>
 #include <reset-uclass.h>
 #include <regmap.h>
+#include <linux/bitops.h>
 
 #define REG_COUNT	8
 #define BITS_PER_REG	32

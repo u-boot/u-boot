@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <blk.h>
 #include <efi_loader.h>
 
 #define MAC_OUTPUT_LEN 22

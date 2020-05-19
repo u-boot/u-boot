@@ -5,10 +5,13 @@
 #include <common.h>
 #include <console.h>
 #include <clk.h>
+#include <log.h>
 #include <ram.h>
+#include <rand.h>
 #include <reset.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/iopoll.h>
 
 #include "stm32mp1_ddr_regs.h"

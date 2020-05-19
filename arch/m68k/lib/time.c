@@ -7,8 +7,10 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <irq_func.h>
 #include <time.h>
+#include <linux/delay.h>
 
 #include <asm/timer.h>
 #include <asm/immap.h>

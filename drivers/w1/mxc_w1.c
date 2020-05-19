@@ -21,6 +21,8 @@
 #include <common.h>
 #include <dm.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/io.h>
 #include <w1.h>
 

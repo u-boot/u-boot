@@ -9,10 +9,13 @@
 #include <clk.h>
 #include <dm.h>
 #include <irq_func.h>
+#include <log.h>
 #include <status_led.h>
 #include <time.h>
 #include <timer.h>
 #include <watchdog.h>
+#include <asm/ptrace.h>
+#include <linux/bitops.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

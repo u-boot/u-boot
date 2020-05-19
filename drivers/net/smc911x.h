@@ -8,6 +8,8 @@
 #ifndef _SMC911X_H_
 #define _SMC911X_H_
 
+#include <net.h>
+
 /* Below are the register offsets and bit definitions
  * of the Lan911x memory space
  */

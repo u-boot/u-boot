@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <div64.h>
+#include <log.h>
 #include <asm/io.h>
 #include <errno.h>
 #include <asm/arch/imx-regs.h>

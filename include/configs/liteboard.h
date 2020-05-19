@@ -10,6 +10,7 @@
 
 #include <asm/arch/imx-regs.h>
 #include <linux/sizes.h>
+#include <linux/stringify.h>
 #include "mx6_common.h"
 
 /* SPL options */

@@ -14,9 +14,11 @@
 #include <common.h>
 #include <env.h>
 #include <gzip.h>
+#include <log.h>
 #include <malloc.h>
 #include <memalign.h>
 #include "ubifs.h"
+#include <part.h>
 #include <dm/devres.h>
 #include <u-boot/zlib.h>
 
@@ -549,7 +551,7 @@ static unsigned long ubifs_findfile(struct super_block *sb, char *filename)
 	return 0;
 }
 
-int ubifs_set_blk_dev(struct blk_desc *rbdd, disk_partition_t *info)
+int ubifs_set_blk_dev(struct blk_desc *rbdd, struct disk_partition *info)
 {
 	if (rbdd) {
 		debug("UBIFS cannot be used with normal block devices\n");

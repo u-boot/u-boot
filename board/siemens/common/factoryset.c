@@ -12,6 +12,7 @@
 #include <dm.h>
 #include <env_internal.h>
 #include <i2c.h>
+#include <log.h>
 #include <asm/io.h>
 #if !CONFIG_IS_ENABLED(TARGET_GIEDI) && !CONFIG_IS_ENABLED(TARGET_DENEB)
 #include <asm/arch/cpu.h>

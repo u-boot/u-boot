@@ -4,19 +4,21 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 #include <common.h>
+#include <bootstage.h>
 #include <command.h>
 #include <cpu_func.h>
 #include <image.h>
+#include <log.h>
 #include <part.h>
 
-int common_diskboot(cmd_tbl_t *cmdtp, const char *intf, int argc,
+int common_diskboot(struct cmd_tbl *cmdtp, const char *intf, int argc,
 		    char *const argv[])
 {
 	__maybe_unused int dev;
 	int part;
 	ulong addr = CONFIG_SYS_LOAD_ADDR;
 	ulong cnt;
-	disk_partition_t info;
+	struct disk_partition info;
 #if defined(CONFIG_LEGACY_IMAGE_FORMAT)
 	image_header_t *hdr;
 #endif

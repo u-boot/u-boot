@@ -528,7 +528,7 @@ int ubi_part(char *part_name, const char *vid_header_offset)
 	return 0;
 }
 
-static int do_ubi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_ubi(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	int64_t size = 0;
 	ulong addr = 0;

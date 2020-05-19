@@ -20,8 +20,10 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
+#include <asm/ptrace.h>
 
 /* nothing really to do with interrupts, just starts up a counter. */
 /* The 32KHz 32-bit timer overruns in 134217 seconds */

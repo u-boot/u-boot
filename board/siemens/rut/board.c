@@ -15,6 +15,7 @@
 #include <errno.h>
 #include <init.h>
 #include <malloc.h>
+#include <net.h>
 #include <spi.h>
 #include <spl.h>
 #include <asm/arch/cpu.h>
@@ -33,6 +34,7 @@
 #include <cpsw.h>
 #include <video.h>
 #include <watchdog.h>
+#include <linux/delay.h>
 #include "board.h"
 #include "../common/factoryset.h"
 #include "../../../drivers/video/da8xx-fb.h"

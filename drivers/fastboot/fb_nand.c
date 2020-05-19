@@ -6,6 +6,8 @@
 
 #include <config.h>
 #include <common.h>
+#include <blk.h>
+#include <flash.h>
 
 #include <fastboot.h>
 #include <image-sparse.h>

@@ -16,7 +16,9 @@
  *
  */
 #include <common.h>
+#include <command.h>
 #include <dm.h>
+#include <init.h>
 #include <spl.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
@@ -279,7 +281,8 @@ void abort(void)
 /******************************************************************************
  * OMAP3 specific command to switch between NAND HW and SW ecc
  *****************************************************************************/
-static int do_switch_ecc(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+static int do_switch_ecc(struct cmd_tbl *cmdtp, int flag, int argc,
+			 char *const argv[])
 {
 	int hw, strength = 1;
 

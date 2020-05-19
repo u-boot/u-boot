@@ -13,6 +13,7 @@
 #include <common.h>
 #include <errno.h>
 #include <ACEX1K.h>
+#include <log.h>
 #include <stratixII.h>
 
 /* Define FPGA_DEBUG to 1 to get debug printf's */

@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <spartan3.h>
 #include <command.h>
 #include <asm/gpio.h>
@@ -11,6 +12,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/spr_misc.h>
 #include <asm/arch/spr_ssp.h>
+#include <linux/delay.h>
 
 /*
  * FPGA program pin configuration on X600:

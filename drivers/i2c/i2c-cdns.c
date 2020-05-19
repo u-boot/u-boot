@@ -9,6 +9,9 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/types.h>
 #include <linux/io.h>
 #include <linux/errno.h>

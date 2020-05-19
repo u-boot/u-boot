@@ -9,6 +9,8 @@
 #include <cpu_func.h>
 #include <debug_uart.h>
 #include <handoff.h>
+#include <init.h>
+#include <log.h>
 #include <asm/mtrr.h>
 
 int misc_init_r(void)

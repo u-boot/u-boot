@@ -6,8 +6,6 @@
 #ifndef __ASM_ARCH_CLOCK_H
 #define __ASM_ARCH_CLOCK_H
 
-#include <common.h>
-
 enum mxc_clock {
 	MXC_ARM_CLK = 0,
 	MXC_BUS_CLK,

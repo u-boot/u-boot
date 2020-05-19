@@ -8,6 +8,9 @@
 
 #include <common.h>
 #include <errno.h>
+#include <init.h>
+#include <log.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sysctr.h>
@@ -16,6 +19,8 @@
 #include <asm/arch-tegra/timer.h>
 #include <div64.h>
 #include <fdtdec.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 /*
  * Clock types that we can use as a source. The Tegra210 has muxes for the

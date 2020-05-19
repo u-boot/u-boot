@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <malloc.h>
+#include <net.h>
 #include <vbe.h>
 #include <acpi/acpi_s3.h>
 #include <asm/coreboot_tables.h>

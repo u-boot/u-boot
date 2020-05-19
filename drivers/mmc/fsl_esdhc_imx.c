@@ -17,9 +17,13 @@
 #include <cpu_func.h>
 #include <errno.h>
 #include <hwconfig.h>
+#include <log.h>
 #include <mmc.h>
 #include <part.h>
+#include <asm/cache.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 #include <power/regulator.h>
 #include <malloc.h>

@@ -10,6 +10,7 @@
 #define pr_fmt(fmt) "PKEY: "fmt
 #ifdef __UBOOT__
 #include <dm/devres.h>
+#include <linux/bug.h>
 #include <linux/compat.h>
 #include <linux/err.h>
 #else

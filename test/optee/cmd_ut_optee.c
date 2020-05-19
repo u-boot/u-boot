@@ -7,6 +7,7 @@
 #include <command.h>
 #include <errno.h>
 #include <fdt_support.h>
+#include <log.h>
 #include <malloc.h>
 #include <tee/optee.h>
 
@@ -91,7 +92,7 @@ static int optee_fdt_protected_memory(struct unit_test_state *uts)
 }
 OPTEE_TEST(optee_fdt_protected_memory, 0);
 
-int do_ut_optee(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_ut_optee(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct unit_test *tests = ll_entry_start(struct unit_test,
 						 optee_test);

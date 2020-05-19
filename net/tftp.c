@@ -11,6 +11,8 @@
 #include <efi_loader.h>
 #include <env.h>
 #include <image.h>
+#include <lmb.h>
+#include <log.h>
 #include <mapmem.h>
 #include <net.h>
 #include <net/tftp.h>

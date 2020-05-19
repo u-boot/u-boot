@@ -41,6 +41,7 @@
  * good, and GC takes extra care when moving them.
  */
 #ifndef __UBOOT__
+#include <log.h>
 #include <dm/devres.h>
 #include <linux/slab.h>
 #include <linux/pagemap.h>

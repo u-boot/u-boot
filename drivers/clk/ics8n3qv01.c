@@ -13,6 +13,7 @@
 #include <dm.h>
 #include <clk-uclass.h>
 #include <i2c.h>
+#include <log.h>
 
 const long long ICS8N3QV01_FREF = 114285000;
 const long long ICS8N3QV01_FREF_LL = 114285000LL;

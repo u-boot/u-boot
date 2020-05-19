@@ -15,6 +15,7 @@
  *	Bruce Balden <balden@lineo.com>
  */
 
+#include <log.h>
 #include <malloc.h>
 #include <serial.h>
 #include <usbdevice.h>

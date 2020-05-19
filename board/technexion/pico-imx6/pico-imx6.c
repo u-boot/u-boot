@@ -6,6 +6,9 @@
  * Author: Fabio Estevam <festevam@gmail.com>
  */
 
+#include <env.h>
+#include <init.h>
+#include <net.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/iomux.h>
@@ -17,6 +20,7 @@
 #include <asm/mach-imx/video.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 #include <linux/sizes.h>
 #include <common.h>
 #include <miiphy.h>

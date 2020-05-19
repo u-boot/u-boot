@@ -10,12 +10,15 @@
 #include <common.h>
 #include <console.h>
 #include <dm.h>
+#include <log.h>
 #include <malloc.h>
 #include <net.h>
 #include <command.h>
 #include <miiphy.h>
 #include <phy.h>
 #include <errno.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 #include <linux/compiler.h>
 

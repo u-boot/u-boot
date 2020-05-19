@@ -5,8 +5,11 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <spl.h>
 #include <stdio.h>
+#include <linux/bitops.h>
+#include <linux/bug.h>
 #include <linux/io.h>
 #include <linux/log2.h>
 
@@ -205,7 +208,8 @@ int uniphier_boot_from_backend(void)
 
 #ifndef CONFIG_SPL_BUILD
 
-static int do_pinmon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_pinmon(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[])
 {
 	const struct uniphier_boot_device_info *info;
 	u32 pinmon;

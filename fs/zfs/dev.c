@@ -14,9 +14,9 @@
 #include <zfs_common.h>
 
 static struct blk_desc *zfs_blk_desc;
-static disk_partition_t *part_info;
+static struct disk_partition *part_info;
 
-void zfs_set_blk_dev(struct blk_desc *rbdd, disk_partition_t *info)
+void zfs_set_blk_dev(struct blk_desc *rbdd, struct disk_partition *info)
 {
 	zfs_blk_desc = rbdd;
 	part_info = info;

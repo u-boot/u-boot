@@ -3,10 +3,15 @@
  * Copyright (C) 2016 Stefano Babic <sbabic@denx.de>
  */
 
+#include <common.h>
+#include <command.h>
+#include <init.h>
+#include <net.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/mx6-pins.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>

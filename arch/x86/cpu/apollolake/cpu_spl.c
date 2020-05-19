@@ -8,6 +8,7 @@
 #include <common.h>
 #include <dm.h>
 #include <ec_commands.h>
+#include <init.h>
 #include <log.h>
 #include <spi_flash.h>
 #include <spl.h>

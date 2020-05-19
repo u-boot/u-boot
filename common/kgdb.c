@@ -88,6 +88,7 @@
  ****************************************************************************/
 
 #include <common.h>
+#include <asm/ptrace.h>
 
 #include <kgdb.h>
 #include <command.h>
@@ -574,7 +575,7 @@ breakpoint(void)
 }
 
 int
-do_kgdb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+do_kgdb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
     printf("Entering KGDB mode via exception handler...\n\n");
     kgdb_breakpoint(argc - 1, argv + 1);

@@ -13,6 +13,7 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <log.h>
 #include <dm/device.h>
 #include <generic-phy.h>
 #include <phy-sun4i-usb.h>
@@ -22,6 +23,8 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/cpu.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 
 #define REG_ISCR			0x00

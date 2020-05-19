@@ -17,6 +17,7 @@
  */
 
 #ifdef __UBOOT__
+#include <log.h>
 #include <malloc.h>
 #include <linux/err.h>
 #endif

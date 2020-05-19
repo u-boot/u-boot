@@ -14,6 +14,7 @@
 #include <common.h>
 #include <dm.h>
 #include <lcd.h>
+#include <log.h>
 #include <video.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/hardware.h>
@@ -21,6 +22,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>
 #include <asm/utils.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 #include "am335x-fb.h"
 

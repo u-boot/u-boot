@@ -7,11 +7,14 @@
 #include <clk-uclass.h>
 #include <div64.h>
 #include <dm.h>
+#include <init.h>
+#include <log.h>
 #include <regmap.h>
 #include <spl.h>
 #include <syscon.h>
 #include <time.h>
 #include <vsprintf.h>
+#include <linux/bitops.h>
 #include <linux/io.h>
 #include <linux/iopoll.h>
 #include <dt-bindings/clock/stm32mp1-clks.h>

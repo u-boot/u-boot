@@ -9,6 +9,7 @@
  */
 
 #ifndef __UBOOT__
+#include <log.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>
 #include <linux/kernel.h>
@@ -22,6 +23,7 @@
 #include <linux/slab.h>
 #else
 #include <common.h>
+#include <linux/bug.h>
 #include <linux/usb/ch9.h>
 #include "linux-compat.h"
 #endif

@@ -9,7 +9,9 @@
 #include <dm.h>
 #include <hang.h>
 #include <init.h>
+#include <log.h>
 #include <malloc.h>
+#include <net.h>
 #include <dm/of_extra.h>
 #include <env.h>
 #include <errno.h>

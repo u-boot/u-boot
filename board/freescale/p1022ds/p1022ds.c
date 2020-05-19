@@ -8,7 +8,10 @@
 #include <common.h>
 #include <command.h>
 #include <env.h>
+#include <image.h>
 #include <init.h>
+#include <log.h>
+#include <net.h>
 #include <pci.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>

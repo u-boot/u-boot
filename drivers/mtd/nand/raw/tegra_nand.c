@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm/io.h>
 #include <memalign.h>
 #include <nand.h>
@@ -14,6 +15,8 @@
 #include <asm/arch/funcmux.h>
 #include <asm/arch-tegra/clk_rst.h>
 #include <dm/device_compat.h>
+#include <linux/bug.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
 #include <fdtdec.h>

@@ -3,10 +3,13 @@
  * Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
  */
 
+#include <command.h>
 #include <config.h>
 #include <errno.h>
 #include <common.h>
 #include <env.h>
+#include <lmb.h>
+#include <log.h>
 #include <mapmem.h>
 #include <part.h>
 #include <ext4fs.h>
@@ -24,11 +27,11 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static struct blk_desc *fs_dev_desc;
 static int fs_dev_part;
-static disk_partition_t fs_partition;
+static struct disk_partition fs_partition;
 static int fs_type = FS_TYPE_ANY;
 
 static inline int fs_probe_unsupported(struct blk_desc *fs_dev_desc,
-				      disk_partition_t *fs_partition)
+				      struct disk_partition *fs_partition)
 {
 	printf("** Unrecognized filesystem type **\n");
 	return -1;
@@ -135,7 +138,7 @@ struct fstype_info {
 	 */
 	bool null_dev_desc_ok;
 	int (*probe)(struct blk_desc *fs_dev_desc,
-		     disk_partition_t *fs_partition);
+		     struct disk_partition *fs_partition);
 	int (*ls)(const char *dirname);
 	int (*exists)(const char *filename);
 	int (*size)(const char *filename, loff_t *size);
@@ -643,8 +646,8 @@ int fs_ln(const char *fname, const char *target)
 	return ret;
 }
 
-int do_size(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
-		int fstype)
+int do_size(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
+	    int fstype)
 {
 	loff_t size;
 
@@ -662,8 +665,8 @@ int do_size(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	return 0;
 }
 
-int do_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
-		int fstype)
+int do_load(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
+	    int fstype)
 {
 	unsigned long addr;
 	const char *addr_str;
@@ -736,8 +739,8 @@ int do_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	return 0;
 }
 
-int do_ls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
-	int fstype)
+int do_ls(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
+	  int fstype)
 {
 	if (argc < 2)
 		return CMD_RET_USAGE;
@@ -762,8 +765,8 @@ int file_exists(const char *dev_type, const char *dev_part, const char *file,
 	return fs_exists(file);
 }
 
-int do_save(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
-		int fstype)
+int do_save(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
+	    int fstype)
 {
 	unsigned long addr;
 	const char *filename;
@@ -804,8 +807,8 @@ int do_save(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	return 0;
 }
 
-int do_fs_uuid(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
-		int fstype)
+int do_fs_uuid(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
+	       int fstype)
 {
 	int ret;
 	char uuid[37];
@@ -829,7 +832,7 @@ int do_fs_uuid(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	return CMD_RET_SUCCESS;
 }
 
-int do_fs_type(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_fs_type(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct fstype_info *info;
 
@@ -851,7 +854,7 @@ int do_fs_type(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return CMD_RET_SUCCESS;
 }
 
-int do_rm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
+int do_rm(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
 	  int fstype)
 {
 	if (argc != 4)
@@ -866,7 +869,7 @@ int do_rm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	return 0;
 }
 
-int do_mkdir(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
+int do_mkdir(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
 	     int fstype)
 {
 	int ret;
@@ -886,7 +889,7 @@ int do_mkdir(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	return 0;
 }
 
-int do_ln(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
+int do_ln(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
 	  int fstype)
 {
 	if (argc != 5)

@@ -4,11 +4,13 @@
  */
 #include <errno.h>
 #include <common.h>
+#include <net.h>
 #include <asm/io.h>
 #include <fdt_support.h>
 #include <fsl_mdio.h>
 #ifdef CONFIG_FSL_LAYERSCAPE
 #include <asm/arch/fsl_serdes.h>
+#include <linux/libfdt.h>
 #else
 #include <asm/fsl_serdes.h>
 #endif

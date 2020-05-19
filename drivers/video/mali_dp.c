@@ -18,6 +18,7 @@
 #include <fdt_support.h>
 #include <clk.h>
 #include <dm/device_compat.h>
+#include <linux/delay.h>
 #include <linux/sizes.h>
 
 #define MALIDP_CORE_ID		0x0018

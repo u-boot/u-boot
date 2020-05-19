@@ -14,6 +14,7 @@
 #include <fdt_support.h>
 #include <asm/fsl_i2c.h>
 #include <asm/fsl_mpc83xx_serdes.h>
+#include <linux/delay.h>
 
 static struct pci_region pci_regions[] = {
 	{

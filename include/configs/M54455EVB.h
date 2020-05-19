@@ -13,6 +13,8 @@
 #ifndef _M54455EVB_H
 #define _M54455EVB_H
 
+#include <linux/stringify.h>
+
 /*
  * High Level Configuration Options
  * (easy to change)

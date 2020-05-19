@@ -11,12 +11,16 @@
 
 #include <common.h>
 #include <api.h>
+#include <bootstage.h>
 #include <cpu_func.h>
 #include <exports.h>
+#include <flash.h>
 #include <hang.h>
 #include <image.h>
 #include <irq_func.h>
+#include <log.h>
 #include <net.h>
+#include <asm/cache.h>
 #include <u-boot/crc.h>
 /* TODO: can we just include all these headers whether needed or not? */
 #if defined(CONFIG_CMD_BEDBUG)
@@ -310,9 +314,9 @@ static int initr_dm(void)
 #ifdef CONFIG_TIMER
 	gd->timer = NULL;
 #endif
-	bootstage_start(BOOTSTATE_ID_ACCUM_DM_R, "dm_r");
+	bootstage_start(BOOTSTAGE_ID_ACCUM_DM_R, "dm_r");
 	ret = dm_init_and_scan(false);
-	bootstage_accum(BOOTSTATE_ID_ACCUM_DM_R);
+	bootstage_accum(BOOTSTAGE_ID_ACCUM_DM_R);
 	if (ret)
 		return ret;
 
@@ -354,8 +358,8 @@ static int initr_announce(void)
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
 static int initr_manual_reloc_cmdtable(void)
 {
-	fixup_cmdtable(ll_entry_start(cmd_tbl_t, cmd),
-		       ll_entry_count(cmd_tbl_t, cmd));
+	fixup_cmdtable(ll_entry_start(struct cmd_tbl, cmd),
+		       ll_entry_count(struct cmd_tbl, cmd));
 	return 0;
 }
 #endif

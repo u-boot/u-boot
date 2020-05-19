@@ -8,10 +8,12 @@
 #define LOG_CATEGORY	UCLASS_SPI
 
 #include <common.h>
+#include <bootstage.h>
 #include <div64.h>
 #include <dm.h>
 #include <dt-structs.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <pch.h>
 #include <pci.h>
@@ -23,6 +25,8 @@
 #include <asm/fast_spi.h>
 #include <asm/io.h>
 #include <asm/mtrr.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/sizes.h>
 
 #include "ich.h"

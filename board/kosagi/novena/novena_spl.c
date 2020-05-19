@@ -23,6 +23,7 @@
 #include <mmc.h>
 #include <fsl_esdhc_imx.h>
 #include <spl.h>
+#include <linux/delay.h>
 
 #include <asm/arch/mx6-ddr.h>
 

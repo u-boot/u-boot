@@ -9,10 +9,13 @@
  * (C) Copyright 2015      Jens Kuske <jenskuske@gmail.com>
  */
 #include <common.h>
+#include <init.h>
+#include <log.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/dram.h>
 #include <asm/arch/cpu.h>
+#include <linux/delay.h>
 #include <linux/kconfig.h>
 
 static void mctl_phy_init(u32 val)

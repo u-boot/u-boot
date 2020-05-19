@@ -19,6 +19,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <generic-phy.h>
+#include <log.h>
 #include <malloc.h>
 #include <phy-sun4i-usb.h>
 #include <reset.h>
@@ -29,6 +30,8 @@
 #include <dm/device_compat.h>
 #include <dm/lists.h>
 #include <dm/root.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/usb/musb.h>
 #include "linux-compat.h"
 #include "musb_core.h"

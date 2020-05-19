@@ -7,6 +7,9 @@
 #include <ahci.h>
 #include <cpu_func.h>
 #include <env.h>
+#include <fdt_support.h>
+#include <init.h>
+#include <net.h>
 #include <netdev.h>
 #include <scsi.h>
 

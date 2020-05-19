@@ -7,6 +7,8 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <init.h>
+#include <log.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
@@ -20,6 +22,7 @@
 #include <fdt_support.h>
 #include <fsl_wdog.h>
 #include <imx_sip.h>
+#include <linux/bitops.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

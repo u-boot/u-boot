@@ -5,10 +5,13 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <dm/pinctrl.h>
 #include <regmap.h>
 #include <syscon.h>
 #include <fdtdec.h>
+#include <linux/bitops.h>
+#include <linux/libfdt.h>
 
 #include "pinctrl-rockchip.h"
 

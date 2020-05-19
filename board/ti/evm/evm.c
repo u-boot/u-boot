@@ -13,6 +13,8 @@
 #include <common.h>
 #include <dm.h>
 #include <env.h>
+#include <init.h>
+#include <net.h>
 #include <ns16550.h>
 #include <netdev.h>
 #include <serial.h>
@@ -26,6 +28,7 @@
 #include <twl4030.h>
 #include <asm/mach-types.h>
 #include <asm/omap_musb.h>
+#include <linux/delay.h>
 #include <linux/mtd/rawnand.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>

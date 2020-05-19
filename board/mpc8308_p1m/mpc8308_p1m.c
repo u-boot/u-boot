@@ -7,6 +7,8 @@
 #include <common.h>
 #include <i2c.h>
 #include <init.h>
+#include <net.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <pci.h>

@@ -7,6 +7,7 @@
 #define _CONFIG_HELIOS4_H
 
 #include <linux/sizes.h>
+#include <linux/stringify.h>
 
 /*
  * High Level Configuration Options (easy to change)

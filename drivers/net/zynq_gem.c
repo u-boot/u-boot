@@ -12,11 +12,13 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <log.h>
 #include <net.h>
 #include <netdev.h>
 #include <config.h>
 #include <console.h>
 #include <malloc.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <phy.h>
 #include <miiphy.h>
@@ -26,6 +28,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
 #include <linux/err.h>
 #include <linux/errno.h>
 

@@ -6,6 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <sysreset.h>
 #include <wdt.h>
 #include <asm/io.h>

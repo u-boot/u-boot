@@ -8,6 +8,7 @@
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
+#include <linux/delay.h>
 
 #include "seq_exec.h"
 #include "high_speed_env_spec.h"

@@ -10,7 +10,7 @@
 #include <common.h>
 #include <malloc.h>
 DECLARE_GLOBAL_DATA_PTR;
-#endif /* !USE_HOSTCC*/
+#endif /* !USE_HOSdTCC*/
 #include <image.h>
 #include <uboot_aes.h>
 #include <u-boot/aes.h>

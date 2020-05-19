@@ -9,11 +9,13 @@
 #include <fdtdec.h>
 #include <errno.h>
 #include <dm.h>
+#include <log.h>
 #include <dm/pinctrl.h>
 #include <dm/root.h>
 #include <asm/system.h>
 #include <asm/io.h>
 #include <asm/arch-armada8k/soc-info.h>
+#include <linux/bitops.h>
 #include "pinctrl-mvebu.h"
 
 #define AP_EMMC_PHY_CTRL_REG		0x100

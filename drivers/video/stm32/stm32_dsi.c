@@ -12,6 +12,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <dsi_host.h>
+#include <log.h>
 #include <mipi_dsi.h>
 #include <panel.h>
 #include <reset.h>
@@ -22,6 +23,7 @@
 #include <dm/device-internal.h>
 #include <dm/device_compat.h>
 #include <dm/lists.h>
+#include <linux/bitops.h>
 #include <linux/iopoll.h>
 #include <power/regulator.h>
 

@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <fdt.h>
+#include <init.h>
 #include <spl.h>
 #include <asm/sections.h>
 #include <linux/sizes.h>

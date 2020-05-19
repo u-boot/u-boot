@@ -29,10 +29,13 @@
 #include <console.h>
 #include <env.h>
 #include <env_internal.h>
+#include <log.h>
+#include <net.h>
 #include <search.h>
 #include <errno.h>
 #include <malloc.h>
 #include <mapmem.h>
+#include <linux/bitops.h>
 #include <u-boot/crc.h>
 #include <watchdog.h>
 #include <linux/stddef.h>
@@ -120,8 +123,8 @@ static int env_print(char *name, int flag)
 	return 0;
 }
 
-static int do_env_print(cmd_tbl_t *cmdtp, int flag, int argc,
-			char * const argv[])
+static int do_env_print(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
 	int i;
 	int rcode = 0;
@@ -162,8 +165,8 @@ static int do_env_print(cmd_tbl_t *cmdtp, int flag, int argc,
 }
 
 #ifdef CONFIG_CMD_GREPENV
-static int do_env_grep(cmd_tbl_t *cmdtp, int flag,
-		       int argc, char * const argv[])
+static int do_env_grep(struct cmd_tbl *cmdtp, int flag,
+		       int argc, char *const argv[])
 {
 	char *res = NULL;
 	int len, grep_how, grep_what;
@@ -222,7 +225,7 @@ DONE:
  * Set a new environment variable,
  * or replace or delete an existing one.
  */
-static int _do_env_set(int flag, int argc, char * const argv[], int env_flag)
+static int _do_env_set(int flag, int argc, char *const argv[], int env_flag)
 {
 	int   i, len;
 	char  *name, *value, *s;
@@ -378,7 +381,8 @@ int eth_env_set_enetaddr(const char *name, const uint8_t *enetaddr)
 }
 
 #ifndef CONFIG_SPL_BUILD
-static int do_env_set(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_env_set(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	if (argc < 2)
 		return CMD_RET_USAGE;
@@ -390,7 +394,7 @@ static int do_env_set(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  * Prompt for environment variable
  */
 #if defined(CONFIG_CMD_ASKENV)
-int do_env_ask(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_env_ask(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	char message[CONFIG_SYS_CBSIZE];
 	int i, len, pos, size;
@@ -508,7 +512,8 @@ static int print_active_callback(struct env_entry *entry)
 /*
  * Print the callbacks available and what they are bound to
  */
-int do_env_callback(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_env_callback(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[])
 {
 	struct env_clbk_tbl *clbkp;
 	int i;
@@ -576,7 +581,7 @@ static int print_active_flags(struct env_entry *entry)
 /*
  * Print the flags available and what variables have flags
  */
-int do_env_flags(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_env_flags(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	/* Print the available variable types */
 	printf("Available variable type flags (position %d):\n",
@@ -618,8 +623,8 @@ int do_env_flags(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  * Interactively edit an environment variable
  */
 #if defined(CONFIG_CMD_EDITENV)
-static int do_env_edit(cmd_tbl_t *cmdtp, int flag, int argc,
-		       char * const argv[])
+static int do_env_edit(struct cmd_tbl *cmdtp, int flag, int argc,
+		       char *const argv[])
 {
 	char buffer[CONFIG_SYS_CBSIZE];
 	char *init_val;
@@ -763,8 +768,8 @@ ulong env_get_ulong(const char *name, int base, ulong default_val)
 
 #ifndef CONFIG_SPL_BUILD
 #if defined(CONFIG_CMD_SAVEENV) && defined(ENV_IS_IN_DEVICE)
-static int do_env_save(cmd_tbl_t *cmdtp, int flag, int argc,
-		       char * const argv[])
+static int do_env_save(struct cmd_tbl *cmdtp, int flag, int argc,
+		       char *const argv[])
 {
 	return env_save() ? 1 : 0;
 }
@@ -776,8 +781,8 @@ U_BOOT_CMD(
 );
 
 #if defined(CONFIG_CMD_ERASEENV)
-static int do_env_erase(cmd_tbl_t *cmdtp, int flag, int argc,
-			char * const argv[])
+static int do_env_erase(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
 {
 	return env_erase() ? 1 : 0;
 }
@@ -807,8 +812,8 @@ int env_match(uchar *s1, int i2)
 }
 
 #ifndef CONFIG_SPL_BUILD
-static int do_env_default(cmd_tbl_t *cmdtp, int flag,
-			  int argc, char * const argv[])
+static int do_env_default(struct cmd_tbl *cmdtp, int flag,
+			  int argc, char *const argv[])
 {
 	int all = 0, env_flag = H_INTERACTIVE;
 
@@ -845,8 +850,8 @@ static int do_env_default(cmd_tbl_t *cmdtp, int flag,
 	return cmd_usage(cmdtp);
 }
 
-static int do_env_delete(cmd_tbl_t *cmdtp, int flag,
-			 int argc, char * const argv[])
+static int do_env_delete(struct cmd_tbl *cmdtp, int flag,
+			 int argc, char *const argv[])
 {
 	int env_flag = H_INTERACTIVE;
 	int ret = 0;
@@ -926,8 +931,8 @@ static int do_env_delete(cmd_tbl_t *cmdtp, int flag,
  *
  *	=> env import -d -t ${backup_addr}
  */
-static int do_env_export(cmd_tbl_t *cmdtp, int flag,
-			 int argc, char * const argv[])
+static int do_env_export(struct cmd_tbl *cmdtp, int flag,
+			 int argc, char *const argv[])
 {
 	char	buf[32];
 	ulong	addr;
@@ -1059,8 +1064,8 @@ sep_err:
  *		the environment at address 'addr'. Without arguments, the whole
  *		environment gets imported.
  */
-static int do_env_import(cmd_tbl_t *cmdtp, int flag,
-			 int argc, char * const argv[])
+static int do_env_import(struct cmd_tbl *cmdtp, int flag,
+			 int argc, char *const argv[])
 {
 	ulong	addr;
 	char	*cmd, *ptr;
@@ -1220,8 +1225,8 @@ static int print_env_info(void)
  * env info [-d] - evaluate whether default environment is used
  * env info [-p] - evaluate whether environment can be persisted
  */
-static int do_env_info(cmd_tbl_t *cmdtp, int flag,
-		       int argc, char * const argv[])
+static int do_env_info(struct cmd_tbl *cmdtp, int flag,
+		       int argc, char *const argv[])
 {
 	int eval_flags = 0;
 	int eval_results = 0;
@@ -1277,8 +1282,8 @@ static int do_env_info(cmd_tbl_t *cmdtp, int flag,
 #endif
 
 #if defined(CONFIG_CMD_ENV_EXISTS)
-static int do_env_exists(cmd_tbl_t *cmdtp, int flag, int argc,
-		       char * const argv[])
+static int do_env_exists(struct cmd_tbl *cmdtp, int flag, int argc,
+			 char *const argv[])
 {
 	struct env_entry e, *ep;
 
@@ -1296,7 +1301,7 @@ static int do_env_exists(cmd_tbl_t *cmdtp, int flag, int argc,
 /*
  * New command line interface: "env" command with subcommands
  */
-static cmd_tbl_t cmd_env_sub[] = {
+static struct cmd_tbl cmd_env_sub[] = {
 #if defined(CONFIG_CMD_ASKENV)
 	U_BOOT_CMD_MKENT(ask, CONFIG_SYS_MAXARGS, 1, do_env_ask, "", ""),
 #endif
@@ -1346,9 +1351,9 @@ void env_reloc(void)
 }
 #endif
 
-static int do_env(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_env(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	cmd_tbl_t *cp;
+	struct cmd_tbl *cp;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;

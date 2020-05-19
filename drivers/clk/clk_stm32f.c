@@ -7,7 +7,9 @@
 #include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
+#include <log.h>
 #include <stm32_rcc.h>
+#include <linux/bitops.h>
 
 #include <asm/io.h>
 #include <asm/arch/stm32.h>

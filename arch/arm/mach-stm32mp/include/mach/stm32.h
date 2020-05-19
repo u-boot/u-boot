@@ -6,6 +6,10 @@
 #ifndef _MACH_STM32_H_
 #define _MACH_STM32_H_
 
+#ifndef __ASSEMBLY__
+#include <linux/bitops.h>
+#endif
+
 /*
  * Peripheral memory map
  * only address used before device tree parsing
@@ -133,5 +137,5 @@ enum forced_boot_mode {
 #define BSEC_OTP_MAC	57
 #define BSEC_OTP_BOARD	59
 
-#endif /* __ASSEMBLY__*/
+#endif /* __ASSEMBLY__ */
 #endif /* _MACH_STM32_H_ */

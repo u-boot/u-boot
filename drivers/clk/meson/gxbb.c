@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm/arch/clock-gx.h>
 #include <asm/io.h>
 #include <clk-uclass.h>
@@ -14,6 +15,7 @@
 #include <regmap.h>
 #include <syscon.h>
 #include <dt-bindings/clock/gxbb-clkc.h>
+#include <linux/bitops.h>
 #include "clk_meson.h"
 #include <linux/err.h>
 

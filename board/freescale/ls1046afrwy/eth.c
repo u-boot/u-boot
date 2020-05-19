@@ -3,6 +3,8 @@
  * Copyright 2019 NXP
  */
 #include <common.h>
+#include <fdt_support.h>
+#include <net.h>
 #include <asm/io.h>
 #include <netdev.h>
 #include <fm_eth.h>

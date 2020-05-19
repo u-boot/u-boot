@@ -7,7 +7,9 @@
  */
 
 #include <common.h>
+#include <image.h>
 #include <lmb.h>
+#include <log.h>
 #include <malloc.h>
 
 #define LMB_ALLOC_ANYWHERE	0

@@ -12,6 +12,8 @@
 #include <common.h>
 #include <env.h>
 #include <dm.h>
+#include <hash.h>
+#include <log.h>
 #include <dm/uclass-internal.h>
 #include <misc.h>
 #include <u-boot/crc.h>

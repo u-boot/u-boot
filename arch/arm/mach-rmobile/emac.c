@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <net.h>
 #include <linux/errno.h>
 #include <netdev.h>
 

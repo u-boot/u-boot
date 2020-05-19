@@ -17,6 +17,8 @@
 #include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <malloc.h>
 #include <sdhci.h>

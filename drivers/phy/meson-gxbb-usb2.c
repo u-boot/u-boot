@@ -15,6 +15,7 @@
 #include <power/regulator.h>
 #include <regmap.h>
 #include <reset.h>
+#include <linux/bitops.h>
 
 #define REG_CONFIG					0x00
 	#define REG_CONFIG_CLK_EN			BIT(0)

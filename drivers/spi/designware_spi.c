@@ -10,6 +10,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm-generic/gpio.h>
 #include <clk.h>
 #include <dm.h>
@@ -19,6 +20,7 @@
 #include <fdtdec.h>
 #include <reset.h>
 #include <dm/device_compat.h>
+#include <linux/bitops.h>
 #include <linux/compat.h>
 #include <linux/iopoll.h>
 #include <asm/io.h>

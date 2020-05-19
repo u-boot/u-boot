@@ -6,10 +6,12 @@
 #include <common.h>
 #include <config.h>
 #include <dm.h>
+#include <log.h>
 #include <malloc.h>
 #include <dm/of_access.h>
 #include <dm/of_addr.h>
 #include <fdt_support.h>
+#include <linux/bitops.h>
 #include <linux/io.h>
 #include <linux/ioport.h>
 #include <miiphy.h>

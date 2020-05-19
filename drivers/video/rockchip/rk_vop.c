@@ -9,6 +9,7 @@
 #include <display.h>
 #include <dm.h>
 #include <edid.h>
+#include <log.h>
 #include <regmap.h>
 #include <syscon.h>
 #include <video.h>
@@ -19,6 +20,7 @@
 #include <asm/arch-rockchip/vop_rk3288.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
+#include <linux/bitops.h>
 #include <linux/err.h>
 #include <power/regulator.h>
 #include "rk_vop.h"

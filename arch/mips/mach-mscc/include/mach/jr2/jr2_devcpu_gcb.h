@@ -6,6 +6,8 @@
 #ifndef _MSCC_JR2_DEVCPU_GCB_H_
 #define _MSCC_JR2_DEVCPU_GCB_H_
 
+#include <linux/bitops.h>
+
 #define PERF_GPR                                          0x4
 
 #define PERF_SOFT_RST                                     0x8

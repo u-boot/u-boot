@@ -26,11 +26,13 @@
 #include <dm.h>
 #include <env.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <asm/processor.h>
 #include <asm/unaligned.h>
 #include <linux/ctype.h>
+#include <linux/delay.h>
 #include <linux/list.h>
 #include <asm/byteorder.h>
 #ifdef CONFIG_SANDBOX

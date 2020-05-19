@@ -13,6 +13,7 @@
 #include <efi_selftest.h>
 #include <env.h>
 #include <errno.h>
+#include <image.h>
 #include <malloc.h>
 #include <linux/libfdt.h>
 #include <linux/libfdt_env.h>
@@ -594,7 +595,8 @@ static int do_efi_selftest(void)
  * @argv:	command line arguments
  * Return:	status code
  */
-static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_bootefi(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
 {
 	efi_status_t ret;
 	void *fdt;

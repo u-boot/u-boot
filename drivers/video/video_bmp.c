@@ -6,6 +6,7 @@
 #include <common.h>
 #include <bmp_layout.h>
 #include <dm.h>
+#include <log.h>
 #include <mapmem.h>
 #include <splash.h>
 #include <video.h>

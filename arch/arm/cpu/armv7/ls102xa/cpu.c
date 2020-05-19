@@ -5,6 +5,8 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <init.h>
+#include <net.h>
 #include <vsprintf.h>
 #include <asm/arch/clock.h>
 #include <asm/io.h>
@@ -16,6 +18,7 @@
 #include <fsl_esdhc.h>
 #include <config.h>
 #include <fsl_wdog.h>
+#include <linux/delay.h>
 
 #include "fsl_epu.h"
 

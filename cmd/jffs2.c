@@ -73,9 +73,11 @@
 #include <common.h>
 #include <command.h>
 #include <env.h>
+#include <flash.h>
 #include <image.h>
 #include <malloc.h>
 #include <jffs2/jffs2.h>
+#include <linux/bug.h>
 #include <linux/list.h>
 #include <linux/ctype.h>
 #include <cramfs/cramfs_fs.h>
@@ -471,7 +473,8 @@ static struct part_info* jffs2_part_info(struct mtd_device *dev, unsigned int pa
  * @param argv arguments list
  * @return 0 on success, 1 otherwise
  */
-int do_jffs2_fsload(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_jffs2_fsload(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[])
 {
 	char *fsname;
 	char *filename;
@@ -533,7 +536,7 @@ int do_jffs2_fsload(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  * @param argv arguments list
  * @return 0 on success, 1 otherwise
  */
-int do_jffs2_ls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_jffs2_ls(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	char *filename = "/";
 	int ret;
@@ -571,7 +574,8 @@ int do_jffs2_ls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  * @param argv arguments list
  * @return 0 on success, 1 otherwise
  */
-int do_jffs2_fsinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_jffs2_fsinfo(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[])
 {
 	struct part_info *part;
 	char *fsname;

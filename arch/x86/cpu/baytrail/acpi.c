@@ -6,6 +6,7 @@
 #include <common.h>
 #include <cpu.h>
 #include <dm.h>
+#include <log.h>
 #include <acpi/acpi_s3.h>
 #include <acpi/acpi_table.h>
 #include <asm/io.h>

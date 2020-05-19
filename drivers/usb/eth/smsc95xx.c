@@ -9,10 +9,13 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <memalign.h>
+#include <net.h>
 #include <usb.h>
 #include <asm/unaligned.h>
+#include <linux/delay.h>
 #include <linux/mii.h>
 #include "usb_ether.h"
 

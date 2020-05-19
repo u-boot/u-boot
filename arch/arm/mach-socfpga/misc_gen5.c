@@ -5,10 +5,12 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <init.h>
 #include <asm/io.h>
 #include <env.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <linux/bitops.h>
 #include <linux/libfdt.h>
 #include <altera.h>
 #include <miiphy.h>

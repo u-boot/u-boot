@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <pci.h>
 #include <asm/io.h>
 #include <asm/intel_regs.h>

@@ -17,6 +17,7 @@
 #include <asm/arch/wdt.h>
 #include <asm/arch/emc.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 
 static struct clk_pm_regs *clk = (struct clk_pm_regs *)CLK_PM_BASE;
 static struct emc_regs *emc = (struct emc_regs *)EMC_BASE;

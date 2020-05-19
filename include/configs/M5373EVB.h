@@ -13,6 +13,8 @@
 #ifndef _M5373EVB_H
 #define _M5373EVB_H
 
+#include <linux/stringify.h>
+
 /*
  * High Level Configuration Options
  * (easy to change)

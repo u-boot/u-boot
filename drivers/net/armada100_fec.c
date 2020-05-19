@@ -10,12 +10,14 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <net.h>
 #include <malloc.h>
 #include <miiphy.h>
 #include <netdev.h>
 #include <asm/types.h>
 #include <asm/byteorder.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 #include <linux/mii.h>
 #include <asm/io.h>

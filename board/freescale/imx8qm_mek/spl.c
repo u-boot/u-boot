@@ -6,6 +6,9 @@
 
 #include <common.h>
 #include <dm.h>
+#include <image.h>
+#include <init.h>
+#include <log.h>
 #include <spl.h>
 #include <dm/uclass.h>
 #include <dm/device.h>

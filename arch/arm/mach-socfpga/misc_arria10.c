@@ -7,6 +7,7 @@
 #include <common.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <init.h>
 #include <miiphy.h>
 #include <netdev.h>
 #include <ns16550.h>

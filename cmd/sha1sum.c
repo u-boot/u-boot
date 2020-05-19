@@ -12,7 +12,7 @@
 #include <hash.h>
 #include <u-boot/sha1.h>
 
-int do_sha1sum(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_sha1sum(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	int flags = HASH_FLAG_ENV;
 	int ac;

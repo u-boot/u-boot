@@ -21,6 +21,7 @@
 #include <dm/root.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <linux/bitops.h>
 #include <linux/io.h>
 #include "mscc-common.h"
 

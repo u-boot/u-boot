@@ -9,6 +9,8 @@
 #include <clk.h>
 #include <dm.h>
 #include <dt-structs.h>
+#include <init.h>
+#include <log.h>
 #include <ram.h>
 #include <regmap.h>
 #include <syscon.h>
@@ -20,6 +22,7 @@
 #include <asm/arch-rockchip/hardware.h>
 #include <asm/arch-rockchip/sdram.h>
 #include <asm/arch-rockchip/sdram_rk3399.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 #include <time.h>
 

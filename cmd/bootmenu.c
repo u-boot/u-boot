@@ -7,9 +7,11 @@
 #include <command.h>
 #include <ansi.h>
 #include <env.h>
+#include <log.h>
 #include <menu.h>
 #include <watchdog.h>
 #include <malloc.h>
+#include <linux/delay.h>
 #include <linux/string.h>
 
 /* maximum bootmenu entries */
@@ -482,7 +484,7 @@ int menu_show(int bootdelay)
 }
 #endif
 
-int do_bootmenu(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+int do_bootmenu(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	char *delay_str = NULL;
 	int delay = 10;

@@ -13,6 +13,7 @@
 #include <dm.h>
 #include <rtc.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 #include "mvrtc.h"
 
 /* This RTC does not support century, so we assume 20 */

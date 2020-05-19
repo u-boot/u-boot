@@ -6,6 +6,7 @@
  */
 
 #include <hang.h>
+#include <image.h>
 #include <asm/unaligned.h>
 #include <common.h>
 #include <command.h>

@@ -5,6 +5,9 @@
  *  Driver for the Vitesse VSC9953 L2 Switch
  */
 
+#include <common.h>
+#include <command.h>
+#include <log.h>
 #include <asm/io.h>
 #include <asm/fsl_serdes.h>
 #include <fm_eth.h>
@@ -14,6 +17,7 @@
 #include <malloc.h>
 #include <vsc9953.h>
 #include <ethsw.h>
+#include <linux/delay.h>
 
 static struct vsc9953_info vsc9953_l2sw = {
 		.port[0] = VSC9953_PORT_INFO_INITIALIZER(0),

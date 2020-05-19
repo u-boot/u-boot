@@ -10,6 +10,7 @@
 #include <env.h>
 #include <hang.h>
 #include <init.h>
+#include <log.h>
 #include <mmc.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>

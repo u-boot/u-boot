@@ -13,6 +13,7 @@
 #include <clk-uclass.h>
 #include <dm/device.h>
 #include <dm/devres.h>
+#include <linux/bitops.h>
 #include <linux/clk-provider.h>
 #include <clk.h>
 #include "clk.h"

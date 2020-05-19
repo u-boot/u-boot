@@ -6,6 +6,8 @@
 #ifndef _M5253DEMO_H
 #define _M5253DEMO_H
 
+#include <linux/stringify.h>
+
 #define CONFIG_MCFTMR
 
 #define CONFIG_MCFUART

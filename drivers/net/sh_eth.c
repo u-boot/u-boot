@@ -12,10 +12,13 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <env.h>
+#include <log.h>
 #include <malloc.h>
 #include <net.h>
 #include <netdev.h>
 #include <miiphy.h>
+#include <asm/cache.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/io.h>
 

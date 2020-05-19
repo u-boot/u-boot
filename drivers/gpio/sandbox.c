@@ -6,6 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <malloc.h>
 #include <asm/gpio.h>
 #include <dm/device_compat.h>

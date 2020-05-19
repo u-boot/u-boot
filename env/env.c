@@ -7,6 +7,9 @@
 #include <common.h>
 #include <env.h>
 #include <env_internal.h>
+#include <log.h>
+#include <linux/bitops.h>
+#include <linux/bug.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

@@ -11,6 +11,7 @@
 #include <asm/io.h>
 #include <errno.h>
 #include <asm/gpio.h>
+#include <linux/bitops.h>
 
 static int sifive_gpio_probe(struct udevice *dev)
 {

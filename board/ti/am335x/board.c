@@ -11,8 +11,10 @@
 #include <dm.h>
 #include <env.h>
 #include <errno.h>
+#include <image.h>
 #include <init.h>
 #include <malloc.h>
+#include <net.h>
 #include <spl.h>
 #include <serial.h>
 #include <asm/arch/cpu.h>
@@ -34,6 +36,8 @@
 #include <i2c.h>
 #include <miiphy.h>
 #include <cpsw.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <power/tps65217.h>
 #include <power/tps65910.h>
 #include <env_internal.h>

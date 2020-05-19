@@ -14,6 +14,8 @@
 #include <dm.h>
 #include <i2c.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 struct rcar_iic_priv {
 	void __iomem		*base;

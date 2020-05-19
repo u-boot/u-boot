@@ -9,6 +9,7 @@
 #include <init.h>
 #include <malloc.h>
 #include <asm/immap.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

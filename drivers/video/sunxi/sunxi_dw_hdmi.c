@@ -10,10 +10,13 @@
 #include <dm.h>
 #include <dw_hdmi.h>
 #include <edid.h>
+#include <log.h>
 #include <time.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/lcdc.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 struct sunxi_dw_hdmi_priv {
 	struct dw_hdmi hdmi;

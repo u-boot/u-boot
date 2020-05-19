@@ -4,6 +4,7 @@
  */
 
 #include <init.h>
+#include <net.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/imx-regs.h>
@@ -21,6 +22,7 @@
 #include <fsl_esdhc_imx.h>
 #include <i2c.h>
 #include <miiphy.h>
+#include <linux/delay.h>
 #include <linux/sizes.h>
 #include <mmc.h>
 #include <netdev.h>

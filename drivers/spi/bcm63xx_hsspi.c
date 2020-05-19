@@ -10,11 +10,13 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <log.h>
 #include <malloc.h>
 #include <spi.h>
 #include <reset.h>
 #include <wait_bit.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 
 #define HSSPI_PP			0
 

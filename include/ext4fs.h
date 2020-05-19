@@ -28,6 +28,8 @@
 #define __EXT4__
 #include <ext_common.h>
 
+struct disk_partition;
+
 #define EXT4_INDEX_FL		0x00001000 /* Inode uses hash tree index */
 #define EXT4_EXTENTS_FL		0x00080000 /* Inode uses extents */
 #define EXT4_EXT_MAGIC			0xf30a
@@ -152,11 +154,11 @@ int ext4fs_exists(const char *filename);
 int ext4fs_size(const char *filename, loff_t *size);
 void ext4fs_free_node(struct ext2fs_node *node, struct ext2fs_node *currroot);
 int ext4fs_devread(lbaint_t sector, int byte_offset, int byte_len, char *buf);
-void ext4fs_set_blk_dev(struct blk_desc *rbdd, disk_partition_t *info);
+void ext4fs_set_blk_dev(struct blk_desc *rbdd, struct disk_partition *info);
 long int read_allocated_block(struct ext2_inode *inode, int fileblock,
 			      struct ext_block_cache *cache);
 int ext4fs_probe(struct blk_desc *fs_dev_desc,
-		 disk_partition_t *fs_partition);
+		 struct disk_partition *fs_partition);
 int ext4_read_file(const char *filename, void *buf, loff_t offset, loff_t len,
 		   loff_t *actread);
 int ext4_read_superblock(char *buffer);

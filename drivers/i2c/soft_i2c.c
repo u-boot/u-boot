@@ -25,6 +25,7 @@
 #endif
 #endif
 #include <i2c.h>
+#include <linux/delay.h>
 
 #if defined(CONFIG_SOFT_I2C_GPIO_SCL)
 # include <asm/gpio.h>

@@ -4,9 +4,11 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <malloc.h>
 #include <net.h>
 #include <config.h>
+#include <linux/delay.h>
 
 #include <phy.h>
 #include <miiphy.h>

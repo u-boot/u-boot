@@ -7,9 +7,11 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <log.h>
 #include <malloc.h>
 #include <errno.h>
 #include <bouncebuf.h>
+#include <asm/cache.h>
 
 static int addr_aligned(struct bounce_buffer *state)
 {

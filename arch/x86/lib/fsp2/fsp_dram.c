@@ -6,6 +6,8 @@
 
 #include <common.h>
 #include <handoff.h>
+#include <init.h>
+#include <log.h>
 #include <spl.h>
 #include <acpi/acpi_s3.h>
 #include <asm/arch/cpu.h>

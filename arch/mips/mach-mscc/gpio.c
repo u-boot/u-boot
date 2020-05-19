@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 
 void mscc_gpio_set_alternate(int gpio, int mode)
 {

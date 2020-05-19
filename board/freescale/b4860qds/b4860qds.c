@@ -8,12 +8,15 @@
 #include <env.h>
 #include <fdt_support.h>
 #include <i2c.h>
+#include <image.h>
 #include <init.h>
 #include <irq_func.h>
+#include <log.h>
 #include <netdev.h>
 #include <linux/compiler.h>
 #include <asm/mmu.h>
 #include <asm/processor.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/cache.h>
 #include <asm/immap_85xx.h>

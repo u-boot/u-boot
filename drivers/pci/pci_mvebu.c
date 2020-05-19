@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <malloc.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
@@ -19,6 +20,7 @@
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
+#include <linux/bitops.h>
 #include <linux/errno.h>
 #include <linux/ioport.h>
 #include <linux/mbus.h>

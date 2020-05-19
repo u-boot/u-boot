@@ -16,6 +16,7 @@
 #include <command.h>
 #include <linux/compat.h>
 #include <rtc.h>
+#include <linux/delay.h>
 
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>

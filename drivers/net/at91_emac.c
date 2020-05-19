@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <log.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/at91_emac.h>
@@ -17,6 +18,7 @@
 #include <netdev.h>
 #include <malloc.h>
 #include <miiphy.h>
+#include <linux/delay.h>
 #include <linux/mii.h>
 
 #undef MII_DEBUG

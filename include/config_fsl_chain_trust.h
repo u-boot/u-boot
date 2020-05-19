@@ -6,6 +6,8 @@
 #ifndef __CONFIG_FSL_CHAIN_TRUST_H
 #define __CONFIG_FSL_CHAIN_TRUST_H
 
+#include <linux/stringify.h>
+
 #ifdef CONFIG_CHAIN_OF_TRUST
 
 #ifndef CONFIG_EXTRA_ENV

@@ -10,15 +10,18 @@
 #include <dm.h>
 #include <env.h>
 #include <env_internal.h>
+#include <fdt_support.h>
 #include <g_dnl.h>
 #include <generic-phy.h>
 #include <hang.h>
 #include <i2c.h>
 #include <init.h>
 #include <led.h>
+#include <log.h>
 #include <malloc.h>
 #include <misc.h>
 #include <mtd_node.h>
+#include <net.h>
 #include <netdev.h>
 #include <phy.h>
 #include <remoteproc.h>
@@ -31,6 +34,8 @@
 #include <asm/arch/stm32.h>
 #include <asm/arch/sys_proto.h>
 #include <jffs2/load_kernel.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 #include <linux/iopoll.h>
 #include <power/regulator.h>

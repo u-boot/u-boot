@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <mailbox-uclass.h>
 #include <malloc.h>
 #include <asm/io.h>

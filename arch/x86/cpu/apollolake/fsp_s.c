@@ -6,8 +6,11 @@
 
 #include <common.h>
 #include <binman.h>
+#include <bootstage.h>
 #include <dm.h>
+#include <init.h>
 #include <irq.h>
+#include <log.h>
 #include <malloc.h>
 #include <acpi/acpi_s3.h>
 #include <asm/intel_pinctrl.h>
@@ -20,6 +23,7 @@
 #include <asm/arch/systemagent.h>
 #include <asm/arch/fsp/fsp_configs.h>
 #include <asm/arch/fsp/fsp_s_upd.h>
+#include <linux/bitops.h>
 
 #define PCH_P2SB_E0		0xe0
 #define HIDE_BIT		BIT(0)

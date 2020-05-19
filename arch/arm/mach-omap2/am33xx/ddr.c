@@ -5,11 +5,14 @@
  * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
  */
 
+#include <common.h>
+#include <log.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/ddr_defs.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>
 #include <asm/emif.h>
+#include <linux/delay.h>
 
 /**
  * Base address for EMIF instances

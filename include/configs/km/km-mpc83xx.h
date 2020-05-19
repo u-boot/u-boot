@@ -1,6 +1,7 @@
 /*
  * Internal Definitions
  */
+#include <linux/stringify.h>
 #define BOOTFLASH_START	0xF0000000
 
 /*

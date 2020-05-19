@@ -7,11 +7,13 @@
  */
 
 #include <cpu_func.h>
+#include <env.h>
 #include <asm/io.h>
 #include <common.h>
 #include <asm/arch/msmc.h>
 #include <asm/arch/ddr3.h>
 #include <asm/arch/psc_defs.h>
+#include <linux/delay.h>
 
 #include <asm/ti-common/ti-edma3.h>
 

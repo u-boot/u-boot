@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <miiphy.h>
+#include <net.h>
 #include <netdev.h>
 #include <nand.h>
 #include <asm/io.h>

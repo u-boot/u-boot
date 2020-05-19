@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <linux/bitops.h>
 #include "../pinctrl/renesas/sh_pfc.h"
 
 #define GPIO_IOINTSEL	0x00	/* General IO/Interrupt Switching Register */

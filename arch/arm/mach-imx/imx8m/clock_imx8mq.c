@@ -6,11 +6,13 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
 #include <errno.h>
+#include <linux/delay.h>
 #include <linux/iopoll.h>
 
 static struct anamix_pll *ana_pll = (struct anamix_pll *)ANATOP_BASE_ADDR;
@@ -755,8 +757,8 @@ int clock_init(void)
  * Dump some clockes.
  */
 #ifndef CONFIG_SPL_BUILD
-static int do_imx8m_showclocks(cmd_tbl_t *cmdtp, int flag, int argc,
-		       char * const argv[])
+static int do_imx8m_showclocks(struct cmd_tbl *cmdtp, int flag, int argc,
+			       char *const argv[])
 {
 	u32 freq;
 

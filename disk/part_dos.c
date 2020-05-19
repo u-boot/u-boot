@@ -14,10 +14,12 @@
  */
 
 #include <common.h>
+#include <blk.h>
 #include <command.h>
 #include <ide.h>
 #include <memalign.h>
 #include "part_dos.h"
+#include <part.h>
 
 #ifdef CONFIG_HAVE_BLOCK_DEVICE
 
@@ -213,7 +215,7 @@ static void print_partition_extended(struct blk_desc *dev_desc,
 static int part_get_info_extended(struct blk_desc *dev_desc,
 				  lbaint_t ext_part_sector, lbaint_t relative,
 				  int part_num, int which_part,
-				  disk_partition_t *info, unsigned int disksig)
+				  struct disk_partition *info, uint disksig)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, dev_desc->blksz);
 	dos_partition_t *pt;
@@ -317,7 +319,7 @@ void part_print_dos(struct blk_desc *dev_desc)
 }
 
 int part_get_info_dos(struct blk_desc *dev_desc, int part,
-		      disk_partition_t *info)
+		      struct disk_partition *info)
 {
 	return part_get_info_extended(dev_desc, 0, 0, 1, part, info, 0);
 }

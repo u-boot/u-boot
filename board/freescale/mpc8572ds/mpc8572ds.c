@@ -6,7 +6,10 @@
 #include <common.h>
 #include <command.h>
 #include <env.h>
+#include <image.h>
 #include <init.h>
+#include <log.h>
+#include <net.h>
 #include <pci.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
@@ -17,6 +20,7 @@
 #include <asm/io.h>
 #include <asm/fsl_serdes.h>
 #include <miiphy.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <tsec.h>

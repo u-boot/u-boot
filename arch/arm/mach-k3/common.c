@@ -8,10 +8,14 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <image.h>
+#include <init.h>
+#include <log.h>
 #include <spl.h>
 #include "common.h"
 #include <dm.h>
 #include <remoteproc.h>
+#include <asm/cache.h>
 #include <linux/soc/ti/ti_sci_protocol.h>
 #include <fdt_support.h>
 #include <asm/arch/sys_proto.h>

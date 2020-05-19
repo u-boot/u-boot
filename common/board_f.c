@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <bloblist.h>
+#include <bootstage.h>
 #include <clock_legacy.h>
 #include <console.h>
 #include <cpu.h>
@@ -25,6 +26,7 @@
 #include <init.h>
 #include <initcall.h>
 #include <lcd.h>
+#include <log.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <os.h>
@@ -40,6 +42,7 @@
 #include <trace.h>
 #include <video.h>
 #include <watchdog.h>
+#include <asm/cache.h>
 #ifdef CONFIG_MACH_TYPE
 #include <asm/mach-types.h>
 #endif
@@ -822,9 +825,9 @@ static int initf_dm(void)
 #if defined(CONFIG_DM) && CONFIG_VAL(SYS_MALLOC_F_LEN)
 	int ret;
 
-	bootstage_start(BOOTSTATE_ID_ACCUM_DM_F, "dm_f");
+	bootstage_start(BOOTSTAGE_ID_ACCUM_DM_F, "dm_f");
 	ret = dm_init_and_scan(true);
-	bootstage_accum(BOOTSTATE_ID_ACCUM_DM_F);
+	bootstage_accum(BOOTSTAGE_ID_ACCUM_DM_F);
 	if (ret)
 		return ret;
 #endif

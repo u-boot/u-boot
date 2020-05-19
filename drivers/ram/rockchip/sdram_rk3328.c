@@ -7,6 +7,8 @@
 #include <debug_uart.h>
 #include <dm.h>
 #include <dt-structs.h>
+#include <init.h>
+#include <log.h>
 #include <ram.h>
 #include <regmap.h>
 #include <syscon.h>
@@ -17,6 +19,7 @@
 #include <asm/arch-rockchip/sdram.h>
 #include <asm/arch-rockchip/sdram_rk3328.h>
 #include <asm/arch-rockchip/uart.h>
+#include <linux/delay.h>
 
 struct dram_info {
 #ifdef CONFIG_TPL_BUILD

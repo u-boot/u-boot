@@ -11,6 +11,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <malloc.h>
 #include <power-domain-uclass.h>
 #include <dm/device_compat.h>

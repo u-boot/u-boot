@@ -7,10 +7,13 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <thermal.h>
 #include <dm/device-internal.h>
 #include <dm/device.h>
 #include <asm/arch/sci/sci.h>
+#include <linux/delay.h>
+#include <linux/libfdt.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

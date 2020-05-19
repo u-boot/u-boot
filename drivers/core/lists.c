@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <errno.h>
+#include <log.h>
 #include <dm/device.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>

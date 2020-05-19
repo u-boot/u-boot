@@ -20,6 +20,7 @@
 #include <asm/arch/crm_regs.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <fsl_esdhc_imx.h>
+#include <linux/delay.h>
 #include "common.h"
 
 enum ddr_config {

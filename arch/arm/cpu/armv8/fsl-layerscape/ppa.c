@@ -3,9 +3,11 @@
  * Copyright 2016 NXP Semiconductor, Inc.
  */
 #include <common.h>
+#include <log.h>
 #include <malloc.h>
 #include <config.h>
 #include <errno.h>
+#include <asm/cache.h>
 #include <asm/system.h>
 #include <asm/types.h>
 #include <asm/arch/soc.h>

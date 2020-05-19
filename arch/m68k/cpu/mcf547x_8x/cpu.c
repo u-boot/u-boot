@@ -9,6 +9,8 @@
  */
 
 #include <common.h>
+#include <init.h>
+#include <net.h>
 #include <vsprintf.h>
 #include <watchdog.h>
 #include <command.h>
@@ -19,7 +21,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	gptmr_t *gptmr = (gptmr_t *) (MMAP_GPTMR);
 

@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <fdtdec.h>
 #include <irq.h>
+#include <log.h>
 #include <malloc.h>
 #include <asm/io.h>
 #include <asm/irq.h>

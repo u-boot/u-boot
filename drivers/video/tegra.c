@@ -6,9 +6,12 @@
 #include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <panel.h>
+#include <part.h>
 #include <pwm.h>
 #include <video.h>
+#include <asm/cache.h>
 #include <asm/system.h>
 #include <asm/gpio.h>
 #include <asm/io.h>

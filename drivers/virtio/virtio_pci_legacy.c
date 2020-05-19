@@ -8,10 +8,12 @@
 
 #include <common.h>
 #include <dm.h>
+#include <log.h>
 #include <virtio_types.h>
 #include <virtio.h>
 #include <virtio_ring.h>
 #include <dm/device.h>
+#include <linux/bug.h>
 #include <linux/compat.h>
 #include <linux/err.h>
 #include <linux/io.h>

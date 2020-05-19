@@ -7,6 +7,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <log.h>
 #include <misc.h>
 #include <asm/io.h>
 #include <linux/err.h>

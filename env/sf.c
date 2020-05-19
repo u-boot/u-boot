@@ -12,11 +12,14 @@
 #include <dm.h>
 #include <env.h>
 #include <env_internal.h>
+#include <flash.h>
 #include <malloc.h>
 #include <spi.h>
 #include <spi_flash.h>
 #include <search.h>
 #include <errno.h>
+#include <uuid.h>
+#include <asm/cache.h>
 #include <dm/device-internal.h>
 #include <u-boot/crc.h>
 

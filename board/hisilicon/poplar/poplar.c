@@ -8,10 +8,13 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <init.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <dm/platform_data/serial_pl01x.h>
 #include <asm/arch/hi3798cv200.h>
 #include <asm/armv8/mmu.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

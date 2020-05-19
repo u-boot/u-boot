@@ -4,6 +4,7 @@
  */
 #include <common.h>
 #include <config.h>
+#include <log.h>
 #include <spl.h>
 #include <image.h>
 #include <linux/compiler.h>

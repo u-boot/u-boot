@@ -6,9 +6,11 @@
 #include <common.h>
 #include <binman.h>
 #include <binman_sym.h>
+#include <bootstage.h>
 #include <cbfs.h>
 #include <dm.h>
 #include <init.h>
+#include <log.h>
 #include <spi.h>
 #include <spl.h>
 #include <spi_flash.h>

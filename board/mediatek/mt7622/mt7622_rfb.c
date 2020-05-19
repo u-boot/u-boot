@@ -6,6 +6,8 @@
 
 #include <common.h>
 #include <config.h>
+#include <env.h>
+#include <init.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
