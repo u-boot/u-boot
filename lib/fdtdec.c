@@ -1294,7 +1294,8 @@ int fdtdec_add_reserved_memory(void *blob, const char *basename,
 	/* find a matching node and return the phandle to that */
 	fdt_for_each_subnode(node, blob, parent) {
 		const char *name = fdt_get_name(blob, node, NULL);
-		phys_addr_t addr, size;
+		fdt_addr_t addr;
+		fdt_size_t size;
 
 		addr = fdtdec_get_addr_size(blob, node, "reg", &size);
 		if (addr == FDT_ADDR_T_NONE) {
