@@ -107,18 +107,6 @@ void support_card_init(void)
 	support_card_show_revision();
 }
 
-#if defined(CONFIG_SMC911X)
-#include <netdev.h>
-
-int board_eth_init(bd_t *bis)
-{
-	if (!support_card_found)
-		return 0;
-
-	return smc911x_initialize(0, (unsigned long)support_card_base + SMC911X_OFFSET);
-}
-#endif
-
 #if defined(CONFIG_MTD_NOR_FLASH)
 
 #include <mtd/cfi_flash.h>
