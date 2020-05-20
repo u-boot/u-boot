@@ -36,6 +36,16 @@ char *net_dns_env_var;	/* The envvar to store the answer in */
 
 static int dns_our_port;
 
+/*
+ * make port a little random (1024-17407)
+ * This keeps the math somewhat trivial to compute, and seems to work with
+ * all supported protocols/clients/servers
+ */
+static unsigned int random_port(void)
+{
+	return 1024 + (get_timer(0) % 0x4000);
+}
+
 static void dns_send(void)
 {
 	struct header *header;

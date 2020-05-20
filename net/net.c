@@ -1564,20 +1564,6 @@ int net_parse_bootfile(struct in_addr *ipaddr, char *filename, int max_len)
 	return 1;
 }
 
-#if	defined(CONFIG_CMD_NFS)		|| \
-	defined(CONFIG_CMD_SNTP)	|| \
-	defined(CONFIG_CMD_DNS)
-/*
- * make port a little random (1024-17407)
- * This keeps the math somewhat trivial to compute, and seems to work with
- * all supported protocols/clients/servers
- */
-unsigned int random_port(void)
-{
-	return 1024 + (get_timer(0) % 0x4000);
-}
-#endif
-
 void ip_to_string(struct in_addr x, char *s)
 {
 	x.s_addr = ntohl(x.s_addr);
