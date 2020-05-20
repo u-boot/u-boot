@@ -607,6 +607,7 @@ DRIVER MODEL
 M:	Simon Glass <sjg@chromium.org>
 S:	Maintained
 T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-dm.git
+F:	doc/driver-model/
 F:	drivers/core/
 F:	include/dm/
 F:	test/dm/
