@@ -5,7 +5,6 @@
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  */
 
-#include <common.h>
 #include <init.h>
 #include <linux/errno.h>
 #include <linux/io.h>
@@ -13,6 +12,7 @@
 #include <linux/printk.h>
 #include <linux/sizes.h>
 #include <asm/global_data.h>
+#include <asm/u-boot.h>
 
 #include "init.h"
 #include "sg-regs.h"

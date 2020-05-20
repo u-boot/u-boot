@@ -5,12 +5,13 @@
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <dm/of.h>
 #include <fdt_support.h>
 #include <linux/ctype.h>
 #include <linux/delay.h>
 #include <linux/io.h>
+#include <asm/global_data.h>
 
 #include "micro-support-card.h"
 

@@ -5,7 +5,6 @@
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  */
 
-#include <common.h>
 #include <command.h>
 #include <stdio.h>
 #include <linux/io.h>

@@ -4,12 +4,12 @@
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  */
 
-#include <common.h>
 #include <command.h>
 #include <spl.h>
 #include <stdio.h>
 #include <linux/bitops.h>
 #include <linux/bug.h>
+#include <linux/errno.h>
 #include <linux/io.h>
 #include <linux/log2.h>
 

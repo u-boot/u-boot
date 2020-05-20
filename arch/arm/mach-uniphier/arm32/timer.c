@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <init.h>
 #include <linux/io.h>
 
