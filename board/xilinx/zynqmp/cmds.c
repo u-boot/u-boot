@@ -270,11 +270,11 @@ static int do_zynqmp_rsa(cmd_tbl_t *cmdtp, int flag, int argc,
 static int do_zynqmp_sha3(cmd_tbl_t *cmdtp, int flag,
 			  int argc, char * const argv[])
 {
-	u64 srcaddr;
+	u64 srcaddr, hashaddr;
 	u32 srclen, ret_payload[PAYLOAD_ARG_CNT];
 	int ret;
 
-	if (argc != cmdtp->maxargs)
+	if (argc > cmdtp->maxargs || argc < (cmdtp->maxargs - 1))
 		return CMD_RET_USAGE;
 
 	if (zynqmp_firmware_version() <= PMUFW_V1_0) {
@@ -286,6 +286,15 @@ static int do_zynqmp_sha3(cmd_tbl_t *cmdtp, int flag,
 
 	srcaddr = simple_strtoul(argv[2], NULL, 16);
 	srclen = simple_strtoul(argv[3], NULL, 16);
+
+	if (argc == 5) {
+		hashaddr = simple_strtoul(argv[4], NULL, 16);
+		flush_dcache_range(hashaddr,
+				   hashaddr + roundup(ZYNQMP_SHA3_SIZE,
+						      ARCH_DMA_MINALIGN));
+	} else {
+		hashaddr = srcaddr;
+	}
 
 	/* Check srcaddr or srclen != 0 */
 	if (!srcaddr || !srclen) {
@@ -317,8 +326,8 @@ static int do_zynqmp_sha3(cmd_tbl_t *cmdtp, int flag,
 	}
 
 	ret = xilinx_pm_request(PM_SECURE_SHA,
-			 upper_32_bits((ulong)srcaddr),
-			 lower_32_bits((ulong)srcaddr),
+			 upper_32_bits((ulong)hashaddr),
+			 lower_32_bits((ulong)hashaddr),
 			 ZYNQMP_SHA3_SIZE,
 			 ZYNQMP_SHA3_FINAL,
 			 ret_payload);
@@ -337,7 +346,7 @@ static cmd_tbl_t cmd_zynqmp_sub[] = {
 	U_BOOT_CMD_MKENT(mmio_write, 5, 0, do_zynqmp_mmio_write, "", ""),
 	U_BOOT_CMD_MKENT(aes, 9, 0, do_zynqmp_aes, "", ""),
 	U_BOOT_CMD_MKENT(rsa, 7, 0, do_zynqmp_rsa, "", ""),
-	U_BOOT_CMD_MKENT(sha3, 4, 0, do_zynqmp_sha3, "", ""),
+	U_BOOT_CMD_MKENT(sha3, 5, 0, do_zynqmp_sha3, "", ""),
 #ifdef CONFIG_DEFINE_TCM_OCM_MMAP
 	U_BOOT_CMD_MKENT(tcminit, 3, 0, do_zynqmp_tcm_init, "", ""),
 #endif
@@ -404,9 +413,10 @@ static char zynqmp_help_text[] =
 	"	exp :	private key exponent for RSA decryption(4096 bits)\n"
 	"		public key exponent for RSA encryption(32 bits)\n"
 	"	rsaop :	0 for RSA Decryption, 1 for RSA Encryption\n"
-	"zynqmp sha3 srcaddr srclen\n"
+	"zynqmp sha3 srcaddr srclen [key_addr]\n"
 	"	Generates sha3 hash value for data blob at srcaddr and puts\n"
 	"	48 bytes hash value into srcaddr\n"
+	"	Optional key_addr can be specified for saving sha3 hash value\n"
 	"	Note: srcaddr/srclen should not be 0\n"
 	;
 #endif
