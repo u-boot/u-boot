@@ -1297,7 +1297,8 @@ int fdtdec_add_reserved_memory(void *blob, const char *basename,
 		fdt_addr_t addr;
 		fdt_size_t size;
 
-		addr = fdtdec_get_addr_size(blob, node, "reg", &size);
+		addr = fdtdec_get_addr_size_fixed(blob, node, "reg", 0, na, ns,
+						  &size, false);
 		if (addr == FDT_ADDR_T_NONE) {
 			debug("failed to read address/size for %s\n", name);
 			continue;
