@@ -458,6 +458,11 @@ __maybe_unused static unsigned int dp_size(struct udevice *dev)
 			return dp_size(dev->parent) +
 				sizeof(struct efi_device_path_sd_mmc_path);
 #endif
+#if defined(CONFIG_AHCI) || defined(CONFIG_SATA)
+		case UCLASS_AHCI:
+			return dp_size(dev->parent) +
+				sizeof(struct efi_device_path_sata);
+#endif
 #if defined(CONFIG_NVME)
 		case UCLASS_NVME:
 			return dp_size(dev->parent) +
@@ -621,6 +626,22 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 			sddp->dp.length   = sizeof(*sddp);
 			sddp->slot_number = dev->seq;
 			return &sddp[1];
+			}
+#endif
+#if defined(CONFIG_AHCI) || defined(CONFIG_SATA)
+		case UCLASS_AHCI: {
+			struct efi_device_path_sata *dp =
+				dp_fill(buf, dev->parent);
+			struct blk_desc *desc = dev_get_uclass_platdata(dev);
+
+			dp->dp.type     = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
+			dp->dp.sub_type = DEVICE_PATH_SUB_TYPE_MSG_SATA;
+			dp->dp.length   = sizeof(*dp);
+			dp->hba_port = desc->devnum;
+			/* default 0xffff implies no port multiplier */
+			dp->port_multiplier_port = 0xffff;
+			dp->logical_unit_number = desc->lun;
+			return &dp[1];
 			}
 #endif
 #if defined(CONFIG_NVME)
