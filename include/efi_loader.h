@@ -45,6 +45,10 @@ static inline void *guidcpy(void *dst, const void *src)
 #define U_BOOT_HOST_DEV_GUID \
 	EFI_GUID(0xbbe4e671, 0x5773, 0x4ea1, \
 		 0x9a, 0xab, 0x3a, 0x7d, 0xbf, 0x40, 0xc4, 0x82)
+/* GUID used as root for virtio devices */
+#define U_BOOT_VIRTIO_DEV_GUID \
+	EFI_GUID(0x63293792, 0xadf5, 0x9325, \
+		 0xb9, 0x9f, 0x4e, 0x0e, 0x45, 0x5c, 0x1b, 0x1e)
 
 /* Use internal device tree when starting UEFI application */
 #define EFI_FDT_USE_INTERNAL NULL
