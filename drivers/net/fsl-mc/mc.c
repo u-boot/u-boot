@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
- * Copyright 2017-2018 NXP
+ * Copyright 2017-2018, 2020 NXP
  */
 #include <common.h>
 #include <command.h>
@@ -320,7 +320,7 @@ void fdt_fixup_mc_ddr(u64 *base, u64 *size)
 void fdt_fsl_mc_fixup_iommu_map_entry(void *blob)
 {
 	u32 *prop;
-	u32 iommu_map[4];
+	u32 iommu_map[4], phandle;
 	int offset;
 	int lenp;
 
@@ -349,6 +349,21 @@ void fdt_fsl_mc_fixup_iommu_map_entry(void *blob)
 
 	fdt_setprop_inplace(blob, offset, "iommu-map",
 			    iommu_map, sizeof(iommu_map));
+
+	/* get phandle to MSI controller */
+	prop = (u32 *)fdt_getprop(blob, offset, "msi-parent", 0);
+	if (!prop) {
+		debug("\n%s: ERROR: missing msi-parent\n", __func__);
+		return;
+	}
+	phandle = fdt32_to_cpu(*prop);
+
+	/* also set msi-map property */
+	fdt_appendprop_u32(blob, offset, "msi-map", FSL_DPAA2_STREAM_ID_START);
+	fdt_appendprop_u32(blob, offset, "msi-map", phandle);
+	fdt_appendprop_u32(blob, offset, "msi-map", FSL_DPAA2_STREAM_ID_START);
+	fdt_appendprop_u32(blob, offset, "msi-map", FSL_DPAA2_STREAM_ID_END -
+			   FSL_DPAA2_STREAM_ID_START + 1);
 }
 
 static int mc_fixup_dpc_mac_addr(void *blob, int dpmac_id,
@@ -466,8 +481,19 @@ static int mc_fixup_dpc(u64 dpc_addr)
 
 	/* fixup MAC addresses for dpmac ports */
 	nodeoffset = fdt_path_offset(blob, "/board_info/ports");
-	if (nodeoffset < 0)
-		goto out;
+	if (nodeoffset < 0) {
+		err = fdt_increase_size(blob, 512);
+		if (err) {
+			printf("fdt_increase_size: err=%s\n",
+			       fdt_strerror(err));
+			goto out;
+		}
+		nodeoffset = fdt_path_offset(blob, "/board_info");
+		if (nodeoffset < 0)
+			nodeoffset = fdt_add_subnode(blob, 0, "board_info");
+
+		nodeoffset = fdt_add_subnode(blob, nodeoffset, "ports");
+	}
 
 	err = mc_fixup_mac_addrs(blob, MC_FIXUP_DPC);
 

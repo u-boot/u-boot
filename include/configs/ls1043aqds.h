@@ -376,16 +376,6 @@ unsigned long get_board_ddr_clk(void);
 #define VDD_MV_MIN			819
 #define VDD_MV_MAX			1212
 
-/* QSPI device */
-#if defined(CONFIG_TFABOOT) || \
-	(defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI))
-#ifdef CONFIG_FSL_QSPI
-#define CONFIG_SPI_FLASH_SPANSION
-#define FSL_QSPI_FLASH_SIZE		(1 << 24)
-#define FSL_QSPI_FLASH_NUM		2
-#endif
-#endif
-
 /*
  * Miscellaneous configurable options
  */

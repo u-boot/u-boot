@@ -210,14 +210,12 @@
 			status = "disabled";
 		};
 		qspi: quadspi@1550000 {
-			compatible = "fsl,vf610-qspi";
+			compatible = "fsl,ls1021a-qspi";
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <0x0 0x1550000 0x0 0x10000>,
-				<0x0 0x40000000 0x0 0x4000000>;
+				<0x0 0x40000000 0x0 0x1000000>;
 			reg-names = "QuadSPI", "QuadSPI-memory";
-			num-cs = <2>;
-			big-endian;
 			status = "disabled";
 		};
 

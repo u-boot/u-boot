@@ -41,16 +41,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SPI_FLASH_EON		/* cs2 */
 #endif
 
-/* QSPI */
-#if defined(CONFIG_TFABOOT) ||	\
-	defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
-#ifdef CONFIG_FSL_QSPI
-#define CONFIG_SPI_FLASH_SPANSION
-#define FSL_QSPI_FLASH_SIZE		(1 << 24)
-#define FSL_QSPI_FLASH_NUM		2
-#endif
-#endif
-
 #ifdef CONFIG_SYS_DPAA_FMAN
 #define RGMII_PHY1_ADDR		0x1
 #define RGMII_PHY2_ADDR		0x2
@@ -419,16 +409,7 @@ unsigned long get_board_ddr_clk(void);
 /*
  * Environment
  */
-#define CONFIG_ENV_OVERWRITE
-
-#ifdef CONFIG_TFABOOT
 #define CONFIG_SYS_MMC_ENV_DEV		0
-#else
-#ifdef CONFIG_NAND_BOOT
-#elif defined(CONFIG_SD_BOOT)
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#endif
-#endif
 
 #define CONFIG_CMDLINE_TAG
 

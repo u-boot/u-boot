@@ -358,14 +358,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	3
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	5
 
-/* QSPI device */
-#if defined(CONFIG_TFABOOT) || \
-	defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
-#define FSL_QSPI_FLASH_SIZE		(1 << 26)
-#define FSL_QSPI_FLASH_NUM		2
-
-#endif
-
 #ifdef CONFIG_FSL_DSPI
 #define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_SPI_FLASH_SST

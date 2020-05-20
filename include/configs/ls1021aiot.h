@@ -138,12 +138,6 @@
 /* SPI */
 #if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
 #define CONFIG_SPI_FLASH_SPANSION
-
-/* QSPI */
-#define QSPI0_AMBA_BASE			0x40000000
-#define FSL_QSPI_FLASH_SIZE		(1 << 24)
-#define FSL_QSPI_FLASH_NUM		2
-#define CONFIG_SPI_FLASH_SPANSION
 #endif
 
 /* DM SPI */

@@ -8,16 +8,7 @@
 
 #include "ls1088a_common.h"
 
-#ifdef CONFIG_TFABOOT
 #define CONFIG_SYS_MMC_ENV_DEV		0
-#else
-#if defined(CONFIG_QSPI_BOOT)
-#elif defined(CONFIG_SD_BOOT)
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#else
-#define CONFIG_ENV_IS_IN_FLASH
-#endif
-#endif /* CONFIG_TFABOOT */
 
 #if defined(CONFIG_TFABOOT) || \
 	defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
@@ -267,15 +258,6 @@
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	3
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	5
-
-#ifndef SPL_NO_QSPI
-/* QSPI device */
-#if defined(CONFIG_TFABOOT) || \
-	defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
-#define FSL_QSPI_FLASH_SIZE		(1 << 26)
-#define FSL_QSPI_FLASH_NUM		2
-#endif
-#endif
 
 #define CONFIG_CMD_MEMINFO
 

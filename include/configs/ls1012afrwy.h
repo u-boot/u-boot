@@ -34,9 +34,6 @@
 	func(DHCP, dhcp, na)
 #endif
 
-#undef FSL_QSPI_FLASH_SIZE
-#define FSL_QSPI_FLASH_SIZE            SZ_16M
-
 /*  MMC  */
 #ifdef CONFIG_MMC
 #define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33

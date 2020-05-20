@@ -374,16 +374,27 @@ dtb-$(CONFIG_ARCH_LS1021A) += ls1021a-qds-duart.dtb \
 	ls1021a-twr-duart.dtb ls1021a-twr-lpuart.dtb \
 	ls1021a-iot-duart.dtb ls1021a-tsn.dtb
 dtb-$(CONFIG_FSL_LSCH3) += fsl-ls2080a-qds.dtb \
+	fsl-ls2080a-qds-42-x.dtb \
 	fsl-ls2080a-rdb.dtb \
 	fsl-ls2081a-rdb.dtb \
 	fsl-ls2088a-rdb-qspi.dtb \
 	fsl-ls1088a-rdb.dtb \
 	fsl-ls1088a-qds.dtb \
+	fsl-ls1088a-qds-21-x.dtb \
+	fsl-ls1088a-qds-29-x.dtb \
 	fsl-ls1028a-rdb.dtb \
 	fsl-ls1028a-qds-duart.dtb \
 	fsl-ls1028a-qds-lpuart.dtb \
 	fsl-lx2160a-rdb.dtb \
-	fsl-lx2160a-qds.dtb
+	fsl-lx2160a-qds.dtb \
+	fsl-lx2160a-qds-3-x-x.dtb \
+	fsl-lx2160a-qds-3-11-x.dtb \
+	fsl-lx2160a-qds-7-x-x.dtb \
+	fsl-lx2160a-qds-7-11-x.dtb \
+	fsl-lx2160a-qds-19-x-x.dtb \
+	fsl-lx2160a-qds-19-11-x.dtb \
+	fsl-lx2160a-qds-20-x-x.dtb \
+	fsl-lx2160a-qds-20-11-x.dtb
 dtb-$(CONFIG_FSL_LSCH2) += fsl-ls1043a-qds-duart.dtb \
 	fsl-ls1043a-qds-lpuart.dtb \
 	fsl-ls1043a-rdb.dtb \
