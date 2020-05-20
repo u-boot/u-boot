@@ -613,7 +613,7 @@ be connected on a SATA bus or standalone with no bus::
    xhci_usb (UCLASS_USB)
       flash (UCLASS_FLASH_STORAGE)  - parent data/methods defined by USB bus
 
-   sata (UCLASS_SATA)
+   sata (UCLASS_AHCI)
       flash (UCLASS_FLASH_STORAGE)  - parent data/methods defined by SATA bus
 
    flash (UCLASS_FLASH_STORAGE)  - no parent data/methods (not on a bus)
