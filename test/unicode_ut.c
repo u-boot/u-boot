@@ -67,8 +67,9 @@ static int unicode_test_u16_strdup(struct unit_test_state *uts)
 	u16 *copy = u16_strdup(c4);
 
 	ut_assert(copy != c4);
-	ut_assert(!memcmp(copy, c4, sizeof(c4)));
+	ut_asserteq_mem(copy, c4, sizeof(c4));
 	free(copy);
+
 	return 0;
 }
 UNICODE_TEST(unicode_test_u16_strdup);
@@ -80,7 +81,8 @@ static int unicode_test_u16_strcpy(struct unit_test_state *uts)
 
 	r = u16_strcpy(copy, c1);
 	ut_assert(r == copy);
-	ut_assert(!memcmp(copy, c1, sizeof(c1)));
+	ut_asserteq_mem(copy, c1, sizeof(c1));
+
 	return 0;
 }
 UNICODE_TEST(unicode_test_u16_strcpy);

@@ -218,20 +218,20 @@ static int dm_test_acpi_setup_base_tables(struct unit_test_state *uts)
 
 	rsdp = buf + 16;
 	ut_asserteq_ptr(rsdp, ctx.rsdp);
-	ut_assertok(memcmp(RSDP_SIG, rsdp->signature, sizeof(rsdp->signature)));
+	ut_asserteq_mem(RSDP_SIG, rsdp->signature, sizeof(rsdp->signature));
 	ut_asserteq(sizeof(*rsdp), rsdp->length);
 	ut_assertok(table_compute_checksum(rsdp, 20));
 	ut_assertok(table_compute_checksum(rsdp, sizeof(*rsdp)));
 
 	rsdt = PTR_ALIGN((void *)rsdp + sizeof(*rsdp), 16);
 	ut_asserteq_ptr(rsdt, ctx.rsdt);
-	ut_assertok(memcmp("RSDT", rsdt->header.signature, ACPI_NAME_LEN));
+	ut_asserteq_mem("RSDT", rsdt->header.signature, ACPI_NAME_LEN);
 	ut_asserteq(sizeof(*rsdt), rsdt->header.length);
 	ut_assertok(table_compute_checksum(rsdt, sizeof(*rsdt)));
 
 	xsdt = PTR_ALIGN((void *)rsdt + sizeof(*rsdt), 16);
 	ut_asserteq_ptr(xsdt, ctx.xsdt);
-	ut_assertok(memcmp("XSDT", xsdt->header.signature, ACPI_NAME_LEN));
+	ut_asserteq_mem("XSDT", xsdt->header.signature, ACPI_NAME_LEN);
 	ut_asserteq(sizeof(*xsdt), xsdt->header.length);
 	ut_assertok(table_compute_checksum(xsdt, sizeof(*xsdt)));
 

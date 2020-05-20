@@ -100,27 +100,6 @@ const qe_iop_conf_t qe_iop_conf_tab[] = {
 	{0,  0, 0, 0, QE_IOP_TAB_END},
 };
 
-#if defined(CONFIG_SUVD3)
-const uint upma_table[] = {
-	0x1ffedc00, 0x0ffcdc80, 0x0ffcdc80, 0x0ffcdc04, /* Words 0 to 3 */
-	0x0ffcdc00, 0xffffcc00, 0xffffcc01, 0xfffffc01, /* Words 4 to 7 */
-	0xfffffc01, 0xfffffc01, 0xfffffc01, 0xfffffc01, /* Words 8 to 11 */
-	0xfffffc01, 0xfffffc01, 0xfffffc01, 0xfffffc01, /* Words 12 to 15 */
-	0xfffffc01, 0xfffffc01, 0xfffffc01, 0xfffffc01, /* Words 16 to 19 */
-	0xfffffc01, 0xfffffc01, 0xfffffc01, 0xfffffc01, /* Words 20 to 23 */
-	0x9cfffc00, 0x00fffc80, 0x00fffc80, 0x00fffc00, /* Words 24 to 27 */
-	0xffffec04, 0xffffec01, 0xfffffc01, 0xfffffc01, /* Words 28 to 31 */
-	0xfffffc01, 0xfffffc01, 0xfffffc01, 0xfffffc01, /* Words 32 to 35 */
-	0xfffffc01, 0xfffffc01, 0xfffffc01, 0xfffffc01, /* Words 36 to 39 */
-	0xfffffc01, 0xfffffc01, 0xfffffc01, 0xfffffc01, /* Words 40 to 43 */
-	0xfffffc01, 0xfffffc01, 0xfffffc01, 0xfffffc01, /* Words 44 to 47 */
-	0xfffffc01, 0xfffffc01, 0xfffffc01, 0xfffffc01, /* Words 48 to 51 */
-	0xfffffc01, 0xfffffc01, 0xfffffc01, 0xfffffc01, /* Words 52 to 55 */
-	0xfffffc01, 0xfffffc01, 0xfffffc01, 0xfffffc01, /* Words 56 to 59 */
-	0xfffffc01, 0xfffffc01, 0xfffffc01, 0xfffffc01  /* Words 60 to 63 */
-};
-#endif
-
 static int piggy_present(void)
 {
 	struct km_bec_fpga __iomem *base =
@@ -138,11 +117,6 @@ int board_early_init_r(void)
 {
 	struct km_bec_fpga *base =
 		(struct km_bec_fpga *)CONFIG_SYS_KMBEC_FPGA_BASE;
-#if defined(CONFIG_SUVD3)
-	immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
-	fsl_lbc_t *lbc = &immap->im_lbc;
-	u32 *mxmr = &lbc->mamr;
-#endif
 
 #if defined(CONFIG_ARCH_MPC8360)
 	unsigned short	svid;
@@ -178,12 +152,6 @@ int board_early_init_r(void)
 	/* enable Application Buffer */
 	setbits_8(&base->oprtl, OPRTL_XBUFENA);
 
-#if defined(CONFIG_SUVD3)
-	/* configure UPMA for APP1 */
-	upmconfig(UPMA, (uint *) upma_table,
-		sizeof(upma_table) / sizeof(uint));
-	out_be32(mxmr, CONFIG_SYS_MAMR);
-#endif
 	return 0;
 }
 

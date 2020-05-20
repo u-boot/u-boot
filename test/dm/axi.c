@@ -66,11 +66,11 @@ static int dm_test_axi_store(struct unit_test_state *uts)
 	/* Test writing */
 	val = 0x55667788;
 	axi_write(store, 0, &val, AXI_SIZE_32);
-	ut_asserteq(0, memcmp(data, tdata1, ARRAY_SIZE(tdata1)));
+	ut_asserteq_mem(data, tdata1, ARRAY_SIZE(tdata1));
 
 	val = 0xaabbccdd;
 	axi_write(store, 3, &val, AXI_SIZE_32);
-	ut_asserteq(0, memcmp(data + 3, tdata2, ARRAY_SIZE(tdata1)));
+	ut_asserteq_mem(data + 3, tdata2, ARRAY_SIZE(tdata1));
 
 	return 0;
 }
