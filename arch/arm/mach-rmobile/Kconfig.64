@@ -57,6 +57,11 @@ config R8A77995
 	imply CLK_R8A77995
 	imply PINCTRL_PFC_R8A77995
 
+config R8A779A0
+	bool "Renesas SoC R8A779A0"
+	imply CLK_R8A779A0
+	imply PINCTRL_PFC_R8A779A0
+
 config RZ_G2
 	bool "Renesas ARM SoCs RZ/G2 (64bit)"
 
