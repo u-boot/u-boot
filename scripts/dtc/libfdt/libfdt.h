@@ -2032,6 +2032,13 @@ int fdt_del_node(void *fdt, int nodeoffset);
  */
 int fdt_overlay_apply(void *fdt, void *fdto);
 
+/**
+ * fdt_overlay_apply_node - Merges a node into the base device tree
+ *
+ * See overlay_apply_node() for details.
+ */
+int fdt_overlay_apply_node(void *fdt, int target, void *fdto, int node);
+
 /**********************************************************************/
 /* Debugging / informational functions                                */
 /**********************************************************************/

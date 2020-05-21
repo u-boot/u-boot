@@ -879,3 +879,8 @@ err:
 
 	return ret;
 }
+
+int fdt_overlay_apply_node(void *fdt, int target, void *fdto, int node)
+{
+	return overlay_apply_node(fdt, target, fdto, node);
+}
