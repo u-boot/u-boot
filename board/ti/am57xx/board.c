@@ -68,8 +68,7 @@ static int board_bootmode_has_emmc(void);
 DECLARE_GLOBAL_DATA_PTR;
 
 #define GPIO_ETH_LCD		GPIO_TO_PIN(2, 22)
-/* GPIO 7_11 */
-#define GPIO_DDR_VTT_EN 203
+#define GPIO_DDR_VTT_EN		GPIO_TO_PIN(7, 11)
 
 /* Touch screen controller to identify the LCD */
 #define OSD_TS_FT_BUS_ADDRESS	0
