@@ -356,6 +356,7 @@ static efi_status_t efi_disk_add_dev(
 				struct efi_disk_obj **disk)
 {
 	struct efi_disk_obj *diskobj;
+	struct efi_object *handle;
 	efi_status_t ret;
 
 	/* Don't add empty devices */
@@ -379,15 +380,25 @@ static efi_status_t efi_disk_add_dev(
 		diskobj->dp = efi_dp_from_part(desc, part);
 	}
 	diskobj->part = part;
-	ret = efi_add_protocol(&diskobj->header, &efi_block_io_guid,
-			       &diskobj->ops);
+
+	/*
+	 * Install the device path and the block IO protocol.
+	 *
+	 * InstallMultipleProtocolInterfaces() checks if the device path is
+	 * already installed on an other handle and returns EFI_ALREADY_STARTED
+	 * in this case.
+	 */
+	handle = &diskobj->header;
+	ret = EFI_CALL(efi_install_multiple_protocol_interfaces(
+			&handle, &efi_guid_device_path, diskobj->dp,
+			&efi_block_io_guid, &diskobj->ops, NULL));
 	if (ret != EFI_SUCCESS)
 		return ret;
-	ret = efi_add_protocol(&diskobj->header, &efi_guid_device_path,
-			       diskobj->dp);
-	if (ret != EFI_SUCCESS)
-		return ret;
-	/* partitions or whole disk without partitions */
+
+	/*
+	 * On partitions or whole disks without partitions install the
+	 * simple file system protocol if a file system is available.
+	 */
 	if ((part || desc->part_type == PART_TYPE_UNKNOWN) &&
 	    efi_fs_exists(desc, part)) {
 		diskobj->volume = efi_simple_file_system(desc, part,
