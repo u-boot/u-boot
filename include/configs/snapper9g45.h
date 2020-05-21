@@ -101,7 +101,6 @@
 
 /* Command line configuration */
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_MMC
 #define CONFIG_CMD_CACHE
 
 #endif /* __CONFIG_H */

@@ -193,8 +193,6 @@
 
 #define CONFIG_IMX_BOOTAUX
 
-#define CONFIG_CMD_MMC
-
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 #define CONFIG_SYS_FSL_ESDHC_ADDR       0
 
