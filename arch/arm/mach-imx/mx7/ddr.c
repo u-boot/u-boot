@@ -74,6 +74,7 @@ void mx7_dram_cfg(struct ddrc *ddrc_regs_val, struct ddrc_mp *ddrc_mp_val,
 	writel(ddrc_regs_val->dramtmg5, &ddrc_regs->dramtmg5);
 	writel(ddrc_regs_val->dramtmg8, &ddrc_regs->dramtmg8);
 	writel(ddrc_regs_val->zqctl0, &ddrc_regs->zqctl0);
+	writel(ddrc_regs_val->zqctl1, &ddrc_regs->zqctl1);
 	writel(ddrc_regs_val->dfitmg0, &ddrc_regs->dfitmg0);
 	writel(ddrc_regs_val->dfitmg1, &ddrc_regs->dfitmg1);
 	writel(ddrc_regs_val->dfiupd0, &ddrc_regs->dfiupd0);
