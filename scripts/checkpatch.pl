@@ -2255,6 +2255,12 @@ sub u_boot_line {
 		WARN("LIVETREE",
 		     "Use the livetree API (dev_read_...)\n" . $herecurr);
 	}
+
+	# add tests for new commands
+	if ($line =~ /^\+.*do_($Ident)\(struct cmd_tbl.*/) {
+		WARN("CMD_TEST",
+		     "Possible new command - make sure you add a test\n" . $herecurr);
+	}
 }
 
 sub process {
