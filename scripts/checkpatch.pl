@@ -60,6 +60,7 @@ my $codespell = 0;
 my $codespellfile = "/usr/share/codespell/dictionary.txt";
 my $conststructsfile = "$D/const_structs.checkpatch";
 my $typedefsfile = "";
+my $u_boot = 0;
 my $color = "auto";
 my $allow_c99_comments = 1;
 
@@ -123,6 +124,7 @@ Options:
   --typedefsfile             Read additional types from this file
   --color[=WHEN]             Use colors 'always', 'never', or only when output
                              is a terminal ('auto'). Default is 'auto'.
+  --u-boot                   Run additional checks for U-Boot
   -h, --help, --version      display this help and exit
 
 When FILE is - read standard input.
@@ -227,6 +229,7 @@ GetOptions(
 	'codespell!'	=> \$codespell,
 	'codespellfile=s'	=> \$codespellfile,
 	'typedefsfile=s'	=> \$typedefsfile,
+	'u-boot'	=> \$u_boot,
 	'color=s'	=> \$color,
 	'no-color'	=> \$color,	#keep old behaviors of -nocolor
 	'nocolor'	=> \$color,	#keep old behaviors of -nocolor
@@ -2237,6 +2240,11 @@ sub pos_last_openparen {
 	return length(expand_tabs(substr($line, 0, $last_openparen))) + 1;
 }
 
+# Checks specific to U-Boot
+sub u_boot_line {
+	my ($realfile, $line,  $herecurr) = @_;
+}
+
 sub process {
 	my $filename = shift;
 
@@ -3104,6 +3112,10 @@ sub process {
 		if ($line =~ /^\+/ && defined $lines[$linenr] && $lines[$linenr] =~ /^\\ No newline at end of file/) {
 			WARN("MISSING_EOF_NEWLINE",
 			     "adding a line without newline at end of file\n" . $herecurr);
+		}
+
+		if ($u_boot) {
+			u_boot_line($realfile, $line,  $herecurr);
 		}
 
 # check we are in a valid source file C or perl if not then ignore this hunk
