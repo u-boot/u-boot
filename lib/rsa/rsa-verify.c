@@ -478,32 +478,10 @@ static int rsa_verify_with_keynode(struct image_sign_info *info,
 }
 #endif
 
-int rsa_verify(struct image_sign_info *info,
-	       const struct image_region region[], int region_count,
-	       uint8_t *sig, uint sig_len)
+int rsa_verify_hash(struct image_sign_info *info,
+		    const uint8_t *hash, uint8_t *sig, uint sig_len)
 {
-	/* Reserve memory for maximum checksum-length */
-	uint8_t hash[info->crypto->key_len];
 	int ret = -EACCES;
-
-	/*
-	 * Verify that the checksum-length does not exceed the
-	 * rsa-signature-length
-	 */
-	if (info->checksum->checksum_len >
-	    info->crypto->key_len) {
-		debug("%s: invlaid checksum-algorithm %s for %s\n",
-		      __func__, info->checksum->name, info->crypto->name);
-		return -EINVAL;
-	}
-
-	/* Calculate checksum with checksum-algorithm */
-	ret = info->checksum->calculate(info->checksum->name,
-					region, region_count, hash);
-	if (ret < 0) {
-		debug("%s: Error in checksum calculation\n", __func__);
-		return -EINVAL;
-	}
 
 	if (CONFIG_IS_ENABLED(RSA_VERIFY_WITH_PKEY) && !info->fdt_blob) {
 		/* don't rely on fdt properties */
@@ -554,4 +532,34 @@ int rsa_verify(struct image_sign_info *info,
 	}
 
 	return ret;
+}
+
+int rsa_verify(struct image_sign_info *info,
+	       const struct image_region region[], int region_count,
+	       uint8_t *sig, uint sig_len)
+{
+	/* Reserve memory for maximum checksum-length */
+	uint8_t hash[info->crypto->key_len];
+	int ret = -EACCES;
+
+	/*
+	 * Verify that the checksum-length does not exceed the
+	 * rsa-signature-length
+	 */
+	if (info->checksum->checksum_len >
+	    info->crypto->key_len) {
+		debug("%s: invlaid checksum-algorithm %s for %s\n",
+		      __func__, info->checksum->name, info->crypto->name);
+		return -EINVAL;
+	}
+
+	/* Calculate checksum with checksum-algorithm */
+	ret = info->checksum->calculate(info->checksum->name,
+					region, region_count, hash);
+	if (ret < 0) {
+		debug("%s: Error in checksum calculation\n", __func__);
+		return -EINVAL;
+	}
+
+	return rsa_verify_hash(info, hash, sig, sig_len);
 }
