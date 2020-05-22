@@ -791,7 +791,7 @@ static int esdhc_set_voltage(struct mmc *mmc)
 	switch (mmc->signal_voltage) {
 	case MMC_SIGNAL_VOLTAGE_330:
 		if (priv->vs18_enable)
-			return -EIO;
+			return -ENOTSUPP;
 #if CONFIG_IS_ENABLED(DM_REGULATOR)
 		if (!IS_ERR_OR_NULL(priv->vqmmc_dev)) {
 			ret = regulator_set_value(priv->vqmmc_dev, 3300000);
@@ -972,7 +972,8 @@ static int esdhc_set_ios_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 	if (priv->signal_voltage != mmc->signal_voltage) {
 		ret = esdhc_set_voltage(mmc);
 		if (ret) {
-			printf("esdhc_set_voltage error %d\n", ret);
+			if (ret != -ENOTSUPP)
+				printf("esdhc_set_voltage error %d\n", ret);
 			return ret;
 		}
 	}
