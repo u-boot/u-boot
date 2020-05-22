@@ -2261,6 +2261,12 @@ sub u_boot_line {
 		WARN("CMD_TEST",
 		     "Possible new command - make sure you add a test\n" . $herecurr);
 	}
+
+	# use if instead of #if
+	if ($line =~ /^\+#if.*CONFIG.*/) {
+		WARN("PREFER_IF",
+		     "Use 'if (IS_ENABLED(CONFIG...))' instead of '#if or #ifdef' where possible\n" . $herecurr);
+	}
 }
 
 sub process {
