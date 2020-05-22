@@ -5,7 +5,6 @@
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  */
 
-#include <common.h>
 #include <linux/io.h>
 #include <asm/global_data.h>
 

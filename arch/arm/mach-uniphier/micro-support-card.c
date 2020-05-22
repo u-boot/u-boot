@@ -5,14 +5,13 @@
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  */
 
-#include <common.h>
-#include <fdt_support.h>
-#include <log.h>
-#include <net.h>
+#include <config.h>
 #include <dm/of.h>
+#include <fdt_support.h>
 #include <linux/ctype.h>
 #include <linux/delay.h>
 #include <linux/io.h>
+#include <asm/global_data.h>
 
 #include "micro-support-card.h"
 
@@ -107,18 +106,6 @@ void support_card_init(void)
 
 	support_card_show_revision();
 }
-
-#if defined(CONFIG_SMC911X)
-#include <netdev.h>
-
-int board_eth_init(bd_t *bis)
-{
-	if (!support_card_found)
-		return 0;
-
-	return smc911x_initialize(0, (unsigned long)support_card_base + SMC911X_OFFSET);
-}
-#endif
 
 #if defined(CONFIG_MTD_NOR_FLASH)
 

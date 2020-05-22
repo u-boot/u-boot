@@ -4,7 +4,6 @@
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  */
 
-#include <common.h>
 #include <command.h>
 #include <env.h>
 #include <mmc.h>

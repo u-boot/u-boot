@@ -1095,6 +1095,7 @@ static void denali_hw_init(struct denali_nand_info *denali)
 	iowrite32(CHIP_EN_DONT_CARE__FLAG, denali->reg + CHIP_ENABLE_DONT_CARE);
 
 	iowrite32(0xffff, denali->reg + SPARE_AREA_MARKER);
+	iowrite32(WRITE_PROTECT__FLAG, denali->reg + WRITE_PROTECT);
 }
 
 int denali_calc_ecc_bytes(int step_size, int strength)
