@@ -2243,6 +2243,12 @@ sub pos_last_openparen {
 # Checks specific to U-Boot
 sub u_boot_line {
 	my ($realfile, $line,  $herecurr) = @_;
+
+	# ask for a test if a new uclass ID is added
+	if ($realfile =~ /uclass-id.h/ && $line =~ /^\+/) {
+		WARN("NEW_UCLASS",
+		     "Possible new uclass - make sure to add a sandbox driver, plus a test in test/dm/<name>.c\n" . $herecurr);
+	}
 }
 
 sub process {
