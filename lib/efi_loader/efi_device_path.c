@@ -22,6 +22,9 @@
 #ifdef CONFIG_SANDBOX
 const efi_guid_t efi_guid_host_dev = U_BOOT_HOST_DEV_GUID;
 #endif
+#ifdef CONFIG_VIRTIO_BLK
+const efi_guid_t efi_guid_virtio_dev = U_BOOT_VIRTIO_DEV_GUID;
+#endif
 
 /* template END node: */
 static const struct efi_device_path END = {
@@ -455,6 +458,11 @@ __maybe_unused static unsigned int dp_size(struct udevice *dev)
 			return dp_size(dev->parent) +
 				sizeof(struct efi_device_path_sd_mmc_path);
 #endif
+#if defined(CONFIG_AHCI) || defined(CONFIG_SATA)
+		case UCLASS_AHCI:
+			return dp_size(dev->parent) +
+				sizeof(struct efi_device_path_sata);
+#endif
 #if defined(CONFIG_NVME)
 		case UCLASS_NVME:
 			return dp_size(dev->parent) +
@@ -466,6 +474,16 @@ __maybe_unused static unsigned int dp_size(struct udevice *dev)
 			  * Sandbox's host device will be represented
 			  * as vendor device with extra one byte for
 			  * device number
+			  */
+			return dp_size(dev->parent)
+				+ sizeof(struct efi_device_path_vendor) + 1;
+#endif
+#ifdef CONFIG_VIRTIO_BLK
+		case UCLASS_VIRTIO:
+			 /*
+			  * Virtio devices will be represented as a vendor
+			  * device node with an extra byte for the device
+			  * number.
 			  */
 			return dp_size(dev->parent)
 				+ sizeof(struct efi_device_path_vendor) + 1;
@@ -547,6 +565,23 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 			return &dp->vendor_data[1];
 			}
 #endif
+#ifdef CONFIG_VIRTIO_BLK
+		case UCLASS_VIRTIO: {
+			struct efi_device_path_vendor *dp;
+			struct blk_desc *desc = dev_get_uclass_platdata(dev);
+
+			dp_fill(buf, dev->parent);
+			dp = buf;
+			++dp;
+			dp->dp.type = DEVICE_PATH_TYPE_HARDWARE_DEVICE;
+			dp->dp.sub_type = DEVICE_PATH_SUB_TYPE_VENDOR;
+			dp->dp.length = sizeof(*dp) + 1;
+			memcpy(&dp->guid, &efi_guid_virtio_dev,
+			       sizeof(efi_guid_t));
+			dp->vendor_data[0] = desc->devnum;
+			return &dp->vendor_data[1];
+			}
+#endif
 #ifdef CONFIG_IDE
 		case UCLASS_IDE: {
 			struct efi_device_path_atapi *dp =
@@ -591,6 +626,22 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 			sddp->dp.length   = sizeof(*sddp);
 			sddp->slot_number = dev->seq;
 			return &sddp[1];
+			}
+#endif
+#if defined(CONFIG_AHCI) || defined(CONFIG_SATA)
+		case UCLASS_AHCI: {
+			struct efi_device_path_sata *dp =
+				dp_fill(buf, dev->parent);
+			struct blk_desc *desc = dev_get_uclass_platdata(dev);
+
+			dp->dp.type     = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
+			dp->dp.sub_type = DEVICE_PATH_SUB_TYPE_MSG_SATA;
+			dp->dp.length   = sizeof(*dp);
+			dp->hba_port = desc->devnum;
+			/* default 0xffff implies no port multiplier */
+			dp->port_multiplier_port = 0xffff;
+			dp->logical_unit_number = desc->lun;
+			return &dp[1];
 			}
 #endif
 #if defined(CONFIG_NVME)

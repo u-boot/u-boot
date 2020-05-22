@@ -44,6 +44,7 @@ static struct attr_info {
 	{ EFI_MEMORY_NV, "non-volatile" },
 	{ EFI_MEMORY_MORE_RELIABLE, "higher reliability" },
 	{ EFI_MEMORY_RO, "read-only" },
+	{ EFI_MEMORY_SP, "specific purpose" },
 	{ EFI_MEMORY_RUNTIME, "needs runtime mapping" }
 };
 

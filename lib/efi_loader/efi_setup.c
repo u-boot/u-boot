@@ -135,6 +135,11 @@ efi_status_t efi_init_obj_list(void)
 	/* On ARM switch from EL3 or secure mode to EL2 or non-secure mode */
 	switch_to_non_secure_mode();
 
+	/* Initialize root node */
+	ret = efi_root_node_register();
+	if (ret != EFI_SUCCESS)
+		goto out;
+
 #ifdef CONFIG_PARTITIONS
 	ret = efi_disk_register();
 	if (ret != EFI_SUCCESS)
@@ -172,11 +177,6 @@ efi_status_t efi_init_obj_list(void)
 
 	/* Indicate supported runtime services */
 	ret = efi_init_runtime_supported();
-	if (ret != EFI_SUCCESS)
-		goto out;
-
-	/* Initialize root node */
-	ret = efi_root_node_register();
 	if (ret != EFI_SUCCESS)
 		goto out;
 

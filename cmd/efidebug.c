@@ -414,6 +414,7 @@ static const struct efi_mem_attrs {
 	{EFI_MEMORY_NV, "NV"},
 	{EFI_MEMORY_MORE_RELIABLE, "REL"},
 	{EFI_MEMORY_RO, "RO"},
+	{EFI_MEMORY_SP, "SP"},
 	{EFI_MEMORY_RUNTIME, "RT"},
 };
 
