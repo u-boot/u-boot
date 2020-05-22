@@ -21,6 +21,13 @@ mainline U-Boot.
 
 List of mainline supported rockchip boards:
 
+* rk3036
+     - Rockchip Evb-RK3036 (evb-rk3036)
+     - Kylin (kylin_rk3036)
+* rk3128
+     - Rockchip Evb-RK3128 (evb-rk3128)
+* rk3229
+     - Rockchip Evb-RK3229 (evb-rk3229)
 * rk3288
      - Rockchip Evb-RK3288 (evb-rk3288)
      - Firefly-RK3288 (firefly-rk3288)
@@ -34,9 +41,13 @@ List of mainline supported rockchip boards:
      - Google Minnie (chromebook_minnie)
      - Google Speedy (chromebook_speedy)
      - Amarula Vyasa-RK3288 (vyasa-rk3288)
+* rk3308
+     - Rockchip Evb-RK3308 (evb-rk3308)
+     - Roc-cc-RK3308 (roc-cc-rk3308)
 * rk3328
      - Rockchip Evb-RK3328 (evb-rk3328)
      - Pine64 Rock64 (rock64-rk3328)
+     - Firefly-RK3328 (roc-cc-rk3328)
 * rk3368
      - GeekBox (geekbox)
      - PX5 EVB (evb-px5)
@@ -59,6 +70,11 @@ List of mainline supported rockchip boards:
      - Radxa ROCK Pi 4 (rock-pi-4-rk3399)
      - Rockchip Evb-RK3399 (evb_rk3399)
      - Theobroma Systems RK3399-Q7 SoM - Puma (puma_rk3399)
+* rv1108
+     - Rockchip Evb-rv1108 (evb-rv1108)
+     - Elgin-R1 (elgin-rv1108)
+* rv3188
+     - Radxa Rock (rock)
 
 Building
 --------
