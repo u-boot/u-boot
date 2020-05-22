@@ -343,6 +343,26 @@
 			#gpio-cells = <1>;
 			gpio-bank-name = "a";
 			sandbox,gpio-count = <20>;
+			hog_input_active_low {
+				gpio-hog;
+				input;
+				gpios = <0 GPIO_ACTIVE_LOW>;
+			};
+			hog_input_active_high {
+				gpio-hog;
+				input;
+				gpios = <1 GPIO_ACTIVE_HIGH>;
+			};
+			hog_output_low {
+				gpio-hog;
+				output-low;
+				gpios = <2 GPIO_ACTIVE_HIGH>;
+			};
+			hog_output_high {
+				gpio-hog;
+				output-high;
+				gpios = <3 GPIO_ACTIVE_HIGH>;
+			};
 		};
 
 		gpio_b: extra-gpios {
