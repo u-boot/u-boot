@@ -22,43 +22,43 @@ mainline U-Boot.
 List of mainline supported rockchip boards:
 
 * rk3288
-     - Evb-RK3288
-     - Firefly-RK3288
-     - mqmaker MiQi
-     - Phytec RK3288 PCM-947
-     - PopMetal-RK3288
-     - Radxa Rock 2 Square
-     - Tinker-RK3288
-     - Google Jerry
-     - Google Mickey
-     - Google Minnie
-     - Google Speedy
-     - Amarula Vyasa-RK3288
+     - Rockchip Evb-RK3288 (evb-rk3288)
+     - Firefly-RK3288 (firefly-rk3288)
+     - MQmaker MiQi (miqi-rk3288)
+     - Phytec RK3288 PCM-947 (phycore-rk3288)
+     - PopMetal-RK3288 (popmetal-rk3288)
+     - Radxa Rock 2 Square (rock2)
+     - Tinker-RK3288 (tinker-rk3288)
+     - Google Jerry (chromebook_jerry)
+     - Google Mickey (chromebook_mickey)
+     - Google Minnie (chromebook_minnie)
+     - Google Speedy (chromebook_speedy)
+     - Amarula Vyasa-RK3288 (vyasa-rk3288)
 * rk3328
-     - Rockchip RK3328 EVB
-     - Pine64 Rock64
+     - Rockchip Evb-RK3328 (evb-rk3328)
+     - Pine64 Rock64 (rock64-rk3328)
 * rk3368
-     - GeekBox
-     - PX5 EVB
-     - Rockchip sheep board
-     - Theobroma Systems RK3368-uQ7 SoM
+     - GeekBox (geekbox)
+     - PX5 EVB (evb-px5)
+     - Rockchip Sheep (sheep-rk3368)
+     - Theobroma Systems RK3368-uQ7 SoM - Lion (lion-rk3368)
 * rk3399
-     - 96boards RK3399 Ficus
-     - 96boards Rock960
-     - Firefly-RK3399 Board
-     - Firefly ROC-RK3399-PC Board
-     - FriendlyElec NanoPC-T4
-     - FriendlyElec NanoPi M4
-     - FriendlyARM NanoPi NEO4
-     - Google Bob
-     - Khadas Edge
-     - Khadas Edge-Captain
-     - Khadas Edge-V
-     - Orange Pi RK3399 Board
-     - Pine64 RockPro64
-     - Radxa ROCK Pi 4
-     - Rockchip RK3399 Evaluation Board
-     - Theobroma Systems RK3399-Q7 SoM
+     - 96boards RK3399 Ficus (ficus-rk3399)
+     - 96boards Rock960 (rock960-rk3399)
+     - Firefly-RK3399 (firefly_rk3399)
+     - Firefly ROC-RK3399-PC
+     - FriendlyElec NanoPC-T4 (nanopc-t4-rk3399)
+     - FriendlyElec NanoPi M4 (nanopi-m4-rk3399)
+     - FriendlyARM NanoPi NEO4 (nanopi-neo4-rk3399)
+     - Google Bob (chromebook_bob)
+     - Khadas Edge (khadas-edge-rk3399)
+     - Khadas Edge-Captain (khadas-edge-captain-rk3399)
+     - Khadas Edge-V (hadas-edge-v-rk3399)
+     - Orange Pi RK3399 (orangepi-rk3399)
+     - Pine64 RockPro64 (rockpro64-rk3399)
+     - Radxa ROCK Pi 4 (rock-pi-4-rk3399)
+     - Rockchip Evb-RK3399 (evb_rk3399)
+     - Theobroma Systems RK3399-Q7 SoM - Puma (puma_rk3399)
 
 Building
 --------
