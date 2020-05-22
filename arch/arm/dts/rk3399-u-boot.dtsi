@@ -8,6 +8,7 @@
 	aliases {
 		mmc0 = &sdhci;
 		mmc1 = &sdmmc;
+		pci0 = &pcie0;
 	};
 
 	cic: syscon@ff620000 {
@@ -91,6 +92,9 @@
 
 &sdmmc {
 	u-boot,dm-pre-reloc;
+
+	/* mmc to sram can't do dma, prevent aborts transferring TF-A parts */
+	u-boot,spl-fifo-mode;
 };
 
 &spi1 {

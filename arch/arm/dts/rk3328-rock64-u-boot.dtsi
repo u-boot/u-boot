@@ -11,6 +11,22 @@
 	};
 };
 
+&gpio0 {
+	u-boot,dm-spl;
+};
+
+&pinctrl {
+	u-boot,dm-spl;
+};
+
+&sdmmc0m1_gpio {
+	u-boot,dm-spl;
+};
+
+&pcfg_pull_up_4ma {
+	u-boot,dm-spl;
+};
+
 &usb_host0_xhci {
 	vbus-supply = <&vcc_host_5v>;
 	status = "okay";
@@ -24,4 +40,9 @@
 &vcc_host_5v {
 	/delete-property/ regulator-always-on;
 	/delete-property/ regulator-boot-on;
+};
+
+/* Need this and all the pinctrl/gpio stuff above to set pinmux */
+&vcc_sd {
+	u-boot,dm-spl;
 };

@@ -69,7 +69,7 @@ cat << __HEADER_EOF
                 };
 		fdt {
 			description = "RK3399-Q7 (Puma) flat device-tree";
-			data = /incbin/("u-boot.dtb");
+			data = /incbin/("$1");
 			type = "flat_dt";
 			compression = "none";
 		};

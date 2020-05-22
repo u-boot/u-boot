@@ -197,4 +197,12 @@ config PCIE_MEDIATEK
 	  Say Y here if you want to enable Gen2 PCIe controller,
 	  which could be found on MT7623 SoC family.
 
+config PCIE_ROCKCHIP
+	bool "Enable Rockchip PCIe driver"
+	select DM_PCI
+	default y if ROCKCHIP_RK3399
+	help
+	  Say Y here if you want to enable PCIe controller support on
+	  Rockchip SoCs.
+
 endif

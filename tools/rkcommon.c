@@ -133,7 +133,7 @@ static int rkcommon_get_aligned_size(struct image_tool_params *params,
 
 int rkcommon_check_params(struct image_tool_params *params)
 {
-	int i;
+	int i, size;
 
 	/*
 	 * If this is a operation (list or extract), the don't require
@@ -153,17 +153,17 @@ int rkcommon_check_params(struct image_tool_params *params)
 		spl_params.boot_file += 1;
 	}
 
-	spl_params.init_size =
-		rkcommon_get_aligned_size(params, spl_params.init_file);
-	if (spl_params.init_size < 0)
+	size = rkcommon_get_aligned_size(params, spl_params.init_file);
+	if (size < 0)
 		return EXIT_FAILURE;
+	spl_params.init_size = size;
 
 	/* Boot file is optional, and only for back-to-bootrom functionality. */
 	if (spl_params.boot_file) {
-		spl_params.boot_size =
-			rkcommon_get_aligned_size(params, spl_params.boot_file);
-		if (spl_params.boot_size < 0)
+		size = rkcommon_get_aligned_size(params, spl_params.boot_file);
+		if (size < 0)
 			return EXIT_FAILURE;
+		spl_params.boot_size = size;
 	}
 
 	if (spl_params.init_size > rkcommon_get_spl_size(params)) {
