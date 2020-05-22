@@ -810,6 +810,7 @@ config CMD_UNLZ4
 config CMD_UNZIP
 	bool "unzip"
 	default y if CMD_BOOTI
+	select GZIP
 	help
 	  Uncompress a zip-compressed memory region.
 
