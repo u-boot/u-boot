@@ -1455,6 +1455,7 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	if (ret) {
 		dev_dbg(dev, "no vqmmc-supply\n");
 	} else {
+		priv->vqmmc_dev = vqmmc_dev;
 		ret = regulator_set_enable(vqmmc_dev, true);
 		if (ret) {
 			dev_err(dev, "fail to enable vqmmc-supply\n");
