@@ -132,7 +132,8 @@ int renesas_clk_get_parent(struct clk *clk, struct cpg_mssr_info *info,
 	return 0;
 }
 
-int renesas_clk_endisable(struct clk *clk, void __iomem *base, bool enable)
+int renesas_clk_endisable(struct clk *clk, void __iomem *base,
+			  struct cpg_mssr_info *info, bool enable)
 {
 	const unsigned long clkid = clk->id & 0xffff;
 	const unsigned int reg = clkid / 100;

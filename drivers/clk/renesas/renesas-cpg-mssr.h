@@ -115,7 +115,8 @@ int renesas_clk_get_core(struct clk *clk, struct cpg_mssr_info *info,
 			 const struct cpg_core_clk **core);
 int renesas_clk_get_parent(struct clk *clk, struct cpg_mssr_info *info,
 			   struct clk *parent);
-int renesas_clk_endisable(struct clk *clk, void __iomem *base, bool enable);
+int renesas_clk_endisable(struct clk *clk, void __iomem *base,
+			  struct cpg_mssr_info *info, bool enable);
 int renesas_clk_remove(void __iomem *base, struct cpg_mssr_info *info);
 
 #endif /* __DRIVERS_CLK_RENESAS_CPG_MSSR__ */

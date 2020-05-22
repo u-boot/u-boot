@@ -143,14 +143,14 @@ static int gen3_clk_enable(struct clk *clk)
 {
 	struct gen3_clk_priv *priv = dev_get_priv(clk->dev);
 
-	return renesas_clk_endisable(clk, priv->base, true);
+	return renesas_clk_endisable(clk, priv->base, priv->info, true);
 }
 
 static int gen3_clk_disable(struct clk *clk)
 {
 	struct gen3_clk_priv *priv = dev_get_priv(clk->dev);
 
-	return renesas_clk_endisable(clk, priv->base, false);
+	return renesas_clk_endisable(clk, priv->base, priv->info, false);
 }
 
 static u64 gen3_clk_get_rate64(struct clk *clk)
