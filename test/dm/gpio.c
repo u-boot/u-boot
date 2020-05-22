@@ -132,6 +132,15 @@ static int dm_test_gpio(struct unit_test_state *uts)
 	ut_assertok(dm_gpio_set_value(desc, 0));
 	ut_asserteq(0, dm_gpio_get_value(desc));
 
+	/* Check if lookup for labels work */
+	ut_assertok(gpio_lookup_name("hog_input_active_low", &dev, &offset,
+				     &gpio));
+	ut_asserteq_str(dev->name, "base-gpios");
+	ut_asserteq(0, offset);
+	ut_asserteq(CONFIG_SANDBOX_GPIO_COUNT + 0, gpio);
+	ut_assert(gpio_lookup_name("hog_not_exist", &dev, &offset,
+				   &gpio));
+
 	return 0;
 }
 DM_TEST(dm_test_gpio, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
