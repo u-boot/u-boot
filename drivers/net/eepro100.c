@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <malloc.h>
 #include <net.h>
 #include <netdev.h>
@@ -459,6 +460,9 @@ static int eepro100_txcmd_send(struct eth_device *dev,
 	u16 rstat;
 	int i = 0;
 
+	flush_dcache_range((unsigned long)desc,
+			   (unsigned long)desc + sizeof(*desc));
+
 	if (!wait_for_eepro100(dev))
 		return -ETIMEDOUT;
 
@@ -466,6 +470,8 @@ static int eepro100_txcmd_send(struct eth_device *dev,
 	OUTW(dev, SCB_M | CU_START, SCB_CMD);
 
 	while (true) {
+		invalidate_dcache_range((unsigned long)desc,
+					(unsigned long)desc + sizeof(*desc));
 		rstat = le16_to_cpu(desc->status);
 		if (rstat & CONFIG_SYS_STATUS_C)
 			break;
@@ -476,6 +482,8 @@ static int eepro100_txcmd_send(struct eth_device *dev,
 		}
 	}
 
+	invalidate_dcache_range((unsigned long)desc,
+				(unsigned long)desc + sizeof(*desc));
 	rstat = le16_to_cpu(desc->status);
 
 	if (!(rstat & CONFIG_SYS_STATUS_OK)) {
@@ -523,6 +531,7 @@ static int eepro100_init(struct eth_device *dev, bd_t *bis)
 		goto done;
 	}
 
+	/* RX ring cache was already flushed in init_rx_ring() */
 	OUTL(dev, phys_to_bus((u32)&rx_ring[rx_next]), SCB_POINTER);
 	OUTW(dev, SCB_M | RUC_START, SCB_CMD);
 
@@ -573,6 +582,7 @@ done:
 
 static int eepro100_send(struct eth_device *dev, void *packet, int length)
 {
+	struct eepro100_txfd *desc;
 	int ret, status = -1;
 	int tx_cur;
 
@@ -584,17 +594,15 @@ static int eepro100_send(struct eth_device *dev, void *packet, int length)
 	tx_cur = tx_next;
 	tx_next = (tx_next + 1) % NUM_TX_DESC;
 
-	tx_ring[tx_cur].command = cpu_to_le16(TXCB_CMD_TRANSMIT | TXCB_CMD_SF |
-					      TXCB_CMD_S | TXCB_CMD_EL);
-	tx_ring[tx_cur].status = 0;
-	tx_ring[tx_cur].count = cpu_to_le32 (tx_threshold);
-	tx_ring[tx_cur].link =
-		cpu_to_le32 (phys_to_bus((u32)&tx_ring[tx_next]));
-	tx_ring[tx_cur].tx_desc_addr =
-		cpu_to_le32 (phys_to_bus((u32)&tx_ring[tx_cur].tx_buf_addr0));
-	tx_ring[tx_cur].tx_buf_addr0 =
-		cpu_to_le32 (phys_to_bus((u_long)packet));
-	tx_ring[tx_cur].tx_buf_size0 = cpu_to_le32 (length);
+	desc = &tx_ring[tx_cur];
+	desc->command = cpu_to_le16(TXCB_CMD_TRANSMIT | TXCB_CMD_SF |
+				    TXCB_CMD_S | TXCB_CMD_EL);
+	desc->status = 0;
+	desc->count = cpu_to_le32(tx_threshold);
+	desc->link = cpu_to_le32(phys_to_bus((u32)&tx_ring[tx_next]));
+	desc->tx_desc_addr = cpu_to_le32(phys_to_bus((u32)&desc->tx_buf_addr0));
+	desc->tx_buf_addr0 = cpu_to_le32(phys_to_bus((u_long)packet));
+	desc->tx_buf_size0 = cpu_to_le32(length);
 
 	ret = eepro100_txcmd_send(dev, &tx_ring[tx_cur]);
 	if (ret) {
@@ -612,14 +620,18 @@ done:
 
 static int eepro100_recv(struct eth_device *dev)
 {
-	u16 status, stat;
+	struct eepro100_rxfd *desc;
 	int rx_prev, length = 0;
+	u16 status, stat;
 
 	stat = INW(dev, SCB_STATUS);
 	OUTW(dev, stat & SCB_STATUS_RNR, SCB_STATUS);
 
 	for (;;) {
-		status = le16_to_cpu(rx_ring[rx_next].status);
+		desc = &rx_ring[rx_next];
+		invalidate_dcache_range((unsigned long)desc,
+					(unsigned long)desc + sizeof(*desc));
+		status = le16_to_cpu(desc->status);
 
 		if (!(status & RFD_STATUS_C))
 			break;
@@ -627,22 +639,26 @@ static int eepro100_recv(struct eth_device *dev)
 		/* Valid frame status. */
 		if ((status & RFD_STATUS_OK)) {
 			/* A valid frame received. */
-			length = le32_to_cpu(rx_ring[rx_next].count) & 0x3fff;
+			length = le32_to_cpu(desc->count) & 0x3fff;
 
 			/* Pass the packet up to the protocol layers. */
-			net_process_received_packet((u8 *)rx_ring[rx_next].data,
-						    length);
+			net_process_received_packet((u8 *)desc->data, length);
 		} else {
 			/* There was an error. */
 			printf("RX error status = 0x%08X\n", status);
 		}
 
-		rx_ring[rx_next].control = cpu_to_le16 (RFD_CONTROL_S);
-		rx_ring[rx_next].status = 0;
-		rx_ring[rx_next].count = cpu_to_le32 (PKTSIZE_ALIGN << 16);
+		desc->control = cpu_to_le16(RFD_CONTROL_S);
+		desc->status = 0;
+		desc->count = cpu_to_le32(PKTSIZE_ALIGN << 16);
+		flush_dcache_range((unsigned long)desc,
+				   (unsigned long)desc + sizeof(*desc));
 
 		rx_prev = (rx_next + NUM_RX_DESC - 1) % NUM_RX_DESC;
-		rx_ring[rx_prev].control = 0;
+		desc = &rx_ring[rx_prev];
+		desc->control = 0;
+		flush_dcache_range((unsigned long)desc,
+				   (unsigned long)desc + sizeof(*desc));
 
 		/* Update entry information. */
 		rx_next = (rx_next + 1) % NUM_RX_DESC;
@@ -659,6 +675,7 @@ static int eepro100_recv(struct eth_device *dev)
 			goto done;
 		}
 
+		/* RX ring cache was already flushed in init_rx_ring() */
 		OUTL(dev, phys_to_bus((u32)&rx_ring[rx_next]), SCB_POINTER);
 		OUTW(dev, SCB_M | RUC_START, SCB_CMD);
 	}
@@ -744,6 +761,10 @@ static void init_rx_ring(struct eth_device *dev)
 		rx_ring[i].count = cpu_to_le32(PKTSIZE_ALIGN << 16);
 	}
 
+	flush_dcache_range((unsigned long)rx_ring,
+			   (unsigned long)rx_ring +
+			   (sizeof(*rx_ring) * NUM_RX_DESC));
+
 	rx_next = 0;
 }
 
@@ -752,6 +773,10 @@ static void purge_tx_ring(struct eth_device *dev)
 	tx_next = 0;
 	tx_threshold = 0x01208000;
 	memset(tx_ring, 0, sizeof(*tx_ring) * NUM_TX_DESC);
+
+	flush_dcache_range((unsigned long)tx_ring,
+			   (unsigned long)tx_ring +
+			   (sizeof(*tx_ring) * NUM_TX_DESC));
 }
 
 static void read_hw_addr(struct eth_device *dev, bd_t *bis)
