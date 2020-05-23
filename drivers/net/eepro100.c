@@ -566,7 +566,7 @@ static int eepro100_init(struct eth_device *dev, bd_t *bis)
 
 	status = 0;
 
-  Done:
+Done:
 	return status;
 }
 
@@ -623,7 +623,7 @@ static int eepro100_send(struct eth_device *dev, void *packet, int length)
 
 	status = length;
 
-  Done:
+Done:
 	return status;
 }
 
@@ -680,7 +680,7 @@ static int eepro100_recv(struct eth_device *dev)
 		OUTW(dev, SCB_M | RUC_START, SCBCmd);
 	}
 
-  Done:
+Done:
 	return length;
 }
 
@@ -707,7 +707,7 @@ static void eepro100_halt(struct eth_device *dev)
 	OUTL(dev, 0, SCBPointer);
 	OUTW(dev, SCB_M | CU_ADDR_LOAD, SCBCmd);
 
-  Done:
+Done:
 	return;
 }
 
