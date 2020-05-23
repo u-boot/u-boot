@@ -96,10 +96,10 @@
 #define EE_DATA_BITS		16
 
 /* The EEPROM commands include the alway-set leading bit. */
-#define EE_EWENB_CMD		(4 << addr_len)
-#define EE_WRITE_CMD		(5 << addr_len)
-#define EE_READ_CMD		(6 << addr_len)
-#define EE_ERASE_CMD		(7 << addr_len)
+#define EE_EWENB_CMD(addr_len)	(4 << (addr_len))
+#define EE_WRITE_CMD(addr_len)	(5 << (addr_len))
+#define EE_READ_CMD(addr_len)	(6 << (addr_len))
+#define EE_ERASE_CMD(addr_len)	(7 << (addr_len))
 
 /* Receive frame descriptors. */
 struct eepro100_rxfd {
@@ -433,7 +433,7 @@ static int eepro100_txcmd_send(struct eth_device *dev,
 static int read_eeprom(struct eth_device *dev, int location, int addr_len)
 {
 	unsigned short retval = 0;
-	int read_cmd = location | EE_READ_CMD;
+	int read_cmd = location | EE_READ_CMD(addr_len);
 	int i;
 
 	OUTW(dev, EE_ENB & ~EE_CS, SCB_EEPROM);
