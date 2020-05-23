@@ -891,8 +891,6 @@ The following options need to be configured:
 
 		CONFIG_EEPRO100
 		Support for Intel 82557/82559/82559ER chips.
-		Optional CONFIG_EEPRO100_SROM_WRITE enables EEPROM
-		write routine for first time initialisation.
 
 		CONFIG_TULIP
 		Support for Digital 2114x chips.
