@@ -202,11 +202,11 @@ static const char i82558_config_cmd[] = {
 };
 
 #if defined(CONFIG_E500)
-#define bus_to_phys(a) (a)
-#define phys_to_bus(a) (a)
+#define bus_to_phys(dev, a)	(a)
+#define phys_to_bus(dev, a)	(a)
 #else
-#define bus_to_phys(a)	pci_mem_to_phys((pci_dev_t)dev->priv, a)
-#define phys_to_bus(a)	pci_phys_to_mem((pci_dev_t)dev->priv, a)
+#define bus_to_phys(dev, a)	pci_mem_to_phys((dev), (a))
+#define phys_to_bus(dev, a)	pci_phys_to_mem((dev), (a))
 #endif
 
 static int INW(struct eth_device *dev, u_long addr)
@@ -352,7 +352,8 @@ static void init_rx_ring(struct eth_device *dev)
 		rx_ring[i].control = (i == NUM_RX_DESC - 1) ?
 				     cpu_to_le16 (RFD_CONTROL_S) : 0;
 		rx_ring[i].link =
-			cpu_to_le32(phys_to_bus((u32)&rx_ring[(i + 1) %
+			cpu_to_le32(phys_to_bus((pci_dev_t)dev->priv,
+						(u32)&rx_ring[(i + 1) %
 						NUM_RX_DESC]));
 		rx_ring[i].rx_buf_addr = 0xffffffff;
 		rx_ring[i].count = cpu_to_le32(PKTSIZE_ALIGN << 16);
@@ -401,7 +402,7 @@ static int eepro100_txcmd_send(struct eth_device *dev,
 	if (!wait_for_eepro100(dev))
 		return -ETIMEDOUT;
 
-	OUTL(dev, phys_to_bus((u32)desc), SCB_POINTER);
+	OUTL(dev, phys_to_bus((pci_dev_t)dev->priv, (u32)desc), SCB_POINTER);
 	OUTW(dev, SCB_M | CU_START, SCB_CMD);
 
 	while (true) {
@@ -562,7 +563,8 @@ static int eepro100_init(struct eth_device *dev, bd_t *bis)
 	}
 
 	/* RX ring cache was already flushed in init_rx_ring() */
-	OUTL(dev, phys_to_bus((u32)&rx_ring[rx_next]), SCB_POINTER);
+	OUTL(dev, phys_to_bus((pci_dev_t)dev->priv, (u32)&rx_ring[rx_next]),
+	     SCB_POINTER);
 	OUTW(dev, SCB_M | RUC_START, SCB_CMD);
 
 	/* Send the Configure frame */
@@ -573,7 +575,8 @@ static int eepro100_init(struct eth_device *dev, bd_t *bis)
 	cfg_cmd->command = cpu_to_le16(CONFIG_SYS_CMD_SUSPEND |
 				       CONFIG_SYS_CMD_CONFIGURE);
 	cfg_cmd->status = 0;
-	cfg_cmd->link = cpu_to_le32(phys_to_bus((u32)&tx_ring[tx_next]));
+	cfg_cmd->link = cpu_to_le32(phys_to_bus((pci_dev_t)dev->priv,
+						(u32)&tx_ring[tx_next]));
 
 	memcpy(((struct descriptor *)cfg_cmd)->params, i82558_config_cmd,
 	       sizeof(i82558_config_cmd));
@@ -593,7 +596,8 @@ static int eepro100_init(struct eth_device *dev, bd_t *bis)
 	ias_cmd->command = cpu_to_le16(CONFIG_SYS_CMD_SUSPEND |
 				       CONFIG_SYS_CMD_IAS);
 	ias_cmd->status = 0;
-	ias_cmd->link = cpu_to_le32(phys_to_bus((u32)&tx_ring[tx_next]));
+	ias_cmd->link = cpu_to_le32(phys_to_bus((pci_dev_t)dev->priv,
+						(u32)&tx_ring[tx_next]));
 
 	memcpy(((struct descriptor *)ias_cmd)->params, dev->enetaddr, 6);
 
@@ -629,9 +633,12 @@ static int eepro100_send(struct eth_device *dev, void *packet, int length)
 				    TXCB_CMD_S | TXCB_CMD_EL);
 	desc->status = 0;
 	desc->count = cpu_to_le32(tx_threshold);
-	desc->link = cpu_to_le32(phys_to_bus((u32)&tx_ring[tx_next]));
-	desc->tx_desc_addr = cpu_to_le32(phys_to_bus((u32)&desc->tx_buf_addr0));
-	desc->tx_buf_addr0 = cpu_to_le32(phys_to_bus((u_long)packet));
+	desc->link = cpu_to_le32(phys_to_bus((pci_dev_t)dev->priv,
+					    (u32)&tx_ring[tx_next]));
+	desc->tx_desc_addr = cpu_to_le32(phys_to_bus((pci_dev_t)dev->priv,
+						     (u32)&desc->tx_buf_addr0));
+	desc->tx_buf_addr0 = cpu_to_le32(phys_to_bus((pci_dev_t)dev->priv,
+						     (u_long)packet));
 	desc->tx_buf_size0 = cpu_to_le32(length);
 
 	ret = eepro100_txcmd_send(dev, &tx_ring[tx_cur]);
@@ -706,7 +713,8 @@ static int eepro100_recv(struct eth_device *dev)
 		}
 
 		/* RX ring cache was already flushed in init_rx_ring() */
-		OUTL(dev, phys_to_bus((u32)&rx_ring[rx_next]), SCB_POINTER);
+		OUTL(dev, phys_to_bus((pci_dev_t)dev->priv,
+				      (u32)&rx_ring[rx_next]), SCB_POINTER);
 		OUTW(dev, SCB_M | RUC_START, SCB_CMD);
 	}
 
@@ -785,7 +793,7 @@ int eepro100_initialize(bd_t *bis)
 
 		sprintf(dev->name, "i82559#%d", card_number);
 		dev->priv = (void *)devno; /* this have to come before bus_to_phys() */
-		dev->iobase = bus_to_phys(iobase);
+		dev->iobase = bus_to_phys(devno, iobase);
 		dev->init = eepro100_init;
 		dev->halt = eepro100_halt;
 		dev->send = eepro100_send;
