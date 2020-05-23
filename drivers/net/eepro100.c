@@ -14,18 +14,18 @@
 #include <linux/delay.h>
 
 /* Ethernet chip registers. */
-#define SCBStatus		0	/* Rx/Command Unit Status *Word* */
-#define SCBIntAckByte		1	/* Rx/Command Unit STAT/ACK byte */
-#define SCBCmd			2	/* Rx/Command Unit Command *Word* */
-#define SCBIntrCtlByte		3	/* Rx/Command Unit Intr.Control Byte */
-#define SCBPointer		4	/* General purpose pointer. */
-#define SCBPort			8	/* Misc. commands and operands. */
-#define SCBflash		12	/* Flash memory control. */
-#define SCBeeprom		14	/* EEPROM memory control. */
-#define SCBCtrlMDI		16	/* MDI interface control. */
-#define SCBEarlyRx		20	/* Early receive byte count. */
-#define SCBGenControl		28	/* 82559 General Control Register */
-#define SCBGenStatus		29	/* 82559 General Status register */
+#define SCB_STATUS		0	/* Rx/Command Unit Status *Word* */
+#define SCB_INT_ACK_BYTE	1	/* Rx/Command Unit STAT/ACK byte */
+#define SCB_CMD			2	/* Rx/Command Unit Command *Word* */
+#define SCB_INTR_CTL_BYTE	3	/* Rx/Command Unit Intr.Control Byte */
+#define SCB_POINTER		4	/* General purpose pointer. */
+#define SCB_PORT		8	/* Misc. commands and operands. */
+#define SCB_FLASH		12	/* Flash memory control. */
+#define SCB_EEPROM		14	/* EEPROM memory control. */
+#define SCB_CTRL_MDI		16	/* MDI interface control. */
+#define SCB_EARLY_RX		20	/* Early receive byte count. */
+#define SCB_GEN_CONTROL		28	/* 82559 General Control Register */
+#define SCB_GEN_STATUS		29	/* 82559 General Status register */
 
 /* 82559 SCB status word defnitions */
 #define SCB_STATUS_CX		0x8000	/* CU finished command (transmit) */
@@ -101,10 +101,10 @@
 #define EE_ERASE_CMD		(7 << addr_len)
 
 /* Receive frame descriptors. */
-struct RxFD {
+struct eepro100_rxfd {
 	volatile u16 status;
 	volatile u16 control;
-	volatile u32 link;		/* struct RxFD * */
+	volatile u32 link;		/* struct eepro100_rxfd * */
 	volatile u32 rx_buf_addr;	/* void * */
 	volatile u32 count;
 
@@ -135,7 +135,7 @@ struct RxFD {
 #define RFD_RX_TCO		0x0001	/* TCO indication */
 
 /* Transmit frame descriptors */
-struct TxFD {				/* Transmit frame descriptor set. */
+struct eepro100_txfd {			/* Transmit frame descriptor set. */
 	volatile u16 status;
 	volatile u16 command;
 	volatile u32 link;		/* void * */
@@ -148,15 +148,15 @@ struct TxFD {				/* Transmit frame descriptor set. */
 	volatile s32 tx_buf_size1;	/* Length of Tx frame. */
 };
 
-#define TxCB_CMD_TRANSMIT	0x0004	/* transmit command */
-#define TxCB_CMD_SF		0x0008	/* 0=simplified, 1=flexible mode */
-#define TxCB_CMD_NC		0x0010	/* 0=CRC insert by controller */
-#define TxCB_CMD_I		0x2000	/* generate interrupt on completion */
-#define TxCB_CMD_S		0x4000	/* suspend on completion */
-#define TxCB_CMD_EL		0x8000	/* last command block in CBL */
+#define TXCB_CMD_TRANSMIT	0x0004	/* transmit command */
+#define TXCB_CMD_SF		0x0008	/* 0=simplified, 1=flexible mode */
+#define TXCB_CMD_NC		0x0010	/* 0=CRC insert by controller */
+#define TXCB_CMD_I		0x2000	/* generate interrupt on completion */
+#define TXCB_CMD_S		0x4000	/* suspend on completion */
+#define TXCB_CMD_EL		0x8000	/* last command block in CBL */
 
-#define TxCB_COUNT_MASK		0x3fff
-#define TxCB_COUNT_EOF		0x8000
+#define TXCB_COUNT_MASK		0x3fff
+#define TXCB_COUNT_EOF		0x8000
 
 /* The Speedo3 Rx and Tx frame/buffer descriptors. */
 struct descriptor {			/* A generic descriptor. */
@@ -182,8 +182,8 @@ struct descriptor {			/* A generic descriptor. */
 
 #define TOUT_LOOP		1000000
 
-static struct RxFD rx_ring[NUM_RX_DESC];	/* RX descriptor ring */
-static struct TxFD tx_ring[NUM_TX_DESC];	/* TX descriptor ring */
+static struct eepro100_rxfd rx_ring[NUM_RX_DESC]; /* RX descriptor ring */
+static struct eepro100_txfd tx_ring[NUM_TX_DESC]; /* TX descriptor ring */
 static int rx_next;			/* RX descriptor ring pointer */
 static int tx_next;			/* TX descriptor ring pointer */
 static int tx_threshold;
@@ -247,11 +247,11 @@ static int get_phyreg(struct eth_device *dev, unsigned char addr,
 
 	/* read requested data */
 	cmd = (2 << 26) | ((addr & 0x1f) << 21) | ((reg & 0x1f) << 16);
-	OUTL(dev, cmd, SCBCtrlMDI);
+	OUTL(dev, cmd, SCB_CTRL_MDI);
 
 	do {
 		udelay(1000);
-		cmd = INL(dev, SCBCtrlMDI);
+		cmd = INL(dev, SCB_CTRL_MDI);
 	} while (!(cmd & (1 << 28)) && (--timeout));
 
 	if (timeout == 0)
@@ -270,9 +270,9 @@ static int set_phyreg(struct eth_device *dev, unsigned char addr,
 
 	/* write requested data */
 	cmd = (1 << 26) | ((addr & 0x1f) << 21) | ((reg & 0x1f) << 16);
-	OUTL(dev, cmd | value, SCBCtrlMDI);
+	OUTL(dev, cmd | value, SCB_CTRL_MDI);
 
-	while (!(INL(dev, SCBCtrlMDI) & (1 << 28)) && (--timeout))
+	while (!(INL(dev, SCB_CTRL_MDI) & (1 << 28)) && (--timeout))
 		udelay(1000);
 
 	if (timeout == 0)
@@ -357,7 +357,7 @@ static int wait_for_eepro100(struct eth_device *dev)
 {
 	int i;
 
-	for (i = 0; INW(dev, SCBCmd) & (CU_CMD_MASK | RU_CMD_MASK); i++) {
+	for (i = 0; INW(dev, SCB_CMD) & (CU_CMD_MASK | RU_CMD_MASK); i++) {
 		if (i >= TOUT_LOOP)
 			return 0;
 	}
@@ -460,25 +460,25 @@ static int eepro100_init(struct eth_device *dev, bd_t *bis)
 	struct descriptor *ias_cmd, *cfg_cmd;
 
 	/* Reset the ethernet controller */
-	OUTL(dev, I82559_SELECTIVE_RESET, SCBPort);
+	OUTL(dev, I82559_SELECTIVE_RESET, SCB_PORT);
 	udelay(20);
 
-	OUTL(dev, I82559_RESET, SCBPort);
+	OUTL(dev, I82559_RESET, SCB_PORT);
 	udelay(20);
 
 	if (!wait_for_eepro100(dev)) {
 		printf("Error: Can not reset ethernet controller.\n");
-		goto Done;
+		goto done;
 	}
-	OUTL(dev, 0, SCBPointer);
-	OUTW(dev, SCB_M | RUC_ADDR_LOAD, SCBCmd);
+	OUTL(dev, 0, SCB_POINTER);
+	OUTW(dev, SCB_M | RUC_ADDR_LOAD, SCB_CMD);
 
 	if (!wait_for_eepro100(dev)) {
 		printf("Error: Can not reset ethernet controller.\n");
-		goto Done;
+		goto done;
 	}
-	OUTL(dev, 0, SCBPointer);
-	OUTW(dev, SCB_M | CU_ADDR_LOAD, SCBCmd);
+	OUTL(dev, 0, SCB_POINTER);
+	OUTW(dev, SCB_M | CU_ADDR_LOAD, SCB_CMD);
 
 	/* Initialize Rx and Tx rings. */
 	init_rx_ring(dev);
@@ -487,11 +487,11 @@ static int eepro100_init(struct eth_device *dev, bd_t *bis)
 	/* Tell the adapter where the RX ring is located. */
 	if (!wait_for_eepro100(dev)) {
 		printf("Error: Can not reset ethernet controller.\n");
-		goto Done;
+		goto done;
 	}
 
-	OUTL(dev, phys_to_bus((u32)&rx_ring[rx_next]), SCBPointer);
-	OUTW(dev, SCB_M | RUC_START, SCBCmd);
+	OUTL(dev, phys_to_bus((u32)&rx_ring[rx_next]), SCB_POINTER);
+	OUTW(dev, SCB_M | RUC_START, SCB_CMD);
 
 	/* Send the Configure frame */
 	tx_cur = tx_next;
@@ -508,25 +508,25 @@ static int eepro100_init(struct eth_device *dev, bd_t *bis)
 
 	if (!wait_for_eepro100(dev)) {
 		printf("Error---CONFIG_SYS_CMD_CONFIGURE: Can not reset ethernet controller.\n");
-		goto Done;
+		goto done;
 	}
 
-	OUTL(dev, phys_to_bus((u32)&tx_ring[tx_cur]), SCBPointer);
-	OUTW(dev, SCB_M | CU_START, SCBCmd);
+	OUTL(dev, phys_to_bus((u32)&tx_ring[tx_cur]), SCB_POINTER);
+	OUTW(dev, SCB_M | CU_START, SCB_CMD);
 
 	for (i = 0;
 	     !(le16_to_cpu(tx_ring[tx_cur].status) & CONFIG_SYS_STATUS_C);
 	     i++) {
 		if (i >= TOUT_LOOP) {
 			printf("%s: Tx error buffer not ready\n", dev->name);
-			goto Done;
+			goto done;
 		}
 	}
 
 	if (!(le16_to_cpu(tx_ring[tx_cur].status) & CONFIG_SYS_STATUS_OK)) {
 		printf("TX error status = 0x%08X\n",
 		       le16_to_cpu(tx_ring[tx_cur].status));
-		goto Done;
+		goto done;
 	}
 
 	/* Send the Individual Address Setup frame */
@@ -544,11 +544,11 @@ static int eepro100_init(struct eth_device *dev, bd_t *bis)
 	/* Tell the adapter where the TX ring is located. */
 	if (!wait_for_eepro100(dev)) {
 		printf("Error: Can not reset ethernet controller.\n");
-		goto Done;
+		goto done;
 	}
 
-	OUTL(dev, phys_to_bus((u32)&tx_ring[tx_cur]), SCBPointer);
-	OUTW(dev, SCB_M | CU_START, SCBCmd);
+	OUTL(dev, phys_to_bus((u32)&tx_ring[tx_cur]), SCB_POINTER);
+	OUTW(dev, SCB_M | CU_START, SCB_CMD);
 
 	for (i = 0;
 	     !(le16_to_cpu(tx_ring[tx_cur].status) & CONFIG_SYS_STATUS_C);
@@ -556,19 +556,19 @@ static int eepro100_init(struct eth_device *dev, bd_t *bis)
 		if (i >= TOUT_LOOP) {
 			printf("%s: Tx error buffer not ready\n",
 			       dev->name);
-			goto Done;
+			goto done;
 		}
 	}
 
 	if (!(le16_to_cpu(tx_ring[tx_cur].status) & CONFIG_SYS_STATUS_OK)) {
 		printf("TX error status = 0x%08X\n",
 		       le16_to_cpu(tx_ring[tx_cur].status));
-		goto Done;
+		goto done;
 	}
 
 	status = 0;
 
-Done:
+done:
 	return status;
 }
 
@@ -579,16 +579,14 @@ static int eepro100_send(struct eth_device *dev, void *packet, int length)
 
 	if (length <= 0) {
 		printf("%s: bad packet size: %d\n", dev->name, length);
-		goto Done;
+		goto done;
 	}
 
 	tx_cur = tx_next;
 	tx_next = (tx_next + 1) % NUM_TX_DESC;
 
-	tx_ring[tx_cur].command = cpu_to_le16 (TxCB_CMD_TRANSMIT |
-						TxCB_CMD_SF	|
-						TxCB_CMD_S	|
-						TxCB_CMD_EL);
+	tx_ring[tx_cur].command = cpu_to_le16(TXCB_CMD_TRANSMIT | TXCB_CMD_SF |
+					      TXCB_CMD_S | TXCB_CMD_EL);
 	tx_ring[tx_cur].status = 0;
 	tx_ring[tx_cur].count = cpu_to_le32 (tx_threshold);
 	tx_ring[tx_cur].link =
@@ -602,31 +600,31 @@ static int eepro100_send(struct eth_device *dev, void *packet, int length)
 	if (!wait_for_eepro100(dev)) {
 		printf("%s: Tx error ethernet controller not ready.\n",
 		       dev->name);
-		goto Done;
+		goto done;
 	}
 
 	/* Send the packet. */
-	OUTL(dev, phys_to_bus((u32)&tx_ring[tx_cur]), SCBPointer);
-	OUTW(dev, SCB_M | CU_START, SCBCmd);
+	OUTL(dev, phys_to_bus((u32)&tx_ring[tx_cur]), SCB_POINTER);
+	OUTW(dev, SCB_M | CU_START, SCB_CMD);
 
 	for (i = 0;
 	     !(le16_to_cpu(tx_ring[tx_cur].status) & CONFIG_SYS_STATUS_C);
 	     i++) {
 		if (i >= TOUT_LOOP) {
 			printf("%s: Tx error buffer not ready\n", dev->name);
-			goto Done;
+			goto done;
 		}
 	}
 
 	if (!(le16_to_cpu(tx_ring[tx_cur].status) & CONFIG_SYS_STATUS_OK)) {
 		printf("TX error status = 0x%08X\n",
 		       le16_to_cpu(tx_ring[tx_cur].status));
-		goto Done;
+		goto done;
 	}
 
 	status = length;
 
-Done:
+done:
 	return status;
 }
 
@@ -635,8 +633,8 @@ static int eepro100_recv(struct eth_device *dev)
 	u16 status, stat;
 	int rx_prev, length = 0;
 
-	stat = INW(dev, SCBStatus);
-	OUTW(dev, stat & SCB_STATUS_RNR, SCBStatus);
+	stat = INW(dev, SCB_STATUS);
+	OUTW(dev, stat & SCB_STATUS_RNR, SCB_STATUS);
 
 	for (;;) {
 		status = le16_to_cpu(rx_ring[rx_next].status);
@@ -676,41 +674,41 @@ static int eepro100_recv(struct eth_device *dev)
 
 		if (!wait_for_eepro100(dev)) {
 			printf("Error: Can not restart ethernet controller.\n");
-			goto Done;
+			goto done;
 		}
 
-		OUTL(dev, phys_to_bus((u32)&rx_ring[rx_next]), SCBPointer);
-		OUTW(dev, SCB_M | RUC_START, SCBCmd);
+		OUTL(dev, phys_to_bus((u32)&rx_ring[rx_next]), SCB_POINTER);
+		OUTW(dev, SCB_M | RUC_START, SCB_CMD);
 	}
 
-Done:
+done:
 	return length;
 }
 
 static void eepro100_halt(struct eth_device *dev)
 {
 	/* Reset the ethernet controller */
-	OUTL(dev, I82559_SELECTIVE_RESET, SCBPort);
+	OUTL(dev, I82559_SELECTIVE_RESET, SCB_PORT);
 	udelay(20);
 
-	OUTL(dev, I82559_RESET, SCBPort);
+	OUTL(dev, I82559_RESET, SCB_PORT);
 	udelay(20);
 
 	if (!wait_for_eepro100(dev)) {
 		printf("Error: Can not reset ethernet controller.\n");
-		goto Done;
+		goto done;
 	}
-	OUTL(dev, 0, SCBPointer);
-	OUTW(dev, SCB_M | RUC_ADDR_LOAD, SCBCmd);
+	OUTL(dev, 0, SCB_POINTER);
+	OUTW(dev, SCB_M | RUC_ADDR_LOAD, SCB_CMD);
 
 	if (!wait_for_eepro100(dev)) {
 		printf("Error: Can not reset ethernet controller.\n");
-		goto Done;
+		goto done;
 	}
-	OUTL(dev, 0, SCBPointer);
-	OUTW(dev, SCB_M | CU_ADDR_LOAD, SCBCmd);
+	OUTL(dev, 0, SCB_POINTER);
+	OUTW(dev, SCB_M | CU_ADDR_LOAD, SCB_CMD);
 
-Done:
+done:
 	return;
 }
 
@@ -721,31 +719,31 @@ static int read_eeprom(struct eth_device *dev, int location, int addr_len)
 	int read_cmd = location | EE_READ_CMD;
 	int i;
 
-	OUTW(dev, EE_ENB & ~EE_CS, SCBeeprom);
-	OUTW(dev, EE_ENB, SCBeeprom);
+	OUTW(dev, EE_ENB & ~EE_CS, SCB_EEPROM);
+	OUTW(dev, EE_ENB, SCB_EEPROM);
 
 	/* Shift the read command bits out. */
 	for (i = 12; i >= 0; i--) {
 		short dataval = (read_cmd & (1 << i)) ? EE_DATA_WRITE : 0;
 
-		OUTW(dev, EE_ENB | dataval, SCBeeprom);
+		OUTW(dev, EE_ENB | dataval, SCB_EEPROM);
 		udelay(1);
-		OUTW(dev, EE_ENB | dataval | EE_SHIFT_CLK, SCBeeprom);
+		OUTW(dev, EE_ENB | dataval | EE_SHIFT_CLK, SCB_EEPROM);
 		udelay(1);
 	}
-	OUTW(dev, EE_ENB, SCBeeprom);
+	OUTW(dev, EE_ENB, SCB_EEPROM);
 
 	for (i = 15; i >= 0; i--) {
-		OUTW(dev, EE_ENB | EE_SHIFT_CLK, SCBeeprom);
+		OUTW(dev, EE_ENB | EE_SHIFT_CLK, SCB_EEPROM);
 		udelay(1);
 		retval = (retval << 1) |
-				((INW(dev, SCBeeprom) & EE_DATA_READ) ? 1 : 0);
-		OUTW(dev, EE_ENB, SCBeeprom);
+				((INW(dev, SCB_EEPROM) & EE_DATA_READ) ? 1 : 0);
+		OUTW(dev, EE_ENB, SCB_EEPROM);
 		udelay(1);
 	}
 
 	/* Terminate the EEPROM access. */
-	OUTW(dev, EE_ENB & ~EE_CS, SCBeeprom);
+	OUTW(dev, EE_ENB & ~EE_CS, SCB_EEPROM);
 	return retval;
 }
 
