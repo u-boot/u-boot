@@ -767,23 +767,9 @@ static void init_rx_ring(struct eth_device *dev)
 
 static void purge_tx_ring(struct eth_device *dev)
 {
-	int i;
-
 	tx_next = 0;
 	tx_threshold = 0x01208000;
-
-	for (i = 0; i < NUM_TX_DESC; i++) {
-		tx_ring[i].status = 0;
-		tx_ring[i].command = 0;
-		tx_ring[i].link = 0;
-		tx_ring[i].tx_desc_addr = 0;
-		tx_ring[i].count = 0;
-
-		tx_ring[i].tx_buf_addr0 = 0;
-		tx_ring[i].tx_buf_size0 = 0;
-		tx_ring[i].tx_buf_addr1 = 0;
-		tx_ring[i].tx_buf_size1 = 0;
-	}
+	memset(tx_ring, 0, sizeof(*tx_ring) * NUM_TX_DESC);
 }
 
 static void read_hw_addr(struct eth_device *dev, bd_t *bis)
