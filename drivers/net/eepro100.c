@@ -183,12 +183,6 @@ struct descriptor {		/* A generic descriptor. */
 
 #define TOUT_LOOP		1000000
 
-static struct eepro100_rxfd rx_ring[NUM_RX_DESC]; /* RX descriptor ring */
-static struct eepro100_txfd tx_ring[NUM_TX_DESC]; /* TX descriptor ring */
-static int rx_next;			/* RX descriptor ring pointer */
-static int tx_next;			/* TX descriptor ring pointer */
-static int tx_threshold;
-
 /*
  * The parameters for a CmdConfigure operation.
  * There are so many options that it would be difficult to document
@@ -202,6 +196,15 @@ static const char i82558_config_cmd[] = {
 };
 
 struct eepro100_priv {
+	/* RX descriptor ring */
+	struct eepro100_rxfd	rx_ring[NUM_RX_DESC];
+	/* TX descriptor ring */
+	struct eepro100_txfd	tx_ring[NUM_TX_DESC];
+	/* RX descriptor ring pointer */
+	int			rx_next;
+	/* TX descriptor ring pointer */
+	int			tx_next;
+	int			tx_threshold;
 	struct eth_device	dev;
 	pci_dev_t		devno;
 	char			*name;
@@ -348,6 +351,7 @@ static int eepro100_miiphy_write(struct mii_dev *bus, int addr, int devad,
 
 static void init_rx_ring(struct eepro100_priv *priv)
 {
+	struct eepro100_rxfd *rx_ring = priv->rx_ring;
 	int i;
 
 	for (i = 0; i < NUM_RX_DESC; i++) {
@@ -366,13 +370,15 @@ static void init_rx_ring(struct eepro100_priv *priv)
 			   (unsigned long)rx_ring +
 			   (sizeof(*rx_ring) * NUM_RX_DESC));
 
-	rx_next = 0;
+	priv->rx_next = 0;
 }
 
 static void purge_tx_ring(struct eepro100_priv *priv)
 {
-	tx_next = 0;
-	tx_threshold = 0x01208000;
+	struct eepro100_txfd *tx_ring = priv->tx_ring;
+
+	priv->tx_next = 0;
+	priv->tx_threshold = 0x01208000;
 	memset(tx_ring, 0, sizeof(*tx_ring) * NUM_TX_DESC);
 
 	flush_dcache_range((unsigned long)tx_ring,
@@ -533,6 +539,8 @@ static int eepro100_init(struct eth_device *dev, bd_t *bis)
 {
 	struct eepro100_priv *priv =
 		container_of(dev, struct eepro100_priv, dev);
+	struct eepro100_rxfd *rx_ring = priv->rx_ring;
+	struct eepro100_txfd *tx_ring = priv->tx_ring;
 	struct eepro100_txfd *ias_cmd, *cfg_cmd;
 	int ret, status = -1;
 	int tx_cur;
@@ -569,20 +577,20 @@ static int eepro100_init(struct eth_device *dev, bd_t *bis)
 	}
 
 	/* RX ring cache was already flushed in init_rx_ring() */
-	OUTL(priv, phys_to_bus(priv->devno, (u32)&rx_ring[rx_next]),
+	OUTL(priv, phys_to_bus(priv->devno, (u32)&rx_ring[priv->rx_next]),
 	     SCB_POINTER);
 	OUTW(priv, SCB_M | RUC_START, SCB_CMD);
 
 	/* Send the Configure frame */
-	tx_cur = tx_next;
-	tx_next = ((tx_next + 1) % NUM_TX_DESC);
+	tx_cur = priv->tx_next;
+	priv->tx_next = ((priv->tx_next + 1) % NUM_TX_DESC);
 
 	cfg_cmd = &tx_ring[tx_cur];
 	cfg_cmd->command = cpu_to_le16(CONFIG_SYS_CMD_SUSPEND |
 				       CONFIG_SYS_CMD_CONFIGURE);
 	cfg_cmd->status = 0;
 	cfg_cmd->link = cpu_to_le32(phys_to_bus(priv->devno,
-						(u32)&tx_ring[tx_next]));
+						(u32)&tx_ring[priv->tx_next]));
 
 	memcpy(((struct descriptor *)cfg_cmd)->params, i82558_config_cmd,
 	       sizeof(i82558_config_cmd));
@@ -595,15 +603,15 @@ static int eepro100_init(struct eth_device *dev, bd_t *bis)
 	}
 
 	/* Send the Individual Address Setup frame */
-	tx_cur = tx_next;
-	tx_next = ((tx_next + 1) % NUM_TX_DESC);
+	tx_cur = priv->tx_next;
+	priv->tx_next = ((priv->tx_next + 1) % NUM_TX_DESC);
 
 	ias_cmd = &tx_ring[tx_cur];
 	ias_cmd->command = cpu_to_le16(CONFIG_SYS_CMD_SUSPEND |
 				       CONFIG_SYS_CMD_IAS);
 	ias_cmd->status = 0;
 	ias_cmd->link = cpu_to_le32(phys_to_bus(priv->devno,
-						(u32)&tx_ring[tx_next]));
+						(u32)&tx_ring[priv->tx_next]));
 
 	memcpy(((struct descriptor *)ias_cmd)->params, priv->enetaddr, 6);
 
@@ -624,6 +632,7 @@ static int eepro100_send(struct eth_device *dev, void *packet, int length)
 {
 	struct eepro100_priv *priv =
 		container_of(dev, struct eepro100_priv, dev);
+	struct eepro100_txfd *tx_ring = priv->tx_ring;
 	struct eepro100_txfd *desc;
 	int ret, status = -1;
 	int tx_cur;
@@ -633,16 +642,16 @@ static int eepro100_send(struct eth_device *dev, void *packet, int length)
 		goto done;
 	}
 
-	tx_cur = tx_next;
-	tx_next = (tx_next + 1) % NUM_TX_DESC;
+	tx_cur = priv->tx_next;
+	priv->tx_next = (priv->tx_next + 1) % NUM_TX_DESC;
 
 	desc = &tx_ring[tx_cur];
 	desc->command = cpu_to_le16(TXCB_CMD_TRANSMIT | TXCB_CMD_SF |
 				    TXCB_CMD_S | TXCB_CMD_EL);
 	desc->status = 0;
-	desc->count = cpu_to_le32(tx_threshold);
+	desc->count = cpu_to_le32(priv->tx_threshold);
 	desc->link = cpu_to_le32(phys_to_bus(priv->devno,
-					     (u32)&tx_ring[tx_next]));
+					     (u32)&tx_ring[priv->tx_next]));
 	desc->tx_desc_addr = cpu_to_le32(phys_to_bus(priv->devno,
 						     (u32)&desc->tx_buf_addr0));
 	desc->tx_buf_addr0 = cpu_to_le32(phys_to_bus(priv->devno,
@@ -667,6 +676,7 @@ static int eepro100_recv(struct eth_device *dev)
 {
 	struct eepro100_priv *priv =
 		container_of(dev, struct eepro100_priv, dev);
+	struct eepro100_rxfd *rx_ring = priv->rx_ring;
 	struct eepro100_rxfd *desc;
 	int rx_prev, length = 0;
 	u16 status, stat;
@@ -675,7 +685,7 @@ static int eepro100_recv(struct eth_device *dev)
 	OUTW(priv, stat & SCB_STATUS_RNR, SCB_STATUS);
 
 	for (;;) {
-		desc = &rx_ring[rx_next];
+		desc = &rx_ring[priv->rx_next];
 		invalidate_dcache_range((unsigned long)desc,
 					(unsigned long)desc + sizeof(*desc));
 		status = le16_to_cpu(desc->status);
@@ -701,14 +711,14 @@ static int eepro100_recv(struct eth_device *dev)
 		flush_dcache_range((unsigned long)desc,
 				   (unsigned long)desc + sizeof(*desc));
 
-		rx_prev = (rx_next + NUM_RX_DESC - 1) % NUM_RX_DESC;
+		rx_prev = (priv->rx_next + NUM_RX_DESC - 1) % NUM_RX_DESC;
 		desc = &rx_ring[rx_prev];
 		desc->control = 0;
 		flush_dcache_range((unsigned long)desc,
 				   (unsigned long)desc + sizeof(*desc));
 
 		/* Update entry information. */
-		rx_next = (rx_next + 1) % NUM_RX_DESC;
+		priv->rx_next = (priv->rx_next + 1) % NUM_RX_DESC;
 	}
 
 	if (stat & SCB_STATUS_RNR) {
@@ -724,7 +734,8 @@ static int eepro100_recv(struct eth_device *dev)
 
 		/* RX ring cache was already flushed in init_rx_ring() */
 		OUTL(priv, phys_to_bus(priv->devno,
-				       (u32)&rx_ring[rx_next]), SCB_POINTER);
+				       (u32)&rx_ring[priv->rx_next]),
+		     SCB_POINTER);
 		OUTW(priv, SCB_M | RUC_START, SCB_CMD);
 	}
 
