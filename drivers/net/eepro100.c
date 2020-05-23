@@ -209,23 +209,23 @@ static const char i82558_config_cmd[] = {
 #define phys_to_bus(a)	pci_phys_to_mem((pci_dev_t)dev->priv, a)
 #endif
 
-static inline int INW(struct eth_device *dev, u_long addr)
+static int INW(struct eth_device *dev, u_long addr)
 {
 	return le16_to_cpu(readw(addr + (void *)dev->iobase));
 }
 
-static inline void OUTW(struct eth_device *dev, int command, u_long addr)
+static void OUTW(struct eth_device *dev, int command, u_long addr)
 {
 	writew(cpu_to_le16(command), addr + (void *)dev->iobase);
 }
 
-static inline void OUTL(struct eth_device *dev, int command, u_long addr)
+static void OUTL(struct eth_device *dev, int command, u_long addr)
 {
 	writel(cpu_to_le32(command), addr + (void *)dev->iobase);
 }
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
-static inline int INL(struct eth_device *dev, u_long addr)
+static int INL(struct eth_device *dev, u_long addr)
 {
 	return le32_to_cpu(readl(addr + (void *)dev->iobase));
 }
