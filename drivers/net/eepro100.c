@@ -68,13 +68,13 @@
 #define CU_STATUS_MASK		0x00C0
 #define RU_STATUS_MASK		0x003C
 
-#define RU_STATUS_IDLE		(0<<2)
-#define RU_STATUS_SUS		(1<<2)
-#define RU_STATUS_NORES		(2<<2)
-#define RU_STATUS_READY		(4<<2)
-#define RU_STATUS_NO_RBDS_SUS	((1<<2)|(8<<2))
-#define RU_STATUS_NO_RBDS_NORES ((2<<2)|(8<<2))
-#define RU_STATUS_NO_RBDS_READY ((4<<2)|(8<<2))
+#define RU_STATUS_IDLE		(0 << 2)
+#define RU_STATUS_SUS		(1 << 2)
+#define RU_STATUS_NORES		(2 << 2)
+#define RU_STATUS_READY		(4 << 2)
+#define RU_STATUS_NO_RBDS_SUS	((1 << 2) | (8 << 2))
+#define RU_STATUS_NO_RBDS_NORES ((2 << 2) | (8 << 2))
+#define RU_STATUS_NO_RBDS_READY ((4 << 2) | (8 << 2))
 
 /* 82559 Port interface commands. */
 #define I82559_RESET		0x00000000	/* Software reset */
@@ -200,15 +200,15 @@ static const char i82558_config_cmd[] = {
 	0x31, 0x05,
 };
 
-static void init_rx_ring (struct eth_device *dev);
-static void purge_tx_ring (struct eth_device *dev);
+static void init_rx_ring(struct eth_device *dev);
+static void purge_tx_ring(struct eth_device *dev);
 
-static void read_hw_addr (struct eth_device *dev, bd_t * bis);
+static void read_hw_addr(struct eth_device *dev, bd_t * bis);
 
-static int eepro100_init (struct eth_device *dev, bd_t * bis);
+static int eepro100_init(struct eth_device *dev, bd_t * bis);
 static int eepro100_send(struct eth_device *dev, void *packet, int length);
-static int eepro100_recv (struct eth_device *dev);
-static void eepro100_halt (struct eth_device *dev);
+static int eepro100_recv(struct eth_device *dev);
+static void eepro100_halt(struct eth_device *dev);
 
 #if defined(CONFIG_E500)
 #define bus_to_phys(a) (a)
@@ -218,28 +218,28 @@ static void eepro100_halt (struct eth_device *dev);
 #define phys_to_bus(a)	pci_phys_to_mem((pci_dev_t)dev->priv, a)
 #endif
 
-static inline int INW (struct eth_device *dev, u_long addr)
+static inline int INW(struct eth_device *dev, u_long addr)
 {
 	return le16_to_cpu(*(volatile u16 *)(addr + (u_long)dev->iobase));
 }
 
-static inline void OUTW (struct eth_device *dev, int command, u_long addr)
+static inline void OUTW(struct eth_device *dev, int command, u_long addr)
 {
 	*(volatile u16 *)((addr + (u_long)dev->iobase)) = cpu_to_le16(command);
 }
 
-static inline void OUTL (struct eth_device *dev, int command, u_long addr)
+static inline void OUTL(struct eth_device *dev, int command, u_long addr)
 {
 	*(volatile u32 *)((addr + (u_long)dev->iobase)) = cpu_to_le32(command);
 }
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
-static inline int INL (struct eth_device *dev, u_long addr)
+static inline int INL(struct eth_device *dev, u_long addr)
 {
 	return le32_to_cpu(*(volatile u32 *)(addr + (u_long)dev->iobase));
 }
 
-static int get_phyreg (struct eth_device *dev, unsigned char addr,
+static int get_phyreg(struct eth_device *dev, unsigned char addr,
 		unsigned char reg, unsigned short *value)
 {
 	int cmd;
@@ -247,22 +247,22 @@ static int get_phyreg (struct eth_device *dev, unsigned char addr,
 
 	/* read requested data */
 	cmd = (2 << 26) | ((addr & 0x1f) << 21) | ((reg & 0x1f) << 16);
-	OUTL (dev, cmd, SCBCtrlMDI);
+	OUTL(dev, cmd, SCBCtrlMDI);
 
 	do {
 		udelay(1000);
-		cmd = INL (dev, SCBCtrlMDI);
+		cmd = INL(dev, SCBCtrlMDI);
 	} while (!(cmd & (1 << 28)) && (--timeout));
 
 	if (timeout == 0)
 		return -1;
 
-	*value = (unsigned short) (cmd & 0xffff);
+	*value = (unsigned short)(cmd & 0xffff);
 
 	return 0;
 }
 
-static int set_phyreg (struct eth_device *dev, unsigned char addr,
+static int set_phyreg(struct eth_device *dev, unsigned char addr,
 		unsigned char reg, unsigned short value)
 {
 	int cmd;
@@ -270,9 +270,9 @@ static int set_phyreg (struct eth_device *dev, unsigned char addr,
 
 	/* write requested data */
 	cmd = (1 << 26) | ((addr & 0x1f) << 21) | ((reg & 0x1f) << 16);
-	OUTL (dev, cmd | value, SCBCtrlMDI);
+	OUTL(dev, cmd | value, SCBCtrlMDI);
 
-	while (!(INL (dev, SCBCtrlMDI) & (1 << 28)) && (--timeout))
+	while (!(INL(dev, SCBCtrlMDI) & (1 << 28)) && (--timeout))
 		udelay(1000);
 
 	if (timeout == 0)
@@ -285,7 +285,7 @@ static int set_phyreg (struct eth_device *dev, unsigned char addr,
  * Check if given phyaddr is valid, i.e. there is a PHY connected.
  * Do this by checking model value field from ID2 register.
  */
-static struct eth_device* verify_phyaddr (const char *devname,
+static struct eth_device* verify_phyaddr(const char *devname,
 						unsigned char addr)
 {
 	struct eth_device *dev;
@@ -353,11 +353,11 @@ static int eepro100_miiphy_write(struct mii_dev *bus, int addr, int devad,
 #endif
 
 /* Wait for the chip get the command. */
-static int wait_for_eepro100 (struct eth_device *dev)
+static int wait_for_eepro100(struct eth_device *dev)
 {
 	int i;
 
-	for (i = 0; INW (dev, SCBCmd) & (CU_CMD_MASK | RU_CMD_MASK); i++) {
+	for (i = 0; INW(dev, SCBCmd) & (CU_CMD_MASK | RU_CMD_MASK); i++) {
 		if (i >= TOUT_LOOP) {
 			return 0;
 		}
@@ -373,7 +373,7 @@ static struct pci_device_id supported[] = {
 	{}
 };
 
-int eepro100_initialize (bd_t * bis)
+int eepro100_initialize(bd_t * bis)
 {
 	pci_dev_t devno;
 	int card_number = 0;
@@ -383,50 +383,50 @@ int eepro100_initialize (bd_t * bis)
 
 	while (1) {
 		/* Find PCI device */
-		if ((devno = pci_find_devices (supported, idx++)) < 0) {
+		if ((devno = pci_find_devices(supported, idx++)) < 0) {
 			break;
 		}
 
-		pci_read_config_dword (devno, PCI_BASE_ADDRESS_0, &iobase);
+		pci_read_config_dword(devno, PCI_BASE_ADDRESS_0, &iobase);
 		iobase &= ~0xf;
 
 		debug("eepro100: Intel i82559 PCI EtherExpressPro @0x%x\n",
 		      iobase);
 
-		pci_write_config_dword (devno,
+		pci_write_config_dword(devno,
 					PCI_COMMAND,
 					PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
 
 		/* Check if I/O accesses and Bus Mastering are enabled. */
-		pci_read_config_dword (devno, PCI_COMMAND, &status);
+		pci_read_config_dword(devno, PCI_COMMAND, &status);
 		if (!(status & PCI_COMMAND_MEMORY)) {
-			printf ("Error: Can not enable MEM access.\n");
+			printf("Error: Can not enable MEM access.\n");
 			continue;
 		}
 
 		if (!(status & PCI_COMMAND_MASTER)) {
-			printf ("Error: Can not enable Bus Mastering.\n");
+			printf("Error: Can not enable Bus Mastering.\n");
 			continue;
 		}
 
-		dev = (struct eth_device *) malloc (sizeof *dev);
+		dev = (struct eth_device *)malloc(sizeof *dev);
 		if (!dev) {
 			printf("eepro100: Can not allocate memory\n");
 			break;
 		}
 		memset(dev, 0, sizeof(*dev));
 
-		sprintf (dev->name, "i82559#%d", card_number);
-		dev->priv = (void *) devno; /* this have to come before bus_to_phys() */
-		dev->iobase = bus_to_phys (iobase);
+		sprintf(dev->name, "i82559#%d", card_number);
+		dev->priv = (void *)devno; /* this have to come before bus_to_phys() */
+		dev->iobase = bus_to_phys(iobase);
 		dev->init = eepro100_init;
 		dev->halt = eepro100_halt;
 		dev->send = eepro100_send;
 		dev->recv = eepro100_recv;
 
-		eth_register (dev);
+		eth_register(dev);
 
-#if defined (CONFIG_MII) || defined(CONFIG_CMD_MII)
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 		/* register mii command access routines */
 		int retval;
 		struct mii_dev *mdiodev = mdio_alloc();
@@ -444,89 +444,89 @@ int eepro100_initialize (bd_t * bis)
 		card_number++;
 
 		/* Set the latency timer for value. */
-		pci_write_config_byte (devno, PCI_LATENCY_TIMER, 0x20);
+		pci_write_config_byte(devno, PCI_LATENCY_TIMER, 0x20);
 
 		udelay(10 * 1000);
 
-		read_hw_addr (dev, bis);
+		read_hw_addr(dev, bis);
 	}
 
 	return card_number;
 }
 
 
-static int eepro100_init (struct eth_device *dev, bd_t * bis)
+static int eepro100_init(struct eth_device *dev, bd_t * bis)
 {
 	int i, status = -1;
 	int tx_cur;
 	struct descriptor *ias_cmd, *cfg_cmd;
 
 	/* Reset the ethernet controller */
-	OUTL (dev, I82559_SELECTIVE_RESET, SCBPort);
+	OUTL(dev, I82559_SELECTIVE_RESET, SCBPort);
 	udelay(20);
 
-	OUTL (dev, I82559_RESET, SCBPort);
+	OUTL(dev, I82559_RESET, SCBPort);
 	udelay(20);
 
-	if (!wait_for_eepro100 (dev)) {
-		printf ("Error: Can not reset ethernet controller.\n");
+	if (!wait_for_eepro100(dev)) {
+		printf("Error: Can not reset ethernet controller.\n");
 		goto Done;
 	}
-	OUTL (dev, 0, SCBPointer);
-	OUTW (dev, SCB_M | RUC_ADDR_LOAD, SCBCmd);
+	OUTL(dev, 0, SCBPointer);
+	OUTW(dev, SCB_M | RUC_ADDR_LOAD, SCBCmd);
 
-	if (!wait_for_eepro100 (dev)) {
-		printf ("Error: Can not reset ethernet controller.\n");
+	if (!wait_for_eepro100(dev)) {
+		printf("Error: Can not reset ethernet controller.\n");
 		goto Done;
 	}
-	OUTL (dev, 0, SCBPointer);
-	OUTW (dev, SCB_M | CU_ADDR_LOAD, SCBCmd);
+	OUTL(dev, 0, SCBPointer);
+	OUTW(dev, SCB_M | CU_ADDR_LOAD, SCBCmd);
 
 	/* Initialize Rx and Tx rings. */
-	init_rx_ring (dev);
-	purge_tx_ring (dev);
+	init_rx_ring(dev);
+	purge_tx_ring(dev);
 
 	/* Tell the adapter where the RX ring is located. */
-	if (!wait_for_eepro100 (dev)) {
-		printf ("Error: Can not reset ethernet controller.\n");
+	if (!wait_for_eepro100(dev)) {
+		printf("Error: Can not reset ethernet controller.\n");
 		goto Done;
 	}
 
-	OUTL (dev, phys_to_bus ((u32) & rx_ring[rx_next]), SCBPointer);
-	OUTW (dev, SCB_M | RUC_START, SCBCmd);
+	OUTL(dev, phys_to_bus((u32)&rx_ring[rx_next]), SCBPointer);
+	OUTW(dev, SCB_M | RUC_START, SCBCmd);
 
 	/* Send the Configure frame */
 	tx_cur = tx_next;
 	tx_next = ((tx_next + 1) % NUM_TX_DESC);
 
-	cfg_cmd = (struct descriptor *) &tx_ring[tx_cur];
+	cfg_cmd = (struct descriptor *)&tx_ring[tx_cur];
 	cfg_cmd->command = cpu_to_le16 ((CONFIG_SYS_CMD_SUSPEND | CONFIG_SYS_CMD_CONFIGURE));
 	cfg_cmd->status = 0;
-	cfg_cmd->link = cpu_to_le32 (phys_to_bus ((u32) & tx_ring[tx_next]));
+	cfg_cmd->link = cpu_to_le32 (phys_to_bus((u32)&tx_ring[tx_next]));
 
-	memcpy (cfg_cmd->params, i82558_config_cmd,
-			sizeof (i82558_config_cmd));
+	memcpy(cfg_cmd->params, i82558_config_cmd,
+			sizeof(i82558_config_cmd));
 
-	if (!wait_for_eepro100 (dev)) {
-		printf ("Error---CONFIG_SYS_CMD_CONFIGURE: Can not reset ethernet controller.\n");
+	if (!wait_for_eepro100(dev)) {
+		printf("Error---CONFIG_SYS_CMD_CONFIGURE: Can not reset ethernet controller.\n");
 		goto Done;
 	}
 
-	OUTL (dev, phys_to_bus ((u32) & tx_ring[tx_cur]), SCBPointer);
-	OUTW (dev, SCB_M | CU_START, SCBCmd);
+	OUTL(dev, phys_to_bus((u32)&tx_ring[tx_cur]), SCBPointer);
+	OUTW(dev, SCB_M | CU_START, SCBCmd);
 
 	for (i = 0;
-	     !(le16_to_cpu (tx_ring[tx_cur].status) & CONFIG_SYS_STATUS_C);
+	     !(le16_to_cpu(tx_ring[tx_cur].status) & CONFIG_SYS_STATUS_C);
 	     i++) {
 		if (i >= TOUT_LOOP) {
-			printf ("%s: Tx error buffer not ready\n", dev->name);
+			printf("%s: Tx error buffer not ready\n", dev->name);
 			goto Done;
 		}
 	}
 
-	if (!(le16_to_cpu (tx_ring[tx_cur].status) & CONFIG_SYS_STATUS_OK)) {
-		printf ("TX error status = 0x%08X\n",
-			le16_to_cpu (tx_ring[tx_cur].status));
+	if (!(le16_to_cpu(tx_ring[tx_cur].status) & CONFIG_SYS_STATUS_OK)) {
+		printf("TX error status = 0x%08X\n",
+			le16_to_cpu(tx_ring[tx_cur].status));
 		goto Done;
 	}
 
@@ -534,34 +534,34 @@ static int eepro100_init (struct eth_device *dev, bd_t * bis)
 	tx_cur = tx_next;
 	tx_next = ((tx_next + 1) % NUM_TX_DESC);
 
-	ias_cmd = (struct descriptor *) &tx_ring[tx_cur];
+	ias_cmd = (struct descriptor *)&tx_ring[tx_cur];
 	ias_cmd->command = cpu_to_le16 ((CONFIG_SYS_CMD_SUSPEND | CONFIG_SYS_CMD_IAS));
 	ias_cmd->status = 0;
-	ias_cmd->link = cpu_to_le32 (phys_to_bus ((u32) & tx_ring[tx_next]));
+	ias_cmd->link = cpu_to_le32 (phys_to_bus((u32)&tx_ring[tx_next]));
 
-	memcpy (ias_cmd->params, dev->enetaddr, 6);
+	memcpy(ias_cmd->params, dev->enetaddr, 6);
 
 	/* Tell the adapter where the TX ring is located. */
-	if (!wait_for_eepro100 (dev)) {
-		printf ("Error: Can not reset ethernet controller.\n");
+	if (!wait_for_eepro100(dev)) {
+		printf("Error: Can not reset ethernet controller.\n");
 		goto Done;
 	}
 
-	OUTL (dev, phys_to_bus ((u32) & tx_ring[tx_cur]), SCBPointer);
-	OUTW (dev, SCB_M | CU_START, SCBCmd);
+	OUTL(dev, phys_to_bus((u32)&tx_ring[tx_cur]), SCBPointer);
+	OUTW(dev, SCB_M | CU_START, SCBCmd);
 
-	for (i = 0; !(le16_to_cpu (tx_ring[tx_cur].status) & CONFIG_SYS_STATUS_C);
+	for (i = 0; !(le16_to_cpu(tx_ring[tx_cur].status) & CONFIG_SYS_STATUS_C);
 		 i++) {
 		if (i >= TOUT_LOOP) {
-			printf ("%s: Tx error buffer not ready\n",
+			printf("%s: Tx error buffer not ready\n",
 				dev->name);
 			goto Done;
 		}
 	}
 
-	if (!(le16_to_cpu (tx_ring[tx_cur].status) & CONFIG_SYS_STATUS_OK)) {
-		printf ("TX error status = 0x%08X\n",
-			le16_to_cpu (tx_ring[tx_cur].status));
+	if (!(le16_to_cpu(tx_ring[tx_cur].status) & CONFIG_SYS_STATUS_OK)) {
+		printf("TX error status = 0x%08X\n",
+			le16_to_cpu(tx_ring[tx_cur].status));
 		goto Done;
 	}
 
@@ -577,48 +577,48 @@ static int eepro100_send(struct eth_device *dev, void *packet, int length)
 	int tx_cur;
 
 	if (length <= 0) {
-		printf ("%s: bad packet size: %d\n", dev->name, length);
+		printf("%s: bad packet size: %d\n", dev->name, length);
 		goto Done;
 	}
 
 	tx_cur = tx_next;
 	tx_next = (tx_next + 1) % NUM_TX_DESC;
 
-	tx_ring[tx_cur].command = cpu_to_le16 ( TxCB_CMD_TRANSMIT |
+	tx_ring[tx_cur].command = cpu_to_le16 (TxCB_CMD_TRANSMIT |
 						TxCB_CMD_SF	|
 						TxCB_CMD_S	|
-						TxCB_CMD_EL );
+						TxCB_CMD_EL);
 	tx_ring[tx_cur].status = 0;
 	tx_ring[tx_cur].count = cpu_to_le32 (tx_threshold);
 	tx_ring[tx_cur].link =
-		cpu_to_le32 (phys_to_bus ((u32) & tx_ring[tx_next]));
+		cpu_to_le32 (phys_to_bus((u32)&tx_ring[tx_next]));
 	tx_ring[tx_cur].tx_desc_addr =
-		cpu_to_le32 (phys_to_bus ((u32) & tx_ring[tx_cur].tx_buf_addr0));
+		cpu_to_le32 (phys_to_bus((u32)&tx_ring[tx_cur].tx_buf_addr0));
 	tx_ring[tx_cur].tx_buf_addr0 =
-		cpu_to_le32 (phys_to_bus ((u_long) packet));
+		cpu_to_le32 (phys_to_bus((u_long)packet));
 	tx_ring[tx_cur].tx_buf_size0 = cpu_to_le32 (length);
 
-	if (!wait_for_eepro100 (dev)) {
-		printf ("%s: Tx error ethernet controller not ready.\n",
+	if (!wait_for_eepro100(dev)) {
+		printf("%s: Tx error ethernet controller not ready.\n",
 				dev->name);
 		goto Done;
 	}
 
 	/* Send the packet. */
-	OUTL (dev, phys_to_bus ((u32) & tx_ring[tx_cur]), SCBPointer);
-	OUTW (dev, SCB_M | CU_START, SCBCmd);
+	OUTL(dev, phys_to_bus((u32)&tx_ring[tx_cur]), SCBPointer);
+	OUTW(dev, SCB_M | CU_START, SCBCmd);
 
-	for (i = 0; !(le16_to_cpu (tx_ring[tx_cur].status) & CONFIG_SYS_STATUS_C);
+	for (i = 0; !(le16_to_cpu(tx_ring[tx_cur].status) & CONFIG_SYS_STATUS_C);
 		 i++) {
 		if (i >= TOUT_LOOP) {
-			printf ("%s: Tx error buffer not ready\n", dev->name);
+			printf("%s: Tx error buffer not ready\n", dev->name);
 			goto Done;
 		}
 	}
 
-	if (!(le16_to_cpu (tx_ring[tx_cur].status) & CONFIG_SYS_STATUS_OK)) {
-		printf ("TX error status = 0x%08X\n",
-			le16_to_cpu (tx_ring[tx_cur].status));
+	if (!(le16_to_cpu(tx_ring[tx_cur].status) & CONFIG_SYS_STATUS_OK)) {
+		printf("TX error status = 0x%08X\n",
+			le16_to_cpu(tx_ring[tx_cur].status));
 		goto Done;
 	}
 
@@ -628,16 +628,16 @@ static int eepro100_send(struct eth_device *dev, void *packet, int length)
 	return status;
 }
 
-static int eepro100_recv (struct eth_device *dev)
+static int eepro100_recv(struct eth_device *dev)
 {
 	u16 status, stat;
 	int rx_prev, length = 0;
 
-	stat = INW (dev, SCBStatus);
-	OUTW (dev, stat & SCB_STATUS_RNR, SCBStatus);
+	stat = INW(dev, SCBStatus);
+	OUTW(dev, stat & SCB_STATUS_RNR, SCBStatus);
 
 	for (;;) {
-		status = le16_to_cpu (rx_ring[rx_next].status);
+		status = le16_to_cpu(rx_ring[rx_next].status);
 
 		if (!(status & RFD_STATUS_C)) {
 			break;
@@ -646,14 +646,14 @@ static int eepro100_recv (struct eth_device *dev)
 		/* Valid frame status. */
 		if ((status & RFD_STATUS_OK)) {
 			/* A valid frame received. */
-			length = le32_to_cpu (rx_ring[rx_next].count) & 0x3fff;
+			length = le32_to_cpu(rx_ring[rx_next].count) & 0x3fff;
 
 			/* Pass the packet up to the protocol layers. */
 			net_process_received_packet((u8 *)rx_ring[rx_next].data,
 						    length);
 		} else {
 			/* There was an error. */
-			printf ("RX error status = 0x%08X\n", status);
+			printf("RX error status = 0x%08X\n", status);
 		}
 
 		rx_ring[rx_next].control = cpu_to_le16 (RFD_CONTROL_S);
@@ -669,87 +669,87 @@ static int eepro100_recv (struct eth_device *dev)
 
 	if (stat & SCB_STATUS_RNR) {
 
-		printf ("%s: Receiver is not ready, restart it !\n", dev->name);
+		printf("%s: Receiver is not ready, restart it !\n", dev->name);
 
 		/* Reinitialize Rx ring. */
-		init_rx_ring (dev);
+		init_rx_ring(dev);
 
-		if (!wait_for_eepro100 (dev)) {
-			printf ("Error: Can not restart ethernet controller.\n");
+		if (!wait_for_eepro100(dev)) {
+			printf("Error: Can not restart ethernet controller.\n");
 			goto Done;
 		}
 
-		OUTL (dev, phys_to_bus ((u32) & rx_ring[rx_next]), SCBPointer);
-		OUTW (dev, SCB_M | RUC_START, SCBCmd);
+		OUTL(dev, phys_to_bus((u32)&rx_ring[rx_next]), SCBPointer);
+		OUTW(dev, SCB_M | RUC_START, SCBCmd);
 	}
 
   Done:
 	return length;
 }
 
-static void eepro100_halt (struct eth_device *dev)
+static void eepro100_halt(struct eth_device *dev)
 {
 	/* Reset the ethernet controller */
-	OUTL (dev, I82559_SELECTIVE_RESET, SCBPort);
+	OUTL(dev, I82559_SELECTIVE_RESET, SCBPort);
 	udelay(20);
 
-	OUTL (dev, I82559_RESET, SCBPort);
+	OUTL(dev, I82559_RESET, SCBPort);
 	udelay(20);
 
-	if (!wait_for_eepro100 (dev)) {
-		printf ("Error: Can not reset ethernet controller.\n");
+	if (!wait_for_eepro100(dev)) {
+		printf("Error: Can not reset ethernet controller.\n");
 		goto Done;
 	}
-	OUTL (dev, 0, SCBPointer);
-	OUTW (dev, SCB_M | RUC_ADDR_LOAD, SCBCmd);
+	OUTL(dev, 0, SCBPointer);
+	OUTW(dev, SCB_M | RUC_ADDR_LOAD, SCBCmd);
 
-	if (!wait_for_eepro100 (dev)) {
-		printf ("Error: Can not reset ethernet controller.\n");
+	if (!wait_for_eepro100(dev)) {
+		printf("Error: Can not reset ethernet controller.\n");
 		goto Done;
 	}
-	OUTL (dev, 0, SCBPointer);
-	OUTW (dev, SCB_M | CU_ADDR_LOAD, SCBCmd);
+	OUTL(dev, 0, SCBPointer);
+	OUTW(dev, SCB_M | CU_ADDR_LOAD, SCBCmd);
 
   Done:
 	return;
 }
 
 /* SROM Read. */
-static int read_eeprom (struct eth_device *dev, int location, int addr_len)
+static int read_eeprom(struct eth_device *dev, int location, int addr_len)
 {
 	unsigned short retval = 0;
 	int read_cmd = location | EE_READ_CMD;
 	int i;
 
-	OUTW (dev, EE_ENB & ~EE_CS, SCBeeprom);
-	OUTW (dev, EE_ENB, SCBeeprom);
+	OUTW(dev, EE_ENB & ~EE_CS, SCBeeprom);
+	OUTW(dev, EE_ENB, SCBeeprom);
 
 	/* Shift the read command bits out. */
 	for (i = 12; i >= 0; i--) {
 		short dataval = (read_cmd & (1 << i)) ? EE_DATA_WRITE : 0;
 
-		OUTW (dev, EE_ENB | dataval, SCBeeprom);
+		OUTW(dev, EE_ENB | dataval, SCBeeprom);
 		udelay(1);
-		OUTW (dev, EE_ENB | dataval | EE_SHIFT_CLK, SCBeeprom);
+		OUTW(dev, EE_ENB | dataval | EE_SHIFT_CLK, SCBeeprom);
 		udelay(1);
 	}
-	OUTW (dev, EE_ENB, SCBeeprom);
+	OUTW(dev, EE_ENB, SCBeeprom);
 
 	for (i = 15; i >= 0; i--) {
-		OUTW (dev, EE_ENB | EE_SHIFT_CLK, SCBeeprom);
+		OUTW(dev, EE_ENB | EE_SHIFT_CLK, SCBeeprom);
 		udelay(1);
 		retval = (retval << 1) |
-				((INW (dev, SCBeeprom) & EE_DATA_READ) ? 1 : 0);
-		OUTW (dev, EE_ENB, SCBeeprom);
+				((INW(dev, SCBeeprom) & EE_DATA_READ) ? 1 : 0);
+		OUTW(dev, EE_ENB, SCBeeprom);
 		udelay(1);
 	}
 
 	/* Terminate the EEPROM access. */
-	OUTW (dev, EE_ENB & ~EE_CS, SCBeeprom);
+	OUTW(dev, EE_ENB & ~EE_CS, SCBeeprom);
 	return retval;
 }
 
-static void init_rx_ring (struct eth_device *dev)
+static void init_rx_ring(struct eth_device *dev)
 {
 	int i;
 
@@ -759,7 +759,7 @@ static void init_rx_ring (struct eth_device *dev)
 				(i == NUM_RX_DESC - 1) ? cpu_to_le16 (RFD_CONTROL_S) : 0;
 		rx_ring[i].link =
 				cpu_to_le32 (phys_to_bus
-							 ((u32) & rx_ring[(i + 1) % NUM_RX_DESC]));
+							 ((u32)&rx_ring[(i + 1) % NUM_RX_DESC]));
 		rx_ring[i].rx_buf_addr = 0xffffffff;
 		rx_ring[i].count = cpu_to_le32 (PKTSIZE_ALIGN << 16);
 	}
@@ -767,7 +767,7 @@ static void init_rx_ring (struct eth_device *dev)
 	rx_next = 0;
 }
 
-static void purge_tx_ring (struct eth_device *dev)
+static void purge_tx_ring(struct eth_device *dev)
 {
 	int i;
 
@@ -788,14 +788,14 @@ static void purge_tx_ring (struct eth_device *dev)
 	}
 }
 
-static void read_hw_addr (struct eth_device *dev, bd_t * bis)
+static void read_hw_addr(struct eth_device *dev, bd_t * bis)
 {
 	u16 sum = 0;
 	int i, j;
-	int addr_len = read_eeprom (dev, 0, 6) == 0xffff ? 8 : 6;
+	int addr_len = read_eeprom(dev, 0, 6) == 0xffff ? 8 : 6;
 
 	for (j = 0, i = 0; i < 0x40; i++) {
-		u16 value = read_eeprom (dev, i, addr_len);
+		u16 value = read_eeprom(dev, i, addr_len);
 
 		sum += value;
 		if (i < 3) {
@@ -805,7 +805,7 @@ static void read_hw_addr (struct eth_device *dev, bd_t * bis)
 	}
 
 	if (sum != 0xBABA) {
-		memset (dev->enetaddr, 0, ETH_ALEN);
+		memset(dev->enetaddr, 0, ETH_ALEN);
 		debug("%s: Invalid EEPROM checksum %#4.4x, check settings before activating this device!\n",
 		      dev->name, sum);
 	}
