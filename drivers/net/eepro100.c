@@ -220,23 +220,23 @@ static void eepro100_halt(struct eth_device *dev);
 
 static inline int INW(struct eth_device *dev, u_long addr)
 {
-	return le16_to_cpu(*(volatile u16 *)(addr + (u_long)dev->iobase));
+	return le16_to_cpu(readw(addr + (void *)dev->iobase));
 }
 
 static inline void OUTW(struct eth_device *dev, int command, u_long addr)
 {
-	*(volatile u16 *)((addr + (u_long)dev->iobase)) = cpu_to_le16(command);
+	writew(cpu_to_le16(command), addr + (void *)dev->iobase);
 }
 
 static inline void OUTL(struct eth_device *dev, int command, u_long addr)
 {
-	*(volatile u32 *)((addr + (u_long)dev->iobase)) = cpu_to_le32(command);
+	writel(cpu_to_le32(command), addr + (void *)dev->iobase);
 }
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 static inline int INL(struct eth_device *dev, u_long addr)
 {
-	return le32_to_cpu(*(volatile u32 *)(addr + (u_long)dev->iobase));
+	return le32_to_cpu(readl(addr + (void *)dev->iobase));
 }
 
 static int get_phyreg(struct eth_device *dev, unsigned char addr,
