@@ -202,6 +202,7 @@ struct eepro100_priv {
 	struct eepro100_txfd	tx_ring[NUM_TX_DESC];
 	/* RX descriptor ring pointer */
 	int			rx_next;
+	u16			rx_stat;
 	/* TX descriptor ring pointer */
 	int			tx_next;
 	int			tx_threshold;
@@ -535,10 +536,8 @@ static void eepro100_get_hwaddr(struct eepro100_priv *priv)
 	}
 }
 
-static int eepro100_init(struct eth_device *dev, bd_t *bis)
+static int eepro100_init_common(struct eepro100_priv *priv)
 {
-	struct eepro100_priv *priv =
-		container_of(dev, struct eepro100_priv, dev);
 	struct eepro100_rxfd *rx_ring = priv->rx_ring;
 	struct eepro100_txfd *tx_ring = priv->tx_ring;
 	struct eepro100_txfd *ias_cmd, *cfg_cmd;
@@ -628,10 +627,9 @@ done:
 	return status;
 }
 
-static int eepro100_send(struct eth_device *dev, void *packet, int length)
+static int eepro100_send_common(struct eepro100_priv *priv,
+				void *packet, int length)
 {
-	struct eepro100_priv *priv =
-		container_of(dev, struct eepro100_priv, dev);
 	struct eepro100_txfd *tx_ring = priv->tx_ring;
 	struct eepro100_txfd *desc;
 	int ret, status = -1;
@@ -672,82 +670,82 @@ done:
 	return status;
 }
 
-static int eepro100_recv(struct eth_device *dev)
+static int eepro100_recv_common(struct eepro100_priv *priv, uchar **packetp)
 {
-	struct eepro100_priv *priv =
-		container_of(dev, struct eepro100_priv, dev);
 	struct eepro100_rxfd *rx_ring = priv->rx_ring;
 	struct eepro100_rxfd *desc;
-	int rx_prev, length = 0;
-	u16 status, stat;
+	int length;
+	u16 status;
 
-	stat = INW(priv, SCB_STATUS);
-	OUTW(priv, stat & SCB_STATUS_RNR, SCB_STATUS);
+	priv->rx_stat = INW(priv, SCB_STATUS);
+	OUTW(priv, priv->rx_stat & SCB_STATUS_RNR, SCB_STATUS);
 
-	for (;;) {
-		desc = &rx_ring[priv->rx_next];
-		invalidate_dcache_range((unsigned long)desc,
-					(unsigned long)desc + sizeof(*desc));
-		status = le16_to_cpu(desc->status);
+	desc = &rx_ring[priv->rx_next];
+	invalidate_dcache_range((unsigned long)desc,
+				(unsigned long)desc + sizeof(*desc));
+	status = le16_to_cpu(desc->status);
 
-		if (!(status & RFD_STATUS_C))
-			break;
+	if (!(status & RFD_STATUS_C))
+		return 0;
 
-		/* Valid frame status. */
-		if ((status & RFD_STATUS_OK)) {
-			/* A valid frame received. */
-			length = le32_to_cpu(desc->count) & 0x3fff;
-
-			/* Pass the packet up to the protocol layers. */
-			net_process_received_packet((u8 *)desc->data, length);
-		} else {
-			/* There was an error. */
-			printf("RX error status = 0x%08X\n", status);
-		}
-
-		desc->control = cpu_to_le16(RFD_CONTROL_S);
-		desc->status = 0;
-		desc->count = cpu_to_le32(PKTSIZE_ALIGN << 16);
-		flush_dcache_range((unsigned long)desc,
-				   (unsigned long)desc + sizeof(*desc));
-
-		rx_prev = (priv->rx_next + NUM_RX_DESC - 1) % NUM_RX_DESC;
-		desc = &rx_ring[rx_prev];
-		desc->control = 0;
-		flush_dcache_range((unsigned long)desc,
-				   (unsigned long)desc + sizeof(*desc));
-
-		/* Update entry information. */
-		priv->rx_next = (priv->rx_next + 1) % NUM_RX_DESC;
+	/* Valid frame status. */
+	if (status & RFD_STATUS_OK) {
+		/* A valid frame received. */
+		length = le32_to_cpu(desc->count) & 0x3fff;
+		/* Pass the packet up to the protocol layers. */
+		*packetp = desc->data;
+		return length;
 	}
 
-	if (stat & SCB_STATUS_RNR) {
-		printf("%s: Receiver is not ready, restart it !\n", priv->name);
-
-		/* Reinitialize Rx ring. */
-		init_rx_ring(priv);
-
-		if (!wait_for_eepro100(priv)) {
-			printf("Error: Can not restart ethernet controller.\n");
-			goto done;
-		}
-
-		/* RX ring cache was already flushed in init_rx_ring() */
-		OUTL(priv, phys_to_bus(priv->devno,
-				       (u32)&rx_ring[priv->rx_next]),
-		     SCB_POINTER);
-		OUTW(priv, SCB_M | RUC_START, SCB_CMD);
-	}
-
-done:
-	return length;
+	/* There was an error. */
+	printf("RX error status = 0x%08X\n", status);
+	return -EINVAL;
 }
 
-static void eepro100_halt(struct eth_device *dev)
+static void eepro100_free_pkt_common(struct eepro100_priv *priv)
 {
-	struct eepro100_priv *priv =
-		container_of(dev, struct eepro100_priv, dev);
+	struct eepro100_rxfd *rx_ring = priv->rx_ring;
+	struct eepro100_rxfd *desc;
+	int rx_prev;
 
+	desc = &rx_ring[priv->rx_next];
+
+	desc->control = cpu_to_le16(RFD_CONTROL_S);
+	desc->status = 0;
+	desc->count = cpu_to_le32(PKTSIZE_ALIGN << 16);
+	flush_dcache_range((unsigned long)desc,
+			   (unsigned long)desc + sizeof(*desc));
+
+	rx_prev = (priv->rx_next + NUM_RX_DESC - 1) % NUM_RX_DESC;
+	desc = &rx_ring[rx_prev];
+	desc->control = 0;
+	flush_dcache_range((unsigned long)desc,
+			   (unsigned long)desc + sizeof(*desc));
+
+	/* Update entry information. */
+	priv->rx_next = (priv->rx_next + 1) % NUM_RX_DESC;
+
+	if (!(priv->rx_stat & SCB_STATUS_RNR))
+		return;
+
+	printf("%s: Receiver is not ready, restart it !\n", priv->name);
+
+	/* Reinitialize Rx ring. */
+	init_rx_ring(priv);
+
+	if (!wait_for_eepro100(priv)) {
+		printf("Error: Can not restart ethernet controller.\n");
+		return;
+	}
+
+	/* RX ring cache was already flushed in init_rx_ring() */
+	OUTL(priv, phys_to_bus(priv->devno, (u32)&rx_ring[priv->rx_next]),
+	     SCB_POINTER);
+	OUTW(priv, SCB_M | RUC_START, SCB_CMD);
+}
+
+static void eepro100_halt_common(struct eepro100_priv *priv)
+{
 	/* Reset the ethernet controller */
 	OUTL(priv, I82559_SELECTIVE_RESET, SCB_PORT);
 	udelay(20);
@@ -771,6 +769,46 @@ static void eepro100_halt(struct eth_device *dev)
 
 done:
 	return;
+}
+
+static int eepro100_init(struct eth_device *dev, bd_t *bis)
+{
+	struct eepro100_priv *priv =
+		container_of(dev, struct eepro100_priv, dev);
+
+	return eepro100_init_common(priv);
+}
+
+static void eepro100_halt(struct eth_device *dev)
+{
+	struct eepro100_priv *priv =
+		container_of(dev, struct eepro100_priv, dev);
+
+	eepro100_halt_common(priv);
+}
+
+static int eepro100_send(struct eth_device *dev, void *packet, int length)
+{
+	struct eepro100_priv *priv =
+		container_of(dev, struct eepro100_priv, dev);
+
+	return eepro100_send_common(priv, packet, length);
+}
+
+static int eepro100_recv(struct eth_device *dev)
+{
+	struct eepro100_priv *priv =
+		container_of(dev, struct eepro100_priv, dev);
+	uchar *packet;
+	int ret;
+
+	ret = eepro100_recv_common(priv, &packet);
+	if (ret > 0)
+		net_process_received_packet(packet, ret);
+	if (ret)
+		eepro100_free_pkt_common(priv);
+
+	return ret;
 }
 
 int eepro100_initialize(bd_t *bis)
