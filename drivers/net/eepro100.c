@@ -201,6 +201,10 @@ static const char i82558_config_cmd[] = {
 	0x31, 0x05,
 };
 
+struct eepro100_priv {
+	struct eth_device	dev;
+};
+
 #if defined(CONFIG_E500)
 #define bus_to_phys(dev, a)	(a)
 #define phys_to_bus(dev, a)	(a)
@@ -751,6 +755,7 @@ done:
 
 int eepro100_initialize(bd_t *bis)
 {
+	struct eepro100_priv *priv;
 	struct eth_device *dev;
 	int card_number = 0;
 	u32 iobase, status;
@@ -785,11 +790,12 @@ int eepro100_initialize(bd_t *bis)
 			continue;
 		}
 
-		dev = calloc(1, sizeof(*dev));
-		if (!dev) {
+		priv = calloc(1, sizeof(*priv));
+		if (!priv) {
 			printf("eepro100: Can not allocate memory\n");
 			break;
 		}
+		dev = &priv->dev;
 
 		sprintf(dev->name, "i82559#%d", card_number);
 		dev->priv = (void *)devno; /* this have to come before bus_to_phys() */
@@ -804,7 +810,7 @@ int eepro100_initialize(bd_t *bis)
 		ret = eepro100_initialize_mii(dev);
 		if (ret) {
 			eth_unregister(dev);
-			free(dev);
+			free(priv);
 			return ret;
 		}
 
