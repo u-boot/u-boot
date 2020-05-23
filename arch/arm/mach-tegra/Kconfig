@@ -58,7 +58,6 @@ config TEGRA_COMMON
 	select MISC
 	select OF_CONTROL
 	select SPI
-	select VIDCONSOLE_AS_LCD if DM_VIDEO
 	imply CMD_DM
 	imply CRC32_VERIFY
 
