@@ -206,14 +206,21 @@ struct eepro100_priv {
 	/* TX descriptor ring pointer */
 	int			tx_next;
 	int			tx_threshold;
+#ifdef CONFIG_DM_ETH
+	struct udevice		*devno;
+#else
 	struct eth_device	dev;
 	pci_dev_t		devno;
+#endif
 	char			*name;
 	void __iomem		*iobase;
 	u8			*enetaddr;
 };
 
-#if defined(CONFIG_E500)
+#if defined(CONFIG_DM_ETH)
+#define bus_to_phys(dev, a)	dm_pci_mem_to_phys((dev), (a))
+#define phys_to_bus(dev, a)	dm_pci_phys_to_mem((dev), (a))
+#elif defined(CONFIG_E500)
 #define bus_to_phys(dev, a)	(a)
 #define phys_to_bus(dev, a)	(a)
 #else
@@ -771,6 +778,7 @@ done:
 	return;
 }
 
+#ifndef CONFIG_DM_ETH
 static int eepro100_init(struct eth_device *dev, bd_t *bis)
 {
 	struct eepro100_priv *priv =
@@ -888,3 +896,122 @@ int eepro100_initialize(bd_t *bis)
 
 	return card_number;
 }
+
+#else	/* DM_ETH */
+static int eepro100_start(struct udevice *dev)
+{
+	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct eepro100_priv *priv = dev_get_priv(dev);
+
+	memcpy(priv->enetaddr, plat->enetaddr, sizeof(plat->enetaddr));
+
+	return eepro100_init_common(priv);
+}
+
+static void eepro100_stop(struct udevice *dev)
+{
+	struct eepro100_priv *priv = dev_get_priv(dev);
+
+	eepro100_halt_common(priv);
+}
+
+static int eepro100_send(struct udevice *dev, void *packet, int length)
+{
+	struct eepro100_priv *priv = dev_get_priv(dev);
+	int ret;
+
+	ret = eepro100_send_common(priv, packet, length);
+
+	return ret ? 0 : -ETIMEDOUT;
+}
+
+static int eepro100_recv(struct udevice *dev, int flags, uchar **packetp)
+{
+	struct eepro100_priv *priv = dev_get_priv(dev);
+
+	return eepro100_recv_common(priv, packetp);
+}
+
+static int eepro100_free_pkt(struct udevice *dev, uchar *packet, int length)
+{
+	struct eepro100_priv *priv = dev_get_priv(dev);
+
+	eepro100_free_pkt_common(priv);
+
+	return 0;
+}
+
+static int eepro100_read_rom_hwaddr(struct udevice *dev)
+{
+	struct eepro100_priv *priv = dev_get_priv(dev);
+
+	eepro100_get_hwaddr(priv);
+
+	return 0;
+}
+
+static int eepro100_bind(struct udevice *dev)
+{
+	static int card_number;
+	char name[16];
+
+	sprintf(name, "eepro100#%u", card_number++);
+
+	return device_set_name(dev, name);
+}
+
+static int eepro100_probe(struct udevice *dev)
+{
+	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct eepro100_priv *priv = dev_get_priv(dev);
+	u16 command, status;
+	u32 iobase;
+	int ret;
+
+	dm_pci_read_config32(dev, PCI_BASE_ADDRESS_0, &iobase);
+	iobase &= ~0xf;
+
+	debug("eepro100: Intel i82559 PCI EtherExpressPro @0x%x\n", iobase);
+
+	priv->devno = dev;
+	priv->enetaddr = plat->enetaddr;
+	priv->iobase = (void __iomem *)bus_to_phys(dev, iobase);
+
+	command = PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER;
+	dm_pci_write_config16(dev, PCI_COMMAND, command);
+	dm_pci_read_config16(dev, PCI_COMMAND, &status);
+	if ((status & command) != command) {
+		printf("eepro100: Couldn't enable IO access or Bus Mastering\n");
+		return -EINVAL;
+	}
+
+	ret = eepro100_initialize_mii(priv);
+	if (ret)
+		return ret;
+
+	dm_pci_write_config8(dev, PCI_LATENCY_TIMER, 0x20);
+
+	return 0;
+}
+
+static const struct eth_ops eepro100_ops = {
+	.start		= eepro100_start,
+	.send		= eepro100_send,
+	.recv		= eepro100_recv,
+	.stop		= eepro100_stop,
+	.free_pkt	= eepro100_free_pkt,
+	.read_rom_hwaddr = eepro100_read_rom_hwaddr,
+};
+
+U_BOOT_DRIVER(eth_eepro100) = {
+	.name	= "eth_eepro100",
+	.id	= UCLASS_ETH,
+	.bind	= eepro100_bind,
+	.probe	= eepro100_probe,
+	.ops	= &eepro100_ops,
+	.priv_auto_alloc_size = sizeof(struct eepro100_priv),
+	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+};
+
+U_BOOT_PCI_DEVICE(eth_eepro100, supported);
+#endif
