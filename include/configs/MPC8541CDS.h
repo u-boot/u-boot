@@ -282,7 +282,6 @@ extern unsigned long get_clock_freq(void);
 
 #define CONFIG_MPC85XX_PCI2
 
-#undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
 
 #undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */

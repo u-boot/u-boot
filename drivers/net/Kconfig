@@ -193,6 +193,12 @@ config CMD_E1000
 	  used on devices with SPI support you can reprogram the EEPROM from
 	  U-Boot.
 
+config EEPRO100
+	bool "Intel PRO/100 82557/82559/82559ER Fast Ethernet support"
+	help
+	  This driver supports Intel(R) PRO/100 82557/82559/82559ER fast
+	  ethernet family of adapters.
+
 config ETH_SANDBOX
 	depends on DM_ETH && SANDBOX
 	default y

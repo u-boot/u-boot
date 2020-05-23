@@ -334,7 +334,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 
-#undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
 
 /************************************************************
