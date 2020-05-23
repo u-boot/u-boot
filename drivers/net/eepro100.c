@@ -203,9 +203,9 @@ static const char i82558_config_cmd[] = {
 static void init_rx_ring(struct eth_device *dev);
 static void purge_tx_ring(struct eth_device *dev);
 
-static void read_hw_addr(struct eth_device *dev, bd_t * bis);
+static void read_hw_addr(struct eth_device *dev, bd_t *bis);
 
-static int eepro100_init(struct eth_device *dev, bd_t * bis);
+static int eepro100_init(struct eth_device *dev, bd_t *bis);
 static int eepro100_send(struct eth_device *dev, void *packet, int length);
 static int eepro100_recv(struct eth_device *dev);
 static void eepro100_halt(struct eth_device *dev);
@@ -285,7 +285,7 @@ static int set_phyreg(struct eth_device *dev, unsigned char addr,
  * Check if given phyaddr is valid, i.e. there is a PHY connected.
  * Do this by checking model value field from ID2 register.
  */
-static struct eth_device* verify_phyaddr(const char *devname,
+static struct eth_device *verify_phyaddr(const char *devname,
 					 unsigned char addr)
 {
 	struct eth_device *dev;
@@ -372,7 +372,7 @@ static struct pci_device_id supported[] = {
 	{}
 };
 
-int eepro100_initialize(bd_t * bis)
+int eepro100_initialize(bd_t *bis)
 {
 	pci_dev_t devno;
 	int card_number = 0;
@@ -454,7 +454,7 @@ int eepro100_initialize(bd_t * bis)
 }
 
 
-static int eepro100_init(struct eth_device *dev, bd_t * bis)
+static int eepro100_init(struct eth_device *dev, bd_t *bis)
 {
 	int i, status = -1;
 	int tx_cur;
@@ -785,7 +785,7 @@ static void purge_tx_ring(struct eth_device *dev)
 	}
 }
 
-static void read_hw_addr(struct eth_device *dev, bd_t * bis)
+static void read_hw_addr(struct eth_device *dev, bd_t *bis)
 {
 	u16 sum = 0;
 	int i, j;
