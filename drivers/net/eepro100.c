@@ -5,13 +5,13 @@
  */
 
 #include <common.h>
+#include <asm/io.h>
 #include <cpu_func.h>
 #include <malloc.h>
+#include <miiphy.h>
 #include <net.h>
 #include <netdev.h>
-#include <asm/io.h>
 #include <pci.h>
-#include <miiphy.h>
 #include <linux/delay.h>
 
 /* Ethernet chip registers. */
@@ -201,16 +201,6 @@ static const char i82558_config_cmd[] = {
 	0x31, 0x05,
 };
 
-static void init_rx_ring(struct eth_device *dev);
-static void purge_tx_ring(struct eth_device *dev);
-
-static void read_hw_addr(struct eth_device *dev, bd_t *bis);
-
-static int eepro100_init(struct eth_device *dev, bd_t *bis);
-static int eepro100_send(struct eth_device *dev, void *packet, int length);
-static int eepro100_recv(struct eth_device *dev);
-static void eepro100_halt(struct eth_device *dev);
-
 #if defined(CONFIG_E500)
 #define bus_to_phys(a) (a)
 #define phys_to_bus(a) (a)
@@ -353,6 +343,39 @@ static int eepro100_miiphy_write(struct mii_dev *bus, int addr, int devad,
 
 #endif
 
+static void init_rx_ring(struct eth_device *dev)
+{
+	int i;
+
+	for (i = 0; i < NUM_RX_DESC; i++) {
+		rx_ring[i].status = 0;
+		rx_ring[i].control = (i == NUM_RX_DESC - 1) ?
+				     cpu_to_le16 (RFD_CONTROL_S) : 0;
+		rx_ring[i].link =
+			cpu_to_le32(phys_to_bus((u32)&rx_ring[(i + 1) %
+						NUM_RX_DESC]));
+		rx_ring[i].rx_buf_addr = 0xffffffff;
+		rx_ring[i].count = cpu_to_le32(PKTSIZE_ALIGN << 16);
+	}
+
+	flush_dcache_range((unsigned long)rx_ring,
+			   (unsigned long)rx_ring +
+			   (sizeof(*rx_ring) * NUM_RX_DESC));
+
+	rx_next = 0;
+}
+
+static void purge_tx_ring(struct eth_device *dev)
+{
+	tx_next = 0;
+	tx_threshold = 0x01208000;
+	memset(tx_ring, 0, sizeof(*tx_ring) * NUM_TX_DESC);
+
+	flush_dcache_range((unsigned long)tx_ring,
+			   (unsigned long)tx_ring +
+			   (sizeof(*tx_ring) * NUM_TX_DESC));
+}
+
 /* Wait for the chip get the command. */
 static int wait_for_eepro100(struct eth_device *dev)
 {
@@ -364,94 +387,6 @@ static int wait_for_eepro100(struct eth_device *dev)
 	}
 
 	return 1;
-}
-
-static struct pci_device_id supported[] = {
-	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82557},
-	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82559},
-	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82559ER},
-	{}
-};
-
-int eepro100_initialize(bd_t *bis)
-{
-	pci_dev_t devno;
-	int card_number = 0;
-	struct eth_device *dev;
-	u32 iobase, status;
-	int idx = 0;
-
-	while (1) {
-		/* Find PCI device */
-		devno = pci_find_devices(supported, idx++);
-		if (devno < 0)
-			break;
-
-		pci_read_config_dword(devno, PCI_BASE_ADDRESS_0, &iobase);
-		iobase &= ~0xf;
-
-		debug("eepro100: Intel i82559 PCI EtherExpressPro @0x%x\n",
-		      iobase);
-
-		pci_write_config_dword(devno, PCI_COMMAND,
-				       PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
-
-		/* Check if I/O accesses and Bus Mastering are enabled. */
-		pci_read_config_dword(devno, PCI_COMMAND, &status);
-		if (!(status & PCI_COMMAND_MEMORY)) {
-			printf("Error: Can not enable MEM access.\n");
-			continue;
-		}
-
-		if (!(status & PCI_COMMAND_MASTER)) {
-			printf("Error: Can not enable Bus Mastering.\n");
-			continue;
-		}
-
-		dev = (struct eth_device *)malloc(sizeof(*dev));
-		if (!dev) {
-			printf("eepro100: Can not allocate memory\n");
-			break;
-		}
-		memset(dev, 0, sizeof(*dev));
-
-		sprintf(dev->name, "i82559#%d", card_number);
-		dev->priv = (void *)devno; /* this have to come before bus_to_phys() */
-		dev->iobase = bus_to_phys(iobase);
-		dev->init = eepro100_init;
-		dev->halt = eepro100_halt;
-		dev->send = eepro100_send;
-		dev->recv = eepro100_recv;
-
-		eth_register(dev);
-
-#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
-		/* register mii command access routines */
-		int retval;
-		struct mii_dev *mdiodev = mdio_alloc();
-
-		if (!mdiodev)
-			return -ENOMEM;
-		strncpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
-		mdiodev->read = eepro100_miiphy_read;
-		mdiodev->write = eepro100_miiphy_write;
-
-		retval = mdio_register(mdiodev);
-		if (retval < 0)
-			return retval;
-#endif
-
-		card_number++;
-
-		/* Set the latency timer for value. */
-		pci_write_config_byte(devno, PCI_LATENCY_TIMER, 0x20);
-
-		udelay(10 * 1000);
-
-		read_hw_addr(dev, bis);
-	}
-
-	return card_number;
 }
 
 static int eepro100_txcmd_send(struct eth_device *dev,
@@ -492,6 +427,71 @@ static int eepro100_txcmd_send(struct eth_device *dev,
 	}
 
 	return 0;
+}
+
+/* SROM Read. */
+static int read_eeprom(struct eth_device *dev, int location, int addr_len)
+{
+	unsigned short retval = 0;
+	int read_cmd = location | EE_READ_CMD;
+	int i;
+
+	OUTW(dev, EE_ENB & ~EE_CS, SCB_EEPROM);
+	OUTW(dev, EE_ENB, SCB_EEPROM);
+
+	/* Shift the read command bits out. */
+	for (i = 12; i >= 0; i--) {
+		short dataval = (read_cmd & (1 << i)) ? EE_DATA_WRITE : 0;
+
+		OUTW(dev, EE_ENB | dataval, SCB_EEPROM);
+		udelay(1);
+		OUTW(dev, EE_ENB | dataval | EE_SHIFT_CLK, SCB_EEPROM);
+		udelay(1);
+	}
+	OUTW(dev, EE_ENB, SCB_EEPROM);
+
+	for (i = 15; i >= 0; i--) {
+		OUTW(dev, EE_ENB | EE_SHIFT_CLK, SCB_EEPROM);
+		udelay(1);
+		retval = (retval << 1) |
+				((INW(dev, SCB_EEPROM) & EE_DATA_READ) ? 1 : 0);
+		OUTW(dev, EE_ENB, SCB_EEPROM);
+		udelay(1);
+	}
+
+	/* Terminate the EEPROM access. */
+	OUTW(dev, EE_ENB & ~EE_CS, SCB_EEPROM);
+	return retval;
+}
+
+static struct pci_device_id supported[] = {
+	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82557},
+	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82559},
+	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82559ER},
+	{}
+};
+
+static void read_hw_addr(struct eth_device *dev, bd_t *bis)
+{
+	u16 sum = 0;
+	int i, j;
+	int addr_len = read_eeprom(dev, 0, 6) == 0xffff ? 8 : 6;
+
+	for (j = 0, i = 0; i < 0x40; i++) {
+		u16 value = read_eeprom(dev, i, addr_len);
+
+		sum += value;
+		if (i < 3) {
+			dev->enetaddr[j++] = value;
+			dev->enetaddr[j++] = value >> 8;
+		}
+	}
+
+	if (sum != 0xBABA) {
+		memset(dev->enetaddr, 0, ETH_ALEN);
+		debug("%s: Invalid EEPROM checksum %#4.4x, check settings before activating this device!\n",
+		      dev->name, sum);
+	}
 }
 
 static int eepro100_init(struct eth_device *dev, bd_t *bis)
@@ -711,93 +711,83 @@ done:
 	return;
 }
 
-/* SROM Read. */
-static int read_eeprom(struct eth_device *dev, int location, int addr_len)
+int eepro100_initialize(bd_t *bis)
 {
-	unsigned short retval = 0;
-	int read_cmd = location | EE_READ_CMD;
-	int i;
+	pci_dev_t devno;
+	int card_number = 0;
+	struct eth_device *dev;
+	u32 iobase, status;
+	int idx = 0;
 
-	OUTW(dev, EE_ENB & ~EE_CS, SCB_EEPROM);
-	OUTW(dev, EE_ENB, SCB_EEPROM);
+	while (1) {
+		/* Find PCI device */
+		devno = pci_find_devices(supported, idx++);
+		if (devno < 0)
+			break;
 
-	/* Shift the read command bits out. */
-	for (i = 12; i >= 0; i--) {
-		short dataval = (read_cmd & (1 << i)) ? EE_DATA_WRITE : 0;
+		pci_read_config_dword(devno, PCI_BASE_ADDRESS_0, &iobase);
+		iobase &= ~0xf;
 
-		OUTW(dev, EE_ENB | dataval, SCB_EEPROM);
-		udelay(1);
-		OUTW(dev, EE_ENB | dataval | EE_SHIFT_CLK, SCB_EEPROM);
-		udelay(1);
-	}
-	OUTW(dev, EE_ENB, SCB_EEPROM);
+		debug("eepro100: Intel i82559 PCI EtherExpressPro @0x%x\n",
+		      iobase);
 
-	for (i = 15; i >= 0; i--) {
-		OUTW(dev, EE_ENB | EE_SHIFT_CLK, SCB_EEPROM);
-		udelay(1);
-		retval = (retval << 1) |
-				((INW(dev, SCB_EEPROM) & EE_DATA_READ) ? 1 : 0);
-		OUTW(dev, EE_ENB, SCB_EEPROM);
-		udelay(1);
-	}
+		pci_write_config_dword(devno, PCI_COMMAND,
+				       PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
 
-	/* Terminate the EEPROM access. */
-	OUTW(dev, EE_ENB & ~EE_CS, SCB_EEPROM);
-	return retval;
-}
-
-static void init_rx_ring(struct eth_device *dev)
-{
-	int i;
-
-	for (i = 0; i < NUM_RX_DESC; i++) {
-		rx_ring[i].status = 0;
-		rx_ring[i].control = (i == NUM_RX_DESC - 1) ?
-				     cpu_to_le16 (RFD_CONTROL_S) : 0;
-		rx_ring[i].link =
-			cpu_to_le32(phys_to_bus((u32)&rx_ring[(i + 1) %
-						NUM_RX_DESC]));
-		rx_ring[i].rx_buf_addr = 0xffffffff;
-		rx_ring[i].count = cpu_to_le32(PKTSIZE_ALIGN << 16);
-	}
-
-	flush_dcache_range((unsigned long)rx_ring,
-			   (unsigned long)rx_ring +
-			   (sizeof(*rx_ring) * NUM_RX_DESC));
-
-	rx_next = 0;
-}
-
-static void purge_tx_ring(struct eth_device *dev)
-{
-	tx_next = 0;
-	tx_threshold = 0x01208000;
-	memset(tx_ring, 0, sizeof(*tx_ring) * NUM_TX_DESC);
-
-	flush_dcache_range((unsigned long)tx_ring,
-			   (unsigned long)tx_ring +
-			   (sizeof(*tx_ring) * NUM_TX_DESC));
-}
-
-static void read_hw_addr(struct eth_device *dev, bd_t *bis)
-{
-	u16 sum = 0;
-	int i, j;
-	int addr_len = read_eeprom(dev, 0, 6) == 0xffff ? 8 : 6;
-
-	for (j = 0, i = 0; i < 0x40; i++) {
-		u16 value = read_eeprom(dev, i, addr_len);
-
-		sum += value;
-		if (i < 3) {
-			dev->enetaddr[j++] = value;
-			dev->enetaddr[j++] = value >> 8;
+		/* Check if I/O accesses and Bus Mastering are enabled. */
+		pci_read_config_dword(devno, PCI_COMMAND, &status);
+		if (!(status & PCI_COMMAND_MEMORY)) {
+			printf("Error: Can not enable MEM access.\n");
+			continue;
 		}
+
+		if (!(status & PCI_COMMAND_MASTER)) {
+			printf("Error: Can not enable Bus Mastering.\n");
+			continue;
+		}
+
+		dev = (struct eth_device *)malloc(sizeof(*dev));
+		if (!dev) {
+			printf("eepro100: Can not allocate memory\n");
+			break;
+		}
+		memset(dev, 0, sizeof(*dev));
+
+		sprintf(dev->name, "i82559#%d", card_number);
+		dev->priv = (void *)devno; /* this have to come before bus_to_phys() */
+		dev->iobase = bus_to_phys(iobase);
+		dev->init = eepro100_init;
+		dev->halt = eepro100_halt;
+		dev->send = eepro100_send;
+		dev->recv = eepro100_recv;
+
+		eth_register(dev);
+
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
+		/* register mii command access routines */
+		int retval;
+		struct mii_dev *mdiodev = mdio_alloc();
+
+		if (!mdiodev)
+			return -ENOMEM;
+		strncpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
+		mdiodev->read = eepro100_miiphy_read;
+		mdiodev->write = eepro100_miiphy_write;
+
+		retval = mdio_register(mdiodev);
+		if (retval < 0)
+			return retval;
+#endif
+
+		card_number++;
+
+		/* Set the latency timer for value. */
+		pci_write_config_byte(devno, PCI_LATENCY_TIMER, 0x20);
+
+		udelay(10 * 1000);
+
+		read_hw_addr(dev, bis);
 	}
 
-	if (sum != 0xBABA) {
-		memset(dev->enetaddr, 0, ETH_ALEN);
-		debug("%s: Invalid EEPROM checksum %#4.4x, check settings before activating this device!\n",
-		      dev->name, sum);
-	}
+	return card_number;
 }
