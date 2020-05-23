@@ -293,7 +293,7 @@ static struct eth_device *verify_phyaddr(const char *devname,
 	unsigned char model;
 
 	dev = eth_get_dev_by_name(devname);
-	if (dev == NULL) {
+	if (!dev) {
 		printf("%s: no such device\n", devname);
 		return NULL;
 	}
@@ -322,7 +322,7 @@ static int eepro100_miiphy_read(struct mii_dev *bus, int addr, int devad,
 	struct eth_device *dev;
 
 	dev = verify_phyaddr(bus->name, addr);
-	if (dev == NULL)
+	if (!dev)
 		return -1;
 
 	if (get_phyreg(dev, addr, reg, &value) != 0) {
@@ -339,7 +339,7 @@ static int eepro100_miiphy_write(struct mii_dev *bus, int addr, int devad,
 	struct eth_device *dev;
 
 	dev = verify_phyaddr(bus->name, addr);
-	if (dev == NULL)
+	if (!dev)
 		return -1;
 
 	if (set_phyreg(dev, addr, reg, value) != 0) {
@@ -392,9 +392,8 @@ int eepro100_initialize(bd_t *bis)
 		debug("eepro100: Intel i82559 PCI EtherExpressPro @0x%x\n",
 		      iobase);
 
-		pci_write_config_dword(devno,
-				       PCI_COMMAND,
-					PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
+		pci_write_config_dword(devno, PCI_COMMAND,
+				       PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
 
 		/* Check if I/O accesses and Bus Mastering are enabled. */
 		pci_read_config_dword(devno, PCI_COMMAND, &status);
@@ -408,7 +407,7 @@ int eepro100_initialize(bd_t *bis)
 			continue;
 		}
 
-		dev = (struct eth_device *)malloc(sizeof *dev);
+		dev = (struct eth_device *)malloc(sizeof(*dev));
 		if (!dev) {
 			printf("eepro100: Can not allocate memory\n");
 			break;
@@ -429,6 +428,7 @@ int eepro100_initialize(bd_t *bis)
 		/* register mii command access routines */
 		int retval;
 		struct mii_dev *mdiodev = mdio_alloc();
+
 		if (!mdiodev)
 			return -ENOMEM;
 		strncpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
@@ -452,7 +452,6 @@ int eepro100_initialize(bd_t *bis)
 
 	return card_number;
 }
-
 
 static int eepro100_init(struct eth_device *dev, bd_t *bis)
 {
@@ -499,9 +498,10 @@ static int eepro100_init(struct eth_device *dev, bd_t *bis)
 	tx_next = ((tx_next + 1) % NUM_TX_DESC);
 
 	cfg_cmd = (struct descriptor *)&tx_ring[tx_cur];
-	cfg_cmd->command = cpu_to_le16 ((CONFIG_SYS_CMD_SUSPEND | CONFIG_SYS_CMD_CONFIGURE));
+	cfg_cmd->command = cpu_to_le16(CONFIG_SYS_CMD_SUSPEND |
+				       CONFIG_SYS_CMD_CONFIGURE);
 	cfg_cmd->status = 0;
-	cfg_cmd->link = cpu_to_le32 (phys_to_bus((u32)&tx_ring[tx_next]));
+	cfg_cmd->link = cpu_to_le32(phys_to_bus((u32)&tx_ring[tx_next]));
 
 	memcpy(cfg_cmd->params, i82558_config_cmd,
 	       sizeof(i82558_config_cmd));
@@ -534,9 +534,10 @@ static int eepro100_init(struct eth_device *dev, bd_t *bis)
 	tx_next = ((tx_next + 1) % NUM_TX_DESC);
 
 	ias_cmd = (struct descriptor *)&tx_ring[tx_cur];
-	ias_cmd->command = cpu_to_le16 ((CONFIG_SYS_CMD_SUSPEND | CONFIG_SYS_CMD_IAS));
+	ias_cmd->command = cpu_to_le16(CONFIG_SYS_CMD_SUSPEND |
+				       CONFIG_SYS_CMD_IAS);
 	ias_cmd->status = 0;
-	ias_cmd->link = cpu_to_le32 (phys_to_bus((u32)&tx_ring[tx_next]));
+	ias_cmd->link = cpu_to_le32(phys_to_bus((u32)&tx_ring[tx_next]));
 
 	memcpy(ias_cmd->params, dev->enetaddr, 6);
 
@@ -549,8 +550,9 @@ static int eepro100_init(struct eth_device *dev, bd_t *bis)
 	OUTL(dev, phys_to_bus((u32)&tx_ring[tx_cur]), SCBPointer);
 	OUTW(dev, SCB_M | CU_START, SCBCmd);
 
-	for (i = 0; !(le16_to_cpu(tx_ring[tx_cur].status) & CONFIG_SYS_STATUS_C);
-		 i++) {
+	for (i = 0;
+	     !(le16_to_cpu(tx_ring[tx_cur].status) & CONFIG_SYS_STATUS_C);
+	     i++) {
 		if (i >= TOUT_LOOP) {
 			printf("%s: Tx error buffer not ready\n",
 			       dev->name);
@@ -607,8 +609,9 @@ static int eepro100_send(struct eth_device *dev, void *packet, int length)
 	OUTL(dev, phys_to_bus((u32)&tx_ring[tx_cur]), SCBPointer);
 	OUTW(dev, SCB_M | CU_START, SCBCmd);
 
-	for (i = 0; !(le16_to_cpu(tx_ring[tx_cur].status) & CONFIG_SYS_STATUS_C);
-		 i++) {
+	for (i = 0;
+	     !(le16_to_cpu(tx_ring[tx_cur].status) & CONFIG_SYS_STATUS_C);
+	     i++) {
 		if (i >= TOUT_LOOP) {
 			printf("%s: Tx error buffer not ready\n", dev->name);
 			goto Done;
@@ -752,13 +755,13 @@ static void init_rx_ring(struct eth_device *dev)
 
 	for (i = 0; i < NUM_RX_DESC; i++) {
 		rx_ring[i].status = 0;
-		rx_ring[i].control =
-				(i == NUM_RX_DESC - 1) ? cpu_to_le16 (RFD_CONTROL_S) : 0;
+		rx_ring[i].control = (i == NUM_RX_DESC - 1) ?
+				     cpu_to_le16 (RFD_CONTROL_S) : 0;
 		rx_ring[i].link =
-				cpu_to_le32 (phys_to_bus
-							 ((u32)&rx_ring[(i + 1) % NUM_RX_DESC]));
+			cpu_to_le32(phys_to_bus((u32)&rx_ring[(i + 1) %
+						NUM_RX_DESC]));
 		rx_ring[i].rx_buf_addr = 0xffffffff;
-		rx_ring[i].count = cpu_to_le32 (PKTSIZE_ALIGN << 16);
+		rx_ring[i].count = cpu_to_le32(PKTSIZE_ALIGN << 16);
 	}
 
 	rx_next = 0;
