@@ -465,10 +465,10 @@ static int read_eeprom(struct eth_device *dev, int location, int addr_len)
 }
 
 static struct pci_device_id supported[] = {
-	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82557},
-	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82559},
-	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82559ER},
-	{}
+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82557) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82559) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82559ER) },
+	{ }
 };
 
 static void read_hw_addr(struct eth_device *dev, bd_t *bis)
