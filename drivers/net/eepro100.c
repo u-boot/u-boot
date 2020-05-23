@@ -453,11 +453,44 @@ int eepro100_initialize(bd_t *bis)
 	return card_number;
 }
 
+static int eepro100_txcmd_send(struct eth_device *dev,
+			       struct eepro100_txfd *desc)
+{
+	u16 rstat;
+	int i = 0;
+
+	if (!wait_for_eepro100(dev))
+		return -ETIMEDOUT;
+
+	OUTL(dev, phys_to_bus((u32)desc), SCB_POINTER);
+	OUTW(dev, SCB_M | CU_START, SCB_CMD);
+
+	while (true) {
+		rstat = le16_to_cpu(desc->status);
+		if (rstat & CONFIG_SYS_STATUS_C)
+			break;
+
+		if (i++ >= TOUT_LOOP) {
+			printf("%s: Tx error buffer not ready\n", dev->name);
+			return -EINVAL;
+		}
+	}
+
+	rstat = le16_to_cpu(desc->status);
+
+	if (!(rstat & CONFIG_SYS_STATUS_OK)) {
+		printf("TX error status = 0x%08X\n", rstat);
+		return -EIO;
+	}
+
+	return 0;
+}
+
 static int eepro100_init(struct eth_device *dev, bd_t *bis)
 {
-	int i, status = -1;
+	struct eepro100_txfd *ias_cmd, *cfg_cmd;
+	int ret, status = -1;
 	int tx_cur;
-	struct descriptor *ias_cmd, *cfg_cmd;
 
 	/* Reset the ethernet controller */
 	OUTL(dev, I82559_SELECTIVE_RESET, SCB_PORT);
@@ -497,35 +530,19 @@ static int eepro100_init(struct eth_device *dev, bd_t *bis)
 	tx_cur = tx_next;
 	tx_next = ((tx_next + 1) % NUM_TX_DESC);
 
-	cfg_cmd = (struct descriptor *)&tx_ring[tx_cur];
+	cfg_cmd = &tx_ring[tx_cur];
 	cfg_cmd->command = cpu_to_le16(CONFIG_SYS_CMD_SUSPEND |
 				       CONFIG_SYS_CMD_CONFIGURE);
 	cfg_cmd->status = 0;
 	cfg_cmd->link = cpu_to_le32(phys_to_bus((u32)&tx_ring[tx_next]));
 
-	memcpy(cfg_cmd->params, i82558_config_cmd,
+	memcpy(((struct descriptor *)cfg_cmd)->params, i82558_config_cmd,
 	       sizeof(i82558_config_cmd));
 
-	if (!wait_for_eepro100(dev)) {
-		printf("Error---CONFIG_SYS_CMD_CONFIGURE: Can not reset ethernet controller.\n");
-		goto done;
-	}
-
-	OUTL(dev, phys_to_bus((u32)&tx_ring[tx_cur]), SCB_POINTER);
-	OUTW(dev, SCB_M | CU_START, SCB_CMD);
-
-	for (i = 0;
-	     !(le16_to_cpu(tx_ring[tx_cur].status) & CONFIG_SYS_STATUS_C);
-	     i++) {
-		if (i >= TOUT_LOOP) {
-			printf("%s: Tx error buffer not ready\n", dev->name);
-			goto done;
-		}
-	}
-
-	if (!(le16_to_cpu(tx_ring[tx_cur].status) & CONFIG_SYS_STATUS_OK)) {
-		printf("TX error status = 0x%08X\n",
-		       le16_to_cpu(tx_ring[tx_cur].status));
+	ret = eepro100_txcmd_send(dev, cfg_cmd);
+	if (ret) {
+		if (ret == -ETIMEDOUT)
+			printf("Error---CONFIG_SYS_CMD_CONFIGURE: Can not reset ethernet controller.\n");
 		goto done;
 	}
 
@@ -533,36 +550,18 @@ static int eepro100_init(struct eth_device *dev, bd_t *bis)
 	tx_cur = tx_next;
 	tx_next = ((tx_next + 1) % NUM_TX_DESC);
 
-	ias_cmd = (struct descriptor *)&tx_ring[tx_cur];
+	ias_cmd = &tx_ring[tx_cur];
 	ias_cmd->command = cpu_to_le16(CONFIG_SYS_CMD_SUSPEND |
 				       CONFIG_SYS_CMD_IAS);
 	ias_cmd->status = 0;
 	ias_cmd->link = cpu_to_le32(phys_to_bus((u32)&tx_ring[tx_next]));
 
-	memcpy(ias_cmd->params, dev->enetaddr, 6);
+	memcpy(((struct descriptor *)ias_cmd)->params, dev->enetaddr, 6);
 
-	/* Tell the adapter where the TX ring is located. */
-	if (!wait_for_eepro100(dev)) {
-		printf("Error: Can not reset ethernet controller.\n");
-		goto done;
-	}
-
-	OUTL(dev, phys_to_bus((u32)&tx_ring[tx_cur]), SCB_POINTER);
-	OUTW(dev, SCB_M | CU_START, SCB_CMD);
-
-	for (i = 0;
-	     !(le16_to_cpu(tx_ring[tx_cur].status) & CONFIG_SYS_STATUS_C);
-	     i++) {
-		if (i >= TOUT_LOOP) {
-			printf("%s: Tx error buffer not ready\n",
-			       dev->name);
-			goto done;
-		}
-	}
-
-	if (!(le16_to_cpu(tx_ring[tx_cur].status) & CONFIG_SYS_STATUS_OK)) {
-		printf("TX error status = 0x%08X\n",
-		       le16_to_cpu(tx_ring[tx_cur].status));
+	ret = eepro100_txcmd_send(dev, ias_cmd);
+	if (ret) {
+		if (ret == -ETIMEDOUT)
+			printf("Error: Can not reset ethernet controller.\n");
 		goto done;
 	}
 
@@ -574,7 +573,7 @@ done:
 
 static int eepro100_send(struct eth_device *dev, void *packet, int length)
 {
-	int i, status = -1;
+	int ret, status = -1;
 	int tx_cur;
 
 	if (length <= 0) {
@@ -597,28 +596,11 @@ static int eepro100_send(struct eth_device *dev, void *packet, int length)
 		cpu_to_le32 (phys_to_bus((u_long)packet));
 	tx_ring[tx_cur].tx_buf_size0 = cpu_to_le32 (length);
 
-	if (!wait_for_eepro100(dev)) {
-		printf("%s: Tx error ethernet controller not ready.\n",
-		       dev->name);
-		goto done;
-	}
-
-	/* Send the packet. */
-	OUTL(dev, phys_to_bus((u32)&tx_ring[tx_cur]), SCB_POINTER);
-	OUTW(dev, SCB_M | CU_START, SCB_CMD);
-
-	for (i = 0;
-	     !(le16_to_cpu(tx_ring[tx_cur].status) & CONFIG_SYS_STATUS_C);
-	     i++) {
-		if (i >= TOUT_LOOP) {
-			printf("%s: Tx error buffer not ready\n", dev->name);
-			goto done;
-		}
-	}
-
-	if (!(le16_to_cpu(tx_ring[tx_cur].status) & CONFIG_SYS_STATUS_OK)) {
-		printf("TX error status = 0x%08X\n",
-		       le16_to_cpu(tx_ring[tx_cur].status));
+	ret = eepro100_txcmd_send(dev, &tx_ring[tx_cur]);
+	if (ret) {
+		if (ret == -ETIMEDOUT)
+			printf("%s: Tx error ethernet controller not ready.\n",
+			       dev->name);
 		goto done;
 	}
 
