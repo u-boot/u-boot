@@ -103,13 +103,13 @@
 
 /* Receive frame descriptors. */
 struct eepro100_rxfd {
-	volatile u16 status;
-	volatile u16 control;
-	volatile u32 link;		/* struct eepro100_rxfd * */
-	volatile u32 rx_buf_addr;	/* void * */
-	volatile u32 count;
+	u16 status;
+	u16 control;
+	u32 link;		/* struct eepro100_rxfd * */
+	u32 rx_buf_addr;	/* void * */
+	u32 count;
 
-	volatile u8 data[PKTSIZE_ALIGN];
+	u8 data[PKTSIZE_ALIGN];
 };
 
 #define RFD_STATUS_C		0x8000	/* completion of received frame */
@@ -136,17 +136,17 @@ struct eepro100_rxfd {
 #define RFD_RX_TCO		0x0001	/* TCO indication */
 
 /* Transmit frame descriptors */
-struct eepro100_txfd {			/* Transmit frame descriptor set. */
-	volatile u16 status;
-	volatile u16 command;
-	volatile u32 link;		/* void * */
-	volatile u32 tx_desc_addr;	/* Always points to the tx_buf_addr element. */
-	volatile s32 count;
+struct eepro100_txfd {		/* Transmit frame descriptor set. */
+	u16 status;
+	u16 command;
+	u32 link;		/* void * */
+	u32 tx_desc_addr;	/* Always points to the tx_buf_addr element. */
+	s32 count;
 
-	volatile u32 tx_buf_addr0;	/* void *, frame to be transmitted. */
-	volatile s32 tx_buf_size0;	/* Length of Tx frame. */
-	volatile u32 tx_buf_addr1;	/* void *, frame to be transmitted. */
-	volatile s32 tx_buf_size1;	/* Length of Tx frame. */
+	u32 tx_buf_addr0;	/* void *, frame to be transmitted. */
+	s32 tx_buf_size0;	/* Length of Tx frame. */
+	u32 tx_buf_addr1;	/* void *, frame to be transmitted. */
+	s32 tx_buf_size1;	/* Length of Tx frame. */
 };
 
 #define TXCB_CMD_TRANSMIT	0x0004	/* transmit command */
@@ -160,10 +160,10 @@ struct eepro100_txfd {			/* Transmit frame descriptor set. */
 #define TXCB_COUNT_EOF		0x8000
 
 /* The Speedo3 Rx and Tx frame/buffer descriptors. */
-struct descriptor {			/* A generic descriptor. */
-	volatile u16 status;
-	volatile u16 command;
-	volatile u32 link;		/* struct descriptor * */
+struct descriptor {		/* A generic descriptor. */
+	u16 status;
+	u16 command;
+	u32 link;		/* struct descriptor * */
 
 	unsigned char params[0];
 };
