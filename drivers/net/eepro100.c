@@ -464,6 +464,36 @@ static int read_eeprom(struct eth_device *dev, int location, int addr_len)
 	return retval;
 }
 
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
+static int eepro100_initialize_mii(struct eth_device *dev)
+{
+	/* register mii command access routines */
+	struct mii_dev *mdiodev;
+	int ret;
+
+	mdiodev = mdio_alloc();
+	if (!mdiodev)
+		return -ENOMEM;
+
+	strncpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
+	mdiodev->read = eepro100_miiphy_read;
+	mdiodev->write = eepro100_miiphy_write;
+
+	ret = mdio_register(mdiodev);
+	if (ret < 0) {
+		mdio_free(mdiodev);
+		return ret;
+	}
+
+	return 0;
+}
+#else
+static int eepro100_initialize_mii(struct eth_device *dev)
+{
+	return 0;
+}
+#endif
+
 static struct pci_device_id supported[] = {
 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82557) },
 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82559) },
@@ -713,11 +743,12 @@ done:
 
 int eepro100_initialize(bd_t *bis)
 {
-	pci_dev_t devno;
-	int card_number = 0;
 	struct eth_device *dev;
+	int card_number = 0;
 	u32 iobase, status;
+	pci_dev_t devno;
 	int idx = 0;
+	int ret;
 
 	while (1) {
 		/* Find PCI device */
@@ -762,21 +793,12 @@ int eepro100_initialize(bd_t *bis)
 
 		eth_register(dev);
 
-#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
-		/* register mii command access routines */
-		int retval;
-		struct mii_dev *mdiodev = mdio_alloc();
-
-		if (!mdiodev)
-			return -ENOMEM;
-		strncpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
-		mdiodev->read = eepro100_miiphy_read;
-		mdiodev->write = eepro100_miiphy_write;
-
-		retval = mdio_register(mdiodev);
-		if (retval < 0)
-			return retval;
-#endif
+		ret = eepro100_initialize_mii(dev);
+		if (ret) {
+			eth_unregister(dev);
+			free(dev);
+			return ret;
+		}
 
 		card_number++;
 
