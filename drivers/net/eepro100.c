@@ -15,8 +15,7 @@
 
 #undef DEBUG
 
-	/* Ethernet chip registers.
-	 */
+/* Ethernet chip registers. */
 #define SCBStatus		0	/* Rx/Command Unit Status *Word* */
 #define SCBIntAckByte		1	/* Rx/Command Unit STAT/ACK byte */
 #define SCBCmd			2	/* Rx/Command Unit Command *Word* */
@@ -30,8 +29,7 @@
 #define SCBGenControl		28	/* 82559 General Control Register */
 #define SCBGenStatus		29	/* 82559 General Status register */
 
-	/* 82559 SCB status word defnitions
-	 */
+/* 82559 SCB status word defnitions */
 #define SCB_STATUS_CX		0x8000	/* CU finished command (transmit) */
 #define SCB_STATUS_FR		0x4000	/* frame received */
 #define SCB_STATUS_CNA		0x2000	/* CU left active state */
@@ -45,8 +43,7 @@
 #define SCB_INTACK_TX		(SCB_STATUS_CX | SCB_STATUS_CNA)
 #define SCB_INTACK_RX		(SCB_STATUS_FR | SCB_STATUS_RNR)
 
-	/* System control block commands
-	 */
+/* System control block commands */
 /* CU Commands */
 #define CU_NOP			0x0000
 #define CU_START		0x0010
@@ -81,16 +78,14 @@
 #define RU_STATUS_NO_RBDS_NORES ((2<<2)|(8<<2))
 #define RU_STATUS_NO_RBDS_READY ((4<<2)|(8<<2))
 
-	/* 82559 Port interface commands.
-	 */
+/* 82559 Port interface commands. */
 #define I82559_RESET		0x00000000	/* Software reset */
 #define I82559_SELFTEST		0x00000001	/* 82559 Selftest command */
 #define I82559_SELECTIVE_RESET	0x00000002
 #define I82559_DUMP		0x00000003
 #define I82559_DUMP_WAKEUP	0x00000007
 
-	/* 82559 Eeprom interface.
-	 */
+/* 82559 Eeprom interface. */
 #define EE_SHIFT_CLK		0x01	/* EEPROM shift clock. */
 #define EE_CS			0x02	/* EEPROM chip select. */
 #define EE_DATA_WRITE		0x04	/* EEPROM chip data in. */
@@ -101,15 +96,13 @@
 #define EE_CMD_BITS		3
 #define EE_DATA_BITS		16
 
-	/* The EEPROM commands include the alway-set leading bit.
-	 */
+/* The EEPROM commands include the alway-set leading bit. */
 #define EE_EWENB_CMD		(4 << addr_len)
 #define EE_WRITE_CMD		(5 << addr_len)
 #define EE_READ_CMD		(6 << addr_len)
 #define EE_ERASE_CMD		(7 << addr_len)
 
-	/* Receive frame descriptors.
-	 */
+/* Receive frame descriptors. */
 struct RxFD {
 	volatile u16 status;
 	volatile u16 control;
@@ -143,8 +136,7 @@ struct RxFD {
 #define RFD_RX_IA_MATCH		0x0002	/* individual address does not match */
 #define RFD_RX_TCO		0x0001	/* TCO indication */
 
-	/* Transmit frame descriptors
-	 */
+/* Transmit frame descriptors */
 struct TxFD {				/* Transmit frame descriptor set. */
 	volatile u16 status;
 	volatile u16 command;
@@ -152,9 +144,9 @@ struct TxFD {				/* Transmit frame descriptor set. */
 	volatile u32 tx_desc_addr;	/* Always points to the tx_buf_addr element. */
 	volatile s32 count;
 
-	volatile u32 tx_buf_addr0;	/* void *, frame to be transmitted.  */
+	volatile u32 tx_buf_addr0;	/* void *, frame to be transmitted. */
 	volatile s32 tx_buf_size0;	/* Length of Tx frame. */
-	volatile u32 tx_buf_addr1;	/* void *, frame to be transmitted.  */
+	volatile u32 tx_buf_addr1;	/* void *, frame to be transmitted. */
 	volatile s32 tx_buf_size1;	/* Length of Tx frame. */
 };
 
@@ -168,12 +160,11 @@ struct TxFD {				/* Transmit frame descriptor set. */
 #define TxCB_COUNT_MASK		0x3fff
 #define TxCB_COUNT_EOF		0x8000
 
-	/* The Speedo3 Rx and Tx frame/buffer descriptors.
-	 */
+/* The Speedo3 Rx and Tx frame/buffer descriptors. */
 struct descriptor {			/* A generic descriptor. */
 	volatile u16 status;
 	volatile u16 command;
-	volatile u32 link;		/* struct descriptor *	*/
+	volatile u32 link;		/* struct descriptor * */
 
 	unsigned char params[0];
 };
@@ -187,15 +178,14 @@ struct descriptor {			/* A generic descriptor. */
 #define CONFIG_SYS_STATUS_C		0x8000
 #define CONFIG_SYS_STATUS_OK		0x2000
 
-	/* Misc.
-	 */
+/* Misc. */
 #define NUM_RX_DESC		PKTBUFSRX
-#define NUM_TX_DESC		1	/* Number of TX descriptors   */
+#define NUM_TX_DESC		1	/* Number of TX descriptors */
 
 #define TOUT_LOOP		1000000
 
-static struct RxFD rx_ring[NUM_RX_DESC];	/* RX descriptor ring	      */
-static struct TxFD tx_ring[NUM_TX_DESC];	/* TX descriptor ring	      */
+static struct RxFD rx_ring[NUM_RX_DESC];	/* RX descriptor ring */
+static struct TxFD tx_ring[NUM_TX_DESC];	/* TX descriptor ring */
 static int rx_next;			/* RX descriptor ring pointer */
 static int tx_next;			/* TX descriptor ring pointer */
 static int tx_threshold;
@@ -293,7 +283,8 @@ static int set_phyreg (struct eth_device *dev, unsigned char addr,
 	return 0;
 }
 
-/* Check if given phyaddr is valid, i.e. there is a PHY connected.
+/*
+ * Check if given phyaddr is valid, i.e. there is a PHY connected.
  * Do this by checking model value field from ID2 register.
  */
 static struct eth_device* verify_phyaddr (const char *devname,
@@ -363,8 +354,7 @@ static int eepro100_miiphy_write(struct mii_dev *bus, int addr, int devad,
 
 #endif
 
-/* Wait for the chip get the command.
-*/
+/* Wait for the chip get the command. */
 static int wait_for_eepro100 (struct eth_device *dev)
 {
 	int i;
@@ -394,8 +384,7 @@ int eepro100_initialize (bd_t * bis)
 	int idx = 0;
 
 	while (1) {
-		/* Find PCI device
-		 */
+		/* Find PCI device */
 		if ((devno = pci_find_devices (supported, idx++)) < 0) {
 			break;
 		}
@@ -412,8 +401,7 @@ int eepro100_initialize (bd_t * bis)
 					PCI_COMMAND,
 					PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
 
-		/* Check if I/O accesses and Bus Mastering are enabled.
-		 */
+		/* Check if I/O accesses and Bus Mastering are enabled. */
 		pci_read_config_dword (devno, PCI_COMMAND, &status);
 		if (!(status & PCI_COMMAND_MEMORY)) {
 			printf ("Error: Can not enable MEM access.\n");
@@ -459,8 +447,7 @@ int eepro100_initialize (bd_t * bis)
 
 		card_number++;
 
-		/* Set the latency timer for value.
-		 */
+		/* Set the latency timer for value. */
 		pci_write_config_byte (devno, PCI_LATENCY_TIMER, 0x20);
 
 		udelay(10 * 1000);
@@ -478,8 +465,7 @@ static int eepro100_init (struct eth_device *dev, bd_t * bis)
 	int tx_cur;
 	struct descriptor *ias_cmd, *cfg_cmd;
 
-	/* Reset the ethernet controller
-	 */
+	/* Reset the ethernet controller */
 	OUTL (dev, I82559_SELECTIVE_RESET, SCBPort);
 	udelay(20);
 
@@ -500,13 +486,11 @@ static int eepro100_init (struct eth_device *dev, bd_t * bis)
 	OUTL (dev, 0, SCBPointer);
 	OUTW (dev, SCB_M | CU_ADDR_LOAD, SCBCmd);
 
-	/* Initialize Rx and Tx rings.
-	 */
+	/* Initialize Rx and Tx rings. */
 	init_rx_ring (dev);
 	purge_tx_ring (dev);
 
-	/* Tell the adapter where the RX ring is located.
-	 */
+	/* Tell the adapter where the RX ring is located. */
 	if (!wait_for_eepro100 (dev)) {
 		printf ("Error: Can not reset ethernet controller.\n");
 		goto Done;
@@ -550,8 +534,7 @@ static int eepro100_init (struct eth_device *dev, bd_t * bis)
 		goto Done;
 	}
 
-	/* Send the Individual Address Setup frame
-	 */
+	/* Send the Individual Address Setup frame */
 	tx_cur = tx_next;
 	tx_next = ((tx_next + 1) % NUM_TX_DESC);
 
@@ -562,8 +545,7 @@ static int eepro100_init (struct eth_device *dev, bd_t * bis)
 
 	memcpy (ias_cmd->params, dev->enetaddr, 6);
 
-	/* Tell the adapter where the TX ring is located.
-	 */
+	/* Tell the adapter where the TX ring is located. */
 	if (!wait_for_eepro100 (dev)) {
 		printf ("Error: Can not reset ethernet controller.\n");
 		goto Done;
@@ -626,8 +608,7 @@ static int eepro100_send(struct eth_device *dev, void *packet, int length)
 		goto Done;
 	}
 
-	/* Send the packet.
-	 */
+	/* Send the packet. */
 	OUTL (dev, phys_to_bus ((u32) & tx_ring[tx_cur]), SCBPointer);
 	OUTW (dev, SCB_M | CU_START, SCBCmd);
 
@@ -666,21 +647,16 @@ static int eepro100_recv (struct eth_device *dev)
 			break;
 		}
 
-		/* Valid frame status.
-		 */
+		/* Valid frame status. */
 		if ((status & RFD_STATUS_OK)) {
-			/* A valid frame received.
-			 */
+			/* A valid frame received. */
 			length = le32_to_cpu (rx_ring[rx_next].count) & 0x3fff;
 
-			/* Pass the packet up to the protocol
-			 * layers.
-			 */
+			/* Pass the packet up to the protocol layers. */
 			net_process_received_packet((u8 *)rx_ring[rx_next].data,
 						    length);
 		} else {
-			/* There was an error.
-			 */
+			/* There was an error. */
 			printf ("RX error status = 0x%08X\n", status);
 		}
 
@@ -691,8 +667,7 @@ static int eepro100_recv (struct eth_device *dev)
 		rx_prev = (rx_next + NUM_RX_DESC - 1) % NUM_RX_DESC;
 		rx_ring[rx_prev].control = 0;
 
-		/* Update entry information.
-		 */
+		/* Update entry information. */
 		rx_next = (rx_next + 1) % NUM_RX_DESC;
 	}
 
@@ -700,8 +675,7 @@ static int eepro100_recv (struct eth_device *dev)
 
 		printf ("%s: Receiver is not ready, restart it !\n", dev->name);
 
-		/* Reinitialize Rx ring.
-		 */
+		/* Reinitialize Rx ring. */
 		init_rx_ring (dev);
 
 		if (!wait_for_eepro100 (dev)) {
@@ -719,8 +693,7 @@ static int eepro100_recv (struct eth_device *dev)
 
 static void eepro100_halt (struct eth_device *dev)
 {
-	/* Reset the ethernet controller
-	 */
+	/* Reset the ethernet controller */
 	OUTL (dev, I82559_SELECTIVE_RESET, SCBPort);
 	udelay(20);
 
@@ -745,8 +718,7 @@ static void eepro100_halt (struct eth_device *dev)
 	return;
 }
 
-	/* SROM Read.
-	 */
+/* SROM Read. */
 static int read_eeprom (struct eth_device *dev, int location, int addr_len)
 {
 	unsigned short retval = 0;
