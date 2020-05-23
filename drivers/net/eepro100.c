@@ -512,7 +512,7 @@ static struct pci_device_id supported[] = {
 	{ }
 };
 
-static void read_hw_addr(struct eepro100_priv *priv, bd_t *bis)
+static void eepro100_get_hwaddr(struct eepro100_priv *priv)
 {
 	u16 sum = 0;
 	int i, j;
@@ -845,7 +845,7 @@ int eepro100_initialize(bd_t *bis)
 
 		udelay(10 * 1000);
 
-		read_hw_addr(priv, bis);
+		eepro100_get_hwaddr(priv);
 	}
 
 	return card_number;
