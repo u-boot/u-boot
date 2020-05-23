@@ -358,9 +358,8 @@ static int wait_for_eepro100(struct eth_device *dev)
 	int i;
 
 	for (i = 0; INW(dev, SCBCmd) & (CU_CMD_MASK | RU_CMD_MASK); i++) {
-		if (i >= TOUT_LOOP) {
+		if (i >= TOUT_LOOP)
 			return 0;
-		}
 	}
 
 	return 1;
@@ -383,9 +382,9 @@ int eepro100_initialize(bd_t * bis)
 
 	while (1) {
 		/* Find PCI device */
-		if ((devno = pci_find_devices(supported, idx++)) < 0) {
+		devno = pci_find_devices(supported, idx++);
+		if (devno < 0)
 			break;
-		}
 
 		pci_read_config_dword(devno, PCI_BASE_ADDRESS_0, &iobase);
 		iobase &= ~0xf;
@@ -639,9 +638,8 @@ static int eepro100_recv(struct eth_device *dev)
 	for (;;) {
 		status = le16_to_cpu(rx_ring[rx_next].status);
 
-		if (!(status & RFD_STATUS_C)) {
+		if (!(status & RFD_STATUS_C))
 			break;
-		}
 
 		/* Valid frame status. */
 		if ((status & RFD_STATUS_OK)) {
@@ -668,7 +666,6 @@ static int eepro100_recv(struct eth_device *dev)
 	}
 
 	if (stat & SCB_STATUS_RNR) {
-
 		printf("%s: Receiver is not ready, restart it !\n", dev->name);
 
 		/* Reinitialize Rx ring. */
