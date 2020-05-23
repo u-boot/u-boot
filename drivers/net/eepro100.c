@@ -309,9 +309,7 @@ static int verify_phyaddr(struct eepro100_priv *priv, unsigned char addr)
 static int eepro100_miiphy_read(struct mii_dev *bus, int addr, int devad,
 				int reg)
 {
-	struct eth_device *dev = eth_get_dev_by_name(bus->name);
-	struct eepro100_priv *priv =
-		container_of(dev, struct eepro100_priv, dev);
+	struct eepro100_priv *priv = bus->priv;
 	unsigned short value = 0;
 	int ret;
 
@@ -331,9 +329,7 @@ static int eepro100_miiphy_read(struct mii_dev *bus, int addr, int devad,
 static int eepro100_miiphy_write(struct mii_dev *bus, int addr, int devad,
 				 int reg, u16 value)
 {
-	struct eth_device *dev = eth_get_dev_by_name(bus->name);
-	struct eepro100_priv *priv =
-		container_of(dev, struct eepro100_priv, dev);
+	struct eepro100_priv *priv = bus->priv;
 	int ret;
 
 	ret = verify_phyaddr(priv, addr);
@@ -486,6 +482,7 @@ static int eepro100_initialize_mii(struct eepro100_priv *priv)
 	strncpy(mdiodev->name, priv->name, MDIO_NAME_LEN);
 	mdiodev->read = eepro100_miiphy_read;
 	mdiodev->write = eepro100_miiphy_write;
+	mdiodev->priv = priv;
 
 	ret = mdio_register(mdiodev);
 	if (ret < 0) {
