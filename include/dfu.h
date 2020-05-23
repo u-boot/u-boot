@@ -188,23 +188,23 @@ int dfu_write(struct dfu_entity *de, void *buf, int size, int blk_seq_num);
 int dfu_flush(struct dfu_entity *de, void *buf, int size, int blk_seq_num);
 
 /**
- * dfu_initiated_callback - weak callback called on DFU transaction start
+ * dfu_initiated_callback() - weak callback called on DFU transaction start
  *
  * It is a callback function called by DFU stack when a DFU transaction is
  * initiated. This function allows to manage some board specific behavior on
  * DFU targets.
  *
- * @param dfu - pointer to the dfu_entity, which should be initialized
+ * @dfu:	pointer to the dfu_entity, which should be initialized
  *
  */
 void dfu_initiated_callback(struct dfu_entity *dfu);
 /**
- * dfu_flush_callback - weak callback called at the end of the DFU write
+ * dfu_flush_callback() - weak callback called at the end of the DFU write
  *
  * It is a callback function called by DFU stack after DFU manifestation.
  * This function allows to manage some board specific behavior on DFU targets
  *
- * @param dfu - pointer to the dfu_entity, which should be flushed
+ * @dfu:	pointer to the dfu_entity, which should be flushed
  *
  */
 void dfu_flush_callback(struct dfu_entity *dfu);
@@ -218,9 +218,9 @@ void dfu_transaction_cleanup(struct dfu_entity *dfu);
  */
 extern struct dfu_entity *dfu_defer_flush;
 /**
- * dfu_get_defer_flush - get current value of dfu_defer_flush pointer
+ * dfu_get_defer_flush() - get current value of dfu_defer_flush pointer
  *
- * @return - value of the dfu_defer_flush pointer
+ * Return:	value of the dfu_defer_flush pointer
  */
 static inline struct dfu_entity *dfu_get_defer_flush(void)
 {
@@ -228,9 +228,9 @@ static inline struct dfu_entity *dfu_get_defer_flush(void)
 }
 
 /**
- * dfu_set_defer_flush - set the dfu_defer_flush pointer
+ * dfu_set_defer_flush() - set the dfu_defer_flush pointer
  *
- * @param dfu - pointer to the dfu_entity, which should be written
+ * @dfu:	pointer to the dfu_entity, which should be written
  */
 static inline void dfu_set_defer_flush(struct dfu_entity *dfu)
 {
@@ -238,16 +238,16 @@ static inline void dfu_set_defer_flush(struct dfu_entity *dfu)
 }
 
 /**
- * dfu_write_from_mem_addr - write data from memory to DFU managed medium
+ * dfu_write_from_mem_addr() - write data from memory to DFU managed medium
  *
  * This function adds support for writing data starting from fixed memory
  * address (like $loadaddr) to dfu managed medium (e.g. NAND, MMC, file system)
  *
- * @param dfu - dfu entity to which we want to store data
- * @param buf - fixed memory addres from where data starts
- * @param size - number of bytes to write
+ * @dfu:	dfu entity to which we want to store data
+ * @buf:	fixed memory address from where data starts
+ * @size:	number of bytes to write
  *
- * @return - 0 on success, other value on failure
+ * Return:	0 on success, other value on failure
  */
 int dfu_write_from_mem_addr(struct dfu_entity *dfu, void *buf, int size);
 
@@ -324,17 +324,17 @@ static inline int dfu_fill_entity_virt(struct dfu_entity *dfu, char *devstr,
 #endif
 
 /**
- * dfu_tftp_write - Write TFTP data to DFU medium
+ * dfu_tftp_write() - write TFTP data to DFU medium
  *
  * This function is storing data received via TFTP on DFU supported medium.
  *
- * @param dfu_entity_name - name of DFU entity to write
- * @param addr - address of data buffer to write
- * @param len - number of bytes
- * @param interface - destination DFU medium (e.g. "mmc")
- * @param devstring - instance number of destination DFU medium (e.g. "1")
+ * @dfu_entity_name:	name of DFU entity to write
+ * @addr:		address of data buffer to write
+ * @len:		number of bytes
+ * @interface:		destination DFU medium (e.g. "mmc")
+ * @devstring:		instance number of destination DFU medium (e.g. "1")
  *
- * @return 0 on success, otherwise error code
+ * Return:		0 on success, otherwise error code
  */
 #if CONFIG_IS_ENABLED(DFU_TFTP)
 int dfu_tftp_write(char *dfu_entity_name, unsigned int addr, unsigned int len,
