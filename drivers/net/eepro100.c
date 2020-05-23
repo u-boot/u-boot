@@ -13,8 +13,6 @@
 #include <miiphy.h>
 #include <linux/delay.h>
 
-#undef DEBUG
-
 /* Ethernet chip registers. */
 #define SCBStatus		0	/* Rx/Command Unit Status *Word* */
 #define SCBIntAckByte		1	/* Rx/Command Unit STAT/ACK byte */
@@ -392,10 +390,8 @@ int eepro100_initialize (bd_t * bis)
 		pci_read_config_dword (devno, PCI_BASE_ADDRESS_0, &iobase);
 		iobase &= ~0xf;
 
-#ifdef DEBUG
-		printf ("eepro100: Intel i82559 PCI EtherExpressPro @0x%x\n",
-				iobase);
-#endif
+		debug("eepro100: Intel i82559 PCI EtherExpressPro @0x%x\n",
+		      iobase);
 
 		pci_write_config_dword (devno,
 					PCI_COMMAND,
@@ -810,10 +806,7 @@ static void read_hw_addr (struct eth_device *dev, bd_t * bis)
 
 	if (sum != 0xBABA) {
 		memset (dev->enetaddr, 0, ETH_ALEN);
-#ifdef DEBUG
-		printf ("%s: Invalid EEPROM checksum %#4.4x, "
-			"check settings before activating this device!\n",
-			dev->name, sum);
-#endif
+		debug("%s: Invalid EEPROM checksum %#4.4x, check settings before activating this device!\n",
+		      dev->name, sum);
 	}
 }
