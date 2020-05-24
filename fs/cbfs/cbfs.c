@@ -177,46 +177,62 @@ static int file_cbfs_fill_cache(struct cbfs_priv *priv, u8 *start, u32 size,
 	return 0;
 }
 
-/* Get the CBFS header out of the ROM and do endian conversion. */
-static int file_cbfs_load_header(struct cbfs_priv *priv, ulong end_of_rom)
+/**
+ * load_header() - Load the CBFS header
+ *
+ * Get the CBFS header out of the ROM and do endian conversion.
+ *
+ * @priv: Private data, which is inited by this function
+ * @addr: Address of CBFS header in memory-mapped SPI flash
+ * @return 0 if OK, -ENXIO if the header is bad
+ */
+static int load_header(struct cbfs_priv *priv, ulong addr)
 {
 	struct cbfs_header *header = &priv->header;
 	struct cbfs_header *header_in_rom;
-	int32_t offset = *(u32 *)(end_of_rom - 3);
 
-	header_in_rom = (struct cbfs_header *)(end_of_rom + offset + 1);
+	memset(priv, '\0', sizeof(*priv));
+	header_in_rom = (struct cbfs_header *)addr;
 	swap_header(header, header_in_rom);
 
 	if (header->magic != good_magic || header->offset >
 			header->rom_size - header->boot_block_size) {
 		priv->result = CBFS_BAD_HEADER;
-		return 1;
+		return -ENXIO;
 	}
+
 	return 0;
 }
 
+/**
+ * file_cbfs_load_header() - Get the CBFS header out of the ROM, given the end
+ *
+ * @priv: Private data, which is inited by this function
+ * @end_of_rom: Address of the last byte of the ROM (typically 0xffffffff)
+ * @return 0 if OK, -ENXIO if the header is bad
+ */
+static int file_cbfs_load_header(struct cbfs_priv *priv, ulong end_of_rom)
+{
+	int offset = *(u32 *)(end_of_rom - 3);
+
+	return load_header(priv, end_of_rom + offset + 1);
+}
+
+/**
+ * cbfs_load_header_ptr() - Get the CBFS header out of the ROM, given the base
+ *
+ * @priv: Private data, which is inited by this function
+ * @base: Address of the first byte of the ROM (e.g. 0xff000000)
+ * @return 0 if OK, -ENXIO if the header is bad
+ */
 static int cbfs_load_header_ptr(struct cbfs_priv *priv, ulong base)
 {
-	struct cbfs_header *header = &priv->header;
-	struct cbfs_header *header_in_rom;
-
-	header_in_rom = (struct cbfs_header *)base;
-	swap_header(header, header_in_rom);
-
-	if (header->magic != good_magic || header->offset >
-			header->rom_size - header->boot_block_size) {
-		priv->result = CBFS_BAD_HEADER;
-		return -EFAULT;
-	}
-
-	return 0;
+	return load_header(priv, base + MASTER_HDR_OFFSET);
 }
 
 static void cbfs_init(struct cbfs_priv *priv, ulong end_of_rom)
 {
 	u8 *start_of_rom;
-
-	priv->initialized = false;
 
 	if (file_cbfs_load_header(priv, end_of_rom))
 		return;
@@ -241,10 +257,9 @@ int cbfs_init_mem(ulong base, ulong size, struct cbfs_priv **privp)
 
 	/*
 	 * Use a local variable to start with until we know that the CBFS is
-	 * valid. Assume that a master header appears at the start, at offset
-	 * 0x38.
+	 * valid.
 	 */
-	ret = cbfs_load_header_ptr(priv, base + MASTER_HDR_OFFSET);
+	ret = cbfs_load_header_ptr(priv, base);
 	if (ret)
 		return ret;
 
