@@ -83,7 +83,7 @@ static void swap_file_header(struct cbfs_fileheader *dest,
  * @return 0 if a file is found, -ENOENT if one isn't, -EBADF if a bad header
  *	is found.
  */
-static int file_cbfs_next_file(struct cbfs_priv *priv, u8 *start, int size,
+static int file_cbfs_next_file(struct cbfs_priv *priv, void *start, int size,
 			       int align, struct cbfs_cachenode *new_node,
 			       int *used)
 {
@@ -92,8 +92,7 @@ static int file_cbfs_next_file(struct cbfs_priv *priv, u8 *start, int size,
 	*used = 0;
 
 	while (size >= align) {
-		const struct cbfs_fileheader *file_header =
-			(const struct cbfs_fileheader *)start;
+		const struct cbfs_fileheader *file_header = start;
 		u32 name_len;
 		u32 step;
 
@@ -133,7 +132,7 @@ static int file_cbfs_next_file(struct cbfs_priv *priv, u8 *start, int size,
 }
 
 /* Look through a CBFS instance and copy file metadata into regular memory. */
-static int file_cbfs_fill_cache(struct cbfs_priv *priv, u8 *start, u32 size,
+static int file_cbfs_fill_cache(struct cbfs_priv *priv, void *start, u32 size,
 				u32 align)
 {
 	struct cbfs_cachenode *cache_node;
@@ -232,12 +231,12 @@ static int cbfs_load_header_ptr(struct cbfs_priv *priv, ulong base)
 
 static void cbfs_init(struct cbfs_priv *priv, ulong end_of_rom)
 {
-	u8 *start_of_rom;
+	void *start_of_rom;
 
 	if (file_cbfs_load_header(priv, end_of_rom))
 		return;
 
-	start_of_rom = (u8 *)(end_of_rom + 1 - priv->header.rom_size);
+	start_of_rom = (void *)(end_of_rom + 1 - priv->header.rom_size);
 
 	file_cbfs_fill_cache(priv, start_of_rom, priv->header.rom_size,
 			     priv->header.align);
@@ -263,7 +262,7 @@ int cbfs_init_mem(ulong base, ulong size, struct cbfs_priv **privp)
 	if (ret)
 		return ret;
 
-	file_cbfs_fill_cache(priv, (u8 *)base, priv->header.rom_size,
+	file_cbfs_fill_cache(priv, (void *)base, priv->header.rom_size,
 			     priv->header.align);
 	if (priv->result != CBFS_SUCCESS)
 		return -EINVAL;
@@ -351,7 +350,7 @@ const struct cbfs_cachenode *file_cbfs_find_uncached(ulong end_of_rom,
 						     const char *name)
 {
 	struct cbfs_priv *priv = &cbfs_s;
-	u8 *start;
+	void *start;
 	u32 size;
 	u32 align;
 	static struct cbfs_cachenode node;
@@ -359,7 +358,7 @@ const struct cbfs_cachenode *file_cbfs_find_uncached(ulong end_of_rom,
 	if (file_cbfs_load_header(priv, end_of_rom))
 		return NULL;
 
-	start = (u8 *)(end_of_rom + 1 - priv->header.rom_size);
+	start = (void *)(end_of_rom + 1 - priv->header.rom_size);
 	size = priv->header.rom_size;
 	align = priv->header.align;
 
