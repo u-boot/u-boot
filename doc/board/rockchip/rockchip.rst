@@ -117,14 +117,42 @@ To write an image that boots from an SD card (assumed to be /dev/sda)::
         sudo dd if=u-boot-rockchip.bin of=/dev/sda seek=64
         sync
 
+eMMC
+^^^^
+
+eMMC flash would probe on mmc0 in most of the rockchip platforms.
+
+Create GPT partition layout as defined in configurations::
+
+        mmc dev 0
+        gpt write mmc 0 $partitions
+
+Connect the USB-OTG cable between host and target device.
+
+Launch fastboot at target::
+
+        fastboot 0
+
+Upon successful gadget connection,host show the USB device like::
+
+        lsusb
+        Bus 001 Device 020: ID 2207:330c Fuzhou Rockchip Electronics Company RK3399 in Mask ROM mode
+
+Program the flash::
+
+        sudo fastboot -i 0x2207 flash loader1 idbloader.img
+        sudo fastboot -i 0x2207 flash loader2 u-boot.itb
+
+Note: for rockchip 32-bit platforms the U-Boot proper image
+is u-boot-dtb.img
+
 TODO
 ----
 
 - Add rockchip idbloader image building
 - Add rockchip TPL image building
 - Document SPI flash boot
-- Describe steps for eMMC flashing
 - Add missing SoC's with it boards list
 
 .. Jagan Teki <jagan@amarulasolutions.com>
-.. Fri Jan 10 00:08:40 IST 2020
+.. Sunday 24 May 2020 10:08:41 PM IST
