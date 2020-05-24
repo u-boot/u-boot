@@ -413,6 +413,19 @@ int file_cbfs_find_uncached(ulong end_of_rom, const char *name,
 	return find_uncached(&priv, name, start, node);
 }
 
+int file_cbfs_find_uncached_base(ulong base, const char *name,
+				 struct cbfs_cachenode *node)
+{
+	struct cbfs_priv priv;
+	int ret;
+
+	ret = cbfs_load_header_ptr(&priv, base);
+	if (ret)
+		return ret;
+
+	return find_uncached(&priv, name, (void *)base, node);
+}
+
 const char *file_cbfs_name(const struct cbfs_cachenode *file)
 {
 	cbfs_s.result = CBFS_SUCCESS;

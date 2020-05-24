@@ -175,6 +175,20 @@ int file_cbfs_find_uncached(ulong end_of_rom, const char *name,
 			    struct cbfs_cachenode *node);
 
 /**
+ * file_cbfs_find_uncached_base() - Find a file in CBFS given the base address
+ *
+ * Note that @node should be declared by the caller. This design is to avoid
+ * the need for allocation here.
+ *
+ * @base: Points to the base of the CBFS
+ * @name: The name to search for
+ * @node: Returns the contents of the node if found (i.e. copied into *node)
+ * @return 0 on success, -ENOENT if not found, -EFAULT on bad header
+ */
+int file_cbfs_find_uncached_base(ulong base, const char *name,
+				 struct cbfs_cachenode *node);
+
+/**
  * file_cbfs_name() - Get the name of a file in CBFS.
  *
  * @file:		The handle to the file.
