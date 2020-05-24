@@ -175,8 +175,9 @@ static int file_cbfs_fill_cache(struct cbfs_priv *priv, u8 *start, u32 size,
 }
 
 /* Get the CBFS header out of the ROM and do endian conversion. */
-static int file_cbfs_load_header(ulong end_of_rom, struct cbfs_header *header)
+static int file_cbfs_load_header(struct cbfs_priv *priv, ulong end_of_rom)
 {
+	struct cbfs_header *header = &priv->header;
 	struct cbfs_header *header_in_rom;
 	int32_t offset = *(u32 *)(end_of_rom - 3);
 
@@ -185,7 +186,7 @@ static int file_cbfs_load_header(ulong end_of_rom, struct cbfs_header *header)
 
 	if (header->magic != good_magic || header->offset >
 			header->rom_size - header->boot_block_size) {
-		cbfs_s.result = CBFS_BAD_HEADER;
+		priv->result = CBFS_BAD_HEADER;
 		return 1;
 	}
 	return 0;
@@ -214,7 +215,7 @@ static void cbfs_init(struct cbfs_priv *priv, ulong end_of_rom)
 
 	priv->initialized = false;
 
-	if (file_cbfs_load_header(end_of_rom, &priv->header))
+	if (file_cbfs_load_header(priv, end_of_rom))
 		return;
 
 	start_of_rom = (u8 *)(end_of_rom + 1 - priv->header.rom_size);
@@ -337,7 +338,7 @@ const struct cbfs_cachenode *file_cbfs_find_uncached(ulong end_of_rom,
 	u32 align;
 	static struct cbfs_cachenode node;
 
-	if (file_cbfs_load_header(end_of_rom, &priv->header))
+	if (file_cbfs_load_header(priv, end_of_rom))
 		return NULL;
 
 	start = (u8 *)(end_of_rom + 1 - priv->header.rom_size);
