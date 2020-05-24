@@ -253,19 +253,26 @@ static int cbfs_load_header_ptr(struct cbfs_priv *priv, ulong base)
 	return 0;
 }
 
-static void cbfs_init(struct cbfs_priv *priv, ulong end_of_rom)
+static int cbfs_init(struct cbfs_priv *priv, ulong end_of_rom)
 {
-	if (file_cbfs_load_header(priv, end_of_rom))
-		return;
+	int ret;
 
-	file_cbfs_fill_cache(priv, priv->header.rom_size, priv->header.align);
-	if (priv->result == CBFS_SUCCESS)
-		priv->initialized = true;
+	ret = file_cbfs_load_header(priv, end_of_rom);
+	if (ret)
+		return ret;
+
+	ret = file_cbfs_fill_cache(priv, priv->header.rom_size,
+				   priv->header.align);
+	if (ret)
+		return ret;
+	priv->initialized = true;
+
+	return 0;
 }
 
-void file_cbfs_init(ulong end_of_rom)
+int file_cbfs_init(ulong end_of_rom)
 {
-	cbfs_init(&cbfs_s, end_of_rom);
+	return cbfs_init(&cbfs_s, end_of_rom);
 }
 
 int cbfs_init_mem(ulong base, ulong size, struct cbfs_priv **privp)

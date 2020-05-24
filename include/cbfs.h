@@ -98,10 +98,10 @@ enum cbfs_result cbfs_get_result(void);
 /**
  * file_cbfs_init() - Initialize the CBFS driver and load metadata into RAM.
  *
- * @end_of_rom: Points to the end of the ROM the CBFS should be read
- *                      from.
+ * @end_of_rom: Points to the end of the ROM the CBFS should be read from
+ * @return 0 if OK, -ve on error
  */
-void file_cbfs_init(ulong end_of_rom);
+int file_cbfs_init(ulong end_of_rom);
 
 /**
  * file_cbfs_get_header() - Get the header structure for the current CBFS.
