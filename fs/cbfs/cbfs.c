@@ -8,6 +8,9 @@
 #include <malloc.h>
 #include <asm/byteorder.h>
 
+/* Offset of master header from the start of a coreboot ROM */
+#define MASTER_HDR_OFFSET	0x38
+
 static const u32 good_magic = 0x4f524243;
 static const u8 good_file_magic[] = "LARCHIVE";
 
@@ -192,9 +195,9 @@ static int file_cbfs_load_header(struct cbfs_priv *priv, ulong end_of_rom)
 	return 0;
 }
 
-static int cbfs_load_header_ptr(struct cbfs_priv *priv, ulong base,
-				struct cbfs_header *header)
+static int cbfs_load_header_ptr(struct cbfs_priv *priv, ulong base)
 {
+	struct cbfs_header *header = &priv->header;
 	struct cbfs_header *header_in_rom;
 
 	header_in_rom = (struct cbfs_header *)base;
@@ -241,7 +244,7 @@ int cbfs_init_mem(ulong base, ulong size, struct cbfs_priv **privp)
 	 * valid. Assume that a master header appears at the start, at offset
 	 * 0x38.
 	 */
-	ret = cbfs_load_header_ptr(priv, base + 0x38, &priv->header);
+	ret = cbfs_load_header_ptr(priv, base + MASTER_HDR_OFFSET);
 	if (ret)
 		return ret;
 
