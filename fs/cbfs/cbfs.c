@@ -371,40 +371,46 @@ const struct cbfs_cachenode *file_cbfs_find(const char *name)
 	return cbfs_find_file(&cbfs_s, name);
 }
 
-const struct cbfs_cachenode *file_cbfs_find_uncached(ulong end_of_rom,
-						     const char *name)
+static int find_uncached(struct cbfs_priv *priv, const char *name, void *start,
+			 struct cbfs_cachenode *node)
 {
-	struct cbfs_priv *priv = &cbfs_s;
-	void *start;
-	u32 size;
-	u32 align;
-	static struct cbfs_cachenode node;
-
-	if (file_cbfs_load_header(priv, end_of_rom))
-		return NULL;
-
-	start = priv->start;
-	size = priv->header.rom_size;
-	align = priv->header.align;
+	int size = priv->header.rom_size;
+	int align = priv->header.align;
 
 	while (size >= align) {
-		int ret;
 		int used;
+		int ret;
 
-		ret = file_cbfs_next_file(priv, start, size, align, &node,
+		ret = file_cbfs_next_file(priv, start, size, align, node,
 					  &used);
 		if (ret == -ENOENT)
 			break;
 		else if (ret)
-			return NULL;
-		if (!strcmp(name, node.name))
-			return &node;
+			return ret;
+		if (!strcmp(name, node->name))
+			return 0;
 
 		size -= used;
 		start += used;
 	}
-	cbfs_s.result = CBFS_FILE_NOT_FOUND;
-	return NULL;
+	priv->result = CBFS_FILE_NOT_FOUND;
+
+	return -ENOENT;
+}
+
+int file_cbfs_find_uncached(ulong end_of_rom, const char *name,
+			    struct cbfs_cachenode *node)
+{
+	struct cbfs_priv priv;
+	void *start;
+	int ret;
+
+	ret = file_cbfs_load_header(&priv, end_of_rom);
+	if (ret)
+		return ret;
+	start = priv.start;
+
+	return find_uncached(&priv, name, start, node);
 }
 
 const char *file_cbfs_name(const struct cbfs_cachenode *file)
