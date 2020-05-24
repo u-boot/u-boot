@@ -600,8 +600,10 @@ F:	cmd/usb_*.c
 F:	common/dfu.c
 F:	common/update.c
 F:	common/usb_storage.c
+F:	doc/api/dfu.rst
 F:	drivers/dfu/
 F:	drivers/usb/gadget/
+F:	include/dfu.h
 
 DRIVER MODEL
 M:	Simon Glass <sjg@chromium.org>
