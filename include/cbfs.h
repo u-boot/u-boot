@@ -101,7 +101,7 @@ enum cbfs_result cbfs_get_result(void);
  * @end_of_rom: Points to the end of the ROM the CBFS should be read
  *                      from.
  */
-void file_cbfs_init(uintptr_t end_of_rom);
+void file_cbfs_init(ulong end_of_rom);
 
 /**
  * file_cbfs_get_header() - Get the header structure for the current CBFS.
@@ -170,7 +170,7 @@ int cbfs_init_mem(ulong base, ulong size, struct cbfs_priv **privp);
  *
  * @return A handle to the file, or NULL on error.
  */
-const struct cbfs_cachenode *file_cbfs_find_uncached(uintptr_t end_of_rom,
+const struct cbfs_cachenode *file_cbfs_find_uncached(ulong end_of_rom,
 						     const char *name);
 
 /**
