@@ -149,11 +149,10 @@ const struct cbfs_cachenode *cbfs_find_file(struct cbfs_priv *cbfs,
  * cbfs_init_mem() - Set up a new CBFS
  *
  * @base: Base address of CBFS
- * @size: Size of CBFS in bytes
  * @cbfsp: Returns a pointer to CBFS on success
  * @return 0 if OK, -ve on error
  */
-int cbfs_init_mem(ulong base, ulong size, struct cbfs_priv **privp);
+int cbfs_init_mem(ulong base, struct cbfs_priv **privp);
 
 
 /***************************************************************************/

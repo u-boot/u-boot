@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <cbfs.h>
+#include <log.h>
 #include <malloc.h>
 #include <asm/byteorder.h>
 
@@ -275,7 +276,7 @@ int file_cbfs_init(ulong end_of_rom)
 	return cbfs_init(&cbfs_s, end_of_rom);
 }
 
-int cbfs_init_mem(ulong base, ulong size, struct cbfs_priv **privp)
+int cbfs_init_mem(ulong base, struct cbfs_priv **privp)
 {
 	struct cbfs_priv priv_s, *priv = &priv_s;
 	int ret;
@@ -288,9 +289,10 @@ int cbfs_init_mem(ulong base, ulong size, struct cbfs_priv **privp)
 	if (ret)
 		return ret;
 
-	file_cbfs_fill_cache(priv, priv->header.rom_size, priv->header.align);
-	if (priv->result != CBFS_SUCCESS)
-		return -EINVAL;
+	ret = file_cbfs_fill_cache(priv, priv->header.rom_size,
+				   priv->header.align);
+	if (ret)
+		return log_msg_ret("fill", ret);
 
 	priv->initialized = true;
 	priv = malloc(sizeof(priv_s));
