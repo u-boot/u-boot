@@ -77,7 +77,7 @@ static int setup_boottargets(void)
 	}
 
 	/*
-	 * Only run, if booting from mmc1 (i.e. /dwmmc@fe320000) and
+	 * Only run, if booting from mmc1 (i.e. /mmc@fe320000) and
 	 * only consider cases where the default boot-order first
 	 * tries to boot from mmc0 (eMMC) and then from mmc1
 	 * (i.e. external SD).
@@ -85,7 +85,7 @@ static int setup_boottargets(void)
 	 * In other words: the SD card will be moved to earlier in the
 	 * order, if U-Boot was also loaded from the SD-card.
 	 */
-	if (!strcmp(boot_device, "/dwmmc@fe320000")) {
+	if (!strcmp(boot_device, "/mmc@fe320000")) {
 		char *mmc0, *mmc1;
 
 		debug("%s: booted from SD-Card\n", __func__);
