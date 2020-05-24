@@ -145,18 +145,18 @@ static void file_cbfs_fill_cache(struct cbfs_priv *priv, u8 *start, u32 size,
 	priv->file_cache = NULL;
 
 	while (size >= align) {
-		int result;
+		int ret;
 		u32 used;
 
 		new_node = (struct cbfs_cachenode *)
 				malloc(sizeof(struct cbfs_cachenode));
-		result = file_cbfs_next_file(priv, start, size, align, new_node,
-					     &used);
+		ret = file_cbfs_next_file(priv, start, size, align, new_node,
+					  &used);
 
-		if (result < 0) {
+		if (ret < 0) {
 			free(new_node);
 			return;
-		} else if (result == 0) {
+		} else if (ret == 0) {
 			free(new_node);
 			break;
 		}
@@ -341,15 +341,15 @@ const struct cbfs_cachenode *file_cbfs_find_uncached(uintptr_t end_of_rom,
 	align = priv->header.align;
 
 	while (size >= align) {
-		int result;
+		int ret;
 		u32 used;
 
-		result = file_cbfs_next_file(priv, start, size, align, &node,
-					     &used);
+		ret = file_cbfs_next_file(priv, start, size, align, &node,
+					  &used);
 
-		if (result < 0)
+		if (ret < 0)
 			return NULL;
-		else if (result == 0)
+		else if (ret == 0)
 			break;
 
 		if (!strcmp(name, node.name))
