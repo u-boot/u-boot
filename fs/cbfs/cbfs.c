@@ -12,7 +12,7 @@ static const u32 good_magic = 0x4f524243;
 static const u8 good_file_magic[] = "LARCHIVE";
 
 struct cbfs_priv {
-	int initialized;
+	bool initialized;
 	struct cbfs_header header;
 	struct cbfs_cachenode *file_cache;
 	enum cbfs_result result;
@@ -207,7 +207,7 @@ static void cbfs_init(struct cbfs_priv *priv, ulong end_of_rom)
 {
 	u8 *start_of_rom;
 
-	priv->initialized = 0;
+	priv->initialized = false;
 
 	if (file_cbfs_load_header(end_of_rom, &priv->header))
 		return;
@@ -217,7 +217,7 @@ static void cbfs_init(struct cbfs_priv *priv, ulong end_of_rom)
 	file_cbfs_fill_cache(priv, start_of_rom, priv->header.rom_size,
 			     priv->header.align);
 	if (priv->result == CBFS_SUCCESS)
-		priv->initialized = 1;
+		priv->initialized = true;
 }
 
 void file_cbfs_init(ulong end_of_rom)
@@ -244,7 +244,7 @@ int cbfs_init_mem(ulong base, ulong size, struct cbfs_priv **privp)
 	if (priv->result != CBFS_SUCCESS)
 		return -EINVAL;
 
-	priv->initialized = 1;
+	priv->initialized = true;
 	priv = malloc(sizeof(priv_s));
 	if (!priv)
 		return -ENOMEM;
