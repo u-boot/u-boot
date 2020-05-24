@@ -77,11 +77,12 @@ static void swap_file_header(struct cbfs_fileheader *dest,
  * @param used		A pointer to the count of of bytes scanned through,
  *			including the file if one is found.
  *
- * @return 1 if a file is found, 0 if one isn't.
+ * @return 0 if a file is found, -ENOENT if one isn't, -EBADF if a bad header
+ *	is found.
  */
-static int file_cbfs_next_file(struct cbfs_priv *priv, u8 *start, u32 size,
-			       u32 align, struct cbfs_cachenode *new_node,
-			       u32 *used)
+static int file_cbfs_next_file(struct cbfs_priv *priv, u8 *start, int size,
+			       int align, struct cbfs_cachenode *new_node,
+			       int *used)
 {
 	struct cbfs_fileheader header;
 
@@ -105,7 +106,7 @@ static int file_cbfs_next_file(struct cbfs_priv *priv, u8 *start, u32 size,
 		swap_file_header(&header, file_header);
 		if (header.offset < sizeof(struct cbfs_fileheader)) {
 			priv->result = CBFS_BAD_FILE;
-			return -1;
+			return -EBADF;
 		}
 		new_node->next = NULL;
 		new_node->type = header.type;
@@ -122,14 +123,15 @@ static int file_cbfs_next_file(struct cbfs_priv *priv, u8 *start, u32 size,
 			step = step + align - step % align;
 
 		*used += step;
-		return 1;
+		return 0;
 	}
-	return 0;
+
+	return -ENOENT;
 }
 
 /* Look through a CBFS instance and copy file metadata into regular memory. */
-static void file_cbfs_fill_cache(struct cbfs_priv *priv, u8 *start, u32 size,
-				 u32 align)
+static int file_cbfs_fill_cache(struct cbfs_priv *priv, u8 *start, u32 size,
+				u32 align)
 {
 	struct cbfs_cachenode *cache_node;
 	struct cbfs_cachenode *new_node;
@@ -145,20 +147,21 @@ static void file_cbfs_fill_cache(struct cbfs_priv *priv, u8 *start, u32 size,
 	priv->file_cache = NULL;
 
 	while (size >= align) {
+		int used;
 		int ret;
-		u32 used;
 
 		new_node = (struct cbfs_cachenode *)
 				malloc(sizeof(struct cbfs_cachenode));
+		if (!new_node)
+			return -ENOMEM;
 		ret = file_cbfs_next_file(priv, start, size, align, new_node,
 					  &used);
 
 		if (ret < 0) {
 			free(new_node);
-			return;
-		} else if (ret == 0) {
-			free(new_node);
-			break;
+			if (ret == -ENOENT)
+				break;
+			return ret;
 		}
 		*cache_tail = new_node;
 		cache_tail = &new_node->next;
@@ -167,6 +170,8 @@ static void file_cbfs_fill_cache(struct cbfs_priv *priv, u8 *start, u32 size,
 		start += used;
 	}
 	priv->result = CBFS_SUCCESS;
+
+	return 0;
 }
 
 /* Get the CBFS header out of the ROM and do endian conversion. */
@@ -341,16 +346,14 @@ const struct cbfs_cachenode *file_cbfs_find_uncached(ulong end_of_rom,
 
 	while (size >= align) {
 		int ret;
-		u32 used;
+		int used;
 
 		ret = file_cbfs_next_file(priv, start, size, align, &node,
 					  &used);
-
-		if (ret < 0)
-			return NULL;
-		else if (ret == 0)
+		if (ret == -ENOENT)
 			break;
-
+		else if (ret)
+			return NULL;
 		if (!strcmp(name, node.name))
 			return &node;
 
