@@ -61,7 +61,8 @@ static bd_t bdata __attribute__ ((section(".data")));
  */
 __weak void show_boot_progress(int val) {}
 
-#if defined(CONFIG_SPL_OS_BOOT) || CONFIG_IS_ENABLED(HANDOFF)
+#if defined(CONFIG_SPL_OS_BOOT) || CONFIG_IS_ENABLED(HANDOFF) || \
+	defined(CONFIG_SPL_ATF)
 /* weak, default platform-specific function to initialize dram banks */
 __weak int dram_init_banksize(void)
 {
@@ -103,11 +104,13 @@ void __weak spl_perform_fixups(struct spl_image_info *spl_image)
 {
 }
 
-void spl_fixup_fdt(void)
+void spl_fixup_fdt(void *fdt_blob)
 {
-#if defined(CONFIG_SPL_OF_LIBFDT) && defined(CONFIG_SYS_SPL_ARGS_ADDR)
-	void *fdt_blob = (void *)CONFIG_SYS_SPL_ARGS_ADDR;
+#if defined(CONFIG_SPL_OF_LIBFDT)
 	int err;
+
+	if (!fdt_blob)
+		return;
 
 	err = fdt_check_header(fdt_blob);
 	if (err < 0) {
@@ -640,7 +643,8 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	initr_watchdog();
 #endif
 
-	if (IS_ENABLED(CONFIG_SPL_OS_BOOT) || CONFIG_IS_ENABLED(HANDOFF))
+	if (IS_ENABLED(CONFIG_SPL_OS_BOOT) || CONFIG_IS_ENABLED(HANDOFF) ||
+	    IS_ENABLED(CONFIG_SPL_ATF))
 		dram_init_banksize();
 
 	bootcount_inc();
@@ -682,6 +686,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 #if CONFIG_IS_ENABLED(ATF)
 	case IH_OS_ARM_TRUSTED_FIRMWARE:
 		debug("Jumping to U-Boot via ARM Trusted Firmware\n");
+		spl_fixup_fdt(spl_image.fdt_addr);
 		spl_invoke_atf(&spl_image);
 		break;
 #endif
@@ -701,7 +706,9 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 #ifdef CONFIG_SPL_OS_BOOT
 	case IH_OS_LINUX:
 		debug("Jumping to Linux\n");
-		spl_fixup_fdt();
+#if defined(CONFIG_SYS_SPL_ARGS_ADDR)
+		spl_fixup_fdt((void *)CONFIG_SYS_SPL_ARGS_ADDR);
+#endif
 		spl_board_prepare_for_linux();
 		jump_to_image_linux(&spl_image);
 #endif
