@@ -207,6 +207,12 @@ config MVEBU_A3700_SPI
 	  used to access the SPI NOR flash on platforms embedding this
 	  Marvell IP core.
 
+config MXS_SPI
+	bool "MXS SPI Driver"
+	help
+	  Enable the MXS SPI controller driver. This driver can be used
+	  on the i.MX23 and i.MX28 SoCs.
+
 config NXP_FSPI
 	bool "NXP FlexSPI driver"
 	depends on SPI_MEM
@@ -423,12 +429,6 @@ config MXC_SPI
 	help
 	  Enable the MXC SPI controller driver. This driver can be used
 	  on various i.MX SoCs such as i.MX31/35/51/6/7.
-
-config MXS_SPI
-	bool "MXS SPI Driver"
-	help
-	  Enable the MXS SPI controller driver. This driver can be used
-	  on the i.MX23 and i.MX28 SoCs.
 
 config OMAP3_SPI
 	bool "McSPI driver for OMAP"
