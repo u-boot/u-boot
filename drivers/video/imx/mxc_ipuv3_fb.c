@@ -38,8 +38,10 @@ DECLARE_GLOBAL_DATA_PTR;
 static int mxcfb_map_video_memory(struct fb_info *fbi);
 static int mxcfb_unmap_video_memory(struct fb_info *fbi);
 
+#if !CONFIG_IS_ENABLED(DM_VIDEO)
 /* graphics setup */
 static GraphicDevice panel;
+#endif
 static struct fb_videomode const *gmode;
 static uint8_t gdisp;
 static uint32_t gpixfmt;
@@ -118,27 +120,6 @@ static uint32_t bpp_to_pixfmt(struct fb_info *fbi)
 		break;
 	}
 	return pixfmt;
-}
-
-/*
- * Set fixed framebuffer parameters based on variable settings.
- *
- * @param       info     framebuffer information pointer
- */
-static int mxcfb_set_fix(struct fb_info *info)
-{
-	struct fb_fix_screeninfo *fix = &info->fix;
-	struct fb_var_screeninfo *var = &info->var;
-
-	fix->line_length = var->xres_virtual * var->bits_per_pixel / 8;
-
-	fix->type = FB_TYPE_PACKED_PIXELS;
-	fix->accel = FB_ACCEL_NONE;
-	fix->visual = FB_VISUAL_TRUECOLOR;
-	fix->xpanstep = 1;
-	fix->ypanstep = 1;
-
-	return 0;
 }
 
 static int setup_disp_channel1(struct fb_info *fbi)
@@ -226,7 +207,6 @@ static int mxcfb_set_par(struct fb_info *fbi)
 
 	ipu_disable_channel(mxc_fbi->ipu_ch);
 	ipu_uninit_channel(mxc_fbi->ipu_ch);
-	mxcfb_set_fix(fbi);
 
 	mem_len = fbi->var.yres_virtual * fbi->fix.line_length;
 	if (!fbi->fix.smem_start || (mem_len > fbi->fix.smem_len)) {
@@ -499,6 +479,8 @@ static struct fb_info *mxcfb_init_fbinfo(void)
 	return fbi;
 }
 
+extern struct clk *g_ipu_clk;
+
 /*
  * Probe routine for the framebuffer driver. It is called during the
  * driver binding process. The following functions are performed in
@@ -512,16 +494,14 @@ static int mxcfb_probe(u32 interface_pix_fmt, uint8_t disp,
 {
 	struct fb_info *fbi;
 	struct mxcfb_info *mxcfbi;
-	int ret = 0;
 
 	/*
 	 * Initialize FB structures
 	 */
 	fbi = mxcfb_init_fbinfo();
-	if (!fbi) {
-		ret = -ENOMEM;
-		goto err0;
-	}
+	if (!fbi)
+		return -ENOMEM;
+
 	mxcfbi = (struct mxcfb_info *)fbi->par;
 
 	if (!g_dp_in_use) {
@@ -534,9 +514,11 @@ static int mxcfb_probe(u32 interface_pix_fmt, uint8_t disp,
 
 	mxcfbi->ipu_di = disp;
 
+	if (!ipu_clk_enabled())
+		clk_enable(g_ipu_clk);
+
 	ipu_disp_set_global_alpha(mxcfbi->ipu_ch, 1, 0x80);
 	ipu_disp_set_color_key(mxcfbi->ipu_ch, 0, 0);
-	strcpy(fbi->fix.id, "DISP3 BG");
 
 	g_dp_in_use = 1;
 
@@ -547,7 +529,8 @@ static int mxcfb_probe(u32 interface_pix_fmt, uint8_t disp,
 	mxcfbi->ipu_di_pix_fmt = interface_pix_fmt;
 	fb_videomode_to_var(&fbi->var, mode);
 	fbi->var.bits_per_pixel = 16;
-	fbi->fix.line_length = fbi->var.xres * (fbi->var.bits_per_pixel / 8);
+	fbi->fix.line_length = fbi->var.xres_virtual *
+			       (fbi->var.bits_per_pixel / 8);
 	fbi->fix.smem_len = fbi->var.yres_virtual * fbi->fix.line_length;
 
 	mxcfb_check_var(&fbi->var, fbi);
@@ -555,14 +538,13 @@ static int mxcfb_probe(u32 interface_pix_fmt, uint8_t disp,
 	/* Default Y virtual size is 2x panel size */
 	fbi->var.yres_virtual = fbi->var.yres * 2;
 
-	mxcfb_set_fix(fbi);
-
 	/* allocate fb first */
 	if (mxcfb_map_video_memory(fbi) < 0)
 		return -ENOMEM;
 
 	mxcfb_set_par(fbi);
 
+#if !CONFIG_IS_ENABLED(DM_VIDEO)
 	panel.winSizeX = mode->xres;
 	panel.winSizeY = mode->yres;
 	panel.plnSizeX = mode->xres;
@@ -573,13 +555,12 @@ static int mxcfb_probe(u32 interface_pix_fmt, uint8_t disp,
 
 	panel.gdfBytesPP = 2;
 	panel.gdfIndex = GDF_16BIT_565RGB;
-
+#endif
+#ifdef DEBUG
 	ipu_dump_registers();
+#endif
 
 	return 0;
-
-err0:
-	return ret;
 }
 
 void ipuv3_fb_shutdown(void)
@@ -604,6 +585,7 @@ void ipuv3_fb_shutdown(void)
 	}
 }
 
+#if !CONFIG_IS_ENABLED(DM_VIDEO)
 void *video_hw_init(void)
 {
 	int ret;
@@ -618,6 +600,7 @@ void *video_hw_init(void)
 
 	return (void *)&panel;
 }
+#endif
 
 int ipuv3_fb_init(struct fb_videomode const *mode,
 		  uint8_t disp,
@@ -710,8 +693,12 @@ static int ipuv3_video_bind(struct udevice *dev)
 }
 
 static const struct udevice_id ipuv3_video_ids[] = {
+#ifdef CONFIG_ARCH_MX6
 	{ .compatible = "fsl,imx6q-ipu" },
+#endif
+#ifdef CONFIG_ARCH_MX5
 	{ .compatible = "fsl,imx53-ipu" },
+#endif
 	{ }
 };
 
