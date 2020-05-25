@@ -118,14 +118,6 @@
 #define RCAR_PCI_MAX_RESOURCES	4
 #define MAX_NR_INBOUND_MAPS	6
 
-#define PCI_EXP_FLAGS		2		/* Capabilities register */
-#define PCI_EXP_FLAGS_TYPE	0x00f0		/* Device/Port type */
-#define PCI_EXP_TYPE_ROOT_PORT	0x4		/* Root Port */
-#define PCI_EXP_LNKCAP		12		/* Link Capabilities */
-#define PCI_EXP_LNKCAP_DLLLARC	0x00100000	/* Data Link Layer Link Active Reporting Capable */
-#define PCI_EXP_SLTCAP		20		/* Slot Capabilities */
-#define PCI_EXP_SLTCAP_PSN	0xfff80000	/* Physical Slot Number */
-
 enum {
 	RCAR_PCI_ACCESS_READ,
 	RCAR_PCI_ACCESS_WRITE,

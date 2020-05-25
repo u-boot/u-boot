@@ -67,9 +67,6 @@
 #define IS_ROOT_PORT(pcie, bdf)				\
 		((PCI_BUS(bdf) == pcie->first_busno) ? true : false)
 
-#define PCI_EXP_LNKSTA		18	/* Link Status */
-#define PCI_EXP_LNKSTA_DLLLA	0x2000	/* Data Link Layer Link Active */
-
 /**
  * struct intel_fpga_pcie - Intel FPGA PCIe controller state
  * @bus: Pointer to the PCI bus

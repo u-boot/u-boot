@@ -471,10 +471,19 @@
 #define  PCI_EA_FIELD_MASK	0xfffffffc	/* For Base & Max Offset */
 
 /* PCI Express capabilities */
+#define PCI_EXP_FLAGS		2	/* Capabilities register */
+#define  PCI_EXP_FLAGS_TYPE	0x00f0	/* Device/Port type */
+#define  PCI_EXP_TYPE_ROOT_PORT 0x4	/* Root Port */
 #define PCI_EXP_DEVCAP		4	/* Device capabilities */
-#define  PCI_EXP_DEVCAP_FLR     0x10000000 /* Function Level Reset */
+#define  PCI_EXP_DEVCAP_FLR	0x10000000 /* Function Level Reset */
 #define PCI_EXP_DEVCTL		8	/* Device Control */
-#define  PCI_EXP_DEVCTL_BCR_FLR 0x8000  /* Bridge Configuration Retry / FLR */
+#define  PCI_EXP_DEVCTL_BCR_FLR	0x8000  /* Bridge Configuration Retry / FLR */
+#define PCI_EXP_LNKCAP		12	/* Link Capabilities */
+#define  PCI_EXP_LNKCAP_DLLLARC	0x00100000 /* Data Link Layer Link Active Reporting Capable */
+#define PCI_EXP_LNKSTA		18	/* Link Status */
+#define  PCI_EXP_LNKSTA_DLLLA	0x2000	/* Data Link Layer Link Active */
+#define PCI_EXP_SLTCAP		20	/* Slot Capabilities */
+#define  PCI_EXP_SLTCAP_PSN	0xfff80000 /* Physical Slot Number */
 
 /* Include the ID list */
 
