@@ -87,6 +87,10 @@ Optional Properties:
   are listed with associated reg 0 to 3.
   PLLx is off when the associated node is absent or deactivated.
 
+  For PLL1, when the node is absent, the frequency of the OPP node is used
+  to compute the PLL setting (see compatible "operating-points-v2" in
+  opp/opp.txt for details).
+
   Here are the available properties for each PLL node:
     - compatible: should be "st,stm32mp1-pll"
 
