@@ -395,6 +395,9 @@ static int xhci_scratchpad_alloc(struct xhci_ctrl *ctrl)
 		scratchpad->sp_array[i] = cpu_to_le64(ptr);
 	}
 
+	xhci_flush_cache((uintptr_t)scratchpad->sp_array,
+			 sizeof(u64) * num_sp);
+
 	return 0;
 
 fail_sp3:
