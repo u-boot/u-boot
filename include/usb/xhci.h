@@ -1114,28 +1114,20 @@ static inline void xhci_writel(uint32_t volatile *regs, const unsigned int val)
  */
 static inline u64 xhci_readq(__le64 volatile *regs)
 {
-#if BITS_PER_LONG == 64
-	return readq(regs);
-#else
 	__u32 *ptr = (__u32 *)regs;
 	u64 val_lo = readl(ptr);
 	u64 val_hi = readl(ptr + 1);
 	return val_lo + (val_hi << 32);
-#endif
 }
 
 static inline void xhci_writeq(__le64 volatile *regs, const u64 val)
 {
-#if BITS_PER_LONG == 64
-	writeq(val, regs);
-#else
 	__u32 *ptr = (__u32 *)regs;
 	u32 val_lo = lower_32_bits(val);
 	/* FIXME */
 	u32 val_hi = upper_32_bits(val);
 	writel(val_lo, ptr);
 	writel(val_hi, ptr + 1);
-#endif
 }
 
 int xhci_hcd_init(int index, struct xhci_hccr **ret_hccr,
