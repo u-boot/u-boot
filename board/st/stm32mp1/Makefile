@@ -8,5 +8,3 @@ obj-y += spl.o
 else
 obj-y += stm32mp1.o
 endif
-
-obj-y += board.o
