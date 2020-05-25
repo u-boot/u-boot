@@ -50,6 +50,8 @@ addons:
     - mtools
     - openssl
     - sbsigntool
+    - fakeroot
+    - mtd-utils
 
 install:
  # Clone uboot-test-hooks
@@ -491,6 +493,11 @@ matrix:
     - name: "Build envtools"
       script:
         - make tools-only_config envtools -j$(nproc)
+
+    - name: "Run tests for Nokia RX-51 (aka N900)"
+      script:
+        - export PATH=~/.buildman-toolchains/gcc-9.2.0-nolibc/arm-linux-gnueabi/bin/:$PATH
+        - test/nokia_rx51_test.sh
 
     # test/py
     - name: "test/py sandbox"

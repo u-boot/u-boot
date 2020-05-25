@@ -410,3 +410,38 @@ void remove_fwl_configs(struct fwl_data *fwl_data, size_t fwl_data_size)
 		}
 	}
 }
+
+void spl_enable_dcache(void)
+{
+#if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
+	phys_addr_t ram_top = CONFIG_SYS_SDRAM_BASE;
+
+	dram_init_banksize();
+
+	/* reserve TLB table */
+	gd->arch.tlb_size = PGTABLE_SIZE;
+
+	ram_top += get_effective_memsize();
+	/* keep ram_top in the 32-bit address space */
+	if (ram_top >= 0x100000000)
+		ram_top = (phys_addr_t) 0x100000000;
+
+	gd->arch.tlb_addr = ram_top - gd->arch.tlb_size;
+	debug("TLB table from %08lx to %08lx\n", gd->arch.tlb_addr,
+	      gd->arch.tlb_addr + gd->arch.tlb_size);
+
+	dcache_enable();
+#endif
+}
+
+#if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
+void spl_board_prepare_for_boot(void)
+{
+	dcache_disable();
+}
+
+void spl_board_prepare_for_boot_linux(void)
+{
+	dcache_disable();
+}
+#endif
