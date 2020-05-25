@@ -183,10 +183,6 @@ int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 }
 #endif
 
-void spi_init(void)
-{
-}
-
 void spi_cs_activate(struct spi_slave *slave)
 {
 	_spi_cs_activate(spireg);

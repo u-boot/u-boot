@@ -383,10 +383,6 @@ static int coldfire_spi_probe(struct udevice *bus)
 	return 0;
 }
 
-void spi_init(void)
-{
-}
-
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 static int coldfire_dspi_ofdata_to_platdata(struct udevice *bus)
 {
