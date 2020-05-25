@@ -2729,10 +2729,6 @@ Configuration Settings:
 	regular expression. This allows multiple variables to define the same
 	flags without explicitly listing them for each variable.
 
-- CONFIG_ENV_ACCESS_IGNORE_FORCE
-	If defined, don't allow the -f switch to env set override variable
-	access flags.
-
 The following definitions that deal with the placement and management
 of environment data (variable area); in general, we support the
 following configurations:

@@ -86,6 +86,7 @@ config RISCV
 config SANDBOX
 	bool "Sandbox"
 	select BOARD_LATE_INIT
+	select BZIP2
 	select DM
 	select DM_GPIO
 	select DM_I2C
@@ -94,6 +95,7 @@ config SANDBOX
 	select DM_SERIAL
 	select DM_SPI
 	select DM_SPI_FLASH
+	select GZIP_COMPRESSED
 	select HAVE_BLOCK_DEVICE
 	select LZO
 	select OF_BOARD_SETUP

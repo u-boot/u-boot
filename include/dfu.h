@@ -159,20 +159,139 @@ struct dfu_entity {
 };
 
 #ifdef CONFIG_SET_DFU_ALT_INFO
+/**
+ * set_dfu_alt_info() - set dfu_alt_info environment variable
+ *
+ * If CONFIG_SET_DFU_ALT_INFO=y, this board specific function is called to set
+ * environment variable dfu_alt_info.
+ *
+ * @interface:	dfu interface, e.g. "mmc" or "nand"
+ * @devstr:	device number as string
+ */
 void set_dfu_alt_info(char *interface, char *devstr);
 #endif
+
+/**
+ * dfu_alt_init() - initialize buffer for dfu entities
+ *
+ * @num:	number of entities
+ * @dfu:	on return allocated buffer
+ * Return:	0 on success
+ */
 int dfu_alt_init(int num, struct dfu_entity **dfu);
+
+/**
+ * dfu_alt_add() - add alternate to dfu entity buffer
+ *
+ * @dfu:	dfu entity
+ * @interface:	dfu interface, e.g. "mmc" or "nand"
+ * @devstr:	device number as string
+ * @s:		string description of alternate
+ * Return:	0 on success
+ */
 int dfu_alt_add(struct dfu_entity *dfu, char *interface, char *devstr, char *s);
+
+/**
+ * dfu_config_entities() - initialize dfu entitities from envirionment
+ *
+ * Initialize the list of dfu entities from environment variable dfu_alt_info.
+ * The list must be freed by calling dfu_free_entities(). This function bypasses
+ * set_dfu_alt_info(). So typically you should use dfu_init_env_entities()
+ * instead.
+ *
+ * See function :c:func:`dfu_free_entities`
+ * See function :c:func:`dfu_init_env_entities`
+ *
+ * @s:		string with alternates
+ * @interface:	interface, e.g. "mmc" or "nand"
+ * @devstr:	device number as string
+ * Return:	0 on success, a negative error code otherwise
+ */
 int dfu_config_entities(char *s, char *interface, char *devstr);
+
+/**
+ * dfu_free_entities() - free the list of dfu entities
+ *
+ * Free the internal list of dfu entities.
+ *
+ * See function :c:func:`dfu_init_env_entities`
+ */
 void dfu_free_entities(void);
+
+/**
+ * dfu_show_entities() - print DFU alt settings list
+ */
 void dfu_show_entities(void);
+
+/**
+ * dfu_get_alt_number() - get number of alternates
+ *
+ * Return: number of alternates in the dfu entities list
+ */
 int dfu_get_alt_number(void);
-const char *dfu_get_dev_type(enum dfu_device_type t);
-const char *dfu_get_layout(enum dfu_layout l);
+
+/**
+ * dfu_get_dev_type() - get string representation for dfu device type
+ *
+ * @type:	device type
+ * Return:	string representation for device type
+ */
+const char *dfu_get_dev_type(enum dfu_device_type type);
+
+/**
+ * dfu_get_layout() - get string describing layout
+ *
+ * Internally layouts are represented by enum dfu_device_type values. This
+ * function translates an enum value to a human readable string, e.g. DFU_FS_FAT
+ * is translated to "FAT".
+ *
+ * @layout:	layout
+ * Result:	string representation for the layout
+ */
+const char *dfu_get_layout(enum dfu_layout layout);
+
+/**
+ * dfu_get_entity() - get dfu entity for an alternate id
+ *
+ * @alt:	alternate id
+ * Return:	dfu entity
+ */
 struct dfu_entity *dfu_get_entity(int alt);
+
 char *dfu_extract_token(char** e, int *n);
+
+/**
+ * dfu_get_alt() - get alternate id for filename
+ *
+ * Environment variable dfu_alt_info defines the write destinations (alternates)
+ * for different filenames. This function get the index of the alternate for
+ * a filename. If an absolute filename is provided (starting with '/'), the
+ * directory path is ignored.
+ *
+ * @name:	filename
+ * Return:	id of the alternate or negative error number (-ENODEV)
+ */
 int dfu_get_alt(char *name);
+
+/**
+ * dfu_init_env_entities() - initialize dfu entitities from envirionment
+ *
+ * Initialize the list of dfu entities from environment variable dfu_alt_info.
+ * The list must be freed by calling dfu_free_entities().
+ * @interface and @devstr are used to select the relevant set of alternates
+ * from environment variable dfu_alt_info.
+ *
+ * If environment variable dfu_alt_info specifies the interface and the device,
+ * use NULL for @interface and @devstr.
+ *
+ * See function :c:func:`dfu_free_entities`
+ *
+ * @interface:	interface, e.g. "mmc" or "nand"
+ * @devstr:	device number as string
+ * Return:	0 on success, a negative error code otherwise
+ */
 int dfu_init_env_entities(char *interface, char *devstr);
+
 unsigned char *dfu_get_buf(struct dfu_entity *dfu);
 unsigned char *dfu_free_buf(void);
 unsigned long dfu_get_buf_size(void);
@@ -183,29 +302,79 @@ unsigned long dfu_get_timeout(void);
 void dfu_set_timeout(unsigned long);
 #endif
 
+/**
+ * dfu_read() - read from dfu entity
+ *
+ * The block sequence number @blk_seq_num is a 16 bit counter that must be
+ * incremented with each call for the same dfu entity @de.
+ *
+ * @de:			dfu entity
+ * @buf:		buffer
+ * @size:		size of buffer
+ * @blk_seq_num:	block sequence number
+ * Return:		0 for success, -1 for error
+ */
 int dfu_read(struct dfu_entity *de, void *buf, int size, int blk_seq_num);
+
+/**
+ * dfu_write() - write to dfu entity
+ *
+ * Write the contents of a buffer @buf to the dfu entity @de. After writing
+ * the last block call dfu_flush(). If a file is already loaded completely
+ * into memory it is preferable to use dfu_write_from_mem_addr() which takes
+ * care of blockwise transfer and flushing.
+ *
+ * The block sequence number @blk_seq_num is a 16 bit counter that must be
+ * incremented with each call for the same dfu entity @de.
+ *
+ * See function :c:func:`dfu_flush`
+ * See function :c:func:`dfu_write_from_mem_addr`
+ *
+ * @de:			dfu entity
+ * @buf:		buffer
+ * @size:		size of buffer
+ * @blk_seq_num:	block sequence number
+ * Return:		0 for success, -1 for error
+ */
 int dfu_write(struct dfu_entity *de, void *buf, int size, int blk_seq_num);
+
+/**
+ * dfu_flush() - flush to dfu entity
+ *
+ * This function has to be called after writing the last block to the dfu
+ * entity @de.
+ *
+ * The block sequence number @blk_seq_num is a 16 bit counter that must be
+ * incremented with each call for the same dfu entity @de.
+ *
+ * See function :c:func:`dfu_write`
+ *
+ * @de:			dfu entity
+ * @buf:		ignored
+ * @size:		ignored
+ * @blk_seq_num:	block sequence number of last write - ignored
+ * Return:		0 for success, -1 for error
+ */
 int dfu_flush(struct dfu_entity *de, void *buf, int size, int blk_seq_num);
 
 /**
- * dfu_initiated_callback - weak callback called on DFU transaction start
+ * dfu_initiated_callback() - weak callback called on DFU transaction start
  *
  * It is a callback function called by DFU stack when a DFU transaction is
  * initiated. This function allows to manage some board specific behavior on
  * DFU targets.
  *
- * @param dfu - pointer to the dfu_entity, which should be initialized
- *
+ * @dfu:	pointer to the dfu_entity, which should be initialized
  */
 void dfu_initiated_callback(struct dfu_entity *dfu);
+
 /**
- * dfu_flush_callback - weak callback called at the end of the DFU write
+ * dfu_flush_callback() - weak callback called at the end of the DFU write
  *
  * It is a callback function called by DFU stack after DFU manifestation.
  * This function allows to manage some board specific behavior on DFU targets
  *
- * @param dfu - pointer to the dfu_entity, which should be flushed
- *
+ * @dfu:	pointer to the dfu_entity, which should be flushed
  */
 void dfu_flush_callback(struct dfu_entity *dfu);
 
@@ -217,10 +386,11 @@ void dfu_transaction_cleanup(struct dfu_entity *dfu);
  *		     It should be NULL when not used.
  */
 extern struct dfu_entity *dfu_defer_flush;
+
 /**
- * dfu_get_defer_flush - get current value of dfu_defer_flush pointer
+ * dfu_get_defer_flush() - get current value of dfu_defer_flush pointer
  *
- * @return - value of the dfu_defer_flush pointer
+ * Return:	value of the dfu_defer_flush pointer
  */
 static inline struct dfu_entity *dfu_get_defer_flush(void)
 {
@@ -228,9 +398,9 @@ static inline struct dfu_entity *dfu_get_defer_flush(void)
 }
 
 /**
- * dfu_set_defer_flush - set the dfu_defer_flush pointer
+ * dfu_set_defer_flush() - set the dfu_defer_flush pointer
  *
- * @param dfu - pointer to the dfu_entity, which should be written
+ * @dfu:	pointer to the dfu_entity, which should be written
  */
 static inline void dfu_set_defer_flush(struct dfu_entity *dfu)
 {
@@ -238,16 +408,16 @@ static inline void dfu_set_defer_flush(struct dfu_entity *dfu)
 }
 
 /**
- * dfu_write_from_mem_addr - write data from memory to DFU managed medium
+ * dfu_write_from_mem_addr() - write data from memory to DFU managed medium
  *
  * This function adds support for writing data starting from fixed memory
  * address (like $loadaddr) to dfu managed medium (e.g. NAND, MMC, file system)
  *
- * @param dfu - dfu entity to which we want to store data
- * @param buf - fixed memory addres from where data starts
- * @param size - number of bytes to write
+ * @dfu:	dfu entity to which we want to store data
+ * @buf:	fixed memory address from where data starts
+ * @size:	number of bytes to write
  *
- * @return - 0 on success, other value on failure
+ * Return:	0 on success, other value on failure
  */
 int dfu_write_from_mem_addr(struct dfu_entity *dfu, void *buf, int size);
 
@@ -324,17 +494,17 @@ static inline int dfu_fill_entity_virt(struct dfu_entity *dfu, char *devstr,
 #endif
 
 /**
- * dfu_tftp_write - Write TFTP data to DFU medium
+ * dfu_tftp_write() - write TFTP data to DFU medium
  *
  * This function is storing data received via TFTP on DFU supported medium.
  *
- * @param dfu_entity_name - name of DFU entity to write
- * @param addr - address of data buffer to write
- * @param len - number of bytes
- * @param interface - destination DFU medium (e.g. "mmc")
- * @param devstring - instance number of destination DFU medium (e.g. "1")
+ * @dfu_entity_name:	name of DFU entity to write
+ * @addr:		address of data buffer to write
+ * @len:		number of bytes
+ * @interface:		destination DFU medium (e.g. "mmc")
+ * @devstring:		instance number of destination DFU medium (e.g. "1")
  *
- * @return 0 on success, otherwise error code
+ * Return:		0 on success, otherwise error code
  */
 #if CONFIG_IS_ENABLED(DFU_TFTP)
 int dfu_tftp_write(char *dfu_entity_name, unsigned int addr, unsigned int len,

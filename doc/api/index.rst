@@ -6,6 +6,7 @@ U-Boot API documentation
 .. toctree::
    :maxdepth: 2
 
+   dfu
    efi
    linker_lists
    serial

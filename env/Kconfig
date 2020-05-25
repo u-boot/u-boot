@@ -604,6 +604,13 @@ config DELAY_ENVIRONMENT
 	  later by U-Boot code. With CONFIG_OF_CONTROL this is instead
 	  controlled by the value of /config/load-environment.
 
+config ENV_ACCESS_IGNORE_FORCE
+	bool "Block forced environment operations"
+	default n
+	help
+	  If defined, don't allow the -f switch to env set override variable
+	  access flags.
+
 if SPL_ENV_SUPPORT
 config SPL_ENV_IS_NOWHERE
 	bool "SPL Environment is not stored"

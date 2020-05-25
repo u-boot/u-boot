@@ -120,7 +120,6 @@
 /*
  * MMC
  */
-#define CONFIG_CMD_MMC
 
 /* SATA */
 #define CONFIG_SCSI_AHCI_PLAT

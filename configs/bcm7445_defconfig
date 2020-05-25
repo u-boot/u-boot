@@ -14,6 +14,7 @@ CONFIG_USE_PREBOOT=y
 CONFIG_PREBOOT="fdt addr ${fdtcontroladdr};fdt move ${fdtcontroladdr} ${fdtsaveaddr};fdt addr ${fdtsaveaddr};"
 CONFIG_HUSH_PARSER=y
 CONFIG_SYS_PROMPT="U-Boot>"
+CONFIG_CMD_MMC=y
 CONFIG_CMD_SF_TEST=y
 CONFIG_CMD_SPI=y
 CONFIG_OF_PRIOR_STAGE=y
