@@ -13,7 +13,10 @@
  */
 
 #include <common.h>
+#include <dm.h>
+#include <dt-structs.h>
 #include <cpu_func.h>
+#include <errno.h>
 #include <log.h>
 #include <malloc.h>
 #include <memalign.h>
@@ -34,21 +37,9 @@
 
 #define MXSSSP_SMALL_TRANSFER	512
 
-static void mxs_spi_start_xfer(struct mxs_ssp_regs *ssp_regs)
-{
-	writel(SSP_CTRL0_LOCK_CS, &ssp_regs->hw_ssp_ctrl0_set);
-	writel(SSP_CTRL0_IGNORE_CRC, &ssp_regs->hw_ssp_ctrl0_clr);
-}
-
-static void mxs_spi_end_xfer(struct mxs_ssp_regs *ssp_regs)
-{
-	writel(SSP_CTRL0_LOCK_CS, &ssp_regs->hw_ssp_ctrl0_clr);
-	writel(SSP_CTRL0_IGNORE_CRC, &ssp_regs->hw_ssp_ctrl0_set);
-}
-
-#include <dm.h>
-#include <errno.h>
-#include <dt-structs.h>
+/* Base numbers of i.MX2[38] clk for ssp0 IP block */
+#define MXS_SSP_IMX23_CLKID_SSP0 33
+#define MXS_SSP_IMX28_CLKID_SSP0 46
 
 #ifdef CONFIG_MX28
 #define dtd_fsl_imx_spi dtd_fsl_imx28_spi
@@ -74,6 +65,18 @@ struct mxs_spi_priv {
 	unsigned int clk_id;
 	unsigned int mode;
 };
+
+static void mxs_spi_start_xfer(struct mxs_ssp_regs *ssp_regs)
+{
+	writel(SSP_CTRL0_LOCK_CS, &ssp_regs->hw_ssp_ctrl0_set);
+	writel(SSP_CTRL0_IGNORE_CRC, &ssp_regs->hw_ssp_ctrl0_clr);
+}
+
+static void mxs_spi_end_xfer(struct mxs_ssp_regs *ssp_regs)
+{
+	writel(SSP_CTRL0_LOCK_CS, &ssp_regs->hw_ssp_ctrl0_clr);
+	writel(SSP_CTRL0_IGNORE_CRC, &ssp_regs->hw_ssp_ctrl0_set);
+}
 
 static int mxs_spi_xfer_pio(struct mxs_spi_priv *priv,
 			    char *data, int length, int write,
@@ -311,10 +314,6 @@ int mxs_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		return mxs_spi_xfer_dma(priv, data, len, write, flags);
 	}
 }
-
-/* Base numbers of i.MX2[38] clk for ssp0 IP block */
-#define MXS_SSP_IMX23_CLKID_SSP0 33
-#define MXS_SSP_IMX28_CLKID_SSP0 46
 
 static int mxs_spi_probe(struct udevice *bus)
 {
