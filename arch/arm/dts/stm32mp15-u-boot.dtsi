@@ -88,6 +88,16 @@
 	u-boot,dm-pre-reloc;
 };
 
+&cpu0_opp_table {
+	u-boot,dm-spl;
+	opp-650000000 {
+		u-boot,dm-spl;
+	};
+	opp-800000000 {
+		u-boot,dm-spl;
+	};
+};
+
 &gpioa {
 	u-boot,dm-pre-reloc;
 };
