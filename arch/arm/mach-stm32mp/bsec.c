@@ -474,20 +474,23 @@ static int stm32mp_bsec_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
-#ifndef CONFIG_TFABOOT
 static int stm32mp_bsec_probe(struct udevice *dev)
 {
+#if !defined(CONFIG_TFABOOT) && !defined(CONFIG_SPL_BUILD)
 	int otp;
 	struct stm32mp_bsec_platdata *plat = dev_get_platdata(dev);
 
-	/* update unlocked shadow for OTP cleared by the rom code */
+	/*
+	 * update unlocked shadow for OTP cleared by the rom code
+	 * only executed in U-Boot proper when TF-A is not used
+	 */
 	for (otp = 57; otp <= BSEC_OTP_MAX_VALUE; otp++)
 		if (!bsec_read_SR_lock(plat->base, otp))
 			bsec_shadow_register(plat->base, otp);
+#endif
 
 	return 0;
 }
-#endif
 
 static const struct udevice_id stm32mp_bsec_ids[] = {
 	{ .compatible = "st,stm32mp15-bsec" },
@@ -501,7 +504,5 @@ U_BOOT_DRIVER(stm32mp_bsec) = {
 	.ofdata_to_platdata = stm32mp_bsec_ofdata_to_platdata,
 	.platdata_auto_alloc_size = sizeof(struct stm32mp_bsec_platdata),
 	.ops = &stm32mp_bsec_ops,
-#ifndef CONFIG_TFABOOT
 	.probe = stm32mp_bsec_probe,
-#endif
 };
