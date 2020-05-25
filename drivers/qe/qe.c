@@ -26,7 +26,7 @@
 
 #define MPC85xx_DEVDISR_QE_DISABLE	0x1
 
-qe_map_t		*qe_immr = NULL;
+qe_map_t		*qe_immr;
 #ifdef CONFIG_QE
 static qe_snum_t	snums[QE_NUM_OF_SNUM];
 #endif
@@ -38,18 +38,16 @@ void qe_issue_cmd(uint cmd, uint sbc, u8 mcn, u32 cmd_data)
 	u32 cecr;
 
 	if (cmd == QE_RESET) {
-		out_be32(&qe_immr->cp.cecr,(u32) (cmd | QE_CR_FLG));
+		out_be32(&qe_immr->cp.cecr, (u32)(cmd | QE_CR_FLG));
 	} else {
 		out_be32(&qe_immr->cp.cecdr, cmd_data);
 		out_be32(&qe_immr->cp.cecr, (sbc | QE_CR_FLG |
-			 ((u32) mcn<<QE_CR_PROTOCOL_SHIFT) | cmd));
+			 ((u32)mcn << QE_CR_PROTOCOL_SHIFT) | cmd));
 	}
 	/* Wait for the QE_CR_FLG to clear */
 	do {
 		cecr = in_be32(&qe_immr->cp.cecr);
 	} while (cecr & QE_CR_FLG);
-
-	return;
 }
 
 #ifdef CONFIG_QE
@@ -66,12 +64,13 @@ uint qe_muram_alloc(uint size, uint align)
 	if (off != 0)
 		gd->arch.mp_alloc_base += (align - off);
 
-	if ((off = size & align_mask) != 0)
+	off = size & align_mask;
+	if (off != 0)
 		size += (align - off);
 
 	if ((gd->arch.mp_alloc_base + size) >= gd->arch.mp_alloc_top) {
 		gd->arch.mp_alloc_base = savebase;
-		printf("%s: ran out of ram.\n",  __FUNCTION__);
+		printf("%s: ran out of ram.\n",  __func__);
 	}
 
 	retloc = gd->arch.mp_alloc_base;
@@ -93,10 +92,10 @@ void *qe_muram_addr(uint offset)
 #ifdef CONFIG_QE
 static void qe_sdma_init(void)
 {
-	volatile sdma_t	*p;
-	uint		sdma_buffer_base;
+	sdma_t	*p;
+	uint	sdma_buffer_base;
 
-	p = (volatile sdma_t *)&qe_immr->sdma;
+	p = (sdma_t *)&qe_immr->sdma;
 
 	/* All of DMA transaction in bus 1 */
 	out_be32(&p->sdaqr, 0);
@@ -212,7 +211,7 @@ void qe_init(uint qe_base)
 	qe_upload_firmware((const void *)CONFIG_SYS_QE_FW_ADDR);
 
 	/* enable the microcode in IRAM */
-	out_be32(&qe_immr->iram.iready,QE_IRAM_READY);
+	out_be32(&qe_immr->iram.iready, QE_IRAM_READY);
 #endif
 
 	gd->arch.mp_alloc_base = QE_DATAONLY_BASE;
@@ -235,10 +234,12 @@ void u_qe_init(void)
 	void *addr = (void *)CONFIG_SYS_QE_FW_ADDR;
 
 	if (src == BOOT_SOURCE_IFC_NOR)
-		addr = (void *)(CONFIG_SYS_QE_FW_ADDR + CONFIG_SYS_FSL_IFC_BASE);
+		addr = (void *)(CONFIG_SYS_QE_FW_ADDR +
+				CONFIG_SYS_FSL_IFC_BASE);
 
 	if (src == BOOT_SOURCE_QSPI_NOR)
-		addr = (void *)(CONFIG_SYS_QE_FW_ADDR + CONFIG_SYS_FSL_QSPI_BASE);
+		addr = (void *)(CONFIG_SYS_QE_FW_ADDR +
+				CONFIG_SYS_FSL_QSPI_BASE);
 
 	if (src == BOOT_SOURCE_SD_MMC) {
 		int dev = CONFIG_SYS_MMC_ENV_DEV;
@@ -320,7 +321,7 @@ void u_qe_resume(void)
 void qe_reset(void)
 {
 	qe_issue_cmd(QE_RESET, QE_CR_SUBBLOCK_INVALID,
-			 (u8) QE_CR_PROTOCOL_UNSPECIFIED, 0);
+		     (u8)QE_CR_PROTOCOL_UNSPECIFIED, 0);
 }
 
 #ifdef CONFIG_QE
@@ -329,24 +330,22 @@ void qe_assign_page(uint snum, uint para_ram_base)
 	u32	cecr;
 
 	out_be32(&qe_immr->cp.cecdr, para_ram_base);
-	out_be32(&qe_immr->cp.cecr, ((u32) snum<<QE_CR_ASSIGN_PAGE_SNUM_SHIFT)
+	out_be32(&qe_immr->cp.cecr, ((u32)snum << QE_CR_ASSIGN_PAGE_SNUM_SHIFT)
 					 | QE_CR_FLG | QE_ASSIGN_PAGE);
 
 	/* Wait for the QE_CR_FLG to clear */
 	do {
 		cecr = in_be32(&qe_immr->cp.cecr);
-	} while (cecr & QE_CR_FLG );
-
-	return;
+	} while (cecr & QE_CR_FLG);
 }
 #endif
 
 /*
  * brg: 0~15 as BRG1~BRG16
-   rate: baud rate
+ * rate: baud rate
  * BRG input clock comes from the BRGCLK (internal clock generated from
-   the QE clock, it is one-half of the QE clock), If need the clock source
-   from CLKn pin, we have te change the function.
+ * the QE clock, it is one-half of the QE clock), If need the clock source
+ * from CLKn pin, we have te change the function.
  */
 
 #define BRG_CLK		(gd->arch.brg_clk)
@@ -354,12 +353,14 @@ void qe_assign_page(uint snum, uint para_ram_base)
 #ifdef CONFIG_QE
 int qe_set_brg(uint brg, uint rate)
 {
-	volatile uint	*bp;
-	u32		divisor;
-	int		div16 = 0;
+	uint	*bp;
+	u32	divisor;
+	u32	val;
+	int	div16 = 0;
 
 	if (brg >= QE_NUM_OF_BRGS)
 		return -EINVAL;
+
 	bp = (uint *)&qe_immr->brg.brgc1;
 	bp += brg;
 
@@ -369,33 +370,37 @@ int qe_set_brg(uint brg, uint rate)
 		divisor /= 16;
 	}
 
-	*bp = ((divisor - 1) << QE_BRGC_DIVISOR_SHIFT) | QE_BRGC_ENABLE;
-	__asm__ __volatile__("sync");
+	/* CHECK TODO */
+	/*
+	 * was
+	 * *bp = ((divisor - 1) << QE_BRGC_DIVISOR_SHIFT) | QE_BRGC_ENABLE;
+	 * __asm__ __volatile__("sync");
+	 */
 
-	if (div16) {
-		*bp |= QE_BRGC_DIV16;
-		__asm__ __volatile__("sync");
-	}
+	val = ((divisor - 1) << QE_BRGC_DIVISOR_SHIFT) | QE_BRGC_ENABLE;
+	if (div16)
+		val |= QE_BRGC_DIV16;
+
+	out_be32(bp, val);
 
 	return 0;
 }
 #endif
 
-/* Set ethernet MII clock master
-*/
+/* Set ethernet MII clock master */
 int qe_set_mii_clk_src(int ucc_num)
 {
 	u32	cmxgcr;
 
 	/* check if the UCC number is in range. */
-	if ((ucc_num > UCC_MAX_NUM - 1) || (ucc_num < 0)) {
-		printf("%s: ucc num not in ranges\n", __FUNCTION__);
+	if ((ucc_num > UCC_MAX_NUM - 1) || ucc_num < 0) {
+		printf("%s: ucc num not in ranges\n", __func__);
 		return -EINVAL;
 	}
 
 	cmxgcr = in_be32(&qe_immr->qmx.cmxgcr);
 	cmxgcr &= ~QE_CMXGCR_MII_ENET_MNG_MASK;
-	cmxgcr |= (ucc_num <<QE_CMXGCR_MII_ENET_MNG_SHIFT);
+	cmxgcr |= (ucc_num << QE_CMXGCR_MII_ENET_MNG_SHIFT);
 	out_be32(&qe_immr->qmx.cmxgcr, cmxgcr);
 
 	return 0;
@@ -417,7 +422,7 @@ static int qe_firmware_uploaded;
  * the actual uploading of the microcode.
  */
 static void qe_upload_microcode(const void *base,
-	const struct qe_microcode *ucode)
+				const struct qe_microcode *ucode)
 {
 	const u32 *code = base + be32_to_cpu(ucode->code_offset);
 	unsigned int i;
@@ -494,7 +499,7 @@ int qe_upload_firmware(const struct qe_firmware *firmware)
 	}
 
 	/* Validate some of the fields */
-	if ((firmware->count < 1) || (firmware->count > MAX_QE_RISC)) {
+	if (firmware->count < 1 || firmware->count > MAX_QE_RISC) {
 		printf("Invalid data\n");
 		return -EINVAL;
 	}
@@ -522,7 +527,7 @@ int qe_upload_firmware(const struct qe_firmware *firmware)
 	 * function isn't available unless you turn on JFFS support.
 	 */
 	crc = be32_to_cpu(*(u32 *)((void *)firmware + calc_size));
-	if (crc != (crc32(-1, (const void *) firmware, calc_size) ^ -1)) {
+	if (crc != (crc32(-1, (const void *)firmware, calc_size) ^ -1)) {
 		printf("Firmware CRC is invalid\n");
 		return -EIO;
 	}
@@ -532,12 +537,12 @@ int qe_upload_firmware(const struct qe_firmware *firmware)
 	 */
 	if (!firmware->split) {
 		out_be16(&qe_immr->cp.cercr,
-			in_be16(&qe_immr->cp.cercr) | QE_CP_CERCR_CIR);
+			 in_be16(&qe_immr->cp.cercr) | QE_CP_CERCR_CIR);
 	}
 
 	if (firmware->soc.model)
 		printf("Firmware '%s' for %u V%u.%u\n",
-			firmware->id, be16_to_cpu(firmware->soc.model),
+		       firmware->id, be16_to_cpu(firmware->soc.model),
 			firmware->soc.major, firmware->soc.minor);
 	else
 		printf("Firmware '%s'\n", firmware->id);
@@ -550,7 +555,7 @@ int qe_upload_firmware(const struct qe_firmware *firmware)
 	strncpy(qe_firmware_info.id, (char *)firmware->id, 62);
 	qe_firmware_info.extended_modes = firmware->extended_modes;
 	memcpy(qe_firmware_info.vtraps, firmware->vtraps,
-		sizeof(firmware->vtraps));
+	       sizeof(firmware->vtraps));
 	qe_firmware_uploaded = 1;
 
 	/* Loop through each microcode. */
@@ -634,7 +639,7 @@ int u_qe_upload_firmware(const struct qe_firmware *firmware)
 	}
 
 	/* Validate some of the fields */
-	if ((firmware->count < 1) || (firmware->count > MAX_QE_RISC)) {
+	if (firmware->count < 1 || firmware->count > MAX_QE_RISC) {
 		printf("Invalid data\n");
 		return -EINVAL;
 	}
@@ -803,7 +808,7 @@ static int qe_cmd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 		if (argc > 3) {
 			ulong length = simple_strtoul(argv[3], NULL, 16);
-			struct qe_firmware *firmware = (void *) addr;
+			struct qe_firmware *firmware = (void *)addr;
 
 			if (length != be32_to_cpu(firmware->header.length)) {
 				printf("Length mismatch\n");
@@ -811,7 +816,7 @@ static int qe_cmd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			}
 		}
 
-		return qe_upload_firmware((const struct qe_firmware *) addr);
+		return qe_upload_firmware((const struct qe_firmware *)addr);
 	}
 
 	return cmd_usage(cmdtp);
@@ -820,7 +825,6 @@ static int qe_cmd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 U_BOOT_CMD(
 	qe, 4, 0, qe_cmd,
 	"QUICC Engine commands",
-	"fw <addr> [<length>] - Upload firmware binary at address <addr> to "
-		"the QE,\n"
+	"fw <addr> [<length>] - Upload firmware binary at address <addr> to the QE,\n"
 	"\twith optional length <length> verification."
 );
