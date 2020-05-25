@@ -164,14 +164,35 @@ int board_ddr_power_init(enum ddr_type ddr_type)
 	return 0;
 }
 
+static int stmpic_buck1_set(struct udevice *dev, u32 voltage_mv)
+{
+	u32 value;
+
+	/* VDDCORE= STMPCI1 BUCK1 ramp=+25mV, 5 => 725mV, 36 => 1500mV */
+	value = ((voltage_mv - 725) / 25) + 5;
+	if (value < 5)
+		value = 5;
+	if (value > 36)
+		value = 36;
+
+	return pmic_clrsetbits(dev,
+			       STPMIC1_BUCKX_MAIN_CR(STPMIC1_BUCK1),
+			       STPMIC1_BUCK_VOUT_MASK,
+			       STPMIC1_BUCK_VOUT(value));
+}
+
 /* early init of PMIC */
-void stpmic1_init(void)
+void stpmic1_init(u32 voltage_mv)
 {
 	struct udevice *dev;
 
 	if (uclass_get_device_by_driver(UCLASS_PMIC,
 					DM_GET_DRIVER(pmic_stpmic1), &dev))
 		return;
+
+	/* update VDDCORE = BUCK1 */
+	if (voltage_mv)
+		stmpic_buck1_set(dev, voltage_mv);
 
 	/* Keep vdd on during the reset cycle */
 	pmic_clrsetbits(dev,
