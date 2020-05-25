@@ -48,3 +48,6 @@ void get_soc_name(char name[SOC_NAME_SIZE]);
 u32 get_bootmode(void);
 
 int setup_mac_address(void);
+
+/* board power management : configure vddcore according OPP */
+void board_vddcore_init(u32 voltage_mv);

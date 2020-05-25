@@ -1229,6 +1229,10 @@ bool stm32mp1_supports_opp(u32 opp_id, u32 cpu_type)
 	}
 }
 
+__weak void board_vddcore_init(u32 voltage_mv)
+{
+}
+
 /*
  * gets OPP parameters (frequency in KHz and voltage in mV) from
  * an OPP table subnode. Platform HW support capabilities are also checked.
@@ -1306,6 +1310,7 @@ int stm32mp1_get_max_opp_freq(struct stm32mp1_clk_priv *priv, u64 *freq_hz)
 		return -FDT_ERR_NOTFOUND;
 
 	*freq_hz = (u64)1000U * freq;
+	board_vddcore_init(voltage);
 
 	return 0;
 }
