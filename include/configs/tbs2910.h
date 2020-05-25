@@ -37,11 +37,9 @@
 #define CONFIG_MXC_UART_BASE		UART1_BASE /* select UART1/UART2 */
 
 /* Framebuffer */
-#ifdef CONFIG_VIDEO
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
-#endif
 
 /* PCI */
 #ifdef CONFIG_CMD_PCI
@@ -102,11 +100,11 @@
 	"scriptaddr=0x14000000\0" \
 	"set_con_serial=setenv stdout serial; " \
 			"setenv stderr serial\0" \
-	"set_con_hdmi=setenv stdout serial,vga; " \
-			"setenv stderr serial,vga\0" \
-	"stderr=serial,vga\0" \
+	"set_con_hdmi=setenv stdout serial,vidconsole; " \
+			"setenv stderr serial,vidconsole\0" \
+	"stderr=serial,vidconsole\0" \
 	"stdin=serial,usbkbd\0" \
-	"stdout=serial,vga\0"
+	"stdout=serial,vidconsole\0"
 
 /* Enable distro boot */
 #define BOOT_TARGET_DEVICES(func) \
