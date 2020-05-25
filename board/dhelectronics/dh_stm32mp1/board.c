@@ -41,6 +41,7 @@
 #include <usb.h>
 #include <usb/dwc2_udc.h>
 #include <watchdog.h>
+#include "../../st/common/stpmic1.h"
 
 /* SYSCFG registers */
 #define SYSCFG_BOOTR		0x00
@@ -198,6 +199,8 @@ int board_stm32mp1_ddr_config_name_match(struct udevice *dev,
 
 int board_early_init_f(void)
 {
+	if (IS_ENABLED(CONFIG_SPL_BUILD))
+		stpmic1_init();
 	board_get_coding_straps();
 
 	return 0;
