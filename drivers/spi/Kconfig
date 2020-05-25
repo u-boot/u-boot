@@ -141,6 +141,14 @@ config FSL_DSPI
 	  this Freescale DSPI IP core. LS102xA and Colibri VF50/VF61 platforms
 	  use this driver.
 
+config FSL_QSPI
+	bool "Freescale QSPI driver"
+	imply SPI_FLASH_BAR
+	help
+	  Enable the Freescale Quad-SPI (QSPI) driver. This driver can be
+	  used to access the SPI NOR flash on platforms embedding this
+	  Freescale IP core.
+
 config ICH_SPI
 	bool "Intel ICH SPI driver"
 	help
@@ -166,6 +174,13 @@ config MPC8XXX_SPI
 	bool "MPC8XXX SPI Driver"
 	help
 	  Enable support for SPI on the MPC8XXX PowerPC SoCs.
+
+config MSCC_BB_SPI
+	bool "MSCC bitbang SPI driver"
+	depends on SOC_VCOREIII
+	help
+	  Enable MSCC bitbang SPI driver. This driver can be used on
+	  MSCC SOCs.
 
 config MT7621_SPI
 	bool "MediaTek MT7621 SPI driver"
@@ -377,13 +392,6 @@ config SOFT_SPI
 	 Enable Soft SPI driver. This driver is to use GPIO simulate
 	 the SPI protocol.
 
-config MSCC_BB_SPI
-	bool "MSCC bitbang SPI driver"
-	depends on SOC_VCOREIII
-	help
-	  Enable MSCC bitbang SPI driver. This driver can be used on
-	  MSCC SOCs.
-
 config FSL_ESPI
 	bool "Freescale eSPI driver"
 	imply SPI_FLASH_BAR
@@ -391,14 +399,6 @@ config FSL_ESPI
 	  Enable the Freescale eSPI driver. This driver can be used to
 	  access the SPI interface and SPI NOR flash on platforms embedding
 	  this Freescale eSPI IP core.
-
-config FSL_QSPI
-	bool "Freescale QSPI driver"
-	imply SPI_FLASH_BAR
-	help
-	  Enable the Freescale Quad-SPI (QSPI) driver. This driver can be
-	  used to access the SPI NOR flash on platforms embedding this
-	  Freescale IP core.
 
 config DAVINCI_SPI
 	bool "Davinci & Keystone SPI driver"
