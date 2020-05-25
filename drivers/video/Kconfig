@@ -14,9 +14,17 @@ config DM_VIDEO
 	  option compiles in the video uclass and routes all LCD/video access
 	  through this.
 
+config BACKLIGHT
+	bool "Enable panel backlight uclass support"
+	depends on DM_VIDEO
+	default y
+	help
+	  This provides backlight uclass driver that enables basic panel
+	  backlight support.
+
 config BACKLIGHT_PWM
 	bool "Generic PWM based Backlight Driver"
-	depends on DM_VIDEO && DM_PWM
+	depends on BACKLIGHT && DM_PWM
 	default y
 	help
 	  If you have a LCD backlight adjustable by PWM, say Y to enable
@@ -27,7 +35,7 @@ config BACKLIGHT_PWM
 
 config BACKLIGHT_GPIO
 	bool "Generic GPIO based Backlight Driver"
-	depends on DM_VIDEO
+	depends on BACKLIGHT
 	help
 	  If you have a LCD backlight adjustable by GPIO, say Y to enable
 	  this driver.
@@ -150,6 +158,21 @@ config NO_FB_CLEAR
 	  on screen, you might want to preserve it until whatever u-boot
 	  loads takes over the screen.  This, for example, can be used to
 	  keep splash image on screen until grub graphical boot menu starts.
+
+config PANEL
+	bool "Enable panel uclass support"
+	depends on DM_VIDEO
+	default y
+	help
+	  This provides panel uclass driver that enables basic panel support.
+
+config SIMPLE_PANEL
+	bool "Enable simple panel support"
+	depends on PANEL
+	default y
+	help
+	  This turns on a simple panel driver that enables a compatible
+	  video panel.
 
 source "drivers/video/fonts/Kconfig"
 
