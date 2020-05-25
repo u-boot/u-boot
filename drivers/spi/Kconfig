@@ -384,12 +384,6 @@ config MSCC_BB_SPI
 	  Enable MSCC bitbang SPI driver. This driver can be used on
 	  MSCC SOCs.
 
-config CF_SPI
-	bool "ColdFire SPI driver"
-	help
-	  Enable the ColdFire SPI driver. This driver can be used on
-	  some m68k SoCs.
-
 config FSL_ESPI
 	bool "Freescale eSPI driver"
 	imply SPI_FLASH_BAR
