@@ -144,7 +144,6 @@
 	st,sig-dir;
 	st,neg-edge;
 	st,use-ckin;
-	sd-uhs-sdr104;
 	bus-width = <4>;
 	vmmc-supply = <&vdd_sd>;
 	vqmmc-supply = <&sd_switch>;
