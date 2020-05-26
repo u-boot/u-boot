@@ -114,8 +114,6 @@ void board_init_f(ulong dummy)
 
 	board_early_init_f();
 
-	timer_init();
-
 	preloader_console_init();
 
 	/* Clear the BSS. */
