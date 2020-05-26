@@ -18,7 +18,6 @@ Build U-Boot
 .. code-block:: bash
 
     $ export CROSS_COMPILE=arm-linux-gnueabi-
-    $ export ARCH=arm
     $ make colibri_imx7_emmc_defconfig # For NAND: colibri_imx7_defconfig
     $ make
 
