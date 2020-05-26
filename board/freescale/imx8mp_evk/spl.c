@@ -104,6 +104,7 @@ int board_fit_config_name_match(const char *name)
 }
 #endif
 
+/* Do not use BSS area in this phase */
 void board_init_f(ulong dummy)
 {
 	int ret;
@@ -122,9 +123,6 @@ void board_init_f(ulong dummy)
 
 	preloader_console_init();
 
-	/* Clear the BSS. */
-	memset(__bss_start, 0, __bss_end - __bss_start);
-
 	enable_tzc380();
 
 	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
@@ -133,6 +131,4 @@ void board_init_f(ulong dummy)
 
 	/* DDR initialization */
 	spl_dram_init();
-
-	board_init_r(NULL, 0);
 }
