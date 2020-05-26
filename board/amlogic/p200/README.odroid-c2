@@ -29,7 +29,6 @@ Currently the u-boot port supports the following devices:
 u-boot compilation
 ==================
 
- > export ARCH=arm
  > export CROSS_COMPILE=aarch64-none-elf-
  > make odroid-c2_defconfig
  > make

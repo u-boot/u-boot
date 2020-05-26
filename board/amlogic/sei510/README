@@ -22,7 +22,6 @@ Currently the u-boot port supports the following devices:
 u-boot compilation
 ==================
 
- > export ARCH=arm
  > export CROSS_COMPILE=aarch64-none-elf-
  > make sei510_defconfig
  > make

@@ -18,7 +18,6 @@ specifications:
 u-boot compilation
 ==================
 
- > export ARCH=arm
  > export CROSS_COMPILE=aarch64-none-elf-
  > make sei610_defconfig
  > make
