@@ -25,10 +25,6 @@
 /* sspi command isn't useful */
 #undef CONFIG_CMD_SPI
 
-/* No useful gpio */
-#undef CONFIG_ZYNQ_GPIO
-#undef CONFIG_CMD_GPIO
-
 /* No falcon support */
 #undef CONFIG_SPL_OS_BOOT
 #undef CONFIG_SPL_FPGA_SUPPORT
