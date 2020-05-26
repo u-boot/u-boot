@@ -16,11 +16,6 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
 /*
- * Compression configuration
- */
-#define CONFIG_BZIP2
-
-/*
  * Commands configuration
  */
 

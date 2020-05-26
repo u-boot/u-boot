@@ -1330,21 +1330,6 @@ The following options need to be configured:
 		can be displayed via the splashscreen support or the
 		bmp command.
 
-- Compression support:
-		CONFIG_GZIP
-
-		Enabled by default to support gzip compressed images.
-
-		CONFIG_BZIP2
-
-		If this option is set, support for bzip2 compressed
-		images is included. If not, only uncompressed and gzip
-		compressed images are supported.
-
-		NOTE: the bzip2 algorithm requires a lot of RAM, so
-		the malloc area (as defined by CONFIG_SYS_MALLOC_LEN) should
-		be at least 4MB.
-
 - MII/PHY support:
 		CONFIG_PHY_CLOCK_FREQ (ppc4xx)
 

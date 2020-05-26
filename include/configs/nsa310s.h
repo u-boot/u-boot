@@ -15,9 +15,6 @@
 #define CONFIG_KW88F6702		1	/* SOC Name */
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
-/* compression configuration */
-#define CONFIG_BZIP2
-
 /* commands configuration */
 
 /*

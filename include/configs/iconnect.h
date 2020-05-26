@@ -21,11 +21,6 @@
 #define CONFIG_MACH_TYPE	MACH_TYPE_ICONNECT
 
 /*
- * Compression configuration
- */
-#define CONFIG_BZIP2
-
-/*
  * Commands configuration
  */
 
