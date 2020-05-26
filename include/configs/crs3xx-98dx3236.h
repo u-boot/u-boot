@@ -3,8 +3,8 @@
  * Copyright (C) 2014 Stefan Roese <sr@denx.de>
  */
 
-#ifndef _CONFIG_CRS305_1G_4S_H
-#define _CONFIG_CRS305_1G_4S_H
+#ifndef _CONFIG_CRS3XX_98DX3236_H
+#define _CONFIG_CRS3XX_98DX3236_H
 
 /*
  * High Level Configuration Options (easy to change)
@@ -32,4 +32,4 @@
 #undef CONFIG_SYS_MAXARGS
 #define CONFIG_SYS_MAXARGS 96
 
-#endif /* _CONFIG_CRS305_1G_4S_H */
+#endif /* _CONFIG_CRS3XX_98DX3236_H */

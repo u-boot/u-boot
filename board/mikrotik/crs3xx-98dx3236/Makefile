@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2015 Stefan Roese <sr@denx.de>
 
-obj-y	:= crs305-1g-4s.o
+obj-y	:= crs3xx-98dx3236.o
 extra-y	:= kwbimage.cfg
 
 quiet_cmd_sed = SED     $@

@@ -1,13 +1,13 @@
-MikroTik CRS305-1G-4S+IN
+MikroTik CRS3XX-98DX3236
 ========================
 
-CRS305-1G-4S+IN is a 4x SFP+ switch with a Gigabit Ethernet port for management.
-Specifications:
+CRS3XX-98DX3236 is a U-Boot port that supports a series of MikroTik switches
+based on the Marvell Prestera 98DX3236 switch with an integrated CPU.
+
+Common specifications:
  - Marvell Prestera 98DX3236 switch with an integrated ARMv7 CPU
  - 512 MB DDR3 RAM
  - UART @ 115200bps
- - 4x SFP+
- - Gigabit Ethernet (AR8033)
  - 16 MB SPI flash (Winbond 25Q128JVSM)
 
 Currently supported hardware:
@@ -15,7 +15,7 @@ Currently supported hardware:
  - SPI boot, environment and load kernel
 
 Planned:
- - Gigabit Ethernet support
+ - Gigabit Ethernet support (internal CPU <-> switch fabric connection)
 
 Getting binary.0
 ================
