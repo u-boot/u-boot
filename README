@@ -1552,14 +1552,6 @@ The following options need to be configured:
 
 		This enable the NEW i2c subsystem, and will allow you to use
 		i2c commands at the u-boot command line (as long as you set
-		CONFIG_CMD_I2C in CONFIG_COMMANDS) and communicate with i2c
-		based realtime clock chips or other i2c devices. See
-		common/cmd_i2c.c for a description of the command line
-		interface.
-
-		ported i2c driver to the new framework:
-		- drivers/i2c/soft_i2c.c:
-		  - activate first bus with CONFIG_SYS_I2C_SOFT define
 		    CONFIG_SYS_I2C_SOFT_SPEED and CONFIG_SYS_I2C_SOFT_SLAVE
 		    for defining speed and slave address
 		  - activate second bus with I2C_SOFT_DECLARATIONS2 define

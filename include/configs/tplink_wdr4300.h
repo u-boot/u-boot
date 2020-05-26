@@ -52,6 +52,4 @@
  * Diagnostics
  */
 
-#define CONFIG_CMD_MII
-
 #endif  /* __CONFIG_H */

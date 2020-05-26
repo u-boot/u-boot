@@ -41,10 +41,6 @@
  */
 #define CONFIG_SYS_NS16550_PORT_MAPPED
 
-/*-----------------------------------------------------------------------
- * Command line configuration.
- */
-
 #ifndef CONFIG_BOOTCOMMAND
 #define CONFIG_BOOTCOMMAND	\
 	"ext2load scsi 0:3 01000000 /boot/vmlinuz; zboot 01000000"

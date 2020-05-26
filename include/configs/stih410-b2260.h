@@ -44,7 +44,6 @@
 			BOOTENV
 
 /* Extra Commands */
-#define CONFIG_CMD_ASKENV
 
 #define CONFIG_SETUP_MEMORY_TAGS
 

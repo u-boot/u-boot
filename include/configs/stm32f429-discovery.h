@@ -44,8 +44,4 @@
 	"bootcmd_romfs=setenv bootargs ${bootargs} ${bootargs_romfs};" \
 	"bootm 0x08044000 - 0x08042000\0"
 
-/*
- * Command line configuration.
- */
-
 #endif /* __CONFIG_H */

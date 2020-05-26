@@ -18,10 +18,6 @@
 #define CONFIG_SYS_TCLK		250000000	/* 250MHz */
 
 /*
- * Commands configuration
- */
-
-/*
  * The debugging version enables USB support via defconfig.
  * This version should also enable all other non-production
  * interfaces / features.

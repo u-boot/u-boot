@@ -355,10 +355,6 @@ void fpga_control_clear(unsigned int bus, int pin);
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
 /*
- * Command line configuration.
- */
-
-/*
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LOAD_ADDR		0x2000000 /* default load address */

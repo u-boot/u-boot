@@ -108,10 +108,6 @@ extern unsigned long long get_phys_ccsrbar_addr_early(void);
 #define CONFIG_LOADS_ECHO		/* echo on for serial download */
 
 /*
- * Command line configuration.
- */
-
-/*
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */

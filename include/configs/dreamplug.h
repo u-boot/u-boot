@@ -17,14 +17,6 @@
 #define CONFIG_SHEEVA_88SV131	1	/* CPU Core subversion */
 #define CONFIG_MACH_TYPE	MACH_TYPE_DREAMPLUG
 
-/*
- * Commands configuration
- */
-
-/*
- * mv-plug-common.h should be defined after CMD configs since it used them
- * to enable certain macros
- */
 #include "mv-plug-common.h"
 
 /*

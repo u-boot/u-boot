@@ -21,7 +21,6 @@
 #define SYS_SDRAM_SIZE_512		0x20000000
 #define SYS_SDRAM_SIZE_1024		0x40000000
 #define CONFIG_CHIP_SELECTS_PER_CTRL	1
-#define CONFIG_CMD_MEMINFO
 
 /* ENV */
 #define CONFIG_SYS_FSL_QSPI_BASE	0x40000000
@@ -114,7 +113,6 @@
 #define CONFIG_BOOTCOMMAND "pfe stop; run distro_bootcmd; run sd_bootcmd; "\
 			   "env exists secureboot && esbc_halt;"
 #endif
-#define CONFIG_CMD_MEMINFO
 
 #include <asm/fsl_secure_boot.h>
 

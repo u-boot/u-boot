@@ -29,10 +29,6 @@
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
 
-/*
- * Command line configuration.
- */
-
 #ifdef CONFIG_SD_BOOT
 
 #ifdef CONFIG_ENV_IS_IN_MMC

@@ -22,9 +22,6 @@
 #define CONFIG_SPL_MAX_FOOTPRINT	CONFIG_SYS_SPI_U_BOOT_OFFS
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME     "u-boot.img"
 
-/* sspi command isn't useful */
-#undef CONFIG_CMD_SPI
-
 /* No falcon support */
 #undef CONFIG_SPL_OS_BOOT
 #undef CONFIG_SPL_FPGA_SUPPORT

@@ -70,10 +70,6 @@
 #define CONFIG_ENV_OVERWRITE
 
 /* Command definition */
-#undef CONFIG_CMD_LOADB
-#undef CONFIG_CMD_LOADS
-#undef CONFIG_CMD_NFS
-#undef CONFIG_CMD_FLASH
 
 #undef CONFIG_IPADDR
 #define CONFIG_IPADDR			192.168.10.2
@@ -212,7 +208,5 @@
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_SYS_MMC_ENV_PART		1
 #endif
-
-#define CONFIG_CMD_TIME
 
 #endif	/* __CONFIG_H */

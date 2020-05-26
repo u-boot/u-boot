@@ -276,10 +276,6 @@
 #define CONFIG_SYS_MMC_ENV_DEV	0
 #endif
 
-/*
- * Command line configuration.
- */
-
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
 
 #ifndef CONFIG_TRAILBLAZER

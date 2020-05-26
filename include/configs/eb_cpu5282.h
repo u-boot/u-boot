@@ -43,10 +43,6 @@
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
 
-/*
- * Command line configuration.
- */
-
 #define CONFIG_MCFTMR
 
 #define	CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size	*/

@@ -51,8 +51,4 @@
 			"ramdisk_addr_r=0x00438000\0"		\
 			BOOTENV
 
-/*
- * Command line configuration.
- */
-
 #endif /* __CONFIG_H */

@@ -32,11 +32,6 @@
 
 #define CONFIG_CONS_INDEX	1	/*Console on UART0 */
 
-/*
- * Commands configuration
- */
-#define CONFIG_CMD_PCI
-
 /* NAND */
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 #define CONFIG_SYS_MAX_NAND_DEVICE 1
@@ -69,9 +64,6 @@
 
 /* NAND */
 #define CONFIG_SYS_NAND_ONFI_DETECTION
-#define CONFIG_CMD_UBI
-#define CONFIG_CMD_UBIFS
-#define CONFIG_CMD_MTDPARTS
 
 #define CONFIG_SYS_MALLOC_LEN		(4 << 20)
 

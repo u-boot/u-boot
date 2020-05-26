@@ -99,8 +99,4 @@
 /* U-Boot memory settings */
 #define CONFIG_SYS_MALLOC_LEN		(1 << 20)
 
-/* Command line configuration */
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_CACHE
-
 #endif /* __CONFIG_H */

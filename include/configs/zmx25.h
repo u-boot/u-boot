@@ -52,14 +52,6 @@
 #define CONFIG_BOOTP_BOOTFILESIZE
 
 /*
- * Command line configuration.
- */
-
-/*
- * Additional command
- */
-
-/*
  * USB
  */
 #ifdef CONFIG_CMD_USB

@@ -144,7 +144,6 @@
 /* FLASH and environment organization */
 #define CONFIG_SYS_MMC_ENV_DEV 0
 
-#define CONFIG_CMD_FUSE
 #define CONFIG_FSL_IIM
 
 #define CONFIG_BCH

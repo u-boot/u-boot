@@ -35,7 +35,6 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
 /* Config CACHE */
-#define CONFIG_CMD_CACHE
 
 #define CONFIG_SYS_FULL_VA
 
@@ -68,12 +67,9 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC_BASE_ADDR
 #define CONFIG_SYS_FSL_ESDHC_NUM	1
 
-/* #define CONFIG_CMD_EXT2 EXT2 Support */
-
 #if 0
 
 /* Ethernet config */
-#define CONFIG_CMD_MII
 #define CONFIG_FEC_MXC
 #define IMX_FEC_BASE            ENET_BASE_ADDR
 #define CONFIG_FEC_XCV_TYPE     RMII

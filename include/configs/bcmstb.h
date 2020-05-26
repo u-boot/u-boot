@@ -127,8 +127,6 @@ extern phys_addr_t prior_stage_fdt_address;
 /*
  * Command configuration.
  */
-#define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_CACHE
 
 /*
  * Flash configuration.
@@ -141,7 +139,6 @@ extern phys_addr_t prior_stage_fdt_address;
  * Filesystem configuration.
  */
 #define CONFIG_DOS_PARTITION
-#define CONFIG_CMD_FS_GENERIC
 
 /*
  * Environment configuration.

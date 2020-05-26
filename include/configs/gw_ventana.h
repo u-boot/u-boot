@@ -102,7 +102,6 @@
 #define CONFIG_POWER_LTC3676_I2C_ADDR  0x3c
 
 /* Various command support */
-#define CONFIG_CMD_UNZIP         /* gzwrite */
 
 /* Ethernet support */
 #define CONFIG_FEC_MXC

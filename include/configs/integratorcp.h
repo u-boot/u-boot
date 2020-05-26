@@ -27,9 +27,6 @@
 #define CONFIG_SMC91111_BASE    0xC8000000
 #undef CONFIG_SMC91111_EXT_PHY
 
-/*
- * Command line configuration.
- */
 #define CONFIG_BOOTCOMMAND "tftpboot ; bootm"
 #define CONFIG_SERVERIP 192.168.1.100
 #define CONFIG_IPADDR 192.168.1.104

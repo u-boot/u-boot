@@ -30,7 +30,6 @@
 
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 /* FUSE command */
-#define CONFIG_CMD_FUSE
 
 /* Boot M4 */
 #define M4_BOOT_ENV \

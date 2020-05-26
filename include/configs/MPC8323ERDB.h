@@ -220,10 +220,6 @@
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
 
-/*
- * Command line configuration.
- */
-
 #undef CONFIG_WATCHDOG		/* watchdog disabled */
 
 /*

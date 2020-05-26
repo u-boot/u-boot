@@ -20,14 +20,6 @@
  */
 #define CONFIG_MACH_TYPE	MACH_TYPE_ICONNECT
 
-/*
- * Commands configuration
- */
-
-/*
- * mv-common.h should be defined after CMD configs since it used them
- * to enable certain macros
- */
 #include "mv-common.h"
 
 /*

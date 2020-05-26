@@ -485,10 +485,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change */
 
 /*
- * Command line configuration.
- */
-
-/*
 * USB
 */
 #define CONFIG_HAS_FSL_DR_USB

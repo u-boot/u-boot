@@ -17,7 +17,6 @@
 
 /* Undef unneeded configs */
 #undef CONFIG_EXTRA_ENV_SETTINGS
-#undef CONFIG_CMD_ENV
 
 /* BOOTP options */
 #undef CONFIG_BOOTP_BOOTFILESIZE

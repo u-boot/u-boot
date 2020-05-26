@@ -101,10 +101,6 @@
 #define CONFIG_USART_ID		0/* ignored in arm */
 
 /*
- * Command line configuration.
- */
-
-/*
  * Network Driver Setting
  */
 #define CONFIG_DRIVER_AT91EMAC

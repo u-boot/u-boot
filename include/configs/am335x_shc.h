@@ -15,9 +15,6 @@
 #include <configs/ti_am335x_common.h>
 
 /* settings we don;t want on this board */
-#undef CONFIG_CMD_SPI
-
-#define CONFIG_CMD_CACHE
 
 #ifndef CONFIG_SPL_BUILD
 # define CONFIG_TIMESTAMP
