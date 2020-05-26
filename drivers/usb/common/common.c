@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <linux/usb/otg.h>
 #include <linux/usb/ch9.h>
+#include <linux/usb/phy.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -64,3 +65,27 @@ enum usb_device_speed usb_get_maximum_speed(ofnode node)
 
 	return USB_SPEED_UNKNOWN;
 }
+
+#if CONFIG_IS_ENABLED(DM_USB)
+static const char *const usbphy_modes[] = {
+	[USBPHY_INTERFACE_MODE_UNKNOWN]	= "",
+	[USBPHY_INTERFACE_MODE_UTMI]	= "utmi",
+	[USBPHY_INTERFACE_MODE_UTMIW]	= "utmi_wide",
+};
+
+enum usb_phy_interface usb_get_phy_mode(ofnode node)
+{
+	const char *phy_type;
+	int i;
+
+	phy_type = ofnode_get_property(node, "phy_type", NULL);
+	if (!phy_type)
+		return USBPHY_INTERFACE_MODE_UNKNOWN;
+
+	for (i = 0; i < ARRAY_SIZE(usbphy_modes); i++)
+		if (!strcmp(phy_type, usbphy_modes[i]))
+			return i;
+
+	return USBPHY_INTERFACE_MODE_UNKNOWN;
+}
+#endif
