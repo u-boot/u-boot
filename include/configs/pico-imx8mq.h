@@ -55,7 +55,6 @@
 #define CONFIG_REMAKE_ELF
 
 #define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_BOARD_LATE_INIT
 
 /* ENET Config */
 /* ENET1 */

@@ -45,6 +45,4 @@
 			"ramdisk_addr_r=0xD0438000\0"		\
 			BOOTENV
 
-#define CONFIG_BOARD_LATE_INIT
-
 #endif /* __CONFIG_H */

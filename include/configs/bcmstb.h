@@ -160,6 +160,5 @@ extern phys_addr_t prior_stage_fdt_address;
  * Set fdtaddr to prior stage-provided DTB in board_late_init, when
  * writeable environment is available.
  */
-#define CONFIG_BOARD_LATE_INIT
 
 #endif /* __BCMSTB_H */

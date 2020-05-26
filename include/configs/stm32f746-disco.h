@@ -58,7 +58,6 @@
 			"ramdisk_addr_r=0xC0438000\0"		\
 			BOOTENV
 
-#define CONFIG_BOARD_LATE_INIT
 #define CONFIG_DISPLAY_BOARDINFO
 
 /* For SPL */
