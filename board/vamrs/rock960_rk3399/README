@@ -57,7 +57,6 @@ Compile the U-Boot
 
   > cd ../u-boot
   > cp ../rkbin/rk33/rk3399_bl31_v1.00.elf ./bl31.elf
-  > export ARCH=arm64
   > export CROSS_COMPILE=aarch64-linux-gnu-
   > make rock960-rk3399_defconfig
   > make
