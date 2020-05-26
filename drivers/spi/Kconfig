@@ -286,6 +286,12 @@ config SPI_SIFIVE
 
 	  The SiFive SPI controller driver is found on various SiFive SoCs.
 
+config SOFT_SPI
+	bool "Soft SPI driver"
+	help
+	 Enable Soft SPI driver. This driver is to use GPIO simulate
+	 the SPI protocol.
+
 config SPI_SUNXI
 	bool "Allwinner SoC SPI controllers"
 	default ARCH_SUNXI
@@ -390,13 +396,6 @@ config ZYNQMP_GQSPI
 	  is used to communicate with qspi flash devices.
 
 endif # if DM_SPI
-
-config SOFT_SPI
-	bool "Soft SPI driver"
-	depends on DM_SPI || (DEPRECATED && !DM_SPI)
-	help
-	 Enable Soft SPI driver. This driver is to use GPIO simulate
-	 the SPI protocol.
 
 config FSL_ESPI
 	bool "Freescale eSPI driver"
