@@ -102,7 +102,7 @@ Building U-BOOT proper image
 
    $ make clean
    $ export CROSS_COMPILE=aarch64-linux-gnu-
-   $ make ARCH=arm cubieboard7_defconfig
+   $ make cubieboard7_defconfig
    $ make u-boot-dtb.img -j16
 
 u-boot-dtb.img can now be flashed to debian image partition mounted on host machine.

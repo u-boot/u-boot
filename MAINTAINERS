@@ -275,6 +275,7 @@ M:	Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 S:	Maintained
 F:	arch/arm/include/asm/arch-owl/
 F:	arch/arm/mach-owl/
+F:	doc/board/actions/
 F:	drivers/clk/owl/
 F:	drivers/serial/serial_owl.c
 F:	include/configs/owl-common.h
