@@ -119,6 +119,12 @@ config CF_SPI
           Enable the ColdFire SPI driver. This driver can be used on
           some m68k SoCs.
 
+config DAVINCI_SPI
+	bool "Davinci & Keystone SPI driver"
+	depends on ARCH_DAVINCI || ARCH_KEYSTONE
+	help
+	  Enable the Davinci SPI driver
+
 config DESIGNWARE_SPI
 	bool "Designware SPI driver"
 	help
@@ -404,12 +410,6 @@ config FSL_ESPI
 	  Enable the Freescale eSPI driver. This driver can be used to
 	  access the SPI interface and SPI NOR flash on platforms embedding
 	  this Freescale eSPI IP core.
-
-config DAVINCI_SPI
-	bool "Davinci & Keystone SPI driver"
-	depends on ARCH_DAVINCI || ARCH_KEYSTONE
-	help
-	  Enable the Davinci SPI driver
 
 config SH_QSPI
 	bool "Renesas Quad SPI driver"

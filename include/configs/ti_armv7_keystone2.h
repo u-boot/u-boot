@@ -64,15 +64,6 @@
 
 /* SPI Configuration */
 #define CONFIG_SYS_SPI_CLK		ks_clk_get_rate(KS2_CLK1_6)
-#define CONFIG_SYS_SPI0
-#define CONFIG_SYS_SPI_BASE		KS2_SPI0_BASE
-#define CONFIG_SYS_SPI0_NUM_CS		4
-#define CONFIG_SYS_SPI1
-#define CONFIG_SYS_SPI1_BASE		KS2_SPI1_BASE
-#define CONFIG_SYS_SPI1_NUM_CS		4
-#define CONFIG_SYS_SPI2
-#define CONFIG_SYS_SPI2_BASE		KS2_SPI2_BASE
-#define CONFIG_SYS_SPI2_NUM_CS		4
 
 /* Network Configuration */
 #define CONFIG_BOOTP_DEFAULT
