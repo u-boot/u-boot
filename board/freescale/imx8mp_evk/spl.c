@@ -29,11 +29,6 @@
 #include <mmc.h>
 #include <asm/arch/ddr.h>
 
-#include <dm/uclass.h>
-#include <dm/device.h>
-#include <dm/uclass-internal.h>
-#include <dm/device-internal.h>
-
 DECLARE_GLOBAL_DATA_PTR;
 
 int spl_board_boot_device(enum boot_device boot_dev_spl)
@@ -48,16 +43,7 @@ void spl_dram_init(void)
 
 void spl_board_init(void)
 {
-	struct udevice *dev;
-	int ret;
-
 	puts("Normal Boot\n");
-
-	ret = uclass_get_device_by_name(UCLASS_CLK,
-					"clock-controller@30380000",
-					&dev);
-	if (ret < 0)
-		printf("Failed to find clock node. Check device tree\n");
 }
 
 #define I2C_PAD_CTRL (PAD_CTL_DSE6 | PAD_CTL_HYS | PAD_CTL_PUE | PAD_CTL_PE)
