@@ -114,16 +114,16 @@ void board_init_f(ulong dummy)
 
 	board_early_init_f();
 
-	preloader_console_init();
-
-	/* Clear the BSS. */
-	memset(__bss_start, 0, __bss_end - __bss_start);
-
-	ret = spl_init();
+	ret = spl_early_init();
 	if (ret) {
 		debug("spl_init() failed: %d\n", ret);
 		hang();
 	}
+
+	preloader_console_init();
+
+	/* Clear the BSS. */
+	memset(__bss_start, 0, __bss_end - __bss_start);
 
 	enable_tzc380();
 
