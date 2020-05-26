@@ -74,7 +74,7 @@ Supported image formats:
 Build instructions:
 ===================
 Examples for k2hk, for k2e, k2l and k2g just replace k2hk prefix accordingly.
-Don't forget to add ARCH=arm and CROSS_COMPILE.
+Don't forget to add CROSS_COMPILE.
 
 To build u-boot.bin, u-boot-spi.gph, MLO:
   >make k2hk_evm_defconfig
