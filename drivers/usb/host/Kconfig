@@ -53,15 +53,6 @@ config USB_XHCI_PCI
 	help
 	  Enables support for the PCI-based xHCI controller.
 
-config USB_XHCI_ROCKCHIP
-	bool "Support for Rockchip on-chip xHCI USB controller"
-	depends on ARCH_ROCKCHIP
-	depends on DM_REGULATOR
-	depends on DM_USB
-	default y
-	help
-	  Enables support for the on-chip xHCI controller on Rockchip SoCs.
-
 config USB_XHCI_RCAR
 	bool "Renesas RCar USB 3.0 support"
 	default y
