@@ -169,7 +169,8 @@
 	BOOTENV \
 	"bootcmd=setenv fdtfile ${fdt_file}; run distro_bootcmd ; " \
 		"usb start ; " \
-		"setenv stdout serial,vga ; setenv stdin serial,usbkbd\0" \
+		"setenv stdout serial,vidconsole; " \
+		"setenv stdin serial,usbkbd\0" \
 	"boot_file=zImage\0" \
 	"console=ttymxc0\0" \
 	"defargs=enable_wait_mode=off vmalloc=400M\0" \
