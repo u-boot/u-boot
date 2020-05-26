@@ -2267,6 +2267,12 @@ sub u_boot_line {
 		WARN("PREFER_IF",
 		     "Use 'if (IS_ENABLED(CONFIG...))' instead of '#if or #ifdef' where possible\n" . $herecurr);
 	}
+
+	# use defconfig to manage CONFIG_CMD options
+	if ($line =~ /\+\s*#\s*(define|undef)\s+(CONFIG_CMD\w*)\b/) {
+		ERROR("DEFINE_CONFIG_CMD",
+		      "All commands are managed by Kconfig\n" . $herecurr);
+	}
 }
 
 sub process {
