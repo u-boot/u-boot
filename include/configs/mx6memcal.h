@@ -13,11 +13,6 @@
 #include "mx6_common.h"
 #include "imx6_spl.h"
 
-#undef CONFIG_MMC
-#undef CONFIG_SPL_MMC_SUPPORT
-#undef CONFIG_GENERIC_MMC
-#undef CONFIG_CMD_FUSE
-
 #define CONFIG_SYS_MALLOC_LEN		(64 * 1024 * 1024)
 
 #define CONFIG_MXC_UART
