@@ -41,15 +41,11 @@
 #define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 0 */
 #define CONFIG_SYS_I2C_SPEED		  100000
 
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_CMD_NAND
 /* Enable NAND support */
-#define CONFIG_CMD_NAND_TRIMFFS
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		0x40000000
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_ONFI_DETECTION
-#endif
 
 /* DMA stuff, needed for GPMI/MXS NAND support */
 
