@@ -9,7 +9,15 @@
 #ifndef __ASSEMBLY__
 #include <asm/fsp2/fsp_api.h>
 
+/**
+ * struct fsp_s_config - FSP-S configuration
+ *
+ * Note that struct fsp_upd_header preceeds this and is 32 bytes long. The
+ * hex offsets mentioned in this file are relative to the start of the header,
+ * the same convention used in Intel's APL FSP header file.
+ */
 struct __packed fsp_s_config {
+	/* 0x20 */
 	u8	active_processor_cores;
 	u8	disable_core1;
 	u8	disable_core2;
@@ -26,6 +34,8 @@ struct __packed fsp_s_config {
 	u8	c_state_auto_demotion;
 	u8	c_state_un_demotion;
 	u8	max_core_c_state;
+
+	/* 0x30 */
 	u8	pkg_c_state_demotion;
 	u8	pkg_c_state_un_demotion;
 	u8	turbo_mode;
@@ -36,6 +46,8 @@ struct __packed fsp_s_config {
 	u8	ipu_acpi_mode;
 	u8	force_wake;
 	u32	gtt_mm_adr;
+
+	/* 0x40 */
 	u32	gm_adr;
 	u8	pavp_lock;
 	u8	graphics_freq_modify;
@@ -49,6 +61,8 @@ struct __packed fsp_s_config {
 	u8	power_gating;
 	u8	unit_level_clock_gating;
 	u8	fast_boot;
+
+	/* 0x50 */
 	u8	dyn_sr;
 	u8	sa_ipu_enable;
 	u8	pm_support;
@@ -56,6 +70,8 @@ struct __packed fsp_s_config {
 	u32	logo_size;
 	u32	logo_ptr;
 	u32	graphics_config_ptr;
+
+	/* 0x60 */
 	u8	pavp_enable;
 	u8	pavp_pr3;
 	u8	cd_clock;
@@ -78,6 +94,8 @@ struct __packed fsp_s_config {
 	u8	hda_enable;
 	u8	dsp_enable;
 	u8	pme;
+
+	/* 0x90 */
 	u8	hd_audio_io_buffer_ownership;
 	u8	hd_audio_io_buffer_voltage;
 	u8	hd_audio_vc_type;
@@ -94,6 +112,8 @@ struct __packed fsp_s_config {
 	u8	hmt;
 	u8	hd_audio_pwr_gate;
 	u8	hd_audio_clk_gate;
+
+	/* 0xa0 */
 	u32	dsp_feature_mask;
 	u32	dsp_pp_module_mask;
 	u8	bios_cfg_lock_down;
@@ -104,6 +124,8 @@ struct __packed fsp_s_config {
 	u8	hpet_function_number;
 	u8	io_apic_bdf_valid;
 	u8	io_apic_bus_number;
+
+	/* 0xb0 */
 	u8	io_apic_device_number;
 	u8	io_apic_function_number;
 	u8	io_apic_entry24_119;
@@ -124,6 +146,8 @@ struct __packed fsp_s_config {
 	u8	i2c2_enable;
 	u8	i2c3_enable;
 	u8	i2c4_enable;
+
+	/* 0xd0 */
 	u8	i2c5_enable;
 	u8	i2c6_enable;
 	u8	i2c7_enable;
@@ -137,6 +161,8 @@ struct __packed fsp_s_config {
 	u8	os_dbg_enable;
 	u8	dci_en;
 	u32	uart2_kernel_debug_base_address;
+
+	/* 0xe0 */
 	u8	pcie_clock_gating_disabled;
 	u8	pcie_root_port8xh_decode;
 	u8	pcie8xh_decode_port_index;
@@ -150,6 +176,8 @@ struct __packed fsp_s_config {
 	u8	pcie_rp_pm_sci[6];
 	u8	pcie_rp_ext_sync[6];
 	u8	pcie_rp_transmitter_half_swing[6];
+
+	/* 0x110 */
 	u8	pcie_rp_acs_enabled[6];
 	u8	pcie_rp_clk_req_supported[6];
 	u8	pcie_rp_clk_req_number[6];
@@ -158,6 +186,8 @@ struct __packed fsp_s_config {
 	u8	pme_interrupt[6];
 	u8	unsupported_request_report[6];
 	u8	fatal_error_report[6];
+
+	/* 0x140 */
 	u8	no_fatal_error_report[6];
 	u8	correctable_error_report[6];
 	u8	system_error_on_fatal_error[6];
@@ -166,6 +196,8 @@ struct __packed fsp_s_config {
 	u8	pcie_rp_speed[6];
 	u8	physical_slot_number[6];
 	u8	pcie_rp_completion_timeout[6];
+
+	/* 0x170 */
 	u8	ptm_enable[6];
 	u8	pcie_rp_aspm[6];
 	u8	pcie_rp_l1_substates[6];
@@ -173,6 +205,8 @@ struct __packed fsp_s_config {
 	u8	pcie_rp_ltr_config_lock[6];
 	u8	pme_b0_s5_dis;
 	u8	pci_clock_run;
+
+	/* 0x190 */
 	u8	timer8254_clk_setting;
 	u8	enable_sata;
 	u8	sata_mode;
@@ -185,6 +219,8 @@ struct __packed fsp_s_config {
 	u8	sata_ports_dev_slp[2];
 	u8	sata_ports_hot_plug[2];
 	u8	sata_ports_interlock_sw[2];
+
+	/* 0x1a0 */
 	u8	sata_ports_external[2];
 	u8	sata_ports_spin_up[2];
 	u8	sata_ports_solid_state_drive[2];
@@ -192,6 +228,8 @@ struct __packed fsp_s_config {
 	u8	sata_ports_dm_val[2];
 	u8	unused_upd_space3[2];
 	u16	sata_ports_dito_val[2];
+
+	/* 0x1b0 */
 	u16	sub_system_vendor_id;
 	u16	sub_system_id;
 	u8	crid_settings;
@@ -206,6 +244,8 @@ struct __packed fsp_s_config {
 	u8	sirq_mode;
 	u8	start_frame_pulse;
 	u8	smbus_enable;
+
+	/* 0x1c0 */
 	u8	arp_enable;
 	u8	unused_upd_space4;
 	u16	num_rsvd_smbus_addresses;
@@ -215,10 +255,14 @@ struct __packed fsp_s_config {
 	u8	usb30_mode;
 	u8	unused_upd_space5[1];
 	u8	port_usb20_enable[8];
+
+	/* 0x250 */
 	u8	port_us20b_over_current_pin[8];
 	u8	usb_otg;
 	u8	hsic_support_enable;
 	u8	port_usb30_enable[6];
+
+	/* 0x260 */
 	u8	port_us30b_over_current_pin[6];
 	u8	ssic_port_enable[2];
 	u16	dlane_pwr_gating;
@@ -227,9 +271,13 @@ struct __packed fsp_s_config {
 	u16	reset_wait_timer;
 	u8	rtc_lock;
 	u8	sata_test_mode;
+
+	/* 0x270 */
 	u8	ssic_rate[2];
 	u16	dynamic_power_gating;
 	u16	pcie_rp_ltr_max_snoop_latency[6];
+
+	/* 0x280 */
 	u8	pcie_rp_snoop_latency_override_mode[6];
 	u8	unused_upd_space6[2];
 	u16	pcie_rp_snoop_latency_override_value[6];
@@ -240,45 +288,69 @@ struct __packed fsp_s_config {
 	u8	pcie_rp_non_snoop_latency_override_mode[6];
 	u8	tco_timer_halt_lock;
 	u8	pwr_btn_override_period;
+
+	/* 0x2b0 */
 	u16	pcie_rp_non_snoop_latency_override_value[6];
 	u8	pcie_rp_non_snoop_latency_override_multiplier[6];
 	u8	pcie_rp_slot_power_limit_scale[6];
 	u8	pcie_rp_slot_power_limit_value[6];
 	u8	disable_native_power_button;
 	u8	power_butter_debounce_mode;
+
+	/* 0x2d0 */
 	u32	sdio_tx_cmd_cntl;
 	u32	sdio_tx_data_cntl1;
 	u32	sdio_tx_data_cntl2;
 	u32	sdio_rx_cmd_data_cntl1;
+
+	/* 0x2e0 */
 	u32	sdio_rx_cmd_data_cntl2;
 	u32	sdcard_tx_cmd_cntl;
 	u32	sdcard_tx_data_cntl1;
 	u32	sdcard_tx_data_cntl2;
+
+	/* 0x2f0 */
 	u32	sdcard_rx_cmd_data_cntl1;
 	u32	sdcard_rx_strobe_cntl;
 	u32	sdcard_rx_cmd_data_cntl2;
 	u32	emmc_tx_cmd_cntl;
+
+	/* 0x300 */
 	u32	emmc_tx_data_cntl1;
 	u32	emmc_tx_data_cntl2;
 	u32	emmc_rx_cmd_data_cntl1;
 	u32	emmc_rx_strobe_cntl;
+
+	/* 0x310 */
 	u32	emmc_rx_cmd_data_cntl2;
 	u32	emmc_master_sw_cntl;
 	u8	pcie_rp_selectable_deemphasis[6];
 	u8	monitor_mwait_enable;
 	u8	hd_audio_dsp_uaa_compliance;
+
+	/* 0x320 */
 	u32	ipc[4];
+
+	/* 0x330 */
 	u8	sata_ports_disable_dynamic_pg[2];
 	u8	init_s3_cpu;
 	u8	skip_punit_init;
 	u8	unused_upd_space7[4];
 	u8	port_usb20_per_port_tx_pe_half[8];
+
+	/* 0x340 */
 	u8	port_usb20_per_port_pe_txi_set[8];
 	u8	port_usb20_per_port_txi_set[8];
+
+	/* 0x350 */
 	u8	port_usb20_hs_skew_sel[8];
 	u8	port_usb20_i_usb_tx_emphasis_en[8];
+
+	/* 0x360 */
 	u8	port_usb20_per_port_rxi_set[8];
 	u8	port_usb20_hs_npre_drv_sel[8];
+
+	/* 0x370 */
 	u8	reserved_fsps_upd[16];
 };
 
