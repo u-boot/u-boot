@@ -31,21 +31,30 @@ static ulong fast_spi_get_bios_region(struct fast_spi_regs *regs,
 	return bios_start;
 }
 
-int fast_spi_get_bios_mmap(pci_dev_t pdev, ulong *map_basep, uint *map_sizep,
-			   uint *offsetp)
+int fast_spi_get_bios_mmap_regs(struct fast_spi_regs *regs, ulong *map_basep,
+				uint *map_sizep, uint *offsetp)
 {
-	struct fast_spi_regs *regs;
-	ulong bar, base, mmio_base;
+	ulong base;
 
-	/* Special case to find mapping without probing the device */
-	pci_x86_read_config(pdev, PCI_BASE_ADDRESS_0, &bar, PCI_SIZE_32);
-	mmio_base = bar & PCI_BASE_ADDRESS_MEM_MASK;
-	regs = (struct fast_spi_regs *)mmio_base;
 	base = fast_spi_get_bios_region(regs, map_sizep);
 	*map_basep = (u32)-*map_sizep - base;
 	*offsetp = base;
 
 	return 0;
+}
+
+int fast_spi_get_bios_mmap(pci_dev_t pdev, ulong *map_basep, uint *map_sizep,
+			   uint *offsetp)
+{
+	struct fast_spi_regs *regs;
+	ulong bar, mmio_base;
+
+	/* Special case to find mapping without probing the device */
+	pci_x86_read_config(pdev, PCI_BASE_ADDRESS_0, &bar, PCI_SIZE_32);
+	mmio_base = bar & PCI_BASE_ADDRESS_MEM_MASK;
+	regs = (struct fast_spi_regs *)mmio_base;
+
+	return fast_spi_get_bios_mmap_regs(regs, map_basep, map_sizep, offsetp);
 }
 
 int fast_spi_early_init(pci_dev_t pdev, ulong mmio_base)
