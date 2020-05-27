@@ -133,14 +133,16 @@ enum dcache_option {
 
 static inline unsigned int current_el(void)
 {
-	unsigned int el;
+	unsigned long el;
+
 	asm volatile("mrs %0, CurrentEL" : "=r" (el) : : "cc");
-	return el >> 2;
+	return 3 & (el >> 2);
 }
 
 static inline unsigned int get_sctlr(void)
 {
-	unsigned int el, val;
+	unsigned int el;
+	unsigned long val;
 
 	el = current_el();
 	if (el == 1)
@@ -153,7 +155,7 @@ static inline unsigned int get_sctlr(void)
 	return val;
 }
 
-static inline void set_sctlr(unsigned int val)
+static inline void set_sctlr(unsigned long val)
 {
 	unsigned int el;
 
