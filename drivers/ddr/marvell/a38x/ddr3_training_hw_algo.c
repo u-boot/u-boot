@@ -91,8 +91,8 @@ int ddr3_tip_write_additional_odt_setting(u32 dev_num, u32 if_id)
 			min_read_sample = read_sample[cs_num];
 	}
 
-	min_read_sample = min_read_sample - 1;
-	max_read_sample = max_read_sample + 4 + (max_phase + 1) / 2 + 1;
+	min_read_sample = min_read_sample + 2;
+	max_read_sample = max_read_sample + 7 + (max_phase + 1) / 2 + 1;
 	if (min_read_sample >= 0xf)
 		min_read_sample = 0xf;
 	if (max_read_sample >= 0x1f)
