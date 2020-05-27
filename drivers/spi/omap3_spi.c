@@ -25,16 +25,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_AM33XX) || defined(CONFIG_AM43XX)
-#define OMAP3_MCSPI1_BASE	0x48030100
-#define OMAP3_MCSPI2_BASE	0x481A0100
-#else
-#define OMAP3_MCSPI1_BASE	0x48098000
-#define OMAP3_MCSPI2_BASE	0x4809A000
-#define OMAP3_MCSPI3_BASE	0x480B8000
-#define OMAP3_MCSPI4_BASE	0x480BA000
-#endif
-
 #define OMAP4_MCSPI_REG_OFFSET	0x100
 
 struct omap2_mcspi_platform_config {
@@ -109,9 +99,6 @@ struct mcspi {
 };
 
 struct omap3_spi_priv {
-#if !CONFIG_IS_ENABLED(DM_SPI)
-	struct spi_slave slave;
-#endif
 	struct mcspi *regs;
 	unsigned int cs;
 	unsigned int freq;
@@ -455,128 +442,6 @@ static void _omap3_spi_claim_bus(struct omap3_spi_priv *priv)
 	writel(conf, &priv->regs->modulctrl);
 }
 
-#if !CONFIG_IS_ENABLED(DM_SPI)
-
-static inline struct omap3_spi_priv *to_omap3_spi(struct spi_slave *slave)
-{
-	return container_of(slave, struct omap3_spi_priv, slave);
-}
-
-void spi_free_slave(struct spi_slave *slave)
-{
-	struct omap3_spi_priv *priv = to_omap3_spi(slave);
-
-	free(priv);
-}
-
-int spi_claim_bus(struct spi_slave *slave)
-{
-	struct omap3_spi_priv *priv = to_omap3_spi(slave);
-
-	spi_reset(priv->regs);
-
-	_omap3_spi_claim_bus(priv);
-	_omap3_spi_set_wordlen(priv);
-	_omap3_spi_set_mode(priv);
-	_omap3_spi_set_speed(priv);
-
-	return 0;
-}
-
-void spi_release_bus(struct spi_slave *slave)
-{
-	struct omap3_spi_priv *priv = to_omap3_spi(slave);
-
-	writel(OMAP3_MCSPI_MODULCTRL_MS, &priv->regs->modulctrl);
-}
-
-struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
-				     unsigned int max_hz, unsigned int mode)
-{
-	struct omap3_spi_priv *priv;
-	struct mcspi *regs;
-
-	/*
-	 * OMAP3 McSPI (MultiChannel SPI) has 4 busses (modules)
-	 * with different number of chip selects (CS, channels):
-	 * McSPI1 has 4 CS (bus 0, cs 0 - 3)
-	 * McSPI2 has 2 CS (bus 1, cs 0 - 1)
-	 * McSPI3 has 2 CS (bus 2, cs 0 - 1)
-	 * McSPI4 has 1 CS (bus 3, cs 0)
-	 */
-
-	switch (bus) {
-	case 0:
-		 regs = (struct mcspi *)OMAP3_MCSPI1_BASE;
-		 break;
-#ifdef OMAP3_MCSPI2_BASE
-	case 1:
-		 regs = (struct mcspi *)OMAP3_MCSPI2_BASE;
-		 break;
-#endif
-#ifdef OMAP3_MCSPI3_BASE
-	case 2:
-		 regs = (struct mcspi *)OMAP3_MCSPI3_BASE;
-		 break;
-#endif
-#ifdef OMAP3_MCSPI4_BASE
-	case 3:
-		 regs = (struct mcspi *)OMAP3_MCSPI4_BASE;
-		 break;
-#endif
-	default:
-		 printf("SPI error: unsupported bus %i.  Supported busses 0 - 3\n", bus);
-		 return NULL;
-	}
-
-	if (((bus == 0) && (cs > 3)) ||
-	    ((bus == 1) && (cs > 1)) ||
-	    ((bus == 2) && (cs > 1)) ||
-	    ((bus == 3) && (cs > 0))) {
-		printf("SPI error: unsupported chip select %i on bus %i\n", cs, bus);
-		return NULL;
-	}
-
-	if (max_hz > OMAP3_MCSPI_MAX_FREQ) {
-		printf("SPI error: unsupported frequency %i Hz. Max frequency is 48 MHz\n",
-		       max_hz);
-		return NULL;
-	}
-
-	if (mode > SPI_MODE_3) {
-		printf("SPI error: unsupported SPI mode %i\n", mode);
-		return NULL;
-	}
-
-	priv = spi_alloc_slave(struct omap3_spi_priv, bus, cs);
-	if (!priv) {
-		printf("SPI error: malloc of SPI structure failed\n");
-		return NULL;
-	}
-
-	priv->regs = regs;
-	priv->cs = cs;
-	priv->freq = max_hz;
-	priv->mode = mode;
-	priv->wordlen = priv->slave.wordlen;
-#if 0
-	/* Please migrate to DM_SPI support for this feature. */
-	priv->pin_dir = MCSPI_PINDIR_D0_OUT_D1_IN;
-#endif
-
-	return &priv->slave;
-}
-
-int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
-	     const void *dout, void *din, unsigned long flags)
-{
-	struct omap3_spi_priv *priv = to_omap3_spi(slave);
-
-	return _spi_xfer(priv, bitlen, dout, din, flags);
-}
-
-#else
-
 static int omap3_spi_claim_bus(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
@@ -701,4 +566,3 @@ U_BOOT_DRIVER(omap3_spi) = {
 	.ops    = &omap3_spi_ops,
 	.priv_auto_alloc_size = sizeof(struct omap3_spi_priv),
 };
-#endif
