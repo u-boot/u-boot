@@ -164,8 +164,8 @@ void board_init_f(ulong flags)
 
 	ret = x86_spl_init();
 	if (ret) {
-		debug("Error %d\n", ret);
-		panic("x86_spl_init fail");
+		printf("x86_spl_init: error %d\n", ret);
+		hang();
 	}
 #if IS_ENABLED(CONFIG_TPL) || IS_ENABLED(CONFIG_SYS_COREBOOT)
 	gd->bd = malloc(sizeof(*gd->bd));
