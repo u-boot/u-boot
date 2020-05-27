@@ -1,6 +1,7 @@
 variables:
   windows_vm: vs2017-win2016
   ubuntu_vm: ubuntu-18.04
+  macos_vm: macOS-10.15
   ci_runner_image: trini/u-boot-gitlab-ci-runner:bionic-20200403-27Apr2020
   # Add '-u 0' options for Azure pipelines, otherwise we get "permission
   # denied" error when it tries to "useradd -m -u 1001 vsts_azpcontainer",
@@ -43,6 +44,20 @@ jobs:
           MSYSTEM: MSYS
           # Tell MSYS2 not to ‘cd’ our startup directory to HOME
           CHERE_INVOKING: yes
+
+  - job: tools_only_macOS
+    displayName: 'Ensure host tools build for macOS X'
+    pool:
+      vmImage: $(macos_vm)
+    steps:
+      - script: brew install make
+        displayName: Brew install dependencies
+      - script: |
+          gmake tools-only_config tools-only NO_SDL=1 \
+            HOSTCFLAGS="-I/usr/local/opt/openssl@1.1/include" \
+            HOSTLDFLAGS="-L/usr/local/opt/openssl@1.1/lib" \
+            -j$(sysctl -n hw.logicalcpu)
+        displayName: 'Perform tools-only build'
 
   - job: cppcheck
     displayName: 'Static code analysis with cppcheck'
