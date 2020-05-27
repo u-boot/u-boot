@@ -77,7 +77,6 @@ enum sbi_ext_rfence_fid {
 #define SBI_FID_REMOTE_SFENCE_VMA_ASID	SBI_EXT_RFENCE_REMOTE_SFENCE_VMA_ASID
 #endif
 
-#define SBI_SPEC_VERSION_DEFAULT	0x1
 #define SBI_SPEC_VERSION_MAJOR_SHIFT	24
 #define SBI_SPEC_VERSION_MAJOR_MASK	0x7f
 #define SBI_SPEC_VERSION_MINOR_MASK	0xffffff
@@ -90,7 +89,6 @@ enum sbi_ext_rfence_fid {
 #define SBI_ERR_DENIED			-4
 #define SBI_ERR_INVALID_ADDRESS		-5
 
-extern unsigned long sbi_spec_version;
 struct sbiret {
 	long error;
 	long value;
