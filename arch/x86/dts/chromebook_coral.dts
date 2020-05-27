@@ -599,13 +599,9 @@
 	fsps,emmc-rx-cmd-data-cntl1 = <0x00181717>;
 	fsps,emmc-rx-cmd-data-cntl2 = <0x10008>;
 
-	/* Enable Audio Clock and Power gating */
-	fsps,hd-audio-clk-gate = <1>;
-	fsps,hd-audio-pwr-gate = <1>;
-	fsps,bios-cfg-lock-down = <1>;
-
-	/* Enable lpss s0ix */
-	fsps,lpss-s0ix-enable = <1>;
+	/* Enable WiFi */
+	fsps,pcie-root-port-en = [01 00 00 00 00 00];
+	fsps,pcie-rp-hot-plug = [00 00 00 00 00 00];
 
 	fsps,skip-mp-init = <1>;
 	fsps,spi-eiss = <0>;
