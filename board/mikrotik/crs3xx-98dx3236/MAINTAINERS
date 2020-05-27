@@ -1,0 +1,11 @@
+CRS3XX-98DX3236 BOARD
+M:	Luka Kovacic <luka.kovacic@sartura.hr>
+S:	Maintained
+F:	board/mikrotik/crs3xx-98dx3236/
+F:	include/configs/crs3xx-98dx3236.h
+
+CRS305-1G-4S BOARD
+M:	Luka Kovacic <luka.kovacic@sartura.hr>
+S:	Maintained
+F:	configs/crs305-1g-4s_defconfig
+F:	arch/arm/dts/armada-xp-crs305-1g-4s.dts

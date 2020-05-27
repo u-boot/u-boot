@@ -9,4 +9,4 @@ VERSION		1
 BOOT_FROM	spi
 
 # Binary Header (bin_hdr) with DDR3 training code
-BINARY board/mikrotik/crs305-1g-4s/binary.0 0000005b 00000068
+BINARY board/mikrotik/crs3xx-98dx3236/binary.0 0000005b 00000068
