@@ -60,13 +60,14 @@ Enabling logging
 The following options are used to enable logging at compile time:
 
    CONFIG_LOG		- Enables the logging system
-   CONFIG_MAX_LOG_LEVEL - Max log level to build (anything higher is compiled
+   CONFIG_LOG_MAX_LEVEL - Max log level to build (anything higher is compiled
 				out)
    CONFIG_LOG_CONSOLE	- Enable writing log records to the console
 
 If CONFIG_LOG is not set, then no logging will be available.
 
-The above have SPL versions also, e.g. CONFIG_SPL_MAX_LOG_LEVEL.
+The above have SPL and TPL versions also, e.g. CONFIG_SPL_LOG_MAX_LEVEL and
+CONFIG_TPL_LOG_MAX_LEVEL.
 
 
 Temporary logging within a single file
