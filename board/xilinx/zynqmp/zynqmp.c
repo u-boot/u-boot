@@ -354,7 +354,7 @@ static int multi_boot(void)
 
 	multiboot = readl(&csu_base->multi_boot);
 
-	printf("Multiboot:\t%x\n", multiboot);
+	printf("Multiboot:\t%d\n", multiboot);
 
 	return 0;
 }
