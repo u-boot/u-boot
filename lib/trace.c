@@ -57,12 +57,12 @@ static inline uintptr_t __attribute__((no_instrument_function))
 	return offset / FUNC_SITE_SIZE;
 }
 
-#ifdef CONFIG_EFI_LOADER
+#if defined(CONFIG_EFI_LOADER) && defined(CONFIG_ARM)
 
 /**
  * trace_gd - the value of the gd register
  */
-static volatile void *trace_gd;
+static volatile gd_t *trace_gd;
 
 /**
  * trace_save_gd() - save the value of the gd register
@@ -82,10 +82,10 @@ static void __attribute__((no_instrument_function)) trace_save_gd(void)
  */
 static void __attribute__((no_instrument_function)) trace_swap_gd(void)
 {
-	volatile void *temp_gd = trace_gd;
+	volatile gd_t *temp_gd = trace_gd;
 
 	trace_gd = gd;
-	gd = temp_gd;
+	set_gd(temp_gd);
 }
 
 #else
