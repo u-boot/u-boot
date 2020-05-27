@@ -5,14 +5,28 @@
 
 #include <common.h>
 #include <cbfs.h>
+#include <log.h>
 #include <malloc.h>
 #include <asm/byteorder.h>
+
+/* Offset of master header from the start of a coreboot ROM */
+#define MASTER_HDR_OFFSET	0x38
 
 static const u32 good_magic = 0x4f524243;
 static const u8 good_file_magic[] = "LARCHIVE";
 
+/**
+ * struct cbfs_priv - Private data for this driver
+ *
+ * @initialised: true if this CBFS has been inited
+ * @start: Start position of CBFS in memory, typically memory-mapped SPI flash
+ * @header: Header read from the CBFS, byte-swapped so U-Boot can access it
+ * @file_cache: List of file headers read from CBFS
+ * @result: Success/error result
+ */
 struct cbfs_priv {
-	int initialized;
+	bool initialized;
+	void *start;
 	struct cbfs_header header;
 	struct cbfs_cachenode *file_cache;
 	enum cbfs_result result;
@@ -77,19 +91,19 @@ static void swap_file_header(struct cbfs_fileheader *dest,
  * @param used		A pointer to the count of of bytes scanned through,
  *			including the file if one is found.
  *
- * @return 1 if a file is found, 0 if one isn't.
+ * @return 0 if a file is found, -ENOENT if one isn't, -EBADF if a bad header
+ *	is found.
  */
-static int file_cbfs_next_file(struct cbfs_priv *priv, u8 *start, u32 size,
-			       u32 align, struct cbfs_cachenode *new_node,
-			       u32 *used)
+static int file_cbfs_next_file(struct cbfs_priv *priv, void *start, int size,
+			       int align, struct cbfs_cachenode *new_node,
+			       int *used)
 {
 	struct cbfs_fileheader header;
 
 	*used = 0;
 
 	while (size >= align) {
-		const struct cbfs_fileheader *file_header =
-			(const struct cbfs_fileheader *)start;
+		const struct cbfs_fileheader *file_header = start;
 		u32 name_len;
 		u32 step;
 
@@ -105,7 +119,7 @@ static int file_cbfs_next_file(struct cbfs_priv *priv, u8 *start, u32 size,
 		swap_file_header(&header, file_header);
 		if (header.offset < sizeof(struct cbfs_fileheader)) {
 			priv->result = CBFS_BAD_FILE;
-			return -1;
+			return -EBADF;
 		}
 		new_node->next = NULL;
 		new_node->type = header.type;
@@ -122,18 +136,19 @@ static int file_cbfs_next_file(struct cbfs_priv *priv, u8 *start, u32 size,
 			step = step + align - step % align;
 
 		*used += step;
-		return 1;
+		return 0;
 	}
-	return 0;
+
+	return -ENOENT;
 }
 
 /* Look through a CBFS instance and copy file metadata into regular memory. */
-static void file_cbfs_fill_cache(struct cbfs_priv *priv, u8 *start, u32 size,
-				 u32 align)
+static int file_cbfs_fill_cache(struct cbfs_priv *priv, int size, int align)
 {
 	struct cbfs_cachenode *cache_node;
 	struct cbfs_cachenode *new_node;
 	struct cbfs_cachenode **cache_tail = &priv->file_cache;
+	void *start;
 
 	/* Clear out old information. */
 	cache_node = priv->file_cache;
@@ -144,21 +159,23 @@ static void file_cbfs_fill_cache(struct cbfs_priv *priv, u8 *start, u32 size,
 	}
 	priv->file_cache = NULL;
 
+	start = priv->start;
 	while (size >= align) {
-		int result;
-		u32 used;
+		int used;
+		int ret;
 
 		new_node = (struct cbfs_cachenode *)
 				malloc(sizeof(struct cbfs_cachenode));
-		result = file_cbfs_next_file(priv, start, size, align, new_node,
-					     &used);
+		if (!new_node)
+			return -ENOMEM;
+		ret = file_cbfs_next_file(priv, start, size, align, new_node,
+					  &used);
 
-		if (result < 0) {
+		if (ret < 0) {
 			free(new_node);
-			return;
-		} else if (result == 0) {
-			free(new_node);
-			break;
+			if (ret == -ENOENT)
+				break;
+			return ret;
 		}
 		*cache_tail = new_node;
 		cache_tail = &new_node->next;
@@ -167,85 +184,117 @@ static void file_cbfs_fill_cache(struct cbfs_priv *priv, u8 *start, u32 size,
 		start += used;
 	}
 	priv->result = CBFS_SUCCESS;
-}
 
-/* Get the CBFS header out of the ROM and do endian conversion. */
-static int file_cbfs_load_header(uintptr_t end_of_rom,
-				 struct cbfs_header *header)
-{
-	struct cbfs_header *header_in_rom;
-	int32_t offset = *(u32 *)(end_of_rom - 3);
-
-	header_in_rom = (struct cbfs_header *)(end_of_rom + offset + 1);
-	swap_header(header, header_in_rom);
-
-	if (header->magic != good_magic || header->offset >
-			header->rom_size - header->boot_block_size) {
-		cbfs_s.result = CBFS_BAD_HEADER;
-		return 1;
-	}
 	return 0;
 }
 
-static int cbfs_load_header_ptr(struct cbfs_priv *priv, ulong base,
-				struct cbfs_header *header)
+/**
+ * load_header() - Load the CBFS header
+ *
+ * Get the CBFS header out of the ROM and do endian conversion.
+ *
+ * @priv: Private data, which is inited by this function
+ * @addr: Address of CBFS header in memory-mapped SPI flash
+ * @return 0 if OK, -ENXIO if the header is bad
+ */
+static int load_header(struct cbfs_priv *priv, ulong addr)
 {
+	struct cbfs_header *header = &priv->header;
 	struct cbfs_header *header_in_rom;
 
-	header_in_rom = (struct cbfs_header *)base;
+	memset(priv, '\0', sizeof(*priv));
+	header_in_rom = (struct cbfs_header *)addr;
 	swap_header(header, header_in_rom);
 
 	if (header->magic != good_magic || header->offset >
 			header->rom_size - header->boot_block_size) {
 		priv->result = CBFS_BAD_HEADER;
-		return -EFAULT;
+		return -ENXIO;
 	}
 
 	return 0;
 }
 
-static void cbfs_init(struct cbfs_priv *priv, uintptr_t end_of_rom)
+/**
+ * file_cbfs_load_header() - Get the CBFS header out of the ROM, given the end
+ *
+ * @priv: Private data, which is inited by this function
+ * @end_of_rom: Address of the last byte of the ROM (typically 0xffffffff)
+ * @return 0 if OK, -ENXIO if the header is bad
+ */
+static int file_cbfs_load_header(struct cbfs_priv *priv, ulong end_of_rom)
 {
-	u8 *start_of_rom;
+	int offset = *(u32 *)(end_of_rom - 3);
+	int ret;
 
-	priv->initialized = 0;
+	ret = load_header(priv, end_of_rom + offset + 1);
+	if (ret)
+		return ret;
+	priv->start = (void *)(end_of_rom + 1 - priv->header.rom_size);
 
-	if (file_cbfs_load_header(end_of_rom, &priv->header))
-		return;
-
-	start_of_rom = (u8 *)(end_of_rom + 1 - priv->header.rom_size);
-
-	file_cbfs_fill_cache(priv, start_of_rom, priv->header.rom_size,
-			     priv->header.align);
-	if (priv->result == CBFS_SUCCESS)
-		priv->initialized = 1;
+	return 0;
 }
 
-void file_cbfs_init(uintptr_t end_of_rom)
+/**
+ * cbfs_load_header_ptr() - Get the CBFS header out of the ROM, given the base
+ *
+ * @priv: Private data, which is inited by this function
+ * @base: Address of the first byte of the ROM (e.g. 0xff000000)
+ * @return 0 if OK, -ENXIO if the header is bad
+ */
+static int cbfs_load_header_ptr(struct cbfs_priv *priv, ulong base)
 {
-	cbfs_init(&cbfs_s, end_of_rom);
+	int ret;
+
+	ret = load_header(priv, base + MASTER_HDR_OFFSET);
+	if (ret)
+		return ret;
+	priv->start = (void *)base;
+
+	return 0;
 }
 
-int cbfs_init_mem(ulong base, ulong size, struct cbfs_priv **privp)
+static int cbfs_init(struct cbfs_priv *priv, ulong end_of_rom)
+{
+	int ret;
+
+	ret = file_cbfs_load_header(priv, end_of_rom);
+	if (ret)
+		return ret;
+
+	ret = file_cbfs_fill_cache(priv, priv->header.rom_size,
+				   priv->header.align);
+	if (ret)
+		return ret;
+	priv->initialized = true;
+
+	return 0;
+}
+
+int file_cbfs_init(ulong end_of_rom)
+{
+	return cbfs_init(&cbfs_s, end_of_rom);
+}
+
+int cbfs_init_mem(ulong base, struct cbfs_priv **privp)
 {
 	struct cbfs_priv priv_s, *priv = &priv_s;
 	int ret;
 
 	/*
 	 * Use a local variable to start with until we know that the CBFS is
-	 * valid. Assume that a master header appears at the start, at offset
-	 * 0x38.
+	 * valid.
 	 */
-	ret = cbfs_load_header_ptr(priv, base + 0x38, &priv->header);
+	ret = cbfs_load_header_ptr(priv, base);
 	if (ret)
 		return ret;
 
-	file_cbfs_fill_cache(priv, (u8 *)base, priv->header.rom_size,
-			     priv->header.align);
-	if (priv->result != CBFS_SUCCESS)
-		return -EINVAL;
+	ret = file_cbfs_fill_cache(priv, priv->header.rom_size,
+				   priv->header.align);
+	if (ret)
+		return log_msg_ret("fill", ret);
 
-	priv->initialized = 1;
+	priv->initialized = true;
 	priv = malloc(sizeof(priv_s));
 	if (!priv)
 		return -ENOMEM;
@@ -324,42 +373,59 @@ const struct cbfs_cachenode *file_cbfs_find(const char *name)
 	return cbfs_find_file(&cbfs_s, name);
 }
 
-const struct cbfs_cachenode *file_cbfs_find_uncached(uintptr_t end_of_rom,
-						     const char *name)
+static int find_uncached(struct cbfs_priv *priv, const char *name, void *start,
+			 struct cbfs_cachenode *node)
 {
-	struct cbfs_priv *priv = &cbfs_s;
-	u8 *start;
-	u32 size;
-	u32 align;
-	static struct cbfs_cachenode node;
-
-	if (file_cbfs_load_header(end_of_rom, &priv->header))
-		return NULL;
-
-	start = (u8 *)(end_of_rom + 1 - priv->header.rom_size);
-	size = priv->header.rom_size;
-	align = priv->header.align;
+	int size = priv->header.rom_size;
+	int align = priv->header.align;
 
 	while (size >= align) {
-		int result;
-		u32 used;
+		int used;
+		int ret;
 
-		result = file_cbfs_next_file(priv, start, size, align, &node,
-					     &used);
-
-		if (result < 0)
-			return NULL;
-		else if (result == 0)
+		ret = file_cbfs_next_file(priv, start, size, align, node,
+					  &used);
+		if (ret == -ENOENT)
 			break;
-
-		if (!strcmp(name, node.name))
-			return &node;
+		else if (ret)
+			return ret;
+		if (!strcmp(name, node->name))
+			return 0;
 
 		size -= used;
 		start += used;
 	}
-	cbfs_s.result = CBFS_FILE_NOT_FOUND;
-	return NULL;
+	priv->result = CBFS_FILE_NOT_FOUND;
+
+	return -ENOENT;
+}
+
+int file_cbfs_find_uncached(ulong end_of_rom, const char *name,
+			    struct cbfs_cachenode *node)
+{
+	struct cbfs_priv priv;
+	void *start;
+	int ret;
+
+	ret = file_cbfs_load_header(&priv, end_of_rom);
+	if (ret)
+		return ret;
+	start = priv.start;
+
+	return find_uncached(&priv, name, start, node);
+}
+
+int file_cbfs_find_uncached_base(ulong base, const char *name,
+				 struct cbfs_cachenode *node)
+{
+	struct cbfs_priv priv;
+	int ret;
+
+	ret = cbfs_load_header_ptr(&priv, base);
+	if (ret)
+		return ret;
+
+	return find_uncached(&priv, name, (void *)base, node);
 }
 
 const char *file_cbfs_name(const struct cbfs_cachenode *file)

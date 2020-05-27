@@ -69,6 +69,17 @@ static void cb_parse_vbnv(unsigned char *ptr, struct sysinfo_t *info)
 	info->vbnv_size = vbnv->vbnv_size;
 }
 
+static void cb_parse_cbmem_entry(unsigned char *ptr, struct sysinfo_t *info)
+{
+	struct cb_cbmem_entry *entry = (struct cb_cbmem_entry *)ptr;
+
+	if (entry->id != CBMEM_ID_SMBIOS)
+		return;
+
+	info->smbios_start = entry->address;
+	info->smbios_size = entry->entry_size;
+}
+
 static void cb_parse_gpios(unsigned char *ptr, struct sysinfo_t *info)
 {
 	int i;
@@ -205,6 +216,9 @@ static int cb_parse_header(void *addr, int len, struct sysinfo_t *info)
 			break;
 		case CB_TAG_VBNV:
 			cb_parse_vbnv(ptr, info);
+			break;
+		case CB_TAG_CBMEM_ENTRY:
+			cb_parse_cbmem_entry(ptr, info);
 			break;
 		default:
 			cb_parse_unhandled(rec->tag, ptr);

@@ -49,6 +49,8 @@ struct sysinfo_t {
 	u32	vdat_size;
 	void	*tstamp_table;
 	void	*cbmem_cons;
+	u64 smbios_start;
+	u32 smbios_size;
 
 	struct cb_serial *serial;
 };

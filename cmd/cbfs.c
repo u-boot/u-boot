@@ -28,8 +28,7 @@ static int do_cbfs_init(struct cmd_tbl *cmdtp, int flag, int argc,
 			return 1;
 		}
 	}
-	file_cbfs_init(end_of_rom);
-	if (cbfs_get_result() != CBFS_SUCCESS) {
+	if (file_cbfs_init(end_of_rom)) {
 		printf("%s.\n", file_cbfs_error());
 		return 1;
 	}

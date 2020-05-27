@@ -81,11 +81,10 @@ static int get_cbfs_fsp(enum fsp_type_t type, ulong map_base,
 	 * 'COREBOOT' (CBFS, size 1814528, offset 2117632).
 	 */
 	ulong cbfs_base = 0x205000;
-	ulong cbfs_size = 0x1bb000;
 	struct cbfs_priv *cbfs;
 	int ret;
 
-	ret = cbfs_init_mem(map_base + cbfs_base, cbfs_size, &cbfs);
+	ret = cbfs_init_mem(map_base + cbfs_base, &cbfs);
 	if (ret)
 		return ret;
 	if (!ret) {
