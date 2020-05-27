@@ -516,6 +516,11 @@
 		20 23 22 21 18 19 16 17
 		/* DQB[7:15] pins of LPDDR4 module with offset of 16 */
 		25 28 30 31 26 27 24 29>;
+
+	fspm,dimm0-spd-address = <0>;
+	fspm,dimm1-spd-address = <0>;
+	fspm,skip-cse-rbp = <1>;
+	fspm,enable-s3-heci2 = <0>;
 };
 
 &fsp_s {
