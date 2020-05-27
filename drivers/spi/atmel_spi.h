@@ -79,17 +79,6 @@
 #define ATMEL_SPI_BITS_15		7
 #define ATMEL_SPI_BITS_16		8
 
-struct atmel_spi_slave {
-	struct spi_slave slave;
-	void		*regs;
-	u32		mr;
-};
-
-static inline struct atmel_spi_slave *to_atmel_spi(struct spi_slave *slave)
-{
-	return container_of(slave, struct atmel_spi_slave, slave);
-}
-
 /* Register access macros */
 #define spi_readl(as, reg)					\
 	readl(as->regs + ATMEL_SPI_##reg)
