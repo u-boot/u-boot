@@ -43,15 +43,15 @@ static ulong spl_nand_fit_read(struct spl_load_info *load, ulong offs,
 			       ulong size, void *dst)
 {
 	ulong sector;
-	int ret;
+	int err;
 
 	sector = *(int *)load->priv;
 	offs = sector + nand_spl_adjust_offset(sector, offs - sector);
-	ret = nand_spl_load_image(offs, size, dst);
-	if (!ret)
-		return size;
-	else
+	err = nand_spl_load_image(offs, size, dst);
+	if (err)
 		return 0;
+
+	return size;
 }
 
 static int spl_nand_load_element(struct spl_image_info *spl_image,
