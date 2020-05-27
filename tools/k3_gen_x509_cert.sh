@@ -12,7 +12,7 @@ RAND_KEY=eckey.pem
 LOADADDR=0x41c00000
 BOOTCORE_OPTS=0
 BOOTCORE=16
-DEBUG_TYPE=4
+DEBUG_TYPE=0
 
 gen_degen_template() {
 cat << 'EOF' > degen-template.txt
@@ -152,7 +152,7 @@ options_help[k]="key_file:file with key inside it. If not provided script genera
 options_help[o]="output_file:Name of the final output file. default to $OUTPUT"
 options_help[c]="core_id:target core id on which the image would be running. Default to $BOOTCORE"
 options_help[l]="loadaddr: Target load address of the binary in hex. Default to $LOADADDR"
-options_help[d]="debug_type: Debug type, set to 0 to disable early JTAG. Default to $DEBUG_TYPE"
+options_help[d]="debug_type: Debug type, set to 4 to enable early JTAG. Default to $DEBUG_TYPE"
 
 while getopts "b:k:o:c:l:d:h" opt
 do
