@@ -4,4 +4,8 @@
  * Author: Neil Armstrong <narmstrong@baylibre.com>
  */
 
-#include "meson-gx-u-boot.dtsi"
+#include "meson-gxl-u-boot.dtsi"
+
+&dwc2 {
+	status = "okay";
+};
