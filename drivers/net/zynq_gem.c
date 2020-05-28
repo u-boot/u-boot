@@ -749,6 +749,7 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 	priv->iobase = (struct zynq_gem_regs *)pdata->iobase;
 	/* Hardcode for now */
 	priv->phyaddr = -1;
+	priv->mdiobase = priv->iobase;
 
 	if (!dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0,
 					&phandle_args)) {
@@ -765,13 +766,10 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 
 		parent = ofnode_get_parent(phandle_args.node);
 		addr = ofnode_get_addr(parent);
-		if (addr == FDT_ADDR_T_NONE) {
-			printf("MDIO bus not found %s\n", dev->name);
-			return -ENODEV;
+		if (addr != FDT_ADDR_T_NONE) {
+			debug("MDIO bus not found %s\n", dev->name);
+			priv->mdiobase = (struct zynq_gem_regs *)addr;
 		}
-		priv->mdiobase = (struct zynq_gem_regs *)addr;
-	} else {
-		priv->mdiobase = priv->iobase;
 	}
 
 	phy_mode = dev_read_prop(dev, "phy-mode", NULL);
