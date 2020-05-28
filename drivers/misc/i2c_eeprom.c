@@ -301,19 +301,20 @@ static int i2c_eeprom_partition_probe(struct udevice *dev)
 static int i2c_eeprom_partition_ofdata_to_platdata(struct udevice *dev)
 {
 	struct i2c_eeprom_partition *priv = dev_get_priv(dev);
-	u32 offset, size;
+	u32 reg[2];
 	int ret;
 
-	ret = dev_read_u32(dev, "offset", &offset);
+	ret = dev_read_u32_array(dev, "reg", reg, 2);
 	if (ret)
 		return ret;
 
-	ret = dev_read_u32(dev, "size", &size);
-	if (ret)
-		return ret;
+	if (!reg[1])
+		return -EINVAL;
 
-	priv->offset = offset;
-	priv->size = size;
+	priv->offset = reg[0];
+	priv->size = reg[1];
+
+	debug("%s: base %x, size %x\n", __func__, priv->offset, priv->size);
 
 	return 0;
 }

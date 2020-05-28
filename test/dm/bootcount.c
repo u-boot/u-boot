@@ -25,6 +25,14 @@ static int dm_test_bootcount(struct unit_test_state *uts)
 	ut_assertok(dm_bootcount_get(dev, &val));
 	ut_assert(val == 0xab);
 
+	ut_assertok(uclass_get_device(UCLASS_BOOTCOUNT, 1, &dev));
+	ut_assertok(dm_bootcount_set(dev, 0));
+	ut_assertok(dm_bootcount_get(dev, &val));
+	ut_assert(val == 0);
+	ut_assertok(dm_bootcount_set(dev, 0xab));
+	ut_assertok(dm_bootcount_get(dev, &val));
+	ut_assert(val == 0xab);
+
 	return 0;
 }
 

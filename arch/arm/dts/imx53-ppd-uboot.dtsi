@@ -24,15 +24,15 @@
 &eeprom {
 	partitions {
 		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
 
-		vpd {
-			offset = <0>;
-			size = <1022>;
+		vpd@0 {
+			reg = <0 1022>;
 		};
 
-		bootcount: bootcount {
-			offset = <1022>;
-			size = <2>;
+		bootcount: bootcount@1022 {
+			reg = <1022 2>;
 		};
 	};
 };
