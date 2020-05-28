@@ -441,7 +441,6 @@ Device (PCI0)
 
         Device (PMIC)
         {
-            Name (_ADR, Zero)
             Name (_HID, "INTC100E")
             Name (_CID, "INTC100E")
             Name (_DDN, "Basin Cove PMIC")
