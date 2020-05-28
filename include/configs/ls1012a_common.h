@@ -36,8 +36,11 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 1024 * 1024)
 
-/*SPI device */
+/* PFE */
 #define CONFIG_SYS_FMAN_FW_ADDR		0x400d0000
+#define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x300000
+
+/*SPI device */
 #define CONFIG_SYS_FSL_QSPI_BASE	0x40000000
 
 /* SATA */
