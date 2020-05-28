@@ -43,19 +43,6 @@
 
 &gem1 {
 	status = "okay";
-	/* U-Boot gmii-to-rgmii bridge */
-	phy-mode = "gmii";
-	phy-handle = <&gmiitorgmii>;
-	phy: ethernet-phy@0 {
-		reg = <0x0>;
-	};
-	gmiitorgmii: gmiitorgmii@8 {
-		compatible = "xlnx,gmii-to-rgmii-1.0";
-		reg = <8>;
-		phy-handle = <&phy>;
-	};
-
-	/* Linux gmii-to-rgmii bridge */
 	mdio {
 		#address-cells = <1>;
 		#size-cells = <0>;
