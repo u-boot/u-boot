@@ -520,7 +520,6 @@ Device (PCI0)
     Device (GDMA)
     {
         Name (_ADR, 0x00150000)
-        Name (_HID, "808611A2")
         Name (_UID, Zero)
 
         Method (_STA, 0, NotSerialized)
