@@ -20,17 +20,6 @@ The support for following drivers are already enabled:
 4. SiFive SPI Driver.
 5. MMC SPI Driver for MMC/SD support.
 
-TODO:
-
-1. U-Boot expects the serial console device entry to be present under /chosen
-   DT node. Without a serial console U-Boot will panic. Example:
-
-.. code-block:: none
-
-   chosen {
-        stdout-path = "/soc/serial@10010000:115200";
-   };
-
 Booting from MMC using FSBL
 ---------------------------
 
@@ -60,7 +49,7 @@ firmware. We need to compile OpenSBI with below command:
 
 .. code-block:: none
 
-make PLATFORM=sifive/fu540 FW_PAYLOAD_PATH=<path to u-boot-dtb.bin>
+	make PLATFORM=generic FW_PAYLOAD_PATH=<path to u-boot-dtb.bin>
 
 More detailed description of steps required to build FW_PAYLOAD firmware
 is beyond the scope of this document. Please refer OpenSBI documenation.
