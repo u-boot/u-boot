@@ -560,6 +560,25 @@ static void __prci_ddr_release_reset(struct __prci_data *pd)
 		asm volatile ("nop");
 }
 
+/**
+ * __prci_ethernet_release_reset() - Release ethernet reset
+ * @pd: struct __prci_data * for the PRCI containing the Ethernet CLK mux reg
+ *
+ */
+static void __prci_ethernet_release_reset(struct __prci_data *pd)
+{
+	u32 v;
+
+	/* Release GEMGXL reset */
+	v = __prci_readl(pd, PRCI_DEVICESRESETREG_OFFSET);
+	v |= PRCI_DEVICESRESETREG_GEMGXL_RST_N_MASK;
+	__prci_writel(v, PRCI_DEVICESRESETREG_OFFSET, pd);
+
+	/* Procmon => core clock */
+	__prci_writel(PRCI_PROCMONCFG_CORE_CLOCK_MASK, PRCI_PROCMONCFG_OFFSET,
+		      pd);
+}
+
 /*
  * PRCI integration data for each WRPLL instance
  */
@@ -580,6 +599,7 @@ static struct __prci_wrpll_data __prci_ddrpll_data = {
 static struct __prci_wrpll_data __prci_gemgxlpll_data = {
 	.cfg0_offs = PRCI_GEMGXLPLLCFG0_OFFSET,
 	.cfg1_offs = PRCI_GEMGXLPLLCFG1_OFFSET,
+	.release_reset = __prci_ethernet_release_reset,
 };
 
 /*
