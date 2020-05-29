@@ -19,6 +19,8 @@ config SYS_TEXT_BASE
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
 	select GENERIC_RISCV
+	select RAM
+	select SPL_RAM if SPL
 	imply CMD_DHCP
 	imply CMD_EXT2
 	imply CMD_EXT4
