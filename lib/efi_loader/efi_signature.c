@@ -22,6 +22,7 @@ const efi_guid_t efi_guid_sha256 = EFI_CERT_SHA256_GUID;
 const efi_guid_t efi_guid_cert_rsa2048 = EFI_CERT_RSA2048_GUID;
 const efi_guid_t efi_guid_cert_x509 = EFI_CERT_X509_GUID;
 const efi_guid_t efi_guid_cert_x509_sha256 = EFI_CERT_X509_SHA256_GUID;
+const efi_guid_t efi_guid_cert_type_pkcs7 = EFI_CERT_TYPE_PKCS7_GUID;
 
 #ifdef CONFIG_EFI_SECURE_BOOT
 
