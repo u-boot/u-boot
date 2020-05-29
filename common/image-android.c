@@ -33,6 +33,13 @@ static ulong android_image_get_kernel_addr(const struct andr_img_hdr *hdr)
 	if (hdr->kernel_addr == ANDROID_IMAGE_DEFAULT_KERNEL_ADDR)
 		return (ulong)hdr + hdr->page_size;
 
+	/*
+	 * abootimg creates images where all load addresses are 0
+	 * and we need to fix them.
+	 */
+	if (hdr->kernel_addr == 0 && hdr->ramdisk_addr == 0)
+		return env_get_ulong("kernel_addr_r", 16, 0);
+
 	return hdr->kernel_addr;
 }
 
