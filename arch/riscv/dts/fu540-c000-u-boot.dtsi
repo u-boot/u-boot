@@ -59,6 +59,15 @@
 			reg = <0x0 0x2000000 0x0 0xc0000>;
 			u-boot,dm-spl;
 		};
+		dmc: dmc@100b0000 {
+			compatible = "sifive,fu540-c000-ddr";
+			reg = <0x0 0x100b0000 0x0 0x0800
+			       0x0 0x100b2000 0x0 0x2000
+			       0x0 0x100b8000 0x0 0x0fff>;
+			clocks = <&prci PRCI_CLK_DDRPLL>;
+			clock-frequency = <933333324>;
+			u-boot,dm-spl;
+		};
 	};
 };
 
