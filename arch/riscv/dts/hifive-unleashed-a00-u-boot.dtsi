@@ -4,6 +4,7 @@
  */
 
 #include "fu540-c000-u-boot.dtsi"
+#include "fu540-hifive-unleashed-a00-ddr.dtsi"
 
 / {
 	aliases {
@@ -25,4 +26,8 @@
 	mmc@0 {
 		u-boot,dm-spl;
 	};
+};
+
+&gpio {
+	u-boot,dm-spl;
 };

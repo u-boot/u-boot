@@ -11,6 +11,22 @@
 
 #include <linux/sizes.h>
 
+#ifdef CONFIG_SPL
+
+#define CONFIG_SPL_MAX_SIZE		0x00100000
+#define CONFIG_SPL_BSS_START_ADDR	0x85000000
+#define CONFIG_SPL_BSS_MAX_SIZE		0x00100000
+#define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SPL_BSS_START_ADDR + \
+					 CONFIG_SPL_BSS_MAX_SIZE)
+#define CONFIG_SYS_SPL_MALLOC_SIZE	0x00100000
+
+#define CONFIG_SPL_LOAD_FIT_ADDRESS	0x84000000
+
+#define CONFIG_SPL_STACK	(0x08000000 + 0x001D0000 - \
+				 GENERATED_GBL_DATA_SIZE)
+
+#endif
+
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + SZ_2M)
 
@@ -24,6 +40,7 @@
 
 /* Environment options */
 
+#ifndef CONFIG_SPL_BUILD
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
 	func(DHCP, dhcp, na)
@@ -43,5 +60,6 @@
 #define CONFIG_PREBOOT \
 	"setenv fdt_addr ${fdtcontroladdr};" \
 	"fdt addr ${fdtcontroladdr};"
+#endif
 
 #endif /* __CONFIG_H */

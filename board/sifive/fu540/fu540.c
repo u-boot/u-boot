@@ -14,6 +14,7 @@
 #include <linux/delay.h>
 #include <linux/io.h>
 #include <misc.h>
+#include <spl.h>
 
 /*
  * This define is a value used for error/unknown serial.
@@ -117,3 +118,23 @@ int board_init(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_SPL
+u32 spl_boot_device(void)
+{
+#ifdef CONFIG_SPL_MMC_SUPPORT
+	return BOOT_DEVICE_MMC1;
+#else
+	puts("Unknown boot device\n");
+	hang();
+#endif
+}
+#endif
+
+#ifdef CONFIG_SPL_LOAD_FIT
+int board_fit_config_name_match(const char *name)
+{
+	/* boot using first FIT config */
+	return 0;
+}
+#endif
