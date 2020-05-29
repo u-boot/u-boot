@@ -82,3 +82,8 @@
 &qspi2 {
 	u-boot,dm-spl;
 };
+
+&eth0 {
+	assigned-clocks = <&prci PRCI_CLK_GEMGXLPLL>;
+	assigned-clock-rates = <125000000>;
+};
