@@ -31,6 +31,9 @@ TODO:
         stdout-path = "/soc/serial@10010000:115200";
    };
 
+Booting from MMC using FSBL
+---------------------------
+
 Building
 --------
 
@@ -420,3 +423,124 @@ as well.
 
    Please press Enter to activate this console.
    / #
+
+Booting from MMC using U-Boot SPL
+---------------------------------
+
+Building
+--------
+
+Before building U-Boot SPL, OpenSBI must be built first. OpenSBI can be
+cloned and built for FU540 as below:
+
+.. code-block:: console
+
+	git clone https://github.com/riscv/opensbi.git
+	cd opensbi
+	make PLATFORM=generic
+	export OPENSBI=<path to opensbi/build/platform/generic/firmware/fw_dynamic.bin>
+
+Now build the U-Boot SPL and U-Boot proper
+
+.. code-block:: console
+
+	cd <U-Boot-dir>
+	make sifive_fu540_defconfig
+	make
+
+This will generate spl/u-boot-spl.bin and FIT image (u-boot.itb)
+
+
+Flashing
+--------
+
+ZSBL loads the U-Boot SPL (u-boot-spl.bin) from a partition with GUID type
+5B193300-FC78-40CD-8002-E86C45580B47
+
+U-Boot SPL expects a U-Boot FIT image (u-boot.itb) from a partition with GUID
+type 2E54B353-1271-4842-806F-E436D6AF6985
+
+FIT image (u-boot.itb) is a combination of fw_dynamic.bin, u-boot-nodtb.bin and
+device tree blob (hifive-unleashed-a00.dtb)
+
+Format the SD card (make sure the disk has GPT, otherwise use gdisk to switch)
+
+.. code-block:: none
+
+	# sudo sgdisk --clear \
+	> --set-alignment=2 \
+	> --new=1:34:2081 --change-name=1:loader1 --typecode=1:5B193300-FC78-40CD-8002-E86C45580B47 \
+	> --new=2:2082:10273 --change-name=2:loader2 --typecode=2:2E54B353-1271-4842-806F-E436D6AF6985 \
+	> --new=3:10274: --change-name=3:rootfs --typecode=3:0FC63DAF-8483-4772-8E79-3D69D8477DE4 \
+	> /dev/sda
+
+Program the SD card
+
+.. code-block:: none
+
+	sudo dd if=spl/u-boot-spl.bin of=/dev/sda seek=34
+	sudo dd if=u-boot.itb of=/dev/sda seek=2082
+
+Booting
+-------
+Once you plugin the sdcard and power up, you should see the U-Boot prompt.
+
+Sample boot log from HiFive Unleashed board
+-------------------------------------------
+
+.. code-block:: none
+
+	U-Boot SPL 2020.04-rc2-00109-g63efc7e07e-dirty (Apr 30 2020 - 13:52:36 +0530)
+	Trying to boot from MMC1
+
+
+	U-Boot 2020.04-rc2-00109-g63efc7e07e-dirty (Apr 30 2020 - 13:52:36 +0530)
+
+	CPU:   rv64imafdc
+	Model: SiFive HiFive Unleashed A00
+	DRAM:  8 GiB
+	MMC:   spi@10050000:mmc@0: 0
+	In:    serial@10010000
+	Out:   serial@10010000
+	Err:   serial@10010000
+	Net:   eth0: ethernet@10090000
+	Hit any key to stop autoboot:  0
+	=> version
+	U-Boot 2020.04-rc2-00109-g63efc7e07e-dirty (Apr 30 2020 - 13:52:36 +0530)
+
+	riscv64-unknown-linux-gnu-gcc (crosstool-NG 1.24.0.37-3f461da) 9.2.0
+	GNU ld (crosstool-NG 1.24.0.37-3f461da) 2.32
+	=> mmc info
+	Device: spi@10050000:mmc@0
+	Manufacturer ID: 3
+	OEM: 5344
+	Name: SC16G
+	Bus Speed: 20000000
+	Mode: SD Legacy
+	Rd Block Len: 512
+	SD version 2.0
+	High Capacity: Yes
+	Capacity: 14.8 GiB
+	Bus Width: 1-bit
+	Erase Group Size: 512 Bytes
+	=> mmc part
+
+	Partition Map for MMC device 0  --   Partition Type: EFI
+
+	Part    Start LBA       End LBA         Name
+	Attributes
+	Type GUID
+	Partition GUID
+	1     0x00000022      0x00000821      "loader1"
+	attrs:  0x0000000000000000
+	type:   5b193300-fc78-40cd-8002-e86c45580b47
+	guid:   66e2b5d2-74db-4df8-ad6f-694b3617f87f
+	2     0x00000822      0x00002821      "loader2"
+	attrs:  0x0000000000000000
+	type:   2e54b353-1271-4842-806f-e436d6af6985
+	guid:   8befaeaf-bca0-435d-b002-e201f37c0a2f
+	3     0x00002822      0x01dacbde      "rootfs"
+	attrs:  0x0000000000000000
+	type:   0fc63daf-8483-4772-8e79-3d69d8477de4
+	type:   linux
+	guid:   9faa81b6-39b1-4418-af5e-89c48f29c20d
