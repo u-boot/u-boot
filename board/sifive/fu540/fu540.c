@@ -15,6 +15,7 @@
 #include <linux/io.h>
 #include <misc.h>
 #include <spl.h>
+#include <asm/arch/cache.h>
 
 /*
  * This define is a value used for error/unknown serial.
@@ -114,7 +115,14 @@ int misc_init_r(void)
 
 int board_init(void)
 {
-	/* For now nothing to do here. */
+	int ret;
+
+	/* enable all cache ways */
+	ret = cache_enable_ways();
+	if (ret) {
+		debug("%s: could not enable cache ways\n", __func__);
+		return ret;
+	}
 
 	return 0;
 }

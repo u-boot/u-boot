@@ -87,3 +87,7 @@
 	assigned-clocks = <&prci PRCI_CLK_GEMGXLPLL>;
 	assigned-clock-rates = <125000000>;
 };
+
+&l2cache {
+	status = "okay";
+};
