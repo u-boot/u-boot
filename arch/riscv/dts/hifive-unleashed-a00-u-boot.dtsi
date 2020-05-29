@@ -3,6 +3,8 @@
  * Copyright (C) 2019 Jagan Teki <jagan@amarulasolutions.com>
  */
 
+#include "fu540-c000-u-boot.dtsi"
+
 / {
 	aliases {
 		spi0 = &qspi0;

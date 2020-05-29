@@ -1,0 +1,14 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/*
+ * (C) Copyright 2019 SiFive, Inc
+ */
+
+/ {
+	soc {
+		otp: otp@10070000 {
+			compatible = "sifive,fu540-c000-otp";
+			reg = <0x0 0x10070000 0x0 0x0FFF>;
+			fuse-count = <0x1000>;
+		};
+	};
+};

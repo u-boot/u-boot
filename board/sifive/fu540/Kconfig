@@ -51,5 +51,7 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply SIFIVE_GPIO
 	imply CMD_GPIO
 	imply SMP
+	imply MISC
+	imply SIFIVE_OTP
 
 endif
