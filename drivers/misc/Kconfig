@@ -68,6 +68,13 @@ config ROCKCHIP_OTP
 	  addressing and a length or through child-nodes that are generated
 	  based on the e-fuse map retrieved from the DTS.
 
+config SIFIVE_OTP
+	bool "SiFive eMemory OTP driver"
+	depends on MISC
+	help
+	  Enable support for reading and writing the eMemory OTP on the
+	  SiFive SoCs.
+
 config VEXPRESS_CONFIG
 	bool "Enable support for Arm Versatile Express config bus"
 	depends on MISC
