@@ -10,4 +10,19 @@
 		spi0 = &qspi0;
 		spi2 = &qspi2;
 	};
+
+	hfclk {
+		u-boot,dm-spl;
+	};
+
+	rtcclk {
+		u-boot,dm-spl;
+	};
+
+};
+
+&qspi2 {
+	mmc@0 {
+		u-boot,dm-spl;
+	};
 };

@@ -4,11 +4,72 @@
  */
 
 / {
+	cpus {
+		assigned-clocks = <&prci PRCI_CLK_COREPLL>;
+		assigned-clock-rates = <1000000000>;
+		u-boot,dm-spl;
+		cpu0: cpu@0 {
+			clocks = <&prci PRCI_CLK_COREPLL>;
+			u-boot,dm-spl;
+			status = "okay";
+			cpu0_intc: interrupt-controller {
+				u-boot,dm-spl;
+			};
+		};
+		cpu1: cpu@1 {
+			clocks = <&prci PRCI_CLK_COREPLL>;
+			u-boot,dm-spl;
+			cpu1_intc: interrupt-controller {
+				u-boot,dm-spl;
+			};
+		};
+		cpu2: cpu@2 {
+			clocks = <&prci PRCI_CLK_COREPLL>;
+			u-boot,dm-spl;
+			cpu2_intc: interrupt-controller {
+				 u-boot,dm-spl;
+			};
+		};
+		cpu3: cpu@3 {
+			clocks = <&prci PRCI_CLK_COREPLL>;
+			u-boot,dm-spl;
+			cpu3_intc: interrupt-controller {
+				u-boot,dm-spl;
+			};
+		};
+		cpu4: cpu@4 {
+			clocks = <&prci PRCI_CLK_COREPLL>;
+			u-boot,dm-spl;
+			cpu4_intc: interrupt-controller {
+				u-boot,dm-spl;
+			};
+		};
+	};
+
 	soc {
+		u-boot,dm-spl;
 		otp: otp@10070000 {
 			compatible = "sifive,fu540-c000-otp";
 			reg = <0x0 0x10070000 0x0 0x0FFF>;
 			fuse-count = <0x1000>;
 		};
+		clint@2000000 {
+			compatible = "riscv,clint0";
+			interrupts-extended = <&cpu0_intc 3 &cpu0_intc 7 &cpu1_intc 3 &cpu1_intc 7 &cpu2_intc 3 &cpu2_intc 7 &cpu3_intc 3 &cpu3_intc 7 &cpu4_intc 3 &cpu4_intc 7>;
+			reg = <0x0 0x2000000 0x0 0xc0000>;
+			u-boot,dm-spl;
+		};
 	};
+};
+
+&prci {
+	u-boot,dm-spl;
+};
+
+&uart0 {
+	u-boot,dm-spl;
+};
+
+&qspi2 {
+	u-boot,dm-spl;
 };
