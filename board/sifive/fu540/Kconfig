@@ -7,7 +7,7 @@ config SYS_VENDOR
 	default "sifive"
 
 config SYS_CPU
-	default "generic"
+	default "fu540"
 
 config SYS_CONFIG_NAME
 	default "sifive-fu540"
