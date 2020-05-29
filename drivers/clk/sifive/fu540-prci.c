@@ -153,6 +153,12 @@
 #define PRCI_CLKMUXSTATUSREG_TLCLKSEL_STATUS_MASK \
 			(0x1 << PRCI_CLKMUXSTATUSREG_TLCLKSEL_STATUS_SHIFT)
 
+/* PROCMONCFG */
+#define PRCI_PROCMONCFG_OFFSET		0xF0
+#define PRCI_PROCMONCFG_CORE_CLOCK_SHIFT	24
+#define PRCI_PROCMONCFG_CORE_CLOCK_MASK \
+			(0x1 << PRCI_PROCMONCFG_CORE_CLOCK_SHIFT)
+
 /*
  * Private structures
  */
@@ -177,6 +183,7 @@ struct __prci_data {
  * @disable_bypass: fn ptr to code to not bypass the WRPLL (or NULL)
  * @cfg0_offs: WRPLL CFG0 register offset (in bytes) from the PRCI base address
  * @cfg1_offs: WRPLL CFG1 register offset (in bytes) from the PRCI base address
+ * @release_reset: fn ptr to code to release clock reset
  *
  * @enable_bypass and @disable_bypass are used for WRPLL instances
  * that contain a separate external glitchless clock mux downstream
@@ -188,6 +195,7 @@ struct __prci_wrpll_data {
 	void (*disable_bypass)(struct __prci_data *pd);
 	u8 cfg0_offs;
 	u8 cfg1_offs;
+	void (*release_reset)(struct __prci_data *pd);
 };
 
 struct __prci_clock;
@@ -477,6 +485,9 @@ static int sifive_fu540_prci_clock_enable(struct __prci_clock *pc, bool enable)
 
 	if (enable) {
 		__prci_wrpll_write_cfg1(pd, pwd, PRCI_COREPLLCFG1_CKE_MASK);
+
+		if (pwd->release_reset)
+			pwd->release_reset(pd);
 	} else {
 		u32 r;
 
@@ -492,11 +503,6 @@ static int sifive_fu540_prci_clock_enable(struct __prci_clock *pc, bool enable)
 static const struct __prci_clock_ops sifive_fu540_prci_wrpll_clk_ops = {
 	.set_rate = sifive_fu540_prci_wrpll_set_rate,
 	.round_rate = sifive_fu540_prci_wrpll_round_rate,
-	.recalc_rate = sifive_fu540_prci_wrpll_recalc_rate,
-	.enable_clk = sifive_fu540_prci_clock_enable,
-};
-
-static const struct __prci_clock_ops sifive_fu540_prci_wrpll_ro_clk_ops = {
 	.recalc_rate = sifive_fu540_prci_wrpll_recalc_rate,
 	.enable_clk = sifive_fu540_prci_clock_enable,
 };
@@ -522,6 +528,38 @@ static const struct __prci_clock_ops sifive_fu540_prci_tlclksel_clk_ops = {
 	.recalc_rate = sifive_fu540_prci_tlclksel_recalc_rate,
 };
 
+/**
+ * __prci_ddr_release_reset() - Release DDR reset
+ * @pd: struct __prci_data * for the PRCI containing the DDRCLK mux reg
+ *
+ */
+static void __prci_ddr_release_reset(struct __prci_data *pd)
+{
+	u32 v;
+
+	v = __prci_readl(pd, PRCI_DEVICESRESETREG_OFFSET);
+	v |= PRCI_DEVICESRESETREG_DDR_CTRL_RST_N_MASK;
+	__prci_writel(v, PRCI_DEVICESRESETREG_OFFSET, pd);
+
+	/* HACK to get the '1 full controller clock cycle'. */
+	asm volatile ("fence");
+	v = __prci_readl(pd, PRCI_DEVICESRESETREG_OFFSET);
+	v |= (PRCI_DEVICESRESETREG_DDR_AXI_RST_N_MASK |
+			PRCI_DEVICESRESETREG_DDR_AHB_RST_N_MASK |
+			PRCI_DEVICESRESETREG_DDR_PHY_RST_N_MASK);
+	__prci_writel(v, PRCI_DEVICESRESETREG_OFFSET, pd);
+
+	/* HACK to get the '1 full controller clock cycle'. */
+	asm volatile ("fence");
+
+	/*
+	 * These take like 16 cycles to actually propagate. We can't go sending
+	 * stuff before they come out of reset. So wait.
+	 */
+	for (int i = 0; i < 256; i++)
+		asm volatile ("nop");
+}
+
 /*
  * PRCI integration data for each WRPLL instance
  */
@@ -536,6 +574,7 @@ static struct __prci_wrpll_data __prci_corepll_data = {
 static struct __prci_wrpll_data __prci_ddrpll_data = {
 	.cfg0_offs = PRCI_DDRPLLCFG0_OFFSET,
 	.cfg1_offs = PRCI_DDRPLLCFG1_OFFSET,
+	.release_reset = __prci_ddr_release_reset,
 };
 
 static struct __prci_wrpll_data __prci_gemgxlpll_data = {
@@ -557,7 +596,7 @@ static struct __prci_clock __prci_init_clocks[] = {
 	[PRCI_CLK_DDRPLL] = {
 		.name = "ddrpll",
 		.parent_name = "hfclk",
-		.ops = &sifive_fu540_prci_wrpll_ro_clk_ops,
+		.ops = &sifive_fu540_prci_wrpll_clk_ops,
 		.pwd = &__prci_ddrpll_data,
 	},
 	[PRCI_CLK_GEMGXLPLL] = {
