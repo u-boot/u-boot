@@ -65,5 +65,7 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply SMP
 	imply MISC
 	imply SIFIVE_OTP
+	imply DM_PWM
+	imply PWM_SIFIVE
 
 endif
