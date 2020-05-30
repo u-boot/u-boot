@@ -100,12 +100,4 @@
 	"stdin=serial,usbkbd\0" \
 	"stdout=serial,vga\0"
 
-#define CONFIG_BOOTCOMMAND \
-	"mmc rescan; " \
-	"if run bootcmd_up1; then " \
-		"run bootcmd_up2; " \
-	"else " \
-		"run bootcmd_mmc; " \
-	"fi"
-
 #endif			       /* __TBS2910_CONFIG_H * */
