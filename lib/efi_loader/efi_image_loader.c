@@ -212,7 +212,7 @@ static void efi_set_code_and_data_type(
 
 #ifdef CONFIG_EFI_SECURE_BOOT
 /**
- * cmp_pe_section - compare two sections
+ * cmp_pe_section() - compare two sections
  * @arg1:	Pointer to pointer to first section
  * @arg2:	Pointer to pointer to second section
  *
@@ -237,7 +237,7 @@ static int cmp_pe_section(const void *arg1, const void *arg2)
 }
 
 /**
- * efi_image_parse - parse a PE image
+ * efi_image_parse() - parse a PE image
  * @efi:	Pointer to image
  * @len:	Size of @efi
  * @regp:	Pointer to a list of regions
@@ -404,7 +404,7 @@ err:
 }
 
 /**
- * efi_image_unsigned_authenticate - authenticate unsigned image with
+ * efi_image_unsigned_authenticate() - authenticate unsigned image with
  * SHA256 hash
  * @regs:	List of regions to be verified
  *
@@ -451,7 +451,7 @@ out:
 }
 
 /**
- * efi_image_authenticate - verify a signature of signed image
+ * efi_image_authenticate() - verify a signature of signed image
  * @efi:	Pointer to image
  * @efi_size:	Size of @efi
  *
