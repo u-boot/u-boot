@@ -18,6 +18,7 @@ struct i2c_eeprom_drv_data {
 	u32 pagesize; /* page size in bytes */
 	u32 addr_offset_mask; /* bits in addr used for offset overflow */
 	u32 offset_len; /* size in bytes of offset */
+	u32 start_offset; /* valid start offset inside memory, by default 0 */
 };
 
 int i2c_eeprom_read(struct udevice *dev, int offset, uint8_t *buf, int size)
@@ -148,7 +149,11 @@ static int i2c_eeprom_std_probe(struct udevice *dev)
 	i2c_set_chip_addr_offset_mask(dev, data->addr_offset_mask);
 
 	/* Verify that the chip is functional */
-	ret = i2c_eeprom_read(dev, 0, &test_byte, 1);
+	/*
+	 * Not all eeproms start from offset 0. Valid offset is available
+	 * in the platform data struct.
+	 */
+	ret = i2c_eeprom_read(dev, data->start_offset, &test_byte, 1);
 	if (ret)
 		return -ENODEV;
 
@@ -216,6 +221,7 @@ static const struct i2c_eeprom_drv_data atmel24mac402_data = {
 	.pagesize = 16,
 	.addr_offset_mask = 0,
 	.offset_len = 1,
+	.start_offset = 0x80,
 };
 
 static const struct i2c_eeprom_drv_data atmel24c32_data = {
