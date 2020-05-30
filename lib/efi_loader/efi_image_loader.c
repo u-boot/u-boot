@@ -212,14 +212,16 @@ static void efi_set_code_and_data_type(
 
 #ifdef CONFIG_EFI_SECURE_BOOT
 /**
- * cmp_pe_section() - compare two sections
- * @arg1:	Pointer to pointer to first section
- * @arg2:	Pointer to pointer to second section
+ * cmp_pe_section() - compare virtual addresses of two PE image sections
+ * @arg1:	pointer to pointer to first section header
+ * @arg2:	pointer to pointer to second section header
  *
- * Compare two sections in PE image.
+ * Compare the virtual addresses of two sections of an portable executable.
+ * The arguments are defined as const void * to allow usage with qsort().
  *
- * Return:	-1, 0, 1 respectively if arg1 < arg2, arg1 == arg2 or
- *		arg1 > arg2
+ * Return:	-1 if the virtual address of arg1 is less than that of arg2,
+ *		0 if the virtual addresses are equal, 1 if the virtual address
+ *		of arg1 is greater than that of arg2.
  */
 static int cmp_pe_section(const void *arg1, const void *arg2)
 {
