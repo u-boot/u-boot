@@ -2,6 +2,7 @@
 #ifndef _LINUX_DMA_MAPPING_H
 #define _LINUX_DMA_MAPPING_H
 
+#include <asm/cache.h>
 #include <linux/dma-direction.h>
 #include <linux/types.h>
 #include <asm/dma-mapping.h>
