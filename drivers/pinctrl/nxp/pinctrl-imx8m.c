@@ -8,7 +8,7 @@
 
 #include "pinctrl-imx.h"
 
-static struct imx_pinctrl_soc_info imx8mq_pinctrl_soc_info;
+static struct imx_pinctrl_soc_info imx8mq_pinctrl_soc_info __attribute__((section(".data")));
 
 static int imx8mq_pinctrl_probe(struct udevice *dev)
 {
