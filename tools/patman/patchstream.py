@@ -24,11 +24,8 @@ re_allowed_after_test = re.compile('^Signed-off-by:')
 # Signoffs
 re_signoff = re.compile('^Signed-off-by: *(.*)')
 
-# The start of the cover letter
-re_cover = re.compile('^Cover-letter:')
-
-# A cover letter Cc
-re_cover_cc = re.compile('^Cover-letter-cc: *(.*)')
+# Cover letter tag
+re_cover = re.compile('^Cover-([a-z-]*): *(.*)')
 
 # Patch series tag
 re_series_tag = re.compile('^Series-([a-z-]*): *(.*)')
@@ -48,6 +45,9 @@ re_commit = re.compile('^commit ([0-9a-f]*)$')
 # We detect these since checkpatch doesn't always do it
 re_space_before_tab = re.compile('^[+].* \t')
 
+# Match indented lines for changes
+re_leading_whitespace = re.compile('^\s')
+
 # States we can be in - can we use range() and still have comments?
 STATE_MSG_HEADER = 0        # Still in the message header
 STATE_PATCH_SUBJECT = 1     # In patch subject (first line of log for a commit)
@@ -65,7 +65,7 @@ class PatchStream:
     def __init__(self, series, name=None, is_log=False):
         self.skip_blank = False          # True to skip a single blank line
         self.found_test = False          # Found a TEST= line
-        self.lines_after_test = 0        # MNumber of lines found after TEST=
+        self.lines_after_test = 0        # Number of lines found after TEST=
         self.warn = []                   # List of warnings we have collected
         self.linenum = 1                 # Output line number we are up to
         self.in_section = None           # Name of start...END section we are in
@@ -73,7 +73,9 @@ class PatchStream:
         self.section = []                # The current section...END section
         self.series = series             # Info about the patch series
         self.is_log = is_log             # True if indent like git log
-        self.in_change = 0               # Non-zero if we are in a change list
+        self.in_change = None            # Name of the change list we are in
+        self.change_version = 0          # Non-zero if we are in a change list
+        self.change_lines = []           # Lines of the current change
         self.blank_count = 0             # Number of blank lines stored up
         self.state = STATE_MSG_HEADER    # What state are we in?
         self.signoff = []                # Contents of signoff line
@@ -124,6 +126,36 @@ class PatchStream:
             self.skip_blank = True
             self.section = []
 
+    def ParseVersion(self, value, line):
+        """Parse a version from a *-changes tag
+
+        Args:
+            value: Tag value (part after 'xxx-changes: '
+            line: Source line containing tag
+
+        Returns:
+            The version as an integer
+        """
+        try:
+            return int(value)
+        except ValueError as str:
+            raise ValueError("%s: Cannot decode version info '%s'" %
+                (self.commit.hash, line))
+
+    def FinalizeChange(self):
+        """Finalize a (multi-line) change and add it to the series or commit"""
+        if not self.change_lines:
+            return
+        change = '\n'.join(self.change_lines)
+
+        if self.in_change == 'Series':
+            self.series.AddChange(self.change_version, self.commit, change)
+        elif self.in_change == 'Cover':
+            self.series.AddChange(self.change_version, None, change)
+        elif self.in_change == 'Commit':
+            self.commit.AddChange(self.change_version, change)
+        self.change_lines = []
+
     def ProcessLine(self, line):
         """Process a single line of a patch file or commit log
 
@@ -163,8 +195,8 @@ class PatchStream:
         change_id_match = re_change_id.match(line)
         commit_tag_match = re_commit_tag.match(line)
         cover_match = re_cover.match(line)
-        cover_cc_match = re_cover_cc.match(line)
         signoff_match = re_signoff.match(line)
+        leading_whitespace_match = re_leading_whitespace.match(line)
         tag_match = None
         if self.state == STATE_PATCH_HEADER:
             tag_match = re_tag.match(line)
@@ -183,8 +215,7 @@ class PatchStream:
 
         # If a tag is detected, or a new commit starts
         if series_tag_match or commit_tag_match or change_id_match or \
-           cover_match or cover_cc_match or signoff_match or \
-           self.state == STATE_MSG_HEADER:
+           cover_match or signoff_match or self.state == STATE_MSG_HEADER:
             # but we are already in a section, this means 'END' is missing
             # for that section, fix it up.
             if self.in_section:
@@ -205,8 +236,10 @@ class PatchStream:
             # but we are already in a change list, that means a blank line
             # is missing, fix it up.
             if self.in_change:
-                self.warn.append("Missing 'blank line' in section 'Series-changes'")
-                self.in_change = 0
+                self.warn.append("Missing 'blank line' in section '%s-changes'" % self.in_change)
+                self.FinalizeChange()
+                self.in_change = None
+                self.change_version = 0
 
         # If we are in a section, keep collecting lines until we see END
         if self.in_section:
@@ -242,26 +275,35 @@ class PatchStream:
         elif self.skip_blank and is_blank:
             self.skip_blank = False
 
-        # Detect the start of a cover letter section
+        # Detect Cover-xxx tags
         elif cover_match:
-            self.in_section = 'cover'
-            self.skip_blank = False
-
-        elif cover_cc_match:
-            value = cover_cc_match.group(1)
-            self.AddToSeries(line, 'cover-cc', value)
+            name = cover_match.group(1)
+            value = cover_match.group(2)
+            if name == 'letter':
+                self.in_section = 'cover'
+                self.skip_blank = False
+            elif name == 'letter-cc':
+                self.AddToSeries(line, 'cover-cc', value)
+            elif name == 'changes':
+                self.in_change = 'Cover'
+                self.change_version = self.ParseVersion(value, line)
 
         # If we are in a change list, key collected lines until a blank one
         elif self.in_change:
             if is_blank:
                 # Blank line ends this change list
-                self.in_change = 0
+                self.FinalizeChange()
+                self.in_change = None
+                self.change_version = 0
             elif line == '---':
-                self.in_change = 0
+                self.FinalizeChange()
+                self.in_change = None
+                self.change_version = 0
                 out = self.ProcessLine(line)
-            else:
-                if self.is_log:
-                    self.series.AddChange(self.in_change, self.commit, line)
+            elif self.is_log:
+                if not leading_whitespace_match:
+                    self.FinalizeChange()
+                self.change_lines.append(line)
             self.skip_blank = False
 
         # Detect Series-xxx tags
@@ -270,12 +312,8 @@ class PatchStream:
             value = series_tag_match.group(2)
             if name == 'changes':
                 # value is the version number: e.g. 1, or 2
-                try:
-                    value = int(value)
-                except ValueError as str:
-                    raise ValueError("%s: Cannot decode version info '%s'" %
-                        (self.commit.hash, line))
-                self.in_change = int(value)
+                self.in_change = 'Series'
+                self.change_version = self.ParseVersion(value, line)
             else:
                 self.AddToSeries(line, name, value)
                 self.skip_blank = True
@@ -297,6 +335,9 @@ class PatchStream:
             if name == 'notes':
                 self.AddToCommit(line, name, value)
                 self.skip_blank = True
+            elif name == 'changes':
+                self.in_change = 'Commit'
+                self.change_version = self.ParseVersion(value, line)
 
         # Detect the start of a new commit
         elif commit_match:
@@ -340,7 +381,7 @@ class PatchStream:
             elif line == '---':
                 self.state = STATE_DIFFS
 
-                # Output the tags (signeoff first), then change list
+                # Output the tags (signoff first), then change list
                 out = []
                 log = self.series.MakeChangeLog(self.commit)
                 out += [line]
@@ -355,6 +396,7 @@ class PatchStream:
 
     def Finalize(self):
         """Close out processing of this patch stream"""
+        self.FinalizeChange()
         self.CloseCommit()
         if self.lines_after_test:
             self.warn.append('Found %d lines after TEST=' %

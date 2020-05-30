@@ -82,18 +82,32 @@ class TestFunctional(unittest.TestCase):
             Series-prefix: RFC
             Series-cc: Stefan Brüns <stefan.bruens@rwth-aachen.de>
             Cover-letter-cc: Lord Mëlchett <clergy@palace.gov>
-            Series-version: 2
+            Series-version: 3
+            Patch-cc: fred
+            Series-process-log: sort, uniq
             Series-changes: 4
             - Some changes
+            - Multi
+              line
+              change
+
+            Commit-changes: 2
+            - Changes only for this commit
+
+            Cover-changes: 4
+            - Some notes for the cover letter
 
             Cover-letter:
             test: A test patch series
             This is a test of how the cover
-            leter
+            letter
             works
             END
 
         and this in the first commit:
+
+            Commit-changes: 2
+            - second revision change
 
             Series-notes:
             some notes
@@ -202,7 +216,7 @@ class TestFunctional(unittest.TestCase):
 
         expected = '''
 This is a test of how the cover
-leter
+letter
 works
 
 some notes
@@ -210,7 +224,11 @@ about some things
 from the first commit
 
 Changes in v4:
+- Multi
+  line
+  change
 - Some changes
+- Some notes for the cover letter
 
 Simon Glass (2):
   pci: Correct cast for sandbox
@@ -237,8 +255,34 @@ Simon Glass (2):
             subject = [line for line in lines if line.startswith('Subject')]
             self.assertEqual('Subject: [RFC %d/%d]' % (i + 1, count),
                              subject[0][:18])
+
+            # Check that we got our commit notes
+            start = 0
+            expected = ''
+
             if i == 0:
-                # Check that we got our commit notes
-                self.assertEqual('---', lines[17])
-                self.assertEqual('Some notes about', lines[18])
-                self.assertEqual('the first commit', lines[19])
+                start = 17
+                expected = '''---
+Some notes about
+the first commit
+
+(no changes since v2)
+
+Changes in v2:
+- second revision change'''
+            elif i == 1:
+                start = 17
+                expected = '''---
+
+Changes in v4:
+- Multi
+  line
+  change
+- Some changes
+
+Changes in v2:
+- Changes only for this commit'''
+
+            if expected:
+                expected = expected.splitlines()
+                self.assertEqual(expected, lines[start:(start+len(expected))])

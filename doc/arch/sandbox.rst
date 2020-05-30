@@ -316,19 +316,29 @@ SPI Emulation
 
 Sandbox supports SPI and SPI flash emulation.
 
-This is controlled by the spi_sf argument, the format of which is::
+The device can be enabled via a device tree, for example::
 
-   bus:cs:device:file
+    spi@0 {
+            #address-cells = <1>;
+            #size-cells = <0>;
+            reg = <0 1>;
+            compatible = "sandbox,spi";
+            cs-gpios = <0>, <&gpio_a 0>;
+            spi.bin@0 {
+                    reg = <0>;
+                    compatible = "spansion,m25p16", "jedec,spi-nor";
+                    spi-max-frequency = <40000000>;
+                    sandbox,filename = "spi.bin";
+            };
+    };
 
-   bus    - SPI bus number
-   cs     - SPI chip select number
-   device - SPI device emulation name
-   file   - File on disk containing the data
+The file must be created in advance::
 
-For example::
+   $ dd if=/dev/zero of=spi.bin bs=1M count=2
+   $ u-boot -T
 
-   dd if=/dev/zero of=spi.bin bs=1M count=4
-   ./u-boot --spi_sf 0:0:M25P16:spi.bin
+Here, you can use "-T" or "-D" option to specify test.dtb or u-boot.dtb,
+respectively, or "-d <file>" for your own dtb.
 
 With this setup you can issue SPI flash commands as normal::
 
@@ -345,22 +355,6 @@ also use low-level SPI commands::
 
 This is issuing a READ_ID command and getting back 20 (ST Micro) part
 0x2015 (the M25P16).
-
-Drivers are connected to a particular bus/cs using sandbox's state
-structure (see the 'spi' member). A set of operations must be provided
-for each driver.
-
-
-Configuration settings for the curious are:
-
-CONFIG_SANDBOX_SPI_MAX_BUS:
-  The maximum number of SPI buses supported by the driver (default 1).
-
-CONFIG_SANDBOX_SPI_MAX_CS:
-  The maximum number of chip selects supported by the driver (default 10).
-
-CONFIG_SPI_IDLE_VAL:
-  The idle value on the SPI bus
 
 
 Block Device Emulation

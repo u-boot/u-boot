@@ -247,14 +247,37 @@ Series-changes: n
 	to update the log there and then, knowing that the script will
 	do the rest.
 
+Commit-changes: n
+- This line will not appear in the cover-letter changelog
+<blank line>
+	This tag is like Series-changes, except changes in this changelog will
+	only appear in the changelog of the commit this tag is in. This is
+	useful when you want to add notes which may not make sense in the cover
+	letter. For example, you can have short changes such as "New" or
+	"Lint".
+
+Cover-changes: n
+- This line will only appear in the cover letter
+<blank line>
+	This tag is like Series-changes, except changes in this changelog will
+	only appear in the cover-letter changelog. This is useful to summarize
+	changes made with Commit-changes, or to add additional context to
+	changes.
+
 Patch-cc: Their Name <email>
 	This copies a single patch to another email address. Note that the
 	Cc: used by git send-email is ignored by patman, but will be
 	interpreted by git send-email if you use it.
 
 Series-process-log: sort, uniq
-	This tells patman to sort and/or uniq the change logs. It is
-	assumed that each change log entry is only a single line long.
+	This tells patman to sort and/or uniq the change logs. Changes may be
+	multiple lines long, as long as each subsequent line of a change begins
+	with a whitespace character. For example,
+
+- This change
+  continues onto the next line
+- But this change is separate
+
 	Use 'sort' to sort the entries, and 'uniq' to include only
 	unique entries. If omitted, no change log processing is done.
 	Separate each tag with a comma.
@@ -474,6 +497,33 @@ print out the command line patman would have used.
 not later when you can't remember which patch you changed. You can always
 go back and change or remove logs from commits.
 
+7. Some mailing lists have size limits and when we add binary contents to
+our patches it's easy to exceed the size limits. Use "--no-binary" to
+generate patches without any binary contents. You are supposed to include
+a link to a git repository in your "Commit-notes", "Series-notes" or
+"Cover-letter" for maintainers to fetch the original commit.
+
+8. Patches will have no changelog entries for revisions where they did not
+change. For clarity, if there are no changes for this patch in the most
+recent revision of the series, a note will be added. For example, a patch
+with the following tags in the commit
+
+    Series-version: 5
+    Series-changes: 2
+    - Some change
+
+    Series-changes: 4
+    - Another change
+
+would have a changelog of
+
+    (no changes since v4)
+
+    Changes in v4:
+    - Another change
+
+    Changes in v2:
+    - Some change
 
 Other thoughts
 ==============

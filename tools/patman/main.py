@@ -36,11 +36,11 @@ parser.add_option('-c', '--count', dest='count', type='int',
 parser.add_option('-i', '--ignore-errors', action='store_true',
        dest='ignore_errors', default=False,
        help='Send patches email even if patch errors are found')
+parser.add_option('-l', '--limit-cc', dest='limit', type='int',
+       default=None, help='Limit the cc list to LIMIT entries [default: %default]')
 parser.add_option('-m', '--no-maintainers', action='store_false',
        dest='add_maintainers', default=True,
        help="Don't cc the file maintainers automatically")
-parser.add_option('-l', '--limit-cc', dest='limit', type='int',
-       default=None, help='Limit the cc list to LIMIT entries [default: %default]')
 parser.add_option('-n', '--dry-run', action='store_true', dest='dry_run',
        default=False, help="Do a dry run (create but don't email patches)")
 parser.add_option('-p', '--project', default=project.DetectProject(),
@@ -52,21 +52,24 @@ parser.add_option('-s', '--start', dest='start', type='int',
        default=0, help='Commit to start creating patches from (0 = HEAD)')
 parser.add_option('-t', '--ignore-bad-tags', action='store_true',
                   default=False, help='Ignore bad tags / aliases')
-parser.add_option('--test', action='store_true', dest='test',
-                  default=False, help='run tests')
 parser.add_option('-v', '--verbose', action='store_true', dest='verbose',
        default=False, help='Verbose output of errors and warnings')
+parser.add_option('-T', '--thread', action='store_true', dest='thread',
+                  default=False, help='Create patches as a single thread')
 parser.add_option('--cc-cmd', dest='cc_cmd', type='string', action='store',
        default=None, help='Output cc list for patch file (used by git)')
+parser.add_option('--no-binary', action='store_true', dest='ignore_binary',
+                  default=False,
+                  help="Do not output contents of changes in binary files")
 parser.add_option('--no-check', action='store_false', dest='check_patch',
                   default=True,
                   help="Don't check for patch compliance")
 parser.add_option('--no-tags', action='store_false', dest='process_tags',
-                  default=True, help="Don't process subject tags as aliaes")
+                  default=True, help="Don't process subject tags as aliases")
 parser.add_option('--smtp-server', type='str',
                   help="Specify the SMTP server to 'git send-email'")
-parser.add_option('-T', '--thread', action='store_true', dest='thread',
-                  default=False, help='Create patches as a single thread')
+parser.add_option('--test', action='store_true', dest='test',
+                  default=False, help='run tests')
 
 parser.usage += """
 
@@ -144,7 +147,7 @@ else:
     if options.count:
         series = patchstream.GetMetaData(options.start, options.count)
         cover_fname, args = gitutil.CreatePatches(options.start, options.count,
-                series)
+                options.ignore_binary, series)
 
     # Fix up the patch files to our liking, and insert the cover letter
     patchstream.FixPatches(series, args)

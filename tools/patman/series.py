@@ -2,6 +2,9 @@
 # Copyright (c) 2011 The Chromium OS Authors.
 #
 
+from __future__ import print_function
+
+import collections
 import itertools
 import os
 
@@ -144,38 +147,65 @@ class Series(dict):
             Changes in v4:
             - Jog the dial back closer to the widget
 
-            Changes in v3: None
             Changes in v2:
             - Fix the widget
             - Jog the dial
 
-            etc.
+            If there are no new changes in a patch, a note will be added
+
+            (no changes since v2)
+
+            Changes in v2:
+            - Fix the widget
+            - Jog the dial
         """
+        # Collect changes from the series and this commit
+        changes = collections.defaultdict(list)
+        for version, changelist in self.changes.items():
+            changes[version] += changelist
+        if commit:
+            for version, changelist in commit.changes.items():
+                changes[version] += [[commit, text] for text in changelist]
+
+        versions = sorted(changes, reverse=True)
+        newest_version = 1
+        if 'version' in self:
+            newest_version = max(newest_version, int(self.version))
+        if versions:
+            newest_version = max(newest_version, versions[0])
+
         final = []
         process_it = self.get('process_log', '').split(',')
         process_it = [item.strip() for item in process_it]
         need_blank = False
-        for change in sorted(self.changes, reverse=True):
+        for version in versions:
             out = []
-            for this_commit, text in self.changes[change]:
+            for this_commit, text in changes[version]:
                 if commit and this_commit != commit:
                     continue
                 if 'uniq' not in process_it or text not in out:
                     out.append(text)
-            line = 'Changes in v%d:' % change
-            have_changes = len(out) > 0
             if 'sort' in process_it:
                 out = sorted(out)
+            have_changes = len(out) > 0
+            line = 'Changes in v%d:' % version
             if have_changes:
                 out.insert(0, line)
-            else:
-                out = [line + ' None']
-            if need_blank:
-                out.insert(0, '')
+                if version < newest_version and len(final) == 0:
+                    out.insert(0, '')
+                    out.insert(0, '(no changes since v%d)' % version)
+                    newest_version = 0
+                # Only add a new line if we output something
+                if need_blank:
+                    out.insert(0, '')
+                    need_blank = False
             final += out
-            need_blank = have_changes
-        if self.changes:
+            need_blank = need_blank or have_changes
+
+        if len(final) > 0:
             final.append('')
+        elif newest_version != 1:
+            final = ['(no changes since v1)', '']
         return final
 
     def DoChecks(self):

@@ -4,12 +4,12 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
-#include <asm/types.h>
-#include <asm/io.h>
 #include <common.h>
 #include <dm.h>
-#include <mapmem.h>
 #include <dm/of_access.h>
+#include <mapmem.h>
+#include <asm/types.h>
+#include <asm/io.h>
 
 int dev_read_u32(const struct udevice *dev, const char *propname, u32 *outp)
 {
