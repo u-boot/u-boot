@@ -637,21 +637,18 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
 		goto err;
 	}
 
-	/* assume sizeof(IMAGE_NT_HEADERS32) <= sizeof(IMAGE_NT_HEADERS64) */
-	if (efi_size < dos->e_lfanew + sizeof(IMAGE_NT_HEADERS32)) {
+	/*
+	 * Check if the image section header fits into the file. Knowing that at
+	 * least one section header follows we only need to check for the length
+	 * of the 64bit header which is longer than the 32bit header.
+	 */
+	if (efi_size < dos->e_lfanew + sizeof(IMAGE_NT_HEADERS64)) {
 		printf("%s: Invalid offset for Extended Header\n", __func__);
 		ret = EFI_LOAD_ERROR;
 		goto err;
 	}
 
 	nt = (void *) ((char *)efi + dos->e_lfanew);
-	if ((nt->OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR64_MAGIC) &&
-	    (efi_size < dos->e_lfanew + sizeof(IMAGE_NT_HEADERS64))) {
-		printf("%s: Invalid offset for Extended Header\n", __func__);
-		ret = EFI_LOAD_ERROR;
-		goto err;
-	}
-
 	if (nt->Signature != IMAGE_NT_SIGNATURE) {
 		printf("%s: Invalid NT Signature\n", __func__);
 		ret = EFI_LOAD_ERROR;
