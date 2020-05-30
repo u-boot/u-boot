@@ -76,6 +76,7 @@
 #define CONFIG_BOARD_SIZE_LIMIT		392192 /* (CONFIG_ENV_OFFSET - 1024) */
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	BOOTENV \
 	"bootargs_mmc1=console=ttymxc0,115200 di0_primary console=tty1\0" \
 	"bootargs_mmc2=video=mxcfb0:dev=hdmi,1920x1080M@60 " \
 			"video=mxcfb1:off video=mxcfb2:off fbmem=28M\0" \
@@ -92,6 +93,13 @@
 			"bootm 0x10800000 0x10d00000\0" \
 	"console=ttymxc0\0" \
 	"fan=gpio set 92\0" \
+	"fdt_addr=0x13000000\0" \
+	"fdt_addr_r=0x13000000\0" \
+	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
+	"kernel_addr_r=0x10008000\0" \
+	"pxefile_addr_r=0x10008000\0" \
+	"ramdisk_addr_r=0x18000000\0" \
+	"scriptaddr=0x14000000\0" \
 	"set_con_serial=setenv stdout serial; " \
 			"setenv stderr serial\0" \
 	"set_con_hdmi=setenv stdout serial,vga; " \
@@ -99,5 +107,15 @@
 	"stderr=serial,vga\0" \
 	"stdin=serial,usbkbd\0" \
 	"stdout=serial,vga\0"
+
+/* Enable distro boot */
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 0) \
+	func(MMC, mmc, 1) \
+	func(MMC, mmc, 2) \
+	func(SATA, sata, 0) \
+	func(USB, usb, 0)
+
+#include <config_distro_bootcmd.h>
 
 #endif			       /* __TBS2910_CONFIG_H * */
