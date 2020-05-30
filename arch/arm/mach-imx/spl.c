@@ -293,8 +293,7 @@ __weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 						CSF_PAD_SIZE, offset)) {
 			image_entry();
 		} else {
-			puts("spl: ERROR:  image authentication fail\n");
-			hang();
+			panic("spl: ERROR:  image authentication fail\n");
 		}
 	}
 }
@@ -320,8 +319,7 @@ void board_spl_fit_post_load(ulong load_addr, size_t length)
 	if (imx_hab_authenticate_image(load_addr,
 				       offset + IVT_SIZE + CSF_PAD_SIZE,
 				       offset)) {
-		puts("spl: ERROR:  image authentication unsuccessful\n");
-		hang();
+		panic("spl: ERROR:  image authentication unsuccessful\n");
 	}
 }
 #endif
