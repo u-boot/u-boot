@@ -17,3 +17,10 @@ M:      Matwey V. Kornilov <matwey.kornilov@gmail.com>
 S:      Maintained
 F:      configs/rock64-rk3328_defconfig
 F:      arch/arm/dts/rk3328-rock64-u-boot.dtsi
+
+ROCKPIE-RK3328
+M:      Banglang Huang <banglang.huang@foxmail.com>
+S:      Maintained
+F:      configs/rock-pi-e-rk3328_defconfig
+F:      arch/arm/dts/rk3328-rock-pi-e.dts
+F:      arch/arm/dts/rk3328-rock-pi-e-u-boot.dtsi

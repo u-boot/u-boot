@@ -48,6 +48,7 @@ List of mainline supported rockchip boards:
      - Rockchip Evb-RK3328 (evb-rk3328)
      - Pine64 Rock64 (rock64-rk3328)
      - Firefly-RK3328 (roc-cc-rk3328)
+     - Radxa Rockpi E (rock-pi-e-rk3328)
 * rk3368
      - GeekBox (geekbox)
      - PX5 EVB (evb-px5)
