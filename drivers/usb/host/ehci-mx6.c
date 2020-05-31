@@ -447,8 +447,8 @@ static int mx6_init_after_reset(struct ehci_ctrl *dev)
 		ret = regulator_set_enable(priv->vbus_supply,
 					   (type == USB_INIT_DEVICE) ?
 					   false : true);
-		if (ret) {
-			puts("Error enabling VBUS supply\n");
+		if (ret && ret != -ENOSYS) {
+			printf("Error enabling VBUS supply (ret=%i)\n", ret);
 			return ret;
 		}
 	}
@@ -614,8 +614,8 @@ static int ehci_usb_probe(struct udevice *dev)
 		ret = regulator_set_enable(priv->vbus_supply,
 					   (type == USB_INIT_DEVICE) ?
 					   false : true);
-		if (ret) {
-			puts("Error enabling VBUS supply\n");
+		if (ret && ret != -ENOSYS) {
+			printf("Error enabling VBUS supply (ret=%i)\n", ret);
 			return ret;
 		}
 	}
