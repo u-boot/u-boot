@@ -146,7 +146,7 @@ static void reuse_omap_atags(struct tag_omap *t)
 			}
 			break;
 		case OMAP_TAG_UART:
-			if (!t->u.uart.enabled_uarts)
+			if (t->u.uart.enabled_uarts)
 				serial_was_console_enabled = 1;
 			break;
 		case OMAP_TAG_SERIAL_CONSOLE:
