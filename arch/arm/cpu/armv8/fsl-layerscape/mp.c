@@ -39,7 +39,7 @@ void update_os_arch_secondary_cores(uint8_t os_arch)
 }
 
 #ifdef CONFIG_FSL_LSCH3
-void wake_secondary_core_n(int cluster, int core, int cluster_cores)
+static void wake_secondary_core_n(int cluster, int core, int cluster_cores)
 {
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
 	struct ccsr_reset __iomem *rst = (void *)(CONFIG_SYS_FSL_RST_ADDR);
