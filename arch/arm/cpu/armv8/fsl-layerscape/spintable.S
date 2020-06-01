@@ -19,7 +19,7 @@ secondary_boot_addr:
 	.ltorg
 
 	/* Using 64 bit alignment since the spin table is accessed as data */
-	.align 4
+	.align 3
 	.global secondary_boot_code
 	/* Secondary Boot Code starts here */
 secondary_boot_code:
@@ -144,7 +144,7 @@ ENDPROC(secondary_switch_to_el1)
 	.ltorg
 
 	/* 64 bit alignment for elements accessed as data */
-	.align 4
+	.align 3
 	.global __real_cntfrq
 __real_cntfrq:
 	.quad COUNTER_FREQUENCY
