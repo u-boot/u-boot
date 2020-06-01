@@ -23,8 +23,8 @@
 		pci0 = &pci0;
 		pci1 = &pci1;
 		pci2 = &pci2;
-		remoteproc1 = &rproc_1;
-		remoteproc2 = &rproc_2;
+		remoteproc0 = &rproc_1;
+		remoteproc1 = &rproc_2;
 		rtc0 = &rtc_0;
 		rtc1 = &rtc_1;
 		spi0 = "/spi@0";
