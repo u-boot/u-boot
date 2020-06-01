@@ -93,6 +93,14 @@ config SYS_I2C_CADENCE
 	  Say yes here to select Cadence I2C Host Controller. This controller is
 	  e.g. used by Xilinx Zynq.
 
+config SYS_I2C_CA
+	tristate "Cortina-Access I2C Controller"
+	depends on DM_I2C && CORTINA_PLATFORM
+	default n
+	help
+	  Add support for the Cortina Access I2C host controller.
+	  Say yes here to select Cortina-Access I2C Host Controller.
+
 config SYS_I2C_DAVINCI
 	bool "Davinci I2C Controller"
 	depends on (ARCH_KEYSTONE || ARCH_DAVINCI)

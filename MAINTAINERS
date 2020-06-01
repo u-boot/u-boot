@@ -182,6 +182,8 @@ F:	drivers/gpio/cortina_gpio.c
 F:	drivers/watchdog/cortina_wdt.c
 F:	drivers/serial/serial_cortina.c
 F:	drivers/mmc/ca_dw_mmc.c
+F:	drivers/i2c/i2c-cortina.c
+F:	drivers/i2c/i2c-cortina.h
 
 ARM/CZ.NIC TURRIS MOX SUPPORT
 M:	Marek Behun <marek.behun@nic.cz>
@@ -740,6 +742,8 @@ F:	drivers/gpio/cortina_gpio.c
 F:	drivers/watchdog/cortina_wdt.c
 F:	drivers/serial/serial_cortina.c
 F:	drivers/mmc/ca_dw_mmc.c
+F:	drivers/i2c/i2c-cortina.c
+F:	drivers/i2c/i2c-cortina.h
 
 MIPS MSCC
 M:	Gregory CLEMENT <gregory.clement@bootlin.com>
