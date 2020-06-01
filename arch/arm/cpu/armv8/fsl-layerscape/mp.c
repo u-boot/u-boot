@@ -76,7 +76,7 @@ int fsl_layerscape_wake_seconday_cores(void)
 #endif
 	u32 cores, cpu_up_mask = 1;
 	int i, timeout = 10;
-	u64 *table = get_spin_tbl_addr();
+	u64 *table;
 
 #ifdef COUNTER_FREQUENCY_REAL
 	/* update for secondary cores */
@@ -89,6 +89,7 @@ int fsl_layerscape_wake_seconday_cores(void)
 	/* Clear spin table so that secondary processors
 	 * observe the correct value after waking up from wfe.
 	 */
+	table = get_spin_tbl_addr();
 	memset(table, 0, CONFIG_MAX_CPUS*SPIN_TABLE_ELEM_SIZE);
 	flush_dcache_range((unsigned long)table,
 			   (unsigned long)table +
@@ -185,9 +186,9 @@ static int is_pos_valid(unsigned int pos)
 
 int is_core_online(u64 cpu_id)
 {
-	u64 *table;
+	u64 *table = get_spin_tbl_addr();
 	int pos = id_to_core(cpu_id);
-	table = (u64 *)get_spin_tbl_addr() + pos * WORDS_PER_SPIN_TABLE_ENTRY;
+	table += pos * WORDS_PER_SPIN_TABLE_ENTRY;
 	return table[SPIN_TABLE_ELEM_STATUS_IDX] == 1;
 }
 
@@ -233,18 +234,16 @@ static int core_to_pos(int nr)
 
 int cpu_status(u32 nr)
 {
-	u64 *table;
+	u64 *table = get_spin_tbl_addr();
 	int pos;
 
 	if (nr == 0) {
-		table = (u64 *)get_spin_tbl_addr();
 		printf("table base @ 0x%p\n", table);
 	} else {
 		pos = core_to_pos(nr);
 		if (pos < 0)
 			return -1;
-		table = (u64 *)get_spin_tbl_addr() + pos *
-			WORDS_PER_SPIN_TABLE_ENTRY;
+		table += pos * WORDS_PER_SPIN_TABLE_ENTRY;
 		printf("table @ 0x%p\n", table);
 		printf("   addr - 0x%016llx\n",
 		       table[SPIN_TABLE_ELEM_ENTRY_ADDR_IDX]);
@@ -260,7 +259,7 @@ int cpu_status(u32 nr)
 int cpu_release(u32 nr, int argc, char *const argv[])
 {
 	u64 boot_addr;
-	u64 *table = (u64 *)get_spin_tbl_addr();
+	u64 *table = get_spin_tbl_addr();
 	int pos;
 
 	pos = core_to_pos(nr);
