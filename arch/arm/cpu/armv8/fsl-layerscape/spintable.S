@@ -31,7 +31,7 @@ __spin_table:
 	.space CONFIG_MAX_CPUS*SPIN_TABLE_ELEM_SIZE
 
 	.align 2
-ENTRY(__secondary_boot_func)
+__secondary_boot_func:
 	/*
 	 * MPIDR_EL1 Fields:
 	 * MPIDR[1:0] = AFF0_CPUID <- Core ID (0,1)
@@ -72,73 +72,36 @@ ENTRY(__secondary_boot_func)
 	str	x4, [x11, #8]	/* STATUS */
 	dsb	sy
 
-slave_cpu:
-	wfe
-	ldr	x0, [x11]
-	cbz	x0, slave_cpu
-#ifndef CONFIG_ARMV8_SWITCH_TO_EL1
-	mrs     x1, sctlr_el2
-#else
-	mrs     x1, sctlr_el1
-#endif
-	tbz     x1, #25, cpu_is_le
-	rev     x0, x0                  /* BE to LE conversion */
-cpu_is_le:
-	ldr	x5, [x11, #24]
-	cbz	x5, 1f
-
-#ifdef CONFIG_ARMV8_SWITCH_TO_EL1
-	adr	x4, secondary_switch_to_el1
-	ldr	x5, =ES_TO_AARCH64
-#else
-	ldr	x4, [x11]
-	ldr	x5, =ES_TO_AARCH32
-#endif
-	bl	secondary_switch_to_el2
-
 1:
+	wfe
+	ldr	x4, [x11]
+	cbz	x4, 1b
+	mrs     x1, sctlr_el2
+	tbz     x1, #25, 2f
+	rev     x4, x4                  /* BE to LE conversion */
+2:
+	ldr	x6, =ES_TO_AARCH64
 #ifdef CONFIG_ARMV8_SWITCH_TO_EL1
-	adr	x4, secondary_switch_to_el1
-#else
-	ldr	x4, [x11]
+	adr	x5, 3f
+	switch_el x7, 0f, _dead_loop, _dead_loop
+0:	armv8_switch_to_el2_m x5, x6, x7
 #endif
-	ldr	x5, =ES_TO_AARCH64
-	bl	secondary_switch_to_el2
+3:
+	ldr	x7, [x11, #24]	/* ARCH_COMP */
+	cbz	x7, 4f
+	ldr	x6, =ES_TO_AARCH32
+4:
+#ifdef CONFIG_ARMV8_SWITCH_TO_EL1
+	switch_el x7, _dead_loop, 0f, _dead_loop
+0:	armv8_switch_to_el1_m x4, x6, x7
+#else
+	switch_el x7, 0f, _dead_loop, _dead_loop
+0:	armv8_switch_to_el2_m x4, x6, x7
+#endif
 
-ENDPROC(__secondary_boot_func)
-
-ENTRY(secondary_switch_to_el2)
-	switch_el x6, 1f, 0f, 0f
-0:	ret
-1:	armv8_switch_to_el2_m x4, x5, x6
-ENDPROC(secondary_switch_to_el2)
-
-ENTRY(secondary_switch_to_el1)
-	mrs	x0, mpidr_el1
-	ubfm	x1, x0, #8, #15
-	ubfm	x2, x0, #0, #1
-	orr	x10, x2, x1, lsl #2	/* x10 has LPID */
-
-	lsl	x1, x10, #6
-	adr	x0, __spin_table
-	/* physical address of this cpus spin table element */
-	add	x11, x1, x0
-
-	ldr	x4, [x11]
-
-	ldr	x5, [x11, #24]
-	cbz	x5, 2f
-
-	ldr	x5, =ES_TO_AARCH32
-	bl	switch_to_el1
-
-2:	ldr	x5, =ES_TO_AARCH64
-
-switch_to_el1:
-	switch_el x6, 0f, 1f, 0f
-0:	ret
-1:	armv8_switch_to_el1_m x4, x5, x6
-ENDPROC(secondary_switch_to_el1)
+_dead_loop:
+	wfe
+	b _dead_loop
 
 	/* Ensure that the literals used by the secondary boot code are
 	 * assembled within it (this is required so that we can protect
