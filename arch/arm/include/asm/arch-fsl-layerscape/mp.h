@@ -32,10 +32,10 @@
 
 #define id_to_core(x)	((x & 3) | (x >> 6))
 #ifndef __ASSEMBLY__
-extern u64 __spin_table[];
 extern u64 __real_cntfrq;
-extern u64 *secondary_boot_code;
-extern size_t __secondary_boot_code_size;
+extern void *secondary_boot_addr;
+extern void *secondary_boot_code_start;
+extern size_t secondary_boot_code_size;
 #ifdef CONFIG_MP
 int fsl_layerscape_wake_seconday_cores(void);
 #else

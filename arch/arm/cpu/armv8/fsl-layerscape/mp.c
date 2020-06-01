@@ -15,12 +15,14 @@
 #include <linux/delay.h>
 #include "cpu.h"
 #include <asm/arch-fsl-layerscape/soc.h>
+#include <efi_loader.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 void *get_spin_tbl_addr(void)
 {
-	return &__spin_table;
+	/* the spin table is at the beginning */
+	return secondary_boot_code_start;
 }
 
 void update_os_arch_secondary_cores(uint8_t os_arch)

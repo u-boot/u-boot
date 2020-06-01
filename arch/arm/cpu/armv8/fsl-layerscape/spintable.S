@@ -10,23 +10,28 @@
 #include <asm/system.h>
 #include <asm/arch/mp.h>
 
-	.align 3
-	.global secondary_boot_addr
+.align 3
+.global secondary_boot_addr
 secondary_boot_addr:
-	.quad secondary_boot_func
+	.quad __secondary_boot_func
 
+.global secondary_boot_code_start
+secondary_boot_code_start:
+	.quad __secondary_boot_code_start
+
+.global secondary_boot_code_size
+secondary_boot_code_size:
+	.quad __secondary_boot_code_end - __secondary_boot_code_start
 
 	/* Using 64 bit alignment since the spin table is accessed as data */
 	.align 3
-	.global secondary_boot_code
 	/* Secondary Boot Code starts here */
-secondary_boot_code:
-	.global __spin_table
+__secondary_boot_code_start:
 __spin_table:
 	.space CONFIG_MAX_CPUS*SPIN_TABLE_ELEM_SIZE
 
 	.align 2
-ENTRY(secondary_boot_func)
+ENTRY(__secondary_boot_func)
 	/*
 	 * MPIDR_EL1 Fields:
 	 * MPIDR[1:0] = AFF0_CPUID <- Core ID (0,1)
@@ -100,7 +105,7 @@ cpu_is_le:
 	ldr	x5, =ES_TO_AARCH64
 	bl	secondary_switch_to_el2
 
-ENDPROC(secondary_boot_func)
+ENDPROC(__secondary_boot_func)
 
 ENTRY(secondary_switch_to_el2)
 	switch_el x6, 1f, 0f, 0f
@@ -146,8 +151,5 @@ ENDPROC(secondary_switch_to_el1)
 	.global __real_cntfrq
 __real_cntfrq:
 	.quad COUNTER_FREQUENCY
-	.globl __secondary_boot_code_size
-	.type __secondary_boot_code_size, %object
 	/* Secondary Boot Code ends here */
-__secondary_boot_code_size:
-	.quad .-secondary_boot_code
+__secondary_boot_code_end:

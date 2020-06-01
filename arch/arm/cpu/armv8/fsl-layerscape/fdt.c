@@ -54,7 +54,6 @@ void ft_fixup_cpu(void *blob)
 	fdt32_t *reg;
 	int addr_cells;
 	u64 val, core_id;
-	size_t *boot_code_size = &(__secondary_boot_code_size);
 	u32 mask = cpu_pos_mask();
 	int off_prev = -1;
 
@@ -145,11 +144,11 @@ remove_psci_node:
 						    "cpu", 4);
 	}
 
-	fdt_add_mem_rsv(blob, (uintptr_t)&secondary_boot_code,
-			*boot_code_size);
+	fdt_add_mem_rsv(blob, (uintptr_t)secondary_boot_code_start,
+			secondary_boot_code_size);
 #if CONFIG_IS_ENABLED(EFI_LOADER)
-	efi_add_memory_map((uintptr_t)&secondary_boot_code, *boot_code_size,
-			   EFI_RESERVED_MEMORY_TYPE);
+	efi_add_memory_map((uintptr_t)secondary_boot_code_start,
+			   secondary_boot_code_size, EFI_RESERVED_MEMORY_TYPE);
 #endif
 }
 #endif
