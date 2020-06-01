@@ -48,7 +48,7 @@
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 #define CONFIG_SYS_DDR_BLOCK2_BASE      0x880000000ULL
 
-#define CPU_RELEASE_ADDR               secondary_boot_func
+#define CPU_RELEASE_ADDR               secondary_boot_addr
 
 /* Generic Timer Definitions */
 #define COUNTER_FREQUENCY		25000000	/* 25MHz */

@@ -48,7 +48,7 @@
 /*
  * SMP Definitinos
  */
-#define CPU_RELEASE_ADDR		secondary_boot_func
+#define CPU_RELEASE_ADDR		secondary_boot_addr
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2048 * 1024)

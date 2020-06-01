@@ -208,8 +208,13 @@ ENTRY(lowlevel_init)
 	branch_if_master x0, x1, 2f
 
 #if defined(CONFIG_MP) && defined(CONFIG_ARMV8_MULTIENTRY)
-	ldr	x0, =secondary_boot_func
-	blr	x0
+	/*
+	 * Formerly, here was a jump to secondary_boot_func, but we just
+	 * return early here and let the generic code in start.S handle
+	 * the jump to secondary_boot_func.
+	 */
+	mov	lr, x29			/* Restore LR */
+	ret
 #endif
 
 2:
@@ -421,6 +426,11 @@ ENDPROC(__asm_flush_l3_dcache)
 #endif /* CONFIG_SYS_FSL_HAS_CCN504 */
 
 #ifdef CONFIG_MP
+	.align 3
+	.global secondary_boot_addr
+secondary_boot_addr:
+	.quad secondary_boot_func
+
 	/* Keep literals not used by the secondary boot code outside it */
 	.ltorg
 
