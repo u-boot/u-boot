@@ -322,7 +322,7 @@ static int rockchip_pcie_set_vpcie(struct udevice *dev)
 	struct rockchip_pcie *priv = dev_get_priv(dev);
 	int ret;
 
-	if (!IS_ERR(priv->vpcie3v3)) {
+	if (priv->vpcie3v3) {
 		ret = regulator_set_enable(priv->vpcie3v3, true);
 		if (ret) {
 			dev_err(dev, "failed to enable vpcie3v3 (ret=%d)\n",
@@ -331,24 +331,31 @@ static int rockchip_pcie_set_vpcie(struct udevice *dev)
 		}
 	}
 
-	ret = regulator_set_enable(priv->vpcie1v8, true);
-	if (ret) {
-		dev_err(dev, "failed to enable vpcie1v8 (ret=%d)\n", ret);
-		goto err_disable_3v3;
+	if (priv->vpcie1v8) {
+		ret = regulator_set_enable(priv->vpcie1v8, true);
+		if (ret) {
+			dev_err(dev, "failed to enable vpcie1v8 (ret=%d)\n",
+				ret);
+			goto err_disable_3v3;
+		}
 	}
 
-	ret = regulator_set_enable(priv->vpcie0v9, true);
-	if (ret) {
-		dev_err(dev, "failed to enable vpcie0v9 (ret=%d)\n", ret);
-		goto err_disable_1v8;
+	if (priv->vpcie0v9) {
+		ret = regulator_set_enable(priv->vpcie0v9, true);
+		if (ret) {
+			dev_err(dev, "failed to enable vpcie0v9 (ret=%d)\n",
+				ret);
+			goto err_disable_1v8;
+		}
 	}
 
 	return 0;
 
 err_disable_1v8:
-	regulator_set_enable(priv->vpcie1v8, false);
+	if (priv->vpcie1v8)
+		regulator_set_enable(priv->vpcie1v8, false);
 err_disable_3v3:
-	if (!IS_ERR(priv->vpcie3v3))
+	if (priv->vpcie3v3)
 		regulator_set_enable(priv->vpcie3v3, false);
 	return ret;
 }
@@ -424,14 +431,14 @@ static int rockchip_pcie_parse_dt(struct udevice *dev)
 
 	ret = device_get_supply_regulator(dev, "vpcie1v8-supply",
 					  &priv->vpcie1v8);
-	if (ret) {
+	if (ret && ret != -ENOENT) {
 		dev_err(dev, "failed to get vpcie1v8 supply (ret=%d)\n", ret);
 		return ret;
 	}
 
 	ret = device_get_supply_regulator(dev, "vpcie0v9-supply",
 					  &priv->vpcie0v9);
-	if (ret) {
+	if (ret && ret != -ENOENT) {
 		dev_err(dev, "failed to get vpcie0v9 supply (ret=%d)\n", ret);
 		return ret;
 	}

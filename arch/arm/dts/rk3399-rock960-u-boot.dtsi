@@ -8,7 +8,7 @@
 
 / {
 	chosen {
-		u-boot,spl-boot-order = &sdhci, &sdmmc;
+		u-boot,spl-boot-order = "same-as-spl", &sdhci, &sdmmc;
 	};
 
 	vdd_log: vdd-log {

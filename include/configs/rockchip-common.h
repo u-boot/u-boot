@@ -23,6 +23,12 @@
 	#define BOOT_TARGET_MMC(func)
 #endif
 
+#if CONFIG_IS_ENABLED(CMD_NVME)
+	#define BOOT_TARGET_NVME(func) func(NVME, nvme, 0)
+#else
+	#define BOOT_TARGET_NVME(func)
+#endif
+
 #if CONFIG_IS_ENABLED(CMD_USB)
 	#define BOOT_TARGET_USB(func) func(USB, usb, 0)
 #else
@@ -50,6 +56,7 @@
 #ifdef CONFIG_ROCKCHIP_RK3399
 #define BOOT_TARGET_DEVICES(func) \
 	BOOT_TARGET_MMC(func) \
+	BOOT_TARGET_NVME(func) \
 	BOOT_TARGET_USB(func) \
 	BOOT_TARGET_PXE(func) \
 	BOOT_TARGET_DHCP(func) \

@@ -8,7 +8,7 @@
 
 / {
 	chosen {
-		u-boot,spl-boot-order = &sdhci, &sdmmc;
+		u-boot,spl-boot-order = "same-as-spl", &sdhci, &sdmmc;
 	};
 };
 
@@ -22,4 +22,17 @@
 
 &rk808 {
 	u-boot,dm-pre-reloc;
+};
+
+&tcphy1 {
+	status = "okay";
+};
+
+&usbdrd3_1 {
+	status = "okay";
+};
+
+&usbdrd_dwc3_1 {
+	dr_mode = "host";
+	status = "okay";
 };

@@ -1,0 +1,43 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2019 Peter Robinson <pbrobinson at gmail.com>
+ */
+
+#include "rk3399-u-boot.dtsi"
+#include "rk3399-sdram-lpddr4-100.dtsi"
+
+/ {
+	aliases {
+		spi0 = &spi1;
+	};
+
+	chosen {
+		u-boot,spl-boot-order = "same-as-spl", &sdhci, &sdmmc;
+	};
+};
+
+&i2c0 {
+	u-boot,dm-pre-reloc;
+};
+
+&rk808 {
+	u-boot,dm-pre-reloc;
+};
+
+&sdhci {
+	max-frequency = <25000000>;
+	u-boot,dm-pre-reloc;
+};
+
+&sdmmc {
+	max-frequency = <20000000>;
+	u-boot,dm-pre-reloc;
+};
+
+&spiflash {
+	u-boot,dm-pre-reloc;
+};
+
+&vdd_log {
+	regulator-init-microvolt = <950000>;
+};
