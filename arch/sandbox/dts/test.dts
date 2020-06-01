@@ -810,6 +810,8 @@
 		hub {
 			compatible = "usb-hub";
 			usb,device-class = <9>;
+			#address-cells = <1>;
+			#size-cells = <0>;
 			hub-emul {
 				compatible = "sandbox,usb-hub";
 				#address-cells = <1>;
@@ -837,6 +839,13 @@
 					compatible = "sandbox,usb-keyb";
 				};
 
+			};
+
+			usbstor@1 {
+				reg = <1>;
+			};
+			usbstor@3 {
+				reg = <3>;
 			};
 		};
 	};
