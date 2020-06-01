@@ -31,6 +31,8 @@ static int smbios_add_string(char *start, const char *str)
 {
 	int i = 1;
 	char *p = start;
+	if (!*str)
+		str = "Unknown";
 
 	for (;;) {
 		if (!*p) {
