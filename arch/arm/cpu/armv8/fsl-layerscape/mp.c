@@ -23,11 +23,6 @@ void *get_spin_tbl_addr(void)
 	return &__spin_table;
 }
 
-phys_addr_t determine_mp_bootpg(void)
-{
-	return (phys_addr_t)&secondary_boot_code;
-}
-
 void update_os_arch_secondary_cores(uint8_t os_arch)
 {
 	u64 *table = get_spin_tbl_addr();

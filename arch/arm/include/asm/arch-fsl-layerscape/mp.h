@@ -42,7 +42,6 @@ int fsl_layerscape_wake_seconday_cores(void);
 static inline int fsl_layerscape_wake_seconday_cores(void) { return 0; }
 #endif
 void *get_spin_tbl_addr(void);
-phys_addr_t determine_mp_bootpg(void);
 int is_core_online(u64 cpu_id);
 u32 cpu_pos_mask(void);
 #endif
