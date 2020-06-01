@@ -6,7 +6,7 @@ obj-y += cpu.o
 obj-y += lowlevel.o
 obj-y += soc.o
 ifndef CONFIG_SPL_BUILD
-obj-$(CONFIG_MP) += mp.o
+obj-$(CONFIG_MP) += mp.o spintable.o
 obj-$(CONFIG_OF_LIBFDT) += fdt.o
 endif
 obj-$(CONFIG_SPL) += spl.o
