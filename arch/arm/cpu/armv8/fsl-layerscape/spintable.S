@@ -57,11 +57,11 @@ ENTRY(secondary_boot_func)
 	 * table (each elem is padded to 64 bytes)
 	 */
 	lsl	x1, x10, #6
-	ldr	x0, =__spin_table
+	adr	x0, __spin_table
 	/* physical address of this cpus spin table element */
 	add	x11, x1, x0
 
-	ldr	x0, =__real_cntfrq
+	adr	x0, __real_cntfrq
 	ldr	x0, [x0]
 	msr	cntfrq_el0, x0	/* set with real frequency */
 	str	x9, [x11, #16]	/* LPID */
@@ -117,7 +117,7 @@ ENTRY(secondary_switch_to_el1)
 	orr	x10, x2, x1, lsl #2	/* x10 has LPID */
 
 	lsl	x1, x10, #6
-	ldr	x0, =__spin_table
+	adr	x0, __spin_table
 	/* physical address of this cpus spin table element */
 	add	x11, x1, x0
 
