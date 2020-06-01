@@ -15,8 +15,6 @@
 secondary_boot_addr:
 	.quad secondary_boot_func
 
-	/* Keep literals not used by the secondary boot code outside it */
-	.ltorg
 
 	/* Using 64 bit alignment since the spin table is accessed as data */
 	.align 3
