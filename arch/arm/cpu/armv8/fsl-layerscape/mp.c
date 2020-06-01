@@ -277,11 +277,12 @@ int cpu_release(u32 nr, int argc, char *const argv[])
 	flush_dcache_range((unsigned long)table,
 			   (unsigned long)table + SPIN_TABLE_ELEM_SIZE);
 	asm volatile("dsb st");
-	smp_kick_all_cpus();	/* only those with entry addr set will run */
+
 	/*
-	 * When the first release command runs, all cores are set to go. Those
-	 * without a valid entry address will be trapped by "wfe". "sev" kicks
-	 * them off to check the address again. When set, they continue to run.
+	 * The secondary CPUs polling the spin-table above for a non-zero
+	 * value. To save power "wfe" is called. Thus call "sev" here to
+	 * wake the CPUs and let them check the spin-table again (see
+	 * slave_cpu loop in lowlevel.S)
 	 */
 	asm volatile("sev");
 
