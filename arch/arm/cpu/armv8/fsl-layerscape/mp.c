@@ -6,6 +6,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <image.h>
+#include <log.h>
 #include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/system.h>
@@ -98,7 +99,7 @@ int fsl_layerscape_wake_seconday_cores(void)
 			   (unsigned long)table +
 			   (CONFIG_MAX_CPUS*SPIN_TABLE_ELEM_SIZE));
 
-	printf("Waking secondary cores to start from %lx\n", gd->relocaddr);
+	debug("Waking secondary cores to start from %lx\n", gd->relocaddr);
 
 #ifdef CONFIG_FSL_LSCH3
 	gur_out32(&gur->bootlocptrh, (u32)(gd->relocaddr >> 32));
@@ -168,11 +169,11 @@ int fsl_layerscape_wake_seconday_cores(void)
 		udelay(10);
 	}
 	if (timeout <= 0) {
-		printf("Not all cores (0x%x) are up (0x%x)\n",
-		       cores, cpu_up_mask);
+		printf("CPU:   Failed to bring up some cores (mask 0x%x)\n",
+		       cores ^ cpu_up_mask);
 		return 1;
 	}
-	printf("All (%d) cores are up.\n", hweight32(cores));
+	printf("CPU:   %d cores online\n", hweight32(cores));
 
 	return 0;
 }
