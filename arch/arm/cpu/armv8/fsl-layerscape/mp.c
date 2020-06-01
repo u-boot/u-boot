@@ -79,12 +79,48 @@ int fsl_layerscape_wake_seconday_cores(void)
 	u32 cores, cpu_up_mask = 1;
 	int i, timeout = 10;
 	u64 *table;
+#ifdef CONFIG_EFI_LOADER
+	u64 reloc_addr = U32_MAX;
+	efi_status_t ret;
+#endif
 
 #ifdef COUNTER_FREQUENCY_REAL
 	/* update for secondary cores */
 	__real_cntfrq = COUNTER_FREQUENCY_REAL;
 	flush_dcache_range((unsigned long)&__real_cntfrq,
 			   (unsigned long)&__real_cntfrq + 8);
+#endif
+
+#ifdef CONFIG_EFI_LOADER
+	/*
+	 * EFI will reserve 64kb for its runtime services. This will probably
+	 * overlap with our spin table code, which is why we have to relocate
+	 * it.
+	 * Keep this after the __real_cntfrq update, so we have it when we
+	 * copy the complete section here.
+	 */
+	ret = efi_allocate_pages(EFI_ALLOCATE_MAX_ADDRESS,
+				 EFI_RESERVED_MEMORY_TYPE,
+				 efi_size_in_pages(secondary_boot_code_size),
+				 &reloc_addr);
+	if (ret == EFI_SUCCESS) {
+		debug("Relocating spin table from %llx to %llx (size %lx)\n",
+		      (u64)secondary_boot_code_start, reloc_addr,
+		      secondary_boot_code_size);
+		memcpy((void *)reloc_addr, secondary_boot_code_start,
+		       secondary_boot_code_size);
+		flush_dcache_range(reloc_addr,
+				   reloc_addr + secondary_boot_code_size);
+
+		/* set new entry point for secondary cores */
+		secondary_boot_addr += (void *)reloc_addr -
+				       secondary_boot_code_start;
+		flush_dcache_range((unsigned long)&secondary_boot_addr,
+				   (unsigned long)&secondary_boot_addr + 8);
+
+		/* this will be used to reserve the memory */
+		secondary_boot_code_start = (void *)reloc_addr;
+	}
 #endif
 
 	cores = cpu_mask();
