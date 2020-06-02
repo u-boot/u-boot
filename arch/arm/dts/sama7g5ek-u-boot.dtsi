@@ -31,6 +31,10 @@
 	u-boot,dm-pre-reloc;
 };
 
+&pit64b0 {
+	u-boot,dm-pre-reloc;
+};
+
 &pmc {
 	u-boot,dm-pre-reloc;
 };

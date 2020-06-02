@@ -86,6 +86,14 @@
 				status = "disabled";
 			};
 
+			pit64b0: timer@e1800000 {
+				compatible = "microchip,sama7g5-pit64b";
+				reg = <0xe1800000 0x4000>;
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 70>, <&pmc PMC_TYPE_GCK 70>;
+				clock-names = "pclk", "gclk";
+				status = "okay";
+			};
+
 			uart0: serial@e1824200 {
 				compatible = "atmel,at91sam9260-usart";
 				reg = <0xe1824200 0x200>;
