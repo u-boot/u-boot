@@ -40,6 +40,18 @@
 		};
 	};
 
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		A7_0: cpu@0 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a7";
+			clocks = <&pmc PMC_TYPE_CORE 8>, <&pmc PMC_TYPE_CORE 22>, <&main_xtal>;
+			clock-names = "cpu", "master", "xtal";
+		};
+	};
+
 	ahb {
 		compatible = "simple-bus";
 		#address-cells = <1>;
