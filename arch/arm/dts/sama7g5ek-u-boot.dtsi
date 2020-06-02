@@ -27,7 +27,15 @@
 	u-boot,dm-pre-reloc;
 };
 
+&main_xtal {
+	u-boot,dm-pre-reloc;
+};
+
 &slow_rc_osc {
+	u-boot,dm-pre-reloc;
+};
+
+&slow_xtal {
 	u-boot,dm-pre-reloc;
 };
 
