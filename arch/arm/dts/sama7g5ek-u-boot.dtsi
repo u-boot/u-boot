@@ -31,6 +31,10 @@
 	u-boot,dm-pre-reloc;
 };
 
+&pmc {
+	u-boot,dm-pre-reloc;
+};
+
 &slow_rc_osc {
 	u-boot,dm-pre-reloc;
 };

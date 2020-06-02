@@ -55,6 +55,15 @@
 			#address-cells = <1>;
 			#size-cells = <1>;
 
+			pmc: pmc@e0018000 {
+				compatible = "microchip,sama7g5-pmc";
+				reg = <0xe0018000 0x200>;
+				#clock-cells = <2>;
+				clocks = <&clk32 1>, <&clk32 0>, <&main_xtal>, <&main_rc>;
+				clock-names = "td_slck", "md_slck", "main_xtal", "main_rc";
+				status = "okay";
+			};
+
 			clk32: sckc@e001d050 {
 				compatible = "microchip,sam9x60-sckc";
 				reg = <0xe001d050 0x4>;
