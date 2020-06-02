@@ -10,7 +10,7 @@ Device (PCI0)
     Name (_HID, EISAID("PNP0A08"))    /* PCIe */
     Name (_CID, EISAID("PNP0A03"))    /* PCI */
 
-    Name (_ADR, Zero)
+    Name (_UID, Zero)
     Name (_BBN, Zero)
 
     Name (MCRS, ResourceTemplate()
@@ -338,12 +338,12 @@ Device (PCI0)
         {
             Name (_ADR, Zero)
 
+            Name (PCKG, Package () {
+                Buffer (0x14) {}
+            })
+
             /* GPLD: Generate Port Location Data (PLD) */
             Method (GPLD, 1, Serialized) {
-                Name (PCKG, Package () {
-                    Buffer (0x14) {}
-                })
-
                 /* REV: Revision 0x02 for ACPI 5.0 */
                 CreateField (DerefOf (Index (PCKG, Zero)), Zero, 0x07, REV)
                 Store (0x0002, REV)
@@ -401,20 +401,21 @@ Device (PCI0)
                 Return (STA_VISIBLE)
             }
 
+            Name (RBUF, ResourceTemplate()
+            {
+                UartSerialBus(0x0001C200, DataBitsEight, StopBitsOne,
+                    0xFC, LittleEndian, ParityTypeNone, FlowControlHardware,
+                    0x20, 0x20, "\\_SB.PCI0.HSU0", 0, ResourceConsumer, , )
+                GpioInt(Level, ActiveHigh, Exclusive, PullNone, 0,
+                    "\\_SB.PCI0.GPIO", 0, ResourceConsumer, , ) { 185 }
+                GpioIo(Exclusive, PullDefault, 0, 0, IoRestrictionOutputOnly,
+                    "\\_SB.PCI0.GPIO", 0, ResourceConsumer, , ) { 184 }
+                GpioIo(Exclusive, PullDefault, 0, 0, IoRestrictionOutputOnly,
+                    "\\_SB.PCI0.GPIO", 0, ResourceConsumer, , ) { 71 }
+            })
+
             Method (_CRS, 0, Serialized)
             {
-                Name (RBUF, ResourceTemplate()
-                {
-                    UartSerialBus(0x0001C200, DataBitsEight, StopBitsOne,
-                        0xFC, LittleEndian, ParityTypeNone, FlowControlHardware,
-                        0x20, 0x20, "\\_SB.PCI0.HSU0", 0, ResourceConsumer, , )
-                    GpioInt(Level, ActiveHigh, Exclusive, PullNone, 0,
-                        "\\_SB.PCI0.GPIO", 0, ResourceConsumer, , ) { 185 }
-                    GpioIo(Exclusive, PullDefault, 0, 0, IoRestrictionOutputOnly,
-                        "\\_SB.PCI0.GPIO", 0, ResourceConsumer, , ) { 184 }
-                    GpioIo(Exclusive, PullDefault, 0, 0, IoRestrictionOutputOnly,
-                        "\\_SB.PCI0.GPIO", 0, ResourceConsumer, , ) { 71 }
-                })
                 Return (RBUF)
             }
 
@@ -440,7 +441,6 @@ Device (PCI0)
 
         Device (PMIC)
         {
-            Name (_ADR, Zero)
             Name (_HID, "INTC100E")
             Name (_CID, "INTC100E")
             Name (_DDN, "Basin Cove PMIC")
@@ -454,33 +454,34 @@ Device (PCI0)
                 Return (STA_VISIBLE)
             }
 
+            Name (RBUF, ResourceTemplate()
+            {
+                /*
+                 * Shadow registers in SRAM for PMIC:
+                 *   SRAM    PMIC register
+                 *   --------------------
+                 *   0x00-    Unknown
+                 *   0x03    THRMIRQ (0x04)
+                 *   0x04    BCUIRQ (0x05)
+                 *   0x05    ADCIRQ (0x06)
+                 *   0x06    CHGRIRQ0 (0x07)
+                 *   0x07    CHGRIRQ1 (0x08)
+                 *   0x08-    Unknown
+                 *   0x0a    PBSTATUS (0x27)
+                 *   0x0b-    Unknown
+                 */
+                Memory32Fixed(ReadWrite, 0xFFFFF610, 0x00000010)
+                Interrupt(ResourceConsumer, Level, ActiveHigh, Shared, ,, ) { 30 }
+                Interrupt(ResourceConsumer, Level, ActiveHigh, Shared, ,, ) { 23 }
+                Interrupt(ResourceConsumer, Level, ActiveHigh, Shared, ,, ) { 52 }
+                Interrupt(ResourceConsumer, Level, ActiveHigh, Shared, ,, ) { 51 }
+                Interrupt(ResourceConsumer, Level, ActiveHigh, Shared, ,, ) { 50 }
+                Interrupt(ResourceConsumer, Level, ActiveHigh, Shared, ,, ) { 27 }
+                Interrupt(ResourceConsumer, Level, ActiveHigh, Shared, ,, ) { 49 }
+            })
+
             Method (_CRS, 0, Serialized)
             {
-                Name (RBUF, ResourceTemplate()
-                {
-                    /*
-                     * Shadow registers in SRAM for PMIC:
-                     *   SRAM    PMIC register
-                     *   --------------------
-                     *   0x00-    Unknown
-                     *   0x03    THRMIRQ (0x04)
-                     *   0x04    BCUIRQ (0x05)
-                     *   0x05    ADCIRQ (0x06)
-                     *   0x06    CHGRIRQ0 (0x07)
-                     *   0x07    CHGRIRQ1 (0x08)
-                     *   0x08-    Unknown
-                     *   0x0a    PBSTATUS (0x27)
-                     *   0x0b-    Unknown
-                     */
-                    Memory32Fixed(ReadWrite, 0xFFFFF610, 0x00000010)
-                    Interrupt(ResourceConsumer, Level, ActiveHigh, Shared, ,, ) { 30 }
-                    Interrupt(ResourceConsumer, Level, ActiveHigh, Shared, ,, ) { 23 }
-                    Interrupt(ResourceConsumer, Level, ActiveHigh, Shared, ,, ) { 52 }
-                    Interrupt(ResourceConsumer, Level, ActiveHigh, Shared, ,, ) { 51 }
-                    Interrupt(ResourceConsumer, Level, ActiveHigh, Shared, ,, ) { 50 }
-                    Interrupt(ResourceConsumer, Level, ActiveHigh, Shared, ,, ) { 27 }
-                    Interrupt(ResourceConsumer, Level, ActiveHigh, Shared, ,, ) { 49 }
-                })
                 Return (RBUF)
             }
 
@@ -519,7 +520,6 @@ Device (PCI0)
     Device (GDMA)
     {
         Name (_ADR, 0x00150000)
-        Name (_HID, "808611A2")
         Name (_UID, Zero)
 
         Method (_STA, 0, NotSerialized)
@@ -527,13 +527,14 @@ Device (PCI0)
             Return (STA_VISIBLE)
         }
 
+        Name (RBUF, ResourceTemplate ()
+        {
+                Memory32Fixed(ReadWrite, 0xFF192000, 0x00001000)
+                Interrupt(ResourceConsumer, Level, ActiveHigh, Shared, ,, ) { 32 }
+        })
+
         Method (_CRS, 0, Serialized)
         {
-            Name (RBUF, ResourceTemplate ()
-            {
-                    Memory32Fixed(ReadWrite, 0xFF192000, 0x00001000)
-                    Interrupt(ResourceConsumer, Level, ActiveHigh, Shared, ,, ) { 32 }
-            })
             Return (RBUF)
         }
     }

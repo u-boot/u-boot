@@ -233,6 +233,7 @@ int mrccache_get_region(enum mrc_type_t type, struct udevice **devp,
 	ulong map_base;
 	uint map_size;
 	uint offset;
+	ofnode node;
 	u32 reg[2];
 	int ret;
 
@@ -242,23 +243,36 @@ int mrccache_get_region(enum mrc_type_t type, struct udevice **devp,
 	 * memory map cannot be read.
 	 */
 	ret = uclass_find_first_device(UCLASS_SPI_FLASH, &dev);
-	if (!ret && !dev)
+	if (ret || !dev) {
+		/*
+		 * Fall back to searching the device tree since driver model
+		 * may not be ready yet (e.g. with FSPv1)
+		 */
+		node = ofnode_by_compatible(ofnode_null(), "jedec,spi-nor");
+		if (!ofnode_valid(node))
+			return log_msg_ret("Cannot find SPI flash\n", -ENOENT);
 		ret = -ENODEV;
-	if (ret)
-		return log_msg_ret("Cannot find SPI flash\n", ret);
-	ret = dm_spi_get_mmap(dev, &map_base, &map_size, &offset);
-	if (!ret) {
-		entry->base = map_base;
 	} else {
-		ret = dev_read_u32_array(dev, "memory-map", reg, 2);
+		ret = dm_spi_get_mmap(dev, &map_base, &map_size, &offset);
+		if (!ret)
+			entry->base = map_base;
+		node = dev_ofnode(dev);
+	}
+
+	/*
+	 * At this point we have entry->base if ret == 0. If not, then we have
+	 * the node and can look for memory-map
+	 */
+	if (ret) {
+		ret = ofnode_read_u32_array(node, "memory-map", reg, 2);
 		if (ret)
 			return log_msg_ret("Cannot find memory map\n", ret);
 		entry->base = reg[0];
 	}
 
 	/* Find the place where we put the MRC cache */
-	mrc_node = dev_read_subnode(dev, type == MRC_TYPE_NORMAL ?
-				    "rw-mrc-cache" : "rw-var-mrc-cache");
+	mrc_node = ofnode_find_subnode(node, type == MRC_TYPE_NORMAL ?
+				       "rw-mrc-cache" : "rw-var-mrc-cache");
 	if (!ofnode_valid(mrc_node))
 		return log_msg_ret("Cannot find node", -EPERM);
 
@@ -271,7 +285,8 @@ int mrccache_get_region(enum mrc_type_t type, struct udevice **devp,
 	if (devp)
 		*devp = dev;
 	debug("MRC cache type %d in '%s', offset %x, len %x, base %x\n",
-	      type, dev->name, entry->offset, entry->length, entry->base);
+	      type, dev ? dev->name : ofnode_get_name(node), entry->offset,
+	      entry->length, entry->base);
 
 	return 0;
 }

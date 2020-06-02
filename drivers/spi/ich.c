@@ -24,6 +24,7 @@
 #include <spl.h>
 #include <asm/fast_spi.h>
 #include <asm/io.h>
+#include <dm/uclass-internal.h>
 #include <asm/mtrr.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
@@ -614,15 +615,94 @@ static int ich_spi_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
 	return ret;
 }
 
+/**
+ * ich_spi_get_basics() - Get basic information about the ICH device
+ *
+ * This works without probing any devices if requested.
+ *
+ * @bus: SPI controller to use
+ * @can_probe: true if this function is allowed to probe the PCH
+ * @pchp: Returns a pointer to the pch, or NULL if not found
+ * @ich_versionp: Returns ICH version detected on success
+ * @mmio_basep: Returns the address of the SPI registers on success
+ * @return 0 if OK, -EPROTOTYPE if the PCH could not be found, -EAGAIN if
+ *	the function cannot success without probing, possible another error if
+ *	pch_get_spi_base() fails
+ */
+static int ich_spi_get_basics(struct udevice *bus, bool can_probe,
+			      struct udevice **pchp,
+			      enum ich_version *ich_versionp, ulong *mmio_basep)
+{
+	struct udevice *pch = NULL;
+	int ret = 0;
+
+	/* Find a PCH if there is one */
+	if (can_probe) {
+		pch = dev_get_parent(bus);
+		if (device_get_uclass_id(pch) != UCLASS_PCH) {
+			uclass_first_device(UCLASS_PCH, &pch);
+			if (!pch)
+				return log_msg_ret("uclass", -EPROTOTYPE);
+		}
+	}
+
+	*ich_versionp = dev_get_driver_data(bus);
+	if (*ich_versionp == ICHV_APL)
+		*mmio_basep = dm_pci_read_bar32(bus, 0);
+	else if (pch)
+		ret = pch_get_spi_base(pch, mmio_basep);
+	else
+		return -EAGAIN;
+	*pchp = pch;
+
+	return ret;
+}
+
+/**
+ * ich_get_mmap_bus() - Handle the get_mmap() method for a bus
+ *
+ * There are several cases to consider:
+ * 1. Using of-platdata, in which case we have the BDF and can access the
+ *	registers by reading the BAR
+ * 2. Not using of-platdata, but still with a SPI controller that is on its own
+ * PCI PDF. In this case we read the BDF from the parent platdata and again get
+ *	the registers by reading the BAR
+ * 3. Using a SPI controller that is a child of the PCH, in which case we try
+ *	to find the registers by asking the PCH. This only works if the PCH has
+ *	been probed (which it will be if the bus is probed since parents are
+ *	probed before children), since the PCH may not have a PCI address until
+ *	its parent (the PCI bus itself) has been probed. If you are using this
+ *	method then you should make sure the SPI bus is probed.
+ *
+ * The first two cases are useful in early init. The last one is more useful
+ * afterwards.
+ */
 static int ich_get_mmap_bus(struct udevice *bus, ulong *map_basep,
 			    uint *map_sizep, uint *offsetp)
 {
 	pci_dev_t spi_bdf;
-
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct pci_child_platdata *pplat = dev_get_parent_platdata(bus);
+	if (device_is_on_pci_bus(bus)) {
+		struct pci_child_platdata *pplat;
 
-	spi_bdf = pplat->devfn;
+		pplat = dev_get_parent_platdata(bus);
+		spi_bdf = pplat->devfn;
+	} else {
+		enum ich_version ich_version;
+		struct fast_spi_regs *regs;
+		struct udevice *pch;
+		ulong mmio_base;
+		int ret;
+
+		ret = ich_spi_get_basics(bus, device_active(bus), &pch,
+					 &ich_version, &mmio_base);
+		if (ret)
+			return log_msg_ret("basics", ret);
+		regs = (struct fast_spi_regs *)mmio_base;
+
+		return fast_spi_get_bios_mmap_regs(regs, map_basep, map_sizep,
+						   offsetp);
+	}
 #else
 	struct ich_spi_platdata *plat = dev_get_platdata(bus);
 
@@ -866,23 +946,16 @@ static int ich_spi_child_pre_probe(struct udevice *dev)
 static int ich_spi_ofdata_to_platdata(struct udevice *dev)
 {
 	struct ich_spi_platdata *plat = dev_get_platdata(dev);
+	int ret;
 
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct ich_spi_priv *priv = dev_get_priv(dev);
 
-	/* Find a PCH if there is one */
-	uclass_first_device(UCLASS_PCH, &priv->pch);
-	if (!priv->pch)
-		priv->pch = dev_get_parent(dev);
-
-	plat->ich_version = dev_get_driver_data(dev);
+	ret = ich_spi_get_basics(dev, true, &priv->pch, &plat->ich_version,
+				 &plat->mmio_base);
+	if (ret)
+		return log_msg_ret("basics", ret);
 	plat->lockdown = dev_read_bool(dev, "intel,spi-lock-down");
-	if (plat->ich_version == ICHV_APL) {
-		plat->mmio_base = dm_pci_read_bar32(dev, 0);
-	} else  {
-		/* SBASE is similar */
-		pch_get_spi_base(priv->pch, &plat->mmio_base);
-	}
 	/*
 	 * Use an int so that the property is present in of-platdata even
 	 * when false.

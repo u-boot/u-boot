@@ -34,7 +34,15 @@ struct __packed fsp_ram_channel {
 	u8	odt_levels;
 };
 
+/**
+ * struct fsp_m_config - FSP-M configuration
+ *
+ * Note that headers precede this and are 64 bytes long. The hex offsets
+ * mentioned in this file are relative to the start of the header, the same
+ * convention used in Intel's APL FSP header file.
+ */
 struct __packed fsp_m_config {
+	/* 0x40 */
 	u32	serial_debug_port_address;
 	u8	serial_debug_port_type;
 	u8	serial_debug_port_device;
@@ -49,6 +57,7 @@ struct __packed fsp_m_config {
 	u8	profile;
 	u8	memory_down;
 
+	/* 0x50 */
 	u8	ddr3_l_page_size;
 	u8	ddr3_lasr;
 	u8	scrambler_support;
@@ -62,6 +71,7 @@ struct __packed fsp_m_config {
 	u16	memory_size_limit;
 	u16	low_memory_max_value;
 
+	/* 0x60 */
 	u16	high_memory_max_value;
 	u8	disable_fast_boot;
 	u8	dimm0_spd_address;
@@ -73,6 +83,7 @@ struct __packed fsp_m_config {
 	u32	msg_level_mask;
 	u8	unused_upd_space0[4];
 
+	/* 0x110 */
 	u8	pre_mem_gpio_table_pin_num[4];
 	u32	pre_mem_gpio_table_ptr;
 	u8	pre_mem_gpio_table_entry_num;
@@ -81,8 +92,10 @@ struct __packed fsp_m_config {
 	u8	mrc_data_saving;
 	u32	oem_loading_base;
 
+	/* 0x120 */
 	u8	oem_file_name[16];
 
+	/* 0x130 */
 	void	*mrc_boot_data_ptr;
 	u8	e_mmc_trace_len;
 	u8	skip_cse_rbp;
@@ -94,20 +107,20 @@ struct __packed fsp_m_config {
 	u8	msc1_wrap;
 	u32	msc0_size;
 
+	/* 0x140 */
 	u32	msc1_size;
 	u8	pti_mode;
 	u8	pti_training;
 	u8	pti_speed;
 	u8	punit_mlvl;
-
 	u8	pmc_mlvl;
 	u8	sw_trace_en;
 	u8	periodic_retraining_disable;
 	u8	enable_reset_system;
-
 	u8	enable_s3_heci2;
 	u8	unused_upd_space1[3];
 
+	/* 0x150 */
 	void	*variable_nvs_buffer_ptr;
 	u8	reserved_fspm_upd[12];
 };

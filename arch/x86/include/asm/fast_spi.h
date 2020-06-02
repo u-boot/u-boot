@@ -64,6 +64,25 @@ check_member(fast_spi_regs, ptdata, 0xd0);
 int fast_spi_get_bios_mmap(pci_dev_t pdev, ulong *map_basep, uint *map_sizep,
 			   uint *offsetp);
 
+/**
+ * fast_spi_get_bios_mmap_regs() - Get memory map for SPI flash given regs
+ *
+ * @regs:	SPI registers to use
+ * @map_basep:	Returns base memory address for mapped SPI
+ * @map_sizep:	Returns size of mapped SPI
+ * @offsetp:	Returns start offset of SPI flash where the map works
+ *	correctly (offsets before this are not visible)
+ * @return 0 (always)
+ */
+int fast_spi_get_bios_mmap_regs(struct fast_spi_regs *regs, ulong *map_basep,
+				uint *map_sizep, uint *offsetp);
+
+/**
+ * fast_spi_early_init() - Set up a BAR to use SPI early in U-Boot
+ *
+ * @pdev:	PCI device to use (this is the Fast SPI device)
+ * @mmio_base:	MMIO base to use to access registers
+ */
 int fast_spi_early_init(pci_dev_t pdev, ulong mmio_base);
 
 #endif	/* ASM_FAST_SPI_H */
