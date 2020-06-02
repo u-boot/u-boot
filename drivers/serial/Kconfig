@@ -501,6 +501,12 @@ config ARC_SERIAL
 	  Select this to enable support for ARC UART now typically
 	  only used in Synopsys DesignWare ARC simulators like nSIM.
 
+config ARM_DCC
+	bool "ARM Debug Communication Channel (DCC) as UART support"
+	depends on ARM
+	help
+	  Select this to enable using the ARM DCC as a form of UART.
+
 config ATMEL_USART
 	bool "Atmel USART support"
 	help

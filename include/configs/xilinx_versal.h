@@ -36,7 +36,6 @@
 #define CONFIG_CQSPI_REF_CLK	200000000
 
 /* Serial setup */
-#define CONFIG_ARM_DCC
 #define CONFIG_CPU_ARMV8
 
 #define CONFIG_SYS_BAUDRATE_TABLE \

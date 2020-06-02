@@ -33,7 +33,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 0x2000000)
 
 /* Serial setup */
-#define CONFIG_ARM_DCC
 #define CONFIG_CPU_ARMV8
 
 #define CONFIG_SYS_BAUDRATE_TABLE \
