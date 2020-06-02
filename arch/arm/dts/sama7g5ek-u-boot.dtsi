@@ -23,6 +23,14 @@
 	};
 };
 
+&main_rc {
+	u-boot,dm-pre-reloc;
+};
+
+&slow_rc_osc {
+	u-boot,dm-pre-reloc;
+};
+
 &uart0 {
 	u-boot,dm-pre-reloc;
 };

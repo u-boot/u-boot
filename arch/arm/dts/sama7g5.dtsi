@@ -16,6 +16,18 @@
 	compatible = "microchip,sama7g5";
 
 	clocks {
+		slow_rc_osc: slow_rc_osc {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <32000>;
+		};
+
+		main_rc: main_rc {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <12000000>;
+		};
+
 		slow_xtal: slow_xtal {
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
