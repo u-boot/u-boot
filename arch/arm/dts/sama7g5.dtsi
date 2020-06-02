@@ -55,6 +55,13 @@
 			#address-cells = <1>;
 			#size-cells = <1>;
 
+			clk32: sckc@e001d050 {
+				compatible = "microchip,sam9x60-sckc";
+				reg = <0xe001d050 0x4>;
+				clocks = <&slow_rc_osc>, <&slow_xtal>;
+				#clock-cells = <1>;
+			};
+
 			sdmmc1: sdio-host@e1208000 {
 				compatible = "microchip,sama7g5-sdhci";
 				reg = <0xe1208000 0x300>;
