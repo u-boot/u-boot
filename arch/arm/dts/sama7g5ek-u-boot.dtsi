@@ -47,7 +47,3 @@
 	u-boot,dm-pre-reloc;
 };
 
-&mck {
-	u-boot,dm-pre-reloc;
-};
-

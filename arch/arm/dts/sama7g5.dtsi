@@ -10,6 +10,7 @@
  */
 
 #include "skeleton.dtsi"
+#include <dt-bindings/clk/at91.h>
 
 / {
 	model = "Microchip SAMA7G5 family SoC";
@@ -36,12 +37,6 @@
 		main_xtal: main_xtal {
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
-		};
-
-		mck: mck {
-			compatible = "fixed-clock";
-			#clock-cells = <0>;
-			clock-frequency = <200000000>;
 		};
 	};
 
@@ -74,15 +69,15 @@
 			sdmmc1: sdio-host@e1208000 {
 				compatible = "microchip,sama7g5-sdhci";
 				reg = <0xe1208000 0x300>;
-				clocks = <&mck>, <&mck>, <&mck>;
-				clock-names = "hclock", "multclk", "baseclk";
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 81>, <&pmc PMC_TYPE_GCK 81>;
+				clock-names = "hclock", "multclk";
 				status = "disabled";
 			};
 
 			uart0: serial@e1824200 {
 				compatible = "atmel,at91sam9260-usart";
 				reg = <0xe1824200 0x200>;
-				clocks = <&mck>;
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 41>;
 				clock-names = "usart";
 				status = "disabled";
 			};
