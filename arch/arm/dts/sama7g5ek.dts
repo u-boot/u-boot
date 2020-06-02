@@ -23,6 +23,16 @@
 		stdout-path = "serial0:115200n8";
 	};
 
+	clocks {
+		slow_xtal: slow_xtal {
+			clock-frequency = <32768>;
+		};
+
+		main_xtal: main_xtal {
+			clock-frequency = <24000000>;
+		};
+	};
+
 	ahb {
 
 		apb {

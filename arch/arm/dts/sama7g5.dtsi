@@ -19,13 +19,11 @@
 		slow_xtal: slow_xtal {
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
-			clock-frequency = <0>;
 		};
 
 		main_xtal: main_xtal {
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
-			clock-frequency = <0>;
 		};
 
 		mck: mck {
