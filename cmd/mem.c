@@ -25,6 +25,7 @@
 #include <asm/io.h>
 #include <linux/bitops.h>
 #include <linux/compiler.h>
+#include <linux/ctype.h>
 #include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -52,6 +53,10 @@ static ulong	dp_last_length = 0x40;
 static ulong	mm_last_addr, mm_last_size;
 
 static	ulong	base_address = 0;
+#ifdef CONFIG_MEM_SEARCH
+static u8 search_buf[64];
+static uint search_len;
+#endif
 
 /* Memory Display
  *
@@ -361,6 +366,142 @@ static int do_mem_cp(struct cmd_tbl *cmdtp, int flag, int argc,
 	unmap_sysmem(dst);
 	return 0;
 }
+
+#ifdef CONFIG_MEM_SEARCH
+static int do_mem_search(struct cmd_tbl *cmdtp, int flag, int argc,
+			 char *const argv[])
+{
+	ulong addr, length, bytes, offset;
+	u8 *ptr, *end, *buf;
+	bool quiet = false;
+	ulong last_pos;		/* Offset of last match in 'size' units*/
+	ulong last_addr;	/* Address of last displayed line */
+	int limit = 10;
+	int count;
+	int size;
+	int i;
+
+	/* We use the last specified parameters, unless new ones are entered */
+	addr = dp_last_addr;
+	size = dp_last_size;
+	length = dp_last_length;
+
+	if (argc < 3)
+		return CMD_RET_USAGE;
+
+	if ((!flag & CMD_FLAG_REPEAT)) {
+		/*
+		 * Check for a size specification.
+		 * Defaults to long if no or incorrect specification.
+		 */
+		size = cmd_get_data_size(argv[0], 4);
+		if (size < 0 && size != -2 /* string */)
+			return 1;
+
+		argc--; argv++;
+		while (argc && *argv[0] == '-') {
+			int ch = argv[0][1];
+
+			if (ch == 'q')
+				quiet = true;
+			else if (ch == 'l' && isxdigit(argv[0][2]))
+				limit = simple_strtoul(argv[0] + 2, NULL, 16);
+			else
+				return CMD_RET_USAGE;
+			argc--; argv++;
+		}
+
+		/* Address is specified since argc > 1 */
+		addr = simple_strtoul(argv[0], NULL, 16);
+		addr += base_address;
+
+		/* Length is the number of objects, not number of bytes */
+		length = simple_strtoul(argv[1], NULL, 16);
+
+		/* Read the bytes to search for */
+		end = search_buf + sizeof(search_buf);
+		for (i = 2, ptr = search_buf; i < argc && ptr < end; i++) {
+			if (SUPPORT_64BIT_DATA && size == 8) {
+				u64 val = simple_strtoull(argv[i], NULL, 16);
+
+				*(u64 *)ptr = val;
+			} else if (size == -2) {  /* string */
+				int len = min(strlen(argv[i]),
+					      (size_t)(end - ptr));
+
+				memcpy(ptr, argv[i], len);
+				ptr += len;
+				continue;
+			} else {
+				u32 val = simple_strtoul(argv[i], NULL, 16);
+
+				switch (size) {
+				case 1:
+					*ptr = val;
+					break;
+				case 2:
+					*(u16 *)ptr = val;
+					break;
+				case 4:
+					*(u32 *)ptr = val;
+					break;
+				}
+			}
+			ptr += size;
+		}
+		search_len = ptr - search_buf;
+	}
+
+	/* Do the search */
+	if (size == -2)
+		size = 1;
+	bytes = size * length;
+	buf = map_sysmem(addr, bytes);
+	last_pos = 0;
+	last_addr = 0;
+	count = 0;
+	for (offset = 0; offset <= bytes - search_len && count < limit;
+	     offset += size) {
+		void *ptr = buf + offset;
+
+		if (!memcmp(ptr, search_buf, search_len)) {
+			uint align = (addr + offset) & 0xf;
+			ulong match = addr + offset;
+
+			if (!count || (last_addr & ~0xf) != (match & ~0xf)) {
+				if (!quiet) {
+					if (count)
+						printf("--\n");
+					print_buffer(match - align, ptr - align,
+						     size,
+						     ALIGN(search_len + align,
+							   16) / size, 0);
+				}
+				last_addr = match;
+				last_pos = offset / size;
+			}
+			count++;
+		}
+	}
+	if (!quiet) {
+		printf("%d match%s", count, count == 1 ? "" : "es");
+		if (count == limit)
+			printf(" (repeat command to check for more)");
+		printf("\n");
+	}
+	env_set_hex("memmatches", count);
+	env_set_hex("memaddr", last_addr);
+	env_set_hex("mempos", last_pos);
+
+	unmap_sysmem(buf);
+
+	dp_last_addr = addr + offset / size;
+	dp_last_size = size;
+	dp_last_length = length - offset / size;
+
+	return count ? 0 : CMD_RET_FAILURE;
+}
+#endif
 
 static int do_mem_base(struct cmd_tbl *cmdtp, int flag, int argc,
 		       char *const argv[])
@@ -1195,6 +1336,16 @@ U_BOOT_CMD(
 	"memory compare",
 	"[.b, .w, .l" HELP_Q "] addr1 addr2 count"
 );
+
+#ifdef CONFIG_MEM_SEARCH
+/**************************************************/
+U_BOOT_CMD(
+	ms,	255,	1,	do_mem_search,
+	"memory search",
+	"[.b, .w, .l" HELP_Q ", .s] [-q | -<n>] address #-of-objects <value>..."
+	"  -q = quiet, -l<val> = match limit" :
+);
+#endif
 
 #ifdef CONFIG_CMD_CRC32
 
