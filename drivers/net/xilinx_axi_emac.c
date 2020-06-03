@@ -242,7 +242,8 @@ static u32 phywrite(struct axidma_priv *priv, u32 phyaddress, u32 registernum,
 static int axiemac_phy_init(struct udevice *dev)
 {
 	u16 phyreg;
-	u32 i, ret;
+	int i;
+	u32 ret;
 	struct axidma_priv *priv = dev_get_priv(dev);
 	struct axi_regs *regs = priv->iobase;
 	struct phy_device *phydev;
