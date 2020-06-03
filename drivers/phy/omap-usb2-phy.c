@@ -17,6 +17,7 @@
 #include <linux/err.h>
 
 #define OMAP_USB2_CALIBRATE_FALSE_DISCONNECT	BIT(0)
+#define OMAP_USB2_DISABLE_CHG_DET		BIT(1)
 
 #define OMAP_DEV_PHY_PD		BIT(0)
 #define OMAP_USB2_PHY_PD	BIT(28)
@@ -32,6 +33,10 @@
 #define AM654_USB2_OTG_PD		BIT(8)
 #define AM654_USB2_VBUS_DET_EN		BIT(5)
 #define AM654_USB2_VBUSVALID_DET_EN	BIT(4)
+
+#define USB2PHY_CHRG_DET		 0x14
+#define USB2PHY_USE_CHG_DET_REG		BIT(29)
+#define USB2PHY_DIS_CHG_DET		BIT(28)
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -160,6 +165,12 @@ static int omap_usb2_phy_init(struct phy *usb_phy)
 		writel(val, priv->phy_base + USB2PHY_ANA_CONFIG1);
 	}
 
+	if (priv->flags & OMAP_USB2_DISABLE_CHG_DET) {
+		val = readl(priv->phy_base + USB2PHY_CHRG_DET);
+		val |= USB2PHY_USE_CHG_DET_REG | USB2PHY_DIS_CHG_DET;
+		writel(val, priv->phy_base + USB2PHY_CHRG_DET);
+	}
+
 	return 0;
 }
 
@@ -197,13 +208,25 @@ int omap_usb2_phy_probe(struct udevice *dev)
 	if (!data)
 		return -EINVAL;
 
-	if (data->flags & OMAP_USB2_CALIBRATE_FALSE_DISCONNECT) {
-		priv->phy_base = dev_read_addr_ptr(dev);
+	priv->phy_base = dev_read_addr_ptr(dev);
 
-		if (!priv->phy_base)
-			return -EINVAL;
+	if (!priv->phy_base)
+		return -EINVAL;
+
+	if (data->flags & OMAP_USB2_CALIBRATE_FALSE_DISCONNECT)
 		priv->flags |= OMAP_USB2_CALIBRATE_FALSE_DISCONNECT;
-	}
+
+	/*
+	 * AM654x PG1.0 has a silicon bug that D+ is pulled high after
+	 * POR, which could cause enumeration failure with some USB hubs.
+	 * Disabling the USB2_PHY Charger Detect function will put D+
+	 * into the normal state.
+	 *
+	 * Using property "ti,dis-chg-det-quirk" in the DT usb2-phy node
+	 * to enable this workaround for AM654x PG1.0.
+	 */
+	if (dev_read_bool(dev, "ti,dis-chg-det-quirk"))
+		priv->flags |= OMAP_USB2_DISABLE_CHG_DET;
 
 	regmap = syscon_regmap_lookup_by_phandle(dev, "syscon-phy-power");
 	if (!IS_ERR(regmap)) {
