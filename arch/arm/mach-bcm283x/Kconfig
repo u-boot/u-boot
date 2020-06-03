@@ -36,6 +36,7 @@ config BCM2711_32B
 	select BCM2711
 	select ARMV7_LPAE
 	select CPU_V7A
+	select PHYS_64BIT
 
 config BCM2711_64B
 	bool "Broadcom BCM2711 SoC 64-bit support"
