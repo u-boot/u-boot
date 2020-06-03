@@ -33,6 +33,13 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CONFIG_SYS_MEMTEST_SCRATCH 0
 #endif
 
+/* Create a compile-time value */
+#if MEM_SUPPORT_64BIT_DATA
+#define HELP_Q ", .q"
+#else
+#define HELP_Q ""
+#endif
+
 static int mod_mem(struct cmd_tbl *, int, int, int, char * const []);
 
 /* Display values from last command.
@@ -1016,7 +1023,6 @@ static int do_mem_mtest(struct cmd_tbl *cmdtp, int flag, int argc,
  *
  * Syntax:
  *	mm{.b, .w, .l, .q} {addr}
- *	nm{.b, .w, .l, .q} {addr}
  */
 static int
 mod_mem(struct cmd_tbl *cmdtp, int incrflag, int flag, int argc,
@@ -1196,63 +1202,39 @@ static int do_random(struct cmd_tbl *cmdtp, int flag, int argc,
 U_BOOT_CMD(
 	md,	3,	1,	do_mem_md,
 	"memory display",
-#if MEM_SUPPORT_64BIT_DATA
-	"[.b, .w, .l, .q] address [# of objects]"
-#else
-	"[.b, .w, .l] address [# of objects]"
-#endif
+	"[.b, .w, .l" HELP_Q "] address [# of objects]"
 );
 
 
 U_BOOT_CMD(
 	mm,	2,	1,	do_mem_mm,
 	"memory modify (auto-incrementing address)",
-#if MEM_SUPPORT_64BIT_DATA
-	"[.b, .w, .l, .q] address"
-#else
-	"[.b, .w, .l] address"
-#endif
+	"[.b, .w, .l" HELP_Q "] address"
 );
 
 
 U_BOOT_CMD(
 	nm,	2,	1,	do_mem_nm,
 	"memory modify (constant address)",
-#if MEM_SUPPORT_64BIT_DATA
-	"[.b, .w, .l, .q] address"
-#else
-	"[.b, .w, .l] address"
-#endif
+	"[.b, .w, .l" HELP_Q "] address"
 );
 
 U_BOOT_CMD(
 	mw,	4,	1,	do_mem_mw,
 	"memory write (fill)",
-#if MEM_SUPPORT_64BIT_DATA
-	"[.b, .w, .l, .q] address value [count]"
-#else
-	"[.b, .w, .l] address value [count]"
-#endif
+	"[.b, .w, .l" HELP_Q "] address value [count]"
 );
 
 U_BOOT_CMD(
 	cp,	4,	1,	do_mem_cp,
 	"memory copy",
-#if MEM_SUPPORT_64BIT_DATA
-	"[.b, .w, .l, .q] source target count"
-#else
-	"[.b, .w, .l] source target count"
-#endif
+	"[.b, .w, .l" HELP_Q "] source target count"
 );
 
 U_BOOT_CMD(
 	cmp,	4,	1,	do_mem_cmp,
 	"memory compare",
-#if MEM_SUPPORT_64BIT_DATA
-	"[.b, .w, .l, .q] addr1 addr2 count"
-#else
-	"[.b, .w, .l] addr1 addr2 count"
-#endif
+	"[.b, .w, .l" HELP_Q "] addr1 addr2 count"
 );
 
 #ifdef CONFIG_CMD_CRC32
@@ -1299,22 +1281,14 @@ U_BOOT_CMD(
 U_BOOT_CMD(
 	loop,	3,	1,	do_mem_loop,
 	"infinite loop on address range",
-#if MEM_SUPPORT_64BIT_DATA
-	"[.b, .w, .l, .q] address number_of_objects"
-#else
-	"[.b, .w, .l] address number_of_objects"
-#endif
+	"[.b, .w, .l" HELP_Q "] address number_of_objects"
 );
 
 #ifdef CONFIG_LOOPW
 U_BOOT_CMD(
 	loopw,	4,	1,	do_mem_loopw,
 	"infinite write loop on address range",
-#if MEM_SUPPORT_64BIT_DATA
-	"[.b, .w, .l, .q] address number_of_objects data_to_write"
-#else
-	"[.b, .w, .l] address number_of_objects data_to_write"
-#endif
+	"[.b, .w, .l" HELP_Q "] address number_of_objects data_to_write"
 );
 #endif /* CONFIG_LOOPW */
 
@@ -1330,21 +1304,13 @@ U_BOOT_CMD(
 U_BOOT_CMD(
 	mdc,	4,	1,	do_mem_mdc,
 	"memory display cyclic",
-#if MEM_SUPPORT_64BIT_DATA
-	"[.b, .w, .l, .q] address count delay(ms)"
-#else
-	"[.b, .w, .l] address count delay(ms)"
-#endif
+	"[.b, .w, .l" HELP_Q "] address count delay(ms)"
 );
 
 U_BOOT_CMD(
 	mwc,	4,	1,	do_mem_mwc,
 	"memory write cyclic",
-#if MEM_SUPPORT_64BIT_DATA
-	"[.b, .w, .l, .q] address value delay(ms)"
-#else
-	"[.b, .w, .l] address value delay(ms)"
-#endif
+	"[.b, .w, .l" HELP_Q "] address value delay(ms)"
 );
 #endif /* CONFIG_CMD_MX_CYCLIC */
 
