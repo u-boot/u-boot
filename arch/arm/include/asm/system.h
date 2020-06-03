@@ -588,6 +588,19 @@ s32 psci_features(u32 function_id, u32 psci_fid);
 void save_boot_params_ret(void);
 
 /**
+ * mmu_set_region_dcache_behaviour_phys() - set virt/phys mapping
+ *
+ * Change the virt/phys mapping and cache settings for a region.
+ *
+ * @virt:	virtual start address of memory region to change
+ * @phys:	physical address for the memory region to set
+ * @size:	size of memory region to change
+ * @option:	dcache option to select
+ */
+void mmu_set_region_dcache_behaviour_phys(phys_addr_t virt, phys_addr_t phys,
+					size_t size, enum dcache_option option);
+
+/**
  * mmu_set_region_dcache_behaviour() - set cache settings
  *
  * Change the cache settings for a region.

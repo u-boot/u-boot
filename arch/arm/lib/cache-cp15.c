@@ -25,7 +25,8 @@ __weak void arm_init_domains(void)
 {
 }
 
-void set_section_dcache(int section, enum dcache_option option)
+static void set_section_phys(int section, phys_addr_t phys,
+			     enum dcache_option option)
 {
 #ifdef CONFIG_ARMV7_LPAE
 	u64 *page_table = (u64 *)gd->arch.tlb_addr;
@@ -37,7 +38,7 @@ void set_section_dcache(int section, enum dcache_option option)
 #endif
 
 	/* Add the page offset */
-	value |= ((u32)section << MMU_SECTION_SHIFT);
+	value |= phys;
 
 	/* Add caching bits */
 	value |= option;
@@ -46,13 +47,18 @@ void set_section_dcache(int section, enum dcache_option option)
 	page_table[section] = value;
 }
 
+void set_section_dcache(int section, enum dcache_option option)
+{
+	set_section_phys(section, (u32)section << MMU_SECTION_SHIFT, option);
+}
+
 __weak void mmu_page_table_flush(unsigned long start, unsigned long stop)
 {
 	debug("%s: Warning: not implemented\n", __func__);
 }
 
-void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
-				     enum dcache_option option)
+void mmu_set_region_dcache_behaviour_phys(phys_addr_t start, phys_addr_t phys,
+					size_t size, enum dcache_option option)
 {
 #ifdef CONFIG_ARMV7_LPAE
 	u64 *page_table = (u64 *)gd->arch.tlb_addr;
@@ -74,8 +80,8 @@ void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
 	debug("%s: start=%pa, size=%zu, option=0x%x\n", __func__, &start, size,
 	      option);
 #endif
-	for (upto = start; upto < end; upto++)
-		set_section_dcache(upto, option);
+	for (upto = start; upto < end; upto++, phys += MMU_SECTION_SIZE)
+		set_section_phys(upto, phys, option);
 
 	/*
 	 * Make sure range is cache line aligned
@@ -88,6 +94,12 @@ void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
 	stoppt = (unsigned long)&page_table[end];
 	stoppt = ALIGN(stoppt, CONFIG_SYS_CACHELINE_SIZE);
 	mmu_page_table_flush(startpt, stoppt);
+}
+
+void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
+				     enum dcache_option option)
+{
+	mmu_set_region_dcache_behaviour_phys(start, start, size, option);
 }
 
 __weak void dram_bank_mmu_setup(int bank)
