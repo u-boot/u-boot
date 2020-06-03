@@ -13,8 +13,6 @@
 
 #include <configs/rk3399_common.h>
 
-#define CONFIG_SYS_MMC_ENV_DEV 0
-
 #define SDRAM_BANK_SIZE			(2UL << 30)
 
 #define CONFIG_USB_OHCI_NEW
