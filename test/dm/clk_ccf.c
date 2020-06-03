@@ -59,6 +59,18 @@ static int dm_test_clk_ccf(struct unit_test_state *uts)
 	rate = clk_get_parent_rate(clk);
 	ut_asserteq(rate, 60000000);
 
+	rate = clk_get_rate(clk);
+	ut_asserteq(rate, 60000000);
+
+	ret = clk_get_by_id(SANDBOX_CLK_PLL3_80M, &pclk);
+	ut_assertok(ret);
+
+	ret = clk_set_parent(clk, pclk);
+	ut_assertok(ret);
+
+	rate = clk_get_rate(clk);
+	ut_asserteq(rate, 80000000);
+
 	ret = clk_get_by_id(SANDBOX_CLK_USDHC2_SEL, &clk);
 	ut_assertok(ret);
 	ut_asserteq_str("usdhc2_sel", clk->dev->name);
@@ -70,6 +82,18 @@ static int dm_test_clk_ccf(struct unit_test_state *uts)
 	pclk = clk_get_parent(clk);
 	ut_asserteq_str("pll3_80m", pclk->dev->name);
 	ut_asserteq(CLK_SET_RATE_PARENT, pclk->flags);
+
+	rate = clk_get_rate(clk);
+	ut_asserteq(rate, 80000000);
+
+	ret = clk_get_by_id(SANDBOX_CLK_PLL3_60M, &pclk);
+	ut_assertok(ret);
+
+	ret = clk_set_parent(clk, pclk);
+	ut_assertok(ret);
+
+	rate = clk_get_rate(clk);
+	ut_asserteq(rate, 60000000);
 
 	/* Test the composite of CCF */
 	ret = clk_get_by_id(SANDBOX_CLK_I2C, &clk);
