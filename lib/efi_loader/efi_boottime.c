@@ -49,7 +49,7 @@ static efi_handle_t current_image;
  * restriction so we need to manually swap its and our view of that register on
  * EFI callback entry/exit.
  */
-static volatile void *efi_gd, *app_gd;
+static volatile gd_t *efi_gd, *app_gd;
 #endif
 
 /* 1 if inside U-Boot code, 0 if inside EFI payload code */
@@ -89,7 +89,7 @@ int __efi_entry_check(void)
 #ifdef CONFIG_ARM
 	assert(efi_gd);
 	app_gd = gd;
-	gd = efi_gd;
+	set_gd(efi_gd);
 #endif
 	return ret;
 }
@@ -99,7 +99,7 @@ int __efi_exit_check(void)
 {
 	int ret = --entry_count == 0;
 #ifdef CONFIG_ARM
-	gd = app_gd;
+	set_gd(app_gd);
 #endif
 	return ret;
 }
@@ -123,7 +123,7 @@ void efi_restore_gd(void)
 	/* Only restore if we're already in EFI context */
 	if (!efi_gd)
 		return;
-	gd = efi_gd;
+	set_gd(efi_gd);
 #endif
 }
 
@@ -2920,7 +2920,7 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 		 * otherwise __efi_entry_check() will put the wrong value into
 		 * app_gd.
 		 */
-		gd = app_gd;
+		set_gd(app_gd);
 #endif
 		/*
 		 * To get ready to call EFI_EXIT below we have to execute the

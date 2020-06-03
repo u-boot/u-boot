@@ -36,24 +36,50 @@ static const struct efi_runtime_services *rs;
  *
  * @lo:		pointer to target
  * @data:	serialized data
+ * @size:	size of the load option, on return size of the optional data
+ * Return:	status code
  */
-void efi_deserialize_load_option(struct efi_load_option *lo, u8 *data)
+efi_status_t efi_deserialize_load_option(struct efi_load_option *lo, u8 *data,
+					 efi_uintn_t *size)
 {
+	efi_uintn_t len;
+
+	len = sizeof(u32);
+	if (*size < len + 2 * sizeof(u16))
+		return EFI_INVALID_PARAMETER;
 	lo->attributes = get_unaligned_le32(data);
-	data += sizeof(u32);
+	data += len;
+	*size -= len;
 
+	len = sizeof(u16);
 	lo->file_path_length = get_unaligned_le16(data);
-	data += sizeof(u16);
+	data += len;
+	*size -= len;
 
-	/* FIXME */
 	lo->label = (u16 *)data;
-	data += (u16_strlen(lo->label) + 1) * sizeof(u16);
+	len = u16_strnlen(lo->label, *size / sizeof(u16) - 1);
+	if (lo->label[len])
+		return EFI_INVALID_PARAMETER;
+	len = (len + 1) * sizeof(u16);
+	if (*size < len)
+		return EFI_INVALID_PARAMETER;
+	data += len;
+	*size -= len;
 
-	/* FIXME */
+	len = lo->file_path_length;
+	if (*size < len)
+		return EFI_INVALID_PARAMETER;
 	lo->file_path = (struct efi_device_path *)data;
-	data += lo->file_path_length;
+	 /*
+	  * TODO: validate device path. There should be an end node within
+	  * the indicated file_path_length.
+	  */
+	data += len;
+	*size -= len;
 
 	lo->optional_data = data;
+
+	return EFI_SUCCESS;
 }
 
 /**
@@ -168,7 +194,11 @@ static efi_status_t try_load_entry(u16 n, efi_handle_t *handle)
 	if (!load_option)
 		return EFI_LOAD_ERROR;
 
-	efi_deserialize_load_option(&lo, load_option);
+	ret = efi_deserialize_load_option(&lo, load_option, &size);
+	if (ret != EFI_SUCCESS) {
+		log_warning("Invalid load option for %ls\n", varname);
+		goto error;
+	}
 
 	if (lo.attributes & LOAD_OPTION_ACTIVE) {
 		u32 attributes;

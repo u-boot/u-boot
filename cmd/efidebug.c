@@ -694,14 +694,19 @@ static int do_efi_boot_rm(struct cmd_tbl *cmdtp, int flag,
  *
  * Decode the value of UEFI load option variable and print information.
  */
-static void show_efi_boot_opt_data(u16 *varname16, void *data, size_t size)
+static void show_efi_boot_opt_data(u16 *varname16, void *data, size_t *size)
 {
 	struct efi_load_option lo;
 	char *label, *p;
 	size_t label_len16, label_len;
 	u16 *dp_str;
+	efi_status_t ret;
 
-	efi_deserialize_load_option(&lo, data);
+	ret = efi_deserialize_load_option(&lo, data, size);
+	if (ret != EFI_SUCCESS) {
+		printf("%ls: invalid load option\n", varname16);
+		return;
+	}
 
 	label_len16 = u16_strlen(lo.label);
 	label_len = utf16_utf8_strnlen(lo.label, label_len16);
@@ -728,8 +733,7 @@ static void show_efi_boot_opt_data(u16 *varname16, void *data, size_t size)
 
 	printf("  data:\n");
 	print_hex_dump("    ", DUMP_PREFIX_OFFSET, 16, 1,
-		       lo.optional_data, size + (u8 *)data -
-		       (u8 *)lo.optional_data, true);
+		       lo.optional_data, *size, true);
 	free(label);
 }
 
@@ -759,7 +763,7 @@ static void show_efi_boot_opt(u16 *varname16)
 						&efi_global_variable_guid,
 						NULL, &size, data));
 		if (ret == EFI_SUCCESS)
-			show_efi_boot_opt_data(varname16, data, size);
+			show_efi_boot_opt_data(varname16, data, &size);
 		free(data);
 	}
 }
@@ -920,7 +924,12 @@ static int show_efi_boot_order(void)
 			goto out;
 		}
 
-		efi_deserialize_load_option(&lo, data);
+		ret = efi_deserialize_load_option(&lo, data, &size);
+		if (ret != EFI_SUCCESS) {
+			printf("%ls: invalid load option\n", var_name16);
+			ret = CMD_RET_FAILURE;
+			goto out;
+		}
 
 		label_len16 = u16_strlen(lo.label);
 		label_len = utf16_utf8_strnlen(lo.label, label_len16);

@@ -117,4 +117,13 @@ static inline gd_t *get_gd(void)
 #endif
 #endif
 
+static inline void set_gd(volatile gd_t *gd_ptr)
+{
+#ifdef CONFIG_ARM64
+	__asm__ volatile("ldr x18, %0\n" : : "m"(gd_ptr));
+#else
+	__asm__ volatile("ldr r9, %0\n" : : "m"(gd_ptr));
+#endif
+}
+
 #endif /* __ASM_GBL_DATA_H */

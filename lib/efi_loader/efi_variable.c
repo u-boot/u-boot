@@ -26,7 +26,6 @@ enum efi_secure_mode {
 	EFI_MODE_DEPLOYED,
 };
 
-const efi_guid_t efi_guid_cert_type_pkcs7 = EFI_CERT_TYPE_PKCS7_GUID;
 static bool efi_secure_boot;
 static int efi_secure_mode;
 static u8 efi_vendor_keys;
