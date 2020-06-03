@@ -1235,6 +1235,12 @@ static int spi_nor_write(struct mtd_info *mtd, loff_t to, size_t len,
 	size_t page_offset, page_remain, i;
 	ssize_t ret;
 
+#ifdef CONFIG_SPI_FLASH_SST
+	/* sst nor chips use AAI word program */
+	if (nor->info->flags & SST_WRITE)
+		return sst_write(mtd, to, len, retlen, buf);
+#endif
+
 	dev_dbg(nor->dev, "to 0x%08x, len %zd\n", (u32)to, len);
 
 	if (!len)
@@ -2530,6 +2536,7 @@ int spi_nor_scan(struct spi_nor *nor)
 	mtd->size = params.size;
 	mtd->_erase = spi_nor_erase;
 	mtd->_read = spi_nor_read;
+	mtd->_write = spi_nor_write;
 
 #if defined(CONFIG_SPI_FLASH_STMICRO) || defined(CONFIG_SPI_FLASH_SST)
 	/* NOR protection support for STmicro/Micron chips and similar */
@@ -2553,13 +2560,7 @@ int spi_nor_scan(struct spi_nor *nor)
 		nor->flash_unlock = sst26_unlock;
 		nor->flash_is_locked = sst26_is_locked;
 	}
-
-	/* sst nor chips use AAI word program */
-	if (info->flags & SST_WRITE)
-		mtd->_write = sst_write;
-	else
 #endif
-		mtd->_write = spi_nor_write;
 
 	if (info->flags & USE_FSR)
 		nor->flags |= SNOR_F_USE_FSR;
@@ -2639,15 +2640,4 @@ int spi_nor_scan(struct spi_nor *nor)
 #endif
 
 	return 0;
-}
-
-/* U-Boot specific functions, need to extend MTD to support these */
-int spi_flash_cmd_get_sw_write_prot(struct spi_nor *nor)
-{
-	int sr = read_sr(nor);
-
-	if (sr < 0)
-		return sr;
-
-	return (sr >> 2) & 7;
 }

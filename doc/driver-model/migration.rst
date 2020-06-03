@@ -69,8 +69,6 @@ to move the migration with in the deadline.
 No dm conversion yet::
 
 	drivers/spi/fsl_espi.c
-	drivers/spi/lpc32xx_ssp.c
-	drivers/spi/sh_spi.c
 	drivers/spi/soft_spi_legacy.c
 
 * Status: In progress

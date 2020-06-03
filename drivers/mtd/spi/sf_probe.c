@@ -45,9 +45,8 @@ static int spi_flash_probe_slave(struct spi_flash *flash)
 	if (ret)
 		goto err_read_id;
 
-#if CONFIG_IS_ENABLED(SPI_FLASH_MTD)
-	ret = spi_flash_mtd_register(flash);
-#endif
+	if (CONFIG_IS_ENABLED(SPI_FLASH_MTD))
+		ret = spi_flash_mtd_register(flash);
 
 err_read_id:
 	spi_release_bus(spi);
@@ -84,9 +83,9 @@ struct spi_flash *spi_flash_probe(unsigned int busnum, unsigned int cs,
 
 void spi_flash_free(struct spi_flash *flash)
 {
-#if CONFIG_IS_ENABLED(SPI_FLASH_MTD)
-	spi_flash_mtd_unregister();
-#endif
+	if (CONFIG_IS_ENABLED(SPI_FLASH_MTD))
+		spi_flash_mtd_unregister();
+
 	spi_free_slave(flash->spi);
 	free(flash);
 }
@@ -131,31 +130,22 @@ static int spi_flash_std_erase(struct udevice *dev, u32 offset, size_t len)
 	return mtd->_erase(mtd, &instr);
 }
 
-static int spi_flash_std_get_sw_write_prot(struct udevice *dev)
-{
-	struct spi_flash *flash = dev_get_uclass_priv(dev);
-
-	return spi_flash_cmd_get_sw_write_prot(flash);
-}
-
 int spi_flash_std_probe(struct udevice *dev)
 {
 	struct spi_slave *slave = dev_get_parent_priv(dev);
-	struct dm_spi_slave_platdata *plat = dev_get_parent_platdata(dev);
 	struct spi_flash *flash;
 
 	flash = dev_get_uclass_priv(dev);
 	flash->dev = dev;
 	flash->spi = slave;
-	debug("%s: slave=%p, cs=%d\n", __func__, slave, plat->cs);
 	return spi_flash_probe_slave(flash);
 }
 
 static int spi_flash_std_remove(struct udevice *dev)
 {
-#if CONFIG_IS_ENABLED(SPI_FLASH_MTD)
-	spi_flash_mtd_unregister();
-#endif
+	if (CONFIG_IS_ENABLED(SPI_FLASH_MTD))
+		spi_flash_mtd_unregister();
+
 	return 0;
 }
 
@@ -163,7 +153,6 @@ static const struct dm_spi_flash_ops spi_flash_std_ops = {
 	.read = spi_flash_std_read,
 	.write = spi_flash_std_write,
 	.erase = spi_flash_std_erase,
-	.get_sw_write_prot = spi_flash_std_get_sw_write_prot,
 };
 
 static const struct udevice_id spi_flash_std_ids[] = {
