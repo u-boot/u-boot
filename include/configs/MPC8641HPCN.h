@@ -19,7 +19,6 @@
 
 /* High Level Configuration Options */
 #define CONFIG_LINUX_RESET_VEC	0x100	/* Reset vector used by Linux */
-#define CONFIG_ADDR_MAP		1	/* Use addr map */
 
 /*
  * default CCSRBAR is at 0xff700000
@@ -47,7 +46,6 @@
 #define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_BAT_RW		1	/* Use common BAT rw code */
-#define CONFIG_SYS_NUM_ADDR_MAP 8	/* Number of addr map slots = 8 dbats */
 
 #define CONFIG_ALTIVEC		1
 

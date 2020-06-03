@@ -64,9 +64,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 
 #define CONFIG_ENABLE_36BIT_PHYS
 
-#define CONFIG_ADDR_MAP
-#define CONFIG_SYS_NUM_ADDR_MAP		64	/* number of TLB1 entries */
-
 #define CONFIG_POST CONFIG_SYS_POST_MEM_REGIONS	/* POST memory regions test */
 
 /*

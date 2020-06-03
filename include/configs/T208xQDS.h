@@ -26,11 +26,6 @@
 #define CONFIG_SYS_BOOK3E_HV	/* Category E.HV supported */
 #define CONFIG_ENABLE_36BIT_PHYS
 
-#ifdef CONFIG_PHYS_64BIT
-#define CONFIG_ADDR_MAP 1
-#define CONFIG_SYS_NUM_ADDR_MAP 64 /* number of TLB1 entries */
-#endif
-
 #define CONFIG_SYS_FSL_CPC	/* Corenet Platform Cache */
 #define CONFIG_SYS_NUM_CPC	CONFIG_SYS_NUM_DDR_CTLRS
 #define CONFIG_ENV_OVERWRITE

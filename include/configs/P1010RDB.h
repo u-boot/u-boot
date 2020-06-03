@@ -196,11 +196,6 @@
 
 #define CONFIG_ENABLE_36BIT_PHYS
 
-#ifdef CONFIG_PHYS_64BIT
-#define CONFIG_ADDR_MAP			1
-#define CONFIG_SYS_NUM_ADDR_MAP		16	/* number of TLB1 entries */
-#endif
-
 /* DDR Setup */
 #define CONFIG_SYS_DDR_RAW_TIMING
 #define CONFIG_DDR_SPD

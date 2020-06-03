@@ -1,5 +1,18 @@
 menu "Library routines"
 
+config ADDR_MAP
+	bool "Enable support for non-identity virtual-physical mappings"
+	help
+	  Enables helper code for implementing non-identity virtual-physical
+	  memory mappings for 32bit CPUs.
+
+config SYS_NUM_ADDR_MAP
+	int "Size of the address-map table"
+	depends on ADDR_MAP
+	default 16
+	help
+	  Sets the number of entries in the virtual-physical mapping table.
+
 config BCH
 	bool "Enable Software based BCH ECC"
 	help

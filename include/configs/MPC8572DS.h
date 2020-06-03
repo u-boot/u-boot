@@ -45,11 +45,6 @@
 
 #define CONFIG_ENABLE_36BIT_PHYS	1
 
-#ifdef CONFIG_PHYS_64BIT
-#define CONFIG_ADDR_MAP			1
-#define CONFIG_SYS_NUM_ADDR_MAP		16	/* number of TLB1 entries */
-#endif
-
 /*
  * Config the L2 Cache as L2 SRAM
  */

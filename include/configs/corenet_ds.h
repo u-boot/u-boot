@@ -84,11 +84,6 @@
 
 #define CONFIG_ENABLE_36BIT_PHYS
 
-#ifdef CONFIG_PHYS_64BIT
-#define CONFIG_ADDR_MAP
-#define CONFIG_SYS_NUM_ADDR_MAP		64	/* number of TLB1 entries */
-#endif
-
 #define CONFIG_POST CONFIG_SYS_POST_MEMORY	/* test POST memory test */
 
 /*
