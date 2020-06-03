@@ -138,7 +138,7 @@ int print_buffer(ulong addr, const void *data, uint width, uint count,
 {
 	/* linebuf as a union causes proper alignment */
 	union linebuf {
-#ifdef MEM_SUPPORT_64BIT_DATA
+#if MEM_SUPPORT_64BIT_DATA
 		uint64_t uq[MAX_LINE_LENGTH_BYTES/sizeof(uint64_t) + 1];
 #endif
 		uint32_t ui[MAX_LINE_LENGTH_BYTES/sizeof(uint32_t) + 1];
@@ -146,7 +146,7 @@ int print_buffer(ulong addr, const void *data, uint width, uint count,
 		uint8_t  uc[MAX_LINE_LENGTH_BYTES/sizeof(uint8_t) + 1];
 	} lb;
 	int i;
-#ifdef MEM_SUPPORT_64BIT_DATA
+#if MEM_SUPPORT_64BIT_DATA
 	uint64_t __maybe_unused x;
 #else
 	uint32_t __maybe_unused x;
@@ -169,7 +169,7 @@ int print_buffer(ulong addr, const void *data, uint width, uint count,
 		for (i = 0; i < thislinelen; i++) {
 			if (width == 4)
 				x = lb.ui[i] = *(volatile uint32_t *)data;
-#ifdef MEM_SUPPORT_64BIT_DATA
+#if MEM_SUPPORT_64BIT_DATA
 			else if (width == 8)
 				x = lb.uq[i] = *(volatile uint64_t *)data;
 #endif
