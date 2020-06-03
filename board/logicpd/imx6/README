@@ -17,7 +17,7 @@ Building U-Boot for Logic PD Development Kit
 To build U-Boot for the Dual and Quad variants:
 
  make imx6q_logic_defconfig
- make u-boot.imx ARCH=arm CROSS_COMPILE=arm-linux-
+ make u-boot.imx CROSS_COMPILE=arm-linux-
 
 
 Flashing U-Boot into the SD card

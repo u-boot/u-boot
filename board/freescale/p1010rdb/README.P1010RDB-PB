@@ -128,7 +128,6 @@ To enable IFC in case of SD boot
 Build images for different boot mode
 ====================================
 First setup cross compile environment on build host
-   $ export ARCH=powerpc
    $ export CROSS_COMPILE=<your-compiler-path>/powerpc-linux-gnu-
 
 1. For NOR boot

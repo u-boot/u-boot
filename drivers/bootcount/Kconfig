@@ -27,6 +27,8 @@ config BOOTCOUNT_GENERIC
 
 config BOOTCOUNT_EXT
 	bool "Boot counter on EXT filesystem"
+	depends on FS_EXT4
+	select EXT4_WRITE
 	help
 	  Add support for maintaining boot count in a file on an EXT
 	  filesystem.

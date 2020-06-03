@@ -25,7 +25,6 @@ Currently the U-Boot port supports the following devices:
 U-Boot compilation
 ==================
 
- > export ARCH=arm
  > export CROSS_COMPILE=aarch64-none-elf-
  > make libretech-ac_defconfig
  > make

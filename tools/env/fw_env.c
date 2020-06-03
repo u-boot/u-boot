@@ -946,9 +946,15 @@ static int flash_read_buf(int dev, int fd, void *buf, size_t count,
 		lseek(fd, blockstart + block_seek, SEEK_SET);
 
 		rc = read(fd, buf + processed, readlen);
-		if (rc != readlen) {
+		if (rc == -1) {
 			fprintf(stderr, "Read error on %s: %s\n",
 				DEVNAME(dev), strerror(errno));
+			return -1;
+		}
+		if (rc != readlen) {
+			fprintf(stderr, "Read error on %s: "
+				"Attempted to read %d bytes but got %d\n",
+				DEVNAME(dev), readlen, rc);
 			return -1;
 		}
 #ifdef DEBUG

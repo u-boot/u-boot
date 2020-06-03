@@ -39,7 +39,6 @@ Building
 
 .. code-block:: none
 
-   export ARCH=riscv
    export CROSS_COMPILE=<riscv64 toolchain prefix>
 
 3. make sifive_fu540_defconfig

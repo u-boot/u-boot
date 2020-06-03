@@ -275,6 +275,7 @@ M:	Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 S:	Maintained
 F:	arch/arm/include/asm/arch-owl/
 F:	arch/arm/mach-owl/
+F:	doc/board/actions/
 F:	drivers/clk/owl/
 F:	drivers/serial/serial_owl.c
 F:	include/configs/owl-common.h
@@ -590,6 +591,7 @@ M:	Angelo Dureghello <angelo@sysam.it>
 S:	Maintained
 T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-coldfire.git
 F:	arch/m68k/
+F:	doc/arch/m68k.rst
 
 DFU
 M:	Lukasz Majewski <lukma@denx.de>

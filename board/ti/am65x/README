@@ -133,12 +133,12 @@ $ make PLATFORM=k3-am65x CFG_ARM64_core=y
 4. U-Boot:
 
 4.1. R5:
-$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- am65x_evm_r5_defconfig O=/tmp/r5
-$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- O=/tmp/r5
+$ make CROSS_COMPILE=arm-linux-gnueabihf- am65x_evm_r5_defconfig O=/tmp/r5
+$ make CROSS_COMPILE=arm-linux-gnueabihf- O=/tmp/r5
 
 4.2. A53:
-$ make ARCH=arm CROSS_COMPILE=aarch64-linux-gnu- am65x_evm_a53_defconfig O=/tmp/a53
-$ make ARCH=arm CROSS_COMPILE=aarch64-linux-gnu- ATF=<path to ATF dir>/build/k3/generic/release/bl31.bin TEE=<path to OPTEE OS dir>/out/arm-plat-k3/core/tee-pager_v2.bin O=/tmp/a53
+$ make CROSS_COMPILE=aarch64-linux-gnu- am65x_evm_a53_defconfig O=/tmp/a53
+$ make CROSS_COMPILE=aarch64-linux-gnu- ATF=<path to ATF dir>/build/k3/generic/release/bl31.bin TEE=<path to OPTEE OS dir>/out/arm-plat-k3/core/tee-pager_v2.bin O=/tmp/a53
 
 Target Images
 --------------

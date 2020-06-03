@@ -8,10 +8,6 @@
 #include <command.h>
 #include <net.h>
 
-#if !defined(CONFIG_UPDATE_TFTP)
-#error "CONFIG_UPDATE_TFTP required"
-#endif
-
 static int do_fitupd(struct cmd_tbl *cmdtp, int flag, int argc,
 		     char *const argv[])
 {

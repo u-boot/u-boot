@@ -491,6 +491,7 @@ config CMD_SPL_WRITE_SIZE
 
 config CMD_FITUPD
 	bool "fitImage update command"
+	depends on UPDATE_TFTP
 	help
 	  Implements the 'fitupd' command, which allows to automatically
 	  store software updates present on a TFTP server in NOR Flash

@@ -156,7 +156,7 @@ def pytest_configure(config):
                 o_opt = ''
             cmds = (
                 ['make', o_opt, '-s', board_type + '_defconfig'],
-                ['make', o_opt, '-s', '-j8'],
+                ['make', o_opt, '-s', '-j{}'.format(os.cpu_count())],
             )
             name = 'make'
 

@@ -31,7 +31,6 @@ Currently the u-boot port supports the following devices:
 U-Boot compilation
 ==================
 
- > export ARCH=arm
  > export CROSS_COMPILE=aarch64-none-elf-
  > make khadas-vim2_defconfig
  > make

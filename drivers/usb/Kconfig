@@ -39,8 +39,8 @@ config DM_USB
 	help
 	  Enable driver model for USB. The USB interface is then implemented
 	  by the USB uclass. Multiple USB controllers of different types
-	  (XHCI, EHCI) can be attached and used. The 'usb' command works as
-	  normal. OCHI is not supported at present.
+	  (XHCI, EHCI, OHCI) can be attached and used. The 'usb' command works
+	  as normal.
 
 	  Much of the code is shared but with this option enabled the USB
 	  uclass takes care of device enumeration. USB devices can be

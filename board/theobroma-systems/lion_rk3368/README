@@ -17,12 +17,12 @@ Configure U-Boot
 Build the TPL/SPL stage
 =======================
 
-  > make CROSS_COMPILE=aarch64-unknown-elf- ARCH=arm
+  > make CROSS_COMPILE=aarch64-unknown-elf-
 
 Build the full U-Boot and a FIT image including the ATF
 =======================================================
 
-  > make CROSS_COMPILE=aarch64-unknown-elf- ARCH=arm u-boot.itb
+  > make CROSS_COMPILE=aarch64-unknown-elf- u-boot.itb
 
 Flash the image
 ===============

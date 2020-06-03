@@ -98,7 +98,6 @@ instead of to CAN/UART1.
 Build and burn U-Boot to NOR flash
 ==================================
 1. Build u-boot.bin image
-	export ARCH=powerpc
 	export CROSS_COMPILE=/your_path/powerpc-linux-gnu-
 	make P1010RDB_NOR
 

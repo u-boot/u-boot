@@ -56,7 +56,6 @@ Note: 1 stands for 'off', 0 stands for 'on'
 Build and program U-Boot to NOR flash
 ==================================
 1. Build u-boot.bin image example:
-	export ARCH=powerpc
 	export CROSS_COMPILE=/your_path/powerpc-linux-gnu-
 	make C293PCIE
 
