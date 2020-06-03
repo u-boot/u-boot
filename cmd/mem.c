@@ -34,9 +34,11 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif
 
 /* Create a compile-time value */
-#if MEM_SUPPORT_64BIT_DATA
+#ifdef MEM_SUPPORT_64BIT_DATA
+#define SUPPORT_64BIT_DATA 1
 #define HELP_Q ", .q"
 #else
+#define SUPPORT_64BIT_DATA 0
 #define HELP_Q ""
 #endif
 
@@ -123,11 +125,7 @@ static int do_mem_nm(struct cmd_tbl *cmdtp, int flag, int argc,
 static int do_mem_mw(struct cmd_tbl *cmdtp, int flag, int argc,
 		     char *const argv[])
 {
-#if MEM_SUPPORT_64BIT_DATA
-	u64 writeval;
-#else
-	ulong writeval;
-#endif
+	ulong writeval;  /* 64-bit if SUPPORT_64BIT_DATA */
 	ulong	addr, count;
 	int	size;
 	void *buf, *start;
@@ -148,11 +146,10 @@ static int do_mem_mw(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	/* Get the value to write.
 	*/
-#if MEM_SUPPORT_64BIT_DATA
-	writeval = simple_strtoull(argv[2], NULL, 16);
-#else
-	writeval = simple_strtoul(argv[2], NULL, 16);
-#endif
+	if (SUPPORT_64BIT_DATA)
+		writeval = simple_strtoull(argv[2], NULL, 16);
+	else
+		writeval = simple_strtoul(argv[2], NULL, 16);
 
 	/* Count ? */
 	if (argc == 4) {
@@ -167,10 +164,8 @@ static int do_mem_mw(struct cmd_tbl *cmdtp, int flag, int argc,
 	while (count-- > 0) {
 		if (size == 4)
 			*((u32 *)buf) = (u32)writeval;
-#if MEM_SUPPORT_64BIT_DATA
-		else if (size == 8)
-			*((u64 *)buf) = (u64)writeval;
-#endif
+		else if (SUPPORT_64BIT_DATA && size == 8)
+			*((ulong *)buf) = writeval;
 		else if (size == 2)
 			*((u16 *)buf) = (u16)writeval;
 		else
@@ -247,11 +242,7 @@ static int do_mem_cmp(struct cmd_tbl *cmdtp, int flag, int argc,
 	int     rcode = 0;
 	const char *type;
 	const void *buf1, *buf2, *base;
-#if MEM_SUPPORT_64BIT_DATA
-	u64 word1, word2;
-#else
-	ulong word1, word2;
-#endif
+	ulong word1, word2;  /* 64-bit if SUPPORT_64BIT_DATA */
 
 	if (argc != 4)
 		return CMD_RET_USAGE;
@@ -279,11 +270,9 @@ static int do_mem_cmp(struct cmd_tbl *cmdtp, int flag, int argc,
 		if (size == 4) {
 			word1 = *(u32 *)buf1;
 			word2 = *(u32 *)buf2;
-#if MEM_SUPPORT_64BIT_DATA
-		} else if (size == 8) {
-			word1 = *(u64 *)buf1;
-			word2 = *(u64 *)buf2;
-#endif
+		} else if (SUPPORT_64BIT_DATA && size == 8) {
+			word1 = *(ulong *)buf1;
+			word2 = *(ulong *)buf2;
 		} else if (size == 2) {
 			word1 = *(u16 *)buf1;
 			word2 = *(u16 *)buf2;
@@ -293,15 +282,9 @@ static int do_mem_cmp(struct cmd_tbl *cmdtp, int flag, int argc,
 		}
 		if (word1 != word2) {
 			ulong offset = buf1 - base;
-#if MEM_SUPPORT_64BIT_DATA
-			printf("%s at 0x%p (%#0*llx) != %s at 0x%p (%#0*llx)\n",
-			       type, (void *)(addr1 + offset), size, word1,
-			       type, (void *)(addr2 + offset), size, word2);
-#else
 			printf("%s at 0x%08lx (%#0*lx) != %s at 0x%08lx (%#0*lx)\n",
 				type, (ulong)(addr1 + offset), size, word1,
 				type, (ulong)(addr2 + offset), size, word2);
-#endif
 			rcode = 1;
 			break;
 		}
@@ -398,9 +381,7 @@ static int do_mem_loop(struct cmd_tbl *cmdtp, int flag, int argc,
 {
 	ulong	addr, length, i, bytes;
 	int	size;
-#if MEM_SUPPORT_64BIT_DATA
-	volatile u64 *llp;
-#endif
+	volatile ulong *llp;  /* 64-bit if SUPPORT_64BIT_DATA */
 	volatile u32 *longp;
 	volatile u16 *shortp;
 	volatile u8 *cp;
@@ -431,13 +412,11 @@ static int do_mem_loop(struct cmd_tbl *cmdtp, int flag, int argc,
 	 * If we have only one object, just run infinite loops.
 	 */
 	if (length == 1) {
-#if MEM_SUPPORT_64BIT_DATA
-		if (size == 8) {
-			llp = (u64 *)buf;
+		if (SUPPORT_64BIT_DATA && size == 8) {
+			llp = (ulong *)buf;
 			for (;;)
 				i = *llp;
 		}
-#endif
 		if (size == 4) {
 			longp = (u32 *)buf;
 			for (;;)
@@ -453,16 +432,14 @@ static int do_mem_loop(struct cmd_tbl *cmdtp, int flag, int argc,
 			i = *cp;
 	}
 
-#if MEM_SUPPORT_64BIT_DATA
-	if (size == 8) {
+	if (SUPPORT_64BIT_DATA && size == 8) {
 		for (;;) {
-			llp = (u64 *)buf;
+			llp = (ulong *)buf;
 			i = length;
 			while (i-- > 0)
 				*llp++;
 		}
 	}
-#endif
 	if (size == 4) {
 		for (;;) {
 			longp = (u32 *)buf;
@@ -496,12 +473,8 @@ static int do_mem_loopw(struct cmd_tbl *cmdtp, int flag, int argc,
 {
 	ulong	addr, length, i, bytes;
 	int	size;
-#if MEM_SUPPORT_64BIT_DATA
-	volatile u64 *llp;
-	u64 data;
-#else
-	ulong	data;
-#endif
+	volatile ulong *llp;  /* 64-bit if SUPPORT_64BIT_DATA */
+	ulong	data;    /* 64-bit if SUPPORT_64BIT_DATA */
 	volatile u32 *longp;
 	volatile u16 *shortp;
 	volatile u8 *cp;
@@ -526,11 +499,10 @@ static int do_mem_loopw(struct cmd_tbl *cmdtp, int flag, int argc,
 	length = simple_strtoul(argv[2], NULL, 16);
 
 	/* data to write */
-#if MEM_SUPPORT_64BIT_DATA
-	data = simple_strtoull(argv[3], NULL, 16);
-#else
-	data = simple_strtoul(argv[3], NULL, 16);
-#endif
+	if (SUPPORT_64BIT_DATA)
+		data = simple_strtoull(argv[3], NULL, 16);
+	else
+		data = simple_strtoul(argv[3], NULL, 16);
 
 	bytes = size * length;
 	buf = map_sysmem(addr, bytes);
@@ -539,13 +511,11 @@ static int do_mem_loopw(struct cmd_tbl *cmdtp, int flag, int argc,
 	 * If we have only one object, just run infinite loops.
 	 */
 	if (length == 1) {
-#if MEM_SUPPORT_64BIT_DATA
-		if (size == 8) {
-			llp = (u64 *)buf;
+		if (SUPPORT_64BIT_DATA && size == 8) {
+			llp = (ulong *)buf;
 			for (;;)
 				*llp = data;
 		}
-#endif
 		if (size == 4) {
 			longp = (u32 *)buf;
 			for (;;)
@@ -561,16 +531,14 @@ static int do_mem_loopw(struct cmd_tbl *cmdtp, int flag, int argc,
 			*cp = data;
 	}
 
-#if MEM_SUPPORT_64BIT_DATA
-	if (size == 8) {
+	if (SUPPORT_64BIT_DATA && size == 8) {
 		for (;;) {
-			llp = (u64 *)buf;
+			llp = (ulong *)buf;
 			i = length;
 			while (i-- > 0)
 				*llp++ = data;
 		}
 	}
-#endif
 	if (size == 4) {
 		for (;;) {
 			longp = (u32 *)buf;
@@ -1029,11 +997,7 @@ mod_mem(struct cmd_tbl *cmdtp, int incrflag, int flag, int argc,
 	char *const argv[])
 {
 	ulong	addr;
-#if MEM_SUPPORT_64BIT_DATA
-	u64 i;
-#else
-	ulong i;
-#endif
+	ulong i;  /* 64-bit if SUPPORT_64BIT_DATA */
 	int	nbytes, size;
 	void *ptr = NULL;
 
@@ -1068,10 +1032,8 @@ mod_mem(struct cmd_tbl *cmdtp, int incrflag, int flag, int argc,
 		printf("%08lx:", addr);
 		if (size == 4)
 			printf(" %08x", *((u32 *)ptr));
-#if MEM_SUPPORT_64BIT_DATA
-		else if (size == 8)
-			printf(" %016llx", *((u64 *)ptr));
-#endif
+		else if (SUPPORT_64BIT_DATA && size == 8)
+			printf(" %0lx", *((ulong *)ptr));
 		else if (size == 2)
 			printf(" %04x", *((u16 *)ptr));
 		else
@@ -1095,11 +1057,10 @@ mod_mem(struct cmd_tbl *cmdtp, int incrflag, int flag, int argc,
 #endif
 		else {
 			char *endp;
-#if MEM_SUPPORT_64BIT_DATA
-			i = simple_strtoull(console_buffer, &endp, 16);
-#else
-			i = simple_strtoul(console_buffer, &endp, 16);
-#endif
+			if (SUPPORT_64BIT_DATA)
+				i = simple_strtoull(console_buffer, &endp, 16);
+			else
+				i = simple_strtoul(console_buffer, &endp, 16);
 			nbytes = endp - console_buffer;
 			if (nbytes) {
 				/* good enough to not time out
@@ -1107,10 +1068,8 @@ mod_mem(struct cmd_tbl *cmdtp, int incrflag, int flag, int argc,
 				bootretry_reset_cmd_timeout();
 				if (size == 4)
 					*((u32 *)ptr) = i;
-#if MEM_SUPPORT_64BIT_DATA
-				else if (size == 8)
-					*((u64 *)ptr) = i;
-#endif
+				else if (SUPPORT_64BIT_DATA && size == 8)
+					*((ulong *)ptr) = i;
 				else if (size == 2)
 					*((u16 *)ptr) = i;
 				else
