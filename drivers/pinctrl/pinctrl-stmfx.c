@@ -74,43 +74,49 @@ static int stmfx_write(struct udevice *dev, uint offset, unsigned int val)
 	return dm_i2c_reg_write(dev_get_parent(dev), offset, val);
 }
 
-static int stmfx_conf_set_pupd(struct udevice *dev, unsigned int pin, u32 pupd)
+static int stmfx_read_reg(struct udevice *dev, u8 reg_base, uint offset)
 {
-	u8 reg = STMFX_REG_GPIO_PUPD + get_reg(pin);
-	u32 mask = get_mask(pin);
-	int ret;
-
-	ret = stmfx_read(dev, reg);
-	if (ret < 0)
-		return ret;
-	ret = (ret & ~mask) | (pupd ? mask : 0);
-
-	return stmfx_write(dev, reg, ret);
-}
-
-static int stmfx_conf_set_type(struct udevice *dev, unsigned int pin, u32 type)
-{
-	u8 reg = STMFX_REG_GPIO_TYPE + get_reg(pin);
-	u32 mask = get_mask(pin);
-	int ret;
-
-	ret = stmfx_read(dev, reg);
-	if (ret < 0)
-		return ret;
-	ret = (ret & ~mask) | (type ? mask : 0);
-
-	return stmfx_write(dev, reg, ret);
-}
-
-static int stmfx_gpio_get(struct udevice *dev, unsigned int offset)
-{
-	u32 reg = STMFX_REG_GPIO_STATE + get_reg(offset);
+	u8 reg = reg_base + get_reg(offset);
 	u32 mask = get_mask(offset);
 	int ret;
 
 	ret = stmfx_read(dev, reg);
+	if (ret < 0)
+		return ret;
 
 	return ret < 0 ? ret : !!(ret & mask);
+}
+
+static int stmfx_write_reg(struct udevice *dev, u8 reg_base, uint offset,
+			   uint val)
+{
+	u8 reg = reg_base + get_reg(offset);
+	u32 mask = get_mask(offset);
+	int ret;
+
+	ret = stmfx_read(dev, reg);
+	if (ret < 0)
+		return ret;
+	ret = (ret & ~mask) | (val ? mask : 0);
+
+	return stmfx_write(dev, reg, ret);
+}
+
+static int stmfx_conf_set_pupd(struct udevice *dev, unsigned int offset,
+			       uint pupd)
+{
+	return stmfx_write_reg(dev, STMFX_REG_GPIO_PUPD, offset, pupd);
+}
+
+static int stmfx_conf_set_type(struct udevice *dev, unsigned int offset,
+			       uint type)
+{
+	return stmfx_write_reg(dev, STMFX_REG_GPIO_TYPE, offset, type);
+}
+
+static int stmfx_gpio_get(struct udevice *dev, unsigned int offset)
+{
+	return stmfx_read_reg(dev, STMFX_REG_GPIO_STATE, offset);
 }
 
 static int stmfx_gpio_set(struct udevice *dev, unsigned int offset, int value)
@@ -123,50 +129,28 @@ static int stmfx_gpio_set(struct udevice *dev, unsigned int offset, int value)
 
 static int stmfx_gpio_get_function(struct udevice *dev, unsigned int offset)
 {
-	u32 reg = STMFX_REG_GPIO_DIR + get_reg(offset);
-	u32 mask = get_mask(offset);
-	int ret;
-
-	ret = stmfx_read(dev, reg);
+	int ret = stmfx_read_reg(dev, STMFX_REG_GPIO_DIR, offset);
 
 	if (ret < 0)
 		return ret;
 	/* On stmfx, gpio pins direction is (0)input, (1)output. */
 
-	return ret & mask ? GPIOF_OUTPUT : GPIOF_INPUT;
+	return ret ? GPIOF_OUTPUT : GPIOF_INPUT;
 }
 
 static int stmfx_gpio_direction_input(struct udevice *dev, unsigned int offset)
 {
-	u32 reg = STMFX_REG_GPIO_DIR + get_reg(offset);
-	u32 mask = get_mask(offset);
-	int ret;
-
-	ret = stmfx_read(dev, reg);
-	if (ret < 0)
-		return ret;
-
-	ret &= ~mask;
-
-	return stmfx_write(dev, reg, ret & ~mask);
+	return stmfx_write_reg(dev, STMFX_REG_GPIO_DIR, offset, 0);
 }
 
 static int stmfx_gpio_direction_output(struct udevice *dev,
 				       unsigned int offset, int value)
 {
-	u32 reg = STMFX_REG_GPIO_DIR + get_reg(offset);
-	u32 mask = get_mask(offset);
-	int ret;
-
-	ret = stmfx_gpio_set(dev, offset, value);
+	int ret = stmfx_gpio_set(dev, offset, value);
 	if (ret < 0)
 		return ret;
 
-	ret = stmfx_read(dev, reg);
-	if (ret < 0)
-		return ret;
-
-	return stmfx_write(dev, reg, ret | mask);
+	return stmfx_write_reg(dev, STMFX_REG_GPIO_DIR, offset, 1);
 }
 
 static int stmfx_gpio_probe(struct udevice *dev)
