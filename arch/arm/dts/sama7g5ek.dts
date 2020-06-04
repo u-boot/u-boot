@@ -38,12 +38,42 @@
 		apb {
 			sdmmc1: sdio-host@e1208000 {
 				bus-width = <4>;
+				pinctrl-names = "default";
+				pinctrl-0 = <&pinctrl_sdmmc1_cmd_data_default
+					     &pinctrl_sdmmc1_ck_cd_rstn_vddsel_default>;
 				status = "okay";
 			};
 
 			uart0: serial@e1824200 {
+				pinctrl-names = "default";
+				pinctrl-0 = <&pinctrl_flx3_default>;
 				status = "okay";
 			};
 		};
+	};
+};
+
+&pinctrl {
+	pinctrl_flx3_default: flx3_default {
+		pinmux = <PIN_PD16__FLEXCOM3_IO0>,
+			 <PIN_PD17__FLEXCOM3_IO1>;
+		bias-disable;
+	};
+
+	pinctrl_sdmmc1_cmd_data_default: sdmmc1_cmd_data_default {
+		pinmux = <PIN_PB29__SDMMC1_CMD>,
+			 <PIN_PB31__SDMMC1_DAT0>,
+			 <PIN_PC0__SDMMC1_DAT1>,
+			 <PIN_PC1__SDMMC1_DAT2>,
+			 <PIN_PC2__SDMMC1_DAT3>;
+		bias-pull-up;
+	};
+
+	pinctrl_sdmmc1_ck_cd_rstn_vddsel_default: sdmmc1_ck_cd_rstn_vddsel_default {
+		pinmux = <PIN_PB30__SDMMC1_CK>,
+			 <PIN_PB28__SDMMC1_RSTN>,
+			 <PIN_PC5__SDMMC1_1V8SEL>,
+			 <PIN_PC4__SDMMC1_CD>;
+		bias-pull-up;
 	};
 };

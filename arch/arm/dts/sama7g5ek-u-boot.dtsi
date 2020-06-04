@@ -39,6 +39,10 @@
 	};
 };
 
+&pinctrl_flx3_default {
+	u-boot,dm-pre-reloc;
+};
+
 &pit64b0 {
 	u-boot,dm-pre-reloc;
 };
