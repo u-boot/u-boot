@@ -17,6 +17,7 @@
 #include <cpsw.h>
 #include <dm/device_compat.h>
 #include <linux/bitops.h>
+#include <linux/compiler.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
@@ -247,11 +248,11 @@ static inline void cpsw_ale_set_field(u32 *ale_entry, u32 start, u32 bits,
 }
 
 #define DEFINE_ALE_FIELD(name, start, bits)				\
-static inline int cpsw_ale_get_##name(u32 *ale_entry)			\
+static inline int __maybe_unused cpsw_ale_get_##name(u32 *ale_entry)	\
 {									\
 	return cpsw_ale_get_field(ale_entry, start, bits);		\
 }									\
-static inline void cpsw_ale_set_##name(u32 *ale_entry, u32 value)	\
+static inline void __maybe_unused cpsw_ale_set_##name(u32 *ale_entry, u32 value)	\
 {									\
 	cpsw_ale_set_field(ale_entry, start, bits, value);		\
 }
