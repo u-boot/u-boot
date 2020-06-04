@@ -108,10 +108,20 @@ static int stmfx_conf_set_pupd(struct udevice *dev, unsigned int offset,
 	return stmfx_write_reg(dev, STMFX_REG_GPIO_PUPD, offset, pupd);
 }
 
+static int stmfx_conf_get_pupd(struct udevice *dev, unsigned int offset)
+{
+	return stmfx_read_reg(dev, STMFX_REG_GPIO_PUPD, offset);
+}
+
 static int stmfx_conf_set_type(struct udevice *dev, unsigned int offset,
 			       uint type)
 {
 	return stmfx_write_reg(dev, STMFX_REG_GPIO_TYPE, offset, type);
+}
+
+static int stmfx_conf_get_type(struct udevice *dev, unsigned int offset)
+{
+	return stmfx_read_reg(dev, STMFX_REG_GPIO_TYPE, offset);
 }
 
 static int stmfx_gpio_get(struct udevice *dev, unsigned int offset)
@@ -189,6 +199,45 @@ static int stmfx_gpio_set_dir_flags(struct udevice *dev, unsigned int offset,
 	return ret;
 }
 
+static int stmfx_gpio_get_dir_flags(struct udevice *dev, unsigned int offset,
+				    ulong *flags)
+{
+	ulong dir_flags = 0;
+	int ret;
+
+	if (stmfx_gpio_get_function(dev, offset) == GPIOF_OUTPUT) {
+		dir_flags |= GPIOD_IS_OUT;
+		ret = stmfx_conf_get_type(dev, offset);
+		if (ret < 0)
+			return ret;
+		if (ret == 0)
+			dir_flags |= GPIOD_OPEN_DRAIN;
+			/* 1 = push-pull (default), open source not supported */
+		ret = stmfx_gpio_get(dev, offset);
+		if (ret < 0)
+			return ret;
+		if (ret)
+			dir_flags |= GPIOD_IS_OUT_ACTIVE;
+	} else {
+		dir_flags |= GPIOD_IS_IN;
+		ret = stmfx_conf_get_type(dev, offset);
+		if (ret < 0)
+			return ret;
+		if (ret == 1) {
+			ret = stmfx_conf_get_pupd(dev, offset);
+			if (ret < 0)
+				return ret;
+			if (ret == 1)
+				dir_flags |= GPIOD_PULL_UP;
+			else
+				dir_flags |= GPIOD_PULL_DOWN;
+		}
+	}
+	*flags = dir_flags;
+
+	return 0;
+}
+
 static int stmfx_gpio_probe(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
@@ -218,6 +267,7 @@ static const struct dm_gpio_ops stmfx_gpio_ops = {
 	.direction_input = stmfx_gpio_direction_input,
 	.direction_output = stmfx_gpio_direction_output,
 	.set_dir_flags = stmfx_gpio_set_dir_flags,
+	.get_dir_flags = stmfx_gpio_get_dir_flags,
 };
 
 U_BOOT_DRIVER(stmfx_gpio) = {
