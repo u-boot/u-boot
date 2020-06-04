@@ -11,9 +11,6 @@
 #include <asm/encoding.h>
 #include <asm/sbi.h>
 
-/* default SBI version is 0.1 */
-unsigned long sbi_spec_version = SBI_SPEC_VERSION_DEFAULT;
-
 struct sbiret sbi_ecall(int ext, int fid, unsigned long arg0,
 			unsigned long arg1, unsigned long arg2,
 			unsigned long arg3, unsigned long arg4,
@@ -54,6 +51,25 @@ void sbi_set_timer(uint64_t stime_value)
 	sbi_ecall(SBI_EXT_SET_TIMER, SBI_FID_SET_TIMER, stime_value,
 		  0, 0, 0, 0, 0);
 #endif
+}
+
+/**
+ * sbi_probe_extension() - Check if an SBI extension ID is supported or not.
+ * @extid: The extension ID to be probed.
+ *
+ * Return: Extension specific nonzero value f yes, -ENOTSUPP otherwise.
+ */
+int sbi_probe_extension(int extid)
+{
+	struct sbiret ret;
+
+	ret = sbi_ecall(SBI_EXT_BASE, SBI_EXT_BASE_PROBE_EXT, extid,
+			0, 0, 0, 0, 0);
+	if (!ret.error)
+		if (ret.value)
+			return ret.value;
+
+	return -ENOTSUPP;
 }
 
 #ifdef CONFIG_SBI_V01
@@ -165,22 +181,4 @@ void sbi_remote_sfence_vma_asid(const unsigned long *hart_mask,
 		  (unsigned long)hart_mask, start, size, asid, 0, 0);
 }
 
-/**
- * sbi_probe_extension() - Check if an SBI extension ID is supported or not.
- * @extid: The extension ID to be probed.
- *
- * Return: Extension specific nonzero value f yes, -ENOTSUPP otherwise.
- */
-int sbi_probe_extension(int extid)
-{
-	struct sbiret ret;
-
-	ret = sbi_ecall(SBI_EXT_BASE, SBI_EXT_BASE_PROBE_EXT, extid,
-			0, 0, 0, 0, 0);
-	if (!ret.error)
-		if (ret.value)
-			return ret.value;
-
-	return -ENOTSUPP;
-}
 #endif /* CONFIG_SBI_V01 */

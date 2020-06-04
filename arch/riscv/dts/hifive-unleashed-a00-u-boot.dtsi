@@ -3,9 +3,31 @@
  * Copyright (C) 2019 Jagan Teki <jagan@amarulasolutions.com>
  */
 
+#include "fu540-c000-u-boot.dtsi"
+#include "fu540-hifive-unleashed-a00-ddr.dtsi"
+
 / {
 	aliases {
 		spi0 = &qspi0;
 		spi2 = &qspi2;
 	};
+
+	hfclk {
+		u-boot,dm-spl;
+	};
+
+	rtcclk {
+		u-boot,dm-spl;
+	};
+
+};
+
+&qspi2 {
+	mmc@0 {
+		u-boot,dm-spl;
+	};
+};
+
+&gpio {
+	u-boot,dm-spl;
 };

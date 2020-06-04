@@ -30,7 +30,6 @@ obj-y += charset.o
 endif
 endif
 obj-$(CONFIG_USB_TTY) += circbuf.o
-obj-y += crc7.o
 obj-y += crc8.o
 obj-y += crc16.o
 obj-$(CONFIG_ERRNO_STR) += errno_str.o
@@ -90,6 +89,7 @@ obj-y += errno.o
 obj-y += display_options.o
 CFLAGS_display_options.o := $(if $(BUILD_TAG),-DBUILD_TAG='"$(BUILD_TAG)"')
 obj-$(CONFIG_BCH) += bch.o
+obj-$(CONFIG_MMC_SPI) += crc7.o
 obj-y += crc32.o
 obj-$(CONFIG_CRC32C) += crc32c.o
 obj-y += ctype.o
