@@ -109,7 +109,7 @@ struct mcspi {
 };
 
 struct omap3_spi_priv {
-#ifndef CONFIG_DM_SPI
+#if !CONFIG_IS_ENABLED(DM_SPI)
 	struct spi_slave slave;
 #endif
 	struct mcspi *regs;
@@ -455,7 +455,7 @@ static void _omap3_spi_claim_bus(struct omap3_spi_priv *priv)
 	writel(conf, &priv->regs->modulctrl);
 }
 
-#ifndef CONFIG_DM_SPI
+#if !CONFIG_IS_ENABLED(DM_SPI)
 
 static inline struct omap3_spi_priv *to_omap3_spi(struct spi_slave *slave)
 {
