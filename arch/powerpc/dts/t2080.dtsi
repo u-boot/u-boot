@@ -69,6 +69,16 @@
 			voltage-ranges = <1800 1800 3300 3300>;
 		};
 
+		espi0: spi@110000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "fsl,mpc8536-espi";
+			reg = <0x110000 0x1000>;
+			interrupts = <53 0x2 0 0>;
+			fsl,espi-num-chipselects = <4>;
+			status = "disabled";
+		};
+
 		usb0: usb@210000 {
 			compatible = "fsl-usb2-mph";
 			reg = <0x210000 0x1000>;
