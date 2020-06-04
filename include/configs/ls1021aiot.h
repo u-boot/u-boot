@@ -138,11 +138,6 @@
 #define CONFIG_SPI_FLASH_SPANSION
 #endif
 
-/* DM SPI */
-#if defined(CONFIG_FSL_DSPI) || defined(CONFIG_FSL_QSPI)
-#define CONFIG_DM_SPI_FLASH
-#endif
-
 /*
  * eTSEC
  */

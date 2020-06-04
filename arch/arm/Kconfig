@@ -1456,6 +1456,8 @@ config TARGET_LS1021AQDS
 	select SUPPORT_SPL
 	select SYS_FSL_DDR
 	select FSL_DDR_INTERACTIVE
+	select DM_SPI_FLASH if FSL_DSPI || FSL_QSPI
+	select SPI_FLASH_DATAFLASH if FSL_DSPI || FSL_QSPI
 	imply SCSI
 
 config TARGET_LS1021ATWR
@@ -1469,6 +1471,7 @@ config TARGET_LS1021ATWR
 	select CPU_V7_HAS_VIRT
 	select LS1_DEEP_SLEEP
 	select SUPPORT_SPL
+	select DM_SPI_FLASH if FSL_DSPI || FSL_QSPI
 	imply SCSI
 
 config TARGET_LS1021ATSN
@@ -1493,6 +1496,7 @@ config TARGET_LS1021AIOT
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
 	select SUPPORT_SPL
+	select DM_SPI_FLASH if FSL_DSPI || FSL_QSPI
 	imply SCSI
 	help
 	  Support for Freescale LS1021AIOT platform.
@@ -1945,5 +1949,3 @@ config SPL_LDSCRIPT
 	default "arch/arm/cpu/arm926ejs/mxs/u-boot-spl.lds" if (ARCH_MX23 || ARCH_MX28) && !SPL_FRAMEWORK
 	default "arch/arm/cpu/arm1136/u-boot-spl.lds" if CPU_ARM1136
 	default "arch/arm/cpu/armv8/u-boot-spl.lds" if ARM64
-
-
