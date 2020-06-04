@@ -358,6 +358,34 @@ static const char *stmfx_pinctrl_get_pin_name(struct udevice *dev,
 	return pin_name;
 }
 
+static const char *stmfx_pinctrl_get_pin_conf(struct udevice *dev,
+					      unsigned int pin, int func)
+{
+	int pupd, type;
+
+	type = stmfx_conf_get_type(dev, pin);
+	if (type < 0)
+		return "";
+
+	if (func == GPIOF_OUTPUT) {
+		if (type)
+			return "drive-open-drain";
+		else
+			return ""; /* default: push-pull*/
+	}
+	if (!type)
+		return ""; /* default: bias-disable*/
+
+	pupd = stmfx_conf_get_pupd(dev, pin);
+	if (pupd < 0)
+		return "";
+
+	if (pupd)
+		return "bias-pull-up";
+	else
+		return "bias-pull-down";
+}
+
 static int stmfx_pinctrl_get_pin_muxing(struct udevice *dev,
 					unsigned int selector,
 					char *buf, int size)
@@ -369,7 +397,9 @@ static int stmfx_pinctrl_get_pin_muxing(struct udevice *dev,
 	if (func < 0)
 		return func;
 
-	snprintf(buf, size, "%s", func == GPIOF_INPUT ? "input" : "output");
+	snprintf(buf, size, "%s ", func == GPIOF_INPUT ? "input" : "output");
+
+	strncat(buf, stmfx_pinctrl_get_pin_conf(dev, selector, func), size);
 
 	return 0;
 }
