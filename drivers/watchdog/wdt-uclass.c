@@ -17,14 +17,15 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define WATCHDOG_TIMEOUT_SECS	(CONFIG_WATCHDOG_TIMEOUT_MSECS / 1000)
 
-/*
- * Reset every 1000ms, or however often is required as indicated by a
- * hw_margin_ms property.
- */
-static ulong reset_period = 1000;
+static u64 ratelimit_ticks;
 
 int initr_watchdog(void)
 {
+	/*
+	 * Reset every 1000ms, or however often is required as indicated by a
+	 * hw_margin_ms property.
+	 */
+	u32 reset_period = 1000;
 	u32 timeout = WATCHDOG_TIMEOUT_SECS;
 
 	/*
@@ -49,6 +50,7 @@ int initr_watchdog(void)
 						    4 * reset_period) / 4;
 	}
 
+	ratelimit_ticks = usec_to_tick(reset_period * 1000);
 	wdt_start(gd->watchdog_dev, timeout * 1000, 0);
 	gd->flags |= GD_FLG_WDT_READY;
 	printf("WDT:   Started with%s servicing (%ds timeout)\n",
@@ -118,17 +120,17 @@ int wdt_expire_now(struct udevice *dev, ulong flags)
  */
 void watchdog_reset(void)
 {
-	static ulong next_reset;
-	ulong now;
+	static u64 last_reset;
+	u64 now;
 
 	/* Exit if GD is not ready or watchdog is not initialized yet */
 	if (!gd || !(gd->flags & GD_FLG_WDT_READY))
 		return;
 
 	/* Do not reset the watchdog too often */
-	now = get_timer(0);
-	if (time_after(now, next_reset)) {
-		next_reset = now + reset_period;
+	now = get_ticks();
+	if (now - last_reset >= ratelimit_ticks) {
+		last_reset = now;
 		wdt_reset(gd->watchdog_dev);
 	}
 }
