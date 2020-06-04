@@ -62,6 +62,19 @@
 			#address-cells = <1>;
 			#size-cells = <1>;
 
+			pioA: pinctrl@e0014000 {
+				compatible = "atmel,sama5d2-gpio";
+				reg = <0xe0014000 0x800>;
+				gpio-controller;
+				#gpio-cells = <2>;
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 11>;
+				status = "okay";
+
+				pinctrl: pinctrl_default {
+					compatible = "microchip,sama7g5-pinctrl";
+				};
+			};
+
 			pmc: pmc@e0018000 {
 				compatible = "microchip,sama7g5-pmc";
 				reg = <0xe0018000 0x200>;
