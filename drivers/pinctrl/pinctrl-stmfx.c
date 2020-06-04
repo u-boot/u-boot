@@ -153,6 +153,42 @@ static int stmfx_gpio_direction_output(struct udevice *dev,
 	return stmfx_write_reg(dev, STMFX_REG_GPIO_DIR, offset, 1);
 }
 
+static int stmfx_gpio_set_dir_flags(struct udevice *dev, unsigned int offset,
+				    ulong flags)
+{
+	int ret = -ENOTSUPP;
+
+	if (flags & GPIOD_IS_OUT) {
+		if (flags & GPIOD_OPEN_SOURCE)
+			return -ENOTSUPP;
+		if (flags & GPIOD_OPEN_DRAIN)
+			ret = stmfx_conf_set_type(dev, offset, 0);
+		else /* PUSH-PULL */
+			ret = stmfx_conf_set_type(dev, offset, 1);
+		if (ret)
+			return ret;
+		ret = stmfx_gpio_direction_output(dev, offset,
+						  GPIOD_FLAGS_OUTPUT(flags));
+	} else if (flags & GPIOD_IS_IN) {
+		ret = stmfx_gpio_direction_input(dev, offset);
+		if (ret)
+			return ret;
+		if (flags & GPIOD_PULL_UP) {
+			ret = stmfx_conf_set_type(dev, offset, 1);
+			if (ret)
+				return ret;
+			ret = stmfx_conf_set_pupd(dev, offset, 1);
+		} else if (flags & GPIOD_PULL_DOWN) {
+			ret = stmfx_conf_set_type(dev, offset, 1);
+			if (ret)
+				return ret;
+			ret = stmfx_conf_set_pupd(dev, offset, 0);
+		}
+	}
+
+	return ret;
+}
+
 static int stmfx_gpio_probe(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
@@ -181,6 +217,7 @@ static const struct dm_gpio_ops stmfx_gpio_ops = {
 	.get_function = stmfx_gpio_get_function,
 	.direction_input = stmfx_gpio_direction_input,
 	.direction_output = stmfx_gpio_direction_output,
+	.set_dir_flags = stmfx_gpio_set_dir_flags,
 };
 
 U_BOOT_DRIVER(stmfx_gpio) = {
