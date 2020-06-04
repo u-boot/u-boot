@@ -74,6 +74,36 @@ static int stmfx_write(struct udevice *dev, uint offset, unsigned int val)
 	return dm_i2c_reg_write(dev_get_parent(dev), offset, val);
 }
 
+static int stmfx_pinctrl_set_pupd(struct udevice *dev,
+				  unsigned int pin, u32 pupd)
+{
+	u8 reg = STMFX_REG_GPIO_PUPD + get_reg(pin);
+	u32 mask = get_mask(pin);
+	int ret;
+
+	ret = stmfx_read(dev, reg);
+	if (ret < 0)
+		return ret;
+	ret = (ret & ~mask) | (pupd ? mask : 0);
+
+	return stmfx_write(dev, reg, ret);
+}
+
+static int stmfx_pinctrl_set_type(struct udevice *dev,
+				  unsigned int pin, u32 type)
+{
+	u8 reg = STMFX_REG_GPIO_TYPE + get_reg(pin);
+	u32 mask = get_mask(pin);
+	int ret;
+
+	ret = stmfx_read(dev, reg);
+	if (ret < 0)
+		return ret;
+	ret = (ret & ~mask) | (type ? mask : 0);
+
+	return stmfx_write(dev, reg, ret);
+}
+
 static int stmfx_gpio_get(struct udevice *dev, unsigned int offset)
 {
 	u32 reg = STMFX_REG_GPIO_STATE + get_reg(offset);
@@ -189,36 +219,6 @@ static const struct pinconf_param stmfx_pinctrl_conf_params[] = {
 	{ "output-high", PIN_CONFIG_OUTPUT, 1 },
 	{ "output-low", PIN_CONFIG_OUTPUT, 0 },
 };
-
-static int stmfx_pinctrl_set_pupd(struct udevice *dev,
-				  unsigned int pin, u32 pupd)
-{
-	u8 reg = STMFX_REG_GPIO_PUPD + get_reg(pin);
-	u32 mask = get_mask(pin);
-	int ret;
-
-	ret = stmfx_read(dev, reg);
-	if (ret < 0)
-		return ret;
-	ret = (ret & ~mask) | (pupd ? mask : 0);
-
-	return stmfx_write(dev, reg, ret);
-}
-
-static int stmfx_pinctrl_set_type(struct udevice *dev,
-				  unsigned int pin, u32 type)
-{
-	u8 reg = STMFX_REG_GPIO_TYPE + get_reg(pin);
-	u32 mask = get_mask(pin);
-	int ret;
-
-	ret = stmfx_read(dev, reg);
-	if (ret < 0)
-		return ret;
-	ret = (ret & ~mask) | (type ? mask : 0);
-
-	return stmfx_write(dev, reg, ret);
-}
 
 static int stmfx_pinctrl_conf_set(struct udevice *dev, unsigned int pin,
 				  unsigned int param, unsigned int arg)
