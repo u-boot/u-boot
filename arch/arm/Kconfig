@@ -1510,6 +1510,8 @@ config TARGET_LS1043AQDS
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
 	select FSL_DDR_INTERACTIVE if !SPL
+	select FSL_DSPI if !SPL_NO_DSPI
+	select DM_SPI_FLASH if FSL_DSPI
 	imply SCSI
 	imply SCSI_AHCI
 	help
@@ -1524,6 +1526,8 @@ config TARGET_LS1043ARDB
 	select BOARD_EARLY_INIT_F
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
+	select FSL_DSPI if !SPL_NO_DSPI
+	select DM_SPI_FLASH if FSL_DSPI
 	help
 	  Support for Freescale LS1043ARDB platform.
 
