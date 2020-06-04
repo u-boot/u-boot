@@ -74,8 +74,7 @@ static int stmfx_write(struct udevice *dev, uint offset, unsigned int val)
 	return dm_i2c_reg_write(dev_get_parent(dev), offset, val);
 }
 
-static int stmfx_pinctrl_set_pupd(struct udevice *dev,
-				  unsigned int pin, u32 pupd)
+static int stmfx_conf_set_pupd(struct udevice *dev, unsigned int pin, u32 pupd)
 {
 	u8 reg = STMFX_REG_GPIO_PUPD + get_reg(pin);
 	u32 mask = get_mask(pin);
@@ -89,8 +88,7 @@ static int stmfx_pinctrl_set_pupd(struct udevice *dev,
 	return stmfx_write(dev, reg, ret);
 }
 
-static int stmfx_pinctrl_set_type(struct udevice *dev,
-				  unsigned int pin, u32 type)
+static int stmfx_conf_set_type(struct udevice *dev, unsigned int pin, u32 type)
 {
 	u8 reg = STMFX_REG_GPIO_TYPE + get_reg(pin);
 	u32 mask = get_mask(pin);
@@ -235,22 +233,22 @@ static int stmfx_pinctrl_conf_set(struct udevice *dev, unsigned int pin,
 	case PIN_CONFIG_BIAS_PULL_PIN_DEFAULT:
 	case PIN_CONFIG_BIAS_DISABLE:
 	case PIN_CONFIG_DRIVE_PUSH_PULL:
-		ret = stmfx_pinctrl_set_type(dev, pin, 0);
+		ret = stmfx_conf_set_type(dev, pin, 0);
 		break;
 	case PIN_CONFIG_BIAS_PULL_DOWN:
-		ret = stmfx_pinctrl_set_type(dev, pin, 1);
+		ret = stmfx_conf_set_type(dev, pin, 1);
 		if (ret)
 			return ret;
-		ret = stmfx_pinctrl_set_pupd(dev, pin, 0);
+		ret = stmfx_conf_set_pupd(dev, pin, 0);
 		break;
 	case PIN_CONFIG_BIAS_PULL_UP:
-		ret = stmfx_pinctrl_set_type(dev, pin, 1);
+		ret = stmfx_conf_set_type(dev, pin, 1);
 		if (ret)
 			return ret;
-		ret = stmfx_pinctrl_set_pupd(dev, pin, 1);
+		ret = stmfx_conf_set_pupd(dev, pin, 1);
 		break;
 	case PIN_CONFIG_DRIVE_OPEN_DRAIN:
-		ret = stmfx_pinctrl_set_type(dev, pin, 1);
+		ret = stmfx_conf_set_type(dev, pin, 1);
 		break;
 	case PIN_CONFIG_OUTPUT:
 		ret = stmfx_gpio_direction_output(plat->gpio, pin, arg);
