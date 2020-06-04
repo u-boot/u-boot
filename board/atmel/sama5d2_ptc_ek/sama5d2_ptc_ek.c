@@ -76,10 +76,12 @@ int board_late_init(void)
 }
 #endif
 
+#ifdef CONFIG_CMD_USB
 static void board_usb_hw_init(void)
 {
 	atmel_pio4_set_pio_output(AT91_PIO_PORTB, 12, ATMEL_PIO_PUEN_MASK);
 }
+#endif
 
 #ifdef CONFIG_DEBUG_UART_BOARD_INIT
 static void board_uart0_hw_init(void)

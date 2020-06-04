@@ -20,10 +20,12 @@ extern void at91_pda_detect(void);
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifdef CONFIG_CMD_USB
 static void board_usb_hw_init(void)
 {
 	atmel_pio4_set_pio_output(AT91_PIO_PORTB, 10, 1);
 }
+#endif
 
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
