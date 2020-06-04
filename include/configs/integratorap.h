@@ -24,9 +24,6 @@
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
 
-/*
- * Command line configuration.
- */
 #define CONFIG_BOOTCOMMAND	""
 
 /* Flash settings */

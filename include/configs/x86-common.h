@@ -18,8 +18,6 @@
 
 #define CONFIG_LMB
 
-#undef CONFIG_ZLIB
-#undef CONFIG_GZIP
 #define CONFIG_SYS_BOOTM_LEN		(16 << 20)
 
 /* SATA AHCI storage */
@@ -42,10 +40,6 @@
  * Serial Configuration
  */
 #define CONFIG_SYS_NS16550_PORT_MAPPED
-
-/*-----------------------------------------------------------------------
- * Command line configuration.
- */
 
 #ifndef CONFIG_BOOTCOMMAND
 #define CONFIG_BOOTCOMMAND	\

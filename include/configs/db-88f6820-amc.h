@@ -12,10 +12,6 @@
 
 #define CONFIG_SYS_TCLK		200000000	/* 200MHz */
 
-/*
- * Commands configuration
- */
-
 /* USB/EHCI configuration */
 #define CONFIG_EHCI_IS_TDI
 

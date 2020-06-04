@@ -97,7 +97,6 @@
 /*
  * I2C
  */
-#define CONFIG_CMD_I2C
 
 #ifndef CONFIG_DM_I2C
 #define CONFIG_SYS_I2C
@@ -141,7 +140,6 @@
 
 /* DM SPI */
 #if defined(CONFIG_FSL_DSPI) || defined(CONFIG_FSL_QSPI)
-#define CONFIG_CMD_SF
 #define CONFIG_DM_SPI_FLASH
 #endif
 
@@ -182,8 +180,6 @@
 #define CONFIG_PCI_SCAN_SHOW
 #endif
 
-#define CONFIG_CMD_MII
-
 #define CONFIG_CMDLINE_TAG
 
 #define CONFIG_PEN_ADDR_BIG_ENDIAN
@@ -204,9 +200,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_BOOTMAPSZ		(256 << 20)
-
-#define CONFIG_CMD_GREPENV
-#define CONFIG_CMD_MEMINFO
 
 #define CONFIG_SYS_LOAD_ADDR		0x82000000
 

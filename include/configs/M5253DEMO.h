@@ -24,10 +24,6 @@
 	. = DEFINED(env_offset) ? env_offset : .; \
 	env/embedded.o(.text*);
 
-/*
- * Command line configuration.
- */
-
 #ifdef CONFIG_IDE
 /* ATA */
 #	define CONFIG_IDE_RESET		1

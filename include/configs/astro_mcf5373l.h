@@ -38,7 +38,6 @@
 #error No card type defined!
 #endif
 
-/* Command line configuration */
 /*
  * CONFIG_RAM defines if u-boot is loaded via BDM (or started from
  * a different bootloader that has already performed RAM setup) or

@@ -15,8 +15,6 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(32 * SZ_1M)
 
-#define CONFIG_BOARD_LATE_INIT
-
 /* Network */
 #define CONFIG_FEC_MXC
 #define CONFIG_FEC_XCV_TYPE             RGMII
@@ -44,7 +42,6 @@
 #define CONFIG_SYS_I2C_EEPROM_BUS	SYS_I2C_BUS_SOM
 
 #define CONFIG_PCA953X
-#define CONFIG_CMD_PCA953X
 #define CONFIG_SYS_I2C_PCA953X_ADDR	0x20
 #define CONFIG_SYS_I2C_PCA953X_WIDTH	{ {0x20, 16} }
 

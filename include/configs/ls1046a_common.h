@@ -160,8 +160,6 @@
 						CONFIG_SYS_SCSI_MAX_LUN)
 #endif
 
-/* Command line configuration */
-
 /* MMC */
 #ifndef SPL_NO_MMC
 #ifdef CONFIG_MMC

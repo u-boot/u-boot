@@ -127,9 +127,6 @@ extern phys_addr_t prior_stage_fdt_address;
 /*
  * Command configuration.
  */
-#define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_CACHE
-#define CONFIG_CMD_EXT2
 
 /*
  * Flash configuration.
@@ -142,9 +139,6 @@ extern phys_addr_t prior_stage_fdt_address;
  * Filesystem configuration.
  */
 #define CONFIG_DOS_PARTITION
-#define CONFIG_CMD_EXT4
-#define CONFIG_FS_EXT4
-#define CONFIG_CMD_FS_GENERIC
 
 /*
  * Environment configuration.
@@ -166,6 +160,5 @@ extern phys_addr_t prior_stage_fdt_address;
  * Set fdtaddr to prior stage-provided DTB in board_late_init, when
  * writeable environment is available.
  */
-#define CONFIG_BOARD_LATE_INIT
 
 #endif /* __BCMSTB_H */

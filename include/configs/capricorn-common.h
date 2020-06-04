@@ -45,12 +45,7 @@
 #define CONFIG_BOARD_EARLY_INIT_F
 
 /* Commands */
-#define CONFIG_CMD_READ
 
-#undef CONFIG_CMD_EXPORTENV
-#undef CONFIG_CMD_IMPORTENV
-#undef CONFIG_CMD_IMLS
-#undef CONFIG_CMD_CRC32
 #undef CONFIG_BOOTM_NETBSD
 
 /* ENET Config */

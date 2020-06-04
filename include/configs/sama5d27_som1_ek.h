@@ -28,7 +28,6 @@
 #define CONFIG_SYS_LOAD_ADDR		0x22000000 /* load address */
 
 /* NAND flash */
-#undef CONFIG_CMD_NAND
 
 /* SPI flash */
 

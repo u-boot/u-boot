@@ -29,7 +29,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_QIXIS_I2C_ACCESS
 #define SYS_NO_FLASH
 
-#undef CONFIG_CMD_IMLS
 #define CONFIG_SYS_CLK_FREQ		100000000
 #define CONFIG_DDR_CLK_FREQ		100000000
 #else
@@ -150,7 +149,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE }
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_MTD_NAND_VERIFY_WRITE
-#define CONFIG_CMD_NAND
 
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
 
@@ -366,8 +364,6 @@ unsigned long get_board_ddr_clk(void);
 	!defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
 #endif
 #endif
-
-#define CONFIG_CMD_MEMINFO
 
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_SYS_MONITOR_BASE CONFIG_SPL_TEXT_BASE

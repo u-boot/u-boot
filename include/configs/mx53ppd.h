@@ -20,7 +20,6 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
 
-#define CONFIG_BOARD_LATE_INIT
 #define CONFIG_REVISION_TAG
 
 /* USB Configs */
@@ -144,7 +143,6 @@
 /* FLASH and environment organization */
 #define CONFIG_SYS_MMC_ENV_DEV 0
 
-#define CONFIG_CMD_FUSE
 #define CONFIG_FSL_IIM
 
 #define CONFIG_BCH

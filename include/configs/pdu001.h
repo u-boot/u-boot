@@ -16,7 +16,6 @@
 
 #define MACH_TYPE_PDU001	5075
 #define CONFIG_MACH_TYPE	MACH_TYPE_PDU001
-#define CONFIG_BOARD_LATE_INIT
 
 /* Clock Defines */
 #define V_OSCK			24000000  /* Clock output from T2 */

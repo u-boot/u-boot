@@ -32,14 +32,6 @@
 
 #define CONFIG_KIRKWOOD_GPIO
 
-/*
- * Commands configuration
- */
-
-/*
- * mv-common.h should be defined after CMD configs since it used them
- * to enable certain macros
- */
 #include "mv-common.h"
 
 /* loading initramfs images without uimage header */

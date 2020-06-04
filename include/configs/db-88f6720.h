@@ -17,10 +17,6 @@
  */
 #define CONFIG_SYS_TCLK		200000000	/* 200MHz */
 
-/*
- * Commands configuration
- */
-
 /* I2C */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MVTWSI

@@ -258,10 +258,6 @@
 #define CONFIG_BOOTP_BOOTFILESIZE
 
 /*
- * Command line configuration.
- */
-
-/*
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LOAD_ADDR		0x2000000 /* default load address */

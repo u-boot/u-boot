@@ -50,7 +50,6 @@
 #define CONFIG_SYS_NAND_READY_PIN   AT91_PIN_PD5
 
 #define CONFIG_RBTREE
-#define CONFIG_LZO
 
 /* Ethernet */
 #define CONFIG_MACB

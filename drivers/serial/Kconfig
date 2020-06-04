@@ -189,6 +189,7 @@ choice
 
 config DEBUG_UART_ALTERA_JTAGUART
 	bool "Altera JTAG UART"
+	depends on ALTERA_JTAG_UART
 	help
 	  Select this to enable a debug UART using the altera_jtag_uart driver.
 	  You will need to provide parameters to make this work. The driver will
@@ -196,6 +197,7 @@ config DEBUG_UART_ALTERA_JTAGUART
 
 config DEBUG_UART_ALTERA_UART
 	bool "Altera UART"
+	depends on ALTERA_UART
 	help
 	  Select this to enable a debug UART using the altera_uart driver.
 	  You will need to provide parameters to make this work. The driver will
@@ -221,6 +223,7 @@ config DEBUG_ARC_SERIAL
 
 config DEBUG_UART_ATMEL
 	bool "Atmel USART"
+	depends on ATMEL_USART
 	help
 	  Select this to enable a debug UART using the atmel usart driver. You
 	  will need to provide parameters to make this work. The driver will
@@ -236,6 +239,7 @@ config DEBUG_UART_BCM6345
 
 config DEBUG_UART_NS16550
 	bool "ns16550"
+	depends on SYS_NS16550
 	help
 	  Select this to enable a debug UART using the ns16550 driver. You
 	  will need to provide parameters to make this work. The driver will
@@ -252,6 +256,7 @@ config DEBUG_EFI_CONSOLE
 
 config DEBUG_UART_S5P
 	bool "Samsung S5P"
+	depends on ARCH_EXYNOS || ARCH_S5PC1XX
 	help
 	  Select this to enable a debug UART using the serial_s5p driver. You
 	  will need to provide parameters to make this work. The driver will
@@ -267,6 +272,7 @@ config DEBUG_UART_MESON
 
 config DEBUG_UART_UARTLITE
 	bool "Xilinx Uartlite"
+	depends on XILINX_UARTLITE
 	help
 	  Select this to enable a debug UART using the serial_uartlite driver.
 	  You will need to provide parameters to make this work. The driver will
@@ -274,6 +280,7 @@ config DEBUG_UART_UARTLITE
 
 config DEBUG_UART_ARM_DCC
 	bool "ARM DCC"
+	depends on ARM_DCC
 	help
 	  Select this to enable a debug UART using the ARM JTAG DCC port.
 	  The DCC port can be used for very early debugging and doesn't require
@@ -285,6 +292,7 @@ config DEBUG_UART_ARM_DCC
 
 config DEBUG_MVEBU_A3700_UART
 	bool "Marvell Armada 3700"
+	depends on MVEBU_A3700_UART
 	help
 	  Select this to enable a debug UART using the serial_mvebu driver. You
 	  will need to provide parameters to make this work. The driver will
@@ -292,6 +300,7 @@ config DEBUG_MVEBU_A3700_UART
 
 config DEBUG_UART_ZYNQ
 	bool "Xilinx Zynq"
+	depends on ZYNQ_SERIAL
 	help
 	  Select this to enable a debug UART using the serial_zynq driver. You
 	  will need to provide parameters to make this work. The driver will
@@ -307,6 +316,7 @@ config DEBUG_UART_APBUART
 
 config DEBUG_UART_PL010
 	bool "pl010"
+	depends on PL01X_SERIAL
 	help
 	  Select this to enable a debug UART using the pl01x driver with the
 	  PL010 UART type. You will need to provide parameters to make this
@@ -315,6 +325,7 @@ config DEBUG_UART_PL010
 
 config DEBUG_UART_PL011
 	bool "pl011"
+	depends on PL011_SERIAL
 	help
 	  Select this to enable a debug UART using the pl01x driver with the
 	  PL011 UART type. You will need to provide parameters to make this
@@ -348,6 +359,7 @@ config DEBUG_UART_SANDBOX
 
 config DEBUG_UART_SIFIVE
 	bool "SiFive UART"
+	depends on PL01X_SERIAL
 	help
 	  Select this to enable a debug UART using the serial_sifive driver. You
 	  will need to provide parameters to make this work. The driver will
@@ -373,6 +385,7 @@ config DEBUG_UART_UNIPHIER
 
 config DEBUG_UART_OMAP
 	bool "OMAP uart"
+	depends on OMAP_SERIAL
 	help
 	  Select this to enable a debug UART using the omap ns16550 driver.
 	  You will need to provide parameters to make this work. The driver
@@ -503,6 +516,12 @@ config ARC_SERIAL
 	help
 	  Select this to enable support for ARC UART now typically
 	  only used in Synopsys DesignWare ARC simulators like nSIM.
+
+config ARM_DCC
+	bool "ARM Debug Communication Channel (DCC) as UART support"
+	depends on ARM
+	help
+	  Select this to enable using the ARM DCC as a form of UART.
 
 config ATMEL_USART
 	bool "Atmel USART support"

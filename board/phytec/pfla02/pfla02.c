@@ -117,7 +117,7 @@ static iomux_v3_cfg_t const gpios_pads[] = {
 	IOMUX_PADS(PAD_SD4_DAT3__GPIO2_IO11 | MUX_PAD_CTRL(NO_PAD_CTRL)),
 };
 
-#ifdef CONFIG_CMD_NAND
+#if defined(CONFIG_CMD_NAND) && !defined(CONFIG_SPL_BUILD)
 /* NAND */
 static iomux_v3_cfg_t const nfc_pads[] = {
 	IOMUX_PADS(PAD_NANDF_CLE__NAND_CLE	| MUX_PAD_CTRL(NAND_PAD_CTRL)),
@@ -274,7 +274,7 @@ static void setup_gpios(void)
 	SETUP_IOMUX_PADS(gpios_pads);
 }
 
-#ifdef CONFIG_CMD_NAND
+#if defined(CONFIG_CMD_NAND) && !defined(CONFIG_SPL_BUILD)
 static void setup_gpmi_nand(void)
 {
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
@@ -361,7 +361,7 @@ int board_init(void)
 
 	setup_gpios();
 
-#ifdef CONFIG_CMD_NAND
+#if defined(CONFIG_CMD_NAND) && !defined(CONFIG_SPL_BUILD)
 	setup_gpmi_nand();
 #endif
 	return 0;
@@ -657,7 +657,7 @@ void board_init_f(ulong dummy)
 		.refr = 7,	/* 8 refresh commands per refresh cycle */
 	};
 
-#ifdef CONFIG_CMD_NAND
+#if defined(CONFIG_CMD_NAND) && !defined(CONFIG_SPL_BUILD)
 	/* Enable NAND */
 	setup_gpmi_nand();
 #endif

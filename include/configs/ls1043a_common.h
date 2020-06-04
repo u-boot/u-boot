@@ -165,8 +165,6 @@
 #endif
 #endif
 
-/* Command line configuration */
-
 /*  MMC  */
 #ifndef SPL_NO_MMC
 #ifdef CONFIG_MMC

@@ -13,7 +13,6 @@
 #define CONFIG_CHIP_SELECTS_PER_CTRL	1
 #define CONFIG_SYS_SDRAM_SIZE		0x20000000
 #define CONFIG_CHIP_SELECTS_PER_CTRL	1
-#define CONFIG_CMD_MEMINFO
 
 #ifndef CONFIG_SPL_BUILD
 #undef BOOT_TARGET_DEVICES
@@ -69,7 +68,5 @@
 #else
 #define CONFIG_BOOTCOMMAND "pfe stop;run distro_bootcmd;run qspi_bootcmd"
 #endif
-
-#define CONFIG_CMD_MEMINFO
 
 #endif /* __LS1012ARDB_H__ */

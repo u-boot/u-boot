@@ -31,10 +31,6 @@
  */
 #undef CONFIG_BOOTP_BOOTFILESIZE
 
-/*
- * Command line configuration.
- */
-
 #define CONFIG_SYS_DEVICE_NULLDEV	1	/* include nulldev device	*/
 
 #define CONFIG_SYS_LOAD_ADDR		0x200000	/* default load address */

@@ -57,10 +57,6 @@
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
 
-/*
- * Command line configuration.
- */
-
 /* SDRAM */
 #define PHYS_SDRAM_1		ATMEL_BASE_CS1	/* on DDRSDRC1 */
 #define PHYS_SDRAM_1_SIZE	0x08000000	/* 128 MB */

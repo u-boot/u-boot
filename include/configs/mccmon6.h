@@ -28,7 +28,6 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(10 * SZ_1M)
 
-#define CONFIG_BOARD_LATE_INIT
 #define CONFIG_MXC_UART_BASE		UART1_BASE
 
 /* MMC Configuration */

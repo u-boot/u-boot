@@ -55,8 +55,6 @@
 
 #define CONFIG_HIKEY_GPIO
 
-/* Command line configuration */
-
 /* BOOTP options */
 #define CONFIG_BOOTP_BOOTFILESIZE
 

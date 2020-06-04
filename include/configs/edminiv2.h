@@ -104,9 +104,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS 1	/* enable memory tag */
 
 #define	CONFIG_SYS_CBSIZE	1024	/* Console I/O Buff Size */
-/*
- * Commands configuration
- */
 
 /*
  * Network
