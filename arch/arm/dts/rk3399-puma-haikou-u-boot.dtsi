@@ -1,6 +1,17 @@
 // SPDX-License-Identifier: GPL-2.0+
 
 #include "rk3399-u-boot.dtsi"
+
+#ifdef CONFIG_TARGET_PUMA_RK3399_RAM_DDR3_1333
+#include "rk3399-sdram-ddr3-1333.dtsi"
+#endif
+#ifdef CONFIG_TARGET_PUMA_RK3399_RAM_DDR3_1600
+#include "rk3399-sdram-ddr3-1600.dtsi"
+#endif
+#ifdef CONFIG_TARGET_PUMA_RK3399_RAM_DDR3_1866
+#include "rk3399-sdram-ddr3-1866.dtsi"
+#endif
+
 / {
 	config {
 		u-boot,spl-payload-offset = <0x40000>; /* @ 256KB */

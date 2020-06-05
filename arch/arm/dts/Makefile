@@ -131,9 +131,7 @@ dtb-$(CONFIG_ROCKCHIP_RK3399) += \
 	rk3399-nanopi-neo4.dtb \
 	rk3399-orangepi.dtb \
 	rk3399-pinebook-pro.dtb \
-	rk3399-puma-ddr1333.dtb \
-	rk3399-puma-ddr1600.dtb \
-	rk3399-puma-ddr1866.dtb \
+	rk3399-puma-haikou.dtb \
 	rk3399-roc-pc.dtb \
 	rk3399-roc-pc-mezzanine.dtb \
 	rk3399-rock-pi-4.dtb \
