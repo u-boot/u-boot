@@ -557,6 +557,14 @@ int image_setup_libfdt(bootm_headers_t *images, void *blob,
 		printf("ERROR: arch-specific fdt fixup failed\n");
 		goto err;
 	}
+
+	fdt_ret = optee_copy_fdt_nodes(gd->fdt_blob, blob);
+	if (fdt_ret) {
+		printf("ERROR: transfer of optee nodes to new fdt failed: %s\n",
+		       fdt_strerror(fdt_ret));
+		goto err;
+	}
+
 	/* Update ethernet nodes */
 	fdt_fixup_ethernet(blob);
 	if (IMAGE_OF_BOARD_SETUP) {
@@ -574,13 +582,6 @@ int image_setup_libfdt(bootm_headers_t *images, void *blob,
 			       fdt_strerror(fdt_ret));
 			goto err;
 		}
-	}
-
-	fdt_ret = optee_copy_fdt_nodes(gd->fdt_blob, blob);
-	if (fdt_ret) {
-		printf("ERROR: transfer of optee nodes to new fdt failed: %s\n",
-		       fdt_strerror(fdt_ret));
-		goto err;
 	}
 
 	/* Delete the old LMB reservation */
