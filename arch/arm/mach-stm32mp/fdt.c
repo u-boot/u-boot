@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
 /*
- * Copyright (C) 2019, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2019-2020, STMicroelectronics - All Rights Reserved
  */
 
 #include <common.h>
@@ -224,19 +224,23 @@ static void stm32_fdt_disable_optee(void *blob)
 {
 	int off, node;
 
+	/* Delete "optee" firmware node */
 	off = fdt_node_offset_by_compatible(blob, -1, "linaro,optee-tz");
 	if (off >= 0 && fdtdec_get_is_enabled(blob, off))
-		fdt_status_disabled(blob, off);
+		fdt_del_node(blob, off);
 
-	/* Disabled "optee@..." reserved-memory node */
+	/* Delete "optee@..." reserved-memory node */
 	off = fdt_path_offset(blob, "/reserved-memory/");
 	if (off < 0)
 		return;
 	for (node = fdt_first_subnode(blob, off);
 	     node >= 0;
 	     node = fdt_next_subnode(blob, node)) {
-		if (!strncmp(fdt_get_name(blob, node, NULL), "optee@", 6))
-			fdt_status_disabled(blob, node);
+		if (strncmp(fdt_get_name(blob, node, NULL), "optee@", 6))
+			continue;
+
+		if (fdt_del_node(blob, node))
+			printf("Failed to remove optee reserved-memory node\n");
 	}
 }
 
