@@ -11,7 +11,6 @@ import sys
 import unittest
 
 from patman import command
-from patman import test_util
 
 from io import StringIO
 
