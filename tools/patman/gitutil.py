@@ -7,7 +7,6 @@ import os
 import subprocess
 import sys
 
-from patman import checkpatch
 from patman import command
 from patman import series
 from patman import settings
