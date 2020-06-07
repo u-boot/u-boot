@@ -80,7 +80,7 @@ specified by tags you place in the commits. Use -n to do a dry run first."""
 # Parse options twice: first to get the project and second to handle
 # defaults properly (which depends on project).
 (options, args) = parser.parse_args()
-settings.Setup(parser, options.project, '')
+settings.Setup(gitutil, parser, options.project, '')
 (options, args) = parser.parse_args()
 
 if __name__ != "__main__":
