@@ -8,7 +8,6 @@ import subprocess
 import sys
 
 from patman import command
-from patman import series
 from patman import settings
 from patman import terminal
 from patman import tools
@@ -368,9 +367,9 @@ def EmailPatches(series, cover_fname, args, dry_run, raise_on_error, cc_fname,
     >>> alias['boys'] = ['fred', ' john']
     >>> alias['all'] = ['fred ', 'john', '   mary   ']
     >>> alias[os.getenv('USER')] = ['this-is-me@me.com']
-    >>> series = series.Series()
-    >>> series.to = ['fred']
-    >>> series.cc = ['mary']
+    >>> series = {}
+    >>> series['to'] = ['fred']
+    >>> series['cc'] = ['mary']
     >>> EmailPatches(series, 'cover', ['p1', 'p2'], True, True, 'cc-fname', \
             False, alias)
     'git send-email --annotate --to "f.bloggs@napier.co.nz" --cc \
@@ -379,7 +378,7 @@ def EmailPatches(series, cover_fname, args, dry_run, raise_on_error, cc_fname,
             alias)
     'git send-email --annotate --to "f.bloggs@napier.co.nz" --cc \
 "m.poppins@cloud.net" --cc-cmd "./patman --cc-cmd cc-fname" p1'
-    >>> series.cc = ['all']
+    >>> series['cc'] = ['all']
     >>> EmailPatches(series, 'cover', ['p1', 'p2'], True, True, 'cc-fname', \
             True, alias)
     'git send-email --annotate --to "this-is-me@me.com" --cc-cmd "./patman \
