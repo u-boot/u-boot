@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <compiler.h>
 #include <console.h>
 #include <div64.h>
 #include <version.h>
