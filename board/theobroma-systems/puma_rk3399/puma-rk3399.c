@@ -114,22 +114,22 @@ static int setup_boottargets(void)
 
 int misc_init_r(void)
 {
-       const u32 cpuid_offset = 0x7;
-       const u32 cpuid_length = 0x10;
-       u8 cpuid[cpuid_length];
-       int ret;
+	const u32 cpuid_offset = 0x7;
+	const u32 cpuid_length = 0x10;
+	u8 cpuid[cpuid_length];
+	int ret;
 
-       ret = rockchip_cpuid_from_efuse(cpuid_offset, cpuid_length, cpuid);
-       if (ret)
-               return ret;
+	ret = rockchip_cpuid_from_efuse(cpuid_offset, cpuid_length, cpuid);
+	if (ret)
+		return ret;
 
-       ret = rockchip_cpuid_set(cpuid, cpuid_length);
-       if (ret)
-               return ret;
+	ret = rockchip_cpuid_set(cpuid, cpuid_length);
+	if (ret)
+		return ret;
 
-       ret = rockchip_setup_macaddr();
-       if (ret)
-               return ret;
+	ret = rockchip_setup_macaddr();
+	if (ret)
+		return ret;
 
 	setup_iodomain();
 	setup_boottargets();
@@ -152,70 +152,3 @@ void get_board_serial(struct tag_serialnr *serialnr)
 	serialnr->low = (u32)(serial & 0xffffffff);
 }
 #endif
-
-/**
- * Switch power at an external regulator (for our root hub).
- *
- * @param ctrl pointer to the xHCI controller
- * @param port port number as in the control message (one-based)
- * @param enable boolean indicating whether to enable or disable power
- * @return returns 0 on success, an error-code on failure
- */
-static int board_usb_port_power_set(struct udevice *dev, int port,
-				    bool enable)
-{
-#if CONFIG_IS_ENABLED(OF_CONTROL) && CONFIG_IS_ENABLED(DM_REGULATOR)
-	/* We start counting ports at 0, while USB counts from 1. */
-	int index = port - 1;
-	const char *regname = NULL;
-	struct udevice *regulator;
-	const char *prop = "tsd,usb-port-power";
-	int ret;
-
-	debug("%s: ctrl '%s' port %d enable %s\n", __func__,
-	      dev_read_name(dev), port, enable ? "true" : "false");
-
-	ret = dev_read_string_index(dev, prop, index, &regname);
-	if (ret < 0) {
-		debug("%s: ctrl '%s' port %d: no entry in '%s'\n",
-		      __func__, dev_read_name(dev), port, prop);
-		return ret;
-	}
-
-	ret = regulator_get_by_platname(regname, &regulator);
-	if (ret) {
-		debug("%s: ctrl '%s' port %d: could not get regulator '%s'\n",
-		      __func__, dev_read_name(dev), port, regname);
-		return ret;
-	}
-
-	regulator_set_enable(regulator, enable);
-	return 0;
-#else
-	return -ENOTSUPP;
-#endif
-}
-
-void usb_hub_reset_devices(struct usb_hub_device *hub, int port)
-{
-	struct udevice *dev = hub->pusb_dev->dev;
-	struct udevice *ctrl;
-
-	/* We are only interested in our root-hubs */
-	if (usb_hub_is_root_hub(dev) == false)
-		return;
-
-	ctrl = usb_get_bus(dev);
-	if (!ctrl) {
-		debug("%s: could not retrieve ctrl for hub\n", __func__);
-		return;
-	}
-
-	/*
-	 * To work around an incompatibility between the single-threaded
-	 * USB stack in U-Boot and (a strange low-power mode of) the USB
-	 * hub we have on-module, we need to delay powering on the hub
-	 * until the first time the port is probed.
-	 */
-	board_usb_port_power_set(ctrl, port, true);
-}

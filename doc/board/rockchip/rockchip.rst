@@ -48,6 +48,7 @@ List of mainline supported rockchip boards:
      - Rockchip Evb-RK3328 (evb-rk3328)
      - Pine64 Rock64 (rock64-rk3328)
      - Firefly-RK3328 (roc-cc-rk3328)
+     - Radxa Rockpi E (rock-pi-e-rk3328)
 * rk3368
      - GeekBox (geekbox)
      - PX5 EVB (evb-px5)
@@ -162,6 +163,30 @@ Program the flash::
 Note: for rockchip 32-bit platforms the U-Boot proper image
 is u-boot-dtb.img
 
+SPI
+^^^
+
+Generating idbloader for SPI boot would require to input a multi image
+image format to mkimage tool instead of concerting (like for MMC boot).
+
+SPL-alone SPI boot image::
+
+        ./tools/mkimage -n rk3399 -T rkspi -d spl/u-boot-spl.bin idbloader.img
+
+TPL+SPL SPI boot image::
+
+        ./tools/mkimage -n rk3399 -T rkspi -d tpl/u-boot-tpl.bin:spl/u-boot-spl.bin idbloader.img
+
+Copy SPI boot images into SD card and boot from SD::
+
+        sf probe
+        load mmc 1:1 $kernel_addr_r idbloader.img
+        sf erase 0 +$filesize
+        sf write $kernel_addr_r 0 ${filesize}
+        load mmc 1:1 ${kernel_addr_r} u-boot.itb
+        sf erase 0x60000 +$filesize
+        sf write $kernel_addr_r 0x60000 ${filesize}
+
 TODO
 ----
 
@@ -171,4 +196,4 @@ TODO
 - Add missing SoC's with it boards list
 
 .. Jagan Teki <jagan@amarulasolutions.com>
-.. Sunday 24 May 2020 10:08:41 PM IST
+.. Tuesday 02 June 2020 12:18:57 AM IST
