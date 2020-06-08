@@ -151,6 +151,9 @@ endmenu
 config SYS_FSL_ERRATUM_A008378
 	bool
 
+config SYS_FSL_ERRATUM_A008109
+	bool
+
 config SYS_FSL_ERRATUM_A008511
 	bool
 

@@ -237,7 +237,9 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	fdt_fixup_liodn(blob);
 #ifdef CONFIG_SYS_DPAA_FMAN
+#ifndef CONFIG_DM_ETH
 	fdt_fixup_fman_ethernet(blob);
+#endif
 #endif
 
 	return 0;

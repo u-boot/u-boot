@@ -963,7 +963,9 @@ int cpu_init_r(void)
 #endif
 
 #ifdef CONFIG_FMAN_ENET
+#ifndef CONFIG_DM_ETH
 	fman_enet_init();
+#endif
 #endif
 
 #if defined(CONFIG_NXP_ESBC) && defined(CONFIG_FSL_CORENET)
@@ -1028,13 +1030,13 @@ void arch_preboot_os(void)
 
 void cpu_secondary_init_r(void)
 {
+#ifdef CONFIG_QE
 #ifdef CONFIG_U_QE
 	uint qe_base = CONFIG_SYS_IMMR + 0x00140000; /* QE immr base */
-#elif defined CONFIG_QE
+#else
 	uint qe_base = CONFIG_SYS_IMMR + 0x00080000; /* QE immr base */
 #endif
 
-#ifdef CONFIG_QE
 	qe_init(qe_base);
 	qe_reset();
 #endif
