@@ -51,7 +51,6 @@
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"verify=no\0"				\
-	"fdt_high=0xffffffffffffffff\0"		\
 	"initrd_high=0xffffffffffffffff\0"	\
 	"fdt_addr=0x00f00000\0"			\
 	"kernel_addr=0x01000000\0"		\
@@ -65,6 +64,7 @@
 	"load_addr=0xa0000000\0"		\
 	"kernel_size=0x2800000\0"		\
 	"kernelheader_size=0x40000\0"		\
+	"bootm_size=0x10000000\0"		\
 	"console=ttyS0,115200\0"		\
 	BOOTENV					\
 	"boot_scripts=ls1012ardb_boot.scr\0"	\
