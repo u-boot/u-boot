@@ -19,7 +19,6 @@
  */
 
 /* UART config */
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE			UART1_BASE
 
 /* I2C config */

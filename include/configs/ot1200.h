@@ -13,7 +13,6 @@
 #define CONFIG_SYS_MALLOC_LEN           (10 * 1024 * 1024)
 
 /* UART Configs */
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE           UART1_BASE
 
 /* SF Configs */

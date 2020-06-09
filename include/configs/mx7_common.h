@@ -38,7 +38,6 @@
 #define CONFIG_SYS_MAXARGS		32
 
 /* UART */
-#define CONFIG_MXC_UART
 
 /* MMC */
 

@@ -14,7 +14,6 @@
 #define CONFIG_IMX_THERMAL
 
 /* Serial */
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	       UART1_BASE
 
 /* Size of malloc() pool */

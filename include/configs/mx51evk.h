@@ -32,7 +32,6 @@
  */
 #define CONFIG_FSL_IIM
 
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 
 /* PMIC Controller */

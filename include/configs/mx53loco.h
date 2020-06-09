@@ -24,7 +24,6 @@
 
 #define CONFIG_REVISION_TAG
 
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 
 /* MMC Configs */
