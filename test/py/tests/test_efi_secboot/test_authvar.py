@@ -106,16 +106,16 @@ class TestEfiAuthVar(object):
         with u_boot_console.log.section('Test Case 1g'):
             # Test Case 1g, install dbx
             output = u_boot_console.run_command_list([
-                'fatload host 0:1 4000000 db.auth',
-                'setenv -e -nv -bs -rt -i 4000000,$filesize db'])
+                'fatload host 0:1 4000000 dbx.auth',
+                'setenv -e -nv -bs -rt -i 4000000,$filesize dbx'])
             assert('Failed to set EFI variable' in ''.join(output))
 
             output = u_boot_console.run_command_list([
-                'fatload host 0:1 4000000 db.auth',
-                'setenv -e -nv -bs -rt -at -i 4000000,$filesize db',
-                'printenv -e -n -guid d719b2cb-3d3a-4596-a3bc-dad00e67656f db'])
+                'fatload host 0:1 4000000 dbx.auth',
+                'setenv -e -nv -bs -rt -at -i 4000000,$filesize dbx',
+                'printenv -e -n -guid d719b2cb-3d3a-4596-a3bc-dad00e67656f dbx'])
             assert(not 'Failed to set EFI variable' in ''.join(output))
-            assert('db:' in ''.join(output))
+            assert('dbx:' in ''.join(output))
 
             output = u_boot_console.run_command(
                 'printenv -e SecureBoot')
