@@ -243,7 +243,8 @@ static efi_status_t efi_transfer_secure_state(enum efi_secure_mode mode)
 {
 	efi_status_t ret;
 
-	debug("Switching secure state from %d to %d\n", efi_secure_mode, mode);
+	EFI_PRINT("Switching secure state from %d to %d\n", efi_secure_mode,
+		  mode);
 
 	if (mode == EFI_MODE_DEPLOYED) {
 		ret = efi_set_secure_state(1, 0, 0, 1);
@@ -394,16 +395,16 @@ static struct pkcs7_message *efi_variable_parse_signature(const void *buf,
 	 * TODO:
 	 * The header should be composed in a more refined manner.
 	 */
-	debug("Makeshift prefix added to authentication data\n");
+	EFI_PRINT("Makeshift prefix added to authentication data\n");
 	ebuflen = sizeof(pkcs7_hdr) + buflen;
 	if (ebuflen <= 0x7f) {
-		debug("Data is too short\n");
+		EFI_PRINT("Data is too short\n");
 		return NULL;
 	}
 
 	ebuf = malloc(ebuflen);
 	if (!ebuf) {
-		debug("Out of memory\n");
+		EFI_PRINT("Out of memory\n");
 		return NULL;
 	}
 
@@ -527,7 +528,7 @@ static efi_status_t efi_variable_authenticate(u16 *variable,
 					       auth->auth_info.hdr.dwLength
 						   - sizeof(auth->auth_info));
 	if (!var_sig) {
-		debug("Parsing variable's signature failed\n");
+		EFI_PRINT("Parsing variable's signature failed\n");
 		goto err;
 	}
 
@@ -558,14 +559,14 @@ static efi_status_t efi_variable_authenticate(u16 *variable,
 
 	/* verify signature */
 	if (efi_signature_verify_with_sigdb(regs, var_sig, truststore, NULL)) {
-		debug("Verified\n");
+		EFI_PRINT("Verified\n");
 	} else {
 		if (truststore2 &&
 		    efi_signature_verify_with_sigdb(regs, var_sig,
 						    truststore2, NULL)) {
-			debug("Verified\n");
+			EFI_PRINT("Verified\n");
 		} else {
-			debug("Verifying variable's signature failed\n");
+			EFI_PRINT("Verifying variable's signature failed\n");
 			goto err;
 		}
 	}
@@ -640,7 +641,7 @@ static efi_status_t efi_get_variable_common(u16 *variable_name,
 		}
 
 		if (!data) {
-			debug("Variable with no data shouldn't exist.\n");
+			EFI_PRINT("Variable with no data shouldn't exist.\n");
 			return EFI_INVALID_PARAMETER;
 		}
 
@@ -659,7 +660,7 @@ static efi_status_t efi_get_variable_common(u16 *variable_name,
 		}
 
 		if (!data) {
-			debug("Variable with no data shouldn't exist.\n");
+			EFI_PRINT("Variable with no data shouldn't exist.\n");
 			return EFI_INVALID_PARAMETER;
 		}
 
@@ -940,8 +941,8 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
 		/* authentication is mandatory */
 		if (!(attributes &
 		      EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS)) {
-			debug("%ls: AUTHENTICATED_WRITE_ACCESS required\n",
-			      variable_name);
+			EFI_PRINT("%ls: AUTHENTICATED_WRITE_ACCESS required\n",
+				  variable_name);
 			ret = EFI_INVALID_PARAMETER;
 			goto err;
 		}
@@ -970,7 +971,7 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
 		if (attributes &
 		    (EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS |
 		     EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS)) {
-			debug("Secure boot is not configured\n");
+			EFI_PRINT("Secure boot is not configured\n");
 			ret = EFI_INVALID_PARAMETER;
 			goto err;
 		}
