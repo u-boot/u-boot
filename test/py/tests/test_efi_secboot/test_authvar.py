@@ -9,7 +9,6 @@ This test verifies variable authentication
 """
 
 import pytest
-import re
 from defs import *
 
 @pytest.mark.boardspec('sandbox')
@@ -40,7 +39,7 @@ class TestEfiAuthVar(object):
             output = u_boot_console.run_command_list([
                 'fatload host 0:1 4000000 PK.auth',
                 'setenv -e -nv -bs -rt -i 4000000,$filesize PK'])
-            assert(re.search('Failed to set EFI variable', ''.join(output)))
+            assert('Failed to set EFI variable' in ''.join(output))
 
         with u_boot_console.log.section('Test Case 1c'):
             # Test Case 1c, install PK
@@ -48,7 +47,7 @@ class TestEfiAuthVar(object):
                 'fatload host 0:1 4000000 PK.auth',
                 'setenv -e -nv -bs -rt -at -i 4000000,$filesize PK',
                 'printenv -e -n PK'])
-            assert(re.search('PK:', ''.join(output)))
+            assert('PK:' in ''.join(output))
 
             output = u_boot_console.run_command(
                 'printenv -e SecureBoot')
@@ -62,25 +61,25 @@ class TestEfiAuthVar(object):
             output = u_boot_console.run_command_list([
                 'fatload host 0:1 4000000 db.auth',
                 'setenv -e -nv -bs -rt -at -i 4000000,$filesize db'])
-            assert(re.search('Failed to set EFI variable', ''.join(output)))
+            assert('Failed to set EFI variable' in ''.join(output))
 
             output = u_boot_console.run_command_list([
                 'fatload host 0:1 4000000 db.auth',
                 'setenv -e -nv -bs -rt -at -i 4000000,$filesize dbx'])
-            assert(re.search('Failed to set EFI variable', ''.join(output)))
+            assert('Failed to set EFI variable' in ''.join(output))
 
         with u_boot_console.log.section('Test Case 1e'):
             # Test Case 1e, install KEK
             output = u_boot_console.run_command_list([
                 'fatload host 0:1 4000000 KEK.auth',
                 'setenv -e -nv -bs -rt -i 4000000,$filesize KEK'])
-            assert(re.search('Failed to set EFI variable', ''.join(output)))
+            assert('Failed to set EFI variable' in ''.join(output))
 
             output = u_boot_console.run_command_list([
                 'fatload host 0:1 4000000 KEK.auth',
                 'setenv -e -nv -bs -rt -at -i 4000000,$filesize KEK',
                 'printenv -e -n KEK'])
-            assert(re.search('KEK:', ''.join(output)))
+            assert('KEK:' in ''.join(output))
 
             output = u_boot_console.run_command(
                 'printenv -e SecureBoot')
@@ -91,14 +90,14 @@ class TestEfiAuthVar(object):
             output = u_boot_console.run_command_list([
                 'fatload host 0:1 4000000 db.auth',
                 'setenv -e -nv -bs -rt -i 4000000,$filesize db'])
-            assert(re.search('Failed to set EFI variable', ''.join(output)))
+            assert('Failed to set EFI variable' in ''.join(output))
 
             output = u_boot_console.run_command_list([
                 'fatload host 0:1 4000000 db.auth',
                 'setenv -e -nv -bs -rt -at -i 4000000,$filesize db',
                 'printenv -e -n -guid d719b2cb-3d3a-4596-a3bc-dad00e67656f db'])
-            assert(not re.search('Failed to set EFI variable', ''.join(output)))
-            assert(re.search('db:', ''.join(output)))
+            assert(not 'Failed to set EFI variable' in ''.join(output))
+            assert('db:' in ''.join(output))
 
             output = u_boot_console.run_command(
                 'printenv -e SecureBoot')
@@ -109,14 +108,14 @@ class TestEfiAuthVar(object):
             output = u_boot_console.run_command_list([
                 'fatload host 0:1 4000000 db.auth',
                 'setenv -e -nv -bs -rt -i 4000000,$filesize db'])
-            assert(re.search('Failed to set EFI variable', ''.join(output)))
+            assert('Failed to set EFI variable' in ''.join(output))
 
             output = u_boot_console.run_command_list([
                 'fatload host 0:1 4000000 db.auth',
                 'setenv -e -nv -bs -rt -at -i 4000000,$filesize db',
                 'printenv -e -n -guid d719b2cb-3d3a-4596-a3bc-dad00e67656f db'])
-            assert(not re.search('Failed to set EFI variable', ''.join(output)))
-            assert(re.search('db:', ''.join(output)))
+            assert(not 'Failed to set EFI variable' in ''.join(output))
+            assert('db:' in ''.join(output))
 
             output = u_boot_console.run_command(
                 'printenv -e SecureBoot')
@@ -139,20 +138,20 @@ class TestEfiAuthVar(object):
                 'fatload host 0:1 4000000 db.auth',
                 'setenv -e -nv -bs -rt -at -i 4000000,$filesize db',
                 'printenv -e -n -guid d719b2cb-3d3a-4596-a3bc-dad00e67656f db'])
-            assert(not re.search('Failed to set EFI variable', ''.join(output)))
-            assert(re.search('db:', ''.join(output)))
+            assert(not 'Failed to set EFI variable' in ''.join(output))
+            assert('db:' in ''.join(output))
 
             output = u_boot_console.run_command_list([
                 'fatload host 0:1 4000000 db1.auth',
                 'setenv -e -nv -bs -rt -i 4000000,$filesize db'])
-            assert(re.search('Failed to set EFI variable', ''.join(output)))
+            assert('Failed to set EFI variable' in ''.join(output))
 
         with u_boot_console.log.section('Test Case 2b'):
             # Test Case 2b, update without correct signature
             output = u_boot_console.run_command_list([
                 'fatload host 0:1 4000000 db.esl',
                 'setenv -e -nv -bs -rt -at -i 4000000,$filesize db'])
-            assert(re.search('Failed to set EFI variable', ''.join(output)))
+            assert('Failed to set EFI variable' in ''.join(output))
 
         with u_boot_console.log.section('Test Case 2c'):
             # Test Case 2c, update with correct signature
@@ -160,8 +159,8 @@ class TestEfiAuthVar(object):
                 'fatload host 0:1 4000000 db1.auth',
                 'setenv -e -nv -bs -rt -at -i 4000000,$filesize db',
                 'printenv -e -n -guid d719b2cb-3d3a-4596-a3bc-dad00e67656f db'])
-            assert(not re.search('Failed to set EFI variable', ''.join(output)))
-            assert(re.search('db:', ''.join(output)))
+            assert(not 'Failed to set EFI variable' in ''.join(output))
+            assert('db:' in ''.join(output))
 
     def test_efi_var_auth3(self, u_boot_console, efi_boot_env):
         """
@@ -180,20 +179,20 @@ class TestEfiAuthVar(object):
                 'fatload host 0:1 4000000 db.auth',
                 'setenv -e -nv -bs -rt -at -i 4000000,$filesize db',
                 'printenv -e -n -guid d719b2cb-3d3a-4596-a3bc-dad00e67656f db'])
-            assert(not re.search('Failed to set EFI variable', ''.join(output)))
-            assert(re.search('db:', ''.join(output)))
+            assert(not 'Failed to set EFI variable' in ''.join(output))
+            assert('db:' in ''.join(output))
 
             output = u_boot_console.run_command_list([
                 'fatload host 0:1 4000000 db1.auth',
                 'setenv -e -nv -bs -rt -a -i 4000000,$filesize db'])
-            assert(re.search('Failed to set EFI variable', ''.join(output)))
+            assert('Failed to set EFI variable' in ''.join(output))
 
         with u_boot_console.log.section('Test Case 3b'):
             # Test Case 3b, update without correct signature
             output = u_boot_console.run_command_list([
                 'fatload host 0:1 4000000 db.esl',
                 'setenv -e -nv -bs -rt -at -a -i 4000000,$filesize db'])
-            assert(re.search('Failed to set EFI variable', ''.join(output)))
+            assert('Failed to set EFI variable' in ''.join(output))
 
         with u_boot_console.log.section('Test Case 3c'):
             # Test Case 3c, update with correct signature
@@ -201,8 +200,8 @@ class TestEfiAuthVar(object):
                 'fatload host 0:1 4000000 db1.auth',
                 'setenv -e -nv -bs -rt -at -a -i 4000000,$filesize db',
                 'printenv -e -n -guid d719b2cb-3d3a-4596-a3bc-dad00e67656f db'])
-            assert(not re.search('Failed to set EFI variable', ''.join(output)))
-            assert(re.search('db:', ''.join(output)))
+            assert(not 'Failed to set EFI variable' in ''.join(output))
+            assert('db:' in ''.join(output))
 
     def test_efi_var_auth4(self, u_boot_console, efi_boot_env):
         """
@@ -221,22 +220,22 @@ class TestEfiAuthVar(object):
                 'fatload host 0:1 4000000 db.auth',
                 'setenv -e -nv -bs -rt -at -i 4000000,$filesize db',
                 'printenv -e -n -guid d719b2cb-3d3a-4596-a3bc-dad00e67656f db'])
-            assert(not re.search('Failed to set EFI variable', ''.join(output)))
-            assert(re.search('db:', ''.join(output)))
+            assert(not 'Failed to set EFI variable' in ''.join(output))
+            assert('db:' in ''.join(output))
 
             output = u_boot_console.run_command_list([
                 'setenv -e -nv -bs -rt db',
                 'printenv -e -n -guid d719b2cb-3d3a-4596-a3bc-dad00e67656f db'])
-            assert(re.search('Failed to set EFI variable', ''.join(output)))
-            assert(re.search('db:', ''.join(output)))
+            assert('Failed to set EFI variable' in ''.join(output))
+            assert('db:' in ''.join(output))
 
         with u_boot_console.log.section('Test Case 4b'):
             # Test Case 4b, update without correct signature/data
             output = u_boot_console.run_command_list([
                 'setenv -e -nv -bs -rt -at db',
                 'printenv -e -n -guid d719b2cb-3d3a-4596-a3bc-dad00e67656f db'])
-            assert(re.search('Failed to set EFI variable', ''.join(output)))
-            assert(re.search('db:', ''.join(output)))
+            assert('Failed to set EFI variable' in ''.join(output))
+            assert('db:' in ''.join(output))
 
     def test_efi_var_auth5(self, u_boot_console, efi_boot_env):
         """
@@ -255,15 +254,15 @@ class TestEfiAuthVar(object):
                 'fatload host 0:1 4000000 db.auth',
                 'setenv -e -nv -bs -rt -at -i 4000000,$filesize db',
                 'printenv -e -n PK'])
-            assert(not re.search('Failed to set EFI variable', ''.join(output)))
-            assert(re.search('PK:', ''.join(output)))
+            assert(not 'Failed to set EFI variable' in ''.join(output))
+            assert('PK:' in ''.join(output))
 
             output = u_boot_console.run_command_list([
                 'fatload host 0:1 4000000 PK_null.esl',
                 'setenv -e -nv -bs -rt -at -i 4000000,$filesize PK',
                 'printenv -e -n PK'])
-            assert(re.search('Failed to set EFI variable', ''.join(output)))
-            assert(re.search('PK:', ''.join(output)))
+            assert('Failed to set EFI variable' in ''.join(output))
+            assert('PK:' in ''.join(output))
 
         with u_boot_console.log.section('Test Case 5b'):
             # Test Case 5b, Uninstall PK with correct signature
@@ -271,8 +270,8 @@ class TestEfiAuthVar(object):
                 'fatload host 0:1 4000000 PK_null.auth',
                 'setenv -e -nv -bs -rt -at -i 4000000,$filesize PK',
                 'printenv -e -n PK'])
-            assert(not re.search('Failed to set EFI variable', ''.join(output)))
-            assert(re.search('\"PK\" not defined', ''.join(output)))
+            assert(not 'Failed to set EFI variable' in ''.join(output))
+            assert('\"PK\" not defined' in ''.join(output))
 
             output = u_boot_console.run_command(
                 'printenv -e SecureBoot')
