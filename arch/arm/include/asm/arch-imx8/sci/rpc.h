@@ -115,6 +115,7 @@ struct sc_rpc_msg_s {
 #define MISC_FUNC_GET_TEMP			13U
 #define MISC_FUNC_GET_BOOT_DEV			16U
 #define MISC_FUNC_GET_BUTTON_STATUS		18U
+#define MISC_FUNC_GET_BOOT_CONTAINER	36U
 
 /* PAD RPC */
 #define PAD_FUNC_UNKNOWN			0
