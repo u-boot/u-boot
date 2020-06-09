@@ -27,7 +27,7 @@
 			clocks = <&prci PRCI_CLK_COREPLL>;
 			u-boot,dm-spl;
 			cpu2_intc: interrupt-controller {
-				 u-boot,dm-spl;
+				u-boot,dm-spl;
 			};
 		};
 		cpu3: cpu@3 {
