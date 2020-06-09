@@ -949,9 +949,7 @@ static int fat_itr_next(fat_itr *itr)
 				/* Volume label or VFAT entry, skip */
 				continue;
 			}
-		} else if (!(dent->attr & ATTR_ARCH) &&
-			   !(dent->attr & ATTR_DIR))
-			continue;
+		}
 
 		/* short file name */
 		break;
