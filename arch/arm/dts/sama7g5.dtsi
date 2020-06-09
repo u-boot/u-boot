@@ -114,6 +114,17 @@
 				clock-names = "usart";
 				status = "disabled";
 			};
+
+			gmac0: ethernet@e2800000 {
+				compatible = "cdns,sama7g5-gem";
+				reg = <0xe2800000 0x4000>;
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 51>, <&pmc PMC_TYPE_PERIPHERAL 51>, <&pmc PMC_TYPE_GCK 51>;
+				clock-names = "hclk", "pclk", "tx_clk";
+				assigned-clocks = <&pmc PMC_TYPE_GCK 51>;
+				assigned-clock-parents = <&pmc PMC_TYPE_CORE 21>; /* eth pll div. */
+				assigned-clock-rates = <125000000>;
+				status = "disabled";
+			};
 		};
 	};
 };
