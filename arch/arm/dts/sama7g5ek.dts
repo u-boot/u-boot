@@ -66,6 +66,19 @@
 	};
 };
 
+&gmac1 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_gmac1_default>;
+	phy-mode = "rmii";
+	status = "okay";
+
+	ethernet-phy@0 {
+		reg = <0x0>;
+	};
+};
+
 &pinctrl {
 	pinctrl_flx3_default: flx3_default {
 		pinmux = <PIN_PD16__FLEXCOM3_IO0>,
@@ -106,6 +119,20 @@
 			 <PIN_PA22__G0_MDC>,
 			 <PIN_PA23__G0_MDIO>,
 			 <PIN_PA25__G0_125CK>;
+		bias-disable;
+	};
+
+	pinctrl_gmac1_default: gmac1_default {
+		pinmux = <PIN_PD30__G1_TXCK>,
+			 <PIN_PD22__G1_TX0>,
+			 <PIN_PD23__G1_TX1>,
+			 <PIN_PD21__G1_TXEN>,
+			 <PIN_PD25__G1_RX0>,
+			 <PIN_PD26__G1_RX1>,
+			 <PIN_PD27__G1_RXER>,
+			 <PIN_PD24__G1_RXDV>,
+			 <PIN_PD28__G1_MDC>,
+			 <PIN_PD29__G1_MDIO>;
 		bias-disable;
 	};
 };
