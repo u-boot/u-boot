@@ -231,6 +231,15 @@ static const struct fsl_qspi_devtype_data imx6ul_data = {
 	.little_endian = true,
 };
 
+static const struct fsl_qspi_devtype_data imx7ulp_data = {
+	.rxfifo = SZ_64,
+	.txfifo = SZ_64,
+	.ahb_buf_size = SZ_128,
+	.quirks = QUADSPI_QUIRK_TKT253890 | QUADSPI_QUIRK_4X_INT_CLK |
+		  QUADSPI_QUIRK_USE_TDH_SETTING,
+	.little_endian = true,
+};
+
 static const struct fsl_qspi_devtype_data ls1021a_data = {
 	.rxfifo = SZ_128,
 	.txfifo = SZ_64,
@@ -485,7 +494,7 @@ static void fsl_qspi_select_mem(struct fsl_qspi *q, struct spi_slave *slave)
 static void fsl_qspi_read_ahb(struct fsl_qspi *q, const struct spi_mem_op *op)
 {
 	memcpy_fromio(op->data.buf.in,
-		      q->ahb_addr + q->selected * q->devtype_data->ahb_buf_size,
+		      q->ahb_addr + q->selected * ALIGN(q->devtype_data->ahb_buf_size, 0x400),
 		      op->data.nbytes);
 }
 
@@ -589,7 +598,7 @@ static int fsl_qspi_exec_op(struct spi_slave *slave,
 		addr_offset = q->memmap_phy;
 
 	qspi_writel(q,
-		    q->selected * q->devtype_data->ahb_buf_size + addr_offset,
+		    q->selected * ALIGN(q->devtype_data->ahb_buf_size, 0x400) + addr_offset,
 		    base + QUADSPI_SFAR);
 
 	qspi_writel(q, qspi_readl(q, base + QUADSPI_MCR) |
@@ -695,13 +704,13 @@ static int fsl_qspi_default_setup(struct fsl_qspi *q)
 	 * We use ahb_buf_size for each chip and set SFA1AD, SFA2AD, SFB1AD,
 	 * SFB2AD accordingly.
 	 */
-	qspi_writel(q, q->devtype_data->ahb_buf_size + addr_offset,
+	qspi_writel(q, ALIGN(q->devtype_data->ahb_buf_size, 0x400) + addr_offset,
 		    base + QUADSPI_SFA1AD);
-	qspi_writel(q, q->devtype_data->ahb_buf_size * 2 + addr_offset,
+	qspi_writel(q, ALIGN(q->devtype_data->ahb_buf_size, 0x400) * 2 + addr_offset,
 		    base + QUADSPI_SFA2AD);
-	qspi_writel(q, q->devtype_data->ahb_buf_size * 3 + addr_offset,
+	qspi_writel(q, ALIGN(q->devtype_data->ahb_buf_size, 0x400) * 3 + addr_offset,
 		    base + QUADSPI_SFB1AD);
-	qspi_writel(q, q->devtype_data->ahb_buf_size * 4 + addr_offset,
+	qspi_writel(q, ALIGN(q->devtype_data->ahb_buf_size, 0x400) * 4 + addr_offset,
 		    base + QUADSPI_SFB2AD);
 
 	q->selected = -1;
@@ -799,6 +808,7 @@ static const struct udevice_id fsl_qspi_ids[] = {
 	{ .compatible = "fsl,imx6sx-qspi", .data = (ulong)&imx6sx_data, },
 	{ .compatible = "fsl,imx6ul-qspi", .data = (ulong)&imx6ul_data, },
 	{ .compatible = "fsl,imx7d-qspi", .data = (ulong)&imx7d_data, },
+	{ .compatible = "fsl,imx7ulp-qspi", .data = (ulong)&imx7ulp_data, },
 	{ .compatible = "fsl,ls1021a-qspi", .data = (ulong)&ls1021a_data, },
 	{ .compatible = "fsl,ls1088a-qspi", .data = (ulong)&ls1088a_data, },
 	{ .compatible = "fsl,ls2080a-qspi", .data = (ulong)&ls2080a_data, },
