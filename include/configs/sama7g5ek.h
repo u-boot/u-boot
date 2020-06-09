@@ -44,4 +44,7 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
 
+#define CONFIG_ARP_TIMEOUT		200
+#define CONFIG_NET_RETRY_COUNT		50
+
 #endif
