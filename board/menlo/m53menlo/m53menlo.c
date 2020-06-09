@@ -353,24 +353,28 @@ int board_late_init(void)
 
 	ret = splash_screen_prepare();
 	if (ret < 0)
-		return ret;
+		goto splasherr;
 
 	len = CONFIG_SYS_VIDEO_LOGO_MAX_SIZE;
 	ret = gunzip(dst + 2, CONFIG_SYS_VIDEO_LOGO_MAX_SIZE - 2,
 		     (uchar *)addr, &len);
 	if (ret) {
 		printf("Error: no valid bmp or bmp.gz image at %lx\n", addr);
-		free(dst);
-		return ret;
+		goto splasherr;
 	}
 
 	ret = uclass_get_device(UCLASS_VIDEO, 0, &dev);
 	if (ret)
-		return ret;
+		goto splasherr;
 
 	ret = video_bmp_display(dev, (ulong)dst + 2, xpos, ypos, true);
 	if (ret)
-		return ret;
+		goto splasherr;
+
+	return 0;
+
+splasherr:
+	free(dst);
 #endif
 	return 0;
 }

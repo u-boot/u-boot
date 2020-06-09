@@ -274,6 +274,7 @@ struct src {
 
 #define SRC_DDRC_RCR_DDRC_CORE_RST_OFFSET	1
 #define SRC_DDRC_RCR_DDRC_CORE_RST_MASK		(1 << 1)
+#define SRC_DDRC_RCR_DDRC_PRST_MASK		(1 << 0)
 
 /* GPR0 Bit Fields */
 #define IOMUXC_GPR_GPR0_DMAREQ_MUX_SEL0_MASK     0x1u
