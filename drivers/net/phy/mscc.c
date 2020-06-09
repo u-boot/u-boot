@@ -157,6 +157,14 @@
 #define INT_MEM_DATA_M			GENMASK(7, 0)
 #define INT_MEM_DATA(x)			(INT_MEM_DATA_M & (x))
 
+/* Extended page GPIO register 13G */
+#define MSCC_CLKOUT_CNTL		13
+#define CLKOUT_ENABLE			BIT(15)
+#define CLKOUT_FREQ_MASK		GENMASK(14, 13)
+#define CLKOUT_FREQ_25M			(0x0 << 13)
+#define CLKOUT_FREQ_50M			(0x1 << 13)
+#define CLKOUT_FREQ_125M		(0x2 << 13)
+
 /* Extended page GPIO register 18G */
 #define MSCC_PHY_PROC_CMD		  18
 #define PROC_CMD_NCOMPLETED		  BIT(15)
@@ -1210,6 +1218,47 @@ static int vsc8531_vsc8541_mac_config(struct phy_device *phydev)
 	return 0;
 }
 
+static int vsc8531_vsc8541_clkout_config(struct phy_device *phydev)
+{
+	struct ofnode_phandle_args phandle_args;
+	u32 clkout_rate = 0;
+	u16 reg_val;
+	int retval;
+
+	retval = dev_read_phandle_with_args(phydev->dev, "phy-handle", NULL,
+					    0, 0, &phandle_args);
+	if (!retval)
+		clkout_rate = ofnode_read_u32_default(phandle_args.node,
+						"vsc8531,clk-out-frequency", 0);
+
+	switch (clkout_rate) {
+	case 0:
+		reg_val = 0;
+		break;
+	case 25000000:
+		reg_val = CLKOUT_FREQ_25M | CLKOUT_ENABLE;
+		break;
+	case 50000000:
+		reg_val = CLKOUT_FREQ_50M | CLKOUT_ENABLE;
+		break;
+	case 125000000:
+		reg_val = CLKOUT_FREQ_125M | CLKOUT_ENABLE;
+		break;
+	default:
+		printf("PHY 8530/31 invalid clkout rate %u\n",
+		       clkout_rate);
+		return -EINVAL;
+	}
+
+	phy_write(phydev, MDIO_DEVAD_NONE, MSCC_EXT_PAGE_ACCESS,
+		  MSCC_PHY_PAGE_GPIO);
+	phy_write(phydev, MDIO_DEVAD_NONE, MSCC_CLKOUT_CNTL, reg_val);
+	phy_write(phydev, MDIO_DEVAD_NONE, MSCC_EXT_PAGE_ACCESS,
+		  MSCC_PHY_PAGE_STD);
+
+	return 0;
+}
+
 static int vsc8531_config(struct phy_device *phydev)
 {
 	int  retval = -EINVAL;
@@ -1266,6 +1315,11 @@ static int vsc8531_config(struct phy_device *phydev)
 	phy_write(phydev, MDIO_DEVAD_NONE, MSCC_PHY_WOL_MAC_CONTROL, reg_val);
 	phy_write(phydev, MDIO_DEVAD_NONE, MSCC_EXT_PAGE_ACCESS,
 		  MSCC_PHY_PAGE_STD);
+
+	/* Configure the clk output */
+	retval = vsc8531_vsc8541_clkout_config(phydev);
+	if (retval != 0)
+		return retval;
 
 	return genphy_config_aneg(phydev);
 }
@@ -1326,6 +1380,11 @@ static int vsc8541_config(struct phy_device *phydev)
 	phy_write(phydev, MDIO_DEVAD_NONE, MSCC_PHY_WOL_MAC_CONTROL, reg_val);
 	phy_write(phydev, MDIO_DEVAD_NONE, MSCC_EXT_PAGE_ACCESS,
 		  MSCC_PHY_PAGE_STD);
+
+	/* Configure the clk output */
+	retval = vsc8531_vsc8541_clkout_config(phydev);
+	if (retval != 0)
+		return retval;
 
 	return genphy_config_aneg(phydev);
 }
