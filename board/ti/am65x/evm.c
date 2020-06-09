@@ -108,10 +108,10 @@ int ft_board_setup(void *blob, bd_t *bd)
 	}
 
 #if defined(CONFIG_TI_SECURE_DEVICE)
-	/* Make HW RNG reserved for secure world use */
-	ret = fdt_disable_node(blob, "/interconnect@100000/trng@4e10000");
+	/* Make Crypto HW reserved for secure world use */
+	ret = fdt_disable_node(blob, "/interconnect@100000/crypto@4E00000");
 	if (ret)
-		printf("%s: disabling TRGN failed %d\n", __func__, ret);
+		printf("%s: disabling SA2UL failed %d\n", __func__, ret);
 #endif
 
 	return 0;
