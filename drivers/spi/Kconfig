@@ -155,6 +155,14 @@ config FSL_QSPI
 	  used to access the SPI NOR flash on platforms embedding this
 	  Freescale IP core.
 
+config FSL_QSPI_AHB_FULL_MAP
+	bool "Use full AHB memory map space"
+	depends on FSL_QSPI
+	default y if ARCH_MX6 || ARCH_MX7 || ARCH_MX7ULP || ARCH_IMX8M
+	help
+	  Enable the Freescale QSPI driver to use full AHB memory map space for
+	  flash access.
+
 config ICH_SPI
 	bool "Intel ICH SPI driver"
 	help
