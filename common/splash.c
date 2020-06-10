@@ -59,7 +59,7 @@ static struct splash_location default_splash_locations[] = {
 static int splash_video_logo_load(void)
 {
 	char *splashimage;
-	u32 bmp_load_addr;
+	ulong bmp_load_addr;
 
 	splashimage = env_get("splashimage");
 	if (!splashimage)
