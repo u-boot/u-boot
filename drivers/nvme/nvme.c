@@ -466,6 +466,9 @@ int nvme_identify(struct nvme_dev *dev, unsigned nsid,
 
 	c.identify.cns = cpu_to_le32(cns);
 
+	invalidate_dcache_range(dma_addr,
+				dma_addr + sizeof(struct nvme_id_ctrl));
+
 	ret = nvme_submit_admin_cmd(dev, &c, NULL);
 	if (!ret)
 		invalidate_dcache_range(dma_addr,
