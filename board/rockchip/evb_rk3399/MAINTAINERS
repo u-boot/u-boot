@@ -68,3 +68,9 @@ M:	Jagan Teki <jagan@amarulasolutions.com>
 S:	Maintained
 F:	configs/rock-pi-4-rk3399_defconfig
 F:	arch/arm/dts/rk3399-rock-pi-4-u-boot.dtsi
+
+ROCK-PI-N10
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/rock-pi-n10-rk3399pro_defconfig
+F:	arch/arm/dts/rk3399pro-rock-pi-n10-u-boot.dtsi
