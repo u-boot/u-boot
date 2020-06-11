@@ -1180,7 +1180,7 @@ config TARGET_VEXPRESS64_JUNO
 	select DM_SERIAL
 	select ARM_PSCI_FW
 	select PSCI_RESET
-	select DM
+	select DM_ETH
 	select BLK
 	select USB
 	select DM_USB
