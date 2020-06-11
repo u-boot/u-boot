@@ -126,6 +126,10 @@ config EFI_CAPSULE_ON_DISK_EARLY
 	  executed as part of U-Boot initialisation so that they will
 	  surely take place whatever is set to distro_bootcmd.
 
+config EFI_CAPSULE_FIRMWARE
+	bool
+	default n
+
 config EFI_CAPSULE_FIRMWARE_MANAGEMENT
 	bool "Capsule: Firmware Management Protocol"
 	depends on EFI_HAVE_CAPSULE_SUPPORT
@@ -140,10 +144,22 @@ config EFI_CAPSULE_FIRMWARE_FIT
 	depends on FIT
 	select UPDATE_FIT
 	select DFU
+	select EFI_CAPSULE_FIRMWARE
 	default n
 	help
 	  Select this option if you want to enable firmware management protocol
 	  driver for FIT image
+
+config EFI_CAPSULE_FIRMWARE_RAW
+	bool "FMP driver for raw image"
+	depends on EFI_CAPSULE_FIRMWARE_MANAGEMENT
+	select DFU
+	select DFU_WRITE_ALT
+	select EFI_CAPSULE_FIRMWARE
+	default n
+	help
+	  Select this option if you want to enable firmware management protocol
+	  driver for raw image
 
 config EFI_DEVICE_PATH_TO_TEXT
 	bool "Device path to text protocol"
