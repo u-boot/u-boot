@@ -560,8 +560,6 @@ static int eth_post_probe(struct udevice *dev)
 		memcpy(pdata->enetaddr, env_enetaddr, ARP_HLEN);
 	} else if (is_valid_ethaddr(pdata->enetaddr)) {
 		eth_env_set_enetaddr_by_index("eth", dev->seq, pdata->enetaddr);
-		printf("\nWarning: %s using MAC address from %s\n",
-		       dev->name, source);
 	} else if (is_zero_ethaddr(pdata->enetaddr) ||
 		   !is_valid_ethaddr(pdata->enetaddr)) {
 #ifdef CONFIG_NET_RANDOM_ETHADDR
