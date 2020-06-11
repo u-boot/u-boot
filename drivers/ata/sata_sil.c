@@ -27,7 +27,11 @@
 
 #include "sata_sil.h"
 
+#ifdef CONFIG_DM_PCI
+#define virt_to_bus(devno, v)	dm_pci_virt_to_mem(devno, (void *) (v))
+#else
 #define virt_to_bus(devno, v)	pci_virt_to_mem(devno, (void *) (v))
+#endif
 
 /* just compatible ahci_ops */
 struct sil_ops {
@@ -608,13 +612,18 @@ static int sil_init_sata(struct udevice *uc_dev, int dev)
 	/* Save the private struct to block device struct */
 #if !CONFIG_IS_ENABLED(BLK)
 	sata_dev_desc[dev].priv = (void *)sata;
+	sata->devno = sata_info.devno;
 #else
 	priv->sil_sata_desc[dev] = sata;
 	priv->port_num = dev;
+#ifdef CONFIG_DM_PCI
+	sata->devno = uc_dev->parent;
+#else
+	sata->devno = sata_info.devno;
+#endif	/* CONFIG_DM_PCI */
 #endif
 	sata->id = dev;
 	sata->port = port;
-	sata->devno = sata_info.devno;
 	sprintf(sata->name, "SATA#%d", dev);
 	sil_cmd_soft_reset(sata);
 	tmp = readl(port + PORT_SSTATUS);
