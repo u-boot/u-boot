@@ -1498,6 +1498,9 @@ static int macronix_quad_enable(struct spi_nor *nor)
 {
 	int ret, val;
 
+	if (nor->isparallel)
+		nor->spi->flags |= SPI_XFER_STRIPE;
+
 	val = read_sr(nor);
 	if (val < 0)
 		return val;
