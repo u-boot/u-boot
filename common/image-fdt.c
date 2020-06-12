@@ -426,7 +426,7 @@ int boot_get_fdt(int flag, int argc, char *const argv[], uint8_t arch,
 			break;
 		default:
 			puts("ERROR: Did not find a cmdline Flattened Device Tree\n");
-			goto no_fdt;
+			goto error;
 		}
 
 		printf("   Booting using the fdt blob at %#08lx\n", fdt_addr);
