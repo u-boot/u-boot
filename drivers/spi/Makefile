@@ -13,7 +13,6 @@ obj-$(CONFIG_TI_QSPI) += ti_qspi.o
 else
 obj-y += spi.o
 obj-$(CONFIG_SPI_MEM) += spi-mem-nodm.o
-obj-$(CONFIG_SOFT_SPI) += soft_spi_legacy.o
 endif
 
 obj-$(CONFIG_ALTERA_SPI) += altera_spi.o

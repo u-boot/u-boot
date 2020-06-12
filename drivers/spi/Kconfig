@@ -119,6 +119,12 @@ config CF_SPI
           Enable the ColdFire SPI driver. This driver can be used on
           some m68k SoCs.
 
+config DAVINCI_SPI
+	bool "Davinci & Keystone SPI driver"
+	depends on ARCH_DAVINCI || ARCH_KEYSTONE
+	help
+	  Enable the Davinci SPI driver
+
 config DESIGNWARE_SPI
 	bool "Designware SPI driver"
 	help
@@ -207,6 +213,12 @@ config MVEBU_A3700_SPI
 	  used to access the SPI NOR flash on platforms embedding this
 	  Marvell IP core.
 
+config MXS_SPI
+	bool "MXS SPI Driver"
+	help
+	  Enable the MXS SPI controller driver. This driver can be used
+	  on the i.MX23 and i.MX28 SoCs.
+
 config NXP_FSPI
 	bool "NXP FlexSPI driver"
 	depends on SPI_MEM
@@ -279,6 +291,12 @@ config SPI_SIFIVE
 	  Enable the SiFive SPI controller driver.
 
 	  The SiFive SPI controller driver is found on various SiFive SoCs.
+
+config SOFT_SPI
+	bool "Soft SPI driver"
+	help
+	 Enable Soft SPI driver. This driver is to use GPIO simulate
+	 the SPI protocol.
 
 config SPI_SUNXI
 	bool "Allwinner SoC SPI controllers"
@@ -385,13 +403,6 @@ config ZYNQMP_GQSPI
 
 endif # if DM_SPI
 
-config SOFT_SPI
-	bool "Soft SPI driver"
-	depends on DM_SPI || (DEPRECATED && !DM_SPI)
-	help
-	 Enable Soft SPI driver. This driver is to use GPIO simulate
-	 the SPI protocol.
-
 config FSL_ESPI
 	bool "Freescale eSPI driver"
 	imply SPI_FLASH_BAR
@@ -399,12 +410,6 @@ config FSL_ESPI
 	  Enable the Freescale eSPI driver. This driver can be used to
 	  access the SPI interface and SPI NOR flash on platforms embedding
 	  this Freescale eSPI IP core.
-
-config DAVINCI_SPI
-	bool "Davinci & Keystone SPI driver"
-	depends on ARCH_DAVINCI || ARCH_KEYSTONE
-	help
-	  Enable the Davinci SPI driver
 
 config SH_QSPI
 	bool "Renesas Quad SPI driver"
@@ -423,12 +428,6 @@ config MXC_SPI
 	help
 	  Enable the MXC SPI controller driver. This driver can be used
 	  on various i.MX SoCs such as i.MX31/35/51/6/7.
-
-config MXS_SPI
-	bool "MXS SPI Driver"
-	help
-	  Enable the MXS SPI controller driver. This driver can be used
-	  on the i.MX23 and i.MX28 SoCs.
 
 config OMAP3_SPI
 	bool "McSPI driver for OMAP"
