@@ -53,7 +53,8 @@ int boot_selected_os(int argc, char *const argv[], int state,
 ulong bootm_disable_interrupts(void);
 
 /* This is a special function used by booti/bootz */
-int bootm_find_images(int flag, int argc, char *const argv[]);
+int bootm_find_images(int flag, int argc, char *const argv[], ulong start,
+		      ulong size);
 
 int do_bootm_states(struct cmd_tbl *cmdtp, int flag, int argc,
 		    char *const argv[], int states, bootm_headers_t *images,

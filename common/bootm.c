@@ -228,6 +228,8 @@ static int bootm_find_os(struct cmd_tbl *cmdtp, int flag, int argc,
  * @flag: Ignored Argument
  * @argc: command argument count
  * @argv: command argument list
+ * @start: OS image start address
+ * @size: OS image size
  *
  * boot_find_images() will attempt to load an available ramdisk,
  * flattened device tree, as well as specifically marked
@@ -239,7 +241,8 @@ static int bootm_find_os(struct cmd_tbl *cmdtp, int flag, int argc,
  *     0, if all existing images were loaded correctly
  *     1, if an image is found but corrupted, or invalid
  */
-int bootm_find_images(int flag, int argc, char *const argv[])
+int bootm_find_images(int flag, int argc, char *const argv[], ulong start,
+		      ulong size)
 {
 	int ret;
 
@@ -251,6 +254,16 @@ int bootm_find_images(int flag, int argc, char *const argv[])
 		return 1;
 	}
 
+	/* check if ramdisk overlaps OS image */
+	if (images.rd_start && (((ulong)images.rd_start >= start &&
+				 (ulong)images.rd_start <= start + size) ||
+				((ulong)images.rd_end >= start &&
+				 (ulong)images.rd_end <= start + size))) {
+		printf("ERROR: RD image overlaps OS image (OS=0x%lx..0x%lx)\n",
+		       start, start + size);
+		return 1;
+	}
+
 #if IMAGE_ENABLE_OF_LIBFDT
 	/* find flattened device tree */
 	ret = boot_get_fdt(flag, argc, argv, IH_ARCH_DEFAULT, &images,
@@ -259,6 +272,18 @@ int bootm_find_images(int flag, int argc, char *const argv[])
 		puts("Could not find a valid device tree\n");
 		return 1;
 	}
+
+	/* check if FDT overlaps OS image */
+	if (images.ft_addr &&
+	    (((ulong)images.ft_addr >= start &&
+	      (ulong)images.ft_addr <= start + size) ||
+	     ((ulong)images.ft_addr + images.ft_len >= start &&
+	      (ulong)images.ft_addr + images.ft_len <= start + size))) {
+		printf("ERROR: FDT image overlaps OS image (OS=0x%lx..0x%lx)\n",
+		       start, start + size);
+		return 1;
+	}
+
 	if (CONFIG_IS_ENABLED(CMD_FDT))
 		set_working_fdt_addr(map_to_sysmem(images.ft_addr));
 #endif
@@ -294,7 +319,7 @@ static int bootm_find_other(struct cmd_tbl *cmdtp, int flag, int argc,
 	     (images.os.type == IH_TYPE_MULTI)) &&
 	    (images.os.os == IH_OS_LINUX ||
 		 images.os.os == IH_OS_VXWORKS))
-		return bootm_find_images(flag, argc, argv);
+		return bootm_find_images(flag, argc, argv, 0, 0);
 
 	return 0;
 }

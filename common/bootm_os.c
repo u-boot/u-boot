@@ -495,7 +495,7 @@ static int do_bootm_tee(int flag, int argc, char *const argv[],
 		return ret;
 
 	/* Locate FDT etc */
-	ret = bootm_find_images(flag, argc, argv);
+	ret = bootm_find_images(flag, argc, argv, 0, 0);
 	if (ret)
 		return ret;
 
@@ -516,7 +516,7 @@ static int do_bootm_efi(int flag, int argc, char *const argv[],
 		return 0;
 
 	/* Locate FDT, if provided */
-	ret = bootm_find_images(flag, argc, argv);
+	ret = bootm_find_images(flag, argc, argv, 0, 0);
 	if (ret)
 		return ret;
 
