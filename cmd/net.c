@@ -135,11 +135,15 @@ static void netboot_update_env(void)
 		env_set("netmask", tmp);
 	}
 
+#ifdef CONFIG_CMD_BOOTP
 	if (net_hostname[0])
 		env_set("hostname", net_hostname);
+#endif
 
+#ifdef CONFIG_CMD_BOOTP
 	if (net_root_path[0])
 		env_set("rootpath", net_root_path);
+#endif
 
 	if (net_ip.s_addr) {
 		ip_to_string(net_ip, tmp);
@@ -165,8 +169,10 @@ static void netboot_update_env(void)
 		env_set("dnsip2", tmp);
 	}
 #endif
+#ifdef CONFIG_CMD_BOOTP
 	if (net_nis_domain[0])
 		env_set("domain", net_nis_domain);
+#endif
 
 #if defined(CONFIG_CMD_SNTP) && defined(CONFIG_BOOTP_TIMEOFFSET)
 	if (net_ntp_time_offset) {

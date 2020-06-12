@@ -456,6 +456,7 @@ restart:
 		net_dev_exists = 1;
 		net_boot_file_size = 0;
 		switch (protocol) {
+#ifdef CONFIG_CMD_TFTPBOOT
 		case TFTPGET:
 #ifdef CONFIG_CMD_TFTPPUT
 		case TFTPPUT:
@@ -463,6 +464,7 @@ restart:
 			/* always use ARP to get server ethernet address */
 			tftp_start(protocol);
 			break;
+#endif
 #ifdef CONFIG_CMD_TFTPSRV
 		case TFTPSRV:
 			tftp_start_server();
@@ -480,13 +482,13 @@ restart:
 			dhcp_request();		/* Basically same as BOOTP */
 			break;
 #endif
-
+#if defined(CONFIG_CMD_BOOTP)
 		case BOOTP:
 			bootp_reset();
 			net_ip.s_addr = 0;
 			bootp_request();
 			break;
-
+#endif
 #if defined(CONFIG_CMD_RARP)
 		case RARP:
 			rarp_try = 0;
@@ -1561,20 +1563,6 @@ int net_parse_bootfile(struct in_addr *ipaddr, char *filename, int max_len)
 
 	return 1;
 }
-
-#if	defined(CONFIG_CMD_NFS)		|| \
-	defined(CONFIG_CMD_SNTP)	|| \
-	defined(CONFIG_CMD_DNS)
-/*
- * make port a little random (1024-17407)
- * This keeps the math somewhat trivial to compute, and seems to work with
- * all supported protocols/clients/servers
- */
-unsigned int random_port(void)
-{
-	return 1024 + (get_timer(0) % 0x4000);
-}
-#endif
 
 void ip_to_string(struct in_addr x, char *s)
 {

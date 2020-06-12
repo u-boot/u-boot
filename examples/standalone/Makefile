@@ -8,10 +8,6 @@ extra-$(CONFIG_SMC91111)           += smc91111_eeprom
 extra-$(CONFIG_SPI_FLASH_ATMEL)    += atmel_df_pow2
 extra-$(CONFIG_PPC)                += sched
 
-ifndef CONFIG_DM_ETH
-extra-$(CONFIG_SMC911X)            += smc911x_eeprom
-endif
-
 #
 # Some versions of make do not handle trailing white spaces properly;
 # leading to build failures. The problem was found with GNU Make 3.80.
