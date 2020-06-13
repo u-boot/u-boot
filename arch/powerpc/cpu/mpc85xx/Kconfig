@@ -24,14 +24,6 @@ config TARGET_SOCRATES
 	bool "Support socrates"
 	select ARCH_MPC8544
 
-config TARGET_BSC9132QDS
-	bool "Support BSC9132QDS"
-	select ARCH_BSC9132
-	select BOARD_LATE_INIT if CHAIN_OF_TRUST
-	select SUPPORT_SPL
-	select BOARD_EARLY_INIT_F
-	select FSL_DDR_INTERACTIVE
-
 config TARGET_C29XPCIE
 	bool "Support C29XPCIE"
 	select ARCH_C29X
@@ -1573,7 +1565,6 @@ config SYS_FSL_LBC_CLK_DIV
 		Defines divider of platform clock(clock input to
 		eLBC controller).
 
-source "board/freescale/bsc9132qds/Kconfig"
 source "board/freescale/c29xpcie/Kconfig"
 source "board/freescale/corenet_ds/Kconfig"
 source "board/freescale/mpc8536ds/Kconfig"
