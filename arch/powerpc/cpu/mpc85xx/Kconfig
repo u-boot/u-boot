@@ -296,30 +296,11 @@ config TARGET_T2081QDS
 	select FSL_DDR_FIRST_SLOT_QUAD_CAPABLE
 	select FSL_DDR_INTERACTIVE
 
-config TARGET_T4160QDS
-	bool "Support T4160QDS"
-	select ARCH_T4160
-	select BOARD_LATE_INIT if CHAIN_OF_TRUST
-	select SUPPORT_SPL
-	select PHYS_64BIT
-	imply CMD_SATA
-	imply PANIC_HANG
-
 config TARGET_T4160RDB
 	bool "Support T4160RDB"
 	select ARCH_T4160
 	select SUPPORT_SPL
 	select PHYS_64BIT
-	imply PANIC_HANG
-
-config TARGET_T4240QDS
-	bool "Support T4240QDS"
-	select ARCH_T4240
-	select BOARD_LATE_INIT if CHAIN_OF_TRUST
-	select SUPPORT_SPL
-	select PHYS_64BIT
-	select FSL_DDR_FIRST_SLOT_QUAD_CAPABLE
-	imply CMD_SATA
 	imply PANIC_HANG
 
 config TARGET_T4240RDB
@@ -1538,7 +1519,6 @@ source "board/freescale/t102xrdb/Kconfig"
 source "board/freescale/t104xrdb/Kconfig"
 source "board/freescale/t208xqds/Kconfig"
 source "board/freescale/t208xrdb/Kconfig"
-source "board/freescale/t4qds/Kconfig"
 source "board/freescale/t4rdb/Kconfig"
 source "board/gdsys/p1022/Kconfig"
 source "board/keymile/Kconfig"
