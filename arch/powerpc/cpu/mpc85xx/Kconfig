@@ -109,14 +109,6 @@ config TARGET_P1010RDB_PB
 	imply CMD_SATA
 	imply PANIC_HANG
 
-config TARGET_P1022DS
-	bool "Support P1022DS"
-	select ARCH_P1022
-	select SUPPORT_SPL
-	select SUPPORT_TPL
-	imply CMD_SATA
-	imply FSL_SATA
-
 config TARGET_P1023RDB
 	bool "Support P1023RDB"
 	select ARCH_P1023
@@ -1557,7 +1549,6 @@ source "board/freescale/mpc8568mds/Kconfig"
 source "board/freescale/mpc8569mds/Kconfig"
 source "board/freescale/mpc8572ds/Kconfig"
 source "board/freescale/p1010rdb/Kconfig"
-source "board/freescale/p1022ds/Kconfig"
 source "board/freescale/p1023rdb/Kconfig"
 source "board/freescale/p1_p2_rdb_pc/Kconfig"
 source "board/freescale/p1_twr/Kconfig"
