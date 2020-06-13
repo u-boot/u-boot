@@ -188,10 +188,6 @@ config TARGET_P2020RDB
 	imply CMD_SATA
 	imply SATA_SIL
 
-config TARGET_P1_TWR
-	bool "Support p1_twr"
-	select ARCH_P1025
-
 config TARGET_P2041RDB
 	bool "Support P2041RDB"
 	select ARCH_P2041
@@ -1512,7 +1508,6 @@ source "board/freescale/mpc8572ds/Kconfig"
 source "board/freescale/p1010rdb/Kconfig"
 source "board/freescale/p1023rdb/Kconfig"
 source "board/freescale/p1_p2_rdb_pc/Kconfig"
-source "board/freescale/p1_twr/Kconfig"
 source "board/freescale/p2041rdb/Kconfig"
 source "board/freescale/qemu-ppce500/Kconfig"
 source "board/freescale/t102xrdb/Kconfig"
