@@ -78,6 +78,28 @@ static int dm_test_usb_multi(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_usb_multi, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
+/* test that we have an associated ofnode with the usb device */
+static int dm_test_usb_fdt_node(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	ofnode node;
+
+	state_set_skip_delays(true);
+	ut_assertok(usb_init());
+	ut_assertok(uclass_get_device(UCLASS_MASS_STORAGE, 0, &dev));
+	node = ofnode_path("/usb@1/hub/usbstor@1");
+	ut_asserteq(1, ofnode_equal(node, dev_ofnode(dev)));
+	ut_assertok(uclass_get_device(UCLASS_MASS_STORAGE, 1, &dev));
+	ut_asserteq(1, ofnode_equal(ofnode_null(), dev_ofnode(dev)));
+	ut_assertok(uclass_get_device(UCLASS_MASS_STORAGE, 2, &dev));
+	node = ofnode_path("/usb@1/hub/usbstor@3");
+	ut_asserteq(1, ofnode_equal(node, dev_ofnode(dev)));
+	ut_assertok(usb_stop());
+
+	return 0;
+}
+DM_TEST(dm_test_usb_fdt_node, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
 static int count_usb_devices(void)
 {
 	struct udevice *hub;

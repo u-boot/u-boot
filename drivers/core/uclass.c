@@ -689,13 +689,14 @@ int uclass_unbind_device(struct udevice *dev)
 
 int uclass_resolve_seq(struct udevice *dev)
 {
+	struct uclass *uc = dev->uclass;
+	struct uclass_driver *uc_drv = uc->uc_drv;
 	struct udevice *dup;
-	int seq;
+	int seq = 0;
 	int ret;
 
 	assert(dev->seq == -1);
-	ret = uclass_find_device_by_seq(dev->uclass->uc_drv->id, dev->req_seq,
-					false, &dup);
+	ret = uclass_find_device_by_seq(uc_drv->id, dev->req_seq, false, &dup);
 	if (!ret) {
 		dm_warn("Device '%s': seq %d is in use by '%s'\n",
 			dev->name, dev->req_seq, dup->name);
@@ -707,9 +708,17 @@ int uclass_resolve_seq(struct udevice *dev)
 		return ret;
 	}
 
-	for (seq = 0; seq < DM_MAX_SEQ; seq++) {
-		ret = uclass_find_device_by_seq(dev->uclass->uc_drv->id, seq,
-						false, &dup);
+	if (CONFIG_IS_ENABLED(OF_CONTROL) && CONFIG_IS_ENABLED(DM_SEQ_ALIAS) &&
+	    (uc_drv->flags & DM_UC_FLAG_SEQ_ALIAS)) {
+		/*
+		 * dev_read_alias_highest_id() will return -1 if there no
+		 * alias. Thus we can always add one.
+		 */
+		seq = dev_read_alias_highest_id(uc_drv->name) + 1;
+	}
+
+	for (; seq < DM_MAX_SEQ; seq++) {
+		ret = uclass_find_device_by_seq(uc_drv->id, seq, false, &dup);
 		if (ret == -ENODEV)
 			break;
 		if (ret)

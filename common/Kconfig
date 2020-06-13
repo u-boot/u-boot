@@ -647,68 +647,12 @@ config LOG
 	  discarded if not needed. Logging supports various categories and
 	  levels of severity.
 
-config SPL_LOG
-	bool "Enable logging support in SPL"
-	depends on LOG
-	help
-	  This enables support for logging of status and debug messages. These
-	  can be displayed on the console, recorded in a memory buffer, or
-	  discarded if not needed. Logging supports various categories and
-	  levels of severity.
-
-config TPL_LOG
-	bool "Enable logging support in TPL"
-	depends on LOG
-	help
-	  This enables support for logging of status and debug messages. These
-	  can be displayed on the console, recorded in a memory buffer, or
-	  discarded if not needed. Logging supports various categories and
-	  levels of severity.
+if LOG
 
 config LOG_MAX_LEVEL
 	int "Maximum log level to record"
-	depends on LOG
-	default 5
-	help
-	  This selects the maximum log level that will be recorded. Any value
-	  higher than this will be ignored. If possible log statements below
-	  this level will be discarded at build time. Levels:
-
-	    0 - emergency
-	    1 - alert
-	    2 - critical
-	    3 - error
-	    4 - warning
-	    5 - note
-	    6 - info
-	    7 - debug
-	    8 - debug content
-	    9 - debug hardware I/O
-
-config SPL_LOG_MAX_LEVEL
-	int "Maximum log level to record in SPL"
-	depends on SPL_LOG
-	default 3
-	help
-	  This selects the maximum log level that will be recorded. Any value
-	  higher than this will be ignored. If possible log statements below
-	  this level will be discarded at build time. Levels:
-
-	    0 - emergency
-	    1 - alert
-	    2 - critical
-	    3 - error
-	    4 - warning
-	    5 - note
-	    6 - info
-	    7 - debug
-	    8 - debug content
-	    9 - debug hardware I/O
-
-config TPL_LOG_MAX_LEVEL
-	int "Maximum log level to record in TPL"
-	depends on TPL_LOG
-	default 3
+	default 6
+	range 0 9
 	help
 	  This selects the maximum log level that will be recorded. Any value
 	  higher than this will be ignored. If possible log statements below
@@ -727,7 +671,8 @@ config TPL_LOG_MAX_LEVEL
 
 config LOG_DEFAULT_LEVEL
 	int "Default logging level to display"
-	default 6
+	default LOG_MAX_LEVEL
+	range 0 LOG_MAX_LEVEL
 	help
 	  This is the default logging level set when U-Boot starts. It can
 	  be adjusted later using the 'log level' command. Note that setting
@@ -747,27 +692,6 @@ config LOG_DEFAULT_LEVEL
 
 config LOG_CONSOLE
 	bool "Allow log output to the console"
-	depends on LOG
-	default y
-	help
-	  Enables a log driver which writes log records to the console.
-	  Generally the console is the serial port or LCD display. Only the
-	  log message is shown - other details like level, category, file and
-	  line number are omitted.
-
-config SPL_LOG_CONSOLE
-	bool "Allow log output to the console in SPL"
-	depends on SPL_LOG
-	default y
-	help
-	  Enables a log driver which writes log records to the console.
-	  Generally the console is the serial port or LCD display. Only the
-	  log message is shown - other details like level, category, file and
-	  line number are omitted.
-
-config TPL_LOG_CONSOLE
-	bool "Allow log output to the console in TPL"
-	depends on TPL_LOG
 	default y
 	help
 	  Enables a log driver which writes log records to the console.
@@ -777,24 +701,99 @@ config TPL_LOG_CONSOLE
 
 config LOG_SYSLOG
 	bool "Log output to syslog server"
-	depends on LOG && NET
+	depends on NET
 	help
 	  Enables a log driver which broadcasts log records via UDP port 514
 	  to syslog servers.
 
-config LOG_TEST
-	bool "Provide a test for logging"
-	depends on LOG && UNIT_TEST
-	default y if SANDBOX
+config SPL_LOG
+	bool "Enable logging support in SPL"
+	depends on LOG
 	help
-	  This enables a 'log test' command to test logging. It is normally
-	  executed from a pytest and simply outputs logging information
-	  in various different ways to test that the logging system works
-	  correctly with various settings.
+	  This enables support for logging of status and debug messages. These
+	  can be displayed on the console, recorded in a memory buffer, or
+	  discarded if not needed. Logging supports various categories and
+	  levels of severity.
+
+if SPL_LOG
+
+config SPL_LOG_MAX_LEVEL
+	int "Maximum log level to record in SPL"
+	depends on SPL_LOG
+	default 3
+	range 0 9
+	help
+	  This selects the maximum log level that will be recorded. Any value
+	  higher than this will be ignored. If possible log statements below
+	  this level will be discarded at build time. Levels:
+
+	    0 - emergency
+	    1 - alert
+	    2 - critical
+	    3 - error
+	    4 - warning
+	    5 - note
+	    6 - info
+	    7 - debug
+	    8 - debug content
+	    9 - debug hardware I/O
+
+config SPL_LOG_CONSOLE
+	bool "Allow log output to the console in SPL"
+	default y
+	help
+	  Enables a log driver which writes log records to the console.
+	  Generally the console is the serial port or LCD display. Only the
+	  log message is shown - other details like level, category, file and
+	  line number are omitted.
+
+endif
+
+config TPL_LOG
+	bool "Enable logging support in TPL"
+	depends on LOG
+	help
+	  This enables support for logging of status and debug messages. These
+	  can be displayed on the console, recorded in a memory buffer, or
+	  discarded if not needed. Logging supports various categories and
+	  levels of severity.
+
+if TPL_LOG
+
+config TPL_LOG_MAX_LEVEL
+	int "Maximum log level to record in TPL"
+	depends on TPL_LOG
+	default 3
+	range 0 9
+	help
+	  This selects the maximum log level that will be recorded. Any value
+	  higher than this will be ignored. If possible log statements below
+	  this level will be discarded at build time. Levels:
+
+	    0 - emergency
+	    1 - alert
+	    2 - critical
+	    3 - error
+	    4 - warning
+	    5 - note
+	    6 - info
+	    7 - debug
+	    8 - debug content
+	    9 - debug hardware I/O
+
+config TPL_LOG_CONSOLE
+	bool "Allow log output to the console in TPL"
+	default y
+	help
+	  Enables a log driver which writes log records to the console.
+	  Generally the console is the serial port or LCD display. Only the
+	  log message is shown - other details like level, category, file and
+	  line number are omitted.
+
+endif
 
 config LOG_ERROR_RETURN
 	bool "Log all functions which return an error"
-	depends on LOG
 	help
 	  When an error is returned in U-Boot it is sometimes difficult to
 	  figure out the root cause. For example, reading from SPI flash may
@@ -804,6 +803,18 @@ config LOG_ERROR_RETURN
 	  log_ret() is a nop.
 
 	  You can add log_ret() to all functions which return an error code.
+
+config LOG_TEST
+	bool "Provide a test for logging"
+	depends on UNIT_TEST
+	default y if SANDBOX
+	help
+	  This enables a 'log test' command to test logging. It is normally
+	  executed from a pytest and simply outputs logging information
+	  in various different ways to test that the logging system works
+	  correctly with various settings.
+
+endif
 
 endmenu
 

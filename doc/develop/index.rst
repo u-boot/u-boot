@@ -8,3 +8,4 @@ Develop U-Boot
    :maxdepth: 2
 
    crash_dumps
+   logging

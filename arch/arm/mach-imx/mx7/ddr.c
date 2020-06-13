@@ -13,6 +13,7 @@
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/mx7-ddr.h>
 #include <common.h>
+#include <linux/delay.h>
 
 /*
  * Routine: mx7_dram_cfg
@@ -37,8 +38,23 @@ void mx7_dram_cfg(struct ddrc *ddrc_regs_val, struct ddrc_mp *ddrc_mp_val,
 		(struct iomuxc_gpr_base_regs *)IOMUXC_GPR_BASE_ADDR;
 	int i;
 
-	/* Assert DDR Controller preset and DDR PHY reset */
-	writel(SRC_DDRC_RCR_DDRC_CORE_RST_MASK, &src_regs->ddrc_rcr);
+	/*
+	 * iMX7D RM 9.2.4.9.3 Power removal flow Table 9-11. Re-enabling power
+	 * row 2 says "Reset controller / PHY by driving core_ddrc_rst = 0 ,
+	 * aresetn_n = 0, presetn = 0. That means reset everything.
+	 */
+	writel(SRC_DDRC_RCR_DDRC_CORE_RST_MASK | SRC_DDRC_RCR_DDRC_PRST_MASK,
+	       &src_regs->ddrc_rcr);
+
+	/*
+	 * iMX7D RM 6.2.7.26 SRC_DDRC_RCR says wait 30 cycles (of unknown).
+	 * If we assume this is 30 cycles at 100 MHz (about the rate of a
+	 * DRAM bus), that's 300 nS, so waiting 10 uS is more then plenty.
+	 */
+	udelay(10);
+
+	/* De-assert DDR Controller 'preset' and DDR PHY reset */
+	clrbits_le32(&src_regs->ddrc_rcr, SRC_DDRC_RCR_DDRC_PRST_MASK);
 
 	/* DDR controller configuration */
 	writel(ddrc_regs_val->mstr, &ddrc_regs->mstr);
@@ -71,7 +87,7 @@ void mx7_dram_cfg(struct ddrc *ddrc_regs_val, struct ddrc_mp *ddrc_mp_val,
 	writel(ddrc_regs_val->odtcfg, &ddrc_regs->odtcfg);
 	writel(ddrc_regs_val->odtmap, &ddrc_regs->odtmap);
 
-	/* De-assert DDR Controller preset and DDR PHY reset */
+	/* De-assert DDR Controller 'core_ddrc_rstn' and 'aresetn' */
 	clrbits_le32(&src_regs->ddrc_rcr, SRC_DDRC_RCR_DDRC_CORE_RST_MASK);
 
 	/* PHY configuration */

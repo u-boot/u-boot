@@ -310,12 +310,12 @@ int regmap_raw_read_range(struct regmap *map, uint range_num, uint offset,
 	}
 	range = &map->ranges[range_num];
 
-	ptr = map_physmem(range->start + offset, val_len, MAP_NOCACHE);
-
 	if (offset + val_len > range->size) {
 		debug("%s: offset/size combination invalid\n", __func__);
 		return -ERANGE;
 	}
+
+	ptr = map_physmem(range->start + offset, val_len, MAP_NOCACHE);
 
 	switch (val_len) {
 	case REGMAP_SIZE_8:
@@ -419,12 +419,12 @@ int regmap_raw_write_range(struct regmap *map, uint range_num, uint offset,
 	}
 	range = &map->ranges[range_num];
 
-	ptr = map_physmem(range->start + offset, val_len, MAP_NOCACHE);
-
 	if (offset + val_len > range->size) {
 		debug("%s: offset/size combination invalid\n", __func__);
 		return -ERANGE;
 	}
+
+	ptr = map_physmem(range->start + offset, val_len, MAP_NOCACHE);
 
 	switch (val_len) {
 	case REGMAP_SIZE_8:

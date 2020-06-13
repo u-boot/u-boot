@@ -59,7 +59,7 @@ def CheckPatch(fname, verbose=False):
               'stdout']
     result = collections.namedtuple('CheckPatchResult', fields)
     result.ok = False
-    result.errors, result.warning, result.checks = 0, 0, 0
+    result.errors, result.warnings, result.checks = 0, 0, 0
     result.lines = 0
     result.problems = []
     chk = FindCheckPatch()
@@ -72,24 +72,39 @@ def CheckPatch(fname, verbose=False):
     # total: 0 errors, 0 warnings, 159 lines checked
     # or:
     # total: 0 errors, 2 warnings, 7 checks, 473 lines checked
-    re_stats = re.compile('total: (\\d+) errors, (\d+) warnings, (\d+)')
-    re_stats_full = re.compile('total: (\\d+) errors, (\d+) warnings, (\d+)'
+    emacs_prefix = '(?:[0-9]{4}.*\.patch:[0-9]+: )?'
+    emacs_stats = '(?:[0-9]{4}.*\.patch )?'
+    re_stats = re.compile(emacs_stats +
+                          'total: (\\d+) errors, (\d+) warnings, (\d+)')
+    re_stats_full = re.compile(emacs_stats +
+                               'total: (\\d+) errors, (\d+) warnings, (\d+)'
                                ' checks, (\d+)')
     re_ok = re.compile('.*has no obvious style problems')
     re_bad = re.compile('.*has style problems, please review')
     re_error = re.compile('ERROR: (.*)')
-    re_warning = re.compile('WARNING: (.*)')
+    re_warning = re.compile(emacs_prefix + 'WARNING:(?:[A-Z_]+:)? (.*)')
     re_check = re.compile('CHECK: (.*)')
     re_file = re.compile('#\d+: FILE: ([^:]*):(\d+):')
-
+    re_note = re.compile('NOTE: (.*)')
+    indent = ' ' * 6
     for line in result.stdout.splitlines():
         if verbose:
             print(line)
 
         # A blank line indicates the end of a message
-        if not line and item:
-            result.problems.append(item)
-            item = {}
+        if not line:
+            if item:
+                result.problems.append(item)
+                item = {}
+            continue
+        if re_note.match(line):
+            continue
+        # Skip lines which quote code
+        if line.startswith(indent):
+            continue
+        # Skip code quotes and #<n>
+        if line.startswith('+') or line.startswith('#'):
+            continue
         match = re_stats_full.match(line)
         if not match:
             match = re_stats.match(line)
@@ -101,14 +116,18 @@ def CheckPatch(fname, verbose=False):
                 result.lines = int(match.group(4))
             else:
                 result.lines = int(match.group(3))
+            continue
         elif re_ok.match(line):
             result.ok = True
+            continue
         elif re_bad.match(line):
             result.ok = False
+            continue
         err_match = re_error.match(line)
         warn_match = re_warning.match(line)
         file_match = re_file.match(line)
         check_match = re_check.match(line)
+        subject_match = line.startswith('Subject:')
         if err_match:
             item['msg'] = err_match.group(1)
             item['type'] = 'error'
@@ -121,6 +140,11 @@ def CheckPatch(fname, verbose=False):
         elif file_match:
             item['file'] = file_match.group(1)
             item['line'] = int(file_match.group(2))
+        elif subject_match:
+            item['file'] = '<patch subject>'
+            item['line'] = None
+        else:
+            print('bad line "%s", %d' % (line, len(line)))
 
     return result
 
@@ -139,7 +163,8 @@ def GetWarningMsg(col, msg_type, fname, line, msg):
         msg_type = col.Color(col.RED, msg_type)
     elif msg_type == 'check':
         msg_type = col.Color(col.MAGENTA, msg_type)
-    return '%s:%d: %s: %s\n' % (fname, line, msg_type, msg)
+    line_str = '' if line is None else '%d' % line
+    return '%s:%s: %s: %s\n' % (fname, line_str, msg_type, msg)
 
 def CheckPatches(verbose, args):
     '''Run the checkpatch.pl script on each patch'''

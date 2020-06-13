@@ -14,10 +14,18 @@ static char log_fmt_chars[LOGF_COUNT] = "clFLfm";
 static int do_log_level(struct cmd_tbl *cmdtp, int flag, int argc,
 			char *const argv[])
 {
-	if (argc > 1)
-		gd->default_log_level = simple_strtol(argv[1], NULL, 10);
-	else
+	if (argc > 1) {
+		long log_level = simple_strtol(argv[1], NULL, 10);
+
+		if (log_level < 0 || log_level > _LOG_MAX_LEVEL) {
+			printf("Only log levels <= %d are supported\n",
+			       _LOG_MAX_LEVEL);
+			return CMD_RET_FAILURE;
+		}
+		gd->default_log_level = log_level;
+	} else {
 		printf("Default log level: %d\n", gd->default_log_level);
+	}
 
 	return 0;
 }

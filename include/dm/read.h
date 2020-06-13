@@ -983,6 +983,8 @@ static inline u64 dev_translate_dma_address(const struct udevice *dev,
 
 static inline int dev_read_alias_highest_id(const char *stem)
 {
+	if (!CONFIG_IS_ENABLED(OF_LIBFDT))
+		return -1;
 	return fdtdec_get_alias_highest_id(gd->fdt_blob, stem);
 }
 

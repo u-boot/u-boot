@@ -1,3 +1,6 @@
+.. SPDX-License-Identifier: GPL-2.0+
+.. Copyright (c) 2017 Simon Glass <sjg@chromium.org>
+
 Logging in U-Boot
 =================
 
@@ -24,16 +27,16 @@ Logging levels
 
 There are a number logging levels available, in increasing order of verbosity:
 
-   LOGL_EMERG	- Printed before U-Boot halts
-   LOGL_ALERT	- Indicates action must be taken immediate or U-Boot will crash
-   LOGL_CRIT	- Indicates a critical error that will cause boot failure
-   LOGL_ERR	- Indicates an error that may cause boot failure
-   LOGL_WARNING	- Warning about an unexpected condition
-   LOGL_NOTE	- Important information about progress
-   LOGL_INFO	- Information about normal boot progress
-   LOGL_DEBUG	- Debug information (useful for debugging a driver or subsystem)
-   LOGL_DEBUG_CONTENT	- Debug message showing full message content
-   LOGL_DEBUG_IO	- Debug message showing hardware I/O access
+* LOGL_EMERG - Printed before U-Boot halts
+* LOGL_ALERT - Indicates action must be taken immediate or U-Boot will crash
+* LOGL_CRIT - Indicates a critical error that will cause boot failure
+* LOGL_ERR - Indicates an error that may cause boot failure
+* LOGL_WARNING - Warning about an unexpected condition
+* LOGL_NOTE - Important information about progress
+* LOGL_INFO - Information about normal boot progress
+* LOGL_DEBUG - Debug information (useful for debugging a driver or subsystem)
+* LOGL_DEBUG_CONTENT - Debug message showing full message content
+* LOGL_DEBUG_IO - Debug message showing hardware I/O access
 
 
 Logging category
@@ -45,13 +48,13 @@ their source.
 
 The following main categories are defined:
 
-   LOGC_NONE	- Unknown category (e.g. a debug() statement)
-   UCLASS_...	- Related to a particular uclass (e.g. UCLASS_USB)
-   LOGC_ARCH	- Related to architecture-specific code
-   LOGC_BOARD	- Related to board-specific code
-   LOGC_CORE	- Related to core driver-model support
-   LOGC_DT	- Related to device tree control
-   LOGC_EFI	- Related to EFI implementation
+* LOGC_NONE - Unknown category (e.g. a debug() statement)
+* UCLASS\_... - Related to a particular uclass (e.g. UCLASS_USB)
+* LOGC_ARCH - Related to architecture-specific code
+* LOGC_BOARD - Related to board-specific code
+* LOGC_CORE - Related to core driver-model support
+* LOGC_DT - Related to device tree control
+* LOGC_EFI - Related to EFI implementation
 
 
 Enabling logging
@@ -59,10 +62,10 @@ Enabling logging
 
 The following options are used to enable logging at compile time:
 
-   CONFIG_LOG		- Enables the logging system
-   CONFIG_LOG_MAX_LEVEL - Max log level to build (anything higher is compiled
-				out)
-   CONFIG_LOG_CONSOLE	- Enable writing log records to the console
+* CONFIG_LOG - Enables the logging system
+* CONFIG_LOG_MAX_LEVEL - Max log level to build (anything higher is compiled
+  out)
+* CONFIG_LOG_CONSOLE - Enable writing log records to the console
 
 If CONFIG_LOG is not set, then no logging will be available.
 
@@ -73,7 +76,9 @@ CONFIG_TPL_LOG_MAX_LEVEL.
 Temporary logging within a single file
 --------------------------------------
 
-Sometimes it is useful to turn on logging just in one file. You can use this:
+Sometimes it is useful to turn on logging just in one file. You can use this
+
+.. code-block:: c
 
    #define LOG_DEBUG
 
@@ -91,35 +96,33 @@ Convenience functions
 A number of convenience functions are available to shorten the code needed
 for logging:
 
-	log_err(_fmt...)
-	log_warning(_fmt...)
-	log_notice(_fmt...)
-	log_info(_fmt...)
-	log_debug(_fmt...)
-	log_content(_fmt...)
-	log_io(_fmt...)
+* log_err(_fmt...)
+* log_warning(_fmt...)
+* log_notice(_fmt...)
+* log_info(_fmt...)
+* log_debug(_fmt...)
+* log_content(_fmt...)
+* log_io(_fmt...)
 
 With these the log level is implicit in the name. The category is set by
-LOG_CATEGORY, which you can only define once per file, above all #includes:
+LOG_CATEGORY, which you can only define once per file, above all #includes, e.g.
+
+.. code-block:: c
 
 	#define LOG_CATEGORY LOGC_ALLOC
-
-or
-
-	#define LOG_CATEGORY UCLASS_SPI
 
 Remember that all uclasses IDs are log categories too.
 
 
-Log commands
-------------
+Log command
+-----------
 
 The 'log' command provides access to several features:
 
-   level - access the default log level
-   format - access the console log format
-   rec - output a log record
-   test - run tests
+* level - access the default log level
+* format - access the console log format
+* rec - output a log record
+* test - run tests
 
 Type 'help log' for details.
 
@@ -147,17 +150,18 @@ If logging information goes nowhere then it serves no purpose. U-Boot provides
 several possible determinations for logging information, all of which can be
 enabled or disabled independently:
 
-   console - goes to stdout
-   syslog - broadcast RFC 3164 messages to syslog servers on UDP port 514
+* console - goes to stdout
+* syslog - broadcast RFC 3164 messages to syslog servers on UDP port 514
 
 The syslog driver sends the value of environmental variable 'log_hostname' as
 HOSTNAME if available.
+
 
 Log format
 ----------
 
 You can control the log format using the 'log format' command. The basic
-format is:
+format is::
 
    LEVEL.category,file.c:123-func() message
 
@@ -175,18 +179,20 @@ records that pass through the filter make it to the driver.
 
 Filters can be based on several criteria:
 
-   - maximum log level
-   - in a set of categories
-   - in a set of files
+* maximum log level
+* in a set of categories
+* in a set of files
 
 If no filters are attached to a driver then a default filter is used, which
-limits output to records with a level less than CONFIG_LOG_MAX_LEVEL.
+limits output to records with a level less than CONFIG_MAX_LOG_LEVEL.
 
 
 Logging statements
 ------------------
 
 The main logging function is:
+
+.. code-block:: c
 
    log(category, level, format_string, ...)
 
@@ -196,6 +202,8 @@ file to ensure the category is correct.
 
 You can also define CONFIG_LOG_ERROR_RETURN to enable the log_ret() macro. This
 can be used whenever your function returns an error value:
+
+.. code-block:: c
 
    return log_ret(uclass_first_device(UCLASS_MMC, &dev));
 
@@ -208,11 +216,11 @@ Code size
 
 Code size impact depends largely on what is enabled. The following numbers are
 generated by 'buildman -S' for snow, which is a Thumb-2 board (all units in
-bytes):
+bytes)::
 
-This series: adds bss +20.0 data +4.0 rodata +4.0 text +44.0
-CONFIG_LOG: bss -52.0 data +92.0 rodata -635.0 text +1048.0
-CONFIG_LOG_MAX_LEVEL=7: bss +188.0 data +4.0 rodata +49183.0 text +98124.0
+    This series: adds bss +20.0 data +4.0 rodata +4.0 text +44.0
+    CONFIG_LOG: bss -52.0 data +92.0 rodata -635.0 text +1048.0
+    CONFIG_LOG_MAX_LEVEL=7: bss +188.0 data +4.0 rodata +49183.0 text +98124.0
 
 The last option turns every debug() statement into a logging call, which
 bloats the code hugely. The advantage is that it is then possible to enable
@@ -227,19 +235,19 @@ implemented! If you do one, please add a test in test/py/tests/test_log.py
 
 Convenience functions to support setting the category:
 
-   log_arch(level, format_string, ...) - category LOGC_ARCH
-   log_board(level, format_string, ...) - category LOGC_BOARD
-   log_core(level, format_string, ...) - category LOGC_CORE
-   log_dt(level, format_string, ...) - category LOGC_DT
+* log_arch(level, format_string, ...) - category LOGC_ARCH
+* log_board(level, format_string, ...) - category LOGC_BOARD
+* log_core(level, format_string, ...) - category LOGC_CORE
+* log_dt(level, format_string, ...) - category LOGC_DT
 
 More logging destinations:
 
-   device - goes to a device (e.g. serial)
-   buffer - recorded in a memory buffer
+* device - goes to a device (e.g. serial)
+* buffer - recorded in a memory buffer
 
 Convert debug() statements in the code to log() statements
 
-Support making printf() emit log statements a L_INFO level
+Support making printf() emit log statements at L_INFO level
 
 Convert error() statements in the code to log() statements
 
@@ -265,7 +273,7 @@ Convert core driver model code to use logging
 Convert uclasses to use logging with the correct category
 
 Consider making log() calls emit an automatic newline, perhaps with a logn()
-   function to avoid that
+function to avoid that
 
 Passing log records through to linux (e.g. via device tree /chosen)
 
@@ -280,7 +288,3 @@ information
 Add a command to add new log records and delete existing records.
 
 Provide additional log() functions - e.g. logc() to specify the category
-
---
-Simon Glass <sjg@chromium.org>
-15-Sep-17

@@ -613,7 +613,7 @@ be connected on a SATA bus or standalone with no bus::
    xhci_usb (UCLASS_USB)
       flash (UCLASS_FLASH_STORAGE)  - parent data/methods defined by USB bus
 
-   sata (UCLASS_SATA)
+   sata (UCLASS_AHCI)
       flash (UCLASS_FLASH_STORAGE)  - parent data/methods defined by SATA bus
 
    flash (UCLASS_FLASH_STORAGE)  - no parent data/methods (not on a bus)
@@ -628,7 +628,7 @@ parent device which is a bus, causes the device to start behaving like a
 bus device, regardless of its own views on the matter.
 
 The uclass for the device can also contain data private to that uclass.
-But note that each device on the bus may be a memeber of a different
+But note that each device on the bus may be a member of a different
 uclass, and this data has nothing to do with the child data for each child
 on the bus. It is the bus' uclass that controls the child with respect to
 the bus.
