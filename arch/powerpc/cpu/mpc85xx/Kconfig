@@ -205,16 +205,6 @@ config TARGET_QEMU_PPCE500
 	select ARCH_QEMU_E500
 	select PHYS_64BIT
 
-config TARGET_T1024QDS
-	bool "Support T1024QDS"
-	select ARCH_T1024
-	select BOARD_LATE_INIT if CHAIN_OF_TRUST
-	select SUPPORT_SPL
-	select PHYS_64BIT
-	imply CMD_EEPROM
-	imply CMD_SATA
-	imply FSL_SATA
-
 config TARGET_T1023RDB
 	bool "Support T1023RDB"
 	select ARCH_T1023
@@ -1554,7 +1544,6 @@ source "board/freescale/p1_p2_rdb_pc/Kconfig"
 source "board/freescale/p1_twr/Kconfig"
 source "board/freescale/p2041rdb/Kconfig"
 source "board/freescale/qemu-ppce500/Kconfig"
-source "board/freescale/t102xqds/Kconfig"
 source "board/freescale/t102xrdb/Kconfig"
 source "board/freescale/t1040qds/Kconfig"
 source "board/freescale/t104xrdb/Kconfig"
