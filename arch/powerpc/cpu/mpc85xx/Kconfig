@@ -225,16 +225,6 @@ config TARGET_T1024RDB
 	imply CMD_EEPROM
 	imply PANIC_HANG
 
-config TARGET_T1040QDS
-	bool "Support T1040QDS"
-	select ARCH_T1040
-	select BOARD_LATE_INIT if CHAIN_OF_TRUST
-	select PHYS_64BIT
-	select FSL_DDR_INTERACTIVE
-	imply CMD_EEPROM
-	imply CMD_SATA
-	imply PANIC_HANG
-
 config TARGET_T1040RDB
 	bool "Support T1040RDB"
 	select ARCH_T1040
@@ -1545,7 +1535,6 @@ source "board/freescale/p1_twr/Kconfig"
 source "board/freescale/p2041rdb/Kconfig"
 source "board/freescale/qemu-ppce500/Kconfig"
 source "board/freescale/t102xrdb/Kconfig"
-source "board/freescale/t1040qds/Kconfig"
 source "board/freescale/t104xrdb/Kconfig"
 source "board/freescale/t208xqds/Kconfig"
 source "board/freescale/t208xrdb/Kconfig"
