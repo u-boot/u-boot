@@ -56,14 +56,6 @@ config TARGET_P5040DS
 	imply CMD_SATA
 	imply PANIC_HANG
 
-config TARGET_MPC8536DS
-	bool "Support MPC8536DS"
-	select ARCH_MPC8536
-# Use DDR3 controller with DDR2 DIMMs on this board
-	select SYS_FSL_DDRC_GEN3
-	imply CMD_SATA
-	imply FSL_SATA
-
 config TARGET_MPC8541CDS
 	bool "Support MPC8541CDS"
 	select ARCH_MPC8541
@@ -1557,7 +1549,6 @@ config SYS_FSL_LBC_CLK_DIV
 		eLBC controller).
 
 source "board/freescale/corenet_ds/Kconfig"
-source "board/freescale/mpc8536ds/Kconfig"
 source "board/freescale/mpc8541cds/Kconfig"
 source "board/freescale/mpc8544ds/Kconfig"
 source "board/freescale/mpc8548cds/Kconfig"
