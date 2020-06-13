@@ -10,22 +10,32 @@ struct udevice;
 
 /**
  * dm_rng_read() - read a random number seed from the rng device
- * @buffer:	input buffer to put the read random seed into
- * @size:	number of bytes of random seed read
  *
- * Return: 0 if OK, -ve on error
+ * The function blocks until the requested number of bytes is read.
+ *
+ * @dev:	random number generator device
+ * @buffer:	input buffer to put the read random seed into
+ * @size:	number of random bytes to read
+ * Return:	0 if OK, -ve on error
  */
 int dm_rng_read(struct udevice *dev, void *buffer, size_t size);
 
-/* struct dm_rng_ops - Operations for the hwrng uclass */
+/**
+ * struct dm_rng_ops - operations for the hwrng uclass
+ *
+ * This structures contains the function implemented by a hardware random
+ * number generation device.
+ */
 struct dm_rng_ops {
 	/**
-	 * @read() - read a random number seed
+	 * @read:	read a random bytes
 	 *
-	 * @data:	input buffer to read the random seed
-	 * @max:	total number of bytes to read
+	 * The function blocks until the requested number of bytes is read.
 	 *
-	 * Return: 0 if OK, -ve on error
+	 * @read.dev:		random number generator device
+	 * @read.data:		input buffer to read the random seed into
+	 * @read.max:		number of random bytes to read
+	 * @read.Return:	0 if OK, -ve on error
 	 */
 	int (*read)(struct udevice *dev, void *data, size_t max);
 };
