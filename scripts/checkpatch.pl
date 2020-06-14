@@ -2343,7 +2343,7 @@ sub u_boot_line {
 	}
 
 	# use if instead of #if
-	if ($line =~ /^\+#if.*CONFIG.*/) {
+	if ($realfile =~ /\.c$/ && $line =~ /^\+#if.*CONFIG.*/) {
 		WARN("PREFER_IF",
 		     "Use 'if (IS_ENABLED(CONFIG...))' instead of '#if or #ifdef' where possible\n" . $herecurr);
 	}

@@ -388,6 +388,8 @@ index 0000000..2234c87
         """Test for Use the livetree API"""
         pm = PatchMaker()
         pm.add_line('common/main.c', '#ifdef CONFIG_YELLOW')
+        pm.add_line('common/init.h', '#ifdef CONFIG_YELLOW')
+        pm.add_line('fred.dtsi', '#ifdef CONFIG_YELLOW')
         self.checkSingleMessage(pm, "PREFER_IF")
 
     def testCommandUseDefconfig(self):
