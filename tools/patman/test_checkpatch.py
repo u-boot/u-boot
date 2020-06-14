@@ -82,7 +82,7 @@ Signed-off-by: Simon Glass <sjg@chromium.org>
         return inname
 
     def run_checkpatch(self):
-        return checkpatch.CheckPatch(self.get_patch())
+        return checkpatch.CheckPatch(self.get_patch(), show_types=True)
 
 
 class TestPatch(unittest.TestCase):
@@ -355,7 +355,7 @@ index 0000000..2234c87
         result = pm.run_checkpatch()
         self.assertEqual(result.warnings, 1)
         self.assertEqual(len(result.problems), 1)
-        self.assertIn('Possible new uclass', result.problems[0]['msg'])
+        self.assertIn('NEW_UCLASS', result.problems[0]['cptype'])
 
 
 if __name__ == "__main__":

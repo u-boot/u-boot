@@ -38,7 +38,7 @@ def FindCheckPatch():
     sys.exit('Cannot find checkpatch.pl - please put it in your ' +
              '~/bin directory or use --no-check')
 
-def CheckPatch(fname, verbose=False):
+def CheckPatch(fname, verbose=False, show_types=False):
     """Run checkpatch.pl on a file.
 
     Returns:
@@ -64,8 +64,10 @@ def CheckPatch(fname, verbose=False):
     result.problems = []
     chk = FindCheckPatch()
     item = {}
-    result.stdout = command.Output(chk, '--no-tree', fname,
-                                   raise_on_error=False)
+    args = [chk, '--no-tree']
+    if show_types:
+        args.append('--show-types')
+    result.stdout = command.Output(*args, fname, raise_on_error=False)
     #pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     #stdout, stderr = pipe.communicate()
 
@@ -81,9 +83,10 @@ def CheckPatch(fname, verbose=False):
                                ' checks, (\d+)')
     re_ok = re.compile('.*has no obvious style problems')
     re_bad = re.compile('.*has style problems, please review')
-    re_error = re.compile('ERROR: (.*)')
-    re_warning = re.compile(emacs_prefix + 'WARNING:(?:[A-Z_]+:)? (.*)')
-    re_check = re.compile('CHECK: (.*)')
+    type_name = '([A-Z_]+:)?'
+    re_error = re.compile('ERROR:%s (.*)' % type_name)
+    re_warning = re.compile(emacs_prefix + 'WARNING:%s (.*)' % type_name)
+    re_check = re.compile('CHECK:%s (.*)' % type_name)
     re_file = re.compile('#\d+: FILE: ([^:]*):(\d+):')
     re_note = re.compile('NOTE: (.*)')
     indent = ' ' * 6
@@ -129,13 +132,16 @@ def CheckPatch(fname, verbose=False):
         check_match = re_check.match(line)
         subject_match = line.startswith('Subject:')
         if err_match:
-            item['msg'] = err_match.group(1)
+            item['cptype'] = err_match.group(1)
+            item['msg'] = err_match.group(2)
             item['type'] = 'error'
         elif warn_match:
-            item['msg'] = warn_match.group(1)
+            item['cptype'] = warn_match.group(1)
+            item['msg'] = warn_match.group(2)
             item['type'] = 'warning'
         elif check_match:
-            item['msg'] = check_match.group(1)
+            item['cptype'] = check_match.group(1)
+            item['msg'] = check_match.group(2)
             item['type'] = 'check'
         elif file_match:
             item['file'] = file_match.group(1)
