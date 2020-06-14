@@ -25,7 +25,7 @@ from patman import patchstream
 from patman import project
 from patman import settings
 from patman import terminal
-from patman import test
+from patman import test_checkpatch
 
 
 parser = OptionParser()
@@ -93,7 +93,7 @@ elif options.test:
 
     sys.argv = [sys.argv[0]]
     result = unittest.TestResult()
-    for module in (test.TestPatch, func_test.TestFunctional):
+    for module in (test_checkpatch.TestPatch, func_test.TestFunctional):
         suite = unittest.TestLoader().loadTestsFromTestCase(module)
         suite.run(result)
 

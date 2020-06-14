@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # SPDX-License-Identifier: GPL-2.0+
 #
+# Tests for U-Boot-specific checkpatch.pl features
+#
 # Copyright (c) 2011 The Chromium OS Authors.
 #
 
@@ -16,10 +18,7 @@ from patman import commit
 
 
 class TestPatch(unittest.TestCase):
-    """Test this program
-
-    TODO: Write tests for the rest of the functionality
-    """
+    """Test the u_boot_line() function in checkpatch.pl"""
 
     def testBasic(self):
         """Test basic filter operation"""
