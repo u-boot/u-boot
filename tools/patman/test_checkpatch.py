@@ -348,14 +348,53 @@ index 0000000..2234c87
         self.assertEqual(result.lines, 62)
         os.remove(inf)
 
+    def checkSingleMessage(self, pm, msg, pmtype = 'warning'):
+        """Helper function to run checkpatch and check the result
+
+        Args:
+            pm: PatchMaker object to use
+            msg" Expected message (e.g. 'LIVETREE')
+            pmtype: Type of problem ('error', 'warning')
+        """
+        result = pm.run_checkpatch()
+        if pmtype == 'warning':
+            self.assertEqual(result.warnings, 1)
+        elif pmtype == 'error':
+            self.assertEqual(result.errors, 1)
+        if len(result.problems) != 1:
+            print(result.problems)
+        self.assertEqual(len(result.problems), 1)
+        self.assertIn(msg, result.problems[0]['cptype'])
+
     def testUclass(self):
         """Test for possible new uclass"""
         pm = PatchMaker()
         pm.add_line('include/dm/uclass-id.h', 'UCLASS_WIBBLE,')
-        result = pm.run_checkpatch()
-        self.assertEqual(result.warnings, 1)
-        self.assertEqual(len(result.problems), 1)
-        self.assertIn('NEW_UCLASS', result.problems[0]['cptype'])
+        self.checkSingleMessage(pm, 'NEW_UCLASS')
+
+    def testLivetree(self):
+        """Test for Use the livetree API"""
+        pm = PatchMaker()
+        pm.add_line('common/main.c', 'fdtdec_do_something()')
+        self.checkSingleMessage(pm, 'LIVETREE')
+
+    def testNewCommand(self):
+        """Test for Use the livetree API"""
+        pm = PatchMaker()
+        pm.add_line('common/main.c', 'do_wibble(struct cmd_tbl *cmd_tbl)')
+        self.checkSingleMessage(pm, 'CMD_TEST')
+
+    def testNewCommand(self):
+        """Test for Use the livetree API"""
+        pm = PatchMaker()
+        pm.add_line('common/main.c', '#ifdef CONFIG_YELLOW')
+        self.checkSingleMessage(pm, "PREFER_IF")
+
+    def testCommandUseDefconfig(self):
+        """Test for Use the livetree API"""
+        pm = PatchMaker()
+        pm.add_line('common/main.c', '#undef CONFIG_CMD_WHICH')
+        self.checkSingleMessage(pm, 'DEFINE_CONFIG_CMD', 'error')
 
 
 if __name__ == "__main__":
