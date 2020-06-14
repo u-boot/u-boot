@@ -17,6 +17,74 @@ from patman import series
 from patman import commit
 
 
+class Line:
+    def __init__(self, fname, text):
+        self.fname = fname
+        self.text = text
+
+
+class PatchMaker:
+    def __init__(self):
+        self.lines = []
+
+    def add_line(self, fname, text):
+        self.lines.append(Line(fname, text))
+
+    def get_patch_text(self):
+        base = '''From 125b77450f4c66b8fd9654319520bbe795c9ef31 Mon Sep 17 00:00:00 2001
+From: Simon Glass <sjg@chromium.org>
+Date: Sun, 14 Jun 2020 09:45:14 -0600
+Subject: [PATCH] Test commit
+
+This is a test commit.
+
+Signed-off-by: Simon Glass <sjg@chromium.org>
+---
+
+'''
+        lines = base.splitlines()
+
+        # Create the diffstat
+        change = 0
+        insert = 0
+        for line in self.lines:
+            lines.append(' %s      | 1 +' % line.fname)
+            change += 1
+            insert += 1
+        lines.append(' %d files changed, %d insertions(+)' % (change, insert))
+        lines.append('')
+
+        # Create the patch info for each file
+        for line in self.lines:
+            lines.append('diff --git a/%s b/%s' % (line.fname, line.fname))
+            lines.append('index 7837d459f18..5ba7840f68e 100644')
+            lines.append('--- a/%s' % line.fname)
+            lines.append('+++ b/%s' % line.fname)
+            lines += ('''@@ -121,6 +121,7 @@ enum uclass_id {
+ 	UCLASS_W1,		/* Dallas 1-Wire bus */
+ 	UCLASS_W1_EEPROM,	/* one-wire EEPROMs */
+ 	UCLASS_WDT,		/* Watchdog Timer driver */
++%s
+
+ 	UCLASS_COUNT,
+ 	UCLASS_INVALID = -1,
+''' % line.text).splitlines()
+        lines.append('---')
+        lines.append('2.17.1')
+
+        return '\n'.join(lines)
+
+    def get_patch(self):
+        inhandle, inname = tempfile.mkstemp()
+        infd = os.fdopen(inhandle, 'w')
+        infd.write(self.get_patch_text())
+        infd.close()
+        return inname
+
+    def run_checkpatch(self):
+        return checkpatch.CheckPatch(self.get_patch())
+
+
 class TestPatch(unittest.TestCase):
     """Test the u_boot_line() function in checkpatch.pl"""
 
@@ -279,6 +347,15 @@ index 0000000..2234c87
         self.assertEqual(result.checks, 1)
         self.assertEqual(result.lines, 62)
         os.remove(inf)
+
+    def testUclass(self):
+        """Test for possible new uclass"""
+        pm = PatchMaker()
+        pm.add_line('include/dm/uclass-id.h', 'UCLASS_WIBBLE,')
+        result = pm.run_checkpatch()
+        self.assertEqual(result.warnings, 1)
+        self.assertEqual(len(result.problems), 1)
+        self.assertIn('Possible new uclass', result.problems[0]['msg'])
 
 
 if __name__ == "__main__":
