@@ -390,7 +390,7 @@ int uclass_resolve_seq(struct udevice *dev);
  * @id: enum uclass_id ID to use
  * @pos: struct udevice * to hold the current device. Set to NULL when there
  * are no more devices.
- * @uc: temporary uclass variable (struct udevice *)
+ * @uc: temporary uclass variable (struct uclass *)
  */
 #define uclass_id_foreach_dev(id, pos, uc) \
 	if (!uclass_get(id, &uc)) \
