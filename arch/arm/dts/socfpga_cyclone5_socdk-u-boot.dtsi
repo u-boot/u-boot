@@ -68,3 +68,7 @@
 &portc {
 	bank-name = "portc";
 };
+
+&i2c0 {
+	i2c-scl-falling-time-ns = <300>;
+};
