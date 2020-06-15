@@ -787,6 +787,11 @@ enum env_location env_get_location(enum env_operation op, int prio)
 		return ENVL_UNKNOWN;
 
 	switch (bootmode & TAMP_BOOT_DEVICE_MASK) {
+#ifdef CONFIG_ENV_IS_IN_MMC
+	case BOOT_FLASH_SD:
+	case BOOT_FLASH_EMMC:
+		return ENVL_MMC;
+#endif
 #ifdef CONFIG_ENV_IS_IN_EXT4
 	case BOOT_FLASH_SD:
 	case BOOT_FLASH_EMMC:
@@ -826,6 +831,15 @@ const char *env_ext4_get_dev_part(void)
 	u32 bootmode = get_bootmode();
 
 	return dev_part[(bootmode & TAMP_BOOT_INSTANCE_MASK) - 1];
+}
+#endif
+
+#if defined(CONFIG_ENV_IS_IN_MMC)
+int mmc_get_env_dev(void)
+{
+	u32 bootmode = get_bootmode();
+
+	return (bootmode & TAMP_BOOT_INSTANCE_MASK) - 1;
 }
 #endif
 
