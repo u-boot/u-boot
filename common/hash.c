@@ -146,8 +146,6 @@ static int hash_finish_sha512(struct hash_algo *algo, void *ctx, void
 	if (size < algo->digest_size)
 		return -1;
 
-	printf("hello world\n");
-
 	sha512_finish((sha512_context *)ctx, dest_buf);
 	free(ctx);
 	return 0;
