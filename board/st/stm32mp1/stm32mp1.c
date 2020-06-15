@@ -787,22 +787,22 @@ enum env_location env_get_location(enum env_operation op, int prio)
 		return ENVL_UNKNOWN;
 
 	switch (bootmode & TAMP_BOOT_DEVICE_MASK) {
-#ifdef CONFIG_ENV_IS_IN_MMC
+#if CONFIG_IS_ENABLED(ENV_IS_IN_MMC)
 	case BOOT_FLASH_SD:
 	case BOOT_FLASH_EMMC:
 		return ENVL_MMC;
 #endif
-#ifdef CONFIG_ENV_IS_IN_EXT4
+#if CONFIG_IS_ENABLED(ENV_IS_IN_EXT4)
 	case BOOT_FLASH_SD:
 	case BOOT_FLASH_EMMC:
 		return ENVL_EXT4;
 #endif
-#ifdef CONFIG_ENV_IS_IN_UBI
+#if CONFIG_IS_ENABLED(ENV_IS_IN_UBI)
 	case BOOT_FLASH_NAND:
 	case BOOT_FLASH_SPINAND:
 		return ENVL_UBI;
 #endif
-#ifdef CONFIG_ENV_IS_IN_SPI_FLASH
+#if CONFIG_IS_ENABLED(ENV_IS_IN_SPI_FLASH)
 	case BOOT_FLASH_NOR:
 		return ENVL_SPI_FLASH;
 #endif
