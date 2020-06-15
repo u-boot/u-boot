@@ -24,14 +24,25 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#if !defined(CONFIG_SYS_MMC_ENV_DEV)
+#define CONFIG_SYS_MMC_ENV_DEV 0
+#endif
+
+__weak int mmc_get_env_dev(void)
+{
+	return CONFIG_SYS_MMC_ENV_DEV;
+}
+
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 static inline int mmc_offset_try_partition(const char *str, s64 *val)
 {
 	struct disk_partition info;
 	struct blk_desc *desc;
 	int len, i, ret;
+	char dev_str[4];
 
-	ret = blk_get_device_by_str("mmc", STR(CONFIG_SYS_MMC_ENV_DEV), &desc);
+	snprintf(dev_str, sizeof(dev_str), "%d", mmc_get_env_dev());
+	ret = blk_get_device_by_str("mmc", dev_str, &desc);
 	if (ret < 0)
 		return (ret);
 
@@ -112,11 +123,6 @@ __weak int mmc_get_env_addr(struct mmc *mmc, int copy, u32 *env_addr)
 	*env_addr = offset;
 
 	return 0;
-}
-
-__weak int mmc_get_env_dev(void)
-{
-	return CONFIG_SYS_MMC_ENV_DEV;
 }
 
 #ifdef CONFIG_SYS_MMC_ENV_PART
