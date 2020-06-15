@@ -56,10 +56,10 @@ static inline int mmc_offset_try_partition(const char *str, s64 *val)
 	}
 
 	/* round up to info.blksz */
-	len = (CONFIG_ENV_SIZE + info.blksz - 1) & ~(info.blksz - 1);
+	len = DIV_ROUND_UP(CONFIG_ENV_SIZE, info.blksz);
 
 	/* use the top of the partion for the environment */
-	*val = (info.start + info.size - 1) - len / info.blksz;
+	*val = (info.start + info.size - len) * info.blksz;
 
 	return 0;
 }
