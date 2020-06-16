@@ -35,8 +35,6 @@
 
 #define CONFIG_REMAKE_ELF
 
-#define CONFIG_BOARD_EARLY_INIT_F
-
 /* Flat Device Tree Definitions */
 #define CONFIG_OF_BOARD_SETUP
 

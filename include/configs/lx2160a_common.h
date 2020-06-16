@@ -20,7 +20,6 @@
 #define CONFIG_SYS_FLASH_BASE		0x20000000
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
-#define CONFIG_BOARD_EARLY_INIT_F	1
 
 /* DDR */
 #define CONFIG_FSL_DDR_INTERACTIVE	/* Interactive debugging */

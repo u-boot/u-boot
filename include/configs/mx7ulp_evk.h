@@ -32,8 +32,6 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(8 * SZ_1M)
 
-#define CONFIG_BOARD_EARLY_INIT_F
-
 /* UART */
 #define LPUART_BASE			LPUART4_RBASE
 

@@ -42,8 +42,6 @@
 
 #define CONFIG_REMAKE_ELF
 
-#define CONFIG_BOARD_EARLY_INIT_F
-
 /* Commands */
 
 #undef CONFIG_BOOTM_NETBSD
