@@ -147,7 +147,6 @@
 /* NAND: SPL related configs */
 
 /* USB configuration */
-#define CONFIG_ARCH_MISC_INIT
 #define CONFIG_AM335X_USB1
 #define CONFIG_AM335X_USB1_MODE MUSB_HOST
 
