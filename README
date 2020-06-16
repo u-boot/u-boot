@@ -559,19 +559,6 @@ The following options need to be configured:
 		such as ARM architectural timer initialization.
 
 - Linux Kernel Interface:
-		CONFIG_CLOCKS_IN_MHZ
-
-		U-Boot stores all clock information in Hz
-		internally. For binary compatibility with older Linux
-		kernels (which expect the clocks passed in the
-		bd_info data to be in MHz) the environment variable
-		"clocks_in_mhz" can be defined so that U-Boot
-		converts clock data to MHZ before passing it to the
-		Linux kernel.
-		When CONFIG_CLOCKS_IN_MHZ is defined, a definition of
-		"clocks_in_mhz=1" is automatically included in the
-		default environment.
-
 		CONFIG_MEMSIZE_IN_BYTES		[relevant for MIPS only]
 
 		When transferring memsize parameter to Linux, some versions

@@ -59,8 +59,6 @@ extern unsigned long get_clock_freq(void);
 #error ("CONFIG_SPD_EEPROM is required")
 #endif
 
-#undef CONFIG_CLOCKS_IN_MHZ
-
 /*
  * Local Bus Definitions
  */
