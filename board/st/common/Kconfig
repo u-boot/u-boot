@@ -39,7 +39,7 @@ config MTDPARTS_NOR0_BOOT
 
 config MTDPARTS_NOR0_TEE
 	string "mtd tee partitions for nor0"
-	default "256k(teeh),256k(teed),256k(teex)"
+	default "256k(teeh),512k(teed),256k(teex)"
 	depends on SYS_MTDPARTS_RUNTIME && ARCH_STM32MP
 	help
 	  This define the tee partitions added in mtparts dynamically
