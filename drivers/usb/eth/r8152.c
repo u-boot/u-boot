@@ -947,7 +947,7 @@ static int rtl8152_set_speed(struct r8152 *tp, u8 autoneg, u16 speed, u8 duplex)
 			return -EINVAL;
 		}
 
-		bmcr = BMCR_ANENABLE | BMCR_ANRESTART;
+		bmcr = BMCR_ANENABLE | BMCR_ANRESTART | BMCR_RESET;
 	}
 
 	if (tp->supports_gmii)
