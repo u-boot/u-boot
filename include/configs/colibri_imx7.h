@@ -109,8 +109,9 @@
 	"bootm_size=0x10000000\0" \
 	"fdt_addr_r=0x82000000\0" \
 	"kernel_addr_r=0x81000000\0" \
+	"pxefile_addr_r=0x87100000\0" \
 	"ramdisk_addr_r=0x82100000\0" \
-	"scriptaddr=0x82500000\0"
+	"scriptaddr=0x87000000\0"
 
 #define NFS_BOOTCMD \
 	"nfsargs=ip=:::::eth0: root=/dev/nfs\0" \
