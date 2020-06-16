@@ -89,9 +89,10 @@
 #define USB_TX_DMA		0xd434
 #define USB_TOLERANCE		0xd490
 #define USB_LPM_CTRL		0xd41a
+#define USB_BMU_RESET		0xd4b0
 #define USB_UPS_CTRL		0xd800
-#define USB_MISC_0		0xd81a
 #define USB_POWER_CUT		0xd80a
+#define USB_MISC_0		0xd81a
 #define USB_AFE_CTRL2		0xd824
 #define USB_WDT11_CTRL		0xe43c
 #define USB_BP_BA		0xfc26
@@ -323,6 +324,10 @@
 /* USB_TX_DMA */
 #define TEST_MODE_DISABLE	0x00000001
 #define TX_SIZE_ADJUST1		0x00000100
+
+/* USB_BMU_RESET */
+#define BMU_RESET_EP_IN		0x01
+#define BMU_RESET_EP_OUT	0x02
 
 /* USB_UPS_CTRL */
 #define POWER_CUT		0x0100
