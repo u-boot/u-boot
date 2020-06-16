@@ -42,10 +42,6 @@
 
 #define CONFIG_REMAKE_ELF
 
-/* Commands */
-
-#undef CONFIG_BOOTM_NETBSD
-
 /* ENET Config */
 #define CONFIG_FEC_XCV_TYPE		RMII
 #define FEC_QUIRK_ENET_MAC
