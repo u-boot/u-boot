@@ -104,8 +104,6 @@
 #endif
 #define CONFIG_SYS_NS16550_CLK		get_serial_clock()
 
-#define CONFIG_BAUDRATE			115200
-
 /* I2C */
 #ifndef CONFIG_DM_I2C
 #define CONFIG_SYS_I2C

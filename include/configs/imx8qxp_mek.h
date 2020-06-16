@@ -175,9 +175,6 @@
 /* LPDDR4 board total DDR is 3GB */
 #define PHYS_SDRAM_2_SIZE		0x40000000	/* 1 GB */
 
-/* Serial */
-#define CONFIG_BAUDRATE			115200
-
 /* Generic Timer Definitions */
 #define COUNTER_FREQUENCY		8000000	/* 8MHz */
 

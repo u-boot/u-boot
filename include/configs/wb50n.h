@@ -72,8 +72,6 @@
 #define CONFIG_BOOTARGS \
     "rw rootfstype=ubifs ubi.mtd=6 root=ubi0:rootfs"
 
-#define CONFIG_BAUDRATE             115200
-
 #define CONFIG_SYS_CBSIZE           1024
 #define CONFIG_SYS_MAXARGS          16
 #define CONFIG_SYS_PBSIZE \

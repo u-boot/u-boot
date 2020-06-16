@@ -39,7 +39,6 @@
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_BAUDRATE			115200
 
 #define CONFIG_SYS_CACHELINE_SIZE      64
 

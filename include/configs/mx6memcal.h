@@ -27,7 +27,6 @@
 #else
 #error please define serial console (CONFIG_SERIAL_CONSOLE_UARTx)
 #endif
-#define CONFIG_BAUDRATE			115200
 
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + 16)
 

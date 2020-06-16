@@ -29,9 +29,6 @@
  */
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE + 0x7ff00)
 
-/* UART Definitions */
-#define CONFIG_BAUDRATE			115200
-
 /* Console configuration */
 #define CONFIG_SYS_CBSIZE		1024	/* Console buffer size */
 #define CONFIG_SYS_MAXARGS		64

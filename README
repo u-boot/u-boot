@@ -670,11 +670,6 @@ The following options need to be configured:
 		Define this variable to enable hw flow control in serial driver.
 		Current user of this option is drivers/serial/nsl16550.c driver
 
-- Console Baudrate:
-		CONFIG_BAUDRATE - in bps
-		Select one of the baudrates listed in
-		CONFIG_SYS_BAUDRATE_TABLE, see below.
-
 - Autoboot Command:
 		CONFIG_BOOTCOMMAND
 		Only needed when CONFIG_BOOTDELAY is enabled;
