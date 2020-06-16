@@ -34,6 +34,20 @@
 /* General networking support */
 #define CONFIG_TFTP_TSIZE
 
+/*
+ * Custom Distro Boot configuration:
+ * 1. 8bit SD port (MMC1)
+ * 2. 4bit SD port (MMC2)
+ * 3. eMMC (MMC0)
+ */
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 1) \
+	func(MMC, mmc, 2) \
+	func(MMC, mmc, 0) \
+	func(USB, usb, 0) \
+	func(PXE, pxe, na) \
+	func(DHCP, dhcp, na)
+
 #undef CONFIG_IPADDR
 #define CONFIG_IPADDR		192.168.10.2
 #define CONFIG_NETMASK		255.255.255.0
@@ -54,24 +68,6 @@
 	"update_uboot=run set_blkcnt && mmc dev 0 ${uboot_hwpart} && " \
 		"mmc write ${loadaddr} ${uboot_blk} ${blkcnt}\0" \
 
-#define EMMC_BOOTCMD \
-	"set_emmcargs=setenv emmcargs ip=off root=PARTUUID=${uuid} " \
-		"ro rootfstype=ext4 rootwait\0" \
-	"emmcboot=run setup; run emmcfinduuid; run set_emmcargs; " \
-		"setenv bootargs ${defargs} ${emmcargs} " \
-		"${setupargs} ${vidargs}; echo Booting from internal eMMC; " \
-		"run emmcdtbload; " \
-		"load mmc ${emmcdev}:${emmcbootpart} ${kernel_addr_r} " \
-		"${boot_file} && run fdt_fixup && " \
-		"bootz ${kernel_addr_r} - ${dtbparam}\0" \
-	"emmcbootpart=1\0" \
-	"emmcdev=0\0" \
-	"emmcdtbload=setenv dtbparam; load mmc ${emmcdev}:${emmcbootpart} " \
-		"${fdt_addr_r} ${soc}-${fdt_module}-${fdt_board}.dtb && " \
-		"setenv dtbparam ${fdt_addr_r}\0" \
-	"emmcfinduuid=part uuid mmc ${mmcdev}:${emmcrootpart} uuid\0" \
-	"emmcrootpart=2\0"
-
 #define NFS_BOOTCMD \
 	"nfsargs=ip=:::::eth0:on root=/dev/nfs rw\0" \
 	"nfsboot=pci enum; run setup; setenv bootargs ${defargs} ${nfsargs} " \
@@ -82,23 +78,6 @@
 		"${soc}-${fdt_module}-${fdt_board}.dtb " \
 		"&& setenv dtbparam ${fdt_addr_r}\0"
 
-#define SD_BOOTCMD \
-	"set_sdargs=setenv sdargs ip=off root=PARTUUID=${uuid} ro " \
-	"rootfstype=ext4 rootwait\0" \
-	"sdboot=run setup; run sdfinduuid; run set_sdargs; " \
-		"setenv bootargs ${defargs} ${sdargs} ${setupargs} " \
-		"${vidargs}; echo Booting from SD card in 8bit slot...; " \
-		"run sddtbload; load mmc ${sddev}:${sdbootpart} " \
-		"${kernel_addr_r} ${boot_file} && run fdt_fixup && " \
-		"bootz ${kernel_addr_r} - ${dtbparam}\0" \
-	"sdbootpart=1\0" \
-	"sddev=1\0" \
-	"sddtbload=setenv dtbparam; load mmc ${sddev}:${sdbootpart} " \
-		"${fdt_addr_r} ${soc}-${fdt_module}-${fdt_board}.dtb " \
-		"&& setenv dtbparam ${fdt_addr_r}\0" \
-	"sdfinduuid=part uuid mmc ${sddev}:${sdrootpart} uuid\0" \
-	"sdrootpart=2\0"
-
 #define BOARD_EXTRA_ENV_SETTINGS \
 	"boot_file=zImage\0" \
 	"console=ttyS0\0" \
@@ -106,12 +85,10 @@
 		"usb_port_owner_info=2 lane_owner_info=6 emc_max_dvfs=0 " \
 		"user_debug=30 pcie_aspm=off\0" \
 	"dfu_alt_info=" DFU_ALT_EMMC_INFO "\0" \
-	EMMC_BOOTCMD \
 	"fdt_board=eval\0" \
 	"fdt_fixup=;\0" \
 	"fdt_module=" FDT_MODULE "\0" \
 	NFS_BOOTCMD \
-	SD_BOOTCMD \
 	UBOOT_UPDATE \
 	"setethupdate=if env exists ethaddr; then; else setenv ethaddr " \
 		"00:14:2d:00:00:00; fi; pci enum && tftpboot ${loadaddr} " \
