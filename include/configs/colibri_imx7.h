@@ -169,6 +169,7 @@
 	MODULE_EXTRA_ENV_SETTINGS \
 	UBOOT_UPDATE \
 	"boot_file=zImage\0" \
+	"bootubipart=ubi\0" \
 	"console=ttymxc0\0" \
 	"defargs=\0" \
 	"fdt_board=eval-v3\0" \
