@@ -508,7 +508,6 @@ config ATMEL_HLCD
 
 config AM335X_LCD
 	bool "Enable AM335x video support"
-	depends on DM_VIDEO
 	help
 	   Supports video output to an attached LCD panel.
 
