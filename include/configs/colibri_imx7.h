@@ -88,23 +88,6 @@
 		"mmc read ${android_fdt_addr} ${env_start} ${env_size}; " \
 		"bootm ${loadaddr} ${loadaddr} ${android_fdt_addr}\0 "
 
-#define EMMC_BOOTCMD \
-	"set_emmcargs=setenv emmcargs ip=off root=PARTUUID=${uuid} ro " \
-		"rootfstype=ext4 rootwait\0" \
-	"emmcboot=run setup; run emmcfinduuid; run set_emmcargs; " \
-		"setenv bootargs ${defargs} ${emmcargs} ${setupargs} " \
-		"${vidargs}; echo Booting from internal eMMC chip...; " \
-		"run m4boot && " \
-		"load mmc ${emmcdev}:${emmcbootpart} ${fdt_addr_r} " \
-		"${soc}-colibri-emmc-${fdt_board}.dtb && " \
-		"load mmc ${emmcdev}:${emmcbootpart} ${kernel_addr_r} " \
-		"${boot_file} && run fdt_fixup && " \
-		"bootz ${kernel_addr_r} - ${fdt_addr_r}\0" \
-	"emmcbootpart=1\0" \
-	"emmcdev=0\0" \
-	"emmcfinduuid=part uuid mmc ${emmcdev}:${emmcrootpart} uuid\0" \
-	"emmcrootpart=2\0"
-
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"bootm_size=0x10000000\0" \
 	"fdt_addr_r=0x82000000\0" \
@@ -144,7 +127,6 @@
 	"setenv fdtfile ${soc}-colibri-emmc-${fdt_board}.dtb && run distro_bootcmd;"
 #define MODULE_EXTRA_ENV_SETTINGS \
 	"variant=-emmc\0" \
-	EMMC_BOOTCMD \
 	EMMC_ANDROID_BOOTCMD
 #endif
 
@@ -155,8 +137,8 @@
 	func(DHCP, dhcp, na)
 #elif defined(CONFIG_TARGET_COLIBRI_IMX7_EMMC)
 #define BOOT_TARGET_DEVICES(func) \
-	func(MMC, mmc, 0) \
 	func(MMC, mmc, 1) \
+	func(MMC, mmc, 0) \
 	func(USB, usb, 0) \
 	func(DHCP, dhcp, na)
 #endif
@@ -238,10 +220,6 @@
 #define CONFIG_IMX_THERMAL
 
 #define CONFIG_USBD_HS
-
-/* USB Device Firmware Update support */
-#define CONFIG_SYS_DFU_DATA_BUF_SIZE	SZ_16M
-#define DFU_DEFAULT_POLL_TIMEOUT	300
 
 #if defined(CONFIG_VIDEO) || defined(CONFIG_DM_VIDEO)
 #define CONFIG_VIDEO_MXS
