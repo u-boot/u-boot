@@ -95,16 +95,9 @@
 #define USB_MISC_0		0xd81a
 #define USB_AFE_CTRL2		0xd824
 #define USB_WDT11_CTRL		0xe43c
-#define USB_BP_BA		0xfc26
-#define USB_BP_0		0xfc28
-#define USB_BP_1		0xfc2a
-#define USB_BP_2		0xfc2c
-#define USB_BP_3		0xfc2e
-#define USB_BP_4		0xfc30
-#define USB_BP_5		0xfc32
-#define USB_BP_6		0xfc34
-#define USB_BP_7		0xfc36
-#define USB_BP_EN		0xfc38
+#define USB_BP_BA		PLA_BP_BA
+#define USB_BP(n)		(0xfc28 + 2 * (n))
+#define USB_BP_EN		PLA_BP_EN
 
 /* OCP Registers */
 #define OCP_ALDPS_CONFIG	0x2010
