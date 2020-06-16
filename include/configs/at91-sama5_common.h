@@ -19,11 +19,6 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #endif
 
-/* general purpose I/O */
-#if !CONFIG_IS_ENABLED(DM_GPIO)
-#define CONFIG_AT91_GPIO
-#endif
-
 /*
  * BOOTP options
  */

@@ -62,7 +62,6 @@
 
 /* GPIOs and IO expander */
 #define CONFIG_ATMEL_LEGACY
-#define CONFIG_AT91_GPIO
 #define CONFIG_AT91_GPIO_PULLUP		1
 #define CONFIG_PCA953X
 #define CONFIG_SYS_I2C_PCA953X_ADDR	0x28
