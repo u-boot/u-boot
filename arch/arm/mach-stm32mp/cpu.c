@@ -12,6 +12,7 @@
 #include <misc.h>
 #include <net.h>
 #include <asm/io.h>
+#include <asm/arch/bsec.h>
 #include <asm/arch/stm32.h>
 #include <asm/arch/sys_proto.h>
 #include <dm/device.h>
@@ -155,8 +156,13 @@ static void dbgmcu_init(void)
 {
 	setbits_le32(RCC_DBGCFGR, RCC_DBGCFGR_DBGCKEN);
 
-	/* Freeze IWDG2 if Cortex-A7 is in debug mode */
-	setbits_le32(DBGMCU_APB4FZ1, DBGMCU_APB4FZ1_IWDG2);
+	/*
+	 * Freeze IWDG2 if Cortex-A7 is in debug mode
+	 * done in TF-A for TRUSTED boot and
+	 * DBGMCU access is controlled by BSEC_DENABLE.DBGSWENABLE
+	*/
+	if (!IS_ENABLED(CONFIG_TFABOOT) && bsec_dbgswenable())
+		setbits_le32(DBGMCU_APB4FZ1, DBGMCU_APB4FZ1_IWDG2);
 }
 #endif /* !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD) */
 
@@ -276,9 +282,17 @@ void enable_caches(void)
 
 static u32 read_idc(void)
 {
-	setbits_le32(RCC_DBGCFGR, RCC_DBGCFGR_DBGCKEN);
+	/* DBGMCU access is controlled by BSEC_DENABLE.DBGSWENABLE */
+	if (bsec_dbgswenable()) {
+		setbits_le32(RCC_DBGCFGR, RCC_DBGCFGR_DBGCKEN);
 
-	return readl(DBGMCU_IDC);
+		return readl(DBGMCU_IDC);
+	}
+
+	if (CONFIG_IS_ENABLED(STM32MP15x))
+		return CPU_DEV_STM32MP15; /* STM32MP15x and unknown revision */
+	else
+		return 0x0;
 }
 
 u32 get_cpu_dev(void)
