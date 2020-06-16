@@ -54,7 +54,6 @@
 #define CONFIG_HSMMC2_8BIT
 
 /* CPSW Ethernet */
-#define CONFIG_BOOTP_DNS2
 #define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT		10
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs longer aneg time at 1G */
