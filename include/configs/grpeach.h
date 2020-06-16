@@ -29,9 +29,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(1024 * 1024)
 #define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
 
-/* Kernel Boot */
-#define CONFIG_BOOTARGS			"ignore_loglevel"
-
 /* Network interface */
 #define CONFIG_SH_ETHER_USE_PORT	0
 #define CONFIG_SH_ETHER_PHY_ADDR	0

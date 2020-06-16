@@ -83,10 +83,6 @@
 #error No boot method selected, please select 'CONFIG_SYS_USE_NANDFLASH'
 #endif
 
-#define CONFIG_BOOTARGS     "console=ttyS0,115200 earlyprintk " \
-                            "rw noinitrd mem=64M "              \
-                            "rootfstype=ubifs root=ubi0:rootfs ubi.mtd=6"
-
 #define CONFIG_EXTRA_ENV_SETTINGS       \
     "_mtd=mtdparts default; setenv bootargs ${bootargs} ${mtdparts}\0" \
     "autoload=no\0" \

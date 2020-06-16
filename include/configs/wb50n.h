@@ -69,9 +69,6 @@
     "nand read 0x22000000 0x000e0000 0x500000; " \
     "bootm"
 
-#define CONFIG_BOOTARGS \
-    "rw rootfstype=ubifs ubi.mtd=6 root=ubi0:rootfs"
-
 #define CONFIG_SYS_CBSIZE           1024
 #define CONFIG_SYS_MAXARGS          16
 #define CONFIG_SYS_PBSIZE \
