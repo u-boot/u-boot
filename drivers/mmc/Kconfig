@@ -66,7 +66,6 @@ config MMC_SPI_CRC_ON
 
 config ARM_PL180_MMCI
 	bool "ARM AMBA Multimedia Card Interface and compatible support"
-	depends on DM_MMC && OF_CONTROL
 	help
 	  This selects the ARM(R) AMBA(R) PrimeCell Multimedia Card
 	  Interface (PL180, PL181 and compatible) support.
