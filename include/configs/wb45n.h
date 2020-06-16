@@ -22,7 +22,6 @@
 #define CONFIG_ATMEL_LEGACY	/* required until (g)pio is fixed */
 
 /* serial console */
-#define CONFIG_ATMEL_USART
 #define CONFIG_USART_BASE   ATMEL_BASE_DBGU
 #define CONFIG_USART_ID     ATMEL_ID_SYS
 

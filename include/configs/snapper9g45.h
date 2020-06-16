@@ -63,7 +63,6 @@
 #define CONFIG_AT91_GPIO_PULLUP		1
 
 /* UARTs/Serial console */
-#define CONFIG_ATMEL_USART
 
 /* Boot options */
 #define CONFIG_SYS_LOAD_ADDR		0x23000000
