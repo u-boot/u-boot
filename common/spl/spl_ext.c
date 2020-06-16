@@ -32,7 +32,7 @@ int spl_load_image_ext(struct spl_image_info *spl_image,
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 		printf("%s: ext4fs mount err - %d\n", __func__, err);
 #endif
-		goto end;
+		return -1;
 	}
 
 	err = ext4fs_open(filename, &filelen);
