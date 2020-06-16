@@ -34,8 +34,6 @@
 #error Unknown DDR size - please add!
 #endif
 
-#define CONFIG_CONS_INDEX		1
-
 #define CONFIG_SYS_MONITOR_BASE         CONFIG_SYS_TEXT_BASE
 
 #if defined(CONFIG_MTDIDS_DEFAULT) && defined(CONFIG_MTDPARTS_DEFAULT)

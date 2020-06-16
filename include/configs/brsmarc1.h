@@ -69,6 +69,4 @@ BUR_COMMON_ENV \
 /* SPI Flash */
 
 /* Environment */
-
-#define CONFIG_CONS_INDEX			1
 #endif	/* __CONFIG_BRSMARC1_H__ */

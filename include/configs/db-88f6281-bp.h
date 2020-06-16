@@ -29,13 +29,6 @@
 #define CONFIG_SYS_NS16550_COM1		KW_UART0_BASE
 
 #define CONFIG_SYS_MAX_NAND_DEVICE     1
-/*
- * Serial Port configuration
- * The following definitions let you select what serial you want to use
- * for your console driver.
- */
-
-#define CONFIG_CONS_INDEX	1	/* Console on UART0 */
 
 /*
  *  Environment variables configurations
