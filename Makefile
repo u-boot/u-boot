@@ -887,7 +887,7 @@ ALL-$(CONFIG_ONENAND_U_BOOT) += u-boot-onenand.bin
 ifeq ($(CONFIG_SPL_FSL_PBL),y)
 ALL-$(CONFIG_RAMBOOT_PBL) += u-boot-with-spl-pbl.bin
 else
-ifneq ($(CONFIG_SECURE_BOOT), y)
+ifneq ($(CONFIG_NXP_ESBC), y)
 # For Secure Boot The Image needs to be signed and Header must also
 # be included. So The image has to be built explicitly
 ALL-$(CONFIG_RAMBOOT_PBL) += u-boot.pbl

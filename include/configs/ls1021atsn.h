@@ -60,9 +60,9 @@
 #define CONFIG_SYS_FSL_PBL_RCW	\
 		"board/freescale/ls1021atsn/ls102xa_rcw_sd.cfg"
 
-#ifdef CONFIG_SECURE_BOOT
+#ifdef CONFIG_NXP_ESBC
 #define CONFIG_U_BOOT_HDR_SIZE		(16 << 10)
-#endif /* ifdef CONFIG_SECURE_BOOT */
+#endif /* ifdef CONFIG_NXP_ESBC */
 
 #define CONFIG_SPL_MAX_SIZE		0x1a000
 #define CONFIG_SPL_STACK		0x1001d000
