@@ -28,7 +28,6 @@
 #define CONFIG_SYS_I2C_RTC_ADDR         0x68
 
 /* Booting Linux */
-#define CONFIG_BOOTDELAY	2
 #define CONFIG_BOOTFILE		"zImage"
 
 #define CONFIG_BOOTCOMMAND	\
