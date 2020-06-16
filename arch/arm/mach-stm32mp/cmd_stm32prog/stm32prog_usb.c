@@ -197,10 +197,12 @@ bool stm32prog_usb_loop(struct stm32prog_data *data, int dev)
 	bool result;
 	/* USB download gadget for STM32 Programmer */
 	char product[128];
+	char name[SOC_NAME_SIZE];
 
+	get_soc_name(name);
 	snprintf(product, sizeof(product),
-		 "USB download gadget@Device ID /0x%03X, @Revision ID /0x%04X",
-		 get_cpu_dev(), get_cpu_rev());
+		 "USB download gadget@Device ID /0x%03X, @Revision ID /0x%04X, @Name /%s,",
+		 get_cpu_dev(), get_cpu_rev(), name);
 	g_dnl_set_product(product);
 
 	if (stm32prog_data->phase == PHASE_FLASHLAYOUT) {
