@@ -678,7 +678,6 @@ void mmc_adapter_card_type_ident(void)
 	u8 value;
 
 	card_id = QIXIS_READ(present) & QIXIS_SDID_MASK;
-	gd->arch.sdhc_adapter = card_id;
 
 	switch (card_id) {
 	case QIXIS_ESDHC_ADAPTER_TYPE_EMMC45:
