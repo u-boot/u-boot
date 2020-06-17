@@ -41,6 +41,20 @@ config ARMV7_PSCI
 	help
 	  Say Y here to enable PSCI support.
 
+choice
+	prompt "Supported PSCI version"
+	depends on ARMV7_PSCI
+	default ARMV7_PSCI_1_0
+	help
+	  Select the supported PSCI version.
+
+config ARMV7_PSCI_1_0
+	bool "PSCI V1.0"
+
+config ARMV7_PSCI_0_2
+	bool "PSCI V0.2"
+endchoice
+
 config ARMV7_PSCI_NR_CPUS
 	int "Maximum supported CPUs for PSCI"
 	depends on ARMV7_NONSEC

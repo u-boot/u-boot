@@ -39,8 +39,6 @@
 #define BOOTENV
 #endif
 
-#define CONFIG_ARMV7_PSCI_1_0
-
 #define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
 
 #define CONFIG_TIMESTAMP
