@@ -321,7 +321,7 @@ int log_init(void)
 	gd->flags |= GD_FLG_LOG_READY;
 	if (!gd->default_log_level)
 		gd->default_log_level = CONFIG_LOG_DEFAULT_LEVEL;
-	gd->log_fmt = LOGF_DEFAULT;
+	gd->log_fmt = log_get_default_format();
 
 	return 0;
 }

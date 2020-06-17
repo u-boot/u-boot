@@ -21,6 +21,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define LOGF_TEST (BIT(LOGF_FUNC) | BIT(LOGF_MSG))
+
 /**
  * struct sb_log_env - private data for sandbox ethernet driver
  *
@@ -102,7 +104,7 @@ static int log_test_syslog_err(struct unit_test_state *uts)
 	int old_log_level = gd->default_log_level;
 	struct sb_log_env env;
 
-	gd->log_fmt = LOGF_DEFAULT;
+	gd->log_fmt = LOGF_TEST;
 	gd->default_log_level = LOGL_INFO;
 	env_set("ethact", "eth@10002000");
 	env_set("log_hostname", "sandbox");
@@ -116,6 +118,7 @@ static int log_test_syslog_err(struct unit_test_state *uts)
 	/* Check that the callback function was called */
 	sandbox_eth_set_tx_handler(0, NULL);
 	gd->default_log_level = old_log_level;
+	gd->log_fmt = log_get_default_format();
 
 	return 0;
 }
@@ -132,7 +135,7 @@ static int log_test_syslog_warning(struct unit_test_state *uts)
 	int old_log_level = gd->default_log_level;
 	struct sb_log_env env;
 
-	gd->log_fmt = LOGF_DEFAULT;
+	gd->log_fmt = LOGF_TEST;
 	gd->default_log_level = LOGL_INFO;
 	env_set("ethact", "eth@10002000");
 	env_set("log_hostname", "sandbox");
@@ -147,6 +150,7 @@ static int log_test_syslog_warning(struct unit_test_state *uts)
 	/* Check that the callback function was called */
 	ut_assertnull(env.expected);
 	gd->default_log_level = old_log_level;
+	gd->log_fmt = log_get_default_format();
 
 	return 0;
 }
@@ -163,7 +167,7 @@ static int log_test_syslog_notice(struct unit_test_state *uts)
 	int old_log_level = gd->default_log_level;
 	struct sb_log_env env;
 
-	gd->log_fmt = LOGF_DEFAULT;
+	gd->log_fmt = LOGF_TEST;
 	gd->default_log_level = LOGL_INFO;
 	env_set("ethact", "eth@10002000");
 	env_set("log_hostname", "sandbox");
@@ -178,6 +182,7 @@ static int log_test_syslog_notice(struct unit_test_state *uts)
 	/* Check that the callback function was called */
 	ut_assertnull(env.expected);
 	gd->default_log_level = old_log_level;
+	gd->log_fmt = log_get_default_format();
 
 	return 0;
 }
@@ -194,7 +199,7 @@ static int log_test_syslog_info(struct unit_test_state *uts)
 	int old_log_level = gd->default_log_level;
 	struct sb_log_env env;
 
-	gd->log_fmt = LOGF_DEFAULT;
+	gd->log_fmt = LOGF_TEST;
 	gd->default_log_level = LOGL_INFO;
 	env_set("ethact", "eth@10002000");
 	env_set("log_hostname", "sandbox");
@@ -209,6 +214,7 @@ static int log_test_syslog_info(struct unit_test_state *uts)
 	/* Check that the callback function was called */
 	ut_assertnull(env.expected);
 	gd->default_log_level = old_log_level;
+	gd->log_fmt = log_get_default_format();
 
 	return 0;
 }
@@ -225,7 +231,7 @@ static int log_test_syslog_debug(struct unit_test_state *uts)
 	int old_log_level = gd->default_log_level;
 	struct sb_log_env env;
 
-	gd->log_fmt = LOGF_DEFAULT;
+	gd->log_fmt = LOGF_TEST;
 	gd->default_log_level = LOGL_DEBUG;
 	env_set("ethact", "eth@10002000");
 	env_set("log_hostname", "sandbox");
@@ -240,6 +246,7 @@ static int log_test_syslog_debug(struct unit_test_state *uts)
 	/* Check that the callback function was called */
 	ut_assertnull(env.expected);
 	gd->default_log_level = old_log_level;
+	gd->log_fmt = log_get_default_format();
 
 	return 0;
 }
@@ -259,7 +266,7 @@ static int log_test_syslog_nodebug(struct unit_test_state *uts)
 	int old_log_level = gd->default_log_level;
 	struct sb_log_env env;
 
-	gd->log_fmt = LOGF_DEFAULT;
+	gd->log_fmt = LOGF_TEST;
 	gd->default_log_level = LOGL_INFO;
 	env_set("ethact", "eth@10002000");
 	env_set("log_hostname", "sandbox");
@@ -274,6 +281,7 @@ static int log_test_syslog_nodebug(struct unit_test_state *uts)
 	/* Check that the callback function was not called */
 	ut_assertnonnull(env.expected);
 	gd->default_log_level = old_log_level;
+	gd->log_fmt = log_get_default_format();
 
 	return 0;
 }

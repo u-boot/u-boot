@@ -39,6 +39,8 @@ def test_log(u_boot_console):
         Returns:
             iterator containing the lines output from the command
         """
+        output = u_boot_console.run_command('log format fm')
+        assert output == ''
         with cons.log.section('basic'):
            output = u_boot_console.run_command('log test %d' % testnum)
         split = output.replace('\r', '').splitlines()

@@ -699,6 +699,24 @@ config LOG_CONSOLE
 	  log message is shown - other details like level, category, file and
 	  line number are omitted.
 
+config LOGF_FILE
+	bool "Show source file name in log messages by default"
+	help
+	  Show the source file name in log messages by default. This value
+	  can be overridden using the 'log format' command.
+
+config LOGF_LINE
+	bool "Show source line number in log messages by default"
+	help
+	  Show the source line number in log messages by default. This value
+	  can be overridden using the 'log format' command.
+
+config LOGF_FUNC
+	bool "Show function name in log messages by default"
+	help
+	  Show the function name in log messages by default. This value can
+	  be overridden using the 'log format' command.
+
 config LOG_SYSLOG
 	bool "Log output to syslog server"
 	depends on NET

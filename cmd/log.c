@@ -39,7 +39,7 @@ static int do_log_format(struct cmd_tbl *cmdtp, int flag, int argc,
 		const char *str = argv[1];
 
 		if (!strcmp(str, "default")) {
-			gd->log_fmt = LOGF_DEFAULT;
+			gd->log_fmt = log_get_default_format();
 		} else if (!strcmp(str, "all")) {
 			gd->log_fmt = LOGF_ALL;
 		} else {
@@ -139,7 +139,7 @@ static char log_help_text[] =
 	"log format <fmt> - set log output format. <fmt> is a string where\n"
 	"\teach letter indicates something that should be displayed:\n"
 	"\tc=category, l=level, F=file, L=line number, f=function, m=msg\n"
-	"\tor 'default', equivalent to 'fm', or 'all' for all\n"
+	"\tor 'default', or 'all' for all\n"
 	"log rec <category> <level> <file> <line> <func> <message> - "
 		"output a log record"
 	;
