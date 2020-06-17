@@ -82,21 +82,21 @@ static int log_syslog_emit(struct log_device *ldev, struct log_rec *rec)
 	if (log_hostname)
 		append(&ptr, msg_end, "%s ", log_hostname);
 	append(&ptr, msg_end, "uboot: ");
-	if (fmt & (1 << LOGF_LEVEL))
+	if (fmt & BIT(LOGF_LEVEL))
 		append(&ptr, msg_end, "%s.",
 		       log_get_level_name(rec->level));
-	if (fmt & (1 << LOGF_CAT))
+	if (fmt & BIT(LOGF_CAT))
 		append(&ptr, msg_end, "%s,",
 		       log_get_cat_name(rec->cat));
-	if (fmt & (1 << LOGF_FILE))
+	if (fmt & BIT(LOGF_FILE))
 		append(&ptr, msg_end, "%s:", rec->file);
-	if (fmt & (1 << LOGF_LINE))
+	if (fmt & BIT(LOGF_LINE))
 		append(&ptr, msg_end, "%d-", rec->line);
-	if (fmt & (1 << LOGF_FUNC))
+	if (fmt & BIT(LOGF_FUNC))
 		append(&ptr, msg_end, "%s()", rec->func);
-	if (fmt & (1 << LOGF_MSG))
+	if (fmt & BIT(LOGF_MSG))
 		append(&ptr, msg_end, "%s%s",
-		       fmt != (1 << LOGF_MSG) ? " " : "", rec->msg);
+		       fmt != BIT(LOGF_MSG) ? " " : "", rec->msg);
 	/* Consider trailing 0x00 */
 	ptr++;
 
