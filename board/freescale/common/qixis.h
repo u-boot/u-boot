@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2011 Freescale Semiconductor
+ * Copyright 2020 NXP
  * Author: Shengzhou Liu <Shengzhou.Liu@freescale.com>
  *
  * This file provides support for the QIXIS of some Freescale reference boards.
@@ -115,7 +116,6 @@ void qixis_write_i2c(unsigned int reg, u8 value);
 #endif
 
 /* Use for SDHC adapter card type identification and operation */
-#ifdef CONFIG_FSL_ESDHC_ADAPTER_IDENT
 #define QIXIS_SDID_MASK                         0x07
 #define QIXIS_ESDHC_ADAPTER_TYPE_EMMC45         0x1	/* eMMC Card Rev4.5 */
 #define QIXIS_ESDHC_ADAPTER_TYPE_SDMMC_LEGACY   0x2	/* SD/MMC Legacy Card */
@@ -131,6 +131,5 @@ void qixis_write_i2c(unsigned int reg, u8 value);
 #define QIXIS_DAT4		0X01
 
 #define QIXIS_EVDD_BY_SDHC_VS	0x0c
-#endif
 
 #endif

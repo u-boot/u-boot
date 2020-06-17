@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2008, Freescale Semiconductor, Inc
+ * Copyright 2020 NXP
  * Andy Fleming
  *
  * Based vaguely on the Linux code
@@ -2789,9 +2790,6 @@ int mmc_get_op_cond(struct mmc *mmc)
 	if (mmc->has_init)
 		return 0;
 
-#ifdef CONFIG_FSL_ESDHC_ADAPTER_IDENT
-	mmc_adapter_card_type_ident();
-#endif
 	err = mmc_power_init(mmc);
 	if (err)
 		return err;
@@ -3073,9 +3071,6 @@ int mmc_init_device(int num)
 	m = mmc_get_mmc_dev(dev);
 	if (!m)
 		return 0;
-#ifdef CONFIG_FSL_ESDHC_ADAPTER_IDENT
-	mmc_set_preinit(m, 1);
-#endif
 	if (m->preinit)
 		mmc_start_init(m);
 
