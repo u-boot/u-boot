@@ -18,6 +18,7 @@
 #include <fdt_support.h>
 #include <linux/bitops.h>
 #include <linux/libfdt.h>
+#include <linux/delay.h>
 #include <fsl-mc/fsl_mc.h>
 #include <env_internal.h>
 #include <efi_loader.h>
@@ -379,7 +380,7 @@ int checkboard(void)
  */
 u8 qixis_esdhc_detect_quirk(void)
 {
-	/* for LX2160AQDS res1[1] @ offset 0x1A is SDHC1 Control/Status (SDHC1)
+	/*
 	 * SDHC1 Card ID:
 	 * Specifies the type of card installed in the SDHC1 adapter slot.
 	 * 000= (reserved)
@@ -391,8 +392,33 @@ u8 qixis_esdhc_detect_quirk(void)
 	 * 110= SDCard V2/V3 adapter installed.
 	 * 111= no adapter is installed.
 	 */
-	return ((QIXIS_READ(res1[1]) & QIXIS_SDID_MASK) !=
+	return ((QIXIS_READ(sdhc1) & QIXIS_SDID_MASK) !=
 		 QIXIS_ESDHC_NO_ADAPTER);
+}
+
+static void esdhc_adapter_card_ident(void)
+{
+	u8 card_id, val;
+
+	val = QIXIS_READ(sdhc1);
+	card_id = val & QIXIS_SDID_MASK;
+
+	switch (card_id) {
+	case QIXIS_ESDHC_ADAPTER_TYPE_SD:
+		/* Power cycle to card */
+		val &= ~QIXIS_SDHC1_S1V3;
+		QIXIS_WRITE(sdhc1, val);
+		mdelay(1);
+		val |= QIXIS_SDHC1_S1V3;
+		QIXIS_WRITE(sdhc1, val);
+		/* Route to SDHC1_VS */
+		val = QIXIS_READ(brdcfg[11]);
+		val |= QIXIS_SDHC1_VS;
+		QIXIS_WRITE(brdcfg[11], val);
+		break;
+	default:
+		break;
+	}
 }
 
 int config_board_mux(void)
@@ -499,6 +525,12 @@ int config_board_mux(void)
 		QIXIS_WRITE(brdcfg[11], reg11);
 	}
 
+	return 0;
+}
+
+int board_early_init_r(void)
+{
+	esdhc_adapter_card_ident();
 	return 0;
 }
 #elif defined(CONFIG_TARGET_LX2160ARDB)

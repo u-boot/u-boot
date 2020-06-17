@@ -36,7 +36,12 @@ struct qixis {
 	u8 gdc;
 	u8 gdd;         /* DCM Debug Data Register,0x17 */
 	u8 dmack;
-	u8 res1[6];
+	u8 res1;
+	u8 sdhc1;
+	u8 sdhc2;
+	u8 stat_pres3;
+	u8 los_stat;
+	u8 usb_ctl;
 	u8 watch;       /* Watchdog Register,0x1F */
 	u8 pwr_ctl[2];  /* Power Control Register,0x20 */
 	u8 res2[2];
@@ -117,6 +122,7 @@ void qixis_write_i2c(unsigned int reg, u8 value);
 
 /* Use for SDHC adapter card type identification and operation */
 #define QIXIS_SDID_MASK                         0x07
+
 #define QIXIS_ESDHC_ADAPTER_TYPE_EMMC45         0x1	/* eMMC Card Rev4.5 */
 #define QIXIS_ESDHC_ADAPTER_TYPE_SDMMC_LEGACY   0x2	/* SD/MMC Legacy Card */
 #define QIXIS_ESDHC_ADAPTER_TYPE_EMMC44         0x3	/* eMMC Card Rev4.4 */
@@ -124,6 +130,9 @@ void qixis_write_i2c(unsigned int reg, u8 value);
 #define QIXIS_ESDHC_ADAPTER_TYPE_MMC            0x5	/* MMC Card */
 #define QIXIS_ESDHC_ADAPTER_TYPE_SD             0x6	/* SD Card Rev2.0 3.0 */
 #define QIXIS_ESDHC_NO_ADAPTER                  0x7	/* No Card is Present*/
+
+#define QIXIS_SDHC1_S1V3	0x80	/* SDHC1: SDHC1 3.3V power control */
+#define QIXIS_SDHC1_VS		0x30	/* BRDCFG11: route to SDHC1_VS */
 
 #define QIXIS_SDCLKIN		0x08
 #define QIXIS_SDCLKOUT		0x02
