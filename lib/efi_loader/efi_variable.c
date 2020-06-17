@@ -827,7 +827,7 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
 	efi_uintn_t old_size;
 	bool append, delete;
 	u64 time = 0;
-	u32 attr;
+	u32 old_attr;
 	efi_status_t ret = EFI_SUCCESS;
 
 	if (!variable_name || !*variable_name || !vendor ||
@@ -843,8 +843,8 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
 
 	/* check if a variable exists */
 	old_size = 0;
-	attr = 0;
-	ret = efi_get_variable_int(variable_name, vendor, &attr,
+	old_attr = 0;
+	ret = efi_get_variable_int(variable_name, vendor, &old_attr,
 				   &old_size, NULL, &time);
 	append = !!(attributes & EFI_VARIABLE_APPEND_WRITE);
 	attributes &= ~(u32)EFI_VARIABLE_APPEND_WRITE;
@@ -852,15 +852,15 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
 
 	/* check attributes */
 	if (old_size) {
-		if (ro_check && (attr & EFI_VARIABLE_READ_ONLY)) {
+		if (ro_check && (old_attr & EFI_VARIABLE_READ_ONLY)) {
 			ret = EFI_WRITE_PROTECTED;
 			goto err;
 		}
 
 		/* attributes won't be changed */
 		if (!delete &&
-		    ((ro_check && attr != attributes) ||
-		     (!ro_check && ((attr & ~(u32)EFI_VARIABLE_READ_ONLY)
+		    ((ro_check && old_attr != attributes) ||
+		     (!ro_check && ((old_attr & ~(u32)EFI_VARIABLE_READ_ONLY)
 				    != (attributes & ~(u32)EFI_VARIABLE_READ_ONLY))))) {
 			ret = EFI_INVALID_PARAMETER;
 			goto err;
@@ -902,7 +902,7 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
 		    EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS) {
 			ret = efi_variable_authenticate(variable_name, vendor,
 							&data_size, &data,
-							attributes, &attr,
+							attributes, &old_attr,
 							&time);
 			if (ret != EFI_SUCCESS)
 				goto err;
@@ -936,7 +936,7 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
 			goto err;
 		}
 		ret = efi_get_variable_int(variable_name, vendor,
-					   &attr, &old_size, old_data, NULL);
+					   &old_attr, &old_size, old_data, NULL);
 		if (ret != EFI_SUCCESS)
 			goto err;
 	} else {
@@ -962,8 +962,8 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
 		       EFI_VARIABLE_RUNTIME_ACCESS |
 		       EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS);
 	s += sprintf(s, "{");
-	while (attributes) {
-		attr = 1 << (ffs(attributes) - 1);
+	for (u32 attr_rem = attributes; attr_rem;) {
+		u32 attr = 1 << (ffs(attr_rem) - 1);
 
 		if (attr == EFI_VARIABLE_READ_ONLY) {
 			s += sprintf(s, "ro");
@@ -979,8 +979,8 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
 			s = bin2hex(s, (u8 *)&time, sizeof(time));
 		}
 
-		attributes &= ~attr;
-		if (attributes)
+		attr_rem &= ~attr;
+		if (attr_rem)
 			s += sprintf(s, ",");
 	}
 	s += sprintf(s, "}");
