@@ -285,7 +285,7 @@ out:
 }
 #endif
 
-#if CONFIG_IS_ENABLED(FIT_SIGNATURE) || IS_ENABLED(CONFIG_RSA_VERIFY_WITH_PKEY)
+#if CONFIG_IS_ENABLED(FIT_SIGNATURE) || CONFIG_IS_ENABLED(RSA_VERIFY_WITH_PKEY)
 /**
  * rsa_verify_key() - Verify a signature against some data using RSA Key
  *
@@ -359,7 +359,7 @@ static int rsa_verify_key(struct image_sign_info *info,
 }
 #endif
 
-#ifdef CONFIG_RSA_VERIFY_WITH_PKEY
+#if CONFIG_IS_ENABLED(RSA_VERIFY_WITH_PKEY)
 /**
  * rsa_verify_with_pkey() - Verify a signature against some data using
  * only modulus and exponent as RSA key properties.
@@ -492,7 +492,7 @@ int rsa_verify(struct image_sign_info *info,
 		return -EINVAL;
 	}
 
-	if (IS_ENABLED(CONFIG_RSA_VERIFY_WITH_PKEY) && !info->fdt_blob) {
+	if (CONFIG_IS_ENABLED(RSA_VERIFY_WITH_PKEY) && !info->fdt_blob) {
 		/* don't rely on fdt properties */
 		ret = rsa_verify_with_pkey(info, hash, sig, sig_len);
 
