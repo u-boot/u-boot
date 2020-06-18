@@ -326,6 +326,7 @@ dtb-$(CONFIG_ARCH_VERSAL) += \
 	versal-vck190-revA-x-ebm-01-revA.dtb \
 	versal-vck190-revA-x-ebm-02-revA.dtb \
 	versal-vck190-revA-x-ebm-03-revA.dtb \
+	versal-vck5000-revA.dtb \
 	versal-vc-p-a2197-00-revA.dtb \
 	versal-vc-p-a2197-00-revA-x-prc-01-revA.dtb \
 	versal-vc-p-a2197-00-revA-x-prc-01-revA-ospi.dtb \
