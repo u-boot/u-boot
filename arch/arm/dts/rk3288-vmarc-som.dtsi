@@ -251,15 +251,6 @@
 	};
 };
 
-&io_domains {
-	bb-supply = <&vcc_io>;
-	flash0-supply = <&vccio_flash>;
-	gpio1830-supply = <&vcc_18>;
-	gpio30-supply = <&vcc_io>;
-	sdcard-supply = <&vccio_sd>;
-	status = "okay";
-};
-
 &pinctrl {
 	pcfg_pull_none_drv_8ma: pcfg-pull-none-drv-8ma {
 		drive-strength = <8>;
