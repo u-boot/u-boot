@@ -713,7 +713,7 @@ struct stdio_dev *search_device(int flags, const char *name)
 
 	dev = stdio_get_by_name(name);
 #ifdef CONFIG_VIDCONSOLE_AS_LCD
-	if (!dev && !strcmp(name, "lcd"))
+	if (!dev && !strcmp(name, CONFIG_VIDCONSOLE_AS_LCD))
 		dev = stdio_get_by_name("vidconsole");
 #endif
 
@@ -897,8 +897,9 @@ done:
 	stdio_print_current_devices();
 #endif /* CONFIG_SYS_CONSOLE_INFO_QUIET */
 #ifdef CONFIG_VIDCONSOLE_AS_LCD
-	if (strstr(stdoutname, "lcd"))
-		printf("Warning: Please change 'lcd' to 'vidconsole' in stdout/stderr environment vars\n");
+	if (strstr(stdoutname, CONFIG_VIDCONSOLE_AS_LCD))
+		printf("Warning: Please change '%s' to 'vidconsole' in stdout/stderr environment vars\n",
+		       CONFIG_VIDCONSOLE_AS_LCD);
 #endif
 
 #ifdef CONFIG_SYS_CONSOLE_ENV_OVERWRITE

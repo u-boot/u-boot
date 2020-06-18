@@ -613,6 +613,7 @@ UCLASS_DRIVER(vidconsole) = {
 	.per_device_auto_alloc_size	= sizeof(struct vidconsole_priv),
 };
 
+#if CONFIG_IS_ENABLED(CMD_VIDCONSOLE)
 void vidconsole_position_cursor(struct udevice *dev, unsigned col, unsigned row)
 {
 	struct vidconsole_priv *priv = dev_get_uclass_priv(dev);
@@ -673,3 +674,4 @@ U_BOOT_CMD(
 	"print string on video framebuffer",
 	"    <string>"
 );
+#endif /* CONFIG_IS_ENABLED(CMD_VIDCONSOLE) */
