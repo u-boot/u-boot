@@ -17,7 +17,6 @@
 #include <image.h>
 #include <init.h>
 #include <log.h>
-#include <net.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/iomux.h>
@@ -33,8 +32,6 @@
 #include <mmc.h>
 #include <fsl_esdhc_imx.h>
 #include <malloc.h>
-#include <miiphy.h>
-#include <netdev.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
@@ -52,16 +49,6 @@ DECLARE_GLOBAL_DATA_PTR;
 	PAD_CTL_SPEED_LOW | PAD_CTL_DSE_80ohm |			\
 	PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
 
-#define ENET_PAD_CTRL  (PAD_CTL_PUS_100K_UP |			\
-	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS)
-
-#define ENET_PAD_CTRL_PD  (PAD_CTL_PUS_100K_DOWN |		\
-	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS)
-
-#define ENET_PAD_CTRL_CLK  ((PAD_CTL_PUS_100K_UP & ~PAD_CTL_PKE) | \
-	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_SRE_FAST)
-
-#define ETH_PHY_RESET	IMX_GPIO_NR(4, 15)
 #define USB_H1_VBUS	IMX_GPIO_NR(1, 0)
 
 enum board_type {
@@ -237,110 +224,6 @@ int board_mmc_init(bd_t *bis)
 	return 0;
 }
 
-static iomux_v3_cfg_t const enet_pads[] = {
-	IOMUX_PADS(PAD_ENET_MDIO__ENET_MDIO | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_ENET_MDC__ENET_MDC | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	/* AR8035 reset */
-	IOMUX_PADS(PAD_KEY_ROW4__GPIO4_IO15 | MUX_PAD_CTRL(ENET_PAD_CTRL_PD)),
-	/* AR8035 interrupt */
-	IOMUX_PADS(PAD_DI0_PIN2__GPIO4_IO18 | MUX_PAD_CTRL(NO_PAD_CTRL)),
-	/* GPIO16 -> AR8035 25MHz */
-	IOMUX_PADS(PAD_GPIO_16__ENET_REF_CLK	  | MUX_PAD_CTRL(NO_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_TXC__RGMII_TXC	  | MUX_PAD_CTRL(NO_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_TD0__RGMII_TD0 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_TD1__RGMII_TD1 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_TD2__RGMII_TD2 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_TD3__RGMII_TD3 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_TX_CTL__RGMII_TX_CTL | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	/* AR8035 CLK_25M --> ENET_REF_CLK (V22) */
-	IOMUX_PADS(PAD_ENET_REF_CLK__ENET_TX_CLK | MUX_PAD_CTRL(ENET_PAD_CTRL_CLK)),
-	IOMUX_PADS(PAD_RGMII_RXC__RGMII_RXC | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_RD0__RGMII_RD0 | MUX_PAD_CTRL(ENET_PAD_CTRL_PD)),
-	IOMUX_PADS(PAD_RGMII_RD1__RGMII_RD1 | MUX_PAD_CTRL(ENET_PAD_CTRL_PD)),
-	IOMUX_PADS(PAD_RGMII_RD2__RGMII_RD2 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_RD3__RGMII_RD3 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_RX_CTL__RGMII_RX_CTL | MUX_PAD_CTRL(ENET_PAD_CTRL_PD)),
-	IOMUX_PADS(PAD_ENET_RXD0__GPIO1_IO27 | MUX_PAD_CTRL(ENET_PAD_CTRL_PD)),
-	IOMUX_PADS(PAD_ENET_RXD1__GPIO1_IO26 | MUX_PAD_CTRL(ENET_PAD_CTRL_PD)),
-};
-
-static void setup_iomux_enet(void)
-{
-	struct gpio_desc desc;
-	int ret;
-
-	SETUP_IOMUX_PADS(enet_pads);
-
-	ret = dm_gpio_lookup_name("GPIO4_15", &desc);
-	if (ret) {
-		printf("%s: phy reset lookup failed\n", __func__);
-		return;
-	}
-
-	ret = dm_gpio_request(&desc, "phy-reset");
-	if (ret) {
-		printf("%s: phy reset request failed\n", __func__);
-		return;
-	}
-
-	gpio_direction_output(ETH_PHY_RESET, 0);
-	mdelay(10);
-	gpio_set_value(ETH_PHY_RESET, 1);
-	udelay(100);
-
-	gpio_free_list_nodev(&desc, 1);
-}
-
-int board_phy_config(struct phy_device *phydev)
-{
-	if (phydev->drv->config)
-		phydev->drv->config(phydev);
-
-	return 0;
-}
-
-/* On Cuboxi Ethernet PHY can be located at addresses 0x0 or 0x4 */
-#define ETH_PHY_MASK	((1 << 0x0) | (1 << 0x4))
-
-int board_eth_init(bd_t *bis)
-{
-	struct iomuxc *const iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
-	struct mii_dev *bus;
-	struct phy_device *phydev;
-
-	int ret = enable_fec_anatop_clock(0, ENET_25MHZ);
-	if (ret)
-		return ret;
-
-	/* set gpr1[ENET_CLK_SEL] */
-	setbits_le32(&iomuxc_regs->gpr[1], IOMUXC_GPR1_ENET_CLK_SEL_MASK);
-
-	setup_iomux_enet();
-
-	bus = fec_get_miibus(IMX_FEC_BASE, -1);
-	if (!bus)
-		return -EINVAL;
-
-	phydev = phy_find_by_mask(bus, ETH_PHY_MASK, PHY_INTERFACE_MODE_RGMII);
-	if (!phydev) {
-		ret = -EINVAL;
-		goto free_bus;
-	}
-
-	debug("using phy at address %d\n", phydev->addr);
-	ret = fec_probe(bis, -1, IMX_FEC_BASE, bus, phydev);
-	if (ret)
-		goto free_phydev;
-
-	return 0;
-
-free_phydev:
-	free(phydev);
-free_bus:
-	free(bus);
-	return ret;
-}
-
 #ifdef CONFIG_VIDEO_IPUV3
 static void do_enable_hdmi(struct display_info_t const *dev)
 {
@@ -433,6 +316,21 @@ static int setup_display(void)
 }
 #endif /* CONFIG_VIDEO_IPUV3 */
 
+static int setup_fec(void)
+{
+	struct iomuxc *const iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
+	int ret;
+
+	ret = enable_fec_anatop_clock(0, ENET_25MHZ);
+	if (ret)
+		return ret;
+
+	/* set gpr1[ENET_CLK_SEL] */
+	setbits_le32(&iomuxc_regs->gpr[1], IOMUXC_GPR1_ENET_CLK_SEL_MASK);
+
+	return 0;
+}
+
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
@@ -440,6 +338,8 @@ int board_early_init_f(void)
 #ifdef CONFIG_CMD_SATA
 	setup_sata();
 #endif
+	setup_fec();
+
 	return 0;
 }
 
