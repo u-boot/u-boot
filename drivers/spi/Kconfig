@@ -162,6 +162,12 @@ config ICH_SPI
 	  access the SPI NOR flash on platforms embedding this Intel
 	  ICH IP core.
 
+config KIRKWOOD_SPI
+	bool "Marvell Kirkwood SPI Driver"
+	help
+	  Enable support for SPI on various Marvell SoCs, such as
+	  Kirkwood and Armada 375.
+
 config MESON_SPIFC
 	bool "Amlogic Meson SPI Flash Controller driver"
 	depends on ARCH_MESON
@@ -423,12 +429,6 @@ config SH_QSPI
 	help
 	  Enable the Renesas Quad SPI controller driver. This driver can be
 	  used on Renesas SoCs.
-
-config KIRKWOOD_SPI
-	bool "Marvell Kirkwood SPI Driver"
-	help
-	  Enable support for SPI on various Marvell SoCs, such as
-	  Kirkwood and Armada 375.
 
 config MXC_SPI
 	bool "MXC SPI Driver"
