@@ -49,8 +49,8 @@
 	"scriptaddr=" __stringify(CONFIG_LOADADDR) "\0" \
 	"fdtfile=undefined\0" \
 	"stdin=serial,usbkbd\0" \
-	"stdout=serial,vga\0" \
-	"stderr=serial,vga\0" \
+	"stdout=serial,vidconsole\0" \
+	"stderr=serial,vidconsole\0" \
 	"panel=HDMI\0" \
 	"autoload=no\0" \
 	"uImage=uImage-cm-fx6\0" \
