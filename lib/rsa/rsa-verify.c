@@ -194,6 +194,19 @@ out:
 	return ret;
 }
 
+/*
+ * padding_pss_verify() - verify the pss padding of a signature
+ *
+ * Only works with a rsa_pss_saltlen:-2 (default value) right now
+ * saltlen:-1 "set the salt length to the digest length" is currently
+ * not supported.
+ *
+ * @info:	Specifies key and FIT information
+ * @msg:	byte array of message, len equal to msg_len
+ * @msg_len:	Message length
+ * @hash:	Pointer to the expected hash
+ * @hash_len:	Length of the hash
+ */
 int padding_pss_verify(struct image_sign_info *info,
 		       uint8_t *msg, int msg_len,
 		       const uint8_t *hash, int hash_len)
