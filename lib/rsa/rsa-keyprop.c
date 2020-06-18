@@ -691,7 +691,7 @@ int rsa_gen_key_prop(const void *key, uint32_t keylen, struct key_prop **prop)
 	memcpy((void *)(*prop)->public_exponent + sizeof(uint64_t)
 						- rsa_key.e_sz,
 	       rsa_key.e, rsa_key.e_sz);
-	(*prop)->exp_len = rsa_key.e_sz;
+	(*prop)->exp_len = sizeof(uint64_t);
 
 	/* n0 inverse */
 	br_i32_decode(n, &rsa_key.n[i], rsa_key.n_sz - i);
