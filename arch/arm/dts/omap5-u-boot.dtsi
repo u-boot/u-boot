@@ -7,6 +7,7 @@
  * Based on "dra7.dtsi"
  */
 
+#ifdef CONFIG_DRA7XX
 /{
 	chosen {
 		tick-timer = &timer2;
@@ -105,3 +106,44 @@
 &i2c1 {
 	u-boot,dm-spl;
 };
+
+#else /* OMAP54XX */
+&l4_cfg {
+	segment@0 {
+		/* SCM Core */
+		target-module@2000 {
+			compatible = "simple-bus";
+		};
+
+		/* USB HS */
+		target-module@64000 {
+			compatible = "simple-bus";
+		};
+	};
+};
+
+&l4_per {
+	segment@0 {
+		/* UART3 */
+		target-module@20000 {
+			compatible = "simple-bus";
+		};
+
+		/* I2C1 */
+		target-module@70000 {
+			compatible = "simple-bus";
+		};
+
+		/* MMC1 */
+		target-module@9c000 {
+			compatible = "simple-bus";
+		};
+
+		/* MMC2 */
+		target-module@b4000 {
+			compatible = "simple-bus";
+		};
+	};
+};
+
+#endif

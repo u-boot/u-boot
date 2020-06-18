@@ -9,6 +9,7 @@
 #include <init.h>
 #include <net.h>
 #include <twl6030.h>
+#include <serial.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mmc_host_def.h>
 
@@ -90,6 +91,17 @@ void board_mmc_power_init(void)
 }
 #endif
 #endif
+
+#if defined(CONFIG_SPL_OS_BOOT)
+int spl_start_uboot(void)
+{
+	/* break into full u-boot on 'c' */
+	if (serial_tstc() && serial_getc() == 'c')
+		return 1;
+
+	return 0;
+}
+#endif /* CONFIG_SPL_OS_BOOT */
 
 /*
  * get_board_rev() - get board revision

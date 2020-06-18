@@ -912,7 +912,6 @@ struct cpsw_platform_data am335_eth_data = {
 	.slaves			= 2,
 	.slave_data		= slave_data,
 	.ale_entries		= 1024,
-	.bd_ram_ofs		= 0x2000,
 	.mac_control		= 0x20,
 	.active_slave		= 0,
 	.mdio_base		= 0x4a101000,

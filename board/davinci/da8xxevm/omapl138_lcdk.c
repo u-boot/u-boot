@@ -368,8 +368,20 @@ U_BOOT_DEVICE(omapl138_uart) = {
 	.platdata = &serial_pdata,
 };
 
+static const struct davinci_mmc_plat mmc_platdata = {
+	.reg_base = (struct davinci_mmc_regs *)DAVINCI_MMC_SD0_BASE,
+	.cfg = {
+		.f_min = 200000,
+		.f_max = 25000000,
+		.voltages = MMC_VDD_32_33 | MMC_VDD_33_34,
+		.host_caps = MMC_MODE_4BIT,
+		.b_max = DAVINCI_MAX_BLOCKS,
+		.name = "da830-mmc",
+	},
+};
 U_BOOT_DEVICE(omapl138_mmc) = {
 	.name = "davinci_mmc",
+	.platdata = &mmc_platdata,
 };
 
 void spl_board_init(void)
