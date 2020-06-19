@@ -4,6 +4,7 @@
  *-------------------------------------------------------------------
  *
  * Copyright 2007-2008,2010-2011 Freescale Semiconductor, Inc
+ * Copyright 2020 NXP
  */
 
 #ifndef  __FSL_ESDHC_H__
@@ -98,6 +99,7 @@
 #define PROCTL_DTW_4		0x00000002
 #define PROCTL_DTW_8		0x00000004
 #define PROCTL_D3CD		0x00000008
+#define PROCTL_VOLT_SEL		0x00000400
 
 #define CMDARG			0x0002e008
 

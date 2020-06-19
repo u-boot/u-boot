@@ -25,6 +25,7 @@
 #define PLA_BDC_CR		0xd1a0
 #define PLA_TEREDO_TIMER	0xd2cc
 #define PLA_REALWOW_TIMER	0xd2e8
+#define PLA_EXTRA_STATUS	0xd398
 #define PLA_LEDSEL		0xdd90
 #define PLA_LED_FEATURE		0xdd92
 #define PLA_PHYAR		0xde00
@@ -76,6 +77,7 @@
 #define USB_DEV_STAT		0xb808
 #define USB_CONNECT_TIMER	0xcbf8
 #define USB_BURST_SIZE		0xcfc0
+#define USB_FW_FIX_EN1		0xcfcc
 #define USB_USB_CTRL		0xd406
 #define USB_PHY_CTRL		0xd408
 #define USB_TX_AGG		0xd40a
@@ -285,6 +287,9 @@
 /* PLA_BOOT_CTRL */
 #define AUTOLOAD_DONE		0x0002
 
+/* PLA_EXTRA_STATUS */
+#define U3P3_CHECK_EN		BIT(7)
+
 /* USB_USB2PHY */
 #define USB2PHY_SUSPEND		0x0001
 #define USB2PHY_L1		0x0002
@@ -303,6 +308,9 @@
 #define STAT_SPEED_MASK		0x0006
 #define STAT_SPEED_HIGH		0x0000
 #define STAT_SPEED_FULL		0x0002
+
+/* USB_FW_FIX_EN1 */
+#define FW_IP_RESET_EN		BIT(9)
 
 /* USB_TX_AGG */
 #define TX_AGG_MAX_THRESHOLD	0x03

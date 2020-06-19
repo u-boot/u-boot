@@ -9,5 +9,6 @@ U-Boot API documentation
    dfu
    efi
    linker_lists
+   rng
    serial
    unicode

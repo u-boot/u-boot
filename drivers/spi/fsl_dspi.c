@@ -100,13 +100,6 @@ struct fsl_dspi_priv {
 	struct dspi *regs;
 };
 
-#ifndef CONFIG_DM_SPI
-struct fsl_dspi {
-	struct spi_slave slave;
-	struct fsl_dspi_priv priv;
-};
-#endif
-
 __weak void cpu_dspi_port_conf(void)
 {
 }
@@ -414,131 +407,7 @@ static int fsl_dspi_cfg_speed(struct fsl_dspi_priv *priv, uint speed)
 
 	return 0;
 }
-#ifndef CONFIG_DM_SPI
-int spi_cs_is_valid(unsigned int bus, unsigned int cs)
-{
-	if (((cs >= 0) && (cs < 8)) && ((bus >= 0) && (bus < 8)))
-		return 1;
-	else
-		return 0;
-}
 
-struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
-				  unsigned int max_hz, unsigned int mode)
-{
-	struct fsl_dspi *dspi;
-	uint mcr_cfg_val;
-
-	dspi = spi_alloc_slave(struct fsl_dspi, bus, cs);
-	if (!dspi)
-		return NULL;
-
-	cpu_dspi_port_conf();
-
-#ifdef CONFIG_SYS_FSL_DSPI_BE
-	dspi->priv.flags |= DSPI_FLAG_REGMAP_ENDIAN_BIG;
-#endif
-
-	dspi->priv.regs = (struct dspi *)MMAP_DSPI;
-
-#ifdef CONFIG_M68K
-	dspi->priv.bus_clk = gd->bus_clk;
-#else
-	dspi->priv.bus_clk = mxc_get_clock(MXC_DSPI_CLK);
-#endif
-	dspi->priv.speed_hz = FSL_DSPI_DEFAULT_SCK_FREQ;
-
-	/* default: all CS signals inactive state is high */
-	mcr_cfg_val = DSPI_MCR_MSTR | DSPI_MCR_PCSIS_MASK |
-		DSPI_MCR_CRXF | DSPI_MCR_CTXF;
-	fsl_dspi_init_mcr(&dspi->priv, mcr_cfg_val);
-
-	for (i = 0; i < FSL_DSPI_MAX_CHIPSELECT; i++)
-		dspi->priv.ctar_val[i] = DSPI_CTAR_DEFAULT_VALUE;
-
-#ifdef CONFIG_SYS_DSPI_CTAR0
-	if (FSL_DSPI_MAX_CHIPSELECT > 0)
-		dspi->priv.ctar_val[0] = CONFIG_SYS_DSPI_CTAR0;
-#endif
-#ifdef CONFIG_SYS_DSPI_CTAR1
-	if (FSL_DSPI_MAX_CHIPSELECT > 1)
-		dspi->priv.ctar_val[1] = CONFIG_SYS_DSPI_CTAR1;
-#endif
-#ifdef CONFIG_SYS_DSPI_CTAR2
-	if (FSL_DSPI_MAX_CHIPSELECT > 2)
-		dspi->priv.ctar_val[2] = CONFIG_SYS_DSPI_CTAR2;
-#endif
-#ifdef CONFIG_SYS_DSPI_CTAR3
-	if (FSL_DSPI_MAX_CHIPSELECT > 3)
-		dspi->priv.ctar_val[3] = CONFIG_SYS_DSPI_CTAR3;
-#endif
-#ifdef CONFIG_SYS_DSPI_CTAR4
-	if (FSL_DSPI_MAX_CHIPSELECT > 4)
-		dspi->priv.ctar_val[4] = CONFIG_SYS_DSPI_CTAR4;
-#endif
-#ifdef CONFIG_SYS_DSPI_CTAR5
-	if (FSL_DSPI_MAX_CHIPSELECT > 5)
-		dspi->priv.ctar_val[5] = CONFIG_SYS_DSPI_CTAR5;
-#endif
-#ifdef CONFIG_SYS_DSPI_CTAR6
-	if (FSL_DSPI_MAX_CHIPSELECT > 6)
-		dspi->priv.ctar_val[6] = CONFIG_SYS_DSPI_CTAR6;
-#endif
-#ifdef CONFIG_SYS_DSPI_CTAR7
-	if (FSL_DSPI_MAX_CHIPSELECT > 7)
-		dspi->priv.ctar_val[7] = CONFIG_SYS_DSPI_CTAR7;
-#endif
-
-	fsl_dspi_cfg_speed(&dspi->priv, max_hz);
-
-	/* configure transfer mode */
-	fsl_dspi_cfg_ctar_mode(&dspi->priv, cs, mode);
-
-	/* configure active state of CSX */
-	fsl_dspi_cfg_cs_active_state(&dspi->priv, cs, mode);
-
-	return &dspi->slave;
-}
-
-void spi_free_slave(struct spi_slave *slave)
-{
-	free(slave);
-}
-
-int spi_claim_bus(struct spi_slave *slave)
-{
-	uint sr_val;
-	struct fsl_dspi *dspi = (struct fsl_dspi *)slave;
-
-	cpu_dspi_claim_bus(slave->bus, slave->cs);
-
-	fsl_dspi_clr_fifo(&dspi->priv);
-
-	/* check module TX and RX status */
-	sr_val = dspi_read32(dspi->priv.flags, &dspi->priv.regs->sr);
-	if ((sr_val & DSPI_SR_TXRXS) != DSPI_SR_TXRXS) {
-		debug("DSPI RX/TX not ready!\n");
-		return -EIO;
-	}
-
-	return 0;
-}
-
-void spi_release_bus(struct spi_slave *slave)
-{
-	struct fsl_dspi *dspi = (struct fsl_dspi *)slave;
-
-	dspi_halt(&dspi->priv, 1);
-	cpu_dspi_release_bus(slave->bus.slave->cs);
-}
-
-int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
-	     void *din, unsigned long flags)
-{
-	struct fsl_dspi *dspi = (struct fsl_dspi *)slave;
-	return dspi_xfer(&dspi->priv, slave->cs, bitlen, dout, din, flags);
-}
-#else
 static int fsl_dspi_child_pre_probe(struct udevice *dev)
 {
 	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
@@ -745,4 +614,3 @@ U_BOOT_DRIVER(fsl_dspi) = {
 	.child_pre_probe = fsl_dspi_child_pre_probe,
 	.bind = fsl_dspi_bind,
 };
-#endif

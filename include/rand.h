@@ -22,7 +22,7 @@ void srand(unsigned int seed);
 /**
  * rand() - Get a 32-bit pseudo-random number
  *
- * @returns next random number in the sequence
+ * Return:	next random number in the sequence
  */
 unsigned int rand(void);
 
@@ -32,8 +32,8 @@ unsigned int rand(void);
  * This version of the function allows multiple sequences to be used at the
  * same time, since it requires the caller to store the seed value.
  *
- * @seed value to use, updated on exit
- * @returns next random number in the sequence
+ * @seedp:	seed value to use, updated on exit
+ * Return:	 next random number in the sequence
  */
 unsigned int rand_r(unsigned int *seedp);
 

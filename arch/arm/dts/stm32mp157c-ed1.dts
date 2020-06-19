@@ -70,11 +70,6 @@
 			reg = <0xe8000000 0x8000000>;
 			no-map;
 		};
-
-		optee@fe000000 {
-			reg = <0xfe000000 0x02000000>;
-			no-map;
-		};
 	};
 
 	aliases {

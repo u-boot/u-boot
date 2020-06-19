@@ -878,6 +878,7 @@ M:	Sughosh Ganu <sughosh.ganu@linaro.org>
 R:	Heinrich Schuchardt <xypron.glpk@gmx.de>
 S:	Maintained
 F:	cmd/rng.c
+F:	doc/api/rng.rst
 F:	drivers/rng/
 F:	drivers/virtio/virtio_rng.c
 F:	include/rng.h

@@ -19,6 +19,7 @@
 
 #define SD_CLK_SEL_200MHZ (0x2)
 #define SD_CLK_SEL_100MHZ (0x1)
+#define SD_CLK_SEL_50MHZ (0x0)
 
 #define IO_DRV_SD_DS_OFFSET (16)
 #define IO_DRV_SD_DS_MASK   (0xff << IO_DRV_SD_DS_OFFSET)
@@ -44,15 +45,11 @@ static void ca_dwmci_clksel(struct dwmci_host *host)
 	struct ca_dwmmc_priv_data *priv = host->priv;
 	u32 val = readl(priv->sd_dll_reg);
 
-	if (host->bus_hz >= 200000000) {
-		val &= ~SD_CLK_SEL_MASK;
+	val &= ~SD_CLK_SEL_MASK;
+	if (host->bus_hz >= 200000000)
 		val |= SD_CLK_SEL_200MHZ;
-	} else if (host->bus_hz >= 100000000) {
-		val &= ~SD_CLK_SEL_MASK;
+	else if (host->bus_hz >= 100000000)
 		val |= SD_CLK_SEL_100MHZ;
-	} else {
-		val &= ~SD_CLK_SEL_MASK;
-	}
 
 	writel(val, priv->sd_dll_reg);
 }
@@ -77,14 +74,14 @@ unsigned int ca_dwmci_get_mmc_clock(struct dwmci_host *host, uint freq)
 	u8 clk_div;
 
 	switch (sd_clk_sel) {
-	case 2:
-		clk_div = 1;
+	case SD_CLK_SEL_50MHZ:
+		clk_div = 4;
 		break;
-	case 1:
+	case SD_CLK_SEL_100MHZ:
 		clk_div = 2;
 		break;
 	default:
-		clk_div = 4;
+		clk_div = 1;
 	}
 
 	return SD_SCLK_MAX / clk_div / (host->div + 1);
@@ -100,9 +97,6 @@ static int ca_dwmmc_ofdata_to_platdata(struct udevice *dev)
 	host->dev_index = 0;
 
 	host->buswidth = dev_read_u32_default(dev, "bus-width", 1);
-	if (host->buswidth != 1 && host->buswidth != 4)
-		return -EINVAL;
-
 	host->bus_hz = dev_read_u32_default(dev, "max-frequency", 50000000);
 	priv->ds = dev_read_u32_default(dev, "io_ds", 0x33);
 	host->fifo_mode = dev_read_bool(dev, "fifo-mode");
@@ -118,10 +112,8 @@ static int ca_dwmmc_ofdata_to_platdata(struct udevice *dev)
 		return -EINVAL;
 
 	host->ioaddr = dev_read_addr_ptr(dev);
-	if (host->ioaddr == (void *)FDT_ADDR_T_NONE) {
-		printf("DWMMC: base address is invalid\n");
+	if (!host->ioaddr)
 		return -EINVAL;
-	}
 
 	host->priv = priv;
 
@@ -140,10 +132,8 @@ static int ca_dwmmc_probe(struct udevice *dev)
 	memcpy(&ca_dwmci_dm_ops, &dm_dwmci_ops, sizeof(struct dm_mmc_ops));
 
 	dwmci_setup_cfg(&plat->cfg, host, host->bus_hz, MIN_FREQ);
-	if (host->buswidth == 1) {
-		(&plat->cfg)->host_caps &= ~MMC_MODE_8BIT;
-		(&plat->cfg)->host_caps &= ~MMC_MODE_4BIT;
-	}
+	if (host->buswidth == 1)
+		(&plat->cfg)->host_caps &= ~(MMC_MODE_8BIT | MMC_MODE_4BIT);
 
 	host->mmc = &plat->mmc;
 	host->mmc->priv = &priv->host;
@@ -164,7 +154,7 @@ static int ca_dwmmc_bind(struct udevice *dev)
 }
 
 static const struct udevice_id ca_dwmmc_ids[] = {
-	{ .compatible = "snps,dw-cortina" },
+	{ .compatible = "cortina,ca-mmc" },
 	{ }
 };
 

@@ -1004,7 +1004,7 @@ U_BOOT_CMD(
 	"mmc part - lists available partition on current mmc device\n"
 	"mmc dev [dev] [part] - show or set current mmc device [partition]\n"
 	"mmc list - lists available devices\n"
-	"mmc wp - power on write protect booot partitions\n"
+	"mmc wp - power on write protect boot partitions\n"
 #if CONFIG_IS_ENABLED(MMC_HW_PARTITIONING)
 	"mmc hwpartition [args...] - does hardware partitioning\n"
 	"  arguments (sizes in 512-byte blocks):\n"
