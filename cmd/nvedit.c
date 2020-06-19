@@ -1224,12 +1224,15 @@ static int print_env_info(void)
  * env info - display environment information
  * env info [-d] - evaluate whether default environment is used
  * env info [-p] - evaluate whether environment can be persisted
+ *      Add [-q] - quiet mode, use only for command result, for test by example:
+ *                 test env info -p -d -q
  */
 static int do_env_info(struct cmd_tbl *cmdtp, int flag,
 		       int argc, char *const argv[])
 {
 	int eval_flags = 0;
 	int eval_results = 0;
+	bool quiet = false;
 
 	/* display environment information */
 	if (argc <= 1)
@@ -1247,6 +1250,9 @@ static int do_env_info(struct cmd_tbl *cmdtp, int flag,
 			case 'p':
 				eval_flags |= ENV_INFO_IS_PERSISTED;
 				break;
+			case 'q':
+				quiet = true;
+				break;
 			default:
 				return CMD_RET_USAGE;
 			}
@@ -1256,20 +1262,24 @@ static int do_env_info(struct cmd_tbl *cmdtp, int flag,
 	/* evaluate whether default environment is used */
 	if (eval_flags & ENV_INFO_IS_DEFAULT) {
 		if (gd->flags & GD_FLG_ENV_DEFAULT) {
-			printf("Default environment is used\n");
+			if (!quiet)
+				printf("Default environment is used\n");
 			eval_results |= ENV_INFO_IS_DEFAULT;
 		} else {
-			printf("Environment was loaded from persistent storage\n");
+			if (!quiet)
+				printf("Environment was loaded from persistent storage\n");
 		}
 	}
 
 	/* evaluate whether environment can be persisted */
 	if (eval_flags & ENV_INFO_IS_PERSISTED) {
 #if defined(CONFIG_CMD_SAVEENV) && defined(ENV_IS_IN_DEVICE)
-		printf("Environment can be persisted\n");
+		if (!quiet)
+			printf("Environment can be persisted\n");
 		eval_results |= ENV_INFO_IS_PERSISTED;
 #else
-		printf("Environment cannot be persisted\n");
+		if (!quiet)
+			printf("Environment cannot be persisted\n");
 #endif
 	}
 
@@ -1326,7 +1336,7 @@ static struct cmd_tbl cmd_env_sub[] = {
 	U_BOOT_CMD_MKENT(import, 5, 0, do_env_import, "", ""),
 #endif
 #if defined(CONFIG_CMD_NVEDIT_INFO)
-	U_BOOT_CMD_MKENT(info, 2, 0, do_env_info, "", ""),
+	U_BOOT_CMD_MKENT(info, 3, 0, do_env_info, "", ""),
 #endif
 	U_BOOT_CMD_MKENT(print, CONFIG_SYS_MAXARGS, 1, do_env_print, "", ""),
 #if defined(CONFIG_CMD_RUN)
@@ -1405,8 +1415,10 @@ static char env_help_text[] =
 #endif
 #if defined(CONFIG_CMD_NVEDIT_INFO)
 	"env info - display environment information\n"
-	"env info [-d] - whether default environment is used\n"
-	"env info [-p] - whether environment can be persisted\n"
+	"env info [-d] [-p] [-q] - evaluate environment information\n"
+	"      \"-d\": default environment is used\n"
+	"      \"-p\": environment can be persisted\n"
+	"      \"-q\": quiet output\n"
 #endif
 	"env print [-a | name ...] - print environment\n"
 #if defined(CONFIG_CMD_NVEDIT_EFI)
