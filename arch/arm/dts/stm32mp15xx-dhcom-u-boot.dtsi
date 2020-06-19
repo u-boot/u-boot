@@ -273,6 +273,9 @@
 
 &sdmmc1 {
 	u-boot,dm-spl;
+	broken-cd;
+	/delete-property/ cd-gpios;
+	/delete-property/ disable-wp;
 };
 
 &sdmmc1_b4_pins_a {
