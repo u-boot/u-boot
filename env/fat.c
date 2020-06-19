@@ -29,6 +29,34 @@
 # define LOADENV
 #endif
 
+__weak int mmc_get_env_dev(void)
+{
+#ifdef CONFIG_SYS_MMC_ENV_DEV
+	return CONFIG_SYS_MMC_ENV_DEV;
+#else
+	return 0;
+#endif
+}
+
+static char *env_fat_device_and_part(void)
+{
+#ifdef CONFIG_MMC
+	static char *part_str;
+
+	if (!part_str) {
+		part_str = CONFIG_ENV_FAT_DEVICE_AND_PART;
+		if (!strcmp(CONFIG_ENV_FAT_INTERFACE, "mmc") && part_str[0] == ':') {
+			part_str = "0" CONFIG_ENV_FAT_DEVICE_AND_PART;
+			part_str[0] += mmc_get_env_dev();
+		}
+	}
+
+	return part_str;
+#else
+	return CONFIG_ENV_FAT_DEVICE_AND_PART;
+#endif
+}
+
 static int env_fat_save(void)
 {
 	env_t __aligned(ARCH_DMA_MINALIGN) env_new;
@@ -43,7 +71,7 @@ static int env_fat_save(void)
 		return err;
 
 	part = blk_get_device_part_str(CONFIG_ENV_FAT_INTERFACE,
-					CONFIG_ENV_FAT_DEVICE_AND_PART,
+					env_fat_device_and_part(),
 					&dev_desc, &info, 1);
 	if (part < 0)
 		return 1;
@@ -89,7 +117,7 @@ static int env_fat_load(void)
 #endif
 
 	part = blk_get_device_part_str(CONFIG_ENV_FAT_INTERFACE,
-					CONFIG_ENV_FAT_DEVICE_AND_PART,
+					env_fat_device_and_part(),
 					&dev_desc, &info, 1);
 	if (part < 0)
 		goto err_env_relocate;
