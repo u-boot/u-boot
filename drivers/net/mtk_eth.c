@@ -1094,7 +1094,8 @@ static int mtk_phy_probe(struct udevice *dev)
 static void mtk_sgmii_init(struct mtk_eth_priv *priv)
 {
 	/* Set SGMII GEN2 speed(2.5G) */
-	clrsetbits_le32(priv->sgmii_base + SGMSYS_GEN2_SPEED,
+	clrsetbits_le32(priv->sgmii_base + ((priv->soc == SOC_MT7622) ?
+			SGMSYS_GEN2_SPEED : SGMSYS_GEN2_SPEED_V2),
 			SGMSYS_SPEED_2500, SGMSYS_SPEED_2500);
 
 	/* Disable SGMII AN */
