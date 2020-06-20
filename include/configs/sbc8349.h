@@ -180,7 +180,6 @@
 
 #if defined(CONFIG_PCI)
 
-#undef CONFIG_TULIP
 
 #if !defined(CONFIG_PCI_PNP)
 	#define PCI_ENET0_IOADDR	0xFIXME

@@ -274,7 +274,6 @@
 
 #define CONFIG_PCI_SCAN_SHOW            /* show pci devices on startup */
 
-#undef CONFIG_TULIP
 
 #if !defined(CONFIG_PCI_PNP)
     #define PCI_ENET0_IOADDR	0xe0000000

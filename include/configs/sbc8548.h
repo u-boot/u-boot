@@ -432,7 +432,6 @@
 #endif
 
 #if defined(CONFIG_PCI)
-#undef CONFIG_TULIP
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 

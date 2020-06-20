@@ -394,7 +394,6 @@ extern unsigned long get_clock_freq(void);
 #endif /* CONFIG_QE */
 
 #if defined(CONFIG_PCI)
-#undef CONFIG_TULIP
 
 #undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 
