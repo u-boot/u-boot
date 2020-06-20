@@ -568,8 +568,8 @@ static void read_hw_addr(struct eth_device *dev, struct bd_info *bis)
 }
 
 static struct pci_device_id supported[] = {
-	{ PCI_VENDOR_ID_DEC, PCI_DEVICE_ID_DEC_TULIP_FAST },
-	{ PCI_VENDOR_ID_DEC, PCI_DEVICE_ID_DEC_21142 },
+	{ PCI_DEVICE(PCI_VENDOR_ID_DEC, PCI_DEVICE_ID_DEC_TULIP_FAST) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_DEC, PCI_DEVICE_ID_DEC_21142) },
 	{ }
 };
 
