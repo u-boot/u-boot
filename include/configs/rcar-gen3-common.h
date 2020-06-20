@@ -34,6 +34,9 @@
 #define CONFIG_SYS_MAXARGS		64
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 115200, 38400 }
 
+/* PHY needs a longer autoneg timeout */
+#define PHY_ANEG_TIMEOUT		20000
+
 /* MEMORY */
 #define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
 
