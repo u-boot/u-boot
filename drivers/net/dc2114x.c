@@ -581,21 +581,12 @@ int dc21x4x_initialize(struct bd_info *bis)
 	unsigned int iobase;
 	int card_number = 0;
 	pci_dev_t devbusfn;
-	unsigned int cfrv;
 	int idx = 0;
 
 	while (1) {
 		devbusfn = pci_find_devices(supported, idx++);
 		if (devbusfn == -1)
 			break;
-
-		/* Get the chip configuration revision register. */
-		pci_read_config_dword(devbusfn, PCI_REVISION_ID, &cfrv);
-
-		if ((cfrv & CFRV_RN) < DC2114x_BRK) {
-			printf("Error: The chip is not DC21143.\n");
-			continue;
-		}
 
 		pci_read_config_word(devbusfn, PCI_COMMAND, &status);
 		status |= PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER;
