@@ -193,6 +193,12 @@ config CMD_E1000
 	  used on devices with SPI support you can reprogram the EEPROM from
 	  U-Boot.
 
+config EEPRO100
+	bool "Intel PRO/100 82557/82559/82559ER Fast Ethernet support"
+	help
+	  This driver supports Intel(R) PRO/100 82557/82559/82559ER fast
+	  ethernet family of adapters.
+
 config ETH_SANDBOX
 	depends on DM_ETH && SANDBOX
 	default y
@@ -391,6 +397,12 @@ config MII
 	bool "Enable MII"
 	help
 	  Enable support of the Media-Independent Interface (MII)
+
+config PCNET
+	bool "AMD PCnet series Ethernet controller driver"
+	help
+	  This driver supports AMD PCnet series fast ethernet family of
+	  PCI chipsets/adapters.
 
 config RTL8139
 	bool "Realtek 8139 series Ethernet controller driver"

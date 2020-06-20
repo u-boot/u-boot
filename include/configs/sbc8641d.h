@@ -276,7 +276,6 @@
 
 #define CONFIG_PCI_SCAN_SHOW            /* show pci devices on startup */
 
-#undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
 
 #if !defined(CONFIG_PCI_PNP)

@@ -380,7 +380,6 @@ extern unsigned long get_clock_freq(void);
 #endif
 
 #if defined(CONFIG_PCI)
-#undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
 
 #if !defined(CONFIG_DM_PCI)
