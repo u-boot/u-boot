@@ -11,8 +11,6 @@
 
 #define SROM_DLEVEL	0
 
-#undef UPDATE_SROM
-
 /* PCI Registers. */
 #define PCI_CFDA_PSM	0x43
 
@@ -270,92 +268,6 @@ static int read_srom(struct eth_device *dev, u_long ioaddr, int index)
 			     3 + ee_addr_size + 16);
 }
 
-#ifdef UPDATE_SROM
-static int write_srom(struct eth_device *dev, u_long ioaddr, int index,
-		      int new_value)
-{
-	unsigned short newval;
-	int ee_addr_size;
-	int i;
-
-	ee_addr_size = (do_read_eeprom(dev, ioaddr, 0xff, 8) & BIT(18)) ? 8 : 6;
-
-	udelay(10 * 1000); /* test-only */
-
-	debug_cond(SROM_DLEVEL >= 1, "ee_addr_size=%d.\n", ee_addr_size);
-	debug_cond(SROM_DLEVEL >= 1,
-		   "Writing new entry 0x%4.4x to offset %d.\n",
-		   new_value, index);
-
-	/* Enable programming modes. */
-	do_eeprom_cmd(dev, ioaddr, 0x4f << (ee_addr_size - 4),
-		      3 + ee_addr_size);
-
-	/* Do the actual write. */
-	do_eeprom_cmd(dev, ioaddr, new_value |
-		      (((SROM_WRITE_CMD << ee_addr_size) | index) << 16),
-		      3 + ee_addr_size + 16);
-
-	/* Poll for write finished. */
-	sendto_srom(dev, SROM_RD | SROM_SR | DT_CS, ioaddr);
-	for (i = 0; i < 10000; i++) {	/* Typical 2000 ticks */
-		if (getfrom_srom(dev, ioaddr) & EE_DATA_READ)
-			break;
-	}
-
-	debug_cond(SROM_DLEVEL >= 1, " Write finished after %d ticks.\n", i);
-
-	/* Disable programming. */
-	do_eeprom_cmd(dev, ioaddr, (0x40 << (ee_addr_size - 4)),
-		      3 + ee_addr_size);
-
-	/* And read the result. */
-	newval = do_eeprom_cmd(dev, ioaddr,
-			       (((SROM_READ_CMD << ee_addr_size) | index) << 16)
-			       | 0xffff, 3 + ee_addr_size + 16);
-
-	debug_cond(SROM_DLEVEL >= 1, "  New value at offset %d is %4.4x.\n",
-		   index, newval);
-
-	return 1;
-}
-
-static void update_srom(struct eth_device *dev, struct bd_info *bis)
-{
-	static unsigned short eeprom[0x40] = {
-		0x140b, 0x6610, 0x0000, 0x0000,	/* 00 */
-		0x0000, 0x0000, 0x0000, 0x0000,	/* 04 */
-		0x00a3, 0x0103, 0x0000, 0x0000,	/* 08 */
-		0x0000, 0x1f00, 0x0000, 0x0000,	/* 0c */
-		0x0108, 0x038d, 0x0000, 0x0000,	/* 10 */
-		0xe078, 0x0001, 0x0040, 0x0018,	/* 14 */
-		0x0000, 0x0000, 0x0000, 0x0000,	/* 18 */
-		0x0000, 0x0000, 0x0000, 0x0000,	/* 1c */
-		0x0000, 0x0000, 0x0000, 0x0000,	/* 20 */
-		0x0000, 0x0000, 0x0000, 0x0000,	/* 24 */
-		0x0000, 0x0000, 0x0000, 0x0000,	/* 28 */
-		0x0000, 0x0000, 0x0000, 0x0000,	/* 2c */
-		0x0000, 0x0000, 0x0000, 0x0000,	/* 30 */
-		0x0000, 0x0000, 0x0000, 0x0000,	/* 34 */
-		0x0000, 0x0000, 0x0000, 0x0000,	/* 38 */
-		0x0000, 0x0000, 0x0000, 0x4e07,	/* 3c */
-	};
-	uchar enetaddr[6];
-	int i;
-
-	/* Ethernet Addr... */
-	if (!eth_env_get_enetaddr("ethaddr", enetaddr))
-		return;
-
-	eeprom[0x0a] = (enetaddr[1] << 8) | enetaddr[0];
-	eeprom[0x0b] = (enetaddr[3] << 8) | enetaddr[2];
-	eeprom[0x0c] = (enetaddr[5] << 8) | enetaddr[4];
-
-	for (i = 0; i < 0x40; i++)
-		write_srom(dev, DE4X5_APROM, i, eeprom[i]);
-}
-#endif /* UPDATE_SROM */
-
 static void send_setup_frame(struct eth_device *dev, struct bd_info *bis)
 {
 	char setup_frame[SETUP_FRAME_LEN];
@@ -561,9 +473,6 @@ static void read_hw_addr(struct eth_device *dev, struct bd_info *bis)
 	if (!j || j == 0x2fffd) {
 		memset(dev->enetaddr, 0, ETH_ALEN);
 		debug("Warning: can't read HW address from SROM.\n");
-#ifdef UPDATE_SROM
-		update_srom(dev, bis);
-#endif
 	}
 }
 
