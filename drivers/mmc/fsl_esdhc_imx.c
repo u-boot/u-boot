@@ -907,19 +907,9 @@ static int fsl_esdhc_execute_tuning(struct udevice *dev, uint32_t opcode)
 		ctrl = readl(&regs->autoc12err);
 		if ((!(ctrl & MIX_CTRL_EXE_TUNE)) &&
 		    (ctrl & MIX_CTRL_SMPCLK_SEL)) {
-			/*
-			 * need to wait some time, make sure sd/mmc fininsh
-			 * send out tuning data, otherwise, the sd/mmc can't
-			 * response to any command when the card still out
-			 * put the tuning data.
-			 */
-			mdelay(1);
 			ret = 0;
 			break;
 		}
-
-		/* Add 1ms delay for SD and eMMC */
-		mdelay(1);
 	}
 
 	writel(irqstaten, &regs->irqstaten);
@@ -1267,6 +1257,18 @@ static int fsl_esdhc_init(struct fsl_esdhc_priv *priv,
 			val |= priv->tuning_start_tap;
 			val &= ~ESDHC_TUNING_STEP_MASK;
 			val |= (priv->tuning_step) << ESDHC_TUNING_STEP_SHIFT;
+
+			/* Disable the CMD CRC check for tuning, if not, need to
+			 * add some delay after every tuning command, because
+			 * hardware standard tuning logic will directly go to next
+			 * step once it detect the CMD CRC error, will not wait for
+			 * the card side to finally send out the tuning data, trigger
+			 * the buffer read ready interrupt immediately. If usdhc send
+			 * the next tuning command some eMMC card will stuck, can't
+			 * response, block the tuning procedure or the first command
+			 * after the whole tuning procedure always can't get any response.
+			 */
+			val |= ESDHC_TUNING_CMD_CRC_CHECK_DISABLE;
 			writel(val, &regs->tuning_ctrl);
 		}
 	}
