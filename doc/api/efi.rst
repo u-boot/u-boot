@@ -93,6 +93,8 @@ Runtime services
 Variable services
 ~~~~~~~~~~~~~~~~~
 
+.. kernel-doc:: include/efi_variable.h
+   :internal:
 .. kernel-doc:: lib/efi_loader/efi_variable.c
    :internal:
 
