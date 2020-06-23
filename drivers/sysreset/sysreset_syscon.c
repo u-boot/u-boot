@@ -41,6 +41,7 @@ static struct sysreset_ops syscon_reboot_ops = {
 int syscon_reboot_probe(struct udevice *dev)
 {
 	struct syscon_reboot_priv *priv = dev_get_priv(dev);
+	int err;
 
 	priv->regmap = syscon_regmap_lookup_by_phandle(dev, "regmap");
 	if (IS_ERR(priv->regmap)) {
@@ -48,8 +49,17 @@ int syscon_reboot_probe(struct udevice *dev)
 		return -ENODEV;
 	}
 
-	priv->offset = dev_read_u32_default(dev, "offset", 0);
-	priv->mask = dev_read_u32_default(dev, "mask", 0);
+	err = dev_read_u32(dev, "offset", &priv->offset);
+	if (err) {
+		pr_err("unable to find offset\n");
+		return -ENOENT;
+	}
+
+	err = dev_read_u32(dev, "mask", &priv->mask);
+	if (err) {
+		pr_err("unable to find mask\n");
+		return -ENOENT;
+	}
 
 	return 0;
 }
