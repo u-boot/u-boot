@@ -9,6 +9,8 @@
 #include <dm/test.h>
 #include <test/ut.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 static int dm_test_fdtdec_set_carveout(struct unit_test_state *uts)
 {
 	struct fdt_memory resv;
