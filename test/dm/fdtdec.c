@@ -59,3 +59,72 @@ static int dm_test_fdtdec_set_carveout(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_fdtdec_set_carveout,
 	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT | DM_TESTF_FLAT_TREE);
+
+static int dm_test_fdtdec_add_reserved_memory(struct unit_test_state *uts)
+{
+	struct fdt_memory resv;
+	fdt_addr_t addr;
+	fdt_size_t size;
+	void *blob;
+	int blob_sz, parent, subnode;
+	uint32_t phandle, phandle1;
+
+	blob_sz = fdt_totalsize(gd->fdt_blob) + 128;
+	blob = malloc(blob_sz);
+	ut_assertnonnull(blob);
+
+	/* Make a writable copy of the fdt blob */
+	ut_assertok(fdt_open_into(gd->fdt_blob, blob, blob_sz));
+
+	/* Insert a memory region in /reserved-memory node */
+	resv.start = 0x1000;
+	resv.end = 0x1fff;
+	ut_assertok(fdtdec_add_reserved_memory(blob, "rsvd_region",
+					       &resv, &phandle));
+
+	/* Test /reserve-memory and its subnode should exist */
+	parent = fdt_path_offset(blob, "/reserved-memory");
+	ut_assert(parent > 0);
+	subnode = fdt_path_offset(blob, "/reserved-memory/rsvd_region");
+	ut_assert(subnode > 0);
+
+	/* Test reg property of /reserved-memory/rsvd_region node */
+	addr = fdtdec_get_addr_size_auto_parent(blob, parent, subnode,
+						"reg", 0, &size, false);
+	ut_assert(addr == resv.start);
+	ut_assert(size == resv.end -  resv.start + 1);
+
+	/* Insert another memory region in /reserved-memory node */
+	subnode = fdt_path_offset(blob, "/reserved-memory/rsvd_region1");
+	ut_assert(subnode < 0);
+
+	resv.start = 0x2000;
+	resv.end = 0x2fff;
+	ut_assertok(fdtdec_add_reserved_memory(blob, "rsvd_region1",
+					       &resv, &phandle1));
+	subnode = fdt_path_offset(blob, "/reserved-memory/rsvd_region1");
+	ut_assert(subnode > 0);
+
+	/* phandles must be different */
+	ut_assert(phandle != phandle1);
+
+	/*
+	 * Insert a 3rd memory region with the same addr/size as the 1st one,
+	 * but a new node should not be inserted due to the same addr/size.
+	 */
+	resv.start = 0x1000;
+	resv.end = 0x1fff;
+	ut_assertok(fdtdec_add_reserved_memory(blob, "rsvd_region2",
+					       &resv, &phandle1));
+	subnode = fdt_path_offset(blob, "/reserved-memory/rsvd_region2");
+	ut_assert(subnode < 0);
+
+	/* phandle must be same as the 1st one */
+	ut_assert(phandle == phandle1);
+
+	free(blob);
+
+	return 0;
+}
+DM_TEST(dm_test_fdtdec_add_reserved_memory,
+	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT | DM_TESTF_FLAT_TREE);
