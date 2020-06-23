@@ -22,7 +22,7 @@ static int dm_test_fdtdec_set_carveout(struct unit_test_state *uts)
 	blob = malloc(blob_sz);
 	ut_assertnonnull(blob);
 
-	/* Make a writtable copy of the fdt blob */
+	/* Make a writable copy of the fdt blob */
 	ut_assertok(fdt_open_into(gd->fdt_blob, blob, blob_sz));
 
 	resv.start = 0x1000;
