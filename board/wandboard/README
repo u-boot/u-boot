@@ -37,3 +37,13 @@ as the mx6 processor)
 - Connect the serial cable to the host PC
 
 - Power up the board and U-Boot messages will appear in the serial console.
+
+Debug UART
+----------
+
+The following settings provide a debug UART for the Wandboard:
+
+CONFIG_DEBUG_UART=y
+CONFIG_DEBUG_UART_MXC=y
+CONFIG_DEBUG_UART_BASE=0x02020000
+CONFIG_DEBUG_UART_CLOCK=80000000

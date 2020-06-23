@@ -873,11 +873,11 @@ config ARCH_MX7ULP
 config ARCH_MX7
 	bool "Freescale MX7"
 	select ARCH_MISC_INIT
-	select BOARD_EARLY_INIT_F
 	select CPU_V7A
 	select SYS_FSL_HAS_SEC if IMX_HAB
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_FSL_SEC_LE
+	imply BOARD_EARLY_INIT_F
 	imply MXC_GPIO
 	imply SYS_THUMB_BUILD
 
