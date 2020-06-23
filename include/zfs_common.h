@@ -22,6 +22,8 @@
 #ifndef __ZFS_COMMON__
 #define __ZFS_COMMON__
 
+#include <part.h>
+
 #define SECTOR_SIZE			0x200
 #define SECTOR_BITS			9
 
