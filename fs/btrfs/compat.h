@@ -24,6 +24,20 @@
 #define __le8 u8
 
 /*
+ * Macros to generate set/get funcs for the struct fields
+ * assume there is a lefoo_to_cpu for every type, so lets make a simple
+ * one for u8:
+ */
+#define le8_to_cpu(v) (v)
+#define cpu_to_le8(v) (v)
+#define __le8 u8
+
+#define get_unaligned_le8(p) (*((u8 *)(p)))
+#define get_unaligned_8(p) (*((u8 *)(p)))
+#define put_unaligned_le8(val,p) ((*((u8 *)(p))) = (val))
+#define put_unaligned_8(val,p) ((*((u8 *)(p))) = (val))
+
+/*
  * Read data from device specified by @desc and @part
  *
  * U-boot equivalent of pread().
