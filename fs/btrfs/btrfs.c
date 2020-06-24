@@ -253,37 +253,45 @@ out:
 int btrfs_read(const char *file, void *buf, loff_t offset, loff_t len,
 	       loff_t *actread)
 {
-	struct __btrfs_root root = btrfs_info.fs_root;
-	struct btrfs_inode_item inode;
-	u64 inr, rd;
+	struct btrfs_fs_info *fs_info = current_fs_info;
+	struct btrfs_root *root;
+	loff_t real_size = 0;
+	u64 ino;
 	u8 type;
+	int ret;
 
-	inr = __btrfs_lookup_path(&root, root.root_dirid, file, &type, &inode,
-				40);
-
-	if (inr == -1ULL) {
-		printf("Cannot lookup file %s\n", file);
-		return -1;
+	ASSERT(fs_info);
+	ret = btrfs_lookup_path(fs_info->fs_root, BTRFS_FIRST_FREE_OBJECTID,
+				file, &root, &ino, &type, 40);
+	if (ret < 0) {
+		error("Cannot lookup file %s", file);
+		return ret;
 	}
 
 	if (type != BTRFS_FT_REG_FILE) {
-		printf("Not a regular file: %s\n", file);
-		return -1;
+		error("Not a regular file: %s", file);
+		return -EINVAL;
 	}
 
-	if (!len)
-		len = inode.size;
-
-	if (len > inode.size - offset)
-		len = inode.size - offset;
-
-	rd = __btrfs_file_read(&root, inr, offset, len, buf);
-	if (rd == -1ULL) {
-		printf("An error occured while reading file %s\n", file);
-		return -1;
+	if (!len) {
+		ret = btrfs_size(file, &real_size);
+		if (ret < 0) {
+			error("Failed to get inode size: %s", file);
+			return ret;
+		}
+		len = real_size;
 	}
 
-	*actread = rd;
+	if (len > real_size - offset)
+		len = real_size - offset;
+
+	ret = btrfs_file_read(root, ino, offset, len, buf);
+	if (ret < 0) {
+		error("An error occured while reading file %s", file);
+		return ret;
+	}
+
+	*actread = len;
 	return 0;
 }
 

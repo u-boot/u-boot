@@ -59,6 +59,8 @@ int btrfs_readlink(struct btrfs_root *root, u64 ino, char *target);
 u64 __btrfs_lookup_path(struct __btrfs_root *, u64, const char *, u8 *,
 		       struct btrfs_inode_item *, int);
 u64 __btrfs_file_read(const struct __btrfs_root *, u64, u64, u64, char *);
+int btrfs_file_read(struct btrfs_root *root, u64 ino, u64 file_offset, u64 len,
+		    char *dest);
 
 /* subvolume.c */
 u64 btrfs_get_default_subvol_objectid(void);

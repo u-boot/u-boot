@@ -926,3 +926,149 @@ check_next:
 	*next_offset = key.offset;
 	return 1;
 }
+
+static int read_and_truncate_page(struct btrfs_path *path,
+				  struct btrfs_file_extent_item *fi,
+				  int start, int len, char *dest)
+{
+	struct extent_buffer *leaf = path->nodes[0];
+	struct btrfs_fs_info *fs_info = leaf->fs_info;
+	u64 aligned_start = round_down(start, fs_info->sectorsize);
+	u8 extent_type;
+	char *buf;
+	int page_off = start - aligned_start;
+	int page_len = fs_info->sectorsize - page_off;
+	int ret;
+
+	ASSERT(start + len <= aligned_start + fs_info->sectorsize);
+	buf = malloc_cache_aligned(fs_info->sectorsize);
+	if (!buf)
+		return -ENOMEM;
+
+	extent_type = btrfs_file_extent_type(leaf, fi);
+	if (extent_type == BTRFS_FILE_EXTENT_INLINE) {
+		ret = btrfs_read_extent_inline(path, fi, buf);
+		memcpy(dest, buf + page_off, min(page_len, ret));
+		free(buf);
+		return len;
+	}
+
+	ret = btrfs_read_extent_reg(path, fi,
+			round_down(start, fs_info->sectorsize),
+			fs_info->sectorsize, buf);
+	if (ret < 0) {
+		free(buf);
+		return ret;
+	}
+	memcpy(dest, buf + page_off, page_len);
+	free(buf);
+	return len;
+}
+
+int btrfs_file_read(struct btrfs_root *root, u64 ino, u64 file_offset, u64 len,
+		    char *dest)
+{
+	struct btrfs_fs_info *fs_info = root->fs_info;
+	struct btrfs_file_extent_item *fi;
+	struct btrfs_path path;
+	struct btrfs_key key;
+	u64 aligned_start = round_down(file_offset, fs_info->sectorsize);
+	u64 aligned_end = round_down(file_offset + len, fs_info->sectorsize);
+	u64 next_offset;
+	u64 cur = aligned_start;
+	int ret = 0;
+
+	btrfs_init_path(&path);
+
+	/* Set the whole dest all zero, so we won't need to bother holes */
+	memset(dest, 0, len);
+
+	/* Read out the leading unaligned part */
+	if (aligned_start != file_offset) {
+		ret = lookup_data_extent(root, &path, ino, aligned_start,
+					 &next_offset);
+		if (ret < 0)
+			goto out;
+		if (ret == 0) {
+			/* Read the unaligned part out*/
+			fi = btrfs_item_ptr(path.nodes[0], path.slots[0],
+					struct btrfs_file_extent_item);
+			ret = read_and_truncate_page(&path, fi, file_offset,
+					round_up(file_offset, fs_info->sectorsize) -
+					file_offset, dest);
+			if (ret < 0)
+				goto out;
+			cur += fs_info->sectorsize;
+		} else {
+			/* The whole file is a hole */
+			if (!next_offset) {
+				memset(dest, 0, len);
+				return len;
+			}
+			cur = next_offset;
+		}
+	}
+
+	/* Read the aligned part */
+	while (cur < aligned_end) {
+		u64 extent_num_bytes;
+		u8 type;
+
+		btrfs_release_path(&path);
+		ret = lookup_data_extent(root, &path, ino, cur, &next_offset);
+		if (ret < 0)
+			goto out;
+		if (ret > 0) {
+			/* No next, direct exit */
+			if (!next_offset) {
+				ret = 0;
+				goto out;
+			}
+		}
+		fi = btrfs_item_ptr(path.nodes[0], path.slots[0],
+				    struct btrfs_file_extent_item);
+		btrfs_item_key_to_cpu(path.nodes[0], &key, path.slots[0]);
+		type = btrfs_file_extent_type(path.nodes[0], fi);
+		if (type == BTRFS_FILE_EXTENT_INLINE) {
+			ret = btrfs_read_extent_inline(&path, fi, dest);
+			goto out;
+		}
+		/* Skip holes, as we have zeroed the dest */
+		if (type == BTRFS_FILE_EXTENT_PREALLOC ||
+		    btrfs_file_extent_disk_bytenr(path.nodes[0], fi) == 0) {
+			cur = key.offset + btrfs_file_extent_num_bytes(
+					path.nodes[0], fi);
+			continue;
+		}
+
+		/* Read the remaining part of the extent */
+		extent_num_bytes = btrfs_file_extent_num_bytes(path.nodes[0],
+							       fi);
+		ret = btrfs_read_extent_reg(&path, fi, cur,
+				min(extent_num_bytes, aligned_end - cur),
+				dest + cur - file_offset);
+		if (ret < 0)
+			goto out;
+		cur += min(extent_num_bytes, aligned_end - cur);
+	}
+
+	/* Read the tailing unaligned part*/
+	if (file_offset + len != aligned_end) {
+		btrfs_release_path(&path);
+		ret = lookup_data_extent(root, &path, ino, aligned_end,
+					 &next_offset);
+		/* <0 is error, >0 means no extent */
+		if (ret)
+			goto out;
+		fi = btrfs_item_ptr(path.nodes[0], path.slots[0],
+				    struct btrfs_file_extent_item);
+		ret = read_and_truncate_page(&path, fi, aligned_end,
+				file_offset + len - aligned_end,
+				dest + aligned_end - file_offset);
+	}
+out:
+	btrfs_release_path(&path);
+	if (ret < 0)
+		return ret;
+	return len;
+}
