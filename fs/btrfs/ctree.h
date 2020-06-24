@@ -12,6 +12,7 @@
 #include <common.h>
 #include <compiler.h>
 #include <linux/rbtree.h>
+#include <linux/bug.h>
 #include <linux/unaligned/le_byteshift.h>
 #include <u-boot/crc.h>
 #include "kernel-shared/btrfs_tree.h"
