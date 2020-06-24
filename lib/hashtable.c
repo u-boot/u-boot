@@ -110,8 +110,10 @@ int hcreate_r(size_t nel, struct hsearch_data *htab)
 	}
 
 	/* There is still another table active. Return with error. */
-	if (htab->table != NULL)
+	if (htab->table != NULL) {
+		__set_errno(EINVAL);
 		return 0;
+	}
 
 	/* Change nel to the first prime number not smaller as nel. */
 	nel |= 1;		/* make odd */
@@ -124,8 +126,10 @@ int hcreate_r(size_t nel, struct hsearch_data *htab)
 	/* allocate memory and zero out */
 	htab->table = (struct env_entry_node *)calloc(htab->size + 1,
 						sizeof(struct env_entry_node));
-	if (htab->table == NULL)
+	if (htab->table == NULL) {
+		__set_errno(ENOMEM);
 		return 0;
+	}
 
 	/* everything went alright */
 	return 1;
