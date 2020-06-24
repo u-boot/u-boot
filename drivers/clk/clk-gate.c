@@ -46,8 +46,7 @@
  */
 static void clk_gate_endisable(struct clk *clk, int enable)
 {
-	struct clk_gate *gate = to_clk_gate(clk_dev_binded(clk) ?
-			dev_get_clk_ptr(clk->dev) : clk);
+	struct clk_gate *gate = to_clk_gate(clk);
 	int set = gate->flags & CLK_GATE_SET_TO_DISABLE ? 1 : 0;
 	u32 reg;
 
@@ -89,8 +88,7 @@ static int clk_gate_disable(struct clk *clk)
 
 int clk_gate_is_enabled(struct clk *clk)
 {
-	struct clk_gate *gate = to_clk_gate(clk_dev_binded(clk) ?
-			dev_get_clk_ptr(clk->dev) : clk);
+	struct clk_gate *gate = to_clk_gate(clk);
 	u32 reg;
 
 #if CONFIG_IS_ENABLED(SANDBOX_CLK_CCF)

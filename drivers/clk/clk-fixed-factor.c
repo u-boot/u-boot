@@ -20,8 +20,7 @@
 
 static ulong clk_factor_recalc_rate(struct clk *clk)
 {
-	struct clk_fixed_factor *fix =
-		to_clk_fixed_factor(dev_get_clk_ptr(clk->dev));
+	struct clk_fixed_factor *fix = to_clk_fixed_factor(clk);
 	unsigned long parent_rate = clk_get_parent_rate(clk);
 	unsigned long long int rate;
 

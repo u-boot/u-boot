@@ -147,6 +147,13 @@ struct clk *clk_register_composite(struct device *dev, const char *name,
 		goto err;
 	}
 
+	if (composite->mux)
+		composite->mux->dev = clk->dev;
+	if (composite->rate)
+		composite->rate->dev = clk->dev;
+	if (composite->gate)
+		composite->gate->dev = clk->dev;
+
 	return clk;
 
 err:
