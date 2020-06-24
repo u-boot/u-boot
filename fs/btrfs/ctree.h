@@ -69,6 +69,23 @@ enum btrfs_tree_block_status {
 	BTRFS_TREE_BLOCK_INVALID_OFFSETS,
 };
 
+struct btrfs_root {
+	struct extent_buffer *node;
+	struct btrfs_root_item root_item;
+	struct btrfs_key root_key;
+	struct btrfs_fs_info *fs_info;
+	u64 objectid;
+	u64 last_trans;
+
+	int ref_cows;
+	int track_dirty;
+
+	u32 type;
+	u64 last_inode_alloc;
+
+	struct rb_node rb_node;
+};
+
 struct btrfs_device;
 struct btrfs_fs_devices;
 struct btrfs_fs_info {
