@@ -27,7 +27,7 @@ enum efi_secure_mode {
 };
 
 static bool efi_secure_boot;
-static int efi_secure_mode;
+static enum efi_secure_mode efi_secure_mode;
 static u8 efi_vendor_keys;
 
 #define READ_ONLY BIT(31)
