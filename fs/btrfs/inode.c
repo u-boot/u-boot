@@ -5,8 +5,9 @@
  * 2017 Marek Behun, CZ.NIC, marek.behun@nic.cz
  */
 
-#include "btrfs.h"
 #include <malloc.h>
+#include "btrfs.h"
+#include "disk-io.h"
 
 u64 __btrfs_lookup_inode_ref(struct __btrfs_root *root, u64 inr,
 			   struct btrfs_inode_ref *refp, char *name)
@@ -83,56 +84,82 @@ out:
 	return res;
 }
 
-int __btrfs_readlink(const struct __btrfs_root *root, u64 inr, char *target)
+/*
+ * Read the content of symlink inode @ino of @root, into @target.
+ * NOTE: @target will not be \0 termiated, caller should handle it properly.
+ *
+ * Return the number of read data.
+ * Return <0 for error.
+ */
+int btrfs_readlink(struct btrfs_root *root, u64 ino, char *target)
 {
-	struct __btrfs_path path;
+	struct btrfs_path path;
 	struct btrfs_key key;
-	struct btrfs_file_extent_item *extent;
-	const char *data_ptr;
-	int res = -1;
+	struct btrfs_file_extent_item *fi;
+	int ret;
 
-	key.objectid = inr;
+	key.objectid = ino;
 	key.type = BTRFS_EXTENT_DATA_KEY;
 	key.offset = 0;
+	btrfs_init_path(&path);
 
-	if (btrfs_search_tree(root, &key, &path))
+	ret = btrfs_search_slot(NULL, root, &key, &path, 0, 0);
+	if (ret < 0)
+		return ret;
+	if (ret > 0) {
+		ret = -ENOENT;
+		goto out;
+	}
+	fi = btrfs_item_ptr(path.nodes[0], path.slots[0],
+			    struct btrfs_file_extent_item);
+	if (btrfs_file_extent_type(path.nodes[0], fi) !=
+	    BTRFS_FILE_EXTENT_INLINE) {
+		ret = -EUCLEAN;
+		error("Extent for symlink %llu must be INLINE type!", ino);
+		goto out;
+	}
+	if (btrfs_file_extent_compression(path.nodes[0], fi) !=
+	    BTRFS_COMPRESS_NONE) {
+		ret = -EUCLEAN;
+		error("Extent for symlink %llu must not be compressed!", ino);
+		goto out;
+	}
+	if (btrfs_file_extent_ram_bytes(path.nodes[0], fi) >=
+	    root->fs_info->sectorsize) {
+		ret = -EUCLEAN;
+		error("Symlink %llu extent data too large (%llu)!\n",
+			ino, btrfs_file_extent_ram_bytes(path.nodes[0], fi));
+		goto out;
+	}
+	read_extent_buffer(path.nodes[0], target,
+			btrfs_file_extent_inline_start(fi),
+			btrfs_file_extent_ram_bytes(path.nodes[0], fi));
+	ret = btrfs_file_extent_ram_bytes(path.nodes[0], fi);
+out:
+	btrfs_release_path(&path);
+	return ret;
+}
+
+int __btrfs_readlink(const struct __btrfs_root *root, u64 inr, char *target)
+{
+	struct btrfs_root *subvolume;
+	struct btrfs_fs_info *fs_info = current_fs_info;
+	struct btrfs_key key;
+	int ret;
+
+	ASSERT(fs_info);
+	key.objectid = root->objectid;
+	key.type = BTRFS_ROOT_ITEM_KEY;
+	key.offset = (u64)-1;
+	subvolume = btrfs_read_fs_root(fs_info, &key);
+	if (IS_ERR(subvolume))
 		return -1;
 
-	if (__btrfs_comp_keys(&key, btrfs_path_leaf_key(&path)))
-		goto out;
-
-	extent = btrfs_path_item_ptr(&path, struct btrfs_file_extent_item);
-	if (extent->type != BTRFS_FILE_EXTENT_INLINE) {
-		printf("%s: Extent for symlink %llu not of INLINE type\n",
-		       __func__, inr);
-		goto out;
-	}
-
-	btrfs_file_extent_item_to_cpu_inl(extent);
-
-	if (extent->compression != BTRFS_COMPRESS_NONE) {
-		printf("%s: Symlink %llu extent data compressed!\n", __func__,
-		       inr);
-		goto out;
-	} else if (extent->encryption != 0) {
-		printf("%s: Symlink %llu extent data encrypted!\n", __func__,
-		       inr);
-		goto out;
-	} else if (extent->ram_bytes >= btrfs_info.sb.sectorsize) {
-		printf("%s: Symlink %llu extent data too long (%llu)!\n",
-		       __func__, inr, extent->ram_bytes);
-		goto out;
-	}
-
-	data_ptr = (const char *) extent
-		   + offsetof(struct btrfs_file_extent_item, disk_bytenr);
-
-	memcpy(target, data_ptr, extent->ram_bytes);
-	target[extent->ram_bytes] = '\0';
-	res = 0;
-out:
-	__btrfs_free_path(&path);
-	return res;
+	ret = btrfs_readlink(subvolume, inr, target);
+	if (ret < 0)
+		return -1;
+	target[ret] = '\0';
+	return 0;
 }
 
 /* inr must be a directory (for regular files with multiple hard links this
