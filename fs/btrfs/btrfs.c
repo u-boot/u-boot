@@ -100,7 +100,7 @@ int btrfs_probe(struct blk_desc *fs_dev_desc,
 	btrfs_info.chunk_root.objectid = 0;
 	btrfs_info.chunk_root.bytenr = btrfs_info.sb.chunk_root;
 
-	if (btrfs_read_chunk_tree()) {
+	if (__btrfs_read_chunk_tree()) {
 		printf("%s: failed to read chunk tree\n", __func__);
 		return -1;
 	}

@@ -182,6 +182,8 @@ static inline int btrfs_next_bg_system(struct btrfs_fs_info *fs_info,
 	return btrfs_next_bg(fs_info, logical, size,
 			BTRFS_BLOCK_GROUP_SYSTEM);
 }
+int btrfs_read_sys_array(struct btrfs_fs_info *fs_info);
+int btrfs_read_chunk_tree(struct btrfs_fs_info *fs_info);
 int btrfs_open_devices(struct btrfs_fs_devices *fs_devices);
 int btrfs_close_devices(struct btrfs_fs_devices *fs_devices);
 void btrfs_close_all_devices(void);

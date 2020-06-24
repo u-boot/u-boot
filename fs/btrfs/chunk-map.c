@@ -142,7 +142,7 @@ int btrfs_chunk_map_init(void)
 	return 0;
 }
 
-int btrfs_read_chunk_tree(void)
+int __btrfs_read_chunk_tree(void)
 {
 	struct __btrfs_path path;
 	struct btrfs_key key, *found_key;

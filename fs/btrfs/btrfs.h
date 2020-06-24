@@ -33,7 +33,7 @@ int btrfs_devread(u64, int, void *);
 u64 btrfs_map_logical_to_physical(u64);
 int btrfs_chunk_map_init(void);
 void btrfs_chunk_map_exit(void);
-int btrfs_read_chunk_tree(void);
+int __btrfs_read_chunk_tree(void);
 
 /* compression.c */
 u32 btrfs_decompress(u8 type, const char *, u32, char *, u32);
