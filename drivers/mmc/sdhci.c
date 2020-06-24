@@ -567,6 +567,7 @@ static int sdhci_set_ios(struct mmc *mmc)
 #endif
 	u32 ctrl;
 	struct sdhci_host *host = mmc->priv;
+	bool no_hispd_bit = false;
 
 	if (host->ops && host->ops->set_control_reg)
 		host->ops->set_control_reg(host);
@@ -594,14 +595,26 @@ static int sdhci_set_ios(struct mmc *mmc)
 			ctrl &= ~SDHCI_CTRL_4BITBUS;
 	}
 
-	if (mmc->clock > 26000000)
-		ctrl |= SDHCI_CTRL_HISPD;
-	else
-		ctrl &= ~SDHCI_CTRL_HISPD;
-
 	if ((host->quirks & SDHCI_QUIRK_NO_HISPD_BIT) ||
-	    (host->quirks & SDHCI_QUIRK_BROKEN_HISPD_MODE))
+	    (host->quirks & SDHCI_QUIRK_BROKEN_HISPD_MODE)) {
 		ctrl &= ~SDHCI_CTRL_HISPD;
+		no_hispd_bit = true;
+	}
+
+	if (!no_hispd_bit) {
+		if (mmc->selected_mode == MMC_HS ||
+		    mmc->selected_mode == SD_HS ||
+		    mmc->selected_mode == MMC_DDR_52 ||
+		    mmc->selected_mode == MMC_HS_200 ||
+		    mmc->selected_mode == MMC_HS_400 ||
+		    mmc->selected_mode == UHS_SDR25 ||
+		    mmc->selected_mode == UHS_SDR50 ||
+		    mmc->selected_mode == UHS_SDR104 ||
+		    mmc->selected_mode == UHS_DDR50)
+			ctrl |= SDHCI_CTRL_HISPD;
+		else
+			ctrl &= ~SDHCI_CTRL_HISPD;
+	}
 
 	sdhci_writeb(host, ctrl, SDHCI_HOST_CONTROL);
 
