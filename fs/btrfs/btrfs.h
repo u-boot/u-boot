@@ -23,17 +23,6 @@ struct btrfs_info {
 
 extern struct btrfs_info btrfs_info;
 
-/* hash.c */
-void btrfs_hash_init(void);
-u32 btrfs_crc32c(u32, const void *, size_t);
-u32 btrfs_csum_data(char *, u32, size_t);
-void btrfs_csum_final(u32, void *);
-
-static inline u64 btrfs_name_hash(const char *name, int len)
-{
-	return btrfs_crc32c((u32) ~1, name, len);
-}
-
 /* dev.c */
 extern struct blk_desc *btrfs_blk_desc;
 extern struct disk_partition *btrfs_part_info;

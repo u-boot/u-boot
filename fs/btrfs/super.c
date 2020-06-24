@@ -11,6 +11,7 @@
 #include <part.h>
 #include <linux/compat.h>
 #include "btrfs.h"
+#include "disk-io.h"
 
 #define BTRFS_SUPER_FLAG_SUPP	(BTRFS_HEADER_FLAG_WRITTEN	\
 				 | BTRFS_HEADER_FLAG_RELOC	\
@@ -61,19 +62,19 @@ static int btrfs_check_super_csum(char *raw_disk_sb)
 		(struct btrfs_super_block *) raw_disk_sb;
 	u16 csum_type = le16_to_cpu(disk_sb->csum_type);
 
-	if (csum_type == BTRFS_CSUM_TYPE_CRC32) {
-		u32 crc = ~(u32) 0;
-		const int csum_size = sizeof(crc);
-		char result[csum_size];
+	if (csum_type == BTRFS_CSUM_TYPE_CRC32 ||
+	    csum_type == BTRFS_CSUM_TYPE_SHA256 ||
+	    csum_type == BTRFS_CSUM_TYPE_XXHASH) {
+		u8 result[BTRFS_CSUM_SIZE];
 
-		crc = btrfs_csum_data(raw_disk_sb + BTRFS_CSUM_SIZE, crc,
-				      BTRFS_SUPER_INFO_SIZE - BTRFS_CSUM_SIZE);
-		btrfs_csum_final(crc, result);
+		btrfs_csum_data(csum_type, (u8 *)raw_disk_sb + BTRFS_CSUM_SIZE,
+			result, BTRFS_SUPER_INFO_SIZE - BTRFS_CSUM_SIZE);
 
-		if (memcmp(raw_disk_sb, result, csum_size))
-			return -1;
-	} else {
-		return -1;
+		if (memcmp(raw_disk_sb, result, BTRFS_CSUM_SIZE))
+			return -EIO;
+	} else if (csum_type == BTRFS_CSUM_TYPE_BLAKE2) {
+		printf("Blake2 csum type is not supported yet\n");
+		return -ENOTSUPP;
 	}
 
 	return 0;

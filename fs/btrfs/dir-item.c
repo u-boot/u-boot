@@ -6,6 +6,7 @@
  */
 
 #include "btrfs.h"
+#include "disk-io.h"
 
 static int verify_dir_item(struct btrfs_dir_item *item, u32 start, u32 total)
 {

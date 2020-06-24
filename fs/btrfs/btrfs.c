@@ -5,11 +5,12 @@
  * 2017 Marek Behun, CZ.NIC, marek.behun@nic.cz
  */
 
-#include "btrfs.h"
 #include <config.h>
 #include <malloc.h>
 #include <uuid.h>
 #include <linux/time.h>
+#include "btrfs.h"
+#include "crypto/hash.h"
 
 struct btrfs_info btrfs_info;
 
