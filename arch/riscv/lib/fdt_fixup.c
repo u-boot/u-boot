@@ -74,7 +74,7 @@ int riscv_fdt_copy_resv_mem_node(const void *src, void *dst)
 		pmp_mem.end = addr + size - 1;
 		err = fdtdec_add_reserved_memory(dst, basename, &pmp_mem,
 						 &phandle);
-		if (err < 0) {
+		if (err < 0 && err != -FDT_ERR_EXISTS) {
 			printf("failed to add reserved memory: %d\n", err);
 			return err;
 		}
