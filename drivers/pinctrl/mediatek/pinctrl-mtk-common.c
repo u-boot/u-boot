@@ -631,7 +631,7 @@ int mtk_pinctrl_common_probe(struct udevice *dev,
 	int ret;
 
 	priv->base = dev_read_addr_ptr(dev);
-	if (priv->base == (void *)FDT_ADDR_T_NONE)
+	if (!priv->base)
 		return -EINVAL;
 
 	priv->soc = soc;

@@ -799,7 +799,9 @@ static inline fdt_addr_t dev_read_addr(const struct udevice *dev)
 
 static inline void *dev_read_addr_ptr(const struct udevice *dev)
 {
-	return devfdt_get_addr_ptr(dev);
+	void *addr = devfdt_get_addr_ptr(dev);
+
+	return ((fdt_addr_t)(uintptr_t)addr == FDT_ADDR_T_NONE) ? NULL : addr;
 }
 
 static inline fdt_addr_t dev_read_addr_pci(const struct udevice *dev)
