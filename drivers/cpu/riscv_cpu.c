@@ -3,6 +3,7 @@
  * Copyright (C) 2018, Bin Meng <bmeng.cn@gmail.com>
  */
 
+#include <clk.h>
 #include <common.h>
 #include <cpu.h>
 #include <dm.h>
@@ -11,6 +12,7 @@
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <linux/bitops.h>
+#include <linux/err.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -29,9 +31,24 @@ static int riscv_cpu_get_desc(struct udevice *dev, char *buf, int size)
 
 static int riscv_cpu_get_info(struct udevice *dev, struct cpu_info *info)
 {
+	int ret;
+	struct clk clk;
 	const char *mmu;
 
-	dev_read_u32(dev, "clock-frequency", (u32 *)&info->cpu_freq);
+	/* Zero out the frequency, in case sizeof(ulong) != sizeof(u32) */
+	info->cpu_freq = 0;
+
+	/* First try getting the frequency from the assigned clock */
+	ret = clk_get_by_index(dev, 0, &clk);
+	if (!ret) {
+		ret = clk_get_rate(&clk);
+		if (!IS_ERR_VALUE(ret))
+			info->cpu_freq = ret;
+		clk_free(&clk);
+	}
+
+	if (!info->cpu_freq)
+		dev_read_u32(dev, "clock-frequency", (u32 *)&info->cpu_freq);
 
 	mmu = dev_read_string(dev, "mmu-type");
 	if (!mmu)
