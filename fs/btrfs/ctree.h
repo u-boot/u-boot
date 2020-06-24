@@ -11,8 +11,10 @@
 
 #include <common.h>
 #include <compiler.h>
+#include <linux/rbtree.h>
 #include "kernel-shared/btrfs_tree.h"
 #include "compat.h"
+#include "extent-io.h"
 
 #define BTRFS_MAX_MIRRORS 3
 
@@ -48,6 +50,18 @@
 #define BTRFS_FS_STATE_DEV_REPLACING	3
 #define BTRFS_FS_STATE_DUMMY_FS_INFO	4
 
+#define read_eb_member(eb, ptr, type, member, result) (			\
+	read_extent_buffer(eb, (char *)(result),			\
+			   ((unsigned long)(ptr)) +			\
+			    offsetof(type, member),			\
+			   sizeof(((type *)0)->member)))
+
+#define write_eb_member(eb, ptr, type, member, result) (		\
+	write_extent_buffer(eb, (char *)(result),			\
+			   ((unsigned long)(ptr)) +			\
+			    offsetof(type, member),			\
+			   sizeof(((type *)0)->member)))
+
 #define BTRFS_SETGET_STACK_FUNCS(name, type, member, bits)		\
 static inline u##bits btrfs_##name(const type *s)			\
 {									\
@@ -73,6 +87,47 @@ struct btrfs_root {
 	u64 objectid;
 	u64 bytenr;
 	u64 root_dirid;
+};
+
+struct btrfs_mapping_tree {
+	struct cache_tree cache_tree;
+};
+
+struct btrfs_device;
+struct btrfs_fs_info {
+	u8 chunk_tree_uuid[BTRFS_UUID_SIZE];
+	u8 *new_chunk_tree_uuid;
+	struct btrfs_root *fs_root;
+	struct btrfs_root *tree_root;
+	struct btrfs_root *chunk_root;
+	struct btrfs_root *csum_root;
+
+	struct rb_root fs_root_tree;
+
+	struct extent_io_tree extent_cache;
+	struct extent_io_tree free_space_cache;
+	struct extent_io_tree pinned_extents;
+	struct extent_io_tree extent_ins;
+	struct extent_io_tree *excluded_extents;
+
+	struct rb_root block_group_cache_tree;
+	/* logical->physical extent mapping */
+	struct btrfs_mapping_tree mapping_tree;
+
+	u64 generation;
+	u64 last_trans_committed;
+
+	struct btrfs_super_block *super_copy;
+
+	u64 super_bytenr;
+
+	/* Only support one device yet */
+	struct btrfs_devvice *dev;
+
+	/* Cached block sizes */
+	u32 nodesize;
+	u32 sectorsize;
+	u32 stripesize;
 };
 
 int btrfs_comp_keys(struct btrfs_key *, struct btrfs_key *);
