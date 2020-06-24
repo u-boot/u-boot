@@ -517,23 +517,30 @@ static int set_fdtfile(void)
 	char *compatible, *fdtfile;
 	const char *suffix = ".dtb";
 	const char *vendor = "xilinx/";
+	int fdt_compat_len;
 
 	if (env_get("fdtfile"))
 		return 0;
 
-	compatible = (char *)fdt_getprop(gd->fdt_blob, 0, "compatible", NULL);
-	if (compatible) {
+	compatible = (char *)fdt_getprop(gd->fdt_blob, 0, "compatible",
+					 &fdt_compat_len);
+	if (compatible && fdt_compat_len) {
+		char *name;
+
 		debug("Compatible: %s\n", compatible);
 
-		/* Discard vendor prefix */
-		strsep(&compatible, ",");
+		name = strchr(compatible, ',');
+		if (!name)
+			return -EINVAL;
 
-		fdtfile = calloc(1, strlen(vendor) + strlen(compatible) +
+		name++;
+
+		fdtfile = calloc(1, strlen(vendor) + strlen(name) +
 				 strlen(suffix) + 1);
 		if (!fdtfile)
 			return -ENOMEM;
 
-		sprintf(fdtfile, "%s%s%s", vendor, compatible, suffix);
+		sprintf(fdtfile, "%s%s%s", vendor, name, suffix);
 
 		env_set("fdtfile", fdtfile);
 		free(fdtfile);
