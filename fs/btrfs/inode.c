@@ -217,8 +217,12 @@ static u64 __get_parent_inode(struct __btrfs_root *root, u64 inr,
 static inline int next_length(const char *path)
 {
 	int res = 0;
-	while (*path != '\0' && *path != '/' && res <= BTRFS_NAME_LEN)
-		++res, ++path;
+	while (*path != '\0' && *path != '/') {
+		++res;
+		++path;
+		if (res > BTRFS_NAME_LEN)
+			break;
+	}
 	return res;
 }
 
