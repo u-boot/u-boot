@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2018, Bin Meng <bmeng.cn@gmail.com>
+ * Copyright (C) 2020, Sean Anderson <seanga2@gmail.com>
  */
 
 #include <clk.h>
@@ -119,6 +120,24 @@ static int riscv_cpu_bind(struct udevice *dev)
 	return 0;
 }
 
+static int riscv_cpu_probe(struct udevice *dev)
+{
+	int ret = 0;
+	struct clk clk;
+
+	/* Get a clock if it exists */
+	ret = clk_get_by_index(dev, 0, &clk);
+	if (ret)
+		return 0;
+
+	ret = clk_enable(&clk);
+	clk_free(&clk);
+	if (ret == -ENOSYS || ret == -ENOTSUPP)
+		return 0;
+	else
+		return ret;
+}
+
 static const struct cpu_ops riscv_cpu_ops = {
 	.get_desc	= riscv_cpu_get_desc,
 	.get_info	= riscv_cpu_get_info,
@@ -135,6 +154,7 @@ U_BOOT_DRIVER(riscv_cpu) = {
 	.id = UCLASS_CPU,
 	.of_match = riscv_cpu_ids,
 	.bind = riscv_cpu_bind,
+	.probe = riscv_cpu_probe,
 	.ops = &riscv_cpu_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
