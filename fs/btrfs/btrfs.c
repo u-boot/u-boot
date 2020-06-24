@@ -277,7 +277,7 @@ int btrfs_read(const char *file, void *buf, loff_t offset, loff_t len,
 	if (len > inode.size - offset)
 		len = inode.size - offset;
 
-	rd = btrfs_file_read(&root, inr, offset, len, buf);
+	rd = __btrfs_file_read(&root, inr, offset, len, buf);
 	if (rd == -1ULL) {
 		printf("An error occured while reading file %s\n", file);
 		return -1;

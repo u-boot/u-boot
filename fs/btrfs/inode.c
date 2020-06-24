@@ -598,7 +598,7 @@ u64 __btrfs_lookup_path(struct __btrfs_root *root, u64 inr, const char *path,
 	return inr;
 }
 
-u64 btrfs_file_read(const struct __btrfs_root *root, u64 inr, u64 offset,
+u64 __btrfs_file_read(const struct __btrfs_root *root, u64 inr, u64 offset,
 		    u64 size, char *buf)
 {
 	struct __btrfs_path path;
@@ -633,11 +633,11 @@ u64 btrfs_file_read(const struct __btrfs_root *root, u64 inr, u64 offset,
 
 		if (extent->type == BTRFS_FILE_EXTENT_INLINE) {
 			btrfs_file_extent_item_to_cpu_inl(extent);
-			rd = btrfs_read_extent_inline(&path, extent, offset,
+			rd = __btrfs_read_extent_inline(&path, extent, offset,
 						      size, buf);
 		} else {
 			btrfs_file_extent_item_to_cpu(extent);
-			rd = btrfs_read_extent_reg(&path, extent, offset, size,
+			rd = __btrfs_read_extent_reg(&path, extent, offset, size,
 						   buf);
 		}
 
