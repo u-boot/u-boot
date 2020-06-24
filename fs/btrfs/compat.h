@@ -12,6 +12,8 @@
 /* A simple wraper to for error() used in btrfs-progs */
 #define error(fmt, ...)		pr_err("BTRFS: " fmt "\n", ##__VA_ARGS__)
 
+#define ASSERT(c) assert(c)
+
 #define BTRFS_UUID_UNPARSED_SIZE	37
 
 /*

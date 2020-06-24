@@ -22,6 +22,7 @@ struct btrfs_info {
 };
 
 extern struct btrfs_info btrfs_info;
+extern struct btrfs_fs_info *current_fs_info;
 
 /* dev.c */
 extern struct blk_desc *btrfs_blk_desc;

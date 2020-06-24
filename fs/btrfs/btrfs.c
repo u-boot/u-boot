@@ -14,6 +14,7 @@
 #include "disk-io.h"
 
 struct btrfs_info btrfs_info;
+struct btrfs_fs_info *current_fs_info;
 
 static int readdir_callback(const struct __btrfs_root *root,
 			    struct btrfs_dir_item *item)
@@ -81,6 +82,9 @@ static int readdir_callback(const struct __btrfs_root *root,
 int btrfs_probe(struct blk_desc *fs_dev_desc,
 		struct disk_partition *fs_partition)
 {
+	struct btrfs_fs_info *fs_info;
+	int ret = -1;
+
 	btrfs_blk_desc = fs_dev_desc;
 	btrfs_part_info = fs_partition;
 
@@ -111,7 +115,12 @@ int btrfs_probe(struct blk_desc *fs_dev_desc,
 		return -1;
 	}
 
-	return 0;
+	fs_info = open_ctree_fs_info(fs_dev_desc, fs_partition);
+	if (fs_info) {
+		current_fs_info = fs_info;
+		ret = 0;
+	}
+	return ret;
 }
 
 int btrfs_ls(const char *path)
@@ -215,6 +224,10 @@ int btrfs_read(const char *file, void *buf, loff_t offset, loff_t len,
 void btrfs_close(void)
 {
 	btrfs_chunk_map_exit();
+	if (current_fs_info) {
+		close_ctree_fs_info(current_fs_info);
+		current_fs_info = NULL;
+	}
 }
 
 int btrfs_uuid(char *uuid_str)

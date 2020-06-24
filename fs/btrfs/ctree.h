@@ -1275,6 +1275,10 @@ const char *btrfs_super_csum_name(u16 csum_type);
 u16 btrfs_csum_type_size(u16 csum_type);
 size_t btrfs_super_num_csums(void);
 
+/* root-tree.c */
+int btrfs_find_last_root(struct btrfs_root *root, u64 objectid,
+			struct btrfs_root_item *item, struct btrfs_key *key);
+
 /* ctree.c */
 int btrfs_comp_cpu_keys(const struct btrfs_key *k1, const struct btrfs_key *k2);
 enum btrfs_tree_block_status

@@ -22,6 +22,25 @@ struct extent_buffer* btrfs_find_create_tree_block(
 		struct btrfs_fs_info *fs_info, u64 bytenr);
 struct extent_buffer *btrfs_find_tree_block(struct btrfs_fs_info *fs_info,
 					    u64 bytenr, u32 blocksize);
+struct btrfs_root *btrfs_read_fs_root_no_cache(struct btrfs_fs_info *fs_info,
+					       struct btrfs_key *location);
+struct btrfs_root *btrfs_read_fs_root(struct btrfs_fs_info *fs_info,
+				      struct btrfs_key *location);
+
+void btrfs_setup_root(struct btrfs_root *root, struct btrfs_fs_info *fs_info,
+		      u64 objectid);
+
+void btrfs_free_fs_info(struct btrfs_fs_info *fs_info);
+struct btrfs_fs_info *btrfs_new_fs_info(void);
+int btrfs_check_fs_compatibility(struct btrfs_super_block *sb);
+int btrfs_setup_all_roots(struct btrfs_fs_info *fs_info);
+void btrfs_release_all_roots(struct btrfs_fs_info *fs_info);
+void btrfs_cleanup_all_caches(struct btrfs_fs_info *fs_info);
+
+struct btrfs_fs_info *open_ctree_fs_info(struct blk_desc *desc,
+					 struct disk_partition *part);
+int close_ctree_fs_info(struct btrfs_fs_info *fs_info);
+
 int btrfs_read_dev_super(struct blk_desc *desc, struct disk_partition *part,
 			 struct btrfs_super_block *sb);
 int btrfs_buffer_uptodate(struct extent_buffer *buf, u64 parent_transid);
