@@ -155,6 +155,72 @@ out:
 	return ret;
 }
 
+static int list_subvolums(struct btrfs_fs_info *fs_info)
+{
+	struct btrfs_root *tree_root = fs_info->tree_root;
+	struct btrfs_root *root;
+	struct btrfs_path path;
+	struct btrfs_key key;
+	char *result;
+	int ret = 0;
+
+	result = malloc(PATH_MAX);
+	if (!result)
+		return -ENOMEM;
+
+	ret = list_one_subvol(fs_info->fs_root, result);
+	if (ret < 0)
+		goto out;
+	root = fs_info->fs_root;
+	printf("ID %llu gen %llu path %.*s\n",
+		root->root_key.objectid, btrfs_root_generation(&root->root_item),
+		PATH_MAX, result);
+
+	key.objectid = BTRFS_FIRST_FREE_OBJECTID;
+	key.type = BTRFS_ROOT_ITEM_KEY;
+	key.offset = 0;
+	btrfs_init_path(&path);
+	ret = btrfs_search_slot(NULL, tree_root, &key, &path, 0, 0);
+	if (ret < 0)
+		goto out;
+	while (1) {
+		if (path.slots[0] >= btrfs_header_nritems(path.nodes[0]))
+			goto next;
+
+		btrfs_item_key_to_cpu(path.nodes[0], &key, path.slots[0]);
+		if (key.objectid > BTRFS_LAST_FREE_OBJECTID)
+			break;
+		if (key.objectid < BTRFS_FIRST_FREE_OBJECTID ||
+		    key.type != BTRFS_ROOT_ITEM_KEY)
+			goto next;
+		key.offset = (u64)-1;
+		root = btrfs_read_fs_root(fs_info, &key);
+		if (IS_ERR(root)) {
+			ret = PTR_ERR(root);
+			if (ret == -ENOENT)
+				goto next;
+		}
+		ret = list_one_subvol(root, result);
+		if (ret < 0)
+			goto out;
+		printf("ID %llu gen %llu path %.*s\n",
+			root->root_key.objectid,
+			btrfs_root_generation(&root->root_item),
+			PATH_MAX, result);
+next:
+		ret = btrfs_next_item(tree_root, &path);
+		if (ret < 0)
+			goto out;
+		if (ret > 0) {
+			ret = 0;
+			break;
+		}
+	}
+out:
+	free(result);
+	return ret;
+}
+
 static int get_subvol_name(u64 subvolid, char *name, int max_len)
 {
 	struct btrfs_root_ref rref;
@@ -268,10 +334,12 @@ static void list_subvols(u64 tree, char *nameptr, int max_name_len, int level)
 
 void btrfs_list_subvols(void)
 {
-	char *nameptr = malloc(4096);
+	struct btrfs_fs_info *fs_info = current_fs_info;
+	int ret;
 
-	list_subvols(BTRFS_FS_TREE_OBJECTID, nameptr, nameptr ? 4096 : 0, 40);
-
-	if (nameptr)
-		free(nameptr);
+	if (!fs_info)
+		return;
+	ret = list_subvolums(fs_info);
+	if (ret < 0)
+		error("failed to list subvolume: %d", ret);
 }
