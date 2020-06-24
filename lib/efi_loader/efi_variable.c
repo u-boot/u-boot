@@ -185,17 +185,17 @@ static const char *parse_attr(const char *str, u32 *attrp, u64 *timep)
 
 /**
  * efi_set_secure_state - modify secure boot state variables
- * @sec_boot:		value of SecureBoot
+ * @secure_boot:	value of SecureBoot
  * @setup_mode:		value of SetupMode
  * @audit_mode:		value of AuditMode
  * @deployed_mode:	value of DeployedMode
  *
- * Modify secure boot stat-related variables as indicated.
+ * Modify secure boot status related variables as indicated.
  *
  * Return:		status code
  */
-static efi_status_t efi_set_secure_state(int sec_boot, int setup_mode,
-					 int audit_mode, int deployed_mode)
+static efi_status_t efi_set_secure_state(u8 secure_boot, u8 setup_mode,
+					 u8 audit_mode, u8 deployed_mode)
 {
 	u32 attributes;
 	efi_status_t ret;
@@ -204,8 +204,8 @@ static efi_status_t efi_set_secure_state(int sec_boot, int setup_mode,
 		     EFI_VARIABLE_RUNTIME_ACCESS |
 		     READ_ONLY;
 	ret = efi_set_variable_common(L"SecureBoot", &efi_global_variable_guid,
-				      attributes, sizeof(sec_boot), &sec_boot,
-				      false);
+				      attributes, sizeof(secure_boot),
+				      &secure_boot, false);
 	if (ret != EFI_SUCCESS)
 		goto err;
 
