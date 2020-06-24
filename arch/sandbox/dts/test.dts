@@ -1038,6 +1038,12 @@
 	mdio: mdio-test {
 		compatible = "sandbox,mdio";
 	};
+
+	pm-bus-test {
+		compatible = "simple-pm-bus";
+		clocks = <&clk_sandbox 4>;
+		power-domains = <&pwrdom 1>;
+	};
 };
 
 #include "sandbox_pmic.dtsi"

@@ -195,6 +195,13 @@ config SPL_SIMPLE_BUS
 	  Supports the 'simple-bus' driver, which is used on some systems
 	  in SPL.
 
+config SIMPLE_PM_BUS
+	bool "Support simple-pm-bus driver"
+	depends on DM && OF_CONTROL && CLK && POWER_DOMAIN
+	help
+	  Supports the 'simple-pm-bus' driver, which is used for busses that
+	  have power domains and/or clocks which need to be enabled before use.
+
 config OF_TRANSLATE
 	bool "Translate addresses using fdt_translate_address"
 	depends on DM && OF_CONTROL
