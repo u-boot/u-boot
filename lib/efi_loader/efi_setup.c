@@ -8,6 +8,7 @@
 #include <common.h>
 #include <bootm.h>
 #include <efi_loader.h>
+#include <efi_variable.h>
 
 #define OBJ_LIST_NOT_INITIALIZED 1
 
@@ -40,12 +41,13 @@ static efi_status_t efi_init_platform_lang(void)
 	 * Variable PlatformLangCodes defines the language codes that the
 	 * machine can support.
 	 */
-	ret = EFI_CALL(efi_set_variable(L"PlatformLangCodes",
-					&efi_global_variable_guid,
-					EFI_VARIABLE_BOOTSERVICE_ACCESS |
-					EFI_VARIABLE_RUNTIME_ACCESS,
-					sizeof(CONFIG_EFI_PLATFORM_LANG_CODES),
-					CONFIG_EFI_PLATFORM_LANG_CODES));
+	ret = efi_set_variable_int(L"PlatformLangCodes",
+				   &efi_global_variable_guid,
+				   EFI_VARIABLE_BOOTSERVICE_ACCESS |
+				   EFI_VARIABLE_RUNTIME_ACCESS |
+				   EFI_VARIABLE_READ_ONLY,
+				   sizeof(CONFIG_EFI_PLATFORM_LANG_CODES),
+				   CONFIG_EFI_PLATFORM_LANG_CODES, false);
 	if (ret != EFI_SUCCESS)
 		goto out;
 
@@ -53,9 +55,9 @@ static efi_status_t efi_init_platform_lang(void)
 	 * Variable PlatformLang defines the language that the machine has been
 	 * configured for.
 	 */
-	ret = EFI_CALL(efi_get_variable(L"PlatformLang",
-					&efi_global_variable_guid,
-					NULL, &data_size, &pos));
+	ret = efi_get_variable_int(L"PlatformLang",
+				   &efi_global_variable_guid,
+				   NULL, &data_size, &pos, NULL);
 	if (ret == EFI_BUFFER_TOO_SMALL) {
 		/* The variable is already set. Do not change it. */
 		ret = EFI_SUCCESS;
@@ -70,12 +72,12 @@ static efi_status_t efi_init_platform_lang(void)
 	if (pos)
 		*pos = 0;
 
-	ret = EFI_CALL(efi_set_variable(L"PlatformLang",
-					&efi_global_variable_guid,
-					EFI_VARIABLE_NON_VOLATILE |
-					EFI_VARIABLE_BOOTSERVICE_ACCESS |
-					EFI_VARIABLE_RUNTIME_ACCESS,
-					1 + strlen(lang), lang));
+	ret = efi_set_variable_int(L"PlatformLang",
+				   &efi_global_variable_guid,
+				   EFI_VARIABLE_NON_VOLATILE |
+				   EFI_VARIABLE_BOOTSERVICE_ACCESS |
+				   EFI_VARIABLE_RUNTIME_ACCESS,
+				   1 + strlen(lang), lang, false);
 out:
 	if (ret != EFI_SUCCESS)
 		printf("EFI: cannot initialize platform language settings\n");
@@ -96,13 +98,13 @@ static efi_status_t efi_init_secure_boot(void)
 	};
 	efi_status_t ret;
 
-	/* TODO: read-only */
-	ret = EFI_CALL(efi_set_variable(L"SignatureSupport",
-					&efi_global_variable_guid,
-					EFI_VARIABLE_BOOTSERVICE_ACCESS
-					 | EFI_VARIABLE_RUNTIME_ACCESS,
-					sizeof(signature_types),
-					&signature_types));
+	ret = efi_set_variable_int(L"SignatureSupport",
+				   &efi_global_variable_guid,
+				   EFI_VARIABLE_BOOTSERVICE_ACCESS |
+				   EFI_VARIABLE_RUNTIME_ACCESS |
+				   EFI_VARIABLE_READ_ONLY,
+				   sizeof(signature_types),
+				   &signature_types, false);
 	if (ret != EFI_SUCCESS)
 		printf("EFI: cannot initialize SignatureSupport variable\n");
 
@@ -160,12 +162,13 @@ efi_status_t efi_init_obj_list(void)
 		goto out;
 
 	/* Indicate supported features */
-	ret = EFI_CALL(efi_set_variable(L"OsIndicationsSupported",
-					&efi_global_variable_guid,
-					EFI_VARIABLE_BOOTSERVICE_ACCESS |
-					EFI_VARIABLE_RUNTIME_ACCESS,
-					sizeof(os_indications_supported),
-					&os_indications_supported));
+	ret = efi_set_variable_int(L"OsIndicationsSupported",
+				   &efi_global_variable_guid,
+				   EFI_VARIABLE_BOOTSERVICE_ACCESS |
+				   EFI_VARIABLE_RUNTIME_ACCESS |
+				   EFI_VARIABLE_READ_ONLY,
+				   sizeof(os_indications_supported),
+				   &os_indications_supported, false);
 	if (ret != EFI_SUCCESS)
 		goto out;
 
