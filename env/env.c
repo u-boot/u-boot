@@ -103,7 +103,7 @@ static void env_set_inited(enum env_location location)
 	 * using the above enum value as the bit index. We need to
 	 * make sure that we're not overflowing it.
 	 */
-	BUILD_BUG_ON(ARRAY_SIZE(env_locations) > BITS_PER_LONG);
+	BUILD_BUG_ON(ENVL_COUNT > BITS_PER_LONG);
 
 	gd->env_has_init |= BIT(location);
 }
