@@ -8,6 +8,7 @@
 #include <malloc.h>
 #include "ctree.h"
 #include "btrfs.h"
+#include "disk-io.h"
 
 /*
  * Resolve the path of ino inside subvolume @root into @path_ret.
@@ -68,6 +69,86 @@ static int get_path_in_subvol(struct btrfs_root *root, u64 ino, char *path_ret)
 		btrfs_item_key_to_cpu(path.nodes[0], &key, path.slots[0]);
 		cur = key.offset;
 	}
+out:
+	btrfs_release_path(&path);
+	free(tmp);
+	return ret;
+}
+
+static int list_one_subvol(struct btrfs_root *root, char *path_ret)
+{
+	struct btrfs_fs_info *fs_info = root->fs_info;
+	struct btrfs_root *tree_root = fs_info->tree_root;
+	struct btrfs_path path;
+	struct btrfs_key key;
+	char *tmp;
+	u64 cur = root->root_key.objectid;
+	int ret = 0;
+
+	tmp = malloc(PATH_MAX);
+	if (!tmp)
+		return -ENOMEM;
+	tmp[0] = '\0';
+	path_ret[0] = '\0';
+	btrfs_init_path(&path);
+	while (cur != BTRFS_FS_TREE_OBJECTID) {
+		struct btrfs_root_ref *rr;
+		struct btrfs_key location;
+		int name_len;
+		u64 ino;
+
+		key.objectid = cur;
+		key.type = BTRFS_ROOT_BACKREF_KEY;
+		key.offset = (u64)-1;
+		btrfs_release_path(&path);
+
+		ret = btrfs_search_slot(NULL, tree_root, &key, &path, 0, 0);
+		if (ret == 0)
+			ret = -EUCLEAN;
+		if (ret < 0)
+			goto out;
+		ret = btrfs_previous_item(tree_root, &path, cur,
+					  BTRFS_ROOT_BACKREF_KEY);
+		if (ret > 0)
+			ret = -ENOENT;
+		if (ret < 0)
+			goto out;
+
+		/* Get the subvolume name */
+		rr = btrfs_item_ptr(path.nodes[0], path.slots[0],
+				    struct btrfs_root_ref);
+		strncpy(tmp, path_ret, PATH_MAX);
+		name_len = btrfs_root_ref_name_len(path.nodes[0], rr);
+		if (name_len > BTRFS_NAME_LEN) {
+			ret = -ENAMETOOLONG;
+			goto out;
+		}
+		ino = btrfs_root_ref_dirid(path.nodes[0], rr);
+		read_extent_buffer(path.nodes[0], path_ret,
+				   (unsigned long)(rr + 1), name_len);
+		path_ret[name_len] = '/';
+		path_ret[name_len + 1] = '\0';
+		strncat(path_ret, tmp, PATH_MAX);
+
+		/* Get the path inside the parent subvolume */
+		btrfs_item_key_to_cpu(path.nodes[0], &key, path.slots[0]);
+		location.objectid = key.offset;
+		location.type = BTRFS_ROOT_ITEM_KEY;
+		location.offset = (u64)-1;
+		root = btrfs_read_fs_root(fs_info, &location);
+		if (IS_ERR(root)) {
+			ret = PTR_ERR(root);
+			goto out;
+		}
+		ret = get_path_in_subvol(root, ino, path_ret);
+		if (ret < 0)
+			goto out;
+		cur = key.offset;
+	}
+	/* Add the leading '/' */
+	strncpy(tmp, path_ret, PATH_MAX);
+	strncpy(path_ret, "/", PATH_MAX);
+	strncat(path_ret, tmp, PATH_MAX);
 out:
 	btrfs_release_path(&path);
 	free(tmp);
