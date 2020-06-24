@@ -5,8 +5,74 @@
  * 2017 Marek Behun, CZ.NIC, marek.behun@nic.cz
  */
 
-#include "btrfs.h"
 #include <malloc.h>
+#include "ctree.h"
+#include "btrfs.h"
+
+/*
+ * Resolve the path of ino inside subvolume @root into @path_ret.
+ *
+ * @path_ret must be at least PATH_MAX size.
+ */
+static int get_path_in_subvol(struct btrfs_root *root, u64 ino, char *path_ret)
+{
+	struct btrfs_path path;
+	struct btrfs_key key;
+	char *tmp;
+	u64 cur = ino;
+	int ret = 0;
+
+	tmp = malloc(PATH_MAX);
+	if (!tmp)
+		return -ENOMEM;
+	tmp[0] = '\0';
+
+	btrfs_init_path(&path);
+	while (cur != BTRFS_FIRST_FREE_OBJECTID) {
+		struct btrfs_inode_ref *iref;
+		int name_len;
+
+		btrfs_release_path(&path);
+		key.objectid = cur;
+		key.type = BTRFS_INODE_REF_KEY;
+		key.offset = (u64)-1;
+
+		ret = btrfs_search_slot(NULL, root, &key, &path, 0, 0);
+		/* Impossible */
+		if (ret == 0)
+			ret = -EUCLEAN;
+		if (ret < 0)
+			goto out;
+		ret = btrfs_previous_item(root, &path, cur,
+					  BTRFS_INODE_REF_KEY);
+		if (ret > 0)
+			ret = -ENOENT;
+		if (ret < 0)
+			goto out;
+
+		strncpy(tmp, path_ret, PATH_MAX);
+		iref = btrfs_item_ptr(path.nodes[0], path.slots[0],
+				      struct btrfs_inode_ref);
+		name_len = btrfs_inode_ref_name_len(path.nodes[0],
+						    iref);
+		if (name_len > BTRFS_NAME_LEN) {
+			ret = -ENAMETOOLONG;
+			goto out;
+		}
+		read_extent_buffer(path.nodes[0], path_ret,
+				   (unsigned long)(iref + 1), name_len);
+		path_ret[name_len] = '/';
+		path_ret[name_len + 1] = '\0';
+		strncat(path_ret, tmp, PATH_MAX);
+
+		btrfs_item_key_to_cpu(path.nodes[0], &key, path.slots[0]);
+		cur = key.offset;
+	}
+out:
+	btrfs_release_path(&path);
+	free(tmp);
+	return ret;
+}
 
 static int get_subvol_name(u64 subvolid, char *name, int max_len)
 {
