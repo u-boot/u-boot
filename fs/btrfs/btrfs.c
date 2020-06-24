@@ -16,67 +16,102 @@
 struct btrfs_info btrfs_info;
 struct btrfs_fs_info *current_fs_info;
 
-static int readdir_callback(const struct __btrfs_root *root,
-			    struct btrfs_dir_item *item)
+static int show_dir(struct btrfs_root *root, struct extent_buffer *eb,
+		    struct btrfs_dir_item *di)
 {
-	static const char typestr[BTRFS_FT_MAX][4] = {
-		[BTRFS_FT_UNKNOWN]  = " ? ",
-		[BTRFS_FT_REG_FILE] = "   ",
-		[BTRFS_FT_DIR]      = "DIR",
-		[BTRFS_FT_CHRDEV]   = "CHR",
-		[BTRFS_FT_BLKDEV]   = "BLK",
-		[BTRFS_FT_FIFO]     = "FIF",
-		[BTRFS_FT_SOCK]     = "SCK",
-		[BTRFS_FT_SYMLINK]  = "SYM",
-		[BTRFS_FT_XATTR]    = " ? ",
+	struct btrfs_fs_info *fs_info = root->fs_info;
+	struct btrfs_inode_item ii;
+	struct btrfs_key key;
+	static const char* dir_item_str[] = {
+		[BTRFS_FT_REG_FILE]	= "FILE",
+		[BTRFS_FT_DIR] 		= "DIR",
+		[BTRFS_FT_CHRDEV]	= "CHRDEV",
+		[BTRFS_FT_BLKDEV]	= "BLKDEV",
+		[BTRFS_FT_FIFO]		= "FIFO",
+		[BTRFS_FT_SOCK]		= "SOCK",
+		[BTRFS_FT_SYMLINK]	= "SYMLINK",
+		[BTRFS_FT_XATTR]	= "XATTR"
 	};
-	struct btrfs_inode_item inode;
-	const char *name = (const char *) (item + 1);
-	char filetime[32], *target = NULL;
+	u8 type = btrfs_dir_type(eb, di);
+	char namebuf[BTRFS_NAME_LEN];
+	char *target = NULL;
+	char filetime[32];
 	time_t mtime;
+	int ret;
 
-	if (__btrfs_lookup_inode(root, (struct btrfs_key *)&item->location,
-			       &inode, NULL)) {
-		printf("%s: Cannot find inode item for directory entry %.*s!\n",
-		       __func__, item->name_len, name);
-		return 0;
+	btrfs_dir_item_key_to_cpu(eb, di, &key);
+
+	if (key.type == BTRFS_ROOT_ITEM_KEY) {
+		struct btrfs_root *subvol;
+
+		/* It's a subvolume, get its mtime from root item */
+		subvol = btrfs_read_fs_root(fs_info, &key);
+		if (IS_ERR(subvol)) {
+			ret = PTR_ERR(subvol);
+			error("Can't find root %llu", key.objectid);
+			return ret;
+		}
+		mtime = btrfs_stack_timespec_sec(&subvol->root_item.otime);
+	} else {
+		struct btrfs_path path;
+
+		/* It's regular inode, get its mtime from inode item */
+		btrfs_init_path(&path);
+		ret = btrfs_search_slot(NULL, root, &key, &path, 0, 0);
+		if (ret > 0)
+			ret = -ENOENT;
+		if (ret < 0) {
+			error("Can't find inode %llu", key.objectid);
+			btrfs_release_path(&path);
+			return ret;
+		}
+		read_extent_buffer(path.nodes[0], &ii,
+			btrfs_item_ptr_offset(path.nodes[0], path.slots[0]),
+			sizeof(ii));
+		btrfs_release_path(&path);
+		mtime = btrfs_stack_timespec_sec(&ii.mtime);
 	}
-
-	mtime = inode.mtime.sec;
 	ctime_r(&mtime, filetime);
 
-	if (item->type == BTRFS_FT_SYMLINK) {
-		target = malloc(min(inode.size + 1,
-				    (u64) btrfs_info.sb.sectorsize));
-
-		if (target && __btrfs_readlink(root, item->location.objectid,
-					     target)) {
-			free(target);
-			target = NULL;
+	if (type == BTRFS_FT_SYMLINK) {
+		target = malloc(fs_info->sectorsize);
+		if (!target) {
+			error("Can't alloc memory for symlink %llu",
+				key.objectid);
+			return -ENOMEM;
 		}
-
-		if (!target)
-			printf("%s: Cannot read symlink target!\n", __func__);
+		ret = btrfs_readlink(root, key.objectid, target);
+		if (ret < 0) {
+			error("Failed to read symlink %llu", key.objectid);
+			goto out;
+		}
+		target[ret] = '\0';
 	}
 
-	printf("<%s> ", typestr[item->type]);
-	if (item->type == BTRFS_FT_CHRDEV || item->type == BTRFS_FT_BLKDEV)
-		printf("%4u,%5u  ", (unsigned int) (inode.rdev >> 20),
-			(unsigned int) (inode.rdev & 0xfffff));
+	if (type < ARRAY_SIZE(dir_item_str) && dir_item_str[type])
+		printf("<%s> ", dir_item_str[type]);
 	else
-		printf("%10llu  ", inode.size);
-
-	printf("%24.24s  %.*s", filetime, item->name_len, name);
-
-	if (item->type == BTRFS_FT_SYMLINK) {
-		printf(" -> %s", target ? target : "?");
-		if (target)
-			free(target);
+		printf("DIR_ITEM.%u", type);
+	if (type == BTRFS_FT_CHRDEV || type == BTRFS_FT_BLKDEV) {
+		ASSERT(key.type == BTRFS_INODE_ITEM_KEY);
+		printf("%4llu,%5llu  ", btrfs_stack_inode_rdev(&ii) >> 20,
+				btrfs_stack_inode_rdev(&ii) & 0xfffff);
+	} else {
+		if (key.type == BTRFS_INODE_ITEM_KEY)
+			printf("%10llu  ", btrfs_stack_inode_size(&ii));
+		else
+			printf("%10llu  ", 0ULL);
 	}
 
+	read_extent_buffer(eb, namebuf, (unsigned long)(di + 1),
+			   btrfs_dir_name_len(eb, di));
+	printf("%24.24s  %.*s", filetime, btrfs_dir_name_len(eb, di), namebuf);
+	if (type == BTRFS_FT_SYMLINK)
+		printf(" -> %s", target ? target : "?");
 	printf("\n");
-
-	return 0;
+out:
+	free(target);
+	return ret;
 }
 
 int btrfs_probe(struct blk_desc *fs_dev_desc,
@@ -125,27 +160,29 @@ int btrfs_probe(struct blk_desc *fs_dev_desc,
 
 int btrfs_ls(const char *path)
 {
-	struct __btrfs_root root = btrfs_info.fs_root;
-	u64 inr;
+	struct btrfs_fs_info *fs_info = current_fs_info;
+	struct btrfs_root *root = fs_info->fs_root;
+	u64 ino = BTRFS_FIRST_FREE_OBJECTID;
 	u8 type;
+	int ret;
 
-	inr = __btrfs_lookup_path(&root, root.root_dirid, path, &type, NULL, 40);
-
-	if (inr == -1ULL) {
+	ASSERT(fs_info);
+	ret = btrfs_lookup_path(fs_info->fs_root, BTRFS_FIRST_FREE_OBJECTID,
+				path, &root, &ino, &type, 40);
+	if (ret < 0) {
 		printf("Cannot lookup path %s\n", path);
-		return -1;
+		return ret;
 	}
 
 	if (type != BTRFS_FT_DIR) {
-		printf("Not a directory: %s\n", path);
-		return -1;
+		error("Not a directory: %s", path);
+		return -ENOENT;
 	}
-
-	if (btrfs_readdir(&root, inr, readdir_callback)) {
-		printf("An error occured while listing directory %s\n", path);
-		return -1;
+	ret = btrfs_iter_dir(root, ino, show_dir);
+	if (ret < 0) {
+		error("An error occured while listing directory %s", path);
+		return ret;
 	}
-
 	return 0;
 }
 

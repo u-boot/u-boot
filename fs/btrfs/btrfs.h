@@ -43,13 +43,8 @@ u32 btrfs_decompress(u8 type, const char *, u32, char *, u32);
 int btrfs_read_superblock(void);
 
 /* dir-item.c */
-typedef int (*btrfs_readdir_callback_t)(const struct __btrfs_root *,
-					struct btrfs_dir_item *);
-
 int __btrfs_lookup_dir_item(const struct __btrfs_root *, u64, const char *, int,
 			   struct btrfs_dir_item *);
-int btrfs_readdir(const struct __btrfs_root *, u64, btrfs_readdir_callback_t);
-
 /* root.c */
 int btrfs_find_root(u64, struct __btrfs_root *, struct btrfs_root_item *);
 u64 btrfs_lookup_root_ref(u64, struct btrfs_root_ref *, char *);

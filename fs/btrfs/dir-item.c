@@ -193,39 +193,55 @@ out:
 	return res ? 0 : -1;
 }
 
-int btrfs_readdir(const struct __btrfs_root *root, u64 dir,
-		  btrfs_readdir_callback_t callback)
+int btrfs_iter_dir(struct btrfs_root *root, u64 ino,
+		   btrfs_iter_dir_callback_t callback)
 {
-	struct __btrfs_path path;
-	struct btrfs_key key, *found_key;
-	struct btrfs_dir_item *item;
-	int res = 0;
+	struct btrfs_path path;
+	struct btrfs_key key;
+	int ret;
 
-	key.objectid = dir;
+	btrfs_init_path(&path);
+	key.objectid = ino;
 	key.type = BTRFS_DIR_INDEX_KEY;
 	key.offset = 0;
 
-	if (btrfs_search_tree(root, &key, &path))
-		return -1;
-
+	ret = btrfs_search_slot(NULL, root, &key, &path, 0, 0);
+	if (ret < 0)
+		return ret;
+	/* Should not happen */
+	if (ret == 0) {
+		ret = -EUCLEAN;
+		goto out;
+	}
+	if (path.slots[0] >= btrfs_header_nritems(path.nodes[0])) {
+		ret = btrfs_next_leaf(root, &path);
+		if (ret < 0)
+			goto out;
+		if (ret > 0) {
+			ret = 0;
+			goto out;
+		}
+	}
 	do {
-		found_key = btrfs_path_leaf_key(&path);
-		if (btrfs_comp_keys_type(&key, found_key))
+		struct btrfs_dir_item *di;
+
+		btrfs_item_key_to_cpu(path.nodes[0], &key, path.slots[0]);
+		if (key.objectid != ino || key.type != BTRFS_DIR_INDEX_KEY)
 			break;
+		di = btrfs_item_ptr(path.nodes[0], path.slots[0],
+				    struct btrfs_dir_item);
+		if (verify_dir_item(root, path.nodes[0], di)) {
+			ret = -EUCLEAN;
+			goto out;
+		}
+		ret = callback(root, path.nodes[0], di);
+		if (ret < 0)
+			goto out;
+	} while (!(ret = btrfs_next_item(root, &path)));
 
-		item = btrfs_path_item_ptr(&path, struct btrfs_dir_item);
-		btrfs_dir_item_to_cpu(item);
-
-		if (__verify_dir_item(item, 0, sizeof(*item) + item->name_len))
-			continue;
-		if (item->type == BTRFS_FT_XATTR)
-			continue;
-
-		if (callback(root, item))
-			break;
-	} while (!(res = btrfs_next_slot(&path)));
-
-	__btrfs_free_path(&path);
-
-	return res < 0 ? -1 : 0;
+	if (ret > 0)
+		ret = 0;
+out:
+	btrfs_release_path(&path);
+	return ret;
 }

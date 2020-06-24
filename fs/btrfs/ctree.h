@@ -1285,6 +1285,11 @@ struct btrfs_dir_item *btrfs_lookup_dir_item(struct btrfs_trans_handle *trans,
 					     struct btrfs_path *path, u64 dir,
 					     const char *name, int name_len,
 					     int mod);
+typedef int (*btrfs_iter_dir_callback_t)(struct btrfs_root *root,
+					 struct extent_buffer *eb,
+					 struct btrfs_dir_item *di);
+int btrfs_iter_dir(struct btrfs_root *root, u64 ino,
+		   btrfs_iter_dir_callback_t callback);
 /* inode.c */
 int btrfs_lookup_path(struct btrfs_root *root, u64 ino, const char *filename,
 			struct btrfs_root **root_ret, u64 *ino_ret,
