@@ -65,7 +65,7 @@ int btrfs_lookup_inode(const struct btrfs_root *root,
 	if (btrfs_search_tree(&tmp_root, location, &path))
 		return res;
 
-	if (btrfs_comp_keys(location, btrfs_path_leaf_key(&path)))
+	if (__btrfs_comp_keys(location, btrfs_path_leaf_key(&path)))
 		goto out;
 
 	if (item) {
@@ -98,7 +98,7 @@ int btrfs_readlink(const struct btrfs_root *root, u64 inr, char *target)
 	if (btrfs_search_tree(root, &key, &path))
 		return -1;
 
-	if (btrfs_comp_keys(&key, btrfs_path_leaf_key(&path)))
+	if (__btrfs_comp_keys(&key, btrfs_path_leaf_key(&path)))
 		goto out;
 
 	extent = btrfs_path_item_ptr(&path, struct btrfs_file_extent_item);
@@ -333,7 +333,7 @@ u64 btrfs_file_read(const struct btrfs_root *root, u64 inr, u64 offset,
 	if (btrfs_search_tree(root, &key, &path))
 		return -1ULL;
 
-	if (btrfs_comp_keys(&key, btrfs_path_leaf_key(&path)) < 0) {
+	if (__btrfs_comp_keys(&key, btrfs_path_leaf_key(&path)) < 0) {
 		if (btrfs_prev_slot(&path))
 			goto out;
 

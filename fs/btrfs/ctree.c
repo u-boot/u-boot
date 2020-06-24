@@ -42,7 +42,7 @@ u16 btrfs_csum_type_size(u16 csum_type)
 	return btrfs_csums[csum_type].size;
 }
 
-int btrfs_comp_keys(struct btrfs_key *a, struct btrfs_key *b)
+int __btrfs_comp_keys(struct btrfs_key *a, struct btrfs_key *b)
 {
 	if (a->objectid > b->objectid)
 		return 1;
@@ -82,7 +82,7 @@ static int generic_bin_search(void *addr, int item_size, struct btrfs_key *key,
 		mid = (low + high) / 2;
 
 		tmp = (struct btrfs_key *) ((u8 *) addr + mid*item_size);
-		ret = btrfs_comp_keys(tmp, key);
+		ret = __btrfs_comp_keys(tmp, key);
 
 		if (ret < 0) {
 			low = mid + 1;
@@ -320,4 +320,188 @@ int btrfs_next_slot(struct btrfs_path *p)
 
 	p->slots[0]++;
 	return 0;
+}
+
+int btrfs_comp_cpu_keys(const struct btrfs_key *k1, const struct btrfs_key *k2)
+{
+	if (k1->objectid > k2->objectid)
+		return 1;
+	if (k1->objectid < k2->objectid)
+		return -1;
+	if (k1->type > k2->type)
+		return 1;
+	if (k1->type < k2->type)
+		return -1;
+	if (k1->offset > k2->offset)
+		return 1;
+	if (k1->offset < k2->offset)
+		return -1;
+	return 0;
+}
+
+static int btrfs_comp_keys(struct btrfs_disk_key *disk,
+			     const struct btrfs_key *k2)
+{
+	struct btrfs_key k1;
+
+	btrfs_disk_key_to_cpu(&k1, disk);
+	return btrfs_comp_cpu_keys(&k1, k2);
+}
+
+enum btrfs_tree_block_status
+btrfs_check_node(struct btrfs_fs_info *fs_info,
+		 struct btrfs_disk_key *parent_key, struct extent_buffer *buf)
+{
+	int i;
+	struct btrfs_key cpukey;
+	struct btrfs_disk_key key;
+	u32 nritems = btrfs_header_nritems(buf);
+	enum btrfs_tree_block_status ret = BTRFS_TREE_BLOCK_INVALID_NRITEMS;
+
+	if (nritems == 0 || nritems > BTRFS_NODEPTRS_PER_BLOCK(fs_info))
+		goto fail;
+
+	ret = BTRFS_TREE_BLOCK_INVALID_PARENT_KEY;
+	if (parent_key && parent_key->type) {
+		btrfs_node_key(buf, &key, 0);
+		if (memcmp(parent_key, &key, sizeof(key)))
+			goto fail;
+	}
+	ret = BTRFS_TREE_BLOCK_BAD_KEY_ORDER;
+	for (i = 0; nritems > 1 && i < nritems - 2; i++) {
+		btrfs_node_key(buf, &key, i);
+		btrfs_node_key_to_cpu(buf, &cpukey, i + 1);
+		if (btrfs_comp_keys(&key, &cpukey) >= 0)
+			goto fail;
+	}
+	return BTRFS_TREE_BLOCK_CLEAN;
+fail:
+	return ret;
+}
+
+enum btrfs_tree_block_status
+btrfs_check_leaf(struct btrfs_fs_info *fs_info,
+		 struct btrfs_disk_key *parent_key, struct extent_buffer *buf)
+{
+	int i;
+	struct btrfs_key cpukey;
+	struct btrfs_disk_key key;
+	u32 nritems = btrfs_header_nritems(buf);
+	enum btrfs_tree_block_status ret = BTRFS_TREE_BLOCK_INVALID_NRITEMS;
+
+	if (nritems * sizeof(struct btrfs_item) > buf->len)  {
+		fprintf(stderr, "invalid number of items %llu\n",
+			(unsigned long long)buf->start);
+		goto fail;
+	}
+
+	if (btrfs_header_level(buf) != 0) {
+		ret = BTRFS_TREE_BLOCK_INVALID_LEVEL;
+		fprintf(stderr, "leaf is not a leaf %llu\n",
+		       (unsigned long long)btrfs_header_bytenr(buf));
+		goto fail;
+	}
+	if (btrfs_leaf_free_space(buf) < 0) {
+		ret = BTRFS_TREE_BLOCK_INVALID_FREE_SPACE;
+		fprintf(stderr, "leaf free space incorrect %llu %d\n",
+			(unsigned long long)btrfs_header_bytenr(buf),
+			btrfs_leaf_free_space(buf));
+		goto fail;
+	}
+
+	if (nritems == 0)
+		return BTRFS_TREE_BLOCK_CLEAN;
+
+	btrfs_item_key(buf, &key, 0);
+	if (parent_key && parent_key->type &&
+	    memcmp(parent_key, &key, sizeof(key))) {
+		ret = BTRFS_TREE_BLOCK_INVALID_PARENT_KEY;
+		fprintf(stderr, "leaf parent key incorrect %llu\n",
+		       (unsigned long long)btrfs_header_bytenr(buf));
+		goto fail;
+	}
+	for (i = 0; nritems > 1 && i < nritems - 1; i++) {
+		btrfs_item_key(buf, &key, i);
+		btrfs_item_key_to_cpu(buf, &cpukey, i + 1);
+		if (btrfs_comp_keys(&key, &cpukey) >= 0) {
+			ret = BTRFS_TREE_BLOCK_BAD_KEY_ORDER;
+			fprintf(stderr, "bad key ordering %d %d\n", i, i+1);
+			goto fail;
+		}
+		if (btrfs_item_offset_nr(buf, i) !=
+			btrfs_item_end_nr(buf, i + 1)) {
+			ret = BTRFS_TREE_BLOCK_INVALID_OFFSETS;
+			fprintf(stderr, "incorrect offsets %u %u\n",
+				btrfs_item_offset_nr(buf, i),
+				btrfs_item_end_nr(buf, i + 1));
+			goto fail;
+		}
+		if (i == 0 && btrfs_item_end_nr(buf, i) !=
+		    BTRFS_LEAF_DATA_SIZE(fs_info)) {
+			ret = BTRFS_TREE_BLOCK_INVALID_OFFSETS;
+			fprintf(stderr, "bad item end %u wanted %u\n",
+				btrfs_item_end_nr(buf, i),
+				(unsigned)BTRFS_LEAF_DATA_SIZE(fs_info));
+			goto fail;
+		}
+	}
+
+	for (i = 0; i < nritems; i++) {
+		if (btrfs_item_end_nr(buf, i) >
+				BTRFS_LEAF_DATA_SIZE(fs_info)) {
+			btrfs_item_key(buf, &key, 0);
+			ret = BTRFS_TREE_BLOCK_INVALID_OFFSETS;
+			fprintf(stderr, "slot end outside of leaf %llu > %llu\n",
+				(unsigned long long)btrfs_item_end_nr(buf, i),
+				(unsigned long long)BTRFS_LEAF_DATA_SIZE(
+					fs_info));
+			goto fail;
+		}
+	}
+
+	return BTRFS_TREE_BLOCK_CLEAN;
+fail:
+	return ret;
+}
+
+/*
+ * how many bytes are required to store the items in a leaf.  start
+ * and nr indicate which items in the leaf to check.  This totals up the
+ * space used both by the item structs and the item data
+ */
+static int leaf_space_used(struct extent_buffer *l, int start, int nr)
+{
+	int data_len;
+	int nritems = btrfs_header_nritems(l);
+	int end = min(nritems, start + nr) - 1;
+
+	if (!nr)
+		return 0;
+	data_len = btrfs_item_end_nr(l, start);
+	data_len = data_len - btrfs_item_offset_nr(l, end);
+	data_len += sizeof(struct btrfs_item) * nr;
+	WARN_ON(data_len < 0);
+	return data_len;
+}
+
+/*
+ * The space between the end of the leaf items and
+ * the start of the leaf data.  IOW, how much room
+ * the leaf has left for both items and data
+ */
+int btrfs_leaf_free_space(struct extent_buffer *leaf)
+{
+	int nritems = btrfs_header_nritems(leaf);
+	u32 leaf_data_size;
+	int ret;
+
+	BUG_ON(leaf->fs_info && leaf->fs_info->nodesize != leaf->len);
+	leaf_data_size = __BTRFS_LEAF_DATA_SIZE(leaf->len);
+	ret = leaf_data_size - leaf_space_used(leaf, 0 ,nritems);
+	if (ret < 0) {
+		printk("leaf free space ret %d, leaf data size %u, used %d nritems %d\n",
+		       ret, leaf_data_size, leaf_space_used(leaf, 0, nritems),
+		       nritems);
+	}
+	return ret;
 }

@@ -59,6 +59,16 @@ static inline unsigned long btrfs_chunk_item_size(int num_stripes)
 
 #define BTRFS_MAX_EXTENT_SIZE SZ_128M
 
+enum btrfs_tree_block_status {
+	BTRFS_TREE_BLOCK_CLEAN,
+	BTRFS_TREE_BLOCK_INVALID_NRITEMS,
+	BTRFS_TREE_BLOCK_INVALID_PARENT_KEY,
+	BTRFS_TREE_BLOCK_BAD_KEY_ORDER,
+	BTRFS_TREE_BLOCK_INVALID_LEVEL,
+	BTRFS_TREE_BLOCK_INVALID_FREE_SPACE,
+	BTRFS_TREE_BLOCK_INVALID_OFFSETS,
+};
+
 struct btrfs_device;
 struct btrfs_fs_devices;
 struct btrfs_fs_info {
@@ -87,6 +97,35 @@ struct btrfs_fs_info {
 	u32 sectorsize;
 	u32 stripesize;
 };
+
+static inline u32 BTRFS_MAX_ITEM_SIZE(const struct btrfs_fs_info *info)
+{
+	return BTRFS_LEAF_DATA_SIZE(info) - sizeof(struct btrfs_item);
+}
+
+static inline u32 BTRFS_NODEPTRS_PER_BLOCK(const struct btrfs_fs_info *info)
+{
+	return BTRFS_LEAF_DATA_SIZE(info) / sizeof(struct btrfs_key_ptr);
+}
+
+static inline u32 BTRFS_NODEPTRS_PER_EXTENT_BUFFER(const struct extent_buffer *eb)
+{
+	BUG_ON(eb->fs_info && eb->fs_info->nodesize != eb->len);
+	return __BTRFS_LEAF_DATA_SIZE(eb->len) / sizeof(struct btrfs_key_ptr);
+}
+
+#define BTRFS_FILE_EXTENT_INLINE_DATA_START		\
+	(offsetof(struct btrfs_file_extent_item, disk_bytenr))
+static inline u32 BTRFS_MAX_INLINE_DATA_SIZE(const struct btrfs_fs_info *info)
+{
+	return BTRFS_MAX_ITEM_SIZE(info) -
+		BTRFS_FILE_EXTENT_INLINE_DATA_START;
+}
+
+static inline u32 BTRFS_MAX_XATTR_SIZE(const struct btrfs_fs_info *info)
+{
+	return BTRFS_MAX_ITEM_SIZE(info) - sizeof(struct btrfs_dir_item);
+}
 
 /*
  * File system states
@@ -1149,7 +1188,7 @@ struct btrfs_root {
 	u64 root_dirid;
 };
 
-int btrfs_comp_keys(struct btrfs_key *, struct btrfs_key *);
+int __btrfs_comp_keys(struct btrfs_key *, struct btrfs_key *);
 int btrfs_comp_keys_type(struct btrfs_key *, struct btrfs_key *);
 int btrfs_bin_search(union btrfs_tree_node *, struct btrfs_key *, int *);
 void btrfs_free_path(struct btrfs_path *);
@@ -1209,4 +1248,13 @@ const char *btrfs_super_csum_name(u16 csum_type);
 u16 btrfs_csum_type_size(u16 csum_type);
 size_t btrfs_super_num_csums(void);
 
+/* ctree.c */
+int btrfs_comp_cpu_keys(const struct btrfs_key *k1, const struct btrfs_key *k2);
+enum btrfs_tree_block_status
+btrfs_check_node(struct btrfs_fs_info *fs_info,
+		 struct btrfs_disk_key *parent_key, struct extent_buffer *buf);
+enum btrfs_tree_block_status
+btrfs_check_leaf(struct btrfs_fs_info *fs_info,
+		 struct btrfs_disk_key *parent_key, struct extent_buffer *buf);
+int btrfs_leaf_free_space(struct extent_buffer *leaf);
 #endif /* __BTRFS_CTREE_H__ */
