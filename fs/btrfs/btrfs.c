@@ -32,7 +32,8 @@ static int readdir_callback(const struct btrfs_root *root,
 	char filetime[32], *target = NULL;
 	time_t mtime;
 
-	if (btrfs_lookup_inode(root, &item->location, &inode, NULL)) {
+	if (btrfs_lookup_inode(root, (struct btrfs_key *)&item->location,
+			       &inode, NULL)) {
 		printf("%s: Cannot find inode item for directory entry %.*s!\n",
 		       __func__, item->name_len, name);
 		return 0;

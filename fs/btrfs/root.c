@@ -75,7 +75,7 @@ u64 btrfs_lookup_root_ref(u64 subvolid, struct btrfs_root_ref *refp, char *name)
 		*refp = *ref;
 
 	if (name) {
-		if (ref->name_len > BTRFS_VOL_NAME_MAX) {
+		if (ref->name_len > BTRFS_NAME_LEN) {
 			printf("%s: volume name too long: %u\n", __func__,
 			       ref->name_len);
 			goto out;

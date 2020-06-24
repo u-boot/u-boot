@@ -14,7 +14,7 @@ static int get_subvol_name(u64 subvolid, char *name, int max_len)
 	struct btrfs_inode_ref iref;
 	struct btrfs_root root;
 	u64 dir;
-	char tmp[max(BTRFS_VOL_NAME_MAX, BTRFS_NAME_MAX)];
+	char tmp[BTRFS_NAME_LEN];
 	char *ptr;
 
 	ptr = name + max_len - 1;

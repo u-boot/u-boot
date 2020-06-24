@@ -29,7 +29,7 @@ u64 btrfs_lookup_inode_ref(struct btrfs_root *root, u64 inr,
 		*refp = *ref;
 
 	if (name) {
-		if (ref->name_len > BTRFS_NAME_MAX) {
+		if (ref->name_len > BTRFS_NAME_LEN) {
 			printf("%s: inode name too long: %u\n", __func__,
 			        ref->name_len);
 			goto out;
@@ -255,7 +255,8 @@ u64 btrfs_lookup_path(struct btrfs_root *root, u64 inr, const char *path,
 
 		type = item.type;
 		have_inode = 1;
-		if (btrfs_lookup_inode(root, &item.location, &inode_item, root))
+		if (btrfs_lookup_inode(root, (struct btrfs_key *)&item.location,
+					&inode_item, root))
 			return -1ULL;
 
 		if (item.type == BTRFS_FT_SYMLINK && symlink_limit >= 0) {
