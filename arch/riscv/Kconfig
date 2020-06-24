@@ -20,6 +20,9 @@ config TARGET_QEMU_VIRT
 config TARGET_SIFIVE_FU540
 	bool "Support SiFive FU540 Board"
 
+config TARGET_SIPEED_MAIX
+	bool "Support Sipeed Maix Board"
+
 endchoice
 
 config SYS_ICACHE_OFF
@@ -53,6 +56,7 @@ source "board/AndesTech/ax25-ae350/Kconfig"
 source "board/emulation/qemu-riscv/Kconfig"
 source "board/microchip/mpfs_icicle/Kconfig"
 source "board/sifive/fu540/Kconfig"
+source "board/sipeed/maix/Kconfig"
 
 # platform-specific options below
 source "arch/riscv/cpu/ax25/Kconfig"
