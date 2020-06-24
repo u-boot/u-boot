@@ -1204,69 +1204,6 @@ union btrfs_tree_node {
 	struct btrfs_node node;
 };
 
-struct __btrfs_path {
-	union btrfs_tree_node *nodes[BTRFS_MAX_LEVEL];
-	u32 slots[BTRFS_MAX_LEVEL];
-};
-
-struct __btrfs_root {
-	u64 objectid;
-	u64 bytenr;
-	u64 root_dirid;
-};
-
-int __btrfs_comp_keys(struct btrfs_key *, struct btrfs_key *);
-int btrfs_comp_keys_type(struct btrfs_key *, struct btrfs_key *);
-int __btrfs_bin_search(union btrfs_tree_node *, struct btrfs_key *, int *);
-void __btrfs_free_path(struct __btrfs_path *);
-int btrfs_search_tree(const struct __btrfs_root *, struct btrfs_key *,
-		      struct __btrfs_path *);
-int btrfs_prev_slot(struct __btrfs_path *);
-int btrfs_next_slot(struct __btrfs_path *);
-
-static inline struct btrfs_key *btrfs_path_leaf_key(struct __btrfs_path *p) {
-	/* At tree read time we have converted the endian for btrfs_disk_key */
-	return (struct btrfs_key *)&p->nodes[0]->leaf.items[p->slots[0]].key;
-}
-
-static inline struct btrfs_key *
-btrfs_search_tree_key_type(const struct __btrfs_root *root, u64 objectid,
-			   u8 type, struct __btrfs_path *path)
-{
-	struct btrfs_key key, *res;
-
-	key.objectid = objectid;
-	key.type = type;
-	key.offset = 0;
-
-	if (btrfs_search_tree(root, &key, path))
-		return NULL;
-
-	res = btrfs_path_leaf_key(path);
-	if (btrfs_comp_keys_type(&key, res)) {
-		__btrfs_free_path(path);
-		return NULL;
-	}
-
-	return res;
-}
-
-static inline u32 btrfs_path_item_size(struct __btrfs_path *p)
-{
-	return p->nodes[0]->leaf.items[p->slots[0]].size;
-}
-
-static inline void *__btrfs_leaf_data(struct btrfs_leaf *leaf, u32 slot)
-{
-	return ((u8 *) leaf) + sizeof(struct btrfs_header)
-	       + leaf->items[slot].offset;
-}
-
-static inline void *btrfs_path_leaf_data(struct __btrfs_path *p)
-{
-	return __btrfs_leaf_data(&p->nodes[0]->leaf, p->slots[0]);
-}
-
 #define btrfs_path_item_ptr(p,t)		\
 	((t *) btrfs_path_leaf_data((p)))
 

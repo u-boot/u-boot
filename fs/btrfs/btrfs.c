@@ -13,7 +13,6 @@
 #include "crypto/hash.h"
 #include "disk-io.h"
 
-struct btrfs_info btrfs_info;
 struct btrfs_fs_info *current_fs_info;
 
 static int show_dir(struct btrfs_root *root, struct extent_buffer *eb,
@@ -120,36 +119,7 @@ int btrfs_probe(struct blk_desc *fs_dev_desc,
 	struct btrfs_fs_info *fs_info;
 	int ret = -1;
 
-	btrfs_blk_desc = fs_dev_desc;
-	btrfs_part_info = fs_partition;
-
-	memset(&btrfs_info, 0, sizeof(btrfs_info));
-
 	btrfs_hash_init();
-	if (btrfs_read_superblock())
-		return -1;
-
-	if (btrfs_chunk_map_init()) {
-		printf("%s: failed to init chunk map\n", __func__);
-		return -1;
-	}
-
-	btrfs_info.tree_root.objectid = 0;
-	btrfs_info.tree_root.bytenr = btrfs_info.sb.root;
-	btrfs_info.chunk_root.objectid = 0;
-	btrfs_info.chunk_root.bytenr = btrfs_info.sb.chunk_root;
-
-	if (__btrfs_read_chunk_tree()) {
-		printf("%s: failed to read chunk tree\n", __func__);
-		return -1;
-	}
-
-	if (btrfs_find_root(btrfs_get_default_subvol_objectid(),
-			    &btrfs_info.fs_root, NULL)) {
-		printf("%s: failed to find default subvolume\n", __func__);
-		return -1;
-	}
-
 	fs_info = open_ctree_fs_info(fs_dev_desc, fs_partition);
 	if (fs_info) {
 		current_fs_info = fs_info;
@@ -297,7 +267,6 @@ int btrfs_read(const char *file, void *buf, loff_t offset, loff_t len,
 
 void btrfs_close(void)
 {
-	btrfs_chunk_map_exit();
 	if (current_fs_info) {
 		close_ctree_fs_info(current_fs_info);
 		current_fs_info = NULL;

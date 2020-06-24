@@ -10,9 +10,6 @@
 #define BTRFS_SUPER_INFO_OFFSET SZ_64K
 #define BTRFS_SUPER_INFO_SIZE	SZ_4K
 
-/* U-boot specific */
-int btrfs_read_superblock(void);
-
 /* From btrfs-progs */
 int read_whole_eb(struct btrfs_fs_info *info, struct extent_buffer *eb, int mirror);
 struct extent_buffer* read_tree_block(struct btrfs_fs_info *fs_info, u64 bytenr,

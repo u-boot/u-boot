@@ -115,7 +115,7 @@ static u32 decompress_zlib(const u8 *_cbuf, u32 clen, u8 *dbuf, u32 dlen)
 	while (stream.total_in < clen) {
 		stream.next_in = cbuf + stream.total_in;
 		stream.avail_in = min((u32) (clen - stream.total_in),
-				      (u32) btrfs_info.sb.sectorsize);
+					current_fs_info->sectorsize);
 
 		ret = inflate(&stream, Z_NO_FLUSH);
 		if (ret != Z_OK)

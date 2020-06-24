@@ -310,36 +310,6 @@ int btrfs_read_dev_super(struct blk_desc *desc, struct disk_partition *part,
 	return 0;
 }
 
-int btrfs_read_superblock(void)
-{
-	ALLOC_CACHE_ALIGN_BUFFER(char, raw_sb, BTRFS_SUPER_INFO_SIZE);
-	struct btrfs_super_block *sb = (struct btrfs_super_block *) raw_sb;
-	int ret;
-
-
-	btrfs_info.sb.generation = 0;
-
-	ret = btrfs_read_dev_super(btrfs_blk_desc, btrfs_part_info, sb);
-	if (ret < 0) {
-		pr_debug("%s: No valid BTRFS superblock found!\n", __func__);
-		return ret;
-	}
-	btrfs_super_block_to_cpu(sb);
-	memcpy(&btrfs_info.sb, sb, sizeof(*sb));
-
-	if (btrfs_info.sb.num_devices != 1) {
-		printf("%s: Unsupported number of devices (%lli). This driver "
-		       "only supports filesystem on one device.\n", __func__,
-		       btrfs_info.sb.num_devices);
-		return -1;
-	}
-
-	pr_debug("Chosen superblock with generation = %llu\n",
-	      btrfs_info.sb.generation);
-
-	return 0;
-}
-
 static int __csum_tree_block_size(struct extent_buffer *buf, u16 csum_size,
 				  int verify, int silent, u16 csum_type)
 {
