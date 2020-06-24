@@ -353,6 +353,9 @@ static int stm32_dsi_attach(struct udevice *dev)
 
 	mplat = dev_get_platdata(priv->panel);
 	mplat->device = &priv->device;
+	device->lanes = mplat->lanes;
+	device->format = mplat->format;
+	device->mode_flags = mplat->mode_flags;
 
 	ret = panel_get_display_timing(priv->panel, &timings);
 	if (ret) {
