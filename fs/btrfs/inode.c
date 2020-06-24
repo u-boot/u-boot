@@ -162,6 +162,115 @@ int __btrfs_readlink(const struct __btrfs_root *root, u64 inr, char *target)
 	return 0;
 }
 
+static int lookup_root_ref(struct btrfs_fs_info *fs_info,
+			   u64 rootid, u64 *root_ret, u64 *dir_ret)
+{
+	struct btrfs_root *root = fs_info->tree_root;
+	struct btrfs_root_ref *root_ref;
+	struct btrfs_path path;
+	struct btrfs_key key;
+	int ret;
+
+	btrfs_init_path(&path);
+	key.objectid = rootid;
+	key.type = BTRFS_ROOT_BACKREF_KEY;
+	key.offset = (u64)-1;
+
+	ret = btrfs_search_slot(NULL, root, &key, &path, 0, 0);
+	if (ret < 0)
+		return ret;
+	/* Should not happen */
+	if (ret == 0) {
+		ret = -EUCLEAN;
+		goto out;
+	}
+	ret = btrfs_previous_item(root, &path, rootid, BTRFS_ROOT_BACKREF_KEY);
+	if (ret < 0)
+		goto out;
+	if (ret > 0) {
+		ret = -ENOENT;
+		goto out;
+	}
+	btrfs_item_key_to_cpu(path.nodes[0], &key, path.slots[0]);
+	root_ref = btrfs_item_ptr(path.nodes[0], path.slots[0],
+				  struct btrfs_root_ref);
+	*root_ret = key.offset;
+	*dir_ret = btrfs_root_ref_dirid(path.nodes[0], root_ref);
+out:
+	btrfs_release_path(&path);
+	return ret;
+}
+
+/*
+ * To get the parent inode of @ino of @root.
+ *
+ * @root_ret and @ino_ret will be filled.
+ *
+ * NOTE: This function is not reliable. It can only get one parent inode.
+ * The get the proper parent inode, we need a full VFS inodes stack to
+ * resolve properly.
+ */
+static int get_parent_inode(struct btrfs_root *root, u64 ino,
+			    struct btrfs_root **root_ret, u64 *ino_ret)
+{
+	struct btrfs_fs_info *fs_info = root->fs_info;
+	struct btrfs_path path;
+	struct btrfs_key key;
+	int ret;
+
+	if (ino == BTRFS_FIRST_FREE_OBJECTID) {
+		u64 parent_root = -1;
+
+		/* It's top level already, no more parent */
+		if (root->root_key.objectid == BTRFS_FS_TREE_OBJECTID) {
+			*root_ret = fs_info->fs_root;
+			*ino_ret = BTRFS_FIRST_FREE_OBJECTID;
+			return 0;
+		}
+
+		ret = lookup_root_ref(fs_info, root->root_key.objectid,
+				      &parent_root, ino_ret);
+		if (ret < 0)
+			return ret;
+
+		key.objectid = parent_root;
+		key.type = BTRFS_ROOT_ITEM_KEY;
+		key.offset = (u64)-1;
+		*root_ret = btrfs_read_fs_root(fs_info, &key);
+		if (IS_ERR(*root_ret))
+			return PTR_ERR(*root_ret);
+
+		return 0;
+	}
+
+	btrfs_init_path(&path);
+	key.objectid = ino;
+	key.type = BTRFS_INODE_REF_KEY;
+	key.offset = (u64)-1;
+
+	ret = btrfs_search_slot(NULL, root, &key, &path, 0, 0);
+	if (ret < 0)
+		return ret;
+	/* Should not happen */
+	if (ret == 0) {
+		ret = -EUCLEAN;
+		goto out;
+	}
+	ret = btrfs_previous_item(root, &path, ino, BTRFS_INODE_REF_KEY);
+	if (ret < 0)
+		goto out;
+	if (ret > 0) {
+		ret = -ENOENT;
+		goto out;
+	}
+	btrfs_item_key_to_cpu(path.nodes[0], &key, path.slots[0]);
+	*root_ret = root;
+	*ino_ret = key.offset;
+out:
+	btrfs_release_path(&path);
+	return ret;
+}
+
 /* inr must be a directory (for regular files with multiple hard links this
    function returns only one of the parents of the file) */
 static u64 __get_parent_inode(struct __btrfs_root *root, u64 inr,
@@ -238,6 +347,147 @@ static inline const char *skip_current_directories(const char *cur)
 	}
 
 	return cur;
+}
+
+/*
+ * Resolve one filename of @ino of @root.
+ *
+ * key_ret:	The child key (either INODE_ITEM or ROOT_ITEM type)
+ * type_ret:	BTRFS_FT_* of the child inode.
+ *
+ * Return 0 with above members filled.
+ * Return <0 for error.
+ */
+static int resolve_one_filename(struct btrfs_root *root, u64 ino,
+				const char *name, int namelen,
+				struct btrfs_key *key_ret, u8 *type_ret)
+{
+	struct btrfs_dir_item *dir_item;
+	struct btrfs_path path;
+	int ret = 0;
+
+	btrfs_init_path(&path);
+
+	dir_item = btrfs_lookup_dir_item(NULL, root, &path, ino, name,
+					 namelen, 0);
+	if (IS_ERR(dir_item)) {
+		ret = PTR_ERR(dir_item);
+		goto out;
+	}
+
+	btrfs_dir_item_key_to_cpu(path.nodes[0], dir_item, key_ret);
+	*type_ret = btrfs_dir_type(path.nodes[0], dir_item);
+out:
+	btrfs_release_path(&path);
+	return ret;
+}
+
+/*
+ * Resolve a full path @filename. The start point is @ino of @root.
+ *
+ * The result will be filled into @root_ret, @ino_ret and @type_ret.
+ */
+int btrfs_lookup_path(struct btrfs_root *root, u64 ino, const char *filename,
+			struct btrfs_root **root_ret, u64 *ino_ret,
+			u8 *type_ret, int symlink_limit)
+{
+	struct btrfs_fs_info *fs_info = root->fs_info;
+	struct btrfs_root *next_root;
+	struct btrfs_key key;
+	const char *cur = filename;
+	u64 next_ino;
+	u8 next_type;
+	u8 type;
+	int len;
+	int ret = 0;
+
+	/* If the path is absolute path, also search from fs root */
+	if (*cur == '/') {
+		root = fs_info->fs_root;
+		ino = btrfs_root_dirid(&root->root_item);
+		type = BTRFS_FT_DIR;
+	}
+
+	while (*cur != '\0') {
+		cur = skip_current_directories(cur);
+
+		len = next_length(cur);
+		if (len > BTRFS_NAME_LEN) {
+			error("%s: Name too long at \"%.*s\"", __func__,
+			       BTRFS_NAME_LEN, cur);
+			return -ENAMETOOLONG;
+		}
+
+		if (len == 1 && cur[0] == '.')
+			break;
+
+		if (len == 2 && cur[0] == '.' && cur[1] == '.') {
+			/* Go one level up */
+			ret = get_parent_inode(root, ino, &next_root, &next_ino);
+			if (ret < 0)
+				return ret;
+			root = next_root;
+			ino = next_ino;
+			goto next;
+		}
+
+		if (!*cur)
+			break;
+
+		ret = resolve_one_filename(root, ino, cur, len, &key, &type);
+		if (ret < 0)
+			return ret;
+
+		if (key.type == BTRFS_ROOT_ITEM_KEY) {
+			/* Child inode is a subvolume */
+
+			next_root = btrfs_read_fs_root(fs_info, &key);
+			if (IS_ERR(next_root))
+				return PTR_ERR(next_root);
+			root = next_root;
+			ino = btrfs_root_dirid(&root->root_item);
+		} else if (type == BTRFS_FT_SYMLINK && symlink_limit >= 0) {
+			/* Child inode is a symlink */
+
+			char *target;
+
+			if (symlink_limit == 0) {
+				error("%s: Too much symlinks!", __func__);
+				return -EMLINK;
+			}
+			target = malloc(fs_info->sectorsize);
+			if (!target)
+				return -ENOMEM;
+			ret = btrfs_readlink(root, key.objectid, target);
+			if (ret < 0) {
+				free(target);
+				return ret;
+			}
+			target[ret] = '\0';
+
+			ret = btrfs_lookup_path(root, ino, target, &next_root,
+						&next_ino, &next_type,
+						symlink_limit);
+			if (ret < 0)
+				return ret;
+			root = next_root;
+			ino = next_ino;
+			type = next_type;
+		} else {
+			/* Child inode is an inode */
+			ino = key.objectid;
+		}
+next:
+		cur += len;
+	}
+
+	if (!ret) {
+		*root_ret = root;
+		*ino_ret = ino;
+		*type_ret = type;
+	}
+
+	return ret;
 }
 
 u64 __btrfs_lookup_path(struct __btrfs_root *root, u64 inr, const char *path,

@@ -1285,6 +1285,10 @@ struct btrfs_dir_item *btrfs_lookup_dir_item(struct btrfs_trans_handle *trans,
 					     struct btrfs_path *path, u64 dir,
 					     const char *name, int name_len,
 					     int mod);
+/* inode.c */
+int btrfs_lookup_path(struct btrfs_root *root, u64 ino, const char *filename,
+			struct btrfs_root **root_ret, u64 *ino_ret,
+			u8 *type_ret, int symlink_limit);
 
 /* ctree.c */
 int btrfs_comp_cpu_keys(const struct btrfs_key *k1, const struct btrfs_key *k2);
