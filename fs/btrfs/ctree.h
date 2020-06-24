@@ -52,6 +52,15 @@ static inline unsigned long btrfs_chunk_item_size(int num_stripes)
 #define __BTRFS_LEAF_DATA_SIZE(bs) ((bs) - sizeof(struct btrfs_header))
 #define BTRFS_LEAF_DATA_SIZE(fs_info) \
 				(__BTRFS_LEAF_DATA_SIZE(fs_info->nodesize))
+
+struct btrfs_path {
+	struct extent_buffer *nodes[BTRFS_MAX_LEVEL];
+	int slots[BTRFS_MAX_LEVEL];
+
+	/* keep some upper locks as we walk down */
+	u8 lowest_level;
+};
+
 /* ioprio of readahead is set to idle */
 #define BTRFS_IOPRIO_READA (IOPRIO_PRIO_VALUE(IOPRIO_CLASS_IDLE, 0))
 
@@ -86,6 +95,7 @@ struct btrfs_root {
 	struct rb_node rb_node;
 };
 
+struct btrfs_trans_handle;
 struct btrfs_device;
 struct btrfs_fs_devices;
 struct btrfs_fs_info {
@@ -1207,7 +1217,7 @@ struct __btrfs_root {
 
 int __btrfs_comp_keys(struct btrfs_key *, struct btrfs_key *);
 int btrfs_comp_keys_type(struct btrfs_key *, struct btrfs_key *);
-int btrfs_bin_search(union btrfs_tree_node *, struct btrfs_key *, int *);
+int __btrfs_bin_search(union btrfs_tree_node *, struct btrfs_key *, int *);
 void __btrfs_free_path(struct __btrfs_path *);
 int btrfs_search_tree(const struct __btrfs_root *, struct btrfs_key *,
 		      struct __btrfs_path *);
@@ -1273,5 +1283,54 @@ btrfs_check_node(struct btrfs_fs_info *fs_info,
 enum btrfs_tree_block_status
 btrfs_check_leaf(struct btrfs_fs_info *fs_info,
 		 struct btrfs_disk_key *parent_key, struct extent_buffer *buf);
+struct extent_buffer *read_node_slot(struct btrfs_fs_info *fs_info,
+				   struct extent_buffer *parent, int slot);
+int btrfs_previous_item(struct btrfs_root *root,
+			struct btrfs_path *path, u64 min_objectid,
+			int type);
+int btrfs_next_sibling_tree_block(struct btrfs_fs_info *fs_info,
+				  struct btrfs_path *path);
+/*
+ * Walk up the tree as far as necessary to find the next leaf.
+ *
+ * returns 0 if it found something or 1 if there are no greater leaves.
+ * returns < 0 on io errors.
+ */
+static inline int btrfs_next_leaf(struct btrfs_root *root,
+				  struct btrfs_path *path)
+{
+	path->lowest_level = 0;
+	return btrfs_next_sibling_tree_block(root->fs_info, path);
+}
+
+static inline int btrfs_next_item(struct btrfs_root *root,
+				  struct btrfs_path *p)
+{
+	++p->slots[0];
+	if (p->slots[0] >= btrfs_header_nritems(p->nodes[0]))
+		return btrfs_next_leaf(root, p);
+	return 0;
+}
+
+int btrfs_prev_leaf(struct btrfs_root *root, struct btrfs_path *path);
 int btrfs_leaf_free_space(struct extent_buffer *leaf);
+int btrfs_search_slot(struct btrfs_trans_handle *trans,
+		struct btrfs_root *root, const struct btrfs_key *key,
+		struct btrfs_path *p, int ins_len, int cow);
+int btrfs_search_slot_for_read(struct btrfs_root *root,
+			       const struct btrfs_key *key,
+			       struct btrfs_path *p, int find_higher,
+			       int return_any);
+void btrfs_release_path(struct btrfs_path *p);
+struct btrfs_path *btrfs_alloc_path(void);
+void btrfs_free_path(struct btrfs_path *p);
+static inline void btrfs_init_path(struct btrfs_path *p)
+{
+	memset(p, 0, sizeof(*p));
+}
+int btrfs_bin_search(struct extent_buffer *eb, const struct btrfs_key *key,
+		     int *slot);
+int btrfs_find_item(struct btrfs_root *fs_root, struct btrfs_path *found_path,
+		u64 iobjectid, u64 ioff, u8 key_type,
+		struct btrfs_key *found_key);
 #endif /* __BTRFS_CTREE_H__ */
