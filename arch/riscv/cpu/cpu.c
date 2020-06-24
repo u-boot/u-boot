@@ -98,6 +98,12 @@ int arch_cpu_init_dm(void)
 			csr_write(CSR_SATP, 0);
 	}
 
+#ifdef CONFIG_SMP
+	ret = riscv_init_ipi();
+	if (ret)
+		return ret;
+#endif
+
 	return 0;
 }
 

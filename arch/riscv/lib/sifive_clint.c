@@ -24,22 +24,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define CLINT_BASE_GET(void)						\
-	do {								\
-		long *ret;						\
-									\
-		if (!gd->arch.clint) {					\
-			ret = syscon_get_first_range(RISCV_SYSCON_CLINT); \
-			if (IS_ERR(ret))				\
-				return PTR_ERR(ret);			\
-			gd->arch.clint = ret;				\
-		}							\
-	} while (0)
-
 int riscv_get_time(u64 *time)
 {
-	CLINT_BASE_GET();
-
 	*time = readq((void __iomem *)MTIME_REG(gd->arch.clint));
 
 	return 0;
@@ -47,17 +33,24 @@ int riscv_get_time(u64 *time)
 
 int riscv_set_timecmp(int hart, u64 cmp)
 {
-	CLINT_BASE_GET();
-
 	writeq(cmp, (void __iomem *)MTIMECMP_REG(gd->arch.clint, hart));
+
+	return 0;
+}
+
+int riscv_init_ipi(void)
+{
+	long *ret = syscon_get_first_range(RISCV_SYSCON_CLINT);
+
+	if (IS_ERR(ret))
+		return PTR_ERR(ret);
+	gd->arch.clint = ret;
 
 	return 0;
 }
 
 int riscv_send_ipi(int hart)
 {
-	CLINT_BASE_GET();
-
 	writel(1, (void __iomem *)MSIP_REG(gd->arch.clint, hart));
 
 	return 0;
@@ -65,8 +58,6 @@ int riscv_send_ipi(int hart)
 
 int riscv_clear_ipi(int hart)
 {
-	CLINT_BASE_GET();
-
 	writel(0, (void __iomem *)MSIP_REG(gd->arch.clint, hart));
 
 	return 0;
@@ -74,8 +65,6 @@ int riscv_clear_ipi(int hart)
 
 int riscv_get_ipi(int hart, int *pending)
 {
-	CLINT_BASE_GET();
-
 	*pending = readl((void __iomem *)MSIP_REG(gd->arch.clint, hart));
 
 	return 0;
