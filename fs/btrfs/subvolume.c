@@ -39,7 +39,7 @@ static int get_subvol_name(u64 subvolid, char *name, int max_len)
 		dir = rref.dirid;
 
 		while (dir != BTRFS_FIRST_FREE_OBJECTID) {
-			dir = btrfs_lookup_inode_ref(&root, dir, &iref, tmp);
+			dir = __btrfs_lookup_inode_ref(&root, dir, &iref, tmp);
 
 			if (dir == -1ULL)
 				return -1;
@@ -71,7 +71,7 @@ u64 btrfs_get_default_subvol_objectid(void)
 {
 	struct btrfs_dir_item item;
 
-	if (btrfs_lookup_dir_item(&btrfs_info.tree_root,
+	if (__btrfs_lookup_dir_item(&btrfs_info.tree_root,
 				  btrfs_info.sb.root_dir_objectid, "default", 7,
 				  &item))
 		return BTRFS_FS_TREE_OBJECTID;

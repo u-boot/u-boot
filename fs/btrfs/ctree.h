@@ -1279,6 +1279,13 @@ size_t btrfs_super_num_csums(void);
 int btrfs_find_last_root(struct btrfs_root *root, u64 objectid,
 			struct btrfs_root_item *item, struct btrfs_key *key);
 
+/* dir-item.c */
+struct btrfs_dir_item *btrfs_lookup_dir_item(struct btrfs_trans_handle *trans,
+					     struct btrfs_root *root,
+					     struct btrfs_path *path, u64 dir,
+					     const char *name, int name_len,
+					     int mod);
+
 /* ctree.c */
 int btrfs_comp_cpu_keys(const struct btrfs_key *k1, const struct btrfs_key *k2);
 enum btrfs_tree_block_status

@@ -16,6 +16,9 @@
 
 #define BTRFS_UUID_UNPARSED_SIZE	37
 
+/* No <linux/limits.h> so have to define it here */
+#define XATTR_NAME_MAX		255
+
 /*
  * Macros to generate set/get funcs for the struct fields
  * assume there is a lefoo_to_cpu for every type, so lets make a simple

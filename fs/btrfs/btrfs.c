@@ -35,7 +35,7 @@ static int readdir_callback(const struct __btrfs_root *root,
 	char filetime[32], *target = NULL;
 	time_t mtime;
 
-	if (btrfs_lookup_inode(root, (struct btrfs_key *)&item->location,
+	if (__btrfs_lookup_inode(root, (struct btrfs_key *)&item->location,
 			       &inode, NULL)) {
 		printf("%s: Cannot find inode item for directory entry %.*s!\n",
 		       __func__, item->name_len, name);
@@ -49,7 +49,7 @@ static int readdir_callback(const struct __btrfs_root *root,
 		target = malloc(min(inode.size + 1,
 				    (u64) btrfs_info.sb.sectorsize));
 
-		if (target && btrfs_readlink(root, item->location.objectid,
+		if (target && __btrfs_readlink(root, item->location.objectid,
 					     target)) {
 			free(target);
 			target = NULL;
@@ -129,7 +129,7 @@ int btrfs_ls(const char *path)
 	u64 inr;
 	u8 type;
 
-	inr = btrfs_lookup_path(&root, root.root_dirid, path, &type, NULL, 40);
+	inr = __btrfs_lookup_path(&root, root.root_dirid, path, &type, NULL, 40);
 
 	if (inr == -1ULL) {
 		printf("Cannot lookup path %s\n", path);
@@ -155,7 +155,7 @@ int btrfs_exists(const char *file)
 	u64 inr;
 	u8 type;
 
-	inr = btrfs_lookup_path(&root, root.root_dirid, file, &type, NULL, 40);
+	inr = __btrfs_lookup_path(&root, root.root_dirid, file, &type, NULL, 40);
 
 	return (inr != -1ULL && type == BTRFS_FT_REG_FILE);
 }
@@ -167,7 +167,7 @@ int btrfs_size(const char *file, loff_t *size)
 	u64 inr;
 	u8 type;
 
-	inr = btrfs_lookup_path(&root, root.root_dirid, file, &type, &inode,
+	inr = __btrfs_lookup_path(&root, root.root_dirid, file, &type, &inode,
 				40);
 
 	if (inr == -1ULL) {
@@ -192,7 +192,7 @@ int btrfs_read(const char *file, void *buf, loff_t offset, loff_t len,
 	u64 inr, rd;
 	u8 type;
 
-	inr = btrfs_lookup_path(&root, root.root_dirid, file, &type, &inode,
+	inr = __btrfs_lookup_path(&root, root.root_dirid, file, &type, &inode,
 				40);
 
 	if (inr == -1ULL) {

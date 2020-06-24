@@ -46,7 +46,7 @@ int btrfs_read_superblock(void);
 typedef int (*btrfs_readdir_callback_t)(const struct __btrfs_root *,
 					struct btrfs_dir_item *);
 
-int btrfs_lookup_dir_item(const struct __btrfs_root *, u64, const char *, int,
+int __btrfs_lookup_dir_item(const struct __btrfs_root *, u64, const char *, int,
 			   struct btrfs_dir_item *);
 int btrfs_readdir(const struct __btrfs_root *, u64, btrfs_readdir_callback_t);
 
@@ -55,12 +55,12 @@ int btrfs_find_root(u64, struct __btrfs_root *, struct btrfs_root_item *);
 u64 btrfs_lookup_root_ref(u64, struct btrfs_root_ref *, char *);
 
 /* inode.c */
-u64 btrfs_lookup_inode_ref(struct __btrfs_root *, u64, struct btrfs_inode_ref *,
+u64 __btrfs_lookup_inode_ref(struct __btrfs_root *, u64, struct btrfs_inode_ref *,
 			    char *);
-int btrfs_lookup_inode(const struct __btrfs_root *, struct btrfs_key *,
+int __btrfs_lookup_inode(const struct __btrfs_root *, struct btrfs_key *,
 		        struct btrfs_inode_item *, struct __btrfs_root *);
-int btrfs_readlink(const struct __btrfs_root *, u64, char *);
-u64 btrfs_lookup_path(struct __btrfs_root *, u64, const char *, u8 *,
+int __btrfs_readlink(const struct __btrfs_root *, u64, char *);
+u64 __btrfs_lookup_path(struct __btrfs_root *, u64, const char *, u8 *,
 		       struct btrfs_inode_item *, int);
 u64 btrfs_file_read(const struct __btrfs_root *, u64, u64, u64, char *);
 

@@ -8,7 +8,7 @@
 #include "btrfs.h"
 #include <malloc.h>
 
-u64 btrfs_lookup_inode_ref(struct __btrfs_root *root, u64 inr,
+u64 __btrfs_lookup_inode_ref(struct __btrfs_root *root, u64 inr,
 			   struct btrfs_inode_ref *refp, char *name)
 {
 	struct __btrfs_path path;
@@ -44,7 +44,7 @@ out:
 	return res;
 }
 
-int btrfs_lookup_inode(const struct __btrfs_root *root,
+int __btrfs_lookup_inode(const struct __btrfs_root *root,
 		       struct btrfs_key *location,
 		       struct btrfs_inode_item *item,
 		       struct __btrfs_root *new_root)
@@ -83,7 +83,7 @@ out:
 	return res;
 }
 
-int btrfs_readlink(const struct __btrfs_root *root, u64 inr, char *target)
+int __btrfs_readlink(const struct __btrfs_root *root, u64 inr, char *target)
 {
 	struct __btrfs_path path;
 	struct btrfs_key key;
@@ -137,7 +137,7 @@ out:
 
 /* inr must be a directory (for regular files with multiple hard links this
    function returns only one of the parents of the file) */
-static u64 get_parent_inode(struct __btrfs_root *root, u64 inr,
+static u64 __get_parent_inode(struct __btrfs_root *root, u64 inr,
 			    struct btrfs_inode_item *inode_item)
 {
 	struct btrfs_key key;
@@ -164,14 +164,14 @@ static u64 get_parent_inode(struct __btrfs_root *root, u64 inr,
 			key.type = BTRFS_INODE_ITEM_KEY;
 			key.offset = 0;
 
-			if (btrfs_lookup_inode(root, &key, inode_item, NULL))
+			if (__btrfs_lookup_inode(root, &key, inode_item, NULL))
 				return -1ULL;
 		}
 
 		return inr;
 	}
 
-	res = btrfs_lookup_inode_ref(root, inr, NULL, NULL);
+	res = __btrfs_lookup_inode_ref(root, inr, NULL, NULL);
 	if (res == -1ULL)
 		return -1ULL;
 
@@ -180,7 +180,7 @@ static u64 get_parent_inode(struct __btrfs_root *root, u64 inr,
 		key.type = BTRFS_INODE_ITEM_KEY;
 		key.offset = 0;
 
-		if (btrfs_lookup_inode(root, &key, inode_item, NULL))
+		if (__btrfs_lookup_inode(root, &key, inode_item, NULL))
 			return -1ULL;
 	}
 
@@ -209,7 +209,7 @@ static inline const char *skip_current_directories(const char *cur)
 	return cur;
 }
 
-u64 btrfs_lookup_path(struct __btrfs_root *root, u64 inr, const char *path,
+u64 __btrfs_lookup_path(struct __btrfs_root *root, u64 inr, const char *path,
 		      u8 *type_p, struct btrfs_inode_item *inode_item_p,
 		      int symlink_limit)
 {
@@ -239,7 +239,7 @@ u64 btrfs_lookup_path(struct __btrfs_root *root, u64 inr, const char *path,
 
 		if (len == 2 && cur[0] == '.' && cur[1] == '.') {
 			cur += 2;
-			inr = get_parent_inode(root, inr, &inode_item);
+			inr = __get_parent_inode(root, inr, &inode_item);
 			if (inr == -1ULL)
 				return -1ULL;
 
@@ -250,12 +250,12 @@ u64 btrfs_lookup_path(struct __btrfs_root *root, u64 inr, const char *path,
 		if (!*cur)
 			break;
 		
-		if (btrfs_lookup_dir_item(root, inr, cur, len, &item))
+		if (__btrfs_lookup_dir_item(root, inr, cur, len, &item))
 			return -1ULL;
 
 		type = item.type;
 		have_inode = 1;
-		if (btrfs_lookup_inode(root, (struct btrfs_key *)&item.location,
+		if (__btrfs_lookup_inode(root, (struct btrfs_key *)&item.location,
 					&inode_item, root))
 			return -1ULL;
 
@@ -272,13 +272,13 @@ u64 btrfs_lookup_path(struct __btrfs_root *root, u64 inr, const char *path,
 			if (!target)
 				return -1ULL;
 
-			if (btrfs_readlink(root, item.location.objectid,
+			if (__btrfs_readlink(root, item.location.objectid,
 					   target)) {
 				free(target);
 				return -1ULL;
 			}
 
-			inr = btrfs_lookup_path(root, inr, target, &type,
+			inr = __btrfs_lookup_path(root, inr, target, &type,
 						&inode_item, symlink_limit - 1);
 
 			free(target);
@@ -307,7 +307,7 @@ u64 btrfs_lookup_path(struct __btrfs_root *root, u64 inr, const char *path,
 			key.type = BTRFS_INODE_ITEM_KEY;
 			key.offset = 0;
 
-			if (btrfs_lookup_inode(root, &key, &inode_item, NULL))
+			if (__btrfs_lookup_inode(root, &key, &inode_item, NULL))
 				return -1ULL;
 		}
 

@@ -8,7 +8,7 @@
 #include "btrfs.h"
 #include "disk-io.h"
 
-static int verify_dir_item(struct btrfs_dir_item *item, u32 start, u32 total)
+static int __verify_dir_item(struct btrfs_dir_item *item, u32 start, u32 total)
 {
 	u16 max_len = BTRFS_NAME_LEN;
 	u32 end;
@@ -32,7 +32,7 @@ static int verify_dir_item(struct btrfs_dir_item *item, u32 start, u32 total)
 }
 
 static struct btrfs_dir_item *
-btrfs_match_dir_item_name(struct __btrfs_path *path, const char *name,
+__btrfs_match_dir_item_name(struct __btrfs_path *path, const char *name,
 			  int name_len)
 {
 	struct btrfs_dir_item *item;
@@ -48,7 +48,7 @@ btrfs_match_dir_item_name(struct __btrfs_path *path, const char *name,
 		this_len = sizeof(*item) + item->name_len + item->data_len;
 		name_ptr = (const char *) (item + 1);
 
-		if (verify_dir_item(item, cur, total_len))
+		if (__verify_dir_item(item, cur, total_len))
 			return NULL;
 		if (item->name_len == name_len && !memcmp(name_ptr, name,
 							  name_len))
@@ -61,7 +61,7 @@ btrfs_match_dir_item_name(struct __btrfs_path *path, const char *name,
 	return NULL;
 }
 
-int btrfs_lookup_dir_item(const struct __btrfs_root *root, u64 dir,
+int __btrfs_lookup_dir_item(const struct __btrfs_root *root, u64 dir,
 			  const char *name, int name_len,
 			  struct btrfs_dir_item *item)
 {
@@ -79,7 +79,7 @@ int btrfs_lookup_dir_item(const struct __btrfs_root *root, u64 dir,
 	if (btrfs_comp_keys_type(&key, btrfs_path_leaf_key(&path)))
 		goto out;
 
-	res = btrfs_match_dir_item_name(&path, name, name_len);
+	res = __btrfs_match_dir_item_name(&path, name, name_len);
 	if (res)
 		*item = *res;
 out:
@@ -110,7 +110,7 @@ int btrfs_readdir(const struct __btrfs_root *root, u64 dir,
 		item = btrfs_path_item_ptr(&path, struct btrfs_dir_item);
 		btrfs_dir_item_to_cpu(item);
 
-		if (verify_dir_item(item, 0, sizeof(*item) + item->name_len))
+		if (__verify_dir_item(item, 0, sizeof(*item) + item->name_len))
 			continue;
 		if (item->type == BTRFS_FT_XATTR)
 			continue;
