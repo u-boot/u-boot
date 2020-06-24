@@ -7,6 +7,7 @@
 #include <command.h>
 #include <hang.h>
 
+#ifndef CONFIG_SYSRESET
 int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	printf("resetting ...\n");
@@ -16,3 +17,4 @@ int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 	return 0;
 }
+#endif
