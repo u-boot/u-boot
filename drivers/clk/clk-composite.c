@@ -24,7 +24,10 @@ static u8 clk_composite_get_parent(struct clk *clk)
 		(struct clk *)dev_get_clk_ptr(clk->dev) : clk);
 	struct clk *mux = composite->mux;
 
-	return clk_mux_get_parent(mux);
+	if (mux)
+		return clk_mux_get_parent(mux);
+	else
+		return 0;
 }
 
 static int clk_composite_set_parent(struct clk *clk, struct clk *parent)
@@ -34,7 +37,10 @@ static int clk_composite_set_parent(struct clk *clk, struct clk *parent)
 	const struct clk_ops *mux_ops = composite->mux_ops;
 	struct clk *mux = composite->mux;
 
-	return mux_ops->set_parent(mux, parent);
+	if (mux && mux_ops)
+		return mux_ops->set_parent(mux, parent);
+	else
+		return -ENOTSUPP;
 }
 
 static unsigned long clk_composite_recalc_rate(struct clk *clk)
@@ -44,7 +50,10 @@ static unsigned long clk_composite_recalc_rate(struct clk *clk)
 	const struct clk_ops *rate_ops = composite->rate_ops;
 	struct clk *rate = composite->rate;
 
-	return rate_ops->get_rate(rate);
+	if (rate && rate_ops)
+		return rate_ops->get_rate(rate);
+	else
+		return clk_get_parent_rate(clk);
 }
 
 static ulong clk_composite_set_rate(struct clk *clk, unsigned long rate)
@@ -54,7 +63,10 @@ static ulong clk_composite_set_rate(struct clk *clk, unsigned long rate)
 	const struct clk_ops *rate_ops = composite->rate_ops;
 	struct clk *clk_rate = composite->rate;
 
-	return rate_ops->set_rate(clk_rate, rate);
+	if (rate && rate_ops)
+		return rate_ops->set_rate(clk_rate, rate);
+	else
+		return clk_get_rate(clk);
 }
 
 static int clk_composite_enable(struct clk *clk)
@@ -64,7 +76,10 @@ static int clk_composite_enable(struct clk *clk)
 	const struct clk_ops *gate_ops = composite->gate_ops;
 	struct clk *gate = composite->gate;
 
-	return gate_ops->enable(gate);
+	if (gate && gate_ops)
+		return gate_ops->enable(gate);
+	else
+		return 0;
 }
 
 static int clk_composite_disable(struct clk *clk)
@@ -74,14 +89,11 @@ static int clk_composite_disable(struct clk *clk)
 	const struct clk_ops *gate_ops = composite->gate_ops;
 	struct clk *gate = composite->gate;
 
-	gate_ops->disable(gate);
-
-	return 0;
+	if (gate && gate_ops)
+		return gate_ops->disable(gate);
+	else
+		return 0;
 }
-
-struct clk_ops clk_composite_ops = {
-	/* This will be set according to clk_register_composite */
-};
 
 struct clk *clk_register_composite(struct device *dev, const char *name,
 				   const char * const *parent_names,
@@ -96,7 +108,9 @@ struct clk *clk_register_composite(struct device *dev, const char *name,
 	struct clk *clk;
 	struct clk_composite *composite;
 	int ret;
-	struct clk_ops *composite_ops = &clk_composite_ops;
+
+	if (!num_parents || (num_parents != 1 && !mux))
+		return ERR_PTR(-EINVAL);
 
 	composite = kzalloc(sizeof(*composite), GFP_KERNEL);
 	if (!composite)
@@ -105,8 +119,6 @@ struct clk *clk_register_composite(struct device *dev, const char *name,
 	if (mux && mux_ops) {
 		composite->mux = mux;
 		composite->mux_ops = mux_ops;
-		if (mux_ops->set_parent)
-			composite_ops->set_parent = clk_composite_set_parent;
 		mux->data = (ulong)composite;
 	}
 
@@ -115,11 +127,6 @@ struct clk *clk_register_composite(struct device *dev, const char *name,
 			clk = ERR_PTR(-EINVAL);
 			goto err;
 		}
-		composite_ops->get_rate = clk_composite_recalc_rate;
-
-		/* .set_rate requires either .round_rate or .determine_rate */
-		if (rate_ops->set_rate)
-			composite_ops->set_rate = clk_composite_set_rate;
 
 		composite->rate = rate;
 		composite->rate_ops = rate_ops;
@@ -134,8 +141,6 @@ struct clk *clk_register_composite(struct device *dev, const char *name,
 
 		composite->gate = gate;
 		composite->gate_ops = gate_ops;
-		composite_ops->enable = clk_composite_enable;
-		composite_ops->disable = clk_composite_disable;
 		gate->data = (ulong)composite;
 	}
 
@@ -160,6 +165,14 @@ err:
 	kfree(composite);
 	return clk;
 }
+
+static const struct clk_ops clk_composite_ops = {
+	.set_parent = clk_composite_set_parent,
+	.get_rate = clk_composite_recalc_rate,
+	.set_rate = clk_composite_set_rate,
+	.enable = clk_composite_enable,
+	.disable = clk_composite_disable,
+};
 
 U_BOOT_DRIVER(clk_composite) = {
 	.name	= UBOOT_DM_CLK_COMPOSITE,
