@@ -61,7 +61,7 @@ btrfs_match_dir_item_name(struct __btrfs_path *path, const char *name,
 	return NULL;
 }
 
-int btrfs_lookup_dir_item(const struct btrfs_root *root, u64 dir,
+int btrfs_lookup_dir_item(const struct __btrfs_root *root, u64 dir,
 			  const char *name, int name_len,
 			  struct btrfs_dir_item *item)
 {
@@ -87,7 +87,7 @@ out:
 	return res ? 0 : -1;
 }
 
-int btrfs_readdir(const struct btrfs_root *root, u64 dir,
+int btrfs_readdir(const struct __btrfs_root *root, u64 dir,
 		  btrfs_readdir_callback_t callback)
 {
 	struct __btrfs_path path;

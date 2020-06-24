@@ -15,7 +15,7 @@
 
 struct btrfs_info btrfs_info;
 
-static int readdir_callback(const struct btrfs_root *root,
+static int readdir_callback(const struct __btrfs_root *root,
 			    struct btrfs_dir_item *item)
 {
 	static const char typestr[BTRFS_FT_MAX][4] = {
@@ -116,7 +116,7 @@ int btrfs_probe(struct blk_desc *fs_dev_desc,
 
 int btrfs_ls(const char *path)
 {
-	struct btrfs_root root = btrfs_info.fs_root;
+	struct __btrfs_root root = btrfs_info.fs_root;
 	u64 inr;
 	u8 type;
 
@@ -142,7 +142,7 @@ int btrfs_ls(const char *path)
 
 int btrfs_exists(const char *file)
 {
-	struct btrfs_root root = btrfs_info.fs_root;
+	struct __btrfs_root root = btrfs_info.fs_root;
 	u64 inr;
 	u8 type;
 
@@ -153,7 +153,7 @@ int btrfs_exists(const char *file)
 
 int btrfs_size(const char *file, loff_t *size)
 {
-	struct btrfs_root root = btrfs_info.fs_root;
+	struct __btrfs_root root = btrfs_info.fs_root;
 	struct btrfs_inode_item inode;
 	u64 inr;
 	u8 type;
@@ -178,7 +178,7 @@ int btrfs_size(const char *file, loff_t *size)
 int btrfs_read(const char *file, void *buf, loff_t offset, loff_t len,
 	       loff_t *actread)
 {
-	struct btrfs_root root = btrfs_info.fs_root;
+	struct __btrfs_root root = btrfs_info.fs_root;
 	struct btrfs_inode_item inode;
 	u64 inr, rd;
 	u8 type;

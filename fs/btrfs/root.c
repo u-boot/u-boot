@@ -31,7 +31,7 @@ static void read_root_item(struct __btrfs_path *p, struct btrfs_root_item *item)
 	}
 }
 
-int btrfs_find_root(u64 objectid, struct btrfs_root *root,
+int btrfs_find_root(u64 objectid, struct __btrfs_root *root,
 		    struct btrfs_root_item *root_item)
 {
 	struct __btrfs_path path;

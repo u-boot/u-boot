@@ -181,7 +181,7 @@ static int read_tree_node(u64 physical, union btrfs_tree_node **buf)
 	return 0;
 }
 
-int btrfs_search_tree(const struct btrfs_root *root, struct btrfs_key *key,
+int btrfs_search_tree(const struct __btrfs_root *root, struct btrfs_key *key,
 		      struct __btrfs_path *p)
 {
 	u8 lvl, prev_lvl;

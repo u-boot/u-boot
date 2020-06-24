@@ -1182,7 +1182,7 @@ struct __btrfs_path {
 	u32 slots[BTRFS_MAX_LEVEL];
 };
 
-struct btrfs_root {
+struct __btrfs_root {
 	u64 objectid;
 	u64 bytenr;
 	u64 root_dirid;
@@ -1192,7 +1192,7 @@ int __btrfs_comp_keys(struct btrfs_key *, struct btrfs_key *);
 int btrfs_comp_keys_type(struct btrfs_key *, struct btrfs_key *);
 int btrfs_bin_search(union btrfs_tree_node *, struct btrfs_key *, int *);
 void __btrfs_free_path(struct __btrfs_path *);
-int btrfs_search_tree(const struct btrfs_root *, struct btrfs_key *,
+int btrfs_search_tree(const struct __btrfs_root *, struct btrfs_key *,
 		      struct __btrfs_path *);
 int btrfs_prev_slot(struct __btrfs_path *);
 int btrfs_next_slot(struct __btrfs_path *);
@@ -1203,7 +1203,7 @@ static inline struct btrfs_key *btrfs_path_leaf_key(struct __btrfs_path *p) {
 }
 
 static inline struct btrfs_key *
-btrfs_search_tree_key_type(const struct btrfs_root *root, u64 objectid,
+btrfs_search_tree_key_type(const struct __btrfs_root *root, u64 objectid,
 			   u8 type, struct __btrfs_path *path)
 {
 	struct btrfs_key key, *res;
