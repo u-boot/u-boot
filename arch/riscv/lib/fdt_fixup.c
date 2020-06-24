@@ -56,9 +56,9 @@ int riscv_fdt_copy_resv_mem_node(const void *src, void *dst)
 	fdt_for_each_subnode(node, src, offset) {
 		name = fdt_get_name(src, node, NULL);
 
-		addr = fdtdec_get_addr_size_auto_noparent(src, node,
-							  "reg", 0, &size,
-							  false);
+		addr = fdtdec_get_addr_size_auto_parent(src, offset, node,
+							"reg", 0, &size,
+							false);
 		if (addr == FDT_ADDR_T_NONE) {
 			debug("failed to read address/size for %s\n", name);
 			continue;
