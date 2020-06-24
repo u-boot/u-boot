@@ -188,37 +188,66 @@ int btrfs_ls(const char *path)
 
 int btrfs_exists(const char *file)
 {
-	struct __btrfs_root root = btrfs_info.fs_root;
-	u64 inr;
+	struct btrfs_fs_info *fs_info = current_fs_info;
+	struct btrfs_root *root;
+	u64 ino;
 	u8 type;
+	int ret;
 
-	inr = __btrfs_lookup_path(&root, root.root_dirid, file, &type, NULL, 40);
+	ASSERT(fs_info);
 
-	return (inr != -1ULL && type == BTRFS_FT_REG_FILE);
+	ret = btrfs_lookup_path(fs_info->fs_root, BTRFS_FIRST_FREE_OBJECTID,
+				file, &root, &ino, &type, 40);
+	if (ret < 0)
+		return 0;
+
+	if (type == BTRFS_FT_REG_FILE)
+		return 1;
+	return 0;
 }
 
 int btrfs_size(const char *file, loff_t *size)
 {
-	struct __btrfs_root root = btrfs_info.fs_root;
-	struct btrfs_inode_item inode;
-	u64 inr;
+	struct btrfs_fs_info *fs_info = current_fs_info;
+	struct btrfs_inode_item *ii;
+	struct btrfs_root *root;
+	struct btrfs_path path;
+	struct btrfs_key key;
+	u64 ino;
 	u8 type;
+	int ret;
 
-	inr = __btrfs_lookup_path(&root, root.root_dirid, file, &type, &inode,
-				40);
-
-	if (inr == -1ULL) {
+	ret = btrfs_lookup_path(fs_info->fs_root, BTRFS_FIRST_FREE_OBJECTID,
+				file, &root, &ino, &type, 40);
+	if (ret < 0) {
 		printf("Cannot lookup file %s\n", file);
-		return -1;
+		return ret;
 	}
-
 	if (type != BTRFS_FT_REG_FILE) {
 		printf("Not a regular file: %s\n", file);
-		return -1;
+		return -ENOENT;
 	}
+	btrfs_init_path(&path);
+	key.objectid = ino;
+	key.type = BTRFS_INODE_ITEM_KEY;
+	key.offset = 0;
 
-	*size = inode.size;
-	return 0;
+	ret = btrfs_search_slot(NULL, root, &key, &path, 0, 0);
+	if (ret < 0) {
+		printf("Cannot lookup ino %llu\n", ino);
+		return ret;
+	}
+	if (ret > 0) {
+		printf("Ino %llu does not exist\n", ino);
+		ret = -ENOENT;
+		goto out;
+	}
+	ii = btrfs_item_ptr(path.nodes[0], path.slots[0],
+			    struct btrfs_inode_item);
+	*size = btrfs_inode_size(path.nodes[0], ii);
+out:
+	btrfs_release_path(&path);
+	return ret;
 }
 
 int btrfs_read(const char *file, void *buf, loff_t offset, loff_t len,
@@ -270,7 +299,9 @@ void btrfs_close(void)
 int btrfs_uuid(char *uuid_str)
 {
 #ifdef CONFIG_LIB_UUID
-	uuid_bin_to_str(btrfs_info.sb.fsid, uuid_str, UUID_STR_FORMAT_STD);
+	if (current_fs_info)
+		uuid_bin_to_str(current_fs_info->super_copy->fsid, uuid_str,
+				UUID_STR_FORMAT_STD);
 	return 0;
 #endif
 	return -ENOSYS;
