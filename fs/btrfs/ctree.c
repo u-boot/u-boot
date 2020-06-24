@@ -10,6 +10,38 @@
 #include <malloc.h>
 #include <memalign.h>
 
+static const struct btrfs_csum {
+	u16 size;
+	const char name[14];
+} btrfs_csums[] = {
+	[BTRFS_CSUM_TYPE_CRC32]		= {  4, "crc32c" },
+	[BTRFS_CSUM_TYPE_XXHASH]	= {  8, "xxhash64" },
+	[BTRFS_CSUM_TYPE_SHA256]	= { 32, "sha256" },
+	[BTRFS_CSUM_TYPE_BLAKE2]	= { 32, "blake2" },
+};
+
+u16 btrfs_super_csum_size(const struct btrfs_super_block *sb)
+{
+	const u16 csum_type = btrfs_super_csum_type(sb);
+
+	return btrfs_csums[csum_type].size;
+}
+
+const char *btrfs_super_csum_name(u16 csum_type)
+{
+	return btrfs_csums[csum_type].name;
+}
+
+size_t btrfs_super_num_csums(void)
+{
+	return ARRAY_SIZE(btrfs_csums);
+}
+
+u16 btrfs_csum_type_size(u16 csum_type)
+{
+	return btrfs_csums[csum_type].size;
+}
+
 int btrfs_comp_keys(struct btrfs_key *a, struct btrfs_key *b)
 {
 	if (a->objectid > b->objectid)

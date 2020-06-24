@@ -11,6 +11,7 @@
 #include <linux/time.h>
 #include "btrfs.h"
 #include "crypto/hash.h"
+#include "disk-io.h"
 
 struct btrfs_info btrfs_info;
 
