@@ -1294,6 +1294,11 @@ int btrfs_iter_dir(struct btrfs_root *root, u64 ino,
 int btrfs_lookup_path(struct btrfs_root *root, u64 ino, const char *filename,
 			struct btrfs_root **root_ret, u64 *ino_ret,
 			u8 *type_ret, int symlink_limit);
+int btrfs_read_extent_inline(struct btrfs_path *path,
+			     struct btrfs_file_extent_item *fi, char *dest);
+int btrfs_read_extent_reg(struct btrfs_path *path,
+			  struct btrfs_file_extent_item *fi, u64 offset,
+			  int len, char *dest);
 
 /* ctree.c */
 int btrfs_comp_cpu_keys(const struct btrfs_key *k1, const struct btrfs_key *k2);

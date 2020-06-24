@@ -5,9 +5,12 @@
  * 2017 Marek Behun, CZ.NIC, marek.behun@nic.cz
  */
 
+#include <linux/kernel.h>
 #include <malloc.h>
+#include <memalign.h>
 #include "btrfs.h"
 #include "disk-io.h"
+#include "volumes.h"
 
 u64 __btrfs_lookup_inode_ref(struct __btrfs_root *root, u64 inr,
 			   struct btrfs_inode_ref *refp, char *name)
@@ -662,4 +665,163 @@ u64 __btrfs_file_read(const struct __btrfs_root *root, u64 inr, u64 offset,
 out:
 	__btrfs_free_path(&path);
 	return rd_all;
+}
+
+/*
+ * Read out inline extent.
+ *
+ * Since inline extent should only exist for offset 0, no need for extra
+ * parameters.
+ * Truncating should be handled by the caller.
+ *
+ * Return the number of bytes read.
+ * Return <0 for error.
+ */
+int btrfs_read_extent_inline(struct btrfs_path *path,
+			     struct btrfs_file_extent_item *fi, char *dest)
+{
+	struct extent_buffer *leaf = path->nodes[0];
+	int slot = path->slots[0];
+	char *cbuf = NULL;
+	char *dbuf = NULL;
+	u32 csize;
+	u32 dsize;
+	int ret;
+
+	csize = btrfs_file_extent_inline_item_len(leaf, btrfs_item_nr(slot));
+	if (btrfs_file_extent_compression(leaf, fi) == BTRFS_COMPRESS_NONE) {
+		/* Uncompressed, just read it out */
+		read_extent_buffer(leaf, dest,
+				btrfs_file_extent_inline_start(fi),
+				csize);
+		return csize;
+	}
+
+	/* Compressed extent, prepare the compressed and data buffer */
+	dsize = btrfs_file_extent_ram_bytes(leaf, fi);
+	cbuf = malloc(csize);
+	dbuf = malloc(dsize);
+	if (!cbuf || !dbuf) {
+		ret = -ENOMEM;
+		goto out;
+	}
+	read_extent_buffer(leaf, cbuf, btrfs_file_extent_inline_start(fi),
+			   csize);
+	ret = btrfs_decompress(btrfs_file_extent_compression(leaf, fi),
+			       cbuf, csize, dbuf, dsize);
+	if (ret < 0 || ret != dsize) {
+		ret = -EIO;
+		goto out;
+	}
+	memcpy(dest, dbuf, dsize);
+	ret = dsize;
+out:
+	free(cbuf);
+	free(dbuf);
+	return ret;
+}
+
+/*
+ * Read out regular extent.
+ *
+ * Truncating should be handled by the caller.
+ *
+ * @offset and @len should not cross the extent boundary.
+ * Return the number of bytes read.
+ * Return <0 for error.
+ */
+int btrfs_read_extent_reg(struct btrfs_path *path,
+			  struct btrfs_file_extent_item *fi, u64 offset,
+			  int len, char *dest)
+{
+	struct extent_buffer *leaf = path->nodes[0];
+	struct btrfs_fs_info *fs_info = leaf->fs_info;
+	struct btrfs_key key;
+	u64 extent_num_bytes;
+	u64 disk_bytenr;
+	u64 read;
+	char *cbuf = NULL;
+	char *dbuf = NULL;
+	u32 csize;
+	u32 dsize;
+	bool finished = false;
+	int num_copies;
+	int i;
+	int slot = path->slots[0];
+	int ret;
+
+	btrfs_item_key_to_cpu(leaf, &key, slot);
+	extent_num_bytes = btrfs_file_extent_num_bytes(leaf, fi);
+	ASSERT(IS_ALIGNED(offset, fs_info->sectorsize) &&
+	       IS_ALIGNED(len, fs_info->sectorsize));
+	ASSERT(offset >= key.offset &&
+	       offset + len <= key.offset + extent_num_bytes);
+
+	/* Preallocated or hole , fill @dest with zero */
+	if (btrfs_file_extent_type(leaf, fi) == BTRFS_FILE_EXTENT_PREALLOC ||
+	    btrfs_file_extent_disk_bytenr(leaf, fi) == 0) {
+		memset(dest, 0, len);
+		return len;
+	}
+
+	if (btrfs_file_extent_compression(leaf, fi) == BTRFS_COMPRESS_NONE) {
+		u64 logical;
+
+		logical = btrfs_file_extent_disk_bytenr(leaf, fi) +
+			  btrfs_file_extent_offset(leaf, fi) +
+			  offset - key.offset;
+		read = len;
+
+		num_copies = btrfs_num_copies(fs_info, logical, len);
+		for (i = 1; i <= num_copies; i++) {
+			ret = read_extent_data(fs_info, dest, logical, &read, i);
+			if (ret < 0 || read != len)
+				continue;
+			finished = true;
+			break;
+		}
+		if (!finished)
+			return -EIO;
+		return len;
+	}
+
+	csize = btrfs_file_extent_disk_num_bytes(leaf, fi);
+	dsize = btrfs_file_extent_ram_bytes(leaf, fi);
+	disk_bytenr = btrfs_file_extent_disk_bytenr(leaf, fi);
+	num_copies = btrfs_num_copies(fs_info, disk_bytenr, csize);
+
+	cbuf = malloc_cache_aligned(csize);
+	dbuf = malloc_cache_aligned(dsize);
+	if (!cbuf || !dbuf) {
+		ret = -ENOMEM;
+		goto out;
+	}
+	/* For compressed extent, we must read the whole on-disk extent */
+	for (i = 1; i <= num_copies; i++) {
+		read = csize;
+		ret = read_extent_data(fs_info, cbuf, disk_bytenr,
+				       &read, i);
+		if (ret < 0 || read != csize)
+			continue;
+		finished = true;
+		break;
+	}
+	if (!finished) {
+		ret = -EIO;
+		goto out;
+	}
+
+	ret = btrfs_decompress(btrfs_file_extent_compression(leaf, fi), cbuf,
+			       csize, dbuf, dsize);
+	if (ret != dsize) {
+		ret = -EIO;
+		goto out;
+	}
+	/* Then copy the needed part */
+	memcpy(dest, dbuf + btrfs_file_extent_offset(leaf, fi), len);
+	ret = len;
+out:
+	free(cbuf);
+	free(dbuf);
+	return ret;
 }
