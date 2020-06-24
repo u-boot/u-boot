@@ -73,4 +73,5 @@ obj-$(CONFIG_DMA) += dma.o
 obj-$(CONFIG_DM_MDIO) += mdio.o
 obj-$(CONFIG_DM_MDIO_MUX) += mdio_mux.o
 obj-$(CONFIG_DM_RNG) += rng.o
+obj-$(CONFIG_CLK_K210_SET_RATE) += k210_pll.o
 endif

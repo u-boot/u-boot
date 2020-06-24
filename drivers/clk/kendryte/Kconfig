@@ -1,0 +1,12 @@
+config CLK_K210
+	bool "Clock support for Kendryte K210"
+	depends on CLK && CLK_CCF
+	help
+	  This enables support clock driver for Kendryte K210 platforms.
+
+config CLK_K210_SET_RATE
+	bool "Enable setting the Kendryte K210 PLL rate"
+	depends on CLK_K210
+	help
+	  Add functionality to calculate new rates for K210 PLLs. Enabling this
+	  feature adds around 1K to U-Boot's final size.
