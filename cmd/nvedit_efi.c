@@ -9,11 +9,13 @@
 #include <common.h>
 #include <command.h>
 #include <efi_loader.h>
+#include <efi_variable.h>
 #include <env.h>
 #include <exports.h>
 #include <hexdump.h>
 #include <malloc.h>
 #include <mapmem.h>
+#include <rtc.h>
 #include <uuid.h>
 #include <linux/kernel.h>
 
@@ -34,6 +36,7 @@ static const struct {
 	{EFI_VARIABLE_RUNTIME_ACCESS, "RT"},
 	{EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS, "AW"},
 	{EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS, "AT"},
+	{EFI_VARIABLE_READ_ONLY, "RO"},
 };
 
 static const struct {
@@ -87,20 +90,22 @@ static void efi_dump_single_var(u16 *name, const efi_guid_t *guid, bool verbose)
 {
 	u32 attributes;
 	u8 *data;
+	u64 time;
+	struct rtc_time tm;
 	efi_uintn_t size;
 	int count, i;
 	efi_status_t ret;
 
 	data = NULL;
 	size = 0;
-	ret = EFI_CALL(efi_get_variable(name, guid, &attributes, &size, data));
+	ret = efi_get_variable_int(name, guid, &attributes, &size, data, &time);
 	if (ret == EFI_BUFFER_TOO_SMALL) {
 		data = malloc(size);
 		if (!data)
 			goto out;
 
-		ret = EFI_CALL(efi_get_variable(name, guid, &attributes, &size,
-						data));
+		ret = efi_get_variable_int(name, guid, &attributes, &size,
+					   data, &time);
 	}
 	if (ret == EFI_NOT_FOUND) {
 		printf("Error: \"%ls\" not defined\n", name);
@@ -109,13 +114,16 @@ static void efi_dump_single_var(u16 *name, const efi_guid_t *guid, bool verbose)
 	if (ret != EFI_SUCCESS)
 		goto out;
 
-	printf("%ls:\n    %s:", name, efi_guid_to_str(guid));
+	rtc_to_tm(time, &tm);
+	printf("%ls:\n    %s:\n", name, efi_guid_to_str(guid));
+	if (attributes & EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS)
+		printf("    %04d-%02d-%02d %02d:%02d:%02d\n", tm.tm_year,
+		       tm.tm_mon, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+	printf("    ");
 	for (count = 0, i = 0; i < ARRAY_SIZE(efi_var_attrs); i++)
 		if (attributes & efi_var_attrs[i].mask) {
 			if (count)
 				putc('|');
-			else
-				putc(' ');
 			count++;
 			puts(efi_var_attrs[i].text);
 		}
@@ -592,8 +600,8 @@ int do_env_set_efi(struct cmd_tbl *cmdtp, int flag, int argc,
 	p = var_name16;
 	utf8_utf16_strncpy(&p, var_name, len + 1);
 
-	ret = EFI_CALL(efi_set_variable(var_name16, &guid, attributes,
-					size, value));
+	ret = efi_set_variable_int(var_name16, &guid, attributes, size, value,
+				   true);
 	unmap_sysmem(value);
 	if (ret == EFI_SUCCESS) {
 		ret = CMD_RET_SUCCESS;
