@@ -1839,6 +1839,7 @@ source "board/woodburn/Kconfig"
 source "board/xilinx/Kconfig"
 source "board/xilinx/zynq/Kconfig"
 source "board/xilinx/zynqmp/Kconfig"
+source "board/xilinx/versal/Kconfig"
 source "board/phytium/durian/Kconfig"
 
 source "arch/arm/Kconfig.debug"
