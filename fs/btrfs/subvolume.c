@@ -81,7 +81,7 @@ u64 btrfs_get_default_subvol_objectid(void)
 static void list_subvols(u64 tree, char *nameptr, int max_name_len, int level)
 {
 	struct btrfs_key key, *found_key;
-	struct btrfs_path path;
+	struct __btrfs_path path;
 	struct btrfs_root_ref *ref;
 	int res;
 
@@ -116,7 +116,7 @@ static void list_subvols(u64 tree, char *nameptr, int max_name_len, int level)
 			       "subvolumes\n", __func__);
 	} while (!(res = btrfs_next_slot(&path)));
 
-	btrfs_free_path(&path);
+	__btrfs_free_path(&path);
 }
 
 void btrfs_list_subvols(void)

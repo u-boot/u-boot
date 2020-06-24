@@ -144,7 +144,7 @@ int btrfs_chunk_map_init(void)
 
 int btrfs_read_chunk_tree(void)
 {
-	struct btrfs_path path;
+	struct __btrfs_path path;
 	struct btrfs_key key, *found_key;
 	struct btrfs_chunk *chunk;
 	int res = 0;
@@ -169,7 +169,7 @@ int btrfs_read_chunk_tree(void)
 		}
 	} while (!(res = btrfs_next_slot(&path)));
 
-	btrfs_free_path(&path);
+	__btrfs_free_path(&path);
 
 	if (res < 0)
 		return -1;

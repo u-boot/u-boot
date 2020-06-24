@@ -67,10 +67,10 @@ u64 btrfs_file_read(const struct btrfs_root *, u64, u64, u64, char *);
 u64 btrfs_get_default_subvol_objectid(void);
 
 /* extent-io.c */
-u64 btrfs_read_extent_inline(struct btrfs_path *,
+u64 btrfs_read_extent_inline(struct __btrfs_path *,
 			      struct btrfs_file_extent_item *, u64, u64,
 			      char *);
-u64 btrfs_read_extent_reg(struct btrfs_path *, struct btrfs_file_extent_item *,
+u64 btrfs_read_extent_reg(struct __btrfs_path *, struct btrfs_file_extent_item *,
 			   u64, u64, char *);
 
 #endif /* !__BTRFS_BTRFS_H__ */

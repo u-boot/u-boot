@@ -11,7 +11,7 @@
 u64 btrfs_lookup_inode_ref(struct btrfs_root *root, u64 inr,
 			   struct btrfs_inode_ref *refp, char *name)
 {
-	struct btrfs_path path;
+	struct __btrfs_path path;
 	struct btrfs_key *key;
 	struct btrfs_inode_ref *ref;
 	u64 res = -1ULL;
@@ -40,7 +40,7 @@ u64 btrfs_lookup_inode_ref(struct btrfs_root *root, u64 inr,
 
 	res = key->offset;
 out:
-	btrfs_free_path(&path);
+	__btrfs_free_path(&path);
 	return res;
 }
 
@@ -50,7 +50,7 @@ int btrfs_lookup_inode(const struct btrfs_root *root,
 		       struct btrfs_root *new_root)
 {
 	struct btrfs_root tmp_root = *root;
-	struct btrfs_path path;
+	struct __btrfs_path path;
 	int res = -1;
 
 	if (location->type == BTRFS_ROOT_ITEM_KEY) {
@@ -79,13 +79,13 @@ int btrfs_lookup_inode(const struct btrfs_root *root,
 	res = 0;
 
 out:
-	btrfs_free_path(&path);
+	__btrfs_free_path(&path);
 	return res;
 }
 
 int btrfs_readlink(const struct btrfs_root *root, u64 inr, char *target)
 {
-	struct btrfs_path path;
+	struct __btrfs_path path;
 	struct btrfs_key key;
 	struct btrfs_file_extent_item *extent;
 	const char *data_ptr;
@@ -131,7 +131,7 @@ int btrfs_readlink(const struct btrfs_root *root, u64 inr, char *target)
 	target[extent->ram_bytes] = '\0';
 	res = 0;
 out:
-	btrfs_free_path(&path);
+	__btrfs_free_path(&path);
 	return res;
 }
 
@@ -320,7 +320,7 @@ u64 btrfs_lookup_path(struct btrfs_root *root, u64 inr, const char *path,
 u64 btrfs_file_read(const struct btrfs_root *root, u64 inr, u64 offset,
 		    u64 size, char *buf)
 {
-	struct btrfs_path path;
+	struct __btrfs_path path;
 	struct btrfs_key key;
 	struct btrfs_file_extent_item *extent;
 	int res = 0;
@@ -379,6 +379,6 @@ u64 btrfs_file_read(const struct btrfs_root *root, u64 inr, u64 offset,
 		return -1ULL;
 
 out:
-	btrfs_free_path(&path);
+	__btrfs_free_path(&path);
 	return rd_all;
 }

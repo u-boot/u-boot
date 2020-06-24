@@ -115,7 +115,7 @@ int btrfs_bin_search(union btrfs_tree_node *p, struct btrfs_key *key,
 	return generic_bin_search(addr, size, key, p->header.nritems, slot);
 }
 
-static void clear_path(struct btrfs_path *p)
+static void clear_path(struct __btrfs_path *p)
 {
 	int i;
 
@@ -125,7 +125,7 @@ static void clear_path(struct btrfs_path *p)
 	}
 }
 
-void btrfs_free_path(struct btrfs_path *p)
+void __btrfs_free_path(struct __btrfs_path *p)
 {
 	int i;
 
@@ -182,7 +182,7 @@ static int read_tree_node(u64 physical, union btrfs_tree_node **buf)
 }
 
 int btrfs_search_tree(const struct btrfs_root *root, struct btrfs_key *key,
-		      struct btrfs_path *p)
+		      struct __btrfs_path *p)
 {
 	u8 lvl, prev_lvl;
 	int i, slot, ret;
@@ -236,13 +236,13 @@ int btrfs_search_tree(const struct btrfs_root *root, struct btrfs_key *key,
 
 	return 0;
 err:
-	btrfs_free_path(p);
+	__btrfs_free_path(p);
 	return -1;
 }
 
-static int jump_leaf(struct btrfs_path *path, int dir)
+static int jump_leaf(struct __btrfs_path *path, int dir)
 {
-	struct btrfs_path p;
+	struct __btrfs_path p;
 	u32 slot;
 	int level = 1, from_level, i;
 
@@ -302,7 +302,7 @@ err:
 	return -1;
 }
 
-int btrfs_prev_slot(struct btrfs_path *p)
+int btrfs_prev_slot(struct __btrfs_path *p)
 {
 	if (!p->slots[0])
 		return jump_leaf(p, -1);
@@ -311,7 +311,7 @@ int btrfs_prev_slot(struct btrfs_path *p)
 	return 0;
 }
 
-int btrfs_next_slot(struct btrfs_path *p)
+int btrfs_next_slot(struct __btrfs_path *p)
 {
 	struct btrfs_leaf *leaf = &p->nodes[0]->leaf;
 

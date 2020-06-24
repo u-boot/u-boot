@@ -14,7 +14,7 @@
 #include "extent-io.h"
 #include "disk-io.h"
 
-u64 btrfs_read_extent_inline(struct btrfs_path *path,
+u64 btrfs_read_extent_inline(struct __btrfs_path *path,
 			     struct btrfs_file_extent_item *extent, u64 offset,
 			     u64 size, char *out)
 {
@@ -66,7 +66,7 @@ err:
 	return -1ULL;
 }
 
-u64 btrfs_read_extent_reg(struct btrfs_path *path,
+u64 btrfs_read_extent_reg(struct __btrfs_path *path,
 			  struct btrfs_file_extent_item *extent, u64 offset,
 			  u64 size, char *out)
 {

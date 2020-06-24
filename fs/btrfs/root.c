@@ -7,7 +7,7 @@
 
 #include "btrfs.h"
 
-static void read_root_item(struct btrfs_path *p, struct btrfs_root_item *item)
+static void read_root_item(struct __btrfs_path *p, struct btrfs_root_item *item)
 {
 	u32 len;
 	int reset = 0;
@@ -34,7 +34,7 @@ static void read_root_item(struct btrfs_path *p, struct btrfs_root_item *item)
 int btrfs_find_root(u64 objectid, struct btrfs_root *root,
 		    struct btrfs_root_item *root_item)
 {
-	struct btrfs_path path;
+	struct __btrfs_path path;
 	struct btrfs_root_item my_root_item;
 
 	if (!btrfs_search_tree_key_type(&btrfs_info.tree_root, objectid,
@@ -51,13 +51,13 @@ int btrfs_find_root(u64 objectid, struct btrfs_root *root,
 		root->root_dirid = root_item->root_dirid;
 	}
 
-	btrfs_free_path(&path);
+	__btrfs_free_path(&path);
 	return 0;
 }
 
 u64 btrfs_lookup_root_ref(u64 subvolid, struct btrfs_root_ref *refp, char *name)
 {
-	struct btrfs_path path;
+	struct __btrfs_path path;
 	struct btrfs_key *key;
 	struct btrfs_root_ref *ref;
 	u64 res = -1ULL;
@@ -86,7 +86,7 @@ u64 btrfs_lookup_root_ref(u64 subvolid, struct btrfs_root_ref *refp, char *name)
 
 	res = key->offset;
 out:
-	btrfs_free_path(&path);
+	__btrfs_free_path(&path);
 	return res;
 }
 

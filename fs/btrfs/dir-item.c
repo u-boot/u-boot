@@ -32,7 +32,7 @@ static int verify_dir_item(struct btrfs_dir_item *item, u32 start, u32 total)
 }
 
 static struct btrfs_dir_item *
-btrfs_match_dir_item_name(struct btrfs_path *path, const char *name,
+btrfs_match_dir_item_name(struct __btrfs_path *path, const char *name,
 			  int name_len)
 {
 	struct btrfs_dir_item *item;
@@ -65,7 +65,7 @@ int btrfs_lookup_dir_item(const struct btrfs_root *root, u64 dir,
 			  const char *name, int name_len,
 			  struct btrfs_dir_item *item)
 {
-	struct btrfs_path path;
+	struct __btrfs_path path;
 	struct btrfs_key key;
 	struct btrfs_dir_item *res = NULL;
 
@@ -83,14 +83,14 @@ int btrfs_lookup_dir_item(const struct btrfs_root *root, u64 dir,
 	if (res)
 		*item = *res;
 out:
-	btrfs_free_path(&path);
+	__btrfs_free_path(&path);
 	return res ? 0 : -1;
 }
 
 int btrfs_readdir(const struct btrfs_root *root, u64 dir,
 		  btrfs_readdir_callback_t callback)
 {
-	struct btrfs_path path;
+	struct __btrfs_path path;
 	struct btrfs_key key, *found_key;
 	struct btrfs_dir_item *item;
 	int res = 0;
@@ -119,7 +119,7 @@ int btrfs_readdir(const struct btrfs_root *root, u64 dir,
 			break;
 	} while (!(res = btrfs_next_slot(&path)));
 
-	btrfs_free_path(&path);
+	__btrfs_free_path(&path);
 
 	return res < 0 ? -1 : 0;
 }
