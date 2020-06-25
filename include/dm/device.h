@@ -283,6 +283,13 @@ struct driver {
 	ll_entry_get(struct driver, __name, driver)
 
 /**
+ * Declare a macro to state a alias for a driver name. This macro will
+ * produce no code but its information will be parsed by tools like
+ * dtoc
+ */
+#define U_BOOT_DRIVER_ALIAS(__name, __alias)
+
+/**
  * dev_get_platdata() - Get the platform data for a device
  *
  * This checks that dev is not NULL, but no other checks for now

@@ -191,3 +191,5 @@ U_BOOT_DRIVER(fsl_imx23_pinctrl) = {
 	.priv_auto_alloc_size = sizeof(struct mxs_pinctrl_priv),
 	.ops = &mxs_pinctrl_ops,
 };
+
+U_BOOT_DRIVER_ALIAS(fsl_imx23_pinctrl, fsl_imx28_pinctrl)

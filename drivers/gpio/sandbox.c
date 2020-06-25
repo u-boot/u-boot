@@ -254,6 +254,8 @@ U_BOOT_DRIVER(sandbox_gpio) = {
 	.ops	= &gpio_sandbox_ops,
 };
 
+U_BOOT_DRIVER_ALIAS(sandbox_gpio, sandbox_gpio_alias)
+
 /* pincontrol: used only to check GPIO pin configuration (pinmux command) */
 
 struct sb_pinctrl_priv {

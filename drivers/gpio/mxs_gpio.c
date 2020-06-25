@@ -311,4 +311,6 @@ U_BOOT_DRIVER(fsl_imx23_gpio) = {
 	.ofdata_to_platdata = mxs_ofdata_to_platdata,
 #endif
 };
+
+U_BOOT_DRIVER_ALIAS(fsl_imx23_gpio, fsl_imx28_gpio)
 #endif /* DM_GPIO */

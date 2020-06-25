@@ -727,4 +727,5 @@ U_BOOT_DRIVER(fsl_imx23_mmc) = {
 	.platdata_auto_alloc_size = sizeof(struct mxsmmc_platdata),
 };
 
+U_BOOT_DRIVER_ALIAS(fsl_imx23_mmc, fsl_imx28_mmc)
 #endif /* CONFIG_DM_MMC */

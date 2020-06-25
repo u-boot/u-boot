@@ -31,6 +31,8 @@ U_BOOT_DRIVER(atmel_at91rm9200_pmc) = {
 	.of_match = at91_pmc_match,
 };
 
+U_BOOT_DRIVER_ALIAS(atmel_at91rm9200_pmc, atmel_at91sam9260_pmc)
+
 /*---------------------------------------------------------*/
 
 int at91_pmc_core_probe(struct udevice *dev)

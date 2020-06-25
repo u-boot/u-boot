@@ -494,3 +494,5 @@ U_BOOT_DRIVER(rockchip_rk3066_i2c) = {
 	.priv_auto_alloc_size = sizeof(struct rk_i2c),
 	.ops	= &rockchip_i2c_ops,
 };
+
+U_BOOT_DRIVER_ALIAS(rockchip_rk3066_i2c, rockchip_rk3288_i2c)

@@ -498,3 +498,5 @@ U_BOOT_DRIVER(fsl_imx23_spi) = {
 	.priv_auto_alloc_size = sizeof(struct mxs_spi_priv),
 	.probe	= mxs_spi_probe,
 };
+
+U_BOOT_DRIVER_ALIAS(fsl_imx23_spi, fsl_imx28_spi)

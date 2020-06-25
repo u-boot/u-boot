@@ -194,3 +194,5 @@ U_BOOT_DRIVER(rockchip_rk805) = {
 	.probe = rk8xx_probe,
 	.ops = &rk8xx_ops,
 };
+
+U_BOOT_DRIVER_ALIAS(rockchip_rk805, rockchip_rk808)

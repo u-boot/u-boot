@@ -563,3 +563,5 @@ U_BOOT_DRIVER(rockchip_rk3288_spi) = {
 	.priv_auto_alloc_size = sizeof(struct rockchip_spi_priv),
 	.probe	= rockchip_spi_probe,
 };
+
+U_BOOT_DRIVER_ALIAS(rockchip_rk3288_spi, rockchip_rk3368_spi)

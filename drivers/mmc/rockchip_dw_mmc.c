@@ -180,6 +180,9 @@ U_BOOT_DRIVER(rockchip_rk3288_dw_mshc) = {
 	.platdata_auto_alloc_size = sizeof(struct rockchip_mmc_plat),
 };
 
+U_BOOT_DRIVER_ALIAS(rockchip_rk3288_dw_mshc, rockchip_rk3328_dw_mshc)
+U_BOOT_DRIVER_ALIAS(rockchip_rk3288_dw_mshc, rockchip_rk3368_dw_mshc)
+
 #ifdef CONFIG_PWRSEQ
 static int rockchip_dwmmc_pwrseq_set_power(struct udevice *dev, bool enable)
 {
