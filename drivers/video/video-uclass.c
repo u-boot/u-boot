@@ -84,6 +84,7 @@ int video_reserve(ulong *addrp)
 		      __func__, size, *addrp, dev->name);
 	}
 	gd->video_bottom = *addrp;
+	gd->fb_base = *addrp;
 	debug("Video frame buffers from %lx to %lx\n", gd->video_bottom,
 	      gd->video_top);
 

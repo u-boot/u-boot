@@ -537,21 +537,7 @@ static int initr_ethaddr(void)
 
 	/* kept around for legacy kernels only ... ignore the next section */
 	eth_env_get_enetaddr("ethaddr", bd->bi_enetaddr);
-#ifdef CONFIG_HAS_ETH1
-	eth_env_get_enetaddr("eth1addr", bd->bi_enet1addr);
-#endif
-#ifdef CONFIG_HAS_ETH2
-	eth_env_get_enetaddr("eth2addr", bd->bi_enet2addr);
-#endif
-#ifdef CONFIG_HAS_ETH3
-	eth_env_get_enetaddr("eth3addr", bd->bi_enet3addr);
-#endif
-#ifdef CONFIG_HAS_ETH4
-	eth_env_get_enetaddr("eth4addr", bd->bi_enet4addr);
-#endif
-#ifdef CONFIG_HAS_ETH5
-	eth_env_get_enetaddr("eth5addr", bd->bi_enet5addr);
-#endif
+
 	return 0;
 }
 #endif /* CONFIG_CMD_NET */
