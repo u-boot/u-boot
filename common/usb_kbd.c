@@ -519,7 +519,9 @@ static int usb_kbd_probe_dev(struct usb_device *dev, unsigned int ifnum)
 			   1, 0, data->new, USB_KBD_BOOT_REPORT_SIZE) < 0) {
 #else
 	if (usb_int_msg(dev, data->intpipe, data->new, data->intpktsize,
-			data->intinterval, false) < 0) {
+			data->intinterval, true) < 0) {
+		/* Read first packet if the device provides it, else pick it up later */
+		return 1;
 #endif
 		printf("Failed to get keyboard state from device %04x:%04x\n",
 		       dev->descriptor.idVendor, dev->descriptor.idProduct);
