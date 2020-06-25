@@ -145,6 +145,7 @@ F:	drivers/power/domain/meson-gx-pwrc-vpu.c
 F:	drivers/video/meson/
 F:	include/configs/meson64.h
 F:	include/configs/meson64_android.h
+F:	doc/board/amlogic/
 N:	meson
 
 ARM BROADCOM BCM283X

@@ -47,9 +47,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ZYNQ_QSPI_CR_SS_SHIFT		10	/* Slave select shift */
 
 #define ZYNQ_QSPI_FIFO_DEPTH		63
-#ifndef CONFIG_SYS_ZYNQ_QSPI_WAIT
-#define CONFIG_SYS_ZYNQ_QSPI_WAIT	CONFIG_SYS_HZ/100	/* 10 ms */
-#endif
+#define ZYNQ_QSPI_WAIT			(CONFIG_SYS_HZ / 100)	/* 10 ms */
 
 /* zynq qspi register set */
 struct zynq_qspi_regs {
@@ -350,7 +348,7 @@ static int zynq_qspi_irq_poll(struct zynq_qspi_priv *priv)
 	do {
 		status = readl(&regs->isr);
 	} while ((status == 0) &&
-		(get_timer(timeout) < CONFIG_SYS_ZYNQ_QSPI_WAIT));
+		(get_timer(timeout) < ZYNQ_QSPI_WAIT));
 
 	if (status == 0) {
 		printf("zynq_qspi_irq_poll: Timeout!\n");

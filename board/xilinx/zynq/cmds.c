@@ -399,7 +399,8 @@ static int zynq_verify_image(u32 src_ptr)
 			status = zynq_decrypt_load(part_load_addr,
 						   part_img_len,
 						   part_dst_addr,
-						   part_data_len);
+						   part_data_len,
+						   BIT_NONE);
 			if (status != 0) {
 				printf("DECRYPTION_FAIL\n");
 				return -1;
@@ -438,22 +439,42 @@ static int zynq_decrypt_image(struct cmd_tbl *cmdtp, int flag, int argc,
 	char *endp;
 	u32 srcaddr, srclen, dstaddr, dstlen;
 	int status;
+	u8 imgtype = BIT_NONE;
 
 	if (argc < 5 && argc > cmdtp->maxargs)
 		return CMD_RET_USAGE;
 
-	srcaddr = simple_strtoul(argv[2], &endp, 16);
-	if (*argv[2] == 0 || *endp != 0)
-		return CMD_RET_USAGE;
-	srclen = simple_strtoul(argv[3], &endp, 16);
-	if (*argv[3] == 0 || *endp != 0)
-		return CMD_RET_USAGE;
-	dstaddr = simple_strtoul(argv[4], &endp, 16);
-	if (*argv[4] == 0 || *endp != 0)
-		return CMD_RET_USAGE;
-	dstlen = simple_strtoul(argv[5], &endp, 16);
-	if (*argv[5] == 0 || *endp != 0)
-		return CMD_RET_USAGE;
+	if (argc == 5) {
+		if (!strcmp("load", argv[2]))
+			imgtype = BIT_FULL;
+		else if (!strcmp("loadp", argv[2]))
+			imgtype = BIT_PARTIAL;
+		else
+			return CMD_RET_USAGE;
+
+		srcaddr = simple_strtoul(argv[3], &endp, 16);
+		if (*argv[3] == 0 || *endp != 0)
+			return CMD_RET_USAGE;
+		srclen = simple_strtoul(argv[4], &endp, 16);
+		if (*argv[4] == 0 || *endp != 0)
+			return CMD_RET_USAGE;
+
+		dstaddr = 0xFFFFFFFF;
+		dstlen = srclen;
+	} else {
+		srcaddr = simple_strtoul(argv[2], &endp, 16);
+		if (*argv[2] == 0 || *endp != 0)
+			return CMD_RET_USAGE;
+		srclen = simple_strtoul(argv[3], &endp, 16);
+		if (*argv[3] == 0 || *endp != 0)
+			return CMD_RET_USAGE;
+		dstaddr = simple_strtoul(argv[4], &endp, 16);
+		if (*argv[4] == 0 || *endp != 0)
+			return CMD_RET_USAGE;
+		dstlen = simple_strtoul(argv[5], &endp, 16);
+		if (*argv[5] == 0 || *endp != 0)
+			return CMD_RET_USAGE;
+	}
 
 	/*
 	 * Roundup source and destination lengths to
@@ -464,7 +485,8 @@ static int zynq_decrypt_image(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (dstlen % 4)
 		dstlen = roundup(dstlen, 4);
 
-	status = zynq_decrypt_load(srcaddr, srclen >> 2, dstaddr, dstlen >> 2);
+	status = zynq_decrypt_load(srcaddr, srclen >> 2, dstaddr,
+				   dstlen >> 2, imgtype);
 	if (status != 0)
 		return CMD_RET_FAILURE;
 
@@ -517,6 +539,10 @@ static char zynq_help_text[] =
 	"                - Decrypts the encrypted image present in source\n"
 	"                  address and places the decrypted image at\n"
 	"                  destination address\n"
+	"aes load <srcaddr> <srclen>\n"
+	"aes loadp <srcaddr> <srclen>\n"
+	"       if operation type is load or loadp, it loads the encrypted\n"
+	"       full or partial bitstream on to PL respectively.\n"
 #endif
 	;
 #endif

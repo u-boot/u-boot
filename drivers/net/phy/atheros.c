@@ -275,11 +275,10 @@ static int ar803x_of_init(struct phy_device *phydev)
 		 * Fixup for the AR8035 which only has two bits. The two
 		 * remaining bits map to the same frequencies.
 		 */
-		if (phydev->drv->uid == AR8035_PHY_ID) {
-			u16 clear = AR803x_CLK_25M_MASK & AR8035_CLK_25M_MASK;
 
-			priv->clk_25m_mask &= ~clear;
-			priv->clk_25m_reg &= ~clear;
+		if (phydev->drv->uid == AR8035_PHY_ID) {
+			priv->clk_25m_reg &= AR8035_CLK_25M_MASK;
+			priv->clk_25m_mask &= AR8035_CLK_25M_MASK;
 		}
 	}
 

@@ -8,3 +8,7 @@ F:	configs/khadas-vim_defconfig
 F:	configs/libretech-ac_defconfig
 F:	configs/libretech-cc_defconfig
 F:	configs/p212_defconfig
+F:	doc/board/amlogic/p212.rst
+F:	doc/board/amlogic/libretech-ac.rst
+F:	doc/board/amlogic/libretech-cc.rst
+F:	doc/board/amlogic/khadas-vim.rst

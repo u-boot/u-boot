@@ -67,11 +67,9 @@ static int psci_bind(struct udevice *dev)
 
 static int psci_probe(struct udevice *dev)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	const char *method;
 
-	method = fdt_stringlist_get(gd->fdt_blob, dev_of_offset(dev), "method",
-				    0, NULL);
+	method = ofnode_read_string(dev_ofnode(dev), "method");
 	if (!method) {
 		pr_warn("missing \"method\" property\n");
 		return -ENXIO;

@@ -83,6 +83,7 @@
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
 	func(MMC, mmc, 1) \
+	func(MMC, mmc, 0) \
 	func(USB, usb, 0) \
 	func(DHCP, dhcp, na)
 #include <config_distro_bootcmd.h>
@@ -91,14 +92,6 @@
 #else /* CONFIG_SPL_BUILD */
 #define BOOTENV
 #endif /* CONFIG_SPL_BUILD */
-
-#define DFU_ALT_EMMC_INFO \
-	"u-boot.imx raw 0x2 0x3ff mmcpart 0;" \
-	"boot part 0 1;" \
-	"rootfs part 0 2;" \
-	"zImage fat 0 1;" \
-	"imx6dl-colibri-eval-v3.dtb fat 0 1;" \
-	"imx6dl-colibri-cam-eval-v3.dtb fat 0 1"
 
 #define UBOOT_UPDATE \
 	"uboot_hwpart=1\0" \
@@ -110,24 +103,6 @@
 		"mmc write ${loadaddr} ${uboot_blk} ${blkcnt}\0" \
 	"update_spl=run set_blkcnt && mmc dev 0 ${uboot_hwpart} && " \
 		"mmc write ${loadaddr} ${uboot_spl_blk} ${blkcnt}\0"
-
-#define EMMC_BOOTCMD \
-	"set_emmcargs=setenv emmcargs ip=off root=PARTUUID=${uuid} "\
-		"rw,noatime rootfstype=ext4 " \
-		"rootwait\0" \
-	"emmcboot=run setup; run emmcfinduuid; run set_emmcargs; " \
-		"setenv bootargs ${defargs} ${emmcargs} ${setupargs} " \
-		"${vidargs}; echo Booting from internal eMMC chip...; "	\
-		"run emmcdtbload; load mmc ${emmcdev}:${emmcbootpart} " \
-		"${kernel_addr_r} ${boot_file} && run fdt_fixup && " \
-		"bootz ${kernel_addr_r} ${dtbparam}\0" \
-	"emmcbootpart=1\0" \
-	"emmcdev=0\0" \
-	"emmcdtbload=setenv dtbparam; load mmc ${emmcdev}:${emmcbootpart} " \
-		"${fdt_addr_r} ${fdt_file} && " \
-		"setenv dtbparam \" - ${fdt_addr_r}\" && true\0" \
-	"emmcfinduuid=part uuid mmc ${mmcdev}:${emmcrootpart} uuid\0" \
-	"emmcrootpart=2\0"
 
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"bootm_size=0x10000000\0" \
@@ -152,12 +127,11 @@
 	BOOTENV \
 	"bootcmd=setenv fdtfile ${fdt_file}; run distro_bootcmd; " \
 		"usb start ; " \
-		"setenv stdout serial,vga ; setenv stdin serial,usbkbd\0" \
+		"setenv stdout serial,vidconsole; " \
+		"setenv stdin serial,usbkbd\0" \
 	"boot_file=zImage\0" \
 	"console=ttymxc0\0" \
 	"defargs=enable_wait_mode=off galcore.contiguousSize=50331648\0" \
-	"dfu_alt_info=" DFU_ALT_EMMC_INFO "\0" \
-	EMMC_BOOTCMD \
 	"fdt_file=" FDT_FILE "\0" \
 	"fdt_fixup=;\0" \
 	MEM_LAYOUT_ENV_SETTINGS \

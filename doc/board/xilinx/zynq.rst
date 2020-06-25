@@ -60,6 +60,25 @@ SLCR bootmode register Bit[3:0] values
 "modeboot" variable can assign any of "norboot", "sdboot" or "jtagboot"
 bootmode strings at runtime.
 
+Flashing
+--------
+
+SD Card
+^^^^^^^
+
+To write an image that boots from a SD card first create a FAT32 partition
+and a FAT32 filesystem on the SD card::
+
+        sudo fdisk /dev/sdx
+        sudo mkfs.vfat -F 32 /dev/sdx1
+
+Mount the SD card and copy the SPL and U-Boot to the root directory of the
+SD card::
+
+        sudo mount -t vfat /dev/sdx1 /mnt
+        sudo cp spl/boot.bin /mnt
+        sudo cp u-boot.img /mnt
+
 Mainline status
 ---------------
 

@@ -281,7 +281,10 @@ static int mxc_gpio_probe(struct udevice *dev)
 	char name[18], *str;
 
 	banknum = plat->bank_index;
-	sprintf(name, "GPIO%d_", banknum + 1);
+	if (IS_ENABLED(CONFIG_ARCH_IMX8))
+		sprintf(name, "GPIO%d_", banknum);
+	else
+		sprintf(name, "GPIO%d_", banknum + 1);
 	str = strdup(name);
 	if (!str)
 		return -ENOMEM;

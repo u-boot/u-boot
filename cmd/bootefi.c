@@ -189,16 +189,19 @@ static void efi_carve_out_dt_rsv(void *fdt)
 	if (nodeoffset >= 0) {
 		subnode = fdt_first_subnode(fdt, nodeoffset);
 		while (subnode >= 0) {
+			fdt_addr_t fdt_addr, fdt_size;
+
 			/* check if this subnode has a reg property */
-			addr = fdtdec_get_addr_size(fdt, subnode, "reg",
-						    (fdt_size_t *)&size);
+			fdt_addr = fdtdec_get_addr_size_auto_parent(
+						fdt, nodeoffset, subnode,
+						"reg", 0, &fdt_size, false);
 			/*
 			 * The /reserved-memory node may have children with
 			 * a size instead of a reg property.
 			 */
 			if (addr != FDT_ADDR_T_NONE &&
 			    fdtdec_get_is_enabled(fdt, subnode))
-				efi_reserve_memory(addr, size);
+				efi_reserve_memory(fdt_addr, fdt_size);
 			subnode = fdt_next_subnode(fdt, subnode);
 		}
 	}
