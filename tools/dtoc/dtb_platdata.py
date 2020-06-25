@@ -140,6 +140,9 @@ class DtbPlatdata(object):
         _include_disabled: true to include nodes marked status = "disabled"
         _outfile: The current output file (sys.stdout or a real file)
         _lines: Stashed list of output lines for outputting in the future
+        _aliases: Dict that hold aliases for compatible strings
+            key: First compatible string declared in a node
+            value: List of additional compatible strings declared in a node
     """
     def __init__(self, dtb_fname, include_disabled):
         self._fdt = None
