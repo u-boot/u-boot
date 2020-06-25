@@ -64,17 +64,15 @@ int irq_read_and_clear(struct irq *irq)
 }
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-int irq_get_by_index_platdata(struct udevice *dev, int index,
-			      struct phandle_1_arg *cells, struct irq *irq)
+int irq_get_by_driver_info(struct udevice *dev,
+			   struct phandle_1_arg *cells, struct irq *irq)
 {
 	int ret;
 
-	if (index != 0)
-		return -ENOSYS;
-	ret = uclass_get_device(UCLASS_IRQ, 0, &irq->dev);
+	ret = device_get_by_driver_info(cells->node, &irq->dev);
 	if (ret)
 		return ret;
-	irq->id = cells[0].arg[0];
+	irq->id = cells->arg[0];
 
 	return 0;
 }

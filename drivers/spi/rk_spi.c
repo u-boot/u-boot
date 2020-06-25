@@ -183,7 +183,7 @@ static int conv_of_platdata(struct udevice *dev)
 
 	plat->base = dtplat->reg[0];
 	plat->frequency = 20000000;
-	ret = clk_get_by_index_platdata(dev, 0, dtplat->clocks, &priv->clk);
+	ret = clk_get_by_driver_info(dev, dtplat->clocks, &priv->clk);
 	if (ret < 0)
 		return ret;
 	dev->req_seq = 0;

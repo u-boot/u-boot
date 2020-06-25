@@ -46,7 +46,7 @@ static int arasan_sdhci_probe(struct udevice *dev)
 	host->name = dev->name;
 	host->ioaddr = map_sysmem(dtplat->reg[0], dtplat->reg[1]);
 	max_frequency = dtplat->max_frequency;
-	ret = clk_get_by_index_platdata(dev, 0, dtplat->clocks, &clk);
+	ret = clk_get_by_driver_info(dev, dtplat->clocks, &clk);
 #else
 	max_frequency = dev_read_u32_default(dev, "max-frequency", 0);
 	ret = clk_get_by_index(dev, 0, &clk);

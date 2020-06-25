@@ -151,6 +151,7 @@ class DtbPlatdata(object):
             key: Driver alias declared with
                 U_BOOT_DRIVER_ALIAS(driver_alias, driver_name)
             value: Driver name declared with U_BOOT_DRIVER(driver_name)
+        _links: List of links to be included in dm_populate_phandle_data()
     """
     def __init__(self, dtb_fname, include_disabled, warning_disabled):
         self._fdt = None
@@ -163,6 +164,7 @@ class DtbPlatdata(object):
         self._aliases = {}
         self._drivers = []
         self._driver_aliases = {}
+        self._links = []
 
     def get_normalized_compat_name(self, node):
         """Get a node's normalized compat name
@@ -556,7 +558,7 @@ class DtbPlatdata(object):
         """
         struct_name, _ = self.get_normalized_compat_name(node)
         var_name = conv_name_to_c(node.name)
-        self.buf('static const struct %s%s %s%s = {\n' %
+        self.buf('static struct %s%s %s%s = {\n' %
                  (STRUCT_PREFIX, struct_name, VAL_PREFIX, var_name))
         for pname in sorted(node.props):
             prop = node.props[pname]
@@ -575,6 +577,7 @@ class DtbPlatdata(object):
                 if info:
                     # Process the list as pairs of (phandle, id)
                     pos = 0
+                    item = 0
                     for args in info.args:
                         phandle_cell = prop.value[pos]
                         phandle = fdt_util.fdt32_to_cpu(phandle_cell)
@@ -584,8 +587,16 @@ class DtbPlatdata(object):
                         for i in range(args):
                             arg_values.append(str(fdt_util.fdt32_to_cpu(prop.value[pos + 1 + i])))
                         pos += 1 + args
-                        vals.append('\t{&%s%s, {%s}}' % (VAL_PREFIX, name,
-                                                     ', '.join(arg_values)))
+                        # node member is filled with NULL as the real value
+                        # will be update at run-time during dm_init_and_scan()
+                        # by dm_populate_phandle_data()
+                        vals.append('\t{NULL, {%s}}' % (', '.join(arg_values)))
+                        var_node = '%s%s.%s[%d].node' % \
+                                    (VAL_PREFIX, var_name, member_name, item)
+                        # Save the the link information to be use to define
+                        # dm_populate_phandle_data()
+                        self._links.append({'var_node': var_node, 'dev_name': name})
+                        item += 1
                     for val in vals:
                         self.buf('\n\t\t%s,' % val)
                 else:
@@ -641,6 +652,15 @@ class DtbPlatdata(object):
             self.output_node(node)
             nodes_to_output.remove(node)
 
+        # Define dm_populate_phandle_data() which will add the linking between
+        # nodes using DM_GET_DEVICE
+        # dtv_dmc_at_xxx.clocks[0].node = DM_GET_DEVICE(clock_controller_at_xxx)
+        self.buf('void dm_populate_phandle_data(void) {\n')
+        for l in self._links:
+            self.buf('\t%s = DM_GET_DEVICE(%s);\n' % (l['var_node'], l['dev_name']))
+        self.buf('}\n')
+
+        self.out(''.join(self.get_buf()))
 
 def run_steps(args, dtb_file, include_disabled, output, warning_disabled=False):
     """Run all the steps of the dtoc tool
