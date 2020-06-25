@@ -81,7 +81,7 @@ int device_bind_with_driver_data(struct udevice *parent,
  * @return 0 if OK, -ve on error
  */
 int device_bind_by_name(struct udevice *parent, bool pre_reloc_only,
-			const struct driver_info *info, struct udevice **devp);
+			struct driver_info *info, struct udevice **devp);
 
 /**
  * device_ofdata_to_platdata() - Read platform data for a device
