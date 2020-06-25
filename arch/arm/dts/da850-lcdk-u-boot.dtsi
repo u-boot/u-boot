@@ -28,3 +28,7 @@
 &serial2 {
 	u-boot,dm-spl;
 };
+
+&gpio {
+	u-boot,dm-spl;
+};

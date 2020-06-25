@@ -1,0 +1,11 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright 2015 Google, Inc
+ */
+
+#include "rk3288-u-boot.dtsi"
+
+&gpio7 {
+	u-boot,dm-pre-reloc;
+};
+
