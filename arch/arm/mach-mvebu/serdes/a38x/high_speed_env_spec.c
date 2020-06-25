@@ -533,7 +533,7 @@ struct op_params pex_and_usb3_tx_config_params3[] = {
 struct op_params pex_by4_config_params[] = {
 	/* unit_base_reg, unit_offset, mask, data, wait_time, num_of_loops */
 	{GLOBAL_CLK_SRC_HI, 0x800, 0x7, {0x5, 0x0, 0x0, 0x2}, 0, 0},
-	/* Lane Alignement enable */
+	/* Lane Alignment enable */
 	{LANE_ALIGN_REG0, 0x800, 0x1000, {0x0, 0x0, 0x0, 0x0}, 0, 0},
 	/* Max PLL phy config */
 	{CALIBRATION_CTRL_REG, 0x800, 0x1000, {0x1000, 0x1000, 0x1000, 0x1000},
