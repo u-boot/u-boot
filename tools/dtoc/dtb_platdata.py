@@ -141,6 +141,7 @@ class DtbPlatdata(object):
         _valid_nodes: A list of Node object with compatible strings
         _include_disabled: true to include nodes marked status = "disabled"
         _outfile: The current output file (sys.stdout or a real file)
+        _warning_disabled: true to disable warnings about driver names not found
         _lines: Stashed list of output lines for outputting in the future
         _aliases: Dict that hold aliases for compatible strings
             key: First compatible string declared in a node
@@ -151,12 +152,13 @@ class DtbPlatdata(object):
                 U_BOOT_DRIVER_ALIAS(driver_alias, driver_name)
             value: Driver name declared with U_BOOT_DRIVER(driver_name)
     """
-    def __init__(self, dtb_fname, include_disabled):
+    def __init__(self, dtb_fname, include_disabled, warning_disabled):
         self._fdt = None
         self._dtb_fname = dtb_fname
         self._valid_nodes = None
         self._include_disabled = include_disabled
         self._outfile = None
+        self._warning_disabled = warning_disabled
         self._lines = []
         self._aliases = {}
         self._drivers = []
@@ -184,8 +186,9 @@ class DtbPlatdata(object):
             compat_c_old = compat_c
             compat_c = self._driver_aliases.get(compat_c)
             if not compat_c:
-                print('WARNING: the driver %s was not found in the driver list'
-                      % (compat_c_old))
+                if not self._warning_disabled:
+                    print('WARNING: the driver %s was not found in the driver list'
+                          % (compat_c_old))
                 compat_c = compat_c_old
             else:
                 aliases_c = [compat_c_old] + aliases_c
@@ -639,7 +642,7 @@ class DtbPlatdata(object):
             nodes_to_output.remove(node)
 
 
-def run_steps(args, dtb_file, include_disabled, output):
+def run_steps(args, dtb_file, include_disabled, output, warning_disabled=False):
     """Run all the steps of the dtoc tool
 
     Args:
@@ -651,7 +654,7 @@ def run_steps(args, dtb_file, include_disabled, output):
     if not args:
         raise ValueError('Please specify a command: struct, platdata')
 
-    plat = DtbPlatdata(dtb_file, include_disabled)
+    plat = DtbPlatdata(dtb_file, include_disabled, warning_disabled)
     plat.scan_drivers()
     plat.scan_dtb()
     plat.scan_tree()
