@@ -875,12 +875,14 @@ endif
 # do the relocation).
 ifneq ($(CONFIG_STATIC_RELA),)
 # $(1) is u-boot ELF, $(2) is u-boot bin, $(3) is text base
-DO_STATIC_RELA = \
-	start=$$($(NM) $(1) | grep __rel_dyn_start | cut -f 1 -d ' '); \
-	end=$$($(NM) $(1) | grep __rel_dyn_end | cut -f 1 -d ' '); \
-	tools/relocate-rela $(2) $(3) $$start $$end
+quiet_cmd_static_rela = RELOC   $@
+cmd_static_rela = \
+	start=$$($(NM) $(2) | grep __rel_dyn_start | cut -f 1 -d ' '); \
+	end=$$($(NM) $(2) | grep __rel_dyn_end | cut -f 1 -d ' '); \
+	tools/relocate-rela $(3) $(4) $$start $$end
 else
-DO_STATIC_RELA =
+quiet_cmd_static_rela =
+cmd_static_rela =
 endif
 
 # Always append ALL so that arch config.mk's can add custom ones
@@ -1287,7 +1289,7 @@ endif
 
 u-boot-nodtb.bin: u-boot FORCE
 	$(call if_changed,objcopy)
-	$(call DO_STATIC_RELA,$<,$@,$(CONFIG_SYS_TEXT_BASE))
+	$(call cmd,static_rela,$<,$@,$(CONFIG_SYS_TEXT_BASE))
 	$(BOARD_SIZE_CHECK)
 
 u-boot.ldr:	u-boot
