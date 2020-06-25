@@ -485,7 +485,7 @@ void dm_populate_phandle_data(void) {
         output = tools.GetOutputFilename('output')
         with self.assertRaises(ValueError) as e:
             self.run_test(['struct'], dtb_file, output)
-        self.assertIn("Node 'phandle-target' has no '#clock-cells' property",
+        self.assertIn("Node 'phandle-target' has no cells property",
                       str(e.exception))
 
     def test_aliases(self):
