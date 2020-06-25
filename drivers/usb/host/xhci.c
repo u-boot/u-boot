@@ -495,7 +495,7 @@ static int xhci_configure_endpoints(struct usb_device *udev, bool ctx_change)
 	xhci_flush_cache((uintptr_t)in_ctx->bytes, in_ctx->size);
 	xhci_queue_command(ctrl, in_ctx->bytes, udev->slot_id, 0,
 			   ctx_change ? TRB_EVAL_CONTEXT : TRB_CONFIG_EP);
-	event = xhci_wait_for_event(ctrl, TRB_COMPLETION);
+	event = xhci_wait_for_event(ctrl, TRB_COMPLETION, false);
 	BUG_ON(TRB_TO_SLOT_ID(le32_to_cpu(event->event_cmd.flags))
 		!= udev->slot_id);
 
@@ -691,7 +691,7 @@ static int xhci_address_device(struct usb_device *udev, int root_portnr)
 	ctrl_ctx->drop_flags = 0;
 
 	xhci_queue_command(ctrl, (void *)ctrl_ctx, slot_id, 0, TRB_ADDR_DEV);
-	event = xhci_wait_for_event(ctrl, TRB_COMPLETION);
+	event = xhci_wait_for_event(ctrl, TRB_COMPLETION, false);
 	BUG_ON(TRB_TO_SLOT_ID(le32_to_cpu(event->event_cmd.flags)) != slot_id);
 
 	switch (GET_COMP_CODE(le32_to_cpu(event->event_cmd.status))) {
@@ -766,7 +766,7 @@ static int _xhci_alloc_device(struct usb_device *udev)
 	}
 
 	xhci_queue_command(ctrl, NULL, 0, 0, TRB_ENABLE_SLOT);
-	event = xhci_wait_for_event(ctrl, TRB_COMPLETION);
+	event = xhci_wait_for_event(ctrl, TRB_COMPLETION, false);
 	BUG_ON(GET_COMP_CODE(le32_to_cpu(event->event_cmd.status))
 		!= COMP_SUCCESS);
 
@@ -1152,6 +1152,7 @@ unknown:
  * @param buffer	buffer to be read/written based on the request
  * @param length	length of the buffer
  * @param interval	interval of the interrupt
+ * @param nonblock	when true do not block waiting for response
  * @return 0
  */
 static int _xhci_submit_int_msg(struct usb_device *udev, unsigned long pipe,
@@ -1169,7 +1170,7 @@ static int _xhci_submit_int_msg(struct usb_device *udev, unsigned long pipe,
 	 * (at most) one TD. A TD (comprised of sg list entries) can
 	 * take several service intervals to transmit.
 	 */
-	return xhci_bulk_tx(udev, pipe, length, buffer);
+	return xhci_bulk_tx(udev, pipe, length, buffer, nonblock);
 }
 
 /**
@@ -1189,7 +1190,7 @@ static int _xhci_submit_bulk_msg(struct usb_device *udev, unsigned long pipe,
 		return -EINVAL;
 	}
 
-	return xhci_bulk_tx(udev, pipe, length, buffer);
+	return xhci_bulk_tx(udev, pipe, length, buffer, false);
 }
 
 /**
