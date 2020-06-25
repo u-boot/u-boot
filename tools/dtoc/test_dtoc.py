@@ -468,6 +468,73 @@ void dm_populate_phandle_data(void) {
 }
 ''', data)
 
+    def test_phandle_cd_gpio(self):
+        """Test that phandle targets are generated when unsing cd-gpios"""
+        dtb_file = get_dtb_file('dtoc_test_phandle_cd_gpios.dts')
+        output = tools.GetOutputFilename('output')
+        dtb_platdata.run_steps(['platdata'], dtb_file, False, output, True)
+        with open(output) as infile:
+            data = infile.read()
+        self._CheckStrings(C_HEADER + '''
+static struct dtd_target dtv_phandle_target = {
+\t.intval\t\t\t= 0x0,
+};
+U_BOOT_DEVICE(phandle_target) = {
+\t.name\t\t= "target",
+\t.platdata\t= &dtv_phandle_target,
+\t.platdata_size\t= sizeof(dtv_phandle_target),
+};
+
+static struct dtd_target dtv_phandle2_target = {
+\t.intval\t\t\t= 0x1,
+};
+U_BOOT_DEVICE(phandle2_target) = {
+\t.name\t\t= "target",
+\t.platdata\t= &dtv_phandle2_target,
+\t.platdata_size\t= sizeof(dtv_phandle2_target),
+};
+
+static struct dtd_target dtv_phandle3_target = {
+\t.intval\t\t\t= 0x2,
+};
+U_BOOT_DEVICE(phandle3_target) = {
+\t.name\t\t= "target",
+\t.platdata\t= &dtv_phandle3_target,
+\t.platdata_size\t= sizeof(dtv_phandle3_target),
+};
+
+static struct dtd_source dtv_phandle_source = {
+\t.cd_gpios\t\t= {
+\t\t\t{NULL, {}},
+\t\t\t{NULL, {11}},
+\t\t\t{NULL, {12, 13}},
+\t\t\t{NULL, {}},},
+};
+U_BOOT_DEVICE(phandle_source) = {
+\t.name\t\t= "source",
+\t.platdata\t= &dtv_phandle_source,
+\t.platdata_size\t= sizeof(dtv_phandle_source),
+};
+
+static struct dtd_source dtv_phandle_source2 = {
+\t.cd_gpios\t\t= {
+\t\t\t{NULL, {}},},
+};
+U_BOOT_DEVICE(phandle_source2) = {
+\t.name\t\t= "source",
+\t.platdata\t= &dtv_phandle_source2,
+\t.platdata_size\t= sizeof(dtv_phandle_source2),
+};
+
+void dm_populate_phandle_data(void) {
+\tdtv_phandle_source.cd_gpios[0].node = DM_GET_DEVICE(phandle_target);
+\tdtv_phandle_source.cd_gpios[1].node = DM_GET_DEVICE(phandle2_target);
+\tdtv_phandle_source.cd_gpios[2].node = DM_GET_DEVICE(phandle3_target);
+\tdtv_phandle_source.cd_gpios[3].node = DM_GET_DEVICE(phandle_target);
+\tdtv_phandle_source2.cd_gpios[0].node = DM_GET_DEVICE(phandle_target);
+}
+''', data)
+
     def test_phandle_bad(self):
         """Test a node containing an invalid phandle fails"""
         dtb_file = get_dtb_file('dtoc_test_phandle_bad.dts',
