@@ -445,20 +445,6 @@ int get_core_volt_from_fuse(void)
 }
 
 #elif defined(CONFIG_FSL_LSCH2)
-
-static void erratum_a009929(void)
-{
-#ifdef CONFIG_SYS_FSL_ERRATUM_A009929
-	struct ccsr_gur *gur = (void *)CONFIG_SYS_FSL_GUTS_ADDR;
-	u32 __iomem *dcsr_cop_ccp = (void *)CONFIG_SYS_DCSR_COP_CCP_ADDR;
-	u32 rstrqmr1 = gur_in32(&gur->rstrqmr1);
-
-	rstrqmr1 |= 0x00000400;
-	gur_out32(&gur->rstrqmr1, rstrqmr1);
-	writel(0x01000000, dcsr_cop_ccp);
-#endif
-}
-
 /*
  * This erratum requires setting a value to eddrtqcr1 to optimal
  * the DDR performance. The eddrtqcr1 register is in SCFG space
@@ -724,7 +710,6 @@ void fsl_lsch2_early_init_f(void)
 #endif
 	/* Erratum */
 	erratum_a008850_early(); /* part 1 of 2 */
-	erratum_a009929();
 	erratum_a009660();
 	erratum_a010539();
 	erratum_a009008();
