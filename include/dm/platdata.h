@@ -22,12 +22,14 @@
  * @name:	Driver name
  * @platdata:	Driver-specific platform data
  * @platdata_size: Size of platform data structure
+ * @dev:	Device created from this structure data
  */
 struct driver_info {
 	const char *name;
 	const void *platdata;
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	uint platdata_size;
+	struct udevice *dev;
 #endif
 };
 
@@ -43,4 +45,16 @@ struct driver_info {
 #define U_BOOT_DEVICES(__name)						\
 	ll_entry_declare_list(struct driver_info, __name, driver_info)
 
+/* Get a pointer to a given driver */
+#define DM_GET_DEVICE(__name)						\
+	ll_entry_get(struct driver_info, __name, driver_info)
+
+/**
+ * dm_populate_phandle_data() - Populates phandle data in platda
+ *
+ * This populates phandle data with an U_BOOT_DEVICE entry get by
+ * DM_GET_DEVICE. The implementation of this function will be done
+ * by dtoc when parsing dtb.
+ */
+void dm_populate_phandle_data(void);
 #endif

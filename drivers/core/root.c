@@ -347,6 +347,10 @@ int dm_init_and_scan(bool pre_reloc_only)
 {
 	int ret;
 
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	dm_populate_phandle_data();
+#endif
+
 	ret = dm_init(IS_ENABLED(CONFIG_OF_LIVE));
 	if (ret) {
 		debug("dm_init() failed: %d\n", ret);
