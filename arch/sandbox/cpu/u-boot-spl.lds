@@ -20,4 +20,4 @@ SECTIONS
 	__bss_start = .;
 }
 
-INSERT BEFORE .data;
+INSERT AFTER .data;
