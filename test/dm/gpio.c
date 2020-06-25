@@ -244,7 +244,7 @@ static int dm_test_gpio_anon(struct unit_test_state *uts)
 
 	/* And the anonymous bank */
 	ut_assertok(gpio_lookup_name("14", &dev, &offset, &gpio));
-	ut_asserteq_str(dev->name, "gpio_sandbox");
+	ut_asserteq_str(dev->name, "sandbox_gpio");
 	ut_asserteq(14, offset);
 	ut_asserteq(14, gpio);
 

@@ -160,8 +160,8 @@ static const struct udevice_id spi_flash_std_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(spi_flash_std) = {
-	.name		= "spi_flash_std",
+U_BOOT_DRIVER(jedec_spi_nor) = {
+	.name		= "jedec_spi_nor",
 	.id		= UCLASS_SPI_FLASH,
 	.of_match	= spi_flash_std_ids,
 	.probe		= spi_flash_std_probe,

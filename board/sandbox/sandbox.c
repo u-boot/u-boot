@@ -22,7 +22,7 @@ gd_t *gd;
 
 /* Add a simple GPIO device */
 U_BOOT_DEVICE(gpio_sandbox) = {
-	.name = "gpio_sandbox",
+	.name = "sandbox_gpio",
 };
 
 void flush_cache(unsigned long start, unsigned long size)

@@ -72,8 +72,8 @@ static const struct udevice_id sandbox_sdl_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(sdl_sandbox) = {
-	.name	= "sdl_sandbox",
+U_BOOT_DRIVER(sandbox_lcd_sdl) = {
+	.name	= "sandbox_lcd_sdl",
 	.id	= UCLASS_VIDEO,
 	.of_match = sandbox_sdl_ids,
 	.bind	= sandbox_sdl_bind,

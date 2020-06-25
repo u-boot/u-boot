@@ -244,8 +244,8 @@ static const struct udevice_id sandbox_gpio_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(gpio_sandbox) = {
-	.name	= "gpio_sandbox",
+U_BOOT_DRIVER(sandbox_gpio) = {
+	.name	= "sandbox_gpio",
 	.id	= UCLASS_GPIO,
 	.of_match = sandbox_gpio_ids,
 	.ofdata_to_platdata = sandbox_gpio_ofdata_to_platdata,

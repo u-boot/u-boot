@@ -58,7 +58,7 @@ static int dm_test_spi_find(struct unit_test_state *uts)
 	 */
 	ut_asserteq(-ENODEV, spi_find_bus_and_cs(busnum, cs, &bus, &dev));
 	ut_asserteq(-ENOENT, spi_get_bus_and_cs(busnum, cs, speed, mode,
-						"spi_flash_std", "name", &bus,
+						"jedec_spi_nor", "name", &bus,
 						&slave));
 	sandbox_sf_unbind_emul(state_get_current(), busnum, cs);
 	ut_assertok(spi_cs_info(bus, cs, &info));
@@ -69,7 +69,7 @@ static int dm_test_spi_find(struct unit_test_state *uts)
 					 "name"));
 	ut_assertok(spi_find_bus_and_cs(busnum, cs, &bus, &dev));
 	ut_assertok(spi_get_bus_and_cs(busnum, cs, speed, mode,
-				       "spi_flash_std", "name", &bus, &slave));
+				       "jedec_spi_nor", "name", &bus, &slave));
 
 	ut_assertok(spi_cs_info(bus, cs, &info));
 	ut_asserteq_ptr(info.dev, slave->dev);
@@ -78,7 +78,7 @@ static int dm_test_spi_find(struct unit_test_state *uts)
 	ut_assertok(sandbox_sf_bind_emul(state, busnum, cs_b, bus, node,
 					 "name"));
 	ut_asserteq(-EINVAL, spi_get_bus_and_cs(busnum, cs_b, speed, mode,
-				       "spi_flash_std", "name", &bus, &slave));
+				       "jedec_spi_nor", "name", &bus, &slave));
 	ut_asserteq(-EINVAL, spi_cs_info(bus, cs_b, &info));
 	ut_asserteq_ptr(NULL, info.dev);
 

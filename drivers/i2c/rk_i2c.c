@@ -485,8 +485,8 @@ static const struct udevice_id rockchip_i2c_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(i2c_rockchip) = {
-	.name	= "i2c_rockchip",
+U_BOOT_DRIVER(rockchip_rk3066_i2c) = {
+	.name	= "rockchip_rk3066_i2c",
 	.id	= UCLASS_I2C,
 	.of_match = rockchip_i2c_ids,
 	.ofdata_to_platdata = rockchip_i2c_ofdata_to_platdata,

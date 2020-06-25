@@ -180,8 +180,8 @@ static const struct udevice_id mxs_pinctrl_match[] = {
 	{ /* sentinel */ }
 };
 
-U_BOOT_DRIVER(mxs_pinctrl) = {
-	.name = "mxs-pinctrl",
+U_BOOT_DRIVER(fsl_imx23_pinctrl) = {
+	.name = "fsl_imx23_pinctrl",
 	.id = UCLASS_PINCTRL,
 	.of_match = of_match_ptr(mxs_pinctrl_match),
 	.probe = mxs_pinctrl_probe,

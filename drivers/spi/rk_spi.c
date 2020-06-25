@@ -553,12 +553,8 @@ static const struct udevice_id rockchip_spi_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(rockchip_spi) = {
-#if CONFIG_IS_ENABLED(OF_PLATDATA)
+U_BOOT_DRIVER(rockchip_rk3288_spi) = {
 	.name	= "rockchip_rk3288_spi",
-#else
-	.name	= "rockchip_spi",
-#endif
 	.id	= UCLASS_SPI,
 	.of_match = rockchip_spi_ids,
 	.ops	= &rockchip_spi_ops,

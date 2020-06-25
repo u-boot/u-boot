@@ -113,8 +113,8 @@ static int at91_wdt_probe(struct udevice *dev)
 	return 0;
 }
 
-U_BOOT_DRIVER(at91_wdt) = {
-	.name = "at91_wdt",
+U_BOOT_DRIVER(atmel_at91sam9260_wdt) = {
+	.name = "atmel_at91sam9260_wdt",
 	.id = UCLASS_WDT,
 	.of_match = at91_wdt_ids,
 	.priv_auto_alloc_size = sizeof(struct at91_wdt_priv),

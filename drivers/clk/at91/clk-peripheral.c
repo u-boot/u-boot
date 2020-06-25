@@ -43,8 +43,8 @@ static const struct udevice_id sam9x5_periph_clk_match[] = {
 	{}
 };
 
-U_BOOT_DRIVER(sam9x5_periph_clk) = {
-	.name = "sam9x5-periph-clk",
+U_BOOT_DRIVER(atmel_at91rm9200_clk_peripheral) = {
+	.name = "atmel_at91rm9200_clk_peripheral",
 	.id = UCLASS_MISC,
 	.of_match = sam9x5_periph_clk_match,
 	.bind = sam9x5_periph_clk_bind,

@@ -82,8 +82,8 @@ static const struct udevice_id fixed_regulator_ids[] = {
 	{ },
 };
 
-U_BOOT_DRIVER(fixed_regulator) = {
-	.name = "fixed regulator",
+U_BOOT_DRIVER(regulator_fixed) = {
+	.name = "regulator_fixed",
 	.id = UCLASS_REGULATOR,
 	.ops = &fixed_regulator_ops,
 	.of_match = fixed_regulator_ids,

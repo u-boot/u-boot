@@ -486,12 +486,8 @@ static const struct udevice_id mxs_spi_ids[] = {
 };
 #endif
 
-U_BOOT_DRIVER(mxs_spi) = {
-#ifdef CONFIG_MX28
-	.name = "fsl_imx28_spi",
-#else /* CONFIG_MX23 */
+U_BOOT_DRIVER(fsl_imx23_spi) = {
 	.name = "fsl_imx23_spi",
-#endif
 	.id	= UCLASS_SPI,
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = mxs_spi_ids,

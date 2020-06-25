@@ -553,8 +553,8 @@ static int davinci_gpio_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
-U_BOOT_DRIVER(gpio_davinci) = {
-	.name	= "gpio_davinci",
+U_BOOT_DRIVER(ti_dm6441_gpio) = {
+	.name	= "ti_dm6441_gpio",
 	.id	= UCLASS_GPIO,
 	.ops	= &gpio_davinci_ops,
 	.ofdata_to_platdata = of_match_ptr(davinci_gpio_ofdata_to_platdata),

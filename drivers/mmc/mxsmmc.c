@@ -711,12 +711,8 @@ static const struct udevice_id mxsmmc_ids[] = {
 };
 #endif
 
-U_BOOT_DRIVER(mxsmmc) = {
-#ifdef CONFIG_MX28
-	.name = "fsl_imx28_mmc",
-#else /* CONFIG_MX23 */
+U_BOOT_DRIVER(fsl_imx23_mmc) = {
 	.name = "fsl_imx23_mmc",
-#endif
 	.id	= UCLASS_MMC,
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = mxsmmc_ids,

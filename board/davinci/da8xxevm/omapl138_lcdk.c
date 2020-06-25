@@ -380,7 +380,7 @@ static const struct davinci_mmc_plat mmc_platdata = {
 	},
 };
 U_BOOT_DEVICE(omapl138_mmc) = {
-	.name = "davinci_mmc",
+	.name = "ti_da830_mmc",
 	.platdata = &mmc_platdata,
 };
 

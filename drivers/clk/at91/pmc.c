@@ -25,8 +25,8 @@ static const struct udevice_id at91_pmc_match[] = {
 	{}
 };
 
-U_BOOT_DRIVER(at91_pmc) = {
-	.name = "at91-pmc",
+U_BOOT_DRIVER(atmel_at91rm9200_pmc) = {
+	.name = "atmel_at91rm9200_pmc",
 	.id = UCLASS_SIMPLE_BUS,
 	.of_match = at91_pmc_match,
 };

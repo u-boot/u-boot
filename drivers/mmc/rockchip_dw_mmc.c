@@ -168,7 +168,7 @@ static const struct udevice_id rockchip_dwmmc_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(rockchip_dwmmc_drv) = {
+U_BOOT_DRIVER(rockchip_rk3288_dw_mshc) = {
 	.name		= "rockchip_rk3288_dw_mshc",
 	.id		= UCLASS_MMC,
 	.of_match	= rockchip_dwmmc_ids,
