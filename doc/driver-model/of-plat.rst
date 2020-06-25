@@ -69,9 +69,8 @@ strictly necessary. Notable problems include:
    - Correct relations between nodes are not implemented. This means that
      parent/child relations (like bus device iteration) do not work yet.
      Some phandles (those that are recognised as such) are converted into
-     a pointer to platform data. This pointer can potentially be used to
-     access the referenced device (by searching for the pointer value).
-     This feature is not yet implemented, however.
+     a pointer to struct driver_info. This pointer can be used to access
+     the referenced device.
 
 
 How it works
@@ -146,10 +145,10 @@ and the following device declaration:
             .clock_freq_min_max     = {0x61a80, 0x8f0d180},
             .vmmc_supply            = 0xb,
             .num_slots              = 0x1,
-            .clocks                 = {{&dtv_clock_controller_at_ff760000, 456},
-                                       {&dtv_clock_controller_at_ff760000, 68},
-                                       {&dtv_clock_controller_at_ff760000, 114},
-                                       {&dtv_clock_controller_at_ff760000, 118}},
+            .clocks                 = {{NULL, 456},
+                                       {NULL, 68},
+                                       {NULL, 114},
+                                       {NULL, 118}},
             .cap_mmc_highspeed      = true,
             .disable_wp             = true,
             .bus_width              = 0x4,
@@ -163,6 +162,13 @@ and the following device declaration:
             .platdata       = &dtv_dwmmc_at_ff0c0000,
             .platdata_size  = sizeof(dtv_dwmmc_at_ff0c0000),
     };
+
+    void dm_populate_phandle_data(void) {
+            dtv_dwmmc_at_ff0c0000.clocks[0].node = DM_GET_DEVICE(clock_controller_at_ff760000);
+            dtv_dwmmc_at_ff0c0000.clocks[1].node = DM_GET_DEVICE(clock_controller_at_ff760000);
+            dtv_dwmmc_at_ff0c0000.clocks[2].node = DM_GET_DEVICE(clock_controller_at_ff760000);
+            dtv_dwmmc_at_ff0c0000.clocks[3].node = DM_GET_DEVICE(clock_controller_at_ff760000);
+    }
 
 The device is then instantiated at run-time and the platform data can be
 accessed using:
@@ -329,7 +335,9 @@ prevents them being used inadvertently. All usage must be bracketed with
 #if CONFIG_IS_ENABLED(OF_PLATDATA).
 
 The dt-platdata.c file contains the device declarations and is is built in
-spl/dt-platdata.c.
+spl/dt-platdata.c. It additionally contains the definition of
+dm_populate_phandle_data() which is responsible of filling the phandle
+information by adding references to U_BOOT_DEVICE by using DM_GET_DEVICE
 
 The beginnings of a libfdt Python module are provided. So far this only
 implements a subset of the features.
