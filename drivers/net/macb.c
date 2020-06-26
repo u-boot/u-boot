@@ -1056,7 +1056,7 @@ static int macb_recv(struct eth_device *netdev)
 	}
 }
 
-static int macb_init(struct eth_device *netdev, bd_t *bd)
+static int macb_init(struct eth_device *netdev, struct bd_info *bd)
 {
 	struct macb_device *macb = to_macb(netdev);
 

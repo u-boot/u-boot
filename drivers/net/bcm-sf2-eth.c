@@ -147,7 +147,7 @@ static int bcm_sf2_eth_write_hwaddr(struct eth_device *dev)
 	return eth->set_mac_addr(dev->enetaddr);
 }
 
-static int bcm_sf2_eth_open(struct eth_device *dev, bd_t *bt)
+static int bcm_sf2_eth_open(struct eth_device *dev, struct bd_info *bt)
 {
 	struct eth_info *eth = (struct eth_info *)(dev->priv);
 	struct eth_dma *dma = &(eth->dma);
@@ -198,7 +198,7 @@ static void bcm_sf2_eth_close(struct eth_device *dev)
 	eth->disable_mac();
 }
 
-int bcm_sf2_eth_register(bd_t *bis, u8 dev_num)
+int bcm_sf2_eth_register(struct bd_info *bis, u8 dev_num)
 {
 	struct eth_device *dev;
 	struct eth_info *eth;

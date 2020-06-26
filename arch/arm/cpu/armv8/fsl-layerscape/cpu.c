@@ -1040,13 +1040,13 @@ int print_cpuinfo(void)
 #endif
 
 #ifdef CONFIG_FSL_ESDHC
-int cpu_mmc_init(bd_t *bis)
+int cpu_mmc_init(struct bd_info *bis)
 {
 	return fsl_esdhc_mmc_init(bis);
 }
 #endif
 
-int cpu_eth_init(bd_t *bis)
+int cpu_eth_init(struct bd_info *bis)
 {
 	int error = 0;
 

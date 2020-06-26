@@ -258,7 +258,7 @@ int esdhc_status_fixup(void *blob, const char *compat)
 }
 #endif
 
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	arch_fixup_fdt(blob);
 

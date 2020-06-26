@@ -21,63 +21,65 @@
  *     -1: failure
  */
 
-int board_eth_init(bd_t *bis);
+int board_eth_init(struct bd_info *bis);
 int board_interface_eth_init(struct udevice *dev,
 			     phy_interface_t interface_type);
-int cpu_eth_init(bd_t *bis);
+int cpu_eth_init(struct bd_info *bis);
 
 /* Driver initialization prototypes */
-int at91emac_register(bd_t *bis, unsigned long iobase);
-int ax88180_initialize(bd_t *bis);
-int bcm_sf2_eth_register(bd_t *bis, u8 dev_num);
-int bfin_EMAC_initialize(bd_t *bis);
+int at91emac_register(struct bd_info *bis, unsigned long iobase);
+int ax88180_initialize(struct bd_info *bis);
+int bcm_sf2_eth_register(struct bd_info *bis, u8 dev_num);
+int bfin_EMAC_initialize(struct bd_info *bis);
 int calxedaxgmac_initialize(u32 id, ulong base_addr);
 int cs8900_initialize(u8 dev_num, int base_addr);
-int dc21x4x_initialize(bd_t *bis);
+int dc21x4x_initialize(struct bd_info *bis);
 int designware_initialize(ulong base_addr, u32 interface);
-int dm9000_initialize(bd_t *bis);
+int dm9000_initialize(struct bd_info *bis);
 int dnet_eth_initialize(int id, void *regs, unsigned int phy_addr);
-int e1000_initialize(bd_t *bis);
-int eepro100_initialize(bd_t *bis);
+int e1000_initialize(struct bd_info *bis);
+int eepro100_initialize(struct bd_info *bis);
 int ep93xx_eth_initialize(u8 dev_num, int base_addr);
-int eth_3com_initialize (bd_t * bis);
+int eth_3com_initialize (struct bd_info * bis);
 int ethoc_initialize(u8 dev_num, int base_addr);
-int fec_initialize (bd_t *bis);
-int fecmxc_initialize(bd_t *bis);
-int fecmxc_initialize_multi(bd_t *bis, int dev_id, int phy_id, uint32_t addr);
-int ftmac100_initialize(bd_t *bits);
-int ftmac110_initialize(bd_t *bits);
-void gt6426x_eth_initialize(bd_t *bis);
+int fec_initialize (struct bd_info *bis);
+int fecmxc_initialize(struct bd_info *bis);
+int fecmxc_initialize_multi(struct bd_info *bis, int dev_id, int phy_id,
+			    uint32_t addr);
+int ftmac100_initialize(struct bd_info *bits);
+int ftmac110_initialize(struct bd_info *bits);
+void gt6426x_eth_initialize(struct bd_info *bis);
 int ks8851_mll_initialize(u8 dev_num, int base_addr);
 int lan91c96_initialize(u8 dev_num, int base_addr);
-int lpc32xx_eth_initialize(bd_t *bis);
+int lpc32xx_eth_initialize(struct bd_info *bis);
 int macb_eth_initialize(int id, void *regs, unsigned int phy_addr);
-int mcdmafec_initialize(bd_t *bis);
-int mcffec_initialize(bd_t *bis);
-int mvgbe_initialize(bd_t *bis);
-int mvneta_initialize(bd_t *bis, int base_addr, int devnum, int phy_addr);
-int natsemi_initialize(bd_t *bis);
+int mcdmafec_initialize(struct bd_info *bis);
+int mcffec_initialize(struct bd_info *bis);
+int mvgbe_initialize(struct bd_info *bis);
+int mvneta_initialize(struct bd_info *bis, int base_addr, int devnum,
+		      int phy_addr);
+int natsemi_initialize(struct bd_info *bis);
 int ne2k_register(void);
-int npe_initialize(bd_t *bis);
-int ns8382x_initialize(bd_t *bis);
-int pcnet_initialize(bd_t *bis);
-int ppc_4xx_eth_initialize (bd_t *bis);
-int rtl8139_initialize(bd_t *bis);
-int rtl8169_initialize(bd_t *bis);
-int scc_initialize(bd_t *bis);
-int sh_eth_initialize(bd_t *bis);
-int skge_initialize(bd_t *bis);
+int npe_initialize(struct bd_info *bis);
+int ns8382x_initialize(struct bd_info *bis);
+int pcnet_initialize(struct bd_info *bis);
+int ppc_4xx_eth_initialize (struct bd_info *bis);
+int rtl8139_initialize(struct bd_info *bis);
+int rtl8169_initialize(struct bd_info *bis);
+int scc_initialize(struct bd_info *bis);
+int sh_eth_initialize(struct bd_info *bis);
+int skge_initialize(struct bd_info *bis);
 int smc91111_initialize(u8 dev_num, int base_addr);
 int smc911x_initialize(u8 dev_num, int base_addr);
-int uec_standard_init(bd_t *bis);
-int uli526x_initialize(bd_t *bis);
+int uec_standard_init(struct bd_info *bis);
+int uli526x_initialize(struct bd_info *bis);
 int armada100_fec_register(unsigned long base_addr);
 
 /* Boards with PCI network controllers can call this from their board_eth_init()
  * function to initialize whatever's on board.
  * Return value is total # of devices found */
 
-static inline int pci_eth_init(bd_t *bis)
+static inline int pci_eth_init(struct bd_info *bis)
 {
 	int num = 0;
 
@@ -119,7 +121,7 @@ struct mii_dev *fec_get_miibus(ulong base_addr, int dev_id);
 
 #ifdef CONFIG_PHYLIB
 struct phy_device;
-int fec_probe(bd_t *bd, int dev_id, uint32_t base_addr,
+int fec_probe(struct bd_info *bd, int dev_id, uint32_t base_addr,
 		struct mii_dev *bus, struct phy_device *phydev);
 #else
 /*

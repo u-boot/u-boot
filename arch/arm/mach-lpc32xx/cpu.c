@@ -72,7 +72,7 @@ int print_cpuinfo(void)
 #endif
 
 #ifdef CONFIG_LPC32XX_ETH
-int cpu_eth_init(bd_t *bis)
+int cpu_eth_init(struct bd_info *bis)
 {
 	lpc32xx_eth_initialize(bis);
 	return 0;

@@ -529,7 +529,7 @@ static void ax88180_halt (struct eth_device *dev)
 	OUTW (dev, WAKEMOD, CMD);
 }
 
-static int ax88180_init (struct eth_device *dev, bd_t * bd)
+static int ax88180_init (struct eth_device *dev, struct bd_info * bd)
 {
 	struct ax88180_private *priv = (struct ax88180_private *)dev->priv;
 	unsigned short tmp_regval;
@@ -701,7 +701,7 @@ static void ax88180_read_mac_addr (struct eth_device *dev)
 }
 
 /* Exported SubProgram Bodies */
-int ax88180_initialize (bd_t * bis)
+int ax88180_initialize (struct bd_info * bis)
 {
 	struct eth_device *dev;
 	struct ax88180_private *priv;

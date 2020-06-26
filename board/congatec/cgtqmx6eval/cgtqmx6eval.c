@@ -256,7 +256,7 @@ int power_init_board(void)
 	return 0;
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	struct phy_device *phydev;
 	struct mii_dev *bus;
@@ -446,7 +446,7 @@ int board_mmc_getcd(struct mmc *mmc)
 	return ret;
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 #ifndef CONFIG_SPL_BUILD
 	s32 status = 0;

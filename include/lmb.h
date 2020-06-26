@@ -31,7 +31,8 @@ struct lmb {
 };
 
 extern void lmb_init(struct lmb *lmb);
-extern void lmb_init_and_reserve(struct lmb *lmb, bd_t *bd, void *fdt_blob);
+extern void lmb_init_and_reserve(struct lmb *lmb, struct bd_info *bd,
+				 void *fdt_blob);
 extern void lmb_init_and_reserve_range(struct lmb *lmb, phys_addr_t base,
 				       phys_size_t size, void *fdt_blob);
 extern long lmb_add(struct lmb *lmb, phys_addr_t base, phys_size_t size);

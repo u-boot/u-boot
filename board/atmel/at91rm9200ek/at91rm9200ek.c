@@ -55,7 +55,7 @@ int dram_init (void)
 }
 
 #ifdef CONFIG_DRIVER_AT91EMAC
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	return at91emac_register(bis, (u32) ATMEL_BASE_EMAC);
 }

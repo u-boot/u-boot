@@ -633,7 +633,7 @@ static struct clk_synth cdce913_data = {
 #define MAX_CPSW_SLAVES	2
 
 /* At the moment, we do not want to stop booting for any failures here */
-int ft_board_setup(void *fdt, bd_t *bd)
+int ft_board_setup(void *fdt, struct bd_info *bd)
 {
 	const char *slave_path, *enet_name;
 	int enetnode, slavenode, phynode;

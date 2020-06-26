@@ -190,7 +190,7 @@ u32 check_module_fused(enum fuse_module_type module)
 }
 
 #ifdef CONFIG_OF_SYSTEM_SETUP
-int ft_system_setup(void *blob, bd_t *bd)
+int ft_system_setup(void *blob, struct bd_info *bd)
 {
 	const char *status = "disabled";
 	u32 i, reg;

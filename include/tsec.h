@@ -426,8 +426,9 @@ struct tsec_info_struct {
 };
 
 #ifndef CONFIG_DM_ETH
-int tsec_standard_init(bd_t *bis);
-int tsec_eth_init(bd_t *bis, struct tsec_info_struct *tsec_info, int num);
+int tsec_standard_init(struct bd_info *bis);
+int tsec_eth_init(struct bd_info *bis, struct tsec_info_struct *tsec_info,
+		  int num);
 #endif
 
 #endif /* __TSEC_H */

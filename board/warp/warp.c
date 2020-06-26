@@ -70,7 +70,7 @@ int board_mmc_getcd(struct mmc *mmc)
 	return 1;	/* Assume boot SD always present */
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	static iomux_v3_cfg_t const usdhc2_pads[] = {
 		MX6_PAD_SD2_CLK__USDHC2_CLK | MUX_PAD_CTRL(USDHC_PAD_CTRL),

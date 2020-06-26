@@ -13,7 +13,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void arch_print_bdinfo(void)
 {
-	bd_t *bd = gd->bd;
+	struct bd_info *bd = gd->bd;
 
 	bdinfo_print_num("arch_number", bd->bi_arch_number);
 #ifdef CONFIG_SYS_MEM_RESERVE_SECURE

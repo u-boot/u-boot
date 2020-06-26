@@ -2523,7 +2523,7 @@ static void _usb_eth_halt(struct ether_priv *priv)
 }
 
 #ifndef CONFIG_DM_ETH
-static int usb_eth_init(struct eth_device *netdev, bd_t *bd)
+static int usb_eth_init(struct eth_device *netdev, struct bd_info *bd)
 {
 	struct ether_priv *priv = (struct ether_priv *)netdev->priv;
 
@@ -2571,7 +2571,7 @@ void usb_eth_halt(struct eth_device *netdev)
 	_usb_eth_halt(priv);
 }
 
-int usb_eth_initialize(bd_t *bi)
+int usb_eth_initialize(struct bd_info *bi)
 {
 	struct eth_device *netdev = &l_priv->netdev;
 

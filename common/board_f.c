@@ -502,11 +502,12 @@ static int reserve_malloc(void)
 static int reserve_board(void)
 {
 	if (!gd->bd) {
-		gd->start_addr_sp = reserve_stack_aligned(sizeof(bd_t));
-		gd->bd = (bd_t *)map_sysmem(gd->start_addr_sp, sizeof(bd_t));
-		memset(gd->bd, '\0', sizeof(bd_t));
+		gd->start_addr_sp = reserve_stack_aligned(sizeof(struct bd_info));
+		gd->bd = (struct bd_info *)map_sysmem(gd->start_addr_sp,
+						      sizeof(struct bd_info));
+		memset(gd->bd, '\0', sizeof(struct bd_info));
 		debug("Reserving %zu Bytes for Board Info at: %08lx\n",
-		      sizeof(bd_t), gd->start_addr_sp);
+		      sizeof(struct bd_info), gd->start_addr_sp);
 	}
 	return 0;
 }
@@ -601,7 +602,7 @@ static int display_new_sp(void)
 	defined(CONFIG_SH)
 static int setup_board_part1(void)
 {
-	bd_t *bd = gd->bd;
+	struct bd_info *bd = gd->bd;
 
 	/*
 	 * Save local variables to board info struct
@@ -631,7 +632,7 @@ static int setup_board_part1(void)
 #if defined(CONFIG_PPC) || defined(CONFIG_M68K)
 static int setup_board_part2(void)
 {
-	bd_t *bd = gd->bd;
+	struct bd_info *bd = gd->bd;
 
 	bd->bi_intfreq = gd->cpu_clk;	/* Internal Freq, in Hz */
 	bd->bi_busfreq = gd->bus_clk;	/* Bus Freq,      in Hz */

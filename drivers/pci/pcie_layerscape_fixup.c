@@ -266,7 +266,7 @@ static void ft_pcie_ls_setup(void *blob, struct ls_pcie *pcie)
 }
 
 /* Fixup Kernel DT for PCIe */
-void ft_pci_setup_ls(void *blob, bd_t *bd)
+void ft_pci_setup_ls(void *blob, struct bd_info *bd)
 {
 	struct ls_pcie *pcie;
 
@@ -279,7 +279,7 @@ void ft_pci_setup_ls(void *blob, bd_t *bd)
 }
 
 #else /* !CONFIG_OF_BOARD_SETUP */
-void ft_pci_setup_ls(void *blob, bd_t *bd)
+void ft_pci_setup_ls(void *blob, struct bd_info *bd)
 {
 }
 #endif

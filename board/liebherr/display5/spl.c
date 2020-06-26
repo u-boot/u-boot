@@ -288,7 +288,7 @@ static struct fsl_esdhc_cfg usdhc_cfg = {
 	.max_bus_width = 8,
 };
 
-int board_mmc_init(bd_t *bd)
+int board_mmc_init(struct bd_info *bd)
 {
 	displ5_set_iomux_usdhc_spl();
 

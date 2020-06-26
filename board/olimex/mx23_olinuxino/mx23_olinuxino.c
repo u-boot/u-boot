@@ -62,7 +62,7 @@ static int mx23_olx_mmc_cd(int id)
 	return 1;	/* Card always present */
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	return mxsmmc_initialize(bis, 0, NULL, mx23_olx_mmc_cd);
 }

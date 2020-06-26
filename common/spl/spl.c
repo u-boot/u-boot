@@ -54,7 +54,7 @@ binman_sym_declare(ulong, spl, size);
 #endif
 
 /* Define board data structure */
-static bd_t bdata __attribute__ ((section(".data")));
+static struct bd_info bdata __attribute__ ((section(".data")));
 
 /*
  * Board-specific Platform code can reimplement show_boot_progress () if needed

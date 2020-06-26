@@ -895,7 +895,7 @@ void ls2080a_handle_phy_interface_xsgmii(int i)
 #endif
 #endif // !CONFIG_DM_ETH
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 #ifndef CONFIG_DM_ETH
 #if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)

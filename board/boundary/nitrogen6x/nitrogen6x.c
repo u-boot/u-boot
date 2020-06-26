@@ -321,7 +321,7 @@ int board_phy_config(struct phy_device *phydev)
 	return 0;
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	uint32_t base = IMX_FEC_BASE;
 	struct mii_dev *bus = NULL;

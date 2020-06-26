@@ -1665,10 +1665,12 @@ int boot_get_cmdline(struct lmb *lmb, ulong *cmd_start, ulong *cmd_end)
  *      0 - success
  *     -1 - failure
  */
-int boot_get_kbd(struct lmb *lmb, bd_t **kbd)
+int boot_get_kbd(struct lmb *lmb, struct bd_info **kbd)
 {
-	*kbd = (bd_t *)(ulong)lmb_alloc_base(lmb, sizeof(bd_t), 0xf,
-				env_get_bootm_mapsize() + env_get_bootm_low());
+	*kbd = (struct bd_info *)(ulong)lmb_alloc_base(lmb,
+						       sizeof(struct bd_info),
+						       0xf,
+						       env_get_bootm_mapsize() + env_get_bootm_low());
 	if (*kbd == NULL)
 		return -1;
 

@@ -597,7 +597,7 @@ static void fdt_fixup_l2_switch(void *blob)
 #define fdt_fixup_l2_switch(x)
 #endif
 
-void ft_cpu_setup(void *blob, bd_t *bd)
+void ft_cpu_setup(void *blob, struct bd_info *bd)
 {
 	int off;
 	int val;

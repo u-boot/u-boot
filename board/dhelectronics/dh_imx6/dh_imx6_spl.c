@@ -493,7 +493,7 @@ int board_mmc_getcd(struct mmc *mmc)
 	return 1; /* eMMC/uSDHC4 is always present */
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	SETUP_IOMUX_PADS(usdhc4_pads);
 	usdhc_cfg[0].esdhc_base = USDHC4_BASE_ADDR;

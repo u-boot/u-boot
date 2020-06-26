@@ -104,7 +104,7 @@ int dram_init_banksize(void)
 }
 
 #ifdef CONFIG_CMD_NET
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	int ret = 0;
 

@@ -36,7 +36,7 @@ int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	return 0;
 }
 
-int cpu_eth_init(bd_t *bis)
+int cpu_eth_init(struct bd_info *bis)
 {
 #ifdef CONFIG_SH_ETHER
 	sh_eth_initialize(bis);

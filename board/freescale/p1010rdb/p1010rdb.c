@@ -484,7 +484,7 @@ int checkboard(void)
 	return 0;
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 #ifdef CONFIG_TSEC_ENET
 	struct fsl_pq_mdio_info mdio_info;
@@ -601,7 +601,7 @@ void fdt_disable_uart1(void *blob)
 	}
 }
 
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	phys_addr_t base;
 	phys_size_t size;
@@ -659,7 +659,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 #endif
 
 #ifdef CONFIG_SDCARD
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	config_board_mux(MUX_TYPE_SDHC);
 		return -1;

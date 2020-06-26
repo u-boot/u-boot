@@ -146,7 +146,7 @@ void cs8900_halt(struct eth_device *dev)
 	get_reg_init_bus(dev, PP_ChipID);
 }
 
-static int cs8900_init(struct eth_device *dev, bd_t * bd)
+static int cs8900_init(struct eth_device *dev, struct bd_info * bd)
 {
 	uchar *enetaddr = dev->enetaddr;
 	u16 id;

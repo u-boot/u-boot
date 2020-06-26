@@ -403,7 +403,7 @@ pci_init_board(void)
 
 #if defined(CONFIG_OF_BOARD_SETUP)
 void
-ft_pci_setup(void *blob, bd_t *bd)
+ft_pci_setup(void *blob, struct bd_info *bd)
 {
 	int node, tmp[2];
 	const char *path;

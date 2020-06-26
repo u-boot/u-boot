@@ -5634,7 +5634,7 @@ e1000_disable(struct eth_device *nic)
 INIT - set up ethernet interface(s)
 ***************************************************************************/
 static int
-e1000_init(struct eth_device *nic, bd_t *bis)
+e1000_init(struct eth_device *nic, struct bd_info *bis)
 {
 	struct e1000_hw *hw = nic->priv;
 
@@ -5700,7 +5700,7 @@ PROBE - Look for an adapter, this routine's visible to the outside
 You should omit the last argument struct pci_device * for a non-PCI NIC
 ***************************************************************************/
 int
-e1000_initialize(bd_t * bis)
+e1000_initialize(struct bd_info * bis)
 {
 	unsigned int i;
 	pci_dev_t devno;

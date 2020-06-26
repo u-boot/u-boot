@@ -525,7 +525,7 @@ int arch_misc_init(void)
 #endif /* CONFIG_ARCH_MISC_INIT */
 
 #if defined(CONFIG_MMC_SDHCI_MV) && !defined(CONFIG_DM_MMC)
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	mv_sdh_init(MVEBU_SDIO_BASE, 0, 0,
 		    SDHCI_QUIRK_32BIT_DMA_ADDR | SDHCI_QUIRK_WAIT_SEND_CMD);

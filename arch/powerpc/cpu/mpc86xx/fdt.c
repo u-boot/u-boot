@@ -11,7 +11,7 @@
 extern void ft_fixup_num_cores(void *blob);
 extern void ft_srio_setup(void *blob);
 
-void ft_cpu_setup(void *blob, bd_t *bd)
+void ft_cpu_setup(void *blob, struct bd_info *bd)
 {
 #ifdef CONFIG_MP
 	int off;

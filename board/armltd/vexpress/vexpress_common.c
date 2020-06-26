@@ -64,7 +64,7 @@ int board_init(void)
 	return 0;
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	int rc = 0;
 #ifdef CONFIG_SMC911X
@@ -73,7 +73,7 @@ int board_eth_init(bd_t *bis)
 	return rc;
 }
 
-int cpu_mmc_init(bd_t *bis)
+int cpu_mmc_init(struct bd_info *bis)
 {
 	int rc = 0;
 	(void) bis;

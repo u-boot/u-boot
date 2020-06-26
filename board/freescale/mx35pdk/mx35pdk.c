@@ -254,7 +254,7 @@ int board_late_init(void)
 	return 0;
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 #if defined(CONFIG_SMC911X)
 	int rc = smc911x_initialize(0, CONFIG_SMC911X_BASE);
@@ -268,7 +268,7 @@ int board_eth_init(bd_t *bis)
 
 struct fsl_esdhc_cfg esdhc_cfg = {MMC_SDHC1_BASE_ADDR};
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	static const iomux_v3_cfg_t sdhc1_pads[] = {
 		MX35_PAD_SD1_CMD__ESDHC1_CMD,

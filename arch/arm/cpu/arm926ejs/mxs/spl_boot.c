@@ -22,7 +22,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 static gd_t gdata __section(".data");
 #ifdef CONFIG_SPL_SERIAL_SUPPORT
-static bd_t bdata __section(".data");
+static struct bd_info bdata __section(".data");
 #endif
 
 /*

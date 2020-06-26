@@ -77,7 +77,7 @@ static void wb45n_gpio_hw_init(void)
 	at91_set_gpio_deglitch(AT91_PIN_PB18, 1);
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	int rc = 0;
 

@@ -554,7 +554,7 @@ static void startup_tsec(struct tsec_private *priv)
  * This allows U-Boot to find the first active controller.
  */
 #ifndef CONFIG_DM_ETH
-static int tsec_init(struct eth_device *dev, bd_t *bd)
+static int tsec_init(struct eth_device *dev, struct bd_info *bd)
 #else
 static int tsec_init(struct udevice *dev)
 #endif
@@ -701,7 +701,8 @@ static int init_phy(struct tsec_private *priv)
  * Initialize device structure. Returns success if PHY
  * initialization succeeded (i.e. if it recognizes the PHY)
  */
-static int tsec_initialize(bd_t *bis, struct tsec_info_struct *tsec_info)
+static int tsec_initialize(struct bd_info *bis,
+			   struct tsec_info_struct *tsec_info)
 {
 	struct tsec_private *priv;
 	struct eth_device *dev;
@@ -760,7 +761,8 @@ static int tsec_initialize(bd_t *bis, struct tsec_info_struct *tsec_info)
  *
  * Returns the number of TSEC devices that were initialized
  */
-int tsec_eth_init(bd_t *bis, struct tsec_info_struct *tsecs, int num)
+int tsec_eth_init(struct bd_info *bis, struct tsec_info_struct *tsecs,
+		  int num)
 {
 	int i;
 	int count = 0;
@@ -775,7 +777,7 @@ int tsec_eth_init(bd_t *bis, struct tsec_info_struct *tsecs, int num)
 	return count;
 }
 
-int tsec_standard_init(bd_t *bis)
+int tsec_standard_init(struct bd_info *bis)
 {
 	struct fsl_pq_mdio_info info;
 

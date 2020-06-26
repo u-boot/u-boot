@@ -306,7 +306,7 @@ void configure_rgmii(void)
 	return;
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 #ifdef CONFIG_TSEC_ENET
 	struct fsl_pq_mdio_info mdio_info;
@@ -356,7 +356,7 @@ int board_eth_init(bd_t *bis)
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP) && !defined(CONFIG_DM_PCI)
-void ft_pci_setup(void *blob, bd_t *bd)
+void ft_pci_setup(void *blob, struct bd_info *bd)
 {
 	FT_FSL_PCI_SETUP;
 }

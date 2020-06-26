@@ -125,7 +125,7 @@ int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
 #endif
 
 #if defined(CONFIG_OF_LIBFDT)
-int ft_common_board_setup(void *blob, bd_t *bd)
+int ft_common_board_setup(void *blob, struct bd_info *bd)
 {
 	if (tdx_serial) {
 		fdt_setprop(blob, 0, "serial-number", tdx_serial_str,
@@ -162,7 +162,7 @@ u32 get_board_serial(void)
 }
 #endif /* CONFIG_SERIAL_TAG */
 
-int ft_common_board_setup(void *blob, bd_t *bd)
+int ft_common_board_setup(void *blob, struct bd_info *bd)
 {
 	return 0;
 }

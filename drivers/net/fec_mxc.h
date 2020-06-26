@@ -244,7 +244,7 @@ struct fec_priv {
 	int rbd_index;			/* next receive BD to read */
 	struct fec_bd *tbd_base;	/* TBD ring */
 	int tbd_index;			/* next transmit BD to write */
-	bd_t *bd;
+	struct bd_info *bd;
 	uint8_t *tdb_ptr;
 	int dev_id;
 	struct mii_dev *bus;

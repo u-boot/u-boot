@@ -345,7 +345,7 @@ static struct davinci_mmc mmc_sd0 = {
 	.voltages = MMC_VDD_32_33 | MMC_VDD_33_34,
 };
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	mmc_sd0.input_clk = clk_get(DAVINCI_MMCSD_CLKID);
 

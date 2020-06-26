@@ -225,7 +225,7 @@ static void ft_pcie_layerscape_gen4_setup(void *blob, struct ls_pcie_g4 *pcie)
 }
 
 /* Fixup Kernel DT for PCIe */
-void ft_pci_setup_ls_gen4(void *blob, bd_t *bd)
+void ft_pci_setup_ls_gen4(void *blob, struct bd_info *bd)
 {
 	struct ls_pcie_g4 *pcie;
 
@@ -238,7 +238,7 @@ void ft_pci_setup_ls_gen4(void *blob, bd_t *bd)
 }
 
 #else /* !CONFIG_OF_BOARD_SETUP */
-void ft_pci_setup_ls_gen4(void *blob, bd_t *bd)
+void ft_pci_setup_ls_gen4(void *blob, struct bd_info *bd)
 {
 }
 #endif

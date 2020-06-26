@@ -627,7 +627,7 @@ static int smc_write_hwaddr(struct eth_device *dev)
  * Set up everything, reset the card, etc ..
  *
  */
-static int smc_init(struct eth_device *dev, bd_t *bd)
+static int smc_init(struct eth_device *dev, struct bd_info *bd)
 {
 	swap_to(ETHERNET);
 

@@ -939,7 +939,7 @@ static void decode_regions(struct pci_controller *hose, ofnode parent_node,
 
 	/* Add a region for our local memory */
 #ifdef CONFIG_NR_DRAM_BANKS
-	bd_t *bd = gd->bd;
+	struct bd_info *bd = gd->bd;
 
 	if (!bd)
 		return;

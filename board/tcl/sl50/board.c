@@ -306,7 +306,7 @@ static struct cpsw_platform_data cpsw_data = {
 	((defined(CONFIG_DRIVER_TI_CPSW) || \
 	  defined(CONFIG_USB_ETHER) && defined(CONFIG_MUSB_GADGET)) && \
 	 !defined(CONFIG_SPL_BUILD))
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	int rv, n = 0;
 	uint8_t mac_addr[6];

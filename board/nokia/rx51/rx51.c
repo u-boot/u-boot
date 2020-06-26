@@ -672,7 +672,7 @@ int rx51_kp_getc(struct stdio_dev *sdev)
  * Routine: board_mmc_init
  * Description: Initialize mmc devices.
  */
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	omap_mmc_init(0, 0, 0, -1, -1);
 	omap_mmc_init(1, 0, 0, -1, -1);

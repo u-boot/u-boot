@@ -121,7 +121,7 @@ int board_early_init_f(void)
 	return 0;
 }
 
-int board_eth_init(bd_t *bd)
+int board_eth_init(struct bd_info *bd)
 {
 	return ep93xx_eth_initialize(0, MAC_BASE);
 }

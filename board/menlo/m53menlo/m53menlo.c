@@ -148,7 +148,7 @@ int board_mmc_getcd(struct mmc *mmc)
 #define SD_PAD_CTRL		(PAD_CTL_HYS | PAD_CTL_PUS_47K_UP | \
 				 PAD_CTL_DSE_HIGH)
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	static const iomux_v3_cfg_t sd1_pads[] = {
 		NEW_PAD_CTRL(MX53_PAD_SD1_CMD__ESDHC1_CMD, SD_CMD_PAD_CTRL),
@@ -257,7 +257,7 @@ void board_preboot_os(void)
 	gpio_direction_output(IMX_GPIO_NR(6, 0), 0);
 }
 
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	if (lvds_compat_string)
 		do_fixup_by_path_string(blob, "/panel", "compatible",

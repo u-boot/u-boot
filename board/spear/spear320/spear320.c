@@ -60,7 +60,7 @@ void board_nand_init()
 	return;
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	int ret = 0;
 

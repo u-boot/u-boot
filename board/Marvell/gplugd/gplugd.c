@@ -94,7 +94,7 @@ int board_init(void)
 }
 
 #ifdef CONFIG_ARMADA100_FEC
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	struct armd1apmu_registers *apmu_regs =
 		(struct armd1apmu_registers *)ARMD1_APMU_BASE;

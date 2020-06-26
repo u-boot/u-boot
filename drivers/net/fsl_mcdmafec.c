@@ -161,7 +161,7 @@ static void dbg_fec_regs(struct eth_device *dev)
 
 static void set_fec_duplex_speed(volatile fecdma_t *fecp, int dup_spd)
 {
-	bd_t *bd = gd->bd;
+	struct bd_info *bd = gd->bd;
 
 	if ((dup_spd >> 16) == FULL) {
 		/* Set maximum frame length */

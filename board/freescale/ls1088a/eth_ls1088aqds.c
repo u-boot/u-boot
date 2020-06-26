@@ -669,7 +669,7 @@ static void ls1088a_handle_phy_interface_rgmii(int dpmac_id)
 }
 #endif
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	int error = 0, i;
 #ifdef CONFIG_FSL_MC_ENET

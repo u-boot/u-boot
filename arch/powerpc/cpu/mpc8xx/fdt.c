@@ -12,7 +12,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-void ft_cpu_setup(void *blob, bd_t *bd)
+void ft_cpu_setup(void *blob, struct bd_info *bd)
 {
 	do_fixup_by_prop_u32(blob, "device_type", "cpu", 4,
 			     "timebase-frequency", get_tbclk(), 1);

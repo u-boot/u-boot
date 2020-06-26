@@ -597,7 +597,7 @@ int lpc32xx_eth_phylib_init(struct eth_device *dev, int phyid)
 }
 #endif
 
-int lpc32xx_eth_initialize(bd_t *bis)
+int lpc32xx_eth_initialize(struct bd_info *bis)
 {
 	struct eth_device *dev = &lpc32xx_eth.dev;
 	struct lpc32xx_eth_registers *regs = lpc32xx_eth.regs;

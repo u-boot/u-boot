@@ -459,7 +459,7 @@ static void pcnet_halt_common(struct pcnet_priv *lp)
 }
 
 #ifndef CONFIG_DM_ETH
-static int pcnet_init(struct eth_device *dev, bd_t *bis)
+static int pcnet_init(struct eth_device *dev, struct bd_info *bis)
 {
 	struct pcnet_priv *lp = dev->priv;
 
@@ -495,7 +495,7 @@ static void pcnet_halt(struct eth_device *dev)
 	pcnet_halt_common(lp);
 }
 
-int pcnet_initialize(bd_t *bis)
+int pcnet_initialize(struct bd_info *bis)
 {
 	pci_dev_t devbusfn;
 	struct eth_device *dev;

@@ -464,7 +464,7 @@ static void fmc_tx_port_graceful_stop_disable(struct fm_eth *fm_eth)
 }
 
 #ifndef CONFIG_DM_ETH
-static int fm_eth_open(struct eth_device *dev, bd_t *bd)
+static int fm_eth_open(struct eth_device *dev, struct bd_info *bd)
 #else
 static int fm_eth_open(struct udevice *dev)
 #endif

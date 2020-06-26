@@ -912,7 +912,7 @@ void fsl_fdt_fixup_flash(void *fdt)
 	fdt_status_disabled(fdt, offset);
 }
 
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	int i;
 	u16 mc_memory_bank = 0;

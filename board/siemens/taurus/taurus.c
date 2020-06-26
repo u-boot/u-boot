@@ -263,7 +263,7 @@ static void taurus_macb_hw_init(void)
 #endif
 
 #ifdef CONFIG_GENERIC_ATMEL_MCI
-int board_mmc_init(bd_t *bd)
+int board_mmc_init(struct bd_info *bd)
 {
 	at91_mci_hw_init();
 

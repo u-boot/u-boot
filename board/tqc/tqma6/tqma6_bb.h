@@ -11,7 +11,7 @@
 
 int tqma6_bb_board_mmc_getwp(struct mmc *mmc);
 int tqma6_bb_board_mmc_getcd(struct mmc *mmc);
-int tqma6_bb_board_mmc_init(bd_t *bis);
+int tqma6_bb_board_mmc_init(struct bd_info *bis);
 
 int tqma6_bb_board_early_init_f(void);
 int tqma6_bb_board_init(void);
@@ -23,7 +23,7 @@ const char *tqma6_bb_get_boardname(void);
  * Device Tree Support
  */
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
-void tqma6_bb_ft_board_setup(void *blob, bd_t *bd);
+void tqma6_bb_ft_board_setup(void *blob, struct bd_info *bd);
 #endif /* defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT) */
 
 #endif

@@ -19,7 +19,7 @@
 #include <fsl-mc/ldpaa_wriop.h>
 
 #ifndef CONFIG_DM_ETH
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 #if defined(CONFIG_FSL_MC_ENET)
 	int i, interface;

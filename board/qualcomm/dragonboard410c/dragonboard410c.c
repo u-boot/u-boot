@@ -174,7 +174,7 @@ int board_late_init(void)
  *	variables wlanaddr,btaddr. if not, generate a unique address.
  */
 
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	u8 mac[ARP_HLEN];
 

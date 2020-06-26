@@ -52,12 +52,12 @@ int dram_init(void)
 	return 0;
 }
 
-__weak int meson_ft_board_setup(void *blob, bd_t *bd)
+__weak int meson_ft_board_setup(void *blob, struct bd_info *bd)
 {
 	return 0;
 }
 
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	meson_init_reserved_memory(blob);
 

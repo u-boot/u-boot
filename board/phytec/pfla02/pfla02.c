@@ -212,7 +212,7 @@ int board_mmc_getcd(struct mmc *mmc)
 }
 
 #ifndef CONFIG_SPL_BUILD
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	int ret;
 	int i;
@@ -332,7 +332,7 @@ int board_spi_cs_gpio(unsigned bus, unsigned cs)
 	return IMX_GPIO_NR(4, 24);
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	setup_iomux_enet();
 
@@ -562,7 +562,7 @@ static void spl_dram_init(struct mx6_ddr_sysinfo *sysinfo,
 	mx6_dram_cfg(sysinfo, &mx6_mmcd_calib, mem_ddr);
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	if (spl_boot_device() == BOOT_DEVICE_SPI)
 		printf("MMC SEtup, Boot SPI");

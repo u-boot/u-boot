@@ -50,7 +50,7 @@ int board_init(void)
 }
 
 #if IS_ENABLED(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	const char *path;
 	int rc, nodeoff;

@@ -26,7 +26,7 @@ DECLARE_GLOBAL_DATA_PTR;
 static inline bool check_in_dram(ulong addr)
 {
 	int i;
-	bd_t *bd = gd->bd;
+	struct bd_info *bd = gd->bd;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; ++i) {
 		if (bd->bi_dram[i].size) {

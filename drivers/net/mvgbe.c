@@ -821,7 +821,7 @@ error1:
 }
 
 #ifndef CONFIG_DM_ETH
-int mvgbe_initialize(bd_t *bis)
+int mvgbe_initialize(struct bd_info *bis)
 {
 	struct mvgbe_device *dmvgbe;
 	struct eth_device *dev;

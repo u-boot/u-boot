@@ -929,7 +929,7 @@ int _cpsw_register(struct cpsw_priv *priv)
 }
 
 #ifndef CONFIG_DM_ETH
-static int cpsw_init(struct eth_device *dev, bd_t *bis)
+static int cpsw_init(struct eth_device *dev, struct bd_info *bis)
 {
 	struct cpsw_priv	*priv = dev->priv;
 

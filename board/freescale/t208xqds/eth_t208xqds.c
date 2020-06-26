@@ -525,7 +525,7 @@ static void initialize_lane_to_slot(void)
 	}
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 #if defined(CONFIG_FMAN_ENET)
 	int i, idx, lane, slot, interface;

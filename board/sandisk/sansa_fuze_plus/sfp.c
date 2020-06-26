@@ -57,7 +57,7 @@ static int xfi3_mmc_cd(int id)
 	}
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	int ret;
 
@@ -383,7 +383,7 @@ int board_init(void)
 	return 0;
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	usb_eth_initialize(bis);
 	return 0;

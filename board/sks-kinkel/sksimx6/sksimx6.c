@@ -139,7 +139,7 @@ void setup_iomux_enet(void)
 
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	uint32_t base = IMX_FEC_BASE;
 	struct mii_dev *bus = NULL;
@@ -214,7 +214,7 @@ int board_mmc_getcd(struct mmc *mmc)
 	return ret;
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	int ret;
 

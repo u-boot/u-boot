@@ -111,7 +111,7 @@ static void lmb_reserve_common(struct lmb *lmb, void *fdt_blob)
 }
 
 /* Initialize the struct, add memory and call arch/board reserve functions */
-void lmb_init_and_reserve(struct lmb *lmb, bd_t *bd, void *fdt_blob)
+void lmb_init_and_reserve(struct lmb *lmb, struct bd_info *bd, void *fdt_blob)
 {
 #ifdef CONFIG_NR_DRAM_BANKS
 	int i;

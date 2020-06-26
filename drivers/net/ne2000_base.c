@@ -720,7 +720,7 @@ static int ne2k_setup_driver(struct eth_device *dev)
 	return 0;
 }
 
-static int ne2k_init(struct eth_device *dev, bd_t *bd)
+static int ne2k_init(struct eth_device *dev, struct bd_info *bd)
 {
 	dp83902a_start(dev->enetaddr);
 	initialized = 1;

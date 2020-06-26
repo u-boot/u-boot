@@ -412,7 +412,7 @@ typedef struct bootm_headers {
 	ulong		initrd_end;
 	ulong		cmdline_start;
 	ulong		cmdline_end;
-	bd_t		*kbd;
+	struct bd_info		*kbd;
 #endif
 
 	int		verify;		/* env_get("verify")[0] != 'n' */
@@ -755,7 +755,7 @@ int boot_ramdisk_high(struct lmb *lmb, ulong rd_data, ulong rd_len,
 		  ulong *initrd_start, ulong *initrd_end);
 int boot_get_cmdline(struct lmb *lmb, ulong *cmd_start, ulong *cmd_end);
 #ifdef CONFIG_SYS_BOOT_GET_KBD
-int boot_get_kbd(struct lmb *lmb, bd_t **kbd);
+int boot_get_kbd(struct lmb *lmb, struct bd_info **kbd);
 #endif /* CONFIG_SYS_BOOT_GET_KBD */
 #endif /* !USE_HOSTCC */
 

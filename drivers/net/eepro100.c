@@ -779,7 +779,7 @@ done:
 }
 
 #ifndef CONFIG_DM_ETH
-static int eepro100_init(struct eth_device *dev, bd_t *bis)
+static int eepro100_init(struct eth_device *dev, struct bd_info *bis)
 {
 	struct eepro100_priv *priv =
 		container_of(dev, struct eepro100_priv, dev);
@@ -819,7 +819,7 @@ static int eepro100_recv(struct eth_device *dev)
 	return ret;
 }
 
-int eepro100_initialize(bd_t *bis)
+int eepro100_initialize(struct bd_info *bis)
 {
 	struct eepro100_priv *priv;
 	struct eth_device *dev;

@@ -72,7 +72,7 @@ void timer_interrupt_cpu (struct pt_regs *regs)
  * irqinfo - print information about PCI devices
  */
 
-void do_irqinfo(struct cmd_tbl *cmdtp, bd_t *bd, int flag, int argc,
+void do_irqinfo(struct cmd_tbl *cmdtp, struct bd_info *bd, int flag, int argc,
 		char *const argv[])
 {
 }

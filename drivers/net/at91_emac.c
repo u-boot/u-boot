@@ -315,7 +315,7 @@ int at91emac_UpdateLinkSpeed(at91_emac_t *emac)
 	return 0;
 }
 
-static int at91emac_init(struct eth_device *netdev, bd_t *bd)
+static int at91emac_init(struct eth_device *netdev, struct bd_info *bd)
 {
 	int i;
 	u32 value;
@@ -470,7 +470,7 @@ static int at91emac_write_hwaddr(struct eth_device *netdev)
 	return 0;
 }
 
-int at91emac_register(bd_t *bis, unsigned long iobase)
+int at91emac_register(struct bd_info *bis, unsigned long iobase)
 {
 	emac_device *emac;
 	emac_device *emacfix;

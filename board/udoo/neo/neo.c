@@ -292,7 +292,7 @@ static int setup_fec(int fec_id)
 	return enable_fec_anatop_clock(fec_id, ENET_25MHZ);
 }
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	uint32_t base = IMX_FEC_BASE;
 	struct mii_dev *bus = NULL;
@@ -404,7 +404,7 @@ int board_mmc_getcd(struct mmc *mmc)
 	return !gpio_get_value(USDHC2_CD_GPIO);
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	imx_iomux_v3_setup_multiple_pads(usdhc2_pads, ARRAY_SIZE(usdhc2_pads));
 	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);

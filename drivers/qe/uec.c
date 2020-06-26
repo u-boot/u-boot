@@ -1189,7 +1189,7 @@ static int uec_startup(uec_private_t *uec)
 	return 0;
 }
 
-static int uec_init(struct eth_device* dev, bd_t *bd)
+static int uec_init(struct eth_device* dev, struct bd_info *bd)
 {
 	uec_private_t		*uec;
 	int			err, i;
@@ -1349,7 +1349,7 @@ static int uec_recv(struct eth_device* dev)
 	return 1;
 }
 
-int uec_initialize(bd_t *bis, uec_info_t *uec_info)
+int uec_initialize(struct bd_info *bis, uec_info_t *uec_info)
 {
 	struct eth_device	*dev;
 	int			i;
@@ -1416,7 +1416,7 @@ int uec_initialize(bd_t *bis, uec_info_t *uec_info)
 	return 1;
 }
 
-int uec_eth_init(bd_t *bis, uec_info_t *uecs, int num)
+int uec_eth_init(struct bd_info *bis, uec_info_t *uecs, int num)
 {
 	int i;
 
@@ -1426,7 +1426,7 @@ int uec_eth_init(bd_t *bis, uec_info_t *uecs, int num)
 	return 0;
 }
 
-int uec_standard_init(bd_t *bis)
+int uec_standard_init(struct bd_info *bis)
 {
 	return uec_eth_init(bis, uec_info, ARRAY_SIZE(uec_info));
 }

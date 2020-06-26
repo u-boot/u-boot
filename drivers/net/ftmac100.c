@@ -240,7 +240,7 @@ static void ftmac100_halt(struct eth_device *dev)
 	return _ftmac100_halt(priv);
 }
 
-static int ftmac100_init(struct eth_device *dev, bd_t *bd)
+static int ftmac100_init(struct eth_device *dev, struct bd_info *bd)
 {
 	struct ftmac100_data *priv = dev->priv;
 	return _ftmac100_init(priv , dev->enetaddr);
@@ -278,7 +278,7 @@ static int ftmac100_send(struct eth_device *dev, void *packet, int length)
 	return _ftmac100_send(priv , packet , length);
 }
 
-int ftmac100_initialize (bd_t *bd)
+int ftmac100_initialize (struct bd_info *bd)
 {
 	struct eth_device *dev;
 	struct ftmac100_data *priv;

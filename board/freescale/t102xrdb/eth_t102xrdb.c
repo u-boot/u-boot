@@ -26,7 +26,7 @@
 #include <asm/fsl_serdes.h>
 #include "../common/fman.h"
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 #if defined(CONFIG_FMAN_ENET)
 	int i, interface;

@@ -45,7 +45,7 @@ void bdinfo_print_mhz(const char *name, unsigned long hz)
 	printf("%-12s= %6s MHz\n", name, strmhz(buf, hz));
 }
 
-static void print_bi_dram(const bd_t *bd)
+static void print_bi_dram(const struct bd_info *bd)
 {
 #ifdef CONFIG_NR_DRAM_BANKS
 	int i;
@@ -66,7 +66,7 @@ __weak void arch_print_bdinfo(void)
 
 int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	bd_t *bd = gd->bd;
+	struct bd_info *bd = gd->bd;
 
 #ifdef DEBUG
 	bdinfo_print_num("bd address", (ulong)bd);

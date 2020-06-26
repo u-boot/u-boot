@@ -222,7 +222,7 @@ void fdt_fixup_fman_mac_addresses(void *blob)
 }
 #endif
 
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	phys_addr_t base;
 	phys_size_t size;

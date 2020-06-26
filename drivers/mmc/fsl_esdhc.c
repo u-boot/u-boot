@@ -746,7 +746,7 @@ static void esdhc_disable_for_no_card(void *blob)
 }
 #endif
 
-void fdt_fixup_esdhc(void *blob, bd_t *bd)
+void fdt_fixup_esdhc(void *blob, struct bd_info *bd)
 {
 	const char *compat = "fsl,esdhc";
 
@@ -797,7 +797,7 @@ static const struct mmc_ops esdhc_ops = {
 	.set_ios	= esdhc_set_ios,
 };
 
-int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
+int fsl_esdhc_initialize(struct bd_info *bis, struct fsl_esdhc_cfg *cfg)
 {
 	struct fsl_esdhc_plat *plat;
 	struct fsl_esdhc_priv *priv;
@@ -852,7 +852,7 @@ int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 	return 0;
 }
 
-int fsl_esdhc_mmc_init(bd_t *bis)
+int fsl_esdhc_mmc_init(struct bd_info *bis)
 {
 	struct fsl_esdhc_cfg *cfg;
 

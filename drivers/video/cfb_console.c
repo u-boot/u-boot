@@ -1982,7 +1982,7 @@ static void *video_logo(void)
 
 static int cfb_fb_is_in_dram(void)
 {
-	bd_t *bd = gd->bd;
+	struct bd_info *bd = gd->bd;
 #if defined(CONFIG_ARM) || defined(CONFIG_NDS32) || \
 defined(CONFIG_SANDBOX) || defined(CONFIG_X86)
 	ulong start, end;

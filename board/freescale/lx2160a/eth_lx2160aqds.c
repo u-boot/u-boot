@@ -445,7 +445,7 @@ static inline void do_dpmac_config(int dpmac, const char *arg_dpmacid,
 #endif
 #endif /* !CONFIG_DM_ETH */
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 #ifndef CONFIG_DM_ETH
 #if defined(CONFIG_FSL_MC_ENET)
