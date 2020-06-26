@@ -180,7 +180,7 @@ int fdt_find_or_add_subnode(void *fdt, int parentoffset, const char *name);
  * This function is called if CONFIG_OF_BOARD_SETUP is defined
  *
  * @param blob		FDT blob to update
- * @param bd_t		Pointer to board data
+ * @param bd		Pointer to board data
  * @return 0 if ok, or -FDT_ERR_... on error
  */
 int ft_board_setup(void *blob, struct bd_info *bd);
@@ -202,7 +202,7 @@ void ft_pci_setup(void *blob, struct bd_info *bd);
  * This function is called if CONFIG_OF_SYSTEM_SETUP is defined
  *
  * @param blob		FDT blob to update
- * @param bd_t		Pointer to board data
+ * @param bd		Pointer to board data
  * @return 0 if ok, or -FDT_ERR_... on error
  */
 int ft_system_setup(void *blob, struct bd_info *bd);

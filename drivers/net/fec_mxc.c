@@ -588,7 +588,7 @@ static int fec_open(struct eth_device *edev)
 #ifdef CONFIG_DM_ETH
 static int fecmxc_init(struct udevice *dev)
 #else
-static int fec_init(struct eth_device *dev, bd_t *bd)
+static int fec_init(struct eth_device *dev, struct bd_info *bd)
 #endif
 {
 #ifdef CONFIG_DM_ETH
@@ -1105,7 +1105,7 @@ struct mii_dev *fec_get_miibus(ulong base_addr, int dev_id)
 int fec_probe(struct bd_info *bd, int dev_id, uint32_t base_addr,
 		struct mii_dev *bus, struct phy_device *phydev)
 #else
-static int fec_probe(bd_t *bd, int dev_id, uint32_t base_addr,
+static int fec_probe(struct bd_info *bd, int dev_id, uint32_t base_addr,
 		struct mii_dev *bus, int phy_id)
 #endif
 {

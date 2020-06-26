@@ -455,7 +455,7 @@ static int smc911x_initialize_mii(struct smc911x_priv *priv)
 }
 #endif
 
-static int smc911x_init(struct eth_device *dev, bd_t *bd)
+static int smc911x_init(struct eth_device *dev, struct bd_info *bd)
 {
 	struct smc911x_priv *priv = container_of(dev, struct smc911x_priv, dev);
 

@@ -159,6 +159,6 @@ struct davinci_mmc_plat {
 	struct mmc mmc;
 };
 
-int davinci_mmc_init(bd_t *bis, struct davinci_mmc *host);
+int davinci_mmc_init(struct bd_info *bis, struct davinci_mmc *host);
 
 #endif /* _SDMMC_DEFS_H */

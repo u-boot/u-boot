@@ -514,7 +514,7 @@ static int ldpaa_eth_open(struct udevice *dev)
 	struct eth_pdata *plat = dev_get_platdata(dev);
 	struct ldpaa_eth_priv *priv = dev_get_priv(dev);
 #else
-static int ldpaa_eth_open(struct eth_device *net_dev, bd_t *bd)
+static int ldpaa_eth_open(struct eth_device *net_dev, struct bd_info *bd)
 {
 	struct ldpaa_eth_priv *priv = (struct ldpaa_eth_priv *)net_dev->priv;
 #endif

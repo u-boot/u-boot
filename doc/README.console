@@ -62,7 +62,7 @@ U-Boot relocation (done in 'board_init_r' in arch/*/lib/board.c).
 HOW CAN I USE STANDARD FILE INTO APPLICATIONS?
 ----------------------------------------------
 
-Use the 'bd_mon_fnc' field of the bd_t structure passed to the
+Use the 'bd_mon_fnc' field of the bd_info structure passed to the
 application to do everything you want with the console.
 
 But REMEMBER that that will work only if you have not overwritten any

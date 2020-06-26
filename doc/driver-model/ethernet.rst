@@ -250,7 +250,7 @@ register function.  The pseudo code would look something like:
 
 .. code-block:: c
 
-	int ape_register(bd_t *bis, int iobase)
+	int ape_register(struct bd_info *bis, int iobase)
 	{
 		struct ape_priv *priv;
 		struct eth_device *dev;
