@@ -41,6 +41,18 @@ int riscv_fdt_copy_resv_mem_node(const void *src, void *dst)
 		return 0;
 	}
 
+	/*
+	 * Extend the FDT by the following estimated size:
+	 *
+	 * Each PMP memory region entry occupies 64 bytes.
+	 * With 16 PMP memory regions we need 64 * 16 = 1024 bytes.
+	 */
+	err = fdt_open_into(dst, dst, fdt_totalsize(dst) + 1024);
+	if (err < 0) {
+		printf("Device Tree can't be expanded to accommodate new node");
+		return err;
+	}
+
 	fdt_for_each_subnode(node, src, offset) {
 		name = fdt_get_name(src, node, NULL);
 
