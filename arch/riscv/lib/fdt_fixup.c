@@ -82,10 +82,9 @@ int riscv_fdt_copy_resv_mem_node(const void *src, void *dst)
  * @fdt: Pointer to the device tree in which reserved memory node needs to be
  *	 added.
  *
- * In RISC-V, any board compiled with OF_SEPARATE needs to copy the reserved
- * memory node from the device tree provided by the firmware to the device tree
- * used by U-Boot. This is a common function that individual board fixup
- * functions can invoke.
+ * In RISC-V, any board needs to copy the reserved memory node from the device
+ * tree provided by the firmware to the device tree used by U-Boot. This is a
+ * common function that individual board fixup functions can invoke.
  *
  * Return: 0 on success or error otherwise.
  */
@@ -95,6 +94,11 @@ int riscv_board_reserved_mem_fixup(void *fdt)
 	void *src_fdt_addr;
 
 	src_fdt_addr = map_sysmem(gd->arch.firmware_fdt_addr, 0);
+
+	/* avoid the copy if we are using the same device tree */
+	if (src_fdt_addr == fdt)
+		return 0;
+
 	err = riscv_fdt_copy_resv_mem_node(src_fdt_addr, fdt);
 	if (err < 0)
 		return err;
