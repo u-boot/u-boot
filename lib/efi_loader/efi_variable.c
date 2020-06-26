@@ -745,23 +745,9 @@ static efi_status_t parse_uboot_variable(char *variable,
 	return EFI_SUCCESS;
 }
 
-/**
- * efi_get_next_variable_name() - enumerate the current variable names
- *
- * @variable_name_size:	size of variable_name buffer in byte
- * @variable_name:	name of uefi variable's name in u16
- * @vendor:		vendor's guid
- *
- * This function implements the GetNextVariableName service.
- *
- * See the Unified Extensible Firmware Interface (UEFI) specification for
- * details.
- *
- * Return: status code
- */
-efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
-					       u16 *variable_name,
-					       efi_guid_t *vendor)
+efi_status_t efi_get_next_variable_name_int(efi_uintn_t *variable_name_size,
+					    u16 *variable_name,
+					    efi_guid_t *vendor)
 {
 	char *native_name, *variable;
 	ssize_t name_len, list_len;
@@ -771,10 +757,8 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
 	int i;
 	efi_status_t ret;
 
-	EFI_ENTRY("%p \"%ls\" %pUl", variable_name_size, variable_name, vendor);
-
 	if (!variable_name_size || !variable_name || !vendor)
-		return EFI_EXIT(EFI_INVALID_PARAMETER);
+		return EFI_INVALID_PARAMETER;
 
 	if (variable_name[0]) {
 		/* check null-terminated string */
@@ -782,12 +766,12 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
 			if (!variable_name[i])
 				break;
 		if (i >= *variable_name_size)
-			return EFI_EXIT(EFI_INVALID_PARAMETER);
+			return EFI_INVALID_PARAMETER;
 
 		/* search for the last-returned variable */
 		ret = efi_to_native(&native_name, variable_name, vendor);
 		if (ret)
-			return EFI_EXIT(ret);
+			return ret;
 
 		name_len = strlen(native_name);
 		for (variable = efi_variables_list; variable && *variable;) {
@@ -802,14 +786,14 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
 
 		free(native_name);
 		if (!(variable && *variable))
-			return EFI_EXIT(EFI_INVALID_PARAMETER);
+			return EFI_INVALID_PARAMETER;
 
 		/* next variable */
 		variable = strchr(variable, '\n');
 		if (variable)
 			variable++;
 		if (!(variable && *variable))
-			return EFI_EXIT(EFI_NOT_FOUND);
+			return EFI_NOT_FOUND;
 	} else {
 		/*
 		 *new search: free a list used in the previous search
@@ -824,7 +808,7 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
 				     &efi_variables_list, 0, 1, regexlist);
 
 		if (list_len <= 1)
-			return EFI_EXIT(EFI_NOT_FOUND);
+			return EFI_NOT_FOUND;
 
 		variable = efi_variables_list;
 	}
@@ -832,7 +816,7 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
 	ret = parse_uboot_variable(variable, variable_name_size, variable_name,
 				   vendor, &attributes);
 
-	return EFI_EXIT(ret);
+	return ret;
 }
 
 efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
@@ -1057,13 +1041,17 @@ err:
 	return ret;
 }
 
+efi_status_t efi_query_variable_info_int(u32 attributes,
+					 u64 *maximum_variable_storage_size,
+					 u64 *remaining_variable_storage_size,
+					 u64 *maximum_variable_size)
+{
+	return EFI_UNSUPPORTED;
+}
+
 /**
- * efi_query_variable_info() - get information about EFI variables
- *
- * This function implements the QueryVariableInfo() runtime service.
- *
- * See the Unified Extensible Firmware Interface (UEFI) specification for
- * details.
+ * efi_query_variable_info_runtime() - runtime implementation of
+ *				       QueryVariableInfo()
  *
  * @attributes:				bitmask to select variables to be
  *					queried
@@ -1075,7 +1063,7 @@ err:
  *					selected type
  * Returns:				status code
  */
-efi_status_t __efi_runtime EFIAPI efi_query_variable_info(
+efi_status_t __efi_runtime EFIAPI efi_query_variable_info_runtime(
 			u32 attributes,
 			u64 *maximum_variable_storage_size,
 			u64 *remaining_variable_storage_size,
@@ -1144,6 +1132,8 @@ void efi_variables_boot_exit_notify(void)
 	efi_runtime_services.get_next_variable_name =
 				efi_get_next_variable_name_runtime;
 	efi_runtime_services.set_variable = efi_set_variable_runtime;
+	efi_runtime_services.query_variable_info =
+				efi_query_variable_info_runtime;
 	efi_update_table_header_crc32(&efi_runtime_services.hdr);
 }
 

@@ -312,23 +312,9 @@ out:
 	return ret;
 }
 
-/**
- * efi_get_next_variable_name() - enumerate the current variable names
- *
- * @variable_name_size:	size of variable_name buffer in bytes
- * @variable_name:	name of uefi variable's name in u16
- * @guid:		vendor's guid
- *
- * This function implements the GetNextVariableName service.
- *
- * See the Unified Extensible Firmware Interface (UEFI) specification for
- * details.
- *
- * Return: status code
- */
-efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
-					       u16 *variable_name,
-					       efi_guid_t *guid)
+efi_status_t efi_get_next_variable_name_int(efi_uintn_t *variable_name_size,
+					    u16 *variable_name,
+					    efi_guid_t *guid)
 {
 	struct smm_variable_getnext *var_getnext;
 	efi_uintn_t payload_size;
@@ -337,8 +323,6 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
 	efi_uintn_t tmp_dsize;
 	u8 *comm_buf = NULL;
 	efi_status_t ret;
-
-	EFI_ENTRY("%p \"%ls\" %pUl", variable_name_size, variable_name, guid);
 
 	if (!variable_name_size || !variable_name || !guid) {
 		ret = EFI_INVALID_PARAMETER;
@@ -396,7 +380,7 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
 
 out:
 	free(comm_buf);
-	return EFI_EXIT(ret);
+	return ret;
 }
 
 efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
@@ -448,36 +432,15 @@ out:
 	return ret;
 }
 
-/**
- * efi_query_variable_info() - get information about EFI variables
- *
- * This function implements the QueryVariableInfo() runtime service.
- *
- * See the Unified Extensible Firmware Interface (UEFI) specification for
- * details.
- *
- * @attributes:				bitmask to select variables to be
- *					queried
- * @maximum_variable_storage_size:	maximum size of storage area for the
- *					selected variable types
- * @remaining_variable_storage_size:	remaining size of storage are for the
- *					selected variable types
- * @maximum_variable_size:		maximum size of a variable of the
- *					selected type
- * Returns:				status code
- */
-efi_status_t EFIAPI __efi_runtime
-efi_query_variable_info(u32 attributes, u64 *max_variable_storage_size,
-			u64 *remain_variable_storage_size,
-			u64 *max_variable_size)
+efi_status_t efi_query_variable_info_int(u32 attributes,
+					 u64 *max_variable_storage_size,
+					 u64 *remain_variable_storage_size,
+					 u64 *max_variable_size)
 {
 	struct smm_variable_query_info *mm_query_info;
 	efi_uintn_t payload_size;
 	efi_status_t ret;
 	u8 *comm_buf;
-
-	EFI_ENTRY("%x %p %p %p", attributes, max_variable_storage_size,
-		  remain_variable_storage_size, max_variable_size);
 
 	payload_size = sizeof(*mm_query_info);
 	comm_buf = setup_mm_hdr((void **)&mm_query_info, payload_size,
@@ -497,7 +460,7 @@ efi_query_variable_info(u32 attributes, u64 *max_variable_storage_size,
 
 out:
 	free(comm_buf);
-	return EFI_EXIT(ret);
+	return ret;
 }
 
 /**
