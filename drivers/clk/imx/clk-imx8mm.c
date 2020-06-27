@@ -119,6 +119,9 @@ static const char *imx8mm_wdog_sels[] = {"clock-osc-24m", "sys_pll1_133m", "sys_
 static const char *imx8mm_usdhc3_sels[] = {"clock-osc-24m", "sys_pll1_400m", "sys_pll1_800m", "sys_pll2_500m",
 					   "sys_pll3_out", "sys_pll1_266m", "audio_pll2_clk", "sys_pll1_100m", };
 
+static const char *imx8mm_qspi_sels[] = {"clock-osc-24m", "sys_pll1_400m", "sys_pll2_333m", "sys_pll2_500m",
+					   "audio_pll2_out", "sys_pll1_266m", "sys_pll3_out", "sys_pll1_100m", };
+
 static ulong imx8mm_clk_get_rate(struct clk *clk)
 {
 	struct clk *c;
@@ -373,6 +376,8 @@ static int imx8mm_clk_probe(struct udevice *dev)
 	clk_dm(IMX8MM_CLK_USDHC3,
 	       imx8m_clk_composite("usdhc3", imx8mm_usdhc3_sels,
 				   base + 0xbc80));
+	clk_dm(IMX8MM_CLK_QSPI,
+	       imx8m_clk_composite("qspi", imx8mm_qspi_sels, base + 0xab80));
 
 	clk_dm(IMX8MM_CLK_I2C1_ROOT,
 	       imx_clk_gate4("i2c1_root_clk", "i2c1", base + 0x4170, 0));
@@ -396,6 +401,8 @@ static int imx8mm_clk_probe(struct udevice *dev)
 	       imx_clk_gate4("wdog3_root_clk", "wdog", base + 0x4550, 0));
 	clk_dm(IMX8MM_CLK_USDHC3_ROOT,
 	       imx_clk_gate4("usdhc3_root_clk", "usdhc3", base + 0x45e0, 0));
+	clk_dm(IMX8MM_CLK_QSPI_ROOT,
+	       imx_clk_gate4("qspi_root_clk", "qspi", base + 0x42f0, 0));
 
 	/* clks not needed in SPL stage */
 #ifndef CONFIG_SPL_BUILD
