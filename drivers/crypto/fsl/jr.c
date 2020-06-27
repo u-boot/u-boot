@@ -498,9 +498,17 @@ static int instantiate_rng(uint8_t sec_idx)
 static u8 get_rng_vid(uint8_t sec_idx)
 {
 	ccsr_sec_t *sec = (void *)SEC_ADDR(sec_idx);
-	u32 cha_vid = sec_in32(&sec->chavid_ls);
+	u8 vid;
 
-	return (cha_vid & SEC_CHAVID_RNG_LS_MASK) >> SEC_CHAVID_LS_RNG_SHIFT;
+	if (caam_get_era() < 10) {
+		vid = (sec_in32(&sec->chavid_ls) & SEC_CHAVID_RNG_LS_MASK)
+		       >> SEC_CHAVID_LS_RNG_SHIFT;
+	} else {
+		vid = (sec_in32(&sec->vreg.rng) & CHA_VER_VID_MASK)
+		       >> CHA_VER_VID_SHIFT;
+	}
+
+	return vid;
 }
 
 /*
