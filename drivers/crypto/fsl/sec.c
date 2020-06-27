@@ -98,7 +98,15 @@ void fdt_fixup_crypto_node(void *blob, int sec_rev)
 		       fdt_strerror(err));
 }
 #elif CONFIG_SYS_FSL_SEC_COMPAT >= 4  /* SEC4 */
-static u8 caam_get_era(void)
+/**
+ * caam_get_era() - fetch the CAAM's era
+ *
+ * The SEC module povides an "Era" which can be used to differentiate
+ * between different revisions.
+ *
+ * Return: era of the SEC.
+ */
+u8 caam_get_era(void)
 {
 	static const struct {
 		u16 ip_id;

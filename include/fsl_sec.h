@@ -316,6 +316,8 @@ int blob_dek(const u8 *src, u8 *dst, u8 len);
 int sec_init_idx(uint8_t);
 #endif
 int sec_init(void);
+
+u8 caam_get_era(void);
 #endif
 
 #endif /* __FSL_SEC_H */
