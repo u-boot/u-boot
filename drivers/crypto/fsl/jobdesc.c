@@ -102,8 +102,8 @@ int caam_page_alloc(uint8_t page_num, uint8_t partition_num)
 
 	/* if the page is not owned => problem */
 	if ((temp_reg & SMCSJR_PO) != PAGE_OWNED) {
-		printf("Allocation of page %d in partition %d failed 0x%X\n",
-		       temp_reg, page_num, partition_num);
+		printf("Allocation of page %u in partition %u failed 0x%X\n",
+		       page_num, partition_num, temp_reg);
 
 		return ERROR_IN_PAGE_ALLOC;
 	}
