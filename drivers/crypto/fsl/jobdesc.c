@@ -258,7 +258,7 @@ void inline_cnstr_jobdesc_blob_decap(uint32_t *desc, uint8_t *key_idnfr,
  * Descriptor to instantiate RNG State Handle 0 in normal mode and
  * load the JDKEK, TDKEK and TDSK registers
  */
-void inline_cnstr_jobdesc_rng_instantiation(uint32_t *desc, int handle)
+void inline_cnstr_jobdesc_rng_instantiation(u32 *desc, int handle, int do_sk)
 {
 	u32 *jump_cmd;
 
@@ -269,7 +269,7 @@ void inline_cnstr_jobdesc_rng_instantiation(uint32_t *desc, int handle)
 			(handle << OP_ALG_AAI_SHIFT) | OP_ALG_AS_INIT);
 
 	/* For SH0, Secure Keys must be generated as well */
-	if (handle == 0) {
+	if (!handle && do_sk) {
 		/* wait for done */
 		jump_cmd = append_jump(desc, JUMP_CLASS_CLASS1);
 		set_jump_tgt_here(desc, jump_cmd);

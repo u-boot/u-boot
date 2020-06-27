@@ -446,7 +446,7 @@ int sec_reset(void)
 	return sec_reset_idx(0);
 }
 #ifndef CONFIG_SPL_BUILD
-static int instantiate_rng(uint8_t sec_idx)
+static int instantiate_rng(u8 sec_idx, int gen_sk)
 {
 	u32 *desc;
 	u32 rdsta_val;
@@ -470,7 +470,7 @@ static int instantiate_rng(uint8_t sec_idx)
 		if (rdsta_val & (1 << sh_idx))
 			continue;
 
-		inline_cnstr_jobdesc_rng_instantiation(desc, sh_idx);
+		inline_cnstr_jobdesc_rng_instantiation(desc, sh_idx, gen_sk);
 		size = roundup(sizeof(uint32_t) * 6, ARCH_DMA_MINALIGN);
 		flush_dcache_range((unsigned long)desc,
 				   (unsigned long)desc + size);
@@ -546,12 +546,13 @@ static void kick_trng(int ent_delay, uint8_t sec_idx)
 
 static int rng_init(uint8_t sec_idx)
 {
-	int ret, ent_delay = RTSDCTL_ENT_DLY_MIN;
+	int ret, gen_sk, ent_delay = RTSDCTL_ENT_DLY_MIN;
 	ccsr_sec_t __iomem *sec = (ccsr_sec_t __iomem *)SEC_ADDR(sec_idx);
 	struct rng4tst __iomem *rng =
 			(struct rng4tst __iomem *)&sec->rng;
 	u32 inst_handles;
 
+	gen_sk = !(sec_in32(&rng->rdsta) & RDSTA_SKVN);
 	do {
 		inst_handles = sec_in32(&rng->rdsta) & RNG_STATE_HANDLE_MASK;
 
@@ -574,7 +575,7 @@ static int rng_init(uint8_t sec_idx)
 		 * interval, leading to a sucessful initialization of
 		 * the RNG.
 		 */
-		ret = instantiate_rng(sec_idx);
+		ret = instantiate_rng(sec_idx, gen_sk);
 	} while ((ret == -1) && (ent_delay < RTSDCTL_ENT_DLY_MAX));
 	if (ret) {
 		printf("SEC%u:  Failed to instantiate RNG\n", sec_idx);
