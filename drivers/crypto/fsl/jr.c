@@ -478,8 +478,8 @@ static int instantiate_rng(uint8_t sec_idx)
 		ret = run_descriptor_jr_idx(desc, sec_idx);
 
 		if (ret)
-			printf("RNG: Instantiation failed with error 0x%x\n",
-			       ret);
+			printf("SEC%u:  RNG4 SH%d instantiation failed with error 0x%x\n",
+			       sec_idx, sh_idx, ret);
 
 		rdsta_val = sec_in32(&rng->rdsta) & RNG_STATE_HANDLE_MASK;
 		if (!(rdsta_val & (1 << sh_idx))) {
@@ -569,7 +569,7 @@ static int rng_init(uint8_t sec_idx)
 		ret = instantiate_rng(sec_idx);
 	} while ((ret == -1) && (ent_delay < RTSDCTL_ENT_DLY_MAX));
 	if (ret) {
-		printf("RNG: Failed to instantiate RNG\n");
+		printf("SEC%u:  Failed to instantiate RNG\n", sec_idx);
 		return ret;
 	}
 
@@ -592,7 +592,7 @@ int sec_init_idx(uint8_t sec_idx)
 #endif
 
 	if (!(sec_idx < CONFIG_SYS_FSL_MAX_NUM_OF_SEC)) {
-		printf("SEC initialization failed\n");
+		printf("SEC%u:  initialization failed\n", sec_idx);
 		return -1;
 	}
 
@@ -640,7 +640,7 @@ int sec_init_idx(uint8_t sec_idx)
 
 	ret = jr_init(sec_idx);
 	if (ret < 0) {
-		printf("SEC initialization failed\n");
+		printf("SEC%u:  initialization failed\n", sec_idx);
 		return -1;
 	}
 
@@ -654,10 +654,10 @@ int sec_init_idx(uint8_t sec_idx)
 #ifndef CONFIG_SPL_BUILD
 	if (get_rng_vid(sec_idx) >= 4) {
 		if (rng_init(sec_idx) < 0) {
-			printf("SEC%u: RNG instantiation failed\n", sec_idx);
+			printf("SEC%u:  RNG instantiation failed\n", sec_idx);
 			return -1;
 		}
-		printf("SEC%u: RNG instantiated\n", sec_idx);
+		printf("SEC%u:  RNG instantiated\n", sec_idx);
 	}
 #endif
 	return ret;
