@@ -191,7 +191,10 @@ static int imx8mm_clk_set_parent(struct clk *clk, struct clk *parent)
 	if (ret)
 		return ret;
 
-	return clk_set_parent(c, cp);
+	ret = clk_set_parent(c, cp);
+	c->dev->parent = cp->dev;
+
+	return ret;
 }
 
 static struct clk_ops imx8mm_clk_ops = {
