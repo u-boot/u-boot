@@ -65,10 +65,9 @@ struct rng4tst {
 		u32 rtfreqcnt;	/* PRGM=0: freq. count register */
 	};
 	u32 rsvd1[40];
-#define RNG_STATE0_HANDLE_INSTANTIATED	0x00000001
-#define RNG_STATE1_HANDLE_INSTANTIATED	0x00000002
-#define RNG_STATE_HANDLE_MASK	\
-	(RNG_STATE0_HANDLE_INSTANTIATED | RNG_STATE1_HANDLE_INSTANTIATED)
+#define RDSTA_IF(idx) (0x00000001 << (idx))
+#define RDSTA_PR(idx) (0x00000010 << (idx))
+#define RDSTA_MASK (RDSTA_PR(1) | RDSTA_PR(0) | RDSTA_IF(1) | RDSTA_IF(0))
 #define RDSTA_SKVN 0x40000000
 	u32 rdsta;		/*RNG DRNG Status Register*/
 	u32 rsvd2[15];

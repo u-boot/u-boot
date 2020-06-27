@@ -41,6 +41,8 @@ void inline_cnstr_jobdesc_blob_decap(uint32_t *desc, uint8_t *key_idnfr,
 
 void inline_cnstr_jobdesc_rng_instantiation(u32 *desc, int handle, int do_sk);
 
+void inline_cnstr_jobdesc_rng_deinstantiation(u32 *desc, int handle);
+
 void inline_cnstr_jobdesc_pkha_rsaexp(uint32_t *desc,
 				      struct pk_in_params *pkin, uint8_t *out,
 				      uint32_t out_siz);

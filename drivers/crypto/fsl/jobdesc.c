@@ -266,7 +266,8 @@ void inline_cnstr_jobdesc_rng_instantiation(u32 *desc, int handle, int do_sk)
 
 	/* INIT RNG in non-test mode */
 	append_operation(desc, OP_TYPE_CLASS1_ALG | OP_ALG_ALGSEL_RNG |
-			(handle << OP_ALG_AAI_SHIFT) | OP_ALG_AS_INIT);
+			 (handle << OP_ALG_AAI_SHIFT) | OP_ALG_AS_INIT |
+			 OP_ALG_PR_ON);
 
 	/* For SH0, Secure Keys must be generated as well */
 	if (!handle && do_sk) {
@@ -284,6 +285,15 @@ void inline_cnstr_jobdesc_rng_instantiation(u32 *desc, int handle, int do_sk)
 		append_operation(desc, OP_TYPE_CLASS1_ALG | OP_ALG_ALGSEL_RNG |
 				OP_ALG_RNG4_SK);
 	}
+}
+
+/* Descriptor for deinstantiation of the RNG block. */
+void inline_cnstr_jobdesc_rng_deinstantiation(u32 *desc, int handle)
+{
+	init_job_desc(desc, 0);
+
+	append_operation(desc, OP_TYPE_CLASS1_ALG | OP_ALG_ALGSEL_RNG |
+			 (handle << OP_ALG_AAI_SHIFT) | OP_ALG_AS_INITFINAL);
 }
 
 /* Change key size to bytes form bits in calling function*/
