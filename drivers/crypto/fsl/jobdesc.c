@@ -296,6 +296,16 @@ void inline_cnstr_jobdesc_rng_deinstantiation(u32 *desc, int handle)
 			 (handle << OP_ALG_AAI_SHIFT) | OP_ALG_AS_INITFINAL);
 }
 
+void inline_cnstr_jobdesc_rng(u32 *desc, void *data_out, u32 size)
+{
+	dma_addr_t dma_data_out = virt_to_phys(data_out);
+
+	init_job_desc(desc, 0);
+	append_operation(desc, OP_ALG_ALGSEL_RNG | OP_TYPE_CLASS1_ALG |
+			 OP_ALG_PR_ON);
+	append_fifo_store(desc, dma_data_out, size, FIFOST_TYPE_RNGSTORE);
+}
+
 /* Change key size to bytes form bits in calling function*/
 void inline_cnstr_jobdesc_pkha_rsaexp(uint32_t *desc,
 				      struct pk_in_params *pkin, uint8_t *out,
