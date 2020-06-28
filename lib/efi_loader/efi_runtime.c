@@ -138,6 +138,25 @@ efi_status_t efi_init_runtime_supported(void)
 }
 
 /**
+ * efi_memcpy_runtime() - copy memory area
+ *
+ * At runtime memcpy() is not available.
+ *
+ * @dest:	destination buffer
+ * @src:	source buffer
+ * @n:		number of bytes to copy
+ * Return:	pointer to destination buffer
+ */
+void __efi_runtime efi_memcpy_runtime(void *dest, const void *src, size_t n)
+{
+	u8 *d = dest;
+	const u8 *s = src;
+
+	for (; n; --n)
+		*d++ = *s++;
+}
+
+/**
  * efi_update_table_header_crc32() - Update crc32 in table header
  *
  * @table:	EFI table

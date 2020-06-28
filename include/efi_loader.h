@@ -792,6 +792,9 @@ bool efi_secure_boot_enabled(void);
 bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
 		     WIN_CERTIFICATE **auth, size_t *auth_len);
 
+/* runtime implementation of memcpy() */
+void efi_memcpy_runtime(void *dest, const void *src, size_t n);
+
 #else /* CONFIG_IS_ENABLED(EFI_LOADER) */
 
 /* Without CONFIG_EFI_LOADER we don't have a runtime section, stub it out */
