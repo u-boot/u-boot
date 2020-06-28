@@ -100,9 +100,9 @@ int misc_init_r(void)
 void reset_phy(void)
 {
 #if defined(CONFIG_NETSPACE_LITE_V2) || defined(CONFIG_NETSPACE_MINI_V2)
-	mv_phy_88e1318_init("egiga0", 0);
+	mv_phy_88e1318_init("ethernet-controller@72000", 0);
 #else
-	mv_phy_88e1116_init("egiga0", 8);
+	mv_phy_88e1116_init("ethernet-controller@72000", 8);
 #endif
 }
 #endif
