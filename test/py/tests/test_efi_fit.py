@@ -106,14 +106,14 @@ FDT_DATA = '''
 
 / {
     #address-cells = <1>;
-    #size-cells = <0>;
+    #size-cells = <1>;
 
     model = "%(sys-arch)s %(fdt_type)s EFI FIT Boot Test";
     compatible = "%(sys-arch)s";
 
     reset@0 {
         compatible = "%(sys-arch)s,reset";
-        reg = <0>;
+        reg = <0 4>;
     };
 };
 '''
