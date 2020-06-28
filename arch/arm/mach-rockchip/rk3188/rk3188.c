@@ -77,15 +77,32 @@ int arch_cpu_init(void)
 		     BYPASSSEL_MASK | BYPASSDMEN_MASK,
 		     1 << BYPASSSEL_SHIFT | 1 << BYPASSDMEN_SHIFT);
 #endif
+	return 0;
+}
+#endif
+
+__weak int rk3188_board_late_init(void)
+{
+	return 0;
+}
+
+int rk_board_late_init(void)
+{
+	struct rk3188_grf *grf;
+
+	grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
+	if (IS_ERR(grf)) {
+		pr_err("grf syscon returned %ld\n", PTR_ERR(grf));
+		return 0;
+	}
 
 	/* enable noc remap to mimic legacy loaders */
 	rk_clrsetreg(&grf->soc_con0,
 		     NOC_REMAP_MASK << NOC_REMAP_SHIFT,
 		     NOC_REMAP_MASK << NOC_REMAP_SHIFT);
 
-	return 0;
+	return rk3188_board_late_init();
 }
-#endif
 
 #ifdef CONFIG_SPL_BUILD
 static int setup_led(void)
