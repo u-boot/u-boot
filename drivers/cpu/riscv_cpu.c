@@ -35,6 +35,8 @@ static int riscv_cpu_get_info(struct udevice *dev, struct cpu_info *info)
 	int ret;
 	struct clk clk;
 	const char *mmu;
+	u32 i_cache_size;
+	u32 d_cache_size;
 
 	/* First try getting the frequency from the assigned clock */
 	ret = clk_get_by_index(dev, 0, &clk);
@@ -51,6 +53,16 @@ static int riscv_cpu_get_info(struct udevice *dev, struct cpu_info *info)
 	mmu = dev_read_string(dev, "mmu-type");
 	if (mmu)
 		info->features |= BIT(CPU_FEAT_MMU);
+
+	/* check if I cache is present */
+	ret = dev_read_u32(dev, "i-cache-size", &i_cache_size);
+	if (ret)
+		/* if not found check if d-cache is present */
+		ret = dev_read_u32(dev, "d-cache-size", &d_cache_size);
+
+	/* if either I or D cache is present set L1 cache feature */
+	if (!ret)
+		info->features |= BIT(CPU_FEAT_L1_CACHE);
 
 	return 0;
 }
