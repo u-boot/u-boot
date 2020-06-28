@@ -62,9 +62,6 @@
 struct otm8009a_panel_priv {
 	struct udevice *reg;
 	struct gpio_desc reset;
-	unsigned int lanes;
-	enum mipi_dsi_pixel_format format;
-	unsigned long mode_flags;
 };
 
 static const struct display_timing default_timing = {
@@ -293,16 +290,7 @@ static int otm8009a_panel_enable_backlight(struct udevice *dev)
 static int otm8009a_panel_get_display_timing(struct udevice *dev,
 					     struct display_timing *timings)
 {
-	struct mipi_dsi_panel_plat *plat = dev_get_platdata(dev);
-	struct mipi_dsi_device *device = plat->device;
-	struct otm8009a_panel_priv *priv = dev_get_priv(dev);
-
 	memcpy(timings, &default_timing, sizeof(*timings));
-
-	/* fill characteristics of DSI data link */
-	device->lanes = priv->lanes;
-	device->format = priv->format;
-	device->mode_flags = priv->mode_flags;
 
 	return 0;
 }
@@ -335,6 +323,7 @@ static int otm8009a_panel_ofdata_to_platdata(struct udevice *dev)
 static int otm8009a_panel_probe(struct udevice *dev)
 {
 	struct otm8009a_panel_priv *priv = dev_get_priv(dev);
+	struct mipi_dsi_panel_plat *plat = dev_get_platdata(dev);
 	int ret;
 
 	if (IS_ENABLED(CONFIG_DM_REGULATOR) && priv->reg) {
@@ -350,9 +339,10 @@ static int otm8009a_panel_probe(struct udevice *dev)
 	dm_gpio_set_value(&priv->reset, false);
 	mdelay(10); /* >5ms */
 
-	priv->lanes = 2;
-	priv->format = MIPI_DSI_FMT_RGB888;
-	priv->mode_flags = MIPI_DSI_MODE_VIDEO |
+	/* fill characteristics of DSI data link */
+	plat->lanes = 2;
+	plat->format = MIPI_DSI_FMT_RGB888;
+	plat->mode_flags = MIPI_DSI_MODE_VIDEO |
 			   MIPI_DSI_MODE_VIDEO_BURST |
 			   MIPI_DSI_MODE_LPM;
 

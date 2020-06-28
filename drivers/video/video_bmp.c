@@ -233,6 +233,8 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 	 */
 	if (bpix != bmp_bpix &&
 	    !(bmp_bpix == 8 && bpix == 16) &&
+	    !(bmp_bpix == 8 && bpix == 24) &&
+	    !(bmp_bpix == 8 && bpix == 32) &&
 	    !(bmp_bpix == 24 && bpix == 16) &&
 	    !(bmp_bpix == 24 && bpix == 32)) {
 		printf("Error: %d bit/pixel mode, but BMP has %d bit/pixel\n",
@@ -265,6 +267,7 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 	switch (bmp_bpix) {
 	case 1:
 	case 8: {
+		struct bmp_color_table_entry *cte;
 		cmap_base = priv->cmap;
 #ifdef CONFIG_VIDEO_BMP_RLE8
 		u32 compression = get_unaligned_le32(&bmp->header.compression);
@@ -280,21 +283,33 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 			break;
 		}
 #endif
-
-		if (bpix != 16)
+		byte_width = width * (bpix / 8);
+		if (!byte_width)
 			byte_width = width;
-		else
-			byte_width = width * 2;
 
 		for (i = 0; i < height; ++i) {
 			WATCHDOG_RESET();
 			for (j = 0; j < width; j++) {
-				if (bpix != 16) {
+				if (bpix == 8) {
 					fb_put_byte(&fb, &bmap);
-				} else {
+				} else if (bpix == 16) {
 					*(uint16_t *)fb = cmap_base[*bmap];
 					bmap++;
 					fb += sizeof(uint16_t) / sizeof(*fb);
+				} else {
+					/* Only support big endian */
+					cte = &palette[*bmap];
+					bmap++;
+					if (bpix == 24) {
+						*(fb++) = cte->red;
+						*(fb++) = cte->green;
+						*(fb++) = cte->blue;
+					} else {
+						*(fb++) = cte->blue;
+						*(fb++) = cte->green;
+						*(fb++) = cte->red;
+						*(fb++) = 0;
+					}
 				}
 			}
 			bmap += (padded_width - width);
