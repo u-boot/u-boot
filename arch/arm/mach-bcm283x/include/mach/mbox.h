@@ -491,6 +491,19 @@ struct bcm2835_mbox_tag_set_palette {
 	} body;
 };
 
+#define BCM2835_MBOX_TAG_NOTIFY_XHCI_RESET          0x00030058
+
+struct bcm2835_mbox_tag_pci_dev_addr {
+	struct bcm2835_mbox_tag_hdr tag_hdr;
+	union {
+		struct {
+			u32 dev_addr;
+		} req;
+		struct {
+		} resp;
+	} body;
+};
+
 /*
  * Pass a raw u32 message to the VC, and receive a raw u32 back.
  *
