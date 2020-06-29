@@ -170,7 +170,7 @@ static int do_usb_mass_storage(struct cmd_tbl *cmdtp, int flag,
 		goto cleanup_ums_init;
 	}
 
-	rc = fsg_init(ums, ums_count);
+	rc = fsg_init(ums, ums_count, controller_index);
 	if (rc) {
 		pr_err("fsg_init failed\n");
 		rc = CMD_RET_FAILURE;
