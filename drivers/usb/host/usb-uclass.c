@@ -411,6 +411,24 @@ int usb_setup_ehci_gadget(struct ehci_ctrl **ctlrp)
 	return 0;
 }
 
+int usb_remove_ehci_gadget(struct ehci_ctrl **ctlrp)
+{
+	struct udevice *dev;
+	int ret;
+
+	/* Find the old device and remove it */
+	ret = uclass_find_device_by_seq(UCLASS_USB, 0, true, &dev);
+	if (ret)
+		return ret;
+	ret = device_remove(dev, DM_REMOVE_NORMAL);
+	if (ret)
+		return ret;
+
+	*ctlrp = NULL;
+
+	return 0;
+}
+
 /* returns 0 if no match, 1 if match */
 static int usb_match_device(const struct usb_device_descriptor *desc,
 			    const struct usb_device_id *id)
