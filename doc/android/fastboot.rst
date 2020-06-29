@@ -85,6 +85,25 @@ for example::
 
     fastboot_partition_alias_boot=LNX
 
+Raw partition descriptors
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In cases where no partition table is present, a raw partition descriptor can be
+defined, specifying the offset, size, and optionally the MMC hardware partition
+number for a given partition name.
+
+This is useful when using fastboot to flash files (e.g. SPL or U-Boot) to a
+specific offset in the eMMC boot partition, without having to update the entire
+boot partition.
+
+To define a raw partition descriptor, add an environment variable similar to::
+
+    fastboot_raw_partition_<raw partition name>=<offset> <size> [mmcpart <num>]
+
+for example::
+
+    fastboot_raw_partition_boot=0x100 0x1f00 mmcpart 1
+
 Variable overrides
 ^^^^^^^^^^^^^^^^^^
 
