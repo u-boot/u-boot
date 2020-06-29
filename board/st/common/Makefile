@@ -10,3 +10,5 @@ ifeq ($(CONFIG_ARCH_STM32MP),y)
 obj-$(CONFIG_SYS_MTDPARTS_RUNTIME) += stm32mp_mtdparts.o
 obj-$(CONFIG_SET_DFU_ALT_INFO) += stm32mp_dfu.o
 endif
+
+obj-$(CONFIG_TYPEC_STUSB160X) += stusb160x.o
