@@ -309,6 +309,8 @@ static int dm_mmc_spi_request(struct udevice *dev, struct mmc_cmd *cmd,
 	case MMC_CMD_WRITE_SINGLE_BLOCK:
 	case MMC_CMD_WRITE_MULTIPLE_BLOCK:
 	case MMC_CMD_APP_CMD:
+	case SD_CMD_ERASE_WR_BLK_START:
+	case SD_CMD_ERASE_WR_BLK_END:
 		resp = &resp8;
 		resp_size = sizeof(resp8);
 		break;
