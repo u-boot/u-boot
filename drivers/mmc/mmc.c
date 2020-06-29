@@ -1753,6 +1753,11 @@ static int sd_select_mode_and_width(struct mmc *mmc, uint card_caps)
 		mmc_set_bus_width(mmc, 1);
 		mmc_select_mode(mmc, MMC_LEGACY);
 		mmc_set_clock(mmc, mmc->tran_speed, MMC_CLK_ENABLE);
+#if CONFIG_IS_ENABLED(MMC_WRITE)
+		err = sd_read_ssr(mmc);
+		if (err)
+			pr_warn("unable to read ssr\n");
+#endif
 		return 0;
 	}
 
