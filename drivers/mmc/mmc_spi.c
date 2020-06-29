@@ -59,6 +59,7 @@
 #define CMD_TIMEOUT			8
 #define READ_TIMEOUT			3000000 /* 1 sec */
 #define WRITE_TIMEOUT			3000000 /* 1 sec */
+#define R1B_TIMEOUT			3000000 /* 1 sec */
 
 struct mmc_spi_plat {
 	struct mmc_config cfg;
@@ -72,7 +73,7 @@ struct mmc_spi_priv {
 static int mmc_spi_sendcmd(struct udevice *dev,
 			   ushort cmdidx, u32 cmdarg, u32 resp_type,
 			   u8 *resp, u32 resp_size,
-			   bool resp_match, u8 resp_match_value)
+			   bool resp_match, u8 resp_match_value, bool r1b)
 {
 	int i, rpos = 0, ret = 0;
 	u8 cmdo[7], r;
@@ -131,6 +132,24 @@ static int mmc_spi_sendcmd(struct udevice *dev,
 		debug(" resp%d=0x%x", rpos, r);
 		rpos++;
 		resp[i] = r;
+	}
+
+	if (r1b == true) {
+		i = R1B_TIMEOUT;
+		while (i) {
+			ret = dm_spi_xfer(dev, 1 * 8, NULL, &r, 0);
+			if (ret)
+				return ret;
+
+			debug(" resp%d=0x%x", rpos, r);
+			rpos++;
+			i--;
+
+			if (r)
+				break;
+		}
+		if (!i)
+			return -ETIMEDOUT;
 	}
 
 	debug("\n");
@@ -265,7 +284,7 @@ static int dm_mmc_spi_request(struct udevice *dev, struct mmc_cmd *cmd,
 	int i, multi, ret = 0;
 	u8 *resp = NULL;
 	u32 resp_size = 0;
-	bool resp_match = false;
+	bool resp_match = false, r1b = false;
 	u8 resp8 = 0, resp16[2] = { 0 }, resp40[5] = { 0 }, resp_match_value = 0;
 
 	dm_spi_claim_bus(dev);
@@ -296,11 +315,16 @@ static int dm_mmc_spi_request(struct udevice *dev, struct mmc_cmd *cmd,
 		break;
 	case MMC_CMD_SET_BLOCKLEN:
 	case MMC_CMD_SPI_CRC_ON_OFF:
-	case MMC_CMD_STOP_TRANSMISSION:
 		resp = &resp8;
 		resp_size = sizeof(resp8);
 		resp_match = true;
 		resp_match_value = 0x0;
+		break;
+	case MMC_CMD_STOP_TRANSMISSION:
+	case MMC_CMD_ERASE:
+		resp = &resp8;
+		resp_size = sizeof(resp8);
+		r1b = true;
 		break;
 	case MMC_CMD_SEND_CSD:
 	case MMC_CMD_SEND_CID:
@@ -323,7 +347,7 @@ static int dm_mmc_spi_request(struct udevice *dev, struct mmc_cmd *cmd,
 	};
 
 	ret = mmc_spi_sendcmd(dev, cmd->cmdidx, cmd->cmdarg, cmd->resp_type,
-			      resp, resp_size, resp_match, resp_match_value);
+			      resp, resp_size, resp_match, resp_match_value, r1b);
 	if (ret)
 		goto done;
 
