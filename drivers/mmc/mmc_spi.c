@@ -105,12 +105,14 @@ static int mmc_spi_sendcmd(struct udevice *dev,
 	if (resp_match) {
 		r = ~resp_match_value;
 		i = CMD_TIMEOUT;
-		while (i--) {
+		while (i) {
 			ret = dm_spi_xfer(dev, 1 * 8, NULL, &r, 0);
 			if (ret)
 				return ret;
 			debug(" resp%d=0x%x", rpos, r);
 			rpos++;
+			i--;
+
 			if (r == resp_match_value)
 				break;
 		}
