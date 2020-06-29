@@ -266,7 +266,7 @@ static int dm_mmc_spi_request(struct udevice *dev, struct mmc_cmd *cmd,
 	u8 *resp = NULL;
 	u32 resp_size = 0;
 	bool resp_match = false;
-	u8 resp8 = 0, resp40[5] = { 0 }, resp_match_value = 0;
+	u8 resp8 = 0, resp16[2] = { 0 }, resp40[5] = { 0 }, resp_match_value = 0;
 
 	dm_spi_claim_bus(dev);
 
@@ -291,6 +291,9 @@ static int dm_mmc_spi_request(struct udevice *dev, struct mmc_cmd *cmd,
 		resp_size = sizeof(resp40);
 		break;
 	case MMC_CMD_SEND_STATUS:
+		resp = (u8 *)&resp16[0];
+		resp_size = sizeof(resp16);
+		break;
 	case MMC_CMD_SET_BLOCKLEN:
 	case MMC_CMD_SPI_CRC_ON_OFF:
 	case MMC_CMD_STOP_TRANSMISSION:
@@ -335,8 +338,10 @@ static int dm_mmc_spi_request(struct udevice *dev, struct mmc_cmd *cmd,
 		cmd->response[0] |= (uint)resp40[1] << 24;
 		break;
 	case MMC_CMD_SEND_STATUS:
-		cmd->response[0] = (resp8 & 0xff) ?
-			MMC_STATUS_ERROR : MMC_STATUS_RDY_FOR_DATA;
+		if (resp16[0] || resp16[1])
+			cmd->response[0] = MMC_STATUS_ERROR;
+		else
+			cmd->response[0] = MMC_STATUS_RDY_FOR_DATA;
 		break;
 	case MMC_CMD_SEND_CID:
 	case MMC_CMD_SEND_CSD:
