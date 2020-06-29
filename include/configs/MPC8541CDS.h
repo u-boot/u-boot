@@ -57,8 +57,6 @@ extern unsigned long get_clock_freq(void);
 #error ("CONFIG_SPD_EEPROM is required by MPC85555CDS")
 #endif
 
-#undef CONFIG_CLOCKS_IN_MHZ
-
 /*
  * Local Bus Definitions
  */

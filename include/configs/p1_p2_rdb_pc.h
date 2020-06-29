@@ -300,8 +300,6 @@
 #define CONFIG_SYS_DDR_INTERVAL		0x0C300000
 #endif
 
-#undef CONFIG_CLOCKS_IN_MHZ
-
 /*
  * Memory map
  *

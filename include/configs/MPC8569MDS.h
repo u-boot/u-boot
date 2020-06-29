@@ -109,8 +109,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_DDR_ERR_DIS          0x00000000
 #define CONFIG_SYS_DDR_SBE              0x00010000
 
-#undef CONFIG_CLOCKS_IN_MHZ
-
 /*
  * Local Bus Definitions
  */

@@ -115,7 +115,6 @@ extern phys_addr_t prior_stage_fdt_address;
 /*
  * Serial console configuration.
  */
-#define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600, \
 					 115200}
 

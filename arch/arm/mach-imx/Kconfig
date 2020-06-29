@@ -52,6 +52,8 @@ config IMX_HAB
 
 config CSF_SIZE
 	hex "Maximum size for Command Sequence File (CSF) binary"
+	depends on IMX_HAB
+	default 0x2000 if ARCH_IMX8M
 	default 0x2060
 	help
 	  Define the maximum size for Command Sequence File (CSF) binary

@@ -28,12 +28,7 @@
 #define CONFIG_SYS_I2C_RTC_ADDR         0x68
 
 /* Booting Linux */
-#define CONFIG_BOOTDELAY	2
 #define CONFIG_BOOTFILE		"zImage"
-#define CONFIG_BOOTARGS		\
-	"console=ttyS0," __stringify(CONFIG_BAUDRATE) \
-	" ubi.fm_autoconvert=1" \
-	" uio_pdrv_genirq.of_id=\"idq,regbank\""
 
 #define CONFIG_BOOTCOMMAND	\
 	"setenv bootcmd '"	\

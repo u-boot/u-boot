@@ -38,7 +38,7 @@ static int do_spi_xfer(int bus, int cs)
 	struct spi_slave *slave;
 	int ret = 0;
 
-#ifdef CONFIG_DM_SPI
+#if CONFIG_IS_ENABLED(DM_SPI)
 	char name[30], *str;
 	struct udevice *dev;
 
@@ -63,7 +63,7 @@ static int do_spi_xfer(int bus, int cs)
 		goto done;
 	ret = spi_xfer(slave, bitlen, dout, din,
 		       SPI_XFER_BEGIN | SPI_XFER_END);
-#ifndef CONFIG_DM_SPI
+#if !CONFIG_IS_ENABLED(DM_SPI)
 	/* We don't get an error code in this case */
 	if (ret)
 		ret = -EIO;
@@ -79,7 +79,7 @@ static int do_spi_xfer(int bus, int cs)
 	}
 done:
 	spi_release_bus(slave);
-#ifndef CONFIG_DM_SPI
+#if !CONFIG_IS_ENABLED(DM_SPI)
 	spi_free_slave(slave);
 #endif
 

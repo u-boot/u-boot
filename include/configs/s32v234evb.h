@@ -151,11 +151,6 @@
 #define CONFIG_SYS_MALLOC_BASE		(DDR_BASE_ADDR)
 #endif
 
-#if 0
-/* Configure PXE */
-#define CONFIG_BOOTP_PXE_CLIENTARCH	0x100
-#endif
-
 /* Physical memory map */
 /* EVB board has 2x256 MB DDR chips, DDR0 and DDR1, u-boot is using just one */
 #define PHYS_SDRAM			(DDR_BASE_ADDR)

@@ -756,6 +756,11 @@ config SPL_DM_SPI
 	help
 	  Enable support for SPI DM drivers in SPL.
 
+config SPL_DM_SPI_FLASH
+	bool "Support SPI DM FLASH drivers in SPL"
+	help
+	  Enable support for SPI DM flash drivers in SPL.
+
 endif
 if SPL_UBI
 config SPL_UBI_LOAD_BY_VOLNAME
@@ -1091,6 +1096,11 @@ config SPL_SPI_FLASH_SFDP_SUPPORT
 	 Enable support for parsing and auto discovery of parameters for
 	 SPI NOR flashes using Serial Flash Discoverable Parameters (SFDP)
 	 tables as per JESD216 standard in SPL.
+
+config SPL_SPI_FLASH_MTD
+	bool "Support for SPI flash MTD drivers in SPL"
+	help
+	  Enable support for SPI flash MTD drivers in SPL.
 
 config SPL_SPI_LOAD
 	bool "Support loading from SPI flash"
@@ -1498,6 +1508,16 @@ config TPL_SPI_SUPPORT
 	help
 	  Enable support for using SPI in TPL. See SPL_SPI_SUPPORT for
 	  details.
+
+config TPL_DM_SPI
+	bool "Support SPI DM drivers in TPL"
+	help
+	  Enable support for SPI DM drivers in TPL.
+
+config TPL_DM_SPI_FLASH
+	bool "Support SPI DM FLASH drivers in TPL"
+	help
+	  Enable support for SPI DM flash drivers in TPL.
 
 config TPL_YMODEM_SUPPORT
 	bool "Support loading using Ymodem"

@@ -22,7 +22,6 @@ obj-y	+= init_helpers.o
 obj-y	+= interrupts.o
 obj-y	+= lpc-uclass.o
 obj-y	+= mpspec.o
-obj-$(CONFIG_ENABLE_MRC_CACHE) += mrccache.o
 obj-y	+= northbridge-uclass.o
 obj-$(CONFIG_I8259_PIC) += i8259.o
 obj-$(CONFIG_I8254_TIMER) += i8254.o
@@ -45,9 +44,12 @@ ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_CMD_ZBOOT)	+= zimage.o
 endif
 obj-$(CONFIG_USE_HOB) += hob.o
+ifndef CONFIG_TPL_BUILD
+obj-$(CONFIG_ENABLE_MRC_CACHE) += mrccache.o
 obj-$(CONFIG_HAVE_FSP) += fsp/
 obj-$(CONFIG_FSP_VERSION1) += fsp1/
 obj-$(CONFIG_FSP_VERSION2) += fsp2/
+endif
 
 ifdef CONFIG_SPL_BUILD
 ifdef CONFIG_TPL_BUILD

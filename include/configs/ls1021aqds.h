@@ -363,11 +363,6 @@ unsigned long get_board_ddr_clk(void);
  * MMC
  */
 
-/* DM SPI */
-#if defined(CONFIG_FSL_DSPI) || defined(CONFIG_FSL_QSPI)
-#define CONFIG_DM_SPI_FLASH
-#endif
-
 /*
  * Video
  */

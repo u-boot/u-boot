@@ -117,7 +117,7 @@ static int dm_test_spi_xfer(struct unit_test_state *uts)
 	 * Since we are about to destroy all devices, we must tell sandbox
 	 * to forget the emulation device
 	 */
-#ifdef CONFIG_DM_SPI_FLASH
+#if CONFIG_IS_ENABLED(DM_SPI_FLASH)
 	sandbox_sf_unbind_emul(state_get_current(), busnum, cs);
 #endif
 

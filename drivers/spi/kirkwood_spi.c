@@ -94,7 +94,7 @@ static int _spi_xfer(struct kwspi_registers *reg, unsigned int bitlen,
 	return 0;
 }
 
-#ifndef CONFIG_DM_SPI
+#if !CONFIG_IS_ENABLED(DM_SPI)
 
 static struct kwspi_registers *spireg =
 	(struct kwspi_registers *)MVEBU_SPI_BASE;

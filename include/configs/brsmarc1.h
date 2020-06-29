@@ -16,7 +16,6 @@
 #include <configs/bur_am335x_common.h>
 #include <linux/stringify.h>
 /* ------------------------------------------------------------------------- */
-#define CONFIG_BOARD_TYPES
 
 /* memory */
 #define CONFIG_SYS_MALLOC_LEN		(5 * 1024 * 1024)
@@ -70,6 +69,4 @@ BUR_COMMON_ENV \
 /* SPI Flash */
 
 /* Environment */
-
-#define CONFIG_CONS_INDEX			1
 #endif	/* __CONFIG_BRSMARC1_H__ */

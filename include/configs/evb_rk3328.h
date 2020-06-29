@@ -12,6 +12,4 @@
 
 #define SDRAM_BANK_SIZE			(2UL << 30)
 
-#define CONFIG_CONSOLE_SCROLL_LINES		10
-
 #endif

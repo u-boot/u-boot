@@ -32,14 +32,11 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(8 * SZ_1M)
 
-#define CONFIG_BOARD_EARLY_INIT_F
-
 /* UART */
 #define LPUART_BASE			LPUART4_RBASE
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_BAUDRATE			115200
 
 #define CONFIG_SYS_CACHELINE_SIZE      64
 

@@ -112,8 +112,6 @@
 
 #define CONFIG_SYS_FLASH_EMPTY_INFO
 
-#undef CONFIG_CLOCKS_IN_MHZ
-
 /*
  * Local Bus Definitions
  */
