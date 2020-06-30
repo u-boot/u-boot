@@ -606,7 +606,7 @@ static efi_status_t efi_get_variable_common(u16 *variable_name,
 	u32 attr;
 
 	if (!variable_name || !vendor || !data_size)
-		return EFI_EXIT(EFI_INVALID_PARAMETER);
+		return EFI_INVALID_PARAMETER;
 
 	ret = efi_to_native(&native_name, variable_name, vendor);
 	if (ret)

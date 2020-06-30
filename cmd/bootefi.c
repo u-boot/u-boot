@@ -200,7 +200,7 @@ static void efi_carve_out_dt_rsv(void *fdt)
 			 * The /reserved-memory node may have children with
 			 * a size instead of a reg property.
 			 */
-			if (addr != FDT_ADDR_T_NONE &&
+			if (fdt_addr != FDT_ADDR_T_NONE &&
 			    fdtdec_get_is_enabled(fdt, subnode))
 				efi_reserve_memory(fdt_addr, fdt_size);
 			subnode = fdt_next_subnode(fdt, subnode);
