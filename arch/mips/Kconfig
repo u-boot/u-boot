@@ -106,6 +106,25 @@ config ARCH_JZ47XX
 	select OF_CONTROL
 	select DM
 
+config ARCH_OCTEON
+	bool "Support Marvell Octeon CN7xxx platforms"
+	select CPU_CAVIUM_OCTEON
+	select DISPLAY_CPUINFO
+	select DMA_ADDR_T_64BIT
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+	select DM_ETH
+	select MIPS_L2_CACHE
+	select MIPS_TUNE_OCTEON3
+	select ROM_EXCEPTION_VECTORS
+	select SUPPORTS_BIG_ENDIAN
+	select SUPPORTS_CPU_MIPS64_OCTEON
+	select PHYS_64BIT
+	select OF_CONTROL
+	select OF_LIVE
+	imply CMD_DM
+
 config MACH_PIC32
 	bool "Support Microchip PIC32"
 	select DM
@@ -160,6 +179,7 @@ source "arch/mips/mach-bmips/Kconfig"
 source "arch/mips/mach-jz47xx/Kconfig"
 source "arch/mips/mach-pic32/Kconfig"
 source "arch/mips/mach-mtmips/Kconfig"
+source "arch/mips/mach-octeon/Kconfig"
 
 if MIPS
 
@@ -232,6 +252,14 @@ config CPU_MIPS64_R6
 	help
 	  Choose this option to build a kernel for release 6 or later of the
 	  MIPS64 architecture.
+
+config CPU_MIPS64_OCTEON
+	bool "Marvell Octeon series of CPUs"
+	depends on SUPPORTS_CPU_MIPS64_OCTEON
+	select 64BIT
+	help
+	 Choose this option for Marvell Octeon CPUs.  These CPUs are between
+	 MIPS64 R5 and R6 with other extensions.
 
 endchoice
 
@@ -431,6 +459,12 @@ config SUPPORTS_CPU_MIPS64_R2
 config SUPPORTS_CPU_MIPS64_R6
 	bool
 
+config SUPPORTS_CPU_MIPS64_OCTEON
+	bool
+
+config CPU_CAVIUM_OCTEON
+	bool
+
 config CPU_MIPS32
 	bool
 	default y if CPU_MIPS32_R1 || CPU_MIPS32_R2 || CPU_MIPS32_R6
@@ -438,6 +472,7 @@ config CPU_MIPS32
 config CPU_MIPS64
 	bool
 	default y if CPU_MIPS64_R1 || CPU_MIPS64_R2 || CPU_MIPS64_R6
+	default y if CPU_MIPS64_OCTEON
 
 config MIPS_TUNE_4KC
 	bool
@@ -452,6 +487,9 @@ config MIPS_TUNE_34KC
 	bool
 
 config MIPS_TUNE_74KC
+	bool
+
+config MIPS_TUNE_OCTEON3
 	bool
 
 config 32BIT
@@ -485,6 +523,11 @@ config MIPS_SRAM_INIT
 	  Select this if the SRAM for initial stack needs to be initialized
 	  before it can be used. If enabled, a function mips_sram_init() will
 	  be called just before setup_stack_gd.
+
+config DMA_ADDR_T_64BIT
+	bool
+	help
+	 Select this to enable 64-bit DMA addressing
 
 config SYS_DCACHE_SIZE
 	int
