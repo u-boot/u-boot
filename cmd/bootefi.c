@@ -189,7 +189,8 @@ static void efi_carve_out_dt_rsv(void *fdt)
 	if (nodeoffset >= 0) {
 		subnode = fdt_first_subnode(fdt, nodeoffset);
 		while (subnode >= 0) {
-			fdt_addr_t fdt_addr, fdt_size;
+			fdt_addr_t fdt_addr;
+			fdt_size_t fdt_size;
 
 			/* check if this subnode has a reg property */
 			fdt_addr = fdtdec_get_addr_size_auto_parent(

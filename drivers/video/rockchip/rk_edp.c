@@ -1062,7 +1062,8 @@ static int rk_edp_probe(struct udevice *dev)
 	rk_setreg(&priv->grf->soc_con12, 1 << 4);
 
 	/* select epd signal from vop0 or vop1 */
-	rk_setreg(&priv->grf->soc_con6, (vop_id == 1) ? (1 << 5) : (1 << 5));
+	rk_clrsetreg(&priv->grf->soc_con6, (1 << 5),
+	    (vop_id == 1) ? (1 << 5) : (0 << 5));
 
 	rockchip_edp_wait_hpd(priv);
 

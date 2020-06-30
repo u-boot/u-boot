@@ -221,9 +221,15 @@ static inline int mipi_dsi_pixel_format_to_bpp(enum mipi_dsi_pixel_format fmt)
 /**
  * struct mipi_dsi_panel_plat - DSI panel platform data
  * @device: DSI peripheral device
+ * @lanes: number of active data lanes
+ * @format: pixel format for video mode
+ * @mode_flags: DSI operation mode related flags
  */
 struct mipi_dsi_panel_plat {
 	struct mipi_dsi_device *device;
+	unsigned int lanes;
+	enum mipi_dsi_pixel_format format;
+	unsigned long mode_flags;
 };
 
 /**

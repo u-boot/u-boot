@@ -8,6 +8,7 @@
 #include <blk.h>
 #include <command.h>
 #include <console.h>
+#include <memalign.h>
 #include <mmc.h>
 #include <part.h>
 #include <sparse_format.h>
@@ -56,7 +57,8 @@ static void print_mmcinfo(struct mmc *mmc)
 	if (!IS_SD(mmc) && mmc->version >= MMC_VERSION_4_41) {
 		bool has_enh = (mmc->part_support & ENHNCD_SUPPORT) != 0;
 		bool usr_enh = has_enh && (mmc->part_attr & EXT_CSD_ENH_USR);
-		u8 wp, ext_csd[MMC_MAX_BLOCK_LEN];
+		ALLOC_CACHE_ALIGN_BUFFER(u8, ext_csd, MMC_MAX_BLOCK_LEN);
+		u8 wp;
 		int ret;
 
 #if CONFIG_IS_ENABLED(MMC_HW_PARTITIONING)

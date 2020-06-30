@@ -1733,6 +1733,12 @@ u-boot-mtk.bin: u-boot.bin FORCE
 	$(call if_changed,mkimage)
 endif
 
+quiet_cmd_endian_swap = SWAP    $@
+      cmd_endian_swap = $(srctree)/tools/endian-swap.py $< $@
+
+u-boot-swap.bin: u-boot.bin FORCE
+	$(call if_changed,endian_swap)
+
 ARCH_POSTLINK := $(wildcard $(srctree)/arch/$(ARCH)/Makefile.postlink)
 
 # Rule to link u-boot

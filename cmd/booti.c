@@ -141,7 +141,7 @@ static char booti_help_text[] =
 	"\tspecifying the size of a RAW initrd.\n"
 	"\tCurrently only booting from gz, bz2, lzma and lz4 compression\n"
 	"\ttypes are supported. In order to boot from any of these compressed\n"
-	"\timages, user have to set kernel_comp_addr_r and kernel_comp_size enviornment\n"
+	"\timages, user have to set kernel_comp_addr_r and kernel_comp_size environment\n"
 	"\tvariables beforehand.\n"
 #if defined(CONFIG_OF_LIBFDT)
 	"\tSince booting a Linux kernel requires a flat device-tree, a\n"

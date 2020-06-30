@@ -27,7 +27,7 @@ Building
 --------
 
 1. Add the RISC-V toolchain to your PATH.
-2. Setup ARCH & cross compilation enviornment variable:
+2. Setup ARCH & cross compilation environment variable:
 
 .. code-block:: none
 
@@ -217,7 +217,7 @@ Or if you want to use a compressed kernel image file such as Image.gz
    =>setenv kernel_comp_addr_r 0x90000000
    =>setenv kernel_comp_size 0x500000
 
-By this time, correct kernel image is loaded and required enviornment variables
+By this time, correct kernel image is loaded and required environment variables
 are set. You can proceed to load the ramdisk and device tree from the tftp server
 as well.
 

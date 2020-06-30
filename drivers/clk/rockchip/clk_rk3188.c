@@ -569,7 +569,8 @@ static int rk3188_clk_probe(struct udevice *dev)
 	rkclk_init(priv->cru, priv->grf, priv->has_bwadj);
 
 	/* Init CPU frequency */
-	rkclk_configure_cpu(priv->cru, priv->grf, APLL_HZ, priv->has_bwadj);
+	rkclk_configure_cpu(priv->cru, priv->grf, APLL_SAFE_HZ,
+			    priv->has_bwadj);
 #endif
 
 	return 0;
