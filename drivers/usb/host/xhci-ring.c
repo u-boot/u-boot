@@ -24,6 +24,12 @@
 
 #include <usb/xhci.h>
 
+static void *last_bulk_tx_buf;
+static struct usb_device *poll_last_udev;
+int poll_last_ep_index;
+static unsigned long bulk_tx_poll_ts;
+static bool poll_pend;
+
 /**
  * Is this TRB a link TRB or was the last TRB the last TRB in this event ring
  * segment?  I.e. would the updated event TRB pointer step off the end of the
@@ -549,19 +555,8 @@ static void record_transfer_result(struct usb_device *udev,
 	}
 }
 
-/**** Bulk and Control transfer methods ****/
-/**
- * Queues up the BULK Request
- *
- * @param udev		pointer to the USB device structure
- * @param pipe		contains the DIR_IN or OUT , devnum
- * @param length	length of the buffer
- * @param buffer	buffer to be read/written based on the request
- * @param nonblock	when true do not block waiting for response
- * @return returns 0 if successful else -1 on failure
- */
-int xhci_bulk_tx(struct usb_device *udev, unsigned long pipe,
-			int length, void *buffer, bool nonblock)
+static int _xhci_bulk_tx_queue(struct usb_device *udev, unsigned long pipe,
+			       int length, void *buffer)
 {
 	int num_trbs = 0;
 	struct xhci_generic_trb *start_trb;
@@ -575,7 +570,6 @@ int xhci_bulk_tx(struct usb_device *udev, unsigned long pipe,
 	struct xhci_virt_device *virt_dev;
 	struct xhci_ep_ctx *ep_ctx;
 	struct xhci_ring *ring;		/* EP transfer ring */
-	union xhci_trb *event;
 
 	int running_total, trb_buff_len;
 	unsigned int total_packet_count;
@@ -719,20 +713,73 @@ int xhci_bulk_tx(struct usb_device *udev, unsigned long pipe,
 	} while (running_total < length);
 
 	giveback_first_trb(udev, ep_index, start_cycle, start_trb);
+	return 0;
+}
 
+/**** Bulk and Control transfer methods ****/
+/**
+ * Queues up the BULK Request
+ *
+ * @param udev		pointer to the USB device structure
+ * @param pipe		contains the DIR_IN or OUT , devnum
+ * @param length	length of the buffer
+ * @param buffer	buffer to be read/written based on the request
+ * @param nonblock	when true do not block waiting for response
+ * @return returns 0 if successful else -1 on failure
+ */
+int xhci_bulk_tx(struct usb_device *udev, unsigned long pipe,
+		 int length, void *buffer, bool nonblock)
+{
+	u32 field;
+	int ret;
+	union xhci_trb *event;
+	struct xhci_ctrl *ctrl = xhci_get_ctrl(udev);
+	int ep_index = usb_pipe_ep_index(pipe);
+
+	if (poll_pend) {
+		/*
+		 * Abort a pending poll operation if it should have
+		 * timed out, or if this is a different buffer from a
+		 * separate request
+		 */
+		if (get_timer(bulk_tx_poll_ts) > XHCI_TIMEOUT ||
+		    last_bulk_tx_buf != buffer || poll_last_udev != udev ||
+		    ep_index != poll_last_ep_index) {
+			abort_td(poll_last_udev, poll_last_ep_index);
+			poll_last_udev->status = USB_ST_NAK_REC;  /* closest thing to a timeout */
+			poll_last_udev->act_len = 0;
+			poll_pend = false;
+		}
+	} /* No else here because poll_pend might have changed above */
+	if (!poll_pend) {
+		last_bulk_tx_buf = buffer;
+		ret = _xhci_bulk_tx_queue(udev, pipe, length, buffer);
+		if (ret)
+			return ret;
+	}
 	event = xhci_wait_for_event(ctrl, TRB_TRANSFER, nonblock);
 	if (!event) {
-		if (nonblock)
+		if (nonblock) {
+			if (!poll_pend) {
+				/* Start the timer */
+				bulk_tx_poll_ts = get_timer(0);
+				poll_last_udev = udev;
+				poll_last_ep_index = ep_index;
+				poll_pend = true;
+			}
 			return -EINVAL;
+		}
 		debug("XHCI bulk transfer timed out, aborting...\n");
 		abort_td(udev, ep_index);
 		udev->status = USB_ST_NAK_REC;  /* closest thing to a timeout */
 		udev->act_len = 0;
+		poll_pend = false;
 		return -ETIMEDOUT;
 	}
+	poll_pend = false;
 	field = le32_to_cpu(event->trans_event.flags);
 
-	BUG_ON(TRB_TO_SLOT_ID(field) != slot_id);
+	BUG_ON(TRB_TO_SLOT_ID(field) != udev->slot_id);
 	BUG_ON(TRB_TO_EP_INDEX(field) != ep_index);
 	BUG_ON(*(void **)(uintptr_t)le64_to_cpu(event->trans_event.buffer) -
 		buffer > (size_t)length);
@@ -778,6 +825,13 @@ int xhci_ctrl_tx(struct usb_device *udev, unsigned long pipe,
 		req->requesttype, req->requesttype,
 		le16_to_cpu(req->value), le16_to_cpu(req->value),
 		le16_to_cpu(req->index));
+
+	if (poll_pend) {
+		abort_td(poll_last_udev, poll_last_ep_index);
+		poll_last_udev->status = USB_ST_NAK_REC;  /* closest thing to a timeout */
+		poll_last_udev->act_len = 0;
+		poll_pend = false;
+	}
 
 	ep_index = usb_pipe_ep_index(pipe);
 
