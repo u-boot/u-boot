@@ -4,6 +4,8 @@
  *
  */
 
+#define LOG_CATEGORY LOGC_ARCH
+
 #include <common.h>
 #include <fdt_support.h>
 #include <log.h>
@@ -37,7 +39,7 @@ int riscv_fdt_copy_resv_mem_node(const void *src, void *dst)
 
 	offset = fdt_path_offset(src, "/reserved-memory");
 	if (offset < 0) {
-		printf("No reserved memory region found in source FDT\n");
+		log_debug("No reserved memory region found in source FDT\n");
 		return 0;
 	}
 
@@ -60,7 +62,7 @@ int riscv_fdt_copy_resv_mem_node(const void *src, void *dst)
 							"reg", 0, &size,
 							false);
 		if (addr == FDT_ADDR_T_NONE) {
-			debug("failed to read address/size for %s\n", name);
+			log_debug("failed to read address/size for %s\n", name);
 			continue;
 		}
 		strncpy(basename, name, max_len);
@@ -75,7 +77,7 @@ int riscv_fdt_copy_resv_mem_node(const void *src, void *dst)
 		err = fdtdec_add_reserved_memory(dst, basename, &pmp_mem,
 						 &phandle);
 		if (err < 0 && err != -FDT_ERR_EXISTS) {
-			printf("failed to add reserved memory: %d\n", err);
+			log_err("failed to add reserved memory: %d\n", err);
 			return err;
 		}
 		if (!fdt_getprop(src, node, "no-map", NULL))
@@ -125,7 +127,7 @@ int board_fix_fdt(void *fdt)
 
 	err = riscv_board_reserved_mem_fixup(fdt);
 	if (err < 0) {
-		printf("failed to fixup DT for reserved memory: %d\n", err);
+		log_err("failed to fixup DT for reserved memory: %d\n", err);
 		return err;
 	}
 
@@ -143,14 +145,14 @@ int arch_fixup_fdt(void *blob)
 	size = fdt_totalsize(blob);
 	err  = fdt_open_into(blob, blob, size + 32);
 	if (err < 0) {
-		printf("Device Tree can't be expanded to accommodate new node");
+		log_err("Device Tree can't be expanded to accommodate new node");
 		return err;
 	}
 	chosen_offset = fdt_path_offset(blob, "/chosen");
 	if (chosen_offset < 0) {
 		err = fdt_add_subnode(blob, 0, "chosen");
 		if (err < 0) {
-			printf("chosen node can not be added\n");
+			log_err("chosen node cannot be added\n");
 			return err;
 		}
 	}
