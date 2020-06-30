@@ -1,5 +1,6 @@
 obj-$(CONFIG_CLK_RENESAS) += renesas-cpg-mssr.o
 obj-$(CONFIG_CLK_RCAR_GEN2) += clk-rcar-gen2.o
+obj-$(CONFIG_CLK_R8A774A1) += r8a774a1-cpg-mssr.o
 obj-$(CONFIG_CLK_R8A7790) += r8a7790-cpg-mssr.o
 obj-$(CONFIG_CLK_R8A7791) += r8a7791-cpg-mssr.o
 obj-$(CONFIG_CLK_R8A7792) += r8a7792-cpg-mssr.o
