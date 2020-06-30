@@ -1025,7 +1025,7 @@ ifneq ($(CONFIG_DM),y)
 	@echo >&2 "===================================================="
 endif
 ifeq ($(CONFIG_MMC),y)
-ifneq ($(CONFIG_DM_MMC)$(CONFIG_OF_CONTROL)$(CONFIG_BLK),yyy)
+ifneq ($(CONFIG_DM_MMC)$(CONFIG_BLK),yy)
 	@echo >&2 "===================== WARNING ======================"
 	@echo >&2 "This board does not use CONFIG_DM_MMC. Please update"
 	@echo >&2 "the board to use CONFIG_DM_MMC before the v2019.04 release."
