@@ -577,7 +577,7 @@ static efi_status_t efi_variable_authenticate(u16 *variable,
 	}
 
 	/* finished checking */
-	*time = rtc_mktime(&tm);
+	*time = new_time;
 	ret = EFI_SUCCESS;
 
 err:
