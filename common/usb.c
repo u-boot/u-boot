@@ -1054,11 +1054,12 @@ static int usb_prepare_device(struct usb_device *dev, int addr, bool do_read,
 	dev->devnum = addr;
 
 	err = usb_set_address(dev); /* set address */
-
-	if (err < 0) {
+	if (err < 0)
+		debug("\n       usb_set_address return < 0\n");
+	if (err < 0 && dev->status != 0) {
 		printf("\n      USB device not accepting new address " \
 			"(error=%lX)\n", dev->status);
-		return err;
+			return err;
 	}
 
 	mdelay(10);	/* Let the SET_ADDRESS settle */
