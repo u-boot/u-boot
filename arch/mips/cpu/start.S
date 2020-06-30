@@ -236,6 +236,11 @@ wr_done:
 # endif
 #endif
 
+#ifdef CONFIG_MIPS_MACH_EARLY_INIT
+	bal	mips_mach_early_init
+	 nop
+#endif
+
 #ifdef CONFIG_MIPS_CACHE_SETUP
 	/* Initialize caches... */
 	PTR_LA	t9, mips_cache_reset

@@ -270,6 +270,15 @@ config MIPS_CACHE_INDEX_BASE
 	  Normally this is CKSEG0. If the MIPS system needs to move this block
 	  to some SRAM or ScratchPad RAM, adapt this option accordingly.
 
+config MIPS_MACH_EARLY_INIT
+	bool "Enable mach specific very early init code"
+	help
+	  Use this to enable the call to mips_mach_early_init() very early
+	  from start.S. This function can be used e.g. to do some very early
+	  CPU / SoC intitialization or image copying. Its called very early
+	  and at this stage the PC might not match the linking address
+	  (CONFIG_TEXT_BASE) - no absolute jump done until this call.
+
 config MIPS_CACHE_SETUP
 	bool "Allow generic start code to initialize and setup caches"
 	default n if SKIP_LOWLEVEL_INIT
