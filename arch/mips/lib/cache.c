@@ -159,7 +159,7 @@ void __weak flush_dcache_range(ulong start_addr, ulong stop)
 	sync();
 }
 
-void invalidate_dcache_range(ulong start_addr, ulong stop)
+void __weak invalidate_dcache_range(ulong start_addr, ulong stop)
 {
 	unsigned long lsize = dcache_line_size();
 	unsigned long slsize = scache_line_size();
