@@ -481,11 +481,15 @@ static efi_status_t efi_variable_authenticate(u16 *variable,
 	if (guidcmp(&auth->auth_info.cert_type, &efi_guid_cert_type_pkcs7))
 		goto err;
 
+	memcpy(&timestamp, &auth->time_stamp, sizeof(timestamp));
+	if (timestamp.pad1 || timestamp.nanosecond || timestamp.timezone ||
+	    timestamp.daylight || timestamp.pad2)
+		goto err;
+
 	*data += sizeof(auth->time_stamp) + auth->auth_info.hdr.dwLength;
 	*data_size -= (sizeof(auth->time_stamp)
 				+ auth->auth_info.hdr.dwLength);
 
-	memcpy(&timestamp, &auth->time_stamp, sizeof(timestamp));
 	memset(&tm, 0, sizeof(tm));
 	tm.tm_year = timestamp.year;
 	tm.tm_mon = timestamp.month;
