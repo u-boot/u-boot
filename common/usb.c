@@ -1032,6 +1032,7 @@ static int usb_prepare_device(struct usb_device *dev, int addr, bool do_read,
 			      struct usb_device *parent)
 {
 	int err;
+	int retry_msec = 0;
 
 	/*
 	 * Allocate usb 3.0 device context.
@@ -1054,6 +1055,14 @@ static int usb_prepare_device(struct usb_device *dev, int addr, bool do_read,
 	dev->devnum = addr;
 
 	err = usb_set_address(dev); /* set address */
+	/* Retry for old composite keyboard/mouse usb2 hardware */
+	while (err < 0 && retry_msec <= 40) {
+		retry_msec += 20;
+		mdelay(20);
+		err = usb_set_address(dev); /* set address */
+	}
+	if (retry_msec > 0)
+		debug("usb_set_address delay: %i\n", retry_msec);
 	if (err < 0)
 		debug("\n       usb_set_address return < 0\n");
 	if (err < 0 && dev->status != 0) {
