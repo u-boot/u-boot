@@ -8,7 +8,7 @@ enum {
 	TCM_SPLIT,
 };
 
-#define PAYLOAD_ARG_CNT	4U
+#define PAYLOAD_ARG_CNT	5U
 
 void tcm_init(u8 mode);
 void mem_map_fill(void);
