@@ -521,15 +521,19 @@ out:
 }
 
 /**
- * efi_image_region_add - add an entry of region
+ * efi_image_region_add() - add an entry of region
  * @regs:	Pointer to array of regions
- * @start:	Start address of region
- * @end:	End address of region
+ * @start:	Start address of region (included)
+ * @end:	End address of region (excluded)
  * @nocheck:	flag against overlapped regions
  *
- * Take one entry of region [@start, @end] and append it to the list
- * pointed to by @regs. If @nocheck is false, overlapping among entries
- * will be checked first.
+ * Take one entry of region [@start, @end[ and insert it into the list.
+ *
+ * * If @nocheck is false, the list will be sorted ascending by address.
+ *   Overlapping entries will not be allowed.
+ *
+ * * If @nocheck is true, the list will be sorted ascending by sequence
+ *   of adding the entries. Overlapping is allowed.
  *
  * Return:	status code
  */
@@ -553,22 +557,21 @@ efi_status_t efi_image_region_add(struct efi_image_regions *regs,
 		if (nocheck)
 			continue;
 
-		if (start > reg->data + reg->size)
+		/* new data after registered region */
+		if (start >= reg->data + reg->size)
 			continue;
 
-		if ((start >= reg->data && start < reg->data + reg->size) ||
-		    (end > reg->data && end < reg->data + reg->size)) {
-			EFI_PRINT("%s: new region already part of another\n",
-				  __func__);
-			return EFI_INVALID_PARAMETER;
-		}
-
-		if (start < reg->data && end < reg->data + reg->size) {
+		/* new data preceding registered region */
+		if (end <= reg->data) {
 			for (j = regs->num - 1; j >= i; j--)
-				memcpy(&regs->reg[j], &regs->reg[j + 1],
+				memcpy(&regs->reg[j + 1], &regs->reg[j],
 				       sizeof(*reg));
 			break;
 		}
+
+		/* new data overlapping registered region */
+		EFI_PRINT("%s: new region already part of another\n", __func__);
+		return EFI_INVALID_PARAMETER;
 	}
 
 	reg = &regs->reg[i];
