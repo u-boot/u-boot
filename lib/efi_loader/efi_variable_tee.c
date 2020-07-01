@@ -351,7 +351,6 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
 	efi_uintn_t out_name_size;
 	efi_uintn_t in_name_size;
 	efi_uintn_t tmp_dsize;
-	efi_uintn_t name_size;
 	u8 *comm_buf = NULL;
 	efi_status_t ret;
 
@@ -370,19 +369,18 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
 		goto out;
 	}
 
-	name_size = u16_strsize(variable_name);
-	if (name_size > max_payload_size - MM_VARIABLE_GET_NEXT_HEADER_SIZE) {
+	if (in_name_size > max_payload_size - MM_VARIABLE_GET_NEXT_HEADER_SIZE) {
 		ret = EFI_INVALID_PARAMETER;
 		goto out;
 	}
 
 	/* Trim output buffer size */
 	tmp_dsize = *variable_name_size;
-	if (name_size + tmp_dsize >
+	if (in_name_size + tmp_dsize >
 			max_payload_size - MM_VARIABLE_GET_NEXT_HEADER_SIZE) {
 		tmp_dsize = max_payload_size -
 				MM_VARIABLE_GET_NEXT_HEADER_SIZE -
-				name_size;
+				in_name_size;
 	}
 
 	payload_size = MM_VARIABLE_GET_NEXT_HEADER_SIZE + out_name_size;
