@@ -35,7 +35,8 @@ static u8 efi_vendor_keys;
 static efi_status_t efi_get_variable_common(u16 *variable_name,
 					    const efi_guid_t *vendor,
 					    u32 *attributes,
-					    efi_uintn_t *data_size, void *data);
+					    efi_uintn_t *data_size, void *data,
+					    u64 *timep);
 
 static efi_status_t efi_set_variable_common(u16 *variable_name,
 					    const efi_guid_t *vendor,
@@ -309,7 +310,7 @@ static efi_status_t efi_init_secure_state(void)
 
 	size = 0;
 	ret = efi_get_variable_common(L"PK", &efi_global_variable_guid,
-				      NULL, &size, NULL);
+				      NULL, &size, NULL, NULL);
 	if (ret == EFI_BUFFER_TOO_SMALL) {
 		if (IS_ENABLED(CONFIG_EFI_SECURE_BOOT))
 			mode = EFI_MODE_USER;
@@ -601,7 +602,8 @@ static efi_status_t efi_variable_authenticate(u16 *variable,
 static efi_status_t efi_get_variable_common(u16 *variable_name,
 					    const efi_guid_t *vendor,
 					    u32 *attributes,
-					    efi_uintn_t *data_size, void *data)
+					    efi_uintn_t *data_size, void *data,
+					    u64 *timep)
 {
 	char *native_name;
 	efi_status_t ret;
@@ -625,6 +627,9 @@ static efi_status_t efi_get_variable_common(u16 *variable_name,
 		return EFI_NOT_FOUND;
 
 	val = parse_attr(val, &attr, &time);
+
+	if (timep)
+		*timep = time;
 
 	in_size = *data_size;
 
@@ -709,7 +714,7 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
 		  data_size, data);
 
 	ret = efi_get_variable_common(variable_name, vendor, attributes,
-				      data_size, data);
+				      data_size, data, NULL);
 	return EFI_EXIT(ret);
 }
 
@@ -905,7 +910,7 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
 	old_size = 0;
 	attr = 0;
 	ret = efi_get_variable_common(variable_name, vendor, &attr,
-				      &old_size, NULL);
+				      &old_size, NULL, &time);
 	append = !!(attributes & EFI_VARIABLE_APPEND_WRITE);
 	attributes &= ~(u32)EFI_VARIABLE_APPEND_WRITE;
 	delete = !append && (!data_size || !attributes);
@@ -996,7 +1001,7 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
 			goto err;
 		}
 		ret = efi_get_variable_common(variable_name, vendor,
-					      &attr, &old_size, old_data);
+					      &attr, &old_size, old_data, NULL);
 		if (ret != EFI_SUCCESS)
 			goto err;
 	} else {
