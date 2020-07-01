@@ -130,13 +130,12 @@ struct rockchip_pcie {
 
 int rockchip_pcie_phy_get(struct udevice *dev);
 
-inline struct rockchip_pcie_phy *pcie_get_phy(struct rockchip_pcie *pcie)
+static inline struct rockchip_pcie_phy *pcie_get_phy(struct rockchip_pcie *pcie)
 {
 	return pcie->phy;
 }
 
-inline
-struct rockchip_pcie_phy_ops *phy_get_ops(struct rockchip_pcie_phy *phy)
+static inline struct rockchip_pcie_phy_ops *phy_get_ops(struct rockchip_pcie_phy *phy)
 {
 	return (struct rockchip_pcie_phy_ops *)phy->ops;
 }
