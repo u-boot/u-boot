@@ -181,6 +181,7 @@ F:	board/cortina/common/
 F:	drivers/gpio/cortina_gpio.c
 F:	drivers/watchdog/cortina_wdt.c
 F:	drivers/serial/serial_cortina.c
+F:	drivers/led/led_cortina.c
 F:	drivers/mmc/ca_dw_mmc.c
 F:	drivers/i2c/i2c-cortina.c
 F:	drivers/i2c/i2c-cortina.h
@@ -766,6 +767,7 @@ F:	board/cortina/common/
 F:	drivers/gpio/cortina_gpio.c
 F:	drivers/watchdog/cortina_wdt.c
 F:	drivers/serial/serial_cortina.c
+F:	drivers/led/led_cortina.c
 F:	drivers/mmc/ca_dw_mmc.c
 F:	drivers/i2c/i2c-cortina.c
 F:	drivers/i2c/i2c-cortina.h
@@ -868,7 +870,7 @@ S:	Maintained
 F:	arch/powerpc/
 
 POWERPC MPC8XX
-M:	Christophe Leroy <christophe.leroy@csgroup.eu>
+M:	Christophe Leroy <christophe.leroy@c-s.fr>
 S:	Maintained
 T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-mpc8xx.git
 F:	arch/powerpc/cpu/mpc8xx/
