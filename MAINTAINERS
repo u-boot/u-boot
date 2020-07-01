@@ -633,6 +633,7 @@ F:	include/pe.h
 F:	include/asm-generic/pe.h
 F:	lib/charset.c
 F:	lib/efi*/
+F:	test/lib/efi_*
 F:	test/py/tests/test_efi*
 F:	test/py/tests/test_efi*/
 F:	test/unicode_ut.c

@@ -3,6 +3,7 @@
 # (C) Copyright 2018
 # Mario Six, Guntermann & Drunck GmbH, mario.six@gdsys.cc
 obj-y += cmd_ut_lib.o
+obj-$(CONFIG_EFI_SECURE_BOOT) += efi_image_region.o
 obj-y += hexdump.o
 obj-y += lmb.o
 obj-y += string.o
