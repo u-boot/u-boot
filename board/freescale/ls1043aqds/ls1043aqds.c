@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2015 Freescale Semiconductor, Inc.
- * Copyright 2019 NXP
+ * Copyright 2019-2020 NXP
  */
 
 #include <common.h>
@@ -453,6 +453,7 @@ void board_retimer_init(void)
 
 int board_early_init_f(void)
 {
+	u32 __iomem *cntcr = (u32 *)CONFIG_SYS_FSL_TIMER_ADDR;
 #ifdef CONFIG_HAS_FSL_XHCI_USB
 	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
 	u32 usb_pwrfault;
@@ -460,6 +461,11 @@ int board_early_init_f(void)
 #ifdef CONFIG_LPUART
 	u8 uart;
 #endif
+
+	/*
+	 * Enable secure system counter for timer
+	 */
+	out_le32(cntcr, 0x1);
 
 #ifdef CONFIG_SYS_I2C
 #ifdef CONFIG_SYS_I2C_EARLY_INIT
