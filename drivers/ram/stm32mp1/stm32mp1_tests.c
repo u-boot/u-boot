@@ -17,7 +17,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 static int get_bufsize(char *string, int argc, char *argv[], int arg_nb,
-		       size_t *bufsize, size_t default_size)
+		       size_t *bufsize, size_t default_size, size_t min_size)
 {
 	unsigned long value;
 
@@ -27,13 +27,14 @@ static int get_bufsize(char *string, int argc, char *argv[], int arg_nb,
 				arg_nb, argv[arg_nb]);
 			return -1;
 		}
-		if (value > STM32_DDR_SIZE || value == 0) {
-			sprintf(string, "invalid size %s", argv[arg_nb]);
+		if (value > STM32_DDR_SIZE || value < min_size) {
+			sprintf(string, "invalid size %s (min=%d)",
+				argv[arg_nb], min_size);
 			return -1;
 		}
-		if (value & 0x3) {
-			sprintf(string, "unaligned size %s",
-				argv[arg_nb]);
+		if (value & (min_size - 1)) {
+			sprintf(string, "unaligned size %s (min=%d)",
+				argv[arg_nb], min_size);
 			return -1;
 		}
 		*bufsize = value;
@@ -441,7 +442,7 @@ static enum test_result test_addressbus(struct stm32mp1_ddrctl *ctl,
 	u32 bufsize;
 	u32 error;
 
-	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024))
+	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024, 4))
 		return TEST_ERROR;
 	if (!is_power_of_2(bufsize)) {
 		sprintf(string, "size 0x%x is not a power of 2",
@@ -470,7 +471,7 @@ static enum test_result test_memdevice(struct stm32mp1_ddrctl *ctl,
 	size_t bufsize;
 	u32 error;
 
-	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024))
+	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024, 4))
 		return TEST_ERROR;
 	if (get_addr(string, argc, argv, 1, &addr))
 		return TEST_ERROR;
@@ -512,7 +513,7 @@ static enum test_result test_sso(struct stm32mp1_ddrctl *ctl,
 	u32 error = 0;
 	u32 data;
 
-	if (get_bufsize(string, argc, argv, 0, &bufsize, 4))
+	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024, 4))
 		return TEST_ERROR;
 	if (get_addr(string, argc, argv, 1, &addr))
 		return TEST_ERROR;
@@ -584,7 +585,7 @@ static enum test_result test_random(struct stm32mp1_ddrctl *ctl,
 	u32 error = 0;
 	unsigned int seed;
 
-	if (get_bufsize(string, argc, argv, 0, &bufsize, 8 * 1024))
+	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024, 8))
 		return TEST_ERROR;
 	if (get_nb_loop(string, argc, argv, 1, &nb_loop, 1))
 		return TEST_ERROR;
@@ -744,7 +745,7 @@ static enum test_result test_noise_burst(struct stm32mp1_ddrctl *ctl,
 	int i;
 	enum test_result res = TEST_PASSED;
 
-	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024))
+	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024, 128))
 		return TEST_ERROR;
 	if (get_pattern(string, argc, argv, 1, &pattern, 0xFFFFFFFF))
 		return TEST_ERROR;
@@ -920,7 +921,7 @@ static enum test_result test_freq_pattern(struct stm32mp1_ddrctl *ctl,
 	const u32 **patterns;
 	u32 bufsize;
 
-	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024))
+	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024, 128))
 		return TEST_ERROR;
 
 	switch (readl(&ctl->mstr) & DDRCTRL_MSTR_DATA_BUS_WIDTH_MASK) {
@@ -1007,7 +1008,7 @@ static enum test_result test_checkboard(struct stm32mp1_ddrctl *ctl,
 
 	u32 checkboard[2] = {0x55555555, 0xAAAAAAAA};
 
-	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024))
+	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024, 8))
 		return TEST_ERROR;
 	if (get_nb_loop(string, argc, argv, 1, &nb_loop, 1))
 		return TEST_ERROR;
@@ -1042,7 +1043,7 @@ static enum test_result test_blockseq(struct stm32mp1_ddrctl *ctl,
 	u32 bufsize, nb_loop, loop = 0, addr, value;
 	int i;
 
-	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024))
+	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024, 4))
 		return TEST_ERROR;
 	if (get_nb_loop(string, argc, argv, 1, &nb_loop, 1))
 		return TEST_ERROR;
@@ -1076,7 +1077,7 @@ static enum test_result test_walkbit0(struct stm32mp1_ddrctl *ctl,
 	u32 bufsize, nb_loop, loop = 0, addr, value;
 	int i;
 
-	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024))
+	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024, 4))
 		return TEST_ERROR;
 	if (get_nb_loop(string, argc, argv, 1, &nb_loop, 1))
 		return TEST_ERROR;
@@ -1114,7 +1115,7 @@ static enum test_result test_walkbit1(struct stm32mp1_ddrctl *ctl,
 	u32 bufsize, nb_loop, loop = 0, addr, value;
 	int i;
 
-	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024))
+	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024, 4))
 		return TEST_ERROR;
 	if (get_nb_loop(string, argc, argv, 1, &nb_loop, 1))
 		return TEST_ERROR;
@@ -1156,7 +1157,7 @@ static enum test_result test_bitspread(struct stm32mp1_ddrctl *ctl,
 	u32 bufsize, nb_loop, loop = 0, addr, bitspread[4];
 	int i, j;
 
-	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024))
+	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024, 32))
 		return TEST_ERROR;
 	if (get_nb_loop(string, argc, argv, 1, &nb_loop, 1))
 		return TEST_ERROR;
@@ -1203,7 +1204,7 @@ static enum test_result test_bitflip(struct stm32mp1_ddrctl *ctl,
 
 	u32 bitflip[4];
 
-	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024))
+	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024, 32))
 		return TEST_ERROR;
 	if (get_nb_loop(string, argc, argv, 1, &nb_loop, 1))
 		return TEST_ERROR;
