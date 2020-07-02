@@ -919,9 +919,11 @@ static enum test_result test_freq_pattern(struct stm32mp1_ddrctl *ctl,
 	enum test_result res = TEST_PASSED, pattern_res;
 	int i, bus_width;
 	const u32 **patterns;
-	u32 bufsize;
+	u32 bufsize, addr;
 
 	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024, 128))
+		return TEST_ERROR;
+	if (get_addr(string, argc, argv, 1, &addr))
 		return TEST_ERROR;
 
 	switch (readl(&ctl->mstr) & DDRCTRL_MSTR_DATA_BUS_WIDTH_MASK) {
@@ -935,15 +937,14 @@ static enum test_result test_freq_pattern(struct stm32mp1_ddrctl *ctl,
 	}
 
 	printf("running test pattern at 0x%08x length 0x%x width = %d\n",
-	       STM32_DDR_BASE, bufsize, bus_width);
+	       addr, bufsize, bus_width);
 
 	patterns =
 		(const u32 **)(bus_width == 16 ? patterns_x16 : patterns_x32);
 
 	for (i = 0; i < NB_PATTERN; i++) {
 		printf("test data pattern %s:", patterns_comments[i]);
-		pattern_res = test_loop(patterns[i], (u32 *)STM32_DDR_BASE,
-					bufsize);
+		pattern_res = test_loop(patterns[i], (u32 *)addr, bufsize);
 		if (pattern_res != TEST_PASSED)	{
 			printf("Failed\n");
 			return pattern_res;
@@ -1419,9 +1420,9 @@ const struct test_desc test[] = {
 	 "Verifies r/w and memcopy(burst for pseudo random value.",
 	 3
 	},
-	{test_freq_pattern, "FrequencySelectivePattern", "[size]",
+	{test_freq_pattern, "FrequencySelectivePattern", "[size] [addr]",
 	 "write & test patterns: Mostly Zero, Mostly One and F/n",
-	 1
+	 2
 	},
 	{test_blockseq, "BlockSequential", "[size] [loop] [addr]",
 	 "test incremental pattern",
