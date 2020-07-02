@@ -65,6 +65,8 @@ int fdt_find_regions(const void *fdt, char * const inc[], int inc_count,
 			stop_at = offset;
 			prop = fdt_get_property_by_offset(fdt, offset, NULL);
 			str = fdt_string(fdt, fdt32_to_cpu(prop->nameoff));
+			if (!str)
+				return -FDT_ERR_BADSTRUCTURE;
 			if (str_in_list(str, exc_prop, exc_prop_count))
 				include = 0;
 			break;
