@@ -269,6 +269,10 @@ class PatchStream:
             else:
                 self.section.append(line)
 
+        # If we are not in a section, it is an unexpected END
+        elif line == 'END':
+                raise ValueError("'END' wihout section")
+
         # Detect the commit subject
         elif not is_blank and self.state == STATE_PATCH_SUBJECT:
             self.commit.subject = line
