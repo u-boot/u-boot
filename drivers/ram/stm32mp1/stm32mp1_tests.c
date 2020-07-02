@@ -442,7 +442,7 @@ static enum test_result test_addressbus(struct stm32mp1_ddrctl *ctl,
 	u32 bufsize;
 	u32 error;
 
-	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024, 4))
+	if (get_bufsize(string, argc, argv, 0, &bufsize, STM32_DDR_SIZE, 4))
 		return TEST_ERROR;
 	if (!is_power_of_2(bufsize)) {
 		sprintf(string, "size 0x%x is not a power of 2",
@@ -452,6 +452,7 @@ static enum test_result test_addressbus(struct stm32mp1_ddrctl *ctl,
 	if (get_addr(string, argc, argv, 1, &addr))
 		return TEST_ERROR;
 
+	printf("running at 0x%08x length 0x%x\n", addr, bufsize);
 	error = (u32)addressbus((u32 *)addr, bufsize);
 	if (error) {
 		sprintf(string, "0x%x: error for address 0x%x",
