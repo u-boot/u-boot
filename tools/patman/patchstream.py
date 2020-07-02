@@ -351,6 +351,9 @@ class PatchStream:
             elif name == 'changes':
                 self.in_change = 'Commit'
                 self.change_version = self.ParseVersion(value, line)
+            else:
+                self.warn.append('Line %d: Ignoring Commit-%s' %
+                    (self.linenum, name))
 
         # Detect the start of a new commit
         elif commit_match:
