@@ -76,37 +76,37 @@ def efi_boot_env(request, u_boot_config):
         ## PK
         check_call('cd %s; openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_PK/ -keyout PK.key -out PK.crt -nodes -days 365'
                             % mnt_point, shell=True)
-        check_call('cd %s; %scert-to-efi-sig-list -g %s PK.crt PK.esl; %ssign-efi-sig-list -c PK.crt -k PK.key PK PK.esl PK.auth'
+        check_call('cd %s; %scert-to-efi-sig-list -g %s PK.crt PK.esl; %ssign-efi-sig-list -t "2020-04-01" -c PK.crt -k PK.key PK PK.esl PK.auth'
                             % (mnt_point, EFITOOLS_PATH, GUID, EFITOOLS_PATH),
                             shell=True)
         ## PK_null for deletion
-        check_call('cd %s; sleep 2; touch PK_null.esl; %ssign-efi-sig-list -c PK.crt -k PK.key PK PK_null.esl PK_null.auth'
+        check_call('cd %s; touch PK_null.esl; %ssign-efi-sig-list -t "2020-04-02" -c PK.crt -k PK.key PK PK_null.esl PK_null.auth'
                             % (mnt_point, EFITOOLS_PATH), shell=True)
         ## KEK
         check_call('cd %s; openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_KEK/ -keyout KEK.key -out KEK.crt -nodes -days 365'
                             % mnt_point, shell=True)
-        check_call('cd %s; %scert-to-efi-sig-list -g %s KEK.crt KEK.esl; %ssign-efi-sig-list -c PK.crt -k PK.key KEK KEK.esl KEK.auth'
+        check_call('cd %s; %scert-to-efi-sig-list -g %s KEK.crt KEK.esl; %ssign-efi-sig-list -t "2020-04-03" -c PK.crt -k PK.key KEK KEK.esl KEK.auth'
                             % (mnt_point, EFITOOLS_PATH, GUID, EFITOOLS_PATH),
                             shell=True)
         ## db
         check_call('cd %s; openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_db/ -keyout db.key -out db.crt -nodes -days 365'
                             % mnt_point, shell=True)
-        check_call('cd %s; %scert-to-efi-sig-list -g %s db.crt db.esl; %ssign-efi-sig-list -c KEK.crt -k KEK.key db db.esl db.auth'
+        check_call('cd %s; %scert-to-efi-sig-list -g %s db.crt db.esl; %ssign-efi-sig-list -t "2020-04-04" -c KEK.crt -k KEK.key db db.esl db.auth'
                             % (mnt_point, EFITOOLS_PATH, GUID, EFITOOLS_PATH),
                             shell=True)
         ## db1
         check_call('cd %s; openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_db1/ -keyout db1.key -out db1.crt -nodes -days 365'
                             % mnt_point, shell=True)
-        check_call('cd %s; %scert-to-efi-sig-list -g %s db1.crt db1.esl; %ssign-efi-sig-list -c KEK.crt -k KEK.key db db1.esl db1.auth'
+        check_call('cd %s; %scert-to-efi-sig-list -g %s db1.crt db1.esl; %ssign-efi-sig-list -t "2020-04-05" -c KEK.crt -k KEK.key db db1.esl db1.auth'
                             % (mnt_point, EFITOOLS_PATH, GUID, EFITOOLS_PATH),
                             shell=True)
         ## db1-update
-        check_call('cd %s; %ssign-efi-sig-list -a -c KEK.crt -k KEK.key db db1.esl db1-update.auth'
+        check_call('cd %s; %ssign-efi-sig-list -t "2020-04-06" -a -c KEK.crt -k KEK.key db db1.esl db1-update.auth'
                             % (mnt_point, EFITOOLS_PATH), shell=True)
         ## dbx
         check_call('cd %s; openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_dbx/ -keyout dbx.key -out dbx.crt -nodes -days 365'
                             % mnt_point, shell=True)
-        check_call('cd %s; %scert-to-efi-sig-list -g %s dbx.crt dbx.esl; %ssign-efi-sig-list -c KEK.crt -k KEK.key dbx dbx.esl dbx.auth'
+        check_call('cd %s; %scert-to-efi-sig-list -g %s dbx.crt dbx.esl; %ssign-efi-sig-list -t "2020-04-05" -c KEK.crt -k KEK.key dbx dbx.esl dbx.auth'
                             % (mnt_point, EFITOOLS_PATH, GUID, EFITOOLS_PATH),
                             shell=True)
 
@@ -117,7 +117,7 @@ def efi_boot_env(request, u_boot_config):
         check_call('cd %s; sbsign --key db.key --cert db.crt helloworld.efi'
                             % mnt_point, shell=True)
         ## Digest image
-        check_call('cd %s; %shash-to-efi-sig-list helloworld.efi db_hello.hash; %ssign-efi-sig-list -c KEK.crt -k KEK.key db db_hello.hash db_hello.auth'
+        check_call('cd %s; %shash-to-efi-sig-list helloworld.efi db_hello.hash; %ssign-efi-sig-list -t "2020-04-07" -c KEK.crt -k KEK.key db db_hello.hash db_hello.auth'
                             % (mnt_point, EFITOOLS_PATH, EFITOOLS_PATH),
                             shell=True)
 
