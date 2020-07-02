@@ -167,7 +167,7 @@ void *dev_read_addr_ptr(const struct udevice *dev)
 {
 	fdt_addr_t addr = dev_read_addr(dev);
 
-	return (addr == FDT_ADDR_T_NONE) ? NULL : map_sysmem(addr, 0);
+	return (addr == FDT_ADDR_T_NONE) ? NULL : (void *)(uintptr_t)addr;
 }
 
 void *dev_remap_addr(const struct udevice *dev)

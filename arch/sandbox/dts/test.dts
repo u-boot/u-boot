@@ -1038,6 +1038,27 @@
 	mdio: mdio-test {
 		compatible = "sandbox,mdio";
 	};
+
+	pm-bus-test {
+		compatible = "simple-pm-bus";
+		clocks = <&clk_sandbox 4>;
+		power-domains = <&pwrdom 1>;
+	};
+
+	resetc2: syscon-reset {
+		compatible = "syscon-reset";
+		#reset-cells = <1>;
+		regmap = <&syscon0>;
+		offset = <1>;
+		mask = <0x27FFFFFF>;
+		assert-high = <0>;
+	};
+
+	syscon-reset-test {
+		compatible = "sandbox,misc_sandbox";
+		resets = <&resetc2 15>, <&resetc2 30>, <&resetc2 60>;
+		reset-names = "valid", "no_mask", "out_of_range";
+	};
 };
 
 #include "sandbox_pmic.dtsi"

@@ -874,6 +874,13 @@ F:	arch/riscv/
 F:	cmd/riscv/
 F:	tools/prelink-riscv.c
 
+RISC-V KENDRYTE
+M:	Sean Anderson <seanga2@gmail.com>
+S:	Maintained
+F:	doc/device-tree-bindings/mfd/kendryte,k210-sysctl.txt
+F:	drivers/clk/kendryte/
+F:	include/kendryte/
+
 RNG
 M:	Sughosh Ganu <sughosh.ganu@linaro.org>
 R:	Heinrich Schuchardt <xypron.glpk@gmx.de>

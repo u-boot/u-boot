@@ -282,7 +282,7 @@ static int imx8mp_clk_probe(struct udevice *dev)
 	clk_dm(IMX8MP_SYS_PLL2_1000M, imx_clk_fixed_factor("sys_pll2_1000m", "sys_pll2_out", 1, 1));
 
 	base = dev_read_addr_ptr(dev);
-	if (base == (void *)FDT_ADDR_T_NONE)
+	if (!base)
 		return -EINVAL;
 
 	clk_dm(IMX8MP_CLK_A53_SRC, imx_clk_mux2("arm_a53_src", base + 0x8000, 24, 3, imx8mp_a53_sels, ARRAY_SIZE(imx8mp_a53_sels)));

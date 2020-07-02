@@ -148,4 +148,9 @@ config RESET_IMX7
 	help
 	  Support for reset controller on i.MX7/8 SoCs.
 
+config RESET_SYSCON
+	bool "Enable generic syscon reset driver support"
+	depends on DM_RESET
+	help
+	  Support generic syscon mapped register reset devices.
 endmenu

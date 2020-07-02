@@ -123,7 +123,7 @@ static int clk_get_by_indexed_prop(struct udevice *dev, const char *prop_name,
 
 
 	return clk_get_by_index_tail(ret, dev_ofnode(dev), &args, "clocks",
-				     index > 0, clk);
+				     index, clk);
 }
 
 int clk_get_by_index(struct udevice *dev, int index, struct clk *clk)
@@ -135,7 +135,7 @@ int clk_get_by_index(struct udevice *dev, int index, struct clk *clk)
 					 index, &args);
 
 	return clk_get_by_index_tail(ret, dev_ofnode(dev), &args, "clocks",
-				     index > 0, clk);
+				     index, clk);
 }
 
 int clk_get_by_index_nodev(ofnode node, int index, struct clk *clk)
@@ -144,10 +144,10 @@ int clk_get_by_index_nodev(ofnode node, int index, struct clk *clk)
 	int ret;
 
 	ret = ofnode_parse_phandle_with_args(node, "clocks", "#clock-cells", 0,
-					     index > 0, &args);
+					     index, &args);
 
 	return clk_get_by_index_tail(ret, node, &args, "clocks",
-				     index > 0, clk);
+				     index, clk);
 }
 
 int clk_get_bulk(struct udevice *dev, struct clk_bulk *bulk)

@@ -20,6 +20,9 @@ config TARGET_QEMU_VIRT
 config TARGET_SIFIVE_FU540
 	bool "Support SiFive FU540 Board"
 
+config TARGET_SIPEED_MAIX
+	bool "Support Sipeed Maix Board"
+
 endchoice
 
 config SYS_ICACHE_OFF
@@ -53,6 +56,7 @@ source "board/AndesTech/ax25-ae350/Kconfig"
 source "board/emulation/qemu-riscv/Kconfig"
 source "board/microchip/mpfs_icicle/Kconfig"
 source "board/sifive/fu540/Kconfig"
+source "board/sipeed/maix/Kconfig"
 
 # platform-specific options below
 source "arch/riscv/cpu/ax25/Kconfig"
@@ -268,6 +272,16 @@ config XIP
 
 config SHOW_REGS
 	bool "Show registers on unhandled exception"
+
+config RISCV_PRIV_1_9
+	bool "Use version 1.9 of the RISC-V priviledged specification"
+	help
+	  Older versions of the RISC-V priviledged specification had
+	  separate counter enable CSRs for each privilege mode. Writing
+	  to the unified mcounteren CSR on a processor implementing the
+	  old specification will result in an illegal instruction
+	  exception. In addition to counter CSR changes, the way virtual
+	  memory is configured was also changed.
 
 config STACK_SIZE_SHIFT
 	int

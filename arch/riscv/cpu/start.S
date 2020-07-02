@@ -65,6 +65,8 @@ _start:
 #else
 	li	t0, SIE_SSIE
 #endif
+	/* Clear any pending IPIs */
+	csrc	MODE_PREFIX(ip), t0
 	csrs	MODE_PREFIX(ie), t0
 #endif
 
