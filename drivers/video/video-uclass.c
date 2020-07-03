@@ -95,6 +95,7 @@ int video_reserve(ulong *addrp)
 int video_clear(struct udevice *dev)
 {
 	struct video_priv *priv = dev_get_uclass_priv(dev);
+	int ret;
 
 	switch (priv->bpix) {
 	case VIDEO_BPP16:
@@ -119,6 +120,9 @@ int video_clear(struct udevice *dev)
 		memset(priv->fb, priv->colour_bg, priv->fb_size);
 		break;
 	}
+	ret = video_sync_copy(dev, priv->fb, priv->fb + priv->fb_size);
+	if (ret)
+		return ret;
 
 	return 0;
 }
