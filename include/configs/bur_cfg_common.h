@@ -24,7 +24,6 @@
 "setenv stdout nc;setenv stdin nc;setenv stderr nc\0"
 
 /* Network defines */
-#define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT		10
 
 /* Network console */

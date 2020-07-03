@@ -44,7 +44,6 @@
 
 /* CPSW Ethernet support */
 #define CONFIG_BOOTP_DEFAULT
-#define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_SYS_RX_ETH_BUFFER	64
 
 /* USB support */

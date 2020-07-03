@@ -10,7 +10,6 @@
 /*
  * CPU and Board Configuration Options
  */
-#define CONFIG_BOOTP_SEND_HOSTNAME
 
 /*
  * Miscellaneous configurable options

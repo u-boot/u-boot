@@ -117,7 +117,6 @@
  * ethernet support, EMAC
  *
  */
-#define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT 10
 
 /* Defines for SPL */
