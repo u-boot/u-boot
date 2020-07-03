@@ -32,7 +32,6 @@
 /* I2C */
 
 /* Ethernet */
-#define CONFIG_BOOTP_DEFAULT
 #define CONFIG_NET_RETRY_COUNT		10
 
 /* Board NAND Info. */
