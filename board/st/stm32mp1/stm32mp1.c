@@ -686,7 +686,7 @@ int board_late_init(void)
 	if (!ret)
 		ret = misc_read(dev, STM32_BSEC_SHADOW(BSEC_OTP_BOARD),
 				&otp, sizeof(otp));
-	if (!ret && otp) {
+	if (ret > 0 && otp) {
 		snprintf(buf, sizeof(buf), "0x%04x", otp >> 16);
 		env_set("board_id", buf);
 
