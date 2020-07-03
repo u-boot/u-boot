@@ -192,7 +192,7 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 	struct video_priv *priv = dev_get_uclass_priv(dev);
 	ushort *cmap_base = NULL;
 	int i, j;
-	uchar *fb;
+	uchar *start, *fb;
 	struct bmp_image *bmp = map_sysmem(bmp_image, 0);
 	uchar *bmap;
 	ushort padded_width;
@@ -201,6 +201,7 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 	unsigned colours, bpix, bmp_bpix;
 	struct bmp_color_table_entry *palette;
 	int hdr_size;
+	int ret;
 
 	if (!bmp || !(bmp->header.signature[0] == 'B' &&
 	    bmp->header.signature[1] == 'M')) {
@@ -261,8 +262,11 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 		height = priv->ysize - y;
 
 	bmap = (uchar *)bmp + get_unaligned_le32(&bmp->header.data_offset);
-	fb = (uchar *)(priv->fb +
-		(y + height - 1) * priv->line_length + x * bpix / 8);
+	start = (uchar *)(priv->fb +
+		(y + height) * priv->line_length + x * bpix / 8);
+
+	/* Move back to the final line to be drawn */
+	fb = start - priv->line_length;
 
 	switch (bmp_bpix) {
 	case 1:
@@ -368,6 +372,12 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 	default:
 		break;
 	};
+
+	/* Find the position of the top left of the image in the framebuffer */
+	fb = (uchar *)(priv->fb + y * priv->line_length + x * bpix / 8);
+	ret = video_sync_copy(dev, start, fb);
+	if (ret)
+		return log_ret(ret);
 
 	video_sync(dev, false);
 
