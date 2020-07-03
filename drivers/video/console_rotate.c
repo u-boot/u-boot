@@ -59,9 +59,9 @@ static int console_move_rows_1(struct udevice *dev, uint rowdst, uint rowsrc,
 			       uint count)
 {
 	struct video_priv *vid_priv = dev_get_uclass_priv(dev->parent);
+	int pbytes = VNBYTES(vid_priv->bpix);
 	void *dst;
 	void *src;
-	int pbytes = VNBYTES(vid_priv->bpix);
 	int j;
 
 	dst = vid_priv->fb + vid_priv->line_length -
@@ -83,14 +83,15 @@ static int console_putc_xy_1(struct udevice *dev, uint x_frac, uint y, char ch)
 	struct vidconsole_priv *vc_priv = dev_get_uclass_priv(dev);
 	struct udevice *vid = dev->parent;
 	struct video_priv *vid_priv = dev_get_uclass_priv(vid);
+	uchar *pfont = video_fontdata + (u8)ch * VIDEO_FONT_HEIGHT;
 	int pbytes = VNBYTES(vid_priv->bpix);
-	int i, col;
+	int i, col, x, linenum;
 	int mask = 0x80;
 	void *line;
-	uchar *pfont = video_fontdata + (u8)ch * VIDEO_FONT_HEIGHT;
 
-	line = vid_priv->fb + (VID_TO_PIXEL(x_frac) + 1) *
-			vid_priv->line_length - (y + 1) * pbytes;
+	linenum = VID_TO_PIXEL(x_frac) + 1;
+	x = y + 1;
+	line = vid_priv->fb + linenum * vid_priv->line_length - x * pbytes;
 	if (x_frac + VID_TO_POS(vc_priv->x_charsize) > vc_priv->xsize_frac)
 		return -EAGAIN;
 
@@ -204,16 +205,15 @@ static int console_putc_xy_2(struct udevice *dev, uint x_frac, uint y, char ch)
 	struct vidconsole_priv *vc_priv = dev_get_uclass_priv(dev);
 	struct udevice *vid = dev->parent;
 	struct video_priv *vid_priv = dev_get_uclass_priv(vid);
-	int i, row;
+	int pbytes = VNBYTES(vid_priv->bpix);
+	int i, row, x, linenum;
 	void *line;
 
 	if (x_frac + VID_TO_POS(vc_priv->x_charsize) > vc_priv->xsize_frac)
 		return -EAGAIN;
-
-	line = vid_priv->fb + (vid_priv->ysize - y - 1) *
-			vid_priv->line_length +
-			(vid_priv->xsize - VID_TO_PIXEL(x_frac) -
-			VIDEO_FONT_WIDTH - 1) * VNBYTES(vid_priv->bpix);
+	linenum = vid_priv->ysize - y - 1;
+	x = vid_priv->xsize - VID_TO_PIXEL(x_frac) - VIDEO_FONT_WIDTH - 1;
+	line = vid_priv->fb + linenum * vid_priv->line_length + x * pbytes;
 
 	for (row = 0; row < VIDEO_FONT_HEIGHT; row++) {
 		unsigned int idx = (u8)ch * VIDEO_FONT_HEIGHT + row;
@@ -312,9 +312,9 @@ static int console_move_rows_3(struct udevice *dev, uint rowdst, uint rowsrc,
 			       uint count)
 {
 	struct video_priv *vid_priv = dev_get_uclass_priv(dev->parent);
+	int pbytes = VNBYTES(vid_priv->bpix);
 	void *dst;
 	void *src;
-	int pbytes = VNBYTES(vid_priv->bpix);
 	int j;
 
 	dst = vid_priv->fb + rowdst * VIDEO_FONT_HEIGHT * pbytes;
@@ -334,16 +334,16 @@ static int console_putc_xy_3(struct udevice *dev, uint x_frac, uint y, char ch)
 	struct vidconsole_priv *vc_priv = dev_get_uclass_priv(dev);
 	struct udevice *vid = dev->parent;
 	struct video_priv *vid_priv = dev_get_uclass_priv(vid);
-	int pbytes = VNBYTES(vid_priv->bpix);
-	int i, col;
-	int mask = 0x80;
-	void *line = vid_priv->fb +
-		(vid_priv->ysize - VID_TO_PIXEL(x_frac) - 1) *
-		vid_priv->line_length + y * pbytes;
 	uchar *pfont = video_fontdata + (u8)ch * VIDEO_FONT_HEIGHT;
+	int pbytes = VNBYTES(vid_priv->bpix);
+	int i, col, x;
+	int mask = 0x80;
+	void *line;
 
 	if (x_frac + VID_TO_POS(vc_priv->x_charsize) > vc_priv->xsize_frac)
 		return -EAGAIN;
+	x = vid_priv->ysize - VID_TO_PIXEL(x_frac) - 1;
+	line = vid_priv->fb + x * vid_priv->line_length + y * pbytes;
 
 	for (col = 0; col < VIDEO_FONT_HEIGHT; col++) {
 		switch (vid_priv->bpix) {
