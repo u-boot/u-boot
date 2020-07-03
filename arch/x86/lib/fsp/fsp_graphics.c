@@ -117,6 +117,16 @@ err:
 	return ret;
 }
 
+static int fsp_video_bind(struct udevice *dev)
+{
+	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+
+	/* Set the maximum supported resolution */
+	plat->size = 2560 * 1600 * 4;
+
+	return 0;
+}
+
 static const struct udevice_id fsp_video_ids[] = {
 	{ .compatible = "fsp-fb" },
 	{ }
@@ -126,7 +136,9 @@ U_BOOT_DRIVER(fsp_video) = {
 	.name	= "fsp_video",
 	.id	= UCLASS_VIDEO,
 	.of_match = fsp_video_ids,
+	.bind	= fsp_video_bind,
 	.probe	= fsp_video_probe,
+	.flags	= DM_FLAG_PRE_RELOC,
 };
 
 static struct pci_device_id fsp_video_supported[] = {
