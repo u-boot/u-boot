@@ -22,6 +22,25 @@ config BACKLIGHT
 	  This provides backlight uclass driver that enables basic panel
 	  backlight support.
 
+config VIDEO_PCI_DEFAULT_FB_SIZE
+	hex "Default framebuffer size to use if no drivers request it"
+	depends on DM_VIDEO
+	default 0x1000000 if X86 && PCI
+	default 0 if !(X86 && PCI)
+	help
+	  Generally, video drivers request the amount of memory they need for
+	  the frame buffer when they are bound, by setting the size field in
+	  struct video_uc_platdata. That memory is then reserved for use after
+	  relocation. But PCI drivers cannot be bound before relocation unless
+	  they are mentioned in the devicetree.
+
+	  With this value set appropriately, it is possible for PCI video
+	  devices to have a framebuffer allocated by U-Boot.
+
+	  Note: the framebuffer needs to be large enough to store all pixels at
+	  maximum resolution. For example, at 1920 x 1200 with 32 bits per
+	  pixel, 2560 * 1600 * 32 / 8 = 0xfa0000 bytes are needed.
+
 config VIDEO_COPY
 	bool "Enable copying the frame buffer to a hardware copy"
 	depends on DM_VIDEO
