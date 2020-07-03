@@ -33,8 +33,6 @@
 #define CONFIG_ROOTPATH		"/opt/eldk"
 #endif
 
-#define CONFIG_ENV_OVERWRITE		1
-
 #define CONFIG_SYS_AUTOLOAD	"yes"
 
 /* Clock Defines */

@@ -51,8 +51,6 @@
  */
 #define CONFIG_SYS_NS16550_COM1		OMAP34XX_UART1
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
 #define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
 					115200}
 /* EHCI */

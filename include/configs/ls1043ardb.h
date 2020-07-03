@@ -240,9 +240,6 @@
 /*
  * Environment
  */
-#ifndef SPL_NO_ENV
-#define CONFIG_ENV_OVERWRITE
-#endif
 
 #ifdef CONFIG_TFABOOT
 #define CONFIG_SYS_MMC_ENV_DEV		0

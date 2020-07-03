@@ -46,9 +46,6 @@
 
 /* Serial Flash */
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
 #define CONFIG_LOADADDR	0x12000000
 
 #ifdef CONFIG_NFS_CMD

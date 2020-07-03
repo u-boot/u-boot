@@ -212,8 +212,6 @@
 #define CONFIG_PCIE2	/* PCIE controller 2 (slot 2) */
 #define CONFIG_SYS_PCI_64BIT	/* enable 64-bit PCI resources */
 
-#define CONFIG_ENV_OVERWRITE
-
 #define CONFIG_SYS_SATA_MAX_DEVICE	2
 #define CONFIG_LBA48
 

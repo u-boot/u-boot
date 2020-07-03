@@ -13,7 +13,6 @@
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 
 /* Environment */
-#define CONFIG_ENV_OVERWRITE
 
 /* Booting Linux */
 #define CONFIG_BOOTFILE		"uImage"

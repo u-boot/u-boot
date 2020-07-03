@@ -27,8 +27,6 @@
 #define CONFIG_SYS_NONCACHED_MEMORY	SZ_1M
 
 /* Environment */
-/* Allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
 
 /* Preloader -> Uboot */
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE + SZ_2M - \

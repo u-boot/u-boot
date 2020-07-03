@@ -132,8 +132,6 @@
 #define CONFIG_ENV_IS_IN_SPI_FLASH	1
 #endif
 
-#undef CONFIG_ENV_OVERWRITE
-
 /* Cache Configuration */
 #define CONFIG_SYS_CACHELINE_SIZE	16
 #define ICACHE_STATUS			(CONFIG_SYS_INIT_RAM_ADDR + \

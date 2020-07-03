@@ -57,9 +57,6 @@
 #define CONFIG_SYS_DIALOG_PMIC_I2C_ADDR	0x48
 #define CONFIG_SYS_FSL_PMIC_I2C_ADDR	0x8
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
 /* Command definition */
 
 

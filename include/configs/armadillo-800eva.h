@@ -65,7 +65,6 @@
 #define CONFIG_SYS_FLASH_UNLOCK_TOUT	3000
 
 /* ENV setting */
-#define CONFIG_ENV_OVERWRITE	1
 
 /* SH Ether */
 #define CONFIG_SH_ETHER_USE_PORT	0

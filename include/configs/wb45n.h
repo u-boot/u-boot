@@ -55,7 +55,6 @@
 #define CONFIG_NET_RETRY_COUNT      20
 #define CONFIG_MACB_SEARCH_PHY
 #define CONFIG_ETHADDR              C0:EE:40:00:00:00
-#define CONFIG_ENV_OVERWRITE        1
 
 /* System */
 #define CONFIG_SYS_LOAD_ADDR        0x22000000	/* load address */

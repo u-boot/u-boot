@@ -257,8 +257,6 @@
  * Environment Configuration
  */
 
-#define CONFIG_ENV_OVERWRITE
-
 #if defined(CONFIG_TSEC_ENET)
 #define CONFIG_HAS_ETH0
 #define CONFIG_HAS_ETH1

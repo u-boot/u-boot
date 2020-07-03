@@ -362,7 +362,6 @@ int get_scl(void);
 /*
  * Environment Configuration
  */
-#define CONFIG_ENV_OVERWRITE
 #ifndef CONFIG_KM_DEF_ENV		/* if not set by keymile-common.h */
 #define CONFIG_KM_DEF_ENV "km-common=empty\0"
 #endif

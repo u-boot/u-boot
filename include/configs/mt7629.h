@@ -27,8 +27,6 @@
 #define CONFIG_SYS_NONCACHED_MEMORY	SZ_1M
 
 /* Environment */
-/* Allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
 
 /* Defines for SPL */
 #define CONFIG_SPL_STACK		0x106000

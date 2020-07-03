@@ -42,8 +42,6 @@
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
 #define CONFIG_PCI_INDIRECT_BRIDGE 1	/* indirect PCI bridge support */
 
-#define CONFIG_ENV_OVERWRITE
-
 #define CONFIG_BAT_RW		1	/* Use common BAT rw code */
 
 #undef CONFIG_SPD_EEPROM		/* Do not use SPD EEPROM for DDR setup*/

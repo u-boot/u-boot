@@ -210,9 +210,6 @@
 #define CONFIG_BOOTCOMMAND	"nand read 0x22000000 0xA0000 0x200000; bootm"
 
 #elif defined (CONFIG_SYS_USE_FLASH)
-
-#define CONFIG_ENV_OVERWRITE	1
-
 /* JFFS Partition offset set */
 #define CONFIG_SYS_JFFS2_FIRST_BANK	0
 #define CONFIG_SYS_JFFS2_NUM_BANKS	1

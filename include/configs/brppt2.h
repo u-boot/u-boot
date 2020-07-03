@@ -36,7 +36,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
 
 /* Environment */
-#define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 BUR_COMMON_ENV \

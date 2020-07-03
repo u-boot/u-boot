@@ -47,7 +47,6 @@
 #define CONFIG_SYS_BOOTM_LEN		(64 << 20)
 
 /* Environment settings */
-#define CONFIG_ENV_OVERWRITE
 
 /*
  * Autoboot

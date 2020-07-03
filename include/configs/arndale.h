@@ -14,9 +14,6 @@
 #include "exynos5250-common.h"
 #include <configs/exynos5-common.h>
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
 /* MMC SPL */
 #define CONFIG_EXYNOS_SPL
 

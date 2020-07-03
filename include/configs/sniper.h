@@ -96,8 +96,6 @@
  * Environment
  */
 
-#define CONFIG_ENV_OVERWRITE
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"kernel_addr_r=0x82000000\0" \
 	"loadaddr=0x82000000\0" \

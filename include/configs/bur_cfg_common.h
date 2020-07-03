@@ -31,8 +31,6 @@
 #define CONFIG_NETCONSOLE		1
 #define CONFIG_BOOTP_MAY_FAIL		/* if we don't have DHCP environment */
 
-#define CONFIG_ENV_OVERWRITE		/* Overwrite ethaddr / serial# */
-
 /* As stated above, the following choices are optional. */
 
 /* We set the max number of command args high to avoid HUSH bugs. */

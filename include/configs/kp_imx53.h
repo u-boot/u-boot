@@ -24,9 +24,6 @@
 #define CONFIG_SYS_EEPROM_BUS_NUM 1
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 2
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
 /* Command definition */
 #define CONFIG_LOADADDR		0x72000000	/* loadaddr env var */
 

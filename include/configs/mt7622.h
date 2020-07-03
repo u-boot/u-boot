@@ -20,9 +20,6 @@
 #define CONFIG_SYS_MALLOC_LEN		SZ_4M
 #define CONFIG_SYS_NONCACHED_MEMORY	SZ_1M
 
-/* Allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
 #define CONFIG_SYS_MMC_ENV_DEV 0
 
 /* Uboot definition */

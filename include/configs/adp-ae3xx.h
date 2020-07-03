@@ -199,7 +199,6 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	512
 
 /* environments */
-#define CONFIG_ENV_OVERWRITE
 
 
 /* SPI FLASH */

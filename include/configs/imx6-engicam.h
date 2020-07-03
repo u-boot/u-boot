@@ -18,9 +18,6 @@
 
 /* Total Size of Environment Sector */
 
-/* Allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
 /* Environment */
 #ifndef CONFIG_ENV_IS_NOWHERE
 /* Environment in MMC */

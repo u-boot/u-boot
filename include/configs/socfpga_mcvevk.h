@@ -17,7 +17,6 @@
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
 
 /* Environment is in MMC */
-#define CONFIG_ENV_OVERWRITE
 
 /* Extra Environment */
 #define CONFIG_EXTRA_ENV_SETTINGS					\

@@ -47,7 +47,6 @@
 #define CONFIG_SYS_NS16550_COM1     0x48024000  /* Base EVM has UART2 */
 
 /* allow overwriting serial config and ethaddr */
-#define CONFIG_ENV_OVERWRITE
 
 
 /*

@@ -28,7 +28,6 @@
 
 #define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
-#define CONFIG_ENV_OVERWRITE
 
 /*
  * sysclk for MPC85xx

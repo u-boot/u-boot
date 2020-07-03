@@ -30,9 +30,6 @@
 
 #define CONFIG_LOADADDR                 0x80800000
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_CBSIZE		512
 #define CONFIG_SYS_MAXARGS		32

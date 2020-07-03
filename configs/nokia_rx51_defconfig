@@ -39,6 +39,7 @@ CONFIG_CMD_EXT4=y
 CONFIG_CMD_FAT=y
 CONFIG_MTDIDS_DEFAULT="onenand0=onenand"
 CONFIG_MTDPARTS_DEFAULT="mtdparts=onenand:128k(bootloader)ro,384k(config),256k(log),2m(kernel),2m(initfs),-(rootfs)"
+CONFIG_ENV_OVERWRITE=y
 CONFIG_SYS_RELOC_GD_ENV_ADDR=y
 # CONFIG_NET is not set
 CONFIG_TWL4030_LED=y

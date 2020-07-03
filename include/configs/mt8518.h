@@ -35,7 +35,6 @@
 /* ENV Setting */
 #if defined(CONFIG_MMC_MTK)
 #define CONFIG_SYS_MMC_ENV_DEV			0
-#define CONFIG_ENV_OVERWRITE
 
 /* MMC offset in block unit,and block size is 0x200 */
 #define ENV_BOOT_READ_IMAGE \

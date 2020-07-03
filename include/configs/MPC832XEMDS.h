@@ -263,10 +263,6 @@
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed of kgdb serial port */
 #endif
 
-/*
- * Environment Configuration
- */ #define CONFIG_ENV_OVERWRITE
-
 #if defined(CONFIG_UEC_ETH)
 #define CONFIG_HAS_ETH0
 #define CONFIG_HAS_ETH1

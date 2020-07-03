@@ -106,7 +106,6 @@
 #define CONFIG_BOOTP_BOOTFILESIZE
 
 /* Environment settings */
-#define CONFIG_ENV_OVERWRITE
 
 /* Console settings */
 

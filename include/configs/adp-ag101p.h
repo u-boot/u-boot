@@ -317,7 +317,6 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	512
 
 /* environments */
-#define CONFIG_ENV_OVERWRITE
 
 /*
  * For booting Linux, the board info and command line data

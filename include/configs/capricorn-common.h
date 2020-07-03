@@ -135,7 +135,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR		0x80200000
 
 /* Environment organisation */
-#define CONFIG_ENV_OVERWRITE
 #define CONFIG_SYS_MMC_ENV_DEV		0	/* USDHC1, eMMC */
 #define CONFIG_SYS_MMC_ENV_PART		2	/* 2nd boot partition */
 

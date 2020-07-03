@@ -46,7 +46,6 @@
 #define CONFIG_SYS_MONITOR_BASE	0x00000000
 
 #define CONFIG_SYS_MMC_ENV_DEV		CONFIG_MMC_DEFAULT_DEV
-#define CONFIG_ENV_OVERWRITE
 
 /* Partitions name */
 #define PARTS_BOOT		"boot"

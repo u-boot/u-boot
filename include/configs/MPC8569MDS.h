@@ -16,7 +16,6 @@
 #define CONFIG_FSL_PCI_INIT	1	/* use common fsl pci init code */
 #define CONFIG_PCI_INDIRECT_BRIDGE 1	/* indirect PCI bridge support */
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
-#define CONFIG_ENV_OVERWRITE
 
 #ifndef __ASSEMBLY__
 extern unsigned long get_clock_freq(void);

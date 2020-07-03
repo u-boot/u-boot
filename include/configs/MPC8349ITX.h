@@ -337,7 +337,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 /*
  * Environment
  */
-#define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_LOADS_ECHO	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change */
@@ -389,7 +388,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 /*
  * Environment Configuration
  */
-#define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_NETDEV		"eth0"
 

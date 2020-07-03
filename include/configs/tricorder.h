@@ -127,9 +127,6 @@
 	"bootm ${loadaddr} ${rdaddr}\0"
 
 #else /* CONFIG_FLASHCARD */
-
-#define CONFIG_ENV_OVERWRITE /* allow to overwrite serial and ethaddr */
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_COMMON_ENV_SETTINGS \
 	"mmcargs=" \

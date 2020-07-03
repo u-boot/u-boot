@@ -17,8 +17,6 @@
 #define CONFIG_FSL_PCI_INIT		/* Use common FSL init code */
 #define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
 
-#define CONFIG_ENV_OVERWRITE
-
 #define CONFIG_ENABLE_36BIT_PHYS
 
 /* Needed to fill the ccsrbar pointer */

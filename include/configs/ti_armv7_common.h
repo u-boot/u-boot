@@ -102,7 +102,6 @@
  * console baudrate of 115200 and use the default baud rate table.
  */
 #define CONFIG_SYS_MALLOC_LEN		SZ_32M
-#define CONFIG_ENV_OVERWRITE		/* Overwrite ethaddr / serial# */
 
 /* As stated above, the following choices are optional. */
 

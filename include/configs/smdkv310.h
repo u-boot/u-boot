@@ -30,9 +30,6 @@
 /* select serial console configuration */
 #define EXYNOS4_DEFAULT_UART_OFFSET	0x010000
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
 /* MMC SPL */
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #define COPY_BL2_FNPTR_ADDR	0x00002488

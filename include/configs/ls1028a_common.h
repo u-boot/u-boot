@@ -57,9 +57,6 @@
 #define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128
 
-/* Allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
 	func(MMC, mmc, 1) \

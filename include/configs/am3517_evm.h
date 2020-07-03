@@ -18,9 +18,6 @@
 
 /* Hardware drivers */
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
 /*
  * USB configuration
  * Enable CONFIG_USB_MUSB_HOST for Host functionalities MSC, keyboard

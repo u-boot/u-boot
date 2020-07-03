@@ -73,7 +73,6 @@
 #undef  CONFIG_SYS_DIRECT_FLASH_TFTP
 
 /* ENV setting */
-#define CONFIG_ENV_OVERWRITE	1
 /* Offset of env Flash sector relative to CONFIG_SYS_FLASH_BASE */
 
 /* Board Clock */

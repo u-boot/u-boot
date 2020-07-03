@@ -21,7 +21,6 @@
 #undef CONFIG_PCI2
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
 
-#define CONFIG_ENV_OVERWRITE
 #define CONFIG_INTERRUPTS		/* enable pci, srio, ddr interrupts */
 
 #define CONFIG_FSL_VIA

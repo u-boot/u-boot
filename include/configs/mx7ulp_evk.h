@@ -35,9 +35,6 @@
 /* UART */
 #define LPUART_BASE			LPUART4_RBASE
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
 #define CONFIG_SYS_CACHELINE_SIZE      64
 
 /* Miscellaneous configurable options */

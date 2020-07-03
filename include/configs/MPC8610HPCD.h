@@ -41,7 +41,6 @@
 #define CONFIG_PCI_INDIRECT_BRIDGE 1	/* indirect PCI bridge support */
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
 
-#define CONFIG_ENV_OVERWRITE
 #define CONFIG_INTERRUPTS		/* enable pci, srio, ddr interrupts */
 
 #define CONFIG_BAT_RW		1	/* Use common BAT rw code */

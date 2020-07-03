@@ -38,9 +38,6 @@
  */
 #define CONFIG_SYS_MMC_MAX_DEVICE 4
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
 /*
  * Increasing the size of the IO buffer as default nfsargs size is more
  *  than 256 and so it is not possible to edit it

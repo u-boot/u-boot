@@ -80,7 +80,6 @@
 /*
  * Environment Configuration
  */
-#define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_HAS_ETH0
 #define CONFIG_HAS_ETH1

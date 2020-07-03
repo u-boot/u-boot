@@ -51,9 +51,6 @@
  */
 #define CONFIG_SYS_NS16550_COM3		OMAP34XX_UART3
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
 /* commands to include */
 
 #define CONFIG_SYS_I2C

@@ -70,9 +70,6 @@
 #define CONFIG_BMP_16BPP
 #define CONFIG_VIDEO_LOGO
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
 #define CONFIG_ETHPRIME		"FEC0"
 
 #define CONFIG_LOADADDR		0x92000000	/* loadaddr env var */

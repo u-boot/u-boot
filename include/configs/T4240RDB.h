@@ -66,8 +66,6 @@
 #define CONFIG_PCIE3			/* PCIE controller 3 */
 #define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
 
-#define CONFIG_ENV_OVERWRITE
-
 /*
  * These can be toggled for performance analysis, otherwise use default.
  */

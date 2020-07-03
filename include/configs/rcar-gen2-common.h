@@ -38,7 +38,6 @@
 /* ENV setting */
 
 /* Common ENV setting */
-#define CONFIG_ENV_OVERWRITE
 
 /* SF MTD */
 #ifdef CONFIG_SPL_BUILD

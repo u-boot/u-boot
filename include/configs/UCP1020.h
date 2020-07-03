@@ -148,8 +148,6 @@
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
 #endif
 
-#define CONFIG_ENV_OVERWRITE
-
 #define CONFIG_SYS_SATA_MAX_DEVICE	2
 #define CONFIG_LBA48
 

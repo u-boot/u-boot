@@ -50,7 +50,6 @@
 
 /* setting board specific options */
 #define CONFIG_MACH_TYPE		MACH_TYPE_SMARTWEB
-#define CONFIG_ENV_OVERWRITE    1 /* Overwrite ethaddr / serial# */
 #define CONFIG_SYS_AUTOLOAD "yes"
 #define CONFIG_RESET_TO_RETRY
 
