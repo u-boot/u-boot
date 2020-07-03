@@ -4,6 +4,8 @@
  *
  */
 
+#define LOG_CATEGORY LOGC_ARCH
+
 #include <common.h>
 #include <fdt_support.h>
 #include <log.h>
@@ -37,18 +39,30 @@ int riscv_fdt_copy_resv_mem_node(const void *src, void *dst)
 
 	offset = fdt_path_offset(src, "/reserved-memory");
 	if (offset < 0) {
-		printf("No reserved memory region found in source FDT\n");
+		log_debug("No reserved memory region found in source FDT\n");
 		return 0;
+	}
+
+	/*
+	 * Extend the FDT by the following estimated size:
+	 *
+	 * Each PMP memory region entry occupies 64 bytes.
+	 * With 16 PMP memory regions we need 64 * 16 = 1024 bytes.
+	 */
+	err = fdt_open_into(dst, dst, fdt_totalsize(dst) + 1024);
+	if (err < 0) {
+		printf("Device Tree can't be expanded to accommodate new node");
+		return err;
 	}
 
 	fdt_for_each_subnode(node, src, offset) {
 		name = fdt_get_name(src, node, NULL);
 
-		addr = fdtdec_get_addr_size_auto_noparent(src, node,
-							  "reg", 0, &size,
-							  false);
+		addr = fdtdec_get_addr_size_auto_parent(src, offset, node,
+							"reg", 0, &size,
+							false);
 		if (addr == FDT_ADDR_T_NONE) {
-			debug("failed to read address/size for %s\n", name);
+			log_debug("failed to read address/size for %s\n", name);
 			continue;
 		}
 		strncpy(basename, name, max_len);
@@ -62,8 +76,8 @@ int riscv_fdt_copy_resv_mem_node(const void *src, void *dst)
 		pmp_mem.end = addr + size - 1;
 		err = fdtdec_add_reserved_memory(dst, basename, &pmp_mem,
 						 &phandle);
-		if (err < 0) {
-			printf("failed to add reserved memory: %d\n", err);
+		if (err < 0 && err != -FDT_ERR_EXISTS) {
+			log_err("failed to add reserved memory: %d\n", err);
 			return err;
 		}
 		if (!fdt_getprop(src, node, "no-map", NULL))
@@ -82,10 +96,9 @@ int riscv_fdt_copy_resv_mem_node(const void *src, void *dst)
  * @fdt: Pointer to the device tree in which reserved memory node needs to be
  *	 added.
  *
- * In RISC-V, any board compiled with OF_SEPARATE needs to copy the reserved
- * memory node from the device tree provided by the firmware to the device tree
- * used by U-Boot. This is a common function that individual board fixup
- * functions can invoke.
+ * In RISC-V, any board needs to copy the reserved memory node from the device
+ * tree provided by the firmware to the device tree used by U-Boot. This is a
+ * common function that individual board fixup functions can invoke.
  *
  * Return: 0 on success or error otherwise.
  */
@@ -95,6 +108,11 @@ int riscv_board_reserved_mem_fixup(void *fdt)
 	void *src_fdt_addr;
 
 	src_fdt_addr = map_sysmem(gd->arch.firmware_fdt_addr, 0);
+
+	/* avoid the copy if we are using the same device tree */
+	if (src_fdt_addr == fdt)
+		return 0;
+
 	err = riscv_fdt_copy_resv_mem_node(src_fdt_addr, fdt);
 	if (err < 0)
 		return err;
@@ -109,7 +127,7 @@ int board_fix_fdt(void *fdt)
 
 	err = riscv_board_reserved_mem_fixup(fdt);
 	if (err < 0) {
-		printf("failed to fixup DT for reserved memory: %d\n", err);
+		log_err("failed to fixup DT for reserved memory: %d\n", err);
 		return err;
 	}
 
@@ -127,14 +145,14 @@ int arch_fixup_fdt(void *blob)
 	size = fdt_totalsize(blob);
 	err  = fdt_open_into(blob, blob, size + 32);
 	if (err < 0) {
-		printf("Device Tree can't be expanded to accommodate new node");
+		log_err("Device Tree can't be expanded to accommodate new node");
 		return err;
 	}
 	chosen_offset = fdt_path_offset(blob, "/chosen");
 	if (chosen_offset < 0) {
 		err = fdt_add_subnode(blob, 0, "chosen");
 		if (err < 0) {
-			printf("chosen node can not be added\n");
+			log_err("chosen node cannot be added\n");
 			return err;
 		}
 	}

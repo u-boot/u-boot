@@ -27,7 +27,7 @@
 			clocks = <&prci PRCI_CLK_COREPLL>;
 			u-boot,dm-spl;
 			cpu2_intc: interrupt-controller {
-				 u-boot,dm-spl;
+				u-boot,dm-spl;
 			};
 		};
 		cpu3: cpu@3 {
@@ -50,7 +50,7 @@
 		u-boot,dm-spl;
 		otp: otp@10070000 {
 			compatible = "sifive,fu540-c000-otp";
-			reg = <0x0 0x10070000 0x0 0x0FFF>;
+			reg = <0x0 0x10070000 0x0 0x1000>;
 			fuse-count = <0x1000>;
 		};
 		clint@2000000 {
@@ -63,7 +63,7 @@
 			compatible = "sifive,fu540-c000-ddr";
 			reg = <0x0 0x100b0000 0x0 0x0800
 			       0x0 0x100b2000 0x0 0x2000
-			       0x0 0x100b8000 0x0 0x0fff>;
+			       0x0 0x100b8000 0x0 0x1000>;
 			clocks = <&prci PRCI_CLK_DDRPLL>;
 			clock-frequency = <933333324>;
 			u-boot,dm-spl;
@@ -86,4 +86,8 @@
 &eth0 {
 	assigned-clocks = <&prci PRCI_CLK_GEMGXLPLL>;
 	assigned-clock-rates = <125000000>;
+};
+
+&l2cache {
+	status = "okay";
 };

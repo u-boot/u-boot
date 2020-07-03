@@ -273,4 +273,7 @@ config STACK_SIZE_SHIFT
 	int
 	default 14
 
+config OF_BOARD_FIXUP
+	default y if OF_SEPARATE
+
 endmenu

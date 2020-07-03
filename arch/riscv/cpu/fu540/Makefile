@@ -8,4 +8,5 @@ obj-y += spl.o
 else
 obj-y += dram.o
 obj-y += cpu.o
+obj-y += cache.o
 endif
