@@ -196,8 +196,8 @@ int board_usb_init(int index, enum usb_init_type init)
 	for (i = 0; i < 2; i++) {
 		ret = generic_phy_init(&usb_phys[i]);
 		if (ret) {
-			pr_err("Can't init USB PHY%d for %s\n",
-			       i, ofnode_get_name(dwc2_node));
+			pr_debug("Can't init USB PHY%d for %s\n",
+				 i, ofnode_get_name(dwc2_node));
 			return ret;
 		}
 	}
@@ -205,8 +205,8 @@ int board_usb_init(int index, enum usb_init_type init)
 	for (i = 0; i < 2; i++) {
 		ret = generic_phy_power_on(&usb_phys[i]);
 		if (ret) {
-			pr_err("Can't power USB PHY%d for %s\n",
-			       i, ofnode_get_name(dwc2_node));
+			pr_debug("Can't power USB PHY%d for %s\n",
+				 i, ofnode_get_name(dwc2_node));
 			return ret;
 		}
 	}
