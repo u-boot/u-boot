@@ -188,7 +188,8 @@ DM_TEST(dm_test_video_ansi, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
  * check_vidconsole_output() - Run a text console test
  *
  * @uts:	Test state
- * @rot:	Console rotation (0, 90, 180, 270)
+ * @rot:	Console rotation (0=normal orientation, 1=90 degrees clockwise,
+ *		2=upside down, 3=90 degree counterclockwise)
  * @wrap_size:	Expected size of compressed frame buffer for the wrap test
  * @scroll_size: Same for the scroll test
  * @return 0 on success
