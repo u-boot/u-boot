@@ -9,12 +9,13 @@
 
 #include <common.h>
 #include <command.h>
+#include <console.h>
 #include <log.h>
-#include <linux/ctype.h>
 #include <dm.h>
 #include <video.h>
 #include <video_console.h>
 #include <video_font.h>		/* Bitmap font for code page 437 */
+#include <linux/ctype.h>
 
 /*
  * Structure to describe a console color
@@ -556,16 +557,31 @@ int vidconsole_put_string(struct udevice *dev, const char *str)
 static void vidconsole_putc(struct stdio_dev *sdev, const char ch)
 {
 	struct udevice *dev = sdev->priv;
+	int ret;
 
-	vidconsole_put_char(dev, ch);
+	ret = vidconsole_put_char(dev, ch);
+	if (ret) {
+#ifdef DEBUG
+		console_puts_select_stderr(true, "[vc err: putc]");
+#endif
+	}
 	video_sync(dev->parent, false);
 }
 
 static void vidconsole_puts(struct stdio_dev *sdev, const char *s)
 {
 	struct udevice *dev = sdev->priv;
+	int ret;
 
-	vidconsole_put_string(dev, s);
+	ret = vidconsole_put_string(dev, s);
+	if (ret) {
+#ifdef DEBUG
+		char str[30];
+
+		snprintf(str, sizeof(str), "[vc err: puts %d]", ret);
+		console_puts_select_stderr(true, str);
+#endif
+	}
 	video_sync(dev->parent, false);
 }
 
