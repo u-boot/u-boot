@@ -19,6 +19,18 @@
 
 struct udevice;
 
+/**
+ * struct video_uc_platdata - uclass platform data for a video device
+ *
+ * This holds information that the uclass needs to know about each device. It
+ * is accessed using dev_get_uclass_platdata(dev). See 'Theory of operation' at
+ * the top of video-uclass.c for details on how this information is set.
+ *
+ * @align: Frame-buffer alignment, indicating the memory boundary the frame
+ *	buffer should start on. If 0, 1MB is assumed
+ * @size: Frame-buffer size, in bytes
+ * @base: Base address of frame buffer, 0 if not yet known
+ */
 struct video_uc_platdata {
 	uint align;
 	uint size;
