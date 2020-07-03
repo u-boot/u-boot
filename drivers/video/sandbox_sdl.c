@@ -53,6 +53,7 @@ static int sandbox_sdl_bind(struct udevice *dev)
 	plat->xres = dev_read_u32_default(dev, "xres", LCD_MAX_WIDTH);
 	plat->yres = dev_read_u32_default(dev, "yres", LCD_MAX_HEIGHT);
 	plat->bpix = dev_read_u32_default(dev, "log2-depth", VIDEO_BPP16);
+	plat->rot = dev_read_u32_default(dev, "rotate", 0);
 	uc_plat->size = plat->xres * plat->yres * (1 << plat->bpix) / 8;
 	debug("%s: Frame buffer size %x\n", __func__, uc_plat->size);
 
