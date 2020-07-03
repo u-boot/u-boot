@@ -293,6 +293,9 @@ static int video_post_probe(struct udevice *dev)
 
 	priv->fb_size = priv->line_length * priv->ysize;
 
+	if (IS_ENABLED(CONFIG_VIDEO_COPY) && plat->copy_base)
+		priv->copy_fb = map_sysmem(plat->copy_base, plat->size);
+
 	/* Set up colors  */
 	video_set_default_colors(dev, false);
 
