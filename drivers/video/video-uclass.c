@@ -46,6 +46,19 @@
  */
 DECLARE_GLOBAL_DATA_PTR;
 
+/**
+ * struct video_uc_priv - Information for the video uclass
+ *
+ * @video_ptr: Current allocation position of the video framebuffer pointer.
+ *	While binding devices after relocation, this points to the next
+ *	available address to use for a device's framebuffer. It starts at
+ *	gd->video_top and works downwards, running out of space when it hits
+ *	gd->video_bottom.
+ */
+struct video_uc_priv {
+	ulong video_ptr;
+};
+
 void video_set_flush_dcache(struct udevice *dev, bool flush)
 {
 	struct video_priv *priv = dev_get_uclass_priv(dev);
@@ -351,12 +364,21 @@ static int video_post_probe(struct udevice *dev)
 /* Post-relocation, allocate memory for the frame buffer */
 static int video_post_bind(struct udevice *dev)
 {
-	ulong addr = gd->video_top;
+	struct video_uc_priv *uc_priv;
+	ulong addr;
 	ulong size;
 
 	/* Before relocation there is nothing to do here */
 	if (!(gd->flags & GD_FLG_RELOC))
 		return 0;
+
+	/* Set up the video pointer, if this is the first device */
+	uc_priv = dev->uclass->priv;
+	if (!uc_priv->video_ptr)
+		uc_priv->video_ptr = gd->video_top;
+
+	/* Allocate framebuffer space for this device */
+	addr = uc_priv->video_ptr;
 	size = alloc_fb(dev, &addr);
 	if (addr < gd->video_bottom) {
 		/* Device tree node may need the 'u-boot,dm-pre-reloc' or
@@ -368,7 +390,7 @@ static int video_post_bind(struct udevice *dev)
 	}
 	debug("%s: Claiming %lx bytes at %lx for video device '%s'\n",
 	      __func__, size, addr, dev->name);
-	gd->video_bottom = addr;
+	uc_priv->video_ptr = addr;
 
 	return 0;
 }
@@ -381,6 +403,7 @@ UCLASS_DRIVER(video) = {
 	.pre_probe	= video_pre_probe,
 	.post_probe	= video_post_probe,
 	.pre_remove	= video_pre_remove,
+	.priv_auto_alloc_size	= sizeof(struct video_uc_priv),
 	.per_device_auto_alloc_size	= sizeof(struct video_priv),
 	.per_device_platdata_auto_alloc_size = sizeof(struct video_uc_platdata),
 };
