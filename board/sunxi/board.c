@@ -711,7 +711,7 @@ int g_dnl_board_usb_cable_connected(void)
 
 	ret = generic_phy_init(&phy);
 	if (ret) {
-		pr_err("failed to init %s USB PHY\n", dev->name);
+		pr_debug("failed to init %s USB PHY\n", dev->name);
 		return ret;
 	}
 
