@@ -212,7 +212,7 @@ static int console_putc_xy_2(struct udevice *dev, uint x_frac, uint y, char ch)
 	if (x_frac + VID_TO_POS(vc_priv->x_charsize) > vc_priv->xsize_frac)
 		return -EAGAIN;
 	linenum = vid_priv->ysize - y - 1;
-	x = vid_priv->xsize - VID_TO_PIXEL(x_frac) - VIDEO_FONT_WIDTH - 1;
+	x = vid_priv->xsize - VID_TO_PIXEL(x_frac) - 1;
 	line = vid_priv->fb + linenum * vid_priv->line_length + x * pbytes;
 
 	for (row = 0; row < VIDEO_FONT_HEIGHT; row++) {

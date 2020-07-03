@@ -251,7 +251,7 @@ DM_TEST(dm_test_video_rotation1, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 /* Test rotated text output through the console uclass */
 static int dm_test_video_rotation2(struct unit_test_state *uts)
 {
-	ut_assertok(check_vidconsole_output(uts, 2, 785, 446));
+	ut_assertok(check_vidconsole_output(uts, 2, 783, 445));
 
 	return 0;
 }
