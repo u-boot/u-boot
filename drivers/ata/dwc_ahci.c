@@ -62,13 +62,13 @@ static int dwc_ahci_probe(struct udevice *dev)
 
 	ret = generic_phy_init(&phy);
 	if (ret) {
-		pr_err("unable to initialize the sata phy\n");
+		pr_debug("unable to initialize the sata phy\n");
 		return ret;
 	}
 
 	ret = generic_phy_power_on(&phy);
 	if (ret) {
-		pr_err("unable to power on the sata phy\n");
+		pr_debug("unable to power on the sata phy\n");
 		return ret;
 	}
 
