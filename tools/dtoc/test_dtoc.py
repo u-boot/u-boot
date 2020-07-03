@@ -268,6 +268,39 @@ U_BOOT_DEVICE(pmic_at_9) = {
 
 ''', data)
 
+    def test_driver_alias(self):
+        """Test output from a device tree file with a driver alias"""
+        dtb_file = get_dtb_file('dtoc_test_driver_alias.dts')
+        output = tools.GetOutputFilename('output')
+        dtb_platdata.run_steps(['struct'], dtb_file, False, output)
+        with open(output) as infile:
+            data = infile.read()
+        self._CheckStrings(HEADER + '''
+struct dtd_sandbox_gpio {
+\tconst char *\tgpio_bank_name;
+\tbool\t\tgpio_controller;
+\tfdt32_t\t\tsandbox_gpio_count;
+};
+#define dtd_sandbox_gpio_alias dtd_sandbox_gpio
+''', data)
+
+        dtb_platdata.run_steps(['platdata'], dtb_file, False, output)
+        with open(output) as infile:
+            data = infile.read()
+        self._CheckStrings(C_HEADER + '''
+static const struct dtd_sandbox_gpio dtv_gpios_at_0 = {
+\t.gpio_bank_name\t\t= "a",
+\t.gpio_controller\t= true,
+\t.sandbox_gpio_count\t= 0x14,
+};
+U_BOOT_DEVICE(gpios_at_0) = {
+\t.name\t\t= "sandbox_gpio",
+\t.platdata\t= &dtv_gpios_at_0,
+\t.platdata_size\t= sizeof(dtv_gpios_at_0),
+};
+
+''', data)
+
     def test_phandle(self):
         """Test output from a node containing a phandle reference"""
         dtb_file = get_dtb_file('dtoc_test_phandle.dts')
