@@ -680,6 +680,13 @@ config SPL_MMC_SUPPORT
 	  this option to build the drivers in drivers/mmc as part of an SPL
 	  build.
 
+config SYS_MMCSD_FS_BOOT_PARTITION
+	int "MMC Boot Partition"
+	default 1
+	help
+	  Partition on the MMC to load U-Boot from when the MMC is being
+          used in fs mode
+
 config SPL_MMC_TINY
 	bool "Tiny MMC framework in SPL"
 	depends on SPL_MMC_SUPPORT

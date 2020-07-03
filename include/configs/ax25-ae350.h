@@ -19,7 +19,6 @@
 #endif
 
 #ifdef CONFIG_SPL_MMC_SUPPORT
-#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.itb"
 #endif
 #endif

@@ -204,7 +204,6 @@
 /* Defines for SPL */
 
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME        "u-boot.img"
-#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION     1
 
 #define CONFIG_SPL_MAX_SIZE		(SRAM_SCRATCH_SPACE_ADDR - \
 					 CONFIG_SPL_TEXT_BASE)

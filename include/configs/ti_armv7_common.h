@@ -161,7 +161,6 @@
 
 
 /* FAT sd card locations. */
-#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 #ifndef CONFIG_SPL_FS_LOAD_PAYLOAD_NAME
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
 #endif

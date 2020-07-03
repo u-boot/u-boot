@@ -32,7 +32,6 @@
 
 /* MMC support */
 #if defined(CONFIG_SPL_MMC_SUPPORT)
-#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 #define CONFIG_SYS_MONITOR_LEN			409600	/* 400 KB */
 #endif
 

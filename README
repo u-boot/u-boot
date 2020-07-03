@@ -2249,10 +2249,6 @@ The following options need to be configured:
 		parameters from when MMC is being used in raw mode
 		(for falcon mode)
 
-		CONFIG_SYS_MMCSD_FS_BOOT_PARTITION
-		Partition on the MMC to load U-Boot from when the MMC is being
-		used in fs mode
-
 		CONFIG_SPL_FS_LOAD_PAYLOAD_NAME
 		Filename to read to load U-Boot when reading from filesystem
 
