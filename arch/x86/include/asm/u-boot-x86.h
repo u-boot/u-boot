@@ -43,6 +43,14 @@ int x86_cpu_reinit_f(void);
  */
 int x86_cpu_init_tpl(void);
 
+/**
+ * cpu_reinit_fpu() - Reinit the FPU if something is wrong with it
+ *
+ * The FSP-M code can leave registers in use in the FPU. This functions reinits
+ * it so that the FPU can be used safely
+ */
+void cpu_reinit_fpu(void);
+
 int cpu_init_f(void);
 void setup_gdt(struct global_data *id, u64 *gdt_addr);
 /*

@@ -85,6 +85,7 @@ int fsp_memory_init(bool s3wake, bool use_spi_flash)
 	func = (fsp_memory_init_func)(hdr->img_base + hdr->fsp_mem_init);
 	ret = func(&upd, &hob);
 	bootstage_accum(BOOTSTAGE_ID_ACCUM_FSP_M);
+	cpu_reinit_fpu();
 	if (ret)
 		return log_msg_ret("SDRAM init fail\n", ret);
 
