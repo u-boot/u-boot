@@ -95,9 +95,6 @@
 # define DFU_ALT_INFO
 #endif
 
-/* Allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
 /* enable preboot to be loaded before CONFIG_BOOTDELAY */
 
 /* Boot configuration */

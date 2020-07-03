@@ -1,5 +1,11 @@
 menu "Environment"
 
+config ENV_OVERWRITE
+	bool "Enable overwriting environment"
+	help
+	  Use this to permit overriding of certain environmental variables
+	  like Ethernet and Serial
+
 config ENV_IS_NOWHERE
 	bool "Environment is not stored"
 	default y if !ENV_IS_IN_EEPROM && !ENV_IS_IN_EXT4 && \

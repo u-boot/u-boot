@@ -41,6 +41,7 @@ CONFIG_CMD_CACHE=y
 CONFIG_CMD_EXT4_WRITE=y
 CONFIG_DEFAULT_DEVICE_TREE="zynq-zc706"
 CONFIG_OF_LIST="zynq-zc702 zynq-zc706 zynq-zc770-xm010 zynq-zc770-xm011 zynq-zc770-xm011-x16 zynq-zc770-xm012 zynq-zc770-xm013 zynq-cc108 zynq-microzed zynq-minized zynq-picozed zynq-zed zynq-zturn zynq-zybo zynq-zybo-z7 zynq-dlc20-rev1.0"
+CONFIG_ENV_OVERWRITE=y
 CONFIG_ENV_IS_IN_SPI_FLASH=y
 CONFIG_SYS_RELOC_GD_ENV_ADDR=y
 CONFIG_NET_RANDOM_ETHADDR=y
