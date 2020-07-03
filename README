@@ -2281,8 +2281,6 @@ The following options need to be configured:
 		CONFIG_SPL_SKIP_RELOCATE
 		Avoid SPL relocation
 
-		CONFIG_SPL_NAND_BASE
-		Include nand_base.c in the SPL.  Requires
 		CONFIG_SPL_NAND_IDENT
 		SPL uses the chip ID list to identify the NAND flash.
 		Requires CONFIG_SPL_NAND_BASE.

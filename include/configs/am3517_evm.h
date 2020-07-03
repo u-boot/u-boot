@@ -175,6 +175,4 @@
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.img"
 
-#define CONFIG_SPL_NAND_BASE
-
 #endif /* __CONFIG_H */
