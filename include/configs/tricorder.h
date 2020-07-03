@@ -204,8 +204,6 @@
 /* Defines for SPL */
 
 #define CONFIG_SPL_NAND_BASE
-#define CONFIG_SPL_NAND_DRIVERS
-#define CONFIG_SPL_NAND_ECC
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME        "u-boot.img"
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION     1
 

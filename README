@@ -2283,21 +2283,9 @@ The following options need to be configured:
 
 		CONFIG_SPL_NAND_BASE
 		Include nand_base.c in the SPL.  Requires
-		CONFIG_SPL_NAND_DRIVERS.
-
-		CONFIG_SPL_NAND_DRIVERS
-		SPL uses normal NAND drivers, not minimal drivers.
-
 		CONFIG_SPL_NAND_IDENT
 		SPL uses the chip ID list to identify the NAND flash.
 		Requires CONFIG_SPL_NAND_BASE.
-
-		CONFIG_SPL_NAND_ECC
-		Include standard software ECC in the SPL
-
-		CONFIG_SPL_NAND_SIMPLE
-		Support for NAND boot using simple NAND drivers that
-		expose the cmd_ctrl() interface.
 
 		CONFIG_SPL_UBI
 		Support for a lightweight UBI (fastmap) scanner and

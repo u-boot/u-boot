@@ -738,6 +738,20 @@ config SPL_NAND_SUPPORT
 	  This enables the drivers in drivers/mtd/nand/raw as part of an SPL
 	  build.
 
+config SPL_NAND_DRIVERS
+	bool "Use standard NAND driver"
+	help
+	  SPL uses normal NAND drivers, not minimal drivers.
+
+config SPL_NAND_ECC
+	bool "Include standard software ECC in the SPL"
+
+config SPL_NAND_SIMPLE
+	bool "Support simple NAND drivers in SPL"
+	help
+	  Support for NAND boot using simple NAND drivers that
+	  expose the cmd_ctrl() interface.
+
 config SPL_UBI
 	bool "Support UBI"
 	help
