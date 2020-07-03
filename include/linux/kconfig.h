@@ -23,25 +23,12 @@
 #define ___config_enabled(__ignored, val, ...) val
 
 /*
- * IS_ENABLED(CONFIG_FOO) evaluates to 1 if CONFIG_FOO is set to 'y' or 'm',
+ * IS_ENABLED(CONFIG_FOO) evaluates to 1 if CONFIG_FOO is set to 'y',
  * 0 otherwise.
  *
  */
 #define IS_ENABLED(option) \
-	(config_enabled(option) || config_enabled(option##_MODULE))
-
-/*
- * IS_BUILTIN(CONFIG_FOO) evaluates to 1 if CONFIG_FOO is set to 'y', 0
- * otherwise. For boolean options, this is equivalent to
- * IS_ENABLED(CONFIG_FOO).
- */
-#define IS_BUILTIN(option) config_enabled(option)
-
-/*
- * IS_MODULE(CONFIG_FOO) evaluates to 1 if CONFIG_FOO is set to 'm', 0
- * otherwise.
- */
-#define IS_MODULE(option) config_enabled(option##_MODULE)
+	(config_enabled(option))
 
 /*
  * U-Boot add-on: Helper macros to reference to different macros
@@ -70,29 +57,12 @@
 
 /*
  * CONFIG_IS_ENABLED(FOO) evaluates to
- *  1 if CONFIG_SPL_BUILD is undefined and CONFIG_FOO is set to 'y' or 'm',
- *  1 if CONFIG_SPL_BUILD is defined and CONFIG_SPL_FOO is set to 'y' or 'm',
- *  1 if CONFIG_TPL_BUILD is defined and CONFIG_TPL_FOO is set to 'y' or 'm',
+ *  1 if CONFIG_SPL_BUILD is undefined and CONFIG_FOO is set to 'y',
+ *  1 if CONFIG_SPL_BUILD is defined and CONFIG_SPL_FOO is set to 'y',
+ *  1 if CONFIG_TPL_BUILD is defined and CONFIG_TPL_FOO is set to 'y',
  *  0 otherwise.
  */
 #define CONFIG_IS_ENABLED(option) \
-	(config_enabled(CONFIG_VAL(option)) ||		\
-	 config_enabled(CONFIG_VAL(option##_MODULE)))
-
-/*
- * CONFIG_IS_BUILTIN(FOO) evaluates to
- *  1 if CONFIG_SPL_BUILD is undefined and CONFIG_FOO is set to 'y',
- *  1 if CONFIG_SPL_BUILD is defined and CONFIG_SPL_FOO is set to 'y',
- *  0 otherwise.
- */
-#define CONFIG_IS_BUILTIN(option) config_enabled(CONFIG_VAL(option))
-
-/*
- * CONFIG_IS_MODULE(FOO) evaluates to
- *  1 if CONFIG_SPL_BUILD is undefined and CONFIG_FOO is set to 'm',
- *  1 if CONFIG_SPL_BUILD is defined and CONFIG_SPL_FOO is set to 'm',
- *  0 otherwise.
- */
-#define CONFIG_IS_MODULE(option) config_enabled(CONFIG_VAL(option##_MODULE))
+	(config_enabled(CONFIG_VAL(option)))
 
 #endif /* __LINUX_KCONFIG_H */
