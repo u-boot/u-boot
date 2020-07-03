@@ -8,6 +8,8 @@
 
 #include <video.h>
 
+struct video_priv;
+
 #define VID_FRAC_DIV	256
 
 #define VID_TO_PIXEL(x)	((x) / VID_FRAC_DIV)
@@ -241,8 +243,6 @@ int vidconsole_put_string(struct udevice *dev, const char *str);
 void vidconsole_position_cursor(struct udevice *dev, unsigned col,
 				unsigned row);
 
-#ifdef CONFIG_DM_VIDEO
-
 /**
  * vid_console_color() - convert a color code to a pixel's internal
  * representation
@@ -255,7 +255,5 @@ void vidconsole_position_cursor(struct udevice *dev, unsigned col,
  * @return	color value
  */
 u32 vid_console_color(struct video_priv *priv, unsigned int idx);
-
-#endif
 
 #endif
