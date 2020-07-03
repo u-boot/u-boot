@@ -229,16 +229,32 @@ static void console_putc(int file, const char c)
 	}
 }
 
-static void console_puts_noserial(int file, const char *s)
+/**
+ * console_puts_select() - Output a string to all console devices
+ *
+ * @file: File number to output to (e,g, stdout, see stdio.h)
+ * @serial_only: true to output only to serial, false to output to everything
+ *	else
+ * @s: String to output
+ */
+static void console_puts_select(int file, bool serial_only, const char *s)
 {
 	int i;
 	struct stdio_dev *dev;
 
 	for (i = 0; i < cd_count[file]; i++) {
+		bool is_serial;
+
 		dev = console_devices[file][i];
-		if (dev->puts != NULL && !console_dev_is_serial(dev))
+		is_serial = console_dev_is_serial(dev);
+		if (dev->puts && serial_only == is_serial)
 			dev->puts(dev, s);
 	}
+}
+
+void console_puts_select_stderr(bool serial_only, const char *s)
+{
+	console_puts_select(stderr, serial_only, s);
 }
 
 static void console_puts(int file, const char *s)
@@ -275,9 +291,9 @@ static inline void console_putc(int file, const char c)
 	stdio_devices[file]->putc(stdio_devices[file], c);
 }
 
-static inline void console_puts_noserial(int file, const char *s)
+void console_puts_select(int file, bool serial_only, const char *s)
 {
-	if (!console_dev_is_serial(stdio_devices[file]))
+	if (serial_only == console_dev_is_serial(stdio_devices[file]))
 		stdio_devices[file]->puts(stdio_devices[file], s);
 }
 
@@ -489,7 +505,7 @@ static void print_pre_console_buffer(int flushpoint)
 		puts(buf_out);
 		break;
 	case PRE_CONSOLE_FLUSHPOINT2_EVERYTHING_BUT_SERIAL:
-		console_puts_noserial(stdout, buf_out);
+		console_puts_select(stdout, false, buf_out);
 		break;
 	}
 }
@@ -776,7 +792,7 @@ int console_announce_r(void)
 
 	display_options_get_banner(false, buf, sizeof(buf));
 
-	console_puts_noserial(stdout, buf);
+	console_puts_select(stdout, false, buf);
 #endif
 
 	return 0;
