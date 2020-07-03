@@ -51,12 +51,18 @@ DM_TEST(dm_test_video_base, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
  * size of the compressed data. This provides a pretty good level of
  * certainty and the resulting tests need only check a single value.
  *
+ * If the copy framebuffer is enabled, this compares it to the main framebuffer
+ * too.
+ *
+ * @uts:	Test state
  * @dev:	Video device
  * @return compressed size of the frame buffer, or -ve on error
  */
-static int compress_frame_buffer(struct udevice *dev)
+static int compress_frame_buffer(struct unit_test_state *uts,
+				 struct udevice *dev)
 {
 	struct video_priv *priv = dev_get_uclass_priv(dev);
+	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	uint destlen;
 	void *dest;
 	int ret;
@@ -71,6 +77,13 @@ static int compress_frame_buffer(struct udevice *dev)
 	free(dest);
 	if (ret)
 		return ret;
+
+	/* Check here that the copy frame buffer is working correctly */
+	if (IS_ENABLED(CONFIG_VIDEO_COPY)) {
+		ut_assertf(!memcmp(uc_priv->fb, uc_priv->copy_fb,
+				   uc_priv->fb_size),
+				   "Copy framebuffer does not match fb");
+	}
 
 	return destlen;
 }
@@ -110,25 +123,25 @@ static int dm_test_video_text(struct unit_test_state *uts)
 
 	ut_assertok(select_vidconsole(uts, "vidconsole0"));
 	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
-	ut_asserteq(46, compress_frame_buffer(dev));
+	ut_asserteq(46, compress_frame_buffer(uts, dev));
 
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
 	vidconsole_putc_xy(con, 0, 0, 'a');
-	ut_asserteq(79, compress_frame_buffer(dev));
+	ut_asserteq(79, compress_frame_buffer(uts, dev));
 
 	vidconsole_putc_xy(con, 0, 0, ' ');
-	ut_asserteq(46, compress_frame_buffer(dev));
+	ut_asserteq(46, compress_frame_buffer(uts, dev));
 
 	for (i = 0; i < 20; i++)
 		vidconsole_putc_xy(con, VID_TO_POS(i * 8), 0, ' ' + i);
-	ut_asserteq(273, compress_frame_buffer(dev));
+	ut_asserteq(273, compress_frame_buffer(uts, dev));
 
 	vidconsole_set_row(con, 0, WHITE);
-	ut_asserteq(46, compress_frame_buffer(dev));
+	ut_asserteq(46, compress_frame_buffer(uts, dev));
 
 	for (i = 0; i < 20; i++)
 		vidconsole_putc_xy(con, VID_TO_POS(i * 8), 0, ' ' + i);
-	ut_asserteq(273, compress_frame_buffer(dev));
+	ut_asserteq(273, compress_frame_buffer(uts, dev));
 
 	return 0;
 }
@@ -144,7 +157,7 @@ static int dm_test_video_chars(struct unit_test_state *uts)
 	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
 	vidconsole_put_string(con, test_string);
-	ut_asserteq(466, compress_frame_buffer(dev));
+	ut_asserteq(466, compress_frame_buffer(uts, dev));
 
 	return 0;
 }
@@ -164,20 +177,20 @@ static int dm_test_video_ansi(struct unit_test_state *uts)
 	/* reference clear: */
 	video_clear(con->parent);
 	video_sync(con->parent, false);
-	ut_asserteq(46, compress_frame_buffer(dev));
+	ut_asserteq(46, compress_frame_buffer(uts, dev));
 
 	/* test clear escape sequence: [2J */
 	vidconsole_put_string(con, "A\tB\tC"ANSI_ESC"[2J");
-	ut_asserteq(46, compress_frame_buffer(dev));
+	ut_asserteq(46, compress_frame_buffer(uts, dev));
 
 	/* test set-cursor: [%d;%df */
 	vidconsole_put_string(con, "abc"ANSI_ESC"[2;2fab"ANSI_ESC"[4;4fcd");
-	ut_asserteq(143, compress_frame_buffer(dev));
+	ut_asserteq(143, compress_frame_buffer(uts, dev));
 
 	/* test colors (30-37 fg color, 40-47 bg color) */
 	vidconsole_put_string(con, ANSI_ESC"[30;41mfoo"); /* black on red */
 	vidconsole_put_string(con, ANSI_ESC"[33;44mbar"); /* yellow on blue */
-	ut_asserteq(272, compress_frame_buffer(dev));
+	ut_asserteq(272, compress_frame_buffer(uts, dev));
 
 	return 0;
 }
@@ -208,24 +221,24 @@ static int check_vidconsole_output(struct unit_test_state *uts, int rot,
 
 	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
-	ut_asserteq(46, compress_frame_buffer(dev));
+	ut_asserteq(46, compress_frame_buffer(uts, dev));
 
 	/* Check display wrap */
 	for (i = 0; i < 120; i++)
 		vidconsole_put_char(con, 'A' + i % 50);
-	ut_asserteq(wrap_size, compress_frame_buffer(dev));
+	ut_asserteq(wrap_size, compress_frame_buffer(uts, dev));
 
 	/* Check display scrolling */
 	for (i = 0; i < SCROLL_LINES; i++) {
 		vidconsole_put_char(con, 'A' + i % 50);
 		vidconsole_put_char(con, '\n');
 	}
-	ut_asserteq(scroll_size, compress_frame_buffer(dev));
+	ut_asserteq(scroll_size, compress_frame_buffer(uts, dev));
 
 	/* If we scroll enough, the screen becomes blank again */
 	for (i = 0; i < SCROLL_LINES; i++)
 		vidconsole_put_char(con, '\n');
-	ut_asserteq(46, compress_frame_buffer(dev));
+	ut_asserteq(46, compress_frame_buffer(uts, dev));
 
 	return 0;
 }
@@ -299,7 +312,7 @@ static int dm_test_video_bmp(struct unit_test_state *uts)
 	ut_assertok(read_file(uts, "tools/logos/denx.bmp", &addr));
 
 	ut_assertok(video_bmp_display(dev, addr, 0, 0, false));
-	ut_asserteq(1368, compress_frame_buffer(dev));
+	ut_asserteq(1368, compress_frame_buffer(uts, dev));
 
 	return 0;
 }
@@ -315,7 +328,7 @@ static int dm_test_video_bmp_comp(struct unit_test_state *uts)
 	ut_assertok(read_file(uts, "tools/logos/denx-comp.bmp", &addr));
 
 	ut_assertok(video_bmp_display(dev, addr, 0, 0, false));
-	ut_asserteq(1368, compress_frame_buffer(dev));
+	ut_asserteq(1368, compress_frame_buffer(uts, dev));
 
 	return 0;
 }
@@ -330,7 +343,7 @@ static int dm_test_video_truetype(struct unit_test_state *uts)
 	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
 	vidconsole_put_string(con, test_string);
-	ut_asserteq(12237, compress_frame_buffer(dev));
+	ut_asserteq(12237, compress_frame_buffer(uts, dev));
 
 	return 0;
 }
@@ -351,7 +364,7 @@ static int dm_test_video_truetype_scroll(struct unit_test_state *uts)
 	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
 	vidconsole_put_string(con, test_string);
-	ut_asserteq(35030, compress_frame_buffer(dev));
+	ut_asserteq(35030, compress_frame_buffer(uts, dev));
 
 	return 0;
 }
@@ -372,7 +385,7 @@ static int dm_test_video_truetype_bs(struct unit_test_state *uts)
 	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
 	vidconsole_put_string(con, test_string);
-	ut_asserteq(29018, compress_frame_buffer(dev));
+	ut_asserteq(29018, compress_frame_buffer(uts, dev));
 
 	return 0;
 }
