@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <console.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <log.h>
@@ -200,6 +201,59 @@ int video_get_ysize(struct udevice *dev)
 
 	return priv->ysize;
 }
+
+#ifdef CONFIG_VIDEO_COPY
+int video_sync_copy(struct udevice *dev, void *from, void *to)
+{
+	struct video_priv *priv = dev_get_uclass_priv(dev);
+
+	if (priv->copy_fb) {
+		long offset, size;
+
+		/* Find the offset of the first byte to copy */
+		if ((ulong)to > (ulong)from) {
+			size = to - from;
+			offset = from - priv->fb;
+		} else {
+			size = from - to;
+			offset = to - priv->fb;
+		}
+
+		/*
+		 * Allow a bit of leeway for valid requests somewhere near the
+		 * frame buffer
+		 */
+		if (offset < -priv->fb_size || offset > 2 * priv->fb_size) {
+#ifdef DEBUG
+			char str[80];
+
+			snprintf(str, sizeof(str),
+				 "[sync_copy fb=%p, from=%p, to=%p, offset=%lx]",
+				 priv->fb, from, to, offset);
+			console_puts_select_stderr(true, str);
+#endif
+			return -EFAULT;
+		}
+
+		/*
+		 * Silently crop the memcpy. This allows callers to avoid doing
+		 * this themselves. It is common for the end pointer to go a
+		 * few lines after the end of the frame buffer, since most of
+		 * the update algorithms terminate a line after their last write
+		 */
+		if (offset + size > priv->fb_size) {
+			size = priv->fb_size - offset;
+		} else if (offset < 0) {
+			size += offset;
+			offset = 0;
+		}
+
+		memcpy(priv->copy_fb + offset, priv->fb + offset, size);
+	}
+
+	return 0;
+}
+#endif
 
 /* Set up the colour map */
 static int video_pre_probe(struct udevice *dev)

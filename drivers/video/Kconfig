@@ -22,6 +22,18 @@ config BACKLIGHT
 	  This provides backlight uclass driver that enables basic panel
 	  backlight support.
 
+config VIDEO_COPY
+	bool "Enable copying the frame buffer to a hardware copy"
+	depends on DM_VIDEO
+	help
+	  On some machines (e.g. x86), reading from the frame buffer is very
+	  slow because it is uncached. To improve performance, this feature
+	  allows the frame buffer to be kept in cached memory (allocated by
+	  U-Boot) and then copied to the hardware frame-buffer as needed.
+
+	  To use this, your video driver must set @copy_base in
+	  struct video_uc_platdata.
+
 config BACKLIGHT_PWM
 	bool "Generic PWM based Backlight Driver"
 	depends on BACKLIGHT && DM_PWM
