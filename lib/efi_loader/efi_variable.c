@@ -183,32 +183,36 @@ static const char *parse_attr(const char *str, u32 *attrp, u64 *timep)
 static efi_status_t efi_set_secure_state(u8 secure_boot, u8 setup_mode,
 					 u8 audit_mode, u8 deployed_mode)
 {
-	u32 attributes;
 	efi_status_t ret;
+	const u32 attributes_ro = EFI_VARIABLE_BOOTSERVICE_ACCESS |
+				  EFI_VARIABLE_RUNTIME_ACCESS |
+				  EFI_VARIABLE_READ_ONLY;
+	const u32 attributes_rw = EFI_VARIABLE_BOOTSERVICE_ACCESS |
+				  EFI_VARIABLE_RUNTIME_ACCESS;
 
-	attributes = EFI_VARIABLE_BOOTSERVICE_ACCESS |
-		     EFI_VARIABLE_RUNTIME_ACCESS |
-		     EFI_VARIABLE_READ_ONLY;
 	ret = efi_set_variable_int(L"SecureBoot", &efi_global_variable_guid,
-				   attributes, sizeof(secure_boot),
+				   attributes_ro, sizeof(secure_boot),
 				   &secure_boot, false);
 	if (ret != EFI_SUCCESS)
 		goto err;
 
 	ret = efi_set_variable_int(L"SetupMode", &efi_global_variable_guid,
-				   attributes, sizeof(setup_mode),
+				   attributes_ro, sizeof(setup_mode),
 				   &setup_mode, false);
 	if (ret != EFI_SUCCESS)
 		goto err;
 
 	ret = efi_set_variable_int(L"AuditMode", &efi_global_variable_guid,
-				   attributes, sizeof(audit_mode),
-				   &audit_mode, false);
+				   audit_mode || setup_mode ?
+				   attributes_ro : attributes_rw,
+				   sizeof(audit_mode), &audit_mode, false);
 	if (ret != EFI_SUCCESS)
 		goto err;
 
 	ret = efi_set_variable_int(L"DeployedMode",
-				   &efi_global_variable_guid, attributes,
+				   &efi_global_variable_guid,
+				   audit_mode || deployed_mode || setup_mode ?
+				   attributes_ro : attributes_rw,
 				   sizeof(deployed_mode), &deployed_mode,
 				   false);
 err:
