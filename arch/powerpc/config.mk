@@ -3,10 +3,6 @@
 # (C) Copyright 2000-2010
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
-ifeq ($(CROSS_COMPILE),)
-CROSS_COMPILE := ppc_8xx-
-endif
-
 CONFIG_STANDALONE_LOAD_ADDR ?= 0x40000
 LDFLAGS_FINAL += --gc-sections
 LDFLAGS_FINAL += --bss-plt
