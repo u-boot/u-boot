@@ -20,6 +20,7 @@ static int dm_test_gpio(struct unit_test_state *uts)
 	unsigned int offset, gpio;
 	struct dm_gpio_ops *ops;
 	struct udevice *dev;
+	struct gpio_desc *desc;
 	const char *name;
 	int offset_count;
 	char buf[80];
@@ -108,6 +109,28 @@ static int dm_test_gpio(struct unit_test_state *uts)
 	name = gpio_get_bank_info(dev, &offset_count);
 	ut_asserteq_str("a", name);
 	ut_asserteq(20, offset_count);
+
+	/* add gpio hog tests */
+	ut_assertok(gpio_hog_lookup_name("hog_input_active_low", &desc));
+	ut_asserteq(GPIOD_IS_IN | GPIOD_ACTIVE_LOW, desc->flags);
+	ut_asserteq(0, desc->offset);
+	ut_asserteq(1, dm_gpio_get_value(desc));
+	ut_assertok(gpio_hog_lookup_name("hog_input_active_high", &desc));
+	ut_asserteq(GPIOD_IS_IN, desc->flags);
+	ut_asserteq(1, desc->offset);
+	ut_asserteq(0, dm_gpio_get_value(desc));
+	ut_assertok(gpio_hog_lookup_name("hog_output_low", &desc));
+	ut_asserteq(GPIOD_IS_OUT, desc->flags);
+	ut_asserteq(2, desc->offset);
+	ut_asserteq(0, dm_gpio_get_value(desc));
+	ut_assertok(dm_gpio_set_value(desc, 1));
+	ut_asserteq(1, dm_gpio_get_value(desc));
+	ut_assertok(gpio_hog_lookup_name("hog_output_high", &desc));
+	ut_asserteq(GPIOD_IS_OUT, desc->flags);
+	ut_asserteq(3, desc->offset);
+	ut_asserteq(1, dm_gpio_get_value(desc));
+	ut_assertok(dm_gpio_set_value(desc, 0));
+	ut_asserteq(0, dm_gpio_get_value(desc));
 
 	return 0;
 }

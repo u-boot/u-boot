@@ -600,6 +600,10 @@ static int _dm_gpio_set_dir_flags(struct gpio_desc *desc, ulong flags)
 		}
 	}
 
+	/* save the flags also in descriptor */
+	if (!ret)
+		desc->flags = flags;
+
 	return ret;
 }
 
@@ -614,10 +618,6 @@ int dm_gpio_set_dir_flags(struct gpio_desc *desc, ulong flags)
 	/* combine the requested flags (for IN/OUT) and the descriptor flags */
 	flags |= desc->flags;
 	ret = _dm_gpio_set_dir_flags(desc, flags);
-
-	/* update the descriptor flags */
-	if (ret)
-		desc->flags = flags;
 
 	return ret;
 }
