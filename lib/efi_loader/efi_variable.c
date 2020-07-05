@@ -35,7 +35,8 @@ static u8 efi_vendor_keys;
 static efi_status_t efi_get_variable_common(u16 *variable_name,
 					    const efi_guid_t *vendor,
 					    u32 *attributes,
-					    efi_uintn_t *data_size, void *data);
+					    efi_uintn_t *data_size, void *data,
+					    u64 *timep);
 
 static efi_status_t efi_set_variable_common(u16 *variable_name,
 					    const efi_guid_t *vendor,
@@ -243,7 +244,8 @@ static efi_status_t efi_transfer_secure_state(enum efi_secure_mode mode)
 {
 	efi_status_t ret;
 
-	debug("Switching secure state from %d to %d\n", efi_secure_mode, mode);
+	EFI_PRINT("Switching secure state from %d to %d\n", efi_secure_mode,
+		  mode);
 
 	if (mode == EFI_MODE_DEPLOYED) {
 		ret = efi_set_secure_state(1, 0, 0, 1);
@@ -308,7 +310,7 @@ static efi_status_t efi_init_secure_state(void)
 
 	size = 0;
 	ret = efi_get_variable_common(L"PK", &efi_global_variable_guid,
-				      NULL, &size, NULL);
+				      NULL, &size, NULL, NULL);
 	if (ret == EFI_BUFFER_TOO_SMALL) {
 		if (IS_ENABLED(CONFIG_EFI_SECURE_BOOT))
 			mode = EFI_MODE_USER;
@@ -394,16 +396,16 @@ static struct pkcs7_message *efi_variable_parse_signature(const void *buf,
 	 * TODO:
 	 * The header should be composed in a more refined manner.
 	 */
-	debug("Makeshift prefix added to authentication data\n");
+	EFI_PRINT("Makeshift prefix added to authentication data\n");
 	ebuflen = sizeof(pkcs7_hdr) + buflen;
 	if (ebuflen <= 0x7f) {
-		debug("Data is too short\n");
+		EFI_PRINT("Data is too short\n");
 		return NULL;
 	}
 
 	ebuf = malloc(ebuflen);
 	if (!ebuf) {
-		debug("Out of memory\n");
+		EFI_PRINT("Out of memory\n");
 		return NULL;
 	}
 
@@ -480,11 +482,15 @@ static efi_status_t efi_variable_authenticate(u16 *variable,
 	if (guidcmp(&auth->auth_info.cert_type, &efi_guid_cert_type_pkcs7))
 		goto err;
 
+	memcpy(&timestamp, &auth->time_stamp, sizeof(timestamp));
+	if (timestamp.pad1 || timestamp.nanosecond || timestamp.timezone ||
+	    timestamp.daylight || timestamp.pad2)
+		goto err;
+
 	*data += sizeof(auth->time_stamp) + auth->auth_info.hdr.dwLength;
 	*data_size -= (sizeof(auth->time_stamp)
 				+ auth->auth_info.hdr.dwLength);
 
-	memcpy(&timestamp, &auth->time_stamp, sizeof(timestamp));
 	memset(&tm, 0, sizeof(tm));
 	tm.tm_year = timestamp.year;
 	tm.tm_mon = timestamp.month;
@@ -527,7 +533,7 @@ static efi_status_t efi_variable_authenticate(u16 *variable,
 					       auth->auth_info.hdr.dwLength
 						   - sizeof(auth->auth_info));
 	if (!var_sig) {
-		debug("Parsing variable's signature failed\n");
+		EFI_PRINT("Parsing variable's signature failed\n");
 		goto err;
 	}
 
@@ -558,20 +564,20 @@ static efi_status_t efi_variable_authenticate(u16 *variable,
 
 	/* verify signature */
 	if (efi_signature_verify_with_sigdb(regs, var_sig, truststore, NULL)) {
-		debug("Verified\n");
+		EFI_PRINT("Verified\n");
 	} else {
 		if (truststore2 &&
 		    efi_signature_verify_with_sigdb(regs, var_sig,
 						    truststore2, NULL)) {
-			debug("Verified\n");
+			EFI_PRINT("Verified\n");
 		} else {
-			debug("Verifying variable's signature failed\n");
+			EFI_PRINT("Verifying variable's signature failed\n");
 			goto err;
 		}
 	}
 
 	/* finished checking */
-	*time = rtc_mktime(&tm);
+	*time = new_time;
 	ret = EFI_SUCCESS;
 
 err:
@@ -596,7 +602,8 @@ static efi_status_t efi_variable_authenticate(u16 *variable,
 static efi_status_t efi_get_variable_common(u16 *variable_name,
 					    const efi_guid_t *vendor,
 					    u32 *attributes,
-					    efi_uintn_t *data_size, void *data)
+					    efi_uintn_t *data_size, void *data,
+					    u64 *timep)
 {
 	char *native_name;
 	efi_status_t ret;
@@ -606,7 +613,7 @@ static efi_status_t efi_get_variable_common(u16 *variable_name,
 	u32 attr;
 
 	if (!variable_name || !vendor || !data_size)
-		return EFI_EXIT(EFI_INVALID_PARAMETER);
+		return EFI_INVALID_PARAMETER;
 
 	ret = efi_to_native(&native_name, variable_name, vendor);
 	if (ret)
@@ -620,6 +627,9 @@ static efi_status_t efi_get_variable_common(u16 *variable_name,
 		return EFI_NOT_FOUND;
 
 	val = parse_attr(val, &attr, &time);
+
+	if (timep)
+		*timep = time;
 
 	in_size = *data_size;
 
@@ -640,7 +650,7 @@ static efi_status_t efi_get_variable_common(u16 *variable_name,
 		}
 
 		if (!data) {
-			debug("Variable with no data shouldn't exist.\n");
+			EFI_PRINT("Variable with no data shouldn't exist.\n");
 			return EFI_INVALID_PARAMETER;
 		}
 
@@ -659,7 +669,7 @@ static efi_status_t efi_get_variable_common(u16 *variable_name,
 		}
 
 		if (!data) {
-			debug("Variable with no data shouldn't exist.\n");
+			EFI_PRINT("Variable with no data shouldn't exist.\n");
 			return EFI_INVALID_PARAMETER;
 		}
 
@@ -704,7 +714,7 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
 		  data_size, data);
 
 	ret = efi_get_variable_common(variable_name, vendor, attributes,
-				      data_size, data);
+				      data_size, data, NULL);
 	return EFI_EXIT(ret);
 }
 
@@ -900,7 +910,7 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
 	old_size = 0;
 	attr = 0;
 	ret = efi_get_variable_common(variable_name, vendor, &attr,
-				      &old_size, NULL);
+				      &old_size, NULL, &time);
 	append = !!(attributes & EFI_VARIABLE_APPEND_WRITE);
 	attributes &= ~(u32)EFI_VARIABLE_APPEND_WRITE;
 	delete = !append && (!data_size || !attributes);
@@ -940,8 +950,8 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
 		/* authentication is mandatory */
 		if (!(attributes &
 		      EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS)) {
-			debug("%ls: AUTHENTICATED_WRITE_ACCESS required\n",
-			      variable_name);
+			EFI_PRINT("%ls: AUTHENTICATED_WRITE_ACCESS required\n",
+				  variable_name);
 			ret = EFI_INVALID_PARAMETER;
 			goto err;
 		}
@@ -970,7 +980,7 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
 		if (attributes &
 		    (EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS |
 		     EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS)) {
-			debug("Secure boot is not configured\n");
+			EFI_PRINT("Secure boot is not configured\n");
 			ret = EFI_INVALID_PARAMETER;
 			goto err;
 		}
@@ -991,7 +1001,7 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
 			goto err;
 		}
 		ret = efi_get_variable_common(variable_name, vendor,
-					      &attr, &old_size, old_data);
+					      &attr, &old_size, old_data, NULL);
 		if (ret != EFI_SUCCESS)
 			goto err;
 	} else {
