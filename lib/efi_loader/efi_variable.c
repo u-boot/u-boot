@@ -190,6 +190,8 @@ static efi_status_t efi_set_secure_state(u8 secure_boot, u8 setup_mode,
 	const u32 attributes_rw = EFI_VARIABLE_BOOTSERVICE_ACCESS |
 				  EFI_VARIABLE_RUNTIME_ACCESS;
 
+	efi_secure_boot = secure_boot;
+
 	ret = efi_set_variable_int(L"SecureBoot", &efi_global_variable_guid,
 				   attributes_ro, sizeof(secure_boot),
 				   &secure_boot, false);
@@ -240,8 +242,6 @@ static efi_status_t efi_transfer_secure_state(enum efi_secure_mode mode)
 		ret = efi_set_secure_state(1, 0, 0, 1);
 		if (ret != EFI_SUCCESS)
 			goto err;
-
-		efi_secure_boot = true;
 	} else if (mode == EFI_MODE_AUDIT) {
 		ret = efi_set_variable_int(L"PK", &efi_global_variable_guid,
 					   EFI_VARIABLE_BOOTSERVICE_ACCESS |
@@ -253,14 +253,10 @@ static efi_status_t efi_transfer_secure_state(enum efi_secure_mode mode)
 		ret = efi_set_secure_state(0, 1, 1, 0);
 		if (ret != EFI_SUCCESS)
 			goto err;
-
-		efi_secure_boot = true;
 	} else if (mode == EFI_MODE_USER) {
 		ret = efi_set_secure_state(1, 0, 0, 0);
 		if (ret != EFI_SUCCESS)
 			goto err;
-
-		efi_secure_boot = true;
 	} else if (mode == EFI_MODE_SETUP) {
 		ret = efi_set_secure_state(0, 1, 0, 0);
 		if (ret != EFI_SUCCESS)
