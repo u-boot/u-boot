@@ -376,6 +376,14 @@ static int sun8i_phy_init(struct emac_eth_dev *priv, void *dev)
 	return 0;
 }
 
+#define cache_clean_descriptor(desc)					\
+	flush_dcache_range((uintptr_t)(desc), 				\
+			   (uintptr_t)(desc) + sizeof(struct emac_dma_desc))
+
+#define cache_inv_descriptor(desc)					\
+	invalidate_dcache_range((uintptr_t)(desc),			\
+			       (uintptr_t)(desc) + sizeof(struct emac_dma_desc))
+
 static void rx_descs_init(struct emac_eth_dev *priv)
 {
 	struct emac_dma_desc *desc_table_p = &priv->rx_chain[0];
@@ -432,9 +440,7 @@ static void tx_descs_init(struct emac_eth_dev *priv)
 	desc_p->next =  (uintptr_t)&desc_table_p[0];
 
 	/* Flush the first TX buffer descriptor we will tell the MAC about. */
-	flush_dcache_range((uintptr_t)priv->tx_chain,
-			   (uintptr_t)priv->tx_chain +
-			   sizeof(priv->tx_chain[0]));
+	cache_clean_descriptor(desc_table_p);
 
 	writel((uintptr_t)&desc_table_p[0], priv->mac_reg + EMAC_TX_DMA_DESC);
 	priv->tx_currdescnum = 0;
@@ -570,15 +576,11 @@ static int sun8i_emac_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 	struct emac_dma_desc *desc_p = &priv->rx_chain[desc_num];
 	int length = -EAGAIN;
 	int good_packet = 1;
-	uintptr_t desc_start = (uintptr_t)desc_p;
-	uintptr_t desc_end = desc_start +
-		roundup(sizeof(*desc_p), ARCH_DMA_MINALIGN);
-
 	ulong data_start = (uintptr_t)desc_p->buf_addr;
 	ulong data_end;
 
 	/* Invalidate entire buffer descriptor */
-	invalidate_dcache_range(desc_start, desc_end);
+	cache_inv_descriptor(desc_p);
 
 	status = desc_p->status;
 
@@ -616,10 +618,6 @@ static int sun8i_emac_eth_send(struct udevice *dev, void *packet, int length)
 	struct emac_eth_dev *priv = dev_get_priv(dev);
 	u32 desc_num = priv->tx_currdescnum;
 	struct emac_dma_desc *desc_p = &priv->tx_chain[desc_num];
-	uintptr_t desc_start = (uintptr_t)desc_p;
-	uintptr_t desc_end = desc_start +
-		roundup(sizeof(*desc_p), ARCH_DMA_MINALIGN);
-
 	uintptr_t data_start = (uintptr_t)desc_p->buf_addr;
 	uintptr_t data_end = data_start +
 		roundup(length, ARCH_DMA_MINALIGN);
@@ -635,8 +633,8 @@ static int sun8i_emac_eth_send(struct udevice *dev, void *packet, int length)
 	desc_p->ctl_size |= EMAC_DESC_LAST_DESC | EMAC_DESC_FIRST_DESC;
 	desc_p->status = EMAC_DESC_OWN_DMA;
 
-	/*Descriptors st and status field has changed, so FLUSH it */
-	flush_dcache_range(desc_start, desc_end);
+	/* make sure the MAC reads the actual data from DRAM */
+	cache_clean_descriptor(desc_p);
 
 	/* Move to next Descriptor and wrap around */
 	if (++desc_num >= CONFIG_TX_DESCR_NUM)
@@ -757,15 +755,12 @@ static int sun8i_eth_free_pkt(struct udevice *dev, uchar *packet,
 	struct emac_eth_dev *priv = dev_get_priv(dev);
 	u32 desc_num = priv->rx_currdescnum;
 	struct emac_dma_desc *desc_p = &priv->rx_chain[desc_num];
-	uintptr_t desc_start = (uintptr_t)desc_p;
-	uintptr_t desc_end = desc_start +
-		roundup(sizeof(u32), ARCH_DMA_MINALIGN);
 
-	/* Make the current descriptor valid again */
+	/* give the current descriptor back to the MAC */
 	desc_p->status |= EMAC_DESC_OWN_DMA;
 
 	/* Flush Status field of descriptor */
-	flush_dcache_range(desc_start, desc_end);
+	cache_clean_descriptor(desc_p);
 
 	/* Move to next desc and wrap-around condition. */
 	if (++desc_num >= CONFIG_RX_DESCR_NUM)
