@@ -10,6 +10,7 @@ from argparse import ArgumentParser
 import os
 import re
 import sys
+import traceback
 import unittest
 
 if __name__ == "__main__":
@@ -34,6 +35,8 @@ def AddCommonArgs(parser):
         default=-1, help='Automatically create patches from top n commits')
     parser.add_argument('-e', '--end', type=int, default=0,
         help='Commits to skip at end of patch list')
+    parser.add_argument('-D', '--debug', action='store_true',
+        help='Enabling debugging (provides a full traceback on error)')
     parser.add_argument('-s', '--start', dest='start', type=int,
         default=0, help='Commit to start creating patches from (0 = HEAD)')
 
@@ -97,6 +100,9 @@ if hasattr(args, 'project'):
 
 if __name__ != "__main__":
     pass
+
+if not args.debug:
+    sys.tracebacklimit = 0
 
 # Run our meagre tests
 if args.cmd == 'test':
