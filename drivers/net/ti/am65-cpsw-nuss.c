@@ -746,13 +746,6 @@ static int am65_cpsw_probe_cpsw(struct udevice *dev)
 		goto out;
 	}
 
-	node = dev_read_subnode(dev, "mdio");
-	if (!ofnode_valid(node)) {
-		dev_err(dev, "can't find mdio\n");
-		ret = -ENOENT;
-		goto out;
-	}
-
 	cpsw_common->bus_freq =
 			dev_read_u32_default(dev, "bus_freq",
 					     AM65_CPSW_MDIO_BUS_FREQ_DEF);
