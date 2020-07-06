@@ -560,7 +560,7 @@ static int init_device(struct stm32prog_data *data,
 #ifdef CONFIG_MMC
 	case STM32PROG_MMC:
 		mmc = find_mmc_device(dev->dev_id);
-		if (mmc_init(mmc)) {
+		if (!mmc || mmc_init(mmc)) {
 			stm32prog_err("mmc device %d not found", dev->dev_id);
 			return -ENODEV;
 		}
