@@ -48,7 +48,7 @@ export DTC=${DTC_DIR}/dtc
 TOOLS_DIR=build-sandbox_spl/tools
 
 run_test "binman" ./tools/binman/binman --toolpath ${TOOLS_DIR} test
-run_test "patman" ./tools/patman/patman --test
+run_test "patman" ./tools/patman/patman test
 
 run_test "buildman" ./tools/buildman/buildman -t ${skip}
 run_test "fdt" ./tools/dtoc/test_fdt -t
