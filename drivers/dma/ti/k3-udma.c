@@ -32,12 +32,6 @@
 #include "k3-udma-hwdef.h"
 #include "k3-psil-priv.h"
 
-#if BITS_PER_LONG == 64
-#define RINGACC_RING_USE_PROXY	(0)
-#else
-#define RINGACC_RING_USE_PROXY	(1)
-#endif
-
 #define K3_UDMA_MAX_RFLOWS 1024
 
 struct udma_chan;
@@ -796,19 +790,12 @@ static int udma_alloc_tx_resources(struct udma_chan *uc)
 	if (ret)
 		return ret;
 
-	uc->tchan->t_ring = k3_nav_ringacc_request_ring(
-				ud->ringacc, uc->tchan->id,
-				RINGACC_RING_USE_PROXY);
-	if (!uc->tchan->t_ring) {
+	ret = k3_nav_ringacc_request_rings_pair(ud->ringacc, uc->tchan->id, -1,
+						&uc->tchan->t_ring,
+						&uc->tchan->tc_ring);
+	if (ret) {
 		ret = -EBUSY;
 		goto err_tx_ring;
-	}
-
-	uc->tchan->tc_ring = k3_nav_ringacc_request_ring(
-				ud->ringacc, -1, RINGACC_RING_USE_PROXY);
-	if (!uc->tchan->tc_ring) {
-		ret = -EBUSY;
-		goto err_txc_ring;
 	}
 
 	memset(&ring_cfg, 0, sizeof(ring_cfg));
@@ -827,7 +814,6 @@ static int udma_alloc_tx_resources(struct udma_chan *uc)
 err_ringcfg:
 	k3_nav_ringacc_ring_free(uc->tchan->tc_ring);
 	uc->tchan->tc_ring = NULL;
-err_txc_ring:
 	k3_nav_ringacc_ring_free(uc->tchan->t_ring);
 	uc->tchan->t_ring = NULL;
 err_tx_ring:
@@ -857,6 +843,7 @@ static int udma_alloc_rx_resources(struct udma_chan *uc)
 {
 	struct k3_nav_ring_cfg ring_cfg;
 	struct udma_dev *ud = uc->ud;
+	struct udma_rflow *rflow;
 	int fd_ring_id;
 	int ret;
 
@@ -876,19 +863,12 @@ static int udma_alloc_rx_resources(struct udma_chan *uc)
 
 	fd_ring_id = ud->tchan_cnt + ud->echan_cnt + uc->rchan->id;
 
-	uc->rflow->fd_ring = k3_nav_ringacc_request_ring(
-				ud->ringacc, fd_ring_id,
-				RINGACC_RING_USE_PROXY);
-	if (!uc->rflow->fd_ring) {
+	rflow = uc->rflow;
+	ret = k3_nav_ringacc_request_rings_pair(ud->ringacc, fd_ring_id, -1,
+						&rflow->fd_ring, &rflow->r_ring);
+	if (ret) {
 		ret = -EBUSY;
 		goto err_rx_ring;
-	}
-
-	uc->rflow->r_ring = k3_nav_ringacc_request_ring(
-				ud->ringacc, -1, RINGACC_RING_USE_PROXY);
-	if (!uc->rflow->r_ring) {
-		ret = -EBUSY;
-		goto err_rxc_ring;
 	}
 
 	memset(&ring_cfg, 0, sizeof(ring_cfg));
@@ -896,20 +876,18 @@ static int udma_alloc_rx_resources(struct udma_chan *uc)
 	ring_cfg.elm_size = K3_NAV_RINGACC_RING_ELSIZE_8;
 	ring_cfg.mode = K3_NAV_RINGACC_RING_MODE_RING;
 
-	ret = k3_nav_ringacc_ring_cfg(uc->rflow->fd_ring, &ring_cfg);
-	ret |= k3_nav_ringacc_ring_cfg(uc->rflow->r_ring, &ring_cfg);
-
+	ret = k3_nav_ringacc_ring_cfg(rflow->fd_ring, &ring_cfg);
+	ret |= k3_nav_ringacc_ring_cfg(rflow->r_ring, &ring_cfg);
 	if (ret)
 		goto err_ringcfg;
 
 	return 0;
 
 err_ringcfg:
-	k3_nav_ringacc_ring_free(uc->rflow->r_ring);
-	uc->rflow->r_ring = NULL;
-err_rxc_ring:
-	k3_nav_ringacc_ring_free(uc->rflow->fd_ring);
-	uc->rflow->fd_ring = NULL;
+	k3_nav_ringacc_ring_free(rflow->r_ring);
+	rflow->r_ring = NULL;
+	k3_nav_ringacc_ring_free(rflow->fd_ring);
+	rflow->fd_ring = NULL;
 err_rx_ring:
 	udma_put_rflow(uc);
 err_rflow:
