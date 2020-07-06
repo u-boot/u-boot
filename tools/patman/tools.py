@@ -270,7 +270,7 @@ def ReadFile(fname, binary=True):
                    #(fname, len(data), len(data)))
     return data
 
-def WriteFile(fname, data):
+def WriteFile(fname, data, binary=True):
     """Write data into a file.
 
     Args:
@@ -279,7 +279,7 @@ def WriteFile(fname, data):
     """
     #self._out.Info("Write file '%s' size %d (%#0x)" %
                    #(fname, len(data), len(data)))
-    with open(Filename(fname), 'wb') as fd:
+    with open(Filename(fname), binary and 'wb' or 'w') as fd:
         fd.write(data)
 
 def GetBytes(byte, size):
