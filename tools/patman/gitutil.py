@@ -49,17 +49,24 @@ def LogCmd(commit_range, git_dir=None, oneline=False, reverse=False,
     cmd.append('--')
     return cmd
 
-def CountCommitsToBranch():
+def CountCommitsToBranch(branch):
     """Returns number of commits between HEAD and the tracking branch.
 
     This looks back to the tracking branch and works out the number of commits
     since then.
 
+    Args:
+        branch: Branch to count from (None for current branch)
+
     Return:
         Number of patches that exist on top of the branch
     """
-    pipe = [LogCmd('@{upstream}..', oneline=True),
-            ['wc', '-l']]
+    if branch:
+        us, msg = GetUpstream('.git', branch)
+        rev_range = '%s..%s' % (us, branch)
+    else:
+        rev_range = '@{upstream}..'
+    pipe = [LogCmd(rev_range, oneline=True), ['wc', '-l']]
     stdout = command.RunPipe(pipe, capture=True, oneline=True).stdout
     patch_count = int(stdout)
     return patch_count
@@ -252,13 +259,14 @@ def Fetch(git_dir=None, work_tree=None):
     if result.return_code != 0:
         raise OSError('git fetch: %s' % result.stderr)
 
-def CreatePatches(start, count, ignore_binary, series):
+def CreatePatches(branch, start, count, ignore_binary, series):
     """Create a series of patches from the top of the current branch.
 
     The patch files are written to the current directory using
     git format-patch.
 
     Args:
+        branch: Branch to create patches from (None for current branch)
         start: Commit to start from: 0=HEAD, 1=next one, etc.
         count: number of commits to include
         ignore_binary: Don't generate patches for binary files
@@ -277,7 +285,8 @@ def CreatePatches(start, count, ignore_binary, series):
     prefix = series.GetPatchPrefix()
     if prefix:
         cmd += ['--subject-prefix=%s' % prefix]
-    cmd += ['HEAD~%d..HEAD~%d' % (start + count, start)]
+    brname = branch or 'HEAD'
+    cmd += ['%s~%d..%s~%d' % (brname, start + count, brname, start)]
 
     stdout = command.RunList(cmd)
     files = stdout.splitlines()

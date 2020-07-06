@@ -512,17 +512,19 @@ def GetMetaDataForList(commit_range, git_dir=None, count=None,
     ps.Finalize()
     return series
 
-def GetMetaData(start, count):
+def GetMetaData(branch, start, count):
     """Reads out patch series metadata from the commits
 
     This does a 'git log' on the relevant commits and pulls out the tags we
     are interested in.
 
     Args:
-        start: Commit to start from: 0=HEAD, 1=next one, etc.
+        branch: Branch to use (None for current branch)
+        start: Commit to start from: 0=branch HEAD, 1=next one, etc.
         count: Number of commits to list
     """
-    return GetMetaDataForList('HEAD~%d' % start, None, count)
+    return GetMetaDataForList('%s~%d' % (branch if branch else 'HEAD', start),
+                              None, count)
 
 def GetMetaDataForTest(text):
     """Process metadata from a file containing a git log. Used for tests

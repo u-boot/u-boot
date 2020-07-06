@@ -20,7 +20,7 @@ def setup():
     """Do required setup before doing anything"""
     gitutil.Setup()
 
-def prepare_patches(col, count, start, ignore_binary):
+def prepare_patches(col, branch, count, start, ignore_binary):
     """Figure out what patches to generate, then generate them
 
     The patch files are written to the current directory, e.g. 0001_xxx.patch
@@ -28,6 +28,7 @@ def prepare_patches(col, count, start, ignore_binary):
 
     Args:
         col (terminal.Color): Colour output object
+        branch (str): Branch to create patches from (None = current)
         count (int): Number of patches to produce, or -1 to produce patches for
             the current branch back to the upstream commit
         start (int): Start partch to use (0=first / top of branch)
@@ -42,7 +43,7 @@ def prepare_patches(col, count, start, ignore_binary):
     """
     if count == -1:
         # Work out how many patches to send if we can
-        count = (gitutil.CountCommitsToBranch() - start)
+        count = (gitutil.CountCommitsToBranch(branch) - start)
 
     if not count:
         sys.exit(col.Color(col.RED,
@@ -50,9 +51,9 @@ def prepare_patches(col, count, start, ignore_binary):
 
     # Read the metadata from the commits
     to_do = count
-    series = patchstream.GetMetaData(start, to_do)
+    series = patchstream.GetMetaData(branch, start, to_do)
     cover_fname, patch_files = gitutil.CreatePatches(
-        start, to_do, ignore_binary, series)
+        branch, start, to_do, ignore_binary, series)
 
     # Fix up the patch files to our liking, and insert the cover letter
     patchstream.FixPatches(series, patch_files)
@@ -158,9 +159,11 @@ def send(options):
     setup()
     col = terminal.Color()
     series, cover_fname, patch_files = prepare_patches(
-        col, options.count, options.start, options.ignore_binary)
+        col, options.branch, options.count, options.start,
+        options.ignore_binary)
     ok = check_patches(series, patch_files, options.check_patch,
                        options.verbose)
+
     its_a_go = ok or options.ignore_errors
     if its_a_go:
         email_patches(

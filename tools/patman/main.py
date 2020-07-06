@@ -31,6 +31,8 @@ from patman import test_checkpatch
 parser = OptionParser()
 parser.add_option('-H', '--full-help', action='store_true', dest='full_help',
        default=False, help='Display the README file')
+parser.add_option('-b', '--branch', type='str',
+                  help="Branch to process (by default, the current branch)")
 parser.add_option('-c', '--count', dest='count', type='int',
        default=-1, help='Automatically create patches from top n commits')
 parser.add_option('-i', '--ignore-errors', action='store_true',
