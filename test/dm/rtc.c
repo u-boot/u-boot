@@ -10,6 +10,7 @@
 #include <log.h>
 #include <rtc.h>
 #include <asm/io.h>
+#include <asm/rtc.h>
 #include <asm/test.h>
 #include <dm/test.h>
 #include <test/ut.h>
@@ -129,6 +130,50 @@ static int dm_test_rtc_set_get(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_rtc_set_get, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+static int dm_test_rtc_read_write(struct unit_test_state *uts)
+{
+	struct rtc_time time;
+	struct udevice *dev, *emul;
+	long old_offset;
+	u8 buf[4], reg;
+
+	ut_assertok(uclass_get_device(UCLASS_RTC, 0, &dev));
+
+	memcpy(buf, "car", 4);
+	ut_assertok(dm_rtc_write(dev, REG_AUX0, buf, 4));
+	memset(buf, '\0', sizeof(buf));
+	ut_assertok(dm_rtc_read(dev, REG_AUX0, buf, 4));
+	ut_asserteq(memcmp(buf, "car", 4), 0);
+
+	reg = 'b';
+	ut_assertok(dm_rtc_write(dev, REG_AUX0, &reg, 1));
+	memset(buf, '\0', sizeof(buf));
+	ut_assertok(dm_rtc_read(dev, REG_AUX0, buf, 4));
+	ut_asserteq(memcmp(buf, "bar", 4), 0);
+
+	reg = 't';
+	ut_assertok(dm_rtc_write(dev, REG_AUX2, &reg, 1));
+	memset(buf, '\0', sizeof(buf));
+	ut_assertok(dm_rtc_read(dev, REG_AUX1, buf, 3));
+	ut_asserteq(memcmp(buf, "at", 3), 0);
+
+	ut_assertok(i2c_emul_find(dev, &emul));
+	ut_assert(emul != NULL);
+
+	old_offset = sandbox_i2c_rtc_set_offset(emul, false, 0);
+	ut_assertok(dm_rtc_get(dev, &time));
+
+	ut_assertok(dm_rtc_read(dev, REG_SEC, &reg, 1));
+	ut_asserteq(time.tm_sec, reg);
+	ut_assertok(dm_rtc_read(dev, REG_MDAY, &reg, 1));
+	ut_asserteq(time.tm_mday, reg);
+
+	sandbox_i2c_rtc_set_offset(emul, true, old_offset);
+
+	return 0;
+}
+DM_TEST(dm_test_rtc_read_write, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
 /* Reset the time */
 static int dm_test_rtc_reset(struct unit_test_state *uts)

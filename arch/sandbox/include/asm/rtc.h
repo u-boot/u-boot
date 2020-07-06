@@ -21,6 +21,11 @@ enum {
 
 	REG_RESET	= 0x20,
 
+	REG_AUX0	= 0x30,
+	REG_AUX1,
+	REG_AUX2,
+	REG_AUX3,
+
 	REG_COUNT	= 0x80,
 };
 
