@@ -321,6 +321,29 @@ error:
 	return NULL;
 }
 
+int k3_nav_ringacc_request_rings_pair(struct k3_nav_ringacc *ringacc,
+				      int fwd_id, int compl_id,
+				      struct k3_nav_ring **fwd_ring,
+				      struct k3_nav_ring **compl_ring)
+{
+	int ret = 0;
+
+	if (!fwd_ring || !compl_ring)
+		return -EINVAL;
+
+	*fwd_ring = k3_nav_ringacc_request_ring(ringacc, fwd_id, 0);
+	if (!(*fwd_ring))
+		return -ENODEV;
+
+	*compl_ring = k3_nav_ringacc_request_ring(ringacc, compl_id, 0);
+	if (!(*compl_ring)) {
+		k3_nav_ringacc_ring_free(*fwd_ring);
+		ret = -ENODEV;
+	}
+
+	return ret;
+}
+
 static void k3_ringacc_ring_reset_sci(struct k3_nav_ring *ring)
 {
 	struct k3_nav_ringacc *ringacc = ring->parent;
