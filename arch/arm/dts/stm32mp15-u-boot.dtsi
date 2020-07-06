@@ -189,6 +189,38 @@
 	compatible = "st,stm32-sdmmc2", "arm,pl18x", "arm,primecell";
 };
 
+&usart1 {
+	resets = <&rcc USART1_R>;
+};
+
+&usart2 {
+	resets = <&rcc USART2_R>;
+};
+
+&usart3 {
+	resets = <&rcc USART3_R>;
+};
+
+&uart4 {
+	resets = <&rcc UART4_R>;
+};
+
+&uart5 {
+	resets = <&rcc UART5_R>;
+};
+
+&usart6 {
+	resets = <&rcc USART6_R>;
+};
+
+&uart7 {
+	resets = <&rcc UART7_R>;
+};
+
+&uart8{
+	resets = <&rcc UART8_R>;
+};
+
 &usbotg_hs {
 	compatible = "st,stm32mp1-hsotg", "snps,dwc2";
 };
