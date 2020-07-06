@@ -767,6 +767,17 @@ config ARCH_INTEGRATOR
 	select PL01X_SERIAL
 	imply CMD_DM
 
+config ARCH_IPQ40XX
+	bool "Qualcomm IPQ40xx SoCs"
+	select CPU_V7A
+	select DM
+	select DM_GPIO
+	select DM_SERIAL
+	select PINCTRL
+	select CLK
+	select OF_CONTROL
+	imply CMD_DM
+
 config ARCH_KEYSTONE
 	bool "TI Keystone"
 	select CMD_POWEROFF
@@ -1792,6 +1803,8 @@ source "arch/arm/mach-exynos/Kconfig"
 source "arch/arm/mach-highbank/Kconfig"
 
 source "arch/arm/mach-integrator/Kconfig"
+
+source "arch/arm/mach-ipq40xx/Kconfig"
 
 source "arch/arm/mach-k3/Kconfig"
 

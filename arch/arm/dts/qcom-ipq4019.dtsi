@@ -1,0 +1,79 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (c) 2019 Sartura Ltd.
+ *
+ * Author: Robert Marko <robert.marko@sartura.hr>
+ */
+
+ /dts-v1/;
+
+#include "skeleton.dtsi"
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/pinctrl/pinctrl-snapdragon.h>
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	model = "Qualcomm Technologies, Inc. IPQ4019";
+	compatible = "qcom,ipq4019";
+
+	aliases {
+		serial0 = &blsp1_uart1;
+	};
+
+	reserved-memory {
+		#address-cells = <0x1>;
+		#size-cells = <0x1>;
+		ranges;
+
+		smem_mem: smem_region: smem@87e00000 {
+			reg = <0x87e00000 0x080000>;
+			no-map;
+		};
+
+		tz@87e80000 {
+			reg = <0x87e80000 0x180000>;
+			no-map;
+		};
+	};
+
+	soc: soc {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+		compatible = "simple-bus";
+
+		gcc: clock-controller@1800000 {
+			compatible = "qcom,gcc-ipq4019";
+			reg = <0x1800000 0x60000>;
+			#clock-cells = <1>;
+			#reset-cells = <1>;
+			u-boot,dm-pre-reloc;
+		};
+
+		pinctrl: qcom,tlmm@1000000 {
+			compatible = "qcom,tlmm-ipq4019";
+			reg = <0x1000000 0x300000>;
+			u-boot,dm-pre-reloc;
+		};
+
+		blsp1_uart1: serial@78af000 {
+			compatible = "qcom,msm-uartdm-v1.4", "qcom,msm-uartdm";
+			reg = <0x78af000 0x200>;
+			clock = <&gcc 26>;
+			bit-rate = <0xFF>;
+			status = "disabled";
+			u-boot,dm-pre-reloc;
+		};
+
+		soc_gpios: pinctrl@1000000 {
+			compatible = "qcom,ipq4019-pinctrl";
+			reg = <0x1000000 0x300000>;
+			gpio-controller;
+			gpio-count = <100>;
+			gpio-bank-name="soc";
+			#gpio-cells = <2>;
+		};
+	};
+};
