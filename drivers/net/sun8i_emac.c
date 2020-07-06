@@ -447,22 +447,15 @@ static void tx_descs_init(struct emac_eth_dev *priv)
 static int sun8i_emac_eth_start(struct udevice *dev)
 {
 	struct emac_eth_dev *priv = dev_get_priv(dev);
-	u32 reg;
-	int timeout = 100;
 	int ret;
 
-	reg = readl((priv->mac_reg + EMAC_CTL1));
-
-	if (!(reg & 0x1)) {
-		/* Soft reset MAC */
-		setbits_le32((priv->mac_reg + EMAC_CTL1), 0x1);
-		do {
-			reg = readl(priv->mac_reg + EMAC_CTL1);
-		} while ((reg & 0x01) != 0 &&  (--timeout));
-		if (!timeout) {
-			printf("%s: Timeout\n", __func__);
-			return -1;
-		}
+	/* Soft reset MAC */
+	writel(EMAC_CTL1_SOFT_RST, priv->mac_reg + EMAC_CTL1);
+	ret = wait_for_bit_le32(priv->mac_reg + EMAC_CTL1,
+				EMAC_CTL1_SOFT_RST, false, 10, true);
+	if (ret) {
+		printf("%s: Timeout\n", __func__);
+		return ret;
 	}
 
 	/* Rewrite mac address after reset */
