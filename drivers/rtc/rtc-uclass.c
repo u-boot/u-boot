@@ -40,6 +40,25 @@ int dm_rtc_reset(struct udevice *dev)
 	return ops->reset(dev);
 }
 
+int dm_rtc_read(struct udevice *dev, unsigned int reg, u8 *buf, unsigned int len)
+{
+	struct rtc_ops *ops = rtc_get_ops(dev);
+
+	assert(ops);
+	if (ops->read)
+		return ops->read(dev, reg, buf, len);
+	if (!ops->read8)
+		return -ENOSYS;
+	while (len--) {
+		int ret = ops->read8(dev, reg++);
+
+		if (ret < 0)
+			return ret;
+		*buf++ = ret;
+	}
+	return 0;
+}
+
 int rtc_read8(struct udevice *dev, unsigned int reg)
 {
 	struct rtc_ops *ops = rtc_get_ops(dev);
