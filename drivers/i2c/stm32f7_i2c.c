@@ -873,6 +873,7 @@ static const struct dm_i2c_ops stm32_i2c_ops = {
 
 static const struct udevice_id stm32_i2c_of_match[] = {
 	{ .compatible = "st,stm32f7-i2c", .data = (ulong)&stm32f7_setup },
+	{ .compatible = "st,stm32mp15-i2c", .data = (ulong)&stm32f7_setup },
 	{}
 };
 
