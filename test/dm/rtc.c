@@ -70,7 +70,20 @@ static int dm_test_rtc_set_get(struct unit_test_state *uts)
 	old_base_time = sandbox_i2c_rtc_get_set_base_time(emul, -1);
 
 	memset(&time, '\0', sizeof(time));
-	time.tm_mday = 25;
+	time.tm_mday = 3;
+	time.tm_mon = 6;
+	time.tm_year = 2004;
+	time.tm_sec = 0;
+	time.tm_min = 18;
+	time.tm_hour = 18;
+	ut_assertok(dm_rtc_set(dev, &time));
+
+	memset(&cmp, '\0', sizeof(cmp));
+	ut_assertok(dm_rtc_get(dev, &cmp));
+	ut_assertok(cmp_times(&time, &cmp, true));
+
+	memset(&time, '\0', sizeof(time));
+	time.tm_mday = 31;
 	time.tm_mon = 8;
 	time.tm_year = 2004;
 	time.tm_sec = 0;
