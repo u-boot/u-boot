@@ -35,6 +35,8 @@ parser.add_option('-b', '--branch', type='str',
                   help="Branch to process (by default, the current branch)")
 parser.add_option('-c', '--count', dest='count', type='int',
        default=-1, help='Automatically create patches from top n commits')
+parser.add_option('-e', '--end', type='int', default=0,
+                  help='Commits to skip at end of patch list')
 parser.add_option('-i', '--ignore-errors', action='store_true',
        dest='ignore_errors', default=False,
        help='Send patches email even if patch errors are found')

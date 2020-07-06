@@ -20,7 +20,7 @@ def setup():
     """Do required setup before doing anything"""
     gitutil.Setup()
 
-def prepare_patches(col, branch, count, start, ignore_binary):
+def prepare_patches(col, branch, count, start, end, ignore_binary):
     """Figure out what patches to generate, then generate them
 
     The patch files are written to the current directory, e.g. 0001_xxx.patch
@@ -32,6 +32,8 @@ def prepare_patches(col, branch, count, start, ignore_binary):
         count (int): Number of patches to produce, or -1 to produce patches for
             the current branch back to the upstream commit
         start (int): Start partch to use (0=first / top of branch)
+        end (int): End patch to use (0=last one in series, 1=one before that,
+            etc.)
         ignore_binary (bool): Don't generate patches for binary files
 
     Returns:
@@ -50,7 +52,7 @@ def prepare_patches(col, branch, count, start, ignore_binary):
                            'No commits found to process - please use -c flag'))
 
     # Read the metadata from the commits
-    to_do = count
+    to_do = count - end
     series = patchstream.GetMetaData(branch, start, to_do)
     cover_fname, patch_files = gitutil.CreatePatches(
         branch, start, to_do, ignore_binary, series)
@@ -159,7 +161,7 @@ def send(options):
     setup()
     col = terminal.Color()
     series, cover_fname, patch_files = prepare_patches(
-        col, options.branch, options.count, options.start,
+        col, options.branch, options.count, options.start, options.end,
         options.ignore_binary)
     ok = check_patches(series, patch_files, options.check_patch,
                        options.verbose)

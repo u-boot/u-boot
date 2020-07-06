@@ -430,7 +430,8 @@ complicated as possible''')
             col = terminal.Color()
             with capture_sys_output() as _:
                 _, cover_fname, patch_files = control.prepare_patches(
-                    col, branch=None, count=-1, start=0, ignore_binary=False)
+                    col, branch=None, count=-1, start=0, end=0,
+                    ignore_binary=False)
             self.assertIsNone(cover_fname)
             self.assertEqual(2, len(patch_files))
 
@@ -438,9 +439,17 @@ complicated as possible''')
             self.assertEqual(3, gitutil.CountCommitsToBranch('second'))
             with capture_sys_output() as _:
                 _, cover_fname, patch_files = control.prepare_patches(
-                    col, branch='second', count=-1, start=0,
+                    col, branch='second', count=-1, start=0, end=0,
                     ignore_binary=False)
             self.assertIsNotNone(cover_fname)
             self.assertEqual(3, len(patch_files))
+
+            # Check that it can skip patches at the end
+            with capture_sys_output() as _:
+                _, cover_fname, patch_files = control.prepare_patches(
+                    col, branch='second', count=-1, start=0, end=1,
+                    ignore_binary=False)
+            self.assertIsNotNone(cover_fname)
+            self.assertEqual(2, len(patch_files))
         finally:
             os.chdir(orig_dir)
