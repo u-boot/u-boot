@@ -435,6 +435,7 @@ static int _sun8i_emac_eth_init(struct emac_eth_dev *priv, u8 *enetaddr)
 {
 	u32 reg, v;
 	int timeout = 100;
+	int ret;
 
 	reg = readl((priv->mac_reg + EMAC_CTL1));
 
@@ -473,7 +474,9 @@ static int _sun8i_emac_eth_init(struct emac_eth_dev *priv, u8 *enetaddr)
 	tx_descs_init(priv);
 
 	/* PHY Start Up */
-	phy_startup(priv->phydev);
+	ret = phy_startup(priv->phydev);
+	if (ret)
+		return ret;
 
 	sun8i_adjust_link(priv, priv->phydev);
 
