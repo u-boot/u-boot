@@ -37,7 +37,7 @@ re_change_id = re.compile('^Change-Id: *(.*)')
 re_commit_tag = re.compile('^Commit-([a-z-]*): *(.*)')
 
 # Commit tags that we want to collect and keep
-re_tag = re.compile('^(Tested-by|Acked-by|Reviewed-by|Patch-cc): (.*)')
+re_tag = re.compile('^(Tested-by|Acked-by|Reviewed-by|Patch-cc|Fixes): (.*)')
 
 # The start of a new commit in the git log
 re_commit = re.compile('^commit ([0-9a-f]*)$')
@@ -111,6 +111,15 @@ class PatchStream:
         if name == 'notes':
             self.in_section = 'commit-' + name
             self.skip_blank = False
+
+    def AddCommitRtag(self, rtag_type, who):
+        """Add a response tag to the current commit
+
+        Args:
+            key: rtag type (e.g. 'Reviewed-by')
+            who: Person who gave that rtag, e.g. 'Fred Bloggs <fred@bloggs.org>'
+        """
+        self.commit.AddRtag(rtag_type, who)
 
     def CloseCommit(self):
         """Save the current commit into our commit list, and reset our state"""
@@ -346,12 +355,14 @@ class PatchStream:
 
         # Detect tags in the commit message
         elif tag_match:
+            rtag_type, who = tag_match.groups()
+            self.AddCommitRtag(rtag_type, who)
             # Remove Tested-by self, since few will take much notice
-            if (tag_match.group(1) == 'Tested-by' and
-                    tag_match.group(2).find(os.getenv('USER') + '@') != -1):
+            if (rtag_type == 'Tested-by' and
+                    who.find(os.getenv('USER') + '@') != -1):
                 self.warn.append("Ignoring %s" % line)
-            elif tag_match.group(1) == 'Patch-cc':
-                self.commit.AddCc(tag_match.group(2).split(','))
+            elif rtag_type == 'Patch-cc':
+                self.commit.AddCc(who.split(','))
             else:
                 out = [line]
 
