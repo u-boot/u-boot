@@ -61,6 +61,9 @@
 #define AM65_CPSW_ALE_PN_CTL_REG_MODE_FORWARD	0x3
 #define AM65_CPSW_ALE_PN_CTL_REG_MAC_ONLY	BIT(11)
 
+#define AM65_CPSW_ALE_THREADMAPDEF_REG		0x134
+#define AM65_CPSW_ALE_DEFTHREAD_EN		BIT(15)
+
 #define AM65_CPSW_MACSL_CTL_REG			0x0
 #define AM65_CPSW_MACSL_CTL_REG_IFCTL_A		BIT(15)
 #define AM65_CPSW_MACSL_CTL_EXT_EN		BIT(18)
@@ -363,6 +366,9 @@ static int am65_cpsw_start(struct udevice *dev)
 	/* port 0 put into forward mode */
 	writel(AM65_CPSW_ALE_PN_CTL_REG_MODE_FORWARD,
 	       common->ale_base + AM65_CPSW_ALE_PN_CTL_REG(0));
+
+	writel(AM65_CPSW_ALE_DEFTHREAD_EN,
+	       common->ale_base + AM65_CPSW_ALE_THREADMAPDEF_REG);
 
 	/* PORT x configuration */
 
