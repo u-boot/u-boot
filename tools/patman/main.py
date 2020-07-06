@@ -25,6 +25,7 @@ from patman import patchstream
 from patman import project
 from patman import settings
 from patman import terminal
+from patman import test_util
 from patman import test_checkpatch
 
 
@@ -101,12 +102,7 @@ elif options.test:
         suite = doctest.DocTestSuite(module)
         suite.run(result)
 
-    # TODO: Surely we can just 'print' result?
-    print(result)
-    for test, err in result.errors:
-        print(err)
-    for test, err in result.failures:
-        print(err)
+    sys.exit(test_util.ReportResult('patman', None, result))
 
 # Called from git with a patch filename as argument
 # Printout a list of additional CC recipients for this patch
