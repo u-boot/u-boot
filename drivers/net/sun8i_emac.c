@@ -107,6 +107,8 @@
 #define	EMAC_RX_CTL0_RX_EN		BIT(31)
 #define EMAC_RX_CTL1		0x28
 #define	EMAC_RX_CTL1_RX_MD		BIT(1)
+#define	EMAC_RX_CTL1_RX_RUNT_FRM	BIT(2)
+#define	EMAC_RX_CTL1_RX_ERR_FRM		BIT(3)
 #define	EMAC_RX_CTL1_RX_DMA_EN		BIT(30)
 #define	EMAC_RX_CTL1_RX_DMA_START	BIT(31)
 #define EMAC_RX_DMA_DESC	0x34
@@ -124,6 +126,8 @@
 #define EMAC_DESC_LAST_DESC	BIT(30)
 #define EMAC_DESC_FIRST_DESC	BIT(29)
 #define EMAC_DESC_CHAIN_SECOND	BIT(24)
+
+#define EMAC_DESC_RX_ERROR_MASK	0x400068db
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -485,7 +489,8 @@ static int sun8i_emac_eth_start(struct udevice *dev)
 	sun8i_adjust_link(priv, priv->phydev);
 
 	/* Start RX/TX DMA */
-	setbits_le32(priv->mac_reg + EMAC_RX_CTL1, EMAC_RX_CTL1_RX_DMA_EN);
+	setbits_le32(priv->mac_reg + EMAC_RX_CTL1, EMAC_RX_CTL1_RX_DMA_EN |
+		     EMAC_RX_CTL1_RX_ERR_FRM | EMAC_RX_CTL1_RX_RUNT_FRM);
 	setbits_le32(priv->mac_reg + EMAC_TX_CTL1, EMAC_TX_CTL1_TX_DMA_EN);
 
 	/* Enable RX/TX */
@@ -565,10 +570,8 @@ static int sun8i_emac_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 	struct emac_eth_dev *priv = dev_get_priv(dev);
 	u32 status, desc_num = priv->rx_currdescnum;
 	struct emac_dma_desc *desc_p = &priv->rx_chain[desc_num];
-	int length = -EAGAIN;
-	int good_packet = 1;
-	ulong data_start = (uintptr_t)desc_p->buf_addr;
-	ulong data_end;
+	uintptr_t data_start = (uintptr_t)desc_p->buf_addr;
+	int length;
 
 	/* Invalidate entire buffer descriptor */
 	cache_inv_descriptor(desc_p);
@@ -576,30 +579,31 @@ static int sun8i_emac_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 	status = desc_p->status;
 
 	/* Check for DMA own bit */
-	if (!(status & EMAC_DESC_OWN_DMA)) {
-		length = (desc_p->status >> 16) & 0x3FFF;
+	if (status & EMAC_DESC_OWN_DMA)
+		return -EAGAIN;
 
-		if (length < 0x40) {
-			good_packet = 0;
-			debug("RX: Bad Packet (runt)\n");
-		}
+	length = (status >> 16) & 0x3fff;
 
-		data_end = data_start + length;
-		/* Invalidate received data */
-		invalidate_dcache_range(rounddown(data_start,
-						  ARCH_DMA_MINALIGN),
-					roundup(data_end,
-						ARCH_DMA_MINALIGN));
-		if (good_packet) {
-			if (length > CONFIG_ETH_RXSIZE) {
-				printf("Received packet is too big (len=%d)\n",
-				       length);
-				return -EMSGSIZE;
-			}
-			*packetp = (uchar *)(ulong)desc_p->buf_addr;
-			return length;
-		}
+	/* make sure we read from DRAM, not our cache */
+	invalidate_dcache_range(data_start,
+				data_start + roundup(length, ARCH_DMA_MINALIGN));
+
+	if (status & EMAC_DESC_RX_ERROR_MASK) {
+		debug("RX: packet error: 0x%x\n",
+		      status & EMAC_DESC_RX_ERROR_MASK);
+		return 0;
 	}
+	if (length < 0x40) {
+		debug("RX: Bad Packet (runt)\n");
+		return 0;
+	}
+
+	if (length > CONFIG_ETH_RXSIZE) {
+		debug("RX: Too large packet (%d bytes)\n", length);
+		return 0;
+	}
+
+	*packetp = (uchar *)(ulong)desc_p->buf_addr;
 
 	return length;
 }
