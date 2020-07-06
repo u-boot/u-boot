@@ -41,6 +41,11 @@
 #define MDIO_CMD_MII_PHY_REG_ADDR_SHIFT	4
 #define MDIO_CMD_MII_PHY_ADDR_MASK	0x0001f000
 #define MDIO_CMD_MII_PHY_ADDR_SHIFT	12
+#define MDIO_CMD_MII_CLK_CSR_DIV_16	0x0
+#define MDIO_CMD_MII_CLK_CSR_DIV_32	0x1
+#define MDIO_CMD_MII_CLK_CSR_DIV_64	0x2
+#define MDIO_CMD_MII_CLK_CSR_DIV_128	0x3
+#define MDIO_CMD_MII_CLK_CSR_SHIFT	20
 
 #define CONFIG_TX_DESCR_NUM	32
 #define CONFIG_RX_DESCR_NUM	32
@@ -199,6 +204,12 @@ static int sun8i_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
 	mii_cmd |= (addr << MDIO_CMD_MII_PHY_ADDR_SHIFT) &
 		MDIO_CMD_MII_PHY_ADDR_MASK;
 
+	/*
+	 * The EMAC clock is either 200 or 300 MHz, so we need a divider
+	 * of 128 to get the MDIO frequency below the required 2.5 MHz.
+	 */
+	mii_cmd |= MDIO_CMD_MII_CLK_CSR_DIV_128 << MDIO_CMD_MII_CLK_CSR_SHIFT;
+
 	mii_cmd |= MDIO_CMD_MII_BUSY;
 
 	writel(mii_cmd, priv->mac_reg + EMAC_MII_CMD);
@@ -223,6 +234,12 @@ static int sun8i_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
 		MDIO_CMD_MII_PHY_REG_ADDR_MASK;
 	mii_cmd |= (addr << MDIO_CMD_MII_PHY_ADDR_SHIFT) &
 		MDIO_CMD_MII_PHY_ADDR_MASK;
+
+	/*
+	 * The EMAC clock is either 200 or 300 MHz, so we need a divider
+	 * of 128 to get the MDIO frequency below the required 2.5 MHz.
+	 */
+	mii_cmd |= MDIO_CMD_MII_CLK_CSR_DIV_128 << MDIO_CMD_MII_CLK_CSR_SHIFT;
 
 	mii_cmd |= MDIO_CMD_MII_WRITE;
 	mii_cmd |= MDIO_CMD_MII_BUSY;
