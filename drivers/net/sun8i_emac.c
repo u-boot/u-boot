@@ -431,10 +431,10 @@ static void tx_descs_init(struct emac_eth_dev *priv)
 	/* Correcting the last pointer of the chain */
 	desc_p->next =  (uintptr_t)&desc_table_p[0];
 
-	/* Flush all Tx buffer descriptors */
+	/* Flush the first TX buffer descriptor we will tell the MAC about. */
 	flush_dcache_range((uintptr_t)priv->tx_chain,
 			   (uintptr_t)priv->tx_chain +
-			sizeof(priv->tx_chain));
+			   sizeof(priv->tx_chain[0]));
 
 	writel((uintptr_t)&desc_table_p[0], priv->mac_reg + EMAC_TX_DMA_DESC);
 	priv->tx_currdescnum = 0;
