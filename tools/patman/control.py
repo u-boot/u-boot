@@ -152,24 +152,24 @@ def email_patches(col, series, cover_fname, patch_files, process_tags, its_a_go,
 
     os.remove(cc_file)
 
-def send(options):
+def send(args):
     """Create, check and send patches by email
 
     Args:
-        options (optparse.Values): Arguments to patman
+        args (argparse.Namespace): Arguments to patman
     """
     setup()
     col = terminal.Color()
     series, cover_fname, patch_files = prepare_patches(
-        col, options.branch, options.count, options.start, options.end,
-        options.ignore_binary)
-    ok = check_patches(series, patch_files, options.check_patch,
-                       options.verbose)
+        col, args.branch, args.count, args.start, args.end,
+        args.ignore_binary)
+    ok = check_patches(series, patch_files, args.check_patch,
+                       args.verbose)
 
-    its_a_go = ok or options.ignore_errors
+    its_a_go = ok or args.ignore_errors
     if its_a_go:
         email_patches(
-            col, series, cover_fname, patch_files, options.process_tags,
-            its_a_go, options.ignore_bad_tags, options.add_maintainers,
-            options.limit, options.dry_run, options.in_reply_to, options.thread,
-            options.smtp_server)
+            col, series, cover_fname, patch_files, args.process_tags,
+            its_a_go, args.ignore_bad_tags, args.add_maintainers,
+            args.limit, args.dry_run, args.in_reply_to, args.thread,
+            args.smtp_server)

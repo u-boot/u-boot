@@ -233,17 +233,19 @@ def _UpdateDefaults(parser, config):
         config: An instance of _ProjectConfigParser that we will query
             for settings.
     """
-    defaults = parser.get_default_values()
+    defaults = parser.parse_known_args()[0]
+    defaults = vars(defaults)
     for name, val in config.items('settings'):
-        if hasattr(defaults, name):
-            default_val = getattr(defaults, name)
+        if name in defaults:
+            default_val = defaults[name]
             if isinstance(default_val, bool):
                 val = config.getboolean('settings', name)
             elif isinstance(default_val, int):
                 val = config.getint('settings', name)
-            parser.set_default(name, val)
+            defaults[name] = val
         else:
             print("WARNING: Unknown setting %s" % name)
+        parser.set_defaults(**defaults)
 
 def _ReadAliasFile(fname):
     """Read in the U-Boot git alias file if it exists.
