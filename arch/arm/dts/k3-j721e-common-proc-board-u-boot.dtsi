@@ -31,20 +31,6 @@
 		u-boot,dm-spl;
 	};
 
-	mcu_conf: scm_conf@40f00000 {
-		compatible = "syscon", "simple-mfd";
-		reg = <0x0 0x40f00000 0x0 0x20000>;
-		#address-cells = <1>;
-		#size-cells = <1>;
-		ranges = <0x0 0x0 0x40f00000 0x20000>;
-
-		phy_sel: cpsw-phy-sel@4040 {
-			compatible = "ti,am654-cpsw-phy-sel";
-			reg = <0x4040 0x4>;
-			reg-names = "gmii-sel";
-		};
-	};
-
 	mcu_navss {
 		u-boot,dm-spl;
 
@@ -54,65 +40,6 @@
 
 		dma-controller@285c0000 {
 			u-boot,dm-spl;
-		};
-	};
-
-	mcu_cpsw: ethernet@046000000 {
-		compatible = "ti,j721e-cpsw-nuss";
-		#address-cells = <2>;
-		#size-cells = <2>;
-		reg = <0x0 0x46000000 0x0 0x200000>;
-		reg-names = "cpsw_nuss";
-		ranges;
-		dma-coherent;
-		clocks = <&k3_clks 18 22>;
-		clock-names = "fck";
-		power-domains = <&k3_pds 18 TI_SCI_PD_EXCLUSIVE>;
-		cpsw-phy-sel = <&phy_sel>;
-
-		dmas = <&mcu_udmap 0xf000>,
-		       <&mcu_udmap 0xf001>,
-		       <&mcu_udmap 0xf002>,
-		       <&mcu_udmap 0xf003>,
-		       <&mcu_udmap 0xf004>,
-		       <&mcu_udmap 0xf005>,
-		       <&mcu_udmap 0xf006>,
-		       <&mcu_udmap 0xf007>,
-		       <&mcu_udmap 0x7000>;
-		dma-names = "tx0", "tx1", "tx2", "tx3",
-			    "tx4", "tx5", "tx6", "tx7",
-			    "rx";
-
-		ports {
-			#address-cells = <1>;
-			#size-cells = <0>;
-
-			host: host@0 {
-				reg = <0>;
-				ti,label = "host";
-			};
-
-			cpsw_port1: port@1 {
-				reg = <1>;
-				ti,mac-only;
-				ti,label = "port1";
-				ti,syscon-efuse = <&mcu_conf 0x200>;
-			};
-		};
-
-		davinci_mdio: mdio {
-			#address-cells = <1>;
-			#size-cells = <0>;
-			bus_freq = <1000000>;
-		};
-
-		cpts {
-			clocks = <&k3_clks 18 2>;
-			clock-names = "cpts";
-			interrupts-extended = <&gic500 GIC_SPI 858 IRQ_TYPE_LEVEL_HIGH>;
-			interrupt-names = "cpts";
-			ti,cpts-ext-ts-inputs = <4>;
-			ti,cpts-periodic-outputs = <2>;
 		};
 	};
 };
@@ -224,6 +151,7 @@
 	reg = <0x0 0x46000000 0x0 0x200000>,
 	      <0x0 0x40f00200 0x0 0x2>;
 	reg-names = "cpsw_nuss", "mac_efuse";
+	/delete-property/ ranges;
 
 	cpsw-phy-sel@40f04040 {
 		compatible = "ti,am654-cpsw-phy-sel";
