@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <console.h>
 #include <dm.h>
 #include <i2c.h>
 #include <log.h>
@@ -174,6 +175,63 @@ static int dm_test_rtc_read_write(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_rtc_read_write, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test 'rtc list' command */
+static int dm_test_rtc_cmd_list(struct unit_test_state *uts)
+{
+	console_record_reset();
+
+	run_command("rtc list", 0);
+	ut_assert_nextline("RTC #0 - rtc@43");
+	ut_assert_nextline("RTC #1 - rtc@61");
+	ut_assert_console_end();
+
+	return 0;
+}
+DM_TEST(dm_test_rtc_cmd_list, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test 'rtc read' and 'rtc write' commands */
+static int dm_test_rtc_cmd_rw(struct unit_test_state *uts)
+{
+	console_record_reset();
+
+	run_command("rtc dev 0", 0);
+	ut_assert_nextline("RTC #0 - rtc@43");
+	ut_assert_console_end();
+
+	run_command("rtc write 0x30 aabb", 0);
+	ut_assert_console_end();
+
+	run_command("rtc read 0x30 2", 0);
+	ut_assert_nextline("00000030: aa bb                                              ..");
+	ut_assert_console_end();
+
+	run_command("rtc dev 1", 0);
+	ut_assert_nextline("RTC #1 - rtc@61");
+	ut_assert_console_end();
+
+	run_command("rtc write 0x30 ccdd", 0);
+	ut_assert_console_end();
+
+	run_command("rtc read 0x30 2", 0);
+	ut_assert_nextline("00000030: cc dd                                              ..");
+	ut_assert_console_end();
+
+	/*
+	 * Switch back to device #0, check that its aux registers
+	 * still have the same values.
+	 */
+	run_command("rtc dev 0", 0);
+	ut_assert_nextline("RTC #0 - rtc@43");
+	ut_assert_console_end();
+
+	run_command("rtc read 0x30 2", 0);
+	ut_assert_nextline("00000030: aa bb                                              ..");
+	ut_assert_console_end();
+
+	return 0;
+}
+DM_TEST(dm_test_rtc_cmd_rw, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
 /* Reset the time */
 static int dm_test_rtc_reset(struct unit_test_state *uts)
