@@ -65,8 +65,6 @@ struct udma_rchan {
 	void __iomem *reg_rt;
 
 	int id;
-	struct k3_nav_ring *fd_ring; /* Free Descriptor ring */
-	struct k3_nav_ring *r_ring; /* Receive ring*/
 };
 
 #define UDMA_FLAG_PDMA_ACC32		BIT(0)
@@ -86,6 +84,9 @@ struct udma_match_data {
 
 struct udma_rflow {
 	int id;
+
+	struct k3_nav_ring *fd_ring; /* Free Descriptor ring */
+	struct k3_nav_ring *r_ring; /* Receive ring*/
 };
 
 enum udma_rm_range {
@@ -335,7 +336,7 @@ static int udma_pop_from_ring(struct udma_chan *uc, dma_addr_t *addr)
 
 	switch (uc->config.dir) {
 	case DMA_DEV_TO_MEM:
-		ring = uc->rchan->r_ring;
+		ring = uc->rflow->r_ring;
 		break;
 	case DMA_MEM_TO_DEV:
 		ring = uc->tchan->tc_ring;
@@ -360,8 +361,8 @@ static void udma_reset_rings(struct udma_chan *uc)
 
 	switch (uc->config.dir) {
 	case DMA_DEV_TO_MEM:
-		ring1 = uc->rchan->fd_ring;
-		ring2 = uc->rchan->r_ring;
+		ring1 = uc->rflow->fd_ring;
+		ring2 = uc->rflow->r_ring;
 		break;
 	case DMA_MEM_TO_DEV:
 		ring1 = uc->tchan->t_ring;
@@ -840,12 +841,15 @@ static void udma_free_rx_resources(struct udma_chan *uc)
 	if (!uc->rchan)
 		return;
 
-	k3_nav_ringacc_ring_free(uc->rchan->fd_ring);
-	k3_nav_ringacc_ring_free(uc->rchan->r_ring);
-	uc->rchan->fd_ring = NULL;
-	uc->rchan->r_ring = NULL;
+        if (uc->rflow) {
+		k3_nav_ringacc_ring_free(uc->rflow->fd_ring);
+		k3_nav_ringacc_ring_free(uc->rflow->r_ring);
+		uc->rflow->fd_ring = NULL;
+		uc->rflow->r_ring = NULL;
 
-	udma_put_rflow(uc);
+		udma_put_rflow(uc);
+	}
+
 	udma_put_rchan(uc);
 }
 
@@ -872,17 +876,17 @@ static int udma_alloc_rx_resources(struct udma_chan *uc)
 
 	fd_ring_id = ud->tchan_cnt + ud->echan_cnt + uc->rchan->id;
 
-	uc->rchan->fd_ring = k3_nav_ringacc_request_ring(
+	uc->rflow->fd_ring = k3_nav_ringacc_request_ring(
 				ud->ringacc, fd_ring_id,
 				RINGACC_RING_USE_PROXY);
-	if (!uc->rchan->fd_ring) {
+	if (!uc->rflow->fd_ring) {
 		ret = -EBUSY;
 		goto err_rx_ring;
 	}
 
-	uc->rchan->r_ring = k3_nav_ringacc_request_ring(
+	uc->rflow->r_ring = k3_nav_ringacc_request_ring(
 				ud->ringacc, -1, RINGACC_RING_USE_PROXY);
-	if (!uc->rchan->r_ring) {
+	if (!uc->rflow->r_ring) {
 		ret = -EBUSY;
 		goto err_rxc_ring;
 	}
@@ -892,8 +896,8 @@ static int udma_alloc_rx_resources(struct udma_chan *uc)
 	ring_cfg.elm_size = K3_NAV_RINGACC_RING_ELSIZE_8;
 	ring_cfg.mode = K3_NAV_RINGACC_RING_MODE_RING;
 
-	ret = k3_nav_ringacc_ring_cfg(uc->rchan->fd_ring, &ring_cfg);
-	ret |= k3_nav_ringacc_ring_cfg(uc->rchan->r_ring, &ring_cfg);
+	ret = k3_nav_ringacc_ring_cfg(uc->rflow->fd_ring, &ring_cfg);
+	ret |= k3_nav_ringacc_ring_cfg(uc->rflow->r_ring, &ring_cfg);
 
 	if (ret)
 		goto err_ringcfg;
@@ -901,11 +905,11 @@ static int udma_alloc_rx_resources(struct udma_chan *uc)
 	return 0;
 
 err_ringcfg:
-	k3_nav_ringacc_ring_free(uc->rchan->r_ring);
-	uc->rchan->r_ring = NULL;
+	k3_nav_ringacc_ring_free(uc->rflow->r_ring);
+	uc->rflow->r_ring = NULL;
 err_rxc_ring:
-	k3_nav_ringacc_ring_free(uc->rchan->fd_ring);
-	uc->rchan->fd_ring = NULL;
+	k3_nav_ringacc_ring_free(uc->rflow->fd_ring);
+	uc->rflow->fd_ring = NULL;
 err_rx_ring:
 	udma_put_rflow(uc);
 err_rflow:
@@ -952,8 +956,8 @@ static int udma_alloc_tchan_sci_req(struct udma_chan *uc)
 static int udma_alloc_rchan_sci_req(struct udma_chan *uc)
 {
 	struct udma_dev *ud = uc->ud;
-	int fd_ring = k3_nav_ringacc_get_ring_id(uc->rchan->fd_ring);
-	int rx_ring = k3_nav_ringacc_get_ring_id(uc->rchan->r_ring);
+	int fd_ring = k3_nav_ringacc_get_ring_id(uc->rflow->fd_ring);
+	int rx_ring = k3_nav_ringacc_get_ring_id(uc->rflow->r_ring);
 	int tc_ring = k3_nav_ringacc_get_ring_id(uc->tchan->tc_ring);
 	struct ti_sci_msg_rm_udmap_rx_ch_cfg req = { 0 };
 	struct ti_sci_msg_rm_udmap_flow_cfg flow_req = { 0 };
@@ -1715,7 +1719,7 @@ static int udma_receive(struct dma *dma, void **dst, void *metadata)
 	if (!uc->num_rx_bufs)
 		return -EINVAL;
 
-	ret = k3_nav_ringacc_ring_pop(uc->rchan->r_ring, &desc_rx);
+	ret = k3_nav_ringacc_ring_pop(uc->rflow->r_ring, &desc_rx);
 	if (ret && ret != -ENODATA) {
 		dev_err(dma->dev, "rx dma fail ch_id:%lu %d\n", dma->id, ret);
 		return ret;
@@ -1833,7 +1837,7 @@ int udma_prepare_rcv_buf(struct dma *dma, void *dst, size_t size)
 			   ALIGN((unsigned long)desc_rx + uc->config.hdesc_size,
 				 ARCH_DMA_MINALIGN));
 
-	udma_push_to_ring(uc->rchan->fd_ring, desc_rx);
+	udma_push_to_ring(uc->rflow->fd_ring, desc_rx);
 
 	uc->num_rx_bufs++;
 	uc->desc_rx_cur++;
