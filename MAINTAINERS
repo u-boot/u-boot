@@ -633,6 +633,7 @@ F:	include/pe.h
 F:	include/asm-generic/pe.h
 F:	lib/charset.c
 F:	lib/efi*/
+F:	test/lib/efi_*
 F:	test/py/tests/test_efi*
 F:	test/py/tests/test_efi*/
 F:	test/unicode_ut.c
@@ -699,6 +700,7 @@ S:	Maintained
 T:	git https://gitlab.denx.de/u-boot/u-boot.git
 F:	common/log*
 F:	cmd/log.c
+F:	doc/develop/logging.rst
 F:	test/log/
 F:	test/py/tests/test_log.py
 
@@ -872,6 +874,13 @@ T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-riscv.git
 F:	arch/riscv/
 F:	cmd/riscv/
 F:	tools/prelink-riscv.c
+
+RISC-V KENDRYTE
+M:	Sean Anderson <seanga2@gmail.com>
+S:	Maintained
+F:	doc/device-tree-bindings/mfd/kendryte,k210-sysctl.txt
+F:	drivers/clk/kendryte/
+F:	include/kendryte/
 
 RNG
 M:	Sughosh Ganu <sughosh.ganu@linaro.org>

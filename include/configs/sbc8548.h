@@ -118,8 +118,6 @@
 	#define CONFIG_SYS_DDR_CONTROL	0xc300c000
 #endif
 
-#undef CONFIG_CLOCKS_IN_MHZ
-
 /*
  * FLASH on the Local Bus
  * Two banks, one 8MB the other 64MB, using the CFI driver.
@@ -434,7 +432,6 @@
 #endif
 
 #if defined(CONFIG_PCI)
-#undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */

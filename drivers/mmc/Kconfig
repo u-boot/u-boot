@@ -66,7 +66,6 @@ config MMC_SPI_CRC_ON
 
 config ARM_PL180_MMCI
 	bool "ARM AMBA Multimedia Card Interface and compatible support"
-	depends on DM_MMC && OF_CONTROL
 	help
 	  This selects the ARM(R) AMBA(R) PrimeCell Multimedia Card
 	  Interface (PL180, PL181 and compatible) support.
@@ -297,6 +296,14 @@ config MMC_PCI
 	help
 	  This selects PCI-based MMC controllers.
 	  If you have an MMC controller on a PCI bus, say Y here.
+
+	  If unsure, say N.
+
+config PXA_MMC_GENERIC
+	bool "Support for MMC controllers on PXA"
+	help
+	  This selects MMC controllers on PXA.
+	  If you are on a PXA architecture, say Y here.
 
 	  If unsure, say N.
 

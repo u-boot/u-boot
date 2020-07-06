@@ -83,9 +83,6 @@ const uchar default_environment[] = {
 #ifdef	CONFIG_LOADADDR
 	"loadaddr="	__stringify(CONFIG_LOADADDR)	"\0"
 #endif
-#ifdef	CONFIG_CLOCKS_IN_MHZ
-	"clocks_in_mhz=1\0"
-#endif
 #if defined(CONFIG_PCI_BOOTDELAY) && (CONFIG_PCI_BOOTDELAY > 0)
 	"pcidelay="	__stringify(CONFIG_PCI_BOOTDELAY)"\0"
 #endif

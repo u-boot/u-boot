@@ -15,6 +15,8 @@ MINIMAL=y
 endif
 endif
 
+obj-y	+= bdinfo.o
+
 ifdef MINIMAL
 obj-y += cache.o time.o
 ifndef CONFIG_TIMER

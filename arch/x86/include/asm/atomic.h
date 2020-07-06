@@ -23,7 +23,7 @@ typedef struct { volatile int counter; } atomic_t;
  */
 static inline int atomic_read(const atomic_t *v)
 {
-	return ACCESS_ONCE((v)->counter);
+	return READ_ONCE((v)->counter);
 }
 
 /**

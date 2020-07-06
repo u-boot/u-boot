@@ -227,8 +227,6 @@
 #define CONFIG_SYS_DDR_MODE_2		0x8000c000
 #define CONFIG_SYS_DDR_INTERVAL		0x0C300000
 
-#undef CONFIG_CLOCKS_IN_MHZ
-
 /*
  * Memory map
  *

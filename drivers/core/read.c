@@ -167,7 +167,7 @@ void *dev_read_addr_ptr(const struct udevice *dev)
 {
 	fdt_addr_t addr = dev_read_addr(dev);
 
-	return (addr == FDT_ADDR_T_NONE) ? NULL : map_sysmem(addr, 0);
+	return (addr == FDT_ADDR_T_NONE) ? NULL : (void *)(uintptr_t)addr;
 }
 
 void *dev_remap_addr(const struct udevice *dev)
@@ -275,15 +275,17 @@ int dev_read_alias_seq(const struct udevice *dev, int *devnump)
 {
 	ofnode node = dev_ofnode(dev);
 	const char *uc_name = dev->uclass->uc_drv->name;
-	int ret;
+	int ret = -ENOTSUPP;
 
 	if (ofnode_is_np(node)) {
 		ret = of_alias_get_id(ofnode_to_np(node), uc_name);
 		if (ret >= 0)
 			*devnump = ret;
 	} else {
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 		ret = fdtdec_get_alias_seq(gd->fdt_blob, uc_name,
 					   ofnode_to_offset(node), devnump);
+#endif
 	}
 
 	return ret;

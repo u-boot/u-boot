@@ -130,8 +130,27 @@ static int do_zynqmp_tcm_init(struct cmd_tbl *cmdtp, int flag, int argc,
 }
 #endif
 
+static int do_zynqmp_pmufw(struct cmd_tbl *cmdtp, int flag, int argc,
+			   char * const argv[])
+{
+	u32 addr, size;
+
+	if (argc != cmdtp->maxargs)
+		return CMD_RET_USAGE;
+
+	addr = simple_strtoul(argv[2], NULL, 16);
+	size = simple_strtoul(argv[3], NULL, 16);
+	flush_dcache_range((ulong)addr, (ulong)(addr + size));
+
+	zynqmp_pmufw_load_config_object((const void *)(uintptr_t)addr,
+					(size_t)size);
+
+	return 0;
+}
+
 static struct cmd_tbl cmd_zynqmp_sub[] = {
 	U_BOOT_CMD_MKENT(secure, 5, 0, do_zynqmp_verify_secure, "", ""),
+	U_BOOT_CMD_MKENT(pmufw, 4, 0, do_zynqmp_pmufw, "", ""),
 	U_BOOT_CMD_MKENT(mmio_read, 3, 0, do_zynqmp_mmio_read, "", ""),
 	U_BOOT_CMD_MKENT(mmio_write, 5, 0, do_zynqmp_mmio_write, "", ""),
 #ifdef CONFIG_DEFINE_TCM_OCM_MMAP
@@ -184,6 +203,7 @@ static char zynqmp_help_text[] =
 	"		       to be initialized. Supported modes will be\n"
 	"		       lock(0)/split(1)\n"
 #endif
+	"zynqmp pmufw address size - load PMU FW configuration object\n"
 	;
 #endif
 

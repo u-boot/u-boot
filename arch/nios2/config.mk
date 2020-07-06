@@ -4,10 +4,6 @@
 # Psyent Corporation <www.psyent.com>
 # Scott McNutt <smcnutt@psyent.com>
 
-ifeq ($(CROSS_COMPILE),)
-CROSS_COMPILE := nios2-elf-
-endif
-
 CONFIG_STANDALONE_LOAD_ADDR ?= 0x02000000
 
 PLATFORM_CPPFLAGS += -D__NIOS2__

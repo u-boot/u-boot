@@ -77,7 +77,6 @@ config DWAPB_GPIO
 
 config AT91_GPIO
 	bool "AT91 PIO GPIO driver"
-	depends on DM_GPIO
 	default n
 	help
 	  Say yes here to select AT91 PIO GPIO driver. AT91 PIO

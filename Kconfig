@@ -5,6 +5,10 @@
 #
 mainmenu "U-Boot $(UBOOTVERSION) Configuration"
 
+comment "Compiler: $(CC_VERSION_TEXT)"
+
+source "scripts/Kconfig.include"
+
 # Allow defaults in arch-specific code to override any given here
 source "arch/Kconfig"
 
@@ -62,12 +66,44 @@ config CC_OPTIMIZE_FOR_SIZE
 
 	  This option is enabled by default for U-Boot.
 
+config OPTIMIZE_INLINING
+	bool "Allow compiler to uninline functions marked 'inline' in full U-Boot"
+	default n
+	help
+	  This option determines if U-Boot forces gcc to inline the functions
+	  developers have marked 'inline'. Doing so takes away freedom from gcc to
+	  do what it thinks is best, which is desirable in some cases for size
+	  reasons.
+
+config SPL_OPTIMIZE_INLINING
+	bool "Allow compiler to uninline functions marked 'inline' in SPL"
+	depends on SPL
+	default n
+	help
+	  This option determines if U-Boot forces gcc to inline the functions
+	  developers have marked 'inline'. Doing so takes away freedom from gcc to
+	  do what it thinks is best, which is desirable in some cases for size
+	  reasons.
+
+config TPL_OPTIMIZE_INLINING
+	bool "Allow compiler to uninline functions marked 'inline' in TPL"
+	depends on TPL
+	default n
+	help
+	  This option determines if U-Boot forces gcc to inline the functions
+	  developers have marked 'inline'. Doing so takes away freedom from gcc to
+	  do what it thinks is best, which is desirable in some cases for size
+	  reasons.
+
 config CC_COVERAGE
 	bool "Enable code coverage analysis"
 	depends on SANDBOX
 	help
 	  Enabling this option will pass "--coverage" to gcc to compile
 	  and link code instrumented for coverage analysis.
+
+config CC_HAS_ASM_INLINE
+	def_bool $(success,echo 'void foo(void) { asm inline (""); }' | $(CC) -x c - -c -o /dev/null)
 
 config DISTRO_DEFAULTS
 	bool "Select defaults suitable for booting general purpose Linux distributions"
@@ -358,12 +394,26 @@ config FIT_ENABLE_SHA256_SUPPORT
 	help
 	  Enable this to support SHA256 checksum of FIT image contents. A
 	  SHA256 checksum is a 256-bit (32-byte) hash value used to check that
-	  the image contents have not been corrupted. SHA256 is recommended
-	  for use in secure applications since (as at 2016) there is no known
-	  feasible attack that could produce a 'collision' with differing
-	  input data. Use this for the highest security. Note that only the
-	  SHA256 variant is supported: SHA512 and others are not currently
-	  supported in U-Boot.
+	  the image contents have not been corrupted.
+
+config FIT_ENABLE_SHA384_SUPPORT
+	bool "Support SHA384 checksum of FIT image contents"
+	default n
+	select SHA384
+	help
+	  Enable this to support SHA384 checksum of FIT image contents. A
+	  SHA384 checksum is a 384-bit (48-byte) hash value used to check that
+	  the image contents have not been corrupted. Use this for the highest
+	  security.
+
+config FIT_ENABLE_SHA512_SUPPORT
+	bool "Support SHA512 checksum of FIT image contents"
+	default n
+	select SHA512
+	help
+	  Enable this to support SHA512 checksum of FIT image contents. A
+	  SHA512 checksum is a 512-bit (64-byte) hash value used to check that
+	  the image contents have not been corrupted.
 
 config FIT_SIGNATURE
 	bool "Enable signature verification of FIT uImages"

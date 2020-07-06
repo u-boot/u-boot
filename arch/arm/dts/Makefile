@@ -280,6 +280,7 @@ dtb-$(CONFIG_ARCH_ZYNQMP) += \
 	zynqmp-mini-emmc1.dtb			\
 	zynqmp-mini-nand.dtb			\
 	zynqmp-mini-qspi.dtb			\
+	zynqmp-topic-miamimp-xilinx-xdp-v1r1.dtb	\
 	zynqmp-zcu100-revC.dtb			\
 	zynqmp-zcu102-revA.dtb			\
 	zynqmp-zcu102-revB.dtb			\
@@ -847,6 +848,17 @@ dtb-$(CONFIG_TARGET_OMAP3_BEAGLE) += \
 
 dtb-$(CONFIG_TARGET_OMAP3_IGEP00X0) += \
 	omap3-igep0020.dtb
+
+dtb-$(CONFIG_TARGET_OMAP4_PANDA) += \
+	omap4-panda.dtb \
+	omap4-panda-es.dtb
+
+dtb-$(CONFIG_TARGET_OMAP4_SDP4430) += \
+	omap4-sdp.dtb \
+	omap4-sdp-es23plus.dtb
+
+dtb-$(CONFIG_TARGET_OMAP5_UEVM) += \
+	omap5-uevm.dtb
 
 dtb-$(CONFIG_TARGET_SAMA5D2_PTC_EK) += \
 	at91-sama5d2_ptc_ek.dtb

@@ -15,8 +15,6 @@
 #define CONFIG_SPL_BSS_START_ADDR	0x00128000
 #define CONFIG_SPL_BSS_MAX_SIZE	0x1000  /* 4 KB */
 
-#undef CONFIG_BOOTM_NETBSD
-
 #define CONFIG_FSL_USDHC
 #define CONFIG_SYS_BOOTMAPSZ		(256 << 20)
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
@@ -162,9 +160,6 @@
 #define PHYS_SDRAM_1_SIZE		0x80000000	/* 2 GB */
 /* LPDDR4 board total DDR is 6GB, DDR4 board total DDR is 4 GB */
 #define PHYS_SDRAM_2_SIZE		0x80000000	/* 2 GB */
-
-/* Serial */
-#define CONFIG_BAUDRATE			115200
 
 /* Generic Timer Definitions */
 #define COUNTER_FREQUENCY		8000000	/* 8MHz */

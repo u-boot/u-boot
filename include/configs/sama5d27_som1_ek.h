@@ -39,12 +39,6 @@
 				"bootz 0x22000000 - 0x21000000"
 #endif
 
-#ifdef CONFIG_QSPI_BOOT
-#undef CONFIG_BOOTARGS
-#define CONFIG_BOOTARGS \
-	"console=ttyS0,115200 earlyprintk root=/dev/mmcblk0p2 rw rootwait"
-#endif
-
 /* SPL */
 #define CONFIG_SPL_MAX_SIZE		0x10000
 #define CONFIG_SPL_BSS_START_ADDR	0x20000000

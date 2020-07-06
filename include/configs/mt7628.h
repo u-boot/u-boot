@@ -32,7 +32,6 @@
 #define CONFIG_SYS_NS16550_CLK		40000000
 #define CONFIG_SYS_NS16550_REG_SIZE	-4
 #define CONFIG_SYS_NS16550_COM1		0xb0000c00
-#define CONFIG_CONS_INDEX		1
 #endif
 
 /* Serial common */

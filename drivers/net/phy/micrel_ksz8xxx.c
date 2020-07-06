@@ -82,6 +82,21 @@ static struct phy_driver KSZ8051_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
+static int ksz8061_config(struct phy_device *phydev)
+{
+	return phy_write(phydev, MDIO_MMD_PMAPMD, MDIO_DEVID1, 0xB61A);
+}
+
+static struct phy_driver KSZ8061_driver = {
+	.name = "Micrel KSZ8061",
+	.uid = 0x00221570,
+	.mask = 0xfffff0,
+	.features = PHY_BASIC_FEATURES,
+	.config = &ksz8061_config,
+	.startup = &genphy_startup,
+	.shutdown = &genphy_shutdown,
+};
+
 static int ksz8081_config(struct phy_device *phydev)
 {
 	int ret;
@@ -210,6 +225,7 @@ int phy_micrel_ksz8xxx_init(void)
 	phy_register(&KSZ804_driver);
 	phy_register(&KSZ8031_driver);
 	phy_register(&KSZ8051_driver);
+	phy_register(&KSZ8061_driver);
 	phy_register(&KSZ8081_driver);
 	phy_register(&KS8721_driver);
 	phy_register(&ksz8895_driver);

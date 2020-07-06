@@ -67,7 +67,7 @@ static inline struct mxc_spi_slave *to_mxc_spi_slave(struct spi_slave *slave)
 
 static void mxc_spi_cs_activate(struct mxc_spi_slave *mxcs)
 {
-#if defined(CONFIG_DM_SPI)
+#if CONFIG_IS_ENABLED(DM_SPI)
 	struct udevice *dev = mxcs->dev;
 	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
 
@@ -85,7 +85,7 @@ static void mxc_spi_cs_activate(struct mxc_spi_slave *mxcs)
 
 static void mxc_spi_cs_deactivate(struct mxc_spi_slave *mxcs)
 {
-#if defined(CONFIG_DM_SPI)
+#if CONFIG_IS_ENABLED(DM_SPI)
 	struct udevice *dev = mxcs->dev;
 	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
 
@@ -415,7 +415,7 @@ static int mxc_spi_claim_bus_internal(struct mxc_spi_slave *mxcs, int cs)
 	return 0;
 }
 
-#ifndef CONFIG_DM_SPI
+#if !CONFIG_IS_ENABLED(DM_SPI)
 int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		void *din, unsigned long flags)
 {

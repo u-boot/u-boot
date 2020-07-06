@@ -63,8 +63,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #error ("CONFIG_SPD_EEPROM is required")
 #endif
 
-#undef CONFIG_CLOCKS_IN_MHZ
-
 /*
  * Memory map
  *
@@ -258,7 +256,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_ISA_IO_BASE_ADDRESS VIDEO_IO_OFFSET
 #endif
 
-#undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
 
 #ifndef CONFIG_PCI_PNP

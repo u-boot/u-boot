@@ -221,8 +221,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_SDRAM_SIZE	256
 #endif
 
-#undef CONFIG_CLOCKS_IN_MHZ
-
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #ifndef CONFIG_SYS_INIT_RAM_LOCK
 #define CONFIG_SYS_INIT_RAM_ADDR	0x0fd00000	/* Initial RAM address */
@@ -334,7 +332,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 
-#undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
 
 /************************************************************

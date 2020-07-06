@@ -1,0 +1,47 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2019-20 Sean Anderson <seanga2@gmail.com>
+ */
+
+/dts-v1/;
+
+#include "k210.dtsi"
+
+#include <dt-bindings/gpio/gpio.h>
+
+/ {
+	model = "Sipeed Maix Bit 2.0";
+	compatible = "sipeed,maix-bitm", "sipeed,maix-bit", "kendryte,k210";
+
+	chosen {
+		stdout-path = "serial0:115200";
+	};
+
+	sound {
+		compatible = "simple-audio-card";
+		simple-audio-card,format = "i2s";
+		status = "disabled";
+
+		simple-audio-card,cpu {
+			sound-dai = <&i2s0 0>;
+		};
+
+		simple-audio-card,codec {
+			sound-dai = <&mic>;
+		};
+	};
+
+	mic: mic {
+		#sound-dai-cells = <0>;
+		compatible = "memsensing,msm61s4030h0";
+		status = "disabled";
+	};
+};
+
+&uarths0 {
+	status = "okay";
+};
+
+&i2s0 {
+	#sound-dai-cells = <1>;
+};

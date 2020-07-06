@@ -11,7 +11,7 @@
 
 #define OBJ_LIST_NOT_INITIALIZED 1
 
-static efi_status_t efi_obj_list_initialized = OBJ_LIST_NOT_INITIALIZED;
+efi_status_t efi_obj_list_initialized = OBJ_LIST_NOT_INITIALIZED;
 
 /*
  * Allow unaligned memory access.
@@ -140,6 +140,10 @@ efi_status_t efi_init_obj_list(void)
 	if (ret != EFI_SUCCESS)
 		goto out;
 
+	ret = efi_console_register();
+	if (ret != EFI_SUCCESS)
+		goto out;
+
 #ifdef CONFIG_PARTITIONS
 	ret = efi_disk_register();
 	if (ret != EFI_SUCCESS)
@@ -185,9 +189,6 @@ efi_status_t efi_init_obj_list(void)
 	if (ret != EFI_SUCCESS)
 		goto out;
 
-	ret = efi_console_register();
-	if (ret != EFI_SUCCESS)
-		goto out;
 #if defined(CONFIG_LCD) || defined(CONFIG_DM_VIDEO)
 	ret = efi_gop_register();
 	if (ret != EFI_SUCCESS)

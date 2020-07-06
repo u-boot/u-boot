@@ -361,19 +361,31 @@ static int dm_test_fdt_uclass_seq(struct unit_test_state *uts)
 	ut_assertok(uclass_get_device(UCLASS_TEST_FDT, 2, &dev));
 	ut_asserteq_str("d-test", dev->name);
 
-	/* d-test actually gets 0 */
-	ut_assertok(uclass_get_device_by_seq(UCLASS_TEST_FDT, 0, &dev));
+	/*
+	 * d-test actually gets 9, because thats the next free one after the
+	 * aliases.
+	 */
+	ut_assertok(uclass_get_device_by_seq(UCLASS_TEST_FDT, 9, &dev));
 	ut_asserteq_str("d-test", dev->name);
 
-	/* initially no one wants seq 1 */
-	ut_asserteq(-ENODEV, uclass_get_device_by_seq(UCLASS_TEST_FDT, 1,
+	/* initially no one wants seq 10 */
+	ut_asserteq(-ENODEV, uclass_get_device_by_seq(UCLASS_TEST_FDT, 10,
 						      &dev));
 	ut_assertok(uclass_get_device(UCLASS_TEST_FDT, 0, &dev));
 	ut_assertok(uclass_get_device(UCLASS_TEST_FDT, 4, &dev));
 
 	/* But now that it is probed, we can find it */
-	ut_assertok(uclass_get_device_by_seq(UCLASS_TEST_FDT, 1, &dev));
+	ut_assertok(uclass_get_device_by_seq(UCLASS_TEST_FDT, 10, &dev));
 	ut_asserteq_str("f-test", dev->name);
+
+	/*
+	 * And we should still have holes in our sequence numbers, that is 2
+	 * and 4 should not be used.
+	 */
+	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_TEST_FDT, 2,
+						       true, &dev));
+	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_TEST_FDT, 4,
+						       true, &dev));
 
 	return 0;
 }

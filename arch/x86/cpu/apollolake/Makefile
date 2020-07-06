@@ -3,7 +3,6 @@
 # Copyright 2019 Google LLC
 
 obj-$(CONFIG_SPL_BUILD) += cpu_spl.o
-obj-$(CONFIG_SPL_BUILD) += spl.o
 obj-$(CONFIG_SPL_BUILD) += systemagent.o
 obj-y += cpu_common.o
 
@@ -12,6 +11,7 @@ obj-y += cpu.o
 obj-y += punit.o
 obj-y += fsp_bindings.o
 ifdef CONFIG_SPL_BUILD
+obj-y += spl.o
 obj-y += fsp_m.o
 endif
 endif

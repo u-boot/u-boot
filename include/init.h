@@ -261,6 +261,15 @@ void relocate_code(ulong start_addr_sp, struct global_data *new_gd,
 	__attribute__ ((noreturn));
 #endif
 
+/* Print a numeric value (for use in arch_print_bdinfo()) */
+void bdinfo_print_num(const char *name, ulong value);
+
+/* Print a clock speed in MHz */
+void bdinfo_print_mhz(const char *name, unsigned long hz);
+
+/* Show arch-specific information for the 'bd' command */
+void arch_print_bdinfo(void);
+
 #endif	/* __ASSEMBLY__ */
 /* Put only stuff here that the assembler can digest */
 

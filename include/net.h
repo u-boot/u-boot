@@ -897,9 +897,6 @@ int is_serverip_in_cmd(void);
  */
 int net_parse_bootfile(struct in_addr *ipaddr, char *filename, int max_len);
 
-/* get a random source port */
-unsigned int random_port(void);
-
 /**
  * update_tftp - Update firmware over TFTP (via DFU)
  *

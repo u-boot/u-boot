@@ -14,9 +14,17 @@ config DM_VIDEO
 	  option compiles in the video uclass and routes all LCD/video access
 	  through this.
 
+config BACKLIGHT
+	bool "Enable panel backlight uclass support"
+	depends on DM_VIDEO
+	default y
+	help
+	  This provides backlight uclass driver that enables basic panel
+	  backlight support.
+
 config BACKLIGHT_PWM
 	bool "Generic PWM based Backlight Driver"
-	depends on DM_VIDEO && DM_PWM
+	depends on BACKLIGHT && DM_PWM
 	default y
 	help
 	  If you have a LCD backlight adjustable by PWM, say Y to enable
@@ -27,13 +35,21 @@ config BACKLIGHT_PWM
 
 config BACKLIGHT_GPIO
 	bool "Generic GPIO based Backlight Driver"
-	depends on DM_VIDEO
+	depends on BACKLIGHT
 	help
 	  If you have a LCD backlight adjustable by GPIO, say Y to enable
 	  this driver.
 	  This driver can be used with "simple-panel" and
 	  it understands the standard device tree
 	  (leds/backlight/gpio-backlight.txt)
+
+config CMD_VIDCONSOLE
+	bool "Enable vidconsole commands lcdputs and setcurs"
+	depends on DM_VIDEO
+	default y
+	help
+	  Enabling this will provide 'setcurs' and 'lcdputs' commands which
+	  support cursor positioning and drawing strings on video framebuffer.
 
 config VIDEO_BPP8
 	bool "Support 8-bit-per-pixel displays"
@@ -143,17 +159,34 @@ config NO_FB_CLEAR
 	  loads takes over the screen.  This, for example, can be used to
 	  keep splash image on screen until grub graphical boot menu starts.
 
+config PANEL
+	bool "Enable panel uclass support"
+	depends on DM_VIDEO
+	default y
+	help
+	  This provides panel uclass driver that enables basic panel support.
+
+config SIMPLE_PANEL
+	bool "Enable simple panel support"
+	depends on PANEL
+	default y
+	help
+	  This turns on a simple panel driver that enables a compatible
+	  video panel.
+
 source "drivers/video/fonts/Kconfig"
 
 config VIDCONSOLE_AS_LCD
-	bool "Use 'vidconsole' when 'lcd' is seen in stdout"
+	string "Use 'vidconsole' when string defined here is seen in stdout"
 	depends on DM_VIDEO
+	default "lcd" if LCD || TEGRA_COMMON
+	default "vga" if !LCD
 	help
-	  This is a work-around for boards which have 'lcd' in their stdout
-	  environment variable, but have moved to use driver model for video.
-	  In this case the console will no-longer work. While it is possible
-	  to update the environment, the breakage may be confusing for users.
-	  This option will be removed around the end of 2016.
+	  This is a work-around for boards which have 'lcd' or 'vga' in their
+	  stdout environment variable, but have moved to use driver model for
+	  video. In this case the console will no-longer work. While it is
+	  possible to update the environment, the breakage may be confusing for
+	  users. This option will be removed around the end of 2020.
 
 config VIDEO_COREBOOT
 	bool "Enable coreboot framebuffer driver support"
@@ -469,13 +502,11 @@ config NXP_TDA19988
 
 config ATMEL_HLCD
 	bool "Enable ATMEL video support using HLCDC"
-	depends on DM_VIDEO
 	help
 	   HLCDC supports video output to an attached LCD panel.
 
 config AM335X_LCD
 	bool "Enable AM335x video support"
-	depends on DM_VIDEO
 	help
 	   Supports video output to an attached LCD panel.
 

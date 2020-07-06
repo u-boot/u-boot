@@ -627,6 +627,11 @@ int board_video_skip(void)
 	return 0;
 }
 
+int ipu_displays_init(void)
+{
+	return board_video_skip();
+}
+
 static void setup_display(void)
 {
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;

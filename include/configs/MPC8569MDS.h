@@ -109,8 +109,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_DDR_ERR_DIS          0x00000000
 #define CONFIG_SYS_DDR_SBE              0x00010000
 
-#undef CONFIG_CLOCKS_IN_MHZ
-
 /*
  * Local Bus Definitions
  */
@@ -396,7 +394,6 @@ extern unsigned long get_clock_freq(void);
 #endif /* CONFIG_QE */
 
 #if defined(CONFIG_PCI)
-#undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
 
 #undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */

@@ -62,7 +62,6 @@
 /* UART */
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE		UART1_BASE
-#define CONFIG_BAUDRATE			115200
 
 /* USB Configs */
 #ifdef CONFIG_CMD_USB

@@ -11,9 +11,6 @@
 /* Board Clock , P1 clock frequency (XTAL=13.33MHz) */
 #define CONFIG_SYS_CLK_FREQ	66666666
 
-/* Serial Console */
-#define CONFIG_BAUDRATE		115200
-
 /* Miscellaneous */
 #define CONFIG_SYS_PBSIZE	256
 #define CONFIG_CMDLINE_TAG
@@ -31,9 +28,6 @@
 /* Malloc */
 #define CONFIG_SYS_MALLOC_LEN		(1024 * 1024)
 #define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
-
-/* Kernel Boot */
-#define CONFIG_BOOTARGS			"ignore_loglevel"
 
 /* Network interface */
 #define CONFIG_SH_ETHER_USE_PORT	0

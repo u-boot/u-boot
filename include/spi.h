@@ -39,7 +39,7 @@
 
 #define SPI_DEFAULT_WORDLEN	8
 
-#ifdef CONFIG_DM_SPI
+#if CONFIG_IS_ENABLED(DM_SPI)
 /* TODO(sjg@chromium.org): Remove this and use max_hz from struct spi_slave */
 struct dm_spi_bus {
 	uint max_hz;
@@ -131,7 +131,7 @@ enum spi_polarity {
  * @flags:		Indication of SPI flags.
  */
 struct spi_slave {
-#ifdef CONFIG_DM_SPI
+#if CONFIG_IS_ENABLED(DM_SPI)
 	struct udevice *dev;	/* struct spi_slave is dev->parentdata */
 	uint max_hz;
 	uint speed;
@@ -317,7 +317,7 @@ void spi_flash_copy_mmap(void *data, void *offset, size_t len);
  */
 int spi_cs_is_valid(unsigned int bus, unsigned int cs);
 
-#ifndef CONFIG_DM_SPI
+#if !CONFIG_IS_ENABLED(DM_SPI)
 /**
  * Activate a SPI chipselect.
  * This function is provided by the board code when using a driver
@@ -367,7 +367,7 @@ static inline int spi_w8r8(struct spi_slave *slave, unsigned char byte)
 	return ret < 0 ? ret : din[1];
 }
 
-#ifdef CONFIG_DM_SPI
+#if CONFIG_IS_ENABLED(DM_SPI)
 
 /**
  * struct spi_cs_info - Information about a bus chip select

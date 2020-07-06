@@ -76,9 +76,7 @@
 				SPICR_SPE)
 #define XILSPI_SPICR_DFLT_OFF	(SPICR_MASTER_INHIBIT | SPICR_MANUAL_SS)
 
-#ifndef CONFIG_XILINX_SPI_IDLE_VAL
-#define CONFIG_XILINX_SPI_IDLE_VAL	GENMASK(7, 0)
-#endif
+#define XILINX_SPI_IDLE_VAL	GENMASK(7, 0)
 
 #define XILINX_SPISR_TIMEOUT	10000 /* in milliseconds */
 
@@ -176,7 +174,7 @@ static u32 xilinx_spi_fill_txfifo(struct udevice *bus, const u8 *txp,
 
 	while (txbytes && !(readl(&regs->spisr) & SPISR_TX_FULL) &&
 	       i < priv->fifo_depth) {
-		d = txp ? *txp++ : CONFIG_XILINX_SPI_IDLE_VAL;
+		d = txp ? *txp++ : XILINX_SPI_IDLE_VAL;
 		debug("spi_xfer: tx:%x ", d);
 		/* write out and wait for processing (receive data) */
 		writel(d & SPIDTR_8BIT_MASK, &regs->spidtr);

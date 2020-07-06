@@ -56,6 +56,9 @@ static inline void *guidcpy(void *dst, const void *src)
 /* Root node */
 extern efi_handle_t efi_root;
 
+/* Set to EFI_SUCCESS when initialized */
+extern efi_status_t efi_obj_list_initialized;
+
 /* EFI system partition */
 extern struct efi_system_partition {
 	enum if_type if_type;

@@ -325,8 +325,8 @@ bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
 		authoff = opt->DataDirectory[ctidx].VirtualAddress;
 		authsz = opt->DataDirectory[ctidx].Size;
 	} else {
-		debug("%s: Invalid optional header magic %x\n", __func__,
-		      nt->OptionalHeader.Magic);
+		EFI_PRINT("%s: Invalid optional header magic %x\n", __func__,
+			  nt->OptionalHeader.Magic);
 		goto err;
 	}
 
@@ -336,7 +336,7 @@ bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
 			    nt->FileHeader.SizeOfOptionalHeader);
 	sorted = calloc(sizeof(IMAGE_SECTION_HEADER *), num_sections);
 	if (!sorted) {
-		debug("%s: Out of memory\n", __func__);
+		EFI_PRINT("%s: Out of memory\n", __func__);
 		goto err;
 	}
 
@@ -355,13 +355,13 @@ bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
 		efi_image_region_add(regs, efi + sorted[i]->PointerToRawData,
 				     efi + sorted[i]->PointerToRawData + size,
 				     0);
-		debug("section[%d](%s): raw: 0x%x-0x%x, virt: %x-%x\n",
-		      i, sorted[i]->Name,
-		      sorted[i]->PointerToRawData,
-		      sorted[i]->PointerToRawData + size,
-		      sorted[i]->VirtualAddress,
-		      sorted[i]->VirtualAddress
-			+ sorted[i]->Misc.VirtualSize);
+		EFI_PRINT("section[%d](%s): raw: 0x%x-0x%x, virt: %x-%x\n",
+			  i, sorted[i]->Name,
+			  sorted[i]->PointerToRawData,
+			  sorted[i]->PointerToRawData + size,
+			  sorted[i]->VirtualAddress,
+			  sorted[i]->VirtualAddress
+			    + sorted[i]->Misc.VirtualSize);
 
 		bytes_hashed += size;
 	}
@@ -369,8 +369,8 @@ bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
 
 	/* 3. Extra data excluding Certificates Table */
 	if (bytes_hashed + authsz < len) {
-		debug("extra data for hash: %zu\n",
-		      len - (bytes_hashed + authsz));
+		EFI_PRINT("extra data for hash: %lu\n",
+			  len - (bytes_hashed + authsz));
 		efi_image_region_add(regs, efi + bytes_hashed,
 				     efi + len - authsz, 0);
 	}
@@ -378,18 +378,19 @@ bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
 	/* Return Certificates Table */
 	if (authsz) {
 		if (len < authoff + authsz) {
-			debug("%s: Size for auth too large: %u >= %zu\n",
-			      __func__, authsz, len - authoff);
+			EFI_PRINT("%s: Size for auth too large: %u >= %zu\n",
+				  __func__, authsz, len - authoff);
 			goto err;
 		}
 		if (authsz < sizeof(*auth)) {
-			debug("%s: Size for auth too small: %u < %zu\n",
-			      __func__, authsz, sizeof(*auth));
+			EFI_PRINT("%s: Size for auth too small: %u < %zu\n",
+				  __func__, authsz, sizeof(*auth));
 			goto err;
 		}
 		*auth = efi + authoff;
 		*auth_len = authsz;
-		debug("WIN_CERTIFICATE: 0x%x, size: 0x%x\n", authoff, authsz);
+		EFI_PRINT("WIN_CERTIFICATE: 0x%x, size: 0x%x\n", authoff,
+			  authsz);
 	} else {
 		*auth = NULL;
 		*auth_len = 0;
@@ -423,19 +424,19 @@ static bool efi_image_unsigned_authenticate(struct efi_image_regions *regs)
 
 	dbx = efi_sigstore_parse_sigdb(L"dbx");
 	if (!dbx) {
-		debug("Getting signature database(dbx) failed\n");
+		EFI_PRINT("Getting signature database(dbx) failed\n");
 		goto out;
 	}
 
 	db = efi_sigstore_parse_sigdb(L"db");
 	if (!db) {
-		debug("Getting signature database(db) failed\n");
+		EFI_PRINT("Getting signature database(db) failed\n");
 		goto out;
 	}
 
 	/* try black-list first */
 	if (efi_signature_verify_with_sigdb(regs, NULL, dbx, NULL)) {
-		debug("Image is not signed and rejected by \"dbx\"\n");
+		EFI_PRINT("Image is not signed and rejected by \"dbx\"\n");
 		goto out;
 	}
 
@@ -443,7 +444,7 @@ static bool efi_image_unsigned_authenticate(struct efi_image_regions *regs)
 	if (efi_signature_verify_with_sigdb(regs, NULL, db, NULL))
 		ret = true;
 	else
-		debug("Image is not signed and not found in \"db\" or \"dbx\"\n");
+		EFI_PRINT("Image is not signed and not found in \"db\" or \"dbx\"\n");
 
 out:
 	efi_sigstore_free(db);
@@ -504,7 +505,7 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 
 	if (!efi_image_parse(efi, efi_size, &regs, &wincerts,
 			     &wincerts_len)) {
-		debug("Parsing PE executable image failed\n");
+		EFI_PRINT("Parsing PE executable image failed\n");
 		goto err;
 	}
 
@@ -520,13 +521,13 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 	 */
 	db = efi_sigstore_parse_sigdb(L"db");
 	if (!db) {
-		debug("Getting signature database(db) failed\n");
+		EFI_PRINT("Getting signature database(db) failed\n");
 		goto err;
 	}
 
 	dbx = efi_sigstore_parse_sigdb(L"dbx");
 	if (!dbx) {
-		debug("Getting signature database(dbx) failed\n");
+		EFI_PRINT("Getting signature database(dbx) failed\n");
 		goto err;
 	}
 
@@ -535,26 +536,27 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 	     (void *)wincert < (void *)wincerts + wincerts_len;
 	     wincert = (void *)wincert + ALIGN(wincert->dwLength, 8)) {
 		if (wincert->dwLength < sizeof(*wincert)) {
-			debug("%s: dwLength too small: %u < %zu\n",
-			      __func__, wincert->dwLength, sizeof(*wincert));
+			EFI_PRINT("%s: dwLength too small: %u < %zu\n",
+				  __func__, wincert->dwLength,
+				  sizeof(*wincert));
 			goto err;
 		}
 		msg = pkcs7_parse_message((void *)wincert + sizeof(*wincert),
 					  wincert->dwLength - sizeof(*wincert));
 		if (IS_ERR(msg)) {
-			debug("Parsing image's signature failed\n");
+			EFI_PRINT("Parsing image's signature failed\n");
 			msg = NULL;
 			goto err;
 		}
 
 		/* try black-list first */
 		if (efi_signature_verify_with_sigdb(regs, msg, dbx, NULL)) {
-			debug("Signature was rejected by \"dbx\"\n");
+			EFI_PRINT("Signature was rejected by \"dbx\"\n");
 			goto err;
 		}
 
 		if (!efi_signature_verify_signers(msg, dbx)) {
-			debug("Signer was rejected by \"dbx\"\n");
+			EFI_PRINT("Signer was rejected by \"dbx\"\n");
 			goto err;
 		} else {
 			ret = true;
@@ -562,14 +564,14 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 
 		/* try white-list */
 		if (!efi_signature_verify_with_sigdb(regs, msg, db, &cert)) {
-			debug("Verifying signature with \"db\" failed\n");
+			EFI_PRINT("Verifying signature with \"db\" failed\n");
 			goto err;
 		} else {
 			ret = true;
 		}
 
 		if (!efi_signature_verify_cert(cert, dbx)) {
-			debug("Certificate was rejected by \"dbx\"\n");
+			EFI_PRINT("Certificate was rejected by \"dbx\"\n");
 			goto err;
 		} else {
 			ret = true;

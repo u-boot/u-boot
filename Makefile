@@ -683,6 +683,9 @@ KBUILD_CFLAGS += $(call cc-option,-fno-delete-null-pointer-checks)
 # disable stringop warnings in gcc 8+
 KBUILD_CFLAGS += $(call cc-disable-warning, stringop-truncation)
 
+# Enabled with W=2, disabled by default as noisy
+KBUILD_CFLAGS += $(call cc-disable-warning, maybe-uninitialized)
+
 # change __FILE__ to the relative path from the srctree
 KBUILD_CFLAGS	+= $(call cc-option,-fmacro-prefix-map=$(srctree)/=)
 
@@ -887,7 +890,7 @@ ALL-$(CONFIG_ONENAND_U_BOOT) += u-boot-onenand.bin
 ifeq ($(CONFIG_SPL_FSL_PBL),y)
 ALL-$(CONFIG_RAMBOOT_PBL) += u-boot-with-spl-pbl.bin
 else
-ifneq ($(CONFIG_SECURE_BOOT), y)
+ifneq ($(CONFIG_NXP_ESBC), y)
 # For Secure Boot The Image needs to be signed and Header must also
 # be included. So The image has to be built explicitly
 ALL-$(CONFIG_RAMBOOT_PBL) += u-boot.pbl
@@ -1025,7 +1028,7 @@ ifneq ($(CONFIG_DM),y)
 	@echo >&2 "===================================================="
 endif
 ifeq ($(CONFIG_MMC),y)
-ifneq ($(CONFIG_DM_MMC)$(CONFIG_OF_CONTROL)$(CONFIG_BLK),yyy)
+ifneq ($(CONFIG_DM_MMC)$(CONFIG_BLK),yy)
 	@echo >&2 "===================== WARNING ======================"
 	@echo >&2 "This board does not use CONFIG_DM_MMC. Please update"
 	@echo >&2 "the board to use CONFIG_DM_MMC before the v2019.04 release."
@@ -1732,6 +1735,12 @@ MKIMAGEFLAGS_u-boot-mtk.bin = -T mtk_image \
 u-boot-mtk.bin: u-boot.bin FORCE
 	$(call if_changed,mkimage)
 endif
+
+quiet_cmd_endian_swap = SWAP    $@
+      cmd_endian_swap = $(srctree)/tools/endian-swap.py $< $@
+
+u-boot-swap.bin: u-boot.bin FORCE
+	$(call if_changed,endian_swap)
 
 ARCH_POSTLINK := $(wildcard $(srctree)/arch/$(ARCH)/Makefile.postlink)
 

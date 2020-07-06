@@ -17,7 +17,6 @@
 /* The value in the common file is too far away for the VInCo platform */
 
 /* serial console */
-#define CONFIG_ATMEL_USART
 #define CONFIG_USART_BASE		0xfc00c000
 #define CONFIG_USART_ID			30
 

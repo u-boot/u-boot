@@ -226,6 +226,22 @@ jobs:
         qemu_mips64el:
           TEST_PY_BD: "qemu_mips64el"
           TEST_PY_TEST_SPEC: "not sleep"
+        qemu_malta:
+          TEST_PY_BD: "malta"
+          TEST_PY_ID: "--id qemu"
+          TEST_PY_TEST_SPEC: "not sleep and not efi"
+        qemu_maltael:
+          TEST_PY_BD: "maltael"
+          TEST_PY_ID: "--id qemu"
+          TEST_PY_TEST_SPEC: "not sleep and not efi"
+        qemu_malta64:
+          TEST_PY_BD: "malta64"
+          TEST_PY_ID: "--id qemu"
+          TEST_PY_TEST_SPEC: "not sleep and not efi"
+        qemu_malta64el:
+          TEST_PY_BD: "malta64el"
+          TEST_PY_ID: "--id qemu"
+          TEST_PY_TEST_SPEC: "not sleep and not efi"
         qemu_ppce500:
           TEST_PY_BD: "qemu-ppce500"
           TEST_PY_TEST_SPEC: "not sleep"

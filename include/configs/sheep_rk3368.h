@@ -13,6 +13,4 @@
 #define DTB_LOAD_ADDR			0x5600000
 #define INITRD_LOAD_ADDR		0x5bf0000
 
-#define CONFIG_CONSOLE_SCROLL_LINES	10
-
 #endif

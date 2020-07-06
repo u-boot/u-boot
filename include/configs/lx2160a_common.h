@@ -20,7 +20,6 @@
 #define CONFIG_SYS_FLASH_BASE		0x20000000
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
-#define CONFIG_BOARD_EARLY_INIT_F	1
 
 /* DDR */
 #define CONFIG_FSL_DDR_INTERACTIVE	/* Interactive debugging */
@@ -78,7 +77,6 @@
 					(void *)CONFIG_SYS_SERIAL1, \
 					(void *)CONFIG_SYS_SERIAL2, \
 					(void *)CONFIG_SYS_SERIAL3 }
-#define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /* MC firmware */

@@ -19,8 +19,6 @@
 #include <sdhci.h>
 #include <zynqmp_tap_delay.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct arasan_sdhci_plat {
 	struct mmc_config cfg;
 	struct mmc mmc;

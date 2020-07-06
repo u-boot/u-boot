@@ -20,11 +20,7 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #endif
 
-/* general purpose I/O */
-#define CONFIG_AT91_GPIO
-
 /* serial console */
-#define CONFIG_ATMEL_USART
 #define CONFIG_USART_BASE       ATMEL_BASE_DBGU
 #define CONFIG_USART_ID         ATMEL_ID_DBGU
 
@@ -72,11 +68,6 @@
 #define CONFIG_BOOTCOMMAND \
     "nand read 0x22000000 0x000e0000 0x500000; " \
     "bootm"
-
-#define CONFIG_BOOTARGS \
-    "rw rootfstype=ubifs ubi.mtd=6 root=ubi0:rootfs"
-
-#define CONFIG_BAUDRATE             115200
 
 #define CONFIG_SYS_CBSIZE           1024
 #define CONFIG_SYS_MAXARGS          16

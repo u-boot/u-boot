@@ -107,6 +107,7 @@ dumpimage-mkimage-objs := aisimage.o \
 			lib/crc16.o \
 			lib/sha1.o \
 			lib/sha256.o \
+			lib/sha512.o \
 			common/hash.o \
 			ublimage.o \
 			zynqimage.o \
@@ -225,6 +226,7 @@ HOSTCFLAGS_crc8.o := -pedantic
 HOSTCFLAGS_md5.o := -pedantic
 HOSTCFLAGS_sha1.o := -pedantic
 HOSTCFLAGS_sha256.o := -pedantic
+HOSTCFLAGS_sha512.o := -pedantic -DCONFIG_SHA512 -DCONFIG_SHA384
 
 quiet_cmd_wrap = WRAP    $@
 cmd_wrap = echo "\#include <../$(patsubst $(obj)/%,%,$@)>" >$@

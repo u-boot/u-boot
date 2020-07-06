@@ -180,7 +180,6 @@
 
 #if defined(CONFIG_PCI)
 
-#undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
 
 #if !defined(CONFIG_PCI_PNP)

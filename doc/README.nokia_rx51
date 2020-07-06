@@ -16,6 +16,11 @@ SD card or internal eMMC memory. If this fails or keyboard is closed then
 the appended kernel image will be booted using some generated and some
 stored ATAGs (see boot order).
 
+For generating combined image of u-boot and kernel there is a simple script
+called u-boot-gen-combined. It is available in following repository:
+
+  https://github.com/pali/u-boot-maemo
+
 There is support for hardware watchdog. Hardware watchdog is started by
 NOLO so u-boot must kick watchdog to prevent reboot device (but not very
 often, max every 2 seconds). There is also support for framebuffer display

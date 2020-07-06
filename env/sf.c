@@ -38,7 +38,7 @@ static struct spi_flash *env_flash;
 
 static int setup_flash_device(void)
 {
-#ifdef CONFIG_DM_SPI_FLASH
+#if CONFIG_IS_ENABLED(DM_SPI_FLASH)
 	struct udevice *new;
 	int	ret;
 

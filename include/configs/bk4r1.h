@@ -57,12 +57,6 @@
 						"saveenv; " \
 						"fi; "
 
-/* Autoboot options */
-#define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_PROMPT	\
-	"Enter passphrase to stop autoboot, booting in %d seconds\n"
-#define CONFIG_AUTOBOOT_STOP_STR "123"
-
 #include <asm/arch/imx-regs.h>
 #include <linux/sizes.h>
 

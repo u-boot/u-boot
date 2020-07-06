@@ -41,11 +41,6 @@ struct gpio_bank {
 
 #endif
 
-static inline int get_gpio_index(int gpio)
-{
-	return gpio & 0x1f;
-}
-
 int gpio_is_valid(int gpio)
 {
 	return (gpio >= 0) && (gpio < OMAP_MAX_GPIO);
@@ -122,6 +117,10 @@ static int _get_gpio_value(const struct gpio_bank *bank, int gpio)
 }
 
 #if !CONFIG_IS_ENABLED(DM_GPIO)
+static inline int get_gpio_index(int gpio)
+{
+	return gpio & 0x1f;
+}
 
 static inline const struct gpio_bank *get_gpio_bank(int gpio)
 {

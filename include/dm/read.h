@@ -799,7 +799,9 @@ static inline fdt_addr_t dev_read_addr(const struct udevice *dev)
 
 static inline void *dev_read_addr_ptr(const struct udevice *dev)
 {
-	return devfdt_get_addr_ptr(dev);
+	void *addr = devfdt_get_addr_ptr(dev);
+
+	return ((fdt_addr_t)(uintptr_t)addr == FDT_ADDR_T_NONE) ? NULL : addr;
 }
 
 static inline fdt_addr_t dev_read_addr_pci(const struct udevice *dev)
@@ -923,8 +925,12 @@ static inline const void *dev_read_prop_by_prop(struct ofprop *prop,
 
 static inline int dev_read_alias_seq(const struct udevice *dev, int *devnump)
 {
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 	return fdtdec_get_alias_seq(gd->fdt_blob, dev->uclass->uc_drv->name,
 				    dev_of_offset(dev), devnump);
+#else
+	return -ENOTSUPP;
+#endif
 }
 
 static inline int dev_read_u32_array(const struct udevice *dev,
@@ -983,6 +989,8 @@ static inline u64 dev_translate_dma_address(const struct udevice *dev,
 
 static inline int dev_read_alias_highest_id(const char *stem)
 {
+	if (!CONFIG_IS_ENABLED(OF_LIBFDT))
+		return -1;
 	return fdtdec_get_alias_highest_id(gd->fdt_blob, stem);
 }
 

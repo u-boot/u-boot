@@ -175,6 +175,8 @@ static inline struct omap_hsmmc_data *omap_hsmmc_get_data(struct mmc *mmc)
 	return (struct omap_hsmmc_data *)mmc->priv;
 #endif
 }
+
+#if defined(CONFIG_OMAP34XX) || defined(CONFIG_IODELAY_RECALIBRATION)
 static inline struct mmc_config *omap_hsmmc_get_cfg(struct mmc *mmc)
 {
 #if CONFIG_IS_ENABLED(DM_MMC)
@@ -184,6 +186,7 @@ static inline struct mmc_config *omap_hsmmc_get_cfg(struct mmc *mmc)
 	return &((struct omap_hsmmc_data *)mmc->priv)->cfg;
 #endif
 }
+#endif
 
 #if defined(OMAP_HSMMC_USE_GPIO) && !CONFIG_IS_ENABLED(DM_MMC)
 static int omap_mmc_setup_gpio_in(int gpio, const char *label)

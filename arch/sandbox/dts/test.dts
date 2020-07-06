@@ -23,8 +23,8 @@
 		pci0 = &pci0;
 		pci1 = &pci1;
 		pci2 = &pci2;
-		remoteproc1 = &rproc_1;
-		remoteproc2 = &rproc_2;
+		remoteproc0 = &rproc_1;
+		remoteproc1 = &rproc_2;
 		rtc0 = &rtc_0;
 		rtc1 = &rtc_1;
 		spi0 = "/spi@0";
@@ -830,6 +830,8 @@
 		hub {
 			compatible = "usb-hub";
 			usb,device-class = <9>;
+			#address-cells = <1>;
+			#size-cells = <0>;
 			hub-emul {
 				compatible = "sandbox,usb-hub";
 				#address-cells = <1>;
@@ -857,6 +859,13 @@
 					compatible = "sandbox,usb-keyb";
 				};
 
+			};
+
+			usbstor@1 {
+				reg = <1>;
+			};
+			usbstor@3 {
+				reg = <3>;
 			};
 		};
 	};
@@ -1048,6 +1057,27 @@
 
 	mdio: mdio-test {
 		compatible = "sandbox,mdio";
+	};
+
+	pm-bus-test {
+		compatible = "simple-pm-bus";
+		clocks = <&clk_sandbox 4>;
+		power-domains = <&pwrdom 1>;
+	};
+
+	resetc2: syscon-reset {
+		compatible = "syscon-reset";
+		#reset-cells = <1>;
+		regmap = <&syscon0>;
+		offset = <1>;
+		mask = <0x27FFFFFF>;
+		assert-high = <0>;
+	};
+
+	syscon-reset-test {
+		compatible = "sandbox,misc_sandbox";
+		resets = <&resetc2 15>, <&resetc2 30>, <&resetc2 60>;
+		reset-names = "valid", "no_mask", "out_of_range";
 	};
 };
 

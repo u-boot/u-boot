@@ -30,20 +30,6 @@
 #define SEND_IPI_TO_HART(hart)  (0x80 >> (hart))
 
 DECLARE_GLOBAL_DATA_PTR;
-static int init_plic(void);
-
-#define PLIC_BASE_GET(void)						\
-	do {								\
-		long *ret;						\
-									\
-		if (!gd->arch.plic) {					\
-			ret = syscon_get_first_range(RISCV_SYSCON_PLIC); \
-			if (IS_ERR(ret))				\
-				return PTR_ERR(ret);			\
-			gd->arch.plic = ret;				\
-			init_plic();					\
-		}							\
-	} while (0)
 
 static int enable_ipi(int hart)
 {
@@ -93,13 +79,21 @@ static int init_plic(void)
 	return -ENODEV;
 }
 
+int riscv_init_ipi(void)
+{
+	long *ret = syscon_get_first_range(RISCV_SYSCON_PLIC);
+
+	if (IS_ERR(ret))
+		return PTR_ERR(ret);
+	gd->arch.plic = ret;
+
+	return init_plic();
+}
+
 int riscv_send_ipi(int hart)
 {
-	unsigned int ipi;
+	unsigned int ipi = (SEND_IPI_TO_HART(hart) << (8 * gd->arch.boot_hart));
 
-	PLIC_BASE_GET();
-
-	ipi = (SEND_IPI_TO_HART(hart) << (8 * gd->arch.boot_hart));
 	writel(ipi, (void __iomem *)PENDING_REG(gd->arch.plic,
 				gd->arch.boot_hart));
 
@@ -110,8 +104,6 @@ int riscv_clear_ipi(int hart)
 {
 	u32 source_id;
 
-	PLIC_BASE_GET();
-
 	source_id = readl((void __iomem *)CLAIM_REG(gd->arch.plic, hart));
 	writel(source_id, (void __iomem *)CLAIM_REG(gd->arch.plic, hart));
 
@@ -120,8 +112,6 @@ int riscv_clear_ipi(int hart)
 
 int riscv_get_ipi(int hart, int *pending)
 {
-	PLIC_BASE_GET();
-
 	*pending = readl((void __iomem *)PENDING_REG(gd->arch.plic,
 						     gd->arch.boot_hart));
 	*pending = !!(*pending & SEND_IPI_TO_HART(hart));

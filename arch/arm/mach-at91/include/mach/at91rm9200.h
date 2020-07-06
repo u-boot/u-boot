@@ -5,8 +5,6 @@
 #ifndef __AT91RM9200_H__
 #define __AT91RM9200_H__
 
-#define CONFIG_AT91_GPIO	/* and require always gpio features */
-
 /* Periperial Identifiers */
 
 #define ATMEL_ID_SYS	1	/* System Peripheral */

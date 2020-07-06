@@ -61,6 +61,10 @@ static int board_bootmode_has_emmc(void);
 #define board_is_am571x_idk()	board_ti_is("AM571IDK")
 #define board_is_bbai()		board_ti_is("BBONE-AI")
 
+#define board_is_ti_idk()	board_is_am574x_idk() || \
+				board_is_am572x_idk() || \
+				board_is_am571x_idk()
+
 #ifdef CONFIG_DRIVER_TI_CPSW
 #include <cpsw.h>
 #endif
@@ -68,8 +72,7 @@ static int board_bootmode_has_emmc(void);
 DECLARE_GLOBAL_DATA_PTR;
 
 #define GPIO_ETH_LCD		GPIO_TO_PIN(2, 22)
-/* GPIO 7_11 */
-#define GPIO_DDR_VTT_EN 203
+#define GPIO_DDR_VTT_EN		GPIO_TO_PIN(7, 11)
 
 /* Touch screen controller to identify the LCD */
 #define OSD_TS_FT_BUS_ADDRESS	0
@@ -667,7 +670,7 @@ void am57x_idk_lcd_detect(void)
 	struct udevice *dev;
 
 	/* Only valid for IDKs */
-	if (board_is_x15() || board_is_am572x_evm() ||  board_is_bbai())
+	if (!board_is_ti_idk())
 		return;
 
 	/* Only AM571x IDK has gpio control detect.. so check that */

@@ -8,6 +8,10 @@
 
 / {
 	aliases {
+		cpu1 = &cpu1;
+		cpu2 = &cpu2;
+		cpu3 = &cpu3;
+		cpu4 = &cpu4;
 		spi0 = &qspi0;
 		spi2 = &qspi2;
 	};

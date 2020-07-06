@@ -2831,7 +2831,7 @@ retry:
 	if (err)
 		return err;
 
-	/* The internal partition reset to user partition(0) at every CMD0*/
+	/* The internal partition reset to user partition(0) at every CMD0 */
 	mmc_get_blk_desc(mmc)->hwpart = 0;
 
 	/* Test for SD version 2 */

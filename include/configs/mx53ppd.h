@@ -33,7 +33,6 @@
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_BAUDRATE			115200
 
 /* Command definition */
 
@@ -144,8 +143,6 @@
 #define CONFIG_SYS_MMC_ENV_DEV 0
 
 #define CONFIG_FSL_IIM
-
-#define CONFIG_BCH
 
 /* Backlight Control */
 #define CONFIG_IMX6_PWM_PER_CLK 66666000

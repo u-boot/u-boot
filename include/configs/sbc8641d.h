@@ -206,8 +206,6 @@
 #define CONFIG_SYS_WRITE_SWAPPED_DATA
 #define CONFIG_SYS_FLASH_EMPTY_INFO
 
-#undef CONFIG_CLOCKS_IN_MHZ
-
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #ifndef CONFIG_SYS_INIT_RAM_LOCK
 #define CONFIG_SYS_INIT_RAM_ADDR	0x0fd00000	/* Initial RAM address */
@@ -276,7 +274,6 @@
 
 #define CONFIG_PCI_SCAN_SHOW            /* show pci devices on startup */
 
-#undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
 
 #if !defined(CONFIG_PCI_PNP)
