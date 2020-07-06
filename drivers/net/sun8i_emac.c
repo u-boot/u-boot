@@ -29,6 +29,7 @@
 #include <net.h>
 #include <reset.h>
 #include <dt-bindings/pinctrl/sun4i-a10.h>
+#include <wait_bit.h>
 #if CONFIG_IS_ENABLED(DM_GPIO)
 #include <asm-generic/gpio.h>
 #endif
@@ -166,32 +167,25 @@ static int sun8i_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
 {
 	struct udevice *dev = bus->priv;
 	struct emac_eth_dev *priv = dev_get_priv(dev);
-	ulong start;
-	u32 miiaddr = 0;
-	int timeout = CONFIG_MDIO_TIMEOUT;
+	u32 mii_cmd;
+	int ret;
 
-	miiaddr &= ~MDIO_CMD_MII_WRITE;
-	miiaddr &= ~MDIO_CMD_MII_PHY_REG_ADDR_MASK;
-	miiaddr |= (reg << MDIO_CMD_MII_PHY_REG_ADDR_SHIFT) &
+	mii_cmd = (reg << MDIO_CMD_MII_PHY_REG_ADDR_SHIFT) &
 		MDIO_CMD_MII_PHY_REG_ADDR_MASK;
-
-	miiaddr &= ~MDIO_CMD_MII_PHY_ADDR_MASK;
-
-	miiaddr |= (addr << MDIO_CMD_MII_PHY_ADDR_SHIFT) &
+	mii_cmd |= (addr << MDIO_CMD_MII_PHY_ADDR_SHIFT) &
 		MDIO_CMD_MII_PHY_ADDR_MASK;
 
-	miiaddr |= MDIO_CMD_MII_BUSY;
+	mii_cmd |= MDIO_CMD_MII_BUSY;
 
-	writel(miiaddr, priv->mac_reg + EMAC_MII_CMD);
+	writel(mii_cmd, priv->mac_reg + EMAC_MII_CMD);
 
-	start = get_timer(0);
-	while (get_timer(start) < timeout) {
-		if (!(readl(priv->mac_reg + EMAC_MII_CMD) & MDIO_CMD_MII_BUSY))
-			return readl(priv->mac_reg + EMAC_MII_DATA);
-		udelay(10);
-	};
+	ret = wait_for_bit_le32(priv->mac_reg + EMAC_MII_CMD,
+				MDIO_CMD_MII_BUSY, false,
+				CONFIG_MDIO_TIMEOUT, true);
+	if (ret < 0)
+		return ret;
 
-	return -1;
+	return readl(priv->mac_reg + EMAC_MII_DATA);
 }
 
 static int sun8i_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
@@ -199,35 +193,22 @@ static int sun8i_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
 {
 	struct udevice *dev = bus->priv;
 	struct emac_eth_dev *priv = dev_get_priv(dev);
-	ulong start;
-	u32 miiaddr = 0;
-	int ret = -1, timeout = CONFIG_MDIO_TIMEOUT;
+	u32 mii_cmd;
 
-	miiaddr &= ~MDIO_CMD_MII_PHY_REG_ADDR_MASK;
-	miiaddr |= (reg << MDIO_CMD_MII_PHY_REG_ADDR_SHIFT) &
+	mii_cmd = (reg << MDIO_CMD_MII_PHY_REG_ADDR_SHIFT) &
 		MDIO_CMD_MII_PHY_REG_ADDR_MASK;
-
-	miiaddr &= ~MDIO_CMD_MII_PHY_ADDR_MASK;
-	miiaddr |= (addr << MDIO_CMD_MII_PHY_ADDR_SHIFT) &
+	mii_cmd |= (addr << MDIO_CMD_MII_PHY_ADDR_SHIFT) &
 		MDIO_CMD_MII_PHY_ADDR_MASK;
 
-	miiaddr |= MDIO_CMD_MII_WRITE;
-	miiaddr |= MDIO_CMD_MII_BUSY;
+	mii_cmd |= MDIO_CMD_MII_WRITE;
+	mii_cmd |= MDIO_CMD_MII_BUSY;
 
 	writel(val, priv->mac_reg + EMAC_MII_DATA);
-	writel(miiaddr, priv->mac_reg + EMAC_MII_CMD);
+	writel(mii_cmd, priv->mac_reg + EMAC_MII_CMD);
 
-	start = get_timer(0);
-	while (get_timer(start) < timeout) {
-		if (!(readl(priv->mac_reg + EMAC_MII_CMD) &
-					MDIO_CMD_MII_BUSY)) {
-			ret = 0;
-			break;
-		}
-		udelay(10);
-	};
-
-	return ret;
+	return wait_for_bit_le32(priv->mac_reg + EMAC_MII_CMD,
+				 MDIO_CMD_MII_BUSY, false,
+				 CONFIG_MDIO_TIMEOUT, true);
 }
 
 static int _sun8i_write_hwaddr(struct emac_eth_dev *priv, u8 *mac_id)
