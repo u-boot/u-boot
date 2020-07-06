@@ -389,7 +389,7 @@ static void rx_descs_init(struct emac_eth_dev *priv)
 	struct emac_dma_desc *desc_table_p = &priv->rx_chain[0];
 	char *rxbuffs = &priv->rxbuffer[0];
 	struct emac_dma_desc *desc_p;
-	u32 idx;
+	int i;
 
 	/*
 	 * Make sure we don't have dirty cache lines around, which could
@@ -400,11 +400,10 @@ static void rx_descs_init(struct emac_eth_dev *priv)
 	invalidate_dcache_range((uintptr_t)rxbuffs,
 				(uintptr_t)rxbuffs + sizeof(priv->rxbuffer));
 
-	for (idx = 0; idx < CONFIG_RX_DESCR_NUM; idx++) {
-		desc_p = &desc_table_p[idx];
-		desc_p->buf_addr = (uintptr_t)&rxbuffs[idx * CONFIG_ETH_BUFSIZE]
-			;
-		desc_p->next = (uintptr_t)&desc_table_p[idx + 1];
+	for (i = 0; i < CONFIG_RX_DESCR_NUM; i++) {
+		desc_p = &desc_table_p[i];
+		desc_p->buf_addr = (uintptr_t)&rxbuffs[i * CONFIG_ETH_BUFSIZE];
+		desc_p->next = (uintptr_t)&desc_table_p[i + 1];
 		desc_p->ctl_size = CONFIG_ETH_RXSIZE;
 		desc_p->status = EMAC_DESC_OWN_DMA;
 	}
@@ -425,13 +424,12 @@ static void tx_descs_init(struct emac_eth_dev *priv)
 	struct emac_dma_desc *desc_table_p = &priv->tx_chain[0];
 	char *txbuffs = &priv->txbuffer[0];
 	struct emac_dma_desc *desc_p;
-	u32 idx;
+	int i;
 
-	for (idx = 0; idx < CONFIG_TX_DESCR_NUM; idx++) {
-		desc_p = &desc_table_p[idx];
-		desc_p->buf_addr = (uintptr_t)&txbuffs[idx * CONFIG_ETH_BUFSIZE]
-			;
-		desc_p->next = (uintptr_t)&desc_table_p[idx + 1];
+	for (i = 0; i < CONFIG_TX_DESCR_NUM; i++) {
+		desc_p = &desc_table_p[i];
+		desc_p->buf_addr = (uintptr_t)&txbuffs[i * CONFIG_ETH_BUFSIZE];
+		desc_p->next = (uintptr_t)&desc_table_p[i + 1];
 		desc_p->ctl_size = 0;
 		desc_p->status = 0;
 	}
