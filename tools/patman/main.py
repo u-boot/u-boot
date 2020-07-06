@@ -31,60 +31,65 @@ epilog = '''Create patches from commits in a branch, check them and email them
 as specified by tags you place in the commits. Use -n to do a dry run first.'''
 
 parser = ArgumentParser(epilog=epilog)
-parser.add_argument('-H', '--full-help', action='store_true', dest='full_help',
+subparsers = parser.add_subparsers(dest='cmd')
+send = subparsers.add_parser('send')
+send.add_argument('-H', '--full-help', action='store_true', dest='full_help',
        default=False, help='Display the README file')
-parser.add_argument('-b', '--branch', type=str,
+send.add_argument('-b', '--branch', type=str,
                   help="Branch to process (by default, the current branch)")
-parser.add_argument('-c', '--count', dest='count', type=int,
+send.add_argument('-c', '--count', dest='count', type=int,
        default=-1, help='Automatically create patches from top n commits')
-parser.add_argument('-e', '--end', type=int, default=0,
+send.add_argument('-e', '--end', type=int, default=0,
                   help='Commits to skip at end of patch list')
-parser.add_argument('-i', '--ignore-errors', action='store_true',
+send.add_argument('-i', '--ignore-errors', action='store_true',
        dest='ignore_errors', default=False,
        help='Send patches email even if patch errors are found')
-parser.add_argument('-l', '--limit-cc', dest='limit', type=int, default=None,
-       help='Limit the cc list to LIMIT entries [default: %(default)]')
-parser.add_argument('-m', '--no-maintainers', action='store_false',
+send.add_argument('-l', '--limit-cc', dest='limit', type=int, default=None,
+       help='Limit the cc list to LIMIT entries [default: %(default)s]')
+send.add_argument('-m', '--no-maintainers', action='store_false',
        dest='add_maintainers', default=True,
        help="Don't cc the file maintainers automatically")
-parser.add_argument('-n', '--dry-run', action='store_true', dest='dry_run',
+send.add_argument('-n', '--dry-run', action='store_true', dest='dry_run',
        default=False, help="Do a dry run (create but don't email patches)")
-parser.add_argument('-p', '--project', default=project.DetectProject(),
-                    help="Project name; affects default option values and "
-                    "aliases [default: %(default)]")
-parser.add_argument('-r', '--in-reply-to', type=str, action='store',
+send.add_argument('-p', '--project', default=project.DetectProject(),
+                  help="Project name; affects default option values and "
+                  "aliases [default: %(default)s]")
+send.add_argument('-r', '--in-reply-to', type=str, action='store',
                   help="Message ID that this series is in reply to")
-parser.add_argument('-s', '--start', dest='start', type=int,
+send.add_argument('-s', '--start', dest='start', type=int,
        default=0, help='Commit to start creating patches from (0 = HEAD)')
-parser.add_argument('-t', '--ignore-bad-tags', action='store_true',
-                    default=False, help='Ignore bad tags / aliases')
-parser.add_argument('-v', '--verbose', action='store_true', dest='verbose',
+send.add_argument('-t', '--ignore-bad-tags', action='store_true',
+                  default=False, help='Ignore bad tags / aliases')
+send.add_argument('-v', '--verbose', action='store_true', dest='verbose',
        default=False, help='Verbose output of errors and warnings')
-parser.add_argument('-T', '--thread', action='store_true', dest='thread',
-                    default=False, help='Create patches as a single thread')
-parser.add_argument('--cc-cmd', dest='cc_cmd', type=str, action='store',
+send.add_argument('-T', '--thread', action='store_true', dest='thread',
+                  default=False, help='Create patches as a single thread')
+send.add_argument('--cc-cmd', dest='cc_cmd', type=str, action='store',
        default=None, help='Output cc list for patch file (used by git)')
-parser.add_argument('--no-binary', action='store_true', dest='ignore_binary',
-                    default=False,
-                    help="Do not output contents of changes in binary files")
-parser.add_argument('--no-check', action='store_false', dest='check_patch',
-                    default=True,
-                    help="Don't check for patch compliance")
-parser.add_argument('--no-tags', action='store_false', dest='process_tags',
-                    default=True, help="Don't process subject tags as aliases")
-parser.add_argument('--smtp-server', type=str,
-                    help="Specify the SMTP server to 'git send-email'")
-parser.add_argument('--test', action='store_true', dest='test',
-                    default=False, help='run tests')
+send.add_argument('--no-binary', action='store_true', dest='ignore_binary',
+                  default=False,
+                  help="Do not output contents of changes in binary files")
+send.add_argument('--no-check', action='store_false', dest='check_patch',
+                  default=True,
+                  help="Don't check for patch compliance")
+send.add_argument('--no-tags', action='store_false', dest='process_tags',
+                  default=True, help="Don't process subject tags as aliases")
+send.add_argument('--smtp-server', type=str,
+                  help="Specify the SMTP server to 'git send-email'")
+send.add_argument('--test', action='store_true', dest='test',
+                  default=False, help='run tests')
 
-parser.add_argument('patchfiles', nargs='*')
+send.add_argument('patchfiles', nargs='*')
 
 # Parse options twice: first to get the project and second to handle
 # defaults properly (which depends on project).
 argv = sys.argv[1:]
+if len(argv) < 1 or argv[0].startswith('-'):
+    argv = ['send'] + argv
 args = parser.parse_args(argv)
-settings.Setup(gitutil, parser, args.project, '')
-args = parser.parse_args(argv)
+if hasattr(args, 'project'):
+    settings.Setup(gitutil, send, args.project, '')
+    args = parser.parse_args(argv)
 
 if __name__ != "__main__":
     pass
