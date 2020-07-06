@@ -686,7 +686,7 @@ static int am65_cpsw_probe_cpsw(struct udevice *dev)
 				AM65_CPSW_CPSW_NU_ALE_BASE;
 	cpsw_common->mdio_base = cpsw_common->ss_base + AM65_CPSW_MDIO_BASE;
 
-	ports_np = dev_read_subnode(dev, "ports");
+	ports_np = dev_read_subnode(dev, "ethernet-ports");
 	if (!ofnode_valid(ports_np)) {
 		ret = -ENOENT;
 		goto out;
