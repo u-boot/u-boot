@@ -624,9 +624,6 @@ static int sun8i_emac_eth_send(struct udevice *dev, void *packet, int length)
 	uintptr_t data_end = data_start +
 		roundup(length, ARCH_DMA_MINALIGN);
 
-	/* Invalidate entire buffer descriptor */
-	invalidate_dcache_range(desc_start, desc_end);
-
 	desc_p->ctl_size = length | EMAC_DESC_CHAIN_SECOND;
 
 	memcpy((void *)data_start, packet, length);
