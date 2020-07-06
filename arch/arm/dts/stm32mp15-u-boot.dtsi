@@ -32,6 +32,10 @@
 
 	reboot {
 		u-boot,dm-pre-reloc;
+		compatible = "syscon-reboot";
+		regmap = <&rcc>;
+		offset = <0x404>;
+		mask = <0x1>;
 	};
 
 	soc {
