@@ -18,10 +18,9 @@ if __name__ == "__main__":
     sys.path.append(os.path.join(our_path, '..'))
 
 # Our modules
-from patman import checkpatch
 from patman import command
+from patman import control
 from patman import gitutil
-from patman import patchstream
 from patman import project
 from patman import settings
 from patman import terminal
@@ -128,56 +127,4 @@ elif options.full_help:
 
 # Process commits, produce patches files, check them, email them
 else:
-    gitutil.Setup()
-
-    if options.count == -1:
-        # Work out how many patches to send if we can
-        options.count = gitutil.CountCommitsToBranch() - options.start
-
-    col = terminal.Color()
-    if not options.count:
-        str = 'No commits found to process - please use -c flag'
-        sys.exit(col.Color(col.RED, str))
-
-    # Read the metadata from the commits
-    if options.count:
-        series = patchstream.GetMetaData(options.start, options.count)
-        cover_fname, args = gitutil.CreatePatches(options.start, options.count,
-                options.ignore_binary, series)
-
-    # Fix up the patch files to our liking, and insert the cover letter
-    patchstream.FixPatches(series, args)
-    if cover_fname and series.get('cover'):
-        patchstream.InsertCoverLetter(cover_fname, series, options.count)
-
-    # Do a few checks on the series
-    series.DoChecks()
-
-    # Check the patches, and run them through 'git am' just to be sure
-    if options.check_patch:
-        ok = checkpatch.CheckPatches(options.verbose, args)
-    else:
-        ok = True
-
-    cc_file = series.MakeCcFile(options.process_tags, cover_fname,
-                                not options.ignore_bad_tags,
-                                options.add_maintainers, options.limit)
-
-    # Email the patches out (giving the user time to check / cancel)
-    cmd = ''
-    its_a_go = ok or options.ignore_errors
-    if its_a_go:
-        cmd = gitutil.EmailPatches(series, cover_fname, args,
-                options.dry_run, not options.ignore_bad_tags, cc_file,
-                in_reply_to=options.in_reply_to, thread=options.thread,
-                smtp_server=options.smtp_server)
-    else:
-        print(col.Color(col.RED, "Not sending emails due to errors/warnings"))
-
-    # For a dry run, just show our actions as a sanity check
-    if options.dry_run:
-        series.ShowActions(args, cmd, options.process_tags)
-        if not its_a_go:
-            print(col.Color(col.RED, "Email would not be sent"))
-
-    os.remove(cc_file)
+    control.send(options)
