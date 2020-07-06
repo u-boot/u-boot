@@ -162,7 +162,7 @@
 		};
 	};
 
-	ethernet0_rgmii_pins_b: rgmii-1 {
+	ethernet0_rgmii_pins_c: rgmii-2 {
 		pins1 {
 			pinmux = <STM32_PINMUX('G', 5, AF11)>, /* ETH_RGMII_CLK125 */
 				 <STM32_PINMUX('G', 4, AF11)>, /* ETH_RGMII_GTX_CLK */
@@ -193,7 +193,7 @@
 		};
 	};
 
-	ethernet0_rgmii_pins_sleep_b: rgmii-sleep-1 {
+	ethernet0_rgmii_sleep_pins_c: rgmii-sleep-2 {
 		pins1 {
 			pinmux = <STM32_PINMUX('G', 5, ANALOG)>, /* ETH_RGMII_CLK125 */
 				 <STM32_PINMUX('G', 4, ANALOG)>, /* ETH_RGMII_GTX_CLK */
