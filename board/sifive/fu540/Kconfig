@@ -65,7 +65,5 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply SMP
 	imply MISC
 	imply SIFIVE_OTP
-	imply SYSRESET
-	imply SYSRESET_GPIO
 
 endif
