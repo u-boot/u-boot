@@ -68,6 +68,18 @@ struct rtc_ops {
 		    u8 *buf, unsigned int len);
 
 	/**
+	 * write() - Write multiple 8-bit registers
+	 *
+	 * @dev:	Device to write to
+	 * @reg:	First register to write
+	 * @buf:	Input buffer
+	 * @len:	Number of registers to write
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*write)(struct udevice *dev, unsigned int reg,
+		     const u8 *buf, unsigned int len);
+
+	/**
 	 * read8() - Read an 8-bit register
 	 *
 	 * @dev:	Device to read from
@@ -131,6 +143,18 @@ int dm_rtc_reset(struct udevice *dev);
  * @return 0 if OK, -ve on error
  */
 int dm_rtc_read(struct udevice *dev, unsigned int reg, u8 *buf, unsigned int len);
+
+/**
+ * dm_rtc_write() - Write multiple 8-bit registers
+ *
+ * @dev:	Device to write to
+ * @reg:	First register to write
+ * @buf:	Input buffer
+ * @len:	Number of registers to write
+ * @return 0 if OK, -ve on error
+ */
+int dm_rtc_write(struct udevice *dev, unsigned int reg,
+		 const u8 *buf, unsigned int len);
 
 /**
  * rtc_read8() - Read an 8-bit register

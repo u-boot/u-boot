@@ -59,6 +59,25 @@ int dm_rtc_read(struct udevice *dev, unsigned int reg, u8 *buf, unsigned int len
 	return 0;
 }
 
+int dm_rtc_write(struct udevice *dev, unsigned int reg,
+		 const u8 *buf, unsigned int len)
+{
+	struct rtc_ops *ops = rtc_get_ops(dev);
+
+	assert(ops);
+	if (ops->write)
+		return ops->write(dev, reg, buf, len);
+	if (!ops->write8)
+		return -ENOSYS;
+	while (len--) {
+		int ret = ops->write8(dev, reg++, *buf++);
+
+		if (ret < 0)
+			return ret;
+	}
+	return 0;
+}
+
 int rtc_read8(struct udevice *dev, unsigned int reg)
 {
 	struct rtc_ops *ops = rtc_get_ops(dev);
