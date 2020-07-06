@@ -415,7 +415,7 @@ static void tx_descs_init(struct emac_eth_dev *priv)
 		desc_p->buf_addr = (uintptr_t)&txbuffs[idx * CONFIG_ETH_BUFSIZE]
 			;
 		desc_p->next = (uintptr_t)&desc_table_p[idx + 1];
-		desc_p->status = (1 << 31);
+		desc_p->status = 0;
 		desc_p->st = 0;
 	}
 
