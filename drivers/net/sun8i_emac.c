@@ -85,15 +85,30 @@
 
 /* H3/A64 EMAC Register's offset */
 #define EMAC_CTL0		0x00
+#define EMAC_CTL0_FULL_DUPLEX		BIT(0)
+#define EMAC_CTL0_SPEED_MASK		GENMASK(3, 2)
+#define EMAC_CTL0_SPEED_10		(0x2 << 2)
+#define EMAC_CTL0_SPEED_100		(0x3 << 2)
+#define EMAC_CTL0_SPEED_1000		(0x0 << 2)
 #define EMAC_CTL1		0x04
+#define EMAC_CTL1_SOFT_RST		BIT(0)
+#define EMAC_CTL1_BURST_LEN_SHIFT	24
 #define EMAC_INT_STA		0x08
 #define EMAC_INT_EN		0x0c
 #define EMAC_TX_CTL0		0x10
+#define	EMAC_TX_CTL0_TX_EN		BIT(31)
 #define EMAC_TX_CTL1		0x14
+#define	EMAC_TX_CTL1_TX_MD		BIT(1)
+#define	EMAC_TX_CTL1_TX_DMA_EN		BIT(30)
+#define	EMAC_TX_CTL1_TX_DMA_START	BIT(31)
 #define EMAC_TX_FLOW_CTL	0x1c
 #define EMAC_TX_DMA_DESC	0x20
 #define EMAC_RX_CTL0		0x24
+#define	EMAC_RX_CTL0_RX_EN		BIT(31)
 #define EMAC_RX_CTL1		0x28
+#define	EMAC_RX_CTL1_RX_MD		BIT(1)
+#define	EMAC_RX_CTL1_RX_DMA_EN		BIT(30)
+#define	EMAC_RX_CTL1_RX_DMA_START	BIT(31)
 #define EMAC_RX_DMA_DESC	0x34
 #define EMAC_MII_CMD		0x48
 #define EMAC_MII_DATA		0x4c
@@ -104,6 +119,11 @@
 #define EMAC_TX_CUR_BUF		0xb8
 #define EMAC_RX_DMA_STA		0xc0
 #define EMAC_RX_CUR_DESC	0xc4
+
+#define EMAC_DESC_OWN_DMA	BIT(31)
+#define EMAC_DESC_LAST_DESC	BIT(30)
+#define EMAC_DESC_FIRST_DESC	BIT(29)
+#define EMAC_DESC_CHAIN_SECOND	BIT(24)
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -117,7 +137,7 @@ enum emac_variant {
 
 struct emac_dma_desc {
 	u32 status;
-	u32 st;
+	u32 ctl_size;
 	u32 buf_addr;
 	u32 next;
 } __aligned(ARCH_DMA_MINALIGN);
@@ -236,21 +256,21 @@ static void sun8i_adjust_link(struct emac_eth_dev *priv,
 	v = readl(priv->mac_reg + EMAC_CTL0);
 
 	if (phydev->duplex)
-		v |= BIT(0);
+		v |= EMAC_CTL0_FULL_DUPLEX;
 	else
-		v &= ~BIT(0);
+		v &= ~EMAC_CTL0_FULL_DUPLEX;
 
-	v &= ~0x0C;
+	v &= ~EMAC_CTL0_SPEED_MASK;
 
 	switch (phydev->speed) {
 	case 1000:
+		v |= EMAC_CTL0_SPEED_1000;
 		break;
 	case 100:
-		v |= BIT(2);
-		v |= BIT(3);
+		v |= EMAC_CTL0_SPEED_100;
 		break;
 	case 10:
-		v |= BIT(3);
+		v |= EMAC_CTL0_SPEED_10;
 		break;
 	}
 	writel(v, priv->mac_reg + EMAC_CTL0);
@@ -372,8 +392,8 @@ static void rx_descs_init(struct emac_eth_dev *priv)
 		desc_p->buf_addr = (uintptr_t)&rxbuffs[idx * CONFIG_ETH_BUFSIZE]
 			;
 		desc_p->next = (uintptr_t)&desc_table_p[idx + 1];
-		desc_p->st |= CONFIG_ETH_RXSIZE;
-		desc_p->status = BIT(31);
+		desc_p->ctl_size |= CONFIG_ETH_RXSIZE;
+		desc_p->status = EMAC_DESC_OWN_DMA;
 	}
 
 	/* Correcting the last pointer of the chain */
@@ -399,8 +419,8 @@ static void tx_descs_init(struct emac_eth_dev *priv)
 		desc_p->buf_addr = (uintptr_t)&txbuffs[idx * CONFIG_ETH_BUFSIZE]
 			;
 		desc_p->next = (uintptr_t)&desc_table_p[idx + 1];
+		desc_p->ctl_size = 0;
 		desc_p->status = 0;
-		desc_p->st = 0;
 	}
 
 	/* Correcting the last pointer of the chain */
@@ -418,7 +438,7 @@ static void tx_descs_init(struct emac_eth_dev *priv)
 static int sun8i_emac_eth_start(struct udevice *dev)
 {
 	struct emac_eth_dev *priv = dev_get_priv(dev);
-	u32 reg, v;
+	u32 reg;
 	int timeout = 100;
 	int ret;
 
@@ -439,20 +459,17 @@ static int sun8i_emac_eth_start(struct udevice *dev)
 	/* Rewrite mac address after reset */
 	sun8i_eth_write_hwaddr(dev);
 
-	v = readl(priv->mac_reg + EMAC_TX_CTL1);
-	/* TX_MD Transmission starts after a full frame located in TX DMA FIFO*/
-	v |= BIT(1);
-	writel(v, priv->mac_reg + EMAC_TX_CTL1);
+	/* transmission starts after the full frame arrived in TX DMA FIFO */
+	setbits_le32(priv->mac_reg + EMAC_TX_CTL1, EMAC_TX_CTL1_TX_MD);
 
-	v = readl(priv->mac_reg + EMAC_RX_CTL1);
-	/* RX_MD RX DMA reads data from RX DMA FIFO to host memory after a
+	/*
+	 * RX DMA reads data from RX DMA FIFO to host memory after a
 	 * complete frame has been written to RX DMA FIFO
 	 */
-	v |= BIT(1);
-	writel(v, priv->mac_reg + EMAC_RX_CTL1);
+	setbits_le32(priv->mac_reg + EMAC_RX_CTL1, EMAC_RX_CTL1_RX_MD);
 
-	/* DMA */
-	writel(8 << 24, priv->mac_reg + EMAC_CTL1);
+	/* DMA burst length */
+	writel(8 << EMAC_CTL1_BURST_LEN_SHIFT, priv->mac_reg + EMAC_CTL1);
 
 	/* Initialize rx/tx descriptors */
 	rx_descs_init(priv);
@@ -465,18 +482,13 @@ static int sun8i_emac_eth_start(struct udevice *dev)
 
 	sun8i_adjust_link(priv, priv->phydev);
 
-	/* Start RX DMA */
-	v = readl(priv->mac_reg + EMAC_RX_CTL1);
-	v |= BIT(30);
-	writel(v, priv->mac_reg + EMAC_RX_CTL1);
-	/* Start TX DMA */
-	v = readl(priv->mac_reg + EMAC_TX_CTL1);
-	v |= BIT(30);
-	writel(v, priv->mac_reg + EMAC_TX_CTL1);
+	/* Start RX/TX DMA */
+	setbits_le32(priv->mac_reg + EMAC_RX_CTL1, EMAC_RX_CTL1_RX_DMA_EN);
+	setbits_le32(priv->mac_reg + EMAC_TX_CTL1, EMAC_TX_CTL1_TX_DMA_EN);
 
 	/* Enable RX/TX */
-	setbits_le32(priv->mac_reg + EMAC_RX_CTL0, BIT(31));
-	setbits_le32(priv->mac_reg + EMAC_TX_CTL0, BIT(31));
+	setbits_le32(priv->mac_reg + EMAC_RX_CTL0, EMAC_RX_CTL0_RX_EN);
+	setbits_le32(priv->mac_reg + EMAC_TX_CTL0, EMAC_TX_CTL0_TX_EN);
 
 	return 0;
 }
@@ -566,7 +578,7 @@ static int sun8i_emac_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 	status = desc_p->status;
 
 	/* Check for DMA own bit */
-	if (!(status & BIT(31))) {
+	if (!(status & EMAC_DESC_OWN_DMA)) {
 		length = (desc_p->status >> 16) & 0x3FFF;
 
 		if (length < 0x40) {
@@ -597,7 +609,7 @@ static int sun8i_emac_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 static int sun8i_emac_eth_send(struct udevice *dev, void *packet, int length)
 {
 	struct emac_eth_dev *priv = dev_get_priv(dev);
-	u32 v, desc_num = priv->tx_currdescnum;
+	u32 desc_num = priv->tx_currdescnum;
 	struct emac_dma_desc *desc_p = &priv->tx_chain[desc_num];
 	uintptr_t desc_start = (uintptr_t)desc_p;
 	uintptr_t desc_end = desc_start +
@@ -610,22 +622,16 @@ static int sun8i_emac_eth_send(struct udevice *dev, void *packet, int length)
 	/* Invalidate entire buffer descriptor */
 	invalidate_dcache_range(desc_start, desc_end);
 
-	desc_p->st = length;
-	/* Mandatory undocumented bit */
-	desc_p->st |= BIT(24);
+	desc_p->ctl_size = length | EMAC_DESC_CHAIN_SECOND;
 
 	memcpy((void *)data_start, packet, length);
 
 	/* Flush data to be sent */
 	flush_dcache_range(data_start, data_end);
 
-	/* frame end */
-	desc_p->st |= BIT(30);
-	desc_p->st |= BIT(31);
-
-	/*frame begin */
-	desc_p->st |= BIT(29);
-	desc_p->status = BIT(31);
+	/* frame begin and end */
+	desc_p->ctl_size |= EMAC_DESC_LAST_DESC | EMAC_DESC_FIRST_DESC;
+	desc_p->status = EMAC_DESC_OWN_DMA;
 
 	/*Descriptors st and status field has changed, so FLUSH it */
 	flush_dcache_range(desc_start, desc_end);
@@ -636,10 +642,12 @@ static int sun8i_emac_eth_send(struct udevice *dev, void *packet, int length)
 	priv->tx_currdescnum = desc_num;
 
 	/* Start the DMA */
-	v = readl(priv->mac_reg + EMAC_TX_CTL1);
-	v |= BIT(31);/* mandatory */
-	v |= BIT(30);/* mandatory */
-	writel(v, priv->mac_reg + EMAC_TX_CTL1);
+	setbits_le32(priv->mac_reg + EMAC_TX_CTL1, EMAC_TX_CTL1_TX_DMA_START);
+
+	/*
+	 * Since we copied the data above, we return here without waiting
+	 * for the packet to be actually send out.
+	 */
 
 	return 0;
 }
@@ -752,7 +760,7 @@ static int sun8i_eth_free_pkt(struct udevice *dev, uchar *packet,
 		roundup(sizeof(u32), ARCH_DMA_MINALIGN);
 
 	/* Make the current descriptor valid again */
-	desc_p->status |= BIT(31);
+	desc_p->status |= EMAC_DESC_OWN_DMA;
 
 	/* Flush Status field of descriptor */
 	flush_dcache_range(desc_start, desc_end);
@@ -770,11 +778,12 @@ static void sun8i_emac_eth_stop(struct udevice *dev)
 	struct emac_eth_dev *priv = dev_get_priv(dev);
 
 	/* Stop Rx/Tx transmitter */
-	clrbits_le32(priv->mac_reg + EMAC_RX_CTL0, BIT(31));
-	clrbits_le32(priv->mac_reg + EMAC_TX_CTL0, BIT(31));
+	clrbits_le32(priv->mac_reg + EMAC_RX_CTL0, EMAC_RX_CTL0_RX_EN);
+	clrbits_le32(priv->mac_reg + EMAC_TX_CTL0, EMAC_TX_CTL0_TX_EN);
 
-	/* Stop TX DMA */
-	clrbits_le32(priv->mac_reg + EMAC_TX_CTL1, BIT(30));
+	/* Stop RX/TX DMA */
+	clrbits_le32(priv->mac_reg + EMAC_TX_CTL1, EMAC_TX_CTL1_TX_DMA_EN);
+	clrbits_le32(priv->mac_reg + EMAC_RX_CTL1, EMAC_RX_CTL1_RX_DMA_EN);
 
 	phy_shutdown(priv->phydev);
 }
