@@ -41,6 +41,12 @@ def FindCheckPatch():
 def CheckPatch(fname, verbose=False, show_types=False):
     """Run checkpatch.pl on a file.
 
+    Args:
+        fname: Filename to check
+        verbose: True to print out every line of the checkpatch output as it is
+            parsed
+        show_types: Tell checkpatch to show the type (number) of each message
+
     Returns:
         namedtuple containing:
             ok: False=failure, True=ok

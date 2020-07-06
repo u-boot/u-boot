@@ -261,8 +261,10 @@ def CreatePatches(start, count, ignore_binary, series):
     Args:
         start: Commit to start from: 0=HEAD, 1=next one, etc.
         count: number of commits to include
+        ignore_binary: Don't generate patches for binary files
+        series: Series object for this series (set of patches)
     Return:
-        Filename of cover letter
+        Filename of cover letter (None if none)
         List of filenames of patch files
     """
     if series.get('version'):
