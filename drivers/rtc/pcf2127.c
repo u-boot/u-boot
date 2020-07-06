@@ -43,6 +43,12 @@ static int pcf2127_rtc_read(struct udevice *dev, uint offset, u8 *buffer, uint l
 	return dm_i2c_xfer(dev, &msg, 1);
 }
 
+static int pcf2127_rtc_write(struct udevice *dev, uint offset,
+			     const u8 *buffer, uint len)
+{
+	return dm_i2c_write(dev, offset, buffer, len);
+}
+
 static int pcf2127_rtc_set(struct udevice *dev, const struct rtc_time *tm)
 {
 	uchar buf[7] = {0};
@@ -110,6 +116,7 @@ static const struct rtc_ops pcf2127_rtc_ops = {
 	.set = pcf2127_rtc_set,
 	.reset = pcf2127_rtc_reset,
 	.read = pcf2127_rtc_read,
+	.write = pcf2127_rtc_write,
 };
 
 static const struct udevice_id pcf2127_rtc_ids[] = {
