@@ -499,7 +499,7 @@ static __efi_runtime efi_status_t EFIAPI efi_convert_pointer_runtime(
 static __efi_runtime efi_status_t EFIAPI efi_convert_pointer(
 			efi_uintn_t debug_disposition, void **address)
 {
-	efi_physical_addr_t addr = (uintptr_t)*address;
+	efi_physical_addr_t addr;
 	efi_uintn_t i;
 	efi_status_t ret = EFI_NOT_FOUND;
 
@@ -515,6 +515,7 @@ static __efi_runtime efi_status_t EFIAPI efi_convert_pointer(
 		goto out;
 	}
 
+	addr = (uintptr_t)*address;
 	for (i = 0; i < efi_descriptor_count; i++) {
 		struct efi_mem_desc *map = (void *)efi_virtmap +
 					   (efi_descriptor_size * i);
