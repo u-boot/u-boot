@@ -24,6 +24,7 @@ enum {
 	BYTE_PREFIX		= 0x0a,
 	WORD_PREFIX		= 0x0b,
 	DWORD_PREFIX		= 0x0c,
+	STRING_PREFIX		= 0x0d,
 	QWORD_PREFIX		= 0x0e,
 	PACKAGE_OP		= 0x12,
 };
@@ -155,4 +156,13 @@ char *acpigen_write_package(struct acpi_ctx *ctx, int nr_el);
  */
 void acpigen_write_integer(struct acpi_ctx *ctx, u64 data);
 
+/**
+ * acpigen_write_string() - Write a string
+ *
+ * This writes a STRING_PREFIX followed by a null-terminated string
+ *
+ * @ctx: ACPI context pointer
+ * @str: String to write
+ */
+void acpigen_write_string(struct acpi_ctx *ctx, const char *str);
 #endif

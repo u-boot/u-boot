@@ -147,3 +147,9 @@ void acpigen_emit_string(struct acpi_ctx *ctx, const char *str)
 	acpigen_emit_stream(ctx, str, str ? strlen(str) : 0);
 	acpigen_emit_byte(ctx, '\0');
 }
+
+void acpigen_write_string(struct acpi_ctx *ctx, const char *str)
+{
+	acpigen_emit_byte(ctx, STRING_PREFIX);
+	acpigen_emit_string(ctx, str);
+}

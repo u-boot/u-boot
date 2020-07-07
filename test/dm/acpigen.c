@@ -23,6 +23,7 @@
 #define ACPI_CONTEXT_SIZE	150
 
 #define TEST_STRING	"frogmore"
+#define TEST_STRING2	"ranch"
 #define TEST_STREAM2	"\xfa\xde"
 
 #define TEST_INT8	0x7d
@@ -477,3 +478,30 @@ static int dm_test_acpi_integer(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_acpi_integer, 0);
+
+/* Test writing a string */
+static int dm_test_acpi_string(struct unit_test_state *uts)
+{
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+
+	acpigen_write_string(ctx, TEST_STRING);
+	acpigen_write_string(ctx, TEST_STRING2);
+
+	ut_asserteq(2 + sizeof(TEST_STRING) + sizeof(TEST_STRING2),
+		    acpigen_get_current(ctx) - ptr);
+	ut_asserteq(STRING_PREFIX, ptr[0]);
+	ut_asserteq_str(TEST_STRING, (char *)ptr + 1);
+	ptr += 1 + sizeof(TEST_STRING);
+	ut_asserteq(STRING_PREFIX, ptr[0]);
+	ut_asserteq_str(TEST_STRING2, (char *)ptr + 1);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_string, 0);
