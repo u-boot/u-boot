@@ -425,13 +425,16 @@ static int dm_test_acpi_fill_ssdt(struct unit_test_state *uts)
 	buf[4] = 'z';	/* sentinel */
 	ut_assertok(acpi_fill_ssdt(&ctx));
 
-	/* These values come from acpi-test's acpi-ssdt-test-data property */
-	ut_asserteq('a', buf[0]);
-	ut_asserteq('b', buf[1]);
+	/*
+	 * These values come from acpi-test2's acpi-ssdt-test-data property.
+	 * This device comes first because of u-boot,acpi-ssdt-order
+	 */
+	ut_asserteq('c', buf[0]);
+	ut_asserteq('d', buf[1]);
 
-	/* These values come from acpi-test2's acpi-ssdt-test-data property */
-	ut_asserteq('c', buf[2]);
-	ut_asserteq('d', buf[3]);
+	/* These values come from acpi-test's acpi-ssdt-test-data property */
+	ut_asserteq('a', buf[2]);
+	ut_asserteq('b', buf[3]);
 
 	ut_asserteq('z', buf[4]);
 
