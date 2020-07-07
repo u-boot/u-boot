@@ -81,3 +81,8 @@ int acpi_device_scope(const struct udevice *dev, char *scope, int maxlen)
 
 	return 0;
 }
+
+enum acpi_dev_status acpi_device_status(const struct udevice *dev)
+{
+	return ACPI_DSTATUS_ALL_ON;
+}

@@ -384,3 +384,15 @@ static int dm_test_acpi_device_path(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_acpi_device_path, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test acpi_device_status() */
+static int dm_test_acpi_device_status(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+
+	ut_assertok(uclass_first_device_err(UCLASS_TEST_ACPI, &dev));
+	ut_asserteq(ACPI_DSTATUS_ALL_ON, acpi_device_status(dev));
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_device_status, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
