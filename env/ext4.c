@@ -156,7 +156,7 @@ static int env_ext4_load(void)
 		goto err_env_relocate;
 	}
 
-	err = env_import(buf, 1);
+	err = env_import(buf, 1, H_EXTERNAL);
 	if (!err)
 		gd->env_valid = ENV_VALID;
 

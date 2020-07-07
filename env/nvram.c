@@ -64,7 +64,7 @@ static int env_nvram_load(void)
 #else
 	memcpy(buf, (void *)CONFIG_ENV_ADDR, CONFIG_ENV_SIZE);
 #endif
-	return env_import(buf, 1);
+	return env_import(buf, 1, H_EXTERNAL);
 }
 
 static int env_nvram_save(void)

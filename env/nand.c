@@ -331,7 +331,7 @@ static int env_nand_load(void)
 	read2_fail = readenv(CONFIG_ENV_OFFSET_REDUND, (u_char *) tmp_env2);
 
 	ret = env_import_redund((char *)tmp_env1, read1_fail, (char *)tmp_env2,
-				read2_fail);
+				read2_fail, H_EXTERNAL);
 
 done:
 	free(tmp_env1);
@@ -372,7 +372,7 @@ static int env_nand_load(void)
 		return -EIO;
 	}
 
-	return env_import(buf, 1);
+	return env_import(buf, 1, H_EXTERNAL);
 #endif /* ! ENV_IS_EMBEDDED */
 
 	return 0;

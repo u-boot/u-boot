@@ -172,7 +172,7 @@ static int env_sf_load(void)
 				    CONFIG_ENV_SIZE, tmp_env2);
 
 	ret = env_import_redund((char *)tmp_env1, read1_fail, (char *)tmp_env2,
-				read2_fail);
+				read2_fail, H_EXTERNAL);
 
 	spi_flash_free(env_flash);
 	env_flash = NULL;
@@ -265,7 +265,7 @@ static int env_sf_load(void)
 		goto err_read;
 	}
 
-	ret = env_import(buf, 1);
+	ret = env_import(buf, 1, H_EXTERNAL);
 	if (!ret)
 		gd->env_valid = ENV_VALID;
 

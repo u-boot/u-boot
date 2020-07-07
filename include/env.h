@@ -302,10 +302,11 @@ int env_select(const char *name);
  * @buf: Buffer containing the environment (struct environemnt_s *)
  * @check: non-zero to check the CRC at the start of the environment, 0 to
  *	ignore it
+ * @flags: Flags controlling matching (H_... - see search.h)
  * @return 0 if imported successfully, -ENOMSG if the CRC was bad, -EIO if
  *	something else went wrong
  */
-int env_import(const char *buf, int check);
+int env_import(const char *buf, int check, int flags);
 
 /**
  * env_export() - Export the environment to a buffer
@@ -324,10 +325,12 @@ int env_export(struct environment_s *env_out);
  * @buf1_read_fail: 0 if buf1 is valid, non-zero if invalid
  * @buf2: Second environment (struct environemnt_s *)
  * @buf2_read_fail: 0 if buf2 is valid, non-zero if invalid
+ * @flags: Flags controlling matching (H_... - see search.h)
  * @return 0 if OK, -EIO if no environment is valid, -ENOMSG if the CRC was bad
  */
 int env_import_redund(const char *buf1, int buf1_read_fail,
-		      const char *buf2, int buf2_read_fail);
+		      const char *buf2, int buf2_read_fail,
+		      int flags);
 
 /**
  * env_get_default() - Look up a variable from the default environment

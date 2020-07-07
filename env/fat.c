@@ -144,7 +144,7 @@ static int env_fat_load(void)
 		goto err_env_relocate;
 	}
 
-	return env_import(buf, 1);
+	return env_import(buf, 1, H_EXTERNAL);
 
 err_env_relocate:
 	env_set_default(NULL, 0);
