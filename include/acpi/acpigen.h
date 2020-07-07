@@ -46,4 +46,23 @@ void acpigen_emit_word(struct acpi_ctx *ctx, uint data);
  */
 void acpigen_emit_dword(struct acpi_ctx *ctx, uint data);
 
+/**
+ * acpigen_emit_stream() - Emit a stream of bytes
+ *
+ * @ctx: ACPI context pointer
+ * @data: Data to output
+ * @size: Size of data in bytes
+ */
+void acpigen_emit_stream(struct acpi_ctx *ctx, const char *data, int size);
+
+/**
+ * acpigen_emit_string() - Emit a string
+ *
+ * Emit a string with a null terminator
+ *
+ * @ctx: ACPI context pointer
+ * @str: String to output, or NULL for an empty string
+ */
+void acpigen_emit_string(struct acpi_ctx *ctx, const char *str);
+
 #endif

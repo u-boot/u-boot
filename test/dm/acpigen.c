@@ -20,6 +20,9 @@
 /* Maximum size of the ACPI context needed for most tests */
 #define ACPI_CONTEXT_SIZE	150
 
+#define TEST_STRING	"frogmore"
+#define TEST_STREAM2	"\xfa\xde"
+
 static int alloc_context(struct acpi_ctx **ctxp)
 {
 	struct acpi_ctx *ctx;
@@ -72,6 +75,45 @@ static int dm_test_acpi_emit_simple(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_acpi_emit_simple, 0);
+
+/* Test emitting a stream */
+static int dm_test_acpi_emit_stream(struct unit_test_state *uts)
+{
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+	acpigen_emit_stream(ctx, TEST_STREAM2, 2);
+	ut_asserteq(2, acpigen_get_current(ctx) - ptr);
+	ut_asserteq((u8)TEST_STREAM2[0], ptr[0]);
+	ut_asserteq((u8)TEST_STREAM2[1], ptr[1]);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_emit_stream, 0);
+
+/* Test emitting a string */
+static int dm_test_acpi_emit_string(struct unit_test_state *uts)
+{
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+	acpigen_emit_string(ctx, TEST_STRING);
+	ut_asserteq(sizeof(TEST_STRING), acpigen_get_current(ctx) - ptr);
+	ut_asserteq_str(TEST_STRING, (char *)ptr);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_emit_string, 0);
 
 /* Test emitting an interrupt descriptor */
 static int dm_test_acpi_interrupt(struct unit_test_state *uts)

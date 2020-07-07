@@ -37,3 +37,17 @@ void acpigen_emit_dword(struct acpi_ctx *ctx, uint data)
 	acpigen_emit_byte(ctx, (data >> 16) & 0xff);
 	acpigen_emit_byte(ctx, (data >> 24) & 0xff);
 }
+
+void acpigen_emit_stream(struct acpi_ctx *ctx, const char *data, int size)
+{
+	int i;
+
+	for (i = 0; i < size; i++)
+		acpigen_emit_byte(ctx, data[i]);
+}
+
+void acpigen_emit_string(struct acpi_ctx *ctx, const char *str)
+{
+	acpigen_emit_stream(ctx, str, str ? strlen(str) : 0);
+	acpigen_emit_byte(ctx, '\0');
+}
