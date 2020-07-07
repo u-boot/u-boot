@@ -147,7 +147,7 @@ void spl_board_prepare_for_boot(void)
 	dcache_disable();
 }
 
-void spl_board_prepare_for_boot_linux(void)
+void spl_board_prepare_for_linux(void)
 {
 	dcache_disable();
 }
