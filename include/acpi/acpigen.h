@@ -21,12 +21,15 @@ struct acpi_ctx;
 enum {
 	ZERO_OP			= 0x00,
 	ONE_OP			= 0x01,
+	NAME_OP			= 0x08,
 	BYTE_PREFIX		= 0x0a,
 	WORD_PREFIX		= 0x0b,
 	DWORD_PREFIX		= 0x0c,
 	STRING_PREFIX		= 0x0d,
 	QWORD_PREFIX		= 0x0e,
 	PACKAGE_OP		= 0x12,
+	DUAL_NAME_PREFIX	= 0x2e,
+	MULTI_NAME_PREFIX	= 0x2f,
 };
 
 /**
@@ -165,4 +168,26 @@ void acpigen_write_integer(struct acpi_ctx *ctx, u64 data);
  * @str: String to write
  */
 void acpigen_write_string(struct acpi_ctx *ctx, const char *str);
+
+/**
+ * acpigen_emit_namestring() - Emit an ACPI name
+ *
+ * This writes out an ACPI name or path in the required special format. It does
+ * not add the NAME_OP prefix.
+ *
+ * @ctx: ACPI context pointer
+ * @namepath: Name / path to emit
+ */
+void acpigen_emit_namestring(struct acpi_ctx *ctx, const char *namepath);
+
+/**
+ * acpigen_write_name() - Write out an ACPI name
+ *
+ * This writes out an ACPI name or path in the required special format with a
+ * NAME_OP prefix.
+ *
+ * @ctx: ACPI context pointer
+ * @namepath: Name / path to emit
+ */
+void acpigen_write_name(struct acpi_ctx *ctx, const char *namepath);
 #endif

@@ -153,3 +153,99 @@ void acpigen_write_string(struct acpi_ctx *ctx, const char *str)
 	acpigen_emit_byte(ctx, STRING_PREFIX);
 	acpigen_emit_string(ctx, str);
 }
+
+/*
+ * The naming conventions for ACPI namespace names are a bit tricky as
+ * each element has to be 4 chars wide ("All names are a fixed 32 bits.")
+ * and "By convention, when an ASL compiler pads a name shorter than 4
+ * characters, it is done so with trailing underscores ('_')".
+ *
+ * Check sections 5.3, 20.2.2 and 20.4 of ACPI spec 6.3 for details.
+ */
+static void acpigen_emit_simple_namestring(struct acpi_ctx *ctx,
+					   const char *name)
+{
+	const char *ptr;
+	int i;
+
+	for (i = 0, ptr = name; i < 4; i++) {
+		if (!*ptr || *ptr == '.')
+			acpigen_emit_byte(ctx, '_');
+		else
+			acpigen_emit_byte(ctx, *ptr++);
+	}
+}
+
+static void acpigen_emit_double_namestring(struct acpi_ctx *ctx,
+					   const char *name, int dotpos)
+{
+	acpigen_emit_byte(ctx, DUAL_NAME_PREFIX);
+	acpigen_emit_simple_namestring(ctx, name);
+	acpigen_emit_simple_namestring(ctx, &name[dotpos + 1]);
+}
+
+static void acpigen_emit_multi_namestring(struct acpi_ctx *ctx,
+					  const char *name)
+{
+	unsigned char *pathlen;
+	int count = 0;
+
+	acpigen_emit_byte(ctx, MULTI_NAME_PREFIX);
+	pathlen = ctx->current;
+	acpigen_emit_byte(ctx, 0);
+
+	while (*name) {
+		acpigen_emit_simple_namestring(ctx, name);
+		/* find end or next entity */
+		while (*name != '.' && *name)
+			name++;
+		/* forward to next */
+		if (*name == '.')
+			name++;
+		count++;
+	}
+
+	*pathlen = count;
+}
+
+void acpigen_emit_namestring(struct acpi_ctx *ctx, const char *namepath)
+{
+	int dotcount;
+	int dotpos;
+	int i;
+
+	/* We can start with a '\' */
+	if (*namepath == '\\') {
+		acpigen_emit_byte(ctx, '\\');
+		namepath++;
+	}
+
+	/* And there can be any number of '^' */
+	while (*namepath == '^') {
+		acpigen_emit_byte(ctx, '^');
+		namepath++;
+	}
+
+	for (i = 0, dotcount = 0; namepath[i]; i++) {
+		if (namepath[i] == '.') {
+			dotcount++;
+			dotpos = i;
+		}
+	}
+
+	/* If we have only \\ or only ^* then we need to add a null name */
+	if (!*namepath)
+		acpigen_emit_byte(ctx, ZERO_OP);
+	else if (dotcount == 0)
+		acpigen_emit_simple_namestring(ctx, namepath);
+	else if (dotcount == 1)
+		acpigen_emit_double_namestring(ctx, namepath, dotpos);
+	else
+		acpigen_emit_multi_namestring(ctx, namepath);
+}
+
+void acpigen_write_name(struct acpi_ctx *ctx, const char *namepath)
+{
+	acpigen_emit_byte(ctx, NAME_OP);
+	acpigen_emit_namestring(ctx, namepath);
+}

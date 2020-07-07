@@ -505,3 +505,96 @@ static int dm_test_acpi_string(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_acpi_string, 0);
+
+/* Test writing a name */
+static int dm_test_acpi_name(struct unit_test_state *uts)
+{
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+
+	/*
+	 * The names here are made up for testing the various cases. The
+	 * grammar is in the ACPI spec 6.3 section 19.2.2
+	 */
+	acpigen_write_name(ctx, "\\_SB");
+	acpigen_write_name(ctx, "\\_SB.I2C0");
+	acpigen_write_name(ctx, "\\_SB.I2C0.TPM2");
+	acpigen_write_name(ctx, "\\_SB.I2C0.TPM2.LONG");
+	acpigen_write_name(ctx, "^^^^SPI0.FLAS");
+	acpigen_write_name(ctx, "NN");
+	acpigen_write_name(ctx, "^AB.CD.D.EFG");
+	acpigen_write_name(ctx, "^^^^");
+	acpigen_write_name(ctx, "\\");
+	acpigen_write_name(ctx, "\\ABCD");
+
+	ut_asserteq(107, acpigen_get_current(ctx) - ptr);
+	ut_asserteq(NAME_OP, ptr[0]);
+	ut_asserteq_strn("\\_SB_", (char *)ptr + 1);
+	ptr += 6;
+
+	ut_asserteq(NAME_OP, ptr[0]);
+	ut_asserteq('\\', ptr[1]);
+	ut_asserteq(DUAL_NAME_PREFIX, ptr[2]);
+	ut_asserteq_strn("_SB_I2C0", (char *)ptr + 3);
+	ptr += 11;
+
+	ut_asserteq(NAME_OP, ptr[0]);
+	ut_asserteq('\\', ptr[1]);
+	ut_asserteq(MULTI_NAME_PREFIX, ptr[2]);
+	ut_asserteq(3, ptr[3]);
+	ut_asserteq_strn("_SB_I2C0TPM2", (char *)ptr + 4);
+	ptr += 16;
+
+	ut_asserteq(NAME_OP, ptr[0]);
+	ut_asserteq('\\', ptr[1]);
+	ut_asserteq(MULTI_NAME_PREFIX, ptr[2]);
+	ut_asserteq(4, ptr[3]);
+	ut_asserteq_strn("_SB_I2C0TPM2LONG", (char *)ptr + 4);
+	ptr += 20;
+
+	ut_asserteq(NAME_OP, ptr[0]);
+	ut_asserteq('^', ptr[1]);
+	ut_asserteq('^', ptr[2]);
+	ut_asserteq('^', ptr[3]);
+	ut_asserteq('^', ptr[4]);
+	ut_asserteq(DUAL_NAME_PREFIX, ptr[5]);
+	ut_asserteq_strn("SPI0FLAS", (char *)ptr + 6);
+	ptr += 14;
+
+	ut_asserteq(NAME_OP, ptr[0]);
+	ut_asserteq_strn("NN__", (char *)ptr + 1);
+	ptr += 5;
+
+	ut_asserteq(NAME_OP, ptr[0]);
+	ut_asserteq('^', ptr[1]);
+	ut_asserteq(MULTI_NAME_PREFIX, ptr[2]);
+	ut_asserteq(4, ptr[3]);
+	ut_asserteq_strn("AB__CD__D___EFG_", (char *)ptr + 4);
+	ptr += 20;
+
+	ut_asserteq(NAME_OP, ptr[0]);
+	ut_asserteq('^', ptr[1]);
+	ut_asserteq('^', ptr[2]);
+	ut_asserteq('^', ptr[3]);
+	ut_asserteq('^', ptr[4]);
+	ut_asserteq(ZERO_OP, ptr[5]);
+	ptr += 6;
+
+	ut_asserteq(NAME_OP, ptr[0]);
+	ut_asserteq('\\', ptr[1]);
+	ut_asserteq(ZERO_OP, ptr[2]);
+	ptr += 3;
+
+	ut_asserteq(NAME_OP, ptr[0]);
+	ut_asserteq_strn("\\ABCD", (char *)ptr + 1);
+	ptr += 5;
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_name, 0);
