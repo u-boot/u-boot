@@ -328,6 +328,28 @@ int acpigen_write_uuid(struct acpi_ctx *ctx, const char *uuid)
 	return 0;
 }
 
+void acpigen_write_power_res(struct acpi_ctx *ctx, const char *name, uint level,
+			     uint order, const char *const dev_states[],
+			     size_t dev_states_count)
+{
+	size_t i;
+
+	for (i = 0; i < dev_states_count; i++) {
+		acpigen_write_name(ctx, dev_states[i]);
+		acpigen_write_package(ctx, 1);
+		acpigen_emit_simple_namestring(ctx, name);
+		acpigen_pop_len(ctx);		/* Package */
+	}
+
+	acpigen_emit_ext_op(ctx, POWER_RES_OP);
+
+	acpigen_write_len_f(ctx);
+
+	acpigen_emit_simple_namestring(ctx, name);
+	acpigen_emit_byte(ctx, level);
+	acpigen_emit_word(ctx, order);
+}
+
 /* Sleep (ms) */
 void acpigen_write_sleep(struct acpi_ctx *ctx, u64 sleep_ms)
 {

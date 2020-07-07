@@ -701,3 +701,44 @@ static int dm_test_acpi_misc(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_acpi_misc, 0);
+
+/* Test writing an ACPI power resource */
+static int dm_test_acpi_power_res(struct unit_test_state *uts)
+{
+	const char *const states[] = { "_PR0", "_PR3" };
+	const char *name = "PRIC";
+	const int level = 3;
+	const int order = 2;
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+
+	/* PowerResource (PRIC, 0, 0) */
+	acpigen_write_power_res(ctx, name, level, order, states,
+				ARRAY_SIZE(states));
+	ut_asserteq(0x28, acpigen_get_current(ctx) - ptr);
+	ut_asserteq(NAME_OP, ptr[0]);
+	ut_asserteq_strn(states[0], (char *)ptr + 1);
+	ut_asserteq(8, acpi_test_get_length(ptr + 6));
+	ut_asserteq_strn(name, (char *)ptr + 0xa);
+
+	ut_asserteq_strn(states[1], (char *)ptr + 0xf);
+	ut_asserteq(8, acpi_test_get_length(ptr + 0x14));
+	ut_asserteq_strn(name, (char *)ptr + 0x18);
+
+	ut_asserteq(POWER_RES_OP, ptr[0x1d]);
+	ut_asserteq_strn(name, (char *)ptr + 0x21);
+	ut_asserteq(level, ptr[0x25]);
+	ut_asserteq(order, get_unaligned((u16 *)(ptr + 0x26)));
+
+	/* The length is not set - caller must use acpigen_pop_len() */
+	ut_asserteq(1, ctx->ltop);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_power_res, 0);

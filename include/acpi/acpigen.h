@@ -51,6 +51,7 @@ enum {
 	AND_OP			= 0x7b,
 	OR_OP			= 0x7d,
 	NOT_OP			= 0x80,
+	POWER_RES_OP		= 0x84,
 	RETURN_OP		= 0xa4,
 };
 
@@ -320,5 +321,26 @@ void acpigen_write_and(struct acpi_ctx *ctx, u8 arg1, u8 arg2, u8 res);
  * @res: ACPI opcode for result (e.g. LOCAL2_OP)
  */
 void acpigen_write_not(struct acpi_ctx *ctx, u8 arg, u8 res);
+
+/**
+ * acpigen_write_power_res() - Write a power resource
+ *
+ * Name (_PRx, Package(One) { name })
+ * ...
+ * PowerResource (name, level, order)
+ *
+ * The caller should fill in the rest of the power resource and then call
+ * acpigen_pop_len() to close it off
+ *
+ * @ctx: ACPI context pointer
+ * @name: Name of power resource (e.g. "PRIC")
+ * @level: Deepest sleep level that this resource must be kept on (0=S0, 3=S3)
+ * @order: Order that this must be enabled/disabled (e.g. 0)
+ * @dev_stats: List of states to define, e.g. {"_PR0", "_PR3"}
+ * @dev_states_count: Number of dev states
+ */
+void acpigen_write_power_res(struct acpi_ctx *ctx, const char *name, uint level,
+			     uint order, const char *const dev_states[],
+			     size_t dev_states_count);
 
 #endif
