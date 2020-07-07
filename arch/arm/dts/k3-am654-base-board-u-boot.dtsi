@@ -4,7 +4,6 @@
  */
 
 #include <dt-bindings/pinctrl/k3.h>
-#include <dt-bindings/dma/k3-udma.h>
 #include <dt-bindings/net/ti-dp83867.h>
 
 / {
@@ -47,51 +46,14 @@
 &cbass_mcu {
 	u-boot,dm-spl;
 
-	navss_mcu: navss-mcu {
-		compatible = "simple-bus";
-		#address-cells = <2>;
-		#size-cells = <2>;
-		ranges;
+	mcu_navss {
 		u-boot,dm-spl;
 
-		ti,sci-dev-id = <119>;
-
-		mcu_ringacc: ringacc@2b800000 {
-			compatible = "ti,am654-navss-ringacc";
-			reg =	<0x0 0x2b800000 0x0 0x400000>,
-				<0x0 0x2b000000 0x0 0x400000>,
-				<0x0 0x28590000 0x0 0x100>,
-				<0x0 0x2a500000 0x0 0x40000>;
-			reg-names = "rt", "fifos",
-				    "proxy_gcfg", "proxy_target";
-			ti,num-rings = <286>;
-			ti,sci-rm-range-gp-rings = <0x2>; /* GP ring range */
-			ti,dma-ring-reset-quirk;
-			ti,sci = <&dmsc>;
-			ti,sci-dev-id = <195>;
+		ringacc@2b800000 {
 			u-boot,dm-spl;
 		};
 
-		mcu_udmap: udmap@285c0000 {
-			compatible = "ti,k3-navss-udmap";
-			reg =	<0x0 0x285c0000 0x0 0x100>,
-				<0x0 0x2a800000 0x0 0x40000>,
-				<0x0 0x2aa00000 0x0 0x40000>;
-			reg-names = "gcfg", "rchanrt", "tchanrt";
-			#dma-cells = <3>;
-
-			ti,ringacc = <&mcu_ringacc>;
-			ti,psil-base = <0x6000>;
-
-			ti,sci = <&dmsc>;
-			ti,sci-dev-id = <194>;
-
-			ti,sci-rm-range-tchan = <0x1>, /* TX_HCHAN */
-						<0x2>; /* TX_CHAN */
-			ti,sci-rm-range-rchan = <0x3>, /* RX_HCHAN */
-						<0x4>; /* RX_CHAN */
-			ti,sci-rm-range-rflow = <0x5>; /* GP RFLOW */
-			dma-coherent;
+		dma-controller@285c0000 {
 			u-boot,dm-spl;
 		};
 	};
@@ -112,17 +74,16 @@
 		clocks = <&k3_clks 5 10>;
 		clock-names = "fck";
 		power-domains = <&k3_pds 5 TI_SCI_PD_EXCLUSIVE>;
-		ti,psil-base = <0x7000>;
 
-		dmas = <&mcu_udmap &mcu_cpsw 0 UDMA_DIR_TX>,
-		       <&mcu_udmap &mcu_cpsw 1 UDMA_DIR_TX>,
-		       <&mcu_udmap &mcu_cpsw 2 UDMA_DIR_TX>,
-		       <&mcu_udmap &mcu_cpsw 3 UDMA_DIR_TX>,
-		       <&mcu_udmap &mcu_cpsw 4 UDMA_DIR_TX>,
-		       <&mcu_udmap &mcu_cpsw 5 UDMA_DIR_TX>,
-		       <&mcu_udmap &mcu_cpsw 6 UDMA_DIR_TX>,
-		       <&mcu_udmap &mcu_cpsw 7 UDMA_DIR_TX>,
-		       <&mcu_udmap &mcu_cpsw 0 UDMA_DIR_RX>;
+		dmas = <&mcu_udmap 0xf000>,
+		       <&mcu_udmap 0xf001>,
+		       <&mcu_udmap 0xf002>,
+		       <&mcu_udmap 0xf003>,
+		       <&mcu_udmap 0xf004>,
+		       <&mcu_udmap 0xf005>,
+		       <&mcu_udmap 0xf006>,
+		       <&mcu_udmap 0xf007>,
+		       <&mcu_udmap 0x7000>;
 		dma-names = "tx0", "tx1", "tx2", "tx3",
 			    "tx4", "tx5", "tx6", "tx7",
 			    "rx";
@@ -147,62 +108,6 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			bus_freq = <1000000>;
-		};
-
-		ti,psil-config0 {
-			linux,udma-mode = <UDMA_PKT_MODE>;
-			statictr-type = <PSIL_STATIC_TR_NONE>;
-			ti,needs-epib;
-			ti,psd-size = <16>;
-		};
-
-		ti,psil-config1 {
-			linux,udma-mode = <UDMA_PKT_MODE>;
-			statictr-type = <PSIL_STATIC_TR_NONE>;
-			ti,needs-epib;
-			ti,psd-size = <16>;
-		};
-
-		ti,psil-config2 {
-			linux,udma-mode = <UDMA_PKT_MODE>;
-			statictr-type = <PSIL_STATIC_TR_NONE>;
-			ti,needs-epib;
-			ti,psd-size = <16>;
-		};
-
-		ti,psil-config3 {
-			linux,udma-mode = <UDMA_PKT_MODE>;
-			statictr-type = <PSIL_STATIC_TR_NONE>;
-			ti,needs-epib;
-			ti,psd-size = <16>;
-		};
-
-		ti,psil-config4 {
-			linux,udma-mode = <UDMA_PKT_MODE>;
-			statictr-type = <PSIL_STATIC_TR_NONE>;
-			ti,needs-epib;
-			ti,psd-size = <16>;
-		};
-
-		ti,psil-config5 {
-			linux,udma-mode = <UDMA_PKT_MODE>;
-			statictr-type = <PSIL_STATIC_TR_NONE>;
-			ti,needs-epib;
-			ti,psd-size = <16>;
-		};
-
-		ti,psil-config6 {
-			linux,udma-mode = <UDMA_PKT_MODE>;
-			statictr-type = <PSIL_STATIC_TR_NONE>;
-			ti,needs-epib;
-			ti,psd-size = <16>;
-		};
-
-		ti,psil-config7 {
-			linux,udma-mode = <UDMA_PKT_MODE>;
-			statictr-type = <PSIL_STATIC_TR_NONE>;
-			ti,needs-epib;
-			ti,psd-size = <16>;
 		};
 	};
 };
