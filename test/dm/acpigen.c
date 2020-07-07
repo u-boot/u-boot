@@ -12,6 +12,7 @@
 #include <malloc.h>
 #include <acpi/acpigen.h>
 #include <acpi/acpi_device.h>
+#include <asm/gpio.h>
 #include <asm/unaligned.h>
 #include <dm/acpi.h>
 #include <dm/test.h>
@@ -144,3 +145,93 @@ static int dm_test_acpi_interrupt(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_acpi_interrupt, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test emitting a GPIO descriptor */
+static int dm_test_acpi_gpio(struct unit_test_state *uts)
+{
+	struct gpio_desc desc;
+	struct acpi_ctx *ctx;
+	struct udevice *dev;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+
+	ut_assertok(uclass_get_device(UCLASS_TEST_FDT, 0, &dev));
+	ut_asserteq_str("a-test", dev->name);
+	ut_assertok(gpio_request_by_name(dev, "test-gpios", 1, &desc, 0));
+
+	/* This should write GPIO pin 4 (see device tree test.dts ) */
+	ut_asserteq(4, acpi_device_write_gpio_desc(ctx, &desc));
+	ut_asserteq(35, acpigen_get_current(ctx) - ptr);
+	ut_asserteq(ACPI_DESCRIPTOR_GPIO, ptr[0]);
+	ut_asserteq(32, get_unaligned((u16 *)(ptr + 1)));
+	ut_asserteq(ACPI_GPIO_REVISION_ID, ptr[3]);
+	ut_asserteq(ACPI_GPIO_TYPE_IO, ptr[4]);
+	ut_asserteq(1, get_unaligned((u16 *)(ptr + 5)));
+	ut_asserteq(9, get_unaligned((u16 *)(ptr + 7)));
+	ut_asserteq(ACPI_GPIO_PULL_UP, ptr[9]);
+	ut_asserteq(1234, get_unaligned((u16 *)(ptr + 10)));
+	ut_asserteq(0, get_unaligned((u16 *)(ptr + 12)));
+	ut_asserteq(23, get_unaligned((u16 *)(ptr + 14)));
+	ut_asserteq(0, ptr[16]);
+	ut_asserteq(25, get_unaligned((u16 *)(ptr + 17)));
+	ut_asserteq(35, get_unaligned((u16 *)(ptr + 19)));
+	ut_asserteq(0, get_unaligned((u16 *)(ptr + 21)));
+
+	/* pin0 */
+	ut_asserteq(4, get_unaligned((u16 *)(ptr + 23)));
+
+	ut_asserteq_str("\\_SB.PINC", (char *)ptr + 25);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_gpio, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test emitting a GPIO descriptor with an interrupt */
+static int dm_test_acpi_gpio_irq(struct unit_test_state *uts)
+{
+	struct gpio_desc desc;
+	struct acpi_ctx *ctx;
+	struct udevice *dev;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+
+	ut_assertok(uclass_get_device(UCLASS_TEST_FDT, 0, &dev));
+	ut_asserteq_str("a-test", dev->name);
+	ut_assertok(gpio_request_by_name(dev, "test2-gpios", 2, &desc, 0));
+
+	/* This should write GPIO pin 6 (see device tree test.dts ) */
+	ut_asserteq(6, acpi_device_write_gpio_desc(ctx, &desc));
+	ut_asserteq(35, acpigen_get_current(ctx) - ptr);
+	ut_asserteq(ACPI_DESCRIPTOR_GPIO, ptr[0]);
+	ut_asserteq(32, get_unaligned((u16 *)(ptr + 1)));
+	ut_asserteq(ACPI_GPIO_REVISION_ID, ptr[3]);
+	ut_asserteq(ACPI_GPIO_TYPE_INTERRUPT, ptr[4]);
+	ut_asserteq(1, get_unaligned((u16 *)(ptr + 5)));
+	ut_asserteq(29, get_unaligned((u16 *)(ptr + 7)));
+	ut_asserteq(ACPI_GPIO_PULL_DOWN, ptr[9]);
+	ut_asserteq(0, get_unaligned((u16 *)(ptr + 10)));
+	ut_asserteq(4321, get_unaligned((u16 *)(ptr + 12)));
+	ut_asserteq(23, get_unaligned((u16 *)(ptr + 14)));
+	ut_asserteq(0, ptr[16]);
+	ut_asserteq(25, get_unaligned((u16 *)(ptr + 17)));
+	ut_asserteq(35, get_unaligned((u16 *)(ptr + 19)));
+	ut_asserteq(0, get_unaligned((u16 *)(ptr + 21)));
+
+	/* pin0 */
+	ut_asserteq(6, get_unaligned((u16 *)(ptr + 23)));
+
+	ut_asserteq_str("\\_SB.PINC", (char *)ptr + 25);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_gpio_irq, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

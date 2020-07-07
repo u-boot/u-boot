@@ -12,6 +12,7 @@
 #include <linux/bitops.h>
 
 struct acpi_ctx;
+struct gpio_desc;
 struct irq;
 struct udevice;
 
@@ -232,5 +233,26 @@ enum acpi_dev_status acpi_device_status(const struct udevice *dev);
  */
 int acpi_device_write_interrupt_irq(struct acpi_ctx *ctx,
 				    const struct irq *req_irq);
+
+/**
+ * acpi_device_write_gpio() - Write GpioIo() or GpioInt() descriptor
+ *
+ * @gpio: GPIO information to write
+ * @return GPIO pin number of first GPIO if OK, -ve on error
+ */
+int acpi_device_write_gpio(struct acpi_ctx *ctx, const struct acpi_gpio *gpio);
+
+/**
+ * acpi_device_write_gpio_desc() - Write a GPIO to ACPI
+ *
+ * This creates a GPIO descriptor for a GPIO, including information ACPI needs
+ * to use it.
+ *
+ * @ctx: ACPI context pointer
+ * @desc: GPIO to write
+ * @return 0 if OK, -ve on error
+ */
+int acpi_device_write_gpio_desc(struct acpi_ctx *ctx,
+				const struct gpio_desc *desc);
 
 #endif
