@@ -11,6 +11,8 @@
 
 struct acpi_ctx;
 
+#include <acpi/acpi_device.h>
+
 /*
  * Writing Device Properties objects via _DSD
  *
@@ -202,6 +204,24 @@ struct acpi_dp *acpi_dp_add_integer_array(struct acpi_dp *dp, const char *name,
  */
 struct acpi_dp *acpi_dp_add_child(struct acpi_dp *dp, const char *name,
 				  struct acpi_dp *child);
+
+/**
+ * acpi_dp_add_gpio() - Add a GPIO to a list of Device Properties
+ *
+ * A new node is added to the end of the property list of @dp, with the
+ * GPIO properties added to the the new node
+ *
+ * @dp: Table to add this property to
+ * @name: Name of property
+ * @ref: Reference to device with a _CRS containing GpioIO or GpioInt
+ * @index: Index of the GPIO resource in _CRS starting from zero
+ * @pin: Pin in the GPIO resource, typically zero
+ * @polarity: GPIO polarity. Note that ACPI_IRQ_ACTIVE_BOTH is not supported
+ * @return pointer to new node, or NULL if out of memory
+ */
+struct acpi_dp *acpi_dp_add_gpio(struct acpi_dp *dp, const char *name,
+				 const char *ref, int index, int pin,
+				 enum acpi_irq_polarity polarity);
 
 /**
  * acpi_dp_write() - Write Device Property hierarchy and clean up resources

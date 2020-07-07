@@ -383,3 +383,43 @@ static int dm_test_acpi_dp_child(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_acpi_dp_child, 0);
+
+/* Test emitting a GPIO */
+static int dm_test_acpi_dp_gpio(struct unit_test_state *uts)
+{
+	struct acpi_ctx *ctx;
+	struct acpi_dp *dp;
+	u8 *ptr, *pptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	dp = acpi_dp_new_table("FRED");
+	ut_assertnonnull(dp);
+
+	/* Try a few different parameters */
+	ut_assertnonnull(acpi_dp_add_gpio(dp, "reset", TEST_REF, 0x23, 0x24,
+					  ACPI_IRQ_ACTIVE_HIGH));
+	ut_assertnonnull(acpi_dp_add_gpio(dp, "allow", TEST_REF, 0, 0,
+					  ACPI_IRQ_ACTIVE_LOW));
+
+	ptr = acpigen_get_current(ctx);
+	ut_assertok(acpi_dp_write(ctx, dp));
+	ut_asserteq(0x6e, acpigen_get_current(ctx) - ptr);
+
+	pptr = ptr + 0x2c; //0x3a;
+	ut_asserteq_str("reset", (char *)pptr);
+	ut_asserteq_strn(EXPECT_REF, (char *)pptr + 0xe);
+	ut_asserteq(0x23, pptr[0x1b]);
+	ut_asserteq(0x24, pptr[0x1d]);
+	ut_asserteq(ZERO_OP, pptr[0x1e]);
+
+	pptr = ptr + 0x51;
+	ut_asserteq_str("allow", (char *)pptr);
+	ut_asserteq_strn(EXPECT_REF, (char *)pptr + 0xe);
+	ut_asserteq(ZERO_OP, pptr[0x1a]);
+	ut_asserteq(ZERO_OP, pptr[0x1b]);
+	ut_asserteq(ONE_OP, pptr[0x1c]);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_dp_gpio, 0);
