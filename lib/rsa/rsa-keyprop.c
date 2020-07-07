@@ -654,14 +654,10 @@ int rsa_gen_key_prop(const void *key, uint32_t keylen, struct key_prop **prop)
 {
 	struct rsa_key rsa_key;
 	uint32_t *n = NULL, *rr = NULL, *rrtmp = NULL;
-	const int max_rsa_size = 4096;
 	int rlen, i, ret;
 
 	*prop = calloc(sizeof(**prop), 1);
-	n = calloc(sizeof(uint32_t), 1 + (max_rsa_size >> 5));
-	rr = calloc(sizeof(uint32_t), 1 + (max_rsa_size >> 5));
-	rrtmp = calloc(sizeof(uint32_t), 1 + (max_rsa_size >> 5));
-	if (!(*prop) || !n || !rr || !rrtmp) {
+	if (!(*prop)) {
 		ret = -ENOMEM;
 		goto err;
 	}
@@ -681,6 +677,14 @@ int rsa_gen_key_prop(const void *key, uint32_t keylen, struct key_prop **prop)
 		goto err;
 	}
 	memcpy((void *)(*prop)->modulus, &rsa_key.n[i], rsa_key.n_sz - i);
+
+	n = calloc(sizeof(uint32_t), 1 + ((*prop)->num_bits >> 5));
+	rr = calloc(sizeof(uint32_t), 1 + (((*prop)->num_bits * 2) >> 5));
+	rrtmp = calloc(sizeof(uint32_t), 2 + (((*prop)->num_bits * 2) >> 5));
+	if (!n || !rr || !rrtmp) {
+		ret = -ENOMEM;
+		goto err;
+	}
 
 	/* exponent */
 	(*prop)->public_exponent = calloc(1, sizeof(uint64_t));
