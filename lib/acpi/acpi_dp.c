@@ -344,3 +344,59 @@ struct acpi_dp *acpi_dp_add_gpio(struct acpi_dp *dp, const char *name,
 
 	return gpio;
 }
+
+int acpi_dp_ofnode_copy_int(ofnode node, struct acpi_dp *dp, const char *prop)
+{
+	int ret;
+	u32 val = 0;
+
+	ret = ofnode_read_u32(node, prop, &val);
+	if (ret)
+		return ret;
+	if (!acpi_dp_add_integer(dp, prop, val))
+		return log_ret(-ENOMEM);
+
+	return 0;
+}
+
+int acpi_dp_ofnode_copy_str(ofnode node, struct acpi_dp *dp, const char *prop)
+{
+	const char *val;
+
+	val = ofnode_read_string(node, prop);
+	if (!val)
+		return -EINVAL;
+	if (!acpi_dp_add_string(dp, prop, val))
+		return log_ret(-ENOMEM);
+
+	return 0;
+}
+
+int acpi_dp_dev_copy_int(const struct udevice *dev, struct acpi_dp *dp,
+			 const char *prop)
+{
+	int ret;
+	u32 val = 0;
+
+	ret = dev_read_u32(dev, prop, &val);
+	if (ret)
+		return ret;
+	if (!acpi_dp_add_integer(dp, prop, val))
+		return log_ret(-ENOMEM);
+
+	return ret;
+}
+
+int acpi_dp_dev_copy_str(const struct udevice *dev, struct acpi_dp *dp,
+			 const char *prop)
+{
+	const char *val;
+
+	val = dev_read_string(dev, prop);
+	if (!val)
+		return -EINVAL;
+	if (!acpi_dp_add_string(dp, prop, val))
+		return log_ret(-ENOMEM);
+
+	return 0;
+}

@@ -423,3 +423,70 @@ static int dm_test_acpi_dp_gpio(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_acpi_dp_gpio, 0);
+
+/* Test copying info from the device tree to ACPI tables */
+static int dm_test_acpi_dp_copy(struct unit_test_state *uts)
+{
+	struct acpi_ctx *ctx;
+	struct udevice *dev;
+	struct acpi_dp *dp;
+	ofnode node;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	dp = acpi_dp_new_table("FRED");
+	ut_assertnonnull(dp);
+
+	ut_assertok(uclass_get_device(UCLASS_TEST_FDT, 0, &dev));
+	ut_asserteq_str("a-test", dev->name);
+
+	ut_assertok(acpi_dp_dev_copy_int(dev, dp, "int-value"));
+	ut_asserteq(-EINVAL, acpi_dp_dev_copy_int(dev, dp, "missing-value"));
+	ut_assertok(acpi_dp_dev_copy_int(dev, dp, "uint-value"));
+
+	ut_assertok(acpi_dp_dev_copy_str(dev, dp, "str-value"));
+	ut_asserteq(-EINVAL, acpi_dp_dev_copy_str(dev, dp, "missing-value"));
+
+	node = ofnode_path("/chosen");
+	ut_assert(ofnode_valid(node));
+	ut_assertok(acpi_dp_ofnode_copy_int(node, dp, "int-values"));
+	ut_asserteq(-EINVAL,
+		    acpi_dp_ofnode_copy_int(node, dp, "missing-value"));
+
+	ut_assertok(acpi_dp_ofnode_copy_str(node, dp, "setting"));
+	ut_asserteq(-EINVAL,
+		    acpi_dp_ofnode_copy_str(node, dp, "missing-value"));
+
+	ptr = acpigen_get_current(ctx);
+	ut_assertok(acpi_dp_write(ctx, dp));
+	ut_asserteq(0x9d, acpigen_get_current(ctx) - ptr);
+
+	ut_asserteq(STRING_PREFIX, ptr[0x2b]);
+	ut_asserteq_str("int-value", (char *)ptr + 0x2c);
+	ut_asserteq(WORD_PREFIX, ptr[0x36]);
+	ut_asserteq(1234, get_unaligned((u16 *)(ptr + 0x37)));
+
+	ut_asserteq(STRING_PREFIX, ptr[0x3e]);
+	ut_asserteq_str("uint-value", (char *)ptr + 0x3f);
+	ut_asserteq(DWORD_PREFIX, ptr[0x4a]);
+	ut_asserteq(-1234, get_unaligned((u32 *)(ptr + 0x4b)));
+
+	ut_asserteq(STRING_PREFIX, ptr[0x54]);
+	ut_asserteq_str("str-value", (char *)ptr + 0x55);
+	ut_asserteq(STRING_PREFIX, ptr[0x5f]);
+	ut_asserteq_str("test string", (char *)ptr + 0x60);
+
+	ut_asserteq(STRING_PREFIX, ptr[0x71]);
+	ut_asserteq_str("int-values", (char *)ptr + 0x72);
+	ut_asserteq(WORD_PREFIX, ptr[0x7d]);
+	ut_asserteq(0x1937, get_unaligned((u16 *)(ptr + 0x7e)));
+
+	ut_asserteq(STRING_PREFIX, ptr[0x85]);
+	ut_asserteq_str("setting", (char *)ptr + 0x86);
+	ut_asserteq(STRING_PREFIX, ptr[0x8e]);
+	ut_asserteq_str("sunrise ohoka", (char *)(ptr + 0x8f));
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_dp_copy, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

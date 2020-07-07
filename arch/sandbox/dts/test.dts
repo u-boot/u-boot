@@ -111,6 +111,7 @@
 		uint-value = <(-1234)>;
 		int64-value = /bits/ 64 <0x1111222233334444>;
 		int-array = <5678 9123 4567>;
+		str-value = "test string";
 		interrupts-extended = <&irq 3 0>;
 	};
 

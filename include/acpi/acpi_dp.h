@@ -234,4 +234,54 @@ struct acpi_dp *acpi_dp_add_gpio(struct acpi_dp *dp, const char *name,
  */
 int acpi_dp_write(struct acpi_ctx *ctx, struct acpi_dp *table);
 
+/**
+ * acpi_dp_ofnode_copy_int() - Copy a property from device tree to DP
+ *
+ * This copies an integer property from the device tree to the ACPI DP table.
+ *
+ * @node: Node to copy from
+ * @dp: DP to copy to
+ * @prop: Property name to copy
+ * @return 0 if OK, -ve on error
+ */
+int acpi_dp_ofnode_copy_int(ofnode node, struct acpi_dp *dp, const char *prop);
+
+/**
+ * acpi_dp_ofnode_copy_str() - Copy a property from device tree to DP
+ *
+ * This copies a string property from the device tree to the ACPI DP table.
+ *
+ * @node: Node to copy from
+ * @dp: DP to copy to
+ * @prop: Property name to copy
+ * @return 0 if OK, -ve on error
+ */
+int acpi_dp_ofnode_copy_str(ofnode node, struct acpi_dp *dp, const char *prop);
+
+/**
+ * acpi_dp_dev_copy_int() - Copy a property from device tree to DP
+ *
+ * This copies an integer property from the device tree to the ACPI DP table.
+ *
+ * @dev: Device to copy from
+ * @dp: DP to copy to
+ * @prop: Property name to copy
+ * @return 0 if OK, -ve on error
+ */
+int acpi_dp_dev_copy_int(const struct udevice *dev, struct acpi_dp *dp,
+			 const char *prop);
+
+/**
+ * acpi_dp_dev_copy_str() - Copy a property from device tree to DP
+ *
+ * This copies a string property from the device tree to the ACPI DP table.
+ *
+ * @dev: Device to copy from
+ * @dp: DP to copy to
+ * @prop: Property name to copy
+ * @return 0 if OK, -ve on error
+ */
+int acpi_dp_dev_copy_str(const struct udevice *dev, struct acpi_dp *dp,
+			 const char *prop);
+
 #endif
