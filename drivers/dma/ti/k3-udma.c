@@ -22,7 +22,6 @@
 #include <dma.h>
 #include <dma-uclass.h>
 #include <linux/delay.h>
-#include <dt-bindings/dma/k3-udma.h>
 #include <linux/bitmap.h>
 #include <linux/err.h>
 #include <linux/soc/ti/k3-navss-ringacc.h>
@@ -31,6 +30,7 @@
 #include <linux/soc/ti/ti_sci_protocol.h>
 
 #include "k3-udma-hwdef.h"
+#include "k3-psil-priv.h"
 
 #if BITS_PER_LONG == 64
 #define RINGACC_RING_USE_PROXY	(0)
@@ -67,6 +67,21 @@ struct udma_rchan {
 	int id;
 	struct k3_nav_ring *fd_ring; /* Free Descriptor ring */
 	struct k3_nav_ring *r_ring; /* Receive ring*/
+};
+
+#define UDMA_FLAG_PDMA_ACC32		BIT(0)
+#define UDMA_FLAG_PDMA_BURST		BIT(1)
+#define UDMA_FLAG_TDTYPE		BIT(2)
+
+struct udma_match_data {
+	u32 psil_base;
+	bool enable_memcpy_support;
+	u32 flags;
+	u32 statictr_z_mask;
+	u32 rchan_oes_offset;
+
+	u8 tpl_levels;
+	u32 level_start_idx[];
 };
 
 struct udma_rflow {
@@ -113,6 +128,8 @@ struct udma_dev {
 	struct udma_tchan *tchans;
 	struct udma_rchan *rchans;
 	struct udma_rflow *rflows;
+
+	struct udma_match_data *match_data;
 
 	struct udma_chan *channels;
 	u32 psil_base;
@@ -1293,12 +1310,8 @@ static int udma_probe(struct udevice *dev)
 	if (IS_ERR(ud->ringacc))
 		return PTR_ERR(ud->ringacc);
 
-	ud->psil_base = dev_read_u32_default(dev, "ti,psil-base", 0);
-	if (!ud->psil_base) {
-		dev_info(dev,
-			 "Missing ti,psil-base property, using %d.\n", ret);
-		return -EINVAL;
-	}
+	ud->match_data = (void *)dev_get_driver_data(dev);
+	ud->psil_base = ud->match_data->psil_base;
 
 	ret = uclass_get_device_by_phandle(UCLASS_FIRMWARE, dev,
 					   "ti,sci", &tisci_dev);
@@ -1723,8 +1736,7 @@ static int udma_of_xlate(struct dma *dma, struct ofnode_phandle_args *args)
 {
 	struct udma_dev *ud = dev_get_priv(dma->dev);
 	struct udma_chan *uc = &ud->channels[0];
-	ofnode chconf_node, slave_node;
-	char prop[50];
+	struct psil_endpoint_config *ep_config;
 	u32 val;
 
 	for (val = 0; val < ud->ch_count; val++) {
@@ -1736,42 +1748,26 @@ static int udma_of_xlate(struct dma *dma, struct ofnode_phandle_args *args)
 	if (val == ud->ch_count)
 		return -EBUSY;
 
-	uc->dir = DMA_DEV_TO_MEM;
-	if (args->args[2] == UDMA_DIR_TX)
+	uc->slave_thread_id = args->args[0];
+	if (uc->slave_thread_id & K3_PSIL_DST_THREAD_ID_OFFSET)
 		uc->dir = DMA_MEM_TO_DEV;
+	else
+		uc->dir = DMA_DEV_TO_MEM;
 
-	slave_node = ofnode_get_by_phandle(args->args[0]);
-	if (!ofnode_valid(slave_node)) {
-		dev_err(ud->dev, "slave node is missing\n");
-		return -EINVAL;
+	ep_config = psil_get_ep_config(uc->slave_thread_id);
+	if (IS_ERR(ep_config)) {
+		dev_err(ud->dev, "No configuration for psi-l thread 0x%04x\n",
+			uc->slave_thread_id);
+		uc->dir = DMA_MEM_TO_MEM;
+		uc->slave_thread_id = -1;
+		return false;
 	}
 
-	snprintf(prop, sizeof(prop), "ti,psil-config%u", args->args[1]);
-	chconf_node = ofnode_find_subnode(slave_node, prop);
-	if (!ofnode_valid(chconf_node)) {
-		dev_err(ud->dev, "Channel configuration node is missing\n");
-		return -EINVAL;
-	}
+	uc->pkt_mode = ep_config->pkt_mode;
 
-	if (!ofnode_read_u32(chconf_node, "linux,udma-mode", &val)) {
-		if (val == UDMA_PKT_MODE)
-			uc->pkt_mode = true;
-	}
-
-	if (!ofnode_read_u32(chconf_node, "statictr-type", &val))
-		uc->static_tr_type = val;
-
-	uc->needs_epib = ofnode_read_bool(chconf_node, "ti,needs-epib");
-	if (!ofnode_read_u32(chconf_node, "ti,psd-size", &val))
-		uc->psd_size = val;
-	uc->metadata_size = (uc->needs_epib ? 16 : 0) + uc->psd_size;
-
-	if (ofnode_read_u32(slave_node, "ti,psil-base", &val)) {
-		dev_err(ud->dev, "ti,psil-base is missing\n");
-		return -EINVAL;
-	}
-
-	uc->slave_thread_id = val + args->args[1];
+	uc->needs_epib = ep_config->needs_epib;
+	uc->psd_size = ep_config->psd_size;
+	uc->metadata_size = (uc->needs_epib ? CPPI5_INFO0_HDESC_EPIB_SIZE : 0) + uc->psd_size;
 
 	dma->id = uc->id;
 	pr_debug("Allocated dma chn:%lu epib:%d psdata:%u meta:%u thread_id:%x\n",
@@ -1859,10 +1855,73 @@ static const struct dma_ops udma_ops = {
 	.get_cfg	= udma_get_cfg,
 };
 
+static struct udma_match_data am654_main_data = {
+	.psil_base = 0x1000,
+	.enable_memcpy_support = true,
+	.statictr_z_mask = GENMASK(11, 0),
+	.rchan_oes_offset = 0x200,
+	.tpl_levels = 2,
+	.level_start_idx = {
+		[0] = 8, /* Normal channels */
+		[1] = 0, /* High Throughput channels */
+	},
+};
+
+static struct udma_match_data am654_mcu_data = {
+	.psil_base = 0x6000,
+	.enable_memcpy_support = true,
+	.statictr_z_mask = GENMASK(11, 0),
+	.rchan_oes_offset = 0x200,
+	.tpl_levels = 2,
+	.level_start_idx = {
+		[0] = 2, /* Normal channels */
+		[1] = 0, /* High Throughput channels */
+	},
+};
+
+static struct udma_match_data j721e_main_data = {
+	.psil_base = 0x1000,
+	.enable_memcpy_support = true,
+	.flags = UDMA_FLAG_PDMA_ACC32 | UDMA_FLAG_PDMA_BURST | UDMA_FLAG_TDTYPE,
+	.statictr_z_mask = GENMASK(23, 0),
+	.rchan_oes_offset = 0x400,
+	.tpl_levels = 3,
+	.level_start_idx = {
+		[0] = 16, /* Normal channels */
+		[1] = 4, /* High Throughput channels */
+		[2] = 0, /* Ultra High Throughput channels */
+	},
+};
+
+static struct udma_match_data j721e_mcu_data = {
+	.psil_base = 0x6000,
+	.enable_memcpy_support = true,
+	.flags = UDMA_FLAG_PDMA_ACC32 | UDMA_FLAG_PDMA_BURST | UDMA_FLAG_TDTYPE,
+	.statictr_z_mask = GENMASK(23, 0),
+	.rchan_oes_offset = 0x400,
+	.tpl_levels = 2,
+	.level_start_idx = {
+		[0] = 2, /* Normal channels */
+		[1] = 0, /* High Throughput channels */
+	},
+};
+
 static const struct udevice_id udma_ids[] = {
-	{ .compatible = "ti,k3-navss-udmap" },
-	{ .compatible = "ti,j721e-navss-mcu-udmap" },
-	{ }
+	{
+		.compatible = "ti,am654-navss-main-udmap",
+		.data = (ulong)&am654_main_data,
+	},
+	{
+		.compatible = "ti,am654-navss-mcu-udmap",
+		.data = (ulong)&am654_mcu_data,
+	}, {
+		.compatible = "ti,j721e-navss-main-udmap",
+		.data = (ulong)&j721e_main_data,
+	}, {
+		.compatible = "ti,j721e-navss-mcu-udmap",
+		.data = (ulong)&j721e_mcu_data,
+	},
+	{ /* Sentinel */ },
 };
 
 U_BOOT_DRIVER(ti_edma3) = {
