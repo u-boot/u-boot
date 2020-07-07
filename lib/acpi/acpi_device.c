@@ -385,3 +385,110 @@ int acpi_device_write_interrupt_or_gpio(struct acpi_ctx *ctx,
 
 	return pin;
 }
+
+/* ACPI 6.3 section 6.4.3.8.2.1 - I2cSerialBus() */
+static void acpi_device_write_i2c(struct acpi_ctx *ctx,
+				  const struct acpi_i2c *i2c)
+{
+	void *desc_length, *type_length;
+
+	/* Byte 0: Descriptor Type */
+	acpigen_emit_byte(ctx, ACPI_DESCRIPTOR_SERIAL_BUS);
+
+	/* Byte 1+2: Length (filled in later) */
+	desc_length = largeres_write_len_f(ctx);
+
+	/* Byte 3: Revision ID */
+	acpigen_emit_byte(ctx, ACPI_I2C_SERIAL_BUS_REVISION_ID);
+
+	/* Byte 4: Resource Source Index is Reserved */
+	acpigen_emit_byte(ctx, 0);
+
+	/* Byte 5: Serial Bus Type is I2C */
+	acpigen_emit_byte(ctx, ACPI_SERIAL_BUS_TYPE_I2C);
+
+	/*
+	 * Byte 6: Flags
+	 *  [7:2]: 0 => Reserved
+	 *    [1]: 1 => ResourceConsumer
+	 *    [0]: 0 => ControllerInitiated
+	 */
+	acpigen_emit_byte(ctx, 1 << 1);
+
+	/*
+	 * Byte 7-8: Type Specific Flags
+	 *   [15:1]: 0 => Reserved
+	 *      [0]: 0 => 7bit, 1 => 10bit
+	 */
+	acpigen_emit_word(ctx, i2c->mode_10bit);
+
+	/* Byte 9: Type Specific Revision ID */
+	acpigen_emit_byte(ctx, ACPI_I2C_TYPE_SPECIFIC_REVISION_ID);
+
+	/* Byte 10-11: I2C Type Data Length */
+	type_length = largeres_write_len_f(ctx);
+
+	/* Byte 12-15: I2C Bus Speed */
+	acpigen_emit_dword(ctx, i2c->speed);
+
+	/* Byte 16-17: I2C Slave Address */
+	acpigen_emit_word(ctx, i2c->address);
+
+	/* Fill in Type Data Length */
+	largeres_fill_len(ctx, type_length);
+
+	/* Byte 18+: ResourceSource */
+	acpigen_emit_string(ctx, i2c->resource);
+
+	/* Fill in I2C Descriptor Length */
+	largeres_fill_len(ctx, desc_length);
+}
+
+/**
+ * acpi_device_set_i2c() - Set up an ACPI I2C struct from a device
+ *
+ * The value of @scope is not copied, but only referenced. This implies the
+ * caller has to ensure it stays valid for the lifetime of @i2c.
+ *
+ * @dev: I2C device to convert
+ * @i2c: Place to put the new structure
+ * @scope: Scope of the I2C device (this is the controller path)
+ * @return chip address of device
+ */
+static int acpi_device_set_i2c(const struct udevice *dev, struct acpi_i2c *i2c,
+			       const char *scope)
+{
+	struct dm_i2c_chip *chip = dev_get_parent_platdata(dev);
+	struct udevice *bus = dev_get_parent(dev);
+
+	memset(i2c, '\0', sizeof(*i2c));
+	i2c->address = chip->chip_addr;
+	i2c->mode_10bit = 0;
+
+	/*
+	 * i2c_bus->speed_hz is set if this device is probed, but if not we
+	 * must use the device tree
+	 */
+	i2c->speed = dev_read_u32_default(bus, "clock-frequency",
+					  I2C_SPEED_STANDARD_RATE);
+	i2c->resource = scope;
+
+	return i2c->address;
+}
+
+int acpi_device_write_i2c_dev(struct acpi_ctx *ctx, const struct udevice *dev)
+{
+	char scope[ACPI_PATH_MAX];
+	struct acpi_i2c i2c;
+	int ret;
+
+	ret = acpi_device_scope(dev, scope, sizeof(scope));
+	if (ret)
+		return log_msg_ret("scope", ret);
+	ret = acpi_device_set_i2c(dev, &i2c, scope);
+	if (ret < 0)
+		return log_msg_ret("set", ret);
+	acpi_device_write_i2c(ctx, &i2c);
+
+	return ret;
+}

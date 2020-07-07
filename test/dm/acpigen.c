@@ -276,3 +276,35 @@ static int dm_test_acpi_interrupt_or_gpio(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_acpi_interrupt_or_gpio,
 	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test emitting an I2C descriptor */
+static int dm_test_acpi_i2c(struct unit_test_state *uts)
+{
+	struct acpi_ctx *ctx;
+	struct udevice *dev;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+
+	ut_assertok(uclass_get_device(UCLASS_RTC, 0, &dev));
+	ut_asserteq(0x43, acpi_device_write_i2c_dev(ctx, dev));
+	ut_asserteq(28, acpigen_get_current(ctx) - ptr);
+	ut_asserteq(ACPI_DESCRIPTOR_SERIAL_BUS, ptr[0]);
+	ut_asserteq(25, get_unaligned((u16 *)(ptr + 1)));
+	ut_asserteq(ACPI_I2C_SERIAL_BUS_REVISION_ID, ptr[3]);
+	ut_asserteq(0, ptr[4]);
+	ut_asserteq(ACPI_SERIAL_BUS_TYPE_I2C, ptr[5]);
+	ut_asserteq(0, get_unaligned((u16 *)(ptr + 7)));
+	ut_asserteq(ACPI_I2C_TYPE_SPECIFIC_REVISION_ID, ptr[9]);
+	ut_asserteq(6, get_unaligned((u16 *)(ptr + 10)));
+	ut_asserteq(100000, get_unaligned((u32 *)(ptr + 12)));
+	ut_asserteq(0x43, get_unaligned((u16 *)(ptr + 16)));
+	ut_asserteq_str("\\_SB.I2C0", (char *)ptr + 18);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_i2c, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
