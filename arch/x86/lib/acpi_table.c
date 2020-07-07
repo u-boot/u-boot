@@ -14,6 +14,7 @@
 #include <mapmem.h>
 #include <serial.h>
 #include <version.h>
+#include <acpi/acpigen.h>
 #include <acpi/acpi_table.h>
 #include <asm/acpi/global_nvs.h>
 #include <asm/ioapic.h>
@@ -354,6 +355,25 @@ static void acpi_create_spcr(struct acpi_spcr *spcr)
 	header->checksum = table_compute_checksum((void *)spcr, header->length);
 }
 
+void acpi_create_ssdt(struct acpi_ctx *ctx, struct acpi_table_header *ssdt,
+		      const char *oem_table_id)
+{
+	memset((void *)ssdt, '\0', sizeof(struct acpi_table_header));
+
+	acpi_fill_header(ssdt, "SSDT");
+	ssdt->revision = acpi_get_table_revision(ACPITAB_SSDT);
+	ssdt->aslc_revision = 1;
+	ssdt->length = sizeof(struct acpi_table_header);
+
+	acpi_inc(ctx, sizeof(struct acpi_table_header));
+
+	acpi_fill_ssdt(ctx);
+
+	/* (Re)calculate length and checksum. */
+	ssdt->length = ctx->current - (void *)ssdt;
+	ssdt->checksum = table_compute_checksum((void *)ssdt, ssdt->length);
+}
+
 /*
  * QEMU's version of write_acpi_tables is defined in drivers/misc/qfw.c
  */
@@ -363,6 +383,7 @@ ulong write_acpi_tables(ulong start_addr)
 	struct acpi_facs *facs;
 	struct acpi_table_header *dsdt;
 	struct acpi_fadt *fadt;
+	struct acpi_table_header *ssdt;
 	struct acpi_mcfg *mcfg;
 	struct acpi_madt *madt;
 	struct acpi_csrt *csrt;
@@ -417,6 +438,14 @@ ulong write_acpi_tables(ulong start_addr)
 	acpi_inc_align(ctx, sizeof(struct acpi_fadt));
 	acpi_create_fadt(fadt, facs, dsdt);
 	acpi_add_table(ctx, fadt);
+
+	debug("ACPI:     * SSDT\n");
+	ssdt = (struct acpi_table_header *)ctx->current;
+	acpi_create_ssdt(ctx, ssdt, OEM_TABLE_ID);
+	if (ssdt->length > sizeof(struct acpi_table_header)) {
+		acpi_inc_align(ctx, ssdt->length);
+		acpi_add_table(ctx, ssdt);
+	}
 
 	debug("ACPI:    * MCFG\n");
 	mcfg = ctx->current;
