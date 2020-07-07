@@ -119,6 +119,22 @@ static int acpi_add_item(struct acpi_ctx *ctx, struct udevice *dev,
 	return 0;
 }
 
+void acpi_dump_items(enum acpi_dump_option option)
+{
+	int i;
+
+	for (i = 0; i < item_count; i++) {
+		struct acpi_item *item = &acpi_item[i];
+
+		printf("dev '%s', type %d, size %x\n", item->dev->name,
+		       item->type, item->size);
+		if (option == ACPI_DUMP_CONTENTS) {
+			print_buffer(0, item->buf, 1, item->size, 0);
+			printf("\n");
+		}
+	}
+}
+
 static struct acpi_item *find_acpi_item(const char *devname)
 {
 	int i;

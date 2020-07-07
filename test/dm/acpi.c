@@ -525,3 +525,42 @@ static int dm_test_acpi_inject_dsdt(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_acpi_inject_dsdt, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test 'acpi items' command */
+static int dm_test_acpi_cmd_items(struct unit_test_state *uts)
+{
+	struct acpi_ctx ctx;
+	void *buf;
+
+	buf = malloc(BUF_SIZE);
+	ut_assertnonnull(buf);
+
+	ctx.current = buf;
+	ut_assertok(acpi_fill_ssdt(&ctx));
+	console_record_reset();
+	run_command("acpi items", 0);
+	ut_assert_nextline("dev 'acpi-test', type 1, size 2");
+	ut_assert_nextline("dev 'acpi-test2', type 1, size 2");
+	ut_assert_console_end();
+
+	ctx.current = buf;
+	ut_assertok(acpi_inject_dsdt(&ctx));
+	console_record_reset();
+	run_command("acpi items", 0);
+	ut_assert_nextline("dev 'acpi-test', type 2, size 2");
+	ut_assert_nextline("dev 'acpi-test2', type 2, size 2");
+	ut_assert_console_end();
+
+	console_record_reset();
+	run_command("acpi items -d", 0);
+	ut_assert_nextline("dev 'acpi-test', type 2, size 2");
+	ut_assert_nextlines_are_dump(2);
+	ut_assert_nextline("%s", "");
+	ut_assert_nextline("dev 'acpi-test2', type 2, size 2");
+	ut_assert_nextlines_are_dump(2);
+	ut_assert_nextline("%s", "");
+	ut_assert_console_end();
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_cmd_items, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
