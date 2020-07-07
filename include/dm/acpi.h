@@ -74,6 +74,19 @@ struct acpi_ops {
 	 * @return 0 if OK, -ve on error
 	 */
 	int (*write_tables)(const struct udevice *dev, struct acpi_ctx *ctx);
+
+	/**
+	 * fill_ssdt() - Generate SSDT code for a device
+	 *
+	 * This is called to create the SSDT code. The method should write out
+	 * whatever ACPI code is needed by this device. It will end up in the
+	 * SSDT table.
+	 *
+	 * @dev: Device to write
+	 * @ctx: ACPI context to use
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*fill_ssdt)(const struct udevice *dev, struct acpi_ctx *ctx);
 };
 
 #define device_get_acpi_ops(dev)	((dev)->driver->acpi_ops)
@@ -117,6 +130,16 @@ int acpi_copy_name(char *out_name, const char *name);
  * @return 0 if OK, -ve if any device returned an error
  */
 int acpi_write_dev_tables(struct acpi_ctx *ctx);
+
+/**
+ * acpi_fill_ssdt() - Generate ACPI tables for SSDT
+ *
+ * This is called to create the SSDT code for all devices.
+ *
+ * @ctx: ACPI context to use
+ * @return 0 if OK, -ve on error
+ */
+int acpi_fill_ssdt(struct acpi_ctx *ctx);
 
 #endif /* __ACPI__ */
 

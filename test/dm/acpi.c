@@ -14,6 +14,7 @@
 #include <version.h>
 #include <tables_csum.h>
 #include <version.h>
+#include <acpi/acpigen.h>
 #include <acpi/acpi_device.h>
 #include <acpi/acpi_table.h>
 #include <dm/acpi.h>
@@ -67,9 +68,23 @@ static int testacpi_get_name(const struct udevice *dev, char *out_name)
 		return acpi_copy_name(out_name, ACPI_TEST_DEV_NAME);
 }
 
+static int testacpi_fill_ssdt(const struct udevice *dev, struct acpi_ctx *ctx)
+{
+	const char *data;
+
+	data = dev_read_string(dev, "acpi-ssdt-test-data");
+	if (data) {
+		while (*data)
+			acpigen_emit_byte(ctx, *data++);
+	}
+
+	return 0;
+}
+
 struct acpi_ops testacpi_ops = {
 	.get_name	= testacpi_get_name,
 	.write_tables	= testacpi_write_tables,
+	.fill_ssdt	= testacpi_fill_ssdt,
 };
 
 static const struct udevice_id testacpi_ids[] = {
@@ -396,3 +411,30 @@ static int dm_test_acpi_device_status(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_acpi_device_status, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test acpi_fill_ssdt() */
+static int dm_test_acpi_fill_ssdt(struct unit_test_state *uts)
+{
+	struct acpi_ctx ctx;
+	u8 *buf;
+
+	buf = malloc(BUF_SIZE);
+	ut_assertnonnull(buf);
+
+	ctx.current = buf;
+	buf[4] = 'z';	/* sentinel */
+	ut_assertok(acpi_fill_ssdt(&ctx));
+
+	/* These values come from acpi-test's acpi-ssdt-test-data property */
+	ut_asserteq('a', buf[0]);
+	ut_asserteq('b', buf[1]);
+
+	/* These values come from acpi-test2's acpi-ssdt-test-data property */
+	ut_asserteq('c', buf[2]);
+	ut_asserteq('d', buf[3]);
+
+	ut_asserteq('z', buf[4]);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_fill_ssdt, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

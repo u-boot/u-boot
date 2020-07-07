@@ -256,6 +256,7 @@
 
 	acpi-test {
 		compatible = "denx,u-boot-acpi-test";
+		acpi-ssdt-test-data = "ab";
 		child {
 			compatible = "denx,u-boot-acpi-test";
 		};
@@ -263,6 +264,7 @@
 
 	acpi-test2 {
 		compatible = "denx,u-boot-acpi-test";
+		acpi-ssdt-test-data = "cd";
 	};
 
 	clocks {
