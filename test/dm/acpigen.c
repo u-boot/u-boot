@@ -16,6 +16,7 @@
 #include <asm/unaligned.h>
 #include <dm/acpi.h>
 #include <dm/test.h>
+#include <dm/uclass-internal.h>
 #include <test/ut.h>
 
 /* Maximum size of the ACPI context needed for most tests */
@@ -235,3 +236,43 @@ static int dm_test_acpi_gpio_irq(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_acpi_gpio_irq, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test emitting either a GPIO or interrupt descriptor */
+static int dm_test_acpi_interrupt_or_gpio(struct unit_test_state *uts)
+{
+	struct acpi_ctx *ctx;
+	struct udevice *dev;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+
+	/* This should produce an interrupt, even though it also has a GPIO */
+	ut_assertok(uclass_get_device(UCLASS_TEST_FDT, 0, &dev));
+	ut_asserteq_str("a-test", dev->name);
+	ut_asserteq(3, acpi_device_write_interrupt_or_gpio(ctx, dev,
+							   "test2-gpios"));
+	ut_asserteq(ACPI_DESCRIPTOR_INTERRUPT, ptr[0]);
+
+	/* This has no interrupt so should produce a GPIO */
+	ptr = ctx->current;
+	ut_assertok(uclass_find_first_device(UCLASS_PANEL_BACKLIGHT, &dev));
+	ut_asserteq(1, acpi_device_write_interrupt_or_gpio(ctx, dev,
+							   "enable-gpios"));
+	ut_asserteq(ACPI_DESCRIPTOR_GPIO, ptr[0]);
+
+	/* This one has neither */
+	ptr = acpigen_get_current(ctx);
+	ut_assertok(uclass_get_device_by_seq(UCLASS_TEST_FDT, 3, &dev));
+	ut_asserteq_str("b-test", dev->name);
+	ut_asserteq(-ENOENT,
+		    acpi_device_write_interrupt_or_gpio(ctx, dev,
+							"enable-gpios"));
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_interrupt_or_gpio,
+	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

@@ -255,4 +255,19 @@ int acpi_device_write_gpio(struct acpi_ctx *ctx, const struct acpi_gpio *gpio);
 int acpi_device_write_gpio_desc(struct acpi_ctx *ctx,
 				const struct gpio_desc *desc);
 
+/**
+ * acpi_device_write_interrupt_or_gpio() - Write interrupt or GPIO to ACPI
+ *
+ * This reads an interrupt from the device tree "interrupts-extended" property,
+ * if available. If not it reads the first GPIO with the name @prop.
+ *
+ * If an interrupt is found, an ACPI interrupt descriptor is written to the ACPI
+ * output. If not, but if a GPIO is found, a GPIO descriptor is written.
+ *
+ * @return irq or GPIO pin number if OK, -ve if neither an interrupt nor a GPIO
+ *	could be found, or some other error occurred
+ */
+int acpi_device_write_interrupt_or_gpio(struct acpi_ctx *ctx,
+					struct udevice *dev, const char *prop);
+
 #endif

@@ -354,5 +354,34 @@ int acpi_device_write_gpio_desc(struct acpi_ctx *ctx,
 	if (ret < 0)
 		return log_msg_ret("gpio", ret);
 
-	return 0;
+	return ret;
+}
+
+int acpi_device_write_interrupt_or_gpio(struct acpi_ctx *ctx,
+					struct udevice *dev, const char *prop)
+{
+	struct irq req_irq;
+	int pin;
+	int ret;
+
+	ret = irq_get_by_index(dev, 0, &req_irq);
+	if (!ret) {
+		ret = acpi_device_write_interrupt_irq(ctx, &req_irq);
+		if (ret < 0)
+			return log_msg_ret("irq", ret);
+		pin = ret;
+	} else {
+		struct gpio_desc req_gpio;
+
+		ret = gpio_request_by_name(dev, prop, 0, &req_gpio,
+					   GPIOD_IS_IN);
+		if (ret)
+			return log_msg_ret("no gpio", ret);
+		ret = acpi_device_write_gpio_desc(ctx, &req_gpio);
+		if (ret < 0)
+			return log_msg_ret("gpio", ret);
+		pin = ret;
+	}
+
+	return pin;
 }
