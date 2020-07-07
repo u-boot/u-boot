@@ -406,11 +406,20 @@ ulong write_acpi_tables(ulong start_addr)
 
 	debug("ACPI:    * DSDT\n");
 	dsdt = ctx->current;
+
+	/* Put the table header first */
 	memcpy(dsdt, &AmlCode, sizeof(struct acpi_table_header));
 	acpi_inc(ctx, sizeof(struct acpi_table_header));
+
+	/* If the table is not empty, allow devices to inject things */
+	if (dsdt->length >= sizeof(struct acpi_table_header))
+		acpi_inject_dsdt(ctx);
+
+	/* Copy in the AML code itself if any (after the header) */
 	memcpy(ctx->current,
 	       (char *)&AmlCode + sizeof(struct acpi_table_header),
 	       dsdt->length - sizeof(struct acpi_table_header));
+
 	acpi_inc_align(ctx, dsdt->length - sizeof(struct acpi_table_header));
 
 	/* Pack GNVS into the ACPI table area */
@@ -425,7 +434,12 @@ ulong write_acpi_tables(ulong start_addr)
 		}
 	}
 
-	/* Update DSDT checksum since we patched the GNVS address */
+	/*
+	 * Recalculate the length and update the DSDT checksum since we patched
+	 * the GNVS address. Set the checksum to zero since it is part of the
+	 * region being checksummed.
+	 */
+	dsdt->length = ctx->current - (void *)dsdt;
 	dsdt->checksum = 0;
 	dsdt->checksum = table_compute_checksum((void *)dsdt, dsdt->length);
 
