@@ -72,6 +72,12 @@ void acpigen_pop_len(struct acpi_ctx *ctx)
 	p[2] = len >> 12 & 0xff;
 }
 
+void acpigen_emit_ext_op(struct acpi_ctx *ctx, uint op)
+{
+	acpigen_emit_byte(ctx, EXT_OP_PREFIX);
+	acpigen_emit_byte(ctx, op);
+}
+
 char *acpigen_write_package(struct acpi_ctx *ctx, int nr_el)
 {
 	char *p;
@@ -251,6 +257,40 @@ void acpigen_write_name(struct acpi_ctx *ctx, const char *namepath)
 	acpigen_emit_namestring(ctx, namepath);
 }
 
+static void acpigen_write_method_internal(struct acpi_ctx *ctx,
+					  const char *name, uint flags)
+{
+	acpigen_emit_byte(ctx, METHOD_OP);
+	acpigen_write_len_f(ctx);
+	acpigen_emit_namestring(ctx, name);
+	acpigen_emit_byte(ctx, flags);
+}
+
+/* Method (name, nargs, NotSerialized) */
+void acpigen_write_method(struct acpi_ctx *ctx, const char *name, int nargs)
+{
+	acpigen_write_method_internal(ctx, name,
+				      nargs & ACPI_METHOD_NARGS_MASK);
+}
+
+/* Method (name, nargs, Serialized) */
+void acpigen_write_method_serialized(struct acpi_ctx *ctx, const char *name,
+				     int nargs)
+{
+	acpigen_write_method_internal(ctx, name,
+				      (nargs & ACPI_METHOD_NARGS_MASK) |
+				      ACPI_METHOD_SERIALIZED_MASK);
+}
+
+void acpigen_write_sta(struct acpi_ctx *ctx, uint status)
+{
+	/* Method (_STA, 0, NotSerialized) { Return (status) } */
+	acpigen_write_method(ctx, "_STA", 0);
+	acpigen_emit_byte(ctx, RETURN_OP);
+	acpigen_write_byte(ctx, status);
+	acpigen_pop_len(ctx);
+}
+
 /*
  * ToUUID(uuid)
  *
@@ -286,4 +326,50 @@ int acpigen_write_uuid(struct acpi_ctx *ctx, const char *uuid)
 	acpigen_pop_len(ctx);
 
 	return 0;
+}
+
+/* Sleep (ms) */
+void acpigen_write_sleep(struct acpi_ctx *ctx, u64 sleep_ms)
+{
+	acpigen_emit_ext_op(ctx, SLEEP_OP);
+	acpigen_write_integer(ctx, sleep_ms);
+}
+
+void acpigen_write_store(struct acpi_ctx *ctx)
+{
+	acpigen_emit_byte(ctx, STORE_OP);
+}
+
+/* Or (arg1, arg2, res) */
+void acpigen_write_or(struct acpi_ctx *ctx, u8 arg1, u8 arg2, u8 res)
+{
+	acpigen_emit_byte(ctx, OR_OP);
+	acpigen_emit_byte(ctx, arg1);
+	acpigen_emit_byte(ctx, arg2);
+	acpigen_emit_byte(ctx, res);
+}
+
+/* And (arg1, arg2, res) */
+void acpigen_write_and(struct acpi_ctx *ctx, u8 arg1, u8 arg2, u8 res)
+{
+	acpigen_emit_byte(ctx, AND_OP);
+	acpigen_emit_byte(ctx, arg1);
+	acpigen_emit_byte(ctx, arg2);
+	acpigen_emit_byte(ctx, res);
+}
+
+/* Not (arg, res) */
+void acpigen_write_not(struct acpi_ctx *ctx, u8 arg, u8 res)
+{
+	acpigen_emit_byte(ctx, NOT_OP);
+	acpigen_emit_byte(ctx, arg);
+	acpigen_emit_byte(ctx, res);
+}
+
+/* Store (str, DEBUG) */
+void acpigen_write_debug_string(struct acpi_ctx *ctx, const char *str)
+{
+	acpigen_write_store(ctx);
+	acpigen_write_string(ctx, str);
+	acpigen_emit_ext_op(ctx, DEBUG_OP);
 }

@@ -17,6 +17,9 @@ struct acpi_ctx;
 /* Top 4 bits of the value used to indicate a three-byte length value */
 #define ACPI_PKG_LEN_3_BYTES	0x80
 
+#define ACPI_METHOD_NARGS_MASK		0x7
+#define ACPI_METHOD_SERIALIZED_MASK	BIT(3)
+
 /* ACPI Op/Prefix codes */
 enum {
 	ZERO_OP			= 0x00,
@@ -29,9 +32,26 @@ enum {
 	QWORD_PREFIX		= 0x0e,
 	BUFFER_OP		= 0x11,
 	PACKAGE_OP		= 0x12,
+	METHOD_OP		= 0x14,
+	SLEEP_OP		= 0x22,
 	DUAL_NAME_PREFIX	= 0x2e,
 	MULTI_NAME_PREFIX	= 0x2f,
+	DEBUG_OP		= 0x31,
+	EXT_OP_PREFIX		= 0x5b,
 	ROOT_PREFIX		= 0x5c,
+	LOCAL0_OP		= 0x60,
+	LOCAL1_OP		= 0x61,
+	LOCAL2_OP		= 0x62,
+	LOCAL3_OP		= 0x63,
+	LOCAL4_OP		= 0x64,
+	LOCAL5_OP		= 0x65,
+	LOCAL6_OP		= 0x66,
+	LOCAL7_OP		= 0x67,
+	STORE_OP		= 0x70,
+	AND_OP			= 0x7b,
+	OR_OP			= 0x7d,
+	NOT_OP			= 0x80,
+	RETURN_OP		= 0xa4,
 };
 
 /**
@@ -203,5 +223,102 @@ void acpigen_write_name(struct acpi_ctx *ctx, const char *namepath);
  * @return 0 if OK, -EINVAL if the format is incorrect
  */
 int acpigen_write_uuid(struct acpi_ctx *ctx, const char *uuid);
+
+/**
+ * acpigen_emit_ext_op() - Emit an extended op with the EXT_OP_PREFIX prefix
+ *
+ * @ctx: ACPI context pointer
+ * @op: Operation code (e.g. SLEEP_OP)
+ */
+void acpigen_emit_ext_op(struct acpi_ctx *ctx, uint op);
+
+/**
+ * acpigen_write_method() - Write a method header
+ *
+ * @ctx: ACPI context pointer
+ * @name: Method name (4 characters)
+ * @nargs: Number of method arguments (0 if none)
+ */
+void acpigen_write_method(struct acpi_ctx *ctx, const char *name, int nargs);
+
+/**
+ * acpigen_write_method_serialized() - Write a method header
+ *
+ * This sets the 'serialized' flag so that the method is thread-safe
+ *
+ * @ctx: ACPI context pointer
+ * @name: Method name (4 characters)
+ * @nargs: Number of method arguments (0 if none)
+ */
+void acpigen_write_method_serialized(struct acpi_ctx *ctx, const char *name,
+				     int nargs);
+
+/**
+ * acpigen_write_sta() - Write a _STA method
+ *
+ * @ctx: ACPI context pointer
+ * @status: Status value to return
+ */
+void acpigen_write_sta(struct acpi_ctx *ctx, uint status);
+
+/**
+ * acpigen_write_sleep() - Write a sleep operation
+ *
+ * @ctx: ACPI context pointer
+ * @sleep_ms: Number of milliseconds to sleep for
+ */
+void acpigen_write_sleep(struct acpi_ctx *ctx, u64 sleep_ms);
+
+/**
+ * acpigen_write_store() - Write a store operation
+ *
+ * @ctx: ACPI context pointer
+ */
+void acpigen_write_store(struct acpi_ctx *ctx);
+
+/**
+ * acpigen_write_debug_string() - Write a debug string
+ *
+ * This writes a debug operation with an associated string
+ *
+ * @ctx: ACPI context pointer
+ * @str: String to write
+ */
+void acpigen_write_debug_string(struct acpi_ctx *ctx, const char *str);
+
+/**
+ * acpigen_write_or() - Write a bitwise OR operation
+ *
+ * res = arg1 | arg2
+ *
+ * @ctx: ACPI context pointer
+ * @arg1: ACPI opcode for operand 1 (e.g. LOCAL0_OP)
+ * @arg2: ACPI opcode for operand 2 (e.g. LOCAL1_OP)
+ * @res: ACPI opcode for result (e.g. LOCAL2_OP)
+ */
+void acpigen_write_or(struct acpi_ctx *ctx, u8 arg1, u8 arg2, u8 res);
+
+/**
+ * acpigen_write_and() - Write a bitwise AND operation
+ *
+ * res = arg1 & arg2
+ *
+ * @ctx: ACPI context pointer
+ * @arg1: ACPI opcode for operand 1 (e.g. LOCAL0_OP)
+ * @arg2: ACPI opcode for operand 2 (e.g. LOCAL1_OP)
+ * @res: ACPI opcode for result (e.g. LOCAL2_OP)
+ */
+void acpigen_write_and(struct acpi_ctx *ctx, u8 arg1, u8 arg2, u8 res);
+
+/**
+ * acpigen_write_not() - Write a bitwise NOT operation
+ *
+ * res = ~arg1
+ *
+ * @ctx: ACPI context pointer
+ * @arg: ACPI opcode for operand (e.g. LOCAL0_OP)
+ * @res: ACPI opcode for result (e.g. LOCAL2_OP)
+ */
+void acpigen_write_not(struct acpi_ctx *ctx, u8 arg, u8 res);
 
 #endif

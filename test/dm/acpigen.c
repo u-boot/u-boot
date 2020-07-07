@@ -626,3 +626,78 @@ static int dm_test_acpi_uuid(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_acpi_uuid, 0);
+
+/* Test writing misc ACPI codes */
+static int dm_test_acpi_misc(struct unit_test_state *uts)
+{
+	struct acpi_ctx *ctx;
+	const int flags = 3;
+	const int nargs = 4;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+	acpigen_write_sleep(ctx, TEST_INT64);
+	ut_asserteq_64(TEST_INT64, get_unaligned((u64 *)(ptr + 3)));
+	ptr += 11;
+
+	acpigen_write_store(ctx);
+	ut_asserteq(STORE_OP, *ptr);
+	ptr++;
+
+	acpigen_write_debug_string(ctx, TEST_STRING);
+	ut_asserteq_str(TEST_STRING, (char *)ptr + 2);
+	ptr += 2 +  sizeof(TEST_STRING);
+	ut_asserteq(EXT_OP_PREFIX, ptr[0]);
+	ut_asserteq(DEBUG_OP, ptr[1]);
+	ptr += 2;
+
+	acpigen_write_sta(ctx, flags);
+	ut_asserteq(METHOD_OP, ptr[0]);
+	ut_asserteq(11, acpi_test_get_length(ptr + 1));
+	ut_asserteq_strn("_STA", (char *)ptr + 4);
+	ut_asserteq(0, ptr[8]);
+	ut_asserteq(RETURN_OP, ptr[9]);
+	ut_asserteq(BYTE_PREFIX, ptr[10]);
+	ut_asserteq(flags, ptr[11]);
+	ptr += 12;
+
+	acpigen_write_sleep(ctx, TEST_INT16);
+	ut_asserteq(SLEEP_OP, ptr[1]);
+	ut_asserteq(TEST_INT16, get_unaligned((u16 *)(ptr + 3)));
+	ptr += 5;
+
+	acpigen_write_method_serialized(ctx, "FRED", nargs);
+	ut_asserteq(METHOD_OP, ptr[0]);
+	ut_asserteq_strn("FRED", (char *)ptr + 4);
+	ut_asserteq(1 << 3 | nargs, ptr[8]);
+	ut_asserteq(1, ctx->ltop);	/* method is unfinished */
+
+	ptr += 9;
+	acpigen_write_or(ctx, LOCAL0_OP, LOCAL1_OP, LOCAL2_OP);
+	acpigen_write_and(ctx, LOCAL3_OP, LOCAL4_OP, LOCAL5_OP);
+	acpigen_write_not(ctx, LOCAL6_OP, LOCAL7_OP);
+	ut_asserteq(OR_OP, ptr[0]);
+	ut_asserteq(LOCAL0_OP, ptr[1]);
+	ut_asserteq(LOCAL1_OP, ptr[2]);
+	ut_asserteq(LOCAL2_OP, ptr[3]);
+
+	ptr += 4;
+	ut_asserteq(AND_OP, ptr[0]);
+	ut_asserteq(LOCAL3_OP, ptr[1]);
+	ut_asserteq(LOCAL4_OP, ptr[2]);
+	ut_asserteq(LOCAL5_OP, ptr[3]);
+
+	ptr += 4;
+	ut_asserteq(NOT_OP, ptr[0]);
+	ut_asserteq(LOCAL6_OP, ptr[1]);
+	ut_asserteq(LOCAL7_OP, ptr[2]);
+	ptr += 3;
+	ut_asserteq_ptr(ptr, ctx->current);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_misc, 0);
