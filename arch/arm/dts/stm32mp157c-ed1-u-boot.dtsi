@@ -159,8 +159,6 @@
 
 &sdmmc1 {
 	u-boot,dm-spl;
-	broken-cd;
-	/delete-property/ cd-gpios;
 };
 
 &sdmmc1_b4_pins_a {
