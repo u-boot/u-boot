@@ -13,6 +13,7 @@
 #include <linux/types.h>
 
 struct acpi_ctx;
+struct acpi_gpio;
 
 /* Top 4 bits of the value used to indicate a three-byte length value */
 #define ACPI_PKG_LEN_3_BYTES	0x80
@@ -342,5 +343,60 @@ void acpigen_write_not(struct acpi_ctx *ctx, u8 arg, u8 res);
 void acpigen_write_power_res(struct acpi_ctx *ctx, const char *name, uint level,
 			     uint order, const char *const dev_states[],
 			     size_t dev_states_count);
+
+/**
+ * acpigen_set_enable_tx_gpio() - Emit ACPI code to enable/disable a GPIO
+ *
+ * This emits code to either enable to disable a Tx GPIO. It takes account of
+ * the GPIO polarity.
+ *
+ * The code needs access to the DW0 register for the pad being used. This is
+ * provided by gpio->pin0_addr and ACPI methods must be defined for the board
+ * which can read and write the pad's DW0 register given this address:
+ *    @dw0_read: takes a single argument, the DW0 address
+ *		 returns the DW0 value
+ *    @dw0:write: takes two arguments, the DW0 address and the value to write
+ *		 no return value
+ *
+ * Example code (-- means comment):
+ *
+ *	-- Get Pad Configuration DW0 register value
+ *	Method (GPC0, 0x1, Serialized)
+ *	{
+ *		-- Arg0 - GPIO DW0 address
+ *		Store (Arg0, Local0)
+ *		OperationRegion (PDW0, SystemMemory, Local0, 4)
+ *		Field (PDW0, AnyAcc, NoLock, Preserve) {
+ *			TEMP, 32
+ *		}
+ *		Return (TEMP)
+ *	}
+ *
+ *	-- Set Pad Configuration DW0 register value
+ *	Method (SPC0, 0x2, Serialized)
+ *	{
+ *		-- Arg0 - GPIO DW0 address
+ *		-- Arg1 - Value for DW0 register
+ *		Store (Arg0, Local0)
+ *		OperationRegion (PDW0, SystemMemory, Local0, 4)
+ *		Field (PDW0, AnyAcc, NoLock, Preserve) {
+ *			TEMP,32
+ *		}
+ *		Store (Arg1, TEMP)
+ *	}
+ *
+ *
+ * @ctx: ACPI context pointer
+ * @tx_state_val: Mask to use to toggle the TX state on the GPIO pin, e,g.
+ *	PAD_CFG0_TX_STATE
+ * @dw0_read: Method name to use to read dw0, e.g. "\\_SB.GPC0"
+ * @dw0_write: Method name to use to read dw0, e.g. "\\_SB.SPC0"
+ * @gpio: GPIO to change
+ * @enable: true to enable GPIO, false to disable
+ * Returns 0 on success, -ve on error.
+ */
+int acpigen_set_enable_tx_gpio(struct acpi_ctx *ctx, u32 tx_state_val,
+			       const char *dw0_read, const char *dw0_write,
+			       struct acpi_gpio *gpio, bool enable);
 
 #endif
