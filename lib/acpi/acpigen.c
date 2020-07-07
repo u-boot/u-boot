@@ -83,6 +83,57 @@ char *acpigen_write_package(struct acpi_ctx *ctx, int nr_el)
 	return p;
 }
 
+void acpigen_write_byte(struct acpi_ctx *ctx, unsigned int data)
+{
+	acpigen_emit_byte(ctx, BYTE_PREFIX);
+	acpigen_emit_byte(ctx, data & 0xff);
+}
+
+void acpigen_write_word(struct acpi_ctx *ctx, unsigned int data)
+{
+	acpigen_emit_byte(ctx, WORD_PREFIX);
+	acpigen_emit_word(ctx, data);
+}
+
+void acpigen_write_dword(struct acpi_ctx *ctx, unsigned int data)
+{
+	acpigen_emit_byte(ctx, DWORD_PREFIX);
+	acpigen_emit_dword(ctx, data);
+}
+
+void acpigen_write_qword(struct acpi_ctx *ctx, u64 data)
+{
+	acpigen_emit_byte(ctx, QWORD_PREFIX);
+	acpigen_emit_dword(ctx, data & 0xffffffff);
+	acpigen_emit_dword(ctx, (data >> 32) & 0xffffffff);
+}
+
+void acpigen_write_zero(struct acpi_ctx *ctx)
+{
+	acpigen_emit_byte(ctx, ZERO_OP);
+}
+
+void acpigen_write_one(struct acpi_ctx *ctx)
+{
+	acpigen_emit_byte(ctx, ONE_OP);
+}
+
+void acpigen_write_integer(struct acpi_ctx *ctx, u64 data)
+{
+	if (data == 0)
+		acpigen_write_zero(ctx);
+	else if (data == 1)
+		acpigen_write_one(ctx);
+	else if (data <= 0xff)
+		acpigen_write_byte(ctx, (unsigned char)data);
+	else if (data <= 0xffff)
+		acpigen_write_word(ctx, (unsigned int)data);
+	else if (data <= 0xffffffff)
+		acpigen_write_dword(ctx, (unsigned int)data);
+	else
+		acpigen_write_qword(ctx, data);
+}
+
 void acpigen_emit_stream(struct acpi_ctx *ctx, const char *data, int size)
 {
 	int i;

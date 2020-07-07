@@ -19,6 +19,12 @@ struct acpi_ctx;
 
 /* ACPI Op/Prefix codes */
 enum {
+	ZERO_OP			= 0x00,
+	ONE_OP			= 0x01,
+	BYTE_PREFIX		= 0x0a,
+	WORD_PREFIX		= 0x0b,
+	DWORD_PREFIX		= 0x0c,
+	QWORD_PREFIX		= 0x0e,
 	PACKAGE_OP		= 0x12,
 };
 
@@ -137,5 +143,16 @@ void acpigen_pop_len(struct acpi_ctx *ctx);
  *	caller if needed
  */
 char *acpigen_write_package(struct acpi_ctx *ctx, int nr_el);
+
+/**
+ * acpigen_write_integer() - Write an integer
+ *
+ * This writes an operation (BYTE_OP, WORD_OP, DWORD_OP, QWORD_OP depending on
+ * the integer size) and an integer value. Note that WORD means 16 bits in ACPI.
+ *
+ * @ctx: ACPI context pointer
+ * @data: Integer to write
+ */
+void acpigen_write_integer(struct acpi_ctx *ctx, u64 data);
 
 #endif

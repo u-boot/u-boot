@@ -25,6 +25,11 @@
 #define TEST_STRING	"frogmore"
 #define TEST_STREAM2	"\xfa\xde"
 
+#define TEST_INT8	0x7d
+#define TEST_INT16	0x2345
+#define TEST_INT32	0x12345678
+#define TEST_INT64	0x4567890123456
+
 static int alloc_context_size(struct acpi_ctx **ctxp, int size)
 {
 	struct acpi_ctx *ctx;
@@ -431,3 +436,44 @@ static int dm_test_acpi_package(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_acpi_package, 0);
+
+/* Test writing an integer */
+static int dm_test_acpi_integer(struct unit_test_state *uts)
+{
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+
+	acpigen_write_integer(ctx, 0);
+	acpigen_write_integer(ctx, 1);
+	acpigen_write_integer(ctx, TEST_INT8);
+	acpigen_write_integer(ctx, TEST_INT16);
+	acpigen_write_integer(ctx, TEST_INT32);
+	acpigen_write_integer(ctx, TEST_INT64);
+
+	ut_asserteq(6 + 1 + 2 + 4 + 8, acpigen_get_current(ctx) - ptr);
+
+	ut_asserteq(ZERO_OP, ptr[0]);
+
+	ut_asserteq(ONE_OP, ptr[1]);
+
+	ut_asserteq(BYTE_PREFIX, ptr[2]);
+	ut_asserteq(TEST_INT8, ptr[3]);
+
+	ut_asserteq(WORD_PREFIX, ptr[4]);
+	ut_asserteq(TEST_INT16, get_unaligned((u16 *)(ptr + 5)));
+
+	ut_asserteq(DWORD_PREFIX, ptr[7]);
+	ut_asserteq(TEST_INT32, get_unaligned((u32 *)(ptr + 8)));
+
+	ut_asserteq(QWORD_PREFIX, ptr[12]);
+	ut_asserteq_64(TEST_INT64, get_unaligned((u64 *)(ptr + 13)));
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_integer, 0);
