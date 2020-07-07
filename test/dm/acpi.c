@@ -124,11 +124,51 @@ UCLASS_DRIVER(testacpi) = {
 static int dm_test_acpi_get_name(struct unit_test_state *uts)
 {
 	char name[ACPI_NAME_MAX];
-	struct udevice *dev;
+	struct udevice *dev, *dev2, *i2c, *spi, *serial, *timer, *sound;
+	struct udevice *pci, *root;
 
+	/* Test getting the name from the driver */
 	ut_assertok(uclass_first_device_err(UCLASS_TEST_ACPI, &dev));
 	ut_assertok(acpi_get_name(dev, name));
 	ut_asserteq_str(ACPI_TEST_DEV_NAME, name);
+
+	/* Test getting the name from the device tree */
+	ut_assertok(uclass_get_device_by_name(UCLASS_TEST_FDT, "a-test",
+					      &dev2));
+	ut_assertok(acpi_get_name(dev2, name));
+	ut_asserteq_str("GHIJ", name);
+
+	/* Test getting the name from acpi_device_get_name() */
+	ut_assertok(uclass_first_device(UCLASS_I2C, &i2c));
+	ut_assertok(acpi_get_name(i2c, name));
+	ut_asserteq_str("I2C0", name);
+
+	ut_assertok(uclass_first_device(UCLASS_SPI, &spi));
+	ut_assertok(acpi_get_name(spi, name));
+	ut_asserteq_str("SPI0", name);
+
+	/* The uart has no sequence number, so this should fail */
+	ut_assertok(uclass_first_device(UCLASS_SERIAL, &serial));
+	ut_asserteq(-ENXIO, acpi_get_name(serial, name));
+
+	/* ACPI doesn't know about the timer */
+	ut_assertok(uclass_first_device(UCLASS_TIMER, &timer));
+	ut_asserteq(-ENOENT, acpi_get_name(timer, name));
+
+	/* May as well test the rest of the cases */
+	ut_assertok(uclass_first_device(UCLASS_SOUND, &sound));
+	ut_assertok(acpi_get_name(sound, name));
+	ut_asserteq_str("HDAS", name);
+
+	ut_assertok(uclass_first_device(UCLASS_PCI, &pci));
+	ut_assertok(acpi_get_name(pci, name));
+	ut_asserteq_str("PCI0", name);
+
+	ut_assertok(uclass_first_device(UCLASS_ROOT, &root));
+	ut_assertok(acpi_get_name(root, name));
+	ut_asserteq_str("\\_SB", name);
+
+	/* Note that we don't have tests for acpi_name_from_id() */
 
 	return 0;
 }

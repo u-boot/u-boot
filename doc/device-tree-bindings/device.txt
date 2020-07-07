@@ -17,6 +17,8 @@ the acpi,compatible property.
     System) Device Name)
  - acpi,hid : Contains the string to use as the HID (Hardware ID)
     identifier _HID
+ - acpi,name : Provides the ACPI name for a device, which is a string consisting
+   of four alphanumeric character (upper case)
  - acpi,uid : _UID value for device
  - linux,probed : Tells U-Boot to add 'linux,probed' to the ACPI tables so that
     Linux will only load the driver if the device can be detected (e.g. on I2C
@@ -33,4 +35,15 @@ elan_touchscreen: elan-touchscreen@10 {
 	acpi,ddn = "ELAN Touchscreen";
 	interrupts-extended = <&acpi_gpe GPIO_21_IRQ IRQ_TYPE_EDGE_FALLING>;
 	linux,probed;
+};
+
+pcie-a0@14,0 {
+	reg = <0x0000a000 0 0 0 0>;
+	acpi,name = "RP01";
+	wifi: wifi {
+		compatible = "intel,generic-wifi";
+		acpi,ddn = "Intel WiFi";
+		acpi,name = "WF00";
+		interrupts-extended = <&acpi_gpe 0x3c 0>;
+	};
 };

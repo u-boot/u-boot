@@ -10,6 +10,8 @@
 #include <dm.h>
 #include <irq.h>
 #include <log.h>
+#include <usb.h>
+#include <acpi/acpigen.h>
 #include <acpi/acpi_device.h>
 #include <acpi/acpigen.h>
 #include <asm-generic/gpio.h>
@@ -715,3 +717,107 @@ int acpi_device_write_spi_dev(struct acpi_ctx *ctx, const struct udevice *dev)
 	return 0;
 }
 #endif /* CONFIG_SPI */
+
+static const char *acpi_name_from_id(enum uclass_id id)
+{
+	switch (id) {
+	case UCLASS_USB_HUB:
+		/* Root Hub */
+		return "RHUB";
+	/* DSDT: acpi/northbridge.asl */
+	case UCLASS_NORTHBRIDGE:
+		return "MCHC";
+	/* DSDT: acpi/lpc.asl */
+	case UCLASS_LPC:
+		return "LPCB";
+	/* DSDT: acpi/xhci.asl */
+	case UCLASS_USB:
+		/* This only supports USB3.0 controllers at present */
+		return "XHCI";
+	case UCLASS_PWM:
+		return "PWM";
+	default:
+		return NULL;
+	}
+}
+
+static int acpi_check_seq(const struct udevice *dev)
+{
+	if (dev->req_seq == -1) {
+		log_warning("Device '%s' has no seq\n", dev->name);
+		return log_msg_ret("no seq", -ENXIO);
+	}
+
+	return dev->req_seq;
+}
+
+/* If you change this function, add test cases to dm_test_acpi_get_name() */
+int acpi_device_infer_name(const struct udevice *dev, char *out_name)
+{
+	enum uclass_id parent_id = UCLASS_INVALID;
+	enum uclass_id id;
+	const char *name = NULL;
+
+	id = device_get_uclass_id(dev);
+	if (dev_get_parent(dev))
+		parent_id = device_get_uclass_id(dev_get_parent(dev));
+
+	if (id == UCLASS_SOUND)
+		name = "HDAS";
+	else if (id == UCLASS_PCI)
+		name = "PCI0";
+	else if (device_is_on_pci_bus(dev))
+		name = acpi_name_from_id(id);
+	if (!name) {
+		switch (parent_id) {
+		case UCLASS_USB: {
+			struct usb_device *udev = dev_get_parent_priv(dev);
+
+			sprintf(out_name, udev->speed >= USB_SPEED_SUPER ?
+				"HS%02d" : "FS%02d", udev->portnr);
+			name = out_name;
+			break;
+		}
+		default:
+			break;
+		}
+	}
+	if (!name) {
+		int num;
+
+		switch (id) {
+		/* DSDT: acpi/lpss.asl */
+		case UCLASS_SERIAL:
+			num = acpi_check_seq(dev);
+			if (num < 0)
+				return num;
+			sprintf(out_name, "URT%d", num);
+			name = out_name;
+			break;
+		case UCLASS_I2C:
+			num = acpi_check_seq(dev);
+			if (num < 0)
+				return num;
+			sprintf(out_name, "I2C%d", num);
+			name = out_name;
+			break;
+		case UCLASS_SPI:
+			num = acpi_check_seq(dev);
+			if (num < 0)
+				return num;
+			sprintf(out_name, "SPI%d", num);
+			name = out_name;
+			break;
+		default:
+			break;
+		}
+	}
+	if (!name) {
+		log_warning("No name for device '%s'\n", dev->name);
+		return -ENOENT;
+	}
+	if (name != out_name)
+		acpi_copy_name(out_name, name);
+
+	return 0;
+}

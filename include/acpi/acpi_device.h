@@ -384,4 +384,22 @@ int acpi_device_add_power_res(struct acpi_ctx *ctx, u32 tx_state_val,
 			      const struct gpio_desc *stop_gpio,
 			      uint stop_delay_ms, uint stop_off_delay_ms);
 
+/**
+ * acpi_device_infer_name() - Infer the name from its uclass or parent
+ *
+ * Many ACPI devices have a standard name that can be inferred from the uclass
+ * they are in, or the uclass of their parent. These rules are implemented in
+ * this function. It attempts to produce a name for a device based on these
+ * rules.
+ *
+ * NOTE: This currently supports only x86 devices. Feel free to enhance it for
+ * other architectures as needed.
+ *
+ * @dev: Device to check
+ * @out_name: Place to put the name (must hold ACPI_NAME_MAX bytes)
+ * @return 0 if a name was found, -ENOENT if not found, -ENXIO if the device
+ *	sequence number could not be determined
+ */
+int acpi_device_infer_name(const struct udevice *dev, char *out_name);
+
 #endif

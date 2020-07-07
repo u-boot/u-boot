@@ -113,6 +113,7 @@
 		int-array = <5678 9123 4567>;
 		str-value = "test string";
 		interrupts-extended = <&irq 3 0>;
+		acpi,name = "GHIJ";
 	};
 
 	junk {
