@@ -14,6 +14,9 @@
 
 struct acpi_ctx;
 
+/* Top 4 bits of the value used to indicate a three-byte length value */
+#define ACPI_PKG_LEN_3_BYTES	0x80
+
 /**
  * acpigen_get_current() - Get the current ACPI code output pointer
  *
@@ -64,5 +67,43 @@ void acpigen_emit_stream(struct acpi_ctx *ctx, const char *data, int size);
  * @str: String to output, or NULL for an empty string
  */
 void acpigen_emit_string(struct acpi_ctx *ctx, const char *str);
+
+/**
+ * acpigen_write_len_f() - Write a 'forward' length placeholder
+ *
+ * This adds space for a length value in the ACPI stream and pushes the current
+ * position (before the length) on the stack. After calling this you can write
+ * some data and then call acpigen_pop_len() to update the length value.
+ *
+ * Usage:
+ *
+ *    acpigen_write_len_f() ------\
+ *    acpigen_write...()          |
+ *    acpigen_write...()          |
+ *      acpigen_write_len_f() --\ |
+ *      acpigen_write...()      | |
+ *      acpigen_write...()      | |
+ *      acpigen_pop_len() ------/ |
+ *    acpigen_write...()          |
+ *    acpigen_pop_len() ----------/
+ *
+ * See ACPI 6.3 section 20.2.4 Package Length Encoding
+ *
+ * This implementation always uses a 3-byte packet length for simplicity. It
+ * could be adjusted to support other lengths.
+ *
+ * @ctx: ACPI context pointer
+ */
+void acpigen_write_len_f(struct acpi_ctx *ctx);
+
+/**
+ * acpigen_pop_len() - Update the previously stacked length placeholder
+ *
+ * Call this after the data for the block has been written. It updates the
+ * top length value in the stack and pops it off.
+ *
+ * @ctx: ACPI context pointer
+ */
+void acpigen_pop_len(struct acpi_ctx *ctx);
 
 #endif

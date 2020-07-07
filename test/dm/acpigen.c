@@ -25,7 +25,7 @@
 #define TEST_STRING	"frogmore"
 #define TEST_STREAM2	"\xfa\xde"
 
-static int alloc_context(struct acpi_ctx **ctxp)
+static int alloc_context_size(struct acpi_ctx **ctxp, int size)
 {
 	struct acpi_ctx *ctx;
 
@@ -33,15 +33,21 @@ static int alloc_context(struct acpi_ctx **ctxp)
 	ctx = malloc(sizeof(*ctx));
 	if (!ctx)
 		return -ENOMEM;
-	ctx->base = malloc(ACPI_CONTEXT_SIZE);
+	ctx->base = malloc(size);
 	if (!ctx->base) {
 		free(ctx);
 		return -ENOMEM;
 	}
+	ctx->ltop = 0;
 	ctx->current = ctx->base;
 	*ctxp = ctx;
 
 	return 0;
+}
+
+static int alloc_context(struct acpi_ctx **ctxp)
+{
+	return alloc_context_size(ctxp, ACPI_CONTEXT_SIZE);
 }
 
 static void free_context(struct acpi_ctx **ctxp)
@@ -344,3 +350,57 @@ static int dm_test_acpi_spi(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_acpi_spi, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/**
+ * get_length() - decode a three-byte length field
+ *
+ * @ptr: Length encoded as per ACPI
+ * @return decoded length, or -EINVAL on error
+ */
+static int get_length(u8 *ptr)
+{
+	if (!(*ptr & 0x80))
+		return -EINVAL;
+
+	return (*ptr & 0xf) | ptr[1] << 4 | ptr[2] << 12;
+}
+
+/* Test emitting a length */
+static int dm_test_acpi_len(struct unit_test_state *uts)
+{
+	const int size = 0xc0000;
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+	int i;
+
+	ut_assertok(alloc_context_size(&ctx, size));
+
+	ptr = acpigen_get_current(ctx);
+
+	/* Write a byte and a 3-byte length */
+	acpigen_write_len_f(ctx);
+	acpigen_emit_byte(ctx, 0x23);
+	acpigen_pop_len(ctx);
+	ut_asserteq(1 + 3, get_length(ptr));
+
+	/* Write 200 bytes so we need two length bytes */
+	ptr = ctx->current;
+	acpigen_write_len_f(ctx);
+	for (i = 0; i < 200; i++)
+		acpigen_emit_byte(ctx, 0x23);
+	acpigen_pop_len(ctx);
+	ut_asserteq(200 + 3, get_length(ptr));
+
+	/* Write 40KB so we need three length bytes */
+	ptr = ctx->current;
+	acpigen_write_len_f(ctx);
+	for (i = 0; i < 40000; i++)
+		acpigen_emit_byte(ctx, 0x23);
+	acpigen_pop_len(ctx);
+	ut_asserteq(40000 + 3, get_length(ptr));
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_len, 0);
