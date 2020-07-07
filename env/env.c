@@ -201,7 +201,9 @@ int env_load(void)
 			printf("OK\n");
 			gd->env_load_prio = prio;
 
+#if !CONFIG_IS_ENABLED(ENV_APPEND)
 			return 0;
+#endif
 		} else if (ret == -ENOMSG) {
 			/* Handle "bad CRC" case */
 			if (best_prio == -1)

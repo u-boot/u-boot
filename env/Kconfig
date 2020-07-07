@@ -614,6 +614,15 @@ config DELAY_ENVIRONMENT
 	  later by U-Boot code. With CONFIG_OF_CONTROL this is instead
 	  controlled by the value of /config/load-environment.
 
+config ENV_APPEND
+	bool "Always append the environment with new data"
+	default n
+	help
+	  If defined, the environment hash table is only ever appended with new
+	  data, but the existing hash table can never be dropped and reloaded
+	  with newly imported data. This may be used in combination with static
+	  flags to e.g. to protect variables which must not be modified.
+
 config ENV_ACCESS_IGNORE_FORCE
 	bool "Block forced environment operations"
 	default n

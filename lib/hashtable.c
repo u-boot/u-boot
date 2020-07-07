@@ -826,6 +826,10 @@ int himport_r(struct hsearch_data *htab,
 	if (nvars)
 		memcpy(localvars, vars, sizeof(vars[0]) * nvars);
 
+#if CONFIG_IS_ENABLED(ENV_APPEND)
+	flag |= H_NOCLEAR;
+#endif
+
 	if ((flag & H_NOCLEAR) == 0 && !nvars) {
 		/* Destroy old hash table if one exists */
 		debug("Destroy Hash Table: %p table = %p\n", htab,
