@@ -404,3 +404,30 @@ static int dm_test_acpi_len(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_acpi_len, 0);
+
+/* Test writing a package */
+static int dm_test_acpi_package(struct unit_test_state *uts)
+{
+	struct acpi_ctx *ctx;
+	char *num_elements;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+
+	num_elements = acpigen_write_package(ctx, 3);
+	ut_asserteq_ptr(num_elements, ptr + 4);
+
+	/* For ease of testing, just emit a byte, not valid package contents */
+	acpigen_emit_byte(ctx, 0x23);
+	acpigen_pop_len(ctx);
+	ut_asserteq(PACKAGE_OP, ptr[0]);
+	ut_asserteq(5, get_length(ptr + 1));
+	ut_asserteq(3, ptr[4]);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_package, 0);

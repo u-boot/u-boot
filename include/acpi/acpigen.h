@@ -17,6 +17,11 @@ struct acpi_ctx;
 /* Top 4 bits of the value used to indicate a three-byte length value */
 #define ACPI_PKG_LEN_3_BYTES	0x80
 
+/* ACPI Op/Prefix codes */
+enum {
+	PACKAGE_OP		= 0x12,
+};
+
 /**
  * acpigen_get_current() - Get the current ACPI code output pointer
  *
@@ -105,5 +110,32 @@ void acpigen_write_len_f(struct acpi_ctx *ctx);
  * @ctx: ACPI context pointer
  */
 void acpigen_pop_len(struct acpi_ctx *ctx);
+
+/**
+ * acpigen_write_package() - Start writing a package
+ *
+ * A package collects together a number of elements in the ACPI code. To write
+ * a package use:
+ *
+ * acpigen_write_package(ctx, 3);
+ * ...write things
+ * acpigen_pop_len()
+ *
+ * If you don't know the number of elements in advance, acpigen_write_package()
+ * returns a pointer to the value so you can update it later:
+ *
+ * char *num_elements = acpigen_write_package(ctx, 0);
+ * ...write things
+ * *num_elements += 1;
+ * ...write things
+ * *num_elements += 1;
+ * acpigen_pop_len()
+ *
+ * @ctx: ACPI context pointer
+ * @nr_el: Number of elements (0 if not known)
+ * @returns pointer to the number of elements, which can be updated by the
+ *	caller if needed
+ */
+char *acpigen_write_package(struct acpi_ctx *ctx, int nr_el);
 
 #endif

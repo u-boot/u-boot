@@ -71,6 +71,18 @@ void acpigen_pop_len(struct acpi_ctx *ctx)
 	p[2] = len >> 12 & 0xff;
 }
 
+char *acpigen_write_package(struct acpi_ctx *ctx, int nr_el)
+{
+	char *p;
+
+	acpigen_emit_byte(ctx, PACKAGE_OP);
+	acpigen_write_len_f(ctx);
+	p = ctx->current;
+	acpigen_emit_byte(ctx, nr_el);
+
+	return p;
+}
+
 void acpigen_emit_stream(struct acpi_ctx *ctx, const char *data, int size)
 {
 	int i;
