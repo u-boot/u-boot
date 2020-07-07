@@ -445,10 +445,16 @@ static inline void set_dacr(unsigned int val)
 #define TTBCR_EPD0		(0 << 7)
 
 /*
- * Memory types
+ * VMSAv8-32 Long-descriptor format memory region attributes
+ * (ARM Architecture Reference Manual section G5.7.4 [DDI0487E.a])
+ *
+ * MAIR0[ 7: 0] 0x00 Device-nGnRnE (aka Strongly-Ordered)
+ * MAIR0[15: 8] 0xaa Outer/Inner Write-Through, Read-Allocate No Write-Allocate
+ * MAIR0[23:16] 0xee Outer/Inner Write-Back, Read-Allocate No Write-Allocate
+ * MAIR0[31:24] 0xff Outer/Inner Write-Back, Read-Allocate Write-Allocate
  */
-#define MEMORY_ATTRIBUTES	((0x00 << (0 * 8)) | (0x88 << (1 * 8)) | \
-				 (0xcc << (2 * 8)) | (0xff << (3 * 8)))
+#define MEMORY_ATTRIBUTES	((0x00 << (0 * 8)) | (0xaa << (1 * 8)) | \
+				 (0xee << (2 * 8)) | (0xff << (3 * 8)))
 
 /* options available for data cache on each page */
 enum dcache_option {
@@ -471,7 +477,16 @@ enum dcache_option {
 #define TTB_SECT_B_MASK		(1 << 2)
 #define TTB_SECT			(2 << 0)
 
-/* options available for data cache on each page */
+/*
+ * Short-descriptor format memory region attributes, without TEX remap
+ * (ARM Architecture Reference Manual section G5.7.2 [DDI0487E.a])
+ *
+ * TEX[0] C  B
+ *   0    0  0   Device-nGnRnE (aka Strongly-Ordered)
+ *   0    1  0   Outer/Inner Write-Through, Read-Allocate No Write-Allocate
+ *   0    1  1   Outer/Inner Write-Back, Read-Allocate No Write-Allocate
+ *   1    1  1   Outer/Inner Write-Back, Read-Allocate Write-Allocate
+ */
 enum dcache_option {
 	DCACHE_OFF = TTB_SECT_DOMAIN(0) | TTB_SECT_XN_MASK | TTB_SECT,
 	DCACHE_WRITETHROUGH = DCACHE_OFF | TTB_SECT_C_MASK,
