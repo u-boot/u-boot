@@ -82,11 +82,31 @@ struct acpi_ops {
 	 * whatever ACPI code is needed by this device. It will end up in the
 	 * SSDT table.
 	 *
+	 * Note that this is called 'fill' because the entire contents of the
+	 * SSDT is build by calling this method on all devices.
+	 *
 	 * @dev: Device to write
 	 * @ctx: ACPI context to use
 	 * @return 0 if OK, -ve on error
 	 */
 	int (*fill_ssdt)(const struct udevice *dev, struct acpi_ctx *ctx);
+
+	/**
+	 * inject_dsdt() - Generate DSDT code for a device
+	 *
+	 * This is called to create the DSDT code. The method should write out
+	 * whatever ACPI code is needed by this device. It will end up in the
+	 * DSDT table.
+	 *
+	 * Note that this is called 'inject' because the output of calling this
+	 * method on all devices is injected into the DSDT, the bulk of which
+	 * is written in .asl files for the board.
+	 *
+	 * @dev: Device to write
+	 * @ctx: ACPI context to use
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*inject_dsdt)(const struct udevice *dev, struct acpi_ctx *ctx);
 };
 
 #define device_get_acpi_ops(dev)	((dev)->driver->acpi_ops)
@@ -140,6 +160,16 @@ int acpi_write_dev_tables(struct acpi_ctx *ctx);
  * @return 0 if OK, -ve on error
  */
 int acpi_fill_ssdt(struct acpi_ctx *ctx);
+
+/**
+ * acpi_inject_dsdt() - Generate ACPI tables for DSDT
+ *
+ * This is called to create the DSDT code for all devices.
+ *
+ * @ctx: ACPI context to use
+ * @return 0 if OK, -ve on error
+ */
+int acpi_inject_dsdt(struct acpi_ctx *ctx);
 
 #endif /* __ACPI__ */
 

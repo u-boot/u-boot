@@ -81,10 +81,24 @@ static int testacpi_fill_ssdt(const struct udevice *dev, struct acpi_ctx *ctx)
 	return 0;
 }
 
+static int testacpi_inject_dsdt(const struct udevice *dev, struct acpi_ctx *ctx)
+{
+	const char *data;
+
+	data = dev_read_string(dev, "acpi-dsdt-test-data");
+	if (data) {
+		while (*data)
+			acpigen_emit_byte(ctx, *data++);
+	}
+
+	return 0;
+}
+
 struct acpi_ops testacpi_ops = {
 	.get_name	= testacpi_get_name,
 	.write_tables	= testacpi_write_tables,
 	.fill_ssdt	= testacpi_fill_ssdt,
+	.inject_dsdt	= testacpi_inject_dsdt,
 };
 
 static const struct udevice_id testacpi_ids[] = {
@@ -441,3 +455,33 @@ static int dm_test_acpi_fill_ssdt(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_acpi_fill_ssdt, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test acpi_inject_dsdt() */
+static int dm_test_acpi_inject_dsdt(struct unit_test_state *uts)
+{
+	struct acpi_ctx ctx;
+	u8 *buf;
+
+	buf = malloc(BUF_SIZE);
+	ut_assertnonnull(buf);
+
+	ctx.current = buf;
+	buf[4] = 'z';	/* sentinel */
+	ut_assertok(acpi_inject_dsdt(&ctx));
+
+	/*
+	 * These values come from acpi-test's acpi-dsdt-test-data property.
+	 * There is no u-boot,acpi-dsdt-order so device-tree order is used.
+	 */
+	ut_asserteq('h', buf[0]);
+	ut_asserteq('i', buf[1]);
+
+	/* These values come from acpi-test's acpi-dsdt-test-data property */
+	ut_asserteq('j', buf[2]);
+	ut_asserteq('k', buf[3]);
+
+	ut_asserteq('z', buf[4]);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_inject_dsdt, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
