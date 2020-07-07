@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <init.h>
@@ -92,6 +93,12 @@ void *board_fdt_blob_setup(void)
 {
 	/* QEMU loads a generated DTB for us at the start of RAM. */
 	return (void *)CONFIG_SYS_SDRAM_BASE;
+}
+
+void enable_caches(void)
+{
+	 icache_enable();
+	 dcache_enable();
 }
 
 #if defined(CONFIG_EFI_RNG_PROTOCOL)
