@@ -17,6 +17,7 @@
 #include <linux/bitops.h>
 #include <linux/io.h>
 #include <linux/iopoll.h>
+#include <asm/arch/sys_proto.h>
 #include <dt-bindings/clock/stm32mp1-clks.h>
 #include <dt-bindings/clock/stm32mp1-clksrc.h>
 
@@ -644,8 +645,18 @@ static const struct stm32mp1_clk_sel stm32mp1_clk_sel[_PARENT_SEL_NB] = {
 };
 
 #ifdef STM32MP1_CLOCK_TREE_INIT
+
 /* define characteristic of PLL according type */
+#define DIVM_MIN	0
+#define DIVM_MAX	63
 #define DIVN_MIN	24
+#define DIVP_MIN	0
+#define DIVP_MAX	127
+#define FRAC_MAX	8192
+
+#define PLL1600_VCO_MIN	800000000
+#define PLL1600_VCO_MAX	1600000000
+
 static const struct stm32mp1_pll stm32mp1_pll[PLL_TYPE_NB] = {
 	[PLL_800] = {
 		.refclk_min = 4,
@@ -1190,6 +1201,213 @@ static ulong stm32mp1_clk_get_rate(struct clk *clk)
 }
 
 #ifdef STM32MP1_CLOCK_TREE_INIT
+
+bool stm32mp1_supports_opp(u32 opp_id, u32 cpu_type)
+{
+	unsigned int id;
+
+	switch (opp_id) {
+	case 1:
+	case 2:
+		id = opp_id;
+		break;
+	default:
+		id = 1; /* default value */
+		break;
+	}
+
+	switch (cpu_type) {
+	case CPU_STM32MP157Fxx:
+	case CPU_STM32MP157Dxx:
+	case CPU_STM32MP153Fxx:
+	case CPU_STM32MP153Dxx:
+	case CPU_STM32MP151Fxx:
+	case CPU_STM32MP151Dxx:
+		return true;
+	default:
+		return id == 1;
+	}
+}
+
+__weak void board_vddcore_init(u32 voltage_mv)
+{
+}
+
+/*
+ * gets OPP parameters (frequency in KHz and voltage in mV) from
+ * an OPP table subnode. Platform HW support capabilities are also checked.
+ * Returns 0 on success and a negative FDT error code on failure.
+ */
+static int stm32mp1_get_opp(u32 cpu_type, ofnode subnode,
+			    u32 *freq_khz, u32 *voltage_mv)
+{
+	u32 opp_hw;
+	u64 read_freq_64;
+	u32 read_voltage_32;
+
+	*freq_khz = 0;
+	*voltage_mv = 0;
+
+	opp_hw = ofnode_read_u32_default(subnode, "opp-supported-hw", 0);
+	if (opp_hw)
+		if (!stm32mp1_supports_opp(opp_hw, cpu_type))
+			return -FDT_ERR_BADVALUE;
+
+	read_freq_64 = ofnode_read_u64_default(subnode, "opp-hz", 0) /
+		       1000ULL;
+	read_voltage_32 = ofnode_read_u32_default(subnode, "opp-microvolt", 0) /
+			  1000U;
+
+	if (!read_voltage_32 || !read_freq_64)
+		return -FDT_ERR_NOTFOUND;
+
+	/* Frequency value expressed in KHz must fit on 32 bits */
+	if (read_freq_64 > U32_MAX)
+		return -FDT_ERR_BADVALUE;
+
+	/* Millivolt value must fit on 16 bits */
+	if (read_voltage_32 > U16_MAX)
+		return -FDT_ERR_BADVALUE;
+
+	*freq_khz = (u32)read_freq_64;
+	*voltage_mv = read_voltage_32;
+
+	return 0;
+}
+
+/*
+ * parses OPP table in DT and finds the parameters for the
+ * highest frequency supported by the HW platform.
+ * Returns 0 on success and a negative FDT error code on failure.
+ */
+int stm32mp1_get_max_opp_freq(struct stm32mp1_clk_priv *priv, u64 *freq_hz)
+{
+	ofnode node, subnode;
+	int ret;
+	u32 freq = 0U, voltage = 0U;
+	u32 cpu_type = get_cpu_type();
+
+	node = ofnode_by_compatible(ofnode_null(), "operating-points-v2");
+	if (!ofnode_valid(node))
+		return -FDT_ERR_NOTFOUND;
+
+	ofnode_for_each_subnode(subnode, node) {
+		unsigned int read_freq;
+		unsigned int read_voltage;
+
+		ret = stm32mp1_get_opp(cpu_type, subnode,
+				       &read_freq, &read_voltage);
+		if (ret)
+			continue;
+
+		if (read_freq > freq) {
+			freq = read_freq;
+			voltage = read_voltage;
+		}
+	}
+
+	if (!freq || !voltage)
+		return -FDT_ERR_NOTFOUND;
+
+	*freq_hz = (u64)1000U * freq;
+	board_vddcore_init(voltage);
+
+	return 0;
+}
+
+static int stm32mp1_pll1_opp(struct stm32mp1_clk_priv *priv, int clksrc,
+			     u32 *pllcfg, u32 *fracv)
+{
+	u32 post_divm;
+	u32 input_freq;
+	u64 output_freq;
+	u64 freq;
+	u64 vco;
+	u32 divm, divn, divp, frac;
+	int i, ret;
+	u32 diff;
+	u32 best_diff = U32_MAX;
+
+	/* PLL1 is 1600 */
+	const u32 DIVN_MAX = stm32mp1_pll[PLL_1600].divn_max;
+	const u32 POST_DIVM_MIN = stm32mp1_pll[PLL_1600].refclk_min * 1000000U;
+	const u32 POST_DIVM_MAX = stm32mp1_pll[PLL_1600].refclk_max * 1000000U;
+
+	ret = stm32mp1_get_max_opp_freq(priv, &output_freq);
+	if (ret) {
+		debug("PLL1 OPP configuration not found (%d).\n", ret);
+		return ret;
+	}
+
+	switch (clksrc) {
+	case CLK_PLL12_HSI:
+		input_freq = stm32mp1_clk_get_fixed(priv, _HSI);
+		break;
+	case CLK_PLL12_HSE:
+		input_freq = stm32mp1_clk_get_fixed(priv, _HSE);
+		break;
+	default:
+		return -EINTR;
+	}
+
+	/* Following parameters have always the same value */
+	pllcfg[PLLCFG_Q] = 0;
+	pllcfg[PLLCFG_R] = 0;
+	pllcfg[PLLCFG_O] = PQR(1, 0, 0);
+
+	for (divm = DIVM_MAX; divm >= DIVM_MIN; divm--)	{
+		post_divm = (u32)(input_freq / (divm + 1));
+		if (post_divm < POST_DIVM_MIN || post_divm > POST_DIVM_MAX)
+			continue;
+
+		for (divp = DIVP_MIN; divp <= DIVP_MAX; divp++) {
+			freq = output_freq * (divm + 1) * (divp + 1);
+			divn = (u32)((freq / input_freq) - 1);
+			if (divn < DIVN_MIN || divn > DIVN_MAX)
+				continue;
+
+			frac = (u32)(((freq * FRAC_MAX) / input_freq) -
+				     ((divn + 1) * FRAC_MAX));
+			/* 2 loops to refine the fractional part */
+			for (i = 2; i != 0; i--) {
+				if (frac > FRAC_MAX)
+					break;
+
+				vco = (post_divm * (divn + 1)) +
+				      ((post_divm * (u64)frac) /
+				       FRAC_MAX);
+				if (vco < (PLL1600_VCO_MIN / 2) ||
+				    vco > (PLL1600_VCO_MAX / 2)) {
+					frac++;
+					continue;
+				}
+				freq = vco / (divp + 1);
+				if (output_freq < freq)
+					diff = (u32)(freq - output_freq);
+				else
+					diff = (u32)(output_freq - freq);
+				if (diff < best_diff)  {
+					pllcfg[PLLCFG_M] = divm;
+					pllcfg[PLLCFG_N] = divn;
+					pllcfg[PLLCFG_P] = divp;
+					*fracv = frac;
+
+					if (diff == 0)
+						return 0;
+
+					best_diff = diff;
+				}
+				frac++;
+			}
+		}
+	}
+
+	if (best_diff == U32_MAX)
+		return -1;
+
+	return 0;
+}
+
 static void stm32mp1_ls_osc_set(int enable, fdt_addr_t rcc, u32 offset,
 				u32 mask_on)
 {
@@ -1661,9 +1879,12 @@ static int stm32mp1_clktree(struct udevice *dev)
 	unsigned int clksrc[CLKSRC_NB];
 	unsigned int clkdiv[CLKDIV_NB];
 	unsigned int pllcfg[_PLL_NB][PLLCFG_NB];
-	ofnode plloff[_PLL_NB];
-	int ret, len;
-	uint i;
+	unsigned int pllfracv[_PLL_NB];
+	unsigned int pllcsg[_PLL_NB][PLLCSG_NB];
+	bool pllcfg_valid[_PLL_NB];
+	bool pllcsg_set[_PLL_NB];
+	int ret;
+	int i, len;
 	int lse_css = 0;
 	const u32 *pkcs_cell;
 
@@ -1683,16 +1904,43 @@ static int stm32mp1_clktree(struct udevice *dev)
 	/* check mandatory field in each pll */
 	for (i = 0; i < _PLL_NB; i++) {
 		char name[12];
+		ofnode node;
 
 		sprintf(name, "st,pll@%d", i);
-		plloff[i] = dev_read_subnode(dev, name);
-		if (!ofnode_valid(plloff[i]))
-			continue;
-		ret = ofnode_read_u32_array(plloff[i], "cfg",
-					    pllcfg[i], PLLCFG_NB);
-		if (ret < 0) {
-			debug("field cfg invalid: error %d\n", ret);
-			return -FDT_ERR_NOTFOUND;
+		node = dev_read_subnode(dev, name);
+		pllcfg_valid[i] = ofnode_valid(node);
+		pllcsg_set[i] = false;
+		if (pllcfg_valid[i]) {
+			debug("DT for PLL %d @ %s\n", i, name);
+			ret = ofnode_read_u32_array(node, "cfg",
+						    pllcfg[i], PLLCFG_NB);
+			if (ret < 0) {
+				debug("field cfg invalid: error %d\n", ret);
+				return -FDT_ERR_NOTFOUND;
+			}
+			pllfracv[i] = ofnode_read_u32_default(node, "frac", 0);
+
+			ret = ofnode_read_u32_array(node, "csg", pllcsg[i],
+						    PLLCSG_NB);
+			if (!ret) {
+				pllcsg_set[i] = true;
+			} else if (ret != -FDT_ERR_NOTFOUND) {
+				debug("invalid csg node for pll@%d res=%d\n",
+				      i, ret);
+				return ret;
+			}
+		} else if (i == _PLL1)	{
+			/* use OPP for PLL1 for A7 CPU */
+			debug("DT for PLL %d with OPP\n", i);
+			ret = stm32mp1_pll1_opp(priv,
+						clksrc[CLKSRC_PLL12],
+						pllcfg[i],
+						&pllfracv[i]);
+			if (ret) {
+				debug("PLL %d with OPP error = %d\n", i, ret);
+				return ret;
+			}
+			pllcfg_valid[i] = true;
 		}
 	}
 
@@ -1778,29 +2026,18 @@ static int stm32mp1_clktree(struct udevice *dev)
 	/* configure and start PLLs */
 	debug("configure PLLs\n");
 	for (i = 0; i < _PLL_NB; i++) {
-		u32 fracv;
-		u32 csg[PLLCSG_NB];
-
-		debug("configure PLL %d @ %d\n", i,
-		      ofnode_to_offset(plloff[i]));
-		if (!ofnode_valid(plloff[i]))
+		if (!pllcfg_valid[i])
 			continue;
-
-		fracv = ofnode_read_u32_default(plloff[i], "frac", 0);
-		pll_config(priv, i, pllcfg[i], fracv);
-		ret = ofnode_read_u32_array(plloff[i], "csg", csg, PLLCSG_NB);
-		if (!ret) {
-			pll_csg(priv, i, csg);
-		} else if (ret != -FDT_ERR_NOTFOUND) {
-			debug("invalid csg node for pll@%d res=%d\n", i, ret);
-			return ret;
-		}
+		debug("configure PLL %d\n", i);
+		pll_config(priv, i, pllcfg[i], pllfracv[i]);
+		if (pllcsg_set[i])
+			pll_csg(priv, i, pllcsg[i]);
 		pll_start(priv, i);
 	}
 
 	/* wait and start PLLs ouptut when ready */
 	for (i = 0; i < _PLL_NB; i++) {
-		if (!ofnode_valid(plloff[i]))
+		if (!pllcfg_valid[i])
 			continue;
 		debug("output PLL %d\n", i);
 		pll_output(priv, i, pllcfg[i][PLLCFG_O]);
@@ -2050,6 +2287,8 @@ static int stm32mp1_clk_probe(struct udevice *dev)
 	/* clock tree init is done only one time, before relocation */
 	if (!(gd->flags & GD_FLG_RELOC))
 		result = stm32mp1_clktree(dev);
+	if (result)
+		printf("clock tree initialization failed (%d)\n", result);
 #endif
 
 #ifndef CONFIG_SPL_BUILD

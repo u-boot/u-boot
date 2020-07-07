@@ -45,6 +45,17 @@ static const char * const pinmux_mode[PINMUX_MODE_COUNT] = {
 	"alt function",
 };
 
+static const char * const pinmux_output[] = {
+	[STM32_GPIO_PUPD_NO] = "bias-disable",
+	[STM32_GPIO_PUPD_UP] = "bias-pull-up",
+	[STM32_GPIO_PUPD_DOWN] = "bias-pull-down",
+};
+
+static const char * const pinmux_input[] = {
+	[STM32_GPIO_OTYPE_PP] = "drive-push-pull",
+	[STM32_GPIO_OTYPE_OD] = "drive-open-drain",
+};
+
 static int stm32_pinctrl_get_af(struct udevice *dev, unsigned int offset)
 {
 	struct stm32_gpio_priv *priv = dev_get_priv(dev);
@@ -182,10 +193,12 @@ static int stm32_pinctrl_get_pin_muxing(struct udevice *dev,
 					int size)
 {
 	struct udevice *gpio_dev;
+	struct stm32_gpio_priv *priv;
 	const char *label;
 	int mode;
 	int af_num;
 	unsigned int gpio_idx;
+	u32 pupd, otype;
 
 	/* look up for the bank which owns the requested pin */
 	gpio_dev = stm32_pinctrl_get_gpio_dev(dev, selector, &gpio_idx);
@@ -194,9 +207,9 @@ static int stm32_pinctrl_get_pin_muxing(struct udevice *dev,
 		return -ENODEV;
 
 	mode = gpio_get_raw_function(gpio_dev, gpio_idx, &label);
-
 	dev_dbg(dev, "selector = %d gpio_idx = %d mode = %d\n",
 		selector, gpio_idx, mode);
+	priv = dev_get_priv(gpio_dev);
 
 
 	switch (mode) {
@@ -211,9 +224,17 @@ static int stm32_pinctrl_get_pin_muxing(struct udevice *dev,
 		snprintf(buf, size, "%s %d", pinmux_mode[mode], af_num);
 		break;
 	case GPIOF_OUTPUT:
+		pupd = (readl(&priv->regs->pupdr) >> (gpio_idx * 2)) &
+		       PUPD_MASK;
+		snprintf(buf, size, "%s %s %s",
+			 pinmux_mode[mode], pinmux_output[pupd],
+			 label ? label : "");
+		break;
 	case GPIOF_INPUT:
-		snprintf(buf, size, "%s %s",
-			 pinmux_mode[mode], label ? label : "");
+		otype = (readl(&priv->regs->otyper) >> gpio_idx) & OTYPE_MSK;
+		snprintf(buf, size, "%s %s %s",
+			 pinmux_mode[mode], pinmux_input[otype],
+			 label ? label : "");
 		break;
 	}
 

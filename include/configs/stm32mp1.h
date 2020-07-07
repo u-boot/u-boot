@@ -123,7 +123,7 @@
  * for serial/usb: execute the stm32prog command
  * for mmc boot (eMMC, SD card), boot only on the same device
  * for nand or spi-nand boot, boot with on ubifs partition on UBI partition
- * for nor boot, use the default order
+ * for nor boot, use SD card = mmc0
  */
 #define STM32MP_BOOTCMD "bootcmd_stm32mp=" \
 	"echo \"Boot over ${boot_device}${boot_instance}!\";" \
@@ -136,6 +136,8 @@
 		"if test ${boot_device} = nand ||" \
 		  " test ${boot_device} = spi-nand ;" \
 		"then env set boot_targets ubifs0; fi;" \
+		"if test ${boot_device} = nor;" \
+		"then env set boot_targets mmc0; fi;" \
 		"run distro_bootcmd;" \
 	"fi;\0"
 
@@ -155,9 +157,7 @@
 	"splashimage=0xc4300000\0"  \
 	"ramdisk_addr_r=0xc4400000\0" \
 	"altbootcmd=run bootcmd\0" \
-	"env_default=1\0" \
-	"env_check=if test $env_default -eq 1;"\
-		" then env set env_default 0;env save;fi\0" \
+	"env_check=if env info -p -d; then env save; fi\0" \
 	STM32MP_BOOTCMD \
 	BOOTENV \
 	"boot_net_usb_start=true\0"

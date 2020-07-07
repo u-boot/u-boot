@@ -41,6 +41,7 @@
 #include <usb.h>
 #include <usb/dwc2_udc.h>
 #include <watchdog.h>
+#include "../../st/common/stpmic1.h"
 
 /* SYSCFG registers */
 #define SYSCFG_BOOTR		0x00
@@ -139,6 +140,7 @@ int checkboard(void)
 static u8 brdcode __section("data");
 static u8 ddr3code __section("data");
 static u8 somcode __section("data");
+static u32 opp_voltage_mv __section(".data");
 
 static void board_get_coding_straps(void)
 {
@@ -196,8 +198,16 @@ int board_stm32mp1_ddr_config_name_match(struct udevice *dev,
 	return -EINVAL;
 }
 
+void board_vddcore_init(u32 voltage_mv)
+{
+	if (IS_ENABLED(CONFIG_SPL_BUILD))
+		opp_voltage_mv = voltage_mv;
+}
+
 int board_early_init_f(void)
 {
+	if (IS_ENABLED(CONFIG_SPL_BUILD))
+		stpmic1_init(opp_voltage_mv);
 	board_get_coding_straps();
 
 	return 0;
@@ -513,17 +523,11 @@ static void board_init_fmc2(void)
 /* board dependent setup after realloc */
 int board_init(void)
 {
-	struct udevice *dev;
-
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = STM32_DDR_BASE + 0x100;
 
-	/* probe all PINCTRL for hog */
-	for (uclass_first_device(UCLASS_PINCTRL, &dev);
-	     dev;
-	     uclass_next_device(&dev)) {
-		pr_debug("probe pincontrol = %s\n", dev->name);
-	}
+	if (CONFIG_IS_ENABLED(DM_GPIO_HOG))
+		gpio_hog_probe_all();
 
 	board_key_check();
 

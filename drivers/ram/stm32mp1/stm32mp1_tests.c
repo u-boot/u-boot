@@ -14,10 +14,12 @@
 
 #define ADDR_INVALID	0xFFFFFFFF
 
+#define PATTERN_DEFAULT	"-"
+
 DECLARE_GLOBAL_DATA_PTR;
 
 static int get_bufsize(char *string, int argc, char *argv[], int arg_nb,
-		       size_t *bufsize, size_t default_size)
+		       size_t *bufsize, size_t default_size, size_t min_size)
 {
 	unsigned long value;
 
@@ -27,13 +29,14 @@ static int get_bufsize(char *string, int argc, char *argv[], int arg_nb,
 				arg_nb, argv[arg_nb]);
 			return -1;
 		}
-		if (value > STM32_DDR_SIZE || value == 0) {
-			sprintf(string, "invalid size %s", argv[arg_nb]);
+		if (value > STM32_DDR_SIZE || value < min_size) {
+			sprintf(string, "invalid size %s (min=%d)",
+				argv[arg_nb], min_size);
 			return -1;
 		}
-		if (value & 0x3) {
-			sprintf(string, "unaligned size %s",
-				argv[arg_nb]);
+		if (value & (min_size - 1)) {
+			sprintf(string, "unaligned size %s (min=%d)",
+				argv[arg_nb], min_size);
 			return -1;
 		}
 		*bufsize = value;
@@ -102,6 +105,10 @@ static int get_pattern(char *string, int argc, char *argv[], int arg_nb,
 	unsigned long value;
 
 	if (argc > arg_nb) {
+		if (!strcmp(argv[arg_nb], PATTERN_DEFAULT)) {
+			*pattern = default_pattern;
+			return 0;
+		}
 		if (strict_strtoul(argv[arg_nb], 16, &value) < 0) {
 			sprintf(string, "invalid %d parameter %s",
 				arg_nb, argv[arg_nb]);
@@ -441,7 +448,7 @@ static enum test_result test_addressbus(struct stm32mp1_ddrctl *ctl,
 	u32 bufsize;
 	u32 error;
 
-	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024))
+	if (get_bufsize(string, argc, argv, 0, &bufsize, STM32_DDR_SIZE, 4))
 		return TEST_ERROR;
 	if (!is_power_of_2(bufsize)) {
 		sprintf(string, "size 0x%x is not a power of 2",
@@ -451,6 +458,7 @@ static enum test_result test_addressbus(struct stm32mp1_ddrctl *ctl,
 	if (get_addr(string, argc, argv, 1, &addr))
 		return TEST_ERROR;
 
+	printf("running at 0x%08x length 0x%x\n", addr, bufsize);
 	error = (u32)addressbus((u32 *)addr, bufsize);
 	if (error) {
 		sprintf(string, "0x%x: error for address 0x%x",
@@ -470,7 +478,7 @@ static enum test_result test_memdevice(struct stm32mp1_ddrctl *ctl,
 	size_t bufsize;
 	u32 error;
 
-	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024))
+	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024, 4))
 		return TEST_ERROR;
 	if (get_addr(string, argc, argv, 1, &addr))
 		return TEST_ERROR;
@@ -512,7 +520,7 @@ static enum test_result test_sso(struct stm32mp1_ddrctl *ctl,
 	u32 error = 0;
 	u32 data;
 
-	if (get_bufsize(string, argc, argv, 0, &bufsize, 4))
+	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024, 4))
 		return TEST_ERROR;
 	if (get_addr(string, argc, argv, 1, &addr))
 		return TEST_ERROR;
@@ -584,7 +592,7 @@ static enum test_result test_random(struct stm32mp1_ddrctl *ctl,
 	u32 error = 0;
 	unsigned int seed;
 
-	if (get_bufsize(string, argc, argv, 0, &bufsize, 8 * 1024))
+	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024, 8))
 		return TEST_ERROR;
 	if (get_nb_loop(string, argc, argv, 1, &nb_loop, 1))
 		return TEST_ERROR;
@@ -744,7 +752,7 @@ static enum test_result test_noise_burst(struct stm32mp1_ddrctl *ctl,
 	int i;
 	enum test_result res = TEST_PASSED;
 
-	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024))
+	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024, 128))
 		return TEST_ERROR;
 	if (get_pattern(string, argc, argv, 1, &pattern, 0xFFFFFFFF))
 		return TEST_ERROR;
@@ -918,9 +926,11 @@ static enum test_result test_freq_pattern(struct stm32mp1_ddrctl *ctl,
 	enum test_result res = TEST_PASSED, pattern_res;
 	int i, bus_width;
 	const u32 **patterns;
-	u32 bufsize;
+	u32 bufsize, addr;
 
-	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024))
+	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024, 128))
+		return TEST_ERROR;
+	if (get_addr(string, argc, argv, 1, &addr))
 		return TEST_ERROR;
 
 	switch (readl(&ctl->mstr) & DDRCTRL_MSTR_DATA_BUS_WIDTH_MASK) {
@@ -934,15 +944,14 @@ static enum test_result test_freq_pattern(struct stm32mp1_ddrctl *ctl,
 	}
 
 	printf("running test pattern at 0x%08x length 0x%x width = %d\n",
-	       STM32_DDR_BASE, bufsize, bus_width);
+	       addr, bufsize, bus_width);
 
 	patterns =
 		(const u32 **)(bus_width == 16 ? patterns_x16 : patterns_x32);
 
 	for (i = 0; i < NB_PATTERN; i++) {
 		printf("test data pattern %s:", patterns_comments[i]);
-		pattern_res = test_loop(patterns[i], (u32 *)STM32_DDR_BASE,
-					bufsize);
+		pattern_res = test_loop(patterns[i], (u32 *)addr, bufsize);
 		if (pattern_res != TEST_PASSED)	{
 			printf("Failed\n");
 			return pattern_res;
@@ -1007,7 +1016,7 @@ static enum test_result test_checkboard(struct stm32mp1_ddrctl *ctl,
 
 	u32 checkboard[2] = {0x55555555, 0xAAAAAAAA};
 
-	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024))
+	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024, 8))
 		return TEST_ERROR;
 	if (get_nb_loop(string, argc, argv, 1, &nb_loop, 1))
 		return TEST_ERROR;
@@ -1042,7 +1051,7 @@ static enum test_result test_blockseq(struct stm32mp1_ddrctl *ctl,
 	u32 bufsize, nb_loop, loop = 0, addr, value;
 	int i;
 
-	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024))
+	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024, 4))
 		return TEST_ERROR;
 	if (get_nb_loop(string, argc, argv, 1, &nb_loop, 1))
 		return TEST_ERROR;
@@ -1076,7 +1085,7 @@ static enum test_result test_walkbit0(struct stm32mp1_ddrctl *ctl,
 	u32 bufsize, nb_loop, loop = 0, addr, value;
 	int i;
 
-	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024))
+	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024, 4))
 		return TEST_ERROR;
 	if (get_nb_loop(string, argc, argv, 1, &nb_loop, 1))
 		return TEST_ERROR;
@@ -1114,7 +1123,7 @@ static enum test_result test_walkbit1(struct stm32mp1_ddrctl *ctl,
 	u32 bufsize, nb_loop, loop = 0, addr, value;
 	int i;
 
-	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024))
+	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024, 4))
 		return TEST_ERROR;
 	if (get_nb_loop(string, argc, argv, 1, &nb_loop, 1))
 		return TEST_ERROR;
@@ -1156,7 +1165,7 @@ static enum test_result test_bitspread(struct stm32mp1_ddrctl *ctl,
 	u32 bufsize, nb_loop, loop = 0, addr, bitspread[4];
 	int i, j;
 
-	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024))
+	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024, 32))
 		return TEST_ERROR;
 	if (get_nb_loop(string, argc, argv, 1, &nb_loop, 1))
 		return TEST_ERROR;
@@ -1203,7 +1212,7 @@ static enum test_result test_bitflip(struct stm32mp1_ddrctl *ctl,
 
 	u32 bitflip[4];
 
-	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024))
+	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024, 32))
 		return TEST_ERROR;
 	if (get_nb_loop(string, argc, argv, 1, &nb_loop, 1))
 		return TEST_ERROR;
@@ -1340,17 +1349,52 @@ static enum test_result test_all(struct stm32mp1_ddrctl *ctl,
 				 char *string, int argc, char *argv[])
 {
 	enum test_result res = TEST_PASSED, result;
-	int i, nb_error = 0;
+	int i, j, nb_error = 0, len;
 	u32 loop = 0, nb_loop;
+	int argc_test;
+	char *argv_test[4];
+	char loop_string[] = "1";
+	char pattern_string[] = PATTERN_DEFAULT;
+	u32 *addr;
 
 	if (get_nb_loop(string, argc, argv, 0, &nb_loop, 1))
+		return TEST_ERROR;
+
+	if (get_addr(string, argc, argv, 2, (u32 *)&addr))
 		return TEST_ERROR;
 
 	while (!nb_error) {
 		/* execute all the test except the lasts which are infinite */
 		for (i = 1; i < test_nb - NB_TEST_INFINITE; i++) {
+			argc_test = 0;
+			j = 0;
+			len = strlen(test[i].usage);
+			if (argc > 1 && j < len &&
+			    !strncmp("[size]", &test[i].usage[j], 6)) {
+				argv_test[argc_test++] = argv[1];
+				j += 7;
+			}
+			if (argc > 2) {
+				if (j < len &&
+				    !strncmp("[loop]", &test[i].usage[j], 6)) {
+					argv_test[argc_test++] = loop_string;
+					j += 7;
+				}
+				if (j < len &&
+				    !strncmp("[pattern]", &test[i].usage[j],
+					     9)) {
+					argv_test[argc_test++] = pattern_string;
+					j += 10;
+				}
+				if (j < len &&
+				    !strncmp("[addr]", &test[i].usage[j], 6)) {
+					argv_test[argc_test++] = argv[2];
+					j += 7;
+				}
+			}
 			printf("execute %d:%s\n", (int)i, test[i].name);
-			result = test[i].fct(ctl, phy, string, 0, NULL);
+			result = test[i].fct(ctl, phy, string,
+					     argc_test, argv_test);
 			printf("result %d:%s = ", (int)i, test[i].name);
 			if (result != TEST_PASSED) {
 				nb_error++;
@@ -1381,7 +1425,7 @@ static enum test_result test_all(struct stm32mp1_ddrctl *ctl,
  ****************************************************************/
 
 const struct test_desc test[] = {
-	{test_all, "All", "[loop]", "Execute all tests", 1 },
+	{test_all, "All", "[loop] [size] [addr]", "Execute all tests", 3 },
 	{test_databus, "Simple DataBus", "[addr]",
 	 "Verifies each data line by walking 1 on fixed address",
 	 1
@@ -1418,9 +1462,9 @@ const struct test_desc test[] = {
 	 "Verifies r/w and memcopy(burst for pseudo random value.",
 	 3
 	},
-	{test_freq_pattern, "FrequencySelectivePattern", "[size]",
+	{test_freq_pattern, "FrequencySelectivePattern", "[size] [addr]",
 	 "write & test patterns: Mostly Zero, Mostly One and F/n",
-	 1
+	 2
 	},
 	{test_blockseq, "BlockSequential", "[size] [loop] [addr]",
 	 "test incremental pattern",

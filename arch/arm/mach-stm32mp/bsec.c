@@ -8,6 +8,7 @@
 #include <log.h>
 #include <misc.h>
 #include <asm/io.h>
+#include <asm/arch/bsec.h>
 #include <asm/arch/stm32mp1_smc.h>
 #include <linux/arm-smccc.h>
 #include <linux/iopoll.h>
@@ -21,6 +22,7 @@
 #define BSEC_OTP_WRDATA_OFF		0x008
 #define BSEC_OTP_STATUS_OFF		0x00C
 #define BSEC_OTP_LOCK_OFF		0x010
+#define BSEC_DENABLE_OFF		0x014
 #define BSEC_DISTURBED_OFF		0x01C
 #define BSEC_ERROR_OFF			0x034
 #define BSEC_WRLOCK_OFF			0x04C /* OTP write permananet lock */
@@ -45,6 +47,9 @@
 #define BSEC_MODE_BUSY_MASK		0x08
 #define BSEC_MODE_PROGFAIL_MASK		0x10
 #define BSEC_MODE_PWR_MASK		0x20
+
+/* DENABLE Register */
+#define BSEC_DENABLE_DBGSWENABLE	BIT(10)
 
 /*
  * OTP Lock services definition
@@ -474,20 +479,23 @@ static int stm32mp_bsec_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
-#ifndef CONFIG_TFABOOT
 static int stm32mp_bsec_probe(struct udevice *dev)
 {
+#if !defined(CONFIG_TFABOOT) && !defined(CONFIG_SPL_BUILD)
 	int otp;
 	struct stm32mp_bsec_platdata *plat = dev_get_platdata(dev);
 
-	/* update unlocked shadow for OTP cleared by the rom code */
+	/*
+	 * update unlocked shadow for OTP cleared by the rom code
+	 * only executed in U-Boot proper when TF-A is not used
+	 */
 	for (otp = 57; otp <= BSEC_OTP_MAX_VALUE; otp++)
 		if (!bsec_read_SR_lock(plat->base, otp))
 			bsec_shadow_register(plat->base, otp);
+#endif
 
 	return 0;
 }
-#endif
 
 static const struct udevice_id stm32mp_bsec_ids[] = {
 	{ .compatible = "st,stm32mp15-bsec" },
@@ -501,7 +509,25 @@ U_BOOT_DRIVER(stm32mp_bsec) = {
 	.ofdata_to_platdata = stm32mp_bsec_ofdata_to_platdata,
 	.platdata_auto_alloc_size = sizeof(struct stm32mp_bsec_platdata),
 	.ops = &stm32mp_bsec_ops,
-#ifndef CONFIG_TFABOOT
 	.probe = stm32mp_bsec_probe,
-#endif
 };
+
+bool bsec_dbgswenable(void)
+{
+	struct udevice *dev;
+	struct stm32mp_bsec_platdata *plat;
+	int ret;
+
+	ret = uclass_get_device_by_driver(UCLASS_MISC,
+					  DM_GET_DRIVER(stm32mp_bsec), &dev);
+	if (ret || !dev) {
+		pr_debug("bsec driver not available\n");
+		return false;
+	}
+
+	plat = dev_get_platdata(dev);
+	if (readl(plat->base + BSEC_DENABLE_OFF) & BSEC_DENABLE_DBGSWENABLE)
+		return true;
+
+	return false;
+}

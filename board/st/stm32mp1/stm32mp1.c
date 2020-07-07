@@ -41,6 +41,8 @@
 #include <power/regulator.h>
 #include <usb/dwc2_udc.h>
 
+#include "../../st/common/stusb160x.h"
+
 /* SYSCFG registers */
 #define SYSCFG_BOOTR		0x00
 #define SYSCFG_PMCSETR		0x04
@@ -83,6 +85,12 @@ DECLARE_GLOBAL_DATA_PTR;
 #define USB_WARNING_LOW_THRESHOLD_UV	660000
 #define USB_START_LOW_THRESHOLD_UV	1230000
 #define USB_START_HIGH_THRESHOLD_UV	2150000
+
+int board_early_init_f(void)
+{
+	/* nothing to do, only used in SPL */
+	return 0;
+}
 
 int checkboard(void)
 {
@@ -175,64 +183,16 @@ static void board_key_check(void)
 }
 
 #if defined(CONFIG_USB_GADGET) && defined(CONFIG_USB_GADGET_DWC2_OTG)
-
-/* STMicroelectronics STUSB1600 Type-C controller */
-#define STUSB1600_CC_CONNECTION_STATUS		0x0E
-
-/* STUSB1600_CC_CONNECTION_STATUS bitfields */
-#define STUSB1600_CC_ATTACH			BIT(0)
-
-static int stusb1600_init(struct udevice **dev_stusb1600)
-{
-	ofnode node;
-	struct udevice *dev, *bus;
-	int ret;
-	u32 chip_addr;
-
-	*dev_stusb1600 = NULL;
-
-	/* if node stusb1600 is present, means DK1 or DK2 board */
-	node = ofnode_by_compatible(ofnode_null(), "st,stusb1600");
-	if (!ofnode_valid(node))
-		return -ENODEV;
-
-	ret = ofnode_read_u32(node, "reg", &chip_addr);
-	if (ret)
-		return -EINVAL;
-
-	ret = uclass_get_device_by_ofnode(UCLASS_I2C, ofnode_get_parent(node),
-					  &bus);
-	if (ret) {
-		printf("bus for stusb1600 not found\n");
-		return -ENODEV;
-	}
-
-	ret = dm_i2c_probe(bus, chip_addr, 0, &dev);
-	if (!ret)
-		*dev_stusb1600 = dev;
-
-	return ret;
-}
-
-static int stusb1600_cable_connected(struct udevice *dev)
-{
-	u8 status;
-
-	if (dm_i2c_read(dev, STUSB1600_CC_CONNECTION_STATUS, &status, 1))
-		return 0;
-
-	return status & STUSB1600_CC_ATTACH;
-}
-
 #include <usb/dwc2_udc.h>
 int g_dnl_board_usb_cable_connected(void)
 {
-	struct udevice *stusb1600;
 	struct udevice *dwc2_udc_otg;
 	int ret;
 
-	if (!stusb1600_init(&stusb1600))
-		return stusb1600_cable_connected(stusb1600);
+	/* if typec stusb160x is present, means DK1 or DK2 board */
+	ret = stusb160x_cable_connected();
+	if (ret >= 0)
+		return ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_USB_GADGET_GENERIC,
 					  DM_GET_DRIVER(dwc2_udc_otg),
@@ -664,17 +624,11 @@ static void board_ev1_init(void)
 /* board dependent setup after realloc */
 int board_init(void)
 {
-	struct udevice *dev;
-
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = STM32_DDR_BASE + 0x100;
 
-	/* probe all PINCTRL for hog */
-	for (uclass_first_device(UCLASS_PINCTRL, &dev);
-	     dev;
-	     uclass_next_device(&dev)) {
-		pr_debug("probe pincontrol = %s\n", dev->name);
-	}
+	if (CONFIG_IS_ENABLED(DM_GPIO_HOG))
+		gpio_hog_probe_all();
 
 	board_key_check();
 

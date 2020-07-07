@@ -65,7 +65,7 @@
 };
 
 &bsec {
-	u-boot,dm-pre-proper;
+	u-boot,dm-pre-reloc;
 };
 
 &clk_csi {
@@ -86,6 +86,16 @@
 
 &clk_lse {
 	u-boot,dm-pre-reloc;
+};
+
+&cpu0_opp_table {
+	u-boot,dm-spl;
+	opp-650000000 {
+		u-boot,dm-spl;
+	};
+	opp-800000000 {
+		u-boot,dm-spl;
+	};
 };
 
 &gpioa {

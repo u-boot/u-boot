@@ -74,15 +74,59 @@ static int stmfx_write(struct udevice *dev, uint offset, unsigned int val)
 	return dm_i2c_reg_write(dev_get_parent(dev), offset, val);
 }
 
-static int stmfx_gpio_get(struct udevice *dev, unsigned int offset)
+static int stmfx_read_reg(struct udevice *dev, u8 reg_base, uint offset)
 {
-	u32 reg = STMFX_REG_GPIO_STATE + get_reg(offset);
+	u8 reg = reg_base + get_reg(offset);
 	u32 mask = get_mask(offset);
 	int ret;
 
 	ret = stmfx_read(dev, reg);
+	if (ret < 0)
+		return ret;
 
 	return ret < 0 ? ret : !!(ret & mask);
+}
+
+static int stmfx_write_reg(struct udevice *dev, u8 reg_base, uint offset,
+			   uint val)
+{
+	u8 reg = reg_base + get_reg(offset);
+	u32 mask = get_mask(offset);
+	int ret;
+
+	ret = stmfx_read(dev, reg);
+	if (ret < 0)
+		return ret;
+	ret = (ret & ~mask) | (val ? mask : 0);
+
+	return stmfx_write(dev, reg, ret);
+}
+
+static int stmfx_conf_set_pupd(struct udevice *dev, unsigned int offset,
+			       uint pupd)
+{
+	return stmfx_write_reg(dev, STMFX_REG_GPIO_PUPD, offset, pupd);
+}
+
+static int stmfx_conf_get_pupd(struct udevice *dev, unsigned int offset)
+{
+	return stmfx_read_reg(dev, STMFX_REG_GPIO_PUPD, offset);
+}
+
+static int stmfx_conf_set_type(struct udevice *dev, unsigned int offset,
+			       uint type)
+{
+	return stmfx_write_reg(dev, STMFX_REG_GPIO_TYPE, offset, type);
+}
+
+static int stmfx_conf_get_type(struct udevice *dev, unsigned int offset)
+{
+	return stmfx_read_reg(dev, STMFX_REG_GPIO_TYPE, offset);
+}
+
+static int stmfx_gpio_get(struct udevice *dev, unsigned int offset)
+{
+	return stmfx_read_reg(dev, STMFX_REG_GPIO_STATE, offset);
 }
 
 static int stmfx_gpio_set(struct udevice *dev, unsigned int offset, int value)
@@ -95,50 +139,103 @@ static int stmfx_gpio_set(struct udevice *dev, unsigned int offset, int value)
 
 static int stmfx_gpio_get_function(struct udevice *dev, unsigned int offset)
 {
-	u32 reg = STMFX_REG_GPIO_DIR + get_reg(offset);
-	u32 mask = get_mask(offset);
-	int ret;
-
-	ret = stmfx_read(dev, reg);
+	int ret = stmfx_read_reg(dev, STMFX_REG_GPIO_DIR, offset);
 
 	if (ret < 0)
 		return ret;
 	/* On stmfx, gpio pins direction is (0)input, (1)output. */
 
-	return ret & mask ? GPIOF_OUTPUT : GPIOF_INPUT;
+	return ret ? GPIOF_OUTPUT : GPIOF_INPUT;
 }
 
 static int stmfx_gpio_direction_input(struct udevice *dev, unsigned int offset)
 {
-	u32 reg = STMFX_REG_GPIO_DIR + get_reg(offset);
-	u32 mask = get_mask(offset);
-	int ret;
-
-	ret = stmfx_read(dev, reg);
-	if (ret < 0)
-		return ret;
-
-	ret &= ~mask;
-
-	return stmfx_write(dev, reg, ret & ~mask);
+	return stmfx_write_reg(dev, STMFX_REG_GPIO_DIR, offset, 0);
 }
 
 static int stmfx_gpio_direction_output(struct udevice *dev,
 				       unsigned int offset, int value)
 {
-	u32 reg = STMFX_REG_GPIO_DIR + get_reg(offset);
-	u32 mask = get_mask(offset);
+	int ret = stmfx_gpio_set(dev, offset, value);
+	if (ret < 0)
+		return ret;
+
+	return stmfx_write_reg(dev, STMFX_REG_GPIO_DIR, offset, 1);
+}
+
+static int stmfx_gpio_set_dir_flags(struct udevice *dev, unsigned int offset,
+				    ulong flags)
+{
+	int ret = -ENOTSUPP;
+
+	if (flags & GPIOD_IS_OUT) {
+		if (flags & GPIOD_OPEN_SOURCE)
+			return -ENOTSUPP;
+		if (flags & GPIOD_OPEN_DRAIN)
+			ret = stmfx_conf_set_type(dev, offset, 0);
+		else /* PUSH-PULL */
+			ret = stmfx_conf_set_type(dev, offset, 1);
+		if (ret)
+			return ret;
+		ret = stmfx_gpio_direction_output(dev, offset,
+						  GPIOD_FLAGS_OUTPUT(flags));
+	} else if (flags & GPIOD_IS_IN) {
+		ret = stmfx_gpio_direction_input(dev, offset);
+		if (ret)
+			return ret;
+		if (flags & GPIOD_PULL_UP) {
+			ret = stmfx_conf_set_type(dev, offset, 1);
+			if (ret)
+				return ret;
+			ret = stmfx_conf_set_pupd(dev, offset, 1);
+		} else if (flags & GPIOD_PULL_DOWN) {
+			ret = stmfx_conf_set_type(dev, offset, 1);
+			if (ret)
+				return ret;
+			ret = stmfx_conf_set_pupd(dev, offset, 0);
+		}
+	}
+
+	return ret;
+}
+
+static int stmfx_gpio_get_dir_flags(struct udevice *dev, unsigned int offset,
+				    ulong *flags)
+{
+	ulong dir_flags = 0;
 	int ret;
 
-	ret = stmfx_gpio_set(dev, offset, value);
-	if (ret < 0)
-		return ret;
+	if (stmfx_gpio_get_function(dev, offset) == GPIOF_OUTPUT) {
+		dir_flags |= GPIOD_IS_OUT;
+		ret = stmfx_conf_get_type(dev, offset);
+		if (ret < 0)
+			return ret;
+		if (ret == 0)
+			dir_flags |= GPIOD_OPEN_DRAIN;
+			/* 1 = push-pull (default), open source not supported */
+		ret = stmfx_gpio_get(dev, offset);
+		if (ret < 0)
+			return ret;
+		if (ret)
+			dir_flags |= GPIOD_IS_OUT_ACTIVE;
+	} else {
+		dir_flags |= GPIOD_IS_IN;
+		ret = stmfx_conf_get_type(dev, offset);
+		if (ret < 0)
+			return ret;
+		if (ret == 1) {
+			ret = stmfx_conf_get_pupd(dev, offset);
+			if (ret < 0)
+				return ret;
+			if (ret == 1)
+				dir_flags |= GPIOD_PULL_UP;
+			else
+				dir_flags |= GPIOD_PULL_DOWN;
+		}
+	}
+	*flags = dir_flags;
 
-	ret = stmfx_read(dev, reg);
-	if (ret < 0)
-		return ret;
-
-	return stmfx_write(dev, reg, ret | mask);
+	return 0;
 }
 
 static int stmfx_gpio_probe(struct udevice *dev)
@@ -169,6 +266,8 @@ static const struct dm_gpio_ops stmfx_gpio_ops = {
 	.get_function = stmfx_gpio_get_function,
 	.direction_input = stmfx_gpio_direction_input,
 	.direction_output = stmfx_gpio_direction_output,
+	.set_dir_flags = stmfx_gpio_set_dir_flags,
+	.get_dir_flags = stmfx_gpio_get_dir_flags,
 };
 
 U_BOOT_DRIVER(stmfx_gpio) = {
@@ -190,36 +289,6 @@ static const struct pinconf_param stmfx_pinctrl_conf_params[] = {
 	{ "output-low", PIN_CONFIG_OUTPUT, 0 },
 };
 
-static int stmfx_pinctrl_set_pupd(struct udevice *dev,
-				  unsigned int pin, u32 pupd)
-{
-	u8 reg = STMFX_REG_GPIO_PUPD + get_reg(pin);
-	u32 mask = get_mask(pin);
-	int ret;
-
-	ret = stmfx_read(dev, reg);
-	if (ret < 0)
-		return ret;
-	ret = (ret & ~mask) | (pupd ? mask : 0);
-
-	return stmfx_write(dev, reg, ret);
-}
-
-static int stmfx_pinctrl_set_type(struct udevice *dev,
-				  unsigned int pin, u32 type)
-{
-	u8 reg = STMFX_REG_GPIO_TYPE + get_reg(pin);
-	u32 mask = get_mask(pin);
-	int ret;
-
-	ret = stmfx_read(dev, reg);
-	if (ret < 0)
-		return ret;
-	ret = (ret & ~mask) | (type ? mask : 0);
-
-	return stmfx_write(dev, reg, ret);
-}
-
 static int stmfx_pinctrl_conf_set(struct udevice *dev, unsigned int pin,
 				  unsigned int param, unsigned int arg)
 {
@@ -235,22 +304,22 @@ static int stmfx_pinctrl_conf_set(struct udevice *dev, unsigned int pin,
 	case PIN_CONFIG_BIAS_PULL_PIN_DEFAULT:
 	case PIN_CONFIG_BIAS_DISABLE:
 	case PIN_CONFIG_DRIVE_PUSH_PULL:
-		ret = stmfx_pinctrl_set_type(dev, pin, 0);
+		ret = stmfx_conf_set_type(dev, pin, 0);
 		break;
 	case PIN_CONFIG_BIAS_PULL_DOWN:
-		ret = stmfx_pinctrl_set_type(dev, pin, 1);
+		ret = stmfx_conf_set_type(dev, pin, 1);
 		if (ret)
 			return ret;
-		ret = stmfx_pinctrl_set_pupd(dev, pin, 0);
+		ret = stmfx_conf_set_pupd(dev, pin, 0);
 		break;
 	case PIN_CONFIG_BIAS_PULL_UP:
-		ret = stmfx_pinctrl_set_type(dev, pin, 1);
+		ret = stmfx_conf_set_type(dev, pin, 1);
 		if (ret)
 			return ret;
-		ret = stmfx_pinctrl_set_pupd(dev, pin, 1);
+		ret = stmfx_conf_set_pupd(dev, pin, 1);
 		break;
 	case PIN_CONFIG_DRIVE_OPEN_DRAIN:
-		ret = stmfx_pinctrl_set_type(dev, pin, 1);
+		ret = stmfx_conf_set_type(dev, pin, 1);
 		break;
 	case PIN_CONFIG_OUTPUT:
 		ret = stmfx_gpio_direction_output(plat->gpio, pin, arg);
@@ -289,6 +358,34 @@ static const char *stmfx_pinctrl_get_pin_name(struct udevice *dev,
 	return pin_name;
 }
 
+static const char *stmfx_pinctrl_get_pin_conf(struct udevice *dev,
+					      unsigned int pin, int func)
+{
+	int pupd, type;
+
+	type = stmfx_conf_get_type(dev, pin);
+	if (type < 0)
+		return "";
+
+	if (func == GPIOF_OUTPUT) {
+		if (type)
+			return "drive-open-drain";
+		else
+			return ""; /* default: push-pull*/
+	}
+	if (!type)
+		return ""; /* default: bias-disable*/
+
+	pupd = stmfx_conf_get_pupd(dev, pin);
+	if (pupd < 0)
+		return "";
+
+	if (pupd)
+		return "bias-pull-up";
+	else
+		return "bias-pull-down";
+}
+
 static int stmfx_pinctrl_get_pin_muxing(struct udevice *dev,
 					unsigned int selector,
 					char *buf, int size)
@@ -300,7 +397,9 @@ static int stmfx_pinctrl_get_pin_muxing(struct udevice *dev,
 	if (func < 0)
 		return func;
 
-	snprintf(buf, size, "%s", func == GPIOF_INPUT ? "input" : "output");
+	snprintf(buf, size, "%s ", func == GPIOF_INPUT ? "input" : "output");
+
+	strncat(buf, stmfx_pinctrl_get_pin_conf(dev, selector, func), size);
 
 	return 0;
 }
