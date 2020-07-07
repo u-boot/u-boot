@@ -382,7 +382,7 @@ bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
 
 	/* 3. Extra data excluding Certificates Table */
 	if (bytes_hashed + authsz < len) {
-		EFI_PRINT("extra data for hash: %lu\n",
+		EFI_PRINT("extra data for hash: %zu\n",
 			  len - (bytes_hashed + authsz));
 		efi_image_region_add(regs, efi + bytes_hashed,
 				     efi + len - authsz, 0);
