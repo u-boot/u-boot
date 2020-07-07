@@ -418,17 +418,17 @@ ulong write_acpi_tables(ulong start_addr)
 	acpi_create_fadt(fadt, facs, dsdt);
 	acpi_add_table(ctx, fadt);
 
-	debug("ACPI:    * MADT\n");
-	madt = ctx->current;
-	acpi_create_madt(madt);
-	acpi_inc_align(ctx, madt->header.length);
-	acpi_add_table(ctx, madt);
-
 	debug("ACPI:    * MCFG\n");
 	mcfg = ctx->current;
 	acpi_create_mcfg(mcfg);
 	acpi_inc_align(ctx, mcfg->header.length);
 	acpi_add_table(ctx, mcfg);
+
+	debug("ACPI:    * MADT\n");
+	madt = ctx->current;
+	acpi_create_madt(madt);
+	acpi_inc_align(ctx, madt->header.length);
+	acpi_add_table(ctx, madt);
 
 	debug("ACPI:    * CSRT\n");
 	csrt = ctx->current;
