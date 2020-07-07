@@ -174,7 +174,6 @@ config SYS_SOC
 
 source "board/logicpd/am3517evm/Kconfig"
 source "board/ti/beagle/Kconfig"
-source "board/compulab/cm_t35/Kconfig"
 source "board/timll/devkit8000/Kconfig"
 source "board/ti/evm/Kconfig"
 source "board/isee/igep00x0/Kconfig"
