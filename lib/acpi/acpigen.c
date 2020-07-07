@@ -11,6 +11,7 @@
 #include <common.h>
 #include <dm.h>
 #include <log.h>
+#include <uuid.h>
 #include <acpi/acpigen.h>
 #include <dm/acpi.h>
 
@@ -248,4 +249,41 @@ void acpigen_write_name(struct acpi_ctx *ctx, const char *namepath)
 {
 	acpigen_emit_byte(ctx, NAME_OP);
 	acpigen_emit_namestring(ctx, namepath);
+}
+
+/*
+ * ToUUID(uuid)
+ *
+ * ACPI 6.3 Section 19.6.142 table 19-438 defines a special output order for the
+ * bytes that make up a UUID Buffer object:
+ *
+ * UUID byte order for input to this function:
+ *   aabbccdd-eeff-gghh-iijj-kkllmmnnoopp
+ *
+ * UUID byte order output by this function:
+ *   ddccbbaa-ffee-hhgg-iijj-kkllmmnnoopp
+ */
+int acpigen_write_uuid(struct acpi_ctx *ctx, const char *uuid)
+{
+	u8 buf[UUID_BIN_LEN];
+	int ret;
+
+	/* Parse UUID string into bytes */
+	ret = uuid_str_to_bin(uuid, buf, UUID_STR_FORMAT_GUID);
+	if (ret)
+		return log_msg_ret("bad hex", -EINVAL);
+
+	/* BufferOp */
+	acpigen_emit_byte(ctx, BUFFER_OP);
+	acpigen_write_len_f(ctx);
+
+	/* Buffer length in bytes */
+	acpigen_write_word(ctx, UUID_BIN_LEN);
+
+	/* Output UUID in expected order */
+	acpigen_emit_stream(ctx, (char *)buf, UUID_BIN_LEN);
+
+	acpigen_pop_len(ctx);
+
+	return 0;
 }

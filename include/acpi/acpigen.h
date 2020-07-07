@@ -27,6 +27,7 @@ enum {
 	DWORD_PREFIX		= 0x0c,
 	STRING_PREFIX		= 0x0d,
 	QWORD_PREFIX		= 0x0e,
+	BUFFER_OP		= 0x11,
 	PACKAGE_OP		= 0x12,
 	DUAL_NAME_PREFIX	= 0x2e,
 	MULTI_NAME_PREFIX	= 0x2f,
@@ -190,4 +191,16 @@ void acpigen_emit_namestring(struct acpi_ctx *ctx, const char *namepath);
  * @namepath: Name / path to emit
  */
 void acpigen_write_name(struct acpi_ctx *ctx, const char *namepath);
+
+/**
+ * acpigen_write_uuid() - Write a UUID
+ *
+ * This writes out a UUID in the format used by ACPI, with a BUFFER_OP prefix.
+ *
+ * @ctx: ACPI context pointer
+ * @uuid: UUID to write in the form aabbccdd-eeff-gghh-iijj-kkllmmnnoopp
+ * @return 0 if OK, -EINVAL if the format is incorrect
+ */
+int acpigen_write_uuid(struct acpi_ctx *ctx, const char *uuid);
+
 #endif

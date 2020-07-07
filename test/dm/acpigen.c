@@ -598,3 +598,36 @@ static int dm_test_acpi_name(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_acpi_name, 0);
+
+/* Test writing a UUID */
+static int dm_test_acpi_uuid(struct unit_test_state *uts)
+{
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+
+	ut_assertok(acpigen_write_uuid(ctx,
+				       "dbb8e3e6-5886-4ba6-8795-1319f52a966b"));
+	ut_asserteq(23, acpigen_get_current(ctx) - ptr);
+	ut_asserteq(BUFFER_OP, ptr[0]);
+	ut_asserteq(22, get_length(ptr + 1));
+	ut_asserteq(0xdbb8e3e6, get_unaligned((u32 *)(ptr + 7)));
+	ut_asserteq(0x5886, get_unaligned((u16 *)(ptr + 11)));
+	ut_asserteq(0x4ba6, get_unaligned((u16 *)(ptr + 13)));
+	ut_asserteq(0x9587, get_unaligned((u16 *)(ptr + 15)));
+	ut_asserteq(0x2af51913, get_unaligned((u32 *)(ptr + 17)));
+	ut_asserteq(0x6b96, get_unaligned((u16 *)(ptr + 21)));
+
+	/* Try a bad UUID */
+	ut_asserteq(-EINVAL,
+		    acpigen_write_uuid(ctx,
+				       "dbb8e3e6-5886-4ba6x8795-1319f52a966b"));
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_uuid, 0);
