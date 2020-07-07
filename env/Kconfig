@@ -623,6 +623,14 @@ config ENV_APPEND
 	  with newly imported data. This may be used in combination with static
 	  flags to e.g. to protect variables which must not be modified.
 
+config ENV_WRITEABLE_LIST
+	bool "Permit write access only to listed variables"
+	default n
+	help
+	  If defined, only environment variables which explicitly set the 'w'
+	  writeable flag can be written and modified at runtime. No variables
+	  can be otherwise created, written or imported into the environment.
+
 config ENV_ACCESS_IGNORE_FORCE
 	bool "Block forced environment operations"
 	default n
