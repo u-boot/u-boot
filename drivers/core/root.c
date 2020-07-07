@@ -12,6 +12,7 @@
 #include <log.h>
 #include <malloc.h>
 #include <linux/libfdt.h>
+#include <dm/acpi.h>
 #include <dm/device.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
@@ -377,10 +378,22 @@ int dm_init_and_scan(bool pre_reloc_only)
 	return 0;
 }
 
+#ifdef CONFIG_ACPIGEN
+static int root_acpi_get_name(const struct udevice *dev, char *out_name)
+{
+	return acpi_copy_name(out_name, "\\_SB");
+}
+
+struct acpi_ops root_acpi_ops = {
+	.get_name	= root_acpi_get_name,
+};
+#endif
+
 /* This is the root driver - all drivers are children of this */
 U_BOOT_DRIVER(root_driver) = {
 	.name	= "root_driver",
 	.id	= UCLASS_ROOT,
+	ACPI_OPS_PTR(&root_acpi_ops)
 };
 
 /* This is the root uclass */
