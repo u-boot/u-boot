@@ -153,13 +153,6 @@ config TARGET_PCM051
 	select DM_SERIAL
 	imply CMD_DM
 
-config TARGET_PENGWYN
-	bool "Support pengwyn"
-	select DM
-	select DM_GPIO
-	select DM_SERIAL
-	imply CMD_DM
-
 config TARGET_PHYCORE_AM335X_R2
 	bool "Support phyCORE AM335X R2"
 	select DM
