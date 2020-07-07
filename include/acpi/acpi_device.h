@@ -11,6 +11,8 @@
 
 #include <linux/bitops.h>
 
+struct acpi_ctx;
+struct irq;
 struct udevice;
 
 /* ACPI descriptor values for common descriptors: SERIAL_BUS means I2C */
@@ -127,5 +129,18 @@ int acpi_device_scope(const struct udevice *dev, char *scope, int maxlen);
  * @return device status, as ACPI_DSTATUS_...
  */
 enum acpi_dev_status acpi_device_status(const struct udevice *dev);
+
+/**
+ * acpi_device_write_interrupt_irq() - Write an interrupt descriptor
+ *
+ * This writes an ACPI interrupt descriptor for the given interrupt, converting
+ * fields as needed.
+ *
+ * @ctx: ACPI context pointer
+ * @req_irq: Interrupt to output
+ * @return IRQ pin number if OK, -ve on error
+ */
+int acpi_device_write_interrupt_irq(struct acpi_ctx *ctx,
+				    const struct irq *req_irq);
 
 #endif
