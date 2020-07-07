@@ -21,6 +21,7 @@
 #include <linux/errno.h>
 #include <asm/spi.h>
 #include <asm/state.h>
+#include <dm/acpi.h>
 #include <dm/device-internal.h>
 
 #ifndef CONFIG_SPI_IDLE_VAL
@@ -133,6 +134,15 @@ static int sandbox_spi_get_mmap(struct udevice *dev, ulong *map_basep,
 	return 0;
 }
 
+static int sandbox_spi_get_name(const struct udevice *dev, char *out_name)
+{
+	return acpi_copy_name(out_name, "SSPI");
+}
+
+struct acpi_ops sandbox_spi_acpi_ops = {
+	.get_name	= sandbox_spi_get_name,
+};
+
 static const struct dm_spi_ops sandbox_spi_ops = {
 	.xfer		= sandbox_spi_xfer,
 	.set_speed	= sandbox_spi_set_speed,
@@ -151,4 +161,5 @@ U_BOOT_DRIVER(sandbox_spi) = {
 	.id	= UCLASS_SPI,
 	.of_match = sandbox_spi_ids,
 	.ops	= &sandbox_spi_ops,
+	ACPI_OPS_PTR(&sandbox_spi_acpi_ops)
 };

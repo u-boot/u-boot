@@ -308,3 +308,39 @@ static int dm_test_acpi_i2c(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_acpi_i2c, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test emitting a SPI descriptor */
+static int dm_test_acpi_spi(struct unit_test_state *uts)
+{
+	struct acpi_ctx *ctx;
+	struct udevice *dev;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+
+	ptr = acpigen_get_current(ctx);
+
+	ut_assertok(uclass_first_device_err(UCLASS_SPI_FLASH, &dev));
+	ut_assertok(acpi_device_write_spi_dev(ctx, dev));
+	ut_asserteq(31, acpigen_get_current(ctx) - ptr);
+	ut_asserteq(ACPI_DESCRIPTOR_SERIAL_BUS, ptr[0]);
+	ut_asserteq(28, get_unaligned((u16 *)(ptr + 1)));
+	ut_asserteq(ACPI_SPI_SERIAL_BUS_REVISION_ID, ptr[3]);
+	ut_asserteq(0, ptr[4]);
+	ut_asserteq(ACPI_SERIAL_BUS_TYPE_SPI, ptr[5]);
+	ut_asserteq(2, ptr[6]);
+	ut_asserteq(0, get_unaligned((u16 *)(ptr + 7)));
+	ut_asserteq(ACPI_SPI_TYPE_SPECIFIC_REVISION_ID, ptr[9]);
+	ut_asserteq(9, get_unaligned((u16 *)(ptr + 10)));
+	ut_asserteq(40000000, get_unaligned((u32 *)(ptr + 12)));
+	ut_asserteq(8, ptr[16]);
+	ut_asserteq(0, ptr[17]);
+	ut_asserteq(0, ptr[18]);
+	ut_asserteq(0, get_unaligned((u16 *)(ptr + 19)));
+	ut_asserteq_str("\\_SB.SPI0", (char *)ptr + 21);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_spi, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

@@ -492,3 +492,127 @@ int acpi_device_write_i2c_dev(struct acpi_ctx *ctx, const struct udevice *dev)
 
 	return ret;
 }
+
+#ifdef CONFIG_SPI
+/* ACPI 6.1 section 6.4.3.8.2.2 - SpiSerialBus() */
+static void acpi_device_write_spi(struct acpi_ctx *ctx, const struct acpi_spi *spi)
+{
+	void *desc_length, *type_length;
+	u16 flags = 0;
+
+	/* Byte 0: Descriptor Type */
+	acpigen_emit_byte(ctx, ACPI_DESCRIPTOR_SERIAL_BUS);
+
+	/* Byte 1+2: Length (filled in later) */
+	desc_length = largeres_write_len_f(ctx);
+
+	/* Byte 3: Revision ID */
+	acpigen_emit_byte(ctx, ACPI_SPI_SERIAL_BUS_REVISION_ID);
+
+	/* Byte 4: Resource Source Index is Reserved */
+	acpigen_emit_byte(ctx, 0);
+
+	/* Byte 5: Serial Bus Type is SPI */
+	acpigen_emit_byte(ctx, ACPI_SERIAL_BUS_TYPE_SPI);
+
+	/*
+	 * Byte 6: Flags
+	 *  [7:2]: 0 => Reserved
+	 *    [1]: 1 => ResourceConsumer
+	 *    [0]: 0 => ControllerInitiated
+	 */
+	acpigen_emit_byte(ctx, BIT(1));
+
+	/*
+	 * Byte 7-8: Type Specific Flags
+	 *   [15:2]: 0 => Reserveda
+	 *      [1]: 0 => ActiveLow, 1 => ActiveHigh
+	 *      [0]: 0 => FourWire, 1 => ThreeWire
+	 */
+	if (spi->wire_mode == SPI_3_WIRE_MODE)
+		flags |= BIT(0);
+	if (spi->device_select_polarity == SPI_POLARITY_HIGH)
+		flags |= BIT(1);
+	acpigen_emit_word(ctx, flags);
+
+	/* Byte 9: Type Specific Revision ID */
+	acpigen_emit_byte(ctx, ACPI_SPI_TYPE_SPECIFIC_REVISION_ID);
+
+	/* Byte 10-11: SPI Type Data Length */
+	type_length = largeres_write_len_f(ctx);
+
+	/* Byte 12-15: Connection Speed */
+	acpigen_emit_dword(ctx, spi->speed);
+
+	/* Byte 16: Data Bit Length */
+	acpigen_emit_byte(ctx, spi->data_bit_length);
+
+	/* Byte 17: Clock Phase */
+	acpigen_emit_byte(ctx, spi->clock_phase);
+
+	/* Byte 18: Clock Polarity */
+	acpigen_emit_byte(ctx, spi->clock_polarity);
+
+	/* Byte 19-20: Device Selection */
+	acpigen_emit_word(ctx, spi->device_select);
+
+	/* Fill in Type Data Length */
+	largeres_fill_len(ctx, type_length);
+
+	/* Byte 21+: ResourceSource String */
+	acpigen_emit_string(ctx, spi->resource);
+
+	/* Fill in SPI Descriptor Length */
+	largeres_fill_len(ctx, desc_length);
+}
+
+/**
+ * acpi_device_set_spi() - Set up an ACPI SPI struct from a device
+ *
+ * The value of @scope is not copied, but only referenced. This implies the
+ * caller has to ensure it stays valid for the lifetime of @spi.
+ *
+ * @dev: SPI device to convert
+ * @spi: Place to put the new structure
+ * @scope: Scope of the SPI device (this is the controller path)
+ * @return 0 (always)
+ */
+static int acpi_device_set_spi(const struct udevice *dev, struct acpi_spi *spi,
+			       const char *scope)
+{
+	struct dm_spi_slave_platdata *plat;
+	struct spi_slave *slave = dev_get_parent_priv(dev);
+
+	plat = dev_get_parent_platdata(slave->dev);
+	memset(spi, '\0', sizeof(*spi));
+	spi->device_select = plat->cs;
+	spi->device_select_polarity = SPI_POLARITY_LOW;
+	spi->wire_mode = SPI_4_WIRE_MODE;
+	spi->speed = plat->max_hz;
+	spi->data_bit_length = slave->wordlen;
+	spi->clock_phase = plat->mode & SPI_CPHA ?
+		 SPI_CLOCK_PHASE_SECOND : SPI_CLOCK_PHASE_FIRST;
+	spi->clock_polarity = plat->mode & SPI_CPOL ?
+		 SPI_POLARITY_HIGH : SPI_POLARITY_LOW;
+	spi->resource = scope;
+
+	return 0;
+}
+
+int acpi_device_write_spi_dev(struct acpi_ctx *ctx, const struct udevice *dev)
+{
+	char scope[ACPI_PATH_MAX];
+	struct acpi_spi spi;
+	int ret;
+
+	ret = acpi_device_scope(dev, scope, sizeof(scope));
+	if (ret)
+		return log_msg_ret("scope", ret);
+	ret = acpi_device_set_spi(dev, &spi, scope);
+	if (ret)
+		return log_msg_ret("set", ret);
+	acpi_device_write_spi(ctx, &spi);
+
+	return 0;
+}
+#endif /* CONFIG_SPI */

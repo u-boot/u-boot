@@ -10,6 +10,7 @@
 #define __ACPI_DEVICE_H
 
 #include <i2c.h>
+#include <spi.h>
 #include <linux/bitops.h>
 
 struct acpi_ctx;
@@ -186,8 +187,11 @@ struct acpi_gpio {
 
 /* ACPI Descriptors for Serial Bus interfaces */
 #define ACPI_SERIAL_BUS_TYPE_I2C		1
+#define ACPI_SERIAL_BUS_TYPE_SPI		2
 #define ACPI_I2C_SERIAL_BUS_REVISION_ID		1 /* TODO: upgrade to 2 */
 #define ACPI_I2C_TYPE_SPECIFIC_REVISION_ID	1
+#define ACPI_SPI_SERIAL_BUS_REVISION_ID		1
+#define ACPI_SPI_TYPE_SPECIFIC_REVISION_ID	1
 
 /**
  * struct acpi_i2c - representation of an ACPI I2C device
@@ -201,6 +205,29 @@ struct acpi_i2c {
 	u16 address;
 	enum i2c_address_mode mode_10bit;
 	enum i2c_speed_rate speed;
+	const char *resource;
+};
+
+/**
+ * struct acpi_spi - representation of an ACPI SPI device
+ *
+ * @device_select: Chip select used by this device (typically 0)
+ * @device_select_polarity: Polarity for the device
+ * @wire_mode: Number of wires used for SPI
+ * @speed: Bus speed in Hz
+ * @data_bit_length: Word length for SPI (typically 8)
+ * @clock_phase: Clock phase to capture data
+ * @clock_polarity: Bus polarity
+ * @resource: Resource name for the SPI controller
+ */
+struct acpi_spi {
+	u16 device_select;
+	enum spi_polarity device_select_polarity;
+	enum spi_wire_mode wire_mode;
+	unsigned int speed;
+	u8 data_bit_length;
+	enum spi_clock_phase clock_phase;
+	enum spi_polarity clock_polarity;
 	const char *resource;
 };
 
@@ -302,5 +329,17 @@ int acpi_device_write_interrupt_or_gpio(struct acpi_ctx *ctx,
  * @return I2C address of device if OK, -ve on error
  */
 int acpi_device_write_i2c_dev(struct acpi_ctx *ctx, const struct udevice *dev);
+
+/**
+ * acpi_device_write_spi_dev() - Write a SPI device to ACPI
+ *
+ * This writes a serial bus descriptor for the SPI device so that ACPI can use
+ * it
+ *
+ * @ctx: ACPI context pointer
+ * @dev: SPI device to write
+ * @return 0 if OK, -ve on error
+ */
+int acpi_device_write_spi_dev(struct acpi_ctx *ctx, const struct udevice *dev);
 
 #endif
