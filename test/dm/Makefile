@@ -14,6 +14,7 @@ obj-$(CONFIG_UT_DM) += test-uclass.o
 obj-$(CONFIG_UT_DM) += core.o
 ifneq ($(CONFIG_SANDBOX),)
 obj-$(CONFIG_ACPIGEN) += acpi.o
+obj-$(CONFIG_ACPIGEN) += acpigen.o
 obj-$(CONFIG_SOUND) += audio.o
 obj-$(CONFIG_BLK) += blk.o
 obj-$(CONFIG_BOARD) += board.o
