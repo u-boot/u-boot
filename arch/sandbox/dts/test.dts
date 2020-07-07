@@ -255,6 +255,9 @@
 
 	acpi-test {
 		compatible = "denx,u-boot-acpi-test";
+		child {
+			compatible = "denx,u-boot-acpi-test";
+		};
 	};
 
 	acpi-test2 {
