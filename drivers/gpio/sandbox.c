@@ -8,7 +8,9 @@
 #include <fdtdec.h>
 #include <log.h>
 #include <malloc.h>
+#include <acpi/acpi_device.h>
 #include <asm/gpio.h>
+#include <dm/acpi.h>
 #include <dm/device_compat.h>
 #include <dm/lists.h>
 #include <dm/of.h>
@@ -197,6 +199,63 @@ static int sb_gpio_get_dir_flags(struct udevice *dev, unsigned int offset,
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(ACPIGEN)
+static int sb_gpio_get_acpi(const struct gpio_desc *desc,
+			    struct acpi_gpio *gpio)
+{
+	int ret;
+
+	/* Note that gpio_get_acpi() zeroes *gpio before calling here */
+	gpio->pin_count = 1;
+	gpio->pins[0] = desc->offset;
+	ret = acpi_device_scope(desc->dev, gpio->resource,
+				sizeof(gpio->resource));
+	if (ret)
+		return log_ret(ret);
+
+	/* All of these values are just used for testing */
+	if (desc->flags & GPIOD_ACTIVE_LOW) {
+		gpio->pin0_addr = 0x80012 + desc->offset;
+		gpio->type = ACPI_GPIO_TYPE_INTERRUPT;
+		gpio->pull = ACPI_GPIO_PULL_DOWN;
+		gpio->interrupt_debounce_timeout = 4321;
+
+		/* We use the GpioInt part */
+		gpio->irq.pin = desc->offset;
+		gpio->irq.polarity = ACPI_IRQ_ACTIVE_BOTH;
+		gpio->irq.shared = ACPI_IRQ_SHARED;
+		gpio->irq.wake = ACPI_IRQ_WAKE;
+
+		/* The GpioIo part is only used for testing */
+		gpio->polarity = ACPI_GPIO_ACTIVE_LOW;
+	} else {
+		gpio->pin0_addr = 0xc00dc + desc->offset;
+		gpio->type = ACPI_GPIO_TYPE_IO;
+		gpio->pull = ACPI_GPIO_PULL_UP;
+		gpio->interrupt_debounce_timeout = 0;
+
+		/* The GpioInt part is not used */
+
+		/* We use the GpioIo part */
+		gpio->output_drive_strength = 1234;
+		gpio->io_shared = true;
+		gpio->io_restrict = ACPI_GPIO_IO_RESTRICT_INPUT;
+		gpio->polarity = 0;
+	}
+
+	return 0;
+}
+
+static int sb_gpio_get_name(const struct udevice *dev, char *out_name)
+{
+	return acpi_copy_name(out_name, "GPIO");
+}
+
+struct acpi_ops gpio_sandbox_acpi_ops = {
+	.get_name	= sb_gpio_get_name,
+};
+#endif /* ACPIGEN */
+
 static const struct dm_gpio_ops gpio_sandbox_ops = {
 	.direction_input	= sb_gpio_direction_input,
 	.direction_output	= sb_gpio_direction_output,
@@ -206,6 +265,9 @@ static const struct dm_gpio_ops gpio_sandbox_ops = {
 	.xlate			= sb_gpio_xlate,
 	.set_dir_flags		= sb_gpio_set_dir_flags,
 	.get_dir_flags		= sb_gpio_get_dir_flags,
+#if CONFIG_IS_ENABLED(ACPIGEN)
+	.get_acpi		= sb_gpio_get_acpi,
+#endif
 };
 
 static int sandbox_gpio_ofdata_to_platdata(struct udevice *dev)
@@ -252,6 +314,7 @@ U_BOOT_DRIVER(sandbox_gpio) = {
 	.probe	= gpio_sandbox_probe,
 	.remove	= gpio_sandbox_remove,
 	.ops	= &gpio_sandbox_ops,
+	ACPI_OPS_PTR(&gpio_sandbox_acpi_ops)
 };
 
 U_BOOT_DRIVER_ALIAS(sandbox_gpio, sandbox_gpio_alias)
@@ -421,6 +484,13 @@ static int sb_pinctrl_get_pin_muxing(struct udevice *dev,
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(ACPIGEN)
+static int sb_pinctrl_get_name(const struct udevice *dev, char *out_name)
+{
+	return acpi_copy_name(out_name, "PINC");
+}
+#endif
+
 static int sandbox_pinctrl_probe(struct udevice *dev)
 {
 	struct sb_pinctrl_priv *priv = dev_get_priv(dev);
@@ -436,6 +506,12 @@ static struct pinctrl_ops sandbox_pinctrl_gpio_ops = {
 	.get_pin_muxing		= sb_pinctrl_get_pin_muxing,
 };
 
+#if CONFIG_IS_ENABLED(ACPIGEN)
+struct acpi_ops pinctrl_sandbox_acpi_ops = {
+	.get_name	= sb_pinctrl_get_name,
+};
+#endif
+
 static const struct udevice_id sandbox_pinctrl_gpio_match[] = {
 	{ .compatible = "sandbox,pinctrl-gpio" },
 	{ /* sentinel */ }
@@ -449,4 +525,5 @@ U_BOOT_DRIVER(sandbox_pinctrl_gpio) = {
 	.bind = dm_scan_fdt_dev,
 	.probe = sandbox_pinctrl_probe,
 	.priv_auto_alloc_size	= sizeof(struct sb_pinctrl_priv),
+	ACPI_OPS_PTR(&pinctrl_sandbox_acpi_ops)
 };

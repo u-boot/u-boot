@@ -93,6 +93,96 @@ struct acpi_irq {
 };
 
 /**
+ * enum acpi_gpio_type - type of the descriptor
+ *
+ * @ACPI_GPIO_TYPE_INTERRUPT: GpioInterrupt
+ * @ACPI_GPIO_TYPE_IO: GpioIo
+ */
+enum acpi_gpio_type {
+	ACPI_GPIO_TYPE_INTERRUPT,
+	ACPI_GPIO_TYPE_IO,
+};
+
+/**
+ * enum acpi_gpio_pull - pull direction
+ *
+ * @ACPI_GPIO_PULL_DEFAULT: Use default value for pin
+ * @ACPI_GPIO_PULL_UP: Pull up
+ * @ACPI_GPIO_PULL_DOWN: Pull down
+ * @ACPI_GPIO_PULL_NONE: No pullup/pulldown
+ */
+enum acpi_gpio_pull {
+	ACPI_GPIO_PULL_DEFAULT,
+	ACPI_GPIO_PULL_UP,
+	ACPI_GPIO_PULL_DOWN,
+	ACPI_GPIO_PULL_NONE,
+};
+
+/**
+ * enum acpi_gpio_io_restrict - controls input/output of pin
+ *
+ * @ACPI_GPIO_IO_RESTRICT_NONE: no restrictions
+ * @ACPI_GPIO_IO_RESTRICT_INPUT: input only (no output)
+ * @ACPI_GPIO_IO_RESTRICT_OUTPUT: output only (no input)
+ * @ACPI_GPIO_IO_RESTRICT_PRESERVE: preserve settings when driver not active
+ */
+enum acpi_gpio_io_restrict {
+	ACPI_GPIO_IO_RESTRICT_NONE,
+	ACPI_GPIO_IO_RESTRICT_INPUT,
+	ACPI_GPIO_IO_RESTRICT_OUTPUT,
+	ACPI_GPIO_IO_RESTRICT_PRESERVE,
+};
+
+/** enum acpi_gpio_polarity - controls the GPIO polarity */
+enum acpi_gpio_polarity {
+	ACPI_GPIO_ACTIVE_HIGH = 0,
+	ACPI_GPIO_ACTIVE_LOW = 1,
+};
+
+#define ACPI_GPIO_REVISION_ID		1
+#define ACPI_GPIO_MAX_PINS		2
+
+/**
+ * struct acpi_gpio - representation of an ACPI GPIO
+ *
+ * @pin_count: Number of pins represented
+ * @pins: List of pins
+ * @pin0_addr: Address in memory of the control registers for pin 0. This is
+ *   used when generating ACPI tables
+ * @type: GPIO type
+ * @pull: Pullup/pulldown setting
+ * @resource: Resource name for this GPIO controller
+ * For GpioInt:
+ * @interrupt_debounce_timeout: Debounce timeout in units of 10us
+ * @irq: Interrupt
+ *
+ * For GpioIo:
+ * @output_drive_strength: Drive strength in units of 10uA
+ * @io_shared; true if GPIO is shared
+ * @io_restrict: I/O restriction setting
+ * @polarity: GPIO polarity
+ */
+struct acpi_gpio {
+	int pin_count;
+	u16 pins[ACPI_GPIO_MAX_PINS];
+	ulong pin0_addr;
+
+	enum acpi_gpio_type type;
+	enum acpi_gpio_pull pull;
+	char resource[ACPI_PATH_MAX];
+
+	/* GpioInt */
+	u16 interrupt_debounce_timeout;
+	struct acpi_irq irq;
+
+	/* GpioIo */
+	u16 output_drive_strength;
+	bool io_shared;
+	enum acpi_gpio_io_restrict io_restrict;
+	enum acpi_gpio_polarity polarity;
+};
+
+/**
  * acpi_device_path() - Get the full path to an ACPI device
  *
  * This gets the full path in the form XXXX.YYYY.ZZZZ where XXXX is the root

@@ -10,6 +10,7 @@
 #include <dm/ofnode.h>
 #include <linux/bitops.h>
 
+struct acpi_gpio;
 struct ofnode_phandle_args;
 
 /*
@@ -329,6 +330,20 @@ struct dm_gpio_ops {
 	 */
 	int (*get_dir_flags)(struct udevice *dev, unsigned int offset,
 			     ulong *flags);
+
+#if CONFIG_IS_ENABLED(ACPIGEN)
+	/**
+	 * get_acpi() - Get the ACPI info for a GPIO
+	 *
+	 * This converts a GPIO to an ACPI structure for adding to the ACPI
+	 * tables.
+	 *
+	 * @desc:	GPIO description to convert
+	 * @gpio:	Output ACPI GPIO information
+	 * @return ACPI pin number or -ve on error
+	 */
+	int (*get_acpi)(const struct gpio_desc *desc, struct acpi_gpio *gpio);
+#endif
 };
 
 /**
@@ -673,5 +688,17 @@ int dm_gpio_get_dir_flags(struct gpio_desc *desc, ulong *flags);
  * @return GPIO number, or -ve if not found
  */
 int gpio_get_number(const struct gpio_desc *desc);
+
+/**
+ * gpio_get_acpi() - Get the ACPI pin for a GPIO
+ *
+ * This converts a GPIO to an ACPI pin number for adding to the ACPI
+ * tables. If the GPIO is invalid, the pin_count and pins[0] are set to 0
+ *
+ * @desc:	GPIO description to convert
+ * @gpio:	Output ACPI GPIO information
+ * @return ACPI pin number or -ve on error
+ */
+int gpio_get_acpi(const struct gpio_desc *desc, struct acpi_gpio *gpio);
 
 #endif	/* _ASM_GENERIC_GPIO_H_ */
