@@ -13,6 +13,12 @@
 
 struct udevice;
 
+/* ACPI descriptor values for common descriptors: SERIAL_BUS means I2C */
+#define ACPI_DESCRIPTOR_LARGE		BIT(7)
+#define ACPI_DESCRIPTOR_INTERRUPT	(ACPI_DESCRIPTOR_LARGE | 9)
+#define ACPI_DESCRIPTOR_GPIO		(ACPI_DESCRIPTOR_LARGE | 12)
+#define ACPI_DESCRIPTOR_SERIAL_BUS	(ACPI_DESCRIPTOR_LARGE | 14)
+
 /* Length of a full path to an ACPI device */
 #define ACPI_PATH_MAX		30
 
@@ -29,6 +35,59 @@ enum acpi_dev_status {
 		ACPI_DSTATUS_OK,
 	ACPI_DSTATUS_ALL_ON	= ACPI_DSTATUS_HIDDEN_ON |
 		ACPI_DSTATUS_SHOW_IN_UI,
+};
+
+/** enum acpi_irq_mode - edge/level trigger mode */
+enum acpi_irq_mode {
+	ACPI_IRQ_EDGE_TRIGGERED,
+	ACPI_IRQ_LEVEL_TRIGGERED,
+};
+
+/**
+ * enum acpi_irq_polarity - polarity of interrupt
+ *
+ * @ACPI_IRQ_ACTIVE_LOW - for ACPI_IRQ_EDGE_TRIGGERED this means falling edge
+ * @ACPI_IRQ_ACTIVE_HIGH - for ACPI_IRQ_EDGE_TRIGGERED this means rising edge
+ * @ACPI_IRQ_ACTIVE_BOTH - not meaningful for ACPI_IRQ_EDGE_TRIGGERED
+ */
+enum acpi_irq_polarity {
+	ACPI_IRQ_ACTIVE_LOW,
+	ACPI_IRQ_ACTIVE_HIGH,
+	ACPI_IRQ_ACTIVE_BOTH,
+};
+
+/**
+ * enum acpi_irq_shared - whether interrupt is shared or not
+ *
+ * @ACPI_IRQ_EXCLUSIVE: only this device uses the interrupt
+ * @ACPI_IRQ_SHARED: other devices may use this interrupt
+ */
+enum acpi_irq_shared {
+	ACPI_IRQ_EXCLUSIVE,
+	ACPI_IRQ_SHARED,
+};
+
+/** enum acpi_irq_wake - indicates whether this interrupt can wake the device */
+enum acpi_irq_wake {
+	ACPI_IRQ_NO_WAKE,
+	ACPI_IRQ_WAKE,
+};
+
+/**
+ * struct acpi_irq - representation of an ACPI interrupt
+ *
+ * @pin: ACPI pin that is monitored for the interrupt
+ * @mode: Edge/level triggering
+ * @polarity: Interrupt polarity
+ * @shared: Whether interrupt is shared or not
+ * @wake: Whether interrupt can wake the device from sleep
+ */
+struct acpi_irq {
+	unsigned int pin;
+	enum acpi_irq_mode mode;
+	enum acpi_irq_polarity polarity;
+	enum acpi_irq_shared shared;
+	enum acpi_irq_wake wake;
 };
 
 /**

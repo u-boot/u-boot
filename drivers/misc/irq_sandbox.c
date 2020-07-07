@@ -8,6 +8,7 @@
 #include <common.h>
 #include <dm.h>
 #include <irq.h>
+#include <acpi/acpi_device.h>
 #include <asm/test.h>
 
 /**
@@ -73,6 +74,18 @@ static int sandbox_irq_of_xlate(struct irq *irq,
 	return 0;
 }
 
+static __maybe_unused int sandbox_get_acpi(const struct irq *irq,
+					   struct acpi_irq *acpi_irq)
+{
+	acpi_irq->pin = irq->id;
+	acpi_irq->mode = ACPI_IRQ_LEVEL_TRIGGERED;
+	acpi_irq->polarity = ACPI_IRQ_ACTIVE_HIGH;
+	acpi_irq->shared = ACPI_IRQ_SHARED;
+	acpi_irq->wake = ACPI_IRQ_WAKE;
+
+	return 0;
+}
+
 static const struct irq_ops sandbox_irq_ops = {
 	.route_pmc_gpio_gpe	= sandbox_route_pmc_gpio_gpe,
 	.set_polarity		= sandbox_set_polarity,
@@ -80,6 +93,9 @@ static const struct irq_ops sandbox_irq_ops = {
 	.restore_polarities	= sandbox_restore_polarities,
 	.read_and_clear		= sandbox_irq_read_and_clear,
 	.of_xlate		= sandbox_irq_of_xlate,
+#if CONFIG_IS_ENABLED(ACPIGEN)
+	.get_acpi		= sandbox_get_acpi,
+#endif
 };
 
 static const struct udevice_id sandbox_irq_ids[] = {

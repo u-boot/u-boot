@@ -152,8 +152,6 @@ int irq_request(struct udevice *dev, struct irq *irq)
 	const struct irq_ops *ops;
 
 	log_debug("(dev=%p, irq=%p)\n", dev, irq);
-	if (!irq)
-		return 0;
 	ops = irq_get_ops(dev);
 
 	irq->dev = dev;
@@ -174,6 +172,22 @@ int irq_first_device_type(enum irq_dev_t type, struct udevice **devp)
 
 	return 0;
 }
+
+#if CONFIG_IS_ENABLED(ACPIGEN)
+int irq_get_acpi(const struct irq *irq, struct acpi_irq *acpi_irq)
+{
+	struct irq_ops *ops;
+
+	if (!irq_is_valid(irq))
+		return -EINVAL;
+
+	ops = irq_get_ops(irq->dev);
+	if (!ops->get_acpi)
+		return -ENOSYS;
+
+	return ops->get_acpi(irq, acpi_irq);
+}
+#endif
 
 UCLASS_DRIVER(irq) = {
 	.id		= UCLASS_IRQ,
