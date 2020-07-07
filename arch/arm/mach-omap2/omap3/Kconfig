@@ -120,13 +120,6 @@ config TARGET_TAO3530
 	select OMAP3_GPIO_5
 	select OMAP3_GPIO_6
 
-config TARGET_OMAP3_CAIRO
-	bool "QUIPOS CAIRO"
-	select DM
-	select DM_GPIO
-	select DM_SERIAL
-	imply CMD_DM
-
 config TARGET_SNIPER
 	bool "LG Optimus Black"
 	select DM
@@ -175,7 +168,6 @@ source "board/corscience/tricorder/Kconfig"
 source "board/logicpd/omap3som/Kconfig"
 source "board/nokia/rx51/Kconfig"
 source "board/technexion/tao3530/Kconfig"
-source "board/quipos/cairo/Kconfig"
 source "board/lg/sniper/Kconfig"
 
 endif
