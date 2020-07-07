@@ -764,7 +764,7 @@ int dev_enable_by_path(const char *path);
  */
 static inline bool device_is_on_pci_bus(const struct udevice *dev)
 {
-	return device_get_uclass_id(dev->parent) == UCLASS_PCI;
+	return dev->parent && device_get_uclass_id(dev->parent) == UCLASS_PCI;
 }
 
 /**
