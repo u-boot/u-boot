@@ -532,6 +532,7 @@ choice
 config ARCH_AT91
 	bool "Atmel AT91"
 	select SPL_BOARD_INIT if SPL && !TARGET_SMARTWEB
+	select SPL_SEPARATE_BSS if SPL
 
 config TARGET_EDB93XX
 	bool "Support edb93xx"
