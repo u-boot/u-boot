@@ -18,6 +18,7 @@
 #include <dm/test.h>
 #include <dm/uclass-internal.h>
 #include <test/ut.h>
+#include "acpi.h"
 
 /* Maximum size of the ACPI context needed for most tests */
 #define ACPI_CONTEXT_SIZE	150
@@ -31,7 +32,7 @@
 #define TEST_INT32	0x12345678
 #define TEST_INT64	0x4567890123456
 
-static int alloc_context_size(struct acpi_ctx **ctxp, int size)
+int acpi_test_alloc_context_size(struct acpi_ctx **ctxp, int size)
 {
 	struct acpi_ctx *ctx;
 
@@ -51,9 +52,17 @@ static int alloc_context_size(struct acpi_ctx **ctxp, int size)
 	return 0;
 }
 
+int acpi_test_get_length(u8 *ptr)
+{
+	if (!(*ptr & 0x80))
+		return -EINVAL;
+
+	return (*ptr & 0xf) | ptr[1] << 4 | ptr[2] << 12;
+}
+
 static int alloc_context(struct acpi_ctx **ctxp)
 {
-	return alloc_context_size(ctxp, ACPI_CONTEXT_SIZE);
+	return acpi_test_alloc_context_size(ctxp, ACPI_CONTEXT_SIZE);
 }
 
 static void free_context(struct acpi_ctx **ctxp)
@@ -357,20 +366,6 @@ static int dm_test_acpi_spi(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_acpi_spi, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
-/**
- * get_length() - decode a three-byte length field
- *
- * @ptr: Length encoded as per ACPI
- * @return decoded length, or -EINVAL on error
- */
-static int get_length(u8 *ptr)
-{
-	if (!(*ptr & 0x80))
-		return -EINVAL;
-
-	return (*ptr & 0xf) | ptr[1] << 4 | ptr[2] << 12;
-}
-
 /* Test emitting a length */
 static int dm_test_acpi_len(struct unit_test_state *uts)
 {
@@ -379,7 +374,7 @@ static int dm_test_acpi_len(struct unit_test_state *uts)
 	u8 *ptr;
 	int i;
 
-	ut_assertok(alloc_context_size(&ctx, size));
+	ut_assertok(acpi_test_alloc_context_size(&ctx, size));
 
 	ptr = acpigen_get_current(ctx);
 
@@ -387,7 +382,7 @@ static int dm_test_acpi_len(struct unit_test_state *uts)
 	acpigen_write_len_f(ctx);
 	acpigen_emit_byte(ctx, 0x23);
 	acpigen_pop_len(ctx);
-	ut_asserteq(1 + 3, get_length(ptr));
+	ut_asserteq(1 + 3, acpi_test_get_length(ptr));
 
 	/* Write 200 bytes so we need two length bytes */
 	ptr = ctx->current;
@@ -395,7 +390,7 @@ static int dm_test_acpi_len(struct unit_test_state *uts)
 	for (i = 0; i < 200; i++)
 		acpigen_emit_byte(ctx, 0x23);
 	acpigen_pop_len(ctx);
-	ut_asserteq(200 + 3, get_length(ptr));
+	ut_asserteq(200 + 3, acpi_test_get_length(ptr));
 
 	/* Write 40KB so we need three length bytes */
 	ptr = ctx->current;
@@ -403,7 +398,7 @@ static int dm_test_acpi_len(struct unit_test_state *uts)
 	for (i = 0; i < 40000; i++)
 		acpigen_emit_byte(ctx, 0x23);
 	acpigen_pop_len(ctx);
-	ut_asserteq(40000 + 3, get_length(ptr));
+	ut_asserteq(40000 + 3, acpi_test_get_length(ptr));
 
 	free_context(&ctx);
 
@@ -429,7 +424,7 @@ static int dm_test_acpi_package(struct unit_test_state *uts)
 	acpigen_emit_byte(ctx, 0x23);
 	acpigen_pop_len(ctx);
 	ut_asserteq(PACKAGE_OP, ptr[0]);
-	ut_asserteq(5, get_length(ptr + 1));
+	ut_asserteq(5, acpi_test_get_length(ptr + 1));
 	ut_asserteq(3, ptr[4]);
 
 	free_context(&ctx);
@@ -613,7 +608,7 @@ static int dm_test_acpi_uuid(struct unit_test_state *uts)
 				       "dbb8e3e6-5886-4ba6-8795-1319f52a966b"));
 	ut_asserteq(23, acpigen_get_current(ctx) - ptr);
 	ut_asserteq(BUFFER_OP, ptr[0]);
-	ut_asserteq(22, get_length(ptr + 1));
+	ut_asserteq(22, acpi_test_get_length(ptr + 1));
 	ut_asserteq(0xdbb8e3e6, get_unaligned((u32 *)(ptr + 7)));
 	ut_asserteq(0x5886, get_unaligned((u16 *)(ptr + 11)));
 	ut_asserteq(0x4ba6, get_unaligned((u16 *)(ptr + 13)));

@@ -31,6 +31,7 @@ enum {
 	PACKAGE_OP		= 0x12,
 	DUAL_NAME_PREFIX	= 0x2e,
 	MULTI_NAME_PREFIX	= 0x2f,
+	ROOT_PREFIX		= 0x5c,
 };
 
 /**
