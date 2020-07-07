@@ -12,3 +12,6 @@ config TI_K3_NAVSS_UDMA
         help
           Support for UDMA used in K3 devices.
 endif
+
+config TI_K3_PSIL
+	bool
