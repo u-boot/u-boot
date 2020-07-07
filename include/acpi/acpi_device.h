@@ -342,4 +342,46 @@ int acpi_device_write_i2c_dev(struct acpi_ctx *ctx, const struct udevice *dev);
  */
 int acpi_device_write_spi_dev(struct acpi_ctx *ctx, const struct udevice *dev);
 
+/**
+ * acpi_device_add_power_res() - Add a basic PowerResource block for a device
+ *
+ * This includes GPIOs to control enable, reset and stop operation of the
+ * device. Each GPIO is optional, but at least one must be provided.
+ * This can be applied to any device that has power control, so is fairly
+ * generic.
+ *
+ * Reset - Put the device into / take the device out of reset.
+ * Enable - Enable / disable power to device.
+ * Stop - Stop / start operation of device.
+ *
+ * @ctx: ACPI context pointer
+ * @tx_state_val: Mask to use to toggle the TX state on the GPIO pin, e,g.
+ *	PAD_CFG0_TX_STATE
+ * @dw0_read: Name to use to read dw0, e.g. "\\_SB.GPC0"
+ * @dw0_write: Name to use to read dw0, e.g. "\\_SB.SPC0"
+ * @reset_gpio: GPIO used to take device out of reset or to put it into reset
+ * @reset_delay_ms: Delay to be inserted after device is taken out of reset
+ *	(_ON method delay)
+ * @reset_off_delay_ms: Delay to be inserted after device is put into reset
+ *	(_OFF method delay)
+ * @enable_gpio: GPIO used to enable device
+ * @enable_delay_ms: Delay to be inserted after device is enabled
+ * @enable_off_delay_ms: Delay to be inserted after device is disabled
+ *	(_OFF method delay)
+ * @stop_gpio: GPIO used to stop operation of device
+ * @stop_delay_ms: Delay to be inserted after disabling stop (_ON method delay)
+ * @stop_off_delay_ms: Delay to be inserted after enabling stop.
+ *	(_OFF method delay)
+ *
+ * @return 0 if OK, -ve if at least one GPIO is not provided
+ */
+int acpi_device_add_power_res(struct acpi_ctx *ctx, u32 tx_state_val,
+			      const char *dw0_read, const char *dw0_write,
+			      const struct gpio_desc *reset_gpio,
+			      uint reset_delay_ms, uint reset_off_delay_ms,
+			      const struct gpio_desc *enable_gpio,
+			      uint enable_delay_ms, uint enable_off_delay_ms,
+			      const struct gpio_desc *stop_gpio,
+			      uint stop_delay_ms, uint stop_off_delay_ms);
+
 #endif
