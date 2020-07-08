@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 
 #include <common.h>
+#include <asm/io.h>
 #include <env.h>
 #include <malloc.h>
 #include <net.h>
@@ -104,12 +105,12 @@ static char tx_ring_size;
 
 static u32 dc2114x_inl(struct eth_device *dev, u32 addr)
 {
-	return le32_to_cpu(*(volatile u32 *)(addr + dev->iobase));
+	return le32_to_cpu(readl(dev->iobase + addr));
 }
 
 static void dc2114x_outl(struct eth_device *dev, u32 command, u32 addr)
 {
-	*(volatile u32 *)(addr + dev->iobase) = cpu_to_le32(command);
+	writel(cpu_to_le32(command), dev->iobase + addr);
 }
 
 static void reset_de4x5(struct eth_device *dev)
