@@ -545,7 +545,9 @@ const  struct rockchip_spi_params rk3399_spi_params = {
 };
 
 static const struct udevice_id rockchip_spi_ids[] = {
+	{ .compatible = "rockchip,rk3066-spi" },
 	{ .compatible = "rockchip,rk3288-spi" },
+	{ .compatible = "rockchip,rk3328-spi" },
 	{ .compatible = "rockchip,rk3368-spi",
 	  .data = (ulong)&rk3399_spi_params },
 	{ .compatible = "rockchip,rk3399-spi",
