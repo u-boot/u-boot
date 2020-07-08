@@ -116,6 +116,10 @@ def efi_boot_env(request, u_boot_config):
         check_call('cd %s; %scert-to-efi-hash-list -g %s -t 0 -s 256 db.crt dbx_hash.crl; %ssign-efi-sig-list -t "2020-04-05" -c KEK.crt -k KEK.key dbx dbx_hash.crl dbx_hash.auth'
                    % (mnt_point, EFITOOLS_PATH, GUID, EFITOOLS_PATH),
                    shell=True)
+        ## dbx_hash1 (digest of TEST_db1 certificate)
+        check_call('cd %s; %scert-to-efi-hash-list -g %s -t 0 -s 256 db1.crt dbx_hash1.crl; %ssign-efi-sig-list -t "2020-04-05" -c KEK.crt -k KEK.key dbx dbx_hash1.crl dbx_hash1.auth'
+                   % (mnt_point, EFITOOLS_PATH, GUID, EFITOOLS_PATH),
+                   shell=True)
 
         # Copy image
         check_call('cp %s %s' % (HELLO_PATH, mnt_point), shell=True)
@@ -123,7 +127,10 @@ def efi_boot_env(request, u_boot_config):
         # Sign image
         check_call('cd %s; sbsign --key db.key --cert db.crt helloworld.efi'
                    % mnt_point, shell=True)
-        # Digest image
+        ## Sign already-signed image with another key
+        check_call('cd %s; sbsign --key db1.key --cert db1.crt --output helloworld.efi.signed_2sigs helloworld.efi.signed'
+                   % mnt_point, shell=True)
+        ## Digest image
         check_call('cd %s; %shash-to-efi-sig-list helloworld.efi db_hello.hash; %ssign-efi-sig-list -t "2020-04-07" -c KEK.crt -k KEK.key db db_hello.hash db_hello.auth'
                    % (mnt_point, EFITOOLS_PATH, EFITOOLS_PATH),
                    shell=True)
