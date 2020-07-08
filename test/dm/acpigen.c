@@ -12,6 +12,7 @@
 #include <malloc.h>
 #include <acpi/acpigen.h>
 #include <acpi/acpi_device.h>
+#include <acpi/acpi_table.h>
 #include <asm/gpio.h>
 #include <asm/unaligned.h>
 #include <dm/acpi.h>
@@ -947,3 +948,48 @@ static int dm_test_acpi_scope(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_acpi_scope, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test writing a resource template */
+static int dm_test_acpi_resource_template(struct unit_test_state *uts)
+{
+	struct acpi_gen_regaddr addr;
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+	ptr = acpigen_get_current(ctx);
+
+	addr.space_id = ACPI_ADDRESS_SPACE_EC;
+	addr.bit_width = 32;
+	addr.bit_offset = 8;
+	addr.access_size = ACPI_ACCESS_SIZE_DWORD_ACCESS;
+	addr.addrl = TEST_INT64 & 0xffffffff;
+	addr.addrh = TEST_INT64 >> 32;
+	acpigen_write_register_resource(ctx, &addr);
+
+	ut_asserteq(BUFFER_OP, *ptr++);
+	ut_asserteq(0x17, acpi_test_get_length(ptr));
+	ptr += 3;
+	ut_asserteq(WORD_PREFIX, *ptr++);
+	ut_asserteq(0x11, get_unaligned((u16 *)ptr));
+	ptr += 2;
+	ut_asserteq(ACPI_DESCRIPTOR_REGISTER, *ptr++);
+	ut_asserteq(0xc, *ptr++);
+	ut_asserteq(0, *ptr++);
+	ut_asserteq(ACPI_ADDRESS_SPACE_EC, *ptr++);
+	ut_asserteq(32, *ptr++);
+	ut_asserteq(8, *ptr++);
+	ut_asserteq(ACPI_ACCESS_SIZE_DWORD_ACCESS, *ptr++);
+	ut_asserteq(TEST_INT64 & 0xffffffff, get_unaligned((u32 *)ptr));
+	ptr += 4;
+	ut_asserteq(TEST_INT64 >> 32, get_unaligned((u32 *)ptr));
+	ptr += 4;
+	ut_asserteq(ACPI_END_TAG, *ptr++);
+	ut_asserteq(0x00, *ptr++);
+	ut_asserteq_ptr(ptr, ctx->current);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_resource_template, 0);

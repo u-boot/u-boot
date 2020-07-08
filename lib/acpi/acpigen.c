@@ -14,6 +14,7 @@
 #include <uuid.h>
 #include <acpi/acpigen.h>
 #include <acpi/acpi_device.h>
+#include <acpi/acpi_table.h>
 #include <dm/acpi.h>
 
 u8 *acpigen_get_current(struct acpi_ctx *ctx)
@@ -297,6 +298,76 @@ void acpigen_write_sta(struct acpi_ctx *ctx, uint status)
 	acpigen_emit_byte(ctx, RETURN_OP);
 	acpigen_write_byte(ctx, status);
 	acpigen_pop_len(ctx);
+}
+
+static void acpigen_write_register(struct acpi_ctx *ctx,
+				   const struct acpi_gen_regaddr *addr)
+{
+	/* See ACPI v6.3 section 6.4.3.7: Generic Register Descriptor */
+	acpigen_emit_byte(ctx, ACPI_DESCRIPTOR_REGISTER);
+	acpigen_emit_byte(ctx, 0x0c);		/* Register Length 7:0 */
+	acpigen_emit_byte(ctx, 0x00);		/* Register Length 15:8 */
+	acpigen_emit_byte(ctx, addr->space_id);
+	acpigen_emit_byte(ctx, addr->bit_width);
+	acpigen_emit_byte(ctx, addr->bit_offset);
+	acpigen_emit_byte(ctx, addr->access_size);
+	acpigen_emit_dword(ctx, addr->addrl);
+	acpigen_emit_dword(ctx, addr->addrh);
+}
+
+void acpigen_write_resourcetemplate_header(struct acpi_ctx *ctx)
+{
+	/*
+	 * A ResourceTemplate() is a Buffer() with a
+	 * (Byte|Word|DWord) containing the length, followed by one or more
+	 * resource items, terminated by the end tag.
+	 * (small item 0xf, len 1)
+	 */
+	acpigen_emit_byte(ctx, BUFFER_OP);
+	acpigen_write_len_f(ctx);
+	acpigen_emit_byte(ctx, WORD_PREFIX);
+	ctx->len_stack[ctx->ltop++] = ctx->current;
+
+	/*
+	 * Add two dummy bytes for the ACPI word (keep aligned with the
+	 * calculation in acpigen_write_resourcetemplate_footer() below)
+	 */
+	acpigen_emit_byte(ctx, 0x00);
+	acpigen_emit_byte(ctx, 0x00);
+}
+
+void acpigen_write_resourcetemplate_footer(struct acpi_ctx *ctx)
+{
+	char *p = ctx->len_stack[--ctx->ltop];
+	int len;
+	/*
+	 * See ACPI v6.3 section 6.4.2.9: End Tag
+	 * 0x79 <checksum>
+	 * 0x00 is treated as a good checksum according to the spec
+	 * and is what iasl generates.
+	 */
+	acpigen_emit_byte(ctx, ACPI_END_TAG);
+	acpigen_emit_byte(ctx, 0x00);
+
+	/*
+	 * Start counting past the 2-bytes length added in
+	 * acpigen_write_resourcetemplate_header() above
+	 */
+	len = (char *)ctx->current - (p + 2);
+
+	/* patch len word */
+	p[0] = len & 0xff;
+	p[1] = (len >> 8) & 0xff;
+
+	acpigen_pop_len(ctx);
+}
+
+void acpigen_write_register_resource(struct acpi_ctx *ctx,
+				     const struct acpi_gen_regaddr *addr)
+{
+	acpigen_write_resourcetemplate_header(ctx);
+	acpigen_write_register(ctx, addr);
+	acpigen_write_resourcetemplate_footer(ctx);
 }
 
 /*

@@ -13,6 +13,7 @@
 #include <linux/types.h>
 
 struct acpi_ctx;
+struct acpi_gen_regaddr;
 struct acpi_gpio;
 
 /* Top 4 bits of the value used to indicate a three-byte length value */
@@ -20,6 +21,8 @@ struct acpi_gpio;
 
 #define ACPI_METHOD_NARGS_MASK		0x7
 #define ACPI_METHOD_SERIALIZED_MASK	BIT(3)
+
+#define ACPI_END_TAG			0x79
 
 /* ACPI Op/Prefix codes */
 enum {
@@ -317,6 +320,31 @@ void acpigen_write_method_serialized(struct acpi_ctx *ctx, const char *name,
  * @status: Status value to return
  */
 void acpigen_write_sta(struct acpi_ctx *ctx, uint status);
+
+/**
+ * acpigen_write_resourcetemplate_header() - Write a ResourceTemplate header
+ *
+ * @ctx: ACPI context pointer
+ */
+void acpigen_write_resourcetemplate_header(struct acpi_ctx *ctx);
+
+/**
+ * acpigen_write_resourcetemplate_footer() - Write a ResourceTemplate footer
+ *
+ * @ctx: ACPI context pointer
+ */
+void acpigen_write_resourcetemplate_footer(struct acpi_ctx *ctx);
+
+/**
+ * acpigen_write_register_resource() - Write a register resource
+ *
+ * This writes a header, the address information and a footer
+ *
+ * @ctx: ACPI context pointer
+ * @addr: Address to write
+ */
+void acpigen_write_register_resource(struct acpi_ctx *ctx,
+				     const struct acpi_gen_regaddr *addr);
 
 /**
  * acpigen_write_sleep() - Write a sleep operation
