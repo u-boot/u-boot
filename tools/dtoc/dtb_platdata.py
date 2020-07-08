@@ -104,7 +104,9 @@ def get_value(ftype, value):
     elif ftype == fdt.TYPE_BYTE:
         return '%#x' % tools.ToByte(value[0])
     elif ftype == fdt.TYPE_STRING:
-        return '"%s"' % value
+        # Handle evil ACPI backslashes by adding another backslash before them.
+        # So "\\_SB.GPO0" in the device tree effectively stays like that in C
+        return '"%s"' % value.replace('\\', '\\\\')
     elif ftype == fdt.TYPE_BOOL:
         return 'true'
     elif ftype == fdt.TYPE_INT64:

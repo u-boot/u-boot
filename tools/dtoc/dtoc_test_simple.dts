@@ -34,6 +34,7 @@
 		longbytearray = [09 0a 0b 0c];
 		stringval = "message2";
 		stringarray = "another", "multi-word", "message";
+		acpi-name =  "\\_SB.GPO0";
 	};
 
 	spl-test3 {
