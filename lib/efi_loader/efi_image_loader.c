@@ -483,7 +483,8 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 	struct efi_signature_store *db = NULL, *dbx = NULL;
 	struct x509_certificate *cert = NULL;
 	void *new_efi = NULL;
-	size_t new_efi_size;
+	u8 *auth, *wincerts_end;
+	size_t new_efi_size, auth_size;
 	bool ret = false;
 
 	if (!efi_secure_boot_enabled())
@@ -532,21 +533,52 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 	}
 
 	/* go through WIN_CERTIFICATE list */
-	for (wincert = wincerts;
-	     (void *)wincert < (void *)wincerts + wincerts_len;
-	     wincert = (void *)wincert + ALIGN(wincert->dwLength, 8)) {
-		if (wincert->dwLength < sizeof(*wincert)) {
-			EFI_PRINT("%s: dwLength too small: %u < %zu\n",
-				  __func__, wincert->dwLength,
-				  sizeof(*wincert));
-			goto err;
+	for (wincert = wincerts, wincerts_end = (u8 *)wincerts + wincerts_len;
+	     (u8 *)wincert < wincerts_end;
+	     wincert = (WIN_CERTIFICATE *)
+			((u8 *)wincert + ALIGN(wincert->dwLength, 8))) {
+		if ((u8 *)wincert + sizeof(*wincert) >= wincerts_end)
+			break;
+
+		if (wincert->dwLength <= sizeof(*wincert)) {
+			EFI_PRINT("dwLength too small: %u < %zu\n",
+				  wincert->dwLength, sizeof(*wincert));
+			continue;
 		}
-		msg = pkcs7_parse_message((void *)wincert + sizeof(*wincert),
-					  wincert->dwLength - sizeof(*wincert));
+
+		EFI_PRINT("WIN_CERTIFICATE_TYPE: 0x%x\n",
+			  wincert->wCertificateType);
+
+		auth = (u8 *)wincert + sizeof(*wincert);
+		auth_size = wincert->dwLength - sizeof(*wincert);
+		if (wincert->wCertificateType == WIN_CERT_TYPE_EFI_GUID) {
+			if (auth + sizeof(efi_guid_t) >= wincerts_end)
+				break;
+
+			if (auth_size <= sizeof(efi_guid_t)) {
+				EFI_PRINT("dwLength too small: %u < %zu\n",
+					  wincert->dwLength, sizeof(*wincert));
+				continue;
+			}
+			if (guidcmp(auth, &efi_guid_cert_type_pkcs7)) {
+				EFI_PRINT("Certificate type not supported: %pUl\n",
+					  auth);
+				continue;
+			}
+
+			auth += sizeof(efi_guid_t);
+			auth_size -= sizeof(efi_guid_t);
+		} else if (wincert->wCertificateType
+				!= WIN_CERT_TYPE_PKCS_SIGNED_DATA) {
+			EFI_PRINT("Certificate type not supported\n");
+			continue;
+		}
+
+		msg = pkcs7_parse_message(auth, auth_size);
 		if (IS_ERR(msg)) {
 			EFI_PRINT("Parsing image's signature failed\n");
 			msg = NULL;
-			goto err;
+			continue;
 		}
 
 		/* try black-list first */
