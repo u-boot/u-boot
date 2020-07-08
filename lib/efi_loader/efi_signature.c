@@ -28,7 +28,8 @@ const efi_guid_t efi_guid_cert_type_pkcs7 = EFI_CERT_TYPE_PKCS7_GUID;
 
 /**
  * efi_hash_regions - calculate a hash value
- * @regs:	List of regions
+ * @regs:	Array of regions
+ * @count:	Number of regions
  * @hash:	Pointer to a pointer to buffer holding a hash value
  * @size:	Size of buffer to be returned
  *
@@ -36,18 +37,20 @@ const efi_guid_t efi_guid_cert_type_pkcs7 = EFI_CERT_TYPE_PKCS7_GUID;
  *
  * Return:	true on success, false on error
  */
-static bool efi_hash_regions(struct efi_image_regions *regs, void **hash,
-			     size_t *size)
+static bool efi_hash_regions(struct image_region *regs, int count,
+			     void **hash, size_t *size)
 {
-	*size = 0;
-	*hash = calloc(1, SHA256_SUM_LEN);
 	if (!*hash) {
-		EFI_PRINT("Out of memory\n");
-		return false;
+		*hash = calloc(1, SHA256_SUM_LEN);
+		if (!*hash) {
+			EFI_PRINT("Out of memory\n");
+			return false;
+		}
 	}
-	*size = SHA256_SUM_LEN;
+	if (size)
+		*size = SHA256_SUM_LEN;
 
-	hash_calculate("sha256", regs->reg, regs->num, *hash);
+	hash_calculate("sha256", regs, count, *hash);
 #ifdef DEBUG
 	EFI_PRINT("hash calculated:\n");
 	print_hex_dump("    ", DUMP_PREFIX_OFFSET, 16, 1,
@@ -72,26 +75,10 @@ static bool efi_hash_msg_content(struct pkcs7_message *msg, void **hash,
 {
 	struct image_region regtmp;
 
-	*size = 0;
-	*hash = calloc(1, SHA256_SUM_LEN);
-	if (!*hash) {
-		EFI_PRINT("Out of memory\n");
-		free(msg);
-		return false;
-	}
-	*size = SHA256_SUM_LEN;
-
 	regtmp.data = msg->data;
 	regtmp.size = msg->data_len;
 
-	hash_calculate("sha256", &regtmp, 1, *hash);
-#ifdef DEBUG
-	EFI_PRINT("hash calculated based on contentInfo:\n");
-	print_hex_dump("    ", DUMP_PREFIX_OFFSET, 16, 1,
-		       *hash, SHA256_SUM_LEN, false);
-#endif
-
-	return true;
+	return efi_hash_regions(&regtmp, 1, hash, size);
 }
 
 /**
@@ -169,9 +156,10 @@ static bool efi_signature_verify(struct efi_image_regions *regs,
 			       false);
 #endif
 		/* against contentInfo first */
+		hash = NULL;
 		if ((msg->data && efi_hash_msg_content(msg, &hash, &size)) ||
 				/* for signed image */
-		    efi_hash_regions(regs, &hash, &size)) {
+		    efi_hash_regions(regs->reg, regs->num, &hash, &size)) {
 				/* for authenticated variable */
 			if (ps_info->msgdigest_len != size ||
 			    memcmp(hash, ps_info->msgdigest, size)) {
@@ -239,7 +227,7 @@ bool efi_signature_verify_with_list(struct efi_image_regions *regs,
 		  regs, signed_info, siglist, valid_cert);
 
 	if (!signed_info) {
-		void *hash;
+		void *hash = NULL;
 		size_t size;
 
 		EFI_PRINT("%s: unsigned image\n", __func__);
@@ -253,7 +241,7 @@ bool efi_signature_verify_with_list(struct efi_image_regions *regs,
 			goto out;
 		}
 
-		if (!efi_hash_regions(regs, &hash, &size)) {
+		if (!efi_hash_regions(regs->reg, regs->num, &hash, &size)) {
 			EFI_PRINT("Digesting unsigned image failed\n");
 			goto out;
 		}
