@@ -9,7 +9,6 @@ This test verifies image authentication for unsigned images.
 """
 
 import pytest
-from defs import *
 
 
 @pytest.mark.boardspec('sandbox')
@@ -33,18 +32,18 @@ class TestEfiUnsignedImage(object):
                 'setenv -e -nv -bs -rt -at -i 4000000,$filesize KEK',
                 'fatload host 0:1 4000000 PK.auth',
                 'setenv -e -nv -bs -rt -at -i 4000000,$filesize PK'])
-            assert(not 'Failed to set EFI variable' in ''.join(output))
+            assert 'Failed to set EFI variable' not in ''.join(output)
 
             output = u_boot_console.run_command_list([
                 'efidebug boot add 1 HELLO host 0:1 /helloworld.efi ""',
                 'efidebug boot next 1',
                 'bootefi bootmgr'])
-            assert('\'HELLO\' failed' in ''.join(output))
+            assert '\'HELLO\' failed' in ''.join(output)
             output = u_boot_console.run_command_list([
                 'efidebug boot next 1',
                 'efidebug test bootmgr'])
-            assert('efi_start_image() returned: 26' in ''.join(output))
-            assert(not 'Hello, world!' in ''.join(output))
+            assert 'efi_start_image() returned: 26' in ''.join(output)
+            assert 'Hello, world!' not in ''.join(output)
 
     def test_efi_unsigned_image_auth2(self, u_boot_console, efi_boot_env):
         """
@@ -62,13 +61,13 @@ class TestEfiUnsignedImage(object):
                 'setenv -e -nv -bs -rt -at -i 4000000,$filesize KEK',
                 'fatload host 0:1 4000000 PK.auth',
                 'setenv -e -nv -bs -rt -at -i 4000000,$filesize PK'])
-            assert(not 'Failed to set EFI variable' in ''.join(output))
+            assert 'Failed to set EFI variable' not in ''.join(output)
 
             output = u_boot_console.run_command_list([
                 'efidebug boot add 1 HELLO host 0:1 /helloworld.efi ""',
                 'efidebug boot next 1',
                 'bootefi bootmgr'])
-            assert('Hello, world!' in ''.join(output))
+            assert 'Hello, world!' in ''.join(output)
 
     def test_efi_unsigned_image_auth3(self, u_boot_console, efi_boot_env):
         """
@@ -86,33 +85,33 @@ class TestEfiUnsignedImage(object):
                 'setenv -e -nv -bs -rt -at -i 4000000,$filesize KEK',
                 'fatload host 0:1 4000000 PK.auth',
                 'setenv -e -nv -bs -rt -at -i 4000000,$filesize PK'])
-            assert(not 'Failed to set EFI variable' in ''.join(output))
+            assert 'Failed to set EFI variable' not in ''.join(output)
 
             output = u_boot_console.run_command_list([
                 'efidebug boot add 1 HELLO host 0:1 /helloworld.efi ""',
                 'efidebug boot next 1',
                 'bootefi bootmgr'])
-            assert('\'HELLO\' failed' in ''.join(output))
+            assert '\'HELLO\' failed' in ''.join(output)
             output = u_boot_console.run_command_list([
                 'efidebug boot next 1',
                 'efidebug test bootmgr'])
-            assert('efi_start_image() returned: 26' in ''.join(output))
-            assert(not 'Hello, world!' in ''.join(output))
+            assert 'efi_start_image() returned: 26' in ''.join(output)
+            assert 'Hello, world!' not in ''.join(output)
 
         with u_boot_console.log.section('Test Case 3b'):
             # Test Case 3b, rejected by dbx even if db allows
             output = u_boot_console.run_command_list([
                 'fatload host 0:1 4000000 db_hello.auth',
                 'setenv -e -nv -bs -rt -at -i 4000000,$filesize db'])
-            assert(not 'Failed to set EFI variable' in ''.join(output))
+            assert 'Failed to set EFI variable' not in ''.join(output)
 
             output = u_boot_console.run_command_list([
                 'efidebug boot add 1 HELLO host 0:1 /helloworld.efi ""',
                 'efidebug boot next 1',
                 'bootefi bootmgr'])
-            assert('\'HELLO\' failed' in ''.join(output))
+            assert '\'HELLO\' failed' in ''.join(output)
             output = u_boot_console.run_command_list([
                 'efidebug boot next 1',
                 'efidebug test bootmgr'])
-            assert('efi_start_image() returned: 26' in ''.join(output))
-            assert(not 'Hello, world!' in ''.join(output))
+            assert 'efi_start_image() returned: 26' in ''.join(output)
+            assert 'Hello, world!' not in ''.join(output)

@@ -4,9 +4,8 @@
 
 import os
 import os.path
-import pytest
-import re
 from subprocess import call, check_call, check_output, CalledProcessError
+import pytest
 from defs import *
 
 # from test/py/conftest.py
@@ -14,8 +13,8 @@ from defs import *
 
 def tool_is_in_path(tool):
     for path in os.environ["PATH"].split(os.pathsep):
-        fn = os.path.join(path, tool)
-        if os.path.isfile(fn) and os.access(fn, os.X_OK):
+        full_path = os.path.join(path, tool)
+        if os.path.isfile(full_path) and os.access(full_path, os.X_OK):
             return True
     return False
 
@@ -128,8 +127,8 @@ def efi_boot_env(request, u_boot_config):
         check_call('sudo umount %s' % loop_dev, shell=True)
         check_call('sudo losetup -d %s' % loop_dev, shell=True)
 
-    except CalledProcessError as e:
-        pytest.skip('Setup failed: %s' % e.cmd)
+    except CalledProcessError as exception:
+        pytest.skip('Setup failed: %s' % exception.cmd)
         return
     else:
         yield image_path
