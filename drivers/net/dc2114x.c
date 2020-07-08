@@ -95,6 +95,12 @@ struct de4x5_desc {
 };
 
 struct dc2114x_priv {
+	struct de4x5_desc rx_ring[NUM_RX_DESC] __aligned(32);
+	struct de4x5_desc tx_ring[NUM_TX_DESC] __aligned(32);
+	int rx_new;	/* RX descriptor ring pointer */
+	int tx_new;	/* TX descriptor ring pointer */
+	char rx_ring_size;
+	char tx_ring_size;
 	struct eth_device	dev;
 	pci_dev_t		devno;
 	char			*name;
@@ -103,14 +109,6 @@ struct dc2114x_priv {
 };
 
 /* RX and TX descriptor ring */
-static struct de4x5_desc rx_ring[NUM_RX_DESC] __aligned(32);
-static struct de4x5_desc tx_ring[NUM_TX_DESC] __aligned(32);
-static int rx_new;	/* RX descriptor ring pointer */
-static int tx_new;	/* TX descriptor ring pointer */
-
-static char rx_ring_size;
-static char tx_ring_size;
-
 static u32 dc2114x_inl(struct dc2114x_priv *priv, u32 addr)
 {
 	return le32_to_cpu(readl(priv->iobase + addr));
@@ -291,7 +289,7 @@ static void send_setup_frame(struct dc2114x_priv *priv, struct bd_info *bis)
 			pa += 4;
 	}
 
-	for (i = 0; tx_ring[tx_new].status & cpu_to_le32(T_OWN); i++) {
+	for (i = 0; priv->tx_ring[priv->tx_new].status & cpu_to_le32(T_OWN); i++) {
 		if (i < TOUT_LOOP)
 			continue;
 
@@ -299,14 +297,14 @@ static void send_setup_frame(struct dc2114x_priv *priv, struct bd_info *bis)
 		return;
 	}
 
-	tx_ring[tx_new].buf = cpu_to_le32(phys_to_bus(priv->devno,
+	priv->tx_ring[priv->tx_new].buf = cpu_to_le32(phys_to_bus(priv->devno,
 						      (u32)&setup_frame[0]));
-	tx_ring[tx_new].des1 = cpu_to_le32(TD_TER | TD_SET | SETUP_FRAME_LEN);
-	tx_ring[tx_new].status = cpu_to_le32(T_OWN);
+	priv->tx_ring[priv->tx_new].des1 = cpu_to_le32(TD_TER | TD_SET | SETUP_FRAME_LEN);
+	priv->tx_ring[priv->tx_new].status = cpu_to_le32(T_OWN);
 
 	dc2114x_outl(priv, POLL_DEMAND, DE4X5_TPD);
 
-	for (i = 0; tx_ring[tx_new].status & cpu_to_le32(T_OWN); i++) {
+	for (i = 0; priv->tx_ring[priv->tx_new].status & cpu_to_le32(T_OWN); i++) {
 		if (i < TOUT_LOOP)
 			continue;
 
@@ -314,12 +312,12 @@ static void send_setup_frame(struct dc2114x_priv *priv, struct bd_info *bis)
 		return;
 	}
 
-	if (le32_to_cpu(tx_ring[tx_new].status) != 0x7FFFFFFF) {
+	if (le32_to_cpu(priv->tx_ring[priv->tx_new].status) != 0x7FFFFFFF) {
 		printf("TX error status2 = 0x%08X\n",
-		       le32_to_cpu(tx_ring[tx_new].status));
+		       le32_to_cpu(priv->tx_ring[priv->tx_new].status));
 	}
 
-	tx_new = (tx_new + 1) % NUM_TX_DESC;
+	priv->tx_new = (priv->tx_new + 1) % NUM_TX_DESC;
 }
 
 static int dc21x4x_send(struct eth_device *dev, void *packet, int length)
@@ -334,7 +332,7 @@ static int dc21x4x_send(struct eth_device *dev, void *packet, int length)
 		goto done;
 	}
 
-	for (i = 0; tx_ring[tx_new].status & cpu_to_le32(T_OWN); i++) {
+	for (i = 0; priv->tx_ring[priv->tx_new].status & cpu_to_le32(T_OWN); i++) {
 		if (i < TOUT_LOOP)
 			continue;
 
@@ -342,14 +340,14 @@ static int dc21x4x_send(struct eth_device *dev, void *packet, int length)
 		goto done;
 	}
 
-	tx_ring[tx_new].buf = cpu_to_le32(phys_to_bus(priv->devno,
+	priv->tx_ring[priv->tx_new].buf = cpu_to_le32(phys_to_bus(priv->devno,
 						      (u32)packet));
-	tx_ring[tx_new].des1 = cpu_to_le32(TD_TER | TD_LS | TD_FS | length);
-	tx_ring[tx_new].status = cpu_to_le32(T_OWN);
+	priv->tx_ring[priv->tx_new].des1 = cpu_to_le32(TD_TER | TD_LS | TD_FS | length);
+	priv->tx_ring[priv->tx_new].status = cpu_to_le32(T_OWN);
 
 	dc2114x_outl(priv, POLL_DEMAND, DE4X5_TPD);
 
-	for (i = 0; tx_ring[tx_new].status & cpu_to_le32(T_OWN); i++) {
+	for (i = 0; priv->tx_ring[priv->tx_new].status & cpu_to_le32(T_OWN); i++) {
 		if (i < TOUT_LOOP)
 			continue;
 
@@ -357,25 +355,27 @@ static int dc21x4x_send(struct eth_device *dev, void *packet, int length)
 		goto done;
 	}
 
-	if (le32_to_cpu(tx_ring[tx_new].status) & TD_ES) {
-		tx_ring[tx_new].status = 0x0;
+	if (le32_to_cpu(priv->tx_ring[priv->tx_new].status) & TD_ES) {
+		priv->tx_ring[priv->tx_new].status = 0x0;
 		goto done;
 	}
 
 	status = length;
 
 done:
-	tx_new = (tx_new + 1) % NUM_TX_DESC;
+	priv->tx_new = (priv->tx_new + 1) % NUM_TX_DESC;
 	return status;
 }
 
 static int dc21x4x_recv(struct eth_device *dev)
 {
+	struct dc2114x_priv *priv =
+		container_of(dev, struct dc2114x_priv, dev);
 	int length = 0;
 	u32 status;
 
 	while (true) {
-		status = le32_to_cpu(rx_ring[rx_new].status);
+		status = le32_to_cpu(priv->rx_ring[priv->rx_new].status);
 
 		if (status & R_OWN)
 			break;
@@ -387,23 +387,23 @@ static int dc21x4x_recv(struct eth_device *dev)
 				printf("RX error status = 0x%08X\n", status);
 			} else {
 				/* A valid frame received. */
-				length = (le32_to_cpu(rx_ring[rx_new].status)
+				length = (le32_to_cpu(priv->rx_ring[priv->rx_new].status)
 					  >> 16);
 
 				/* Pass the packet up to the protocol layers */
 				net_process_received_packet
-					(net_rx_packets[rx_new], length - 4);
+					(net_rx_packets[priv->rx_new], length - 4);
 			}
 
 			/*
 			 * Change buffer ownership for this frame,
 			 * back to the adapter.
 			 */
-			rx_ring[rx_new].status = cpu_to_le32(R_OWN);
+			priv->rx_ring[priv->rx_new].status = cpu_to_le32(R_OWN);
 		}
 
 		/* Update entry information. */
-		rx_new = (rx_new + 1) % rx_ring_size;
+		priv->rx_new = (priv->rx_new + 1) % priv->rx_ring_size;
 	}
 
 	return length;
@@ -428,37 +428,37 @@ static int dc21x4x_init(struct eth_device *dev, struct bd_info *bis)
 	dc2114x_outl(priv, OMR_SDP | OMR_PS | OMR_PM, DE4X5_OMR);
 
 	for (i = 0; i < NUM_RX_DESC; i++) {
-		rx_ring[i].status = cpu_to_le32(R_OWN);
-		rx_ring[i].des1 = cpu_to_le32(RX_BUFF_SZ);
-		rx_ring[i].buf = cpu_to_le32(phys_to_bus(priv->devno,
+		priv->rx_ring[i].status = cpu_to_le32(R_OWN);
+		priv->rx_ring[i].des1 = cpu_to_le32(RX_BUFF_SZ);
+		priv->rx_ring[i].buf = cpu_to_le32(phys_to_bus(priv->devno,
 					     (u32)net_rx_packets[i]));
-		rx_ring[i].next = 0;
+		priv->rx_ring[i].next = 0;
 	}
 
 	for (i = 0; i < NUM_TX_DESC; i++) {
-		tx_ring[i].status = 0;
-		tx_ring[i].des1 = 0;
-		tx_ring[i].buf = 0;
-		tx_ring[i].next = 0;
+		priv->tx_ring[i].status = 0;
+		priv->tx_ring[i].des1 = 0;
+		priv->tx_ring[i].buf = 0;
+		priv->tx_ring[i].next = 0;
 	}
 
-	rx_ring_size = NUM_RX_DESC;
-	tx_ring_size = NUM_TX_DESC;
+	priv->rx_ring_size = NUM_RX_DESC;
+	priv->tx_ring_size = NUM_TX_DESC;
 
 	/* Write the end of list marker to the descriptor lists. */
-	rx_ring[rx_ring_size - 1].des1 |= cpu_to_le32(RD_RER);
-	tx_ring[tx_ring_size - 1].des1 |= cpu_to_le32(TD_TER);
+	priv->rx_ring[priv->rx_ring_size - 1].des1 |= cpu_to_le32(RD_RER);
+	priv->tx_ring[priv->tx_ring_size - 1].des1 |= cpu_to_le32(TD_TER);
 
 	/* Tell the adapter where the TX/RX rings are located. */
-	dc2114x_outl(priv, phys_to_bus(priv->devno, (u32)&rx_ring),
+	dc2114x_outl(priv, phys_to_bus(priv->devno, (u32)&priv->rx_ring),
 		     DE4X5_RRBA);
-	dc2114x_outl(priv, phys_to_bus(priv->devno, (u32)&tx_ring),
+	dc2114x_outl(priv, phys_to_bus(priv->devno, (u32)&priv->tx_ring),
 		     DE4X5_TRBA);
 
 	start_de4x5(priv);
 
-	tx_new = 0;
-	rx_new = 0;
+	priv->tx_new = 0;
+	priv->rx_new = 0;
 
 	send_setup_frame(priv, bis);
 
@@ -543,7 +543,7 @@ int dc21x4x_initialize(struct bd_info *bis)
 		iobase &= PCI_BASE_ADDRESS_MEM_MASK;
 		debug("dc21x4x: DEC 21142 PCI Device @0x%x\n", iobase);
 
-		priv = malloc(sizeof(*priv));
+		priv = memalign(32, sizeof(*priv));
 		if (!priv) {
 			printf("Can not allocalte memory of dc21x4x\n");
 			break;
