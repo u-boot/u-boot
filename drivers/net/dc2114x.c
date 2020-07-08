@@ -2,7 +2,7 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <env.h>
+#include <dm.h>
 #include <malloc.h>
 #include <net.h>
 #include <netdev.h>
@@ -73,7 +73,9 @@
 
 #define POLL_DEMAND	1
 
-#if defined(CONFIG_E500)
+#if defined(CONFIG_DM_ETH)
+#define phys_to_bus(dev, a)	dm_pci_phys_to_mem((dev), (a))
+#elif defined(CONFIG_E500)
 #define phys_to_bus(dev, a)	(a)
 #else
 #define phys_to_bus(dev, a)	pci_phys_to_mem((dev), (a))
@@ -101,8 +103,12 @@ struct dc2114x_priv {
 	int tx_new;	/* TX descriptor ring pointer */
 	char rx_ring_size;
 	char tx_ring_size;
+#ifdef CONFIG_DM_ETH
+	struct udevice		*devno;
+#else
 	struct eth_device	dev;
 	pci_dev_t		devno;
+#endif
 	char			*name;
 	void __iomem		*iobase;
 	u8			*enetaddr;
@@ -473,6 +479,7 @@ static struct pci_device_id supported[] = {
 	{ }
 };
 
+#ifndef CONFIG_DM_ETH
 static int dc21x4x_init(struct eth_device *dev, struct bd_info *bis)
 {
 	struct dc2114x_priv *priv =
@@ -614,3 +621,139 @@ int dc21x4x_initialize(struct bd_info *bis)
 
 	return card_number;
 }
+
+#else	/* DM_ETH */
+static int dc2114x_start(struct udevice *dev)
+{
+	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct dc2114x_priv *priv = dev_get_priv(dev);
+
+	memcpy(priv->enetaddr, plat->enetaddr, sizeof(plat->enetaddr));
+
+	/* Ensure we're not sleeping. */
+	dm_pci_write_config8(dev, PCI_CFDA_PSM, WAKEUP);
+
+	return dc21x4x_init_common(priv);
+}
+
+static void dc2114x_stop(struct udevice *dev)
+{
+	struct dc2114x_priv *priv = dev_get_priv(dev);
+
+	dc21x4x_halt_common(priv);
+
+	dm_pci_write_config8(dev, PCI_CFDA_PSM, SLEEP);
+}
+
+static int dc2114x_send(struct udevice *dev, void *packet, int length)
+{
+	struct dc2114x_priv *priv = dev_get_priv(dev);
+	int ret;
+
+	ret = dc21x4x_send_common(priv, packet, length);
+
+	return ret ? 0 : -ETIMEDOUT;
+}
+
+static int dc2114x_recv(struct udevice *dev, int flags, uchar **packetp)
+{
+	struct dc2114x_priv *priv = dev_get_priv(dev);
+	int ret;
+
+	ret = dc21x4x_recv_check(priv);
+
+	if (ret < 0) {
+		/* Update entry information. */
+		priv->rx_new = (priv->rx_new + 1) % priv->rx_ring_size;
+		ret = 0;
+	}
+
+	if (!ret)
+		return 0;
+
+	*packetp = net_rx_packets[priv->rx_new];
+
+	return ret - 4;
+}
+
+static int dc2114x_free_pkt(struct udevice *dev, uchar *packet, int length)
+{
+	struct dc2114x_priv *priv = dev_get_priv(dev);
+
+	priv->rx_ring[priv->rx_new].status = cpu_to_le32(R_OWN);
+
+	/* Update entry information. */
+	priv->rx_new = (priv->rx_new + 1) % priv->rx_ring_size;
+
+	return 0;
+}
+
+static int dc2114x_read_rom_hwaddr(struct udevice *dev)
+{
+	struct dc2114x_priv *priv = dev_get_priv(dev);
+
+	read_hw_addr(priv);
+
+	return 0;
+}
+
+static int dc2114x_bind(struct udevice *dev)
+{
+	static int card_number;
+	char name[16];
+
+	sprintf(name, "dc2114x#%u", card_number++);
+
+	return device_set_name(dev, name);
+}
+
+static int dc2114x_probe(struct udevice *dev)
+{
+	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct dc2114x_priv *priv = dev_get_priv(dev);
+	u16 command, status;
+	u32 iobase;
+
+	dm_pci_read_config32(dev, PCI_BASE_ADDRESS_1, &iobase);
+	iobase &= ~0xf;
+
+	debug("dc2114x: DEC 2114x PCI Device @0x%x\n", iobase);
+
+	priv->devno = dev;
+	priv->enetaddr = plat->enetaddr;
+	priv->iobase = (void __iomem *)dm_pci_mem_to_phys(dev, iobase);
+
+	command = PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER;
+	dm_pci_write_config16(dev, PCI_COMMAND, command);
+	dm_pci_read_config16(dev, PCI_COMMAND, &status);
+	if ((status & command) != command) {
+		printf("dc2114x: Couldn't enable IO access or Bus Mastering\n");
+		return -EINVAL;
+	}
+
+	dm_pci_write_config8(dev, PCI_LATENCY_TIMER, 0x60);
+
+	return 0;
+}
+
+static const struct eth_ops dc2114x_ops = {
+	.start		= dc2114x_start,
+	.send		= dc2114x_send,
+	.recv		= dc2114x_recv,
+	.stop		= dc2114x_stop,
+	.free_pkt	= dc2114x_free_pkt,
+	.read_rom_hwaddr = dc2114x_read_rom_hwaddr,
+};
+
+U_BOOT_DRIVER(eth_dc2114x) = {
+	.name	= "eth_dc2114x",
+	.id	= UCLASS_ETH,
+	.bind	= dc2114x_bind,
+	.probe	= dc2114x_probe,
+	.ops	= &dc2114x_ops,
+	.priv_auto_alloc_size = sizeof(struct dc2114x_priv),
+	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+};
+
+U_BOOT_PCI_DEVICE(eth_dc2114x, supported);
+#endif
