@@ -427,6 +427,8 @@ int intel_pinctrl_get_acpi_pin(struct udevice *dev, uint offset)
 	const struct pad_community *comm = priv->comm;
 	int group;
 
+	if (IS_ENABLED(CONFIG_INTEL_PINCTRL_MULTI_ACPI_DEVICES))
+		return offset;
 	group = pinctrl_group_index(comm, offset);
 
 	/* If pad base is not set then use GPIO number as ACPI pin number */
