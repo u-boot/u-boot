@@ -11,6 +11,7 @@
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>
+#include <mapmem.h>
 
 /**
  * struct binman_info - Information needed by the binman library
@@ -53,6 +54,28 @@ static int binman_entry_find_internal(ofnode node, const char *name,
 int binman_entry_find(const char *name, struct binman_entry *entry)
 {
 	return binman_entry_find_internal(binman->image, name, entry);
+}
+
+int binman_entry_map(ofnode parent, const char *name, void **bufp, int *sizep)
+{
+	struct binman_entry entry;
+	int ret;
+
+	if (binman->rom_offset == ROM_OFFSET_NONE)
+		return -EPERM;
+	ret = binman_entry_find_internal(parent, name, &entry);
+	if (ret)
+		return log_msg_ret("entry", ret);
+	if (sizep)
+		*sizep = entry.size;
+	*bufp = map_sysmem(entry.image_pos + binman->rom_offset, entry.size);
+
+	return 0;
+}
+
+ofnode binman_section_find_node(const char *name)
+{
+	return ofnode_find_subnode(binman->image, name);
 }
 
 void binman_set_rom_offset(int rom_offset)
