@@ -21,6 +21,14 @@ struct binman_entry {
 };
 
 /**
+ * binman_set_rom_offset() - Set the ROM memory-map offset
+ *
+ * @rom_offset: Offset from an image_pos to the memory-mapped address. This
+ *	tells binman that ROM image_pos x can be addressed at rom_offset + x
+ */
+void binman_set_rom_offset(int rom_offset);
+
+/**
  * binman_entry_find() - Find a binman symbol
  *
  * This searches the binman information in the device tree for a symbol of the
