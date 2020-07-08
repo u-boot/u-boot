@@ -153,6 +153,17 @@ static int intel_p2sb_set_hide(struct udevice *dev, bool hide)
 	return 0;
 }
 
+static int p2sb_remove(struct udevice *dev)
+{
+	int ret;
+
+	ret = intel_p2sb_set_hide(dev, true);
+	if (ret)
+		return log_msg_ret("hide", ret);
+
+	return 0;
+}
+
 static int p2sb_child_post_bind(struct udevice *dev)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
@@ -183,10 +194,12 @@ U_BOOT_DRIVER(p2sb_drv) = {
 	.id		= UCLASS_P2SB,
 	.of_match	= p2sb_ids,
 	.probe		= p2sb_probe,
+	.remove		= p2sb_remove,
 	.ops		= &p2sb_ops,
 	.ofdata_to_platdata = p2sb_ofdata_to_platdata,
 	.platdata_auto_alloc_size = sizeof(struct p2sb_platdata),
 	.per_child_platdata_auto_alloc_size =
 		sizeof(struct p2sb_child_platdata),
 	.child_post_bind = p2sb_child_post_bind,
+	.flags		= DM_FLAG_OS_PREPARE,
 };
