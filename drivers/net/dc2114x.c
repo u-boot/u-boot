@@ -275,7 +275,7 @@ static int read_srom(struct dc2114x_priv *priv, u_long ioaddr, int index)
 			     3 + ee_addr_size + 16);
 }
 
-static void send_setup_frame(struct dc2114x_priv *priv, struct bd_info *bis)
+static void send_setup_frame(struct dc2114x_priv *priv)
 {
 	char setup_frame[SETUP_FRAME_LEN];
 	char *pa = &setup_frame[0];
@@ -320,10 +320,8 @@ static void send_setup_frame(struct dc2114x_priv *priv, struct bd_info *bis)
 	priv->tx_new = (priv->tx_new + 1) % NUM_TX_DESC;
 }
 
-static int dc21x4x_send(struct eth_device *dev, void *packet, int length)
+static int dc21x4x_send_common(struct dc2114x_priv *priv, void *packet, int length)
 {
-	struct dc2114x_priv *priv =
-		container_of(dev, struct dc2114x_priv, dev);
 	int status = -1;
 	int i;
 
@@ -395,47 +393,9 @@ static int dc21x4x_recv_check(struct dc2114x_priv *priv)
 	return -EAGAIN;
 }
 
-static int dc21x4x_recv(struct eth_device *dev)
+static int dc21x4x_init_common(struct dc2114x_priv *priv)
 {
-	struct dc2114x_priv *priv =
-		container_of(dev, struct dc2114x_priv, dev);
-	int length = 0;
-	int ret;
-
-	while (true) {
-		ret = dc21x4x_recv_check(priv);
-		if (!ret)
-			break;
-
-		if (ret > 0) {
-			length = ret;
-			/* Pass the packet up to the protocol layers */
-			net_process_received_packet
-				(net_rx_packets[priv->rx_new], length - 4);
-		}
-
-		/*
-		 * Change buffer ownership for this frame,
-		 * back to the adapter.
-		 */
-		if (ret != -EAGAIN)
-			priv->rx_ring[priv->rx_new].status = cpu_to_le32(R_OWN);
-
-		/* Update entry information. */
-		priv->rx_new = (priv->rx_new + 1) % priv->rx_ring_size;
-	}
-
-	return length;
-}
-
-static int dc21x4x_init(struct eth_device *dev, struct bd_info *bis)
-{
-	struct dc2114x_priv *priv =
-		container_of(dev, struct dc2114x_priv, dev);
 	int i;
-
-	/* Ensure we're not sleeping. */
-	pci_write_config_byte(priv->devno, PCI_CFDA_PSM, WAKEUP);
 
 	reset_de4x5(priv);
 
@@ -479,20 +439,15 @@ static int dc21x4x_init(struct eth_device *dev, struct bd_info *bis)
 	priv->tx_new = 0;
 	priv->rx_new = 0;
 
-	send_setup_frame(priv, bis);
+	send_setup_frame(priv);
 
 	return 0;
 }
 
-static void dc21x4x_halt(struct eth_device *dev)
+static void dc21x4x_halt_common(struct dc2114x_priv *priv)
 {
-	struct dc2114x_priv *priv =
-		container_of(dev, struct dc2114x_priv, dev);
-
 	stop_de4x5(priv);
 	dc2114x_outl(priv, 0, DE4X5_SICR);
-
-	pci_write_config_byte(priv->devno, PCI_CFDA_PSM, SLEEP);
 }
 
 static void read_hw_addr(struct dc2114x_priv *priv)
@@ -517,6 +472,68 @@ static struct pci_device_id supported[] = {
 	{ PCI_DEVICE(PCI_VENDOR_ID_DEC, PCI_DEVICE_ID_DEC_21142) },
 	{ }
 };
+
+static int dc21x4x_init(struct eth_device *dev, struct bd_info *bis)
+{
+	struct dc2114x_priv *priv =
+		container_of(dev, struct dc2114x_priv, dev);
+
+	/* Ensure we're not sleeping. */
+	pci_write_config_byte(priv->devno, PCI_CFDA_PSM, WAKEUP);
+
+	return dc21x4x_init_common(priv);
+}
+
+static void dc21x4x_halt(struct eth_device *dev)
+{
+	struct dc2114x_priv *priv =
+		container_of(dev, struct dc2114x_priv, dev);
+
+	dc21x4x_halt_common(priv);
+
+	pci_write_config_byte(priv->devno, PCI_CFDA_PSM, SLEEP);
+}
+
+static int dc21x4x_send(struct eth_device *dev, void *packet, int length)
+{
+	struct dc2114x_priv *priv =
+		container_of(dev, struct dc2114x_priv, dev);
+
+	return dc21x4x_send_common(priv, packet, length);
+}
+
+static int dc21x4x_recv(struct eth_device *dev)
+{
+	struct dc2114x_priv *priv =
+		container_of(dev, struct dc2114x_priv, dev);
+	int length = 0;
+	int ret;
+
+	while (true) {
+		ret = dc21x4x_recv_check(priv);
+		if (!ret)
+			break;
+
+		if (ret > 0) {
+			length = ret;
+			/* Pass the packet up to the protocol layers */
+			net_process_received_packet
+				(net_rx_packets[priv->rx_new], length - 4);
+		}
+
+		/*
+		 * Change buffer ownership for this frame,
+		 * back to the adapter.
+		 */
+		if (ret != -EAGAIN)
+			priv->rx_ring[priv->rx_new].status = cpu_to_le32(R_OWN);
+
+		/* Update entry information. */
+		priv->rx_new = (priv->rx_new + 1) % priv->rx_ring_size;
+	}
+
+	return length;
+}
 
 int dc21x4x_initialize(struct bd_info *bis)
 {
