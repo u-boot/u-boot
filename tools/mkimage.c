@@ -674,7 +674,7 @@ copy_file (int ifd, const char *datafile, int pad)
 	int zero = 0;
 	uint8_t zeros[4096];
 	int offset = 0;
-	int size;
+	int size, ret;
 	struct image_type_params *tparams = imagetool_get_type(params.type);
 
 	memset(zeros, 0, sizeof(zeros));
@@ -730,9 +730,16 @@ copy_file (int ifd, const char *datafile, int pad)
 	}
 
 	size = sbuf.st_size - offset;
-	if (write(ifd, ptr + offset, size) != size) {
-		fprintf (stderr, "%s: Write error on %s: %s\n",
-			params.cmdname, params.imagefile, strerror(errno));
+
+	ret = write(ifd, ptr + offset, size);
+	if (ret != size) {
+		if (ret < 0)
+			fprintf (stderr, "%s: Write error on %s: %s\n",
+				 params.cmdname, params.imagefile, strerror(errno));
+		else if (ret < size)
+			fprintf (stderr, "%s: Write only %d/%d bytes, "\
+				 "probably no space left on the device\n",
+				 params.cmdname, ret, size);
 		exit (EXIT_FAILURE);
 	}
 
