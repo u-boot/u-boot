@@ -23,6 +23,7 @@
 #include <asm/tables.h>
 #include <asm/arch/global_nvs.h>
 #include <dm/acpi.h>
+#include <linux/err.h>
 
 /*
  * IASL compiles the dsdt entries and writes the hex values
@@ -443,8 +444,14 @@ ulong write_acpi_tables(ulong start_addr)
 	dsdt->checksum = 0;
 	dsdt->checksum = table_compute_checksum((void *)dsdt, dsdt->length);
 
-	/* Fill in platform-specific global NVS variables */
-	acpi_create_gnvs(ctx->current);
+	/*
+	 * Fill in platform-specific global NVS variables. If this fails we
+	 * cannot return the error but this should only happen while debugging.
+	 */
+	addr = acpi_create_gnvs(ctx->current);
+	if (IS_ERR_VALUE(addr))
+		printf("Error: Failed to create GNVS\n");
+
 	acpi_inc_align(ctx, sizeof(struct acpi_global_nvs));
 
 	debug("ACPI:    * FADT\n");

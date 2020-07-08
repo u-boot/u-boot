@@ -139,7 +139,7 @@ void acpi_create_fadt(struct acpi_fadt *fadt, struct acpi_facs *facs,
 	header->checksum = table_compute_checksum(fadt, header->length);
 }
 
-void acpi_create_gnvs(struct acpi_global_nvs *gnvs)
+int acpi_create_gnvs(struct acpi_global_nvs *gnvs)
 {
 	struct udevice *dev;
 	int ret;
@@ -159,6 +159,8 @@ void acpi_create_gnvs(struct acpi_global_nvs *gnvs)
 		gnvs->iuart_en = 1;
 	else
 		gnvs->iuart_en = 0;
+
+	return 0;
 }
 
 /*

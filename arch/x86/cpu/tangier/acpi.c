@@ -107,7 +107,7 @@ u32 acpi_fill_csrt(u32 current)
 	return current;
 }
 
-void acpi_create_gnvs(struct acpi_global_nvs *gnvs)
+int acpi_create_gnvs(struct acpi_global_nvs *gnvs)
 {
 	struct udevice *dev;
 	int ret;
@@ -122,4 +122,6 @@ void acpi_create_gnvs(struct acpi_global_nvs *gnvs)
 		if (ret > 0)
 			gnvs->pcnt = ret;
 	}
+
+	return 0;
 }
