@@ -82,6 +82,25 @@ int acpi_get_name(const struct udevice *dev, char *out_name)
 	return 0;
 }
 
+int acpi_get_path(const struct udevice *dev, char *out_path, int maxlen)
+{
+	const char *path;
+	int ret;
+
+	path = dev_read_string(dev, "acpi,path");
+	if (path) {
+		if (strlen(path) >= maxlen)
+			return -E2BIG;
+		strcpy(out_path, path);
+		return 0;
+	}
+	ret = acpi_device_path(dev, out_path, maxlen);
+	if (ret)
+		return log_msg_ret("dev", ret);
+
+	return 0;
+}
+
 /**
  * acpi_add_item() - Add a new item to the list of data collected
  *

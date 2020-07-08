@@ -187,6 +187,19 @@ int acpi_inject_dsdt(struct acpi_ctx *ctx);
  */
 void acpi_dump_items(enum acpi_dump_option option);
 
+/**
+ * acpi_get_path() - Get the full ACPI path for a device
+ *
+ * This checks for any override in the device tree and calls acpi_device_path()
+ * if not
+ *
+ * @dev: Device to check
+ * @out_path: Buffer to place the path in (should be ACPI_PATH_MAX long)
+ * @maxlen: Size of buffer (typically ACPI_PATH_MAX)
+ * @return 0 if OK, -ve on error
+ */
+int acpi_get_path(const struct udevice *dev, char *out_path, int maxlen);
+
 #endif /* __ACPI__ */
 
 #endif
