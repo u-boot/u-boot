@@ -235,6 +235,78 @@ void acpigen_write_one(struct acpi_ctx *ctx);
 void acpigen_write_integer(struct acpi_ctx *ctx, u64 data);
 
 /**
+ * acpigen_write_name_zero() - Write a named zero value
+ *
+ * @ctx: ACPI context pointer
+ * @name: Name of the value
+ */
+void acpigen_write_name_zero(struct acpi_ctx *ctx, const char *name);
+
+/**
+ * acpigen_write_name_one() - Write a named one value
+ *
+ * @ctx: ACPI context pointer
+ * @name: Name of the value
+ */
+void acpigen_write_name_one(struct acpi_ctx *ctx, const char *name);
+
+/**
+ * acpigen_write_name_byte() - Write a named byte value
+ *
+ * @ctx: ACPI context pointer
+ * @name: Name of the value
+ * @val: Value to write
+ */
+void acpigen_write_name_byte(struct acpi_ctx *ctx, const char *name, uint val);
+
+/**
+ * acpigen_write_name_word() - Write a named word value
+ *
+ * @ctx: ACPI context pointer
+ * @name: Name of the value
+ * @val: Value to write
+ */
+void acpigen_write_name_word(struct acpi_ctx *ctx, const char *name, uint val);
+
+/**
+ * acpigen_write_name_dword() - Write a named dword value
+ *
+ * @ctx: ACPI context pointer
+ * @name: Name of the value
+ * @val: Value to write
+ */
+void acpigen_write_name_dword(struct acpi_ctx *ctx, const char *name, uint val);
+
+/**
+ * acpigen_write_name_qword() - Write a named qword value
+ *
+ * @ctx: ACPI context pointer
+ * @name: Name of the value
+ * @val: Value to write
+ */
+void acpigen_write_name_qword(struct acpi_ctx *ctx, const char *name, u64 val);
+
+/**
+ * acpigen_write_name_integer() - Write a named integer value
+ *
+ * @ctx: ACPI context pointer
+ * @name: Name of the value
+ * @val: Value to write
+ */
+void acpigen_write_name_integer(struct acpi_ctx *ctx, const char *name,
+				u64 val);
+
+/**
+ * acpigen_write_name_string() - Write a named string value
+ *
+ * @ctx: ACPI context pointer
+ * @name: Name of the value
+ * @string: String to write
+ */
+void acpigen_write_name_string(struct acpi_ctx *ctx, const char *name,
+			       const char *string);
+
+/**
  * acpigen_write_string() - Write a string
  *
  * This writes a STRING_PREFIX followed by a null-terminated string

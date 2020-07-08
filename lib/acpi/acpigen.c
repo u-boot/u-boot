@@ -143,6 +143,55 @@ void acpigen_write_integer(struct acpi_ctx *ctx, u64 data)
 		acpigen_write_qword(ctx, data);
 }
 
+void acpigen_write_name_zero(struct acpi_ctx *ctx, const char *name)
+{
+	acpigen_write_name(ctx, name);
+	acpigen_write_zero(ctx);
+}
+
+void acpigen_write_name_one(struct acpi_ctx *ctx, const char *name)
+{
+	acpigen_write_name(ctx, name);
+	acpigen_write_one(ctx);
+}
+
+void acpigen_write_name_byte(struct acpi_ctx *ctx, const char *name, uint val)
+{
+	acpigen_write_name(ctx, name);
+	acpigen_write_byte(ctx, val);
+}
+
+void acpigen_write_name_word(struct acpi_ctx *ctx, const char *name, uint val)
+{
+	acpigen_write_name(ctx, name);
+	acpigen_write_word(ctx, val);
+}
+
+void acpigen_write_name_dword(struct acpi_ctx *ctx, const char *name, uint val)
+{
+	acpigen_write_name(ctx, name);
+	acpigen_write_dword(ctx, val);
+}
+
+void acpigen_write_name_qword(struct acpi_ctx *ctx, const char *name, u64 val)
+{
+	acpigen_write_name(ctx, name);
+	acpigen_write_qword(ctx, val);
+}
+
+void acpigen_write_name_integer(struct acpi_ctx *ctx, const char *name, u64 val)
+{
+	acpigen_write_name(ctx, name);
+	acpigen_write_integer(ctx, val);
+}
+
+void acpigen_write_name_string(struct acpi_ctx *ctx, const char *name,
+			       const char *string)
+{
+	acpigen_write_name(ctx, name);
+	acpigen_write_string(ctx, string);
+}
+
 void acpigen_emit_stream(struct acpi_ctx *ctx, const char *data, int size)
 {
 	int i;

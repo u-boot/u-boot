@@ -1020,3 +1020,80 @@ static int dm_test_acpi_device(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_acpi_device, 0);
+
+/* Test writing named values */
+static int dm_test_acpi_write_name(struct unit_test_state *uts)
+{
+	const char *name = "\\_SB." ACPI_TEST_DEV_NAME;
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+	ptr = acpigen_get_current(ctx);
+
+	acpigen_write_name_zero(ctx, name);
+	acpigen_write_name_one(ctx, name);
+	acpigen_write_name_byte(ctx, name, TEST_INT8);
+	acpigen_write_name_word(ctx, name, TEST_INT16);
+	acpigen_write_name_dword(ctx, name, TEST_INT32);
+	acpigen_write_name_qword(ctx, name, TEST_INT64);
+	acpigen_write_name_integer(ctx, name, TEST_INT64 + 1);
+	acpigen_write_name_string(ctx, name, "baldrick");
+	acpigen_write_name_string(ctx, name, NULL);
+
+	ut_asserteq(NAME_OP, *ptr++);
+	ut_asserteq_strn("\\._SB_ABCD", (char *)ptr);
+	ptr += 10;
+	ut_asserteq(ZERO_OP, *ptr++);
+
+	ut_asserteq(NAME_OP, *ptr++);
+	ptr += 10;
+	ut_asserteq(ONE_OP, *ptr++);
+
+	ut_asserteq(NAME_OP, *ptr++);
+	ptr += 10;
+	ut_asserteq(BYTE_PREFIX, *ptr++);
+	ut_asserteq(TEST_INT8, *ptr++);
+
+	ut_asserteq(NAME_OP, *ptr++);
+	ptr += 10;
+	ut_asserteq(WORD_PREFIX, *ptr++);
+	ut_asserteq(TEST_INT16, get_unaligned((u16 *)ptr));
+	ptr += 2;
+
+	ut_asserteq(NAME_OP, *ptr++);
+	ptr += 10;
+	ut_asserteq(DWORD_PREFIX, *ptr++);
+	ut_asserteq(TEST_INT32, get_unaligned((u32 *)ptr));
+	ptr += 4;
+
+	ut_asserteq(NAME_OP, *ptr++);
+	ptr += 10;
+	ut_asserteq(QWORD_PREFIX, *ptr++);
+	ut_asserteq_64(TEST_INT64, get_unaligned((u64 *)ptr));
+	ptr += 8;
+
+	ut_asserteq(NAME_OP, *ptr++);
+	ptr += 10;
+	ut_asserteq(QWORD_PREFIX, *ptr++);
+	ut_asserteq_64(TEST_INT64 + 1, get_unaligned((u64 *)ptr));
+	ptr += 8;
+
+	ut_asserteq(NAME_OP, *ptr++);
+	ptr += 10;
+	ut_asserteq(STRING_PREFIX, *ptr++);
+	ut_asserteq_str("baldrick", (char *)ptr)
+	ptr += 9;
+
+	ut_asserteq(NAME_OP, *ptr++);
+	ptr += 10;
+	ut_asserteq(STRING_PREFIX, *ptr++);
+	ut_asserteq('\0', *ptr++);
+
+	ut_asserteq_ptr(ptr, ctx->current);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_write_name, 0);
