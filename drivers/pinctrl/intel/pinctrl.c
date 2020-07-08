@@ -619,15 +619,11 @@ int intel_pinctrl_ofdata_to_platdata(struct udevice *dev,
 {
 	struct p2sb_child_platdata *pplat = dev_get_parent_platdata(dev);
 	struct intel_pinctrl_priv *priv = dev_get_priv(dev);
-	int ret;
 
 	if (!comm) {
 		log_err("Cannot find community for pid %d\n", pplat->pid);
 		return -EDOM;
 	}
-	ret = irq_first_device_type(X86_IRQT_ITSS, &priv->itss);
-	if (ret)
-		return log_msg_ret("Cannot find ITSS", ret);
 	priv->comm = comm;
 	priv->num_cfgs = num_cfgs;
 
@@ -637,8 +633,12 @@ int intel_pinctrl_ofdata_to_platdata(struct udevice *dev,
 int intel_pinctrl_probe(struct udevice *dev)
 {
 	struct intel_pinctrl_priv *priv = dev_get_priv(dev);
+	int ret;
 
 	priv->itss_pol_cfg = true;
+	ret = irq_first_device_type(X86_IRQT_ITSS, &priv->itss);
+	if (ret)
+		return log_msg_ret("Cannot find ITSS", ret);
 
 	return 0;
 }
