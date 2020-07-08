@@ -11,6 +11,7 @@ This test verifies image authentication for unsigned images.
 import pytest
 from defs import *
 
+
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('efi_secure_boot')
 @pytest.mark.buildconfigspec('cmd_efidebug')
@@ -28,10 +29,10 @@ class TestEfiUnsignedImage(object):
             # Test Case 1
             output = u_boot_console.run_command_list([
                 'host bind 0 %s' % disk_img,
-		'fatload host 0:1 4000000 KEK.auth',
-		'setenv -e -nv -bs -rt -at -i 4000000,$filesize KEK',
-		'fatload host 0:1 4000000 PK.auth',
-		'setenv -e -nv -bs -rt -at -i 4000000,$filesize PK'])
+                'fatload host 0:1 4000000 KEK.auth',
+                'setenv -e -nv -bs -rt -at -i 4000000,$filesize KEK',
+                'fatload host 0:1 4000000 PK.auth',
+                'setenv -e -nv -bs -rt -at -i 4000000,$filesize PK'])
             assert(not 'Failed to set EFI variable' in ''.join(output))
 
             output = u_boot_console.run_command_list([
@@ -55,12 +56,12 @@ class TestEfiUnsignedImage(object):
             # Test Case 2
             output = u_boot_console.run_command_list([
                 'host bind 0 %s' % disk_img,
-		'fatload host 0:1 4000000 db_hello.auth',
-		'setenv -e -nv -bs -rt -at -i 4000000,$filesize db',
-		'fatload host 0:1 4000000 KEK.auth',
-		'setenv -e -nv -bs -rt -at -i 4000000,$filesize KEK',
-		'fatload host 0:1 4000000 PK.auth',
-		'setenv -e -nv -bs -rt -at -i 4000000,$filesize PK'])
+                'fatload host 0:1 4000000 db_hello.auth',
+                'setenv -e -nv -bs -rt -at -i 4000000,$filesize db',
+                'fatload host 0:1 4000000 KEK.auth',
+                'setenv -e -nv -bs -rt -at -i 4000000,$filesize KEK',
+                'fatload host 0:1 4000000 PK.auth',
+                'setenv -e -nv -bs -rt -at -i 4000000,$filesize PK'])
             assert(not 'Failed to set EFI variable' in ''.join(output))
 
             output = u_boot_console.run_command_list([
@@ -79,12 +80,12 @@ class TestEfiUnsignedImage(object):
             # Test Case 3a, rejected by dbx
             output = u_boot_console.run_command_list([
                 'host bind 0 %s' % disk_img,
-		'fatload host 0:1 4000000 db_hello.auth',
-		'setenv -e -nv -bs -rt -at -i 4000000,$filesize dbx',
-		'fatload host 0:1 4000000 KEK.auth',
-		'setenv -e -nv -bs -rt -at -i 4000000,$filesize KEK',
-		'fatload host 0:1 4000000 PK.auth',
-		'setenv -e -nv -bs -rt -at -i 4000000,$filesize PK'])
+                'fatload host 0:1 4000000 db_hello.auth',
+                'setenv -e -nv -bs -rt -at -i 4000000,$filesize dbx',
+                'fatload host 0:1 4000000 KEK.auth',
+                'setenv -e -nv -bs -rt -at -i 4000000,$filesize KEK',
+                'fatload host 0:1 4000000 PK.auth',
+                'setenv -e -nv -bs -rt -at -i 4000000,$filesize PK'])
             assert(not 'Failed to set EFI variable' in ''.join(output))
 
             output = u_boot_console.run_command_list([
@@ -101,8 +102,8 @@ class TestEfiUnsignedImage(object):
         with u_boot_console.log.section('Test Case 3b'):
             # Test Case 3b, rejected by dbx even if db allows
             output = u_boot_console.run_command_list([
-		'fatload host 0:1 4000000 db_hello.auth',
-		'setenv -e -nv -bs -rt -at -i 4000000,$filesize db'])
+                'fatload host 0:1 4000000 db_hello.auth',
+                'setenv -e -nv -bs -rt -at -i 4000000,$filesize db'])
             assert(not 'Failed to set EFI variable' in ''.join(output))
 
             output = u_boot_console.run_command_list([

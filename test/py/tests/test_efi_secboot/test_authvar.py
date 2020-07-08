@@ -11,6 +11,7 @@ This test verifies variable authentication
 import pytest
 from defs import *
 
+
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('efi_secure_boot')
 @pytest.mark.buildconfigspec('cmd_fat')
