@@ -106,10 +106,14 @@ def efi_boot_env(request, u_boot_config):
         # db1-update
         check_call('cd %s; %ssign-efi-sig-list -t "2020-04-06" -a -c KEK.crt -k KEK.key db db1.esl db1-update.auth'
                    % (mnt_point, EFITOOLS_PATH), shell=True)
-        # dbx
+        ## dbx (TEST_dbx certificate)
         check_call('cd %s; openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_dbx/ -keyout dbx.key -out dbx.crt -nodes -days 365'
                    % mnt_point, shell=True)
         check_call('cd %s; %scert-to-efi-sig-list -g %s dbx.crt dbx.esl; %ssign-efi-sig-list -t "2020-04-05" -c KEK.crt -k KEK.key dbx dbx.esl dbx.auth'
+                   % (mnt_point, EFITOOLS_PATH, GUID, EFITOOLS_PATH),
+                   shell=True)
+        ## dbx_hash (digest of TEST_db certificate)
+        check_call('cd %s; %scert-to-efi-hash-list -g %s -t 0 -s 256 db.crt dbx_hash.crl; %ssign-efi-sig-list -t "2020-04-05" -c KEK.crt -k KEK.key dbx dbx_hash.crl dbx_hash.auth'
                    % (mnt_point, EFITOOLS_PATH, GUID, EFITOOLS_PATH),
                    shell=True)
 
