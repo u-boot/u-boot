@@ -300,6 +300,7 @@ u32 intel_pinctrl_get_config_reg(struct udevice *dev, uint offset);
  * @pad: Pad to check
  * @devp: Returns pinctrl device containing that pad
  * @offsetp: Returns offset of pad within that pinctrl device
+ * @return 0 if OK, -ENOTBLK if pad number is invalid
  */
 int intel_pinctrl_get_pad(uint pad, struct udevice **devp, uint *offsetp);
 
