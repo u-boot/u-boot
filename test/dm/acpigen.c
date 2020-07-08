@@ -916,3 +916,34 @@ static int dm_test_acpi_write_values(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_acpi_write_values, 0);
+
+/* Test writing a scope */
+static int dm_test_acpi_scope(struct unit_test_state *uts)
+{
+	char buf[ACPI_PATH_MAX];
+	struct acpi_ctx *ctx;
+	struct udevice *dev;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+	ptr = acpigen_get_current(ctx);
+
+	ut_assertok(uclass_first_device_err(UCLASS_TEST_ACPI, &dev));
+	ut_assertok(acpi_device_path(dev, buf, sizeof(buf)));
+	acpigen_write_scope(ctx, buf);
+	acpigen_pop_len(ctx);
+
+	ut_asserteq(SCOPE_OP, *ptr++);
+	ut_asserteq(13, acpi_test_get_length(ptr));
+	ptr += 3;
+	ut_asserteq(ROOT_PREFIX, *ptr++);
+	ut_asserteq(DUAL_NAME_PREFIX, *ptr++);
+	ut_asserteq_strn("_SB_" ACPI_TEST_DEV_NAME, (char *)ptr);
+	ptr += 8;
+	ut_asserteq_ptr(ptr, ctx->current);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_scope, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

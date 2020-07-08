@@ -31,6 +31,7 @@ enum {
 	DWORD_PREFIX		= 0x0c,
 	STRING_PREFIX		= 0x0d,
 	QWORD_PREFIX		= 0x0e,
+	SCOPE_OP		= 0x10,
 	BUFFER_OP		= 0x11,
 	PACKAGE_OP		= 0x12,
 	METHOD_OP		= 0x14,
@@ -260,6 +261,14 @@ void acpigen_emit_namestring(struct acpi_ctx *ctx, const char *namepath);
  * @namepath: Name / path to emit
  */
 void acpigen_write_name(struct acpi_ctx *ctx, const char *namepath);
+
+/**
+ * acpigen_write_scope() - Write a scope
+ *
+ * @ctx: ACPI context pointer
+ * @scope: Scope to write (e.g. "\\_SB.ABCD")
+ */
+void acpigen_write_scope(struct acpi_ctx *ctx, const char *scope);
 
 /**
  * acpigen_write_uuid() - Write a UUID

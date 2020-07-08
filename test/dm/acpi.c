@@ -20,9 +20,8 @@
 #include <dm/acpi.h>
 #include <dm/test.h>
 #include <test/ut.h>
+#include "acpi.h"
 
-#define ACPI_TEST_DEV_NAME	"ABCD"
-#define ACPI_TEST_CHILD_NAME	"EFGH"
 #define BUF_SIZE		4096
 
 /**

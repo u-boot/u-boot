@@ -258,6 +258,13 @@ void acpigen_write_name(struct acpi_ctx *ctx, const char *namepath)
 	acpigen_emit_namestring(ctx, namepath);
 }
 
+void acpigen_write_scope(struct acpi_ctx *ctx, const char *scope)
+{
+	acpigen_emit_byte(ctx, SCOPE_OP);
+	acpigen_write_len_f(ctx);
+	acpigen_emit_namestring(ctx, scope);
+}
+
 static void acpigen_write_method_internal(struct acpi_ctx *ctx,
 					  const char *name, uint flags)
 {

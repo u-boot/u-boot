@@ -9,6 +9,9 @@
 #ifndef __TEST_DM_ACPI_H
 #define __TEST_DM_ACPI_H
 
+#define ACPI_TEST_DEV_NAME	"ABCD"
+#define ACPI_TEST_CHILD_NAME	"EFGH"
+
 /**
  * acpi_test_alloc_context_size() - Allocate an ACPI context of a given size
  *
