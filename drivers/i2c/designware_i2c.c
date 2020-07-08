@@ -160,9 +160,9 @@ static int dw_i2c_calc_timing(struct dw_i2c *priv, enum i2c_speed_mode mode,
 	min_tlow_cnt = calc_counts(ic_clk, info->min_scl_lowtime_ns);
 	min_thigh_cnt = calc_counts(ic_clk, info->min_scl_hightime_ns);
 
-	debug("dw_i2c: period %d rise %d fall %d tlow %d thigh %d spk %d\n",
-	      period_cnt, rise_cnt, fall_cnt, min_tlow_cnt, min_thigh_cnt,
-	      spk_cnt);
+	debug("dw_i2c: mode %d, ic_clk %d, speed %d, period %d rise %d fall %d tlow %d thigh %d spk %d\n",
+	      mode, ic_clk, info->speed, period_cnt, rise_cnt, fall_cnt,
+	      min_tlow_cnt, min_thigh_cnt, spk_cnt);
 
 	/*
 	 * Back-solve for hcnt and lcnt according to the following equations:
@@ -174,7 +174,7 @@ static int dw_i2c_calc_timing(struct dw_i2c *priv, enum i2c_speed_mode mode,
 
 	if (hcnt < 0 || lcnt < 0) {
 		debug("dw_i2c: bad counts. hcnt = %d lcnt = %d\n", hcnt, lcnt);
-		return -EINVAL;
+		return log_msg_ret("counts", -EINVAL);
 	}
 
 	/*
@@ -713,7 +713,7 @@ static int designware_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
 #if CONFIG_IS_ENABLED(CLK)
 	rate = clk_get_rate(&i2c->clk);
 	if (IS_ERR_VALUE(rate))
-		return -EINVAL;
+		return log_ret(-EINVAL);
 #else
 	rate = IC_CLK;
 #endif
