@@ -458,7 +458,7 @@ int i2c_set_chip_offset_len(struct udevice *dev, uint offset_len)
 	struct dm_i2c_chip *chip = dev_get_parent_platdata(dev);
 
 	if (offset_len > I2C_MAX_OFFSET_LEN)
-		return -EINVAL;
+		return log_ret(-EINVAL);
 	chip->offset_len = offset_len;
 
 	return 0;
@@ -625,7 +625,7 @@ int i2c_chip_ofdata_to_platdata(struct udevice *dev, struct dm_i2c_chip *chip)
 	if (addr == -1) {
 		debug("%s: I2C Node '%s' has no 'reg' property %s\n", __func__,
 		      dev_read_name(dev), dev->name);
-		return -EINVAL;
+		return log_ret(-EINVAL);
 	}
 	chip->chip_addr = addr;
 
