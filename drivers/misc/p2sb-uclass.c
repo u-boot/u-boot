@@ -18,6 +18,16 @@
 
 #define PCR_COMMON_IOSF_1_0	1
 
+int p2sb_set_hide(struct udevice *dev, bool hide)
+{
+	struct p2sb_ops *ops = p2sb_get_ops(dev);
+
+	if (!ops->set_hide)
+		return -ENOSYS;
+
+	return ops->set_hide(dev, hide);
+}
+
 void *pcr_reg_address(struct udevice *dev, uint offset)
 {
 	struct p2sb_child_platdata *pplat = dev_get_parent_platdata(dev);
