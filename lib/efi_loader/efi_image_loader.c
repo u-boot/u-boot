@@ -448,13 +448,13 @@ static bool efi_image_unsigned_authenticate(struct efi_image_regions *regs)
 	}
 
 	/* try black-list first */
-	if (efi_signature_verify_with_sigdb(regs, NULL, dbx, NULL)) {
+	if (efi_signature_verify_one(regs, NULL, dbx)) {
 		EFI_PRINT("Image is not signed and rejected by \"dbx\"\n");
 		goto out;
 	}
 
 	/* try white-list */
-	if (efi_signature_verify_with_sigdb(regs, NULL, db, NULL))
+	if (efi_signature_verify_one(regs, NULL, db))
 		ret = true;
 	else
 		EFI_PRINT("Image is not signed and not found in \"db\" or \"dbx\"\n");
@@ -494,11 +494,12 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 	size_t wincerts_len;
 	struct pkcs7_message *msg = NULL;
 	struct efi_signature_store *db = NULL, *dbx = NULL;
-	struct x509_certificate *cert = NULL;
 	void *new_efi = NULL;
 	u8 *auth, *wincerts_end;
 	size_t new_efi_size, auth_size;
 	bool ret = false;
+
+	debug("%s: Enter, %d\n", __func__, ret);
 
 	if (!efi_secure_boot_enabled())
 		return true;
@@ -545,7 +546,17 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 		goto err;
 	}
 
-	/* go through WIN_CERTIFICATE list */
+	/*
+	 * go through WIN_CERTIFICATE list
+	 * NOTE:
+	 * We may have multiple signatures either as WIN_CERTIFICATE's
+	 * in PE header, or as pkcs7 SignerInfo's in SignedData.
+	 * So the verification policy here is:
+	 *   - Success if, at least, one of signatures is verified
+	 *   - unless
+	 *       any of signatures is rejected explicitly, or
+	 *       none of digest algorithms are supported
+	 */
 	for (wincert = wincerts, wincerts_end = (u8 *)wincerts + wincerts_len;
 	     (u8 *)wincert < wincerts_end;
 	     wincert = (WIN_CERTIFICATE *)
@@ -595,42 +606,32 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 		}
 
 		/* try black-list first */
-		if (efi_signature_verify_with_sigdb(regs, msg, dbx, NULL)) {
+		if (efi_signature_verify_one(regs, msg, dbx)) {
 			EFI_PRINT("Signature was rejected by \"dbx\"\n");
 			goto err;
 		}
 
-		if (!efi_signature_verify_signers(msg, dbx)) {
-			EFI_PRINT("Signer was rejected by \"dbx\"\n");
+		if (!efi_signature_check_signers(msg, dbx)) {
+			EFI_PRINT("Signer(s) in \"dbx\"\n");
 			goto err;
-		} else {
-			ret = true;
 		}
 
 		/* try white-list */
-		if (!efi_signature_verify_with_sigdb(regs, msg, db, &cert)) {
-			EFI_PRINT("Verifying signature with \"db\" failed\n");
+		if (!efi_signature_verify_with_sigdb(regs, msg, db, dbx)) {
+			EFI_PRINT("Signature was not verified by \"db\"\n");
 			goto err;
-		} else {
-			ret = true;
-		}
-
-		if (!efi_signature_verify_cert(cert, dbx)) {
-			EFI_PRINT("Certificate was rejected by \"dbx\"\n");
-			goto err;
-		} else {
-			ret = true;
 		}
 	}
+	ret = true;
 
 err:
-	x509_free_certificate(cert);
 	efi_sigstore_free(db);
 	efi_sigstore_free(dbx);
 	pkcs7_free_message(msg);
 	free(regs);
 	free(new_efi);
 
+	debug("%s: Exit, %d\n", __func__, ret);
 	return ret;
 }
 #else
