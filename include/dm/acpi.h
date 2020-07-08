@@ -27,6 +27,8 @@
 
 #if !defined(__ACPI__)
 
+struct nhlt;
+
 /** enum acpi_dump_option - selects what ACPI information to dump */
 enum acpi_dump_option {
 	ACPI_DUMP_LIST,		/* Just the list of items */
@@ -44,6 +46,9 @@ enum acpi_dump_option {
  *	adding a new table. The RSDP holds pointers to the RSDT and XSDT.
  * @rsdt: Pointer to the Root System Description Table
  * @xsdt: Pointer to the Extended System Description Table
+ * @nhlt: Intel Non-High-Definition-Audio Link Table (NHLT) pointer, used to
+ *	build up information that audio codecs need to provide in the NHLT ACPI
+ *	table
  * @len_stack: Stack of 'length' words to fix up later
  * @ltop: Points to current top of stack (0 = empty)
  */
@@ -53,6 +58,7 @@ struct acpi_ctx {
 	struct acpi_rsdp *rsdp;
 	struct acpi_rsdt *rsdt;
 	struct acpi_xsdt *xsdt;
+	struct nhlt *nhlt;
 	char *len_stack[ACPIGEN_LENSTACK_SIZE];
 	int ltop;
 };
@@ -113,6 +119,15 @@ struct acpi_ops {
 	 * @return 0 if OK, -ve on error
 	 */
 	int (*inject_dsdt)(const struct udevice *dev, struct acpi_ctx *ctx);
+
+	/**
+	 * setup_nhlt() - Set up audio information for this device
+	 *
+	 * The method can add information to ctx->nhlt if it likes
+	 *
+	 * @return 0 if OK, -ENODATA if nothing to add, -ve on error
+	 */
+	int (*setup_nhlt)(const struct udevice *dev, struct acpi_ctx *ctx);
 };
 
 #define device_get_acpi_ops(dev)	((dev)->driver->acpi_ops)
@@ -176,6 +191,17 @@ int acpi_fill_ssdt(struct acpi_ctx *ctx);
  * @return 0 if OK, -ve on error
  */
 int acpi_inject_dsdt(struct acpi_ctx *ctx);
+
+/**
+ * acpi_setup_nhlt() - Set up audio information
+ *
+ * This is called to set up the nhlt information for all devices.
+ *
+ * @ctx: ACPI context to use
+ * @nhlt: Pointer to nhlt information to add to
+ * @return 0 if OK, -ve on error
+ */
+int acpi_setup_nhlt(struct acpi_ctx *ctx, struct nhlt *nhlt);
 
 /**
  * acpi_dump_items() - Dump out the collected ACPI items

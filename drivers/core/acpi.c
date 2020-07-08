@@ -31,6 +31,7 @@ enum method_t {
 	METHOD_WRITE_TABLES,
 	METHOD_FILL_SSDT,
 	METHOD_INJECT_DSDT,
+	METHOD_SETUP_NHLT,
 };
 
 /* Prototype for all methods */
@@ -248,6 +249,8 @@ acpi_method acpi_get_method(struct udevice *dev, enum method_t method)
 			return aops->fill_ssdt;
 		case METHOD_INJECT_DSDT:
 			return aops->inject_dsdt;
+		case METHOD_SETUP_NHLT:
+			return aops->setup_nhlt;
 		}
 	}
 
@@ -331,6 +334,18 @@ int acpi_write_dev_tables(struct acpi_ctx *ctx)
 	ret = acpi_recurse_method(ctx, dm_root(), METHOD_WRITE_TABLES,
 				  TYPE_NONE);
 	log_debug("Writing finished, err=%d\n", ret);
+
+	return ret;
+}
+
+int acpi_setup_nhlt(struct acpi_ctx *ctx, struct nhlt *nhlt)
+{
+	int ret;
+
+	log_debug("Setup NHLT\n");
+	ctx->nhlt = nhlt;
+	ret = acpi_recurse_method(ctx, dm_root(), METHOD_SETUP_NHLT, TYPE_NONE);
+	log_debug("Setup finished, err=%d\n", ret);
 
 	return ret;
 }
