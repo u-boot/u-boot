@@ -94,6 +94,13 @@ struct de4x5_desc {
 	u32 next;
 };
 
+struct dc2114x_priv {
+	struct eth_device	dev;
+	char			*name;
+	void __iomem		*iobase;
+	u8			*enetaddr;
+};
+
 /* RX and TX descriptor ring */
 static struct de4x5_desc rx_ring[NUM_RX_DESC] __aligned(32);
 static struct de4x5_desc tx_ring[NUM_TX_DESC] __aligned(32);
@@ -460,9 +467,9 @@ static void dc21x4x_halt(struct eth_device *dev)
 	pci_write_config_byte(devbusfn, PCI_CFDA_PSM, SLEEP);
 }
 
-static void read_hw_addr(struct eth_device *dev, struct bd_info *bis)
+static void read_hw_addr(struct dc2114x_priv *priv)
 {
-	u_short tmp, *p = (u_short *)(&dev->enetaddr[0]);
+	u_short tmp, *p = (u_short *)(&priv->enetaddr[0]);
 	int i, j = 0;
 
 	for (i = 0; i < (ETH_ALEN >> 1); i++) {
@@ -472,7 +479,7 @@ static void read_hw_addr(struct eth_device *dev, struct bd_info *bis)
 	}
 
 	if (!j || j == 0x2fffd) {
-		memset(dev->enetaddr, 0, ETH_ALEN);
+		memset(priv->enetaddr, 0, ETH_ALEN);
 		debug("Warning: can't read HW address from SROM.\n");
 	}
 }
@@ -485,6 +492,7 @@ static struct pci_device_id supported[] = {
 
 int dc21x4x_initialize(struct bd_info *bis)
 {
+	struct dc2114x_priv *priv;
 	struct eth_device *dev;
 	unsigned short status;
 	unsigned char timer;
@@ -526,15 +534,18 @@ int dc21x4x_initialize(struct bd_info *bis)
 		iobase &= PCI_BASE_ADDRESS_MEM_MASK;
 		debug("dc21x4x: DEC 21142 PCI Device @0x%x\n", iobase);
 
-		dev = (struct eth_device *)malloc(sizeof(*dev));
-		if (!dev) {
+		priv = malloc(sizeof(*priv));
+		if (!priv) {
 			printf("Can not allocalte memory of dc21x4x\n");
 			break;
 		}
+		memset(priv, 0, sizeof(*priv));
 
-		memset(dev, 0, sizeof(*dev));
+		dev = &priv->dev;
 
 		sprintf(dev->name, "dc21x4x#%d", card_number);
+		priv->name = dev->name;
+		priv->enetaddr = dev->enetaddr;
 
 		dev->iobase = pci_mem_to_phys(devbusfn, iobase);
 		dev->priv = (void *)devbusfn;
@@ -548,7 +559,7 @@ int dc21x4x_initialize(struct bd_info *bis)
 
 		udelay(10 * 1000);
 
-		read_hw_addr(dev, bis);
+		read_hw_addr(priv);
 
 		eth_register(dev);
 
