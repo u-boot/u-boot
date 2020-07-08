@@ -267,6 +267,8 @@ bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
 
 	dos = (void *)efi;
 	nt = (void *)(efi + dos->e_lfanew);
+	authoff = 0;
+	authsz = 0;
 
 	/*
 	 * Count maximum number of regions to be digested.
@@ -305,25 +307,36 @@ bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
 			efi_image_region_add(regs,
 					     &opt->DataDirectory[ctidx] + 1,
 					     efi + opt->SizeOfHeaders, 0);
+
+			authoff = opt->DataDirectory[ctidx].VirtualAddress;
+			authsz = opt->DataDirectory[ctidx].Size;
 		}
 
 		bytes_hashed = opt->SizeOfHeaders;
 		align = opt->FileAlignment;
-		authoff = opt->DataDirectory[ctidx].VirtualAddress;
-		authsz = opt->DataDirectory[ctidx].Size;
 	} else if (nt->OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR32_MAGIC) {
 		IMAGE_OPTIONAL_HEADER32 *opt = &nt->OptionalHeader;
 
+		/* Skip CheckSum */
 		efi_image_region_add(regs, efi, &opt->CheckSum, 0);
-		efi_image_region_add(regs, &opt->Subsystem,
-				     &opt->DataDirectory[ctidx], 0);
-		efi_image_region_add(regs, &opt->DataDirectory[ctidx] + 1,
-				     efi + opt->SizeOfHeaders, 0);
+		if (nt->OptionalHeader.NumberOfRvaAndSizes <= ctidx) {
+			efi_image_region_add(regs,
+					     &opt->Subsystem,
+					     efi + opt->SizeOfHeaders, 0);
+		} else {
+			/* Skip Certificates Table */
+			efi_image_region_add(regs, &opt->Subsystem,
+					     &opt->DataDirectory[ctidx], 0);
+			efi_image_region_add(regs,
+					     &opt->DataDirectory[ctidx] + 1,
+					     efi + opt->SizeOfHeaders, 0);
+
+			authoff = opt->DataDirectory[ctidx].VirtualAddress;
+			authsz = opt->DataDirectory[ctidx].Size;
+		}
 
 		bytes_hashed = opt->SizeOfHeaders;
 		align = opt->FileAlignment;
-		authoff = opt->DataDirectory[ctidx].VirtualAddress;
-		authsz = opt->DataDirectory[ctidx].Size;
 	} else {
 		EFI_PRINT("%s: Invalid optional header magic %x\n", __func__,
 			  nt->OptionalHeader.Magic);
