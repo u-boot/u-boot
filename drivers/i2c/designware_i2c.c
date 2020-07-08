@@ -333,6 +333,32 @@ static int _dw_i2c_set_bus_speed(struct dw_i2c *priv, struct i2c_regs *i2c_base,
 	/* Restore back i2c now speed set */
 	if (ena == IC_ENABLE_0B)
 		dw_i2c_enable(i2c_base, true);
+	if (priv)
+		priv->config = config;
+
+	return 0;
+}
+
+int dw_i2c_gen_speed_config(const struct udevice *dev, int speed_hz,
+			    struct dw_i2c_speed_config *config)
+{
+	struct dw_i2c *priv = dev_get_priv(dev);
+	ulong rate;
+	int ret;
+
+#if CONFIG_IS_ENABLED(CLK)
+	rate = clk_get_rate(&priv->clk);
+	if (IS_ERR_VALUE(rate))
+		return log_msg_ret("clk", -EINVAL);
+#else
+	rate = IC_CLK;
+#endif
+
+	ret = calc_bus_speed(priv, priv->regs, speed_hz, rate, config);
+	if (ret)
+		printf("%s: ret=%d\n", __func__, ret);
+	if (ret)
+		return log_msg_ret("calc_bus_speed", ret);
 
 	return 0;
 }
