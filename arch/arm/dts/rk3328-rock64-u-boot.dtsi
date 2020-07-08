@@ -46,3 +46,9 @@
 &vcc_sd {
 	u-boot,dm-spl;
 };
+
+&spi0 {
+	spi_flash: spiflash@0 {
+		u-boot,dm-pre-reloc;
+	};
+};
