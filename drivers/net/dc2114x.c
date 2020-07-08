@@ -74,9 +74,9 @@
 #define POLL_DEMAND	1
 
 #if defined(CONFIG_E500)
-#define phys_to_bus(a) (a)
+#define phys_to_bus(dev, a)	(a)
 #else
-#define phys_to_bus(a)	pci_phys_to_mem((pci_dev_t)dev->priv, a)
+#define phys_to_bus(dev, a)	pci_phys_to_mem((dev), (a))
 #endif
 
 #define NUM_RX_DESC PKTBUFSRX
@@ -96,6 +96,7 @@ struct de4x5_desc {
 
 struct dc2114x_priv {
 	struct eth_device	dev;
+	pci_dev_t		devno;
 	char			*name;
 	void __iomem		*iobase;
 	u8			*enetaddr;
@@ -278,7 +279,6 @@ static int read_srom(struct dc2114x_priv *priv, u_long ioaddr, int index)
 
 static void send_setup_frame(struct dc2114x_priv *priv, struct bd_info *bis)
 {
-	struct eth_device *dev = &priv->dev;
 	char setup_frame[SETUP_FRAME_LEN];
 	char *pa = &setup_frame[0];
 	int i;
@@ -299,7 +299,8 @@ static void send_setup_frame(struct dc2114x_priv *priv, struct bd_info *bis)
 		return;
 	}
 
-	tx_ring[tx_new].buf = cpu_to_le32(phys_to_bus((u32)&setup_frame[0]));
+	tx_ring[tx_new].buf = cpu_to_le32(phys_to_bus(priv->devno,
+						      (u32)&setup_frame[0]));
 	tx_ring[tx_new].des1 = cpu_to_le32(TD_TER | TD_SET | SETUP_FRAME_LEN);
 	tx_ring[tx_new].status = cpu_to_le32(T_OWN);
 
@@ -341,7 +342,8 @@ static int dc21x4x_send(struct eth_device *dev, void *packet, int length)
 		goto done;
 	}
 
-	tx_ring[tx_new].buf = cpu_to_le32(phys_to_bus((u32)packet));
+	tx_ring[tx_new].buf = cpu_to_le32(phys_to_bus(priv->devno,
+						      (u32)packet));
 	tx_ring[tx_new].des1 = cpu_to_le32(TD_TER | TD_LS | TD_FS | length);
 	tx_ring[tx_new].status = cpu_to_le32(T_OWN);
 
@@ -411,11 +413,10 @@ static int dc21x4x_init(struct eth_device *dev, struct bd_info *bis)
 {
 	struct dc2114x_priv *priv =
 		container_of(dev, struct dc2114x_priv, dev);
-	int devbusfn = (int)dev->priv;
 	int i;
 
 	/* Ensure we're not sleeping. */
-	pci_write_config_byte(devbusfn, PCI_CFDA_PSM, WAKEUP);
+	pci_write_config_byte(priv->devno, PCI_CFDA_PSM, WAKEUP);
 
 	reset_de4x5(priv);
 
@@ -429,8 +430,8 @@ static int dc21x4x_init(struct eth_device *dev, struct bd_info *bis)
 	for (i = 0; i < NUM_RX_DESC; i++) {
 		rx_ring[i].status = cpu_to_le32(R_OWN);
 		rx_ring[i].des1 = cpu_to_le32(RX_BUFF_SZ);
-		rx_ring[i].buf =
-			cpu_to_le32(phys_to_bus((u32)net_rx_packets[i]));
+		rx_ring[i].buf = cpu_to_le32(phys_to_bus(priv->devno,
+					     (u32)net_rx_packets[i]));
 		rx_ring[i].next = 0;
 	}
 
@@ -449,8 +450,10 @@ static int dc21x4x_init(struct eth_device *dev, struct bd_info *bis)
 	tx_ring[tx_ring_size - 1].des1 |= cpu_to_le32(TD_TER);
 
 	/* Tell the adapter where the TX/RX rings are located. */
-	dc2114x_outl(priv, phys_to_bus((u32)&rx_ring), DE4X5_RRBA);
-	dc2114x_outl(priv, phys_to_bus((u32)&tx_ring), DE4X5_TRBA);
+	dc2114x_outl(priv, phys_to_bus(priv->devno, (u32)&rx_ring),
+		     DE4X5_RRBA);
+	dc2114x_outl(priv, phys_to_bus(priv->devno, (u32)&tx_ring),
+		     DE4X5_TRBA);
 
 	start_de4x5(priv);
 
@@ -466,12 +469,11 @@ static void dc21x4x_halt(struct eth_device *dev)
 {
 	struct dc2114x_priv *priv =
 		container_of(dev, struct dc2114x_priv, dev);
-	int devbusfn = (int)dev->priv;
 
 	stop_de4x5(priv);
 	dc2114x_outl(priv, 0, DE4X5_SICR);
 
-	pci_write_config_byte(devbusfn, PCI_CFDA_PSM, SLEEP);
+	pci_write_config_byte(priv->devno, PCI_CFDA_PSM, SLEEP);
 }
 
 static void read_hw_addr(struct dc2114x_priv *priv)
@@ -551,6 +553,7 @@ int dc21x4x_initialize(struct bd_info *bis)
 		dev = &priv->dev;
 
 		sprintf(dev->name, "dc21x4x#%d", card_number);
+		priv->devno = devbusfn;
 		priv->name = dev->name;
 		priv->enetaddr = dev->enetaddr;
 
