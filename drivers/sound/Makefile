@@ -7,6 +7,7 @@ obj-$(CONFIG_SOUND)	+= sound.o
 obj-$(CONFIG_SOUND)	+= codec-uclass.o
 obj-$(CONFIG_SOUND)	+= i2s-uclass.o
 obj-$(CONFIG_SOUND)	+= sound-uclass.o
+obj-$(CONFIG_SOUND_DA7219)	+= da7219.o
 obj-$(CONFIG_I2S_SAMSUNG)	+= samsung-i2s.o
 obj-$(CONFIG_SOUND_SANDBOX)	+= sandbox.o
 obj-$(CONFIG_I2S_ROCKCHIP)	+= rockchip_i2s.o rockchip_sound.o
