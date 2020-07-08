@@ -993,3 +993,30 @@ static int dm_test_acpi_resource_template(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_acpi_resource_template, 0);
+
+/* Test writing a device */
+static int dm_test_acpi_device(struct unit_test_state *uts)
+{
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+	ptr = acpigen_get_current(ctx);
+
+	acpigen_write_device(ctx, "\\_SB." ACPI_TEST_DEV_NAME);
+	acpigen_pop_len(ctx);
+
+	ut_asserteq(EXT_OP_PREFIX, *ptr++);
+	ut_asserteq(DEVICE_OP, *ptr++);
+	ut_asserteq(0xd, acpi_test_get_length(ptr));
+	ptr += 3;
+	ut_asserteq(ROOT_PREFIX, *ptr++);
+	ut_asserteq(DUAL_NAME_PREFIX, *ptr++);
+	ptr += 8;
+	ut_asserteq_ptr(ptr, ctx->current);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_device, 0);

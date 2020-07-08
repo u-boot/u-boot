@@ -56,6 +56,7 @@ enum {
 	AND_OP			= 0x7b,
 	OR_OP			= 0x7d,
 	NOT_OP			= 0x80,
+	DEVICE_OP		= 0x82,
 	POWER_RES_OP		= 0x84,
 	RETURN_OP		= 0xa4,
 };
@@ -312,6 +313,14 @@ void acpigen_write_method(struct acpi_ctx *ctx, const char *name, int nargs);
  */
 void acpigen_write_method_serialized(struct acpi_ctx *ctx, const char *name,
 				     int nargs);
+
+/**
+ * acpigen_write_device() - Write an ACPI device
+ *
+ * @ctx: ACPI context pointer
+ * @name: Device name to write
+ */
+void acpigen_write_device(struct acpi_ctx *ctx, const char *name);
 
 /**
  * acpigen_write_sta() - Write a _STA method

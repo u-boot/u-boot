@@ -291,6 +291,13 @@ void acpigen_write_method_serialized(struct acpi_ctx *ctx, const char *name,
 				      ACPI_METHOD_SERIALIZED_MASK);
 }
 
+void acpigen_write_device(struct acpi_ctx *ctx, const char *name)
+{
+	acpigen_emit_ext_op(ctx, DEVICE_OP);
+	acpigen_write_len_f(ctx);
+	acpigen_emit_namestring(ctx, name);
+}
+
 void acpigen_write_sta(struct acpi_ctx *ctx, uint status)
 {
 	/* Method (_STA, 0, NotSerialized) { Return (status) } */
