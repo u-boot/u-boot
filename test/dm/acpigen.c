@@ -872,5 +872,47 @@ static int dm_test_acpi_power_seq(struct unit_test_state *uts)
 
 	return 0;
 }
-
 DM_TEST(dm_test_acpi_power_seq, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test writing values */
+static int dm_test_acpi_write_values(struct unit_test_state *uts)
+{
+	struct acpi_ctx *ctx;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+	ptr = acpigen_get_current(ctx);
+
+	acpigen_write_zero(ctx);
+	acpigen_write_one(ctx);
+	acpigen_write_byte(ctx, TEST_INT8);
+	acpigen_write_word(ctx, TEST_INT16);
+	acpigen_write_dword(ctx, TEST_INT32);
+	acpigen_write_qword(ctx, TEST_INT64);
+
+	ut_asserteq(ZERO_OP, *ptr++);
+
+	ut_asserteq(ONE_OP, *ptr++);
+
+	ut_asserteq(BYTE_PREFIX, *ptr++);
+	ut_asserteq(TEST_INT8, *ptr++);
+
+	ut_asserteq(WORD_PREFIX, *ptr++);
+	ut_asserteq(TEST_INT16, get_unaligned((u16 *)ptr));
+	ptr += 2;
+
+	ut_asserteq(DWORD_PREFIX, *ptr++);
+	ut_asserteq(TEST_INT32, get_unaligned((u32 *)ptr));
+	ptr += 4;
+
+	ut_asserteq(QWORD_PREFIX, *ptr++);
+	ut_asserteq_64(TEST_INT64, get_unaligned((u64 *)ptr));
+	ptr += 8;
+
+	ut_asserteq_ptr(ptr, ctx->current);
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_write_values, 0);

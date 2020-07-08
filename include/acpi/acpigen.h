@@ -173,6 +173,52 @@ void acpigen_pop_len(struct acpi_ctx *ctx);
 char *acpigen_write_package(struct acpi_ctx *ctx, int nr_el);
 
 /**
+ * acpigen_write_byte() - Write a byte
+ *
+ * @ctx: ACPI context pointer
+ * @data: Value to write
+ */
+void acpigen_write_byte(struct acpi_ctx *ctx, unsigned int data);
+
+/**
+ * acpigen_write_word() - Write a word
+ *
+ * @ctx: ACPI context pointer
+ * @data: Value to write
+ */
+void acpigen_write_word(struct acpi_ctx *ctx, unsigned int data);
+
+/**
+ * acpigen_write_dword() - Write a dword
+ *
+ * @ctx: ACPI context pointer
+ * @data: Value to write
+ */
+void acpigen_write_dword(struct acpi_ctx *ctx, unsigned int data);
+
+/**
+ * acpigen_write_qword() - Write a qword
+ *
+ * @ctx: ACPI context pointer
+ * @data: Value to write
+ */
+void acpigen_write_qword(struct acpi_ctx *ctx, u64 data);
+
+/**
+ * acpigen_write_zero() - Write zero
+ *
+ * @ctx: ACPI context pointer
+ */
+void acpigen_write_zero(struct acpi_ctx *ctx);
+
+/**
+ * acpigen_write_one() - Write one
+ *
+ * @ctx: ACPI context pointer
+ */
+void acpigen_write_one(struct acpi_ctx *ctx);
+
+/**
  * acpigen_write_integer() - Write an integer
  *
  * This writes an operation (BYTE_OP, WORD_OP, DWORD_OP, QWORD_OP depending on
