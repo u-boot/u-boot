@@ -198,3 +198,52 @@ class TestEfiSignedImage(object):
                 'efidebug test bootmgr'])
             assert '\'HELLO\' failed' in ''.join(output)
             assert 'efi_start_image() returned: 26' in ''.join(output)
+
+    def test_efi_signed_image_auth6(self, u_boot_console, efi_boot_env):
+        """
+        Test Case 6 - using digest of signed image in database
+        """
+        u_boot_console.restart_uboot()
+        disk_img = efi_boot_env
+        with u_boot_console.log.section('Test Case 6a'):
+            # Test Case 6a, verified by image's digest in db
+            output = u_boot_console.run_command_list([
+                'host bind 0 %s' % disk_img,
+                'fatload host 0:1 4000000 db_hello_signed.auth',
+                'setenv -e -nv -bs -rt -at -i 4000000,$filesize db',
+                'fatload host 0:1 4000000 KEK.auth',
+                'setenv -e -nv -bs -rt -at -i 4000000,$filesize KEK',
+                'fatload host 0:1 4000000 PK.auth',
+                'setenv -e -nv -bs -rt -at -i 4000000,$filesize PK'])
+            assert 'Failed to set EFI variable' not in ''.join(output)
+            output = u_boot_console.run_command_list([
+                'efidebug boot add 1 HELLO host 0:1 /helloworld.efi.signed ""',
+                'efidebug boot next 1',
+                'bootefi bootmgr'])
+            assert 'Hello, world!' in ''.join(output)
+
+        with u_boot_console.log.section('Test Case 6b'):
+            # Test Case 6b, rejected by TEST_db certificate in dbx
+            output = u_boot_console.run_command_list([
+                'fatload host 0:1 4000000 dbx_db.auth',
+                'setenv -e -nv -bs -rt -at -i 4000000,$filesize dbx'])
+            assert 'Failed to set EFI variable' not in ''.join(output)
+            output = u_boot_console.run_command_list([
+                'efidebug boot next 1',
+                'efidebug test bootmgr'])
+            assert '\'HELLO\' failed' in ''.join(output)
+            assert 'efi_start_image() returned: 26' in ''.join(output)
+
+        with u_boot_console.log.section('Test Case 6c'):
+            # Test Case 6c, rejected by image's digest in dbx
+            output = u_boot_console.run_command_list([
+                'fatload host 0:1 4000000 db.auth',
+                'setenv -e -nv -bs -rt -at -i 4000000,$filesize db',
+                'fatload host 0:1 4000000 dbx_hello_signed.auth',
+                'setenv -e -nv -bs -rt -at -i 4000000,$filesize dbx'])
+            assert 'Failed to set EFI variable' not in ''.join(output)
+            output = u_boot_console.run_command_list([
+                'efidebug boot next 1',
+                'efidebug test bootmgr'])
+            assert '\'HELLO\' failed' in ''.join(output)
+            assert 'efi_start_image() returned: 26' in ''.join(output)

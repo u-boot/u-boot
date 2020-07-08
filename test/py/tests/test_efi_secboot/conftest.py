@@ -120,6 +120,10 @@ def efi_boot_env(request, u_boot_config):
         check_call('cd %s; %scert-to-efi-hash-list -g %s -t 0 -s 256 db1.crt dbx_hash1.crl; %ssign-efi-sig-list -t "2020-04-05" -c KEK.crt -k KEK.key dbx dbx_hash1.crl dbx_hash1.auth'
                    % (mnt_point, EFITOOLS_PATH, GUID, EFITOOLS_PATH),
                    shell=True)
+        ## dbx_db (with TEST_db certificate)
+        check_call('cd %s; %ssign-efi-sig-list -t "2020-04-05" -c KEK.crt -k KEK.key dbx db.esl dbx_db.auth'
+                   % (mnt_point, EFITOOLS_PATH),
+                   shell=True)
 
         # Copy image
         check_call('cp %s %s' % (HELLO_PATH, mnt_point), shell=True)
@@ -133,6 +137,12 @@ def efi_boot_env(request, u_boot_config):
         ## Digest image
         check_call('cd %s; %shash-to-efi-sig-list helloworld.efi db_hello.hash; %ssign-efi-sig-list -t "2020-04-07" -c KEK.crt -k KEK.key db db_hello.hash db_hello.auth'
                    % (mnt_point, EFITOOLS_PATH, EFITOOLS_PATH),
+                   shell=True)
+        check_call('cd %s; %shash-to-efi-sig-list helloworld.efi.signed db_hello_signed.hash; %ssign-efi-sig-list -t "2020-04-03" -c KEK.crt -k KEK.key db db_hello_signed.hash db_hello_signed.auth'
+                   % (mnt_point, EFITOOLS_PATH, EFITOOLS_PATH),
+                   shell=True)
+        check_call('cd %s; %ssign-efi-sig-list -t "2020-04-07" -c KEK.crt -k KEK.key dbx db_hello_signed.hash dbx_hello_signed.auth'
+                   % (mnt_point, EFITOOLS_PATH),
                    shell=True)
 
         check_call('sudo umount %s' % loop_dev, shell=True)
