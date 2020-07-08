@@ -433,10 +433,11 @@ static bool efi_search_siglist(struct x509_certificate *cert,
 		 *	time64_t revocation_time;
 		 * };
 		 */
-		if ((sig_data->size == SHA256_SUM_LEN) &&
-		    !memcmp(sig_data->data, hash, SHA256_SUM_LEN)) {
+		if ((sig_data->size >= SHA256_SUM_LEN + sizeof(time64_t)) &&
+		    !memcmp(sig_data->data, msg, SHA256_SUM_LEN)) {
 			memcpy(revoc_time, sig_data->data + SHA256_SUM_LEN,
 			       sizeof(*revoc_time));
+			EFI_PRINT("revocation time: 0x%llx\n", *revoc_time);
 			found = true;
 			goto out;
 		}
