@@ -367,40 +367,59 @@ done:
 	return status;
 }
 
+static int dc21x4x_recv_check(struct dc2114x_priv *priv)
+{
+	int length = 0;
+	u32 status;
+
+	status = le32_to_cpu(priv->rx_ring[priv->rx_new].status);
+
+	if (status & R_OWN)
+		return 0;
+
+	if (status & RD_LS) {
+		/* Valid frame status. */
+		if (status & RD_ES) {
+			/* There was an error. */
+			printf("RX error status = 0x%08X\n", status);
+			return -EINVAL;
+		} else {
+			/* A valid frame received. */
+			length = (le32_to_cpu(priv->rx_ring[priv->rx_new].status)
+				  >> 16);
+
+			return length;
+		}
+	}
+
+	return -EAGAIN;
+}
+
 static int dc21x4x_recv(struct eth_device *dev)
 {
 	struct dc2114x_priv *priv =
 		container_of(dev, struct dc2114x_priv, dev);
 	int length = 0;
-	u32 status;
+	int ret;
 
 	while (true) {
-		status = le32_to_cpu(priv->rx_ring[priv->rx_new].status);
-
-		if (status & R_OWN)
+		ret = dc21x4x_recv_check(priv);
+		if (!ret)
 			break;
 
-		if (status & RD_LS) {
-			/* Valid frame status. */
-			if (status & RD_ES) {
-				/* There was an error. */
-				printf("RX error status = 0x%08X\n", status);
-			} else {
-				/* A valid frame received. */
-				length = (le32_to_cpu(priv->rx_ring[priv->rx_new].status)
-					  >> 16);
-
-				/* Pass the packet up to the protocol layers */
-				net_process_received_packet
-					(net_rx_packets[priv->rx_new], length - 4);
-			}
-
-			/*
-			 * Change buffer ownership for this frame,
-			 * back to the adapter.
-			 */
-			priv->rx_ring[priv->rx_new].status = cpu_to_le32(R_OWN);
+		if (ret > 0) {
+			length = ret;
+			/* Pass the packet up to the protocol layers */
+			net_process_received_packet
+				(net_rx_packets[priv->rx_new], length - 4);
 		}
+
+		/*
+		 * Change buffer ownership for this frame,
+		 * back to the adapter.
+		 */
+		if (ret != -EAGAIN)
+			priv->rx_ring[priv->rx_new].status = cpu_to_le32(R_OWN);
 
 		/* Update entry information. */
 		priv->rx_new = (priv->rx_new + 1) % priv->rx_ring_size;
