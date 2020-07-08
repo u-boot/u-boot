@@ -394,7 +394,7 @@ static int pinctrl_configure_pad(struct udevice *dev,
 	return 0;
 }
 
-u32 intel_pinctrl_get_config_reg_addr(struct udevice *dev, uint offset)
+u32 intel_pinctrl_get_config_reg_offset(struct udevice *dev, uint offset)
 {
 	struct intel_pinctrl_priv *priv = dev_get_priv(dev);
 	const struct pad_community *comm = priv->comm;
@@ -407,9 +407,16 @@ u32 intel_pinctrl_get_config_reg_addr(struct udevice *dev, uint offset)
 	return config_offset;
 }
 
+u32 intel_pinctrl_get_config_reg_addr(struct udevice *dev, uint offset)
+{
+	uint config_offset = intel_pinctrl_get_config_reg_offset(dev, offset);
+
+	return (u32)(ulong)pcr_reg_address(dev, config_offset);
+}
+
 u32 intel_pinctrl_get_config_reg(struct udevice *dev, uint offset)
 {
-	uint config_offset = intel_pinctrl_get_config_reg_addr(dev, offset);
+	uint config_offset = intel_pinctrl_get_config_reg_offset(dev, offset);
 
 	return pcr_read32(dev, config_offset);
 }

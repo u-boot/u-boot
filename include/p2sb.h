@@ -132,4 +132,13 @@ int p2sb_set_port_id(struct udevice *dev, int portid);
  */
 int p2sb_get_port_id(struct udevice *dev);
 
+/**
+ * pcr_reg_address() Convert an offset in p2sb space to an absolute address
+ *
+ * @dev: Child device (whose parent is UCLASS_P2SB)
+ * @offset: Offset within that child's address space
+ * @return pointer to that offset within the child's address space
+ */
+void *pcr_reg_address(struct udevice *dev, uint offset);
+
 #endif
