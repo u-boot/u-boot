@@ -448,16 +448,16 @@ static bool efi_image_unsigned_authenticate(struct efi_image_regions *regs)
 	}
 
 	/* try black-list first */
-	if (efi_signature_verify_one(regs, NULL, dbx)) {
-		EFI_PRINT("Image is not signed and rejected by \"dbx\"\n");
+	if (efi_signature_lookup_digest(regs, dbx)) {
+		EFI_PRINT("Image is not signed and its digest found in \"dbx\"\n");
 		goto out;
 	}
 
 	/* try white-list */
-	if (efi_signature_verify_one(regs, NULL, db))
+	if (efi_signature_lookup_digest(regs, db))
 		ret = true;
 	else
-		EFI_PRINT("Image is not signed and not found in \"db\" or \"dbx\"\n");
+		EFI_PRINT("Image is not signed and its digest not found in \"db\" or \"dbx\"\n");
 
 out:
 	efi_sigstore_free(db);
@@ -605,6 +605,25 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 			continue;
 		}
 
+		/*
+		 * NOTE:
+		 * UEFI specification defines two signature types possible
+		 * in signature database:
+		 * a. x509 certificate, where a signature in image is
+		 *    a message digest encrypted by RSA public key
+		 *    (EFI_CERT_X509_GUID)
+		 * b. bare hash value of message digest
+		 *    (EFI_CERT_SHAxxx_GUID)
+		 *
+		 * efi_signature_verify() handles case (a), while
+		 * efi_signature_lookup_digest() handles case (b).
+		 *
+		 * There is a third type:
+		 * c. message digest of a certificate
+		 *    (EFI_CERT_X509_SHAAxxx_GUID)
+		 * This type of signature is used only in revocation list
+		 * (dbx) and handled as part of efi_signatgure_verify().
+		 */
 		/* try black-list first */
 		if (efi_signature_verify_one(regs, msg, dbx)) {
 			EFI_PRINT("Signature was rejected by \"dbx\"\n");
@@ -616,11 +635,22 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 			goto err;
 		}
 
-		/* try white-list */
-		if (!efi_signature_verify_with_sigdb(regs, msg, db, dbx)) {
-			EFI_PRINT("Signature was not verified by \"db\"\n");
+		if (efi_signature_lookup_digest(regs, dbx)) {
+			EFI_PRINT("Image's digest was found in \"dbx\"\n");
 			goto err;
 		}
+
+		/* try white-list */
+		if (efi_signature_verify_with_sigdb(regs, msg, db, dbx))
+			continue;
+
+		debug("Signature was not verified by \"db\"\n");
+
+		if (efi_signature_lookup_digest(regs, db))
+			continue;
+
+		debug("Image's digest was not found in \"db\" or \"dbx\"\n");
+		goto err;
 	}
 	ret = true;
 

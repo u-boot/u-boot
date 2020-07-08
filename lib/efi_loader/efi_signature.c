@@ -198,6 +198,68 @@ out:
 }
 
 /**
+ * efi_signature_lookup_digest - search for an image's digest in sigdb
+ * @regs:	List of regions to be authenticated
+ * @db:		Signature database for trusted certificates
+ *
+ * A message digest of image pointed to by @regs is calculated and
+ * its hash value is compared to entries in signature database pointed
+ * to by @db.
+ *
+ * Return:	true if found, false if not
+ */
+bool efi_signature_lookup_digest(struct efi_image_regions *regs,
+				 struct efi_signature_store *db)
+{
+	struct efi_signature_store *siglist;
+	struct efi_sig_data *sig_data;
+	void *hash = NULL;
+	size_t size = 0;
+	bool found = false;
+
+	EFI_PRINT("%s: Enter, %p, %p\n", __func__, regs, db);
+
+	if (!regs || !db || !db->sig_data_list)
+		goto out;
+
+	for (siglist = db; siglist; siglist = siglist->next) {
+		/* TODO: support other hash algorithms */
+		if (guidcmp(&siglist->sig_type, &efi_guid_sha256)) {
+			EFI_PRINT("Digest algorithm is not supported: %pUl\n",
+				  &siglist->sig_type);
+			break;
+		}
+
+		if (!efi_hash_regions(regs->reg, regs->num, &hash, &size)) {
+			EFI_PRINT("Digesting an image failed\n");
+			break;
+		}
+
+		for (sig_data = siglist->sig_data_list; sig_data;
+		     sig_data = sig_data->next) {
+#ifdef DEBUG
+			EFI_PRINT("Msg digest in database:\n");
+			print_hex_dump("    ", DUMP_PREFIX_OFFSET, 16, 1,
+				       sig_data->data, sig_data->size, false);
+#endif
+			if (sig_data->size == size &&
+			    !memcmp(sig_data->data, hash, size)) {
+				found = true;
+				free(hash);
+				goto out;
+			}
+		}
+
+		free(hash);
+		hash = NULL;
+	}
+
+out:
+	EFI_PRINT("%s: Exit, found: %d\n", __func__, found);
+	return found;
+}
+
+/**
  * efi_signature_verify_with_list - verify a signature with signature list
  * @regs:		List of regions to be authenticated
  * @msg:		Signature
@@ -226,46 +288,6 @@ bool efi_signature_verify_with_list(struct efi_image_regions *regs,
 	EFI_PRINT("%s: Enter, %p, %p, %p, %p\n", __func__,
 		  regs, signed_info, siglist, valid_cert);
 
-	if (!signed_info) {
-		void *hash = NULL;
-		size_t size;
-
-		EFI_PRINT("%s: unsigned image\n", __func__);
-		/*
-		 * verify based on calculated hash value
-		 * TODO: support other hash algorithms
-		 */
-		if (guidcmp(&siglist->sig_type, &efi_guid_sha256)) {
-			EFI_PRINT("Digest algorithm is not supported: %pUl\n",
-				  &siglist->sig_type);
-			goto out;
-		}
-
-		if (!efi_hash_regions(regs->reg, regs->num, &hash, &size)) {
-			EFI_PRINT("Digesting unsigned image failed\n");
-			goto out;
-		}
-
-		/* go through the list */
-		for (sig_data = siglist->sig_data_list; sig_data;
-		     sig_data = sig_data->next) {
-#ifdef DEBUG
-			EFI_PRINT("Msg digest in database:\n");
-			print_hex_dump("    ", DUMP_PREFIX_OFFSET, 16, 1,
-				       sig_data->data, sig_data->size, false);
-#endif
-			if ((sig_data->size == size) &&
-			    !memcmp(sig_data->data, hash, size)) {
-				verified = true;
-				free(hash);
-				goto out;
-			}
-		}
-		free(hash);
-		goto out;
-	}
-
-	EFI_PRINT("%s: signed image\n", __func__);
 	if (guidcmp(&siglist->sig_type, &efi_guid_cert_x509)) {
 		EFI_PRINT("Signature type is not supported: %pUl\n",
 			  &siglist->sig_type);
@@ -412,19 +434,6 @@ bool efi_signature_verify_one(struct efi_image_regions *regs,
 	if (!db->sig_data_list)
 		goto out;
 
-	/* for unsigned image */
-	if (!msg) {
-		EFI_PRINT("%s: Verify unsigned image with db\n", __func__);
-		for (siglist = db; siglist; siglist = siglist->next)
-			if (efi_signature_verify_with_list(regs, NULL, NULL,
-							   siglist, &cert)) {
-				verified = true;
-				break;
-			}
-		goto out;
-	}
-
-	/* for signed image or variable */
 	EFI_PRINT("%s: Verify signed image with db\n", __func__);
 	for (sinfo = msg->signed_infos; sinfo; sinfo = sinfo->next) {
 		EFI_PRINT("Signed Info: digest algo: %s, pkey algo: %s\n",
@@ -468,26 +477,9 @@ bool efi_signature_verify_with_sigdb(struct efi_image_regions *regs,
 
 	EFI_PRINT("%s: Enter, %p, %p, %p, %p\n", __func__, regs, msg, db, dbx);
 
-	if (!db)
+	if (!regs || !msg || !db || !db->sig_data_list)
 		goto out;
 
-	if (!db->sig_data_list)
-		goto out;
-
-	/* for unsigned image */
-	if (!msg) {
-		EFI_PRINT("%s: Verify unsigned image with db\n", __func__);
-		for (siglist = db; siglist; siglist = siglist->next)
-			if (efi_signature_verify_with_list(regs, NULL, NULL,
-							   siglist, &cert)) {
-				verified = true;
-				break;
-			}
-		goto out;
-	}
-
-	/* for signed image or variable */
-	EFI_PRINT("%s: Verify signed image with db\n", __func__);
 	for (info = msg->signed_infos; info; info = info->next) {
 		EFI_PRINT("Signed Info: digest algo: %s, pkey algo: %s\n",
 			  info->sig->hash_algo, info->sig->pkey_algo);
