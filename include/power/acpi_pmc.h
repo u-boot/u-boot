@@ -6,8 +6,20 @@
 #ifndef __ACPI_PMC_H
 #define __ACPI_PMC_H
 
+#ifndef __ACPI__
+
 enum {
 	GPE0_REG_MAX	= 4,
+};
+
+enum {
+	PM1_STS		= 0x00,
+	PM1_EN		= 0x02,
+	PM1_CNT		= 0x04,
+	PM1_TMR		= 0x08,
+
+	GPE0_STS	= 0x20,
+	GPE0_EN		= 0x30,
 };
 
 /**
@@ -181,5 +193,7 @@ void pmc_dump_info(struct udevice *dev);
  * @return 0 if OK, -ve on error
  */
 int pmc_gpe_init(struct udevice *dev);
+
+#endif /* !__ACPI__ */
 
 #endif
