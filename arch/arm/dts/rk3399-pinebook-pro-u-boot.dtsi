@@ -12,7 +12,11 @@
 	};
 
 	chosen {
-		u-boot,spl-boot-order = "same-as-spl", &sdhci, &sdmmc;
+		u-boot,spl-boot-order = "same-as-spl", &sdhci, &spiflash, &sdmmc;
+	};
+
+	config {
+		u-boot,spl-payload-offset = <0x60000>; /* @ 384KB */
 	};
 };
 
@@ -22,6 +26,10 @@
 
 &rk808 {
 	u-boot,dm-pre-reloc;
+};
+
+&rng {
+	status = "okay";
 };
 
 &sdhci {
