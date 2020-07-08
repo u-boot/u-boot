@@ -46,6 +46,7 @@
 #include <lzma/LzmaTypes.h>
 #include <lzma/LzmaDec.h>
 #include <lzma/LzmaTools.h>
+#include <linux/zstd.h>
 
 #ifdef CONFIG_CMD_BDI
 extern int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -198,6 +199,7 @@ static const table_entry_t uimage_comp[] = {
 	{	IH_COMP_LZMA,	"lzma",		"lzma compressed",	},
 	{	IH_COMP_LZO,	"lzo",		"lzo compressed",	},
 	{	IH_COMP_LZ4,	"lz4",		"lz4 compressed",	},
+	{	IH_COMP_ZSTD,	"zstd",		"zstd compressed",	},
 	{	-1,		"",		"",			},
 };
 
@@ -508,6 +510,56 @@ int image_decomp(int comp, ulong load, ulong image_start, int type,
 		break;
 	}
 #endif /* CONFIG_LZ4 */
+#ifdef CONFIG_ZSTD
+	case IH_COMP_ZSTD: {
+		size_t size = unc_len;
+		ZSTD_DStream *dstream;
+		ZSTD_inBuffer in_buf;
+		ZSTD_outBuffer out_buf;
+		void *workspace;
+		size_t wsize;
+
+		wsize = ZSTD_DStreamWorkspaceBound(image_len);
+		workspace = malloc(wsize);
+		if (!workspace) {
+			debug("%s: cannot allocate workspace of size %zu\n", __func__,
+			      wsize);
+			return -1;
+		}
+
+		dstream = ZSTD_initDStream(image_len, workspace, wsize);
+		if (!dstream) {
+			printf("%s: ZSTD_initDStream failed\n", __func__);
+			return ZSTD_getErrorCode(ret);
+		}
+
+		in_buf.src = image_buf;
+		in_buf.pos = 0;
+		in_buf.size = image_len;
+
+		out_buf.dst = load_buf;
+		out_buf.pos = 0;
+		out_buf.size = size;
+
+		while (1) {
+			size_t ret;
+
+			ret = ZSTD_decompressStream(dstream, &out_buf, &in_buf);
+			if (ZSTD_isError(ret)) {
+				printf("%s: ZSTD_decompressStream error %d\n", __func__,
+				       ZSTD_getErrorCode(ret));
+				return ZSTD_getErrorCode(ret);
+			}
+
+			if (in_buf.pos >= image_len || !ret)
+				break;
+		}
+
+		image_len = out_buf.pos;
+
+		break;
+	}
+#endif /* CONFIG_ZSTD */
 	default:
 		printf("Unimplemented compression type %d\n", comp);
 		return -ENOSYS;

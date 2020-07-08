@@ -46,6 +46,26 @@ config GPIO_HOG
 	  is a mechanism providing automatic GPIO request and config-
 	  uration as part of the gpio-controller's driver probe function.
 
+config DM_GPIO_LOOKUP_LABEL
+	bool "Enable searching for gpio labelnames"
+	depends on DM_GPIO
+	help
+	  This option enables searching for gpio names in
+	  the defined gpio labels, if the search for the
+	  gpio bank name failed. This makes sense if you use
+	  different gpios on different hardware versions
+	  for the same functionality in board code.
+
+config SPL_DM_GPIO_LOOKUP_LABEL
+	bool "Enable searching for gpio labelnames"
+	depends on DM_GPIO && SPL_DM && SPL_GPIO_SUPPORT
+	help
+	  This option enables searching for gpio names in
+	  the defined gpio labels, if the search for the
+	  gpio bank name failed. This makes sense if you use
+	  different gpios on different hardware versions
+	  for the same functionality in board code.
+
 config ALTERA_PIO
 	bool "Altera PIO driver"
 	depends on DM_GPIO

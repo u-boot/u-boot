@@ -903,3 +903,23 @@ int do_ln(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
 
 	return 0;
 }
+
+int do_fs_types(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[])
+{
+	struct fstype_info *drv = fstypes;
+	const int n_ents = ARRAY_SIZE(fstypes);
+	struct fstype_info *entry;
+	int i = 0;
+
+	puts("Supported filesystems");
+	for (entry = drv; entry != drv + n_ents; entry++) {
+		if (entry->fstype != FS_TYPE_ANY) {
+			printf("%c %s", i ? ',' : ':', entry->name);
+			i++;
+		}
+	}
+	if (!i)
+		puts(": <none>");
+	puts("\n");
+	return CMD_RET_SUCCESS;
+}

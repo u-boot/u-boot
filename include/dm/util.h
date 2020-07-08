@@ -42,4 +42,10 @@ static inline void dm_dump_devres(void)
 /* Dump out a list of drivers */
 void dm_dump_drivers(void);
 
+/* Dump out a list with each driver's compatibility strings */
+void dm_dump_driver_compat(void);
+
+/* Dump out a list of drivers with static platform data */
+void dm_dump_static_driver_info(void);
+
 #endif

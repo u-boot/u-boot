@@ -68,7 +68,7 @@
 #define V2M_SYS_CFGSTAT			(V2M_SYSREGS + 0x0a8)
 
 /* Generic Timer Definitions */
-#define COUNTER_FREQUENCY		(0x1800000)	/* 24MHz */
+#define COUNTER_FREQUENCY		24000000	/* 24MHz */
 
 /* Generic Interrupt Controller Definitions */
 #ifdef CONFIG_GICV3

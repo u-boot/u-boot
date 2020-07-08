@@ -238,6 +238,13 @@ config ETH_DESIGNWARE_SOCFPGA
 	  Altera system manager to correctly interface with the PHY.
 	  This code handles those SoC specifics.
 
+config ETH_DESIGNWARE_S700
+	bool "Actins S700 glue driver for Synopsys Designware Ethernet MAC"
+	depends on DM_ETH && ETH_DESIGNWARE
+	help
+	  This provides glue layer to use Synopsys Designware Ethernet MAC
+	  present on Actions S700 SoC.
+
 config ETHOC
 	bool "OpenCores 10/100 Mbps Ethernet MAC"
 	help

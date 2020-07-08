@@ -187,6 +187,26 @@ static void smc911x_handle_mac_address(struct smc911x_priv *priv)
 	printf(DRIVERNAME ": MAC %pM\n", m);
 }
 
+static bool smc911x_read_mac_address(struct smc911x_priv *priv)
+{
+	u32 addrh, addrl;
+
+	/* address is obtained from optional eeprom */
+	addrh = smc911x_get_mac_csr(priv, ADDRH);
+	addrl = smc911x_get_mac_csr(priv, ADDRL);
+	if (addrl == 0xffffffff && addrh == 0x0000ffff)
+		return false;
+
+	priv->enetaddr[0] = addrl;
+	priv->enetaddr[1] = addrl >>  8;
+	priv->enetaddr[2] = addrl >> 16;
+	priv->enetaddr[3] = addrl >> 24;
+	priv->enetaddr[4] = addrh;
+	priv->enetaddr[5] = addrh >> 8;
+
+	return true;
+}
+
 static int smc911x_eth_phy_read(struct smc911x_priv *priv,
 				u8 phy, u8 reg, u16 *val)
 {
@@ -471,7 +491,6 @@ static int smc911x_recv(struct eth_device *dev)
 
 int smc911x_initialize(u8 dev_num, int base_addr)
 {
-	unsigned long addrl, addrh;
 	struct smc911x_priv *priv;
 	int ret;
 
@@ -489,18 +508,8 @@ int smc911x_initialize(u8 dev_num, int base_addr)
 		goto err_detect;
 	}
 
-	addrh = smc911x_get_mac_csr(priv, ADDRH);
-	addrl = smc911x_get_mac_csr(priv, ADDRL);
-	if (!(addrl == 0xffffffff && addrh == 0x0000ffff)) {
-		/* address is obtained from optional eeprom */
-		priv->enetaddr[0] = addrl;
-		priv->enetaddr[1] = addrl >>  8;
-		priv->enetaddr[2] = addrl >> 16;
-		priv->enetaddr[3] = addrl >> 24;
-		priv->enetaddr[4] = addrh;
-		priv->enetaddr[5] = addrh >> 8;
+	if (smc911x_read_mac_address(priv))
 		memcpy(priv->dev.enetaddr, priv->enetaddr, 6);
-	}
 
 	priv->dev.init = smc911x_init;
 	priv->dev.halt = smc911x_halt;
@@ -565,6 +574,19 @@ static int smc911x_recv(struct udevice *dev, int flags, uchar **packetp)
 	return ret ? ret : -EAGAIN;
 }
 
+static int smc911x_read_rom_hwaddr(struct udevice *dev)
+{
+	struct smc911x_priv *priv = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+
+	if (!smc911x_read_mac_address(priv))
+		return -ENODEV;
+
+	memcpy(pdata->enetaddr, priv->enetaddr, sizeof(pdata->enetaddr));
+
+	return 0;
+}
+
 static int smc911x_bind(struct udevice *dev)
 {
 	return device_set_name(dev, dev->name);
@@ -573,7 +595,6 @@ static int smc911x_bind(struct udevice *dev)
 static int smc911x_probe(struct udevice *dev)
 {
 	struct smc911x_priv *priv = dev_get_priv(dev);
-	unsigned long addrh, addrl;
 	int ret;
 
 	/* Try to detect chip. Will fail if not present. */
@@ -581,17 +602,7 @@ static int smc911x_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	addrh = smc911x_get_mac_csr(priv, ADDRH);
-	addrl = smc911x_get_mac_csr(priv, ADDRL);
-	if (!(addrl == 0xffffffff && addrh == 0x0000ffff)) {
-		/* address is obtained from optional eeprom */
-		priv->enetaddr[0] = addrl;
-		priv->enetaddr[1] = addrl >>  8;
-		priv->enetaddr[2] = addrl >> 16;
-		priv->enetaddr[3] = addrl >> 24;
-		priv->enetaddr[4] = addrh;
-		priv->enetaddr[5] = addrh >> 8;
-	}
+	smc911x_read_rom_hwaddr(dev);
 
 	return 0;
 }
@@ -612,6 +623,7 @@ static const struct eth_ops smc911x_ops = {
 	.send	= smc911x_send,
 	.recv	= smc911x_recv,
 	.stop	= smc911x_stop,
+	.read_rom_hwaddr = smc911x_read_rom_hwaddr,
 };
 
 static const struct udevice_id smc911x_ids[] = {

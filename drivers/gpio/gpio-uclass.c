@@ -68,6 +68,45 @@ static int gpio_to_device(unsigned int gpio, struct gpio_desc *desc)
 	return ret ? ret : -ENOENT;
 }
 
+#if CONFIG_IS_ENABLED(DM_GPIO_LOOKUP_LABEL)
+/**
+ * dm_gpio_lookup_label() - look for name in gpio device
+ *
+ * search in uc_priv, if there is a gpio with labelname same
+ * as name.
+ *
+ * @name:	name which is searched
+ * @uc_priv:	gpio_dev_priv pointer.
+ * @offset:	gpio offset within the device
+ * @return:	0 if found, -ENOENT if not.
+ */
+static int dm_gpio_lookup_label(const char *name,
+				struct gpio_dev_priv *uc_priv, ulong *offset)
+{
+	int len;
+	int i;
+
+	*offset = -1;
+	len = strlen(name);
+	for (i = 0; i < uc_priv->gpio_count; i++) {
+		if (!uc_priv->name[i])
+			continue;
+		if (!strncmp(name, uc_priv->name[i], len)) {
+			*offset = i;
+			return 0;
+		}
+	}
+	return -ENOENT;
+}
+#else
+static int
+dm_gpio_lookup_label(const char *name, struct gpio_dev_priv *uc_priv,
+		     ulong *offset)
+{
+	return -ENOENT;
+}
+#endif
+
 int dm_gpio_lookup_name(const char *name, struct gpio_desc *desc)
 {
 	struct gpio_dev_priv *uc_priv = NULL;
@@ -96,6 +135,13 @@ int dm_gpio_lookup_name(const char *name, struct gpio_desc *desc)
 			if (!strict_strtoul(name + len, 10, &offset))
 				break;
 		}
+
+		/*
+		 * if we did not found a gpio through its bank
+		 * name, we search for a valid gpio label.
+		 */
+		if (!dm_gpio_lookup_label(name, uc_priv, &offset))
+			break;
 	}
 
 	if (!dev)

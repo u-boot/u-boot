@@ -53,4 +53,12 @@
 #define CMU_CVBSPLL		0x00B8
 #define CMU_SSTSCLK		0x00C0
 
+#define CMU_DEVCLKEN1_ETH	BIT(23)
+
+#define GPIO_MFP_PWM           (0xE01B0000)
+#define MFP_CTL0               (GPIO_MFP_PWM + 0x40)
+#define MFP_CTL1               (GPIO_MFP_PWM + 0x44)
+#define MFP_CTL2               (GPIO_MFP_PWM + 0x48)
+#define MFP_CTL3               (GPIO_MFP_PWM + 0x4C)
+
 #endif

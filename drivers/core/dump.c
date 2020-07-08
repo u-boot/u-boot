@@ -97,7 +97,7 @@ void dm_dump_uclass(void)
 	}
 }
 
-void dm_dump_drivers(void)
+void dm_dump_driver_compat(void)
 {
 	struct driver *d = ll_entry_start(struct driver, driver);
 	const int n_ents = ll_entry_count(struct driver, driver);
@@ -118,5 +118,58 @@ void dm_dump_drivers(void)
 
 		for (; match && match->compatible; match++)
 			printf("%-20.20s  %s\n", "", match->compatible);
+	}
+}
+
+void dm_dump_drivers(void)
+{
+	struct driver *d = ll_entry_start(struct driver, driver);
+	const int n_ents = ll_entry_count(struct driver, driver);
+	struct driver *entry;
+	struct udevice *udev;
+	struct uclass *uc;
+	int i;
+
+	puts("Driver                    uid uclass               Devices\n");
+	puts("----------------------------------------------------------\n");
+
+	for (entry = d; entry < d + n_ents; entry++) {
+		uclass_get(entry->id, &uc);
+
+		printf("%-25.25s %-3.3d %-20.20s ", entry->name, entry->id,
+		       uc ? uc->uc_drv->name : "<no uclass>");
+
+		if (!uc) {
+			puts("\n");
+			continue;
+		}
+
+		i = 0;
+		uclass_foreach_dev(udev, uc) {
+			if (udev->driver != entry)
+				continue;
+			if (i)
+				printf("%-51.51s", "");
+
+			printf("%-25.25s\n", udev->name);
+			i++;
+		}
+		if (!i)
+			puts("<none>\n");
+	}
+}
+
+void dm_dump_static_driver_info(void)
+{
+	struct driver_info *drv = ll_entry_start(struct driver_info,
+						 driver_info);
+	const int n_ents = ll_entry_count(struct driver_info, driver_info);
+	struct driver_info *entry;
+
+	puts("Driver                    Address\n");
+	puts("---------------------------------\n");
+	for (entry = drv; entry != drv + n_ents; entry++) {
+		printf("%-25.25s @%08lx\n", entry->name,
+		       (ulong)map_to_sysmem(entry->platdata));
 	}
 }
