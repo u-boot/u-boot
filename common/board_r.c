@@ -233,6 +233,15 @@ static int initr_unlock_ram_in_cache(void)
 }
 #endif
 
+#ifdef CONFIG_PCI_ENDPOINT
+static int initr_pci_ep(void)
+{
+	pci_ep_init();
+
+	return 0;
+}
+#endif
+
 #ifdef CONFIG_PCI
 static int initr_pci(void)
 {
@@ -815,6 +824,9 @@ static init_fnc_t init_sequence_r[] = {
 #endif
 #ifdef CONFIG_BITBANGMII
 	initr_bbmii,
+#endif
+#ifdef CONFIG_PCI_ENDPOINT
+	initr_pci_ep,
 #endif
 #ifdef CONFIG_CMD_NET
 	INIT_FUNC_WATCHDOG_RESET
