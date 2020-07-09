@@ -317,6 +317,72 @@ void init_wdog_clk(void)
 	clock_enable(CCGR_WDOG3, 1);
 }
 
+void init_clk_usdhc(u32 index)
+{
+	/*
+	 * set usdhc clock root
+	 * sys pll1 400M
+	 */
+	switch (index) {
+	case 0:
+		clock_enable(CCGR_USDHC1, 0);
+		clock_set_target_val(USDHC1_CLK_ROOT, CLK_ROOT_ON |
+				     CLK_ROOT_SOURCE_SEL(1));
+		clock_enable(CCGR_USDHC1, 1);
+		return;
+	case 1:
+		clock_enable(CCGR_USDHC2, 0);
+		clock_set_target_val(USDHC2_CLK_ROOT, CLK_ROOT_ON |
+				     CLK_ROOT_SOURCE_SEL(1));
+		clock_enable(CCGR_USDHC2, 1);
+		return;
+	case 2:
+		clock_enable(CCGR_USDHC3, 0);
+		clock_set_target_val(USDHC3_CLK_ROOT, CLK_ROOT_ON |
+				     CLK_ROOT_SOURCE_SEL(1));
+		clock_enable(CCGR_USDHC3, 1);
+		return;
+	default:
+		printf("Invalid usdhc index\n");
+		return;
+	}
+}
+
+void init_clk_ecspi(u32 index)
+{
+	switch (index) {
+	case 0:
+		clock_enable(CCGR_ECSPI1, 0);
+		clock_set_target_val(ECSPI1_CLK_ROOT, CLK_ROOT_ON | CLK_ROOT_SOURCE_SEL(0));
+		clock_enable(CCGR_ECSPI1, 1);
+		return;
+	case 1:
+		clock_enable(CCGR_ECSPI2, 0);
+		clock_set_target_val(ECSPI2_CLK_ROOT, CLK_ROOT_ON | CLK_ROOT_SOURCE_SEL(0));
+		clock_enable(CCGR_ECSPI2, 1);
+	case 2:
+		clock_enable(CCGR_ECSPI3, 0);
+		clock_set_target_val(ECSPI3_CLK_ROOT, CLK_ROOT_ON | CLK_ROOT_SOURCE_SEL(0));
+		clock_enable(CCGR_ECSPI3, 1);
+		return;
+	default:
+		printf("Invalid ecspi index\n");
+		return;
+	}
+}
+
+void init_nand_clk(void)
+{
+	/*
+	 * set rawnand root
+	 * sys pll1 400M
+	 */
+	clock_enable(CCGR_RAWNAND, 0);
+	clock_set_target_val(NAND_CLK_ROOT, CLK_ROOT_ON |
+		CLK_ROOT_SOURCE_SEL(3) | CLK_ROOT_POST_DIV(CLK_ROOT_POST_DIV4)); /* 100M */
+	clock_enable(CCGR_RAWNAND, 1);
+}
+
 int clock_init(void)
 {
 	u32 val_cfg0;
