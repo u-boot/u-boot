@@ -11,14 +11,6 @@
 #include "../init.h"
 #include "sbc-regs.h"
 
-#define SBCTRL0_ADMULTIPLX_PERI_VALUE	0x33120000
-#define SBCTRL1_ADMULTIPLX_PERI_VALUE	0x03005500
-#define SBCTRL2_ADMULTIPLX_PERI_VALUE	0x14000020
-
-#define SBCTRL0_ADMULTIPLX_MEM_VALUE	0x33120000
-#define SBCTRL1_ADMULTIPLX_MEM_VALUE	0x03005500
-#define SBCTRL2_ADMULTIPLX_MEM_VALUE	0x14000010
-
 /* slower but LED works */
 #define SBCTRL0_SAVEPIN_PERI_VALUE	0x55450000
 #define SBCTRL1_SAVEPIN_PERI_VALUE	0x07168d00
@@ -46,22 +38,16 @@ int uniphier_sbc_is_enabled(void)
 	return fdtdec_get_is_enabled(fdt, offset);
 }
 
-static void __uniphier_sbc_init(int savepin)
+void uniphier_sbc_init_savepin(void)
 {
 	/*
 	 * Only CS1 is connected to support card.
 	 * BKSZ[1:0] should be set to "01".
 	 */
-	if (savepin) {
-		writel(SBCTRL0_SAVEPIN_PERI_VALUE, SBCTRL10);
-		writel(SBCTRL1_SAVEPIN_PERI_VALUE, SBCTRL11);
-		writel(SBCTRL2_SAVEPIN_PERI_VALUE, SBCTRL12);
-		writel(SBCTRL4_SAVEPIN_PERI_VALUE, SBCTRL14);
-	} else {
-		writel(SBCTRL0_ADMULTIPLX_MEM_VALUE, SBCTRL10);
-		writel(SBCTRL1_ADMULTIPLX_MEM_VALUE, SBCTRL11);
-		writel(SBCTRL2_ADMULTIPLX_MEM_VALUE, SBCTRL12);
-	}
+	writel(SBCTRL0_SAVEPIN_PERI_VALUE, SBCTRL10);
+	writel(SBCTRL1_SAVEPIN_PERI_VALUE, SBCTRL11);
+	writel(SBCTRL2_SAVEPIN_PERI_VALUE, SBCTRL12);
+	writel(SBCTRL4_SAVEPIN_PERI_VALUE, SBCTRL14);
 
 	if (uniphier_sbc_boot_is_swapped()) {
 		/*
@@ -82,14 +68,4 @@ static void __uniphier_sbc_init(int savepin)
 		writel(0x0000be01, SBBASE0); /* dummy */
 		writel(0x0200be01, SBBASE1);
 	}
-}
-
-void uniphier_sbc_init_admulti(void)
-{
-	__uniphier_sbc_init(0);
-}
-
-void uniphier_sbc_init_savepin(void)
-{
-	__uniphier_sbc_init(1);
 }
