@@ -19,6 +19,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static struct anamix_pll *ana_pll = (struct anamix_pll *)ANATOP_BASE_ADDR;
 
+static u32 get_root_clk(enum clk_root_index clock_id);
 void enable_ocotp_clk(unsigned char enable)
 {
 	clock_enable(CCGR_OCOTP, !!enable);
@@ -164,6 +165,109 @@ void dram_disable_bypass(void)
 }
 #endif
 
+int intpll_configure(enum pll_clocks pll, ulong freq)
+{
+	void __iomem *pll_gnrl_ctl, __iomem *pll_div_ctl;
+	u32 pll_div_ctl_val, pll_clke_masks;
+
+	switch (pll) {
+	case ANATOP_SYSTEM_PLL1:
+		pll_gnrl_ctl = &ana_pll->sys_pll1_gnrl_ctl;
+		pll_div_ctl = &ana_pll->sys_pll1_div_ctl;
+		pll_clke_masks = INTPLL_DIV20_CLKE_MASK |
+			INTPLL_DIV10_CLKE_MASK | INTPLL_DIV8_CLKE_MASK |
+			INTPLL_DIV6_CLKE_MASK | INTPLL_DIV5_CLKE_MASK |
+			INTPLL_DIV4_CLKE_MASK | INTPLL_DIV3_CLKE_MASK |
+			INTPLL_DIV2_CLKE_MASK | INTPLL_CLKE_MASK;
+		break;
+	case ANATOP_SYSTEM_PLL2:
+		pll_gnrl_ctl = &ana_pll->sys_pll2_gnrl_ctl;
+		pll_div_ctl = &ana_pll->sys_pll2_div_ctl;
+		pll_clke_masks = INTPLL_DIV20_CLKE_MASK |
+			INTPLL_DIV10_CLKE_MASK | INTPLL_DIV8_CLKE_MASK |
+			INTPLL_DIV6_CLKE_MASK | INTPLL_DIV5_CLKE_MASK |
+			INTPLL_DIV4_CLKE_MASK | INTPLL_DIV3_CLKE_MASK |
+			INTPLL_DIV2_CLKE_MASK | INTPLL_CLKE_MASK;
+		break;
+	case ANATOP_SYSTEM_PLL3:
+		pll_gnrl_ctl = &ana_pll->sys_pll3_gnrl_ctl;
+		pll_div_ctl = &ana_pll->sys_pll3_div_ctl;
+		pll_clke_masks = INTPLL_CLKE_MASK;
+		break;
+	case ANATOP_ARM_PLL:
+		pll_gnrl_ctl = &ana_pll->arm_pll_gnrl_ctl;
+		pll_div_ctl = &ana_pll->arm_pll_div_ctl;
+		pll_clke_masks = INTPLL_CLKE_MASK;
+		break;
+	case ANATOP_GPU_PLL:
+		pll_gnrl_ctl = &ana_pll->gpu_pll_gnrl_ctl;
+		pll_div_ctl = &ana_pll->gpu_pll_div_ctl;
+		pll_clke_masks = INTPLL_CLKE_MASK;
+		break;
+	case ANATOP_VPU_PLL:
+		pll_gnrl_ctl = &ana_pll->vpu_pll_gnrl_ctl;
+		pll_div_ctl = &ana_pll->vpu_pll_div_ctl;
+		pll_clke_masks = INTPLL_CLKE_MASK;
+		break;
+	default:
+		return -EINVAL;
+	};
+
+	switch (freq) {
+	case MHZ(600):
+		/* 24 * 0x12c / 3 / 2 ^ 2 */
+		pll_div_ctl_val = INTPLL_MAIN_DIV_VAL(0x12c) |
+			INTPLL_PRE_DIV_VAL(3) | INTPLL_POST_DIV_VAL(2);
+		break;
+	case MHZ(750):
+		/* 24 * 0xfa / 2 / 2 ^ 2 */
+		pll_div_ctl_val = INTPLL_MAIN_DIV_VAL(0xfa) |
+			INTPLL_PRE_DIV_VAL(2) | INTPLL_POST_DIV_VAL(2);
+		break;
+	case MHZ(800):
+		/* 24 * 0x190 / 3 / 2 ^ 2 */
+		pll_div_ctl_val = INTPLL_MAIN_DIV_VAL(0x190) |
+			INTPLL_PRE_DIV_VAL(3) | INTPLL_POST_DIV_VAL(2);
+		break;
+	case MHZ(1000):
+		/* 24 * 0xfa / 3 / 2 ^ 1 */
+		pll_div_ctl_val = INTPLL_MAIN_DIV_VAL(0xfa) |
+			INTPLL_PRE_DIV_VAL(3) | INTPLL_POST_DIV_VAL(1);
+		break;
+	case MHZ(1200):
+		/* 24 * 0xc8 / 2 / 2 ^ 1 */
+		pll_div_ctl_val = INTPLL_MAIN_DIV_VAL(0xc8) |
+			INTPLL_PRE_DIV_VAL(2) | INTPLL_POST_DIV_VAL(1);
+		break;
+	case MHZ(2000):
+		/* 24 * 0xfa / 3 / 2 ^ 0 */
+		pll_div_ctl_val = INTPLL_MAIN_DIV_VAL(0xfa) |
+			INTPLL_PRE_DIV_VAL(3) | INTPLL_POST_DIV_VAL(0);
+		break;
+	default:
+		return -EINVAL;
+	};
+	/* Bypass clock and set lock to pll output lock */
+	setbits_le32(pll_gnrl_ctl, INTPLL_BYPASS_MASK | INTPLL_LOCK_SEL_MASK);
+	/* Enable reset */
+	clrbits_le32(pll_gnrl_ctl, INTPLL_RST_MASK);
+	/* Configure */
+	writel(pll_div_ctl_val, pll_div_ctl);
+
+	__udelay(100);
+
+	/* Disable reset */
+	setbits_le32(pll_gnrl_ctl, INTPLL_RST_MASK);
+	/* Wait Lock */
+	while (!(readl(pll_gnrl_ctl) & INTPLL_LOCK_MASK))
+		;
+	/* Clear bypass */
+	clrbits_le32(pll_gnrl_ctl, INTPLL_BYPASS_MASK);
+	setbits_le32(pll_gnrl_ctl, pll_clke_masks);
+
+	return 0;
+}
+
 void init_uart_clk(u32 index)
 {
 	/*
@@ -239,6 +343,15 @@ int clock_init(void)
 		INTPLL_DIV8_CLKE_MASK | INTPLL_DIV10_CLKE_MASK |
 		INTPLL_DIV20_CLKE_MASK;
 	writel(val_cfg0, &ana_pll->sys_pll2_gnrl_ctl);
+
+	/* Configure ARM at 1.2GHz */
+	clock_set_target_val(ARM_A53_CLK_ROOT, CLK_ROOT_ON |
+			     CLK_ROOT_SOURCE_SEL(2));
+
+	intpll_configure(ANATOP_ARM_PLL, MHZ(1200));
+
+	/* Bypass CCM A53 ROOT, Switch to ARM PLL -> MUX-> CPU */
+	clock_set_target_val(CORE_SEL_CFG, CLK_ROOT_SOURCE_SEL(1));
 
 	/* config GIC to sys_pll2_100m */
 	clock_enable(CCGR_GIC, 0);
@@ -519,6 +632,8 @@ static u32 get_root_src_clk(enum clk_root_src root_src)
 	case AUDIO_PLL2_CLK:
 	case VIDEO_PLL_CLK:
 		return decode_fracpll(root_src);
+	case ARM_A53_ALT_CLK:
+		return get_root_clk(ARM_A53_CLK_ROOT);
 	default:
 		return 0;
 	}
@@ -548,13 +663,26 @@ static u32 get_root_clk(enum clk_root_index clock_id)
 	return root_src_clk / (post_podf + 1) / (pre_podf + 1);
 }
 
+u32 get_arm_core_clk(void)
+{
+	enum clk_root_src root_src;
+	u32 root_src_clk;
+
+	if (clock_get_src(CORE_SEL_CFG, &root_src) < 0)
+		return 0;
+
+	root_src_clk = get_root_src_clk(root_src);
+
+	return root_src_clk;
+}
+
 u32 mxc_get_clock(enum mxc_clock clk)
 {
 	u32 val;
 
 	switch (clk) {
 	case MXC_ARM_CLK:
-		return get_root_clk(ARM_A53_CLK_ROOT);
+		return get_arm_core_clk();
 	case MXC_IPG_CLK:
 		clock_get_target_val(IPG_CLK_ROOT, &val);
 		val = val & 0x3;
