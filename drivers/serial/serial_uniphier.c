@@ -23,6 +23,7 @@
 #define UNIPHIER_UART_TX		UNIPHIER_UART_RX
 /* bit[15:8] = CHAR, bit[7:0] = FCR */
 #define UNIPHIER_UART_CHAR_FCR		(3 << (UNIPHIER_UART_REGSHIFT))
+#define   UNIPHIER_UART_FCR_MASK		GENMASK(7, 0)
 /* bit[15:8] = LCR, bit[7:0] = MCR */
 #define UNIPHIER_UART_LCR_MCR		(4 << (UNIPHIER_UART_REGSHIFT))
 #define   UNIPHIER_UART_LCR_MASK		GENMASK(15, 8)
@@ -139,6 +140,12 @@ static int uniphier_serial_probe(struct udevice *dev)
 	/* flush the trasmitter empty before changing hw setting */
 	while (!(readl(priv->membase + UNIPHIER_UART_LSR) & UART_LSR_TEMT))
 		;
+
+	/* enable FIFO */
+	tmp = readl(priv->membase + UNIPHIER_UART_CHAR_FCR);
+	tmp &= ~UNIPHIER_UART_FCR_MASK;
+	tmp |= FIELD_PREP(UNIPHIER_UART_FCR_MASK, UART_FCR_ENABLE_FIFO);
+	writel(tmp, priv->membase + UNIPHIER_UART_CHAR_FCR);
 
 	tmp = readl(priv->membase + UNIPHIER_UART_LCR_MCR);
 	tmp &= ~UNIPHIER_UART_LCR_MASK;
