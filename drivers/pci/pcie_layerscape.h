@@ -100,7 +100,7 @@
 
 #define PCIE_SRIOV_VFBAR0	0x19C
 
-#define PCIE_MASK_OFFSET(flag, pf) ((flag) ? 0 : (0x1000 + 0x20000 * (pf)))
+#define PCIE_MASK_OFFSET(flag, pf, off) ((flag) ? 0 : (0x1000 + (off) * (pf)))
 
 /* LUT registers */
 #define PCIE_LUT_UDR(n)		(0x800 + (n) * 8)
@@ -139,6 +139,12 @@
 #define LS1021_PEXMSCPORTSR(pex_idx)	(0x94 + (pex_idx) * 4)
 #define LS1021_LTSSM_STATE_SHIFT	20
 
+/* LX2160a PF1 offset */
+#define LX2160_PCIE_PF1_OFFSET	0x8000
+
+/* layerscape PF1 offset */
+#define LS_PCIE_PF1_OFFSET	0x20000
+
 struct ls_pcie {
 	void __iomem *dbi;
 	void __iomem *lut;
@@ -170,6 +176,7 @@ struct ls_pcie_ep {
 	void __iomem *addr;
 	u32 cfg2_flag;
 	u32 sriov_flag;
+	u32 pf1_offset;
 	u32 num_ib_wins;
 	u32 num_ob_wins;
 	u8 max_functions;

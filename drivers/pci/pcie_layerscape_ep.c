@@ -198,7 +198,8 @@ static void ls_pcie_setup_ep(struct ls_pcie_ep *pcie_ep)
 			writel(0, pcie->dbi + PCIE_MISC_CONTROL_1_OFF);
 
 			bar_base = pcie->dbi +
-				   PCIE_MASK_OFFSET(pcie_ep->cfg2_flag, pf);
+				   PCIE_MASK_OFFSET(pcie_ep->cfg2_flag, pf,
+						    pcie_ep->pf1_offset);
 
 			if (pcie_ep->cfg2_flag) {
 				ctrl_writel(pcie,
@@ -270,6 +271,11 @@ static int ls_pcie_ep_probe(struct udevice *dev)
 					   "big-endian");
 
 	svr = SVR_SOC_VER(get_svr());
+
+	if (svr == SVR_LX2160A)
+		pcie_ep->pf1_offset = LX2160_PCIE_PF1_OFFSET;
+	else
+		pcie_ep->pf1_offset = LS_PCIE_PF1_OFFSET;
 
 	if (svr == SVR_LS2080A || svr == SVR_LS2085A)
 		pcie_ep->cfg2_flag = 1;
