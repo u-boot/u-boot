@@ -227,6 +227,9 @@ static void ls_pcie_setup_ep(struct ls_pcie_ep *pcie_ep)
 		ls_pcie_ep_setup_atu(pcie_ep, 0);
 	}
 
+	ls_pcie_dump_atu(pcie, PCIE_ATU_REGION_NUM_SRIOV,
+			 PCIE_ATU_REGION_INBOUND);
+
 	ls_pcie_ep_enable_cfg(pcie_ep);
 }
 

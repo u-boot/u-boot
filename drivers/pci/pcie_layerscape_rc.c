@@ -115,7 +115,7 @@ static void ls_pcie_setup_atu(struct ls_pcie_rc *pcie_rc)
 					 pref->bus_start,
 					 pref->size);
 
-	ls_pcie_dump_atu(pcie);
+	ls_pcie_dump_atu(pcie, PCIE_ATU_REGION_NUM, PCIE_ATU_REGION_OUTBOUND);
 }
 
 /* Return 0 if the address is valid, -errno if not valid */

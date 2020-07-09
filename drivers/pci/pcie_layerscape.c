@@ -121,24 +121,25 @@ void ls_pcie_atu_inbound_set(struct ls_pcie *pcie, u32 pf, u32 vf_flag,
 		   PCIE_ATU_BAR_NUM(bar), PCIE_ATU_CR2);
 }
 
-void ls_pcie_dump_atu(struct ls_pcie *pcie)
+void ls_pcie_dump_atu(struct ls_pcie *pcie, u32 win_num, u32 type)
 {
-	int i;
+	int win_idx;
 
-	for (i = 0; i < PCIE_ATU_REGION_NUM; i++) {
-		dbi_writel(pcie, PCIE_ATU_REGION_OUTBOUND | i,
-			   PCIE_ATU_VIEWPORT);
-		debug("iATU%d:\n", i);
+	for (win_idx = 0; win_idx < win_num; win_idx++) {
+		dbi_writel(pcie, type | win_idx, PCIE_ATU_VIEWPORT);
+		debug("iATU%d:\n", win_idx);
 		debug("\tLOWER PHYS 0x%08x\n",
 		      dbi_readl(pcie, PCIE_ATU_LOWER_BASE));
 		debug("\tUPPER PHYS 0x%08x\n",
 		      dbi_readl(pcie, PCIE_ATU_UPPER_BASE));
-		debug("\tLOWER BUS  0x%08x\n",
-		      dbi_readl(pcie, PCIE_ATU_LOWER_TARGET));
-		debug("\tUPPER BUS  0x%08x\n",
-		      dbi_readl(pcie, PCIE_ATU_UPPER_TARGET));
-		debug("\tLIMIT      0x%08x\n",
-		      dbi_readl(pcie, PCIE_ATU_LIMIT));
+		if (type == PCIE_ATU_REGION_OUTBOUND) {
+			debug("\tLOWER BUS  0x%08x\n",
+			      dbi_readl(pcie, PCIE_ATU_LOWER_TARGET));
+			debug("\tUPPER BUS  0x%08x\n",
+			      dbi_readl(pcie, PCIE_ATU_UPPER_TARGET));
+			debug("\tLIMIT      0x%08x\n",
+			      dbi_readl(pcie, PCIE_ATU_LIMIT));
+		}
 		debug("\tCR1        0x%08x\n",
 		      dbi_readl(pcie, PCIE_ATU_CR1));
 		debug("\tCR2        0x%08x\n",

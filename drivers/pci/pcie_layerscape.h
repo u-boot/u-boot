@@ -185,7 +185,7 @@ void ls_pcie_atu_outbound_set(struct ls_pcie *pcie, int idx, int type,
 			      u64 phys, u64 bus_addr, u64 size);
 void ls_pcie_atu_inbound_set(struct ls_pcie *pcie, u32 pf, u32 vf_flag,
 			     int type, int idx, int bar, u64 phys);
-void ls_pcie_dump_atu(struct ls_pcie *pcie);
+void ls_pcie_dump_atu(struct ls_pcie *pcie, u32 win_num, u32 type);
 int ls_pcie_link_up(struct ls_pcie *pcie);
 void ls_pcie_dbi_ro_wr_en(struct ls_pcie *pcie);
 void ls_pcie_dbi_ro_wr_dis(struct ls_pcie *pcie);
