@@ -342,6 +342,25 @@ int arch_cpu_init(void)
 	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
 		clock_init();
 		imx_set_wdog_powerdown(false);
+
+		if (is_imx8md() || is_imx8mmd() || is_imx8mmdl() || is_imx8mms() ||
+		    is_imx8mmsl() || is_imx8mnd() || is_imx8mndl() || is_imx8mns() ||
+		    is_imx8mnsl() || is_imx8mpd()) {
+			/* Power down cpu core 1, 2 and 3 for iMX8M Dual core or Single core */
+			struct pgc_reg *pgc_core1 = (struct pgc_reg *)(GPC_BASE_ADDR + 0x840);
+			struct pgc_reg *pgc_core2 = (struct pgc_reg *)(GPC_BASE_ADDR + 0x880);
+			struct pgc_reg *pgc_core3 = (struct pgc_reg *)(GPC_BASE_ADDR + 0x8C0);
+			struct gpc_reg *gpc = (struct gpc_reg *)GPC_BASE_ADDR;
+
+			writel(0x1, &pgc_core2->pgcr);
+			writel(0x1, &pgc_core3->pgcr);
+			if (is_imx8mms() || is_imx8mmsl() || is_imx8mns() || is_imx8mnsl()) {
+				writel(0x1, &pgc_core1->pgcr);
+				writel(0xE, &gpc->cpu_pgc_dn_trg);
+			} else {
+				writel(0xC, &gpc->cpu_pgc_dn_trg);
+			}
+		}
 	}
 
 	if (is_imx8mq()) {
