@@ -9,6 +9,8 @@
  *
  */
 
+#include <generic-phy.h>
+
 #define HIWORD_UPDATE(mask, val)        (((mask) << 16) | (val))
 #define HIWORD_UPDATE_BIT(val)          HIWORD_UPDATE(val, val)
 
@@ -126,6 +128,9 @@ struct rockchip_pcie {
 	struct udevice *vpcie3v3;
 	struct udevice *vpcie1v8;
 	struct udevice *vpcie0v9;
+
+	/* phy */
+	struct phy pcie_phy;
 };
 
 int rockchip_pcie_phy_get(struct udevice *dev);

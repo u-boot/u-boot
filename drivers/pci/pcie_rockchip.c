@@ -159,8 +159,6 @@ static int rockchip_pcie_atr_init(struct rockchip_pcie *priv)
 static int rockchip_pcie_init_port(struct udevice *dev)
 {
 	struct rockchip_pcie *priv = dev_get_priv(dev);
-	struct rockchip_pcie_phy *phy = pcie_get_phy(priv);
-	struct rockchip_pcie_phy_ops *ops = phy_get_ops(phy);
 	u32 cr, val, status;
 	int ret;
 
@@ -185,7 +183,7 @@ static int rockchip_pcie_init_port(struct udevice *dev)
 		return ret;
 	}
 
-	ret = ops->init(phy);
+	ret = generic_phy_init(&priv->pcie_phy);
 	if (ret) {
 		dev_err(dev, "failed to init phy (ret=%d)\n", ret);
 		goto err_exit_phy;
@@ -242,7 +240,7 @@ static int rockchip_pcie_init_port(struct udevice *dev)
 	cr |= PCIE_CLIENT_CONF_ENABLE | PCIE_CLIENT_MODE_RC;
 	writel(cr, priv->apb_base + PCIE_CLIENT_CONFIG);
 
-	ret = ops->power_on(phy);
+	ret = generic_phy_power_on(&priv->pcie_phy);
 	if (ret) {
 		dev_err(dev, "failed to power on phy (ret=%d)\n", ret);
 		goto err_power_off_phy;
@@ -311,9 +309,9 @@ static int rockchip_pcie_init_port(struct udevice *dev)
 	return 0;
 
 err_power_off_phy:
-	ops->power_off(phy);
+	generic_phy_power_off(&priv->pcie_phy);
 err_exit_phy:
-	ops->exit(phy);
+	generic_phy_exit(&priv->pcie_phy);
 	return ret;
 }
 
@@ -443,6 +441,12 @@ static int rockchip_pcie_parse_dt(struct udevice *dev)
 		return ret;
 	}
 
+	ret = generic_phy_get_by_index(dev, 0, &priv->pcie_phy);
+	if (ret) {
+		dev_err(dev, "failed to get pcie-phy (ret=%d)\n", ret);
+		return ret;
+	}
+
 	return 0;
 }
 
@@ -457,10 +461,6 @@ static int rockchip_pcie_probe(struct udevice *dev)
 	priv->dev = dev;
 
 	ret = rockchip_pcie_parse_dt(dev);
-	if (ret)
-		return ret;
-
-	ret = rockchip_pcie_phy_get(dev);
 	if (ret)
 		return ret;
 
