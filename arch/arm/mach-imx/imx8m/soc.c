@@ -16,8 +16,10 @@
 #include <asm/mach-imx/hab.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/syscounter.h>
+#include <asm/ptrace.h>
 #include <asm/armv8/mmu.h>
 #include <dm/uclass.h>
+#include <efi_loader.h>
 #include <errno.h>
 #include <fdt_support.h>
 #include <fsl_wdog.h>
@@ -527,3 +529,39 @@ void imx_tmu_arch_init(void *reg_base)
 	writel(tca40[0] | (tca40[1] << 16), (ulong)reg_base + 0x38);
 #endif
 }
+
+#if defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_IMX8MQ) || defined(CONFIG_IMX8MM) || defined(CONFIG_IMX8MN)
+bool serror_need_skip = true;
+
+void do_error(struct pt_regs *pt_regs, unsigned int esr)
+{
+	/*
+	 * If stack is still in ROM reserved OCRAM not switch to SPL,
+	 * it is the ROM SError
+	 */
+	ulong sp;
+
+	asm volatile("mov %0, sp" : "=r"(sp) : );
+
+	if (serror_need_skip && sp < 0x910000 && sp >= 0x900000) {
+		/* Check for ERR050342, imx8mq HDCP enabled parts */
+		if (is_imx8mq() && !(readl(OCOTP_BASE_ADDR + 0x450) & 0x08000000)) {
+			serror_need_skip = false;
+			return; /* Do nothing skip the SError in ROM */
+		}
+
+		/* Check for ERR050350, field return mode for imx8mq, mm and mn */
+		if (readl(OCOTP_BASE_ADDR + 0x630) & 0x1) {
+			serror_need_skip = false;
+			return; /* Do nothing skip the SError in ROM */
+		}
+	}
+
+	efi_restore_gd();
+	printf("\"Error\" handler, esr 0x%08x\n", esr);
+	show_regs(pt_regs);
+	panic("Resetting CPU ...\n");
+}
+#endif
+#endif
