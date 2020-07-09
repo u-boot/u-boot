@@ -173,17 +173,25 @@ static void ls_pcie_setup_ep(struct ls_pcie_ep *pcie_ep)
 			 */
 			writel(0, pcie->dbi + PCIE_MISC_CONTROL_1_OFF);
 
+			bar_base = pcie->dbi +
+				   PCIE_MASK_OFFSET(pcie_ep->cfg2_flag, pf);
+
 			if (pcie_ep->cfg2_flag) {
-				for (vf = 0; vf <= PCIE_VF_NUM; vf++) {
+				ctrl_writel(pcie,
+					    PCIE_LCTRL0_VAL(pf, 0),
+					    PCIE_PF_VF_CTRL);
+				ls_pcie_ep_setup_bars(bar_base);
+
+				for (vf = 1; vf <= PCIE_VF_NUM; vf++) {
 					ctrl_writel(pcie,
 						    PCIE_LCTRL0_VAL(pf, vf),
 						    PCIE_PF_VF_CTRL);
+					ls_pcie_ep_setup_vf_bars(bar_base);
 				}
+			} else {
+				ls_pcie_ep_setup_bars(bar_base);
+				ls_pcie_ep_setup_vf_bars(bar_base);
 			}
-			bar_base = pcie->dbi +
-				   PCIE_MASK_OFFSET(pcie_ep->cfg2_flag, pf);
-			ls_pcie_ep_setup_bars(bar_base);
-			ls_pcie_ep_setup_vf_bars(bar_base);
 
 			ls_pcie_ep_setup_atu(pcie_ep, pf);
 		}
