@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2017-2019 NXP
+ * Copyright 2017-2020 NXP
  * Copyright 2014-2015 Freescale Semiconductor, Inc.
  * Layerscape PCIe driver
  */
@@ -60,7 +60,8 @@
 /* DBI registers */
 #define PCIE_SRIOV		0x178
 #define PCIE_STRFMR1		0x71c /* Symbol Timer & Filter Mask Register1 */
-#define PCIE_DBI_RO_WR_EN	0x8bc
+#define PCIE_DBI_RO_WR_EN		BIT(0)
+#define PCIE_MISC_CONTROL_1_OFF         0x8BC
 
 #define PCIE_LINK_CAP		0x7c
 #define PCIE_LINK_SPEED_MASK	0xf
@@ -82,7 +83,7 @@
 				 PCIE_LCTRL0_CFG2_ENABLE)
 
 #define PCIE_NO_SRIOV_BAR_BASE	0x1000
-
+#define FSL_PCIE_EP_MIN_APERTURE        4096     /* 4 Kbytes */
 #define PCIE_PF_NUM		2
 #define PCIE_VF_NUM		64
 
@@ -129,25 +130,52 @@
 #define LS1021_LTSSM_STATE_SHIFT	20
 
 struct ls_pcie {
+	void __iomem *dbi;
+	void __iomem *lut;
+	void __iomem *ctrl;
 	int idx;
+	bool big_endian;
+	int mode;
+};
+
+struct ls_pcie_rc {
+	struct ls_pcie *pcie;
 	struct list_head list;
 	struct udevice *bus;
 	struct fdt_resource dbi_res;
 	struct fdt_resource lut_res;
 	struct fdt_resource ctrl_res;
 	struct fdt_resource cfg_res;
-	void __iomem *dbi;
-	void __iomem *lut;
-	void __iomem *ctrl;
 	void __iomem *cfg0;
 	void __iomem *cfg1;
-	bool big_endian;
 	bool enabled;
 	int next_lut_index;
 	int stream_id_cur;
-	int mode;
+};
+
+struct ls_pcie_ep {
+	struct fdt_resource addr_res;
+	struct ls_pcie *pcie;
+	struct udevice *bus;
+	void __iomem *addr;
+	u32 num_ib_wins;
+	u32 num_ob_wins;
+	u8 max_functions;
 };
 
 extern struct list_head ls_pcie_list;
+
+unsigned int dbi_readl(struct ls_pcie *pcie, unsigned int offset);
+void dbi_writel(struct ls_pcie *pcie, unsigned int value, unsigned int offset);
+unsigned int ctrl_readl(struct ls_pcie *pcie, unsigned int offset);
+void ctrl_writel(struct ls_pcie *pcie, unsigned int value, unsigned int offset);
+void ls_pcie_atu_outbound_set(struct ls_pcie *pcie, int idx, int type,
+			      u64 phys, u64 bus_addr, pci_size_t size);
+void ls_pcie_atu_inbound_set(struct ls_pcie *pcie, int idx, int type,
+			     int bar, u64 phys);
+void ls_pcie_dump_atu(struct ls_pcie *pcie);
+int ls_pcie_link_up(struct ls_pcie *pcie);
+void ls_pcie_dbi_ro_wr_en(struct ls_pcie *pcie);
+void ls_pcie_dbi_ro_wr_dis(struct ls_pcie *pcie);
 
 #endif /* _PCIE_LAYERSCAPE_H_ */

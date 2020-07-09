@@ -25,17 +25,19 @@
 /*
  * Return next available LUT index.
  */
-static int ls_pcie_next_lut_index(struct ls_pcie *pcie)
+static int ls_pcie_next_lut_index(struct ls_pcie_rc *pcie_rc)
 {
-	if (pcie->next_lut_index < PCIE_LUT_ENTRY_COUNT)
-		return pcie->next_lut_index++;
+	if (pcie_rc->next_lut_index < PCIE_LUT_ENTRY_COUNT)
+		return pcie_rc->next_lut_index++;
 	else
 		return -ENOSPC;  /* LUT is full */
 }
 
-static void lut_writel(struct ls_pcie *pcie, unsigned int value,
+static void lut_writel(struct ls_pcie_rc *pcie_rc, unsigned int value,
 		       unsigned int offset)
 {
+	struct ls_pcie *pcie = pcie_rc->pcie;
+
 	if (pcie->big_endian)
 		out_be32(pcie->lut + offset, value);
 	else
@@ -45,12 +47,12 @@ static void lut_writel(struct ls_pcie *pcie, unsigned int value,
 /*
  * Program a single LUT entry
  */
-static void ls_pcie_lut_set_mapping(struct ls_pcie *pcie, int index, u32 devid,
-				    u32 streamid)
+static void ls_pcie_lut_set_mapping(struct ls_pcie_rc *pcie_rc, int index,
+				    u32 devid, u32 streamid)
 {
 	/* leave mask as all zeroes, want to match all bits */
-	lut_writel(pcie, devid << 16, PCIE_LUT_UDR(index));
-	lut_writel(pcie, streamid | PCIE_LUT_ENABLE, PCIE_LUT_LDR(index));
+	lut_writel(pcie_rc, devid << 16, PCIE_LUT_UDR(index));
+	lut_writel(pcie_rc, streamid | PCIE_LUT_ENABLE, PCIE_LUT_LDR(index));
 }
 
 /*
@@ -61,7 +63,8 @@ static void ls_pcie_lut_set_mapping(struct ls_pcie *pcie, int index, u32 devid,
  *      msi-map = <[devid] [phandle-to-msi-ctrl] [stream-id] [count]
  *                 [devid] [phandle-to-msi-ctrl] [stream-id] [count]>;
  */
-static void fdt_pcie_set_msi_map_entry_ls(void *blob, struct ls_pcie *pcie,
+static void fdt_pcie_set_msi_map_entry_ls(void *blob,
+					  struct ls_pcie_rc *pcie_rc,
 					  u32 devid, u32 streamid)
 {
 	u32 *prop;
@@ -69,10 +72,11 @@ static void fdt_pcie_set_msi_map_entry_ls(void *blob, struct ls_pcie *pcie,
 	int nodeoffset;
 	uint svr;
 	char *compat = NULL;
+	struct ls_pcie *pcie = pcie_rc->pcie;
 
 	/* find pci controller node */
 	nodeoffset = fdt_node_offset_by_compat_reg(blob, "fsl,ls-pcie",
-						   pcie->dbi_res.start);
+						   pcie_rc->dbi_res.start);
 	if (nodeoffset < 0) {
 #ifdef CONFIG_FSL_PCIE_COMPAT /* Compatible with older version of dts node */
 		svr = (get_svr() >> SVR_VAR_PER_SHIFT) & 0xFFFFFE;
@@ -84,7 +88,7 @@ static void fdt_pcie_set_msi_map_entry_ls(void *blob, struct ls_pcie *pcie,
 			compat = CONFIG_FSL_PCIE_COMPAT;
 		if (compat)
 			nodeoffset = fdt_node_offset_by_compat_reg(blob,
-					compat, pcie->dbi_res.start);
+					compat, pcie_rc->dbi_res.start);
 #endif
 		if (nodeoffset < 0)
 			return;
@@ -114,7 +118,8 @@ static void fdt_pcie_set_msi_map_entry_ls(void *blob, struct ls_pcie *pcie,
  *      iommu-map = <[devid] [phandle-to-iommu-ctrl] [stream-id] [count]
  *                 [devid] [phandle-to-iommu-ctrl] [stream-id] [count]>;
  */
-static void fdt_pcie_set_iommu_map_entry_ls(void *blob, struct ls_pcie *pcie,
+static void fdt_pcie_set_iommu_map_entry_ls(void *blob,
+					    struct ls_pcie_rc *pcie_rc,
 					    u32 devid, u32 streamid)
 {
 	u32 *prop;
@@ -123,10 +128,11 @@ static void fdt_pcie_set_iommu_map_entry_ls(void *blob, struct ls_pcie *pcie,
 	int lenp;
 	uint svr;
 	char *compat = NULL;
+	struct ls_pcie *pcie = pcie_rc->pcie;
 
 	/* find pci controller node */
 	nodeoffset = fdt_node_offset_by_compat_reg(blob, "fsl,ls-pcie",
-						   pcie->dbi_res.start);
+						   pcie_rc->dbi_res.start);
 	if (nodeoffset < 0) {
 #ifdef CONFIG_FSL_PCIE_COMPAT /* Compatible with older version of dts node */
 		svr = (get_svr() >> SVR_VAR_PER_SHIFT) & 0xFFFFFE;
@@ -139,7 +145,7 @@ static void fdt_pcie_set_iommu_map_entry_ls(void *blob, struct ls_pcie *pcie,
 
 		if (compat)
 			nodeoffset = fdt_node_offset_by_compat_reg(blob,
-						compat, pcie->dbi_res.start);
+						compat, pcie_rc->dbi_res.start);
 #endif
 		if (nodeoffset < 0)
 			return;
@@ -170,7 +176,7 @@ static void fdt_pcie_set_iommu_map_entry_ls(void *blob, struct ls_pcie *pcie,
 static void fdt_fixup_pcie_ls(void *blob)
 {
 	struct udevice *dev, *bus;
-	struct ls_pcie *pcie;
+	struct ls_pcie_rc *pcie_rc;
 	int streamid;
 	int index;
 	pci_dev_t bdf;
@@ -181,17 +187,18 @@ static void fdt_fixup_pcie_ls(void *blob)
 	     pci_find_next_device(&dev)) {
 		for (bus = dev; device_is_on_pci_bus(bus);)
 			bus = bus->parent;
-		pcie = dev_get_priv(bus);
+		pcie_rc = dev_get_priv(bus);
 
-		streamid = pcie_next_streamid(pcie->stream_id_cur, pcie->idx);
+		streamid = pcie_next_streamid(pcie_rc->stream_id_cur,
+					      pcie_rc->pcie->idx);
 		if (streamid < 0) {
 			debug("ERROR: no stream ids free\n");
 			continue;
 		} else {
-			pcie->stream_id_cur++;
+			pcie_rc->stream_id_cur++;
 		}
 
-		index = ls_pcie_next_lut_index(pcie);
+		index = ls_pcie_next_lut_index(pcie_rc);
 		if (index < 0) {
 			debug("ERROR: no LUT indexes free\n");
 			continue;
@@ -200,27 +207,28 @@ static void fdt_fixup_pcie_ls(void *blob)
 		/* the DT fixup must be relative to the hose first_busno */
 		bdf = dm_pci_get_bdf(dev) - PCI_BDF(bus->seq, 0, 0);
 		/* map PCI b.d.f to streamID in LUT */
-		ls_pcie_lut_set_mapping(pcie, index, bdf >> 8,
+		ls_pcie_lut_set_mapping(pcie_rc, index, bdf >> 8,
 					streamid);
 		/* update msi-map in device tree */
-		fdt_pcie_set_msi_map_entry_ls(blob, pcie, bdf >> 8,
+		fdt_pcie_set_msi_map_entry_ls(blob, pcie_rc, bdf >> 8,
 					      streamid);
 		/* update iommu-map in device tree */
-		fdt_pcie_set_iommu_map_entry_ls(blob, pcie, bdf >> 8,
+		fdt_pcie_set_iommu_map_entry_ls(blob, pcie_rc, bdf >> 8,
 						streamid);
 	}
 	pcie_board_fix_fdt(blob);
 }
 #endif
 
-static void ft_pcie_rc_fix(void *blob, struct ls_pcie *pcie)
+static void ft_pcie_rc_fix(void *blob, struct ls_pcie_rc *pcie_rc)
 {
 	int off;
 	uint svr;
 	char *compat = NULL;
+	struct ls_pcie *pcie = pcie_rc->pcie;
 
 	off = fdt_node_offset_by_compat_reg(blob, "fsl,ls-pcie",
-					    pcie->dbi_res.start);
+					    pcie_rc->dbi_res.start);
 	if (off < 0) {
 #ifdef CONFIG_FSL_PCIE_COMPAT /* Compatible with older version of dts node */
 		svr = (get_svr() >> SVR_VAR_PER_SHIFT) & 0xFFFFFE;
@@ -232,46 +240,47 @@ static void ft_pcie_rc_fix(void *blob, struct ls_pcie *pcie)
 			compat = CONFIG_FSL_PCIE_COMPAT;
 		if (compat)
 			off = fdt_node_offset_by_compat_reg(blob,
-					compat, pcie->dbi_res.start);
+					compat, pcie_rc->dbi_res.start);
 #endif
 		if (off < 0)
 			return;
 	}
 
-	if (pcie->enabled && pcie->mode == PCI_HEADER_TYPE_BRIDGE)
+	if (pcie_rc->enabled && pcie->mode == PCI_HEADER_TYPE_BRIDGE)
 		fdt_set_node_status(blob, off, FDT_STATUS_OKAY, 0);
 	else
 		fdt_set_node_status(blob, off, FDT_STATUS_DISABLED, 0);
 }
 
-static void ft_pcie_ep_fix(void *blob, struct ls_pcie *pcie)
+static void ft_pcie_ep_fix(void *blob, struct ls_pcie_rc *pcie_rc)
 {
 	int off;
+	struct ls_pcie *pcie = pcie_rc->pcie;
 
 	off = fdt_node_offset_by_compat_reg(blob, CONFIG_FSL_PCIE_EP_COMPAT,
-					    pcie->dbi_res.start);
+					    pcie_rc->dbi_res.start);
 	if (off < 0)
 		return;
 
-	if (pcie->enabled && pcie->mode == PCI_HEADER_TYPE_NORMAL)
+	if (pcie_rc->enabled && pcie->mode == PCI_HEADER_TYPE_NORMAL)
 		fdt_set_node_status(blob, off, FDT_STATUS_OKAY, 0);
 	else
 		fdt_set_node_status(blob, off, FDT_STATUS_DISABLED, 0);
 }
 
-static void ft_pcie_ls_setup(void *blob, struct ls_pcie *pcie)
+static void ft_pcie_ls_setup(void *blob, struct ls_pcie_rc *pcie_rc)
 {
-	ft_pcie_ep_fix(blob, pcie);
-	ft_pcie_rc_fix(blob, pcie);
+	ft_pcie_ep_fix(blob, pcie_rc);
+	ft_pcie_rc_fix(blob, pcie_rc);
 }
 
 /* Fixup Kernel DT for PCIe */
 void ft_pci_setup_ls(void *blob, struct bd_info *bd)
 {
-	struct ls_pcie *pcie;
+	struct ls_pcie_rc *pcie_rc;
 
-	list_for_each_entry(pcie, &ls_pcie_list, list)
-		ft_pcie_ls_setup(blob, pcie);
+	list_for_each_entry(pcie_rc, &ls_pcie_list, list)
+		ft_pcie_ls_setup(blob, pcie_rc);
 
 #if defined(CONFIG_FSL_LSCH3) || defined(CONFIG_FSL_LSCH2)
 	fdt_fixup_pcie_ls(blob);
