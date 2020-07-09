@@ -139,10 +139,6 @@ int board_init(void)
 
 	led_puts("U3");
 
-	support_card_late_init();
-
-	led_puts("U4");
-
 	uniphier_nand_reset_assert();
 
 	led_puts("Uboo");

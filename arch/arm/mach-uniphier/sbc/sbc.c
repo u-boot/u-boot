@@ -20,7 +20,6 @@
 /* faster but LED does not work */
 #define SBCTRL0_SAVEPIN_MEM_VALUE	0x55450000
 #define SBCTRL1_SAVEPIN_MEM_VALUE	0x06057700
-/* NOR flash needs more wait counts than SRAM */
 #define SBCTRL2_SAVEPIN_MEM_VALUE	0x34000009
 #define SBCTRL4_SAVEPIN_MEM_VALUE	0x02110210
 
