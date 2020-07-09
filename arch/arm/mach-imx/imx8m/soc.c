@@ -428,11 +428,297 @@ bool is_usb_boot(void)
 }
 
 #ifdef CONFIG_OF_SYSTEM_SETUP
-int ft_system_setup(void *blob, bd_t *bd)
+bool check_fdt_new_path(void *blob)
+{
+	const char *soc_path = "/soc@0";
+	int nodeoff;
+
+	nodeoff = fdt_path_offset(blob, soc_path);
+	if (nodeoff < 0)
+		return false;
+
+	return true;
+}
+
+static int disable_fdt_nodes(void *blob, const char *const nodes_path[], int size_array)
 {
 	int i = 0;
 	int rc;
 	int nodeoff;
+	const char *status = "disabled";
+
+	for (i = 0; i < size_array; i++) {
+		nodeoff = fdt_path_offset(blob, nodes_path[i]);
+		if (nodeoff < 0)
+			continue; /* Not found, skip it */
+
+		printf("Found %s node\n", nodes_path[i]);
+
+add_status:
+		rc = fdt_setprop(blob, nodeoff, "status", status, strlen(status) + 1);
+		if (rc) {
+			if (rc == -FDT_ERR_NOSPACE) {
+				rc = fdt_increase_size(blob, 512);
+				if (!rc)
+					goto add_status;
+			}
+			printf("Unable to update property %s:%s, err=%s\n",
+			       nodes_path[i], "status", fdt_strerror(rc));
+		} else {
+			printf("Modify %s:%s disabled\n",
+			       nodes_path[i], "status");
+		}
+	}
+
+	return 0;
+}
+
+#ifdef CONFIG_IMX8MQ
+bool check_dcss_fused(void)
+{
+	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
+	struct fuse_bank *bank = &ocotp->bank[1];
+	struct fuse_bank1_regs *fuse =
+		(struct fuse_bank1_regs *)bank->fuse_regs;
+	u32 value = readl(&fuse->tester4);
+
+	if (value & 0x4000000)
+		return true;
+
+	return false;
+}
+
+static int disable_mipi_dsi_nodes(void *blob)
+{
+	static const char * const nodes_path[] = {
+		"/mipi_dsi@30A00000",
+		"/mipi_dsi_bridge@30A00000",
+		"/dsi_phy@30A00300",
+		"/soc@0/bus@30800000/mipi_dsi@30a00000",
+		"/soc@0/bus@30800000/dphy@30a00300"
+	};
+
+	return disable_fdt_nodes(blob, nodes_path, ARRAY_SIZE(nodes_path));
+}
+
+static int disable_dcss_nodes(void *blob)
+{
+	static const char * const nodes_path[] = {
+		"/dcss@0x32e00000",
+		"/dcss@32e00000",
+		"/hdmi@32c00000",
+		"/hdmi_cec@32c33800",
+		"/hdmi_drm@32c00000",
+		"/display-subsystem",
+		"/sound-hdmi",
+		"/sound-hdmi-arc",
+		"/soc@0/bus@32c00000/display-controller@32e00000",
+		"/soc@0/bus@32c00000/hdmi@32c00000",
+	};
+
+	return disable_fdt_nodes(blob, nodes_path, ARRAY_SIZE(nodes_path));
+}
+
+static int check_mipi_dsi_nodes(void *blob)
+{
+	static const char * const lcdif_path[] = {
+		"/lcdif@30320000",
+		"/soc@0/bus@30000000/lcdif@30320000"
+	};
+	static const char * const mipi_dsi_path[] = {
+		"/mipi_dsi@30A00000",
+		"/soc@0/bus@30800000/mipi_dsi@30a00000"
+	};
+	static const char * const lcdif_ep_path[] = {
+		"/lcdif@30320000/port@0/mipi-dsi-endpoint",
+		"/soc@0/bus@30000000/lcdif@30320000/port@0/endpoint"
+	};
+	static const char * const mipi_dsi_ep_path[] = {
+		"/mipi_dsi@30A00000/port@1/endpoint",
+		"/soc@0/bus@30800000/mipi_dsi@30a00000/ports/port@0/endpoint"
+	};
+
+	int lookup_node;
+	int nodeoff;
+	bool new_path = check_fdt_new_path(blob);
+	int i = new_path ? 1 : 0;
+
+	nodeoff = fdt_path_offset(blob, lcdif_path[i]);
+	if (nodeoff < 0 || !fdtdec_get_is_enabled(blob, nodeoff)) {
+		/*
+		 * If can't find lcdif node or lcdif node is disabled,
+		 * then disable all mipi dsi, since they only can input
+		 * from DCSS
+		 */
+		return disable_mipi_dsi_nodes(blob);
+	}
+
+	nodeoff = fdt_path_offset(blob, mipi_dsi_path[i]);
+	if (nodeoff < 0 || !fdtdec_get_is_enabled(blob, nodeoff))
+		return 0;
+
+	nodeoff = fdt_path_offset(blob, lcdif_ep_path[i]);
+	if (nodeoff < 0) {
+		/*
+		 * If can't find lcdif endpoint, then disable all mipi dsi,
+		 * since they only can input from DCSS
+		 */
+		return disable_mipi_dsi_nodes(blob);
+	}
+
+	lookup_node = fdtdec_lookup_phandle(blob, nodeoff, "remote-endpoint");
+	nodeoff = fdt_path_offset(blob, mipi_dsi_ep_path[i]);
+
+	if (nodeoff > 0 && nodeoff == lookup_node)
+		return 0;
+
+	return disable_mipi_dsi_nodes(blob);
+}
+#endif
+
+int disable_vpu_nodes(void *blob)
+{
+	static const char * const nodes_path_8mq[] = {
+		"/vpu@38300000",
+		"/soc@0/vpu@38300000"
+	};
+
+	static const char * const nodes_path_8mm[] = {
+		"/vpu_g1@38300000",
+		"/vpu_g2@38310000",
+		"/vpu_h1@38320000"
+	};
+
+	static const char * const nodes_path_8mp[] = {
+		"/vpu_g1@38300000",
+		"/vpu_g2@38310000",
+		"/vpu_vc8000e@38320000"
+	};
+
+	if (is_imx8mq())
+		return disable_fdt_nodes(blob, nodes_path_8mq, ARRAY_SIZE(nodes_path_8mq));
+	else if (is_imx8mm())
+		return disable_fdt_nodes(blob, nodes_path_8mm, ARRAY_SIZE(nodes_path_8mm));
+	else if (is_imx8mp())
+		return disable_fdt_nodes(blob, nodes_path_8mp, ARRAY_SIZE(nodes_path_8mp));
+	else
+		return -EPERM;
+}
+
+int disable_gpu_nodes(void *blob)
+{
+	static const char * const nodes_path_8mn[] = {
+		"/gpu@38000000"
+	};
+
+	return disable_fdt_nodes(blob, nodes_path_8mn, ARRAY_SIZE(nodes_path_8mn));
+}
+
+int disable_npu_nodes(void *blob)
+{
+	static const char * const nodes_path_8mp[] = {
+		"/vipsi@38500000"
+	};
+
+	return disable_fdt_nodes(blob, nodes_path_8mp, ARRAY_SIZE(nodes_path_8mp));
+}
+
+int disable_isp_nodes(void *blob)
+{
+	static const char * const nodes_path_8mp[] = {
+		"/soc@0/bus@32c00000/camera/isp@32e10000",
+		"/soc@0/bus@32c00000/camera/isp@32e20000"
+	};
+
+	return disable_fdt_nodes(blob, nodes_path_8mp, ARRAY_SIZE(nodes_path_8mp));
+}
+
+int disable_dsp_nodes(void *blob)
+{
+	static const char * const nodes_path_8mp[] = {
+		"/dsp@3b6e8000"
+	};
+
+	return disable_fdt_nodes(blob, nodes_path_8mp, ARRAY_SIZE(nodes_path_8mp));
+}
+
+static int disable_cpu_nodes(void *blob, u32 disabled_cores)
+{
+	static const char * const nodes_path[] = {
+		"/cpus/cpu@1",
+		"/cpus/cpu@2",
+		"/cpus/cpu@3",
+	};
+	u32 i = 0;
+	int rc;
+	int nodeoff;
+
+	if (disabled_cores > 3)
+		return -EINVAL;
+
+	i = 3 - disabled_cores;
+
+	for (; i < 3; i++) {
+		nodeoff = fdt_path_offset(blob, nodes_path[i]);
+		if (nodeoff < 0)
+			continue; /* Not found, skip it */
+
+		debug("Found %s node\n", nodes_path[i]);
+
+		rc = fdt_del_node(blob, nodeoff);
+		if (rc < 0) {
+			printf("Unable to delete node %s, err=%s\n",
+			       nodes_path[i], fdt_strerror(rc));
+		} else {
+			printf("Delete node %s\n", nodes_path[i]);
+		}
+	}
+
+	return 0;
+}
+
+int ft_system_setup(void *blob, bd_t *bd)
+{
+#ifdef CONFIG_IMX8MQ
+	int i = 0;
+	int rc;
+	int nodeoff;
+
+	if (get_boot_device() == USB_BOOT) {
+		disable_dcss_nodes(blob);
+
+		bool new_path = check_fdt_new_path(blob);
+		int v = new_path ? 1 : 0;
+		static const char * const usb_dwc3_path[] = {
+			"/usb@38100000/dwc3",
+			"/soc@0/usb@38100000"
+		};
+
+		nodeoff = fdt_path_offset(blob, usb_dwc3_path[v]);
+		if (nodeoff >= 0) {
+			const char *speed = "high-speed";
+
+			printf("Found %s node\n", usb_dwc3_path[v]);
+
+usb_modify_speed:
+
+			rc = fdt_setprop(blob, nodeoff, "maximum-speed", speed, strlen(speed) + 1);
+			if (rc) {
+				if (rc == -FDT_ERR_NOSPACE) {
+					rc = fdt_increase_size(blob, 512);
+					if (!rc)
+						goto usb_modify_speed;
+				}
+				printf("Unable to set property %s:%s, err=%s\n",
+				       usb_dwc3_path[v], "maximum-speed", fdt_strerror(rc));
+			} else {
+				printf("Modify %s:%s = %s\n",
+				       usb_dwc3_path[v], "maximum-speed", speed);
+			}
+		} else {
+			printf("Can't found %s node\n", usb_dwc3_path[v]);
+		}
+	}
 
 	/* Disable the CPU idle for A0 chip since the HW does not support it */
 	if (is_soc_rev(CHIP_REV_1_0)) {
@@ -463,6 +749,53 @@ int ft_system_setup(void *blob, bd_t *bd)
 			       "cpu-idle-states");
 		}
 	}
+
+	if (is_imx8mql()) {
+		disable_vpu_nodes(blob);
+		if (check_dcss_fused()) {
+			printf("DCSS is fused\n");
+			disable_dcss_nodes(blob);
+			check_mipi_dsi_nodes(blob);
+		}
+	}
+
+	if (is_imx8md())
+		disable_cpu_nodes(blob, 2);
+
+#elif defined(CONFIG_IMX8MM)
+	if (is_imx8mml() || is_imx8mmdl() ||  is_imx8mmsl())
+		disable_vpu_nodes(blob);
+
+	if (is_imx8mmd() || is_imx8mmdl())
+		disable_cpu_nodes(blob, 2);
+	else if (is_imx8mms() || is_imx8mmsl())
+		disable_cpu_nodes(blob, 3);
+
+#elif defined(CONFIG_IMX8MN)
+	if (is_imx8mnl() || is_imx8mndl() ||  is_imx8mnsl())
+		disable_gpu_nodes(blob);
+
+	if (is_imx8mnd() || is_imx8mndl())
+		disable_cpu_nodes(blob, 2);
+	else if (is_imx8mns() || is_imx8mnsl())
+		disable_cpu_nodes(blob, 3);
+
+#elif defined(CONFIG_IMX8MP)
+	if (is_imx8mpl() || is_imx8mp7())
+		disable_vpu_nodes(blob);
+
+	if (is_imx8mpl() || is_imx8mp6() || is_imx8mp5())
+		disable_npu_nodes(blob);
+
+	if (is_imx8mpl() || is_imx8mp5())
+		disable_isp_nodes(blob);
+
+	if (is_imx8mpl() || is_imx8mp7() || is_imx8mp6() || is_imx8mp5())
+		disable_dsp_nodes(blob);
+
+	if (is_imx8mpd())
+		disable_cpu_nodes(blob, 2);
+#endif
 
 	return 0;
 }
