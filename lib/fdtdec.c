@@ -1121,7 +1121,51 @@ int fdtdec_setup_memory_banksize_fdt(const void *blob)
 int fdtdec_setup_memory_banksize(void)
 {
 	return fdtdec_setup_memory_banksize_fdt(gd->fdt_blob);
+}
 
+int fdtdec_setup_mem_size_base_lowest(void)
+{
+	int bank, ret, mem, reg = 0;
+	struct fdt_resource res;
+	unsigned long base;
+	phys_size_t size;
+	const void *blob = gd->fdt_blob;
+
+	gd->ram_base = (unsigned long)~0;
+
+	mem = get_next_memory_node(blob, -1);
+	if (mem < 0) {
+		debug("%s: Missing /memory node\n", __func__);
+		return -EINVAL;
+	}
+
+	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
+		ret = fdt_get_resource(blob, mem, "reg", reg++, &res);
+		if (ret == -FDT_ERR_NOTFOUND) {
+			reg = 0;
+			mem = get_next_memory_node(blob, mem);
+			if (mem == -FDT_ERR_NOTFOUND)
+				break;
+
+			ret = fdt_get_resource(blob, mem, "reg", reg++, &res);
+			if (ret == -FDT_ERR_NOTFOUND)
+				break;
+		}
+		if (ret != 0)
+			return -EINVAL;
+
+		base = (unsigned long)res.start;
+		size = (phys_size_t)(res.end - res.start + 1);
+
+		if (gd->ram_base > base && size) {
+			gd->ram_base = base;
+			gd->ram_size = size;
+			debug("%s: Initial DRAM base %lx size %lx\n",
+			      __func__, base, (unsigned long)size);
+		}
+	}
+
+	return 0;
 }
 #endif
 

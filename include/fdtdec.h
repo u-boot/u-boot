@@ -944,6 +944,23 @@ int fdtdec_setup_mem_size_base_fdt(const void *blob);
 int fdtdec_setup_mem_size_base(void);
 
 /**
+ * fdtdec_setup_mem_size_base_lowest() - decode and setup gd->ram_size and
+ * gd->ram_start by lowest available memory base
+ *
+ * Decode the /memory 'reg' property to determine the lowest start of the memory
+ * bank bank and populate the global data with it.
+ *
+ * This function should be called from a boards dram_init(). This helper
+ * function allows for boards to query the device tree for DRAM size and start
+ * address instead of hard coding the value in the case where the memory size
+ * and start address cannot be detected automatically.
+ *
+ * @return 0 if OK, -EINVAL if the /memory node or reg property is missing or
+ * invalid
+ */
+int fdtdec_setup_mem_size_base_lowest(void);
+
+/**
  * fdtdec_setup_memory_banksize_fdt() - decode and populate gd->bd->bi_dram
  *
  * Decode the /memory 'reg' property to determine the address and size of the
