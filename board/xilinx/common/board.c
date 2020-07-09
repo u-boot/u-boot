@@ -86,5 +86,8 @@ int board_late_init_xilinx(void)
 	initrd_hi = round_down(initrd_hi, SZ_16M);
 	env_set_addr("initrd_high", (void *)initrd_hi);
 
+	env_set_addr("bootm_low", (void *)gd->ram_base);
+	env_set_addr("bootm_size", (void *)gd->ram_size);
+
 	return 0;
 }
