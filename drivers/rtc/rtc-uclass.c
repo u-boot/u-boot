@@ -40,14 +40,60 @@ int dm_rtc_reset(struct udevice *dev)
 	return ops->reset(dev);
 }
 
+int dm_rtc_read(struct udevice *dev, unsigned int reg, u8 *buf, unsigned int len)
+{
+	struct rtc_ops *ops = rtc_get_ops(dev);
+
+	assert(ops);
+	if (ops->read)
+		return ops->read(dev, reg, buf, len);
+	if (!ops->read8)
+		return -ENOSYS;
+	while (len--) {
+		int ret = ops->read8(dev, reg++);
+
+		if (ret < 0)
+			return ret;
+		*buf++ = ret;
+	}
+	return 0;
+}
+
+int dm_rtc_write(struct udevice *dev, unsigned int reg,
+		 const u8 *buf, unsigned int len)
+{
+	struct rtc_ops *ops = rtc_get_ops(dev);
+
+	assert(ops);
+	if (ops->write)
+		return ops->write(dev, reg, buf, len);
+	if (!ops->write8)
+		return -ENOSYS;
+	while (len--) {
+		int ret = ops->write8(dev, reg++, *buf++);
+
+		if (ret < 0)
+			return ret;
+	}
+	return 0;
+}
+
 int rtc_read8(struct udevice *dev, unsigned int reg)
 {
 	struct rtc_ops *ops = rtc_get_ops(dev);
 
 	assert(ops);
-	if (!ops->read8)
-		return -ENOSYS;
-	return ops->read8(dev, reg);
+	if (ops->read8)
+		return ops->read8(dev, reg);
+	if (ops->read) {
+		u8 buf[1];
+		int ret = ops->read(dev, reg, buf, 1);
+
+		if (ret < 0)
+			return ret;
+		return buf[0];
+	}
+	return -ENOSYS;
 }
 
 int rtc_write8(struct udevice *dev, unsigned int reg, int val)
@@ -55,9 +101,14 @@ int rtc_write8(struct udevice *dev, unsigned int reg, int val)
 	struct rtc_ops *ops = rtc_get_ops(dev);
 
 	assert(ops);
-	if (!ops->write8)
-		return -ENOSYS;
-	return ops->write8(dev, reg, val);
+	if (ops->write8)
+		return ops->write8(dev, reg, val);
+	if (ops->write) {
+		u8 buf[1] = { val };
+
+		return ops->write(dev, reg, buf, 1);
+	}
+	return -ENOSYS;
 }
 
 int rtc_read16(struct udevice *dev, unsigned int reg, u16 *valuep)

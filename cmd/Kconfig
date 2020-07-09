@@ -1739,6 +1739,12 @@ config CMD_DATE
 	  Enable the 'date' command for getting/setting the time/date in RTC
 	  devices.
 
+config CMD_RTC
+	bool "rtc"
+	depends on DM_RTC
+	help
+	  Enable the 'rtc' command for low-level access to RTC devices.
+
 config CMD_TIME
 	bool "time"
 	help

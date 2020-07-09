@@ -47,6 +47,12 @@ config PWM_SANDBOX
 	  useful. The PWM can be enabled but is not connected to any outputs
 	  so this is not very useful.
 
+config PWM_SIFIVE
+	bool "Enable support for SiFive PWM"
+	depends on DM_PWM
+	help
+	  This PWM is found SiFive's FU540 and other SoCs.
+
 config PWM_TEGRA
 	bool "Enable support for the Tegra PWM"
 	depends on DM_PWM

@@ -8,7 +8,9 @@
 #include <dm.h>
 #include <i2c.h>
 #include <log.h>
+#include <regmap.h>
 #include <reset.h>
+#include <syscon.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
 
@@ -154,6 +156,7 @@ struct stm32_i2c_spec {
  * @fall_time: Fall time (ns)
  * @dnf: Digital filter coefficient (0-16)
  * @analog_filter: Analog filter delay (On/Off)
+ * @fmp_clr_offset: Fast Mode Plus clear register offset from set register
  */
 struct stm32_i2c_setup {
 	u32 speed_freq;
@@ -162,6 +165,7 @@ struct stm32_i2c_setup {
 	u32 fall_time;
 	u8 dnf;
 	bool analog_filter;
+	u32 fmp_clr_offset;
 };
 
 /**
@@ -181,11 +185,26 @@ struct stm32_i2c_timings {
 	u8 scll;
 };
 
+/**
+ * struct stm32_i2c_priv - private data of the controller
+ * @regs: I2C registers address
+ * @clk: hw i2c clock
+ * @setup: I2C timing setup parameters
+ * @speed: I2C clock frequency of the controller. Standard, Fast or Fast+
+ * @regmap: holds SYSCFG phandle for Fast Mode Plus bit
+ * @regmap_sreg: register address for setting Fast Mode Plus bits
+ * @regmap_creg: register address for clearing Fast Mode Plus bits
+ * @regmap_mask: mask for Fast Mode Plus bits
+ */
 struct stm32_i2c_priv {
 	struct stm32_i2c_regs *regs;
 	struct clk clk;
 	struct stm32_i2c_setup *setup;
 	u32 speed;
+	struct regmap *regmap;
+	u32 regmap_sreg;
+	u32 regmap_creg;
+	u32 regmap_mask;
 };
 
 static const struct stm32_i2c_spec i2c_specs[] = {
@@ -235,6 +254,14 @@ static const struct stm32_i2c_setup stm32f7_setup = {
 	.fall_time = STM32_I2C_FALL_TIME_DEFAULT,
 	.dnf = STM32_I2C_DNF_DEFAULT,
 	.analog_filter = STM32_I2C_ANALOG_FILTER_ENABLE,
+};
+
+static const struct stm32_i2c_setup stm32mp15_setup = {
+	.rise_time = STM32_I2C_RISE_TIME_DEFAULT,
+	.fall_time = STM32_I2C_FALL_TIME_DEFAULT,
+	.dnf = STM32_I2C_DNF_DEFAULT,
+	.analog_filter = STM32_I2C_ANALOG_FILTER_ENABLE,
+	.fmp_clr_offset = 0x40,
 };
 
 static int stm32_i2c_check_device_busy(struct stm32_i2c_priv *i2c_priv)
@@ -761,6 +788,29 @@ static int stm32_i2c_setup_timing(struct stm32_i2c_priv *i2c_priv,
 	return 0;
 }
 
+static int stm32_i2c_write_fm_plus_bits(struct stm32_i2c_priv *i2c_priv)
+{
+	int ret;
+	bool enable = i2c_priv->speed > I2C_SPEED_FAST_RATE;
+
+	/* Optional */
+	if (IS_ERR_OR_NULL(i2c_priv->regmap))
+		return 0;
+
+	if (i2c_priv->regmap_sreg == i2c_priv->regmap_creg)
+		ret = regmap_update_bits(i2c_priv->regmap,
+					 i2c_priv->regmap_sreg,
+					 i2c_priv->regmap_mask,
+					 enable ? i2c_priv->regmap_mask : 0);
+	else
+		ret = regmap_write(i2c_priv->regmap,
+				   enable ? i2c_priv->regmap_sreg :
+					    i2c_priv->regmap_creg,
+				   i2c_priv->regmap_mask);
+
+	return ret;
+}
+
 static int stm32_i2c_hw_config(struct stm32_i2c_priv *i2c_priv)
 {
 	struct stm32_i2c_regs *regs = i2c_priv->regs;
@@ -774,6 +824,11 @@ static int stm32_i2c_hw_config(struct stm32_i2c_priv *i2c_priv)
 
 	/* Disable I2C */
 	clrbits_le32(&regs->cr1, STM32_I2C_CR1_PE);
+
+	/* Setup Fast mode plus if necessary */
+	ret = stm32_i2c_write_fm_plus_bits(i2c_priv);
+	if (ret)
+		return ret;
 
 	/* Timing settings */
 	timing |= STM32_I2C_TIMINGR_PRESC(t.presc);
@@ -850,6 +905,7 @@ static int stm32_ofdata_to_platdata(struct udevice *dev)
 {
 	struct stm32_i2c_priv *i2c_priv = dev_get_priv(dev);
 	u32 rise_time, fall_time;
+	int ret;
 
 	i2c_priv->setup = (struct stm32_i2c_setup *)dev_get_driver_data(dev);
 	if (!i2c_priv->setup)
@@ -863,6 +919,22 @@ static int stm32_ofdata_to_platdata(struct udevice *dev)
 	if (fall_time)
 		i2c_priv->setup->fall_time = fall_time;
 
+	/* Optional */
+	i2c_priv->regmap = syscon_regmap_lookup_by_phandle(dev,
+							   "st,syscfg-fmp");
+	if (!IS_ERR(i2c_priv->regmap)) {
+		u32 fmp[3];
+
+		ret = dev_read_u32_array(dev, "st,syscfg-fmp", fmp, 3);
+		if (ret)
+			return ret;
+
+		i2c_priv->regmap_sreg = fmp[1];
+		i2c_priv->regmap_creg = fmp[1] +
+					i2c_priv->setup->fmp_clr_offset;
+		i2c_priv->regmap_mask = fmp[2];
+	}
+
 	return 0;
 }
 
@@ -873,6 +945,7 @@ static const struct dm_i2c_ops stm32_i2c_ops = {
 
 static const struct udevice_id stm32_i2c_of_match[] = {
 	{ .compatible = "st,stm32f7-i2c", .data = (ulong)&stm32f7_setup },
+	{ .compatible = "st,stm32mp15-i2c", .data = (ulong)&stm32mp15_setup },
 	{}
 };
 

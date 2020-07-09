@@ -23,8 +23,7 @@
 #define PCF2127_REG_MO		0x08
 #define PCF2127_REG_YR		0x09
 
-static int pcf2127_read_reg(struct udevice *dev, uint offset,
-			    u8 *buffer, int len)
+static int pcf2127_rtc_read(struct udevice *dev, uint offset, u8 *buffer, uint len)
 {
 	struct dm_i2c_chip *chip = dev_get_parent_platdata(dev);
 	struct i2c_msg msg;
@@ -42,6 +41,12 @@ static int pcf2127_read_reg(struct udevice *dev, uint offset,
 	msg.buf = buffer;
 
 	return dm_i2c_xfer(dev, &msg, 1);
+}
+
+static int pcf2127_rtc_write(struct udevice *dev, uint offset,
+			     const u8 *buffer, uint len)
+{
+	return dm_i2c_write(dev, offset, buffer, len);
 }
 
 static int pcf2127_rtc_set(struct udevice *dev, const struct rtc_time *tm)
@@ -73,7 +78,7 @@ static int pcf2127_rtc_get(struct udevice *dev, struct rtc_time *tm)
 	int ret = 0;
 	uchar buf[10] = { PCF2127_REG_CTRL1 };
 
-	ret = pcf2127_read_reg(dev, PCF2127_REG_CTRL1, buf, sizeof(buf));
+	ret = pcf2127_rtc_read(dev, PCF2127_REG_CTRL1, buf, sizeof(buf));
 	if (ret < 0)
 		return ret;
 
@@ -110,6 +115,8 @@ static const struct rtc_ops pcf2127_rtc_ops = {
 	.get = pcf2127_rtc_get,
 	.set = pcf2127_rtc_set,
 	.reset = pcf2127_rtc_reset,
+	.read = pcf2127_rtc_read,
+	.write = pcf2127_rtc_write,
 };
 
 static const struct udevice_id pcf2127_rtc_ids[] = {

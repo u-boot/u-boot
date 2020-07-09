@@ -197,7 +197,8 @@ static int sandbox_i2c_rtc_xfer(struct udevice *emul, struct i2c_msg *msg,
 
 			/* Write the register */
 			memcpy(plat->reg + offset, ptr, len);
-			if (offset == REG_RESET)
+			/* If the reset register was written to, do reset. */
+			if (offset <= REG_RESET && REG_RESET < offset + len)
 				reset_time(emul);
 		}
 	}
