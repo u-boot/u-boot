@@ -5,7 +5,7 @@ Analyzing crash dumps
 =====================
 
 When the CPU detects an instruction that it cannot execute it raises an
-interrupt. U-Boot than writes a crash dump. This chapter describes how such
+interrupt. U-Boot then writes a crash dump. This chapter describes how such
 dump can be analyzed.
 
 Creating a crash dump voluntarily
@@ -46,8 +46,10 @@ QEMU::
     resetting ...
 
 The first line provides us with the type of interrupt that occurred.
-(On ARMv8 a synchronous abort is an exception where the return address stored
-in the ESR register indicates the instruction that caused the exception.)
+On ARMv8 a synchronous abort is an exception thrown when hitting an unallocated
+instruction. The exception syndrome register ESR register contains information
+describing the reason for the exception. Bit 25 set here indicates that a 32 bit
+instruction led to the exception.
 
 The second line provides the contents of the elr and the lr register after
 subtracting the relocation offset. - U-Boot relocates itself after being
