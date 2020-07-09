@@ -440,40 +440,6 @@ static int imx8mn_clk_probe(struct udevice *dev)
 	       base + 0x40a0, 0));
 #endif
 
-#ifdef CONFIG_SPL_BUILD
-	struct clk *clkp, *clkp1;
-
-	clk_get_by_id(IMX8MN_CLK_WDOG1_ROOT, &clkp);
-	clk_enable(clkp);
-	clk_get_by_id(IMX8MN_CLK_WDOG2_ROOT, &clkp);
-	clk_enable(clkp);
-	clk_get_by_id(IMX8MN_CLK_WDOG3_ROOT, &clkp);
-	clk_enable(clkp);
-
-	/* Configure SYS_PLL3 to 600MHz */
-	clk_get_by_id(IMX8MN_SYS_PLL3, &clkp);
-	clk_set_rate(clkp, 600000000UL);
-	clk_enable(clkp);
-
-	/* Configure ARM to sys_pll2_500m */
-	clk_get_by_id(IMX8MN_CLK_A53_SRC, &clkp);
-	clk_get_by_id(IMX8MN_SYS_PLL2_OUT, &clkp1);
-	clk_enable(clkp1);
-	clk_get_by_id(IMX8MN_SYS_PLL2_500M, &clkp1);
-	clk_set_parent(clkp, clkp1);
-
-	/* Configure ARM PLL to 1.2GHz */
-	clk_get_by_id(IMX8MN_ARM_PLL, &clkp1);
-	clk_set_rate(clkp1, 1200000000UL);
-	clk_get_by_id(IMX8MN_ARM_PLL_OUT, &clkp1);
-	clk_enable(clkp1);
-	clk_set_parent(clkp, clkp1);
-
-	/* Configure DIV to 1.2GHz */
-	clk_get_by_id(IMX8MN_CLK_A53_DIV, &clkp1);
-	clk_set_rate(clkp1, 1200000000UL);
-#endif
-
 	return 0;
 }
 
