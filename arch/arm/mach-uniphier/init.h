@@ -34,29 +34,6 @@ int uniphier_sld8_init(const struct uniphier_board_data *bd);
 int uniphier_pro5_init(const struct uniphier_board_data *bd);
 int uniphier_pxs2_init(const struct uniphier_board_data *bd);
 
-#if defined(CONFIG_MICRO_SUPPORT_CARD)
-void uniphier_sbc_init_savepin(void);
-void uniphier_ld4_sbc_init(void);
-void uniphier_pxs2_sbc_init(void);
-void uniphier_ld11_sbc_init(void);
-#else
-static inline void uniphier_sbc_init_savepin(void)
-{
-}
-
-static inline void uniphier_ld4_sbc_init(void)
-{
-}
-
-static inline void uniphier_pxs2_sbc_init(void)
-{
-}
-
-static inline void uniphier_ld11_sbc_init(void)
-{
-}
-#endif
-
 void uniphier_ld4_bcu_init(const struct uniphier_board_data *bd);
 
 int uniphier_memconf_2ch_init(const struct uniphier_board_data *bd);

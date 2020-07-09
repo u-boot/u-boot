@@ -5,7 +5,8 @@
 
 #include <linux/io.h>
 
-#include "sbc-regs.h"
+#define SBBASE0			0x58c00100
+#define SBBASE_BANK_ENABLE	(0x00000001)
 
 int uniphier_sbc_boot_is_swapped(void)
 {
