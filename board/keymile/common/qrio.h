@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2018 ABB
- * Valentin Longchamp <valentin.longchamp@ch.abb.com>
+ * Valentin Longchamp <valentin.longchamp@hitachi-powergrids.com>
  */
 
 #ifndef __QRIO_H
