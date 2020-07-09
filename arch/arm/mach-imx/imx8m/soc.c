@@ -143,6 +143,9 @@ static struct mm_region imx8m_mem_map[] = {
 			 PTE_BLOCK_OUTER_SHARE
 #endif
 	}, {
+		/* empty entrie to split table entry 5 if needed when TEEs are used */
+		0,
+	}, {
 		/* List terminator */
 		0,
 	}
@@ -152,16 +155,121 @@ struct mm_region *mem_map = imx8m_mem_map;
 
 void enable_caches(void)
 {
-	/*
-	 * If OPTEE runs, remove OPTEE memory from MMU table to
-	 * avoid speculative prefetch. OPTEE runs at the top of
-	 * the first memory bank
-	 */
-	if (rom_pointer[1])
-		imx8m_mem_map[5].size -= rom_pointer[1];
+	/* If OPTEE runs, remove OPTEE memory from MMU table to avoid speculative prefetch */
+	if (rom_pointer[1]) {
+		/*
+		 * TEE are loaded, So the ddr bank structures
+		 * have been modified update mmu table accordingly
+		 */
+		int i = 0;
+		/*
+		 * please make sure that entry initial value matches
+		 * imx8m_mem_map for DRAM1
+		 */
+		int entry = 5;
+		u64 attrs = imx8m_mem_map[entry].attrs;
+
+		while (i < CONFIG_NR_DRAM_BANKS && entry < 8) {
+			if (gd->bd->bi_dram[i].start == 0)
+				break;
+			imx8m_mem_map[entry].phys = gd->bd->bi_dram[i].start;
+			imx8m_mem_map[entry].virt = gd->bd->bi_dram[i].start;
+			imx8m_mem_map[entry].size = gd->bd->bi_dram[i].size;
+			imx8m_mem_map[entry].attrs = attrs;
+			debug("Added memory mapping (%d): %llx %llx\n", entry,
+			      imx8m_mem_map[entry].phys, imx8m_mem_map[entry].size);
+			i++; entry++;
+		}
+	}
 
 	icache_enable();
 	dcache_enable();
+}
+
+__weak int board_phys_sdram_size(phys_size_t *size)
+{
+	if (!size)
+		return -EINVAL;
+
+	*size = PHYS_SDRAM_SIZE;
+	return 0;
+}
+
+int dram_init(void)
+{
+	phys_size_t sdram_size;
+	int ret;
+
+	ret = board_phys_sdram_size(&sdram_size);
+	if (ret)
+		return ret;
+
+	/* rom_pointer[1] contains the size of TEE occupies */
+	if (rom_pointer[1])
+		gd->ram_size = sdram_size - rom_pointer[1];
+	else
+		gd->ram_size = sdram_size;
+
+#ifdef PHYS_SDRAM_2_SIZE
+	gd->ram_size += PHYS_SDRAM_2_SIZE;
+#endif
+
+	return 0;
+}
+
+int dram_init_banksize(void)
+{
+	int bank = 0;
+	int ret;
+	phys_size_t sdram_size;
+
+	ret = board_phys_sdram_size(&sdram_size);
+	if (ret)
+		return ret;
+
+	gd->bd->bi_dram[bank].start = PHYS_SDRAM;
+	if (rom_pointer[1]) {
+		phys_addr_t optee_start = (phys_addr_t)rom_pointer[0];
+		phys_size_t optee_size = (size_t)rom_pointer[1];
+
+		gd->bd->bi_dram[bank].size = optee_start - gd->bd->bi_dram[bank].start;
+		if ((optee_start + optee_size) < (PHYS_SDRAM + sdram_size)) {
+			if (++bank >= CONFIG_NR_DRAM_BANKS) {
+				puts("CONFIG_NR_DRAM_BANKS is not enough\n");
+				return -1;
+			}
+
+			gd->bd->bi_dram[bank].start = optee_start + optee_size;
+			gd->bd->bi_dram[bank].size = PHYS_SDRAM +
+				sdram_size - gd->bd->bi_dram[bank].start;
+		}
+	} else {
+		gd->bd->bi_dram[bank].size = sdram_size;
+	}
+
+#ifdef PHYS_SDRAM_2_SIZE
+	if (++bank >= CONFIG_NR_DRAM_BANKS) {
+		puts("CONFIG_NR_DRAM_BANKS is not enough for SDRAM_2\n");
+		return -1;
+	}
+	gd->bd->bi_dram[bank].start = PHYS_SDRAM_2;
+	gd->bd->bi_dram[bank].size = PHYS_SDRAM_2_SIZE;
+#endif
+
+	return 0;
+}
+
+phys_size_t get_effective_memsize(void)
+{
+	/* return the first bank as effective memory */
+	if (rom_pointer[1])
+		return ((phys_addr_t)rom_pointer[0] - PHYS_SDRAM);
+
+#ifdef PHYS_SDRAM_2_SIZE
+	return gd->ram_size - PHYS_SDRAM_2_SIZE;
+#else
+	return gd->ram_size;
+#endif
 }
 
 static u32 get_cpu_variant_type(u32 type)

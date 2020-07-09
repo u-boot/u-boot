@@ -51,24 +51,22 @@ int board_early_init_f(void)
 	return 0;
 }
 
-int dram_init(void)
+int board_phys_sdram_size(phys_size_t *size)
 {
 	int ddr_size = readl(M4_BOOTROM_BASE_ADDR);
 
-	if (ddr_size == 0x4)
-		gd->ram_size = 0x100000000;
-	else if (ddr_size == 0x3)
-		gd->ram_size = 0xc0000000;
-	else if (ddr_size == 0x2)
-		gd->ram_size = 0x80000000;
-	else if (ddr_size == 0x1)
-		gd->ram_size = 0x40000000;
-	else
+	if (ddr_size == 0x4) {
+		*size = 0x100000000;
+	} else if (ddr_size == 0x3) {
+		*size = 0xc0000000;
+	} else if (ddr_size == 0x2) {
+		*size = 0x80000000;
+	} else if (ddr_size == 0x1) {
+		*size = 0x40000000;
+	} else {
 		printf("Unknown DDR type!!!\n");
-
-	/* rom_pointer[1] contains the size of TEE occupies */
-	if (rom_pointer[1])
-		gd->ram_size -= rom_pointer[1];
+		return -1;
+	}
 
 	return 0;
 }
