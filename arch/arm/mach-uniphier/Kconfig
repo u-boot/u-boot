@@ -83,6 +83,7 @@ config CACHE_UNIPHIER
 
 config MICRO_SUPPORT_CARD
 	bool "Use Micro Support Card"
+	depends on UNIPHIER_SYSTEM_BUS
 	help
 	  This option provides support for the expansion board, available
 	  on some UniPhier reference boards.
