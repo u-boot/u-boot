@@ -86,5 +86,8 @@ int board_late_init_xilinx(void)
 
 	env_set_hex("script_offset_f", CONFIG_BOOT_SCRIPT_OFFSET);
 
+	env_set_addr("bootm_low", (void *)gd->ram_base);
+	env_set_addr("bootm_size", (void *)gd->ram_size);
+
 	return 0;
 }
