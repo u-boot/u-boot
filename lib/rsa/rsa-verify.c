@@ -194,6 +194,19 @@ out:
 	return ret;
 }
 
+/*
+ * padding_pss_verify() - verify the pss padding of a signature
+ *
+ * Only works with a rsa_pss_saltlen:-2 (default value) right now
+ * saltlen:-1 "set the salt length to the digest length" is currently
+ * not supported.
+ *
+ * @info:	Specifies key and FIT information
+ * @msg:	byte array of message, len equal to msg_len
+ * @msg_len:	Message length
+ * @hash:	Pointer to the expected hash
+ * @hash_len:	Length of the hash
+ */
 int padding_pss_verify(struct image_sign_info *info,
 		       uint8_t *msg, int msg_len,
 		       const uint8_t *hash, int hash_len)
@@ -285,7 +298,7 @@ out:
 }
 #endif
 
-#if CONFIG_IS_ENABLED(FIT_SIGNATURE) || IS_ENABLED(CONFIG_RSA_VERIFY_WITH_PKEY)
+#if CONFIG_IS_ENABLED(FIT_SIGNATURE) || CONFIG_IS_ENABLED(RSA_VERIFY_WITH_PKEY)
 /**
  * rsa_verify_key() - Verify a signature against some data using RSA Key
  *
@@ -359,7 +372,7 @@ static int rsa_verify_key(struct image_sign_info *info,
 }
 #endif
 
-#ifdef CONFIG_RSA_VERIFY_WITH_PKEY
+#if CONFIG_IS_ENABLED(RSA_VERIFY_WITH_PKEY)
 /**
  * rsa_verify_with_pkey() - Verify a signature against some data using
  * only modulus and exponent as RSA key properties.
@@ -465,34 +478,12 @@ static int rsa_verify_with_keynode(struct image_sign_info *info,
 }
 #endif
 
-int rsa_verify(struct image_sign_info *info,
-	       const struct image_region region[], int region_count,
-	       uint8_t *sig, uint sig_len)
+int rsa_verify_hash(struct image_sign_info *info,
+		    const uint8_t *hash, uint8_t *sig, uint sig_len)
 {
-	/* Reserve memory for maximum checksum-length */
-	uint8_t hash[info->crypto->key_len];
 	int ret = -EACCES;
 
-	/*
-	 * Verify that the checksum-length does not exceed the
-	 * rsa-signature-length
-	 */
-	if (info->checksum->checksum_len >
-	    info->crypto->key_len) {
-		debug("%s: invlaid checksum-algorithm %s for %s\n",
-		      __func__, info->checksum->name, info->crypto->name);
-		return -EINVAL;
-	}
-
-	/* Calculate checksum with checksum-algorithm */
-	ret = info->checksum->calculate(info->checksum->name,
-					region, region_count, hash);
-	if (ret < 0) {
-		debug("%s: Error in checksum calculation\n", __func__);
-		return -EINVAL;
-	}
-
-	if (IS_ENABLED(CONFIG_RSA_VERIFY_WITH_PKEY) && !info->fdt_blob) {
+	if (CONFIG_IS_ENABLED(RSA_VERIFY_WITH_PKEY) && !info->fdt_blob) {
 		/* don't rely on fdt properties */
 		ret = rsa_verify_with_pkey(info, hash, sig, sig_len);
 
@@ -541,4 +532,34 @@ int rsa_verify(struct image_sign_info *info,
 	}
 
 	return ret;
+}
+
+int rsa_verify(struct image_sign_info *info,
+	       const struct image_region region[], int region_count,
+	       uint8_t *sig, uint sig_len)
+{
+	/* Reserve memory for maximum checksum-length */
+	uint8_t hash[info->crypto->key_len];
+	int ret = -EACCES;
+
+	/*
+	 * Verify that the checksum-length does not exceed the
+	 * rsa-signature-length
+	 */
+	if (info->checksum->checksum_len >
+	    info->crypto->key_len) {
+		debug("%s: invlaid checksum-algorithm %s for %s\n",
+		      __func__, info->checksum->name, info->crypto->name);
+		return -EINVAL;
+	}
+
+	/* Calculate checksum with checksum-algorithm */
+	ret = info->checksum->calculate(info->checksum->name,
+					region, region_count, hash);
+	if (ret < 0) {
+		debug("%s: Error in checksum calculation\n", __func__);
+		return -EINVAL;
+	}
+
+	return rsa_verify_hash(info, hash, sig, sig_len);
 }

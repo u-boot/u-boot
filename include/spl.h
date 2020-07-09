@@ -155,7 +155,7 @@ struct spl_image_info {
 #endif
 };
 
-/*
+/**
  * Information required to load data from a device
  *
  * @dev: Pointer to the device, e.g. struct mmc *

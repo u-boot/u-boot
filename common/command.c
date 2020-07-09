@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <compiler.h>
 #include <command.h>
 #include <console.h>
 #include <env.h>
@@ -473,12 +474,12 @@ int cmd_get_data_size(char* arg, int default_size)
 			return 2;
 		case 'l':
 			return 4;
-#ifdef MEM_SUPPORT_64BIT_DATA
-		case 'q':
-			return 8;
-#endif
 		case 's':
 			return -2;
+		case 'q':
+			if (MEM_SUPPORT_64BIT_DATA)
+				return 8;
+			/* no break */
 		default:
 			return -1;
 		}

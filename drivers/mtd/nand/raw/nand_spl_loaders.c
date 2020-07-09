@@ -41,6 +41,34 @@ int nand_spl_load_image(uint32_t offs, unsigned int size, void *dst)
 	return 0;
 }
 
+/**
+ * nand_spl_adjust_offset - Adjust offset from a starting sector
+ * @sector:	Address of the sector
+ * @offs:	Offset starting from @sector
+ *
+ * If one or more bad blocks are in the address space between @sector
+ * and @sector + @offs, @offs is increased by the NAND block size for
+ * each bad block found.
+ */
+u32 nand_spl_adjust_offset(u32 sector, u32 offs)
+{
+	unsigned int block, lastblock;
+
+	block = sector / CONFIG_SYS_NAND_BLOCK_SIZE;
+	lastblock = (sector + offs) / CONFIG_SYS_NAND_BLOCK_SIZE;
+
+	while (block <= lastblock) {
+		if (nand_is_bad_block(block)) {
+			offs += CONFIG_SYS_NAND_BLOCK_SIZE;
+			lastblock++;
+		}
+
+		block++;
+	}
+
+	return offs;
+}
+
 #ifdef CONFIG_SPL_UBI
 /*
  * Temporary storage for non NAND page aligned and non NAND page sized

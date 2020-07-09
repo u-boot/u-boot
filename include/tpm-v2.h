@@ -70,6 +70,7 @@ enum tpm2_handles {
  * @TPM2_CC_DAM_RESET: TPM2_DictionaryAttackLockReset().
  * @TPM2_CC_DAM_PARAMETERS: TPM2_DictionaryAttackParameters().
  * @TPM2_CC_GET_CAPABILITY: TPM2_GetCapibility().
+ * @TPM2_CC_GET_RANDOM: TPM2_GetRandom().
  * @TPM2_CC_PCR_READ: TPM2_PCR_Read().
  * @TPM2_CC_PCR_EXTEND: TPM2_PCR_Extend().
  * @TPM2_CC_PCR_SETAUTHVAL: TPM2_PCR_SetAuthValue().
@@ -85,6 +86,7 @@ enum tpm2_command_codes {
 	TPM2_CC_DAM_PARAMETERS	= 0x013A,
 	TPM2_CC_NV_READ         = 0x014E,
 	TPM2_CC_GET_CAPABILITY	= 0x017A,
+	TPM2_CC_GET_RANDOM      = 0x017B,
 	TPM2_CC_PCR_READ	= 0x017E,
 	TPM2_CC_PCR_EXTEND	= 0x0182,
 	TPM2_CC_PCR_SETAUTHVAL	= 0x0183,
@@ -338,5 +340,16 @@ u32 tpm2_pcr_setauthpolicy(struct udevice *dev, const char *pw,
 u32 tpm2_pcr_setauthvalue(struct udevice *dev, const char *pw,
 			  const ssize_t pw_sz, u32 index, const char *key,
 			  const ssize_t key_sz);
+
+/**
+ * Issue a TPM2_GetRandom command.
+ *
+ * @dev		TPM device
+ * @param data		output buffer for the random bytes
+ * @param count		size of output buffer
+ *
+ * @return return code of the operation
+ */
+u32 tpm2_get_random(struct udevice *dev, void *data, u32 count);
 
 #endif /* __TPM_V2_H */

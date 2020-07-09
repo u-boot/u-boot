@@ -718,6 +718,20 @@ config CMD_MEMORY
 	    base - print or set address offset
 	    loop - initialize loop on address range
 
+config MEM_SEARCH
+	bool "ms - Memory search"
+	help
+	  Memory-search command
+
+	  This allows searching through a region of memory looking for hex
+	  data (byte, 16-bit word, 32-bit long, also 64-bit on machines that
+	  support it). It is also possible to search for a string. The
+	  command accepts a memory range and a list of values to search for.
+	  The values need to appear in memory in the same order they are given
+	  in the command. At most 10 matches can be returned at a time, but
+	  pressing return will show the next 10 matches. Environment variables
+	  are set for use with scripting (memmatches, memaddr, mempos).
+
 config CMD_MX_CYCLIC
 	bool "Enable cyclic md/mw commands"
 	depends on CMD_MEMORY

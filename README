@@ -3237,6 +3237,7 @@ md	- memory display
 mm	- memory modify (auto-incrementing)
 nm	- memory modify (constant address)
 mw	- memory write (fill)
+ms	- memory search
 cp	- memory copy
 cmp	- memory compare
 crc32	- checksum calculation
@@ -3481,6 +3482,15 @@ List of environment variables (most likely not complete):
 		  be either the default (28000), or a value based on
 		  CONFIG_NET_RETRY_COUNT, if defined. This value has
 		  precedence over the valu based on CONFIG_NET_RETRY_COUNT.
+
+  memmatches	- Number of matches found by the last 'ms' command, in hex
+
+  memaddr	- Address of the last match found by the 'ms' command, in hex,
+		  or 0 if none
+
+  mempos	- Index position of the last match found by the 'ms' command,
+		  in units of the size (.b, .w, .l) of the search
+
 
 The following image location variables contain the location of images
 used in booting. The "Image" column gives the role of the image and is

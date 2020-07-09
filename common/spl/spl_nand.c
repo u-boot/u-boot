@@ -42,13 +42,16 @@ static int spl_nand_load_image(struct spl_image_info *spl_image,
 static ulong spl_nand_fit_read(struct spl_load_info *load, ulong offs,
 			       ulong size, void *dst)
 {
-	int ret;
+	ulong sector;
+	int err;
 
-	ret = nand_spl_load_image(offs, size, dst);
-	if (!ret)
-		return size;
-	else
+	sector = *(int *)load->priv;
+	offs = sector + nand_spl_adjust_offset(sector, offs - sector);
+	err = nand_spl_load_image(offs, size, dst);
+	if (err)
 		return 0;
+
+	return size;
 }
 
 static int spl_nand_load_element(struct spl_image_info *spl_image,
@@ -66,7 +69,7 @@ static int spl_nand_load_element(struct spl_image_info *spl_image,
 
 		debug("Found FIT\n");
 		load.dev = NULL;
-		load.priv = NULL;
+		load.priv = &offset;
 		load.filename = NULL;
 		load.bl_len = 1;
 		load.read = spl_nand_fit_read;

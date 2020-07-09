@@ -654,21 +654,17 @@ int rsa_gen_key_prop(const void *key, uint32_t keylen, struct key_prop **prop)
 {
 	struct rsa_key rsa_key;
 	uint32_t *n = NULL, *rr = NULL, *rrtmp = NULL;
-	const int max_rsa_size = 4096;
-	int rlen, i, ret;
+	int rlen, i, ret = 0;
 
 	*prop = calloc(sizeof(**prop), 1);
-	n = calloc(sizeof(uint32_t), 1 + (max_rsa_size >> 5));
-	rr = calloc(sizeof(uint32_t), 1 + (max_rsa_size >> 5));
-	rrtmp = calloc(sizeof(uint32_t), 1 + (max_rsa_size >> 5));
-	if (!(*prop) || !n || !rr || !rrtmp) {
+	if (!(*prop)) {
 		ret = -ENOMEM;
-		goto err;
+		goto out;
 	}
 
 	ret = rsa_parse_pub_key(&rsa_key, key, keylen);
 	if (ret)
-		goto err;
+		goto out;
 
 	/* modulus */
 	/* removing leading 0's */
@@ -678,20 +674,28 @@ int rsa_gen_key_prop(const void *key, uint32_t keylen, struct key_prop **prop)
 	(*prop)->modulus = malloc(rsa_key.n_sz - i);
 	if (!(*prop)->modulus) {
 		ret = -ENOMEM;
-		goto err;
+		goto out;
 	}
 	memcpy((void *)(*prop)->modulus, &rsa_key.n[i], rsa_key.n_sz - i);
+
+	n = calloc(sizeof(uint32_t), 1 + ((*prop)->num_bits >> 5));
+	rr = calloc(sizeof(uint32_t), 1 + (((*prop)->num_bits * 2) >> 5));
+	rrtmp = calloc(sizeof(uint32_t), 2 + (((*prop)->num_bits * 2) >> 5));
+	if (!n || !rr || !rrtmp) {
+		ret = -ENOMEM;
+		goto out;
+	}
 
 	/* exponent */
 	(*prop)->public_exponent = calloc(1, sizeof(uint64_t));
 	if (!(*prop)->public_exponent) {
 		ret = -ENOMEM;
-		goto err;
+		goto out;
 	}
 	memcpy((void *)(*prop)->public_exponent + sizeof(uint64_t)
 						- rsa_key.e_sz,
 	       rsa_key.e, rsa_key.e_sz);
-	(*prop)->exp_len = rsa_key.e_sz;
+	(*prop)->exp_len = sizeof(uint64_t);
 
 	/* n0 inverse */
 	br_i32_decode(n, &rsa_key.n[i], rsa_key.n_sz - i);
@@ -710,16 +714,15 @@ int rsa_gen_key_prop(const void *key, uint32_t keylen, struct key_prop **prop)
 	(*prop)->rr = malloc(rlen);
 	if (!(*prop)->rr) {
 		ret = -ENOMEM;
-		goto err;
+		goto out;
 	}
 	br_i32_encode((void *)(*prop)->rr, rlen, rr);
 
-	return 0;
-
-err:
+out:
 	free(n);
 	free(rr);
 	free(rrtmp);
-	rsa_free_key_prop(*prop);
+	if (ret < 0)
+		rsa_free_key_prop(*prop);
 	return ret;
 }
