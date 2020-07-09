@@ -8,6 +8,8 @@
 
 #include <video.h>
 
+struct video_priv;
+
 #define VID_FRAC_DIV	256
 
 #define VID_TO_PIXEL(x)	((x) / VID_FRAC_DIV)
@@ -241,8 +243,6 @@ int vidconsole_put_string(struct udevice *dev, const char *str);
 void vidconsole_position_cursor(struct udevice *dev, unsigned col,
 				unsigned row);
 
-#ifdef CONFIG_DM_VIDEO
-
 /**
  * vid_console_color() - convert a color code to a pixel's internal
  * representation
@@ -255,6 +255,53 @@ void vidconsole_position_cursor(struct udevice *dev, unsigned col,
  * @return	color value
  */
 u32 vid_console_color(struct video_priv *priv, unsigned int idx);
+
+#ifdef CONFIG_VIDEO_COPY
+/**
+ * vidconsole_sync_copy() - Sync back to the copy framebuffer
+ *
+ * This ensures that the copy framebuffer has the same data as the framebuffer
+ * for a particular region. It should be called after the framebuffer is updated
+ *
+ * @from and @to can be in either order. The region between them is synced.
+ *
+ * @dev: Vidconsole device being updated
+ * @from: Start/end address within the framebuffer (->fb)
+ * @to: Other address within the frame buffer
+ * @return 0 if OK, -EFAULT if the start address is before the start of the
+ *	frame buffer start
+ */
+int vidconsole_sync_copy(struct udevice *dev, void *from, void *to);
+
+/**
+ * vidconsole_memmove() - Perform a memmove() within the frame buffer
+ *
+ * This handles a memmove(), e.g. for scrolling. It also updates the copy
+ * framebuffer.
+ *
+ * @dev: Vidconsole device being updated
+ * @dst: Destination address within the framebuffer (->fb)
+ * @src: Source address within the framebuffer (->fb)
+ * @size: Number of bytes to transfer
+ * @return 0 if OK, -EFAULT if the start address is before the start of the
+ *	frame buffer start
+ */
+int vidconsole_memmove(struct udevice *dev, void *dst, const void *src,
+		       int size);
+#else
+static inline int vidconsole_sync_copy(struct udevice *dev, void *from,
+				       void *to)
+{
+	return 0;
+}
+
+static inline int vidconsole_memmove(struct udevice *dev, void *dst,
+				     const void *src, int size)
+{
+	memmove(dst, src, size);
+
+	return 0;
+}
 
 #endif
 

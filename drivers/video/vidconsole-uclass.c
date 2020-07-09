@@ -9,12 +9,13 @@
 
 #include <common.h>
 #include <command.h>
+#include <console.h>
 #include <log.h>
-#include <linux/ctype.h>
 #include <dm.h>
 #include <video.h>
 #include <video_console.h>
 #include <video_font.h>		/* Bitmap font for code page 437 */
+#include <linux/ctype.h>
 
 /*
  * Structure to describe a console color
@@ -556,16 +557,31 @@ int vidconsole_put_string(struct udevice *dev, const char *str)
 static void vidconsole_putc(struct stdio_dev *sdev, const char ch)
 {
 	struct udevice *dev = sdev->priv;
+	int ret;
 
-	vidconsole_put_char(dev, ch);
+	ret = vidconsole_put_char(dev, ch);
+	if (ret) {
+#ifdef DEBUG
+		console_puts_select_stderr(true, "[vc err: putc]");
+#endif
+	}
 	video_sync(dev->parent, false);
 }
 
 static void vidconsole_puts(struct stdio_dev *sdev, const char *s)
 {
 	struct udevice *dev = sdev->priv;
+	int ret;
 
-	vidconsole_put_string(dev, s);
+	ret = vidconsole_put_string(dev, s);
+	if (ret) {
+#ifdef DEBUG
+		char str[30];
+
+		snprintf(str, sizeof(str), "[vc err: puts %d]", ret);
+		console_puts_select_stderr(true, str);
+#endif
+	}
 	video_sync(dev->parent, false);
 }
 
@@ -612,6 +628,22 @@ UCLASS_DRIVER(vidconsole) = {
 	.post_probe	= vidconsole_post_probe,
 	.per_device_auto_alloc_size	= sizeof(struct vidconsole_priv),
 };
+
+#ifdef CONFIG_VIDEO_COPY
+int vidconsole_sync_copy(struct udevice *dev, void *from, void *to)
+{
+	struct udevice *vid = dev_get_parent(dev);
+
+	return video_sync_copy(vid, from, to);
+}
+
+int vidconsole_memmove(struct udevice *dev, void *dst, const void *src,
+		       int size)
+{
+	memmove(dst, src, size);
+	return vidconsole_sync_copy(dev, dst, dst + size);
+}
+#endif
 
 #if CONFIG_IS_ENABLED(CMD_VIDCONSOLE)
 void vidconsole_position_cursor(struct udevice *dev, unsigned col, unsigned row)

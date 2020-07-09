@@ -363,6 +363,11 @@ static void setup_cpu_features(void)
 	: : "i" (em_rst), "i" (mp_ne_set) : "eax");
 }
 
+void cpu_reinit_fpu(void)
+{
+	asm ("fninit\n");
+}
+
 static void setup_identity(void)
 {
 	/* identify CPU via cpuid and store the decoded info into gd->arch */

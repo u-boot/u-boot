@@ -159,7 +159,19 @@ enum {
 /* Declare a new driver model test */
 #define DM_TEST(_name, _flags)	UNIT_TEST(_name, _flags, dm_test)
 
-/* This platform data is needed in tests, so declare it here */
+/*
+ * struct sandbox_sdl_plat - Platform data for the SDL video driver
+ *
+ * This platform data is needed in tests, so declare it here
+ *
+ * @xres: Width of display in pixels
+ * @yres: Height of display in pixels
+ * @bpix: Log2 of bits per pixel (enum video_log2_bpp)
+ * @rot: Console rotation (0=normal orientation, 1=90 degrees clockwise,
+ *	2=upside down, 3=90 degree counterclockwise)
+ * @vidconsole_drv_name: Name of video console driver (set by tests)
+ * @font_size: Console font size to select (set by tests)
+ */
 struct sandbox_sdl_plat {
 	int xres;
 	int yres;

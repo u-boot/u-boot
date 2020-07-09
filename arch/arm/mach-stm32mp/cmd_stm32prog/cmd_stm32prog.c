@@ -147,7 +147,7 @@ static int do_stm32prog(struct cmd_tbl *cmdtp, int flag, int argc,
 		/* Try bootm for legacy and FIT format image */
 		if (genimg_get_format((void *)uimage) != IMAGE_FORMAT_INVALID)
 			do_bootm(cmdtp, 0, 4, bootm_argv);
-		else if CONFIG_IS_ENABLED(CMD_BOOTZ)
+		else if (CONFIG_IS_ENABLED(CMD_BOOTZ))
 			do_bootz(cmdtp, 0, 4, bootm_argv);
 	}
 
