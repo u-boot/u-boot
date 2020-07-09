@@ -108,13 +108,13 @@ void ls_pcie_atu_outbound_set(struct ls_pcie *pcie, int idx, int type,
 }
 
 /* Use bar match mode and MEM type as default */
-void ls_pcie_atu_inbound_set(struct ls_pcie *pcie, int idx, int type,
-			     int bar, u64 phys)
+void ls_pcie_atu_inbound_set(struct ls_pcie *pcie, u32 pf, int type,
+			     int idx, int bar, u64 phys)
 {
 	dbi_writel(pcie, PCIE_ATU_REGION_INBOUND | idx, PCIE_ATU_VIEWPORT);
 	dbi_writel(pcie, (u32)phys, PCIE_ATU_LOWER_TARGET);
 	dbi_writel(pcie, phys >> 32, PCIE_ATU_UPPER_TARGET);
-	dbi_writel(pcie, type, PCIE_ATU_CR1);
+	dbi_writel(pcie, type | PCIE_ATU_FUNC_NUM(pf), PCIE_ATU_CR1);
 	dbi_writel(pcie, PCIE_ATU_ENABLE | PCIE_ATU_BAR_MODE_ENABLE |
 		   PCIE_ATU_BAR_NUM(bar), PCIE_ATU_CR2);
 }

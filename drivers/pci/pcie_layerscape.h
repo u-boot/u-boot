@@ -9,6 +9,7 @@
 #define _PCIE_LAYERSCAPE_H_
 #include <pci.h>
 #include <dm.h>
+#include <linux/sizes.h>
 
 #ifndef CONFIG_SYS_PCI_MEMORY_BUS
 #define CONFIG_SYS_PCI_MEMORY_BUS CONFIG_SYS_SDRAM_BASE
@@ -44,6 +45,7 @@
 #define PCIE_ATU_TYPE_IO		(0x2 << 0)
 #define PCIE_ATU_TYPE_CFG0		(0x4 << 0)
 #define PCIE_ATU_TYPE_CFG1		(0x5 << 0)
+#define PCIE_ATU_FUNC_NUM(pf)		((pf) << 20)
 #define PCIE_ATU_CR2			0x908
 #define PCIE_ATU_ENABLE			(0x1 << 31)
 #define PCIE_ATU_BAR_MODE_ENABLE	(0x1 << 30)
@@ -86,11 +88,16 @@
 #define FSL_PCIE_EP_MIN_APERTURE        4096     /* 4 Kbytes */
 #define PCIE_PF_NUM		2
 #define PCIE_VF_NUM		64
+#define BAR_NUM			4
 
-#define PCIE_BAR0_SIZE		(4 * 1024) /* 4K */
-#define PCIE_BAR1_SIZE		(8 * 1024) /* 8K for MSIX */
-#define PCIE_BAR2_SIZE		(4 * 1024) /* 4K */
-#define PCIE_BAR4_SIZE		(1 * 1024 * 1024) /* 1M */
+#define PCIE_BAR0_SIZE		SZ_4K
+#define PCIE_BAR1_SIZE		SZ_8K
+#define PCIE_BAR2_SIZE		SZ_4K
+#define PCIE_BAR4_SIZE		SZ_1M
+
+#define PCIE_SRIOV_VFBAR0	0x19C
+
+#define PCIE_MASK_OFFSET(flag, pf) ((flag) ? 0 : (0x1000 + 0x20000 * (pf)))
 
 /* LUT registers */
 #define PCIE_LUT_UDR(n)		(0x800 + (n) * 8)
@@ -158,6 +165,8 @@ struct ls_pcie_ep {
 	struct ls_pcie *pcie;
 	struct udevice *bus;
 	void __iomem *addr;
+	u32 cfg2_flag;
+	u32 sriov_flag;
 	u32 num_ib_wins;
 	u32 num_ob_wins;
 	u8 max_functions;
@@ -171,8 +180,8 @@ unsigned int ctrl_readl(struct ls_pcie *pcie, unsigned int offset);
 void ctrl_writel(struct ls_pcie *pcie, unsigned int value, unsigned int offset);
 void ls_pcie_atu_outbound_set(struct ls_pcie *pcie, int idx, int type,
 			      u64 phys, u64 bus_addr, pci_size_t size);
-void ls_pcie_atu_inbound_set(struct ls_pcie *pcie, int idx, int type,
-			     int bar, u64 phys);
+void ls_pcie_atu_inbound_set(struct ls_pcie *pcie, u32 pf, int type,
+			     int idx, int bar, u64 phys);
 void ls_pcie_dump_atu(struct ls_pcie *pcie);
 int ls_pcie_link_up(struct ls_pcie *pcie);
 void ls_pcie_dbi_ro_wr_en(struct ls_pcie *pcie);

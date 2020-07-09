@@ -46,7 +46,7 @@ static int ls_ep_set_bar(struct udevice *dev, uint fn, struct pci_bar *ep_bar)
 	else
 		type = PCIE_ATU_TYPE_IO;
 
-	ls_pcie_atu_inbound_set(pcie, idx, bar, bar_phys, type);
+	ls_pcie_atu_inbound_set(pcie, fn, type, idx, bar, bar_phys);
 
 	dbi_writel(pcie, lower_32_bits(size - 1), reg + PCIE_NO_SRIOV_BAR_BASE);
 	dbi_writel(pcie, flags, reg);
@@ -64,51 +64,61 @@ static struct pci_ep_ops ls_pcie_ep_ops = {
 	.set_bar = ls_ep_set_bar,
 };
 
-static void ls_pcie_ep_setup_atu(struct ls_pcie_ep *pcie_ep)
+static void ls_pcie_ep_setup_atu(struct ls_pcie_ep *pcie_ep, u32 pf)
 {
 	struct ls_pcie *pcie = pcie_ep->pcie;
-	u64 phys = CONFIG_SYS_PCI_EP_MEMORY_BASE;
+	u64 phys = 0;
 
+	phys = CONFIG_SYS_PCI_EP_MEMORY_BASE + pf * SZ_64M;
+
+	phys = ALIGN(phys, PCIE_BAR0_SIZE);
 	/* ATU 0 : INBOUND : map BAR0 */
-	ls_pcie_atu_inbound_set(pcie, 0, PCIE_ATU_TYPE_MEM, 0, phys);
+	ls_pcie_atu_inbound_set(pcie, pf, PCIE_ATU_TYPE_MEM,
+				0 + pf * BAR_NUM, 0, phys);
 	/* ATU 1 : INBOUND : map BAR1 */
-	phys += PCIE_BAR1_SIZE;
-	ls_pcie_atu_inbound_set(pcie, 1, PCIE_ATU_TYPE_MEM, 1, phys);
+	phys = ALIGN(phys + PCIE_BAR0_SIZE, PCIE_BAR1_SIZE);
+	ls_pcie_atu_inbound_set(pcie, pf, PCIE_ATU_TYPE_MEM,
+				1 + pf * BAR_NUM, 1, phys);
 	/* ATU 2 : INBOUND : map BAR2 */
-	phys += PCIE_BAR2_SIZE;
-	ls_pcie_atu_inbound_set(pcie, 2, PCIE_ATU_TYPE_MEM, 2, phys);
-	/* ATU 3 : INBOUND : map BAR4 */
-	phys = CONFIG_SYS_PCI_EP_MEMORY_BASE + PCIE_BAR4_SIZE;
-	ls_pcie_atu_inbound_set(pcie, 3, PCIE_ATU_TYPE_MEM, 4, phys);
+	phys = ALIGN(phys + PCIE_BAR1_SIZE, PCIE_BAR2_SIZE);
+	ls_pcie_atu_inbound_set(pcie, pf, PCIE_ATU_TYPE_MEM,
+				2 + pf * BAR_NUM, 2, phys);
+	/* ATU 3 : INBOUND : map BAR2 */
+	phys = ALIGN(phys + PCIE_BAR2_SIZE, PCIE_BAR4_SIZE);
+	ls_pcie_atu_inbound_set(pcie, pf, PCIE_ATU_TYPE_MEM,
+				3 + pf * BAR_NUM, 4, phys);
 
-	/* ATU 0 : OUTBOUND : map MEM */
-	ls_pcie_atu_outbound_set(pcie, 0,
-				 PCIE_ATU_TYPE_MEM,
-				 pcie_ep->addr_res.start,
-				 0,
-				 CONFIG_SYS_PCI_MEMORY_SIZE);
+	/* ATU: OUTBOUND : map MEM */
+	ls_pcie_atu_outbound_set(pcie, pf, PCIE_ATU_TYPE_MEM,
+				 (u64)pcie_ep->addr_res.start +
+				 pf * CONFIG_SYS_PCI_MEMORY_SIZE,
+				 0, CONFIG_SYS_PCI_MEMORY_SIZE);
 }
 
 /* BAR0 and BAR1 are 32bit BAR2 and BAR4 are 64bit */
 static void ls_pcie_ep_setup_bar(void *bar_base, int bar, u32 size)
 {
+	u32 mask;
+
 	/* The least inbound window is 4KiB */
-	if (size < 4 * 1024)
-		return;
+	if (size < SZ_4K)
+		mask = 0;
+	else
+		mask = size - 1;
 
 	switch (bar) {
 	case 0:
-		writel(size - 1, bar_base + PCI_BASE_ADDRESS_0);
+		writel(mask, bar_base + PCI_BASE_ADDRESS_0);
 		break;
 	case 1:
-		writel(size - 1, bar_base + PCI_BASE_ADDRESS_1);
+		writel(mask, bar_base + PCI_BASE_ADDRESS_1);
 		break;
 	case 2:
-		writel(size - 1, bar_base + PCI_BASE_ADDRESS_2);
+		writel(mask, bar_base + PCI_BASE_ADDRESS_2);
 		writel(0, bar_base + PCI_BASE_ADDRESS_3);
 		break;
 	case 4:
-		writel(size - 1, bar_base + PCI_BASE_ADDRESS_4);
+		writel(mask, bar_base + PCI_BASE_ADDRESS_4);
 		writel(0, bar_base + PCI_BASE_ADDRESS_5);
 		break;
 	default:
@@ -118,39 +128,62 @@ static void ls_pcie_ep_setup_bar(void *bar_base, int bar, u32 size)
 
 static void ls_pcie_ep_setup_bars(void *bar_base)
 {
-	/* BAR0 - 32bit - 4K configuration */
+	/* BAR0 - 32bit - MEM */
 	ls_pcie_ep_setup_bar(bar_base, 0, PCIE_BAR0_SIZE);
-	/* BAR1 - 32bit - 8K MSIX */
+	/* BAR1 - 32bit - MEM*/
 	ls_pcie_ep_setup_bar(bar_base, 1, PCIE_BAR1_SIZE);
-	/* BAR2 - 64bit - 4K MEM descriptor */
+	/* BAR2 - 64bit - MEM */
 	ls_pcie_ep_setup_bar(bar_base, 2, PCIE_BAR2_SIZE);
-	/* BAR4 - 64bit - 1M MEM */
+	/* BAR4 - 64bit - MEM */
+	ls_pcie_ep_setup_bar(bar_base, 4, PCIE_BAR4_SIZE);
+}
+
+static void ls_pcie_ep_setup_vf_bars(void *bar_base)
+{
+	/* VF BAR0 MASK register at offset 0x19c*/
+	bar_base += PCIE_SRIOV_VFBAR0 - PCI_BASE_ADDRESS_0;
+
+	/* VF-BAR0 - 32bit - MEM */
+	ls_pcie_ep_setup_bar(bar_base, 0, PCIE_BAR0_SIZE);
+	/* VF-BAR1 - 32bit - MEM*/
+	ls_pcie_ep_setup_bar(bar_base, 1, PCIE_BAR1_SIZE);
+	/* VF-BAR2 - 64bit - MEM */
+	ls_pcie_ep_setup_bar(bar_base, 2, PCIE_BAR2_SIZE);
+	/* VF-BAR4 - 64bit - MEM */
 	ls_pcie_ep_setup_bar(bar_base, 4, PCIE_BAR4_SIZE);
 }
 
 static void ls_pcie_setup_ep(struct ls_pcie_ep *pcie_ep)
 {
 	u32 sriov;
+	u32 pf, vf;
+	void *bar_base = NULL;
 	struct ls_pcie *pcie = pcie_ep->pcie;
 
 	sriov = readl(pcie->dbi + PCIE_SRIOV);
 	if (PCI_EXT_CAP_ID(sriov) == PCI_EXT_CAP_ID_SRIOV) {
-		int pf, vf;
-
+		pcie_ep->sriov_flag = 1;
 		for (pf = 0; pf < PCIE_PF_NUM; pf++) {
-			for (vf = 0; vf <= PCIE_VF_NUM; vf++) {
-				ctrl_writel(pcie, PCIE_LCTRL0_VAL(pf, vf),
-					    PCIE_PF_VF_CTRL);
-
-				ls_pcie_ep_setup_bars(pcie->dbi);
-				ls_pcie_ep_setup_atu(pcie_ep);
+			if (pcie_ep->cfg2_flag) {
+				for (vf = 0; vf <= PCIE_VF_NUM; vf++) {
+					ctrl_writel(pcie,
+						    PCIE_LCTRL0_VAL(pf, vf),
+						    PCIE_PF_VF_CTRL);
+				}
 			}
+			bar_base = pcie->dbi +
+				   PCIE_MASK_OFFSET(pcie_ep->cfg2_flag, pf);
+			ls_pcie_ep_setup_bars(bar_base);
+			ls_pcie_ep_setup_vf_bars(bar_base);
+
+			ls_pcie_ep_setup_atu(pcie_ep, pf);
 		}
-		/* Disable CFG2 */
-		ctrl_writel(pcie, 0, PCIE_PF_VF_CTRL);
+
+		if (pcie_ep->cfg2_flag)  /* Disable CFG2 */
+			ctrl_writel(pcie, 0, PCIE_PF_VF_CTRL);
 	} else {
 		ls_pcie_ep_setup_bars(pcie->dbi + PCIE_NO_SRIOV_BAR_BASE);
-		ls_pcie_ep_setup_atu(pcie_ep);
+		ls_pcie_ep_setup_atu(pcie_ep, 0);
 	}
 
 	ls_pcie_ep_enable_cfg(pcie_ep);
@@ -162,6 +195,7 @@ static int ls_pcie_ep_probe(struct udevice *dev)
 	struct ls_pcie *pcie;
 	u16 link_sta;
 	int ret;
+	u32 svr;
 
 	pcie = devm_kmalloc(dev, sizeof(*pcie), GFP_KERNEL);
 	if (!pcie)
@@ -190,6 +224,13 @@ static int ls_pcie_ep_probe(struct udevice *dev)
 
 	pcie->big_endian = fdtdec_get_bool(gd->fdt_blob, dev_of_offset(dev),
 					   "big-endian");
+
+	svr = SVR_SOC_VER(get_svr());
+
+	if (svr == SVR_LS2080A || svr == SVR_LS2085A)
+		pcie_ep->cfg2_flag = 1;
+	else
+		pcie_ep->cfg2_flag = 0;
 
 	pcie->mode = readb(pcie->dbi + PCI_HEADER_TYPE) & 0x7f;
 	if (pcie->mode != PCI_HEADER_TYPE_NORMAL)
