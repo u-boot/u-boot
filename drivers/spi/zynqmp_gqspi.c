@@ -470,18 +470,6 @@ static int zynqmp_qspi_probe(struct udevice *bus)
 		return ret;
 	}
 
-#if defined(CONFIG_ARCH_VERSAL)
-	ret = xilinx_pm_request(PM_REQUEST_NODE, 0x1822402b, 1, 100, 0, NULL);
-	if (ret)
-		printf("Request node failed\n");
-
-	ret = clk_set_rate(&clk, 150000000);
-	if (IS_ERR_VALUE(ret) && ret != (unsigned long)-ENOSYS) {
-		dev_err(dev, "failed to set tx clock rate\n");
-		return ret;
-	}
-#endif
-
 	clock = clk_get_rate(&clk);
 	if (IS_ERR_VALUE(clock)) {
 		dev_err(dev, "failed to get rate\n");
