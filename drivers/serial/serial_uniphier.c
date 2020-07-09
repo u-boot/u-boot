@@ -43,6 +43,10 @@ static int uniphier_serial_setbrg(struct udevice *dev, int baudrate)
 
 	divisor = DIV_ROUND_CLOSEST(priv->uartclk, mode_x_div * baudrate);
 
+	/* flush the trasmitter before changing hw setting */
+	while (!(readl(priv->membase + UNIPHIER_UART_LSR) & UART_LSR_TEMT))
+		;
+
 	writel(divisor, priv->membase + UNIPHIER_UART_DLR);
 
 	return 0;
@@ -131,6 +135,10 @@ static int uniphier_serial_probe(struct udevice *dev)
 		return -ENOTSUPP;
 
 	priv->uartclk = clk_data->clk_rate;
+
+	/* flush the trasmitter empty before changing hw setting */
+	while (!(readl(priv->membase + UNIPHIER_UART_LSR) & UART_LSR_TEMT))
+		;
 
 	tmp = readl(priv->membase + UNIPHIER_UART_LCR_MCR);
 	tmp &= ~UNIPHIER_UART_LCR_MASK;
