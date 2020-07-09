@@ -353,11 +353,24 @@ int clock_init(void)
 	/* Bypass CCM A53 ROOT, Switch to ARM PLL -> MUX-> CPU */
 	clock_set_target_val(CORE_SEL_CFG, CLK_ROOT_SOURCE_SEL(1));
 
+	if (is_imx8mn() || is_imx8mp())
+		intpll_configure(ANATOP_SYSTEM_PLL3, MHZ(600));
+	else
+		intpll_configure(ANATOP_SYSTEM_PLL3, MHZ(750));
+
+#ifdef CONFIG_IMX8MP
+	/* 8MP ROM already set NOC to 800Mhz, only need to configure NOC_IO clk to 600Mhz */
+	/* 8MP ROM already set GIC to 400Mhz, system_pll1_800m with div = 2 */
+	clock_set_target_val(NOC_IO_CLK_ROOT, CLK_ROOT_ON | CLK_ROOT_SOURCE_SEL(2));
+#else
+	clock_set_target_val(NOC_CLK_ROOT, CLK_ROOT_ON | CLK_ROOT_SOURCE_SEL(2));
+
 	/* config GIC to sys_pll2_100m */
 	clock_enable(CCGR_GIC, 0);
 	clock_set_target_val(GIC_CLK_ROOT, CLK_ROOT_ON |
 			     CLK_ROOT_SOURCE_SEL(3));
 	clock_enable(CCGR_GIC, 1);
+#endif
 
 	clock_set_target_val(NAND_USDHC_BUS_CLK_ROOT, CLK_ROOT_ON |
 			     CLK_ROOT_SOURCE_SEL(1));
