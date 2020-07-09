@@ -46,7 +46,7 @@ static int ls_ep_set_bar(struct udevice *dev, uint fn, struct pci_bar *ep_bar)
 	else
 		type = PCIE_ATU_TYPE_IO;
 
-	ls_pcie_atu_inbound_set(pcie, fn, type, idx, bar, bar_phys);
+	ls_pcie_atu_inbound_set(pcie, fn, 0, type, idx, bar, bar_phys);
 
 	dbi_writel(pcie, lower_32_bits(size - 1), reg + PCIE_NO_SRIOV_BAR_BASE);
 	dbi_writel(pcie, flags, reg);
@@ -67,26 +67,50 @@ static struct pci_ep_ops ls_pcie_ep_ops = {
 static void ls_pcie_ep_setup_atu(struct ls_pcie_ep *pcie_ep, u32 pf)
 {
 	struct ls_pcie *pcie = pcie_ep->pcie;
+	u32 vf_flag = 0;
 	u64 phys = 0;
 
 	phys = CONFIG_SYS_PCI_EP_MEMORY_BASE + pf * SZ_64M;
 
 	phys = ALIGN(phys, PCIE_BAR0_SIZE);
 	/* ATU 0 : INBOUND : map BAR0 */
-	ls_pcie_atu_inbound_set(pcie, pf, PCIE_ATU_TYPE_MEM,
+	ls_pcie_atu_inbound_set(pcie, pf, vf_flag, PCIE_ATU_TYPE_MEM,
 				0 + pf * BAR_NUM, 0, phys);
 	/* ATU 1 : INBOUND : map BAR1 */
 	phys = ALIGN(phys + PCIE_BAR0_SIZE, PCIE_BAR1_SIZE);
-	ls_pcie_atu_inbound_set(pcie, pf, PCIE_ATU_TYPE_MEM,
+	ls_pcie_atu_inbound_set(pcie, pf, vf_flag, PCIE_ATU_TYPE_MEM,
 				1 + pf * BAR_NUM, 1, phys);
 	/* ATU 2 : INBOUND : map BAR2 */
 	phys = ALIGN(phys + PCIE_BAR1_SIZE, PCIE_BAR2_SIZE);
-	ls_pcie_atu_inbound_set(pcie, pf, PCIE_ATU_TYPE_MEM,
+	ls_pcie_atu_inbound_set(pcie, pf, vf_flag, PCIE_ATU_TYPE_MEM,
 				2 + pf * BAR_NUM, 2, phys);
 	/* ATU 3 : INBOUND : map BAR2 */
 	phys = ALIGN(phys + PCIE_BAR2_SIZE, PCIE_BAR4_SIZE);
-	ls_pcie_atu_inbound_set(pcie, pf, PCIE_ATU_TYPE_MEM,
+	ls_pcie_atu_inbound_set(pcie, pf, vf_flag, PCIE_ATU_TYPE_MEM,
 				3 + pf * BAR_NUM, 4, phys);
+
+	if (pcie_ep->sriov_flag) {
+		vf_flag = 1;
+		/* ATU 4 : INBOUND : map BAR0 */
+		phys = ALIGN(phys + PCIE_BAR4_SIZE, PCIE_BAR0_SIZE);
+		ls_pcie_atu_inbound_set(pcie, pf, vf_flag, PCIE_ATU_TYPE_MEM,
+					4 + pf * BAR_NUM, 0, phys);
+		/* ATU 5 : INBOUND : map BAR1 */
+		phys = ALIGN(phys + PCIE_BAR0_SIZE * PCIE_VF_NUM,
+			     PCIE_BAR1_SIZE);
+		ls_pcie_atu_inbound_set(pcie, pf, vf_flag, PCIE_ATU_TYPE_MEM,
+					5 + pf * BAR_NUM, 1, phys);
+		/* ATU 6 : INBOUND : map BAR2 */
+		phys = ALIGN(phys + PCIE_BAR1_SIZE * PCIE_VF_NUM,
+			     PCIE_BAR2_SIZE);
+		ls_pcie_atu_inbound_set(pcie, pf, vf_flag, PCIE_ATU_TYPE_MEM,
+					6 + pf * BAR_NUM, 2, phys);
+		/* ATU 7 : INBOUND : map BAR4 */
+		phys = ALIGN(phys + PCIE_BAR2_SIZE * PCIE_VF_NUM,
+			     PCIE_BAR4_SIZE);
+		ls_pcie_atu_inbound_set(pcie, pf, vf_flag, PCIE_ATU_TYPE_MEM,
+					7 + pf * BAR_NUM, 4, phys);
+	}
 
 	/* ATU: OUTBOUND : map MEM */
 	ls_pcie_atu_outbound_set(pcie, pf, PCIE_ATU_TYPE_MEM,

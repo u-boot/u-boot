@@ -20,7 +20,7 @@
 #endif
 
 #ifndef CONFIG_SYS_PCI_MEMORY_SIZE
-#define CONFIG_SYS_PCI_MEMORY_SIZE (2 * 1024 * 1024 * 1024UL) /* 2G */
+#define CONFIG_SYS_PCI_MEMORY_SIZE SZ_4G
 #endif
 
 #ifndef CONFIG_SYS_PCI_EP_MEMORY_BASE
@@ -40,6 +40,7 @@
 #define PCIE_ATU_REGION_INDEX2		(0x2 << 0)
 #define PCIE_ATU_REGION_INDEX3		(0x3 << 0)
 #define PCIE_ATU_REGION_NUM		6
+#define PCIE_ATU_REGION_NUM_SRIOV	24
 #define PCIE_ATU_CR1			0x904
 #define PCIE_ATU_TYPE_MEM		(0x0 << 0)
 #define PCIE_ATU_TYPE_IO		(0x2 << 0)
@@ -49,6 +50,8 @@
 #define PCIE_ATU_CR2			0x908
 #define PCIE_ATU_ENABLE			(0x1 << 31)
 #define PCIE_ATU_BAR_MODE_ENABLE	(0x1 << 30)
+#define PCIE_ATU_FUNC_NUM_MATCH_EN	BIT(19)
+#define PCIE_ATU_VFBAR_MATCH_MODE_EN	BIT(26)
 #define PCIE_ATU_BAR_NUM(bar)		((bar) << 8)
 #define PCIE_ATU_LOWER_BASE		0x90C
 #define PCIE_ATU_UPPER_BASE		0x910
@@ -88,7 +91,7 @@
 #define FSL_PCIE_EP_MIN_APERTURE        4096     /* 4 Kbytes */
 #define PCIE_PF_NUM		2
 #define PCIE_VF_NUM		64
-#define BAR_NUM			4
+#define BAR_NUM			8
 
 #define PCIE_BAR0_SIZE		SZ_4K
 #define PCIE_BAR1_SIZE		SZ_8K
@@ -179,9 +182,9 @@ void dbi_writel(struct ls_pcie *pcie, unsigned int value, unsigned int offset);
 unsigned int ctrl_readl(struct ls_pcie *pcie, unsigned int offset);
 void ctrl_writel(struct ls_pcie *pcie, unsigned int value, unsigned int offset);
 void ls_pcie_atu_outbound_set(struct ls_pcie *pcie, int idx, int type,
-			      u64 phys, u64 bus_addr, pci_size_t size);
-void ls_pcie_atu_inbound_set(struct ls_pcie *pcie, u32 pf, int type,
-			     int idx, int bar, u64 phys);
+			      u64 phys, u64 bus_addr, u64 size);
+void ls_pcie_atu_inbound_set(struct ls_pcie *pcie, u32 pf, u32 vf_flag,
+			     int type, int idx, int bar, u64 phys);
 void ls_pcie_dump_atu(struct ls_pcie *pcie);
 int ls_pcie_link_up(struct ls_pcie *pcie);
 void ls_pcie_dbi_ro_wr_en(struct ls_pcie *pcie);
