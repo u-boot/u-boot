@@ -26,6 +26,7 @@ from patman import test_util
 
 # Bring in the libfdt module
 sys.path.insert(2, 'scripts/dtc/pylibfdt')
+sys.path.insert(2, os.path.join(our_path, '../../scripts/dtc/pylibfdt'))
 sys.path.insert(2, os.path.join(our_path,
                 '../../build-sandbox_spl/scripts/dtc/pylibfdt'))
 
