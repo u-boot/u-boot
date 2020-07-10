@@ -18,6 +18,9 @@ class Entry_blob_ext(Entry_blob):
     Note: This should not be used by itself. It is normally used as a parent
     class by other entry types.
 
+    If the file providing this blob is missing, binman can optionally ignore it
+    and produce a broken image with a warning.
+
     See 'blob' for Properties / Entry arguments.
     """
     def __init__(self, section, etype, node):
@@ -26,6 +29,10 @@ class Entry_blob_ext(Entry_blob):
 
     def ObtainContents(self):
         self._filename = self.GetDefaultFilename()
-        self._pathname = tools.GetInputFilename(self._filename)
-        self.ReadBlobContents()
-        return True
+        self._pathname = tools.GetInputFilename(self._filename,
+                                                self.section.GetAllowMissing())
+        # Allow the file to be missing
+        if not self._pathname:
+            self.SetContents(b'')
+            return True
+        return super().ObtainContents()

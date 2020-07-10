@@ -285,7 +285,7 @@ class TestFunctional(unittest.TestCase):
 
     def _DoTestFile(self, fname, debug=False, map=False, update_dtb=False,
                     entry_args=None, images=None, use_real_dtb=False,
-                    verbosity=None):
+                    verbosity=None, allow_missing=False):
         """Run binman with a given test file
 
         Args:
@@ -319,6 +319,8 @@ class TestFunctional(unittest.TestCase):
         if entry_args:
             for arg, value in entry_args.items():
                 args.append('-a%s=%s' % (arg, value))
+        if allow_missing:
+            args.append('-M')
         if images:
             for image in images:
                 args += ['-i', image]
@@ -3375,6 +3377,10 @@ class TestFunctional(unittest.TestCase):
             self._DoReadFile('158_blob_ext_missing.dts')
         self.assertIn("Filename 'missing-file' not found in input path",
                       str(e.exception))
+
+    def testExtblobMissingOk(self):
+        """Test an image with an missing external blob that is allowed"""
+        self._DoTestFile('158_blob_ext_missing.dts', allow_missing=True)
 
 
 if __name__ == "__main__":
