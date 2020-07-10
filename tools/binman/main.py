@@ -123,7 +123,7 @@ def RunBinman(args):
         try:
             ret_code = control.Binman(args)
         except Exception as e:
-            print('binman: %s' % e)
+            print('binman: %s' % e, file=sys.stderr)
             if args.debug:
                 print()
                 traceback.print_exc()
