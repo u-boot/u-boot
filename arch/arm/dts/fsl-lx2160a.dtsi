@@ -204,6 +204,13 @@
 		#interrupt-cells = <2>;
 	};
 
+	watchdog@23a0000 {
+		compatible = "arm,sbsa-gwdt";
+		reg = <0x0 0x23a0000 0 0x1000>,
+		      <0x0 0x2390000 0 0x1000>;
+		timeout-sec = <30>;
+	};
+
 	usb0: usb3@3100000 {
 		compatible = "fsl,layerscape-dwc3";
 		reg = <0x0 0x3100000 0x0 0x10000>;
