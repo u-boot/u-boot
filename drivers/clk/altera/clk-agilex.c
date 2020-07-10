@@ -533,7 +533,10 @@ static ulong socfpga_clk_get_rate(struct clk *clk)
 	case AGILEX_EMAC2_CLK:
 		return clk_get_emac_clk_hz(plat, clk->id);
 	case AGILEX_USB_CLK:
+	case AGILEX_NAND_X_CLK:
 		return clk_get_l4_mp_clk_hz(plat);
+	case AGILEX_NAND_CLK:
+		return clk_get_l4_mp_clk_hz(plat) / 4;
 	default:
 		return -ENXIO;
 	}
