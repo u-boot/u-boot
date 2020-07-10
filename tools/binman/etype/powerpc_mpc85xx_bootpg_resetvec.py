@@ -13,7 +13,7 @@ class Entry_powerpc_mpc85xx_bootpg_resetvec(Entry_blob):
     Properties / Entry arguments:
         - filename: Filename of u-boot-br.bin (default 'u-boot-br.bin')
 
-    This enrty is valid for PowerPC mpc85xx cpus. This entry holds
+    This entry is valid for PowerPC mpc85xx cpus. This entry holds
     'bootpg + resetvec' code for PowerPC mpc85xx CPUs which needs to be
     placed at offset 'RESET_VECTOR_ADDRESS - 0xffc'.
     """
