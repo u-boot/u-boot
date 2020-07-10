@@ -57,6 +57,8 @@ class Entry__testing(Entry):
                                                      'return-contents-once')
         self.bad_update_contents_twice = fdt_util.GetBool(self._node,
                                                     'bad-update-contents-twice')
+        self.return_contents_later = fdt_util.GetBool(self._node,
+                                                     'return-contents-later')
 
         # Set to True when the entry is ready to process the FDT.
         self.process_fdt_ready = False
@@ -82,6 +84,9 @@ class Entry__testing(Entry):
 
     def ObtainContents(self):
         if self.return_unknown_contents or not self.return_contents:
+            return False
+        if self.return_contents_later:
+            self.return_contents_later = False
             return False
         self.data = self.contents
         self.contents_size = len(self.data)
