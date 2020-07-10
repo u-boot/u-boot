@@ -34,5 +34,6 @@ class Entry_blob_ext(Entry_blob):
         # Allow the file to be missing
         if not self._pathname:
             self.SetContents(b'')
+            self.missing = True
             return True
         return super().ObtainContents()

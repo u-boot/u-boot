@@ -403,6 +403,9 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
         allow_resize: True to allow entries to change size (this does a re-pack
             of the entries), False to raise an exception
         allow_missing: Allow blob_ext objects to be missing
+
+    Returns:
+        True if one or more external blobs are missing, False if all are present
     """
     if get_contents:
         image.SetAllowMissing(allow_missing)
@@ -450,6 +453,12 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
     image.BuildImage()
     if write_map:
         image.WriteMap()
+    missing_list = []
+    image.CheckMissing(missing_list)
+    if missing_list:
+        tout.Warning("Image '%s' is missing external blobs and is non-functional: %s" %
+                     (image.name, ' '.join([e.name for e in missing_list])))
+    return bool(missing_list)
 
 
 def Binman(args):
@@ -524,14 +533,17 @@ def Binman(args):
 
             images = PrepareImagesAndDtbs(dtb_fname, args.image,
                                           args.update_fdt)
+            missing = False
             for image in images.values():
-                ProcessImage(image, args.update_fdt, args.map,
-                             allow_missing=args.allow_missing)
+                missing |= ProcessImage(image, args.update_fdt, args.map,
+                                        allow_missing=args.allow_missing)
 
             # Write the updated FDTs to our output files
             for dtb_item in state.GetAllFdts():
                 tools.WriteFile(dtb_item._fname, dtb_item.GetContents())
 
+            if missing:
+                tout.Warning("Some images are invalid")
         finally:
             tools.FinaliseOutputDir()
     finally:
