@@ -163,6 +163,15 @@ config WDT_SANDBOX
 	  can be probed and supports all of the methods of WDT, but does not
 	  really do anything.
 
+config WDT_SBSA
+	bool "SBSA watchdog timer support"
+	depends on WDT
+	help
+	   Select this to enable SBSA watchdog timer.
+	   This driver can operate ARM SBSA Generic Watchdog as a single stage.
+	   In the single stage mode, when the timeout is reached, your system
+	   will be reset by WS1. The first signal (WS0) is ignored.
+
 config WDT_SP805
 	bool "SP805 watchdog timer support"
 	depends on WDT
